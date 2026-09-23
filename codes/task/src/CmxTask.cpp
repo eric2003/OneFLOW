@@ -342,15 +342,15 @@ void CmdBasicAction( int funcType )
     SolverState::msgId =
         TaskState::task->taskId;
 
-    //if ( funcType == COMM_FUNC &&
-    //    (
-    //    TaskState::task->taskName == "INIT_FIRST" ||
-    //    TaskState::task->taskName == "INIT_RESTART" ||
-    //    TaskState::task->taskName == "INIT_FINAL" ) 
-    //    )
-    //{
-    //    DumpTaskDispatch( std::cout );
-    //}
+ /*   if ( funcType == COMM_FUNC &&
+        ( TaskState::task->taskName == "INIT_FIRST" ||
+        TaskState::task->taskName == "INIT_RESTART" ||
+        TaskState::task->taskName == "READ_RESTART" ||
+        TaskState::task->taskName == "INIT_FINAL" ) 
+        )
+    {
+        DumpTaskDispatch( std::cout );
+    }*/
 
 
     HXClone * cloneClass =
