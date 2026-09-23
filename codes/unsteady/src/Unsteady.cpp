@@ -21,7 +21,6 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Unsteady.h"
-//#include "UsdPara.h"
 #include "UsdField.h"
 #include "FieldImp.h"
 #include "FieldWrap.h"
