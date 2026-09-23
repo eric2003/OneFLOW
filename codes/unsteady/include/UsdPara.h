@@ -29,7 +29,6 @@ struct UsdFieldNames
 {
     StringField flow;
     StringField residual;
-    StringField dq;
 };
 
 class UsdPara
@@ -42,12 +41,10 @@ public:
     int  nEqu;
     StringField residual;
     StringField flow;
-    StringField dq;
 public:
     void Init(
         const StringField & flow,
         const StringField & residual,
-        const StringField & dq,
         int nEqu );
 };
 

@@ -82,8 +82,6 @@ namespace
         fieldNames.residual.push_back(
             paraNameDim.GetName( 5 ) );
 
-        fieldNames.dq.push_back(
-            paraNameDim.GetName( 6 ) );
 
         return fieldNames;
     }
@@ -1001,7 +999,6 @@ void ReadSuperPara::AddUnsteadyInnerFieldProperty()
     usdPara->Init(
         fieldNames.flow,
         fieldNames.residual,
-        fieldNames.dq,
         nEqu );
 }
 

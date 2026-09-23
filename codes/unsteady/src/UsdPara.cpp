@@ -40,7 +40,6 @@ UsdPara::~UsdPara()
 void UsdPara::Init(
     const StringField & flow,
     const StringField & residual,
-    const StringField & dq,
     int nEqu )
 {
     if ( this->flag ) return;
@@ -49,7 +48,6 @@ void UsdPara::Init(
 
     this->flow = flow;
     this->residual = residual;
-    this->dq = dq;
 
     this->nEqu = nEqu;
 }
