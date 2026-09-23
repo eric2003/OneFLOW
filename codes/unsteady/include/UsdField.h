@@ -31,12 +31,25 @@ class UsdField
 {
 public:
     using MRFieldPtr = HXVector< MRField * >;
+
+    enum class HistoryLevel
+    {
+        Current  = 0,
+        Previous = 1,
+        Old      = 2
+    };
+
 public:
     UsdField();
     ~UsdField();
+
 public:
     virtual void Init();
     void InitBasic( int solverType );
+
+    MRField * GetFlow( HistoryLevel level );
+    MRField * GetResidual( HistoryLevel level );
+
 public:
     MRFieldPtr flow;
     MRFieldPtr residual;

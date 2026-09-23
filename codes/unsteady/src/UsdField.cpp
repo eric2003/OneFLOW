@@ -86,5 +86,15 @@ void UsdField::InitBasic( int solverType )
     }
 }
 
+MRField * UsdField::GetFlow( HistoryLevel level )
+{
+    return this->flow[ static_cast< std::size_t >( level ) ];
+}
+
+MRField * UsdField::GetResidual( HistoryLevel level )
+{
+    return this->residual[ static_cast< std::size_t >( level ) ];
+}
+
 
 EndNameSpace

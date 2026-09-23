@@ -46,9 +46,14 @@ void Unsteady::UpdateUnsteady( int solverType )
     UsdField usdField;
     usdField.InitBasic( solverType );
 
-    MRField * q  = usdField.flow[ 0 ];
-    MRField * q1 = usdField.flow[ 1 ];
-    MRField * q2 = usdField.flow[ 2 ];
+    MRField * q =
+        usdField.GetFlow( UsdField::HistoryLevel::Current );
+
+    MRField * q1 =
+        usdField.GetFlow( UsdField::HistoryLevel::Previous );
+
+    MRField * q2 =
+        usdField.GetFlow( UsdField::HistoryLevel::Old );
 
     SetField( q2, q1 );
     SetField( q1, q  );
