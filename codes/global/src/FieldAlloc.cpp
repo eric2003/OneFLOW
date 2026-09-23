@@ -152,6 +152,27 @@ namespace
             definition.nEqu );
     }
 
+    void AddUsdFieldName(
+        UsdFieldNames & fieldNames,
+        const std::string & fieldName,
+        const std::string & role )
+    {
+        if ( role == "flow" )
+        {
+            fieldNames.flow.push_back( fieldName );
+            return;
+        }
+
+        if ( role == "residual" )
+        {
+            fieldNames.residual.push_back( fieldName );
+            return;
+        }
+
+        Fatal(
+            "Unknown unsteady field role: " + role );
+    }
+
     void AddBasicFieldProperty(
         FieldManager * fieldManager,
         const ParaNameDim * paraNameDim,
