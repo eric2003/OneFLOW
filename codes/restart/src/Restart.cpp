@@ -37,7 +37,6 @@ License
 #include "FieldImp.h"
 #include "FieldWrap.h"
 #include "FieldAlloc.h"
-#include "UsdPara.h"
 #include "UsdField.h"
 #include "RegisterUtils.h"
 #include "INsRestart.h"

@@ -38,8 +38,6 @@ public:
     virtual void Init();
     void InitBasic( int solverType );
 public:
-    MRField * q, * q1, * q2;
-    MRField * res, * res1, * res2;
     MRFieldPtr flow;
     MRFieldPtr residual;
 };

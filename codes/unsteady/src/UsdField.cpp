@@ -73,14 +73,6 @@ void UsdField::InitBasic( int solverType )
                 grid,
                 usdPara->residual[ i ] );
     }
-
-    q  = this->flow[ 0 ];
-    q1 = this->flow[ 1 ];
-    q2 = this->flow[ 2 ];
-
-    res  = this->residual[ 0 ];
-    res1 = this->residual[ 1 ];
-    res2 = this->residual[ 2 ];
 }
 
 
