@@ -155,30 +155,6 @@ public:
     const ParaNameDim * GetParaNameDim( FieldCategory category ) const;
 };
 
-
-class ReadSuperPara
-{
-private:
-    FieldManager * fieldManager;
-
-    void AddFieldProperties(
-        FieldLocation location,
-        const ParaNameDimData & paraNameDimData );
-
-    void AddUnsteadyInnerFieldProperty(
-        const UsdFieldNames & fieldNames,
-        const ParaNameDimData & paraNameDimData );
-
-public:
-    explicit ReadSuperPara( FieldManager * fieldManager );
-    ~ReadSuperPara() = default;
-
-    void Register(
-        const std::string & fileName,
-        FieldLocation location,
-        bool initializeUsdPara );
-};
-
 class TextFileParser;
 
 class BoolIO

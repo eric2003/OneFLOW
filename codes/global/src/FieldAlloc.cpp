@@ -178,6 +178,55 @@ namespace
         }
     }
 
+    void AddFieldProperties(
+        FieldManager * fieldManager,
+        FieldLocation location,
+        const ParaNameDimData & paraNameDimData )
+    {
+        AddBasicFieldProperty(
+            fieldManager,
+            paraNameDimData.GetParaNameDim(
+                FieldCategory::Unstructured ),
+            location,
+            FieldCategory::Unstructured );
+
+        AddBasicFieldProperty(
+            fieldManager,
+            paraNameDimData.GetParaNameDim(
+                FieldCategory::Structured ),
+            location,
+            FieldCategory::Structured );
+
+        AddBasicFieldProperty(
+            fieldManager,
+            paraNameDimData.GetParaNameDim(
+                FieldCategory::Common ),
+            location,
+            FieldCategory::Common );
+    }
+
+    void AddUnsteadyInnerFieldProperty(
+        FieldManager * fieldManager,
+        const UsdFieldNames & fieldNames,
+        const ParaNameDimData & paraNameDimData )
+    {
+        AddFieldProperties(
+            fieldManager,
+            FieldLocation::Inner,
+            paraNameDimData );
+
+        UsdPara * usdPara =
+            &fieldManager->GetUsdPara();
+
+        int nEqu =
+            GetDataValue< int >( "nEqu" );
+
+        usdPara->Init(
+            fieldNames.flow,
+            fieldNames.residual,
+            nEqu );
+    }
+
     void SetFieldValues(
         FieldManager * fieldManager,
         const NameValuePair & valuePair )
@@ -392,6 +441,41 @@ namespace
         }
 
         textFileParser.CloseFile();
+    }
+
+    void RegisterFieldFile(
+        FieldManager * fieldManager,
+        const std::string & fileName,
+        FieldLocation location,
+        bool initializeUsdPara )
+    {
+        ParaNameDimData paraNameDimData;
+
+        if ( initializeUsdPara )
+        {
+            UsdFieldNames fieldNames;
+
+            ReadUsdFieldDefinitions(
+                fileName,
+                paraNameDimData,
+                fieldNames );
+
+            AddUnsteadyInnerFieldProperty(
+                fieldManager,
+                fieldNames,
+                paraNameDimData );
+
+            return;
+        }
+
+        ReadFieldDefinitions(
+            fileName,
+            paraNameDimData );
+
+        AddFieldProperties(
+            fieldManager,
+            location,
+            paraNameDimData );
     }
 
     using BoolLineReader =
@@ -657,10 +741,8 @@ void FieldAlloc::RegisterFieldDefinitions(
         logger.ClearAll();
         logger << rootString << spec.name << ".txt";
 
-        ReadSuperPara readSuperPara(
-            fieldManager );
-
-        readSuperPara.Register(
+        RegisterFieldFile(
+            fieldManager,
             logger.str(),
             spec.location,
             spec.initializeUsdPara );
@@ -1043,90 +1125,6 @@ ParaNameDimData::GetParaNameDim(
     Fatal( "Unknown field category." );
 
     return nullptr;
-}
-
-ReadSuperPara::ReadSuperPara(
-    FieldManager * fieldManager )
-    : fieldManager( fieldManager )
-{
-}
-
-void ReadSuperPara::AddUnsteadyInnerFieldProperty(
-    const UsdFieldNames & fieldNames,
-    const ParaNameDimData & paraNameDimData )
-{
-    this->AddFieldProperties(
-        FieldLocation::Inner,
-        paraNameDimData );
-
-    UsdPara * usdPara =
-        &this->fieldManager->GetUsdPara();
-
-    int nEqu =
-        GetDataValue< int >( "nEqu" );
-
-    usdPara->Init(
-        fieldNames.flow,
-        fieldNames.residual,
-        nEqu );
-}
-
-void ReadSuperPara::AddFieldProperties(
-    FieldLocation location,
-    const ParaNameDimData & paraNameDimData )
-{
-    AddBasicFieldProperty(
-        this->fieldManager,
-        paraNameDimData.GetParaNameDim(
-            FieldCategory::Unstructured ),
-        location,
-        FieldCategory::Unstructured );
-
-    AddBasicFieldProperty(
-        this->fieldManager,
-        paraNameDimData.GetParaNameDim(
-            FieldCategory::Structured ),
-        location,
-        FieldCategory::Structured );
-
-    AddBasicFieldProperty(
-        this->fieldManager,
-        paraNameDimData.GetParaNameDim(
-            FieldCategory::Common ),
-        location,
-        FieldCategory::Common );
-}
-
-void ReadSuperPara::Register(
-    const std::string & fileName,
-    FieldLocation location,
-    bool initializeUsdPara )
-{
-    ParaNameDimData paraNameDimData;
-
-    if ( initializeUsdPara )
-    {
-        UsdFieldNames fieldNames;
-
-        ReadUsdFieldDefinitions(
-            fileName,
-            paraNameDimData,
-            fieldNames );
-
-        this->AddUnsteadyInnerFieldProperty(
-            fieldNames,
-            paraNameDimData );
-
-        return;
-    }
-
-    ReadFieldDefinitions(
-        fileName,
-        paraNameDimData );
-
-    this->AddFieldProperties(
-        location,
-        paraNameDimData );
 }
 
 EndNameSpace
