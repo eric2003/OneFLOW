@@ -159,14 +159,15 @@ public:
 class ReadSuperPara
 {
 private:
-    ParaNameDimData paraNameDimData;
     FieldManager * fieldManager;
 
     void AddFieldProperties(
-        FieldLocation location );
+        FieldLocation location,
+        const ParaNameDimData & paraNameDimData );
 
     void AddUnsteadyInnerFieldProperty(
-        const UsdFieldNames & fieldNames );
+        const UsdFieldNames & fieldNames,
+        const ParaNameDimData & paraNameDimData );
 
 public:
     explicit ReadSuperPara( FieldManager * fieldManager );

@@ -1052,10 +1052,12 @@ ReadSuperPara::ReadSuperPara(
 }
 
 void ReadSuperPara::AddUnsteadyInnerFieldProperty(
-    const UsdFieldNames & fieldNames )
+    const UsdFieldNames & fieldNames,
+    const ParaNameDimData & paraNameDimData )
 {
     this->AddFieldProperties(
-        FieldLocation::Inner );
+        FieldLocation::Inner,
+        paraNameDimData );
 
     UsdPara * usdPara =
         &this->fieldManager->GetUsdPara();
@@ -1070,25 +1072,26 @@ void ReadSuperPara::AddUnsteadyInnerFieldProperty(
 }
 
 void ReadSuperPara::AddFieldProperties(
-    FieldLocation location )
+    FieldLocation location,
+    const ParaNameDimData & paraNameDimData )
 {
     AddBasicFieldProperty(
         this->fieldManager,
-        this->paraNameDimData.GetParaNameDim(
+        paraNameDimData.GetParaNameDim(
             FieldCategory::Unstructured ),
         location,
         FieldCategory::Unstructured );
 
     AddBasicFieldProperty(
         this->fieldManager,
-        this->paraNameDimData.GetParaNameDim(
+        paraNameDimData.GetParaNameDim(
             FieldCategory::Structured ),
         location,
         FieldCategory::Structured );
 
     AddBasicFieldProperty(
         this->fieldManager,
-        this->paraNameDimData.GetParaNameDim(
+        paraNameDimData.GetParaNameDim(
             FieldCategory::Common ),
         location,
         FieldCategory::Common );
@@ -1099,28 +1102,31 @@ void ReadSuperPara::Register(
     FieldLocation location,
     bool initializeUsdPara )
 {
+    ParaNameDimData paraNameDimData;
+
     if ( initializeUsdPara )
     {
         UsdFieldNames fieldNames;
 
         ReadUsdFieldDefinitions(
             fileName,
-            this->paraNameDimData,
+            paraNameDimData,
             fieldNames );
 
         this->AddUnsteadyInnerFieldProperty(
-            fieldNames );
+            fieldNames,
+            paraNameDimData );
 
         return;
     }
 
     ReadFieldDefinitions(
         fileName,
-        this->paraNameDimData );
+        paraNameDimData );
 
     this->AddFieldProperties(
-        location );
+        location,
+        paraNameDimData );
 }
-
 
 EndNameSpace
