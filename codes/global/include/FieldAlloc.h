@@ -83,6 +83,10 @@ public:
         int solverType,
         const std::string & basicString );
 
+    static void ValidateInterfaceVar(
+        int solverType,
+        FieldManager * fieldManager );
+
     static void RegisterFieldDefinitions(
         FieldManager * fieldManager,
         const std::string & basicString );

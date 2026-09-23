@@ -452,6 +452,10 @@ void FieldAlloc::AllocateAllFields(
         fieldManager->MarkFieldDefinitionsReady();
     }
 
+    FieldAlloc::ValidateInterfaceVar(
+        solverType,
+        fieldManager );
+
     FieldAlloc::AllocateRuntimeFields(
         fieldManager );
 
@@ -512,6 +516,51 @@ void FieldAlloc::RegisterInterfaceVar(
             solverType,
             spec.fieldType,
             boolIO.GetFieldNameList() );
+    }
+}
+
+void FieldAlloc::ValidateInterfaceVar(
+    int solverType,
+    FieldManager * fieldManager )
+{
+    const FieldProperty::Data & interfaceData =
+        fieldManager->GetInterfaceFieldProperty().GetData();
+
+    const int interfaceTypes[] =
+    {
+        ONEFLOW::INTERFACE_DATA,
+        ONEFLOW::INTERFACE_DQ_DATA,
+        ONEFLOW::INTERFACE_GRADIENT_DATA,
+        ONEFLOW::INTERFACE_OVERSET_DATA
+    };
+
+    for ( int iType = 0; iType < 4; ++ iType )
+    {
+        VarNameSolver * varNameSolver =
+            VarNameFactory::FindVarNameSolver(
+                solverType,
+                interfaceTypes[ iType ] );
+
+        if ( varNameSolver == nullptr )
+        {
+            continue;
+        }
+
+        for ( int iField = 0;
+            iField < varNameSolver->data.size();
+            ++ iField )
+        {
+            const std::string & fieldName =
+                varNameSolver->data[ iField ];
+
+            if ( interfaceData.find( fieldName ) ==
+                interfaceData.end() )
+            {
+                Fatal(
+                    "Interface field is not allocated: "
+                    + fieldName );
+            }
+        }
     }
 }
 
