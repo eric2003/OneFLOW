@@ -43,19 +43,31 @@ Unsteady::~Unsteady()
 
 void Unsteady::UpdateUnsteady( int solverType )
 {
-    FieldManager * fieldManager = FieldFactory::GetFieldManager( solverType );
+    FieldManager * fieldManager =
+        FieldFactory::GetFieldManager( solverType );
 
-    UsdPara * usdPara = &fieldManager->GetUsdPara();
+    UsdPara * usdPara =
+        &fieldManager->GetUsdPara();
 
     Grid * grid = Zone::GetGrid();
 
-    MRField * q  = GetFieldPointer< MRField > ( grid, usdPara->flow[ 0 ] );
-    MRField * q1 = GetFieldPointer< MRField > ( grid, usdPara->flow[ 1 ] );
-    MRField * q2 = GetFieldPointer< MRField > ( grid, usdPara->flow[ 2 ] );
+    MRField * q  =
+        GetFieldPointer< MRField >(
+            grid,
+            usdPara->flow[ 0 ] );
+
+    MRField * q1 =
+        GetFieldPointer< MRField >(
+            grid,
+            usdPara->flow[ 1 ] );
+
+    MRField * q2 =
+        GetFieldPointer< MRField >(
+            grid,
+            usdPara->flow[ 2 ] );
 
     SetField( q2, q1 );
     SetField( q1, q  );
 }
-
 
 EndNameSpace

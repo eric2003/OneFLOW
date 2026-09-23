@@ -48,15 +48,11 @@ void UsdField::InitBasic( int solverType )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
-    FieldManager * fieldManager = FieldFactory::GetFieldManager( solverType );
-    UsdPara * usdPara = &fieldManager->GetUsdPara();
-    q  = GetFieldPointer< MRField > ( grid, usdPara->flow[ 0 ] );
-    q1 = GetFieldPointer< MRField > ( grid, usdPara->flow[ 1 ] );
-    q2 = GetFieldPointer< MRField > ( grid, usdPara->flow[ 2 ] );
+    FieldManager * fieldManager =
+        FieldFactory::GetFieldManager( solverType );
 
-    res  = GetFieldPointer< MRField > ( grid, usdPara->residual[ 0 ] );
-    res1 = GetFieldPointer< MRField > ( grid, usdPara->residual[ 1 ] );
-    res2 = GetFieldPointer< MRField > ( grid, usdPara->residual[ 2 ] );
+    UsdPara * usdPara =
+        &fieldManager->GetUsdPara();
 
     this->flow.resize( usdPara->flow.size() );
 
@@ -77,6 +73,14 @@ void UsdField::InitBasic( int solverType )
                 grid,
                 usdPara->residual[ i ] );
     }
+
+    q  = this->flow[ 0 ];
+    q1 = this->flow[ 1 ];
+    q2 = this->flow[ 2 ];
+
+    res  = this->residual[ 0 ];
+    res1 = this->residual[ 1 ];
+    res2 = this->residual[ 2 ];
 }
 
 
