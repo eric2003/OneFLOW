@@ -422,10 +422,21 @@ void FieldAlloc::AllocateAllFields(
         solverType,
         basicString );
 
+    FieldFactory::AddFieldManager(
+        solverType );
+
     FieldManager * fieldManager =
+        FieldFactory::GetFieldManager(
+            solverType );
+
+    if ( ! fieldManager->HasFieldDefinitions() )
+    {
         FieldAlloc::RegisterFieldDefinitions(
-            solverType,
+            fieldManager,
             basicString );
+
+        fieldManager->MarkFieldDefinitionsReady();
+    }
 
     FieldAlloc::AllocateRuntimeFields(
         fieldManager );
@@ -433,16 +444,6 @@ void FieldAlloc::AllocateAllFields(
     FieldAlloc::InitField(
         fieldManager,
         basicString );
-
-    ////tmp---------------------
-
-    //fieldManager->DumpFieldEnvironment(
-    //    std::cout );
-
-    //VarNameFactory::Dump(
-    //    std::cout,
-    //    solverType );
-    ////tmp---------------------
 }
 
 void FieldAlloc::InitField(
@@ -500,15 +501,10 @@ void FieldAlloc::RegisterInterfaceVar(
     }
 }
 
-FieldManager * FieldAlloc::RegisterFieldDefinitions(
-    int solverType,
+void FieldAlloc::RegisterFieldDefinitions(
+    FieldManager * fieldManager,
     const std::string & basicString )
 {
-    FieldFactory::AddFieldManager( solverType );
-
-    FieldManager * fieldManager =
-        FieldFactory::GetFieldManager( solverType );
-
     const FieldFileSpec fieldFileSpecs[] =
     {
         { "unsteady", FieldLocation::Inner,    true  },
@@ -537,7 +533,6 @@ FieldManager * FieldAlloc::RegisterFieldDefinitions(
             spec.initializeUsdPara );
     }
 
-    return fieldManager;
 }
 
 void FieldAlloc::AllocateRuntimeFields(

@@ -230,11 +230,23 @@ const FieldProperty & FieldPropertyData::GetFieldProperty(
 }
 
 FieldManager::FieldManager()
+    : fieldDefinitionsReady( false )
 {
-    usdPara        = std::make_unique< UsdPara >();
+    usdPara =
+        std::make_unique< UsdPara >();
 }
 
 FieldManager::~FieldManager() = default;
+
+bool FieldManager::HasFieldDefinitions() const
+{
+    return this->fieldDefinitionsReady;
+}
+
+void FieldManager::MarkFieldDefinitionsReady()
+{
+    this->fieldDefinitionsReady = true;
+}
 
 IFieldProperty & FieldManager::GetInterfaceFieldProperty()
 {

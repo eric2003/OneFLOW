@@ -82,6 +82,8 @@ class FieldManager
 public:
     FieldManager();
     ~FieldManager();
+    bool HasFieldDefinitions() const;
+    void MarkFieldDefinitionsReady();
 
 public:
     IFieldProperty & GetInterfaceFieldProperty();
@@ -133,6 +135,7 @@ private:
     FieldPropertyData unsManager;
     IFieldProperty iFieldProperty;
     std::unique_ptr< UsdPara > usdPara;
+    bool fieldDefinitionsReady;
 };
 
 class FieldFactory
