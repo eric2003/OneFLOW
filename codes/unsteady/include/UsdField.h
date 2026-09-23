@@ -30,6 +30,8 @@ BeginNameSpace( ONEFLOW )
 class UsdField
 {
 public:
+    using MRFieldPtr = HXVector< MRField * >;
+public:
     UsdField();
     ~UsdField();
 public:
@@ -38,6 +40,8 @@ public:
 public:
     MRField * q, * q1, * q2;
     MRField * res, * res1, * res2;
+    MRFieldPtr flow;
+    MRFieldPtr residual;
 };
 
 EndNameSpace

@@ -57,6 +57,26 @@ void UsdField::InitBasic( int solverType )
     res  = GetFieldPointer< MRField > ( grid, usdPara->residual[ 0 ] );
     res1 = GetFieldPointer< MRField > ( grid, usdPara->residual[ 1 ] );
     res2 = GetFieldPointer< MRField > ( grid, usdPara->residual[ 2 ] );
+
+    this->flow.resize( usdPara->flow.size() );
+
+    for ( std::size_t i = 0; i < usdPara->flow.size(); ++ i )
+    {
+        this->flow[ i ] =
+            GetFieldPointer< MRField >(
+                grid,
+                usdPara->flow[ i ] );
+    }
+
+    this->residual.resize( usdPara->residual.size() );
+
+    for ( std::size_t i = 0; i < usdPara->residual.size(); ++ i )
+    {
+        this->residual[ i ] =
+            GetFieldPointer< MRField >(
+                grid,
+                usdPara->residual[ i ] );
+    }
 }
 
 
