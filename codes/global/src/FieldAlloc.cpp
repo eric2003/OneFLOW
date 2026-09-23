@@ -120,6 +120,19 @@ namespace
         return definition;
     }
 
+    void RegisterFieldDefinition(
+        ParaNameDimData & paraNameDimData,
+        const FieldDefinition & definition )
+    {
+        ParaNameDim * paraNameDim =
+            paraNameDimData.GetParaNameDim(
+                definition.category );
+
+        paraNameDim->Add(
+            definition.name,
+            definition.nEqu );
+    }
+
     void AddUsdFieldName(
         UsdFieldNames & fieldNames,
         const std::string & fieldName,
@@ -306,13 +319,9 @@ namespace
                     ReadFieldDefinition(
                         textFileParser );
 
-                ParaNameDim * paraNameDim =
-                    paraNameDimData.GetParaNameDim(
-                        definition.category );
-
-                paraNameDim->Add(
-                    definition.name,
-                    definition.nEqu );
+                RegisterFieldDefinition(
+                    paraNameDimData,
+                    definition );
             }
         }
 
@@ -328,13 +337,9 @@ namespace
             ReadFieldDefinition(
                 textFileParser );
 
-        ParaNameDim * paraNameDim =
-            paraNameDimData.GetParaNameDim(
-                definition.category );
-
-        paraNameDim->Add(
-            definition.name,
-            definition.nEqu );
+        RegisterFieldDefinition(
+            paraNameDimData,
+            definition );
 
         if ( textFileParser.NextWordIsEmpty() )
         {
