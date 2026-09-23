@@ -423,9 +423,16 @@ void FieldAlloc::AllocateAllFields(
         basicString );
 
     FieldManager * fieldManager =
-        FieldAlloc::AllocateGlobalField(
+        FieldAlloc::RegisterFieldDefinitions(
             solverType,
             basicString );
+
+    FieldAlloc::AllocateRuntimeFields(
+        fieldManager );
+
+    FieldAlloc::InitField(
+        fieldManager,
+        basicString );
 
     FieldAlloc::InitField(
         fieldManager,
@@ -497,7 +504,7 @@ void FieldAlloc::RegisterInterfaceVar(
     }
 }
 
-FieldManager * FieldAlloc::AllocateGlobalField(
+FieldManager * FieldAlloc::RegisterFieldDefinitions(
     int solverType,
     const std::string & basicString )
 {
@@ -534,8 +541,6 @@ FieldManager * FieldAlloc::AllocateGlobalField(
             spec.initializeUsdPara );
     }
 
-    FieldAlloc::AllocateRuntimeFields(
-        fieldManager );
     return fieldManager;
 }
 

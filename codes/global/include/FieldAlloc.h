@@ -59,7 +59,7 @@ public:
         FieldManager * fieldManager,
         const std::string & basicString );
     static void RegisterInterfaceVar( int solverType, const std::string & basicString );
-    static FieldManager * AllocateGlobalField(
+    static FieldManager * RegisterFieldDefinitions(
         int solverType,
         const std::string & basicString );
     static void AllocateRuntimeFields(
