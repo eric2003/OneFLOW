@@ -45,6 +45,7 @@ namespace
     {
         std::string name;
         int nEqu;
+        FieldCategory category;
     };
 
     int ResolveIntegerValue(
@@ -96,9 +97,8 @@ namespace
         return FieldCategory::Unstructured;
     }
 
-    void ReadFieldDefinition(
-        TextFileParser & textFileParser,
-        ParaNameDimData & paraNameDimData )
+    FieldDefinition ReadFieldDefinition(
+        TextFileParser & textFileParser )
     {
         FieldDefinition definition;
 
@@ -114,15 +114,10 @@ namespace
         definition.nEqu =
             ResolveIntegerValue( equationCountToken );
 
-        FieldCategory category =
+        definition.category =
             ParseFieldCategory( categoryToken );
 
-        ParaNameDim * paraNameDim =
-            paraNameDimData.GetParaNameDim( category );
-
-        paraNameDim->Add(
-            definition.name,
-            definition.nEqu );
+        return definition;
     }
 
     void AddUsdFieldName(
@@ -307,9 +302,17 @@ namespace
 
             if ( keyWord == "true" )
             {
-                ReadFieldDefinition(
-                    textFileParser,
-                    paraNameDimData );
+                FieldDefinition definition =
+                    ReadFieldDefinition(
+                        textFileParser );
+
+                ParaNameDim * paraNameDim =
+                    paraNameDimData.GetParaNameDim(
+                        definition.category );
+
+                paraNameDim->Add(
+                    definition.name,
+                    definition.nEqu );
             }
         }
 
@@ -321,25 +324,13 @@ namespace
         ParaNameDimData & paraNameDimData,
         UsdFieldNames & fieldNames )
     {
-        FieldDefinition definition;
-
-        definition.name =
-            textFileParser.ReadNextWord();
-
-        std::string equationCountToken =
-            textFileParser.ReadNextWord();
-
-        std::string categoryToken =
-            textFileParser.ReadNextWord();
-
-        definition.nEqu =
-            ResolveIntegerValue( equationCountToken );
-
-        FieldCategory category =
-            ParseFieldCategory( categoryToken );
+        FieldDefinition definition =
+            ReadFieldDefinition(
+                textFileParser );
 
         ParaNameDim * paraNameDim =
-            paraNameDimData.GetParaNameDim( category );
+            paraNameDimData.GetParaNameDim(
+                definition.category );
 
         paraNameDim->Add(
             definition.name,
