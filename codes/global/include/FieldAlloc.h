@@ -21,53 +21,9 @@ License
 \*---------------------------------------------------------------------------*/
 #pragma once
 #include "HXDefine.h"
-#include "FieldCategory.h"
 #include <string>
 
-
 BeginNameSpace( ONEFLOW )
-
-class IFieldProperty;
-struct UsdFieldNames;
-
-class FieldNameList
-{
-private:
-    StringField nameList;
-
-public:
-    void Add(
-        const std::string & name );
-
-    int Size() const;
-
-    const std::string & GetName(
-        int index ) const;
-};
-
-class NameValuePair
-{
-private:
-    StringField nameList;
-    RealField valueList;
-
-public:
-    void Add(
-        const std::string & name,
-        Real value );
-
-    int Size() const;
-
-    const std::string & GetName(
-        int index ) const;
-
-    Real GetValue(
-        int index ) const;
-};
-
-class FieldManager;
-class UnsGrid;
-class FieldPropertyData;
 
 class FieldAlloc
 {
@@ -75,48 +31,6 @@ public:
     static void AllocateAllFields(
         int solverType,
         const std::string & basicString );
-};
-
-class TextFileParser;
-
-class BoolIO
-{
-private:
-    StringField boolNameList;
-    BoolField boolValueList;
-
-    FieldNameList fieldNameList;
-    NameValuePair nameValuePair;
-
-public:
-    const FieldNameList & GetFieldNameList() const;
-
-    const NameValuePair & GetNameValuePair() const;
-
-    bool GetBoolValue(
-        const std::string & varName ) const;
-
-    void Add(
-        const std::string & name,
-        bool value );
-
-    void ReadBool(
-        TextFileParser & textFileParser );
-
-    void ReadSuperBool(
-        TextFileParser & textFileParser );
-
-    void ReadName(
-        TextFileParser & textFileParser );
-
-    void ReadNameValue(
-        TextFileParser & textFileParser );
-
-    void ReadFile(
-        const std::string & fileName );
-
-    void ReadValueFile(
-        const std::string & fileName );
 };
 
 EndNameSpace

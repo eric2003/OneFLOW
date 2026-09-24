@@ -41,13 +41,6 @@ BeginNameSpace( ONEFLOW )
 
 namespace
 {
-    struct FieldDefinition
-    {
-        std::string name;
-        int nEqu;
-        FieldCategory category;
-    };
-
     int ResolveIntegerValue(
         const std::string & valueToken )
     {
@@ -58,6 +51,395 @@ namespace
 
         return GetDataValue< int >( valueToken );
     }
+
+    bool CompareValues(
+        const std::string & leftToken,
+        const std::string & operatorName,
+        const std::string & rightToken )
+    {
+        int leftValue =
+            ResolveIntegerValue( leftToken );
+
+        int rightValue =
+            ResolveIntegerValue( rightToken );
+
+        if ( operatorName == ">" )
+        {
+            return leftValue > rightValue;
+        }
+
+        if ( operatorName == ">=" )
+        {
+            return leftValue >= rightValue;
+        }
+
+        if ( operatorName == "==" )
+        {
+            return leftValue == rightValue;
+        }
+
+        if ( operatorName == "<" )
+        {
+            return leftValue < rightValue;
+        }
+
+        if ( operatorName == "<=" )
+        {
+            return leftValue <= rightValue;
+        }
+
+        if ( operatorName == "!=" )
+        {
+            return leftValue != rightValue;
+        }
+
+        Fatal(
+            "Unknown comparison operator: "
+            + operatorName );
+
+        return false;
+    }
+
+    bool CalcBoolLogic(
+        bool leftValue,
+        const std::string & operatorName,
+        bool rightValue )
+    {
+        if ( operatorName == "&&" )
+        {
+            return leftValue && rightValue;
+        }
+
+        if ( operatorName == "||" )
+        {
+            return leftValue || rightValue;
+        }
+
+        Fatal(
+            "Unknown boolean operator: "
+            + operatorName );
+
+        return false;
+    }
+
+
+    class FieldNameList
+    {
+    private:
+        StringField nameList;
+
+    public:
+        void Add(
+            const std::string & name );
+
+        int Size() const;
+
+        const std::string & GetName(
+            int index ) const;
+    };
+
+    class NameValuePair
+    {
+    private:
+        StringField nameList;
+        RealField valueList;
+
+    public:
+        void Add(
+            const std::string & name,
+            Real value );
+
+        int Size() const;
+
+        const std::string & GetName(
+            int index ) const;
+
+        Real GetValue(
+            int index ) const;
+    };
+
+    class BoolIO
+    {
+    private:
+        StringField boolNameList;
+        BoolField boolValueList;
+
+        FieldNameList fieldNameList;
+        NameValuePair nameValuePair;
+
+    public:
+        const FieldNameList & GetFieldNameList() const;
+
+        const NameValuePair & GetNameValuePair() const;
+
+        bool GetBoolValue(
+            const std::string & varName ) const;
+
+        void Add(
+            const std::string & name,
+            bool value );
+
+        void ReadBool(
+            TextFileParser & textFileParser );
+
+        void ReadSuperBool(
+            TextFileParser & textFileParser );
+
+        void ReadName(
+            TextFileParser & textFileParser );
+
+        void ReadNameValue(
+            TextFileParser & textFileParser );
+
+        void ReadFile(
+            const std::string & fileName );
+
+        void ReadValueFile(
+            const std::string & fileName );
+    };
+
+    using BoolLineReader =
+        void ( BoolIO::* )( TextFileParser & );
+
+    void ReadBoolFile(
+        BoolIO & boolIO,
+        const std::string & fileName,
+        BoolLineReader trueReader )
+    {
+        // \t is the tab key
+        std::string separator = " \r\n\t#$,;\"()";
+
+        TextFileParser textFileParser;
+
+        textFileParser.OpenFile(
+            fileName,
+            std::ios_base::in );
+
+        textFileParser.SetDefaultSeparator(
+            separator );
+
+        while ( ! textFileParser.ReachTheEndOfFile() )
+        {
+            bool flag =
+                textFileParser.ReadNextNonEmptyLine();
+
+            if ( ! flag ) break;
+
+            std::string keyWord =
+                textFileParser.ReadNextWord();
+
+            if ( keyWord == "true" )
+            {
+                ( boolIO.*trueReader )(
+                    textFileParser );
+            }
+            else if ( keyWord == "bool" )
+            {
+                boolIO.ReadBool(
+                    textFileParser );
+            }
+            else if ( keyWord == "superbool" )
+            {
+                boolIO.ReadSuperBool(
+                    textFileParser );
+            }
+            else
+            {
+                bool flag =
+                    boolIO.GetBoolValue( keyWord );
+
+                if ( flag )
+                {
+                    ( boolIO.*trueReader )(
+                        textFileParser );
+                }
+            }
+        }
+
+        textFileParser.CloseFile();
+    }
+
+    void FieldNameList::Add(
+        const std::string & name )
+    {
+        nameList.push_back( name );
+    }
+
+    int FieldNameList::Size() const
+    {
+        return nameList.size();
+    }
+
+    const std::string & FieldNameList::GetName(
+        int index ) const
+    {
+        return nameList[ index ];
+    }
+
+    void NameValuePair::Add(
+        const std::string & name,
+        Real value )
+    {
+        nameList.push_back( name );
+        valueList.push_back( value );
+    }
+
+    int NameValuePair::Size() const
+    {
+        return nameList.size();
+    }
+
+    const std::string & NameValuePair::GetName(
+        int index ) const
+    {
+        return nameList[ index ];
+    }
+
+    Real NameValuePair::GetValue(
+        int index ) const
+    {
+        return valueList[ index ];
+    }
+
+    void BoolIO::Add( const std::string & name, bool value )
+    {
+        boolNameList.push_back( name );
+        boolValueList.push_back( value );
+    }
+
+    bool BoolIO::GetBoolValue(
+        const std::string & varName ) const
+    {
+        for ( int i = 0; i < boolNameList.size(); ++ i )
+        {
+            if ( varName == boolNameList[ i ] )
+            {
+                return boolValueList[ i ];
+            }
+        }
+
+        Fatal( "Unknown boolean variable: " + varName );
+
+        return false;
+    }
+
+    void BoolIO::ReadBool( TextFileParser & textFileParser )
+    {
+        std::string varName =
+            textFileParser.ReadNextWord();
+
+        textFileParser.ReadNextWord();
+
+        std::string var1 =
+            textFileParser.ReadNextWord();
+
+        std::string opName =
+            textFileParser.ReadNextWord();
+
+        std::string var2 =
+            textFileParser.ReadNextWord();
+
+        bool boolValue =
+            CompareValues(
+                var1,
+                opName,
+                var2 );
+
+        this->Add( varName, boolValue );
+    }
+
+
+    void BoolIO::ReadSuperBool( TextFileParser & textFileParser )
+    {
+        std::string varName =
+            textFileParser.ReadNextWord();
+
+        textFileParser.ReadNextWord();
+
+        std::string var1 =
+            textFileParser.ReadNextWord();
+
+        std::string opName =
+            textFileParser.ReadNextWord();
+
+        std::string var2 =
+            textFileParser.ReadNextWord();
+
+        bool varValue1 =
+            this->GetBoolValue( var1 );
+
+        bool varValue2 =
+            this->GetBoolValue( var2 );
+
+        bool boolValue =
+            CalcBoolLogic(
+                varValue1,
+                opName,
+                varValue2 );
+
+        this->Add( varName, boolValue );
+    }
+
+    void BoolIO::ReadName(
+        TextFileParser & textFileParser )
+    {
+        std::string varName =
+            textFileParser.ReadNextWord();
+
+        fieldNameList.Add( varName );
+    }
+
+    const FieldNameList & BoolIO::GetFieldNameList() const
+    {
+        return fieldNameList;
+    }
+
+    const NameValuePair & BoolIO::GetNameValuePair() const
+    {
+        return nameValuePair;
+    }
+
+    void BoolIO::ReadNameValue(
+        TextFileParser & textFileParser )
+    {
+        std::string varName =
+            textFileParser.ReadNextWord();
+
+
+        Real varValue =
+            textFileParser.ReadNextDigit< Real >();
+
+        nameValuePair.Add(
+            varName,
+            varValue );
+    }
+
+    void BoolIO::ReadFile(
+        const std::string & fileName )
+    {
+        ReadBoolFile(
+            *this,
+            fileName,
+            &BoolIO::ReadName );
+    }
+
+    void BoolIO::ReadValueFile(
+        const std::string & fileName )
+    {
+        ReadBoolFile(
+            *this,
+            fileName,
+            &BoolIO::ReadNameValue );
+    }
+
+    struct FieldDefinition
+    {
+        std::string name;
+        int nEqu;
+        FieldCategory category;
+    };
+
+
 
 
     enum class FieldFileType
@@ -258,75 +640,7 @@ namespace
         }
     }
 
-    bool CalcBoolLogic(
-        bool leftValue,
-        const std::string & operatorName,
-        bool rightValue )
-    {
-        if ( operatorName == "&&" )
-        {
-            return leftValue && rightValue;
-        }
 
-        if ( operatorName == "||" )
-        {
-            return leftValue || rightValue;
-        }
-
-        Fatal(
-            "Unknown boolean operator: "
-            + operatorName );
-
-        return false;
-    }
-    
-    bool CompareValues(
-        const std::string & leftToken,
-        const std::string & operatorName,
-        const std::string & rightToken )
-    {
-        int leftValue =
-            ResolveIntegerValue( leftToken );
-
-        int rightValue =
-            ResolveIntegerValue( rightToken );
-
-        if ( operatorName == ">" )
-        {
-            return leftValue > rightValue;
-        }
-
-        if ( operatorName == ">=" )
-        {
-            return leftValue >= rightValue;
-        }
-
-        if ( operatorName == "==" )
-        {
-            return leftValue == rightValue;
-        }
-
-        if ( operatorName == "<" )
-        {
-            return leftValue < rightValue;
-        }
-
-        if ( operatorName == "<=" )
-        {
-            return leftValue <= rightValue;
-        }
-
-        if ( operatorName == "!=" )
-        {
-            return leftValue != rightValue;
-        }
-
-        Fatal(
-            "Unknown comparison operator: "
-            + operatorName );
-
-        return false;
-    }
 
     void RegisterFieldFile(
         FieldManager * fieldManager,
@@ -688,108 +1002,7 @@ namespace
             boolIO.GetNameValuePair() );
     }
 
-    using BoolLineReader =
-        void ( BoolIO::* )( TextFileParser & );
 
-    void ReadBoolFile(
-        BoolIO & boolIO,
-        const std::string & fileName,
-        BoolLineReader trueReader )
-    {
-        // \t is the tab key
-        std::string separator = " \r\n\t#$,;\"()";
-
-        TextFileParser textFileParser;
-
-        textFileParser.OpenFile(
-            fileName,
-            std::ios_base::in );
-
-        textFileParser.SetDefaultSeparator(
-            separator );
-
-        while ( ! textFileParser.ReachTheEndOfFile() )
-        {
-            bool flag =
-                textFileParser.ReadNextNonEmptyLine();
-
-            if ( ! flag ) break;
-
-            std::string keyWord =
-                textFileParser.ReadNextWord();
-
-            if ( keyWord == "true" )
-            {
-                ( boolIO.*trueReader )(
-                    textFileParser );
-            }
-            else if ( keyWord == "bool" )
-            {
-                boolIO.ReadBool(
-                    textFileParser );
-            }
-            else if ( keyWord == "superbool" )
-            {
-                boolIO.ReadSuperBool(
-                    textFileParser );
-            }
-            else
-            {
-                bool flag =
-                    boolIO.GetBoolValue( keyWord );
-
-                if ( flag )
-                {
-                    ( boolIO.*trueReader )(
-                        textFileParser );
-                }
-            }
-        }
-
-        textFileParser.CloseFile();
-    }
-}
-
-void FieldNameList::Add(
-    const std::string & name )
-{
-    nameList.push_back( name );
-}
-
-int FieldNameList::Size() const
-{
-    return nameList.size();
-}
-
-const std::string & FieldNameList::GetName(
-    int index ) const
-{
-    return nameList[ index ];
-}
-
-void NameValuePair::Add(
-    const std::string & name,
-    Real value )
-{
-    nameList.push_back( name );
-    valueList.push_back( value );
-}
-
-int NameValuePair::Size() const
-{
-    return nameList.size();
-}
-
-const std::string & NameValuePair::GetName(
-    int index ) const
-{
-    return nameList[ index ];
-}
-
-Real NameValuePair::GetValue(
-    int index ) const
-{
-    return valueList[ index ];
 }
 
 void FieldAlloc::AllocateAllFields(
@@ -832,135 +1045,6 @@ void FieldAlloc::AllocateAllFields(
         basicString );
 }
 
-void BoolIO::Add( const std::string & name, bool value )
-{
-    boolNameList.push_back( name );
-    boolValueList.push_back( value );
-}
 
-bool BoolIO::GetBoolValue(
-    const std::string & varName ) const
-{
-    for ( int i = 0; i < boolNameList.size(); ++ i )
-    {
-        if ( varName == boolNameList[ i ] )
-        {
-            return boolValueList[ i ];
-        }
-    }
-
-    Fatal( "Unknown boolean variable: " + varName );
-
-    return false;
-}
-
-void BoolIO::ReadBool( TextFileParser & textFileParser )
-{
-    std::string varName =
-        textFileParser.ReadNextWord();
-
-    textFileParser.ReadNextWord();
-
-    std::string var1 =
-        textFileParser.ReadNextWord();
-
-    std::string opName =
-        textFileParser.ReadNextWord();
-
-    std::string var2 =
-        textFileParser.ReadNextWord();
-
-    bool boolValue =
-        CompareValues(
-            var1,
-            opName,
-            var2 );
-
-    this->Add( varName, boolValue );
-}
-
-
-void BoolIO::ReadSuperBool( TextFileParser & textFileParser )
-{
-    std::string varName =
-        textFileParser.ReadNextWord();
-
-    textFileParser.ReadNextWord();
-
-    std::string var1 =
-        textFileParser.ReadNextWord();
-
-    std::string opName =
-        textFileParser.ReadNextWord();
-
-    std::string var2 =
-        textFileParser.ReadNextWord();
-
-    bool varValue1 =
-        this->GetBoolValue( var1 );
-
-    bool varValue2 =
-        this->GetBoolValue( var2 );
-
-    bool boolValue =
-        CalcBoolLogic(
-            varValue1,
-            opName,
-            varValue2 );
-
-    this->Add( varName, boolValue );
-}
-
-void BoolIO::ReadName(
-    TextFileParser & textFileParser )
-{
-    std::string varName =
-        textFileParser.ReadNextWord();
-
-    fieldNameList.Add( varName );
-}
-
-const FieldNameList & BoolIO::GetFieldNameList() const
-{
-    return fieldNameList;
-}
-
-const NameValuePair & BoolIO::GetNameValuePair() const
-{
-    return nameValuePair;
-}
-
-void BoolIO::ReadNameValue(
-    TextFileParser & textFileParser )
-{
-    std::string varName =
-        textFileParser.ReadNextWord();
-
-
-    Real varValue =
-        textFileParser.ReadNextDigit< Real >();
-
-    nameValuePair.Add(
-        varName,
-        varValue );
-}
-
-void BoolIO::ReadFile(
-    const std::string & fileName )
-{
-    ReadBoolFile(
-        *this,
-        fileName,
-        &BoolIO::ReadName );
-}
-
-void BoolIO::ReadValueFile(
-    const std::string & fileName )
-{
-    ReadBoolFile(
-        *this,
-        fileName,
-        &BoolIO::ReadNameValue );
-}
 
 EndNameSpace
