@@ -60,11 +60,17 @@ namespace
     }
 
 
+    enum class FieldFileType
+    {
+        Standard,
+        Unsteady
+    };
+
     struct FieldFileSpec
     {
         const char * name;
         FieldLocation location;
-        bool initializeUsdPara;
+        FieldFileType type;
     };
 
     struct InterfaceFileSpec
@@ -447,11 +453,11 @@ namespace
         FieldManager * fieldManager,
         const std::string & fileName,
         FieldLocation location,
-        bool initializeUsdPara )
+        FieldFileType type )
     {
         ParaNameDimData paraNameDimData;
 
-        if ( initializeUsdPara )
+        if ( type == FieldFileType::Unsteady )
         {
             UsdFieldNames fieldNames;
 
@@ -724,10 +730,10 @@ void FieldAlloc::AddFieldDefinition(
 {
     const FieldFileSpec fieldFileSpecs[] =
     {
-        { "unsteady", FieldLocation::Inner,    true  },
-        { "inner",    FieldLocation::Inner,    false },
-        { "face",     FieldLocation::Face,     false },
-        { "bc",       FieldLocation::Boundary, false }
+        { "unsteady", FieldLocation::Inner,    FieldFileType::Unsteady },
+        { "inner",    FieldLocation::Inner,    FieldFileType::Standard },
+        { "face",     FieldLocation::Face,     FieldFileType::Standard },
+        { "bc",       FieldLocation::Boundary, FieldFileType::Standard }
     };
 
     std::string rootString =
@@ -745,7 +751,7 @@ void FieldAlloc::AddFieldDefinition(
             fieldManager,
             logger.str(),
             spec.location,
-            spec.initializeUsdPara );
+            spec.type );
     }
 
 }
