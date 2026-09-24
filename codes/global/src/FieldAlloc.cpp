@@ -461,7 +461,7 @@ namespace
         int fieldType;
     };
 
-    FieldApplicability ParseFieldCategory(
+    FieldApplicability ParseFieldApplicability(
         const std::string & typeName )
     {
         if ( typeName == "all" )
@@ -480,7 +480,7 @@ namespace
         }
 
         Fatal(
-            "Unknown field category: " + typeName );
+            "Unknown field applicability: " + typeName );
 
         return FieldApplicability::Unstructured;
     }
@@ -503,7 +503,7 @@ namespace
             ResolveIntegerValue( equationCountToken );
 
         definition.applicability =
-            ParseFieldCategory( categoryToken );
+            ParseFieldApplicability( categoryToken );
 
         return definition;
     }
