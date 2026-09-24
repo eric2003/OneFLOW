@@ -330,7 +330,7 @@ void FieldManager::DumpFieldEnvironment(
         << "========== Field Environment ==========\n\n";
 
     output
-        << "[Common]\n";
+        << "[All]\n";
 
     DumpFieldProperty(
         output,
