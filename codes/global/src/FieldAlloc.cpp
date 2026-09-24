@@ -503,14 +503,17 @@ void FieldAlloc::AllocateAllFields(
         fieldManager->MarkFieldDefinitionsReady();
     }
 
-    FieldAlloc::RegisterInterfaceVar(
-        solverType,
-        fieldManager,
-        basicString );
+    if ( ! fieldManager->HasInterfaceDefinitions() )
+    {
+        FieldAlloc::RegisterInterfaceVar(
+            solverType,
+            fieldManager,
+            basicString );
 
-    FieldAlloc::ValidateInterfaceVar(
-        solverType,
-        fieldManager );
+        FieldAlloc::ValidateInterfaceVar(
+            solverType,
+            fieldManager );
+    }
 
     FieldAlloc::AllocateRuntimeFields(
         fieldManager );
