@@ -815,7 +815,7 @@ namespace
 
     void AllocateInnerField(
         UnsGrid * grid,
-        FieldPropertyData * fieldPropertyData )
+        const FieldPropertyData * fieldPropertyData )
     {
         int nTCell = grid->nCells + grid->nBFaces;
 
@@ -849,7 +849,7 @@ namespace
 
     void AllocateFaceField(
         UnsGrid * grid,
-        FieldPropertyData * fieldPropertyData )
+        const FieldPropertyData * fieldPropertyData )
     {
         int nFaces = grid->nFaces;
 
@@ -884,7 +884,7 @@ namespace
 
     void AllocateBcField(
         UnsGrid * grid,
-        FieldPropertyData * fieldPropertyData )
+        const FieldPropertyData * fieldPropertyData )
     {
         int nBFaces = grid->nBFaces;
 
@@ -919,7 +919,7 @@ namespace
 
     void AllocateGridFields(
         UnsGrid * grid,
-        FieldPropertyData * fieldPropertyData )
+        const FieldPropertyData * fieldPropertyData )
     {
         AllocateInnerField(
             grid,
