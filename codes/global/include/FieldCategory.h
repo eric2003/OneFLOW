@@ -25,7 +25,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-enum class FieldCategory
+enum class FieldApplicability
 {
     Unstructured,
     Structured,

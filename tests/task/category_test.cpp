@@ -20,7 +20,7 @@ protected:
 TEST_F( CategoryTest, GetCategoryOnUnregisteredSolverTypeReturnsSentinel )
 {
     ONEFLOW::Category::Init();
-    ONEFLOW::Category::AddCategory( /*solverType=*/1, /*category=*/100 );
+    ONEFLOW::Category::AddCategory( /*solverType=*/1, /*applicability=*/100 );
 
     // solverType 5 was never registered via AddCategory
     int result = ONEFLOW::Category::GetCategory( 5 );

@@ -28,7 +28,7 @@ void ActionMapImp::Register( const std::string & actionName )
 {
     // Defensive guard: an empty name should never be a valid registration.
     // This also protects against any future caller path that might pass
-    // through an empty token by accident (a category of bug we already
+    // through an empty token by accident (a applicability of bug we already
     // found once, in ReadFile's old EOF-handling logic).
     if ( actionName.empty() )
     {

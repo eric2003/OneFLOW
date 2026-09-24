@@ -72,9 +72,7 @@ private:
     FieldProperty innerField;
 };
 
-class FieldManager;
 class UsdPara;
-class FieldPropertyData;
 class UnsGrid;
 
 class FieldManager
@@ -95,10 +93,10 @@ public:
     const IFieldProperty & GetInterfaceFieldProperty() const;
 
     FieldPropertyData & GetFieldPropertyData(
-        FieldCategory category );
+        FieldApplicability applicability );
 
     const FieldPropertyData & GetFieldPropertyData(
-        FieldCategory category ) const;
+        FieldApplicability applicability ) const;
 
     UsdPara & GetUsdPara();
     const UsdPara & GetUsdPara() const;
@@ -112,7 +110,7 @@ public:
     void AddField(
         const std::string & fieldName,
         int nEqu,
-        FieldCategory category,
+        FieldApplicability applicability,
         FieldLocation location );
 
     void SetField(
@@ -120,9 +118,9 @@ public:
         Real value );
 
 private:
-    FieldPropertyData commManager;
-    FieldPropertyData strManager;
-    FieldPropertyData unsManager;
+    FieldPropertyData commonFields;
+    FieldPropertyData structuredFields;
+    FieldPropertyData unstructuredFields;
     IFieldProperty iFieldProperty;
     std::unique_ptr< UsdPara > usdPara;
 
@@ -141,7 +139,6 @@ private:
     static std::map< int, std::unique_ptr< FieldManager > > data;
 };
 
-class UnsGrid;
 void UploadInterfaceValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu );
 void DownloadInterfaceValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu );
 void UploadOversetValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu );

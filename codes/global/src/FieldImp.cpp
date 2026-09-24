@@ -20,7 +20,6 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "FieldImp.h"
-#include "FieldAlloc.h"
 #include "FieldBase.h"
 #include "FieldWrap.h"
 #include "Fatal.h"
@@ -40,15 +39,6 @@ BeginNameSpace( ONEFLOW )
 
 namespace
 {
-    FieldProperty & GetFieldProperty(
-        FieldManager * fieldManager,
-        FieldCategory category,
-        FieldLocation location )
-    {
-        return fieldManager->GetFieldPropertyData(
-            category ).GetFieldProperty( location );
-    }
-
     void DumpFieldProperty(
         std::ostream & output,
         const char * name,
@@ -286,41 +276,41 @@ const IFieldProperty & FieldManager::GetInterfaceFieldProperty() const
 }
 
 FieldPropertyData & FieldManager::GetFieldPropertyData(
-    FieldCategory category )
+    FieldApplicability applicability )
 {
-    switch ( category )
+    switch ( applicability )
     {
-    case FieldCategory::Common:
-        return commManager;
+    case FieldApplicability::Common:
+        return commonFields;
 
-    case FieldCategory::Structured:
-        return strManager;
+    case FieldApplicability::Structured:
+        return structuredFields;
 
-    case FieldCategory::Unstructured:
-        return unsManager;
+    case FieldApplicability::Unstructured:
+        return unstructuredFields;
     }
 
     Fatal( "Invalid field category" );
-    return commManager;
+    return commonFields;
 }
 
 const FieldPropertyData & FieldManager::GetFieldPropertyData(
-    FieldCategory category ) const
+    FieldApplicability applicability ) const
 {
-    switch ( category )
+    switch ( applicability )
     {
-    case FieldCategory::Common:
-        return commManager;
+    case FieldApplicability::Common:
+        return commonFields;
 
-    case FieldCategory::Structured:
-        return strManager;
+    case FieldApplicability::Structured:
+        return structuredFields;
 
-    case FieldCategory::Unstructured:
-        return unsManager;
+    case FieldApplicability::Unstructured:
+        return unstructuredFields;
     }
 
     Fatal( "Invalid field category" );
-    return commManager;
+    return commonFields;
 }
 
 UsdPara & FieldManager::GetUsdPara()
@@ -345,19 +335,19 @@ void FieldManager::DumpFieldEnvironment(
     DumpFieldProperty(
         output,
         "Inner",
-        this->commManager.GetFieldProperty(
+        this->commonFields.GetFieldProperty(
             FieldLocation::Inner ) );
 
     DumpFieldProperty(
         output,
         "Face",
-        this->commManager.GetFieldProperty(
+        this->commonFields.GetFieldProperty(
             FieldLocation::Face ) );
 
     DumpFieldProperty(
         output,
         "Boundary",
-        this->commManager.GetFieldProperty(
+        this->commonFields.GetFieldProperty(
             FieldLocation::Boundary ) );
 
     output
@@ -366,19 +356,19 @@ void FieldManager::DumpFieldEnvironment(
     DumpFieldProperty(
         output,
         "Inner",
-        this->strManager.GetFieldProperty(
+        this->structuredFields.GetFieldProperty(
             FieldLocation::Inner ) );
 
     DumpFieldProperty(
         output,
         "Face",
-        this->strManager.GetFieldProperty(
+        this->structuredFields.GetFieldProperty(
             FieldLocation::Face ) );
 
     DumpFieldProperty(
         output,
         "Boundary",
-        this->strManager.GetFieldProperty(
+        this->structuredFields.GetFieldProperty(
             FieldLocation::Boundary ) );
 
     output
@@ -387,19 +377,19 @@ void FieldManager::DumpFieldEnvironment(
     DumpFieldProperty(
         output,
         "Inner",
-        this->unsManager.GetFieldProperty(
+        this->unstructuredFields.GetFieldProperty(
             FieldLocation::Inner ) );
 
     DumpFieldProperty(
         output,
         "Face",
-        this->unsManager.GetFieldProperty(
+        this->unstructuredFields.GetFieldProperty(
             FieldLocation::Face ) );
 
     DumpFieldProperty(
         output,
         "Boundary",
-        this->unsManager.GetFieldProperty(
+        this->unstructuredFields.GetFieldProperty(
             FieldLocation::Boundary ) );
 
     output
@@ -426,14 +416,13 @@ void FieldManager::SetField( const std::string & fieldName, Real value )
 void FieldManager::AddField(
     const std::string & fieldName,
     int nEqu,
-    FieldCategory category,
+    FieldApplicability applicability,
     FieldLocation location )
 {
     FieldProperty & fieldProperty =
-        GetFieldProperty(
-            this,
-            category,
-            location );
+        this->GetFieldPropertyData(
+            applicability ).GetFieldProperty(
+                location );
 
     fieldProperty.AddField(
         fieldName,
@@ -444,7 +433,7 @@ void FieldManager::AddInterfaceField(
     const std::string & fieldName )
 {
     const FieldProperty::Data & data =
-        this->commManager.GetFieldProperty(
+        this->commonFields.GetFieldProperty(
             FieldLocation::Inner ).GetData();
 
     FieldProperty::Data::const_iterator iter =

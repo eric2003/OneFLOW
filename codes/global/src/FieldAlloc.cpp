@@ -436,7 +436,7 @@ namespace
     {
         std::string name;
         int nEqu;
-        FieldCategory category;
+        FieldApplicability applicability;
     };
 
 
@@ -461,28 +461,28 @@ namespace
         int fieldType;
     };
 
-    FieldCategory ParseFieldCategory(
+    FieldApplicability ParseFieldApplicability(
         const std::string & typeName )
     {
         if ( typeName == "all" )
         {
-            return FieldCategory::Common;
+            return FieldApplicability::Common;
         }
 
         if ( typeName == "str" )
         {
-            return FieldCategory::Structured;
+            return FieldApplicability::Structured;
         }
 
         if ( typeName == "uns" )
         {
-            return FieldCategory::Unstructured;
+            return FieldApplicability::Unstructured;
         }
 
         Fatal(
-            "Unknown field category: " + typeName );
+            "Unknown field applicability: " + typeName );
 
-        return FieldCategory::Unstructured;
+        return FieldApplicability::Unstructured;
     }
 
     FieldDefinition ReadFieldDefinition(
@@ -502,8 +502,8 @@ namespace
         definition.nEqu =
             ResolveIntegerValue( equationCountToken );
 
-        definition.category =
-            ParseFieldCategory( categoryToken );
+        definition.applicability =
+            ParseFieldApplicability( categoryToken );
 
         return definition;
     }
@@ -516,7 +516,7 @@ namespace
         fieldManager->AddField(
             definition.name,
             definition.nEqu,
-            definition.category,
+            definition.applicability,
             location );
     }
 
@@ -698,11 +698,6 @@ namespace
         FieldManager * fieldManager,
         const std::string & basicString )
     {
-        if ( fieldManager->HasInterfaceDefinitions() )
-        {
-            return;
-        }
-
         const InterfaceFileSpec interfaceFileSpecs[] =
         {
             { "inter",        ONEFLOW::INTERFACE_DATA          },
@@ -815,7 +810,7 @@ namespace
 
     void AllocateInnerField(
         UnsGrid * grid,
-        FieldPropertyData * fieldPropertyData )
+        const FieldPropertyData * fieldPropertyData )
     {
         int nTCell = grid->nCells + grid->nBFaces;
 
@@ -849,7 +844,7 @@ namespace
 
     void AllocateFaceField(
         UnsGrid * grid,
-        FieldPropertyData * fieldPropertyData )
+        const FieldPropertyData * fieldPropertyData )
     {
         int nFaces = grid->nFaces;
 
@@ -882,9 +877,9 @@ namespace
         }
     }
 
-    void AllocateBcField(
+    void AllocateBoundaryField(
         UnsGrid * grid,
-        FieldPropertyData * fieldPropertyData )
+        const FieldPropertyData * fieldPropertyData )
     {
         int nBFaces = grid->nBFaces;
 
@@ -919,7 +914,7 @@ namespace
 
     void AllocateGridFields(
         UnsGrid * grid,
-        FieldPropertyData * fieldPropertyData )
+        const FieldPropertyData * fieldPropertyData )
     {
         AllocateInnerField(
             grid,
@@ -929,7 +924,7 @@ namespace
             grid,
             fieldPropertyData );
 
-        AllocateBcField(
+        AllocateBoundaryField(
             grid,
             fieldPropertyData );
     }
@@ -947,12 +942,12 @@ namespace
             AllocateGridFields(
                 grid,
                 &fieldManager->GetFieldPropertyData(
-                    FieldCategory::Common ) );
+                    FieldApplicability::Common ) );
 
             AllocateGridFields(
                 grid,
                 &fieldManager->GetFieldPropertyData(
-                    FieldCategory::Unstructured ) );
+                    FieldApplicability::Unstructured ) );
         }
     }
 
