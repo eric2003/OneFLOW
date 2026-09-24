@@ -877,7 +877,7 @@ namespace
         }
     }
 
-    void AllocateBcField(
+    void AllocateBoundaryField(
         UnsGrid * grid,
         const FieldPropertyData * fieldPropertyData )
     {
@@ -924,7 +924,7 @@ namespace
             grid,
             fieldPropertyData );
 
-        AllocateBcField(
+        AllocateBoundaryField(
             grid,
             fieldPropertyData );
     }
