@@ -247,6 +247,7 @@ const FieldProperty & FieldPropertyData::GetFieldProperty(
 
 FieldManager::FieldManager()
     : fieldDefinitionsReady( false )
+    , interfaceDefinitionsReady( false )
 {
     usdPara =
         std::make_unique< UsdPara >();
@@ -262,6 +263,16 @@ bool FieldManager::HasFieldDefinitions() const
 void FieldManager::MarkFieldDefinitionsReady()
 {
     this->fieldDefinitionsReady = true;
+}
+
+bool FieldManager::HasInterfaceDefinitions() const
+{
+    return this->interfaceDefinitionsReady;
+}
+
+void FieldManager::MarkInterfaceDefinitionsReady()
+{
+    this->interfaceDefinitionsReady = true;
 }
 
 IFieldProperty & FieldManager::GetInterfaceFieldProperty()
@@ -427,14 +438,28 @@ void FieldManager::AddField(
     fieldProperty.AddField(
         fieldName,
         nEqu );
+}
 
-    if ( category == FieldCategory::Common &&
-        location == FieldLocation::Inner )
+void FieldManager::AddInterfaceField(
+    const std::string & fieldName )
+{
+    const FieldProperty::Data & data =
+        this->commManager.GetFieldProperty(
+            FieldLocation::Inner ).GetData();
+
+    FieldProperty::Data::const_iterator iter =
+        data.find( fieldName );
+
+    if ( iter == data.end() )
     {
-        this->iFieldProperty.AddField(
-            fieldName,
-            nEqu );
+        Fatal(
+            "Interface field is not defined as a common inner field: "
+            + fieldName );
     }
+
+    this->iFieldProperty.AddField(
+        fieldName,
+        iter->second );
 }
 
 std::map< int, std::unique_ptr< FieldManager > > FieldFactory::data;

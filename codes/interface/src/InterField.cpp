@@ -87,13 +87,13 @@ DataStorage * GetInterfaceDataStorage( InterFace * interFace, int srFlag, int gh
 void AddFieldRecord(
     FieldRecord * fieldRecord,
     DataStorage * dataStorage,
-    StringField & fieldNameList )
+    const StringField & fieldNameList )
 {
     for ( int iField = 0;
         iField < fieldNameList.size();
         ++ iField )
     {
-        std::string & fieldName =
+        const std::string & fieldName =
             fieldNameList[ iField ];
 
         MRField * field =
@@ -123,7 +123,7 @@ void SetInterfaceFieldData( int iSr, FieldRecord * fieldRecord )
     
     ActionState::dataBook->MoveToBegin();
 
-    int nRecords = fieldRecord->fields.size();
+    int nRecords = fieldRecord->Size();
 
     for ( int fieldId = 0; fieldId < nRecords; ++ fieldId )
     {

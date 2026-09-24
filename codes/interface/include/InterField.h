@@ -34,7 +34,10 @@ class FieldRecord;
 
 DataStorage * GetInterfaceDataStorage( InterFace * interFace, int srFlag, int ghostId );
 void GetInterfaceDataStorageList( HXVector< DataStorage * > * iDataStorageList, int srFlag );
-void AddFieldRecord( FieldRecord * fieldRecord, DataStorage * dataStorage, StringField & fieldNameList );
+void AddFieldRecord(
+    FieldRecord * fieldRecord,
+    DataStorage * dataStorage,
+    const StringField & fieldNameList );
 void PrepareInterfaceFieldRecord( int solverType, int iFk, int iSr, FieldRecord * fieldRecord );
 void SetInterfaceFieldData( int iSr, FieldRecord * fieldRecord );
 

@@ -62,7 +62,6 @@ void TurbSolver::StaticInit()
     solverInfo->nEqu  = turbcom.nEqu;
     solverInfo->nTEqu = turbcom.nTEqu;
 
-    solverInfo->registerInterface = 0;
     solverInfo->residualName = "turbres";
     solverInfo->resFileName = GetDataValue< std::string >( "turbresFile" );
     solverInfo->gradString.push_back( "turbq"    );

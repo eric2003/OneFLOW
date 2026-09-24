@@ -82,8 +82,12 @@ class FieldManager
 public:
     FieldManager();
     ~FieldManager();
+public:
     bool HasFieldDefinitions() const;
     void MarkFieldDefinitionsReady();
+
+    bool HasInterfaceDefinitions() const;
+    void MarkInterfaceDefinitionsReady();
 
 public:
     IFieldProperty & GetInterfaceFieldProperty();
@@ -102,6 +106,9 @@ public:
     void DumpFieldEnvironment(
         std::ostream & output ) const;
 
+    void AddInterfaceField(
+        const std::string & fieldName );
+
     void AddField(
         const std::string & fieldName,
         int nEqu,
@@ -118,7 +125,9 @@ private:
     FieldPropertyData unsManager;
     IFieldProperty iFieldProperty;
     std::unique_ptr< UsdPara > usdPara;
+
     bool fieldDefinitionsReady;
+    bool interfaceDefinitionsReady;
 };
 
 class FieldFactory

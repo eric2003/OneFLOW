@@ -35,7 +35,6 @@ public:
 public:
     int nEqu;
     int nTEqu;
-    int registerInterface;
     int numberOfImplicitSweeps;
     StringField gradString;
     StringField implicitString;
