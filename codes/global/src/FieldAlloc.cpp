@@ -599,7 +599,7 @@ void FieldAlloc::AllocateAllFields(
 
     if ( ! fieldManager->HasFieldDefinitions() )
     {
-        FieldAlloc::RegisterFieldDefinitions(
+        FieldAlloc::AddFieldDefinition(
             fieldManager,
             basicString );
 
@@ -718,7 +718,7 @@ void FieldAlloc::ValidateInterfaceVar(
     }
 }
 
-void FieldAlloc::RegisterFieldDefinitions(
+void FieldAlloc::AddFieldDefinition(
     FieldManager * fieldManager,
     const std::string & basicString )
 {
