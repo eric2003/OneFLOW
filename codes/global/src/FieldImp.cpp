@@ -442,7 +442,7 @@ void FieldManager::AddInterfaceField(
     if ( iter == data.end() )
     {
         Fatal(
-            "Interface field is not defined as a common inner field: "
+            "Interface field is not defined in the All/Inner field set: "
             + fieldName );
     }
 
