@@ -75,11 +75,6 @@ public:
     static void AllocateAllFields(
         int solverType,
         const std::string & basicString );
-
-    static void InitField(
-        FieldManager * fieldManager,
-        const std::string & basicString );
-
 };
 
 class TextFileParser;

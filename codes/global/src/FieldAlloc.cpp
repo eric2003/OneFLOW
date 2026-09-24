@@ -675,6 +675,19 @@ namespace
             &fieldManager->GetInterfaceFieldProperty() );
     }
 
+    void InitField(
+        FieldManager * fieldManager,
+        const std::string & basicString )
+    {
+        std::string fileName = Prj::GetSystemFileName( basicString + "/alloc/init.txt" );
+        BoolIO boolIO;
+        boolIO.ReadValueFile( fileName );
+
+        SetFieldValues(
+            fieldManager,
+            boolIO.GetNameValuePair() );
+    }
+
     using BoolLineReader =
         void ( BoolIO::* )( TextFileParser & );
 
@@ -814,25 +827,10 @@ void FieldAlloc::AllocateAllFields(
     AllocateRuntimeFields(
         fieldManager );
 
-    FieldAlloc::InitField(
+    InitField(
         fieldManager,
         basicString );
 }
-
-void FieldAlloc::InitField(
-    FieldManager * fieldManager,
-    const std::string & basicString )
-{
-    std::string fileName = Prj::GetSystemFileName( basicString + "/alloc/init.txt" );
-    BoolIO boolIO;
-    boolIO.ReadValueFile( fileName );
-
-    SetFieldValues(
-        fieldManager,
-        boolIO.GetNameValuePair() );
-}
-
-
 
 void BoolIO::Add( const std::string & name, bool value )
 {
