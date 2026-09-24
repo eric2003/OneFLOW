@@ -72,9 +72,7 @@ private:
     FieldProperty innerField;
 };
 
-class FieldManager;
 class UsdPara;
-class FieldPropertyData;
 class UnsGrid;
 
 class FieldManager
@@ -141,7 +139,6 @@ private:
     static std::map< int, std::unique_ptr< FieldManager > > data;
 };
 
-class UnsGrid;
 void UploadInterfaceValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu );
 void DownloadInterfaceValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu );
 void UploadOversetValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu );
