@@ -2228,8 +2228,8 @@ bool String::CaseInsensitiveCStringEquals(const char* lhs, const char* rhs) {
 // NB: The implementations on different platforms slightly differ.
 // On windows, this method uses _wcsicmp which compares according to LC_CTYPE
 // environment variable. On GNU platform this method uses wcscasecmp
-// which compares according to LC_CTYPE category of the current locale.
-// On MacOS X, it uses towlower, which also uses LC_CTYPE category of the
+// which compares according to LC_CTYPE applicability of the current locale.
+// On MacOS X, it uses towlower, which also uses LC_CTYPE applicability of the
 // current locale.
 bool String::CaseInsensitiveWideCStringEquals(const wchar_t* lhs,
                                               const wchar_t* rhs) {

@@ -276,17 +276,17 @@ const IFieldProperty & FieldManager::GetInterfaceFieldProperty() const
 }
 
 FieldPropertyData & FieldManager::GetFieldPropertyData(
-    FieldCategory category )
+    FieldApplicability applicability )
 {
-    switch ( category )
+    switch ( applicability )
     {
-    case FieldCategory::Common:
+    case FieldApplicability::Common:
         return commonFields;
 
-    case FieldCategory::Structured:
+    case FieldApplicability::Structured:
         return structuredFields;
 
-    case FieldCategory::Unstructured:
+    case FieldApplicability::Unstructured:
         return unstructuredFields;
     }
 
@@ -295,17 +295,17 @@ FieldPropertyData & FieldManager::GetFieldPropertyData(
 }
 
 const FieldPropertyData & FieldManager::GetFieldPropertyData(
-    FieldCategory category ) const
+    FieldApplicability applicability ) const
 {
-    switch ( category )
+    switch ( applicability )
     {
-    case FieldCategory::Common:
+    case FieldApplicability::Common:
         return commonFields;
 
-    case FieldCategory::Structured:
+    case FieldApplicability::Structured:
         return structuredFields;
 
-    case FieldCategory::Unstructured:
+    case FieldApplicability::Unstructured:
         return unstructuredFields;
     }
 
@@ -416,12 +416,12 @@ void FieldManager::SetField( const std::string & fieldName, Real value )
 void FieldManager::AddField(
     const std::string & fieldName,
     int nEqu,
-    FieldCategory category,
+    FieldApplicability applicability,
     FieldLocation location )
 {
     FieldProperty & fieldProperty =
         this->GetFieldPropertyData(
-            category ).GetFieldProperty(
+            applicability ).GetFieldProperty(
                 location );
 
     fieldProperty.AddField(

@@ -93,10 +93,10 @@ public:
     const IFieldProperty & GetInterfaceFieldProperty() const;
 
     FieldPropertyData & GetFieldPropertyData(
-        FieldCategory category );
+        FieldApplicability applicability );
 
     const FieldPropertyData & GetFieldPropertyData(
-        FieldCategory category ) const;
+        FieldApplicability applicability ) const;
 
     UsdPara & GetUsdPara();
     const UsdPara & GetUsdPara() const;
@@ -110,7 +110,7 @@ public:
     void AddField(
         const std::string & fieldName,
         int nEqu,
-        FieldCategory category,
+        FieldApplicability applicability,
         FieldLocation location );
 
     void SetField(

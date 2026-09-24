@@ -436,7 +436,7 @@ namespace
     {
         std::string name;
         int nEqu;
-        FieldCategory category;
+        FieldApplicability applicability;
     };
 
 
@@ -461,28 +461,28 @@ namespace
         int fieldType;
     };
 
-    FieldCategory ParseFieldCategory(
+    FieldApplicability ParseFieldCategory(
         const std::string & typeName )
     {
         if ( typeName == "all" )
         {
-            return FieldCategory::Common;
+            return FieldApplicability::Common;
         }
 
         if ( typeName == "str" )
         {
-            return FieldCategory::Structured;
+            return FieldApplicability::Structured;
         }
 
         if ( typeName == "uns" )
         {
-            return FieldCategory::Unstructured;
+            return FieldApplicability::Unstructured;
         }
 
         Fatal(
             "Unknown field category: " + typeName );
 
-        return FieldCategory::Unstructured;
+        return FieldApplicability::Unstructured;
     }
 
     FieldDefinition ReadFieldDefinition(
@@ -502,7 +502,7 @@ namespace
         definition.nEqu =
             ResolveIntegerValue( equationCountToken );
 
-        definition.category =
+        definition.applicability =
             ParseFieldCategory( categoryToken );
 
         return definition;
@@ -516,7 +516,7 @@ namespace
         fieldManager->AddField(
             definition.name,
             definition.nEqu,
-            definition.category,
+            definition.applicability,
             location );
     }
 
@@ -942,12 +942,12 @@ namespace
             AllocateGridFields(
                 grid,
                 &fieldManager->GetFieldPropertyData(
-                    FieldCategory::Common ) );
+                    FieldApplicability::Common ) );
 
             AllocateGridFields(
                 grid,
                 &fieldManager->GetFieldPropertyData(
-                    FieldCategory::Unstructured ) );
+                    FieldApplicability::Unstructured ) );
         }
     }
 
