@@ -139,6 +139,18 @@ namespace
             definition.nEqu );
     }
 
+    void AddFieldDefinition(
+        FieldManager * fieldManager,
+        const FieldDefinition & definition,
+        FieldLocation location )
+    {
+        fieldManager->AddField(
+            definition.name,
+            definition.nEqu,
+            definition.category,
+            location );
+    }
+
     void AddUsdFieldName(
         UsdFieldNames & fieldNames,
         const std::string & fieldName,
@@ -345,8 +357,9 @@ namespace
     }
 
     void ReadFieldDefinitions(
+        FieldManager * fieldManager,
         const std::string & fileName,
-        ParaNameDimData & paraNameDimData )
+        FieldLocation location )
     {
         TextFileParser textFileParser;
 
@@ -374,9 +387,10 @@ namespace
                     ReadFieldDefinition(
                         textFileParser );
 
-                AddFieldEntry(
-                    paraNameDimData,
-                    definition );
+                AddFieldDefinition(
+                    fieldManager,
+                    definition,
+                    location );
             }
         }
 
@@ -385,16 +399,18 @@ namespace
 
     void ReadUsdFieldDefinition(
         TextFileParser & textFileParser,
-        ParaNameDimData & paraNameDimData,
+        FieldManager * fieldManager,
+        FieldLocation location,
         UsdFieldNames & fieldNames )
     {
         FieldDefinition definition =
             ReadFieldDefinition(
                 textFileParser );
 
-        AddFieldEntry(
-            paraNameDimData,
-            definition );
+        AddFieldDefinition(
+            fieldManager,
+            definition,
+            location );
 
         if ( textFileParser.NextWordIsEmpty() )
         {
@@ -412,7 +428,8 @@ namespace
 
     void ReadUsdFieldDefinitions(
         const std::string & fileName,
-        ParaNameDimData & paraNameDimData,
+        FieldManager * fieldManager,
+        FieldLocation location,
         UsdFieldNames & fieldNames )
     {
         TextFileParser textFileParser;
@@ -441,7 +458,8 @@ namespace
             {
                 ReadUsdFieldDefinition(
                     textFileParser,
-                    paraNameDimData,
+                    fieldManager,
+                    location,
                     fieldNames );
             }
         }
@@ -455,33 +473,34 @@ namespace
         FieldLocation location,
         FieldFileType type )
     {
-        ParaNameDimData paraNameDimData;
-
         if ( type == FieldFileType::Unsteady )
         {
             UsdFieldNames fieldNames;
 
             ReadUsdFieldDefinitions(
                 fileName,
-                paraNameDimData,
+                fieldManager,
+                location,
                 fieldNames );
 
-            AddUnsteadyInnerFieldProperty(
-                fieldManager,
-                fieldNames,
-                paraNameDimData );
+            UsdPara * usdPara =
+                &fieldManager->GetUsdPara();
+
+            int nEqu =
+                GetDataValue< int >( "nEqu" );
+
+            usdPara->Init(
+                fieldNames.flow,
+                fieldNames.residual,
+                nEqu );
 
             return;
         }
 
         ReadFieldDefinitions(
-            fileName,
-            paraNameDimData );
-
-        AddFieldProperties(
             fieldManager,
-            location,
-            paraNameDimData );
+            fileName,
+            location );
     }
 
     using BoolLineReader =
