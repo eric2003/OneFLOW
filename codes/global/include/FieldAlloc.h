@@ -80,33 +80,6 @@ public:
         FieldManager * fieldManager,
         const std::string & basicString );
 
-    static void AllocateRuntimeFields(
-        FieldManager * fieldManager );
-
-    static void AllocateGridFields(
-        FieldManager * fieldManager );
-
-    static void AllocateGridFields(
-        UnsGrid * grid,
-        FieldPropertyData * fieldPropertyData );
-
-    static void AllocateInnerField(
-        UnsGrid * grid,
-        FieldPropertyData * fieldPropertyData );
-
-    static void AllocateFaceField(
-        UnsGrid * grid,
-        FieldPropertyData * fieldPropertyData );
-
-    static void AllocateBcField(
-        UnsGrid * grid,
-        FieldPropertyData * fieldPropertyData );
-
-    static void AllocateInterfaceField(
-        IFieldProperty * iFieldProperty );
-
-    static void AllocateOversetInterfaceField(
-        IFieldProperty * iFieldProperty );
 };
 
 class TextFileParser;
