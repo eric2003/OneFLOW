@@ -429,10 +429,9 @@ void FieldManager::AddField(
     FieldLocation location )
 {
     FieldProperty & fieldProperty =
-        GetFieldProperty(
-            this,
-            category,
-            location );
+        this->GetFieldPropertyData(
+            category ).GetFieldProperty(
+                location );
 
     fieldProperty.AddField(
         fieldName,
