@@ -698,11 +698,6 @@ namespace
         FieldManager * fieldManager,
         const std::string & basicString )
     {
-        if ( fieldManager->HasInterfaceDefinitions() )
-        {
-            return;
-        }
-
         const InterfaceFileSpec interfaceFileSpecs[] =
         {
             { "inter",        ONEFLOW::INTERFACE_DATA          },
