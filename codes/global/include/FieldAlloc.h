@@ -88,7 +88,7 @@ public:
         int solverType,
         FieldManager * fieldManager );
 
-    static void AddFieldDefinition(
+    static void RegisterFieldDefinitions(
         FieldManager * fieldManager,
         const std::string & basicString );
 
