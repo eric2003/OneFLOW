@@ -118,6 +118,10 @@ public:
         Real value );
 
 private:
+    bool FindFieldDefinition(
+        const std::string & fieldName,
+        int & nEqu ) const;
+
     FieldPropertyData allFields;
     FieldPropertyData structuredFields;
     FieldPropertyData unstructuredFields;

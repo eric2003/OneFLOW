@@ -432,23 +432,65 @@ void FieldManager::AddField(
 void FieldManager::AddInterfaceField(
     const std::string & fieldName )
 {
-    const FieldProperty::Data & data =
-        this->allFields.GetFieldProperty(
-            FieldLocation::Inner ).GetData();
+    int nEqu = 0;
 
-    FieldProperty::Data::const_iterator iter =
-        data.find( fieldName );
-
-    if ( iter == data.end() )
+    if ( ! this->FindFieldDefinition(
+        fieldName,
+        nEqu ) )
     {
         Fatal(
-            "Interface field is not defined in the All/Inner field set: "
+            "Interface field is not defined in the field definitions: "
             + fieldName );
     }
 
     this->iFieldProperty.AddField(
         fieldName,
-        iter->second );
+        nEqu );
+}
+
+bool FieldManager::FindFieldDefinition(
+    const std::string & fieldName,
+    int & nEqu ) const
+{
+    bool found = false;
+
+    const FieldPropertyData * dataList[] =
+    {
+        &this->allFields,
+        &this->structuredFields,
+        &this->unstructuredFields
+    };
+
+    for ( const FieldPropertyData * fieldPropertyData : dataList )
+    {
+        const FieldProperty::Data & data =
+            fieldPropertyData->GetFieldProperty(
+                FieldLocation::Inner ).GetData();
+
+        FieldProperty::Data::const_iterator iter =
+            data.find( fieldName );
+
+        if ( iter == data.end() )
+        {
+            continue;
+        }
+
+        if ( ! found )
+        {
+            nEqu = iter->second;
+            found = true;
+            continue;
+        }
+
+        if ( nEqu != iter->second )
+        {
+            Fatal(
+                "Conflicting field definition: "
+                + fieldName );
+        }
+    }
+
+    return found;
 }
 
 std::map< int, std::unique_ptr< FieldManager > > FieldFactory::data;
