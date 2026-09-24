@@ -159,6 +159,59 @@ namespace
             "Unknown unsteady field role: " + role );
     }
 
+    void ReadFieldDefinitions(
+        TextFileParser & textFileParser,
+        FieldManager * fieldManager,
+        FieldLocation location,
+        UsdFieldNames * fieldNames )
+    {
+        while ( ! textFileParser.ReachTheEndOfFile() )
+        {
+            bool flag =
+                textFileParser.ReadNextNonEmptyLine();
+
+            if ( ! flag )
+            {
+                break;
+            }
+
+            std::string keyWord =
+                textFileParser.ReadNextWord();
+
+            if ( keyWord != "true" )
+            {
+                continue;
+            }
+
+            FieldDefinition definition =
+                ReadFieldDefinition(
+                    textFileParser );
+
+            AddFieldDefinition(
+                fieldManager,
+                definition,
+                location );
+
+            if ( fieldNames == nullptr )
+            {
+                continue;
+            }
+
+            if ( textFileParser.NextWordIsEmpty() )
+            {
+                continue;
+            }
+
+            std::string role =
+                textFileParser.ReadNextWord();
+
+            AddUsdFieldName(
+                *fieldNames,
+                definition.name,
+                role );
+        }
+    }
+
     void SetFieldValues(
         FieldManager * fieldManager,
         const NameValuePair & valuePair )
@@ -275,132 +328,33 @@ namespace
         return false;
     }
 
-    void ReadFieldDefinitions(
-        FieldManager * fieldManager,
-        const std::string & fileName,
-        FieldLocation location )
-    {
-        TextFileParser textFileParser;
-
-        // \t is the tab key
-        std::string separator = " \r\n\t#$,;\"()";
-
-        textFileParser.OpenFile(
-            fileName,
-            std::ios_base::in );
-
-        textFileParser.SetDefaultSeparator(
-            separator );
-
-        while ( ! textFileParser.ReachTheEndOfFile() )
-        {
-            bool flag = textFileParser.ReadNextNonEmptyLine();
-            if ( ! flag ) break;
-
-            std::string keyWord =
-                textFileParser.ReadNextWord();
-
-            if ( keyWord == "true" )
-            {
-                FieldDefinition definition =
-                    ReadFieldDefinition(
-                        textFileParser );
-
-                AddFieldDefinition(
-                    fieldManager,
-                    definition,
-                    location );
-            }
-        }
-
-        textFileParser.CloseFile();
-    }
-
-    void ReadUsdFieldDefinition(
-        TextFileParser & textFileParser,
-        FieldManager * fieldManager,
-        FieldLocation location,
-        UsdFieldNames & fieldNames )
-    {
-        FieldDefinition definition =
-            ReadFieldDefinition(
-                textFileParser );
-
-        AddFieldDefinition(
-            fieldManager,
-            definition,
-            location );
-
-        if ( textFileParser.NextWordIsEmpty() )
-        {
-            return;
-        }
-
-        std::string role =
-            textFileParser.ReadNextWord();
-
-        AddUsdFieldName(
-            fieldNames,
-            definition.name,
-            role );
-    }
-
-    void ReadUsdFieldDefinitions(
-        const std::string & fileName,
-        FieldManager * fieldManager,
-        FieldLocation location,
-        UsdFieldNames & fieldNames )
-    {
-        TextFileParser textFileParser;
-
-        // \t is the tab key
-        std::string separator = " \r\n\t#$,;\"()";
-
-        textFileParser.OpenFile(
-            fileName,
-            std::ios_base::in );
-
-        textFileParser.SetDefaultSeparator(
-            separator );
-
-        while ( ! textFileParser.ReachTheEndOfFile() )
-        {
-            bool flag =
-                textFileParser.ReadNextNonEmptyLine();
-
-            if ( ! flag ) break;
-
-            std::string keyWord =
-                textFileParser.ReadNextWord();
-
-            if ( keyWord == "true" )
-            {
-                ReadUsdFieldDefinition(
-                    textFileParser,
-                    fieldManager,
-                    location,
-                    fieldNames );
-            }
-        }
-
-        textFileParser.CloseFile();
-    }
-
     void RegisterFieldFile(
         FieldManager * fieldManager,
         const std::string & fileName,
         FieldLocation location,
         FieldFileType type )
     {
+        TextFileParser textFileParser;
+
+        // \t is the tab key
+        std::string separator = " \r\n\t#$,;\"()";
+
+        textFileParser.OpenFile(
+            fileName,
+            std::ios_base::in );
+
+        textFileParser.SetDefaultSeparator(
+            separator );
+
         if ( type == FieldFileType::Unsteady )
         {
             UsdFieldNames fieldNames;
 
-            ReadUsdFieldDefinitions(
-                fileName,
+            ReadFieldDefinitions(
+                textFileParser,
                 fieldManager,
                 location,
-                fieldNames );
+                &fieldNames );
 
             UsdPara * usdPara =
                 &fieldManager->GetUsdPara();
@@ -412,14 +366,17 @@ namespace
                 fieldNames.flow,
                 fieldNames.residual,
                 nEqu );
-
-            return;
+        }
+        else
+        {
+            ReadFieldDefinitions(
+                textFileParser,
+                fieldManager,
+                location,
+                nullptr );
         }
 
-        ReadFieldDefinitions(
-            fieldManager,
-            fileName,
-            location );
+        textFileParser.CloseFile();
     }
 
     using BoolLineReader =
