@@ -39,15 +39,6 @@ BeginNameSpace( ONEFLOW )
 
 namespace
 {
-    FieldProperty & GetFieldProperty(
-        FieldManager * fieldManager,
-        FieldCategory category,
-        FieldLocation location )
-    {
-        return fieldManager->GetFieldPropertyData(
-            category ).GetFieldProperty( location );
-    }
-
     void DumpFieldProperty(
         std::ostream & output,
         const char * name,
