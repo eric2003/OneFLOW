@@ -126,19 +126,6 @@ namespace
         return definition;
     }
 
-    void AddFieldEntry(
-        ParaNameDimData & paraNameDimData,
-        const FieldDefinition & definition )
-    {
-        ParaNameDim * paraNameDim =
-            paraNameDimData.GetParaNameDim(
-                definition.category );
-
-        paraNameDim->Add(
-            definition.name,
-            definition.nEqu );
-    }
-
     void AddFieldDefinition(
         FieldManager * fieldManager,
         const FieldDefinition & definition,
@@ -170,79 +157,6 @@ namespace
 
         Fatal(
             "Unknown unsteady field role: " + role );
-    }
-
-    void AddBasicFieldProperty(
-        FieldManager * fieldManager,
-        const ParaNameDim * paraNameDim,
-        FieldLocation location,
-        FieldCategory category )
-    {
-        int fieldCount = paraNameDim->Size();
-
-        for ( int fieldIndex = 0; fieldIndex < fieldCount; ++ fieldIndex )
-        {
-            const std::string & fieldName =
-                paraNameDim->GetName( fieldIndex );
-
-            int nEqu =
-                paraNameDim->GetNEqu( fieldIndex );
-
-            fieldManager->AddField(
-                fieldName,
-                nEqu,
-                category,
-                location );
-        }
-    }
-
-    void AddFieldProperties(
-        FieldManager * fieldManager,
-        FieldLocation location,
-        const ParaNameDimData & paraNameDimData )
-    {
-        AddBasicFieldProperty(
-            fieldManager,
-            paraNameDimData.GetParaNameDim(
-                FieldCategory::Unstructured ),
-            location,
-            FieldCategory::Unstructured );
-
-        AddBasicFieldProperty(
-            fieldManager,
-            paraNameDimData.GetParaNameDim(
-                FieldCategory::Structured ),
-            location,
-            FieldCategory::Structured );
-
-        AddBasicFieldProperty(
-            fieldManager,
-            paraNameDimData.GetParaNameDim(
-                FieldCategory::Common ),
-            location,
-            FieldCategory::Common );
-    }
-
-    void AddUnsteadyInnerFieldProperty(
-        FieldManager * fieldManager,
-        const UsdFieldNames & fieldNames,
-        const ParaNameDimData & paraNameDimData )
-    {
-        AddFieldProperties(
-            fieldManager,
-            FieldLocation::Inner,
-            paraNameDimData );
-
-        UsdPara * usdPara =
-            &fieldManager->GetUsdPara();
-
-        int nEqu =
-            GetDataValue< int >( "nEqu" );
-
-        usdPara->Init(
-            fieldNames.flow,
-            fieldNames.residual,
-            nEqu );
     }
 
     void SetFieldValues(
@@ -1080,76 +994,6 @@ void BoolIO::ReadValueFile(
         *this,
         fileName,
         &BoolIO::ReadNameValue );
-}
-
-void ParaNameDim::Add(
-    const std::string & name,
-    int nEqu )
-{
-    FieldEntry entry;
-
-    entry.name = name;
-    entry.nEqu = nEqu;
-
-    this->fields.push_back( entry );
-}
-
-int ParaNameDim::Size() const
-{
-    return this->fields.size();
-}
-
-const std::string & ParaNameDim::GetName(
-    int index ) const
-{
-    return this->fields[ index ].name;
-}
-
-int ParaNameDim::GetNEqu(
-    int index ) const
-{
-    return this->fields[ index ].nEqu;
-}
-
-ParaNameDim * ParaNameDimData::GetParaNameDim(
-    FieldCategory category )
-{
-    switch ( category )
-    {
-    case FieldCategory::Common:
-        return &comPara;
-
-    case FieldCategory::Structured:
-        return &strPara;
-
-    case FieldCategory::Unstructured:
-        return &unsPara;
-    }
-
-    Fatal( "Unknown field category." );
-
-    return nullptr;
-}
-
-const ParaNameDim *
-ParaNameDimData::GetParaNameDim(
-    FieldCategory category ) const
-{
-    switch ( category )
-    {
-    case FieldCategory::Common:
-        return &comPara;
-
-    case FieldCategory::Structured:
-        return &strPara;
-
-    case FieldCategory::Unstructured:
-        return &unsPara;
-    }
-
-    Fatal( "Unknown field category." );
-
-    return nullptr;
 }
 
 EndNameSpace

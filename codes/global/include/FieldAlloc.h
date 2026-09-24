@@ -121,40 +121,6 @@ public:
         IFieldProperty * iFieldProperty );
 };
 
-class ParaNameDim
-{
-private:
-    struct FieldEntry
-    {
-        std::string name;
-        int nEqu;
-    };
-
-    HXVector< FieldEntry > fields;
-
-public:
-    void Add(
-        const std::string & name,
-        int nEqu );
-
-    int Size() const;
-
-    const std::string & GetName( int index ) const;
-    int GetNEqu( int index ) const;
-};
-
-class ParaNameDimData
-{
-private:
-    ParaNameDim comPara;
-    ParaNameDim strPara;
-    ParaNameDim unsPara;
-
-public:
-    ParaNameDim * GetParaNameDim( FieldCategory category );
-    const ParaNameDim * GetParaNameDim( FieldCategory category ) const;
-};
-
 class TextFileParser;
 
 class BoolIO
