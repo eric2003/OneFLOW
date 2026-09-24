@@ -27,9 +27,9 @@ BeginNameSpace( ONEFLOW )
 
 enum class FieldApplicability
 {
-    Unstructured,
+    All,
     Structured,
-    Common
+    Unstructured
 };
 
 enum class FieldLocation

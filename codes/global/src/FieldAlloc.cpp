@@ -466,7 +466,7 @@ namespace
     {
         if ( typeName == "all" )
         {
-            return FieldApplicability::Common;
+            return FieldApplicability::All;
         }
 
         if ( typeName == "str" )
@@ -942,7 +942,7 @@ namespace
             AllocateGridFields(
                 grid,
                 &fieldManager->GetFieldPropertyData(
-                    FieldApplicability::Common ) );
+                    FieldApplicability::All ) );
 
             AllocateGridFields(
                 grid,

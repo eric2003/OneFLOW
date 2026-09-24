@@ -280,7 +280,7 @@ FieldPropertyData & FieldManager::GetFieldPropertyData(
 {
     switch ( applicability )
     {
-    case FieldApplicability::Common:
+    case FieldApplicability::All:
         return commonFields;
 
     case FieldApplicability::Structured:
@@ -299,7 +299,7 @@ const FieldPropertyData & FieldManager::GetFieldPropertyData(
 {
     switch ( applicability )
     {
-    case FieldApplicability::Common:
+    case FieldApplicability::All:
         return commonFields;
 
     case FieldApplicability::Structured:
