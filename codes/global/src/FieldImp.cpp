@@ -57,6 +57,30 @@ namespace
 
         fieldProperty.Dump( output );
     }
+
+    void ValidateCompatibleFieldDefinition(
+        const FieldProperty & fieldProperty,
+        const std::string & fieldName,
+        int nEqu )
+    {
+        const FieldProperty::Data & data =
+            fieldProperty.GetData();
+
+        FieldProperty::Data::const_iterator iter =
+            data.find( fieldName );
+
+        if ( iter == data.end() )
+        {
+            return;
+        }
+
+        if ( iter->second != nEqu )
+        {
+            Fatal(
+                "Conflicting field definition: "
+                + fieldName );
+        }
+    }
 }
 
 void FieldProperty::AddField(
@@ -419,6 +443,32 @@ void FieldManager::AddField(
     FieldApplicability applicability,
     FieldLocation location )
 {
+    if ( applicability == FieldApplicability::All )
+    {
+        ValidateCompatibleFieldDefinition(
+            this->GetFieldPropertyData(
+                FieldApplicability::Structured ).GetFieldProperty(
+                    location ),
+            fieldName,
+            nEqu );
+
+        ValidateCompatibleFieldDefinition(
+            this->GetFieldPropertyData(
+                FieldApplicability::Unstructured ).GetFieldProperty(
+                    location ),
+            fieldName,
+            nEqu );
+    }
+    else
+    {
+        ValidateCompatibleFieldDefinition(
+            this->GetFieldPropertyData(
+                FieldApplicability::All ).GetFieldProperty(
+                    location ),
+            fieldName,
+            nEqu );
+    }
+
     FieldProperty & fieldProperty =
         this->GetFieldPropertyData(
             applicability ).GetFieldProperty(
