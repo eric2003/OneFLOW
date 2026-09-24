@@ -118,7 +118,7 @@ public:
         Real value );
 
 private:
-    FieldPropertyData commManager;
+    FieldPropertyData commonFields;
     FieldPropertyData strManager;
     FieldPropertyData unsManager;
     IFieldProperty iFieldProperty;

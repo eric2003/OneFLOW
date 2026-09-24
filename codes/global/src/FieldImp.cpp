@@ -281,7 +281,7 @@ FieldPropertyData & FieldManager::GetFieldPropertyData(
     switch ( category )
     {
     case FieldCategory::Common:
-        return commManager;
+        return commonFields;
 
     case FieldCategory::Structured:
         return strManager;
@@ -291,7 +291,7 @@ FieldPropertyData & FieldManager::GetFieldPropertyData(
     }
 
     Fatal( "Invalid field category" );
-    return commManager;
+    return commonFields;
 }
 
 const FieldPropertyData & FieldManager::GetFieldPropertyData(
@@ -300,7 +300,7 @@ const FieldPropertyData & FieldManager::GetFieldPropertyData(
     switch ( category )
     {
     case FieldCategory::Common:
-        return commManager;
+        return commonFields;
 
     case FieldCategory::Structured:
         return strManager;
@@ -310,7 +310,7 @@ const FieldPropertyData & FieldManager::GetFieldPropertyData(
     }
 
     Fatal( "Invalid field category" );
-    return commManager;
+    return commonFields;
 }
 
 UsdPara & FieldManager::GetUsdPara()
@@ -335,19 +335,19 @@ void FieldManager::DumpFieldEnvironment(
     DumpFieldProperty(
         output,
         "Inner",
-        this->commManager.GetFieldProperty(
+        this->commonFields.GetFieldProperty(
             FieldLocation::Inner ) );
 
     DumpFieldProperty(
         output,
         "Face",
-        this->commManager.GetFieldProperty(
+        this->commonFields.GetFieldProperty(
             FieldLocation::Face ) );
 
     DumpFieldProperty(
         output,
         "Boundary",
-        this->commManager.GetFieldProperty(
+        this->commonFields.GetFieldProperty(
             FieldLocation::Boundary ) );
 
     output
@@ -433,7 +433,7 @@ void FieldManager::AddInterfaceField(
     const std::string & fieldName )
 {
     const FieldProperty::Data & data =
-        this->commManager.GetFieldProperty(
+        this->commonFields.GetFieldProperty(
             FieldLocation::Inner ).GetData();
 
     FieldProperty::Data::const_iterator iter =
