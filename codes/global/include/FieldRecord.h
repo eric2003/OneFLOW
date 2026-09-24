@@ -32,11 +32,12 @@ public:
     ~FieldRecord();
 
 public:
-    HXVector< MRField * > fields;
-
-public:
     void AddField( MRField * field );
     MRField * GetField( int id );
+    int Size() const;
+
+private:
+    HXVector< MRField * > fields;
 };
 
 EndNameSpace

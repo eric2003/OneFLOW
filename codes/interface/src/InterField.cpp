@@ -123,7 +123,7 @@ void SetInterfaceFieldData( int iSr, FieldRecord * fieldRecord )
     
     ActionState::dataBook->MoveToBegin();
 
-    int nRecords = fieldRecord->fields.size();
+    int nRecords = fieldRecord->Size();
 
     for ( int fieldId = 0; fieldId < nRecords; ++ fieldId )
     {

@@ -41,5 +41,10 @@ MRField * FieldRecord::GetField( int id )
     return this->fields[ id ];
 }
 
+int FieldRecord::Size() const
+{
+    return this->fields.size();
+}
+
 
 EndNameSpace

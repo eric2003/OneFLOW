@@ -47,13 +47,14 @@ public:
     ScalarFieldRecord();
     ~ScalarFieldRecord();
 public:
-    HXVector< MRField * > fields;
-    IntField nEquList;
-public:
     void AddField( MRField * field, int nEqu );
     MRField * GetField( int id );
 public:
     void AddFieldRecord( DataStorage * dataStorage, StringField & fieldNameList );
+public:
+    IntField nEquList;
+private:
+    HXVector< MRField * > fields;
 };
 
 
