@@ -731,7 +731,7 @@ namespace
         fieldManager->MarkInterfaceDefinitionsReady();
     }
 
-    void ValidateInterfaceVar(
+    void ValidateCommunicationFields(
         int solverType,
         FieldManager * fieldManager )
     {
@@ -1027,7 +1027,7 @@ void FieldAlloc::AllocateAllFields(
             fieldManager,
             basicString );
 
-        ValidateInterfaceVar(
+        ValidateCommunicationFields(
             solverType,
             fieldManager );
     }
