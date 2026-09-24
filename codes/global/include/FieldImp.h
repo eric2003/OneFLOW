@@ -118,7 +118,7 @@ public:
         Real value );
 
 private:
-    FieldPropertyData commonFields;
+    FieldPropertyData allFields;
     FieldPropertyData structuredFields;
     FieldPropertyData unstructuredFields;
     IFieldProperty iFieldProperty;
