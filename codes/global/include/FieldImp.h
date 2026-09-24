@@ -118,7 +118,7 @@ public:
         Real value );
 
 private:
-    bool FindFieldDefinition(
+    bool FindInnerFieldDefinition(
         const std::string & fieldName,
         int & nEqu ) const;
 

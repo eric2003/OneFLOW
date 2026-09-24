@@ -484,7 +484,7 @@ void FieldManager::AddInterfaceField(
 {
     int nEqu = 0;
 
-    if ( ! this->FindFieldDefinition(
+    if ( ! this->FindInnerFieldDefinition(
         fieldName,
         nEqu ) )
     {
@@ -498,7 +498,7 @@ void FieldManager::AddInterfaceField(
         nEqu );
 }
 
-bool FieldManager::FindFieldDefinition(
+bool FieldManager::FindInnerFieldDefinition(
     const std::string & fieldName,
     int & nEqu ) const
 {
