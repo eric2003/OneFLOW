@@ -60,7 +60,6 @@ void NsSolver::StaticInit()
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( this->solverType );
     solverInfo->nEqu  = nscom.nEqu;
     solverInfo->nTEqu = nscom.nTEqu;
-    solverInfo->registerInterface = 0;
     solverInfo->residualName = "res";
     solverInfo->resFileName = GetDataValue< std::string >( "resFile" );
     solverInfo->gradString.push_back( "q"    );
