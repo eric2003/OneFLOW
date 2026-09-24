@@ -126,7 +126,7 @@ namespace
         return definition;
     }
 
-    void RegisterFieldDefinition(
+    void AddFieldEntry(
         ParaNameDimData & paraNameDimData,
         const FieldDefinition & definition )
     {
@@ -374,7 +374,7 @@ namespace
                     ReadFieldDefinition(
                         textFileParser );
 
-                RegisterFieldDefinition(
+                AddFieldEntry(
                     paraNameDimData,
                     definition );
             }
@@ -392,7 +392,7 @@ namespace
             ReadFieldDefinition(
                 textFileParser );
 
-        RegisterFieldDefinition(
+        AddFieldEntry(
             paraNameDimData,
             definition );
 
