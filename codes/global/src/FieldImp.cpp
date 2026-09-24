@@ -284,10 +284,10 @@ FieldPropertyData & FieldManager::GetFieldPropertyData(
         return commonFields;
 
     case FieldCategory::Structured:
-        return strManager;
+        return structuredFields;
 
     case FieldCategory::Unstructured:
-        return unsManager;
+        return unstructuredFields;
     }
 
     Fatal( "Invalid field category" );
@@ -303,10 +303,10 @@ const FieldPropertyData & FieldManager::GetFieldPropertyData(
         return commonFields;
 
     case FieldCategory::Structured:
-        return strManager;
+        return structuredFields;
 
     case FieldCategory::Unstructured:
-        return unsManager;
+        return unstructuredFields;
     }
 
     Fatal( "Invalid field category" );
@@ -356,19 +356,19 @@ void FieldManager::DumpFieldEnvironment(
     DumpFieldProperty(
         output,
         "Inner",
-        this->strManager.GetFieldProperty(
+        this->structuredFields.GetFieldProperty(
             FieldLocation::Inner ) );
 
     DumpFieldProperty(
         output,
         "Face",
-        this->strManager.GetFieldProperty(
+        this->structuredFields.GetFieldProperty(
             FieldLocation::Face ) );
 
     DumpFieldProperty(
         output,
         "Boundary",
-        this->strManager.GetFieldProperty(
+        this->structuredFields.GetFieldProperty(
             FieldLocation::Boundary ) );
 
     output
@@ -377,19 +377,19 @@ void FieldManager::DumpFieldEnvironment(
     DumpFieldProperty(
         output,
         "Inner",
-        this->unsManager.GetFieldProperty(
+        this->unstructuredFields.GetFieldProperty(
             FieldLocation::Inner ) );
 
     DumpFieldProperty(
         output,
         "Face",
-        this->unsManager.GetFieldProperty(
+        this->unstructuredFields.GetFieldProperty(
             FieldLocation::Face ) );
 
     DumpFieldProperty(
         output,
         "Boundary",
-        this->unsManager.GetFieldProperty(
+        this->unstructuredFields.GetFieldProperty(
             FieldLocation::Boundary ) );
 
     output

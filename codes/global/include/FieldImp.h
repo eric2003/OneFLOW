@@ -119,8 +119,8 @@ public:
 
 private:
     FieldPropertyData commonFields;
-    FieldPropertyData strManager;
-    FieldPropertyData unsManager;
+    FieldPropertyData structuredFields;
+    FieldPropertyData unstructuredFields;
     IFieldProperty iFieldProperty;
     std::unique_ptr< UsdPara > usdPara;
 
