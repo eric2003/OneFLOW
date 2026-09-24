@@ -581,12 +581,10 @@ void FieldAlloc::RegisterInterfaceVar(
     FieldManager * fieldManager,
     const std::string & basicString )
 {
-    SolverInfo * solverInfo =
-        SolverInfoFactory::GetSolverInfo( solverType );
-
-    if ( solverInfo->registerInterface ) return;
-
-    solverInfo->registerInterface = 1;
+    if ( fieldManager->HasInterfaceDefinitions() )
+    {
+        return;
+    }
 
     const InterfaceFileSpec interfaceFileSpecs[] =
     {
@@ -618,6 +616,7 @@ void FieldAlloc::RegisterInterfaceVar(
             spec.fieldType,
             boolIO.GetFieldNameList() );
     }
+    fieldManager->MarkInterfaceDefinitionsReady();
 }
 
 void FieldAlloc::ValidateInterfaceVar(

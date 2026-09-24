@@ -247,6 +247,7 @@ const FieldProperty & FieldPropertyData::GetFieldProperty(
 
 FieldManager::FieldManager()
     : fieldDefinitionsReady( false )
+    , interfaceDefinitionsReady( false )
 {
     usdPara =
         std::make_unique< UsdPara >();
@@ -262,6 +263,16 @@ bool FieldManager::HasFieldDefinitions() const
 void FieldManager::MarkFieldDefinitionsReady()
 {
     this->fieldDefinitionsReady = true;
+}
+
+bool FieldManager::HasInterfaceDefinitions() const
+{
+    return this->interfaceDefinitionsReady;
+}
+
+void FieldManager::MarkInterfaceDefinitionsReady()
+{
+    this->interfaceDefinitionsReady = true;
 }
 
 IFieldProperty & FieldManager::GetInterfaceFieldProperty()
