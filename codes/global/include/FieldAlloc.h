@@ -82,6 +82,7 @@ public:
 
     static void RegisterInterfaceVar(
         int solverType,
+        FieldManager * fieldManager,
         const std::string & basicString );
 
     static void ValidateInterfaceVar(

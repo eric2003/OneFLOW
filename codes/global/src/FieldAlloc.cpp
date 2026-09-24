@@ -178,6 +178,7 @@ namespace
 
     void AddInterfaceFieldNames(
         int solverType,
+        FieldManager * fieldManager,
         int fieldType,
         const FieldNameList & fieldNameList )
     {
@@ -196,7 +197,11 @@ namespace
             const std::string & fieldName =
                 fieldNameList.GetName( fieldIndex );
 
-            varNameSolver->AddFieldName( fieldName );
+            varNameSolver->AddFieldName(
+                fieldName );
+
+            fieldManager->AddInterfaceField(
+                fieldName );
         }
     }
 
@@ -525,10 +530,6 @@ void FieldAlloc::AllocateAllFields(
     int solverType,
     const std::string & basicString )
 {
-    FieldAlloc::RegisterInterfaceVar(
-        solverType,
-        basicString );
-
     FieldFactory::AddFieldManager(
         solverType );
 
@@ -544,6 +545,11 @@ void FieldAlloc::AllocateAllFields(
 
         fieldManager->MarkFieldDefinitionsReady();
     }
+
+    FieldAlloc::RegisterInterfaceVar(
+        solverType,
+        fieldManager,
+        basicString );
 
     FieldAlloc::ValidateInterfaceVar(
         solverType,
@@ -572,6 +578,7 @@ void FieldAlloc::InitField(
 
 void FieldAlloc::RegisterInterfaceVar(
     int solverType,
+    FieldManager * fieldManager,
     const std::string & basicString )
 {
     SolverInfo * solverInfo =
@@ -607,6 +614,7 @@ void FieldAlloc::RegisterInterfaceVar(
 
         AddInterfaceFieldNames(
             solverType,
+            fieldManager,
             spec.fieldType,
             boolIO.GetFieldNameList() );
     }

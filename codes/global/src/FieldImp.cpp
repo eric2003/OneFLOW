@@ -427,14 +427,28 @@ void FieldManager::AddField(
     fieldProperty.AddField(
         fieldName,
         nEqu );
+}
 
-    if ( category == FieldCategory::Common &&
-        location == FieldLocation::Inner )
+void FieldManager::AddInterfaceField(
+    const std::string & fieldName )
+{
+    const FieldProperty::Data & data =
+        this->commManager.GetFieldProperty(
+            FieldLocation::Inner ).GetData();
+
+    FieldProperty::Data::const_iterator iter =
+        data.find( fieldName );
+
+    if ( iter == data.end() )
     {
-        this->iFieldProperty.AddField(
-            fieldName,
-            nEqu );
+        Fatal(
+            "Interface field is not defined as a common inner field: "
+            + fieldName );
     }
+
+    this->iFieldProperty.AddField(
+        fieldName,
+        iter->second );
 }
 
 std::map< int, std::unique_ptr< FieldManager > > FieldFactory::data;

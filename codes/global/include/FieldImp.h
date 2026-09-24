@@ -102,6 +102,9 @@ public:
     void DumpFieldEnvironment(
         std::ostream & output ) const;
 
+    void AddInterfaceField(
+        const std::string & fieldName );
+
     void AddField(
         const std::string & fieldName,
         int nEqu,
