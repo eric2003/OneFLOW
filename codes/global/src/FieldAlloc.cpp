@@ -379,6 +379,126 @@ namespace
         textFileParser.CloseFile();
     }
 
+    void RegisterInterfaceVar(
+        int solverType,
+        FieldManager * fieldManager,
+        const std::string & basicString )
+    {
+        if ( fieldManager->HasInterfaceDefinitions() )
+        {
+            return;
+        }
+
+        const InterfaceFileSpec interfaceFileSpecs[] =
+        {
+            { "inter",        ONEFLOW::INTERFACE_DATA          },
+            { "interDq",      ONEFLOW::INTERFACE_DQ_DATA       },
+            { "interGrad",    ONEFLOW::INTERFACE_GRADIENT_DATA },
+            { "interOverset", ONEFLOW::INTERFACE_OVERSET_DATA  }
+        };
+
+        std::string rootString =
+            Prj::GetSystemFileName(
+                basicString + "/alloc/" );
+
+        OStream & logger = OStream::Instance();
+
+        for ( const InterfaceFileSpec & spec : interfaceFileSpecs )
+        {
+            logger.ClearAll();
+            logger << rootString << spec.name << ".txt";
+
+            BoolIO boolIO;
+
+            boolIO.ReadFile(
+                logger.str() );
+
+            AddInterfaceFieldNames(
+                solverType,
+                fieldManager,
+                spec.fieldType,
+                boolIO.GetFieldNameList() );
+        }
+        fieldManager->MarkInterfaceDefinitionsReady();
+    }
+
+    void ValidateInterfaceVar(
+        int solverType,
+        FieldManager * fieldManager )
+    {
+        const FieldProperty::Data & interfaceData =
+            fieldManager->GetInterfaceFieldProperty().GetData();
+
+        const int interfaceTypes[] =
+        {
+            ONEFLOW::INTERFACE_DATA,
+            ONEFLOW::INTERFACE_DQ_DATA,
+            ONEFLOW::INTERFACE_GRADIENT_DATA,
+            ONEFLOW::INTERFACE_OVERSET_DATA
+        };
+
+        for ( int iType = 0; iType < 4; ++ iType )
+        {
+            VarNameSolver * varNameSolver =
+                VarNameFactory::FindVarNameSolver(
+                    solverType,
+                    interfaceTypes[ iType ] );
+
+            if ( varNameSolver == nullptr )
+            {
+                continue;
+            }
+
+            for ( int iField = 0;
+                iField < varNameSolver->data.size();
+                ++ iField )
+            {
+                const std::string & fieldName =
+                    varNameSolver->data[ iField ];
+
+                if ( interfaceData.find( fieldName ) ==
+                    interfaceData.end() )
+                {
+                    Fatal(
+                        "Interface field is not allocated: "
+                        + fieldName );
+                }
+            }
+        }
+    }
+
+    void RegisterFieldDefinitions(
+        FieldManager * fieldManager,
+        const std::string & basicString )
+    {
+        const FieldFileSpec fieldFileSpecs[] =
+        {
+            { "unsteady", FieldLocation::Inner,    FieldFileType::Unsteady },
+            { "inner",    FieldLocation::Inner,    FieldFileType::Standard },
+            { "face",     FieldLocation::Face,     FieldFileType::Standard },
+            { "bc",       FieldLocation::Boundary, FieldFileType::Standard }
+        };
+
+        std::string rootString =
+            Prj::GetSystemFileName(
+                basicString + "/alloc/" );
+
+        OStream & logger = OStream::Instance();
+
+        for ( const FieldFileSpec & spec : fieldFileSpecs )
+        {
+            logger.ClearAll();
+            logger << rootString << spec.name << ".txt";
+
+            RegisterFieldFile(
+                fieldManager,
+                logger.str(),
+                spec.location,
+                spec.type );
+        }
+
+    }
+
     using BoolLineReader =
         void ( BoolIO::* )( TextFileParser & );
 
@@ -496,7 +616,7 @@ void FieldAlloc::AllocateAllFields(
 
     if ( ! fieldManager->HasFieldDefinitions() )
     {
-        FieldAlloc::RegisterFieldDefinitions(
+        RegisterFieldDefinitions(
             fieldManager,
             basicString );
 
@@ -505,12 +625,12 @@ void FieldAlloc::AllocateAllFields(
 
     if ( ! fieldManager->HasInterfaceDefinitions() )
     {
-        FieldAlloc::RegisterInterfaceVar(
+        RegisterInterfaceVar(
             solverType,
             fieldManager,
             basicString );
 
-        FieldAlloc::ValidateInterfaceVar(
+        ValidateInterfaceVar(
             solverType,
             fieldManager );
     }
@@ -534,126 +654,6 @@ void FieldAlloc::InitField(
     SetFieldValues(
         fieldManager,
         boolIO.GetNameValuePair() );
-}
-
-void FieldAlloc::RegisterInterfaceVar(
-    int solverType,
-    FieldManager * fieldManager,
-    const std::string & basicString )
-{
-    if ( fieldManager->HasInterfaceDefinitions() )
-    {
-        return;
-    }
-
-    const InterfaceFileSpec interfaceFileSpecs[] =
-    {
-        { "inter",        ONEFLOW::INTERFACE_DATA          },
-        { "interDq",      ONEFLOW::INTERFACE_DQ_DATA       },
-        { "interGrad",    ONEFLOW::INTERFACE_GRADIENT_DATA },
-        { "interOverset", ONEFLOW::INTERFACE_OVERSET_DATA  }
-    };
-
-    std::string rootString =
-        Prj::GetSystemFileName(
-            basicString + "/alloc/" );
-
-    OStream & logger = OStream::Instance();
-
-    for ( const InterfaceFileSpec & spec : interfaceFileSpecs )
-    {
-        logger.ClearAll();
-        logger << rootString << spec.name << ".txt";
-
-        BoolIO boolIO;
-
-        boolIO.ReadFile(
-            logger.str() );
-
-        AddInterfaceFieldNames(
-            solverType,
-            fieldManager,
-            spec.fieldType,
-            boolIO.GetFieldNameList() );
-    }
-    fieldManager->MarkInterfaceDefinitionsReady();
-}
-
-void FieldAlloc::ValidateInterfaceVar(
-    int solverType,
-    FieldManager * fieldManager )
-{
-    const FieldProperty::Data & interfaceData =
-        fieldManager->GetInterfaceFieldProperty().GetData();
-
-    const int interfaceTypes[] =
-    {
-        ONEFLOW::INTERFACE_DATA,
-        ONEFLOW::INTERFACE_DQ_DATA,
-        ONEFLOW::INTERFACE_GRADIENT_DATA,
-        ONEFLOW::INTERFACE_OVERSET_DATA
-    };
-
-    for ( int iType = 0; iType < 4; ++ iType )
-    {
-        VarNameSolver * varNameSolver =
-            VarNameFactory::FindVarNameSolver(
-                solverType,
-                interfaceTypes[ iType ] );
-
-        if ( varNameSolver == nullptr )
-        {
-            continue;
-        }
-
-        for ( int iField = 0;
-            iField < varNameSolver->data.size();
-            ++ iField )
-        {
-            const std::string & fieldName =
-                varNameSolver->data[ iField ];
-
-            if ( interfaceData.find( fieldName ) ==
-                interfaceData.end() )
-            {
-                Fatal(
-                    "Interface field is not allocated: "
-                    + fieldName );
-            }
-        }
-    }
-}
-
-void FieldAlloc::RegisterFieldDefinitions(
-    FieldManager * fieldManager,
-    const std::string & basicString )
-{
-    const FieldFileSpec fieldFileSpecs[] =
-    {
-        { "unsteady", FieldLocation::Inner,    FieldFileType::Unsteady },
-        { "inner",    FieldLocation::Inner,    FieldFileType::Standard },
-        { "face",     FieldLocation::Face,     FieldFileType::Standard },
-        { "bc",       FieldLocation::Boundary, FieldFileType::Standard }
-    };
-
-    std::string rootString =
-        Prj::GetSystemFileName(
-            basicString + "/alloc/" );
-
-    OStream & logger = OStream::Instance();
-
-    for ( const FieldFileSpec & spec : fieldFileSpecs )
-    {
-        logger.ClearAll();
-        logger << rootString << spec.name << ".txt";
-
-        RegisterFieldFile(
-            fieldManager,
-            logger.str(),
-            spec.location,
-            spec.type );
-    }
-
 }
 
 void FieldAlloc::AllocateRuntimeFields(

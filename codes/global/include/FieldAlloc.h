@@ -80,19 +80,6 @@ public:
         FieldManager * fieldManager,
         const std::string & basicString );
 
-    static void RegisterInterfaceVar(
-        int solverType,
-        FieldManager * fieldManager,
-        const std::string & basicString );
-
-    static void ValidateInterfaceVar(
-        int solverType,
-        FieldManager * fieldManager );
-
-    static void RegisterFieldDefinitions(
-        FieldManager * fieldManager,
-        const std::string & basicString );
-
     static void AllocateRuntimeFields(
         FieldManager * fieldManager );
 
