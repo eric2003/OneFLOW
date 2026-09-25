@@ -31,14 +31,14 @@ License
 #include "UnsteadyImp.h"
 #include "Update.h"
 #include "FieldWrap.h"
-#include "FieldAlloc.h"
+#include "FieldAllocator.h"
 #include "CmxTask.h"
 #include "CmxTaskNames.h"
 #include "DataBase.h"
 #include "DataBook.h"
 #include "Lusgs.h"
 #include "Lhs.h"
-#include "FieldImp.h"
+#include "FieldManager.h"
 #include "SolverState.h"
 #include "Zone.h"
 #include "Grid.h"
@@ -77,7 +77,7 @@ void InitFirst( StringField & data )
 
     const std::string & basicString = data[ 0 ];
 
-    FieldAlloc::AllocateAllFields( solverType, basicString );
+    FieldAllocator::Allocate( solverType, basicString );
 }
 
 void ReadRestart( StringField & data )

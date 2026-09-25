@@ -26,6 +26,7 @@ License
 #include <map>
 #include <memory>
 #include <ostream>
+#include <string>
 
 BeginNameSpace( ONEFLOW )
 
@@ -118,7 +119,11 @@ public:
         Real value );
 
 private:
-    FieldPropertyData commonFields;
+    bool FindInnerFieldDefinition(
+        const std::string & fieldName,
+        int & nEqu ) const;
+
+    FieldPropertyData allFields;
     FieldPropertyData structuredFields;
     FieldPropertyData unstructuredFields;
     IFieldProperty iFieldProperty;
@@ -128,7 +133,7 @@ private:
     bool interfaceDefinitionsReady;
 };
 
-class FieldFactory
+class FieldManagerRegistry
 {
 public:
     static void AddFieldManager( int solverType );

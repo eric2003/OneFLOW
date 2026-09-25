@@ -22,7 +22,7 @@ License
 
 #include "UsdField.h"
 #include "UsdPara.h"
-#include "FieldImp.h"
+#include "FieldManager.h"
 #include "FieldWrap.h"
 #include "DataBase.h"
 #include "Zone.h"
@@ -50,7 +50,7 @@ void UsdField::InitBasic( int solverType )
     UnsGrid * grid = Zone::GetUnsGrid();
 
     FieldManager * fieldManager =
-        FieldFactory::GetFieldManager( solverType );
+        FieldManagerRegistry::GetFieldManager( solverType );
 
     UsdPara * usdPara =
         &fieldManager->GetUsdPara();

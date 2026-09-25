@@ -19,7 +19,7 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#include "FieldImp.h"
+#include "FieldManager.h"
 #include "FieldBase.h"
 #include "FieldWrap.h"
 #include "Fatal.h"
@@ -56,6 +56,30 @@ namespace
         }
 
         fieldProperty.Dump( output );
+    }
+
+    void ValidateCompatibleFieldDefinition(
+        const FieldProperty & fieldProperty,
+        const std::string & fieldName,
+        int nEqu )
+    {
+        const FieldProperty::Data & data =
+            fieldProperty.GetData();
+
+        FieldProperty::Data::const_iterator iter =
+            data.find( fieldName );
+
+        if ( iter == data.end() )
+        {
+            return;
+        }
+
+        if ( iter->second != nEqu )
+        {
+            Fatal(
+                "Conflicting field definition: "
+                + fieldName );
+        }
     }
 }
 
@@ -280,8 +304,8 @@ FieldPropertyData & FieldManager::GetFieldPropertyData(
 {
     switch ( applicability )
     {
-    case FieldApplicability::Common:
-        return commonFields;
+    case FieldApplicability::All:
+        return allFields;
 
     case FieldApplicability::Structured:
         return structuredFields;
@@ -291,7 +315,7 @@ FieldPropertyData & FieldManager::GetFieldPropertyData(
     }
 
     Fatal( "Invalid field category" );
-    return commonFields;
+    return allFields;
 }
 
 const FieldPropertyData & FieldManager::GetFieldPropertyData(
@@ -299,8 +323,8 @@ const FieldPropertyData & FieldManager::GetFieldPropertyData(
 {
     switch ( applicability )
     {
-    case FieldApplicability::Common:
-        return commonFields;
+    case FieldApplicability::All:
+        return allFields;
 
     case FieldApplicability::Structured:
         return structuredFields;
@@ -310,7 +334,7 @@ const FieldPropertyData & FieldManager::GetFieldPropertyData(
     }
 
     Fatal( "Invalid field category" );
-    return commonFields;
+    return allFields;
 }
 
 UsdPara & FieldManager::GetUsdPara()
@@ -330,24 +354,24 @@ void FieldManager::DumpFieldEnvironment(
         << "========== Field Environment ==========\n\n";
 
     output
-        << "[Common]\n";
+        << "[All]\n";
 
     DumpFieldProperty(
         output,
         "Inner",
-        this->commonFields.GetFieldProperty(
+        this->allFields.GetFieldProperty(
             FieldLocation::Inner ) );
 
     DumpFieldProperty(
         output,
         "Face",
-        this->commonFields.GetFieldProperty(
+        this->allFields.GetFieldProperty(
             FieldLocation::Face ) );
 
     DumpFieldProperty(
         output,
         "Boundary",
-        this->commonFields.GetFieldProperty(
+        this->allFields.GetFieldProperty(
             FieldLocation::Boundary ) );
 
     output
@@ -419,6 +443,32 @@ void FieldManager::AddField(
     FieldApplicability applicability,
     FieldLocation location )
 {
+    if ( applicability == FieldApplicability::All )
+    {
+        ValidateCompatibleFieldDefinition(
+            this->GetFieldPropertyData(
+                FieldApplicability::Structured ).GetFieldProperty(
+                    location ),
+            fieldName,
+            nEqu );
+
+        ValidateCompatibleFieldDefinition(
+            this->GetFieldPropertyData(
+                FieldApplicability::Unstructured ).GetFieldProperty(
+                    location ),
+            fieldName,
+            nEqu );
+    }
+    else
+    {
+        ValidateCompatibleFieldDefinition(
+            this->GetFieldPropertyData(
+                FieldApplicability::All ).GetFieldProperty(
+                    location ),
+            fieldName,
+            nEqu );
+    }
+
     FieldProperty & fieldProperty =
         this->GetFieldPropertyData(
             applicability ).GetFieldProperty(
@@ -432,45 +482,87 @@ void FieldManager::AddField(
 void FieldManager::AddInterfaceField(
     const std::string & fieldName )
 {
-    const FieldProperty::Data & data =
-        this->commonFields.GetFieldProperty(
-            FieldLocation::Inner ).GetData();
+    int nEqu = 0;
 
-    FieldProperty::Data::const_iterator iter =
-        data.find( fieldName );
-
-    if ( iter == data.end() )
+    if ( ! this->FindInnerFieldDefinition(
+        fieldName,
+        nEqu ) )
     {
         Fatal(
-            "Interface field is not defined as a common inner field: "
+            "Interface field is not defined in the field definitions: "
             + fieldName );
     }
 
     this->iFieldProperty.AddField(
         fieldName,
-        iter->second );
+        nEqu );
 }
 
-std::map< int, std::unique_ptr< FieldManager > > FieldFactory::data;
+bool FieldManager::FindInnerFieldDefinition(
+    const std::string & fieldName,
+    int & nEqu ) const
+{
+    bool found = false;
 
-void FieldFactory::AddFieldManager( int solverType )
+    const FieldPropertyData * dataList[] =
+    {
+        &this->allFields,
+        &this->structuredFields,
+        &this->unstructuredFields
+    };
+
+    for ( const FieldPropertyData * fieldPropertyData : dataList )
+    {
+        const FieldProperty::Data & data =
+            fieldPropertyData->GetFieldProperty(
+                FieldLocation::Inner ).GetData();
+
+        FieldProperty::Data::const_iterator iter =
+            data.find( fieldName );
+
+        if ( iter == data.end() )
+        {
+            continue;
+        }
+
+        if ( ! found )
+        {
+            nEqu = iter->second;
+            found = true;
+            continue;
+        }
+
+        if ( nEqu != iter->second )
+        {
+            Fatal(
+                "Conflicting field definition: "
+                + fieldName );
+        }
+    }
+
+    return found;
+}
+
+std::map< int, std::unique_ptr< FieldManager > > FieldManagerRegistry::data;
+
+void FieldManagerRegistry::AddFieldManager( int solverType )
 {
     std::map< int, std::unique_ptr< FieldManager > >::iterator iter =
-        FieldFactory::data.find( solverType );
+        FieldManagerRegistry::data.find( solverType );
 
-    if ( iter == FieldFactory::data.end() )
+    if ( iter == FieldManagerRegistry::data.end() )
     {
-        FieldFactory::data[ solverType ] =
+        FieldManagerRegistry::data[ solverType ] =
             std::make_unique< FieldManager >();
     }
 }
 
-FieldManager * FieldFactory::GetFieldManager( int solverType )
+FieldManager * FieldManagerRegistry::GetFieldManager( int solverType )
 {
     std::map< int, std::unique_ptr< FieldManager > >::iterator iter =
-        FieldFactory::data.find( solverType );
+        FieldManagerRegistry::data.find( solverType );
 
-    if ( iter == FieldFactory::data.end() )
+    if ( iter == FieldManagerRegistry::data.end() )
     {
         return nullptr;
     }
@@ -478,9 +570,9 @@ FieldManager * FieldFactory::GetFieldManager( int solverType )
     return iter->second.get();
 }
 
-void FieldFactory::FreeFieldManager()
+void FieldManagerRegistry::FreeFieldManager()
 {
-    FieldFactory::data.clear();
+    FieldManagerRegistry::data.clear();
 }
 
 void UploadInterfaceValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu )

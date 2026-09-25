@@ -36,7 +36,7 @@ License
 #include "DataBook.h"
 #include "Lusgs.h"
 #include "Lhs.h"
-#include "FieldImp.h"
+#include "FieldManager.h"
 #include "SolverState.h"
 #include "Zone.h"
 #include "Grid.h"
@@ -72,7 +72,7 @@ void UploadInterfaceData( StringField & data )
 {
     int solverType = SolverState::solverType;
 
-    FieldManager * fieldManager = FieldFactory::GetFieldManager( solverType );
+    FieldManager * fieldManager = FieldManagerRegistry::GetFieldManager( solverType );
 
     fieldManager->GetInterfaceFieldProperty().UploadInterfaceValue();
 
@@ -82,7 +82,7 @@ void DownloadInterfaceData( StringField & data )
 {
     int solverType = SolverState::solverType;
 
-    FieldManager * fieldManager = FieldFactory::GetFieldManager( solverType );
+    FieldManager * fieldManager = FieldManagerRegistry::GetFieldManager( solverType );
     fieldManager->GetInterfaceFieldProperty().DownloadInterfaceValue();
 }
 

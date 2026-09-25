@@ -25,10 +25,10 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-class FieldAlloc
+class FieldAllocator
 {
 public:
-    static void AllocateAllFields(
+    static void Allocate(
         int solverType,
         const std::string & basicString );
 };
