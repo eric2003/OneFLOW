@@ -25,7 +25,6 @@ License
 #include "FieldManager.h"
 #include "FieldBase.h"
 #include "UsdPara.h"
-#include "SolverInfo.h"
 #include "SolverDef.h"
 #include "TextFileParser.h"
 #include "OStream.h"
@@ -432,7 +431,7 @@ namespace
             &FieldConfigReader::ReadNameValue );
     }
 
-    struct FieldDefinition
+    struct FieldSpec
     {
         std::string name;
         int nEqu;
@@ -485,10 +484,10 @@ namespace
         return FieldApplicability::Unstructured;
     }
 
-    FieldDefinition ReadFieldDefinition(
+    FieldSpec ReadFieldSpec(
         TextFileParser & textFileParser )
     {
-        FieldDefinition definition;
+        FieldSpec definition;
 
         definition.name =
             textFileParser.ReadNextWord();
@@ -510,7 +509,7 @@ namespace
 
     void AddFieldDefinition(
         FieldManager * fieldManager,
-        const FieldDefinition & definition,
+        const FieldSpec & definition,
         FieldLocation location )
     {
         fieldManager->AddField(
@@ -565,8 +564,8 @@ namespace
                 continue;
             }
 
-            FieldDefinition definition =
-                ReadFieldDefinition(
+            FieldSpec definition =
+                ReadFieldSpec(
                     textFileParser );
 
             AddFieldDefinition(
