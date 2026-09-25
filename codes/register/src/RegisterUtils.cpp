@@ -160,7 +160,10 @@ void VarNameFactory::Dump(
     output
         << "[Communication Groups]\n";
 
-    for ( int iType = 0; iType < 4; ++ iType )
+    const int interfaceTypeCount =
+        sizeof( interfaceTypes ) / sizeof( interfaceTypes[ 0 ] );
+
+    for ( int iType = 0; iType < interfaceTypeCount; ++ iType )
     {
         VarNameSolver * varNameSolver =
             VarNameFactory::FindVarNameSolver(

@@ -744,8 +744,10 @@ namespace
             ONEFLOW::INTERFACE_GRADIENT_DATA,
             ONEFLOW::INTERFACE_OVERSET_DATA
         };
+        const int interfaceTypeCount =
+            sizeof( interfaceTypes ) / sizeof( interfaceTypes[ 0 ] );
 
-        for ( int iType = 0; iType < 4; ++ iType )
+        for ( int iType = 0; iType < interfaceTypeCount; ++ iType )
         {
             VarNameSolver * varNameSolver =
                 VarNameFactory::FindVarNameSolver(
