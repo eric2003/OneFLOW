@@ -126,7 +126,7 @@ void FieldDefinitionTable::Dump(
     }
 }
 
-void IFieldProperty::AllocateInterfaceField( int nIFaces, DataStorage * dataStorage )
+void InterfaceFieldProperty::AllocateInterfaceField( int nIFaces, DataStorage * dataStorage )
 {
     if ( nIFaces <= 0 ) return;
 
@@ -142,7 +142,7 @@ void IFieldProperty::AllocateInterfaceField( int nIFaces, DataStorage * dataStor
     }
 }
 
-void IFieldProperty::UploadInterfaceValue()
+void InterfaceFieldProperty::UploadInterfaceValue()
 {
     Grid * gridIn = Zone::GetGrid();
 
@@ -161,7 +161,7 @@ void IFieldProperty::UploadInterfaceValue()
     }
 }
 
-void IFieldProperty::DownloadInterfaceValue()
+void InterfaceFieldProperty::DownloadInterfaceValue()
 {
     Grid * gridIn = Zone::GetGrid();
 
@@ -181,7 +181,7 @@ void IFieldProperty::DownloadInterfaceValue()
     }
 }
 
-void IFieldProperty::UploadOversetInterfaceValue()
+void InterfaceFieldProperty::UploadOversetInterfaceValue()
 {
     Grid * gridIn = Zone::GetGrid();
 
@@ -201,7 +201,7 @@ void IFieldProperty::UploadOversetInterfaceValue()
     }
 }
 
-void IFieldProperty::DownloadOversetInterfaceValue()
+void InterfaceFieldProperty::DownloadOversetInterfaceValue()
 {
     Grid * gridIn = Zone::GetGrid();
 
@@ -289,12 +289,12 @@ void FieldManager::MarkInterfaceDefinitionsReady()
     this->interfaceDefinitionsReady = true;
 }
 
-IFieldProperty & FieldManager::GetInterfaceFieldProperty()
+InterfaceFieldProperty & FieldManager::GetInterfaceFieldProperty()
 {
     return this->iFieldProperty;
 }
 
-const IFieldProperty & FieldManager::GetInterfaceFieldProperty() const
+const InterfaceFieldProperty & FieldManager::GetInterfaceFieldProperty() const
 {
     return this->iFieldProperty;
 }

@@ -48,7 +48,7 @@ private:
 
 class DataStorage;
 
-class IFieldProperty : public FieldDefinitionTable
+class InterfaceFieldProperty : public FieldDefinitionTable
 {
 public:
     void AllocateInterfaceField( int nIFaces, DataStorage * dataStorage );
@@ -89,9 +89,9 @@ public:
     void MarkInterfaceDefinitionsReady();
 
 public:
-    IFieldProperty & GetInterfaceFieldProperty();
+    InterfaceFieldProperty & GetInterfaceFieldProperty();
 
-    const IFieldProperty & GetInterfaceFieldProperty() const;
+    const InterfaceFieldProperty & GetInterfaceFieldProperty() const;
 
     FieldDefinitionSet & GetFieldDefinitionSet(
         FieldApplicability applicability );
@@ -126,7 +126,7 @@ private:
     FieldDefinitionSet allFields;
     FieldDefinitionSet structuredFields;
     FieldDefinitionSet unstructuredFields;
-    IFieldProperty iFieldProperty;
+    InterfaceFieldProperty iFieldProperty;
     std::unique_ptr< UsdPara > usdPara;
 
     bool fieldDefinitionsReady;

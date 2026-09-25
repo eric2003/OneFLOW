@@ -202,7 +202,7 @@ namespace
 {
     bool CheckInterfaceStorageContainsCommunicationField(
         std::ostream & output,
-        const IFieldProperty & interfaceFieldProperty,
+        const InterfaceFieldProperty & interfaceFieldProperty,
         VarNameSolver * varNameSolver )
     {
         if ( varNameSolver == nullptr )
@@ -302,7 +302,7 @@ void CheckCommunicationInterfaceConsistency()
             continue;
         }
 
-        const IFieldProperty & interfaceFieldProperty =
+        const InterfaceFieldProperty & interfaceFieldProperty =
             fieldManager->GetInterfaceFieldProperty();
 
         bool consistent = true;

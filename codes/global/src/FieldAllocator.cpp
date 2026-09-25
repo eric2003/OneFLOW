@@ -950,7 +950,7 @@ namespace
         }
     }
 
-    void AllocateInterfaceField( IFieldProperty * iFieldProperty )
+    void AllocateInterfaceField( InterfaceFieldProperty * iFieldProperty )
     {
         Grid * grid = Zone::GetGrid();
 
@@ -966,7 +966,7 @@ namespace
         }
     }
 
-    void AllocateOversetInterfaceField( IFieldProperty * iFieldProperty )
+    void AllocateOversetInterfaceField( InterfaceFieldProperty * iFieldProperty )
     {
     }
 
