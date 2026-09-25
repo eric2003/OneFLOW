@@ -458,27 +458,26 @@ void FieldManager::AddField(
     FieldApplicability applicability,
     FieldLocation location )
 {
-    if ( applicability == FieldApplicability::All )
+    const FieldApplicability applicabilityList[] =
     {
-        ValidateCompatibleFieldDefinition(
-            this->GetFieldDefinitionSet(
-                FieldApplicability::Structured ).GetFieldDefinition(
-                    location ),
-            fieldName,
-            nEqu );
+        FieldApplicability::All,
+        FieldApplicability::Structured,
+        FieldApplicability::Unstructured
+    };
+
+    for ( FieldApplicability otherApplicability : applicabilityList )
+    {
+        // The current applicability is checked by AddField() below.
+        // Here we only validate definitions from the other applicability
+        // categories to keep the same field name and location consistent.
+        if ( otherApplicability == applicability )
+        {
+            continue;
+        }
 
         ValidateCompatibleFieldDefinition(
             this->GetFieldDefinitionSet(
-                FieldApplicability::Unstructured ).GetFieldDefinition(
-                    location ),
-            fieldName,
-            nEqu );
-    }
-    else
-    {
-        ValidateCompatibleFieldDefinition(
-            this->GetFieldDefinitionSet(
-                FieldApplicability::All ).GetFieldDefinition(
+                otherApplicability ).GetFieldDefinition(
                     location ),
             fieldName,
             nEqu );
