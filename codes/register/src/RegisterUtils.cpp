@@ -22,6 +22,7 @@ License
 
 #include "RegisterUtils.h"
 #include "SolverDef.h"
+#include "Fatal.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -77,13 +78,19 @@ void VarNameFactory::AddVarNameSolver( int a, int b )
 
 VarNameSolver * VarNameFactory::GetVarNameSolver( int a, int b )
 {
-    VarNameFactory::Init();
+    // Required lookup: caller must have registered via AddVarNameSolver.
+    // Optional lookup should use FindVarNameSolver instead.
+    VarNameSolver * solver =
+        VarNameFactory::FindVarNameSolver( a, b );
 
-    int solverId = VarNameFactory::mapData->GetId( a, b );
+    if ( solver == nullptr )
+    {
+        Fatal(
+            "VarNameSolver is not registered for the given "
+            "solverType / fieldType pair" );
+    }
 
-    std::map< int, VarNameSolver * >::iterator iter;
-    iter = VarNameFactory::data->find( solverId );
-    return iter->second;
+    return solver;
 }
 
 void VarNameFactory::FreeVarNameSolver()
@@ -243,11 +250,18 @@ void MapIntInt::AddData( int a, int b )
 
 int MapIntInt::GetId( int a, int b )
 {
-    std::map< DataAB, int, CmpDataAB >::iterator iter;
     DataAB ab;
     ab.a = a;
     ab.b = b;
-    iter = this->data.find( ab );
+
+    std::map< DataAB, int, CmpDataAB >::iterator iter =
+        this->data.find( ab );
+
+    if ( iter == this->data.end() )
+    {
+        Fatal( "MapIntInt key is not registered" );
+    }
+
     return iter->second;
 }
 
