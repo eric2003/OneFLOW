@@ -41,6 +41,13 @@ BeginNameSpace( ONEFLOW )
 
 namespace
 {
+    // =========================================================================
+    // Section A: alloc text parsing (system/<solver>/alloc/*.txt)
+    //   inter*.txt / init.txt style: true/bool/superbool lines
+    //   Helpers: ResolveIntegerValue, CompareValues, CalcBoolLogic
+    //   Types:   FieldNameList, NameValuePair, FieldConfigReader
+    // =========================================================================
+
     int ResolveIntegerValue(
         const std::string & valueToken )
     {
@@ -431,6 +438,13 @@ namespace
             fileName,
             &FieldConfigReader::ReadNameValue );
     }
+
+    // =========================================================================
+    // Section B: definition registration into FieldManager
+    //   inner/face/bc/unsteady.txt  -> Field definitions
+    //   inter*.txt                  -> Interface Storage + communication names
+    //   Validate: Communication Fieldssubseteq Interface Storage definitions
+    // =========================================================================
 
     enum class FieldFileType
     {
@@ -826,8 +840,13 @@ namespace
                 spec.location,
                 spec.type );
         }
-
     }
+
+    // =========================================================================
+    // Section C: runtime allocation on Grid / Interface DataStorage
+    //   Must run after Section B. Idempotent create + post-create null check.
+    //   init.txt constants applied last via InitField (Allocate pipeline step 5).
+    // =========================================================================
 
     void AllocateFieldSet(
         UnsGrid * grid,
