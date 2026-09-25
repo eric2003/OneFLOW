@@ -981,6 +981,10 @@ namespace
 
     void AllocateOversetInterfaceField( InterfaceFieldProperty * interfaceFieldProperty )
     {
+        // Reserved: overset interface storage allocation is not
+        // implemented yet. Keep the call site in AllocateRuntimeFields
+        // so the pipeline order stays stable when overset is wired in.
+        (void) interfaceFieldProperty;
     }
 
     void AllocateRuntimeFields(
