@@ -42,11 +42,13 @@ BeginNameSpace( ONEFLOW )
 
 namespace
 {
+    // Section A (alloc text parsing): FieldAllocConfig.h / FieldAllocConfig.cpp
+    //
     // =========================================================================
     // Section B: definition registration into FieldManager
     //   inner/face/bc/unsteady.txt  -> Field definitions
     //   inter*.txt                  -> Interface Storage + communication names
-    //   Validate: Communication Fieldssubseteq Interface Storage definitions
+    //   Validate: Communication Fields are a subset of Interface Storage
     // =========================================================================
 
     enum class FieldFileType
@@ -235,6 +237,7 @@ namespace
         }
     }
 
+    // Used by InitField (Section C / pipeline step 5): apply init.txt constants.
     void SetFieldValues(
         const NameValuePair & valuePair )
     {
@@ -279,8 +282,6 @@ namespace
                 fieldName );
         }
     }
-
-
 
     void RegisterFieldFile(
         FieldManager * fieldManager,
