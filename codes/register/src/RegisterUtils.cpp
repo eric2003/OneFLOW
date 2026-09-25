@@ -259,6 +259,7 @@ int MapIntInt::GetId( int a, int b )
 
     if ( iter == this->data.end() )
     {
+        // Required lookup: caller must AddData first.
         Fatal( "MapIntInt key is not registered" );
     }
 

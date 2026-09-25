@@ -117,14 +117,12 @@ FieldWrap * FieldHome::GetFieldWrap( const std::string & fieldName )
 
 void FieldHome::SetField( const std::string & fieldName, Real value )
 {
-    FieldWrap * fieldWrap =
-        FieldHome::GetFieldWrap( fieldName );
+    // Direct path: no temporary FieldWrap for constant init from alloc/init.txt.
+    Grid * grid = Zone::GetGrid();
+    MRField * field =
+        ONEFLOW::GetFieldPointer< MRField >( grid, fieldName );
 
-    ONEFLOW::SetField(
-        fieldWrap,
-        value );
-
-    delete fieldWrap;
+    ONEFLOW::SetField( field, value );
 }
 
 void FieldHome::SetField( int fieldId, const std::string & fieldName, int orderFlag )
