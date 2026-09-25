@@ -48,14 +48,29 @@ private:
 
 class DataStorage;
 
-class InterfaceFieldProperty : public FieldDefinitionTable
+class InterfaceFieldProperty
 {
 public:
-    void AllocateInterfaceField( int nIFaces, DataStorage * dataStorage );
+    void AddField(
+        const std::string & fieldName,
+        int nEqu );
+
+    const FieldDefinitionTable::Data & GetData() const;
+
+    void Dump(
+        std::ostream & output ) const;
+
+    void AllocateInterfaceField(
+        int nIFaces,
+        DataStorage * dataStorage );
+
     void UploadInterfaceValue();
     void DownloadInterfaceValue();
     void UploadOversetInterfaceValue();
     void DownloadOversetInterfaceValue();
+
+private:
+    FieldDefinitionTable fieldDefinitions;
 };
 
 class FieldDefinitionSet

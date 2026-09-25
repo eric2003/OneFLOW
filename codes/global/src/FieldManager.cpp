@@ -126,6 +126,27 @@ void FieldDefinitionTable::Dump(
     }
 }
 
+void InterfaceFieldProperty::AddField(
+    const std::string & fieldName,
+    int nEqu )
+{
+    this->fieldDefinitions.AddField(
+        fieldName,
+        nEqu );
+}
+
+const FieldDefinitionTable::Data &
+InterfaceFieldProperty::GetData() const
+{
+    return this->fieldDefinitions.GetData();
+}
+
+void InterfaceFieldProperty::Dump(
+    std::ostream & output ) const
+{
+    this->fieldDefinitions.Dump( output );
+}
+
 void InterfaceFieldProperty::AllocateInterfaceField( int nIFaces, DataStorage * dataStorage )
 {
     if ( nIFaces <= 0 ) return;
