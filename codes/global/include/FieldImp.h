@@ -132,7 +132,7 @@ private:
     bool interfaceDefinitionsReady;
 };
 
-class FieldFactory
+class FieldManagerRegistry
 {
 public:
     static void AddFieldManager( int solverType );

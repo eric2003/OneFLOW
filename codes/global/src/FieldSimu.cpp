@@ -116,7 +116,7 @@ void DumpFieldEnvironments()
             SolverState::solverType;
 
         FieldManager * fieldManager =
-            FieldFactory::GetFieldManager(
+            FieldManagerRegistry::GetFieldManager(
                 solverType );
 
         std::cout
@@ -284,7 +284,7 @@ void CheckCommunicationInterfaceConsistency()
             SolverState::solverType;
 
         FieldManager * fieldManager =
-            FieldFactory::GetFieldManager(
+            FieldManagerRegistry::GetFieldManager(
                 solverType );
 
         std::cout

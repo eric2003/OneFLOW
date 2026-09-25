@@ -158,7 +158,7 @@ namespace
             int index ) const;
     };
 
-    class BoolIO
+    class FieldConfigReader
     {
     private:
         StringField boolNameList;
@@ -199,10 +199,10 @@ namespace
     };
 
     using BoolLineReader =
-        void ( BoolIO::* )( TextFileParser & );
+        void ( FieldConfigReader::* )( TextFileParser & );
 
     void ReadBoolFile(
-        BoolIO & boolIO,
+        FieldConfigReader & boolIO,
         const std::string & fileName,
         BoolLineReader trueReader )
     {
@@ -301,13 +301,13 @@ namespace
         return valueList[ index ];
     }
 
-    void BoolIO::Add( const std::string & name, bool value )
+    void FieldConfigReader::Add( const std::string & name, bool value )
     {
         boolNameList.push_back( name );
         boolValueList.push_back( value );
     }
 
-    bool BoolIO::GetBoolValue(
+    bool FieldConfigReader::GetBoolValue(
         const std::string & varName ) const
     {
         for ( int i = 0; i < boolNameList.size(); ++ i )
@@ -323,7 +323,7 @@ namespace
         return false;
     }
 
-    void BoolIO::ReadBool( TextFileParser & textFileParser )
+    void FieldConfigReader::ReadBool( TextFileParser & textFileParser )
     {
         std::string varName =
             textFileParser.ReadNextWord();
@@ -349,7 +349,7 @@ namespace
     }
 
 
-    void BoolIO::ReadSuperBool( TextFileParser & textFileParser )
+    void FieldConfigReader::ReadSuperBool( TextFileParser & textFileParser )
     {
         std::string varName =
             textFileParser.ReadNextWord();
@@ -380,7 +380,7 @@ namespace
         this->Add( varName, boolValue );
     }
 
-    void BoolIO::ReadName(
+    void FieldConfigReader::ReadName(
         TextFileParser & textFileParser )
     {
         std::string varName =
@@ -389,17 +389,17 @@ namespace
         fieldNameList.Add( varName );
     }
 
-    const FieldNameList & BoolIO::GetFieldNameList() const
+    const FieldNameList & FieldConfigReader::GetFieldNameList() const
     {
         return fieldNameList;
     }
 
-    const NameValuePair & BoolIO::GetNameValuePair() const
+    const NameValuePair & FieldConfigReader::GetNameValuePair() const
     {
         return nameValuePair;
     }
 
-    void BoolIO::ReadNameValue(
+    void FieldConfigReader::ReadNameValue(
         TextFileParser & textFileParser )
     {
         std::string varName =
@@ -414,22 +414,22 @@ namespace
             varValue );
     }
 
-    void BoolIO::ReadFile(
+    void FieldConfigReader::ReadFile(
         const std::string & fileName )
     {
         ReadBoolFile(
             *this,
             fileName,
-            &BoolIO::ReadName );
+            &FieldConfigReader::ReadName );
     }
 
-    void BoolIO::ReadValueFile(
+    void FieldConfigReader::ReadValueFile(
         const std::string & fileName )
     {
         ReadBoolFile(
             *this,
             fileName,
-            &BoolIO::ReadNameValue );
+            &FieldConfigReader::ReadNameValue );
     }
 
     struct FieldDefinition
@@ -717,7 +717,7 @@ namespace
             logger.ClearAll();
             logger << rootString << spec.name << ".txt";
 
-            BoolIO boolIO;
+            FieldConfigReader boolIO;
 
             boolIO.ReadFile(
                 logger.str() );
@@ -989,7 +989,7 @@ namespace
         const std::string & basicString )
     {
         std::string fileName = Prj::GetSystemFileName( basicString + "/alloc/init.txt" );
-        BoolIO boolIO;
+        FieldConfigReader boolIO;
         boolIO.ReadValueFile( fileName );
 
         SetFieldValues(
@@ -1000,15 +1000,15 @@ namespace
 
 }
 
-void FieldAlloc::AllocateAllFields(
+void FieldAllocator::Allocate(
     int solverType,
     const std::string & basicString )
 {
-    FieldFactory::AddFieldManager(
+    FieldManagerRegistry::AddFieldManager(
         solverType );
 
     FieldManager * fieldManager =
-        FieldFactory::GetFieldManager(
+        FieldManagerRegistry::GetFieldManager(
             solverType );
 
     if ( ! fieldManager->HasFieldDefinitions() )

@@ -77,7 +77,7 @@ void InitFirst( StringField & data )
 
     const std::string & basicString = data[ 0 ];
 
-    FieldAlloc::AllocateAllFields( solverType, basicString );
+    FieldAllocator::Allocate( solverType, basicString );
 }
 
 void ReadRestart( StringField & data )

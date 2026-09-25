@@ -50,7 +50,7 @@ void UsdField::InitBasic( int solverType )
     UnsGrid * grid = Zone::GetUnsGrid();
 
     FieldManager * fieldManager =
-        FieldFactory::GetFieldManager( solverType );
+        FieldManagerRegistry::GetFieldManager( solverType );
 
     UsdPara * usdPara =
         &fieldManager->GetUsdPara();

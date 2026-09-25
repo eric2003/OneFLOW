@@ -543,26 +543,26 @@ bool FieldManager::FindInnerFieldDefinition(
     return found;
 }
 
-std::map< int, std::unique_ptr< FieldManager > > FieldFactory::data;
+std::map< int, std::unique_ptr< FieldManager > > FieldManagerRegistry::data;
 
-void FieldFactory::AddFieldManager( int solverType )
+void FieldManagerRegistry::AddFieldManager( int solverType )
 {
     std::map< int, std::unique_ptr< FieldManager > >::iterator iter =
-        FieldFactory::data.find( solverType );
+        FieldManagerRegistry::data.find( solverType );
 
-    if ( iter == FieldFactory::data.end() )
+    if ( iter == FieldManagerRegistry::data.end() )
     {
-        FieldFactory::data[ solverType ] =
+        FieldManagerRegistry::data[ solverType ] =
             std::make_unique< FieldManager >();
     }
 }
 
-FieldManager * FieldFactory::GetFieldManager( int solverType )
+FieldManager * FieldManagerRegistry::GetFieldManager( int solverType )
 {
     std::map< int, std::unique_ptr< FieldManager > >::iterator iter =
-        FieldFactory::data.find( solverType );
+        FieldManagerRegistry::data.find( solverType );
 
-    if ( iter == FieldFactory::data.end() )
+    if ( iter == FieldManagerRegistry::data.end() )
     {
         return nullptr;
     }
@@ -570,9 +570,9 @@ FieldManager * FieldFactory::GetFieldManager( int solverType )
     return iter->second.get();
 }
 
-void FieldFactory::FreeFieldManager()
+void FieldManagerRegistry::FreeFieldManager()
 {
-    FieldFactory::data.clear();
+    FieldManagerRegistry::data.clear();
 }
 
 void UploadInterfaceValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu )
