@@ -190,19 +190,15 @@ void InterfaceFieldProperty::AllocateInterfaceField( int nIFaces, DataStorage * 
 {
     if ( nIFaces <= 0 ) return;
 
-    const FieldDefinitionTable::Data & data = this->GetData();
-    for ( FieldDefinitionTable::Data::const_iterator iter = data.begin();
-        iter != data.end();
-        ++ iter )
+    const auto & data = this->GetData();
+    for ( const auto & [ fieldName, nTEqu ] : data )
     {
-        int nTEqu = iter->second;
-
         // Idempotent: skip if this storage already holds the field
         // (e.g. another solverType already allocated the same name).
         MRField * field =
             ONEFLOW::GetFieldPointer< MRField >(
                 dataStorage,
-                iter->first );
+                fieldName );
 
         if ( field != nullptr )
         {
@@ -213,12 +209,12 @@ void InterfaceFieldProperty::AllocateInterfaceField( int nIFaces, DataStorage * 
             dataStorage,
             nTEqu,
             nIFaces,
-            iter->first );
+            fieldName );
 
         field =
             ONEFLOW::GetFieldPointer< MRField >(
                 dataStorage,
-                iter->first );
+                fieldName );
 
         ONEFLOW::ZeroField(
             field,
@@ -231,35 +227,33 @@ void InterfaceFieldProperty::UploadInterfaceValue()
 {
     Grid * gridIn = Zone::GetGrid();
 
-    if ( ONEFLOW::IsUnsGrid( gridIn->type ) )
+    if ( ! ONEFLOW::IsUnsGrid( gridIn->type ) )
     {
-        UnsGrid * grid = ONEFLOW::UnsGridCast( gridIn );
+        return;
+    }
 
-        const FieldDefinitionTable::Data & data = this->GetData();
-        for ( FieldDefinitionTable::Data::const_iterator iter = data.begin();
-            iter != data.end();
-            ++ iter )
-        {
-            int nEqu = iter->second;
+    UnsGrid * grid = ONEFLOW::UnsGridCast( gridIn );
 
-            MRField * targetField =
-                ONEFLOW::GetFieldPointer< MRField >(
-                    grid,
-                    iter->first );
-
-            if ( targetField == nullptr )
-            {
-                Fatal(
-                    "Grid field is not allocated for interface upload: "
-                    + iter->first );
-            }
-
-            ONEFLOW::UploadInterfaceValue(
+    const auto & data = this->GetData();
+    for ( const auto & [ fieldName, nEqu ] : data )
+    {
+        MRField * targetField =
+            ONEFLOW::GetFieldPointer< MRField >(
                 grid,
-                targetField,
-                iter->first,
-                nEqu );
+                fieldName );
+
+        if ( targetField == nullptr )
+        {
+            Fatal(
+                "Grid field is not allocated for interface upload: "
+                + fieldName );
         }
+
+        ONEFLOW::UploadInterfaceValue(
+            grid,
+            targetField,
+            fieldName,
+            nEqu );
     }
 }
 
@@ -267,35 +261,33 @@ void InterfaceFieldProperty::DownloadInterfaceValue()
 {
     Grid * gridIn = Zone::GetGrid();
 
-    if ( ONEFLOW::IsUnsGrid( gridIn->type ) )
+    if ( ! ONEFLOW::IsUnsGrid( gridIn->type ) )
     {
-        UnsGrid * grid = ONEFLOW::UnsGridCast( gridIn );
+        return;
+    }
 
-        const FieldDefinitionTable::Data & data = this->GetData();
-        for ( FieldDefinitionTable::Data::const_iterator iter = data.begin();
-            iter != data.end();
-            ++ iter )
-        {
-            int nEqu = iter->second;
+    UnsGrid * grid = ONEFLOW::UnsGridCast( gridIn );
 
-            MRField * targetField =
-                ONEFLOW::GetFieldPointer< MRField >(
-                    grid,
-                    iter->first );
-
-            if ( targetField == nullptr )
-            {
-                Fatal(
-                    "Grid field is not allocated for interface download: "
-                    + iter->first );
-            }
-
-            ONEFLOW::DownloadInterfaceValue(
+    const auto & data = this->GetData();
+    for ( const auto & [ fieldName, nEqu ] : data )
+    {
+        MRField * targetField =
+            ONEFLOW::GetFieldPointer< MRField >(
                 grid,
-                targetField,
-                iter->first,
-                nEqu );
+                fieldName );
+
+        if ( targetField == nullptr )
+        {
+            Fatal(
+                "Grid field is not allocated for interface download: "
+                + fieldName );
         }
+
+        ONEFLOW::DownloadInterfaceValue(
+            grid,
+            targetField,
+            fieldName,
+            nEqu );
     }
 }
 
