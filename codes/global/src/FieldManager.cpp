@@ -550,10 +550,8 @@ bool FieldManager::FindInnerFieldDefinition(
         {
             nEqu = iter->second;
             found = true;
-            continue;
         }
-
-        if ( nEqu != iter->second )
+        else if ( nEqu != iter->second )
         {
             Fatal(
                 "Conflicting field definition: "
