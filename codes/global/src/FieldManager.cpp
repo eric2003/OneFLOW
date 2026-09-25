@@ -663,7 +663,15 @@ void UploadInterfaceValue( UnsGrid * grid, MRField * field2D, const std::string 
     {
         DataStorage * dataSend = interFace->dataSend[ ghostId ];
 
-        MRField * fieldStorage = ONEFLOW::GetFieldPointer< MRField >( dataSend, name );
+        MRField * fieldStorage =
+            ONEFLOW::GetFieldPointer< MRField >( dataSend, name );
+
+        if ( fieldStorage == nullptr )
+        {
+            Fatal(
+                "Interface send field is not allocated: "
+                + name );
+        }
 
         for ( int iFace = 0; iFace < nIFaces; ++ iFace )
         {
@@ -672,7 +680,8 @@ void UploadInterfaceValue( UnsGrid * grid, MRField * field2D, const std::string 
 
             for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
             {
-                ( * fieldStorage )[ iEqu ][ iFace ] = ( * field2D )[ iEqu ][ iCell ];
+                ( * fieldStorage )[ iEqu ][ iFace ] =
+                    ( * field2D )[ iEqu ][ iCell ];
             }
         }
     }
@@ -689,7 +698,15 @@ void DownloadInterfaceValue( UnsGrid * grid, MRField * field2D, const std::strin
     {
         DataStorage * dataRecv = interFace->dataRecv[ ghostId ];
 
-        MRField * fieldStorage = ONEFLOW::GetFieldPointer< MRField >( dataRecv, name );
+        MRField * fieldStorage =
+            ONEFLOW::GetFieldPointer< MRField >( dataRecv, name );
+
+        if ( fieldStorage == nullptr )
+        {
+            Fatal(
+                "Interface recv field is not allocated: "
+                + name );
+        }
 
         int nIFaces = interFace->nIFaces;
         for ( int iFace = 0; iFace < nIFaces; ++ iFace )
@@ -699,7 +716,8 @@ void DownloadInterfaceValue( UnsGrid * grid, MRField * field2D, const std::strin
 
             for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
             {
-                ( * field2D )[ iEqu ][ iCell ] = ( * fieldStorage )[ iEqu ][ iFace ];
+                ( * field2D )[ iEqu ][ iCell ] =
+                    ( * fieldStorage )[ iEqu ][ iFace ];
             }
         }
     }
