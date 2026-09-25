@@ -35,6 +35,7 @@ License
 #include "UnsGrid.h"
 #include "GridState.h"
 #include "InterFace.h"
+#include "FieldWrap.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -604,7 +605,7 @@ namespace
             fieldIndex < fieldCount;
             ++ fieldIndex )
         {
-            fieldManager->SetField(
+            FieldHome::SetField(
                 valuePair.GetName( fieldIndex ),
                 valuePair.GetValue( fieldIndex ) );
         }

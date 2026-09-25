@@ -453,11 +453,6 @@ void FieldManager::DumpFieldEnvironment(
         << "\n========================================\n";
 }
 
-void FieldManager::SetField( const std::string & fieldName, Real value )
-{
-    FieldHome::SetField( fieldName, value );
-}
-
 void FieldManager::AddField(
     const std::string & fieldName,
     int nEqu,

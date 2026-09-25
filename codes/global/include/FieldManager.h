@@ -129,10 +129,6 @@ public:
         FieldApplicability applicability,
         FieldLocation location );
 
-    void SetField(
-        const std::string & fieldName,
-        Real value );
-
 private:
     bool FindInnerFieldDefinition(
         const std::string & fieldName,
