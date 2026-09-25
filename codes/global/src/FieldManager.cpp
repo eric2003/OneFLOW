@@ -299,7 +299,7 @@ const IFieldProperty & FieldManager::GetInterfaceFieldProperty() const
     return this->iFieldProperty;
 }
 
-FieldDefinitionSet & FieldManager::GetFieldPropertyData(
+FieldDefinitionSet & FieldManager::GetFieldDefinitionSet(
     FieldApplicability applicability )
 {
     switch ( applicability )
@@ -318,7 +318,7 @@ FieldDefinitionSet & FieldManager::GetFieldPropertyData(
     return allFields;
 }
 
-const FieldDefinitionSet & FieldManager::GetFieldPropertyData(
+const FieldDefinitionSet & FieldManager::GetFieldDefinitionSet(
     FieldApplicability applicability ) const
 {
     switch ( applicability )
@@ -446,14 +446,14 @@ void FieldManager::AddField(
     if ( applicability == FieldApplicability::All )
     {
         ValidateCompatibleFieldDefinition(
-            this->GetFieldPropertyData(
+            this->GetFieldDefinitionSet(
                 FieldApplicability::Structured ).GetFieldDefinition(
                     location ),
             fieldName,
             nEqu );
 
         ValidateCompatibleFieldDefinition(
-            this->GetFieldPropertyData(
+            this->GetFieldDefinitionSet(
                 FieldApplicability::Unstructured ).GetFieldDefinition(
                     location ),
             fieldName,
@@ -462,7 +462,7 @@ void FieldManager::AddField(
     else
     {
         ValidateCompatibleFieldDefinition(
-            this->GetFieldPropertyData(
+            this->GetFieldDefinitionSet(
                 FieldApplicability::All ).GetFieldDefinition(
                     location ),
             fieldName,
@@ -470,7 +470,7 @@ void FieldManager::AddField(
     }
 
     FieldDefinitionTable & fieldProperty =
-        this->GetFieldPropertyData(
+        this->GetFieldDefinitionSet(
             applicability ).GetFieldDefinition(
                 location );
 
@@ -511,10 +511,10 @@ bool FieldManager::FindInnerFieldDefinition(
         &this->unstructuredFields
     };
 
-    for ( const FieldDefinitionSet * fieldPropertyData : dataList )
+    for ( const FieldDefinitionSet * fieldDefinitions : dataList )
     {
         const FieldDefinitionTable::Data & data =
-            fieldPropertyData->GetFieldDefinition(
+            fieldDefinitions->GetFieldDefinition(
                 FieldLocation::Inner ).GetData();
 
         FieldDefinitionTable::Data::const_iterator iter =

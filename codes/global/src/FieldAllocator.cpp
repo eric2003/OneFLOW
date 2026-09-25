@@ -809,12 +809,12 @@ namespace
 
     void AllocateInnerField(
         UnsGrid * grid,
-        const FieldDefinitionSet * fieldPropertyData )
+        const FieldDefinitionSet * fieldDefinitions )
     {
         int nTCell = grid->nCells + grid->nBFaces;
 
         const FieldDefinitionTable::Data & data =
-            fieldPropertyData->GetFieldDefinition(
+            fieldDefinitions->GetFieldDefinition(
                 FieldLocation::Inner ).GetData();
 
         for ( FieldDefinitionTable::Data::const_iterator iter = data.begin();
@@ -843,12 +843,12 @@ namespace
 
     void AllocateFaceField(
         UnsGrid * grid,
-        const FieldDefinitionSet * fieldPropertyData )
+        const FieldDefinitionSet * fieldDefinitions )
     {
         int nFaces = grid->nFaces;
 
         const FieldDefinitionTable::Data & data =
-            fieldPropertyData->GetFieldDefinition(
+            fieldDefinitions->GetFieldDefinition(
                 FieldLocation::Face ).GetData();
 
         for ( FieldDefinitionTable::Data::const_iterator iter =
@@ -878,12 +878,12 @@ namespace
 
     void AllocateBoundaryField(
         UnsGrid * grid,
-        const FieldDefinitionSet * fieldPropertyData )
+        const FieldDefinitionSet * fieldDefinitions )
     {
         int nBFaces = grid->nBFaces;
 
         const FieldDefinitionTable::Data & data =
-            fieldPropertyData->GetFieldDefinition(
+            fieldDefinitions->GetFieldDefinition(
                 FieldLocation::Boundary ).GetData();
 
         for ( FieldDefinitionTable::Data::const_iterator iter =
@@ -913,19 +913,19 @@ namespace
 
     void AllocateGridFields(
         UnsGrid * grid,
-        const FieldDefinitionSet * fieldPropertyData )
+        const FieldDefinitionSet * fieldDefinitions )
     {
         AllocateInnerField(
             grid,
-            fieldPropertyData );
+            fieldDefinitions );
 
         AllocateFaceField(
             grid,
-            fieldPropertyData );
+            fieldDefinitions );
 
         AllocateBoundaryField(
             grid,
-            fieldPropertyData );
+            fieldDefinitions );
     }
 
     void AllocateGridFields(
@@ -940,12 +940,12 @@ namespace
 
             AllocateGridFields(
                 grid,
-                &fieldManager->GetFieldPropertyData(
+                &fieldManager->GetFieldDefinitionSet(
                     FieldApplicability::All ) );
 
             AllocateGridFields(
                 grid,
-                &fieldManager->GetFieldPropertyData(
+                &fieldManager->GetFieldDefinitionSet(
                     FieldApplicability::Unstructured ) );
         }
     }

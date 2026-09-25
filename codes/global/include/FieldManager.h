@@ -93,10 +93,10 @@ public:
 
     const IFieldProperty & GetInterfaceFieldProperty() const;
 
-    FieldDefinitionSet & GetFieldPropertyData(
+    FieldDefinitionSet & GetFieldDefinitionSet(
         FieldApplicability applicability );
 
-    const FieldDefinitionSet & GetFieldPropertyData(
+    const FieldDefinitionSet & GetFieldDefinitionSet(
         FieldApplicability applicability ) const;
 
     UsdPara & GetUsdPara();
