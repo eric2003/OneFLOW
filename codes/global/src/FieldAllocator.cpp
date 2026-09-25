@@ -1019,6 +1019,13 @@ void FieldAllocator::Allocate(
         FieldManagerRegistry::GetFieldManager(
             solverType );
 
+    if ( fieldManager == nullptr )
+    {
+        // After AddFieldManager, Get must succeed.
+        Fatal(
+            "FieldManager is not registered for solverType" );
+    }
+
     if ( ! fieldManager->HasFieldDefinitions() )
     {
         RegisterFieldDefinitions(
@@ -1046,7 +1053,6 @@ void FieldAllocator::Allocate(
     InitField(
         basicString );
 }
-
 
 
 EndNameSpace
