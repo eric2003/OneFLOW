@@ -62,18 +62,12 @@ namespace
         const std::string & fieldName,
         int nEqu )
     {
-        const FieldDefinitionTable::Data & data =
-            fieldDefinitions.GetData();
-
-        FieldDefinitionTable::Data::const_iterator iter =
-            data.find( fieldName );
-
-        if ( iter == data.end() )
+        if ( ! fieldDefinitions.HasField( fieldName ) )
         {
             return;
         }
 
-        if ( iter->second != nEqu )
+        if ( fieldDefinitions.GetNEqu( fieldName ) != nEqu )
         {
             Fatal(
                 "Conflicting field definition: "
@@ -101,6 +95,28 @@ void FieldDefinitionTable::AddField(
             "Conflicting field definition: "
             + fieldName );
     }
+}
+
+bool FieldDefinitionTable::HasField(
+    const std::string & fieldName ) const
+{
+    return this->data.find( fieldName ) != this->data.end();
+}
+
+int FieldDefinitionTable::GetNEqu(
+    const std::string & fieldName ) const
+{
+    FieldDefinitionTable::Data::const_iterator iter =
+        this->data.find( fieldName );
+
+    if ( iter == this->data.end() )
+    {
+        Fatal(
+            "Field is not defined: "
+            + fieldName );
+    }
+
+    return iter->second;
 }
 
 const FieldDefinitionTable::Data & FieldDefinitionTable::GetData() const
@@ -527,24 +543,24 @@ bool FieldManager::FindInnerFieldDefinition(
 
     for ( const FieldDefinitionSet * fieldDefinitions : dataList )
     {
-        const FieldDefinitionTable::Data & data =
+        const FieldDefinitionTable & fieldDefinition =
             fieldDefinitions->GetFieldDefinition(
-                FieldLocation::Inner ).GetData();
+                FieldLocation::Inner );
 
-        FieldDefinitionTable::Data::const_iterator iter =
-            data.find( fieldName );
-
-        if ( iter == data.end() )
+        if ( ! fieldDefinition.HasField( fieldName ) )
         {
             continue;
         }
 
+        int fieldNEqu =
+            fieldDefinition.GetNEqu( fieldName );
+
         if ( ! found )
         {
-            nEqu = iter->second;
+            nEqu = fieldNEqu;
             found = true;
         }
-        else if ( nEqu != iter->second )
+        else if ( nEqu != fieldNEqu )
         {
             Fatal(
                 "Conflicting field definition: "
@@ -554,7 +570,6 @@ bool FieldManager::FindInnerFieldDefinition(
 
     return found;
 }
-
 std::map< int, std::unique_ptr< FieldManager > > FieldManagerRegistry::data;
 
 void FieldManagerRegistry::AddFieldManager( int solverType )

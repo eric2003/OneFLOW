@@ -36,11 +36,20 @@ public:
     using Data = std::map< std::string, int >;
 
 public:
-    void AddField( const std::string & fieldName, int nEqu );
+    void AddField(
+        const std::string & fieldName,
+        int nEqu );
+
+    bool HasField(
+        const std::string & fieldName ) const;
+
+    int GetNEqu(
+        const std::string & fieldName ) const;
 
     const Data & GetData() const;
 
-    void Dump( std::ostream & output ) const;
+    void Dump(
+        std::ostream & output ) const;
 
 private:
     Data data;
