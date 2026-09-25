@@ -1,22 +1,22 @@
 /*---------------------------------------------------------------------------*\
-    OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
+OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
+Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
-    This file is part of OneFLOW.
+This file is part of OneFLOW.
 
-    OneFLOW is free software: you can redistribute it and/or modify it
-    under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+OneFLOW is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-    for more details.
+OneFLOW is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License
+along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
 #include "FieldAllocator.h"
@@ -49,6 +49,11 @@ namespace
     //   inner/face/bc/unsteady.txt  -> Field definitions
     //   inter*.txt                  -> Interface Storage + communication names
     //   Validate: Communication Fields are a subset of Interface Storage
+    //
+    //   Everything in this namespace block only deals with parsed config text
+    //   and FieldManager definitions. It never touches a live Grid or
+    //   DataStorage. Runtime allocation lives in the second namespace block
+    //   below (Section C).
     // =========================================================================
 
     enum class FieldFileType
@@ -92,24 +97,6 @@ namespace
             "Unknown field applicability: " + typeName );
 
         return FieldApplicability::Unstructured;
-    }
-
-    FieldApplicability GetGridApplicability(
-        int gridType )
-    {
-        if ( ONEFLOW::IsUnsGrid( gridType ) )
-        {
-            return FieldApplicability::Unstructured;
-        }
-
-        if ( ONEFLOW::IsStrGrid( gridType ) )
-        {
-            return FieldApplicability::Structured;
-        }
-
-        Fatal( "Unsupported grid type for field allocation" );
-
-        return FieldApplicability::All;
     }
 
     FieldSpec ReadFieldSpec(
@@ -234,23 +221,6 @@ namespace
                 *fieldNames,
                 definition.name,
                 role );
-        }
-    }
-
-    // Used by InitField (Section C / pipeline step 5): apply init.txt constants.
-    void SetFieldValues(
-        const NameValuePair & valuePair )
-    {
-        const int fieldCount =
-            valuePair.Size();
-
-        for ( int fieldIndex = 0;
-            fieldIndex < fieldCount;
-            ++ fieldIndex )
-        {
-            FieldHome::SetField(
-                valuePair.GetName( fieldIndex ),
-                valuePair.GetValue( fieldIndex ) );
         }
     }
 
@@ -446,11 +416,37 @@ namespace
         }
     }
 
+} // end of Section B anonymous namespace
+
+namespace
+{
     // =========================================================================
     // Section C: runtime allocation on Grid / Interface DataStorage
     //   Must run after Section B. Idempotent create + post-create null check.
     //   init.txt constants applied last via InitField (Allocate pipeline step 5).
+    //
+    //   Everything in this namespace block touches a live Grid / DataStorage.
+    //   It only reads FieldManager definitions that Section B already
+    //   registered; it never parses alloc/*.txt itself.
     // =========================================================================
+
+    FieldApplicability GetGridApplicability(
+        int gridType )
+    {
+        if ( ONEFLOW::IsUnsGrid( gridType ) )
+        {
+            return FieldApplicability::Unstructured;
+        }
+
+        if ( ONEFLOW::IsStrGrid( gridType ) )
+        {
+            return FieldApplicability::Structured;
+        }
+
+        Fatal( "Unsupported grid type for field allocation" );
+
+        return FieldApplicability::All;
+    }
 
     void AllocateFieldSet(
         UnsGrid * grid,
@@ -623,6 +619,24 @@ namespace
             &fieldManager->GetInterfaceFieldProperty() );
     }
 
+    // Used by InitField (pipeline step 5): apply init.txt constants onto
+    // fields that AllocateRuntimeFields already created.
+    void SetFieldValues(
+        const NameValuePair & valuePair )
+    {
+        const int fieldCount =
+            valuePair.Size();
+
+        for ( int fieldIndex = 0;
+            fieldIndex < fieldCount;
+            ++ fieldIndex )
+        {
+            FieldHome::SetField(
+                valuePair.GetName( fieldIndex ),
+                valuePair.GetValue( fieldIndex ) );
+        }
+    }
+
     void InitField(
         const std::string & basicString )
     {
@@ -637,7 +651,7 @@ namespace
             configReader.GetNameValuePair() );
     }
 
-}
+} // end of Section C anonymous namespace
 
 void FieldAllocator::Allocate(
     int solverType,
