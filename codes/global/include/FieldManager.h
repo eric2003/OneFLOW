@@ -30,7 +30,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-class FieldProperty
+class FieldDefinitionTable
 {
 public:
     using Data = std::map< std::string, int >;
@@ -48,7 +48,7 @@ private:
 
 class DataStorage;
 
-class IFieldProperty : public FieldProperty
+class IFieldProperty : public FieldDefinitionTable
 {
 public:
     void AllocateInterfaceField( int nIFaces, DataStorage * dataStorage );
@@ -58,19 +58,19 @@ public:
     void DownloadOversetInterfaceValue();
 };
 
-class FieldPropertyData
+class FieldDefinitionSet
 {
 public:
-    FieldProperty & GetFieldProperty(
+    FieldDefinitionTable & GetFieldDefinition(
         FieldLocation location );
 
-    const FieldProperty & GetFieldProperty(
+    const FieldDefinitionTable & GetFieldDefinition(
         FieldLocation location ) const;
 
 private:
-    FieldProperty bcField;
-    FieldProperty faceField;
-    FieldProperty innerField;
+    FieldDefinitionTable bcField;
+    FieldDefinitionTable faceField;
+    FieldDefinitionTable innerField;
 };
 
 class UsdPara;
@@ -93,10 +93,10 @@ public:
 
     const IFieldProperty & GetInterfaceFieldProperty() const;
 
-    FieldPropertyData & GetFieldPropertyData(
+    FieldDefinitionSet & GetFieldPropertyData(
         FieldApplicability applicability );
 
-    const FieldPropertyData & GetFieldPropertyData(
+    const FieldDefinitionSet & GetFieldPropertyData(
         FieldApplicability applicability ) const;
 
     UsdPara & GetUsdPara();
@@ -123,9 +123,9 @@ private:
         const std::string & fieldName,
         int & nEqu ) const;
 
-    FieldPropertyData allFields;
-    FieldPropertyData structuredFields;
-    FieldPropertyData unstructuredFields;
+    FieldDefinitionSet allFields;
+    FieldDefinitionSet structuredFields;
+    FieldDefinitionSet unstructuredFields;
     IFieldProperty iFieldProperty;
     std::unique_ptr< UsdPara > usdPara;
 

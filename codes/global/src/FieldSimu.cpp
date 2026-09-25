@@ -210,7 +210,7 @@ namespace
             return true;
         }
 
-        const FieldProperty::Data & interfaceFields =
+        const FieldDefinitionTable::Data & interfaceFields =
             interfaceFieldProperty.GetData();
 
         bool consistent = true;

@@ -734,7 +734,7 @@ namespace
         int solverType,
         FieldManager * fieldManager )
     {
-        const FieldProperty::Data & interfaceData =
+        const FieldDefinitionTable::Data & interfaceData =
             fieldManager->GetInterfaceFieldProperty().GetData();
 
         const int interfaceTypes[] =
@@ -809,15 +809,15 @@ namespace
 
     void AllocateInnerField(
         UnsGrid * grid,
-        const FieldPropertyData * fieldPropertyData )
+        const FieldDefinitionSet * fieldPropertyData )
     {
         int nTCell = grid->nCells + grid->nBFaces;
 
-        const FieldProperty::Data & data =
-            fieldPropertyData->GetFieldProperty(
+        const FieldDefinitionTable::Data & data =
+            fieldPropertyData->GetFieldDefinition(
                 FieldLocation::Inner ).GetData();
 
-        for ( FieldProperty::Data::const_iterator iter = data.begin();
+        for ( FieldDefinitionTable::Data::const_iterator iter = data.begin();
             iter != data.end();
             ++ iter )
         {
@@ -843,15 +843,15 @@ namespace
 
     void AllocateFaceField(
         UnsGrid * grid,
-        const FieldPropertyData * fieldPropertyData )
+        const FieldDefinitionSet * fieldPropertyData )
     {
         int nFaces = grid->nFaces;
 
-        const FieldProperty::Data & data =
-            fieldPropertyData->GetFieldProperty(
+        const FieldDefinitionTable::Data & data =
+            fieldPropertyData->GetFieldDefinition(
                 FieldLocation::Face ).GetData();
 
-        for ( FieldProperty::Data::const_iterator iter =
+        for ( FieldDefinitionTable::Data::const_iterator iter =
             data.begin();
             iter != data.end();
             ++ iter )
@@ -878,15 +878,15 @@ namespace
 
     void AllocateBoundaryField(
         UnsGrid * grid,
-        const FieldPropertyData * fieldPropertyData )
+        const FieldDefinitionSet * fieldPropertyData )
     {
         int nBFaces = grid->nBFaces;
 
-        const FieldProperty::Data & data =
-            fieldPropertyData->GetFieldProperty(
+        const FieldDefinitionTable::Data & data =
+            fieldPropertyData->GetFieldDefinition(
                 FieldLocation::Boundary ).GetData();
 
-        for ( FieldProperty::Data::const_iterator iter =
+        for ( FieldDefinitionTable::Data::const_iterator iter =
             data.begin();
             iter != data.end();
             ++ iter )
@@ -913,7 +913,7 @@ namespace
 
     void AllocateGridFields(
         UnsGrid * grid,
-        const FieldPropertyData * fieldPropertyData )
+        const FieldDefinitionSet * fieldPropertyData )
     {
         AllocateInnerField(
             grid,
