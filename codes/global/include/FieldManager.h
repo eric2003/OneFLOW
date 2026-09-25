@@ -64,6 +64,12 @@ public:
         const std::string & fieldName,
         int nEqu );
 
+    bool HasField(
+        const std::string & fieldName ) const;
+
+    int GetNEqu(
+        const std::string & fieldName ) const;
+
     const FieldDefinitionTable::Data & GetData() const;
 
     void Dump(

@@ -759,8 +759,8 @@ namespace
         int solverType,
         FieldManager * fieldManager )
     {
-        const FieldDefinitionTable::Data & interfaceData =
-            fieldManager->GetInterfaceFieldProperty().GetData();
+        const InterfaceFieldProperty & interfaceFieldProperty =
+            fieldManager->GetInterfaceFieldProperty();
 
         const int interfaceTypes[] =
         {
@@ -769,6 +769,7 @@ namespace
             ONEFLOW::INTERFACE_GRADIENT_DATA,
             ONEFLOW::INTERFACE_OVERSET_DATA
         };
+
         const int interfaceTypeCount =
             sizeof( interfaceTypes ) / sizeof( interfaceTypes[ 0 ] );
 
@@ -791,8 +792,7 @@ namespace
                 const std::string & fieldName =
                     varNameSolver->data[ iField ];
 
-                if ( interfaceData.find( fieldName ) ==
-                    interfaceData.end() )
+                if ( ! interfaceFieldProperty.HasField( fieldName ) )
                 {
                     Fatal(
                         "Interface field is not allocated: "

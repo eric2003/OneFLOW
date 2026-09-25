@@ -150,6 +150,20 @@ void InterfaceFieldProperty::AddField(
         nEqu );
 }
 
+bool InterfaceFieldProperty::HasField(
+    const std::string & fieldName ) const
+{
+    return this->fieldDefinitions.HasField(
+        fieldName );
+}
+
+int InterfaceFieldProperty::GetNEqu(
+    const std::string & fieldName ) const
+{
+    return this->fieldDefinitions.GetNEqu(
+        fieldName );
+}
+
 const FieldDefinitionTable::Data &
 InterfaceFieldProperty::GetData() const
 {
