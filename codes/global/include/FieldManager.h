@@ -30,6 +30,14 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+// FieldSpec describes the allocation definition of a field.
+struct FieldSpec
+{
+    std::string name;
+    int nEqu;
+    FieldApplicability applicability;
+};
+
 class FieldDefinitionTable
 {
 public:

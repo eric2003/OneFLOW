@@ -432,14 +432,6 @@ namespace
             &FieldConfigReader::ReadNameValue );
     }
 
-    // FieldSpec describes the allocation definition of a field.
-    struct FieldSpec
-    {
-        std::string name;
-        int nEqu;
-        FieldApplicability applicability;
-    };
-
     enum class FieldFileType
     {
         Standard,
