@@ -966,15 +966,20 @@ namespace
             UnsGrid * grid =
                 ONEFLOW::UnsGridCast( gridIn );
 
+            FieldApplicability applicability =
+                GetGridApplicability( gridIn->type );
+
+            // All fields are common to every supported grid type.
             AllocateGridFields(
                 grid,
                 &fieldManager->GetFieldDefinitionSet(
                     FieldApplicability::All ) );
 
+            // Grid-specific fields are allocated in addition to the common fields.
             AllocateGridFields(
                 grid,
                 &fieldManager->GetFieldDefinitionSet(
-                    FieldApplicability::Unstructured ) );
+                    applicability ) );
         }
     }
 
