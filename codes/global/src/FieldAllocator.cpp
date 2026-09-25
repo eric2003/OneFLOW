@@ -786,8 +786,11 @@ namespace
 
                 if ( ! interfaceFieldProperty.HasField( fieldName ) )
                 {
+                    // Definition-time check: communication name must appear
+                    // in Interface Storage field list (before runtime alloc).
                     Fatal(
-                        "Interface field is not allocated: "
+                        "Communication field is not in Interface Storage "
+                        "definitions: "
                         + fieldName );
                 }
             }
@@ -835,6 +838,7 @@ namespace
 
         for ( const auto & [ fieldName, nTEqu ] : data )
         {
+            // 1) Lookup before create: skip if already present (idempotent).
             MRField * field =
                 ONEFLOW::GetFieldPointer< MRField >(
                     grid,
@@ -845,17 +849,29 @@ namespace
                 continue;
             }
 
+            // 2) Create and register into the grid DataStorage.
             ONEFLOW::CreateMRField(
                 grid,
                 nTEqu,
                 nSize,
                 fieldName );
 
+            // 3) Lookup AFTER create: CreateMRField must have registered
+            //    the field. A null here means create failed; do not call
+            //    ZeroField on a null pointer.
             field =
                 ONEFLOW::GetFieldPointer< MRField >(
                     grid,
                     fieldName );
 
+            if ( field == nullptr )
+            {
+                Fatal(
+                    "Failed to create grid field: "
+                    + fieldName );
+            }
+
+            // 4) Safe to zero: field is non-null.
             ONEFLOW::ZeroField(
                 field,
                 nTEqu,
