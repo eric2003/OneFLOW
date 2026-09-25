@@ -26,6 +26,7 @@ License
 #include <map>
 #include <memory>
 #include <ostream>
+#include <string>
 
 BeginNameSpace( ONEFLOW )
 

@@ -19,7 +19,7 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#include "FieldImp.h"
+#include "FieldManager.h"
 #include "FieldBase.h"
 #include "FieldWrap.h"
 #include "Fatal.h"

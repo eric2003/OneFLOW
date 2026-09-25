@@ -34,7 +34,7 @@ License
 #include "Multigrid.h"
 #include "BcData.h"
 #include "GridState.h"
-#include "FieldImp.h"
+#include "FieldManager.h"
 #include "SolverState.h"
 #include "SolverDef.h"
 #include "Parallel.h"

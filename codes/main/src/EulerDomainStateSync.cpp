@@ -6,7 +6,7 @@
 #include "SimuContext.h"
 #include "Ctrl.h"
 #include "DataBase.h"
-#include "FieldImp.h"
+#include "FieldManager.h"
 #include "Grid.h"
 #include "GridState.h"
 #include "NsCom.h"
