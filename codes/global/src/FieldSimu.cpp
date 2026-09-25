@@ -313,7 +313,7 @@ void CheckCommunicationInterfaceConsistency()
         for ( int iType = 0; iType < interfaceTypeCount; ++ iType )
         {
             VarNameSolver * varNameSolver =
-                VarNameFactory::GetVarNameSolver(
+                VarNameFactory::FindVarNameSolver(
                     solverType,
                     interfaceTypes[ iType ] );
 
