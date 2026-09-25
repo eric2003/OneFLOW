@@ -659,8 +659,7 @@ std::map< int, std::unique_ptr< FieldManager > > FieldManagerRegistry::data;
 
 void FieldManagerRegistry::AddFieldManager( int solverType )
 {
-    std::map< int, std::unique_ptr< FieldManager > >::iterator iter =
-        FieldManagerRegistry::data.find( solverType );
+    auto iter = FieldManagerRegistry::data.find( solverType );
 
     if ( iter == FieldManagerRegistry::data.end() )
     {
@@ -671,8 +670,7 @@ void FieldManagerRegistry::AddFieldManager( int solverType )
 
 FieldManager * FieldManagerRegistry::GetFieldManager( int solverType )
 {
-    std::map< int, std::unique_ptr< FieldManager > >::iterator iter =
-        FieldManagerRegistry::data.find( solverType );
+    auto iter = FieldManagerRegistry::data.find( solverType );
 
     if ( iter == FieldManagerRegistry::data.end() )
     {
@@ -762,11 +760,20 @@ void DownloadInterfaceValue( UnsGrid * grid, MRField * field2D, const std::strin
 
 void UploadOversetValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu )
 {
+    // Reserved: overset interface transfer is not implemented yet.
+    (void) grid;
+    (void) field2D;
+    (void) name;
+    (void) nEqu;
 }
-
 
 void DownloadOversetValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu )
 {
+    // Reserved: overset interface transfer is not implemented yet.
+    (void) grid;
+    (void) field2D;
+    (void) name;
+    (void) nEqu;
 }
 
 EndNameSpace
