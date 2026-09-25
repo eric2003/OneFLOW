@@ -21,7 +21,6 @@ License
 \*---------------------------------------------------------------------------*/
 #include "FieldManager.h"
 #include "FieldBase.h"
-#include "FieldWrap.h"
 #include "Fatal.h"
 #include "UsdPara.h"
 #include "Grid.h"
