@@ -291,12 +291,12 @@ void FieldManager::MarkInterfaceDefinitionsReady()
 
 InterfaceFieldProperty & FieldManager::GetInterfaceFieldProperty()
 {
-    return this->iFieldProperty;
+    return this->interfaceFieldProperty;
 }
 
 const InterfaceFieldProperty & FieldManager::GetInterfaceFieldProperty() const
 {
-    return this->iFieldProperty;
+    return this->interfaceFieldProperty;
 }
 
 FieldDefinitionSet & FieldManager::GetFieldDefinitionSet(
@@ -419,13 +419,13 @@ void FieldManager::DumpFieldEnvironment(
     output
         << "\n[Interface Storage]\n";
 
-    if ( this->iFieldProperty.GetData().empty() )
+    if ( this->interfaceFieldProperty.GetData().empty() )
     {
         output << "    <empty>\n";
     }
     else
     {
-        this->iFieldProperty.Dump( output );
+        this->interfaceFieldProperty.Dump( output );
     }
 
     output
@@ -493,7 +493,7 @@ void FieldManager::AddInterfaceField(
             + fieldName );
     }
 
-    this->iFieldProperty.AddField(
+    this->interfaceFieldProperty.AddField(
         fieldName,
         nEqu );
 }

@@ -126,7 +126,7 @@ private:
     FieldDefinitionSet allFields;
     FieldDefinitionSet structuredFields;
     FieldDefinitionSet unstructuredFields;
-    InterfaceFieldProperty iFieldProperty;
+    InterfaceFieldProperty interfaceFieldProperty;
     std::unique_ptr< UsdPara > usdPara;
 
     bool fieldDefinitionsReady;

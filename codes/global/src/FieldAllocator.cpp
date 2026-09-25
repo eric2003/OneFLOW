@@ -950,7 +950,7 @@ namespace
         }
     }
 
-    void AllocateInterfaceField( InterfaceFieldProperty * iFieldProperty )
+    void AllocateInterfaceField( InterfaceFieldProperty * interfaceFieldProperty )
     {
         Grid * grid = Zone::GetGrid();
 
@@ -961,12 +961,12 @@ namespace
         int nIFaces = grid->interFace->nIFaces;
         for ( int ghostId = MAX_GHOST_LEVELS - 1; ghostId >= 0; -- ghostId )
         {
-            iFieldProperty->AllocateInterfaceField( nIFaces, interFace->dataSend[ ghostId ] );
-            iFieldProperty->AllocateInterfaceField( nIFaces, interFace->dataRecv[ ghostId ] );
+            interfaceFieldProperty->AllocateInterfaceField( nIFaces, interFace->dataSend[ ghostId ] );
+            interfaceFieldProperty->AllocateInterfaceField( nIFaces, interFace->dataRecv[ ghostId ] );
         }
     }
 
-    void AllocateOversetInterfaceField( InterfaceFieldProperty * iFieldProperty )
+    void AllocateOversetInterfaceField( InterfaceFieldProperty * interfaceFieldProperty )
     {
     }
 
