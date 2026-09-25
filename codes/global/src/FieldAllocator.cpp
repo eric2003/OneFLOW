@@ -834,17 +834,16 @@ namespace
 
     }
 
-    void AllocateInnerField(
+    void AllocateFieldSet(
         UnsGrid * grid,
-        const FieldDefinitionSet * fieldDefinitions )
+        const FieldDefinitionTable & fieldDefinition,
+        int nSize )
     {
-        int nTCell = grid->nCells + grid->nBFaces;
-
         const FieldDefinitionTable::Data & data =
-            fieldDefinitions->GetFieldDefinition(
-                FieldLocation::Inner ).GetData();
+            fieldDefinition.GetData();
 
-        for ( FieldDefinitionTable::Data::const_iterator iter = data.begin();
+        for ( FieldDefinitionTable::Data::const_iterator iter =
+            data.begin();
             iter != data.end();
             ++ iter )
         {
@@ -853,7 +852,7 @@ namespace
             ONEFLOW::CreateMRField(
                 grid,
                 nTEqu,
-                nTCell,
+                nSize,
                 iter->first );
 
             MRField * field =
@@ -864,8 +863,21 @@ namespace
             ONEFLOW::ZeroField(
                 field,
                 nTEqu,
-                nTCell );
+                nSize );
         }
+    }
+
+    void AllocateInnerField(
+        UnsGrid * grid,
+        const FieldDefinitionSet * fieldDefinitions )
+    {
+        int nTCell = grid->nCells + grid->nBFaces;
+
+        AllocateFieldSet(
+            grid,
+            fieldDefinitions->GetFieldDefinition(
+                FieldLocation::Inner ),
+            nTCell );
     }
 
     void AllocateFaceField(
@@ -874,33 +886,11 @@ namespace
     {
         int nFaces = grid->nFaces;
 
-        const FieldDefinitionTable::Data & data =
+        AllocateFieldSet(
+            grid,
             fieldDefinitions->GetFieldDefinition(
-                FieldLocation::Face ).GetData();
-
-        for ( FieldDefinitionTable::Data::const_iterator iter =
-            data.begin();
-            iter != data.end();
-            ++ iter )
-        {
-            int nTEqu = iter->second;
-
-            ONEFLOW::CreateMRField(
-                grid,
-                nTEqu,
-                nFaces,
-                iter->first );
-
-            MRField * field =
-                ONEFLOW::GetFieldPointer< MRField >(
-                    grid,
-                    iter->first );
-
-            ONEFLOW::ZeroField(
-                field,
-                nTEqu,
-                nFaces );
-        }
+                FieldLocation::Face ),
+            nFaces );
     }
 
     void AllocateBoundaryField(
@@ -909,33 +899,11 @@ namespace
     {
         int nBFaces = grid->nBFaces;
 
-        const FieldDefinitionTable::Data & data =
+        AllocateFieldSet(
+            grid,
             fieldDefinitions->GetFieldDefinition(
-                FieldLocation::Boundary ).GetData();
-
-        for ( FieldDefinitionTable::Data::const_iterator iter =
-            data.begin();
-            iter != data.end();
-            ++ iter )
-        {
-            int nTEqu = iter->second;
-
-            ONEFLOW::CreateMRField(
-                grid,
-                nTEqu,
-                nBFaces,
-                iter->first );
-
-            MRField * field =
-                ONEFLOW::GetFieldPointer< MRField >(
-                    grid,
-                    iter->first );
-
-            ONEFLOW::ZeroField(
-                field,
-                nTEqu,
-                nBFaces );
-        }
+                FieldLocation::Boundary ),
+            nBFaces );
     }
 
     void AllocateGridFields(
