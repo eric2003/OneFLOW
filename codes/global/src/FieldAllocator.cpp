@@ -541,6 +541,22 @@ namespace
             "Unknown unsteady field role: " + role );
     }
 
+    void InitUsdPara(
+        FieldManager * fieldManager,
+        const UsdFieldNames & fieldNames )
+    {
+        UsdPara * usdPara =
+            &fieldManager->GetUsdPara();
+
+        int nEqu =
+            GetDataValue< int >( "nEqu" );
+
+        usdPara->Init(
+            fieldNames.flow,
+            fieldNames.residual,
+            nEqu );
+    }
+
     void ReadFieldDefinitions(
         TextFileParser & textFileParser,
         FieldManager * fieldManager,
@@ -669,16 +685,9 @@ namespace
                 location,
                 &fieldNames );
 
-            UsdPara * usdPara =
-                &fieldManager->GetUsdPara();
-
-            int nEqu =
-                GetDataValue< int >( "nEqu" );
-
-            usdPara->Init(
-                fieldNames.flow,
-                fieldNames.residual,
-                nEqu );
+            InitUsdPara(
+                fieldManager,
+                fieldNames );
         }
         else
         {
