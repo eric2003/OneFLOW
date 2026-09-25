@@ -19,7 +19,7 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#include "FieldAlloc.h"
+#include "FieldAllocator.h"
 #include "Prj.h"
 #include "Fatal.h"
 #include "FieldImp.h"
