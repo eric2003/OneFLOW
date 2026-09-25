@@ -187,6 +187,4 @@ void DownloadInterfaceValue( UnsGrid * grid, MRField * field2D, const std::strin
 void UploadOversetValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu );
 void DownloadOversetValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu );
 
-void DownloadInterfaceValue_TEST( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu );
-
 EndNameSpace

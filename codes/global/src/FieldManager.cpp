@@ -681,36 +681,6 @@ void DownloadInterfaceValue( UnsGrid * grid, MRField * field2D, const std::strin
     }
 }
 
-void DownloadInterfaceValue_TEST( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu )
-{
-    InterFace * interFace = grid->interFace;
-    if ( ! ONEFLOW::IsValid( interFace ) ) return;
-
-    if ( field2D == 0 ) return;
-
-    for ( int ghostId = MAX_GHOST_LEVELS - 1; ghostId >= 0; -- ghostId )
-    {
-        DataStorage * dataRecv = interFace->dataRecv[ ghostId ];
-
-        MRField * fieldStorage = ONEFLOW::GetFieldPointer< MRField >( dataRecv, name );
-
-        int nIFaces = interFace->nIFaces;
-        for ( int iFace = 0; iFace < nIFaces; ++ iFace )
-        {
-            int iCell;
-            grid->faceTopo->GetTId( iFace, ghostId + 1, iCell );
-
-            int iBFace = grid->interFace->i2b[ iFace ];
-            int tId = grid->faceTopo->rCells[ iBFace ];
-
-            for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
-            {
-                ( * field2D )[ iEqu ][ iCell ] = ( * fieldStorage )[ iEqu ][ iFace ];
-            }
-        }
-    }
-}
-
 void UploadOversetValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu )
 {
 }
