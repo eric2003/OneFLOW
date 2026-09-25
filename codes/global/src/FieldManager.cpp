@@ -193,8 +193,7 @@ void InterfaceFieldProperty::AllocateInterfaceField( int nIFaces, DataStorage * 
     const auto & data = this->GetData();
     for ( const auto & [ fieldName, nTEqu ] : data )
     {
-        // Idempotent: skip if this storage already holds the field
-        // (e.g. another solverType already allocated the same name).
+        // 1) Lookup before create: skip if already present (idempotent).
         MRField * field =
             ONEFLOW::GetFieldPointer< MRField >(
                 dataStorage,
@@ -205,17 +204,29 @@ void InterfaceFieldProperty::AllocateInterfaceField( int nIFaces, DataStorage * 
             continue;
         }
 
+        // 2) Create and register into the interface DataStorage.
         ONEFLOW::CreateMRField(
             dataStorage,
             nTEqu,
             nIFaces,
             fieldName );
 
+        // 3) Lookup AFTER create: CreateMRField must have registered
+        //    the field. A null here means create failed; do not call
+        //    ZeroField on a null pointer.
         field =
             ONEFLOW::GetFieldPointer< MRField >(
                 dataStorage,
                 fieldName );
 
+        if ( field == nullptr )
+        {
+            Fatal(
+                "Failed to create interface field: "
+                + fieldName );
+        }
+
+        // 4) Safe to zero: field is non-null.
         ONEFLOW::ZeroField(
             field,
             nTEqu,
