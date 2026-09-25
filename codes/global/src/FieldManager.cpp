@@ -169,6 +169,11 @@ int InterfaceFieldProperty::GetNEqu(
         fieldName );
 }
 
+bool InterfaceFieldProperty::Empty() const
+{
+    return this->fieldDefinitions.Empty();
+}
+
 const FieldDefinitionTable::Data &
 InterfaceFieldProperty::GetData() const
 {
@@ -474,7 +479,7 @@ void FieldManager::DumpFieldEnvironment(
     output
         << "\n[Interface Storage]\n";
 
-    if ( this->interfaceFieldProperty.GetData().empty() )
+    if ( this->interfaceFieldProperty.Empty() )
     {
         output << "    <empty>\n";
     }

@@ -72,6 +72,8 @@ public:
     int GetNEqu(
         const std::string & fieldName ) const;
 
+    bool Empty() const;
+
     const FieldDefinitionTable::Data & GetData() const;
 
     void Dump(
