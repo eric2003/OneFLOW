@@ -43,19 +43,18 @@ void PrepareInterfaceFieldRecord( int solverType, int iFk, int iSr, FieldRecord 
 
     InterFaceState::interFace = interFace;
 
-    HXVector< DataStorage * > * iDataStorageList = new HXVector< DataStorage * >;
+    // Stack-local list: only used inside this function.
+    HXVector< DataStorage * > iDataStorageList;
+    GetInterfaceDataStorageList( &iDataStorageList, iSr );
 
-    GetInterfaceDataStorageList( iDataStorageList, iSr );
+    VarNameSolver * varNameSolver =
+        VarNameFactory::GetVarNameSolver( solverType, iFk );
 
-    VarNameSolver * varNameSolver = VarNameFactory::GetVarNameSolver( solverType, iFk );
-
-    for ( int dataId = 0; dataId < iDataStorageList->size(); ++ dataId )
+    for ( int dataId = 0; dataId < iDataStorageList.size(); ++ dataId )
     {
-        DataStorage * dataStorage = ( * iDataStorageList )[ dataId ];
+        DataStorage * dataStorage = iDataStorageList[ dataId ];
         AddFieldRecord( fieldRecord, dataStorage, varNameSolver->data );
     }
-
-    delete iDataStorageList;
 }
 
 void GetInterfaceDataStorageList( HXVector< DataStorage * > * iDataStorageList, int srFlag )
@@ -144,7 +143,8 @@ void SetInterfaceFieldData( int iSr, FieldRecord * fieldRecord )
                 field,
                 interfaceId );
         }
-    }}
+    }
+}
 
 void HXWriteSubData( DataBook * dataBook, MRField * field2D, IntField & idMap )
 {
