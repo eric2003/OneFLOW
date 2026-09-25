@@ -48,7 +48,7 @@ namespace
             << name
             << ":\n";
 
-        if ( fieldDefinitions.GetData().empty() )
+        if ( fieldDefinitions.Empty() )
         {
             output << "    <empty>\n";
             return;
@@ -117,6 +117,11 @@ int FieldDefinitionTable::GetNEqu(
     }
 
     return iter->second;
+}
+
+bool FieldDefinitionTable::Empty() const
+{
+    return this->data.empty();
 }
 
 const FieldDefinitionTable::Data & FieldDefinitionTable::GetData() const

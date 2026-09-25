@@ -46,6 +46,8 @@ public:
     int GetNEqu(
         const std::string & fieldName ) const;
 
+    bool Empty() const;
+
     const Data & GetData() const;
 
     void Dump(
