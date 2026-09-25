@@ -831,20 +831,14 @@ namespace
         const FieldDefinitionTable & fieldDefinition,
         int nSize )
     {
-        const FieldDefinitionTable::Data & data =
-            fieldDefinition.GetData();
+        const auto & data = fieldDefinition.GetData();
 
-        for ( FieldDefinitionTable::Data::const_iterator iter =
-            data.begin();
-            iter != data.end();
-            ++ iter )
+        for ( const auto & [ fieldName, nTEqu ] : data )
         {
-            int nTEqu = iter->second;
-
             MRField * field =
                 ONEFLOW::GetFieldPointer< MRField >(
                     grid,
-                    iter->first );
+                    fieldName );
 
             if ( field != nullptr )
             {
@@ -855,12 +849,12 @@ namespace
                 grid,
                 nTEqu,
                 nSize,
-                iter->first );
+                fieldName );
 
             field =
                 ONEFLOW::GetFieldPointer< MRField >(
                     grid,
-                    iter->first );
+                    fieldName );
 
             ONEFLOW::ZeroField(
                 field,
