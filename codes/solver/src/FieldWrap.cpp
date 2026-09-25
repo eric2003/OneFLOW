@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "FieldWrap.h"
+#include "Fatal.h"
 #include "SolverMap.h"
 #include "BgField.h"
 #include "Solver.h"
@@ -121,6 +122,12 @@ void FieldHome::SetField( const std::string & fieldName, Real value )
     Grid * grid = Zone::GetGrid();
     MRField * field =
         ONEFLOW::GetFieldPointer< MRField >( grid, fieldName );
+
+    if ( field == nullptr )
+    {
+        Fatal(
+            "Field is not allocated: " + fieldName );
+    }
 
     ONEFLOW::SetField( field, value );
 }
