@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "InterField.h"
+#include "Fatal.h"
 #include "Grid.h"
 #include "Zone.h"
 #include "ZoneState.h"
@@ -99,6 +100,14 @@ void AddFieldRecord(
             ONEFLOW::GetFieldPointer< MRField >(
                 dataStorage,
                 fieldName );
+
+        if ( field == nullptr )
+        {
+            // Interface storage must already hold every communication field.
+            Fatal(
+                "Interface field is not allocated in DataStorage: "
+                + fieldName );
+        }
 
         fieldRecord->AddField(
             field );
