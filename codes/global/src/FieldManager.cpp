@@ -80,8 +80,11 @@ void FieldDefinitionTable::AddField(
     const std::string & fieldName,
     int nEqu )
 {
-    FieldDefinitionTable::Data::iterator iter =
-        this->data.find( fieldName );
+    // Policy:
+    // - first registration: insert
+    // - same name, same nEqu: idempotent (no-op)
+    // - same name, different nEqu: configuration conflict
+    auto iter = this->data.find( fieldName );
 
     if ( iter == this->data.end() )
     {
@@ -93,7 +96,11 @@ void FieldDefinitionTable::AddField(
     {
         Fatal(
             "Conflicting field definition: "
-            + fieldName );
+            + fieldName
+            + " existing nEqu="
+            + std::to_string( iter->second )
+            + " new nEqu="
+            + std::to_string( nEqu ) );
     }
 }
 
@@ -106,8 +113,7 @@ bool FieldDefinitionTable::HasField(
 int FieldDefinitionTable::GetNEqu(
     const std::string & fieldName ) const
 {
-    FieldDefinitionTable::Data::const_iterator iter =
-        this->data.find( fieldName );
+    auto iter = this->data.find( fieldName );
 
     if ( iter == this->data.end() )
     {
