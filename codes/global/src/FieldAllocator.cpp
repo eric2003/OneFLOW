@@ -595,7 +595,6 @@ namespace
     }
 
     void SetFieldValues(
-        FieldManager * fieldManager,
         const NameValuePair & valuePair )
     {
         const int fieldCount =
@@ -995,7 +994,6 @@ namespace
         configReader.ReadValueFile( fileName );
 
         SetFieldValues(
-            fieldManager,
             configReader.GetNameValuePair() );
     }
 
