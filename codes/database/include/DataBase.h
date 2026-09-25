@@ -109,7 +109,7 @@ T * GetDataPointer( const std::string & varName )
     DataBase * database = ONEFLOW::GetGlobalDataBase();
     DataEntry * dataEntry = database->dataPara->GetDataPointer( varName );
 
-    // Required lookup: match GetDataValue ¡ª missing name must not
+    // Required lookup: match GetDataValue -- missing name must not
     // dereference a null DataEntry.
     if ( dataEntry == nullptr )
     {
@@ -135,6 +135,9 @@ T * GetFieldPointer( DataBase * database, const std::string & dataObjectName );
 template < typename T, typename TStorage >
 T * GetFieldPointer( TStorage * storage, const std::string & dataObjectName );
 
+// Required field access: dereferences GetFieldPointer. The named field
+// must already be registered; otherwise this is undefined behavior.
+// Prefer GetFieldPointer + null-check/Fatal when presence is uncertain.
 template < typename T >
 T & GetFieldReference( DataBase * database, const std::string & dataObjectName );
 template < typename T, typename TStorage >
