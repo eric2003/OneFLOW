@@ -849,13 +849,23 @@ namespace
         {
             int nTEqu = iter->second;
 
+            MRField * field =
+                ONEFLOW::GetFieldPointer< MRField >(
+                    grid,
+                    iter->first );
+
+            if ( field != nullptr )
+            {
+                continue;
+            }
+
             ONEFLOW::CreateMRField(
                 grid,
                 nTEqu,
                 nSize,
                 iter->first );
 
-            MRField * field =
+            field =
                 ONEFLOW::GetFieldPointer< MRField >(
                     grid,
                     iter->first );
