@@ -39,7 +39,7 @@ BeginNameSpace( ONEFLOW )
 
 namespace
 {
-    void DumpFieldProperty(
+    void DumpFieldDefinition(
         std::ostream & output,
         const char * name,
         const FieldDefinitionTable & fieldDefinitions )
@@ -377,19 +377,19 @@ void FieldManager::DumpFieldEnvironment(
     output
         << "[All]\n";
 
-    DumpFieldProperty(
+    DumpFieldDefinition(
         output,
         "Inner",
         this->allFields.GetFieldDefinition(
             FieldLocation::Inner ) );
 
-    DumpFieldProperty(
+    DumpFieldDefinition(
         output,
         "Face",
         this->allFields.GetFieldDefinition(
             FieldLocation::Face ) );
 
-    DumpFieldProperty(
+    DumpFieldDefinition(
         output,
         "Boundary",
         this->allFields.GetFieldDefinition(
@@ -398,19 +398,19 @@ void FieldManager::DumpFieldEnvironment(
     output
         << "\n[Structured]\n";
 
-    DumpFieldProperty(
+    DumpFieldDefinition(
         output,
         "Inner",
         this->structuredFields.GetFieldDefinition(
             FieldLocation::Inner ) );
 
-    DumpFieldProperty(
+    DumpFieldDefinition(
         output,
         "Face",
         this->structuredFields.GetFieldDefinition(
             FieldLocation::Face ) );
 
-    DumpFieldProperty(
+    DumpFieldDefinition(
         output,
         "Boundary",
         this->structuredFields.GetFieldDefinition(
@@ -419,19 +419,19 @@ void FieldManager::DumpFieldEnvironment(
     output
         << "\n[Unstructured]\n";
 
-    DumpFieldProperty(
+    DumpFieldDefinition(
         output,
         "Inner",
         this->unstructuredFields.GetFieldDefinition(
             FieldLocation::Inner ) );
 
-    DumpFieldProperty(
+    DumpFieldDefinition(
         output,
         "Face",
         this->unstructuredFields.GetFieldDefinition(
             FieldLocation::Face ) );
 
-    DumpFieldProperty(
+    DumpFieldDefinition(
         output,
         "Boundary",
         this->unstructuredFields.GetFieldDefinition(
@@ -490,12 +490,12 @@ void FieldManager::AddField(
             nEqu );
     }
 
-    FieldDefinitionTable & fieldProperty =
+    FieldDefinitionTable & fieldDefinition =
         this->GetFieldDefinitionSet(
             applicability ).GetFieldDefinition(
                 location );
 
-    fieldProperty.AddField(
+    fieldDefinition.AddField(
         fieldName,
         nEqu );
 }
