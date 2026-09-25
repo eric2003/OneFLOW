@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "InterField.h"
+#include "Fatal.h"
 #include "Grid.h"
 #include "Zone.h"
 #include "ZoneState.h"
@@ -43,19 +44,18 @@ void PrepareInterfaceFieldRecord( int solverType, int iFk, int iSr, FieldRecord 
 
     InterFaceState::interFace = interFace;
 
-    HXVector< DataStorage * > * iDataStorageList = new HXVector< DataStorage * >;
+    // Stack-local list: only used inside this function.
+    HXVector< DataStorage * > iDataStorageList;
+    GetInterfaceDataStorageList( &iDataStorageList, iSr );
 
-    GetInterfaceDataStorageList( iDataStorageList, iSr );
+    VarNameSolver * varNameSolver =
+        VarNameFactory::GetVarNameSolver( solverType, iFk );
 
-    VarNameSolver * varNameSolver = VarNameFactory::GetVarNameSolver( solverType, iFk );
-
-    for ( int dataId = 0; dataId < iDataStorageList->size(); ++ dataId )
+    for ( int dataId = 0; dataId < iDataStorageList.size(); ++ dataId )
     {
-        DataStorage * dataStorage = ( * iDataStorageList )[ dataId ];
+        DataStorage * dataStorage = iDataStorageList[ dataId ];
         AddFieldRecord( fieldRecord, dataStorage, varNameSolver->data );
     }
-
-    delete iDataStorageList;
 }
 
 void GetInterfaceDataStorageList( HXVector< DataStorage * > * iDataStorageList, int srFlag )
@@ -101,6 +101,14 @@ void AddFieldRecord(
                 dataStorage,
                 fieldName );
 
+        if ( field == nullptr )
+        {
+            // Interface storage must already hold every communication field.
+            Fatal(
+                "Interface field is not allocated in DataStorage: "
+                + fieldName );
+        }
+
         fieldRecord->AddField(
             field );
     }
@@ -144,7 +152,8 @@ void SetInterfaceFieldData( int iSr, FieldRecord * fieldRecord )
                 field,
                 interfaceId );
         }
-    }}
+    }
+}
 
 void HXWriteSubData( DataBook * dataBook, MRField * field2D, IntField & idMap )
 {

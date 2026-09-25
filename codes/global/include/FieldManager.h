@@ -171,6 +171,10 @@ private:
     bool interfaceDefinitionsReady;
 };
 
+// Per-solverType FieldManager registry.
+// AddFieldManager: create empty manager if missing (idempotent).
+// GetFieldManager: optional lookup (nullptr if not registered).
+// Callers that require a manager after Add must null-check or Fatal.
 class FieldManagerRegistry
 {
 public:
@@ -186,7 +190,5 @@ void UploadInterfaceValue( UnsGrid * grid, MRField * field2D, const std::string 
 void DownloadInterfaceValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu );
 void UploadOversetValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu );
 void DownloadOversetValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu );
-
-void DownloadInterfaceValue_TEST( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu );
 
 EndNameSpace

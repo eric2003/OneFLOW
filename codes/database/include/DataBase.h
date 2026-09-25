@@ -33,6 +33,7 @@ License
 #include <string>
 #include <set>
 #include <map>
+#include <stdexcept>
 
 BeginNameSpace( ONEFLOW )
 
@@ -107,6 +108,16 @@ T * GetDataPointer( const std::string & varName )
 {
     DataBase * database = ONEFLOW::GetGlobalDataBase();
     DataEntry * dataEntry = database->dataPara->GetDataPointer( varName );
+
+    // Required lookup: match GetDataValue -- missing name must not
+    // dereference a null DataEntry.
+    if ( dataEntry == nullptr )
+    {
+        // Short-term: throw instead of exit, so unit tests can catch it
+        throw std::runtime_error(
+            "DataBase: cannot find variable \"" + varName + "\"" );
+    }
+
     DataObject * data = dataEntry->data;
     return static_cast< T * >( data->GetVoidPointer() );
 }
@@ -114,12 +125,19 @@ T * GetDataPointer( const std::string & varName )
 class PointerWrap;
 PointerWrap * GetPointerWrap( DataField * dataField, const std::string & dataObjectName );
 
+// Field storage lookup (optional): returns nullptr if the named field
+// is not registered. Callers that require the field must null-check
+// or Fatal. Contrast with GetDataValue / GetDataPointer (required).
 void * GetFieldPointerVoid( DataBase * database, const std::string & dataObjectName );
 
 template < typename T >
 T * GetFieldPointer( DataBase * database, const std::string & dataObjectName );
 template < typename T, typename TStorage >
 T * GetFieldPointer( TStorage * storage, const std::string & dataObjectName );
+
+// Required field access: dereferences GetFieldPointer. The named field
+// must already be registered; otherwise this is undefined behavior.
+// Prefer GetFieldPointer + null-check/Fatal when presence is uncertain.
 template < typename T >
 T & GetFieldReference( DataBase * database, const std::string & dataObjectName );
 template < typename T, typename TStorage >

@@ -80,8 +80,11 @@ void FieldDefinitionTable::AddField(
     const std::string & fieldName,
     int nEqu )
 {
-    FieldDefinitionTable::Data::iterator iter =
-        this->data.find( fieldName );
+    // Policy:
+    // - first registration: insert
+    // - same name, same nEqu: idempotent (no-op)
+    // - same name, different nEqu: configuration conflict
+    auto iter = this->data.find( fieldName );
 
     if ( iter == this->data.end() )
     {
@@ -93,7 +96,11 @@ void FieldDefinitionTable::AddField(
     {
         Fatal(
             "Conflicting field definition: "
-            + fieldName );
+            + fieldName
+            + " existing nEqu="
+            + std::to_string( iter->second )
+            + " new nEqu="
+            + std::to_string( nEqu ) );
     }
 }
 
@@ -106,8 +113,7 @@ bool FieldDefinitionTable::HasField(
 int FieldDefinitionTable::GetNEqu(
     const std::string & fieldName ) const
 {
-    FieldDefinitionTable::Data::const_iterator iter =
-        this->data.find( fieldName );
+    auto iter = this->data.find( fieldName );
 
     if ( iter == this->data.end() )
     {
@@ -190,15 +196,47 @@ void InterfaceFieldProperty::AllocateInterfaceField( int nIFaces, DataStorage * 
 {
     if ( nIFaces <= 0 ) return;
 
-    const FieldDefinitionTable::Data & data = this->GetData();
-    for ( FieldDefinitionTable::Data::const_iterator iter = data.begin(); iter != data.end(); ++ iter )
+    const auto & data = this->GetData();
+    for ( const auto & [ fieldName, nTEqu ] : data )
     {
-        int nTEqu = iter->second;
+        // 1) Lookup before create: skip if already present (idempotent).
+        MRField * field =
+            ONEFLOW::GetFieldPointer< MRField >(
+                dataStorage,
+                fieldName );
 
-        ONEFLOW::CreateMRField( dataStorage, nTEqu, nIFaces, iter->first );
+        if ( field != nullptr )
+        {
+            continue;
+        }
 
-        MRField * field = ONEFLOW::GetFieldPointer< MRField >( dataStorage, iter->first );
-        ONEFLOW::ZeroField( field, nTEqu, nIFaces );
+        // 2) Create and register into the interface DataStorage.
+        ONEFLOW::CreateMRField(
+            dataStorage,
+            nTEqu,
+            nIFaces,
+            fieldName );
+
+        // 3) Lookup AFTER create: CreateMRField must have registered
+        //    the field. A null here means create failed; do not call
+        //    ZeroField on a null pointer.
+        field =
+            ONEFLOW::GetFieldPointer< MRField >(
+                dataStorage,
+                fieldName );
+
+        if ( field == nullptr )
+        {
+            Fatal(
+                "Failed to create interface field: "
+                + fieldName );
+        }
+
+        // 4) Safe to zero: field is non-null.
+        ONEFLOW::ZeroField(
+            field,
+            nTEqu,
+            nIFaces );
     }
 }
 
@@ -206,18 +244,33 @@ void InterfaceFieldProperty::UploadInterfaceValue()
 {
     Grid * gridIn = Zone::GetGrid();
 
-    if ( ONEFLOW::IsUnsGrid( gridIn->type ) )
+    if ( ! ONEFLOW::IsUnsGrid( gridIn->type ) )
     {
-        UnsGrid * grid = ONEFLOW::UnsGridCast( gridIn );
+        return;
+    }
 
-        const FieldDefinitionTable::Data & data = this->GetData();
-        for ( FieldDefinitionTable::Data::const_iterator iter = data.begin(); iter != data.end(); ++ iter )
+    UnsGrid * grid = ONEFLOW::UnsGridCast( gridIn );
+
+    const auto & data = this->GetData();
+    for ( const auto & [ fieldName, nEqu ] : data )
+    {
+        MRField * targetField =
+            ONEFLOW::GetFieldPointer< MRField >(
+                grid,
+                fieldName );
+
+        if ( targetField == nullptr )
         {
-            int nEqu = iter->second;
-
-            MRField * targetField = ONEFLOW::GetFieldPointer< MRField >( grid, iter->first );
-            ONEFLOW::UploadInterfaceValue( grid, targetField, iter->first,  nEqu );
+            Fatal(
+                "Grid field is not allocated for interface upload: "
+                + fieldName );
         }
+
+        ONEFLOW::UploadInterfaceValue(
+            grid,
+            targetField,
+            fieldName,
+            nEqu );
     }
 }
 
@@ -225,19 +278,33 @@ void InterfaceFieldProperty::DownloadInterfaceValue()
 {
     Grid * gridIn = Zone::GetGrid();
 
-    if ( ONEFLOW::IsUnsGrid( gridIn->type ) )
+    if ( ! ONEFLOW::IsUnsGrid( gridIn->type ) )
     {
-        UnsGrid * grid = ONEFLOW::UnsGridCast( gridIn );
+        return;
+    }
 
-        const FieldDefinitionTable::Data & data = this->GetData();
-        for ( FieldDefinitionTable::Data::const_iterator iter = data.begin(); iter != data.end(); ++ iter )
+    UnsGrid * grid = ONEFLOW::UnsGridCast( gridIn );
+
+    const auto & data = this->GetData();
+    for ( const auto & [ fieldName, nEqu ] : data )
+    {
+        MRField * targetField =
+            ONEFLOW::GetFieldPointer< MRField >(
+                grid,
+                fieldName );
+
+        if ( targetField == nullptr )
         {
-            int nEqu = iter->second;
-
-            MRField * targetField = ONEFLOW::GetFieldPointer< MRField >( grid, iter->first );
-
-            ONEFLOW::DownloadInterfaceValue( grid, targetField, iter->first,  nEqu );
+            Fatal(
+                "Grid field is not allocated for interface download: "
+                + fieldName );
         }
+
+        ONEFLOW::DownloadInterfaceValue(
+            grid,
+            targetField,
+            fieldName,
+            nEqu );
     }
 }
 
@@ -598,8 +665,7 @@ std::map< int, std::unique_ptr< FieldManager > > FieldManagerRegistry::data;
 
 void FieldManagerRegistry::AddFieldManager( int solverType )
 {
-    std::map< int, std::unique_ptr< FieldManager > >::iterator iter =
-        FieldManagerRegistry::data.find( solverType );
+    auto iter = FieldManagerRegistry::data.find( solverType );
 
     if ( iter == FieldManagerRegistry::data.end() )
     {
@@ -610,8 +676,7 @@ void FieldManagerRegistry::AddFieldManager( int solverType )
 
 FieldManager * FieldManagerRegistry::GetFieldManager( int solverType )
 {
-    std::map< int, std::unique_ptr< FieldManager > >::iterator iter =
-        FieldManagerRegistry::data.find( solverType );
+    auto iter = FieldManagerRegistry::data.find( solverType );
 
     if ( iter == FieldManagerRegistry::data.end() )
     {
@@ -639,7 +704,15 @@ void UploadInterfaceValue( UnsGrid * grid, MRField * field2D, const std::string 
     {
         DataStorage * dataSend = interFace->dataSend[ ghostId ];
 
-        MRField * fieldStorage = ONEFLOW::GetFieldPointer< MRField >( dataSend, name );
+        MRField * fieldStorage =
+            ONEFLOW::GetFieldPointer< MRField >( dataSend, name );
+
+        if ( fieldStorage == nullptr )
+        {
+            Fatal(
+                "Interface send field is not allocated: "
+                + name );
+        }
 
         for ( int iFace = 0; iFace < nIFaces; ++ iFace )
         {
@@ -648,7 +721,8 @@ void UploadInterfaceValue( UnsGrid * grid, MRField * field2D, const std::string 
 
             for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
             {
-                ( * fieldStorage )[ iEqu ][ iFace ] = ( * field2D )[ iEqu ][ iCell ];
+                ( * fieldStorage )[ iEqu ][ iFace ] =
+                    ( * field2D )[ iEqu ][ iCell ];
             }
         }
     }
@@ -665,34 +739,15 @@ void DownloadInterfaceValue( UnsGrid * grid, MRField * field2D, const std::strin
     {
         DataStorage * dataRecv = interFace->dataRecv[ ghostId ];
 
-        MRField * fieldStorage = ONEFLOW::GetFieldPointer< MRField >( dataRecv, name );
+        MRField * fieldStorage =
+            ONEFLOW::GetFieldPointer< MRField >( dataRecv, name );
 
-        int nIFaces = interFace->nIFaces;
-        for ( int iFace = 0; iFace < nIFaces; ++ iFace )
+        if ( fieldStorage == nullptr )
         {
-            int iCell;
-            grid->faceTopo->GetTId( iFace, ghostId + 1, iCell );
-
-            for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
-            {
-                ( * field2D )[ iEqu ][ iCell ] = ( * fieldStorage )[ iEqu ][ iFace ];
-            }
+            Fatal(
+                "Interface recv field is not allocated: "
+                + name );
         }
-    }
-}
-
-void DownloadInterfaceValue_TEST( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu )
-{
-    InterFace * interFace = grid->interFace;
-    if ( ! ONEFLOW::IsValid( interFace ) ) return;
-
-    if ( field2D == 0 ) return;
-
-    for ( int ghostId = MAX_GHOST_LEVELS - 1; ghostId >= 0; -- ghostId )
-    {
-        DataStorage * dataRecv = interFace->dataRecv[ ghostId ];
-
-        MRField * fieldStorage = ONEFLOW::GetFieldPointer< MRField >( dataRecv, name );
 
         int nIFaces = interFace->nIFaces;
         for ( int iFace = 0; iFace < nIFaces; ++ iFace )
@@ -700,12 +755,10 @@ void DownloadInterfaceValue_TEST( UnsGrid * grid, MRField * field2D, const std::
             int iCell;
             grid->faceTopo->GetTId( iFace, ghostId + 1, iCell );
 
-            int iBFace = grid->interFace->i2b[ iFace ];
-            int tId = grid->faceTopo->rCells[ iBFace ];
-
             for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
             {
-                ( * field2D )[ iEqu ][ iCell ] = ( * fieldStorage )[ iEqu ][ iFace ];
+                ( * field2D )[ iEqu ][ iCell ] =
+                    ( * fieldStorage )[ iEqu ][ iFace ];
             }
         }
     }
@@ -713,11 +766,20 @@ void DownloadInterfaceValue_TEST( UnsGrid * grid, MRField * field2D, const std::
 
 void UploadOversetValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu )
 {
+    // Reserved: overset interface transfer is not implemented yet.
+    (void) grid;
+    (void) field2D;
+    (void) name;
+    (void) nEqu;
 }
-
 
 void DownloadOversetValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu )
 {
+    // Reserved: overset interface transfer is not implemented yet.
+    (void) grid;
+    (void) field2D;
+    (void) name;
+    (void) nEqu;
 }
 
 EndNameSpace

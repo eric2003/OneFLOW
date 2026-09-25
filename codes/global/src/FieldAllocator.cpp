@@ -20,6 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "FieldAllocator.h"
+#include "FieldAllocConfig.h"
 #include "Prj.h"
 #include "Fatal.h"
 #include "FieldManager.h"
@@ -41,396 +42,14 @@ BeginNameSpace( ONEFLOW )
 
 namespace
 {
-    int ResolveIntegerValue(
-        const std::string & valueToken )
-    {
-        if ( Word::IsDigit( valueToken ) )
-        {
-            return StringToDigit< int >( valueToken );
-        }
-
-        return GetDataValue< int >( valueToken );
-    }
-
-    bool CompareValues(
-        const std::string & leftToken,
-        const std::string & operatorName,
-        const std::string & rightToken )
-    {
-        int leftValue =
-            ResolveIntegerValue( leftToken );
-
-        int rightValue =
-            ResolveIntegerValue( rightToken );
-
-        if ( operatorName == ">" )
-        {
-            return leftValue > rightValue;
-        }
-
-        if ( operatorName == ">=" )
-        {
-            return leftValue >= rightValue;
-        }
-
-        if ( operatorName == "==" )
-        {
-            return leftValue == rightValue;
-        }
-
-        if ( operatorName == "<" )
-        {
-            return leftValue < rightValue;
-        }
-
-        if ( operatorName == "<=" )
-        {
-            return leftValue <= rightValue;
-        }
-
-        if ( operatorName == "!=" )
-        {
-            return leftValue != rightValue;
-        }
-
-        Fatal(
-            "Unknown comparison operator: "
-            + operatorName );
-
-        return false;
-    }
-
-    bool CalcBoolLogic(
-        bool leftValue,
-        const std::string & operatorName,
-        bool rightValue )
-    {
-        if ( operatorName == "&&" )
-        {
-            return leftValue && rightValue;
-        }
-
-        if ( operatorName == "||" )
-        {
-            return leftValue || rightValue;
-        }
-
-        Fatal(
-            "Unknown boolean operator: "
-            + operatorName );
-
-        return false;
-    }
-
-
-    class FieldNameList
-    {
-    private:
-        StringField nameList;
-
-    public:
-        void Add(
-            const std::string & name );
-
-        int Size() const;
-
-        const std::string & GetName(
-            int index ) const;
-    };
-
-    class NameValuePair
-    {
-    private:
-        StringField nameList;
-        RealField valueList;
-
-    public:
-        void Add(
-            const std::string & name,
-            Real value );
-
-        int Size() const;
-
-        const std::string & GetName(
-            int index ) const;
-
-        Real GetValue(
-            int index ) const;
-    };
-
-    class FieldConfigReader
-    {
-    private:
-        StringField boolNameList;
-        BoolField boolValueList;
-
-        FieldNameList fieldNameList;
-        NameValuePair nameValuePair;
-
-    public:
-        const FieldNameList & GetFieldNameList() const;
-
-        const NameValuePair & GetNameValuePair() const;
-
-        bool GetBoolValue(
-            const std::string & varName ) const;
-
-        void Add(
-            const std::string & name,
-            bool value );
-
-        void ReadBool(
-            TextFileParser & textFileParser );
-
-        void ReadSuperBool(
-            TextFileParser & textFileParser );
-
-        void ReadName(
-            TextFileParser & textFileParser );
-
-        void ReadNameValue(
-            TextFileParser & textFileParser );
-
-        void ReadFile(
-            const std::string & fileName );
-
-        void ReadValueFile(
-            const std::string & fileName );
-    };
-
-    using BoolLineReader =
-        void ( FieldConfigReader::* )( TextFileParser & );
-
-    void ReadBoolFile(
-        FieldConfigReader & configReader,
-        const std::string & fileName,
-        BoolLineReader trueReader )
-    {
-        // \t is the tab key
-        std::string separator = " \r\n\t#$,;\"()";
-
-        TextFileParser textFileParser;
-
-        textFileParser.OpenFile(
-            fileName,
-            std::ios_base::in );
-
-        textFileParser.SetDefaultSeparator(
-            separator );
-
-        while ( ! textFileParser.ReachTheEndOfFile() )
-        {
-            bool flag =
-                textFileParser.ReadNextNonEmptyLine();
-
-            if ( ! flag ) break;
-
-            std::string keyWord =
-                textFileParser.ReadNextWord();
-
-            if ( keyWord == "true" )
-            {
-                ( configReader.*trueReader )(
-                    textFileParser );
-            }
-            else if ( keyWord == "bool" )
-            {
-                configReader.ReadBool(
-                    textFileParser );
-            }
-            else if ( keyWord == "superbool" )
-            {
-                configReader.ReadSuperBool(
-                    textFileParser );
-            }
-            else
-            {
-                bool flag =
-                    configReader.GetBoolValue( keyWord );
-
-                if ( flag )
-                {
-                    ( configReader.*trueReader )(
-                        textFileParser );
-                }
-            }
-        }
-
-        textFileParser.CloseFile();
-    }
-
-    void FieldNameList::Add(
-        const std::string & name )
-    {
-        nameList.push_back( name );
-    }
-
-    int FieldNameList::Size() const
-    {
-        return nameList.size();
-    }
-
-    const std::string & FieldNameList::GetName(
-        int index ) const
-    {
-        return nameList[ index ];
-    }
-
-    void NameValuePair::Add(
-        const std::string & name,
-        Real value )
-    {
-        nameList.push_back( name );
-        valueList.push_back( value );
-    }
-
-    int NameValuePair::Size() const
-    {
-        return nameList.size();
-    }
-
-    const std::string & NameValuePair::GetName(
-        int index ) const
-    {
-        return nameList[ index ];
-    }
-
-    Real NameValuePair::GetValue(
-        int index ) const
-    {
-        return valueList[ index ];
-    }
-
-    void FieldConfigReader::Add( const std::string & name, bool value )
-    {
-        boolNameList.push_back( name );
-        boolValueList.push_back( value );
-    }
-
-    bool FieldConfigReader::GetBoolValue(
-        const std::string & varName ) const
-    {
-        for ( int i = 0; i < boolNameList.size(); ++ i )
-        {
-            if ( varName == boolNameList[ i ] )
-            {
-                return boolValueList[ i ];
-            }
-        }
-
-        Fatal( "Unknown boolean variable: " + varName );
-
-        return false;
-    }
-
-    void FieldConfigReader::ReadBool( TextFileParser & textFileParser )
-    {
-        std::string varName =
-            textFileParser.ReadNextWord();
-
-        textFileParser.ReadNextWord();
-
-        std::string var1 =
-            textFileParser.ReadNextWord();
-
-        std::string opName =
-            textFileParser.ReadNextWord();
-
-        std::string var2 =
-            textFileParser.ReadNextWord();
-
-        bool boolValue =
-            CompareValues(
-                var1,
-                opName,
-                var2 );
-
-        this->Add( varName, boolValue );
-    }
-
-
-    void FieldConfigReader::ReadSuperBool( TextFileParser & textFileParser )
-    {
-        std::string varName =
-            textFileParser.ReadNextWord();
-
-        textFileParser.ReadNextWord();
-
-        std::string var1 =
-            textFileParser.ReadNextWord();
-
-        std::string opName =
-            textFileParser.ReadNextWord();
-
-        std::string var2 =
-            textFileParser.ReadNextWord();
-
-        bool varValue1 =
-            this->GetBoolValue( var1 );
-
-        bool varValue2 =
-            this->GetBoolValue( var2 );
-
-        bool boolValue =
-            CalcBoolLogic(
-                varValue1,
-                opName,
-                varValue2 );
-
-        this->Add( varName, boolValue );
-    }
-
-    void FieldConfigReader::ReadName(
-        TextFileParser & textFileParser )
-    {
-        std::string varName =
-            textFileParser.ReadNextWord();
-
-        fieldNameList.Add( varName );
-    }
-
-    const FieldNameList & FieldConfigReader::GetFieldNameList() const
-    {
-        return fieldNameList;
-    }
-
-    const NameValuePair & FieldConfigReader::GetNameValuePair() const
-    {
-        return nameValuePair;
-    }
-
-    void FieldConfigReader::ReadNameValue(
-        TextFileParser & textFileParser )
-    {
-        std::string varName =
-            textFileParser.ReadNextWord();
-
-
-        Real varValue =
-            textFileParser.ReadNextDigit< Real >();
-
-        nameValuePair.Add(
-            varName,
-            varValue );
-    }
-
-    void FieldConfigReader::ReadFile(
-        const std::string & fileName )
-    {
-        ReadBoolFile(
-            *this,
-            fileName,
-            &FieldConfigReader::ReadName );
-    }
-
-    void FieldConfigReader::ReadValueFile(
-        const std::string & fileName )
-    {
-        ReadBoolFile(
-            *this,
-            fileName,
-            &FieldConfigReader::ReadNameValue );
-    }
+    // Section A (alloc text parsing): FieldAllocConfig.h / FieldAllocConfig.cpp
+    //
+    // =========================================================================
+    // Section B: definition registration into FieldManager
+    //   inner/face/bc/unsteady.txt  -> Field definitions
+    //   inter*.txt                  -> Interface Storage + communication names
+    //   Validate: Communication Fields are a subset of Interface Storage
+    // =========================================================================
 
     enum class FieldFileType
     {
@@ -618,6 +237,7 @@ namespace
         }
     }
 
+    // Used by InitField (Section C / pipeline step 5): apply init.txt constants.
     void SetFieldValues(
         const NameValuePair & valuePair )
     {
@@ -662,8 +282,6 @@ namespace
                 fieldName );
         }
     }
-
-
 
     void RegisterFieldFile(
         FieldManager * fieldManager,
@@ -786,8 +404,11 @@ namespace
 
                 if ( ! interfaceFieldProperty.HasField( fieldName ) )
                 {
+                    // Definition-time check: communication name must appear
+                    // in Interface Storage field list (before runtime alloc).
                     Fatal(
-                        "Interface field is not allocated: "
+                        "Communication field is not in Interface Storage "
+                        "definitions: "
                         + fieldName );
                 }
             }
@@ -823,45 +444,57 @@ namespace
                 spec.location,
                 spec.type );
         }
-
     }
+
+    // =========================================================================
+    // Section C: runtime allocation on Grid / Interface DataStorage
+    //   Must run after Section B. Idempotent create + post-create null check.
+    //   init.txt constants applied last via InitField (Allocate pipeline step 5).
+    // =========================================================================
 
     void AllocateFieldSet(
         UnsGrid * grid,
         const FieldDefinitionTable & fieldDefinition,
         int nSize )
     {
-        const FieldDefinitionTable::Data & data =
-            fieldDefinition.GetData();
+        const auto & data = fieldDefinition.GetData();
 
-        for ( FieldDefinitionTable::Data::const_iterator iter =
-            data.begin();
-            iter != data.end();
-            ++ iter )
+        for ( const auto & [ fieldName, nTEqu ] : data )
         {
-            int nTEqu = iter->second;
-
+            // 1) Lookup before create: skip if already present (idempotent).
             MRField * field =
                 ONEFLOW::GetFieldPointer< MRField >(
                     grid,
-                    iter->first );
+                    fieldName );
 
             if ( field != nullptr )
             {
                 continue;
             }
 
+            // 2) Create and register into the grid DataStorage.
             ONEFLOW::CreateMRField(
                 grid,
                 nTEqu,
                 nSize,
-                iter->first );
+                fieldName );
 
+            // 3) Lookup AFTER create: CreateMRField must have registered
+            //    the field. A null here means create failed; do not call
+            //    ZeroField on a null pointer.
             field =
                 ONEFLOW::GetFieldPointer< MRField >(
                     grid,
-                    iter->first );
+                    fieldName );
 
+            if ( field == nullptr )
+            {
+                Fatal(
+                    "Failed to create grid field: "
+                    + fieldName );
+            }
+
+            // 4) Safe to zero: field is non-null.
             ONEFLOW::ZeroField(
                 field,
                 nTEqu,
@@ -971,6 +604,10 @@ namespace
 
     void AllocateOversetInterfaceField( InterfaceFieldProperty * interfaceFieldProperty )
     {
+        // Reserved: overset interface storage allocation is not
+        // implemented yet. Keep the call site in AllocateRuntimeFields
+        // so the pipeline order stays stable when overset is wired in.
+        (void) interfaceFieldProperty;
     }
 
     void AllocateRuntimeFields(
@@ -989,6 +626,9 @@ namespace
     void InitField(
         const std::string & basicString )
     {
+        // Constant initialization only: names/values come from
+        // system/<basicString>/alloc/init.txt. Fields must already
+        // exist (AllocateRuntimeFields ran before this step).
         std::string fileName = Prj::GetSystemFileName( basicString + "/alloc/init.txt" );
         FieldConfigReader configReader;
         configReader.ReadValueFile( fileName );
@@ -997,19 +637,33 @@ namespace
             configReader.GetNameValuePair() );
     }
 
-
 }
 
 void FieldAllocator::Allocate(
     int solverType,
     const std::string & basicString )
 {
+    // Pipeline (order matters):
+    // 1. Ensure FieldManager exists for solverType.
+    // 2. Register field definitions once (inner/face/bc/unsteady).
+    // 3. Register interface field names once (inter*) and validate
+    //    that Communication Fields are a subset of Interface Storage Fields.
+    // 4. Allocate runtime storage on the current grid (and interface buffers).
+    // 5. Apply constant values from init.txt onto already-allocated fields.
+
     FieldManagerRegistry::AddFieldManager(
         solverType );
 
     FieldManager * fieldManager =
         FieldManagerRegistry::GetFieldManager(
             solverType );
+
+    if ( fieldManager == nullptr )
+    {
+        // After AddFieldManager, Get must succeed.
+        Fatal(
+            "FieldManager is not registered for solverType" );
+    }
 
     if ( ! fieldManager->HasFieldDefinitions() )
     {
@@ -1038,7 +692,6 @@ void FieldAllocator::Allocate(
     InitField(
         basicString );
 }
-
 
 
 EndNameSpace
