@@ -995,7 +995,6 @@ namespace
     }
 
     void InitField(
-        FieldManager * fieldManager,
         const std::string & basicString )
     {
         std::string fileName = Prj::GetSystemFileName( basicString + "/alloc/init.txt" );
@@ -1045,7 +1044,6 @@ void FieldAllocator::Allocate(
         fieldManager );
 
     InitField(
-        fieldManager,
         basicString );
 }
 
