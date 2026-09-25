@@ -27,9 +27,11 @@ License
 #include <string>
 #include <ostream>
 
-
 BeginNameSpace( ONEFLOW )
 
+// Communication field-name list for one (solverType, interface group) pair.
+// Populated from system/<solver>/alloc/inter*.txt (names only; nEqu comes
+// from FieldManager inner definitions). Used by interface send/recv packing.
 class VarNameSolver
 {
 public:
@@ -43,6 +45,10 @@ public:
 
 class MapIntInt;
 
+// Registry of VarNameSolver keyed by (solverType, interface group).
+// AddVarNameSolver: create empty slot (called at solver registration).
+// GetVarNameSolver: required lookup (Fatal if missing).
+// FindVarNameSolver: optional lookup (nullptr if missing).
 class VarNameFactory
 {
 public:
@@ -68,6 +74,7 @@ public:
         int solverType );
 };
 
+// Composite key: a = solverType, b = interface group (INTERFACE_*).
 class DataAB
 {
 public:
@@ -83,6 +90,8 @@ public:
     bool operator()( const DataAB & k1, const DataAB & k2 ) const;
 };
 
+// Maps DataAB -> dense id used as index into VarNameFactory::data.
+// GetId requires a prior AddData (Fatal if key is missing).
 class MapIntInt
 {
 public:
