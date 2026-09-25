@@ -201,7 +201,7 @@ namespace
         void ( FieldConfigReader::* )( TextFileParser & );
 
     void ReadBoolFile(
-        FieldConfigReader & boolIO,
+        FieldConfigReader & configReader,
         const std::string & fileName,
         BoolLineReader trueReader )
     {
@@ -229,27 +229,27 @@ namespace
 
             if ( keyWord == "true" )
             {
-                ( boolIO.*trueReader )(
+                ( configReader.*trueReader )(
                     textFileParser );
             }
             else if ( keyWord == "bool" )
             {
-                boolIO.ReadBool(
+                configReader.ReadBool(
                     textFileParser );
             }
             else if ( keyWord == "superbool" )
             {
-                boolIO.ReadSuperBool(
+                configReader.ReadSuperBool(
                     textFileParser );
             }
             else
             {
                 bool flag =
-                    boolIO.GetBoolValue( keyWord );
+                    configReader.GetBoolValue( keyWord );
 
                 if ( flag )
                 {
-                    ( boolIO.*trueReader )(
+                    ( configReader.*trueReader )(
                         textFileParser );
                 }
             }
@@ -716,16 +716,16 @@ namespace
             logger.ClearAll();
             logger << rootString << spec.name << ".txt";
 
-            FieldConfigReader boolIO;
+            FieldConfigReader configReader;
 
-            boolIO.ReadFile(
+            configReader.ReadFile(
                 logger.str() );
 
             AddInterfaceFieldNames(
                 solverType,
                 fieldManager,
                 spec.fieldType,
-                boolIO.GetFieldNameList() );
+                configReader.GetFieldNameList() );
         }
         fieldManager->MarkInterfaceDefinitionsReady();
     }
@@ -988,12 +988,12 @@ namespace
         const std::string & basicString )
     {
         std::string fileName = Prj::GetSystemFileName( basicString + "/alloc/init.txt" );
-        FieldConfigReader boolIO;
-        boolIO.ReadValueFile( fileName );
+        FieldConfigReader configReader;
+        configReader.ReadValueFile( fileName );
 
         SetFieldValues(
             fieldManager,
-            boolIO.GetNameValuePair() );
+            configReader.GetNameValuePair() );
     }
 
 
