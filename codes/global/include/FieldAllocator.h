@@ -25,6 +25,14 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+// Orchestrates field definition, interface registration, runtime allocation,
+// and constant initialization for one solverType.
+// Config root: system/<basicString>/alloc/
+//   inner.txt / face.txt / bc.txt / unsteady.txt  -> FieldManager definitions
+//   inter.txt / interDq.txt / interGrad.txt / interOverset.txt
+//                                                 -> communication field names
+//   init.txt                                      -> constant initial values
+// Definition is solverType-scoped; allocation is per current Grid/DataStorage.
 class FieldAllocator
 {
 public:

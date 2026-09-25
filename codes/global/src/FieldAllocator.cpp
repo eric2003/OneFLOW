@@ -1004,6 +1004,14 @@ void FieldAllocator::Allocate(
     int solverType,
     const std::string & basicString )
 {
+    // Pipeline (order matters):
+    // 1. Ensure FieldManager exists for solverType.
+    // 2. Register field definitions once (inner/face/bc/unsteady).
+    // 3. Register interface field names once (inter*) and validate
+    //    Communication Fieldssubseteq Interface Storage Fields.
+    // 4. Allocate runtime storage on the current grid (and interface buffers).
+    // 5. Apply constant values from init.txt onto already-allocated fields.
+
     FieldManagerRegistry::AddFieldManager(
         solverType );
 
