@@ -42,29 +42,29 @@ namespace
     void DumpFieldProperty(
         std::ostream & output,
         const char * name,
-        const FieldDefinitionTable & fieldProperty )
+        const FieldDefinitionTable & fieldDefinitions )
     {
         output
             << "  "
             << name
             << ":\n";
 
-        if ( fieldProperty.GetData().empty() )
+        if ( fieldDefinitions.GetData().empty() )
         {
             output << "    <empty>\n";
             return;
         }
 
-        fieldProperty.Dump( output );
+        fieldDefinitions.Dump( output );
     }
 
     void ValidateCompatibleFieldDefinition(
-        const FieldDefinitionTable & fieldProperty,
+        const FieldDefinitionTable & fieldDefinitions,
         const std::string & fieldName,
         int nEqu )
     {
         const FieldDefinitionTable::Data & data =
-            fieldProperty.GetData();
+            fieldDefinitions.GetData();
 
         FieldDefinitionTable::Data::const_iterator iter =
             data.find( fieldName );
