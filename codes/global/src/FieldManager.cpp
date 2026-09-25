@@ -191,17 +191,41 @@ void InterfaceFieldProperty::AllocateInterfaceField( int nIFaces, DataStorage * 
     if ( nIFaces <= 0 ) return;
 
     const FieldDefinitionTable::Data & data = this->GetData();
-    for ( FieldDefinitionTable::Data::const_iterator iter = data.begin(); iter != data.end(); ++ iter )
+    for ( FieldDefinitionTable::Data::const_iterator iter = data.begin();
+        iter != data.end();
+        ++ iter )
     {
         int nTEqu = iter->second;
 
-        ONEFLOW::CreateMRField( dataStorage, nTEqu, nIFaces, iter->first );
+        // Idempotent: skip if this storage already holds the field
+        // (e.g. another solverType already allocated the same name).
+        MRField * field =
+            ONEFLOW::GetFieldPointer< MRField >(
+                dataStorage,
+                iter->first );
 
-        MRField * field = ONEFLOW::GetFieldPointer< MRField >( dataStorage, iter->first );
-        ONEFLOW::ZeroField( field, nTEqu, nIFaces );
+        if ( field != nullptr )
+        {
+            continue;
+        }
+
+        ONEFLOW::CreateMRField(
+            dataStorage,
+            nTEqu,
+            nIFaces,
+            iter->first );
+
+        field =
+            ONEFLOW::GetFieldPointer< MRField >(
+                dataStorage,
+                iter->first );
+
+        ONEFLOW::ZeroField(
+            field,
+            nTEqu,
+            nIFaces );
     }
 }
-
 void InterfaceFieldProperty::UploadInterfaceValue()
 {
     Grid * gridIn = Zone::GetGrid();
