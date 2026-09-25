@@ -999,6 +999,9 @@ namespace
     void InitField(
         const std::string & basicString )
     {
+        // Constant initialization only: names/values come from
+        // system/<basicString>/alloc/init.txt. Fields must already
+        // exist (AllocateRuntimeFields ran before this step).
         std::string fileName = Prj::GetSystemFileName( basicString + "/alloc/init.txt" );
         FieldConfigReader configReader;
         configReader.ReadValueFile( fileName );
@@ -1006,7 +1009,6 @@ namespace
         SetFieldValues(
             configReader.GetNameValuePair() );
     }
-
 
 }
 
@@ -1018,7 +1020,7 @@ void FieldAllocator::Allocate(
     // 1. Ensure FieldManager exists for solverType.
     // 2. Register field definitions once (inner/face/bc/unsteady).
     // 3. Register interface field names once (inter*) and validate
-    //    Communication Fieldssubseteq Interface Storage Fields.
+    //    that Communication Fields are a subset of Interface Storage Fields.
     // 4. Allocate runtime storage on the current grid (and interface buffers).
     // 5. Apply constant values from init.txt onto already-allocated fields.
 
