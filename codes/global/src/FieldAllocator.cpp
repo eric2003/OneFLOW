@@ -516,7 +516,7 @@ namespace
         return definition;
     }
 
-    void AddFieldDefinition(
+    void RegisterFieldDefinition(
         FieldManager * fieldManager,
         const FieldSpec & definition,
         FieldLocation location )
@@ -593,7 +593,7 @@ namespace
                 ReadFieldSpec(
                     textFileParser );
 
-            AddFieldDefinition(
+            RegisterFieldDefinition(
                 fieldManager,
                 definition,
                 location );
