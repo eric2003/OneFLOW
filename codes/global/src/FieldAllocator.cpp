@@ -483,6 +483,24 @@ namespace
         return FieldApplicability::Unstructured;
     }
 
+    FieldApplicability GetGridApplicability(
+        int gridType )
+    {
+        if ( ONEFLOW::IsUnsGrid( gridType ) )
+        {
+            return FieldApplicability::Unstructured;
+        }
+
+        if ( ONEFLOW::IsStrGrid( gridType ) )
+        {
+            return FieldApplicability::Structured;
+        }
+
+        Fatal( "Unsupported grid type for field allocation" );
+
+        return FieldApplicability::All;
+    }
+
     FieldSpec ReadFieldSpec(
         TextFileParser & textFileParser )
     {
@@ -941,6 +959,7 @@ namespace
         FieldManager * fieldManager )
     {
         Grid * gridIn = Zone::GetGrid();
+
 
         if ( ONEFLOW::IsUnsGrid( gridIn->type ) )
         {
