@@ -21,7 +21,6 @@ License
 \*---------------------------------------------------------------------------*/
 #include "FieldManager.h"
 #include "FieldBase.h"
-#include "FieldWrap.h"
 #include "Fatal.h"
 #include "UsdPara.h"
 #include "Grid.h"
@@ -39,42 +38,36 @@ BeginNameSpace( ONEFLOW )
 
 namespace
 {
-    void DumpFieldProperty(
+    void DumpFieldDefinition(
         std::ostream & output,
         const char * name,
-        const FieldProperty & fieldProperty )
+        const FieldDefinitionTable & fieldDefinitions )
     {
         output
             << "  "
             << name
             << ":\n";
 
-        if ( fieldProperty.GetData().empty() )
+        if ( fieldDefinitions.Empty() )
         {
             output << "    <empty>\n";
             return;
         }
 
-        fieldProperty.Dump( output );
+        fieldDefinitions.Dump( output );
     }
 
     void ValidateCompatibleFieldDefinition(
-        const FieldProperty & fieldProperty,
+        const FieldDefinitionTable & fieldDefinitions,
         const std::string & fieldName,
         int nEqu )
     {
-        const FieldProperty::Data & data =
-            fieldProperty.GetData();
-
-        FieldProperty::Data::const_iterator iter =
-            data.find( fieldName );
-
-        if ( iter == data.end() )
+        if ( ! fieldDefinitions.HasField( fieldName ) )
         {
             return;
         }
 
-        if ( iter->second != nEqu )
+        if ( fieldDefinitions.GetNEqu( fieldName ) != nEqu )
         {
             Fatal(
                 "Conflicting field definition: "
@@ -83,11 +76,11 @@ namespace
     }
 }
 
-void FieldProperty::AddField(
+void FieldDefinitionTable::AddField(
     const std::string & fieldName,
     int nEqu )
 {
-    FieldProperty::Data::iterator iter =
+    FieldDefinitionTable::Data::iterator iter =
         this->data.find( fieldName );
 
     if ( iter == this->data.end() )
@@ -104,15 +97,42 @@ void FieldProperty::AddField(
     }
 }
 
-const FieldProperty::Data & FieldProperty::GetData() const
+bool FieldDefinitionTable::HasField(
+    const std::string & fieldName ) const
+{
+    return this->data.find( fieldName ) != this->data.end();
+}
+
+int FieldDefinitionTable::GetNEqu(
+    const std::string & fieldName ) const
+{
+    FieldDefinitionTable::Data::const_iterator iter =
+        this->data.find( fieldName );
+
+    if ( iter == this->data.end() )
+    {
+        Fatal(
+            "Field is not defined: "
+            + fieldName );
+    }
+
+    return iter->second;
+}
+
+bool FieldDefinitionTable::Empty() const
+{
+    return this->data.empty();
+}
+
+const FieldDefinitionTable::Data & FieldDefinitionTable::GetData() const
 {
     return this->data;
 }
 
-void FieldProperty::Dump(
+void FieldDefinitionTable::Dump(
     std::ostream & output ) const
 {
-    for ( FieldProperty::Data::const_iterator iter =
+    for ( FieldDefinitionTable::Data::const_iterator iter =
         this->data.begin();
         iter != this->data.end();
         ++ iter )
@@ -126,12 +146,52 @@ void FieldProperty::Dump(
     }
 }
 
-void IFieldProperty::AllocateInterfaceField( int nIFaces, DataStorage * dataStorage )
+void InterfaceFieldProperty::AddField(
+    const std::string & fieldName,
+    int nEqu )
+{
+    this->fieldDefinitions.AddField(
+        fieldName,
+        nEqu );
+}
+
+bool InterfaceFieldProperty::HasField(
+    const std::string & fieldName ) const
+{
+    return this->fieldDefinitions.HasField(
+        fieldName );
+}
+
+int InterfaceFieldProperty::GetNEqu(
+    const std::string & fieldName ) const
+{
+    return this->fieldDefinitions.GetNEqu(
+        fieldName );
+}
+
+bool InterfaceFieldProperty::Empty() const
+{
+    return this->fieldDefinitions.Empty();
+}
+
+const FieldDefinitionTable::Data &
+InterfaceFieldProperty::GetData() const
+{
+    return this->fieldDefinitions.GetData();
+}
+
+void InterfaceFieldProperty::Dump(
+    std::ostream & output ) const
+{
+    this->fieldDefinitions.Dump( output );
+}
+
+void InterfaceFieldProperty::AllocateInterfaceField( int nIFaces, DataStorage * dataStorage )
 {
     if ( nIFaces <= 0 ) return;
 
-    const FieldProperty::Data & data = this->GetData();
-    for ( FieldProperty::Data::const_iterator iter = data.begin(); iter != data.end(); ++ iter )
+    const FieldDefinitionTable::Data & data = this->GetData();
+    for ( FieldDefinitionTable::Data::const_iterator iter = data.begin(); iter != data.end(); ++ iter )
     {
         int nTEqu = iter->second;
 
@@ -142,7 +202,7 @@ void IFieldProperty::AllocateInterfaceField( int nIFaces, DataStorage * dataStor
     }
 }
 
-void IFieldProperty::UploadInterfaceValue()
+void InterfaceFieldProperty::UploadInterfaceValue()
 {
     Grid * gridIn = Zone::GetGrid();
 
@@ -150,8 +210,8 @@ void IFieldProperty::UploadInterfaceValue()
     {
         UnsGrid * grid = ONEFLOW::UnsGridCast( gridIn );
 
-        const FieldProperty::Data & data = this->GetData();
-        for ( FieldProperty::Data::const_iterator iter = data.begin(); iter != data.end(); ++ iter )
+        const FieldDefinitionTable::Data & data = this->GetData();
+        for ( FieldDefinitionTable::Data::const_iterator iter = data.begin(); iter != data.end(); ++ iter )
         {
             int nEqu = iter->second;
 
@@ -161,7 +221,7 @@ void IFieldProperty::UploadInterfaceValue()
     }
 }
 
-void IFieldProperty::DownloadInterfaceValue()
+void InterfaceFieldProperty::DownloadInterfaceValue()
 {
     Grid * gridIn = Zone::GetGrid();
 
@@ -169,8 +229,8 @@ void IFieldProperty::DownloadInterfaceValue()
     {
         UnsGrid * grid = ONEFLOW::UnsGridCast( gridIn );
 
-        const FieldProperty::Data & data = this->GetData();
-        for ( FieldProperty::Data::const_iterator iter = data.begin(); iter != data.end(); ++ iter )
+        const FieldDefinitionTable::Data & data = this->GetData();
+        for ( FieldDefinitionTable::Data::const_iterator iter = data.begin(); iter != data.end(); ++ iter )
         {
             int nEqu = iter->second;
 
@@ -181,7 +241,7 @@ void IFieldProperty::DownloadInterfaceValue()
     }
 }
 
-void IFieldProperty::UploadOversetInterfaceValue()
+void InterfaceFieldProperty::UploadOversetInterfaceValue()
 {
     Grid * gridIn = Zone::GetGrid();
 
@@ -189,8 +249,8 @@ void IFieldProperty::UploadOversetInterfaceValue()
     {
         UnsGrid * grid = ONEFLOW::UnsGridCast( gridIn );
 
-        const FieldProperty::Data & data = this->GetData();
-        for ( FieldProperty::Data::const_iterator iter = data.begin(); iter != data.end(); ++ iter )
+        const FieldDefinitionTable::Data & data = this->GetData();
+        for ( FieldDefinitionTable::Data::const_iterator iter = data.begin(); iter != data.end(); ++ iter )
         {
             int nEqu = iter->second;
 
@@ -201,7 +261,7 @@ void IFieldProperty::UploadOversetInterfaceValue()
     }
 }
 
-void IFieldProperty::DownloadOversetInterfaceValue()
+void InterfaceFieldProperty::DownloadOversetInterfaceValue()
 {
     Grid * gridIn = Zone::GetGrid();
 
@@ -209,8 +269,8 @@ void IFieldProperty::DownloadOversetInterfaceValue()
     {
         UnsGrid * grid = ONEFLOW::UnsGridCast( gridIn );
 
-        const FieldProperty::Data & data = this->GetData();
-        for ( FieldProperty::Data::const_iterator iter = data.begin(); iter != data.end(); ++ iter )
+        const FieldDefinitionTable::Data & data = this->GetData();
+        for ( FieldDefinitionTable::Data::const_iterator iter = data.begin(); iter != data.end(); ++ iter )
         {
             int nEqu = iter->second;
 
@@ -221,7 +281,7 @@ void IFieldProperty::DownloadOversetInterfaceValue()
     }
 }
 
-FieldProperty & FieldPropertyData::GetFieldProperty(
+FieldDefinitionTable & FieldDefinitionSet::GetFieldDefinition(
     FieldLocation location )
 {
     switch ( location )
@@ -240,7 +300,7 @@ FieldProperty & FieldPropertyData::GetFieldProperty(
     return innerField;
 }
 
-const FieldProperty & FieldPropertyData::GetFieldProperty(
+const FieldDefinitionTable & FieldDefinitionSet::GetFieldDefinition(
     FieldLocation location ) const
 {
     switch ( location )
@@ -289,17 +349,17 @@ void FieldManager::MarkInterfaceDefinitionsReady()
     this->interfaceDefinitionsReady = true;
 }
 
-IFieldProperty & FieldManager::GetInterfaceFieldProperty()
+InterfaceFieldProperty & FieldManager::GetInterfaceFieldProperty()
 {
-    return this->iFieldProperty;
+    return this->interfaceFieldProperty;
 }
 
-const IFieldProperty & FieldManager::GetInterfaceFieldProperty() const
+const InterfaceFieldProperty & FieldManager::GetInterfaceFieldProperty() const
 {
-    return this->iFieldProperty;
+    return this->interfaceFieldProperty;
 }
 
-FieldPropertyData & FieldManager::GetFieldPropertyData(
+FieldDefinitionSet & FieldManager::GetFieldDefinitionSet(
     FieldApplicability applicability )
 {
     switch ( applicability )
@@ -318,7 +378,7 @@ FieldPropertyData & FieldManager::GetFieldPropertyData(
     return allFields;
 }
 
-const FieldPropertyData & FieldManager::GetFieldPropertyData(
+const FieldDefinitionSet & FieldManager::GetFieldDefinitionSet(
     FieldApplicability applicability ) const
 {
     switch ( applicability )
@@ -356,85 +416,80 @@ void FieldManager::DumpFieldEnvironment(
     output
         << "[All]\n";
 
-    DumpFieldProperty(
+    DumpFieldDefinition(
         output,
         "Inner",
-        this->allFields.GetFieldProperty(
+        this->allFields.GetFieldDefinition(
             FieldLocation::Inner ) );
 
-    DumpFieldProperty(
+    DumpFieldDefinition(
         output,
         "Face",
-        this->allFields.GetFieldProperty(
+        this->allFields.GetFieldDefinition(
             FieldLocation::Face ) );
 
-    DumpFieldProperty(
+    DumpFieldDefinition(
         output,
         "Boundary",
-        this->allFields.GetFieldProperty(
+        this->allFields.GetFieldDefinition(
             FieldLocation::Boundary ) );
 
     output
         << "\n[Structured]\n";
 
-    DumpFieldProperty(
+    DumpFieldDefinition(
         output,
         "Inner",
-        this->structuredFields.GetFieldProperty(
+        this->structuredFields.GetFieldDefinition(
             FieldLocation::Inner ) );
 
-    DumpFieldProperty(
+    DumpFieldDefinition(
         output,
         "Face",
-        this->structuredFields.GetFieldProperty(
+        this->structuredFields.GetFieldDefinition(
             FieldLocation::Face ) );
 
-    DumpFieldProperty(
+    DumpFieldDefinition(
         output,
         "Boundary",
-        this->structuredFields.GetFieldProperty(
+        this->structuredFields.GetFieldDefinition(
             FieldLocation::Boundary ) );
 
     output
         << "\n[Unstructured]\n";
 
-    DumpFieldProperty(
+    DumpFieldDefinition(
         output,
         "Inner",
-        this->unstructuredFields.GetFieldProperty(
+        this->unstructuredFields.GetFieldDefinition(
             FieldLocation::Inner ) );
 
-    DumpFieldProperty(
+    DumpFieldDefinition(
         output,
         "Face",
-        this->unstructuredFields.GetFieldProperty(
+        this->unstructuredFields.GetFieldDefinition(
             FieldLocation::Face ) );
 
-    DumpFieldProperty(
+    DumpFieldDefinition(
         output,
         "Boundary",
-        this->unstructuredFields.GetFieldProperty(
+        this->unstructuredFields.GetFieldDefinition(
             FieldLocation::Boundary ) );
 
     output
         << "\n[Interface Storage]\n";
 
-    if ( this->iFieldProperty.GetData().empty() )
+    if ( this->interfaceFieldProperty.Empty() )
     {
         output << "    <empty>\n";
     }
     else
     {
-        this->iFieldProperty.Dump( output );
+        this->interfaceFieldProperty.Dump( output );
     }
 
     output
         << "\n========================================\n";
-}
-
-void FieldManager::SetField( const std::string & fieldName, Real value )
-{
-    FieldHome::SetField( fieldName, value );
 }
 
 void FieldManager::AddField(
@@ -443,38 +498,37 @@ void FieldManager::AddField(
     FieldApplicability applicability,
     FieldLocation location )
 {
-    if ( applicability == FieldApplicability::All )
+    const FieldApplicability applicabilityList[] =
     {
-        ValidateCompatibleFieldDefinition(
-            this->GetFieldPropertyData(
-                FieldApplicability::Structured ).GetFieldProperty(
-                    location ),
-            fieldName,
-            nEqu );
+        FieldApplicability::All,
+        FieldApplicability::Structured,
+        FieldApplicability::Unstructured
+    };
+
+    for ( FieldApplicability otherApplicability : applicabilityList )
+    {
+        // The current applicability is checked by AddField() below.
+        // Here we only validate definitions from the other applicability
+        // categories to keep the same field name and location consistent.
+        if ( otherApplicability == applicability )
+        {
+            continue;
+        }
 
         ValidateCompatibleFieldDefinition(
-            this->GetFieldPropertyData(
-                FieldApplicability::Unstructured ).GetFieldProperty(
+            this->GetFieldDefinitionSet(
+                otherApplicability ).GetFieldDefinition(
                     location ),
             fieldName,
             nEqu );
     }
-    else
-    {
-        ValidateCompatibleFieldDefinition(
-            this->GetFieldPropertyData(
-                FieldApplicability::All ).GetFieldProperty(
-                    location ),
-            fieldName,
-            nEqu );
-    }
 
-    FieldProperty & fieldProperty =
-        this->GetFieldPropertyData(
-            applicability ).GetFieldProperty(
+    FieldDefinitionTable & fieldDefinition =
+        this->GetFieldDefinitionSet(
+            applicability ).GetFieldDefinition(
                 location );
 
-    fieldProperty.AddField(
+    fieldDefinition.AddField(
         fieldName,
         nEqu );
 }
@@ -493,7 +547,7 @@ void FieldManager::AddInterfaceField(
             + fieldName );
     }
 
-    this->iFieldProperty.AddField(
+    this->interfaceFieldProperty.AddField(
         fieldName,
         nEqu );
 }
@@ -504,35 +558,33 @@ bool FieldManager::FindInnerFieldDefinition(
 {
     bool found = false;
 
-    const FieldPropertyData * dataList[] =
+    const FieldDefinitionSet * dataList[] =
     {
         &this->allFields,
         &this->structuredFields,
         &this->unstructuredFields
     };
 
-    for ( const FieldPropertyData * fieldPropertyData : dataList )
+    for ( const FieldDefinitionSet * fieldDefinitions : dataList )
     {
-        const FieldProperty::Data & data =
-            fieldPropertyData->GetFieldProperty(
-                FieldLocation::Inner ).GetData();
+        const FieldDefinitionTable & fieldDefinition =
+            fieldDefinitions->GetFieldDefinition(
+                FieldLocation::Inner );
 
-        FieldProperty::Data::const_iterator iter =
-            data.find( fieldName );
-
-        if ( iter == data.end() )
+        if ( ! fieldDefinition.HasField( fieldName ) )
         {
             continue;
         }
+
+        int fieldNEqu =
+            fieldDefinition.GetNEqu( fieldName );
 
         if ( ! found )
         {
-            nEqu = iter->second;
+            nEqu = fieldNEqu;
             found = true;
-            continue;
         }
-
-        if ( nEqu != iter->second )
+        else if ( nEqu != fieldNEqu )
         {
             Fatal(
                 "Conflicting field definition: "
@@ -542,7 +594,6 @@ bool FieldManager::FindInnerFieldDefinition(
 
     return found;
 }
-
 std::map< int, std::unique_ptr< FieldManager > > FieldManagerRegistry::data;
 
 void FieldManagerRegistry::AddFieldManager( int solverType )

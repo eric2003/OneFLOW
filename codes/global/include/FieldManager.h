@@ -30,17 +30,36 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-class FieldProperty
+// FieldSpec describes the allocation definition of a field.
+struct FieldSpec
+{
+    std::string name;
+    int nEqu;
+    FieldApplicability applicability;
+};
+
+class FieldDefinitionTable
 {
 public:
     using Data = std::map< std::string, int >;
 
 public:
-    void AddField( const std::string & fieldName, int nEqu );
+    void AddField(
+        const std::string & fieldName,
+        int nEqu );
+
+    bool HasField(
+        const std::string & fieldName ) const;
+
+    int GetNEqu(
+        const std::string & fieldName ) const;
+
+    bool Empty() const;
 
     const Data & GetData() const;
 
-    void Dump( std::ostream & output ) const;
+    void Dump(
+        std::ostream & output ) const;
 
 private:
     Data data;
@@ -48,29 +67,52 @@ private:
 
 class DataStorage;
 
-class IFieldProperty : public FieldProperty
+class InterfaceFieldProperty
 {
 public:
-    void AllocateInterfaceField( int nIFaces, DataStorage * dataStorage );
+    void AddField(
+        const std::string & fieldName,
+        int nEqu );
+
+    bool HasField(
+        const std::string & fieldName ) const;
+
+    int GetNEqu(
+        const std::string & fieldName ) const;
+
+    bool Empty() const;
+
+    const FieldDefinitionTable::Data & GetData() const;
+
+    void Dump(
+        std::ostream & output ) const;
+
+    void AllocateInterfaceField(
+        int nIFaces,
+        DataStorage * dataStorage );
+
     void UploadInterfaceValue();
     void DownloadInterfaceValue();
     void UploadOversetInterfaceValue();
     void DownloadOversetInterfaceValue();
+
+private:
+    FieldDefinitionTable fieldDefinitions;
 };
 
-class FieldPropertyData
+class FieldDefinitionSet
 {
 public:
-    FieldProperty & GetFieldProperty(
+    FieldDefinitionTable & GetFieldDefinition(
         FieldLocation location );
 
-    const FieldProperty & GetFieldProperty(
+    const FieldDefinitionTable & GetFieldDefinition(
         FieldLocation location ) const;
 
 private:
-    FieldProperty bcField;
-    FieldProperty faceField;
-    FieldProperty innerField;
+    FieldDefinitionTable bcField;
+    FieldDefinitionTable faceField;
+    FieldDefinitionTable innerField;
 };
 
 class UsdPara;
@@ -89,14 +131,14 @@ public:
     void MarkInterfaceDefinitionsReady();
 
 public:
-    IFieldProperty & GetInterfaceFieldProperty();
+    InterfaceFieldProperty & GetInterfaceFieldProperty();
 
-    const IFieldProperty & GetInterfaceFieldProperty() const;
+    const InterfaceFieldProperty & GetInterfaceFieldProperty() const;
 
-    FieldPropertyData & GetFieldPropertyData(
+    FieldDefinitionSet & GetFieldDefinitionSet(
         FieldApplicability applicability );
 
-    const FieldPropertyData & GetFieldPropertyData(
+    const FieldDefinitionSet & GetFieldDefinitionSet(
         FieldApplicability applicability ) const;
 
     UsdPara & GetUsdPara();
@@ -114,19 +156,15 @@ public:
         FieldApplicability applicability,
         FieldLocation location );
 
-    void SetField(
-        const std::string & fieldName,
-        Real value );
-
 private:
     bool FindInnerFieldDefinition(
         const std::string & fieldName,
         int & nEqu ) const;
 
-    FieldPropertyData allFields;
-    FieldPropertyData structuredFields;
-    FieldPropertyData unstructuredFields;
-    IFieldProperty iFieldProperty;
+    FieldDefinitionSet allFields;
+    FieldDefinitionSet structuredFields;
+    FieldDefinitionSet unstructuredFields;
+    InterfaceFieldProperty interfaceFieldProperty;
     std::unique_ptr< UsdPara > usdPara;
 
     bool fieldDefinitionsReady;

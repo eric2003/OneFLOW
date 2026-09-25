@@ -25,7 +25,6 @@ License
 #include "FieldManager.h"
 #include "FieldBase.h"
 #include "UsdPara.h"
-#include "SolverInfo.h"
 #include "SolverDef.h"
 #include "TextFileParser.h"
 #include "OStream.h"
@@ -36,6 +35,7 @@ License
 #include "UnsGrid.h"
 #include "GridState.h"
 #include "InterFace.h"
+#include "FieldWrap.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -202,7 +202,7 @@ namespace
         void ( FieldConfigReader::* )( TextFileParser & );
 
     void ReadBoolFile(
-        FieldConfigReader & boolIO,
+        FieldConfigReader & configReader,
         const std::string & fileName,
         BoolLineReader trueReader )
     {
@@ -230,27 +230,27 @@ namespace
 
             if ( keyWord == "true" )
             {
-                ( boolIO.*trueReader )(
+                ( configReader.*trueReader )(
                     textFileParser );
             }
             else if ( keyWord == "bool" )
             {
-                boolIO.ReadBool(
+                configReader.ReadBool(
                     textFileParser );
             }
             else if ( keyWord == "superbool" )
             {
-                boolIO.ReadSuperBool(
+                configReader.ReadSuperBool(
                     textFileParser );
             }
             else
             {
                 bool flag =
-                    boolIO.GetBoolValue( keyWord );
+                    configReader.GetBoolValue( keyWord );
 
                 if ( flag )
                 {
-                    ( boolIO.*trueReader )(
+                    ( configReader.*trueReader )(
                         textFileParser );
                 }
             }
@@ -432,16 +432,6 @@ namespace
             &FieldConfigReader::ReadNameValue );
     }
 
-    struct FieldDefinition
-    {
-        std::string name;
-        int nEqu;
-        FieldApplicability applicability;
-    };
-
-
-
-
     enum class FieldFileType
     {
         Standard,
@@ -485,10 +475,28 @@ namespace
         return FieldApplicability::Unstructured;
     }
 
-    FieldDefinition ReadFieldDefinition(
+    FieldApplicability GetGridApplicability(
+        int gridType )
+    {
+        if ( ONEFLOW::IsUnsGrid( gridType ) )
+        {
+            return FieldApplicability::Unstructured;
+        }
+
+        if ( ONEFLOW::IsStrGrid( gridType ) )
+        {
+            return FieldApplicability::Structured;
+        }
+
+        Fatal( "Unsupported grid type for field allocation" );
+
+        return FieldApplicability::All;
+    }
+
+    FieldSpec ReadFieldSpec(
         TextFileParser & textFileParser )
     {
-        FieldDefinition definition;
+        FieldSpec definition;
 
         definition.name =
             textFileParser.ReadNextWord();
@@ -508,9 +516,9 @@ namespace
         return definition;
     }
 
-    void AddFieldDefinition(
+    void RegisterFieldDefinition(
         FieldManager * fieldManager,
-        const FieldDefinition & definition,
+        const FieldSpec & definition,
         FieldLocation location )
     {
         fieldManager->AddField(
@@ -541,6 +549,22 @@ namespace
             "Unknown unsteady field role: " + role );
     }
 
+    void InitUsdPara(
+        FieldManager * fieldManager,
+        const UsdFieldNames & fieldNames )
+    {
+        UsdPara * usdPara =
+            &fieldManager->GetUsdPara();
+
+        int nEqu =
+            GetDataValue< int >( "nEqu" );
+
+        usdPara->Init(
+            fieldNames.flow,
+            fieldNames.residual,
+            nEqu );
+    }
+
     void ReadFieldDefinitions(
         TextFileParser & textFileParser,
         FieldManager * fieldManager,
@@ -565,11 +589,11 @@ namespace
                 continue;
             }
 
-            FieldDefinition definition =
-                ReadFieldDefinition(
+            FieldSpec definition =
+                ReadFieldSpec(
                     textFileParser );
 
-            AddFieldDefinition(
+            RegisterFieldDefinition(
                 fieldManager,
                 definition,
                 location );
@@ -595,7 +619,6 @@ namespace
     }
 
     void SetFieldValues(
-        FieldManager * fieldManager,
         const NameValuePair & valuePair )
     {
         const int fieldCount =
@@ -605,7 +628,7 @@ namespace
             fieldIndex < fieldCount;
             ++ fieldIndex )
         {
-            fieldManager->SetField(
+            FieldHome::SetField(
                 valuePair.GetName( fieldIndex ),
                 valuePair.GetValue( fieldIndex ) );
         }
@@ -670,16 +693,9 @@ namespace
                 location,
                 &fieldNames );
 
-            UsdPara * usdPara =
-                &fieldManager->GetUsdPara();
-
-            int nEqu =
-                GetDataValue< int >( "nEqu" );
-
-            usdPara->Init(
-                fieldNames.flow,
-                fieldNames.residual,
-                nEqu );
+            InitUsdPara(
+                fieldManager,
+                fieldNames );
         }
         else
         {
@@ -717,16 +733,16 @@ namespace
             logger.ClearAll();
             logger << rootString << spec.name << ".txt";
 
-            FieldConfigReader boolIO;
+            FieldConfigReader configReader;
 
-            boolIO.ReadFile(
+            configReader.ReadFile(
                 logger.str() );
 
             AddInterfaceFieldNames(
                 solverType,
                 fieldManager,
                 spec.fieldType,
-                boolIO.GetFieldNameList() );
+                configReader.GetFieldNameList() );
         }
         fieldManager->MarkInterfaceDefinitionsReady();
     }
@@ -735,8 +751,8 @@ namespace
         int solverType,
         FieldManager * fieldManager )
     {
-        const FieldProperty::Data & interfaceData =
-            fieldManager->GetInterfaceFieldProperty().GetData();
+        const InterfaceFieldProperty & interfaceFieldProperty =
+            fieldManager->GetInterfaceFieldProperty();
 
         const int interfaceTypes[] =
         {
@@ -746,7 +762,10 @@ namespace
             ONEFLOW::INTERFACE_OVERSET_DATA
         };
 
-        for ( int iType = 0; iType < 4; ++ iType )
+        const int interfaceTypeCount =
+            sizeof( interfaceTypes ) / sizeof( interfaceTypes[ 0 ] );
+
+        for ( int iType = 0; iType < interfaceTypeCount; ++ iType )
         {
             VarNameSolver * varNameSolver =
                 VarNameFactory::FindVarNameSolver(
@@ -765,8 +784,7 @@ namespace
                 const std::string & fieldName =
                     varNameSolver->data[ iField ];
 
-                if ( interfaceData.find( fieldName ) ==
-                    interfaceData.end() )
+                if ( ! interfaceFieldProperty.HasField( fieldName ) )
                 {
                     Fatal(
                         "Interface field is not allocated: "
@@ -808,29 +826,38 @@ namespace
 
     }
 
-    void AllocateInnerField(
+    void AllocateFieldSet(
         UnsGrid * grid,
-        const FieldPropertyData * fieldPropertyData )
+        const FieldDefinitionTable & fieldDefinition,
+        int nSize )
     {
-        int nTCell = grid->nCells + grid->nBFaces;
+        const FieldDefinitionTable::Data & data =
+            fieldDefinition.GetData();
 
-        const FieldProperty::Data & data =
-            fieldPropertyData->GetFieldProperty(
-                FieldLocation::Inner ).GetData();
-
-        for ( FieldProperty::Data::const_iterator iter = data.begin();
+        for ( FieldDefinitionTable::Data::const_iterator iter =
+            data.begin();
             iter != data.end();
             ++ iter )
         {
             int nTEqu = iter->second;
 
+            MRField * field =
+                ONEFLOW::GetFieldPointer< MRField >(
+                    grid,
+                    iter->first );
+
+            if ( field != nullptr )
+            {
+                continue;
+            }
+
             ONEFLOW::CreateMRField(
                 grid,
                 nTEqu,
-                nTCell,
+                nSize,
                 iter->first );
 
-            MRField * field =
+            field =
                 ONEFLOW::GetFieldPointer< MRField >(
                     grid,
                     iter->first );
@@ -838,95 +865,64 @@ namespace
             ONEFLOW::ZeroField(
                 field,
                 nTEqu,
-                nTCell );
+                nSize );
         }
+    }
+
+    void AllocateInnerField(
+        UnsGrid * grid,
+        const FieldDefinitionSet * fieldDefinitions )
+    {
+        int nTCell = grid->nCells + grid->nBFaces;
+
+        AllocateFieldSet(
+            grid,
+            fieldDefinitions->GetFieldDefinition(
+                FieldLocation::Inner ),
+            nTCell );
     }
 
     void AllocateFaceField(
         UnsGrid * grid,
-        const FieldPropertyData * fieldPropertyData )
+        const FieldDefinitionSet * fieldDefinitions )
     {
         int nFaces = grid->nFaces;
 
-        const FieldProperty::Data & data =
-            fieldPropertyData->GetFieldProperty(
-                FieldLocation::Face ).GetData();
-
-        for ( FieldProperty::Data::const_iterator iter =
-            data.begin();
-            iter != data.end();
-            ++ iter )
-        {
-            int nTEqu = iter->second;
-
-            ONEFLOW::CreateMRField(
-                grid,
-                nTEqu,
-                nFaces,
-                iter->first );
-
-            MRField * field =
-                ONEFLOW::GetFieldPointer< MRField >(
-                    grid,
-                    iter->first );
-
-            ONEFLOW::ZeroField(
-                field,
-                nTEqu,
-                nFaces );
-        }
+        AllocateFieldSet(
+            grid,
+            fieldDefinitions->GetFieldDefinition(
+                FieldLocation::Face ),
+            nFaces );
     }
 
     void AllocateBoundaryField(
         UnsGrid * grid,
-        const FieldPropertyData * fieldPropertyData )
+        const FieldDefinitionSet * fieldDefinitions )
     {
         int nBFaces = grid->nBFaces;
 
-        const FieldProperty::Data & data =
-            fieldPropertyData->GetFieldProperty(
-                FieldLocation::Boundary ).GetData();
-
-        for ( FieldProperty::Data::const_iterator iter =
-            data.begin();
-            iter != data.end();
-            ++ iter )
-        {
-            int nTEqu = iter->second;
-
-            ONEFLOW::CreateMRField(
-                grid,
-                nTEqu,
-                nBFaces,
-                iter->first );
-
-            MRField * field =
-                ONEFLOW::GetFieldPointer< MRField >(
-                    grid,
-                    iter->first );
-
-            ONEFLOW::ZeroField(
-                field,
-                nTEqu,
-                nBFaces );
-        }
+        AllocateFieldSet(
+            grid,
+            fieldDefinitions->GetFieldDefinition(
+                FieldLocation::Boundary ),
+            nBFaces );
     }
 
     void AllocateGridFields(
         UnsGrid * grid,
-        const FieldPropertyData * fieldPropertyData )
+        const FieldDefinitionSet * fieldDefinitions )
     {
         AllocateInnerField(
             grid,
-            fieldPropertyData );
+            fieldDefinitions );
 
         AllocateFaceField(
             grid,
-            fieldPropertyData );
+            fieldDefinitions );
 
         AllocateBoundaryField(
             grid,
-            fieldPropertyData );
+            fieldDefinitions );
     }
 
     void AllocateGridFields(
@@ -934,24 +930,30 @@ namespace
     {
         Grid * gridIn = Zone::GetGrid();
 
+
         if ( ONEFLOW::IsUnsGrid( gridIn->type ) )
         {
             UnsGrid * grid =
                 ONEFLOW::UnsGridCast( gridIn );
 
+            FieldApplicability applicability =
+                GetGridApplicability( gridIn->type );
+
+            // All fields are common to every supported grid type.
             AllocateGridFields(
                 grid,
-                &fieldManager->GetFieldPropertyData(
+                &fieldManager->GetFieldDefinitionSet(
                     FieldApplicability::All ) );
 
+            // Grid-specific fields are allocated in addition to the common fields.
             AllocateGridFields(
                 grid,
-                &fieldManager->GetFieldPropertyData(
-                    FieldApplicability::Unstructured ) );
+                &fieldManager->GetFieldDefinitionSet(
+                    applicability ) );
         }
     }
 
-    void AllocateInterfaceField( IFieldProperty * iFieldProperty )
+    void AllocateInterfaceField( InterfaceFieldProperty * interfaceFieldProperty )
     {
         Grid * grid = Zone::GetGrid();
 
@@ -962,12 +964,12 @@ namespace
         int nIFaces = grid->interFace->nIFaces;
         for ( int ghostId = MAX_GHOST_LEVELS - 1; ghostId >= 0; -- ghostId )
         {
-            iFieldProperty->AllocateInterfaceField( nIFaces, interFace->dataSend[ ghostId ] );
-            iFieldProperty->AllocateInterfaceField( nIFaces, interFace->dataRecv[ ghostId ] );
+            interfaceFieldProperty->AllocateInterfaceField( nIFaces, interFace->dataSend[ ghostId ] );
+            interfaceFieldProperty->AllocateInterfaceField( nIFaces, interFace->dataRecv[ ghostId ] );
         }
     }
 
-    void AllocateOversetInterfaceField( IFieldProperty * iFieldProperty )
+    void AllocateOversetInterfaceField( InterfaceFieldProperty * interfaceFieldProperty )
     {
     }
 
@@ -985,16 +987,14 @@ namespace
     }
 
     void InitField(
-        FieldManager * fieldManager,
         const std::string & basicString )
     {
         std::string fileName = Prj::GetSystemFileName( basicString + "/alloc/init.txt" );
-        FieldConfigReader boolIO;
-        boolIO.ReadValueFile( fileName );
+        FieldConfigReader configReader;
+        configReader.ReadValueFile( fileName );
 
         SetFieldValues(
-            fieldManager,
-            boolIO.GetNameValuePair() );
+            configReader.GetNameValuePair() );
     }
 
 
@@ -1036,7 +1036,6 @@ void FieldAllocator::Allocate(
         fieldManager );
 
     InitField(
-        fieldManager,
         basicString );
 }
 
