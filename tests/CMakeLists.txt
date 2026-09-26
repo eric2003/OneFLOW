@@ -36,5 +36,8 @@ add_subdirectory(main)
 # 8. zone
 add_subdirectory(zone)
 
-# 8. solver
+# 9. solver
 add_subdirectory(solver)
+
+# 10. io
+add_subdirectory(io)

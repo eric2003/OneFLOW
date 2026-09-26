@@ -21,8 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "UsdField.h"
-#include "UsdPara.h"
-#include "FieldManager.h"
+#include "UsdFieldConfig.h"
 #include "FieldWrap.h"
 #include "DataBase.h"
 #include "Zone.h"
@@ -47,42 +46,59 @@ void UsdField::Init()
 
 void UsdField::InitBasic( int solverType )
 {
+    // Build unsteady access view from registered fields.
+    // This class does not allocate field storage.
     UnsGrid * grid = Zone::GetUnsGrid();
 
-    FieldManager * fieldManager =
-        FieldManagerRegistry::GetFieldManager( solverType );
+    UsdFieldConfig * config =
+        UsdFieldConfigRegistry::GetConfig(
+            solverType );
 
-    UsdPara * usdPara =
-        &fieldManager->GetUsdPara();
+    if ( config == nullptr )
+    {
+        Fatal(
+            "UsdFieldConfig is not registered for solverType" );
+    }
 
-    this->flow.resize( usdPara->flow.size() );
+    const UsdFieldNames & fieldNames =
+        config->GetFieldNames();
 
-    for ( std::size_t i = 0; i < usdPara->flow.size(); ++ i )
+    this->flow.resize(
+        fieldNames.flow.size() );
+
+    for ( std::size_t i = 0;
+        i < fieldNames.flow.size();
+        ++ i )
     {
         this->flow[ i ] =
             GetFieldPointer< MRField >(
                 grid,
-                usdPara->flow[ i ] );
+                fieldNames.flow[ i ] );
     }
 
-    this->residual.resize( usdPara->residual.size() );
+    this->residual.resize(
+        fieldNames.residual.size() );
 
     if ( this->flow.size() < 3 )
     {
-        Fatal( "Unsteady flow fields require at least 3 time levels." );
+        Fatal(
+            "Unsteady flow fields require at least 3 time levels." );
     }
 
     if ( this->residual.size() < 3 )
     {
-        Fatal( "Unsteady residual fields require at least 3 time levels." );
+        Fatal(
+            "Unsteady residual fields require at least 3 time levels." );
     }
 
-    for ( std::size_t i = 0; i < usdPara->residual.size(); ++ i )
+    for ( std::size_t i = 0;
+        i < fieldNames.residual.size();
+        ++ i )
     {
         this->residual[ i ] =
             GetFieldPointer< MRField >(
                 grid,
-                usdPara->residual[ i ] );
+                fieldNames.residual[ i ] );
     }
 }
 

@@ -20,36 +20,15 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "UsdPara.h"
-#include <iostream>
-
+#pragma once
+#include "HXDefine.h"
 
 BeginNameSpace( ONEFLOW )
 
-
-UsdPara::UsdPara()
+struct UsdFieldNames
 {
-    this->flag = false;
-}
-
-UsdPara::~UsdPara()
-{
-    ;
-}
-
-void UsdPara::Init(
-    const StringField & flow,
-    const StringField & residual,
-    int nEqu )
-{
-    if ( this->flag ) return;
-
-    this->flag = true;
-
-    this->flow = flow;
-    this->residual = residual;
-
-    this->nEqu = nEqu;
-}
+    StringField flow;
+    StringField residual;
+};
 
 EndNameSpace

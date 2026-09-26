@@ -1,31 +1,33 @@
 /*---------------------------------------------------------------------------*\
-    OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
+OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
+Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
-    This file is part of OneFLOW.
+This file is part of OneFLOW.
 
-    OneFLOW is free software: you can redistribute it and/or modify it
-    under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+OneFLOW is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-    for more details.
+OneFLOW is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License
+along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
 #include "FieldAllocator.h"
 #include "FieldAllocConfig.h"
+#include "DataStorage.h"
 #include "Prj.h"
 #include "Fatal.h"
 #include "FieldManager.h"
 #include "FieldBase.h"
-#include "UsdPara.h"
+#include "UsdFieldNames.h"
+#include "UsdFieldConfig.h"
 #include "SolverDef.h"
 #include "TextFileParser.h"
 #include "OStream.h"
@@ -49,6 +51,11 @@ namespace
     //   inner/face/bc/unsteady.txt  -> Field definitions
     //   inter*.txt                  -> Interface Storage + communication names
     //   Validate: Communication Fields are a subset of Interface Storage
+    //
+    //   Everything in this namespace block only deals with parsed config text
+    //   and FieldManager definitions. It never touches a live Grid or
+    //   DataStorage. Runtime allocation lives in the second namespace block
+    //   below (Section C).
     // =========================================================================
 
     enum class FieldFileType
@@ -92,24 +99,6 @@ namespace
             "Unknown field applicability: " + typeName );
 
         return FieldApplicability::Unstructured;
-    }
-
-    FieldApplicability GetGridApplicability(
-        int gridType )
-    {
-        if ( ONEFLOW::IsUnsGrid( gridType ) )
-        {
-            return FieldApplicability::Unstructured;
-        }
-
-        if ( ONEFLOW::IsStrGrid( gridType ) )
-        {
-            return FieldApplicability::Structured;
-        }
-
-        Fatal( "Unsupported grid type for field allocation" );
-
-        return FieldApplicability::All;
     }
 
     FieldSpec ReadFieldSpec(
@@ -168,20 +157,13 @@ namespace
             "Unknown unsteady field role: " + role );
     }
 
-    void InitUsdPara(
-        FieldManager * fieldManager,
+    void InitUsdFieldConfig(
+        int solverType,
         const UsdFieldNames & fieldNames )
     {
-        UsdPara * usdPara =
-            &fieldManager->GetUsdPara();
-
-        int nEqu =
-            GetDataValue< int >( "nEqu" );
-
-        usdPara->Init(
-            fieldNames.flow,
-            fieldNames.residual,
-            nEqu );
+        UsdFieldConfigRegistry::SetConfig(
+            solverType,
+            fieldNames );
     }
 
     void ReadFieldDefinitions(
@@ -237,23 +219,6 @@ namespace
         }
     }
 
-    // Used by InitField (Section C / pipeline step 5): apply init.txt constants.
-    void SetFieldValues(
-        const NameValuePair & valuePair )
-    {
-        const int fieldCount =
-            valuePair.Size();
-
-        for ( int fieldIndex = 0;
-            fieldIndex < fieldCount;
-            ++ fieldIndex )
-        {
-            FieldHome::SetField(
-                valuePair.GetName( fieldIndex ),
-                valuePair.GetValue( fieldIndex ) );
-        }
-    }
-
     void AddInterfaceFieldNames(
         int solverType,
         FieldManager * fieldManager,
@@ -284,6 +249,7 @@ namespace
     }
 
     void RegisterFieldFile(
+        int solverType,
         FieldManager * fieldManager,
         const std::string & fileName,
         FieldLocation location,
@@ -311,8 +277,8 @@ namespace
                 location,
                 &fieldNames );
 
-            InitUsdPara(
-                fieldManager,
+            InitUsdFieldConfig(
+                solverType,
                 fieldNames );
         }
         else
@@ -416,6 +382,7 @@ namespace
     }
 
     void RegisterFieldDefinitions(
+        int solverType,
         FieldManager * fieldManager,
         const std::string & basicString )
     {
@@ -439,6 +406,7 @@ namespace
             logger << rootString << spec.name << ".txt";
 
             RegisterFieldFile(
+                solverType,
                 fieldManager,
                 logger.str(),
                 spec.location,
@@ -446,11 +414,37 @@ namespace
         }
     }
 
+} // end of Section B anonymous namespace
+
+namespace
+{
     // =========================================================================
     // Section C: runtime allocation on Grid / Interface DataStorage
     //   Must run after Section B. Idempotent create + post-create null check.
     //   init.txt constants applied last via InitField (Allocate pipeline step 5).
+    //
+    //   Everything in this namespace block touches a live Grid / DataStorage.
+    //   It only reads FieldManager definitions that Section B already
+    //   registered; it never parses alloc/*.txt itself.
     // =========================================================================
+
+    FieldApplicability GetGridApplicability(
+        int gridType )
+    {
+        if ( ONEFLOW::IsUnsGrid( gridType ) )
+        {
+            return FieldApplicability::Unstructured;
+        }
+
+        if ( ONEFLOW::IsStrGrid( gridType ) )
+        {
+            return FieldApplicability::Structured;
+        }
+
+        Fatal( "Unsupported grid type for field allocation" );
+
+        return FieldApplicability::All;
+    }
 
     void AllocateFieldSet(
         UnsGrid * grid,
@@ -586,6 +580,55 @@ namespace
         }
     }
 
+    void AllocateInterfaceField( InterfaceFieldProperty * interfaceFieldProperty,
+        int nIFaces, DataStorage * dataStorage )
+    {
+        if ( nIFaces <= 0 ) return;
+    
+        const auto & data = interfaceFieldProperty->GetData();
+        for ( const auto & [ fieldName, nTEqu ] : data )
+        {
+            // 1) Lookup before create: skip if already present (idempotent).
+            MRField * field =
+                ONEFLOW::GetFieldPointer< MRField >(
+                    dataStorage,
+                    fieldName );
+    
+            if ( field != nullptr )
+            {
+                continue;
+            }
+    
+            // 2) Create and register into the interface DataStorage.
+            ONEFLOW::CreateMRField(
+                dataStorage,
+                nTEqu,
+                nIFaces,
+                fieldName );
+    
+            // 3) Lookup AFTER create: CreateMRField must have registered
+            //    the field. A null here means create failed; do not call
+            //    ZeroField on a null pointer.
+            field =
+                ONEFLOW::GetFieldPointer< MRField >(
+                    dataStorage,
+                    fieldName );
+    
+            if ( field == nullptr )
+            {
+                Fatal(
+                    "Failed to create interface field: "
+                    + fieldName );
+            }
+    
+            // 4) Safe to zero: field is non-null.
+            ONEFLOW::ZeroField(
+                field,
+                nTEqu,
+                nIFaces );
+        }
+    }
+
     void AllocateInterfaceField( InterfaceFieldProperty * interfaceFieldProperty )
     {
         Grid * grid = Zone::GetGrid();
@@ -597,8 +640,8 @@ namespace
         int nIFaces = grid->interFace->nIFaces;
         for ( int ghostId = MAX_GHOST_LEVELS - 1; ghostId >= 0; -- ghostId )
         {
-            interfaceFieldProperty->AllocateInterfaceField( nIFaces, interFace->dataSend[ ghostId ] );
-            interfaceFieldProperty->AllocateInterfaceField( nIFaces, interFace->dataRecv[ ghostId ] );
+            AllocateInterfaceField( interfaceFieldProperty, nIFaces, interFace->dataSend[ ghostId ] );
+            AllocateInterfaceField( interfaceFieldProperty, nIFaces, interFace->dataRecv[ ghostId ] );
         }
     }
 
@@ -623,6 +666,24 @@ namespace
             &fieldManager->GetInterfaceFieldProperty() );
     }
 
+    // Used by InitField (pipeline step 5): apply init.txt constants onto
+    // fields that AllocateRuntimeFields already created.
+    void SetFieldValues(
+        const NameValuePair & valuePair )
+    {
+        const int fieldCount =
+            valuePair.Size();
+
+        for ( int fieldIndex = 0;
+            fieldIndex < fieldCount;
+            ++ fieldIndex )
+        {
+            FieldHome::SetField(
+                valuePair.GetName( fieldIndex ),
+                valuePair.GetValue( fieldIndex ) );
+        }
+    }
+
     void InitField(
         const std::string & basicString )
     {
@@ -637,7 +698,7 @@ namespace
             configReader.GetNameValuePair() );
     }
 
-}
+} // end of Section C anonymous namespace
 
 void FieldAllocator::Allocate(
     int solverType,
@@ -651,23 +712,27 @@ void FieldAllocator::Allocate(
     // 4. Allocate runtime storage on the current grid (and interface buffers).
     // 5. Apply constant values from init.txt onto already-allocated fields.
 
-    FieldManagerRegistry::AddFieldManager(
-        solverType );
-
     FieldManager * fieldManager =
-        FieldManagerRegistry::GetFieldManager(
+        FieldManagerRegistry::AddFieldManager(
             solverType );
 
-    if ( fieldManager == nullptr )
+    if ( ! fieldManager->HasFieldDefinitionSource() )
     {
-        // After AddFieldManager, Get must succeed.
+        fieldManager->SetFieldDefinitionSource(
+            basicString );
+    }
+    else if (
+        fieldManager->GetFieldDefinitionSource() != basicString )
+    {
         Fatal(
-            "FieldManager is not registered for solverType" );
+            "FieldManager configuration source mismatch for solverType: "
+            + std::to_string( solverType ) );
     }
 
     if ( ! fieldManager->HasFieldDefinitions() )
     {
         RegisterFieldDefinitions(
+            solverType,
             fieldManager,
             basicString );
 

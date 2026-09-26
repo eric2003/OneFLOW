@@ -21,32 +21,48 @@ License
 \*---------------------------------------------------------------------------*/
 
 #pragma once
-#include "HXDefine.h"
+#include "UsdFieldNames.h"
+#include <map>
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
-struct UsdFieldNames
+// Configuration of unsteady field names.
+// This object does not own field storage.
+// Field storage is managed by FieldManager.
+class UsdFieldConfig
 {
-    StringField flow;
-    StringField residual;
-};
+public:
+    UsdFieldConfig();
 
-class UsdPara
-{
-public:
-    UsdPara();
-    ~UsdPara();
-public:
-    bool flag;
-    int  nEqu;
-    StringField residual;
-    StringField flow;
-public:
     void Init(
-        const StringField & flow,
-        const StringField & residual,
-        int nEqu );
+        const UsdFieldNames & fieldNames );
+
+    const UsdFieldNames & GetFieldNames() const;
+
+private:
+    UsdFieldNames fieldNames;
 };
 
+class UsdFieldConfigRegistry
+{
+public:
+    static UsdFieldConfig * GetConfig(
+        int solverType );
+
+    static void SetConfig(
+        int solverType,
+        const UsdFieldNames & fieldNames );
+
+    static void FreeConfig();
+
+private:
+    static void AddConfig(
+        int solverType );
+
+    static std::map<
+        int,
+        std::unique_ptr< UsdFieldConfig > > data;
+};
 
 EndNameSpace
