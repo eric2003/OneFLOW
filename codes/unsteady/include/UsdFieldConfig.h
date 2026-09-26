@@ -44,8 +44,6 @@ private:
 class UsdFieldConfigRegistry
 {
 public:
-    static void AddConfig( int solverType );
-
     static UsdFieldConfig * GetConfig(
         int solverType );
 
@@ -56,6 +54,9 @@ public:
     static void FreeConfig();
 
 private:
+    static void AddConfig(
+        int solverType );
+
     static std::map<
         int,
         std::unique_ptr< UsdFieldConfig > > data;
