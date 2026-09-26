@@ -666,13 +666,6 @@ void FieldAllocator::Allocate(
         FieldManagerRegistry::AddFieldManager(
             solverType );
 
-    if ( fieldManager == nullptr )
-    {
-        // After AddFieldManager, Get must succeed.
-        Fatal(
-            "FieldManager is not registered for solverType" );
-    }
-
     if ( ! fieldManager->HasFieldDefinitions() )
     {
         RegisterFieldDefinitions(
