@@ -29,12 +29,9 @@ BeginNameSpace( ONEFLOW )
 
 class UnsGrid;
 
-// InterfaceFieldProperty is the Interface Storage field registry: which
-// fields must exist on the interface send/recv DataStorage, and how to
-// move their values to/from the grid's own fields. Unlike
-// FieldDefinitionTable/FieldDefinitionSet, this class DOES touch live
-// Grid / DataStorage objects (see AllocateInterfaceField and the
-// Upload/Download methods below).
+// InterfaceFieldProperty is the Interface Storage field definition
+// registry: which fields must exist on interface send/recv DataStorage.
+// It stores field names and equation counts only. Runtime allocation
 class InterfaceFieldProperty
 {
 public:
