@@ -21,6 +21,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 \*---------------------------------------------------------------------------*/
 #include "FieldAllocator.h"
 #include "FieldAllocConfig.h"
+#include "DataStorage.h"
 #include "Prj.h"
 #include "Fatal.h"
 #include "FieldManager.h"
@@ -579,6 +580,55 @@ namespace
         }
     }
 
+    void AllocateInterfaceField( InterfaceFieldProperty * interfaceFieldProperty,
+        int nIFaces, DataStorage * dataStorage )
+    {
+        if ( nIFaces <= 0 ) return;
+    
+        const auto & data = interfaceFieldProperty->GetData();
+        for ( const auto & [ fieldName, nTEqu ] : data )
+        {
+            // 1) Lookup before create: skip if already present (idempotent).
+            MRField * field =
+                ONEFLOW::GetFieldPointer< MRField >(
+                    dataStorage,
+                    fieldName );
+    
+            if ( field != nullptr )
+            {
+                continue;
+            }
+    
+            // 2) Create and register into the interface DataStorage.
+            ONEFLOW::CreateMRField(
+                dataStorage,
+                nTEqu,
+                nIFaces,
+                fieldName );
+    
+            // 3) Lookup AFTER create: CreateMRField must have registered
+            //    the field. A null here means create failed; do not call
+            //    ZeroField on a null pointer.
+            field =
+                ONEFLOW::GetFieldPointer< MRField >(
+                    dataStorage,
+                    fieldName );
+    
+            if ( field == nullptr )
+            {
+                Fatal(
+                    "Failed to create interface field: "
+                    + fieldName );
+            }
+    
+            // 4) Safe to zero: field is non-null.
+            ONEFLOW::ZeroField(
+                field,
+                nTEqu,
+                nIFaces );
+        }
+    }
+
     void AllocateInterfaceField( InterfaceFieldProperty * interfaceFieldProperty )
     {
         Grid * grid = Zone::GetGrid();
@@ -590,8 +640,8 @@ namespace
         int nIFaces = grid->interFace->nIFaces;
         for ( int ghostId = MAX_GHOST_LEVELS - 1; ghostId >= 0; -- ghostId )
         {
-            interfaceFieldProperty->AllocateInterfaceField( nIFaces, interFace->dataSend[ ghostId ] );
-            interfaceFieldProperty->AllocateInterfaceField( nIFaces, interFace->dataRecv[ ghostId ] );
+            AllocateInterfaceField( interfaceFieldProperty, nIFaces, interFace->dataSend[ ghostId ] );
+            AllocateInterfaceField( interfaceFieldProperty, nIFaces, interFace->dataRecv[ ghostId ] );
         }
     }
 

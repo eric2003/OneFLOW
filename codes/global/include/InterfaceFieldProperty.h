@@ -27,7 +27,6 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 BeginNameSpace( ONEFLOW )
 
-class DataStorage;
 class UnsGrid;
 
 // InterfaceFieldProperty is the Interface Storage field registry: which
@@ -55,10 +54,6 @@ public:
 
     void Dump(
         std::ostream & output ) const;
-
-    void AllocateInterfaceField(
-        int nIFaces,
-        DataStorage * dataStorage );
 
     void UploadInterfaceValue();
     void DownloadInterfaceValue();
