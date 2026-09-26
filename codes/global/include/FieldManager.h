@@ -88,9 +88,9 @@ private:
 };
 
 // Per-solverType FieldManager registry.
-// AddFieldManager: create empty manager if missing (idempotent).
-// GetFieldManager: optional lookup (nullptr if not registered).
-// Callers that require a manager after Add must null-check or Fatal.
+// AddFieldManager: create empty manager if missing (idempotent),
+//                  always returns a valid manager.
+// GetFieldManager: lookup only (nullptr if not registered).
 class FieldManagerRegistry
 {
 public:
