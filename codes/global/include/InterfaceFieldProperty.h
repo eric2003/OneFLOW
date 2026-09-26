@@ -54,12 +54,6 @@ public:
 
     void Dump(
         std::ostream & output ) const;
-
-    void UploadInterfaceValue();
-    void DownloadInterfaceValue();
-    void UploadOversetInterfaceValue();
-    void DownloadOversetInterfaceValue();
-
 private:
     FieldDefinitionTable fieldDefinitions;
 };

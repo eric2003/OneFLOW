@@ -22,6 +22,7 @@ License
 
 #include "InterfaceTaskReg.h"
 #include "InterField.h"
+#include "Fatal.h"
 #include "ActionState.h"
 #include "HXMath.h"
 #include "SolverDef.h"
@@ -40,6 +41,7 @@ License
 #include "SolverState.h"
 #include "Zone.h"
 #include "Grid.h"
+#include "GridState.h"
 #include "UnsGrid.h"
 #include "InterFace.h"
 #include "RegisterUtils.h"
@@ -68,22 +70,100 @@ void CalcInterfaceGrad( StringField & data )
     ;
 }
 
+//void UploadInterfaceData( StringField & data )
+//{
+//    int solverType = SolverState::solverType;
+//
+//    FieldManager * fieldManager = FieldManagerRegistry::GetFieldManager( solverType );
+//
+//    fieldManager->GetInterfaceFieldProperty().UploadInterfaceValue();
+//
+//}
+
+//void DownloadInterfaceData( StringField & data )
+//{
+//    int solverType = SolverState::solverType;
+//
+//    FieldManager * fieldManager = FieldManagerRegistry::GetFieldManager( solverType );
+//    fieldManager->GetInterfaceFieldProperty().DownloadInterfaceValue();
+//}
+
 void UploadInterfaceData( StringField & data )
 {
+    Grid * gridIn = Zone::GetGrid();
+    if ( ! ONEFLOW::IsUnsGrid( gridIn->type ) )
+    {
+        return;
+    }
+
+    UnsGrid * grid = ONEFLOW::UnsGridCast( gridIn );
+
     int solverType = SolverState::solverType;
+    FieldManager * fieldManager =
+        FieldManagerRegistry::GetFieldManager( solverType );
 
-    FieldManager * fieldManager = FieldManagerRegistry::GetFieldManager( solverType );
+    const auto & fieldData =
+        fieldManager->GetInterfaceFieldProperty().GetData();
 
-    fieldManager->GetInterfaceFieldProperty().UploadInterfaceValue();
+    for ( const auto & [ fieldName, nEqu ] : fieldData )
+    {
+        MRField * field =
+            ONEFLOW::GetFieldPointer< MRField >(
+                grid,
+                fieldName );
 
+        if ( field == nullptr )
+        {
+            Fatal(
+                "Grid field is not allocated for interface upload: "
+                + fieldName );
+        }
+
+        ONEFLOW::UploadInterfaceValue(
+            grid,
+            field,
+            fieldName,
+            nEqu );
+    }
 }
 
 void DownloadInterfaceData( StringField & data )
 {
-    int solverType = SolverState::solverType;
+    Grid * gridIn = Zone::GetGrid();
+    if ( ! ONEFLOW::IsUnsGrid( gridIn->type ) )
+    {
+        return;
+    }
 
-    FieldManager * fieldManager = FieldManagerRegistry::GetFieldManager( solverType );
-    fieldManager->GetInterfaceFieldProperty().DownloadInterfaceValue();
+    UnsGrid * grid = ONEFLOW::UnsGridCast( gridIn );
+
+    int solverType = SolverState::solverType;
+    FieldManager * fieldManager =
+        FieldManagerRegistry::GetFieldManager( solverType );
+
+    const auto & fieldData =
+        fieldManager->GetInterfaceFieldProperty().GetData();
+
+    for ( const auto & [ fieldName, nEqu ] : fieldData )
+    {
+        MRField * field =
+            ONEFLOW::GetFieldPointer< MRField >(
+                grid,
+                fieldName );
+
+        if ( field == nullptr )
+        {
+            Fatal(
+                "Grid field is not allocated for interface download: "
+                + fieldName );
+        }
+
+        ONEFLOW::DownloadInterfaceValue(
+            grid,
+            field,
+            fieldName,
+            nEqu );
+    }
 }
 
 void PrepareInterfaceField( StringField & data )
