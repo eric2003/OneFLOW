@@ -27,6 +27,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include "FieldBase.h"
 #include "UsdPara.h"
 #include "UsdFieldNames.h"
+#include "UsdFieldConfig.h"
 #include "SolverDef.h"
 #include "TextFileParser.h"
 #include "OStream.h"
@@ -157,9 +158,14 @@ namespace
     }
 
     void InitUsdPara(
+        int solverType,
         FieldManager * fieldManager,
         const UsdFieldNames & fieldNames )
     {
+        UsdFieldConfigRegistry::SetConfig(
+            solverType,
+            fieldNames );
+
         UsdPara * usdPara =
             &fieldManager->GetUsdPara();
 
@@ -255,6 +261,7 @@ namespace
     }
 
     void RegisterFieldFile(
+        int solverType,
         FieldManager * fieldManager,
         const std::string & fileName,
         FieldLocation location,
@@ -283,6 +290,7 @@ namespace
                 &fieldNames );
 
             InitUsdPara(
+                solverType,
                 fieldManager,
                 fieldNames );
         }
@@ -387,6 +395,7 @@ namespace
     }
 
     void RegisterFieldDefinitions(
+        int solverType,
         FieldManager * fieldManager,
         const std::string & basicString )
     {
@@ -410,6 +419,7 @@ namespace
             logger << rootString << spec.name << ".txt";
 
             RegisterFieldFile(
+                solverType,
                 fieldManager,
                 logger.str(),
                 spec.location,
@@ -683,6 +693,7 @@ void FieldAllocator::Allocate(
     if ( ! fieldManager->HasFieldDefinitions() )
     {
         RegisterFieldDefinitions(
+            solverType,
             fieldManager,
             basicString );
 
