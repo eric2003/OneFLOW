@@ -27,6 +27,9 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+// Configuration of unsteady field names.
+// This object does not own field storage.
+// Field storage is managed by FieldManager.
 class UsdFieldConfig
 {
 public:

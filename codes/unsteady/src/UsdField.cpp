@@ -46,6 +46,8 @@ void UsdField::Init()
 
 void UsdField::InitBasic( int solverType )
 {
+    // Build unsteady access view from registered fields.
+    // This class does not allocate field storage.
     UnsGrid * grid = Zone::GetUnsGrid();
 
     UsdFieldConfig * config =

@@ -51,7 +51,12 @@ public:
     MRField * GetResidual( HistoryLevel level );
 
 public:
+    // Non-owning view of time-level fields.
+    // Actual field storage is managed by FieldManager.
     MRFieldPtr flow;
+
+    // Non-owning view of residual history fields.
+    // Actual field storage is managed by FieldManager.
     MRFieldPtr residual;
 };
 
