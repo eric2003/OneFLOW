@@ -26,6 +26,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include "FieldManager.h"
 #include "FieldBase.h"
 #include "UsdPara.h"
+#include "UsdFieldNames.h"
 #include "SolverDef.h"
 #include "TextFileParser.h"
 #include "OStream.h"

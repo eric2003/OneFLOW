@@ -21,28 +21,14 @@ License
 \*---------------------------------------------------------------------------*/
 
 #pragma once
-#include "UsdFieldNames.h"
+#include "HXDefine.h"
 
 BeginNameSpace( ONEFLOW )
 
-class UsdPara
+struct UsdFieldNames
 {
-public:
-    UsdPara();
-    ~UsdPara();
-public:
-    bool flag;
-    int  nEqu;
-    StringField residual;
     StringField flow;
-public:
-    void Init(
-        const StringField & flow,
-        const StringField & residual,
-        int nEqu );
-    void InitFromFile(
-        const std::string & fileName );
+    StringField residual;
 };
-
 
 EndNameSpace
