@@ -25,7 +25,6 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include "Fatal.h"
 #include "FieldManager.h"
 #include "FieldBase.h"
-#include "UsdPara.h"
 #include "UsdFieldNames.h"
 #include "UsdFieldConfig.h"
 #include "SolverDef.h"
