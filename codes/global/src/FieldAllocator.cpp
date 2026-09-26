@@ -157,15 +157,19 @@ namespace
             "Unknown unsteady field role: " + role );
     }
 
-    void InitUsdPara(
+    void InitUsdFieldConfig(
         int solverType,
-        FieldManager * fieldManager,
         const UsdFieldNames & fieldNames )
     {
         UsdFieldConfigRegistry::SetConfig(
             solverType,
             fieldNames );
+    }
 
+    void InitUsdPara(
+        FieldManager * fieldManager,
+        const UsdFieldNames & fieldNames )
+    {
         UsdPara * usdPara =
             &fieldManager->GetUsdPara();
 
@@ -289,8 +293,11 @@ namespace
                 location,
                 &fieldNames );
 
-            InitUsdPara(
+            InitUsdFieldConfig(
                 solverType,
+                fieldNames );
+
+            InitUsdPara(
                 fieldManager,
                 fieldNames );
         }
