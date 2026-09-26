@@ -22,6 +22,7 @@ License
 
 #include "UsdField.h"
 #include "UsdPara.h"
+#include "UsdFieldConfig.h"
 #include "FieldManager.h"
 #include "FieldWrap.h"
 #include "DataBase.h"
@@ -49,40 +50,82 @@ void UsdField::InitBasic( int solverType )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
-    FieldManager * fieldManager =
-        FieldManagerRegistry::GetFieldManager( solverType );
+    UsdFieldConfig * config =
+        UsdFieldConfigRegistry::GetConfig(
+            solverType );
 
-    UsdPara * usdPara =
-        &fieldManager->GetUsdPara();
+    StringField flow;
+    StringField residual;
 
-    this->flow.resize( usdPara->flow.size() );
+    if ( config != nullptr )
+    {
+        const UsdFieldNames & fieldNames =
+            config->GetFieldNames();
 
-    for ( std::size_t i = 0; i < usdPara->flow.size(); ++ i )
+        flow =
+            fieldNames.flow;
+
+        residual =
+            fieldNames.residual;
+    }
+    else
+    {
+        FieldManager * fieldManager =
+            FieldManagerRegistry::GetFieldManager(
+                solverType );
+
+        if ( fieldManager == nullptr )
+        {
+            Fatal(
+                "FieldManager is not registered for solverType" );
+        }
+
+        UsdPara * usdPara =
+            &fieldManager->GetUsdPara();
+
+        flow =
+            usdPara->flow;
+
+        residual =
+            usdPara->residual;
+    }
+
+    this->flow.resize(
+        flow.size() );
+
+    for ( std::size_t i = 0;
+        i < flow.size();
+        ++ i )
     {
         this->flow[ i ] =
             GetFieldPointer< MRField >(
                 grid,
-                usdPara->flow[ i ] );
+                flow[ i ] );
     }
 
-    this->residual.resize( usdPara->residual.size() );
+    this->residual.resize(
+        residual.size() );
 
     if ( this->flow.size() < 3 )
     {
-        Fatal( "Unsteady flow fields require at least 3 time levels." );
+        Fatal(
+            "Unsteady flow fields require at least 3 time levels." );
     }
 
     if ( this->residual.size() < 3 )
     {
-        Fatal( "Unsteady residual fields require at least 3 time levels." );
+        Fatal(
+            "Unsteady residual fields require at least 3 time levels." );
     }
 
-    for ( std::size_t i = 0; i < usdPara->residual.size(); ++ i )
+    for ( std::size_t i = 0;
+        i < residual.size();
+        ++ i )
     {
         this->residual[ i ] =
             GetFieldPointer< MRField >(
                 grid,
-                usdPara->residual[ i ] );
+                residual[ i ] );
     }
 }
 
