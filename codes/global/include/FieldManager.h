@@ -31,7 +31,6 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 BeginNameSpace( ONEFLOW )
 
-class UsdPara;
 class UnsGrid;
 
 // FieldManager owns the field *definitions* for one solverType: which
@@ -62,9 +61,6 @@ public:
     const FieldDefinitionSet & GetFieldDefinitionSet(
         FieldApplicability applicability ) const;
 
-    UsdPara & GetUsdPara();
-    const UsdPara & GetUsdPara() const;
-
     void DumpFieldEnvironment(
         std::ostream & output ) const;
 
@@ -86,7 +82,6 @@ private:
     FieldDefinitionSet structuredFields;
     FieldDefinitionSet unstructuredFields;
     InterfaceFieldProperty interfaceFieldProperty;
-    std::unique_ptr< UsdPara > usdPara;
 
     bool fieldDefinitionsReady;
     bool interfaceDefinitionsReady;

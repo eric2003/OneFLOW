@@ -69,8 +69,6 @@ FieldManager::FieldManager()
     : fieldDefinitionsReady( false )
     , interfaceDefinitionsReady( false )
 {
-    usdPara =
-        std::make_unique< UsdPara >();
 }
 
 FieldManager::~FieldManager() = default;
@@ -141,16 +139,6 @@ const FieldDefinitionSet & FieldManager::GetFieldDefinitionSet(
 
     Fatal( "Invalid field category" );
     return allFields;
-}
-
-UsdPara & FieldManager::GetUsdPara()
-{
-    return *this->usdPara;
-}
-
-const UsdPara & FieldManager::GetUsdPara() const
-{
-    return *this->usdPara;
 }
 
 void FieldManager::DumpFieldEnvironment(

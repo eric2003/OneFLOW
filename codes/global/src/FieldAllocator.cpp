@@ -166,22 +166,6 @@ namespace
             fieldNames );
     }
 
-    void InitUsdPara(
-        FieldManager * fieldManager,
-        const UsdFieldNames & fieldNames )
-    {
-        UsdPara * usdPara =
-            &fieldManager->GetUsdPara();
-
-        int nEqu =
-            GetDataValue< int >( "nEqu" );
-
-        usdPara->Init(
-            fieldNames.flow,
-            fieldNames.residual,
-            nEqu );
-    }
-
     void ReadFieldDefinitions(
         TextFileParser & textFileParser,
         FieldManager * fieldManager,
@@ -295,10 +279,6 @@ namespace
 
             InitUsdFieldConfig(
                 solverType,
-                fieldNames );
-
-            InitUsdPara(
-                fieldManager,
                 fieldNames );
         }
         else
