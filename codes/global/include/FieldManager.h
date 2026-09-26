@@ -94,7 +94,8 @@ private:
 class FieldManagerRegistry
 {
 public:
-    static void AddFieldManager( int solverType );
+    static FieldManager * AddFieldManager(
+        int solverType );
     static FieldManager * GetFieldManager( int solverType );
     static void FreeFieldManager();
 

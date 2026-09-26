@@ -662,11 +662,8 @@ void FieldAllocator::Allocate(
     // 4. Allocate runtime storage on the current grid (and interface buffers).
     // 5. Apply constant values from init.txt onto already-allocated fields.
 
-    FieldManagerRegistry::AddFieldManager(
-        solverType );
-
     FieldManager * fieldManager =
-        FieldManagerRegistry::GetFieldManager(
+        FieldManagerRegistry::AddFieldManager(
             solverType );
 
     if ( fieldManager == nullptr )

@@ -330,15 +330,23 @@ bool FieldManager::FindInnerFieldDefinition(
 
 std::map< int, std::unique_ptr< FieldManager > > FieldManagerRegistry::data;
 
-void FieldManagerRegistry::AddFieldManager( int solverType )
+FieldManager * FieldManagerRegistry::AddFieldManager(
+    int solverType )
 {
-    auto iter = FieldManagerRegistry::data.find( solverType );
+    auto iter =
+        FieldManagerRegistry::data.find(
+            solverType );
 
-    if ( iter == FieldManagerRegistry::data.end() )
+    if ( iter ==
+        FieldManagerRegistry::data.end() )
     {
-        FieldManagerRegistry::data[ solverType ] =
-            std::make_unique< FieldManager >();
+        iter =
+            FieldManagerRegistry::data.emplace(
+                solverType,
+                std::make_unique< FieldManager >() ).first;
     }
+
+    return iter->second.get();
 }
 
 FieldManager * FieldManagerRegistry::GetFieldManager( int solverType )
