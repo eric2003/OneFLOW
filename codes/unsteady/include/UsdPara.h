@@ -40,8 +40,6 @@ public:
         const StringField & flow,
         const StringField & residual,
         int nEqu );
-    void InitFromFile(
-        const std::string & fileName );
 };
 
 
