@@ -92,6 +92,22 @@ void FieldManager::MarkInterfaceDefinitionsReady()
     this->interfaceDefinitionsReady = true;
 }
 
+bool FieldManager::HasFieldDefinitionSource() const
+{
+    return ! fieldDefinitionSource.empty();
+}
+
+void FieldManager::SetFieldDefinitionSource(
+    const std::string & basicString )
+{
+    fieldDefinitionSource = basicString;
+}
+
+const std::string & FieldManager::GetFieldDefinitionSource() const
+{
+    return fieldDefinitionSource;
+}
+
 InterfaceFieldProperty & FieldManager::GetInterfaceFieldProperty()
 {
     return this->interfaceFieldProperty;

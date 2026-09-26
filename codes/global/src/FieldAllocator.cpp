@@ -666,6 +666,19 @@ void FieldAllocator::Allocate(
         FieldManagerRegistry::AddFieldManager(
             solverType );
 
+    if ( ! fieldManager->HasFieldDefinitionSource() )
+    {
+        fieldManager->SetFieldDefinitionSource(
+            basicString );
+    }
+    else if (
+        fieldManager->GetFieldDefinitionSource() != basicString )
+    {
+        Fatal(
+            "FieldManager configuration source mismatch for solverType: "
+            + std::to_string( solverType ) );
+    }
+
     if ( ! fieldManager->HasFieldDefinitions() )
     {
         RegisterFieldDefinitions(

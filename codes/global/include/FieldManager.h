@@ -50,6 +50,13 @@ public:
     bool HasInterfaceDefinitions() const;
     void MarkInterfaceDefinitionsReady();
 
+    bool HasFieldDefinitionSource() const;
+
+    void SetFieldDefinitionSource(
+        const std::string & basicString );
+
+    const std::string & GetFieldDefinitionSource() const;
+
 public:
     InterfaceFieldProperty & GetInterfaceFieldProperty();
 
@@ -85,6 +92,7 @@ private:
 
     bool fieldDefinitionsReady;
     bool interfaceDefinitionsReady;
+    std::string fieldDefinitionSource;
 };
 
 // Per-solverType FieldManager registry.
