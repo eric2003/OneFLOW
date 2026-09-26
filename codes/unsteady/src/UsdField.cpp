@@ -21,9 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "UsdField.h"
-#include "UsdPara.h"
 #include "UsdFieldConfig.h"
-#include "FieldManager.h"
 #include "FieldWrap.h"
 #include "DataBase.h"
 #include "Zone.h"
@@ -54,57 +52,30 @@ void UsdField::InitBasic( int solverType )
         UsdFieldConfigRegistry::GetConfig(
             solverType );
 
-    StringField flow;
-    StringField residual;
-
-    if ( config != nullptr )
+    if ( config == nullptr )
     {
-        const UsdFieldNames & fieldNames =
-            config->GetFieldNames();
-
-        flow =
-            fieldNames.flow;
-
-        residual =
-            fieldNames.residual;
+        Fatal(
+            "UsdFieldConfig is not registered for solverType" );
     }
-    else
-    {
-        FieldManager * fieldManager =
-            FieldManagerRegistry::GetFieldManager(
-                solverType );
 
-        if ( fieldManager == nullptr )
-        {
-            Fatal(
-                "FieldManager is not registered for solverType" );
-        }
-
-        UsdPara * usdPara =
-            &fieldManager->GetUsdPara();
-
-        flow =
-            usdPara->flow;
-
-        residual =
-            usdPara->residual;
-    }
+    const UsdFieldNames & fieldNames =
+        config->GetFieldNames();
 
     this->flow.resize(
-        flow.size() );
+        fieldNames.flow.size() );
 
     for ( std::size_t i = 0;
-        i < flow.size();
+        i < fieldNames.flow.size();
         ++ i )
     {
         this->flow[ i ] =
             GetFieldPointer< MRField >(
                 grid,
-                flow[ i ] );
+                fieldNames.flow[ i ] );
     }
 
     this->residual.resize(
-        residual.size() );
+        fieldNames.residual.size() );
 
     if ( this->flow.size() < 3 )
     {
@@ -119,13 +90,13 @@ void UsdField::InitBasic( int solverType )
     }
 
     for ( std::size_t i = 0;
-        i < residual.size();
+        i < fieldNames.residual.size();
         ++ i )
     {
         this->residual[ i ] =
             GetFieldPointer< MRField >(
                 grid,
-                residual[ i ] );
+                fieldNames.residual[ i ] );
     }
 }
 
