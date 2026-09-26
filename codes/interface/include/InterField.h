@@ -31,6 +31,7 @@ class DataBook;
 class DataStorage;
 class InterFace;
 class FieldRecord;
+class UnsGrid;
 
 DataStorage * GetInterfaceDataStorage( InterFace * interFace, int srFlag, int ghostId );
 void GetInterfaceDataStorageList( HXVector< DataStorage * > * iDataStorageList, int srFlag );
@@ -40,6 +41,30 @@ void AddFieldRecord(
     const StringField & fieldNameList );
 void PrepareInterfaceFieldRecord( int solverType, int iFk, int iSr, FieldRecord * fieldRecord );
 void SetInterfaceFieldData( int iSr, FieldRecord * fieldRecord );
+
+void UploadInterfaceValue(
+    UnsGrid * grid,
+    MRField * field2D,
+    const std::string & name,
+    int nEqu );
+
+void DownloadInterfaceValue(
+    UnsGrid * grid,
+    MRField * field2D,
+    const std::string & name,
+    int nEqu );
+
+void UploadOversetValue(
+    UnsGrid * grid,
+    MRField * field2D,
+    const std::string & name,
+    int nEqu );
+
+void DownloadOversetValue(
+    UnsGrid * grid,
+    MRField * field2D,
+    const std::string & name,
+    int nEqu );
 
 void HXWriteSubData( DataBook * dataBook, MRField * field2D, IntField & idMap );
 void HXWriteSubData( DataBook * dataBook, RealField & field, IntField & idMap );

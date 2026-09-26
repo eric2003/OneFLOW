@@ -32,6 +32,7 @@ class UnsGrid;
 // InterfaceFieldProperty is the Interface Storage field definition
 // registry: which fields must exist on interface send/recv DataStorage.
 // It stores field names and equation counts only. Runtime allocation
+// and runtime data transfer are handled outside this class.
 class InterfaceFieldProperty
 {
 public:
@@ -55,9 +56,9 @@ private:
     FieldDefinitionTable fieldDefinitions;
 };
 
-void UploadInterfaceValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu );
-void DownloadInterfaceValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu );
-void UploadOversetValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu );
-void DownloadOversetValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu );
+//void UploadInterfaceValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu );
+//void DownloadInterfaceValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu );
+//void UploadOversetValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu );
+//void DownloadOversetValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu );
 
 EndNameSpace
