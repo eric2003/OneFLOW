@@ -22,8 +22,14 @@ License
 
 
 #pragma once
+#pragma once
 #include "HXDefine.h"
 #include "GridDef.h"
+// [NEW] Must include full definitions for value-type members
+#include "ElemFeature.h"      
+#include "PointManager.h"     
+#include "FaceSolver.h"       
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -45,9 +51,11 @@ public:
     GridElem( HXVector< CgnsZone * > & cgnsZones, int iZone );
     ~GridElem();
 public:
-    ElemFeature  * elem_feature;
-    MeshPointManager * point_factory;
-    FaceSolver   * face_solver;
+    // [Refactored] Changed from raw pointers to value types (Stack allocation).
+    // This eliminates manual new/delete and ensures exception safety.
+    ElemFeature elem_feature;
+    MeshPointManager point_factory;
+    FaceSolver face_solver;
     HXVector< CgnsZone * > cgnsZones;
     Grid * grid;
     bool delFlag;
