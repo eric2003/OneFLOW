@@ -346,28 +346,20 @@ namespace
             ONEFLOW::INTERFACE_OVERSET_DATA
         };
 
-        const int interfaceTypeCount =
-            sizeof( interfaceTypes ) / sizeof( interfaceTypes[ 0 ] );
-
-        for ( int iType = 0; iType < interfaceTypeCount; ++ iType )
+        for ( int interfaceType : interfaceTypes )
         {
             VarNameSolver * varNameSolver =
                 VarNameFactory::FindVarNameSolver(
                     solverType,
-                    interfaceTypes[ iType ] );
+                    interfaceType );
 
             if ( varNameSolver == nullptr )
             {
                 continue;
             }
 
-            for ( int iField = 0;
-                iField < varNameSolver->data.size();
-                ++ iField )
+            for ( const std::string & fieldName : varNameSolver->data )
             {
-                const std::string & fieldName =
-                    varNameSolver->data[ iField ];
-
                 if ( ! interfaceFieldProperty.HasField( fieldName ) )
                 {
                     // Definition-time check: communication name must appear

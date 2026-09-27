@@ -40,26 +40,6 @@ public:
     // CRITICAL: This constructor is required to allow implicit conversion 
     // from std::vector<T> to HXVector<T>, which is heavily used in the legacy codebase.
     HXVector( const std::vector<T>& values ) : std::vector<T>( values ) {}
-
-    //HXVector( const std::size_t count )
-    //    : std::vector< T >( count )
-    //{
-    //    ;
-    //}
-    //HXVector( const std::size_t count, const T& value )
-    //    : std::vector< T >( count, value )
-    //{
-    //    ;
-    //}
-    //HXVector( T * first, T * last ) :
-    //    std::vector< T >( first, last )
-    //{
-    //    ;
-    //}
-    //HXVector( const std::vector<T>& values )
-    //{
-    //    *this = values;
-    //}
 public:
     HXVector< T >& operator =( const T& value )
     {
