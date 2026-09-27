@@ -369,14 +369,6 @@ void NsBcSolver::AdiabaticVisWallBc()
 
 void NsBcSolver::SymmetryBc()
 {
-//   if ( ug.bctype == BC::SOLID_SURFACE )
-//   {
-//       if ( ug.bcfId == 24 )
-//       {
-//           int kkk = 1;
-//       }
-//       int kkk = 1;
-//   }
     Real vx1 = nscom.prims1[ IDX::IU ];
     Real vy1 = nscom.prims1[ IDX::IV ];
     Real vz1 = nscom.prims1[ IDX::IW ];

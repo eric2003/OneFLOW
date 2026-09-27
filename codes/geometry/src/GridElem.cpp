@@ -187,7 +187,6 @@ void GridElem::ScanPolygonFace()
         int nFaces = this->face_solver.faceTopo->faces.size();
 
     }
-    //int kkk = 1;
 }
 
 void GridElem::SetPolyhedronElementType( CgnsSection * cgnsSection )

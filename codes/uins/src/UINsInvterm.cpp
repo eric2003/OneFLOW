@@ -993,7 +993,6 @@ void UINsInvterm::AddFlux()
 		ug.fId = fId;
 		ug.lc = (*ug.lcf)[ug.fId];
 		ug.rc = (*ug.rcf)[ug.fId];
-		//if ( ug.lc == 0 ) std::cout << fId << std::endl;
 
 		for (int iEqu = 0; iEqu < nEqu; ++iEqu)
 		{
@@ -1006,8 +1005,6 @@ void UINsInvterm::AddFlux()
 		ug.fId = fId;
 		ug.lc = (*ug.lcf)[ug.fId];
 		ug.rc = (*ug.rcf)[ug.fId];
-
-		//if ( ug.lc == 0 || ug.rc == 0 ) std::cout << fId << std::endl;
 
 		for (int iEqu = 0; iEqu < nEqu; ++iEqu)
 		{

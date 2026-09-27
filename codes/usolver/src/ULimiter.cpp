@@ -136,17 +136,6 @@ void LimField::GetQlQr()
         ug.lc = ( * ug.lcf )[ ug.fId ];
         ug.rc = ( * ug.rcf )[ ug.fId ];
 
-        if ( fId == 24 )
-        {
-            std::vector< Real > tmp1, tmp2;
-            for ( int iEqu = 0; iEqu < this->nEqu; ++ iEqu )
-            {
-                tmp1.push_back( ( * this->q )[ iEqu ][ ug.lc ] );
-                tmp2.push_back( ( * this->q )[ iEqu ][ ug.rc ] );
-            }
-
-        }
-
         for ( int iEqu = 0; iEqu < this->nEqu; ++ iEqu )
         {
             ( * this->qf1 )[ iEqu ][ ug.fId ] = ( * this->q )[ iEqu ][ ug.lc ];
