@@ -37,10 +37,19 @@ class PointLocator
 {
 public:
     PointLocator();
-    ~PointLocator();
+    ~PointLocator(); // Will be defined as = default in .cpp
+
+    // [Refactored] Disable copying to prevent double-free of unique_ptr.
+    // unique_ptr is move-only, so we explicitly delete copy operations.
+    PointLocator(const PointLocator&) = delete;
+    PointLocator& operator=(const PointLocator&) = delete;
 protected:
     int id;
-    AdtTree * coorTree;
+
+    // [Refactored] Changed from raw pointer to std::unique_ptr.
+    // Automatic cleanup, exception safety, no double-free possible.
+    std::unique_ptr<AdtTree> coorTree;
+
     Real tolerance;
     RealField xCoor, yCoor, zCoor;
 public:
@@ -61,10 +70,10 @@ public:
     void GetFaceCoorList( const IntField & nodeId, RealField &xList, RealField &yList, RealField &zList );
 };
 
-void CreateStandardADT( RealField & ptmin, RealField & ptmax, AdtTree *& adtTree, Real & tolerance );
-void CreateStandardADT( Grid * grid, AdtTree *& adtTree, Real & tolerance );
-void CreateStandardADT( Grids & grids, AdtTree *& adtTree, Real & tolerance );
-void CreateStandardADTByTolerance( Grids & grids, AdtTree *& adtTree, Real & tolerance );
+void CreateStandardADT( RealField & ptmin, RealField & ptmax, std::unique_ptr<AdtTree>& adtTree, Real & tolerance );
+void CreateStandardADT( Grid * grid, std::unique_ptr<AdtTree>& adtTree, Real & tolerance );
+void CreateStandardADT( Grids & grids, std::unique_ptr<AdtTree>& adtTree, Real & tolerance );
+void CreateStandardADTByTolerance( Grids & grids, std::unique_ptr<AdtTree>& adtTree, Real & tolerance );
 
 void ShiftMinMaxBox( RealField & pmin, RealField & pmax, Real tolerance );
 void GetGridsMinMaxDistance( Grids & grids, Real & mindis, Real & maxdis );

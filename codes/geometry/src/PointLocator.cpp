@@ -41,19 +41,20 @@ static inline Real CalcSquaredDistance(Real x1, Real y1, Real z1, Real x2, Real 
 
 PointLocator::PointLocator()
 {
-    this->coorTree = nullptr;
-    this->tolerance = 1.0e-6; // Provide a safe default tolerance
+    this->id = 0;
+    this->tolerance = 1.0e-6;
+    // [Refactored] coorTree is automatically nullptr via std::unique_ptr default constructor.
+    // No explicit initialization needed.
 }
 
-PointLocator::~PointLocator()
-{
-    delete this->coorTree;
-}
+// [Refactored] unique_ptr automatically deletes the owned AdtTree.
+PointLocator::~PointLocator() = default;
+
 
 void PointLocator::Initialize( RealField & pmin, RealField & pmax, Real toleranceIn )
 {
     this->tolerance = toleranceIn;
-    ONEFLOW::CreateStandardADT( pmin, pmax, this->coorTree, this->tolerance );
+    ONEFLOW::CreateStandardADT( pmin, pmax, this->coorTree, this->tolerance);
 }
 
 void PointLocator::Initialize( Grid * grid )
@@ -180,17 +181,17 @@ void PointLocator::GetFaceCoorList( const IntField & nodeId, RealField &xList, R
     }
 }
 
-void CreateStandardADT( RealField & ptmin, RealField & ptmax, AdtTree *& adtTree, Real & tolerance )
+void CreateStandardADT( RealField & ptmin, RealField & ptmax, std::unique_ptr<AdtTree>& adtTree, Real & tolerance )
 {
     RealField pmin = ptmin;
     RealField pmax = ptmax;
 
     ONEFLOW::ShiftMinMaxBox( pmin, pmax, two * tolerance );
 
-    adtTree = new AdtTree( 3, pmin, pmax );
+    adtTree = std::make_unique<AdtTree>( 3, pmin, pmax );
 }
 
-void CreateStandardADT( Grid * grid, AdtTree *& adtTree, Real & tolerance )
+void CreateStandardADT( Grid * grid, std::unique_ptr<AdtTree>& adtTree, Real & tolerance )
 {
     grid->nodeMesh->CalcMinMaxBox();
     RealField & ptmin = grid->nodeMesh->pmin;
@@ -206,10 +207,10 @@ void CreateStandardADT( Grid * grid, AdtTree *& adtTree, Real & tolerance )
 
     ONEFLOW::ShiftMinMaxBox( pmin, pmax, two * tolerance );
 
-    adtTree = new AdtTree( 3, pmin, pmax );
+    adtTree = std::make_unique<AdtTree>( 3, pmin, pmax );
 }
 
-void CreateStandardADT( Grids & grids, AdtTree *& adtTree, Real & tolerance )
+void CreateStandardADT( Grids & grids, std::unique_ptr<AdtTree>& adtTree, Real & tolerance )
 {
     RealField pmin( 3 ), pmax( 3 );
     ONEFLOW::GetBoundingBoxOfMultiZoneGrids( grids, pmin, pmax );
@@ -222,18 +223,18 @@ void CreateStandardADT( Grids & grids, AdtTree *& adtTree, Real & tolerance )
 
     ONEFLOW::ShiftMinMaxBox( pmin, pmax, two * tolerance );
 
-    adtTree = new AdtTree( 3, pmin, pmax );
+    adtTree = std::make_unique<AdtTree>( 3, pmin, pmax );
 }
 
 
-void CreateStandardADTByTolerance( Grids & grids, AdtTree *& adtTree, Real & tolerance )
+void CreateStandardADTByTolerance( Grids & grids, std::unique_ptr<AdtTree>& adtTree, Real & tolerance )
 {
     RealField pmin( 3 ), pmax( 3 );
     ONEFLOW::GetBoundingBoxOfMultiZoneGrids( grids, pmin, pmax );
 
     ONEFLOW::ShiftMinMaxBox( pmin, pmax, two * tolerance );
 
-    adtTree = new AdtTree( 3, pmin, pmax );
+    adtTree = std::make_unique<AdtTree>( 3, pmin, pmax );
 }
 
 void ShiftMinMaxBox( RealField & pmin, RealField & pmax, Real tolerance )
