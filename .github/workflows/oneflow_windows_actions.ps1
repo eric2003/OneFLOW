@@ -501,7 +501,15 @@ function InstallHDF5() {
         exit 1
     }
 	
-	"$hdf5_prefix/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+    $Env:Path = "$hdf5_prefix/bin;$Env:Path"
+
+    # 作用于 GitHub Actions 后续的 Steps
+    "$hdf5_prefix/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+    cd ..
+
+    Write-Host "$hdf5_version_name_upper installation complete..."
+}
 
     cd ..
 
@@ -623,7 +631,11 @@ function InstallCGNS() {
         exit 1
     }
 
+    $Env:Path = "$cgns_prefix/bin;$Env:Path"
+
+    # 作用于 GitHub Actions 后续的 Steps
     "$cgns_prefix/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append	
+}
 }
 
 
