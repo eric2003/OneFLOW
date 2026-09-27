@@ -402,6 +402,28 @@ target_compile_definitions ( ${PROJECT_NAME}
        ${PRJ_COMPILE_DEF} 
 )
 
+
+add_library(OneFLOW_Core 
+    STATIC 
+	    ${PRJ_SRC_LIST} 
+	    ${PRJ_HEADER_LIST}
+)
+
+target_include_directories(OneFLOW_Core 
+    PUBLIC 
+	    ${PRJ_INCLUDE_DIRS}
+)
+
+target_compile_definitions(OneFLOW_Core 
+    PUBLIC 
+	    ${PRJ_COMPILE_DEF}
+)
+
+target_link_libraries(OneFLOW_Core 
+    PUBLIC
+   	    ${PRJ_LIBRARIES}
+)
+
 set ( PRJ_SYSTEM_DIR ${PRJ_ROOT_DIR}/system/ )
 set ( PRJ_DOCUMENT_DIR ${PRJ_ROOT_DIR}/doc/ )
 

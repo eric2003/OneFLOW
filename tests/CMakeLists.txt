@@ -41,3 +41,7 @@ add_subdirectory(solver)
 
 # 10. io
 add_subdirectory(io)
+
+# 11. geometry
+add_subdirectory(geometry)
+

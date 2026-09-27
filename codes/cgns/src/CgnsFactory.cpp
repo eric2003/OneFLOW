@@ -26,7 +26,6 @@ License
 #include "CgnsZbc.h"
 #include "CgnsFile.h"
 #include "GridPara.h"
-#include "LogFile.h"
 #include "Prj.h"
 #include "Fatal.h"
 #include "StringUtils.h"
@@ -53,7 +52,6 @@ License
 #include "GridDef.h"
 #include "CalcGrid.h"
 #include "GridElem.h"
-#include "BgGrid.h"
 
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS

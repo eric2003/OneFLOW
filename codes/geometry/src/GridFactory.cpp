@@ -39,11 +39,15 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+// Generates the grid based on the global configuration.
 void GenerateGrid()
 {
-    GridFactory * gf = new GridFactory();
-    gf->Run();
-    delete gf;
+    // Use stack allocation for automatic memory management and exception safety.
+    // GridFactory does not require polymorphic behavior, so heap allocation is unnecessary.
+    // The destructor will be called automatically when 'gf' goes out of scope, 
+    // even if an exception is thrown during Run().
+    GridFactory gf;
+    gf.Run();
 }
 
 GridFactory::GridFactory()

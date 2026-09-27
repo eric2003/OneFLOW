@@ -26,7 +26,6 @@ License
 #include "DataBaseIO.h"
 #include "Boundary.h"
 #include "HXMath.h"
-#include "Sod.h"
 #include "Cavity.h"
 #include "Rae2822.h"
 #include "Cylinder.h"

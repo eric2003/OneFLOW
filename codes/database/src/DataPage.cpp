@@ -25,10 +25,6 @@ License
 #include "Parallel.h"
 #include "Fatal.h"
 #include <cstring>
-
-//#ifndef _WINDOWS
-//   #include <string.h>
-//#endif
 #include <fstream>
 
 
