@@ -184,7 +184,7 @@ void UnsGrid::ReadBoundaryTopology( DataBook * databook )
     //std::cout << " nBFaces = " << this->nBFaces << std::endl;
 
     //Setting boundary conditions
-    BcRecord * bcRecord = this->faceTopo->bcManager->bcRecord;
+    BcRecord * bcRecord = this->faceTopo->bcManager->bcRecord.get();
     ONEFLOW::HXRead( databook, bcRecord->bcType );
     ONEFLOW::HXRead( databook, bcRecord->bcNameId );
     ONEFLOW::HXRead( databook, this->nIFaces );
@@ -346,7 +346,7 @@ void UnsGrid::GenerateLgMapping( IFaceLink * iFaceLink )
 {
     std::cout << "zoneIndex = " << this->id << std::endl;
 
-    BcRecord * bcRecord = this->faceTopo->bcManager->bcRecord;
+    BcRecord * bcRecord = this->faceTopo->bcManager->bcRecord.get();
 
     this->faceTopo->bcManager->PreProcess();
 

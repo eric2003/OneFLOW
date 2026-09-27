@@ -76,7 +76,7 @@ void FillWallStruct( StringField & data )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     int nBFaces = grid->faceTopo->bcManager->bcRecord->GetNBFace();
-    BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord;
+    BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord.get();
 
     int nWallFace = bcRecord->CalcNumWallFace();
 
@@ -137,7 +137,7 @@ void CalcWallDist( StringField & data )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     int nBFaces = grid->faceTopo->bcManager->bcRecord->GetNBFace();
-    BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord;
+    BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord.get();
 
     int nWallFace = bcRecord->CalcNumWallFace();
 

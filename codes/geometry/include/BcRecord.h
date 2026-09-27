@@ -71,10 +71,16 @@ class BcManager
 public:
     BcManager();
     ~BcManager();
+
+    // Disable copying to prevent accidental double-free of unique_ptrs
+    BcManager(const BcManager&) = delete;
+    BcManager& operator=(const BcManager&) = delete;
 public:
     bool deleteBoundaryCondition;
-    BcRecord * bcRecord;
-    BcRecord * bcRecordNew;
+
+    // [Refactored] Changed from raw pointers to std::unique_ptr for automatic memory management.
+    std::unique_ptr<BcRecord> bcRecord;
+    std::unique_ptr<BcRecord> bcRecordNew;
     IntField l2gNew;
 
     IntField bcKeyVector;

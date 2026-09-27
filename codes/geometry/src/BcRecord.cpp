@@ -163,15 +163,17 @@ void BcRecord::GenerateI2B( InterFace * interFace )
 
 BcManager::BcManager()
 {
-    bcRecord = new BcRecord();
-    bcRecordNew = new BcRecord();
+    // [Refactored] Use std::make_unique for exception-safe allocation.
+    this->bcRecord = std::make_unique<BcRecord>();
+    this->bcRecordNew = std::make_unique<BcRecord>();
 }
 
 BcManager::~BcManager()
 {
-    delete bcRecord;
-    delete bcRecordNew;
+    // [Refactored] Destructor is now empty. 
+    // std::unique_ptr automatically cleans up the owned BcRecord objects.
 }
+
 
 void BcManager::PreProcess()
 {
@@ -196,11 +198,16 @@ bool BcManager::ExistInterface()
 
 void BcManager::Update()
 {
-    * this->bcRecord = * this->bcRecordNew;
+    // [Note] The following line uses operator* which is overloaded by unique_ptr.
+    // It performs a value-copy assignment between the two BcRecord objects.
+    // This syntax remains 100% identical to the legacy code.
+    * this->bcRecord = * this->bcRecordNew; 
+
     int nBFaces = this->bcRecord->bcType.size();
     this->bcFlag.resize( nBFaces );
     this->bcFlag = 1;
 }
+
 
 void BcManager::CalcBcType( IntField & bcTypeList )
 {
