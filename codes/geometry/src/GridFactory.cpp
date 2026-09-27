@@ -155,6 +155,9 @@ void GridFactory::ConvertGrid( const GridConfig & config )
     }
 }
 
+// Replace GridFactory::Plot3DProcess body in GridFactory.cpp with this
+// (only the CGNS branch changes: remove SetDeleteFlag ¡ª ownership is RAII).
+
 void GridFactory::Plot3DProcess( const GridConfig & config )
 {
     if ( config.targetType == GridFileType::OneFLOW )
@@ -166,7 +169,7 @@ void GridFactory::Plot3DProcess( const GridConfig & config )
     {
         CgnsFactory cgnsFactory;
         ZgridMediator zgridMediator;
-        zgridMediator.SetDeleteFlag( true );
+        // Owned GridMediator instances are cleaned up automatically.
         Plot3D::Plot3DToCgns( &zgridMediator );
         cgnsFactory.DumpCgnsGrid( &zgridMediator );
     }

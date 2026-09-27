@@ -20,64 +20,85 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
 #pragma once
 #include "HXDefine.h"
 #include "GridDef.h"
-#include <vector>
+#include <memory>
 #include <string>
-#include <fstream>
-
+#include <vector>
 
 BeginNameSpace( ONEFLOW )
 
 class Grid;
+
 class GridMediator
 {
 public:
-    GridMediator ();
-    ~GridMediator();
+    GridMediator() = default;
+    ~GridMediator() = default;
+
 public:
     Grids gridVector;
-    int numberOfZones;
-    int readGridType;
+    int numberOfZones{ 0 };
+    int readGridType{ 0 };
     std::string gridFile;
     std::string bcFile;
     std::string targetFile;
     std::string gridType;
+
 public:
     void ReadGrid();
     void ReadGridgen();
     void ReadPlot3D();
     void ReadPlot3DCoor();
-public:
     void AddDefaultName();
 };
 
+// Owns a collection of GridMediator instances (RAII).
+// Historical SetDeleteFlag is kept as a no-op for source compatibility;
+// ownership is always active for mediators added via AddGridMediator /
+// CreateSimple / ReadGrid.
 class ZgridMediator
 {
 public:
-    ZgridMediator();
-    ~ZgridMediator();
+    ZgridMediator() = default;
+    ~ZgridMediator() = default;
+
+    // Non-copyable (owns unique resources); movable.
+    ZgridMediator( const ZgridMediator & ) = delete;
+    ZgridMediator & operator=( const ZgridMediator & ) = delete;
+    ZgridMediator( ZgridMediator && ) noexcept = default;
+    ZgridMediator & operator=( ZgridMediator && ) noexcept = default;
+
 public:
-    HXVector< GridMediator * > gm;
-    bool flag;
-public:
+    // Takes ownership of a heap-allocated GridMediator.
+    // Prefer the unique_ptr overload in new code.
     void AddGridMediator( GridMediator * gridMediator );
-    GridMediator * GetGridMediator( int iGridMediator );
-    int GetSize();
-    std::string GetTargetFile();
-    void SetDeleteFlag( bool flag );
+    void AddGridMediator( std::unique_ptr< GridMediator > gridMediator );
+
+    // Non-owning observer; valid while this ZgridMediator lives.
+    [[nodiscard]] GridMediator * GetGridMediator( int iGridMediator ) const;
+    [[nodiscard]] int GetSize() const;
+    [[nodiscard]] std::string GetTargetFile() const;
+
+    // Historical API: no longer needed. Ownership is always enabled.
+    // Kept so existing call sites compile without change.
+    void SetDeleteFlag( bool /*flag*/ ) {}
+
 public:
     void CreateSimple( int nZone );
     void ReadGrid();
+
+private:
+    std::vector< std::unique_ptr< GridMediator > > gm;
 };
 
 class GlobalGrid
 {
 public:
-    GlobalGrid();
-    ~GlobalGrid();
+    GlobalGrid() = default;
+    ~GlobalGrid() = default;
+
 public:
     static GridMediator * gridMediator;
     static Grid * GetGrid( int zoneId );
