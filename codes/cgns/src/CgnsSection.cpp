@@ -96,7 +96,7 @@ void CgnsSection::ConvertToInnerDataStandard()
         }
     }
 
-    int kkk = 1;
+
 }
 
 CgInt * CgnsSection::GetAddress( CgInt eId )

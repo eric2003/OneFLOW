@@ -880,11 +880,6 @@ void UINsInvterm::CalcFaceflux()
 	{
 		ug.fId = fId;
 
-		if (fId == 10127)
-		{
-			int kkk = 1;
-		}
-
 		ug.lc = (*ug.lcf)[ug.fId];
 		ug.rc = (*ug.rcf)[ug.fId];
 
@@ -896,11 +891,6 @@ void UINsInvterm::CalcFaceflux()
 	for (int fId = 0; fId < ug.nBFaces; ++fId)
 	{
 		ug.fId = fId;
-
-		if (fId == 10127)
-		{
-			int kkk = 1;
-		}
 
 		ug.lc = (*ug.lcf)[ug.fId];
 		ug.rc = (*ug.rcf)[ug.fId];
@@ -1036,11 +1026,6 @@ void UINsInvterm::CalcCorrectPresscoef()
 	{
 		ug.fId = fId;
 
-		if (fId == 10127)
-		{
-			int kkk = 1;
-		}
-
 		ug.lc = (*ug.lcf)[ug.fId];
 		ug.rc = (*ug.rcf)[ug.fId];
 
@@ -1050,11 +1035,6 @@ void UINsInvterm::CalcCorrectPresscoef()
 	for (int fId = 0; fId < ug.nBFaces; ++fId)
 	{
 		ug.fId = fId;
-
-		if (fId == 10127)
-		{
-			int kkk = 1;
-		}
 
 		ug.lc = (*ug.lcf)[ug.fId];
 		ug.rc = (*ug.rcf)[ug.fId];
@@ -1545,11 +1525,6 @@ void UINsInvterm::UpdateFaceflux()
 	{
 		ug.fId = fId;
 
-		if (fId == 10127)
-		{
-			int kkk = 1;
-		}
-
 		ug.lc = (*ug.lcf)[ug.fId];
 		ug.rc = (*ug.rcf)[ug.fId];
 
@@ -1562,11 +1537,6 @@ void UINsInvterm::UpdateFaceflux()
 	for (int fId = 0; fId < ug.nBFaces; ++fId)
 	{
 		ug.fId = fId;
-
-		if (fId == 10127)
-		{
-			int kkk = 1;
-		}
 
 		ug.lc = (*ug.lcf)[ug.fId];
 		ug.rc = (*ug.rcf)[ug.fId];

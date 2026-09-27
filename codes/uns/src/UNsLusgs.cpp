@@ -79,11 +79,6 @@ void UNsLusgs::LowerSweep()
     for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         ug.cId = cId;
-        if ( cId == 32 )
-        {
-            int kkk = 1;
-        }
-
         gcom.blank = ( * ug.blankf )[ ug.cId ];
 
         if ( this->IsOversetCell() )
@@ -198,11 +193,6 @@ bool UNsLusgs::CanNotUpperSolve( int fId )
 void UNsLusgs::Solve( int fId, int signValue )
 {
     ug.fId = fId;
-
-    if ( fId == 147489 )
-    {
-        int kkk = 1;
-    }
 
     ug.lc = ( * ug.lcf )[ ug.fId ];
     ug.rc = ( * ug.rcf )[ ug.fId ];

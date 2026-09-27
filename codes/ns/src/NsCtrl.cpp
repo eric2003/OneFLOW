@@ -64,7 +64,7 @@ void NsCtrl::Init()
         CopyArray( initflow1, "initflow1" );
         CopyArray( initflow2, "initflow2" );
 
-        int kkk = 1;
+
     }
 
     rk_stage = GetDataValue< int >( "rk_stage" );

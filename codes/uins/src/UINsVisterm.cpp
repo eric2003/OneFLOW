@@ -121,7 +121,7 @@ void UINsVisterm::CalcPreandVisGrad()
 	{
 		if (fId == 432)
 		{
-			int kkk = 1;
+
 		}
 		ug.fId = fId;
 		ug.lc = (*ug.lcf)[ug.fId];
@@ -237,11 +237,7 @@ void UINsVisterm::CalcVisterm()
         ug.lc = ( * ug.lcf )[ ug.fId ];
         ug.rc = ( * ug.rcf )[ ug.fId ];
 
-        if ( fId == 147489 )
-        {
-            int kkk = 1;
-        }
-		
+	
 		//iinv.ukl[ug.fId] = (*limf->qf1)[IIDX::IIU][ug.fId];
 		//iinv.ukr[ug.fId] = (*limf->qf2)[IIDX::IIU][ug.fId];
 		//iinv.vkl[ug.fId] = (*limf->qf1)[IIDX::IIV][ug.fId];
@@ -259,11 +255,6 @@ void UINsVisterm::CalcVisterm()
 
 		ug.lc = (*ug.lcf)[ug.fId];
 		ug.rc = (*ug.rcf)[ug.fId];
-
-		if (fId == 147489)
-		{
-			int kkk = 1;
-		}
 
 		//iinv.ukl[ug.fId] = (*limf->qf1)[IIDX::IIU][ug.fId];
 		//iinv.ukr[ug.fId] = (*limf->qf2)[IIDX::IIU][ug.fId];

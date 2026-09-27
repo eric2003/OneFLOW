@@ -57,7 +57,7 @@ void UINsUpdate::UpdateINsFlowField( int solverType )
 
         if ( ug.cId == 9 )
         {
-            int kkk = 1;
+
         }
 
         this->PrepareData();

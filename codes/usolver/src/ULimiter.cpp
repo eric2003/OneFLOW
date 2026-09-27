@@ -144,7 +144,7 @@ void LimField::GetQlQr()
                 tmp1.push_back( ( * this->q )[ iEqu ][ ug.lc ] );
                 tmp2.push_back( ( * this->q )[ iEqu ][ ug.rc ] );
             }
-            int kkk = 1;
+
         }
 
         for ( int iEqu = 0; iEqu < this->nEqu; ++ iEqu )
@@ -187,11 +187,6 @@ void LimField::CalcFaceValue()
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];
         ug.rc = ( * ug.rcf )[ ug.fId ];
-
-        if ( fId == 24 )
-        {
-            int kkk = 1;
-        }
 
         Real dx = ( * ug.xfc )[ ug.fId ] - ( * ug.xcc )[ ug.lc ];
         Real dy = ( * ug.yfc )[ ug.fId ] - ( * ug.ycc )[ ug.lc ];

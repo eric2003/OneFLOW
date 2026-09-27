@@ -216,7 +216,6 @@ void MarkerManager::CalcSecMarker( SecMarkerManager * secMarkerManager )
         }
         secMarker->nElem = secMarker->elems.size();
     }
-    int kkk = 1;
 
 }
 
@@ -266,7 +265,7 @@ void VolumeSecManager::CalcVolSec( Su2Grid* su2Grid, SecMarkerManager * secMarke
         }
         secMarker->nElem = secMarker->elems.size();
     }
-    int kkk = 1;
+
 }
 
 Su2Bc::Su2Bc()
@@ -450,7 +449,7 @@ void Su2Grid::ReadSu2GridAscii( std::string & fileName )
                 continue;
             }
 
-            int kkk = 1;
+
         }
     }
 
@@ -481,7 +480,7 @@ void Su2Grid::MarkBoundary( std::string & su2cfgFile)
         markerBCNameList.push_back(bcName);
         word = textFileParser.ReadNextWord();
         markerNameList.push_back(word);
-        int kkk = 1;
+
     }
 
     su2Bc.Process( markerBCNameList, markerNameList );
@@ -563,7 +562,7 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone * cgnsZone )
                 cgnsSection->connList[ pos ++ ]= elem[ i ] + 1;
             }
         }
-        int kkk = 1;
+
     }
 
     for ( int iSection = 0; iSection < nSection; ++ iSection )
@@ -602,7 +601,7 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone * cgnsZone )
     cgnsZone->cgnsZoneType = Unstructured;
 
     cgnsZone->ConvertToInnerDataStandard();
-    int kkk = 1;
+
 }
 
 void Su2ToOneFlowGrid( Su2Grid* su2Grid )

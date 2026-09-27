@@ -154,9 +154,9 @@ void FaceMesh::CalcFaceCenter2D( NodeMesh * nodeMesh )
         xfc[ iFace ] = half * ( xN[ p1 ] + xN[ p2 ] );
         yfc[ iFace ] = half * ( yN[ p1 ] + yN[ p2 ] );
         zfc[ iFace ] = half * ( zN[ p1 ] + zN[ p2 ] );
-        int kkk = 1;
+
     }
-    int kkk = 1;
+
 }
 
 void FaceMesh::CalcFaceNormal3D( NodeMesh * nodeMesh )

@@ -284,7 +284,7 @@ void CgnsCoor::DumpCgnsGridCoordinates()
 void CgnsCoor::FreeMesh()
 {
     delete this->nodeMesh;
-    this->nodeMesh = 0;
+    this->nodeMesh = nullptr;
 }
 
 NodeMesh * CgnsCoor::GetNodeMesh()

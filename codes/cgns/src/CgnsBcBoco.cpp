@@ -330,7 +330,7 @@ void CgnsBcBoco::ReadCgnsBcBocoConnList()
 
     // Read the element IDs.
     cg_boco_read( fileId, baseId, zId, this->bcId, & connList[ 0 ], & cgnsNormalList );
-    int kkk = 1;
+
 }
 
 void CgnsBcBoco::DumpCgnsBcBocoConnList()

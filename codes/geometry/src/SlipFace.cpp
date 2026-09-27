@@ -144,7 +144,7 @@ void SlipFace::InitNeighborFlag( IntField & flags )
     {
         nNeighbor += flags[ iZone ];
     }
-    int kkk = 1;
+
 }
 
 void SlipFace::AllocateNeighbor()
@@ -420,7 +420,7 @@ void InitSlipFaceTopo()
             slipFace->zfcList[ iSlip ] = zfc[ iBFace ];
 
         }
-        int kkk = 1;
+
     }
 
     globalSlipFace->Swap();
@@ -431,7 +431,7 @@ void InitSlipFaceTopo()
 
     FreeSlip();
 
-    int kkk = 1;
+
 }
 
 SlipfacePair::SlipfacePair()

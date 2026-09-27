@@ -525,7 +525,6 @@ void Plot3D::ReadBc( GridMediator * gridMediator )
         }
     }
 
-    int kkk = 1;
 
     textFileParser.CloseFile();
 }

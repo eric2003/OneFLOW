@@ -55,9 +55,9 @@ UnsGrid * UnsGridCast( Grid * gridIn )
 
 UnsGrid::UnsGrid()
 {
-    this->faceTopo = 0;
-    this->faceMesh = 0;
-    this->cellMesh = 0;
+    this->faceTopo = nullptr;
+    this->faceMesh = nullptr;
+    this->cellMesh = nullptr;
 }
 
 UnsGrid::~UnsGrid()
@@ -809,11 +809,6 @@ void UnsGrid::CalcCellCenterVol3D()
             trix *= tmp;
             triy *= tmp;
             triz *= tmp;
-
-            if ( lc == 1174 || rc == 1174 )
-            {
-                int kkk = 1;
-            }
 
             xcc[ lc ] += trix;
             ycc[ lc ] += triy;

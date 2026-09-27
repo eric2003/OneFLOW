@@ -232,7 +232,7 @@ void AddF2CFieldDebug( MRField * cellField, MRField * faceField )
         int cc = 9;
         std::cout << ( * cellField )[ iEqu ][ cc ] << "\n";
     }
-    int kkk = 1;
+
 }
 
 std::string HXDebug::fileName1;

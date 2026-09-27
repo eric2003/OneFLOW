@@ -119,7 +119,7 @@ void BlkFaceSolver::MyFaceBuildSDomainList()
         sDomain->CalcDim2D();
         sDomain->ConstructLocalTopoAsBlk2D();
     }
-    int kkk = 1;
+
 }
 
 void BlkFaceSolver::MyFaceGenerateFaceMesh()
@@ -390,7 +390,7 @@ void BlkFaceSolver::DumpBcInp()
     }
 
     Prj::CloseFile( file );
-    int kkk = 1;
+
 }
 
 void BlkFaceSolver::DumpBcInp2D()
@@ -411,7 +411,7 @@ void BlkFaceSolver::DumpBcInp2D()
     }
 
     Prj::CloseFile( file );
-    int kkk = 1;
+
 }
 
 void BlkFaceSolver::DumpBlkScript()
@@ -431,7 +431,7 @@ void BlkFaceSolver::DumpBlkScript()
     BlkElem * blkHexa = bbElemHome.GetBlkElem( ONEFLOW::HEXA_8 );
     DumpBlkScript( file, blkHexa, ctrlpoints );
     Prj::CloseFile( file );
-    int kkk = 1;
+
 }
 
 void BlkFaceSolver::DumpBlkScript( std::fstream & file, BlkElem * blkHexa, IntField & ctrlpoints )

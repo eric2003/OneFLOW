@@ -119,7 +119,7 @@ void DomData::ConstructCtrlPoint()
         }
     }
 
-    int kkk = 1;
+
 }
 
 IntField & DomData::GetLinePoints( int line_id )
@@ -158,7 +158,7 @@ void DomData::ConstructBcPoint()
         this->candidate_bcpoints.push_back( *iter );
     }
 
-    int kkk = 1;
+
 }
 
 void DomData::CalcDimBasic( int closedCurve )
@@ -515,7 +515,6 @@ void DomData::CalcBcCoor( CoorMap * coorMap, int closedCurve )
         }
     }
 
-    int kkk = 1;
 
 }
 

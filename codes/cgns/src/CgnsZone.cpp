@@ -52,10 +52,10 @@ BeginNameSpace( ONEFLOW )
 CgnsZone::CgnsZone( CgnsBase * cgnsBase )
 {
     this->cgnsBase = cgnsBase;
-    this->cgnsZsection = 0;
-    this->cgnsZbc = 0;
+    this->cgnsZsection = nullptr;
+    this->cgnsZbc = nullptr;
     this->volBcType = -1;
-    this->cgnsCoor = 0;
+    this->cgnsCoor = nullptr;
     this->InitISize();
 }
 

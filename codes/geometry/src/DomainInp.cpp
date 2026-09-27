@@ -246,7 +246,7 @@ void PatchBox::CalcNormal()
     std::cout << smin[ 1 ] << " " << smax[ 1 ] << " " ;
     std::cout << smin[ 2 ] << " " << smax[ 2 ] << std::endl << std::endl;
 
-    int kkk = 1;
+
 }
 
 void PatchBox::CalcIdMap( PatchBox * box )
@@ -266,7 +266,7 @@ void PatchBox::CalcIdMap( PatchBox * box )
         }
         idmap[ i ] = pos;
     }
-    int kkk = 1;
+
 }
 
 
@@ -370,7 +370,7 @@ void PBlkSet::Analysys()
             multi_point.push_back( i );
         }
     }
-    int kkk = 1;
+
 }
 
 void PBlkSet::CalcDomainPatch( int nZone, MultiDomain & md )
@@ -394,10 +394,6 @@ void PBlkSet::CalcDomainPatch( int iZone, int jZone, MultiDomain & md )
             PatchBox box_i;
             PatchBox box_j;
 
-            if ( iZone == 0 && jZone == 2 && i == 1 && j == 1 )
-            {
-                int kkk = 1;
-            }
             bool flag = CrossDomain( iZone, i , jZone, j, box_i, box_j );
             if ( flag )
             {
@@ -539,7 +535,7 @@ bool PBlkSet::CrossDomain( int iZone, int idomain, int jZone, int jdomain, Patch
     bool valid_i = CheckPBlkList( pblk1_list, box_i );
     bool valid_j = CheckPBlkList( pblk2_list, box_j );
     std::cout << "zone[" << iZone << "][" << jZone << "] = " << idomain << ":" << jdomain << " num = " << cross.size() << std::endl;
-    int kkk = 1;
+
     return valid_i && valid_j;
 }
 
@@ -681,7 +677,7 @@ void DomainInp::GetId( int zid, int i, int j, int k, int & id, GridMediator * gr
 
     id = pointSearch->AddPoint( xm ,ym, zm );
 
-    int kkk = 1;
+
 }
 
 void DomainInp::DumpCoor( int zid, int i, int j, int k, GridMediator * gridMediator, std::fstream & file )
@@ -729,7 +725,7 @@ void DomainInp::FindPhysicalPatch( StrGrid * grid, MultiDomain * md, int zid, Ij
         }
     }
 
-    int kkk = 1;
+
 }
 
 void DomainInp::Dump( MultiDomain * md, GridMediator * gridMediator, PointLocator * pointSearch )
@@ -846,11 +842,11 @@ void DomainInp::Dump( MultiDomain * md, GridMediator * gridMediator, PointLocato
             file << std::setw( width ) << box2->smin[ 2 ] << std::setw( width ) << box2->smax[ 2 ];
             file << std::setw( width ) << zid2 + 1 << std::endl;
 
-            int kkk = 1;
+
         }
     }
     Prj::CloseFile( file );
-    int kkk = 1;
+
 }
 
 void DomainInp::OutputInp( GridMediator * gridMediator )
@@ -880,7 +876,6 @@ void DomainInp::OutputInp( GridMediator * gridMediator )
     MultiDomain md;
     pblkSet.CalcDomainPatch( nZone, md );
     Dump( & md, gridMediator, & pointSearch );
-    int kkk = 1;
 }
 
 void DomainInp::CalcDomainPatch( int nZone, GridMediator * gridMediator )
@@ -953,7 +948,7 @@ void DomainInp::CalcFacePoint( StrGrid * grid, PointLocator * pointSearch, IjkBo
 
                     int pid = pointSearch->AddPoint( xm, ym, zm );
                     pblkSet->Add( pid, pblk );
-                    int kkk = 1;
+
                 }
             }
         }

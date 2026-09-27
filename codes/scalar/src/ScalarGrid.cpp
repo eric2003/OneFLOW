@@ -551,7 +551,7 @@ void ScalarGrid::SetCgnsZone( CgnsZone * cgnsZone )
 			cgnsBcBoco->connList[ iElement ] = bcElemId + 1 + nVolCell;
 		}
 	}
-	int kkk = 1;
+
 }
 
 void ScalarGrid::DumpCgnsGrid()
@@ -600,7 +600,7 @@ void ScalarGrid::ReadFromCgnsZbase( CgnsZbase * cgnsZbase )
 	CgnsBase * cgnsBase = cgnsZbase->GetCgnsBase( 0 );
 	CgnsZone * cgnsZone = cgnsBase->GetCgnsZone( iZone );
 	this->ReadFromCgnsZone( cgnsZone );
-	int kkk = 1;
+
 }
 
 void ScalarGrid::ReadFromCgnsZone( CgnsZone * cgnsZone )
@@ -1057,7 +1057,7 @@ void ScalarGrid::ScanBcFace( IntSet& bcVertex, int bcType )
 	}
 
 	std::cout << " nFinalBcFace = " << nBcFaces_local << " bcType = " << bcType << std::endl;
-	int kkk = 1;
+
 }
 
 void ScalarGrid::SetBcTypes()

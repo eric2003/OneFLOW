@@ -164,7 +164,7 @@ void IFaceLink::MatchInterfaceTopology( Grid * grid )
     {
         //this->MatchPeoridicInterface( grid );
     }
-    int kkk = 1;
+
 }
 
 void IFaceLink::MatchPeoridicInterface( Grid * grid )
@@ -217,9 +217,9 @@ void IFaceLink::MatchPeoridicInterface( Grid * grid )
 
         interFace->zoneId[ iIFace ] = nZid_period;
         interFace->localInterfaceId[ iIFace ] = lId_period;
-        int kkk = 1;
+
     }
-    int kkk = 1;
+
 }
 
 void GetFaceCoorList( IntField & faceNode, RealField & xList, RealField & yList, RealField & zList, NodeMesh * nodeMesh )

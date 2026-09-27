@@ -403,7 +403,7 @@ void SDomain::SetBlkBcMesh( Block3D * blk3d )
             z3d[ ii ][ jj ][ kk ] = zm;
         }
     }
-    int kkk = 1;
+
 }
 
 void SDomain::SetBlkBcMesh( Block2D * blk2d )
@@ -482,7 +482,7 @@ void SDomain::SetBlkBcMesh( Block2D * blk2d )
             block_z2d[ ii ][ jj ] = zm;
         }
     }
-    int kkk = 1;
+
 }
 
 void SDomain::SetDomainBcMesh()

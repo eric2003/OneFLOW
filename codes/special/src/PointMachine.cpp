@@ -47,7 +47,7 @@ void PointMachine::AddPoint( Real x, Real y, Real z, int id )
     this->ptList.push_back( pt );
     int idd = ptBasic.AddPoint( x, y, z );
     //int idd1 = ptBasic.DeletePoint( x, y, z );
-    int kkk = 1;
+
 }
 
 PointType * PointMachine::GetPoint( int id )
