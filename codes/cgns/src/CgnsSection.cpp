@@ -141,7 +141,7 @@ void CgnsSection::SetElementTypeAndNode( ElemFeature * elem_feature )
 
         if ( ! ONEFLOW::IsBasicVolumeElementType( e_type ) ) continue;
 
-        elem_feature->eTypes->push_back( e_type );
+        elem_feature->eTypes.push_back( e_type );
 
         CgIntField eNodeId;
         this->GetElementNodeId( iElem, eNodeId );

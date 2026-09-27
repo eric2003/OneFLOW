@@ -195,7 +195,7 @@ void GridElem::SetPolyhedronElementType( CgnsSection * cgnsSection )
     {
         int e_type = cgnsSection->eTypeList[ iElem ];
 
-        this->elem_feature->eTypes->push_back( e_type );
+        this->elem_feature->eTypes.push_back( e_type );
     }
 }
 
@@ -225,7 +225,7 @@ void GridElem::ScanBcFace()
 
 void GridElem::GenerateCalcElement()
 {
-    int nElement =  this->elem_feature->eTypes->size();
+    int nElement =  this->elem_feature->eTypes.size();
 
     FaceTopo * faceTopo = this->face_solver->faceTopo;
 
@@ -264,8 +264,8 @@ void GridElem::GenerateCalcGrid()
 void GridElem::GenerateCalcGrid(Grid * gridIn)
 {
     UnsGrid * grid = UnsGridCast(gridIn);
-    grid->nCells = this->elem_feature->eTypes->size();
-    grid->cellMesh->cellTopo->eTypes = *this->elem_feature->eTypes;
+    grid->nCells = this->elem_feature->eTypes.size();
+    grid->cellMesh->cellTopo->eTypes = this->elem_feature->eTypes;
     std::cout << "   nCells = " << grid->nCells << std::endl;
 
     int nNodes = this->point_factory->localToGlobal.size();
