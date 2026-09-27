@@ -69,7 +69,7 @@ void UGeom::Init()
 
     FaceMesh * faceMesh = grid->faceMesh;
     CellMesh * cellMesh = grid->cellMesh;
-    CellTopo * cellTopo = grid->cellMesh->cellTopo;
+    CellTopo * cellTopo = &grid->cellMesh->cellTopo;
 
     ug.xfn = & faceMesh->xfn;
     ug.yfn = & faceMesh->yfn;

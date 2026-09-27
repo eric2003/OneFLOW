@@ -103,7 +103,7 @@ void UnsGrid::ReadGrid( DataBook * databook )
     std::cout << " number of elements : " << this->nCells << std::endl;
 
     this->nodeMesh->CreateNodes( this->nNodes );
-    this->cellMesh->cellTopo->Alloc( this->nCells );
+    this->cellMesh->cellTopo.Alloc( this->nCells );
 
     ONEFLOW::HXRead( databook, this->nodeMesh->xN );
     ONEFLOW::HXRead( databook, this->nodeMesh->yN );
@@ -235,8 +235,8 @@ void UnsGrid::WriteGridFaceTopology1D( DataBook * databook )
     std::cout << " Reading eTypes\n";
 
     //write element types
-    int ntmpElements = this->cellMesh->cellTopo->eTypes.size();
-    ONEFLOW::HXWrite( databook, this->cellMesh->cellTopo->eTypes );
+    int ntmpElements = this->cellMesh->cellTopo.eTypes.size();
+    ONEFLOW::HXWrite( databook, this->cellMesh->cellTopo.eTypes );
 
     //write face types
     int ntmpFaces = this->faceTopo->fTypes.size();
@@ -550,7 +550,7 @@ void UnsGrid::CalcCellCenterVol1D()
     RealField & yN = nodeMesh->yN;
     RealField & zN = nodeMesh->zN;
 
-    CellTopo * cellTopo = this->cellMesh->cellTopo;
+    CellTopo * cellTopo = &this->cellMesh->cellTopo;
     FaceTopo * faceTopo = this->faceMesh->faceTopo;
 
     for ( HXSize_t iCell = 0; iCell < numberOfCells; ++ iCell )
@@ -589,7 +589,7 @@ void UnsGrid::CalcGhostCellCenterVol1D()
 
     RealField & area = this->faceMesh->area;
 
-    CellTopo * cellTopo = this->cellMesh->cellTopo;
+    CellTopo * cellTopo = &this->cellMesh->cellTopo;
     FaceTopo * faceTopo = this->faceMesh->faceTopo;
 
     // For ghost cells
@@ -648,7 +648,7 @@ void UnsGrid::CalcCellCenterVol2D()
 
     RealField & area = this->faceMesh->area;
 
-    CellTopo * cellTopo = this->cellMesh->cellTopo;
+    CellTopo * cellTopo = &this->cellMesh->cellTopo;
     FaceTopo * faceTopo = this->faceMesh->faceTopo;
 
     xcc = 0;
@@ -761,7 +761,7 @@ void UnsGrid::CalcCellCenterVol3D()
 
     RealField & area = this->faceMesh->area;
 
-    CellTopo * cellTopo = this->cellMesh->cellTopo;
+    CellTopo * cellTopo = &this->cellMesh->cellTopo;
     FaceTopo * faceTopo = this->faceMesh->faceTopo;
 
     RealField & xN = nodeMesh->xN;

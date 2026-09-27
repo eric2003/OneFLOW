@@ -39,17 +39,19 @@ BeginNameSpace( ONEFLOW )
 
 CellMesh::CellMesh()
 {
-    cellTopo = new CellTopo();
+    // [Refactored] Removed: this->cellTopo = new CellTopo();
+    // Value type is automatically initialized.
 }
 
 CellMesh::~CellMesh()
 {
-    delete cellTopo;
+    // [Refactored] Removed: delete this->cellTopo;
+    // Value type is automatically destroyed.
 }
 
 HXSize_t CellMesh::GetNumberOfCells()
 { 
-    return cellTopo->GetNumberOfCells(); 
+    return cellTopo.GetNumberOfCells(); 
 }
 
 void CellMesh::AllocateMetrics( FaceMesh * faceMesh )
@@ -90,7 +92,7 @@ void CellMesh::CalcCellSpan( UnsGrid * grid )
     CalcC2f( grid );
 
     FaceTopo * faceTopo = grid->faceTopo;
-    LinkField & c2f = this->cellTopo->c2f;
+    LinkField & c2f = this->cellTopo.c2f;
     IntField & lcf = faceTopo->lCells;
     IntField & rcf = faceTopo->rCells;
 
