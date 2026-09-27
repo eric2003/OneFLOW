@@ -25,45 +25,53 @@ License
 #include "DataBase.h"
 #include <string>
 
-
 BeginNameSpace( ONEFLOW )
 
 GridPara grid_para;
 
-GridPara::GridPara()
-{
-    ;
-}
-
-GridPara::~GridPara()
-{
-    ;
-}
-
 void GridPara::Init()
 {
-    //Sets the file name of the original grid
-    this->gridFile = GetDataValue< std::string >("sourceGridFileName");
-    this->bcFile   = GetDataValue< std::string >("sourceGridBcName");
-    //set target grid file name
-    this->targetFile = ONEFLOW::GetDataValue< std::string >( "targetGridFileName" );
-    //Format original grid
-    this->filetype = GetDataValue< std::string >("sourceGridType");
-    //Set target grid type
-    this->target_filetype = GetDataValue< std::string >("targetGridType");
-    //Sets the topology of the original mesh
-    this->topo = GetDataValue< std::string >("topoType");
+    // Prefer the single typed loader, then mirror into legacy fields so
+    // existing call sites keep working without a big-bang rewrite.
+    const GridConfig cfg = GridConfig::FromDataBase();
 
-    this->multiBlock = GetDataValue< int >( "multiBlock" );
-    //Set the grid operation to be performed
-    this->gridObj = GetDataValue< int >("gridObj");
-    //Set mesh scale
-    this->gridScale =  GetDataValue< Real >( "gridScale" );
-    //Set mesh translation amount
+    this->gridFile        = cfg.sourceFile;
+    this->bcFile          = cfg.bcFile;
+    this->targetFile      = cfg.targetFile;
+    this->filetype        = std::string( ToString( cfg.sourceType ) );
+    this->target_filetype = std::string( ToString( cfg.targetType ) );
+    this->topo            = cfg.topo;
+    this->multiBlock      = cfg.multiBlock;
+    this->gridObj         = static_cast< int >( cfg.objective );
+    this->gridScale       = cfg.scale;
+    this->axis_dir        = cfg.axisDir;
+
     this->gridTrans.resize( 3 );
-    CopyArray( this->gridTrans, "gridTrans" );
+    for ( size_t i = 0; i < 3; ++i )
+    {
+        this->gridTrans[ i ] = cfg.translate[ i ];
+    }
+}
 
-    this->axis_dir = GetDataValue< int >( "axis_dir" );
+GridConfig GridPara::ToConfig() const
+{
+    GridConfig cfg;
+    cfg.objective  = this->objective();
+    cfg.sourceType = this->sourceType();
+    cfg.targetType = this->targetType();
+    cfg.sourceFile = this->gridFile;
+    cfg.bcFile      = this->bcFile;
+    cfg.targetFile  = this->targetFile;
+    cfg.topo        = this->topo;
+    cfg.multiBlock  = this->multiBlock;
+    cfg.axisDir     = this->axis_dir;
+    cfg.scale       = this->gridScale;
+    cfg.translate   = { 0.0, 0.0, 0.0 };
+    for ( size_t i = 0; i < 3 && i < this->gridTrans.size(); ++i )
+    {
+        cfg.translate[ i ] = this->gridTrans[ i ];
+    }
+    return cfg;
 }
 
 int GetGridTopoType()

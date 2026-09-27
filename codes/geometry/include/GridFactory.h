@@ -20,34 +20,42 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
 #pragma once
-#include "HXDefine.h"
-#include <vector>
-#include <string>
-#include <fstream>
 
+#include "HXDefine.h"
+#include "GridTypes.h"
 
 BeginNameSpace( ONEFLOW )
 
+// Offline grid generation / conversion / partition entry.
+// Dispatch is table-driven (see GridFactory.cpp); no magic switch on int.
 class GridFactory
 {
 public:
-    GridFactory();
-    ~GridFactory();
-public:
+    GridFactory() = default;
+    ~GridFactory() = default;
+
+    // Load config from DataBase and run the selected pipeline.
     void Run();
+
+    // Run with an explicit config (preferred for tests and callers that
+    // already hold a GridConfig).
+    void Run( const GridConfig & config );
+
 public:
+    // Pipeline steps (also used as registry targets).
     void DataBaseGrid();
-    void ConvertGrid();
+    void ConvertGrid( const GridConfig & config );
     void GeneInp();
     void PartGrid();
-public:
-    void Plot3DProcess();
+
+    // Format-specific convert helpers.
+    void Plot3DProcess( const GridConfig & config );
     void SU2Process();
     void CGNSProcess();
 };
 
+// Public entry used by the rest of the code base.
 void GenerateGrid();
 
 EndNameSpace
