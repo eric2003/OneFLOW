@@ -500,6 +500,8 @@ function InstallHDF5() {
         Write-Error "HDF5 CMake config: NOT FOUND"
         exit 1
     }
+	
+	"$hdf5_prefix/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
     cd ..
 
@@ -620,6 +622,8 @@ function InstallCGNS() {
         Write-Error "CGNS library: NOT FOUND"
         exit 1
     }
+
+    "$cgns_prefix/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append	
 }
 
 

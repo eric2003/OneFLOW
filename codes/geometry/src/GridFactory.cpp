@@ -82,18 +82,28 @@ void GridFactory::Run()
     }
 }
 
+// Generates input file for multi-block structured grids.
 void GridFactory::GeneInp()
 {
-    DomainInp * domainInp = new DomainInp();
-    domainInp->Run();
-    delete domainInp;
+    // Stack allocation ensures automatic cleanup and exception safety.
+    DomainInp domainInp;
+    domainInp.Run();
 }
 
+// Partitions the grid for parallel computing.
 void GridFactory::PartGrid()
 {
-    Partition * partOld = new Partition();
-    partOld->Run();
-    delete partOld;
+    // Stack allocation ensures automatic cleanup and exception safety.
+    Partition part;
+    part.Run();
+}
+
+// Generates classic database grids (e.g., cavity, cylinder).
+void GridFactory::DataBaseGrid()
+{
+    // Stack allocation ensures automatic cleanup and exception safety.
+    ClassicGrid classicGrid;
+    classicGrid.Run();
 }
 
 void GridFactory::ConvertGrid()
@@ -111,13 +121,6 @@ void GridFactory::ConvertGrid()
     {
         this->CGNSProcess();
     }
-}
-
-void GridFactory::DataBaseGrid()
-{
-    ClassicGrid * classicGrid = new ClassicGrid();
-    classicGrid->Run();
-    delete classicGrid;
 }
 
 void GridFactory::Plot3DProcess()

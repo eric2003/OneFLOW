@@ -63,8 +63,30 @@ if ( CGNS_ENABLE )
 	message ( STATUS "The CGNS_LIBRARIES is ${CGNS_INCLUDE_DIRS}" )
 endif()
 
-add_executable(GridFactoryTest
-  GridFactoryTest.cpp
+set ( INCLUDE_DIRS
+    ${CMAKE_SOURCE_DIR}/codes/geometry/include
+	${CMAKE_SOURCE_DIR}/codes/geometry/src
+	${CMAKE_SOURCE_DIR}/codes/global/include
+	${CMAKE_SOURCE_DIR}/codes/basic/include
+	${CMAKE_SOURCE_DIR}/codes/io/include
+	${CMAKE_SOURCE_DIR}/codes/task/include
+	${CMAKE_SOURCE_DIR}/codes/cgns/include
+	${CMAKE_SOURCE_DIR}/codes/database/include
+	${CMAKE_SOURCE_DIR}/codes/array/include
+	${CMAKE_SOURCE_DIR}/codes/special/include
+	${CMAKE_SOURCE_DIR}/codes/adt/include
+	${CMAKE_SOURCE_DIR}/codes/adt/src
+	${CMAKE_SOURCE_DIR}/codes/zone/include
+	${CMAKE_SOURCE_DIR}/codes/partition/include
+	${CMAKE_SOURCE_DIR}/codes/multigrid/include
+	${CMAKE_SOURCE_DIR}/codes/parallel/include
+	${CMAKE_SOURCE_DIR}/codes/scalar/include
+	${CMAKE_SOURCE_DIR}/codes/main/include
+	${METIS_INCLUDE_DIRS}
+	${CGNS_INCLUDE_DIRS}
+)
+
+set ( SRC_DIRS
   ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridFactory.cpp
   
   
@@ -183,15 +205,9 @@ add_executable(GridFactoryTest
   ${CMAKE_SOURCE_DIR}/codes/geometry/src/CellMesh.cpp
   ${CMAKE_SOURCE_DIR}/codes/geometry/src/SlipFace.cpp
   
-  
-  
-  
-  
   ${CMAKE_SOURCE_DIR}/codes/global/src/Ctrl.cpp
   ${CMAKE_SOURCE_DIR}/codes/global/src/Dimension.cpp
   ${CMAKE_SOURCE_DIR}/codes/global/src/Tolerence.cpp
-  
-  
   
   ${CMAKE_SOURCE_DIR}/codes/database/src/DataPara.cpp
   ${CMAKE_SOURCE_DIR}/codes/database/src/DataBase.cpp
@@ -219,32 +235,17 @@ add_executable(GridFactoryTest
   ${CMAKE_SOURCE_DIR}/codes/scalar/src/ScalarGrid.cpp
   ${CMAKE_SOURCE_DIR}/codes/scalar/src/ScalarCgns.cpp
   ${CMAKE_SOURCE_DIR}/codes/scalar/src/ScalarIFace.cpp
-  
+)
 
+message ( STATUS "The INCLUDE_DIRS is ${INCLUDE_DIRS}" )
+add_executable(GridFactoryTest
+  GridFactoryTest.cpp
+  ${SRC_DIRS}
 )
 
 target_include_directories(GridFactoryTest
   PRIVATE
-    ${CMAKE_SOURCE_DIR}/codes/geometry/include
-	${CMAKE_SOURCE_DIR}/codes/geometry/src
-	${CMAKE_SOURCE_DIR}/codes/global/include
-	${CMAKE_SOURCE_DIR}/codes/basic/include
-	${CMAKE_SOURCE_DIR}/codes/io/include
-	${CMAKE_SOURCE_DIR}/codes/task/include
-	${CMAKE_SOURCE_DIR}/codes/cgns/include
-	${CMAKE_SOURCE_DIR}/codes/database/include
-	${CMAKE_SOURCE_DIR}/codes/array/include
-	${CMAKE_SOURCE_DIR}/codes/special/include
-	${CMAKE_SOURCE_DIR}/codes/adt/include
-	${CMAKE_SOURCE_DIR}/codes/adt/src
-	${CMAKE_SOURCE_DIR}/codes/zone/include
-	${CMAKE_SOURCE_DIR}/codes/partition/include
-	${CMAKE_SOURCE_DIR}/codes/multigrid/include
-	${CMAKE_SOURCE_DIR}/codes/parallel/include
-	${CMAKE_SOURCE_DIR}/codes/scalar/include
-	${CMAKE_SOURCE_DIR}/codes/main/include
-	${METIS_INCLUDE_DIRS}
-	${CGNS_INCLUDE_DIRS}
+    ${INCLUDE_DIRS}
 )
 
 target_link_libraries(GridFactoryTest 
@@ -268,3 +269,36 @@ target_compile_definitions ( GridFactoryTest
 )
 
 gtest_discover_tests(GridFactoryTest DISCOVERY_MODE PRE_TEST)
+
+
+add_executable(SubTaskLifecycleTest
+  SubTaskLifecycleTest.cpp
+  ${SRC_DIRS}
+)
+
+target_include_directories(SubTaskLifecycleTest
+  PRIVATE
+    ${INCLUDE_DIRS}
+)
+
+target_link_libraries(SubTaskLifecycleTest 
+  PRIVATE 
+    GTest::gtest_main
+	${METIS_LIBRARIES}
+	${CGNS_LIBRARIES}
+	
+)
+
+target_compile_features(SubTaskLifecycleTest 
+  PRIVATE 
+    cxx_std_20
+)
+
+target_compile_definitions ( SubTaskLifecycleTest
+    PRIVATE
+       ENABLE_METIS
+	   ENABLE_CGNS
+	   USE_DLL
+)
+
+gtest_discover_tests(SubTaskLifecycleTest DISCOVERY_MODE PRE_TEST)
