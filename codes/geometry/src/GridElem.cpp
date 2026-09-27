@@ -246,8 +246,8 @@ void GridElem::GenerateCalcElement()
 
         if ( rc == INVALID_INDEX )
         {
-            faceTopo->bcManager->bcRecord->bcType.push_back( ( * this->face_solver->faceBcType )[ iFace ] );
-            faceTopo->bcManager->bcRecord->bcNameId.push_back( ( * this->face_solver->faceBcKey )[ iFace ] );
+            faceTopo->bcManager->bcRecord->bcType.push_back( this->face_solver->faceBcType[ iFace ] );
+            faceTopo->bcManager->bcRecord->bcNameId.push_back( this->face_solver->faceBcKey[ iFace ] );
             ++ nBFaces;
         }
     }
