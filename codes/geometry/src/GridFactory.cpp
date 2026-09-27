@@ -39,11 +39,15 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+// Generates the grid based on the global configuration.
 void GenerateGrid()
 {
-    GridFactory * gf = new GridFactory();
-    gf->Run();
-    delete gf;
+    // Use stack allocation for automatic memory management and exception safety.
+    // GridFactory does not require polymorphic behavior, so heap allocation is unnecessary.
+    // The destructor will be called automatically when 'gf' goes out of scope, 
+    // even if an exception is thrown during Run().
+    GridFactory gf;
+    gf.Run();
 }
 
 GridFactory::GridFactory()
@@ -78,18 +82,28 @@ void GridFactory::Run()
     }
 }
 
+// Generates input file for multi-block structured grids.
 void GridFactory::GeneInp()
 {
-    DomainInp * domainInp = new DomainInp();
-    domainInp->Run();
-    delete domainInp;
+    // Stack allocation ensures automatic cleanup and exception safety.
+    DomainInp domainInp;
+    domainInp.Run();
 }
 
+// Partitions the grid for parallel computing.
 void GridFactory::PartGrid()
 {
-    Partition * partOld = new Partition();
-    partOld->Run();
-    delete partOld;
+    // Stack allocation ensures automatic cleanup and exception safety.
+    Partition part;
+    part.Run();
+}
+
+// Generates classic database grids (e.g., cavity, cylinder).
+void GridFactory::DataBaseGrid()
+{
+    // Stack allocation ensures automatic cleanup and exception safety.
+    ClassicGrid classicGrid;
+    classicGrid.Run();
 }
 
 void GridFactory::ConvertGrid()
@@ -109,53 +123,34 @@ void GridFactory::ConvertGrid()
     }
 }
 
-void GridFactory::DataBaseGrid()
-{
-    ClassicGrid * classicGrid = new ClassicGrid();
-    classicGrid->Run();
-    delete classicGrid;
-}
 
 void GridFactory::Plot3DProcess()
 {
     if ( grid_para.target_filetype == "oneflow" )
     {
-        CgnsFactory * cgnsFactory = new CgnsFactory();
-
-        cgnsFactory->CommonToOneFlowGrid();
-
-        delete cgnsFactory;
+        CgnsFactory cgnsFactory; // Stack object
+        cgnsFactory.CommonToOneFlowGrid();
     }
     else if ( grid_para.target_filetype == "cgns" )
     {
-        CgnsFactory * cgnsFactory = new CgnsFactory();
-
+        CgnsFactory cgnsFactory; // Stack object
         ZgridMediator zgridMediator;
         zgridMediator.SetDeleteFlag( true );
-
         Plot3D::Plot3DToCgns( & zgridMediator );
-
-        cgnsFactory->DumpCgnsGrid( & zgridMediator );
-
-        delete cgnsFactory;
+        cgnsFactory.DumpCgnsGrid( & zgridMediator );
     }
-
 }
 
 void GridFactory::SU2Process()
 {
-    Su2Grid * su2Grid = new Su2Grid();
-    su2Grid->Su2ToOneFlowGrid();
-    delete su2Grid;
+    Su2Grid su2Grid; // Stack object
+    su2Grid.Su2ToOneFlowGrid();
 }
 
 void GridFactory::CGNSProcess()
 {
-    CgnsFactory * cgnsFactory = new CgnsFactory();
-
-    cgnsFactory->GenerateGrid();
-
-    delete cgnsFactory;
+    CgnsFactory cgnsFactory; // Stack object
+    cgnsFactory.GenerateGrid();
 }
 
 EndNameSpace

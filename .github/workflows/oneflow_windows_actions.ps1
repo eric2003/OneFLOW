@@ -500,6 +500,10 @@ function InstallHDF5() {
         Write-Error "HDF5 CMake config: NOT FOUND"
         exit 1
     }
+	
+    $Env:Path = "$hdf5_prefix/bin;$Env:Path"
+
+    "$hdf5_prefix/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
     cd ..
 
@@ -620,6 +624,11 @@ function InstallCGNS() {
         Write-Error "CGNS library: NOT FOUND"
         exit 1
     }
+
+    $Env:Path = "$cgns_prefix/bin;$Env:Path"
+
+    # 作用于 GitHub Actions 后续的 Steps
+    "$cgns_prefix/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append	
 }
 
 

@@ -60,10 +60,32 @@ jobs:
         shell: pwsh
 
       - name: Unit Test
+        env:
+          HDF5_ROOT: ${{ github.workspace }}/_deps/hdf5/${{ env.HDF5_VERSION }}
+          CGNS_ROOT: ${{ github.workspace }}/_deps/cgns/${{ env.CGNS_VERSION }}
+          MSMPI_ROOT: C:/Program Files/Microsoft MPI
         run: |
+          $ErrorActionPreference = "Stop"
+
+          $runtime_paths = @(
+              "${{ github.workspace }}/build/bin",
+              "$env:HDF5_ROOT/bin",
+              "$env:CGNS_ROOT/bin",
+              "$env:MSMPI_ROOT/Bin"
+          )
+          foreach ($path in $runtime_paths) {
+              if (Test-Path $path) {
+                  $env:Path = "$path;$env:Path"
+                  Write-Host "Runtime path: $path"
+              }
+              else {
+                  Write-Host "Runtime path does not exist: $path"
+              }
+          }
+
           cd "${{ github.workspace }}/build"
           ctest --output-on-failure -C Release
-        shell: pwsh
+        shell: pwsh 
 
       - name: Run OneFLOW CFD Tests
         env:

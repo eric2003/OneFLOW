@@ -178,9 +178,6 @@ public:
     int nZone;
 };
 
-class Grid;
-class CgnsFactory;
-class CgnsZone;
 void Su2ToOneFlowGrid( Su2Grid* su2Grid );
 
 EndNameSpace

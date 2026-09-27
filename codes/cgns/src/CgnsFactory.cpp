@@ -26,7 +26,6 @@ License
 #include "CgnsZbc.h"
 #include "CgnsFile.h"
 #include "GridPara.h"
-#include "LogFile.h"
 #include "Prj.h"
 #include "Fatal.h"
 #include "StringUtils.h"
@@ -53,21 +52,51 @@ License
 #include "GridDef.h"
 #include "CalcGrid.h"
 #include "GridElem.h"
-#include "BgGrid.h"
 
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
 
+// Constructor uses member initializer list and std::make_unique
 CgnsFactory::CgnsFactory()
+    : cgnsZbase(std::make_unique<CgnsZbase>())
 {
-    this->cgnsZbase = new CgnsZbase();
-    this->zgridElem = new ZgridElem( this->cgnsZbase );
+    // Pass raw pointer to ZgridElem as it is a non-owning observer
+    this->zgridElem = std::make_unique<ZgridElem>(this->cgnsZbase.get());
 }
 
-CgnsFactory::~CgnsFactory()
+// FIX: Define destructor and move operations here.
+// The compiler can now see the complete types and safely generate the 
+// code to delete the unique_ptr members.
+CgnsFactory::~CgnsFactory() = default;
+CgnsFactory::CgnsFactory(CgnsFactory&&) noexcept = default;
+CgnsFactory& CgnsFactory::operator=(CgnsFactory&&) noexcept = default;
+
+
+// FIX: Exception-safe ownership transfer
+void CgnsFactory::ConvertStrCgns2UnsCgnsGrid()
 {
-    delete this->cgnsZbase;
-    delete this->zgridElem;
+    auto unsCgnsZbase = std::make_unique<CgnsZbase>();
+
+    // If ReadCgnsMultiBase throws, unsCgnsZbase is automatically destroyed.
+    // this->cgnsZbase remains untouched and valid.
+    ONEFLOW::ReadCgnsMultiBase( unsCgnsZbase.get(), this->cgnsZbase.get() );
+
+    // Transfer ownership safely
+    this->cgnsZbase = std::move(unsCgnsZbase);
+
+    // Update the non-owning observer
+    this->zgridElem->cgnsZbase = this->cgnsZbase.get();
+}
+
+void GenerateLocalOneFlowGridFromSu2Grid( Su2Grid* su2Grid, Grids & grids )
+{
+    // Stack allocation instead of new/delete
+    CgnsFactory cgnsFactory;
+    cgnsFactory.CreateSu2CgnsZone( su2Grid );
+
+    Grids local_grids;
+    cgnsFactory.zgridElem->GenerateLocalOneFlowGrid( local_grids );
+    ONEFLOW::AddOneFlowGrid( grids, local_grids[ 0 ] );
 }
 
 void CgnsFactory::GenerateGrid()
@@ -99,29 +128,18 @@ void CgnsFactory::ProcessCgnsBases()
 
 void CgnsFactory::ReadCgnsGrid()
 {
-    cgns_global.cgnsbases = cgnsZbase;
+    // Use .get() to pass the raw pointer to legacy/global APIs
+    cgns_global.cgnsbases = this->cgnsZbase.get();
     std::string prjFileName = Prj::GetPrjFileName( grid_para.gridFile );
-    cgnsZbase->ReadCgnsGrid( prjFileName );
+    this->cgnsZbase->ReadCgnsGrid( prjFileName );
 }
 
 void CgnsFactory::DumpCgnsGrid( ZgridMediator * zgridMediator )
 {
-    cgns_global.cgnsbases = cgnsZbase;
-    ONEFLOW::DumpCgnsGrid( cgnsZbase, zgridMediator );
+    cgns_global.cgnsbases = cgnsZbase.get();
+    ONEFLOW::DumpCgnsGrid( cgnsZbase.get(), zgridMediator );
 }
 
-void CgnsFactory::ConvertStrCgns2UnsCgnsGrid()
-{
-    CgnsZbase * unsCgnsZbase = new CgnsZbase();
-
-    ONEFLOW::ReadCgnsMultiBase( unsCgnsZbase, this->cgnsZbase );
-
-    delete this->cgnsZbase;
-
-    this->cgnsZbase = unsCgnsZbase;
-
-    this->zgridElem->cgnsZbase = this->cgnsZbase;
-}
 
 void CgnsFactory::CommonToOneFlowGrid()
 {
@@ -149,12 +167,12 @@ void CgnsFactory::DumpUnsCgnsGrid()
 
 void CgnsFactory::CreateCgnsZone( ZgridMediator * zgridMediator )
 {
-    ONEFLOW::CreateDefaultCgnsZones( cgnsZbase, zgridMediator );
+    ONEFLOW::CreateDefaultCgnsZones( cgnsZbase.get(), zgridMediator );
 }
 
 void CgnsFactory::PrepareCgnsZone( ZgridMediator * zgridMediator )
 {
-    ONEFLOW::PrepareCgnsZone( cgnsZbase, zgridMediator );
+    ONEFLOW::PrepareCgnsZone( cgnsZbase.get(), zgridMediator );
 }
 
 void CgnsFactory::ReadGridAndConvertToUnsCgnsZone()
@@ -214,21 +232,6 @@ void AddOneFlowGrid( Grids & grids, Grid * grid )
     grids.push_back( grid );
     grid->id = iZone;
 }
-
-void GenerateLocalOneFlowGridFromSu2Grid( Su2Grid* su2Grid, Grids & grids )
-{
-    CgnsFactory * cgnsFactory = new CgnsFactory();
-
-    cgnsFactory->CreateSu2CgnsZone( su2Grid );
-
-    Grids local_grids;
-    cgnsFactory->zgridElem->GenerateLocalOneFlowGrid( local_grids );
-
-    ONEFLOW::AddOneFlowGrid( grids, local_grids[ 0 ] );
-
-    delete cgnsFactory;
-}
-
 
 #endif
 EndNameSpace
