@@ -123,46 +123,34 @@ void GridFactory::ConvertGrid()
     }
 }
 
+
 void GridFactory::Plot3DProcess()
 {
     if ( grid_para.target_filetype == "oneflow" )
     {
-        CgnsFactory * cgnsFactory = new CgnsFactory();
-
-        cgnsFactory->CommonToOneFlowGrid();
-
-        delete cgnsFactory;
+        CgnsFactory cgnsFactory; // Stack object
+        cgnsFactory.CommonToOneFlowGrid();
     }
     else if ( grid_para.target_filetype == "cgns" )
     {
-        CgnsFactory * cgnsFactory = new CgnsFactory();
-
+        CgnsFactory cgnsFactory; // Stack object
         ZgridMediator zgridMediator;
         zgridMediator.SetDeleteFlag( true );
-
         Plot3D::Plot3DToCgns( & zgridMediator );
-
-        cgnsFactory->DumpCgnsGrid( & zgridMediator );
-
-        delete cgnsFactory;
+        cgnsFactory.DumpCgnsGrid( & zgridMediator );
     }
-
 }
 
 void GridFactory::SU2Process()
 {
-    Su2Grid * su2Grid = new Su2Grid();
-    su2Grid->Su2ToOneFlowGrid();
-    delete su2Grid;
+    Su2Grid su2Grid; // Stack object
+    su2Grid.Su2ToOneFlowGrid();
 }
 
 void GridFactory::CGNSProcess()
 {
-    CgnsFactory * cgnsFactory = new CgnsFactory();
-
-    cgnsFactory->GenerateGrid();
-
-    delete cgnsFactory;
+    CgnsFactory cgnsFactory; // Stack object
+    cgnsFactory.GenerateGrid();
 }
 
 EndNameSpace

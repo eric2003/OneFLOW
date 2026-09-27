@@ -24,6 +24,7 @@ License
 #pragma once
 #include "GridDef.h"
 #include "HXCgns.h"
+#include <memory> // Required for std::unique_ptr
 
 BeginNameSpace( ONEFLOW )
 
@@ -45,9 +46,19 @@ class CgnsFactory
 public:
     CgnsFactory();
     ~CgnsFactory();
+
+    // Rule of 5: Disable copying to prevent double-free
+    CgnsFactory(const CgnsFactory&) = delete;
+    CgnsFactory& operator=(const CgnsFactory&) = delete;
+
+    // FIX: Declare move semantics here, but DO NOT use = default.
+    // The implementation must be in the .cpp file where types are complete.
+    CgnsFactory(CgnsFactory&&) noexcept;
+    CgnsFactory& operator=(CgnsFactory&&) noexcept;
+
 public:
-    CgnsZbase * cgnsZbase;
-    ZgridElem * zgridElem;
+    std::unique_ptr<CgnsZbase> cgnsZbase;
+    std::unique_ptr<ZgridElem> zgridElem;
 public:
     void GenerateGrid();
     void ReadCgnsGrid();
