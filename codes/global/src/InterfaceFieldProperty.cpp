@@ -116,7 +116,7 @@ void DownloadInterfaceValue( UnsGrid * grid, MRField * field2D, const std::strin
     InterFace * interFace = grid->interFace;
     if ( ! ONEFLOW::IsValid( interFace ) ) return;
 
-    if ( field2D == 0 ) return;
+    if ( field2D == nullptr ) return;
 
     for ( int ghostId = MAX_GHOST_LEVELS - 1; ghostId >= 0; -- ghostId )
     {
