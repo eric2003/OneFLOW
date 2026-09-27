@@ -103,7 +103,7 @@ void UnsGrid::ReadGrid( DataBook * databook )
     std::cout << " number of elements : " << this->nCells << std::endl;
 
     this->nodeMesh->CreateNodes( this->nNodes );
-    this->cellMesh->cellTopo->Alloc( this->nCells );
+    this->cellMesh->cellTopo.Alloc( this->nCells );
 
     ONEFLOW::HXRead( databook, this->nodeMesh->xN );
     ONEFLOW::HXRead( databook, this->nodeMesh->yN );
@@ -184,7 +184,7 @@ void UnsGrid::ReadBoundaryTopology( DataBook * databook )
     //std::cout << " nBFaces = " << this->nBFaces << std::endl;
 
     //Setting boundary conditions
-    BcRecord * bcRecord = this->faceTopo->bcManager->bcRecord;
+    BcRecord * bcRecord = this->faceTopo->bcManager->bcRecord.get();
     ONEFLOW::HXRead( databook, bcRecord->bcType );
     ONEFLOW::HXRead( databook, bcRecord->bcNameId );
     ONEFLOW::HXRead( databook, this->nIFaces );
@@ -235,8 +235,8 @@ void UnsGrid::WriteGridFaceTopology1D( DataBook * databook )
     std::cout << " Reading eTypes\n";
 
     //write element types
-    int ntmpElements = this->cellMesh->cellTopo->eTypes.size();
-    ONEFLOW::HXWrite( databook, this->cellMesh->cellTopo->eTypes );
+    int ntmpElements = this->cellMesh->cellTopo.eTypes.size();
+    ONEFLOW::HXWrite( databook, this->cellMesh->cellTopo.eTypes );
 
     //write face types
     int ntmpFaces = this->faceTopo->fTypes.size();
@@ -346,7 +346,7 @@ void UnsGrid::GenerateLgMapping( IFaceLink * iFaceLink )
 {
     std::cout << "zoneIndex = " << this->id << std::endl;
 
-    BcRecord * bcRecord = this->faceTopo->bcManager->bcRecord;
+    BcRecord * bcRecord = this->faceTopo->bcManager->bcRecord.get();
 
     this->faceTopo->bcManager->PreProcess();
 
@@ -550,7 +550,7 @@ void UnsGrid::CalcCellCenterVol1D()
     RealField & yN = nodeMesh->yN;
     RealField & zN = nodeMesh->zN;
 
-    CellTopo * cellTopo = this->cellMesh->cellTopo;
+    CellTopo * cellTopo = &this->cellMesh->cellTopo;
     FaceTopo * faceTopo = this->faceMesh->faceTopo;
 
     for ( HXSize_t iCell = 0; iCell < numberOfCells; ++ iCell )
@@ -589,7 +589,7 @@ void UnsGrid::CalcGhostCellCenterVol1D()
 
     RealField & area = this->faceMesh->area;
 
-    CellTopo * cellTopo = this->cellMesh->cellTopo;
+    CellTopo * cellTopo = &this->cellMesh->cellTopo;
     FaceTopo * faceTopo = this->faceMesh->faceTopo;
 
     // For ghost cells
@@ -648,7 +648,7 @@ void UnsGrid::CalcCellCenterVol2D()
 
     RealField & area = this->faceMesh->area;
 
-    CellTopo * cellTopo = this->cellMesh->cellTopo;
+    CellTopo * cellTopo = &this->cellMesh->cellTopo;
     FaceTopo * faceTopo = this->faceMesh->faceTopo;
 
     xcc = 0;
@@ -761,7 +761,7 @@ void UnsGrid::CalcCellCenterVol3D()
 
     RealField & area = this->faceMesh->area;
 
-    CellTopo * cellTopo = this->cellMesh->cellTopo;
+    CellTopo * cellTopo = &this->cellMesh->cellTopo;
     FaceTopo * faceTopo = this->faceMesh->faceTopo;
 
     RealField & xN = nodeMesh->xN;

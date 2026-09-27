@@ -34,7 +34,7 @@ BeginNameSpace( ONEFLOW )
 
 int GetNumberOfSolidCells( UnsGrid * grid )
 {
-    BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord;
+    BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord.get();
     bcRecord->CreateBcTypeRegion();
 
     BcInfo * bcInfo = bcRecord->bcInfo;

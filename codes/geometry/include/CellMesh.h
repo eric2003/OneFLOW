@@ -23,6 +23,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include "CellTopo.h" 
 
 BeginNameSpace( ONEFLOW )
 class CellTopo;
@@ -35,7 +36,8 @@ public:
     CellMesh();
     ~CellMesh();
 public:
-    CellTopo * cellTopo;
+    // [Refactored] Changed from raw pointer to value type (Stack allocation)
+    CellTopo cellTopo; 
     RealField xcc, ycc, zcc;
     RealField vol;
     RealField dist;

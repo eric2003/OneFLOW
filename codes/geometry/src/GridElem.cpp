@@ -80,17 +80,18 @@ GridElem::GridElem( HXVector< CgnsZone * > & cgnsZones, int iZone )
 
     this->delFlag = false;
 
-    this->point_factory = new MeshPointManager();
-    this->elem_feature = new ElemFeature();
-    this->face_solver = new FaceSolver();
-    this->elem_feature->face_solver = face_solver;
+    // [Refactored] Removed manual 'new' allocations. 
+    // Value types are automatically constructed by the compiler.
+
+    // Inject non-owning observer pointer into elem_feature
+    this->elem_feature.face_solver = &this->face_solver;
 }
 
 GridElem::~GridElem()
 {
-    delete this->point_factory;
-    delete this->elem_feature;
-    delete this->face_solver;
+    // [Refactored] Removed manual 'delete' calls.
+    // Value types are automatically destroyed by the compiler.
+
     if ( this->delFlag )
     {
         delete this->grid;
@@ -139,13 +140,13 @@ void GridElem::PrepareUnsCalcGridNormal()
     std::cout << " InitCgnsElements()\n";
     this->InitCgnsElements();
     std::cout << " ScanElements()\n";
-    this->elem_feature->ScanElements();
+    this->elem_feature.ScanElements();
     std::cout << " ScanBcFace()\n";
     this->ScanBcFace();
 
     //Continue to parse
     std::cout << " ScanElements()\n";
-    this->elem_feature->ScanElements();
+    this->elem_feature.ScanElements();
     this->GenerateCalcElement();
 }
 
@@ -164,7 +165,7 @@ void GridElem::ScanPolygonFace()
     {
         CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
 
-        cgnsZone->ConstructCgnsGridPoints( this->point_factory );
+        cgnsZone->ConstructCgnsGridPoints( &this->point_factory );
 
         //Scan NGON_n PolygonFace
         int nSections = cgnsZone->cgnsZsection->nSection;
@@ -172,18 +173,18 @@ void GridElem::ScanPolygonFace()
         {
             CgnsSection * cgnsSection = cgnsZone->cgnsZsection->GetCgnsSection( iSection );
             if ( cgnsSection->eType != NGON_n ) continue;
-            this->face_solver->ScanPolygonFace( cgnsSection );
+            this->face_solver.ScanPolygonFace( cgnsSection );
         }
         //Scan NFACE_n PolyhedronElement
         for ( int iSection = 0; iSection < nSections; ++ iSection )
         {
             CgnsSection * cgnsSection = cgnsZone->cgnsZsection->GetCgnsSection( iSection );
             if ( cgnsSection->eType != NFACE_n ) continue;
-            this->face_solver->ScanPolyhedronElement( cgnsSection );
+            this->face_solver.ScanPolyhedronElement( cgnsSection );
             this->SetPolyhedronElementType( cgnsSection );
         }
 
-        int nFaces = this->face_solver->faceTopo->faces.size();
+        int nFaces = this->face_solver.faceTopo->faces.size();
         int kkk = 1;
     }
     //int kkk = 1;
@@ -195,7 +196,7 @@ void GridElem::SetPolyhedronElementType( CgnsSection * cgnsSection )
     {
         int e_type = cgnsSection->eTypeList[ iElem ];
 
-        this->elem_feature->eTypes->push_back( e_type );
+        this->elem_feature.eTypes.push_back( e_type );
     }
 }
 
@@ -206,8 +207,8 @@ void GridElem::InitCgnsElements()
     {
         CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
         
-        cgnsZone->ConstructCgnsGridPoints( this->point_factory );
-        cgnsZone->SetElementTypeAndNode( this->elem_feature );
+        cgnsZone->ConstructCgnsGridPoints( &this->point_factory );
+        cgnsZone->SetElementTypeAndNode( &this->elem_feature );
     }
 }
 
@@ -217,20 +218,19 @@ void GridElem::ScanBcFace()
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
-        cgnsZone->ScanBcFace( this->elem_feature->face_solver );
+        cgnsZone->ScanBcFace( this->elem_feature.face_solver );
     }
 
-    this->elem_feature->face_solver->ScanInterfaceBc();
+    this->elem_feature.face_solver->ScanInterfaceBc();
 }
 
 void GridElem::GenerateCalcElement()
 {
-    int nElement =  this->elem_feature->eTypes->size();
+    int nElement =  this->elem_feature.eTypes.size();
 
-    FaceTopo * faceTopo = this->face_solver->faceTopo;
+    FaceTopo * faceTopo = this->face_solver.faceTopo;
 
-    int nFaces = this->face_solver->faceTopo->faces.size();
-
+    int nFaces = this->face_solver.faceTopo->faces.size();
     int nBFaces = 0;
 
     //std::cout << " nFaces = " << nFaces << "\n";
@@ -246,13 +246,13 @@ void GridElem::GenerateCalcElement()
 
         if ( rc == INVALID_INDEX )
         {
-            faceTopo->bcManager->bcRecord->bcType.push_back( ( * this->face_solver->faceBcType )[ iFace ] );
-            faceTopo->bcManager->bcRecord->bcNameId.push_back( ( * this->face_solver->faceBcKey )[ iFace ] );
+            faceTopo->bcManager->bcRecord->bcType.push_back( this->face_solver.faceBcType[ iFace ] );
+            faceTopo->bcManager->bcRecord->bcNameId.push_back( this->face_solver.faceBcKey[ iFace ] );
             ++ nBFaces;
         }
     }
 
-    this->point_factory->InitLocalToGlobal();
+    this->point_factory.InitLocalToGlobal();
 
 }
 
@@ -264,20 +264,20 @@ void GridElem::GenerateCalcGrid()
 void GridElem::GenerateCalcGrid(Grid * gridIn)
 {
     UnsGrid * grid = UnsGridCast(gridIn);
-    grid->nCells = this->elem_feature->eTypes->size();
-    grid->cellMesh->cellTopo->eTypes = *this->elem_feature->eTypes;
+    grid->nCells = this->elem_feature.eTypes.size();
+    grid->cellMesh->cellTopo.eTypes = this->elem_feature.eTypes;
     std::cout << "   nCells = " << grid->nCells << std::endl;
 
-    int nNodes = this->point_factory->localToGlobal.size();
+    int nNodes = this->point_factory.localToGlobal.size();
     grid->nodeMesh->CreateNodes(nNodes);
     grid->nNodes = nNodes;
 
     for (int iNode = 0; iNode < nNodes; ++iNode)
     {
-        int globalId = this->point_factory->localToGlobal[iNode];
+        int globalId = this->point_factory.localToGlobal[iNode];
 
         Real x, y, z;
-        this->point_factory->GetPoint(globalId, x, y, z);
+        this->point_factory.GetPoint(globalId, x, y, z);
 
         grid->nodeMesh->xN[iNode] = x;
         grid->nodeMesh->yN[iNode] = y;
@@ -293,13 +293,13 @@ void GridElem::CalcBoundaryType( UnsGrid * grid )
 {
     std::cout << "\n-->Set boundary condition......\n";
     delete grid->faceTopo;
-    grid->faceTopo = this->face_solver->faceTopo;
+    grid->faceTopo = this->face_solver.faceTopo;
     grid->faceTopo->grid = grid;
-    this->face_solver->faceTopo = 0;
+    this->face_solver.faceTopo = 0;
     int nFaces = grid->faceTopo->faces.size();
     std::cout << " nFaces = " << nFaces << "\n";
      
-    BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord;
+    BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord.get();
     int nBFaces = bcRecord->bcType.size();
 
     grid->nBFaces = nBFaces;

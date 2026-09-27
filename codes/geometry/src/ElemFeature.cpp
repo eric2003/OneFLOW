@@ -48,19 +48,21 @@ EState::~EState()
     ;
 }
 
+// ElemFeature.cpp
 ElemFeature::ElemFeature()
 {
-    this->eTypes = new IntField();
+    // [Refactored] Removed: this->eTypes = new IntField();
 }
 
 ElemFeature::~ElemFeature()
 {
-    delete this->eTypes;
+    // [Refactored] Removed: delete this->eTypes;
 }
+
 
 void ElemFeature::ScanElements()
 {
-    int nElement = this->eTypes->size();
+    int nElement = this->eTypes.size();
 
     std::cout << " nElement = " << nElement << std::endl;
 
@@ -69,7 +71,7 @@ void ElemFeature::ScanElements()
     int iCount = 0;
     for ( int eId = 0; eId < nElement; ++ eId )
     {
-        int eType = ( * this->eTypes )[ eId ];
+        int eType = this->eTypes[ eId ];
         ++ iCount;
         if ( ! ONEFLOW::IsBasicVolumeElementType( eType ) )
         {

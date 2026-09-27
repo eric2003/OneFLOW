@@ -31,21 +31,17 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+// FaceSolver.cpp (Constructors and Destructors)
 FaceSolver::FaceSolver()
 {
-    this->faceBcKey = new IntField();
-    this->faceBcType = new IntField();
-    this->childFid = new LinkField();
+    // [Refactored] faceBcKey, faceBcType, childFid are now value types, 
+    // no need to 'new' them.
     this->faceTopo = new FaceTopo();
 }
 
 FaceSolver::~FaceSolver()
 {
-    delete this->faceBcKey;
-    delete this->faceBcType;
-    delete this->childFid;
-
-    //delete this->refFaces;
+    // [Refactored] No need to 'delete' the value types.
     delete this->faceTopo;
 }
 
@@ -97,9 +93,9 @@ void FaceSolver::ResizeAll()
 {
     this->faceTopo->ResizeAll();
     int nFaces = this->faceTopo->faces.size();
-    this->faceBcType->resize( nFaces );
-    this->faceBcKey->resize( nFaces );
-    this->childFid->resize( nFaces );
+    this->faceBcType.resize( nFaces );
+    this->faceBcKey.resize( nFaces );
+    this->childFid.resize( nFaces );
 }
 
 void FaceSolver::ScanPolyhedronElement( CgnsSection * cgnsSection )
@@ -125,8 +121,8 @@ void FaceSolver::ScanPolyhedronElement( CgnsSection * cgnsSection )
                 this->faceTopo->lCells[ polygonFaceId ] = iElem;
                 this->faceTopo->rCells[ polygonFaceId ] = ONEFLOW::INVALID_INDEX;
 
-                (*this->faceBcType)[ polygonFaceId ] = ONEFLOW::INVALID_INDEX;
-                (*this->faceBcKey )[ polygonFaceId ] = ONEFLOW::INVALID_INDEX;
+                this->faceBcType[ polygonFaceId ] = ONEFLOW::INVALID_INDEX;
+                this->faceBcKey[ polygonFaceId ] = ONEFLOW::INVALID_INDEX;
             }
             else
             {
@@ -167,12 +163,12 @@ void FaceSolver::ScanElementFace( CgIntField & eNodeId, int eType, int eId )
             this->faceTopo->lCells.push_back( eId );
             this->faceTopo->rCells.push_back( ONEFLOW::INVALID_INDEX );
 
-            this->faceBcType->push_back( ONEFLOW::INVALID_INDEX );
-            this->faceBcKey->push_back( ONEFLOW::INVALID_INDEX );
+            this->faceBcType.push_back( ONEFLOW::INVALID_INDEX );
+            this->faceBcKey.push_back( ONEFLOW::INVALID_INDEX );
             this->faceTopo->fTypes.push_back( fType );
 
             this->faceTopo->faces.push_back( aNodeId );
-            this->childFid->resize( totalfn );
+            this->childFid.resize( totalfn );
         }
         else
         {
@@ -222,7 +218,7 @@ void FaceSolver::ScanBcFace( IntSet& bcVertex, int bcType, int bcNameId )
         {
             //std::cout << " iFace = " << iFace << " numberOfTotalFaces = " << nFaces << std::endl;
         }
-        int originalBcType = ( * this->faceBcType )[ iFace ];
+        int originalBcType = this->faceBcType[ iFace ];
         int rCell     = ( this->faceTopo->rCells )[ iFace ];
 
         if ( ( rCell          == ONEFLOW::INVALID_INDEX ) && 
@@ -232,8 +228,8 @@ void FaceSolver::ScanBcFace( IntSet& bcVertex, int bcType, int bcNameId )
             {
                 ++ nBFaces;
 
-                ( * this->faceBcType )[ iFace ] = bcType;
-                ( * this->faceBcKey  )[ iFace ] = bcNameId;
+                this->faceBcType[ iFace ] = bcType;
+                this->faceBcKey[ iFace ] = bcNameId;
             }
         }
     }
@@ -266,7 +262,7 @@ void FaceSolver::ScanBcFaceDetail( IntSet& bcVertex, int bcType, int bcNameId )
         {
             //std::cout << " iFace = " << iFace << " numberOfTotalFaces = " << nFaces << std::endl;
         }
-        int originalBcType = ( * this->faceBcType )[ iFace ];
+        int originalBcType = this->faceBcType[ iFace ];
 
         if ( originalBcType == ONEFLOW::INVALID_INDEX )
         {
@@ -274,8 +270,8 @@ void FaceSolver::ScanBcFaceDetail( IntSet& bcVertex, int bcType, int bcNameId )
             {
                 ++ nBFaces;
 
-                ( * this->faceBcType )[ iFace ] = bcType;
-                ( * this->faceBcKey  )[ iFace ] = bcNameId;
+                this->faceBcType[ iFace ] = bcType;
+                this->faceBcKey[ iFace ] = bcNameId;
             }
         }
     }
@@ -292,13 +288,13 @@ void FaceSolver::ScanInterfaceBc()
     int nInterFace = 0;
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
-        int originalBcType = ( * this->faceBcType )[ iFace ];
+        int originalBcType = this->faceBcType[ iFace ];
 
         if ( originalBcType == ONEFLOW::INVALID_INDEX )
         {
             nInterFace ++;
-            ( * this->faceBcType )[ iFace ] = BCTypeNull;
-            ( * this->faceBcKey  )[ iFace ] = bcNameId;
+            this->faceBcType[ iFace ] = BCTypeNull;
+            this->faceBcKey[ iFace ] = bcNameId;
         }
     }
 
@@ -311,7 +307,7 @@ int FaceSolver::GetNSimpleFace()
 
     for ( int iFace = 0; iFace < this->faceTopo->faces.size(); ++ iFace )
     {
-        int nCFace = ( * this->childFid )[ iFace ].size();
+        int nCFace = this->childFid[ iFace ].size();
         if ( nCFace == 0 )
         {
             ++ nSimpleFace;

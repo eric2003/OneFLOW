@@ -178,7 +178,7 @@ void BcVisual::Calcf2n( int bcType )
     UnsGrid * grid = Zone::GetUnsGrid();
     FaceTopo * faceTopo = grid->faceTopo;
     LinkField & total_f2n = faceTopo->faces;
-    BcRecord * bcRecord = faceTopo->bcManager->bcRecord;
+    BcRecord * bcRecord = faceTopo->bcManager->bcRecord.get();
 
     // Çå¿ÕÊý¾Ý
     this->f2n.clear();

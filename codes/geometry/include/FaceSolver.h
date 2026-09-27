@@ -43,9 +43,11 @@ public:
     ~FaceSolver();
 public:
     HXLookup<int> faceLookup;
-    IntField * faceBcKey;
-    IntField * faceBcType;
-    LinkField * childFid;
+    // [Refactored] Changed from raw pointers to value types.
+    // They are now automatically managed by the compiler (stack allocation).
+    IntField faceBcKey;
+    IntField faceBcType;
+    LinkField childFid;
 public:
     FaceTopo * faceTopo;
 public:

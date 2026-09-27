@@ -165,7 +165,7 @@ void AerodynamicForceTask::CalcForce()
 void CalcAeroForce(int idump_pres)
 {
 	UnsGrid * grid = Zone::GetUnsGrid();
-	BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord;
+	BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord.get();
 	bcRecord->CreateBcTypeRegion();
 
 	BcInfo * bcInfo = bcRecord->bcInfo;

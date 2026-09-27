@@ -227,7 +227,7 @@ void SimpleMesh2D::ConstructElement()
 
             int elementType = ONEFLOW::QUAD_4;
 
-            mesh->cellMesh->cellTopo->PushElement( p1, p2, p3, p4, elementType );
+            mesh->cellMesh->cellTopo.PushElement( p1, p2, p3, p4, elementType );
         }
     }
 }
@@ -243,8 +243,8 @@ void SimpleMesh2D::PushElement( IntField & nodeArray1, IntField & nodeArray2, in
         int p2 = nodeArray1[ iNode2 ];
         int p3 = nodeArray2[ iNode1 ];
         int p4 = nodeArray2[ iNode2 ];
-        this->mesh->cellMesh->cellTopo->PushElement( p1, p2, p3, ONEFLOW::TRI_3 );
-        this->mesh->cellMesh->cellTopo->PushElement( p2, p4, p3, ONEFLOW::TRI_3 );
+        this->mesh->cellMesh->cellTopo.PushElement( p1, p2, p3, ONEFLOW::TRI_3 );
+        this->mesh->cellMesh->cellTopo.PushElement( p2, p4, p3, ONEFLOW::TRI_3 );
     }
 }
 
@@ -378,7 +378,7 @@ void Mesh::ConstructTopology()
     HXSize_t numberOfNodes = this->nodeMesh->GetNumberOfNodes();
     HXSize_t numberOfCells = this->cellMesh->GetNumberOfCells();
 
-    CellTopo * cellTopo = this->cellMesh->cellTopo;
+    CellTopo * cellTopo = &this->cellMesh->cellTopo;
     FaceTopo * faceTopo = this->faceMesh->faceTopo;
 
     // Estimate the number of faces and reserve space
@@ -440,7 +440,7 @@ void Mesh::SwapBoundary()
 
     IntField orderMapping( nFaces );
 
-    CellTopo * cellTopo = this->cellMesh->cellTopo;
+    CellTopo * cellTopo = &this->cellMesh->cellTopo;
     FaceTopo * faceTopo = this->faceMesh->faceTopo;
 
     int iBoundaryFaceCount = 0;
@@ -591,7 +591,7 @@ void Mesh::CalcCellCenterVol1D()
     RealField & yN = nodeMesh->yN;
     RealField & zN = nodeMesh->zN;
 
-    CellTopo * cellTopo = this->cellMesh->cellTopo;
+    CellTopo * cellTopo = &this->cellMesh->cellTopo;
     FaceTopo * faceTopo = this->faceMesh->faceTopo;
 
     for ( HXSize_t iCell = 0; iCell < numberOfCells; ++ iCell )
@@ -630,7 +630,7 @@ void Mesh::CalcGhostCellCenterVol1D()
 
     RealField & area = this->faceMesh->area;
 
-    CellTopo * cellTopo = this->cellMesh->cellTopo;
+    CellTopo * cellTopo = &this->cellMesh->cellTopo;
     FaceTopo * faceTopo = this->faceMesh->faceTopo;
 
     // For ghost cells
@@ -679,7 +679,7 @@ void Mesh::CalcCellCenterVol2D()
 
     RealField & area = this->faceMesh->area;
 
-    CellTopo * cellTopo = this->cellMesh->cellTopo;
+    CellTopo * cellTopo = &this->cellMesh->cellTopo;
     FaceTopo * faceTopo = this->faceMesh->faceTopo;
 
     xcc  = 0;
@@ -792,7 +792,7 @@ void Mesh::CalcCellCenterVol3D()
 
     RealField & area = this->faceMesh->area;
 
-    CellTopo * cellTopo = this->cellMesh->cellTopo;
+    CellTopo * cellTopo = &this->cellMesh->cellTopo;
     FaceTopo * faceTopo = this->faceMesh->faceTopo;
 
     RealField & xN = nodeMesh->xN;
