@@ -7,12 +7,11 @@ License
 
     OneFLOW is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
-    the Free Software Foundation either version 3 of the License, or
-    (at your option) any later version.
+    the Free Software Foundation either version 3 of the License, or (at your option) any later version.
 
     OneFLOW is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
     for more details.
 
     You should have received a copy of the GNU General Public License
@@ -25,8 +24,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-
-
 UsdData::UsdData()
 {
     ;
@@ -35,21 +32,6 @@ UsdData::UsdData()
 UsdData::~UsdData()
 {
     ;
-}
-
-const RealField & UsdData::GetQ() const
-{
-    return RealField();
-}
-
-const RealField & UsdData::GetQ1() const
-{
-    return RealField();
-}
-
-const RealField & UsdData::GetQ2() const
-{
-    return RealField();
 }
 
 void UsdData::Init()
@@ -99,6 +81,5 @@ void UsdData::CalcCellDualTimeSrc( Real vol, Real vol1, Real vol2 )
         dualtimeSrc[ iEqu ] = dualSrc;
     }
 }
-
 
 EndNameSpace
