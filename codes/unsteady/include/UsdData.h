@@ -41,9 +41,9 @@ public:
 public:
     UnsteadyConvergence convergence;
 public:
-    const RealField & GetQ() const;
-    const RealField & GetQ1() const;
-    const RealField & GetQ2() const;
+    virtual const RealField & GetQ() const = 0;
+    virtual const RealField & GetQ1() const = 0;
+    virtual const RealField & GetQ2() const = 0;
 
     void CalcCellDualTimeResidual();
     void CalcCellDualTimeSrc( Real vol, Real vol1, Real vol2 );
