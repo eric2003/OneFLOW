@@ -36,8 +36,6 @@ public:
     int nEqu;
 
     RealField res, res1, res2;
-    RealField dualtimeRes;
-    RealField dualtimeSrc;
 public:
     UnsteadyConvergence convergence;
 public:
@@ -45,8 +43,9 @@ public:
     virtual const RealField & GetQ1() const = 0;
     virtual const RealField & GetQ2() const = 0;
 
-    void CalcCellDualTimeResidual();
-    void CalcCellDualTimeSrc( Real vol, Real vol1, Real vol2 );
+    void CalcCellDualTimeResidual( RealField & dualtimeRes );
+    void CalcCellDualTimeSrc(
+        Real vol, Real vol1, Real vol2, RealField & dualtimeSrc );
 public:
     virtual void Init();
     void InitSub( int nEqu );
