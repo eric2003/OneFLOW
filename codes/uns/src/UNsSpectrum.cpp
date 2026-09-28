@@ -33,7 +33,7 @@ License
 #include "HXMath.h"
 #include "DataBase.h"
 #include "FieldBase.h"
-#include "UsdData.h"
+#include "UsdData.h"\n#include "TimeIntegration.h"
 #include "Ctrl.h"
 #include <iostream>
 
@@ -61,7 +61,7 @@ void UNsSpectrum::CalcImplicitSpectrum()
 
 void UNsSpectrum::CalcUnsteadySpectrum()
 {
-    if ( ctrl.idualtime == 0 )//Single time step, note: Yes usd.sp2 !
+    if ( ctrl.idualtime == 0 )//Single time step, note: Yes timeIntegration.sp2 !
     {
         for ( int cId = 0; cId < ug.nCells; ++ cId )
         {
@@ -72,7 +72,7 @@ void UNsSpectrum::CalcUnsteadySpectrum()
     {
         for ( int cId = 0; cId < ug.nCells; ++ cId )
         {
-            ( * unsf.impsr )[ 0 ][ cId ] = ( usd.sp1 / ( * unsf.timestep )[ 0 ][ cId ] + usd.sp2 / ctrl.pdt1 ) * ( * ug.cvol )[ cId ];
+            ( * unsf.impsr )[ 0 ][ cId ] = ( timeIntegration.sp1 / ( * unsf.timestep )[ 0 ][ cId ] + usd.sp2 / ctrl.pdt1 ) * ( * ug.cvol )[ cId ];
         }
     }
 }
