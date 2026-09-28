@@ -31,9 +31,8 @@ public:
     ~UsdData();
 
 public:
-public:
     virtual void Init();
-    void InitSub( int nEqu );
+    void InitSub();
 };
 
 EndNameSpace

@@ -44,9 +44,9 @@ TurbUsdData::~TurbUsdData()
 void TurbUsdData::Init()
 {
     this->InitSub();
-    prim.resize( nEqu );
-    prim1.resize( nEqu );
-    prim2.resize( nEqu );
+    prim.resize( turbcom.nEqu );
+    prim1.resize( turbcom.nEqu );
+    prim2.resize( turbcom.nEqu );
 }
 
 EndNameSpace

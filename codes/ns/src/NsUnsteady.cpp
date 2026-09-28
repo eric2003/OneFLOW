@@ -44,9 +44,9 @@ NsUsdData::~NsUsdData()
 void NsUsdData::Init()
 {
     this->InitSub();
-    prim.resize( nEqu );
-    prim1.resize( nEqu );
-    prim2.resize( nEqu );
+    prim.resize( nscom.nTEqu );
+    prim1.resize( nscom.nTEqu );
+    prim2.resize( nscom.nTEqu );
 }
 
 EndNameSpace
