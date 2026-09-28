@@ -1,3 +1,0 @@
-string walldist_file   =  "grid/m6wingwdst.dat";
-int ireadwdst = 1;
-

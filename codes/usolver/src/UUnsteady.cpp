@@ -40,6 +40,14 @@ UUnsteady::~UUnsteady()
 {
 }
 
+void UUnsteady::SetEquationCount( int equationCount )
+{
+    nEqu = equationCount;
+    prim.resize( nEqu );
+    prim1.resize( nEqu );
+    prim2.resize( nEqu );
+}
+
 void UUnsteady::UpdateDualTimeStepResidual()
 {
     MRField * res =

@@ -38,9 +38,6 @@ public:
 public:
     void Init() override;
 
-public:
-    // Temporary primitive-variable buffers reserved for the incompressible NS path.
-    RealField prim, prim1, prim2;
 };
 
 EndNameSpace

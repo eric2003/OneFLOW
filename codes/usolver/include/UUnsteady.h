@@ -32,6 +32,7 @@ public:
     UUnsteady();
     virtual ~UUnsteady();
 public:
+    void SetEquationCount( int equationCount );
     void UpdateDualTimeStepResidual();
     void UpdateDualTimeStepSource();
     void StoreOldResidual();

@@ -1,5 +1,0 @@
-funcMap.txt
-recvFuncMap.txt
-msgMap.txt
-taskMap.txt
-fileMap.txt

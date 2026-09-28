@@ -35,9 +35,6 @@ public:
 public:
     void Init() override;
 
-public:
-    // Temporary primitive-variable buffers used by the NS unsteady conversion.
-    RealField prim, prim1, prim2;
 };
 
 EndNameSpace
