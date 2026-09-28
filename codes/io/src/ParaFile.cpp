@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "ParaFile.h"
+#include "ConfigLoader.h"
 #include "DataBase.h"
 #include "Parallel.h"
 #include "LogFile.h"
@@ -57,36 +58,17 @@ bool IsArrayParameter( const std::string & lineOfName )
 
 void ReadOneFLOWScriptFile( TextFileParser & textFileParser )
 {
-    //string name, word;
+    ConfigLoader loader;
+    loader.ParseFromParser( textFileParser );
+    loader.CommitToDataBase();
+}
 
-    //\t is the tab key
-    std::string keyWordSeparator = " =\r\n\t#$,;\"";
-
-    textFileParser.SetDefaultSeparator( keyWordSeparator );
-
-    DataBaseType::Init();
-
-    while ( ! textFileParser.ReachTheEndOfFile() )
-    {
-        bool resultFlag = textFileParser.ReadNextMeaningfulLine();
-        if ( ! resultFlag ) break;
-
-        std::string keyWord = textFileParser.ReadNextWord();
-
-        if ( keyWord == "" ) continue;
-
-        //int keyWordIndex = keyWordMap[ keyWord ];
-        int keyWordIndex = DataBaseType::GetIndex( keyWord );
-
-        if ( ONEFLOW::IsArrayParameter( textFileParser.GetCurrentLine() ) )
-        {
-            ONEFLOW::AnalysisArrayParameter( textFileParser, keyWordIndex );
-        }
-        else
-        {
-            ONEFLOW::AnalysisScalarParameter( textFileParser, keyWordIndex );
-        }
-    }
+void ReadOneFLOWScriptFile( const std::string & fileName )
+{
+    TextFileParser textFileParser;
+    textFileParser.OpenFile( fileName, std::ios_base::in );
+    ONEFLOW::ReadOneFLOWScriptFile( textFileParser );
+    textFileParser.CloseFile();
 }
 
 void AnalysisArrayParameter( TextFileParser & textFileParser, int keyWordIndex )
@@ -159,16 +141,6 @@ int GetParameterArraySize( const std::string & word )
     return arraySize;
 }
 
-void ReadOneFLOWScriptFile( const std::string & fileName )
-{
-    TextFileParser textFileParser;
-
-    textFileParser.OpenFile( fileName, std::ios_base::in );
-
-    ONEFLOW::ReadOneFLOWScriptFile( textFileParser );
-
-    textFileParser.CloseFile();
-}
 
 void mytestjson();
 

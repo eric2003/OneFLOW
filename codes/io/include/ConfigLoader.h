@@ -19,49 +19,42 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
+// ConfigLoader.h
 #pragma once
-#include "NamespaceMacros.h"
-#include "SimuBase.h"
-#include "SimuContext.h"
-#include <memory>
-#include <vector>
 #include <string>
+#include <vector>
 
-BeginNameSpace( ONEFLOW )
+namespace ONEFLOW {
 
-// Full simulation path. Owns a SimuContext (phase 2) and dispatches
-// work through TaskRegistry (phase 1).
-class SimuImp : public SimuBase
-{
-public:
-    explicit SimuImp( std::vector<std::string>& args );
-    ~SimuImp() override;
+    class TextFileParser;
 
-    void Run() override;
+    // Represents a single parsed parameter entry before committing to DataBase
+    struct ParameterEntry {
+        std::string name;
+        int type; // Maps to HX_INT, HX_REAL, HX_STRING, etc.
+        std::vector<std::string> values;
+    };
 
-    // Exposed for tests that inject a pre-built context path later.
-    SimuContext& Context() { return *ctx_; }
-    const SimuContext& Context() const { return *ctx_; }
+    // Responsible for parsing script files and loading parameters
+    class ConfigLoader {
+    public:
+        ConfigLoader() = default;
+        ~ConfigLoader() = default;
 
-public:
-    void PreProcess();
-    void MainProcess();
-    void PostProcess();
+        // Parse directly from a file path
+        void ParseFile(const std::string& fileName);
 
-    // Finalize process-level runtime after the case has completed.
-    void FinalizeEnvironment();
+        // Parse from an existing TextFileParser (Used for legacy interface integration)
+        void ParseFromParser(TextFileParser& parser);
 
-protected:
-    void InitSimu();
-    void RunSimu();
+        // Commit all parsed entries to the global DataBase
+        void CommitToDataBase() const;
 
-private:
-    std::unique_ptr<SimuContext> ctx_;
+    private:
+        std::vector<ParameterEntry> entries_;
 
-public:
-    // Kept for source compatibility with any code reading simu.args.
-    // Prefer Context().Args().
-    std::vector<std::string> args;
-};
+        void ParseScalarParameter(TextFileParser& parser, ParameterEntry& entry);
+        void ParseArrayParameter(TextFileParser& parser, ParameterEntry& entry);
+    };
 
-EndNameSpace
+} // namespace ONEFLOW

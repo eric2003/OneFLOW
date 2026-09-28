@@ -43,6 +43,12 @@ void ScalarZone::Allocate()
 
 void ScalarZone::DeAllocate()
 {
+    for ( HXSize_t iZone = 0; iZone < ScalarZone::scalar_grids.size(); ++ iZone )
+    {
+        delete ScalarZone::scalar_grids[ iZone ];
+    }
+    ScalarZone::scalar_grids.resize( 0 );
+    ScalarZone::nLocalZones = 0;
 }
 
 void ScalarZone::AddGrid( int zid, ScalarGrid * grid )

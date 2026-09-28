@@ -140,6 +140,8 @@ void SolverMap::FreeSolverMap()
     SolverMap::FreeSolverMap( ONEFLOW::UMESH );
     SolverMap::FreeSolverMap( ONEFLOW::SMESH );
     SolverMap::ClearIndexMaps();
+    LusgsState::Reset();
+    SolverState::Reset();
 }
 
 // Index-map / SelectSolverNames implementations: SolverMapIndex.cpp

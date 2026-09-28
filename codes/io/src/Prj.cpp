@@ -50,11 +50,8 @@ void Prj::ProcessCmdLineArgs( std::vector<std::string> & args )
 {
     CmdLineOptions opt = Prj::ParseCmdLineArgs( args );
 
-    if ( opt.debug )
-    {
-        Prj::hx_debug = true;
-        Prj::run_from_ide = true;
-    }
+    Prj::hx_debug = opt.debug;
+    Prj::run_from_ide = opt.debug;
 
     Prj::Init();
     Prj::SetPrjBaseDir( opt.caseDir );

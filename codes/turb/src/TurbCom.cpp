@@ -40,6 +40,13 @@ TurbCom::~TurbCom()
     ;
 }
 
+void TurbCom::Reset()
+{
+    init_flag = false;
+    bcdtkey = 0;
+    bcflow = nullptr;
+}
+
 void TurbCom::Init()
 {
     if ( init_flag ) return;

@@ -154,6 +154,15 @@ void DataPara::DeleteDataPointer( const std::string & name )
     }
 }
 
+void DataPara::Clear()
+{
+    for ( auto & pair : *dataMap )
+    {
+        delete pair.second;
+    }
+    dataMap->clear();
+}
+
 void DataPara::DumpData( std::fstream & file )
 {
     std::cout << " Dumping database:\n";

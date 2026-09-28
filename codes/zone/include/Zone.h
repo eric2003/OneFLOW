@@ -44,6 +44,7 @@ public:
     static HXVector< Grids * > globalGrids;
     static int nLocalZones;
     static void AddGrid( int zid, Grid * grid );
+    static void ReleaseGrids();
     static void InitLayout( StringField & fileNameList );
     static void ReadGrid( StringField & fileNameList );
     static void NormalizeLayout();

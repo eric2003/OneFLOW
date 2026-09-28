@@ -51,15 +51,15 @@ public:
     int gridObj{ 0 };
 
     int multiBlock{ 0 };
-    int axis_dir{ 0 };
-    Real gridScale{ 1.0 };
-    RealField gridTrans;
+    int axis_dir{ 0 };       // prefer axisDirection()
+    Real gridScale{ 1.0 };   // prefer scale()
+    RealField gridTrans;     // prefer translation()
 
 public:
     // Load from DataBase and refresh both typed and legacy fields.
     void Init();
 
-    // Typed accessors (C++20-friendly API).
+    // Typed accessors (prefer these over raw public fields in new code).
     [[nodiscard]] GridObjective objective() const noexcept
     {
         return ParseGridObjective( gridObj ).value_or( GridObjective::ConvertOnly );
@@ -75,11 +75,18 @@ public:
         return ParseGridFileType( target_filetype );
     }
 
+    [[nodiscard]] int axisDirection() const noexcept { return axis_dir; }
+    [[nodiscard]] Real scale() const noexcept { return gridScale; }
+    [[nodiscard]] const RealField & translation() const noexcept { return gridTrans; }
+
     // Build a GridConfig snapshot from the current (already Init'd) state.
     [[nodiscard]] GridConfig ToConfig() const;
 };
 
+// Historical global instance. Prefer GridConfig::FromDataBase() in new code.
 extern GridPara grid_para;
+
+[[nodiscard]] inline GridPara & GridParameters() noexcept { return grid_para; }
 
 int GetGridTopoType();
 

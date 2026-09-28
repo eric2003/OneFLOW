@@ -42,6 +42,7 @@ public:
     static IntField zoneType;
     static IntField localZid;
 public:
+    static void Reset();
     static bool IsValidZone( int zoneId );
     static int GetZid( int iSr );
 };

@@ -44,6 +44,10 @@ CmdLineOptions Prj::ParseCmdLineArgs(
     opt.debug = ( args[ 1 ] == "d" );
     opt.caseDir = args[ 2 ];
 
+    // Keep the first case for the current single-case execution path,
+    // while preserving additional case directories for the next phase.
+    opt.caseDirs.assign( args.begin() + 2, args.end() );
+
     return opt;
 }
 

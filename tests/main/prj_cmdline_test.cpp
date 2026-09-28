@@ -45,18 +45,21 @@ TEST( PrjParseCmdLineArgs, EmptyArgsThrows )
         Prj::ParseCmdLineArgs( {} ),
         std::invalid_argument );
 }
-TEST( PrjParseCmdLineArgs, ExtraArgsBeyondThirdAreIgnored )
+TEST( PrjParseCmdLineArgs, AdditionalCaseDirectoriesArePreserved )
 {
     CmdLineOptions opt = Prj::ParseCmdLineArgs(
         {
             "OneFlow.exe",
             "d",
-            "test/plateuns2dslau2/",
-            "extra_ignored"
+            "test/caseA/",
+            "test/caseB/"
         } );
 
     EXPECT_TRUE( opt.debug );
-    EXPECT_EQ( opt.caseDir, "test/plateuns2dslau2/" );
+    EXPECT_EQ( opt.caseDir, "test/caseA/" );
+    ASSERT_EQ( opt.caseDirs.size(), 2u );
+    EXPECT_EQ( opt.caseDirs[ 0 ], "test/caseA/" );
+    EXPECT_EQ( opt.caseDirs[ 1 ], "test/caseB/" );
 }
 
 namespace

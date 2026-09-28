@@ -37,6 +37,12 @@ BcData::~BcData()
 
 void BcData::Init( const std::string & fileName )
 {
+    // BcData is reused by multiple cases in one process.
+    // Discard the previous case before reading the new boundary data.
+    this->r2d.clear();
+    this->irList.clear();
+    this->dataList.clear();
+
     this->ReadList( fileName );
     this->ReadRegion();
     this->r2d.resize( nRegion, -1 );

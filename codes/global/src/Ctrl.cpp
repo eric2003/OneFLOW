@@ -39,6 +39,11 @@ Ctrl::~Ctrl()
 
 void Ctrl::Init()
 {
+    initplane.clear();
+    initflow1.clear();
+    initflow2.clear();
+    rk_coef.clear();
+
     startStrategy = GetDataValue< int >( "startStrategy" );
     this->time_integral = GetDataValue< int >( "time_integral" );
     this->linearTwoStepMethods = GetDataValue< int >( "linearTwoStepMethods" );

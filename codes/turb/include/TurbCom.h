@@ -160,6 +160,7 @@ public:
     RealField q, q0, dq;
 public:
     void Init();
+    void Reset();
     void InitConst();
     void InitInflow();
     void CalcSigkw();

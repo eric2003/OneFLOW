@@ -142,6 +142,7 @@ void Simulation::RunImpl()
         std::cout << "\n===== ONEFLOW Full Simulation Mode =====\n";
         auto simu = std::make_unique<SimuImp>( args );
         simu->Run();
+        simu->FinalizeEnvironment();
     }
 }
 

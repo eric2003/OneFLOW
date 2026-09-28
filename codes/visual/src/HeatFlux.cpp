@@ -90,7 +90,11 @@ void HeatFlux::DeAllocate()
         delete this->heatflux[ i ];
         delete this->fricflux[ i ];
     }
-}
 
+    this->heatflux.clear();
+    this->fricflux.clear();
+    this->flag.clear();
+    this->init_flag = false;
+}
 
 EndNameSpace

@@ -47,6 +47,11 @@ INsSolver::~INsSolver()
 {
 }
 
+void INsSolver::Reset()
+{
+    INsSolver::initFlag = false;
+}
+
 void INsSolver::StaticInit()
 {
     if ( INsSolver::initFlag ) return;
@@ -64,6 +69,8 @@ void INsSolver::StaticInit()
 
     solverInfo->residualName = "res";
     solverInfo->resFileName = GetDataValue< std::string >( "resFile" );
+    solverInfo->gradString.clear();
+    solverInfo->implicitString.clear();
     solverInfo->gradString.push_back( "q"    );
     solverInfo->gradString.push_back( "dqdx" );
     solverInfo->gradString.push_back( "dqdy" );

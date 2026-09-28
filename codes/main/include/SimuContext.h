@@ -80,7 +80,13 @@ public:
     // Still delegates to existing free functions / singletons.
     void SetupEnvironment();
 
-    // Mirror of SetupEnvironment tear-down.
+    // Release resources owned by one case while keeping process runtime alive.
+    void TeardownCase();
+
+    // Finalize process-level runtime after all cases have completed.
+    void FinalizeEnvironment();
+
+    // Compatibility entry point for the existing single-case path.
     void TeardownEnvironment();
 
     // Read simutask from the control database into this context.

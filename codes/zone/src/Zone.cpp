@@ -57,6 +57,29 @@ Zone::~Zone()
 {
 }
 
+void Zone::ReleaseGrids()
+{
+    for ( HXSize_t zid = 0; zid < Zone::globalGrids.size(); ++ zid )
+    {
+        Grids * grids = Zone::globalGrids[ zid ];
+        if ( ! grids ) continue;
+
+        for ( HXSize_t gl = 0; gl < grids->size(); ++ gl )
+        {
+            delete ( * grids )[ gl ];
+        }
+        delete grids;
+    }
+
+    Zone::globalGrids.resize( 0 );
+    Zone::nLocalZones = 0;
+    Zone::flag_test_grid = 0;
+
+    ScalarZone::DeAllocate();
+    interFaceTopo.data.clear();
+    InterFaceState::interFace = 0;
+}
+
 void Zone::AddGrid( int zid, Grid * grid )
 {
     if ( Zone::globalGrids.size() == 0 )

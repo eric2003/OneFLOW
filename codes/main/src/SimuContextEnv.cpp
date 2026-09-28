@@ -28,6 +28,21 @@ License
 #include "ParaFile.h"
 #include "Parallel.h"
 #include "AccelRuntime.h"
+#include "SolverMap.h"
+#include "SolverNameList.h"
+#include "Zone.h"
+#include "ZoneState.h"
+#include "GridState.h"
+#include "FieldManager.h"
+#include "UsdFieldConfig.h"
+#include "DataBase.h"
+#include "HeatFlux.h"
+#include "NsCom.h"
+#include "NsSolver.h"
+#include "INsSolver.h"
+#include "TurbSolver.h"
+#include "TurbCom.h"
+#include "Tolerence.h"
 #include <iostream>
 
 BeginNameSpace( ONEFLOW )
@@ -50,14 +65,39 @@ void SimuContext::SetupEnvironment()
     envReady_ = true;
 }
 
-void SimuContext::TeardownEnvironment()
+void SimuContext::TeardownCase()
 {
     // Device-backed states must release allocations while the selected
     // accelerator runtime is still alive.
     ClearAccelStates();
+    SolverMap::FreeSolverMap();
+    SolverNameClass::Reset();
+    heat_flux.DeAllocate();
+    nscom.Reset();
+    NsSolver::Reset();
+    INsSolver::Reset();
+    TurbSolver::Reset();
+    turbcom.Reset();
+    Tolerence::Reset();
+    Zone::ReleaseGrids();
+    ZoneState::Reset();
+    GridState::Reset();
+    FieldManagerRegistry::FreeFieldManager();
+    UsdFieldConfigRegistry::FreeConfig();
+    GetGlobalDataBase()->dataPara->Clear();
+    envReady_ = false;
+}
+
+void SimuContext::FinalizeEnvironment()
+{
     ONEFLOW::FinalizeAccelRuntime();
     HXFinalize();
-    envReady_ = false;
+}
+
+void SimuContext::TeardownEnvironment()
+{
+    TeardownCase();
+    FinalizeEnvironment();
 }
 
 void SimuContext::ResolveTaskFromControl()

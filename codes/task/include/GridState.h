@@ -40,6 +40,7 @@ public:
 public:
     static int gridLevel;
     static int nGrids;
+    static void Reset();
 public:
     static int GetCGridLevel( int gl );
     static void SetGridLevel( int gridLevel );

@@ -46,6 +46,11 @@ NsSolver::~NsSolver()
 {
 }
 
+void NsSolver::Reset()
+{
+    NsSolver::initFlag = false;
+}
+
 void NsSolver::StaticInit()
 {
     if ( NsSolver::initFlag ) return;
@@ -61,6 +66,8 @@ void NsSolver::StaticInit()
     solverInfo->nEqu  = nscom.nEqu;
     solverInfo->nTEqu = nscom.nTEqu;
     solverInfo->residualName = "res";
+    solverInfo->gradString.clear();
+    solverInfo->implicitString.clear();
     solverInfo->resFileName = GetDataValue< std::string >( "resFile" );
     solverInfo->gradString.push_back( "q"    );
     solverInfo->gradString.push_back( "dqdx" );
