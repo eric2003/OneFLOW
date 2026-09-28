@@ -178,3 +178,38 @@ TEST( GlobalGridTest, ScopedCurrentRestoresPrevious )
     EXPECT_EQ( GlobalGrid::GetCurrentGridMediator(), &outer );
     GlobalGrid::SetCurrentGridMediator( nullptr );
 }
+
+TEST( GridOpCatalogTest, AllTokensRoundTrip )
+{
+    for ( std::string_view tok : kGridOpTokens )
+    {
+        auto op = ParseGridOp( tok );
+        ASSERT_TRUE( op.has_value() ) << tok;
+        EXPECT_EQ( ToString( *op ), tok );
+        EXPECT_TRUE( IsKnownGridOpToken( tok ) );
+    }
+}
+
+TEST( GridOpCatalogTest, CaseInsensitiveParse )
+{
+    EXPECT_EQ( ParseGridOp( "calc_metrics" ), GridOp::CalcMetrics );
+    EXPECT_EQ( ParseGridOp( "Fill_Wall_Struct" ), GridOp::FillWallStruct );
+    EXPECT_EQ( ParseGridOp( "ALLOCATE_WALL_DIST" ), GridOp::AllocWallDist );
+}
+
+TEST( GridOpCatalogTest, UnknownTokenRejected )
+{
+    EXPECT_FALSE( ParseGridOp( "NOT_A_GRID_OP" ).has_value() );
+    EXPECT_FALSE( IsKnownGridOpToken( "" ) );
+    EXPECT_FALSE( IsKnownGridOpToken( "CALC_METRIC" ) ); // missing S
+}
+
+TEST( GridOpCatalogTest, TokenTableHasUniqueEntries )
+{
+    std::set< std::string > seen;
+    for ( std::string_view tok : kGridOpTokens )
+    {
+        EXPECT_TRUE( seen.insert( std::string( tok ) ).second ) << tok;
+    }
+    EXPECT_EQ( seen.size(), kGridOpTokens.size() );
+}

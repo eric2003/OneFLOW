@@ -56,8 +56,8 @@ enum class GridFileType
 };
 
 // ---------------------------------------------------------------------------
-// Runtime grid operations registered under system/grid/function/*.
-// Names match the historical taskMap / funcMap tokens.
+// Runtime grid operations registered under system/grid (taskMap / funcMap).
+// Token strings match historical map files (case-insensitive parse).
 // ---------------------------------------------------------------------------
 enum class GridOp
 {
@@ -68,6 +68,18 @@ enum class GridOp
     ReadWallDist,
     WriteWallDist,
     AllocWallDist
+};
+
+// Canonical token table (order matches enum underlying values when sequential).
+// Use for validation / documentation of system/grid maps.
+inline constexpr std::array< std::string_view, 7 > kGridOpTokens = {
+    "CALC_METRICS",
+    "SWAP_CELLCENTER",
+    "FILL_WALL_STRUCT",
+    "CALC_WALL_DIST",
+    "READ_WALL_DIST",
+    "WRITE_WALL_DIST",
+    "ALLOCATE_WALL_DIST"
 };
 
 // ---------------------------------------------------------------------------
@@ -162,27 +174,33 @@ inline bool EqualIgnoreCase( std::string_view a, std::string_view b ) noexcept
 {
     switch ( op )
     {
-        case GridOp::CalcMetrics:    return "CALC_METRICS";
-        case GridOp::SwapCellCenter: return "SWAP_CELLCENTER";
-        case GridOp::FillWallStruct: return "FILL_WALL_STRUCT";
-        case GridOp::CalcWallDist:   return "CALC_WALL_DIST";
-        case GridOp::ReadWallDist:   return "READ_WALL_DIST";
-        case GridOp::WriteWallDist:  return "WRITE_WALL_DIST";
-        case GridOp::AllocWallDist:  return "ALLOCATE_WALL_DIST";
+        case GridOp::CalcMetrics:    return kGridOpTokens[ 0 ];
+        case GridOp::SwapCellCenter: return kGridOpTokens[ 1 ];
+        case GridOp::FillWallStruct: return kGridOpTokens[ 2 ];
+        case GridOp::CalcWallDist:   return kGridOpTokens[ 3 ];
+        case GridOp::ReadWallDist:   return kGridOpTokens[ 4 ];
+        case GridOp::WriteWallDist:  return kGridOpTokens[ 5 ];
+        case GridOp::AllocWallDist:  return kGridOpTokens[ 6 ];
         default:                     return "UNKNOWN_GRID_OP";
     }
 }
 
 [[nodiscard]] inline std::optional< GridOp > ParseGridOp( std::string_view name ) noexcept
 {
-    if ( grid_types_detail::EqualIgnoreCase( name, "CALC_METRICS" ) )       return GridOp::CalcMetrics;
-    if ( grid_types_detail::EqualIgnoreCase( name, "SWAP_CELLCENTER" ) )    return GridOp::SwapCellCenter;
-    if ( grid_types_detail::EqualIgnoreCase( name, "FILL_WALL_STRUCT" ) )   return GridOp::FillWallStruct;
-    if ( grid_types_detail::EqualIgnoreCase( name, "CALC_WALL_DIST" ) )     return GridOp::CalcWallDist;
-    if ( grid_types_detail::EqualIgnoreCase( name, "READ_WALL_DIST" ) )     return GridOp::ReadWallDist;
-    if ( grid_types_detail::EqualIgnoreCase( name, "WRITE_WALL_DIST" ) )    return GridOp::WriteWallDist;
-    if ( grid_types_detail::EqualIgnoreCase( name, "ALLOCATE_WALL_DIST" ) ) return GridOp::AllocWallDist;
+    if ( grid_types_detail::EqualIgnoreCase( name, kGridOpTokens[ 0 ] ) ) return GridOp::CalcMetrics;
+    if ( grid_types_detail::EqualIgnoreCase( name, kGridOpTokens[ 1 ] ) ) return GridOp::SwapCellCenter;
+    if ( grid_types_detail::EqualIgnoreCase( name, kGridOpTokens[ 2 ] ) ) return GridOp::FillWallStruct;
+    if ( grid_types_detail::EqualIgnoreCase( name, kGridOpTokens[ 3 ] ) ) return GridOp::CalcWallDist;
+    if ( grid_types_detail::EqualIgnoreCase( name, kGridOpTokens[ 4 ] ) ) return GridOp::ReadWallDist;
+    if ( grid_types_detail::EqualIgnoreCase( name, kGridOpTokens[ 5 ] ) ) return GridOp::WriteWallDist;
+    if ( grid_types_detail::EqualIgnoreCase( name, kGridOpTokens[ 6 ] ) ) return GridOp::AllocWallDist;
     return std::nullopt;
+}
+
+// Returns true if token is a known grid operation (case-insensitive).
+[[nodiscard]] inline bool IsKnownGridOpToken( std::string_view name ) noexcept
+{
+    return ParseGridOp( name ).has_value();
 }
 
 EndNameSpace
