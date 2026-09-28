@@ -215,7 +215,7 @@ void TimeIntegration::CalcSrcCoeff()
     sc2 = - sc1 - sc3;
 }
 
-void TimeIntegration::InitBasic()
+void TimeIntegration::Init()
 {
     this->InitCoef();
     this->CalcResCoef();
