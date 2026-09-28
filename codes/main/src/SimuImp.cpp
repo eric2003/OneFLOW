@@ -60,7 +60,12 @@ void SimuImp::MainProcess()
 
 void SimuImp::PostProcess()
 {
-    ctx_->TeardownEnvironment();
+    ctx_->TeardownCase();
+}
+
+void SimuImp::FinalizeEnvironment()
+{
+    ctx_->FinalizeEnvironment();
 }
 
 void SimuImp::InitSimu()

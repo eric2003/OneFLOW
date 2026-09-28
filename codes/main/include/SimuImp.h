@@ -48,6 +48,9 @@ public:
     void MainProcess();
     void PostProcess();
 
+    // Finalize process-level runtime after the case has completed.
+    void FinalizeEnvironment();
+
 protected:
     void InitSimu();
     void RunSimu();

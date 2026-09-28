@@ -50,14 +50,24 @@ void SimuContext::SetupEnvironment()
     envReady_ = true;
 }
 
-void SimuContext::TeardownEnvironment()
+void SimuContext::TeardownCase()
 {
     // Device-backed states must release allocations while the selected
     // accelerator runtime is still alive.
     ClearAccelStates();
+    envReady_ = false;
+}
+
+void SimuContext::FinalizeEnvironment()
+{
     ONEFLOW::FinalizeAccelRuntime();
     HXFinalize();
-    envReady_ = false;
+}
+
+void SimuContext::TeardownEnvironment()
+{
+    TeardownCase();
+    FinalizeEnvironment();
 }
 
 void SimuContext::ResolveTaskFromControl()
