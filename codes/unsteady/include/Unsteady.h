@@ -23,20 +23,19 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include "UsdField.h"
 
 BeginNameSpace( ONEFLOW )
 
 class Unsteady;
 using USDFunc = void( * )( Unsteady * unst ); 
-class UsdField;
-
 class Unsteady
 {
 public:
     Unsteady();
     virtual ~Unsteady();
 public:
-    UsdField * field;
+    UsdField field;
     USDFunc srcFun;
     USDFunc criFun;
     int solverType;
