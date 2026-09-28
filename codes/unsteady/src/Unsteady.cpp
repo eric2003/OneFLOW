@@ -46,18 +46,16 @@ void Unsteady::UpdateUnsteady( int solverType )
     UsdField usdField;
     usdField.InitBasic( solverType );
 
-    MRField * q =
-        usdField.GetFlow( UsdField::HistoryLevel::Current );
-
-    MRField * q1 =
-        usdField.GetFlow( UsdField::HistoryLevel::Previous );
-
-    MRField * q2 =
-        usdField.GetFlow( UsdField::HistoryLevel::Old );
-
-    SetField( q2, q1 );
-    SetField( q1, q  );
-
+    // Shift from the oldest configured level toward the current level.
+    // Reverse order prevents overwriting a history level before it is copied.
+    for ( std::size_t level = usdField.flow.size();
+        level > 1;
+        -- level )
+    {
+        SetField(
+            usdField.GetFlow( level - 1 ),
+            usdField.GetFlow( level - 2 ) );
+    }
 }
 
 EndNameSpace
