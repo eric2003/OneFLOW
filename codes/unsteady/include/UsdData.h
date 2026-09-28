@@ -42,13 +42,6 @@ public:
     virtual const RealField & GetQ1() const = 0;
     virtual const RealField & GetQ2() const = 0;
 
-    void CalcCellDualTimeResidual(
-        const RealField & res,
-        const RealField & res1,
-        const RealField & res2,
-        RealField & dualtimeRes );
-    void CalcCellDualTimeSrc(
-        Real vol, Real vol1, Real vol2, RealField & dualtimeSrc );
 public:
     virtual void Init();
     void InitSub( int nEqu );
