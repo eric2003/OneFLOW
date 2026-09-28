@@ -148,7 +148,7 @@ void UUnsteady::CalcDualTimeSrc()
 
         ( * this->srcFun )( this );
 
-        data->CalcCellDualTimeSrc();
+        data->CalcCellDualTimeSrc( gcom.cvol, gcom.cvol1, gcom.cvol2 );
 
         this->UpdateDualTimeStepSource();
     }
