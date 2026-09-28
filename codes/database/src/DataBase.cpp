@@ -63,12 +63,12 @@ DataBase::~DataBase()
     delete dataField;
 }
 
-void HXWriteVoid( DataBook * dataBook, DataEntry * dataEntry )
+void HXWriteVoid( DataBook * dataBook, const DataEntry * dataEntry )
 {
     dataEntry->data->Write( dataBook );
 }
 
-void HXWriteDataEntry( DataBook * dataBook, DataEntry * dataEntry )
+void HXWriteDataEntry( DataBook * dataBook, const DataEntry * dataEntry )
 {
     ONEFLOW::HXWrite( dataBook, dataEntry->name );
     ONEFLOW::HXWrite( dataBook, dataEntry->type );

@@ -51,8 +51,8 @@ public:
     DataField *dataField;
 };
 void HXReadDataEntry( DataBook * dataBook, DataEntry * dataEntry );
-void HXWriteDataEntry( DataBook * dataBook, DataEntry * dataEntry );
-void HXWriteVoid( DataBook * dataBook, DataEntry * dataEntry );
+void HXWriteDataEntry( DataBook * dataBook, const DataEntry * dataEntry );
+void HXWriteVoid( DataBook * dataBook, const DataEntry * dataEntry );
 void HXReadVoid( DataBook * dataBook, DataEntry * dataEntry );
 
 DataBase * GetGlobalDataBase();

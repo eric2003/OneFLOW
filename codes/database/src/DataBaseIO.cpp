@@ -39,7 +39,7 @@ void HXRead( DataBook * dataBook, std::string & cs )
     delete[] data;
 }
 
-void HXWrite( DataBook * dataBook, std::string & cs )
+void HXWrite( DataBook * dataBook, const std::string & cs )
 {
     int nLength = cs.length();
     ONEFLOW::HXWrite( dataBook, nLength );
