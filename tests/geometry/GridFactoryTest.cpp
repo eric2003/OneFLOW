@@ -145,7 +145,7 @@ TEST( GridFactoryDispatchTest, UnknownObjectiveThrows )
 TEST( GlobalGridTest, GetGridWithoutMediatorThrows )
 {
     GlobalGrid::SetCurrentGridMediator( nullptr );
-    EXPECT_THROW( GlobalGrid::GetGrid( 0 ), std::logic_error );
+    EXPECT_THROW( (void)GlobalGrid::GetGrid( 0 ), std::logic_error );
 }
 
 TEST( GlobalGridTest, ScopedCurrentRestoresPrevious )
@@ -198,4 +198,11 @@ TEST( GridOpCatalogTest, TokenTableHasUniqueEntries )
         EXPECT_TRUE( seen.insert( std::string( tok ) ).second ) << tok;
     }
     EXPECT_EQ( seen.size(), kGridOpTokens.size() );
+}
+
+TEST( GridTypesTest, ParseGridFileTypeGridgen )
+{
+    EXPECT_EQ( ParseGridFileType( "gridgen" ), GridFileType::Gridgen );
+    EXPECT_EQ( ParseGridFileType( "GridGen" ), GridFileType::Gridgen );
+    EXPECT_EQ( ToString( GridFileType::Gridgen ), "gridgen" );
 }

@@ -52,6 +52,7 @@ enum class GridFileType
     SU2,
     CGNS,
     OneFLOW,
+    Gridgen,
     Unknown
 };
 
@@ -143,6 +144,7 @@ inline bool EqualIgnoreCase( std::string_view a, std::string_view b ) noexcept
     if ( grid_types_detail::EqualIgnoreCase( name, "su2" ) )     return GridFileType::SU2;
     if ( grid_types_detail::EqualIgnoreCase( name, "cgns" ) )    return GridFileType::CGNS;
     if ( grid_types_detail::EqualIgnoreCase( name, "oneflow" ) ) return GridFileType::OneFLOW;
+    if ( grid_types_detail::EqualIgnoreCase( name, "gridgen" ) ) return GridFileType::Gridgen;
     return GridFileType::Unknown;
 }
 
@@ -154,6 +156,7 @@ inline bool EqualIgnoreCase( std::string_view a, std::string_view b ) noexcept
         case GridFileType::SU2:     return "su2";
         case GridFileType::CGNS:    return "cgns";
         case GridFileType::OneFLOW: return "oneflow";
+        case GridFileType::Gridgen: return "gridgen";
         default:                    return "unknown";
     }
 }

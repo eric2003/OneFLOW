@@ -27,19 +27,25 @@ License
 #include "StringUtils.h"
 #include "BcRecord.h"
 #include "GridPara.h"
+#include "GridTypes.h"
 #include <utility>
 
 BeginNameSpace( ONEFLOW )
 
 void GridMediator::ReadGrid()
 {
-    if ( this->gridType == "gridgen" )
+    // Dispatch by typed format (case-insensitive via ParseGridFileType).
+    switch ( ParseGridFileType( this->gridType ) )
     {
-        this->ReadGridgen();
-    }
-    else if ( this->gridType == "plot3d" )
-    {
-        this->ReadPlot3D();
+        case GridFileType::Gridgen:
+            this->ReadGridgen();
+            break;
+        case GridFileType::Plot3D:
+            this->ReadPlot3D();
+            break;
+        default:
+            // Unsupported or empty type: no-op (historical behavior).
+            break;
     }
 }
 
