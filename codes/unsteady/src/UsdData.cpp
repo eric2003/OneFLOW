@@ -7,12 +7,12 @@ License
 
     OneFLOW is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
+    the Free Software Foundation either version 3 of the License, or
     (at your option) any later version.
 
     OneFLOW is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
     for more details.
 
     You should have received a copy of the GNU General Public License
@@ -37,6 +37,21 @@ UsdData::~UsdData()
     ;
 }
 
+const RealField & UsdData::GetQ() const
+{
+    return RealField();
+}
+
+const RealField & UsdData::GetQ1() const
+{
+    return RealField();
+}
+
+const RealField & UsdData::GetQ2() const
+{
+    return RealField();
+}
+
 void UsdData::Init()
 {
     int nEqu = 1;
@@ -50,10 +65,6 @@ void UsdData::InitSub( int nEqu )
     res.resize( nEqu );
     res1.resize( nEqu );
     res2.resize( nEqu );
-
-    q.resize( nEqu );
-    q1.resize( nEqu );
-    q2.resize( nEqu );
 
     dualtimeRes.resize( nEqu );
     dualtimeSrc.resize( nEqu );
@@ -73,6 +84,10 @@ void UsdData::CalcCellDualTimeResidual()
 
 void UsdData::CalcCellDualTimeSrc( Real vol, Real vol1, Real vol2 )
 {
+    const RealField & q  = this->GetQ();
+    const RealField & q1 = this->GetQ1();
+    const RealField & q2 = this->GetQ2();
+
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
         Real dualSrc0 = timeIntegration.sc1 * vol  * q [ iEqu ];
