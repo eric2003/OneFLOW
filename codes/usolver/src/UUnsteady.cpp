@@ -164,8 +164,11 @@ void UUnsteady::CalcUnsteadyCriterion()
         ug.cId = cId;
 
         ( * this->criFun )( this );
-        
-        data->convergence.Accumulate( data->res, data->q1, data->q2 );
+
+        data->convergence.Accumulate(
+            data->res,
+            data->GetQ1(),
+            data->GetQ2() );
     }
 
     data->convergence.Calculate();
