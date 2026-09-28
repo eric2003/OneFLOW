@@ -130,9 +130,9 @@ void UUnsteady::CalcCellDualTimeResidual()
 
 void UUnsteady::CalcCellDualTimeSrc()
 {
-    const RealField & q  = data->GetQ();
-    const RealField & q1 = data->GetQ1();
-    const RealField & q2 = data->GetQ2();
+    const RealField & q  = this->q;
+    const RealField & q1 = this->q1;
+    const RealField & q2 = this->q2;
 
     for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
     {
