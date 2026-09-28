@@ -48,6 +48,24 @@ void TurbUsdData::Init()
     prim.resize( nEqu );
     prim1.resize( nEqu );
     prim2.resize( nEqu );
+    q.resize( nEqu );
+    q1.resize( nEqu );
+    q2.resize( nEqu );
+}
+
+const RealField & TurbUsdData::GetQ() const
+{
+    return q;
+}
+
+const RealField & TurbUsdData::GetQ1() const
+{
+    return q1;
+}
+
+const RealField & TurbUsdData::GetQ2() const
+{
+    return q2;
 }
 
 
