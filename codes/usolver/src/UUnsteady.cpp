@@ -23,6 +23,7 @@ License
 #include "UUnsteady.h"
 #include "UsdData.h"
 #include "UsdField.h"
+#include "UnsteadyConvergence.h"
 #include "TimeIntegration.h"
 #include "Iteration.h"
 #include "UCom.h"
@@ -155,7 +156,7 @@ void UUnsteady::CalcDualTimeSrc()
 
 void UUnsteady::CalcUnsteadyCriterion()
 {
-    data->ZeroData();
+    data->convergence.Reset();
 
     for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
@@ -163,10 +164,10 @@ void UUnsteady::CalcUnsteadyCriterion()
 
         ( * this->criFun )( this );
         
-        data->CalcCellUnsteadyCri();
+        data->convergence.Accumulate( data->res, data->q1, data->q2 );
     }
 
-    data->CalcCvg();
+    data->convergence.Calculate();
 }
 
 EndNameSpace
