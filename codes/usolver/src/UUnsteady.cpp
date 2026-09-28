@@ -11,8 +11,8 @@ License
     (at your option) any later version.
 
     OneFLOW is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
     for more details.
 
     You should have received a copy of the GNU General Public License
@@ -23,6 +23,7 @@ License
 #include "UUnsteady.h"
 #include "UsdData.h"
 #include "UsdField.h"
+#include "TimeIntegration.h"
 #include "Iteration.h"
 #include "UCom.h"
 #include <iostream>
@@ -117,7 +118,7 @@ void UUnsteady::PrepareResidual()
 
 void UUnsteady::CalcDualTimeResidual()
 {
-    data->CalcResCoef();
+    timeIntegration.CalcResCoef();
 
     for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
@@ -138,7 +139,7 @@ void UUnsteady::CalcDualTimeSrc()
 
     this->CalcDualTimeResidual();
 
-    data->CalcSrcCoeff();
+    timeIntegration.CalcSrcCoeff();
 
     for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
