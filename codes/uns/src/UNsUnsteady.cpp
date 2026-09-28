@@ -108,6 +108,7 @@ void UNsUnstPrepareSrcData( Unsteady * unst )
 void UNsUnstPrepareCriData( Unsteady * unst )
 {
     NsUsdData * data = static_cast< NsUsdData * >( unst->data );
+    UUnsteady * unsteady = static_cast< UUnsteady * >( unst );
     UsdField * field = unst->field;
 
     MRField * q =
