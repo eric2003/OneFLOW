@@ -72,7 +72,7 @@ Restart::~Restart()
 
 void Restart::ReadUnsteady( int solverType )
 {
-    UsdField usdField;
+    UnsteadyFieldView usdField;
     usdField.InitBasic( solverType );
 
     // The current level is reconstructed from the first stored history level.
@@ -114,7 +114,7 @@ void Restart::ReadUnsteady( int solverType )
 
 void Restart::DumpUnsteady( int solverType )
 {
-    UsdField usdField;
+    UnsteadyFieldView usdField;
     usdField.InitBasic( solverType );
 
     // Keep the current level out of the restart stream.
@@ -140,7 +140,7 @@ void Restart::DumpUnsteady( int solverType )
 
 void Restart::InitUnsteady( int solverType )
 {
-    UsdField usdField;
+    UnsteadyFieldView usdField;
     usdField.InitBasic( solverType );
 
     // Initialize every configured history level from the current field.
