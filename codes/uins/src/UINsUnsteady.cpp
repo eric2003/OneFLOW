@@ -53,7 +53,7 @@ UINsUnsteady::UINsUnsteady()
     data = new INsUsdData();
     field = new UINsUsdField();
     data->Init();
-    this->nEqu = unsteady->nEqu;
+    this->nEqu = data->nEqu;
     field->Init();
 
     this->srcFun = & UINsUnstPrepareSrcData;
