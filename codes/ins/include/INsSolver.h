@@ -37,6 +37,7 @@ public:
 public:
     void StaticInit() override;
 public:
+    static void Reset();
     static bool initFlag;
 };
 
