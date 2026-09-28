@@ -669,17 +669,20 @@ void Plot3D::ReadCoor( TextFileParser * textFileParser, RealField & coor, int to
 void Plot3D::Plot3DToCgns( ZgridMediator * zgridMediator )
 {
     std::cout << "plot3d to cgns\n";
-    GridMediator * gridMediator = new GridMediator();
-    gridMediator->gridFile = grid_para.gridFile;
-    gridMediator->bcFile = grid_para.bcFile;
-    gridMediator->targetFile = grid_para.targetFile;
 
-    gridMediator->gridType = grid_para.filetype;
+    auto gridMediator = std::make_unique< GridMediator >();
+    gridMediator->gridFile   = grid_para.gridFile;
+    gridMediator->bcFile     = grid_para.bcFile;
+    gridMediator->targetFile = grid_para.targetFile;
+    gridMediator->gridType   = grid_para.filetype;
+
     gridMediator->ReadGrid();
     gridMediator->AddDefaultName();
 
-    zgridMediator->AddGridMediator( gridMediator );
+    // Ownership transfers into ZgridMediator (unique_ptr storage).
+    zgridMediator->AddGridMediator( std::move( gridMediator ) );
 }
+
 
 
 bool GetPlot3D_NKFlag()
