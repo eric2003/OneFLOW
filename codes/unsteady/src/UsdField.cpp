@@ -40,11 +40,6 @@ UsdField::~UsdField()
 {
 }
 
-void UsdField::Init()
-{
-    ;
-}
-
 void UsdField::InitBasic( int solverType )
 {
     // Build unsteady access view from registered fields.
