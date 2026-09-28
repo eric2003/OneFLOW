@@ -21,7 +21,6 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "UUnsteady.h"
-#include "HXDefine.h"
 #include "UsdData.h"
 #include "UsdField.h"
 #include "UnsteadyConvergence.h"
@@ -123,6 +122,7 @@ void UUnsteady::PrepareResidual()
 void UUnsteady::CalcDualTimeResidual()
 {
     timeIntegration.CalcResCoef();
+    dualtimeRes.resize( data->nEqu );
 
     for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
@@ -130,7 +130,6 @@ void UUnsteady::CalcDualTimeResidual()
 
         this->PrepareResidual();
 
-        dualtimeRes.resize( data->nEqu );
         data->CalcCellDualTimeResidual( dualtimeRes );
 
         this->UpdateDualTimeStepResidual();
@@ -145,6 +144,7 @@ void UUnsteady::CalcDualTimeSrc()
     this->CalcDualTimeResidual();
 
     timeIntegration.CalcSrcCoeff();
+    dualtimeSrc.resize( data->nEqu );
 
     for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
@@ -152,7 +152,6 @@ void UUnsteady::CalcDualTimeSrc()
 
         ( * this->srcFun )( this );
 
-        dualtimeSrc.resize( data->nEqu );
         data->CalcCellDualTimeSrc(
             gcom.cvol, gcom.cvol1, gcom.cvol2, dualtimeSrc );
 
