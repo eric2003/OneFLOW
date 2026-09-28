@@ -108,6 +108,17 @@ const std::string & FieldManager::GetFieldDefinitionSource() const
     return fieldDefinitionSource;
 }
 
+void FieldManager::SetUnsteadyFieldNames(
+    const UsdFieldNames & fieldNames )
+{
+    this->unsteadyFieldNames = fieldNames;
+}
+
+const UsdFieldNames & FieldManager::GetUnsteadyFieldNames() const
+{
+    return this->unsteadyFieldNames;
+}
+
 InterfaceFieldProperty & FieldManager::GetInterfaceFieldProperty()
 {
     return this->interfaceFieldProperty;
