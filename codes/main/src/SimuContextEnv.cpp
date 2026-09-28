@@ -37,6 +37,7 @@ License
 #include "DataBase.h"
 #include "HeatFlux.h"
 #include "NsCom.h"
+#include "NsSolver.h"
 #include "TurbCom.h"
 #include <iostream>
 
@@ -69,6 +70,7 @@ void SimuContext::TeardownCase()
     SolverNameClass::Reset();
     heat_flux.DeAllocate();
     nscom.Reset();
+    NsSolver::Reset();
     turbcom.Reset();
     Zone::ReleaseGrids();
     ZoneState::Reset();
