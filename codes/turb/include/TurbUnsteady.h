@@ -36,6 +36,10 @@ public:
     ~TurbUsdData();
 public:
     void Init() override;
+
+public:
+    // Temporary buffers for turbulence unsteady source conversion.
+    RealField prim, prim1, prim2;
 };
 
 
