@@ -24,7 +24,9 @@ License
 #include "HXDefine.h"
 #include "GridDef.h"
 #include <memory>
+#include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 BeginNameSpace( ONEFLOW )
@@ -55,34 +57,26 @@ public:
 };
 
 // Owns a collection of GridMediator instances (RAII).
-// Historical SetDeleteFlag is kept as a no-op for source compatibility;
-// ownership is always active for mediators added via AddGridMediator /
-// CreateSimple / ReadGrid.
 class ZgridMediator
 {
 public:
     ZgridMediator() = default;
     ~ZgridMediator() = default;
 
-    // Non-copyable (owns unique resources); movable.
     ZgridMediator( const ZgridMediator & ) = delete;
     ZgridMediator & operator=( const ZgridMediator & ) = delete;
     ZgridMediator( ZgridMediator && ) noexcept = default;
     ZgridMediator & operator=( ZgridMediator && ) noexcept = default;
 
 public:
-    // Takes ownership of a heap-allocated GridMediator.
-    // Prefer the unique_ptr overload in new code.
     void AddGridMediator( GridMediator * gridMediator );
     void AddGridMediator( std::unique_ptr< GridMediator > gridMediator );
 
-    // Non-owning observer; valid while this ZgridMediator lives.
     [[nodiscard]] GridMediator * GetGridMediator( int iGridMediator ) const;
     [[nodiscard]] int GetSize() const;
     [[nodiscard]] std::string GetTargetFile() const;
 
-    // Historical API: no longer needed. Ownership is always enabled.
-    // Kept so existing call sites compile without change.
+    // Historical no-op; ownership is always enabled.
     void SetDeleteFlag( bool /*flag*/ ) {}
 
 public:
@@ -93,16 +87,48 @@ private:
     std::vector< std::unique_ptr< GridMediator > > gm;
 };
 
+// Process-wide "current" GridMediator for legacy call paths that cannot
+// take an explicit pointer. Prefer ScopedCurrentGridMediator in new code.
 class GlobalGrid
 {
 public:
     GlobalGrid() = default;
     ~GlobalGrid() = default;
 
-public:
-    static GridMediator * gridMediator;
-    static Grid * GetGrid( int zoneId );
+    // Non-owning. Caller must ensure lifetime exceeds all GetGrid uses.
     static void SetCurrentGridMediator( GridMediator * gridMediatorIn );
+
+    [[nodiscard]] static GridMediator * GetCurrentGridMediator() noexcept;
+
+    // Throws std::logic_error if no mediator is installed.
+    [[nodiscard]] static Grid * GetGrid( int zoneId );
+
+    // Historical public data member - prefer GetCurrentGridMediator().
+    // Kept so existing TU that read GlobalGrid::gridMediator still link.
+    static GridMediator * gridMediator;
+};
+
+// RAII: installs a current GridMediator for the enclosing scope and
+// restores the previous one on destruction (including stack unwind).
+class ScopedCurrentGridMediator
+{
+public:
+    explicit ScopedCurrentGridMediator( GridMediator * next )
+        : previous_( GlobalGrid::GetCurrentGridMediator() )
+    {
+        GlobalGrid::SetCurrentGridMediator( next );
+    }
+
+    ~ScopedCurrentGridMediator()
+    {
+        GlobalGrid::SetCurrentGridMediator( previous_ );
+    }
+
+    ScopedCurrentGridMediator( const ScopedCurrentGridMediator & ) = delete;
+    ScopedCurrentGridMediator & operator=( const ScopedCurrentGridMediator & ) = delete;
+
+private:
+    GridMediator * previous_;
 };
 
 EndNameSpace

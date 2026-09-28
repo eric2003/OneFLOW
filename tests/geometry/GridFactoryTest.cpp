@@ -155,3 +155,26 @@ TEST( GridFactoryDispatchTest, UnknownObjectiveThrows )
 
     EXPECT_THROW( gf.Run( cfg ), std::invalid_argument );
 }
+
+TEST( GlobalGridTest, GetGridWithoutMediatorThrows )
+{
+    GlobalGrid::SetCurrentGridMediator( nullptr );
+    EXPECT_THROW( GlobalGrid::GetGrid( 0 ), std::logic_error );
+}
+
+TEST( GlobalGridTest, ScopedCurrentRestoresPrevious )
+{
+    GridMediator outer;
+    GridMediator inner;
+
+    GlobalGrid::SetCurrentGridMediator( &outer );
+    EXPECT_EQ( GlobalGrid::GetCurrentGridMediator(), &outer );
+
+    {
+        ScopedCurrentGridMediator scope( &inner );
+        EXPECT_EQ( GlobalGrid::GetCurrentGridMediator(), &inner );
+    }
+
+    EXPECT_EQ( GlobalGrid::GetCurrentGridMediator(), &outer );
+    GlobalGrid::SetCurrentGridMediator( nullptr );
+}

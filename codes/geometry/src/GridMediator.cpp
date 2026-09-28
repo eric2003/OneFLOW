@@ -87,7 +87,6 @@ void GridMediator::ReadGridgen()
 
 void ZgridMediator::AddGridMediator( GridMediator * gridMediator )
 {
-    // Transfer ownership from a raw new'd pointer into the container.
     this->gm.emplace_back( gridMediator );
 }
 
@@ -126,8 +125,7 @@ void ZgridMediator::ReadGrid()
 std::string ZgridMediator::GetTargetFile() const
 {
     const int index = 0;
-    GridMediator * gridMediator = this->gm[ static_cast< size_t >( index ) ].get();
-    return gridMediator->targetFile;
+    return this->gm[ static_cast< size_t >( index ) ]->targetFile;
 }
 
 GridMediator * GlobalGrid::gridMediator = nullptr;
@@ -137,9 +135,21 @@ void GlobalGrid::SetCurrentGridMediator( GridMediator * gridMediatorIn )
     GlobalGrid::gridMediator = gridMediatorIn;
 }
 
+GridMediator * GlobalGrid::GetCurrentGridMediator() noexcept
+{
+    return GlobalGrid::gridMediator;
+}
+
 Grid * GlobalGrid::GetGrid( int zoneId )
 {
-    return GlobalGrid::gridMediator->gridVector[ zoneId ];
+    GridMediator * gm = GlobalGrid::gridMediator;
+    if ( ! gm )
+    {
+        throw std::logic_error(
+            "GlobalGrid::GetGrid: no current GridMediator "
+            "(call SetCurrentGridMediator or ScopedCurrentGridMediator first)" );
+    }
+    return gm->gridVector[ zoneId ];
 }
 
 EndNameSpace
