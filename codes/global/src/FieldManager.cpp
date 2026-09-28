@@ -109,12 +109,12 @@ const std::string & FieldManager::GetFieldDefinitionSource() const
 }
 
 void FieldManager::SetUnsteadyFieldNames(
-    const UsdFieldNames & fieldNames )
+    const UnsteadyFieldNames & fieldNames )
 {
     this->unsteadyFieldNames = fieldNames;
 }
 
-const UsdFieldNames & FieldManager::GetUnsteadyFieldNames() const
+const UnsteadyFieldNames & FieldManager::GetUnsteadyFieldNames() const
 {
     return this->unsteadyFieldNames;
 }
