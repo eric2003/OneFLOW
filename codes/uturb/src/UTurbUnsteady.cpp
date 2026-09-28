@@ -52,7 +52,6 @@ UTurbUnsteady::UTurbUnsteady()
     this->solverType = TURB_SOLVER;
     data = new TurbUsdData();
     field = new UTurbUsdField();
-    data->Init();
     this->SetEquationCount( turbcom.nEqu );
     field->Init();
 

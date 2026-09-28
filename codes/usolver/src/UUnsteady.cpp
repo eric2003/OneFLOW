@@ -33,6 +33,7 @@ BeginNameSpace( ONEFLOW )
 
 UUnsteady::UUnsteady()
 {
+    timeIntegration.Init();
 }
 
 

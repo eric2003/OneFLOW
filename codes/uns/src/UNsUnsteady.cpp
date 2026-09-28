@@ -52,7 +52,6 @@ UNsUnsteady::UNsUnsteady()
     this->solverType = NS_SOLVER;
     data = new NsUsdData();
     field = new UNsUsdField();
-    data->Init();
     this->SetEquationCount( nscom.nTEqu );
     field->Init();
 
