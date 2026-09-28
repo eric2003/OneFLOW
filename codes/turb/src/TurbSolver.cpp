@@ -45,6 +45,11 @@ TurbSolver::~TurbSolver()
 {
 }
 
+void TurbSolver::Reset()
+{
+    TurbSolver::initFlag = false;
+}
+
 void TurbSolver::StaticInit()
 {
     if ( TurbSolver::initFlag ) return;
@@ -64,6 +69,8 @@ void TurbSolver::StaticInit()
 
     solverInfo->residualName = "turbres";
     solverInfo->resFileName = GetDataValue< std::string >( "turbresFile" );
+    solverInfo->gradString.clear();
+    solverInfo->implicitString.clear();
     solverInfo->gradString.push_back( "turbq"    );
     solverInfo->gradString.push_back( "turbdqdx" );
     solverInfo->gradString.push_back( "turbdqdy" );
