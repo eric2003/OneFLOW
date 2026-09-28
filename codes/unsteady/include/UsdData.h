@@ -7,7 +7,7 @@ License
 
     OneFLOW is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
+    the Free Software Foundation either version 3 of the License, or
     (at your option) any later version.
 
     OneFLOW is distributed in the hope that it will be useful, but WITHOUT
@@ -36,7 +36,6 @@ public:
     int nEqu;
 
     RealField res, res1, res2;
-    RealField prim, prim1, prim2;
     RealField q, q1, q2;
     RealField dualtimeRes;
     RealField dualtimeSrc;
@@ -49,6 +48,5 @@ public:
     virtual void Init();
     void InitSub( int nEqu );
 };
-
 
 EndNameSpace
