@@ -72,6 +72,7 @@ UINsUnsteady::~UINsUnsteady()
 void UINsUnstPrepareSrcData( Unsteady * unst )
 {
     INsUsdData * data = static_cast< INsUsdData * >( unst->data );
+    UUnsteady * unsteady = static_cast< UUnsteady * >( unst );
     UsdField * field = unst->field;
 
     MRField * q =
