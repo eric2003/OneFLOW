@@ -35,6 +35,7 @@ License
 #include "GridState.h"
 #include "FieldManager.h"
 #include "DataBase.h"
+#include "HeatFlux.h"
 #include <iostream>
 
 BeginNameSpace( ONEFLOW )
@@ -64,6 +65,7 @@ void SimuContext::TeardownCase()
     ClearAccelStates();
     SolverMap::FreeSolverMap();
     SolverNameClass::Reset();
+    heat_flux.DeAllocate();
     Zone::ReleaseGrids();
     ZoneState::Reset();
     GridState::Reset();
