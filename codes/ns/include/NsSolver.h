@@ -36,6 +36,7 @@ public:
     IMPLEMENT_SOLVER_CLONE( NsSolver )
 public:
     void StaticInit() override;
+    static void Reset();
 public:
     static bool initFlag;
 };
