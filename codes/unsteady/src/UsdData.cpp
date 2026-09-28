@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*\
+/*---------------------------------------------------------------------------*\\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
@@ -7,17 +7,18 @@ License
 
     OneFLOW is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
-    the Free Software Foundation either version 3 of the License, or (at your option) any later version.
+    the Free Software Foundation either version 3 of the License, or
+    (at your option) any later version.
 
-    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-    for more details.
+    OneFLOW is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
-\*---------------------------------------------------------------------------*/
+\\---------------------------------------------------------------------------*/
 
 #include "UsdData.h"
 #include "TimeIntegration.h"
@@ -44,20 +45,21 @@ void UsdData::InitSub( int nEqu )
 {
     timeIntegration.Init();
     this->nEqu = nEqu;
-    res.resize( nEqu );
-    res1.resize( nEqu );
-    res2.resize( nEqu );
 
     convergence.Init( nEqu );
 }
 
-void UsdData::CalcCellDualTimeResidual( RealField & dualtimeRes )
+void UsdData::CalcCellDualTimeResidual(
+    const RealField & res,
+    const RealField & res1,
+    const RealField & res2,
+    RealField & dualtimeRes )
 {
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
-        dualtimeRes[ iEqu ] = timeIntegration.resc1 * res [ iEqu ] + 
-                               timeIntegration.resc2 * res1[ iEqu ] + 
-                              timeIntegration.resc3 * res2[ iEqu ];
+        dualtimeRes[ iEqu ] = timeIntegration.resc1 * res [ iEqu ] +
+                               timeIntegration.resc2 * res1[ iEqu ] +
+                               timeIntegration.resc3 * res2[ iEqu ];
     }
 }
 
