@@ -61,6 +61,9 @@ public:
     DataEntry * GetDataPointer( const std::string & name );
     void DeleteDataPointer( const std::string & name );
 
+    // Release all case-local parameter entries while keeping the database alive.
+    void Clear();
+
     DataMap * GetDataMap() { return dataMap; }
 
     void DumpData( std::fstream & file );
