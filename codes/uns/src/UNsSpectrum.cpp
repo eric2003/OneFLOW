@@ -33,7 +33,6 @@ License
 #include "HXMath.h"
 #include "DataBase.h"
 #include "FieldBase.h"
-#include "UsdData.h"
 #include "TimeIntegration.h"
 #include "Ctrl.h"
 #include <iostream>
