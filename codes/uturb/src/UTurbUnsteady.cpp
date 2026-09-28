@@ -107,9 +107,9 @@ void UTurbUnstPrepareSrcData( Unsteady * unst )
 
     for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
     {
-        data->q [ iEqu ] = coef * data->prim [ iEqu ];
-        data->q1[ iEqu ] = coef * data->prim1[ iEqu ];
-        data->q2[ iEqu ] = coef * data->prim2[ iEqu ];
+        unsteady->q [ iEqu ] = coef * data->prim [ iEqu ];
+        unsteady->q1[ iEqu ] = coef * data->prim1[ iEqu ];
+        unsteady->q2[ iEqu ] = coef * data->prim2[ iEqu ];
     }
 }
 
@@ -152,9 +152,9 @@ void UTurbUnstPrepareCriData( Unsteady * unst )
 
     for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
     {
-        data->q [ iEqu ] = coef * data->prim [ iEqu ];
-        data->q1[ iEqu ] = coef * data->prim1[ iEqu ];
-        data->q2[ iEqu ] = coef * data->prim2[ iEqu ];
+        unsteady->q [ iEqu ] = coef * data->prim [ iEqu ];
+        unsteady->q1[ iEqu ] = coef * data->prim1[ iEqu ];
+        unsteady->q2[ iEqu ] = coef * data->prim2[ iEqu ];
     }
 
 }
