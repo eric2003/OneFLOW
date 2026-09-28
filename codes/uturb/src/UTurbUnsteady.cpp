@@ -127,8 +127,6 @@ void UTurbUnstPrepareCriData( Unsteady * unst )
     MRField * q2 =
         field->GetFlow( UsdField::HistoryLevel::Old );
 
-    MRField * res =
-        field->GetResidual( UsdField::HistoryLevel::Current );
     for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
     {
         data->prim [ iEqu ] =
@@ -157,12 +155,6 @@ void UTurbUnstPrepareCriData( Unsteady * unst )
         data->q [ iEqu ] = coef * data->prim [ iEqu ];
         data->q1[ iEqu ] = coef * data->prim1[ iEqu ];
         data->q2[ iEqu ] = coef * data->prim2[ iEqu ];
-    }
-
-    for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
-    {
-        data->res[ iEqu ] =
-            ( * res )[ iEqu ][ ug.cId ];
     }
 
 }
