@@ -20,7 +20,6 @@ License
 \\---------------------------------------------------------------------------*/
 
 #include "UUnsteady.h"
-#include "UsdData.h"
 #include "UsdField.h"
 #include "UnsteadyConvergence.h"
 #include "TimeIntegration.h"
@@ -46,7 +45,7 @@ void UUnsteady::UpdateDualTimeStepResidual()
     MRField * res =
         field->GetResidual( UsdField::HistoryLevel::Current );
 
-    for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
         ( * res )[ iEqu ][ ug.cId ] =
             dualtimeRes[ iEqu ];
@@ -59,7 +58,7 @@ void UUnsteady::UpdateDualTimeStepSource()
     MRField * res =
         field->GetResidual( UsdField::HistoryLevel::Current );
 
-    for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
         ( * res )[ iEqu ][ ug.cId ] -=
             dualtimeSrc[ iEqu ];
@@ -83,7 +82,7 @@ void UUnsteady::StoreOldResidual()
 
     for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
-        for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
+        for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
         {
             ( * old )[ iEqu ][ cId ] =
                 ( * previous )[ iEqu ][ cId ];
@@ -105,7 +104,7 @@ void UUnsteady::PrepareResidual()
     MRField * res2 =
         field->GetResidual( UsdField::HistoryLevel::Old );
 
-    for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
         this->res[ iEqu ] =
             ( * res )[ iEqu ][ ug.cId ];
@@ -120,7 +119,7 @@ void UUnsteady::PrepareResidual()
 
 void UUnsteady::CalcCellDualTimeResidual()
 {
-    for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
         dualtimeRes[ iEqu ] = timeIntegration.resc1 * res [ iEqu ] +
                                timeIntegration.resc2 * res1[ iEqu ] +
@@ -130,7 +129,7 @@ void UUnsteady::CalcCellDualTimeResidual()
 
 void UUnsteady::CalcCellDualTimeSrc()
 {
-    for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
         Real dualSrc0 = timeIntegration.sc1 * gcom.cvol  * q [ iEqu ];
         Real dualSrc1 = timeIntegration.sc2 * gcom.cvol1 * q1[ iEqu ];
@@ -143,10 +142,10 @@ void UUnsteady::CalcCellDualTimeSrc()
 void UUnsteady::CalcDualTimeResidual()
 {
     timeIntegration.CalcResCoef();
-    res.resize( data->nEqu );
-    res1.resize( data->nEqu );
-    res2.resize( data->nEqu );
-    dualtimeRes.resize( data->nEqu );
+    res.resize( nEqu );
+    res1.resize( nEqu );
+    res2.resize( nEqu );
+    dualtimeRes.resize( nEqu );
 
     for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
@@ -168,10 +167,10 @@ void UUnsteady::CalcDualTimeSrc()
     this->CalcDualTimeResidual();
 
     timeIntegration.CalcSrcCoeff();
-    dualtimeSrc.resize( data->nEqu );
-    q.resize( data->nEqu );
-    q1.resize( data->nEqu );
-    q2.resize( data->nEqu );
+    dualtimeSrc.resize( nEqu );
+    q.resize( nEqu );
+    q1.resize( nEqu );
+    q2.resize( nEqu );
 
     for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
@@ -187,12 +186,12 @@ void UUnsteady::CalcDualTimeSrc()
 
 void UUnsteady::CalcUnsteadyCriterion()
 {
-    convergence.Init( data->nEqu );
+    convergence.Init( nEqu );
     convergence.Reset();
-    res.resize( data->nEqu );
-    q.resize( data->nEqu );
-    q1.resize( data->nEqu );
-    q2.resize( data->nEqu );
+    res.resize( nEqu );
+    q.resize( nEqu );
+    q1.resize( nEqu );
+    q2.resize( nEqu );
 
     for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
