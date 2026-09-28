@@ -31,19 +31,5 @@ Unsteady * CreateTurbUnsteady()
     return unsteady;
 }
 
-TurbUsdData::TurbUsdData()
-{
-    ;
-}
-
-TurbUsdData::~TurbUsdData()
-{
-    ;
-}
-
-void TurbUsdData::Init()
-{
-    this->InitSub();
-}
 
 EndNameSpace

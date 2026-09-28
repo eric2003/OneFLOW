@@ -31,19 +31,5 @@ Unsteady * CreateINsUnsteady()
     return unsteady;
 }
 
-INsUsdData::INsUsdData()
-{
-    ;
-}
-
-INsUsdData::~INsUsdData()
-{
-    ;
-}
-
-void INsUsdData::Init()
-{
-    this->InitSub();
-}
 
 EndNameSpace

@@ -32,19 +32,5 @@ Unsteady * CreateNsUnsteady()
     return unsteady;
 }
 
-NsUsdData::NsUsdData()
-{
-    ;
-}
-
-NsUsdData::~NsUsdData()
-{
-    ;
-}
-
-void NsUsdData::Init()
-{
-    this->InitSub();
-}
 
 EndNameSpace

@@ -22,7 +22,6 @@ License
 
 #include "UTurbUnsteady.h"
 #include "SolverDef.h"
-#include "UsdData.h"
 #include "Com.h"
 #include "UCom.h"
 #include "UnsGrid.h"
@@ -50,7 +49,6 @@ void UTurbUsdField::Init()
 UTurbUnsteady::UTurbUnsteady()
 {
     this->solverType = TURB_SOLVER;
-    data = new TurbUsdData();
     field = new UTurbUsdField();
     this->SetEquationCount( turbcom.nEqu );
     field->Init();
@@ -64,7 +62,6 @@ UTurbUnsteady::UTurbUnsteady()
 
 UTurbUnsteady::~UTurbUnsteady()
 {
-    delete data;
     delete field;
 }
 

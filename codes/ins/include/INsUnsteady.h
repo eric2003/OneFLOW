@@ -24,20 +24,10 @@ License
 
 #pragma once
 #include "UUnsteady.h"
-#include "UsdData.h"
 
 BeginNameSpace( ONEFLOW )
 
 Unsteady * CreateINsUnsteady();
 
-class INsUsdData : public UsdData
-{
-public:
-    INsUsdData();
-    ~INsUsdData();
-public:
-    void Init() override;
-
-};
 
 EndNameSpace

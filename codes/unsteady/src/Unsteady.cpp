@@ -33,7 +33,6 @@ BeginNameSpace( ONEFLOW )
 Unsteady::Unsteady()
 {
     solverType = -1;
-    data = 0;
     field = 0;
 }
 

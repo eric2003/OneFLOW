@@ -50,7 +50,6 @@ void UINsUsdField::Init()
 UINsUnsteady::UINsUnsteady()
 {
     this->solverType = NS_SOLVER;
-    data = new INsUsdData();
     field = new UINsUsdField();
     this->SetEquationCount( nscom.nTEqu );
     field->Init();
@@ -64,7 +63,6 @@ UINsUnsteady::UINsUnsteady()
 
 UINsUnsteady::~UINsUnsteady()
 {
-    delete data;
     delete field;
 }
 
