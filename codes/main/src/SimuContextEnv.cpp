@@ -36,6 +36,8 @@ License
 #include "FieldManager.h"
 #include "DataBase.h"
 #include "HeatFlux.h"
+#include "NsCom.h"
+#include "TurbCom.h"
 #include <iostream>
 
 BeginNameSpace( ONEFLOW )
@@ -66,6 +68,8 @@ void SimuContext::TeardownCase()
     SolverMap::FreeSolverMap();
     SolverNameClass::Reset();
     heat_flux.DeAllocate();
+    nscom.Reset();
+    turbcom.Reset();
     Zone::ReleaseGrids();
     ZoneState::Reset();
     GridState::Reset();
