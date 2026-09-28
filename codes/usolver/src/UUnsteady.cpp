@@ -118,6 +118,32 @@ void UUnsteady::PrepareResidual()
     }
 }
 
+void UUnsteady::CalcCellDualTimeResidual()
+{
+    for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
+    {
+        dualtimeRes[ iEqu ] = timeIntegration.resc1 * res [ iEqu ] +
+                               timeIntegration.resc2 * res1[ iEqu ] +
+                               timeIntegration.resc3 * res2[ iEqu ];
+    }
+}
+
+void UUnsteady::CalcCellDualTimeSrc()
+{
+    const RealField & q  = data->GetQ();
+    const RealField & q1 = data->GetQ1();
+    const RealField & q2 = data->GetQ2();
+
+    for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
+    {
+        Real dualSrc0 = timeIntegration.sc1 * gcom.cvol  * q [ iEqu ];
+        Real dualSrc1 = timeIntegration.sc2 * gcom.cvol1 * q1[ iEqu ];
+        Real dualSrc2 = timeIntegration.sc3 * gcom.cvol2 * q2[ iEqu ];
+
+        dualtimeSrc[ iEqu ] = dualSrc0 + dualSrc1 + dualSrc2;
+    }
+}
+
 void UUnsteady::CalcDualTimeResidual()
 {
     timeIntegration.CalcResCoef();
@@ -132,8 +158,7 @@ void UUnsteady::CalcDualTimeResidual()
 
         this->PrepareResidual();
 
-        data->CalcCellDualTimeResidual(
-            res, res1, res2, dualtimeRes );
+        this->CalcCellDualTimeResidual();
 
         this->UpdateDualTimeStepResidual();
     }
@@ -155,8 +180,7 @@ void UUnsteady::CalcDualTimeSrc()
 
         ( * this->srcFun )( this );
 
-        data->CalcCellDualTimeSrc(
-            gcom.cvol, gcom.cvol1, gcom.cvol2, dualtimeSrc );
+        this->CalcCellDualTimeSrc();
 
         this->UpdateDualTimeStepSource();
     }
