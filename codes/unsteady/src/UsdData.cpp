@@ -75,7 +75,7 @@ void UsdData::CalcCellDualTimeResidual()
     }
 }
 
-void UsdData::CalcCellDualTimeSrc()
+void UsdData::CalcCellDualTimeSrc( Real vol, Real vol1, Real vol2 )
 {
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
