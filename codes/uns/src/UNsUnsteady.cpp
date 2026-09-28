@@ -132,14 +132,6 @@ void UNsUnstPrepareCriData( Unsteady * unst )
 
     nscom.gama = ( * unsf.gama  )[ 0 ][ ug.cId ];
 
-    MRField * res =
-        field->GetResidual( UsdField::HistoryLevel::Current );
-
-    for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
-    {
-        data->res[ iEqu ] =
-            ( * res )[ iEqu ][ ug.cId ];
-    }
 
     PrimToQ( data->prim , nscom.gama, data->q  );
     PrimToQ( data->prim1, nscom.gama, data->q1 );
