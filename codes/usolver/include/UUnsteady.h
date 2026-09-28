@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*\\
+/*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
@@ -18,7 +18,7 @@ License
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
-\\---------------------------------------------------------------------------*/
+\---------------------------------------------------------------------------*/
 
 #pragma once
 #include "Unsteady.h"
@@ -45,6 +45,10 @@ public:
 public:
     // Equation count belongs to the unsteady algorithm state.
     int nEqu;
+
+    // Temporary primitive-state buffers belong to the unsteady algorithm,
+    // not to the solver-specific unsteady data object.
+    RealField prim, prim1, prim2;
 
     // Temporary conservative-state buffers belong to the unsteady algorithm,
     // not to the generic unsteady data interface.

@@ -6,19 +6,19 @@ License
     This file is part of OneFLOW.
 
     OneFLOW is free software: you can redistribute it and/or modify it
-    under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
+    under the terms of the GNU General Public License as published by the
+    Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    OneFLOW is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
     for more details.
 
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
-\*---------------------------------------------------------------------------*/
+\---------------------------------------------------------------------------*/
 
 #include "UINsUnsteady.h"
 #include "INsUnsteady.h"
@@ -72,7 +72,6 @@ UINsUnsteady::~UINsUnsteady()
 
 void UINsUnstPrepareSrcData( Unsteady * unst )
 {
-    INsUsdData * data = static_cast< INsUsdData * >( unst->data );
     UUnsteady * unsteady = static_cast< UUnsteady * >( unst );
     UsdField * field = unst->field;
 
@@ -87,13 +86,13 @@ void UINsUnstPrepareSrcData( Unsteady * unst )
 
     for ( int iEqu = 0; iEqu < unsteady->nEqu; ++ iEqu )
     {
-        data->prim[ iEqu ] =
+        unsteady->prim[ iEqu ] =
             ( * q )[ iEqu ][ ug.cId ];
 
-        data->prim1[ iEqu ] =
+        unsteady->prim1[ iEqu ] =
             ( * q1 )[ iEqu ][ ug.cId ];
 
-        data->prim2[ iEqu ] =
+        unsteady->prim2[ iEqu ] =
             ( * q2 )[ iEqu ][ ug.cId ];
     }
     nscom.gama = ( * uinsf.gama  )[ 0 ][ ug.cId ];
@@ -101,14 +100,13 @@ void UINsUnstPrepareSrcData( Unsteady * unst )
     gcom.cvol1 = ( * ug.cvol1 )[ ug.cId ];
     gcom.cvol2 = ( * ug.cvol2 )[ ug.cId ];
 
-	//INsPrimToQ( data->prim , nscom.gama, unsteady->q  );
-	//INsPrimToQ( data->prim1, nscom.gama, unsteady->q1 );
-	//INsPrimToQ( data->prim2, nscom.gama, unsteady->q2 );
+    //INsPrimToQ( unsteady->prim , nscom.gama, unsteady->q  );
+    //INsPrimToQ( unsteady->prim1, nscom.gama, unsteady->q1 );
+    //INsPrimToQ( unsteady->prim2, nscom.gama, unsteady->q2 );
 }
 
 void UINsUnstPrepareCriData( Unsteady * unst )
 {
-    INsUsdData * data = static_cast< INsUsdData * >( unst->data );
     UUnsteady * unsteady = static_cast< UUnsteady * >( unst );
     UsdField * field = unst->field;
     MRField * q =
@@ -122,21 +120,21 @@ void UINsUnstPrepareCriData( Unsteady * unst )
 
     for ( int iEqu = 0; iEqu < unsteady->nEqu; ++ iEqu )
     {
-        data->prim [ iEqu ] =
+        unsteady->prim [ iEqu ] =
             ( * q )[ iEqu ][ ug.cId ];
 
-        data->prim1[ iEqu ] =
+        unsteady->prim1[ iEqu ] =
             ( * q1 )[ iEqu ][ ug.cId ];
 
-        data->prim2[ iEqu ] =
+        unsteady->prim2[ iEqu ] =
             ( * q2 )[ iEqu ][ ug.cId ];
     }
 
     nscom.gama = ( * uinsf.gama  )[ 0 ][ ug.cId ];
 
-	//INsPrimToQ( data->prim , nscom.gama, unsteady->q  );
-	//INsPrimToQ( data->prim1, nscom.gama, unsteady->q1 );
-	//INsPrimToQ( data->prim2, nscom.gama, unsteady->q2 );
+    //INsPrimToQ( unsteady->prim , nscom.gama, unsteady->q  );
+    //INsPrimToQ( unsteady->prim1, nscom.gama, unsteady->q1 );
+    //INsPrimToQ( unsteady->prim2, nscom.gama, unsteady->q2 );
 }
 
 EndNameSpace

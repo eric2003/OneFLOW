@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*\\
+/*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
@@ -17,7 +17,7 @@ License
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
-\\---------------------------------------------------------------------------*/
+\---------------------------------------------------------------------------*/
 
 #include "TurbUnsteady.h"
 #include "UTurbUnsteady.h"
@@ -44,9 +44,6 @@ TurbUsdData::~TurbUsdData()
 void TurbUsdData::Init()
 {
     this->InitSub();
-    prim.resize( turbcom.nEqu );
-    prim1.resize( turbcom.nEqu );
-    prim2.resize( turbcom.nEqu );
 }
 
 EndNameSpace

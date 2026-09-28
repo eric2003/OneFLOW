@@ -6,19 +6,19 @@ License
     This file is part of OneFLOW.
 
     OneFLOW is free software: you can redistribute it and/or modify it
-    under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
+    under the terms of the GNU General Public License as published by the
+    Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    OneFLOW is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
     for more details.
 
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
-\*---------------------------------------------------------------------------*/
+\---------------------------------------------------------------------------*/
 
 #include "UTurbUnsteady.h"
 #include "SolverDef.h"
@@ -71,7 +71,6 @@ UTurbUnsteady::~UTurbUnsteady()
 
 void UTurbUnstPrepareSrcData( Unsteady * unst )
 {
-    TurbUsdData * data = static_cast< TurbUsdData * >( unst->data );
     UUnsteady * unsteady = static_cast< UUnsteady * >( unst );
     UsdField * field = unst->field;
 
@@ -86,13 +85,13 @@ void UTurbUnstPrepareSrcData( Unsteady * unst )
 
     for ( int iEqu = 0; iEqu < unsteady->nEqu; ++ iEqu )
     {
-        data->prim[ iEqu ] =
+        unsteady->prim[ iEqu ] =
             ( * q )[ iEqu ][ ug.cId ];
 
-        data->prim1[ iEqu ] =
+        unsteady->prim1[ iEqu ] =
             ( * q1 )[ iEqu ][ ug.cId ];
 
-        data->prim2[ iEqu ] =
+        unsteady->prim2[ iEqu ] =
             ( * q2 )[ iEqu ][ ug.cId ];
     }
 
@@ -109,15 +108,14 @@ void UTurbUnstPrepareSrcData( Unsteady * unst )
 
     for ( int iEqu = 0; iEqu < unsteady->nEqu; ++ iEqu )
     {
-        unsteady->q [ iEqu ] = coef * data->prim [ iEqu ];
-        unsteady->q1[ iEqu ] = coef * data->prim1[ iEqu ];
-        unsteady->q2[ iEqu ] = coef * data->prim2[ iEqu ];
+        unsteady->q [ iEqu ] = coef * unsteady->prim [ iEqu ];
+        unsteady->q1[ iEqu ] = coef * unsteady->prim1[ iEqu ];
+        unsteady->q2[ iEqu ] = coef * unsteady->prim2[ iEqu ];
     }
 }
 
 void UTurbUnstPrepareCriData( Unsteady * unst )
 {
-    TurbUsdData * data = static_cast< TurbUsdData * >( unst->data );
     UUnsteady * unsteady = static_cast< UUnsteady * >( unst );
     UsdField * field = unst->field;
 
@@ -132,13 +130,13 @@ void UTurbUnstPrepareCriData( Unsteady * unst )
 
     for ( int iEqu = 0; iEqu < unsteady->nEqu; ++ iEqu )
     {
-        data->prim [ iEqu ] =
+        unsteady->prim [ iEqu ] =
             ( * q )[ iEqu ][ ug.cId ];
 
-        data->prim1[ iEqu ] =
+        unsteady->prim1[ iEqu ] =
             ( * q1 )[ iEqu ][ ug.cId ];
 
-        data->prim2[ iEqu ] =
+        unsteady->prim2[ iEqu ] =
             ( * q2 )[ iEqu ][ ug.cId ];
     }
 
@@ -155,9 +153,9 @@ void UTurbUnstPrepareCriData( Unsteady * unst )
 
     for ( int iEqu = 0; iEqu < unsteady->nEqu; ++ iEqu )
     {
-        unsteady->q [ iEqu ] = coef * data->prim [ iEqu ];
-        unsteady->q1[ iEqu ] = coef * data->prim1[ iEqu ];
-        unsteady->q2[ iEqu ] = coef * data->prim2[ iEqu ];
+        unsteady->q [ iEqu ] = coef * unsteady->prim [ iEqu ];
+        unsteady->q1[ iEqu ] = coef * unsteady->prim1[ iEqu ];
+        unsteady->q2[ iEqu ] = coef * unsteady->prim2[ iEqu ];
     }
 
 }
