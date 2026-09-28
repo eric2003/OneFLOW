@@ -23,6 +23,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include "UnsteadyConvergence.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -41,19 +42,13 @@ public:
     RealField dualtimeRes;
     RealField dualtimeSrc;
 public:
-    RealField normList;
-public:
-    Real sum1, sum2, norm0, totalNorm;
-    Real conv;
+    UnsteadyConvergence convergence;
 public:
     void CalcCellDualTimeResidual();
     void CalcCellDualTimeSrc();
 public:
     virtual void Init();
     void InitSub( int nEqu );
-    void ZeroData();
-    void CalcCellUnsteadyCri();
-    void CalcCvg();
 };
 
 
