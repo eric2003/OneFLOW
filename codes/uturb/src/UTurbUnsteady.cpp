@@ -98,7 +98,7 @@ void UTurbUnstPrepareSrcData( Unsteady * unst )
 void UTurbUnstPrepareCriData( Unsteady * unst )
 {
     UUnsteady * unsteady = static_cast< UUnsteady * >( unst );
-    UsdField * field = unst->field;
+    UsdField * field = &unst->field;
 
     MRField * q =
         field->GetFlow( UsdField::HistoryLevel::Current );
