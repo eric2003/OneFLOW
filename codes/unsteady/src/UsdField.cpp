@@ -11,14 +11,14 @@ License
     (at your option) any later version.
 
     OneFLOW is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-    for more details.
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+    License for more details.
 
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
-\*---------------------------------------------------------------------------*/
+\---------------------------------------------------------------------------*/
 
 #include "UsdField.h"
 #include "FieldManager.h"
@@ -32,15 +32,15 @@ License
 BeginNameSpace( ONEFLOW )
 
 
-UsdField::UsdField()
+UnsteadyFieldView::UnsteadyFieldView()
 {
 }
 
-UsdField::~UsdField()
+UnsteadyFieldView::~UnsteadyFieldView()
 {
 }
 
-void UsdField::InitBasic( int solverType )
+void UnsteadyFieldView::InitBasic( int solverType )
 {
     // Build unsteady access view from registered fields.
     // This class does not allocate field storage.
@@ -98,23 +98,23 @@ void UsdField::InitBasic( int solverType )
     }
 }
 
-MRField * UsdField::GetFlow( std::size_t level )
+MRField * UnsteadyFieldView::GetFlow( std::size_t level )
 {
     return this->flow[ level ];
 }
 
-MRField * UsdField::GetResidual( std::size_t level )
+MRField * UnsteadyFieldView::GetResidual( std::size_t level )
 {
     return this->residual[ level ];
 }
 
-MRField * UsdField::GetFlow( HistoryLevel level )
+MRField * UnsteadyFieldView::GetFlow( HistoryLevel level )
 {
     return this->GetFlow(
         static_cast< std::size_t >( level ) );
 }
 
-MRField * UsdField::GetResidual( HistoryLevel level )
+MRField * UnsteadyFieldView::GetResidual( HistoryLevel level )
 {
     return this->GetResidual(
         static_cast< std::size_t >( level ) );

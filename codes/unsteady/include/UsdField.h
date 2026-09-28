@@ -11,14 +11,14 @@ License
     (at your option) any later version.
 
     OneFLOW is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-    for more details.
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+    License for more details.
 
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
-\*---------------------------------------------------------------------------*/
+\---------------------------------------------------------------------------*/
 
 
 #pragma once
@@ -27,7 +27,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-class UsdField
+class UnsteadyFieldView
 {
 public:
     using MRFieldPtr = HXVector< MRField * >;
@@ -40,8 +40,8 @@ public:
     };
 
 public:
-    UsdField();
-    ~UsdField();
+    UnsteadyFieldView();
+    ~UnsteadyFieldView();
 
 public:
     void InitBasic( int solverType );
@@ -61,5 +61,8 @@ public:
     // Actual field storage is managed by FieldManager.
     MRFieldPtr residual;
 };
+
+// Compatibility alias kept while call sites migrate to the semantic name.
+using UsdField = UnsteadyFieldView;
 
 EndNameSpace
