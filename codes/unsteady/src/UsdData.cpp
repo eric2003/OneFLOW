@@ -48,7 +48,7 @@ void UsdData::Init()
 
 void UsdData::InitSub( int nEqu )
 {
-    timeIntegration.InitBasic();
+    timeIntegration.Init();
     this->nEqu = nEqu;
     res.resize( nEqu );
     res1.resize( nEqu );
