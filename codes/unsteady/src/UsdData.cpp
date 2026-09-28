@@ -49,37 +49,4 @@ void UsdData::InitSub( int nEqu )
     convergence.Init( nEqu );
 }
 
-void UsdData::CalcCellDualTimeResidual(
-    const RealField & res,
-    const RealField & res1,
-    const RealField & res2,
-    RealField & dualtimeRes )
-{
-    for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
-    {
-        dualtimeRes[ iEqu ] = timeIntegration.resc1 * res [ iEqu ] +
-                               timeIntegration.resc2 * res1[ iEqu ] +
-                               timeIntegration.resc3 * res2[ iEqu ];
-    }
-}
-
-void UsdData::CalcCellDualTimeSrc(
-    Real vol, Real vol1, Real vol2, RealField & dualtimeSrc )
-{
-    const RealField & q  = this->GetQ();
-    const RealField & q1 = this->GetQ1();
-    const RealField & q2 = this->GetQ2();
-
-    for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
-    {
-        Real dualSrc0 = timeIntegration.sc1 * vol  * q [ iEqu ];
-        Real dualSrc1 = timeIntegration.sc2 * vol1 * q1[ iEqu ];
-        Real dualSrc2 = timeIntegration.sc3 * vol2 * q2[ iEqu ];
-
-        Real dualSrc = dualSrc0 + dualSrc1 + dualSrc2;
-
-        dualtimeSrc[ iEqu ] = dualSrc;
-    }
-}
-
 EndNameSpace
