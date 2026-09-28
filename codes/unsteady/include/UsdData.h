@@ -11,8 +11,8 @@ License
     (at your option) any later version.
 
     OneFLOW is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
     for more details.
 
     You should have received a copy of the GNU General Public License
@@ -36,12 +36,15 @@ public:
     int nEqu;
 
     RealField res, res1, res2;
-    RealField q, q1, q2;
     RealField dualtimeRes;
     RealField dualtimeSrc;
 public:
     UnsteadyConvergence convergence;
 public:
+    const RealField & GetQ() const;
+    const RealField & GetQ1() const;
+    const RealField & GetQ2() const;
+
     void CalcCellDualTimeResidual();
     void CalcCellDualTimeSrc( Real vol, Real vol1, Real vol2 );
 public:
