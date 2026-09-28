@@ -55,16 +55,16 @@ UINsUnsteady::~UINsUnsteady()
 void UINsUnstPrepareSrcData( Unsteady * unst )
 {
     UUnsteady * unsteady = static_cast< UUnsteady * >( unst );
-    UsdField * field = &unst->field;
+    UnsteadyFieldView * field = &unst->field;
 
     MRField * q =
-        field->GetFlow( UsdField::HistoryLevel::Current );
+        field->GetFlow( UnsteadyFieldView::HistoryLevel::Current );
 
     MRField * q1 =
-        field->GetFlow( UsdField::HistoryLevel::Previous );
+        field->GetFlow( UnsteadyFieldView::HistoryLevel::Previous );
 
     MRField * q2 =
-        field->GetFlow( UsdField::HistoryLevel::Old );
+        field->GetFlow( UnsteadyFieldView::HistoryLevel::Old );
 
     for ( int iEqu = 0; iEqu < unsteady->nEqu; ++ iEqu )
     {
@@ -90,15 +90,15 @@ void UINsUnstPrepareSrcData( Unsteady * unst )
 void UINsUnstPrepareCriData( Unsteady * unst )
 {
     UUnsteady * unsteady = static_cast< UUnsteady * >( unst );
-    UsdField * field = &unst->field;
+    UnsteadyFieldView * field = &unst->field;
     MRField * q =
-        field->GetFlow( UsdField::HistoryLevel::Current );
+        field->GetFlow( UnsteadyFieldView::HistoryLevel::Current );
 
     MRField * q1 =
-        field->GetFlow( UsdField::HistoryLevel::Previous );
+        field->GetFlow( UnsteadyFieldView::HistoryLevel::Previous );
 
     MRField * q2 =
-        field->GetFlow( UsdField::HistoryLevel::Old );
+        field->GetFlow( UnsteadyFieldView::HistoryLevel::Old );
 
     for ( int iEqu = 0; iEqu < unsteady->nEqu; ++ iEqu )
     {
