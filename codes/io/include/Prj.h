@@ -36,6 +36,10 @@ struct CmdLineOptions
 {
     bool debug = false;
     std::string caseDir;
+
+    // Preserve all case directories so a future run plan can execute
+    // multiple cases without changing the command-line representation.
+    std::vector<std::string> caseDirs;
 };
 
 
