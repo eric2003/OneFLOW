@@ -37,8 +37,9 @@ BeginNameSpace( ONEFLOW )
 UINsUnsteady::UINsUnsteady()
 {
     this->solverType = NS_SOLVER;
+    field = new UsdField();
     this->SetEquationCount( nscom.nTEqu );
-    field.InitBasic( NS_SOLVER );
+    field->InitBasic( NS_SOLVER );
 
     this->srcFun = & UINsUnstPrepareSrcData;
     this->criFun = & UINsUnstPrepareCriData;
@@ -49,13 +50,14 @@ UINsUnsteady::UINsUnsteady()
 
 UINsUnsteady::~UINsUnsteady()
 {
+    delete field;
 }
 
 
 void UINsUnstPrepareSrcData( Unsteady * unst )
 {
     UUnsteady * unsteady = static_cast< UUnsteady * >( unst );
-    UsdField * field = & unst->field;
+    UsdField * field = unst->field;
 
     MRField * q =
         field->GetFlow( UsdField::HistoryLevel::Current );

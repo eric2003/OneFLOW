@@ -36,8 +36,9 @@ BeginNameSpace( ONEFLOW )
 UTurbUnsteady::UTurbUnsteady()
 {
     this->solverType = TURB_SOLVER;
+    field = new UsdField();
     this->SetEquationCount( turbcom.nEqu );
-    field.InitBasic( TURB_SOLVER );
+    field->InitBasic( TURB_SOLVER );
 
     this->srcFun = & UTurbUnstPrepareSrcData;
     this->criFun = & UTurbUnstPrepareCriData;
@@ -48,12 +49,13 @@ UTurbUnsteady::UTurbUnsteady()
 
 UTurbUnsteady::~UTurbUnsteady()
 {
+    delete field;
 }
 
 void UTurbUnstPrepareSrcData( Unsteady * unst )
 {
     UUnsteady * unsteady = static_cast< UUnsteady * >( unst );
-    UsdField * field = & unst->field;
+    UsdField * field = unst->field;
 
     MRField * q =
         field->GetFlow( UsdField::HistoryLevel::Current );
