@@ -117,6 +117,7 @@ void UTurbUnstPrepareSrcData( Unsteady * unst )
 void UTurbUnstPrepareCriData( Unsteady * unst )
 {
     TurbUsdData * data = static_cast< TurbUsdData * >( unst->data );
+    UUnsteady * unsteady = static_cast< UUnsteady * >( unst );
     UsdField * field = unst->field;
 
     MRField * q =
