@@ -202,7 +202,7 @@ void UTurbSpectrum::CalcUnsteadySpectrum()
         {
             Real vol = ( * ug.cvol )[ cId ];
             Real ts  = ( * uturbf.timestep )[ 0 ][ cId ] * turbcom.turb_cfl_ratio;
-            Real unsteadyTerm = (  usd.sp2 / ts ) * vol;
+            Real unsteadyTerm = (  timeIntegration.sp2 / ts ) * vol;
 
             for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
             {
@@ -216,7 +216,7 @@ void UTurbSpectrum::CalcUnsteadySpectrum()
         {
             Real vol = ( * ug.cvol )[ cId ];
             Real ts  = ( * unsf.timestep )[ 0 ][ cId ] * turbcom.turb_cfl_ratio;
-            Real unsteadyTerm = (  timeIntegration.sp1 / ts + usd.sp2 / ctrl.pdt1 ) * vol;
+            Real unsteadyTerm = (  timeIntegration.sp1 / ts + timeIntegration.sp2 / ctrl.pdt1 ) * vol;
 
             for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
             {
