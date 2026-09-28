@@ -53,7 +53,7 @@ UINsUnsteady::UINsUnsteady()
     data = new INsUsdData();
     field = new UINsUsdField();
     data->Init();
-    this->nEqu = data->nEqu;
+    this->nEqu = unsteady->nEqu;
     field->Init();
 
     this->srcFun = & UINsUnstPrepareSrcData;
@@ -85,7 +85,7 @@ void UINsUnstPrepareSrcData( Unsteady * unst )
     MRField * q2 =
         field->GetFlow( UsdField::HistoryLevel::Old );
 
-    for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < unsteady->nEqu; ++ iEqu )
     {
         data->prim[ iEqu ] =
             ( * q )[ iEqu ][ ug.cId ];
@@ -109,6 +109,7 @@ void UINsUnstPrepareSrcData( Unsteady * unst )
 void UINsUnstPrepareCriData( Unsteady * unst )
 {
     INsUsdData * data = static_cast< INsUsdData * >( unst->data );
+    UUnsteady * unsteady = static_cast< UUnsteady * >( unst );
     UsdField * field = unst->field;
     MRField * q =
         field->GetFlow( UsdField::HistoryLevel::Current );
@@ -119,7 +120,7 @@ void UINsUnstPrepareCriData( Unsteady * unst )
     MRField * q2 =
         field->GetFlow( UsdField::HistoryLevel::Old );
 
-    for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < unsteady->nEqu; ++ iEqu )
     {
         data->prim [ iEqu ] =
             ( * q )[ iEqu ][ ug.cId ];
