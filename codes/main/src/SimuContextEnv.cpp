@@ -34,6 +34,7 @@ License
 #include "ZoneState.h"
 #include "GridState.h"
 #include "FieldManager.h"
+#include "DataBase.h"
 #include <iostream>
 
 BeginNameSpace( ONEFLOW )
@@ -67,6 +68,7 @@ void SimuContext::TeardownCase()
     ZoneState::Reset();
     GridState::Reset();
     FieldManagerRegistry::FreeFieldManager();
+    GetGlobalDataBase()->dataPara->Clear();
     envReady_ = false;
 }
 
