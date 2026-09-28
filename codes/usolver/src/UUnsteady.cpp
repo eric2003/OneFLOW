@@ -187,7 +187,8 @@ void UUnsteady::CalcDualTimeSrc()
 
 void UUnsteady::CalcUnsteadyCriterion()
 {
-    data->convergence.Reset();
+    convergence.Init( data->nEqu );
+    convergence.Reset();
     res.resize( data->nEqu );
     q.resize( data->nEqu );
     q1.resize( data->nEqu );
@@ -201,13 +202,13 @@ void UUnsteady::CalcUnsteadyCriterion()
 
         this->PrepareResidual();
 
-        data->convergence.Accumulate(
+        convergence.Accumulate(
             res,
             q1,
             q2 );
     }
 
-    data->convergence.Calculate();
+    convergence.Calculate();
 }
 
 EndNameSpace
