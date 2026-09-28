@@ -415,7 +415,7 @@ void InitFlowSimuGlobal()
     vis_model.Init();
     ctrl.Init();
     Iteration::Init();
-    timeIntegration.InitBasic();
+    timeIntegration.Init();
 }
 
 void InitializeSolver()
