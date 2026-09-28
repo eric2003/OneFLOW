@@ -155,8 +155,6 @@ void GridFactory::ConvertGrid( const GridConfig & config )
     }
 }
 
-// Replace GridFactory::Plot3DProcess body in GridFactory.cpp with this
-// (only the CGNS branch changes: remove SetDeleteFlag ¡ª ownership is RAII).
 
 void GridFactory::Plot3DProcess( const GridConfig & config )
 {
