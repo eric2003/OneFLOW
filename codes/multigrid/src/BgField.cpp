@@ -123,6 +123,9 @@ void BgField::Free()
     {
         delete BgField::data[ iZone ];
     }
+
+    BgField::data.clear();
+    BgField::flag = false;
 }
 
 FieldWrap * BgField::GetFieldWrap( int zid, int solverIndex, int fid, int gl )
