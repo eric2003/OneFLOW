@@ -117,8 +117,6 @@ void UINsUnstPrepareCriData( Unsteady * unst )
     MRField * q2 =
         field->GetFlow( UsdField::HistoryLevel::Old );
 
-    MRField * res =
-        field->GetResidual( UsdField::HistoryLevel::Current );
     for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
     {
         data->prim [ iEqu ] =
@@ -132,12 +130,6 @@ void UINsUnstPrepareCriData( Unsteady * unst )
     }
 
     nscom.gama = ( * uinsf.gama  )[ 0 ][ ug.cId ];
-
-    for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
-    {
-        data->res[ iEqu ] =
-            ( * res )[ iEqu ][ ug.cId ];
-    }
 
 	//INsPrimToQ( data->prim , nscom.gama, data->q  );
 	//INsPrimToQ( data->prim1, nscom.gama, data->q1 );
