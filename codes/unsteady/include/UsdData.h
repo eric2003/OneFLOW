@@ -21,7 +21,6 @@ License
 
 #pragma once
 #include "HXDefine.h"
-#include "UnsteadyConvergence.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -33,7 +32,6 @@ public:
 
 public:
     int nEqu;
-    UnsteadyConvergence convergence;
 
 public:
     virtual void Init();
