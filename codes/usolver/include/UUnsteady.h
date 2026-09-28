@@ -6,8 +6,9 @@ License
     This file is part of OneFLOW.
 
     OneFLOW is free software: you can redistribute it and/or modify it
-    under the terms of the GNU General Public License either version 3 of the
-    License, or (at your option) any later version.
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
     OneFLOW is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
@@ -42,6 +43,9 @@ public:
     void CalcUnsteadyCriterion() override;
 
 public:
+    // Equation count belongs to the unsteady algorithm state.
+    int nEqu;
+
     // Temporary conservative-state buffers belong to the unsteady algorithm,
     // not to the generic unsteady data interface.
     RealField q, q1, q2;
