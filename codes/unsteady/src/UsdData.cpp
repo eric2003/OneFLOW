@@ -51,7 +51,7 @@ void UsdData::InitSub( int nEqu )
     convergence.Init( nEqu );
 }
 
-void UsdData::CalcCellDualTimeResidual()
+void UsdData::CalcCellDualTimeResidual( RealField & dualtimeRes )
 {
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
@@ -61,7 +61,8 @@ void UsdData::CalcCellDualTimeResidual()
     }
 }
 
-void UsdData::CalcCellDualTimeSrc( Real vol, Real vol1, Real vol2 )
+void UsdData::CalcCellDualTimeSrc(
+    Real vol, Real vol1, Real vol2, RealField & dualtimeSrc )
 {
     const RealField & q  = this->GetQ();
     const RealField & q1 = this->GetQ1();
