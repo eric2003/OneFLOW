@@ -20,7 +20,6 @@ License
 \\---------------------------------------------------------------------------*/
 
 #include "UUnsteady.h"
-#include "UsdField.h"
 #include "UnsteadyConvergence.h"
 #include "TimeIntegration.h"
 #include "Iteration.h"
@@ -52,7 +51,7 @@ void UUnsteady::SetEquationCount( int equationCount )
 void UUnsteady::UpdateDualTimeStepResidual()
 {
     MRField * res =
-        field.GetResidual( UsdField::HistoryLevel::Current );
+        field.GetResidual( UnsteadyFieldView::HistoryLevel::Current );
 
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
@@ -65,7 +64,7 @@ void UUnsteady::UpdateDualTimeStepResidual()
 void UUnsteady::UpdateDualTimeStepSource()
 {
     MRField * res =
-        field.GetResidual( UsdField::HistoryLevel::Current );
+        field.GetResidual( UnsteadyFieldView::HistoryLevel::Current );
 
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
@@ -81,13 +80,13 @@ void UUnsteady::StoreOldResidual()
     if ( Iteration::innerSteps != 1 ) return;
 
     MRField * current =
-        field.GetResidual( UsdField::HistoryLevel::Current );
+        field.GetResidual( UnsteadyFieldView::HistoryLevel::Current );
 
     MRField * previous =
-        field.GetResidual( UsdField::HistoryLevel::Previous );
+        field.GetResidual( UnsteadyFieldView::HistoryLevel::Previous );
 
     MRField * old =
-        field.GetResidual( UsdField::HistoryLevel::Old );
+        field.GetResidual( UnsteadyFieldView::HistoryLevel::Old );
 
     for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
@@ -105,13 +104,13 @@ void UUnsteady::StoreOldResidual()
 void UUnsteady::PrepareResidual()
 {
     MRField * res =
-        field.GetResidual( UsdField::HistoryLevel::Current );
+        field.GetResidual( UnsteadyFieldView::HistoryLevel::Current );
 
     MRField * res1 =
-        field.GetResidual( UsdField::HistoryLevel::Previous );
+        field.GetResidual( UnsteadyFieldView::HistoryLevel::Previous );
 
     MRField * res2 =
-        field.GetResidual( UsdField::HistoryLevel::Old );
+        field.GetResidual( UnsteadyFieldView::HistoryLevel::Old );
 
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
