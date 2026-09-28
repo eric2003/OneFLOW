@@ -35,7 +35,6 @@ public:
 public:
     int nEqu;
 
-    Real vol, vol1, vol2;
     RealField res, res1, res2;
     RealField prim, prim1, prim2;
     RealField q, q1, q2;
@@ -45,7 +44,7 @@ public:
     UnsteadyConvergence convergence;
 public:
     void CalcCellDualTimeResidual();
-    void CalcCellDualTimeSrc();
+    void CalcCellDualTimeSrc( Real vol, Real vol1, Real vol2 );
 public:
     virtual void Init();
     void InitSub( int nEqu );
