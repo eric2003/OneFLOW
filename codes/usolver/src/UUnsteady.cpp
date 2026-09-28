@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "UUnsteady.h"
+#include "HXDefine.h"
 #include "UsdData.h"
 #include "UsdField.h"
 #include "UnsteadyConvergence.h"
@@ -37,6 +38,7 @@ UUnsteady::UUnsteady()
 {
 }
 
+
 UUnsteady::~UUnsteady()
 {
 }
@@ -49,7 +51,7 @@ void UUnsteady::UpdateDualTimeStepResidual()
     for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
     {
         ( * res )[ iEqu ][ ug.cId ] =
-            data->dualtimeRes[ iEqu ];
+            dualtimeRes[ iEqu ];
     }
 }
 
@@ -62,7 +64,7 @@ void UUnsteady::UpdateDualTimeStepSource()
     for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
     {
         ( * res )[ iEqu ][ ug.cId ] -=
-            data->dualtimeSrc[ iEqu ];
+            dualtimeSrc[ iEqu ];
     }
 }
 
@@ -128,7 +130,8 @@ void UUnsteady::CalcDualTimeResidual()
 
         this->PrepareResidual();
 
-        data->CalcCellDualTimeResidual();
+        dualtimeRes.resize( data->nEqu );
+        data->CalcCellDualTimeResidual( dualtimeRes );
 
         this->UpdateDualTimeStepResidual();
     }
@@ -149,7 +152,9 @@ void UUnsteady::CalcDualTimeSrc()
 
         ( * this->srcFun )( this );
 
-        data->CalcCellDualTimeSrc( gcom.cvol, gcom.cvol1, gcom.cvol2 );
+        dualtimeSrc.resize( data->nEqu );
+        data->CalcCellDualTimeSrc(
+            gcom.cvol, gcom.cvol1, gcom.cvol2, dualtimeSrc );
 
         this->UpdateDualTimeStepSource();
     }
