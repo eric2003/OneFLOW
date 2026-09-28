@@ -100,6 +100,15 @@ void SolverState::Init( int nSolver )
     SolverState::convergeFlag.resize( nSolver );
 }
 
+void SolverState::Reset()
+{
+    SolverState::solverIndex = 0;
+    SolverState::solverType = 0;
+    SolverState::nSolver = 0;
+    SolverState::msgId = -1;
+    SolverState::convergeFlag.clear();
+}
+
 void SolverState::SetSolverType( int solverType )
 {
     SolverState::solverType = solverType;
