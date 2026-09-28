@@ -21,6 +21,7 @@ License
 
 #pragma once
 #include "Unsteady.h"
+#include "UnsteadyConvergence.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -44,6 +45,7 @@ public:
     // Temporary conservative-state buffers belong to the unsteady algorithm,
     // not to the generic unsteady data interface.
     RealField q, q1, q2;
+    UnsteadyConvergence convergence;
 
 private:
     RealField res, res1, res2;
