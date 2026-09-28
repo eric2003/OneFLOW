@@ -22,11 +22,11 @@ License
 
 
 #pragma once
-#include "TimeIntegration.h"
+#include "HXDefine.h"
 
 BeginNameSpace( ONEFLOW )
 
-class UsdData : public TimeIntegration
+class UsdData
 {
 public:
     UsdData();
@@ -56,6 +56,5 @@ public:
     void CalcCvg();
 };
 
-extern TimeIntegration timeIntegration;
 
 EndNameSpace
