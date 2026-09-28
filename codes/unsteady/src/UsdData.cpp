@@ -48,9 +48,6 @@ void UsdData::InitSub( int nEqu )
     res1.resize( nEqu );
     res2.resize( nEqu );
 
-    dualtimeRes.resize( nEqu );
-    dualtimeSrc.resize( nEqu );
-
     convergence.Init( nEqu );
 }
 
