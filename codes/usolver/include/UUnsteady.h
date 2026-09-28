@@ -37,6 +37,8 @@ public:
     void PrepareResidual();
     void CalcDualTimeResidual();
     void CalcDualTimeSrc();
+    void CalcCellDualTimeResidual();
+    void CalcCellDualTimeSrc();
     void CalcUnsteadyCriterion() override;
 
 private:
