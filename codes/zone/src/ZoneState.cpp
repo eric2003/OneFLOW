@@ -47,6 +47,19 @@ ZoneState::~ZoneState()
     ;
 }
 
+void ZoneState::Reset()
+{
+    ZoneState::nZones = 0;
+    ZoneState::nLocal = 0;
+    ZoneState::zid = 0;
+    ZoneState::szid = 0;
+    ZoneState::rzid = 0;
+    ZoneState::inei = 0;
+    ZoneState::pid.clear();
+    ZoneState::zoneType.clear();
+    ZoneState::localZid.clear();
+}
+
 bool ZoneState::IsValidZone( int zoneId )
 {
     return ZoneState::pid[ zoneId ] == Parallel::GetPid();

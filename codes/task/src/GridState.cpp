@@ -37,6 +37,12 @@ GridState::~GridState()
     ;
 }
 
+void GridState::Reset()
+{
+    GridState::gridLevel = 0;
+    GridState::nGrids = 1;
+}
+
 int GridState::GetCGridLevel( int gl )
 {
     return gl + 1;

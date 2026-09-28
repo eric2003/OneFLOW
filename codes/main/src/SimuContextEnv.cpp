@@ -30,6 +30,9 @@ License
 #include "AccelRuntime.h"
 #include "SolverMap.h"
 #include "SolverNameList.h"
+#include "Zone.h"
+#include "ZoneState.h"
+#include "GridState.h"
 #include <iostream>
 
 BeginNameSpace( ONEFLOW )
@@ -59,6 +62,9 @@ void SimuContext::TeardownCase()
     ClearAccelStates();
     SolverMap::FreeSolverMap();
     SolverNameClass::Reset();
+    Zone::ReleaseGrids();
+    ZoneState::Reset();
+    GridState::Reset();
     envReady_ = false;
 }
 
