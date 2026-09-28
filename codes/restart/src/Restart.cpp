@@ -75,31 +75,41 @@ void Restart::ReadUnsteady( int solverType )
     UsdField usdField;
     usdField.InitBasic( solverType );
 
-    MRField * q =
-        usdField.GetFlow( UsdField::HistoryLevel::Current );
+    // The current level is reconstructed from the first stored history level.
+    HXRead(
+        ActionState::dataBook,
+        usdField.GetFlow( 1 ) );
 
-    MRField * q1 =
-        usdField.GetFlow( UsdField::HistoryLevel::Previous );
+    SetField(
+        usdField.GetFlow( 0 ),
+        usdField.GetFlow( 1 ) );
 
-    MRField * q2 =
-        usdField.GetFlow( UsdField::HistoryLevel::Old );
+    for ( std::size_t level = 2;
+        level < usdField.flow.size();
+        ++ level )
+    {
+        HXRead(
+            ActionState::dataBook,
+            usdField.GetFlow( level ) );
+    }
 
-    HXRead( ActionState::dataBook, q1 );
-    HXRead( ActionState::dataBook, q2 );
-    SetField( q, q1 );
+    // Residual history follows the same restart layout as flow history.
+    HXRead(
+        ActionState::dataBook,
+        usdField.GetResidual( 1 ) );
 
-    MRField * res =
-        usdField.GetResidual( UsdField::HistoryLevel::Current );
+    SetField(
+        usdField.GetResidual( 0 ),
+        usdField.GetResidual( 1 ) );
 
-    MRField * res1 =
-        usdField.GetResidual( UsdField::HistoryLevel::Previous );
-
-    MRField * res2 =
-        usdField.GetResidual( UsdField::HistoryLevel::Old );
-
-    HXRead( ActionState::dataBook, res1 );
-    HXRead( ActionState::dataBook, res2 );
-    SetField( res, res1 );
+    for ( std::size_t level = 2;
+        level < usdField.residual.size();
+        ++ level )
+    {
+        HXRead(
+            ActionState::dataBook,
+            usdField.GetResidual( level ) );
+    }
 }
 
 void Restart::DumpUnsteady( int solverType )
@@ -107,29 +117,25 @@ void Restart::DumpUnsteady( int solverType )
     UsdField usdField;
     usdField.InitBasic( solverType );
 
-    MRField * q =
-        usdField.GetFlow( UsdField::HistoryLevel::Current );
+    // Keep the current level out of the restart stream.
+    // It is reconstructed from the first stored history level on read.
+    for ( std::size_t level = 1;
+        level < usdField.flow.size();
+        ++ level )
+    {
+        HXWrite(
+            ActionState::dataBook,
+            usdField.GetFlow( level ) );
+    }
 
-    MRField * q1 =
-        usdField.GetFlow( UsdField::HistoryLevel::Previous );
-
-    MRField * q2 =
-        usdField.GetFlow( UsdField::HistoryLevel::Old );
-
-    HXWrite( ActionState::dataBook, q1 );
-    HXWrite( ActionState::dataBook, q2 );
-
-    MRField * res =
-        usdField.GetResidual( UsdField::HistoryLevel::Current );
-
-    MRField * res1 =
-        usdField.GetResidual( UsdField::HistoryLevel::Previous );
-
-    MRField * res2 =
-        usdField.GetResidual( UsdField::HistoryLevel::Old );
-
-    HXWrite( ActionState::dataBook, res1 );
-    HXWrite( ActionState::dataBook, res2 );
+    for ( std::size_t level = 1;
+        level < usdField.residual.size();
+        ++ level )
+    {
+        HXWrite(
+            ActionState::dataBook,
+            usdField.GetResidual( level ) );
+    }
 }
 
 void Restart::InitUnsteady( int solverType )
@@ -137,30 +143,28 @@ void Restart::InitUnsteady( int solverType )
     UsdField usdField;
     usdField.InitBasic( solverType );
 
-    MRField * q =
-        usdField.GetFlow( UsdField::HistoryLevel::Current );
+    // Initialize every configured history level from the current field.
+    for ( std::size_t level = 1;
+        level < usdField.flow.size();
+        ++ level )
+    {
+        SetField(
+            usdField.GetFlow( level ),
+            usdField.GetFlow( 0 ) );
+    }
 
-    MRField * q1 =
-        usdField.GetFlow( UsdField::HistoryLevel::Previous );
+    SetField(
+        usdField.GetResidual( 0 ),
+        0.0 );
 
-    MRField * q2 =
-        usdField.GetFlow( UsdField::HistoryLevel::Old );
-
-    SetField( q1, q );
-    SetField( q2, q );
-
-    MRField * res =
-        usdField.GetResidual( UsdField::HistoryLevel::Current );
-
-    MRField * res1 =
-        usdField.GetResidual( UsdField::HistoryLevel::Previous );
-
-    MRField * res2 =
-        usdField.GetResidual( UsdField::HistoryLevel::Old );
-
-    SetField( res , 0.0 );
-    SetField( res1, res );
-    SetField( res2, res );
+    for ( std::size_t level = 1;
+        level < usdField.residual.size();
+        ++ level )
+    {
+        SetField(
+            usdField.GetResidual( level ),
+            usdField.GetResidual( 0 ) );
+    }
 }
 
 void Restart::Read( int solverType )

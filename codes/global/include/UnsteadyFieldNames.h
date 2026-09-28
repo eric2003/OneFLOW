@@ -20,31 +20,15 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
 #pragma once
 #include "HXDefine.h"
 
 BeginNameSpace( ONEFLOW )
 
-class UsdBasic
+struct UnsteadyFieldNames
 {
-public:
-    UsdBasic();
-    ~UsdBasic();
-public:
-    Real bsc1, bsc2, bsc3;
-    Real sc1, sc2, sc3;
-    Real sp1, sp2;
-    Real resc1, resc2, resc3;
-    RealField coeff;
-public:
-    void InitCoef();
-    void CalcResCoef();
-    void CalcSpectrumCoeff();
-    void CalcSrcCoeffBasic();
-    void CalcSrcCoeff();
-public:
-    void InitBasic();
+    StringField flow;
+    StringField residual;
 };
 
 EndNameSpace

@@ -47,6 +47,9 @@ public:
     virtual void Init();
     void InitBasic( int solverType );
 
+    MRField * GetFlow( std::size_t level );
+    MRField * GetResidual( std::size_t level );
+
     MRField * GetFlow( HistoryLevel level );
     MRField * GetResidual( HistoryLevel level );
 

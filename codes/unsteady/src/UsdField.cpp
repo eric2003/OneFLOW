@@ -21,7 +21,8 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "UsdField.h"
-#include "UsdFieldConfig.h"
+#include "FieldManager.h"
+#include "UnsteadyFieldNames.h"
 #include "FieldWrap.h"
 #include "DataBase.h"
 #include "Zone.h"
@@ -50,18 +51,18 @@ void UsdField::InitBasic( int solverType )
     // This class does not allocate field storage.
     UnsGrid * grid = Zone::GetUnsGrid();
 
-    UsdFieldConfig * config =
-        UsdFieldConfigRegistry::GetConfig(
+    FieldManager * fieldManager =
+        FieldManagerRegistry::GetFieldManager(
             solverType );
 
-    if ( config == nullptr )
+    if ( fieldManager == nullptr )
     {
         Fatal(
-            "UsdFieldConfig is not registered for solverType" );
+            "FieldManager is not registered for solverType" );
     }
 
-    const UsdFieldNames & fieldNames =
-        config->GetFieldNames();
+    const UnsteadyFieldNames & fieldNames =
+        fieldManager->GetUnsteadyFieldNames();
 
     this->flow.resize(
         fieldNames.flow.size() );
@@ -102,14 +103,26 @@ void UsdField::InitBasic( int solverType )
     }
 }
 
+MRField * UsdField::GetFlow( std::size_t level )
+{
+    return this->flow[ level ];
+}
+
+MRField * UsdField::GetResidual( std::size_t level )
+{
+    return this->residual[ level ];
+}
+
 MRField * UsdField::GetFlow( HistoryLevel level )
 {
-    return this->flow[ static_cast< std::size_t >( level ) ];
+    return this->GetFlow(
+        static_cast< std::size_t >( level ) );
 }
 
 MRField * UsdField::GetResidual( HistoryLevel level )
 {
-    return this->residual[ static_cast< std::size_t >( level ) ];
+    return this->GetResidual(
+        static_cast< std::size_t >( level ) );
 }
 
 

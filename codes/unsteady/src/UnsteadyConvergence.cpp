@@ -20,78 +20,19 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "UsdData.h"
+#include "UnsteadyConvergence.h"
 #include "Ctrl.h"
 #include "Iteration.h"
 #include "HXMath.h"
 
 BeginNameSpace( ONEFLOW )
 
-UsdBasic usd;
-
-UsdData::UsdData()
+void UnsteadyConvergence::Init( int nEqu )
 {
-    ;
-}
-
-UsdData::~UsdData()
-{
-    ;
-}
-
-void UsdData::Init()
-{
-    int nEqu = 1;
-    this->InitSub( nEqu );
-}
-
-void UsdData::InitSub( int nEqu )
-{
-    this->InitBasic();
-    this->nEqu = nEqu;
-    res.resize( nEqu );
-    res1.resize( nEqu );
-    res2.resize( nEqu );
-
-    prim.resize( nEqu );
-    prim1.resize( nEqu );
-    prim2.resize( nEqu );
-
-    q.resize( nEqu );
-    q1.resize( nEqu );
-    q2.resize( nEqu );
-
-    dualtimeRes.resize( nEqu );
-    dualtimeSrc.resize( nEqu );
-
     normList.resize( nEqu );
 }
 
-void UsdData::CalcCellDualTimeResidual()
-{
-    for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
-    {
-        dualtimeRes[ iEqu ] = resc1 * res [ iEqu ] + 
-                               resc2 * res1[ iEqu ] + 
-                              resc3 * res2[ iEqu ];
-    }
-}
-
-void UsdData::CalcCellDualTimeSrc()
-{
-    for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
-    {
-        Real dualSrc0 = sc1 * vol  * q [ iEqu ];
-        Real dualSrc1 = sc2 * vol1 * q1[ iEqu ];
-        Real dualSrc2 = sc3 * vol2 * q2[ iEqu ];
-
-        Real dualSrc = dualSrc0 + dualSrc1 + dualSrc2;
-
-        dualtimeSrc[ iEqu ] = dualSrc;
-    }
-}
-
-void UsdData::ZeroData()
+void UnsteadyConvergence::Reset()
 {
     sum1      = zero;
     sum2      = zero;
@@ -100,12 +41,15 @@ void UsdData::ZeroData()
     normList  = zero;
 }
 
-void UsdData::CalcCellUnsteadyCri()
+void UnsteadyConvergence::Accumulate( const RealField & res,
+                                      const RealField & q1,
+                                      const RealField & q2 )
 {
-    for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
+    for ( std::size_t iEqu = 0; iEqu < res.size(); ++ iEqu )
     {
-        Real dq_p =  res[ iEqu ];             // qn+1, p+1 - qn+1, p
-        Real dq_n =  q1[ iEqu ] - q2[ iEqu ]; // qn+1, p+1 - qn
+        Real dq_p = res[ iEqu ];
+        Real dq_n = q1[ iEqu ] - q2[ iEqu ];
+
         sum1             += SQR( dq_p );
         sum2             += SQR( dq_n );
         normList[ iEqu ] += SQR( dq_p );
@@ -113,30 +57,30 @@ void UsdData::CalcCellUnsteadyCri()
     }
 }
 
-void UsdData::CalcCvg()
+void UnsteadyConvergence::Calculate()
 {
     if ( ctrl.iConv == 0 )
     {
-        this->conv = sqrt( ABS( sum1 / ( sum2 + SMALL ) ) );
+        conv = sqrt( ABS( sum1 / ( sum2 + SMALL ) ) );
     }
     else if ( ctrl.iConv == 1 )
     {
         if ( Iteration::innerSteps == 1 )
         {
-            this->norm0 = this->normList[ 0 ];
+            norm0 = normList[ 0 ];
         }
-        
-        this->conv = this->normList[ 0 ] / this->norm0;
+
+        conv = normList[ 0 ] / norm0;
     }
     else if ( ctrl.iConv == 2 )
     {
         if ( Iteration::innerSteps == 1 )
         {
-            this->norm0 = this->totalNorm;
+            norm0 = totalNorm;
         }
-        this->conv = totalNorm / this->norm0;
+
+        conv = totalNorm / norm0;
     }
 }
-
 
 EndNameSpace

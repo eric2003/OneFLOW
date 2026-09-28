@@ -22,40 +22,34 @@ License
 
 
 #pragma once
-#include "UsdBasic.h"
+#include "HXDefine.h"
 
 BeginNameSpace( ONEFLOW )
 
-class UsdData : public UsdBasic
+class TimeIntegration
 {
 public:
-    UsdData();
-    ~UsdData();
-public:
-    int nEqu;
+    TimeIntegration();
+    ~TimeIntegration();
 
-    Real vol, vol1, vol2;
-    RealField res, res1, res2;
-    RealField prim, prim1, prim2;
-    RealField q, q1, q2;
-    RealField dualtimeRes;
-    RealField dualtimeSrc;
 public:
-    RealField normList;
+    Real bsc1, bsc2, bsc3;
+    Real sc1, sc2, sc3;
+    Real sp1, sp2;
+    Real resc1, resc2, resc3;
+    RealField coeff;
+
 public:
-    Real sum1, sum2, norm0, totalNorm;
-    Real conv;
+    void InitCoef();
+    void CalcResCoef();
+    void CalcSpectrumCoeff();
+    void CalcSrcCoeffBasic();
+    void CalcSrcCoeff();
+
 public:
-    void CalcCellDualTimeResidual();
-    void CalcCellDualTimeSrc();
-public:
-    virtual void Init();
-    void InitSub( int nEqu );
-    void ZeroData();
-    void CalcCellUnsteadyCri();
-    void CalcCvg();
+    void Init();
 };
 
-extern UsdBasic usd;
+extern TimeIntegration timeIntegration;
 
 EndNameSpace

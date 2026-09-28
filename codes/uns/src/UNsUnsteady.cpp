@@ -10,15 +10,15 @@ License
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    OneFLOW is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
     for more details.
 
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
-\*---------------------------------------------------------------------------*/
+\---------------------------------------------------------------------------*/
 
 #include "UNsUnsteady.h"
 #include "NsUnsteady.h"
@@ -50,9 +50,8 @@ void UNsUsdField::Init()
 UNsUnsteady::UNsUnsteady()
 {
     this->solverType = NS_SOLVER;
-    data = new NsUsdData();
     field = new UNsUsdField();
-    data->Init();
+    this->SetEquationCount( nscom.nTEqu );
     field->Init();
 
     this->srcFun = & UNsUnstPrepareSrcData;
@@ -64,14 +63,13 @@ UNsUnsteady::UNsUnsteady()
 
 UNsUnsteady::~UNsUnsteady()
 {
-    delete data;
     delete field;
 }
 
 
 void UNsUnstPrepareSrcData( Unsteady * unst )
 {
-    UsdData * data = unst->data;
+    UUnsteady * unsteady = static_cast< UUnsteady * >( unst );
     UsdField * field = unst->field;
 
     MRField * q =
@@ -83,15 +81,15 @@ void UNsUnstPrepareSrcData( Unsteady * unst )
     MRField * q2 =
         field->GetFlow( UsdField::HistoryLevel::Old );
 
-    for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < unsteady->nEqu; ++ iEqu )
     {
-        data->prim[ iEqu ] =
+        unsteady->prim[ iEqu ] =
             ( * q )[ iEqu ][ ug.cId ];
 
-        data->prim1[ iEqu ] =
+        unsteady->prim1[ iEqu ] =
             ( * q1 )[ iEqu ][ ug.cId ];
 
-        data->prim2[ iEqu ] =
+        unsteady->prim2[ iEqu ] =
             ( * q2 )[ iEqu ][ ug.cId ];
     }
     nscom.gama = ( * unsf.gama  )[ 0 ][ ug.cId ];
@@ -99,14 +97,14 @@ void UNsUnstPrepareSrcData( Unsteady * unst )
     gcom.cvol1 = ( * ug.cvol1 )[ ug.cId ];
     gcom.cvol2 = ( * ug.cvol2 )[ ug.cId ];
 
-    PrimToQ( data->prim , nscom.gama, data->q  );
-    PrimToQ( data->prim1, nscom.gama, data->q1 );
-    PrimToQ( data->prim2, nscom.gama, data->q2 );
+    PrimToQ( unsteady->prim , nscom.gama, unsteady->q  );
+    PrimToQ( unsteady->prim1, nscom.gama, unsteady->q1 );
+    PrimToQ( unsteady->prim2, nscom.gama, unsteady->q2 );
 }
 
 void UNsUnstPrepareCriData( Unsteady * unst )
 {
-    UsdData * data = unst->data;
+    UUnsteady * unsteady = static_cast< UUnsteady * >( unst );
     UsdField * field = unst->field;
 
     MRField * q =
@@ -118,32 +116,24 @@ void UNsUnstPrepareCriData( Unsteady * unst )
     MRField * q2 =
         field->GetFlow( UsdField::HistoryLevel::Old );
 
-    for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < unsteady->nEqu; ++ iEqu )
     {
-        data->prim [ iEqu ] =
+        unsteady->prim [ iEqu ] =
             ( * q )[ iEqu ][ ug.cId ];
 
-        data->prim1[ iEqu ] =
+        unsteady->prim1[ iEqu ] =
             ( * q1 )[ iEqu ][ ug.cId ];
 
-        data->prim2[ iEqu ] =
+        unsteady->prim2[ iEqu ] =
             ( * q2 )[ iEqu ][ ug.cId ];
     }
 
     nscom.gama = ( * unsf.gama  )[ 0 ][ ug.cId ];
 
-    MRField * res =
-        field->GetResidual( UsdField::HistoryLevel::Current );
 
-    for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
-    {
-        data->res[ iEqu ] =
-            ( * res )[ iEqu ][ ug.cId ];
-    }
-
-    PrimToQ( data->prim , nscom.gama, data->q  );
-    PrimToQ( data->prim1, nscom.gama, data->q1 );
-    PrimToQ( data->prim2, nscom.gama, data->q2 );
+    PrimToQ( unsteady->prim , nscom.gama, unsteady->q  );
+    PrimToQ( unsteady->prim1, nscom.gama, unsteady->q1 );
+    PrimToQ( unsteady->prim2, nscom.gama, unsteady->q2 );
 }
 
 EndNameSpace

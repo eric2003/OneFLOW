@@ -26,7 +26,7 @@ License
 #include "Iteration.h"
 #include "Ctrl.h"
 #include "NsCom.h"
-#include "UsdData.h"
+#include "TimeIntegration.h"
 #include "MultiBlock.h"
 #include "SolverMap.h"
 #include "SolverCatalog.h"
@@ -415,7 +415,7 @@ void InitFlowSimuGlobal()
     vis_model.Init();
     ctrl.Init();
     Iteration::Init();
-    usd.InitBasic();
+    timeIntegration.Init();
 }
 
 void InitializeSolver()

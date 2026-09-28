@@ -11,8 +11,8 @@ License
     (at your option) any later version.
 
     OneFLOW is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
     for more details.
 
     You should have received a copy of the GNU General Public License
@@ -25,10 +25,25 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-struct UsdFieldNames
+class UnsteadyConvergence
 {
-    StringField flow;
-    StringField residual;
+public:
+    void Init( int nEqu );
+    void Reset();
+    void Accumulate( const RealField & res,
+                     const RealField & q1,
+                     const RealField & q2 );
+    void Calculate();
+
+public:
+    Real conv;
+
+private:
+    RealField normList;
+    Real sum1;
+    Real sum2;
+    Real norm0;
+    Real totalNorm;
 };
 
 EndNameSpace

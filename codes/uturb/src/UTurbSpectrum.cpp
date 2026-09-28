@@ -38,7 +38,7 @@ License
 #include "DataBase.h"
 #include "FieldBase.h"
 #include "Unsteady.h"
-#include "UsdData.h"
+#include "TimeIntegration.h"
 #include "Ctrl.h"
 #include "NsIdx.h"
 #include <iostream>
@@ -196,13 +196,13 @@ void UTurbSpectrum::CalcSpectrum2Equ()
 
 void UTurbSpectrum::CalcUnsteadySpectrum()
 {
-    if ( ctrl.idualtime == 0 )//Single time step, note: Yes usd.sp2 !
+    if ( ctrl.idualtime == 0 )//Single time step, note: Yes timeIntegration.sp2 !
     {
         for ( int cId = 0; cId < ug.nCells; ++ cId )
         {
             Real vol = ( * ug.cvol )[ cId ];
             Real ts  = ( * uturbf.timestep )[ 0 ][ cId ] * turbcom.turb_cfl_ratio;
-            Real unsteadyTerm = (  usd.sp2 / ts ) * vol;
+            Real unsteadyTerm = (  timeIntegration.sp2 / ts ) * vol;
 
             for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
             {
@@ -216,7 +216,7 @@ void UTurbSpectrum::CalcUnsteadySpectrum()
         {
             Real vol = ( * ug.cvol )[ cId ];
             Real ts  = ( * unsf.timestep )[ 0 ][ cId ] * turbcom.turb_cfl_ratio;
-            Real unsteadyTerm = (  usd.sp1 / ts + usd.sp2 / ctrl.pdt1 ) * vol;
+            Real unsteadyTerm = (  timeIntegration.sp1 / ts + timeIntegration.sp2 / ctrl.pdt1 ) * vol;
 
             for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
             {
