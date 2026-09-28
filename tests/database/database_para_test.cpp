@@ -181,3 +181,36 @@ TEST_F(DataParaTest, RejectUpdateWithDifferentSize)
     EXPECT_EQ( values[0], 10 );
     EXPECT_EQ( values[1], 20 );
 }
+
+// ----------------------------------------------------------------------------
+// 4. Clear all entries without destroying the DataPara object
+// ----------------------------------------------------------------------------
+
+TEST(DataParaTestStandalone, ClearReleasesAllEntries)
+{
+    DataPara dataPara;
+
+    DataEntry* dataEntry = new DataEntry();
+    dataEntry->name = "clear_value";
+    dataEntry->type = HX_INT;
+    dataEntry->size = 1;
+
+    int value = 42;
+    TDataObject< int >* dataObject = new TDataObject< int >( 1 );
+    dataObject->CopyValue( &value );
+    dataEntry->data = dataObject;
+
+    dataPara.UpdateDataPointer( dataEntry );
+
+    ASSERT_NE(
+        dataPara.GetDataPointer( "clear_value" ),
+        nullptr
+    );
+
+    dataPara.Clear();
+
+    EXPECT_EQ(
+        dataPara.GetDataPointer( "clear_value" ),
+        nullptr
+    );
+}
