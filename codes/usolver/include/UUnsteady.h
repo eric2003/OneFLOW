@@ -39,6 +39,10 @@ public:
     void CalcDualTimeResidual();
     void CalcDualTimeSrc();
     void CalcUnsteadyCriterion() override;
+
+private:
+    RealField dualtimeRes;
+    RealField dualtimeSrc;
 };
 
 EndNameSpace
