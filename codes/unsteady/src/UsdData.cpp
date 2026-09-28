@@ -27,7 +27,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-UsdBasic usd;
+
 
 UsdData::UsdData()
 {
