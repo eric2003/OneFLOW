@@ -27,7 +27,6 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include "FieldManager.h"
 #include "FieldBase.h"
 #include "UsdFieldNames.h"
-#include "UsdFieldConfig.h"
 #include "SolverDef.h"
 #include "TextFileParser.h"
 #include "OStream.h"
@@ -157,7 +156,7 @@ namespace
             "Unknown unsteady field role: " + role );
     }
 
-    void InitUsdFieldConfig(
+    void SetUnsteadyFieldNames(
         FieldManager * fieldManager,
         const UsdFieldNames & fieldNames )
     {
@@ -276,7 +275,7 @@ namespace
                 location,
                 &fieldNames );
 
-            InitUsdFieldConfig(
+            SetUnsteadyFieldNames(
                 fieldManager,
                 fieldNames );
         }
