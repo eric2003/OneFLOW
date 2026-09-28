@@ -33,25 +33,12 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-UTurbUsdField::UTurbUsdField()
-{
-}
-
-UTurbUsdField::~UTurbUsdField()
-{
-}
-
-void UTurbUsdField::Init()
-{
-    this->InitBasic( TURB_SOLVER );
-}
-
 UTurbUnsteady::UTurbUnsteady()
 {
     this->solverType = TURB_SOLVER;
-    field = new UTurbUsdField();
+    field = new UsdField();
     this->SetEquationCount( turbcom.nEqu );
-    field->Init();
+    field->InitBasic( TURB_SOLVER );
 
     this->srcFun = & UTurbUnstPrepareSrcData;
     this->criFun = & UTurbUnstPrepareCriData;

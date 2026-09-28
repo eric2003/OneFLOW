@@ -27,15 +27,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-class UNsUsdField : public UsdField
-{
-public:
-    UNsUsdField();
-    ~UNsUsdField();
-public:
-    void Init();
-};
-
 class UNsUnsteady : public UUnsteady
 {
 public:

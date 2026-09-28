@@ -34,25 +34,12 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-UINsUsdField::UINsUsdField()
-{
-}
-
-UINsUsdField::~UINsUsdField()
-{
-}
-
-void UINsUsdField::Init()
-{
-    this->InitBasic( NS_SOLVER );
-}
-
 UINsUnsteady::UINsUnsteady()
 {
     this->solverType = NS_SOLVER;
-    field = new UINsUsdField();
+    field = new UsdField();
     this->SetEquationCount( nscom.nTEqu );
-    field->Init();
+    field->InitBasic( NS_SOLVER );
 
     this->srcFun = & UINsUnstPrepareSrcData;
     this->criFun = & UINsUnstPrepareCriData;
