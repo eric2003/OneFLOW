@@ -58,4 +58,10 @@ void Tolerence::SetTol( Real tolIn )
     Tolerence::tol = tolIn;
 }
 
+void Tolerence::Reset()
+{
+    Tolerence::tol = 1.0;
+    Tolerence::flag = false;
+}
+
 EndNameSpace
