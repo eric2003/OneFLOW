@@ -27,6 +27,7 @@ License
 #include "TimeIntegration.h"
 #include "Iteration.h"
 #include "UCom.h"
+#include "Com.h"
 #include <iostream>
 
 
