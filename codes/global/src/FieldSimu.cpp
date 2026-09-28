@@ -26,7 +26,7 @@ License
 #include "Iteration.h"
 #include "Ctrl.h"
 #include "NsCom.h"
-#include "UsdData.h"\n#include "TimeIntegration.h"
+#include "TimeIntegration.h"
 #include "MultiBlock.h"
 #include "SolverMap.h"
 #include "SolverCatalog.h"
