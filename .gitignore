@@ -1,0 +1,12 @@
+**/build/*
+oneflow_bin/*
+**/project_tmp/*
+**/__pycache__/*
+
+# Generated test outputs and local report drafts.
+#test/**/results/*
+#test/**/restart/*
+test/**/log/*
+test/**/run/*
+# Local handoff notes and unfinished report drafts; never commit.
+doc/reports/_drafts/

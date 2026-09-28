@@ -1,0 +1,36 @@
+#!/bin/bash
+
+if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+    ls
+    cd  lib
+    ls
+    echo "Install CMake"
+    wget https://github.com/Kitware/CMake/releases/download/v3.17.0-rc2/cmake-3.17.0-rc2-Linux-x86_64.tar.gz
+    tar -zxvf cmake-3.17.0-rc2-Linux-x86_64.tar.gz
+    sudo mv cmake-3.17.0-rc2-Linux-x86_64 /usr/local/cmake-3.17.0-rc2
+    sudo ln -sf /usr/local/cmake-3.17.0-rc2/bin/* /usr/bin/
+    sudo ln -sf /usr/local/cmake-3.17.0-rc2/bin/* /usr/local/bin/
+    export PATH=/usr/bin/:$PATH
+    ls /usr/local
+    echo "/usr/bin/"
+    ls /usr/bin/
+    echo "/usr/local/cmake"
+    ls /usr/local/cmake
+    echo "/usr/local/cmake --version"
+    /usr/local/cmake --version
+    echo "/usr/local/cmake-3.9.2"
+    ls /usr/local/cmake-3.9.2
+    echo "/usr/local/cmake-3.17.0-rc2"
+    ls /usr/local/cmake-3.17.0-rc2/bin
+    echo "/usr/local/cmake-3.17.0-rc2/bin"
+    ls /usr/local/cmake-3.17.0-rc2/bin
+    echo "cmake --version"
+    cmake --version
+    echo "which cmake"
+    which cmake
+    echo "/usr/bin/cmake --version"
+    /usr/bin/cmake --version
+    echo "/usr/local/cmake-3.17.0-rc2/bin/cmake --version"
+    /usr/local/cmake-3.17.0-rc2/bin/cmake --version
+    echo "the path is $PATH"
+fi

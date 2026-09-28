@@ -1,0 +1,69 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 解决中文显示问题
+plt.rcParams['font.sans-serif'] = ['Microsoft YaHei', 'SimHei', 'Arial Unicode MS', 'DejaVu Sans']
+plt.rcParams['axes.unicode_minus'] = False  # 正常显示负号
+
+# 参数设置（与之前格式保持一致，便于对比）
+nx = 401                # 空间网格点数
+x = np.linspace(0, 4.0, nx)   # 空间区间 [0, 4]
+dx = x[1] - x[0]         # dx ≈ 0.01
+c = 1.0                  # 对流速度（c > 0，向右传播，使用左二阶迎风）
+dt = 0.005               # 时间步长（CFL ≈ 0.5 < 1，满足稳定性）
+total_time = 1.0         # 总模拟时间（位移 = 1.0）
+nt = int(total_time / dt)   # 时间步数 = 200
+
+courant = c * dt / dx     # Courant 数 ν ≈ 0.5
+
+# 初始条件：方波
+u = np.zeros(nx)
+u[(x >= 0.5) & (x <= 1.5)] = 1.0
+u_initial = u.copy()
+
+# 时间推进：显式二阶迎风格式（c > 0，使用二阶后向差分）
+for n in range(nt):
+    u_new = u.copy()
+    for i in range(nx):
+        im1 = (i - 1) % nx    # 周期边界
+        im2 = (i - 2) % nx
+        # 二阶迎风：u_x ≈ (3u_i - 4u_{i-1} + u_{i-2}) / (2 dx)
+        ux_approx = (3 * u[i] - 4 * u[im1] + u[im2]) / (2 * dx)
+        u_new[i] = u[i] - c * dt * ux_approx
+    u = u_new
+
+# 理论解：精确平移
+displacement = c * total_time
+shift = int(round(displacement / dx))
+u_exact = np.roll(u_initial, shift)
+
+# 计算并输出数值解与理论解的误差（在控制台打印）
+error_linf = np.max(np.abs(u - u_exact))                     # L∞ 误差（最大绝对误差）
+error_l1   = np.sum(np.abs(u - u_exact)) * dx                # L1 误差
+error_l2   = np.sqrt(np.sum((u - u_exact)**2) * dx)          # L2 误差
+
+print("=== 数值解与理论解误差统计 (t=1.0) ===")
+print(f"L∞ 误差 (最大绝对误差): {error_linf:.6f}")
+print(f"L1 误差: {error_l1:.6f}")
+print(f"L2 误差: {error_l2:.6f}")
+print(f"数值解最大值: {np.max(u):.6f}, 最小值: {np.min(u):.6f}")
+print(f"理论解最大值: {np.max(u_exact):.6f}, 最小值: {np.min(u_exact):.6f}")
+
+# 如果需要输出部分数据点（例如波前附近），可以取消下面注释
+# print("\n部分网格点数据对比（x ≈ 1.5~2.5 区间）：")
+# idx_range = (x >= 1.4) & (x <= 2.6)
+# print("x       数值解      理论解      误差")
+# for i in np.where(idx_range)[0][::10]:  # 每10个点打印一个，避免太多
+#     print(f"{x[i]:.3f}    {u[i]:.6f}    {u_exact[i]:.6f}    {u[i]-u_exact[i]:.6f}")
+
+# 绘图：只显示最终时刻的数值解和理论解
+plt.figure(figsize=(10, 6))
+plt.plot(x, u, 'r-', lw=2, label='2阶迎风数值解 (t=1.0)')
+plt.plot(x, u_exact, 'k--', lw=2, label='理论解 (精确平移)')
+plt.xlabel('x')
+plt.ylabel('u')
+plt.title('一维对流方程 2阶迎风格式：方波传播最终对比 (t=1.0)')
+plt.legend()
+plt.grid(True)
+plt.ylim(-0.2, 1.2)
+plt.show()

@@ -1,0 +1,4 @@
+Error details: 
+L-2 Norm = 8.865373334901412e-06
+Maximum Norm = 2.500345370726187e-05
+CPU Time = 0.5625507831573486

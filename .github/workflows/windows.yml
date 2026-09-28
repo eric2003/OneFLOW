@@ -1,0 +1,141 @@
+# This is a basic workflow to help you get started with Actions
+name: OneFLOW_Windows_CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the
+  # master and hexin branches.
+  push:
+    branches: [ master, hexin ]
+
+  pull_request:
+    branches: [ master, hexin ]
+
+  # Allows the workflow to be started manually from the Actions tab.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CMAKE_GENERATOR: "Ninja"
+  CMAKE_COMPILER: "MSVC"
+  CMAKE_BUILD_PARALLEL_LEVEL: "8"
+  
+  # Dependency versions
+  HDF5_VERSION: "1.14.3"
+  CGNS_VERSION: "4.4.0"
+  METIS_VERSION: "5.1.0"
+  MSMPI_VERSION: "10.1.3"
+  
+jobs:
+  build:
+    name: "Windows OneFLOW Actions"
+    runs-on: windows-latest
+
+    steps:
+      # Checkout the repository.
+      - uses: actions/checkout@v7
+
+      # Cache the final HDF5, CGNS, and METIS installation trees.
+      #
+      # MPI is still installed as a system dependency and will be optimized
+      # separately after the local dependency cache is verified.
+      - name: Cache Windows dependencies
+        uses: actions/cache@v5
+        with:
+          path: |
+            ${{ github.workspace }}/_deps/hdf5/${{ env.HDF5_VERSION }}
+            ${{ github.workspace }}/_deps/cgns/${{ env.CGNS_VERSION }}
+            ${{ github.workspace }}/_deps/metis/METIS-VS2022-STATIC/${{ env.METIS_VERSION }}
+          key: oneflow-windows-deps-v3-hdf5-${{ env.HDF5_VERSION }}-cgns-${{ env.CGNS_VERSION }}-metis-${{ env.METIS_VERSION }}            
+
+      - name: Download and install MPI, HDF5, CGNS, METIS, then build OneFLOW
+        run: |
+          cd ${{ github.workspace }}
+          ls
+
+          $psfile = "${{ github.workspace }}/.github/workflows/oneflow_windows_actions.ps1"
+          & $psfile
+        shell: pwsh
+
+      - name: Unit Test
+        env:
+          HDF5_ROOT: ${{ github.workspace }}/_deps/hdf5/${{ env.HDF5_VERSION }}
+          CGNS_ROOT: ${{ github.workspace }}/_deps/cgns/${{ env.CGNS_VERSION }}
+          MSMPI_ROOT: C:/Program Files/Microsoft MPI
+        run: |
+          $ErrorActionPreference = "Stop"
+
+          $runtime_paths = @(
+              "${{ github.workspace }}/build/bin",
+              "$env:HDF5_ROOT/bin",
+              "$env:CGNS_ROOT/bin",
+              "$env:MSMPI_ROOT/Bin"
+          )
+          foreach ($path in $runtime_paths) {
+              if (Test-Path $path) {
+                  $env:Path = "$path;$env:Path"
+                  Write-Host "Runtime path: $path"
+              }
+              else {
+                  Write-Host "Runtime path does not exist: $path"
+              }
+          }
+
+          cd "${{ github.workspace }}/build"
+          ctest --output-on-failure -C Release
+        shell: pwsh 
+
+      - name: Run OneFLOW CFD Tests
+        env:
+          ONEFLOW_ROOT: ${{ github.workspace }}/install
+          HDF5_ROOT: ${{ github.workspace }}/_deps/hdf5/${{ env.HDF5_VERSION }}
+          CGNS_ROOT: ${{ github.workspace }}/_deps/cgns/${{ env.CGNS_VERSION }}
+          METIS_ROOT: ${{ github.workspace }}/_deps/metis/METIS-VS2022-STATIC/${{ env.METIS_VERSION }}          
+          MSMPI_ROOT: C:/Program Files/Microsoft MPI          
+        run: |
+          $ErrorActionPreference = "Stop"
+
+          $oneflow_exe = "$env:ONEFLOW_ROOT/bin/OneFLOW.exe"
+
+          Write-Host "OneFLOW executable: $oneflow_exe"
+
+          if ( -not ( Test-Path $oneflow_exe ) ) {
+              throw "OneFLOW.exe not found: $oneflow_exe"
+          }
+
+          if ( -not ( Test-Path "$env:ONEFLOW_ROOT/bin/system" ) ) {
+              throw "OneFLOW system directory not found: $env:ONEFLOW_ROOT/bin/system"
+          }
+
+          # Add runtime dependency directories to the current process.
+          $runtime_paths = @(
+              "$env:ONEFLOW_ROOT/bin"
+              "$env:HDF5_ROOT/bin"
+              "$env:CGNS_ROOT/bin"
+              "$env:MSMPI_ROOT/Bin"
+          )
+
+          foreach ( $runtime_path in $runtime_paths ) {
+              if ( Test-Path $runtime_path ) {
+                  $env:Path = "$runtime_path;$env:Path"
+                  Write-Host "Runtime path: $runtime_path"
+              }
+              else {
+                  Write-Host "Runtime path does not exist: $runtime_path"
+              }
+          }
+
+          if ( -not ( Get-Command mpiexec.exe -ErrorAction SilentlyContinue ) ) {
+              throw "mpiexec.exe not found"
+          }
+
+          cd "${{ github.workspace }}/test"
+
+          python --version
+
+          python test.py `
+              "mpiexec -n 1" `
+              "$oneflow_exe"
+        shell: pwsh

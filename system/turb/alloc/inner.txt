@@ -1,0 +1,8 @@
+true, turbdqdx , nTurbEqu, all
+true, turbdqdy , nTurbEqu, all
+true, turbdqdz , nTurbEqu, all
+true, turblimiter, nTurbEqu, all
+true, turbimpsr, nTurbEqu, uns
+true, bld, 1, uns
+true, cross, 1, uns
+true,  len_scale, 1, uns

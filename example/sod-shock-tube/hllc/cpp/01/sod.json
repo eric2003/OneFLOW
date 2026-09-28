@@ -1,0 +1,17 @@
+{
+	"total_time" : 0.20,
+	"equation" : "euler",
+	"iconservation" : 1,
+	"ifinite_volume" : 1,
+	"iviscous" : 0,
+	"nsave" : 2000,
+	"idump_initial_field" : 1,
+	"scheme" :
+	{
+		"inviscid" : "hllc",
+	    "reconstruction" : "weno5",
+		"viscous" : "center",
+		"time" : "rk3"
+	},
+    "grid" : "../sodshocktube1d1blocksv1.cgns"
+}

@@ -1,0 +1,87 @@
+cmake_minimum_required ( VERSION 3.15 )
+
+message ( STATUS "The CMAKE_VERSION is ${CMAKE_VERSION}." )
+include ( "${CMAKE_CURRENT_SOURCE_DIR}/project-meta-info.in" )
+
+project ( OneFLOW
+          VERSION ${project_version}
+          DESCRIPTION ${project_description}
+          HOMEPAGE_URL ${project_homepage}
+          LANGUAGES CXX
+         )
+
+# Project-wide default C++ standard. Individual targets can still opt out
+# via target_compile_features(), but this covers every target (including
+# gtest-based unit tests) that doesn't set one explicitly.
+set ( CMAKE_CXX_STANDARD 20 )
+set ( CMAKE_CXX_STANDARD_REQUIRED ON )
+set ( CMAKE_CXX_EXTENSIONS OFF )
+
+if ( MSVC )
+    add_compile_options ( /MP )
+endif()
+
+message ( STATUS "CMAKE_PROJECT_NAME    = ${CMAKE_PROJECT_NAME}" )
+message ( STATUS "PROJECT_VERSION_MAJOR = ${PROJECT_VERSION_MAJOR}" )
+message ( STATUS "PROJECT_VERSION_MINOR = ${PROJECT_VERSION_MINOR}" )
+message ( STATUS "PROJECT_VERSION_PATCH = ${PROJECT_VERSION_PATCH}" )
+message ( STATUS "PROJECT_VERSION_TWEAK = ${PROJECT_VERSION_TWEAK}" )
+message ( STATUS "PROJECT_HOMEPAGE_URL  = ${PROJECT_HOMEPAGE_URL}")
+message ( STATUS "CMAKE_PROJECT_DESCRIPTION = ${CMAKE_PROJECT_DESCRIPTION}" )
+
+set ( THIRD_PARTY_DIR ThirdParty )
+
+set ( PRJ_ROOT_DIR ${CMAKE_SOURCE_DIR} )
+message ( STATUS "PRJ_ROOT_DIR = ${PRJ_ROOT_DIR}" )
+
+set ( OneFLOW_CMAKE_DIR "${CMAKE_SOURCE_DIR}/cmake" )
+list ( INSERT CMAKE_MODULE_PATH 0 "${OneFLOW_CMAKE_DIR}" )
+
+message ( STATUS "Welcome to Build Project ${CMAKE_PROJECT_NAME}" )
+message ( STATUS "The OS is ${CMAKE_SYSTEM_NAME}, version ${CMAKE_SYSTEM_VERSION}" )
+
+message ( STATUS "CMAKE_SOURCE_DIR = ${CMAKE_SOURCE_DIR}" )
+message ( STATUS "CMAKE_BINARY_DIR = ${CMAKE_BINARY_DIR}" )
+
+message ( STATUS "CMAKE_CURRENT_SOURCE_DIR = ${CMAKE_CURRENT_SOURCE_DIR}" )
+message ( STATUS "CMAKE_CURRENT_BINARY_DIR = ${CMAKE_CURRENT_BINARY_DIR}" )
+
+message ( STATUS "The working directory is ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}" )
+
+message ( STATUS "The C compiler is ${CMAKE_C_COMPILER_ID}" )
+message ( STATUS "The CXX compiler is ${CMAKE_CXX_COMPILER_ID}" )
+message ( STATUS "The CMAKE_GENERATOR is ${CMAKE_GENERATOR}" )
+message ( STATUS "The CMAKE_CXX_COMPILER_VERSION is ${CMAKE_CXX_COMPILER_VERSION}" )
+
+message ( STATUS "The CMAKE_CXX_FLAGS is ${CMAKE_CXX_FLAGS}" )
+ 
+include ( UtilFunction   )
+include ( oflDirectories )
+
+set ( CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}" )
+set ( CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}" )
+set ( CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}" )
+
+message ( STATUS "The CMAKE_INSTALL_BINDIR is ${CMAKE_INSTALL_BINDIR}" )
+message ( STATUS "The CMAKE_INSTALL_LIBDIR is ${CMAKE_INSTALL_LIBDIR}" )
+message ( STATUS "The CMAKE_RUNTIME_OUTPUT_DIRECTORY is ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}" )
+message ( STATUS "The CMAKE_LIBRARY_OUTPUT_DIRECTORY is ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}" )
+message ( STATUS "The CMAKE_ARCHIVE_OUTPUT_DIRECTORY is ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}" )
+
+set_property ( GLOBAL PROPERTY THIRD_PROPERTY::INCLUDE_DIRS )
+set_property ( GLOBAL PROPERTY THIRD_PROPERTY::LIBRARIES    )
+set_property ( GLOBAL PROPERTY THIRD_PROPERTY::STATIC_LIBS )
+set_property ( GLOBAL PROPERTY THIRD_PROPERTY::SHARED_LIBS )
+set_property ( GLOBAL PROPERTY THIRD_PROPERTY::DEFINE_SYMBOL )
+
+enable_testing()
+
+option(
+    ONEFLOW_ENABLE_HIP_TESTS
+    "Register hardware-dependent HIP/DCU tests in the root CTest tree"
+    OFF )
+
+add_subdirectory ( ThirdParty ${THIRD_PARTY_DIR} )
+add_subdirectory ( codes      ${CMAKE_PROJECT_NAME} )
+add_subdirectory ( tests )
+add_subdirectory ( gui  )

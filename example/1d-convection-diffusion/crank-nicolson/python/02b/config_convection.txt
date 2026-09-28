@@ -1,0 +1,18 @@
+# 纯对流方程参数配置
+
+[Domain]
+xmin = -1.5
+xmax = 1.5
+
+[Time]
+total_time = 1.0
+
+[Mesh]
+Nx = 200
+Nt = 1000
+
+[Physics]
+a = 1.0
+
+[Case]
+type = combined_wave  # 可选: gaussian, combined_wave, square_wave

@@ -1,0 +1,512 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import inflect
+from abc import ABC, abstractmethod
+
+def initial_condition(x):
+    """Initial condition: step function from 1.0 to 2.0 in [0.5, 1.0]"""
+    u0 = np.zeros_like(x)
+    for i in range(len(x)):
+        if 0.5 <= x[i] <= 1.0:
+            u0[i] = 2.0
+        else:
+            u0[i] = 1.0
+    return u0
+
+def analytical_solution(x, t, a, L):
+    """Analytical solution with periodic boundary conditions"""
+    x_shifted = (x - a * t + L) % L
+    return initial_condition(x_shifted)    
+
+# Compute residual (flux divergence) for all cells
+def residual(q, cfd):
+    reconstruction(q, cfd)
+    inviscid_flux(cfd.q_face_left, cfd.q_face_right, cfd.flux, cfd)
+    for i in range(cfd.ncells):
+        cfd.res[i] = -(cfd.flux[i+1] - cfd.flux[i]) / cfd.mesh.dx
+        
+# Choose reconstruction method based on solver setting
+def reconstruction(q, cfd):
+    cfd.reconstructor.reconstruct(q, cfd)
+
+            
+def wc3L(v1,v2,v3):
+    """WENO-3 nonlinear weights for left-biased stencil"""
+    eps = 1.0e-6
+
+    # Smoothness indicators
+    s0 = (v3-v2)**2
+    s1 = (v2-v1)**2
+
+    # Compute nonlinear weights w0, w1
+    d0 = 2.0/3.0
+    d1 = 1.0/3.0
+    
+    c0 = d0 / ( (eps+s0)**2 )
+    c1 = d1 / ( (eps+s1)**2 )
+
+    w0 = c0 / ( c0 + c1 )
+    w1 = c1 / ( c0 + c1 )
+
+    # Candidate stencils
+    q0 =  0.5 * v2 + 0.5 * v3
+    q1 = -0.5 * v1 + 1.5 * v2
+
+    # Reconstructed value at interface
+    f = ( w0*q0 + w1*q1 )
+
+    return f
+
+def wc3R(v1,v2,v3):
+    """WENO-3 nonlinear weights for right-biased stencil"""
+    eps = 1.0e-6
+
+    # Smoothness indicators
+    s0 = (v2-v1)**2
+    s1 = (v3-v2)**2
+
+    # Compute nonlinear weights w0, w1
+    d0 = 2.0/3.0
+    d1 = 1.0/3.0
+    
+    c0 = d0 / ( (eps+s0)**2 )
+    c1 = d1 / ( (eps+s1)**2 )
+
+    w0 = c0 / ( c0 + c1 )
+    w1 = c1 / ( c0 + c1 )
+
+    # Candidate stencils
+    q0 = 0.5 * v1 + 0.5 * v2
+    q1 = 1.5 * v2 - 0.5 * v3
+
+    # Reconstructed value at interface
+    f = ( w0*q0 + w1*q1 )
+
+    return f
+    
+# 3rd-order WENO reconstruction for left interface with periodic boundary
+def weno3L_periodic(cfd,u,f):
+    # i: ist-1, ist, ..., ied
+    # j: 0, 1, ..., nx
+    for i in range(cfd.ist - 1, cfd.ied):
+        j = i - cfd.ist + 1
+        v1 = u[i-1]
+        v2 = u[i  ]
+        v3 = u[i+1]
+        f[j] = wc3L(v1,v2,v3)
+        
+# 3rd-order WENO reconstruction for right interface with periodic boundary
+def weno3R_periodic(cfd,u,f):
+    # i: ist, ist+1, ..., ied, ied+1
+    # j: 0, 1, ..., nx
+    for i in range(cfd.ist, cfd.ied + 1):
+        j = i - cfd.ist
+        v1 = u[i-1]
+        v2 = u[i  ]
+        v3 = u[i+1]
+        f[j] = wc3R(v1,v2,v3)
+        
+# Compute inviscid flux using selected Riemann solver
+def inviscid_flux(q_face_left, q_face_right, flux, cfd):
+    if cfd.config.flux_type == 0:
+        rusanov_flux(q_face_left, q_face_right, flux, cfd)
+    else:
+        engquist_osher_flux(q_face_left, q_face_right, flux, cfd)
+        
+# --------------------------------------------------------------------------- #
+# Numerical fluxes
+# --------------------------------------------------------------------------- #
+def rusanov_flux(q_face_left, q_face_right, flux, cfd):
+    """Rusanov (local Lax-Friedrichs) flux"""
+    for i in range(cfd.nnodes):
+        u_L = q_face_left[i]
+        u_R = q_face_right[i]
+        c_L = cfd.config.wave_speed
+        c_R = cfd.config.wave_speed
+        F_L = c_L * u_L  # Flux from left state
+        F_R = c_R * u_R  # Flux from right state
+        Smax = max(abs(c_L),abs(c_R)) # Maximum wave speed
+        flux[i] = 0.5 * (F_L + F_R) - 0.5 * Smax * (u_R - u_L)
+        
+def engquist_osher_flux(q_face_left, q_face_right, flux, cfd):
+    """Engquist-Osher flux for linear convection"""
+    for i in range(cfd.nnodes):
+        c = cfd.config.wave_speed
+        cp = 0.5*(c + abs(c))
+        cm = 0.5*(c - abs(c))
+        u_L = q_face_left[i]
+        u_R = q_face_right[i]
+       
+        flux[i] = cp * u_L + cm * u_R
+
+def periodic_boundary(u, cfd):
+    """Apply periodic boundary conditions"""
+    # Left ghost cells = right interior cells
+    for ig in range(cfd.nghosts):
+        u[cfd.ist - 1 - ig] = u[cfd.ied - 1 - ig]
+    
+    # Right ghost cells = left interior cells
+    for ig in range(cfd.nghosts):
+        u[cfd.ied + ig] = u[cfd.ist + ig]
+    
+    
+# Apply periodic boundary conditions
+def boundary(u, cfd):
+    periodic_boundary(u, cfd)
+
+# Copy current solution to old solution array
+def update_oldfield(qn, q):
+    qn[:] = q[:]
+
+# Initialize reconstruction coefficients for different orders
+def init_coef( spatial_order, coef ):
+    if spatial_order == 1:
+        coef[0] = [1.0]
+        coef[1] = [1.0]
+    elif spatial_order == 2:
+        coef[0] = [3.0/2.0, -1.0/2.0]
+        coef[1] = [1.0/2.0,  1.0/2.0]
+        coef[2] = [-1.0/2.0, 3.0/2.0]
+    elif spatial_order == 3:
+        coef[0] = [ 11.0/6.0, -7.0/6.0,  1.0/3.0 ]
+        coef[1] = [  1.0/3.0,  5.0/6.0, -1.0/6.0 ]
+        coef[2] = [ -1.0/6.0,  5.0/6.0,  1.0/3.0 ]
+        coef[3] = [  1.0/3.0, -7.0/6.0, 11.0/6.0 ]
+    elif spatial_order == 4:
+        coef[0] = [ 25.0/12.0, -23.0/12.0,  13.0/12.0,  -1.0/4.0 ]
+        coef[1] = [   1.0/4.0,  13.0/12.0,  -5.0/12.0,  1.0/12.0 ]
+        coef[2] = [ -1.0/12.0,   7.0/12.0,   7.0/12.0, -1.0/12.0 ]
+        coef[3] = [  1.0/12.0,  -5.0/12.0,  13.0/12.0,   1.0/4.0 ]
+        coef[4] = [  -1.0/4.0,  13.0/12.0, -23.0/12.0, 25.0/12.0 ]
+    elif spatial_order == 5:
+        coef[0] = [ 137.0/60.0, -163.0/60.0, 137.0/60.0,  -21.0/20.0,    1.0/5.0 ]
+        coef[1] = [    1.0/5.0,   77.0/60.0, -43.0/60.0,   17.0/60.0,  -1.0/20.0 ]
+        coef[2] = [  -1.0/20.0,    9.0/20.0,  47.0/60.0,  -13.0/60.0,   1.0/30.0 ]
+        coef[3] = [   1.0/30.0,  -13.0/60.0,  47.0/60.0,    9.0/20.0,  -1.0/20.0 ]
+        coef[4] = [  -1.0/20.0,   17.0/60.0, -43.0/60.0,   77.0/60.0,    1.0/5.0 ]
+        coef[5] = [    1.0/5.0,  -21.0/20.0, 137.0/60.0, -163.0/60.0, 137.0/60.0 ]
+    elif spatial_order == 6:
+        coef[0] = [ 49.0/20.0, -71.0/20.0,   79.0/20.0, -163.0/60.0,  31.0/30.0,  -1.0/6.0 ]
+        coef[1] = [   1.0/6.0,  29.0/20.0,  -21.0/20.0,   37.0/60.0, -13.0/60.0,  1.0/30.0 ]
+        coef[2] = [ -1.0/30.0,  11.0/30.0,   19.0/20.0,  -23.0/60.0,   7.0/60.0, -1.0/60.0 ]
+        coef[3] = [  1.0/60.0,  -2.0/15.0,   37.0/60.0,   37.0/60.0,  -2.0/15.0,  1.0/60.0 ]
+        coef[4] = [ -1.0/60.0,   7.0/60.0,  -23.0/60.0,   19.0/20.0,  11.0/30.0, -1.0/30.0 ]
+        coef[5] = [  1.0/30.0, -13.0/60.0,   37.0/60.0,  -21.0/20.0,  29.0/20.0,   1.0/6.0 ]
+        coef[6] = [  -1.0/6.0,  31.0/30.0, -163.0/60.0,   79.0/20.0, -71.0/20.0, 49.0/20.0 ]
+    elif spatial_order == 7:
+        coef[0] = [ 363.0/140.0, -617.0/140.0,  853.0/140.0, -2341.0/420.0,  667.0/210.0,   -43.0/42.0,     1.0/7.0 ]
+        coef[1] = [     1.0/7.0,  223.0/140.0, -197.0/140.0,   153.0/140.0, -241.0/420.0,   37.0/210.0,   -1.0/42.0 ]
+        coef[2] = [   -1.0/42.0,    13.0/42.0,  153.0/140.0,  -241.0/420.0,  109.0/420.0,  -31.0/420.0,   1.0/105.0 ]
+        coef[3] = [   1.0/105.0,  -19.0/210.0,  107.0/210.0,   319.0/420.0, -101.0/420.0,     5.0/84.0,  -1.0/140.0 ]
+        coef[4] = [  -1.0/140.0,     5.0/84.0, -101.0/420.0,   319.0/420.0,  107.0/210.0,  -19.0/210.0,   1.0/105.0 ]
+        coef[5] = [   1.0/105.0,  -31.0/420.0,  109.0/420.0,  -241.0/420.0,  153.0/140.0,    13.0/42.0,   -1.0/42.0 ]
+        coef[6] = [   -1.0/42.0,   37.0/210.0, -241.0/420.0,   153.0/140.0, -197.0/140.0,  223.0/140.0,     1.0/7.0 ]
+        coef[7] = [     1.0/7.0,   -43.0/42.0,  667.0/210.0, -2341.0/420.0,  853.0/140.0, -617.0/140.0, 363.0/140.0 ]
+
+# Initialize flow field with piecewise constant distribution
+def init_field(cfd):
+    for i in range(cfd.ist, cfd.ied):
+        j = i - cfd.ist
+        if 0.5 <= cfd.mesh.xcc[j] <= 1.0:
+            cfd.u[i] = 2.0
+        else:
+            cfd.u[i] = 1.0
+    boundary(cfd.u, cfd)
+    update_oldfield(cfd.un, cfd.u)
+    
+# Select Runge-Kutta time integration scheme
+def runge_kutta(cfd):
+    rk_order = cfd.config.rk_order
+    if rk_order == 1:
+        runge_kutta_1(cfd)
+    elif rk_order == 2:
+        runge_kutta_2(cfd)
+    else:
+        runge_kutta_3(cfd)
+    
+# 1st-order explicit Euler time integration
+def runge_kutta_1(cfd):
+    dt = cfd.config.dt
+    residual(cfd.u, cfd)
+    for i in range(cfd.ist,cfd.ied):
+        j = i - cfd.ist
+        cfd.u[i] = cfd.u[i] + dt * cfd.res[j]
+    boundary(cfd.u, cfd)
+    update_oldfield(cfd.un, cfd.u)    
+    
+# 2nd-order Runge-Kutta (Heun's method) time integration
+def runge_kutta_2(cfd):
+    dt = cfd.config.dt
+    residual(cfd.u, cfd)
+    
+    for i in range(cfd.ist,cfd.ied):
+        j = i - cfd.ist
+        cfd.u[i] = cfd.u[i] + dt * cfd.res[j]
+    boundary(cfd.u, cfd)
+    
+    residual(cfd.u, cfd)
+   
+    for i in range(cfd.ist,cfd.ied):
+        j = i - cfd.ist
+        cfd.u[i] = 0.5 * cfd.un[i] + 0.5 * cfd.u[i] + 0.5 * dt * cfd.res[j]
+    boundary(cfd.u, cfd)
+    update_oldfield(cfd.un, cfd.u)
+
+# 3rd-order Runge-Kutta (SSPRK3) time integration
+def runge_kutta_3(cfd):
+    dt = cfd.config.dt
+    residual(cfd.u, cfd)
+    for i in range(cfd.ist,cfd.ied):
+        j = i - cfd.ist
+        cfd.u[i] = cfd.u[i] + dt * cfd.res[j]
+    boundary(cfd.u, cfd)
+    
+    residual(cfd.u, cfd)
+    for i in range(cfd.ist,cfd.ied):
+        j = i - cfd.ist
+        cfd.u[i] = 0.75 * cfd.un[i] + 0.25 * cfd.u[i] + 0.25 * dt * cfd.res[j]
+    boundary(cfd.u, cfd)
+    
+    residual(cfd.u, cfd)
+    c1, c2, c3 = 1.0/3.0, 2.0/3.0, 2.0/3.0
+    for i in range(cfd.ist,cfd.ied):
+        j = i - cfd.ist
+        cfd.u[i] = c1 * cfd.un[i] + c2 * cfd.u[i] + c3 * dt * cfd.res[j]
+    boundary(cfd.u, cfd)
+    update_oldfield(cfd.un, cfd.u)    
+
+# Mesh class: defines computational grid
+class Mesh:
+    def __init__(self):
+        self.xmin = 0.0
+        self.xmax = 2.0
+        self.ncells = 40
+        self.nnodes = self.ncells + 1
+        self.nx = self.ncells
+        self.x = np.zeros(self.nnodes)
+        self.xcc = np.zeros(self.ncells)
+        self.init_mesh()
+        
+    def init_mesh(self):
+        self.L = self.xmax - self.xmin
+        self.dx = self.L / self.ncells
+        
+        # Generate node coordinates
+        for i in range(self.nnodes):
+            self.x[i] = self.xmin + i * self.dx
+            
+        # Generate cell center coordinates
+        for i in range(self.ncells):
+            self.xcc[i] = 0.5 * (self.x[i] + self.x[i+1])
+
+class Reconstructor(ABC):
+    def __init__(self):
+        pass
+    
+    @abstractmethod
+    def reconstruct(self, q, cfd):
+        pass
+
+class EnoReconstructor(Reconstructor):
+    def __init__(self, spatial_order, ntcells):
+        self.spatial_order = spatial_order
+        self.ntcells = ntcells
+        # Stencil selection arrays
+        self.lmc = np.zeros(self.ntcells, dtype=int)
+        
+        # Reconstruction coefficients and divided differences
+        self.coef = np.zeros((spatial_order + 1, spatial_order))
+        self.dd = np.zeros((spatial_order, self.ntcells))
+        
+        init_coef(self.spatial_order, self.coef)
+
+    def reconstruct(self, q, cfd):
+        """ENO reconstruction of interface values"""
+        #print(f"EnoReconstructor:reconstruct")
+        
+        # Choose stencil by ENO method based on smoothest polynomial
+        self.dd[0, :] = q
+        
+        # Compute divided differences
+        for m in range(1, self.spatial_order):
+            for j in range(self.ntcells-m):
+                self.dd[m, j] = self.dd[m-1, j+1] - self.dd[m-1, j]
+                
+        # Select left-biased stencil for each node
+        for i in range(cfd.ist-1,cfd.ied+1):
+            self.lmc[i] = i
+            for m in range(1, cfd.spatial_order):
+                if abs(self.dd[m, self.lmc[i]-1]) < abs(self.dd[m, self.lmc[i]]):
+                    self.lmc[i] -= 1
+                    
+        # Reconstruct values at cell interfaces (j+1/2)
+        for i in range(cfd.ist,cfd.ied+1):
+            j = i - cfd.ist
+            k1 = self.lmc[i-1]
+            k2 = self.lmc[i  ]
+            r1 = i-1 - k1
+            r2 = i   - k2
+            #print(f"i,k1,k2,r1,r2={i,k1,k2,r1,r2}")
+            cfd.q_face_left[j] = 0
+            cfd.q_face_right[j] = 0
+            for m in range(cfd.spatial_order):
+                cfd.q_face_left[j] += q[k1 + m] * self.coef[r1+1, m]
+                cfd.q_face_right[j] += q[k2 + m] * self.coef[r2, m]
+
+class WenoReconstructor(Reconstructor):
+    def reconstruct(self, q, cfd):
+        # WENO (Weighted Essentially Non-Oscillatory) reconstruction
+        # Reconstruct values at cell interfaces (j+1/2)
+        weno3L_periodic( cfd, q, cfd.q_face_left )
+        weno3R_periodic( cfd, q, cfd.q_face_right )
+        
+class SimulationConfig:
+    def __init__(self):
+        self.recon_scheme = "eno"  # 0=ENO, 1=WENO
+        self.flux_type = 0     # 0=Rusanov, 1=Engquist-Osher
+        self.rk_order = 1
+        self.wave_speed = 1.0
+        self.final_time = 0.625
+        self.dt = 0.025
+        
+    def with_mesh(self, mesh):
+        """设置网格"""
+        self.mesh = mesh
+        return self
+    
+    def with_reconstruction(self, scheme, order=None):
+        """设置重建方案"""
+        self.recon_scheme = scheme
+        if order is not None:
+            self.spatial_order = order
+        
+        if scheme == "weno" and order is None:
+            self.spatial_order = 5  # WENO默认5阶
+        
+# Cfd class: main data structure containing all CFD data
+class Cfd:
+    def __init__(self, config, mesh, spatial_order):
+        self.config = config
+        self.mesh = mesh
+        self.nx = mesh.nx
+        self.ncells = mesh.ncells
+        self.nnodes = mesh.nnodes
+        
+        self.spatial_order = spatial_order
+        self.nghosts = spatial_order  # Number of ghost cells
+        self.ist = 0 + self.nghosts  # Start index of physical cells
+        self.ied = self.ist + self.ncells   # End index of physical cells
+        self.ntcells = self.ncells + 2 * self.nghosts  # Total cells including ghost regions
+        print(f"self.ncells={self.ncells}")
+        print(f"self.spatial_order={self.spatial_order}")
+        print(f"self.nghosts={self.nghosts}")
+        print(f"self.ist={self.ist}")
+        print(f"self.ied={self.ied}")
+        
+        self.createReconstructor()
+        
+        # Interface values and fluxes
+        self.q_face_left = np.zeros(self.nnodes)  # Left interface value
+        self.q_face_right = np.zeros(self.nnodes)  # Right interface value
+        self.flux = np.zeros(self.nnodes)
+        self.res = np.zeros(self.ncells)  # Residual array
+
+        # Solution arrays
+        self.u = np.zeros(self.ntcells)  # Current solution
+        self.un = np.zeros(self.ntcells)  # Previous time step solution
+        
+    def createReconstructor(self):
+        if self.config.recon_scheme == "eno": #ENO
+            self.reconstructor = EnoReconstructor(self.spatial_order, self.ntcells)
+        elif self.config.recon_scheme == "weno": #WENO
+            self.reconstructor = WenoReconstructor()
+            
+
+# --------------------------------------------------------------------------- #
+# Simulation runners
+# --------------------------------------------------------------------------- #
+def run_simulation(cfd, final_time):
+    t = 0.0
+    dt_old = cfd.config.dt
+    dt = dt_old
+    while t < final_time:
+        if t + dt > final_time:
+            dt = final_time - t
+        cfd.config.dt = dt  # temporary adjustment for last step
+        runge_kutta(cfd)
+        t += dt
+    cfd.config.dt = dt_old
+    return cfd.u[cfd.ist:cfd.ied].copy()
+
+# Perform ENO-WENO comparative analysis
+def performEnoWenoAnalysis():
+    mesh = Mesh()
+    config = SimulationConfig()
+    
+    #config.rk_order = 1
+    config.rk_order = 3
+    config.dt = 0.0025
+    
+    u_list = []
+    # ENO
+    config.with_reconstruction("eno",3)
+    
+    cfd = Cfd(config, mesh, spatial_order=3)
+    init_field(cfd)
+    u_eno = run_simulation(cfd, config.final_time)
+    u_list.append(u_eno)
+    
+    # WENO
+    config.with_reconstruction("weno",3)
+    
+    cfd = Cfd(config, mesh, spatial_order=3)
+    init_field(cfd)
+    u_weno = run_simulation(cfd, config.final_time)
+    u_list.append(u_weno)
+    
+    u_analytical = analytical_solution(mesh.xcc, config.final_time, config.wave_speed, mesh.L)
+    plot_EnoWeno_Analysis(config, mesh.xcc, u_list, u_analytical)
+    
+# Plot ENO-WENO comparison results
+def plot_EnoWeno_Analysis(config, xcc, u_list, u_analytical):
+    # Define line styles with different colors and markers
+    styles = [
+        {'color': 'black', 'linestyle': '-', 'marker': 'o'},
+        {'color': 'blue', 'linestyle': '--', 'marker': 's'},
+        {'color': 'black', 'linestyle': '-', 'marker': '^'},
+        {'color': 'blue', 'linestyle': '--', 'marker': 'v'},
+        {'color': 'black', 'linestyle': '-', 'marker': '<'},
+        {'color': 'blue', 'linestyle': '--', 'marker': '>'},
+        {'color': 'black', 'linestyle': '-', 'marker': 'D'},
+    ]
+
+    n = len(u_list)
+    num_styles = len(styles)
+
+    p = inflect.engine()
+    rk_str = p.ordinal(config.rk_order)    
+    
+    plt.figure("OneFLOW-CFD Solver", figsize=(10, 6))
+    plt.title(f'1D Convection Equation at t = {config.final_time:.3f} using 3rd-order ENO&WENO and {rk_str}-order Runge-Kutta methods')
+    for i in range(0, n):
+        if i == 0:
+            lable = 'Numerical (Rusanov)ENO3'
+        else:
+            lable = 'Numerical (Rusanov)WENO3'
+        style = styles[i % num_styles]
+        plt.plot(xcc, u_list[i], marker=style['marker'], markerfacecolor='none', linestyle=style['linestyle'], color=style['color'], \
+                markersize=5, linewidth=0.5, alpha=1.0, label=f'{lable}')
+    plt.plot(xcc, u_analytical, 'r--', label='Analytical')
+    plt.xlabel('x')
+    plt.ylabel('u')
+    plt.legend()
+    plt.grid(True, color='gray', linestyle='--', linewidth=0.5, alpha=0.7)
+    plt.tight_layout()
+    plt.show()    
+    
+# Main execution function
+def main():
+    performEnoWenoAnalysis()
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,95 @@
+/*---------------------------------------------------------------------------*\
+    OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
+    Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
+-------------------------------------------------------------------------------
+License
+    This file is part of OneFLOW.
+
+    OneFLOW is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+
+#include "CgnsBase.h"
+#include "CgnsBaseUtils.h"
+#include "CgnsZone.h"
+#include "CgnsZoneUtils.h"
+#include "StringUtils.h"
+#include "Dimension.h"
+#include "CgnsFamilyBc.h"
+#include "GridMediator.h"
+#include <iostream>
+
+
+BeginNameSpace( ONEFLOW )
+
+#ifdef ENABLE_CGNS
+
+void ReadAllCgnsZones( CgnsBase * myCgnsBase, CgnsBase * cgnsBaseIn )
+{
+    std::cout << "** Reading CGNS Grid In Base " << myCgnsBase->baseId << "\n";
+    std::cout << "   numberOfCgnsZones       = " << myCgnsBase->nZones << "\n\n";
+
+    for ( int iZone = 0; iZone < myCgnsBase->nZones; ++ iZone )
+    {
+        std::cout << "==>iZone = " << iZone << " numberOfCgnsZones = " << myCgnsBase->nZones << "\n";
+        CgnsZone * cgnsZone = myCgnsBase->GetCgnsZone( iZone );
+        CgnsZone * cgnsZoneIn = cgnsBaseIn->GetCgnsZone( iZone );
+        ONEFLOW::ReadCgnsGrid( cgnsZone, cgnsZoneIn );
+    }
+}
+
+void ReadNumberOfCgnsZones( CgnsBase * myCgnsBase, CgnsBase * cgnsBaseIn )
+{
+    myCgnsBase->nZones = cgnsBaseIn->nZones;
+}
+
+void ReadCgnsBaseBasicInfo( CgnsBase * myCgnsBase, CgnsBase * cgnsBaseIn )
+{
+    myCgnsBase->baseName = cgnsBaseIn->baseName;
+    myCgnsBase->celldim  = cgnsBaseIn->celldim;
+    myCgnsBase->phydim   = cgnsBaseIn->phydim;
+}
+
+void DumpBase( CgnsBase * myCgnsBase, GridMediator * gridMediator )
+{
+    GlobalGrid::SetCurrentGridMediator( gridMediator );
+
+    myCgnsBase->DumpCgnsBaseBasicInfo();
+
+    std::cout << " nZones = " << myCgnsBase->nZones << "\n";
+
+    for ( int iZone = 0; iZone < myCgnsBase->nZones; ++ iZone )
+    {
+        CgnsZone * cgnsZone = myCgnsBase->GetCgnsZone( iZone );
+        Grid * grid = gridMediator->gridVector[ iZone ];
+        ONEFLOW::DumpCgnsZone( cgnsZone, grid );
+    }
+}
+
+void PrepareCgnsZone( CgnsBase * myCgnsBase, GridMediator * gridMediator )
+{
+    GlobalGrid::SetCurrentGridMediator( gridMediator );
+
+    std::cout << " nZones = " << myCgnsBase->nZones << "\n";
+
+    for ( int iZone = 0; iZone < myCgnsBase->nZones; ++ iZone )
+    {
+        CgnsZone * cgnsZone = myCgnsBase->GetCgnsZone( iZone );
+        Grid * grid = gridMediator->gridVector[ iZone ];
+        ONEFLOW::PrepareCgnsZone( cgnsZone, grid );
+    }
+}
+
+#endif
+EndNameSpace

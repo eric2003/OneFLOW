@@ -1,0 +1,76 @@
+\documentclass{article}
+\usepackage{amsmath}
+\begin{document}
+
+\section{Derivation of Cell Average Expansion for $\bar{u}_{i-1}$}
+
+\subsection{Definition of Cell Average}
+The cell average for cell $i-1$ is defined as:
+\[
+\bar{u}_{i-1} = \frac{1}{\Delta x} \int_{x_{i-1}-\Delta x/2}^{x_{i-1}+\Delta x/2} u(x) dx.
+\]
+Given $x_{i-1} = x_i - \Delta x$, the integration interval becomes:
+\[
+x \in \left[ x_i - \frac{3\Delta x}{2}, x_i - \frac{\Delta x}{2} \right].
+\]
+
+\subsection{Taylor Expansion about $x_i$}
+Expand $u(x)$ around $x_i$ up to third-order terms:
+\[
+u(x) = u_i + u'_i (x - x_i) + \frac{u''_i}{2} (x - x_i)^2 + \frac{u'''_i}{6} (x - x_i)^3 + \mathcal{O}(\Delta x^4).
+\]
+
+\subsection{Variable Substitution}
+Let $y = x - x_i$, then the integration limits become:
+\[
+y \in \left[ -\frac{3\Delta x}{2}, -\frac{\Delta x}{2} \right].
+\]
+The cell average transforms to:
+\begin{align}
+\bar{u}_{i-1} &= \frac{1}{\Delta x} \int_{-3\Delta x/2}^{-\Delta x/2} \left[ u_i + u'_i y + \frac{u''_i}{2} y^2 + \frac{u'''_i}{6} y^3 \right] dy \notag \\
+&\quad + \mathcal{O}(\Delta x^4).
+\end{align}
+
+\subsection{Term-by-Term Integration}
+\subsubsection{Constant Term}
+\[
+\int_{-3\Delta x/2}^{-\Delta x/2} u_i dy = u_i \left[ y \right]_{-3\Delta x/2}^{-\Delta x/2} = u_i \Delta x.
+\]
+
+\subsubsection{First-Order Term}
+\[
+u'_i \int_{-3\Delta x/2}^{-\Delta x/2} y dy = u'_i \left[ \frac{y^2}{2} \right]_{-3\Delta x/2}^{-\Delta x/2} = -u'_i \Delta x^2.
+\]
+
+\subsubsection{Second-Order Term}
+\[
+\frac{u''_i}{2} \int_{-3\Delta x/2}^{-\Delta x/2} y^2 dy = \frac{u''_i}{2} \left( \frac{13}{12}\Delta x^3 \right) = \frac{13}{24} u''_i \Delta x^3.
+\]
+
+\subsubsection{Third-Order Term}
+\[
+\frac{u'''_i}{6} \int_{-3\Delta x/2}^{-\Delta x/2} y^3 dy = \frac{u'''_i}{6} \left( -\frac{5}{4}\Delta x^4 \right) = -\frac{5}{24} u'''_i \Delta x^4.
+\]
+
+\subsection{Combine Results}
+Assemble all integrated terms and divide by $\Delta x$:
+\begin{align}
+\bar{u}_{i-1} &= \frac{1}{\Delta x} \bigg[ u_i \Delta x - u'_i \Delta x^2 + \frac{13}{24} u''_i \Delta x^3 \notag \\
+&\quad - \frac{5}{24} u'''_i \Delta x^4 \bigg] + \mathcal{O}(\Delta x^4) \\
+&= u_i - u'_i \Delta x + \frac{13}{24} u''_i (\Delta x)^2 - \frac{5}{24} u'''_i (\Delta x)^3 \notag \\
+&\quad + \mathcal{O}(\Delta x^4).
+\end{align}
+
+\subsection{Coefficient Verification}
+Key integration results that determine coefficients:
+\begin{align}
+\int_{-3\Delta x/2}^{-\Delta x/2} y^2 dy &= \frac{( -\Delta x/2 )^3 - ( -3\Delta x/2 )^3}{3} = \frac{13\Delta x^3}{12}, \\
+\int_{-3\Delta x/2}^{-\Delta x/2} y^3 dy &= \frac{( -\Delta x/2 )^4 - ( -3\Delta x/2 )^4}{4} = -\frac{5\Delta x^4}{4}.
+\end{align}
+
+\subsection{Final Result}
+The complete Taylor expansion of the cell average is:
+\[
+\bar{u}_{i-1} = u_i - u'_i \Delta x + \frac{13}{24} u''_i (\Delta x)^2 - \frac{5}{24} u'''_i (\Delta x)^3 + \mathcal{O}(\Delta x^4).
+\]
+\end{document}
