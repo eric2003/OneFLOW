@@ -76,9 +76,6 @@ public:
     [[nodiscard]] int GetSize() const;
     [[nodiscard]] std::string GetTargetFile() const;
 
-    // Historical no-op; ownership is always enabled.
-    void SetDeleteFlag( bool /*flag*/ ) {}
-
 public:
     void CreateSimple( int nZone );
     void ReadGrid();

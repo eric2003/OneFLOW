@@ -132,20 +132,6 @@ TEST( ZgridMediatorTest, AddRawPointerTakesOwnership )
     EXPECT_EQ( zgm.GetGridMediator( 0 )->numberOfZones, 2 );
 }
 
-TEST( ZgridMediatorTest, SetDeleteFlagIsNoOpButCallable )
-{
-    ZgridMediator zgm;
-    EXPECT_NO_THROW( zgm.SetDeleteFlag( true ) );
-    EXPECT_NO_THROW( zgm.SetDeleteFlag( false ) );
-    zgm.CreateSimple( 1 );
-    // Still owns and cleans up regardless of flag.
-    EXPECT_EQ( zgm.GetSize(), 1 );
-}
-
-// ---------------------------------------------------------------------------
-// GridFactory::Run(config) - unknown objective must throw (no I/O)
-// ---------------------------------------------------------------------------
-
 TEST( GridFactoryDispatchTest, UnknownObjectiveThrows )
 {
     GridFactory gf;

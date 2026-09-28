@@ -678,7 +678,6 @@ void Plot3D::Plot3DToCgns( ZgridMediator * zgridMediator )
     gridMediator->ReadGrid();
     gridMediator->AddDefaultName();
 
-    zgridMediator->SetDeleteFlag( true );
     zgridMediator->AddGridMediator( gridMediator );
 }
 
