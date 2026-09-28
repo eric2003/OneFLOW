@@ -37,6 +37,7 @@ public:
     static void Init();
     static Real GetTol();
     static void SetTol( Real tolIn );
+    static void Reset();
 };
 
 
