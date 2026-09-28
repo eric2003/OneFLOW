@@ -185,9 +185,8 @@ void GridElem::ScanPolygonFace()
         }
 
         int nFaces = this->face_solver.faceTopo->faces.size();
-        int kkk = 1;
+
     }
-    //int kkk = 1;
 }
 
 void GridElem::SetPolyhedronElementType( CgnsSection * cgnsSection )
@@ -295,7 +294,7 @@ void GridElem::CalcBoundaryType( UnsGrid * grid )
     delete grid->faceTopo;
     grid->faceTopo = this->face_solver.faceTopo;
     grid->faceTopo->grid = grid;
-    this->face_solver.faceTopo = 0;
+    this->face_solver.faceTopo = nullptr;
     int nFaces = grid->faceTopo->faces.size();
     std::cout << " nFaces = " << nFaces << "\n";
      

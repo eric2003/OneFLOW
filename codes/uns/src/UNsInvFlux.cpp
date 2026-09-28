@@ -158,11 +158,6 @@ void UNsInvFlux::CalcInvFlux()
     {
         ug.fId = fId;
 
-        if ( fId == 24 )
-        {
-            int kkk = 1;
-        }
-
         ug.lc = ( * ug.lcf )[ ug.fId ];
         ug.rc = ( * ug.rcf )[ ug.fId ];
 

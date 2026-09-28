@@ -218,7 +218,7 @@ void Block2D::CalcBlkDim()
 
     CreateFaceList();
 
-    int kkk = 1;
+
 }
 
 void Block2D::CreateFaceList()
@@ -230,7 +230,7 @@ void Block2D::CreateFaceList()
         mDomain->CreateInpFaceList1D( facelist );
     }
 
-    int kkk = 1;
+
 }
 
 void Block2D::FillStrGrid( Grid * gridIn, int iZone )

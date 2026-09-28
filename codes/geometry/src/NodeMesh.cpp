@@ -70,10 +70,7 @@ void NodeMesh::CalcMinMaxBox()
     for ( int iNode = 0; iNode < numberOfNodes; ++ iNode )
     {
         Real tmp = ABS( zN[ iNode ] );
-        if ( tmp > 1.0e10 )
-        {
-            int kkk = 1;
-        }
+
         xmin = ONEFLOW::MIN( xmin, xN[ iNode ] );
         ymin = ONEFLOW::MIN( ymin, yN[ iNode ] );
         zmin = ONEFLOW::MIN( zmin, zN[ iNode ] );

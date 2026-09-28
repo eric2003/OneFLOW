@@ -140,7 +140,7 @@ void SLine::SetDomainBcMesh( SDomain * sDomain )
         z2d[ ii ][ jj ] = zm;
     }
 
-    int kkk = 1;
+
 }
 
 void SLine::SetBlkBcMesh( Block2D * blk2d )
@@ -202,7 +202,7 @@ void SLine::SetBlkBcMesh( Block2D * blk2d )
     //    z2d[ ii ][ jj ] = zm;
     //}
 
-    int kkk = 1;
+
 }
 
 void SLine::ConstructPointToLineMap( std::map< int, IntSet > & pointToLineMap )

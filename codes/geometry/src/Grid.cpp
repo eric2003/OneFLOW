@@ -38,9 +38,9 @@ Grid::Grid()
     name = "grid";
     this->dimension = THREE_D;
     this->volBcType = -1;
-    this->nodeMesh = 0;
-    this->interFace = 0;
-    this->dataBase = 0;
+    this->nodeMesh = nullptr;
+    this->interFace = nullptr;
+    this->dataBase = nullptr;
 }
 
 Grid::~Grid()

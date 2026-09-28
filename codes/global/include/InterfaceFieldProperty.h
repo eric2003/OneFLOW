@@ -56,9 +56,4 @@ private:
     FieldDefinitionTable fieldDefinitions;
 };
 
-//void UploadInterfaceValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu );
-//void DownloadInterfaceValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu );
-//void UploadOversetValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu );
-//void DownloadOversetValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu );
-
 EndNameSpace

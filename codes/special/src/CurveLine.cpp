@@ -215,7 +215,7 @@ void CurveLine::CalcNormal( RealField & nbx, RealField & nby, RealField & nbz )
         nbz[ i ] = half * ( tmpz[ i ] + tmpz[ i + 1 ] );
     }
 
-    int kkk = 1;
+
 }
 
 void CurveLine::GenerateCircleLine()

@@ -114,7 +114,7 @@ void InterFace::InitNeighborFlag( IntField & flags )
     {
         nNeighbor += flags[ iZone ];
     }
-    int kkk = 1;
+
 }
 
 void InterFace::AllocateNeighbor()

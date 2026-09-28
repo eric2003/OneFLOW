@@ -250,11 +250,6 @@ void UTurbVisFlux::CalcVisFlux1Equ()
     {
         ug.fId = fId;
 
-        if ( fId == 866 )
-        {
-            int kkk = 1;
-        }
-
         ug.lc = ( * ug.lcf )[ ug.fId ];
         ug.rc = ( * ug.rcf )[ ug.fId ];
 
@@ -360,10 +355,6 @@ void UTurbVisFlux::CalcFaceVisFlux1Equ()
 
     for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
     {
-        if ( ABS( visTurb.dqdn[ iEqu ] ) > 1.0e-10 )
-        {
-            int kkk = 1;
-        }
         turbcom.flux[ iEqu ] = - turbcom.oreynolds * turbcom.comVis[ iEqu ] * visTurb.dqdn[ iEqu ] * gcom.farea;
     }
 }

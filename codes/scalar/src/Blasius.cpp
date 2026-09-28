@@ -99,7 +99,7 @@ void Blasius::Process()
             }
         }
     }
-    int kkk = 1;
+
     for ( int i = 0; i < idList.size(); ++ i )
     {
         int id = idList[ i ];

@@ -96,7 +96,6 @@ void BcRecord::CreateBcTypeRegion()
             }
         }
     }
-    int kkk = 1;
 }
 
 int BcRecord::GetNBFace()

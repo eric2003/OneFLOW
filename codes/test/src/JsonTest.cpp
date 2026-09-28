@@ -139,7 +139,7 @@ void readFileJson()
     std::unique_ptr<Json::StreamWriter> writer( builder.newStreamWriter() );
     writer->write(root, &os);
 
-    int kkk = 1;
+
 }
 
 JsonTest::JsonTest()

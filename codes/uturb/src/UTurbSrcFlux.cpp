@@ -224,10 +224,6 @@ void UTurbSrcFlux::CalcVist1Equ()
     {
         ug.cId = cId;
 
-        if ( cId == 6155 )
-        {
-            int kkk = 1;
-        }
         if ( turbcom.rho < 0 || NotANumber( turbcom.rho ) )
         {
             std::cout << " zone = " << ZoneState::zid << " cId = " << cId << " rho = " << turbcom.rho << "\n";
@@ -279,11 +275,6 @@ void UTurbSrcFlux::CalcSrcFlux1Equ()
     {
         ug.cId = cId;
 
-        if ( cId == 22 )
-        {
-            int kkk = 1;
-        }
-
         this->PrepareCellValue1Equ();
 
         this->CalcSrcSa();
@@ -297,11 +288,6 @@ void UTurbSrcFlux::CalcSrcFlux2Equ()
     for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         ug.cId = cId;
-
-        if ( cId == 11 )
-        {
-            int kkk = 1;
-        }
 
         this->PrepareCellValue();
 
@@ -844,10 +830,7 @@ void UTurbSrcFlux::CalcBlendField()
     for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         ug.cId = cId;
-        if ( cId == 11 )
-        {
-            int kkk = 1;
-        }
+
         turbcom.rho  = ( * uturbf.q_ns  )[ IDX::IR ][ ug.cId ];
         turbcom.ke   = ( * uturbf.q  )[ IKE ][ ug.cId ];
         turbcom.kw   = ( * uturbf.q  )[ IKW ][ ug.cId ];

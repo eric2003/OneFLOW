@@ -225,11 +225,6 @@ void CalcGradDebug( RealField & q, RealField & dqdx, RealField & dqdy, RealField
         ug.lc = ( * ug.lcf )[ ug.fId ];
         ug.rc = ( * ug.rcf )[ ug.fId ];
 
-        if ( ug.lc == 0 || ug.rc == 0 )
-        {
-            int kkk = 1;
-        }
-
         Real value = half * ( q[ ug.lc ] + q[ ug.rc ] );
 
         Real fnxa = ( * ug.xfn )[ ug.fId ] * ( * ug.farea )[ ug.fId ];
@@ -253,10 +248,6 @@ void CalcGradDebug( RealField & q, RealField & dqdx, RealField & dqdy, RealField
 
     for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
-        if ( cId == 0 )
-        {
-            int kkk = 1;
-        }
         Real ovol = one / ( * ug.cvol )[ cId ];
         dqdx[ cId ] *= ovol;
         dqdy[ cId ] *= ovol;

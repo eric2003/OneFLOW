@@ -20,68 +20,112 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
 #pragma once
 #include "HXDefine.h"
 #include "GridDef.h"
-#include <vector>
+#include <memory>
+#include <stdexcept>
 #include <string>
-#include <fstream>
-
+#include <utility>
+#include <vector>
 
 BeginNameSpace( ONEFLOW )
 
 class Grid;
+
 class GridMediator
 {
 public:
-    GridMediator ();
-    ~GridMediator();
+    GridMediator() = default;
+    ~GridMediator() = default;
+
 public:
     Grids gridVector;
-    int numberOfZones;
-    int readGridType;
+    int numberOfZones{ 0 };
+    int readGridType{ 0 };
     std::string gridFile;
     std::string bcFile;
     std::string targetFile;
     std::string gridType;
+
 public:
     void ReadGrid();
     void ReadGridgen();
     void ReadPlot3D();
     void ReadPlot3DCoor();
-public:
     void AddDefaultName();
 };
 
+// Owns a collection of GridMediator instances (RAII).
 class ZgridMediator
 {
 public:
-    ZgridMediator();
-    ~ZgridMediator();
-public:
-    HXVector< GridMediator * > gm;
-    bool flag;
+    ZgridMediator() = default;
+    ~ZgridMediator() = default;
+
+    ZgridMediator( const ZgridMediator & ) = delete;
+    ZgridMediator & operator=( const ZgridMediator & ) = delete;
+    ZgridMediator( ZgridMediator && ) noexcept = default;
+    ZgridMediator & operator=( ZgridMediator && ) noexcept = default;
+
 public:
     void AddGridMediator( GridMediator * gridMediator );
-    GridMediator * GetGridMediator( int iGridMediator );
-    int GetSize();
-    std::string GetTargetFile();
-    void SetDeleteFlag( bool flag );
+    void AddGridMediator( std::unique_ptr< GridMediator > gridMediator );
+
+    [[nodiscard]] GridMediator * GetGridMediator( int iGridMediator ) const;
+    [[nodiscard]] int GetSize() const;
+    [[nodiscard]] std::string GetTargetFile() const;
+
 public:
     void CreateSimple( int nZone );
     void ReadGrid();
+
+private:
+    std::vector< std::unique_ptr< GridMediator > > gm;
 };
 
+// Process-wide "current" GridMediator for legacy call paths that cannot
+// take an explicit pointer. Prefer ScopedCurrentGridMediator in new code.
 class GlobalGrid
 {
 public:
-    GlobalGrid();
-    ~GlobalGrid();
-public:
-    static GridMediator * gridMediator;
-    static Grid * GetGrid( int zoneId );
+    GlobalGrid() = default;
+    ~GlobalGrid() = default;
+
+    // Non-owning. Caller must ensure lifetime exceeds all GetGrid uses.
     static void SetCurrentGridMediator( GridMediator * gridMediatorIn );
+
+    [[nodiscard]] static GridMediator * GetCurrentGridMediator() noexcept;
+
+    // Throws std::logic_error if no mediator is installed.
+    [[nodiscard]] static Grid * GetGrid( int zoneId );
+
+    // Historical public data member - prefer GetCurrentGridMediator().
+    // Kept so existing TU that read GlobalGrid::gridMediator still link.
+    static GridMediator * gridMediator;
+};
+
+// RAII: installs a current GridMediator for the enclosing scope and
+// restores the previous one on destruction (including stack unwind).
+class ScopedCurrentGridMediator
+{
+public:
+    explicit ScopedCurrentGridMediator( GridMediator * next )
+        : previous_( GlobalGrid::GetCurrentGridMediator() )
+    {
+        GlobalGrid::SetCurrentGridMediator( next );
+    }
+
+    ~ScopedCurrentGridMediator()
+    {
+        GlobalGrid::SetCurrentGridMediator( previous_ );
+    }
+
+    ScopedCurrentGridMediator( const ScopedCurrentGridMediator & ) = delete;
+    ScopedCurrentGridMediator & operator=( const ScopedCurrentGridMediator & ) = delete;
+
+private:
+    GridMediator * previous_;
 };
 
 EndNameSpace

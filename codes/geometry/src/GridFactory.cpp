@@ -34,122 +34,162 @@ License
 #include "Plot3D.h"
 #include "HXMath.h"
 #include "Partition.h"
-#include <iostream>
-
+#include <stdexcept>
+#include <string>
 
 BeginNameSpace( ONEFLOW )
+
+namespace
+{
+    // Free-function pipelines keep the registry simple (essence of the
+    // suggested map + std::function design) while avoiding type-erasure
+    // and heap cost: a plain function pointer table is enough.
+    void PipelineGenerateClassic( GridFactory & self, const GridConfig & config )
+    {
+        self.DataBaseGrid();
+        self.ConvertGrid( config );
+    }
+
+    void PipelineConvertOnly( GridFactory & self, const GridConfig & config )
+    {
+        self.ConvertGrid( config );
+    }
+
+    void PipelineGenerateInp( GridFactory & self, const GridConfig & /*config*/ )
+    {
+        self.GeneInp();
+    }
+
+    void PipelinePartition( GridFactory & self, const GridConfig & /*config*/ )
+    {
+        self.PartGrid();
+    }
+
+    struct PipelineEntry
+    {
+        GridObjective objective;
+        void ( * run )( GridFactory &, const GridConfig & );
+    };
+
+    // Fixed-size, data-driven table. Easy to extend; no switch on magic int.
+    constexpr PipelineEntry kPipelines[] = {
+        { GridObjective::GenerateClassic, &PipelineGenerateClassic },
+        { GridObjective::ConvertOnly,     &PipelineConvertOnly     },
+        { GridObjective::GenerateInp,     &PipelineGenerateInp     },
+        { GridObjective::Partition,       &PipelinePartition       },
+    };
+
+    void DispatchPipeline( GridFactory & self, const GridConfig & config )
+    {
+        for ( const auto & entry : kPipelines )
+        {
+            if ( entry.objective == config.objective )
+            {
+                entry.run( self, config );
+                return;
+            }
+        }
+
+        throw std::invalid_argument(
+            std::string( "Unknown GridObjective / gridObj: " ) +
+            std::string( ToString( config.objective ) ) );
+    }
+}
 
 // Generates the grid based on the global configuration.
 void GenerateGrid()
 {
-    // Use stack allocation for automatic memory management and exception safety.
-    // GridFactory does not require polymorphic behavior, so heap allocation is unnecessary.
-    // The destructor will be called automatically when 'gf' goes out of scope, 
-    // even if an exception is thrown during Run().
+    // Stack allocation: no polymorphic need, automatic cleanup.
     GridFactory gf;
     gf.Run();
 }
 
-GridFactory::GridFactory()
-{
-}
-
-GridFactory::~GridFactory()
-{
-}
-
 void GridFactory::Run()
 {
+    // Keep grid_para in sync for any remaining legacy readers, then run
+    // through the typed config path.
     grid_para.Init();
-
-    switch ( grid_para.gridObj )
-    {
-    case 0: //Mesh generation of some basic shapes, such as square cavity, cylinder, RAE2822 airfoil and so on
-        this->DataBaseGrid();
-        this->ConvertGrid();
-        break;
-    case 1:    //Convert grid
-        this->ConvertGrid();
-        break;
-    case 2:
-        this->GeneInp();
-        break;
-    case 3:    //Grid partition
-        this->PartGrid();
-        break;
-    default:
-        break;
-    }
+    Run( grid_para.ToConfig() );
 }
 
-// Generates input file for multi-block structured grids.
+void GridFactory::Run( const GridConfig & config )
+{
+    DispatchPipeline( *this, config );
+}
+
 void GridFactory::GeneInp()
 {
-    // Stack allocation ensures automatic cleanup and exception safety.
     DomainInp domainInp;
     domainInp.Run();
 }
 
-// Partitions the grid for parallel computing.
 void GridFactory::PartGrid()
 {
-    // Stack allocation ensures automatic cleanup and exception safety.
     Partition part;
     part.Run();
 }
 
-// Generates classic database grids (e.g., cavity, cylinder).
 void GridFactory::DataBaseGrid()
 {
-    // Stack allocation ensures automatic cleanup and exception safety.
     ClassicGrid classicGrid;
     classicGrid.Run();
 }
 
-void GridFactory::ConvertGrid()
+void GridFactory::ConvertGrid( const GridConfig & config )
 {
-    std::string sourceGridType = grid_para.filetype; 
-    if ( sourceGridType == "plot3d" )
+    switch ( config.sourceType )
     {
-        this->Plot3DProcess();
-    }
-    else if ( sourceGridType == "su2" )
-    {
-        this->SU2Process();
-    }
-    else if ( sourceGridType == "cgns" )
-    {
-        this->CGNSProcess();
+        case GridFileType::Plot3D:
+            this->Plot3DProcess( config );
+            break;
+        case GridFileType::SU2:
+            this->SU2Process();
+            break;
+        case GridFileType::CGNS:
+            this->CGNSProcess();
+            break;
+        default:
+            throw std::invalid_argument(
+                std::string( "Unsupported source grid type: " ) +
+                std::string( ToString( config.sourceType ) ) );
     }
 }
 
+// Replace GridFactory::Plot3DProcess body in GridFactory.cpp with this
+// (only the CGNS branch changes: remove SetDeleteFlag ¡ª ownership is RAII).
 
-void GridFactory::Plot3DProcess()
+void GridFactory::Plot3DProcess( const GridConfig & config )
 {
-    if ( grid_para.target_filetype == "oneflow" )
+    if ( config.targetType == GridFileType::OneFLOW )
     {
-        CgnsFactory cgnsFactory; // Stack object
+        CgnsFactory cgnsFactory;
         cgnsFactory.CommonToOneFlowGrid();
     }
-    else if ( grid_para.target_filetype == "cgns" )
+    else if ( config.targetType == GridFileType::CGNS )
     {
-        CgnsFactory cgnsFactory; // Stack object
+        CgnsFactory cgnsFactory;
         ZgridMediator zgridMediator;
-        zgridMediator.SetDeleteFlag( true );
-        Plot3D::Plot3DToCgns( & zgridMediator );
-        cgnsFactory.DumpCgnsGrid( & zgridMediator );
+        // Owned GridMediator instances are cleaned up automatically.
+        Plot3D::Plot3DToCgns( &zgridMediator );
+        cgnsFactory.DumpCgnsGrid( &zgridMediator );
+    }
+    else
+    {
+        throw std::invalid_argument(
+            std::string( "Unsupported Plot3D target type: " ) +
+            std::string( ToString( config.targetType ) ) );
     }
 }
 
 void GridFactory::SU2Process()
 {
-    Su2Grid su2Grid; // Stack object
+    Su2Grid su2Grid;
     su2Grid.Su2ToOneFlowGrid();
 }
 
 void GridFactory::CGNSProcess()
 {
-    CgnsFactory cgnsFactory; // Stack object
+    CgnsFactory cgnsFactory;
     cgnsFactory.GenerateGrid();
 }
 

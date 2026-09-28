@@ -20,42 +20,63 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
 #pragma once
-#include "HXDefine.h"
-#include <string>
 
+#include "HXDefine.h"
+#include "GridTypes.h"
+#include <string>
 
 BeginNameSpace( ONEFLOW )
 
-//Mesh parameters
+// Mesh parameters.
+// New code should prefer GridConfig::FromDataBase(). This class remains as a
+// thin compatibility facade that mirrors the historical global grid_para.
 class GridPara
 {
 public:
-    GridPara();
-    ~GridPara();
+    GridPara() = default;
+    ~GridPara() = default;
+
 public:
+    // Historical string fields (kept for call sites that still read them).
     std::string topo;
-    std::string filetype; //plot3d, cgns...
-    std::string target_filetype;
-    std::string format; //binary, ascii
+    std::string filetype;        // source format token
+    std::string target_filetype; // target format token
+    std::string format;
     std::string gridFile;
     std::string bcFile;
     std::string targetFile;
 
-    //Conversion operations performed on the grid
-    int gridObj;    
+    // Historical integer objective (gridObj). Prefer objective() below.
+    int gridObj{ 0 };
 
-    //Is it a multiblock mesh
-    int multiBlock;
-
-    int axis_dir;
-    //Mesh scaling factor
-    Real gridScale;
+    int multiBlock{ 0 };
+    int axis_dir{ 0 };
+    Real gridScale{ 1.0 };
     RealField gridTrans;
+
 public:
-    //Initialize mesh parameters
+    // Load from DataBase and refresh both typed and legacy fields.
     void Init();
+
+    // Typed accessors (C++20-friendly API).
+    [[nodiscard]] GridObjective objective() const noexcept
+    {
+        return ParseGridObjective( gridObj ).value_or( GridObjective::ConvertOnly );
+    }
+
+    [[nodiscard]] GridFileType sourceType() const noexcept
+    {
+        return ParseGridFileType( filetype );
+    }
+
+    [[nodiscard]] GridFileType targetType() const noexcept
+    {
+        return ParseGridFileType( target_filetype );
+    }
+
+    // Build a GridConfig snapshot from the current (already Init'd) state.
+    [[nodiscard]] GridConfig ToConfig() const;
 };
 
 extern GridPara grid_para;

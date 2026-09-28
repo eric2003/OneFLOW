@@ -132,7 +132,7 @@ void MyRRegion::Test()
 
     this->CollectNoSetBoundary();
 
-    int kkk = 1;
+
 }
 
 void MyRRegion::Run()
@@ -348,7 +348,7 @@ void MyRegionFactory::Run()
         myrr.AddBcRegion( bcregions_collect );
         myrr.Run();
         AddBcRegion( myrr.regions_nobc );
-        int kkk = 1;
+
     }
 }
 

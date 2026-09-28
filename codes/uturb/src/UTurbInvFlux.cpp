@@ -102,7 +102,7 @@ void UTurbInvFlux::AddInvFlux()
             tmp[ iEqu ][ cId ] = ( * invflux  )[ iEqu ][ cId ];
         }
     }
-    int kkk = 1;
+
     {
     std::vector< std::vector< Real > > tmp( turbcom.nEqu );
     for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
@@ -113,7 +113,7 @@ void UTurbInvFlux::AddInvFlux()
             tmp[ iEqu ][ cId ] = ( * res   )[ iEqu ][ cId ];
         }
     }
-    int kkk = 1;
+
     }
 }
 
@@ -149,11 +149,6 @@ void UTurbInvFlux::CalcInvFlux()
     for ( int fId = 0; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;
-
-        if ( fId == 384 )
-        {
-            int kkk = 1;
-        }
 
         ug.lc = ( * ug.lcf )[ ug.fId ];
         ug.rc = ( * ug.rcf )[ ug.fId ];

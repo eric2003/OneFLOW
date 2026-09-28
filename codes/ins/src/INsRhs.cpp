@@ -84,11 +84,6 @@ void INsCalcGamaT(int flag)
 	}
 	else
 	{
-		//if ( ZoneState::zid == 0 )
-		//{
-		//    std::cout << " ug.ist = " << ug.ist  << " ug.ied = " << ug.ied << "\n";
-		//    int kkk = 1;
-		//}
 		Real oamw = one;
 		for (int cId = ug.ist; cId < ug.ied; ++cId)
 		{

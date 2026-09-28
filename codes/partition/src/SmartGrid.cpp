@@ -85,7 +85,7 @@ int PointAction::DeletePoint( PointAction::PointType & point )
         pid = iter->second;
         this->pointMap.erase( point );
         this->ModifyPointIndexAfterDelete( pid );
-        int kkk = 1;
+
     }
 
     return pid;
@@ -442,7 +442,7 @@ void SmartGrid::TestAddDeletePoints()
     std::cout << "id3 = " << id3 << "\n";
     std::cout << "id4 = " << id4 << "\n";
 
-    int kkk = 1;
+
 }
 
 void SmartGrid::Run()
@@ -500,7 +500,6 @@ void SmartGrid::GenerateGrid( int ni, Real xmin, Real xmax )
 
     this->TopoPostprocess();
 
-    int kkk = 1;
 
 }
 

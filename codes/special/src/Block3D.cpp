@@ -110,7 +110,7 @@ void Block3D::ConstructTopo()
                 iter->second.insert( iMDomain );
             }
         }
-        int kkk = 1;
+
     }
 
     IntField ctrl_points;
@@ -256,7 +256,7 @@ void Block3D::CalcBlkDim()
 
     CreateFaceList();
 
-    int kkk = 1;
+
 }
 
 void Block3D::CreateFaceList()
@@ -268,7 +268,6 @@ void Block3D::CreateFaceList()
         mDomain->CreateInpFaceList( facelist );
     }
 
-    int kkk = 1;
 
 }
 
@@ -423,7 +422,7 @@ void Block3D::GenerateBlockMesh()
         }
     }
     Prj::CloseFile( file );
-    int kkk = 1;
+
 }
 
 void Block3D::FillStrGrid( Grid * gridIn, int iZone )

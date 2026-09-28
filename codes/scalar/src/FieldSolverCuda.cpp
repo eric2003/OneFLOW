@@ -260,7 +260,7 @@ void FieldSolverCuda::ZoneUpdateResidual()
 
     res = 0;
     this->AddF2CFieldCuda( grid, res, invflux );
-    int kkk = 1;
+
 }
 
 void FieldSolverCuda::AddF2CField( ScalarGrid * grid, RealField & cField, RealField & fField )
@@ -331,7 +331,7 @@ void FieldSolverCuda::ZoneTimeIntergralCuda()
 #ifdef ENABLE_CUDA
     MyZoneTimeIntergralCuda(&res[0], &grid->vol.data[0], para->dt, nCells);
 #endif
-    int kkk = 1;
+
 }
 
 void FieldSolverCuda::Update()

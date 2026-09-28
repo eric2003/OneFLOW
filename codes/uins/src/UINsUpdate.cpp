@@ -55,11 +55,6 @@ void UINsUpdate::UpdateINsFlowField( int solverType )
     {
         ug.cId = cId;
 
-        if ( ug.cId == 9 )
-        {
-            int kkk = 1;
-        }
-
         this->PrepareData();
 
         this->CalcFlowField();

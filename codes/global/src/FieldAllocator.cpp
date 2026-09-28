@@ -346,28 +346,20 @@ namespace
             ONEFLOW::INTERFACE_OVERSET_DATA
         };
 
-        const int interfaceTypeCount =
-            sizeof( interfaceTypes ) / sizeof( interfaceTypes[ 0 ] );
-
-        for ( int iType = 0; iType < interfaceTypeCount; ++ iType )
+        for ( int interfaceType : interfaceTypes )
         {
             VarNameSolver * varNameSolver =
                 VarNameFactory::FindVarNameSolver(
                     solverType,
-                    interfaceTypes[ iType ] );
+                    interfaceType );
 
             if ( varNameSolver == nullptr )
             {
                 continue;
             }
 
-            for ( int iField = 0;
-                iField < varNameSolver->data.size();
-                ++ iField )
+            for ( const std::string & fieldName : varNameSolver->data )
             {
-                const std::string & fieldName =
-                    varNameSolver->data[ iField ];
-
                 if ( ! interfaceFieldProperty.HasField( fieldName ) )
                 {
                     // Definition-time check: communication name must appear
@@ -446,6 +438,54 @@ namespace
         return FieldApplicability::All;
     }
 
+    // Idempotent MRField create on Grid or DataStorage:
+    // lookup -> create if missing -> post-create null check -> ZeroField.
+    template < typename Storage >
+    void AllocateOneMRField(
+        Storage * storage,
+        const std::string & fieldName,
+        int nEqu,
+        int nSize,
+        const char * failMessagePrefix )
+    {
+        // 1) Lookup before create: skip if already present (idempotent).
+        MRField * field =
+            ONEFLOW::GetFieldPointer< MRField >(
+                storage,
+                fieldName );
+
+        if ( field != nullptr )
+        {
+            return;
+        }
+
+        // 2) Create and register.
+        ONEFLOW::CreateMRField(
+            storage,
+            nEqu,
+            nSize,
+            fieldName );
+
+        // 3) Lookup AFTER create: must be registered; do not ZeroField on null.
+        field =
+            ONEFLOW::GetFieldPointer< MRField >(
+                storage,
+                fieldName );
+
+        if ( field == nullptr )
+        {
+            Fatal(
+                std::string( failMessagePrefix )
+                + fieldName );
+        }
+
+        // 4) Safe to zero: field is non-null.
+        ONEFLOW::ZeroField(
+            field,
+            nEqu,
+            nSize );
+    }
+
     void AllocateFieldSet(
         UnsGrid * grid,
         const FieldDefinitionTable & fieldDefinition,
@@ -455,44 +495,12 @@ namespace
 
         for ( const auto & [ fieldName, nTEqu ] : data )
         {
-            // 1) Lookup before create: skip if already present (idempotent).
-            MRField * field =
-                ONEFLOW::GetFieldPointer< MRField >(
-                    grid,
-                    fieldName );
-
-            if ( field != nullptr )
-            {
-                continue;
-            }
-
-            // 2) Create and register into the grid DataStorage.
-            ONEFLOW::CreateMRField(
+            AllocateOneMRField(
                 grid,
+                fieldName,
                 nTEqu,
                 nSize,
-                fieldName );
-
-            // 3) Lookup AFTER create: CreateMRField must have registered
-            //    the field. A null here means create failed; do not call
-            //    ZeroField on a null pointer.
-            field =
-                ONEFLOW::GetFieldPointer< MRField >(
-                    grid,
-                    fieldName );
-
-            if ( field == nullptr )
-            {
-                Fatal(
-                    "Failed to create grid field: "
-                    + fieldName );
-            }
-
-            // 4) Safe to zero: field is non-null.
-            ONEFLOW::ZeroField(
-                field,
-                nTEqu,
-                nSize );
+                "Failed to create grid field: " );
         }
     }
 
@@ -580,52 +588,23 @@ namespace
         }
     }
 
-    void AllocateInterfaceField( InterfaceFieldProperty * interfaceFieldProperty,
-        int nIFaces, DataStorage * dataStorage )
+    void AllocateInterfaceField(
+        InterfaceFieldProperty * interfaceFieldProperty,
+        int nIFaces,
+        DataStorage * dataStorage )
     {
         if ( nIFaces <= 0 ) return;
-    
+
         const auto & data = interfaceFieldProperty->GetData();
+
         for ( const auto & [ fieldName, nTEqu ] : data )
         {
-            // 1) Lookup before create: skip if already present (idempotent).
-            MRField * field =
-                ONEFLOW::GetFieldPointer< MRField >(
-                    dataStorage,
-                    fieldName );
-    
-            if ( field != nullptr )
-            {
-                continue;
-            }
-    
-            // 2) Create and register into the interface DataStorage.
-            ONEFLOW::CreateMRField(
+            AllocateOneMRField(
                 dataStorage,
+                fieldName,
                 nTEqu,
                 nIFaces,
-                fieldName );
-    
-            // 3) Lookup AFTER create: CreateMRField must have registered
-            //    the field. A null here means create failed; do not call
-            //    ZeroField on a null pointer.
-            field =
-                ONEFLOW::GetFieldPointer< MRField >(
-                    dataStorage,
-                    fieldName );
-    
-            if ( field == nullptr )
-            {
-                Fatal(
-                    "Failed to create interface field: "
-                    + fieldName );
-            }
-    
-            // 4) Safe to zero: field is non-null.
-            ONEFLOW::ZeroField(
-                field,
-                nTEqu,
-                nIFaces );
+                "Failed to create interface field: " );
         }
     }
 

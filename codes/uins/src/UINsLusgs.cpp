@@ -82,7 +82,7 @@ void UINsLusgs::LowerSweep()
         ug.cId = cId;
         if ( cId == 9 )
         {
-            int kkk = 1;
+
         }
 
         gcom.blank = ( * ug.blankf )[ ug.cId ];
@@ -199,11 +199,6 @@ bool UINsLusgs::CanNotUpperSolve( int fId )
 void UINsLusgs::Solve( int fId, int signValue )
 {
     ug.fId = fId;
-
-    if ( fId == 147489 )
-    {
-        int kkk = 1;
-    }
 
     ug.lc = ( * ug.lcf )[ ug.fId ];
     ug.rc = ( * ug.rcf )[ ug.fId ];

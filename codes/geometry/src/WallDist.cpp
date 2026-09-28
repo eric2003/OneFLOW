@@ -49,36 +49,60 @@ License
 #include "GteDistPointTriangleExact.h"
 #include "HXMath.h"
 #include "LogFile.h"
+#include <utility>
 
 BeginNameSpace( ONEFLOW )
 
-WallStructure * wallstruct = 0;
+namespace
+{
+    // Process-wide storage for the FILL -> CALC wall-distance pipeline.
+    // unique_ptr guarantees a single owner and exception-safe cleanup.
+    std::unique_ptr< WallStructure > g_wallStructure;
+}
+
+WallStructure * GetWallStructure() noexcept
+{
+    return g_wallStructure.get();
+}
+
+void ResetWallStructure()
+{
+    g_wallStructure.reset();
+}
+
+void EnsureWallStructure()
+{
+    if ( ! g_wallStructure )
+    {
+        g_wallStructure = std::make_unique< WallStructure >();
+    }
+}
 
 void FreeWallStruct()
 {
-    delete wallstruct;
+    ResetWallStructure();
 }
 
 void SetWallTask()
 {
-    REGISTER_DATA_CLASS( FillWallStructTask  );
-    REGISTER_DATA_CLASS( FillWallStruct  );
+    REGISTER_DATA_CLASS( FillWallStructTask );
+    REGISTER_DATA_CLASS( FillWallStruct );
     REGISTER_DATA_CLASS( CalcWallDist );
 }
 
-void FillWallStructTask( StringField & data )
+void FillWallStructTask( StringField & /*data*/ )
 {
-    CFillWallStructTaskImp * task = new CFillWallStructTaskImp();
-    TaskState::createdTask = task;
+    // TaskState still expects a raw Task*; ownership is transferred there.
+    TaskState::createdTask = new CFillWallStructTaskImp();
 }
 
-void FillWallStruct( StringField & data )
+void FillWallStruct( StringField & /*data*/ )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
-    int nBFaces = grid->faceTopo->bcManager->bcRecord->GetNBFace();
+    const int nBFaces = grid->faceTopo->bcManager->bcRecord->GetNBFace();
     BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord.get();
 
-    int nWallFace = bcRecord->CalcNumWallFace();
+    const int nWallFace = bcRecord->CalcNumWallFace();
 
     RealField & xfc = grid->faceMesh->xfc;
     RealField & yfc = grid->faceMesh->yfc;
@@ -89,10 +113,9 @@ void FillWallStruct( StringField & data )
     RealField & z = grid->nodeMesh->zN;
 
     ActionState::dataBook->MoveToBegin();
-
     HXWrite( ActionState::dataBook, nWallFace );
 
-    if ( nWallFace  <= 0 )
+    if ( nWallFace <= 0 )
     {
         return;
     }
@@ -102,48 +125,41 @@ void FillWallStruct( StringField & data )
 
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        int bcType = bcRecord->bcType[ iFace ];
-        int bcRegion = bcRecord->bcNameId[ iFace ];
-        int nNodes = grid->faceTopo->faces[ iFace ].size();
+        const int bcType = bcRecord->bcType[ iFace ];
+        const int nNodes = static_cast< int >( grid->faceTopo->faces[ iFace ].size() );
 
-        if ( bcType == BC::SOLID_SURFACE )
+        if ( bcType != BC::SOLID_SURFACE )
         {
-            WallStructure::PointField simpleFace;
-
-            for ( int iNode = 0; iNode < nNodes; ++ iNode )
-            {
-                int iPoint = grid->faceTopo->faces[ iFace ][ iNode ];
-                Real x0 = x[ iPoint ];
-                Real y0 = y[ iPoint ];
-                Real z0 = z[ iPoint ];
-                WallStructure::PointType simplePoint( x0, y0, z0 );
-                simpleFace.push_back( simplePoint );
-            }
-            fv.push_back( simpleFace );
-
-            Real xxfc = xfc[ iFace ];
-            Real yyfc = yfc[ iFace ];
-            Real zzfc = zfc[ iFace ];
-            WallStructure::PointType centerPoint ( xxfc, yyfc, zzfc );
-            fc.push_back( centerPoint );
+            continue;
         }
+
+        WallStructure::PointField simpleFace;
+        simpleFace.reserve( static_cast< size_t >( nNodes ) );
+
+        for ( int iNode = 0; iNode < nNodes; ++ iNode )
+        {
+            const int iPoint = grid->faceTopo->faces[ iFace ][ iNode ];
+            simpleFace.emplace_back( x[ iPoint ], y[ iPoint ], z[ iPoint ] );
+        }
+        fv.push_back( std::move( simpleFace ) );
+        fc.emplace_back( xfc[ iFace ], yfc[ iFace ], zfc[ iFace ] );
     }
 
     HXWrite( ActionState::dataBook, fv );
     HXWrite( ActionState::dataBook, fc );
 }
 
-void CalcWallDist( StringField & data )
+void CalcWallDist( StringField & /*data*/ )
 {
+    WallStructure * ws = GetWallStructure();
+    if ( ! ws )
+    {
+        return;
+    }
+
     UnsGrid * grid = Zone::GetUnsGrid();
-    int nBFaces = grid->faceTopo->bcManager->bcRecord->GetNBFace();
-    BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord.get();
-
-    int nWallFace = bcRecord->CalcNumWallFace();
-
     RealField & dist = grid->cellMesh->dist;
-
-    int nCells = grid->nCells;
+    const int nCells = grid->nCells;
 
     dist = LARGE;
 
@@ -153,43 +169,31 @@ void CalcWallDist( StringField & data )
 
     std::cout << "zone " << grid->id << std::endl;
 
-    WallStructure::PointField & fc = wallstruct->fc;
-    WallStructure::PointLink  & fv = wallstruct->fv;
-
-    int nWFace = wallstruct->fc.size();
+    WallStructure::PointField & fc = ws->fc;
+    WallStructure::PointLink  & fv = ws->fv;
+    const int nWFace = static_cast< int >( fc.size() );
 
     for ( int cId = 0; cId < nCells; ++ cId )
     {
         if ( cId % 10000 == 0 )
         {
-            std::cout << " pid = " << Parallel::pid << " Zone = " << grid->id;
-            std::cout << " cid = " << cId << " " << "nCells = " << nCells;
-            std::cout << " nWFace = " << nWFace << std::endl;
+            std::cout << " pid = " << Parallel::pid << " Zone = " << grid->id
+                      << " cid = " << cId << " nCells = " << nCells
+                      << " nWFace = " << nWFace << std::endl;
         }
 
-        Real xc = xcc[ cId ];
-        Real yc = ycc[ cId ];
-        Real zc = zcc[ cId ];
-
-        WallStructure::PointType ccp( xc, yc, zc );
+        WallStructure::PointType ccp( xcc[ cId ], ycc[ cId ], zcc[ cId ] );
 
         for ( int iWFace = 0; iWFace < nWFace; ++ iWFace )
         {
-            WallStructure::PointField  & fvList = fv[ iWFace ];
-
-            Real wdst = CalcPoint2FaceDist( ccp, fvList );
-
-            if ( wdst < 1.0e-30 )
-            {
-            }
-
+            WallStructure::PointField & fvList = fv[ iWFace ];
+            const Real wdst = CalcPoint2FaceDist( ccp, fvList );
             if ( dist[ cId ] > wdst )
             {
                 dist[ cId ] = wdst;
             }
-        }        
+        }
     }
-
 
     for ( int cId = 0; cId < nCells; ++ cId )
     {
@@ -197,22 +201,10 @@ void CalcWallDist( StringField & data )
     }
 }
 
-
-CFillWallStructTaskImp::CFillWallStructTaskImp()
-{
-    ;
-}
-
-CFillWallStructTaskImp::~CFillWallStructTaskImp()
-{
-    ;
-}
-
 void CFillWallStructTaskImp::Run()
 {
     ActionState::dataBook = this->dataBook.get();
     this->Create();
-
 
     for ( int zId = 0; zId < ZoneState::nZones; ++ zId )
     {
@@ -224,43 +216,50 @@ void CFillWallStructTaskImp::Run()
         }
 
         HXBcast( ActionState::dataBook, ZoneState::pid[ zId ] );
-        
         FillWall();
     }
 }
 
 void CFillWallStructTaskImp::Create()
 {
-    wallstruct = new WallStructure();
+    // Fresh storage for this aggregation pass.
+    g_wallStructure = std::make_unique< WallStructure >();
 }
 
 void CFillWallStructTaskImp::FillWall()
 {
+    WallStructure * ws = GetWallStructure();
+    if ( ! ws )
+    {
+        return;
+    }
+
     ActionState::dataBook->MoveToBegin();
-    int nSolidCells;
+    int nSolidCells = 0;
     HXRead( ActionState::dataBook, nSolidCells );
 
     WallStructure::PointField fcTmp;
     WallStructure::PointLink  fvTmp;
 
-    fvTmp.resize( nSolidCells );
+    fvTmp.resize( static_cast< size_t >( nSolidCells ) );
     HXRead( ActionState::dataBook, fvTmp );
 
-    fcTmp.resize( nSolidCells );
+    fcTmp.resize( static_cast< size_t >( nSolidCells ) );
     HXRead( ActionState::dataBook, fcTmp );
 
     for ( int cId = 0; cId < nSolidCells; ++ cId )
     {
-        wallstruct->fc.push_back( fcTmp[ cId ] );
-        wallstruct->fv.push_back( fvTmp[ cId ] );
+        ws->fc.push_back( fcTmp[ cId ] );
+        ws->fv.push_back( std::move( fvTmp[ cId ] ) );
     }
 }
 
-Real CalcPoint2FaceDist( WallStructure::PointType node, WallStructure::PointField & fvList )
+Real CalcPoint2FaceDist( WallStructure::PointType node,
+                         WallStructure::PointField & fvList )
 {
     using namespace gte;
-    Vector< 3, Real > point0;
 
+    Vector< 3, Real > point0;
     point0[ 0 ] = node.x;
     point0[ 1 ] = node.y;
     point0[ 2 ] = node.z;
@@ -269,7 +268,7 @@ Real CalcPoint2FaceDist( WallStructure::PointType node, WallStructure::PointFiel
     Vector< 3, Real > point2;
     Vector< 3, Real > point3;
 
-    int nVertex = fvList.size();
+    const int nVertex = static_cast< int >( fvList.size() );
 
     if ( nVertex <= 2 )
     {
@@ -282,15 +281,12 @@ Real CalcPoint2FaceDist( WallStructure::PointType node, WallStructure::PointFiel
         point2[ 2 ] = fvList[ 1 ].z;
 
         Segment< 3, Real > segment( point1, point2 );
-
-        using SuperLine = DCPQuery<Real, Vector< 3, Real >, Segment< 3, Real > >;
-
-        SuperLine b;
-
-        SuperLine::Result result = b( point0, segment );
-        return result.sqrDistance;
+        using SuperLine = DCPQuery< Real, Vector< 3, Real >, Segment< 3, Real > >;
+        SuperLine query;
+        return query( point0, segment ).sqrDistance;
     }
-    else if ( nVertex == 3 )
+
+    if ( nVertex == 3 )
     {
         point1[ 0 ] = fvList[ 0 ].x;
         point1[ 1 ] = fvList[ 0 ].y;
@@ -305,54 +301,47 @@ Real CalcPoint2FaceDist( WallStructure::PointType node, WallStructure::PointFiel
         point3[ 2 ] = fvList[ 2 ].z;
 
         Triangle< 3, Real > triangle( point1, point2, point3 );
-
-        DistancePointTriangleExact< 3, Real > a;
-        DistancePointTriangleExact< 3, Real >::Result r = a( point0, triangle );
-        return r.sqrDistance;
+        DistancePointTriangleExact< 3, Real > query;
+        return query( point0, triangle ).sqrDistance;
     }
-    else
+
+    Real xCenter = 0;
+    Real yCenter = 0;
+    Real zCenter = 0;
+    for ( int iv = 0; iv < nVertex; ++ iv )
     {
-        Real xCenter = 0;
-        Real yCenter = 0;
-        Real zCenter = 0;
-        for ( int iv = 0; iv < nVertex; ++ iv )
-        {
-            xCenter += fvList[ iv ].x;
-            yCenter += fvList[ iv ].y;
-            zCenter += fvList[ iv ].z;
-        }
-        Real coef = 1.0 / nVertex;
-        xCenter *= coef;
-        yCenter *= coef;
-        zCenter *= coef;
-
-        point3[ 0 ] = xCenter;
-        point3[ 1 ] = yCenter;
-        point3[ 2 ] = zCenter;
-
-        Real dist = LARGE;
-
-        for ( int iv = 0; iv < nVertex; ++ iv )
-        {
-            int p0 = iv;
-            int p1 = ( iv + 1 ) % nVertex;
-
-            point1[ 0 ] = fvList[ p0 ].x;
-            point1[ 1 ] = fvList[ p0 ].y;
-            point1[ 2 ] = fvList[ p0 ].z;
-
-            point2[ 0 ] = fvList[ p1 ].x;
-            point2[ 1 ] = fvList[ p1 ].y;
-            point2[ 2 ] = fvList[ p1 ].z;
-
-            Triangle< 3, Real > triangle( point1, point2, point3 );
-
-            DistancePointTriangleExact< 3, Real > a;
-            DistancePointTriangleExact< 3, Real >::Result r = a( point0, triangle );
-            dist = MIN( dist, r.sqrDistance );
-        }
-        return dist;
+        xCenter += fvList[ iv ].x;
+        yCenter += fvList[ iv ].y;
+        zCenter += fvList[ iv ].z;
     }
+    const Real coef = 1.0 / nVertex;
+    xCenter *= coef;
+    yCenter *= coef;
+    zCenter *= coef;
+
+    point3[ 0 ] = xCenter;
+    point3[ 1 ] = yCenter;
+    point3[ 2 ] = zCenter;
+
+    Real dist = LARGE;
+    for ( int iv = 0; iv < nVertex; ++ iv )
+    {
+        const int p0 = iv;
+        const int p1 = ( iv + 1 ) % nVertex;
+
+        point1[ 0 ] = fvList[ p0 ].x;
+        point1[ 1 ] = fvList[ p0 ].y;
+        point1[ 2 ] = fvList[ p0 ].z;
+
+        point2[ 0 ] = fvList[ p1 ].x;
+        point2[ 1 ] = fvList[ p1 ].y;
+        point2[ 2 ] = fvList[ p1 ].z;
+
+        Triangle< 3, Real > triangle( point1, point2, point3 );
+        DistancePointTriangleExact< 3, Real > query;
+        dist = MIN( dist, query( point0, triangle ).sqrDistance );
+    }
+    return dist;
 }
 
 EndNameSpace

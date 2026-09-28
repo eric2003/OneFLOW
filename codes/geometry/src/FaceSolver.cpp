@@ -84,9 +84,7 @@ void FaceSolver::ScanPolygonFace( CgnsSection * cgnsSection )
             this->faceTopo->fTypes.push_back(cgnsSection->eType);
             this->faceTopo->faceFlags.push_back(0);
         }
-        int kkk = 1;
     }
-    int kkk = 1;
 }
 
 void FaceSolver::ResizeAll()
@@ -130,9 +128,9 @@ void FaceSolver::ScanPolyhedronElement( CgnsSection * cgnsSection )
             }
 
         }
-        int kkk = 1;
+
     }
-    int kkk = 1;
+
 }
 
 void FaceSolver::ScanElementFace( CgIntField & eNodeId, int eType, int eId )
@@ -235,7 +233,7 @@ void FaceSolver::ScanBcFace( IntSet& bcVertex, int bcType, int bcNameId )
     }
 
     //std::cout << " nBFaces = " << nBFaces << std::endl;
-    int kkk = 1;
+
 }
 
 void FaceSolver::ScanBcFaceDetail( IntSet& bcVertex, int bcType, int bcNameId )
@@ -277,7 +275,7 @@ void FaceSolver::ScanBcFaceDetail( IntSet& bcVertex, int bcType, int bcNameId )
     }
 
     std::cout << " nFinalBcFace = " << nBFaces << " bcType = " << bcType << std::endl;
-    int kkk = 1;
+
 }
 
 void FaceSolver::ScanInterfaceBc()

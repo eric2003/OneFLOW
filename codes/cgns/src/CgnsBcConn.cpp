@@ -144,10 +144,6 @@ void CgnsBcConn::SetPeriodicBc()
 
     for ( int i = 0; i < nConnPoints; ++ i )
     {
-        if ( i == 40 && tZone->zId == 30  )
-        {
-            int kkk = 1;
-        }
         int id1 = this->connPoint[ i ];
         int id2 = this->connDonorPoint[ i ];
 
@@ -156,7 +152,6 @@ void CgnsBcConn::SetPeriodicBc()
         tZone->GetElementNodeId( id2, fNodeId2 );
 
         f2fmap.AddFacePoint(fNodeId1, fNodeId2, nodeMesh1, nodeMesh2 );
-        int kkk = 1;
     }
 }
 

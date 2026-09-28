@@ -127,7 +127,7 @@ void MDomain::ConstructMultiLineToDomainMap()
         sdomain->ConstructLineToDomainMap( this->lineToDomainMap );
     }
 
-    int kkk = 1;
+
 }
 
 void MDomain::ConstructPointToLineMap()
@@ -138,7 +138,7 @@ void MDomain::ConstructPointToLineMap()
         sdomain->ConstructPointToLineMap( this->pointToLineMap );
     }
 
-    int kkk = 1;
+
 }
 
 void MDomain::ConstructMultiPointToDomainMap()
