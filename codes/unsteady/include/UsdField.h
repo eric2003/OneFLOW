@@ -62,7 +62,5 @@ public:
     MRFieldPtr residual;
 };
 
-// Compatibility alias kept while call sites migrate to the semantic name.
-using UsdField = UnsteadyFieldView;
 
 EndNameSpace
