@@ -31,8 +31,6 @@ public:
     ~UsdData();
 
 public:
-    int nEqu;
-
 public:
     virtual void Init();
     void InitSub( int nEqu );

@@ -43,7 +43,7 @@ INsUsdData::~INsUsdData()
 
 void INsUsdData::Init()
 {
-    this->InitSub( nscom.nTEqu );
+    this->InitSub();
     prim.resize( nEqu );
     prim1.resize( nEqu );
     prim2.resize( nEqu );

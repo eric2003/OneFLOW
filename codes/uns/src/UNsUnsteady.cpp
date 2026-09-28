@@ -53,7 +53,7 @@ UNsUnsteady::UNsUnsteady()
     data = new NsUsdData();
     field = new UNsUsdField();
     data->Init();
-    this->nEqu = data->nEqu;
+    this->nEqu = nscom.nTEqu;
     field->Init();
 
     this->srcFun = & UNsUnstPrepareSrcData;

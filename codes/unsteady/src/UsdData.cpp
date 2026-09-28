@@ -37,15 +37,12 @@ UsdData::~UsdData()
 
 void UsdData::Init()
 {
-    int nEqu = 1;
-    this->InitSub( nEqu );
+    this->InitSub();
 }
 
-void UsdData::InitSub( int nEqu )
+void UsdData::InitSub()
 {
     timeIntegration.Init();
-    this->nEqu = nEqu;
-
 }
 
 EndNameSpace

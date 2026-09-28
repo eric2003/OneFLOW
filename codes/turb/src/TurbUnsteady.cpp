@@ -43,7 +43,7 @@ TurbUsdData::~TurbUsdData()
 
 void TurbUsdData::Init()
 {
-    this->InitSub( turbcom.nEqu );
+    this->InitSub();
     prim.resize( nEqu );
     prim1.resize( nEqu );
     prim2.resize( nEqu );
