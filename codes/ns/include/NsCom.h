@@ -35,6 +35,7 @@ public:
     ~NsCom();
 public:
     void Init();
+    void Reset();
 public:
     bool init_flag;
     int nBEqu;
