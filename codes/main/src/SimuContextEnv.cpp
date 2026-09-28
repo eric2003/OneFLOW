@@ -41,6 +41,7 @@ License
 #include "INsSolver.h"
 #include "TurbSolver.h"
 #include "TurbCom.h"
+#include "Tolerence.h"
 #include <iostream>
 
 BeginNameSpace( ONEFLOW )
@@ -76,6 +77,7 @@ void SimuContext::TeardownCase()
     INsSolver::Reset();
     TurbSolver::Reset();
     turbcom.Reset();
+    Tolerence::Reset();
     Zone::ReleaseGrids();
     ZoneState::Reset();
     GridState::Reset();
