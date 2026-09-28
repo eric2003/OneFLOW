@@ -91,31 +91,41 @@ void GridMediator::ReadGridgen()
 {
 }
 
-void ZgridMediator::AddGridMediator( GridMediator * gridMediator )
+void ZgridMediator::add( GridMediator * mediator )
 {
-    this->gm.emplace_back( gridMediator );
+    this->mediators_.emplace_back( mediator );
 }
 
-void ZgridMediator::AddGridMediator( std::unique_ptr< GridMediator > gridMediator )
+void ZgridMediator::add( std::unique_ptr< GridMediator > mediator )
 {
-    this->gm.push_back( std::move( gridMediator ) );
+    this->mediators_.push_back( std::move( mediator ) );
 }
 
-GridMediator * ZgridMediator::GetGridMediator( int iGridMediator ) const
+GridMediator * ZgridMediator::at( int index ) const
 {
-    return this->gm[ static_cast< size_t >( iGridMediator ) ].get();
+    return this->mediators_[ static_cast< size_t >( index ) ].get();
 }
 
-int ZgridMediator::GetSize() const
+int ZgridMediator::size() const noexcept
 {
-    return static_cast< int >( this->gm.size() );
+    return static_cast< int >( this->mediators_.size() );
+}
+
+bool ZgridMediator::empty() const noexcept
+{
+    return this->mediators_.empty();
+}
+
+std::string ZgridMediator::targetFile() const
+{
+    return this->mediators_.at( 0 )->targetFile;
 }
 
 void ZgridMediator::CreateSimple( int nZone )
 {
     auto gridMediator = std::make_unique< GridMediator >();
     gridMediator->numberOfZones = nZone;
-    this->AddGridMediator( std::move( gridMediator ) );
+    this->add( std::move( gridMediator ) );
 }
 
 void ZgridMediator::ReadGrid()
@@ -125,14 +135,9 @@ void ZgridMediator::ReadGrid()
     gridMediator->bcFile   = grid_para.bcFile;
     gridMediator->gridType = grid_para.filetype;
     gridMediator->ReadGrid();
-    this->AddGridMediator( std::move( gridMediator ) );
+    this->add( std::move( gridMediator ) );
 }
 
-std::string ZgridMediator::GetTargetFile() const
-{
-    const int index = 0;
-    return this->gm[ static_cast< size_t >( index ) ]->targetFile;
-}
 
 GridMediator * GlobalGrid::gridMediator = nullptr;
 

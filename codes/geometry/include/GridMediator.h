@@ -33,6 +33,9 @@ BeginNameSpace( ONEFLOW )
 
 class Grid;
 
+// Holds one zone-group of grids plus the paths / format used to load them.
+// Historical name "Mediator" is kept for source compatibility; think of it as
+// a GridBundle / GridDocument.
 class GridMediator
 {
 public:
@@ -40,13 +43,13 @@ public:
     ~GridMediator() = default;
 
 public:
-    Grids gridVector;
-    int numberOfZones{ 0 };
-    int readGridType{ 0 };
-    std::string gridFile;
-    std::string bcFile;
-    std::string targetFile;
-    std::string gridType;
+    Grids gridVector;                 // owned grids (one entry per zone)
+    int numberOfZones{ 0 };           // usually equals gridVector.size()
+    int readGridType{ 0 };            // legacy flag; prefer gridType string / GridFileType
+    std::string gridFile;             // source mesh path
+    std::string bcFile;               // boundary condition path
+    std::string targetFile;           // conversion output path
+    std::string gridType;             // format token: plot3d, gridgen, ...
 
 public:
     void ReadGrid();
@@ -56,7 +59,9 @@ public:
     void AddDefaultName();
 };
 
-// Owns a collection of GridMediator instances (RAII).
+// Owns a list of GridMediator instances (RAII).
+// Name kept as ZgridMediator for compatibility; preferred mental model:
+// "ZoneGridMediators" - a container of per-zone-group mediators.
 class ZgridMediator
 {
 public:
@@ -69,19 +74,37 @@ public:
     ZgridMediator & operator=( ZgridMediator && ) noexcept = default;
 
 public:
-    void AddGridMediator( GridMediator * gridMediator );
-    void AddGridMediator( std::unique_ptr< GridMediator > gridMediator );
+    // --- modern container-style API (prefer these in new code) ---
+    void add( std::unique_ptr< GridMediator > mediator );
+    void add( GridMediator * mediator ); // takes ownership of a raw new'd pointer
 
-    [[nodiscard]] GridMediator * GetGridMediator( int iGridMediator ) const;
-    [[nodiscard]] int GetSize() const;
-    [[nodiscard]] std::string GetTargetFile() const;
+    [[nodiscard]] GridMediator * at( int index ) const;
+    [[nodiscard]] int size() const noexcept;
+    [[nodiscard]] bool empty() const noexcept;
+    [[nodiscard]] std::string targetFile() const;
+
+    // --- historical names (thin wrappers; keep call sites compiling) ---
+    void AddGridMediator( GridMediator * gridMediator ) { add( gridMediator ); }
+    void AddGridMediator( std::unique_ptr< GridMediator > gridMediator )
+    {
+        add( std::move( gridMediator ) );
+    }
+
+    [[nodiscard]] GridMediator * GetGridMediator( int iGridMediator ) const
+    {
+        return at( iGridMediator );
+    }
+
+    [[nodiscard]] int GetSize() const noexcept { return size(); }
+
+    [[nodiscard]] std::string GetTargetFile() const { return targetFile(); }
 
 public:
     void CreateSimple( int nZone );
     void ReadGrid();
 
 private:
-    std::vector< std::unique_ptr< GridMediator > > gm;
+    std::vector< std::unique_ptr< GridMediator > > mediators_;
 };
 
 // Process-wide "current" GridMediator for legacy call paths that cannot
@@ -101,7 +124,6 @@ public:
     [[nodiscard]] static Grid * GetGrid( int zoneId );
 
     // Historical public data member - prefer GetCurrentGridMediator().
-    // Kept so existing TU that read GlobalGrid::gridMediator still link.
     static GridMediator * gridMediator;
 };
 
