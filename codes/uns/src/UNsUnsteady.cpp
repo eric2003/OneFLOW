@@ -99,9 +99,9 @@ void UNsUnstPrepareSrcData( Unsteady * unst )
     gcom.cvol1 = ( * ug.cvol1 )[ ug.cId ];
     gcom.cvol2 = ( * ug.cvol2 )[ ug.cId ];
 
-    PrimToQ( data->prim , nscom.gama, data->q  );
-    PrimToQ( data->prim1, nscom.gama, data->q1 );
-    PrimToQ( data->prim2, nscom.gama, data->q2 );
+    PrimToQ( data->prim , nscom.gama, unsteady->q  );
+    PrimToQ( data->prim1, nscom.gama, unsteady->q1 );
+    PrimToQ( data->prim2, nscom.gama, unsteady->q2 );
 }
 
 void UNsUnstPrepareCriData( Unsteady * unst )
@@ -133,9 +133,9 @@ void UNsUnstPrepareCriData( Unsteady * unst )
     nscom.gama = ( * unsf.gama  )[ 0 ][ ug.cId ];
 
 
-    PrimToQ( data->prim , nscom.gama, data->q  );
-    PrimToQ( data->prim1, nscom.gama, data->q1 );
-    PrimToQ( data->prim2, nscom.gama, data->q2 );
+    PrimToQ( data->prim , nscom.gama, unsteady->q  );
+    PrimToQ( data->prim1, nscom.gama, unsteady->q1 );
+    PrimToQ( data->prim2, nscom.gama, unsteady->q2 );
 }
 
 EndNameSpace
