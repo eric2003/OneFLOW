@@ -43,7 +43,6 @@ public:
     static HXVector< LusgsSolver * > uns;
 public:
     static void Init( int nSolver );
-    static void Reset();
     static void AddSolver( int solverIndex, int gridType, LusgsSolver * solver );
     static LusgsSolver * GetLusgsSolver();
 };
@@ -61,6 +60,7 @@ public:
     static IntField convergeFlag;
 public:
     static void Init( int nSolver );
+    static void Reset();
     static void SetSolverType( int solverType );
     static void SetSolverTypeBySolverIndex( int solverIndex );
     static Solver * GetSolver();
