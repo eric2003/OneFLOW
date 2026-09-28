@@ -158,11 +158,10 @@ namespace
     }
 
     void InitUsdFieldConfig(
-        int solverType,
+        FieldManager * fieldManager,
         const UsdFieldNames & fieldNames )
     {
-        UsdFieldConfigRegistry::SetConfig(
-            solverType,
+        fieldManager->SetUnsteadyFieldNames(
             fieldNames );
     }
 
@@ -278,7 +277,7 @@ namespace
                 &fieldNames );
 
             InitUsdFieldConfig(
-                solverType,
+                fieldManager,
                 fieldNames );
         }
         else
