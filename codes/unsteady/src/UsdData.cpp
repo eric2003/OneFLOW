@@ -46,7 +46,6 @@ void UsdData::InitSub( int nEqu )
     timeIntegration.Init();
     this->nEqu = nEqu;
 
-    convergence.Init( nEqu );
 }
 
 EndNameSpace
