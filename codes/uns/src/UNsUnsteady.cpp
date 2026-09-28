@@ -71,7 +71,7 @@ UNsUnsteady::~UNsUnsteady()
 
 void UNsUnstPrepareSrcData( Unsteady * unst )
 {
-    UsdData * data = unst->data;
+    NsUsdData * data = static_cast< NsUsdData * >( unst->data );
     UsdField * field = unst->field;
 
     MRField * q =
@@ -106,7 +106,7 @@ void UNsUnstPrepareSrcData( Unsteady * unst )
 
 void UNsUnstPrepareCriData( Unsteady * unst )
 {
-    UsdData * data = unst->data;
+    NsUsdData * data = static_cast< NsUsdData * >( unst->data );
     UsdField * field = unst->field;
 
     MRField * q =
