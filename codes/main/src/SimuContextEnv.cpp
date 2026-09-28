@@ -28,6 +28,8 @@ License
 #include "ParaFile.h"
 #include "Parallel.h"
 #include "AccelRuntime.h"
+#include "SolverMap.h"
+#include "SolverNameList.h"
 #include <iostream>
 
 BeginNameSpace( ONEFLOW )
@@ -55,6 +57,8 @@ void SimuContext::TeardownCase()
     // Device-backed states must release allocations while the selected
     // accelerator runtime is still alive.
     ClearAccelStates();
+    SolverMap::FreeSolverMap();
+    SolverNameClass::Reset();
     envReady_ = false;
 }
 

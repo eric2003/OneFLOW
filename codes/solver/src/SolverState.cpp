@@ -51,6 +51,12 @@ void LusgsState::Init( int nSolver )
     LusgsState::uns.resize( nSolver );
 }
 
+void LusgsState::Reset()
+{
+    LusgsState::str.clear();
+    LusgsState::uns.clear();
+}
+
 void LusgsState::AddSolver( int solverIndex, int gridType, LusgsSolver * solver )
 {
     if ( gridType == ONEFLOW::UMESH )
