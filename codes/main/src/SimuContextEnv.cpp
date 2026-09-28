@@ -34,6 +34,7 @@ License
 #include "ZoneState.h"
 #include "GridState.h"
 #include "FieldManager.h"
+#include "UsdFieldConfig.h"
 #include "DataBase.h"
 #include "HeatFlux.h"
 #include "NsCom.h"
@@ -82,6 +83,7 @@ void SimuContext::TeardownCase()
     ZoneState::Reset();
     GridState::Reset();
     FieldManagerRegistry::FreeFieldManager();
+    UsdFieldConfigRegistry::FreeConfig();
     GetGlobalDataBase()->dataPara->Clear();
     envReady_ = false;
 }
