@@ -39,6 +39,7 @@ License
 #include "NsCom.h"
 #include "NsSolver.h"
 #include "INsSolver.h"
+#include "TurbSolver.h"
 #include "TurbCom.h"
 #include <iostream>
 
@@ -73,6 +74,7 @@ void SimuContext::TeardownCase()
     nscom.Reset();
     NsSolver::Reset();
     INsSolver::Reset();
+    TurbSolver::Reset();
     turbcom.Reset();
     Zone::ReleaseGrids();
     ZoneState::Reset();
