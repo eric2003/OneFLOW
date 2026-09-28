@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*\
+/*---------------------------------------------------------------------------*\\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
@@ -6,19 +6,18 @@ License
     This file is part of OneFLOW.
 
     OneFLOW is free software: you can redistribute it and/or modify it
-    under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+    under the terms of the GNU General Public License either version 3 of the
+    License, or (at your option) any later version.
 
-    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+    OneFLOW is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
     or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
     for more details.
 
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
-\*---------------------------------------------------------------------------*/
+\\---------------------------------------------------------------------------*/
 
 #include "UUnsteady.h"
 #include "UsdData.h"
@@ -108,13 +107,13 @@ void UUnsteady::PrepareResidual()
 
     for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
     {
-        data->res[ iEqu ] =
+        this->res[ iEqu ] =
             ( * res )[ iEqu ][ ug.cId ];
 
-        data->res1[ iEqu ] =
+        this->res1[ iEqu ] =
             ( * res1 )[ iEqu ][ ug.cId ];
 
-        data->res2[ iEqu ] =
+        this->res2[ iEqu ] =
             ( * res2 )[ iEqu ][ ug.cId ];
     }
 }
@@ -122,6 +121,9 @@ void UUnsteady::PrepareResidual()
 void UUnsteady::CalcDualTimeResidual()
 {
     timeIntegration.CalcResCoef();
+    res.resize( data->nEqu );
+    res1.resize( data->nEqu );
+    res2.resize( data->nEqu );
     dualtimeRes.resize( data->nEqu );
 
     for ( int cId = 0; cId < ug.nCells; ++ cId )
@@ -130,7 +132,8 @@ void UUnsteady::CalcDualTimeResidual()
 
         this->PrepareResidual();
 
-        data->CalcCellDualTimeResidual( dualtimeRes );
+        data->CalcCellDualTimeResidual(
+            res, res1, res2, dualtimeRes );
 
         this->UpdateDualTimeStepResidual();
     }
@@ -162,6 +165,7 @@ void UUnsteady::CalcDualTimeSrc()
 void UUnsteady::CalcUnsteadyCriterion()
 {
     data->convergence.Reset();
+    res.resize( data->nEqu );
 
     for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
@@ -169,8 +173,10 @@ void UUnsteady::CalcUnsteadyCriterion()
 
         ( * this->criFun )( this );
 
+        this->PrepareResidual();
+
         data->convergence.Accumulate(
-            data->res,
+            res,
             data->GetQ1(),
             data->GetQ2() );
     }
