@@ -35,7 +35,7 @@ public:
     Unsteady();
     virtual ~Unsteady();
 public:
-    UsdField field;
+    UnsteadyFieldView field;
     USDFunc srcFun;
     USDFunc criFun;
     int solverType;

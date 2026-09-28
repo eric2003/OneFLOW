@@ -41,7 +41,7 @@ Unsteady::~Unsteady()
 
 void Unsteady::UpdateUnsteady( int solverType )
 {
-    UsdField usdField;
+    UnsteadyFieldView usdField;
     usdField.InitBasic( solverType );
 
     // Shift from the oldest configured level toward the current level.
