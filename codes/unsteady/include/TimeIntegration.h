@@ -47,7 +47,7 @@ public:
     void CalcSrcCoeff();
 
 public:
-    void InitBasic();
+    void Init();
 };
 
 extern TimeIntegration timeIntegration;
