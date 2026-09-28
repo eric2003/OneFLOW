@@ -26,7 +26,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include "Fatal.h"
 #include "FieldManager.h"
 #include "FieldBase.h"
-#include "UsdFieldNames.h"
+#include "UnsteadyFieldNames.h"
 #include "SolverDef.h"
 #include "TextFileParser.h"
 #include "OStream.h"
@@ -135,8 +135,8 @@ namespace
             location );
     }
 
-    void AddUsdFieldName(
-        UsdFieldNames & fieldNames,
+    void AddUnsteadyFieldName(
+        UnsteadyFieldNames & fieldNames,
         const std::string & fieldName,
         const std::string & role )
     {
@@ -158,7 +158,7 @@ namespace
 
     void SetUnsteadyFieldNames(
         FieldManager * fieldManager,
-        const UsdFieldNames & fieldNames )
+        const UnsteadyFieldNames & fieldNames )
     {
         fieldManager->SetUnsteadyFieldNames(
             fieldNames );
@@ -168,7 +168,7 @@ namespace
         TextFileParser & textFileParser,
         FieldManager * fieldManager,
         FieldLocation location,
-        UsdFieldNames * fieldNames )
+        UnsteadyFieldNames * fieldNames )
     {
         while ( ! textFileParser.ReachTheEndOfFile() )
         {
@@ -210,7 +210,7 @@ namespace
             std::string role =
                 textFileParser.ReadNextWord();
 
-            AddUsdFieldName(
+            AddUnsteadyFieldName(
                 *fieldNames,
                 definition.name,
                 role );
@@ -267,7 +267,7 @@ namespace
 
         if ( type == FieldFileType::Unsteady )
         {
-            UsdFieldNames fieldNames;
+            UnsteadyFieldNames fieldNames;
 
             ReadFieldDefinitions(
                 textFileParser,
@@ -683,7 +683,7 @@ void FieldAllocator::Allocate(
 {
     // Pipeline (order matters):
     // 1. Ensure FieldManager exists for solverType.
-    // 2. Register field definitions once (inner/face/bc/unsteady).
+    // 2. Register field definitions once (inner/bc/inter/unsteady).
     // 3. Register interface field names once (inter*) and validate
     //    that Communication Fields are a subset of Interface Storage Fields.
     // 4. Allocate runtime storage on the current grid (and interface buffers).

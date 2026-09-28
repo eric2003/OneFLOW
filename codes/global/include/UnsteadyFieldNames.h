@@ -25,7 +25,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-struct UsdFieldNames
+struct UnsteadyFieldNames
 {
     StringField flow;
     StringField residual;

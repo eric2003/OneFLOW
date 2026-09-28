@@ -22,6 +22,7 @@ License
 
 #include "UsdField.h"
 #include "FieldManager.h"
+#include "UnsteadyFieldNames.h"
 #include "FieldWrap.h"
 #include "DataBase.h"
 #include "Zone.h"
@@ -60,7 +61,7 @@ void UsdField::InitBasic( int solverType )
             "FieldManager is not registered for solverType" );
     }
 
-    const UsdFieldNames & fieldNames =
+    const UnsteadyFieldNames & fieldNames =
         fieldManager->GetUnsteadyFieldNames();
 
     this->flow.resize(

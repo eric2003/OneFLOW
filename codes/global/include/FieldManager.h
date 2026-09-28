@@ -24,7 +24,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include "FieldCategory.h"
 #include "FieldDefinitionTable.h"
 #include "InterfaceFieldProperty.h"
-#include "UsdFieldNames.h"
+#include "UnsteadyFieldNames.h"
 #include <map>
 #include <memory>
 #include <ostream>
@@ -59,9 +59,9 @@ public:
     const std::string & GetFieldDefinitionSource() const;
 
     void SetUnsteadyFieldNames(
-        const UsdFieldNames & fieldNames );
+        const UnsteadyFieldNames & fieldNames );
 
-    const UsdFieldNames & GetUnsteadyFieldNames() const;
+    const UnsteadyFieldNames & GetUnsteadyFieldNames() const;
 
 public:
     InterfaceFieldProperty & GetInterfaceFieldProperty();
@@ -99,7 +99,7 @@ private:
     bool fieldDefinitionsReady;
     bool interfaceDefinitionsReady;
     std::string fieldDefinitionSource;
-    UsdFieldNames unsteadyFieldNames;
+    UnsteadyFieldNames unsteadyFieldNames;
 };
 
 // Per-solverType FieldManager registry.
