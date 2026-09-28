@@ -53,7 +53,7 @@ UTurbUnsteady::UTurbUnsteady()
     data = new TurbUsdData();
     field = new UTurbUsdField();
     data->Init();
-    this->nEqu = unsteady->nEqu;
+    this->nEqu = data->nEqu;
     field->Init();
 
     this->srcFun = & UTurbUnstPrepareSrcData;
