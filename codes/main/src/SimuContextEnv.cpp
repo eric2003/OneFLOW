@@ -33,6 +33,7 @@ License
 #include "Zone.h"
 #include "ZoneState.h"
 #include "GridState.h"
+#include "FieldManager.h"
 #include <iostream>
 
 BeginNameSpace( ONEFLOW )
@@ -65,6 +66,7 @@ void SimuContext::TeardownCase()
     Zone::ReleaseGrids();
     ZoneState::Reset();
     GridState::Reset();
+    FieldManagerRegistry::FreeFieldManager();
     envReady_ = false;
 }
 
