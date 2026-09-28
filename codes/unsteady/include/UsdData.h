@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*\
+/*---------------------------------------------------------------------------*\\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
@@ -10,15 +10,15 @@ License
     the Free Software Foundation either version 3 of the License, or
     (at your option) any later version.
 
-    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-    for more details.
+    OneFLOW is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
-\*---------------------------------------------------------------------------*/
+\\---------------------------------------------------------------------------*/
 
 
 #pragma once
@@ -35,7 +35,6 @@ public:
 public:
     int nEqu;
 
-    RealField res, res1, res2;
 public:
     UnsteadyConvergence convergence;
 public:
@@ -43,7 +42,11 @@ public:
     virtual const RealField & GetQ1() const = 0;
     virtual const RealField & GetQ2() const = 0;
 
-    void CalcCellDualTimeResidual( RealField & dualtimeRes );
+    void CalcCellDualTimeResidual(
+        const RealField & res,
+        const RealField & res1,
+        const RealField & res2,
+        RealField & dualtimeRes );
     void CalcCellDualTimeSrc(
         Real vol, Real vol1, Real vol2, RealField & dualtimeSrc );
 public:
