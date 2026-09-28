@@ -130,10 +130,6 @@ void UUnsteady::CalcCellDualTimeResidual()
 
 void UUnsteady::CalcCellDualTimeSrc()
 {
-    const RealField & q  = this->q;
-    const RealField & q1 = this->q1;
-    const RealField & q2 = this->q2;
-
     for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
     {
         Real dualSrc0 = timeIntegration.sc1 * gcom.cvol  * q [ iEqu ];
@@ -173,6 +169,9 @@ void UUnsteady::CalcDualTimeSrc()
 
     timeIntegration.CalcSrcCoeff();
     dualtimeSrc.resize( data->nEqu );
+    q.resize( data->nEqu );
+    q1.resize( data->nEqu );
+    q2.resize( data->nEqu );
 
     for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
@@ -190,6 +189,9 @@ void UUnsteady::CalcUnsteadyCriterion()
 {
     data->convergence.Reset();
     res.resize( data->nEqu );
+    q.resize( data->nEqu );
+    q1.resize( data->nEqu );
+    q2.resize( data->nEqu );
 
     for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
@@ -201,8 +203,8 @@ void UUnsteady::CalcUnsteadyCriterion()
 
         data->convergence.Accumulate(
             res,
-            data->GetQ1(),
-            data->GetQ2() );
+            q1,
+            q2 );
     }
 
     data->convergence.Calculate();
