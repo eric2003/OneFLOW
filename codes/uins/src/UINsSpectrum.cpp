@@ -65,14 +65,14 @@ void UINsSpectrum::CalcUnsteadySpectrum()
     {
         for ( int cId = 0; cId < ug.nCells; ++ cId )
         {
-            ( * uinsf.impsr )[ 0 ][ cId ] = ( usd.sp2 /  ( * uinsf.timestep )[ 0 ][ cId ] ) * ( * ug.cvol )[ cId ];
+            ( * uinsf.impsr )[ 0 ][ cId ] = ( timeIntegration.sp2 /  ( * uinsf.timestep )[ 0 ][ cId ] ) * ( * ug.cvol )[ cId ];
         }
     }
     else
     {
         for ( int cId = 0; cId < ug.nCells; ++ cId )
         {
-            ( * uinsf.impsr )[ 0 ][ cId ] = ( timeIntegration.sp1 / ( * uinsf.timestep )[ 0 ][ cId ] + usd.sp2 / ctrl.pdt1 ) * ( * ug.cvol )[ cId ];
+            ( * uinsf.impsr )[ 0 ][ cId ] = ( timeIntegration.sp1 / ( * uinsf.timestep )[ 0 ][ cId ] + timeIntegration.sp2 / ctrl.pdt1 ) * ( * ug.cvol )[ cId ];
         }
     }
 }
