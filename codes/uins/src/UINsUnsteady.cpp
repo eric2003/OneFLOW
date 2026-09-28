@@ -71,7 +71,7 @@ UINsUnsteady::~UINsUnsteady()
 
 void UINsUnstPrepareSrcData( Unsteady * unst )
 {
-    UsdData * data = unst->data;
+    INsUsdData * data = static_cast< INsUsdData * >( unst->data );
     UsdField * field = unst->field;
 
     MRField * q =
@@ -106,7 +106,7 @@ void UINsUnstPrepareSrcData( Unsteady * unst )
 
 void UINsUnstPrepareCriData( Unsteady * unst )
 {
-    UsdData * data = unst->data;
+    INsUsdData * data = static_cast< INsUsdData * >( unst->data );
     UsdField * field = unst->field;
     MRField * q =
         field->GetFlow( UsdField::HistoryLevel::Current );
