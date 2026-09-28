@@ -11,8 +11,8 @@ License
     (at your option) any later version.
 
     OneFLOW is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
     for more details.
 
     You should have received a copy of the GNU General Public License
@@ -50,10 +50,6 @@ void UsdData::InitSub( int nEqu )
     res.resize( nEqu );
     res1.resize( nEqu );
     res2.resize( nEqu );
-
-    prim.resize( nEqu );
-    prim1.resize( nEqu );
-    prim2.resize( nEqu );
 
     q.resize( nEqu );
     q1.resize( nEqu );
