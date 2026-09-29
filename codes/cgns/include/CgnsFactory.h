@@ -70,7 +70,7 @@ private:
 public:
     void GenerateGrid();
     void ReadCgnsGrid();
-    void DumpCgnsGrid( ZgridMediator * zgridMediator );
+    void DumpCgnsGrid( ZgridMediator & zgridMediator );
     void DumpUnsCgnsGrid();
 public:
     void CommonToOneFlowGrid();
