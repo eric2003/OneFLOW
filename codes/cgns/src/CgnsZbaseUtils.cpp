@@ -30,7 +30,6 @@ License
 #include "Fatal.h"
 #include "Prj.h"
 #include "Dimension.h"
-#include "GridPara.h"
 #include "GridMediator.h"
 #include <iostream>
 
