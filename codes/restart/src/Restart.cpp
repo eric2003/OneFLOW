@@ -72,98 +72,98 @@ Restart::~Restart()
 
 void Restart::ReadUnsteady( int solverType )
 {
-    UnsteadyFieldView usdField;
-    usdField.InitBasic( solverType );
+    UnsteadyFieldView fieldView;
+    fieldView.InitBasic( solverType );
 
     // The current level is reconstructed from the first stored history level.
     HXRead(
         ActionState::dataBook,
-        usdField.GetFlow( 1 ) );
+        fieldView.GetFlow( 1 ) );
 
     SetField(
-        usdField.GetFlow( 0 ),
-        usdField.GetFlow( 1 ) );
+        fieldView.GetFlow( 0 ),
+        fieldView.GetFlow( 1 ) );
 
     for ( std::size_t level = 2;
-        level < usdField.flow.size();
+        level < fieldView.flow.size();
         ++ level )
     {
         HXRead(
             ActionState::dataBook,
-            usdField.GetFlow( level ) );
+            fieldView.GetFlow( level ) );
     }
 
     // Residual history follows the same restart layout as flow history.
     HXRead(
         ActionState::dataBook,
-        usdField.GetResidual( 1 ) );
+        fieldView.GetResidual( 1 ) );
 
     SetField(
-        usdField.GetResidual( 0 ),
-        usdField.GetResidual( 1 ) );
+        fieldView.GetResidual( 0 ),
+        fieldView.GetResidual( 1 ) );
 
     for ( std::size_t level = 2;
-        level < usdField.residual.size();
+        level < fieldView.residual.size();
         ++ level )
     {
         HXRead(
             ActionState::dataBook,
-            usdField.GetResidual( level ) );
+            fieldView.GetResidual( level ) );
     }
 }
 
 void Restart::DumpUnsteady( int solverType )
 {
-    UnsteadyFieldView usdField;
-    usdField.InitBasic( solverType );
+    UnsteadyFieldView fieldView;
+    fieldView.InitBasic( solverType );
 
     // Keep the current level out of the restart stream.
     // It is reconstructed from the first stored history level on read.
     for ( std::size_t level = 1;
-        level < usdField.flow.size();
+        level < fieldView.flow.size();
         ++ level )
     {
         HXWrite(
             ActionState::dataBook,
-            usdField.GetFlow( level ) );
+            fieldView.GetFlow( level ) );
     }
 
     for ( std::size_t level = 1;
-        level < usdField.residual.size();
+        level < fieldView.residual.size();
         ++ level )
     {
         HXWrite(
             ActionState::dataBook,
-            usdField.GetResidual( level ) );
+            fieldView.GetResidual( level ) );
     }
 }
 
 void Restart::InitUnsteady( int solverType )
 {
-    UnsteadyFieldView usdField;
-    usdField.InitBasic( solverType );
+    UnsteadyFieldView fieldView;
+    fieldView.InitBasic( solverType );
 
     // Initialize every configured history level from the current field.
     for ( std::size_t level = 1;
-        level < usdField.flow.size();
+        level < fieldView.flow.size();
         ++ level )
     {
         SetField(
-            usdField.GetFlow( level ),
-            usdField.GetFlow( 0 ) );
+            fieldView.GetFlow( level ),
+            fieldView.GetFlow( 0 ) );
     }
 
     SetField(
-        usdField.GetResidual( 0 ),
+        fieldView.GetResidual( 0 ),
         0.0 );
 
     for ( std::size_t level = 1;
-        level < usdField.residual.size();
+        level < fieldView.residual.size();
         ++ level )
     {
         SetField(
-            usdField.GetResidual( level ),
-            usdField.GetResidual( 0 ) );
+            fieldView.GetResidual( level ),
+            fieldView.GetResidual( 0 ) );
     }
 }
 
