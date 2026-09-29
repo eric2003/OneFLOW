@@ -53,10 +53,12 @@ public:
 
 protected:
     using USDFunc = void( * )( UUnsteady * unst );
-    USDFunc srcFun;
-    USDFunc criFun;
+    void SetSourceFunction( USDFunc function );
+    void SetCriterionFunction( USDFunc function );
 
 private:
+    USDFunc srcFun;
+    USDFunc criFun;
     int nEqu;
     UnsteadyConvergence convergence;
     RealField res, res1, res2;

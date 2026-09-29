@@ -38,8 +38,8 @@ UINsUnsteady::UINsUnsteady()
 {
     this->SetEquationCount( nscom.nTEqu );
 
-    this->srcFun = & UINsUnstPrepareSrcData;
-    this->criFun = & UINsUnstPrepareCriData;
+    this->SetSourceFunction( & UINsUnstPrepareSrcData );
+    this->SetCriterionFunction( & UINsUnstPrepareCriData );
 
     ug.Init();
     uinsf.Init();

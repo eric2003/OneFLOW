@@ -40,6 +40,16 @@ int UUnsteady::GetEquationCount() const
     return nEqu;
 }
 
+void UUnsteady::SetSourceFunction( USDFunc function )
+{
+    srcFun = function;
+}
+
+void UUnsteady::SetCriterionFunction( USDFunc function )
+{
+    criFun = function;
+}
+
 void UUnsteady::SetEquationCount( int equationCount )
 {
     nEqu = equationCount;

@@ -37,8 +37,8 @@ UTurbUnsteady::UTurbUnsteady()
 {
     this->SetEquationCount( turbcom.nEqu );
 
-    this->srcFun = & UTurbUnstPrepareSrcData;
-    this->criFun = & UTurbUnstPrepareCriData;
+    this->SetSourceFunction( & UTurbUnstPrepareSrcData );
+    this->SetCriterionFunction( & UTurbUnstPrepareCriData );
 
     ug.Init();
     uturbf.Init();
