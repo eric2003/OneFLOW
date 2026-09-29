@@ -174,7 +174,7 @@ void Cavity::DumpCgnsGrid( GridMediator * gridMediator )
     ZgridMediator zgridMediator;
     zgridMediator.AddGridMediator( gridMediator );
 
-    cgnsFactory->DumpCgnsGrid( & zgridMediator );
+    cgnsFactory->DumpCgnsGrid( zgridMediator );
 
     delete cgnsFactory;
 }
