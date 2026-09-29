@@ -17,8 +17,7 @@ License
 
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
-
-\*---------------------------------------------------------------------------*/
+*---------------------------------------------------------------------------*/
 
 #include "Cavity.h"
 #include "CurveLine.h"
@@ -72,7 +71,7 @@ void Cavity::Run()
     Grid * gridstr = ONEFLOW::CreateStrGrid();
     StrGrid * grid = ONEFLOW::StrGridCast( gridstr );
     int iZone = 0;
-    gridMediator->gridVector[ iZone ] = grid;
+    gridMediator.gridVector[ iZone ] = grid;
     grid->name = AddString( "Zone", iZone );
     grid->id = iZone;
     grid->ni = ni;
