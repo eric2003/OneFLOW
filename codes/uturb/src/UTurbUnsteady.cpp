@@ -56,15 +56,39 @@ void UTurbUnstPrepareSrcData( UUnsteady * unsteady )
     MRField * q2 =
         field->GetFlow( UnsteadyFieldView::HistoryLevel::Old );
 
+    RealField & primitive =
+        unsteady->GetPrimitive(
+            UnsteadyFieldView::HistoryLevel::Current );
+
+    RealField & primitive1 =
+        unsteady->GetPrimitive(
+            UnsteadyFieldView::HistoryLevel::Previous );
+
+    RealField & primitive2 =
+        unsteady->GetPrimitive(
+            UnsteadyFieldView::HistoryLevel::Old );
+
+    RealField & conservative =
+        unsteady->GetConservative(
+            UnsteadyFieldView::HistoryLevel::Current );
+
+    RealField & conservative1 =
+        unsteady->GetConservative(
+            UnsteadyFieldView::HistoryLevel::Previous );
+
+    RealField & conservative2 =
+        unsteady->GetConservative(
+            UnsteadyFieldView::HistoryLevel::Old );
+
     for ( int iEqu = 0; iEqu < unsteady->GetEquationCount(); ++ iEqu )
     {
-        unsteady->prim[ iEqu ] =
+        primitive[ iEqu ] =
             ( * q )[ iEqu ][ ug.cId ];
 
-        unsteady->prim1[ iEqu ] =
+        primitive1[ iEqu ] =
             ( * q1 )[ iEqu ][ ug.cId ];
 
-        unsteady->prim2[ iEqu ] =
+        primitive2[ iEqu ] =
             ( * q2 )[ iEqu ][ ug.cId ];
     }
 
@@ -81,9 +105,9 @@ void UTurbUnstPrepareSrcData( UUnsteady * unsteady )
 
     for ( int iEqu = 0; iEqu < unsteady->GetEquationCount(); ++ iEqu )
     {
-        unsteady->q [ iEqu ] = coef * unsteady->prim [ iEqu ];
-        unsteady->q1[ iEqu ] = coef * unsteady->prim1[ iEqu ];
-        unsteady->q2[ iEqu ] = coef * unsteady->prim2[ iEqu ];
+        conservative [ iEqu ] = coef * primitive [ iEqu ];
+        conservative1[ iEqu ] = coef * primitive1[ iEqu ];
+        conservative2[ iEqu ] = coef * primitive2[ iEqu ];
     }
 }
 
@@ -102,13 +126,13 @@ void UTurbUnstPrepareCriData( UUnsteady * unsteady )
 
     for ( int iEqu = 0; iEqu < unsteady->GetEquationCount(); ++ iEqu )
     {
-        unsteady->prim [ iEqu ] =
+        primitive [ iEqu ] =
             ( * q )[ iEqu ][ ug.cId ];
 
-        unsteady->prim1[ iEqu ] =
+        primitive1[ iEqu ] =
             ( * q1 )[ iEqu ][ ug.cId ];
 
-        unsteady->prim2[ iEqu ] =
+        primitive2[ iEqu ] =
             ( * q2 )[ iEqu ][ ug.cId ];
     }
 
@@ -125,9 +149,9 @@ void UTurbUnstPrepareCriData( UUnsteady * unsteady )
 
     for ( int iEqu = 0; iEqu < unsteady->GetEquationCount(); ++ iEqu )
     {
-        unsteady->q [ iEqu ] = coef * unsteady->prim [ iEqu ];
-        unsteady->q1[ iEqu ] = coef * unsteady->prim1[ iEqu ];
-        unsteady->q2[ iEqu ] = coef * unsteady->prim2[ iEqu ];
+        conservative [ iEqu ] = coef * primitive [ iEqu ];
+        conservative1[ iEqu ] = coef * primitive1[ iEqu ];
+        conservative2[ iEqu ] = coef * primitive2[ iEqu ];
     }
 
 }

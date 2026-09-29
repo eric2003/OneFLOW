@@ -40,6 +40,42 @@ int UUnsteady::GetEquationCount() const
     return nEqu;
 }
 
+RealField & UUnsteady::GetPrimitive(
+    UnsteadyFieldView::HistoryLevel level )
+{
+    switch ( level )
+    {
+    case UnsteadyFieldView::HistoryLevel::Current:
+        return prim;
+
+    case UnsteadyFieldView::HistoryLevel::Previous:
+        return prim1;
+
+    case UnsteadyFieldView::HistoryLevel::Old:
+        return prim2;
+    }
+
+    return prim;
+}
+
+RealField & UUnsteady::GetConservative(
+    UnsteadyFieldView::HistoryLevel level )
+{
+    switch ( level )
+    {
+    case UnsteadyFieldView::HistoryLevel::Current:
+        return q;
+
+    case UnsteadyFieldView::HistoryLevel::Previous:
+        return q1;
+
+    case UnsteadyFieldView::HistoryLevel::Old:
+        return q2;
+    }
+
+    return q;
+}
+
 void UUnsteady::SetSourceFunction( USDFunc function )
 {
     srcFun = function;

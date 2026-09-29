@@ -58,15 +58,39 @@ void UINsUnstPrepareSrcData( UUnsteady * unsteady )
     MRField * q2 =
         field->GetFlow( UnsteadyFieldView::HistoryLevel::Old );
 
+    RealField & primitive =
+        unsteady->GetPrimitive(
+            UnsteadyFieldView::HistoryLevel::Current );
+
+    RealField & primitive1 =
+        unsteady->GetPrimitive(
+            UnsteadyFieldView::HistoryLevel::Previous );
+
+    RealField & primitive2 =
+        unsteady->GetPrimitive(
+            UnsteadyFieldView::HistoryLevel::Old );
+
+    RealField & conservative =
+        unsteady->GetConservative(
+            UnsteadyFieldView::HistoryLevel::Current );
+
+    RealField & conservative1 =
+        unsteady->GetConservative(
+            UnsteadyFieldView::HistoryLevel::Previous );
+
+    RealField & conservative2 =
+        unsteady->GetConservative(
+            UnsteadyFieldView::HistoryLevel::Old );
+
     for ( int iEqu = 0; iEqu < unsteady->GetEquationCount(); ++ iEqu )
     {
-        unsteady->prim[ iEqu ] =
+        primitive[ iEqu ] =
             ( * q )[ iEqu ][ ug.cId ];
 
-        unsteady->prim1[ iEqu ] =
+        primitive1[ iEqu ] =
             ( * q1 )[ iEqu ][ ug.cId ];
 
-        unsteady->prim2[ iEqu ] =
+        primitive2[ iEqu ] =
             ( * q2 )[ iEqu ][ ug.cId ];
     }
     nscom.gama = ( * uinsf.gama  )[ 0 ][ ug.cId ];
@@ -74,9 +98,9 @@ void UINsUnstPrepareSrcData( UUnsteady * unsteady )
     gcom.cvol1 = ( * ug.cvol1 )[ ug.cId ];
     gcom.cvol2 = ( * ug.cvol2 )[ ug.cId ];
 
-    //INsPrimToQ( unsteady->prim , nscom.gama, unsteady->q  );
-    //INsPrimToQ( unsteady->prim1, nscom.gama, unsteady->q1 );
-    //INsPrimToQ( unsteady->prim2, nscom.gama, unsteady->q2 );
+    //INsPrimToQ( primitive , nscom.gama, conservative  );
+    //INsPrimToQ( primitive1, nscom.gama, conservative1 );
+    //INsPrimToQ( primitive2, nscom.gama, conservative2 );
 }
 
 void UINsUnstPrepareCriData( UUnsteady * unsteady )
@@ -93,21 +117,21 @@ void UINsUnstPrepareCriData( UUnsteady * unsteady )
 
     for ( int iEqu = 0; iEqu < unsteady->GetEquationCount(); ++ iEqu )
     {
-        unsteady->prim [ iEqu ] =
+        primitive [ iEqu ] =
             ( * q )[ iEqu ][ ug.cId ];
 
-        unsteady->prim1[ iEqu ] =
+        primitive1[ iEqu ] =
             ( * q1 )[ iEqu ][ ug.cId ];
 
-        unsteady->prim2[ iEqu ] =
+        primitive2[ iEqu ] =
             ( * q2 )[ iEqu ][ ug.cId ];
     }
 
     nscom.gama = ( * uinsf.gama  )[ 0 ][ ug.cId ];
 
-    //INsPrimToQ( unsteady->prim , nscom.gama, unsteady->q  );
-    //INsPrimToQ( unsteady->prim1, nscom.gama, unsteady->q1 );
-    //INsPrimToQ( unsteady->prim2, nscom.gama, unsteady->q2 );
+    //INsPrimToQ( primitive , nscom.gama, conservative  );
+    //INsPrimToQ( primitive1, nscom.gama, conservative1 );
+    //INsPrimToQ( primitive2, nscom.gama, conservative2 );
 }
 
 EndNameSpace

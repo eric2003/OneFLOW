@@ -43,13 +43,11 @@ public:
     void CalcUnsteadyCriterion() override;
 
 public:
-    // Temporary primitive-state buffers belong to the unsteady algorithm,
-    // not to the solver-specific unsteady data object.
-    RealField prim, prim1, prim2;
+    RealField & GetPrimitive(
+        UnsteadyFieldView::HistoryLevel level );
 
-    // Temporary conservative-state buffers belong to the unsteady algorithm,
-    // not to the generic unsteady data interface.
-    RealField q, q1, q2;
+    RealField & GetConservative(
+        UnsteadyFieldView::HistoryLevel level );
 
 protected:
     using USDFunc = void( * )( UUnsteady * unst );
@@ -62,6 +60,8 @@ private:
     int nEqu;
     UnsteadyConvergence convergence;
     RealField res, res1, res2;
+    RealField prim, prim1, prim2;
+    RealField q, q1, q2;
     RealField dualtimeRes;
     RealField dualtimeSrc;
 };
