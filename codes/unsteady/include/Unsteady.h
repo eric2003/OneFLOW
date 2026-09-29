@@ -26,16 +26,29 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+class UnsGrid;
+class UnsteadyFieldNames;
+
 class Unsteady
 {
 public:
     Unsteady() = default;
     virtual ~Unsteady() = default;
+
+    void BindFields(
+        UnsGrid * grid,
+        const UnsteadyFieldNames & fieldNames );
+
+    MRField * GetFlow( UnsteadyFieldView::HistoryLevel level );
+    MRField * GetResidual( UnsteadyFieldView::HistoryLevel level );
+
 public:
-    UnsteadyFieldView field;
 public:
     virtual void CalcUnsteadyCriterion() {};
     void UpdateUnsteady();
+
+private:
+    UnsteadyFieldView field;
 };
 
 EndNameSpace

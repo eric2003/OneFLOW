@@ -24,6 +24,23 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+void Unsteady::BindFields(
+    UnsGrid * grid,
+    const UnsteadyFieldNames & fieldNames )
+{
+    this->field.BindFields( grid, fieldNames );
+}
+
+MRField * Unsteady::GetFlow( UnsteadyFieldView::HistoryLevel level )
+{
+    return this->field.GetFlow( level );
+}
+
+MRField * Unsteady::GetResidual( UnsteadyFieldView::HistoryLevel level )
+{
+    return this->field.GetResidual( level );
+}
+
 void Unsteady::UpdateUnsteady()
 {
     // Reuse the persistent field view instead of rebuilding a second view.

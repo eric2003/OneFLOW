@@ -97,7 +97,7 @@ void UUnsteady::SetEquationCount( int equationCount )
 void UUnsteady::UpdateDualTimeStepResidual()
 {
     MRField * res =
-        field.GetResidual( UnsteadyFieldView::HistoryLevel::Current );
+        GetResidual( UnsteadyFieldView::HistoryLevel::Current );
 
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {

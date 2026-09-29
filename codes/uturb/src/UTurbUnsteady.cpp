@@ -45,16 +45,14 @@ UTurbUnsteady::UTurbUnsteady()
 }
 void UTurbUnstPrepareSrcData( UUnsteady * unsteady )
 {
-    UnsteadyFieldView * field = &unsteady->field;
-
     MRField * q =
-        field->GetFlow( UnsteadyFieldView::HistoryLevel::Current );
+        unsteady->GetFlow( UnsteadyFieldView::HistoryLevel::Current );
 
     MRField * q1 =
-        field->GetFlow( UnsteadyFieldView::HistoryLevel::Previous );
+        unsteady->GetFlow( UnsteadyFieldView::HistoryLevel::Previous );
 
     MRField * q2 =
-        field->GetFlow( UnsteadyFieldView::HistoryLevel::Old );
+        unsteady->GetFlow( UnsteadyFieldView::HistoryLevel::Old );
 
     RealField & primitive =
         unsteady->GetPrimitive(
@@ -113,16 +111,14 @@ void UTurbUnstPrepareSrcData( UUnsteady * unsteady )
 
 void UTurbUnstPrepareCriData( UUnsteady * unsteady )
 {
-    UnsteadyFieldView * field = &unsteady->field;
-
     MRField * q =
-        field->GetFlow( UnsteadyFieldView::HistoryLevel::Current );
+        unsteady->GetFlow( UnsteadyFieldView::HistoryLevel::Current );
 
     MRField * q1 =
-        field->GetFlow( UnsteadyFieldView::HistoryLevel::Previous );
+        unsteady->GetFlow( UnsteadyFieldView::HistoryLevel::Previous );
 
     MRField * q2 =
-        field->GetFlow( UnsteadyFieldView::HistoryLevel::Old );
+        unsteady->GetFlow( UnsteadyFieldView::HistoryLevel::Old );
 
     RealField & primitive =
         unsteady->GetPrimitive(
