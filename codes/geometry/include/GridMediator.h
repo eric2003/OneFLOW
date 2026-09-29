@@ -108,48 +108,5 @@ private:
     std::vector< std::unique_ptr< GridMediator > > mediators_;
 };
 
-// Process-wide "current" GridMediator for legacy call paths that cannot
-// take an explicit pointer. Prefer ScopedCurrentGridMediator in new code.
-class GlobalGrid
-{
-public:
-    GlobalGrid() = default;
-    ~GlobalGrid() = default;
-
-    // Non-owning. Caller must ensure lifetime exceeds all GetGrid uses.
-    static void SetCurrentGridMediator( GridMediator * gridMediatorIn );
-
-    [[nodiscard]] static GridMediator * GetCurrentGridMediator() noexcept;
-
-    // Throws std::logic_error if no mediator is installed.
-    [[nodiscard]] static Grid * GetGrid( int zoneId );
-
-private:
-    // Non-owning process-wide state; ownership stays with the caller.
-    static GridMediator * currentGridMediator_;
-};
-
-// RAII: installs a current GridMediator for the enclosing scope and
-// restores the previous one on destruction (including stack unwind).
-class ScopedCurrentGridMediator
-{
-public:
-    explicit ScopedCurrentGridMediator( GridMediator * next )
-        : previous_( GlobalGrid::GetCurrentGridMediator() )
-    {
-        GlobalGrid::SetCurrentGridMediator( next );
-    }
-
-    ~ScopedCurrentGridMediator()
-    {
-        GlobalGrid::SetCurrentGridMediator( previous_ );
-    }
-
-    ScopedCurrentGridMediator( const ScopedCurrentGridMediator & ) = delete;
-    ScopedCurrentGridMediator & operator=( const ScopedCurrentGridMediator & ) = delete;
-
-private:
-    GridMediator * previous_;
-};
 
 EndNameSpace
