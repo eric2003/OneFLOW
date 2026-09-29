@@ -11,8 +11,8 @@ License
     (at your option) any later version.
 
     OneFLOW is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
     for more details.
 
     You should have received a copy of the GNU General Public License
@@ -178,14 +178,17 @@ void CgnsFactory::CommonToStrGrid()
 
 void CgnsFactory::DumpUnsCgnsGrid()
 {
+    const GridConfig config = GridConfig::FromDataBase();
+    const std::string & targetGridFile = config.targetFile;
+
     std::string targetFile;
     if ( caseDir_.empty() )
     {
-        targetFile = Prj::GetPrjFileName( grid_para.targetFile );
+        targetFile = Prj::GetPrjFileName( targetGridFile );
     }
     else
     {
-        targetFile = Prj::GetCaseFileName( caseDir_, grid_para.targetFile );
+        targetFile = Prj::GetCaseFileName( caseDir_, targetGridFile );
     }
 
     cgnsZbase->OpenCgnsFile( targetFile, CG_MODE_WRITE );
