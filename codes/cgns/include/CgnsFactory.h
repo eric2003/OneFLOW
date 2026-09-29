@@ -81,15 +81,15 @@ public:
 public:
     void CreateCgnsZone( ZgridMediator * zgridMediator );
     void PrepareCgnsZone( ZgridMediator * zgridMediator );
-    CgnsZone * CreateSu2CgnsZone( Su2Grid* su2Grid );
-    void Su2ToOneFlowGrid( Su2Grid* su2Grid );
+    CgnsZone * CreateSu2CgnsZone( Su2Grid & su2Grid );
+    void Su2ToOneFlowGrid( Su2Grid & su2Grid );
 public:
     void CgnsToOneFlowGrid();
     void ConvertStrCgns2UnsCgnsGrid();
 };
 
 void AddOneFlowGrid( Grids & grids, Grid * grid );
-void GenerateLocalOneFlowGridFromSu2Grid( Su2Grid* su2Grid, Grids & grids );
+void GenerateLocalOneFlowGridFromSu2Grid( Su2Grid & su2Grid, Grids & grids );
 
 #endif
 
