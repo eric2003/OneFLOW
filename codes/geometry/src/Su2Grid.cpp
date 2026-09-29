@@ -108,13 +108,13 @@ void SecMarkerManager::Alloc( int nType )
     data.resize( nType );
 }
 
-int SecMarkerManager::CalcTotalElem()
+int SecMarkerManager::CalcTotalElem() const
 {
-    int nType = data.size();
+    const int nType = data.size();
     int nElem = 0;
     for ( int i = 0; i < nType; ++ i )
     {
-        SecMarker * sec = & this->data[ i ];
+        const SecMarker * sec = & this->data[ i ];
         nElem += sec->nElem;
     }
     return nElem;
