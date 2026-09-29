@@ -26,8 +26,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-class Unsteady;
-using USDFunc = void( * )( Unsteady * unst ); 
 class Unsteady
 {
 public:
@@ -35,8 +33,6 @@ public:
     virtual ~Unsteady() = default;
 public:
     UnsteadyFieldView field;
-    USDFunc srcFun;
-    USDFunc criFun;
 public:
     virtual void CalcUnsteadyCriterion() {};
     void BindFields(
