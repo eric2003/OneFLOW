@@ -32,9 +32,6 @@ BeginNameSpace( ONEFLOW )
 // Dispatch is table-driven (see GridFactory.cpp); no magic switch on int.
 class GridFactory
 {
-private:
-    std::string caseDir_;
-
 public:
     GridFactory() = default;
     ~GridFactory() = default;
@@ -52,14 +49,14 @@ public:
 public:
     // Pipeline steps (also used as registry targets).
     void DataBaseGrid();
-    void ConvertGrid( const GridConfig & config );
+    void ConvertGrid( const GridConfig & config, const std::string & caseDir );
     void GeneInp();
     void PartGrid();
 
     // Format-specific convert helpers.
-    void Plot3DProcess( const GridConfig & config );
-    void SU2Process();
-    void CGNSProcess();
+    void Plot3DProcess( const GridConfig & config, const std::string & caseDir );
+    void SU2Process( const std::string & caseDir );
+    void CGNSProcess( const std::string & caseDir );
 };
 
 // Public entry used by the rest of the code base.
