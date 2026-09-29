@@ -287,7 +287,17 @@ std::string Prj::GetCaseFileName(
     const std::string & caseDir,
     const std::string & fileName )
 {
-    return caseDir + RemoveFirstSlash( fileName );
+    std::filesystem::path path( fileName );
+
+    // An absolute input path is already fully qualified and must not be
+    // prefixed with the current case directory.
+    if ( path.is_absolute() )
+    {
+        return path.lexically_normal().string();
+    }
+
+    std::filesystem::path baseDir( caseDir );
+    return ( baseDir / path ).lexically_normal().string();
 }
 
 EndNameSpace
