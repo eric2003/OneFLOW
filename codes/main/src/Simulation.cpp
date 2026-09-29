@@ -144,9 +144,14 @@ void Simulation::RunImpl()
         auto processSimu = std::make_unique<SimuImp>( args );
         processSimu->Context().SetupProcessEnvironment();
 
+        // Keep track of the case that is currently executing so an exception
+        // can tear down that case instead of an earlier completed case.
+        SimuImp* currentCase = processSimu.get();
+
         try
         {
             processSimu->RunCase();
+            currentCase = nullptr;
 
             for ( std::size_t i = 3; i < args.size(); ++i )
             {
@@ -155,15 +160,20 @@ void Simulation::RunImpl()
                     args[ 0 ], args[ 1 ], args[ i ]
                 };
                 SimuImp caseSimu( caseArgs );
+                currentCase = &caseSimu;
                 caseSimu.RunCase();
+                currentCase = nullptr;
             }
         }
         catch ( ... )
         {
             // Normal execution tears down a case in PostProcess().
-            // On an exception, release the current case before finalizing
-            // the process-level runtime.
-            processSimu->Context().TeardownCase();
+            // On an exception, release the actual current case before
+            // finalizing the process-level runtime.
+            if ( currentCase != nullptr )
+            {
+                currentCase->Context().TeardownCase();
+            }
             processSimu->FinalizeEnvironment();
             throw;
         }
