@@ -33,7 +33,7 @@ public:
     GridCreate();
     ~GridCreate();
 public:
-    void Run( int igene );
+    void Run();
     void GenePlate();
 };
 
