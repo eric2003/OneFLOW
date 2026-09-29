@@ -33,9 +33,6 @@ class UnsGrid;
 class UnsteadyFieldView
 {
 public:
-    using MRFieldPtr = HXVector< MRField * >;
-
-public:
     UnsteadyFieldView();
     ~UnsteadyFieldView();
 
@@ -51,6 +48,8 @@ public:
     std::size_t GetResidualCount() const;
 
 private:
+    using MRFieldPtr = HXVector< MRField * >;
+
     // Non-owning view of time-level fields.
     // Actual field storage is managed by FieldManager.
     MRFieldPtr flow;
