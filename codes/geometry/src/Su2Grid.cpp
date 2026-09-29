@@ -401,7 +401,7 @@ void Su2Grid::ReadSu2GridAscii( const std::string & fileName, const std::string 
                     textFileParser.ReadNextNonEmptyLine();
                     std::string tag = textFileParser.ReadNextWord();
                     std::string name = textFileParser.ReadNextWord();
-                    Marker * marker = mmark.markerList[ im ];
+                    Marker * marker = & mmark.markerList[ im ];
                     marker->name = name;
                     marker->bcName = su2Bc.GetBcName( name );
                     marker->cgns_bcType = su2Bc.GetCgnsBcType(name);
