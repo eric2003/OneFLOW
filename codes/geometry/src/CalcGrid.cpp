@@ -24,6 +24,7 @@ License
 #include "UnsGrid.h"
 #include "Grid.h"
 #include "NodeMesh.h"
+#include "GridTypes.h"
 #include "LogFile.h"
 #include "HXMath.h"
 #include "IFaceLink.h"
