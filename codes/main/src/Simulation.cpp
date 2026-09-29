@@ -22,6 +22,7 @@ License
 #include "Simulation.h"
 #include "Prj.h"
 #include "SimuImp.h"
+#include "SimuContext.h"
 #include "SimpleSimu.h"
 #include "MpiTest.h"
 #include "JsonTest.h"
@@ -148,9 +149,11 @@ void Simulation::RunImpl()
         // Initialize process-level path state once before creating any case.
         Prj::Init();
 
-        // Process runtime is initialized once and shared by all cases.
-        auto processSimu = std::make_unique<SimuImp>( args );
-        processSimu->Context().SetupProcessEnvironment();
+        // Process runtime has its own context. Cases are separate SimuImp
+        // instances and therefore cannot accidentally own process state.
+        SimuContext processContext( args );
+        processContext.ProcessCommandLine();
+        processContext.SetupProcessEnvironment();
 
         try
         {
