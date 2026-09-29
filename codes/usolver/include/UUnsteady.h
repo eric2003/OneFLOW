@@ -29,7 +29,6 @@ class UUnsteady : public Unsteady
 {
 public:
     UUnsteady();
-    virtual ~UUnsteady() = default;
 public:
     void SetEquationCount( int equationCount );
     void UpdateDualTimeStepResidual();
