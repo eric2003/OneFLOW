@@ -156,3 +156,28 @@ TEST_F(DataFieldTest, MultipleFieldsCoexist)
     EXPECT_NE( p1, p2 );
 }
 
+
+// ----------------------------------------------------------------------------
+// 7. Clear releases all registered field entries
+// ----------------------------------------------------------------------------
+TEST_F(DataFieldTest, ClearRemovesAllFields)
+{
+    CreateFieldPointer(
+        db_,
+        new DataPointer<DummyField>( new DummyField{ 1, 1.0 } ),
+        "clear_field_a" );
+    CreateFieldPointer(
+        db_,
+        new DataPointer<DummyField>( new DummyField{ 2, 2.0 } ),
+        "clear_field_b" );
+
+    ASSERT_NE( GetFieldPointer<DummyField>( db_, "clear_field_a" ), nullptr );
+    ASSERT_NE( GetFieldPointer<DummyField>( db_, "clear_field_b" ), nullptr );
+
+    db_->dataField->Clear();
+
+    EXPECT_EQ( GetFieldPointer<DummyField>( db_, "clear_field_a" ), nullptr );
+    EXPECT_EQ( GetFieldPointer<DummyField>( db_, "clear_field_b" ), nullptr );
+    EXPECT_TRUE( db_->dataField->GetDataMap()->empty() );
+}
+
