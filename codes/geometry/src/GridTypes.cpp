@@ -55,8 +55,9 @@ GridConfig GridConfig::FromDataBase()
     cfg.targetType = ParseGridFileType( GetDataValue< std::string >( "targetGridType" ) );
     cfg.topo       = GetDataValue< std::string >( "topoType" );
 
-    cfg.multiBlock = GetDataValue< int >( "multiBlock" );
-    cfg.axisDir    = GetDataValue< int >( "axis_dir" );
+    cfg.multiBlock    = GetDataValue< int >( "multiBlock" );
+    cfg.axisDir       = GetDataValue< int >( "axis_dir" );
+    cfg.partitionType = GetDataValue< int >( "partition_type" );
     cfg.scale      = GetDataValue< Real >( "gridScale" );
 
     // Preserve historical integer encoding for gridObj.
