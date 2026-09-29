@@ -43,6 +43,12 @@ SimuImp::~SimuImp()
 
 void SimuImp::Run()
 {
+    ctx_->SetupProcessEnvironment();
+    RunCase();
+}
+
+void SimuImp::RunCase()
+{
     this->PreProcess();
     this->MainProcess();
     this->PostProcess();
@@ -70,7 +76,7 @@ void SimuImp::FinalizeEnvironment()
 
 void SimuImp::InitSimu()
 {
-    ctx_->SetupEnvironment();
+    ctx_->SetupCaseEnvironment();
 }
 
 void SimuImp::RunSimu()

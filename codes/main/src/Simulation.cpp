@@ -140,9 +140,35 @@ void Simulation::RunImpl()
     else // nPara >= 3
     {
         std::cout << "\n===== ONEFLOW Full Simulation Mode =====\n";
-        auto simu = std::make_unique<SimuImp>( args );
-        simu->Run();
-        simu->FinalizeEnvironment();
+        // Process runtime is initialized once and shared by all cases.
+        auto processSimu = std::make_unique<SimuImp>( args );
+        processSimu->Context().SetupProcessEnvironment();
+
+        try
+        {
+            processSimu->RunCase();
+
+            for ( std::size_t i = 3; i < args.size(); ++i )
+            {
+                std::vector<std::string> caseArgs =
+                {
+                    args[ 0 ], args[ 1 ], args[ i ]
+                };
+                SimuImp caseSimu( caseArgs );
+                caseSimu.RunCase();
+            }
+        }
+        catch ( ... )
+        {
+            // Normal execution tears down a case in PostProcess().
+            // On an exception, release the current case before finalizing
+            // the process-level runtime.
+            processSimu->Context().TeardownCase();
+            processSimu->FinalizeEnvironment();
+            throw;
+        }
+
+        processSimu->FinalizeEnvironment();
     }
 }
 

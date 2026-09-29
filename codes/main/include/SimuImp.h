@@ -39,6 +39,9 @@ public:
 
     void Run() override;
 
+    // Execute one case while keeping process-level runtime alive.
+    void RunCase();
+
     // Exposed for tests that inject a pre-built context path later.
     SimuContext& Context() { return *ctx_; }
     const SimuContext& Context() const { return *ctx_; }
