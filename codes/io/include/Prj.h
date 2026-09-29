@@ -60,6 +60,7 @@ public:
 public:
     static void Init();
     static void SetPrjBaseDir( const std::string & prjName );
+    static void ClearPrjBaseDir();
     static std::string ResolveCaseDir( const std::string & caseDir );
     static CmdLineOptions ParseCmdLineArgs( const std::vector<std::string> & args );
     static void ProcessCmdLineArgs( std::vector<std::string> &args );
