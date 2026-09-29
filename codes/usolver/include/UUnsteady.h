@@ -25,8 +25,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-using USDFunc = void( * )( Unsteady * unst );
-
 class UUnsteady : public Unsteady
 {
 public:
@@ -58,6 +56,7 @@ public:
     UnsteadyConvergence convergence;
 
 protected:
+    using USDFunc = void( * )( Unsteady * unst );
     USDFunc srcFun;
     USDFunc criFun;
 
