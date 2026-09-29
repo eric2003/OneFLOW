@@ -50,7 +50,6 @@ public:
     MRField * GetResidual( HistoryLevel level );
 
 public:
-public:
     virtual void CalcUnsteadyCriterion() {};
     void UpdateUnsteady();
 
