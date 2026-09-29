@@ -514,12 +514,6 @@ void Su2Grid::Su2ToOneFlowGrid()
     std::string gridFile = ONEFLOW::GetDataValue< std::string >( "sourceGridFileName" );
     std::string su2cfgFile = ONEFLOW::GetDataValue< std::string >( "sourceGridBcName" );
 
-    if ( ! caseDir_.empty() )
-    {
-        gridFile = Prj::GetCaseFileName( caseDir_, gridFile );
-        su2cfgFile = Prj::GetCaseFileName( caseDir_, su2cfgFile );
-    }
-
     this->MarkBoundary(su2cfgFile);
     this->ReadSu2GridAscii( gridFile );
 
