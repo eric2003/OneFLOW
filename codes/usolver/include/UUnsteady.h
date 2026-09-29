@@ -50,7 +50,6 @@ public:
     // Temporary conservative-state buffers belong to the unsteady algorithm,
     // not to the generic unsteady data interface.
     RealField q, q1, q2;
-    UnsteadyConvergence convergence;
 
 protected:
     using USDFunc = void( * )( UUnsteady * unst );
@@ -59,6 +58,7 @@ protected:
 
 private:
     int nEqu;
+    UnsteadyConvergence convergence;
     RealField res, res1, res2;
     RealField dualtimeRes;
     RealField dualtimeSrc;
