@@ -23,7 +23,6 @@ License
 #include "UnsteadyFieldView.h"
 #include "FieldWrap.h"
 #include "DataBase.h"
-#include "Zone.h"
 #include "UnsGrid.h"
 #include "Fatal.h"
 
@@ -39,11 +38,12 @@ UnsteadyFieldView::~UnsteadyFieldView()
 }
 
 void UnsteadyFieldView::BindFields(
+    UnsGrid * grid,
     const UnsteadyFieldNames & fieldNames )
 {
     // Build unsteady access view from registered field names.
     // This class does not allocate field storage.
-    UnsGrid * grid = Zone::GetUnsGrid();
+
 
     this->flow.resize(
         fieldNames.flow.size() );

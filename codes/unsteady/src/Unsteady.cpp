@@ -51,7 +51,10 @@ void Unsteady::BindFields()
             "FieldManager is not registered for solverType" );
     }
 
+    UnsGrid * grid = Zone::GetUnsGrid();
+
     this->field.BindFields(
+        grid,
         fieldManager->GetUnsteadyFieldNames() );
 }
 

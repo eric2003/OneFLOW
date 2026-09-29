@@ -28,6 +28,8 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+class UnsGrid;
+
 class UnsteadyFieldView
 {
 public:
@@ -45,7 +47,9 @@ public:
     ~UnsteadyFieldView();
 
 public:
-    void BindFields( const UnsteadyFieldNames & fieldNames );
+    void BindFields(
+        UnsGrid * grid,
+        const UnsteadyFieldNames & fieldNames );
 
     MRField * GetFlow( std::size_t level );
     MRField * GetResidual( std::size_t level );

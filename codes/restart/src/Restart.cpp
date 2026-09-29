@@ -59,7 +59,10 @@ namespace
                 "FieldManager is not registered for solverType" );
         }
 
+        UnsGrid * grid = Zone::GetUnsGrid();
+
         fieldView.BindFields(
+            grid,
             fieldManager->GetUnsteadyFieldNames() );
     }
 }
