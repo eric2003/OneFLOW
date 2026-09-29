@@ -469,13 +469,10 @@ void Su2Grid::MarkBoundary( std::string & su2cfgFile, const std::string & caseDi
     textFileParser.CloseFile();
 }
 
-void Su2Grid::Su2ToOneFlowGrid( const std::string & caseDir )
+void Su2Grid::Su2ToOneFlowGrid( const GridConfig & config, const std::string & caseDir )
 {
-    std::string gridFile = ONEFLOW::GetDataValue< std::string >( "sourceGridFileName" );
-    std::string su2cfgFile = ONEFLOW::GetDataValue< std::string >( "sourceGridBcName" );
-
-    this->MarkBoundary( su2cfgFile, caseDir );
-    this->ReadSu2GridAscii( gridFile, caseDir );
+    this->MarkBoundary( config.bcFile, caseDir );
+    this->ReadSu2GridAscii( config.sourceFile, caseDir );
 
     ONEFLOW::Su2ToOneFlowGrid( *this );
 }
