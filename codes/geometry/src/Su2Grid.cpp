@@ -20,7 +20,8 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "Su2Grid.h"\n#include "GridTypes.h"
+#include "Su2Grid.h"
+#include "GridTypes.h"
 #include "HXStd.h"
 #include "ElementHome.h"
 #include "CgnsFactory.h"
