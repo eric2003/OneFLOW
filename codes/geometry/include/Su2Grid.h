@@ -161,7 +161,7 @@ public:
     void ReadSu2Grid( GridMediator * gridMediator );
     void ReadSu2GridAscii( const std::string & fileName, const std::string & caseDir );
     void Su2ToOneFlowGrid( const std::string & caseDir );
-    void MarkBoundary(std::string& su2cfgFile);
+    void MarkBoundary( std::string & su2cfgFile, const std::string & caseDir );
     void FillSU2CgnsZone( CgnsZone * cgnsZone );
 public:
     int ndim;
