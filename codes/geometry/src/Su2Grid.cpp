@@ -534,7 +534,7 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone & cgnsZone )
         int pos = 0;
         for ( int iElem = 0; iElem < nElem; ++ iElem )
         {
-            IntField & elem = sec->elems[ iElem ];
+            const IntField & elem = sec->elems[ iElem ];
             int nNodes = elem.size();
             for ( int i = 0; i < nNodes; ++ i )
             {
