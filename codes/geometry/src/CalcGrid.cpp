@@ -218,9 +218,9 @@ void CalcGrid::GenerateLink()
 
 void CalcGrid::ModifyBcType()
 {
-    int ignoreNoBc = ONEFLOW::GetIgnoreNoBc();
+    const GridConfig config = GridConfig::FromDataBase();
 
-    if ( ignoreNoBc ) return;
+    if ( config.ignoreNoBoundary ) return;
 
     //change NO_BOUNDARY to INTERFACE
     int nZone = static_cast<int>(grids.size());
