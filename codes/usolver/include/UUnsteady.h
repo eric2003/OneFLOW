@@ -31,6 +31,7 @@ public:
     UUnsteady();
 public:
     void SetEquationCount( int equationCount );
+    int GetEquationCount() const;
     void UpdateDualTimeStepResidual();
     void UpdateDualTimeStepSource();
     void StoreOldResidual();
@@ -42,9 +43,6 @@ public:
     void CalcUnsteadyCriterion() override;
 
 public:
-    // Equation count belongs to the unsteady algorithm state.
-    int nEqu;
-
     // Temporary primitive-state buffers belong to the unsteady algorithm,
     // not to the solver-specific unsteady data object.
     RealField prim, prim1, prim2;
@@ -60,6 +58,7 @@ protected:
     USDFunc criFun;
 
 private:
+    int nEqu;
     RealField res, res1, res2;
     RealField dualtimeRes;
     RealField dualtimeSrc;

@@ -57,7 +57,7 @@ void UTurbUnstPrepareSrcData( UUnsteady * unst )
     MRField * q2 =
         field->GetFlow( UnsteadyFieldView::HistoryLevel::Old );
 
-    for ( int iEqu = 0; iEqu < unsteady->nEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < unsteady->GetEquationCount(); ++ iEqu )
     {
         unsteady->prim[ iEqu ] =
             ( * q )[ iEqu ][ ug.cId ];
@@ -75,12 +75,12 @@ void UTurbUnstPrepareSrcData( UUnsteady * unst )
 
     Real coef = 1.0;
 
-    if ( unsteady->nEqu >= 2 )
+    if ( unsteady->GetEquationCount() >= 2 )
     {
         coef  = ( * uturbf.q_ns )[ IDX::IR ][ ug.cId ];
     }
 
-    for ( int iEqu = 0; iEqu < unsteady->nEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < unsteady->GetEquationCount(); ++ iEqu )
     {
         unsteady->q [ iEqu ] = coef * unsteady->prim [ iEqu ];
         unsteady->q1[ iEqu ] = coef * unsteady->prim1[ iEqu ];
@@ -102,7 +102,7 @@ void UTurbUnstPrepareCriData( UUnsteady * unst )
     MRField * q2 =
         field->GetFlow( UnsteadyFieldView::HistoryLevel::Old );
 
-    for ( int iEqu = 0; iEqu < unsteady->nEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < unsteady->GetEquationCount(); ++ iEqu )
     {
         unsteady->prim [ iEqu ] =
             ( * q )[ iEqu ][ ug.cId ];
@@ -120,12 +120,12 @@ void UTurbUnstPrepareCriData( UUnsteady * unst )
 
     Real coef = 1.0;
 
-    if ( unsteady->nEqu >= 2 )
+    if ( unsteady->GetEquationCount() >= 2 )
     {
         coef  = ( * uturbf.q_ns )[ IDX::IR ][ ug.cId ];
     }
 
-    for ( int iEqu = 0; iEqu < unsteady->nEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < unsteady->GetEquationCount(); ++ iEqu )
     {
         unsteady->q [ iEqu ] = coef * unsteady->prim [ iEqu ];
         unsteady->q1[ iEqu ] = coef * unsteady->prim1[ iEqu ];

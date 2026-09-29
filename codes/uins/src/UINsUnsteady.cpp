@@ -59,7 +59,7 @@ void UINsUnstPrepareSrcData( UUnsteady * unst )
     MRField * q2 =
         field->GetFlow( UnsteadyFieldView::HistoryLevel::Old );
 
-    for ( int iEqu = 0; iEqu < unsteady->nEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < unsteady->GetEquationCount(); ++ iEqu )
     {
         unsteady->prim[ iEqu ] =
             ( * q )[ iEqu ][ ug.cId ];
@@ -93,7 +93,7 @@ void UINsUnstPrepareCriData( UUnsteady * unst )
     MRField * q2 =
         field->GetFlow( UnsteadyFieldView::HistoryLevel::Old );
 
-    for ( int iEqu = 0; iEqu < unsteady->nEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < unsteady->GetEquationCount(); ++ iEqu )
     {
         unsteady->prim [ iEqu ] =
             ( * q )[ iEqu ][ ug.cId ];

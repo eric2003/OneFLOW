@@ -36,6 +36,11 @@ UUnsteady::UUnsteady()
 }
 
 
+int UUnsteady::GetEquationCount() const
+{
+    return nEqu;
+}
+
 void UUnsteady::SetEquationCount( int equationCount )
 {
     nEqu = equationCount;
