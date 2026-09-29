@@ -311,6 +311,15 @@ std::string Prj::GetCaseFileName(
     }
 
     std::filesystem::path baseDir( caseDir );
+
+    if ( baseDir.is_relative() )
+    {
+        // A relative external case is relative to the currently active case,
+        // not to the process working directory.
+        baseDir =
+            std::filesystem::path( Prj::prjBaseDir ) / baseDir;
+    }
+
     return ( baseDir / path ).lexically_normal().string();
 }
 
