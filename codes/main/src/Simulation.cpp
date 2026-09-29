@@ -159,12 +159,10 @@ void Simulation::RunImpl()
         {
             // Every case now follows the same Case lifecycle. The dedicated
             // process context only owns process-level initialization.
-            for ( const std::string& caseDir : options.caseDirs )
+            for ( const std::vector<std::string>& parsedCaseArgs :
+                options.caseArguments )
             {
-                std::vector<std::string> caseArgs =
-                {
-                    args[ 0 ], args[ 1 ], caseDir
-                };
+                std::vector<std::string> caseArgs = parsedCaseArgs;
                 SimuImp caseSimu( caseArgs );
                 caseSimu.RunCase();
             }
