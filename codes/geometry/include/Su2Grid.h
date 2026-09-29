@@ -100,7 +100,7 @@ public:
     HXVector< SecMarker > data;
 public:
     void Alloc( int nType );
-    int CalcTotalElem();
+    int CalcTotalElem() const;
 };
 
 class MarkerManager
