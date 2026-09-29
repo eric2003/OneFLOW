@@ -58,7 +58,17 @@ GridConfig GridConfig::FromDataBase()
     cfg.multiBlock    = GetDataValue< int >( "multiBlock" );
     cfg.axisDir       = GetDataValue< int >( "axis_dir" );
     cfg.partitionType = GetDataValue< int >( "partition_type" );
-    cfg.scale      = GetDataValue< Real >( "gridScale" );
+
+    try
+    {
+        cfg.ignoreNoBoundary = GetDataValue< int >( "ignoreNoBc" ) != 0;
+    }
+    catch ( const std::exception & )
+    {
+        // Keep the default when legacy boundary control is not configured.
+    }
+
+    cfg.scale = GetDataValue< Real >( "gridScale" );
 
     // Preserve historical integer encoding for gridObj.
     const int rawObj = GetDataValue< int >( "gridObj" );
