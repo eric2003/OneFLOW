@@ -20,13 +20,10 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Unsteady.h"
-#include "UnsteadyFieldView.h"
 #include "Fatal.h"
 #include "FieldManager.h"
 #include "FieldWrap.h"
-#include "DataBase.h"
 #include "Zone.h"
-#include "Grid.h"
 
 BeginNameSpace( ONEFLOW )
 
