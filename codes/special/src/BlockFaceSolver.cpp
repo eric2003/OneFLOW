@@ -401,8 +401,10 @@ void BlkFaceSolver::DumpBcInp2D()
     int flowSolverIndex = 1;
     int width = 5;
 
+    const GridConfig config = GridConfig::FromDataBase();
+
     std::fstream file;
-    Prj::OpenPrjFile( file, grid_para.bcFile, std::ios_base::out );
+    Prj::OpenPrjFile( file, config.bcFile, std::ios_base::out );
 
     file << std::setw( width ) << flowSolverIndex << std::endl;
     file << std::setw( width ) << nBlock << std::endl;
