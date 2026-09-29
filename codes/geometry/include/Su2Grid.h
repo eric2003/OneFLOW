@@ -106,10 +106,10 @@ class MarkerManager
 {
 public:
     MarkerManager();
-    ~MarkerManager();
+    ~MarkerManager() = default;
 public:
     int nMarker;
-    HXVector< Marker * > markerList;
+    HXVector< Marker > markerList;
 
     IntField types;
     LinkField l2g;
