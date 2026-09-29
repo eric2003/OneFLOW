@@ -40,7 +40,6 @@ if ( CGNS_ENABLE )
         set ( CGNS_LIBRARIES $ENV{CGNS_HOME_LIB} CACHE PATH "path to CGNS library" )
     endif()
     message ( STATUS "The CGNS_INCLUDE_DIRS is ${CGNS_INCLUDE_DIRS}" )
-    # [FIX] 修复了原文件中错误打印 INCLUDE_DIRS 的笔误
     message ( STATUS "The CGNS_LIBRARIES is ${CGNS_LIBRARIES}" ) 
 endif()
 
@@ -72,8 +71,7 @@ set ( INCLUDE_DIRS
 
 set ( SRC_DIRS
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridFactory.cpp
-    ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridPara.cpp
-	${CMAKE_SOURCE_DIR}/codes/geometry/src/GridTypes.cpp
+    ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridTypes.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridMediator.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/DomainInp.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/Su2Grid.cpp
@@ -198,7 +196,6 @@ set ( SRC_DIRS
 # ==============================================================================
 add_library(OneFLOW_GeometryCore STATIC ${SRC_DIRS})
 
-# 使用 PUBLIC 让测试目标自动继承 Include 目录、C++20 标准、编译宏和链接库
 target_include_directories(OneFLOW_GeometryCore PUBLIC ${INCLUDE_DIRS})
 target_compile_features(OneFLOW_GeometryCore PUBLIC cxx_std_20)
 
@@ -216,19 +213,12 @@ if ( WIN32 )
     target_compile_definitions(OneFLOW_GeometryCore PUBLIC USE_DLL)
 endif()
 
-# ==============================================================================
-# 4. 封装 GTest 目标创建函数，消除冗余代码
-# ==============================================================================
 function(add_oneflow_gtest TEST_NAME TEST_SRC)
     add_executable(${TEST_NAME} ${TEST_SRC})
-    # 只需链接核心库和 GTest，核心库的 PUBLIC 属性会自动传递所有配置
     target_link_libraries(${TEST_NAME} PRIVATE OneFLOW_GeometryCore GTest::gtest_main)
     gtest_discover_tests(${TEST_NAME} DISCOVERY_MODE PRE_TEST)
 endfunction()
 
-# ==============================================================================
-# 5. 注册测试目标
-# ==============================================================================
 add_oneflow_gtest(GridFactoryTest GridFactoryTest.cpp)
 add_oneflow_gtest(SubTaskLifecycleTest SubTaskLifecycleTest.cpp)
 add_oneflow_gtest(CgnsFactoryLifecycleTest CgnsFactoryLifecycleTest.cpp)
