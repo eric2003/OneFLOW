@@ -104,6 +104,9 @@ struct GridConfig
 
     // Implemented in GridTypes.cpp (needs DataBase).
     static GridConfig FromDataBase();
+
+    // Return the optional external source case for the current grid configuration.
+    static std::string GetSourceCaseDir();
 };
 
 // ---------------------------------------------------------------------------

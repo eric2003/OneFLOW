@@ -37,7 +37,7 @@ License
 #include "ActionState.h"
 #include "HXMath.h"
 #include "DataBook.h"
-#include "DataBase.h"
+#include "GridTypes.h"
 #include "Task.h"
 #include <iostream>
 #include <string>
@@ -181,18 +181,7 @@ void Zone::NormalizeLayout()
 
 void Zone::ReadGrid( StringField & fileNameList )
 {
-    std::string sourceCaseDir;
-
-    // The source case is optional because many solve cases only provide a grid
-    // file name. Missing this optional setting must keep the current-case path.
-    try
-    {
-        sourceCaseDir = GetDataValue< std::string >( "sourceGridCaseDir" );
-    }
-    catch ( const std::exception & )
-    {
-    }
-
+    const std::string sourceCaseDir = GridConfig::GetSourceCaseDir();
     Zone::ReadGrid( fileNameList, sourceCaseDir );
 }
 

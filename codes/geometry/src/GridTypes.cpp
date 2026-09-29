@@ -26,6 +26,18 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+std::string GridConfig::GetSourceCaseDir()
+{
+    try
+    {
+        return GetDataValue< std::string >( "sourceGridCaseDir" );
+    }
+    catch ( const std::exception & )
+    {
+        return std::string();
+    }
+}
+
 GridConfig GridConfig::FromDataBase()
 {
     GridConfig cfg;
@@ -34,15 +46,7 @@ GridConfig GridConfig::FromDataBase()
 
     // Keep the default empty so existing cases continue to read their own grid.
     // The explicit source case is consumed later by the runtime grid reader.
-    cfg.sourceCaseDir.clear();
-    try
-    {
-        cfg.sourceCaseDir = GetDataValue< std::string >( "sourceGridCaseDir" );
-    }
-    catch ( const std::exception & )
-    {
-        // The new setting is optional for backward compatibility.
-    }
+    cfg.sourceCaseDir = GridConfig::GetSourceCaseDir();
 
     cfg.bcFile     = GetDataValue< std::string >( "sourceGridBcName" );
     cfg.targetFile = GetDataValue< std::string >( "targetGridFileName" );
