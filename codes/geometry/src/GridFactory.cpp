@@ -38,23 +38,35 @@ namespace
     // Free-function pipelines keep the registry simple (essence of the
     // suggested map + std::function design) while avoiding type-erasure
     // and heap cost: a plain function pointer table is enough.
-    void PipelineGenerateClassic( GridFactory & self, const GridConfig & config )
+    void PipelineGenerateClassic(
+        GridFactory & self,
+        const GridConfig & config,
+        const std::string & caseDir )
     {
         self.DataBaseGrid();
-        self.ConvertGrid( config );
+        self.ConvertGrid( config, caseDir );
     }
 
-    void PipelineConvertOnly( GridFactory & self, const GridConfig & config )
+    void PipelineConvertOnly(
+        GridFactory & self,
+        const GridConfig & config,
+        const std::string & caseDir )
     {
-        self.ConvertGrid( config );
+        self.ConvertGrid( config, caseDir );
     }
 
-    void PipelineGenerateInp( GridFactory & self, const GridConfig & /*config*/ )
+    void PipelineGenerateInp(
+        GridFactory & self,
+        const GridConfig & /*config*/,
+        const std::string & /*caseDir*/ )
     {
         self.GeneInp();
     }
 
-    void PipelinePartition( GridFactory & self, const GridConfig & /*config*/ )
+    void PipelinePartition(
+        GridFactory & self,
+        const GridConfig & /*config*/,
+        const std::string & /*caseDir*/ )
     {
         self.PartGrid();
     }
@@ -62,7 +74,10 @@ namespace
     struct PipelineEntry
     {
         GridObjective objective;
-        void ( * run )( GridFactory &, const GridConfig & );
+        void ( * run )(
+            GridFactory &,
+            const GridConfig &,
+            const std::string & );
     };
 
     // Fixed-size, data-driven table. Easy to extend; no switch on magic int.
@@ -73,13 +88,16 @@ namespace
         { GridObjective::Partition,      &PipelinePartition        },
     };
 
-    void DispatchPipeline( GridFactory & self, const GridConfig & config )
+    void DispatchPipeline(
+        GridFactory & self,
+        const GridConfig & config,
+        const std::string & caseDir )
     {
         for ( const auto & entry : kPipelines )
         {
             if ( entry.objective == config.objective )
             {
-                entry.run( self, config );
+                entry.run( self, config, caseDir );
                 return;
             }
         }
@@ -113,19 +131,14 @@ void GridFactory::Run()
 
 void GridFactory::Run( const GridConfig & config )
 {
-    // A config-only run must not inherit the case directory from a previous run.
-    caseDir_.clear();
-    DispatchPipeline( *this, config );
+    DispatchPipeline( *this, config, "" );
 }
 
 void GridFactory::Run(
     const GridConfig & config,
     const std::string & caseDir )
 {
-    // Bind the case only for this grid operation; no global project state
-    // is changed here.
-    caseDir_ = caseDir;
-    DispatchPipeline( *this, config );
+    DispatchPipeline( *this, config, caseDir );
 }
 
 void GridFactory::GeneInp()
@@ -146,18 +159,20 @@ void GridFactory::DataBaseGrid()
     classicGrid.Run();
 }
 
-void GridFactory::ConvertGrid( const GridConfig & config )
+void GridFactory::ConvertGrid(
+    const GridConfig & config,
+    const std::string & caseDir )
 {
     switch ( config.sourceType )
     {
         case GridFileType::Plot3D:
-            this->Plot3DProcess( config );
+            this->Plot3DProcess( config, caseDir );
             break;
         case GridFileType::SU2:
-            this->SU2Process();
+            this->SU2Process( caseDir );
             break;
         case GridFileType::CGNS:
-            this->CGNSProcess();
+            this->CGNSProcess( caseDir );
             break;
         default:
             throw std::invalid_argument(
@@ -167,21 +182,23 @@ void GridFactory::ConvertGrid( const GridConfig & config )
 }
 
 
-void GridFactory::Plot3DProcess( const GridConfig & config )
+void GridFactory::Plot3DProcess(
+    const GridConfig & config,
+    const std::string & caseDir )
 {
     if ( config.targetType == GridFileType::OneFLOW )
     {
         CgnsFactory cgnsFactory;
-        cgnsFactory.SetCaseDir( caseDir_ );
+        cgnsFactory.SetCaseDir( caseDir );
         cgnsFactory.CommonToOneFlowGrid();
     }
     else if ( config.targetType == GridFileType::CGNS )
     {
         CgnsFactory cgnsFactory;
-        cgnsFactory.SetCaseDir( caseDir_ );
+        cgnsFactory.SetCaseDir( caseDir );
         ZgridMediator zgridMediator;
         // Owned GridMediator instances are cleaned up automatically.
-        Plot3D::Plot3DToCgns( &zgridMediator, caseDir_ );
+        Plot3D::Plot3DToCgns( &zgridMediator, caseDir );
         cgnsFactory.DumpCgnsGrid( zgridMediator );
     }
     else
@@ -192,17 +209,17 @@ void GridFactory::Plot3DProcess( const GridConfig & config )
     }
 }
 
-void GridFactory::SU2Process()
+void GridFactory::SU2Process( const std::string & caseDir )
 {
     Su2Grid su2Grid;
-    su2Grid.SetCaseDir( caseDir_ );
+    su2Grid.SetCaseDir( caseDir );
     su2Grid.Su2ToOneFlowGrid();
 }
 
-void GridFactory::CGNSProcess()
+void GridFactory::CGNSProcess( const std::string & caseDir )
 {
     CgnsFactory cgnsFactory;
-    cgnsFactory.SetCaseDir( caseDir_ );
+    cgnsFactory.SetCaseDir( caseDir );
     cgnsFactory.GenerateGrid();
 }
 
