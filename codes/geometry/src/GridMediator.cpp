@@ -136,6 +136,11 @@ void ZgridMediator::ReadGrid()
     gridMediator->gridFile = config.sourceFile;
     gridMediator->bcFile   = config.bcFile;
     gridMediator->gridType = std::string( ToString( config.sourceType ) );
+
+    // sourceCaseDir identifies where the input grid and its boundary file live.
+    // An empty value keeps the historical current-project behavior.
+    gridMediator->caseDir = config.sourceCaseDir;
+
     gridMediator->ReadGrid();
     this->add( std::move( gridMediator ) );
 }
