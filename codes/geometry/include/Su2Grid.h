@@ -65,27 +65,27 @@ extern VTK_CgnsMap vtk_CgnsMap;
 class Marker
 {
 public:
-    Marker(){};
-    ~Marker(){};
+    Marker() = default;
+    ~Marker() = default;
 public:
     std::string name;
     std::string bcName;
-    int cgns_bcType;
+    int cgns_bcType{ 0 };
     LinkField elems;
     IntField eTypes;
-    int nElem;
+    int nElem{ 0 };
 };
 
 class SecMarker
 {
 public:
-    SecMarker();
-    ~SecMarker();
+    SecMarker() = default;
+    ~SecMarker() = default;
 public:
-    int vtk_type;
-    int cgns_type;
+    int vtk_type{ 0 };
+    int cgns_type{ 0 };
     std::string name;
-    int nElem;
+    int nElem{ 0 };
     LinkField elems;
 };
 
