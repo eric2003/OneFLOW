@@ -135,22 +135,10 @@ MarkerManager::MarkerManager()
     ;
 }
 
-MarkerManager::~MarkerManager()
-{
-    int nMarker = markerList.size();
-    for ( int i = 0; i < nMarker; ++ i )
-    {
-        delete markerList[ i ];
-    }
-}
-
 void MarkerManager::CreateMarkerList( int nMarker )
 {
+    markerList.clear();
     markerList.resize( nMarker );
-    for ( int i = 0; i < nMarker; ++ i )
-    {
-        markerList[ i ] = new Marker();
-    }
 }
 
 void MarkerManager::CalcSecMarker( SecMarkerManager * secMarkerManager )
@@ -159,7 +147,7 @@ void MarkerManager::CalcSecMarker( SecMarkerManager * secMarkerManager )
     IntSet typeSet;
     for ( int iMarker = 0; iMarker < nMarker; ++ iMarker )
     {
-        Marker * marker = this->markerList[ iMarker ];
+        Marker * marker = & this->markerList[ iMarker ];
         for ( int iElem = 0; iElem < marker->nElem; ++ iElem )
         {
             int type = marker->eTypes[ iElem ];
@@ -172,7 +160,7 @@ void MarkerManager::CalcSecMarker( SecMarkerManager * secMarkerManager )
     l2g.resize( nMarker );
     for ( int iMarker = 0; iMarker < nMarker; ++ iMarker )
     {
-        Marker * marker = this->markerList[ iMarker ];
+        Marker * marker = & this->markerList[ iMarker ];
         l2g[ iMarker ].resize( marker->nElem );
     }
 
@@ -190,7 +178,7 @@ void MarkerManager::CalcSecMarker( SecMarkerManager * secMarkerManager )
         secMarker->name = ElementTypeName[ secMarker->cgns_type ];
         for ( int iMarker = 0; iMarker < nMarker; ++ iMarker )
         {
-            Marker * marker = this->markerList[ iMarker ];
+            Marker * marker = & this->markerList[ iMarker ];
             for ( int iElem = 0; iElem < marker->nElem; ++ iElem )
             {
                 int type = marker->eTypes[ iElem ];
@@ -581,7 +569,7 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone * cgnsZone )
 
     for ( int iMarker = 0; iMarker < this->mmark.nMarker; ++ iMarker )
     {
-        Marker * marker = this->mmark.markerList[ iMarker ];
+        Marker * marker = & this->mmark.markerList[ iMarker ];
         std::string & name = marker->name;
         std::string& bcName = marker->bcName;
 
