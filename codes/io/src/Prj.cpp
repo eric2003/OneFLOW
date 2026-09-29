@@ -249,8 +249,8 @@ std::string Prj::GetSystemFileName( const std::string & fileName )
 {
     std::filesystem::path path( fileName );
 
-    // Absolute and rooted paths are already anchored to a filesystem root.
-    if ( path.is_absolute() || path.has_root_directory() )
+    // Only a complete filesystem absolute path bypasses the system directory.
+    if ( path.is_absolute() )
     {
         return path.lexically_normal().string();
     }
