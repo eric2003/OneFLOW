@@ -169,7 +169,7 @@ void GridFactory::ConvertGrid(
             this->Plot3DProcess( config, caseDir );
             break;
         case GridFileType::SU2:
-            this->SU2Process( caseDir );
+            this->SU2Process( config, caseDir );
             break;
         case GridFileType::CGNS:
             this->CGNSProcess( caseDir );
