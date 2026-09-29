@@ -112,8 +112,7 @@ void GenerateGrid( const std::string & caseDir )
 
 void GridFactory::Run()
 {
-    // Load the typed configuration directly; GridPara remains only as a
-    // compatibility facade for legacy call sites that still need it.
+    // Load the typed configuration directly from the database.
     Run( GridConfig::FromDataBase() );
 }
 
