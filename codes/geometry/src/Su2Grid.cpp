@@ -156,13 +156,13 @@ void MarkerManager::CalcSecMarker( SecMarkerManager * secMarkerManager )
 
     int nType = types.size();
 
-    secMarkerManager.Alloc( nType );
+    secMarkerManager->Alloc( nType );
 
     int gid = 0;
     for ( int iType = 0; iType < nType; ++ iType )
     {
         int eType = types[ iType ];
-        SecMarker * secMarker = & secMarkerManager.data[ iType ];
+        SecMarker * secMarker = & secMarkerManager->data[ iType ];
         secMarker->vtk_type = eType;
         secMarker->cgns_type = vtk_CgnsMap.vtk2Cgns[ eType ];
         secMarker->name = ElementTypeName[ secMarker->cgns_type ];
