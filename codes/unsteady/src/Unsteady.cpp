@@ -41,8 +41,9 @@ Unsteady::~Unsteady()
 
 void Unsteady::UpdateUnsteady( int solverType )
 {
-    UnsteadyFieldView fieldView;
-    fieldView.InitBasic( solverType );
+    // The concrete unsteady object initializes this view in its constructor.
+    // Reuse the persistent view instead of rebuilding a second field view.
+    UnsteadyFieldView & fieldView = this->field;
 
     // Shift from the oldest configured level toward the current level.
     // Reverse order prevents overwriting a history level before it is copied.
