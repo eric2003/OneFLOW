@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "ClassicGrid.h"
+#include "GridTypes.h"
 #include "GridCreate.h"
 #include "DataBase.h"
 #include "DataBaseIO.h"
