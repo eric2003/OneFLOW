@@ -51,6 +51,7 @@ void ReadScriptFileNameList( const std::string & caseDir, std::vector< std::stri
 void ReadMultiScriptFiles( std::vector< std::string > & scriptFileNameList );
 void BroadcastControlParameterToAllProcessors();
 void DumpDataBase();
+void DumpDataBase( const std::string & caseDir );
 
 void CompressData( DataBase * dataBase, DataBook *& dataBook );
 void DecompressData( DataBase * dataBase, DataBook * dataBook );

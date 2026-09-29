@@ -242,7 +242,7 @@ void ReadControlInfo( const std::string & caseDir )
 
     Parallel::TestSayHelloFromEveryProcess();
     ONEFLOW::BroadcastControlParameterToAllProcessors();
-    ONEFLOW::DumpDataBase();
+    ONEFLOW::DumpDataBase( caseDir );
 }
 
 void DumpDataBase()
@@ -251,6 +251,16 @@ void DumpDataBase()
     std::fstream file;
     std::string fileName = "/log/database.log";
     PIO::OpenPrjFile( file, fileName, std::ios_base::out );
+    dataBase->dataPara->DumpData( file );
+    PIO::CloseFile( file );
+}
+
+void DumpDataBase( const std::string & caseDir )
+{
+    DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
+    std::fstream file;
+    const std::string fileName = caseDir + "log/database.log";
+    PIO::OpenFile( file, fileName, std::ios_base::out );
     dataBase->dataPara->DumpData( file );
     PIO::CloseFile( file );
 }
