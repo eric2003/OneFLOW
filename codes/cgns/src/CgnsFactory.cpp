@@ -162,11 +162,13 @@ void CgnsFactory::DumpCgnsGrid( ZgridMediator & zgridMediator )
 
 void CgnsFactory::CommonToOneFlowGrid()
 {
-    if ( ONEFLOW::IsUnsGrid( grid_para.topo ) )
+    const GridConfig config = GridConfig::FromDataBase();
+
+    if ( ONEFLOW::IsUnsGrid( config.topo ) )
     {
         this->CommonToUnsGridTEST();
     }
-    else if ( ONEFLOW::IsStrGrid( grid_para.topo ) )
+    else if ( ONEFLOW::IsStrGrid( config.topo ) )
     {
         this->CommonToStrGrid();
     }
