@@ -137,7 +137,7 @@ void MarkerManager::CalcSecMarker( SecMarkerManager & secMarkerManager )
     IntSet typeSet;
     for ( int iMarker = 0; iMarker < nMarker; ++ iMarker )
     {
-        Marker * marker = & this->markerList[ iMarker ];
+        const Marker * marker = & this->markerList[ iMarker ];
         for ( int iElem = 0; iElem < marker->nElem; ++ iElem )
         {
             int type = marker->eTypes[ iElem ];
@@ -168,7 +168,7 @@ void MarkerManager::CalcSecMarker( SecMarkerManager & secMarkerManager )
         secMarker->name = ElementTypeName[ secMarker->cgns_type ];
         for ( int iMarker = 0; iMarker < nMarker; ++ iMarker )
         {
-            Marker * marker = & this->markerList[ iMarker ];
+            const Marker * marker = & this->markerList[ iMarker ];
             for ( int iElem = 0; iElem < marker->nElem; ++ iElem )
             {
                 int type = marker->eTypes[ iElem ];
@@ -284,7 +284,7 @@ std::string Su2Bc::GetBcName( const std::string & geoName ) const
 
 int Su2Bc::GetCgnsBcType( const std::string & geoName ) const
 {
-    std::string bcName = this->GetBcName(geoName);
+    const std::string bcName = this->GetBcName(geoName);
     return bcNameToValueMap.find(bcName)->second;
 }
 
@@ -514,7 +514,7 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone & cgnsZone )
     for ( int iSection = 0; iSection < nSection; ++ iSection )
     {
         CgnsSection * cgnsSection = cgnsZsection->GetCgnsSection( iSection );
-        SecMarker * sec = nullptr;
+        const SecMarker * sec = nullptr;
         if ( iSection < nVolSec )
         {
             sec = & volSec.data[ iSection ];
