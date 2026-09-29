@@ -482,10 +482,10 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone & cgnsZone )
     int nNodes = this->xN.size();
     int nCells = this->nElem;
 
-    cgnsZone->cgnsCoor->SetNNode( nNodes );
-    cgnsZone->cgnsCoor->SetNCell( nCells );
+    cgnsZone.cgnsCoor->SetNNode( nNodes );
+    cgnsZone.cgnsCoor->SetNCell( nCells );
 
-    NodeMesh * nodeMesh = cgnsZone->cgnsCoor->GetNodeMesh();
+    NodeMesh * nodeMesh = cgnsZone.cgnsCoor->GetNodeMesh();
 
     nodeMesh->CreateNodes( nNodes );
     nodeMesh->xN = this->xN;
@@ -503,7 +503,7 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone & cgnsZone )
 
     int nSection = nVolSec + nBcSec;
 
-    CgnsZsection * cgnsZsection = cgnsZone->cgnsZsection;
+    CgnsZsection * cgnsZsection = cgnsZone.cgnsZsection;
 
     cgnsZsection->nSection = nSection;
     cgnsZsection->CreateCgnsSection();
@@ -550,7 +550,7 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone & cgnsZone )
         cgnsSection->SetElemPosition();
     }
 
-    CgnsZbc * cgnsZbc = cgnsZone->cgnsZbc;
+    CgnsZbc * cgnsZbc = cgnsZone.cgnsZbc;
     cgnsZbc->cgnsZbcBoco->ReadZnboco( this->mmark.nMarker );
     cgnsZbc->cgnsZbcBoco->CreateCgnsZbc();
 
@@ -577,9 +577,9 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone & cgnsZone )
         //string bcName = GetCgnsBcName( cgnsBcBoco->bcType );
     }
 
-    cgnsZone->cgnsZoneType = Unstructured;
+    cgnsZone.cgnsZoneType = Unstructured;
 
-    cgnsZone->ConvertToInnerDataStandard();
+    cgnsZone.ConvertToInnerDataStandard();
 
 }
 
