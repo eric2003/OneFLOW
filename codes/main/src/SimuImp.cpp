@@ -50,7 +50,19 @@ void SimuImp::Run()
 void SimuImp::RunCase()
 {
     this->PreProcess();
-    this->MainProcess();
+
+    try
+    {
+        this->MainProcess();
+    }
+    catch ( ... )
+    {
+        // A case owns its runtime state. Always release it before
+        // propagating the failure to the process-level runner.
+        this->PostProcess();
+        throw;
+    }
+
     this->PostProcess();
 }
 
