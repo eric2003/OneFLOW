@@ -79,7 +79,8 @@ public:
     void add( std::unique_ptr< GridMediator > mediator );
     void add( GridMediator * mediator ); // takes ownership of a raw new'd pointer
 
-    [[nodiscard]] GridMediator * at( int index ) const;
+    [[nodiscard]] GridMediator * at( int index );
+    [[nodiscard]] const GridMediator * at( int index ) const;
     [[nodiscard]] int size() const noexcept;
     [[nodiscard]] bool empty() const noexcept;
     [[nodiscard]] std::string targetFile() const;
@@ -91,7 +92,12 @@ public:
         add( std::move( gridMediator ) );
     }
 
-    [[nodiscard]] GridMediator * GetGridMediator( int iGridMediator ) const
+    [[nodiscard]] GridMediator * GetGridMediator( int iGridMediator )
+    {
+        return at( iGridMediator );
+    }
+
+    [[nodiscard]] const GridMediator * GetGridMediator( int iGridMediator ) const
     {
         return at( iGridMediator );
     }
