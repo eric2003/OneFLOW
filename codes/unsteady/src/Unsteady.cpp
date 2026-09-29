@@ -11,13 +11,12 @@ License
     (at your option) any later version.
 
     OneFLOW is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-    for more details.
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+    License for more details.
 
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
-
 \*---------------------------------------------------------------------------*/
 
 #include "Unsteady.h"
@@ -39,7 +38,7 @@ Unsteady::~Unsteady()
 {
 }
 
-void Unsteady::UpdateUnsteady( int solverType )
+void Unsteady::UpdateUnsteady()
 {
     // The concrete unsteady object initializes this view in its constructor.
     // Reuse the persistent view instead of rebuilding a second field view.
