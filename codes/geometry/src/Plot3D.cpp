@@ -436,7 +436,7 @@ void Plot3D::ReadBc( GridMediator * gridMediator )
     std::string & bcName = gridMediator->bcFile;
     //\t is the tab key
     std::string separator = " =\r\n#$,;";
-
+    
     TextFileParser textFileParser;
     if ( gridMediator->caseDir.empty() )
     {
@@ -665,7 +665,7 @@ void Plot3D::DumpBc( GridMediator * gridMediator )
                 file << std::setiosflags( std::ios::right );
                 file << std::setw( width ) << imin;
                 file << std::setw( width ) << imax;
-                file << std::setw( width ) << jmin;
+                file << std::setw( width ) << jmax;
                 file << std::setw( width ) << jmax;
 
                 if ( ONEFLOW::IsThreeD() )
@@ -739,7 +739,6 @@ void Plot3D::Plot3DToCgns(
     // Ownership transfers into ZgridMediator (unique_ptr storage).
     zgridMediator->AddGridMediator( std::move( gridMediator ) );
 }
-
 
 
 bool GetPlot3D_NKFlag()
