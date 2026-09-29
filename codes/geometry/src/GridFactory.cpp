@@ -27,7 +27,6 @@ License
 #include "Su2Grid.h"
 #include "DataBase.h"
 #include "ClassicGrid.h"
-#include "StrGrid.h"
 #include "PointLocator.h"
 #include "BcRecord.h"
 #include "Plot3D.h"
@@ -74,8 +73,8 @@ namespace
     constexpr PipelineEntry kPipelines[] = {
         { GridObjective::GenerateClassic, &PipelineGenerateClassic },
         { GridObjective::ConvertOnly,     &PipelineConvertOnly     },
-        { GridObjective::GenerateInp,     &PipelineGenerateInp     },
-        { GridObjective::Partition,       &PipelinePartition       },
+        { GridObjective::GenerateInp,    &PipelineGenerateInp      },
+        { GridObjective::Partition,      &PipelinePartition        },
     };
 
     void DispatchPipeline( GridFactory & self, const GridConfig & config )
