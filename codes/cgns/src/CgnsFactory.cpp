@@ -153,10 +153,10 @@ void CgnsFactory::ReadCgnsGrid()
     this->cgnsZbase->ReadCgnsGrid( gridFileName );
 }
 
-void CgnsFactory::DumpCgnsGrid( ZgridMediator * zgridMediator )
+void CgnsFactory::DumpCgnsGrid( ZgridMediator & zgridMediator )
 {
     cgns_global.cgnsbases = cgnsZbase.get();
-    ONEFLOW::DumpCgnsGrid( cgnsZbase.get(), zgridMediator );
+    ONEFLOW::DumpCgnsGrid( cgnsZbase.get(), & zgridMediator );
 }
 
 
