@@ -71,7 +71,7 @@ void CalcGrid::BuildInterfaceLink()
 
     if ( config.objective == GridObjective::Partition )
     {
-        const int partitionType = GetDataValue< int >( "partition_type" );
+        const int partitionType = config.partitionType;
         if ( partitionType == 1 )
         {
             this->ReconstructLink();
