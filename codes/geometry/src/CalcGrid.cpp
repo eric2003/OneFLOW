@@ -44,15 +44,9 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-CalcGrid::CalcGrid()
-{
-    iFaceLink = 0;
-}
+CalcGrid::CalcGrid() = default;
 
-CalcGrid::~CalcGrid()
-{
-    delete iFaceLink;
-}
+CalcGrid::~CalcGrid() = default;
 
 void CalcGrid::Init( Grids & grids )
 {
@@ -208,7 +202,7 @@ void CalcGrid::ResetGridScaleAndTranslate()
 
 void CalcGrid::GenerateLink()
 {
-    this->iFaceLink = new IFaceLink( grids );
+    this->iFaceLink = std::make_unique< IFaceLink >( grids );
 
     this->ModifyBcType();
 
