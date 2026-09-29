@@ -51,17 +51,28 @@ void SimuContext::ProcessCommandLine()
     Prj::ProcessCmdLineArgs( args_ );
 }
 
-void SimuContext::SetupEnvironment()
+void SimuContext::SetupProcessEnvironment()
 {
     std::cout << " OneFLOW is running\n";
     ONEFLOW::SetUpParallelEnvironment();
-    ONEFLOW::ReadControlInfo();
 
     rank_ = Parallel::GetPid();
     size_ = Parallel::GetNProc();
 
     ONEFLOW::InitializeAccelRuntime( rank_, size_ );
+    processReady_ = true;
+}
+
+void SimuContext::SetupCaseEnvironment()
+{
+    ONEFLOW::ReadControlInfo();
     envReady_ = true;
+}
+
+void SimuContext::SetupEnvironment()
+{
+    SetupProcessEnvironment();
+    SetupCaseEnvironment();
 }
 
 void SimuContext::TeardownCase()
@@ -90,6 +101,7 @@ void SimuContext::FinalizeEnvironment()
 {
     ONEFLOW::FinalizeAccelRuntime();
     HXFinalize();
+    processReady_ = false;
 }
 
 void SimuContext::TeardownEnvironment()
