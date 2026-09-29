@@ -49,15 +49,9 @@ GridCreate::~GridCreate()
 {
 }
 
-void GridCreate::Run( int igene )
+void GridCreate::Run()
 {
-    if ( igene == 3 )
-    {
-    }
-    else if ( igene == 4 )
-    {
-        this->GenePlate();
-    }
+    this->GenePlate();
 }
 
 void GridCreate::GenePlate()
