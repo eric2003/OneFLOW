@@ -182,7 +182,7 @@ void Prj::OpenCaseFile(
     const std::string & fileName,
     const std::ios_base::openmode & openMode )
 {
-    std::string caseFileName = caseDir + RemoveFirstSlash( fileName );
+    std::string caseFileName = Prj::GetCaseFileName( caseDir, fileName );
 
     // Create parent directories only for write operations.
     if ( ( openMode & std::ios_base::out ) != 0 )
@@ -275,6 +275,13 @@ std::string Prj::GetPrjFileName( const std::string & fileName )
     std::string fileNameNew = RemoveFirstSlash( fileName );
 
     return Prj::prjBaseDir + fileNameNew;
+}
+
+std::string Prj::GetCaseFileName(
+    const std::string & caseDir,
+    const std::string & fileName )
+{
+    return caseDir + RemoveFirstSlash( fileName );
 }
 
 EndNameSpace
