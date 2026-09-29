@@ -67,12 +67,12 @@ void CalcGrid::Init( Grids & grids )
 
 void CalcGrid::BuildInterfaceLink()
 {
-    int gridObj = GetDataValue< int >( "gridObj" );
+    const GridConfig config = GridConfig::FromDataBase();
 
-    if ( gridObj == 3 )
+    if ( config.objective == GridObjective::Partition )
     {
-        int partition_type = GetDataValue< int >( "partition_type" );
-        if ( partition_type == 1 )
+        const int partitionType = GetDataValue< int >( "partition_type" );
+        if ( partitionType == 1 )
         {
             this->ReconstructLink();
         }
