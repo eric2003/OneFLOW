@@ -17,7 +17,6 @@ License
 
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
-
 \*---------------------------------------------------------------------------*/
 
 #include "UnsteadyTaskReg.h"
@@ -67,7 +66,7 @@ void UpdateUnsteadyFlow( StringField & data )
     int solverType = SolverState::solverType;
 
     Unsteady * unsteady = CreateUnsteady( solverType );
-    unsteady->UpdateUnsteady( solverType );
+    unsteady->UpdateUnsteady();
     delete unsteady;
 }
 

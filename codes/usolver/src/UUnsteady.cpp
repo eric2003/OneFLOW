@@ -20,8 +20,6 @@ License
 \\---------------------------------------------------------------------------*/
 
 #include "UUnsteady.h"
-#include "UsdField.h"
-#include "UnsteadyConvergence.h"
 #include "TimeIntegration.h"
 #include "Iteration.h"
 #include "UCom.h"
@@ -37,8 +35,55 @@ UUnsteady::UUnsteady()
 }
 
 
-UUnsteady::~UUnsteady()
+int UUnsteady::GetEquationCount() const
 {
+    return nEqu;
+}
+
+RealField & UUnsteady::GetPrimitive(
+    Unsteady::HistoryLevel level )
+{
+    switch ( level )
+    {
+    case Unsteady::HistoryLevel::Current:
+        return prim;
+
+    case Unsteady::HistoryLevel::Previous:
+        return prim1;
+
+    case Unsteady::HistoryLevel::Old:
+        return prim2;
+    }
+
+    return prim;
+}
+
+RealField & UUnsteady::GetConservative(
+    Unsteady::HistoryLevel level )
+{
+    switch ( level )
+    {
+    case Unsteady::HistoryLevel::Current:
+        return q;
+
+    case Unsteady::HistoryLevel::Previous:
+        return q1;
+
+    case Unsteady::HistoryLevel::Old:
+        return q2;
+    }
+
+    return q;
+}
+
+void UUnsteady::SetSourceFunction( USDFunc function )
+{
+    srcFun = function;
+}
+
+void UUnsteady::SetCriterionFunction( USDFunc function )
+{
+    criFun = function;
 }
 
 void UUnsteady::SetEquationCount( int equationCount )
@@ -52,7 +97,7 @@ void UUnsteady::SetEquationCount( int equationCount )
 void UUnsteady::UpdateDualTimeStepResidual()
 {
     MRField * res =
-        field->GetResidual( UsdField::HistoryLevel::Current );
+        GetResidual( Unsteady::HistoryLevel::Current );
 
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
@@ -65,7 +110,7 @@ void UUnsteady::UpdateDualTimeStepResidual()
 void UUnsteady::UpdateDualTimeStepSource()
 {
     MRField * res =
-        field->GetResidual( UsdField::HistoryLevel::Current );
+        GetResidual( Unsteady::HistoryLevel::Current );
 
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
@@ -81,13 +126,13 @@ void UUnsteady::StoreOldResidual()
     if ( Iteration::innerSteps != 1 ) return;
 
     MRField * current =
-        field->GetResidual( UsdField::HistoryLevel::Current );
+        GetResidual( Unsteady::HistoryLevel::Current );
 
     MRField * previous =
-        field->GetResidual( UsdField::HistoryLevel::Previous );
+        GetResidual( Unsteady::HistoryLevel::Previous );
 
     MRField * old =
-        field->GetResidual( UsdField::HistoryLevel::Old );
+        GetResidual( Unsteady::HistoryLevel::Old );
 
     for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
@@ -105,13 +150,13 @@ void UUnsteady::StoreOldResidual()
 void UUnsteady::PrepareResidual()
 {
     MRField * res =
-        field->GetResidual( UsdField::HistoryLevel::Current );
+        GetResidual( Unsteady::HistoryLevel::Current );
 
     MRField * res1 =
-        field->GetResidual( UsdField::HistoryLevel::Previous );
+        GetResidual( Unsteady::HistoryLevel::Previous );
 
     MRField * res2 =
-        field->GetResidual( UsdField::HistoryLevel::Old );
+        GetResidual( Unsteady::HistoryLevel::Old );
 
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {

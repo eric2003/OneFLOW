@@ -10,50 +10,46 @@ License
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-    for more details.
+    OneFLOW is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
+    Public License for more details.
 
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
-\*---------------------------------------------------------------------------*/
+\---------------------------------------------------------------------------*/
 
 
 #pragma once
 #include "HXDefine.h"
 #include "HXArray.h"
+#include "UnsteadyFieldNames.h"
 
 BeginNameSpace( ONEFLOW )
 
-class UsdField
+class UnsGrid;
+
+class UnsteadyFieldView
 {
 public:
-    using MRFieldPtr = HXVector< MRField * >;
-
-    enum class HistoryLevel
-    {
-        Current  = 0,
-        Previous = 1,
-        Old      = 2
-    };
+    UnsteadyFieldView();
+    ~UnsteadyFieldView();
 
 public:
-    UsdField();
-    ~UsdField();
-
-public:
-    virtual void Init();
-    void InitBasic( int solverType );
+    void BindFields(
+        UnsGrid * grid,
+        const UnsteadyFieldNames & fieldNames );
 
     MRField * GetFlow( std::size_t level );
     MRField * GetResidual( std::size_t level );
 
-    MRField * GetFlow( HistoryLevel level );
-    MRField * GetResidual( HistoryLevel level );
+    std::size_t GetFlowCount() const;
+    std::size_t GetResidualCount() const;
 
-public:
+private:
+    using MRFieldPtr = HXVector< MRField * >;
+
     // Non-owning view of time-level fields.
     // Actual field storage is managed by FieldManager.
     MRFieldPtr flow;
@@ -62,5 +58,6 @@ public:
     // Actual field storage is managed by FieldManager.
     MRFieldPtr residual;
 };
+
 
 EndNameSpace

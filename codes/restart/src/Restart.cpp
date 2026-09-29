@@ -36,11 +36,36 @@ License
 #include "Iteration.h"
 #include "FieldManager.h"
 #include "FieldWrap.h"
-#include "UsdField.h"
+#include "UnsteadyFieldView.h"
+#include "Fatal.h"
 #include "RegisterUtils.h"
 #include "INsRestart.h"
 
 BeginNameSpace( ONEFLOW )
+
+namespace
+{
+    void BindUnsteadyFields(
+        UnsteadyFieldView & fieldView,
+        int solverType )
+    {
+        FieldManager * fieldManager =
+            FieldManagerRegistry::GetFieldManager(
+                solverType );
+
+        if ( fieldManager == nullptr )
+        {
+            Fatal(
+                "FieldManager is not registered for solverType" );
+        }
+
+        UnsGrid * grid = Zone::GetUnsGrid();
+
+        fieldView.BindFields(
+            grid,
+            fieldManager->GetUnsteadyFieldNames() );
+    }
+}
 
 Restart * CreateRestart( int solverType )
 {
@@ -72,98 +97,98 @@ Restart::~Restart()
 
 void Restart::ReadUnsteady( int solverType )
 {
-    UsdField usdField;
-    usdField.InitBasic( solverType );
+    UnsteadyFieldView fieldView;
+    BindUnsteadyFields( fieldView, solverType );
 
     // The current level is reconstructed from the first stored history level.
     HXRead(
         ActionState::dataBook,
-        usdField.GetFlow( 1 ) );
+        fieldView.GetFlow( 1 ) );
 
     SetField(
-        usdField.GetFlow( 0 ),
-        usdField.GetFlow( 1 ) );
+        fieldView.GetFlow( 0 ),
+        fieldView.GetFlow( 1 ) );
 
     for ( std::size_t level = 2;
-        level < usdField.flow.size();
+        level < fieldView.GetFlowCount();
         ++ level )
     {
         HXRead(
             ActionState::dataBook,
-            usdField.GetFlow( level ) );
+            fieldView.GetFlow( level ) );
     }
 
     // Residual history follows the same restart layout as flow history.
     HXRead(
         ActionState::dataBook,
-        usdField.GetResidual( 1 ) );
+        fieldView.GetResidual( 1 ) );
 
     SetField(
-        usdField.GetResidual( 0 ),
-        usdField.GetResidual( 1 ) );
+        fieldView.GetResidual( 0 ),
+        fieldView.GetResidual( 1 ) );
 
     for ( std::size_t level = 2;
-        level < usdField.residual.size();
+        level < fieldView.GetResidualCount();
         ++ level )
     {
         HXRead(
             ActionState::dataBook,
-            usdField.GetResidual( level ) );
+            fieldView.GetResidual( level ) );
     }
 }
 
 void Restart::DumpUnsteady( int solverType )
 {
-    UsdField usdField;
-    usdField.InitBasic( solverType );
+    UnsteadyFieldView fieldView;
+    BindUnsteadyFields( fieldView, solverType );
 
     // Keep the current level out of the restart stream.
     // It is reconstructed from the first stored history level on read.
     for ( std::size_t level = 1;
-        level < usdField.flow.size();
+        level < fieldView.GetFlowCount();
         ++ level )
     {
         HXWrite(
             ActionState::dataBook,
-            usdField.GetFlow( level ) );
+            fieldView.GetFlow( level ) );
     }
 
     for ( std::size_t level = 1;
-        level < usdField.residual.size();
+        level < fieldView.GetResidualCount();
         ++ level )
     {
         HXWrite(
             ActionState::dataBook,
-            usdField.GetResidual( level ) );
+            fieldView.GetResidual( level ) );
     }
 }
 
 void Restart::InitUnsteady( int solverType )
 {
-    UsdField usdField;
-    usdField.InitBasic( solverType );
+    UnsteadyFieldView fieldView;
+    BindUnsteadyFields( fieldView, solverType );
 
     // Initialize every configured history level from the current field.
     for ( std::size_t level = 1;
-        level < usdField.flow.size();
+        level < fieldView.GetFlowCount();
         ++ level )
     {
         SetField(
-            usdField.GetFlow( level ),
-            usdField.GetFlow( 0 ) );
+            fieldView.GetFlow( level ),
+            fieldView.GetFlow( 0 ) );
     }
 
     SetField(
-        usdField.GetResidual( 0 ),
+        fieldView.GetResidual( 0 ),
         0.0 );
 
     for ( std::size_t level = 1;
-        level < usdField.residual.size();
+        level < fieldView.GetResidualCount();
         ++ level )
     {
         SetField(
-            usdField.GetResidual( level ),
-            usdField.GetResidual( 0 ) );
+            fieldView.GetResidual( level ),
+            fieldView.GetResidual( 0 ) );
     }
 }
 

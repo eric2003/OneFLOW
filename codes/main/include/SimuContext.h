@@ -76,8 +76,14 @@ public:
     // Process command line into project globals (existing Prj path).
     void ProcessCommandLine();
 
-    // Production bootstrap: parallel env + control file + accelerator.
-    // Still delegates to existing free functions / singletons.
+    // Initialize process-level runtime shared by all cases.
+    void SetupProcessEnvironment();
+
+    // Initialize resources belonging to the current case.
+    void SetupCaseEnvironment();
+
+    // Compatibility entry point for the existing single-case path.
+    // Equivalent to SetupProcessEnvironment() + SetupCaseEnvironment().
     void SetupEnvironment();
 
     // Release resources owned by one case while keeping process runtime alive.
@@ -119,6 +125,7 @@ private:
     TaskEnum task_ = TaskEnum::SOLVE_FIELD;
     std::string taskName_ = "Solve";
     bool envReady_ = false;
+    bool processReady_ = false;
     bool taskResolved_ = false;
     StringField expandedSolverNames_;
     EulerDomainStateRegistry accelStates_;

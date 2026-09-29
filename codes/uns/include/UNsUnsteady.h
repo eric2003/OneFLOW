@@ -23,27 +23,18 @@ License
 
 #pragma once
 #include "NsUnsteady.h"
-#include "UsdField.h"
+#include "UnsteadyFieldView.h"
 
 BeginNameSpace( ONEFLOW )
-
-class UNsUsdField : public UsdField
-{
-public:
-    UNsUsdField();
-    ~UNsUsdField();
-public:
-    void Init();
-};
 
 class UNsUnsteady : public UUnsteady
 {
 public:
     UNsUnsteady();
-    ~UNsUnsteady();
+    ~UNsUnsteady() = default;
 };
 
-void UNsUnstPrepareSrcData( Unsteady * unst );
-void UNsUnstPrepareCriData( Unsteady * unst );
+void UNsUnstPrepareSrcData( UUnsteady * unst );
+void UNsUnstPrepareCriData( UUnsteady * unst );
 
 EndNameSpace

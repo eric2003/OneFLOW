@@ -10,15 +10,14 @@ License
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    OneFLOW is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-    for more details.
+    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+    License for more details.
 
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
-
-\---------------------------------------------------------------------------*/
+\*---------------------------------------------------------------------------*/
 
 #pragma once
 #include "Unsteady.h"
@@ -30,9 +29,9 @@ class UUnsteady : public Unsteady
 {
 public:
     UUnsteady();
-    virtual ~UUnsteady();
 public:
     void SetEquationCount( int equationCount );
+    int GetEquationCount() const;
     void UpdateDualTimeStepResidual();
     void UpdateDualTimeStepSource();
     void StoreOldResidual();
@@ -44,20 +43,25 @@ public:
     void CalcUnsteadyCriterion() override;
 
 public:
-    // Equation count belongs to the unsteady algorithm state.
-    int nEqu;
+    RealField & GetPrimitive(
+        Unsteady::HistoryLevel level );
 
-    // Temporary primitive-state buffers belong to the unsteady algorithm,
-    // not to the solver-specific unsteady data object.
-    RealField prim, prim1, prim2;
+    RealField & GetConservative(
+        Unsteady::HistoryLevel level );
 
-    // Temporary conservative-state buffers belong to the unsteady algorithm,
-    // not to the generic unsteady data interface.
-    RealField q, q1, q2;
-    UnsteadyConvergence convergence;
+protected:
+    using USDFunc = void( * )( UUnsteady * unst );
+    void SetSourceFunction( USDFunc function );
+    void SetCriterionFunction( USDFunc function );
 
 private:
+    USDFunc srcFun;
+    USDFunc criFun;
+    int nEqu;
+    UnsteadyConvergence convergence;
     RealField res, res1, res2;
+    RealField prim, prim1, prim2;
+    RealField q, q1, q2;
     RealField dualtimeRes;
     RealField dualtimeSrc;
 };

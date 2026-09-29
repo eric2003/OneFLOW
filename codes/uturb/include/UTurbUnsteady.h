@@ -23,27 +23,18 @@ License
 
 #pragma once
 #include "TurbUnsteady.h"
-#include "UsdField.h"
+#include "UnsteadyFieldView.h"
 
 BeginNameSpace( ONEFLOW )
-
-class UTurbUsdField : public UsdField
-{
-public:
-    UTurbUsdField();
-    ~UTurbUsdField();
-public:
-    void Init();
-};
 
 class UTurbUnsteady : public UUnsteady
 {
 public:
     UTurbUnsteady();
-    ~UTurbUnsteady();
+    ~UTurbUnsteady() = default;
 };
 
-void UTurbUnstPrepareSrcData( Unsteady * unst );
-void UTurbUnstPrepareCriData( Unsteady * unst );
+void UTurbUnstPrepareSrcData( UUnsteady * unst );
+void UTurbUnstPrepareCriData( UUnsteady * unst );
 
 EndNameSpace
