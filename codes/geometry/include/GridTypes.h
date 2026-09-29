@@ -100,6 +100,7 @@ struct GridConfig
     int           multiBlock{ 0 };
     int           axisDir{ 0 };
     int           partitionType{ 0 };
+    bool          ignoreNoBoundary{ false };
     Real          scale{ 1.0 };
     std::array< Real, 3 > translate{};
 
