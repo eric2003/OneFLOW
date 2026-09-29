@@ -347,14 +347,14 @@ void Su2Grid::ReadSu2Grid( GridMediator * gridMediator )
 {
 }
 
-void Su2Grid::ReadSu2GridAscii( std::string & fileName )
+void Su2Grid::ReadSu2GridAscii( const std::string & fileName, const std::string & caseDir )
 {
     TextFileParser textFileParser;
     std::string separator  = " =\r\n\t#$,;";
-    if ( ! caseDir_.empty() )
+    if ( ! caseDir.empty() )
     {
         textFileParser.OpenCaseFile(
-            caseDir_, fileName, std::ios_base::in );
+            caseDir, fileName, std::ios_base::in );
     }
     else
     {
@@ -463,14 +463,14 @@ void Su2Grid::ReadSu2GridAscii( std::string & fileName )
     textFileParser.CloseFile();
 }
 
-void Su2Grid::MarkBoundary( std::string & su2cfgFile)
+void Su2Grid::MarkBoundary( std::string & su2cfgFile, const std::string & caseDir )
 {
     TextFileParser textFileParser;
     std::string separator = " =\r\n\t#$,;()";
-    if ( ! caseDir_.empty() )
+    if ( ! caseDir.empty() )
     {
         textFileParser.OpenCaseFile(
-            caseDir_, su2cfgFile, std::ios_base::in );
+            caseDir, su2cfgFile, std::ios_base::in );
     }
     else
     {
@@ -503,18 +503,13 @@ void Su2Grid::MarkBoundary( std::string & su2cfgFile)
     textFileParser.CloseFile();
 }
 
-void Su2Grid::SetCaseDir( const std::string & caseDir )
-{
-    caseDir_ = caseDir;
-}
-
-void Su2Grid::Su2ToOneFlowGrid()
+void Su2Grid::Su2ToOneFlowGrid( const std::string & caseDir )
 {
     std::string gridFile = ONEFLOW::GetDataValue< std::string >( "sourceGridFileName" );
     std::string su2cfgFile = ONEFLOW::GetDataValue< std::string >( "sourceGridBcName" );
 
-    this->MarkBoundary(su2cfgFile);
-    this->ReadSu2GridAscii( gridFile );
+    this->MarkBoundary( su2cfgFile, caseDir );
+    this->ReadSu2GridAscii( gridFile, caseDir );
 
     ONEFLOW::Su2ToOneFlowGrid( *this );
 }
