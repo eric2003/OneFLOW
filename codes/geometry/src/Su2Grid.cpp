@@ -430,7 +430,7 @@ void Su2Grid::ReadSu2GridAscii( const std::string & fileName, const std::string 
     textFileParser.CloseFile();
 }
 
-void Su2Grid::MarkBoundary( std::string & su2cfgFile, const std::string & caseDir )
+void Su2Grid::MarkBoundary( const std::string & su2cfgFile, const std::string & caseDir )
 {
     TextFileParser textFileParser;
     std::string separator = " =\r\n\t#$,;()";
