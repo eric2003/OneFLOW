@@ -31,6 +31,19 @@ GridConfig GridConfig::FromDataBase()
     GridConfig cfg;
 
     cfg.sourceFile = GetDataValue< std::string >( "sourceGridFileName" );
+
+    // Keep the default empty so existing cases continue to read their own grid.
+    // The explicit source case is consumed later by the runtime grid reader.
+    cfg.sourceCaseDir.clear();
+    try
+    {
+        cfg.sourceCaseDir = GetDataValue< std::string >( "sourceGridCaseDir" );
+    }
+    catch ( const std::exception & )
+    {
+        // The new setting is optional for backward compatibility.
+    }
+
     cfg.bcFile     = GetDataValue< std::string >( "sourceGridBcName" );
     cfg.targetFile = GetDataValue< std::string >( "targetGridFileName" );
 
