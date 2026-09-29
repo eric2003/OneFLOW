@@ -40,7 +40,6 @@ public:
     int solverType;
 public:
     virtual void CalcUnsteadyCriterion() {};
-    void BindFields();
     void UpdateUnsteady();
 };
 

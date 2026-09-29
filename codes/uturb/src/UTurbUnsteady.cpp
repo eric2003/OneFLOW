@@ -37,7 +37,7 @@ UTurbUnsteady::UTurbUnsteady()
 {
     this->solverType = TURB_SOLVER;
     this->SetEquationCount( turbcom.nEqu );
-    this->BindFields();
+    field.BindFields( TURB_SOLVER );
 
     this->srcFun = & UTurbUnstPrepareSrcData;
     this->criFun = & UTurbUnstPrepareCriData;

@@ -21,6 +21,7 @@ License
 
 #include "Unsteady.h"
 #include "UnsteadyFieldView.h"
+#include "Fatal.h"
 #include "FieldManager.h"
 #include "FieldWrap.h"
 #include "DataBase.h"
