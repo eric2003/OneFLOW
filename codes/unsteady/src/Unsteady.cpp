@@ -41,18 +41,18 @@ Unsteady::~Unsteady()
 
 void Unsteady::UpdateUnsteady( int solverType )
 {
-    UnsteadyFieldView usdField;
-    usdField.InitBasic( solverType );
+    UnsteadyFieldView fieldView;
+    fieldView.InitBasic( solverType );
 
     // Shift from the oldest configured level toward the current level.
     // Reverse order prevents overwriting a history level before it is copied.
-    for ( std::size_t level = usdField.flow.size();
+    for ( std::size_t level = fieldView.flow.size();
         level > 1;
         -- level )
     {
         SetField(
-            usdField.GetFlow( level - 1 ),
-            usdField.GetFlow( level - 2 ) );
+            fieldView.GetFlow( level - 1 ),
+            fieldView.GetFlow( level - 2 ) );
     }
 }
 
