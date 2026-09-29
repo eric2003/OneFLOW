@@ -57,7 +57,7 @@ void CalcGrid::Init( Grids & grids )
     if ( config.objective == GridObjective::Partition )
     {
         // Partitioning writes the partition-specific grid file.
-        this->gridFileName = GetDataValue< std::string >( "part_uns_file" );
+        this->gridFileName = config.partitionFile;
     }
     else
     {
