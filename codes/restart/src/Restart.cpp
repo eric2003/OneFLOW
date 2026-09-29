@@ -137,7 +137,7 @@ void Restart::ReadUnsteady( int solverType )
 void Restart::DumpUnsteady( int solverType )
 {
     UnsteadyFieldView fieldView;
-    fieldView.BindFields( solverType );
+    BindUnsteadyFields( fieldView, solverType );
 
     // Keep the current level out of the restart stream.
     // It is reconstructed from the first stored history level on read.
