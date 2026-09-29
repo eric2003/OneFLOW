@@ -163,7 +163,7 @@ void Restart::DumpUnsteady( int solverType )
 void Restart::InitUnsteady( int solverType )
 {
     UnsteadyFieldView fieldView;
-    fieldView.BindFields( solverType );
+    BindUnsteadyFields( fieldView, solverType );
 
     // Initialize every configured history level from the current field.
     for ( std::size_t level = 1;
