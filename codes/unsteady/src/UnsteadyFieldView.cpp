@@ -20,7 +20,7 @@ License
 
 \---------------------------------------------------------------------------*/
 
-#include "UsdField.h"
+#include "UnsteadyFieldView.h"
 #include "FieldManager.h"
 #include "UnsteadyFieldNames.h"
 #include "FieldWrap.h"
