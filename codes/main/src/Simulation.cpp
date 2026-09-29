@@ -20,6 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "Simulation.h"
+#include "Prj.h"
 #include "SimuImp.h"
 #include "SimpleSimu.h"
 #include "MpiTest.h"
@@ -140,6 +141,10 @@ void Simulation::RunImpl()
     else // nPara >= 3
     {
         std::cout << "\n===== ONEFLOW Full Simulation Mode =====\n";
+        // Parse the case list once so execution does not depend on
+        // positional argument offsets.
+        const CmdLineOptions options = Prj::ParseCmdLineArgs( args );
+
         // Process runtime is initialized once and shared by all cases.
         auto processSimu = std::make_unique<SimuImp>( args );
         processSimu->Context().SetupProcessEnvironment();
@@ -153,11 +158,11 @@ void Simulation::RunImpl()
             processSimu->RunCase();
             currentCase = nullptr;
 
-            for ( std::size_t i = 3; i < args.size(); ++i )
+            for ( std::size_t i = 1; i < options.caseDirs.size(); ++i )
             {
                 std::vector<std::string> caseArgs =
                 {
-                    args[ 0 ], args[ 1 ], args[ i ]
+                    args[ 0 ], args[ 1 ], options.caseDirs[ i ]
                 };
                 SimuImp caseSimu( caseArgs );
                 currentCase = &caseSimu;
