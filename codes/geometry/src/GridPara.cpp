@@ -21,7 +21,6 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "GridPara.h"
-#include "Ctrl.h"
 #include "DataBase.h"
 #include <string>
 
