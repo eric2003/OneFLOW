@@ -46,7 +46,9 @@ public:
     static void AddGrid( int zid, Grid * grid );
     static void ReleaseGrids();
     static void InitLayout( StringField & fileNameList );
+    static void InitLayout( StringField & fileNameList, const std::string & caseDir );
     static void ReadGrid( StringField & fileNameList );
+    static void ReadGrid( StringField & fileNameList, const std::string & caseDir );
     static void NormalizeLayout();
 public:
     static Grid * GetGrid( int zid, int gl = 0 );
