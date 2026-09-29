@@ -176,6 +176,12 @@ void Prj::SetPrjBaseDir( const std::string & prjName )
         << Prj::prjBaseDir << "\n";
 }
 
+void Prj::ClearPrjBaseDir()
+{
+    // A completed case must not leave its directory bound to the process.
+    Prj::prjBaseDir.clear();
+}
+
 void Prj::OpenCaseFile(
     std::fstream & file,
     const std::string & caseDir,
