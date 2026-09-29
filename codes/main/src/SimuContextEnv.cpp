@@ -55,7 +55,10 @@ void SimuContext::ProcessCommandLine()
     // when a later case updates the legacy Prj static state.
     caseDir_ = Prj::ResolveCaseDir( opt.caseDir );
 
-    Prj::ProcessCmdLineArgs( args_ );
+    // Command-line mode is process-wide; case directory binding belongs to
+    // SetupCaseEnvironment() so each case owns its legacy IO binding.
+    Prj::hx_debug = opt.debug;
+    Prj::run_from_ide = opt.debug;
 }
 
 void SimuContext::SetupProcessEnvironment()
