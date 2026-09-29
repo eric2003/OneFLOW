@@ -93,10 +93,10 @@ class SecMarkerManager
 {
 public:
     SecMarkerManager();
-    ~SecMarkerManager();
+    ~SecMarkerManager() = default;
 public:
     int nType;
-    HXVector< SecMarker * > data;
+    HXVector< SecMarker > data;
 public:
     void Alloc( int nType );
     int CalcTotalElem();
