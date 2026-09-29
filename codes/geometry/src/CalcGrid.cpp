@@ -52,15 +52,16 @@ void CalcGrid::Init( Grids & grids )
 {
     this->grids = grids;
     this->grids.SetDeleteFlag( true );
-    int gridObj = GetDataValue< int >( "gridObj" );
-    if ( gridObj == 3 )
+    const GridConfig config = GridConfig::FromDataBase();
+
+    if ( config.objective == GridObjective::Partition )
     {
-        std::string part_uns_file = GetDataValue< std::string >( "part_uns_file" );
-        this->gridFileName = part_uns_file;
+        // Partitioning writes the partition-specific grid file.
+        this->gridFileName = GetDataValue< std::string >( "part_uns_file" );
     }
     else
     {
-        this->gridFileName = ONEFLOW::GetTargetGridFileName();
+        this->gridFileName = config.targetFile;
     }
 }
 
