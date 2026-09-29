@@ -56,7 +56,7 @@ public:
 private:
     static std::size_t GetHistoryIndex( HistoryLevel level );
 
-    UnsteadyFieldView field;
+    UnsteadyFieldView fieldView;
 };
 
 EndNameSpace

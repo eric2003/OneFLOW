@@ -44,7 +44,7 @@ void Unsteady::BindFields(
             "Unsteady requires Current, Previous, and Old residual time levels." );
     }
 
-    this->field.BindFields( grid, fieldNames );
+    this->fieldView.BindFields( grid, fieldNames );
 }
 
 std::size_t Unsteady::GetHistoryIndex( Unsteady::HistoryLevel level )
@@ -67,20 +67,20 @@ std::size_t Unsteady::GetHistoryIndex( Unsteady::HistoryLevel level )
 
 MRField * Unsteady::GetFlow( Unsteady::HistoryLevel level )
 {
-    return this->field.GetFlow(
+    return this->fieldView.GetFlow(
         GetHistoryIndex( level ) );
 }
 
 MRField * Unsteady::GetResidual( Unsteady::HistoryLevel level )
 {
-    return this->field.GetResidual(
+    return this->fieldView.GetResidual(
         GetHistoryIndex( level ) );
 }
 
 void Unsteady::UpdateUnsteady()
 {
     // Reuse the persistent field view instead of rebuilding a second view.
-    UnsteadyFieldView & fieldView = this->field;
+    UnsteadyFieldView & fieldView = this->fieldView;
 
     // Shift from the oldest configured level toward the current level.
     // Reverse order prevents overwriting a history level before it is copied.
