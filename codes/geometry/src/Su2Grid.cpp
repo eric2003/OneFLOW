@@ -124,7 +124,7 @@ int SecMarkerManager::CalcTotalElem()
     int nElem = 0;
     for ( int i = 0; i < nType; ++ i )
     {
-        SecMarker * sec = this->data[ i ];
+        SecMarker * sec = & this->data[ i ];
         nElem += sec->nElem;
     }
     return nElem;
@@ -236,7 +236,7 @@ void VolumeSecManager::CalcVolSec( Su2Grid* su2Grid, SecMarkerManager * secMarke
     for ( int iType = 0; iType < nType; ++ iType )
     {
         int eType = types[ iType ];
-        SecMarker * secMarker = secMarkerManager->data[ iType ];
+        SecMarker * secMarker = & secMarkerManager->data[ iType ];
         secMarker->vtk_type = eType;
         secMarker->cgns_type = vtk_CgnsMap.vtk2Cgns[ eType ];
         secMarker->name = ElementTypeName[ secMarker->cgns_type ];
