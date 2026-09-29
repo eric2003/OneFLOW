@@ -236,7 +236,7 @@ void CalcGrid::GenerateLgMapping()
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         Grid * grid = grids[ iZone ];
-        grid->GenerateLgMapping( this->iFaceLink );
+        grid->GenerateLgMapping( this->iFaceLink.get() );
     }
 }
 
