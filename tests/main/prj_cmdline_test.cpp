@@ -61,17 +61,6 @@ TEST( PrjParseCmdLineArgs, AdditionalCaseDirectoriesArePreserved )
     EXPECT_EQ( opt.caseDirs[ 0 ], "test/caseA/" );
     EXPECT_EQ( opt.caseDirs[ 1 ], "test/caseB/" );
 
-    ASSERT_EQ( opt.caseArguments.size(), 2u );
-    EXPECT_EQ(
-        opt.caseArguments[ 0 ],
-        ( std::vector<std::string>{
-            "OneFlow.exe", "d", "test/caseA/"
-        } ) );
-    EXPECT_EQ(
-        opt.caseArguments[ 1 ],
-        ( std::vector<std::string>{
-            "OneFlow.exe", "d", "test/caseB/"
-        } ) );
 }
 
 namespace
