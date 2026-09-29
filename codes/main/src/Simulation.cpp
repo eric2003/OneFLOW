@@ -145,6 +145,9 @@ void Simulation::RunImpl()
         // positional argument offsets.
         const CmdLineOptions options = Prj::ParseCmdLineArgs( args );
 
+        // Initialize process-level path state once before creating any case.
+        Prj::Init();
+
         // Process runtime is initialized once and shared by all cases.
         auto processSimu = std::make_unique<SimuImp>( args );
         processSimu->Context().SetupProcessEnvironment();

@@ -53,7 +53,7 @@ void Prj::ProcessCmdLineArgs( std::vector<std::string> & args )
     Prj::hx_debug = opt.debug;
     Prj::run_from_ide = opt.debug;
 
-    Prj::Init();
+    // Process-level path initialization is performed once by Simulation.
     Prj::SetPrjBaseDir( opt.caseDir );
 }
 
