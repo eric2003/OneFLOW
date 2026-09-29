@@ -438,7 +438,15 @@ void Plot3D::ReadBc( GridMediator * gridMediator )
     std::string separator = " =\r\n#$,;";
 
     TextFileParser textFileParser;
-    textFileParser.OpenPrjFile( bcName, std::ios_base::in );
+    if ( gridMediator->caseDir.empty() )
+    {
+        textFileParser.OpenPrjFile( bcName, std::ios_base::in );
+    }
+    else
+    {
+        textFileParser.OpenCaseFile(
+            gridMediator->caseDir, bcName, std::ios_base::in );
+    }
     textFileParser.SetDefaultSeparator( separator );
 
     textFileParser.ReadNextNonEmptyLine();
@@ -570,7 +578,15 @@ void Plot3D::DumpBc( GridMediator * gridMediator )
     std::string & bcName = gridMediator->bcFile;
 
     std::fstream file;
-    Prj::OpenPrjFile( file, bcName, std::ios_base::out );
+    if ( gridMediator->caseDir.empty() )
+    {
+        Prj::OpenPrjFile( file, bcName, std::ios_base::out );
+    }
+    else
+    {
+        Prj::OpenCaseFile(
+            file, gridMediator->caseDir, bcName, std::ios_base::out );
+    }
 
     int flowSolverIndex = 1;
     file << flowSolverIndex << "\n";
