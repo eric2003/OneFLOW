@@ -260,7 +260,8 @@ void DumpDataBase( const std::string & caseDir )
     DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
     std::fstream file;
     const std::string fileName = caseDir + "log/database.log";
-    PIO::OpenFile( file, fileName, std::ios_base::out );
+    Prj::CreateDirIfNeeded( fileName );
+    Prj::OpenFile( file, fileName, std::ios_base::out );
     dataBase->dataPara->DumpData( file );
     PIO::CloseFile( file );
 }
