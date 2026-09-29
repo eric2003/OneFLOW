@@ -116,7 +116,7 @@ public:
     LinkField l2g;
 public:
     void CreateMarkerList( int nMarker );
-    void CalcSecMarker( SecMarkerManager * secMarkerManager );
+    void CalcSecMarker( SecMarkerManager & secMarkerManager );
 };
 
 class Su2Grid;
