@@ -43,11 +43,6 @@ UTurbUnsteady::UTurbUnsteady()
     ug.Init();
     uturbf.Init();
 }
-
-UTurbUnsteady::~UTurbUnsteady()
-{
-}
-
 void UTurbUnstPrepareSrcData( Unsteady * unst )
 {
     UUnsteady * unsteady = static_cast< UUnsteady * >( unst );

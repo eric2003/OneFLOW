@@ -31,7 +31,7 @@ class UTurbUnsteady : public UUnsteady
 {
 public:
     UTurbUnsteady();
-    ~UTurbUnsteady();
+    ~UTurbUnsteady() = default;
 };
 
 void UTurbUnstPrepareSrcData( Unsteady * unst );

@@ -45,11 +45,6 @@ UNsUnsteady::UNsUnsteady()
     unsf.Init();
 }
 
-UNsUnsteady::~UNsUnsteady()
-{
-}
-
-
 void UNsUnstPrepareSrcData( Unsteady * unst )
 {
     UUnsteady * unsteady = static_cast< UUnsteady * >( unst );

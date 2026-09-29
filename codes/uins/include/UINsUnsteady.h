@@ -31,7 +31,7 @@ class UINsUnsteady : public UUnsteady
 {
 public:
     UINsUnsteady();
-    ~UINsUnsteady();
+    ~UINsUnsteady() = default;
 };
 
 void UINsUnstPrepareSrcData( Unsteady * unst );
