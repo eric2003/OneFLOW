@@ -156,7 +156,7 @@ void MarkerManager::CalcSecMarker( SecMarkerManager * secMarkerManager )
 
     int nType = types.size();
 
-    secMarkerManager->Alloc( nType );
+    secMarkerManager.Alloc( nType );
 
     int gid = 0;
     for ( int iType = 0; iType < nType; ++ iType )
@@ -194,11 +194,11 @@ VolumeSecManager::~VolumeSecManager()
     ;
 }
 
-void VolumeSecManager::CalcVolSec( Su2Grid* su2Grid, SecMarkerManager * secMarkerManager )
+void VolumeSecManager::CalcVolSec( const Su2Grid & su2Grid, SecMarkerManager & secMarkerManager )
 {
     IntSet typeSet;
 
-    for ( int iElem = 0; iElem < su2Grid->nElem; ++ iElem )
+    for ( int iElem = 0; iElem < su2Grid.nElem; ++ iElem )
     {
         int eVtkType = su2Grid->elemVTKType[ iElem ];
         typeSet.insert( eVtkType );
