@@ -96,16 +96,6 @@ void VTK_CgnsMap::Init()
     vtk2Cgns.insert( IntPair( VTK_TYPE::PYRAMID      , PYRA_5  ) );
 }
 
-SecMarker::SecMarker()
-{
-    ;
-}
-
-SecMarker::~SecMarker()
-{
-    ;
-}
-
 SecMarkerManager::SecMarkerManager()
 {
     ;
