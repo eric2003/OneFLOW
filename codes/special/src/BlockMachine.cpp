@@ -35,7 +35,6 @@ License
 #include "Dimension.h"
 #include "BlockElem.h"
 #include "BlockFaceSolver.h"
-#include "GridPara.h"
 #include "HXCgns.h"
 #include <fstream>
 
