@@ -133,7 +133,7 @@ void MarkerManager::CreateMarkerList( int nMarker )
 
 void MarkerManager::CalcSecMarker( SecMarkerManager & secMarkerManager )
 {
-    int nMarker = this->markerList.size();
+    const int nMarker = this->markerList.size();
     IntSet typeSet;
     for ( int iMarker = 0; iMarker < nMarker; ++ iMarker )
     {
@@ -150,11 +150,11 @@ void MarkerManager::CalcSecMarker( SecMarkerManager & secMarkerManager )
     l2g.resize( nMarker );
     for ( int iMarker = 0; iMarker < nMarker; ++ iMarker )
     {
-        Marker * marker = & this->markerList[ iMarker ];
+        const Marker * marker = & this->markerList[ iMarker ];
         l2g[ iMarker ].resize( marker->nElem );
     }
 
-    int nType = types.size();
+    const int nType = types.size();
 
     secMarkerManager.Alloc( nType );
 
