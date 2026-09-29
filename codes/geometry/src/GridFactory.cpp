@@ -190,7 +190,7 @@ void GridFactory::Plot3DProcess( const GridConfig & config )
         cgnsFactory.SetCaseDir( caseDir_ );
         ZgridMediator zgridMediator;
         // Owned GridMediator instances are cleaned up automatically.
-        Plot3D::Plot3DToCgns( &zgridMediator );
+        Plot3D::Plot3DToCgns( &zgridMediator, caseDir_ );
         cgnsFactory.DumpCgnsGrid( &zgridMediator );
     }
     else
