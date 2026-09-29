@@ -101,7 +101,12 @@ void ZgridMediator::add( std::unique_ptr< GridMediator > mediator )
     this->mediators_.push_back( std::move( mediator ) );
 }
 
-GridMediator * ZgridMediator::at( int index ) const
+GridMediator * ZgridMediator::at( int index )
+{
+    return this->mediators_[ static_cast< size_t >( index ) ].get();
+}
+
+const GridMediator * ZgridMediator::at( int index ) const
 {
     return this->mediators_[ static_cast< size_t >( index ) ].get();
 }
