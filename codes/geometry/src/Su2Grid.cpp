@@ -162,7 +162,7 @@ void MarkerManager::CalcSecMarker( SecMarkerManager * secMarkerManager )
     for ( int iType = 0; iType < nType; ++ iType )
     {
         int eType = types[ iType ];
-        SecMarker * secMarker = & secMarkerManager->data[ iType ];
+        SecMarker * secMarker = & secMarkerManager.data[ iType ];
         secMarker->vtk_type = eType;
         secMarker->cgns_type = vtk_CgnsMap.vtk2Cgns[ eType ];
         secMarker->name = ElementTypeName[ secMarker->cgns_type ];
@@ -200,7 +200,7 @@ void VolumeSecManager::CalcVolSec( const Su2Grid & su2Grid, SecMarkerManager & s
 
     for ( int iElem = 0; iElem < su2Grid.nElem; ++ iElem )
     {
-        int eVtkType = su2Grid->elemVTKType[ iElem ];
+        int eVtkType = su2Grid.elemVTKType[ iElem ];
         typeSet.insert( eVtkType );
     }
     
@@ -209,7 +209,7 @@ void VolumeSecManager::CalcVolSec( const Su2Grid & su2Grid, SecMarkerManager & s
     int nType = types.size();
     l2g.resize( nType );
 
-    secMarkerManager->Alloc( nType );
+    secMarkerManager.Alloc( nType );
 
     for ( int iType = 0; iType < nType; ++ iType )
     {
@@ -219,12 +219,12 @@ void VolumeSecManager::CalcVolSec( const Su2Grid & su2Grid, SecMarkerManager & s
         secMarker->cgns_type = vtk_CgnsMap.vtk2Cgns[ eType ];
         secMarker->name = ElementTypeName[ secMarker->cgns_type ];
         int gid = 0;
-        for ( int iElem = 0; iElem < su2Grid->nElem; ++ iElem )
+        for ( int iElem = 0; iElem < su2Grid.nElem; ++ iElem )
         {
-            int e_VtkType = su2Grid->elemVTKType[ iElem ];
+            int e_VtkType = su2Grid.elemVTKType[ iElem ];
             if ( eType == e_VtkType )
             {
-                secMarker->elems.push_back( su2Grid->elems[ iElem ] );
+                secMarker->elems.push_back( su2Grid.elems[ iElem ] );
                 this->l2g[ iType ].push_back( iElem );
             }
         }
@@ -494,7 +494,7 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone * cgnsZone )
     
     SecMarkerManager volSec;
 
-    this->volSec.CalcVolSec( this, & volSec );
+    this->volSec.CalcVolSec( *this, volSec );
     SecMarkerManager bcSec;
     this->mmark.CalcSecMarker( &bcSec );
 
