@@ -173,14 +173,11 @@ void Simulation::RunImpl()
         {
             // RunCase() owns case teardown, including exceptional exits.
             // Only process-level runtime remains to be finalized here.
-            processSimu->FinalizeEnvironment();
+            processContext.FinalizeEnvironment();
             throw;
         }
 
-            throw;
-        }
-
-        processSimu->FinalizeEnvironment();
+        processContext.FinalizeEnvironment();
     }
 }
 
