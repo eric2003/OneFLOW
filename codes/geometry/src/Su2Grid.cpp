@@ -477,7 +477,7 @@ void Su2Grid::Su2ToOneFlowGrid( const GridConfig & config, const std::string & c
     ONEFLOW::Su2ToOneFlowGrid( *this );
 }
 
-void Su2Grid::FillSU2CgnsZone( CgnsZone * cgnsZone )
+void Su2Grid::FillSU2CgnsZone( CgnsZone & cgnsZone )
 {
     int nNodes = this->xN.size();
     int nCells = this->nElem;
