@@ -258,7 +258,7 @@ void Su2Bc::AddBc( const std::string & geoName, const std::string & bcName )
     bcMap.insert(StringPair(geoName, bcName));
 }
 
-void Su2Bc::Process( StringField &markerBCNameList, StringField& markerNameList)
+void Su2Bc::Process( const StringField & markerBCNameList, const StringField & markerNameList )
 {
     for ( int i = 0; i < markerBCNameList.size(); ++ i )
     {
