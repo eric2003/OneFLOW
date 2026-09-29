@@ -64,7 +64,7 @@ public:
 public:
     Real beta;
 public:
-    void Run( int igene );
+    void Run();
     void HalfCylinder();
     void QuarterCylinder();
     void GenePlate();
