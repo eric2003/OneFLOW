@@ -297,7 +297,7 @@ int GetIgnoreNoBc()
 
 std::string GetTargetGridFileName()
 {
-    return ONEFLOW::GetDataValue< std::string >( "targetGridFileName" );
+    return GridConfig::FromDataBase().targetFile;
 }
 
 void GenerateMultiZoneCalcGrids( Grids & grids )
