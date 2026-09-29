@@ -131,7 +131,7 @@ public:
     IntField types;
     LinkField l2g;
 public:
-    void CalcVolSec( Su2Grid* su2Grid, SecMarkerManager * secMarkerManager );
+    void CalcVolSec( const Su2Grid & su2Grid, SecMarkerManager & secMarkerManager );
 };
 
 class Su2Bc
