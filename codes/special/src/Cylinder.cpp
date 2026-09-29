@@ -127,17 +127,12 @@ Cylinder::~Cylinder()
     delete this->strCurveLoop;
 }
 
-void Cylinder::Run( int igene )
+void Cylinder::Run()
 {
-    if ( igene == 3 )
-    {
-        this->HalfCylinder();
-        //this->QuarterCylinder();
-    }
-    else if ( igene == 4 )
-    {
-        this->GenePlate();
-    }
+    this->HalfCylinder();
+
+    // Keep the alternative geometry available for future explicit selection.
+    //this->QuarterCylinder();
 }
 
 void Cylinder::GenePlate()
