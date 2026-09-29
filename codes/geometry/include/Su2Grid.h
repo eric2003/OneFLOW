@@ -145,7 +145,7 @@ public:
     std::map<std::string, int> bcNameToValueMap;
 public:
     void Init();
-    void AddBc( std::string &geoName, std::string &bcName);
+    void AddBc( const std::string & geoName, const std::string & bcName );
     void Process(StringField& markerBCNameList, StringField& markerNameList);
     std::string GetBcName( const std::string & geoName ) const;
     int GetCgnsBcType( const std::string & geoName );
