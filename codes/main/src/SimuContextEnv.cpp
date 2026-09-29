@@ -72,6 +72,9 @@ void SimuContext::SetupProcessEnvironment()
 
 void SimuContext::SetupCaseEnvironment()
 {
+    // Bind legacy case-relative IO to the explicit case before reading it.
+    Prj::SetPrjBaseDir( caseDir_ );
+
     logFile.SetCaseDir( caseDir_ );
     ONEFLOW::ReadControlInfo( caseDir_ );
     envReady_ = true;
