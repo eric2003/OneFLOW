@@ -55,13 +55,13 @@ namespace
     void RunCylinder()
     {
         Cylinder cylinder;
-        cylinder.Run( 3 );
+        cylinder.Run();
     }
 
     void RunGridCreate()
     {
         GridCreate gridCreate;
-        gridCreate.Run( 4 );
+        gridCreate.Run();
     }
 
     void RunCgnsTest()
@@ -72,16 +72,16 @@ namespace
 
     struct GridGenerationEntry
     {
-        int id;
+        GridGenerationType type;
         GridGenerator run;
     };
 
     constexpr GridGenerationEntry kGridGenerationEntries[] = {
-        { 1, &RunCavity },
-        { 2, &RunRae2822 },
-        { 3, &RunCylinder },
-        { 4, &RunGridCreate },
-        { 5, &RunCgnsTest },
+        { GridGenerationType::Cavity,     &RunCavity },
+        { GridGenerationType::Rae2822,    &RunRae2822 },
+        { GridGenerationType::Cylinder,   &RunCylinder },
+        { GridGenerationType::GridCreate, &RunGridCreate },
+        { GridGenerationType::CgnsTest,   &RunCgnsTest },
     };
 }
 
@@ -98,10 +98,18 @@ ClassicGrid::~ClassicGrid()
 void ClassicGrid::Run() const
 {
     const int generationId = GetDataValue< int >( "igene" );
+    const auto generationType = ParseGridGenerationType( generationId );
+
+    // Legacy "igene" is converted once at the configuration boundary.
+    // Concrete generators then receive no knowledge of its integer encoding.
+    if ( ! generationType )
+    {
+        return;
+    }
 
     for ( const auto & entry : kGridGenerationEntries )
     {
-        if ( entry.id == generationId )
+        if ( entry.type == *generationType )
         {
             entry.run();
             return;
