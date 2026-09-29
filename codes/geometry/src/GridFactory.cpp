@@ -189,14 +189,12 @@ void GridFactory::Plot3DProcess(
     if ( config.targetType == GridFileType::OneFLOW )
     {
         CgnsFactory cgnsFactory;
-        cgnsFactory.SetCaseDir( caseDir );
-        cgnsFactory.CommonToOneFlowGrid();
+                cgnsFactory.CommonToOneFlowGrid();
     }
     else if ( config.targetType == GridFileType::CGNS )
     {
         CgnsFactory cgnsFactory;
-        cgnsFactory.SetCaseDir( caseDir );
-        ZgridMediator zgridMediator;
+                ZgridMediator zgridMediator;
         // Owned GridMediator instances are cleaned up automatically.
         Plot3D::Plot3DToCgns( &zgridMediator, caseDir );
         cgnsFactory.DumpCgnsGrid( zgridMediator );
@@ -219,8 +217,7 @@ void GridFactory::SU2Process( const std::string & caseDir )
 void GridFactory::CGNSProcess( const std::string & caseDir )
 {
     CgnsFactory cgnsFactory;
-    cgnsFactory.SetCaseDir( caseDir );
-    cgnsFactory.GenerateGrid();
+        cgnsFactory.GenerateGrid( caseDir );
 }
 
 EndNameSpace
