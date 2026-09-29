@@ -94,7 +94,7 @@ void CgnsFactory::ConvertStrCgns2UnsCgnsGrid()
     this->zgridElem->cgnsZbase = this->cgnsZbase.get();
 }
 
-void GenerateLocalOneFlowGridFromSu2Grid( Su2Grid* su2Grid, Grids & grids )
+void GenerateLocalOneFlowGridFromSu2Grid( Su2Grid & su2Grid, Grids & grids )
 {
     // Stack allocation instead of new/delete
     CgnsFactory cgnsFactory;
@@ -223,18 +223,18 @@ void CgnsFactory::CommonToUnsGridTEST()
     this->CgnsToOneFlowGrid();
 }
 
-CgnsZone * CgnsFactory::CreateSu2CgnsZone( Su2Grid* su2Grid )
+CgnsZone * CgnsFactory::CreateSu2CgnsZone( Su2Grid & su2Grid )
 {
     CgnsZone * cgnsZone = this->cgnsZbase->CreateCgnsZone();
 
-    su2Grid->FillSU2CgnsZone( cgnsZone );
+    su2Grid.FillSU2CgnsZone( cgnsZone );
 
     return cgnsZone;
 }
 
-void CgnsFactory::Su2ToOneFlowGrid( Su2Grid* su2Grid )
+void CgnsFactory::Su2ToOneFlowGrid( Su2Grid & su2Grid )
 {
-    int nZones = su2Grid->nZone;
+    int nZones = su2Grid.nZone;
     Grids grids;
 
     for ( int iZone = 0; iZone < nZones; ++ iZone )
