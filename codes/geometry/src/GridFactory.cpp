@@ -27,7 +27,6 @@ License
 #include "Su2Grid.h"
 #include "ClassicGrid.h"
 #include "Plot3D.h"
-#include "HXMath.h"
 #include "Partition.h"
 #include <stdexcept>
 #include <string>
