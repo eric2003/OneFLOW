@@ -37,8 +37,8 @@ License
 #include "ActionState.h"
 #include "HXMath.h"
 #include "DataBook.h"
+#include "DataBase.h"
 #include "Task.h"
-#include "GridTypes.h"
 #include <iostream>
 #include <string>
 
@@ -181,10 +181,19 @@ void Zone::NormalizeLayout()
 
 void Zone::ReadGrid( StringField & fileNameList )
 {
-    // Resolve the grid owner from the current case configuration.
-    // An empty sourceCaseDir preserves the historical current-case behavior.
-    const GridConfig gridConfig = GridConfig::FromDataBase();
-    Zone::ReadGrid( fileNameList, gridConfig.sourceCaseDir );
+    std::string sourceCaseDir;
+
+    // The source case is optional because many solve cases only provide a grid
+    // file name. Missing this optional setting must keep the current-case path.
+    try
+    {
+        sourceCaseDir = GetDataValue< std::string >( "sourceGridCaseDir" );
+    }
+    catch ( const std::exception & )
+    {
+    }
+
+    Zone::ReadGrid( fileNameList, sourceCaseDir );
 }
 
 void Zone::ReadGrid(
