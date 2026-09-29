@@ -30,7 +30,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-class GridMediator;
+class GridMediator;\nstruct GridConfig;
 class TextFileParser;
 const int MAX_VTK_TYPE = 100;
 class VTK_TYPE
@@ -160,7 +160,7 @@ public:
 public:
     void ReadSu2Grid( GridMediator * gridMediator );
     void ReadSu2GridAscii( const std::string & fileName, const std::string & caseDir );
-    void Su2ToOneFlowGrid( const std::string & caseDir );
+    void Su2ToOneFlowGrid( const GridConfig & config, const std::string & caseDir );
     void MarkBoundary( std::string & su2cfgFile, const std::string & caseDir );
     void FillSU2CgnsZone( CgnsZone * cgnsZone );
 public:
