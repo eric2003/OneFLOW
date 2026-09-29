@@ -48,6 +48,10 @@ BeginNameSpace( ONEFLOW )
 
 void SimuContext::ProcessCommandLine()
 {
+    // Keep the selected case directory as explicit case input.
+    const CmdLineOptions opt = Prj::ParseCmdLineArgs( args_ );
+    caseDir_ = opt.caseDir;
+
     Prj::ProcessCmdLineArgs( args_ );
 }
 
