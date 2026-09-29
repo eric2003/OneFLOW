@@ -137,14 +137,17 @@ void CgnsFactory::ReadCgnsGrid()
 {
     // Use .get() to pass the raw pointer to legacy/global APIs
     cgns_global.cgnsbases = this->cgnsZbase.get();
+    const GridConfig config = GridConfig::FromDataBase();
+    const std::string & sourceGridFile = config.sourceFile;
+
     std::string gridFileName;
     if ( caseDir_.empty() )
     {
-        gridFileName = Prj::GetPrjFileName( grid_para.gridFile );
+        gridFileName = Prj::GetPrjFileName( sourceGridFile );
     }
     else
     {
-        gridFileName = Prj::GetCaseFileName( caseDir_, grid_para.gridFile );
+        gridFileName = Prj::GetCaseFileName( caseDir_, sourceGridFile );
     }
 
     this->cgnsZbase->ReadCgnsGrid( gridFileName );
