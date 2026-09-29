@@ -331,7 +331,9 @@ void ReadScriptFileNameList(
             textFileParser.ReadNextWord();
 
         std::string fullScriptFileName =
-            caseDir + "script/" + scriptFileName;
+            Prj::GetCaseFileName(
+                caseDir,
+                "script/" + scriptFileName );
 
         scriptFileNameList.push_back( fullScriptFileName );
     }
