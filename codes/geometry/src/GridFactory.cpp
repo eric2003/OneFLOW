@@ -104,6 +104,13 @@ void GenerateGrid()
     gf.Run();
 }
 
+void GenerateGrid( const std::string & caseDir )
+{
+    // The case directory is explicit at the multi-case boundary.
+    GridFactory gf;
+    gf.Run( GridConfig::FromDataBase(), caseDir );
+}
+
 void GridFactory::Run()
 {
     // Keep grid_para in sync for any remaining legacy readers, then run
@@ -114,6 +121,16 @@ void GridFactory::Run()
 
 void GridFactory::Run( const GridConfig & config )
 {
+    DispatchPipeline( *this, config );
+}
+
+void GridFactory::Run(
+    const GridConfig & config,
+    const std::string & caseDir )
+{
+    // Bind the case only for this grid operation; no global project state
+    // is changed here.
+    caseDir_ = caseDir;
     DispatchPipeline( *this, config );
 }
 
@@ -161,11 +178,13 @@ void GridFactory::Plot3DProcess( const GridConfig & config )
     if ( config.targetType == GridFileType::OneFLOW )
     {
         CgnsFactory cgnsFactory;
+        cgnsFactory.SetCaseDir( caseDir_ );
         cgnsFactory.CommonToOneFlowGrid();
     }
     else if ( config.targetType == GridFileType::CGNS )
     {
         CgnsFactory cgnsFactory;
+        cgnsFactory.SetCaseDir( caseDir_ );
         ZgridMediator zgridMediator;
         // Owned GridMediator instances are cleaned up automatically.
         Plot3D::Plot3DToCgns( &zgridMediator );
@@ -188,6 +207,7 @@ void GridFactory::SU2Process()
 void GridFactory::CGNSProcess()
 {
     CgnsFactory cgnsFactory;
+    cgnsFactory.SetCaseDir( caseDir_ );
     cgnsFactory.GenerateGrid();
 }
 
