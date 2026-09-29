@@ -44,6 +44,7 @@ public:
     std::string sep;
 public:
     void OpenPrjFile( const std::string & fileName, const std::ios_base::openmode & fileOpenMode );
+    void OpenCaseFile( const std::string & caseDir, const std::string & fileName, const std::ios_base::openmode & fileOpenMode );
     void CloseFile();
 
     void WriteEndLine()
