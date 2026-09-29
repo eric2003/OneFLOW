@@ -21,6 +21,7 @@ License
 
 #include "Unsteady.h"
 #include "FieldWrap.h"
+#include "Fatal.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -28,6 +29,18 @@ void Unsteady::BindFields(
     UnsGrid * grid,
     const UnsteadyFieldNames & fieldNames )
 {
+    if ( fieldNames.flow.size() < 3 )
+    {
+        Fatal(
+            "Unsteady requires at least 3 flow time levels." );
+    }
+
+    if ( fieldNames.residual.size() < 3 )
+    {
+        Fatal(
+            "Unsteady requires at least 3 residual time levels." );
+    }
+
     this->field.BindFields( grid, fieldNames );
 }
 

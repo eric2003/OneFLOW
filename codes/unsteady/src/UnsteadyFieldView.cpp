@@ -24,7 +24,6 @@ License
 #include "FieldWrap.h"
 #include "DataBase.h"
 #include "UnsGrid.h"
-#include "Fatal.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -60,18 +59,6 @@ void UnsteadyFieldView::BindFields(
 
     this->residual.resize(
         fieldNames.residual.size() );
-
-    if ( this->flow.size() < 3 )
-    {
-        Fatal(
-            "Unsteady flow fields require at least 3 time levels." );
-    }
-
-    if ( this->residual.size() < 3 )
-    {
-        Fatal(
-            "Unsteady residual fields require at least 3 time levels." );
-    }
 
     for ( std::size_t i = 0;
         i < fieldNames.residual.size();
