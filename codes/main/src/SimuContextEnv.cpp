@@ -72,12 +72,15 @@ void SimuContext::SetupProcessEnvironment()
 
 void SimuContext::SetupCaseEnvironment()
 {
+    // Mark case setup as active so exception cleanup can release partial
+    // case state if control-file initialization fails halfway through.
+    envReady_ = true;
+
     // Bind legacy case-relative IO to the explicit case before reading it.
     Prj::SetPrjBaseDir( caseDir_ );
 
     logFile.SetCaseDir( caseDir_ );
     ONEFLOW::ReadControlInfo( caseDir_ );
-    envReady_ = true;
 }
 
 void SimuContext::SetupEnvironment()
