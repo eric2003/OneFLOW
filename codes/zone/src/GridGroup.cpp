@@ -55,8 +55,26 @@ GridGroup::~GridGroup()
 
 void GridGroup::InitZoneLayout( const std::string & fileName )
 {
+    this->InitZoneLayout( fileName, std::string() );
+}
+
+void GridGroup::InitZoneLayout(
+    const std::string & fileName,
+    const std::string & caseDir )
+{
     std::fstream file;
-    PIO::OpenPrjFile( file, fileName, std::ios_base::in|std::ios_base::binary );
+
+    if ( caseDir.empty() )
+    {
+        PIO::OpenPrjFile(
+            file, fileName, std::ios_base::in|std::ios_base::binary );
+    }
+    else
+    {
+        PIO::OpenCaseFile(
+            file, caseDir, fileName,
+            std::ios_base::in|std::ios_base::binary );
+    }
 
     this->InitZoneLayout( file );
     this->SetMultiZoneLayout();
@@ -100,9 +118,26 @@ void GridGroup::SetMultiZoneLayout()
 
 void GridGroup::ReadGrid( const std::string & fileName )
 {
+    this->ReadGrid( fileName, std::string() );
+}
+
+void GridGroup::ReadGrid(
+    const std::string & fileName,
+    const std::string & caseDir )
+{
     std::fstream file;
 
-    PIO::OpenPrjFile( file, fileName, std::ios_base::in|std::ios_base::binary );
+    if ( caseDir.empty() )
+    {
+        PIO::OpenPrjFile(
+            file, fileName, std::ios_base::in|std::ios_base::binary );
+    }
+    else
+    {
+        PIO::OpenCaseFile(
+            file, caseDir, fileName,
+            std::ios_base::in|std::ios_base::binary );
+    }
 
     this->InitZoneLayout( file );
     this->SetMultiZoneLayout();

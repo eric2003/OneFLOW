@@ -37,6 +37,7 @@ License
 #include "ActionState.h"
 #include "HXMath.h"
 #include "DataBook.h"
+#include "GridTypes.h"
 #include "Task.h"
 #include <iostream>
 #include <string>
@@ -127,11 +128,30 @@ Grid * Zone::GetFGrid( Grid * grid )
 
 void Zone::InitLayout( StringField & fileNameList )
 {
+    Zone::InitLayout( fileNameList, std::string() );
+}
+
+void Zone::InitLayout(
+    StringField & fileNameList,
+    const std::string & caseDir )
+{
     int nTZones = 0;
     for ( int iFile = 0; iFile < fileNameList.size(); ++ iFile )
     {
         std::fstream file;
-        PIO::OpenPrjFile( file, fileNameList[ iFile ], std::ios_base::in|std::ios_base::binary );
+
+        if ( caseDir.empty() )
+        {
+            PIO::OpenPrjFile(
+                file, fileNameList[ iFile ],
+                std::ios_base::in|std::ios_base::binary );
+        }
+        else
+        {
+            PIO::OpenCaseFile(
+                file, caseDir, fileNameList[ iFile ],
+                std::ios_base::in|std::ios_base::binary );
+        }
 
         int nZones = 0;
 
@@ -161,12 +181,29 @@ void Zone::NormalizeLayout()
 
 void Zone::ReadGrid( StringField & fileNameList )
 {
-    Zone::InitLayout( fileNameList );
+    const std::string sourceCaseDir = GridConfig::GetSourceCaseDir();
+    Zone::ReadGrid( fileNameList, sourceCaseDir );
+}
+
+void Zone::ReadGrid(
+    StringField & fileNameList,
+    const std::string & caseDir )
+{
+    Zone::InitLayout( fileNameList, caseDir );
     int zid = 0;
     for ( int iFile = 0; iFile < fileNameList.size(); ++ iFile )
     {
         GridGroup * gridGroup = new GridGroup( zid );
-        gridGroup->ReadGrid( fileNameList[ iFile ] );
+
+        if ( caseDir.empty() )
+        {
+            gridGroup->ReadGrid( fileNameList[ iFile ] );
+        }
+        else
+        {
+            gridGroup->ReadGrid( fileNameList[ iFile ], caseDir );
+        }
+
         zid += gridGroup->nZones;
         delete gridGroup;
     }

@@ -225,6 +225,32 @@ TEST( PrjCasePath, AbsolutePathIsNotCaseRelative )
         absolutePath.lexically_normal() );
 }
 
+TEST( PrjCasePath, RelativeCasePathIsResolvedFromCurrentCase )
+{
+    const std::filesystem::path caseDir =
+        std::filesystem::temp_directory_path()
+        / "OneFLOW_PrjRelativeCasePathTest"
+        / "consumer";
+
+    const std::filesystem::path sourceCaseDir =
+        caseDir.parent_path() / "producer";
+
+    Prj::current_dir = std::filesystem::current_path().string();
+    Prj::SetPrjBaseDir( caseDir.string() );
+
+    const std::filesystem::path actual =
+        Prj::GetCaseFileName(
+            "../producer",
+            "grid/test.dat" );
+
+    const std::filesystem::path expected =
+        sourceCaseDir / "grid" / "test.dat";
+
+    EXPECT_EQ(
+        std::filesystem::path( actual ).lexically_normal(),
+        expected.lexically_normal() );
+}
+
 TEST( PrjCasePath, OpenPrjFileUsesRelativePath )
 {
     const std::filesystem::path caseDir =

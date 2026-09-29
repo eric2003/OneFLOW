@@ -23,7 +23,7 @@ License
 #include "GridElem.h"
 #include "CgnsZone.h"
 #include "CgnsZbase.h"
-#include "GridPara.h"
+#include "DataBase.h"
 #include "HXCgns.h"
 #include "UnsGrid.h"
 #include "HXMath.h"
@@ -438,7 +438,9 @@ GridElem * ZgridElem::GetGridElem( int iGridElem )
 
 void ZgridElem::AllocateGridElem()
 {
-    if ( grid_para.multiBlock == 0 )
+    const int multiBlock = GetDataValue< int >( "multiBlock" );
+
+    if ( multiBlock == 0 )
     {
         HXVector< CgnsZone * > cgnsZones;
 

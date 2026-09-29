@@ -37,6 +37,7 @@ public:
     static void OpenPrjFile();
     static void ParallelOpen( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode );
     static void OpenPrjFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode );
+    static void OpenCaseFile( std::fstream & file, const std::string & caseDir, const std::string & fileName, const std::ios_base::openmode & openMode );
 
     static void CloseFile( std::fstream & file );
     static void CloseFile();

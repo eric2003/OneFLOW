@@ -26,8 +26,8 @@ License
 #include "StrGrid.h"
 #include "StringUtils.h"
 #include "BcRecord.h"
-#include "GridPara.h"
 #include "GridTypes.h"
+#include "DataBase.h"
 #include <utility>
 
 BeginNameSpace( ONEFLOW )
@@ -130,10 +130,12 @@ void ZgridMediator::CreateSimple( int nZone )
 
 void ZgridMediator::ReadGrid()
 {
+    const GridConfig config = GridConfig::FromDataBase();
+
     auto gridMediator = std::make_unique< GridMediator >();
-    gridMediator->gridFile = grid_para.gridFile;
-    gridMediator->bcFile   = grid_para.bcFile;
-    gridMediator->gridType = grid_para.filetype;
+    gridMediator->gridFile = config.sourceFile;
+    gridMediator->bcFile   = config.bcFile;
+    gridMediator->gridType = std::string( ToString( config.sourceType ) );
     gridMediator->ReadGrid();
     this->add( std::move( gridMediator ) );
 }

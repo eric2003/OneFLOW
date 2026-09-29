@@ -59,6 +59,13 @@ void PIO::OpenPrjFile( std::fstream & file, const std::string & fileName, const 
     Prj::OpenPrjFile( file, fileName, openMode );
 }
 
+void PIO::OpenCaseFile( std::fstream & file, const std::string & caseDir, const std::string & fileName, const std::ios_base::openmode & openMode )
+{
+    if ( Parallel::pid != Parallel::GetFid() ) return;
+
+    Prj::OpenCaseFile( file, caseDir, fileName, openMode );
+}
+
 void PIO::OpenPrjFile()
 {
     PIO::OpenPrjFile( * ActionState::file, TaskState::task->fileInfo->fileName, TaskState::task->fileInfo->openMode );
