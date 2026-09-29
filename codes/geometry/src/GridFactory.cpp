@@ -113,6 +113,8 @@ void GridFactory::Run()
 
 void GridFactory::Run( const GridConfig & config )
 {
+    // A config-only run must not inherit the case directory from a previous run.
+    caseDir_.clear();
     DispatchPipeline( *this, config );
 }
 
