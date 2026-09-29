@@ -11,8 +11,8 @@ License
     (at your option) any later version.
 
     OneFLOW is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
     for more details.
 
     You should have received a copy of the GNU General Public License
@@ -23,7 +23,6 @@ License
 #include "CalcGrid.h"
 #include "UnsGrid.h"
 #include "Grid.h"
-#include "GridPara.h"
 #include "NodeMesh.h"
 #include "LogFile.h"
 #include "HXMath.h"
@@ -314,20 +313,24 @@ void GenerateMultiZoneCalcGrids( Grids & grids )
 
 void ResetGridScaleAndTranslate( NodeMesh * nodeMesh )
 {
-    size_t nNodes = nodeMesh->GetNumberOfNodes();
+    const GridConfig config = GridConfig::FromDataBase();
+    const Real scale = config.scale;
+    const auto & translate = config.translate;
 
-    for ( int iNode = 0; iNode < nNodes; ++ iNode )
+    const size_t nNodes = nodeMesh->GetNumberOfNodes();
+
+    for ( size_t iNode = 0; iNode < nNodes; ++ iNode )
     {
-        nodeMesh->xN[ iNode ] *= grid_para.gridScale;
-        nodeMesh->yN[ iNode ] *= grid_para.gridScale;
-        nodeMesh->zN[ iNode ] *= grid_para.gridScale;
+        nodeMesh->xN[ iNode ] *= scale;
+        nodeMesh->yN[ iNode ] *= scale;
+        nodeMesh->zN[ iNode ] *= scale;
 
-        nodeMesh->xN[ iNode ] += grid_para.gridTrans[ 0 ];
-        nodeMesh->yN[ iNode ] += grid_para.gridTrans[ 1 ];
-        nodeMesh->zN[ iNode ] += grid_para.gridTrans[ 2 ];
+        nodeMesh->xN[ iNode ] += translate[ 0 ];
+        nodeMesh->yN[ iNode ] += translate[ 1 ];
+        nodeMesh->zN[ iNode ] += translate[ 2 ];
     }
 
-    if ( grid_para.axis_dir == 1 )
+    if ( config.axisDir == 1 )
     {
         TurnZAxisToYAxis( nodeMesh );
     }
