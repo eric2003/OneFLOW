@@ -48,37 +48,37 @@ UNsUnsteady::UNsUnsteady()
 void UNsUnstPrepareSrcData( UUnsteady * unsteady )
 {
     MRField * q =
-        unsteady->GetFlow( UnsteadyFieldView::HistoryLevel::Current );
+        unsteady->GetFlow( Unsteady::HistoryLevel::Current );
 
     MRField * q1 =
-        unsteady->GetFlow( UnsteadyFieldView::HistoryLevel::Previous );
+        unsteady->GetFlow( Unsteady::HistoryLevel::Previous );
 
     MRField * q2 =
-        unsteady->GetFlow( UnsteadyFieldView::HistoryLevel::Old );
+        unsteady->GetFlow( Unsteady::HistoryLevel::Old );
 
     RealField & primitive =
         unsteady->GetPrimitive(
-            UnsteadyFieldView::HistoryLevel::Current );
+            Unsteady::HistoryLevel::Current );
 
     RealField & primitive1 =
         unsteady->GetPrimitive(
-            UnsteadyFieldView::HistoryLevel::Previous );
+            Unsteady::HistoryLevel::Previous );
 
     RealField & primitive2 =
         unsteady->GetPrimitive(
-            UnsteadyFieldView::HistoryLevel::Old );
+            Unsteady::HistoryLevel::Old );
 
     RealField & conservative =
         unsteady->GetConservative(
-            UnsteadyFieldView::HistoryLevel::Current );
+            Unsteady::HistoryLevel::Current );
 
     RealField & conservative1 =
         unsteady->GetConservative(
-            UnsteadyFieldView::HistoryLevel::Previous );
+            Unsteady::HistoryLevel::Previous );
 
     RealField & conservative2 =
         unsteady->GetConservative(
-            UnsteadyFieldView::HistoryLevel::Old );
+            Unsteady::HistoryLevel::Old );
 
     for ( int iEqu = 0; iEqu < unsteady->GetEquationCount(); ++ iEqu )
     {
@@ -104,37 +104,37 @@ void UNsUnstPrepareSrcData( UUnsteady * unsteady )
 void UNsUnstPrepareCriData( UUnsteady * unsteady )
 {
     MRField * q =
-        unsteady->GetFlow( UnsteadyFieldView::HistoryLevel::Current );
+        unsteady->GetFlow( Unsteady::HistoryLevel::Current );
 
     MRField * q1 =
-        unsteady->GetFlow( UnsteadyFieldView::HistoryLevel::Previous );
+        unsteady->GetFlow( Unsteady::HistoryLevel::Previous );
 
     MRField * q2 =
-        unsteady->GetFlow( UnsteadyFieldView::HistoryLevel::Old );
+        unsteady->GetFlow( Unsteady::HistoryLevel::Old );
 
     RealField & primitive =
         unsteady->GetPrimitive(
-            UnsteadyFieldView::HistoryLevel::Current );
+            Unsteady::HistoryLevel::Current );
 
     RealField & primitive1 =
         unsteady->GetPrimitive(
-            UnsteadyFieldView::HistoryLevel::Previous );
+            Unsteady::HistoryLevel::Previous );
 
     RealField & primitive2 =
         unsteady->GetPrimitive(
-            UnsteadyFieldView::HistoryLevel::Old );
+            Unsteady::HistoryLevel::Old );
 
     RealField & conservative =
         unsteady->GetConservative(
-            UnsteadyFieldView::HistoryLevel::Current );
+            Unsteady::HistoryLevel::Current );
 
     RealField & conservative1 =
         unsteady->GetConservative(
-            UnsteadyFieldView::HistoryLevel::Previous );
+            Unsteady::HistoryLevel::Previous );
 
     RealField & conservative2 =
         unsteady->GetConservative(
-            UnsteadyFieldView::HistoryLevel::Old );
+            Unsteady::HistoryLevel::Old );
 
     for ( int iEqu = 0; iEqu < unsteady->GetEquationCount(); ++ iEqu )
     {

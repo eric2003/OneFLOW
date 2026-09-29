@@ -32,6 +32,13 @@ class UnsteadyFieldNames;
 class Unsteady
 {
 public:
+    enum class HistoryLevel
+    {
+        Current  = 0,
+        Previous = 1,
+        Old      = 2
+    };
+
     Unsteady() = default;
     virtual ~Unsteady() = default;
 
@@ -39,8 +46,8 @@ public:
         UnsGrid * grid,
         const UnsteadyFieldNames & fieldNames );
 
-    MRField * GetFlow( UnsteadyFieldView::HistoryLevel level );
-    MRField * GetResidual( UnsteadyFieldView::HistoryLevel level );
+    MRField * GetFlow( HistoryLevel level );
+    MRField * GetResidual( HistoryLevel level );
 
 public:
 public:

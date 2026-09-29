@@ -44,10 +44,10 @@ public:
 
 public:
     RealField & GetPrimitive(
-        UnsteadyFieldView::HistoryLevel level );
+        Unsteady::HistoryLevel level );
 
     RealField & GetConservative(
-        UnsteadyFieldView::HistoryLevel level );
+        Unsteady::HistoryLevel level );
 
 protected:
     using USDFunc = void( * )( UUnsteady * unst );

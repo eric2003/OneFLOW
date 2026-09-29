@@ -44,12 +44,12 @@ void Unsteady::BindFields(
     this->field.BindFields( grid, fieldNames );
 }
 
-MRField * Unsteady::GetFlow( UnsteadyFieldView::HistoryLevel level )
+MRField * Unsteady::GetFlow( Unsteady::HistoryLevel level )
 {
     return this->field.GetFlow( level );
 }
 
-MRField * Unsteady::GetResidual( UnsteadyFieldView::HistoryLevel level )
+MRField * Unsteady::GetResidual( Unsteady::HistoryLevel level )
 {
     return this->field.GetResidual( level );
 }
