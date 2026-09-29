@@ -21,7 +21,6 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "CgnsFactory.h"
-#include "GridFactory.h"
 #include "CgnsGlobal.h"
 #include "CgnsZbc.h"
 #include "CgnsFile.h"
@@ -71,12 +70,6 @@ CgnsFactory::~CgnsFactory() = default;
 CgnsFactory::CgnsFactory(CgnsFactory&&) noexcept = default;
 CgnsFactory& CgnsFactory::operator=(CgnsFactory&&) noexcept = default;
 
-void CgnsFactory::SetCaseDir( const std::string & caseDir )
-{
-    caseDir_ = caseDir;
-}
-
-
 // FIX: Exception-safe ownership transfer
 void CgnsFactory::ConvertStrCgns2UnsCgnsGrid()
 {
@@ -104,9 +97,9 @@ void GenerateLocalOneFlowGridFromSu2Grid( Su2Grid & su2Grid, Grids & grids )
     ONEFLOW::AddOneFlowGrid( grids, local_grids[ 0 ] );
 }
 
-void CgnsFactory::GenerateGrid()
+void CgnsFactory::GenerateGrid( const std::string & caseDir )
 {
-    this->ReadCgnsGrid();
+    this->ReadCgnsGrid( caseDir );
 
     int systemZoneType = cgnsZbase->GetSystemZoneType();
     if ( ! ( systemZoneType == CGNS_ENUMV( Unstructured ) ) )
@@ -118,7 +111,7 @@ void CgnsFactory::GenerateGrid()
 
     if ( config.targetType == GridFileType::CGNS )
     {
-        this->DumpUnsCgnsGrid();
+        this->DumpUnsCgnsGrid( caseDir );
     }
     else
     {
@@ -132,7 +125,7 @@ void CgnsFactory::ProcessCgnsBases()
     this->cgnsZbase->ProcessCgnsBases();
 }
 
-void CgnsFactory::ReadCgnsGrid()
+void CgnsFactory::ReadCgnsGrid( const std::string & caseDir )
 {
     // Use .get() to pass the raw pointer to legacy/global APIs
     cgns_global.cgnsbases = this->cgnsZbase.get();
@@ -140,13 +133,13 @@ void CgnsFactory::ReadCgnsGrid()
     const std::string & sourceGridFile = config.sourceFile;
 
     std::string gridFileName;
-    if ( caseDir_.empty() )
+    if ( caseDir.empty() )
     {
         gridFileName = Prj::GetPrjFileName( sourceGridFile );
     }
     else
     {
-        gridFileName = Prj::GetCaseFileName( caseDir_, sourceGridFile );
+        gridFileName = Prj::GetCaseFileName( caseDir, sourceGridFile );
     }
 
     this->cgnsZbase->ReadCgnsGrid( gridFileName );
@@ -177,19 +170,19 @@ void CgnsFactory::CommonToStrGrid()
 {
 }
 
-void CgnsFactory::DumpUnsCgnsGrid()
+void CgnsFactory::DumpUnsCgnsGrid( const std::string & caseDir )
 {
     const GridConfig config = GridConfig::FromDataBase();
     const std::string & targetGridFile = config.targetFile;
 
     std::string targetFile;
-    if ( caseDir_.empty() )
+    if ( caseDir.empty() )
     {
         targetFile = Prj::GetPrjFileName( targetGridFile );
     }
     else
     {
-        targetFile = Prj::GetCaseFileName( caseDir_, targetGridFile );
+        targetFile = Prj::GetCaseFileName( caseDir, targetGridFile );
     }
 
     cgnsZbase->OpenCgnsFile( targetFile, CG_MODE_WRITE );
