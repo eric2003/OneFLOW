@@ -34,9 +34,9 @@ class Unsteady
 public:
     enum class HistoryLevel
     {
-        Current  = 0,
-        Previous = 1,
-        Old      = 2
+        Current,
+        Previous,
+        Old
     };
 
     Unsteady() = default;
@@ -55,6 +55,8 @@ public:
     void UpdateUnsteady();
 
 private:
+    static std::size_t GetHistoryIndex( HistoryLevel level );
+
     UnsteadyFieldView field;
 };
 

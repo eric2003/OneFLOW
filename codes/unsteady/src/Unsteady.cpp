@@ -44,16 +44,34 @@ void Unsteady::BindFields(
     this->field.BindFields( grid, fieldNames );
 }
 
+std::size_t Unsteady::GetHistoryIndex( Unsteady::HistoryLevel level )
+{
+    switch ( level )
+    {
+    case Unsteady::HistoryLevel::Current:
+        return 0;
+
+    case Unsteady::HistoryLevel::Previous:
+        return 1;
+
+    case Unsteady::HistoryLevel::Old:
+        return 2;
+    }
+
+    Fatal( "Invalid unsteady history level" );
+    return 0;
+}
+
 MRField * Unsteady::GetFlow( Unsteady::HistoryLevel level )
 {
     return this->field.GetFlow(
-        static_cast< std::size_t >( level ) );
+        GetHistoryIndex( level ) );
 }
 
 MRField * Unsteady::GetResidual( Unsteady::HistoryLevel level )
 {
     return this->field.GetResidual(
-        static_cast< std::size_t >( level ) );
+        GetHistoryIndex( level ) );
 }
 
 void Unsteady::UpdateUnsteady()
