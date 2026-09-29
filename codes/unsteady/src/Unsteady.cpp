@@ -29,16 +29,19 @@ void Unsteady::BindFields(
     UnsGrid * grid,
     const UnsteadyFieldNames & fieldNames )
 {
-    if ( fieldNames.flow.size() < 3 )
+    const std::size_t requiredHistoryLevels =
+        GetHistoryIndex( HistoryLevel::Old ) + 1;
+
+    if ( fieldNames.flow.size() < requiredHistoryLevels )
     {
         Fatal(
-            "Unsteady requires at least 3 flow time levels." );
+            "Unsteady requires Current, Previous, and Old flow time levels." );
     }
 
-    if ( fieldNames.residual.size() < 3 )
+    if ( fieldNames.residual.size() < requiredHistoryLevels )
     {
         Fatal(
-            "Unsteady requires at least 3 residual time levels." );
+            "Unsteady requires Current, Previous, and Old residual time levels." );
     }
 
     this->field.BindFields( grid, fieldNames );
