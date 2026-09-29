@@ -140,9 +140,9 @@ void Prj::Init()
     std::cout << " Prj::system_root = " << Prj::system_root << "\n";
 }
 
-void Prj::SetPrjBaseDir( const std::string & prjName )
+std::string Prj::ResolveCaseDir( const std::string & caseDir )
 {
-    std::filesystem::path projectPath( prjName );
+    std::filesystem::path projectPath( caseDir );
 
     if ( projectPath.empty() )
     {
@@ -157,13 +157,20 @@ void Prj::SetPrjBaseDir( const std::string & prjName )
 
     projectPath = projectPath.lexically_normal();
 
-    Prj::prjBaseDir = projectPath.string();
+    std::string resolvedDir = projectPath.string();
 
     // Keep the trailing slash because existing IO code relies on it.
-    if ( ! EndWithSlash( Prj::prjBaseDir ) )
+    if ( ! EndWithSlash( resolvedDir ) )
     {
-        Prj::prjBaseDir += "/";
+        resolvedDir += "/";
     }
+
+    return resolvedDir;
+}
+
+void Prj::SetPrjBaseDir( const std::string & prjName )
+{
+    Prj::prjBaseDir = Prj::ResolveCaseDir( prjName );
 
     std::cout << " Prj::prjBaseDir = "
         << Prj::prjBaseDir << "\n";

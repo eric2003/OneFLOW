@@ -50,7 +50,10 @@ void SimuContext::ProcessCommandLine()
 {
     // Keep the selected case directory as explicit case input.
     const CmdLineOptions opt = Prj::ParseCmdLineArgs( args_ );
-    caseDir_ = opt.caseDir;
+    // Store the resolved path in the case context so it remains valid even
+    // when a later case updates the legacy Prj static state.
+    Prj::Init();
+    caseDir_ = Prj::ResolveCaseDir( opt.caseDir );
 
     Prj::ProcessCmdLineArgs( args_ );
 }
