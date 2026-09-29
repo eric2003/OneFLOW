@@ -96,6 +96,7 @@ struct GridConfig
     std::string   sourceCaseDir;
     std::string   bcFile;
     std::string   targetFile;
+    std::string   partitionFile;
     std::string   topo;
     int           multiBlock{ 0 };
     int           axisDir{ 0 };
