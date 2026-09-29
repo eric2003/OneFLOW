@@ -92,6 +92,8 @@ struct GridConfig
     GridFileType  sourceType{ GridFileType::Unknown };
     GridFileType  targetType{ GridFileType::Unknown };
     std::string   sourceFile;
+    // Empty means the current case; otherwise this identifies the case that owns the source grid.
+    std::string   sourceCaseDir;
     std::string   bcFile;
     std::string   targetFile;
     std::string   topo;
