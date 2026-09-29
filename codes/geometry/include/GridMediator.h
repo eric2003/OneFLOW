@@ -124,8 +124,9 @@ public:
     // Throws std::logic_error if no mediator is installed.
     [[nodiscard]] static Grid * GetGrid( int zoneId );
 
-    // Historical public data member - prefer GetCurrentGridMediator().
-    static GridMediator * gridMediator;
+private:
+    // Non-owning process-wide state; ownership stays with the caller.
+    static GridMediator * currentGridMediator_;
 };
 
 // RAII: installs a current GridMediator for the enclosing scope and
