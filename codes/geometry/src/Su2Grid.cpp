@@ -252,7 +252,7 @@ void Su2Bc::Init()
     bcNameToValueMap.insert(String2IntPair("FAR", BCFarfield));
 }
 
-void Su2Bc::AddBc(std::string& geoName, std::string& bcName)
+void Su2Bc::AddBc( const std::string & geoName, const std::string & bcName )
 {
     using StringPair = std::pair< std::string, std::string >;
     bcMap.insert(StringPair(geoName, bcName));
