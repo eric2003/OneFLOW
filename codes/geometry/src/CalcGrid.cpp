@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*\
+/*---------------------------------------------------------------------------*\\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
@@ -18,7 +18,7 @@ License
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
-\*---------------------------------------------------------------------------*/
+\\*---------------------------------------------------------------------------*/
 
 #include "CalcGrid.h"
 #include "UnsGrid.h"
@@ -109,7 +109,7 @@ void CalcGrid::Dump()
 
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        std::cout << "iZone = " << iZone << " nZone = " << nZone << "\n";
+        std::cout << "iZone = " << iZone << " nZone = " << nZone << "\\n";
         grids[ iZone ]->WriteGrid( file );
     }
 
@@ -118,13 +118,13 @@ void CalcGrid::Dump()
 
 void CalcGrid::Post()
 {
-    logFile << "GenerateOverset\n";
+    logFile << "GenerateOverset\\n";
     this->GenerateOverset();
-    logFile << "BuildInterfaceLink\n";
+    logFile << "BuildInterfaceLink\\n";
     this->BuildInterfaceLink();
-    logFile << "ResetGridScaleAndTranslate\n";
+    logFile << "ResetGridScaleAndTranslate\\n";
     this->ResetGridScaleAndTranslate();
-    logFile << "CalcGrid::Post() Final \n";
+    logFile << "CalcGrid::Post() Final \\n";
 }
 
 void CalcGrid::GenerateOverset()
@@ -292,7 +292,7 @@ void CalcGrid::GenerateMultiZoneCalcGrids( Grids & grids )
 
 int GetIgnoreNoBc()
 {
-    return ONEFLOW::GetDataValue< int >( "ignoreNoBc" );
+    return GridConfig::FromDataBase().ignoreNoBoundary ? 1 : 0;
 }
 
 std::string GetTargetGridFileName()
