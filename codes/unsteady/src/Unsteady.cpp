@@ -20,10 +20,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Unsteady.h"
-#include "Fatal.h"
-#include "FieldManager.h"
 #include "FieldWrap.h"
-#include "Zone.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -36,29 +33,18 @@ Unsteady::~Unsteady()
 {
 }
 
-void Unsteady::BindFields()
+void Unsteady::BindFields(
+    UnsGrid * grid,
+    const UnsteadyFieldNames & fieldNames )
 {
-    FieldManager * fieldManager =
-        FieldManagerRegistry::GetFieldManager(
-            this->solverType );
-
-    if ( fieldManager == nullptr )
-    {
-        Fatal(
-            "FieldManager is not registered for solverType" );
-    }
-
-    UnsGrid * grid = Zone::GetUnsGrid();
-
     this->field.BindFields(
         grid,
-        fieldManager->GetUnsteadyFieldNames() );
+        fieldNames );
 }
 
 void Unsteady::UpdateUnsteady()
 {
-    // The concrete unsteady object initializes this view in its constructor.
-    // Reuse the persistent view instead of rebuilding a second field view.
+    // Reuse the persistent field view instead of rebuilding a second view.
     UnsteadyFieldView & fieldView = this->field;
 
     // Shift from the oldest configured level toward the current level.

@@ -11,19 +11,21 @@ License
     (at your option) any later version.
 
     OneFLOW is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-    for more details.
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+    License for more details.
 
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
-
 \*---------------------------------------------------------------------------*/
 
 #include "UnsteadyImp.h"
 #include "NsUnsteady.h"
 #include "TurbUnsteady.h"
 #include "SolverDef.h"
+#include "FieldManager.h"
+#include "Fatal.h"
+#include "Zone.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -43,7 +45,21 @@ Unsteady * CreateUnsteady( int solverType )
 
     if ( unsteady != 0 )
     {
-        unsteady->BindFields();
+        FieldManager * fieldManager =
+            FieldManagerRegistry::GetFieldManager(
+                solverType );
+
+        if ( fieldManager == nullptr )
+        {
+            Fatal(
+                "FieldManager is not registered for solverType" );
+        }
+
+        UnsGrid * grid = Zone::GetUnsGrid();
+
+        unsteady->BindFields(
+            grid,
+            fieldManager->GetUnsteadyFieldNames() );
     }
 
     return unsteady;
