@@ -38,6 +38,7 @@ License
 #include "HXMath.h"
 #include "DataBook.h"
 #include "Task.h"
+#include "GridTypes.h"
 #include <iostream>
 #include <string>
 
@@ -180,7 +181,10 @@ void Zone::NormalizeLayout()
 
 void Zone::ReadGrid( StringField & fileNameList )
 {
-    Zone::ReadGrid( fileNameList, std::string() );
+    // Resolve the grid owner from the current case configuration.
+    // An empty sourceCaseDir preserves the historical current-case behavior.
+    const GridConfig gridConfig = GridConfig::FromDataBase();
+    Zone::ReadGrid( fileNameList, gridConfig.sourceCaseDir );
 }
 
 void Zone::ReadGrid(
