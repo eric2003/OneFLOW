@@ -43,10 +43,9 @@ UTurbUnsteady::UTurbUnsteady()
     ug.Init();
     uturbf.Init();
 }
-void UTurbUnstPrepareSrcData( UUnsteady * unst )
+void UTurbUnstPrepareSrcData( UUnsteady * unsteady )
 {
-    UUnsteady * unsteady = unst;
-    UnsteadyFieldView * field = &unst->field;
+    UnsteadyFieldView * field = &unsteady->field;
 
     MRField * q =
         field->GetFlow( UnsteadyFieldView::HistoryLevel::Current );
@@ -88,10 +87,9 @@ void UTurbUnstPrepareSrcData( UUnsteady * unst )
     }
 }
 
-void UTurbUnstPrepareCriData( UUnsteady * unst )
+void UTurbUnstPrepareCriData( UUnsteady * unsteady )
 {
-    UUnsteady * unsteady = unst;
-    UnsteadyFieldView * field = &unst->field;
+    UnsteadyFieldView * field = &unsteady->field;
 
     MRField * q =
         field->GetFlow( UnsteadyFieldView::HistoryLevel::Current );
