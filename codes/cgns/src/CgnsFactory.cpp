@@ -25,7 +25,6 @@ License
 #include "CgnsGlobal.h"
 #include "CgnsZbc.h"
 #include "CgnsFile.h"
-#include "GridPara.h"
 #include "GridTypes.h"
 #include "Prj.h"
 #include "Fatal.h"
