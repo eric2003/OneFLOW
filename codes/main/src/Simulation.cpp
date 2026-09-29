@@ -152,18 +152,17 @@ void Simulation::RunImpl()
         // Process runtime has its own context. Cases are separate SimuImp
         // instances and therefore cannot accidentally own process state.
         SimuContext processContext( args );
-        processContext.ProcessCommandLine();
+        Prj::hx_debug = options.debug;
+        Prj::run_from_ide = options.debug;
         processContext.SetupProcessEnvironment();
 
         try
         {
             // Every case now follows the same Case lifecycle. The dedicated
             // process context only owns process-level initialization.
-            for ( const std::vector<std::string>& parsedCaseArgs :
-                options.caseArguments )
+            for ( const std::string& caseDir : options.caseDirs )
             {
-                std::vector<std::string> caseArgs = parsedCaseArgs;
-                SimuImp caseSimu( caseArgs );
+                SimuImp caseSimu( caseDir, options.debug );
                 caseSimu.RunCase();
             }
         }
