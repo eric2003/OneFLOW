@@ -159,11 +159,8 @@ public:
     ~Su2Grid();
 public:
     void ReadSu2Grid( GridMediator * gridMediator );
-    void ReadSu2GridAscii( std::string & fileName );
-    void Su2ToOneFlowGrid();
-
-    // Bind explicit case state for input-file access during multi-case runs.
-    void SetCaseDir( const std::string & caseDir );
+    void ReadSu2GridAscii( const std::string & fileName, const std::string & caseDir );
+    void Su2ToOneFlowGrid( const std::string & caseDir );
     void MarkBoundary(std::string& su2cfgFile);
     void FillSU2CgnsZone( CgnsZone * cgnsZone );
 public:
@@ -180,8 +177,6 @@ public:
 public:
     int nZone;
 
-private:
-    std::string caseDir_;
 };
 
 void Su2ToOneFlowGrid( Su2Grid & su2Grid );
