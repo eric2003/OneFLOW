@@ -352,7 +352,15 @@ void Su2Grid::ReadSu2GridAscii( std::string & fileName )
 {
     TextFileParser textFileParser;
     std::string separator  = " =\r\n\t#$,;";
-    textFileParser.OpenPrjFile( fileName, std::ios_base::in );
+    if ( ! caseDir_.empty() )
+    {
+        textFileParser.OpenCaseFile(
+            caseDir_, fileName, std::ios_base::in );
+    }
+    else
+    {
+        textFileParser.OpenPrjFile( fileName, std::ios_base::in );
+    }
     textFileParser.SetDefaultSeparator( separator );
 
     this->nZone = 1;
@@ -460,7 +468,15 @@ void Su2Grid::MarkBoundary( std::string & su2cfgFile)
 {
     TextFileParser textFileParser;
     std::string separator = " =\r\n\t#$,;()";
-    textFileParser.OpenPrjFile(su2cfgFile, std::ios_base::in);
+    if ( ! caseDir_.empty() )
+    {
+        textFileParser.OpenCaseFile(
+            caseDir_, su2cfgFile, std::ios_base::in );
+    }
+    else
+    {
+        textFileParser.OpenPrjFile( su2cfgFile, std::ios_base::in );
+    }
     textFileParser.SetDefaultSeparator(separator);
 
     StringField su2Comment;
