@@ -95,12 +95,18 @@ LogFile::~LogFile()
 
 void LogFile::SetCaseDir( const std::string & caseDir )
 {
+    // Close any stream that may still belong to the previous case.
+    Close();
+
     caseDir_ = caseDir;
     ifReWrite_ = false;
 }
 
 void LogFile::ClearCaseDir()
 {
+    // Ensure no file handle survives the case teardown.
+    Close();
+
     caseDir_.clear();
     ifReWrite_ = false;
 }
