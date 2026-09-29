@@ -287,8 +287,8 @@ std::string Prj::GetPrjFileName( const std::string & fileName )
 {
     std::filesystem::path path( fileName );
 
-    // Absolute and rooted paths must not be prefixed by the project directory.
-    if ( path.is_absolute() || path.has_root_directory() )
+    // Only a complete filesystem absolute path bypasses the project directory.
+    if ( path.is_absolute() )
     {
         return path.lexically_normal().string();
     }
