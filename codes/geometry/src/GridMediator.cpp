@@ -146,28 +146,4 @@ void ZgridMediator::ReadGrid()
 }
 
 
-GridMediator * GlobalGrid::currentGridMediator_ = nullptr;
-
-void GlobalGrid::SetCurrentGridMediator( GridMediator * gridMediatorIn )
-{
-    GlobalGrid::currentGridMediator_ = gridMediatorIn;
-}
-
-GridMediator * GlobalGrid::GetCurrentGridMediator() noexcept
-{
-    return GlobalGrid::currentGridMediator_;
-}
-
-Grid * GlobalGrid::GetGrid( int zoneId )
-{
-    GridMediator * gm = GlobalGrid::currentGridMediator_;
-    if ( ! gm )
-    {
-        throw std::logic_error(
-            "GlobalGrid::GetGrid: no current GridMediator "
-            "(call SetCurrentGridMediator or ScopedCurrentGridMediator first)" );
-    }
-    return gm->gridVector[ zoneId ];
-}
-
 EndNameSpace
