@@ -20,7 +20,6 @@ License
 \\---------------------------------------------------------------------------*/
 
 #include "UUnsteady.h"
-#include "UnsteadyConvergence.h"
 #include "TimeIntegration.h"
 #include "Iteration.h"
 #include "UCom.h"
