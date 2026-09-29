@@ -131,7 +131,7 @@ void MarkerManager::CreateMarkerList( int nMarker )
     markerList.resize( nMarker );
 }
 
-void MarkerManager::CalcSecMarker( SecMarkerManager * secMarkerManager )
+void MarkerManager::CalcSecMarker( SecMarkerManager & secMarkerManager )
 {
     int nMarker = this->markerList.size();
     IntSet typeSet;
@@ -156,13 +156,13 @@ void MarkerManager::CalcSecMarker( SecMarkerManager * secMarkerManager )
 
     int nType = types.size();
 
-    secMarkerManager->Alloc( nType );
+    secMarkerManager.Alloc( nType );
 
     int gid = 0;
     for ( int iType = 0; iType < nType; ++ iType )
     {
         int eType = types[ iType ];
-        SecMarker * secMarker = & secMarkerManager->data[ iType ];
+        SecMarker * secMarker = & secMarkerManager.data[ iType ];
         secMarker->vtk_type = eType;
         secMarker->cgns_type = vtk_CgnsMap.vtk2Cgns[ eType ];
         secMarker->name = ElementTypeName[ secMarker->cgns_type ];
@@ -496,7 +496,7 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone * cgnsZone )
 
     this->volSec.CalcVolSec( *this, volSec );
     SecMarkerManager bcSec;
-    this->mmark.CalcSecMarker( &bcSec );
+    this->mmark.CalcSecMarker( bcSec );
 
     int nVolSec = volSec.nType;
     int nBcSec = bcSec.nType;
