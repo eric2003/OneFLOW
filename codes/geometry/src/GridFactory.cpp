@@ -204,6 +204,7 @@ void GridFactory::Plot3DProcess( const GridConfig & config )
 void GridFactory::SU2Process()
 {
     Su2Grid su2Grid;
+    su2Grid.SetCaseDir( caseDir_ );
     su2Grid.Su2ToOneFlowGrid();
 }
 
