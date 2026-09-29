@@ -40,6 +40,7 @@ class SimuContext
 {
 public:
     explicit SimuContext( std::vector<std::string> args );
+    SimuContext( const std::string& caseDir, bool debug );
     ~SimuContext() = default;
 
     SimuContext( const SimuContext& ) = delete;
