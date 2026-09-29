@@ -262,10 +262,10 @@ void Su2Bc::Process( const StringField & markerBCNameList, const StringField & m
 {
     for ( int i = 0; i < markerBCNameList.size(); ++ i )
     {
-        std::string &bcName = markerBCNameList[i];
+        const std::string & bcName = markerBCNameList[ i ];
         if (bcList.find(bcName) != bcList.end())
         {
-            std::string& geoName = markerNameList[i];
+            const std::string & geoName = markerNameList[ i ];
             this->AddBc(geoName, bcName);
         }
     }
