@@ -36,7 +36,6 @@ BeginNameSpace( ONEFLOW )
 
 UINsUnsteady::UINsUnsteady()
 {
-    this->solverType = NS_SOLVER;
     this->SetEquationCount( nscom.nTEqu );
 
     this->srcFun = & UINsUnstPrepareSrcData;

@@ -37,7 +37,6 @@ public:
     UnsteadyFieldView field;
     USDFunc srcFun;
     USDFunc criFun;
-    int solverType;
 public:
     virtual void CalcUnsteadyCriterion() {};
     void BindFields(

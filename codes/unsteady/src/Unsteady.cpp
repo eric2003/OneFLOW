@@ -26,7 +26,6 @@ BeginNameSpace( ONEFLOW )
 
 Unsteady::Unsteady()
 {
-    solverType = -1;
 }
 
 Unsteady::~Unsteady()

@@ -35,7 +35,6 @@ BeginNameSpace( ONEFLOW )
 
 UTurbUnsteady::UTurbUnsteady()
 {
-    this->solverType = TURB_SOLVER;
     this->SetEquationCount( turbcom.nEqu );
 
     this->srcFun = & UTurbUnstPrepareSrcData;
