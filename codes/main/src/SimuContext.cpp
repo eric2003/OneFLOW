@@ -25,7 +25,6 @@ License
 
 #include "SimuContext.h"
 #include "SimuTask.h"
-#include "Prj.h"
 #include "EulerDomainStateLifecycle.h"
 #include <stdexcept>
 
@@ -36,12 +35,6 @@ SimuContext::SimuContext( std::vector<std::string> args )
 {
 }
 
-SimuContext::SimuContext( const std::string& caseDir, bool debug )
-    : caseDir_( Prj::ResolveCaseDir( caseDir ) )
-{
-    Prj::hx_debug = debug;
-    Prj::run_from_ide = debug;
-}
 
 void SimuContext::SetParallelInfo( int rank, int size )
 {
