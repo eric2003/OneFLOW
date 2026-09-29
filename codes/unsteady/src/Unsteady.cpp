@@ -24,14 +24,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-Unsteady::Unsteady()
-{
-}
-
-Unsteady::~Unsteady()
-{
-}
-
 void Unsteady::BindFields(
     UnsGrid * grid,
     const UnsteadyFieldNames & fieldNames )
