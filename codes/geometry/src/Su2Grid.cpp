@@ -93,7 +93,7 @@ void VTK_CgnsMap::Init()
     vtk2Cgns.insert( IntPair( VTK_TYPE::TETRAHEDRON  , TETRA_4 ) );
     vtk2Cgns.insert( IntPair( VTK_TYPE::HEXAHEDRON   , HEXA_8  ) );
     vtk2Cgns.insert( IntPair( VTK_TYPE::PRISM        , PENTA_6 ) );
-    vtk2Cgns.insert( IntPair( VTK_TYPE::PYRAMID      , PYRA_5  ) );
+    vtk2Cgns.insert( IntPair( VTK_TYPE::PYRAMID      , PYRA_5 ) );
 }
 
 SecMarkerManager::SecMarkerManager()
@@ -282,7 +282,7 @@ std::string Su2Bc::GetBcName( const std::string & geoName ) const
     return "";
 }
 
-int Su2Bc::GetCgnsBcType( const std::string & geoName )
+int Su2Bc::GetCgnsBcType( const std::string & geoName ) const
 {
     std::string bcName = this->GetBcName(geoName);
     return bcNameToValueMap.find(bcName)->second;
