@@ -184,6 +184,6 @@ private:
     std::string caseDir_;
 };
 
-void Su2ToOneFlowGrid( Su2Grid* su2Grid );
+void Su2ToOneFlowGrid( Su2Grid & su2Grid );
 
 EndNameSpace
