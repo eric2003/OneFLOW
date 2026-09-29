@@ -45,7 +45,6 @@ License
 #include "Dimension.h"
 #include "HXMath.h"
 #include "BcRecord.h"
-#include "DataBase.h"
 #include <iostream>
 
 
