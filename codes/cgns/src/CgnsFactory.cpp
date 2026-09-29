@@ -249,7 +249,8 @@ void CgnsFactory::Su2ToOneFlowGrid( Su2Grid & su2Grid )
 
 void CgnsFactory::CgnsToOneFlowGrid()
 {
-    if ( ! ONEFLOW::IsUnsGrid( grid_para.topo ) ) return;
+    const GridConfig config = GridConfig::FromDataBase();
+    if ( ! ONEFLOW::IsUnsGrid( config.topo ) ) return;
 
     Grids grids;
 
