@@ -26,6 +26,7 @@ License
 #include "CgnsZbc.h"
 #include "CgnsFile.h"
 #include "GridPara.h"
+#include "GridTypes.h"
 #include "Prj.h"
 #include "Fatal.h"
 #include "StringUtils.h"
@@ -114,8 +115,9 @@ void CgnsFactory::GenerateGrid()
         this->ConvertStrCgns2UnsCgnsGrid();
     }
 
-    std::string target_filetype = grid_para.target_filetype; 
-    if ( target_filetype == "cgns" )
+    const GridConfig config = GridConfig::FromDataBase();
+
+    if ( config.targetType == GridFileType::CGNS )
     {
         this->DumpUnsCgnsGrid();
     }

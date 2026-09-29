@@ -37,7 +37,7 @@ License
 #include "ZoneState.h"
 #include "BcRecord.h"
 #include "DataBase.h"
-#include "GridTypes.h"
+#include "GridPara.h"
 #include <iostream>
 
 
@@ -724,13 +724,11 @@ void Plot3D::Plot3DToCgns(
 {
     std::cout << "plot3d to cgns\n";
 
-    const GridConfig config = GridConfig::FromDataBase();
-
     auto gridMediator = std::make_unique< GridMediator >();
-    gridMediator->gridFile   = config.sourceFile;
-    gridMediator->bcFile     = config.bcFile;
-    gridMediator->targetFile = config.targetFile;
-    gridMediator->gridType   = std::string( ToString( config.sourceType ) );
+    gridMediator->gridFile   = grid_para.gridFile;
+    gridMediator->bcFile     = grid_para.bcFile;
+    gridMediator->targetFile = grid_para.targetFile;
+    gridMediator->gridType   = grid_para.filetype;
     gridMediator->caseDir    = caseDir;
 
     gridMediator->ReadGrid();
