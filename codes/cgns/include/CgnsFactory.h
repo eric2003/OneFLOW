@@ -79,8 +79,8 @@ public:
     void ReadGridAndConvertToUnsCgnsZone();
     void ProcessCgnsBases();
 public:
-    void CreateCgnsZone( ZgridMediator * zgridMediator );
-    void PrepareCgnsZone( ZgridMediator * zgridMediator );
+    void CreateCgnsZone( ZgridMediator & zgridMediator );
+    void PrepareCgnsZone( ZgridMediator & zgridMediator );
     CgnsZone * CreateSu2CgnsZone( Su2Grid & su2Grid );
     void Su2ToOneFlowGrid( Su2Grid & su2Grid );
 public:
