@@ -176,6 +176,23 @@ void Prj::SetPrjBaseDir( const std::string & prjName )
         << Prj::prjBaseDir << "\n";
 }
 
+void Prj::OpenCaseFile(
+    std::fstream & file,
+    const std::string & caseDir,
+    const std::string & fileName,
+    const std::ios_base::openmode & openMode )
+{
+    std::string caseFileName = caseDir + RemoveFirstSlash( fileName );
+
+    // Create parent directories only for write operations.
+    if ( ( openMode & std::ios_base::out ) != 0 )
+    {
+        CreateDirIfNeeded( caseFileName );
+    }
+
+    Prj::OpenFile( file, caseFileName, openMode );
+}
+
 void Prj::OpenPrjFile(
     std::fstream & file,
     const std::string & fileName,
