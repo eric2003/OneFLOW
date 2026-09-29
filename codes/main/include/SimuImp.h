@@ -35,6 +35,7 @@ class SimuImp : public SimuBase
 {
 public:
     explicit SimuImp( std::vector<std::string>& args );
+    SimuImp( const std::string& caseDir, bool debug );
     ~SimuImp() override;
 
     void Run() override;
