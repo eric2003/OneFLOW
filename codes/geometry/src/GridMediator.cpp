@@ -146,21 +146,21 @@ void ZgridMediator::ReadGrid()
 }
 
 
-GridMediator * GlobalGrid::gridMediator = nullptr;
+GridMediator * GlobalGrid::currentGridMediator_ = nullptr;
 
 void GlobalGrid::SetCurrentGridMediator( GridMediator * gridMediatorIn )
 {
-    GlobalGrid::gridMediator = gridMediatorIn;
+    GlobalGrid::currentGridMediator_ = gridMediatorIn;
 }
 
 GridMediator * GlobalGrid::GetCurrentGridMediator() noexcept
 {
-    return GlobalGrid::gridMediator;
+    return GlobalGrid::currentGridMediator_;
 }
 
 Grid * GlobalGrid::GetGrid( int zoneId )
 {
-    GridMediator * gm = GlobalGrid::gridMediator;
+    GridMediator * gm = GlobalGrid::currentGridMediator_;
     if ( ! gm )
     {
         throw std::logic_error(
