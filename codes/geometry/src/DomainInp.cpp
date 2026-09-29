@@ -21,7 +21,6 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "DomainInp.h"
-#include "GridPara.h"
 #include "CgnsFactory.h"
 #include "GridMediator.h"
 #include "Su2Grid.h"
