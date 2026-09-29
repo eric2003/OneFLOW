@@ -26,7 +26,6 @@ License
 #include "DomainInp.h"
 #include "Su2Grid.h"
 #include "ClassicGrid.h"
-#include "PointLocator.h"
 #include "BcRecord.h"
 #include "Plot3D.h"
 #include "HXMath.h"
