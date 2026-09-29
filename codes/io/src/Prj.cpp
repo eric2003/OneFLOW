@@ -247,9 +247,16 @@ void Prj::MakePrjDir( const std::string & dirName )
 // string concatenation that used to live in individual business-logic files.
 std::string Prj::GetSystemFileName( const std::string & fileName )
 {
-    std::string fileNameNew = RemoveFirstSlash( fileName );
+    std::filesystem::path path( fileName );
 
-    return Prj::system_root + fileNameNew;
+    // Absolute and rooted paths are already anchored to a filesystem root.
+    if ( path.is_absolute() || path.has_root_directory() )
+    {
+        return path.lexically_normal().string();
+    }
+
+    std::filesystem::path systemRoot( Prj::system_root );
+    return ( systemRoot / path ).lexically_normal().string();
 }
 
 std::string Prj::GetDirName( const std::string & fileName )
@@ -278,9 +285,16 @@ void Prj::CreateDirIfNeeded( const std::string & prjFileName )
 
 std::string Prj::GetPrjFileName( const std::string & fileName )
 {
-    std::string fileNameNew = RemoveFirstSlash( fileName );
+    std::filesystem::path path( fileName );
 
-    return Prj::prjBaseDir + fileNameNew;
+    // Absolute and rooted paths must not be prefixed by the project directory.
+    if ( path.is_absolute() || path.has_root_directory() )
+    {
+        return path.lexically_normal().string();
+    }
+
+    std::filesystem::path projectRoot( Prj::prjBaseDir );
+    return ( projectRoot / path ).lexically_normal().string();
 }
 
 std::string Prj::GetCaseFileName(
