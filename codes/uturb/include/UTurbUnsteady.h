@@ -34,7 +34,7 @@ public:
     ~UTurbUnsteady() = default;
 };
 
-void UTurbUnstPrepareSrcData( Unsteady * unst );
-void UTurbUnstPrepareCriData( Unsteady * unst );
+void UTurbUnstPrepareSrcData( UUnsteady * unst );
+void UTurbUnstPrepareCriData( UUnsteady * unst );
 
 EndNameSpace

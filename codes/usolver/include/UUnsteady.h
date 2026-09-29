@@ -55,7 +55,7 @@ public:
     UnsteadyConvergence convergence;
 
 protected:
-    using USDFunc = void( * )( Unsteady * unst );
+    using USDFunc = void( * )( UUnsteady * unst );
     USDFunc srcFun;
     USDFunc criFun;
 

@@ -34,7 +34,7 @@ public:
     ~UNsUnsteady() = default;
 };
 
-void UNsUnstPrepareSrcData( Unsteady * unst );
-void UNsUnstPrepareCriData( Unsteady * unst );
+void UNsUnstPrepareSrcData( UUnsteady * unst );
+void UNsUnstPrepareCriData( UUnsteady * unst );
 
 EndNameSpace

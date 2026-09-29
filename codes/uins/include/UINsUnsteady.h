@@ -34,7 +34,7 @@ public:
     ~UINsUnsteady() = default;
 };
 
-void UINsUnstPrepareSrcData( Unsteady * unst );
-void UINsUnstPrepareCriData( Unsteady * unst );
+void UINsUnstPrepareSrcData( UUnsteady * unst );
+void UINsUnstPrepareCriData( UUnsteady * unst );
 
 EndNameSpace

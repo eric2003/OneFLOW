@@ -45,9 +45,9 @@ UNsUnsteady::UNsUnsteady()
     unsf.Init();
 }
 
-void UNsUnstPrepareSrcData( Unsteady * unst )
+void UNsUnstPrepareSrcData( UUnsteady * unst )
 {
-    UUnsteady * unsteady = static_cast< UUnsteady * >( unst );
+    UUnsteady * unsteady = unst;
     UnsteadyFieldView * field = &unst->field;
 
     MRField * q =
@@ -80,9 +80,9 @@ void UNsUnstPrepareSrcData( Unsteady * unst )
     PrimToQ( unsteady->prim2, nscom.gama, unsteady->q2 );
 }
 
-void UNsUnstPrepareCriData( Unsteady * unst )
+void UNsUnstPrepareCriData( UUnsteady * unst )
 {
-    UUnsteady * unsteady = static_cast< UUnsteady * >( unst );
+    UUnsteady * unsteady = unst;
     UnsteadyFieldView * field = &unst->field;
 
     MRField * q =

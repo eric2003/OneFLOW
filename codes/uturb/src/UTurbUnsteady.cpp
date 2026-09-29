@@ -43,9 +43,9 @@ UTurbUnsteady::UTurbUnsteady()
     ug.Init();
     uturbf.Init();
 }
-void UTurbUnstPrepareSrcData( Unsteady * unst )
+void UTurbUnstPrepareSrcData( UUnsteady * unst )
 {
-    UUnsteady * unsteady = static_cast< UUnsteady * >( unst );
+    UUnsteady * unsteady = unst;
     UnsteadyFieldView * field = &unst->field;
 
     MRField * q =
@@ -88,9 +88,9 @@ void UTurbUnstPrepareSrcData( Unsteady * unst )
     }
 }
 
-void UTurbUnstPrepareCriData( Unsteady * unst )
+void UTurbUnstPrepareCriData( UUnsteady * unst )
 {
-    UUnsteady * unsteady = static_cast< UUnsteady * >( unst );
+    UUnsteady * unsteady = unst;
     UnsteadyFieldView * field = &unst->field;
 
     MRField * q =
