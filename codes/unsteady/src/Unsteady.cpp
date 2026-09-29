@@ -46,12 +46,14 @@ void Unsteady::BindFields(
 
 MRField * Unsteady::GetFlow( Unsteady::HistoryLevel level )
 {
-    return this->field.GetFlow( level );
+    return this->field.GetFlow(
+        static_cast< std::size_t >( level ) );
 }
 
 MRField * Unsteady::GetResidual( Unsteady::HistoryLevel level )
 {
-    return this->field.GetResidual( level );
+    return this->field.GetResidual(
+        static_cast< std::size_t >( level ) );
 }
 
 void Unsteady::UpdateUnsteady()

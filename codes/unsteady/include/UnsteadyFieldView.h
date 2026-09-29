@@ -47,9 +47,6 @@ public:
     MRField * GetFlow( std::size_t level );
     MRField * GetResidual( std::size_t level );
 
-    MRField * GetFlow( HistoryLevel level );
-    MRField * GetResidual( HistoryLevel level );
-
     std::size_t GetFlowCount() const;
     std::size_t GetResidualCount() const;
 
