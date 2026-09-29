@@ -47,6 +47,16 @@ void FileO::OpenPrjFile( const std::string & fileName, const std::ios_base::open
     Prj::OpenPrjFile( * file, fileName, fileOpenMode );
 }
 
+void FileO::OpenCaseFile(
+    const std::string & caseDir,
+    const std::string & fileName,
+    const std::ios_base::openmode & fileOpenMode )
+{
+    this->fileName     = fileName;
+    this->fileOpenMode = fileOpenMode;
+    Prj::OpenCaseFile( * file, caseDir, fileName, fileOpenMode );
+}
+
 void FileO::CloseFile()
 {
     Prj::CloseFile( * file );
