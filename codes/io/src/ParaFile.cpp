@@ -313,9 +313,10 @@ void ReadScriptFileNameList(
     std::vector< std::string > & scriptFileNameList )
 {
     TextFileParser textFileParser;
-    const std::string controlFile =
-        caseDir + "script/control.txt";
-    textFileParser.OpenFile( controlFile, std::ios_base::in );
+    textFileParser.OpenCaseFile(
+        caseDir,
+        "script/control.txt",
+        std::ios_base::in );
 
     // Tab is a separator.
     std::string keyWordSeparator = " ()\r\n\t#$,;\"";
