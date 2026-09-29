@@ -558,7 +558,6 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone & cgnsZone )
     {
         Marker * marker = & this->mmark.markerList[ iMarker ];
         const std::string & name = marker->name;
-        std::string& bcName = marker->bcName;
 
         CgnsBcBoco * cgnsBcBoco = cgnsZbc->cgnsZbcBoco->GetCgnsBc( iMarker );
         cgnsBcBoco->name = name;
