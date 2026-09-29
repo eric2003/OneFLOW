@@ -39,10 +39,11 @@ protected:
 public:
     void SetDeleteFlag( bool del_flag );
     T *& operator[] ( HXSize_t i );
-    HXPointer & operator= ( HXPointer &rhs );
+    T * const & operator[] ( HXSize_t i ) const;
+    HXPointer & operator= ( const HXPointer &rhs );
 public:
     void resize( HXSize_t nSize );
-    HXSize_t size();
+    HXSize_t size() const;
     void push_back( T * value );
 };
 
@@ -81,7 +82,13 @@ T *& HXPointer<T>::operator[] ( HXSize_t i )
 }
 
 template < typename T >
-HXPointer<T> & HXPointer<T>::operator= ( HXPointer<T> &rhs )
+T * const & HXPointer<T>::operator[] ( HXSize_t i ) const
+{
+    return this->data[ i ];
+}
+
+template < typename T >
+HXPointer<T> & HXPointer<T>::operator= ( const HXPointer<T> &rhs )
 {
     if ( this == & rhs ) return *this;
     this->data = rhs.data;
@@ -95,7 +102,7 @@ void HXPointer<T>::resize( HXSize_t nSize )
 }
 
 template < typename T >
-HXSize_t HXPointer<T>::size()
+HXSize_t HXPointer<T>::size() const
 {
     return this->data.size();
 }

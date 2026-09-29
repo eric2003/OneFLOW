@@ -34,7 +34,6 @@ License
 #include "CgnsCoor.h"
 #include "GridMediator.h"
 #include "Boundary.h"
-#include "GridPara.h"
 #include "Grid.h"
 #include "StrGrid.h"
 #include "UnsGrid.h"
@@ -517,7 +516,7 @@ void Su2Grid::Su2ToOneFlowGrid()
     this->MarkBoundary(su2cfgFile);
     this->ReadSu2GridAscii( gridFile );
 
-    ONEFLOW::Su2ToOneFlowGrid( this );
+    ONEFLOW::Su2ToOneFlowGrid( *this );
 }
 
 void Su2Grid::FillSU2CgnsZone( CgnsZone * cgnsZone )
@@ -626,13 +625,10 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone * cgnsZone )
 
 }
 
-void Su2ToOneFlowGrid( Su2Grid* su2Grid )
+void Su2ToOneFlowGrid( Su2Grid & su2Grid )
 {
-    CgnsFactory * cgnsFactory = new CgnsFactory();
-
-    cgnsFactory->Su2ToOneFlowGrid( su2Grid );
-
-    delete cgnsFactory;
+    CgnsFactory cgnsFactory;
+    cgnsFactory.Su2ToOneFlowGrid( su2Grid );
 }
 
 EndNameSpace

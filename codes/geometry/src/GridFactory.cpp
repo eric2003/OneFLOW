@@ -22,7 +22,6 @@ License
 
 #include "GridFactory.h"
 #include "CgnsFactory.h"
-#include "GridPara.h"
 #include "GridMediator.h"
 #include "DomainInp.h"
 #include "Su2Grid.h"
@@ -113,8 +112,7 @@ void GenerateGrid( const std::string & caseDir )
 
 void GridFactory::Run()
 {
-    // Load the typed configuration directly; GridPara remains only as a
-    // compatibility facade for legacy call sites that still need it.
+    // Load the typed configuration directly from the database.
     Run( GridConfig::FromDataBase() );
 }
 
@@ -187,7 +185,7 @@ void GridFactory::Plot3DProcess( const GridConfig & config )
         ZgridMediator zgridMediator;
         // Owned GridMediator instances are cleaned up automatically.
         Plot3D::Plot3DToCgns( &zgridMediator, caseDir_ );
-        cgnsFactory.DumpCgnsGrid( &zgridMediator );
+        cgnsFactory.DumpCgnsGrid( zgridMediator );
     }
     else
     {

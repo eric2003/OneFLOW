@@ -48,16 +48,28 @@ GridConfig GridConfig::FromDataBase()
     // The explicit source case is consumed later by the runtime grid reader.
     cfg.sourceCaseDir = GridConfig::GetSourceCaseDir();
 
-    cfg.bcFile     = GetDataValue< std::string >( "sourceGridBcName" );
-    cfg.targetFile = GetDataValue< std::string >( "targetGridFileName" );
+    cfg.bcFile         = GetDataValue< std::string >( "sourceGridBcName" );
+    cfg.targetFile     = GetDataValue< std::string >( "targetGridFileName" );
+    cfg.partitionFile  = GetDataValue< std::string >( "part_uns_file" );
 
     cfg.sourceType = ParseGridFileType( GetDataValue< std::string >( "sourceGridType" ) );
     cfg.targetType = ParseGridFileType( GetDataValue< std::string >( "targetGridType" ) );
     cfg.topo       = GetDataValue< std::string >( "topoType" );
 
-    cfg.multiBlock = GetDataValue< int >( "multiBlock" );
-    cfg.axisDir    = GetDataValue< int >( "axis_dir" );
-    cfg.scale      = GetDataValue< Real >( "gridScale" );
+    cfg.multiBlock    = GetDataValue< int >( "multiBlock" );
+    cfg.axisDir       = GetDataValue< int >( "axis_dir" );
+    cfg.partitionType = GetDataValue< int >( "partition_type" );
+
+    try
+    {
+        cfg.ignoreNoBoundary = GetDataValue< int >( "ignoreNoBc" ) != 0;
+    }
+    catch ( const std::exception & )
+    {
+        // Keep the default when legacy boundary control is not configured.
+    }
+
+    cfg.scale = GetDataValue< Real >( "gridScale" );
 
     // Preserve historical integer encoding for gridObj.
     const int rawObj = GetDataValue< int >( "gridObj" );

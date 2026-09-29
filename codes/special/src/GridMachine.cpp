@@ -27,7 +27,6 @@ License
 #include "BlockMachine.h"
 #include "Dimension.h"
 #include "DataBase.h"
-#include "GridPara.h"
 #include "TextFileParser.h"
 #include "HXMath.h"
 #include <iostream>

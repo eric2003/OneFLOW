@@ -23,6 +23,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "GridDef.h"
+#include <memory>
 
 
 
@@ -40,7 +41,7 @@ public:
 public:
     Grids grids;
     std::string gridFileName;
-    IFaceLink * iFaceLink;
+    std::unique_ptr< IFaceLink > iFaceLink;
 public:
     void BuildInterfaceLink();
     void Dump();

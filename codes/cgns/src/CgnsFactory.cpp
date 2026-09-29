@@ -25,7 +25,7 @@ License
 #include "CgnsGlobal.h"
 #include "CgnsZbc.h"
 #include "CgnsFile.h"
-#include "GridPara.h"
+#include "GridTypes.h"
 #include "Prj.h"
 #include "Fatal.h"
 #include "StringUtils.h"
@@ -93,7 +93,7 @@ void CgnsFactory::ConvertStrCgns2UnsCgnsGrid()
     this->zgridElem->cgnsZbase = this->cgnsZbase.get();
 }
 
-void GenerateLocalOneFlowGridFromSu2Grid( Su2Grid* su2Grid, Grids & grids )
+void GenerateLocalOneFlowGridFromSu2Grid( Su2Grid & su2Grid, Grids & grids )
 {
     // Stack allocation instead of new/delete
     CgnsFactory cgnsFactory;
@@ -114,8 +114,9 @@ void CgnsFactory::GenerateGrid()
         this->ConvertStrCgns2UnsCgnsGrid();
     }
 
-    std::string target_filetype = grid_para.target_filetype; 
-    if ( target_filetype == "cgns" )
+    const GridConfig config = GridConfig::FromDataBase();
+
+    if ( config.targetType == GridFileType::CGNS )
     {
         this->DumpUnsCgnsGrid();
     }
@@ -135,33 +136,38 @@ void CgnsFactory::ReadCgnsGrid()
 {
     // Use .get() to pass the raw pointer to legacy/global APIs
     cgns_global.cgnsbases = this->cgnsZbase.get();
+    const GridConfig config = GridConfig::FromDataBase();
+    const std::string & sourceGridFile = config.sourceFile;
+
     std::string gridFileName;
     if ( caseDir_.empty() )
     {
-        gridFileName = Prj::GetPrjFileName( grid_para.gridFile );
+        gridFileName = Prj::GetPrjFileName( sourceGridFile );
     }
     else
     {
-        gridFileName = Prj::GetCaseFileName( caseDir_, grid_para.gridFile );
+        gridFileName = Prj::GetCaseFileName( caseDir_, sourceGridFile );
     }
 
     this->cgnsZbase->ReadCgnsGrid( gridFileName );
 }
 
-void CgnsFactory::DumpCgnsGrid( ZgridMediator * zgridMediator )
+void CgnsFactory::DumpCgnsGrid( ZgridMediator & zgridMediator )
 {
     cgns_global.cgnsbases = cgnsZbase.get();
-    ONEFLOW::DumpCgnsGrid( cgnsZbase.get(), zgridMediator );
+    ONEFLOW::DumpCgnsGrid( cgnsZbase.get(), & zgridMediator );
 }
 
 
 void CgnsFactory::CommonToOneFlowGrid()
 {
-    if ( ONEFLOW::IsUnsGrid( grid_para.topo ) )
+    const GridConfig config = GridConfig::FromDataBase();
+
+    if ( ONEFLOW::IsUnsGrid( config.topo ) )
     {
         this->CommonToUnsGridTEST();
     }
-    else if ( ONEFLOW::IsStrGrid( grid_para.topo ) )
+    else if ( ONEFLOW::IsStrGrid( config.topo ) )
     {
         this->CommonToStrGrid();
     }
@@ -173,14 +179,17 @@ void CgnsFactory::CommonToStrGrid()
 
 void CgnsFactory::DumpUnsCgnsGrid()
 {
+    const GridConfig config = GridConfig::FromDataBase();
+    const std::string & targetGridFile = config.targetFile;
+
     std::string targetFile;
     if ( caseDir_.empty() )
     {
-        targetFile = Prj::GetPrjFileName( grid_para.targetFile );
+        targetFile = Prj::GetPrjFileName( targetGridFile );
     }
     else
     {
-        targetFile = Prj::GetCaseFileName( caseDir_, grid_para.targetFile );
+        targetFile = Prj::GetCaseFileName( caseDir_, targetGridFile );
     }
 
     cgnsZbase->OpenCgnsFile( targetFile, CG_MODE_WRITE );
@@ -188,14 +197,14 @@ void CgnsFactory::DumpUnsCgnsGrid()
     cgnsZbase->CloseCgnsFile();
 }
 
-void CgnsFactory::CreateCgnsZone( ZgridMediator * zgridMediator )
+void CgnsFactory::CreateCgnsZone( ZgridMediator & zgridMediator )
 {
-    ONEFLOW::CreateDefaultCgnsZones( cgnsZbase.get(), zgridMediator );
+    ONEFLOW::CreateDefaultCgnsZones( cgnsZbase.get(), & zgridMediator );
 }
 
-void CgnsFactory::PrepareCgnsZone( ZgridMediator * zgridMediator )
+void CgnsFactory::PrepareCgnsZone( ZgridMediator & zgridMediator )
 {
-    ONEFLOW::PrepareCgnsZone( cgnsZbase.get(), zgridMediator );
+    ONEFLOW::PrepareCgnsZone( cgnsZbase.get(), & zgridMediator );
 }
 
 void CgnsFactory::ReadGridAndConvertToUnsCgnsZone()
@@ -204,8 +213,8 @@ void CgnsFactory::ReadGridAndConvertToUnsCgnsZone()
     zgridMediator.ReadGrid();
 
     //create multi cgns zone
-    this->CreateCgnsZone( & zgridMediator );
-    this->PrepareCgnsZone( & zgridMediator );
+    this->CreateCgnsZone( zgridMediator );
+    this->PrepareCgnsZone( zgridMediator );
 }
 
 void CgnsFactory::CommonToUnsGridTEST()
@@ -215,18 +224,18 @@ void CgnsFactory::CommonToUnsGridTEST()
     this->CgnsToOneFlowGrid();
 }
 
-CgnsZone * CgnsFactory::CreateSu2CgnsZone( Su2Grid* su2Grid )
+CgnsZone * CgnsFactory::CreateSu2CgnsZone( Su2Grid & su2Grid )
 {
     CgnsZone * cgnsZone = this->cgnsZbase->CreateCgnsZone();
 
-    su2Grid->FillSU2CgnsZone( cgnsZone );
+    su2Grid.FillSU2CgnsZone( cgnsZone );
 
     return cgnsZone;
 }
 
-void CgnsFactory::Su2ToOneFlowGrid( Su2Grid* su2Grid )
+void CgnsFactory::Su2ToOneFlowGrid( Su2Grid & su2Grid )
 {
-    int nZones = su2Grid->nZone;
+    int nZones = su2Grid.nZone;
     Grids grids;
 
     for ( int iZone = 0; iZone < nZones; ++ iZone )
@@ -239,7 +248,8 @@ void CgnsFactory::Su2ToOneFlowGrid( Su2Grid* su2Grid )
 
 void CgnsFactory::CgnsToOneFlowGrid()
 {
-    if ( ! ONEFLOW::IsUnsGrid( grid_para.topo ) ) return;
+    const GridConfig config = GridConfig::FromDataBase();
+    if ( ! ONEFLOW::IsUnsGrid( config.topo ) ) return;
 
     Grids grids;
 

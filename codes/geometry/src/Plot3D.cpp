@@ -23,6 +23,7 @@ License
 #include "Plot3D.h"
 #include "CgnsFactory.h"
 #include "GridMediator.h"
+#include "GridTypes.h"
 #include "Fatal.h"
 #include "Prj.h"
 #include "StrGrid.h"
@@ -37,7 +38,6 @@ License
 #include "ZoneState.h"
 #include "BcRecord.h"
 #include "DataBase.h"
-#include "GridTypes.h"
 #include <iostream>
 
 

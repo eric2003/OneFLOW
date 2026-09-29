@@ -41,7 +41,7 @@ License
 #include "Prj.h"
 #include "HXCgns.h"
 #include "Dimension.h"
-#include "GridPara.h"
+#include "GridTypes.h"
 #include <algorithm>
 #include <iostream>
 #include <iomanip>
@@ -182,7 +182,7 @@ void BlkFaceSolver::CreateFaceList()
     }
 
     this->face2Block.resize( nFaces );
-    // Register existing faces to faceLookup (key ¡ú id).
+    // Register existing faces to faceLookup (key Â¡Ãº id).
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         IntField & face = this->faceList[ iFace ];
@@ -378,8 +378,10 @@ void BlkFaceSolver::DumpBcInp()
     int flowSolverIndex = 1;
     int width = 5;
 
+    const GridConfig config = GridConfig::FromDataBase();
+
     std::fstream file;
-    Prj::OpenPrjFile( file, grid_para.bcFile, std::ios_base::out );
+    Prj::OpenPrjFile( file, config.bcFile, std::ios_base::out );
 
     file << std::setw( width ) << flowSolverIndex << std::endl;
     file << std::setw( width ) << nBlock << std::endl;
@@ -399,8 +401,10 @@ void BlkFaceSolver::DumpBcInp2D()
     int flowSolverIndex = 1;
     int width = 5;
 
+    const GridConfig config = GridConfig::FromDataBase();
+
     std::fstream file;
-    Prj::OpenPrjFile( file, grid_para.bcFile, std::ios_base::out );
+    Prj::OpenPrjFile( file, config.bcFile, std::ios_base::out );
 
     file << std::setw( width ) << flowSolverIndex << std::endl;
     file << std::setw( width ) << nBlock << std::endl;
@@ -553,8 +557,10 @@ void BlkFaceSolver::DumpStandardGrid2D()
 
 void BlkFaceSolver::DumpStandardGrid( Grids & strGridList )
 {
+    const GridConfig config = GridConfig::FromDataBase();
+
     std::fstream file;
-    Prj::OpenPrjFile( file, grid_para.gridFile, std::ios_base::out | std::ios_base::binary );
+    Prj::OpenPrjFile( file, config.sourceFile, std::ios_base::out | std::ios_base::binary );
 
     int nZone = strGridList.size();
     HXWrite( & file, nZone );
