@@ -221,7 +221,7 @@ CgnsZone * CgnsFactory::CreateSu2CgnsZone( Su2Grid & su2Grid )
 {
     CgnsZone * cgnsZone = this->cgnsZbase->CreateCgnsZone();
 
-    su2Grid.FillSU2CgnsZone( cgnsZone );
+    su2Grid.FillSU2CgnsZone( *cgnsZone );
 
     return cgnsZone;
 }
