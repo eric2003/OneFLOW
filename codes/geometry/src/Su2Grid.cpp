@@ -140,7 +140,7 @@ void MarkerManager::CalcSecMarker( SecMarkerManager & secMarkerManager )
         const Marker * marker = & this->markerList[ iMarker ];
         for ( int iElem = 0; iElem < marker->nElem; ++ iElem )
         {
-            int type = marker->eTypes[ iElem ];
+            const int type = marker->eTypes[ iElem ];
             typeSet.insert( type );
         }
     }
@@ -161,7 +161,7 @@ void MarkerManager::CalcSecMarker( SecMarkerManager & secMarkerManager )
     int gid = 0;
     for ( int iType = 0; iType < nType; ++ iType )
     {
-        int eType = types[ iType ];
+        const int eType = types[ iType ];
         SecMarker * secMarker = & secMarkerManager.data[ iType ];
         secMarker->vtk_type = eType;
         secMarker->cgns_type = vtk_CgnsMap.vtk2Cgns[ eType ];
@@ -171,7 +171,7 @@ void MarkerManager::CalcSecMarker( SecMarkerManager & secMarkerManager )
             const Marker * marker = & this->markerList[ iMarker ];
             for ( int iElem = 0; iElem < marker->nElem; ++ iElem )
             {
-                int type = marker->eTypes[ iElem ];
+                const int type = marker->eTypes[ iElem ];
                 if ( type == eType )
                 {
                     secMarker->elems.push_back( marker->elems[ iElem ] );
@@ -200,7 +200,7 @@ void VolumeSecManager::CalcVolSec( const Su2Grid & su2Grid, SecMarkerManager & s
 
     for ( int iElem = 0; iElem < su2Grid.nElem; ++ iElem )
     {
-        int eVtkType = su2Grid.elemVTKType[ iElem ];
+        const int eVtkType = su2Grid.elemVTKType[ iElem ];
         typeSet.insert( eVtkType );
     }
     
@@ -221,7 +221,7 @@ void VolumeSecManager::CalcVolSec( const Su2Grid & su2Grid, SecMarkerManager & s
         int gid = 0;
         for ( int iElem = 0; iElem < su2Grid.nElem; ++ iElem )
         {
-            int e_VtkType = su2Grid.elemVTKType[ iElem ];
+            const int e_VtkType = su2Grid.elemVTKType[ iElem ];
             if ( eType == e_VtkType )
             {
                 secMarker->elems.push_back( su2Grid.elems[ iElem ] );
@@ -479,8 +479,8 @@ void Su2Grid::Su2ToOneFlowGrid( const GridConfig & config, const std::string & c
 
 void Su2Grid::FillSU2CgnsZone( CgnsZone & cgnsZone )
 {
-    int nNodes = this->xN.size();
-    int nCells = this->nElem;
+    const int nNodes = this->xN.size();
+    const int nCells = this->nElem;
 
     cgnsZone.cgnsCoor->SetNNode( nNodes );
     cgnsZone.cgnsCoor->SetNCell( nCells );
@@ -498,10 +498,10 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone & cgnsZone )
     SecMarkerManager bcSec;
     this->mmark.CalcSecMarker( bcSec );
 
-    int nVolSec = volSec.nType;
-    int nBcSec = bcSec.nType;
+    const int nVolSec = volSec.nType;
+    const int nBcSec = bcSec.nType;
 
-    int nSection = nVolSec + nBcSec;
+    const int nSection = nVolSec + nBcSec;
 
     CgnsZsection * cgnsZsection = cgnsZone.cgnsZsection;
 
@@ -526,7 +526,7 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone & cgnsZone )
         }
             
 
-        int nElem = sec->nElem;
+        const int nElem = sec->nElem;
         cgnsSection->SetSectionInfo( sec->name, sec->cgns_type, sumElem + 1, sumElem + nElem );
         cgnsSection->CreateConnList();
         sumElem += nElem;
@@ -535,7 +535,7 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone & cgnsZone )
         for ( int iElem = 0; iElem < nElem; ++ iElem )
         {
             const IntField & elem = sec->elems[ iElem ];
-            int nNodes = elem.size();
+            const int nNodes = elem.size();
             for ( int i = 0; i < nNodes; ++ i )
             {
                 cgnsSection->connList[ pos ++ ]= elem[ i ] + 1;
@@ -569,7 +569,7 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone & cgnsZone )
 
         for ( int iElem = 0; iElem < marker->nElem; ++ iElem )
         {
-            int elemId = this->mmark.l2g[ iMarker ][ iElem ];
+            const int elemId = this->mmark.l2g[ iMarker ][ iElem ];
             cgnsBcBoco->connList[ iElem ] = elemId + 1 + nVolCell;
         }
         
