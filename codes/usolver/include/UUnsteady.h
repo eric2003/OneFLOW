@@ -10,21 +10,22 @@ License
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    OneFLOW is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-    for more details.
+    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+    License for more details.
 
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
-
-\---------------------------------------------------------------------------*/
+\*---------------------------------------------------------------------------*/
 
 #pragma once
 #include "Unsteady.h"
 #include "UnsteadyConvergence.h"
 
 BeginNameSpace( ONEFLOW )
+
+using USDFunc = void( * )( Unsteady * unst );
 
 class UUnsteady : public Unsteady
 {
@@ -55,6 +56,10 @@ public:
     // not to the generic unsteady data interface.
     RealField q, q1, q2;
     UnsteadyConvergence convergence;
+
+protected:
+    USDFunc srcFun;
+    USDFunc criFun;
 
 private:
     RealField res, res1, res2;
