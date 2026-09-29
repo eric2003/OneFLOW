@@ -47,6 +47,13 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+SimuContext::SimuContext( const std::string& caseDir, bool debug )
+    : caseDir_( Prj::ResolveCaseDir( caseDir ) )
+{
+    Prj::hx_debug = debug;
+    Prj::run_from_ide = debug;
+}
+
 void SimuContext::ProcessCommandLine()
 {
     // Keep the selected case directory as explicit case input.
