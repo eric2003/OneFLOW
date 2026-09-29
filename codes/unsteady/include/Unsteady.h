@@ -31,8 +31,8 @@ using USDFunc = void( * )( Unsteady * unst );
 class Unsteady
 {
 public:
-    Unsteady();
-    virtual ~Unsteady();
+    Unsteady() = default;
+    virtual ~Unsteady() = default;
 public:
     UnsteadyFieldView field;
     USDFunc srcFun;
