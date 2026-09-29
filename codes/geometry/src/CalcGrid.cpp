@@ -248,7 +248,7 @@ void CalcGrid::ReGenerateLgMapping()
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         Grid * grid = grids[ iZone ];
-        grid->ReGenerateLgMapping( this->iFaceLink );
+        grid->ReGenerateLgMapping( this->iFaceLink.get() );
     }
 
     this->UpdateLgMapping();
@@ -266,7 +266,7 @@ void CalcGrid::UpdateOtherTopologyTerm()
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         Grid * grid = grids[ iZone ];
-        grid->UpdateOtherTopologyTerm( this->iFaceLink );
+        grid->UpdateOtherTopologyTerm( this->iFaceLink.get() );
     }
 }
 
