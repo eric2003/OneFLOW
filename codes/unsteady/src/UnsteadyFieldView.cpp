@@ -10,10 +10,10 @@ License
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
-    License for more details.
+    OneFLOW is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
+    Public License for more details.
 
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
@@ -22,7 +22,6 @@ License
 
 #include "UnsteadyFieldView.h"
 #include "FieldManager.h"
-#include "UnsteadyFieldNames.h"
 #include "FieldWrap.h"
 #include "DataBase.h"
 #include "Zone.h"
@@ -42,10 +41,6 @@ UnsteadyFieldView::~UnsteadyFieldView()
 
 void UnsteadyFieldView::BindFields( int solverType )
 {
-    // Build unsteady access view from registered fields.
-    // This class does not allocate field storage.
-    UnsGrid * grid = Zone::GetUnsGrid();
-
     FieldManager * fieldManager =
         FieldManagerRegistry::GetFieldManager(
             solverType );
@@ -56,8 +51,16 @@ void UnsteadyFieldView::BindFields( int solverType )
             "FieldManager is not registered for solverType" );
     }
 
-    const UnsteadyFieldNames & fieldNames =
-        fieldManager->GetUnsteadyFieldNames();
+    this->BindFields(
+        fieldManager->GetUnsteadyFieldNames() );
+}
+
+void UnsteadyFieldView::BindFields(
+    const UnsteadyFieldNames & fieldNames )
+{
+    // Build unsteady access view from registered field names.
+    // This class does not allocate field storage.
+    UnsGrid * grid = Zone::GetUnsGrid();
 
     this->flow.resize(
         fieldNames.flow.size() );

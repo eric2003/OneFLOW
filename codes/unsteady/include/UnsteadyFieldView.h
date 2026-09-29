@@ -10,10 +10,10 @@ License
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
-    License for more details.
+    OneFLOW is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
+    Public License for more details.
 
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
@@ -24,6 +24,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "HXArray.h"
+#include "UnsteadyFieldNames.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -45,6 +46,7 @@ public:
 
 public:
     void BindFields( int solverType );
+    void BindFields( const UnsteadyFieldNames & fieldNames );
 
     MRField * GetFlow( std::size_t level );
     MRField * GetResidual( std::size_t level );
