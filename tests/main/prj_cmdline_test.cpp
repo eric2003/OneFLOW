@@ -190,13 +190,14 @@ TEST( PrjCasePath, RootedPathIsNotCaseRelative )
     const std::filesystem::path actual =
         Prj::GetPrjFileName( rootedPath.string() );
 
+    // A rooted path is not case-relative. On POSIX it is absolute; on
+    // Windows it is root-relative and keeps the current drive.
+    const std::filesystem::path expected =
+        ( caseDir / rootedPath ).lexically_normal();
+
     EXPECT_EQ(
         actual.lexically_normal(),
-        rootedPath.lexically_normal() );
-
-    EXPECT_NE(
-        actual.lexically_normal(),
-        ( caseDir / "grid" / "test.dat" ).lexically_normal() );
+        expected );
 }
 
 TEST( PrjCasePath, AbsolutePathIsNotCaseRelative )
@@ -381,11 +382,16 @@ TEST( PrjSystemPath, GetSystemFileNameJoinsWithSystemRoot )
     const std::filesystem::path rootedPath =
         std::filesystem::path( "/action/actionFileList.txt" );
 
+    // A rooted path is not system-root-relative. On POSIX it is absolute;
+    // on Windows it is root-relative and keeps the current drive.
+    const std::filesystem::path rootedExpected =
+        ( systemRoot / rootedPath ).lexically_normal();
+
     EXPECT_EQ(
         std::filesystem::path(
             Prj::GetSystemFileName( rootedPath.string() ) )
         .lexically_normal(),
-        rootedPath.lexically_normal() );
+        rootedExpected );
 
     Prj::system_root = savedRoot;
 }
