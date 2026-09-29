@@ -48,10 +48,6 @@ public:
     CgnsFactory();
     ~CgnsFactory();
 
-    // Bind explicit case state so grid IO does not depend on the legacy
-    // process-wide project directory.
-    void SetCaseDir( const std::string & caseDir );
-
     // Rule of 5: Disable copying to prevent double-free
     CgnsFactory(const CgnsFactory&) = delete;
     CgnsFactory& operator=(const CgnsFactory&) = delete;
@@ -65,13 +61,11 @@ public:
     std::unique_ptr<CgnsZbase> cgnsZbase;
     std::unique_ptr<ZgridElem> zgridElem;
 
-private:
-    std::string caseDir_;
 public:
-    void GenerateGrid();
-    void ReadCgnsGrid();
+    void GenerateGrid( const std::string & caseDir );
+    void ReadCgnsGrid( const std::string & caseDir );
     void DumpCgnsGrid( ZgridMediator & zgridMediator );
-    void DumpUnsCgnsGrid();
+    void DumpUnsCgnsGrid( const std::string & caseDir );
 public:
     void CommonToOneFlowGrid();
     void CommonToStrGrid();
