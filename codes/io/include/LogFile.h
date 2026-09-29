@@ -39,6 +39,11 @@ public:
     LogFile();
     ~LogFile();
     std::fstream my_fstream;
+
+private:
+    std::string caseDir_;
+    bool ifReWrite_ = false;
+
 public:
     void SetCaseDir( const std::string & caseDir );
     void ClearCaseDir();
