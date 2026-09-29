@@ -93,5 +93,15 @@ MRField * UnsteadyFieldView::GetResidual( HistoryLevel level )
         static_cast< std::size_t >( level ) );
 }
 
+std::size_t UnsteadyFieldView::GetFlowCount() const
+{
+    return this->flow.size();
+}
+
+std::size_t UnsteadyFieldView::GetResidualCount() const
+{
+    return this->residual.size();
+}
+
 
 EndNameSpace

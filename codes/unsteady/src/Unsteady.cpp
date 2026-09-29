@@ -61,7 +61,7 @@ void Unsteady::UpdateUnsteady()
 
     // Shift from the oldest configured level toward the current level.
     // Reverse order prevents overwriting a history level before it is copied.
-    for ( std::size_t level = fieldView.flow.size();
+    for ( std::size_t level = fieldView.GetFlowCount();
         level > 1;
         -- level )
     {

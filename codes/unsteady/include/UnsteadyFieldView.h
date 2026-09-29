@@ -57,7 +57,10 @@ public:
     MRField * GetFlow( HistoryLevel level );
     MRField * GetResidual( HistoryLevel level );
 
-public:
+    std::size_t GetFlowCount() const;
+    std::size_t GetResidualCount() const;
+
+private:
     // Non-owning view of time-level fields.
     // Actual field storage is managed by FieldManager.
     MRFieldPtr flow;

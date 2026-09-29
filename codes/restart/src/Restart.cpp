@@ -110,7 +110,7 @@ void Restart::ReadUnsteady( int solverType )
         fieldView.GetFlow( 1 ) );
 
     for ( std::size_t level = 2;
-        level < fieldView.flow.size();
+        level < fieldView.GetFlowCount();
         ++ level )
     {
         HXRead(
@@ -128,7 +128,7 @@ void Restart::ReadUnsteady( int solverType )
         fieldView.GetResidual( 1 ) );
 
     for ( std::size_t level = 2;
-        level < fieldView.residual.size();
+        level < fieldView.GetResidualCount();
         ++ level )
     {
         HXRead(
@@ -145,7 +145,7 @@ void Restart::DumpUnsteady( int solverType )
     // Keep the current level out of the restart stream.
     // It is reconstructed from the first stored history level on read.
     for ( std::size_t level = 1;
-        level < fieldView.flow.size();
+        level < fieldView.GetFlowCount();
         ++ level )
     {
         HXWrite(
@@ -154,7 +154,7 @@ void Restart::DumpUnsteady( int solverType )
     }
 
     for ( std::size_t level = 1;
-        level < fieldView.residual.size();
+        level < fieldView.GetResidualCount();
         ++ level )
     {
         HXWrite(
@@ -170,7 +170,7 @@ void Restart::InitUnsteady( int solverType )
 
     // Initialize every configured history level from the current field.
     for ( std::size_t level = 1;
-        level < fieldView.flow.size();
+        level < fieldView.GetFlowCount();
         ++ level )
     {
         SetField(
@@ -183,7 +183,7 @@ void Restart::InitUnsteady( int solverType )
         0.0 );
 
     for ( std::size_t level = 1;
-        level < fieldView.residual.size();
+        level < fieldView.GetResidualCount();
         ++ level )
     {
         SetField(
