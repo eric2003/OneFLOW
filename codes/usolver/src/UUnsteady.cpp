@@ -126,13 +126,13 @@ void UUnsteady::StoreOldResidual()
     if ( Iteration::innerSteps != 1 ) return;
 
     MRField * current =
-        field.GetResidual( UnsteadyFieldView::HistoryLevel::Current );
+        GetResidual( UnsteadyFieldView::HistoryLevel::Current );
 
     MRField * previous =
-        field.GetResidual( UnsteadyFieldView::HistoryLevel::Previous );
+        GetResidual( UnsteadyFieldView::HistoryLevel::Previous );
 
     MRField * old =
-        field.GetResidual( UnsteadyFieldView::HistoryLevel::Old );
+        GetResidual( UnsteadyFieldView::HistoryLevel::Old );
 
     for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
@@ -150,13 +150,13 @@ void UUnsteady::StoreOldResidual()
 void UUnsteady::PrepareResidual()
 {
     MRField * res =
-        field.GetResidual( UnsteadyFieldView::HistoryLevel::Current );
+        GetResidual( UnsteadyFieldView::HistoryLevel::Current );
 
     MRField * res1 =
-        field.GetResidual( UnsteadyFieldView::HistoryLevel::Previous );
+        GetResidual( UnsteadyFieldView::HistoryLevel::Previous );
 
     MRField * res2 =
-        field.GetResidual( UnsteadyFieldView::HistoryLevel::Old );
+        GetResidual( UnsteadyFieldView::HistoryLevel::Old );
 
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
