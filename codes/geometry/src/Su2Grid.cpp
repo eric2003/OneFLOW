@@ -111,23 +111,11 @@ SecMarkerManager::SecMarkerManager()
     ;
 }
 
-SecMarkerManager::~SecMarkerManager()
-{
-    int nType = data.size();
-    for ( int i = 0; i < nType; ++ i )
-    {
-        delete data[ i ];
-    }
-}
-
 void SecMarkerManager::Alloc( int nType )
 {
     this->nType = nType;
+    data.clear();
     data.resize( nType );
-    for ( int i = 0; i < nType; ++ i )
-    {
-        data[ i ] = new SecMarker();
-    }
 }
 
 int SecMarkerManager::CalcTotalElem()
@@ -196,7 +184,7 @@ void MarkerManager::CalcSecMarker( SecMarkerManager * secMarkerManager )
     for ( int iType = 0; iType < nType; ++ iType )
     {
         int eType = types[ iType ];
-        SecMarker * secMarker = secMarkerManager->data[ iType ];
+        SecMarker * secMarker = & secMarkerManager->data[ iType ];
         secMarker->vtk_type = eType;
         secMarker->cgns_type = vtk_CgnsMap.vtk2Cgns[ eType ];
         secMarker->name = ElementTypeName[ secMarker->cgns_type ];
@@ -551,15 +539,15 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone * cgnsZone )
     for ( int iSection = 0; iSection < nSection; ++ iSection )
     {
         CgnsSection * cgnsSection = cgnsZsection->GetCgnsSection( iSection );
-        SecMarker * sec = 0;
+        SecMarker * sec = nullptr;
         if ( iSection < nVolSec )
         {
-            sec = volSec.data[ iSection ];
+            sec = & volSec.data[ iSection ];
         }
         else
         {
             int jSection = iSection - nVolSec;
-            sec = bcSec.data[ jSection ];
+            sec = & bcSec.data[ jSection ];
         }
             
 
