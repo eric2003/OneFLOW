@@ -124,6 +124,30 @@ void UTurbUnstPrepareCriData( UUnsteady * unsteady )
     MRField * q2 =
         field->GetFlow( UnsteadyFieldView::HistoryLevel::Old );
 
+    RealField & primitive =
+        unsteady->GetPrimitive(
+            UnsteadyFieldView::HistoryLevel::Current );
+
+    RealField & primitive1 =
+        unsteady->GetPrimitive(
+            UnsteadyFieldView::HistoryLevel::Previous );
+
+    RealField & primitive2 =
+        unsteady->GetPrimitive(
+            UnsteadyFieldView::HistoryLevel::Old );
+
+    RealField & conservative =
+        unsteady->GetConservative(
+            UnsteadyFieldView::HistoryLevel::Current );
+
+    RealField & conservative1 =
+        unsteady->GetConservative(
+            UnsteadyFieldView::HistoryLevel::Previous );
+
+    RealField & conservative2 =
+        unsteady->GetConservative(
+            UnsteadyFieldView::HistoryLevel::Old );
+
     for ( int iEqu = 0; iEqu < unsteady->GetEquationCount(); ++ iEqu )
     {
         primitive [ iEqu ] =
