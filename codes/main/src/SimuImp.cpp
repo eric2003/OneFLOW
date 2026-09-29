@@ -37,6 +37,11 @@ SimuImp::SimuImp( std::vector<std::string>& args )
     ctx_->ProcessCommandLine();
 }
 
+SimuImp::SimuImp( const std::string& caseDir, bool debug )
+    : ctx_( std::make_unique<SimuContext>( caseDir, debug ) )
+{
+}
+
 SimuImp::~SimuImp()
 {
 }
