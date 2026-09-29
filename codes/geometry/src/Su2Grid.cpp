@@ -34,7 +34,6 @@ License
 #include "CgnsCoor.h"
 #include "GridMediator.h"
 #include "Boundary.h"
-#include "GridPara.h"
 #include "Grid.h"
 #include "StrGrid.h"
 #include "UnsGrid.h"
