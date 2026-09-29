@@ -35,9 +35,6 @@ public:
     UnsteadyFieldView field;
 public:
     virtual void CalcUnsteadyCriterion() {};
-    void BindFields(
-        UnsGrid * grid,
-        const UnsteadyFieldNames & fieldNames );
     void UpdateUnsteady();
 };
 

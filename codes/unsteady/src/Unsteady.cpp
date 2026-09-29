@@ -24,15 +24,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-void Unsteady::BindFields(
-    UnsGrid * grid,
-    const UnsteadyFieldNames & fieldNames )
-{
-    this->field.BindFields(
-        grid,
-        fieldNames );
-}
-
 void Unsteady::UpdateUnsteady()
 {
     // Reuse the persistent field view instead of rebuilding a second view.

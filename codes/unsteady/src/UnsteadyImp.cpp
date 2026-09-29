@@ -57,7 +57,7 @@ Unsteady * CreateUnsteady( int solverType )
 
         UnsGrid * grid = Zone::GetUnsGrid();
 
-        unsteady->BindFields(
+        unsteady->field.BindFields(
             grid,
             fieldManager->GetUnsteadyFieldNames() );
     }
