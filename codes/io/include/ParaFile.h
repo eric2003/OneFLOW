@@ -43,8 +43,11 @@ int AnalysisScalarParameter( TextFileParser & textFileParser, int keyWordIndex )
 int GetParameterArraySize( const std::string & word );
 
 void ReadControlInfo();
+void ReadControlInfo( const std::string & caseDir );
 void ReadPrjScript();
+void ReadPrjScript( const std::string & caseDir );
 void ReadScriptFileNameList( std::vector< std::string > & scriptFileNameList );
+void ReadScriptFileNameList( const std::string & caseDir, std::vector< std::string > & scriptFileNameList );
 void ReadMultiScriptFiles( std::vector< std::string > & scriptFileNameList );
 void BroadcastControlParameterToAllProcessors();
 void DumpDataBase();

@@ -72,7 +72,7 @@ void SimuContext::SetupProcessEnvironment()
 
 void SimuContext::SetupCaseEnvironment()
 {
-    ONEFLOW::ReadControlInfo();
+    ONEFLOW::ReadControlInfo( caseDir_ );
     envReady_ = true;
 }
 

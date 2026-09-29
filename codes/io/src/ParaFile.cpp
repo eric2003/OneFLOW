@@ -233,6 +233,18 @@ void ReadControlInfo()
     ONEFLOW::DumpDataBase();
 }
 
+void ReadControlInfo( const std::string & caseDir )
+{
+    if ( Parallel::IsServer() )
+    {
+        ONEFLOW::ReadPrjScript( caseDir );
+    }
+
+    Parallel::TestSayHelloFromEveryProcess();
+    ONEFLOW::BroadcastControlParameterToAllProcessors();
+    ONEFLOW::DumpDataBase();
+}
+
 void DumpDataBase()
 {
     DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
@@ -247,6 +259,13 @@ void ReadPrjScript()
 {
     std::vector< std::string > scriptFileNameList;
     ONEFLOW::ReadScriptFileNameList( scriptFileNameList );
+    ONEFLOW::ReadMultiScriptFiles( scriptFileNameList );
+}
+
+void ReadPrjScript( const std::string & caseDir )
+{
+    std::vector< std::string > scriptFileNameList;
+    ONEFLOW::ReadScriptFileNameList( caseDir, scriptFileNameList );
     ONEFLOW::ReadMultiScriptFiles( scriptFileNameList );
 }
 
@@ -273,6 +292,36 @@ void ReadScriptFileNameList( std::vector< std::string > & scriptFileNameList )
         std::string fullScriptFileName =
             Prj::GetPrjFileName(
                 "script/" + scriptFileName );
+
+        scriptFileNameList.push_back( fullScriptFileName );
+    }
+
+    textFileParser.CloseFile();
+}
+
+void ReadScriptFileNameList(
+    const std::string & caseDir,
+    std::vector< std::string > & scriptFileNameList )
+{
+    TextFileParser textFileParser;
+    const std::string controlFile =
+        caseDir + "script/control.txt";
+    textFileParser.OpenFile( controlFile, std::ios_base::in );
+
+    // Tab is a separator.
+    std::string keyWordSeparator = " ()\r\n\t#$,;\"";
+    textFileParser.SetDefaultSeparator( keyWordSeparator );
+
+    while ( ! textFileParser.ReachTheEndOfFile() )
+    {
+        bool flag = textFileParser.ReadNextNonEmptyLine();
+        if ( ! flag ) break;
+
+        std::string scriptFileName =
+            textFileParser.ReadNextWord();
+
+        std::string fullScriptFileName =
+            caseDir + "script/" + scriptFileName;
 
         scriptFileNameList.push_back( fullScriptFileName );
     }
