@@ -273,7 +273,7 @@ void Su2Bc::Process( StringField &markerBCNameList, StringField& markerNameList)
 
 std::string Su2Bc::GetBcName( const std::string & geoName ) const
 {
-    std::map<std::string, std::string>::iterator iter;
+    std::map<std::string, std::string>::const_iterator iter;
     iter = bcMap.find(geoName);
     if (iter!= bcMap.end())
     {
