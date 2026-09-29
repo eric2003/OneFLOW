@@ -148,7 +148,7 @@ public:
     void AddBc( std::string &geoName, std::string &bcName);
     void Process(StringField& markerBCNameList, StringField& markerNameList);
     std::string GetBcName( std::string& geoName );
-    int GetCgnsBcType(std::string& geoName);
+    int GetCgnsBcType( const std::string & geoName );
 };
 
 class CgnsZone;
