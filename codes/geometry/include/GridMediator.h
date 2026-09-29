@@ -50,6 +50,7 @@ public:
     std::string bcFile;               // boundary condition path
     std::string targetFile;           // conversion output path
     std::string gridType;             // format token: plot3d, gridgen, ...
+    std::string caseDir;               // explicit case root for grid file IO
 
 public:
     void ReadGrid();

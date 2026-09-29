@@ -40,6 +40,7 @@ class SimuContext
 {
 public:
     explicit SimuContext( std::vector<std::string> args );
+    SimuContext( const std::string& caseDir, bool debug );
     ~SimuContext() = default;
 
     SimuContext( const SimuContext& ) = delete;
@@ -55,6 +56,7 @@ public:
     bool IsTaskResolved() const { return taskResolved_; }
     TaskEnum Task() const { return task_; }
     const std::string& TaskName() const { return taskName_; }
+    const std::string& CaseDir() const { return caseDir_; }
 
     // Backend state is an execution cache owned by this run context. It is
     // cleared before the accelerator runtime is finalized.
@@ -120,6 +122,7 @@ public:
     void EnsureExpandedSolverNames( const StringField& names );
 private:
     std::vector<std::string> args_;
+    std::string caseDir_;
     int rank_ = 0;
     int size_ = 1;
     TaskEnum task_ = TaskEnum::SOLVE_FIELD;

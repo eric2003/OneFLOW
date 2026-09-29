@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*\
+/*---------------------------------------------------------------------------*\\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
@@ -18,7 +18,7 @@ License
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
-\*---------------------------------------------------------------------------*/
+\\*---------------------------------------------------------------------------*/
 
 #include "DataField.h"
 #include "DataPointer.h"
@@ -49,13 +49,19 @@ DataField::DataField()
 
 DataField::~DataField()
 {
+    Clear();
+    delete dataMap;
+}
+
+void DataField::Clear()
+{
+    // Case teardown must release all field wrappers before the next case.
     for ( auto & pair : *dataMap )
     {
-        delete pair.second->data;   // Delete the owned PointerWrap.
-        delete pair.second;         // Delete the owned FieldEntry.
+        delete pair.second->data;
+        delete pair.second;
     }
     dataMap->clear();
-    delete dataMap;
 }
 
 void DataField::UpdateFieldEntry( FieldEntry * fieldEntry )
@@ -65,12 +71,12 @@ void DataField::UpdateFieldEntry( FieldEntry * fieldEntry )
     auto it = dataMap->find( fieldEntry->name );
     if ( it == dataMap->end() )
     {
-        // Not exist ¡ú take ownership
+        // Not exist Â¡Ãº take ownership
         ( *dataMap )[ fieldEntry->name ] = fieldEntry;
     }
     else
     {
-        // Already exist ¡ú discard the new one
+        // Already exist Â¡Ãº discard the new one
         if ( it->second != fieldEntry )
         {
             delete fieldEntry->data;

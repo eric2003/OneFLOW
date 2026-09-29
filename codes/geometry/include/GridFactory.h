@@ -24,6 +24,7 @@ License
 
 #include "HXDefine.h"
 #include "GridTypes.h"
+#include <string>
 
 BeginNameSpace( ONEFLOW )
 
@@ -31,6 +32,9 @@ BeginNameSpace( ONEFLOW )
 // Dispatch is table-driven (see GridFactory.cpp); no magic switch on int.
 class GridFactory
 {
+private:
+    std::string caseDir_;
+
 public:
     GridFactory() = default;
     ~GridFactory() = default;
@@ -41,6 +45,9 @@ public:
     // Run with an explicit config (preferred for tests and callers that
     // already hold a GridConfig).
     void Run( const GridConfig & config );
+
+    // Run with an explicit case directory for multi-case execution.
+    void Run( const GridConfig & config, const std::string & caseDir );
 
 public:
     // Pipeline steps (also used as registry targets).
@@ -57,5 +64,9 @@ public:
 
 // Public entry used by the rest of the code base.
 void GenerateGrid();
+
+// Multi-case entry: pass case ownership explicitly instead of relying on
+// the process-wide legacy project directory.
+void GenerateGrid( const std::string & caseDir );
 
 EndNameSpace

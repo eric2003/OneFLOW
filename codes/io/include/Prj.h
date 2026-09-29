@@ -60,15 +60,19 @@ public:
 public:
     static void Init();
     static void SetPrjBaseDir( const std::string & prjName );
+    static void ClearPrjBaseDir();
+    static std::string ResolveCaseDir( const std::string & caseDir );
     static CmdLineOptions ParseCmdLineArgs( const std::vector<std::string> & args );
     static void ProcessCmdLineArgs( std::vector<std::string> &args );
 
 public:
     static void OpenPrjFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode );
+    static void OpenCaseFile( std::fstream & file, const std::string & caseDir, const std::string & fileName, const std::ios_base::openmode & openMode );
     static void OpenFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode );
     static void CloseFile( std::fstream & file );
     static void CreateDirIfNeeded( const std::string & prjFileName );
     static std::string GetPrjFileName( const std::string & fileName );
+    static std::string GetCaseFileName( const std::string & caseDir, const std::string & fileName );
     static std::string GetSystemFileName( const std::string & fileName );
     static std::string GetDirName( const std::string & fileName );
     static void MakePrjDir( const std::string & dirName );

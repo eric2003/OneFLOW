@@ -35,6 +35,7 @@ SimuContext::SimuContext( std::vector<std::string> args )
 {
 }
 
+
 void SimuContext::SetParallelInfo( int rank, int size )
 {
     if ( size <= 0 )

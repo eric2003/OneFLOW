@@ -52,6 +52,14 @@ void TextFileParser::OpenPrjFile( const std::string & fileName, const std::ios_b
     Prj::OpenPrjFile( file, fileName, fileOpenMode );
 }
 
+void TextFileParser::OpenCaseFile(
+    const std::string & caseDir,
+    const std::string & fileName,
+    const std::ios_base::openmode & fileOpenMode )
+{
+    Prj::OpenCaseFile( file, caseDir, fileName, fileOpenMode );
+}
+
 void TextFileParser::CloseFile()
 {
     Prj::CloseFile( file );

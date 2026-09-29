@@ -66,6 +66,7 @@ public:
 public:
     void OpenFile( const std::string & fileName, const std::ios_base::openmode & fileOpenMode );
     void OpenPrjFile( const std::string & fileName, const std::ios_base::openmode & fileOpenMode );
+    void OpenCaseFile( const std::string & caseDir, const std::string & fileName, const std::ios_base::openmode & fileOpenMode );
     void CloseFile();
 
     void MarkCurrentFilePosition();

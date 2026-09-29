@@ -25,6 +25,7 @@ License
 #include "GridDef.h"
 #include "HXCgns.h"
 #include <memory> // Required for std::unique_ptr
+#include <string>
 
 BeginNameSpace( ONEFLOW )
 
@@ -47,6 +48,10 @@ public:
     CgnsFactory();
     ~CgnsFactory();
 
+    // Bind explicit case state so grid IO does not depend on the legacy
+    // process-wide project directory.
+    void SetCaseDir( const std::string & caseDir );
+
     // Rule of 5: Disable copying to prevent double-free
     CgnsFactory(const CgnsFactory&) = delete;
     CgnsFactory& operator=(const CgnsFactory&) = delete;
@@ -59,6 +64,9 @@ public:
 public:
     std::unique_ptr<CgnsZbase> cgnsZbase;
     std::unique_ptr<ZgridElem> zgridElem;
+
+private:
+    std::string caseDir_;
 public:
     void GenerateGrid();
     void ReadCgnsGrid();

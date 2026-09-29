@@ -22,6 +22,7 @@ License
 #include "System.h"
 #include "DimensionImp.h"
 #include "SolverRegister.h"
+#include "SolverTaskReg.h"
 #include "SolverDef.h"
 #include "TaskRegister.h"
 #include "MessageMapLoader.h"
@@ -38,6 +39,10 @@ void ConstructSystemMap()
 
     CreateMsgMap();
 
+    // Rebuild solver registrations for each case. ConstructSystemMap() is
+    // case-scoped in the multi-case execution path, so stale registration
+    // data must not accumulate across cases.
+    FreeSolverTask();
     SolverRegister::Run();
 }
 

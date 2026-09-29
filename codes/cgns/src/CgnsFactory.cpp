@@ -71,6 +71,11 @@ CgnsFactory::~CgnsFactory() = default;
 CgnsFactory::CgnsFactory(CgnsFactory&&) noexcept = default;
 CgnsFactory& CgnsFactory::operator=(CgnsFactory&&) noexcept = default;
 
+void CgnsFactory::SetCaseDir( const std::string & caseDir )
+{
+    caseDir_ = caseDir;
+}
+
 
 // FIX: Exception-safe ownership transfer
 void CgnsFactory::ConvertStrCgns2UnsCgnsGrid()
@@ -130,8 +135,17 @@ void CgnsFactory::ReadCgnsGrid()
 {
     // Use .get() to pass the raw pointer to legacy/global APIs
     cgns_global.cgnsbases = this->cgnsZbase.get();
-    std::string prjFileName = Prj::GetPrjFileName( grid_para.gridFile );
-    this->cgnsZbase->ReadCgnsGrid( prjFileName );
+    std::string gridFileName;
+    if ( caseDir_.empty() )
+    {
+        gridFileName = Prj::GetPrjFileName( grid_para.gridFile );
+    }
+    else
+    {
+        gridFileName = Prj::GetCaseFileName( caseDir_, grid_para.gridFile );
+    }
+
+    this->cgnsZbase->ReadCgnsGrid( gridFileName );
 }
 
 void CgnsFactory::DumpCgnsGrid( ZgridMediator * zgridMediator )
@@ -159,7 +173,16 @@ void CgnsFactory::CommonToStrGrid()
 
 void CgnsFactory::DumpUnsCgnsGrid()
 {
-    std::string targetFile = Prj::GetPrjFileName( grid_para.targetFile );
+    std::string targetFile;
+    if ( caseDir_.empty() )
+    {
+        targetFile = Prj::GetPrjFileName( grid_para.targetFile );
+    }
+    else
+    {
+        targetFile = Prj::GetCaseFileName( caseDir_, grid_para.targetFile );
+    }
+
     cgnsZbase->OpenCgnsFile( targetFile, CG_MODE_WRITE );
     cgnsZbase->DumpCgnsMultiBase();
     cgnsZbase->CloseCgnsFile();

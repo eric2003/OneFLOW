@@ -53,7 +53,7 @@ void Prj::ProcessCmdLineArgs( std::vector<std::string> & args )
     Prj::hx_debug = opt.debug;
     Prj::run_from_ide = opt.debug;
 
-    Prj::Init();
+    // Process-level path initialization is performed once by Simulation.
     Prj::SetPrjBaseDir( opt.caseDir );
 }
 
@@ -140,9 +140,9 @@ void Prj::Init()
     std::cout << " Prj::system_root = " << Prj::system_root << "\n";
 }
 
-void Prj::SetPrjBaseDir( const std::string & prjName )
+std::string Prj::ResolveCaseDir( const std::string & caseDir )
 {
-    std::filesystem::path projectPath( prjName );
+    std::filesystem::path projectPath( caseDir );
 
     if ( projectPath.empty() )
     {
@@ -157,16 +157,46 @@ void Prj::SetPrjBaseDir( const std::string & prjName )
 
     projectPath = projectPath.lexically_normal();
 
-    Prj::prjBaseDir = projectPath.string();
+    std::string resolvedDir = projectPath.string();
 
     // Keep the trailing slash because existing IO code relies on it.
-    if ( ! EndWithSlash( Prj::prjBaseDir ) )
+    if ( ! EndWithSlash( resolvedDir ) )
     {
-        Prj::prjBaseDir += "/";
+        resolvedDir += "/";
     }
+
+    return resolvedDir;
+}
+
+void Prj::SetPrjBaseDir( const std::string & prjName )
+{
+    Prj::prjBaseDir = Prj::ResolveCaseDir( prjName );
 
     std::cout << " Prj::prjBaseDir = "
         << Prj::prjBaseDir << "\n";
+}
+
+void Prj::ClearPrjBaseDir()
+{
+    // A completed case must not leave its directory bound to the process.
+    Prj::prjBaseDir.clear();
+}
+
+void Prj::OpenCaseFile(
+    std::fstream & file,
+    const std::string & caseDir,
+    const std::string & fileName,
+    const std::ios_base::openmode & openMode )
+{
+    std::string caseFileName = Prj::GetCaseFileName( caseDir, fileName );
+
+    // Create parent directories only for write operations.
+    if ( ( openMode & std::ios_base::out ) != 0 )
+    {
+        CreateDirIfNeeded( caseFileName );
+    }
+
+    Prj::OpenFile( file, caseFileName, openMode );
 }
 
 void Prj::OpenPrjFile(
@@ -217,9 +247,16 @@ void Prj::MakePrjDir( const std::string & dirName )
 // string concatenation that used to live in individual business-logic files.
 std::string Prj::GetSystemFileName( const std::string & fileName )
 {
-    std::string fileNameNew = RemoveFirstSlash( fileName );
+    std::filesystem::path path( fileName );
 
-    return Prj::system_root + fileNameNew;
+    // Only a complete filesystem absolute path bypasses the system directory.
+    if ( path.is_absolute() )
+    {
+        return path.lexically_normal().string();
+    }
+
+    std::filesystem::path systemRoot( Prj::system_root );
+    return ( systemRoot / path ).lexically_normal().string();
 }
 
 std::string Prj::GetDirName( const std::string & fileName )
@@ -248,9 +285,33 @@ void Prj::CreateDirIfNeeded( const std::string & prjFileName )
 
 std::string Prj::GetPrjFileName( const std::string & fileName )
 {
-    std::string fileNameNew = RemoveFirstSlash( fileName );
+    std::filesystem::path path( fileName );
 
-    return Prj::prjBaseDir + fileNameNew;
+    // Only a complete filesystem absolute path bypasses the project directory.
+    if ( path.is_absolute() )
+    {
+        return path.lexically_normal().string();
+    }
+
+    std::filesystem::path projectRoot( Prj::prjBaseDir );
+    return ( projectRoot / path ).lexically_normal().string();
+}
+
+std::string Prj::GetCaseFileName(
+    const std::string & caseDir,
+    const std::string & fileName )
+{
+    std::filesystem::path path( fileName );
+
+    // An absolute input path is already fully qualified and must not be
+    // prefixed with the current case directory.
+    if ( path.is_absolute() )
+    {
+        return path.lexically_normal().string();
+    }
+
+    std::filesystem::path baseDir( caseDir );
+    return ( baseDir / path ).lexically_normal().string();
 }
 
 EndNameSpace

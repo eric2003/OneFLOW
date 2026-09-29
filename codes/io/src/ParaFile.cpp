@@ -233,6 +233,18 @@ void ReadControlInfo()
     ONEFLOW::DumpDataBase();
 }
 
+void ReadControlInfo( const std::string & caseDir )
+{
+    if ( Parallel::IsServer() )
+    {
+        ONEFLOW::ReadPrjScript( caseDir );
+    }
+
+    Parallel::TestSayHelloFromEveryProcess();
+    ONEFLOW::BroadcastControlParameterToAllProcessors();
+    ONEFLOW::DumpDataBase( caseDir );
+}
+
 void DumpDataBase()
 {
     DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
@@ -243,10 +255,26 @@ void DumpDataBase()
     PIO::CloseFile( file );
 }
 
+void DumpDataBase( const std::string & caseDir )
+{
+    DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
+    std::fstream file;
+    Prj::OpenCaseFile( file, caseDir, "log/database.log", std::ios_base::out );
+    dataBase->dataPara->DumpData( file );
+    PIO::CloseFile( file );
+}
+
 void ReadPrjScript()
 {
     std::vector< std::string > scriptFileNameList;
     ONEFLOW::ReadScriptFileNameList( scriptFileNameList );
+    ONEFLOW::ReadMultiScriptFiles( scriptFileNameList );
+}
+
+void ReadPrjScript( const std::string & caseDir )
+{
+    std::vector< std::string > scriptFileNameList;
+    ONEFLOW::ReadScriptFileNameList( caseDir, scriptFileNameList );
     ONEFLOW::ReadMultiScriptFiles( scriptFileNameList );
 }
 
@@ -272,6 +300,39 @@ void ReadScriptFileNameList( std::vector< std::string > & scriptFileNameList )
 
         std::string fullScriptFileName =
             Prj::GetPrjFileName(
+                "script/" + scriptFileName );
+
+        scriptFileNameList.push_back( fullScriptFileName );
+    }
+
+    textFileParser.CloseFile();
+}
+
+void ReadScriptFileNameList(
+    const std::string & caseDir,
+    std::vector< std::string > & scriptFileNameList )
+{
+    TextFileParser textFileParser;
+    textFileParser.OpenCaseFile(
+        caseDir,
+        "script/control.txt",
+        std::ios_base::in );
+
+    // Tab is a separator.
+    std::string keyWordSeparator = " ()\r\n\t#$,;\"";
+    textFileParser.SetDefaultSeparator( keyWordSeparator );
+
+    while ( ! textFileParser.ReachTheEndOfFile() )
+    {
+        bool flag = textFileParser.ReadNextNonEmptyLine();
+        if ( ! flag ) break;
+
+        std::string scriptFileName =
+            textFileParser.ReadNextWord();
+
+        std::string fullScriptFileName =
+            Prj::GetCaseFileName(
+                caseDir,
                 "script/" + scriptFileName );
 
         scriptFileNameList.push_back( fullScriptFileName );

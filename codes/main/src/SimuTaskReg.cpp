@@ -55,7 +55,11 @@ class CreateGridTask : public ISimuTask
 {
 public:
     bool NeedsSystemMap() const override { return true; }
-    void Execute( SimuContext& /*ctx*/ ) override { GenerateGrid(); }
+
+    void Execute( SimuContext& ctx ) override
+    {
+        GenerateGrid( ctx.CaseDir() );
+    }
 };
 
 class WallDistTask : public ISimuTask

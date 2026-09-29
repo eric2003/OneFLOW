@@ -352,7 +352,15 @@ void Su2Grid::ReadSu2GridAscii( std::string & fileName )
 {
     TextFileParser textFileParser;
     std::string separator  = " =\r\n\t#$,;";
-    textFileParser.OpenPrjFile( fileName, std::ios_base::in );
+    if ( ! caseDir_.empty() )
+    {
+        textFileParser.OpenCaseFile(
+            caseDir_, fileName, std::ios_base::in );
+    }
+    else
+    {
+        textFileParser.OpenPrjFile( fileName, std::ios_base::in );
+    }
     textFileParser.SetDefaultSeparator( separator );
 
     this->nZone = 1;
@@ -460,7 +468,15 @@ void Su2Grid::MarkBoundary( std::string & su2cfgFile)
 {
     TextFileParser textFileParser;
     std::string separator = " =\r\n\t#$,;()";
-    textFileParser.OpenPrjFile(su2cfgFile, std::ios_base::in);
+    if ( ! caseDir_.empty() )
+    {
+        textFileParser.OpenCaseFile(
+            caseDir_, su2cfgFile, std::ios_base::in );
+    }
+    else
+    {
+        textFileParser.OpenPrjFile( su2cfgFile, std::ios_base::in );
+    }
     textFileParser.SetDefaultSeparator(separator);
 
     StringField su2Comment;
@@ -488,10 +504,16 @@ void Su2Grid::MarkBoundary( std::string & su2cfgFile)
     textFileParser.CloseFile();
 }
 
+void Su2Grid::SetCaseDir( const std::string & caseDir )
+{
+    caseDir_ = caseDir;
+}
+
 void Su2Grid::Su2ToOneFlowGrid()
 {
     std::string gridFile = ONEFLOW::GetDataValue< std::string >( "sourceGridFileName" );
-    std::string su2cfgFile = ONEFLOW::GetDataValue< std::string >("sourceGridBcName");
+    std::string su2cfgFile = ONEFLOW::GetDataValue< std::string >( "sourceGridBcName" );
+
     this->MarkBoundary(su2cfgFile);
     this->ReadSu2GridAscii( gridFile );
 

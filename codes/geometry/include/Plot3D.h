@@ -55,7 +55,9 @@ public:
     static void DumpCoorAscii( GridMediator * gridMediator );
     static void DumpCoorAscii( std::fstream & file, RealField & coor );
     static void DumpBc( GridMediator * gridMediator );
-    static void Plot3DToCgns( ZgridMediator * zgridMediator );
+    static void Plot3DToCgns(
+        ZgridMediator * zgridMediator,
+        const std::string & caseDir = "" );
 
 };
 

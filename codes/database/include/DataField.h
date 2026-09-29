@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*\
+/*---------------------------------------------------------------------------*\\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
@@ -18,7 +18,7 @@ License
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
-\*---------------------------------------------------------------------------*/
+\\*---------------------------------------------------------------------------*/
 
 #pragma once
 #include "NamespaceMacros.h"
@@ -57,6 +57,7 @@ public:
     void UpdateFieldEntry( FieldEntry * fieldEntry );
     FieldEntry * GetFieldEntry( const std::string & name );
     void DeleteFieldEntry( const std::string & name );
+    void Clear();
 
     DataMap * GetDataMap() { return dataMap; }
 };

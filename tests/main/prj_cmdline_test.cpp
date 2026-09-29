@@ -60,6 +60,7 @@ TEST( PrjParseCmdLineArgs, AdditionalCaseDirectoriesArePreserved )
     ASSERT_EQ( opt.caseDirs.size(), 2u );
     EXPECT_EQ( opt.caseDirs[ 0 ], "test/caseA/" );
     EXPECT_EQ( opt.caseDirs[ 1 ], "test/caseB/" );
+
 }
 
 namespace
@@ -174,7 +175,7 @@ TEST( PrjSetPrjBaseDir, AbsolutePathIsNotPrefixedByCurrentDirectory )
 }
 
 
-TEST( PrjCasePath, LeadingSlashIsCaseRelative )
+TEST( PrjCasePath, RootedPathIsNotCaseRelative )
 {
     const std::filesystem::path caseDir =
         std::filesystem::temp_directory_path()
@@ -184,18 +185,47 @@ TEST( PrjCasePath, LeadingSlashIsCaseRelative )
     Prj::current_dir = std::filesystem::current_path().string();
     Prj::SetPrjBaseDir( caseDir.string() );
 
-    const std::filesystem::path relative =
-        Prj::GetPrjFileName( "grid/test.dat" );
+    const std::filesystem::path rootedPath =
+        std::filesystem::path( "/grid/test.dat" );
 
-    const std::filesystem::path leadingSlash =
-        Prj::GetPrjFileName( "/grid/test.dat" );
+    const std::filesystem::path actual =
+        Prj::GetPrjFileName( rootedPath.string() );
+
+    // A rooted path is not case-relative. On POSIX it is absolute; on
+    // Windows it is root-relative and keeps the current drive.
+    const std::filesystem::path expected =
+        ( caseDir / rootedPath ).lexically_normal();
 
     EXPECT_EQ(
-        relative.lexically_normal(),
-        leadingSlash.lexically_normal() );
+        actual.lexically_normal(),
+        expected );
 }
 
-TEST( PrjCasePath, OpenPrjFileUsesCaseRelativePath )
+TEST( PrjCasePath, AbsolutePathIsNotCaseRelative )
+{
+    const std::filesystem::path caseDir =
+        std::filesystem::temp_directory_path()
+        / "OneFLOW_PrjAbsolutePathTest"
+        / "case";
+
+    const std::filesystem::path absolutePath =
+        std::filesystem::temp_directory_path()
+        / "OneFLOW_PrjAbsolutePathTest"
+        / "external"
+        / "grid.dat";
+
+    Prj::current_dir = std::filesystem::current_path().string();
+    Prj::SetPrjBaseDir( caseDir.string() );
+
+    const std::filesystem::path actual =
+        Prj::GetPrjFileName( absolutePath.string() );
+
+    EXPECT_EQ(
+        actual.lexically_normal(),
+        absolutePath.lexically_normal() );
+}
+
+TEST( PrjCasePath, OpenPrjFileUsesRelativePath )
 {
     const std::filesystem::path caseDir =
         std::filesystem::temp_directory_path()
@@ -211,7 +241,7 @@ TEST( PrjCasePath, OpenPrjFileUsesCaseRelativePath )
 
     Prj::OpenPrjFile(
         file,
-        "/grid/test.dat",
+        "grid/test.dat",
         std::ios_base::out );
 
     ASSERT_TRUE( file.is_open() );
@@ -227,7 +257,47 @@ TEST( PrjCasePath, OpenPrjFileUsesCaseRelativePath )
     std::filesystem::remove_all( caseDir );
 }
 
-TEST( PrjCasePath, MakePrjDirUsesCaseRelativePath )
+TEST( PrjCasePath, OpenPrjFileUsesAbsolutePath )
+{
+    const std::filesystem::path caseDir =
+        std::filesystem::temp_directory_path()
+        / "OneFLOW_PrjOpenAbsoluteFileTest"
+        / "case";
+
+    const std::filesystem::path absoluteFile =
+        std::filesystem::temp_directory_path()
+        / "OneFLOW_PrjOpenAbsoluteFileTest"
+        / "external"
+        / "test.dat";
+
+    std::filesystem::remove_all( caseDir );
+    std::filesystem::remove_all( absoluteFile.parent_path() );
+
+    Prj::current_dir = std::filesystem::current_path().string();
+    Prj::SetPrjBaseDir( caseDir.string() );
+
+    std::fstream file;
+
+    Prj::OpenPrjFile(
+        file,
+        absoluteFile.string(),
+        std::ios_base::out );
+
+    ASSERT_TRUE( file.is_open() );
+
+    file << "OneFLOW";
+    Prj::CloseFile( file );
+
+    EXPECT_TRUE( std::filesystem::is_regular_file( absoluteFile ) );
+    EXPECT_FALSE(
+        std::filesystem::is_regular_file(
+            caseDir / "external" / "test.dat" ) );
+
+    std::filesystem::remove_all( caseDir );
+    std::filesystem::remove_all( absoluteFile.parent_path() );
+}
+
+TEST( PrjCasePath, MakePrjDirUsesRelativePath )
 {
     const std::filesystem::path caseDir =
         std::filesystem::temp_directory_path()
@@ -239,7 +309,7 @@ TEST( PrjCasePath, MakePrjDirUsesCaseRelativePath )
     Prj::current_dir = std::filesystem::current_path().string();
     Prj::SetPrjBaseDir( caseDir.string() );
 
-    Prj::MakePrjDir( "/output/data" );
+    Prj::MakePrjDir( "output/data" );
 
     const std::filesystem::path expected =
         caseDir / "output" / "data";
@@ -247,6 +317,37 @@ TEST( PrjCasePath, MakePrjDirUsesCaseRelativePath )
     EXPECT_TRUE( std::filesystem::is_directory( expected ) );
 
     std::filesystem::remove_all( caseDir );
+}
+
+TEST( PrjCasePath, MakePrjDirUsesAbsolutePath )
+{
+    const std::filesystem::path caseDir =
+        std::filesystem::temp_directory_path()
+        / "OneFLOW_PrjMakeAbsoluteDirTest"
+        / "case";
+
+    const std::filesystem::path absoluteDir =
+        std::filesystem::temp_directory_path()
+        / "OneFLOW_PrjMakeAbsoluteDirTest"
+        / "external"
+        / "output"
+        / "data";
+
+    std::filesystem::remove_all( caseDir );
+    std::filesystem::remove_all( absoluteDir.parent_path().parent_path() );
+
+    Prj::current_dir = std::filesystem::current_path().string();
+    Prj::SetPrjBaseDir( caseDir.string() );
+
+    Prj::MakePrjDir( absoluteDir.string() );
+
+    EXPECT_TRUE( std::filesystem::is_directory( absoluteDir ) );
+    EXPECT_FALSE(
+        std::filesystem::is_directory(
+            caseDir / "external" / "output" / "data" ) );
+
+    std::filesystem::remove_all( caseDir );
+    std::filesystem::remove_all( absoluteDir.parent_path().parent_path() );
 }
 
 TEST( PrjSystemPath, GetSystemFileNameJoinsWithSystemRoot )
@@ -267,12 +368,31 @@ TEST( PrjSystemPath, GetSystemFileNameJoinsWithSystemRoot )
         .lexically_normal(),
         expected.lexically_normal() );
 
-    // A leading slash should behave the same as a system-root-relative path,
-    // matching the equivalent leading-slash handling in GetPrjFileName.
+    const std::filesystem::path absoluteFile =
+        std::filesystem::temp_directory_path()
+        / "OneFLOW_PrjSystemPathTest"
+        / "external"
+        / "actionFileList.txt";
+
     EXPECT_EQ(
-        std::filesystem::path( Prj::GetSystemFileName( "/action/actionFileList.txt" ) )
+        std::filesystem::path(
+            Prj::GetSystemFileName( absoluteFile.string() ) )
         .lexically_normal(),
-        expected.lexically_normal() );
+        absoluteFile.lexically_normal() );
+
+    const std::filesystem::path rootedPath =
+        std::filesystem::path( "/action/actionFileList.txt" );
+
+    // A rooted path is not system-root-relative. On POSIX it is absolute;
+    // on Windows it is root-relative and keeps the current drive.
+    const std::filesystem::path rootedExpected =
+        ( systemRoot / rootedPath ).lexically_normal();
+
+    EXPECT_EQ(
+        std::filesystem::path(
+            Prj::GetSystemFileName( rootedPath.string() ) )
+        .lexically_normal(),
+        rootedExpected );
 
     Prj::system_root = savedRoot;
 }

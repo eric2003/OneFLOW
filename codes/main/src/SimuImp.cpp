@@ -37,14 +37,36 @@ SimuImp::SimuImp( std::vector<std::string>& args )
     ctx_->ProcessCommandLine();
 }
 
+SimuImp::SimuImp( const std::string& caseDir, bool debug )
+    : ctx_( std::make_unique<SimuContext>( caseDir, debug ) )
+{
+}
+
 SimuImp::~SimuImp()
 {
 }
 
 void SimuImp::Run()
 {
-    this->PreProcess();
-    this->MainProcess();
+    ctx_->SetupProcessEnvironment();
+    RunCase();
+}
+
+void SimuImp::RunCase()
+{
+    try
+    {
+        this->PreProcess();
+        this->MainProcess();
+    }
+    catch ( ... )
+    {
+        // Case setup may fail after partially binding global case state.
+        // Always release that state before propagating the failure.
+        this->PostProcess();
+        throw;
+    }
+
     this->PostProcess();
 }
 
@@ -70,7 +92,7 @@ void SimuImp::FinalizeEnvironment()
 
 void SimuImp::InitSimu()
 {
-    ctx_->SetupEnvironment();
+    ctx_->SetupCaseEnvironment();
 }
 
 void SimuImp::RunSimu()

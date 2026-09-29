@@ -92,7 +92,17 @@ void Plot3D::ReadCoorBinary( GridMediator * gridMediator )
     std::string separator  = " =\r\n\t#$,;";
 
     std::fstream file;
-    Prj::OpenPrjFile( file, fileName, std::ios_base::in|std::ios_base::binary );
+    if ( gridMediator->caseDir.empty() )
+    {
+        Prj::OpenPrjFile(
+            file, fileName, std::ios_base::in|std::ios_base::binary );
+    }
+    else
+    {
+        Prj::OpenCaseFile(
+            file, gridMediator->caseDir, fileName,
+            std::ios_base::in|std::ios_base::binary );
+    }
 
     HXRead( & file, gridMediator->numberOfZones );
     gridMediator->gridVector.resize( gridMediator->numberOfZones );
@@ -164,7 +174,17 @@ void Plot3D::DumpCoorBinary( GridMediator * gridMediator )
     std::string & fileName = gridMediator->gridFile;
 
     std::fstream file;
-    Prj::OpenPrjFile( file, fileName, std::ios_base::out|std::ios_base::binary );
+    if ( gridMediator->caseDir.empty() )
+    {
+        Prj::OpenPrjFile(
+            file, fileName, std::ios_base::out|std::ios_base::binary );
+    }
+    else
+    {
+        Prj::OpenCaseFile(
+            file, gridMediator->caseDir, fileName,
+            std::ios_base::out|std::ios_base::binary );
+    }
 
     int numberOfZones = gridMediator->numberOfZones;
     HXWrite( & file, numberOfZones );
@@ -225,7 +245,15 @@ void Plot3D::ReadCoorAscii( GridMediator * gridMediator )
 
     TextFileParser textFileParser;
     std::string separator  = " =\r\n\t#$,;";
-    textFileParser.OpenPrjFile( fileName, std::ios_base::in );
+    if ( gridMediator->caseDir.empty() )
+    {
+        textFileParser.OpenPrjFile( fileName, std::ios_base::in );
+    }
+    else
+    {
+        textFileParser.OpenCaseFile(
+            gridMediator->caseDir, fileName, std::ios_base::in );
+    }
     textFileParser.SetDefaultSeparator( separator );
 
     gridMediator->numberOfZones = textFileParser.ReadNextDigit< int >();
@@ -324,7 +352,15 @@ void Plot3D::DumpCoorAscii( GridMediator * gridMediator )
     std::string & fileName = gridMediator->gridFile;
 
     FileO fileO;
-    fileO.OpenPrjFile( fileName, std::ios_base::out );
+    if ( gridMediator->caseDir.empty() )
+    {
+        fileO.OpenPrjFile( fileName, std::ios_base::out );
+    }
+    else
+    {
+        fileO.OpenCaseFile(
+            gridMediator->caseDir, fileName, std::ios_base::out );
+    }
 
     int numberOfZones = gridMediator->numberOfZones;
     fileO.WriteLine( numberOfZones );
@@ -402,7 +438,15 @@ void Plot3D::ReadBc( GridMediator * gridMediator )
     std::string separator = " =\r\n#$,;";
 
     TextFileParser textFileParser;
-    textFileParser.OpenPrjFile( bcName, std::ios_base::in );
+    if ( gridMediator->caseDir.empty() )
+    {
+        textFileParser.OpenPrjFile( bcName, std::ios_base::in );
+    }
+    else
+    {
+        textFileParser.OpenCaseFile(
+            gridMediator->caseDir, bcName, std::ios_base::in );
+    }
     textFileParser.SetDefaultSeparator( separator );
 
     textFileParser.ReadNextNonEmptyLine();
@@ -534,7 +578,15 @@ void Plot3D::DumpBc( GridMediator * gridMediator )
     std::string & bcName = gridMediator->bcFile;
 
     std::fstream file;
-    Prj::OpenPrjFile( file, bcName, std::ios_base::out );
+    if ( gridMediator->caseDir.empty() )
+    {
+        Prj::OpenPrjFile( file, bcName, std::ios_base::out );
+    }
+    else
+    {
+        Prj::OpenCaseFile(
+            file, gridMediator->caseDir, bcName, std::ios_base::out );
+    }
 
     int flowSolverIndex = 1;
     file << flowSolverIndex << "\n";
@@ -666,7 +718,9 @@ void Plot3D::ReadCoor( TextFileParser * textFileParser, RealField & coor, int to
     }
 }
 
-void Plot3D::Plot3DToCgns( ZgridMediator * zgridMediator )
+void Plot3D::Plot3DToCgns(
+    ZgridMediator * zgridMediator,
+    const std::string & caseDir )
 {
     std::cout << "plot3d to cgns\n";
 
@@ -675,6 +729,7 @@ void Plot3D::Plot3DToCgns( ZgridMediator * zgridMediator )
     gridMediator->bcFile     = grid_para.bcFile;
     gridMediator->targetFile = grid_para.targetFile;
     gridMediator->gridType   = grid_para.filetype;
+    gridMediator->caseDir    = caseDir;
 
     gridMediator->ReadGrid();
     gridMediator->AddDefaultName();

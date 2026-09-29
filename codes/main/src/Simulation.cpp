@@ -20,7 +20,9 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "Simulation.h"
+#include "Prj.h"
 #include "SimuImp.h"
+#include "SimuContext.h"
 #include "SimpleSimu.h"
 #include "MpiTest.h"
 #include "JsonTest.h"
@@ -140,9 +142,39 @@ void Simulation::RunImpl()
     else // nPara >= 3
     {
         std::cout << "\n===== ONEFLOW Full Simulation Mode =====\n";
-        auto simu = std::make_unique<SimuImp>( args );
-        simu->Run();
-        simu->FinalizeEnvironment();
+        // Parse the case list once so execution does not depend on
+        // positional argument offsets.
+        const CmdLineOptions options = Prj::ParseCmdLineArgs( args );
+
+        // Initialize process-level path state once before creating any case.
+        Prj::Init();
+
+        // Process runtime has its own context. Cases are separate SimuImp
+        // instances and therefore cannot accidentally own process state.
+        SimuContext processContext( args );
+        Prj::hx_debug = options.debug;
+        Prj::run_from_ide = options.debug;
+        processContext.SetupProcessEnvironment();
+
+        try
+        {
+            // Every case now follows the same Case lifecycle. The dedicated
+            // process context only owns process-level initialization.
+            for ( const std::string& caseDir : options.caseDirs )
+            {
+                SimuImp caseSimu( caseDir, options.debug );
+                caseSimu.RunCase();
+            }
+        }
+        catch ( ... )
+        {
+            // RunCase() owns case teardown, including exceptional exits.
+            // Only process-level runtime remains to be finalized here.
+            processContext.FinalizeEnvironment();
+            throw;
+        }
+
+        processContext.FinalizeEnvironment();
     }
 }
 

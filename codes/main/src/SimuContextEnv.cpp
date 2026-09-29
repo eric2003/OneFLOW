@@ -42,13 +42,30 @@ License
 #include "TurbSolver.h"
 #include "TurbCom.h"
 #include "Tolerence.h"
+#include "LogFile.h"
 #include <iostream>
 
 BeginNameSpace( ONEFLOW )
 
+SimuContext::SimuContext( const std::string& caseDir, bool debug )
+    : caseDir_( Prj::ResolveCaseDir( caseDir ) )
+{
+    Prj::hx_debug = debug;
+    Prj::run_from_ide = debug;
+}
+
 void SimuContext::ProcessCommandLine()
 {
-    Prj::ProcessCmdLineArgs( args_ );
+    // Keep the selected case directory as explicit case input.
+    const CmdLineOptions opt = Prj::ParseCmdLineArgs( args_ );
+    // Store the resolved path in the case context so it remains valid even
+    // when a later case updates the legacy Prj static state.
+    caseDir_ = Prj::ResolveCaseDir( opt.caseDir );
+
+    // Command-line mode is process-wide; case directory binding belongs to
+    // SetupCaseEnvironment() so each case owns its legacy IO binding.
+    Prj::hx_debug = opt.debug;
+    Prj::run_from_ide = opt.debug;
 }
 
 void SimuContext::SetupProcessEnvironment()
@@ -65,8 +82,15 @@ void SimuContext::SetupProcessEnvironment()
 
 void SimuContext::SetupCaseEnvironment()
 {
-    ONEFLOW::ReadControlInfo();
+    // Mark case setup as active so exception cleanup can release partial
+    // case state if control-file initialization fails halfway through.
     envReady_ = true;
+
+    // Bind legacy case-relative IO to the explicit case before reading it.
+    Prj::SetPrjBaseDir( caseDir_ );
+
+    logFile.SetCaseDir( caseDir_ );
+    ONEFLOW::ReadControlInfo( caseDir_ );
 }
 
 void SimuContext::SetupEnvironment()
@@ -93,7 +117,10 @@ void SimuContext::TeardownCase()
     ZoneState::Reset();
     GridState::Reset();
     FieldManagerRegistry::FreeFieldManager();
+    GetGlobalDataBase()->dataField->Clear();
     GetGlobalDataBase()->dataPara->Clear();
+    logFile.ClearCaseDir();
+    Prj::ClearPrjBaseDir();
     envReady_ = false;
 }
 
