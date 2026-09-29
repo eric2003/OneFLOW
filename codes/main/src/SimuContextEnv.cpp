@@ -112,6 +112,7 @@ void SimuContext::TeardownCase()
     FieldManagerRegistry::FreeFieldManager();
     GetGlobalDataBase()->dataPara->Clear();
     logFile.ClearCaseDir();
+    Prj::ClearPrjBaseDir();
     envReady_ = false;
 }
 
