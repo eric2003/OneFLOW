@@ -40,7 +40,7 @@ UnsteadyFieldView::~UnsteadyFieldView()
 {
 }
 
-void UnsteadyFieldView::InitBasic( int solverType )
+void UnsteadyFieldView::BindFields( int solverType )
 {
     // Build unsteady access view from registered fields.
     // This class does not allocate field storage.

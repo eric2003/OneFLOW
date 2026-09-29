@@ -44,7 +44,7 @@ public:
     ~UnsteadyFieldView();
 
 public:
-    void InitBasic( int solverType );
+    void BindFields( int solverType );
 
     MRField * GetFlow( std::size_t level );
     MRField * GetResidual( std::size_t level );

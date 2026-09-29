@@ -73,7 +73,7 @@ Restart::~Restart()
 void Restart::ReadUnsteady( int solverType )
 {
     UnsteadyFieldView fieldView;
-    fieldView.InitBasic( solverType );
+    fieldView.BindFields( solverType );
 
     // The current level is reconstructed from the first stored history level.
     HXRead(
@@ -115,7 +115,7 @@ void Restart::ReadUnsteady( int solverType )
 void Restart::DumpUnsteady( int solverType )
 {
     UnsteadyFieldView fieldView;
-    fieldView.InitBasic( solverType );
+    fieldView.BindFields( solverType );
 
     // Keep the current level out of the restart stream.
     // It is reconstructed from the first stored history level on read.
@@ -141,7 +141,7 @@ void Restart::DumpUnsteady( int solverType )
 void Restart::InitUnsteady( int solverType )
 {
     UnsteadyFieldView fieldView;
-    fieldView.InitBasic( solverType );
+    fieldView.BindFields( solverType );
 
     // Initialize every configured history level from the current field.
     for ( std::size_t level = 1;
