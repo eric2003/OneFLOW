@@ -48,6 +48,13 @@ CmdLineOptions Prj::ParseCmdLineArgs(
     // while preserving additional case directories for the next phase.
     opt.caseDirs.assign( args.begin() + 2, args.end() );
 
+    opt.caseArguments.reserve( opt.caseDirs.size() );
+    for ( const std::string& caseDir : opt.caseDirs )
+    {
+        opt.caseArguments.push_back(
+            { args[ 0 ], args[ 1 ], caseDir } );
+    }
+
     return opt;
 }
 
