@@ -30,15 +30,23 @@ BeginNameSpace( ONEFLOW )
 
 Unsteady * CreateUnsteady( int solverType )
 {
+    Unsteady * unsteady = 0;
+
     if ( solverType == NS_SOLVER )
     {
-        return CreateNsUnsteady();
+        unsteady = CreateNsUnsteady();
     }
     else if ( solverType == TURB_SOLVER )
     {
-        return CreateTurbUnsteady();
+        unsteady = CreateTurbUnsteady();
     }
-    return 0;
+
+    if ( unsteady != 0 )
+    {
+        unsteady->BindFields();
+    }
+
+    return unsteady;
 }
 
 EndNameSpace
