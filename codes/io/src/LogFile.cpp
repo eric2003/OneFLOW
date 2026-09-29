@@ -54,6 +54,31 @@ void OpenLogFile( int logFileIndex, std::fstream & file )
     }
 }
 
+void OpenLogFile( int logFileIndex, std::fstream & file, const std::string & caseDir, bool & ifReWrite )
+{
+    std::string fileName =
+        "log/log" + std::to_string( logFileIndex ) + ".log";
+
+    if ( ifReWrite == false )
+    {
+        Prj::OpenCaseFile(
+            file,
+            caseDir,
+            fileName,
+            std::ios_base::out | std::ios_base::trunc );
+
+        ifReWrite = true;
+    }
+    else
+    {
+        Prj::OpenCaseFile(
+            file,
+            caseDir,
+            fileName,
+            std::ios_base::out | std::ios_base::app );
+    }
+}
+
 void CloseLogFile( std::fstream & file )
 {
     file.close();
@@ -68,10 +93,34 @@ LogFile::~LogFile()
 {
 }
 
+void LogFile::SetCaseDir( const std::string & caseDir )
+{
+    caseDir_ = caseDir;
+    ifReWrite_ = false;
+}
+
+void LogFile::ClearCaseDir()
+{
+    caseDir_.clear();
+    ifReWrite_ = false;
+}
+
 void LogFile::Open()
 {
     int pid = ONEFLOW::Parallel::GetPid();
-    ONEFLOW::OpenLogFile( pid, this->my_fstream );
+
+    if ( caseDir_.empty() )
+    {
+        ONEFLOW::OpenLogFile( pid, this->my_fstream );
+    }
+    else
+    {
+        ONEFLOW::OpenLogFile(
+            pid,
+            this->my_fstream,
+            caseDir_,
+            ifReWrite_ );
+    }
 }
 
 void LogFile::Close()
