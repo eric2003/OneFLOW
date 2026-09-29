@@ -37,10 +37,32 @@ License
 #include "FieldManager.h"
 #include "FieldWrap.h"
 #include "UnsteadyFieldView.h"
+#include "Fatal.h"
 #include "RegisterUtils.h"
 #include "INsRestart.h"
 
 BeginNameSpace( ONEFLOW )
+
+namespace
+{
+    void BindUnsteadyFields(
+        UnsteadyFieldView & fieldView,
+        int solverType )
+    {
+        FieldManager * fieldManager =
+            FieldManagerRegistry::GetFieldManager(
+                solverType );
+
+        if ( fieldManager == nullptr )
+        {
+            Fatal(
+                "FieldManager is not registered for solverType" );
+        }
+
+        fieldView.BindFields(
+            fieldManager->GetUnsteadyFieldNames() );
+    }
+}
 
 Restart * CreateRestart( int solverType )
 {
@@ -73,7 +95,7 @@ Restart::~Restart()
 void Restart::ReadUnsteady( int solverType )
 {
     UnsteadyFieldView fieldView;
-    fieldView.BindFields( solverType );
+    BindUnsteadyFields( fieldView, solverType );
 
     // The current level is reconstructed from the first stored history level.
     HXRead(

@@ -21,12 +21,11 @@ License
 \---------------------------------------------------------------------------*/
 
 #include "UnsteadyFieldView.h"
-#include "FieldManager.h"
 #include "FieldWrap.h"
 #include "DataBase.h"
 #include "Zone.h"
-#include "Fatal.h"
 #include "UnsGrid.h"
+#include "Fatal.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -37,22 +36,6 @@ UnsteadyFieldView::UnsteadyFieldView()
 
 UnsteadyFieldView::~UnsteadyFieldView()
 {
-}
-
-void UnsteadyFieldView::BindFields( int solverType )
-{
-    FieldManager * fieldManager =
-        FieldManagerRegistry::GetFieldManager(
-            solverType );
-
-    if ( fieldManager == nullptr )
-    {
-        Fatal(
-            "FieldManager is not registered for solverType" );
-    }
-
-    this->BindFields(
-        fieldManager->GetUnsteadyFieldNames() );
 }
 
 void UnsteadyFieldView::BindFields(
