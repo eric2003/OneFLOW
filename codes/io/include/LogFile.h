@@ -28,6 +28,7 @@ License
 BeginNameSpace( ONEFLOW )
 
 void OpenLogFile( int logFileIndex, std::fstream & file );
+void OpenLogFile( int logFileIndex, std::fstream & file, const std::string & caseDir, bool & ifReWrite );
 void CloseLogFile( std::fstream & file );
 class LogFile;
 extern LogFile logFile;
@@ -39,6 +40,8 @@ public:
     ~LogFile();
     std::fstream my_fstream;
 public:
+    void SetCaseDir( const std::string & caseDir );
+    void ClearCaseDir();
     void Open();
     void Close();
 };
