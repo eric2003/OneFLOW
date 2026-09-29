@@ -40,9 +40,6 @@ struct CmdLineOptions
     // Preserve all case directories so a future run plan can execute
     // multiple cases without changing the command-line representation.
     std::vector<std::string> caseDirs;
-
-    // Keep the exact arguments for each case so callers do not rebuild them.
-    std::vector<std::vector<std::string>> caseArguments;
 };
 
 
