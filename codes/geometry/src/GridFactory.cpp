@@ -207,10 +207,10 @@ void GridFactory::Plot3DProcess(
     }
 }
 
-void GridFactory::SU2Process( const std::string & caseDir )
+void GridFactory::SU2Process( const GridConfig & config, const std::string & caseDir )
 {
     Su2Grid su2Grid;
-    su2Grid.Su2ToOneFlowGrid( caseDir );
+    su2Grid.Su2ToOneFlowGrid( config, caseDir );
 }
 
 void GridFactory::CGNSProcess( const std::string & caseDir )
