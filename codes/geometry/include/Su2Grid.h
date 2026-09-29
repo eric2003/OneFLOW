@@ -30,7 +30,8 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-class GridMediator;\nstruct GridConfig;
+class GridMediator;
+struct GridConfig;
 class TextFileParser;
 const int MAX_VTK_TYPE = 100;
 class VTK_TYPE
