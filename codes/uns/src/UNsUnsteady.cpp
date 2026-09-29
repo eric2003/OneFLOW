@@ -38,7 +38,7 @@ UNsUnsteady::UNsUnsteady()
 {
     this->solverType = NS_SOLVER;
     this->SetEquationCount( nscom.nTEqu );
-    field.BindFields( NS_SOLVER );
+    this->BindFields();
 
     this->srcFun = & UNsUnstPrepareSrcData;
     this->criFun = & UNsUnstPrepareCriData;

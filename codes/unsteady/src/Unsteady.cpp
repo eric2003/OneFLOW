@@ -38,6 +38,22 @@ Unsteady::~Unsteady()
 {
 }
 
+void Unsteady::BindFields()
+{
+    FieldManager * fieldManager =
+        FieldManagerRegistry::GetFieldManager(
+            this->solverType );
+
+    if ( fieldManager == nullptr )
+    {
+        Fatal(
+            "FieldManager is not registered for solverType" );
+    }
+
+    this->field.BindFields(
+        fieldManager->GetUnsteadyFieldNames() );
+}
+
 void Unsteady::UpdateUnsteady()
 {
     // The concrete unsteady object initializes this view in its constructor.
