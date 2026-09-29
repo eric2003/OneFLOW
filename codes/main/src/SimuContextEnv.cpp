@@ -42,6 +42,7 @@ License
 #include "TurbSolver.h"
 #include "TurbCom.h"
 #include "Tolerence.h"
+#include "LogFile.h"
 #include <iostream>
 
 BeginNameSpace( ONEFLOW )
@@ -71,6 +72,7 @@ void SimuContext::SetupProcessEnvironment()
 
 void SimuContext::SetupCaseEnvironment()
 {
+    logFile.SetCaseDir( caseDir_ );
     ONEFLOW::ReadControlInfo( caseDir_ );
     envReady_ = true;
 }
@@ -100,6 +102,7 @@ void SimuContext::TeardownCase()
     GridState::Reset();
     FieldManagerRegistry::FreeFieldManager();
     GetGlobalDataBase()->dataPara->Clear();
+    logFile.ClearCaseDir();
     envReady_ = false;
 }
 
