@@ -106,9 +106,12 @@ void GenerateGrid()
 
 void GenerateGrid( const std::string & caseDir )
 {
+    // Keep the legacy grid_para view synchronized for remaining readers.
+    grid_para.Init();
+
     // The case directory is explicit at the multi-case boundary.
     GridFactory gf;
-    gf.Run( GridConfig::FromDataBase(), caseDir );
+    gf.Run( grid_para.ToConfig(), caseDir );
 }
 
 void GridFactory::Run()
