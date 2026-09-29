@@ -103,6 +103,7 @@ void UINsUnstPrepareSrcData( UUnsteady * unsteady )
 
 void UINsUnstPrepareCriData( UUnsteady * unsteady )
 {
+    UnsteadyFieldView * field = &unsteady->field;
     MRField * q =
         unsteady->GetFlow( UnsteadyFieldView::HistoryLevel::Current );
 
