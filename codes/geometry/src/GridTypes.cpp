@@ -48,8 +48,9 @@ GridConfig GridConfig::FromDataBase()
     // The explicit source case is consumed later by the runtime grid reader.
     cfg.sourceCaseDir = GridConfig::GetSourceCaseDir();
 
-    cfg.bcFile     = GetDataValue< std::string >( "sourceGridBcName" );
-    cfg.targetFile = GetDataValue< std::string >( "targetGridFileName" );
+    cfg.bcFile         = GetDataValue< std::string >( "sourceGridBcName" );
+    cfg.targetFile     = GetDataValue< std::string >( "targetGridFileName" );
+    cfg.partitionFile  = GetDataValue< std::string >( "part_uns_file" );
 
     cfg.sourceType = ParseGridFileType( GetDataValue< std::string >( "sourceGridType" ) );
     cfg.targetType = ParseGridFileType( GetDataValue< std::string >( "targetGridType" ) );
