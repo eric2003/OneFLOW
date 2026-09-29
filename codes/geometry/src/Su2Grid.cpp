@@ -282,7 +282,7 @@ std::string Su2Bc::GetBcName(std::string& geoName)
     return "";
 }
 
-int Su2Bc::GetCgnsBcType(std::string& geoName)
+int Su2Bc::GetCgnsBcType( const std::string & geoName )
 {
     std::string bcName = this->GetBcName(geoName);
     return bcNameToValueMap.find(bcName)->second;
