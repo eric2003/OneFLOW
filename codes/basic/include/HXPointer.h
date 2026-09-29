@@ -42,7 +42,7 @@ public:
     HXPointer & operator= ( HXPointer &rhs );
 public:
     void resize( HXSize_t nSize );
-    HXSize_t size();
+    HXSize_t size() const;
     void push_back( T * value );
 };
 
@@ -95,7 +95,7 @@ void HXPointer<T>::resize( HXSize_t nSize )
 }
 
 template < typename T >
-HXSize_t HXPointer<T>::size()
+HXSize_t HXPointer<T>::size() const
 {
     return this->data.size();
 }
