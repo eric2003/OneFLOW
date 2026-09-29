@@ -35,6 +35,55 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+namespace
+{
+    using GridGenerator = void ( * )();
+
+    void RunCavity()
+    {
+        Cavity cavity;
+        cavity.Run();
+    }
+
+    void RunRae2822()
+    {
+        Rae2822 rae2822;
+        rae2822.Run();
+    }
+
+    void RunCylinder()
+    {
+        Cylinder cylinder;
+        cylinder.Run( 3 );
+    }
+
+    void RunGridCreate()
+    {
+        GridCreate gridCreate;
+        gridCreate.Run( 4 );
+    }
+
+    void RunCgnsTest()
+    {
+        CgnsTest cgnsTest;
+        cgnsTest.Run();
+    }
+
+    struct GridGenerationEntry
+    {
+        int id;
+        GridGenerator run;
+    };
+
+    constexpr GridGenerationEntry kGridGenerationEntries[] = {
+        { 1, &RunCavity },
+        { 2, &RunRae2822 },
+        { 3, &RunCylinder },
+        { 4, &RunGridCreate },
+        { 5, &RunCgnsTest },
+    };
+}
+
 ClassicGrid::ClassicGrid()
 {
     ;
@@ -45,44 +94,17 @@ ClassicGrid::~ClassicGrid()
     ;
 }
 
-void ClassicGrid::Run()
+void ClassicGrid::Run() const
 {
-    int igene = GetDataValue< int >( "igene" );
-    if ( igene == 0 )
+    const int generationId = GetDataValue< int >( "igene" );
+
+    for ( const auto & entry : kGridGenerationEntries )
     {
-        //Sod * sod = new Sod();
-        //sod->Run();
-        //delete sod;
-    }
-    else if ( igene == 1 )
-    {
-        Cavity * cavity = new Cavity();
-        cavity->Run();
-        delete cavity;
-    }
-    else if ( igene == 2 )
-    {
-        Rae2822 * rae2822 = new Rae2822();
-        rae2822->Run();
-        delete rae2822;
-    }
-    else if ( igene == 3 )
-    {
-        Cylinder * cylinder = new Cylinder();
-        cylinder->Run( igene );
-        delete cylinder;
-    }
-    else if ( igene == 4 )
-    {
-        GridCreate * gridCreate = new GridCreate();
-        gridCreate->Run( igene );
-        delete gridCreate;
-    }
-    else if ( igene == 5 )
-    {
-        CgnsTest * cgnsTest = new CgnsTest();
-        cgnsTest->Run();
-        delete cgnsTest;
+        if ( entry.id == generationId )
+        {
+            entry.run();
+            return;
+        }
     }
 }
 
