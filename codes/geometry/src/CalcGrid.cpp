@@ -307,9 +307,9 @@ std::string GetTargetGridFileName()
 
 void GenerateMultiZoneCalcGrids( Grids & grids )
 {
-    CalcGrid * calcGrid = new CalcGrid();
-    calcGrid->GenerateMultiZoneCalcGrids( grids );
-    delete calcGrid;
+    // CalcGrid owns the temporary interface-link state for this pipeline.
+    CalcGrid calcGrid;
+    calcGrid.GenerateMultiZoneCalcGrids( grids );
 }
 
 void ResetGridScaleAndTranslate( NodeMesh * nodeMesh )
