@@ -92,6 +92,7 @@ public:
     ~DomData();
 public:
     IntField & GetLinePoints( int line_id );
+    const IntField & GetLinePoints( int line_id ) const;
     void ConstructCtrlPoint();
     void ConstructBcPoint();
     void CalcDimBasic( int closedCurve );
