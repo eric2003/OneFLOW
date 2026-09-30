@@ -340,8 +340,8 @@ TestRegionM::~TestRegionM()
 
 void TestRegionM::Run( BcRegion * bcRegion, int dimension )
 {
-    s.Run( bcRegion->s, dimension );
-    t.Run( bcRegion->t, dimension );
+    s.Run( bcRegion->s.get(), dimension );
+    t.Run( bcRegion->t.get(), dimension );
 
     for ( int i = 0; i < 3; ++ i )
     {
@@ -363,19 +363,14 @@ void TestRegionM::Run( BcRegion * bcRegion, int dimension )
 }
 
 BcRegion::BcRegion( int zid, int rid )
+    : s( std::make_unique< BasicRegion >() ),
+      t( std::make_unique< BasicRegion >() )
 {
-    s = new BasicRegion();
-    t = new BasicRegion();
-
     this->rid = rid;
     s->zid = zid;
 }
 
-BcRegion::~BcRegion()
-{
-    delete s;
-    delete t;
-}
+BcRegion::~BcRegion() = default;
 
 void BcRegion::GetNormalizeIJKRegion( int & ist, int & ied, int & jst, int & jed, int & kst, int & ked )
 {

@@ -150,8 +150,8 @@ public:
     int bcType;                      //boundary type
     std::string regionName;               //boundary name
 public:
-    BasicRegion * s;
-    BasicRegion * t;
+    std::unique_ptr< BasicRegion > s;
+    std::unique_ptr< BasicRegion > t;
 public:
     void GetNormalizeIJKRegion( int & ist, int & ied, int & jst, int & jed, int & kst, int & ked );
     int CalcRegionCells();

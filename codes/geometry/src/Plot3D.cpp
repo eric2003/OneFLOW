@@ -629,7 +629,7 @@ void Plot3D::DumpBc( GridMediator * gridMediator )
             BcRegion * bcRegion = bcRegionGroup->GetBcRegion( ir );
 
             int imin, imax, jmin, jmax, kmin, kmax;
-            BasicRegion * s = bcRegion->s;
+            BasicRegion * s = bcRegion->s.get();
             imin = s->start[ 0 ];
             imax = s->end[ 0 ];
             jmin = s->start[ 1 ];
@@ -655,7 +655,7 @@ void Plot3D::DumpBc( GridMediator * gridMediator )
 
             if ( bcType < 0 )
             {
-                BasicRegion * t = bcRegion->t;
+                BasicRegion * t = bcRegion->t.get();
                 imin = t->start[ 0 ];
                 imax = t->end[ 0 ];
                 jmin = t->start[ 1 ];

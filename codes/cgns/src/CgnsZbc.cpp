@@ -214,7 +214,7 @@ void CgnsZbc::DumpCgnsGridBoundary( Grid * gridIn, const Grids & grids )
         }
         else
         {
-            BasicRegion * s = bcRegion->s;
+            BasicRegion * s = bcRegion->s.get();
             FillBcPoints( s->start, s->end, ipnts, dimension );
             //FillBcPoints3D( s->start, s->end, ipnts );
             int bcId = -1;
