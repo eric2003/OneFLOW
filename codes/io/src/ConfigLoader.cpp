@@ -77,8 +77,15 @@ namespace ONEFLOW {
         entry.name = Word::FindNextWord(arrayInfo, arraySeparator);
         std::string arraySizeName = Word::FindNextWord(arrayInfo, arraySeparator);
 
-        // Reuse legacy logic: supports literal digits or variable names from DataBase
-        int arraySize = ResolveLegacyArraySize(arraySizeName);
+        // Resolve variable-based lengths through the caller's runtime context.
+        int arraySize = 0;
+        if (Word::IsDigit(arraySizeName)) {
+            arraySize = StringToDigit<int>(arraySizeName);
+        } else if (arraySizeResolver_) {
+            arraySize = arraySizeResolver_(arraySizeName);
+        } else {
+            Fatal("array size variable requires a runtime resolver: " + arraySizeName);
+        }
 
         for (int i = 0; i < arraySize; ++i) {
             std::string val = parser.ReadNextWord(arraySeparator);

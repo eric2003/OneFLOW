@@ -22,7 +22,9 @@ License
 // ConfigLoader.h
 #pragma once
 #include "ConfigDocument.h"
+#include <functional>
 #include <string>
+#include <utility>
 
 namespace ONEFLOW {
 
@@ -31,7 +33,11 @@ namespace ONEFLOW {
     // Reads the legacy C-like parameter syntax into a ConfigDocument.
     class ConfigLoader {
     public:
-        ConfigLoader() = default;
+        using ArraySizeResolver = std::function<int(const std::string&)>;
+
+        // The caller supplies runtime lookup for array sizes named by variables.
+        explicit ConfigLoader(ArraySizeResolver arraySizeResolver = {})
+            : arraySizeResolver_(std::move(arraySizeResolver)) {}
         ~ConfigLoader() = default;
 
         // Parse directly from a file path
@@ -44,6 +50,7 @@ namespace ONEFLOW {
 
     private:
         ConfigDocument document_;
+        ArraySizeResolver arraySizeResolver_;
 
         void ParseScalarParameter(TextFileParser& parser, ParameterEntry& entry);
         void ParseArrayParameter(TextFileParser& parser, ParameterEntry& entry);

@@ -22,25 +22,12 @@ License
 
 #include "LegacyParameterSyntax.h"
 
-#include "DataBase.h"
-#include "Word.h"
-
 namespace ONEFLOW {
 
 bool IsLegacyArrayParameter( const std::string& lineOfName )
 {
     return lineOfName.find( '[' ) != std::string::npos &&
            lineOfName.find( ']' ) != std::string::npos;
-}
-
-int ResolveLegacyArraySize( const std::string& word )
-{
-    if ( Word::IsDigit( word ) )
-    {
-        return StringToDigit<int>( word );
-    }
-
-    return GetDataValue<int>( word );
 }
 
 } // namespace ONEFLOW

@@ -45,16 +45,25 @@ bool IsArrayParameter( const std::string & lineOfName )
     return ONEFLOW::IsLegacyArrayParameter( lineOfName );
 }
 
+int GetParameterArraySize( const std::string & word )
+{
+    if ( Word::IsDigit( word ) )
+    {
+        return StringToDigit< int >( word );
+    }
+    return GetDataValue< int >( word );
+}
+
 void ReadOneFLOWScriptFile( TextFileParser & textFileParser )
 {
-    ConfigLoader loader;
+    ConfigLoader loader( GetParameterArraySize );
     loader.ParseFromParser( textFileParser );
     ConfigDatabaseAdapter::Commit( loader.Document() );
 }
 
 void ReadOneFLOWScriptFile( const std::string & fileName )
 {
-    ConfigLoader loader;
+    ConfigLoader loader( GetParameterArraySize );
     loader.ParseFile( fileName );
     ConfigDatabaseAdapter::Commit( loader.Document() );
 }
@@ -114,12 +123,6 @@ int AnalysisScalarParameter( TextFileParser & textFileParser, int keyWordIndex )
 
     return arraySize;
 }
-
-int GetParameterArraySize( const std::string & word )
-{
-    return ONEFLOW::ResolveLegacyArraySize( word );
-}
-
 
 std::string GetJsonFileName( const std::string & fileName )
 {

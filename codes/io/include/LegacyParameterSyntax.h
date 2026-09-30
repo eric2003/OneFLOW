@@ -26,8 +26,7 @@ License
 
 namespace ONEFLOW {
 
-// Helpers for parsing the existing C-like OneFLOW parameter syntax.
+// Identifies array declarations in the existing C-like parameter syntax.
 bool IsLegacyArrayParameter( const std::string& lineOfName );
-int ResolveLegacyArraySize( const std::string& word );
 
 } // namespace ONEFLOW
