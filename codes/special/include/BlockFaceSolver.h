@@ -53,7 +53,7 @@ public:
 public:
     IntSet blkset;
     HXVector< std::unique_ptr< Block3D > > blkList;
-    HXVector< Block2D * > blkList2d;
+    HXVector< std::unique_ptr< Block2D > > blkList2d;
     bool flag;
 public:
     bool init_flag;
