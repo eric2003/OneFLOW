@@ -48,7 +48,7 @@ public:
 public:
     int domain_id;
     HXVector< std::unique_ptr< MLine > > mLineList;
-    CoorMap * localCoorMap;
+    std::unique_ptr< CoorMap > localCoorMap;
     CoorMap * coorMap;
     RealField2D x2d, y2d, z2d;
     int freecoorMap;
