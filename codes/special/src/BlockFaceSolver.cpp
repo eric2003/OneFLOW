@@ -124,7 +124,7 @@ void BlkFaceSolver::MyFaceGenerateFaceMesh()
     Prj::OpenPrjFile( file, "grid/facemesh_tecplot.dat", std::ios_base::out );
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
-        SDomain * sDomain = this->sDomainList[ iFace ];
+        SDomain * sDomain = this->sDomainList[ iFace ].get();
         sDomain->Alloc();
         sDomain->SetDomainBcMesh();
         sDomain->GenerateSDomainMesh( file );
