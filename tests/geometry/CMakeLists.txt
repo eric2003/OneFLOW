@@ -48,7 +48,6 @@ endif()
 # ==============================================================================
 set ( INCLUDE_DIRS
     ${CMAKE_SOURCE_DIR}/codes/geometry/include
-    ${CMAKE_SOURCE_DIR}/codes/geometry/src
     ${CMAKE_SOURCE_DIR}/codes/global/include
     ${CMAKE_SOURCE_DIR}/codes/basic/include
     ${CMAKE_SOURCE_DIR}/codes/io/include
@@ -58,7 +57,6 @@ set ( INCLUDE_DIRS
     ${CMAKE_SOURCE_DIR}/codes/array/include
     ${CMAKE_SOURCE_DIR}/codes/special/include
     ${CMAKE_SOURCE_DIR}/codes/adt/include
-    ${CMAKE_SOURCE_DIR}/codes/adt/src
     ${CMAKE_SOURCE_DIR}/codes/zone/include
     ${CMAKE_SOURCE_DIR}/codes/partition/include
     ${CMAKE_SOURCE_DIR}/codes/multigrid/include
