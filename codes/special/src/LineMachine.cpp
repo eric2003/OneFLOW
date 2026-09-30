@@ -49,14 +49,6 @@ LineMachine::~LineMachine()
         delete curveMeshList[ i ];
     }
 
-    for ( int i = 0; i < curveInfoList.size(); ++ i )
-    {
-        delete curveInfoList[ i ];
-    }
-
-    for ( int i = 0; i < segmentCtrlList.size(); ++ i )
-    {
-    }
 }
 
 SegmentCtrl * LineMachine::GetSegmentCtrl( int id ) const
@@ -74,7 +66,7 @@ CurveMesh * LineMachine::GetCurveMesh( int id ) const
 CurveInfo * LineMachine::GetCurveInfo( int id ) const
 {
     int idx = ABS( id ) - 1;
-    return this->curveInfoList[ idx ];
+    return this->curveInfoList[ idx ].get();
 }
 
 int LineMachine::AddLine(int p1, int p2)
@@ -95,8 +87,8 @@ int LineMachine::AddLine(int p1, int p2)
 void LineMachine::AddLine( int p1, int p2, int id )
 {
     this->AddLine( p1, p2 );
-    CurveInfo * line = new LineInfo( p1, p2, id );
-    this->curveInfoList.push_back( line );
+    auto line = std::make_unique< LineInfo >( p1, p2, id );
+    this->curveInfoList.push_back( std::move( line ) );
 
     auto segmentCtrl = std::make_unique< SegmentCtrl >();
     segmentCtrl->id = id;
@@ -106,8 +98,8 @@ void LineMachine::AddLine( int p1, int p2, int id )
 void LineMachine::AddCircle( int p1, int pc, int p2, int id )
 {
     this->AddLine( p1, p2 );
-    CurveInfo * circle = new CircleInfo( p1, pc, p2, id );
-    this->curveInfoList.push_back( circle );
+    auto circle = std::make_unique< CircleInfo >( p1, pc, p2, id );
+    this->curveInfoList.push_back( std::move( circle ) );
 
     auto segmentCtrl = std::make_unique< SegmentCtrl >();
     segmentCtrl->id = id;
@@ -135,7 +127,7 @@ void LineMachine::CreateAllLineMesh()
     int nLine = curveInfoList.size();
     for ( int iLine = 0; iLine < nLine; ++ iLine )
     {
-        CurveInfo * curveInfo = curveInfoList[ iLine ];
+        CurveInfo * curveInfo = curveInfoList[ iLine ].get();
         CurveMesh * curveMesh = CreateLineMesh( curveInfo );
         curveMesh->segmentCtrl = this->GetSegmentCtrl( curveInfo->id );
         this->curveMeshList.push_back( curveMesh );
@@ -168,7 +160,7 @@ CurveMesh * LineMachine::GetLineMeshByTwoPoint( const int & p1, const int & p2, 
 
     for ( int iLine = 0; iLine < nLine; ++ iLine )
     {
-        CurveInfo * curveInfo = curveInfoList[ iLine ];
+        CurveInfo * curveInfo = curveInfoList[ iLine ].get();
         if ( curveInfo->p1 == p1 &&
              curveInfo->p2 == p2 )
         {
@@ -193,7 +185,7 @@ int LineMachine::GetLineIdByTwoPoint( const int & p1, const int & p2 ) const
 
     for ( int iLine = 0; iLine < nLine; ++ iLine )
     {
-        CurveInfo * curveInfo = curveInfoList[ iLine ];
+        CurveInfo * curveInfo = curveInfoList[ iLine ].get();
         if ( curveInfo->p1 == p1 &&
             curveInfo->p2 == p2 )
         {
