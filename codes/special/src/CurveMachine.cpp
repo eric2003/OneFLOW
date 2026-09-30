@@ -36,23 +36,17 @@ CurveMachine::CurveMachine()
 {
 }
 
-CurveMachine::~CurveMachine()
-{
-    for ( int i = 0; i < curveList.size(); ++ i )
-    {
-        delete curveList[ i ];
-    }
-}
+CurveMachine::~CurveMachine() = default;
 
 void CurveMachine::AddLine( int id1, int id2 )
 {
-    CurveLine * curveLine = new CurveLine();
+    auto curveLine = std::make_unique< CurveLine >();
     curveLine->lineType = LINE;
     PointType * p1 = point_Machine.GetPoint( id1 );
     PointType * p2 = point_Machine.GetPoint( id2 );
     curveLine->start_p = * p1;
     curveLine->end_p   = * p2;
-    curveList.push_back( curveLine );
+    curveList.push_back( std::move( curveLine ) );
 }
 
 void CurveMachine::AddCircle( int id1, int id2, int id3 )
@@ -81,7 +75,7 @@ void CurveMachine::AddParabolic( int id1, int id2 )
 
 CurveLine *  CurveMachine::GetCurve( int curveId )
 {
-    return this->curveList[ curveId ];
+    return this->curveList[ curveId ].get();
 }
 
 EndNameSpace

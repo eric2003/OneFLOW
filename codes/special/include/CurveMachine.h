@@ -23,6 +23,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -34,7 +35,7 @@ public:
     CurveMachine();
     ~CurveMachine();
 public:
-    HXVector< CurveLine * > curveList;
+    HXVector< std::unique_ptr< CurveLine > > curveList;
 public:
     void AddLine( int p1, int p2 );
     void AddCircle( int id1, int id2, int id3 );
