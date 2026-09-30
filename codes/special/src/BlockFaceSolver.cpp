@@ -274,8 +274,8 @@ void BlkFaceSolver::BuildBlkFace()
     this->blkList.resize( nBlock );
     for ( int iBlk = 0; iBlk < nBlock; ++ iBlk )
     {
-        Block3D * blk3d = new Block3D();
-        this->blkList[ iBlk ] = blk3d;
+        auto blk3d = std::make_unique< Block3D >();
+        this->blkList[ iBlk ] = std::move( blk3d );
     }
 
     int nFaces = this->face2Block.size();
@@ -339,7 +339,7 @@ void BlkFaceSolver::ConstructBlockInfo()
 
     for ( int iBlk = 0; iBlk < nBlock; ++ iBlk )
     {
-        Block3D * blk3d = this->blkList[ iBlk ];
+        Block3D * blk3d = this->blkList[ iBlk ].get();
         blk3d->ConstructTopo();
     }
 
