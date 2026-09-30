@@ -167,7 +167,7 @@ public:
     int nBFaces, nIFaces;
     HXVector< std::unique_ptr< BcRegion > > regions;
     void Create( int nBcRegions );
-    void SetBcRegion( int ir, BcRegion * bcRegion );
+    void SetBcRegion( int ir, std::unique_ptr< BcRegion > bcRegion );
     BcRegion * GetBcRegion( int ir );
 };
 

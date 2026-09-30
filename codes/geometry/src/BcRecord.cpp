@@ -28,6 +28,7 @@ License
 #include "HXMath.h"
 #include "HXStd.h"
 #include <iostream>
+#include <utility>
 
 BeginNameSpace( ONEFLOW )
 
@@ -398,9 +399,9 @@ void BcRegionGroup::Create( int nBcRegions )
     regions.resize( nBcRegions );
 }
 
-void BcRegionGroup::SetBcRegion( int ir, BcRegion * bcRegion )
+void BcRegionGroup::SetBcRegion( int ir, std::unique_ptr< BcRegion > bcRegion )
 {
-    regions[ ir ].reset( bcRegion );
+    regions[ ir ] = std::move( bcRegion );
 }
 
 BcRegion *  BcRegionGroup::GetBcRegion( int ir )

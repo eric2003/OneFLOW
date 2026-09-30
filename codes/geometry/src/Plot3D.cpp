@@ -39,6 +39,8 @@ License
 #include "BcRecord.h"
 #include "DataBase.h"
 #include <iostream>
+#include <memory>
+#include <utility>
 
 
 
@@ -530,12 +532,10 @@ void Plot3D::ReadBc( GridMediator * gridMediator )
             }
 
             int bcType = textFileParser.ReadNextDigit< int >();
-            BcRegion * bcRegion = new BcRegion( iZone, ir );
+            auto bcRegion = std::make_unique< BcRegion >( iZone, ir );
             bcRegion->s->SetRegion( imin, imax, jmin, jmax, kmin, kmax );
             bcRegion->s->zid = iZone;
             bcRegion->bcType = bcType;
-            bcRegionGroup->SetBcRegion( ir, bcRegion );
-
             if ( bcType == 3 )
             {
                 zoneidlist.push_back( iZone );
@@ -566,6 +566,7 @@ void Plot3D::ReadBc( GridMediator * gridMediator )
                 bcRegion->t->zid = textFileParser.ReadNextDigit< int >();
 
             }
+            bcRegionGroup->SetBcRegion( ir, std::move( bcRegion ) );
         }
     }
 
