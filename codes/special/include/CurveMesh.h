@@ -38,7 +38,7 @@ public:
 public:
     CurveInfo * curveInfo;
     SegmentCtrl * segmentCtrl;
-    HXVector< PointType * > ptList;
+    HXVector< PointType > ptList;
     int state;
 public:
     bool IsValidState() const;
