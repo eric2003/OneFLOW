@@ -52,7 +52,7 @@ public:
     ~BlkFaceSolver();
 public:
     IntSet blkset;
-    HXVector< Block3D * > blkList;
+    HXVector< std::unique_ptr< Block3D > > blkList;
     HXVector< Block2D * > blkList2d;
     bool flag;
 public:
