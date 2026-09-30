@@ -77,7 +77,7 @@ Face2D * BlkFaceSolver::GetBlkFace( int blk, int face_id )
 
 Face2D * BlkFaceSolver::GetBlkFace2D( int blk, int face_id )
 {
-    Block2D * blk2d = this->blkList2d[ blk ];
+    Block2D * blk2d = this->blkList2d[ blk ].get();
     int nFaces = blk2d->facelist.size();
     for ( int i = 0; i < nFaces; ++ i )
     {
@@ -306,8 +306,8 @@ void BlkFaceSolver::BuildBlkFace2D()
     this->blkList2d.resize( nBlock );
     for ( int iBlk = 0; iBlk < nBlock; ++ iBlk )
     {
-        Block2D * blk2d = new Block2D();
-        this->blkList2d[ iBlk ] = blk2d;
+        auto blk2d = std::make_unique< Block2D >();
+        this->blkList2d[ iBlk ] = std::move( blk2d );
     }
 
     int nFaces = this->face2Block.size();
@@ -324,7 +324,7 @@ void BlkFaceSolver::BuildBlkFace2D()
             int blk_id = face_struct.cellList[ i ] - 1;
             int face_pos_in_blk = face_struct.posList[ i ] - 1;
 
-            Block2D * blk2d = this->blkList2d[ blk_id ];
+            Block2D * blk2d = this->blkList2d[ blk_id ].get();
             blk2d->blk_id = blk_id;
 
             MDomain * mDomain = blk2d->mDomainList[ face_pos_in_blk ].get();
@@ -356,7 +356,7 @@ void BlkFaceSolver::ConstructBlockInfo2D()
 
     for ( int iBlk = 0; iBlk < nBlock; ++ iBlk )
     {
-        Block2D * blk2d = this->blkList2d[ iBlk ];
+        Block2D * blk2d = this->blkList2d[ iBlk ].get();
         blk2d->ConstructTopo();
     }
 
