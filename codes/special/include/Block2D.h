@@ -25,6 +25,7 @@ License
 #include "HXDefine.h"
 #include "CalcCoor.h"
 #include "BlkMesh.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -46,7 +47,7 @@ public:
 public:
     RealField2D x2d, y2d, z2d;
     HXVector< MLine * > mLineList;
-    HXVector< MDomain * > mDomainList;
+    HXVector< std::unique_ptr< MDomain > > mDomainList;
 public:
     void Alloc();
     void CreateBlockMesh2D();
