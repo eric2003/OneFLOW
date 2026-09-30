@@ -39,16 +39,12 @@ IFaceLink::IFaceLink( Grids & grids )
     int nZone = grids.size();
     this->l2g.resize( nZone );
 
-    this->face_search = new FaceSearch();
-    this->point_search = new PointLocator();
+    this->face_search = std::make_unique< FaceSearch >();
+    this->point_search = std::make_unique< PointLocator >();
     this->point_search->Initialize( grids );
 }
 
-IFaceLink::~IFaceLink()
-{
-    delete this->face_search;
-    delete this->point_search;
-}
+IFaceLink::~IFaceLink() = default;
 
 void IFaceLink::Init( Grid * grid )
 {

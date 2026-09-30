@@ -24,6 +24,7 @@ License
 #include "HXDefine.h"
 #include "HXLookup.h"
 #include "GridHandles.h"
+#include <memory>
 #include <set>
 
 BeginNameSpace( ONEFLOW )
@@ -53,9 +54,9 @@ public:
 
     LinkField nChild;
 
-    FaceSearch * face_search;
+    std::unique_ptr< FaceSearch > face_search;
 
-    PointLocator * point_search;
+    std::unique_ptr< PointLocator > point_search;
 
     Grids grids;
 public:

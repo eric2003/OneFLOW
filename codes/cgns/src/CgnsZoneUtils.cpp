@@ -108,8 +108,8 @@ void PrepareCgnsZoneSub( Grids & grids, CgnsZone * cgnsZone )
 
 void MergeToSingleZone( Grids & grids, HXVector< Int3D * > & unsIdList, NodeMesh * nodeMesh, int & nNodes, int & nCells )
 {
-    PointLocator * point_search = new PointLocator();
-    point_search->Initialize( grids );
+    PointLocator pointSearch;
+    pointSearch.Initialize( grids );
 
     size_t nZone = grids.size();
 
@@ -125,10 +125,10 @@ void MergeToSingleZone( Grids & grids, HXVector< Int3D * > & unsIdList, NodeMesh
         unsIdList[ iZone ] = new Int3D( Range( 1, ni ), Range( 1, nj ), Range( 1, nk ) );
         Int3D & unsId = * unsIdList[ iZone ];
         std::cout << " block = " << iZone + 1 << "\n";
-        CalcUnsId( grid, point_search, & unsId );
+        CalcUnsId( grid, & pointSearch, & unsId );
     }
 
-    nNodes = point_search->GetNPoint();
+    nNodes = pointSearch.GetNPoint();
 
     std::cout << " First nNodes = " << nNodes << "\n";
     nodeMesh->xN.resize( nNodes );
@@ -137,13 +137,12 @@ void MergeToSingleZone( Grids & grids, HXVector< Int3D * > & unsIdList, NodeMesh
     for ( int i = 0; i < nNodes; ++ i )
     {
         Real xm, ym, zm;
-        point_search->GetPoint( i, xm, ym, zm );
+        pointSearch.GetPoint( i, xm, ym, zm );
 
         nodeMesh->xN[ i ] = xm;
         nodeMesh->yN[ i ] = ym;
         nodeMesh->zN[ i ] = zm;
     }
-    delete point_search;
 }
 
 void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgnsZone )
