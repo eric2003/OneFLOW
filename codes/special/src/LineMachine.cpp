@@ -109,9 +109,9 @@ void LineMachine::AddCircle( int p1, int pc, int p2, int id )
     CurveInfo * circle = new CircleInfo( p1, pc, p2, id );
     this->curveInfoList.push_back( circle );
 
-    SegmentCtrl * segmentCtrl = new SegmentCtrl();
+    auto segmentCtrl = std::make_unique< SegmentCtrl >();
     segmentCtrl->id = id;
-    this->segmentCtrlList.push_back( segmentCtrl );
+    this->segmentCtrlList.push_back( std::move( segmentCtrl ) );
 }
 
 void LineMachine::AddDimension( TextFileParser & textFileParser )
