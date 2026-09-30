@@ -294,7 +294,7 @@ void BlkFaceSolver::BuildBlkFace()
 
             Block3D * blk3d = this->blkList[ blk_id ].get();
             blk3d->blk_id = blk_id;
-            MDomain * mDomain = blk3d->mDomainList[ face_pos_in_blk ];
+            MDomain * mDomain = blk3d->mDomainList[ face_pos_in_blk ].get();
             mDomain->AddSubDomain( iFace, lineList, lineposList );
         }
     }

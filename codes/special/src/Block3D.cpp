@@ -82,13 +82,13 @@ void Block3D::ConstructTopo()
     int nMDomain = mDomainList.size();
     for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
     {
-        MDomain * mDomain = mDomainList[ iMDomain ];
+        MDomain * mDomain = mDomainList[ iMDomain ].get();
         mDomain->ConstructMultiDomainTopo();
     }
     std::map< int, IntSet > p2dMap;
     for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
     {
-        MDomain * mDomain = mDomainList[ iMDomain ];
+        MDomain * mDomain = mDomainList[ iMDomain ].get();
         int nSize = mDomain->candidate_bcpoints.size();
         for ( int i = 0; i < nSize; ++ i )
         {
@@ -147,7 +147,7 @@ void Block3D::ConstructTopo()
 
     for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
     {
-        MDomain * mDomain = mDomainList[ iMDomain ];
+        MDomain * mDomain = mDomainList[ iMDomain ].get();
         mDomain->CalcDomainCtrlPoints( this->controlpoints, this->localpt[iMDomain ] );
     }
     this->CalcBlkDim();
@@ -210,7 +210,7 @@ void Block3D::CalcBlkDim()
     int nMDomain = mDomainList.size();
     for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
     {
-        MDomain * mDomain = mDomainList[ iMDomain ];
+        MDomain * mDomain = mDomainList[ iMDomain ].get();
         mDomain->CalcDim2D();
     }
 
@@ -246,7 +246,7 @@ void Block3D::CalcBlkDim()
 
     for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
     {
-        MDomain * mDomain = mDomainList[ iMDomain ];
+        MDomain * mDomain = mDomainList[ iMDomain ].get();
         mDomain->CalcCoor();
     }
 
@@ -260,7 +260,7 @@ void Block3D::CreateFaceList()
     int nMDomain = mDomainList.size();
     for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
     {
-        MDomain * mDomain = mDomainList[ iMDomain ];
+        MDomain * mDomain = mDomainList[ iMDomain ].get();
         mDomain->CreateInpFaceList( facelist );
     }
 
@@ -273,7 +273,7 @@ void Block3D::CreateBlockMesh()
     int nMDomain = mDomainList.size();
     for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
     {
-        MDomain * mDomain = mDomainList[ iMDomain ];
+        MDomain * mDomain = mDomainList[ iMDomain ].get();
         mDomain->SetBlkBcMesh( this );
     }
 
