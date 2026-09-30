@@ -21,6 +21,9 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "ParaFile.h"
+#include "TextFileParser.h"
+#include "DataBase.h"
+#include "DataBook.h"
 #include "ConfigLoader.h"
 #include "ConfigDatabaseAdapter.h"
 #include "LegacyParameterSyntax.h"
