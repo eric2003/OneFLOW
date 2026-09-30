@@ -28,6 +28,7 @@ License
 #include <set>
 #include <map>
 #include <fstream>
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -46,7 +47,7 @@ public:
     ~SDomain();
 public:
     int domain_id;
-    HXVector< MLine * > mLineList;
+    HXVector< std::unique_ptr< MLine > > mLineList;
     CoorMap * localCoorMap;
     CoorMap * coorMap;
     RealField2D x2d, y2d, z2d;
