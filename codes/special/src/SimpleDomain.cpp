@@ -128,6 +128,12 @@ IntField & DomData::GetLinePoints( int line_id )
     return blkFaceSolver.lineList[ id ];
 }
 
+const IntField & DomData::GetLinePoints( int line_id ) const
+{
+    int id = line_id - 1;
+    return blkFaceSolver.lineList[ id ];
+}
+
 void DomData::ConstructBcPoint()
 {
     IntField lineList;
