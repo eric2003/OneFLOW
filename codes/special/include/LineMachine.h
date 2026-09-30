@@ -50,8 +50,8 @@ public:
     int AddLine( int p1, int p2 );
     void AddLine( int p1, int p2, int id );
     void AddCircle( int p1, int pc, int p2, int id );
-    void AddDimension( TextFileParser * textFileParser );
-    void AddDs( TextFileParser * textFileParser );
+    void AddDimension( TextFileParser & textFileParser );
+    void AddDs( TextFileParser & textFileParser );
     void GenerateAllLineMesh();
     void CreateAllLineMesh();
 public:
