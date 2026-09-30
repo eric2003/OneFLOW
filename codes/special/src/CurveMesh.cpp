@@ -35,6 +35,10 @@ CurveMesh::CurveMesh()
     this->state = 0;
 }
 
+CurveMesh::~CurveMesh()
+{
+}
+
 bool CurveMesh::IsValidState() const
 {
     if ( this->state == 1 ) return false;
