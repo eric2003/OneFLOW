@@ -88,7 +88,7 @@ void SLine::SetDomainBcMesh( SDomain * sDomain )
     RealField2D & z2d = sDomain->z2d;
 
     int line_id = this->line_id - 1;
-    SLine * sLine = blkFaceSolver.slineList[ line_id ];
+    SLine * sLine = blkFaceSolver.slineList[ line_id ].get();
     ni = sLine->ni;
     RealField & x1d = sLine->x1d;
     RealField & y1d = sLine->y1d;
@@ -150,7 +150,7 @@ void SLine::SetBlkBcMesh( Block2D * blk2d )
     RealField2D & z2d = blk2d->z2d;
 
     int line_id = this->line_id - 1;
-    SLine * sLine = blkFaceSolver.slineList[ line_id ];
+    SLine * sLine = blkFaceSolver.slineList[ line_id ].get();
     ni = sLine->ni;
     RealField & x1d = sLine->x1d;
     RealField & y1d = sLine->y1d;
