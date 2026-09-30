@@ -43,7 +43,7 @@ public:
 public:
     int  ni, nj, nk;
     FaceTopo * faceTopo;
-    BcRegionGroup * bcRegionGroup;
+    std::unique_ptr< BcRegionGroup > bcRegionGroup;
     std::unique_ptr< Field3D > strx, stry, strz;
 public:
     void Decode( DataBook * databook ) override;

@@ -508,7 +508,7 @@ void Plot3D::ReadBc( GridMediator * gridMediator )
         int nBcRegions = textFileParser.ReadNextDigit< int >();
 
         grid->bcRegionGroup->Create( nBcRegions );
-        BcRegionGroup * bcRegionGroup = grid->bcRegionGroup;
+        BcRegionGroup * bcRegionGroup = grid->bcRegionGroup.get();
         for ( int ir = 0; ir < nBcRegions; ++ ir )
         {
             int imin, imax, jmin, jmax, kmin, kmax;
@@ -620,7 +620,7 @@ void Plot3D::DumpBc( GridMediator * gridMediator )
         std::string blockName = grid->name;
         file << blockName << "\n";
 
-        BcRegionGroup * bcRegionGroup = grid->bcRegionGroup;
+        BcRegionGroup * bcRegionGroup = grid->bcRegionGroup.get();
         int nBcRegions = bcRegionGroup->regions.size();
 
         file << nBcRegions << "\n";

@@ -115,7 +115,7 @@ void Cavity::Run()
         }
     }
 
-    BcRegionGroup * bcRegionGroup = grid->bcRegionGroup;
+    BcRegionGroup * bcRegionGroup = grid->bcRegionGroup.get();
     int nBcRegions = 4;
     grid->bcRegionGroup->Create( nBcRegions );
 

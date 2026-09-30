@@ -160,7 +160,7 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
 
         nTCell += grid->CalcNumberOfCell();
 
-        BcRegionGroup * bcRegionGroup = grid->bcRegionGroup;
+        BcRegionGroup * bcRegionGroup = grid->bcRegionGroup.get();
         size_t nBcRegions = bcRegionGroup->regions.size();
 
         for ( int ir = 0; ir < nBcRegions; ++ ir )
@@ -273,7 +273,7 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
 
         Int3D & unsId = * unsIdList[ iZone ];
 
-        BcRegionGroup * bcRegionGroup = grid->bcRegionGroup;
+        BcRegionGroup * bcRegionGroup = grid->bcRegionGroup.get();
         size_t nBcRegions = bcRegionGroup->regions.size();
 
         for ( int ir = 0; ir < nBcRegions; ++ ir )

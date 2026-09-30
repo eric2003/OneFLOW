@@ -41,13 +41,12 @@ REGISTER_GRID( StrGrid )
 StrGrid::StrGrid()
 {
     faceTopo = new FaceTopo();
-    bcRegionGroup = new BcRegionGroup();
+    bcRegionGroup = std::make_unique< BcRegionGroup >();
 }
 
 StrGrid::~StrGrid()
 {
     delete faceTopo;
-    delete bcRegionGroup;
 }
 
 void StrGrid::Decode( DataBook * databook )

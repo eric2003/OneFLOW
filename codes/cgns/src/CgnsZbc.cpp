@@ -179,7 +179,7 @@ void CgnsZbc::DumpCgnsGridBoundary( Grid * gridIn, const Grids & grids )
 {
     StrGrid * grid = StrGridCast( gridIn );
 
-    BcRegionGroup * bcRegionGroup = grid->bcRegionGroup;
+    BcRegionGroup * bcRegionGroup = grid->bcRegionGroup.get();
 
     int nBcRegions = bcRegionGroup->regions.size();
 

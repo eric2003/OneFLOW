@@ -93,7 +93,7 @@ void StrBcSetting::SetBcRegion( StrGrid * grid )
     int iZone = grid->id;
 
     grid->bcRegionGroup->Create( nBcRegion );
-    BcRegionGroup * bcRegionGroup = grid->bcRegionGroup;
+    BcRegionGroup * bcRegionGroup = grid->bcRegionGroup.get();
     int ir_count = 0;
     int ir = 0;
     while ( ir < nBcRegion )
