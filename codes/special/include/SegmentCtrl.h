@@ -24,6 +24,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "PointMachine.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -41,7 +42,7 @@ public:
     Real ds1, ds2, lenth;
     int distribution;
     int c1, c2;
-    SegmentCopy * segmentCopy;
+    std::unique_ptr< SegmentCopy > segmentCopy;
 public:
     Real cA1, cA2, cA3, cA4;
     Real cB; //tanh function coef

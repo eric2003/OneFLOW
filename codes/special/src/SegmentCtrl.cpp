@@ -34,13 +34,10 @@ SegmentCtrl::SegmentCtrl()
 {
     this->ratio1 = -1;
     this->ratio2 = -1;
-    segmentCopy = 0;
+
 }
 
-SegmentCtrl::~SegmentCtrl()
-{
-    delete segmentCopy;
-}
+SegmentCtrl::~SegmentCtrl() = default;
 
 void SegmentCtrl::Read( TextFileParser * textFileParser )
 {
@@ -67,7 +64,7 @@ void SegmentCtrl::Read( TextFileParser * textFileParser )
     else if ( distributionString.substr( 0, 1 ) == "c" )
     {
         this->distribution = 2;
-        this->segmentCopy = new SegmentCopy();
+        this->segmentCopy = std::make_unique< SegmentCopy >();
         this->segmentCopy->Read( textFileParser );
     }
     else if ( distributionString.substr( 0, 1 ) == "e" )
