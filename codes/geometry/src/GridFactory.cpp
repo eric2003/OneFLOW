@@ -186,24 +186,27 @@ void GridFactory::Plot3DProcess(
     const GridConfig & config,
     const std::string & caseDir )
 {
-    if ( config.targetType == GridFileType::OneFLOW )
+    switch ( config.targetType )
     {
-        CgnsFactory cgnsFactory;
-                cgnsFactory.CommonToOneFlowGrid( config );
-    }
-    else if ( config.targetType == GridFileType::CGNS )
-    {
-        CgnsFactory cgnsFactory;
-                ZgridMediator zgridMediator;
-        // Owned GridMediator instances are cleaned up automatically.
-        Plot3D::Plot3DToCgns( &zgridMediator, config, caseDir );
-        cgnsFactory.DumpCgnsGrid( zgridMediator );
-    }
-    else
-    {
-        throw std::invalid_argument(
-            std::string( "Unsupported Plot3D target type: " ) +
-            std::string( ToString( config.targetType ) ) );
+        case GridFileType::OneFLOW:
+        {
+            CgnsFactory cgnsFactory;
+            cgnsFactory.CommonToOneFlowGrid( config );
+            return;
+        }
+        case GridFileType::CGNS:
+        {
+            CgnsFactory cgnsFactory;
+            ZgridMediator zgridMediator;
+            // Owned GridMediator instances are cleaned up automatically.
+            Plot3D::Plot3DToCgns( &zgridMediator, config, caseDir );
+            cgnsFactory.DumpCgnsGrid( zgridMediator );
+            return;
+        }
+        default:
+            throw std::invalid_argument(
+                std::string( "Unsupported Plot3D target type: " ) +
+                std::string( ToString( config.targetType ) ) );
     }
 }
 
