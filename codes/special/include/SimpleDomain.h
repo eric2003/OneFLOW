@@ -102,18 +102,18 @@ public:
     void FindBcPointList2D( IntField & bcpointList );
     void NormalBcPointList2D( IntField & bcpointList );
     void FindNextPoint2D( IntField & ptList, int prev, int me, int & next, int & flag );
-    bool IsBcPoint( int pt );
-    bool IsCtrlPoint( int pt );
+    bool IsBcPoint( int pt ) const;
+    bool IsCtrlPoint( int pt ) const;
     void CalcDomainCtrlPoints( IntField & blkControlpoints, IntField & localpt );
     void CalcDomainCtrlPoints( IntField & blk_ctrl_points );
     void CalcDomainCtrlPoints();
 public:
-    bool IsBcLine( int line_id );
-    bool IsBcLine( IntSet &bclines, int line_id );
+    bool IsBcLine( int line_id ) const;
+    bool IsBcLine( const IntSet & bclines, int line_id ) const;
     void RemoveBcLineId( IntSet &bclines, int line_id );
     void FindAllBoundaryLine( IntSet &bclines );
     bool FindNextBcPoint( int ps, int pt, int & pnext, IntSet &bclines );
-    bool IsCornerPoints( int pt );
+    bool IsCornerPoints( int pt ) const;
 };
 
 void ConstructInt2Map( int sid, int tid, std::map< int, IntSet > & dataMap );
