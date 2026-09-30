@@ -49,7 +49,7 @@ public:
     void ConstructCtrlPoints();
     void Alloc();
     void CopyMesh();
-    void ConstructPointToLineMap( std::map< int, IntSet > & pointToLineMap );
+    void ConstructPointToLineMap( std::map< int, IntSet > & pointToLineMap ) const;
 
 };
 
@@ -69,9 +69,9 @@ public:
     void ConstructLineToDomainMap();
     void ConstructLineToDomainMap( int domain_id, std::map< int, IntSet > & lineToDomainMap );
     void ConstructPointToDomainMap();
-    void ConstructPointToDomainMap( int domain_id, std::map< int, IntSet > & pointToDomainMap );
+    void ConstructPointToDomainMap( int domain_id, std::map< int, IntSet > & pointToDomainMap ) const;
     void ConstructPointToPointMap();
-    void ConstructPointToPointMap( std::map< int, IntSet > & pointToPointMap );
+    void ConstructPointToPointMap( std::map< int, IntSet > & pointToPointMap ) const;
     void ConstructPointToLineMap( std::map< int, IntSet > & pointToLineMap );
 public:
     void AddSubLine( int line_id );
