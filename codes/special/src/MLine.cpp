@@ -222,17 +222,14 @@ MLine::MLine( SDomain * sDomain )
     this->coorMap = sDomain->coorMap;
 }
 
-MLine::~MLine()
-{
-    DeletePointer( slineList );
-}
+MLine::~MLine() = default;
 
 void MLine::ConstructSLineCtrlPoint()
 {
     int nSline = this->slineList.size();
     for ( int iSLine = 0; iSLine < nSline; ++ iSLine )
     {
-        SLine * sLine = this->slineList[ iSLine ];
+        SLine * sLine = this->slineList[ iSLine ].get();
         sLine->ConstructCtrlPoints();
     }
 }
@@ -328,9 +325,9 @@ void MLine::ConstructDomainTopo()
 void MLine::AddSubLine( int line_id )
 {
     this->lineList.push_back( line_id );
-    SLine * sLine = new SLine();
+    auto sLine = std::make_unique< SLine >();
     sLine->line_id = line_id;
-    this->slineList.push_back( sLine );
+    this->slineList.push_back( std::move( sLine ) );
 }
 
 void MLine::SetDomainBcMesh( SDomain * sDomain )
