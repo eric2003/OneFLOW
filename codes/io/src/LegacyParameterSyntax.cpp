@@ -20,38 +20,14 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+#include "LegacyParameterSyntax.h"
 
-#pragma once
-#include "HXDefine.h"
+namespace ONEFLOW {
 
-BeginNameSpace( ONEFLOW )
-
-template < typename T >
-class Point
+bool IsLegacyArrayParameter( const std::string& lineOfName )
 {
-public:
-    using point_type = Point< T >;
-public:
-    T x, y, z;
-    int id;
-public:
-    Point();
-    Point( const T & x, const T & y, const T & z, int id = 0 );
-    Point( const point_type & rhs );
-    Point & operator = ( const point_type & rhs );
-    ~Point();
-public:
-    void SetPoint( const T & x );
-    void SetPoint( const T & x, const T & y );
-    void SetPoint( const T & x, const T & y, const T & z );
-    void SetPoint( const T & x, const T & y, const T & z, int id );
-    void MoveRelatively( const T & dx, const T & dy, const T & dz );
-    void MoveTo( const T & newX, const T & newY, const T & newZ );
-public:
-    bool operator < ( const point_type & rhs ) const;
-    bool Compare( const point_type & rhs, const T & tolerance ) const;
-};
+    return lineOfName.find( '[' ) != std::string::npos &&
+           lineOfName.find( ']' ) != std::string::npos;
+}
 
-EndNameSpace
-
-#include "Point.hpp"
+} // namespace ONEFLOW

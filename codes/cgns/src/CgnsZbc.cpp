@@ -175,7 +175,7 @@ void CgnsZbc::FillInterface( BcRegion * bcRegion, cgsize_t * ipnts, cgsize_t * i
     std::cout << "\n";
 }
 
-void CgnsZbc::DumpCgnsGridBoundary( Grid * gridIn )
+void CgnsZbc::DumpCgnsGridBoundary( Grid * gridIn, const Grids & grids )
 {
     StrGrid * grid = StrGridCast( gridIn );
 
@@ -205,7 +205,7 @@ void CgnsZbc::DumpCgnsGridBoundary( Grid * gridIn )
         {
             FillInterface( bcRegion, ipnts, ipntsdonor, itranfrm, dimension );
             int zid = bcRegion->t->zid - 1;
-            Grid * tGrid = GlobalGrid::GetGrid( zid );
+            Grid * tGrid = grids[ zid ];
             std::string & donorName = tGrid->name;
             // write 1-to-1 info
             int index_conn = -1;

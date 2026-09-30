@@ -30,14 +30,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-LineMesh::LineMesh()
-{
-}
-
-LineMesh::~LineMesh()
-{
-}
-
 void LineMesh::GenerateLineMesh()
 {
     if ( ! this->IsValidState() ) return;

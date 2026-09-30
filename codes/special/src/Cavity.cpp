@@ -17,8 +17,7 @@ License
 
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
-
-\*---------------------------------------------------------------------------*/
+*---------------------------------------------------------------------------*/
 
 #include "Cavity.h"
 #include "CurveLine.h"
@@ -61,18 +60,18 @@ void Cavity::Run()
     int nk = 1;
 
     int nZone = 1;
-    GridMediator * gridMediator = new GridMediator();
-    gridMediator->gridFile = ONEFLOW::GetDataValue< std::string >( "sourceGridFileName" );
-    gridMediator->bcFile   = ONEFLOW::GetDataValue< std::string >( "sourceGridBcName" );
-    gridMediator->targetFile = ONEFLOW::GetDataValue< std::string >( "targetGridFileName" );
+    GridMediator gridMediator;
+    gridMediator.gridFile = ONEFLOW::GetDataValue< std::string >( "sourceGridFileName" );
+    gridMediator.bcFile   = ONEFLOW::GetDataValue< std::string >( "sourceGridBcName" );
+    gridMediator.targetFile = ONEFLOW::GetDataValue< std::string >( "targetGridFileName" );
 
-    gridMediator->numberOfZones = nZone;
-    gridMediator->gridVector.resize( nZone );
+    gridMediator.numberOfZones = nZone;
+    gridMediator.gridVector.resize( nZone );
 
     Grid * gridstr = ONEFLOW::CreateStrGrid();
     StrGrid * grid = ONEFLOW::StrGridCast( gridstr );
     int iZone = 0;
-    gridMediator->gridVector[ iZone ] = grid;
+    gridMediator.gridVector[ iZone ] = grid;
     grid->name = AddString( "Zone", iZone );
     grid->id = iZone;
     grid->ni = ni;
@@ -157,26 +156,23 @@ void Cavity::Run()
 
     this->DumpCgnsGrid( gridMediator );
 
-    delete gridMediator;
 }
 
-void Cavity::DumpPlot3DGrid( GridMediator * gridMediator )
+void Cavity::DumpPlot3DGrid( GridMediator & gridMediator )
 {
-    Plot3D::DumpCoor( gridMediator );
-    Plot3D::DumpBc( gridMediator );
+    Plot3D::DumpCoor( & gridMediator );
+    Plot3D::DumpBc( & gridMediator );
 
 }
 
-void Cavity::DumpCgnsGrid( GridMediator * gridMediator )
+void Cavity::DumpCgnsGrid( GridMediator & gridMediator )
 {
-    CgnsFactory * cgnsFactory = new CgnsFactory();
+    CgnsFactory cgnsFactory;
 
     ZgridMediator zgridMediator;
-    zgridMediator.AddGridMediator( gridMediator );
+    zgridMediator.AddGridMediator( & gridMediator );
 
-    cgnsFactory->DumpCgnsGrid( zgridMediator );
-
-    delete cgnsFactory;
+    cgnsFactory.DumpCgnsGrid( zgridMediator );
 }
 
 

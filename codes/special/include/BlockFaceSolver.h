@@ -30,6 +30,7 @@ License
 #include <set>
 #include <map>
 #include <fstream>
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -51,8 +52,8 @@ public:
     ~BlkFaceSolver();
 public:
     IntSet blkset;
-    HXVector< Block3D * > blkList;
-    HXVector< Block2D * > blkList2d;
+    HXVector< std::unique_ptr< Block3D > > blkList;
+    HXVector< std::unique_ptr< Block2D > > blkList2d;
     bool flag;
 public:
     bool init_flag;
@@ -64,16 +65,17 @@ public:
     IntSet faceset;
     HXVector< BlkF2C > line2Face;
     HXVector< BlkF2C > face2Block;
-    HXVector< SDomain * > sDomainList;
-    HXVector< SLine * > slineList;
+    HXVector< std::unique_ptr< SDomain > > sDomainList;
+    HXVector< std::unique_ptr< SLine > > slineList;
 public:
-    Face2D * GetBlkFace( int blk, int face_id );
-    Face2D * GetBlkFace2D( int blk, int face_id );
+    void Reset();
+    Face2D * GetBlkFace( int blk, int face_id ) const;
+    Face2D * GetBlkFace2D( int blk, int face_id ) const;
 public:
     void Alloc();
     void MyFaceAlloc();
     void CreateFaceList();
-    int  FindLineId( IntField & line );
+    int  FindLineId( const IntField & line ) const;
     IntField & GetLine( int line_id );
     void MyFaceBuildSDomainList();
     void MyFaceGenerateFaceMesh();

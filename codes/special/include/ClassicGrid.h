@@ -32,7 +32,7 @@ public:
     ClassicGrid();
     ~ClassicGrid();
 public:
-    void Run();
+    void Run() const;
 };
 
 EndNameSpace

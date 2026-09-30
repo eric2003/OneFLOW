@@ -56,7 +56,7 @@ void HXWriteVoid( DataBook * dataBook, const DataEntry * dataEntry );
 void HXReadVoid( DataBook * dataBook, DataEntry * dataEntry );
 
 DataBase * GetGlobalDataBase();
-void ProcessData( const std::string & name, std::string * value, int type, int size );
+void ProcessData( const std::string & name, const std::string * value, int type, int size );
 DataObject * CreateDataObject( int type, int size );
 
 class DataBase;

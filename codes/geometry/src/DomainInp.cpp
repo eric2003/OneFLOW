@@ -21,7 +21,6 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "DomainInp.h"
-#include "CgnsFactory.h"
 #include "GridMediator.h"
 #include "Su2Grid.h"
 #include "DataBase.h"
@@ -650,17 +649,13 @@ void DomainInp::Run()
 
 void DomainInp::GeneInp()
 {
-    CgnsFactory * cgnsFactory = new CgnsFactory();
+    GridMediator gridMediator;
+    gridMediator.gridFile = ONEFLOW::GetDataValue< std::string >( "sourceGridFileName" );
+    gridMediator.bcFile   = ONEFLOW::GetDataValue< std::string >( "sourceGridBcName" );
+    gridMediator.gridType = "plot3d";
 
-    GridMediator * gridMediator = new GridMediator();
-    gridMediator->gridFile = ONEFLOW::GetDataValue< std::string >( "sourceGridFileName" );
-    gridMediator->bcFile   = ONEFLOW::GetDataValue< std::string >( "sourceGridBcName" );
-    gridMediator->gridType = "plot3d";
-
-    gridMediator->ReadPlot3DCoor();
-    this->OutputInp( gridMediator );
-
-    delete cgnsFactory;
+    gridMediator.ReadPlot3DCoor();
+    this->OutputInp( &gridMediator );
 }
 
 void DomainInp::GetId( int zid, int i, int j, int k, int & id, GridMediator * gridMediator, PointLocator * pointSearch )

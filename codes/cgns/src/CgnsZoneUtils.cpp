@@ -748,9 +748,9 @@ void DumpCgnsZoneAttribute( CgnsZone * myZone, Grid * grid )
     ONEFLOW::DumpCgnsZoneNameAndGeneralizedDimension( myZone, grid );
 }
 
-void DumpCgnsGridBoundary( CgnsZone * myZone, Grid * grid )
+void DumpCgnsGridBoundary( CgnsZone * myZone, Grid * grid, const Grids & grids )
 {
-    myZone->cgnsZbc->DumpCgnsGridBoundary( grid );
+    myZone->cgnsZbc->DumpCgnsGridBoundary( grid, grids );
 }
 
 void DumpCgnsGridCoordinates( CgnsZone * myZone, Grid * grid )
@@ -767,11 +767,11 @@ void DumpCgnsGridCoordinates( CgnsZone * myZone, Grid * grid )
     std::cout << " index_z = " << index_z << "\n";
 }
 
-void DumpCgnsZone( CgnsZone * myZone, Grid * grid )
+void DumpCgnsZone( CgnsZone * myZone, Grid * grid, const Grids & grids )
 {
     ONEFLOW::DumpCgnsZoneAttribute( myZone, grid );
 
-    ONEFLOW::DumpCgnsGridBoundary( myZone, grid );
+    ONEFLOW::DumpCgnsGridBoundary( myZone, grid, grids );
 
     ONEFLOW::DumpCgnsGridCoordinates( myZone, grid );
 }

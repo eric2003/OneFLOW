@@ -33,8 +33,6 @@ class SegmentCtrl;
 class LineMesh : public CurveMesh
 {
 public:
-    LineMesh();
-    ~LineMesh() override;
 public:
     void GenerateLineMesh() override;
     void CalcCurveGeometry() override;

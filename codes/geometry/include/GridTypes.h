@@ -43,6 +43,17 @@ enum class GridObjective : int
     Partition       = 3   // domain decomposition
 };
 
+// Concrete classic-grid generators selected by the legacy "igene" setting.
+// Keep the integer mapping at the configuration boundary, not in generators.
+enum class GridGenerationType : int
+{
+    Cavity     = 1,
+    Rae2822    = 2,
+    Cylinder   = 3,
+    GridCreate = 4,
+    CgnsTest   = 5
+};
+
 // ---------------------------------------------------------------------------
 // Grid file formats used by ConvertGrid pipelines.
 // ---------------------------------------------------------------------------
@@ -84,7 +95,8 @@ inline constexpr std::array< std::string_view, 7 > kGridOpTokens = {
 };
 
 // ---------------------------------------------------------------------------
-// Immutable-ish configuration snapshot loaded once from DataBase.
+// Case-scoped grid workflow configuration. Read legacy DataBase values at the
+// entry boundary, then pass this value through generation and conversion.
 // ---------------------------------------------------------------------------
 struct GridConfig
 {
@@ -110,11 +122,26 @@ struct GridConfig
 
     // Return the optional external source case for the current grid configuration.
     static std::string GetSourceCaseDir();
+    std::string ResolveSourceCaseDir( const std::string & currentCaseDir ) const;
 };
 
 // ---------------------------------------------------------------------------
 // Parsing / formatting helpers - header-only to avoid extra link deps.
 // ---------------------------------------------------------------------------
+
+[[nodiscard]] constexpr std::optional< GridGenerationType >
+ParseGridGenerationType( int value ) noexcept
+{
+    switch ( value )
+    {
+        case 1: return GridGenerationType::Cavity;
+        case 2: return GridGenerationType::Rae2822;
+        case 3: return GridGenerationType::Cylinder;
+        case 4: return GridGenerationType::GridCreate;
+        case 5: return GridGenerationType::CgnsTest;
+        default: return std::nullopt;
+    }
+}
 
 [[nodiscard]] constexpr std::optional< GridObjective >
 ParseGridObjective( int value ) noexcept

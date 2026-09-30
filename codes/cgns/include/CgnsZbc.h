@@ -23,6 +23,7 @@ License
 
 #pragma once
 #include "HXCgns.h"
+#include "GridDef.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -64,7 +65,7 @@ public:
     void FillBcPoints3D( int * start, int * end, cgsize_t * bcpnts );
     void FillInterface( BcRegion * bcRegion, cgsize_t * ipnts, cgsize_t * ipntsdonor, int * itranfrm, int dimension );
     void FillRegion( TestRegion * r, cgsize_t * ipnts, int dimension );
-    void DumpCgnsGridBoundary( Grid * gridIn );
+    void DumpCgnsGridBoundary( Grid * gridIn, const Grids & grids );
 public:
     void CreateCgnsZbc( CgnsZbc * cgnsZbcIn );
 public:

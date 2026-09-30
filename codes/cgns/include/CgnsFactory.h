@@ -39,6 +39,7 @@ class GridElem;
 class ZgridElem;
 class GridMediator;
 class ZgridMediator;
+struct GridConfig;
 
 #ifdef ENABLE_CGNS
 
@@ -47,10 +48,6 @@ class CgnsFactory
 public:
     CgnsFactory();
     ~CgnsFactory();
-
-    // Bind explicit case state so grid IO does not depend on the legacy
-    // process-wide project directory.
-    void SetCaseDir( const std::string & caseDir );
 
     // Rule of 5: Disable copying to prevent double-free
     CgnsFactory(const CgnsFactory&) = delete;
@@ -65,18 +62,22 @@ public:
     std::unique_ptr<CgnsZbase> cgnsZbase;
     std::unique_ptr<ZgridElem> zgridElem;
 
-private:
-    std::string caseDir_;
 public:
-    void GenerateGrid();
-    void ReadCgnsGrid();
+    void GenerateGrid( const std::string & caseDir );
+    void GenerateGrid( const GridConfig & config, const std::string & caseDir );
+    void ReadCgnsGrid( const std::string & caseDir );
+    void ReadCgnsGrid( const GridConfig & config, const std::string & caseDir );
     void DumpCgnsGrid( ZgridMediator & zgridMediator );
-    void DumpUnsCgnsGrid();
+    void DumpUnsCgnsGrid( const std::string & caseDir );
+    void DumpUnsCgnsGrid( const GridConfig & config, const std::string & caseDir );
 public:
     void CommonToOneFlowGrid();
+    void CommonToOneFlowGrid( const GridConfig & config );
     void CommonToStrGrid();
     void CommonToUnsGridTEST();
+    void CommonToUnsGridTEST( const GridConfig & config );
     void ReadGridAndConvertToUnsCgnsZone();
+    void ReadGridAndConvertToUnsCgnsZone( const GridConfig & config );
     void ProcessCgnsBases();
 public:
     void CreateCgnsZone( ZgridMediator & zgridMediator );
@@ -85,6 +86,7 @@ public:
     void Su2ToOneFlowGrid( Su2Grid & su2Grid );
 public:
     void CgnsToOneFlowGrid();
+    void CgnsToOneFlowGrid( const GridConfig & config );
     void ConvertStrCgns2UnsCgnsGrid();
 };
 

@@ -23,13 +23,14 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
 class CurveMesh;
 class CurveInfo;
 
-CurveMesh * CreateLineMesh( int lineType );
-CurveMesh * CreateLineMesh( CurveInfo * curveInfo );
+std::unique_ptr< CurveMesh > CreateLineMesh( int lineType );
+std::unique_ptr< CurveMesh > CreateLineMesh( CurveInfo * curveInfo );
 
 EndNameSpace

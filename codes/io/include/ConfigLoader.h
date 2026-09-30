@@ -21,24 +21,23 @@ License
 \*---------------------------------------------------------------------------*/
 // ConfigLoader.h
 #pragma once
+#include "ConfigDocument.h"
+#include <functional>
 #include <string>
-#include <vector>
+#include <utility>
 
 namespace ONEFLOW {
 
     class TextFileParser;
 
-    // Represents a single parsed parameter entry before committing to DataBase
-    struct ParameterEntry {
-        std::string name;
-        int type; // Maps to HX_INT, HX_REAL, HX_STRING, etc.
-        std::vector<std::string> values;
-    };
-
-    // Responsible for parsing script files and loading parameters
+    // Reads the legacy C-like parameter syntax into a ConfigDocument.
     class ConfigLoader {
     public:
-        ConfigLoader() = default;
+        using ArraySizeResolver = std::function<int(const std::string&)>;
+
+        // The caller supplies runtime lookup for array sizes named by variables.
+        explicit ConfigLoader(ArraySizeResolver arraySizeResolver = {})
+            : arraySizeResolver_(std::move(arraySizeResolver)) {}
         ~ConfigLoader() = default;
 
         // Parse directly from a file path
@@ -47,11 +46,11 @@ namespace ONEFLOW {
         // Parse from an existing TextFileParser (Used for legacy interface integration)
         void ParseFromParser(TextFileParser& parser);
 
-        // Commit all parsed entries to the global DataBase
-        void CommitToDataBase() const;
+        const ConfigDocument& Document() const noexcept { return document_; }
 
     private:
-        std::vector<ParameterEntry> entries_;
+        ConfigDocument document_;
+        ArraySizeResolver arraySizeResolver_;
 
         void ParseScalarParameter(TextFileParser& parser, ParameterEntry& entry);
         void ParseArrayParameter(TextFileParser& parser, ParameterEntry& entry);

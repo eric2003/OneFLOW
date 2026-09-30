@@ -37,13 +37,9 @@ CurveMesh::CurveMesh()
 
 CurveMesh::~CurveMesh()
 {
-    for ( int i = 0; i < segmentCtrl->nPoint; ++ i )
-    {
-        delete ptList[ i ];
-    }
 }
 
-bool CurveMesh::IsValidState()
+bool CurveMesh::IsValidState() const
 {
     if ( this->state == 1 ) return false;
 
@@ -59,25 +55,20 @@ PointType & CurveMesh::GetPoint( int id, int signFlag )
     int index1 = id;
     int index2 = ptList.size() - 1 - index1;
     int index = coef * index1 + ( 1 - coef ) * index2;
-    return * ptList[ index ];
+    return ptList[ index ];
 }
 
 void CurveMesh::GenerateCurveMesh()
 {
     ptList.resize( segmentCtrl->nPoint );
-    for ( int i = 0; i < segmentCtrl->nPoint; ++ i )
-    {
-        ptList[ i ] = new PointType();
-    }
-
     int st = 0;
     int ed = segmentCtrl->nPoint - 1;
 
     PointType * pt1 = point_Machine.GetPoint( this->curveInfo->p1 );
     PointType * pt2 = point_Machine.GetPoint( this->curveInfo->p2 );
 
-    * ptList[ st ] = * pt1;
-    * ptList[ ed ] = * pt2;
+    ptList[ st ] = * pt1;
+    ptList[ ed ] = * pt2;
 
     this->CalcCurveGeometry();
     segmentCtrl->CalcFactor();
@@ -92,9 +83,9 @@ void CurveMesh::GenerateCurveMesh()
         Real xt, yt, zt;
         this->CalcCoor( s, xt, yt, zt );
 
-        ptList[ idx ]->x = xt;
-        ptList[ idx ]->y = yt;
-        ptList[ idx ]->z = zt;
+        ptList[ idx ].x = xt;
+        ptList[ idx ].y = yt;
+        ptList[ idx ].z = zt;
     }
 
     this->state = 1;

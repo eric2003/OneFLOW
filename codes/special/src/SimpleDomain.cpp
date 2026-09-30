@@ -128,6 +128,12 @@ IntField & DomData::GetLinePoints( int line_id )
     return blkFaceSolver.lineList[ id ];
 }
 
+const IntField & DomData::GetLinePoints( int line_id ) const
+{
+    int id = line_id - 1;
+    return blkFaceSolver.lineList[ id ];
+}
+
 void DomData::ConstructBcPoint()
 {
     IntField lineList;
@@ -294,7 +300,7 @@ void DomData::NormalBcPointList2D( IntField & bcpointList )
 
 }
 
-bool DomData::IsCtrlPoint( int pt )
+bool DomData::IsCtrlPoint( int pt ) const
 {
     int nPoint = this->ctrlpoints.size();
     for ( int i = 0; i < nPoint; ++ i )
@@ -308,7 +314,7 @@ bool DomData::IsCtrlPoint( int pt )
     return false;
 }
 
-bool DomData::IsBcPoint( int pt )
+bool DomData::IsBcPoint( int pt ) const
 {
     int nPoint = this->candidate_bcpoints.size();
     for ( int i = 0; i < nPoint; ++ i )
@@ -322,13 +328,13 @@ bool DomData::IsBcPoint( int pt )
     return false;
 }
 
-void DomData::FindNextPoint2D( IntField & ptList, int prev, int me, int & next, int & flag )
+void DomData::FindNextPoint2D( const IntField & ptList, int prev, int me, int & next, int & flag ) const
 {
-    std::map< int, IntSet >::iterator iter;
+    std::map< int, IntSet >::const_iterator iter;
     iter = this->pointToPointMap.find( me );
-    IntSet & me_set = iter->second;
+    const IntSet & me_set = iter->second;
     flag = 0;
-    for ( IntSet::iterator it = me_set.begin(); it != me_set.end(); ++ it )
+    for ( IntSet::const_iterator it = me_set.begin(); it != me_set.end(); ++ it )
     {
         next = * it;
         if ( IsBcPoint( next ) && ( next != prev ) && ( ! InArray( next, ptList ) ) )
@@ -361,16 +367,16 @@ void DomData::CalcDomainCtrlPoints( IntField & blk_ctrl_points )
     }
 }
 
-bool DomData::IsBcLine( int line_id )
+bool DomData::IsBcLine( int line_id ) const
 {
-    std::map< int, IntSet >::iterator iter;
+    std::map< int, IntSet >::const_iterator iter;
     iter = lineToDomainMap.find( line_id );
     return iter->second.size() == 1;
 }
 
-bool DomData::IsBcLine( IntSet &bclines, int line_id )
+bool DomData::IsBcLine( const IntSet & bclines, int line_id ) const
 {
-    IntSet::iterator iter;
+    IntSet::const_iterator iter;
     iter = bclines.find( line_id );
     return iter != bclines.end();
 }
@@ -425,7 +431,7 @@ bool DomData::FindNextBcPoint( int ps, int pt, int & pnext, IntSet &bclines )
     return findflag && ( pnext != ps );
 }
 
-bool DomData::IsCornerPoints( int pt )
+bool DomData::IsCornerPoints( int pt ) const
 {
     for ( int i = 0; i < candidate_ctrlpoints.size(); ++ i )
     {
@@ -518,7 +524,7 @@ void DomData::CalcBcCoor( CoorMap * coorMap, int closedCurve )
 
 }
 
-void ConstructLineToDomainMap( int tid, IntField & idList, std::map< int, IntSet > & dataMap )
+void ConstructLineToDomainMap( int tid, const IntField & idList, std::map< int, IntSet > & dataMap )
 {
     for ( int i = 0; i < idList.size(); ++ i )
     {
@@ -527,7 +533,7 @@ void ConstructLineToDomainMap( int tid, IntField & idList, std::map< int, IntSet
     }
 }
 
-void ConstructIntList2Map( int tid, IntField & idList, std::map< int, IntSet > & dataMap )
+void ConstructIntList2Map( int tid, const IntField & idList, std::map< int, IntSet > & dataMap )
 {
     for ( int i = 0; i < idList.size(); ++ i )
     {
@@ -552,18 +558,18 @@ void ConstructInt2Map( int sid, int tid, std::map< int, IntSet > & dataMap )
     }
 }
 
-void ConstructPointToDomainMap( int tid, LinkField & pointIdLink, std::map< int, IntSet > & dataMap )
+void ConstructPointToDomainMap( int tid, const LinkField & pointIdLink, std::map< int, IntSet > & dataMap )
 {
     int nLine = pointIdLink.size();
 
     for ( int iLine = 0; iLine < nLine; ++ iLine )
     {
-        IntField & pointIdList = pointIdLink[ iLine ];
+        const IntField & pointIdList = pointIdLink[ iLine ];
         ConstructIntList2Map( tid, pointIdList, dataMap );
     }
 }
 
-void ConstructPointToDomainMap( int tid, IntField & lineList, std::map< int, IntSet > & dataMap )
+void ConstructPointToDomainMap( int tid, const IntField & lineList, std::map< int, IntSet > & dataMap )
 {
     for ( int iLine = 0; iLine < lineList.size(); ++ iLine )
     {
@@ -574,21 +580,21 @@ void ConstructPointToDomainMap( int tid, IntField & lineList, std::map< int, Int
     }
 }
 
-void ConstructPointToPointMap( LinkField & pointIdLink, std::map< int, IntSet > & dataMap )
+void ConstructPointToPointMap( const LinkField & pointIdLink, std::map< int, IntSet > & dataMap )
 {
     int nLine = pointIdLink.size();
     for ( int iLine = 0; iLine < nLine; ++ iLine )
     {
-        IntField & pointIdList = pointIdLink[ iLine ];
+        const IntField & pointIdList = pointIdLink[ iLine ];
 
-        int & p1 = pointIdList[ 0 ];
-        int & p2 = pointIdList[ 1 ];
+        const int p1 = pointIdList[ 0 ];
+        const int p2 = pointIdList[ 1 ];
         ConstructInt2Map( p1, p2, dataMap );
         ConstructInt2Map( p2, p1, dataMap );
     }
 }
 
-void ConstructPointToPointMap( IntField & lineList, std::map< int, IntSet > & dataMap )
+void ConstructPointToPointMap( const IntField & lineList, std::map< int, IntSet > & dataMap )
 {
     for ( int iLine = 0; iLine < lineList.size(); ++ iLine )
     {
@@ -602,7 +608,7 @@ void ConstructPointToPointMap( IntField & lineList, std::map< int, IntSet > & da
     }
 }
 
-bool InArray( int ip, IntField & var_array )
+bool InArray( int ip, const IntField & var_array )
 {
     int nSize = var_array.size();
     for ( int i = 0; i < nSize; ++ i )
@@ -613,7 +619,7 @@ bool InArray( int ip, IntField & var_array )
     return false;
 }
 
-void GetPointIdLink( IntField & lineList, LinkField & pointIdLink )
+void GetPointIdLink( const IntField & lineList, LinkField & pointIdLink )
 {
     for ( int iLine = 0; iLine < lineList.size(); ++ iLine )
     {

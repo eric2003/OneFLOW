@@ -25,6 +25,7 @@ License
 #include "LineMachine.h"
 #include "DomainMachine.h"
 #include "BlockMachine.h"
+#include "BlockFaceSolver.h"
 #include "Dimension.h"
 #include "DataBase.h"
 #include "TextFileParser.h"
@@ -46,9 +47,27 @@ GridMachine::~GridMachine()
 
 void GridMachine::Run()
 {
-    std::string fileName = GetDataValue< std::string >( "gridLayoutFileName" );
-    this->ReadScript( fileName );
-    this->GeneGrid();
+    this->ResetState();
+    try
+    {
+        std::string fileName = GetDataValue< std::string >( "gridLayoutFileName" );
+        this->ReadScript( fileName );
+        this->GeneGrid();
+    }
+    catch ( ... )
+    {
+        this->ResetState();
+        throw;
+    }
+    this->ResetState();
+}
+
+void GridMachine::ResetState()
+{
+    blkFaceSolver.Reset();
+    line_Machine.Reset();
+    point_Machine.Reset();
+    domain_Machine.Reset();
 }
 
 void GridMachine::ReadScript( const std::string & fileName )
@@ -97,19 +116,19 @@ void GridMachine::ReadScript( const std::string & fileName )
         }
         else if ( keyWord == "Dim" )
         {
-            line_Machine.AddDimension( & textFileParser );
+            line_Machine.AddDimension( textFileParser );
         }
         else if ( keyWord == "Ds" )
         {
-            line_Machine.AddDs( & textFileParser );
+            line_Machine.AddDs( textFileParser );
         }
         else if ( keyWord == "Boundary" )
         {
-            domain_Machine.AddBcType( & textFileParser );
+            domain_Machine.AddBcType( textFileParser );
         }
         else if ( keyWord == "Add" )
         {
-            block_Machine.AddFaceToBlock( & textFileParser );
+            block_Machine.AddFaceToBlock( textFileParser );
         }
         
     };

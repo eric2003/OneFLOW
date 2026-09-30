@@ -42,20 +42,16 @@ Block2D::Block2D()
     int nMDomain = 1;
     for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
     {
-        MDomain * mDomain = new MDomain();
+        auto mDomain = std::make_unique< MDomain >();
         mDomain->pos = iMDomain;
         mDomain->coorMap = & this->coorMap;
-        mDomainList.push_back( mDomain );
+        mDomainList.push_back( std::move( mDomain ) );
     }
 
     this->AddLocalPt( 1, 2, 3, 4 );
 }
 
-Block2D::~Block2D()
-{
-    DeletePointer( mLineList );
-    DeletePointer( facelist );
-}
+Block2D::~Block2D() = default;
 
 void Block2D::Alloc()
 {
@@ -69,7 +65,7 @@ void Block2D::CreateBlockMesh2D()
     int nMDomain = mDomainList.size();
     for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
     {
-        MDomain * mDomain = mDomainList[ iMDomain ];
+        MDomain * mDomain = mDomainList[ iMDomain ].get();
         mDomain->SetBlkBcMesh( this );
     }
 
@@ -112,17 +108,17 @@ void Block2D::ConstructTopo()
     int nMDomain = mDomainList.size();
     for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
     {
-        MDomain * mDomain = mDomainList[ iMDomain ];
+        MDomain * mDomain = mDomainList[ iMDomain ].get();
         mDomain->ConstructMultiDomainTopo();
     }
 
     for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
     {
-        MDomain * mDomain = mDomainList[ iMDomain ];
+        MDomain * mDomain = mDomainList[ iMDomain ].get();
         mDomain->CalcDomainCtrlPoints();
     }
 
-    MDomain * mDomain = mDomainList[ 0 ];
+    MDomain * mDomain = mDomainList[ 0 ].get();
 
     this->controlpoints = mDomain->ctrlpoints;
 
@@ -183,11 +179,11 @@ void Block2D::CalcBlkDim()
     int nMDomain = mDomainList.size();
     for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
     {
-        MDomain * mDomain = mDomainList[ iMDomain ];
+        MDomain * mDomain = mDomainList[ iMDomain ].get();
         mDomain->CalcDim2D();
     }
 
-    MDomain * d = mDomainList[ 0 ];
+    MDomain * d = mDomainList[ 0 ].get();
 
     this->ni = d->ni;
     this->nj = d->nj;
@@ -212,7 +208,7 @@ void Block2D::CalcBlkDim()
 
     for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
     {
-        MDomain * mDomain = mDomainList[ iMDomain ];
+        MDomain * mDomain = mDomainList[ iMDomain ].get();
         mDomain->CalcCoor();
     }
 
@@ -226,7 +222,7 @@ void Block2D::CreateFaceList()
     int nMDomain = mDomainList.size();
     for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
     {
-        MDomain * mDomain = mDomainList[ iMDomain ];
+        MDomain * mDomain = mDomainList[ iMDomain ].get();
         mDomain->CreateInpFaceList1D( facelist );
     }
 

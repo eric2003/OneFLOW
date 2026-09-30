@@ -51,14 +51,14 @@ BlockMachine::~BlockMachine()
 {
 }
 
-void BlockMachine::AddFaceToBlock( TextFileParser * textFileParser )
+void BlockMachine::AddFaceToBlock( TextFileParser & textFileParser )
 {
-    std::string word = textFileParser->ReadNextWord();
+    std::string word = textFileParser.ReadNextWord();
     if ( word == "L2F" )
     {
-        int faceid = textFileParser->ReadNextDigit< int >();
-        int pos = textFileParser->ReadNextDigit< int >();
-        int lineid = textFileParser->ReadNextDigit< int >();
+        int faceid = textFileParser.ReadNextDigit< int >();
+        int pos = textFileParser.ReadNextDigit< int >();
+        int lineid = textFileParser.ReadNextDigit< int >();
         
         if ( Dim::dimension == ONEFLOW::THREE_D )
         {
@@ -71,9 +71,9 @@ void BlockMachine::AddFaceToBlock( TextFileParser * textFileParser )
     }
     else if ( word == "F2B" )
     {
-        int blockid = textFileParser->ReadNextDigit< int >();
-        int pos = textFileParser->ReadNextDigit< int >();
-        int faceid = textFileParser->ReadNextDigit< int >();
+        int blockid = textFileParser.ReadNextDigit< int >();
+        int pos = textFileParser.ReadNextDigit< int >();
+        int faceid = textFileParser.ReadNextDigit< int >();
 
         if ( Dim::dimension == ONEFLOW::THREE_D )
         {

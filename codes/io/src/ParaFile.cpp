@@ -21,7 +21,12 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "ParaFile.h"
+#include "TextFileParser.h"
+#include "DataBase.h"
+#include "DataBook.h"
 #include "ConfigLoader.h"
+#include "ConfigDatabaseAdapter.h"
+#include "LegacyParameterSyntax.h"
 #include "DataBase.h"
 #include "Parallel.h"
 #include "LogFile.h"
@@ -30,7 +35,6 @@ License
 #include "Prj.h"
 #include "FileUtils.h"
 #include "PIO.h"
-#include "json/json.h"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -41,34 +45,30 @@ BeginNameSpace( ONEFLOW )
 
 bool IsArrayParameter( const std::string & lineOfName )
 {
-    const std::string::size_type npos = - 1;
+    return ONEFLOW::IsLegacyArrayParameter( lineOfName );
+}
 
-    if ( lineOfName.find_first_of( "[" ) == npos )
+int GetParameterArraySize( const std::string & word )
+{
+    if ( Word::IsDigit( word ) )
     {
-        return false;
+        return StringToDigit< int >( word );
     }
-
-    if ( lineOfName.find_first_of( "]" ) == npos )
-    {
-        return false;
-    }
-
-    return true;
+    return GetDataValue< int >( word );
 }
 
 void ReadOneFLOWScriptFile( TextFileParser & textFileParser )
 {
-    ConfigLoader loader;
+    ConfigLoader loader( GetParameterArraySize );
     loader.ParseFromParser( textFileParser );
-    loader.CommitToDataBase();
+    ConfigDatabaseAdapter::Commit( loader.Document() );
 }
 
 void ReadOneFLOWScriptFile( const std::string & fileName )
 {
-    TextFileParser textFileParser;
-    textFileParser.OpenFile( fileName, std::ios_base::in );
-    ONEFLOW::ReadOneFLOWScriptFile( textFileParser );
-    textFileParser.CloseFile();
+    ConfigLoader loader( GetParameterArraySize );
+    loader.ParseFile( fileName );
+    ConfigDatabaseAdapter::Commit( loader.Document() );
 }
 
 void AnalysisArrayParameter( TextFileParser & textFileParser, int keyWordIndex )
@@ -126,23 +126,6 @@ int AnalysisScalarParameter( TextFileParser & textFileParser, int keyWordIndex )
 
     return arraySize;
 }
-
-int GetParameterArraySize( const std::string & word )
-{
-    int arraySize = - 1;
-    if ( Word::IsDigit( word ) )
-    {
-        arraySize = StringToDigit< int >( word );
-    }
-    else
-    {
-        arraySize = GetDataValue< int >( word );
-    }
-    return arraySize;
-}
-
-
-void mytestjson();
 
 std::string GetJsonFileName( const std::string & fileName )
 {
@@ -215,10 +198,6 @@ void GetParaInfoArray( TextFileParser & textFileParser, std::string & varName, s
             }
         }
     }
-}
-
-void mytestjson()
-{
 }
 
 void ReadControlInfo()

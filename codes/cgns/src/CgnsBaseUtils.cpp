@@ -63,8 +63,6 @@ void ReadCgnsBaseBasicInfo( CgnsBase * myCgnsBase, CgnsBase * cgnsBaseIn )
 
 void DumpBase( CgnsBase * myCgnsBase, GridMediator * gridMediator )
 {
-    GlobalGrid::SetCurrentGridMediator( gridMediator );
-
     myCgnsBase->DumpCgnsBaseBasicInfo();
 
     std::cout << " nZones = " << myCgnsBase->nZones << "\n";
@@ -73,14 +71,12 @@ void DumpBase( CgnsBase * myCgnsBase, GridMediator * gridMediator )
     {
         CgnsZone * cgnsZone = myCgnsBase->GetCgnsZone( iZone );
         Grid * grid = gridMediator->gridVector[ iZone ];
-        ONEFLOW::DumpCgnsZone( cgnsZone, grid );
+        ONEFLOW::DumpCgnsZone( cgnsZone, grid, gridMediator->gridVector );
     }
 }
 
 void PrepareCgnsZone( CgnsBase * myCgnsBase, GridMediator * gridMediator )
 {
-    GlobalGrid::SetCurrentGridMediator( gridMediator );
-
     std::cout << " nZones = " << myCgnsBase->nZones << "\n";
 
     for ( int iZone = 0; iZone < myCgnsBase->nZones; ++ iZone )

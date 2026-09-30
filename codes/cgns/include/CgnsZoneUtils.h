@@ -66,9 +66,9 @@ void FillISize( CgInt *isize, int ni, int nj, int nk, int dimension );
 void FillISize( CgnsZone * myZone, Grid * gridIn );
 void DumpCgnsZoneNameAndGeneralizedDimension( CgnsZone * myZone, Grid * gridIn );
 void DumpCgnsZoneAttribute( CgnsZone * myZone, Grid * grid );
-void DumpCgnsGridBoundary( CgnsZone * myZone, Grid * grid );
+void DumpCgnsGridBoundary( CgnsZone * myZone, Grid * grid, const Grids & grids );
 void DumpCgnsGridCoordinates( CgnsZone * myZone, Grid * grid );
-void DumpCgnsZone( CgnsZone * myZone, Grid * grid );
+void DumpCgnsZone( CgnsZone * myZone, Grid * grid, const Grids & grids );
 void PrepareCgnsZone( CgnsZone * myZone, Grid * grid );
 
 #endif

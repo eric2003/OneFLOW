@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Su2Grid.h"
+#include "GridTypes.h"
 #include "HXStd.h"
 #include "ElementHome.h"
 #include "CgnsFactory.h"
@@ -44,7 +45,6 @@ License
 #include "Dimension.h"
 #include "HXMath.h"
 #include "BcRecord.h"
-#include "DataBase.h"
 #include <iostream>
 
 
@@ -93,17 +93,7 @@ void VTK_CgnsMap::Init()
     vtk2Cgns.insert( IntPair( VTK_TYPE::TETRAHEDRON  , TETRA_4 ) );
     vtk2Cgns.insert( IntPair( VTK_TYPE::HEXAHEDRON   , HEXA_8  ) );
     vtk2Cgns.insert( IntPair( VTK_TYPE::PRISM        , PENTA_6 ) );
-    vtk2Cgns.insert( IntPair( VTK_TYPE::PYRAMID      , PYRA_5  ) );
-}
-
-SecMarker::SecMarker()
-{
-    ;
-}
-
-SecMarker::~SecMarker()
-{
-    ;
+    vtk2Cgns.insert( IntPair( VTK_TYPE::PYRAMID      , PYRA_5 ) );
 }
 
 SecMarkerManager::SecMarkerManager()
@@ -111,32 +101,20 @@ SecMarkerManager::SecMarkerManager()
     ;
 }
 
-SecMarkerManager::~SecMarkerManager()
-{
-    int nType = data.size();
-    for ( int i = 0; i < nType; ++ i )
-    {
-        delete data[ i ];
-    }
-}
-
 void SecMarkerManager::Alloc( int nType )
 {
     this->nType = nType;
+    data.clear();
     data.resize( nType );
-    for ( int i = 0; i < nType; ++ i )
-    {
-        data[ i ] = new SecMarker();
-    }
 }
 
-int SecMarkerManager::CalcTotalElem()
+int SecMarkerManager::CalcTotalElem() const
 {
-    int nType = data.size();
+    const int nType = data.size();
     int nElem = 0;
     for ( int i = 0; i < nType; ++ i )
     {
-        SecMarker * sec = this->data[ i ];
+        const SecMarker * sec = & this->data[ i ];
         nElem += sec->nElem;
     }
     return nElem;
@@ -147,34 +125,22 @@ MarkerManager::MarkerManager()
     ;
 }
 
-MarkerManager::~MarkerManager()
-{
-    int nMarker = markerList.size();
-    for ( int i = 0; i < nMarker; ++ i )
-    {
-        delete markerList[ i ];
-    }
-}
-
 void MarkerManager::CreateMarkerList( int nMarker )
 {
+    markerList.clear();
     markerList.resize( nMarker );
-    for ( int i = 0; i < nMarker; ++ i )
-    {
-        markerList[ i ] = new Marker();
-    }
 }
 
-void MarkerManager::CalcSecMarker( SecMarkerManager * secMarkerManager )
+void MarkerManager::CalcSecMarker( SecMarkerManager & secMarkerManager )
 {
-    int nMarker = this->markerList.size();
+    const int nMarker = this->markerList.size();
     IntSet typeSet;
     for ( int iMarker = 0; iMarker < nMarker; ++ iMarker )
     {
-        Marker * marker = this->markerList[ iMarker ];
+        const Marker * marker = & this->markerList[ iMarker ];
         for ( int iElem = 0; iElem < marker->nElem; ++ iElem )
         {
-            int type = marker->eTypes[ iElem ];
+            const int type = marker->eTypes[ iElem ];
             typeSet.insert( type );
         }
     }
@@ -184,28 +150,28 @@ void MarkerManager::CalcSecMarker( SecMarkerManager * secMarkerManager )
     l2g.resize( nMarker );
     for ( int iMarker = 0; iMarker < nMarker; ++ iMarker )
     {
-        Marker * marker = this->markerList[ iMarker ];
+        const Marker * marker = & this->markerList[ iMarker ];
         l2g[ iMarker ].resize( marker->nElem );
     }
 
-    int nType = types.size();
+    const int nType = types.size();
 
-    secMarkerManager->Alloc( nType );
+    secMarkerManager.Alloc( nType );
 
     int gid = 0;
     for ( int iType = 0; iType < nType; ++ iType )
     {
-        int eType = types[ iType ];
-        SecMarker * secMarker = secMarkerManager->data[ iType ];
+        const int eType = types[ iType ];
+        SecMarker * secMarker = & secMarkerManager.data[ iType ];
         secMarker->vtk_type = eType;
         secMarker->cgns_type = vtk_CgnsMap.vtk2Cgns[ eType ];
         secMarker->name = ElementTypeName[ secMarker->cgns_type ];
         for ( int iMarker = 0; iMarker < nMarker; ++ iMarker )
         {
-            Marker * marker = this->markerList[ iMarker ];
+            const Marker * marker = & this->markerList[ iMarker ];
             for ( int iElem = 0; iElem < marker->nElem; ++ iElem )
             {
-                int type = marker->eTypes[ iElem ];
+                const int type = marker->eTypes[ iElem ];
                 if ( type == eType )
                 {
                     secMarker->elems.push_back( marker->elems[ iElem ] );
@@ -228,13 +194,13 @@ VolumeSecManager::~VolumeSecManager()
     ;
 }
 
-void VolumeSecManager::CalcVolSec( Su2Grid* su2Grid, SecMarkerManager * secMarkerManager )
+void VolumeSecManager::CalcVolSec( const Su2Grid & su2Grid, SecMarkerManager & secMarkerManager )
 {
     IntSet typeSet;
 
-    for ( int iElem = 0; iElem < su2Grid->nElem; ++ iElem )
+    for ( int iElem = 0; iElem < su2Grid.nElem; ++ iElem )
     {
-        int eVtkType = su2Grid->elemVTKType[ iElem ];
+        const int eVtkType = su2Grid.elemVTKType[ iElem ];
         typeSet.insert( eVtkType );
     }
     
@@ -243,22 +209,22 @@ void VolumeSecManager::CalcVolSec( Su2Grid* su2Grid, SecMarkerManager * secMarke
     int nType = types.size();
     l2g.resize( nType );
 
-    secMarkerManager->Alloc( nType );
+    secMarkerManager.Alloc( nType );
 
     for ( int iType = 0; iType < nType; ++ iType )
     {
         int eType = types[ iType ];
-        SecMarker * secMarker = secMarkerManager->data[ iType ];
+        SecMarker * secMarker = & secMarkerManager.data[ iType ];
         secMarker->vtk_type = eType;
         secMarker->cgns_type = vtk_CgnsMap.vtk2Cgns[ eType ];
         secMarker->name = ElementTypeName[ secMarker->cgns_type ];
         int gid = 0;
-        for ( int iElem = 0; iElem < su2Grid->nElem; ++ iElem )
+        for ( int iElem = 0; iElem < su2Grid.nElem; ++ iElem )
         {
-            int e_VtkType = su2Grid->elemVTKType[ iElem ];
+            const int e_VtkType = su2Grid.elemVTKType[ iElem ];
             if ( eType == e_VtkType )
             {
-                secMarker->elems.push_back( su2Grid->elems[ iElem ] );
+                secMarker->elems.push_back( su2Grid.elems[ iElem ] );
                 this->l2g[ iType ].push_back( iElem );
             }
         }
@@ -286,28 +252,28 @@ void Su2Bc::Init()
     bcNameToValueMap.insert(String2IntPair("FAR", BCFarfield));
 }
 
-void Su2Bc::AddBc(std::string& geoName, std::string& bcName)
+void Su2Bc::AddBc( const std::string & geoName, const std::string & bcName )
 {
     using StringPair = std::pair< std::string, std::string >;
     bcMap.insert(StringPair(geoName, bcName));
 }
 
-void Su2Bc::Process( StringField &markerBCNameList, StringField& markerNameList)
+void Su2Bc::Process( const StringField & markerBCNameList, const StringField & markerNameList )
 {
     for ( int i = 0; i < markerBCNameList.size(); ++ i )
     {
-        std::string &bcName = markerBCNameList[i];
+        const std::string & bcName = markerBCNameList[ i ];
         if (bcList.find(bcName) != bcList.end())
         {
-            std::string& geoName = markerNameList[i];
+            const std::string & geoName = markerNameList[ i ];
             this->AddBc(geoName, bcName);
         }
     }
 }
 
-std::string Su2Bc::GetBcName(std::string& geoName)
+std::string Su2Bc::GetBcName( const std::string & geoName ) const
 {
-    std::map<std::string, std::string>::iterator iter;
+    std::map<std::string, std::string>::const_iterator iter;
     iter = bcMap.find(geoName);
     if (iter!= bcMap.end())
     {
@@ -316,9 +282,9 @@ std::string Su2Bc::GetBcName(std::string& geoName)
     return "";
 }
 
-int Su2Bc::GetCgnsBcType(std::string& geoName)
+int Su2Bc::GetCgnsBcType( const std::string & geoName ) const
 {
-    std::string bcName = this->GetBcName(geoName);
+    const std::string bcName = this->GetBcName(geoName);
     return bcNameToValueMap.find(bcName)->second;
 }
 
@@ -347,14 +313,14 @@ void Su2Grid::ReadSu2Grid( GridMediator * gridMediator )
 {
 }
 
-void Su2Grid::ReadSu2GridAscii( std::string & fileName )
+void Su2Grid::ReadSu2GridAscii( const std::string & fileName, const std::string & caseDir )
 {
     TextFileParser textFileParser;
     std::string separator  = " =\r\n\t#$,;";
-    if ( ! caseDir_.empty() )
+    if ( ! caseDir.empty() )
     {
         textFileParser.OpenCaseFile(
-            caseDir_, fileName, std::ios_base::in );
+            caseDir, fileName, std::ios_base::in );
     }
     else
     {
@@ -425,7 +391,7 @@ void Su2Grid::ReadSu2GridAscii( std::string & fileName )
                     textFileParser.ReadNextNonEmptyLine();
                     std::string tag = textFileParser.ReadNextWord();
                     std::string name = textFileParser.ReadNextWord();
-                    Marker * marker = mmark.markerList[ im ];
+                    Marker * marker = & mmark.markerList[ im ];
                     marker->name = name;
                     marker->bcName = su2Bc.GetBcName( name );
                     marker->cgns_bcType = su2Bc.GetCgnsBcType(name);
@@ -463,14 +429,14 @@ void Su2Grid::ReadSu2GridAscii( std::string & fileName )
     textFileParser.CloseFile();
 }
 
-void Su2Grid::MarkBoundary( std::string & su2cfgFile)
+void Su2Grid::MarkBoundary( const std::string & su2cfgFile, const std::string & caseDir )
 {
     TextFileParser textFileParser;
     std::string separator = " =\r\n\t#$,;()";
-    if ( ! caseDir_.empty() )
+    if ( ! caseDir.empty() )
     {
         textFileParser.OpenCaseFile(
-            caseDir_, su2cfgFile, std::ios_base::in );
+            caseDir, su2cfgFile, std::ios_base::in );
     }
     else
     {
@@ -503,31 +469,23 @@ void Su2Grid::MarkBoundary( std::string & su2cfgFile)
     textFileParser.CloseFile();
 }
 
-void Su2Grid::SetCaseDir( const std::string & caseDir )
+void Su2Grid::Su2ToOneFlowGrid( const GridConfig & config, const std::string & caseDir )
 {
-    caseDir_ = caseDir;
-}
-
-void Su2Grid::Su2ToOneFlowGrid()
-{
-    std::string gridFile = ONEFLOW::GetDataValue< std::string >( "sourceGridFileName" );
-    std::string su2cfgFile = ONEFLOW::GetDataValue< std::string >( "sourceGridBcName" );
-
-    this->MarkBoundary(su2cfgFile);
-    this->ReadSu2GridAscii( gridFile );
+    this->MarkBoundary( config.bcFile, caseDir );
+    this->ReadSu2GridAscii( config.sourceFile, caseDir );
 
     ONEFLOW::Su2ToOneFlowGrid( *this );
 }
 
-void Su2Grid::FillSU2CgnsZone( CgnsZone * cgnsZone )
+void Su2Grid::FillSU2CgnsZone( CgnsZone & cgnsZone )
 {
-    int nNodes = this->xN.size();
-    int nCells = this->nElem;
+    const int nNodes = this->xN.size();
+    const int nCells = this->nElem;
 
-    cgnsZone->cgnsCoor->SetNNode( nNodes );
-    cgnsZone->cgnsCoor->SetNCell( nCells );
+    cgnsZone.cgnsCoor->SetNNode( nNodes );
+    cgnsZone.cgnsCoor->SetNCell( nCells );
 
-    NodeMesh * nodeMesh = cgnsZone->cgnsCoor->GetNodeMesh();
+    NodeMesh * nodeMesh = cgnsZone.cgnsCoor->GetNodeMesh();
 
     nodeMesh->CreateNodes( nNodes );
     nodeMesh->xN = this->xN;
@@ -536,16 +494,16 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone * cgnsZone )
     
     SecMarkerManager volSec;
 
-    this->volSec.CalcVolSec( this, & volSec );
+    this->volSec.CalcVolSec( *this, volSec );
     SecMarkerManager bcSec;
-    this->mmark.CalcSecMarker( &bcSec );
+    this->mmark.CalcSecMarker( bcSec );
 
-    int nVolSec = volSec.nType;
-    int nBcSec = bcSec.nType;
+    const int nVolSec = volSec.nType;
+    const int nBcSec = bcSec.nType;
 
-    int nSection = nVolSec + nBcSec;
+    const int nSection = nVolSec + nBcSec;
 
-    CgnsZsection * cgnsZsection = cgnsZone->cgnsZsection;
+    CgnsZsection * cgnsZsection = cgnsZone.cgnsZsection;
 
     cgnsZsection->nSection = nSection;
     cgnsZsection->CreateCgnsSection();
@@ -556,19 +514,19 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone * cgnsZone )
     for ( int iSection = 0; iSection < nSection; ++ iSection )
     {
         CgnsSection * cgnsSection = cgnsZsection->GetCgnsSection( iSection );
-        SecMarker * sec = 0;
+        const SecMarker * sec = nullptr;
         if ( iSection < nVolSec )
         {
-            sec = volSec.data[ iSection ];
+            sec = & volSec.data[ iSection ];
         }
         else
         {
             int jSection = iSection - nVolSec;
-            sec = bcSec.data[ jSection ];
+            sec = & bcSec.data[ jSection ];
         }
             
 
-        int nElem = sec->nElem;
+        const int nElem = sec->nElem;
         cgnsSection->SetSectionInfo( sec->name, sec->cgns_type, sumElem + 1, sumElem + nElem );
         cgnsSection->CreateConnList();
         sumElem += nElem;
@@ -576,8 +534,8 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone * cgnsZone )
         int pos = 0;
         for ( int iElem = 0; iElem < nElem; ++ iElem )
         {
-            IntField & elem = sec->elems[ iElem ];
-            int nNodes = elem.size();
+            const IntField & elem = sec->elems[ iElem ];
+            const int nNodes = elem.size();
             for ( int i = 0; i < nNodes; ++ i )
             {
                 cgnsSection->connList[ pos ++ ]= elem[ i ] + 1;
@@ -592,15 +550,14 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone * cgnsZone )
         cgnsSection->SetElemPosition();
     }
 
-    CgnsZbc * cgnsZbc = cgnsZone->cgnsZbc;
+    CgnsZbc * cgnsZbc = cgnsZone.cgnsZbc;
     cgnsZbc->cgnsZbcBoco->ReadZnboco( this->mmark.nMarker );
     cgnsZbc->cgnsZbcBoco->CreateCgnsZbc();
 
     for ( int iMarker = 0; iMarker < this->mmark.nMarker; ++ iMarker )
     {
-        Marker * marker = this->mmark.markerList[ iMarker ];
-        std::string & name = marker->name;
-        std::string& bcName = marker->bcName;
+        const Marker * marker = & this->mmark.markerList[ iMarker ];
+        const std::string & name = marker->name;
 
         CgnsBcBoco * cgnsBcBoco = cgnsZbc->cgnsZbcBoco->GetCgnsBc( iMarker );
         cgnsBcBoco->name = name;
@@ -612,16 +569,16 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone * cgnsZone )
 
         for ( int iElem = 0; iElem < marker->nElem; ++ iElem )
         {
-            int elemId = this->mmark.l2g[ iMarker ][ iElem ];
+            const int elemId = this->mmark.l2g[ iMarker ][ iElem ];
             cgnsBcBoco->connList[ iElem ] = elemId + 1 + nVolCell;
         }
         
         //string bcName = GetCgnsBcName( cgnsBcBoco->bcType );
     }
 
-    cgnsZone->cgnsZoneType = Unstructured;
+    cgnsZone.cgnsZoneType = Unstructured;
 
-    cgnsZone->ConvertToInnerDataStandard();
+    cgnsZone.ConvertToInnerDataStandard();
 
 }
 

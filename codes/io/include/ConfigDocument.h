@@ -20,38 +20,36 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
 #pragma once
-#include "HXDefine.h"
 
-BeginNameSpace( ONEFLOW )
+#include <string>
+#include <utility>
+#include <vector>
 
-template < typename T >
-class Point
-{
-public:
-    using point_type = Point< T >;
-public:
-    T x, y, z;
-    int id;
-public:
-    Point();
-    Point( const T & x, const T & y, const T & z, int id = 0 );
-    Point( const point_type & rhs );
-    Point & operator = ( const point_type & rhs );
-    ~Point();
-public:
-    void SetPoint( const T & x );
-    void SetPoint( const T & x, const T & y );
-    void SetPoint( const T & x, const T & y, const T & z );
-    void SetPoint( const T & x, const T & y, const T & z, int id );
-    void MoveRelatively( const T & dx, const T & dy, const T & dz );
-    void MoveTo( const T & newX, const T & newY, const T & newZ );
-public:
-    bool operator < ( const point_type & rhs ) const;
-    bool Compare( const point_type & rhs, const T & tolerance ) const;
+namespace ONEFLOW {
+
+// Format-neutral representation of one named parameter before it is applied
+// to a runtime-specific store such as the legacy DataBase.
+struct ParameterEntry {
+    std::string name;
+    std::string typeName;
+    std::vector<std::string> values;
 };
 
-EndNameSpace
+// Ordered parameter document shared by configuration format adapters.
+class ConfigDocument {
+public:
+    void Add( ParameterEntry entry )
+    {
+        entries_.push_back( std::move( entry ) );
+    }
 
-#include "Point.hpp"
+    void Clear() noexcept { entries_.clear(); }
+    bool Empty() const noexcept { return entries_.empty(); }
+    const std::vector<ParameterEntry>& Entries() const noexcept { return entries_; }
+
+private:
+    std::vector<ParameterEntry> entries_;
+};
+
+} // namespace ONEFLOW

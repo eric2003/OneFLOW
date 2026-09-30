@@ -37,7 +37,8 @@ public:
 public:
     IntField bctypeList, bcLineList;
 public:
-    void AddBcType( TextFileParser * textFileParser );
+    void Reset();
+    void AddBcType( TextFileParser & textFileParser );
     int GetBcType( int id );
 };
 

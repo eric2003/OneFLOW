@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "ClassicGrid.h"
+#include "GridTypes.h"
 #include "GridCreate.h"
 #include "DataBase.h"
 #include "DataBaseIO.h"
@@ -35,6 +36,55 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+namespace
+{
+    using GridGenerator = void ( * )();
+
+    void RunCavity()
+    {
+        Cavity cavity;
+        cavity.Run();
+    }
+
+    void RunRae2822()
+    {
+        Rae2822 rae2822;
+        rae2822.Run();
+    }
+
+    void RunCylinder()
+    {
+        Cylinder cylinder;
+        cylinder.Run();
+    }
+
+    void RunGridCreate()
+    {
+        GridCreate gridCreate;
+        gridCreate.Run();
+    }
+
+    void RunCgnsTest()
+    {
+        CgnsTest cgnsTest;
+        cgnsTest.Run();
+    }
+
+    struct GridGenerationEntry
+    {
+        GridGenerationType type;
+        GridGenerator run;
+    };
+
+    constexpr GridGenerationEntry kGridGenerationEntries[] = {
+        { GridGenerationType::Cavity,     &RunCavity },
+        { GridGenerationType::Rae2822,    &RunRae2822 },
+        { GridGenerationType::Cylinder,   &RunCylinder },
+        { GridGenerationType::GridCreate, &RunGridCreate },
+        { GridGenerationType::CgnsTest,   &RunCgnsTest },
+    };
+}
+
 ClassicGrid::ClassicGrid()
 {
     ;
@@ -45,44 +95,25 @@ ClassicGrid::~ClassicGrid()
     ;
 }
 
-void ClassicGrid::Run()
+void ClassicGrid::Run() const
 {
-    int igene = GetDataValue< int >( "igene" );
-    if ( igene == 0 )
+    const int generationId = GetDataValue< int >( "igene" );
+    const auto generationType = ParseGridGenerationType( generationId );
+
+    // Legacy "igene" is converted once at the configuration boundary.
+    // Concrete generators then receive no knowledge of its integer encoding.
+    if ( ! generationType )
     {
-        //Sod * sod = new Sod();
-        //sod->Run();
-        //delete sod;
+        return;
     }
-    else if ( igene == 1 )
+
+    for ( const auto & entry : kGridGenerationEntries )
     {
-        Cavity * cavity = new Cavity();
-        cavity->Run();
-        delete cavity;
-    }
-    else if ( igene == 2 )
-    {
-        Rae2822 * rae2822 = new Rae2822();
-        rae2822->Run();
-        delete rae2822;
-    }
-    else if ( igene == 3 )
-    {
-        Cylinder * cylinder = new Cylinder();
-        cylinder->Run( igene );
-        delete cylinder;
-    }
-    else if ( igene == 4 )
-    {
-        GridCreate * gridCreate = new GridCreate();
-        gridCreate->Run( igene );
-        delete gridCreate;
-    }
-    else if ( igene == 5 )
-    {
-        CgnsTest * cgnsTest = new CgnsTest();
-        cgnsTest->Run();
-        delete cgnsTest;
+        if ( entry.type == *generationType )
+        {
+            entry.run();
+            return;
+        }
     }
 }
 

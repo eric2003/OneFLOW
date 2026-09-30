@@ -29,8 +29,6 @@ BeginNameSpace( ONEFLOW )
 class CircleLineMesh : public CurveMesh
 {
 public:
-    CircleLineMesh();
-    ~CircleLineMesh() override;
 public:
     Real radius;
     Real alpha0, alpha1;

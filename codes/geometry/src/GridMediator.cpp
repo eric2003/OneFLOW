@@ -101,7 +101,12 @@ void ZgridMediator::add( std::unique_ptr< GridMediator > mediator )
     this->mediators_.push_back( std::move( mediator ) );
 }
 
-GridMediator * ZgridMediator::at( int index ) const
+GridMediator * ZgridMediator::at( int index )
+{
+    return this->mediators_[ static_cast< size_t >( index ) ].get();
+}
+
+const GridMediator * ZgridMediator::at( int index ) const
 {
     return this->mediators_[ static_cast< size_t >( index ) ].get();
 }
@@ -130,39 +135,24 @@ void ZgridMediator::CreateSimple( int nZone )
 
 void ZgridMediator::ReadGrid()
 {
-    const GridConfig config = GridConfig::FromDataBase();
+    this->ReadGrid( GridConfig::FromDataBase() );
+}
+
+void ZgridMediator::ReadGrid( const GridConfig & config )
+{
 
     auto gridMediator = std::make_unique< GridMediator >();
     gridMediator->gridFile = config.sourceFile;
     gridMediator->bcFile   = config.bcFile;
     gridMediator->gridType = std::string( ToString( config.sourceType ) );
+
+    // sourceCaseDir identifies where the input grid and its boundary file live.
+    // An empty value keeps the historical current-project behavior.
+    gridMediator->caseDir = config.sourceCaseDir;
+
     gridMediator->ReadGrid();
     this->add( std::move( gridMediator ) );
 }
 
-
-GridMediator * GlobalGrid::gridMediator = nullptr;
-
-void GlobalGrid::SetCurrentGridMediator( GridMediator * gridMediatorIn )
-{
-    GlobalGrid::gridMediator = gridMediatorIn;
-}
-
-GridMediator * GlobalGrid::GetCurrentGridMediator() noexcept
-{
-    return GlobalGrid::gridMediator;
-}
-
-Grid * GlobalGrid::GetGrid( int zoneId )
-{
-    GridMediator * gm = GlobalGrid::gridMediator;
-    if ( ! gm )
-    {
-        throw std::logic_error(
-            "GlobalGrid::GetGrid: no current GridMediator "
-            "(call SetCurrentGridMediator or ScopedCurrentGridMediator first)" );
-    }
-    return gm->gridVector[ zoneId ];
-}
 
 EndNameSpace

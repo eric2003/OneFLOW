@@ -20,12 +20,11 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "ConfigLoader.h"
-#include "ParaFile.h"       // Reuse IsArrayParameter, GetParameterArraySize
+#include "LegacyParameterSyntax.h"
 #include "TextFileParser.h"
-#include "DataBase.h"
-#include "DataBaseType.h"
 #include "Word.h"
 #include "Fatal.h"
+#include <utility>
 
 namespace ONEFLOW {
 
@@ -37,9 +36,9 @@ namespace ONEFLOW {
     }
 
     void ConfigLoader::ParseFromParser(TextFileParser& parser) {
+        document_.Clear();
         std::string keyWordSeparator = " =\r\n\t#$,;\"";
         parser.SetDefaultSeparator(keyWordSeparator);
-        DataBaseType::Init();
 
         while (!parser.ReachTheEndOfFile()) {
             if (!parser.ReadNextMeaningfulLine()) break;
@@ -47,20 +46,18 @@ namespace ONEFLOW {
             std::string keyWord = parser.ReadNextWord();
             if (keyWord.empty()) continue;
 
-            int keyWordIndex = DataBaseType::GetIndex(keyWord);
-
             std::string currentLine = parser.GetCurrentLine();
             ParameterEntry entry;
-            entry.type = keyWordIndex;
+            entry.typeName = keyWord;
 
-            if (IsArrayParameter(currentLine)) {
+            if (IsLegacyArrayParameter(currentLine)) {
                 ParseArrayParameter(parser, entry);
             } else {
                 ParseScalarParameter(parser, entry);
             }
 
             if (!entry.name.empty()) {
-                entries_.push_back(std::move(entry));
+                document_.Add( std::move( entry ) );
             }
         }
     }
@@ -80,8 +77,15 @@ namespace ONEFLOW {
         entry.name = Word::FindNextWord(arrayInfo, arraySeparator);
         std::string arraySizeName = Word::FindNextWord(arrayInfo, arraySeparator);
 
-        // Reuse legacy logic: supports literal digits or variable names from DataBase
-        int arraySize = GetParameterArraySize(arraySizeName);
+        // Resolve variable-based lengths through the caller's runtime context.
+        int arraySize = 0;
+        if (Word::IsDigit(arraySizeName)) {
+            arraySize = StringToDigit<int>(arraySizeName);
+        } else if (arraySizeResolver_) {
+            arraySize = arraySizeResolver_(arraySizeName);
+        } else {
+            Fatal("array size variable requires a runtime resolver: " + arraySizeName);
+        }
 
         for (int i = 0; i < arraySize; ++i) {
             std::string val = parser.ReadNextWord(arraySeparator);
@@ -94,13 +98,6 @@ namespace ONEFLOW {
                 }
             }
             entry.values.push_back(val);
-        }
-    }
-
-    void ConfigLoader::CommitToDataBase() const {
-        for (const auto& entry : entries_) {
-            std::vector<std::string> valContainer = entry.values;
-            ProcessData(entry.name, valContainer.data(), entry.type, valContainer.size());
         }
     }
 

@@ -57,16 +57,30 @@ BlkFaceSolver::BlkFaceSolver()
     this->init_flag = false;
 }
 
-BlkFaceSolver::~BlkFaceSolver()
+BlkFaceSolver::~BlkFaceSolver() = default;
+
+void BlkFaceSolver::Reset()
 {
-    DeletePointer( blkList );
-    DeletePointer( sDomainList );
-    DeletePointer( slineList );
+    blkset.clear();
+    blkList.clear();
+    blkList2d.clear();
+    flag = false;
+    init_flag = false;
+    lineList.clear();
+    faceList.clear();
+    faceLinePosList.clear();
+    lineLookup.Clear();
+    faceLookup.Clear();
+    faceset.clear();
+    line2Face.clear();
+    face2Block.clear();
+    sDomainList.clear();
+    slineList.clear();
 }
 
-Face2D * BlkFaceSolver::GetBlkFace( int blk, int face_id )
+Face2D * BlkFaceSolver::GetBlkFace( int blk, int face_id ) const
 {
-    Block3D * blk3d = this->blkList[ blk ];
+    Block3D * blk3d = this->blkList[ blk ].get();
     int nFaces = blk3d->facelist.size();
     for ( int i = 0; i < nFaces; ++ i )
     {
@@ -80,9 +94,9 @@ Face2D * BlkFaceSolver::GetBlkFace( int blk, int face_id )
     return 0;
 }
 
-Face2D * BlkFaceSolver::GetBlkFace2D( int blk, int face_id )
+Face2D * BlkFaceSolver::GetBlkFace2D( int blk, int face_id ) const
 {
-    Block2D * blk2d = this->blkList2d[ blk ];
+    Block2D * blk2d = this->blkList2d[ blk ].get();
     int nFaces = blk2d->facelist.size();
     for ( int i = 0; i < nFaces; ++ i )
     {
@@ -102,9 +116,9 @@ void BlkFaceSolver::MyFaceBuildSDomainList()
     this->sDomainList.resize( nFaces );
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
-        SDomain * sDomain = new SDomain();
+        auto sDomain = std::make_unique< SDomain >();
         sDomain->domain_id = iFace;
-        this->sDomainList[ iFace ] = sDomain;
+        this->sDomainList[ iFace ] = std::move( sDomain );
     }
 
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
@@ -112,7 +126,7 @@ void BlkFaceSolver::MyFaceBuildSDomainList()
         IntField & lineList = this->faceList[ iFace ];
         IntField & posList = this->faceLinePosList[ iFace ];
 
-        SDomain * sDomain = this->sDomainList[ iFace ];
+        SDomain * sDomain = this->sDomainList[ iFace ].get();
         sDomain->SetDomain( iFace, lineList, posList );
         sDomain->ConstructSDomainCtrlPoint();
         sDomain->ConstructDomainTopo();
@@ -129,7 +143,7 @@ void BlkFaceSolver::MyFaceGenerateFaceMesh()
     Prj::OpenPrjFile( file, "grid/facemesh_tecplot.dat", std::ios_base::out );
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
-        SDomain * sDomain = this->sDomainList[ iFace ];
+        SDomain * sDomain = this->sDomainList[ iFace ].get();
         sDomain->Alloc();
         sDomain->SetDomainBcMesh();
         sDomain->GenerateSDomainMesh( file );
@@ -143,12 +157,12 @@ void BlkFaceSolver::MyFaceGenerateLineMesh()
     slineList.resize( nLine );
     for ( int iSLine = 0; iSLine < nLine; ++ iSLine )
     {
-        SLine * sLine = new SLine();
-        slineList[ iSLine ] = sLine;
+        auto sLine = std::make_unique< SLine >();
         sLine->line_id = iSLine + 1;
         sLine->ni = line_Machine.dimList[ iSLine ];
         sLine->Alloc();
         sLine->CopyMesh();
+        slineList[ iSLine ] = std::move( sLine );
     }
 }
 
@@ -197,7 +211,7 @@ IntField & BlkFaceSolver::GetLine( int line_id )
     return lineList[ id ];
 }
 
-int BlkFaceSolver::FindLineId( IntField & line )
+int BlkFaceSolver::FindLineId( const IntField & line ) const
 {
     return this->lineLookup.Find(line);
 }
@@ -279,8 +293,8 @@ void BlkFaceSolver::BuildBlkFace()
     this->blkList.resize( nBlock );
     for ( int iBlk = 0; iBlk < nBlock; ++ iBlk )
     {
-        Block3D * blk3d = new Block3D();
-        this->blkList[ iBlk ] = blk3d;
+        auto blk3d = std::make_unique< Block3D >();
+        this->blkList[ iBlk ] = std::move( blk3d );
     }
 
     int nFaces = this->face2Block.size();
@@ -297,9 +311,9 @@ void BlkFaceSolver::BuildBlkFace()
             int blk_id = face_struct.cellList[ i ] - 1;
             int face_pos_in_blk = face_struct.posList[ i ];
 
-            Block3D * blk3d = this->blkList[ blk_id ];
+            Block3D * blk3d = this->blkList[ blk_id ].get();
             blk3d->blk_id = blk_id;
-            MDomain * mDomain = blk3d->mDomainList[ face_pos_in_blk ];
+            MDomain * mDomain = blk3d->mDomainList[ face_pos_in_blk ].get();
             mDomain->AddSubDomain( iFace, lineList, lineposList );
         }
     }
@@ -311,8 +325,8 @@ void BlkFaceSolver::BuildBlkFace2D()
     this->blkList2d.resize( nBlock );
     for ( int iBlk = 0; iBlk < nBlock; ++ iBlk )
     {
-        Block2D * blk2d = new Block2D();
-        this->blkList2d[ iBlk ] = blk2d;
+        auto blk2d = std::make_unique< Block2D >();
+        this->blkList2d[ iBlk ] = std::move( blk2d );
     }
 
     int nFaces = this->face2Block.size();
@@ -329,10 +343,10 @@ void BlkFaceSolver::BuildBlkFace2D()
             int blk_id = face_struct.cellList[ i ] - 1;
             int face_pos_in_blk = face_struct.posList[ i ] - 1;
 
-            Block2D * blk2d = this->blkList2d[ blk_id ];
+            Block2D * blk2d = this->blkList2d[ blk_id ].get();
             blk2d->blk_id = blk_id;
 
-            MDomain * mDomain = blk2d->mDomainList[ face_pos_in_blk ];
+            MDomain * mDomain = blk2d->mDomainList[ face_pos_in_blk ].get();
             mDomain->AddSubDomain( iFace, lineList, lineposList );
         }
     }
@@ -344,13 +358,13 @@ void BlkFaceSolver::ConstructBlockInfo()
 
     for ( int iBlk = 0; iBlk < nBlock; ++ iBlk )
     {
-        Block3D * blk3d = this->blkList[ iBlk ];
+        Block3D * blk3d = this->blkList[ iBlk ].get();
         blk3d->ConstructTopo();
     }
 
     for ( int iBlk = 0; iBlk < nBlock; ++ iBlk )
     {
-        Block3D * blk3d = this->blkList[ iBlk ];
+        Block3D * blk3d = this->blkList[ iBlk ].get();
         blk3d->SetInterfaceBc();
     }
 }
@@ -361,13 +375,13 @@ void BlkFaceSolver::ConstructBlockInfo2D()
 
     for ( int iBlk = 0; iBlk < nBlock; ++ iBlk )
     {
-        Block2D * blk2d = this->blkList2d[ iBlk ];
+        Block2D * blk2d = this->blkList2d[ iBlk ].get();
         blk2d->ConstructTopo();
     }
 
     for ( int iBlk = 0; iBlk < nBlock; ++ iBlk )
     {
-        Block2D * blk2d = this->blkList2d[ iBlk ];
+        Block2D * blk2d = this->blkList2d[ iBlk ].get();
         blk2d->SetInterfaceBc();
     }
 }
@@ -387,7 +401,7 @@ void BlkFaceSolver::DumpBcInp()
     file << std::setw( width ) << nBlock << std::endl;
     for ( int iBlk = 0; iBlk < nBlock; ++ iBlk )
     {
-        Block3D * blk3d = this->blkList[ iBlk ];
+        Block3D * blk3d = this->blkList[ iBlk ].get();
         blk3d->DumpInp( file );
     }
 
@@ -410,7 +424,7 @@ void BlkFaceSolver::DumpBcInp2D()
     file << std::setw( width ) << nBlock << std::endl;
     for ( int iBlk = 0; iBlk < nBlock; ++ iBlk )
     {
-        Block2D * blk2d = this->blkList2d[ iBlk ];
+        Block2D * blk2d = this->blkList2d[ iBlk ].get();
         blk2d->DumpInp( file );
     }
 
@@ -471,7 +485,7 @@ void BlkFaceSolver::GenerateBlkMesh()
     int nBlock = this->blkList.size();
     for ( int iBlk = 0; iBlk < nBlock; ++ iBlk )
     {
-        Block3D * blk3d = this->blkList[ iBlk ];
+        Block3D * blk3d = this->blkList[ iBlk ].get();
         blk3d->Alloc();
         blk3d->CreateBlockMesh();
     }
@@ -482,7 +496,7 @@ void BlkFaceSolver::GenerateBlkMesh2D()
     int nBlock = this->blkList2d.size();
     for ( int iBlk = 0; iBlk < nBlock; ++ iBlk )
     {
-        Block2D * blk2d = this->blkList2d[ iBlk ];
+        Block2D * blk2d = this->blkList2d[ iBlk ].get();
         blk2d->Alloc();
         blk2d->CreateBlockMesh2D();
     }
@@ -492,7 +506,7 @@ void BlkFaceSolver::GenerateBlkMesh2D()
 
     for ( int iBlk = 0; iBlk < nBlock; ++ iBlk )
     {
-        Block2D * blk2d = this->blkList2d[ iBlk ];
+        Block2D * blk2d = this->blkList2d[ iBlk ].get();
         blk2d->DumpBlockMesh2D( file );
     }
     Prj::CloseFile( file );
@@ -524,7 +538,7 @@ void BlkFaceSolver::DumpStandardGrid()
 
         strGridList[ iBlk ] = grid;
 
-        Block3D * blk3d = this->blkList[ iBlk ];
+        Block3D * blk3d = this->blkList[ iBlk ].get();
         blk3d->FillStrGrid( grid, iBlk );
 
     }
@@ -547,7 +561,7 @@ void BlkFaceSolver::DumpStandardGrid2D()
 
         strGridList[ iBlk ] = grid;
 
-        Block2D * blk2d = this->blkList2d[ iBlk ];
+        Block2D * blk2d = this->blkList2d[ iBlk ].get();
         blk2d->FillStrGrid( grid, iBlk );
 
     }

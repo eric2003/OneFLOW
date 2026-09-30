@@ -47,7 +47,7 @@ public:
     static void Init();
     static void AddItem( const std::string &name, int index );
     static int GetIndex( const std::string & name );
-    static std::string & GetName( int index );
+    static const std::string & GetName( int index );
 };
 
 

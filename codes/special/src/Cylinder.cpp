@@ -119,25 +119,17 @@ void DomainData::Join( DomainData * d1, DomainData * d2 )
 
 Cylinder::Cylinder()
 {
-    this->strCurveLoop = new StrCurveLoop();
+    this->strCurveLoop = std::make_unique< StrCurveLoop >();
 }
 
-Cylinder::~Cylinder()
-{
-    delete this->strCurveLoop;
-}
+Cylinder::~Cylinder() = default;
 
-void Cylinder::Run( int igene )
+void Cylinder::Run()
 {
-    if ( igene == 3 )
-    {
-        this->HalfCylinder();
-        //this->QuarterCylinder();
-    }
-    else if ( igene == 4 )
-    {
-        this->GenePlate();
-    }
+    this->HalfCylinder();
+
+    // Keep the alternative geometry available for future explicit selection.
+    //this->QuarterCylinder();
 }
 
 void Cylinder::GenePlate()

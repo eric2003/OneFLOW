@@ -41,7 +41,7 @@ public:
     HXVector< BlockInfo * > blockInfoList;
     HXVector< BlockMesh * > blockMeshList;
 public:
-    void AddFaceToBlock( TextFileParser * textFileParser );
+    void AddFaceToBlock( TextFileParser & textFileParser );
     void GenerateFaceBlockLink();
 };
 

@@ -35,6 +35,7 @@ const int BINARY = 1;
 class GridMediator;
 class TextFileParser;
 class ZgridMediator;
+struct GridConfig;
 
 class Plot3D
 {
@@ -58,6 +59,10 @@ public:
     static void Plot3DToCgns(
         ZgridMediator * zgridMediator,
         const std::string & caseDir = "" );
+    static void Plot3DToCgns(
+        ZgridMediator * zgridMediator,
+        const GridConfig & config,
+        const std::string & caseDir );
 
 };
 

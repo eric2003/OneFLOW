@@ -436,7 +436,7 @@ void Plot3D::ReadBc( GridMediator * gridMediator )
     std::string & bcName = gridMediator->bcFile;
     //\t is the tab key
     std::string separator = " =\r\n#$,;";
-
+    
     TextFileParser textFileParser;
     if ( gridMediator->caseDir.empty() )
     {
@@ -665,7 +665,7 @@ void Plot3D::DumpBc( GridMediator * gridMediator )
                 file << std::setiosflags( std::ios::right );
                 file << std::setw( width ) << imin;
                 file << std::setw( width ) << imax;
-                file << std::setw( width ) << jmin;
+                file << std::setw( width ) << jmax;
                 file << std::setw( width ) << jmax;
 
                 if ( ONEFLOW::IsThreeD() )
@@ -722,16 +722,22 @@ void Plot3D::Plot3DToCgns(
     ZgridMediator * zgridMediator,
     const std::string & caseDir )
 {
-    std::cout << "plot3d to cgns\n";
+    Plot3DToCgns( zgridMediator, GridConfig::FromDataBase(), caseDir );
+}
 
-    const GridConfig config = GridConfig::FromDataBase();
+void Plot3D::Plot3DToCgns(
+    ZgridMediator * zgridMediator,
+    const GridConfig & config,
+    const std::string & caseDir )
+{
+    std::cout << "plot3d to cgns\n";
 
     auto gridMediator = std::make_unique< GridMediator >();
     gridMediator->gridFile   = config.sourceFile;
     gridMediator->bcFile     = config.bcFile;
     gridMediator->targetFile = config.targetFile;
     gridMediator->gridType   = std::string( ToString( config.sourceType ) );
-    gridMediator->caseDir    = caseDir;
+    gridMediator->caseDir = config.ResolveSourceCaseDir( caseDir );
 
     gridMediator->ReadGrid();
     gridMediator->AddDefaultName();
@@ -739,7 +745,6 @@ void Plot3D::Plot3DToCgns(
     // Ownership transfers into ZgridMediator (unique_ptr storage).
     zgridMediator->AddGridMediator( std::move( gridMediator ) );
 }
-
 
 
 bool GetPlot3D_NKFlag()

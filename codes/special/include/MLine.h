@@ -25,6 +25,7 @@ License
 #include "CalcCoor.h"
 #include "SimpleDomain.h"
 #include <map>
+#include <memory>
 
 
 BeginNameSpace( ONEFLOW )
@@ -48,7 +49,7 @@ public:
     void ConstructCtrlPoints();
     void Alloc();
     void CopyMesh();
-    void ConstructPointToLineMap( std::map< int, IntSet > & pointToLineMap );
+    void ConstructPointToLineMap( std::map< int, IntSet > & pointToLineMap ) const;
 
 };
 
@@ -60,7 +61,7 @@ public:
 public:
     int pos;
     IntField lineList;
-    HXVector< SLine * > slineList;
+    HXVector< std::unique_ptr< SLine > > slineList;
     CoorMap * coorMap;
 public:
     std::map< int, IntSet > pointToLine;
@@ -68,10 +69,10 @@ public:
     void ConstructLineToDomainMap();
     void ConstructLineToDomainMap( int domain_id, std::map< int, IntSet > & lineToDomainMap );
     void ConstructPointToDomainMap();
-    void ConstructPointToDomainMap( int domain_id, std::map< int, IntSet > & pointToDomainMap );
+    void ConstructPointToDomainMap( int domain_id, std::map< int, IntSet > & pointToDomainMap ) const;
     void ConstructPointToPointMap();
-    void ConstructPointToPointMap( std::map< int, IntSet > & pointToPointMap );
-    void ConstructPointToLineMap( std::map< int, IntSet > & pointToLineMap );
+    void ConstructPointToPointMap( std::map< int, IntSet > & pointToPointMap ) const;
+    void ConstructPointToLineMap( std::map< int, IntSet > & pointToLineMap ) const;
 public:
     void AddSubLine( int line_id );
     void ConstructDomainTopo();

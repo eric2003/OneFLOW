@@ -24,6 +24,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "Point.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -60,11 +61,11 @@ public:
     DomainData final_domain;
     int nZone;
 
-    StrCurveLoop * strCurveLoop;
+    std::unique_ptr< StrCurveLoop > strCurveLoop;
 public:
     Real beta;
 public:
-    void Run( int igene );
+    void Run();
     void HalfCylinder();
     void QuarterCylinder();
     void GenePlate();

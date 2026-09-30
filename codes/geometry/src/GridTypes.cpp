@@ -26,6 +26,11 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+std::string GridConfig::ResolveSourceCaseDir( const std::string & currentCaseDir ) const
+{
+    return sourceCaseDir.empty() ? currentCaseDir : sourceCaseDir;
+}
+
 std::string GridConfig::GetSourceCaseDir()
 {
     try

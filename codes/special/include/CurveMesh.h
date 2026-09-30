@@ -38,17 +38,18 @@ public:
 public:
     CurveInfo * curveInfo;
     SegmentCtrl * segmentCtrl;
-    HXVector< PointType * > ptList;
+    HXVector< PointType > ptList;
     int state;
 public:
-    bool IsValidState();
+    bool IsValidState() const;
     void GenerateCurveMesh();
     PointType & GetPoint( int id, int signFlag );
 public:
-    int GetDim() { return ptList.size(); };
-    virtual void GenerateLineMesh() {};
-    virtual void CalcCurveGeometry() {};
-    virtual void CalcCoor( Real s, Real & xt, Real & yt, Real & zt ) {};
+    int GetDim() const { return ptList.size(); };
+    // Every concrete curve mesh must provide its own generation and geometry rules.
+    virtual void GenerateLineMesh() = 0;
+    virtual void CalcCurveGeometry() = 0;
+    virtual void CalcCoor( Real s, Real & xt, Real & yt, Real & zt ) = 0;
 };
 
 void Alloc( RealField2D & field, int ni, int nj );

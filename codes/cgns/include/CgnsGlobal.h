@@ -38,10 +38,12 @@ class CgnsGlobal
 public:
     CgnsGlobal();
     ~CgnsGlobal();
-public:
-    CgnsZbase * cgnsbases;
-public:
+    void Bind( CgnsZbase * cgnsBases );
+    void ClearIfBoundTo( const CgnsZbase * cgnsBases );
+    bool IsBoundTo( const CgnsZbase * cgnsBases ) const;
     CgnsZone * GetCgnsZoneByName( const std::string & zoneName );
+private:
+    CgnsZbase * cgnsbases;
 };
 
 CgnsZone * GetCgnsZoneByName( const std::string & zoneName );

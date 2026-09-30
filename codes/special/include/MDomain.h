@@ -28,6 +28,7 @@ License
 #include <set>
 #include <map>
 #include <fstream>
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -47,7 +48,7 @@ public:
     ~MDomain();
 public:
     int pos;
-    HXVector< SDomain * > sDomainList;
+    HXVector< std::unique_ptr< SDomain > > sDomainList;
     CoorMap * coorMap;
 public:
     SDomain * FindSDomain( int fid );

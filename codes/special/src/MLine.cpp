@@ -67,10 +67,10 @@ void SLine::CopyMesh()
     for ( int i = 1; i <= ni; ++ i )
     {
         int i0 = i - 1;
-        PointType * pt = curveMesh->ptList[ i0 ];
-        this->x1d[ i0 ] = pt->x;
-        this->y1d[ i0 ] = pt->y;
-        this->z1d[ i0 ] = pt->z;
+        const PointType & pt = curveMesh->ptList[ i0 ];
+        this->x1d[ i0 ] = pt.x;
+        this->y1d[ i0 ] = pt.y;
+        this->z1d[ i0 ] = pt.z;
     }
     ;
 }
@@ -88,7 +88,7 @@ void SLine::SetDomainBcMesh( SDomain * sDomain )
     RealField2D & z2d = sDomain->z2d;
 
     int line_id = this->line_id - 1;
-    SLine * sLine = blkFaceSolver.slineList[ line_id ];
+    SLine * sLine = blkFaceSolver.slineList[ line_id ].get();
     ni = sLine->ni;
     RealField & x1d = sLine->x1d;
     RealField & y1d = sLine->y1d;
@@ -150,7 +150,7 @@ void SLine::SetBlkBcMesh( Block2D * blk2d )
     RealField2D & z2d = blk2d->z2d;
 
     int line_id = this->line_id - 1;
-    SLine * sLine = blkFaceSolver.slineList[ line_id ];
+    SLine * sLine = blkFaceSolver.slineList[ line_id ].get();
     ni = sLine->ni;
     RealField & x1d = sLine->x1d;
     RealField & y1d = sLine->y1d;
@@ -205,7 +205,7 @@ void SLine::SetBlkBcMesh( Block2D * blk2d )
 
 }
 
-void SLine::ConstructPointToLineMap( std::map< int, IntSet > & pointToLineMap )
+void SLine::ConstructPointToLineMap( std::map< int, IntSet > & pointToLineMap ) const
 {
     int line_id = this->line_id - 1;
     IntField & pointIdList = blkFaceSolver.lineList[ line_id ];
@@ -222,17 +222,14 @@ MLine::MLine( SDomain * sDomain )
     this->coorMap = sDomain->coorMap;
 }
 
-MLine::~MLine()
-{
-    DeletePointer( slineList );
-}
+MLine::~MLine() = default;
 
 void MLine::ConstructSLineCtrlPoint()
 {
     int nSline = this->slineList.size();
     for ( int iSLine = 0; iSLine < nSline; ++ iSLine )
     {
-        SLine * sLine = this->slineList[ iSLine ];
+        SLine * sLine = this->slineList[ iSLine ].get();
         sLine->ConstructCtrlPoints();
     }
 }
@@ -254,21 +251,21 @@ void MLine::ConstructPointToPointMap()
     this->ConstructPointToPointMap( this->pointToPointMap );
 }
 
-void MLine::ConstructPointToPointMap( std::map< int, IntSet > & pointToPointMap )
+void MLine::ConstructPointToPointMap( std::map< int, IntSet > & pointToPointMap ) const
 {
-    MLine * mLine = this;
+    const MLine * mLine = this;
     LinkField pointIdLink;
     GetPointIdLink( mLine->lineList, pointIdLink );
 
     ONEFLOW::ConstructPointToPointMap( pointIdLink, pointToPointMap );
 }
 
-void MLine::ConstructPointToLineMap( std::map< int, IntSet > & pointToLineMap )
+void MLine::ConstructPointToLineMap( std::map< int, IntSet > & pointToLineMap ) const
 {
     int nSLine = slineList.size();
     for ( int iSLine = 0; iSLine < nSLine; ++ iSLine )
     {
-        SLine * sLine = this->slineList[ iSLine ];
+        SLine * sLine = this->slineList[ iSLine ].get();
         sLine->ConstructPointToLineMap( pointToLineMap );
     }
 }
@@ -284,9 +281,9 @@ void MLine::ConstructPointToDomainMap()
     }
 }
 
-void MLine::ConstructPointToDomainMap( int domain_id, std::map< int, IntSet > & pointToDomainMap )
+void MLine::ConstructPointToDomainMap( int domain_id, std::map< int, IntSet > & pointToDomainMap ) const
 {
-    MLine * mLine = this;
+    const MLine * mLine = this;
     LinkField pointIdLink;
     GetPointIdLink( mLine->lineList, pointIdLink );
 
@@ -328,9 +325,9 @@ void MLine::ConstructDomainTopo()
 void MLine::AddSubLine( int line_id )
 {
     this->lineList.push_back( line_id );
-    SLine * sLine = new SLine();
+    auto sLine = std::make_unique< SLine >();
     sLine->line_id = line_id;
-    this->slineList.push_back( sLine );
+    this->slineList.push_back( std::move( sLine ) );
 }
 
 void MLine::SetDomainBcMesh( SDomain * sDomain )
@@ -338,7 +335,7 @@ void MLine::SetDomainBcMesh( SDomain * sDomain )
     int nSLine = slineList.size();
     for ( int iSLine = 0; iSLine < nSLine; ++ iSLine )
     {
-        SLine * sLine = this->slineList[ iSLine ];
+        SLine * sLine = this->slineList[ iSLine ].get();
         sLine->SetDomainBcMesh( sDomain );
     }
 }
@@ -347,7 +344,7 @@ void MLine::CreateInpFaceList1D( HXVector< Face2D * > &facelist )
 {
     for ( int iSLine = 0; iSLine < this->slineList.size(); ++ iSLine )
     {
-        SLine * sLine = this->slineList[ iSLine ];
+        SLine * sLine = this->slineList[ iSLine ].get();
         Face2D * face2d = new Face2D();
         face2d->face_id = sLine->line_id;
         face2d->Set1DRegion( sLine->ctrlpoints );
@@ -363,7 +360,7 @@ void MLine::SetBlkBcMesh( Block2D * blk2d )
     int nSLine = slineList.size();
     for ( int iSLine = 0; iSLine < nSLine; ++ iSLine )
     {
-        SLine * sLine = this->slineList[ iSLine ];
+        SLine * sLine = this->slineList[ iSLine ].get();
         sLine->SetBlkBcMesh( blk2d );
     }
 }

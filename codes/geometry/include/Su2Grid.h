@@ -31,6 +31,7 @@ License
 BeginNameSpace( ONEFLOW )
 
 class GridMediator;
+struct GridConfig;
 class TextFileParser;
 const int MAX_VTK_TYPE = 100;
 class VTK_TYPE
@@ -65,27 +66,27 @@ extern VTK_CgnsMap vtk_CgnsMap;
 class Marker
 {
 public:
-    Marker(){};
-    ~Marker(){};
+    Marker() = default;
+    ~Marker() = default;
 public:
     std::string name;
     std::string bcName;
-    int cgns_bcType;
+    int cgns_bcType{ 0 };
     LinkField elems;
     IntField eTypes;
-    int nElem;
+    int nElem{ 0 };
 };
 
 class SecMarker
 {
 public:
-    SecMarker();
-    ~SecMarker();
+    SecMarker() = default;
+    ~SecMarker() = default;
 public:
-    int vtk_type;
-    int cgns_type;
+    int vtk_type{ 0 };
+    int cgns_type{ 0 };
     std::string name;
-    int nElem;
+    int nElem{ 0 };
     LinkField elems;
 };
 
@@ -93,29 +94,29 @@ class SecMarkerManager
 {
 public:
     SecMarkerManager();
-    ~SecMarkerManager();
+    ~SecMarkerManager() = default;
 public:
     int nType;
-    HXVector< SecMarker * > data;
+    HXVector< SecMarker > data;
 public:
     void Alloc( int nType );
-    int CalcTotalElem();
+    int CalcTotalElem() const;
 };
 
 class MarkerManager
 {
 public:
     MarkerManager();
-    ~MarkerManager();
+    ~MarkerManager() = default;
 public:
     int nMarker;
-    HXVector< Marker * > markerList;
+    HXVector< Marker > markerList;
 
     IntField types;
     LinkField l2g;
 public:
     void CreateMarkerList( int nMarker );
-    void CalcSecMarker( SecMarkerManager * secMarkerManager );
+    void CalcSecMarker( SecMarkerManager & secMarkerManager );
 };
 
 class Su2Grid;
@@ -130,7 +131,7 @@ public:
     IntField types;
     LinkField l2g;
 public:
-    void CalcVolSec( Su2Grid* su2Grid, SecMarkerManager * secMarkerManager );
+    void CalcVolSec( const Su2Grid & su2Grid, SecMarkerManager & secMarkerManager );
 };
 
 class Su2Bc
@@ -144,10 +145,10 @@ public:
     std::map<std::string, int> bcNameToValueMap;
 public:
     void Init();
-    void AddBc( std::string &geoName, std::string &bcName);
-    void Process(StringField& markerBCNameList, StringField& markerNameList);
-    std::string GetBcName( std::string& geoName );
-    int GetCgnsBcType(std::string& geoName);
+    void AddBc( const std::string & geoName, const std::string & bcName );
+    void Process( const StringField & markerBCNameList, const StringField & markerNameList );
+    std::string GetBcName( const std::string & geoName ) const;
+    int GetCgnsBcType( const std::string & geoName ) const;
 };
 
 class CgnsZone;
@@ -159,13 +160,10 @@ public:
     ~Su2Grid();
 public:
     void ReadSu2Grid( GridMediator * gridMediator );
-    void ReadSu2GridAscii( std::string & fileName );
-    void Su2ToOneFlowGrid();
-
-    // Bind explicit case state for input-file access during multi-case runs.
-    void SetCaseDir( const std::string & caseDir );
-    void MarkBoundary(std::string& su2cfgFile);
-    void FillSU2CgnsZone( CgnsZone * cgnsZone );
+    void ReadSu2GridAscii( const std::string & fileName, const std::string & caseDir );
+    void Su2ToOneFlowGrid( const GridConfig & config, const std::string & caseDir );
+    void MarkBoundary( const std::string & su2cfgFile, const std::string & caseDir );
+    void FillSU2CgnsZone( CgnsZone & cgnsZone );
 public:
     int ndim;
     int nPoin, nElem;
@@ -180,8 +178,6 @@ public:
 public:
     int nZone;
 
-private:
-    std::string caseDir_;
 };
 
 void Su2ToOneFlowGrid( Su2Grid & su2Grid );

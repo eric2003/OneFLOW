@@ -37,6 +37,8 @@ public:
     void Run();
     void ReadScript( const std::string & fileName );
     void GeneGrid();
+private:
+    void ResetState();
 public:
     void GenerateFaceBlockLink();
     void GenerateAllLineMesh();

@@ -24,6 +24,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "HXLookup.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -38,29 +39,30 @@ public:
     LineMachine();
     ~LineMachine();
 public:
-    HXVector< SegmentCtrl * > segmentCtrlList;
-    HXVector< CurveInfo * > curveInfoList;
-    HXVector< CurveMesh * > curveMeshList;
+    HXVector< std::unique_ptr< SegmentCtrl > > segmentCtrlList;
+    HXVector< std::unique_ptr< CurveInfo > > curveInfoList;
+    HXVector< std::unique_ptr< CurveMesh > > curveMeshList;
     IntField dimList;
     RealField ds1List, ds2List;
 public:
     HXLookup<int> lineLookup;
     LinkField lineList; 
 public:
+    void Reset();
     int AddLine( int p1, int p2 );
     void AddLine( int p1, int p2, int id );
     void AddCircle( int p1, int pc, int p2, int id );
-    void AddDimension( TextFileParser * textFileParser );
-    void AddDs( TextFileParser * textFileParser );
+    void AddDimension( TextFileParser & textFileParser );
+    void AddDs( TextFileParser & textFileParser );
     void GenerateAllLineMesh();
     void CreateAllLineMesh();
 public:
-    SegmentCtrl * GetSegmentCtrl( int id );
-    CurveMesh * GetCurveMesh( int id );
-    CurveInfo * GetCurveInfo( int id );
+    SegmentCtrl * GetSegmentCtrl( int id ) const;
+    CurveMesh * GetCurveMesh( int id ) const;
+    CurveInfo * GetCurveInfo( int id ) const;
 public:
-    CurveMesh * GetLineMeshByTwoPoint( const int & p1, const int & p2, int & direction );
-    int GetLineIdByTwoPoint( const int & p1, const int & p2 );
+    CurveMesh * GetLineMeshByTwoPoint( const int & p1, const int & p2, int & direction ) const;
+    int GetLineIdByTwoPoint( const int & p1, const int & p2 ) const;
 };
 
 extern LineMachine line_Machine;

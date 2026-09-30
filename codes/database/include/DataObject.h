@@ -79,7 +79,7 @@ public:
     std::vector< T > data;
 public:
     void * GetVoidPointer() { return & data[ 0 ]; };
-    void CopyValue( std::string * valueIn )
+    void CopyValue( const std::string * valueIn )
     {
         HXSize_t nSize = this->data.size();
         for ( HXSize_t i = 0; i < nSize; ++ i )
@@ -154,7 +154,7 @@ public:
     std::vector< std::string > data;
 public:
     void * GetVoidPointer() { return & data[ 0 ]; };
-    void CopyValue( std::string * valueIn )
+    void CopyValue( const std::string * valueIn )
     {
         HXSize_t nSize = this->data.size();
         for ( HXSize_t i = 0; i < nSize; ++ i )

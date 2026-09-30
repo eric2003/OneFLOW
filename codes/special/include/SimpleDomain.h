@@ -92,6 +92,7 @@ public:
     ~DomData();
 public:
     IntField & GetLinePoints( int line_id );
+    const IntField & GetLinePoints( int line_id ) const;
     void ConstructCtrlPoint();
     void ConstructBcPoint();
     void CalcDimBasic( int closedCurve );
@@ -101,32 +102,32 @@ public:
     void Normalize( int &d );
     void FindBcPointList2D( IntField & bcpointList );
     void NormalBcPointList2D( IntField & bcpointList );
-    void FindNextPoint2D( IntField & ptList, int prev, int me, int & next, int & flag );
-    bool IsBcPoint( int pt );
-    bool IsCtrlPoint( int pt );
+    void FindNextPoint2D( const IntField & ptList, int prev, int me, int & next, int & flag ) const;
+    bool IsBcPoint( int pt ) const;
+    bool IsCtrlPoint( int pt ) const;
     void CalcDomainCtrlPoints( IntField & blkControlpoints, IntField & localpt );
     void CalcDomainCtrlPoints( IntField & blk_ctrl_points );
     void CalcDomainCtrlPoints();
 public:
-    bool IsBcLine( int line_id );
-    bool IsBcLine( IntSet &bclines, int line_id );
+    bool IsBcLine( int line_id ) const;
+    bool IsBcLine( const IntSet & bclines, int line_id ) const;
     void RemoveBcLineId( IntSet &bclines, int line_id );
     void FindAllBoundaryLine( IntSet &bclines );
     bool FindNextBcPoint( int ps, int pt, int & pnext, IntSet &bclines );
-    bool IsCornerPoints( int pt );
+    bool IsCornerPoints( int pt ) const;
 };
 
 void ConstructInt2Map( int sid, int tid, std::map< int, IntSet > & dataMap );
-void ConstructIntList2Map( int tid, IntField & idList, std::map< int, IntSet > & dataMap );
-void ConstructLineToDomainMap( int tid, IntField & idList, std::map< int, IntSet > & dataMap );
-void ConstructPointToDomainMap( int tid, IntField & lineList, std::map< int, IntSet > & dataMap );
-void ConstructPointToPointMap( IntField & lineList, std::map< int, IntSet > & dataMap );
+void ConstructIntList2Map( int tid, const IntField & idList, std::map< int, IntSet > & dataMap );
+void ConstructLineToDomainMap( int tid, const IntField & idList, std::map< int, IntSet > & dataMap );
+void ConstructPointToDomainMap( int tid, const IntField & lineList, std::map< int, IntSet > & dataMap );
+void ConstructPointToPointMap( const IntField & lineList, std::map< int, IntSet > & dataMap );
 
-void ConstructPointToDomainMap( int tid, LinkField & pointIdLink, std::map< int, IntSet > & dataMap );
-void ConstructPointToPointMap( LinkField & pointIdLink, std::map< int, IntSet > & dataMap );
-bool InArray( int ip, IntField & var_array );
+void ConstructPointToDomainMap( int tid, const LinkField & pointIdLink, std::map< int, IntSet > & dataMap );
+void ConstructPointToPointMap( const LinkField & pointIdLink, std::map< int, IntSet > & dataMap );
+bool InArray( int ip, const IntField & var_array );
 
-void GetPointIdLink( IntField & lineList, LinkField & pointIdLink );
+void GetPointIdLink( const IntField & lineList, LinkField & pointIdLink );
 
 void GetUnitInt( int &d );
 void GetUnitDir( CalcCoor & c );
