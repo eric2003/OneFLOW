@@ -23,7 +23,6 @@ License
 
 #pragma once
 #include "HXDefine.h"
-#include "GridDef.h"
 
 BeginNameSpace( ONEFLOW )
 
