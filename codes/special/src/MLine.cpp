@@ -251,7 +251,7 @@ void MLine::ConstructPointToPointMap()
     this->ConstructPointToPointMap( this->pointToPointMap );
 }
 
-void MLine::ConstructPointToPointMap( std::map< int, IntSet > & pointToPointMap )
+void MLine::ConstructPointToPointMap( std::map< int, IntSet > & pointToPointMap ) const
 {
     MLine * mLine = this;
     LinkField pointIdLink;
@@ -260,7 +260,7 @@ void MLine::ConstructPointToPointMap( std::map< int, IntSet > & pointToPointMap 
     ONEFLOW::ConstructPointToPointMap( pointIdLink, pointToPointMap );
 }
 
-void MLine::ConstructPointToLineMap( std::map< int, IntSet > & pointToLineMap )
+void MLine::ConstructPointToLineMap( std::map< int, IntSet > & pointToLineMap ) const
 {
     int nSLine = slineList.size();
     for ( int iSLine = 0; iSLine < nSLine; ++ iSLine )
@@ -281,7 +281,7 @@ void MLine::ConstructPointToDomainMap()
     }
 }
 
-void MLine::ConstructPointToDomainMap( int domain_id, std::map< int, IntSet > & pointToDomainMap )
+void MLine::ConstructPointToDomainMap( int domain_id, std::map< int, IntSet > & pointToDomainMap ) const
 {
     MLine * mLine = this;
     LinkField pointIdLink;
