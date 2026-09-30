@@ -108,6 +108,13 @@ void StrGrid::SetBasicDimension()
 
 void StrGrid::SetLayout()
 {
+    delete this->strx;
+    delete this->stry;
+    delete this->strz;
+    this->strx = nullptr;
+    this->stry = nullptr;
+    this->strz = nullptr;
+
    if ( this->nodeMesh->xN.size() != 0 &&
         this->nodeMesh->yN.size() != 0 &&
         this->nodeMesh->zN.size() != 0 )
