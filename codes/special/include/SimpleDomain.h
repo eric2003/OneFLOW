@@ -102,7 +102,7 @@ public:
     void Normalize( int &d );
     void FindBcPointList2D( IntField & bcpointList );
     void NormalBcPointList2D( IntField & bcpointList );
-    void FindNextPoint2D( IntField & ptList, int prev, int me, int & next, int & flag );
+    void FindNextPoint2D( const IntField & ptList, int prev, int me, int & next, int & flag ) const;
     bool IsBcPoint( int pt ) const;
     bool IsCtrlPoint( int pt ) const;
     void CalcDomainCtrlPoints( IntField & blkControlpoints, IntField & localpt );
