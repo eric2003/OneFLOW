@@ -118,7 +118,7 @@ void SDomain::ConstructSDomainCtrlPoint()
     }
 }
 
-void SDomain::GetCommonPoint( MLine * mLine1, MLine * mLine2, int & pt )
+void SDomain::GetCommonPoint( const MLine * mLine1, const MLine * mLine2, int & pt ) const
 {
     int p1 = mLine1->candidate_ctrlpoints[ 0 ];
     int p2 = mLine1->candidate_ctrlpoints[ 1 ];
@@ -237,7 +237,7 @@ void SDomain::ConstructPointToDomainMap()
     this->ConstructPointToDomainMap( this->pointToDomainMap );
 }
 
-void SDomain::GetPointIdLink( IntField & lineList, LinkField & pointIdLink )
+void SDomain::GetPointIdLink( const IntField & lineList, LinkField & pointIdLink ) const
 {
     for ( int iLine = 0; iLine < lineList.size(); ++ iLine )
     {
