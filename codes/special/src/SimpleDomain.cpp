@@ -294,7 +294,7 @@ void DomData::NormalBcPointList2D( IntField & bcpointList )
 
 }
 
-bool DomData::IsCtrlPoint( int pt )
+bool DomData::IsCtrlPoint( int pt ) const
 {
     int nPoint = this->ctrlpoints.size();
     for ( int i = 0; i < nPoint; ++ i )
@@ -308,7 +308,7 @@ bool DomData::IsCtrlPoint( int pt )
     return false;
 }
 
-bool DomData::IsBcPoint( int pt )
+bool DomData::IsBcPoint( int pt ) const
 {
     int nPoint = this->candidate_bcpoints.size();
     for ( int i = 0; i < nPoint; ++ i )
@@ -361,16 +361,16 @@ void DomData::CalcDomainCtrlPoints( IntField & blk_ctrl_points )
     }
 }
 
-bool DomData::IsBcLine( int line_id )
+bool DomData::IsBcLine( int line_id ) const
 {
-    std::map< int, IntSet >::iterator iter;
+    std::map< int, IntSet >::const_iterator iter;
     iter = lineToDomainMap.find( line_id );
     return iter->second.size() == 1;
 }
 
-bool DomData::IsBcLine( IntSet &bclines, int line_id )
+bool DomData::IsBcLine( const IntSet & bclines, int line_id ) const
 {
-    IntSet::iterator iter;
+    IntSet::const_iterator iter;
     iter = bclines.find( line_id );
     return iter != bclines.end();
 }
@@ -425,7 +425,7 @@ bool DomData::FindNextBcPoint( int ps, int pt, int & pnext, IntSet &bclines )
     return findflag && ( pnext != ps );
 }
 
-bool DomData::IsCornerPoints( int pt )
+bool DomData::IsCornerPoints( int pt ) const
 {
     for ( int i = 0; i < candidate_ctrlpoints.size(); ++ i )
     {
