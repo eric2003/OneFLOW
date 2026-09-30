@@ -69,6 +69,13 @@ UnsGrid::~UnsGrid()
 
 void UnsGrid::Init()
 {
+    delete this->cellMesh;
+    this->cellMesh = nullptr;
+    delete this->faceMesh;
+    this->faceMesh = nullptr;
+    delete this->faceTopo;
+    this->faceTopo = nullptr;
+
     this->BasicInit();
     this->faceTopo = new FaceTopo();
     this->faceMesh = new FaceMesh();
