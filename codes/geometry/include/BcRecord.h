@@ -50,6 +50,8 @@ class BcRecord
 {
 public:
     BcRecord();
+    BcRecord( const BcRecord & other );
+    BcRecord & operator=( const BcRecord & other );
     ~BcRecord();
 public:
     IntField bcType;
