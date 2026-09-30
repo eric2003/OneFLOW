@@ -25,6 +25,7 @@ License
 #include "CalcCoor.h"
 #include "SimpleDomain.h"
 #include <map>
+#include <memory>
 
 
 BeginNameSpace( ONEFLOW )
@@ -60,7 +61,7 @@ public:
 public:
     int pos;
     IntField lineList;
-    HXVector< SLine * > slineList;
+    HXVector< std::unique_ptr< SLine > > slineList;
     CoorMap * coorMap;
 public:
     std::map< int, IntSet > pointToLine;
