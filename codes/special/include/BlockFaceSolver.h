@@ -30,6 +30,7 @@ License
 #include <set>
 #include <map>
 #include <fstream>
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -64,7 +65,7 @@ public:
     IntSet faceset;
     HXVector< BlkF2C > line2Face;
     HXVector< BlkF2C > face2Block;
-    HXVector< SDomain * > sDomainList;
+    HXVector< std::unique_ptr< SDomain > > sDomainList;
     HXVector< SLine * > slineList;
 public:
     Face2D * GetBlkFace( int blk, int face_id );
