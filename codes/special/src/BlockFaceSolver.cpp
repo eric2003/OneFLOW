@@ -362,7 +362,7 @@ void BlkFaceSolver::ConstructBlockInfo2D()
 
     for ( int iBlk = 0; iBlk < nBlock; ++ iBlk )
     {
-        Block2D * blk2d = this->blkList2d[ iBlk ];
+        Block2D * blk2d = this->blkList2d[ iBlk ].get();
         blk2d->SetInterfaceBc();
     }
 }
@@ -405,7 +405,7 @@ void BlkFaceSolver::DumpBcInp2D()
     file << std::setw( width ) << nBlock << std::endl;
     for ( int iBlk = 0; iBlk < nBlock; ++ iBlk )
     {
-        Block2D * blk2d = this->blkList2d[ iBlk ];
+        Block2D * blk2d = this->blkList2d[ iBlk ].get();
         blk2d->DumpInp( file );
     }
 
@@ -477,7 +477,7 @@ void BlkFaceSolver::GenerateBlkMesh2D()
     int nBlock = this->blkList2d.size();
     for ( int iBlk = 0; iBlk < nBlock; ++ iBlk )
     {
-        Block2D * blk2d = this->blkList2d[ iBlk ];
+        Block2D * blk2d = this->blkList2d[ iBlk ].get();
         blk2d->Alloc();
         blk2d->CreateBlockMesh2D();
     }
@@ -487,7 +487,7 @@ void BlkFaceSolver::GenerateBlkMesh2D()
 
     for ( int iBlk = 0; iBlk < nBlock; ++ iBlk )
     {
-        Block2D * blk2d = this->blkList2d[ iBlk ];
+        Block2D * blk2d = this->blkList2d[ iBlk ].get();
         blk2d->DumpBlockMesh2D( file );
     }
     Prj::CloseFile( file );
@@ -542,7 +542,7 @@ void BlkFaceSolver::DumpStandardGrid2D()
 
         strGridList[ iBlk ] = grid;
 
-        Block2D * blk2d = this->blkList2d[ iBlk ];
+        Block2D * blk2d = this->blkList2d[ iBlk ].get();
         blk2d->FillStrGrid( grid, iBlk );
 
     }
