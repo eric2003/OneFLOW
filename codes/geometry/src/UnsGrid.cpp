@@ -55,14 +55,12 @@ UnsGrid * UnsGridCast( Grid * gridIn )
 
 UnsGrid::UnsGrid()
 {
-    this->faceTopo = nullptr;
     this->faceMesh = nullptr;
     this->cellMesh = nullptr;
 }
 
 UnsGrid::~UnsGrid()
 {
-    delete this->faceTopo;
     delete this->faceMesh;
     delete this->cellMesh;
 }
@@ -73,15 +71,14 @@ void UnsGrid::Init()
     this->cellMesh = nullptr;
     delete this->faceMesh;
     this->faceMesh = nullptr;
-    delete this->faceTopo;
-    this->faceTopo = nullptr;
+    this->faceTopo.reset();
 
     this->BasicInit();
-    this->faceTopo = new FaceTopo();
+    this->faceTopo = std::make_unique< FaceTopo >();
     this->faceMesh = new FaceMesh();
     this->cellMesh = new CellMesh();
     faceTopo->grid = this;
-    this->faceMesh->faceTopo = this->faceTopo;
+    this->faceMesh->faceTopo = this->faceTopo.get();
 }
 
 void UnsGrid::Decode( DataBook * databook )
