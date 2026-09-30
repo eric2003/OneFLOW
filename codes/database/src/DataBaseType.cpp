@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "DataBaseType.h"
+#include <stdexcept>
 
 BeginNameSpace( ONEFLOW )
 
@@ -57,7 +58,12 @@ void DataBaseType::AddItem( const std::string &name, int index )
 
 int DataBaseType::GetIndex( const std::string & name )
 {
-    return DataBaseType::indexMap[ name ];
+    const auto iter = DataBaseType::indexMap.find( name );
+    if ( iter == DataBaseType::indexMap.end() )
+    {
+        throw std::invalid_argument( "Unknown parameter type: " + name );
+    }
+    return iter->second;
 }
 
 std::string & DataBaseType::GetName( int index )
