@@ -24,6 +24,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "HXLookup.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -38,7 +39,7 @@ public:
     LineMachine();
     ~LineMachine();
 public:
-    HXVector< SegmentCtrl * > segmentCtrlList;
+    HXVector< std::unique_ptr< SegmentCtrl > > segmentCtrlList;
     HXVector< CurveInfo * > curveInfoList;
     HXVector< CurveMesh * > curveMeshList;
     IntField dimList;
