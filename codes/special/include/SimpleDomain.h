@@ -117,14 +117,14 @@ public:
 };
 
 void ConstructInt2Map( int sid, int tid, std::map< int, IntSet > & dataMap );
-void ConstructIntList2Map( int tid, IntField & idList, std::map< int, IntSet > & dataMap );
-void ConstructLineToDomainMap( int tid, IntField & idList, std::map< int, IntSet > & dataMap );
-void ConstructPointToDomainMap( int tid, IntField & lineList, std::map< int, IntSet > & dataMap );
-void ConstructPointToPointMap( IntField & lineList, std::map< int, IntSet > & dataMap );
+void ConstructIntList2Map( int tid, const IntField & idList, std::map< int, IntSet > & dataMap );
+void ConstructLineToDomainMap( int tid, const IntField & idList, std::map< int, IntSet > & dataMap );
+void ConstructPointToDomainMap( int tid, const IntField & lineList, std::map< int, IntSet > & dataMap );
+void ConstructPointToPointMap( const IntField & lineList, std::map< int, IntSet > & dataMap );
 
-void ConstructPointToDomainMap( int tid, LinkField & pointIdLink, std::map< int, IntSet > & dataMap );
-void ConstructPointToPointMap( LinkField & pointIdLink, std::map< int, IntSet > & dataMap );
-bool InArray( int ip, IntField & var_array );
+void ConstructPointToDomainMap( int tid, const LinkField & pointIdLink, std::map< int, IntSet > & dataMap );
+void ConstructPointToPointMap( const LinkField & pointIdLink, std::map< int, IntSet > & dataMap );
+bool InArray( int ip, const IntField & var_array );
 
 void GetPointIdLink( const IntField & lineList, LinkField & pointIdLink );
 
