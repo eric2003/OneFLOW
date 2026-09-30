@@ -109,20 +109,20 @@ void LineMachine::AddCircle( int p1, int pc, int p2, int id )
     this->segmentCtrlList.push_back( segmentCtrl );
 }
 
-void LineMachine::AddDimension( TextFileParser * textFileParser )
+void LineMachine::AddDimension( TextFileParser & textFileParser )
 {
-    int id = textFileParser->ReadNextDigit< int >();
-    int dim = textFileParser->ReadNextDigit< int >();
+    int id = textFileParser.ReadNextDigit< int >();
+    int dim = textFileParser.ReadNextDigit< int >();
     this->dimList.push_back( dim );
     SegmentCtrl * segmentCtrl = this->GetSegmentCtrl( id );
     segmentCtrl->nPoint = dim;
 }
 
-void LineMachine::AddDs( TextFileParser * textFileParser )
+void LineMachine::AddDs( TextFileParser & textFileParser )
 {
-    int id = textFileParser->ReadNextDigit< int >();
+    int id = textFileParser.ReadNextDigit< int >();
     SegmentCtrl * segmentCtrl = this->GetSegmentCtrl( id );
-    segmentCtrl->Read( textFileParser );
+    segmentCtrl->Read( & textFileParser );
 }
 
 void LineMachine::CreateAllLineMesh()
