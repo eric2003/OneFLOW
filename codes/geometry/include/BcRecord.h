@@ -167,6 +167,8 @@ public:
     void Create( int nBcRegions );
     void SetBcRegion( int ir, BcRegion * bcRegion );
     BcRegion * GetBcRegion( int ir );
+private:
+    void Clear();
 };
 
 EndNameSpace

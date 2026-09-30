@@ -389,6 +389,11 @@ BcRegionGroup::BcRegionGroup()
 
 BcRegionGroup::~BcRegionGroup()
 {
+    this->Clear();
+}
+
+void BcRegionGroup::Clear()
+{
     if ( regions )
     {
         int nBcRegions = regions->size();
@@ -397,21 +402,13 @@ BcRegionGroup::~BcRegionGroup()
             delete ( * regions )[ ir ];
         }
         delete regions;
+        regions = nullptr;
     }
 }
 
 void BcRegionGroup::Create( int nBcRegions )
 {
-    if ( this->regions )
-    {
-        int existingRegionCount = this->regions->size();
-        for ( int iRegion = 0; iRegion < existingRegionCount; ++ iRegion )
-        {
-            delete ( * this->regions )[ iRegion ];
-        }
-        delete this->regions;
-        this->regions = nullptr;
-    }
+    this->Clear();
     regions = new HXVector< BcRegion * >( nBcRegions );
 }
 
