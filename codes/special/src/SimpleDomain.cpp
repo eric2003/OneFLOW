@@ -579,10 +579,10 @@ void ConstructPointToPointMap( const LinkField & pointIdLink, std::map< int, Int
     int nLine = pointIdLink.size();
     for ( int iLine = 0; iLine < nLine; ++ iLine )
     {
-        IntField & pointIdList = pointIdLink[ iLine ];
+        const IntField & pointIdList = pointIdLink[ iLine ];
 
-        int & p1 = pointIdList[ 0 ];
-        int & p2 = pointIdList[ 1 ];
+        const int p1 = pointIdList[ 0 ];
+        const int p2 = pointIdList[ 1 ];
         ConstructInt2Map( p1, p2, dataMap );
         ConstructInt2Map( p2, p1, dataMap );
     }
