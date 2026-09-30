@@ -65,10 +65,9 @@ void ReadOneFLOWScriptFile( TextFileParser & textFileParser )
 
 void ReadOneFLOWScriptFile( const std::string & fileName )
 {
-    TextFileParser textFileParser;
-    textFileParser.OpenFile( fileName, std::ios_base::in );
-    ONEFLOW::ReadOneFLOWScriptFile( textFileParser );
-    textFileParser.CloseFile();
+    ConfigLoader loader;
+    loader.ParseFile( fileName );
+    loader.CommitToDataBase();
 }
 
 void AnalysisArrayParameter( TextFileParser & textFileParser, int keyWordIndex )
