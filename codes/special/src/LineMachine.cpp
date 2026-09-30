@@ -52,7 +52,7 @@ SegmentCtrl * LineMachine::GetSegmentCtrl( int id ) const
 CurveMesh * LineMachine::GetCurveMesh( int id ) const
 {
     int idx = ABS( id ) - 1;
-    return this->curveMeshList[ idx ];
+    return this->curveMeshList[ idx ].get();
 }
 
 CurveInfo * LineMachine::GetCurveInfo( int id ) const
