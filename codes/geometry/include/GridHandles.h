@@ -20,7 +20,15 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
 #pragma once
-#include "Grid.h"
-#include "GridHandles.h"
+
+#include "HXPointer.h"
+
+BeginNameSpace( ONEFLOW )
+
+class Grid;
+
+// Lightweight collection type for grid pointers; does not require Grid's definition.
+using Grids = HXPointer< Grid >;
+
+EndNameSpace

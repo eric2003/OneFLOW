@@ -22,7 +22,7 @@ License
 
 
 #pragma once
-#include "GridDef.h"
+#include "GridHandles.h"
 #include "HXCgns.h"
 #include <memory> // Required for std::unique_ptr
 #include <string>

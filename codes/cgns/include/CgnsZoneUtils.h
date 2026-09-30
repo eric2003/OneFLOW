@@ -25,7 +25,7 @@ License
 #include "HXDefine.h"
 #include "HXCgns.h"
 #include "HXArray.h"
-#include "GridDef.h"
+#include "GridHandles.h"
 
 BeginNameSpace( ONEFLOW )
 
