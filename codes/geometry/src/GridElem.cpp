@@ -227,7 +227,7 @@ void GridElem::GenerateCalcElement()
 {
     int nElement =  this->elem_feature.eTypes.size();
 
-    FaceTopo * faceTopo = this->face_solver.faceTopo;
+    FaceTopo * faceTopo = this->face_solver.faceTopo.get();
 
     int nFaces = this->face_solver.faceTopo->faces.size();
     int nBFaces = 0;
@@ -292,9 +292,8 @@ void GridElem::CalcBoundaryType( UnsGrid * grid )
 {
     std::cout << "\n-->Set boundary condition......\n";
     delete grid->faceTopo;
-    grid->faceTopo = this->face_solver.faceTopo;
+    grid->faceTopo = this->face_solver.faceTopo.release();
     grid->faceTopo->grid = grid;
-    this->face_solver.faceTopo = nullptr;
     int nFaces = grid->faceTopo->faces.size();
     std::cout << " nFaces = " << nFaces << "\n";
      

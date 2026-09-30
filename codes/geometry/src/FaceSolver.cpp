@@ -36,14 +36,11 @@ FaceSolver::FaceSolver()
 {
     // [Refactored] faceBcKey, faceBcType, childFid are now value types, 
     // no need to 'new' them.
-    this->faceTopo = new FaceTopo();
+    this->faceTopo = std::make_unique< FaceTopo >();
 }
 
 FaceSolver::~FaceSolver()
-{
-    // [Refactored] No need to 'delete' the value types.
-    delete this->faceTopo;
-}
+    = default;
 
 bool FaceSolver::CheckBcFace( IntSet & bcVertex, IntField & nodeId )
 {
