@@ -59,7 +59,7 @@ BlkFaceSolver::BlkFaceSolver()
 
 BlkFaceSolver::~BlkFaceSolver() = default;
 
-Face2D * BlkFaceSolver::GetBlkFace( int blk, int face_id )
+Face2D * BlkFaceSolver::GetBlkFace( int blk, int face_id ) const
 {
     Block3D * blk3d = this->blkList[ blk ].get();
     int nFaces = blk3d->facelist.size();
@@ -75,7 +75,7 @@ Face2D * BlkFaceSolver::GetBlkFace( int blk, int face_id )
     return 0;
 }
 
-Face2D * BlkFaceSolver::GetBlkFace2D( int blk, int face_id )
+Face2D * BlkFaceSolver::GetBlkFace2D( int blk, int face_id ) const
 {
     Block2D * blk2d = this->blkList2d[ blk ].get();
     int nFaces = blk2d->facelist.size();
@@ -192,7 +192,7 @@ IntField & BlkFaceSolver::GetLine( int line_id )
     return lineList[ id ];
 }
 
-int BlkFaceSolver::FindLineId( IntField & line )
+int BlkFaceSolver::FindLineId( const IntField & line )
 {
     return this->lineLookup.Find(line);
 }
