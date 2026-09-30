@@ -51,7 +51,7 @@ PointType & CurveMesh::GetPoint( int id, int signFlag )
     int index1 = id;
     int index2 = ptList.size() - 1 - index1;
     int index = coef * index1 + ( 1 - coef ) * index2;
-    return * ptList[ index ];
+    return ptList[ index ];
 }
 
 void CurveMesh::GenerateCurveMesh()
@@ -63,8 +63,8 @@ void CurveMesh::GenerateCurveMesh()
     PointType * pt1 = point_Machine.GetPoint( this->curveInfo->p1 );
     PointType * pt2 = point_Machine.GetPoint( this->curveInfo->p2 );
 
-    * ptList[ st ] = * pt1;
-    * ptList[ ed ] = * pt2;
+    ptList[ st ] = * pt1;
+    ptList[ ed ] = * pt2;
 
     this->CalcCurveGeometry();
     segmentCtrl->CalcFactor();
@@ -79,9 +79,9 @@ void CurveMesh::GenerateCurveMesh()
         Real xt, yt, zt;
         this->CalcCoor( s, xt, yt, zt );
 
-        ptList[ idx ]->x = xt;
-        ptList[ idx ]->y = yt;
-        ptList[ idx ]->z = zt;
+        ptList[ idx ].x = xt;
+        ptList[ idx ].y = yt;
+        ptList[ idx ].z = zt;
     }
 
     this->state = 1;
