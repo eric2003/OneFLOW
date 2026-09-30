@@ -114,7 +114,7 @@ void Block2D::ConstructTopo()
 
     for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
     {
-        MDomain * mDomain = mDomainList[ iMDomain ];
+        MDomain * mDomain = mDomainList[ iMDomain ].get();
         mDomain->CalcDomainCtrlPoints();
     }
 
@@ -183,7 +183,7 @@ void Block2D::CalcBlkDim()
         mDomain->CalcDim2D();
     }
 
-    MDomain * d = mDomainList[ 0 ];
+    MDomain * d = mDomainList[ 0 ].get();
 
     this->ni = d->ni;
     this->nj = d->nj;
