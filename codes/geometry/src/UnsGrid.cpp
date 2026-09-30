@@ -377,7 +377,7 @@ void UnsGrid::GenerateLgMapping( IFaceLink * iFaceLink )
         yList.resize( nNodes );
         zList.resize( nNodes );
 
-        ONEFLOW::GetFaceCoorList( faceNode, xList, yList, zList, this->nodeMesh );
+        ONEFLOW::GetFaceCoorList( faceNode, xList, yList, zList, this->nodeMesh.get() );
         ONEFLOW::GetCoorIdList( iFaceLink, xList, yList, zList, nNodes, gINode );
         iFaceLink->CreateLink( gINode, this->id, lCount );
 
@@ -521,12 +521,12 @@ void UnsGrid::CalcMetrics3D()
 
 void UnsGrid::CalcFaceCenter1D()
 {
-    this->faceMesh->CalcFaceCenter1D( this->nodeMesh );
+    this->faceMesh->CalcFaceCenter1D( this->nodeMesh.get() );
 }
 
 void UnsGrid::CalcFaceNormal1D()
 {
-    this->faceMesh->CalcFaceNormal1D( this->nodeMesh, this->cellMesh.get() );
+    this->faceMesh->CalcFaceNormal1D( this->nodeMesh.get(), this->cellMesh.get() );
 }
 
 void UnsGrid::CalcCellCenterVol1D()
@@ -613,12 +613,12 @@ void UnsGrid::CalcGhostCellCenterVol1D()
 
 void UnsGrid::CalcFaceNormal2D()
 {
-    this->faceMesh->CalcFaceNormal2D( this->nodeMesh );
+    this->faceMesh->CalcFaceNormal2D( this->nodeMesh.get() );
 }
 
 void UnsGrid::CalcFaceCenter2D()
 {
-    this->faceMesh->CalcFaceCenter2D( this->nodeMesh );
+    this->faceMesh->CalcFaceCenter2D( this->nodeMesh.get() );
 }
 
 void UnsGrid::CalcCellCenterVol2D()
@@ -876,12 +876,12 @@ void UnsGrid::CalcCellCenterVol3D()
 
 void UnsGrid::CalcFaceNormal3D()
 {
-    this->faceMesh->CalcFaceNormal3D( this->nodeMesh );
+    this->faceMesh->CalcFaceNormal3D( this->nodeMesh.get() );
 }
 
 void UnsGrid::CalcFaceCenter3D()
 {
-    this->faceMesh->CalcFaceCenter3D( this->nodeMesh );
+    this->faceMesh->CalcFaceCenter3D( this->nodeMesh.get() );
 }
 
 EndNameSpace

@@ -38,7 +38,6 @@ Grid::Grid()
     name = "grid";
     this->dimension = THREE_D;
     this->volBcType = -1;
-    this->nodeMesh = nullptr;
 }
 
 Grid::~Grid()
@@ -81,7 +80,7 @@ Grid * Grid::Register( const std::string & type, Grid * clone )
 void Grid::BasicInit()
 {
     this->Free();
-    nodeMesh  = new NodeMesh();
+    nodeMesh  = std::make_unique< NodeMesh >();
     interFace = std::make_unique< InterFace >();
     slipFace  = std::make_unique< SlipFace >();
     dataBase  = std::make_unique< DataBase >();
@@ -89,8 +88,7 @@ void Grid::BasicInit()
 
 void Grid::Free()
 {
-    delete nodeMesh;
-    nodeMesh = nullptr;
+    nodeMesh.reset();
     interFace.reset();
     slipFace.reset();
     dataBase.reset();

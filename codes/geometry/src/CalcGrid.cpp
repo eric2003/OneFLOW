@@ -197,7 +197,7 @@ void CalcGrid::ResetGridScaleAndTranslate()
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         Grid * grid = grids[ iZone ];
-        ONEFLOW::ResetGridScaleAndTranslate( grid->nodeMesh );
+        ONEFLOW::ResetGridScaleAndTranslate( grid->nodeMesh.get() );
     }
 }
 
