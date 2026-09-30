@@ -89,7 +89,7 @@ int LineMachine::AddLine(int p1, int p2)
 
 void LineMachine::AddLine( int p1, int p2, int id )
 {
-    int idd = this->AddLine( p1, p2 );
+    this->AddLine( p1, p2 );
     CurveInfo * line = new LineInfo( p1, p2, id );
     this->curveInfoList.push_back( line );
 
@@ -100,7 +100,7 @@ void LineMachine::AddLine( int p1, int p2, int id )
 
 void LineMachine::AddCircle( int p1, int pc, int p2, int id )
 {
-    int idd = this->AddLine( p1, p2 );
+    this->AddLine( p1, p2 );
     CurveInfo * circle = new CircleInfo( p1, pc, p2, id );
     this->curveInfoList.push_back( circle );
 
@@ -169,14 +169,14 @@ CurveMesh * LineMachine::GetLineMeshByTwoPoint( const int & p1, const int & p2, 
              curveInfo->p2 == p2 )
         {
             direction = 1;
-            int & lineId = curveInfo->id;
+            const int lineId = curveInfo->id;
             return this->GetCurveMesh( lineId );
         }
         else if ( curveInfo->p2 == p1 &&
                   curveInfo->p1 == p2 )
         {
             direction = - 1;
-            int & lineId = curveInfo->id;
+            const int lineId = curveInfo->id;
             return this->GetCurveMesh( lineId );
         }
     }
@@ -193,13 +193,13 @@ int LineMachine::GetLineIdByTwoPoint( const int & p1, const int & p2 )
         if ( curveInfo->p1 == p1 &&
             curveInfo->p2 == p2 )
         {
-            int & lineId = curveInfo->id;
+            const int lineId = curveInfo->id;
             return lineId;
         }
         else if ( curveInfo->p2 == p1 &&
             curveInfo->p1 == p2 )
         {
-            int & lineId = curveInfo->id;
+            const int lineId = curveInfo->id;
             return lineId;
         }
     }
