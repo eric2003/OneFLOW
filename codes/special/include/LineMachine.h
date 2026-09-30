@@ -40,7 +40,7 @@ public:
     ~LineMachine();
 public:
     HXVector< std::unique_ptr< SegmentCtrl > > segmentCtrlList;
-    HXVector< CurveInfo * > curveInfoList;
+    HXVector< std::unique_ptr< CurveInfo > > curveInfoList;
     HXVector< CurveMesh * > curveMeshList;
     IntField dimList;
     RealField ds1List, ds2List;
