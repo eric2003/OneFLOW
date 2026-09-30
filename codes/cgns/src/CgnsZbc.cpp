@@ -179,9 +179,9 @@ void CgnsZbc::DumpCgnsGridBoundary( Grid * gridIn, const Grids & grids )
 {
     StrGrid * grid = StrGridCast( gridIn );
 
-    BcRegionGroup * bcRegionGroup = grid->bcRegionGroup;
+    BcRegionGroup * bcRegionGroup = grid->bcRegionGroup.get();
 
-    int nBcRegions = bcRegionGroup->regions->size();
+    int nBcRegions = bcRegionGroup->regions.size();
 
     int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
     int baseId = cgnsZone->cgnsBase->baseId;
@@ -214,7 +214,7 @@ void CgnsZbc::DumpCgnsGridBoundary( Grid * gridIn, const Grids & grids )
         }
         else
         {
-            BasicRegion * s = bcRegion->s;
+            BasicRegion * s = bcRegion->s.get();
             FillBcPoints( s->start, s->end, ipnts, dimension );
             //FillBcPoints3D( s->start, s->end, ipnts );
             int bcId = -1;

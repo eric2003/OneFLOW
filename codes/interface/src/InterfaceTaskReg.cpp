@@ -169,7 +169,7 @@ void DownloadInterfaceData( StringField & data )
 void PrepareInterfaceField( StringField & data )
 {
     Grid * grid = Zone::GetGrid();
-    InterFace * interFace = grid->interFace;
+    InterFace * interFace = grid->interFace.get();
     if ( ! ONEFLOW::IsValid( interFace ) ) return;
 
     int solverType = SolverState::solverType;

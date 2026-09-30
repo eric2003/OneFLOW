@@ -22,7 +22,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
-#include "GridDef.h"
+#include "GridHandles.h"
 #include <memory>
 #include <stdexcept>
 #include <string>

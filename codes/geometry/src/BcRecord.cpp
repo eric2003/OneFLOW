@@ -28,6 +28,7 @@ License
 #include "HXMath.h"
 #include "HXStd.h"
 #include <iostream>
+#include <utility>
 
 BeginNameSpace( ONEFLOW )
 
@@ -41,20 +42,30 @@ BcInfo::~BcInfo()
     ;
 }
 
-BcRecord::BcRecord()
+BcRecord::BcRecord() = default;
+
+BcRecord::BcRecord( const BcRecord & other )
+    : bcType( other.bcType ), bcNameId( other.bcNameId ), bcInfo( nullptr )
 {
-    bcInfo = 0;
 }
 
-BcRecord::~BcRecord()
+BcRecord & BcRecord::operator=( const BcRecord & other )
 {
-    delete bcInfo;
+    if ( this == &other ) return *this;
+
+    // bcInfo is derived from the boundary arrays and must be rebuilt.
+    this->bcInfo.reset();
+    this->bcType = other.bcType;
+    this->bcNameId = other.bcNameId;
+    return *this;
 }
+
+BcRecord::~BcRecord() = default;
 
 void BcRecord::CreateBcTypeRegion()
 {
     if ( bcInfo ) return;
-    this->bcInfo = new BcInfo();
+    this->bcInfo = std::make_unique< BcInfo >();
 
     IntSet bcTypeSet;
     IntSet bcUserTypeSet;
@@ -105,6 +116,7 @@ int BcRecord::GetNBFace()
 
 void BcRecord::Init( HXSize_t nBFaces )
 {
+    this->bcInfo.reset();
     this->bcType.resize( nBFaces );
     this->bcNameId.resize( nBFaces );
 }
@@ -321,8 +333,8 @@ TestRegionM::~TestRegionM()
 
 void TestRegionM::Run( BcRegion * bcRegion, int dimension )
 {
-    s.Run( bcRegion->s, dimension );
-    t.Run( bcRegion->t, dimension );
+    s.Run( bcRegion->s.get(), dimension );
+    t.Run( bcRegion->t.get(), dimension );
 
     for ( int i = 0; i < 3; ++ i )
     {
@@ -344,19 +356,14 @@ void TestRegionM::Run( BcRegion * bcRegion, int dimension )
 }
 
 BcRegion::BcRegion( int zid, int rid )
+    : s( std::make_unique< BasicRegion >() ),
+      t( std::make_unique< BasicRegion >() )
 {
-    s = new BasicRegion();
-    t = new BasicRegion();
-
     this->rid = rid;
     s->zid = zid;
 }
 
-BcRegion::~BcRegion()
-{
-    delete s;
-    delete t;
-}
+BcRegion::~BcRegion() = default;
 
 void BcRegion::GetNormalizeIJKRegion( int & ist, int & ied, int & jst, int & jed, int & kst, int & ked )
 {
@@ -382,37 +389,24 @@ int BcRegion::CalcRegionCells()
     return nRegionCells;
 }
 
-BcRegionGroup::BcRegionGroup()
-{
-    regions = 0;
-}
+BcRegionGroup::BcRegionGroup() = default;
 
-BcRegionGroup::~BcRegionGroup()
-{
-    if ( regions )
-    {
-        int nBcRegions = regions->size();
-        for ( int ir = 0; ir < nBcRegions; ++ ir )
-        {
-            delete ( * regions )[ ir ];
-        }
-        delete regions;
-    }
-}
+BcRegionGroup::~BcRegionGroup() = default;
 
 void BcRegionGroup::Create( int nBcRegions )
 {
-    regions = new HXVector< BcRegion * >( nBcRegions );
+    regions.clear();
+    regions.resize( nBcRegions );
 }
 
-void BcRegionGroup::SetBcRegion( int ir, BcRegion * bcRegion )
+void BcRegionGroup::SetBcRegion( int ir, std::unique_ptr< BcRegion > bcRegion )
 {
-    ( * regions )[ ir ] = bcRegion;
+    regions[ ir ] = std::move( bcRegion );
 }
 
 BcRegion *  BcRegionGroup::GetBcRegion( int ir )
 {
-    return ( * regions )[ ir ];
+    return regions[ ir ].get();
 }
 
 EndNameSpace

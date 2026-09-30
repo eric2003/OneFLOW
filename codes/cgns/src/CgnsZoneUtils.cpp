@@ -160,12 +160,12 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
 
         nTCell += grid->CalcNumberOfCell();
 
-        BcRegionGroup * bcRegionGroup = grid->bcRegionGroup;
-        size_t nBcRegions = bcRegionGroup->regions->size();
+        BcRegionGroup * bcRegionGroup = grid->bcRegionGroup.get();
+        size_t nBcRegions = bcRegionGroup->regions.size();
 
         for ( int ir = 0; ir < nBcRegions; ++ ir )
         {
-            BcRegion * bcRegion = ( * bcRegionGroup->regions )[ ir ];
+            BcRegion * bcRegion = bcRegionGroup->regions[ ir ].get();
             if ( BC::IsNotNormalBc( bcRegion->bcType ) ) continue;
             
             nBFaces += bcRegion->CalcRegionCells();
@@ -273,12 +273,12 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
 
         Int3D & unsId = * unsIdList[ iZone ];
 
-        BcRegionGroup * bcRegionGroup = grid->bcRegionGroup;
-        size_t nBcRegions = bcRegionGroup->regions->size();
+        BcRegionGroup * bcRegionGroup = grid->bcRegionGroup.get();
+        size_t nBcRegions = bcRegionGroup->regions.size();
 
         for ( int ir = 0; ir < nBcRegions; ++ ir )
         {
-            BcRegion * bcRegion = ( * bcRegionGroup->regions )[ ir ];
+            BcRegion * bcRegion = bcRegionGroup->regions[ ir ].get();
             if ( BC::IsNotNormalBc( bcRegion->bcType ) ) continue;
             int nRegionCell = bcRegion->CalcRegionCells();
 

@@ -24,6 +24,8 @@ License
 #include "Boundary.h"
 #include "BcRecord.h"
 #include "StrGrid.h"
+#include <memory>
+#include <utility>
 
 BeginNameSpace( ONEFLOW )
 
@@ -91,7 +93,7 @@ void StrBcSetting::SetBcRegion( StrGrid * grid )
     int iZone = grid->id;
 
     grid->bcRegionGroup->Create( nBcRegion );
-    BcRegionGroup * bcRegionGroup = grid->bcRegionGroup;
+    BcRegionGroup * bcRegionGroup = grid->bcRegionGroup.get();
     int ir_count = 0;
     int ir = 0;
     while ( ir < nBcRegion )
@@ -104,12 +106,10 @@ void StrBcSetting::SetBcRegion( StrGrid * grid )
         int kmax = kmaxList[ ir_count ];
         int bcType = bcTypeList[ ir_count ];
 
-        BcRegion * bcRegion = new BcRegion( iZone, ir );
+        auto bcRegion = std::make_unique< BcRegion >( iZone, ir );
         bcRegion->s->SetRegion( imin, imax, jmin, jmax, kmin, kmax );
         bcRegion->s->zid = iZone;
         bcRegion->bcType = bcType;
-        bcRegionGroup->SetBcRegion( ir, bcRegion );
-
         if ( bcType < 0 )
         {
             ++ ir_count;
@@ -124,6 +124,7 @@ void StrBcSetting::SetBcRegion( StrGrid * grid )
             bcRegion->t->SetRegion( imin, imax, jmin, jmax, kmin, kmax );
             bcRegion->t->zid = zid;
         }
+        bcRegionGroup->SetBcRegion( ir, std::move( bcRegion ) );
         ++ ir;
         ++ ir_count;
     }

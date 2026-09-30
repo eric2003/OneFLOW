@@ -25,11 +25,11 @@ License
 #include "Grid.h"
 #include "HXArray.h"
 #include "Multiarray.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
 class DataBook;
-class FaceTopo;
 class BcRegionGroup;
 
 class StrGrid : public Grid
@@ -41,9 +41,8 @@ public:
     ~StrGrid() override;
 public:
     int  ni, nj, nk;
-    FaceTopo * faceTopo;
-    BcRegionGroup * bcRegionGroup;
-    Field3D * strx, * stry, * strz;
+    std::unique_ptr< BcRegionGroup > bcRegionGroup;
+    std::unique_ptr< Field3D > strx, stry, strz;
 public:
     void Decode( DataBook * databook ) override;
     void Encode( DataBook * databook ) override;

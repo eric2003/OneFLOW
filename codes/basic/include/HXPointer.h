@@ -23,6 +23,7 @@ License
 
 #pragma once
 #include "HXVector.h"
+#include "HXTypeBasic.h"
 
 BeginNameSpace( ONEFLOW )
 

@@ -59,8 +59,8 @@ void GridMediator::AddDefaultName()
 
         grid->name = AddString( "Zone", iZone + 1 );
 
-        BcRegionGroup * bcRegionGroup = grid->bcRegionGroup;
-        const int nBcRegions = static_cast< int >( bcRegionGroup->regions->size() );
+        BcRegionGroup * bcRegionGroup = grid->bcRegionGroup.get();
+        const int nBcRegions = static_cast< int >( bcRegionGroup->regions.size() );
         int icount = 0;
         for ( int ir = 0; ir < nBcRegions; ++ ir )
         {

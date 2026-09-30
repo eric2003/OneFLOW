@@ -23,6 +23,7 @@ License
 #include "PointLocator.h"
 #include "Grid.h"
 #include "NodeMesh.h"
+#include "Constant.h"
 #include "HXMath.h"
 #include "Fatal.h"
 #include <iostream>

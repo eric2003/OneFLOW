@@ -5,6 +5,7 @@
 // Include necessary headers from your project
 #include "PointLocator.h"
 #include "HXDefine.h"
+#include "Constant.h"
 
 class PointLocatorTest : public ::testing::Test {
 protected:
@@ -78,6 +79,5 @@ TEST_F(PointLocatorTest, FindNonExistentPoint) {
     // Query a point far outside the tolerance
     int foundId = locator.FindPoint(9.0, 9.0, 9.0);
 
-    // Note: If INVALID_INDEX is not found, replace it with -1 or include the header where it's defined (e.g., HXDefine.h)
     EXPECT_EQ(foundId, ONEFLOW::INVALID_INDEX);
 }

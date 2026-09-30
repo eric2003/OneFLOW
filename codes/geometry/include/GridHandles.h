@@ -20,48 +20,15 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
 #pragma once
-#include "HXDefine.h"
-#include <fstream>
-#include <string>
 
+#include "HXPointer.h"
 
 BeginNameSpace( ONEFLOW )
 
 class Grid;
-class UnsGrid;
 
-class GridGroup
-{
-public:
-    GridGroup( int zoneStart = 0 );
-    ~GridGroup();
-public:
-    int   nZones;
-    IntField pid;
-    IntField zoneType;
-    int zoneStart;
-protected:
-    void ReadGrid( std::fstream & file, int iZone );
-    void CreateGrid( int zoneId );
-    void CreateGridImp( int zoneId );
-    void CreateGridTest( int zoneId );
-public:
-    void ReadGrid( const std::string & fileName );
-    void ReadGrid( const std::string & fileName, const std::string & caseDir );
-    void InitZoneLayout( const std::string & fileName );
-    void InitZoneLayout( const std::string & fileName, const std::string & caseDir );
-protected:
-    void InitZoneLayout( std::fstream & file );
-    void SetMultiZoneLayout();
-};
-
-class DataBook;
-void ReadAbstractData( std::fstream & file, DataBook * dataBook, int sendpid, int recvpid, int tag = 0 );
-void DataToGrid( DataBook * dataBook, int zid );
-void DataToGridImp( DataBook * dataBook, int zid );
-void DataToGridTest( DataBook * dataBook, int zid );
-
+// Lightweight collection type for grid pointers; does not require Grid's definition.
+using Grids = HXPointer< Grid >;
 
 EndNameSpace

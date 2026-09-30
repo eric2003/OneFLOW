@@ -247,7 +247,7 @@ void DumpRestartHeader()
 void RwInterface( int solverType, int readOrWrite )
 {
     Grid * grid = Zone::GetGrid();
-    InterFace * interFace = grid->interFace;
+    InterFace * interFace = grid->interFace.get();
 
     if ( ! IsValid( interFace ) ) return;
 

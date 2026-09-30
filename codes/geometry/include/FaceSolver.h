@@ -28,6 +28,7 @@ License
 #include <vector>
 #include <set>
 #include <map>
+#include <memory>
 
 
 BeginNameSpace( ONEFLOW )
@@ -49,7 +50,7 @@ public:
     IntField faceBcType;
     LinkField childFid;
 public:
-    FaceTopo * faceTopo;
+    std::unique_ptr< FaceTopo > faceTopo;
 public:
     bool CheckBcFace( IntSet & bcVertex, IntField & nodeId );
     void ScanElementFace( CgIntField & eNodeId, int eType, int eId );

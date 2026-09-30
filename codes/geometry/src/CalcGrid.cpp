@@ -144,7 +144,7 @@ void CalcGrid::ReconstructLink( int iZone )
 {
     UnsGrid * grid = UnsGridCast( grids[ iZone ] );
 
-    InterFace * interFace = grid->interFace;
+    InterFace * interFace = grid->interFace.get();
     grid->nIFaces = grid->interFace->nIFaces;
 
     if ( ! ONEFLOW::IsValid( interFace ) ) return;
@@ -197,7 +197,7 @@ void CalcGrid::ResetGridScaleAndTranslate()
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         Grid * grid = grids[ iZone ];
-        ONEFLOW::ResetGridScaleAndTranslate( grid->nodeMesh );
+        ONEFLOW::ResetGridScaleAndTranslate( grid->nodeMesh.get() );
     }
 }
 

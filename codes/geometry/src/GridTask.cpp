@@ -98,7 +98,7 @@ void CalcMetricsTask::Run()
 void SwapCellCenter( StringField & data )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
-    InterFace * interFace = grid->interFace;
+    InterFace * interFace = grid->interFace.get();
     if ( ! ONEFLOW::IsValid( interFace ) ) return;
 
     int iNei = interFace->z2n[ ZoneState::rzid ];
@@ -108,7 +108,7 @@ void SwapCellCenter( StringField & data )
 
     ActionState::dataBook->MoveToBegin();
 
-    CellMesh * cellMesh = grid->cellMesh;
+    CellMesh * cellMesh = grid->cellMesh.get();
 
     RealField & xcc = cellMesh->xcc;
     RealField & ycc = cellMesh->ycc;
@@ -132,7 +132,7 @@ void SwapCellCenter( StringField & data )
 void DecodeCellCenter( StringField & data )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
-    InterFace * interFace = grid->interFace;
+    InterFace * interFace = grid->interFace.get();
     if ( ! ONEFLOW::IsValid( interFace ) ) return;
 
     int iNei = interFace->z2n[ ZoneState::szid ];
@@ -141,7 +141,7 @@ void DecodeCellCenter( StringField & data )
 
     ActionState::dataBook->MoveToBegin();
 
-    CellMesh * cellMesh = grid->cellMesh;
+    CellMesh * cellMesh = grid->cellMesh.get();
 
     RealField & xcc = cellMesh->xcc;
     RealField & ycc = cellMesh->ycc;

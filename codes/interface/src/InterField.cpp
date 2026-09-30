@@ -40,7 +40,7 @@ BeginNameSpace( ONEFLOW )
 void PrepareInterfaceFieldRecord( int solverType, int iFk, int iSr, FieldRecord * fieldRecord )
 {
     Grid * grid = Zone::GetGrid();
-    InterFace * interFace = grid->interFace;
+    InterFace * interFace = grid->interFace.get();
 
     InterFaceState::interFace = interFace;
 
@@ -117,7 +117,7 @@ void AddFieldRecord(
 void SetInterfaceFieldData( int iSr, FieldRecord * fieldRecord )
 {
     Grid * grid = Zone::GetGrid();
-    InterFace * interFace = grid->interFace;
+    InterFace * interFace = grid->interFace.get();
     if ( ! ONEFLOW::IsValid( interFace ) ) return;
 
     int oppoSr = GetOppositeSendRecv( iSr );

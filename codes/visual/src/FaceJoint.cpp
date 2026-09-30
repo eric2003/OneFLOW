@@ -25,7 +25,7 @@ License
 #include "WallVisual.h"
 #include "HXCgns.h"
 #include "HXMath.h"
-#include "Tolerence.h"
+#include "Tolerance.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -117,7 +117,7 @@ void FaceJoint::CalcBoundBox()
     dismin = LARGE;
     dismax = - LARGE;
 
-    Real ptTol = Tolerence::GetTol();
+    Real ptTol = Tolerance::GetTol();
 
     for ( int iFace = 0; iFace < numberOfWallFaces; ++ iFace )
     {

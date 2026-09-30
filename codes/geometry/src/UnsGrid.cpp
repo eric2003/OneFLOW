@@ -35,7 +35,7 @@ License
 #include "DataBook.h"
 #include "IFaceLink.h"
 #include "Boundary.h"
-#include "Tolerence.h"
+#include "Tolerance.h"
 #include "Dimension.h"
 #include "LogFile.h"
 #include <iostream>
@@ -53,28 +53,22 @@ UnsGrid * UnsGridCast( Grid * gridIn )
     return static_cast< UnsGrid * >( gridIn );
 }
 
-UnsGrid::UnsGrid()
-{
-    this->faceTopo = nullptr;
-    this->faceMesh = nullptr;
-    this->cellMesh = nullptr;
-}
+UnsGrid::UnsGrid() = default;
 
-UnsGrid::~UnsGrid()
-{
-    delete this->faceTopo;
-    delete this->faceMesh;
-    delete this->cellMesh;
-}
+UnsGrid::~UnsGrid() = default;
 
 void UnsGrid::Init()
 {
+    this->cellMesh.reset();
+    this->faceMesh.reset();
+    this->faceTopo.reset();
+
     this->BasicInit();
-    this->faceTopo = new FaceTopo();
-    this->faceMesh = new FaceMesh();
-    this->cellMesh = new CellMesh();
+    this->faceTopo = std::make_unique< FaceTopo >();
+    this->faceMesh = std::make_unique< FaceMesh >();
+    this->cellMesh = std::make_unique< CellMesh >();
     faceTopo->grid = this;
-    this->faceMesh->faceTopo = this->faceTopo;
+    this->faceMesh->faceTopo = this->faceTopo.get();
 }
 
 void UnsGrid::Decode( DataBook * databook )
@@ -360,7 +354,7 @@ void UnsGrid::GenerateLgMapping( IFaceLink * iFaceLink )
 
     iFaceLink->Init( this );
 
-    this->faceTopo->GenerateI2B( this->interFace );
+    this->faceTopo->GenerateI2B( this->interFace.get() );
 
     int nBFaces = bcRecord->GetNBFace();
 
@@ -383,7 +377,7 @@ void UnsGrid::GenerateLgMapping( IFaceLink * iFaceLink )
         yList.resize( nNodes );
         zList.resize( nNodes );
 
-        ONEFLOW::GetFaceCoorList( faceNode, xList, yList, zList, this->nodeMesh );
+        ONEFLOW::GetFaceCoorList( faceNode, xList, yList, zList, this->nodeMesh.get() );
         ONEFLOW::GetCoorIdList( iFaceLink, xList, yList, zList, nNodes, gINode );
         iFaceLink->CreateLink( gINode, this->id, lCount );
 
@@ -413,14 +407,14 @@ void UnsGrid::ReGenerateLgMapping( IFaceLink * iFaceLink )
 
 void UnsGrid::UpdateOtherTopologyTerm( IFaceLink * iFaceLink )
 {
-    if ( ! IsValid( this->interFace ) ) return;
+    if ( ! IsValid( this->interFace.get() ) ) return;
 
     this->faceTopo->UpdateOtherTopologyTerm();
 
     int nIFaces = iFaceLink->l2g[ this->id ].size();
 
     this->interFace->Resize( nIFaces );
-    this->faceTopo->GenerateI2B( this->interFace );
+    this->faceTopo->GenerateI2B( this->interFace.get() );
 }
 
 void UnsGrid::GetMinMaxDistance( Real & dismin, Real & dismax )
@@ -434,7 +428,7 @@ void UnsGrid::GetMinMaxDistance( Real & dismin, Real & dismax )
 
     int nFaces = this->faceTopo->GetNFaces();
 
-    Real ptTol = Tolerence::GetTol();
+    Real ptTol = Tolerance::GetTol();
 
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
@@ -500,7 +494,7 @@ void UnsGrid::CalcMetrics()
 void UnsGrid::AllocMetrics()
 {
     this->faceMesh->AllocateMetrics();
-    this->cellMesh->AllocateMetrics( this->faceMesh );
+    this->cellMesh->AllocateMetrics( this->faceMesh.get() );
 }
 
 void UnsGrid::CalcMetrics1D()
@@ -527,12 +521,12 @@ void UnsGrid::CalcMetrics3D()
 
 void UnsGrid::CalcFaceCenter1D()
 {
-    this->faceMesh->CalcFaceCenter1D( this->nodeMesh );
+    this->faceMesh->CalcFaceCenter1D( this->nodeMesh.get() );
 }
 
 void UnsGrid::CalcFaceNormal1D()
 {
-    this->faceMesh->CalcFaceNormal1D( this->nodeMesh, this->cellMesh );
+    this->faceMesh->CalcFaceNormal1D( this->nodeMesh.get(), this->cellMesh.get() );
 }
 
 void UnsGrid::CalcCellCenterVol1D()
@@ -619,12 +613,12 @@ void UnsGrid::CalcGhostCellCenterVol1D()
 
 void UnsGrid::CalcFaceNormal2D()
 {
-    this->faceMesh->CalcFaceNormal2D( this->nodeMesh );
+    this->faceMesh->CalcFaceNormal2D( this->nodeMesh.get() );
 }
 
 void UnsGrid::CalcFaceCenter2D()
 {
-    this->faceMesh->CalcFaceCenter2D( this->nodeMesh );
+    this->faceMesh->CalcFaceCenter2D( this->nodeMesh.get() );
 }
 
 void UnsGrid::CalcCellCenterVol2D()
@@ -882,12 +876,12 @@ void UnsGrid::CalcCellCenterVol3D()
 
 void UnsGrid::CalcFaceNormal3D()
 {
-    this->faceMesh->CalcFaceNormal3D( this->nodeMesh );
+    this->faceMesh->CalcFaceNormal3D( this->nodeMesh.get() );
 }
 
 void UnsGrid::CalcFaceCenter3D()
 {
-    this->faceMesh->CalcFaceCenter3D( this->nodeMesh );
+    this->faceMesh->CalcFaceCenter3D( this->nodeMesh.get() );
 }
 
 EndNameSpace

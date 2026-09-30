@@ -39,6 +39,8 @@ License
 #include "Plot3D.h"
 #include "DataBase.h"
 #include <iostream>
+#include <memory>
+#include <utility>
 
 
 BeginNameSpace( ONEFLOW )
@@ -113,43 +115,43 @@ void Cavity::Run()
         }
     }
 
-    BcRegionGroup * bcRegionGroup = grid->bcRegionGroup;
+    BcRegionGroup * bcRegionGroup = grid->bcRegionGroup.get();
     int nBcRegions = 4;
     grid->bcRegionGroup->Create( nBcRegions );
 
-    BcRegion * bcRegion = 0;
+    std::unique_ptr< BcRegion > bcRegion;
     int ir = 0;
-    bcRegion = new BcRegion( iZone, ir );
+    bcRegion = std::make_unique< BcRegion >( iZone, ir );
     bcRegion->s->SetRegion( 1, ni, 1, 1 );
     bcRegion->s->zid = iZone;
     bcRegion->regionName = "lower";
     bcRegion->bcType = BC::SOLID_SURFACE;
-    bcRegionGroup->SetBcRegion( ir, bcRegion );
+    bcRegionGroup->SetBcRegion( ir, std::move( bcRegion ) );
     ++ ir;
 
-    bcRegion = new BcRegion( iZone, ir );
+    bcRegion = std::make_unique< BcRegion >( iZone, ir );
     bcRegion->s->SetRegion( 1, ni, nj, nj );
     bcRegion->s->zid = iZone;
     bcRegion->regionName = "upper";
     bcRegion->bcType = BC::SOLID_SURFACE;
     //bcRegion->bcType = BC::INTERFACE;
-    bcRegionGroup->SetBcRegion( ir, bcRegion );
+    bcRegionGroup->SetBcRegion( ir, std::move( bcRegion ) );
     ++ ir;
 
-    bcRegion = new BcRegion( iZone, ir );
+    bcRegion = std::make_unique< BcRegion >( iZone, ir );
     bcRegion->s->SetRegion( 1, 1, 1, nj );
     bcRegion->s->zid = iZone;
     bcRegion->regionName = "left";
     bcRegion->bcType = BC::SOLID_SURFACE;
-    bcRegionGroup->SetBcRegion( ir, bcRegion );
+    bcRegionGroup->SetBcRegion( ir, std::move( bcRegion ) );
     ++ ir;
 
-    bcRegion = new BcRegion( iZone, ir );
+    bcRegion = std::make_unique< BcRegion >( iZone, ir );
     bcRegion->s->SetRegion( ni, ni, 1, nj );
     bcRegion->s->zid = iZone;
     bcRegion->regionName = "right";
     bcRegion->bcType = BC::SOLID_SURFACE;
-    bcRegionGroup->SetBcRegion( ir, bcRegion );
+    bcRegionGroup->SetBcRegion( ir, std::move( bcRegion ) );
     ++ ir;
 
     this->DumpPlot3DGrid( gridMediator );

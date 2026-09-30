@@ -23,7 +23,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "HXLookup.h"
-#include "GridDef.h"
+#include "GridHandles.h"
 #include <set>
 
 BeginNameSpace( ONEFLOW )
@@ -64,7 +64,8 @@ public:
 public:
     void CreateLink( IntField & faceNode, int zid, int lCount );
     void MatchInterfaceTopology( Grid * grid );
-    void MatchPeoridicInterface( Grid * grid );
+    void MatchPeriodicInterface( Grid * grid );
+    void MatchPeoridicInterface( Grid * grid ) { MatchPeriodicInterface( grid ); }
     void ReconstructInterFace();
 protected:
     void AddFace( const IntField & facePointIndexes );

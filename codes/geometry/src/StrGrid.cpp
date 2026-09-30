@@ -27,10 +27,9 @@ License
 #include "HXMath.h"
 #include "HXMathExt.h"
 #include "NodeMesh.h"
-#include "FaceTopo.h"
 #include "DataBaseIO.h"
 #include "DataBook.h"
-#include "Tolerence.h"
+#include "Tolerance.h"
 #include <iostream>
 
 
@@ -40,21 +39,10 @@ REGISTER_GRID( StrGrid )
 
 StrGrid::StrGrid()
 {
-    faceTopo = new FaceTopo();
-    bcRegionGroup = new BcRegionGroup();
-    strx = 0;
-    stry = 0;
-    strz = 0;
+    bcRegionGroup = std::make_unique< BcRegionGroup >();
 }
 
-StrGrid::~StrGrid()
-{
-    delete faceTopo;
-    delete bcRegionGroup;
-    delete strx;
-    delete stry;
-    delete strz;
-}
+StrGrid::~StrGrid() = default;
 
 void StrGrid::Decode( DataBook * databook )
 {
@@ -108,6 +96,10 @@ void StrGrid::SetBasicDimension()
 
 void StrGrid::SetLayout()
 {
+    this->strx.reset();
+    this->stry.reset();
+    this->strz.reset();
+
    if ( this->nodeMesh->xN.size() != 0 &&
         this->nodeMesh->yN.size() != 0 &&
         this->nodeMesh->zN.size() != 0 )
@@ -117,9 +109,9 @@ void StrGrid::SetLayout()
         J.SetRange( 1, nj );
         K.SetRange( 1, nk );
 
-        this->strx = new Field3D( & this->nodeMesh->xN[ 0 ], I, J, K );
-        this->stry = new Field3D( & this->nodeMesh->yN[ 0 ], I, J, K );
-        this->strz = new Field3D( & this->nodeMesh->zN[ 0 ], I, J, K );
+        this->strx = std::make_unique< Field3D >( & this->nodeMesh->xN[ 0 ], I, J, K );
+        this->stry = std::make_unique< Field3D >( & this->nodeMesh->yN[ 0 ], I, J, K );
+        this->strz = std::make_unique< Field3D >( & this->nodeMesh->zN[ 0 ], I, J, K );
     }
 }
 
@@ -165,7 +157,7 @@ void StrGrid::CalcMinMaxDis3D( Real & dismin, Real & dismax )
     const int nEdge = 12;
     Real dx[ nEdge ], dy[ nEdge ], dz[ nEdge ];
 
-    Real ptTol = Tolerence::GetTol();
+    Real ptTol = Tolerance::GetTol();
 
     for ( int k = kst; k <= ked; ++ k )
     {
@@ -255,7 +247,7 @@ void StrGrid::CalcMinMaxDis2D( Real & dismin, Real & dismax )
     const int nEdge = 4;
     Real dx[ nEdge ], dy[ nEdge ], dz[ nEdge ];
 
-    Real ptTol = Tolerence::GetTol();
+    Real ptTol = Tolerance::GetTol();
 
     for ( int k = kst; k <= ked; ++ k )
     {
@@ -313,7 +305,7 @@ void StrGrid::CalcMinMaxDis1D( Real & dismin, Real & dismax )
     const int nEdge = 1;
     Real dx[ nEdge ], dy[ nEdge ], dz[ nEdge ];
 
-    Real ptTol = Tolerence::GetTol();
+    Real ptTol = Tolerance::GetTol();
 
     for ( int k = kst; k <= ked; ++ k )
     {

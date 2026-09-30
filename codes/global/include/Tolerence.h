@@ -19,26 +19,8 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
+
 #pragma once
-#include "NamespaceMacros.h"
-#include "HXDefine.h"
 
-BeginNameSpace( ONEFLOW )
-
-class Tolerence
-{
-public:
-    Tolerence();
-    ~Tolerence();
-public:
-    static Real tol;
-    static bool flag;
-public:
-    static void Init();
-    static Real GetTol();
-    static void SetTol( Real tolIn );
-    static void Reset();
-};
-
-
-EndNameSpace
+// Backward-compatible include; new code should include Tolerance.h.
+#include "Tolerance.h"

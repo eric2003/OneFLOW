@@ -26,7 +26,7 @@ License
 #include "HXLookup.h"
 #include "CalcCoor.h"
 #include "SimpleDomain.h"
-#include "GridDef.h"
+#include "GridHandles.h"
 #include <set>
 #include <map>
 #include <fstream>

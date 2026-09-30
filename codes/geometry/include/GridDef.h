@@ -23,10 +23,4 @@ License
 
 #pragma once
 #include "Grid.h"
-#include "HXPointer.h"
-
-BeginNameSpace( ONEFLOW )
-
-using Grids = HXPointer< Grid >;
-
-EndNameSpace
+#include "GridHandles.h"

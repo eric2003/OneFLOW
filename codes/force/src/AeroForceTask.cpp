@@ -168,7 +168,7 @@ void CalcAeroForce(int idump_pres)
 	BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord.get();
 	bcRecord->CreateBcTypeRegion();
 
-	BcInfo * bcInfo = bcRecord->bcInfo;
+	BcInfo * bcInfo = bcRecord->bcInfo.get();
 
 	int nRegion = bcInfo->bcType.size();
 

@@ -426,7 +426,7 @@ void Partition::CalcG2lFace( UnsGrid * ggrid, int zid, UnsGrid * grid )
     grid->nFaces  = nFaceNow;
     grid->nBFaces = nBFaceNow;
 
-    InterFace * interFace = grid->interFace;
+    InterFace * interFace = grid->interFace.get();
     interFace->Set( nIFaceNow );
     grid->nIFaces = nIFaceNow;
 }
@@ -622,7 +622,7 @@ void Partition::SetInterface( UnsGrid * ggrid, int zid, UnsGrid * grid )
 {
     if ( this->partition_type != 1 ) return;
 
-    InterFace * interFace = grid->interFace;
+    InterFace * interFace = grid->interFace.get();
     int nIFaces = interFace->nIFaces;
     int nBFaces = grid->nBFaces;
 
@@ -682,7 +682,7 @@ bool FindMatch( UnsGrid * grid, FacePair * facePair )
 {
     bool found = false;
 
-    InterFace * interFace = grid->interFace;
+    InterFace * interFace = grid->interFace.get();
 
     if ( ! ONEFLOW::IsValid( interFace ) ) return found;
 

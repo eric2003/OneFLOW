@@ -19,49 +19,29 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#include "Tolerence.h"
-#include "DataBase.h"
+#pragma once
+#include "NamespaceMacros.h"
+#include "HXDefine.h"
 
 BeginNameSpace( ONEFLOW )
 
-Real Tolerence::tol = 1.0;
-bool Tolerence::flag = false;
-
-Tolerence::Tolerence()
+class Tolerance
 {
-    ;
-}
+public:
+    Tolerance();
+    ~Tolerance();
+public:
+    static Real tol;
+    static bool flag;
+public:
+    static void Init();
+    static Real GetTol();
+    static void SetTol( Real tolIn );
+    static void Reset();
+};
 
-Tolerence::~Tolerence()
-{
-    ;
-}
+// Keep the historical misspelling available while callers migrate.
+using Tolerence = Tolerance;
 
-
-void Tolerence::Init()
-{
-    Tolerence::tol = ONEFLOW::GetDataValue< Real >( "ptTol" );
-}
-
-Real Tolerence::GetTol()
-{
-    if ( ! Tolerence::flag )
-    {
-        Tolerence::flag = true;
-        Tolerence::Init();
-    }
-    return Tolerence::tol;
-}
-
-void Tolerence::SetTol( Real tolIn )
-{
-    Tolerence::tol = tolIn;
-}
-
-void Tolerence::Reset()
-{
-    Tolerence::tol = 1.0;
-    Tolerence::flag = false;
-}
 
 EndNameSpace

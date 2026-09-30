@@ -176,7 +176,7 @@ void BcVisual::ResolveElementEdge()
 void BcVisual::Calcf2n( int bcType )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
-    FaceTopo * faceTopo = grid->faceTopo;
+    FaceTopo * faceTopo = grid->faceTopo.get();
     LinkField & total_f2n = faceTopo->faces;
     BcRecord * bcRecord = faceTopo->bcManager->bcRecord.get();
 
@@ -464,7 +464,7 @@ void UVisualize::ShowField( std::ostringstream & oss, VisualTool * visualTool )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
-    FaceTopo * faceTopo = grid->faceTopo;
+    FaceTopo * faceTopo = grid->faceTopo.get();
     LinkField & f2n = faceTopo->faces;
 
     int nNodes = grid->nNodes;

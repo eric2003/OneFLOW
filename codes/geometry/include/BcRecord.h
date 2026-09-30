@@ -50,11 +50,13 @@ class BcRecord
 {
 public:
     BcRecord();
+    BcRecord( const BcRecord & other );
+    BcRecord & operator=( const BcRecord & other );
     ~BcRecord();
 public:
     IntField bcType;
     IntField bcNameId;
-    BcInfo * bcInfo;
+    std::unique_ptr< BcInfo > bcInfo;
 public:
     void Init( HXSize_t nBFaces );
     int GetNBFace();
@@ -148,8 +150,8 @@ public:
     int bcType;                      //boundary type
     std::string regionName;               //boundary name
 public:
-    BasicRegion * s;
-    BasicRegion * t;
+    std::unique_ptr< BasicRegion > s;
+    std::unique_ptr< BasicRegion > t;
 public:
     void GetNormalizeIJKRegion( int & ist, int & ied, int & jst, int & jed, int & kst, int & ked );
     int CalcRegionCells();
@@ -163,9 +165,9 @@ public:
 public:
     int zoneIndex;
     int nBFaces, nIFaces;
-    HXVector< BcRegion * > * regions;
+    HXVector< std::unique_ptr< BcRegion > > regions;
     void Create( int nBcRegions );
-    void SetBcRegion( int ir, BcRegion * bcRegion );
+    void SetBcRegion( int ir, std::unique_ptr< BcRegion > bcRegion );
     BcRegion * GetBcRegion( int ir );
 };
 

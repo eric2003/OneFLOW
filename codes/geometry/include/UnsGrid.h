@@ -23,6 +23,7 @@ License
 
 #pragma once
 #include "Grid.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -42,9 +43,9 @@ public:
     ~UnsGrid() override;
 public:
     void Init() override;
-    FaceTopo * faceTopo;
-    FaceMesh * faceMesh;
-    CellMesh * cellMesh;
+    std::unique_ptr< FaceTopo > faceTopo;
+    std::unique_ptr< FaceMesh > faceMesh;
+    std::unique_ptr< CellMesh > cellMesh;
 public:
     void Decode( DataBook * databook ) override;
     void Encode( DataBook * databook ) override;
