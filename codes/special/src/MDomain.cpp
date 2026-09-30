@@ -43,14 +43,7 @@ MDomain::MDomain()
     ;
 }
 
-MDomain::~MDomain()
-{
-    int nSDomain = sDomainList.size();
-    for ( int iSDomain = 0; iSDomain < nSDomain; ++ iSDomain )
-    {
-        delete sDomainList[ iSDomain ];
-    }
-}
+MDomain::~MDomain() = default;
 
 void MDomain::CalcSubDomainCtrlCoor()
 {
@@ -60,7 +53,7 @@ void MDomain::CalcSubDomainCtrlCoor()
         int nDomain = sDomainList.size();
         for ( int iDomain = 0; iDomain < nDomain; ++ iDomain )
         {
-            SDomain * sDomain = sDomainList[ iDomain ];
+            SDomain * sDomain = sDomainList[ iDomain ].get();
             bool flag = sDomain->CalcSingleDomainCoor();
             local_flag = ( flag && local_flag );
         }
@@ -70,9 +63,9 @@ void MDomain::CalcSubDomainCtrlCoor()
 
 void MDomain::AddSubDomain( int fid, IntField & lineList, IntField & posList )
 {
-    SDomain * sdomain = new SDomain( this );
+    auto sdomain = std::make_unique< SDomain >( this );
     sdomain->SetDomain( fid, lineList, posList );
-    sDomainList.push_back( sdomain );
+    sDomainList.push_back( std::move( sdomain ) );
 }
 
 SDomain * MDomain::FindSDomain( int fid )
@@ -80,7 +73,7 @@ SDomain * MDomain::FindSDomain( int fid )
     int nSDomain = sDomainList.size();
     for ( int iSDomain = 0; iSDomain < nSDomain; ++ iSDomain )
     {
-        SDomain * sDomain = sDomainList[ iSDomain ];
+        SDomain * sDomain = sDomainList[ iSDomain ].get();
         if ( sDomain->domain_id == fid )
         {
             return sDomain;
@@ -123,7 +116,7 @@ void MDomain::ConstructMultiLineToDomainMap()
 {
     for ( int iDomain = 0; iDomain < this->sDomainList.size(); ++ iDomain )
     {
-        SDomain * sdomain = this->sDomainList[ iDomain ];
+        SDomain * sdomain = this->sDomainList[ iDomain ].get();
         sdomain->ConstructLineToDomainMap( this->lineToDomainMap );
     }
 
@@ -163,7 +156,7 @@ void MDomain::CreateInpFaceList( HXVector< Face2D * > &facelist )
 {
     for ( int iDomain = 0; iDomain < this->sDomainList.size(); ++ iDomain )
     {
-        SDomain * sDomain = this->sDomainList[ iDomain ];
+        SDomain * sDomain = this->sDomainList[ iDomain ].get();
         sDomain->CreateInpFaceList( facelist );
     }
 }
