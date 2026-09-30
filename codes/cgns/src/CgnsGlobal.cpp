@@ -23,6 +23,7 @@ License
 #include "CgnsZbase.h"
 #include "CgnsBase.h"
 #include "CgnsZone.h"
+#include <stdexcept>
 
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
@@ -30,8 +31,26 @@ BeginNameSpace( ONEFLOW )
 CgnsGlobal cgns_global;
 
 CgnsGlobal::CgnsGlobal()
+    : cgnsbases( nullptr )
 {
-    ;
+}
+
+void CgnsGlobal::Bind( CgnsZbase * cgnsBases )
+{
+    cgnsbases = cgnsBases;
+}
+
+void CgnsGlobal::ClearIfBoundTo( const CgnsZbase * cgnsBases )
+{
+    if ( cgnsbases == cgnsBases )
+    {
+        cgnsbases = nullptr;
+    }
+}
+
+bool CgnsGlobal::IsBoundTo( const CgnsZbase * cgnsBases ) const
+{
+    return cgnsbases == cgnsBases;
 }
 
 CgnsGlobal::~CgnsGlobal()
@@ -41,6 +60,10 @@ CgnsGlobal::~CgnsGlobal()
 
 CgnsZone * CgnsGlobal::GetCgnsZoneByName( const std::string & zoneName )
 {
+    if ( cgnsbases == nullptr )
+    {
+        throw std::logic_error( "CGNS zone lookup requested without an active CGNS base" );
+    }
     CgnsBase * cgnsBase = cgnsbases->baseVector[ 0 ];
     return cgnsBase->GetCgnsZoneByName( zoneName );
 }

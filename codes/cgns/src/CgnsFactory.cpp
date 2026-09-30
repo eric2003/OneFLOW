@@ -66,9 +66,28 @@ CgnsFactory::CgnsFactory()
 // FIX: Define destructor and move operations here.
 // The compiler can now see the complete types and safely generate the 
 // code to delete the unique_ptr members.
-CgnsFactory::~CgnsFactory() = default;
+CgnsFactory::~CgnsFactory()
+{
+    cgns_global.ClearIfBoundTo( cgnsZbase.get() );
+}
 CgnsFactory::CgnsFactory(CgnsFactory&&) noexcept = default;
-CgnsFactory& CgnsFactory::operator=(CgnsFactory&&) noexcept = default;
+CgnsFactory& CgnsFactory::operator=( CgnsFactory && other ) noexcept
+{
+    if ( this != &other )
+    {
+        const bool globalBoundToEitherFactory =
+            cgns_global.IsBoundTo( cgnsZbase.get() ) ||
+            cgns_global.IsBoundTo( other.cgnsZbase.get() );
+        cgns_global.ClearIfBoundTo( cgnsZbase.get() );
+        zgridElem = std::move( other.zgridElem );
+        cgnsZbase = std::move( other.cgnsZbase );
+        if ( globalBoundToEitherFactory )
+        {
+            cgns_global.Bind( cgnsZbase.get() );
+        }
+    }
+    return *this;
+}
 
 // FIX: Exception-safe ownership transfer
 void CgnsFactory::ConvertStrCgns2UnsCgnsGrid()
@@ -84,6 +103,7 @@ void CgnsFactory::ConvertStrCgns2UnsCgnsGrid()
 
     // Update the non-owning observer
     this->zgridElem->cgnsZbase = this->cgnsZbase.get();
+    cgns_global.Bind( this->cgnsZbase.get() );
 }
 
 void GenerateLocalOneFlowGridFromSu2Grid( Su2Grid & su2Grid, Grids & grids )
@@ -143,7 +163,7 @@ void CgnsFactory::ReadCgnsGrid(
     const std::string & caseDir )
 {
     // Use .get() to pass the raw pointer to legacy/global APIs
-    cgns_global.cgnsbases = this->cgnsZbase.get();
+    cgns_global.Bind( this->cgnsZbase.get() );
     const std::string & sourceGridFile = config.sourceFile;
 
     std::string gridFileName;
@@ -161,7 +181,7 @@ void CgnsFactory::ReadCgnsGrid(
 
 void CgnsFactory::DumpCgnsGrid( ZgridMediator & zgridMediator )
 {
-    cgns_global.cgnsbases = cgnsZbase.get();
+    cgns_global.Bind( cgnsZbase.get() );
     ONEFLOW::DumpCgnsGrid( cgnsZbase.get(), & zgridMediator );
 }
 
