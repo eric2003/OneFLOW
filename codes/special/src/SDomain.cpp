@@ -47,7 +47,6 @@ SDomain::SDomain( MDomain * mDomain )
     if ( mDomain )
     {
         this->coorMap = mDomain->coorMap;
-        freecoorMap = 0;
     }
     else
     {
