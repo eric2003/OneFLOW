@@ -391,7 +391,7 @@ void InitSlipFaceTopo()
             }
         }
 
-        SlipFace * slipFace = grid->slipFace;
+        SlipFace * slipFace = grid->slipFace.get();
         slipFace->Set( nSlipFace, grid );
 
         localSlipFace->AddSlipFace( slipFace );

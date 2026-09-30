@@ -70,7 +70,7 @@ public:
     int volBcType;
     NodeMesh * nodeMesh;
     InterFace * interFace;
-    SlipFace * slipFace;
+    std::unique_ptr< SlipFace > slipFace;
     std::unique_ptr< DataBase > dataBase;
 public:
     DataBase * GetDataBase() { return dataBase.get(); };
