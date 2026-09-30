@@ -35,14 +35,6 @@ CurveMesh::CurveMesh()
     this->state = 0;
 }
 
-CurveMesh::~CurveMesh()
-{
-    for ( int i = 0; i < segmentCtrl->nPoint; ++ i )
-    {
-        delete ptList[ i ];
-    }
-}
-
 bool CurveMesh::IsValidState() const
 {
     if ( this->state == 1 ) return false;
@@ -65,11 +57,6 @@ PointType & CurveMesh::GetPoint( int id, int signFlag )
 void CurveMesh::GenerateCurveMesh()
 {
     ptList.resize( segmentCtrl->nPoint );
-    for ( int i = 0; i < segmentCtrl->nPoint; ++ i )
-    {
-        ptList[ i ] = new PointType();
-    }
-
     int st = 0;
     int ed = segmentCtrl->nPoint - 1;
 
