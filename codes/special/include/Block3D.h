@@ -25,6 +25,7 @@ License
 #include "HXDefine.h"
 #include "CalcCoor.h"
 #include "BlkMesh.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -42,7 +43,7 @@ public:
     ~Block3D() override;
 public:
     RealField3D x3d, y3d, z3d;
-    HXVector< MDomain * > mDomainList;
+    HXVector< std::unique_ptr< MDomain > > mDomainList;
 public:
     void Alloc();
     int GetNSubDomain() override;
