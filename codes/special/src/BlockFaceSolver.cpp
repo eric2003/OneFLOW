@@ -139,11 +139,11 @@ void BlkFaceSolver::MyFaceGenerateLineMesh()
     for ( int iSLine = 0; iSLine < nLine; ++ iSLine )
     {
         auto sLine = std::make_unique< SLine >();
-        slineList[ iSLine ] = std::move( sLine );
         sLine->line_id = iSLine + 1;
         sLine->ni = line_Machine.dimList[ iSLine ];
         sLine->Alloc();
         sLine->CopyMesh();
+        slineList[ iSLine ] = std::move( sLine );
     }
 }
 
