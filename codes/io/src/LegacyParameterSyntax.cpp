@@ -1,0 +1,46 @@
+/*---------------------------------------------------------------------------*\
+    OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
+    Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
+-------------------------------------------------------------------------------
+License
+    This file is part of OneFLOW.
+
+    OneFLOW is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+
+#include "LegacyParameterSyntax.h"
+
+#include "DataBase.h"
+#include "Word.h"
+
+namespace ONEFLOW {
+
+bool IsLegacyArrayParameter( const std::string& lineOfName )
+{
+    return lineOfName.find( '[' ) != std::string::npos &&
+           lineOfName.find( ']' ) != std::string::npos;
+}
+
+int ResolveLegacyArraySize( const std::string& word )
+{
+    if ( Word::IsDigit( word ) )
+    {
+        return StringToDigit<int>( word );
+    }
+
+    return GetDataValue<int>( word );
+}
+
+} // namespace ONEFLOW

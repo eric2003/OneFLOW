@@ -23,6 +23,7 @@ License
 #include "ParaFile.h"
 #include "ConfigLoader.h"
 #include "ConfigDatabaseAdapter.h"
+#include "LegacyParameterSyntax.h"
 #include "DataBase.h"
 #include "Parallel.h"
 #include "LogFile.h"
@@ -31,7 +32,6 @@ License
 #include "Prj.h"
 #include "FileUtils.h"
 #include "PIO.h"
-#include "json/json.h"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -42,19 +42,7 @@ BeginNameSpace( ONEFLOW )
 
 bool IsArrayParameter( const std::string & lineOfName )
 {
-    const std::string::size_type npos = - 1;
-
-    if ( lineOfName.find_first_of( "[" ) == npos )
-    {
-        return false;
-    }
-
-    if ( lineOfName.find_first_of( "]" ) == npos )
-    {
-        return false;
-    }
-
-    return true;
+    return ONEFLOW::IsLegacyArrayParameter( lineOfName );
 }
 
 void ReadOneFLOWScriptFile( TextFileParser & textFileParser )
@@ -129,20 +117,9 @@ int AnalysisScalarParameter( TextFileParser & textFileParser, int keyWordIndex )
 
 int GetParameterArraySize( const std::string & word )
 {
-    int arraySize = - 1;
-    if ( Word::IsDigit( word ) )
-    {
-        arraySize = StringToDigit< int >( word );
-    }
-    else
-    {
-        arraySize = GetDataValue< int >( word );
-    }
-    return arraySize;
+    return ONEFLOW::ResolveLegacyArraySize( word );
 }
 
-
-void mytestjson();
 
 std::string GetJsonFileName( const std::string & fileName )
 {
@@ -215,10 +192,6 @@ void GetParaInfoArray( TextFileParser & textFileParser, std::string & varName, s
             }
         }
     }
-}
-
-void mytestjson()
-{
 }
 
 void ReadControlInfo()

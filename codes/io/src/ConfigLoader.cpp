@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "ConfigLoader.h"
-#include "ParaFile.h"       // Reuse IsArrayParameter, GetParameterArraySize
+#include "LegacyParameterSyntax.h"
 #include "TextFileParser.h"
 #include "Word.h"
 #include "Fatal.h"
@@ -50,7 +50,7 @@ namespace ONEFLOW {
             ParameterEntry entry;
             entry.typeName = keyWord;
 
-            if (IsArrayParameter(currentLine)) {
+            if (IsLegacyArrayParameter(currentLine)) {
                 ParseArrayParameter(parser, entry);
             } else {
                 ParseScalarParameter(parser, entry);
@@ -78,7 +78,7 @@ namespace ONEFLOW {
         std::string arraySizeName = Word::FindNextWord(arrayInfo, arraySeparator);
 
         // Reuse legacy logic: supports literal digits or variable names from DataBase
-        int arraySize = GetParameterArraySize(arraySizeName);
+        int arraySize = ResolveLegacyArraySize(arraySizeName);
 
         for (int i = 0; i < arraySize; ++i) {
             std::string val = parser.ReadNextWord(arraySeparator);
