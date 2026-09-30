@@ -518,7 +518,7 @@ void DomData::CalcBcCoor( CoorMap * coorMap, int closedCurve )
 
 }
 
-void ConstructLineToDomainMap( int tid, IntField & idList, std::map< int, IntSet > & dataMap )
+void ConstructLineToDomainMap( int tid, const IntField & idList, std::map< int, IntSet > & dataMap )
 {
     for ( int i = 0; i < idList.size(); ++ i )
     {
@@ -527,7 +527,7 @@ void ConstructLineToDomainMap( int tid, IntField & idList, std::map< int, IntSet
     }
 }
 
-void ConstructIntList2Map( int tid, IntField & idList, std::map< int, IntSet > & dataMap )
+void ConstructIntList2Map( int tid, const IntField & idList, std::map< int, IntSet > & dataMap )
 {
     for ( int i = 0; i < idList.size(); ++ i )
     {
@@ -552,18 +552,18 @@ void ConstructInt2Map( int sid, int tid, std::map< int, IntSet > & dataMap )
     }
 }
 
-void ConstructPointToDomainMap( int tid, LinkField & pointIdLink, std::map< int, IntSet > & dataMap )
+void ConstructPointToDomainMap( int tid, const LinkField & pointIdLink, std::map< int, IntSet > & dataMap )
 {
     int nLine = pointIdLink.size();
 
     for ( int iLine = 0; iLine < nLine; ++ iLine )
     {
-        IntField & pointIdList = pointIdLink[ iLine ];
+        const IntField & pointIdList = pointIdLink[ iLine ];
         ConstructIntList2Map( tid, pointIdList, dataMap );
     }
 }
 
-void ConstructPointToDomainMap( int tid, IntField & lineList, std::map< int, IntSet > & dataMap )
+void ConstructPointToDomainMap( int tid, const IntField & lineList, std::map< int, IntSet > & dataMap )
 {
     for ( int iLine = 0; iLine < lineList.size(); ++ iLine )
     {
@@ -574,7 +574,7 @@ void ConstructPointToDomainMap( int tid, IntField & lineList, std::map< int, Int
     }
 }
 
-void ConstructPointToPointMap( LinkField & pointIdLink, std::map< int, IntSet > & dataMap )
+void ConstructPointToPointMap( const LinkField & pointIdLink, std::map< int, IntSet > & dataMap )
 {
     int nLine = pointIdLink.size();
     for ( int iLine = 0; iLine < nLine; ++ iLine )
@@ -588,7 +588,7 @@ void ConstructPointToPointMap( LinkField & pointIdLink, std::map< int, IntSet > 
     }
 }
 
-void ConstructPointToPointMap( IntField & lineList, std::map< int, IntSet > & dataMap )
+void ConstructPointToPointMap( const IntField & lineList, std::map< int, IntSet > & dataMap )
 {
     for ( int iLine = 0; iLine < lineList.size(); ++ iLine )
     {
@@ -602,7 +602,7 @@ void ConstructPointToPointMap( IntField & lineList, std::map< int, IntSet > & da
     }
 }
 
-bool InArray( int ip, IntField & var_array )
+bool InArray( int ip, const IntField & var_array )
 {
     int nSize = var_array.size();
     for ( int i = 0; i < nSize; ++ i )
