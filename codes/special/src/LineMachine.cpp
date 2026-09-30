@@ -43,6 +43,12 @@ LineMachine::LineMachine()
 
 LineMachine::~LineMachine()
 {
+    // CurveMesh refers to SegmentCtrl and CurveInfo, so destroy meshes first.
+    for ( int i = 0; i < curveMeshList.size(); ++ i )
+    {
+        delete curveMeshList[ i ];
+    }
+
     for ( int i = 0; i < curveInfoList.size(); ++ i )
     {
         delete curveInfoList[ i ];
@@ -51,12 +57,6 @@ LineMachine::~LineMachine()
     for ( int i = 0; i < segmentCtrlList.size(); ++ i )
     {
         delete segmentCtrlList[ i ];
-    }
-
-    // LineMachine owns the curve meshes created by CreateLineMesh().
-    for ( int i = 0; i < curveMeshList.size(); ++ i )
-    {
-        delete curveMeshList[ i ];
     }
 }
 
