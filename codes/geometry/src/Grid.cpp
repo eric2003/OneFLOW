@@ -41,7 +41,6 @@ Grid::Grid()
     this->nodeMesh = nullptr;
     this->interFace = nullptr;
     this->slipFace = nullptr;
-    this->dataBase = nullptr;
 }
 
 Grid::~Grid()
@@ -87,7 +86,7 @@ void Grid::BasicInit()
     nodeMesh  = new NodeMesh();
     interFace = new InterFace();
     slipFace  = new SlipFace();
-    dataBase  = new DataBase();
+    dataBase  = std::make_unique< DataBase >();
 }
 
 void Grid::Free()
@@ -98,8 +97,7 @@ void Grid::Free()
     interFace = nullptr;
     delete slipFace;
     slipFace = nullptr;
-    delete dataBase;
-    dataBase = nullptr;
+    dataBase.reset();
 }
 
 void Grid::Init()

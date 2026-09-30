@@ -27,6 +27,7 @@ License
 #include <vector>
 #include <string>
 #include <map>
+#include <memory>
 
 
 BeginNameSpace( ONEFLOW )
@@ -70,9 +71,9 @@ public:
     NodeMesh * nodeMesh;
     InterFace * interFace;
     SlipFace * slipFace;
-    DataBase * dataBase;
+    std::unique_ptr< DataBase > dataBase;
 public:
-    DataBase * GetDataBase() { return dataBase; };
+    DataBase * GetDataBase() { return dataBase.get(); };
 public:
     void BasicInit();
     void Free();
