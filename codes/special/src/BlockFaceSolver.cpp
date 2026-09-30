@@ -61,7 +61,7 @@ BlkFaceSolver::~BlkFaceSolver() = default;
 
 Face2D * BlkFaceSolver::GetBlkFace( int blk, int face_id )
 {
-    Block3D * blk3d = this->blkList[ blk ];
+    Block3D * blk3d = this->blkList[ blk ].get();
     int nFaces = blk3d->facelist.size();
     for ( int i = 0; i < nFaces; ++ i )
     {
@@ -292,7 +292,7 @@ void BlkFaceSolver::BuildBlkFace()
             int blk_id = face_struct.cellList[ i ] - 1;
             int face_pos_in_blk = face_struct.posList[ i ];
 
-            Block3D * blk3d = this->blkList[ blk_id ];
+            Block3D * blk3d = this->blkList[ blk_id ].get();
             blk3d->blk_id = blk_id;
             MDomain * mDomain = blk3d->mDomainList[ face_pos_in_blk ];
             mDomain->AddSubDomain( iFace, lineList, lineposList );
@@ -345,7 +345,7 @@ void BlkFaceSolver::ConstructBlockInfo()
 
     for ( int iBlk = 0; iBlk < nBlock; ++ iBlk )
     {
-        Block3D * blk3d = this->blkList[ iBlk ];
+        Block3D * blk3d = this->blkList[ iBlk ].get();
         blk3d->SetInterfaceBc();
     }
 }
@@ -382,7 +382,7 @@ void BlkFaceSolver::DumpBcInp()
     file << std::setw( width ) << nBlock << std::endl;
     for ( int iBlk = 0; iBlk < nBlock; ++ iBlk )
     {
-        Block3D * blk3d = this->blkList[ iBlk ];
+        Block3D * blk3d = this->blkList[ iBlk ].get();
         blk3d->DumpInp( file );
     }
 
@@ -466,7 +466,7 @@ void BlkFaceSolver::GenerateBlkMesh()
     int nBlock = this->blkList.size();
     for ( int iBlk = 0; iBlk < nBlock; ++ iBlk )
     {
-        Block3D * blk3d = this->blkList[ iBlk ];
+        Block3D * blk3d = this->blkList[ iBlk ].get();
         blk3d->Alloc();
         blk3d->CreateBlockMesh();
     }
@@ -519,7 +519,7 @@ void BlkFaceSolver::DumpStandardGrid()
 
         strGridList[ iBlk ] = grid;
 
-        Block3D * blk3d = this->blkList[ iBlk ];
+        Block3D * blk3d = this->blkList[ iBlk ].get();
         blk3d->FillStrGrid( grid, iBlk );
 
     }
