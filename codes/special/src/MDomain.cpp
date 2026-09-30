@@ -99,7 +99,7 @@ void MDomain::ConstructMultiDomainTopo()
     int nSDomain = sDomainList.size();
     for ( int iSDomain = 0; iSDomain < nSDomain; ++ iSDomain )
     {
-        SDomain * sDomain = sDomainList[ iSDomain ];
+        SDomain * sDomain = sDomainList[ iSDomain ].get();
         sDomain->ConstructSDomainCtrlPoint();
         sDomain->ConstructDomainTopo();
     }
@@ -127,7 +127,7 @@ void MDomain::ConstructPointToLineMap()
 {
     for ( int iDomain = 0; iDomain < this->sDomainList.size(); ++ iDomain )
     {
-        SDomain * sdomain = this->sDomainList[ iDomain ];
+        SDomain * sdomain = this->sDomainList[ iDomain ].get();
         sdomain->ConstructPointToLineMap( this->pointToLineMap );
     }
 
@@ -138,7 +138,7 @@ void MDomain::ConstructMultiPointToDomainMap()
 {
     for ( int iDomain = 0; iDomain < this->sDomainList.size(); ++ iDomain )
     {
-        SDomain * sdomain = this->sDomainList[ iDomain ];
+        SDomain * sdomain = this->sDomainList[ iDomain ].get();
         sdomain->ConstructPointToDomainMap( this->pointToDomainMap );
     }
 }
@@ -147,7 +147,7 @@ void MDomain::ConstructMultiPointToPointMap()
 {
     for ( int iDomain = 0; iDomain < this->sDomainList.size(); ++ iDomain )
     {
-        SDomain * sdomain = this->sDomainList[ iDomain ];
+        SDomain * sdomain = this->sDomainList[ iDomain ].get();
         sdomain->ConstructPointToPointMap( this->pointToPointMap );
     }
 }
@@ -165,7 +165,7 @@ void MDomain::CreateInpFaceList1D( HXVector< Face2D * > &facelist )
 {
     for ( int iDomain = 0; iDomain < this->sDomainList.size(); ++ iDomain )
     {
-        SDomain * sDomain = this->sDomainList[ iDomain ];
+        SDomain * sDomain = this->sDomainList[ iDomain ].get();
         sDomain->CreateInpFaceList1D( facelist );
     }
 }
@@ -175,7 +175,7 @@ void MDomain::SetBlkBcMesh( Block3D * blk3d )
     int nSDomain = sDomainList.size();
     for ( int iSDomain = 0; iSDomain < nSDomain; ++ iSDomain )
     {
-        SDomain * sDomain = sDomainList[ iSDomain ];
+        SDomain * sDomain = sDomainList[ iSDomain ].get();
         sDomain->SetBlkBcMesh( blk3d );
     }
 }
@@ -185,7 +185,7 @@ void MDomain::SetBlkBcMesh( Block2D * blk2d )
     int nSDomain = sDomainList.size();
     for ( int iSDomain = 0; iSDomain < nSDomain; ++ iSDomain )
     {
-        SDomain * sDomain = sDomainList[ iSDomain ];
+        SDomain * sDomain = sDomainList[ iSDomain ].get();
         sDomain->SetBlkBcMesh( blk2d );
     }
 }
