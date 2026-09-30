@@ -53,30 +53,20 @@ UnsGrid * UnsGridCast( Grid * gridIn )
     return static_cast< UnsGrid * >( gridIn );
 }
 
-UnsGrid::UnsGrid()
-{
-    this->faceMesh = nullptr;
-    this->cellMesh = nullptr;
-}
+UnsGrid::UnsGrid() = default;
 
-UnsGrid::~UnsGrid()
-{
-    delete this->faceMesh;
-    delete this->cellMesh;
-}
+UnsGrid::~UnsGrid() = default;
 
 void UnsGrid::Init()
 {
-    delete this->cellMesh;
-    this->cellMesh = nullptr;
-    delete this->faceMesh;
-    this->faceMesh = nullptr;
+    this->cellMesh.reset();
+    this->faceMesh.reset();
     this->faceTopo.reset();
 
     this->BasicInit();
     this->faceTopo = std::make_unique< FaceTopo >();
-    this->faceMesh = new FaceMesh();
-    this->cellMesh = new CellMesh();
+    this->faceMesh = std::make_unique< FaceMesh >();
+    this->cellMesh = std::make_unique< CellMesh >();
     faceTopo->grid = this;
     this->faceMesh->faceTopo = this->faceTopo.get();
 }
@@ -504,7 +494,7 @@ void UnsGrid::CalcMetrics()
 void UnsGrid::AllocMetrics()
 {
     this->faceMesh->AllocateMetrics();
-    this->cellMesh->AllocateMetrics( this->faceMesh );
+    this->cellMesh->AllocateMetrics( this->faceMesh.get() );
 }
 
 void UnsGrid::CalcMetrics1D()
@@ -536,7 +526,7 @@ void UnsGrid::CalcFaceCenter1D()
 
 void UnsGrid::CalcFaceNormal1D()
 {
-    this->faceMesh->CalcFaceNormal1D( this->nodeMesh, this->cellMesh );
+    this->faceMesh->CalcFaceNormal1D( this->nodeMesh, this->cellMesh.get() );
 }
 
 void UnsGrid::CalcCellCenterVol1D()

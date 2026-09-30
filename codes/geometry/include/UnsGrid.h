@@ -44,8 +44,8 @@ public:
 public:
     void Init() override;
     std::unique_ptr< FaceTopo > faceTopo;
-    FaceMesh * faceMesh;
-    CellMesh * cellMesh;
+    std::unique_ptr< FaceMesh > faceMesh;
+    std::unique_ptr< CellMesh > cellMesh;
 public:
     void Decode( DataBook * databook ) override;
     void Encode( DataBook * databook ) override;

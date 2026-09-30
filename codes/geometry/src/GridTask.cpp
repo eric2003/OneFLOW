@@ -108,7 +108,7 @@ void SwapCellCenter( StringField & data )
 
     ActionState::dataBook->MoveToBegin();
 
-    CellMesh * cellMesh = grid->cellMesh;
+    CellMesh * cellMesh = grid->cellMesh.get();
 
     RealField & xcc = cellMesh->xcc;
     RealField & ycc = cellMesh->ycc;
@@ -141,7 +141,7 @@ void DecodeCellCenter( StringField & data )
 
     ActionState::dataBook->MoveToBegin();
 
-    CellMesh * cellMesh = grid->cellMesh;
+    CellMesh * cellMesh = grid->cellMesh.get();
 
     RealField & xcc = cellMesh->xcc;
     RealField & ycc = cellMesh->ycc;
