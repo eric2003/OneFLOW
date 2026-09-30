@@ -57,12 +57,7 @@ BlkFaceSolver::BlkFaceSolver()
     this->init_flag = false;
 }
 
-BlkFaceSolver::~BlkFaceSolver()
-{
-    DeletePointer( blkList );
-    DeletePointer( sDomainList );
-    DeletePointer( slineList );
-}
+BlkFaceSolver::~BlkFaceSolver() = default;
 
 Face2D * BlkFaceSolver::GetBlkFace( int blk, int face_id )
 {
@@ -102,9 +97,9 @@ void BlkFaceSolver::MyFaceBuildSDomainList()
     this->sDomainList.resize( nFaces );
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
-        SDomain * sDomain = new SDomain();
+        auto sDomain = std::make_unique< SDomain >();
         sDomain->domain_id = iFace;
-        this->sDomainList[ iFace ] = sDomain;
+        this->sDomainList[ iFace ] = std::move( sDomain );
     }
 
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
@@ -112,7 +107,7 @@ void BlkFaceSolver::MyFaceBuildSDomainList()
         IntField & lineList = this->faceList[ iFace ];
         IntField & posList = this->faceLinePosList[ iFace ];
 
-        SDomain * sDomain = this->sDomainList[ iFace ];
+        SDomain * sDomain = this->sDomainList[ iFace ].get();
         sDomain->SetDomain( iFace, lineList, posList );
         sDomain->ConstructSDomainCtrlPoint();
         sDomain->ConstructDomainTopo();
