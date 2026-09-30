@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "IFaceLink.h"
+#include "Constant.h"
 #include "InterFace.h"
 #include "Grid.h"
 #include "PointLocator.h"
@@ -177,8 +178,6 @@ void IFaceLink::MatchPeriodicInterface( Grid * grid )
 
         if (nIZone == 2) continue;
 
-        int iIZone = 0;
-
         // faceArray now stores IntField directly
         const IntField & nodeId = this->face_search->faceArray[ gIFace ];
 
@@ -197,13 +196,25 @@ void IFaceLink::MatchPeriodicInterface( Grid * grid )
             Real ym = yyList[ i ];
             Real zm = zzList[ i ];
             int id = this->point_search->FindPoint( xm, ym, zm );
+            if ( id == INVALID_INDEX )
+            {
+                faceNode_period.clear();
+                break;
+            }
             faceNode_period.push_back( id );
         }
 
-        int faceId_period = this->face_search->FindFace( faceNode_period );
+        if ( faceNode_period.size() != nNodes ) continue;
 
-        int nZid_period = this->gI2Zid [ faceId_period ][ iIZone ];
-        int lId_period  = this->g2l[ faceId_period ][ iIZone ];
+        int faceId_period = this->face_search->FindFace( faceNode_period );
+        if ( faceId_period == INVALID_INDEX ) continue;
+
+        const IntField & periodicZones = this->gI2Zid[ faceId_period ];
+        const IntField & periodicLocalIds = this->g2l[ faceId_period ];
+        if ( periodicZones.empty() || periodicLocalIds.empty() ) continue;
+
+        int nZid_period = periodicZones[ 0 ];
+        int lId_period  = periodicLocalIds[ 0 ];
 
         interFace->zoneId[ iIFace ] = nZid_period;
         interFace->localInterfaceId[ iIFace ] = lId_period;
