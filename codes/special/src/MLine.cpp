@@ -67,7 +67,7 @@ void SLine::CopyMesh()
     for ( int i = 1; i <= ni; ++ i )
     {
         int i0 = i - 1;
-        PointType * pt = curveMesh->ptList[ i0 ];
+        const PointType & pt = curveMesh->ptList[ i0 ];
         this->x1d[ i0 ] = pt->x;
         this->y1d[ i0 ] = pt->y;
         this->z1d[ i0 ] = pt->z;
