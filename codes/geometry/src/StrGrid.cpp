@@ -42,18 +42,12 @@ StrGrid::StrGrid()
 {
     faceTopo = new FaceTopo();
     bcRegionGroup = new BcRegionGroup();
-    strx = 0;
-    stry = 0;
-    strz = 0;
 }
 
 StrGrid::~StrGrid()
 {
     delete faceTopo;
     delete bcRegionGroup;
-    delete strx;
-    delete stry;
-    delete strz;
 }
 
 void StrGrid::Decode( DataBook * databook )
@@ -108,12 +102,9 @@ void StrGrid::SetBasicDimension()
 
 void StrGrid::SetLayout()
 {
-    delete this->strx;
-    delete this->stry;
-    delete this->strz;
-    this->strx = nullptr;
-    this->stry = nullptr;
-    this->strz = nullptr;
+    this->strx.reset();
+    this->stry.reset();
+    this->strz.reset();
 
    if ( this->nodeMesh->xN.size() != 0 &&
         this->nodeMesh->yN.size() != 0 &&
@@ -124,9 +115,9 @@ void StrGrid::SetLayout()
         J.SetRange( 1, nj );
         K.SetRange( 1, nk );
 
-        this->strx = new Field3D( & this->nodeMesh->xN[ 0 ], I, J, K );
-        this->stry = new Field3D( & this->nodeMesh->yN[ 0 ], I, J, K );
-        this->strz = new Field3D( & this->nodeMesh->zN[ 0 ], I, J, K );
+        this->strx = std::make_unique< Field3D >( & this->nodeMesh->xN[ 0 ], I, J, K );
+        this->stry = std::make_unique< Field3D >( & this->nodeMesh->yN[ 0 ], I, J, K );
+        this->strz = std::make_unique< Field3D >( & this->nodeMesh->zN[ 0 ], I, J, K );
     }
 }
 

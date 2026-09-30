@@ -25,6 +25,7 @@ License
 #include "Grid.h"
 #include "HXArray.h"
 #include "Multiarray.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -43,7 +44,7 @@ public:
     int  ni, nj, nk;
     FaceTopo * faceTopo;
     BcRegionGroup * bcRegionGroup;
-    Field3D * strx, * stry, * strz;
+    std::unique_ptr< Field3D > strx, stry, strz;
 public:
     void Decode( DataBook * databook ) override;
     void Encode( DataBook * databook ) override;
