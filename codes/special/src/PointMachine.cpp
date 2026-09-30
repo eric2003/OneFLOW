@@ -33,18 +33,12 @@ PointMachine::PointMachine()
     ;
 }
 
-PointMachine::~PointMachine()
-{
-    for ( int i = 0; i < ptList.size(); ++ i )
-    {
-        delete ptList[ i ];
-    }
-}
+PointMachine::~PointMachine() = default;
 
 void PointMachine::AddPoint( Real x, Real y, Real z, int id )
 {
-    PointType * pt = new PointType( x, y, z, id );
-    this->ptList.push_back( pt );
+    auto pt = std::make_unique< PointType >( x, y, z, id );
+    this->ptList.push_back( std::move( pt ) );
     int idd = ptBasic.AddPoint( x, y, z );
     //int idd1 = ptBasic.DeletePoint( x, y, z );
 
@@ -53,8 +47,7 @@ void PointMachine::AddPoint( Real x, Real y, Real z, int id )
 PointType * PointMachine::GetPoint( int id )
 {
     int ida = id - 1;
-    PointType * pt = this->ptList[ ida ];
-    return pt;
+    return this->ptList[ ida ].get();
 }
 
 EndNameSpace

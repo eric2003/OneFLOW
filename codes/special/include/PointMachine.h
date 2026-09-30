@@ -25,6 +25,7 @@ License
 #include "HXDefine.h"
 #include "Point.h"
 #include "PointManager.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -36,7 +37,7 @@ public:
     PointMachine();
     ~PointMachine();
 public:
-    HXVector< PointType * > ptList;
+    HXVector< std::unique_ptr< PointType > > ptList;
     PointManager ptBasic;
 public:
     void AddPoint( Real x, Real y, Real z, int id = 0 );
