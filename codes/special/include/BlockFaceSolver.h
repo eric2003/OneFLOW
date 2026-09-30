@@ -68,13 +68,13 @@ public:
     HXVector< std::unique_ptr< SDomain > > sDomainList;
     HXVector< std::unique_ptr< SLine > > slineList;
 public:
-    Face2D * GetBlkFace( int blk, int face_id );
-    Face2D * GetBlkFace2D( int blk, int face_id );
+    Face2D * GetBlkFace( int blk, int face_id ) const;
+    Face2D * GetBlkFace2D( int blk, int face_id ) const;
 public:
     void Alloc();
     void MyFaceAlloc();
     void CreateFaceList();
-    int  FindLineId( IntField & line );
+    int  FindLineId( const IntField & line ) const;
     IntField & GetLine( int line_id );
     void MyFaceBuildSDomainList();
     void MyFaceGenerateFaceMesh();
