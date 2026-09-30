@@ -23,11 +23,6 @@ License
 #include "Prj.h"
 #include "SimuImp.h"
 #include "SimuContext.h"
-#include "SimpleSimu.h"
-#include "MpiTest.h"
-#include "JsonTest.h"
-#include "CgnsTest.h"
-#include "HybridParallel.h"
 #include <iostream>
 #include <algorithm>
 #include <cstdlib>
