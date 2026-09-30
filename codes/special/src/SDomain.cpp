@@ -51,8 +51,8 @@ SDomain::SDomain( MDomain * mDomain )
     }
     else
     {
-        this->coorMap = new CoorMap();
-        freecoorMap = 1;
+        this->ownedCoorMap = std::make_unique< CoorMap >();
+        this->coorMap = this->ownedCoorMap.get();
     }
 
     int nMLine = 4;
@@ -65,13 +65,7 @@ SDomain::SDomain( MDomain * mDomain )
     localCoorMap = std::make_unique< CoorMap >();
 }
 
-SDomain::~SDomain()
-{
-    if ( freecoorMap )
-    {
-        delete this->coorMap;
-    }
-}
+SDomain::~SDomain() = default;
 
 void SDomain::Alloc()
 {
