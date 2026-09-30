@@ -97,19 +97,19 @@ void GridMachine::ReadScript( const std::string & fileName )
         }
         else if ( keyWord == "Dim" )
         {
-            line_Machine.AddDimension( & textFileParser );
+            line_Machine.AddDimension( textFileParser );
         }
         else if ( keyWord == "Ds" )
         {
-            line_Machine.AddDs( & textFileParser );
+            line_Machine.AddDs( textFileParser );
         }
         else if ( keyWord == "Boundary" )
         {
-            domain_Machine.AddBcType( & textFileParser );
+            domain_Machine.AddBcType( textFileParser );
         }
         else if ( keyWord == "Add" )
         {
-            block_Machine.AddFaceToBlock( & textFileParser );
+            block_Machine.AddFaceToBlock( textFileParser );
         }
         
     };
