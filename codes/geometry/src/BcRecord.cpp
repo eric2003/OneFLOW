@@ -388,44 +388,24 @@ int BcRegion::CalcRegionCells()
     return nRegionCells;
 }
 
-BcRegionGroup::BcRegionGroup()
-{
-    regions = 0;
-}
+BcRegionGroup::BcRegionGroup() = default;
 
-BcRegionGroup::~BcRegionGroup()
-{
-    this->Clear();
-}
-
-void BcRegionGroup::Clear()
-{
-    if ( regions )
-    {
-        int nBcRegions = regions->size();
-        for ( int ir = 0; ir < nBcRegions; ++ ir )
-        {
-            delete ( * regions )[ ir ];
-        }
-        delete regions;
-        regions = nullptr;
-    }
-}
+BcRegionGroup::~BcRegionGroup() = default;
 
 void BcRegionGroup::Create( int nBcRegions )
 {
-    this->Clear();
-    regions = new HXVector< BcRegion * >( nBcRegions );
+    regions.clear();
+    regions.resize( nBcRegions );
 }
 
 void BcRegionGroup::SetBcRegion( int ir, BcRegion * bcRegion )
 {
-    ( * regions )[ ir ] = bcRegion;
+    regions[ ir ].reset( bcRegion );
 }
 
 BcRegion *  BcRegionGroup::GetBcRegion( int ir )
 {
-    return ( * regions )[ ir ];
+    return regions[ ir ].get();
 }
 
 EndNameSpace

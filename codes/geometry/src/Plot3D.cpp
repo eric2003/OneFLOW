@@ -620,7 +620,7 @@ void Plot3D::DumpBc( GridMediator * gridMediator )
         file << blockName << "\n";
 
         BcRegionGroup * bcRegionGroup = grid->bcRegionGroup;
-        int nBcRegions = bcRegionGroup->regions->size();
+        int nBcRegions = bcRegionGroup->regions.size();
 
         file << nBcRegions << "\n";
 

@@ -165,12 +165,10 @@ public:
 public:
     int zoneIndex;
     int nBFaces, nIFaces;
-    HXVector< BcRegion * > * regions;
+    HXVector< std::unique_ptr< BcRegion > > regions;
     void Create( int nBcRegions );
     void SetBcRegion( int ir, BcRegion * bcRegion );
     BcRegion * GetBcRegion( int ir );
-private:
-    void Clear();
 };
 
 EndNameSpace

@@ -181,7 +181,7 @@ void CgnsZbc::DumpCgnsGridBoundary( Grid * gridIn, const Grids & grids )
 
     BcRegionGroup * bcRegionGroup = grid->bcRegionGroup;
 
-    int nBcRegions = bcRegionGroup->regions->size();
+    int nBcRegions = bcRegionGroup->regions.size();
 
     int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
     int baseId = cgnsZone->cgnsBase->baseId;
