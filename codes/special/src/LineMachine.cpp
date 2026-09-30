@@ -56,14 +56,13 @@ LineMachine::~LineMachine()
 
     for ( int i = 0; i < segmentCtrlList.size(); ++ i )
     {
-        delete segmentCtrlList[ i ];
     }
 }
 
 SegmentCtrl * LineMachine::GetSegmentCtrl( int id ) const
 {
     int idx = ABS( id ) - 1;
-    return this->segmentCtrlList[ idx ];
+    return this->segmentCtrlList[ idx ].get();
 }
 
 CurveMesh * LineMachine::GetCurveMesh( int id ) const
@@ -99,9 +98,9 @@ void LineMachine::AddLine( int p1, int p2, int id )
     CurveInfo * line = new LineInfo( p1, p2, id );
     this->curveInfoList.push_back( line );
 
-    SegmentCtrl * segmentCtrl = new SegmentCtrl();
+    auto segmentCtrl = std::make_unique< SegmentCtrl >();
     segmentCtrl->id = id;
-    this->segmentCtrlList.push_back( segmentCtrl );
+    this->segmentCtrlList.push_back( std::move( segmentCtrl ) );
 }
 
 void LineMachine::AddCircle( int p1, int pc, int p2, int id )
