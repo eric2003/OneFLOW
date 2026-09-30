@@ -137,7 +137,6 @@ void LineMachine::CreateAllLineMesh()
     for ( int iLine = 0; iLine < nLine; ++ iLine )
     {
         CurveInfo * curveInfo = curveInfoList[ iLine ];
-        int lineType = curveInfo->type;
         CurveMesh * curveMesh = CreateLineMesh( curveInfo );
         curveMesh->segmentCtrl = this->GetSegmentCtrl( curveInfo->id );
         this->curveMeshList.push_back( curveMesh );
