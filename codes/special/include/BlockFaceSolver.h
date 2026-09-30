@@ -66,7 +66,7 @@ public:
     HXVector< BlkF2C > line2Face;
     HXVector< BlkF2C > face2Block;
     HXVector< std::unique_ptr< SDomain > > sDomainList;
-    HXVector< SLine * > slineList;
+    HXVector< std::unique_ptr< SLine > > slineList;
 public:
     Face2D * GetBlkFace( int blk, int face_id );
     Face2D * GetBlkFace2D( int blk, int face_id );
