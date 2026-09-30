@@ -66,9 +66,14 @@ int DataBaseType::GetIndex( const std::string & name )
     return iter->second;
 }
 
-std::string & DataBaseType::GetName( int index )
+const std::string & DataBaseType::GetName( int index )
 {
-    return DataBaseType::nameMap[ index ];
+    const auto iter = DataBaseType::nameMap.find( index );
+    if ( iter == DataBaseType::nameMap.end() )
+    {
+        throw std::invalid_argument( "Unknown parameter type id: " + std::to_string( index ) );
+    }
+    return iter->second;
 }
 
 EndNameSpace
