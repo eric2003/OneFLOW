@@ -38,10 +38,10 @@ DomainMachine::~DomainMachine()
 {
 }
 
-void DomainMachine::AddBcType( TextFileParser * textFileParser )
+void DomainMachine::AddBcType( TextFileParser & textFileParser )
 {
-    int id = textFileParser->ReadNextDigit< int >();
-    int bctype = textFileParser->ReadNextDigit< int >();
+    int id = textFileParser.ReadNextDigit< int >();
+    int bctype = textFileParser.ReadNextDigit< int >();
     bctypeList.push_back( bctype );
 }
 
