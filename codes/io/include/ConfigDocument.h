@@ -19,34 +19,37 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-// ConfigLoader.h
+
 #pragma once
-#include "ConfigDocument.h"
+
 #include <string>
+#include <utility>
+#include <vector>
 
 namespace ONEFLOW {
 
-    class TextFileParser;
+// Format-neutral representation of one named parameter before it is applied
+// to a runtime-specific store such as the legacy DataBase.
+struct ParameterEntry {
+    std::string name;
+    std::string typeName;
+    std::vector<std::string> values;
+};
 
-    // Reads the legacy C-like parameter syntax into a ConfigDocument.
-    class ConfigLoader {
-    public:
-        ConfigLoader() = default;
-        ~ConfigLoader() = default;
+// Ordered parameter document shared by configuration format adapters.
+class ConfigDocument {
+public:
+    void Add( ParameterEntry entry )
+    {
+        entries_.push_back( std::move( entry ) );
+    }
 
-        // Parse directly from a file path
-        void ParseFile(const std::string& fileName);
+    void Clear() noexcept { entries_.clear(); }
+    bool Empty() const noexcept { return entries_.empty(); }
+    const std::vector<ParameterEntry>& Entries() const noexcept { return entries_; }
 
-        // Parse from an existing TextFileParser (Used for legacy interface integration)
-        void ParseFromParser(TextFileParser& parser);
-
-        const ConfigDocument& Document() const noexcept { return document_; }
-
-    private:
-        ConfigDocument document_;
-
-        void ParseScalarParameter(TextFileParser& parser, ParameterEntry& entry);
-        void ParseArrayParameter(TextFileParser& parser, ParameterEntry& entry);
-    };
+private:
+    std::vector<ParameterEntry> entries_;
+};
 
 } // namespace ONEFLOW

@@ -22,6 +22,7 @@ License
 
 #include "ParaFile.h"
 #include "ConfigLoader.h"
+#include "ConfigDatabaseAdapter.h"
 #include "DataBase.h"
 #include "Parallel.h"
 #include "LogFile.h"
@@ -60,14 +61,14 @@ void ReadOneFLOWScriptFile( TextFileParser & textFileParser )
 {
     ConfigLoader loader;
     loader.ParseFromParser( textFileParser );
-    loader.CommitToDataBase();
+    ConfigDatabaseAdapter::Commit( loader.Document() );
 }
 
 void ReadOneFLOWScriptFile( const std::string & fileName )
 {
     ConfigLoader loader;
     loader.ParseFile( fileName );
-    loader.CommitToDataBase();
+    ConfigDatabaseAdapter::Commit( loader.Document() );
 }
 
 void AnalysisArrayParameter( TextFileParser & textFileParser, int keyWordIndex )

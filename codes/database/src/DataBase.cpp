@@ -91,7 +91,7 @@ void HXReadVoid( DataBook * dataBook, DataEntry * dataEntry )
     dataEntry->data->Read( dataBook, dataEntry->size );
 }
 
-void ProcessData( const std::string & name, std::string * value, int type, int size )
+void ProcessData( const std::string & name, const std::string * value, int type, int size )
 {
     DataEntry * dataEntry = new DataEntry();
     dataEntry->name = name;

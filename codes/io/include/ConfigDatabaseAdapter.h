@@ -19,34 +19,17 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-// ConfigLoader.h
+
 #pragma once
+
 #include "ConfigDocument.h"
-#include <string>
 
 namespace ONEFLOW {
 
-    class TextFileParser;
-
-    // Reads the legacy C-like parameter syntax into a ConfigDocument.
-    class ConfigLoader {
-    public:
-        ConfigLoader() = default;
-        ~ConfigLoader() = default;
-
-        // Parse directly from a file path
-        void ParseFile(const std::string& fileName);
-
-        // Parse from an existing TextFileParser (Used for legacy interface integration)
-        void ParseFromParser(TextFileParser& parser);
-
-        const ConfigDocument& Document() const noexcept { return document_; }
-
-    private:
-        ConfigDocument document_;
-
-        void ParseScalarParameter(TextFileParser& parser, ParameterEntry& entry);
-        void ParseArrayParameter(TextFileParser& parser, ParameterEntry& entry);
-    };
+// Applies a parsed configuration document to the legacy runtime DataBase.
+class ConfigDatabaseAdapter {
+public:
+    static void Commit( const ConfigDocument& document );
+};
 
 } // namespace ONEFLOW

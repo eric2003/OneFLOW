@@ -22,10 +22,9 @@ License
 #include "ConfigLoader.h"
 #include "ParaFile.h"       // Reuse IsArrayParameter, GetParameterArraySize
 #include "TextFileParser.h"
-#include "DataBase.h"
-#include "DataBaseType.h"
 #include "Word.h"
 #include "Fatal.h"
+#include <utility>
 
 namespace ONEFLOW {
 
@@ -37,9 +36,9 @@ namespace ONEFLOW {
     }
 
     void ConfigLoader::ParseFromParser(TextFileParser& parser) {
+        document_.Clear();
         std::string keyWordSeparator = " =\r\n\t#$,;\"";
         parser.SetDefaultSeparator(keyWordSeparator);
-        DataBaseType::Init();
 
         while (!parser.ReachTheEndOfFile()) {
             if (!parser.ReadNextMeaningfulLine()) break;
@@ -47,11 +46,9 @@ namespace ONEFLOW {
             std::string keyWord = parser.ReadNextWord();
             if (keyWord.empty()) continue;
 
-            int keyWordIndex = DataBaseType::GetIndex(keyWord);
-
             std::string currentLine = parser.GetCurrentLine();
             ParameterEntry entry;
-            entry.type = keyWordIndex;
+            entry.typeName = keyWord;
 
             if (IsArrayParameter(currentLine)) {
                 ParseArrayParameter(parser, entry);
@@ -60,7 +57,7 @@ namespace ONEFLOW {
             }
 
             if (!entry.name.empty()) {
-                entries_.push_back(std::move(entry));
+                document_.Add( std::move( entry ) );
             }
         }
     }
@@ -94,13 +91,6 @@ namespace ONEFLOW {
                 }
             }
             entry.values.push_back(val);
-        }
-    }
-
-    void ConfigLoader::CommitToDataBase() const {
-        for (const auto& entry : entries_) {
-            std::vector<std::string> valContainer = entry.values;
-            ProcessData(entry.name, valContainer.data(), entry.type, valContainer.size());
         }
     }
 

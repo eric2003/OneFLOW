@@ -12,10 +12,10 @@ function ( ConstructSolutionDirTree currdir my_head_list my_src_list my_include_
 		set( candidate_dir ${currdir}/${child} )
         if ( IS_DIRECTORY ${candidate_dir} )
 			#message ( STATUS "The ${candidate_dir} is DIRECTORY" )
-			file ( GLOB header_files "${candidate_dir}/*.h" )
-			file ( GLOB src_files    "${candidate_dir}/*.cpp" )
+			file ( GLOB header_files CONFIGURE_DEPENDS "${candidate_dir}/*.h" )
+			file ( GLOB src_files CONFIGURE_DEPENDS "${candidate_dir}/*.cpp" )
 			#file ( GLOB cuda_src_files "${candidate_dir}/*.cu" )
-			file ( GLOB hpp_files    "${candidate_dir}/*.hpp" )
+			file ( GLOB hpp_files CONFIGURE_DEPENDS "${candidate_dir}/*.hpp" )
 			
 			list ( APPEND header_files ${hpp_files} )
 			
