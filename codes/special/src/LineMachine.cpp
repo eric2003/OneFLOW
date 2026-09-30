@@ -52,6 +52,12 @@ LineMachine::~LineMachine()
     {
         delete segmentCtrlList[ i ];
     }
+
+    // LineMachine owns the curve meshes created by CreateLineMesh().
+    for ( int i = 0; i < curveMeshList.size(); ++ i )
+    {
+        delete curveMeshList[ i ];
+    }
 }
 
 SegmentCtrl * LineMachine::GetSegmentCtrl( int id )
