@@ -42,10 +42,10 @@ Block3D::Block3D()
     int nMDomain = 6;
     for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
     {
-        MDomain * mDomain = new MDomain();
+        auto mDomain = std::make_unique< MDomain >();
         mDomain->pos = iMDomain;
         mDomain->coorMap = & this->coorMap;
-        mDomainList.push_back( mDomain );
+        mDomainList.push_back( std::move( mDomain ) );
     }
 
     this->AddLocalPt( 1, 4, 8, 5 );
@@ -56,11 +56,7 @@ Block3D::Block3D()
     this->AddLocalPt( 5, 6, 7, 8 );
 }
 
-Block3D::~Block3D()
-{
-    DeletePointer( mDomainList );
-    DeletePointer( facelist );
-}
+Block3D::~Block3D() = default;
 
 void Block3D::Alloc()
 {
@@ -75,7 +71,7 @@ int Block3D::GetNSubDomain()
     int nMDomain = mDomainList.size();
     for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
     {
-        MDomain * mDomain = mDomainList[ iMDomain ];
+        MDomain * mDomain = mDomainList[ iMDomain ].get();
         nSubDomain += mDomain->GetNsubDomain();
     }
     return nSubDomain;
@@ -159,9 +155,9 @@ void Block3D::ConstructTopo()
 
 void Block3D::GetCornerPoint( int & pt, int id1, int id2, int id3 )
 {
-    MDomain * d1 = mDomainList[ id1 ];
-    MDomain * d2 = mDomainList[ id2 ];
-    MDomain * d3 = mDomainList[ id3 ];
+    MDomain * d1 = mDomainList[ id1 ].get();
+    MDomain * d2 = mDomainList[ id2 ].get();
+    MDomain * d3 = mDomainList[ id3 ].get();
 
     int nSize = d1->candidate_ctrlpoints.size();
     for ( int i = 0; i < nSize; ++ i )
@@ -218,8 +214,8 @@ void Block3D::CalcBlkDim()
         mDomain->CalcDim2D();
     }
 
-    MDomain * d0 = mDomainList[ 0 ];
-    MDomain * d2 = mDomainList[ 2 ];
+    MDomain * d0 = mDomainList[ 0 ].get();
+    MDomain * d2 = mDomainList[ 2 ].get();
     //d0: nj,nk
     //d2: ni,nk
 
