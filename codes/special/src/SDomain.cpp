@@ -62,12 +62,11 @@ SDomain::SDomain( MDomain * mDomain )
         mLine->pos = iMLine;
         mLineList.push_back( std::move( mLine ) );
     }
-    localCoorMap = new CoorMap();
+    localCoorMap = std::make_unique< CoorMap >();
 }
 
 SDomain::~SDomain()
 {
-    delete localCoorMap;
     if ( freecoorMap )
     {
         delete this->coorMap;
