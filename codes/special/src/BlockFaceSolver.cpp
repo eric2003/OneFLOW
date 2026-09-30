@@ -327,7 +327,7 @@ void BlkFaceSolver::BuildBlkFace2D()
             Block2D * blk2d = this->blkList2d[ blk_id ];
             blk2d->blk_id = blk_id;
 
-            MDomain * mDomain = blk2d->mDomainList[ face_pos_in_blk ];
+            MDomain * mDomain = blk2d->mDomainList[ face_pos_in_blk ].get();
             mDomain->AddSubDomain( iFace, lineList, lineposList );
         }
     }

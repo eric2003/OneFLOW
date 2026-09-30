@@ -179,7 +179,7 @@ void Block2D::CalcBlkDim()
     int nMDomain = mDomainList.size();
     for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
     {
-        MDomain * mDomain = mDomainList[ iMDomain ];
+        MDomain * mDomain = mDomainList[ iMDomain ].get();
         mDomain->CalcDim2D();
     }
 
@@ -208,7 +208,7 @@ void Block2D::CalcBlkDim()
 
     for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
     {
-        MDomain * mDomain = mDomainList[ iMDomain ];
+        MDomain * mDomain = mDomainList[ iMDomain ].get();
         mDomain->CalcCoor();
     }
 
@@ -222,7 +222,7 @@ void Block2D::CreateFaceList()
     int nMDomain = mDomainList.size();
     for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
     {
-        MDomain * mDomain = mDomainList[ iMDomain ];
+        MDomain * mDomain = mDomainList[ iMDomain ].get();
         mDomain->CreateInpFaceList1D( facelist );
     }
 
