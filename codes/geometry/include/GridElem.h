@@ -28,6 +28,7 @@ License
 #include "ElemFeature.h"      
 #include "PointManager.h"     
 #include "FaceSolver.h"       
+#include <memory>
 
 
 BeginNameSpace( ONEFLOW )
@@ -85,12 +86,12 @@ public:
     ZgridElem( CgnsZbase * cgnsZbase );
     ~ZgridElem();
 public:
-    HXVector< GridElem * > data;
+    HXVector< std::unique_ptr< GridElem > > data;
     CgnsZbase * cgnsZbase;
     Grids grids;
 public:
     GridElem * GetGridElem( int iGridElem );
-    void AddGridElem( GridElem * gridElem );
+    void AddGridElem( std::unique_ptr< GridElem > gridElem );
     void AddGridElem( HXVector< CgnsZone * > cgnsZones, int iZone );
 public:
     void GenerateLocalOneFlowGrid( Grids & grids );
