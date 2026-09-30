@@ -35,7 +35,7 @@ License
 #include "DataBook.h"
 #include "IFaceLink.h"
 #include "Boundary.h"
-#include "Tolerence.h"
+#include "Tolerance.h"
 #include "Dimension.h"
 #include "LogFile.h"
 #include <iostream>
@@ -434,7 +434,7 @@ void UnsGrid::GetMinMaxDistance( Real & dismin, Real & dismax )
 
     int nFaces = this->faceTopo->GetNFaces();
 
-    Real ptTol = Tolerence::GetTol();
+    Real ptTol = Tolerance::GetTol();
 
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {

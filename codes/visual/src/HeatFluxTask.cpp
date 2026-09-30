@@ -35,7 +35,7 @@ License
 #include "Zone.h"
 #include "ZoneState.h"
 #include "HXMath.h"
-#include "Tolerence.h"
+#include "Tolerance.h"
 #include "HXCgns.h"
 #include "Parallel.h"
 #include "ActionState.h"

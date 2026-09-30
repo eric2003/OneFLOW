@@ -30,7 +30,7 @@ License
 #include "FaceTopo.h"
 #include "DataBaseIO.h"
 #include "DataBook.h"
-#include "Tolerence.h"
+#include "Tolerance.h"
 #include <iostream>
 
 
@@ -165,7 +165,7 @@ void StrGrid::CalcMinMaxDis3D( Real & dismin, Real & dismax )
     const int nEdge = 12;
     Real dx[ nEdge ], dy[ nEdge ], dz[ nEdge ];
 
-    Real ptTol = Tolerence::GetTol();
+    Real ptTol = Tolerance::GetTol();
 
     for ( int k = kst; k <= ked; ++ k )
     {
@@ -255,7 +255,7 @@ void StrGrid::CalcMinMaxDis2D( Real & dismin, Real & dismax )
     const int nEdge = 4;
     Real dx[ nEdge ], dy[ nEdge ], dz[ nEdge ];
 
-    Real ptTol = Tolerence::GetTol();
+    Real ptTol = Tolerance::GetTol();
 
     for ( int k = kst; k <= ked; ++ k )
     {
@@ -313,7 +313,7 @@ void StrGrid::CalcMinMaxDis1D( Real & dismin, Real & dismax )
     const int nEdge = 1;
     Real dx[ nEdge ], dy[ nEdge ], dz[ nEdge ];
 
-    Real ptTol = Tolerence::GetTol();
+    Real ptTol = Tolerance::GetTol();
 
     for ( int k = kst; k <= ked; ++ k )
     {

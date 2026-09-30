@@ -167,7 +167,7 @@ set ( SRC_DIRS
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/SlipFace.cpp
     ${CMAKE_SOURCE_DIR}/codes/global/src/Ctrl.cpp
     ${CMAKE_SOURCE_DIR}/codes/global/src/Dimension.cpp
-    ${CMAKE_SOURCE_DIR}/codes/global/src/Tolerence.cpp
+    ${CMAKE_SOURCE_DIR}/codes/global/src/Tolerance.cpp
     ${CMAKE_SOURCE_DIR}/codes/database/src/DataPara.cpp
     ${CMAKE_SOURCE_DIR}/codes/database/src/DataBase.cpp
     ${CMAKE_SOURCE_DIR}/codes/database/src/DataPage.cpp

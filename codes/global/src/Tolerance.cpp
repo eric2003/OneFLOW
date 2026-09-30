@@ -19,8 +19,49 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-
-#pragma once
-
-// Backward-compatible include; new code should include Tolerance.h.
 #include "Tolerance.h"
+#include "DataBase.h"
+
+BeginNameSpace( ONEFLOW )
+
+Real Tolerance::tol = 1.0;
+bool Tolerance::flag = false;
+
+Tolerance::Tolerance()
+{
+    ;
+}
+
+Tolerance::~Tolerance()
+{
+    ;
+}
+
+
+void Tolerance::Init()
+{
+    Tolerance::tol = ONEFLOW::GetDataValue< Real >( "ptTol" );
+}
+
+Real Tolerance::GetTol()
+{
+    if ( ! Tolerance::flag )
+    {
+        Tolerance::flag = true;
+        Tolerance::Init();
+    }
+    return Tolerance::tol;
+}
+
+void Tolerance::SetTol( Real tolIn )
+{
+    Tolerance::tol = tolIn;
+}
+
+void Tolerance::Reset()
+{
+    Tolerance::tol = 1.0;
+    Tolerance::flag = false;
+}
+
+EndNameSpace
