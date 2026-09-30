@@ -56,7 +56,7 @@ public:
     void Alloc();
     void SetDomain( int fid, IntField & lineList, IntField & posList );
     void ConstructSDomainCtrlPoint();
-    void GetCommonPoint( MLine * mLine1, MLine * mLine2, int & pt );
+    void GetCommonPoint( const MLine * mLine1, const MLine * mLine2, int & pt ) const;
     bool CalcSingleDomainCoor();
     void SetRemainingCtrlPoint( IntField & idxList );
 public:
@@ -69,7 +69,7 @@ public:
 
     void ConstructPointToLineMap( std::map< int, IntSet > & pointToLineMap );
     void ConstructDomainTopo();
-    void GetPointIdLink( IntField & lineList, LinkField & pointIdLink );
+    void GetPointIdLink( const IntField & lineList, LinkField & pointIdLink ) const;
 public:
     void Add( IntField &iList, IntField &jList, IntField &kList, int i, int j, int k );
     void ConstructLocalTopoAsBlk2D();
