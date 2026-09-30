@@ -114,14 +114,13 @@ void IFaceLink::MatchInterfaceTopology( Grid * grid )
     InterFace * interFace = grid->interFace;
     if ( ! interFace ) return;
 
-    int nPeoridic = 0;
+    int missingPeriodicPartnerCount = 0;
 
     int nIFaces = this->l2g[ grid->id ].size();
 
     for ( int iIFace = 0; iIFace < nIFaces; ++ iIFace )
     {
         int gIFace = this->l2g[ grid->id ][ iIFace ];
-        bool flag = false;
         int nIZone = this->gI2Zid[ gIFace ].size();
 
         if ( nIZone != 2 )
@@ -132,7 +131,7 @@ void IFaceLink::MatchInterfaceTopology( Grid * grid )
             }
             else
             {
-                ++nPeoridic;
+                ++missingPeriodicPartnerCount;
                 //std::cout << " Less than two faces coincide\n";
             }
             //std::cout << " Current ZoneIndex  = " << grid->id << std::endl;
@@ -149,7 +148,6 @@ void IFaceLink::MatchInterfaceTopology( Grid * grid )
             {
                 interFace->zoneId[ iIFace ] = nZid;
                 interFace->localInterfaceId[ iIFace ] = lId;
-                flag = true;
                 break;
             }
         }
@@ -159,35 +157,26 @@ void IFaceLink::MatchInterfaceTopology( Grid * grid )
         //    std::cout << "LocalInterface Index = " << iIFace << " There is a problem in the input grid. Please check it carefully!\n";
         //}
     }
-    std::cout << " Total peoridic boundary faces = " << nPeoridic << "\n";
-    if ( nPeoridic != 0 )
-    {
-        //this->MatchPeoridicInterface( grid );
-    }
+    std::cout << " Periodic boundary faces missing a partner = "
+              << missingPeriodicPartnerCount << "\n";
 
 }
 
-void IFaceLink::MatchPeoridicInterface( Grid * grid )
+void IFaceLink::MatchPeriodicInterface( Grid * grid )
 {
     InterFace * interFace = grid->interFace;
     if ( ! interFace ) return;
-
-    int nPeoridic = 0;
 
     int nIFaces = this->l2g[ grid->id ].size();
 
     for ( int iIFace = 0; iIFace < nIFaces; ++ iIFace )
     {
         int gIFace = this->l2g[ grid->id ][ iIFace ];
-        bool flag = false;
         int nIZone = this->gI2Zid[ gIFace ].size();
 
         if (nIZone == 2) continue;
 
         int iIZone = 0;
-
-        int nZid = this->gI2Zid [ gIFace ][ iIZone ];
-        int lId  = this->g2l[ gIFace ][ iIZone ];
 
         // faceArray now stores IntField directly
         const IntField & nodeId = this->face_search->faceArray[ gIFace ];
