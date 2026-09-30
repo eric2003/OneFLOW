@@ -192,7 +192,7 @@ IntField & BlkFaceSolver::GetLine( int line_id )
     return lineList[ id ];
 }
 
-int BlkFaceSolver::FindLineId( const IntField & line )
+int BlkFaceSolver::FindLineId( const IntField & line ) const
 {
     return this->lineLookup.Find(line);
 }
