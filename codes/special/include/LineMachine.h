@@ -55,12 +55,12 @@ public:
     void GenerateAllLineMesh();
     void CreateAllLineMesh();
 public:
-    SegmentCtrl * GetSegmentCtrl( int id );
-    CurveMesh * GetCurveMesh( int id );
-    CurveInfo * GetCurveInfo( int id );
+    SegmentCtrl * GetSegmentCtrl( int id ) const;
+    CurveMesh * GetCurveMesh( int id ) const;
+    CurveInfo * GetCurveInfo( int id ) const;
 public:
-    CurveMesh * GetLineMeshByTwoPoint( const int & p1, const int & p2, int & direction );
-    int GetLineIdByTwoPoint( const int & p1, const int & p2 );
+    CurveMesh * GetLineMeshByTwoPoint( const int & p1, const int & p2, int & direction ) const;
+    int GetLineIdByTwoPoint( const int & p1, const int & p2 ) const;
 };
 
 extern LineMachine line_Machine;
