@@ -328,13 +328,13 @@ bool DomData::IsBcPoint( int pt ) const
     return false;
 }
 
-void DomData::FindNextPoint2D( IntField & ptList, int prev, int me, int & next, int & flag )
+void DomData::FindNextPoint2D( const IntField & ptList, int prev, int me, int & next, int & flag ) const
 {
-    std::map< int, IntSet >::iterator iter;
+    std::map< int, IntSet >::const_iterator iter;
     iter = this->pointToPointMap.find( me );
-    IntSet & me_set = iter->second;
+    const IntSet & me_set = iter->second;
     flag = 0;
-    for ( IntSet::iterator it = me_set.begin(); it != me_set.end(); ++ it )
+    for ( IntSet::const_iterator it = me_set.begin(); it != me_set.end(); ++ it )
     {
         next = * it;
         if ( IsBcPoint( next ) && ( next != prev ) && ( ! InArray( next, ptList ) ) )
