@@ -256,12 +256,12 @@ void RwInterface( int solverType, int readOrWrite )
 
     for ( int ghostId = MAX_GHOST_LEVELS - 1; ghostId >= 0; -- ghostId )
     {
-        RwInterfaceRecord( interFace->dataSend[ ghostId ], fieldNameList, readOrWrite );
+        RwInterfaceRecord( interFace->dataSend[ ghostId ].get(), fieldNameList, readOrWrite );
     }
 
     for ( int ghostId = MAX_GHOST_LEVELS - 1; ghostId >= 0; -- ghostId )
     {
-        RwInterfaceRecord( interFace->dataRecv[ ghostId ], fieldNameList, readOrWrite );
+        RwInterfaceRecord( interFace->dataRecv[ ghostId ].get(), fieldNameList, readOrWrite );
     }
 }
 

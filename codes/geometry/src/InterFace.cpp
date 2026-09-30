@@ -54,14 +54,7 @@ InterFace::InterFace( int nIFaces, Grid * parent )
     this->Set( nIFaces, parent );
 }
 
-InterFace::~InterFace()
-{
-    this->DeAllocSendRecv();
-    for ( int iNei = 0; iNei < this->interFacePairs.size(); ++ iNei )
-    {
-        delete this->interFacePairs[ iNei ];
-    }
-}
+InterFace::~InterFace() = default;
 
 void InterFace::AllocSendRecv()
 {
@@ -69,8 +62,8 @@ void InterFace::AllocSendRecv()
     dataRecv.resize( MAX_GHOST_LEVELS );
     for ( int i = 0; i < MAX_GHOST_LEVELS; ++ i )
     {
-        dataSend[ i ] = new DataStorage();
-        dataRecv[ i ] = new DataStorage();
+        dataSend[ i ] = std::make_unique< DataStorage >();
+        dataRecv[ i ] = std::make_unique< DataStorage >();
     }
 }
 
@@ -78,8 +71,8 @@ void InterFace::DeAllocSendRecv()
 {
     for ( int i = 0; i < MAX_GHOST_LEVELS; ++ i )
     {
-        delete dataSend[ i ];
-        delete dataRecv[ i ];
+        dataSend[ i ].reset();
+        dataRecv[ i ].reset();
     }
 }
 
@@ -123,7 +116,7 @@ void InterFace::AllocateNeighbor()
 
     for ( int iNei = 0; iNei < nNeighbor; ++ iNei )
     {
-        this->interFacePairs[ iNei ] = new InterfacePair();
+        this->interFacePairs[ iNei ] = std::make_unique< InterfacePair >();
     }
 }
 
@@ -167,7 +160,7 @@ int InterFace::CalcNIFace( int iNei )
 
 void InterFace::InitNeighborZoneInfo( int iNei, int iZone )
 {
-    InterfacePair * interfacePair = interFacePairs[ iNei ];
+    InterfacePair * interfacePair = interFacePairs[ iNei ].get();
     interfacePair->nzid = iZone;
 
     this->z2n.insert( std::pair< int, int >( iZone, iNei ) );
@@ -183,7 +176,7 @@ void InterFace::InitNeighborZoneInfo( int iNei, int iZone )
 
 void InterFace::FillRecvId( int iNei )
 {
-    InterfacePair * interfacePair = interFacePairs[ iNei ];
+    InterfacePair * interfacePair = interFacePairs[ iNei ].get();
 
     int iCount = 0;
     for ( int iFace = 0; iFace < this->nIFaces; ++ iFace )
@@ -199,7 +192,7 @@ void InterFace::FillRecvId( int iNei )
 
 void InterFace::CalcSendId( int iNei, IntField & idsend )
 {
-    InterfacePair * interfacePair = interFacePairs[ iNei ];
+    InterfacePair * interfacePair = interFacePairs[ iNei ].get();
     idsend.resize( interfacePair->nIFaces );
 
     int iCount = 0;
@@ -217,7 +210,7 @@ void InterFace::CalcSendId( int iNei, IntField & idsend )
 void InterFace::SetSendId( int zid, IntField & idsend )
 {
     int iNei = this->z2n[ zid ];
-    InterfacePair * interfacePair = interFacePairs[ iNei ];
+    InterfacePair * interfacePair = interFacePairs[ iNei ].get();
     interfacePair->idsend = idsend;
 }
 
@@ -349,7 +342,7 @@ void InterFaceTopo::InitZoneNeighborsInfo()
 
         for ( int iNei = 0; iNei < grid->interFace->nNeighbor; ++ iNei )
         {
-            InterfacePair * interfacePair = grid->interFace->interFacePairs[ iNei ];
+            InterfacePair * interfacePair = grid->interFace->interFacePairs[ iNei ].get();
 
             t.push_back( interfacePair->nzid );
         }
@@ -397,7 +390,7 @@ void InterFaceTopo::SwapNeighborsSendContent()
             if ( Parallel::pid == spid )
             {
                 Grid * grid = Zone::GetGrid( iZone );
-                InterfacePair * interfacePair = grid->interFace->interFacePairs[ iNei ];
+                InterfacePair * interfacePair = grid->interFace->interFacePairs[ iNei ].get();
 
                 nIFaces = interfacePair->nIFaces;
                 

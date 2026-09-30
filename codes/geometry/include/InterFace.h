@@ -26,6 +26,7 @@ License
 #include <vector>
 #include <string>
 #include <map>
+#include <memory>
 
 
 BeginNameSpace( ONEFLOW )
@@ -60,9 +61,9 @@ public:
     Grid * parent;
     std::map< int, int > z2n;
 public:
-    HXVector< DataStorage * > dataSend;
-    HXVector< DataStorage * > dataRecv;
-    HXVector< InterfacePair * > interFacePairs;
+    HXVector< std::unique_ptr< DataStorage > > dataSend;
+    HXVector< std::unique_ptr< DataStorage > > dataRecv;
+    HXVector< std::unique_ptr< InterfacePair > > interFacePairs;
 public:
     void AllocSendRecv();
     void DeAllocSendRecv();

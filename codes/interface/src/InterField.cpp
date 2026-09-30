@@ -72,11 +72,11 @@ DataStorage * GetInterfaceDataStorage( InterFace * interFace, int srFlag, int gh
 {
     if ( srFlag == SEND_STORAGE )
     {
-        return interFace->dataSend[ ghostId ];
+        return interFace->dataSend[ ghostId ].get();
     }
     else if ( srFlag == RECV_STORAGE )
     {
-        return interFace->dataRecv[ ghostId ];
+        return interFace->dataRecv[ ghostId ].get();
     }
     else
     {
