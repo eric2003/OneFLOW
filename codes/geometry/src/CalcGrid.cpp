@@ -144,7 +144,7 @@ void CalcGrid::ReconstructLink( int iZone )
 {
     UnsGrid * grid = UnsGridCast( grids[ iZone ] );
 
-    InterFace * interFace = grid->interFace;
+    InterFace * interFace = grid->interFace.get();
     grid->nIFaces = grid->interFace->nIFaces;
 
     if ( ! ONEFLOW::IsValid( interFace ) ) return;

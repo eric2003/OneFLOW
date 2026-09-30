@@ -354,7 +354,7 @@ void UnsGrid::GenerateLgMapping( IFaceLink * iFaceLink )
 
     iFaceLink->Init( this );
 
-    this->faceTopo->GenerateI2B( this->interFace );
+    this->faceTopo->GenerateI2B( this->interFace.get() );
 
     int nBFaces = bcRecord->GetNBFace();
 
@@ -407,14 +407,14 @@ void UnsGrid::ReGenerateLgMapping( IFaceLink * iFaceLink )
 
 void UnsGrid::UpdateOtherTopologyTerm( IFaceLink * iFaceLink )
 {
-    if ( ! IsValid( this->interFace ) ) return;
+    if ( ! IsValid( this->interFace.get() ) ) return;
 
     this->faceTopo->UpdateOtherTopologyTerm();
 
     int nIFaces = iFaceLink->l2g[ this->id ].size();
 
     this->interFace->Resize( nIFaces );
-    this->faceTopo->GenerateI2B( this->interFace );
+    this->faceTopo->GenerateI2B( this->interFace.get() );
 }
 
 void UnsGrid::GetMinMaxDistance( Real & dismin, Real & dismax )

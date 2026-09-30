@@ -76,7 +76,7 @@ void InterfaceFieldProperty::Dump(
 
 void UploadInterfaceValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu )
 {
-    InterFace * interFace = grid->interFace;
+    InterFace * interFace = grid->interFace.get();
     if ( ! ONEFLOW::IsValid( interFace ) ) return;
 
     int nIFaces = interFace->nIFaces;
@@ -113,7 +113,7 @@ void UploadInterfaceValue( UnsGrid * grid, MRField * field2D, const std::string 
 
 void DownloadInterfaceValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu )
 {
-    InterFace * interFace = grid->interFace;
+    InterFace * interFace = grid->interFace.get();
     if ( ! ONEFLOW::IsValid( interFace ) ) return;
 
     if ( field2D == nullptr ) return;

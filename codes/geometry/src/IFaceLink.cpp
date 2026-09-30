@@ -113,7 +113,7 @@ void IFaceLink::UpdateLgMapping()
 
 void IFaceLink::MatchInterfaceTopology( Grid * grid )
 {
-    InterFace * interFace = grid->interFace;
+    InterFace * interFace = grid->interFace.get();
     if ( ! interFace ) return;
 
     int missingPeriodicPartnerCount = 0;
@@ -166,7 +166,7 @@ void IFaceLink::MatchInterfaceTopology( Grid * grid )
 
 void IFaceLink::MatchPeriodicInterface( Grid * grid )
 {
-    InterFace * interFace = grid->interFace;
+    InterFace * interFace = grid->interFace.get();
     if ( ! interFace ) return;
 
     int nIFaces = this->l2g[ grid->id ].size();

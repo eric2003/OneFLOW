@@ -69,7 +69,7 @@ public:
     int nIFaces;
     int volBcType;
     NodeMesh * nodeMesh;
-    InterFace * interFace;
+    std::unique_ptr< InterFace > interFace;
     std::unique_ptr< SlipFace > slipFace;
     std::unique_ptr< DataBase > dataBase;
 public:
