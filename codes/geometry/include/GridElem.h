@@ -57,8 +57,7 @@ public:
     MeshPointManager point_factory;
     FaceSolver face_solver;
     HXVector< CgnsZone * > cgnsZones;
-    Grid * grid;
-    bool delFlag;
+    std::unique_ptr< Grid > grid;
     Real minLen, maxLen;
 public:
     CgnsZone * GetCgnsZone( int iZone );
@@ -98,7 +97,8 @@ public:
     void AllocateGridElem();
     void PrepareUnsCalcGrid();
     void GenerateCalcGrid();
-    void GetGrids( Grids & grids );
+    // Transfer generated grids to the next owner in the calculation pipeline.
+    void TransferGrids( Grids & grids );
 };
 
 EndNameSpace

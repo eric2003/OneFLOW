@@ -80,8 +80,6 @@ GridElem::GridElem( HXVector< CgnsZone * > & cgnsZones, int iZone )
     this->minLen = LARGE;
     this->maxLen = -LARGE;
 
-    this->delFlag = false;
-
     // [Refactored] Removed manual 'new' allocations. 
     // Value types are automatically constructed by the compiler.
 
@@ -89,16 +87,7 @@ GridElem::GridElem( HXVector< CgnsZone * > & cgnsZones, int iZone )
     this->elem_feature.face_solver = &this->face_solver;
 }
 
-GridElem::~GridElem()
-{
-    // [Refactored] Removed manual 'delete' calls.
-    // Value types are automatically destroyed by the compiler.
-
-    if ( this->delFlag )
-    {
-        delete this->grid;
-    }
-}
+GridElem::~GridElem() = default;
 
 CgnsZone * GridElem::GetCgnsZone( int iZone )
 {
@@ -115,7 +104,7 @@ void GridElem::CreateGrid( HXVector< CgnsZone * > cgnsZones, int iZone )
     CgnsZone * cgnsZone = cgnsZones[ 0 ];
     int cgnsZoneType = cgnsZone->cgnsZoneType;
     int gridType = Cgns2OneFlowZoneType( cgnsZoneType );
-    this->grid = ONEFLOW::CreateGrid( gridType );
+    this->grid.reset( ONEFLOW::CreateGrid( gridType ) );
     grid->level = 0;
     grid->id = iZone;
     grid->localId = iZone;
@@ -259,7 +248,7 @@ void GridElem::GenerateCalcElement()
 
 void GridElem::GenerateCalcGrid()
 {
-    this->GenerateCalcGrid( this->grid );
+    this->GenerateCalcGrid( this->grid.get() );
 }
 
 void GridElem::GenerateCalcGrid(Grid * gridIn)
@@ -485,14 +474,19 @@ void ZgridElem::GenerateCalcGrid()
     }
 }
 
-void ZgridElem::GetGrids( Grids & grids )
+void ZgridElem::TransferGrids( Grids & grids )
 {
     int nZones = this->data.size();
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
         GridElem * gridElem = this->GetGridElem( iZone );
-        Grid * grid = gridElem->grid;
-        grids.push_back( grid );
+        grids.push_back( gridElem->grid.get() );
+    }
+
+    // Release only after all destination entries have been appended successfully.
+    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    {
+        this->GetGridElem( iZone )->grid.release();
     }
 }
 
@@ -504,7 +498,7 @@ void ZgridElem::GenerateLocalOneFlowGrid( Grids & grids )
 
     this->GenerateCalcGrid();
 
-    this->GetGrids( grids );
+    this->TransferGrids( grids );
 }
 
 
