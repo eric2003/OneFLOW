@@ -119,13 +119,10 @@ void DomainData::Join( DomainData * d1, DomainData * d2 )
 
 Cylinder::Cylinder()
 {
-    this->strCurveLoop = new StrCurveLoop();
+    this->strCurveLoop = std::make_unique< StrCurveLoop >();
 }
 
-Cylinder::~Cylinder()
-{
-    delete this->strCurveLoop;
-}
+Cylinder::~Cylinder() = default;
 
 void Cylinder::Run()
 {
