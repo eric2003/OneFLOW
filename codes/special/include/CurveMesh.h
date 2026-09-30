@@ -41,11 +41,11 @@ public:
     HXVector< PointType * > ptList;
     int state;
 public:
-    bool IsValidState();
+    bool IsValidState() const;
     void GenerateCurveMesh();
     PointType & GetPoint( int id, int signFlag );
 public:
-    int GetDim() { return ptList.size(); };
+    int GetDim() const { return ptList.size(); };
     virtual void GenerateLineMesh() {};
     virtual void CalcCurveGeometry() {};
     virtual void CalcCoor( Real s, Real & xt, Real & yt, Real & zt ) {};
