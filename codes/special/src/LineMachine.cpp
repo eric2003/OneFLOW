@@ -43,6 +43,18 @@ LineMachine::LineMachine()
 
 LineMachine::~LineMachine() = default;
 
+void LineMachine::Reset()
+{
+    segmentCtrlList.clear();
+    curveInfoList.clear();
+    curveMeshList.clear();
+    dimList.clear();
+    ds1List.clear();
+    ds2List.clear();
+    lineLookup.Clear();
+    lineList.clear();
+}
+
 SegmentCtrl * LineMachine::GetSegmentCtrl( int id ) const
 {
     int idx = ABS( id ) - 1;

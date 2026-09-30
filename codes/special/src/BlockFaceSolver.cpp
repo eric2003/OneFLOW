@@ -59,6 +59,25 @@ BlkFaceSolver::BlkFaceSolver()
 
 BlkFaceSolver::~BlkFaceSolver() = default;
 
+void BlkFaceSolver::Reset()
+{
+    blkset.clear();
+    blkList.clear();
+    blkList2d.clear();
+    flag = false;
+    init_flag = false;
+    lineList.clear();
+    faceList.clear();
+    faceLinePosList.clear();
+    lineLookup.Clear();
+    faceLookup.Clear();
+    faceset.clear();
+    line2Face.clear();
+    face2Block.clear();
+    sDomainList.clear();
+    slineList.clear();
+}
+
 Face2D * BlkFaceSolver::GetBlkFace( int blk, int face_id ) const
 {
     Block3D * blk3d = this->blkList[ blk ].get();

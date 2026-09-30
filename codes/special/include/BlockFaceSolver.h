@@ -68,6 +68,7 @@ public:
     HXVector< std::unique_ptr< SDomain > > sDomainList;
     HXVector< std::unique_ptr< SLine > > slineList;
 public:
+    void Reset();
     Face2D * GetBlkFace( int blk, int face_id ) const;
     Face2D * GetBlkFace2D( int blk, int face_id ) const;
 public:

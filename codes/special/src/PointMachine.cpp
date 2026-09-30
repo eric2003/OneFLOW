@@ -35,6 +35,12 @@ PointMachine::PointMachine()
 
 PointMachine::~PointMachine() = default;
 
+void PointMachine::Reset()
+{
+    ptList.clear();
+    ptBasic.Clear();
+}
+
 void PointMachine::AddPoint( Real x, Real y, Real z, int id )
 {
     auto pt = std::make_unique< PointType >( x, y, z, id );

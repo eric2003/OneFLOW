@@ -38,6 +38,12 @@ DomainMachine::~DomainMachine()
 {
 }
 
+void DomainMachine::Reset()
+{
+    bctypeList.clear();
+    bcLineList.clear();
+}
+
 void DomainMachine::AddBcType( TextFileParser & textFileParser )
 {
     int id = textFileParser.ReadNextDigit< int >();
