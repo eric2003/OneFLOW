@@ -737,9 +737,7 @@ void Plot3D::Plot3DToCgns(
     gridMediator->bcFile     = config.bcFile;
     gridMediator->targetFile = config.targetFile;
     gridMediator->gridType   = std::string( ToString( config.sourceType ) );
-    gridMediator->caseDir = config.sourceCaseDir.empty()
-        ? caseDir
-        : config.sourceCaseDir;
+    gridMediator->caseDir = config.ResolveSourceCaseDir( caseDir );
 
     gridMediator->ReadGrid();
     gridMediator->AddDefaultName();

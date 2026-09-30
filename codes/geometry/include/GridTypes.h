@@ -122,6 +122,7 @@ struct GridConfig
 
     // Return the optional external source case for the current grid configuration.
     static std::string GetSourceCaseDir();
+    std::string ResolveSourceCaseDir( const std::string & currentCaseDir ) const;
 };
 
 // ---------------------------------------------------------------------------

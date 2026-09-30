@@ -126,10 +126,7 @@ void CgnsFactory::GenerateGrid(
     const GridConfig & config,
     const std::string & caseDir )
 {
-    const std::string sourceCaseDir = config.sourceCaseDir.empty()
-        ? caseDir
-        : config.sourceCaseDir;
-    this->ReadCgnsGrid( config, sourceCaseDir );
+    this->ReadCgnsGrid( config, config.ResolveSourceCaseDir( caseDir ) );
 
     int systemZoneType = cgnsZbase->GetSystemZoneType();
     if ( ! ( systemZoneType == CGNS_ENUMV( Unstructured ) ) )
