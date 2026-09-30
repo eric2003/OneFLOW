@@ -41,15 +41,7 @@ LineMachine::LineMachine()
 {
 }
 
-LineMachine::~LineMachine()
-{
-    // CurveMesh refers to SegmentCtrl and CurveInfo, so destroy meshes first.
-    for ( int i = 0; i < curveMeshList.size(); ++ i )
-    {
-        delete curveMeshList[ i ];
-    }
-
-}
+LineMachine::~LineMachine() = default;
 
 SegmentCtrl * LineMachine::GetSegmentCtrl( int id ) const
 {
@@ -128,9 +120,9 @@ void LineMachine::CreateAllLineMesh()
     for ( int iLine = 0; iLine < nLine; ++ iLine )
     {
         CurveInfo * curveInfo = curveInfoList[ iLine ].get();
-        CurveMesh * curveMesh = CreateLineMesh( curveInfo );
+        auto curveMesh = CreateLineMesh( curveInfo );
         curveMesh->segmentCtrl = this->GetSegmentCtrl( curveInfo->id );
-        this->curveMeshList.push_back( curveMesh );
+        this->curveMeshList.push_back( std::move( curveMesh ) );
     }
 }
 
@@ -144,7 +136,7 @@ void LineMachine::GenerateAllLineMesh()
         int nLine = curveInfoList.size();
         for ( int iLine = 0; iLine < nLine; ++ iLine )
         {
-            CurveMesh * curveMesh = this->curveMeshList[ iLine ];
+            CurveMesh * curveMesh = this->curveMeshList[ iLine ].get();
             curveMesh->GenerateLineMesh();
 
             if ( curveMesh->state == 1 ) nCount ++;

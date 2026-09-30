@@ -41,7 +41,7 @@ public:
 public:
     HXVector< std::unique_ptr< SegmentCtrl > > segmentCtrlList;
     HXVector< std::unique_ptr< CurveInfo > > curveInfoList;
-    HXVector< CurveMesh * > curveMeshList;
+    HXVector< std::unique_ptr< CurveMesh > > curveMeshList;
     IntField dimList;
     RealField ds1List, ds2List;
 public:

@@ -25,38 +25,39 @@ License
 #include "CircleLineMesh.h"
 #include "LineInfo.h"
 #include "HXMath.h"
+#include <memory>
 #include <iostream>
 
 
 BeginNameSpace( ONEFLOW )
 
-CurveMesh * CreateLineMesh( int lineType )
+std::unique_ptr< CurveMesh > CreateLineMesh( int lineType )
 {
-    CurveMesh * lineMesh = 0;
+    std::unique_ptr< CurveMesh > lineMesh;
 
     if ( lineType == 0 )
     {
-        lineMesh = new LineMesh();
+        lineMesh = std::make_unique< LineMesh >();
     }
     else if ( lineType == 1 )
     {
-        lineMesh = new CircleLineMesh();
+        lineMesh = std::make_unique< CircleLineMesh >();
     }
 
     return lineMesh;
 }
 
-CurveMesh * CreateLineMesh( CurveInfo * curveInfo )
+std::unique_ptr< CurveMesh > CreateLineMesh( CurveInfo * curveInfo )
 {
-    CurveMesh * lineMesh = 0;
+    std::unique_ptr< CurveMesh > lineMesh;
 
     if ( curveInfo->type == 0 )
     {
-        lineMesh = new LineMesh();
+        lineMesh = std::make_unique< LineMesh >();
     }
     else if ( curveInfo->type == 1 )
     {
-        lineMesh = new CircleLineMesh();
+        lineMesh = std::make_unique< CircleLineMesh >();
     }
 
     lineMesh->curveInfo = curveInfo;
