@@ -39,6 +39,7 @@ class GridElem;
 class ZgridElem;
 class GridMediator;
 class ZgridMediator;
+struct GridConfig;
 
 #ifdef ENABLE_CGNS
 
@@ -63,14 +64,20 @@ public:
 
 public:
     void GenerateGrid( const std::string & caseDir );
+    void GenerateGrid( const GridConfig & config, const std::string & caseDir );
     void ReadCgnsGrid( const std::string & caseDir );
+    void ReadCgnsGrid( const GridConfig & config, const std::string & caseDir );
     void DumpCgnsGrid( ZgridMediator & zgridMediator );
     void DumpUnsCgnsGrid( const std::string & caseDir );
+    void DumpUnsCgnsGrid( const GridConfig & config, const std::string & caseDir );
 public:
     void CommonToOneFlowGrid();
+    void CommonToOneFlowGrid( const GridConfig & config );
     void CommonToStrGrid();
     void CommonToUnsGridTEST();
+    void CommonToUnsGridTEST( const GridConfig & config );
     void ReadGridAndConvertToUnsCgnsZone();
+    void ReadGridAndConvertToUnsCgnsZone( const GridConfig & config );
     void ProcessCgnsBases();
 public:
     void CreateCgnsZone( ZgridMediator & zgridMediator );
@@ -79,6 +86,7 @@ public:
     void Su2ToOneFlowGrid( Su2Grid & su2Grid );
 public:
     void CgnsToOneFlowGrid();
+    void CgnsToOneFlowGrid( const GridConfig & config );
     void ConvertStrCgns2UnsCgnsGrid();
 };
 

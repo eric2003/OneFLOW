@@ -135,7 +135,11 @@ void ZgridMediator::CreateSimple( int nZone )
 
 void ZgridMediator::ReadGrid()
 {
-    const GridConfig config = GridConfig::FromDataBase();
+    this->ReadGrid( GridConfig::FromDataBase() );
+}
+
+void ZgridMediator::ReadGrid( const GridConfig & config )
+{
 
     auto gridMediator = std::make_unique< GridMediator >();
     gridMediator->gridFile = config.sourceFile;

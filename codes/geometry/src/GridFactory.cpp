@@ -172,7 +172,7 @@ void GridFactory::ConvertGrid(
             this->SU2Process( config, caseDir );
             break;
         case GridFileType::CGNS:
-            this->CGNSProcess( caseDir );
+            this->CGNSProcess( config, caseDir );
             break;
         default:
             throw std::invalid_argument(
@@ -189,14 +189,14 @@ void GridFactory::Plot3DProcess(
     if ( config.targetType == GridFileType::OneFLOW )
     {
         CgnsFactory cgnsFactory;
-                cgnsFactory.CommonToOneFlowGrid();
+                cgnsFactory.CommonToOneFlowGrid( config );
     }
     else if ( config.targetType == GridFileType::CGNS )
     {
         CgnsFactory cgnsFactory;
                 ZgridMediator zgridMediator;
         // Owned GridMediator instances are cleaned up automatically.
-        Plot3D::Plot3DToCgns( &zgridMediator, caseDir );
+        Plot3D::Plot3DToCgns( &zgridMediator, config, caseDir );
         cgnsFactory.DumpCgnsGrid( zgridMediator );
     }
     else
@@ -215,8 +215,15 @@ void GridFactory::SU2Process( const GridConfig & config, const std::string & cas
 
 void GridFactory::CGNSProcess( const std::string & caseDir )
 {
+    this->CGNSProcess( GridConfig::FromDataBase(), caseDir );
+}
+
+void GridFactory::CGNSProcess(
+    const GridConfig & config,
+    const std::string & caseDir )
+{
     CgnsFactory cgnsFactory;
-        cgnsFactory.GenerateGrid( caseDir );
+    cgnsFactory.GenerateGrid( config, caseDir );
 }
 
 EndNameSpace

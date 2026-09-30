@@ -722,16 +722,24 @@ void Plot3D::Plot3DToCgns(
     ZgridMediator * zgridMediator,
     const std::string & caseDir )
 {
-    std::cout << "plot3d to cgns\n";
+    Plot3DToCgns( zgridMediator, GridConfig::FromDataBase(), caseDir );
+}
 
-    const GridConfig config = GridConfig::FromDataBase();
+void Plot3D::Plot3DToCgns(
+    ZgridMediator * zgridMediator,
+    const GridConfig & config,
+    const std::string & caseDir )
+{
+    std::cout << "plot3d to cgns\n";
 
     auto gridMediator = std::make_unique< GridMediator >();
     gridMediator->gridFile   = config.sourceFile;
     gridMediator->bcFile     = config.bcFile;
     gridMediator->targetFile = config.targetFile;
     gridMediator->gridType   = std::string( ToString( config.sourceType ) );
-    gridMediator->caseDir    = caseDir;
+    gridMediator->caseDir = config.sourceCaseDir.empty()
+        ? caseDir
+        : config.sourceCaseDir;
 
     gridMediator->ReadGrid();
     gridMediator->AddDefaultName();

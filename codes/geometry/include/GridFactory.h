@@ -57,6 +57,7 @@ public:
     void Plot3DProcess( const GridConfig & config, const std::string & caseDir );
     void SU2Process( const GridConfig & config, const std::string & caseDir );
     void CGNSProcess( const std::string & caseDir );
+    void CGNSProcess( const GridConfig & config, const std::string & caseDir );
 };
 
 // Public entry used by the rest of the code base.

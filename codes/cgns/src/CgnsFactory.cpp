@@ -99,7 +99,17 @@ void GenerateLocalOneFlowGridFromSu2Grid( Su2Grid & su2Grid, Grids & grids )
 
 void CgnsFactory::GenerateGrid( const std::string & caseDir )
 {
-    this->ReadCgnsGrid( caseDir );
+    this->GenerateGrid( GridConfig::FromDataBase(), caseDir );
+}
+
+void CgnsFactory::GenerateGrid(
+    const GridConfig & config,
+    const std::string & caseDir )
+{
+    const std::string sourceCaseDir = config.sourceCaseDir.empty()
+        ? caseDir
+        : config.sourceCaseDir;
+    this->ReadCgnsGrid( config, sourceCaseDir );
 
     int systemZoneType = cgnsZbase->GetSystemZoneType();
     if ( ! ( systemZoneType == CGNS_ENUMV( Unstructured ) ) )
@@ -107,16 +117,14 @@ void CgnsFactory::GenerateGrid( const std::string & caseDir )
         this->ConvertStrCgns2UnsCgnsGrid();
     }
 
-    const GridConfig config = GridConfig::FromDataBase();
-
     if ( config.targetType == GridFileType::CGNS )
     {
-        this->DumpUnsCgnsGrid( caseDir );
+        this->DumpUnsCgnsGrid( config, caseDir );
     }
     else
     {
         this->ProcessCgnsBases();
-        this->CgnsToOneFlowGrid();
+        this->CgnsToOneFlowGrid( config );
     }
 }
 
@@ -127,9 +135,15 @@ void CgnsFactory::ProcessCgnsBases()
 
 void CgnsFactory::ReadCgnsGrid( const std::string & caseDir )
 {
+    this->ReadCgnsGrid( GridConfig::FromDataBase(), caseDir );
+}
+
+void CgnsFactory::ReadCgnsGrid(
+    const GridConfig & config,
+    const std::string & caseDir )
+{
     // Use .get() to pass the raw pointer to legacy/global APIs
     cgns_global.cgnsbases = this->cgnsZbase.get();
-    const GridConfig config = GridConfig::FromDataBase();
     const std::string & sourceGridFile = config.sourceFile;
 
     std::string gridFileName;
@@ -154,11 +168,14 @@ void CgnsFactory::DumpCgnsGrid( ZgridMediator & zgridMediator )
 
 void CgnsFactory::CommonToOneFlowGrid()
 {
-    const GridConfig config = GridConfig::FromDataBase();
+    this->CommonToOneFlowGrid( GridConfig::FromDataBase() );
+}
 
+void CgnsFactory::CommonToOneFlowGrid( const GridConfig & config )
+{
     if ( ONEFLOW::IsUnsGrid( config.topo ) )
     {
-        this->CommonToUnsGridTEST();
+        this->CommonToUnsGridTEST( config );
     }
     else if ( ONEFLOW::IsStrGrid( config.topo ) )
     {
@@ -172,7 +189,13 @@ void CgnsFactory::CommonToStrGrid()
 
 void CgnsFactory::DumpUnsCgnsGrid( const std::string & caseDir )
 {
-    const GridConfig config = GridConfig::FromDataBase();
+    this->DumpUnsCgnsGrid( GridConfig::FromDataBase(), caseDir );
+}
+
+void CgnsFactory::DumpUnsCgnsGrid(
+    const GridConfig & config,
+    const std::string & caseDir )
+{
     const std::string & targetGridFile = config.targetFile;
 
     std::string targetFile;
@@ -202,8 +225,13 @@ void CgnsFactory::PrepareCgnsZone( ZgridMediator & zgridMediator )
 
 void CgnsFactory::ReadGridAndConvertToUnsCgnsZone()
 {
+    this->ReadGridAndConvertToUnsCgnsZone( GridConfig::FromDataBase() );
+}
+
+void CgnsFactory::ReadGridAndConvertToUnsCgnsZone( const GridConfig & config )
+{
     ZgridMediator zgridMediator;
-    zgridMediator.ReadGrid();
+    zgridMediator.ReadGrid( config );
 
     //create multi cgns zone
     this->CreateCgnsZone( zgridMediator );
@@ -212,9 +240,14 @@ void CgnsFactory::ReadGridAndConvertToUnsCgnsZone()
 
 void CgnsFactory::CommonToUnsGridTEST()
 {
-    this->ReadGridAndConvertToUnsCgnsZone();
+    this->CommonToUnsGridTEST( GridConfig::FromDataBase() );
+}
 
-    this->CgnsToOneFlowGrid();
+void CgnsFactory::CommonToUnsGridTEST( const GridConfig & config )
+{
+    this->ReadGridAndConvertToUnsCgnsZone( config );
+
+    this->CgnsToOneFlowGrid( config );
 }
 
 CgnsZone * CgnsFactory::CreateSu2CgnsZone( Su2Grid & su2Grid )
@@ -241,7 +274,11 @@ void CgnsFactory::Su2ToOneFlowGrid( Su2Grid & su2Grid )
 
 void CgnsFactory::CgnsToOneFlowGrid()
 {
-    const GridConfig config = GridConfig::FromDataBase();
+    this->CgnsToOneFlowGrid( GridConfig::FromDataBase() );
+}
+
+void CgnsFactory::CgnsToOneFlowGrid( const GridConfig & config )
+{
     if ( ! ONEFLOW::IsUnsGrid( config.topo ) ) return;
 
     Grids grids;

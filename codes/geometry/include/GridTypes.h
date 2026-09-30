@@ -95,7 +95,8 @@ inline constexpr std::array< std::string_view, 7 > kGridOpTokens = {
 };
 
 // ---------------------------------------------------------------------------
-// Immutable-ish configuration snapshot loaded once from DataBase.
+// Case-scoped grid workflow configuration. Read legacy DataBase values at the
+// entry boundary, then pass this value through generation and conversion.
 // ---------------------------------------------------------------------------
 struct GridConfig
 {

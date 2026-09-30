@@ -32,6 +32,7 @@ License
 BeginNameSpace( ONEFLOW )
 
 class Grid;
+struct GridConfig;
 
 // Holds one zone-group of grids plus the paths / format used to load them.
 // Historical name "Mediator" is kept for source compatibility; think of it as
@@ -109,6 +110,7 @@ public:
 public:
     void CreateSimple( int nZone );
     void ReadGrid();
+    void ReadGrid( const GridConfig & config );
 
 private:
     std::vector< std::unique_ptr< GridMediator > > mediators_;
