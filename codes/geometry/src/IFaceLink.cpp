@@ -45,7 +45,8 @@ IFaceLink::IFaceLink( Grids & grids )
 
 IFaceLink::~IFaceLink()
 {
-    ;
+    delete this->face_search;
+    delete this->point_search;
 }
 
 void IFaceLink::Init( Grid * grid )
