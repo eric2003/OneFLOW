@@ -41,10 +41,7 @@ BcInfo::~BcInfo()
     ;
 }
 
-BcRecord::BcRecord()
-{
-    bcInfo = 0;
-}
+BcRecord::BcRecord() = default;
 
 BcRecord::BcRecord( const BcRecord & other )
     : bcType( other.bcType ), bcNameId( other.bcNameId ), bcInfo( nullptr )
@@ -56,22 +53,18 @@ BcRecord & BcRecord::operator=( const BcRecord & other )
     if ( this == &other ) return *this;
 
     // bcInfo is derived from the boundary arrays and must be rebuilt.
-    delete this->bcInfo;
-    this->bcInfo = nullptr;
+    this->bcInfo.reset();
     this->bcType = other.bcType;
     this->bcNameId = other.bcNameId;
     return *this;
 }
 
-BcRecord::~BcRecord()
-{
-    delete bcInfo;
-}
+BcRecord::~BcRecord() = default;
 
 void BcRecord::CreateBcTypeRegion()
 {
     if ( bcInfo ) return;
-    this->bcInfo = new BcInfo();
+    this->bcInfo = std::make_unique< BcInfo >();
 
     IntSet bcTypeSet;
     IntSet bcUserTypeSet;
@@ -122,8 +115,7 @@ int BcRecord::GetNBFace()
 
 void BcRecord::Init( HXSize_t nBFaces )
 {
-    delete this->bcInfo;
-    this->bcInfo = nullptr;
+    this->bcInfo.reset();
     this->bcType.resize( nBFaces );
     this->bcNameId.resize( nBFaces );
 }

@@ -75,7 +75,7 @@ void UTurbBcSolver::SetId( int bcfId )
 {
     ug.bcfId = bcfId;
 
-    BcInfo * bcInfo = ug.bcRecord->bcInfo;
+    BcInfo * bcInfo = ug.bcRecord->bcInfo.get();
 
     ug.fId = bcInfo->bcFace[ ug.ir ][ bcfId ];
     ug.bcNameId = bcInfo->bcNameId[ ug.ir ][ bcfId ];

@@ -56,7 +56,7 @@ public:
 public:
     IntField bcType;
     IntField bcNameId;
-    BcInfo * bcInfo;
+    std::unique_ptr< BcInfo > bcInfo;
 public:
     void Init( HXSize_t nBFaces );
     int GetNBFace();
