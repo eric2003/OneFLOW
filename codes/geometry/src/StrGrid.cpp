@@ -27,7 +27,6 @@ License
 #include "HXMath.h"
 #include "HXMathExt.h"
 #include "NodeMesh.h"
-#include "FaceTopo.h"
 #include "DataBaseIO.h"
 #include "DataBook.h"
 #include "Tolerance.h"
@@ -40,14 +39,10 @@ REGISTER_GRID( StrGrid )
 
 StrGrid::StrGrid()
 {
-    faceTopo = new FaceTopo();
     bcRegionGroup = std::make_unique< BcRegionGroup >();
 }
 
-StrGrid::~StrGrid()
-{
-    delete faceTopo;
-}
+StrGrid::~StrGrid() = default;
 
 void StrGrid::Decode( DataBook * databook )
 {
