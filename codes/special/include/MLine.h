@@ -72,7 +72,7 @@ public:
     void ConstructPointToDomainMap( int domain_id, std::map< int, IntSet > & pointToDomainMap ) const;
     void ConstructPointToPointMap();
     void ConstructPointToPointMap( std::map< int, IntSet > & pointToPointMap ) const;
-    void ConstructPointToLineMap( std::map< int, IntSet > & pointToLineMap );
+    void ConstructPointToLineMap( std::map< int, IntSet > & pointToLineMap ) const;
 public:
     void AddSubLine( int line_id );
     void ConstructDomainTopo();

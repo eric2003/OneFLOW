@@ -613,7 +613,7 @@ bool InArray( int ip, IntField & var_array )
     return false;
 }
 
-void GetPointIdLink( IntField & lineList, LinkField & pointIdLink )
+void GetPointIdLink( const IntField & lineList, LinkField & pointIdLink )
 {
     for ( int iLine = 0; iLine < lineList.size(); ++ iLine )
     {

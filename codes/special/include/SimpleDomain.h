@@ -126,7 +126,7 @@ void ConstructPointToDomainMap( int tid, LinkField & pointIdLink, std::map< int,
 void ConstructPointToPointMap( LinkField & pointIdLink, std::map< int, IntSet > & dataMap );
 bool InArray( int ip, IntField & var_array );
 
-void GetPointIdLink( IntField & lineList, LinkField & pointIdLink );
+void GetPointIdLink( const IntField & lineList, LinkField & pointIdLink );
 
 void GetUnitInt( int &d );
 void GetUnitDir( CalcCoor & c );

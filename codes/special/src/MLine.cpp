@@ -205,7 +205,7 @@ void SLine::SetBlkBcMesh( Block2D * blk2d )
 
 }
 
-void SLine::ConstructPointToLineMap( std::map< int, IntSet > & pointToLineMap )
+void SLine::ConstructPointToLineMap( std::map< int, IntSet > & pointToLineMap ) const
 {
     int line_id = this->line_id - 1;
     IntField & pointIdList = blkFaceSolver.lineList[ line_id ];
@@ -253,7 +253,7 @@ void MLine::ConstructPointToPointMap()
 
 void MLine::ConstructPointToPointMap( std::map< int, IntSet > & pointToPointMap ) const
 {
-    MLine * mLine = this;
+    const MLine * mLine = this;
     LinkField pointIdLink;
     GetPointIdLink( mLine->lineList, pointIdLink );
 
@@ -283,7 +283,7 @@ void MLine::ConstructPointToDomainMap()
 
 void MLine::ConstructPointToDomainMap( int domain_id, std::map< int, IntSet > & pointToDomainMap ) const
 {
-    MLine * mLine = this;
+    const MLine * mLine = this;
     LinkField pointIdLink;
     GetPointIdLink( mLine->lineList, pointIdLink );
 
