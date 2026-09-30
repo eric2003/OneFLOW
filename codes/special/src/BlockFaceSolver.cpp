@@ -138,8 +138,8 @@ void BlkFaceSolver::MyFaceGenerateLineMesh()
     slineList.resize( nLine );
     for ( int iSLine = 0; iSLine < nLine; ++ iSLine )
     {
-        SLine * sLine = new SLine();
-        slineList[ iSLine ] = sLine;
+        auto sLine = std::make_unique< SLine >();
+        slineList[ iSLine ] = std::move( sLine );
         sLine->line_id = iSLine + 1;
         sLine->ni = line_Machine.dimList[ iSLine ];
         sLine->Alloc();
