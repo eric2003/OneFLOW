@@ -31,14 +31,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-CircleLineMesh::CircleLineMesh()
-{
-}
-
-CircleLineMesh::~CircleLineMesh()
-{
-}
-
 void CircleLineMesh::GenerateLineMesh()
 {
     if ( ! this->IsValidState() ) return;
