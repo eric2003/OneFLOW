@@ -241,26 +241,21 @@ void CollectWallFaceValue()
 {
     ActionState::dataBook->MoveToBegin();
     ActionState::dataBook->Resize( 0 );
-
     Grid * gridIn = Zone::GetGrid();
     UnsGrid * grid = UnsGridCast( gridIn );
-
     int nSolidCells = GetNumberOfSolidCells( grid );
-
     HXWrite( ActionState::dataBook, nSolidCells );
-
     if ( nSolidCells == 0 ) return;
 
     int zId = ZoneState::zid;
 
-    SurfaceValue * heat_sur = heat_flux.heatflux[ zId ];
-    SurfaceValue * fric_sur = heat_flux.fricflux[ zId ];
-
-    RealField & hf = * heat_sur->var;
+    // FIX: Use .get() to obtain the non-owning raw pointers.
+    SurfaceValue * heat_sur = heat_flux.heatflux[ zId ].get();
+    SurfaceValue * fric_sur = heat_flux.fricflux[ zId ].get();
+    RealField & hf = *(heat_sur->var);
 
     HXWrite( ActionState::dataBook, hf );
 }
-
 
 
 EndNameSpace

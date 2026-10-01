@@ -27,10 +27,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-// ============================================================================
-// 3. Test Cases (≤‚ ‘”√¿˝)
-// ============================================================================
-
 void TestBasicInsertionAndCount() {
     std::cout << "Running Test 1: Basic Insertion and Count... ";
 

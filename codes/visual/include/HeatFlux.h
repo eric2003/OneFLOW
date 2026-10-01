@@ -23,6 +23,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include <memory> // Added for std::unique_ptr
 
 BeginNameSpace( ONEFLOW )
 
@@ -31,8 +32,10 @@ class SurfaceValue
 public:
     SurfaceValue();
     ~SurfaceValue();
+
 public:
-    RealField * var;
+    // FIX: Replaced raw pointer with std::unique_ptr for automatic memory management.
+    std::unique_ptr<RealField> var;
 };
 
 class HeatFlux
@@ -40,11 +43,14 @@ class HeatFlux
 public:
     HeatFlux ();
     ~HeatFlux();
+
 public:
-    HXVector< SurfaceValue * > heatflux;
-    HXVector< SurfaceValue * > fricflux;
+    // FIX: Replaced raw pointer arrays with std::unique_ptr arrays.
+    HXVector< std::unique_ptr<SurfaceValue> > heatflux;
+    HXVector< std::unique_ptr<SurfaceValue> > fricflux;
     IntField flag;
     bool init_flag;
+
 public:
     void Init();
     void InitGlobal();

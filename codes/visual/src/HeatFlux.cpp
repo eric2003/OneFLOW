@@ -30,12 +30,13 @@ HeatFlux heat_flux;
 
 SurfaceValue::SurfaceValue()
 {
-    var = new RealField();
+    // FIX: Use std::make_unique for exception-safe allocation.
+    var = std::make_unique<RealField>();
 }
 
 SurfaceValue::~SurfaceValue()
 {
-    delete var;
+    // std::unique_ptr automatically cleans up the RealField.
 }
 
 HeatFlux::HeatFlux()
@@ -53,10 +54,11 @@ void HeatFlux::Init()
     InitGlobal();
     Allocate();
 
-    SurfaceValue * heat_sur = heat_flux.heatflux[ ZoneState::zid ];
+    // FIX: Use .get() to access the raw pointer from unique_ptr for short-term observation.
+    SurfaceValue * heat_sur = heat_flux.heatflux[ ZoneState::zid ].get();
     heat_sur->var->resize( 0 );
 
-    SurfaceValue * fric_sur = heat_flux.fricflux[ ZoneState::zid ];
+    SurfaceValue * fric_sur = heat_flux.fricflux[ ZoneState::zid ].get();
     fric_sur->var->resize( 0 );
 }
 
@@ -64,8 +66,8 @@ void HeatFlux::InitGlobal()
 {
     if ( init_flag ) return;
     init_flag = true;
-    this->heatflux.resize( ZoneState::nZones, 0 );
-    this->fricflux.resize( ZoneState::nZones, 0 );
+    this->heatflux.resize( ZoneState::nZones );
+    this->fricflux.resize( ZoneState::nZones );
     this->flag.resize( ZoneState::nZones, 0 );
 }
 
@@ -75,22 +77,17 @@ void HeatFlux::Allocate()
     if ( ! this->flag[ zId ] )
     {
         this->flag[ zId ] = 1;
-        SurfaceValue * heat = new SurfaceValue();
-        SurfaceValue * fric = new SurfaceValue();
-        this->heatflux[ zId ] = heat;
-        this->fricflux[ zId ] = fric;
+        // FIX: Use std::make_unique instead of new.
+        this->heatflux[ zId ] = std::make_unique<SurfaceValue>();
+        this->fricflux[ zId ] = std::make_unique<SurfaceValue>();
     }
 }
 
 void HeatFlux::DeAllocate()
 {
-    int nSize = this->heatflux.size();
-    for ( int i = 0; i < nSize; ++ i )
-    {
-        delete this->heatflux[ i ];
-        delete this->fricflux[ i ];
-    }
-
+    // FIX: clear() automatically invokes the destructor of std::unique_ptr,
+    // safely releasing all SurfaceValue and their internal RealField objects.
+    // No manual delete loop is needed, preventing memory leaks on exceptions.
     this->heatflux.clear();
     this->fricflux.clear();
     this->flag.clear();
