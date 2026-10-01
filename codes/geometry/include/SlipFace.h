@@ -26,6 +26,7 @@ License
 #include <vector>
 #include <string>
 #include <map>
+#include <memory>
 
 
 BeginNameSpace( ONEFLOW )
@@ -58,7 +59,7 @@ public:
 public:
     std::map< int, int > z2n;
     int   nNeighbor;     //no of neighbors
-    HXVector< SlipfacePair * > slipfacePairs;
+    HXVector< std::unique_ptr< SlipfacePair > > slipfacePairs;
     SlipfacePair * GetSlipfacePair( int iNei );
     void InitNeighborZoneInfo();
     void InitNeighborZoneInfo( int iNei, int iZone );
@@ -75,7 +76,7 @@ public:
     LocalSlipFace();
     ~LocalSlipFace();
 public:
-    HXVector< SlipFace * > data;
+    HXVector< SlipFace * > data; // Non-owning pointers to each grid's SlipFace.
     void AddSlipFace( SlipFace * slipFace );
     void PackData();
     void InitDist();
@@ -89,9 +90,9 @@ public:
     GlobalSlipFace();
     ~GlobalSlipFace();
 public:
-    HXVector< SlipFace * > data;
+    HXVector< std::unique_ptr< SlipFace > > data;
 public:
-    void AddSlipFace( SlipFace * slipFace );
+    void AddSlipFace( std::unique_ptr< SlipFace > slipFace );
     void Swap();
     void Init( DataBook * dataBook );
     void Trans( DataBook * dataBook );
@@ -101,12 +102,10 @@ public:
 };
 
 
-extern LocalSlipFace  * localSlipFace;
-extern GlobalSlipFace * globalSlipFace;
+extern std::unique_ptr< LocalSlipFace > localSlipFace;
+extern std::unique_ptr< GlobalSlipFace > globalSlipFace;
 
 void InitSlipFaceTopo();
-
-class DataStorage;
 
 class SlipfacePair
 {
@@ -120,9 +119,6 @@ public:
     IntField idsend; // using in sending,   interface number in the tagret  zone
     int GetNSend() { return static_cast<int> (idsend.size()); };
     int GetNRecv() { return static_cast<int> (idrecv.size()); };
-protected:
-    DataStorage * dataSend;
-    DataStorage * dataRecv;
 };
 
 
