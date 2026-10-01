@@ -25,6 +25,7 @@ License
 #include "NamespaceMacros.h"
 #include "HXDefine.h"
 #include <string>
+#include <memory>
 
 
 BeginNameSpace( ONEFLOW )
@@ -35,7 +36,7 @@ HXClone * Clone() const { return new TYPE( * this ); }
 
 #define REGISTER_CLASS( TYPE ) \
     HXClone * TYPE ## _myClass = \
-        HXClone::Register( #TYPE, new TYPE() );
+        HXClone::Register( #TYPE, std::make_unique< TYPE >() );
 
 #define C_CLASS( TYPE ) C##TYPE
 
@@ -51,6 +52,8 @@ public:
 public:
     // Returns a caller-owned clone of a registered prototype.
     static HXClone * SafeClone( const std::string & type );
+    static HXClone * Register( const std::string & type, std::unique_ptr< HXClone > clone );
+    // Compatibility overload; takes ownership of clone.
     static HXClone * Register( const std::string & type, HXClone * clone );
     StringField data;
 public:

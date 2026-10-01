@@ -1,5 +1,6 @@
 // HXCloneTest.cpp
 #include <gtest/gtest.h>
+#include <memory>
 #include "HXClone.h"
 
 namespace
@@ -27,7 +28,7 @@ protected:
 
 TEST_F( HXCloneTest, RegisterThenSafeCloneReturnsANewInstance )
 {
-    ONEFLOW::HXClone::Register( "HXCloneTest_TypeA", new StubClone() );
+    ONEFLOW::HXClone::Register( "HXCloneTest_TypeA", std::make_unique< StubClone >() );
 
     ONEFLOW::HXClone * cloned = ONEFLOW::HXClone::SafeClone( "HXCloneTest_TypeA" );
 
@@ -37,13 +38,13 @@ TEST_F( HXCloneTest, RegisterThenSafeCloneReturnsANewInstance )
 
 TEST_F( HXCloneTest, RegisterIsIdempotentAndDeletesTheDuplicateArgument )
 {
-    ONEFLOW::HXClone * first = new StubClone();
-    ONEFLOW::HXClone::Register( "HXCloneTest_TypeB", first );
+    ONEFLOW::HXClone * first = ONEFLOW::HXClone::Register(
+        "HXCloneTest_TypeB", std::make_unique< StubClone >() );
 
     // Registering the same type again transfers ownership of the duplicate
     // instance, which Register() discards while preserving the first entry.
-    ONEFLOW::HXClone * second = new StubClone();
-    ONEFLOW::HXClone * returned = ONEFLOW::HXClone::Register( "HXCloneTest_TypeB", second );
+    ONEFLOW::HXClone * returned = ONEFLOW::HXClone::Register(
+        "HXCloneTest_TypeB", std::make_unique< StubClone >() );
 
     EXPECT_EQ( returned, first ); // the original registration wins
 }

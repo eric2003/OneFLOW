@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <memory>
 #include <stdexcept>
 #include "Solver.h"
 
@@ -24,7 +25,7 @@ TEST( SolverTest, SafeCloneOnUnregisteredTypeThrows )
 
 TEST( SolverTest, RegisterThenSafeCloneReturnsANewInstance )
 {
-    ONEFLOW::Solver::Register( "SolverTest_TypeA", new StubSolver() );
+    ONEFLOW::Solver::Register( "SolverTest_TypeA", std::make_unique< StubSolver >() );
 
     ONEFLOW::Solver * cloned = ONEFLOW::Solver::SafeClone( "SolverTest_TypeA" );
 

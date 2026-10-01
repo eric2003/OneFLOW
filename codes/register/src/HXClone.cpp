@@ -54,17 +54,21 @@ HXClone * HXClone::SafeClone( const std::string & type )
     return iter->second->Clone();
 }
 
-HXClone * HXClone::Register( const std::string & type, HXClone * clone )
+HXClone * HXClone::Register( const std::string & type, std::unique_ptr< HXClone > clone )
 {
     //std::cout << "HXClone::Register : " << type << "\n";
-    std::unique_ptr< HXClone > ownedClone( clone );
     CloneRegistry & registry = GetCloneRegistry();
     CloneRegistry::iterator iter = registry.find( type );
     if ( iter != registry.end() ) return iter->second.get();
 
-    HXClone * registeredClone = ownedClone.get();
-    registry.emplace( type, std::move( ownedClone ) );
+    HXClone * registeredClone = clone.get();
+    registry.emplace( type, std::move( clone ) );
     return registeredClone;
+}
+
+HXClone * HXClone::Register( const std::string & type, HXClone * clone )
+{
+    return HXClone::Register( type, std::unique_ptr< HXClone >( clone ) );
 }
 
 EndNameSpace

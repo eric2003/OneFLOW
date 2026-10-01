@@ -37,7 +37,7 @@ Grid * Clone() const { return new TYPE(); }
 
 #define REGISTER_GRID( TYPE ) \
     Grid * TYPE ## _myClass = \
-        Grid::Register( #TYPE, new TYPE() );
+        Grid::Register( #TYPE, std::make_unique< TYPE >() );
 
 class DataBook;
 class NodeMesh;
@@ -56,6 +56,8 @@ public:
 public:
     // Returns a caller-owned clone of a registered grid prototype.
     static Grid * SafeClone( const std::string & type );
+    static Grid * Register( const std::string & type, std::unique_ptr< Grid > clone );
+    // Compatibility overload; takes ownership of clone.
     static Grid * Register( const std::string & type, Grid * clone );
 public:
     std::string name;

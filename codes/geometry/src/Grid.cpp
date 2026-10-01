@@ -69,16 +69,20 @@ Grid * Grid::SafeClone( const std::string & type )
     return iter->second->Clone();
 }
 
-Grid * Grid::Register( const std::string & type, Grid * clone )
+Grid * Grid::Register( const std::string & type, std::unique_ptr< Grid > clone )
 {
-    std::unique_ptr< Grid > ownedClone( clone );
     GridRegistry & registry = GetGridRegistry();
     GridRegistry::iterator iter = registry.find( type );
     if ( iter != registry.end() ) return iter->second.get();
 
-    Grid * registeredGrid = ownedClone.get();
-    registry.emplace( type, std::move( ownedClone ) );
+    Grid * registeredGrid = clone.get();
+    registry.emplace( type, std::move( clone ) );
     return registeredGrid;
+}
+
+Grid * Grid::Register( const std::string & type, Grid * clone )
+{
+    return Grid::Register( type, std::unique_ptr< Grid >( clone ) );
 }
 
 void Grid::BasicInit()

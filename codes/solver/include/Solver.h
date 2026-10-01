@@ -23,6 +23,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -32,7 +33,7 @@ Solver * Clone() const { return new TYPE( * this ); }
 
 #define REGISTER_SOLVER( TYPE ) \
     Solver * TYPE ## _myClass = \
-        Solver::Register( #TYPE, new TYPE() );
+        Solver::Register( #TYPE, std::make_unique< TYPE >() );
 
 class SolverInfo;
 
@@ -46,6 +47,8 @@ public:
 public:
     // Returns a caller-owned clone of a registered solver prototype.
     static Solver * SafeClone( const std::string & type );
+    static Solver * Register( const std::string & type, std::unique_ptr< Solver > clone );
+    // Compatibility overload; takes ownership of clone.
     static Solver * Register( const std::string & type, Solver * clone );
 public:
     int solverType;   // SolverType identifier, for example NS_SOLVER.

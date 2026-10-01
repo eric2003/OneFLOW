@@ -64,16 +64,20 @@ Solver * Solver::SafeClone( const std::string & type )
     return iter->second->Clone();
 }
 
-Solver * Solver::Register( const std::string & type, Solver * clone )
+Solver * Solver::Register( const std::string & type, std::unique_ptr< Solver > clone )
 {
-    std::unique_ptr< Solver > ownedClone( clone );
     SolverRegistry & registry = GetSolverRegistry();
     SolverRegistry::iterator iter = registry.find( type );
     if ( iter != registry.end() ) return iter->second.get();
 
-    Solver * registeredSolver = ownedClone.get();
-    registry.emplace( type, std::move( ownedClone ) );
+    Solver * registeredSolver = clone.get();
+    registry.emplace( type, std::move( clone ) );
     return registeredSolver;
+}
+
+Solver * Solver::Register( const std::string & type, Solver * clone )
+{
+    return Solver::Register( type, std::unique_ptr< Solver >( clone ) );
 }
 
 
