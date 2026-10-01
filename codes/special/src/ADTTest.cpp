@@ -21,7 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 #include "ADTTest.h"
 #include "SimuBase.h"
-#include "AdtTree.h"
+#include "HXAdtTree.h"
 #include <iostream> 
 #include <cassert>
 

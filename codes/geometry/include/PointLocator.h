@@ -23,7 +23,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
-#include "AdtTree.h"
+#include "HXAdtTree.h"
 #include "GridHandles.h"
 
 BeginNameSpace( ONEFLOW )

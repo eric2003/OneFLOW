@@ -7,7 +7,7 @@
 
 // Include OneFLOW namespaces and headers
 // Ensure CMake is configured with the correct include paths
-#include "AdtTree.h" 
+#include "HXAdtTree.h" 
 #include "HXDefine.h"
 
 // ============================================================================
