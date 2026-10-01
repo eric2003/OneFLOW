@@ -38,20 +38,17 @@ BeginNameSpace( ONEFLOW )
 CgnsBase::CgnsBase()
 {
     this->cgnsFile = 0;
-    this->familyBc = 0;
     this->freeFlag = false;
 }
 
 CgnsBase::CgnsBase( CgnsFile * cgnsFile )
 {
     this->cgnsFile = cgnsFile;
-    this->familyBc = 0;
     this->freeFlag = false;
 }
 
 CgnsBase::~CgnsBase()
 {
-    delete this->familyBc;
     if ( this->freeFlag )
     {
         this->FreeZoneList();
@@ -240,7 +237,7 @@ BCType_t CgnsBase::GetFamilyBcType( const std::string & bcFamilyName )
 
 void CgnsBase::ReadFamilySpecifiedBc()
 {
-    this->familyBc = new CgnsFamilyBc( this );
+    this->familyBc = std::make_unique< CgnsFamilyBc >( this );
     this->familyBc->ReadFamilySpecifiedBc();
 }
 

@@ -24,6 +24,7 @@ License
 #pragma once
 #include "NamespaceMacros.h"
 #include "HXCgns.h"
+#include <memory>
 #include <string>
 #include <map>
 
@@ -55,7 +56,7 @@ public:
     CgnsZone * GetCgnsZone( int iZone );
     void ConstructZoneNameMap();
     std::map< std::string, int > zoneNameMap;
-    CgnsFamilyBc * familyBc;
+    std::unique_ptr< CgnsFamilyBc > familyBc;
 public:
     int GetNZones();
     void SetDefaultCgnsBaseBasicInfo();
