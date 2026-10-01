@@ -541,7 +541,7 @@ ScalarFieldRecord * PrepareSendScalarFieldRecord()
     StringField fieldNameList;
     fieldNameList.push_back( "q" );
 
-    fieldRecord->AddFieldRecord( scalarIFace->dataSend, fieldNameList );
+    fieldRecord->AddFieldRecord( scalarIFace->dataSend.get(), fieldNameList );
 
     return fieldRecord;
 }
@@ -556,7 +556,7 @@ ScalarFieldRecord *  PrepareRecvScalarFieldRecord()
     StringField fieldNameList;
     fieldNameList.push_back( "q" );
 
-    fieldRecord->AddFieldRecord( scalarIFace->dataRecv, fieldNameList );
+    fieldRecord->AddFieldRecord( scalarIFace->dataRecv.get(), fieldNameList );
 
     return fieldRecord;
 }

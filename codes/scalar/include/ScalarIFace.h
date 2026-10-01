@@ -28,6 +28,7 @@ License
 #include "MetisGrid.h"
 #include <vector>
 #include <map>
+#include <memory>
 
 
 BeginNameSpace( ONEFLOW )
@@ -72,8 +73,8 @@ public:
     //target interfaces (local)
     std::vector< int > target_interfaces;
     //int zoneid;
-    DataStorage * dataSend;
-    DataStorage * dataRecv;
+    std::unique_ptr< DataStorage > dataSend;
+    std::unique_ptr< DataStorage > dataRecv;
     //global interface id to local interface id std::map
     std::map<int, int> global_to_local_interfaces;
     //local interface id to global interface id std::map
