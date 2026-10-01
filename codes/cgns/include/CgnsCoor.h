@@ -25,6 +25,7 @@ License
 #include "HXDefine.h"
 #include "HXCgns.h"
 #include <memory>
+#include <vector>
 
 BeginNameSpace( ONEFLOW )
 
@@ -50,6 +51,12 @@ public:
 public:
     CgInt irmin[ 3 ], irmax[ 3 ], cellSize[ 3 ];
 protected:
+    struct CoordinateBuffer
+    {
+        std::unique_ptr< float[] > singlePrecision;
+        std::unique_ptr< double[] > doublePrecision;
+    };
+    std::vector< CoordinateBuffer > coordinateBuffers;
     CgInt nNodes, nCells;
 public:
     CgInt GetNNode();

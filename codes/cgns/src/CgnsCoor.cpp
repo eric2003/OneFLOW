@@ -38,6 +38,7 @@ CgnsCoor::CgnsCoor( CgnsZone * cgnsZone )
     this->ndim = 3;
     this->typeList.resize( this->ndim );
     this->coor.resize( this->ndim );
+    this->coordinateBuffers.resize( this->ndim );
     this->nCoor = this->coor.size();
     this->nNodeList.resize( this->ndim );
     this->coorNameList.resize( this->ndim );
@@ -71,13 +72,18 @@ void CgnsCoor::SetNCell( CgInt nCells )
 
 void CgnsCoor::Alloc( int iCoor, int nNodes, DataType_t data_type )
 {
+    CoordinateBuffer & buffer = this->coordinateBuffers[ iCoor ];
     if ( data_type == RealSingle )
     {
-        this->coor[ iCoor ] = new float [ nNodes ];
+        buffer.doublePrecision.reset();
+        buffer.singlePrecision = std::make_unique< float[] >( nNodes );
+        this->coor[ iCoor ] = buffer.singlePrecision.get();
     }
     else
     {
-        this->coor[ iCoor ] = new double [ nNodes ];
+        buffer.singlePrecision.reset();
+        buffer.doublePrecision = std::make_unique< double[] >( nNodes );
+        this->coor[ iCoor ] = buffer.doublePrecision.get();
     }
 }
 
@@ -187,19 +193,9 @@ void CgnsCoor::DeAlloc()
 {
     for ( int iCoor = 0; iCoor < this->ndim; ++ iCoor )
     {
-        int data_type = this->typeList[ iCoor ];
-        if ( data_type == RealSingle )
-        {
-            float * data  = static_cast< float * >( this->coor[ iCoor ] );
-            delete [] data;
-            this->coor[ iCoor ] = nullptr;
-        }
-        else
-        {
-            double * data = static_cast< double * >( this->coor[ iCoor ] );
-            delete [] data;
-            this->coor[ iCoor ] = nullptr;
-        }
+        this->coordinateBuffers[ iCoor ].singlePrecision.reset();
+        this->coordinateBuffers[ iCoor ].doublePrecision.reset();
+        this->coor[ iCoor ] = nullptr;
     }
 }
 
