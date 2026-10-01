@@ -33,6 +33,7 @@ License
 #include "Partition.h"
 #include <iostream>
 #include<iomanip>
+#include <utility>
 
 
 BeginNameSpace( ONEFLOW )
@@ -273,15 +274,7 @@ MultiDomain::MultiDomain()
     ;
 }
 
-MultiDomain::~MultiDomain()
-{
-    int nSize = boxlist1.size();
-    for ( int i = 0; i < nSize; ++ i )
-    {
-        delete this->boxlist1[ i ];
-        delete this->boxlist2[ i ];
-    }
-}
+MultiDomain::~MultiDomain() = default;
 
 void MultiDomain::Add( int zid1, int fid1, int zid2, int fid2, PatchBox * box1, PatchBox * box2 )
 {
@@ -290,14 +283,11 @@ void MultiDomain::Add( int zid1, int fid1, int zid2, int fid2, PatchBox * box1, 
     this->fid1.push_back( fid1 );
     this->fid2.push_back( fid2 );
 
-    PatchBox * b1 = new PatchBox();
-    PatchBox * b2 = new PatchBox();
+    auto b1 = std::make_unique< PatchBox >( * box1 );
+    auto b2 = std::make_unique< PatchBox >( * box2 );
 
-    this->boxlist1.push_back( b1 );
-    this->boxlist2.push_back( b2 );
-
-    * b1 = * box1;
-    * b2 = * box2;
+    this->boxlist1.push_back( std::move( b1 ) );
+    this->boxlist2.push_back( std::move( b2 ) );
 }
 
 PBlkSet::PBlkSet()
@@ -787,8 +777,8 @@ void DomainInp::Dump( MultiDomain * md, GridMediator * gridMediator, PointLocato
         //int nSize = md->boxlist1.size();
         for ( int i = 0; i < nSize; ++ i )
         {
-            PatchBox * box1 = md->boxlist1[ i ];
-            PatchBox * box2 = md->boxlist2[ i ];
+            PatchBox * box1 = md->boxlist1[ i ].get();
+            PatchBox * box2 = md->boxlist2[ i ].get();
 
             int zid1 = md->zoneid1[ i ];
 

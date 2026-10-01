@@ -26,6 +26,7 @@ License
 #include <vector>
 #include <string>
 #include <fstream>
+#include <memory>
 
 
 BeginNameSpace( ONEFLOW )
@@ -81,8 +82,8 @@ public:
     MultiDomain();
     ~MultiDomain();
 public:
-    HXVector< PatchBox * > boxlist1;
-    HXVector< PatchBox * > boxlist2;
+    HXVector< std::unique_ptr< PatchBox > > boxlist1;
+    HXVector< std::unique_ptr< PatchBox > > boxlist2;
     IntField zoneid1, zoneid2;
     IntField fid1, fid2;
 public:
