@@ -77,7 +77,7 @@ void HeatFluxTask::AllocVariable()
     for ( int zId = 0; zId < ZoneState::nZones; ++ zId )
     {
         ZoneState::zid = zId;
-        wallManager->patch.push_back( new FaceJoint() );
+        wallManager->patch.push_back( std::make_unique< FaceJoint >() );
     }
 }
 
@@ -138,7 +138,7 @@ void HeatFluxTask::VisualizeWallNodeValue()
     int iCount = 0;
     for ( int iData = 0; iData < numberOfSubData; ++ iData )
     {
-        FaceJoint * basicWall = wallManager->patch[ iData ];
+        FaceJoint * basicWall = wallManager->patch[ iData ].get();
         if ( basicWall->isValid ) iCount ++;
         basicWall->Visual( file );
     }
@@ -207,8 +207,8 @@ void AddWallFaceNode( FaceJointManager * walldata, int iZone )
 
     if ( nSolidCells > 0 )
     {
-        FaceJoint * global = walldata->global;
-        FaceJoint * local = walldata->patch[ iZone ];
+        FaceJoint * global = walldata->global.get();
+        FaceJoint * local = walldata->patch[ iZone ].get();
         local->isValid = true;
         global->isValid = true;
         local->AddFacePoint( nSolidCells, ptLink );
@@ -229,8 +229,8 @@ void AddWallFaceValue( FaceJointManager * walldata, int iZone )
 
     if ( nSolidCells > 0 )
     {
-        FaceJoint * global = walldata->global;
-        FaceJoint * local  = walldata->patch[ iZone ];
+        FaceJoint * global = walldata->global.get();
+        FaceJoint * local  = walldata->patch[ iZone ].get();
 
         global->AddFaceCenterValue( nSolidCells, fcv );
         local->AddFaceCenterValue( nSolidCells, fcv );
