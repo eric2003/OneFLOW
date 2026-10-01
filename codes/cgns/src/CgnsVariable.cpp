@@ -24,18 +24,15 @@ License
 #include "CgnsBase.h"
 #include <iostream>
 #include <iomanip>
+#include <utility>
 
 BeginNameSpace( ONEFLOW )
 
 CgnsVector::CgnsVector()
 {
-    data = 0;
 }
 
-CgnsVector::~CgnsVector()
-{
-    delete[ ] this->data;
-}
+CgnsVector::~CgnsVector() = default;
 
 void CgnsVector::Create()
 {
@@ -46,7 +43,7 @@ void CgnsVector::Create()
         nSize *= dims[ i ];
     }
 
-    this->data = new VEC_DATA[ nSize ];
+    this->data.resize( nSize );
     std::cout << " nSize = " << nSize << "\n";
 }
 
@@ -73,7 +70,7 @@ void CgnsVector::ReadArrayInfo( int arrayId )
 
 void CgnsVector::ReadArrayContent()
 {
-    cg_array_read_as( this->arrayId, CGNS_ENUMV( RealDouble ), data );
+    cg_array_read_as( this->arrayId, CGNS_ENUMV( RealDouble ), this->data.data() );
     this->PrintData();
 }
 
@@ -95,28 +92,14 @@ CgnsZVector::CgnsZVector()
 {
 }
 
-CgnsZVector::~CgnsZVector()
-{
-    int nArrays = cgnsVectorList.size();
-    for ( int iArray = 0; iArray < nArrays; ++ iArray )
-    {
-        delete cgnsVectorList[ iArray ];
-    }
-}
+CgnsZVector::~CgnsZVector() = default;
 
 CgnsUserData::CgnsUserData( CgnsBase * cgnsBase )
 {
     this->cgnsBase = cgnsBase;
 }
 
-CgnsUserData::~CgnsUserData()
-{
-    int nSize = cgnsZVectorList.size();
-    for ( int i = 0; i < nSize; ++ i )
-    {
-        delete cgnsZVectorList[ i ];
-    }
-}
+CgnsUserData::~CgnsUserData() = default;
 
 void CgnsUserData::ReadUserData()
 {
@@ -138,9 +121,9 @@ void CgnsUserData::ReadUserData()
 
         cgnsBase->GoToNode( "UserDefinedData_t", iDataId );
 
-        CgnsZVector * cgnsZVector = new CgnsZVector();
+        auto cgnsZVector = std::make_unique< CgnsZVector >();
         cgnsZVector->ReadArray();
-        cgnsZVectorList.push_back( cgnsZVector );
+        cgnsZVectorList.push_back( std::move( cgnsZVector ) );
     }
 }
 
@@ -157,11 +140,11 @@ void CgnsZVector::ReadArray( int nArrays )
     for ( int iArray = 0; iArray < nArrays; ++ iArray )
     {
         int A = iArray + 1;
-        CgnsVector * cgnsVar = new CgnsVector();
+        auto cgnsVar = std::make_unique< CgnsVector >();
         cgnsVar->arrayId = A;
         cgnsVar->ReadArray();
 
-        cgnsVectorList.push_back( cgnsVar );
+        cgnsVectorList.push_back( std::move( cgnsVar ) );
     }
 }
 
