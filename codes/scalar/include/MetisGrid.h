@@ -27,6 +27,7 @@ License
 #include "HXDefine.h"
 #include "ScalarGrid.h"
 #include "metis.h"
+#include <memory>
 #include <vector>
 #include <set>
 #include <map>
@@ -64,11 +65,11 @@ public:
 public:
     ScalarGrid * ggrid;
     int nPart;
-    std::vector< ScalarGrid * > * grids;
+    std::vector< std::unique_ptr< ScalarGrid > > * grids;
 public:
     int GetNZones();
     void AllocateGrid( int nZones );
-    void PartitionGrid( ScalarGrid * ggrid, int nPart, std::vector< ScalarGrid * > * grids );
+    void PartitionGrid( ScalarGrid * ggrid, int nPart, std::vector< std::unique_ptr< ScalarGrid > > * grids );
     void ReconstructGridFaceTopo();
     void ReconstructInterfaceTopo();
     void ReconstructNode();

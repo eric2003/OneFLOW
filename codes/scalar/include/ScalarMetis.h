@@ -23,6 +23,7 @@ License
 
 #pragma once
 #include "HXType.h"
+#include <memory>
 #include <vector>
 #include <string>
 
@@ -43,9 +44,9 @@ public:
     static void CreateCgnsMesh1D();
 };
 
-void ScalarMetisAddZoneGrid( std::vector< ScalarGrid * > & part_grids );
-void ScalarReadGrid( const std::string & gridFileName, std::vector< ScalarGrid * > & grids );
+void ScalarMetisAddZoneGrid( std::vector< std::unique_ptr< ScalarGrid > > & part_grids );
+void ScalarReadGrid( const std::string & gridFileName, std::vector< std::unique_ptr< ScalarGrid > > & grids );
 void ScalarDumpGrid( const std::string & gridFileName, ScalarGrid * grid );
-void ScalarDumpGrid( const std::string & gridFileName, std::vector< ScalarGrid * > & grids );
+void ScalarDumpGrid( const std::string & gridFileName, std::vector< std::unique_ptr< ScalarGrid > > & grids );
 
 EndNameSpace
