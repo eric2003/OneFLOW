@@ -44,6 +44,7 @@ License
 //#include "UINsUnsteady.h"
 #include "UINsBcSolver.h"
 #include <iostream>
+#include <memory>
 
 
 BeginNameSpace( ONEFLOW )
@@ -65,10 +66,9 @@ void INsRhs::UpdateResiduals()
 
 void INsCalcBc()
 {
-	UINsBcSolver * uINsBcSolver = new UINsBcSolver();
+	auto uINsBcSolver = std::make_unique<UINsBcSolver>();
 	uINsBcSolver->Init();
 	uINsBcSolver->CalcBc();
-	delete uINsBcSolver;
 }
 
 void INsCalcGamaT(int flag)
@@ -128,100 +128,87 @@ void INsCalcRHS()
 
 void INsCalcTimeStep()
 {
-	UINsInvterm * uINsInvterm = new UINsInvterm();
+	auto uINsInvterm = std::make_unique<UINsInvterm>();
 	uINsInvterm->CalcINsTimeStep();
-	delete uINsInvterm;
 }
 
 void INsPreflux()
 {
-	UINsInvterm * uINsInvterm = new UINsInvterm();
+	auto uINsInvterm = std::make_unique<UINsInvterm>();
 	uINsInvterm->CalcINsPreflux();
-	delete uINsInvterm;
 }
 
 void INsCalcInv()
 {
-	UINsInvterm * uINsInvterm = new UINsInvterm();
+	auto uINsInvterm = std::make_unique<UINsInvterm>();
 	uINsInvterm->CalcInvcoff();
-	delete uINsInvterm;
 }
 
 void INsCalcVis()
 {
-	UINsVisterm * uINsVisterm = new UINsVisterm();
+	auto uINsVisterm = std::make_unique<UINsVisterm>();
 	uINsVisterm->CalcViscoff();
-	delete uINsVisterm;
 }
 
 void INsCalcUnstead()
 {
-	UINsVisterm * uINsVisterm = new UINsVisterm();
+	auto uINsVisterm = std::make_unique<UINsVisterm>();
 	uINsVisterm->CalcUnsteadcoff();
-	delete uINsVisterm;
 }
 
 void INsCalcSrc()
 {
-	UINsVisterm * uINsVisterm = new UINsVisterm();
+	auto uINsVisterm = std::make_unique<UINsVisterm>();
 	uINsVisterm->CalcINsSrc();
-	delete uINsVisterm;
 }
 
 void INsMomPre()
 {
-	UINsInvterm * uINsInvterm = new UINsInvterm();
+	auto uINsInvterm = std::make_unique<UINsInvterm>();
 	uINsInvterm->MomPre();
-	delete uINsInvterm;
 }
 
 void INsCalcFaceflux()
 {
-	UINsInvterm * uINsInvterm = new UINsInvterm();
+	auto uINsInvterm = std::make_unique<UINsInvterm>();
 	uINsInvterm->CalcFaceflux();
-	delete uINsInvterm;
 }
 
 void INsCorrectPresscoef()
 {
-	UINsInvterm * uINsInvterm = new UINsInvterm();
+	auto uINsInvterm = std::make_unique<UINsInvterm>();
 	uINsInvterm->CalcCorrectPresscoef();
-	delete uINsInvterm;
 }
 
 void INsCalcPressCorrectEquandUpdatePress()
 {
-	UINsInvterm * uINsInvterm = new UINsInvterm();
+	auto uINsInvterm = std::make_unique<UINsInvterm>();
 	uINsInvterm->CalcPressCorrectEqu();
-	delete uINsInvterm;
 }
 
 void INsUpdateFaceflux()
 {
-	UINsInvterm * uINsInvterm = new UINsInvterm();
+	auto uINsInvterm = std::make_unique<UINsInvterm>();
 	uINsInvterm->UpdateFaceflux();
-	delete uINsInvterm;
 }
 
 void INsCalcSpeedCorrectandUpdateSpeed()
 {
-	UINsInvterm * uINsInvterm = new UINsInvterm();
+	auto uINsInvterm = std::make_unique<UINsInvterm>();
 	uINsInvterm->UpdateSpeed();
-	delete uINsInvterm;
 }
 
 void INsUpdateRes()
 {
-	UINsInvterm * uINsInvterm = new UINsInvterm();
+	auto uINsInvterm = std::make_unique<UINsInvterm>();
 	uINsInvterm->UpdateINsRes();
-	delete uINsInvterm;
 }
 
 //void INsCorrectSpeed()
 //{
-//	UINsInvterm * uINsInvterm = new UINsInvterm();
+//	auto uINsInvterm = std::make_unique<UINsInvterm>();
 //	uINsInvterm->CalcCorrectSpeed();
-//	delete uINsInvterm;
+//
 //}
 
 
@@ -238,9 +225,9 @@ void INsCalcTurbEnergy()
 
 //void INsCalcDualTimeStepSrc()
 //{
-//	UINsUnsteady * uinsUnsteady = new UINsUnsteady();
+//	auto uinsUnsteady = std::make_unique<UINsUnsteady>();
 //	uinsUnsteady->CalcDualTimeSrc();
-//	delete uinsUnsteady;
+//
 //}
 
 

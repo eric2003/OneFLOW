@@ -37,6 +37,7 @@ License
 #include "Ctrl.h"
 
 #include <iostream>
+#include <memory>
 
 
 BeginNameSpace( ONEFLOW )
@@ -58,19 +59,17 @@ void NsRhs::UpdateResiduals()
 
 void NsCalcBc()
 {
-	UNsBcSolver * uNsBcSolver = new UNsBcSolver();
+	auto uNsBcSolver = std::make_unique<UNsBcSolver>();
 	uNsBcSolver->Init();
 	uNsBcSolver->CalcBc();
-	delete uNsBcSolver;
 }
 
 void NsCalcBcDebug( const std::string & title )
 {
 	std::cout << title << "\n";
-	UNsBcSolver * uNsBcSolver = new UNsBcSolver();
+	auto uNsBcSolver = std::make_unique<UNsBcSolver>();
 	uNsBcSolver->Init();
 	uNsBcSolver->CalcBc();
-	delete uNsBcSolver;
 
 }
 
@@ -110,16 +109,14 @@ void NsCalcRHS()
 
 void NsCalcInvFlux()
 {
-	UNsInvFlux * uNsInvFlux = new UNsInvFlux();
+	auto uNsInvFlux = std::make_unique<UNsInvFlux>();
 	uNsInvFlux->CalcFlux();
-	delete uNsInvFlux;
 }
 
 void NsCalcVisFlux()
 {
-	UNsVisFlux * uNsVisFlux = new UNsVisFlux();
+	auto uNsVisFlux = std::make_unique<UNsVisFlux>();
 	uNsVisFlux->CalcFlux();
-	delete uNsVisFlux;
 }
 
 void NsCalcSrcFlux()
@@ -150,9 +147,8 @@ void NsCalcTurbEnergy()
 
 void NsCalcDualTimeStepSrc()
 {
-	UNsUnsteady * unsUnsteady = new UNsUnsteady();
+	auto unsUnsteady = std::make_unique<UNsUnsteady>();
 	unsUnsteady->CalcDualTimeSrc();
-	delete unsUnsteady;
 }
 
 EndNameSpace

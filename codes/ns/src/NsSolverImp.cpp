@@ -39,6 +39,7 @@ License
 #include "SolverRegister.h"
 #include "DataBase.h"
 #include <iomanip>
+#include <memory>
 
 
 BeginNameSpace( ONEFLOW )
@@ -99,16 +100,14 @@ void NsCalcBoundary( StringField & data )
 
 void NsCalcTimeStep( StringField & data )
 {
-    UTimeStep * uTimeStep = new UTimeStep();
+    auto uTimeStep = std::make_unique<UTimeStep>();
     uTimeStep->CalcTimeStep();
-    delete uTimeStep;
 }
 
 void NsUpdateResiduals( StringField & data )
 {
-    Rhs * rhs = new NsRhs();
+    auto rhs = std::make_unique<NsRhs>();
     rhs->UpdateResiduals();
-    delete rhs;
 }
 
 void NsImplicitMethod( StringField & data )
