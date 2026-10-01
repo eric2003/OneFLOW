@@ -36,6 +36,7 @@ License
 #include "FaceSolver.h"
 #include "BcRecord.h"
 #include <iostream>
+#include <utility>
 
 
 
@@ -48,32 +49,31 @@ CgnsZbcBoco::CgnsZbcBoco( CgnsZone * cgnsZone )
     this->nBoco = 0;
 }
 
-CgnsZbcBoco::~CgnsZbcBoco()
-{
-    for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
-    {
-        delete this->cgnsBcBocos[ iBoco ];
-    }
-}
+CgnsZbcBoco::~CgnsZbcBoco() = default;
 
 void CgnsZbcBoco::AddCgnsBcBoco( CgnsBcBoco * cgnsBcBoco )
 {
-    this->cgnsBcBocos.push_back( cgnsBcBoco );
+    this->AddCgnsBcBoco( std::unique_ptr< CgnsBcBoco >( cgnsBcBoco ) );
+}
+
+void CgnsZbcBoco::AddCgnsBcBoco( std::unique_ptr< CgnsBcBoco > cgnsBcBoco )
+{
+    CgnsBcBoco * bcBoco = cgnsBcBoco.get();
+    this->cgnsBcBocos.push_back( std::move( cgnsBcBoco ) );
     int id = this->cgnsBcBocos.size();
-    cgnsBcBoco->bcId = id;
+    bcBoco->bcId = id;
 }
 
 CgnsBcBoco * CgnsZbcBoco::GetCgnsBc( int iBoco )
 {
-    return this->cgnsBcBocos[ iBoco ];
+    return this->cgnsBcBocos[ iBoco ].get();
 }
 
 void CgnsZbcBoco::CreateCgnsZbc()
 {
     for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
     {
-        CgnsBcBoco * cgnsBcBoco = new CgnsBcBoco( this->cgnsZone );
-        this->AddCgnsBcBoco( cgnsBcBoco );
+        this->AddCgnsBcBoco( std::make_unique< CgnsBcBoco >( this->cgnsZone ) );
     }
 }
 
@@ -184,8 +184,9 @@ CgnsBcBoco * CgnsZbcBoco::WriteCgnsBoco( const std::string & bocoName, BCType_t 
     int baseId = cgnsZone->cgnsBase->baseId;
     int zId = cgnsZone->zId;
 
-    CgnsBcBoco * cgnsBcBoco = new CgnsBcBoco( this->cgnsZone );
-    this->AddCgnsBcBoco( cgnsBcBoco );
+    std::unique_ptr< CgnsBcBoco > ownedBcBoco = std::make_unique< CgnsBcBoco >( this->cgnsZone );
+    CgnsBcBoco * cgnsBcBoco = ownedBcBoco.get();
+    this->AddCgnsBcBoco( std::move( ownedBcBoco ) );
 
     cgnsBcBoco->WriteCgnsBoco( bocoName, bocotype, ptset_type, npnts, pnts );
 
