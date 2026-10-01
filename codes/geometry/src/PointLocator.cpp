@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "PointLocator.h"
+#include "GridHandles.h"
 #include "Grid.h"
 #include "NodeMesh.h"
 #include "Constant.h"
@@ -70,6 +71,12 @@ void PointLocator::InitializeSpecial( Grid * grid, Real toleranceIn )
 }
 
 void PointLocator::Initialize( Grids & grids )
+{
+    GridViews views = AsGridViews( grids );
+    this->Initialize( views );
+}
+
+void PointLocator::Initialize( GridViews & grids )
 {
     ONEFLOW::CreateStandardADT( grids, this->coorTree, tolerance );
 }
@@ -213,6 +220,12 @@ void CreateStandardADT( Grid * grid, std::unique_ptr<AdtTree>& adtTree, Real & t
 
 void CreateStandardADT( Grids & grids, std::unique_ptr<AdtTree>& adtTree, Real & tolerance )
 {
+    GridViews views = AsGridViews( grids );
+    CreateStandardADT( views, adtTree, tolerance );
+}
+
+void CreateStandardADT( GridViews & grids, std::unique_ptr<AdtTree>& adtTree, Real & tolerance )
+{
     RealField pmin( 3 ), pmax( 3 );
     ONEFLOW::GetBoundingBoxOfMultiZoneGrids( grids, pmin, pmax );
 
@@ -229,6 +242,12 @@ void CreateStandardADT( Grids & grids, std::unique_ptr<AdtTree>& adtTree, Real &
 
 
 void CreateStandardADTByTolerance( Grids & grids, std::unique_ptr<AdtTree>& adtTree, Real & tolerance )
+{
+    GridViews views = AsGridViews( grids );
+    CreateStandardADTByTolerance( views, adtTree, tolerance );
+}
+
+void CreateStandardADTByTolerance( GridViews & grids, std::unique_ptr<AdtTree>& adtTree, Real & tolerance )
 {
     RealField pmin( 3 ), pmax( 3 );
     ONEFLOW::GetBoundingBoxOfMultiZoneGrids( grids, pmin, pmax );
@@ -251,15 +270,21 @@ void ShiftMinMaxBox( RealField & pmin, RealField & pmax, Real tolerance )
 
 void GetGridsMinMaxDistance( Grids & grids, Real & mindis, Real & maxdis )
 {
+    GridViews views = AsGridViews( grids );
+    GetGridsMinMaxDistance( views, mindis, maxdis );
+}
+
+void GetGridsMinMaxDistance( GridViews & grids, Real & mindis, Real & maxdis )
+{
     mindis =   LARGE;
     maxdis = - LARGE;
 
-    int numberOfZones = grids.size();
+    int numberOfZones = static_cast< int >( grids.size() );
 
     for ( int iZone = 0; iZone < numberOfZones; ++ iZone )
     {
         Real dismin, dismax;
-        grids[ iZone ]->GetMinMaxDistance( dismin, dismax );
+        GridAt( grids, iZone )->GetMinMaxDistance( dismin, dismax );
 
         mindis = ONEFLOW::MIN( mindis, dismin );
         maxdis = ONEFLOW::MAX( maxdis, dismax );
@@ -267,6 +292,12 @@ void GetGridsMinMaxDistance( Grids & grids, Real & mindis, Real & maxdis )
 }
 
 Real CalcGridTolerance( Grids & grids )
+{
+    GridViews views = AsGridViews( grids );
+    return CalcGridTolerance( views );
+}
+
+Real CalcGridTolerance( GridViews & grids )
 {
     Real mindis =   LARGE;
     Real maxdis = - LARGE;
@@ -280,6 +311,12 @@ Real CalcGridTolerance( Grids & grids )
 
 void GetBoundingBoxOfMultiZoneGrids( Grids & grids, RealField & pmin, RealField & pmax )
 {
+    GridViews views = AsGridViews( grids );
+    GetBoundingBoxOfMultiZoneGrids( views, pmin, pmax );
+}
+
+void GetBoundingBoxOfMultiZoneGrids( GridViews & grids, RealField & pmin, RealField & pmax )
+{
     pmin[ 0 ] = LARGE;
     pmin[ 1 ] = LARGE;
     pmin[ 2 ] = LARGE;
@@ -288,13 +325,13 @@ void GetBoundingBoxOfMultiZoneGrids( Grids & grids, RealField & pmin, RealField 
     pmax[ 1 ] = - LARGE;
     pmax[ 2 ] = - LARGE;
 
-    int numberOfZones = grids.size();
+    int numberOfZones = static_cast< int >( grids.size() );
 
     for ( int iZone = 0; iZone < numberOfZones; ++ iZone )
     {
-        grids[ iZone ]->nodeMesh->CalcMinMaxBox();
-        RealField & localPmin = grids[ iZone ]->nodeMesh->pmin;
-        RealField & localPmax = grids[ iZone ]->nodeMesh->pmax;
+        GridAt( grids, iZone )->nodeMesh->CalcMinMaxBox();
+        RealField & localPmin = GridAt( grids, iZone )->nodeMesh->pmin;
+        RealField & localPmax = GridAt( grids, iZone )->nodeMesh->pmax;
 
         pmin[ 0 ] = ONEFLOW::MIN( pmin[ 0 ], localPmin[ 0 ] );
         pmin[ 1 ] = ONEFLOW::MIN( pmin[ 1 ], localPmin[ 1 ] );

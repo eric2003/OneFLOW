@@ -24,6 +24,7 @@ License
 #pragma once
 #include "NamespaceMacros.h"
 #include "HXCgns.h"
+#include <memory>
 #include <string>
 #include <map>
 
@@ -47,19 +48,19 @@ public:
     int nZones;
     int celldim, phydim;
     std::string baseName;
-    HXVector< CgnsZone * > cgnsZones;
-    bool freeFlag;
+    HXVector< std::unique_ptr< CgnsZone > > cgnsZones;
 public:
     void FreeZoneList();
     CgnsZone * GetCgnsZoneByName( const std::string & zoneName );
     CgnsZone * GetCgnsZone( int iZone );
     void ConstructZoneNameMap();
     std::map< std::string, int > zoneNameMap;
-    CgnsFamilyBc * familyBc;
+    std::unique_ptr< CgnsFamilyBc > familyBc;
 public:
     int GetNZones();
     void SetDefaultCgnsBaseBasicInfo();
     void AddCgnsZone( CgnsZone * cgnsZone );
+    void AddCgnsZone( std::unique_ptr< CgnsZone > cgnsZone );
     void AllocateAllCgnsZones();
     void ReadCgnsBaseBasicInfo();
     void DumpCgnsBaseBasicInfo();

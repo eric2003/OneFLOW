@@ -50,21 +50,13 @@ BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
 
 CgnsZone::CgnsZone( CgnsBase * cgnsBase )
+    : cgnsBase( cgnsBase ),
+      volBcType( -1 )
 {
-    this->cgnsBase = cgnsBase;
-    this->cgnsZsection = nullptr;
-    this->cgnsZbc = nullptr;
-    this->volBcType = -1;
-    this->cgnsCoor = nullptr;
     this->InitISize();
 }
 
-CgnsZone::~CgnsZone()
-{
-    delete this->cgnsZsection;
-    delete this->cgnsZbc;
-    delete this->cgnsCoor;
-}
+CgnsZone::~CgnsZone() = default;
 
 void CgnsZone::CopyISize( CgInt * isize )
 {
@@ -94,9 +86,9 @@ int CgnsZone::GetVolBcType()
 
 void CgnsZone::Create()
 {
-    this->cgnsZsection = new CgnsZsection( this );
-    this->cgnsZbc = new CgnsZbc( this );
-    this->cgnsCoor = new CgnsCoor( this );
+    this->cgnsZsection = std::make_unique< CgnsZsection >( this );
+    this->cgnsZbc = std::make_unique< CgnsZbc >( this );
+    this->cgnsCoor = std::make_unique< CgnsCoor >( this );
 }
 
 void CgnsZone::SetPeriodicBc()
@@ -333,7 +325,7 @@ void CgnsZone::ReadCgnsGridCoordinates()
 
 void CgnsZone::ReadCgnsGridCoordinates( CgnsZone * cgnsZoneIn )
 {
-    cgnsCoor->ReadCgnsGridCoordinates( cgnsZoneIn->cgnsCoor );
+    cgnsCoor->ReadCgnsGridCoordinates( cgnsZoneIn->cgnsCoor.get() );
 }
 
 void CgnsZone::DumpCgnsGridCoordinates()

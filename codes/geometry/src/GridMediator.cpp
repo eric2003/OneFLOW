@@ -55,7 +55,7 @@ void GridMediator::AddDefaultName()
 
     for ( int iZone = 0; iZone < numberOfZones; ++ iZone )
     {
-        StrGrid * grid = ONEFLOW::StrGridCast( this->gridVector[ iZone ] );
+        StrGrid * grid = ONEFLOW::StrGridCast( GridAt( this->gridVector, iZone ) );
 
         grid->name = AddString( "Zone", iZone + 1 );
 
@@ -140,7 +140,6 @@ void ZgridMediator::ReadGrid()
 
 void ZgridMediator::ReadGrid( const GridConfig & config )
 {
-
     auto gridMediator = std::make_unique< GridMediator >();
     gridMediator->gridFile = config.sourceFile;
     gridMediator->bcFile   = config.bcFile;
@@ -153,6 +152,5 @@ void ZgridMediator::ReadGrid( const GridConfig & config )
     gridMediator->ReadGrid();
     this->add( std::move( gridMediator ) );
 }
-
 
 EndNameSpace

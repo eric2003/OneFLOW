@@ -23,6 +23,7 @@ License
 
 #pragma once
 #include "NamespaceMacros.h"
+#include <memory>
 #include <vector>
 
 
@@ -109,8 +110,8 @@ public:
     std::vector< double > u;
     std::vector< double > un;
     std::vector< double > x;
-    std::vector< ScalarZoneTmp * > scalarZones;
-    ScalarGrid * scalarGrid;
+    std::vector< std::unique_ptr< ScalarZoneTmp > > scalarZones;
+    std::unique_ptr< ScalarGrid > scalarGrid;
 public:
     std::vector< double > du, dua;
     std::vector< double > utheory;

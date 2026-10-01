@@ -40,9 +40,9 @@ namespace
     class StubTaskCreator : public ONEFLOW::HXClone
     {
     public:
-        ONEFLOW::HXClone * Clone() const override
+        std::unique_ptr< ONEFLOW::HXClone > Clone() const override
         {
-            return new StubTaskCreator( *this );
+            return std::make_unique< StubTaskCreator >(  *this  );
         }
         void Solve() override
         {

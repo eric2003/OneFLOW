@@ -29,6 +29,7 @@ License
 #include "Fatal.h"
 #include <iostream>
 #include <iomanip>
+#include <utility>
 
 BeginNameSpace( ONEFLOW )
 
@@ -128,20 +129,18 @@ CgnsBase * CgnsFile::WriteBase( const std::string & baseName, int celldim, int p
 
 void CgnsFile::FreeBaseList()
 {
-    for ( int i = 0; i < baseList.size(); ++ i )
-    {
-        delete baseList[ i ];
-    }
+    this->baseList.clear();
 }
 
 CgnsBase * CgnsFile::AddBase( int fileId, const std::string & baseName, int celldim, int physdim, int baseId )
 {
-    CgnsBase * base = new CgnsBase( this );
+    auto ownedBase = std::make_unique< CgnsBase >( this );
+    CgnsBase * base = ownedBase.get();
     base->baseName = baseName;
     base->celldim = celldim;
     base->phydim = physdim;
     base->baseId = baseId;
-    baseList.push_back( base );
+    this->baseList.push_back( std::move( ownedBase ) );
     return base;
 }
 
@@ -161,11 +160,12 @@ CgnsBase * CgnsFile::CreateCgnsBase()
     int iBase = baseList.size();
     int baseId = iBase + 1;
 
-    CgnsBase * cgnsBase = new CgnsBase( this );
-    this->baseList.push_back( cgnsBase );
-    cgnsBase->baseId = baseId;
+    auto cgnsBase = std::make_unique< CgnsBase >( this );
+    CgnsBase * base = cgnsBase.get();
+    this->baseList.push_back( std::move( cgnsBase ) );
+    base->baseId = baseId;
 
-    return cgnsBase;
+    return base;
 }
 
 void CgnsFile::ReadBases()
@@ -174,8 +174,9 @@ void CgnsFile::ReadBases()
     for ( int iBase = 0; iBase < this->nBases; ++ iBase )
     {
         int baseId = iBase + 1;
-        CgnsBase * cgnsBase = new CgnsBase( this );
-        this->baseList.push_back( cgnsBase );
+        auto ownedBase = std::make_unique< CgnsBase >( this );
+        CgnsBase * cgnsBase = ownedBase.get();
+        this->baseList.push_back( std::move( ownedBase ) );
         cgnsBase->baseId = baseId;
         cgnsBase->ReadCgnsBaseBasicInfo();
     }
@@ -186,7 +187,7 @@ void CgnsFile::ReadArray()
     this->ReadBases();
     for ( int iBase = 0; iBase < this->nBases; ++ iBase )
     {
-        CgnsBase * cgnsBase = this->baseList[ iBase ];
+        CgnsBase * cgnsBase = this->baseList[ iBase ].get();
         cgnsBase->ReadArray();
     }
 }
@@ -196,7 +197,7 @@ void CgnsFile::ReadReferenceState()
     this->ReadBases();
     for ( int iBase = 0; iBase < this->nBases; ++ iBase )
     {
-        CgnsBase * cgnsBase = this->baseList[ iBase ];
+        CgnsBase * cgnsBase = this->baseList[ iBase ].get();
         cgnsBase->ReadReferenceState();
     }
 }
@@ -206,7 +207,7 @@ void CgnsFile::ReadBaseDescriptor()
     this->ReadBases();
     for ( int iBase = 0; iBase < this->nBases; ++ iBase )
     {
-        CgnsBase * cgnsBase = this->baseList[ iBase ];
+        CgnsBase * cgnsBase = this->baseList[ iBase ].get();
         cgnsBase->ReadBaseDescriptor();
     }
 }
@@ -239,7 +240,7 @@ void CgnsFile::ReadConvergence()
     this->ReadBases();
     for ( int iBase = 0; iBase < this->nBases; ++ iBase )
     {
-        CgnsBase * cgnsBase = this->baseList[ iBase ];
+        CgnsBase * cgnsBase = this->baseList[ iBase ].get();
         cgnsBase->ReadConvergence();
     }
 }
@@ -249,7 +250,7 @@ void CgnsFile::ReadFlowEqn()
     this->ReadBases();
     for ( int iBase = 0; iBase < this->nBases; ++ iBase )
     {
-        CgnsBase * cgnsBase = this->baseList[ iBase ];
+        CgnsBase * cgnsBase = this->baseList[ iBase ].get();
         cgnsBase->ReadFlowEqn();
     }
 }

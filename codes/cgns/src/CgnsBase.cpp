@@ -30,6 +30,8 @@ License
 #include "CgnsVariable.h"
 
 #include <iostream>
+#include <memory>
+#include <utility>
 
 BeginNameSpace( ONEFLOW )
 
@@ -38,39 +40,26 @@ BeginNameSpace( ONEFLOW )
 CgnsBase::CgnsBase()
 {
     this->cgnsFile = 0;
-    this->familyBc = 0;
-    this->freeFlag = false;
 }
 
 CgnsBase::CgnsBase( CgnsFile * cgnsFile )
 {
     this->cgnsFile = cgnsFile;
-    this->familyBc = 0;
-    this->freeFlag = false;
 }
 
-CgnsBase::~CgnsBase()
-{
-    delete this->familyBc;
-    if ( this->freeFlag )
-    {
-        this->FreeZoneList();
-    }
-}
+CgnsBase::~CgnsBase() = default;
 
 void CgnsBase::FreeZoneList()
 {
-    for ( int i = 0; i < cgnsZones.size(); ++ i )
-    {
-        delete cgnsZones[ i ];
-    }
+    this->cgnsZones.clear();
+    this->nZones = 0;
 }
 
 
 CgnsZone * CgnsBase::GetCgnsZone( int iZone )
 {
     //iZone base on 0
-    return this->cgnsZones[ iZone ];
+    return this->cgnsZones[ iZone ].get();
 }
 
 CgnsZone * CgnsBase::GetCgnsZoneByName( const std::string & zoneName )
@@ -99,20 +88,26 @@ void CgnsBase::SetDefaultCgnsBaseBasicInfo()
 
 void CgnsBase::AddCgnsZone( CgnsZone * cgnsZone )
 {
-    cgnsZones.push_back( cgnsZone );
+    this->AddCgnsZone( std::unique_ptr< CgnsZone >( cgnsZone ) );
+}
+
+void CgnsBase::AddCgnsZone( std::unique_ptr< CgnsZone > cgnsZone )
+{
+    CgnsZone * zone = cgnsZone.get();
+    cgnsZones.push_back( std::move( cgnsZone ) );
     int zId = cgnsZones.size();
-    cgnsZone->zId = zId;
+    zone->zId = zId;
 }
 
 void CgnsBase::AllocateAllCgnsZones()
 {
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
-        CgnsZone * cgnsZone = new CgnsZone( this );
+        auto cgnsZone = std::make_unique< CgnsZone >( this );
+        CgnsZone * zone = cgnsZone.get();
+        this->AddCgnsZone( std::move( cgnsZone ) );
 
-        this->AddCgnsZone( cgnsZone );
-
-        cgnsZone->Create();
+        zone->Create();
     }
 }
 
@@ -144,13 +139,11 @@ void CgnsBase::ReadNumberOfCgnsZones()
 
 CgnsZone * CgnsBase::CreateCgnsZone()
 {
-    CgnsZone * cgnsZone = new CgnsZone( this );
-
-    this->AddCgnsZone( cgnsZone );
-
-    cgnsZone->Create();
-
-    return cgnsZone;
+    auto cgnsZone = std::make_unique< CgnsZone >( this );
+    CgnsZone * zone = cgnsZone.get();
+    this->AddCgnsZone( std::move( cgnsZone ) );
+    zone->Create();
+    return zone;
 }
 
 void CgnsBase::CreateCgnsZones( int nZones )
@@ -240,7 +233,7 @@ BCType_t CgnsBase::GetFamilyBcType( const std::string & bcFamilyName )
 
 void CgnsBase::ReadFamilySpecifiedBc()
 {
-    this->familyBc = new CgnsFamilyBc( this );
+    this->familyBc = std::make_unique< CgnsFamilyBc >( this );
     this->familyBc->ReadFamilySpecifiedBc();
 }
 
@@ -248,15 +241,13 @@ CgnsZone * CgnsBase::WriteZoneInfo( const std::string & zoneName, ZoneType_t zon
 {
     int cgzone = -1;
     cg_zone_write( this->cgnsFile->fileId, this->baseId, zoneName.c_str(), isize, zoneType, & cgzone );
-    this->freeFlag = true;
+    auto cgnsZone = std::make_unique< CgnsZone >( this );
+    CgnsZone * zone = cgnsZone.get();
+    this->AddCgnsZone( std::move( cgnsZone ) );
 
-    CgnsZone * cgnsZone = new CgnsZone( this );
+    zone->WriteZoneInfo( zoneName, zoneType, isize );
 
-    this->AddCgnsZone( cgnsZone );
-
-    cgnsZone->WriteZoneInfo( zoneName, zoneType, isize );
-
-    return cgnsZone;
+    return zone;
 }
 
 CgnsZone * CgnsBase::WriteZone( const std::string & zoneName )
@@ -338,10 +329,11 @@ void CgnsBase::ReadBaseDescriptor()
     for ( int n = 1; n <= ndescriptors; ++ n )
     {
         //read descriptor
-        char *text, name[33];
-        cg_descriptor_read( n, name, &text );
-        std::cout << "The descriptor is : " << name << "," << text << "\n";
-        delete[ ] text;
+        char * text = nullptr;
+        char name[ 33 ];
+        cg_descriptor_read( n, name, & text );
+        std::unique_ptr< char[] > descriptorText( text );
+        std::cout << "The descriptor is : " << name << "," << descriptorText.get() << "\n";
     }
 }
 
@@ -350,10 +342,10 @@ void CgnsBase::ReadConvergence()
     this->GoToBase();
 
     int nIterations;
-    char *text;
-    cg_convergence_read( &nIterations, &text );
-    std::cout << "nIterations = " << nIterations << " text = " << text << "\n";
-    delete[ ] text;
+    char * text = nullptr;
+    cg_convergence_read( &nIterations, & text );
+    std::unique_ptr< char[] > convergenceText( text );
+    std::cout << "nIterations = " << nIterations << " text = " << convergenceText.get() << "\n";
 
     this->GoToNode( "ConvergenceHistory_t", 1 );
     int narrays = -1;
@@ -388,10 +380,11 @@ void CgnsBase::ReadCgnsZones()
     {
         int zoneId = iZone + 1;
 
-        CgnsZone * cgnsZone = new CgnsZone( this );
-        cgnsZone->zId = zoneId;
-        this->AddCgnsZone( cgnsZone );
-        cgnsZone->ReadCgnsZoneBasicInfo();
+        auto cgnsZone = std::make_unique< CgnsZone >( this );
+        CgnsZone * zone = cgnsZone.get();
+        zone->zId = zoneId;
+        this->AddCgnsZone( std::move( cgnsZone ) );
+        zone->ReadCgnsZoneBasicInfo();
     }
 }
 

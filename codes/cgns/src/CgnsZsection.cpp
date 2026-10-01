@@ -31,6 +31,7 @@ License
 #include "ElementHome.h"
 #include "ElemFeature.h"
 #include <iostream>
+#include <utility>
 
 
 BeginNameSpace( ONEFLOW )
@@ -45,16 +46,22 @@ CgnsZsection::~CgnsZsection()
 {
 }
 
+void CgnsZsection::AddCgnsSection( std::unique_ptr< CgnsSection > cgnsSection )
+{
+    CgnsSection * section = cgnsSection.get();
+    this->cgnsSections.push_back( std::move( cgnsSection ) );
+    int secId = cgnsSections.size();
+    section->id = secId;
+}
+
 void CgnsZsection::AddCgnsSection( CgnsSection * cgnsSection )
 {
-    this->cgnsSections.push_back( cgnsSection );
-    int secId = cgnsSections.size();
-    cgnsSection->id = secId;
+    this->AddCgnsSection( std::unique_ptr< CgnsSection >( cgnsSection ) );
 }
 
 CgnsSection * CgnsZsection::GetCgnsSection( int iSection )
 {
-    return this->cgnsSections[ iSection ];
+    return this->cgnsSections[ iSection ].get();
 }
 
 bool CgnsZsection::ExistSection( const std::string & sectionName )
@@ -86,8 +93,7 @@ void CgnsZsection::CreateCgnsSection()
 {
     for ( int iSection = 0; iSection < this->nSection; ++ iSection )
     {
-        CgnsSection * cgnsSection = new CgnsSection( cgnsZone );
-        this->AddCgnsSection( cgnsSection );
+        this->AddCgnsSection( std::make_unique< CgnsSection >( cgnsZone ) );
     }
 }
 

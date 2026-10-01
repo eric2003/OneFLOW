@@ -24,6 +24,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "HXCgns.h"
+#include <memory>
 #include <string>
 
 BeginNameSpace( ONEFLOW )
@@ -47,10 +48,11 @@ public:
     ~CgnsZbcBoco();
 public:
     int nBoco;
-    HXVector< CgnsBcBoco * > cgnsBcBocos;
+    HXVector< std::unique_ptr< CgnsBcBoco > > cgnsBcBocos;
     CgnsZone * cgnsZone;
 public:
     void AddCgnsBcBoco( CgnsBcBoco * cgnsBcBoco );
+    void AddCgnsBcBoco( std::unique_ptr< CgnsBcBoco > cgnsBcBoco );
     CgnsBcBoco * WriteCgnsBoco( const std::string & bocoName, BCType_t bocotype, PointSetType_t ptset_type, cgsize_t npnts, const cgsize_t * pnts );
     CgnsBcBoco * GetCgnsBc( int iBoco );
     void CreateCgnsZbc();

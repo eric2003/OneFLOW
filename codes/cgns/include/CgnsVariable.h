@@ -23,6 +23,8 @@ License
 
 #pragma once
 #include "HXCgns.h"
+#include <memory>
+#include <vector>
 
 BeginNameSpace( ONEFLOW )
 
@@ -39,7 +41,7 @@ public:
     int arrayId;
     int ndim;
     cgsize_t dims[ 12 ];
-    VEC_DATA * data;
+    std::vector< VEC_DATA > data;
 public:
     void ReadArray();
     void ReadArrayInfo( int arrayId );
@@ -55,7 +57,7 @@ public:
     CgnsZVector();
     ~CgnsZVector();
 public:
-    std::vector< CgnsVector * > cgnsVectorList;
+    std::vector< std::unique_ptr< CgnsVector > > cgnsVectorList;
     void ReadArray( int nArrays );
     void ReadArray();
 };
@@ -68,7 +70,7 @@ public:
     ~CgnsUserData();
 public:
     CgnsBase * cgnsBase;
-    std::vector< CgnsZVector * > cgnsZVectorList;
+    std::vector< std::unique_ptr< CgnsZVector > > cgnsZVectorList;
 public:
     void ReadUserData();
 };

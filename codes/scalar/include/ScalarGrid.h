@@ -28,6 +28,7 @@ License
 #include "metis.h"
 #include <vector>
 #include <fstream>
+#include <memory>
 
 
 BeginNameSpace( ONEFLOW )
@@ -146,9 +147,9 @@ public:
     ScalarBccos();
     ~ScalarBccos();
 public:
-    std::vector< ScalarBcco * > bccos;
+    std::vector< std::unique_ptr< ScalarBcco > > bccos;
 public:
-    void AddBcco( ScalarBcco * scalarBcco );
+    void AddBcco( std::unique_ptr< ScalarBcco > scalarBcco );
     void ScanBcFace( ScalarGrid * grid );
 };
 
@@ -196,15 +197,15 @@ public:
     IntList fBcTypes;
     IntList bcTypes;
     IntList bcNameIds;
-    ScalarBccos * scalarBccos;
-    DataBase * dataBase;
-    ScalarIFace * scalarIFace;
+    std::unique_ptr< ScalarBccos > scalarBccos;
+    std::unique_ptr< DataBase > dataBase;
+    std::unique_ptr< ScalarIFace > scalarIFace;
     int type, level;
     int id;
     int localId;
     int volBcType;
 public:
-    DataBase * GetDataBase() { return dataBase; };
+    DataBase * GetDataBase() { return dataBase.get(); };
 public:
     int GetNNodes();
     int GetNCells();

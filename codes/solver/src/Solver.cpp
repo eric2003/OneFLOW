@@ -24,13 +24,25 @@ License
 #include "SolverInfo.h"
 #include "Fatal.h"
 #include <map>
+#include <memory>
 #include <string>
 #include <iostream>
+#include <utility>
 
 
 BeginNameSpace( ONEFLOW )
 
-std::map< std::string, Solver * > * Solver::classMap = 0;
+namespace
+{
+using SolverRegistry = std::map< std::string, std::unique_ptr< Solver > >;
+
+SolverRegistry & GetSolverRegistry()
+{
+    static SolverRegistry registry;
+    return registry;
+}
+}
+
 Solver::Solver()
 {
 }
@@ -39,23 +51,11 @@ Solver::~Solver()
 {
 }
 
-Solver * Solver::SafeClone( const std::string & type )
+std::unique_ptr< Solver > Solver::SafeCloneUnique( const std::string & type )
 {
-    // FIX: guard against classMap being null (i.e. Solver::Register()
-    // was never called for anything), which previously caused a null
-    // pointer dereference on classMap->find(...).
-    // Fatal(...) throws std::runtime_error and unwinds immediately, so
-    // the `return nullptr;` below is unreachable in practice - it exists
-    // only to satisfy the compiler's expectation of a return value on
-    // every path.
-    if ( ! Solver::classMap )
-    {
-        Fatal( type + " class not found" );
-        return nullptr;
-    }
-
-    auto iter = Solver::classMap->find( type );
-    if ( iter == Solver::classMap->end() )
+    SolverRegistry & registry = GetSolverRegistry();
+    SolverRegistry::iterator iter = registry.find( type );
+    if ( iter == registry.end() )
     {
         Fatal( type + " class not found" );
         return nullptr;
@@ -64,24 +64,21 @@ Solver * Solver::SafeClone( const std::string & type )
     return iter->second->Clone();
 }
 
+
+Solver * Solver::Register( const std::string & type, std::unique_ptr< Solver > clone )
+{
+    SolverRegistry & registry = GetSolverRegistry();
+    SolverRegistry::iterator iter = registry.find( type );
+    if ( iter != registry.end() ) return iter->second.get();
+
+    Solver * registeredSolver = clone.get();
+    registry.emplace( type, std::move( clone ) );
+    return registeredSolver;
+}
+
 Solver * Solver::Register( const std::string & type, Solver * clone )
 {
-    if ( ! Solver::classMap )
-    {
-        Solver::classMap = new std::map < std::string, Solver * >();
-    }
-
-    std::map < std::string, Solver * >::iterator iter = Solver::classMap->find( type );
-    if ( iter == Solver::classMap->end() )
-    {
-        ( * Solver::classMap )[ type ] = clone;
-        return clone;
-    }
-    else
-    {
-        delete clone;
-        return iter->second;
-    }
+    return Solver::Register( type, std::unique_ptr< Solver >( clone ) );
 }
 
 

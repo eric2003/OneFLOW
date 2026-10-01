@@ -35,39 +35,36 @@ CgnsFamilyBc::CgnsFamilyBc( CgnsBase * cgnsBase )
     Init();
 }
 
-CgnsFamilyBc::~CgnsFamilyBc()
-{
-    Free();
-}
+CgnsFamilyBc::~CgnsFamilyBc() = default;
 
 void CgnsFamilyBc::Init()
 {
-    bcMap = new std::map< std::string, int >;
+    this->bcMap.clear();
 }
 
 void CgnsFamilyBc::Free()
 {
-    delete bcMap;
+    this->bcMap.clear();
 }
 
 void CgnsFamilyBc::Register( const std::string & regionName, int bcType )
 {
-    std::map< std::string, int >::iterator iter = bcMap->find( regionName );
-    if ( iter == bcMap->end() )
+    std::map< std::string, int >::iterator iter = bcMap.find( regionName );
+    if ( iter == bcMap.end() )
     {
-        ( * CgnsFamilyBc::bcMap )[ regionName ] = bcType;
+        this->bcMap[ regionName ] = bcType;
     }
 }
 
 void CgnsFamilyBc::Unregister( const std::string & regionName )
 {
-    bcMap->erase( regionName );
+    this->bcMap.erase( regionName );
 }
 
 int CgnsFamilyBc::GetBcType( const std::string & regionName )
 {
-    std::map< std::string, int >::iterator iter = bcMap->find( regionName );
-    if ( iter == bcMap->end() )
+    std::map< std::string, int >::const_iterator iter = bcMap.find( regionName );
+    if ( iter == bcMap.end() )
     {
         return -1;
     }

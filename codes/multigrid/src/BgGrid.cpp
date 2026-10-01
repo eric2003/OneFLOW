@@ -29,39 +29,52 @@ License
 #include "GridState.h"
 #include "Multigrid.h"
 #include <iostream>
+#include <memory>
+#include <utility>
 
 BeginNameSpace( ONEFLOW )
 
-Grid * CreateGrid( int gridType )
+namespace
+{
+std::unique_ptr< Grid > CloneRegistered( const char * typeName )
+{
+    return Grid::SafeCloneUnique( typeName );
+}
+}
+
+std::unique_ptr< Grid > CreateGridUnique( int gridType )
 {
     if ( gridType == ONEFLOW::UMESH )
     {
-        Grid * grid = Grid::SafeClone( "UnsGrid" );
+        auto grid = CloneRegistered( "UnsGrid" );
         grid->Init();
         return grid;
     }
-    else if ( gridType == ONEFLOW::SMESH )
+    if ( gridType == ONEFLOW::SMESH )
     {
-        Grid * grid = Grid::SafeClone( "StrGrid" );
+        auto grid = CloneRegistered( "StrGrid" );
         grid->Init();
         return grid;
     }
     std::cout << "No grid of this type\n";
-    return 0;
+    return nullptr;
 }
 
-Grid * CreateUnsGrid()
+std::unique_ptr< Grid > CreateUnsGridUnique()
 {
-    Grid * grid = new UnsGrid();
+    auto grid = std::make_unique< UnsGrid >();
     grid->Init();
     return grid;
 }
 
-Grid * CreateStrGrid()
+std::unique_ptr< Grid > CreateStrGridUnique()
 {
-    Grid * grid = new StrGrid();
+    auto grid = std::make_unique< StrGrid >();
     grid->Init();
     return grid;
 }
+
+
+
 
 EndNameSpace

@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "ScalarOrder.h"
+#include <memory>
 #include "ScalarSolver.h"
 #include "Numpy.h"
 #include "HXMath.h"
@@ -71,7 +72,7 @@ void ScalarOrder::Run1()
 
     int nTest = 5;
 
-    ScalarSolver * scalarSolver = new ScalarSolver();
+    auto scalarSolver = std::make_unique< ScalarSolver >();
     int icoef = 1;
     for ( int i = 0; i < nTest; ++ i )
     {
@@ -86,8 +87,7 @@ void ScalarOrder::Run1()
         xList.push_back( para.x );
     }
    
-    delete scalarSolver;
-
+    
     Numpy::AnalysisNew( "analysisNew.plt", xList, duList );
    
 }
@@ -120,7 +120,7 @@ void ScalarOrder::Run()
 
     int nTest = 10;
 
-    ScalarSolver * scalarSolver = new ScalarSolver();
+    auto scalarSolver = std::make_unique< ScalarSolver >();
     int icoef = 1;
     for ( int i = 0; i < nTest; ++ i )
     {
@@ -141,8 +141,7 @@ void ScalarOrder::Run()
         l2NormList.push_back( para.l2Norm );
         icoef *= 2;
     }
-    delete scalarSolver;
-
+    
     Numpy::AnalysisNew( "analysisNew.plt", xList, duList );
     Numpy::DrawL1Norm( "l1Norm.plt", dxList, l1NormList );
     Numpy::DrawNorms( "l1l2Norm.plt", dxList, l1NormList, l2NormList );

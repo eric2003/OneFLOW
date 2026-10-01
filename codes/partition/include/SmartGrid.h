@@ -22,6 +22,7 @@ License
 
 
 #pragma once
+#include <memory>
 #include "HXDefine.h"
 #include "PointManager.h"
 #include <map>
@@ -136,7 +137,7 @@ public:
 public:
     IdTool elementIdTool;
 public:
-    TopoSort * topo_sort;
+    std::unique_ptr< TopoSort > topo_sort;
 };
 
 class SmartGrid
@@ -145,8 +146,8 @@ public:
     SmartGrid();
     ~SmartGrid();
 public:
-    PointAction * point_action;
-    TopoAction * topo_action;
+    std::unique_ptr< PointAction > point_action;
+    std::unique_ptr< TopoAction > topo_action;
     //BcAction * topo_action;
 public:
     int AddPoint( Real x, Real y, Real z );

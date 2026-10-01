@@ -20,14 +20,17 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
 #pragma once
 #include "HXDefine.h"
+#include <memory>
+
 BeginNameSpace( ONEFLOW )
 
 class Grid;
-Grid * CreateGrid( int gridType );
-Grid * CreateUnsGrid();
-Grid * CreateStrGrid();
+
+[[nodiscard]] std::unique_ptr< Grid > CreateGridUnique( int gridType );
+[[nodiscard]] std::unique_ptr< Grid > CreateUnsGridUnique();
+[[nodiscard]] std::unique_ptr< Grid > CreateStrGridUnique();
+
 
 EndNameSpace

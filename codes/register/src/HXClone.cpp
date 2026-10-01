@@ -22,28 +22,30 @@ License
 
 #include "HXClone.h"
 #include "Fatal.h"
+#include <map>
+#include <memory>
 #include <iostream>
+#include <utility>
 
 
 BeginNameSpace( ONEFLOW )
 
-std::map< std::string, HXClone * > * HXClone::classMap = 0;
-
-HXClone * HXClone::SafeClone( const std::string & type )
+namespace
 {
-    // FIX: classMap may be null if nothing has been Register()'d yet.
-    // Fatal(...) throws std::runtime_error, so callers of SafeClone must
-    // be prepared to handle that exception (or let it propagate) rather
-    // than expecting a null return - the `return nullptr;` lines below
-    // are unreachable and exist only to satisfy the compiler.
-    if ( ! HXClone::classMap )
-    {
-        Fatal( type + " class not found" );
-        return nullptr;
-    }
+using CloneRegistry = std::map< std::string, std::unique_ptr< HXClone > >;
 
-    auto iter = HXClone::classMap->find( type );
-    if ( iter == HXClone::classMap->end() )
+CloneRegistry & GetCloneRegistry()
+{
+    static CloneRegistry registry;
+    return registry;
+}
+}
+
+std::unique_ptr< HXClone > HXClone::SafeCloneUnique( const std::string & type )
+{
+    CloneRegistry & registry = GetCloneRegistry();
+    CloneRegistry::iterator iter = registry.find( type );
+    if ( iter == registry.end() )
     {
         Fatal( type + " class not found" );
         return nullptr;
@@ -52,26 +54,22 @@ HXClone * HXClone::SafeClone( const std::string & type )
     return iter->second->Clone();
 }
 
+
+HXClone * HXClone::Register( const std::string & type, std::unique_ptr< HXClone > clone )
+{
+    //std::cout << "HXClone::Register : " << type << "\n";
+    CloneRegistry & registry = GetCloneRegistry();
+    CloneRegistry::iterator iter = registry.find( type );
+    if ( iter != registry.end() ) return iter->second.get();
+
+    HXClone * registeredClone = clone.get();
+    registry.emplace( type, std::move( clone ) );
+    return registeredClone;
+}
+
 HXClone * HXClone::Register( const std::string & type, HXClone * clone )
 {
-    if ( ! HXClone::classMap )
-    {
-        HXClone::classMap = new std::map < std::string, HXClone * >();
-    }
-
-    //std::cout << "HXClone::Register : " << type << "\n";
-
-    std::map < std::string, HXClone * >::iterator iter = HXClone::classMap->find( type );
-    if ( iter == HXClone::classMap->end() )
-    {
-        ( * HXClone::classMap )[ type ] = clone;
-        return clone;
-    }
-    else
-    {
-        delete clone;
-        return iter->second;
-    }
+    return HXClone::Register( type, std::unique_ptr< HXClone >( clone ) );
 }
 
 EndNameSpace

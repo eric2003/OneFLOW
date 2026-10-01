@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "SmartGrid.h"
+#include <memory>
 #include "HXCgns.h"
 #include "ElementHome.h"
 #include "PrintDevice.h"
@@ -386,12 +387,11 @@ void IdTool::ModifyDataIndex( const Ids & var, int new_id )
 
 TopoAction::TopoAction()
 {
-    this->topo_sort = new TopoSort();
+    this->topo_sort = std::make_unique< TopoSort >();
 }
 
 TopoAction::~TopoAction()
 {
-    delete this->topo_sort;
 }
 
 void TopoAction::AddElement( int p1, int p2, int eType )
@@ -413,14 +413,13 @@ void TopoAction::CalcTopology()
 
 SmartGrid::SmartGrid()
 {
-    this->point_action = new PointAction();
-    this->topo_action = new TopoAction();
+    this->point_action = std::make_unique< PointAction >();
+    this->topo_action = std::make_unique< TopoAction >();
 }
 
 SmartGrid::~SmartGrid()
 {
-    delete this->point_action;
-    delete this->topo_action;
+    
 }
 
 int SmartGrid::AddPoint( Real x, Real y, Real z )

@@ -33,15 +33,11 @@ F2FMap f2fmap;
 
 F2FMap::F2FMap()
 {
-    pointBasic = new PointManager();
-    faceSearchBasic = new FaceSearchBasic();
+    pointBasic = std::make_unique< PointManager >();
+    faceSearchBasic = std::make_unique< FaceSearchBasic >();
 }
 
-F2FMap::~F2FMap()
-{
-    delete pointBasic;
-    delete faceSearchBasic;
-}
+F2FMap::~F2FMap() = default;
 
 void F2FMap::AddFacePair(int faceId1, int faceId2)
 {

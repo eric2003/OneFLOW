@@ -444,10 +444,10 @@ void CuttingClass::CutPlane( Real cutPosition, int cutAxis, LamData * lamData )
     RealField & y = grid->nodeMesh->yN;
     RealField & z = grid->nodeMesh->zN;
 
-    PointLocator * point_search = new PointLocator();
-    point_search->InitializeSpecial( grid, 1.0e-8 );
+    PointLocator pointSearch;
+    pointSearch.InitializeSpecial( grid, 1.0e-8 );
 
-    Real eps = half * point_search->GetTol();
+    Real eps = half * pointSearch.GetTol();
 
     RealField & xyz = this->GetCoor( grid, cutAxis );
 
@@ -512,14 +512,14 @@ void CuttingClass::CutPlane( Real cutPosition, int cutAxis, LamData * lamData )
             point[ 1 ] = ym;
             point[ 2 ] = zm;
 
-            if ( point_search->FindPoint( xm, ym, zm ) == INVALID_INDEX )
+            if ( pointSearch.FindPoint( xm, ym, zm ) == INVALID_INDEX )
             {
-                int ptId = point_search->AddPoint( xm, ym, zm );
+                int ptId = pointSearch.AddPoint( xm, ym, zm );
                 lamData->AddVar( point, p1, p2, cl, cr );
             }
         }
     }
-    delete point_search;
+
 }
 
 EndNameSpace

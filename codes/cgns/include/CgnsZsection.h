@@ -23,6 +23,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -39,9 +40,10 @@ public:
 public:
     int nSection;
 
-    HXVector< CgnsSection * > cgnsSections;
+    HXVector< std::unique_ptr< CgnsSection > > cgnsSections;
     CgnsZone * cgnsZone;
 public:
+    void AddCgnsSection( std::unique_ptr< CgnsSection > cgnsSection );
     void AddCgnsSection( CgnsSection * cgnsSection );
     CgnsSection * GetCgnsSection( int iSection );
     bool HasPolygonSection();

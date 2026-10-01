@@ -24,6 +24,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "HXCgns.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -47,10 +48,11 @@ public:
     ~CgnsZbc1to1();
 public:
     int n1to1;
-    HXVector< CgnsBc1to1 * > cgnsBc1to1s;
+    HXVector< std::unique_ptr< CgnsBc1to1 > > cgnsBc1to1s;
     CgnsZone * cgnsZone;
 public:
     void AddCgns1To1BcRegion( CgnsBc1to1 * cgnsBc1to1 );
+    void AddCgns1To1BcRegion( std::unique_ptr< CgnsBc1to1 > cgnsBc1to1 );
     CgnsBc1to1 * GetCgnsBcRegion1to1( int i1to1 );
     void CreateCgnsZbc();
     void ConvertToInnerDataStandard();

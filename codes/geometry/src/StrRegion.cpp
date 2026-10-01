@@ -24,24 +24,24 @@ License
 #include "HXStd.h"
 #include "HXMath.h"
 #include <iostream>
+#include <memory>
+#include <utility>
 
 
 BeginNameSpace( ONEFLOW )
 
 MyRegion::MyRegion()
 {
-    ;
 }
 
 MyRegion::~MyRegion()
 {
-    ;
 }
 
 int MyRegion::GetDirection()
 {
     int dir = -1;
-    for ( int i = 0; i < ijkmin.size(); ++ i )
+    for ( int i = 0; i < static_cast< int >( ijkmin.size() ); ++ i )
     {
         int var1 = ijkmin[ i ];
         int var2 = ijkmax[ i ];
@@ -62,15 +62,6 @@ int MyRegion::GetDirection()
 
 MyRRegion::MyRRegion()
 {
-    ;
-}
-
-MyRRegion::~MyRRegion()
-{
-    for ( int i = 0; i < subregions.size(); ++ i )
-    {
-        delete subregions[ i ];
-    }
 }
 
 void MyRRegion::AddRefRegion( MyRegion * region )
@@ -78,12 +69,11 @@ void MyRRegion::AddRefRegion( MyRegion * region )
     this->refregions.push_back( region );
 }
 
-void MyRRegion::AddRefRegion( MyRegions & regions )
+void MyRRegion::AddRefRegion( MyRegionViews & regions )
 {
-    for ( int i = 0; i < regions.size(); ++ i )
+    for ( std::size_t i = 0; i < regions.size(); ++ i )
     {
-        MyRegion * r = regions[ i ];
-        this->AddRefRegion( r );
+        this->AddRefRegion( regions[ i ] );
     }
 }
 
@@ -92,12 +82,11 @@ void MyRRegion::AddBcRegion( MyRegion * region )
     this->bcregions.push_back( region );
 }
 
-void MyRRegion::AddBcRegion( MyRegions & regions )
+void MyRRegion::AddBcRegion( MyRegionViews & regions )
 {
-    for ( int i = 0; i < regions.size(); ++ i )
+    for ( std::size_t i = 0; i < regions.size(); ++ i )
     {
-        MyRegion * r = regions[ i ];
-        this->AddBcRegion( r );
+        this->AddBcRegion( regions[ i ] );
     }
 }
 
@@ -121,18 +110,16 @@ void MyRRegion::Test()
     r2.ijkmax.push_back( 3 );
     r2.ijkmax.push_back( 10 );
 
-    this->AddRefRegion( &r1 );
-    this->AddRefRegion( &r2 );
+    this->AddRefRegion( & r1 );
+    this->AddRefRegion( & r2 );
 
-    this->AddBcRegion( &r2 );
+    this->AddBcRegion( & r2 );
 
     this->CalcDiv( refregions );
 
     this->GenerateRegions( subregions );
 
     this->CollectNoSetBoundary();
-
-
 }
 
 void MyRRegion::Run()
@@ -144,10 +131,10 @@ void MyRRegion::Run()
     this->CollectNoSetBoundary();
 }
 
-void MyRRegion::CalcDiv( MyRegions & regions )
+void MyRRegion::CalcDiv( MyRegionViews & regions )
 {
     IntSet idiv_set, jdiv_set, kdiv_set;
-    int nr = regions.size();
+    const int nr = static_cast< int >( regions.size() );
 
     for ( int ir = 0; ir < nr; ++ ir )
     {
@@ -169,9 +156,9 @@ void MyRRegion::CalcDiv( MyRegions & regions )
 
 void MyRRegion::GenerateRegions( MyRegions & regions )
 {
-    int ni = idiv.size();
-    int nj = jdiv.size();
-    int nk = kdiv.size();
+    int ni = static_cast< int >( idiv.size() );
+    int nj = static_cast< int >( jdiv.size() );
+    int nk = static_cast< int >( kdiv.size() );
 
     int imin = 1;
     int imax = 1;
@@ -208,7 +195,7 @@ void MyRRegion::GenerateRegions( MyRegions & regions )
                 imin = idiv[ i ];
                 imax = idiv[ i + di ];
 
-                MyRegion * region = new MyRegion();
+                auto region = std::make_unique< MyRegion >();
                 region->ijkmin.push_back( imin );
                 region->ijkmin.push_back( jmin );
                 region->ijkmin.push_back( kmin );
@@ -216,7 +203,7 @@ void MyRRegion::GenerateRegions( MyRegions & regions )
                 region->ijkmax.push_back( imax );
                 region->ijkmax.push_back( jmax );
                 region->ijkmax.push_back( kmax );
-                regions.push_back( region );
+                regions.push_back( std::move( region ) );
             }
         }
     }
@@ -224,9 +211,9 @@ void MyRRegion::GenerateRegions( MyRegions & regions )
 
 void MyRRegion::CollectNoSetBoundary()
 {
-    for ( int i = 0; i < subregions.size(); ++ i )
+    for ( std::size_t i = 0; i < subregions.size(); ++ i )
     {
-        MyRegion * region = subregions[ i ];
+        MyRegion * region = RegionAt( subregions, i );
         if ( ! this->InBoundary( region ) )
         {
             this->AddRegion( region );
@@ -241,7 +228,7 @@ void MyRRegion::AddRegion( MyRegion * region )
 
 bool MyRRegion::InBoundary( MyRegion * region )
 {
-    for ( int i = 0; i < bcregions.size(); ++ i )
+    for ( std::size_t i = 0; i < bcregions.size(); ++ i )
     {
         MyRegion * bc_region = bcregions[ i ];
         if ( this->InRegion( region, bc_region ) )
@@ -267,25 +254,6 @@ bool MyRRegion::InRegion( MyRegion * r1, MyRegion * r2 )
 
 MyRegionFactory::MyRegionFactory()
 {
-    ;
-}
-
-MyRegionFactory::~MyRegionFactory()
-{
-    for ( int i = 0; i < this->refregions.size(); ++ i )
-    {
-        delete this->refregions[ i ];
-    }
-
-    for ( int i = 0; i < this->ref_bcregions.size(); ++ i )
-    {
-        delete this->ref_bcregions[ i ];
-    }
-
-    for ( int i = 0; i < this->bcregions.size(); ++ i )
-    {
-        delete this->bcregions[ i ];
-    }
 }
 
 void MyRegionFactory::CreateRegion()
@@ -302,7 +270,7 @@ void MyRegionFactory::CreateRegion()
 
 void MyRegionFactory::Create( int imin, int imax, int jmin, int jmax, int kmin, int kmax )
 {
-    MyRegion * r = new MyRegion();
+    auto r = std::make_unique< MyRegion >();
     r->ijkmin.push_back( imin );
     r->ijkmin.push_back( jmin );
     r->ijkmin.push_back( kmin );
@@ -311,36 +279,36 @@ void MyRegionFactory::Create( int imin, int imax, int jmin, int jmax, int kmin, 
     r->ijkmax.push_back( jmax );
     r->ijkmax.push_back( kmax );
 
-    this->refregions.push_back( r );
+    this->refregions.push_back( std::move( r ) );
 }
 
 void MyRegionFactory::AddRefBcRegion( IntField & ijkMin, IntField & ijkMax )
 {
-    MyRegion * r = new MyRegion();
+    auto r = std::make_unique< MyRegion >();
     r->ijkmin = ijkMin;
     r->ijkmax = ijkMax;
-    this->ref_bcregions.push_back( r );
+    this->ref_bcregions.push_back( std::move( r ) );
 }
 
-void MyRegionFactory::AddBcRegion( MyRegions & bcregions_notset )
+void MyRegionFactory::AddBcRegion( MyRegionViews & bcregions_notset )
 {
-    for ( int i = 0; i < bcregions_notset.size(); ++ i )
+    for ( std::size_t i = 0; i < bcregions_notset.size(); ++ i )
     {
-        MyRegion * r = new MyRegion();
+        auto r = std::make_unique< MyRegion >();
         MyRegion * rr = bcregions_notset[ i ];
         r->ijkmin = rr->ijkmin;
         r->ijkmax = rr->ijkmax;
-        this->bcregions.push_back( r );
+        this->bcregions.push_back( std::move( r ) );
     }
 }
 
 void MyRegionFactory::Run()
 {
-    int nFaces = this->refregions.size();
+    const int nFaces = static_cast< int >( this->refregions.size() );
     for ( int i = 0; i < nFaces; ++ i )
     {
-        MyRegion * r = this->refregions[ i ];
-        MyRegions bcregions_collect;
+        MyRegion * r = RegionAt( this->refregions, i );
+        MyRegionViews bcregions_collect;
         this->CollectBcRegion( r, bcregions_collect );
         MyRRegion myrr;
         myrr.AddRefRegion( r );
@@ -348,15 +316,14 @@ void MyRegionFactory::Run()
         myrr.AddBcRegion( bcregions_collect );
         myrr.Run();
         AddBcRegion( myrr.regions_nobc );
-
     }
 }
 
-void MyRegionFactory::CollectBcRegion( MyRegion * r, MyRegions & bcregions_collect )
+void MyRegionFactory::CollectBcRegion( MyRegion * r, MyRegionViews & bcregions_collect )
 {
-    for ( int i = 0; i < this->ref_bcregions.size(); ++ i )
+    for ( std::size_t i = 0; i < this->ref_bcregions.size(); ++ i )
     {
-        MyRegion * rbc = this->ref_bcregions[ i ];
+        MyRegion * rbc = RegionAt( this->ref_bcregions, i );
         if ( rbc->GetDirection() == r->GetDirection() )
         {
             bcregions_collect.push_back( rbc );

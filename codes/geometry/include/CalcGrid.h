@@ -24,8 +24,7 @@ License
 #include "HXDefine.h"
 #include "GridHandles.h"
 #include <memory>
-
-
+#include <utility>
 
 BeginNameSpace( ONEFLOW )
 
@@ -47,7 +46,8 @@ public:
     void Dump();
     void Post();
 public:
-    void Init( Grids & grids );
+    // Takes exclusive ownership of the collection.
+    void Init( Grids grids );
 public:
     void GenerateOverset();
     void GenerateLink();
@@ -64,13 +64,13 @@ public:
     void MatchInterfaceTopology();
     void ReconstructLink( int iZone );
 public:
-    void GenerateMultiZoneCalcGrids( Grids & grids );
+    void GenerateMultiZoneCalcGrids( Grids grids );
 };
 
 std::string GetTargetGridFileName();
 int GetIgnoreNoBc();
 
-void GenerateMultiZoneCalcGrids( Grids & grids );
+void GenerateMultiZoneCalcGrids( Grids grids );
 void ResetGridScaleAndTranslate( NodeMesh * nodeMesh );
 void TurnZAxisToYAxis( NodeMesh * nodeMesh );
 

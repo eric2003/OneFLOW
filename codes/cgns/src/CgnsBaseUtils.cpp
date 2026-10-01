@@ -28,6 +28,7 @@ License
 #include "Dimension.h"
 #include "CgnsFamilyBc.h"
 #include "GridMediator.h"
+#include "GridHandles.h"
 #include <iostream>
 
 
@@ -70,7 +71,7 @@ void DumpBase( CgnsBase * myCgnsBase, GridMediator * gridMediator )
     for ( int iZone = 0; iZone < myCgnsBase->nZones; ++ iZone )
     {
         CgnsZone * cgnsZone = myCgnsBase->GetCgnsZone( iZone );
-        Grid * grid = gridMediator->gridVector[ iZone ];
+        Grid * grid = GridAt( gridMediator->gridVector, iZone );
         ONEFLOW::DumpCgnsZone( cgnsZone, grid, gridMediator->gridVector );
     }
 }
@@ -82,7 +83,7 @@ void PrepareCgnsZone( CgnsBase * myCgnsBase, GridMediator * gridMediator )
     for ( int iZone = 0; iZone < myCgnsBase->nZones; ++ iZone )
     {
         CgnsZone * cgnsZone = myCgnsBase->GetCgnsZone( iZone );
-        Grid * grid = gridMediator->gridVector[ iZone ];
+        Grid * grid = GridAt( gridMediator->gridVector, iZone );
         ONEFLOW::PrepareCgnsZone( cgnsZone, grid );
     }
 }

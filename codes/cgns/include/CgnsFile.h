@@ -23,6 +23,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -44,7 +45,7 @@ public:
     int openMode;
     int openStatus;
     int nBases;
-    std::vector< CgnsBase * > baseList;
+    std::vector< std::unique_ptr< CgnsBase > > baseList;
 public:
     int currBaseId;
 public:

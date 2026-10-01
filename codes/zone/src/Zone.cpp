@@ -21,10 +21,14 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Zone.h"
+#include <vector>
+#include <utility>
+#include <memory>
 #include "LogFile.h"
 #include "ZoneState.h"
 #include "InterFace.h"
 #include "ScalarZone.h"
+#include "ScalarGrid.h"
 #include "GridGroup.h"
 #include "PIO.h"
 #include "Parallel.h"
@@ -46,7 +50,7 @@ License
 BeginNameSpace( ONEFLOW )
 
 
-HXVector< Grids * > Zone::globalGrids;
+std::vector< Grids > Zone::globalGrids;
 int Zone::nLocalZones = 0;
 int Zone::flag_test_grid = 0;
 
@@ -60,19 +64,8 @@ Zone::~Zone()
 
 void Zone::ReleaseGrids()
 {
-    for ( HXSize_t zid = 0; zid < Zone::globalGrids.size(); ++ zid )
-    {
-        Grids * grids = Zone::globalGrids[ zid ];
-        if ( ! grids ) continue;
-
-        for ( HXSize_t gl = 0; gl < grids->size(); ++ gl )
-        {
-            delete ( * grids )[ gl ];
-        }
-        delete grids;
-    }
-
-    Zone::globalGrids.resize( 0 );
+    // Destroying each Grids vector releases all owned Grid instances.
+    Zone::globalGrids.clear();
     Zone::nLocalZones = 0;
     Zone::flag_test_grid = 0;
 
@@ -81,24 +74,23 @@ void Zone::ReleaseGrids()
     InterFaceState::interFace = 0;
 }
 
+void Zone::AddGrid( int zid, std::unique_ptr< Grid > grid )
+{
+    if ( Zone::globalGrids.empty() )
+    {
+        Zone::globalGrids.resize( static_cast< std::size_t >( ZoneState::nZones ) );
+    }
+    Zone::globalGrids[ static_cast< std::size_t >( zid ) ].push_back( std::move( grid ) );
+}
+
 void Zone::AddGrid( int zid, Grid * grid )
 {
-    if ( Zone::globalGrids.size() == 0 )
-    {
-        Zone::globalGrids.resize( ZoneState::nZones, 0 );
-    }
-    Grids * grids = Zone::globalGrids[ zid ];
-    if ( ! grids )
-    {
-        grids = new Grids;
-        Zone::globalGrids[ zid ] = grids;
-    }
-    grids->push_back( grid );
+    Zone::AddGrid( zid, std::unique_ptr< Grid >( grid ) );
 }
 
 Grid * Zone::GetGrid( int zid, int gl )
 {
-    return ( * Zone::globalGrids[ zid ] )[ gl ];
+    return GridAt( Zone::globalGrids[ static_cast< std::size_t >( zid ) ], gl );
 }
 
 Grid * Zone::GetGrid()
@@ -114,7 +106,7 @@ UnsGrid * Zone::GetUnsGrid()
 Grid * Zone::GetCGrid( Grid * grid )
 {
     int level = grid->level + 1;
-    int ngrid = ( * Zone::globalGrids[ ZoneState::zid ] ).size();
+    int ngrid = static_cast< int >( Zone::globalGrids[ static_cast< std::size_t >( ZoneState::zid ) ].size() );
     if ( level >= ngrid ) return 0;
     return Zone::GetGrid( ZoneState::zid, level );
 }
@@ -193,7 +185,7 @@ void Zone::ReadGrid(
     int zid = 0;
     for ( int iFile = 0; iFile < fileNameList.size(); ++ iFile )
     {
-        GridGroup * gridGroup = new GridGroup( zid );
+        auto gridGroup = std::make_unique< GridGroup >( zid );
 
         if ( caseDir.empty() )
         {
@@ -205,14 +197,18 @@ void Zone::ReadGrid(
         }
 
         zid += gridGroup->nZones;
-        delete gridGroup;
     }
     Zone::NormalizeLayout();
 }
 
+void Zone::AddScalarGrid( int zid, std::unique_ptr< ScalarGrid > grid )
+{
+    ScalarZone::AddGrid( zid, std::move( grid ) );
+}
+
 void Zone::AddScalarGrid( int zid, ScalarGrid * grid )
 {
-    ScalarZone::AddGrid( zid, grid );
+    Zone::AddScalarGrid( zid, std::unique_ptr< ScalarGrid >( grid ) );
 }
 
 ScalarGrid * Zone::GetScalarGrid( int iZone )

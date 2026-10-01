@@ -23,17 +23,17 @@ License
 
 #pragma once
 #include "HXDefine.h"
-#include <map>
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
 class Solver;
 #define IMPLEMENT_SOLVER_CLONE( TYPE ) \
-Solver * Clone() const { return new TYPE( * this ); }
+std::unique_ptr< Solver > Clone() const override { return std::make_unique< TYPE >( * this ); }
 
 #define REGISTER_SOLVER( TYPE ) \
     Solver * TYPE ## _myClass = \
-        Solver::Register( #TYPE, new TYPE() );
+        Solver::Register( #TYPE, std::make_unique< TYPE >() );
 
 class SolverInfo;
 
@@ -43,11 +43,13 @@ public:
     Solver();
     virtual ~Solver();
 public:
-    virtual Solver * Clone() const = 0;
+    virtual std::unique_ptr< Solver > Clone() const = 0;
 public:
-    static Solver * SafeClone( const std::string & type );
+    // Preferred: exclusive ownership of a registered solver prototype clone.
+    static std::unique_ptr< Solver > SafeCloneUnique( const std::string & type );
+    static Solver * Register( const std::string & type, std::unique_ptr< Solver > clone );
+    // Compatibility overload; takes ownership of clone.
     static Solver * Register( const std::string & type, Solver * clone );
-    static std::map < std::string, Solver * > * classMap;
 public:
     int solverType;   // SolverType identifier, for example NS_SOLVER.
     int solverIndex;  // Position of this solver instance in the solver list.

@@ -24,6 +24,7 @@ License
 #include "HXDefine.h"
 #include "HXLookup.h"
 #include "GridHandles.h"
+#include <memory>
 #include <set>
 
 BeginNameSpace( ONEFLOW )
@@ -36,13 +37,11 @@ class NodeMesh;
 class IFaceLink
 {
 public:
-    IFaceLink( Grids & grids );
+    // Observes caller's owning Grids; gridsIn must outlive this object.
+    explicit IFaceLink( Grids & gridsIn );
     ~IFaceLink();
 public:
-    // HXLookup automatically sorts the node list as key
     HXLookup<int> faceLookup;
-    //In general, each interface is made up of two different blocks of surface.
-    //This requires each surface to have a block number and the serial number of the surface in this block
     LinkField gI2Zid;
     LinkField g2l;
     LinkField l2g;
@@ -53,14 +52,14 @@ public:
 
     LinkField nChild;
 
-    FaceSearch * face_search;
+    std::unique_ptr< FaceSearch > face_search;
+    std::unique_ptr< PointLocator > point_search;
 
-    PointLocator * point_search;
-
-    Grids grids;
+    // Non-owning back-pointer to the pipeline's Grids.
+    Grids * grids{ nullptr };
 public:
     void Init( Grid * grid );
-    Grid * GetGrid( int zoneIndex ) { return grids[ zoneIndex ]; }
+    Grid * GetGrid( int zoneIndex ) { return GridAt( *grids, zoneIndex ); }
 public:
     void CreateLink( IntField & faceNode, int zid, int lCount );
     void MatchInterfaceTopology( Grid * grid );

@@ -987,7 +987,7 @@ void CgnsTest::mytest_write()
     std::string zoneName = "Zone1";
     CgnsZone * cgnsZone = cgnsBase->WriteZoneInfo( zoneName, CGNS_ENUMV(Unstructured), isize[ 0 ] );
 
-    CgnsZbcBoco * cgnsZbcBoco = cgnsZone->cgnsZbc->cgnsZbcBoco;
+    CgnsZbcBoco * cgnsZbcBoco = cgnsZone->cgnsZbc->cgnsZbcBoco.get();
     CgnsBcBoco * cgnsBcBoco = 0;
     cgnsBcBoco = cgnsZbcBoco->WriteCgnsBoco( "Bc1", CGNS_ENUMV(BCTunnelInflow), CGNS_ENUMV(PointList), icounts, ipnts );
     cgnsBcBoco->WriteGridLocation( CGNS_ENUMV(FaceCenter) );
@@ -999,7 +999,7 @@ void CgnsTest::mytest_write()
     zoneName = "Zone2";
     cgnsZone = cgnsBase->WriteZoneInfo( zoneName, CGNS_ENUMV(Unstructured), isize[ 0 ] );
 
-    cgnsZbcBoco = cgnsZone->cgnsZbc->cgnsZbcBoco;
+    cgnsZbcBoco = cgnsZone->cgnsZbc->cgnsZbcBoco.get();
     cgnsBcBoco = cgnsZbcBoco->WriteCgnsBoco( "Bc_1", CGNS_ENUMV(BCTunnelInflow), CGNS_ENUMV(PointList), icounts, ipnts );
     cgnsBcBoco->WriteGridLocation( CGNS_ENUMV(Vertex) );
     cgnsBcBoco = cgnsZbcBoco->WriteCgnsBoco( "Bc_2", CGNS_ENUMV(BCTunnelInflow), CGNS_ENUMV(PointList), icounts, ipnts );

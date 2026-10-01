@@ -26,19 +26,17 @@ License
 #include "HXDefine.h"
 #include <vector>
 #include <string>
-#include <map>
 #include <memory>
 
 
 BeginNameSpace( ONEFLOW )
 
 #define IMPLEMENT_GRID_CLONE( TYPE ) \
-Grid * Clone() const { return new TYPE(); }
-//Grid * Clone() const { return new TYPE( * this ); }
+std::unique_ptr< Grid > Clone() const override { return std::make_unique< TYPE >(); }
 
 #define REGISTER_GRID( TYPE ) \
     Grid * TYPE ## _myClass = \
-        Grid::Register( #TYPE, new TYPE() );
+        Grid::Register( #TYPE, std::make_unique< TYPE >() );
 
 class DataBook;
 class NodeMesh;
@@ -53,11 +51,13 @@ public:
     Grid();
     virtual ~Grid();
 public:
-    virtual Grid * Clone() const = 0;
+    virtual std::unique_ptr< Grid > Clone() const = 0;
 public:
-    static Grid * SafeClone( const std::string & type );
+    // Preferred: exclusive ownership of a registered grid prototype clone.
+    static std::unique_ptr< Grid > SafeCloneUnique( const std::string & type );
+    static Grid * Register( const std::string & type, std::unique_ptr< Grid > clone );
+    // Compatibility overload; takes ownership of clone.
     static Grid * Register( const std::string & type, Grid * clone );
-    static std::map < std::string, Grid * > * classMap;
 public:
     std::string name;
     int dimension;

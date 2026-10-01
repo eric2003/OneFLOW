@@ -39,14 +39,7 @@ SectionManager::SectionManager()
     ;
 }
 
-SectionManager::~SectionManager()
-{
-    int nType = this->data.size();
-    for ( int i = 0; i < nType; ++ i )
-    {
-        delete this->data[ i ];
-    }
-}
+SectionManager::~SectionManager() = default;
 
 int SectionManager::GetNSections()
 {
@@ -59,7 +52,7 @@ void SectionManager::Alloc( int nType )
     this->data.resize( nType );
     for ( int i = 0; i < nType; ++ i )
     {
-        this->data[ i ] = new SectionMarker();
+        this->data[ i ] = std::make_unique< SectionMarker >();
     }
 }
 
@@ -69,7 +62,7 @@ int SectionManager::CalcTotalElem()
     int nElements = 0;
     for ( int i = 0; i < nType; ++ i )
     {
-        SectionMarker * sectionMarker = this->data[ i ];
+        SectionMarker * sectionMarker = this->data[ i ].get();
         nElements += sectionMarker->nElements;
     }
     return nElements;

@@ -33,6 +33,7 @@ License
 #include "Partition.h"
 #include <iostream>
 #include<iomanip>
+#include <utility>
 
 
 BeginNameSpace( ONEFLOW )
@@ -273,15 +274,7 @@ MultiDomain::MultiDomain()
     ;
 }
 
-MultiDomain::~MultiDomain()
-{
-    int nSize = boxlist1.size();
-    for ( int i = 0; i < nSize; ++ i )
-    {
-        delete this->boxlist1[ i ];
-        delete this->boxlist2[ i ];
-    }
-}
+MultiDomain::~MultiDomain() = default;
 
 void MultiDomain::Add( int zid1, int fid1, int zid2, int fid2, PatchBox * box1, PatchBox * box2 )
 {
@@ -290,14 +283,11 @@ void MultiDomain::Add( int zid1, int fid1, int zid2, int fid2, PatchBox * box1, 
     this->fid1.push_back( fid1 );
     this->fid2.push_back( fid2 );
 
-    PatchBox * b1 = new PatchBox();
-    PatchBox * b2 = new PatchBox();
+    auto b1 = std::make_unique< PatchBox >( * box1 );
+    auto b2 = std::make_unique< PatchBox >( * box2 );
 
-    this->boxlist1.push_back( b1 );
-    this->boxlist2.push_back( b2 );
-
-    * b1 = * box1;
-    * b2 = * box2;
+    this->boxlist1.push_back( std::move( b1 ) );
+    this->boxlist2.push_back( std::move( b2 ) );
 }
 
 PBlkSet::PBlkSet()
@@ -305,10 +295,7 @@ PBlkSet::PBlkSet()
     ;
 }
 
-PBlkSet::~PBlkSet()
-{
-    ;
-}
+PBlkSet::~PBlkSet() = default;
 
 void PBlkSet::ReSize( int nSize )
 {
@@ -316,31 +303,22 @@ void PBlkSet::ReSize( int nSize )
     pinfo.resize( nSize );
 }
 
-void PBlkSet::Add( int idx, PBlk * pblk )
+void PBlkSet::Add( int idx, std::unique_ptr< PBlk > pblk )
 {
-    int nSize = this->id.size();
-    if ( idx < nSize )
+    if ( idx < 0 ) return;
+    if ( idx >= static_cast< int >( this->id.size() ) )
     {
-        std::set< PBlk *, ComparePBlk > * pset = pinfo[ idx ];
-        std::set< PBlk *, ComparePBlk >::iterator iter;
-        iter = pset->find( pblk );
-        if ( iter == pset->end() )
-        {
-            pset->insert( pblk );
-        }
-        else
-        {
-            delete pblk;
-        }
-    }
-    else
-    {
-        this->ReSize( nSize + 1 );
-        std::set< PBlk *, ComparePBlk > * pset = new std::set< PBlk *, ComparePBlk >;
-        pinfo[ idx ] = pset;
-        pset->insert( pblk );
+        this->ReSize( idx + 1 );
         this->id[ idx ] = idx;
     }
+
+    std::set< PBlk *, ComparePBlk > & pset = this->pinfo[ idx ];
+    PBlk * block = pblk.get();
+    if ( pset.find( block ) != pset.end() ) return;
+
+    // Keep block addresses stable; pinfo stores non-owning lookup pointers.
+    this->ownedBlocks.push_back( std::move( pblk ) );
+    pset.insert( block );
 }
 
 void PBlkSet::Analysys()
@@ -350,7 +328,7 @@ void PBlkSet::Analysys()
     int ip = -1;
     for ( int i = 0; i < nSize; ++ i )
     {
-        int nn = pinfo[ i ]->size();
+        int nn = pinfo[ i ].size();
         if ( maxpt < nn )
         {
         maxpt = nn;
@@ -362,7 +340,7 @@ void PBlkSet::Analysys()
     IntField multi_point;
     for ( int i = 0; i < nSize; ++ i )
     {
-        int nn = pinfo[ i ]->size();
+        int nn = pinfo[ i ].size();
         if ( nn > 1 )
         {
             multi_point.push_back( i );
@@ -513,15 +491,13 @@ bool PBlkSet::CrossDomain( int iZone, int idomain, int jZone, int jdomain, Patch
     HXVector< PBlk * > pblk2_list;
     for ( int i = 0; i < nSize; ++ i )
     {
-        int nn = pinfo[ i ]->size();
-        std::set< PBlk *, ComparePBlk > * pset = pinfo[ i ];
-        std::set< PBlk *, ComparePBlk >::iterator iter;
+        std::set< PBlk *, ComparePBlk > & pset = pinfo[ i ];
 
         PBlk * pblk1 = 0;
         PBlk * pblk2 = 0;
 
-        bool flag1 = BlkDomainInSet( iZone, idomain, pset, pblk1 );
-        bool flag2 = BlkDomainInSet( jZone, jdomain, pset, pblk2 );
+        bool flag1 = BlkDomainInSet( iZone, idomain, & pset, pblk1 );
+        bool flag2 = BlkDomainInSet( jZone, jdomain, & pset, pblk2 );
 
         if ( flag1 && flag2 )
         {
@@ -660,7 +636,7 @@ void DomainInp::GeneInp()
 
 void DomainInp::GetId( int zid, int i, int j, int k, int & id, GridMediator * gridMediator, PointLocator * pointSearch )
 {
-    StrGrid * grid = ONEFLOW::StrGridCast( gridMediator->gridVector[ zid ] );
+    StrGrid * grid = ONEFLOW::StrGridCast( GridAt( gridMediator->gridVector, zid ) );
     Field3D & xs = * grid->strx;
     Field3D & ys = * grid->stry;
     Field3D & zs = * grid->strz;
@@ -676,7 +652,7 @@ void DomainInp::GetId( int zid, int i, int j, int k, int & id, GridMediator * gr
 
 void DomainInp::DumpCoor( int zid, int i, int j, int k, GridMediator * gridMediator, std::fstream & file )
 {
-    StrGrid * grid = ONEFLOW::StrGridCast( gridMediator->gridVector[ zid ] );
+    StrGrid * grid = ONEFLOW::StrGridCast( GridAt( gridMediator->gridVector, zid ) );
     Field3D & xs = * grid->strx;
     Field3D & ys = * grid->stry;
     Field3D & zs = * grid->strz;
@@ -728,7 +704,7 @@ void DomainInp::Dump( MultiDomain * md, GridMediator * gridMediator, PointLocato
     std::string fileName = "test.inp";
     Prj::OpenPrjFile( file, fileName, std::ios_base::out );
 
-    Grids grids = gridMediator->gridVector;
+    Grids & grids = gridMediator->gridVector;
     int nZone = grids.size();
 
     int width = 5;
@@ -737,7 +713,7 @@ void DomainInp::Dump( MultiDomain * md, GridMediator * gridMediator, PointLocato
     file << std::setw( width ) << nZone << std::endl;
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        StrGrid * grid = ONEFLOW::StrGridCast( grids[ iZone ] );
+        StrGrid * grid = ONEFLOW::StrGridCast( GridAt( grids, iZone ) );
         int ni = grid->ni;
         int nj = grid->nj;
         int nk = grid->nk;
@@ -787,8 +763,8 @@ void DomainInp::Dump( MultiDomain * md, GridMediator * gridMediator, PointLocato
         //int nSize = md->boxlist1.size();
         for ( int i = 0; i < nSize; ++ i )
         {
-            PatchBox * box1 = md->boxlist1[ i ];
-            PatchBox * box2 = md->boxlist2[ i ];
+            PatchBox * box1 = md->boxlist1[ i ].get();
+            PatchBox * box2 = md->boxlist2[ i ].get();
 
             int zid1 = md->zoneid1[ i ];
 
@@ -845,7 +821,7 @@ void DomainInp::Dump( MultiDomain * md, GridMediator * gridMediator, PointLocato
 
 void DomainInp::OutputInp( GridMediator * gridMediator )
 {
-    Grids grids = gridMediator->gridVector;
+    Grids & grids = gridMediator->gridVector;
 
     PointLocator pointSearch;
     pointSearch.Initialize( grids );
@@ -855,7 +831,7 @@ void DomainInp::OutputInp( GridMediator * gridMediator )
 
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        StrGrid * grid = ONEFLOW::StrGridCast( grids[ iZone ] );
+        StrGrid * grid = ONEFLOW::StrGridCast( GridAt( grids, iZone ) );
         int ni = grid->ni;
         int nj = grid->nj;
         int nk = grid->nk;
@@ -885,10 +861,10 @@ void DomainInp::CalcDomainPatch( int nZone, GridMediator * gridMediator )
 
 void DomainInp::CalcDomainPatch( int iZone, int jZone, GridMediator * gridMediator )
 {
-    Grids grids = gridMediator->gridVector;
+    Grids & grids = gridMediator->gridVector;
 
-    StrGrid * grid_i = ONEFLOW::StrGridCast( grids[ iZone ] );
-    StrGrid * grid_j = ONEFLOW::StrGridCast( grids[ jZone ] );
+    StrGrid * grid_i = ONEFLOW::StrGridCast( GridAt( grids, iZone ) );
+    StrGrid * grid_j = ONEFLOW::StrGridCast( GridAt( grids, jZone ) );
 
     IjkBox ijkBox_i;
     ijkBox_i.CreateBox( grid_i );
@@ -929,7 +905,7 @@ void DomainInp::CalcFacePoint( StrGrid * grid, PointLocator * pointSearch, IjkBo
             {
                 for ( int i = imin; i <= imax; ++ i )
                 {
-                    PBlk * pblk = new PBlk();
+                    auto pblk = std::make_unique< PBlk >();
                     pblk->blk = zId;
                     pblk->fid = n;
                     pblk->i = i;
@@ -941,7 +917,7 @@ void DomainInp::CalcFacePoint( StrGrid * grid, PointLocator * pointSearch, IjkBo
                     Real zm = zs( i, j, k );
 
                     int pid = pointSearch->AddPoint( xm, ym, zm );
-                    pblkSet->Add( pid, pblk );
+                    pblkSet->Add( pid, std::move( pblk ) );
 
                 }
             }

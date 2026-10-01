@@ -1,3 +1,5 @@
+#include <memory>
+#include <utility>
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
@@ -149,7 +151,7 @@ GridPartition::~GridPartition()
 	;
 }
 
-void GridPartition::PartitionGrid( ScalarGrid * ggrid, int nPart, std::vector< ScalarGrid * > *grids )
+void GridPartition::PartitionGrid( ScalarGrid * ggrid, int nPart, std::vector< std::unique_ptr< ScalarGrid > > * grids )
 {
 	this->ggrid = ggrid;
 	this->nPart = nPart;
@@ -171,9 +173,9 @@ void GridPartition::AllocateGrid( int nZones )
 {
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
-		ScalarGrid * grid = new ScalarGrid();
+		auto grid = std::make_unique< ScalarGrid >();
 		grid->id = iZone;
-		( * this->grids ).push_back( grid );
+		( * this->grids ).push_back( std::move( grid ) );
 	}
 }
 
@@ -200,7 +202,7 @@ void GridPartition::ReconstructGridFaceTopo()
 		int iZone = cellzone[ iCell ];
 		localCells[ iCell ] = zoneCount[ iZone ] ++;
 		int eType = this->ggrid->eTypes[ iCell ];
-		ScalarGrid * grid = ( * this->grids )[ iZone ];
+		ScalarGrid * grid = ( * this->grids )[ iZone  ].get();
 		grid->eTypes.AddData( eType );
 	}
 
@@ -216,7 +218,7 @@ void GridPartition::ReconstructGridFaceTopo()
 		//local coor x[1],y[1],z[1],x[2],y[2],z[2]
 		int localCell = localCells[ lc ];
 		int ftype = ggrid->fTypes[ iFace ];
-		ScalarGrid * gridL = ( * this->grids )[ lZone ];
+		ScalarGrid * gridL = ( * this->grids )[ lZone  ].get();
 		gridL->AddFaceType( ftype );
 		gridL->AddPhysicalBcFace( iFace, bctype, localCell, ONEFLOW::INVALID_INDEX );
 	}
@@ -238,8 +240,8 @@ void GridPartition::ReconstructGridFaceTopo()
 
 			int bctype = -1;
 
-			ScalarGrid * gridL = ( * this->grids )[ lZone ];
-			ScalarGrid * gridR = ( * this->grids )[ rZone ];
+			ScalarGrid * gridL = ( * this->grids )[ lZone  ].get();
+			ScalarGrid * gridR = ( * this->grids )[ rZone  ].get();
 
 			gridL->AddFaceType( ftype );
 			gridR->AddFaceType( ftype );
@@ -264,7 +266,7 @@ void GridPartition::ReconstructGridFaceTopo()
 			int localCell_L = localCells[ lc ];
 			int localCell_R = localCells[ rc ];
 
-			ScalarGrid * grid = ( * this->grids )[ lZone ];
+			ScalarGrid * grid = ( * this->grids )[ lZone  ].get();
 
 			int ftype = ggrid->fTypes[ iFace ];
 
@@ -291,7 +293,7 @@ void GridPartition::ReconstructInterfaceTopo()
 
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
-		ScalarIFace * scalarIFace = ( * this->grids )[ iZone ]->scalarIFace;
+		ScalarIFace * scalarIFace = ( * this->grids )[ iZone ]->scalarIFace.get();
 		int nIFaces = scalarIFace->iglobalfaces.size();
 		for ( int iFace = 0; iFace < nIFaces; ++ iFace )
 		{
@@ -327,7 +329,7 @@ void GridPartition::ReconstructNode()
 	int nZones = this->GetNZones();
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
-		ScalarGrid * grid = ( * this->grids )[ iZone ];
+		ScalarGrid * grid = ( * this->grids )[ iZone  ].get();
 		grid->ReconstructNode( ggrid );
 		grid->Normalize();
 		grid->CalcMetrics1D();

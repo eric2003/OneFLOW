@@ -37,6 +37,7 @@ License
 #include "FaceSolver.h"
 #include "BcRecord.h"
 #include <iostream>
+#include <utility>
 
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
@@ -47,24 +48,24 @@ CgnsZbc1to1::CgnsZbc1to1( CgnsZone * cgnsZone )
     this->n1to1 = 0;
 }
 
-CgnsZbc1to1::~CgnsZbc1to1()
-{
-    for ( int i1to1 = 0; i1to1 < this->n1to1; ++ i1to1 )
-    {
-        delete this->cgnsBc1to1s[ i1to1 ];
-    }
-}
+CgnsZbc1to1::~CgnsZbc1to1() = default;
 
 void CgnsZbc1to1::AddCgns1To1BcRegion( CgnsBc1to1 * cgnsBc1to1 )
 {
-    this->cgnsBc1to1s.push_back( cgnsBc1to1 );
+    this->AddCgns1To1BcRegion( std::unique_ptr< CgnsBc1to1 >( cgnsBc1to1 ) );
+}
+
+void CgnsZbc1to1::AddCgns1To1BcRegion( std::unique_ptr< CgnsBc1to1 > cgnsBc1to1 )
+{
+    CgnsBc1to1 * bc1to1 = cgnsBc1to1.get();
+    this->cgnsBc1to1s.push_back( std::move( cgnsBc1to1 ) );
     int id = this->cgnsBc1to1s.size();
-    cgnsBc1to1->bcId = id;
+    bc1to1->bcId = id;
 }
 
 CgnsBc1to1 * CgnsZbc1to1::GetCgnsBcRegion1to1( int i1to1 )
 {
-    return this->cgnsBc1to1s[ i1to1 ];
+    return this->cgnsBc1to1s[ i1to1 ].get();
 }
 
 void CgnsZbc1to1::PrintZn1to1()
@@ -76,8 +77,7 @@ void CgnsZbc1to1::CreateCgnsZbc()
 {
     for ( int i1to1 = 0; i1to1 < this->n1to1; ++ i1to1 )
     {
-        CgnsBc1to1 * cgnsBc1to1 = new CgnsBc1to1( this->cgnsZone );
-        this->AddCgns1To1BcRegion( cgnsBc1to1 );
+        this->AddCgns1To1BcRegion( std::make_unique< CgnsBc1to1 >( this->cgnsZone ) );
     }
 }
 

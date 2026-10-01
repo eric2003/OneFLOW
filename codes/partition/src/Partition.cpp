@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Partition.h"
+#include <memory>
 #include "metis.h"
 #include "Zone.h"
 #include "ZoneState.h"
@@ -216,7 +217,7 @@ void G2LMapping::ReadGC2Z( UnsGrid * grid )
 
 Partition::Partition()
 {
-    g2l = 0;
+    g2l = nullptr;
     this->partition_type = GetDataValue< int >( "partition_type" );
     this->npartproc = GetDataValue< int >( "npartproc" );
     this->partition_c2n = GetDataValue< int >( "partition_c2n" );
@@ -224,7 +225,6 @@ Partition::Partition()
 
 Partition::~Partition()
 {
-    delete g2l;
 }
 
 void Partition::Run()
@@ -233,7 +233,7 @@ void Partition::Run()
 
     this->GenerateMultiZoneGrid();
 
-    ONEFLOW::GenerateMultiZoneCalcGrids( grids );
+    ONEFLOW::GenerateMultiZoneCalcGrids( std::move( grids ) );
 }
 
 void Partition::ReadGrid()
@@ -268,7 +268,7 @@ void Partition::GenerateMultiZoneGrid()
 
 void Partition::CreatePart()
 {
-    g2l = new G2LMapping( uns_grid );
+    g2l = std::make_unique< G2LMapping >( uns_grid );
     g2l->npartproc = this->npartproc;
     g2l->GenerateGC2Z();
     this->CalcG2lCell();
@@ -281,16 +281,17 @@ void Partition::CreatePart()
 
 void Partition::AllocPart()
 {
-    grids.resize( npartproc );
+    grids.clear();
+    grids.resize( static_cast< std::size_t >( npartproc ) );
     for ( int pid = 0; pid < npartproc; ++ pid )
     {
-        int gridType = ONEFLOW::UMESH;
-        Grid * grid = ONEFLOW::CreateGrid( gridType );
-        grid->level = 0;
-        grid->id = pid;
-        grid->localId = pid;
-        grid->type = gridType;
-        grids[ pid ] = grid;
+        const int gridType = ONEFLOW::UMESH;
+        auto owned = ONEFLOW::CreateGridUnique( gridType );
+        owned->level = 0;
+        owned->id = pid;
+        owned->localId = pid;
+        owned->type = gridType;
+        grids[ static_cast< std::size_t >( pid ) ] = std::move( owned );
     }
 }
 
@@ -332,7 +333,7 @@ void Partition::CalcG2lCell()
 
 void Partition::BuildCalculationalGrid( int zid )
 {
-    UnsGrid * grid = UnsGridCast( grids[ zid ] );
+    UnsGrid * grid = UnsGridCast( GridAt( grids, zid ) );
 
     grid->nCells = this->GetNCell( uns_grid, zid );
 
@@ -345,11 +346,11 @@ void Partition::BuildCalculationalGrid( int zid )
     //    this->WriteCellToNode( grid );
     }
 
-    this->l2g = new L2GMapping();
+    this->l2g = std::make_unique< L2GMapping >();
     this->CreateL2g( uns_grid, zid, grid );
     this->SetCoor  ( uns_grid, zid, grid );
     this->SetGeometricRelationship( uns_grid, zid, grid );
-    delete this->l2g;
+    this->l2g.reset();
 }
 
 void Partition::CalcG2lFace( UnsGrid * ggrid, int zid, UnsGrid * grid )
@@ -485,7 +486,7 @@ int Partition::GetNCell( UnsGrid * ggrid, int zid )
 
 void Partition::CreateL2g( UnsGrid * ggrid, int zid, UnsGrid * grid )
 {
-    l2g->g2l = this->g2l;
+    l2g->g2l = std::move(this->g2l);
     l2g->CalcL2G( ggrid, zid, grid );
 }
 

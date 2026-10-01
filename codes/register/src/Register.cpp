@@ -37,8 +37,7 @@ void HXRegister::Register( const std::string & cmdName, const std::string & clas
         return; // already registered, unchanged from original behavior
     }
 
-    HXClone * cloneClass = HXClone::SafeClone( className );
-    this->data[ cmdName ] = std::unique_ptr< HXClone >( cloneClass );
+    this->data[ cmdName ] = HXClone::SafeCloneUnique( className );
 }
 
 HXClone * HXRegister::GetClass( const std::string & cmdName )
@@ -61,7 +60,7 @@ void HXRegister::FreeAll()
 
 HXRegister * MRegister::GetRegister( int index )
 {
-    // FIX: previously `return this->data[index];` ¡ª out-of-bounds access
+    // FIX: previously `return this->data[index];` Â¡Âª out-of-bounds access
     // via vector::operator[] is undefined behavior. Bounds-check and
     // return nullptr instead; callers must handle the nullptr case.
     if ( index < 0 || index >= static_cast< int >( this->data.size() ) )

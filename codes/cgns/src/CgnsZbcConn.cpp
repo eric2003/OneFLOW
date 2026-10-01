@@ -37,6 +37,7 @@ License
 #include "FaceSolver.h"
 #include "BcRecord.h"
 #include <iostream>
+#include <utility>
 
 
 
@@ -49,32 +50,31 @@ CgnsZbcConn::CgnsZbcConn( CgnsZone * cgnsZone )
     this->nConn = 0;
 }
 
-CgnsZbcConn::~CgnsZbcConn()
-{
-    for ( int iConn = 0; iConn < this->nConn; ++ iConn )
-    {
-        delete this->cgnsBcConns[ iConn ];
-    }
-}
+CgnsZbcConn::~CgnsZbcConn() = default;
 
 void CgnsZbcConn::AddCgnsConnBcRegion( CgnsBcConn * cgnsBcConn )
 {
-    this->cgnsBcConns.push_back( cgnsBcConn );
+    this->AddCgnsConnBcRegion( std::unique_ptr< CgnsBcConn >( cgnsBcConn ) );
+}
+
+void CgnsZbcConn::AddCgnsConnBcRegion( std::unique_ptr< CgnsBcConn > cgnsBcConn )
+{
+    CgnsBcConn * bcConn = cgnsBcConn.get();
+    this->cgnsBcConns.push_back( std::move( cgnsBcConn ) );
     int id = this->cgnsBcConns.size();
-    cgnsBcConn->bcId = id;
+    bcConn->bcId = id;
 }
 
 CgnsBcConn * CgnsZbcConn::GetCgnsBc( int iConn )
 {
-    return this->cgnsBcConns[ iConn ];
+    return this->cgnsBcConns[ iConn ].get();
 }
 
 void CgnsZbcConn::CreateCgnsZbc()
 {
     for ( int iConn = 0; iConn < this->nConn; ++ iConn )
     {
-        CgnsBcConn * cgnsBcConn = new CgnsBcConn( this->cgnsZone );
-        this->AddCgnsConnBcRegion( cgnsBcConn );
+        this->AddCgnsConnBcRegion( std::make_unique< CgnsBcConn >( this->cgnsZone ) );
     }
 }
 

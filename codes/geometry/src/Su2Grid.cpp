@@ -503,7 +503,7 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone & cgnsZone )
 
     const int nSection = nVolSec + nBcSec;
 
-    CgnsZsection * cgnsZsection = cgnsZone.cgnsZsection;
+    CgnsZsection * cgnsZsection = cgnsZone.cgnsZsection.get();
 
     cgnsZsection->nSection = nSection;
     cgnsZsection->CreateCgnsSection();
@@ -550,7 +550,7 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone & cgnsZone )
         cgnsSection->SetElemPosition();
     }
 
-    CgnsZbc * cgnsZbc = cgnsZone.cgnsZbc;
+    CgnsZbc * cgnsZbc = cgnsZone.cgnsZbc.get();
     cgnsZbc->cgnsZbcBoco->ReadZnboco( this->mmark.nMarker );
     cgnsZbc->cgnsZbcBoco->CreateCgnsZbc();
 

@@ -64,16 +64,12 @@ void ScalarIFaceIJ::ReadInterfaceTopology( DataBook * databook )
 }
 
 ScalarIFace::ScalarIFace()
+    : dataSend( std::make_unique< DataStorage >() ),
+      dataRecv( std::make_unique< DataStorage >() )
 {
-    this->dataSend = new DataStorage();
-    this->dataRecv = new DataStorage();
 }
 
-ScalarIFace::~ScalarIFace()
-{
-    delete this->dataSend;
-    delete this->dataRecv;
-}
+ScalarIFace::~ScalarIFace() = default;
 
 void ScalarIFace::AddInterface( int global_interface_id, int neighbor_zoneid, int neighbor_cellid )
 {
@@ -178,11 +174,11 @@ DataStorage * ScalarIFace::GetDataStorage( int iSendRecv )
 {
     if ( iSendRecv == SEND_STORAGE )
     {
-        return this->dataSend;
+        return this->dataSend.get();
     }
     else if ( iSendRecv == RECV_STORAGE )
     {
-        return this->dataRecv;
+        return this->dataRecv.get();
     }
     else
     {

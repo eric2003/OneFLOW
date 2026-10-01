@@ -53,6 +53,7 @@ License
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <utility>
 
 
 BeginNameSpace( ONEFLOW )
@@ -221,17 +222,11 @@ ScalarBccos::ScalarBccos()
 {
 }
 
-ScalarBccos::~ScalarBccos()
-{
-	for ( int i = 0; i < this->bccos.size(); ++ i )
-	{
-		delete this->bccos[ i ];
-	}
-}
+ScalarBccos::~ScalarBccos() = default;
 
-void ScalarBccos::AddBcco( ScalarBcco * scalarBcco )
+void ScalarBccos::AddBcco( std::unique_ptr< ScalarBcco > scalarBcco )
 {
-	this->bccos.push_back( scalarBcco );
+	this->bccos.push_back( std::move( scalarBcco ) );
 }
 
 void ScalarBccos::ScanBcFace( ScalarGrid * grid )
@@ -244,22 +239,17 @@ void ScalarBccos::ScanBcFace( ScalarGrid * grid )
 }
 
 ScalarGrid::ScalarGrid()
+	: scalarBccos( std::make_unique< ScalarBccos >() ),
+	  dataBase( std::make_unique< DataBase >() ),
+	  scalarIFace( std::make_unique< ScalarIFace >() )
 {
-	scalarBccos = new ScalarBccos();
-	dataBase = new DataBase();
 	this->id = 0;
 	this->level = 0;
-	this->scalarIFace = new ScalarIFace();
 	this->volBcType = -1;
 	this->type = ONEFLOW::UMESH;
 }
 
-ScalarGrid::~ScalarGrid()
-{
-	delete this->scalarBccos;
-	delete this->dataBase;
-	delete this->scalarIFace;
-}
+ScalarGrid::~ScalarGrid() = default;
 
 int ScalarGrid::GetNNodes()
 {
@@ -316,19 +306,19 @@ void ScalarGrid::GenerateGrid( int ni, Real xmin, Real xmax )
 		this->PushElement( p1, p2, eType );
 	}
 
-	ScalarBcco * scalarBccoL = new ScalarBcco();
+	auto scalarBccoL = std::make_unique< ScalarBcco >();
 	scalarBccoL->bcName = "LeftOutFlow";
 	scalarBccoL->bcType = ONEFLOW::BCOutflow;
 	scalarBccoL->PushBoundaryFace( ptL, ONEFLOW::NODE );
 	scalarBccoL->AddBcPoint( ptL );
-	scalarBccos->AddBcco( scalarBccoL );
+	scalarBccos->AddBcco( std::move( scalarBccoL ) );
 
-	ScalarBcco * scalarBccoR = new ScalarBcco();
+	auto scalarBccoR = std::make_unique< ScalarBcco >();
 	scalarBccoR->bcName = "RightOutFlow";
 	scalarBccoR->bcType = ONEFLOW::BCOutflow;
 	scalarBccoR->PushBoundaryFace( ptR, ONEFLOW::NODE );
 	scalarBccoR->AddBcPoint( ptR );
-	scalarBccos->AddBcco( scalarBccoR );
+	scalarBccos->AddBcco( std::move( scalarBccoR ) );
 
 	this->DumpCgnsGrid();
 }
@@ -353,7 +343,7 @@ void ScalarGrid::CalcVolumeSection( SectionManager * volumeSectionManager )
 	for ( int iType = 0; iType < nElementTypes; ++ iType )
 	{
 		int current_eType = cgns_types[ iType ];
-		SectionMarker * sectionMarker = volumeSectionManager->data[ iType ];
+		SectionMarker * sectionMarker = volumeSectionManager->data[ iType ].get();
 		sectionMarker->cgns_type = current_eType;
 		sectionMarker->name = ElementTypeName[ sectionMarker->cgns_type ];
 		for ( int iElement = 0; iElement < nElements; ++ iElement )
@@ -376,7 +366,7 @@ void ScalarGrid::CalcBoundarySection( SectionManager * bcSectionManager )
 	int nBccos = scalarBccos->bccos.size();
 	for ( int iBcco = 0; iBcco < nBccos; ++ iBcco )
 	{
-		ScalarBcco * scalarBcco = scalarBccos->bccos[ iBcco ];
+		ScalarBcco * scalarBcco = scalarBccos->bccos[ iBcco ].get();
 		int nElements = scalarBcco->eTypes.GetNElements();
 
 		for ( int iElement = 0; iElement < nElements; ++ iElement )
@@ -392,7 +382,7 @@ void ScalarGrid::CalcBoundarySection( SectionManager * bcSectionManager )
 
 	for ( int iBcco = 0; iBcco < nBccos; ++ iBcco )
 	{
-		ScalarBcco * scalarBcco = scalarBccos->bccos[ iBcco ];
+		ScalarBcco * scalarBcco = scalarBccos->bccos[ iBcco ].get();
 		int nElements = scalarBcco->eTypes.GetNElements();
 		scalarBcco->local_globalIds.Resize( nElements );
 	}
@@ -403,12 +393,12 @@ void ScalarGrid::CalcBoundarySection( SectionManager * bcSectionManager )
 	for ( int iType = 0; iType < nElementTypes; ++ iType )
 	{
 		int current_eType = cgns_types[ iType ];
-		SectionMarker * sectionMarker = bcSectionManager->data[ iType ];
+		SectionMarker * sectionMarker = bcSectionManager->data[ iType ].get();
 		sectionMarker->cgns_type = current_eType;
 		sectionMarker->name = ElementTypeName[ sectionMarker->cgns_type ];
 		for ( int iBcco = 0; iBcco < nBccos; ++ iBcco )
 		{
-			ScalarBcco * scalarBcco = scalarBccos->bccos[ iBcco ];
+			ScalarBcco * scalarBcco = scalarBccos->bccos[ iBcco ].get();
 			int nElements = scalarBcco->eTypes.GetNElements();
 
 			for ( int iElement = 0; iElement < nElements; ++ iElement )
@@ -444,7 +434,7 @@ void ScalarGrid::SetCgnsZone( CgnsZone * cgnsZone )
 	/* boundary vertex size (zero if elements not sorted) */
 	cgnsZone->isize[ 2 ] = 0;
 
-	CgnsCoor * cgnsCoor = cgnsZone->cgnsCoor;
+	CgnsCoor * cgnsCoor = cgnsZone->cgnsCoor.get();
 
 	cgnsCoor->SetNNode( nNodes );
 	cgnsCoor->SetNCell( nCells );
@@ -483,7 +473,7 @@ void ScalarGrid::SetCgnsZone( CgnsZone * cgnsZone )
 
 	int nTotalSections = nVolSections + nBcSections;
 
-	CgnsZsection * cgnsZsection = cgnsZone->cgnsZsection;
+	CgnsZsection * cgnsZsection = cgnsZone->cgnsZsection.get();
 
 	cgnsZsection->nSection = nTotalSections;
 	cgnsZsection->CreateCgnsSection();
@@ -497,12 +487,12 @@ void ScalarGrid::SetCgnsZone( CgnsZone * cgnsZone )
 		SectionMarker * section = 0;
 		if ( iSection < nVolSections )
 		{
-			section = volSec.data[ iSection ];
+			section = volSec.data[ iSection ].get();
 		}
 		else
 		{
 			int jSection = iSection - nVolSections;
-			section = bcSec.data[ jSection ];
+			section = bcSec.data[ jSection ].get();
 		}
 
 		int nElements = section->nElements;
@@ -528,7 +518,7 @@ void ScalarGrid::SetCgnsZone( CgnsZone * cgnsZone )
 		cgnsSection->SetElemPosition();
 	}
 
-	CgnsZbc * cgnsZbc = cgnsZone->cgnsZbc;
+	CgnsZbc * cgnsZbc = cgnsZone->cgnsZbc.get();
 	cgnsZbc->cgnsZbcBoco->ReadZnboco( scalarBccos->bccos.size() );
 	cgnsZbc->cgnsZbcBoco->CreateCgnsZbc();
 
@@ -536,7 +526,7 @@ void ScalarGrid::SetCgnsZone( CgnsZone * cgnsZone )
 	for ( int iBcco = 0; iBcco < cgnsZbc->cgnsZbcBoco->nBoco; ++ iBcco )
 	{
 		CgnsBcBoco * cgnsBcBoco = cgnsZbc->cgnsZbcBoco->GetCgnsBc( iBcco );
-		ScalarBcco * scalarBcco = scalarBccos->bccos[ iBcco ];
+		ScalarBcco * scalarBcco = scalarBccos->bccos[ iBcco ].get();
 		int nElements = scalarBcco->eTypes.GetNElements();
 		cgnsBcBoco->name = scalarBcco->bcName;
 		cgnsBcBoco->gridLocation = CellCenter;
@@ -607,7 +597,7 @@ void ScalarGrid::ReadFromCgnsZone( CgnsZone * cgnsZone )
 {
 	std::cout << "   Convert Cgns Section Data to ScalarGrid......\n";
 	std::cout << "\n";
-	CgnsZsection * cgnsZsection = cgnsZone->cgnsZsection;
+	CgnsZsection * cgnsZsection = cgnsZone->cgnsZsection.get();
 	for ( int iSection = 0; iSection < cgnsZsection->nSection; ++ iSection )
 	{
 		std::cout << "-->iSection     = " << iSection << " numberOfCgnsSections = " << cgnsZsection->nSection << "\n";
@@ -625,8 +615,8 @@ void ScalarGrid::ReadFromCgnsZone( CgnsZone * cgnsZone )
 			this->PushElement( eNodeId, eType );
 		}
 	}
-	CgnsCoor * cgnsCoor = cgnsZone->cgnsCoor;
-	NodeMesh * nodeMesh = cgnsCoor->nodeMesh;
+	CgnsCoor * cgnsCoor = cgnsZone->cgnsCoor.get();
+	NodeMesh * nodeMesh = cgnsCoor->nodeMesh.get();
 	for ( int i = 0; i < nodeMesh->xN.size(); ++ i )
 	{
 		Real xm = nodeMesh->xN[ i ];

@@ -27,6 +27,7 @@ License
 #include <vector>
 #include <string>
 #include <fstream>
+#include <memory>
 
 
 BeginNameSpace( ONEFLOW )
@@ -53,7 +54,7 @@ public:
     IntField faceFlags;
 
     HXSize_t nBFaces;
-    BcManager * bcManager;
+    std::unique_ptr< BcManager > bcManager;
     Grid * grid;
 public:
     LinkField facesNew;

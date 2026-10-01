@@ -617,8 +617,8 @@ namespace
         int nIFaces = grid->interFace->nIFaces;
         for ( int ghostId = MAX_GHOST_LEVELS - 1; ghostId >= 0; -- ghostId )
         {
-            AllocateInterfaceField( interfaceFieldProperty, nIFaces, interFace->dataSend[ ghostId ] );
-            AllocateInterfaceField( interfaceFieldProperty, nIFaces, interFace->dataRecv[ ghostId ] );
+            AllocateInterfaceField( interfaceFieldProperty, nIFaces, interFace->dataSend[ ghostId ].get() );
+            AllocateInterfaceField( interfaceFieldProperty, nIFaces, interFace->dataRecv[ ghostId ].get() );
         }
     }
 

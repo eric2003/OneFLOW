@@ -37,13 +37,10 @@ BeginNameSpace( ONEFLOW )
 FaceTopo::FaceTopo()
 {
     this->grid = 0;
-    this->bcManager = new BcManager();
+    this->bcManager = std::make_unique< BcManager >();
 }
 
-FaceTopo::~FaceTopo()
-{
-    delete this->bcManager;
-}
+FaceTopo::~FaceTopo() = default;
 
 HXSize_t FaceTopo::CalcTotalFaceNodes()
 {

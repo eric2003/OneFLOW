@@ -28,6 +28,7 @@ License
 #include "ElemFeature.h"      
 #include "PointManager.h"     
 #include "FaceSolver.h"       
+#include <memory>
 
 
 BeginNameSpace( ONEFLOW )
@@ -56,8 +57,7 @@ public:
     MeshPointManager point_factory;
     FaceSolver face_solver;
     HXVector< CgnsZone * > cgnsZones;
-    Grid * grid;
-    bool delFlag;
+    std::unique_ptr< Grid > grid;
     Real minLen, maxLen;
 public:
     CgnsZone * GetCgnsZone( int iZone );
@@ -85,19 +85,20 @@ public:
     ZgridElem( CgnsZbase * cgnsZbase );
     ~ZgridElem();
 public:
-    HXVector< GridElem * > data;
+    HXVector< std::unique_ptr< GridElem > > data;
     CgnsZbase * cgnsZbase;
     Grids grids;
 public:
     GridElem * GetGridElem( int iGridElem );
-    void AddGridElem( GridElem * gridElem );
+    void AddGridElem( std::unique_ptr< GridElem > gridElem );
     void AddGridElem( HXVector< CgnsZone * > cgnsZones, int iZone );
 public:
     void GenerateLocalOneFlowGrid( Grids & grids );
     void AllocateGridElem();
     void PrepareUnsCalcGrid();
     void GenerateCalcGrid();
-    void GetGrids( Grids & grids );
+    // Transfer generated grids to the next owner in the calculation pipeline.
+    void TransferGrids( Grids & grids );
 };
 
 EndNameSpace

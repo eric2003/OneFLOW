@@ -27,6 +27,7 @@ License
 #include "ScalarGrid.h"
 #include "HXArray.h"
 #include "Task.h"
+#include <memory>
 #include <vector>
 #include <string>
 
@@ -58,13 +59,13 @@ public:
     FieldSolverBasic();
     ~FieldSolverBasic();
 public:
-    ScalarField * field;
-    ScalarGrid * grid;
-    FieldPara * para;
-    ScalarFieldManager * scalarFieldManager;
-    std::vector< ScalarField * > fields;
+    std::unique_ptr< ScalarField > field;
+    std::unique_ptr< ScalarGrid > grid;
+    std::unique_ptr< FieldPara > para;
+    std::unique_ptr< ScalarFieldManager > scalarFieldManager;
+    std::vector< std::unique_ptr< ScalarField > > fields;
+    // Non-owning views into ScalarZone::scalar_grids (do not delete).
     std::vector< ScalarGrid * > grids;
-    bool tmpflag_delete_grids;
 public:
     //tmp
     void FillTmpGridVector();
@@ -97,8 +98,8 @@ public:
 
 void PrepareFieldSendData();
 void PrepareFieldRecvData();
-ScalarFieldRecord * PrepareSendScalarFieldRecord();
-ScalarFieldRecord * PrepareRecvScalarFieldRecord();
+std::unique_ptr< ScalarFieldRecord > PrepareSendScalarFieldRecord();
+std::unique_ptr< ScalarFieldRecord > PrepareRecvScalarFieldRecord();
 
 void PrepareGeomSendData();
 void PrepareGeomRecvData();

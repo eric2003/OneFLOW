@@ -25,7 +25,9 @@ License
 #include "HXDefine.h"
 #include "GridHandles.h"
 #include <fstream>
+#include <memory>
 #include <string>
+#include <vector>
 
 
 BeginNameSpace( ONEFLOW )
@@ -41,8 +43,11 @@ public:
     ~Zone();
 public:
     static int flag_test_grid;
-    static HXVector< Grids * > globalGrids;
+    // One Grids list per zone id (multigrid levels stored as successive unique_ptrs).
+    static std::vector< Grids > globalGrids;
     static int nLocalZones;
+    static void AddGrid( int zid, std::unique_ptr< Grid > grid );
+    // Compatibility: takes ownership of a raw new'd Grid*.
     static void AddGrid( int zid, Grid * grid );
     static void ReleaseGrids();
     static void InitLayout( StringField & fileNameList );
@@ -57,6 +62,8 @@ public:
     static Grid * GetFGrid( Grid * grid );
     static UnsGrid * GetUnsGrid();
 public:
+    static void AddScalarGrid( int zid, std::unique_ptr< ScalarGrid > grid );
+    // Compatibility: takes ownership of a raw new'd ScalarGrid*.
     static void AddScalarGrid( int zid, ScalarGrid * grid );
     static ScalarGrid * GetScalarGrid( int iZone );
     static ScalarGrid * GetScalarGrid();

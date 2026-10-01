@@ -64,7 +64,7 @@ CgnsZone * CgnsGlobal::GetCgnsZoneByName( const std::string & zoneName )
     {
         throw std::logic_error( "CGNS zone lookup requested without an active CGNS base" );
     }
-    CgnsBase * cgnsBase = cgnsbases->baseVector[ 0 ];
+    CgnsBase * cgnsBase = cgnsbases->baseVector[ 0 ].get();
     return cgnsBase->GetCgnsZoneByName( zoneName );
 }
 

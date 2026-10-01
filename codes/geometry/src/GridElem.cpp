@@ -80,8 +80,6 @@ GridElem::GridElem( HXVector< CgnsZone * > & cgnsZones, int iZone )
     this->minLen = LARGE;
     this->maxLen = -LARGE;
 
-    this->delFlag = false;
-
     // [Refactored] Removed manual 'new' allocations. 
     // Value types are automatically constructed by the compiler.
 
@@ -89,16 +87,7 @@ GridElem::GridElem( HXVector< CgnsZone * > & cgnsZones, int iZone )
     this->elem_feature.face_solver = &this->face_solver;
 }
 
-GridElem::~GridElem()
-{
-    // [Refactored] Removed manual 'delete' calls.
-    // Value types are automatically destroyed by the compiler.
-
-    if ( this->delFlag )
-    {
-        delete this->grid;
-    }
-}
+GridElem::~GridElem() = default;
 
 CgnsZone * GridElem::GetCgnsZone( int iZone )
 {
@@ -115,7 +104,7 @@ void GridElem::CreateGrid( HXVector< CgnsZone * > cgnsZones, int iZone )
     CgnsZone * cgnsZone = cgnsZones[ 0 ];
     int cgnsZoneType = cgnsZone->cgnsZoneType;
     int gridType = Cgns2OneFlowZoneType( cgnsZoneType );
-    this->grid = ONEFLOW::CreateGrid( gridType );
+    this->grid = ONEFLOW::CreateGridUnique( gridType );
     grid->level = 0;
     grid->id = iZone;
     grid->localId = iZone;
@@ -259,7 +248,7 @@ void GridElem::GenerateCalcElement()
 
 void GridElem::GenerateCalcGrid()
 {
-    this->GenerateCalcGrid( this->grid );
+    this->GenerateCalcGrid( this->grid.get() );
 }
 
 void GridElem::GenerateCalcGrid(Grid * gridIn)
@@ -306,8 +295,8 @@ void GridElem::CalcBoundaryType( UnsGrid * grid )
 
     std::cout << " nBFaces = " << nBFaces << "\n";
 
-    BcTypeMap * bcTypeMap = new BcTypeMap();
-    bcTypeMap->Init();
+    BcTypeMap bcTypeMap;
+    bcTypeMap.Init();
 
     IntField cgnsBcArray = bcRecord->bcType;
 
@@ -317,7 +306,7 @@ void GridElem::CalcBoundaryType( UnsGrid * grid )
     {
         int cgnsBcType = bcRecord->bcType[ iFace ];
         int bcNameId = bcRecord->bcNameId[ iFace ];
-        int bcType = bcTypeMap->Cgns2OneFlow( cgnsBcType );
+        int bcType = bcTypeMap.Cgns2OneFlow( cgnsBcType );
 
         bcRecord->bcType[ iCount ] = bcType;
 
@@ -325,8 +314,6 @@ void GridElem::CalcBoundaryType( UnsGrid * grid )
         finalBcSet.insert( bcType );
         ++ iCount;
     }
-
-    delete bcTypeMap;
 
     IntField nBFaceSub;
 
@@ -413,28 +400,21 @@ ZgridElem::ZgridElem( CgnsZbase * cgnsZbase )
     this->cgnsZbase = cgnsZbase;
 }
 
-ZgridElem::~ZgridElem()
-{
-    for ( int i = 0; i < this->data.size(); ++ i )
-    {
-        delete this->data[ i ];
-    }
-}
+ZgridElem::~ZgridElem() = default;
 
-void ZgridElem::AddGridElem( GridElem * gridElem )
+void ZgridElem::AddGridElem( std::unique_ptr< GridElem > gridElem )
 {
-    this->data.push_back( gridElem );
+    this->data.push_back( std::move( gridElem ) );
 }
 
 void ZgridElem::AddGridElem( HXVector< CgnsZone * > cgnsZones, int iZone )
 {
-    GridElem * gridElem = new GridElem( cgnsZones, iZone );
-    this->AddGridElem( gridElem );
+    this->AddGridElem( std::make_unique< GridElem >( cgnsZones, iZone ) );
 }
 
 GridElem * ZgridElem::GetGridElem( int iGridElem )
 {
-    return this->data[ iGridElem ];
+    return this->data[ iGridElem ].get();
 }
 
 void ZgridElem::AllocateGridElem()
@@ -494,14 +474,13 @@ void ZgridElem::GenerateCalcGrid()
     }
 }
 
-void ZgridElem::GetGrids( Grids & grids )
+void ZgridElem::TransferGrids( Grids & grids )
 {
     int nZones = this->data.size();
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
         GridElem * gridElem = this->GetGridElem( iZone );
-        Grid * grid = gridElem->grid;
-        grids.push_back( grid );
+        grids.push_back( std::move( gridElem->grid ) );
     }
 }
 
@@ -513,7 +492,7 @@ void ZgridElem::GenerateLocalOneFlowGrid( Grids & grids )
 
     this->GenerateCalcGrid();
 
-    this->GetGrids( grids );
+    this->TransferGrids( grids );
 }
 
 

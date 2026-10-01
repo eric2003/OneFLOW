@@ -20,10 +20,11 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
 #pragma once
 #include "HXDefine.h"
-#include "HXPointer.h"
+#include <cstddef>
+#include <memory>
+#include <vector>
 
 BeginNameSpace( ONEFLOW )
 
@@ -38,30 +39,43 @@ public:
     int GetDirection();
 };
 
-using MyRegions = HXPointer< MyRegion >;
+// Owning region list.
+using MyRegions = std::vector< std::unique_ptr< MyRegion > >;
+// Non-owning observers / aliases (must not outlive the owners).
+using MyRegionViews = std::vector< MyRegion * >;
+
+[[nodiscard]] inline MyRegion * RegionAt( MyRegions & regions, std::size_t i )
+{
+    return regions[ i ].get();
+}
+
+[[nodiscard]] inline MyRegion * RegionAt( const MyRegions & regions, std::size_t i )
+{
+    return regions[ i ].get();
+}
 
 class MyRRegion
 {
 public:
     MyRRegion();
-    ~MyRRegion();
+    ~MyRRegion() = default;
 public:
     IntField idiv, jdiv, kdiv;
-    MyRegions subregions;
-    MyRegions refregions;
-    MyRegions bcregions;
-    MyRegions regions_nobc;
+    MyRegions subregions;          // owned subdivisions
+    MyRegionViews refregions;      // non-owning reference regions
+    MyRegionViews bcregions;       // non-owning BC regions
+    MyRegionViews regions_nobc;    // non-owning aliases into subregions
 public:
-    void CalcDiv( MyRegions & regions );
+    void CalcDiv( MyRegionViews & regions );
     void GenerateRegions( MyRegions & regions );
     void CollectNoSetBoundary();
     bool InBoundary( MyRegion * region );
     bool InRegion( MyRegion * r1, MyRegion * r2 );
     void AddRegion( MyRegion * region );
     void AddRefRegion( MyRegion * region );
-    void AddRefRegion( MyRegions & regions );
+    void AddRefRegion( MyRegionViews & regions );
     void AddBcRegion( MyRegion * region );
-    void AddBcRegion( MyRegions & regions );
+    void AddBcRegion( MyRegionViews & regions );
 public:
     void Test();
     void Run();
@@ -71,20 +85,20 @@ class MyRegionFactory
 {
 public:
     MyRegionFactory();
-    ~MyRegionFactory();
+    ~MyRegionFactory() = default;
 public:
     int ni, nj, nk;
-    MyRegions refregions;
-    MyRegions ref_bcregions;
-    MyRegions bcregions;
+    MyRegions refregions;       // owned
+    MyRegions ref_bcregions;    // owned
+    MyRegions bcregions;        // owned
 public:
     void CreateRegion();
     void Create( int imin, int imax, int jmin, int jmax, int kmin, int kmax );
     void AddRefBcRegion( IntField & ijkMin, IntField & ijkMax );
-    void AddBcRegion( MyRegions & bcregions_notset );
+    void AddBcRegion( MyRegionViews & bcregions_notset );
 public:
     void Run();
-    void CollectBcRegion( MyRegion * r, MyRegions & bcregions_collect );
+    void CollectBcRegion( MyRegion * r, MyRegionViews & bcregions_collect );
 };
 
 EndNameSpace

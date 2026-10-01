@@ -27,11 +27,22 @@ License
 #include "SlipFace.h"
 #include "DataBase.h"
 #include <iostream>
+#include <memory>
+#include <utility>
 
 
 BeginNameSpace( ONEFLOW )
 
-std::map< std::string, Grid * > * Grid::classMap = 0;
+namespace
+{
+using GridRegistry = std::map< std::string, std::unique_ptr< Grid > >;
+
+GridRegistry & GetGridRegistry()
+{
+    static GridRegistry registry;
+    return registry;
+}
+}
 
 Grid::Grid()
 {
@@ -45,10 +56,11 @@ Grid::~Grid()
     this->Free();
 }
 
-Grid * Grid::SafeClone( const std::string & type )
+std::unique_ptr< Grid > Grid::SafeCloneUnique( const std::string & type )
 {
-    std::map < std::string, Grid * >::iterator iter = Grid::classMap->find( type );
-    if ( iter == Grid::classMap->end() )
+    GridRegistry & registry = GetGridRegistry();
+    GridRegistry::iterator iter = registry.find( type );
+    if ( iter == registry.end() )
     {
         std::cout << type << " class not found" << std::endl;
         exit( 0 );
@@ -57,24 +69,21 @@ Grid * Grid::SafeClone( const std::string & type )
     return iter->second->Clone();
 }
 
+
+Grid * Grid::Register( const std::string & type, std::unique_ptr< Grid > clone )
+{
+    GridRegistry & registry = GetGridRegistry();
+    GridRegistry::iterator iter = registry.find( type );
+    if ( iter != registry.end() ) return iter->second.get();
+
+    Grid * registeredGrid = clone.get();
+    registry.emplace( type, std::move( clone ) );
+    return registeredGrid;
+}
+
 Grid * Grid::Register( const std::string & type, Grid * clone )
 {
-    if ( ! Grid::classMap )
-    {
-        Grid::classMap = new std::map < std::string, Grid * >();
-    }
-
-    std::map < std::string, Grid * >::iterator iter = Grid::classMap->find( type );
-    if ( iter == Grid::classMap->end() )
-    {
-        ( * Grid::classMap )[ type ] = clone;
-        return clone;
-    }
-    else
-    {
-        delete clone;
-        return iter->second;
-    }
+    return Grid::Register( type, std::unique_ptr< Grid >( clone ) );
 }
 
 void Grid::BasicInit()
