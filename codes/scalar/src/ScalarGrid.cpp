@@ -343,7 +343,7 @@ void ScalarGrid::CalcVolumeSection( SectionManager * volumeSectionManager )
 	for ( int iType = 0; iType < nElementTypes; ++ iType )
 	{
 		int current_eType = cgns_types[ iType ];
-		SectionMarker * sectionMarker = volumeSectionManager->data[ iType ];
+		SectionMarker * sectionMarker = volumeSectionManager->data[ iType ].get();
 		sectionMarker->cgns_type = current_eType;
 		sectionMarker->name = ElementTypeName[ sectionMarker->cgns_type ];
 		for ( int iElement = 0; iElement < nElements; ++ iElement )
@@ -393,7 +393,7 @@ void ScalarGrid::CalcBoundarySection( SectionManager * bcSectionManager )
 	for ( int iType = 0; iType < nElementTypes; ++ iType )
 	{
 		int current_eType = cgns_types[ iType ];
-		SectionMarker * sectionMarker = bcSectionManager->data[ iType ];
+		SectionMarker * sectionMarker = bcSectionManager->data[ iType ].get();
 		sectionMarker->cgns_type = current_eType;
 		sectionMarker->name = ElementTypeName[ sectionMarker->cgns_type ];
 		for ( int iBcco = 0; iBcco < nBccos; ++ iBcco )
@@ -487,12 +487,12 @@ void ScalarGrid::SetCgnsZone( CgnsZone * cgnsZone )
 		SectionMarker * section = 0;
 		if ( iSection < nVolSections )
 		{
-			section = volSec.data[ iSection ];
+			section = volSec.data[ iSection ].get();
 		}
 		else
 		{
 			int jSection = iSection - nVolSections;
-			section = bcSec.data[ jSection ];
+			section = bcSec.data[ jSection ].get();
 		}
 
 		int nElements = section->nElements;

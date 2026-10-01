@@ -25,6 +25,7 @@ License
 #include "HXDefine.h"
 #include <vector>
 #include <fstream>
+#include <memory>
 
 
 BeginNameSpace( ONEFLOW )
@@ -49,7 +50,7 @@ public:
     ~SectionManager();
 public:
     int nType;
-    HXVector< SectionMarker * > data;
+    HXVector< std::unique_ptr< SectionMarker > > data;
 public:
     void Alloc( int nType );
     int CalcTotalElem();
