@@ -27,6 +27,7 @@ License
 #include <string>
 #include <fstream>
 #include <memory>
+#include <set>
 
 
 BeginNameSpace( ONEFLOW )
@@ -98,10 +99,11 @@ public:
     ~PBlkSet();
 public:
     IntField id;
-    HXVector< std::set< PBlk *, ComparePBlk > * > pinfo;
+    HXVector< std::set< PBlk *, ComparePBlk > > pinfo;
+    HXVector< std::unique_ptr< PBlk > > ownedBlocks;
 public:
     void ReSize( int nSize );
-    void Add( int idx, PBlk * pblk );
+    void Add( int idx, std::unique_ptr< PBlk > pblk );
     void Analysys();
     void CalcDomainPatch( int nZone, MultiDomain & md );
     void CalcDomainPatch( int iZone, int jZone, MultiDomain & md );

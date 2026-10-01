@@ -295,10 +295,7 @@ PBlkSet::PBlkSet()
     ;
 }
 
-PBlkSet::~PBlkSet()
-{
-    ;
-}
+PBlkSet::~PBlkSet() = default;
 
 void PBlkSet::ReSize( int nSize )
 {
@@ -306,31 +303,22 @@ void PBlkSet::ReSize( int nSize )
     pinfo.resize( nSize );
 }
 
-void PBlkSet::Add( int idx, PBlk * pblk )
+void PBlkSet::Add( int idx, std::unique_ptr< PBlk > pblk )
 {
-    int nSize = this->id.size();
-    if ( idx < nSize )
+    if ( idx < 0 ) return;
+    if ( idx >= static_cast< int >( this->id.size() ) )
     {
-        std::set< PBlk *, ComparePBlk > * pset = pinfo[ idx ];
-        std::set< PBlk *, ComparePBlk >::iterator iter;
-        iter = pset->find( pblk );
-        if ( iter == pset->end() )
-        {
-            pset->insert( pblk );
-        }
-        else
-        {
-            delete pblk;
-        }
-    }
-    else
-    {
-        this->ReSize( nSize + 1 );
-        std::set< PBlk *, ComparePBlk > * pset = new std::set< PBlk *, ComparePBlk >;
-        pinfo[ idx ] = pset;
-        pset->insert( pblk );
+        this->ReSize( idx + 1 );
         this->id[ idx ] = idx;
     }
+
+    std::set< PBlk *, ComparePBlk > & pset = this->pinfo[ idx ];
+    PBlk * block = pblk.get();
+    if ( pset.find( block ) != pset.end() ) return;
+
+    // Keep block addresses stable; pinfo stores non-owning lookup pointers.
+    this->ownedBlocks.push_back( std::move( pblk ) );
+    pset.insert( block );
 }
 
 void PBlkSet::Analysys()
@@ -340,7 +328,7 @@ void PBlkSet::Analysys()
     int ip = -1;
     for ( int i = 0; i < nSize; ++ i )
     {
-        int nn = pinfo[ i ]->size();
+        int nn = pinfo[ i ].size();
         if ( maxpt < nn )
         {
         maxpt = nn;
@@ -352,7 +340,7 @@ void PBlkSet::Analysys()
     IntField multi_point;
     for ( int i = 0; i < nSize; ++ i )
     {
-        int nn = pinfo[ i ]->size();
+        int nn = pinfo[ i ].size();
         if ( nn > 1 )
         {
             multi_point.push_back( i );
@@ -503,15 +491,13 @@ bool PBlkSet::CrossDomain( int iZone, int idomain, int jZone, int jdomain, Patch
     HXVector< PBlk * > pblk2_list;
     for ( int i = 0; i < nSize; ++ i )
     {
-        int nn = pinfo[ i ]->size();
-        std::set< PBlk *, ComparePBlk > * pset = pinfo[ i ];
-        std::set< PBlk *, ComparePBlk >::iterator iter;
+        std::set< PBlk *, ComparePBlk > & pset = pinfo[ i ];
 
         PBlk * pblk1 = 0;
         PBlk * pblk2 = 0;
 
-        bool flag1 = BlkDomainInSet( iZone, idomain, pset, pblk1 );
-        bool flag2 = BlkDomainInSet( jZone, jdomain, pset, pblk2 );
+        bool flag1 = BlkDomainInSet( iZone, idomain, & pset, pblk1 );
+        bool flag2 = BlkDomainInSet( jZone, jdomain, & pset, pblk2 );
 
         if ( flag1 && flag2 )
         {
@@ -919,7 +905,7 @@ void DomainInp::CalcFacePoint( StrGrid * grid, PointLocator * pointSearch, IjkBo
             {
                 for ( int i = imin; i <= imax; ++ i )
                 {
-                    PBlk * pblk = new PBlk();
+                    auto pblk = std::make_unique< PBlk >();
                     pblk->blk = zId;
                     pblk->fid = n;
                     pblk->i = i;
@@ -931,7 +917,7 @@ void DomainInp::CalcFacePoint( StrGrid * grid, PointLocator * pointSearch, IjkBo
                     Real zm = zs( i, j, k );
 
                     int pid = pointSearch->AddPoint( xm, ym, zm );
-                    pblkSet->Add( pid, pblk );
+                    pblkSet->Add( pid, std::move( pblk ) );
 
                 }
             }
