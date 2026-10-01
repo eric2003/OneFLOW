@@ -192,11 +192,13 @@ void CgnsCoor::DeAlloc()
         {
             float * data  = static_cast< float * >( this->coor[ iCoor ] );
             delete [] data;
+            this->coor[ iCoor ] = nullptr;
         }
         else
         {
             double * data = static_cast< double * >( this->coor[ iCoor ] );
             delete [] data;
+            this->coor[ iCoor ] = nullptr;
         }
     }
 }
