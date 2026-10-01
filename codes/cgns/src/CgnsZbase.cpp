@@ -26,6 +26,7 @@ License
 #include "CgnsFile.h"
 #include "Fatal.h"
 #include <iostream>
+#include <utility>
 
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
@@ -33,22 +34,15 @@ BeginNameSpace( ONEFLOW )
 CgnsZbase::CgnsZbase()
 {
     this->nBases = 0;
-    this->cgnsFile = new CgnsFile();
+    this->cgnsFile = std::make_unique< CgnsFile >();
 }
 
-CgnsZbase::~CgnsZbase()
-{
-    this->FreeCgnsBases();
-    delete cgnsFile;
-}
+CgnsZbase::~CgnsZbase() = default;
 
 void CgnsZbase::FreeCgnsBases()
 {
-    int nBases = baseVector.size();
-    for ( int iBase = 0; iBase < nBases; ++ iBase )
-    {
-        delete baseVector[ iBase ];
-    }
+    this->baseVector.clear();
+    this->nBases = 0;
 }
 
 void CgnsZbase::OpenCgnsFile( const std::string & fileName, int cgnsOpenMode )
@@ -175,17 +169,24 @@ void CgnsZbase::ReadCgnsMultiBase()
 
 void CgnsZbase::AddCgnsBase( CgnsBase * cgnsBase )
 {
-    baseVector.push_back( cgnsBase );
+    this->AddCgnsBase( std::unique_ptr< CgnsBase >( cgnsBase ) );
+}
+
+void CgnsZbase::AddCgnsBase( std::unique_ptr< CgnsBase > cgnsBase )
+{
+    CgnsBase * base = cgnsBase.get();
+    baseVector.push_back( std::move( cgnsBase ) );
     int baseId = baseVector.size();
-    cgnsBase->cgnsFile = this->cgnsFile;
-    cgnsBase->baseId = baseId;
+    base->cgnsFile = this->cgnsFile.get();
+    base->baseId = baseId;
 }
 
 CgnsBase * CgnsZbase::CreateCgnsBase()
 {
-    CgnsBase * cgnsBase = new CgnsBase( this->cgnsFile );
-    this->AddCgnsBase( cgnsBase );
-    return cgnsBase;
+    auto cgnsBase = std::make_unique< CgnsBase >( this->cgnsFile.get() );
+    CgnsBase * base = cgnsBase.get();
+    this->AddCgnsBase( std::move( cgnsBase ) );
+    return base;
 }
 
 void CgnsZbase::InitCgnsBase()
@@ -198,7 +199,7 @@ void CgnsZbase::InitCgnsBase()
 
 CgnsBase * CgnsZbase::GetCgnsBase( int iBase )
 {
-    return baseVector[ iBase ];
+    return baseVector[ iBase ].get();
 }
 
 CgnsZone * CgnsZbase::GetCgnsZone( int globalZoneId )

@@ -23,6 +23,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -38,10 +39,10 @@ public:
     CgnsZbase ();
     ~CgnsZbase();
 public:
-    CgnsFile * cgnsFile;
+    std::unique_ptr< CgnsFile > cgnsFile;
     int nBases;
  
-    HXVector< CgnsBase * > baseVector;
+    HXVector< std::unique_ptr< CgnsBase > > baseVector;
 public:
     int GetSystemZoneType();
     void ReadCgnsGrid( const std::string & fileName );
@@ -54,6 +55,7 @@ public:
     void CloseCgnsFile();
 public:
     void AddCgnsBase( CgnsBase * cgnsBase );
+    void AddCgnsBase( std::unique_ptr< CgnsBase > cgnsBase );
     CgnsBase * CreateCgnsBase();
     void InitCgnsBase();
 public:
