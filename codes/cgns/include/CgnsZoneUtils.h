@@ -44,9 +44,9 @@ void GetIJKRegion( Range & I, Range & J, Range & K, int & ist, int & ied, int & 
 
 class PointLocator;
 class BcRegion;
-void PrepareCgnsZoneSub( Grids & grids, CgnsZone * cgnsZone );
-void MergeToSingleZone( Grids & grids, HXVector< std::unique_ptr< Int3D > > & unsIdList, NodeMesh * nodeMesh, int & nNodes, int & nCells );
-void FillSection( Grids & grids, HXVector< std::unique_ptr< Int3D > > & unsIdList, CgnsZone * cgnsZone );
+void PrepareCgnsZoneSub( GridViews & grids, CgnsZone * cgnsZone );
+void MergeToSingleZone( GridViews & grids, HXVector< std::unique_ptr< Int3D > > & unsIdList, NodeMesh * nodeMesh, int & nNodes, int & nCells );
+void FillSection( GridViews & grids, HXVector< std::unique_ptr< Int3D > > & unsIdList, CgnsZone * cgnsZone );
 void CalcUnsId( StrGrid * grid, PointLocator * pointSearch, Int3D * unsId );
 void SetUnsBcConn( BcRegion * bcRegion, CgIntField& conn, int & pos, Int3D & unsId );
 

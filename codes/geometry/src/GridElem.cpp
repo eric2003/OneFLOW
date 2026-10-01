@@ -104,7 +104,7 @@ void GridElem::CreateGrid( HXVector< CgnsZone * > cgnsZones, int iZone )
     CgnsZone * cgnsZone = cgnsZones[ 0 ];
     int cgnsZoneType = cgnsZone->cgnsZoneType;
     int gridType = Cgns2OneFlowZoneType( cgnsZoneType );
-    this->grid.reset( ONEFLOW::CreateGrid( gridType ) );
+    this->grid = ONEFLOW::CreateGridUnique( gridType );
     grid->level = 0;
     grid->id = iZone;
     grid->localId = iZone;

@@ -48,4 +48,34 @@ using Grids = std::vector< std::unique_ptr< Grid > >;
     return static_cast< int >( grids.size() );
 }
 
+// Non-owning view of Grid pointers (caller keeps ownership).
+using GridViews = std::vector< Grid * >;
+
+[[nodiscard]] inline Grid * GridAt( GridViews & grids, std::size_t i )
+{
+    return grids[ i ];
+}
+
+[[nodiscard]] inline Grid * GridAt( const GridViews & grids, std::size_t i )
+{
+    return grids[ i ];
+}
+
+[[nodiscard]] inline int GridsSize( const GridViews & grids ) noexcept
+{
+    return static_cast< int >( grids.size() );
+}
+
+// Build a non-owning view from an owning collection (for read-only algorithms).
+[[nodiscard]] inline GridViews AsGridViews( Grids & grids )
+{
+    GridViews views;
+    views.reserve( grids.size() );
+    for ( auto & g : grids )
+    {
+        views.push_back( g.get() );
+    }
+    return views;
+}
+
 EndNameSpace

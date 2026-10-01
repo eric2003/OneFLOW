@@ -88,7 +88,7 @@ void GetIJKRegion( Range & I, Range & J, Range & K, int & ist, int & ied, int & 
     ked = K.Last();
 }
 
-void PrepareCgnsZoneSub( Grids & grids, CgnsZone * cgnsZone )
+void PrepareCgnsZoneSub( GridViews & grids, CgnsZone * cgnsZone )
 {
     NodeMesh * nodeMesh = cgnsZone->cgnsCoor->GetNodeMesh();
 
@@ -107,7 +107,7 @@ void PrepareCgnsZoneSub( Grids & grids, CgnsZone * cgnsZone )
 
 }
 
-void MergeToSingleZone( Grids & grids, HXVector< std::unique_ptr< Int3D > > & unsIdList, NodeMesh * nodeMesh, int & nNodes, int & nCells )
+void MergeToSingleZone( GridViews & grids, HXVector< std::unique_ptr< Int3D > > & unsIdList, NodeMesh * nodeMesh, int & nNodes, int & nCells )
 {
     PointLocator pointSearch;
     pointSearch.Initialize( grids );
@@ -145,7 +145,7 @@ void MergeToSingleZone( Grids & grids, HXVector< std::unique_ptr< Int3D > > & un
     }
 }
 
-void FillSection( Grids & grids, HXVector< std::unique_ptr< Int3D > > & unsIdList, CgnsZone * cgnsZone )
+void FillSection( GridViews & grids, HXVector< std::unique_ptr< Int3D > > & unsIdList, CgnsZone * cgnsZone )
 {
     int nTBcRegion = 0;
 
@@ -776,15 +776,11 @@ void DumpCgnsZone( CgnsZone * myZone, Grid * grid, const Grids & grids )
 
 void PrepareCgnsZone( CgnsZone * myZone, Grid * grid )
 {
-    // Temporary non-owning view: PrepareCgnsZoneSub only observes during the call.
-    Grids grids;
-    grids.push_back( std::unique_ptr< Grid >( grid ) );
+    // Non-owning view: PrepareCgnsZoneSub only reads grid data during the call.
+    GridViews grids;
+    grids.push_back( grid );
     myZone->cgnsZoneType = CGNS_ENUMV( Unstructured );
     ONEFLOW::PrepareCgnsZoneSub( grids, myZone );
-    for ( auto & g : grids )
-    {
-        g.release(); // caller retains ownership (legacy HXPointer del_flag=false)
-    }
 }
 
 
