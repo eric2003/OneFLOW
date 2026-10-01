@@ -92,7 +92,7 @@ void PrepareCgnsZoneSub( Grids & grids, CgnsZone * cgnsZone )
 
     int nNodes, nCells;
 
-    HXVector< Int3D * > unsIdList;
+    HXVector< std::unique_ptr< Int3D > > unsIdList;
 
     MergeToSingleZone( grids, unsIdList, nodeMesh, nNodes, nCells );
 
@@ -103,10 +103,9 @@ void PrepareCgnsZoneSub( Grids & grids, CgnsZone * cgnsZone )
 
     cgnsZone->ConvertToInnerDataStandard();
 
-    ONEFLOW::DeletePointer( unsIdList );
 }
 
-void MergeToSingleZone( Grids & grids, HXVector< Int3D * > & unsIdList, NodeMesh * nodeMesh, int & nNodes, int & nCells )
+void MergeToSingleZone( Grids & grids, HXVector< std::unique_ptr< Int3D > > & unsIdList, NodeMesh * nodeMesh, int & nNodes, int & nCells )
 {
     PointLocator pointSearch;
     pointSearch.Initialize( grids );
@@ -122,10 +121,9 @@ void MergeToSingleZone( Grids & grids, HXVector< Int3D * > & unsIdList, NodeMesh
         int nj = grid->nj;
         int nk = grid->nk;
         nCells += grid->nCells;
-        unsIdList[ iZone ] = new Int3D( Range( 1, ni ), Range( 1, nj ), Range( 1, nk ) );
-        Int3D & unsId = * unsIdList[ iZone ];
+        unsIdList[ iZone ] = std::make_unique< Int3D >( Range( 1, ni ), Range( 1, nj ), Range( 1, nk ) );
         std::cout << " block = " << iZone + 1 << "\n";
-        CalcUnsId( grid, & pointSearch, & unsId );
+        CalcUnsId( grid, & pointSearch, unsIdList[ iZone ].get() );
     }
 
     nNodes = pointSearch.GetNPoint();
@@ -145,7 +143,7 @@ void MergeToSingleZone( Grids & grids, HXVector< Int3D * > & unsIdList, NodeMesh
     }
 }
 
-void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgnsZone )
+void FillSection( Grids & grids, HXVector< std::unique_ptr< Int3D > > & unsIdList, CgnsZone * cgnsZone )
 {
     int nTBcRegion = 0;
 
