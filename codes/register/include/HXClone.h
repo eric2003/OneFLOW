@@ -24,7 +24,6 @@ License
 #pragma once
 #include "NamespaceMacros.h"
 #include "HXDefine.h"
-#include <map>
 #include <string>
 
 
@@ -50,9 +49,9 @@ public:
 public:
     virtual HXClone * Clone() const = 0;
 public:
+    // Returns a caller-owned clone of a registered prototype.
     static HXClone * SafeClone( const std::string & type );
     static HXClone * Register( const std::string & type, HXClone * clone );
-    static std::map < std::string, HXClone * > * classMap;
     StringField data;
 public:
     virtual void Solve(){};

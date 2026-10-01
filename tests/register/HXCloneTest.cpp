@@ -21,9 +21,7 @@ class HXCloneTest : public ::testing::Test
 protected:
     void TearDown() override
     {
-        // HXClone::classMap has no public Free()/Clear() - see note below.
-        // For now, tests must use unique type names to avoid cross-test
-        // pollution, since we cannot safely reset classMap here.
+        // The registry is process-wide, so tests use unique type names.
     }
 };
 
@@ -42,21 +40,13 @@ TEST_F( HXCloneTest, RegisterIsIdempotentAndDeletesTheDuplicateArgument )
     ONEFLOW::HXClone * first = new StubClone();
     ONEFLOW::HXClone::Register( "HXCloneTest_TypeB", first );
 
-    // Registering the same type name again passes ownership of a new
-    // instance in, which Register() deletes internally (see original
-    // behavior: `delete clone; return iter->second;`). We must not
-    // touch `second` after this call except through the registry.
+    // Registering the same type again transfers ownership of the duplicate
+    // instance, which Register() discards while preserving the first entry.
     ONEFLOW::HXClone * second = new StubClone();
     ONEFLOW::HXClone * returned = ONEFLOW::HXClone::Register( "HXCloneTest_TypeB", second );
 
     EXPECT_EQ( returned, first ); // the original registration wins
 }
-
-// NOTE: no test for "unregistered type" (classMap null or type not
-// found) because Fatal()'s actual control-flow behavior is unknown to
-// us - if it calls exit()/abort(), a test exercising that path would
-// kill the whole test binary. Please confirm Fatal's implementation
-// before adding coverage for that branch.
 
 TEST_F( HXCloneTest, SafeCloneOnUnregisteredTypeThrows )
 {

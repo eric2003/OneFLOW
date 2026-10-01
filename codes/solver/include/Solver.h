@@ -23,7 +23,6 @@ License
 
 #pragma once
 #include "HXDefine.h"
-#include <map>
 
 BeginNameSpace( ONEFLOW )
 
@@ -45,9 +44,9 @@ public:
 public:
     virtual Solver * Clone() const = 0;
 public:
+    // Returns a caller-owned clone of a registered solver prototype.
     static Solver * SafeClone( const std::string & type );
     static Solver * Register( const std::string & type, Solver * clone );
-    static std::map < std::string, Solver * > * classMap;
 public:
     int solverType;   // SolverType identifier, for example NS_SOLVER.
     int solverIndex;  // Position of this solver instance in the solver list.
