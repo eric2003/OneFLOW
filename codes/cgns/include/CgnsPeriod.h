@@ -25,6 +25,7 @@ License
 #include "PointManager.h"
 #include "HXCgns.h"
 #include <map>
+#include <memory>
 
 BeginNameSpace(ONEFLOW)
 
@@ -40,8 +41,8 @@ public:
     F2FMap();
     ~F2FMap();
 public:
-    PointManager * pointBasic;
-    FaceSearchBasic * faceSearchBasic;
+    std::unique_ptr< PointManager > pointBasic;
+    std::unique_ptr< FaceSearchBasic > faceSearchBasic;
     LinkField faceList1, faceList2;
     std::map< int, int > face_pair;
 public:
