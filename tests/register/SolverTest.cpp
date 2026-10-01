@@ -8,9 +8,9 @@ namespace
     class StubSolver : public ONEFLOW::Solver
     {
     public:
-        ONEFLOW::Solver * Clone() const override
+        std::unique_ptr< ONEFLOW::Solver > Clone() const override
         {
-            return new StubSolver( *this );
+            return std::make_unique< StubSolver >( *this );
         }
     };
 }

@@ -51,7 +51,7 @@ std::unique_ptr< HXClone > HXClone::SafeCloneUnique( const std::string & type )
         return nullptr;
     }
 
-    return std::unique_ptr< HXClone >( iter->second->Clone() );
+    return iter->second->Clone();
 }
 
 

@@ -32,7 +32,7 @@ BeginNameSpace( ONEFLOW )
 class HXClone;
 
 #define IMPLEMENT_CLASS_CLONE( TYPE ) \
-HXClone * Clone() const { return new TYPE( * this ); }
+std::unique_ptr< HXClone > Clone() const override { return std::make_unique< TYPE >( * this ); }
 
 #define REGISTER_CLASS( TYPE ) \
     HXClone * TYPE ## _myClass = \
@@ -48,7 +48,7 @@ class HXClone
 public:
     virtual ~HXClone() {}
 public:
-    virtual HXClone * Clone() const = 0;
+    virtual std::unique_ptr< HXClone > Clone() const = 0;
 public:
     // Preferred: exclusive ownership of a registered prototype clone.
     static std::unique_ptr< HXClone > SafeCloneUnique( const std::string & type );

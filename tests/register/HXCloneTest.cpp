@@ -10,9 +10,9 @@ namespace
     class StubClone : public ONEFLOW::HXClone
     {
     public:
-        ONEFLOW::HXClone * Clone() const override
+        std::unique_ptr< ONEFLOW::HXClone > Clone() const override
         {
-            return new StubClone( *this );
+            return std::make_unique< StubClone >( *this );
         }
     };
 }

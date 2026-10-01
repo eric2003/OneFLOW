@@ -61,7 +61,7 @@ std::unique_ptr< Solver > Solver::SafeCloneUnique( const std::string & type )
         return nullptr;
     }
 
-    return std::unique_ptr< Solver >( iter->second->Clone() );
+    return iter->second->Clone();
 }
 
 

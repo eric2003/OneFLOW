@@ -29,7 +29,7 @@ BeginNameSpace( ONEFLOW )
 
 class Solver;
 #define IMPLEMENT_SOLVER_CLONE( TYPE ) \
-Solver * Clone() const { return new TYPE( * this ); }
+std::unique_ptr< Solver > Clone() const override { return std::make_unique< TYPE >( * this ); }
 
 #define REGISTER_SOLVER( TYPE ) \
     Solver * TYPE ## _myClass = \
@@ -43,7 +43,7 @@ public:
     Solver();
     virtual ~Solver();
 public:
-    virtual Solver * Clone() const = 0;
+    virtual std::unique_ptr< Solver > Clone() const = 0;
 public:
     // Preferred: exclusive ownership of a registered solver prototype clone.
     static std::unique_ptr< Solver > SafeCloneUnique( const std::string & type );
