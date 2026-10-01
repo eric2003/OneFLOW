@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Multigrid.h"
+#include <memory>
 #include "CmxTaskNames.h"
 #include "INsInvterm.h"
 #include "Mesh.h"
@@ -134,7 +135,7 @@ void MG::Run()
 		iinv.remax_vp = 1;
 		iinv.remax_wp = 1;
 
-		TimeSpan * timeSpan = new TimeSpan();
+		auto timeSpan = std::make_unique< TimeSpan >();
 		while (SimuIterState::Running())
 		{
 
@@ -151,13 +152,12 @@ void MG::Run()
 				this->SolveInnerIter();
 
 			}
-			this->OuterProcess(timeSpan);
+			this->OuterProcess(timeSpan.get());
 		}
-		delete timeSpan;
-	}
+			}
 	else
 	{
-		TimeSpan * timeSpan = new TimeSpan();
+		auto timeSpan = std::make_unique< TimeSpan >();
 		while ( SimuIterState::Running() )
 		{
 			Iteration::outerSteps ++;
@@ -171,10 +171,9 @@ void MG::Run()
 
 				this->SolveInnerIter();
 			}
-			this->OuterProcess( timeSpan );
+			this->OuterProcess( timeSpan.get() );
 		}
-		delete timeSpan;
-	}
+			}
 }
 
 void MG::InnerProcess()
@@ -417,16 +416,14 @@ bool DoNotNeedMultigridMethod( int gl )
 
 void MultigridSolve()
 {
-    MG * mg = new MG();
+    auto mg = std::make_unique< MG >();
     mg->MultigridSolve();
-    delete mg;
 }
 
 void MultigridSolve( SimuContext & context )
 {
-    MG * mg = new MG();
+    auto mg = std::make_unique< MG >();
     mg->MultigridSolve( context );
-    delete mg;
 }
 
 EndNameSpace

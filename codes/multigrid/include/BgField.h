@@ -23,6 +23,7 @@ License
 
 #pragma once
 #include "HXVector.h"
+#include <memory>
 BeginNameSpace( ONEFLOW )
 
 class FieldWrap;
@@ -46,7 +47,7 @@ public:
     BgField ();
     ~BgField();
 protected:
-    static HXVector< BasicBgField * > data;
+    static HXVector< std::unique_ptr< BasicBgField > > data;
 public:
     static bool flag;
     static void Init();

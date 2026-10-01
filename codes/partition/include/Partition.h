@@ -22,6 +22,7 @@ License
 
 
 #pragma once
+#include <memory>
 #include "HXDefine.h"
 #include "GridHandles.h"
 #include "HXCgns.h"
@@ -52,7 +53,7 @@ public:
     IntField l2g_face;
     IntField l2g_cell;
 public:
-    G2LMapping * g2l;
+    std::unique_ptr< G2LMapping > g2l;
 public:
     void Alloc( UnsGrid * grid );
     void CalcL2G    ( UnsGrid * ggrid, int zid, UnsGrid * grid );
@@ -97,8 +98,8 @@ public:
     int npartproc;
     int partition_type;
     int partition_c2n;
-    G2LMapping * g2l;
-    L2GMapping * l2g;
+    std::unique_ptr< G2LMapping > g2l;
+    std::unique_ptr< L2GMapping > l2g;
 public:
     void Run();
     void ReadGrid();

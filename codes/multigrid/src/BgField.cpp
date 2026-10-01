@@ -21,6 +21,8 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "BgField.h"
+#include <memory>
+#include <utility>
 #include "Zone.h"
 #include "ZoneState.h"
 #include "SolverState.h"
@@ -88,7 +90,7 @@ void BasicBgField::Free()
     }
 }
 
-HXVector< BasicBgField * > BgField::data;
+HXVector< std::unique_ptr< BasicBgField > > BgField::data;
 bool BgField::flag = false;
 
 BgField::BgField()
@@ -111,19 +113,14 @@ void BgField::Init()
         if ( ! ZoneState::IsValidZone( iZone ) ) continue;
 
         ZoneState::zid = iZone;
-        BasicBgField * bbgField = new BasicBgField();
+        auto bbgField = std::make_unique< BasicBgField >();
         bbgField->Init();
-        BgField::data[ iZone ] = bbgField;
+        BgField::data[ iZone ] = std::move( bbgField );
     }
 }
 
 void BgField::Free()
 {
-    for ( int iZone = 0; iZone < BgField::data.size(); ++ iZone )
-    {
-        delete BgField::data[ iZone ];
-    }
-
     BgField::data.clear();
     BgField::flag = false;
 }
