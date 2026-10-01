@@ -529,14 +529,12 @@ void BlkFaceSolver::DumpStandardGrid()
     int nBlock = this->blkList.size();
 
     Grids strGridList( nBlock );
-    strGridList.SetDeleteFlag( true );
-
+    
     for ( int iBlk = 0; iBlk < nBlock; ++ iBlk )
     {
-        Grid * gridstr = ONEFLOW::CreateGrid( ONEFLOW::SMESH );
-        StrGrid * grid = ONEFLOW::StrGridCast( gridstr );
-
-        strGridList[ iBlk ] = grid;
+        auto owned = ONEFLOW::CreateGridUnique( ONEFLOW::SMESH );
+        StrGrid * grid = ONEFLOW::StrGridCast( owned.get() );
+        strGridList[ static_cast< std::size_t >( iBlk ) ] = std::move( owned );
 
         Block3D * blk3d = this->blkList[ iBlk ].get();
         blk3d->FillStrGrid( grid, iBlk );
@@ -552,14 +550,12 @@ void BlkFaceSolver::DumpStandardGrid2D()
     int nBlock = this->blkList2d.size();
 
     Grids strGridList( nBlock );
-    strGridList.SetDeleteFlag( true );
-
+    
     for ( int iBlk = 0; iBlk < nBlock; ++ iBlk )
     {
-        Grid * gridstr = ONEFLOW::CreateGrid( ONEFLOW::SMESH );
-        StrGrid * grid = ONEFLOW::StrGridCast( gridstr );
-
-        strGridList[ iBlk ] = grid;
+        auto owned = ONEFLOW::CreateGridUnique( ONEFLOW::SMESH );
+        StrGrid * grid = ONEFLOW::StrGridCast( owned.get() );
+        strGridList[ static_cast< std::size_t >( iBlk ) ] = std::move( owned );
 
         Block2D * blk2d = this->blkList2d[ iBlk ].get();
         blk2d->FillStrGrid( grid, iBlk );
@@ -580,7 +576,7 @@ void BlkFaceSolver::DumpStandardGrid( Grids & strGridList )
     HXWrite( & file, nZone );
     for ( int iBlock = 0; iBlock < nZone; ++ iBlock )
     {
-        Grid * gridstr = strGridList[ iBlock ];
+        Grid * gridstr = GridAt( strGridList, iBlock  );
         StrGrid * grid = ONEFLOW::StrGridCast( gridstr );
         int ni = grid->ni;
         int nj = grid->nj;
@@ -592,7 +588,7 @@ void BlkFaceSolver::DumpStandardGrid( Grids & strGridList )
 
     for ( int iBlock = 0; iBlock < nZone; ++ iBlock )
     {
-        Grid * gridstr = strGridList[ iBlock ];
+        Grid * gridstr = GridAt( strGridList, iBlock  );
         StrGrid * grid = ONEFLOW::StrGridCast( gridstr );
         HXWrite( & file, grid->nodeMesh->xN );
         HXWrite( & file, grid->nodeMesh->yN );

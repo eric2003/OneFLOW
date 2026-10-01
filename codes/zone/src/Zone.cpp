@@ -21,6 +21,8 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Zone.h"
+#include <utility>
+#include <memory>
 #include "LogFile.h"
 #include "ZoneState.h"
 #include "InterFace.h"
@@ -64,11 +66,7 @@ void Zone::ReleaseGrids()
     {
         Grids * grids = Zone::globalGrids[ zid ];
         if ( ! grids ) continue;
-
-        for ( HXSize_t gl = 0; gl < grids->size(); ++ gl )
-        {
-            delete ( * grids )[ gl ];
-        }
+        // unique_ptr elements delete Grid automatically
         delete grids;
     }
 
@@ -93,12 +91,12 @@ void Zone::AddGrid( int zid, Grid * grid )
         grids = new Grids;
         Zone::globalGrids[ zid ] = grids;
     }
-    grids->push_back( grid );
+    grids->push_back( std::unique_ptr< Grid >( grid ) );
 }
 
 Grid * Zone::GetGrid( int zid, int gl )
 {
-    return ( * Zone::globalGrids[ zid ] )[ gl ];
+    return GridAt( * Zone::globalGrids[ zid ], gl );
 }
 
 Grid * Zone::GetGrid()

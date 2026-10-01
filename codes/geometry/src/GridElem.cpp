@@ -480,13 +480,7 @@ void ZgridElem::TransferGrids( Grids & grids )
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
         GridElem * gridElem = this->GetGridElem( iZone );
-        grids.push_back( gridElem->grid.get() );
-    }
-
-    // Release only after all destination entries have been appended successfully.
-    for ( int iZone = 0; iZone < nZones; ++ iZone )
-    {
-        this->GetGridElem( iZone )->grid.release();
+        grids.push_back( std::move( gridElem->grid ) );
     }
 }
 

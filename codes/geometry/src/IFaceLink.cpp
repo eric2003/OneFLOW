@@ -32,16 +32,17 @@ License
 #include <iostream>
 
 BeginNameSpace( ONEFLOW )
-IFaceLink::IFaceLink( Grids & grids )
-{
-    this->grids = grids;
 
-    int nZone = grids.size();
+IFaceLink::IFaceLink( Grids & gridsIn )
+{
+    this->grids = & gridsIn;
+
+    const int nZone = GridsSize( *this->grids );
     this->l2g.resize( nZone );
 
     this->face_search = std::make_unique< FaceSearch >();
     this->point_search = std::make_unique< PointLocator >();
-    this->point_search->Initialize( grids );
+    this->point_search->Initialize( *this->grids );
 }
 
 IFaceLink::~IFaceLink() = default;
@@ -61,34 +62,28 @@ void IFaceLink::AddFace( const IntField & facePointIndexes )
 
 void IFaceLink::CreateLink( IntField & faceNode, int zid, int lCount )
 {
-    // Add face to the face list
-    this->AddFace(faceNode);
+    this->AddFace( faceNode );
 
-    // Find or add the face (HXLookup automatically sorts the nodes)
-    auto [gIid, isNew] = this->faceLookup.FindOrAdd(faceNode);
+    auto [gIid, isNew] = this->faceLookup.FindOrAdd( faceNode );
 
     if ( isNew )
     {
-        // New face: update local-to-global mapping
-        this->l2g[zid][lCount] = gIid;
+        this->l2g[ zid ][ lCount ] = gIid;
 
-        // Initialize face connectivity data
         IntField zids;
         IntField lIid;
-        zids.push_back(zid);
-        lIid.push_back(lCount);
-        this->gI2Zid.push_back(std::move(zids));
-        this->g2l.push_back(std::move(lIid));
+        zids.push_back( zid );
+        lIid.push_back( lCount );
+        this->gI2Zid.push_back( std::move( zids ) );
+        this->g2l.push_back( std::move( lIid ) );
     }
     else
     {
-        // Existing face: use the existing global face ID
-        this->l2g[zid][lCount] = gIid;
-        this->gI2Zid[gIid].push_back(zid);
-        this->g2l[gIid].push_back(lCount);
+        this->l2g[ zid ][ lCount ] = gIid;
+        this->gI2Zid[ gIid ].push_back( zid );
+        this->g2l[ gIid ].push_back( lCount );
     }
 }
-
 
 void IFaceLink::ReconstructInterFace()
 {
@@ -125,21 +120,16 @@ void IFaceLink::MatchInterfaceTopology( Grid * grid )
         {
             if ( nIZone > 2 )
             {
-                //std::cout << " More than two faces coincide\n";
             }
             else
             {
-                ++missingPeriodicPartnerCount;
-                //std::cout << " Less than two faces coincide\n";
+                ++ missingPeriodicPartnerCount;
             }
-            //std::cout << " Current ZoneIndex  = " << grid->id << std::endl;
-            //std::cout << " nIZone = " << nIZone << std::endl;
-            //std::cout << " LocalInterface Index = " << iIFace << " nIFaces = " << nIFaces << std::endl;
         }
 
         for ( int iIZone = 0; iIZone < nIZone; ++ iIZone )
         {
-            int nZid = this->gI2Zid [ gIFace ][ iIZone ];
+            int nZid = this->gI2Zid[ gIFace ][ iIZone ];
             int lId  = this->g2l[ gIFace ][ iIZone ];
             if ( ( nZid != grid->id ) ||
                  ( lId  != iIFace   ) )
@@ -149,15 +139,9 @@ void IFaceLink::MatchInterfaceTopology( Grid * grid )
                 break;
             }
         }
-
-        //if ( ! flag )
-        //{
-        //    std::cout << "LocalInterface Index = " << iIFace << " There is a problem in the input grid. Please check it carefully!\n";
-        //}
     }
     std::cout << " Periodic boundary faces missing a partner = "
               << missingPeriodicPartnerCount << "\n";
-
 }
 
 void IFaceLink::MatchPeriodicInterface( Grid * grid )
@@ -172,9 +156,8 @@ void IFaceLink::MatchPeriodicInterface( Grid * grid )
         int gIFace = this->l2g[ grid->id ][ iIFace ];
         int nIZone = this->gI2Zid[ gIFace ].size();
 
-        if (nIZone == 2) continue;
+        if ( nIZone == 2 ) continue;
 
-        // faceArray now stores IntField directly
         const IntField & nodeId = this->face_search->faceArray[ gIFace ];
 
         RealField xList, yList, zList;
@@ -183,7 +166,7 @@ void IFaceLink::MatchPeriodicInterface( Grid * grid )
         RealField xxList, yyList, zzList;
         f2fmap.FindFace( xList, yList, zList, xxList, yyList, zzList );
 
-        int nNodes = xxList.size( );
+        int nNodes = xxList.size();
         IntField faceNode_period;
 
         for ( int i = 0; i < nNodes; ++ i )
@@ -214,9 +197,7 @@ void IFaceLink::MatchPeriodicInterface( Grid * grid )
 
         interFace->zoneId[ iIFace ] = nZid_period;
         interFace->localInterfaceId[ iIFace ] = lId_period;
-
     }
-
 }
 
 void GetFaceCoorList( IntField & faceNode, RealField & xList, RealField & yList, RealField & zList, NodeMesh * nodeMesh )

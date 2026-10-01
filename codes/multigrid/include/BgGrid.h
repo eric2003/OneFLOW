@@ -20,12 +20,20 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
 #pragma once
 #include "HXDefine.h"
+#include <memory>
+
 BeginNameSpace( ONEFLOW )
 
 class Grid;
+
+[[nodiscard]] std::unique_ptr< Grid > CreateGridUnique( int gridType );
+[[nodiscard]] std::unique_ptr< Grid > CreateUnsGridUnique();
+[[nodiscard]] std::unique_ptr< Grid > CreateStrGridUnique();
+
+// Compatibility: returns a raw pointer the caller must own.
+// Prefer Create*Unique and store in Grids / unique_ptr.
 Grid * CreateGrid( int gridType );
 Grid * CreateUnsGrid();
 Grid * CreateStrGrid();

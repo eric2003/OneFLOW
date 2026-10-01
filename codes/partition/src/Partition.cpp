@@ -233,7 +233,7 @@ void Partition::Run()
 
     this->GenerateMultiZoneGrid();
 
-    ONEFLOW::GenerateMultiZoneCalcGrids( grids );
+    ONEFLOW::GenerateMultiZoneCalcGrids( std::move( grids ) );
 }
 
 void Partition::ReadGrid()
@@ -281,16 +281,17 @@ void Partition::CreatePart()
 
 void Partition::AllocPart()
 {
-    grids.resize( npartproc );
+    grids.clear();
+    grids.resize( static_cast< std::size_t >( npartproc ) );
     for ( int pid = 0; pid < npartproc; ++ pid )
     {
-        int gridType = ONEFLOW::UMESH;
-        Grid * grid = ONEFLOW::CreateGrid( gridType );
-        grid->level = 0;
-        grid->id = pid;
-        grid->localId = pid;
-        grid->type = gridType;
-        grids[ pid ] = grid;
+        const int gridType = ONEFLOW::UMESH;
+        auto owned = ONEFLOW::CreateGridUnique( gridType );
+        owned->level = 0;
+        owned->id = pid;
+        owned->localId = pid;
+        owned->type = gridType;
+        grids[ static_cast< std::size_t >( pid ) ] = std::move( owned );
     }
 }
 
@@ -332,7 +333,7 @@ void Partition::CalcG2lCell()
 
 void Partition::BuildCalculationalGrid( int zid )
 {
-    UnsGrid * grid = UnsGridCast( grids[ zid ] );
+    UnsGrid * grid = UnsGridCast( GridAt( grids, zid ) );
 
     grid->nCells = this->GetNCell( uns_grid, zid );
 

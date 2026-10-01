@@ -1,3 +1,4 @@
+#include "GridHandles.h"
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
@@ -198,7 +199,7 @@ void CgnsZbc::DumpCgnsGridBoundary( Grid * gridIn, const Grids & grids )
         {
             FillInterface( bcRegion, ipnts, ipntsdonor, itranfrm, dimension );
             int zid = bcRegion->t->zid - 1;
-            Grid * tGrid = grids[ zid ];
+            Grid * tGrid = GridAt( grids, zid );
             std::string & donorName = tGrid->name;
             // write 1-to-1 info
             int index_conn = -1;

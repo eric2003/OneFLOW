@@ -37,6 +37,8 @@ License
 #include "Grid.h"
 #include "BgGrid.h"
 #include "StrGrid.h"
+#include <utility>
+#include "GridHandles.h"
 #include "GridState.h"
 #include "Dimension.h"
 #include "GridElem.h"
@@ -116,7 +118,7 @@ void MergeToSingleZone( Grids & grids, HXVector< std::unique_ptr< Int3D > > & un
     nCells = 0;
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        StrGrid * grid = ONEFLOW::StrGridCast( grids[ iZone ] );
+        StrGrid * grid = ONEFLOW::StrGridCast( GridAt( grids, iZone  ) );
         int ni = grid->ni;
         int nj = grid->nj;
         int nk = grid->nk;
@@ -152,7 +154,7 @@ void FillSection( Grids & grids, HXVector< std::unique_ptr< Int3D > > & unsIdLis
 
     for ( int iZone = 0; iZone < grids.size(); ++ iZone )
     {
-        StrGrid * grid = ONEFLOW::StrGridCast( grids[ iZone ] );
+        StrGrid * grid = ONEFLOW::StrGridCast( GridAt( grids, iZone  ) );
         Int3D & unsId = * unsIdList[ iZone ];
 
         nTCell += grid->CalcNumberOfCell();
@@ -210,7 +212,7 @@ void FillSection( Grids & grids, HXVector< std::unique_ptr< Int3D > > & unsIdLis
 
     for ( int iZone = 0; iZone < grids.size(); ++ iZone )
     {
-        StrGrid * grid = ONEFLOW::StrGridCast( grids[ iZone ] );
+        StrGrid * grid = ONEFLOW::StrGridCast( GridAt( grids, iZone  ) );
         int ni = grid->ni;
         int nj = grid->nj;
         int nk = grid->nk;
@@ -263,7 +265,7 @@ void FillSection( Grids & grids, HXVector< std::unique_ptr< Int3D > > & unsIdLis
 
     for ( int iZone = 0; iZone < grids.size(); ++ iZone )
     {
-        StrGrid * grid = ONEFLOW::StrGridCast( grids[ iZone ] );
+        StrGrid * grid = ONEFLOW::StrGridCast( GridAt( grids, iZone  ) );
         int ni = grid->ni;
         int nj = grid->nj;
         int nk = grid->nk;
@@ -774,10 +776,15 @@ void DumpCgnsZone( CgnsZone * myZone, Grid * grid, const Grids & grids )
 
 void PrepareCgnsZone( CgnsZone * myZone, Grid * grid )
 {
+    // Temporary non-owning view: PrepareCgnsZoneSub only observes during the call.
     Grids grids;
-    grids.push_back( grid );
+    grids.push_back( std::unique_ptr< Grid >( grid ) );
     myZone->cgnsZoneType = CGNS_ENUMV( Unstructured );
     ONEFLOW::PrepareCgnsZoneSub( grids, myZone );
+    for ( auto & g : grids )
+    {
+        g.release(); // caller retains ownership (legacy HXPointer del_flag=false)
+    }
 }
 
 

@@ -22,13 +22,30 @@ License
 
 #pragma once
 
-#include "HXPointer.h"
+#include <cstddef>
+#include <memory>
+#include <vector>
+
+#include "Grid.h"
 
 BeginNameSpace( ONEFLOW )
 
-class Grid;
+// Owning collection of grids (one entry per zone / partition piece).
+using Grids = std::vector< std::unique_ptr< Grid > >;
 
-// Lightweight collection type for grid pointers; does not require Grid's definition.
-using Grids = HXPointer< Grid >;
+[[nodiscard]] inline Grid * GridAt( Grids & grids, std::size_t i )
+{
+    return grids[ i ].get();
+}
+
+[[nodiscard]] inline Grid * GridAt( const Grids & grids, std::size_t i )
+{
+    return grids[ i ].get();
+}
+
+[[nodiscard]] inline int GridsSize( const Grids & grids ) noexcept
+{
+    return static_cast< int >( grids.size() );
+}
 
 EndNameSpace

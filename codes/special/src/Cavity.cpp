@@ -70,10 +70,10 @@ void Cavity::Run()
     gridMediator.numberOfZones = nZone;
     gridMediator.gridVector.resize( nZone );
 
-    Grid * gridstr = ONEFLOW::CreateStrGrid();
-    StrGrid * grid = ONEFLOW::StrGridCast( gridstr );
+    auto owned = ONEFLOW::CreateStrGridUnique();
+    StrGrid * grid = ONEFLOW::StrGridCast( owned.get() );
     int iZone = 0;
-    gridMediator.gridVector[ iZone ] = grid;
+    gridMediator.gridVector[ static_cast< std::size_t >( iZone ) ] = std::move( owned );
     grid->name = AddString( "Zone", iZone );
     grid->id = iZone;
     grid->ni = ni;

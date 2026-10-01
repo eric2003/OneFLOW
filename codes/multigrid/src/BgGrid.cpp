@@ -29,39 +29,64 @@ License
 #include "GridState.h"
 #include "Multigrid.h"
 #include <iostream>
+#include <memory>
+#include <utility>
 
 BeginNameSpace( ONEFLOW )
 
-Grid * CreateGrid( int gridType )
+namespace
+{
+std::unique_ptr< Grid > CloneRegistered( const char * typeName )
+{
+    return std::unique_ptr< Grid >( Grid::SafeClone( typeName ) );
+}
+}
+
+std::unique_ptr< Grid > CreateGridUnique( int gridType )
 {
     if ( gridType == ONEFLOW::UMESH )
     {
-        Grid * grid = Grid::SafeClone( "UnsGrid" );
+        auto grid = CloneRegistered( "UnsGrid" );
         grid->Init();
         return grid;
     }
-    else if ( gridType == ONEFLOW::SMESH )
+    if ( gridType == ONEFLOW::SMESH )
     {
-        Grid * grid = Grid::SafeClone( "StrGrid" );
+        auto grid = CloneRegistered( "StrGrid" );
         grid->Init();
         return grid;
     }
     std::cout << "No grid of this type\n";
-    return 0;
+    return nullptr;
+}
+
+std::unique_ptr< Grid > CreateUnsGridUnique()
+{
+    auto grid = std::make_unique< UnsGrid >();
+    grid->Init();
+    return grid;
+}
+
+std::unique_ptr< Grid > CreateStrGridUnique()
+{
+    auto grid = std::make_unique< StrGrid >();
+    grid->Init();
+    return grid;
+}
+
+Grid * CreateGrid( int gridType )
+{
+    return CreateGridUnique( gridType ).release();
 }
 
 Grid * CreateUnsGrid()
 {
-    Grid * grid = new UnsGrid();
-    grid->Init();
-    return grid;
+    return CreateUnsGridUnique().release();
 }
 
 Grid * CreateStrGrid()
 {
-    Grid * grid = new StrGrid();
-    grid->Init();
-    return grid;
+    return CreateStrGridUnique().release();
 }
 
 EndNameSpace

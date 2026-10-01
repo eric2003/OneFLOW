@@ -122,9 +122,9 @@ void Plot3D::ReadCoorBinary( GridMediator * gridMediator )
             HXRead( & file, nk );
         }
 
-        Grid * gridstr = ONEFLOW::CreateGrid( ONEFLOW::SMESH );
-        StrGrid * grid = ONEFLOW::StrGridCast( gridstr );
-        gridMediator->gridVector[ iZone ] = grid;
+        auto owned = ONEFLOW::CreateGridUnique( ONEFLOW::SMESH );
+        StrGrid * grid = ONEFLOW::StrGridCast( owned.get() );
+        gridMediator->gridVector[ static_cast< std::size_t >( iZone ) ] = std::move( owned );
         grid->id = iZone;
         grid->ni = ni;
         grid->nj = nj;
@@ -148,7 +148,7 @@ void Plot3D::ReadCoorBinary( GridMediator * gridMediator )
 
     for ( int iZone = 0; iZone < gridMediator->numberOfZones; ++ iZone )
     {
-        StrGrid * grid = ONEFLOW::StrGridCast( gridMediator->gridVector[ iZone ] );
+        StrGrid * grid = ONEFLOW::StrGridCast( GridAt( gridMediator->gridVector, iZone ) );
         int numberOfNodes = grid->nNodes;
 
         int ni = grid->ni;
@@ -195,7 +195,7 @@ void Plot3D::DumpCoorBinary( GridMediator * gridMediator )
 
     for ( int iZone = 0; iZone < gridMediator->numberOfZones; ++ iZone )
     {
-        StrGrid * grid = ONEFLOW::StrGridCast( gridMediator->gridVector[ iZone ] );
+        StrGrid * grid = ONEFLOW::StrGridCast( GridAt( gridMediator->gridVector, iZone ) );
 
         int ni = grid->ni;
         int nj = grid->nj;
@@ -223,7 +223,7 @@ void Plot3D::DumpCoorBinary( GridMediator * gridMediator )
 
     for ( int iZone = 0; iZone < gridMediator->numberOfZones; ++ iZone )
     {
-        StrGrid * grid = ONEFLOW::StrGridCast( gridMediator->gridVector[ iZone ] );
+        StrGrid * grid = ONEFLOW::StrGridCast( GridAt( gridMediator->gridVector, iZone ) );
 
         int ni = grid->ni;
         int nj = grid->nj;
@@ -275,9 +275,9 @@ void Plot3D::ReadCoorAscii( GridMediator * gridMediator )
             nk = textFileParser.ReadNextDigit< int >();
         }
 
-        Grid * gridstr = ONEFLOW::CreateGrid( ONEFLOW::SMESH );
-        StrGrid * grid = ONEFLOW::StrGridCast( gridstr );
-        gridMediator->gridVector[ zCount ] = grid;
+        auto owned = ONEFLOW::CreateGridUnique( ONEFLOW::SMESH );
+        StrGrid * grid = ONEFLOW::StrGridCast( owned.get() );
+        gridMediator->gridVector[ static_cast< std::size_t >( zCount ) ] = std::move( owned );
         grid->id = zCount;
         grid->ni = ni;
         grid->nj = nj;
@@ -302,7 +302,7 @@ void Plot3D::ReadCoorAscii( GridMediator * gridMediator )
 
     for ( int iZone = 0; iZone < gridMediator->numberOfZones; ++ iZone )
     {
-        StrGrid * grid = ONEFLOW::StrGridCast( gridMediator->gridVector[ iZone ] );
+        StrGrid * grid = ONEFLOW::StrGridCast( GridAt( gridMediator->gridVector, iZone ) );
         int numberOfNodes = grid->nNodes;
 
         int ni = grid->ni;
@@ -371,7 +371,7 @@ void Plot3D::DumpCoorAscii( GridMediator * gridMediator )
 
     for ( int iZone = 0; iZone < gridMediator->numberOfZones; ++ iZone )
     {
-        StrGrid * grid = ONEFLOW::StrGridCast( gridMediator->gridVector[ iZone ] );
+        StrGrid * grid = ONEFLOW::StrGridCast( GridAt( gridMediator->gridVector, iZone ) );
 
         int ni = grid->ni;
         int nj = grid->nj;
@@ -398,7 +398,7 @@ void Plot3D::DumpCoorAscii( GridMediator * gridMediator )
 
     for ( int iZone = 0; iZone < gridMediator->numberOfZones; ++ iZone )
     {
-        StrGrid * grid = ONEFLOW::StrGridCast( gridMediator->gridVector[ iZone ] );
+        StrGrid * grid = ONEFLOW::StrGridCast( GridAt( gridMediator->gridVector, iZone ) );
 
         int ni = grid->ni;
         int nj = grid->nj;
@@ -472,7 +472,7 @@ void Plot3D::ReadBc( GridMediator * gridMediator )
 
     for ( int iZone = 0; iZone < numberOfZones; ++ iZone )
     {
-        StrGrid * grid = ONEFLOW::StrGridCast( gridMediator->gridVector[ iZone ] );
+        StrGrid * grid = ONEFLOW::StrGridCast( GridAt( gridMediator->gridVector, iZone ) );
         textFileParser.ReadNextNonEmptyLine();
 
         int ni = textFileParser.ReadNextDigit< int >();
@@ -602,7 +602,7 @@ void Plot3D::DumpBc( GridMediator * gridMediator )
 
     for ( int iZone = 0; iZone < numberOfZones; ++ iZone )
     {
-        StrGrid * grid = ONEFLOW::StrGridCast( gridMediator->gridVector[ iZone ] );
+        StrGrid * grid = ONEFLOW::StrGridCast( GridAt( gridMediator->gridVector, iZone ) );
 
         int ni = grid->ni;
         int nj = grid->nj;

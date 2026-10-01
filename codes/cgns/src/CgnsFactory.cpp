@@ -21,6 +21,8 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "CgnsFactory.h"
+#include <utility>
+#include <memory>
 #include "CgnsGlobal.h"
 #include "CgnsZbc.h"
 #include "CgnsFile.h"
@@ -114,7 +116,7 @@ void GenerateLocalOneFlowGridFromSu2Grid( Su2Grid & su2Grid, Grids & grids )
 
     Grids local_grids;
     cgnsFactory.zgridElem->GenerateLocalOneFlowGrid( local_grids );
-    ONEFLOW::AddOneFlowGrid( grids, local_grids[ 0 ] );
+    ONEFLOW::AddOneFlowGrid( grids, std::move( local_grids[ 0 ] ) );
 }
 
 void CgnsFactory::GenerateGrid( const std::string & caseDir )
@@ -286,7 +288,7 @@ void CgnsFactory::Su2ToOneFlowGrid( Su2Grid & su2Grid )
         ONEFLOW::GenerateLocalOneFlowGridFromSu2Grid( su2Grid, grids );
     }
 
-    ONEFLOW::GenerateMultiZoneCalcGrids( grids );
+    ONEFLOW::GenerateMultiZoneCalcGrids( std::move( grids ) );
 }
 
 void CgnsFactory::CgnsToOneFlowGrid()
@@ -303,14 +305,21 @@ void CgnsFactory::CgnsToOneFlowGrid( const GridConfig & config )
     this->zgridElem->GenerateLocalOneFlowGrid( grids );
 
     //The grid is processed and the grid file used for calculation is output
-    ONEFLOW::GenerateMultiZoneCalcGrids( grids );
+    ONEFLOW::GenerateMultiZoneCalcGrids( std::move( grids ) );
 }
 
+void AddOneFlowGrid( Grids & grids, std::unique_ptr< Grid > grid )
+{
+    if ( ! grid ) return;
+    const int iZone = static_cast< int >( grids.size() );
+    grid->id = iZone;
+    grids.push_back( std::move( grid ) );
+}
+
+// Compatibility overload for legacy raw pointers (takes ownership).
 void AddOneFlowGrid( Grids & grids, Grid * grid )
 {
-    int iZone = grids.size() - 1;
-    grids.push_back( grid );
-    grid->id = iZone;
+    AddOneFlowGrid( grids, std::unique_ptr< Grid >( grid ) );
 }
 
 #endif
