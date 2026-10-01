@@ -616,7 +616,7 @@ void ScalarGrid::ReadFromCgnsZone( CgnsZone * cgnsZone )
 		}
 	}
 	CgnsCoor * cgnsCoor = cgnsZone->cgnsCoor.get();
-	NodeMesh * nodeMesh = cgnsCoor->nodeMesh;
+	NodeMesh * nodeMesh = cgnsCoor->nodeMesh.get();
 	for ( int i = 0; i < nodeMesh->xN.size(); ++ i )
 	{
 		Real xm = nodeMesh->xN[ i ];

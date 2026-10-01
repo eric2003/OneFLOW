@@ -260,8 +260,8 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
     int eIdPos  = nTCell;
     pos = 0;
 
-    BcTypeMap * bcTypeMap = new BcTypeMap();
-    bcTypeMap->Init();
+    BcTypeMap bcTypeMap;
+    bcTypeMap.Init();
 
     for ( int iZone = 0; iZone < grids.size(); ++ iZone )
     {
@@ -285,7 +285,7 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
             
             cgnsBcBoco->SetCgnsBcRegionGridLocation( CellCenter );
             cgnsBcBoco->nElements    = 2;
-            cgnsBcBoco->bcType       = static_cast< BCType_t >( bcTypeMap->OneFlow2Cgns( bcRegion->bcType ) );
+            cgnsBcBoco->bcType       = static_cast< BCType_t >( bcTypeMap.OneFlow2Cgns( bcRegion->bcType ) );
             cgnsBcBoco->pointSetType = PointRange;
 
             //cgnsBcBoco->SetCgnsBcRegion( nElements, bcType, );
@@ -304,7 +304,6 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
         }
     }
 
-    delete bcTypeMap;
 }
 
 void CalcUnsId( StrGrid * grid, PointLocator * pointSearch, Int3D * unsId )

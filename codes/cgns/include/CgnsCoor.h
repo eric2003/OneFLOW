@@ -24,6 +24,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "HXCgns.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -45,7 +46,7 @@ public:
     HXVector< void * > coor;
     StringField coorNameList;
     CgnsZone * cgnsZone;
-    NodeMesh * nodeMesh;
+    std::unique_ptr< NodeMesh > nodeMesh;
 public:
     CgInt irmin[ 3 ], irmax[ 3 ], cellSize[ 3 ];
 protected:

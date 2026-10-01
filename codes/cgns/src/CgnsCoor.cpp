@@ -41,13 +41,12 @@ CgnsCoor::CgnsCoor( CgnsZone * cgnsZone )
     this->nCoor = this->coor.size();
     this->nNodeList.resize( this->ndim );
     this->coorNameList.resize( this->ndim );
-    this->nodeMesh = new NodeMesh();
+    this->nodeMesh = std::make_unique< NodeMesh >();
 }
 
 CgnsCoor::~CgnsCoor()
 {
     DeAlloc();
-    delete this->nodeMesh;
 }
 
 CgInt CgnsCoor::GetNNode()
@@ -283,13 +282,12 @@ void CgnsCoor::DumpCgnsGridCoordinates()
 
 void CgnsCoor::FreeMesh()
 {
-    delete this->nodeMesh;
-    this->nodeMesh = nullptr;
+    this->nodeMesh.reset();
 }
 
 NodeMesh * CgnsCoor::GetNodeMesh()
 {
-    return this->nodeMesh;
+    return this->nodeMesh.get();
 }
 
 void CgnsCoor::SetDimension()
