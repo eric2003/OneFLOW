@@ -291,7 +291,7 @@ void GridPartition::ReconstructInterfaceTopo()
 
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
-		ScalarIFace * scalarIFace = ( * this->grids )[ iZone ]->scalarIFace;
+		ScalarIFace * scalarIFace = ( * this->grids )[ iZone ]->scalarIFace.get();
 		int nIFaces = scalarIFace->iglobalfaces.size();
 		for ( int iFace = 0; iFace < nIFaces; ++ iFace )
 		{

@@ -281,7 +281,7 @@ void InterFaceTopo::InitZoneNeighborsInfoTest()
 
         ScalarGrid * grid = Zone::GetScalarGrid( iZone );
 
-        ScalarIFace * scalarIFace = grid->scalarIFace;
+        ScalarIFace * scalarIFace = grid->scalarIFace.get();
 
         IntField & neiborZoneIds = this->data[ iZone ];
 

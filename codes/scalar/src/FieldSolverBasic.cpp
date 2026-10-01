@@ -481,7 +481,7 @@ void PrepareFieldSendData()
     ScalarFieldRecord * fieldRecord = PrepareSendScalarFieldRecord();
 
     ScalarGrid * grid = ScalarZone::GetGrid();
-    ScalarIFace * scalarIFace = grid->scalarIFace;
+    ScalarIFace * scalarIFace = grid->scalarIFace.get();
 
     int nNei = scalarIFace->data.size();
     int iNei = ZoneState::inei;
@@ -510,7 +510,7 @@ void PrepareFieldRecvData()
     //How many neighbors of the current zone do you need to find out? This value is neiid.
 
     ScalarGrid * grid = ScalarZone::GetGrid();
-    ScalarIFace * scalarIFace = grid->scalarIFace;
+    ScalarIFace * scalarIFace = grid->scalarIFace.get();
 
     int nNei = scalarIFace->data.size();
     int jNei = scalarIFace->FindINeibor( ZoneState::szid );
@@ -536,7 +536,7 @@ ScalarFieldRecord * PrepareSendScalarFieldRecord()
     ScalarFieldRecord * fieldRecord = new ScalarFieldRecord();
 
     ScalarGrid * grid = ScalarZone::GetGrid();
-    ScalarIFace * scalarIFace = grid->scalarIFace;
+    ScalarIFace * scalarIFace = grid->scalarIFace.get();
 
     StringField fieldNameList;
     fieldNameList.push_back( "q" );
@@ -551,7 +551,7 @@ ScalarFieldRecord *  PrepareRecvScalarFieldRecord()
     ScalarFieldRecord * fieldRecord = new ScalarFieldRecord();
 
     ScalarGrid * grid = ScalarZone::GetGrid();
-    ScalarIFace * scalarIFace = grid->scalarIFace;
+    ScalarIFace * scalarIFace = grid->scalarIFace.get();
 
     StringField fieldNameList;
     fieldNameList.push_back( "q" );
@@ -564,7 +564,7 @@ ScalarFieldRecord *  PrepareRecvScalarFieldRecord()
 void PrepareGeomSendData()
 {
     ScalarGrid * grid = ScalarZone::GetGrid();
-    ScalarIFace * scalarIFace = grid->scalarIFace;
+    ScalarIFace * scalarIFace = grid->scalarIFace.get();
 
     int nNei = scalarIFace->data.size();
     int iNei = ZoneState::inei;
@@ -594,7 +594,7 @@ void PrepareGeomRecvData()
     //How many neighbors of the current zone do you need to find out? This value is neiid.
 
     ScalarGrid * grid = ScalarZone::GetGrid();
-    ScalarIFace * scalarIFace = grid->scalarIFace;
+    ScalarIFace * scalarIFace = grid->scalarIFace.get();
 
     int nNei = scalarIFace->data.size();
     int jNei = scalarIFace->FindINeibor( ZoneState::szid );
