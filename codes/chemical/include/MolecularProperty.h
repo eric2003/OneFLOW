@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 #pragma once
 #include "HXDefine.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -44,7 +45,7 @@ public:
     StringField species_name;
     IntField ion_type;
     RealField cs; //collision cross section
-    SchmidtNumber * schmidtNumber;
+    std::unique_ptr< SchmidtNumber > schmidtNumber;
     Real dim_amw; //dimensional average molecular weight
     Real amw; //average molecular weight
 public:

@@ -20,6 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "Thermodynamic.h"
+#include <memory>
 #include "TextFileParser.h"
 #include "DataBook.h"
 #include "DataBaseIO.h"
@@ -91,11 +92,6 @@ Thermodynamic::Thermodynamic()
 
 Thermodynamic::~Thermodynamic()
 {
-    size_t nSize = tfunction.size();
-    for ( int i = 0; i < nSize; ++ i )
-    {
-        delete tfunction[ i ];
-    }
 }
 
 void Thermodynamic::Init( int nSpecies )
@@ -104,7 +100,7 @@ void Thermodynamic::Init( int nSpecies )
     tfunction.resize( nSpecies );
     for ( int i = 0; i < nSpecies; ++ i )
     {
-        tfunction[ i ] = new ThermodynamicFunction();
+        tfunction[ i ] = std::make_unique< ThermodynamicFunction >();
     }
 }
 

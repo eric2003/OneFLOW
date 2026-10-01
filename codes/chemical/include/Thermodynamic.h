@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 #pragma once
 #include "HXDefine.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -50,7 +51,7 @@ public:
 public:
     int nSpecies;
     int nTSpan, nPolyCoef;
-    HXVector< ThermodynamicFunction * > tfunction;
+    HXVector< std::unique_ptr< ThermodynamicFunction > > tfunction;
     RealField trange;
 public:
     void Init( int nSpecies );

@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 #pragma once
 #include "HXDefine.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -42,11 +43,11 @@ public:
     Chemical();
     ~Chemical();
 public:
-    MolecularProperty * moleProp;
-    ReactionRate * reactionRate;
-    Stoichiometric * stoichiometric;
-    BlotterCurve * blotterCurve;
-    Thermodynamic * thermodynamic;
+    std::unique_ptr< MolecularProperty > moleProp;
+    std::unique_ptr< ReactionRate > reactionRate;
+    std::unique_ptr< Stoichiometric > stoichiometric;
+    std::unique_ptr< BlotterCurve > blotterCurve;
+    std::unique_ptr< Thermodynamic > thermodynamic;
     int nSpecies, nReaction;
 public:
     //working variables
