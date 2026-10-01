@@ -185,7 +185,7 @@ void Zone::ReadGrid(
     int zid = 0;
     for ( int iFile = 0; iFile < fileNameList.size(); ++ iFile )
     {
-        GridGroup * gridGroup = new GridGroup( zid );
+        auto gridGroup = std::make_unique< GridGroup >( zid );
 
         if ( caseDir.empty() )
         {
@@ -197,7 +197,6 @@ void Zone::ReadGrid(
         }
 
         zid += gridGroup->nZones;
-        delete gridGroup;
     }
     Zone::NormalizeLayout();
 }

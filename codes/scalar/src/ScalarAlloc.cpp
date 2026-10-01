@@ -20,6 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "ScalarAlloc.h"
+#include <memory>
 #include "DataStorage.h"
 #include "DataBase.h"
 #include "FieldBase.h"
@@ -62,16 +63,13 @@ ScalarFieldAlloc::~ScalarFieldAlloc()
 
 ScalarFieldManager::ScalarFieldManager()
 {
-    this->interfaceAlloc = new ScalarFieldAlloc();
-    this->inner = new ScalarFieldAlloc();
-    this->faceField = new ScalarFieldAlloc();
+    this->interfaceAlloc = std::make_unique< ScalarFieldAlloc >();
+    this->inner = std::make_unique< ScalarFieldAlloc >();
+    this->faceField = std::make_unique< ScalarFieldAlloc >();
 }
 
 ScalarFieldManager::~ScalarFieldManager()
 {
-    delete this->interfaceAlloc;
-    delete this->inner;
-    delete this->faceField;
 }
 
 void ScalarFieldManager::Init()

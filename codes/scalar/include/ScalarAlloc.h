@@ -20,6 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #pragma once
+#include <memory>
 #include "HXDefine.h"
 #include "HXArray.h"
 #include "FieldBase.h"
@@ -80,9 +81,9 @@ public:
     ScalarFieldManager();
     ~ScalarFieldManager();
 public:
-    ScalarFieldAlloc * interfaceAlloc;
-    ScalarFieldAlloc * inner;
-    ScalarFieldAlloc * faceField;
+    std::unique_ptr< ScalarFieldAlloc > interfaceAlloc;
+    std::unique_ptr< ScalarFieldAlloc > inner;
+    std::unique_ptr< ScalarFieldAlloc > faceField;
 public:
     void Init();
     void AllocateAllFields();

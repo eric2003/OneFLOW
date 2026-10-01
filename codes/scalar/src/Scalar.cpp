@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Scalar.h"
+#include <memory>
 #include "ScalarSolver.h"
 #include "ScalarOrder.h"
 #include "Blasius.h"
@@ -44,9 +45,8 @@ void Scalar::Run()
     //Blasius * blasius = new Blasius();
     //blasius->Run();
     //delete blasius;
-    ScalarSolver * scalarSolver = new ScalarSolver();
+    auto scalarSolver = std::make_unique< ScalarSolver >();
     scalarSolver->Run();
-    delete scalarSolver;
 
     //ScalarOrder * scalarOrder = new ScalarOrder();
     //scalarOrder->Run();

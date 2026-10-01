@@ -98,8 +98,8 @@ public:
 
 void PrepareFieldSendData();
 void PrepareFieldRecvData();
-ScalarFieldRecord * PrepareSendScalarFieldRecord();
-ScalarFieldRecord * PrepareRecvScalarFieldRecord();
+std::unique_ptr< ScalarFieldRecord > PrepareSendScalarFieldRecord();
+std::unique_ptr< ScalarFieldRecord > PrepareRecvScalarFieldRecord();
 
 void PrepareGeomSendData();
 void PrepareGeomRecvData();

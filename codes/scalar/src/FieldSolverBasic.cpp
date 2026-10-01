@@ -459,7 +459,7 @@ void FieldSolverBasic::ToTecplot( RealField & xList, RealField & varlist, std::s
 
 void PrepareFieldSendData()
 {
-    ScalarFieldRecord * fieldRecord = PrepareSendScalarFieldRecord();
+    auto fieldRecord = PrepareSendScalarFieldRecord();
 
     ScalarGrid * grid = ScalarZone::GetGrid();
     ScalarIFace * scalarIFace = grid->scalarIFace.get();
@@ -480,12 +480,11 @@ void PrepareFieldSendData()
         HXWriteField( ActionState::dataBook, field, interfaceId );
     }
 
-    delete fieldRecord;
 }
 
 void PrepareFieldRecvData()
 {
-    ScalarFieldRecord * fieldRecord = PrepareRecvScalarFieldRecord();
+    auto fieldRecord = PrepareRecvScalarFieldRecord();
 
     //By design, the current zone is the jth neighbor of zone I.
     //How many neighbors of the current zone do you need to find out? This value is neiid.
@@ -509,12 +508,11 @@ void PrepareFieldRecvData()
         HXReadField( ActionState::dataBook, field, interfaceId );
     }
 
-    delete fieldRecord;
 }
 
-ScalarFieldRecord * PrepareSendScalarFieldRecord()
+std::unique_ptr< ScalarFieldRecord > PrepareSendScalarFieldRecord()
 {
-    ScalarFieldRecord * fieldRecord = new ScalarFieldRecord();
+    auto fieldRecord = std::make_unique< ScalarFieldRecord >();
 
     ScalarGrid * grid = ScalarZone::GetGrid();
     ScalarIFace * scalarIFace = grid->scalarIFace.get();
@@ -527,9 +525,9 @@ ScalarFieldRecord * PrepareSendScalarFieldRecord()
     return fieldRecord;
 }
 
-ScalarFieldRecord *  PrepareRecvScalarFieldRecord()
+std::unique_ptr< ScalarFieldRecord > PrepareRecvScalarFieldRecord()
 {
-    ScalarFieldRecord * fieldRecord = new ScalarFieldRecord();
+    auto fieldRecord = std::make_unique< ScalarFieldRecord >();
 
     ScalarGrid * grid = ScalarZone::GetGrid();
     ScalarIFace * scalarIFace = grid->scalarIFace.get();
