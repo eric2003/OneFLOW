@@ -434,7 +434,7 @@ void ScalarGrid::SetCgnsZone( CgnsZone * cgnsZone )
 	/* boundary vertex size (zero if elements not sorted) */
 	cgnsZone->isize[ 2 ] = 0;
 
-	CgnsCoor * cgnsCoor = cgnsZone->cgnsCoor;
+	CgnsCoor * cgnsCoor = cgnsZone->cgnsCoor.get();
 
 	cgnsCoor->SetNNode( nNodes );
 	cgnsCoor->SetNCell( nCells );
@@ -473,7 +473,7 @@ void ScalarGrid::SetCgnsZone( CgnsZone * cgnsZone )
 
 	int nTotalSections = nVolSections + nBcSections;
 
-	CgnsZsection * cgnsZsection = cgnsZone->cgnsZsection;
+	CgnsZsection * cgnsZsection = cgnsZone->cgnsZsection.get();
 
 	cgnsZsection->nSection = nTotalSections;
 	cgnsZsection->CreateCgnsSection();
@@ -518,7 +518,7 @@ void ScalarGrid::SetCgnsZone( CgnsZone * cgnsZone )
 		cgnsSection->SetElemPosition();
 	}
 
-	CgnsZbc * cgnsZbc = cgnsZone->cgnsZbc;
+	CgnsZbc * cgnsZbc = cgnsZone->cgnsZbc.get();
 	cgnsZbc->cgnsZbcBoco->ReadZnboco( scalarBccos->bccos.size() );
 	cgnsZbc->cgnsZbcBoco->CreateCgnsZbc();
 
@@ -597,7 +597,7 @@ void ScalarGrid::ReadFromCgnsZone( CgnsZone * cgnsZone )
 {
 	std::cout << "   Convert Cgns Section Data to ScalarGrid......\n";
 	std::cout << "\n";
-	CgnsZsection * cgnsZsection = cgnsZone->cgnsZsection;
+	CgnsZsection * cgnsZsection = cgnsZone->cgnsZsection.get();
 	for ( int iSection = 0; iSection < cgnsZsection->nSection; ++ iSection )
 	{
 		std::cout << "-->iSection     = " << iSection << " numberOfCgnsSections = " << cgnsZsection->nSection << "\n";
@@ -615,7 +615,7 @@ void ScalarGrid::ReadFromCgnsZone( CgnsZone * cgnsZone )
 			this->PushElement( eNodeId, eType );
 		}
 	}
-	CgnsCoor * cgnsCoor = cgnsZone->cgnsCoor;
+	CgnsCoor * cgnsCoor = cgnsZone->cgnsCoor.get();
 	NodeMesh * nodeMesh = cgnsCoor->nodeMesh;
 	for ( int i = 0; i < nodeMesh->xN.size(); ++ i )
 	{

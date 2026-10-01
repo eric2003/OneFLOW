@@ -24,6 +24,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "HXCgns.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -48,9 +49,9 @@ public:
     ~CgnsZone();
 public:
     CgnsBase * cgnsBase;
-    CgnsCoor * cgnsCoor;
-    CgnsZsection * cgnsZsection;
-    CgnsZbc * cgnsZbc;
+    std::unique_ptr< CgnsCoor > cgnsCoor;
+    std::unique_ptr< CgnsZsection > cgnsZsection;
+    std::unique_ptr< CgnsZbc > cgnsZbc;
 public:
     std::string zoneName;
     int zId;

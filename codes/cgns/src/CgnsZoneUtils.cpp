@@ -198,7 +198,7 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
 
     cgnsZone->cgnsZsection->CreateConnList();
 
-    CgnsZbc * cgnsZbc = cgnsZone->cgnsZbc;
+    CgnsZbc * cgnsZbc = cgnsZone->cgnsZbc.get();
     cgnsZbc->cgnsZbcBoco->ReadZnboco( nTBcRegion );
     cgnsZbc->CreateCgnsZbc( cgnsZbc );
 
@@ -486,7 +486,7 @@ void GenerateUnsBcElemConn( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
     int iSection = 1;
     CgnsSection * cgnsSection = myZone->cgnsZsection->GetCgnsSection( iSection );
 
-    myZone->cgnsZbc->CreateCgnsZbc( cgnsZoneIn->cgnsZbc );
+    myZone->cgnsZbc->CreateCgnsZbc( cgnsZoneIn->cgnsZbc.get() );
 
     std::cout << " ConnectionList Size = " << cgnsSection->connSize << "\n";
     cgnsZoneIn->cgnsZbc->GenerateUnsBcElemConn( cgnsSection->connList );
@@ -645,7 +645,7 @@ void ReadCgnsZoneNameAndGeneralizedDimension( CgnsZone * myZone, CgnsZone * cgns
 
 void SetDimension( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
 {
-    CgnsCoor * cgnsCoorIn = cgnsZoneIn->cgnsCoor;
+    CgnsCoor * cgnsCoorIn = cgnsZoneIn->cgnsCoor.get();
     myZone->cgnsCoor->SetDimension( cgnsCoorIn );
 }
 
