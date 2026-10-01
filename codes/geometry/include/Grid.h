@@ -26,7 +26,6 @@ License
 #include "HXDefine.h"
 #include <vector>
 #include <string>
-#include <map>
 #include <memory>
 
 
@@ -55,9 +54,9 @@ public:
 public:
     virtual Grid * Clone() const = 0;
 public:
+    // Returns a caller-owned clone of a registered grid prototype.
     static Grid * SafeClone( const std::string & type );
     static Grid * Register( const std::string & type, Grid * clone );
-    static std::map < std::string, Grid * > * classMap;
 public:
     std::string name;
     int dimension;
