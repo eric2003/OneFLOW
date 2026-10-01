@@ -22,6 +22,7 @@ License
 
 #include "SolverInfo.h"
 #include <map>
+#include <memory>
 #include <iostream>
 
 
@@ -37,7 +38,7 @@ SolverInfo::~SolverInfo()
     ;
 }
 
-std::map< int, SolverInfo * > * SolverInfoFactory::data = 0;
+std::unique_ptr< std::map< int, std::unique_ptr< SolverInfo > > > SolverInfoFactory::data;
 
 SolverInfoFactory::SolverInfoFactory()
 {
@@ -51,7 +52,7 @@ void SolverInfoFactory::Init()
 {
     if ( ! SolverInfoFactory::data )
     {
-        SolverInfoFactory::data = new std::map< int, SolverInfo * >();
+        SolverInfoFactory::data = std::make_unique< std::map< int, std::unique_ptr< SolverInfo > > >();
     }
 }
 
@@ -59,36 +60,24 @@ void SolverInfoFactory::AddSolverInfo( int solverType )
 {
     SolverInfoFactory::Init();
 
-    std::map< int, SolverInfo * >::iterator iter;
-
-    iter = SolverInfoFactory::data->find( solverType );
+    auto iter = SolverInfoFactory::data->find( solverType );
     if ( iter == SolverInfoFactory::data->end() )
     {
-        SolverInfo * solverInfo = new SolverInfo();
-        ( * SolverInfoFactory::data )[ solverType ] = solverInfo;
+        ( * SolverInfoFactory::data )[ solverType ] = std::make_unique< SolverInfo >();
     }
 }
 
 SolverInfo * SolverInfoFactory::GetSolverInfo( int solverType )
 {
-    std::map< int, SolverInfo * >::iterator iter;
-    iter = SolverInfoFactory::data->find( solverType );
-    return iter->second;
+    auto iter = SolverInfoFactory::data->find( solverType );
+    return iter->second.get();
 }
 
 void SolverInfoFactory::Free()
 {
     if ( ! SolverInfoFactory::data ) return;
-    std::map< int, SolverInfo * >::iterator iter;
-    for ( iter = SolverInfoFactory::data->begin(); iter != SolverInfoFactory::data->end(); ++ iter )
-    {
-        delete iter->second;
-    }
-
     SolverInfoFactory::data->clear();
-
-    delete SolverInfoFactory::data;
-    SolverInfoFactory::data = 0;
+    SolverInfoFactory::data.reset();
 }
 
 

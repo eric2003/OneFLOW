@@ -24,6 +24,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include <map>
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -56,7 +57,8 @@ public:
     SolverInfoFactory();
     ~SolverInfoFactory();
 public:
-    static std::map< int, SolverInfo * > * data;
+    // Owning storage of SolverInfo instances.
+    static std::unique_ptr< std::map< int, std::unique_ptr< SolverInfo > > > data;
 public:
     static void Init();
     static void Free();
