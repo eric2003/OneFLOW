@@ -158,7 +158,6 @@ void GridGroup::ReadGrid( std::fstream & file, int zid )
 {
     int spid = 0;
     int rpid = 0;
-
     Parallel::GetSrPid( zid, spid, rpid );
 
     if ( Parallel::pid == rpid )
@@ -166,13 +165,12 @@ void GridGroup::ReadGrid( std::fstream & file, int zid )
         this->CreateGrid( zid );
     }
 
-    DataBook * dataBook = new DataBook();
-
-    ONEFLOW::ReadAbstractData( file, dataBook, spid, rpid );
-
-    ONEFLOW::DataToGrid( dataBook, zid );
-
-    delete dataBook;
+    // FIX: Use stack allocation instead of raw pointers. 
+    // This guarantees exception safety and eliminates memory leaks 
+    // if ReadAbstractData or DataToGrid throws an exception.
+    DataBook dataBook;
+    ONEFLOW::ReadAbstractData( file, &dataBook, spid, rpid );
+    ONEFLOW::DataToGrid( &dataBook, zid );
 }
 
 void GridGroup::CreateGrid( int zoneId )

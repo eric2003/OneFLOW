@@ -548,13 +548,14 @@ void ScalarGrid::DumpCgnsGrid()
 {
 	std::fstream file;
 	std::string prjFileName = Prj::GetPrjFileName( "scalar.cgns" );
-	CgnsZbase * cgnsZbase = new CgnsZbase();
-	cgnsZbase->nBases = 1;
-	cgnsZbase->InitCgnsBase();
+	// FIX: Use stack allocation instead of raw pointer
+	CgnsZbase cgnsZbase;
+	cgnsZbase.nBases = 1;
+	cgnsZbase.InitCgnsBase();
 
-	for ( int iBase = 0; iBase < cgnsZbase->nBases; ++ iBase )
+	for ( int iBase = 0; iBase < cgnsZbase.nBases; ++ iBase )
 	{
-		CgnsBase * cgnsBase = cgnsZbase->GetCgnsBase( iBase );
+		CgnsBase * cgnsBase = cgnsZbase.GetCgnsBase( iBase );
 
 		cgnsBase->celldim = ONEFLOW::ONE_D;
 		cgnsBase->phydim  = ONEFLOW::ONE_D;
@@ -567,20 +568,19 @@ void ScalarGrid::DumpCgnsGrid()
 		this->SetCgnsZone( cgnsZone );
 	}
 
-	cgnsZbase->cgnsFile->OpenCgnsFile( prjFileName, CG_MODE_WRITE );
-	cgnsZbase->DumpCgnsMultiBase();
-	cgnsZbase->cgnsFile->CloseCgnsFile();
-	delete cgnsZbase;
+	cgnsZbase.cgnsFile->OpenCgnsFile( prjFileName, CG_MODE_WRITE );
+	cgnsZbase.DumpCgnsMultiBase();
+	cgnsZbase.cgnsFile->CloseCgnsFile();
 }
 
 void ScalarGrid::GenerateGridFromCgns( const std::string & prjFileName )
 {
-	CgnsZbase * cgnsZbase = new CgnsZbase();
-	cgnsZbase->OpenCgnsFile( prjFileName, CG_MODE_READ );
-	cgnsZbase->ReadCgnsMultiBase();
-	cgnsZbase->CloseCgnsFile();
-	this->ReadFromCgnsZbase( cgnsZbase );
-	delete cgnsZbase;
+	// FIX: Use stack allocation instead of raw pointer
+	CgnsZbase cgnsZbase;
+	cgnsZbase.OpenCgnsFile( prjFileName, CG_MODE_READ );
+	cgnsZbase.ReadCgnsMultiBase();
+	cgnsZbase.CloseCgnsFile();
+	this->ReadFromCgnsZbase( &cgnsZbase );
 }
 
 void ScalarGrid::ReadFromCgnsZbase( CgnsZbase * cgnsZbase )
@@ -590,7 +590,6 @@ void ScalarGrid::ReadFromCgnsZbase( CgnsZbase * cgnsZbase )
 	CgnsBase * cgnsBase = cgnsZbase->GetCgnsBase( 0 );
 	CgnsZone * cgnsZone = cgnsBase->GetCgnsZone( iZone );
 	this->ReadFromCgnsZone( cgnsZone );
-
 }
 
 void ScalarGrid::ReadFromCgnsZone( CgnsZone * cgnsZone )
