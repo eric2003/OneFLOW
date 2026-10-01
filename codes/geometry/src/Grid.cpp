@@ -56,7 +56,7 @@ Grid::~Grid()
     this->Free();
 }
 
-Grid * Grid::SafeClone( const std::string & type )
+std::unique_ptr< Grid > Grid::SafeCloneUnique( const std::string & type )
 {
     GridRegistry & registry = GetGridRegistry();
     GridRegistry::iterator iter = registry.find( type );
@@ -67,6 +67,11 @@ Grid * Grid::SafeClone( const std::string & type )
     }
 
     return iter->second->Clone();
+}
+
+Grid * Grid::SafeClone( const std::string & type )
+{
+    return SafeCloneUnique( type ).release();
 }
 
 Grid * Grid::Register( const std::string & type, std::unique_ptr< Grid > clone )

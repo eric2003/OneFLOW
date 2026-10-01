@@ -38,7 +38,7 @@ namespace
 {
 std::unique_ptr< Grid > CloneRegistered( const char * typeName )
 {
-    return std::unique_ptr< Grid >( Grid::SafeClone( typeName ) );
+    return Grid::SafeCloneUnique( typeName );
 }
 }
 

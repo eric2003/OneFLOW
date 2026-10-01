@@ -32,8 +32,7 @@ License
 BeginNameSpace( ONEFLOW )
 
 #define IMPLEMENT_GRID_CLONE( TYPE ) \
-Grid * Clone() const { return new TYPE(); }
-//Grid * Clone() const { return new TYPE( * this ); }
+std::unique_ptr< Grid > Clone() const override { return std::make_unique< TYPE >(); }
 
 #define REGISTER_GRID( TYPE ) \
     Grid * TYPE ## _myClass = \
@@ -52,9 +51,11 @@ public:
     Grid();
     virtual ~Grid();
 public:
-    virtual Grid * Clone() const = 0;
+    virtual std::unique_ptr< Grid > Clone() const = 0;
 public:
-    // Returns a caller-owned clone of a registered grid prototype.
+    // Preferred: exclusive ownership of a registered grid prototype clone.
+    static std::unique_ptr< Grid > SafeCloneUnique( const std::string & type );
+    // Compatibility: returns a raw new'd Grid* the caller must own.
     static Grid * SafeClone( const std::string & type );
     static Grid * Register( const std::string & type, std::unique_ptr< Grid > clone );
     // Compatibility overload; takes ownership of clone.

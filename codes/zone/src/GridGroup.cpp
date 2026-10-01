@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "GridGroup.h"
+#include <utility>
 #include "Zone.h"
 #include "ZoneState.h"
 #include "ScalarGrid.h"
@@ -187,12 +188,12 @@ void GridGroup::CreateGrid( int zoneId )
 void GridGroup::CreateGridImp( int zoneId )
 {
     int gridType = ZoneState::zoneType[ zoneId ];
-    Grid * grid = ONEFLOW::CreateGrid( gridType );
+    auto grid = ONEFLOW::CreateGridUnique( gridType );
     grid->level = 0;
     grid->id = zoneId;
     grid->localId = Zone::nLocalZones ++;
     grid->type = gridType;
-    Zone::AddGrid( zoneId, grid );
+    Zone::AddGrid( zoneId, std::move( grid ) );
 }
 
 void GridGroup::CreateGridTest( int zoneId )
