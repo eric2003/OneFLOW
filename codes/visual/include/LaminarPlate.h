@@ -54,15 +54,15 @@ public:
     void Dump( LamData * lamData, std::fstream & file, int axis ) override;
 };
 
-
 class LaminarFlatPlateTask : public Task
 {
 public:
     LaminarFlatPlateTask();
     ~LaminarFlatPlateTask() override;
 public:
-    CuttingClass * velCut;
-    CuttingClass * friCut;
+    // FIX: Use std::unique_ptr for automatic memory management
+    std::unique_ptr<LamVelCut> velCut;
+    std::unique_ptr<LamFriCut> friCut;
 public:
     void Run() override;
     void OutProfile( CuttingClass * cut );

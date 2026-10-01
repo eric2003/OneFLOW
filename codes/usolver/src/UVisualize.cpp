@@ -47,18 +47,11 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-VisualTool::VisualTool()
-{
-    ;
-}
+VisualTool::VisualTool() { ; }
 
 VisualTool::~VisualTool()
 {
-    int nSize = qNodeField.size();
-    for ( int i = 0; i < nSize; ++ i )
-    {
-        delete qNodeField[ i ];
-    }
+    // std::unique_ptr automatically cleans up MRField objects
 }
 
 void VisualTool::Init()
@@ -75,28 +68,31 @@ void VisualTool::AddTitle( const std::string & varName )
     title.push_back( AddString( "\"",  varName, "\"" ) );
 }
 
-MRField * VisualTool::AddField( const std::string & varName )
-{
-    this->AddTitle( varName );
-    MRField * fn = InterpolateCellToNode( varName );
-    qNodeField.push_back( fn );
-    return fn;
-}
-
 MRField * VisualTool::AddField( RealField & qc, const std::string & varName )
 {
     this->AddTitle( varName );
-    MRField * fn = InterpolateCellToNode( qc );
-    qNodeField.push_back( fn );
-    return fn;
+    auto fn = InterpolateCellToNode( qc );
+    MRField * rawPtr = fn.get(); // Keep a non-owning view for return
+    qNodeField.push_back( std::move(fn) );
+    return rawPtr;
+}
+
+MRField * VisualTool::AddField( const std::string & varName )
+{
+    this->AddTitle( varName );
+    auto fn = InterpolateCellToNode( varName );
+    MRField * rawPtr = fn.get();
+    qNodeField.push_back( std::move(fn) );
+    return rawPtr;
 }
 
 MRField * VisualTool::CreateField( const std::string & varName, int nEqu )
 {
     this->AddTitle( varName );
-    MRField * fn = AllocateNodeField( nEqu );
-    qNodeField.push_back( fn );
-    return fn;
+    auto fn = AllocateNodeField( nEqu );
+    MRField * rawPtr = fn.get();
+    qNodeField.push_back( std::move(fn) );
+    return rawPtr;
 }
 
 
@@ -571,20 +567,20 @@ void UVisualize::CalcNodeField( VisualTool * visualTool )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     MRField * q = ONEFLOW::GetFieldPointer< MRField >( grid, "q" );
+    MRField * rn = visualTool->AddField( (*q)[IDX::IR], "r" );
+    MRField * un = visualTool->AddField( (*q)[IDX::IU], "u" );
+    MRField * vn = visualTool->AddField( (*q)[IDX::IV], "v" );
+    MRField * wn = visualTool->AddField( (*q)[IDX::IW], "w" );
+    MRField * pn = visualTool->AddField( (*q)[IDX::IP], "p" );
 
-    MRField * rn = visualTool->AddField( ( * q )[ IDX::IR ], "r" );
-    MRField * un = visualTool->AddField( ( * q )[ IDX::IU ], "u" );
-    MRField * vn = visualTool->AddField( ( * q )[ IDX::IV ], "v" );
-    MRField * wn = visualTool->AddField( ( * q )[ IDX::IW ], "w" );
-    MRField * pn = visualTool->AddField( ( * q )[ IDX::IP ], "p" );
-
-    MRField * gaman = InterpolateCellToNode( "gama" );
+    // FIX: Use std::unique_ptr to manage gaman's lifetime
+    auto gaman = InterpolateCellToNode( "gama" );
     MRField * machn = visualTool->CreateField( "mach" );
-    CalcMach( rn, un, vn, wn, pn, gaman, machn );
-    delete gaman;
+    CalcMach( rn, un, vn, wn, pn, gaman.get(), machn );
+    // gaman is automatically released here
 
     MRField * tempr = ONEFLOW::GetFieldPointer< MRField >( grid, "tempr" );
-    visualTool->AddField( ( * tempr )[ IDX::ITT ], "tempr" );
+    visualTool->AddField( (*tempr)[IDX::ITT], "tempr" );
 
     if ( vis_model.vismodel > 0 )
     {
@@ -592,6 +588,7 @@ void UVisualize::CalcNodeField( VisualTool * visualTool )
         visualTool->AddField( "vist" );
     }
 }
+
 
 void CalcMach( MRField * r, MRField * u, MRField * v, MRField * w, MRField * p, MRField * gama, MRField * mach )
 {

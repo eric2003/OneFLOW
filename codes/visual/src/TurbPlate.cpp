@@ -99,7 +99,7 @@ void TurbVelCut::DumpNormal()
     size_t nSlice = sliceData.size();
     for ( int i = 0; i < nSlice; ++ i )
     {
-        LamData * lamData = sliceData[ i ];
+        LamData * lamData = sliceData[ i ].get();
         this->Dump( lamData, file, sliceInfo.dir2[ i ] );
     }
 
@@ -134,7 +134,7 @@ void TurbVelCut::DumpDetail()
     size_t nSlice = sliceData.size();
     for ( int i = 0; i < nSlice; ++ i )
     {
-        LamData * lamData = sliceData[ i ];
+        LamData * lamData = sliceData[ i ].get();
         this->DumpDetail( lamData, file, sliceInfo.dir2[ i ] );
     }
 
@@ -300,7 +300,7 @@ void TurbFriCut::Dump()
     size_t nSlice = sliceData.size();
     for ( int i = 0; i < nSlice; ++ i )
     {
-        LamData * lamData = sliceData[ i ];
+        LamData * lamData = sliceData[ i ].get();
         this->Dump( lamData, file, sliceInfo.dir2[ i ] );
     }
 
@@ -353,20 +353,16 @@ void TurbFriCut::Dump( LamData * lamData, std::fstream & file, int axis )
 
 TurbFlatPlateTask::TurbFlatPlateTask()
 {
-    velCut = new TurbVelCut();
-    friCut = new TurbFriCut();
+    velCut = std::make_unique<TurbVelCut>();
+    friCut = std::make_unique<TurbFriCut>();
 }
 
-TurbFlatPlateTask::~TurbFlatPlateTask()
-{
-    delete velCut;
-    delete friCut;
-}
+TurbFlatPlateTask::~TurbFlatPlateTask() = default;
 
 void TurbFlatPlateTask::Run()
 {
-    this->OutProfile( velCut );
-    this->OutProfile( friCut );
+    this->OutProfile( velCut.get() );
+    this->OutProfile( friCut.get() );
 }
 
 void TurbFlatPlateTask::OutProfile( CuttingClass * cut )

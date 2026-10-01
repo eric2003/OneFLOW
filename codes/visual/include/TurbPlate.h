@@ -66,8 +66,9 @@ public:
     TurbFlatPlateTask();
     ~TurbFlatPlateTask() override;
 public:
-    CuttingClass * velCut;
-    CuttingClass * friCut;
+    // FIX: Use std::unique_ptr for automatic memory management
+    std::unique_ptr<TurbVelCut> velCut;
+    std::unique_ptr<TurbFriCut> friCut;
 public:
     void Run() override;
     void OutProfile( CuttingClass * cut );
