@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "FieldSolverBasic.h"
+#include <memory>
 #include "ScalarField.h"
 #include "FieldPara.h"
 #include "ScalarAlloc.h"
@@ -41,33 +42,17 @@ BeginNameSpace( ONEFLOW )
 
 FieldSolverBasic::FieldSolverBasic()
 {
-    this->grid = new ScalarGrid();
-    this->field = new ScalarField();
-    this->para = new FieldPara();
-    this->tmpflag_delete_grids = true;
-    this->scalarFieldManager = new ScalarFieldManager();
+    this->grid = std::make_unique< ScalarGrid >();
+    this->field = std::make_unique< ScalarField >();
+    this->para = std::make_unique< FieldPara >();
+    this->scalarFieldManager = std::make_unique< ScalarFieldManager >();
     ScalarZone::Allocate();
 }
 
 FieldSolverBasic::~FieldSolverBasic()
 {
-    delete this->grid;
-    delete this->field;
-    delete this->para;
+    // grids are non-owning views into ScalarZone; unique_ptr members free themselves.
     ScalarZone::DeAllocate();
-    delete this->scalarFieldManager;
-    if ( tmpflag_delete_grids )
-    {
-        for ( int i = 0; i < grids.size(); ++ i )
-        {
-            delete grids[ i ];
-        }
-    }
-
-    for ( int i = 0; i < fields.size(); ++ i )
-    {
-        delete fields[ i ];
-    }
 }
 
 void FieldSolverBasic::Run()
@@ -117,12 +102,9 @@ void FieldSolverBasic::Init()
 
 void FieldSolverBasic::AddZoneGrid()
 {
-    int nZones = this->grids.size();
-    ZoneState::nZones = nZones;
-    for ( int iZone = 0; iZone < nZones; ++ iZone )
-    {
-        ScalarZone::AddGrid( iZone, this->grids[ iZone ] );
-    }
+    // ScalarZone already owns the grids installed via Zone::AddScalarGrid /
+    // GridGroup::CreateGridTest. this->grids holds non-owning views only.
+    ZoneState::nZones = static_cast< int >( this->grids.size() );
 }
 
 void FieldSolverBasic::CalcGridMetrics()
@@ -157,8 +139,7 @@ void FieldSolverBasic::InitFlowField()
         if ( ! ZoneState::IsValidZone( iZone ) ) continue;
         ZoneState::zid = iZone;
 
-        ScalarField * field = new ScalarField();
-        this->fields.push_back( field );
+        this->fields.push_back( std::make_unique< ScalarField >() );
     }
 
     for ( int iZone = 0; iZone < ZoneState::nZones; ++ iZone )

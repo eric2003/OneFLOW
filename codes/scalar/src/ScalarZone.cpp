@@ -1,33 +1,37 @@
 /*---------------------------------------------------------------------------*\
-OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
+    OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
+    Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
-This file is part of OneFLOW.
+    This file is part of OneFLOW.
 
-OneFLOW is free software: you can redistribute it and/or modify it
-under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+    OneFLOW is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-OneFLOW is distributed in the hope that it will be useful, but WITHOUT
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-for more details.
+    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
 
-You should have received a copy of the GNU General Public License
-along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
 
 #include "ScalarZone.h"
-#include "MetisGrid.h"
+#include "ScalarGrid.h"
 #include "ZoneState.h"
+#include <cstddef>
+#include <memory>
+#include <utility>
+
 
 BeginNameSpace( ONEFLOW )
 
 int ScalarZone::nLocalZones = 0;
-HXVector< ScalarGrid * > ScalarZone::scalar_grids;
+std::vector< std::unique_ptr< ScalarGrid > > ScalarZone::scalar_grids;
 
 ScalarZone::ScalarZone()
 {
@@ -43,31 +47,31 @@ void ScalarZone::Allocate()
 
 void ScalarZone::DeAllocate()
 {
-    for ( HXSize_t iZone = 0; iZone < ScalarZone::scalar_grids.size(); ++ iZone )
+    ScalarZone::scalar_grids.clear();
+}
+
+void ScalarZone::AddGrid( int zid, std::unique_ptr< ScalarGrid > grid )
+{
+    if ( ScalarZone::scalar_grids.empty() )
     {
-        delete ScalarZone::scalar_grids[ iZone ];
+        ScalarZone::scalar_grids.resize( static_cast< std::size_t >( ZoneState::nZones ) );
     }
-    ScalarZone::scalar_grids.resize( 0 );
-    ScalarZone::nLocalZones = 0;
+    ScalarZone::scalar_grids[ static_cast< std::size_t >( zid ) ] = std::move( grid );
 }
 
 void ScalarZone::AddGrid( int zid, ScalarGrid * grid )
 {
-    if ( ScalarZone::scalar_grids.size() == 0 )
-    {
-        ScalarZone::scalar_grids.resize( ZoneState::nZones, 0 );
-    }
-    scalar_grids[ zid ] = grid;
+    ScalarZone::AddGrid( zid, std::unique_ptr< ScalarGrid >( grid ) );
 }
 
 ScalarGrid * ScalarZone::GetGrid( int iZone )
 {
-    return ScalarZone::scalar_grids[ iZone ];
+    return ScalarZone::scalar_grids[ static_cast< std::size_t >( iZone ) ].get();
 }
 
 ScalarGrid * ScalarZone::GetGrid()
 {
-    return ScalarZone::scalar_grids[ ZoneState::zid ];
+    return ScalarZone::GetGrid( ZoneState::zid );
 }
 
 EndNameSpace

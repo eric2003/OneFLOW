@@ -21,6 +21,8 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "GridGroup.h"
+#include <memory>
+#include <utility>
 #include <utility>
 #include "Zone.h"
 #include "ZoneState.h"
@@ -200,13 +202,13 @@ void GridGroup::CreateGridTest( int zoneId )
 {
     int gridType = ZoneState::zoneType[ zoneId ];
 
-    ScalarGrid * grid = new ScalarGrid();
+    auto grid = std::make_unique< ScalarGrid >();
     grid->level = 0;
     grid->id = zoneId;
     grid->localId = Zone::nLocalZones ++;
     grid->type = gridType;
 
-    Zone::AddScalarGrid( zoneId, grid );
+    Zone::AddScalarGrid( zoneId, std::move( grid ) );
 }
 
 void ReadAbstractData( std::fstream & file, DataBook * dataBook, int sendpid, int recvpid, int tag )

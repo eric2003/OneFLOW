@@ -28,6 +28,7 @@ License
 #include "ZoneState.h"
 #include "InterFace.h"
 #include "ScalarZone.h"
+#include "ScalarGrid.h"
 #include "GridGroup.h"
 #include "PIO.h"
 #include "Parallel.h"
@@ -201,9 +202,14 @@ void Zone::ReadGrid(
     Zone::NormalizeLayout();
 }
 
+void Zone::AddScalarGrid( int zid, std::unique_ptr< ScalarGrid > grid )
+{
+    ScalarZone::AddGrid( zid, std::move( grid ) );
+}
+
 void Zone::AddScalarGrid( int zid, ScalarGrid * grid )
 {
-    ScalarZone::AddGrid( zid, grid );
+    Zone::AddScalarGrid( zid, std::unique_ptr< ScalarGrid >( grid ) );
 }
 
 ScalarGrid * Zone::GetScalarGrid( int iZone )

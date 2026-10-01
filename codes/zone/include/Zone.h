@@ -62,6 +62,8 @@ public:
     static Grid * GetFGrid( Grid * grid );
     static UnsGrid * GetUnsGrid();
 public:
+    static void AddScalarGrid( int zid, std::unique_ptr< ScalarGrid > grid );
+    // Compatibility: takes ownership of a raw new'd ScalarGrid*.
     static void AddScalarGrid( int zid, ScalarGrid * grid );
     static ScalarGrid * GetScalarGrid( int iZone );
     static ScalarGrid * GetScalarGrid();

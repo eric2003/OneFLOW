@@ -21,6 +21,8 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "ScalarMetis.h"
+#include <memory>
+#include <utility>
 #include "InterFace.h"
 #include "CgnsZbase.h"
 #include "DataBook.h"
@@ -152,11 +154,13 @@ void ScalarMetis::Create1DMeshFromCgns()
 
 void ScalarMetisAddZoneGrid( std::vector< ScalarGrid * > & part_grids )
 {
-    int nZones = part_grids.size();
+    int nZones = static_cast< int >( part_grids.size() );
     ZoneState::nZones = nZones;
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
-        ScalarZone::AddGrid( iZone, part_grids[ iZone ] );
+        // Transfer ownership into ScalarZone; clear the raw slot.
+        ScalarZone::AddGrid( iZone, std::unique_ptr< ScalarGrid >( part_grids[ iZone ] ) );
+        part_grids[ iZone ] = nullptr;
     }
 }
 
