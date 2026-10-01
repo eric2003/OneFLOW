@@ -30,6 +30,7 @@ License
 #include "CgnsVariable.h"
 
 #include <iostream>
+#include <memory>
 #include <utility>
 
 BeginNameSpace( ONEFLOW )
@@ -328,10 +329,11 @@ void CgnsBase::ReadBaseDescriptor()
     for ( int n = 1; n <= ndescriptors; ++ n )
     {
         //read descriptor
-        char *text, name[33];
-        cg_descriptor_read( n, name, &text );
-        std::cout << "The descriptor is : " << name << "," << text << "\n";
-        delete[ ] text;
+        char * text = nullptr;
+        char name[ 33 ];
+        cg_descriptor_read( n, name, & text );
+        std::unique_ptr< char[] > descriptorText( text );
+        std::cout << "The descriptor is : " << name << "," << descriptorText.get() << "\n";
     }
 }
 
@@ -340,10 +342,10 @@ void CgnsBase::ReadConvergence()
     this->GoToBase();
 
     int nIterations;
-    char *text;
-    cg_convergence_read( &nIterations, &text );
-    std::cout << "nIterations = " << nIterations << " text = " << text << "\n";
-    delete[ ] text;
+    char * text = nullptr;
+    cg_convergence_read( &nIterations, & text );
+    std::unique_ptr< char[] > convergenceText( text );
+    std::cout << "nIterations = " << nIterations << " text = " << convergenceText.get() << "\n";
 
     this->GoToNode( "ConvergenceHistory_t", 1 );
     int narrays = -1;
