@@ -30,10 +30,10 @@ TEST_F( HXCloneTest, RegisterThenSafeCloneReturnsANewInstance )
 {
     ONEFLOW::HXClone::Register( "HXCloneTest_TypeA", std::make_unique< StubClone >() );
 
-    ONEFLOW::HXClone * cloned = ONEFLOW::HXClone::SafeClone( "HXCloneTest_TypeA" );
+    std::unique_ptr< ONEFLOW::HXClone > cloned =
+        ONEFLOW::HXClone::SafeCloneUnique( "HXCloneTest_TypeA" );
 
     ASSERT_NE( cloned, nullptr );
-    delete cloned; // SafeClone returns a new heap instance; caller owns it
 }
 
 TEST_F( HXCloneTest, RegisterIsIdempotentAndDeletesTheDuplicateArgument )
@@ -52,7 +52,7 @@ TEST_F( HXCloneTest, RegisterIsIdempotentAndDeletesTheDuplicateArgument )
 TEST_F( HXCloneTest, SafeCloneOnUnregisteredTypeThrows )
 {
     EXPECT_THROW(
-        ONEFLOW::HXClone::SafeClone( "HXCloneTest_NeverRegistered" ),
+        ONEFLOW::HXClone::SafeCloneUnique( "HXCloneTest_NeverRegistered" ),
         std::runtime_error
     );
 }

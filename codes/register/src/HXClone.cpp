@@ -54,10 +54,6 @@ std::unique_ptr< HXClone > HXClone::SafeCloneUnique( const std::string & type )
     return std::unique_ptr< HXClone >( iter->second->Clone() );
 }
 
-HXClone * HXClone::SafeClone( const std::string & type )
-{
-    return SafeCloneUnique( type ).release();
-}
 
 HXClone * HXClone::Register( const std::string & type, std::unique_ptr< HXClone > clone )
 {

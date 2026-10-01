@@ -74,19 +74,7 @@ std::unique_ptr< Grid > CreateStrGridUnique()
     return grid;
 }
 
-Grid * CreateGrid( int gridType )
-{
-    return CreateGridUnique( gridType ).release();
-}
 
-Grid * CreateUnsGrid()
-{
-    return CreateUnsGridUnique().release();
-}
 
-Grid * CreateStrGrid()
-{
-    return CreateStrGridUnique().release();
-}
 
 EndNameSpace

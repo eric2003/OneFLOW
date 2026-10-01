@@ -18,7 +18,7 @@ namespace
 TEST( SolverTest, SafeCloneOnUnregisteredTypeThrows )
 {
     EXPECT_THROW(
-        ONEFLOW::Solver::SafeClone( "SolverTest_NeverRegistered" ),
+        ONEFLOW::Solver::SafeCloneUnique( "SolverTest_NeverRegistered" ),
         std::runtime_error
     );
 }
@@ -27,8 +27,8 @@ TEST( SolverTest, RegisterThenSafeCloneReturnsANewInstance )
 {
     ONEFLOW::Solver::Register( "SolverTest_TypeA", std::make_unique< StubSolver >() );
 
-    ONEFLOW::Solver * cloned = ONEFLOW::Solver::SafeClone( "SolverTest_TypeA" );
+    std::unique_ptr< ONEFLOW::Solver > cloned =
+        ONEFLOW::Solver::SafeCloneUnique( "SolverTest_TypeA" );
 
     ASSERT_NE( cloned, nullptr );
-    delete cloned;
 }

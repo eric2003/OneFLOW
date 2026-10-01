@@ -64,10 +64,6 @@ std::unique_ptr< Solver > Solver::SafeCloneUnique( const std::string & type )
     return std::unique_ptr< Solver >( iter->second->Clone() );
 }
 
-Solver * Solver::SafeClone( const std::string & type )
-{
-    return SafeCloneUnique( type ).release();
-}
 
 Solver * Solver::Register( const std::string & type, std::unique_ptr< Solver > clone )
 {

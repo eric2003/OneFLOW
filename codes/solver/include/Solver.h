@@ -47,9 +47,6 @@ public:
 public:
     // Preferred: exclusive ownership of a registered solver prototype clone.
     static std::unique_ptr< Solver > SafeCloneUnique( const std::string & type );
-    // Compatibility: returns a raw new'd Solver* the caller must own.
-    [[deprecated( "Use SafeCloneUnique" )]]
-    static Solver * SafeClone( const std::string & type );
     static Solver * Register( const std::string & type, std::unique_ptr< Solver > clone );
     // Compatibility overload; takes ownership of clone.
     static Solver * Register( const std::string & type, Solver * clone );
