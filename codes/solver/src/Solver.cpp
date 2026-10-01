@@ -51,7 +51,7 @@ Solver::~Solver()
 {
 }
 
-Solver * Solver::SafeClone( const std::string & type )
+std::unique_ptr< Solver > Solver::SafeCloneUnique( const std::string & type )
 {
     SolverRegistry & registry = GetSolverRegistry();
     SolverRegistry::iterator iter = registry.find( type );
@@ -61,7 +61,12 @@ Solver * Solver::SafeClone( const std::string & type )
         return nullptr;
     }
 
-    return iter->second->Clone();
+    return std::unique_ptr< Solver >( iter->second->Clone() );
+}
+
+Solver * Solver::SafeClone( const std::string & type )
+{
+    return SafeCloneUnique( type ).release();
 }
 
 Solver * Solver::Register( const std::string & type, std::unique_ptr< Solver > clone )

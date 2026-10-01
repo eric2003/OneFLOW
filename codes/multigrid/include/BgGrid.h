@@ -33,9 +33,13 @@ class Grid;
 [[nodiscard]] std::unique_ptr< Grid > CreateStrGridUnique();
 
 // Compatibility: returns a raw pointer the caller must own.
+// Legacy raw-pointer factories (no remaining in-tree call sites).
 // Prefer Create*Unique and store in Grids / unique_ptr.
+[[deprecated( "Use CreateGridUnique" )]]
 Grid * CreateGrid( int gridType );
+[[deprecated( "Use CreateUnsGridUnique" )]]
 Grid * CreateUnsGrid();
+[[deprecated( "Use CreateStrGridUnique" )]]
 Grid * CreateStrGrid();
 
 EndNameSpace

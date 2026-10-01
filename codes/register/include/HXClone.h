@@ -50,7 +50,10 @@ public:
 public:
     virtual HXClone * Clone() const = 0;
 public:
-    // Returns a caller-owned clone of a registered prototype.
+    // Preferred: exclusive ownership of a registered prototype clone.
+    static std::unique_ptr< HXClone > SafeCloneUnique( const std::string & type );
+    // Compatibility: returns a raw new'd HXClone* the caller must own.
+    [[deprecated( "Use SafeCloneUnique" )]]
     static HXClone * SafeClone( const std::string & type );
     static HXClone * Register( const std::string & type, std::unique_ptr< HXClone > clone );
     // Compatibility overload; takes ownership of clone.

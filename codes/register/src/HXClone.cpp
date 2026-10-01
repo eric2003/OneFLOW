@@ -41,7 +41,7 @@ CloneRegistry & GetCloneRegistry()
 }
 }
 
-HXClone * HXClone::SafeClone( const std::string & type )
+std::unique_ptr< HXClone > HXClone::SafeCloneUnique( const std::string & type )
 {
     CloneRegistry & registry = GetCloneRegistry();
     CloneRegistry::iterator iter = registry.find( type );
@@ -51,7 +51,12 @@ HXClone * HXClone::SafeClone( const std::string & type )
         return nullptr;
     }
 
-    return iter->second->Clone();
+    return std::unique_ptr< HXClone >( iter->second->Clone() );
+}
+
+HXClone * HXClone::SafeClone( const std::string & type )
+{
+    return SafeCloneUnique( type ).release();
 }
 
 HXClone * HXClone::Register( const std::string & type, std::unique_ptr< HXClone > clone )

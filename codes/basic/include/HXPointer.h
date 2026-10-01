@@ -27,8 +27,13 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+// OBSOLETE: As of the Grids RAII migration, OneFLOW no longer uses HXPointer
+// for owning collections. Prefer std::vector<std::unique_ptr<T>> (or a
+// non-owning vector<T*> view). This header remains only for out-of-tree code.
+
+
 template < typename T >
-class HXPointer
+class [[deprecated( "Use std::vector<std::unique_ptr<T>> or vector<T*>" )]] HXPointer
 {
 public:
     HXPointer();
