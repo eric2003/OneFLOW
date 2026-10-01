@@ -24,6 +24,7 @@ License
 #pragma once
 #include "HXCgns.h"
 #include "GridHandles.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -49,9 +50,9 @@ public:
     CgnsZbc( CgnsZone * cgnsZone );
     ~CgnsZbc();
 public:
-    CgnsZbcConn * cgnsZbcConn;
-    CgnsZbc1to1 * cgnsZbc1to1;
-    CgnsZbcBoco * cgnsZbcBoco;
+    std::unique_ptr< CgnsZbcConn > cgnsZbcConn;
+    std::unique_ptr< CgnsZbc1to1 > cgnsZbc1to1;
+    std::unique_ptr< CgnsZbcBoco > cgnsZbcBoco;
 
     CgnsZone * cgnsZone;
 public:

@@ -44,21 +44,14 @@ BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
 
 CgnsZbc::CgnsZbc( CgnsZone * cgnsZone )
+    : cgnsZbcConn( std::make_unique< CgnsZbcConn >( cgnsZone ) ),
+      cgnsZbc1to1( std::make_unique< CgnsZbc1to1 >( cgnsZone ) ),
+      cgnsZbcBoco( std::make_unique< CgnsZbcBoco >( cgnsZone ) ),
+      cgnsZone( cgnsZone )
 {
-    this->cgnsZone = cgnsZone;
-
-    this->cgnsZbcConn = new CgnsZbcConn( cgnsZone );
-    this->cgnsZbc1to1 = new CgnsZbc1to1( cgnsZone );
-    this->cgnsZbcBoco = new CgnsZbcBoco( cgnsZone );
-
 }
 
-CgnsZbc::~CgnsZbc()
-{
-    delete this->cgnsZbcConn;
-    delete this->cgnsZbc1to1;
-    delete this->cgnsZbcBoco;
-}
+CgnsZbc::~CgnsZbc() = default;
 
 void CgnsZbc::ConvertToInnerDataStandard()
 {
@@ -189,8 +182,8 @@ void CgnsZbc::DumpCgnsGridBoundary( Grid * gridIn, const Grids & grids )
 
     std::cout << " fildId = " << fileId << " baseId = " << baseId << " zoneId = " << zoneId << "\n";
 
-    BcTypeMap * bcTypeMap = new BcTypeMap();
-    bcTypeMap->Init();
+    BcTypeMap bcTypeMap;
+    bcTypeMap.Init();
 
     cgsize_t ipnts[ 6 ], ipntsdonor[ 6 ];
     int itranfrm[ 3 ];
@@ -199,7 +192,7 @@ void CgnsZbc::DumpCgnsGridBoundary( Grid * gridIn, const Grids & grids )
     {
         BcRegion * bcRegion = bcRegionGroup->GetBcRegion( ir );
 
-        BCType_t bctype = static_cast< BCType_t >( bcTypeMap->OneFlow2Cgns( bcRegion->bcType ) );
+        BCType_t bctype = static_cast< BCType_t >( bcTypeMap.OneFlow2Cgns( bcRegion->bcType ) );
         int dimension = cgnsZone->cgnsBase->celldim;
         if ( bctype == BCTypeNull )
         {
@@ -223,7 +216,6 @@ void CgnsZbc::DumpCgnsGridBoundary( Grid * gridIn, const Grids & grids )
         }
     }
 
-    delete bcTypeMap;
 }
 
 void CgnsZbc::CreateCgnsZbc( CgnsZbc * cgnsZbcIn )
