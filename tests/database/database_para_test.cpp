@@ -214,3 +214,25 @@ TEST(DataParaTestStandalone, ClearReleasesAllEntries)
         nullptr
     );
 }
+
+TEST(DataBookOwnership, UniquePtrAndRawViewShareObject)
+{
+    auto ownedBook = std::make_unique<DataBook>();
+    DataBook * dataBook = ownedBook.get();
+
+    ASSERT_EQ( dataBook, ownedBook.get() );
+
+    // Simulate compress: write through the raw view
+    int n = 42;
+    ONEFLOW::HXWrite( dataBook, n );
+
+    dataBook->MoveToBegin();
+    int out = 0;
+    ONEFLOW::HXRead( dataBook, out );
+    EXPECT_EQ( out, 42 );
+
+    // Rebinding the local pointer must not change ownership
+    DataBook * other = nullptr;
+    dataBook = other;
+    EXPECT_NE( ownedBook.get(), nullptr );  // still owns original
+}

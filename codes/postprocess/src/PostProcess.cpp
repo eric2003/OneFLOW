@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "PostProcess.h"
+#include <memory>
 #include "PIO.h"
 #include "TextFileParser.h"
 #include "HXMath.h"
@@ -86,9 +87,8 @@ void Post::Run()
 
 void PostSimu()
 {
-    Post * post = new Post();
+    auto post = std::make_unique<Post>();
     post->Run();
-    delete post;
 }
 
 VectDir::VectDir()

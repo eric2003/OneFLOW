@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Parallel.h"
+#include <memory>
 #include "BasicParallel.h"
 #include "DataBook.h"
 #include "OStream.h"
@@ -172,30 +173,50 @@ void HXBcast( DataBook * dataBook, int rootid )
     dataBook->Bcast( rootid );
 }
 
+//void HXBcast( DATA_COMPRESS dataCompression, DATA_DECOMPRESS dataDecompression, int rootid )
+//{
+//    int nProc = Parallel::GetNProc();
+//
+//    if ( nProc <= 1 ) return;
+//
+//    auto dataBook = std::make_unique<DataBook>();
+//
+//    if ( Parallel::GetPid() == rootid )
+//    {
+//        //Compress data, or store data to dataBook
+//        dataCompression( dataBook.get() );
+//    }
+//
+//    //Pass the dataBook to the required processes
+//    ONEFLOW::HXBcast( dataBook.get(), rootid );
+//
+//    if ( Parallel::GetPid() != rootid )
+//    {
+//        //Extract the data from dataBook to obtain the required information
+//        dataDecompression( dataBook.get() );
+//    }
+//}
+
 void HXBcast( DATA_COMPRESS dataCompression, DATA_DECOMPRESS dataDecompression, int rootid )
 {
     int nProc = Parallel::GetNProc();
-
     if ( nProc <= 1 ) return;
 
-    DataBook * dataBook = new DataBook();
+    auto ownedBook = std::make_unique<DataBook>();
+    DataBook * dataBook = ownedBook.get();  // named lvalue, can bind to DataBook *&
 
     if ( Parallel::GetPid() == rootid )
     {
-        //Compress data, or store data to dataBook
-        dataCompression( dataBook );
+        dataCompression( dataBook );   // OK: DataBook *&
     }
 
-    //Pass the dataBook to the required processes
     ONEFLOW::HXBcast( dataBook, rootid );
 
     if ( Parallel::GetPid() != rootid )
     {
-        //Extract the data from dataBook to obtain the required information
-        dataDecompression( dataBook );
+        dataDecompression( dataBook ); // OK: DataBook *
     }
-
-    delete dataBook;
+    // ownedBook destroys DataBook
 }
 
 void HXSwapData( DataBook * dataBook, int spid, int rpid, int tag )
