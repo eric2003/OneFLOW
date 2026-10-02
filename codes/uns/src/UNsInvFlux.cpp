@@ -83,19 +83,16 @@ void UNsInvFlux::CalcInvFace()
 void UNsInvFlux::GetQlQrField()
 {
     this->limiter->GetQlQr();
-    //limf->GetQlQr();
 }
 
 void UNsInvFlux::ReconstructFaceValueField()
 {
     this->limiter->CalcFaceValue();
-    //limf->CalcFaceValue();
 }
 
 void UNsInvFlux::BoundaryQlQrFixField()
 {
     this->limiter->BcQlQrFix();
-    //limf->BcQlQrFix();
 }
 
 void UNsInvFlux::CalcFlux()
@@ -108,7 +105,6 @@ void UNsInvFlux::CalcFlux()
 
     this->SetPointer( nscom.ischeme );
 
-    //ReadTmp();
     this->CalcInvFace();
     this->CalcInvFlux();
     this->DumpInvFluxTrace();
@@ -162,6 +158,9 @@ void UNsInvFlux::CalcInvFluxCpuBatch()
     std::vector< Real > faceArea( nFaces );
     std::vector< Real > faceFlux( nEquations * nFaces );
 
+    MRField * qf1 = limiter->GetLeftField();
+    MRField * qf2 = limiter->GetRightField();
+
     for ( int face = 0; face < nFaces; ++ face )
     {
         xNormal[ face ] = ( * ug.xfn )[ face ];
@@ -172,9 +171,9 @@ void UNsInvFlux::CalcInvFluxCpuBatch()
         for ( int equation = 0; equation < nEquations; ++ equation )
         {
             primitiveLeft[ equation * nFaces + face ] =
-                ( * limf->qf1 )[ equation ][ face ];
+                ( * qf1 )[ equation ][ face ];
             primitiveRight[ equation * nFaces + face ] =
-                ( * limf->qf2 )[ equation ][ face ];
+                ( * qf2 )[ equation ][ face ];
         }
     }
 
@@ -286,8 +285,8 @@ void UNsInvFlux::DumpInvFluxTrace()
         }
     };
 
-    writeField( *limf->qf1 );
-    writeField( *limf->qf2 );
+    writeField( *limiter->GetLeftField());
+    writeField( *limiter->GetRightField());
     writeField( *invflux );
     if ( ! output )
     {
@@ -312,69 +311,5 @@ void UNsInvFlux::DeAlloc()
 {
     delete invflux;
 }
-
-void UNsInvFlux::ReadTmp()
-{
-    static int iii = 0;
-    if ( iii ) return;
-    iii = 1;
-    std::fstream file;
-    file.open( "nsflow.dat", std::ios_base::in | std::ios_base::binary );
-    if ( ! file )
-    {
-        Fatal( "Failed to open file: nsflow.dat" );
-    }
-
-    unsf.Init();
-
-    for ( int cId = 0; cId < ug.nTCell; ++ cId )
-    {
-        for ( int iEqu = 0; iEqu < 5; ++ iEqu )
-        {
-            file.read( reinterpret_cast< char * >( & ( * unsf.q )[ iEqu ][ cId ] ), sizeof( double ) );
-        }
-    }
-
-    for ( int cId = 0; cId < ug.nTCell; ++ cId )
-    {
-        file.read( reinterpret_cast< char * >( & ( * unsf.visl )[ 0 ][ cId ] ), sizeof( double ) );
-    }
-
-    for ( int cId = 0; cId < ug.nTCell; ++ cId )
-    {
-        file.read( reinterpret_cast< char * >( & ( * unsf.vist )[ 0 ][ cId ] ), sizeof( double ) );
-    }
-
-    std::vector< Real > tmp1( ug.nTCell ), tmp2( ug.nTCell );
-
-    for ( int cId = 0; cId < ug.nTCell; ++ cId )
-    {
-        tmp1[ cId ] = ( * unsf.timestep )[ 0 ][ cId ];
-    }
-
-    for ( int cId = 0; cId < ug.nTCell; ++ cId )
-    {
-        file.read( reinterpret_cast< char * >( & ( * unsf.timestep )[ 0 ][ cId ] ), sizeof( double ) );
-    }
-
-    for ( int cId = 0; cId < ug.nTCell; ++ cId )
-    {
-        tmp2[ cId ] = ( * unsf.timestep )[ 0 ][ cId ];
-    }
-
-    turbcom.Init();
-    uturbf.Init();
-    for ( int iCell = 0; iCell < ug.nTCell; ++ iCell )
-    {
-        for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-        {
-            file.read( reinterpret_cast< char * >( & ( * uturbf.q )[ iEqu ][ iCell ] ), sizeof( double ) );
-        }
-    }
-    file.close();
-    file.clear();
-}
-
-
 
 EndNameSpace

@@ -110,6 +110,9 @@ public:
     void PrepareData();
     void CalcMinMaxDiff();
 public:
+    MRField * GetLeftField() const;
+    MRField * GetRightField() const;
+public:
     void CalcFaceValue();
     void GetQlQr();
     virtual void BcQlQrFix();

@@ -31,7 +31,6 @@ public:
     UTurbSpectrum();
     ~UTurbSpectrum();
 public:
-    void ReadTmp();
     void ZeroSpectrum();
     void CalcSpectrum();
     void CalcSpectrum1Equ();

@@ -49,7 +49,6 @@ public:
     void SetMeshGeometry();
     void PrepareData();
     void Init();
-    void ReadTmp();
 };
 
 EndNameSpace

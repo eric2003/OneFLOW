@@ -68,31 +68,10 @@ void UTurbLusgs::Init()
     uturbf.Init();
 }
 
-void UTurbLusgs::ReadTmp()
-{
-    static int iii = 0;
-    if ( iii ) return;
-    iii = 1;
-    std::fstream file;
-    file.open( "turbtmpres.dat", std::ios_base::in | std::ios_base::binary );
-
-    for ( int iCell = 0; iCell < ug.nTCell; ++ iCell )
-    {
-        for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-        {
-            file.read( reinterpret_cast< char * >( & ( * uturbf.res )[ iEqu ][ iCell ] ), sizeof( double ) );
-        }
-    }
-    file.close();
-    file.clear();
-}
-
 void UTurbLusgs::LowerSweep()
 {
     this->Init();
 
-    //ReadTmp();
-    
     for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         ug.cId = cId;

@@ -46,7 +46,6 @@ public:
     void CalcVistMax();
     void SetGhostCellVist();
     void ZeroSpectrum();
-    void ReadTmp();
 public:
     void PrepareCellValue();
     void PrepareCellValue1Equ();

@@ -630,6 +630,16 @@ void Limiter::CalcMinMaxDiff()
     }
 }
 
+MRField * Limiter::GetLeftField() const
+{
+    return limf->qf1.get();
+}
+
+MRField * Limiter::GetRightField() const
+{
+    return limf->qf2.get();
+}
+
 void Limiter::CalcFaceValue()
 {
     limf->CalcFaceValue();

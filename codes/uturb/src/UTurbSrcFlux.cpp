@@ -86,7 +86,6 @@ void UTurbSrcFlux::Init()
 
 void UTurbSrcFlux::CalcSrcFlux()
 {
-    //ReadTmp();
     Init();
     if ( turbcom.nEqu == 1 )
     {
@@ -142,61 +141,6 @@ void UTurbSrcFlux::ZeroSpectrum()
             ( * uturbf.impsr )[ iEqu ][ ug.cId ] = 0.0;
         }
     }
-}
-
-void UTurbSrcFlux::ReadTmp()
-{
-    static int iii = 0;
-    if ( iii ) return;
-    iii = 1;
-
-    std::fstream file;
-    file.open( "turbflowsrc.dat", std::ios_base::in | std::ios_base::binary );
-    if ( ! file )
-    {
-        Fatal( "Failed to open file: turbflowsrc.dat" );
-    }
-
-       for ( int cId = 0; cId < ug.nTCell; ++ cId )
-    {
-        for ( int iEqu = 0; iEqu < 5; ++ iEqu )
-        {
-            file.read( reinterpret_cast< char * >( & ( * uturbf.q_ns )[ iEqu ][ cId ] ), sizeof( double ) );
-        }
-    }
-
-       for ( int cId = 0; cId < ug.nTCell; ++ cId )
-    {
-        file.read( reinterpret_cast< char * >( & ( * uturbf.dqdx_ns )[ IDX::IU ][ cId ] ), sizeof( double ) );
-        file.read( reinterpret_cast< char * >( & ( * uturbf.dqdy_ns )[ IDX::IU ][ cId ] ), sizeof( double ) );
-        file.read( reinterpret_cast< char * >( & ( * uturbf.dqdz_ns )[ IDX::IU ][ cId ] ), sizeof( double ) );
-        file.read( reinterpret_cast< char * >( & ( * uturbf.dqdx_ns )[ IDX::IV ][ cId ] ), sizeof( double ) );
-        file.read( reinterpret_cast< char * >( & ( * uturbf.dqdy_ns )[ IDX::IV ][ cId ] ), sizeof( double ) );
-        file.read( reinterpret_cast< char * >( & ( * uturbf.dqdz_ns )[ IDX::IV ][ cId ] ), sizeof( double ) );
-        file.read( reinterpret_cast< char * >( & ( * uturbf.dqdx_ns )[ IDX::IW ][ cId ] ), sizeof( double ) );
-        file.read( reinterpret_cast< char * >( & ( * uturbf.dqdy_ns )[ IDX::IW ][ cId ] ), sizeof( double ) );
-        file.read( reinterpret_cast< char * >( & ( * uturbf.dqdz_ns )[ IDX::IW ][ cId ] ), sizeof( double ) );
-    }
-
-       for ( int cId = 0; cId < ug.nTCell; ++ cId )
-    {
-        file.read( reinterpret_cast< char * >( & ( * uturbf.visl )[ 0 ][ cId ] ), sizeof( double ) );
-    }
-
-       for ( int cId = 0; cId < ug.nTCell; ++ cId )
-    {
-        file.read( reinterpret_cast< char * >( & ( * uturbf.vist )[ 0 ][ cId ] ), sizeof( double ) );
-    }
-
-    for ( int iCell = 0; iCell < ug.nTCell; ++ iCell )
-    {
-        for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-        {
-            file.read( reinterpret_cast< char * >( & ( * uturbf.q )[ iEqu ][ iCell ] ), sizeof( double ) );
-        }
-    }
-    file.close();
-    file.clear();
 }
 
 void UTurbSrcFlux::CalcVistMax()

@@ -33,7 +33,6 @@ public:
     ~UTimeStep();
 public:
     void Init();
-    void ReadTmp();
     void CalcTimeStep();
     void CalcLocalTimeStep();
     void CalcGlobalTimeStep();
