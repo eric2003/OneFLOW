@@ -94,15 +94,12 @@ void NsLimField::BcQlQrFix()
 
 NsLimiter::NsLimiter()
 {
-    //limf = new NsLimField();
-    // FIX: Use std::make_unique
     limf = std::make_unique<NsLimField>();
     limflag = ctrl.ilim;
 }
 
 NsLimiter::~NsLimiter()
 {
-    //delete limf;
 }
 
 EndNameSpace

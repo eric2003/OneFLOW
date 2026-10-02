@@ -53,14 +53,12 @@ BeginNameSpace( ONEFLOW )
 
 UNsInvFlux::UNsInvFlux()
 {
-    // FIX: Use std::make_unique and get() for observer
     limiter = std::make_unique<NsLimiter>();
     limf = limiter->limf.get();
 }
 
 UNsInvFlux::~UNsInvFlux()
 {
-    // FIX: Removed delete limiter;
 }
 
 void UNsInvFlux::CalcLimiter()
@@ -114,18 +112,6 @@ void UNsInvFlux::ReconstructFaceValueField()
 void UNsInvFlux::BoundaryQlQrFixField()
 {
     limf->BcQlQrFix();
-
-    if ( Iteration::outerSteps == -31 )
-    {
-        Real mindiff = 1.0e-10;
-        int idumpface = 1;
-        int idumpcell = 0;
-
-        HXDebug::DumpField( "limf.qf1.debug", limf->qf1.get() );
-        HXDebug::CompareFile( mindiff, idumpface );
-        HXDebug::DumpField( "limf.qf2.debug", limf->qf2.get() );
-        HXDebug::CompareFile( mindiff, idumpface );
-    }
 }
 
 void UNsInvFlux::CalcFlux()
