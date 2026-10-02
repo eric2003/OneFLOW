@@ -102,13 +102,7 @@ void INsLimField::BcQlQrFix()
 
 INsLimiter::INsLimiter()
 {
-    limf = new INsLimField();
     limflag = ctrl.ilim;
-}
-
-INsLimiter::~INsLimiter()
-{
-    delete limf;
 }
 
 EndNameSpace

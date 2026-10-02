@@ -24,6 +24,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "HXArray.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -43,15 +44,21 @@ class Lim
 public:
     Lim();
     ~Lim();
+
 public:
+    // Non-owning pointers (managed by FieldManager/Grid)
     RealField *q, *dqdx, *dqdy, *dqdz;
     RealField *limiter;
-    RealField * minvf, * maxvf;
+    RealField *qf1, *qf2;
     Real minv1, minv2, maxv1, maxv2;
     Real dqdx1, dqdy1, dqdz1;
     Real dqdx2, dqdy2, dqdz2;
     Real lim1, lim2;
     Real qmin, qmax;
+
+    // Owned fields managed by RAII
+    std::unique_ptr< RealField > minvf;
+    std::unique_ptr< RealField > maxvf;
 };
 
 using CheckFun = bool ( * )( RealField & );
@@ -61,6 +68,7 @@ class LimField
 public:
     LimField();
     virtual ~LimField();
+
 public:
     virtual void Init(){};
     Real ModifyLimiter( Real phil, Real phir );
@@ -68,33 +76,32 @@ public:
     void CalcFaceValueWeighted();
     void GetQlQr();
     virtual void BcQlQrFix();
+
 public:
     int nEqu;
+    // Non-owning pointers
     MRField * q;
     MRField * dqdx, * dqdy, * dqdz;
     MRField * limiter;
-
     MRField * qf1, * qf2;
     CheckFun ckfun;
 };
-
 
 class Limiter
 {
 public:
     Limiter();
     virtual ~Limiter();
+
 public:
-    Lim * lim;
-    LimField * limf;
+    std::unique_ptr< Lim > lim;
+    std::unique_ptr< LimField > limf;
     int limflag;
+
 public:
-    void Alloc();
-    void DeAlloc();
     void SetInitValue();
     void CalcLimiter();
     void CalcLimiterScalar();
-
     void CalcZeroLimiter();
     void CalcNoLimiter();
     void CalcBarthLimiter();

@@ -54,7 +54,7 @@ BeginNameSpace(ONEFLOW)
 UINsInvterm::UINsInvterm()
 {
 	limiter = new INsLimiter();
-	limf = limiter->limf;
+	limf = limiter->limf.get();
 }
 
 UINsInvterm::~UINsInvterm()

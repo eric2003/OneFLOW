@@ -42,7 +42,7 @@ UTurbInvFlux::UTurbInvFlux()
     limiter = new TurbLimiter();
     nslimiter = new NsLimiter();
     nslimiter->limflag = turbcom.tns_ilim;
-    limf = limiter->limf;
+    limf = limiter->limf.get();
     limiter->limflag = turbcom.turb_ilim;
 }
 

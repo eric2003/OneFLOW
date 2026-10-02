@@ -65,8 +65,6 @@ public:
     void PrepareFaceValue();
 	void PrepareProFaceValue();
 	void CalcPreGrad();
-	//void CalcINsinvTerm();
-    //void UpdateFaceInvFlux();
     void ReadTmp();
 public:
     void GetQlQrField();

@@ -350,19 +350,24 @@ void LimField::CalcFaceValueWeighted()
 
 Limiter::Limiter()
 {
-    lim = new Lim();
+    lim = std::make_unique< Lim >();
+    limf = std::make_unique< LimField >();
 }
 
 Limiter::~Limiter()
 {
-    delete lim;
+    // unique_ptr handles cleanup automatically
 }
 
 void Limiter::CalcLimiter()
 {
     ug.Init();
     limf->Init();
-    Alloc();
+
+    // Replace manual Alloc() with RAII allocation
+    lim->minvf = std::make_unique< RealField >( ug.nTCell );
+    lim->maxvf = std::make_unique< RealField >( ug.nTCell );
+
     for ( int iEqu = 0; iEqu < limf->nEqu; ++ iEqu )
     {
         lim->limiter = & ( * limf->limiter )[ iEqu ];
@@ -373,19 +378,10 @@ void Limiter::CalcLimiter()
         this->SetInitValue();
         this->CalcLimiterScalar();
     }
-    DeAlloc();
-}
 
-void Limiter::Alloc()
-{
-    lim->minvf = new RealField( ug.nTCell );
-    lim->maxvf = new RealField( ug.nTCell );
-}
-
-void Limiter::DeAlloc()
-{
-    delete lim->minvf;
-    delete lim->maxvf;
+    // Replace manual DeAlloc() with RAII release to match original lifecycle
+    lim->minvf.reset();
+    lim->maxvf.reset();
 }
 
 void Limiter::SetInitValue()
