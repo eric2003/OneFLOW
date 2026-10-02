@@ -103,9 +103,9 @@ void UNsInvFlux::ReconstructFaceValueField()
         HXDebug::DumpField( "limf.dqdz.debug", limf->dqdz );
         HXDebug::CompareFile( mindiff, idumpcell );
 
-        HXDebug::DumpField( "limf.qf1_recon.debug", limf->qf1 );
+        HXDebug::DumpField( "limf.qf1_recon.debug", limf->qf1.get() );
         HXDebug::CompareFile( mindiff, idumpface );
-        HXDebug::DumpField( "limf.qf2_recon.debug", limf->qf2 );
+        HXDebug::DumpField( "limf.qf2_recon.debug", limf->qf2.get() );
         HXDebug::CompareFile( mindiff, idumpface );
     }
 }
@@ -120,9 +120,9 @@ void UNsInvFlux::BoundaryQlQrFixField()
         int idumpface = 1;
         int idumpcell = 0;
 
-        HXDebug::DumpField( "limf.qf1.debug", limf->qf1 );
+        HXDebug::DumpField( "limf.qf1.debug", limf->qf1.get() );
         HXDebug::CompareFile( mindiff, idumpface );
-        HXDebug::DumpField( "limf.qf2.debug", limf->qf2 );
+        HXDebug::DumpField( "limf.qf2.debug", limf->qf2.get() );
         HXDebug::CompareFile( mindiff, idumpface );
     }
 }

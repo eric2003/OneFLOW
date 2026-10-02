@@ -77,7 +77,9 @@ public:
     MRField * dqdx, * dqdy, * dqdz;
     MRField * limiter;
 
-    MRField * qf1, * qf2;
+    // FIX: Moved qf1, qf2 to base class and managed by std::unique_ptr
+    std::unique_ptr<MRField> qf1;
+    std::unique_ptr<MRField> qf2;
     CheckFun ckfun;
 };
 

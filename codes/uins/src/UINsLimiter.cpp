@@ -45,8 +45,8 @@ INsLimField::INsLimField()
 
 INsLimField::~INsLimField()
 {
-    delete qf1;
-    delete qf2;
+    //delete qf1;
+    //delete qf2;
 }
 
 void INsLimField::Init()
@@ -61,8 +61,11 @@ void INsLimField::Init()
 
     this->nEqu = q->GetNEqu();
 
-    qf1 = new MRField( this->nEqu, grid->nFaces );
-    qf2 = new MRField( this->nEqu, grid->nFaces );
+    //qf1 = new MRField( this->nEqu, grid->nFaces );
+    //qf2 = new MRField( this->nEqu, grid->nFaces );
+
+    qf1 = std::make_unique<MRField>( this->nEqu, grid->nFaces );
+    qf2 = std::make_unique<MRField>( this->nEqu, grid->nFaces );
 
     this->ckfun = & INsCheckFunction;
 }
