@@ -46,7 +46,9 @@ public:
 public:
     RealField *q, *dqdx, *dqdy, *dqdz;
     RealField *limiter;
-    RealField * minvf, * maxvf;
+    // FIX: Use std::unique_ptr for automatic memory management
+    std::unique_ptr<RealField> minvf;
+    std::unique_ptr<RealField> maxvf;
     Real minv1, minv2, maxv1, maxv2;
     Real dqdx1, dqdy1, dqdz1;
     Real dqdx2, dqdy2, dqdz2;

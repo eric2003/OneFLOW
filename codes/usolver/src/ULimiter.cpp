@@ -378,14 +378,16 @@ void Limiter::CalcLimiter()
 
 void Limiter::Alloc()
 {
-    lim->minvf = new RealField( ug.nTCell );
-    lim->maxvf = new RealField( ug.nTCell );
+    // FIX: Use std::make_unique instead of new
+    lim->minvf = std::make_unique<RealField>( ug.nTCell );
+    lim->maxvf = std::make_unique<RealField>( ug.nTCell );
 }
 
 void Limiter::DeAlloc()
 {
-    delete lim->minvf;
-    delete lim->maxvf;
+    // FIX: Use reset() instead of delete
+    lim->minvf.reset();
+    lim->maxvf.reset();
 }
 
 void Limiter::SetInitValue()
