@@ -23,6 +23,7 @@ License
 
 #pragma once
 #include "NsInvFlux.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -54,7 +55,8 @@ public:
     void ReconstructFaceValueField();
     void BoundaryQlQrFixField();
 public:
-    Limiter * limiter;
+    //Limiter * limiter;
+    std::unique_ptr<Limiter> limiter; // FIX: Changed to unique_ptr
     LimField * limf;
     MRField * invflux;
 };

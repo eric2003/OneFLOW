@@ -53,13 +53,14 @@ BeginNameSpace( ONEFLOW )
 
 UNsInvFlux::UNsInvFlux()
 {
-    limiter = new NsLimiter();
+    // FIX: Use std::make_unique and get() for observer
+    limiter = std::make_unique<NsLimiter>();
     limf = limiter->limf.get();
 }
 
 UNsInvFlux::~UNsInvFlux()
 {
-    delete limiter;
+    // FIX: Removed delete limiter;
 }
 
 void UNsInvFlux::CalcLimiter()
