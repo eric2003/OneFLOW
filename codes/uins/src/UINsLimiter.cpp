@@ -111,7 +111,6 @@ INsLimiter::INsLimiter()
 
 INsLimiter::~INsLimiter()
 {
-    //delete limf;
 }
 
 EndNameSpace

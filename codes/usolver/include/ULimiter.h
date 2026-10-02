@@ -109,6 +109,10 @@ public:
     void CalcLocalVencatLimiter();
     void PrepareData();
     void CalcMinMaxDiff();
+public:
+    void CalcFaceValue();
+    void GetQlQr();
+    virtual void BcQlQrFix();
 };
 
 bool NoCheck( RealField & q );

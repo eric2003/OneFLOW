@@ -630,6 +630,22 @@ void Limiter::CalcMinMaxDiff()
     }
 }
 
+void Limiter::CalcFaceValue()
+{
+    limf->CalcFaceValue();
+}
+
+void Limiter::GetQlQr()
+{
+    limf->GetQlQr();
+}
+
+void Limiter::BcQlQrFix()
+{
+    limf->BcQlQrFix();
+}
+
+
 bool NoCheck( RealField & q )
 {
     return true;

@@ -82,36 +82,20 @@ void UNsInvFlux::CalcInvFace()
 
 void UNsInvFlux::GetQlQrField()
 {
-    limf->GetQlQr();
+    this->limiter->GetQlQr();
+    //limf->GetQlQr();
 }
 
 void UNsInvFlux::ReconstructFaceValueField()
 {
-    limf->CalcFaceValue();
-    //limf->CalcFaceValueWeighted();
-    if ( Iteration::outerSteps == -31 )
-    {
-        Real mindiff = 1.0e-10;
-        int idumpface = 1;
-        int idumpcell = 0;
-
-        HXDebug::DumpField( "limf.dqdx.debug", limf->dqdx );
-        HXDebug::CompareFile( mindiff, idumpcell );
-        HXDebug::DumpField( "limf.dqdy.debug", limf->dqdy );
-        HXDebug::CompareFile( mindiff, idumpcell );
-        HXDebug::DumpField( "limf.dqdz.debug", limf->dqdz );
-        HXDebug::CompareFile( mindiff, idumpcell );
-
-        HXDebug::DumpField( "limf.qf1_recon.debug", limf->qf1.get() );
-        HXDebug::CompareFile( mindiff, idumpface );
-        HXDebug::DumpField( "limf.qf2_recon.debug", limf->qf2.get() );
-        HXDebug::CompareFile( mindiff, idumpface );
-    }
+    this->limiter->CalcFaceValue();
+    //limf->CalcFaceValue();
 }
 
 void UNsInvFlux::BoundaryQlQrFixField()
 {
-    limf->BcQlQrFix();
+    this->limiter->BcQlQrFix();
+    //limf->BcQlQrFix();
 }
 
 void UNsInvFlux::CalcFlux()
