@@ -22,6 +22,7 @@ License
 
 
 #pragma once
+#include <memory>
 #include "HXDefine.h"
 
 BeginNameSpace( ONEFLOW )
@@ -45,7 +46,7 @@ public:
 	virtual void InitinsRestart( int solverType );
 };
 
-Restart * CreateRestart( int solverType );
+std::unique_ptr<Restart> CreateRestart( int solverType );
 
 class DataStorage;
 

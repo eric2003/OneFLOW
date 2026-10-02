@@ -21,14 +21,14 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "INsRestart.h"
+#include <memory>
 #include "UINsRestart.h"
 
 BeginNameSpace( ONEFLOW )
 
-Restart * CreateINsRestart()
+std::unique_ptr<Restart> CreateINsRestart()
 {
-    Restart * restart = new UINsRestart();
-    return restart;
+    return std::make_unique<UINsRestart>();
 }
 
 EndNameSpace

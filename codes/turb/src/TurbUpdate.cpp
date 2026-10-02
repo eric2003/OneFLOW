@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "TurbUpdate.h"
+#include <memory>
 #include "UTurbUpdate.h"
 #include "NsInvFlux.h"
 #include "TurbCom.h"
@@ -106,10 +107,9 @@ void TurbUpdate::ModifyValue1Equ()
     }
 }
 
-Update * CreateTurbUpdate()
+std::unique_ptr<Update> CreateTurbUpdate()
 {
-    Update * update = new UTurbUpdate();
-    return update;
+    return std::make_unique<UTurbUpdate>();
 }
 
 EndNameSpace

@@ -43,7 +43,7 @@ public:
     virtual void SolutionFix() {};
 };
 
-Update * CreateUpdate( int solverType );
+std::unique_ptr<Update> CreateUpdate( int solverType );
 
 
 void GetUpdateField(

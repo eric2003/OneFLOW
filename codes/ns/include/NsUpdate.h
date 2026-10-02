@@ -22,6 +22,7 @@ License
 
 
 #pragma once
+#include <memory>
 #include "Update.h"
 BeginNameSpace( ONEFLOW )
 
@@ -37,7 +38,7 @@ public:
     bool WeekSolutionFix();
 };
 
-Update * CreateNsUpdate();
+std::unique_ptr<Update> CreateNsUpdate();
 
 Real PositiveUpdate( Real pn, Real dp );
 void QToPrimHypersonic( RealField & q, Real gama, RealField & prim, RealField & temp );

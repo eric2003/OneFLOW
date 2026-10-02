@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "NsUpdate.h"
+#include <memory>
 #include "UNsUpdate.h"
 #include "NsInvFlux.h"
 #include "NsCom.h"
@@ -216,10 +217,9 @@ bool NsUpdate::WeekSolutionFix()
     return flag;
 }
 
-Update * CreateNsUpdate()
+std::unique_ptr<Update> CreateNsUpdate()
 {
-    Update * update = new UNsUpdate();
-    return update;
+    return std::make_unique<UNsUpdate>();
 }
 
 Real PositiveUpdate( Real pn, Real dp )

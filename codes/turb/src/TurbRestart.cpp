@@ -21,14 +21,14 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "TurbRestart.h"
+#include <memory>
 #include "UTurbRestart.h"
 
 BeginNameSpace( ONEFLOW )
 
-Restart * CreateTurbRestart()
+std::unique_ptr<Restart> CreateTurbRestart()
 {
-    Restart * restart = new UTurbRestart();
-    return restart;
+    return std::make_unique<UTurbRestart>();
 }
 
 EndNameSpace

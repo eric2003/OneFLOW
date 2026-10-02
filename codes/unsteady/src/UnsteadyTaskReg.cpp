@@ -65,17 +65,15 @@ void UpdateUnsteadyFlow( StringField & data )
 {
     int solverType = SolverState::solverType;
 
-    Unsteady * unsteady = CreateUnsteady( solverType );
+    auto unsteady = CreateUnsteady( solverType );
     unsteady->UpdateUnsteady();
-    delete unsteady;
 }
 
 void CalcUnsteadyCriterion( StringField & data )
 {
     int solverType = SolverState::solverType;
-    Unsteady * unsteady = CreateUnsteady( solverType );
+    auto unsteady = CreateUnsteady( solverType );
     unsteady->CalcUnsteadyCriterion();
-    delete unsteady;
 }
 
 EndNameSpace

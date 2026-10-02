@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "RestartTaskReg.h"
+#include <memory>
 #include "InterField.h"
 #include "ActionState.h"
 #include "HXMath.h"
@@ -84,54 +85,48 @@ void ReadRestart( StringField & data )
 {
     int solverType = SolverState::solverType;
 
-    Restart * restart = CreateRestart( solverType );
+    auto restart = CreateRestart( solverType );
     restart->Read( solverType );
-    delete restart;
 }
 
 void DumpRestart( StringField & data )
 {
     int solverType = SolverState::solverType;
 
-    Restart * restart = CreateRestart( solverType );
+    auto restart = CreateRestart( solverType );
     restart->Dump( solverType );
-    delete restart;
 }
 
 void DumpinsRestart(StringField & data)
 {
 	int solverType = SolverState::solverType;
 
-	Restart * restart = CreateRestart(solverType);
+	auto restart = CreateRestart(solverType);
 	restart->Dump(solverType);
-	delete restart;
 }
 
 void InitRestart( StringField & data )
 {
     int solverType = SolverState::solverType;
 
-    Restart * restart = CreateRestart( solverType );
+    auto restart = CreateRestart( solverType );
     restart->InitRestart( solverType );
-    delete restart;
 }
 
 void InitinsRestart( StringField & data )
 {
 	int solverType = SolverState::solverType;
 
-	Restart * restart = CreateRestart( solverType );
+	auto restart = CreateRestart( solverType );
 	restart->InitinsRestart( solverType );
-	delete restart;
 }
 
 void ReadinsRestart(StringField & data)
 {
 	int solverType = SolverState::solverType;
 
-	Restart * restart = CreateRestart(solverType);
+	auto restart = CreateRestart(solverType);
 	restart->Read( solverType );
-	delete restart;
 }
 
 

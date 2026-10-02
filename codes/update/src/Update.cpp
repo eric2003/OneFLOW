@@ -42,7 +42,7 @@ Update::~Update()
 {
 }
 
-Update * CreateUpdate( int solverType )
+std::unique_ptr<Update> CreateUpdate( int solverType )
 {
     if ( solverType == NS_SOLVER )
     {
@@ -56,7 +56,7 @@ Update * CreateUpdate( int solverType )
     {
         return CreateTurbUpdate();
     }
-    return 0;
+    return nullptr;
 }
 
 void GetUpdateField(

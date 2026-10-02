@@ -24,6 +24,7 @@ License
 #include "SolverImp.h"
 #include "SolverDef.h"
 #include "TurbRhs.h"
+#include <memory>
 #include "CmxTask.h"
 #include "CmxTaskNames.h"
 #include "Iteration.h"
@@ -58,9 +59,8 @@ void TurbCalcBoundary( StringField & data )
 
 void TurbUpdateResiduals( StringField & data )
 {
-    TurbRhs * rhs = new TurbRhs();
+    auto rhs = std::make_unique<TurbRhs>();
     rhs->CalcRHS();
-    delete rhs;
 }
 
 void TurbImplicitMethod( StringField & data )
