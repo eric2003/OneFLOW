@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*\\
+/*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
@@ -18,10 +18,11 @@ License
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
-\\*---------------------------------------------------------------------------*/
+\*---------------------------------------------------------------------------*/
 
 #pragma once
 #include "NamespaceMacros.h"
+#include <memory>
 #include <unordered_map>
 #include <string>
 
@@ -33,33 +34,33 @@ class FieldEntry
 {
 public:
     FieldEntry();
-    FieldEntry( const std::string & name, PointerWrap * data );
+    FieldEntry( const std::string & name, std::unique_ptr<PointerWrap> data );
     ~FieldEntry();
 public:
-    std::string   name;
-    PointerWrap * data;
+    std::string name;
+    std::unique_ptr<PointerWrap> data;
 public:
     std::string & GetName() { return name; }
-    PointerWrap * GetPointerWrap() { return data; }
+    PointerWrap * GetPointerWrap() { return data.get(); }
 };
 
 class DataField
 {
 public:
-    // Use unordered_map for O(1) average lookup
-    using DataMap = std::unordered_map<std::string, FieldEntry*>;
+    using DataMap = std::unordered_map<std::string, std::unique_ptr<FieldEntry>>;
 public:
     DataField();
     ~DataField();
 protected:
-    DataMap * dataMap;
+    DataMap dataMap;
 public:
-    void UpdateFieldEntry( FieldEntry * fieldEntry );
+    // Takes ownership of fieldEntry.
+    void UpdateFieldEntry( std::unique_ptr<FieldEntry> fieldEntry );
     FieldEntry * GetFieldEntry( const std::string & name );
     void DeleteFieldEntry( const std::string & name );
     void Clear();
 
-    DataMap * GetDataMap() { return dataMap; }
+    DataMap * GetDataMap() { return &dataMap; }
 };
 
 EndNameSpace

@@ -58,7 +58,7 @@ void HXReadVoid( DataBook * dataBook, DataEntry * dataEntry );
 
 DataBase * GetGlobalDataBase();
 void ProcessData( const std::string & name, const std::string * value, int type, int size );
-DataObject * CreateDataObject( int type, int size );
+std::unique_ptr<DataObject> CreateDataObject( int type, int size );
 
 class DataBase;
 template < typename T >
@@ -75,7 +75,7 @@ T GetDataValue( const std::string & varName, DataBase * database )
 
     if (dataEntry != nullptr )
     {
-        DataObject * data = dataEntry->data;
+        DataObject * data = dataEntry->data.get();
         return GetDataValue< T >(data);
     }
     else
@@ -88,16 +88,16 @@ T GetDataValue( const std::string & varName, DataBase * database )
 template < typename T >
 void SetData( const std::string & name, T * value, int type, int size )
 {
-    DataEntry * dataEntry = new DataEntry();
+    auto dataEntry = std::make_unique<DataEntry>();
     dataEntry->name = name;
     dataEntry->type = type;
     dataEntry->size = size;
-    TDataObject< T > * o = new TDataObject< T >( size );
+    auto o = std::make_unique<TDataObject< T > >( size );
     o->CopyValue( value );
-    dataEntry->data = o;
+    dataEntry->data = std::move( o );
 
     DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
-    dataBase->dataPara->UpdateDataPointer( dataEntry );
+    dataBase->dataPara->UpdateDataPointer( std::move( dataEntry ) );
 }
 
 void SetDataInt( const std::string & varName, const int & value );
@@ -119,7 +119,7 @@ T * GetDataPointer( const std::string & varName )
             "DataBase: cannot find variable \"" + varName + "\"" );
     }
 
-    DataObject * data = dataEntry->data;
+    DataObject * data = dataEntry->data.get();
     return static_cast< T * >( data->GetVoidPointer() );
 }
 

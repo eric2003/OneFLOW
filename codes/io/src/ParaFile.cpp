@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "ParaFile.h"
+#include <memory>
 #include "TextFileParser.h"
 #include "DataBase.h"
 #include "DataBook.h"
@@ -363,7 +364,7 @@ void CompressData( DataBase * dataBase, DataBook * dataBook )
     // Range-based for is cleaner with unordered_map
     for ( const auto & pair : *dataMap )
     {
-        DataEntry * dataEntry = pair.second;          // pair.first is the key (name), pair.second is DataV*
+        DataEntry * dataEntry = pair.second.get();  // pair.first is the key (name), pair.second owns DataEntry
         ONEFLOW::HXWriteDataEntry( dataBook, dataEntry );
     }
 }
@@ -378,9 +379,9 @@ void DecompressData( DataBase * dataBase, DataBook * dataBook )
 
     for ( int i = 0; i < ndata; ++ i )
     {
-        DataEntry * dataEntry = new DataEntry();
-        ONEFLOW::HXReadDataEntry( dataBook, dataEntry );
-        dataBase->dataPara->UpdateDataPointer( dataEntry );
+        auto dataEntry = std::make_unique<DataEntry>();
+        ONEFLOW::HXReadDataEntry( dataBook, dataEntry.get() );
+        dataBase->dataPara->UpdateDataPointer( std::move( dataEntry ) );
     }
 }
 

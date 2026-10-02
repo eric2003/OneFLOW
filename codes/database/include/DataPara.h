@@ -22,6 +22,7 @@ License
 
 #pragma once
 #include "NamespaceMacros.h"
+#include <memory>
 #include <unordered_map>
 #include <string>
 #include <fstream>
@@ -34,13 +35,13 @@ class DataEntry
 {
 public:
     DataEntry();
-    DataEntry( const std::string & name, int type, int size, DataObject * data );
+    DataEntry( const std::string & name, int type, int size, std::unique_ptr<DataObject> data );
     ~DataEntry();
 public:
     std::string  name;
     int          type;
     int          size;
-    DataObject * data;
+    std::unique_ptr<DataObject> data;
 public:
     void Copy( DataEntry * inputData );
     void Dump( std::fstream & file );
@@ -50,21 +51,22 @@ class DataPara
 {
 public:
     // Use unordered_map for O(1) average lookup
-    using DataMap = std::unordered_map< std::string, DataEntry * >;
+    using DataMap = std::unordered_map< std::string, std::unique_ptr<DataEntry> >;
 public:
     DataPara();
     ~DataPara();
 protected:
-    DataMap * dataMap;
+    DataMap dataMap;
 public:
-    void UpdateDataPointer( DataEntry * data );
+    // Takes ownership of data.
+    void UpdateDataPointer( std::unique_ptr<DataEntry> data );
     DataEntry * GetDataPointer( const std::string & name );
     void DeleteDataPointer( const std::string & name );
 
     // Release all case-local parameter entries while keeping the database alive.
     void Clear();
 
-    DataMap * GetDataMap() { return dataMap; }
+    DataMap * GetDataMap() { return &dataMap; }
 
     void DumpData( std::fstream & file );
 };
