@@ -65,8 +65,6 @@ public:
     void PrepareFaceValue();
 	void PrepareProFaceValue();
 	void CalcPreGrad();
-	//void CalcINsinvTerm();
-    //void UpdateFaceInvFlux();
     void ReadTmp();
 public:
     void GetQlQrField();
@@ -75,7 +73,7 @@ public:
     void Init();
     void MomPre();
 public:
-    Limiter* limiter;
+    std::unique_ptr<Limiter> limiter; // FIX: Changed to unique_ptr
     LimField* limf;
     MRField* iinvflux;
 public:

@@ -53,13 +53,14 @@ BeginNameSpace(ONEFLOW)
 
 UINsInvterm::UINsInvterm()
 {
-	limiter = new INsLimiter();
+	//limiter = new INsLimiter();
+	limiter = std::make_unique<INsLimiter>();
 	limf = limiter->limf.get();
 }
 
 UINsInvterm::~UINsInvterm()
 {
-	delete limiter;
+	//delete limiter;
 }
 
 void UINsInvterm::CalcLimiter()
@@ -2034,12 +2035,10 @@ void UINsInvterm::CalcPreGrad()
 
 void UINsInvterm::Alloc()
 {
-	//iinvflux = new MRField(nscom.nEqu, ug.nFaces);
 }
 
 void UINsInvterm::DeAlloc()
 {
-	//delete iinvflux;
 }
 
 
