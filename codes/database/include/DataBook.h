@@ -35,7 +35,7 @@ BeginNameSpace( ONEFLOW )
 
 class DataBook;
 
-using DATA_COMPRESS = void( * )( DataBook *& dataBook );
+using DATA_COMPRESS = void( * )( DataBook * dataBook );
 using DATA_DECOMPRESS = void( * )( DataBook *  dataBook );
 
 class DataBook

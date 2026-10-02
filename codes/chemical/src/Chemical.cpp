@@ -515,7 +515,7 @@ void Chemical::CalcMixtureByMassFraction( RealField & cs, RealField & var, Real 
     }
 }
 
-void Chemical::CompressData( DataBook *& dataBook )
+void Chemical::CompressData( DataBook * dataBook )
 {
     HXAppend( dataBook, nSpecies );
     HXAppend( dataBook, nReaction );
@@ -534,7 +534,7 @@ void Chemical::DecompressData( DataBook * dataBook )
     Read( dataBook );
 }
 
-void ChemicalCompressData( DataBook *& dataBook )
+void ChemicalCompressData( DataBook * dataBook )
 {
     chem.CompressData( dataBook );
 }

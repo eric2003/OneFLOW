@@ -339,7 +339,7 @@ void BroadcastControlParameterToAllProcessors()
     ONEFLOW::HXBcast( ONEFLOW::CompressData, ONEFLOW::DecompressData, Parallel::GetServerid() );
 }
 
-void CompressData( DataBook *& dataBook )
+void CompressData( DataBook * dataBook )
 {
     DataBase * globalDataBase = ONEFLOW::GetGlobalDataBase();
 
@@ -352,7 +352,7 @@ void DecompressData( DataBook * dataBook )
     ONEFLOW::DecompressData( globalDataBase, dataBook );
 }
 
-void CompressData( DataBase * dataBase, DataBook *& dataBook )
+void CompressData( DataBase * dataBase, DataBook * dataBook )
 {
     // Use the new type alias
     DataPara::DataMap * dataMap = dataBase->dataPara->GetDataMap();

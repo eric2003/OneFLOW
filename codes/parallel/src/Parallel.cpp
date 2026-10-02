@@ -173,50 +173,28 @@ void HXBcast( DataBook * dataBook, int rootid )
     dataBook->Bcast( rootid );
 }
 
-//void HXBcast( DATA_COMPRESS dataCompression, DATA_DECOMPRESS dataDecompression, int rootid )
-//{
-//    int nProc = Parallel::GetNProc();
-//
-//    if ( nProc <= 1 ) return;
-//
-//    auto dataBook = std::make_unique<DataBook>();
-//
-//    if ( Parallel::GetPid() == rootid )
-//    {
-//        //Compress data, or store data to dataBook
-//        dataCompression( dataBook.get() );
-//    }
-//
-//    //Pass the dataBook to the required processes
-//    ONEFLOW::HXBcast( dataBook.get(), rootid );
-//
-//    if ( Parallel::GetPid() != rootid )
-//    {
-//        //Extract the data from dataBook to obtain the required information
-//        dataDecompression( dataBook.get() );
-//    }
-//}
-
 void HXBcast( DATA_COMPRESS dataCompression, DATA_DECOMPRESS dataDecompression, int rootid )
 {
     int nProc = Parallel::GetNProc();
+
     if ( nProc <= 1 ) return;
 
-    auto ownedBook = std::make_unique<DataBook>();
-    DataBook * dataBook = ownedBook.get();  // named lvalue, can bind to DataBook *&
+    auto dataBook = std::make_unique<DataBook>();
 
     if ( Parallel::GetPid() == rootid )
     {
-        dataCompression( dataBook );   // OK: DataBook *&
+        //Compress data, or store data to dataBook
+        dataCompression( dataBook.get() );
     }
 
-    ONEFLOW::HXBcast( dataBook, rootid );
+    //Pass the dataBook to the required processes
+    ONEFLOW::HXBcast( dataBook.get(), rootid );
 
     if ( Parallel::GetPid() != rootid )
     {
-        dataDecompression( dataBook ); // OK: DataBook *
+        //Extract the data from dataBook to obtain the required information
+        dataDecompression( dataBook.get() );
     }
-    // ownedBook destroys DataBook
 }
 
 void HXSwapData( DataBook * dataBook, int spid, int rpid, int tag )
