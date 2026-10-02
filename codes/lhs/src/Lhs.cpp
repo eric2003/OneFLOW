@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Lhs.h"
+#include <memory>
 #include "ULhs.h"
 #include "Zone.h"
 #include "Grid.h"
@@ -38,14 +39,14 @@ Lhs::~Lhs()
     ;
 }
 
-Lhs * CreateLhs( int solverType )
+std::unique_ptr<Lhs> CreateLhs( int solverType )
 {
     Grid * grid = Zone::GetGrid();
     if ( grid->type == UMESH )
     {
-        return new ULhs();
+        return std::make_unique<ULhs>();
     }
-    return 0;
+    return nullptr;
 }
 
 EndNameSpace

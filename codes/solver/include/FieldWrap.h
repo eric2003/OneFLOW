@@ -55,10 +55,11 @@ public:
     FieldHome();
     ~FieldHome();
 public:
-    static FieldWrap * CreateField();
-    static FieldWrap * CreateField( int solverType );
-    static FieldWrap * CreateField( int solverType, int level );
-    static FieldWrap * GetFieldWrap( const std::string & fieldName );
+    static std::unique_ptr<FieldWrap> CreateField();
+    static std::unique_ptr<FieldWrap> CreateField( int solverType );
+    static std::unique_ptr<FieldWrap> CreateField( int solverType, int level );
+    // Owns a temporary non-owning wrapper around a grid field looked up by name.
+    static std::unique_ptr<FieldWrap> GetFieldWrap( const std::string & fieldName );
 public:
     static void SetField( const std::string & fieldName, Real value );
     static void SetField( int fieldId, const std::string & fieldName, int orderFlag );

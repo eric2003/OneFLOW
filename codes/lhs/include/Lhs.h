@@ -22,6 +22,7 @@ License
 
 
 #pragma once
+#include <memory>
 #include "HXDefine.h"
 BeginNameSpace( ONEFLOW )
 
@@ -36,6 +37,6 @@ public:
     virtual void CalcLHS( int solverType ){};
 };
 
-Lhs * CreateLhs( int solverType );
+std::unique_ptr<Lhs> CreateLhs( int solverType );
 
 EndNameSpace

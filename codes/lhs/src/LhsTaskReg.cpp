@@ -38,9 +38,11 @@ void RegisterLhsTask()
 void CalcLHS( StringField & data )
 {
     int solverType = SolverState::solverType;
-    Lhs * lhs = CreateLhs( solverType );
-    lhs->CalcLHS( solverType );
-    delete lhs;
+    auto lhs = CreateLhs( solverType );
+    if ( lhs )
+    {
+        lhs->CalcLHS( solverType );
+    }
 }
 
 EndNameSpace

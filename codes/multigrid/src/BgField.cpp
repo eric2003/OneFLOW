@@ -62,8 +62,7 @@ void BasicBgField::Init()
             {
                 GridState::gridLevel = gl;
                 
-                // CreateField returns a raw owning pointer; adopt into unique_ptr.
-                this->data[ solverIndex ][ fid ][ gl ].reset( FieldHome::CreateField() );
+                this->data[ solverIndex ][ fid ][ gl ] = FieldHome::CreateField();
             }
         }
     }

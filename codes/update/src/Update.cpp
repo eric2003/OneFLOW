@@ -70,8 +70,8 @@ void GetUpdateField(
     {
         std::string & qFieldString  = solverInfo->implicitString[ 0 ];
         std::string & dQFieldString = solverInfo->implicitString[ 1 ];
-        q.reset( FieldHome::GetFieldWrap( qFieldString  ) );
-        dq.reset( FieldHome::GetFieldWrap( dQFieldString ) );
+        q  = FieldHome::GetFieldWrap( qFieldString  );
+        dq = FieldHome::GetFieldWrap( dQFieldString );
     }
     else
     {
@@ -83,7 +83,7 @@ void GetUpdateField(
         q = std::move( flowWrap );
 
         // residualName path builds a fresh non-owning wrapper; Update owns it.
-        dq.reset( FieldHome::GetFieldWrap( solverInfo->residualName ) );
+        dq = FieldHome::GetFieldWrap( solverInfo->residualName );
     }
 }
 

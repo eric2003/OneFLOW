@@ -85,18 +85,18 @@ FieldHome::~FieldHome()
     ;
 }
 
-FieldWrap * FieldHome::CreateField()
+std::unique_ptr<FieldWrap> FieldHome::CreateField()
 {
     SolverState::SetSolverTypeBySolverIndex( SolverState::solverIndex );
     return FieldHome::CreateField( SolverState::solverType, GridState::gridLevel );
 }
 
-FieldWrap * FieldHome::CreateField( int solverType )
+std::unique_ptr<FieldWrap> FieldHome::CreateField( int solverType )
 {
     return FieldHome::CreateField( solverType, GridState::gridLevel );
 }
 
-FieldWrap * FieldHome::CreateField( int solverType, int level )
+std::unique_ptr<FieldWrap> FieldHome::CreateField( int solverType, int level )
 {
     SolverInfo * info = SolverInfoFactory::GetSolverInfo( solverType );
 
@@ -106,20 +106,20 @@ FieldWrap * FieldHome::CreateField( int solverType, int level )
 
     auto field = std::make_unique<MRField>( info->nTEqu, nTCell );
 
-    FieldWrap * fieldWrap = new FieldWrap();
+    auto fieldWrap = std::make_unique<FieldWrap>();
 
     fieldWrap->SetOwnedField( std::move( field ) );
 
     return fieldWrap;
 }
 
-FieldWrap * FieldHome::GetFieldWrap( const std::string & fieldName )
+std::unique_ptr<FieldWrap> FieldHome::GetFieldWrap( const std::string & fieldName )
 {
     Grid * grid = Zone::GetGrid();
 
     MRField * field = ONEFLOW::GetFieldPointer< MRField >( grid, fieldName );
 
-    FieldWrap * fieldWrap = new FieldWrap();
+    auto fieldWrap = std::make_unique<FieldWrap>();
 
     fieldWrap->SetUnsField( field );
 
