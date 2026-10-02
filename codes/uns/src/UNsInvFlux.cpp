@@ -101,7 +101,8 @@ void UNsInvFlux::CalcFlux()
     inv.Init();
     ug.Init();
     unsf.Init();
-    Alloc();
+
+    invflux = new MRField( nscom.nEqu, ug.nFaces );
 
     this->SetPointer( nscom.ischeme );
 
@@ -110,7 +111,7 @@ void UNsInvFlux::CalcFlux()
     this->DumpInvFluxTrace();
     this->AddInvFlux();
 
-    DeAlloc();
+    delete invflux;
 }
 
 void UNsInvFlux::CalcInvFlux()
@@ -309,16 +310,6 @@ void UNsInvFlux::AddInvFlux()
     MRField * res = GetFieldPointer< MRField >( grid, "res" );
 
     ONEFLOW::AddF2CField( res, invflux );
-}
-
-void UNsInvFlux::Alloc()
-{
-    invflux = new MRField( nscom.nEqu, ug.nFaces );
-}
-
-void UNsInvFlux::DeAlloc()
-{
-    delete invflux;
 }
 
 EndNameSpace

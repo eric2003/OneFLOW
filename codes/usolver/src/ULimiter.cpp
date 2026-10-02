@@ -363,7 +363,11 @@ void Limiter::CalcLimiter()
 {
     ug.Init();
     limf->Init();
-    Alloc();
+
+    // FIX: Use std::make_unique instead of new
+    lim->minvf = std::make_unique<RealField>( ug.nTCell );
+    lim->maxvf = std::make_unique<RealField>( ug.nTCell );
+
     for ( int iEqu = 0; iEqu < limf->nEqu; ++ iEqu )
     {
         lim->limiter = & ( * limf->limiter )[ iEqu ];
@@ -374,18 +378,6 @@ void Limiter::CalcLimiter()
         this->SetInitValue();
         this->CalcLimiterScalar();
     }
-    DeAlloc();
-}
-
-void Limiter::Alloc()
-{
-    // FIX: Use std::make_unique instead of new
-    lim->minvf = std::make_unique<RealField>( ug.nTCell );
-    lim->maxvf = std::make_unique<RealField>( ug.nTCell );
-}
-
-void Limiter::DeAlloc()
-{
     // FIX: Use reset() instead of delete
     lim->minvf.reset();
     lim->maxvf.reset();

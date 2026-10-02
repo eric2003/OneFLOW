@@ -102,8 +102,6 @@ public:
         return limf->nEqu;
     }
 public:
-    void Alloc();
-    void DeAlloc();
     void SetInitValue();
     void CalcLimiter();
     void CalcLimiterScalar();

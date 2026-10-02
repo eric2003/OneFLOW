@@ -42,8 +42,6 @@ public:
     LimField * limf;
     MRField * invflux;
 public:
-    void Alloc();
-    void DeAlloc();
     void CalcFlux();
     void CalcInvFlux();
     void CalcInvFace();

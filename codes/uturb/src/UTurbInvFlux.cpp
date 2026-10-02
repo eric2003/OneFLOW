@@ -92,16 +92,6 @@ void UTurbInvFlux::AddInvFlux()
     ONEFLOW::AddF2CField( res, invflux );
 }
 
-void UTurbInvFlux::Alloc()
-{
-    invflux = new MRField( limf->nEqu, ug.nFaces );
-}
-
-void UTurbInvFlux::DeAlloc()
-{
-    delete invflux;
-}
-
 void UTurbInvFlux::CalcFlux()
 {
     TurbInv & inv = turbInv;
@@ -110,13 +100,13 @@ void UTurbInvFlux::CalcFlux()
     unsf.Init();
     uturbf.Init();
 
-    Alloc();
+    invflux = new MRField( limf->nEqu, ug.nFaces );
 
     this->CalcInvFace();
     this->CalcInvFlux();
     this->AddInvFlux();
 
-    DeAlloc();
+    delete invflux;
 }
 
 void UTurbInvFlux::CalcInvFlux()
