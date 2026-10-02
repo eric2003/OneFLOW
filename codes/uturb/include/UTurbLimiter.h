@@ -38,6 +38,7 @@ class TurbLimiter : public Limiter
 {
 public:
     TurbLimiter();
+    ~TurbLimiter() override;
 };
 
 EndNameSpace

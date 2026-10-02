@@ -62,7 +62,13 @@ void TurbLimField::Init()
 
 TurbLimiter::TurbLimiter()
 {
+    limf = new TurbLimField();
     limflag = ILMT_ZERO;
+}
+
+TurbLimiter::~TurbLimiter()
+{
+    delete limf;
 }
 
 EndNameSpace

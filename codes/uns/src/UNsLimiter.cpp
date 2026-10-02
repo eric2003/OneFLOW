@@ -97,11 +97,13 @@ void NsLimField::BcQlQrFix()
 
 NsLimiter::NsLimiter()
 {
+    limf = new NsLimField();
     limflag = ctrl.ilim;
 }
 
 NsLimiter::~NsLimiter()
 {
+    delete limf;
 }
 
 EndNameSpace

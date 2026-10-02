@@ -54,7 +54,7 @@ BeginNameSpace( ONEFLOW )
 UNsInvFlux::UNsInvFlux()
 {
     limiter = new NsLimiter();
-    limf = limiter->limf.get();
+    limf = limiter->limf;
 }
 
 UNsInvFlux::~UNsInvFlux()

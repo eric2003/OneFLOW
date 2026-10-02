@@ -39,6 +39,7 @@ class INsLimiter : public Limiter
 {
 public:
     INsLimiter();
+    ~INsLimiter() override;
 };
 
 EndNameSpace
