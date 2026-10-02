@@ -24,6 +24,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "HXArray.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
