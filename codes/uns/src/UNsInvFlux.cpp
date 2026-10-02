@@ -101,7 +101,7 @@ void UNsInvFlux::CalcFlux()
     ug.Init();
     unsf.Init();
 
-    invflux = new MRField( nscom.nEqu, ug.nFaces );
+    invflux = std::make_unique<MRField>( nscom.nEqu, ug.nFaces );
 
     this->SetPointer( nscom.ischeme );
 
@@ -110,7 +110,7 @@ void UNsInvFlux::CalcFlux()
     this->DumpInvFluxTrace();
     this->AddInvFlux();
 
-    delete invflux;
+    invflux.reset();
 }
 
 void UNsInvFlux::CalcInvFlux()
@@ -308,7 +308,7 @@ void UNsInvFlux::AddInvFlux()
     UnsGrid * grid = Zone::GetUnsGrid();
     MRField * res = GetFieldPointer< MRField >( grid, "res" );
 
-    ONEFLOW::AddF2CField( res, invflux );
+    ONEFLOW::AddF2CField( res, invflux.get() );
 }
 
 EndNameSpace

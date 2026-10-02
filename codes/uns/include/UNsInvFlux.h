@@ -53,7 +53,7 @@ public:
     void BoundaryQlQrFixField();
 public:
     std::unique_ptr<Limiter> limiter; // FIX: Changed to unique_ptr
-    MRField * invflux;
+    std::unique_ptr<MRField> invflux; // owned temporary face flux
 };
 
 EndNameSpace
