@@ -37,9 +37,8 @@ public:
     UTurbInvFlux ();
     ~UTurbInvFlux();
 public:
-    //Limiter * limiter, * nslimiter;
-    Limiter * nslimiter;
     std::unique_ptr<Limiter> limiter;     // FIX: Changed to unique_ptr
+    std::unique_ptr<Limiter> nslimiter;   // FIX: Changed to unique_ptr
     LimField * limf;
     MRField * invflux;
 public:
