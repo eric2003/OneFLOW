@@ -39,7 +39,8 @@ BeginNameSpace( ONEFLOW )
 
 UTurbInvFlux::UTurbInvFlux()
 {
-    limiter = new TurbLimiter();
+    //limiter = new TurbLimiter();
+    limiter = std::make_unique<TurbLimiter>();
     nslimiter = new NsLimiter();
     nslimiter->limflag = turbcom.tns_ilim;
     limf = limiter->limf.get();
@@ -48,7 +49,7 @@ UTurbInvFlux::UTurbInvFlux()
 
 UTurbInvFlux::~UTurbInvFlux()
 {
-    delete limiter;
+    //delete limiter;
     delete nslimiter;
 }
 
