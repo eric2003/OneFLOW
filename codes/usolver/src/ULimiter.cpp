@@ -350,12 +350,13 @@ void LimField::CalcFaceValueWeighted()
 
 Limiter::Limiter()
 {
-    lim = new Lim();
+    // FIX: Use std::make_unique
+    lim = std::make_unique<Lim>();
 }
 
 Limiter::~Limiter()
 {
-    delete lim;
+    // std::unique_ptr automatically cleans up
 }
 
 void Limiter::CalcLimiter()

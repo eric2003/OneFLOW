@@ -330,21 +330,6 @@ void UNsInvFlux::AddInvFlux()
     MRField * res = GetFieldPointer< MRField >( grid, "res" );
 
     ONEFLOW::AddF2CField( res, invflux );
-    if ( Iteration::outerSteps == -31 )
-    {
-        HXDebug::CheckNANField( res );
-        Real mindiff = 1.0e-10;
-        int idumpface = 1;
-        int idumpcell = 0;
-        MRField * q = GetFieldPointer< MRField >( grid, "q" );
-        HXDebug::DumpField( "flow.debug", q );
-        HXDebug::CompareFile( 1.0e-12, idumpcell );
-
-        HXDebug::DumpField( "InvFaceFlux.debug", invflux );
-        HXDebug::CompareFile( mindiff, idumpface );
-        HXDebug::DumpResField( "InvResFlux.debug" );
-        HXDebug::CompareFile( mindiff, idumpcell );
-    }
 }
 
 void UNsInvFlux::Alloc()

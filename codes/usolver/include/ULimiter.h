@@ -90,7 +90,7 @@ public:
     Limiter();
     virtual ~Limiter();
 public:
-    Lim * lim;
+    std::unique_ptr<Lim> lim;
     LimField * limf;
     int limflag;
 public:
