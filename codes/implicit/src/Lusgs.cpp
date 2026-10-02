@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Lusgs.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -33,15 +34,13 @@ LusgsSolver::~LusgsSolver()
 }
 
 LusgsPair::LusgsPair()
+    : uns( std::make_unique<LusgsSolver>() )
+    , str( std::make_unique<LusgsSolver>() )
 {
-    uns = new LusgsSolver();
-    str = new LusgsSolver();
 }
 
 LusgsPair::~LusgsPair()
 {
-    delete uns;
-    delete str;
 }
 
 EndNameSpace

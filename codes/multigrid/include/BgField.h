@@ -24,6 +24,7 @@ License
 #pragma once
 #include "HXVector.h"
 #include <memory>
+#include <vector>
 BeginNameSpace( ONEFLOW )
 
 class FieldWrap;
@@ -33,7 +34,8 @@ public:
     BasicBgField ();
     ~BasicBgField();
 public:
-    using Field3DType = HXVector< HXVector< HXVector< FieldWrap * > > >;
+    // Nested std::vector (not HXVector): unique_ptr is move-only; HXVector copy assign would fail to compile.
+    using Field3DType = std::vector< std::vector< std::vector< std::unique_ptr<FieldWrap> > > >;
 public:
     Field3DType data;
 public:

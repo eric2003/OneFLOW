@@ -23,6 +23,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include <memory>
 BeginNameSpace( ONEFLOW )
 
 class LusgsSolver
@@ -42,8 +43,8 @@ public:
     LusgsPair();
     ~LusgsPair();
 public:
-    LusgsSolver * uns;
-    LusgsSolver * str;
+    std::unique_ptr<LusgsSolver> uns;
+    std::unique_ptr<LusgsSolver> str;
 };
 
 EndNameSpace

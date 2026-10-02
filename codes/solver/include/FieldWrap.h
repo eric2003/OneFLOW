@@ -24,6 +24,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "HXArray.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -36,11 +37,14 @@ public:
     FieldWrap();
     ~FieldWrap();
 protected:
-    MRField * unsField;
-    bool deleteFlag;
+    // When owning: owned holds the field and view == owned.get().
+    // When non-owning: owned is null and view points at an external field.
+    std::unique_ptr<MRField> owned;
+    MRField * view;
 public:
     MRField * GetUnsField();
     void SetUnsField( MRField * unsField, bool deleteFlag = false );
+    void SetOwnedField( std::unique_ptr<MRField> field );
 };
 
 class Grid;
