@@ -65,13 +65,15 @@ void TurbLimField::Init()
 
 TurbLimiter::TurbLimiter()
 {
-    limf = new TurbLimField();
+    //limf = new TurbLimField();
+    // FIX: Use std::make_unique
+    limf = std::make_unique<TurbLimField>();
     limflag = ILMT_ZERO;
 }
 
 TurbLimiter::~TurbLimiter()
 {
-    delete limf;
+    //delete limf;
 }
 
 EndNameSpace

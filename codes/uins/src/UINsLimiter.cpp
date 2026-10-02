@@ -105,13 +105,15 @@ void INsLimField::BcQlQrFix()
 
 INsLimiter::INsLimiter()
 {
-    limf = new INsLimField();
+    //limf = new INsLimField();
+    // FIX: Use std::make_unique
+    limf = std::make_unique<INsLimField>();
     limflag = ctrl.ilim;
 }
 
 INsLimiter::~INsLimiter()
 {
-    delete limf;
+    //delete limf;
 }
 
 EndNameSpace

@@ -90,8 +90,9 @@ public:
     Limiter();
     virtual ~Limiter();
 public:
+    // FIX: Use std::unique_ptr for exclusive ownership
     std::unique_ptr<Lim> lim;
-    LimField * limf;
+    std::unique_ptr<LimField> limf;
     int limflag;
 public:
     void Alloc();
