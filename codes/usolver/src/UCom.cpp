@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "UCom.h"
+#include <memory>
 #include "FaceTopo.h"
 #include "BcRecord.h"
 #include "UnsGrid.h"
@@ -302,7 +303,7 @@ void HXDebug::DumpField( const std::string & fileName, MRField * field )
     PIO::CloseFile( file );
 }
 
-MRField * HXDebug::ReadField( const std::string & fileName )
+std::unique_ptr<MRField> HXDebug::ReadField( const std::string & fileName )
 {
     std::fstream file;
 
@@ -314,7 +315,7 @@ MRField * HXDebug::ReadField( const std::string & fileName )
 
     std::cout << " nEqu = " << nEqu << " nCells = " << nCells << "\n";
 
-    MRField * field = new MRField( nEqu, nCells );
+    auto field = std::make_unique<MRField>( nEqu, nCells );
 
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
@@ -332,8 +333,8 @@ void HXDebug::CompareFile( Real mindiff, int idump )
     if ( startStrategy != 1 ) return;
 
     UnsGrid * grid = Zone::GetUnsGrid();
-    MRField * field1 = HXDebug::ReadField( HXDebug::fileName1 );
-    MRField * field2 = HXDebug::ReadField( HXDebug::fileName2 );
+    std::unique_ptr<MRField> field1 = HXDebug::ReadField( HXDebug::fileName1 );
+    std::unique_ptr<MRField> field2 = HXDebug::ReadField( HXDebug::fileName2 );
     int nEqu = field1->GetNEqu();
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
@@ -357,8 +358,6 @@ void HXDebug::CompareFile( Real mindiff, int idump )
         }
     }
 
-    delete field1;
-    delete field2;
 }
 
 void HXDebug::DumpCellInfo( int iCell )

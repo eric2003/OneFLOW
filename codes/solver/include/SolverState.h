@@ -24,6 +24,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include <iostream>
+#include <memory>
 
 
 BeginNameSpace( ONEFLOW )
@@ -39,12 +40,12 @@ public:
     LusgsState();
     ~LusgsState();
 public:
-    static HXVector< LusgsSolver * > str;
-    static HXVector< LusgsSolver * > uns;
+    static HXVector< std::unique_ptr<LusgsSolver> > str;
+    static HXVector< std::unique_ptr<LusgsSolver> > uns;
 public:
     static void Init( int nSolver );
     static void Reset();
-    static void AddSolver( int solverIndex, int gridType, LusgsSolver * solver );
+    static void AddSolver( int solverIndex, int gridType, std::unique_ptr<LusgsSolver> solver );
     static LusgsSolver * GetLusgsSolver();
 };
 

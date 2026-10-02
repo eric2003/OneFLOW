@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "UNsSolver.h"
+#include <memory>
 #include "Mesh.h"
 #include "FaceMesh.h"
 #include "CellMesh.h"
@@ -51,7 +52,7 @@ UNsSolver::~UNsSolver()
 void UNsSolver::StaticInit()
 {
     NsSolver::StaticInit();
-    LusgsState::AddSolver( this->solverIndex, this->gridType, new UNsLusgs() );
+    LusgsState::AddSolver( this->solverIndex, this->gridType, std::make_unique<UNsLusgs>() );
 }
 
 void UNsSolver::Init()
