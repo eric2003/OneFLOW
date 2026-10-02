@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #pragma once
+#include <memory>
 #include "NamespaceMacros.h"
 #include "DataBook.h"
 #include "DataPara.h"
@@ -47,8 +48,8 @@ public:
     DataBase();
     ~DataBase();
 public:
-    DataPara *dataPara;
-    DataField *dataField;
+    std::unique_ptr<DataPara> dataPara;
+    std::unique_ptr<DataField> dataField;
 };
 void HXReadDataEntry( DataBook * dataBook, DataEntry * dataEntry );
 void HXWriteDataEntry( DataBook * dataBook, const DataEntry * dataEntry );

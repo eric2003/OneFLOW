@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "DataBase.h"
+#include <memory>
 #include "Fatal.h"
 #include "DataPara.h"
 #include "DataObject.h"
@@ -52,15 +53,13 @@ HXInitGlobalDataBase initGlobalDataBase;
 
 
 DataBase::DataBase()
+    : dataPara( std::make_unique<DataPara>() )
+    , dataField( std::make_unique<DataField>() )
 {
-    dataPara = new DataPara();
-    dataField = new DataField();
 }
 
 DataBase::~DataBase()
 {
-    delete dataPara;
-    delete dataField;
 }
 
 void HXWriteVoid( DataBook * dataBook, const DataEntry * dataEntry )
@@ -185,7 +184,7 @@ void CreateFieldPointer( DataBase * database, PointerWrap * pointerWrap, const s
 
 void * GetFieldPointerVoid( DataBase * database, const std::string & dataObjectName )
 {
-    PointerWrap * pointerWrap = GetPointerWrap( database->dataField, dataObjectName );
+    PointerWrap * pointerWrap = GetPointerWrap( database->dataField.get(), dataObjectName );
     if ( pointerWrap )
     {
         return pointerWrap->GetPointer();
