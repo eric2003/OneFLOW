@@ -52,9 +52,6 @@ public:
     void AddChemHeatFlux();
     void AddHeatFlux();
     void SaveHeatFlux();
-
-    void Alloc();
-    void DeAlloc();
 public:
     void PrepareFaceValue();
     void SaveFacePara();

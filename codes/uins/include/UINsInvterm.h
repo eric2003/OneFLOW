@@ -25,12 +25,12 @@ License
 #include "INsInvterm.h"
 #include "systemSolver.h"
 #include "poisson.h"
+#include <memory>
 
 BeginNameSpace(ONEFLOW)
 
 class UINsFField;
 class Limiter;
-class LimField;
 class SolveMRhs;
 
 
@@ -40,8 +40,6 @@ public:
     UINsInvterm();
     ~UINsInvterm();
 public:
-    void Alloc();
-    void DeAlloc();
 	void CalcINsTimeStep();
 	void CalcINsPreflux();
 	void INsPreflux();
@@ -65,9 +63,6 @@ public:
     void PrepareFaceValue();
 	void PrepareProFaceValue();
 	void CalcPreGrad();
-	//void CalcINsinvTerm();
-    //void UpdateFaceInvFlux();
-    void ReadTmp();
 public:
     void GetQlQrField();
     void ReconstructFaceValueField();
@@ -75,12 +70,10 @@ public:
     void Init();
     void MomPre();
 public:
-    Limiter* limiter;
-    LimField* limf;
+    std::unique_ptr<Limiter> limiter; // FIX: Changed to unique_ptr
     MRField* iinvflux;
 public:
     Real Number;
 };
-//void PrimToQ(RealField & prim, Real gama, RealField & q);
 extern UINsInvterm NonZero;
 EndNameSpace

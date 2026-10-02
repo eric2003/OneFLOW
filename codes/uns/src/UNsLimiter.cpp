@@ -35,15 +35,11 @@ BeginNameSpace( ONEFLOW )
 
 NsLimField::NsLimField()
 {
-    qf1 = 0;
-    qf2 = 0;
     this->nEqu = nscom.nEqu;
 }
 
 NsLimField::~NsLimField()
 {
-    delete qf1;
-    delete qf2;
 }
 
 void NsLimField::Init()
@@ -58,8 +54,9 @@ void NsLimField::Init()
 
     this->nEqu = q->GetNEqu();
 
-    qf1 = new MRField( this->nEqu, grid->nFaces );
-    qf2 = new MRField( this->nEqu, grid->nFaces );
+    // FIX: Use std::make_unique
+    qf1 = std::make_unique<MRField>( this->nEqu, grid->nFaces );
+    qf2 = std::make_unique<MRField>( this->nEqu, grid->nFaces );
 
     this->ckfun = & NsCheckFunction;
 }
@@ -97,13 +94,12 @@ void NsLimField::BcQlQrFix()
 
 NsLimiter::NsLimiter()
 {
-    limf = new NsLimField();
+    limf = std::make_unique<NsLimField>();
     limflag = ctrl.ilim;
 }
 
 NsLimiter::~NsLimiter()
 {
-    delete limf;
 }
 
 EndNameSpace

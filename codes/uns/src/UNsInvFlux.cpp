@@ -53,13 +53,11 @@ BeginNameSpace( ONEFLOW )
 
 UNsInvFlux::UNsInvFlux()
 {
-    limiter = new NsLimiter();
-    limf = limiter->limf;
+    limiter = std::make_unique<NsLimiter>();
 }
 
 UNsInvFlux::~UNsInvFlux()
 {
-    delete limiter;
 }
 
 void UNsInvFlux::CalcLimiter()
@@ -83,48 +81,17 @@ void UNsInvFlux::CalcInvFace()
 
 void UNsInvFlux::GetQlQrField()
 {
-    limf->GetQlQr();
+    this->limiter->GetQlQr();
 }
 
 void UNsInvFlux::ReconstructFaceValueField()
 {
-    limf->CalcFaceValue();
-    //limf->CalcFaceValueWeighted();
-    if ( Iteration::outerSteps == -31 )
-    {
-        Real mindiff = 1.0e-10;
-        int idumpface = 1;
-        int idumpcell = 0;
-
-        HXDebug::DumpField( "limf.dqdx.debug", limf->dqdx );
-        HXDebug::CompareFile( mindiff, idumpcell );
-        HXDebug::DumpField( "limf.dqdy.debug", limf->dqdy );
-        HXDebug::CompareFile( mindiff, idumpcell );
-        HXDebug::DumpField( "limf.dqdz.debug", limf->dqdz );
-        HXDebug::CompareFile( mindiff, idumpcell );
-
-        HXDebug::DumpField( "limf.qf1_recon.debug", limf->qf1 );
-        HXDebug::CompareFile( mindiff, idumpface );
-        HXDebug::DumpField( "limf.qf2_recon.debug", limf->qf2 );
-        HXDebug::CompareFile( mindiff, idumpface );
-    }
+    this->limiter->CalcFaceValue();
 }
 
 void UNsInvFlux::BoundaryQlQrFixField()
 {
-    limf->BcQlQrFix();
-
-    if ( Iteration::outerSteps == -31 )
-    {
-        Real mindiff = 1.0e-10;
-        int idumpface = 1;
-        int idumpcell = 0;
-
-        HXDebug::DumpField( "limf.qf1.debug", limf->qf1 );
-        HXDebug::CompareFile( mindiff, idumpface );
-        HXDebug::DumpField( "limf.qf2.debug", limf->qf2 );
-        HXDebug::CompareFile( mindiff, idumpface );
-    }
+    this->limiter->BcQlQrFix();
 }
 
 void UNsInvFlux::CalcFlux()
@@ -133,17 +100,17 @@ void UNsInvFlux::CalcFlux()
     inv.Init();
     ug.Init();
     unsf.Init();
-    Alloc();
+
+    invflux = new MRField( nscom.nEqu, ug.nFaces );
 
     this->SetPointer( nscom.ischeme );
 
-    //ReadTmp();
     this->CalcInvFace();
     this->CalcInvFlux();
     this->DumpInvFluxTrace();
     this->AddInvFlux();
 
-    DeAlloc();
+    delete invflux;
 }
 
 void UNsInvFlux::CalcInvFlux()
@@ -175,13 +142,13 @@ bool UNsInvFlux::UseCpuBatchAdapter() const
     if ( enabled == nullptr || enabled[ 0 ] != '1' ) return false;
     if ( AccelRuntime::Instance().IsAccelerator() ) return false;
     return nscom.ischeme == ISCHEME_LAX_FRIEDRICHS
-        && nscom.nEqu == 5 && limf != nullptr && limf->nEqu == 5;
+        && nscom.nEqu == 5 && !limiter->limfIsNullPtr() && limiter->GetNEquations() == 5;
 }
 
 void UNsInvFlux::CalcInvFluxCpuBatch()
 {
     const int nFaces = ug.nFaces;
-    const int nEquations = limf->nEqu;
+    const int nEquations = limiter->GetNEquations();
     std::vector< Real > primitiveLeft( nEquations * nFaces );
     std::vector< Real > primitiveRight( nEquations * nFaces );
     std::vector< Real > xNormal( nFaces );
@@ -190,6 +157,9 @@ void UNsInvFlux::CalcInvFluxCpuBatch()
     std::vector< Real > meshVelocityNormal( nFaces );
     std::vector< Real > faceArea( nFaces );
     std::vector< Real > faceFlux( nEquations * nFaces );
+
+    MRField * qf1 = limiter->GetLeftField();
+    MRField * qf2 = limiter->GetRightField();
 
     for ( int face = 0; face < nFaces; ++ face )
     {
@@ -201,9 +171,9 @@ void UNsInvFlux::CalcInvFluxCpuBatch()
         for ( int equation = 0; equation < nEquations; ++ equation )
         {
             primitiveLeft[ equation * nFaces + face ] =
-                ( * limf->qf1 )[ equation ][ face ];
+                ( * qf1 )[ equation ][ face ];
             primitiveRight[ equation * nFaces + face ] =
-                ( * limf->qf2 )[ equation ][ face ];
+                ( * qf2 )[ equation ][ face ];
         }
     }
 
@@ -252,10 +222,15 @@ void UNsInvFlux::PrepareFaceValue()
     inv.gama2 = nscom.gama2;
     inv.gama  = half * ( inv.gama1 + inv.gama2 );
 
-    for ( int iEqu = 0; iEqu < limf->nEqu; ++ iEqu )
+    MRField * qf1 = limiter->GetLeftField();
+    MRField * qf2 = limiter->GetRightField();
+
+    int nEquations = limiter->GetNEquations();
+
+    for ( int iEqu = 0; iEqu < nEquations; ++ iEqu )
     {
-        inv.prim1[ iEqu ] = ( * limf->qf1 )[ iEqu ][ ug.fId ];
-        inv.prim2[ iEqu ] = ( * limf->qf2 )[ iEqu ][ ug.fId ];
+        inv.prim1[ iEqu ] = ( * qf1 )[ iEqu ][ ug.fId ];
+        inv.prim2[ iEqu ] = ( * qf2 )[ iEqu ][ ug.fId ];
     }
 }
 
@@ -271,7 +246,11 @@ void UNsInvFlux::DumpInvFluxTrace()
 {
     const char * traceFile = std::getenv( "ONEFLOW_UNS_TRACE_FILE" );
     if ( traceFile == nullptr || traceFile[ 0 ] == '\0' ) return;
-    if ( limf == nullptr || limf->qf1 == nullptr || limf->qf2 == nullptr
+
+    MRField * qf1 = limiter->GetLeftField();
+    MRField * qf2 = limiter->GetRightField();
+
+    if ( limiter->limfIsNullPtr() || qf1 == nullptr || qf2 == nullptr
          || invflux == nullptr )
     {
         throw std::runtime_error(
@@ -287,7 +266,7 @@ void UNsInvFlux::DumpInvFluxTrace()
     const char magic[ 8 ] = { 'O', 'F', 'T', 'R', 'C', '0', '1', '\0' };
     const std::uint64_t nFaces = static_cast< std::uint64_t >( ug.nFaces );
     const std::uint32_t nEquations =
-        static_cast< std::uint32_t >( limf->nEqu );
+        static_cast< std::uint32_t >( limiter->GetNEquations() );
     const std::uint32_t nArrays = 3;
     output.write( magic, sizeof( magic ) );
     output.write(
@@ -315,8 +294,8 @@ void UNsInvFlux::DumpInvFluxTrace()
         }
     };
 
-    writeField( *limf->qf1 );
-    writeField( *limf->qf2 );
+    writeField( *limiter->GetLeftField());
+    writeField( *limiter->GetRightField());
     writeField( *invflux );
     if ( ! output )
     {
@@ -330,95 +309,6 @@ void UNsInvFlux::AddInvFlux()
     MRField * res = GetFieldPointer< MRField >( grid, "res" );
 
     ONEFLOW::AddF2CField( res, invflux );
-    if ( Iteration::outerSteps == -31 )
-    {
-        HXDebug::CheckNANField( res );
-        Real mindiff = 1.0e-10;
-        int idumpface = 1;
-        int idumpcell = 0;
-        MRField * q = GetFieldPointer< MRField >( grid, "q" );
-        HXDebug::DumpField( "flow.debug", q );
-        HXDebug::CompareFile( 1.0e-12, idumpcell );
-
-        HXDebug::DumpField( "InvFaceFlux.debug", invflux );
-        HXDebug::CompareFile( mindiff, idumpface );
-        HXDebug::DumpResField( "InvResFlux.debug" );
-        HXDebug::CompareFile( mindiff, idumpcell );
-    }
 }
-
-void UNsInvFlux::Alloc()
-{
-    invflux = new MRField( nscom.nEqu, ug.nFaces );
-}
-
-void UNsInvFlux::DeAlloc()
-{
-    delete invflux;
-}
-
-void UNsInvFlux::ReadTmp()
-{
-    static int iii = 0;
-    if ( iii ) return;
-    iii = 1;
-    std::fstream file;
-    file.open( "nsflow.dat", std::ios_base::in | std::ios_base::binary );
-    if ( ! file )
-    {
-        Fatal( "Failed to open file: nsflow.dat" );
-    }
-
-    unsf.Init();
-
-    for ( int cId = 0; cId < ug.nTCell; ++ cId )
-    {
-        for ( int iEqu = 0; iEqu < 5; ++ iEqu )
-        {
-            file.read( reinterpret_cast< char * >( & ( * unsf.q )[ iEqu ][ cId ] ), sizeof( double ) );
-        }
-    }
-
-    for ( int cId = 0; cId < ug.nTCell; ++ cId )
-    {
-        file.read( reinterpret_cast< char * >( & ( * unsf.visl )[ 0 ][ cId ] ), sizeof( double ) );
-    }
-
-    for ( int cId = 0; cId < ug.nTCell; ++ cId )
-    {
-        file.read( reinterpret_cast< char * >( & ( * unsf.vist )[ 0 ][ cId ] ), sizeof( double ) );
-    }
-
-    std::vector< Real > tmp1( ug.nTCell ), tmp2( ug.nTCell );
-
-    for ( int cId = 0; cId < ug.nTCell; ++ cId )
-    {
-        tmp1[ cId ] = ( * unsf.timestep )[ 0 ][ cId ];
-    }
-
-    for ( int cId = 0; cId < ug.nTCell; ++ cId )
-    {
-        file.read( reinterpret_cast< char * >( & ( * unsf.timestep )[ 0 ][ cId ] ), sizeof( double ) );
-    }
-
-    for ( int cId = 0; cId < ug.nTCell; ++ cId )
-    {
-        tmp2[ cId ] = ( * unsf.timestep )[ 0 ][ cId ];
-    }
-
-    turbcom.Init();
-    uturbf.Init();
-    for ( int iCell = 0; iCell < ug.nTCell; ++ iCell )
-    {
-        for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-        {
-            file.read( reinterpret_cast< char * >( & ( * uturbf.q )[ iEqu ][ iCell ] ), sizeof( double ) );
-        }
-    }
-    file.close();
-    file.clear();
-}
-
-
 
 EndNameSpace

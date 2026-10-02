@@ -24,6 +24,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "HXArray.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -46,7 +47,9 @@ public:
 public:
     RealField *q, *dqdx, *dqdy, *dqdz;
     RealField *limiter;
-    RealField * minvf, * maxvf;
+    // FIX: Use std::unique_ptr for automatic memory management
+    std::unique_ptr<RealField> minvf;
+    std::unique_ptr<RealField> maxvf;
     Real minv1, minv2, maxv1, maxv2;
     Real dqdx1, dqdy1, dqdz1;
     Real dqdx2, dqdy2, dqdz2;
@@ -74,7 +77,9 @@ public:
     MRField * dqdx, * dqdy, * dqdz;
     MRField * limiter;
 
-    MRField * qf1, * qf2;
+    // FIX: Moved qf1, qf2 to base class and managed by std::unique_ptr
+    std::unique_ptr<MRField> qf1;
+    std::unique_ptr<MRField> qf2;
     CheckFun ckfun;
 };
 
@@ -85,12 +90,18 @@ public:
     Limiter();
     virtual ~Limiter();
 public:
-    Lim * lim;
-    LimField * limf;
+    // FIX: Use std::unique_ptr for exclusive ownership
+    std::unique_ptr<Lim> lim;
+    std::unique_ptr<LimField> limf;
     int limflag;
 public:
-    void Alloc();
-    void DeAlloc();
+    bool limfIsNullPtr() const {
+        return limf == nullptr;
+    }
+    int GetNEquations() const {
+        return limf->nEqu;
+    }
+public:
     void SetInitValue();
     void CalcLimiter();
     void CalcLimiterScalar();
@@ -103,6 +114,13 @@ public:
     void CalcLocalVencatLimiter();
     void PrepareData();
     void CalcMinMaxDiff();
+public:
+    MRField * GetLeftField() const;
+    MRField * GetRightField() const;
+public:
+    void CalcFaceValue();
+    void GetQlQr();
+    virtual void BcQlQrFix();
 };
 
 bool NoCheck( RealField & q );

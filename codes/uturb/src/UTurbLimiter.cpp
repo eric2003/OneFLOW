@@ -31,15 +31,11 @@ BeginNameSpace( ONEFLOW )
 
 TurbLimField::TurbLimField()
 {
-    qf1 = 0;
-    qf2 = 0;
     this->nEqu = turbcom.nEqu;
 }
 
 TurbLimField::~TurbLimField()
 {
-    delete qf1;
-    delete qf2;
 }
 
 void TurbLimField::Init()
@@ -54,21 +50,20 @@ void TurbLimField::Init()
 
     this->nEqu = q->GetNEqu();
 
-    qf1 = new MRField( this->nEqu, grid->nFaces );
-    qf2 = new MRField( this->nEqu, grid->nFaces );
+    qf1 = std::make_unique<MRField>( this->nEqu, grid->nFaces );
+    qf2 = std::make_unique<MRField>( this->nEqu, grid->nFaces );
 
     this->ckfun = & NoCheck;
 }
 
 TurbLimiter::TurbLimiter()
 {
-    limf = new TurbLimField();
+    limf = std::make_unique<TurbLimField>();
     limflag = ILMT_ZERO;
 }
 
 TurbLimiter::~TurbLimiter()
 {
-    delete limf;
 }
 
 EndNameSpace

@@ -23,12 +23,11 @@ License
 
 #pragma once
 #include "TurbInvFlux.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
 class Limiter;
-class LimField;
-
 
 class UTurbInvFlux : public TurbInvFlux
 {
@@ -36,12 +35,10 @@ public:
     UTurbInvFlux ();
     ~UTurbInvFlux();
 public:
-    Limiter * limiter, * nslimiter;
-    LimField * limf;
+    std::unique_ptr<Limiter> limiter;     // FIX: Changed to unique_ptr
+    std::unique_ptr<Limiter> nslimiter;   // FIX: Changed to unique_ptr
     MRField * invflux;
 public:
-    void Alloc();
-    void DeAlloc();
     void CalcFlux();
     void CalcInvFlux();
     void CalcInvFace();
