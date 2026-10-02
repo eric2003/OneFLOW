@@ -54,7 +54,6 @@ BeginNameSpace(ONEFLOW)
 UINsInvterm::UINsInvterm()
 {
 	limiter = std::make_unique<INsLimiter>();
-	limf = limiter->limf.get();
 }
 
 UINsInvterm::~UINsInvterm()

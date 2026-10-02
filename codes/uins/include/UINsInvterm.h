@@ -31,7 +31,6 @@ BeginNameSpace(ONEFLOW)
 
 class UINsFField;
 class Limiter;
-class LimField;
 class SolveMRhs;
 
 
@@ -72,7 +71,6 @@ public:
     void MomPre();
 public:
     std::unique_ptr<Limiter> limiter; // FIX: Changed to unique_ptr
-    LimField* limf;
     MRField* iinvflux;
 public:
     Real Number;

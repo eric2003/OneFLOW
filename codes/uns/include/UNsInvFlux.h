@@ -53,7 +53,6 @@ public:
     void BoundaryQlQrFixField();
 public:
     std::unique_ptr<Limiter> limiter; // FIX: Changed to unique_ptr
-    LimField * limf;
     MRField * invflux;
 };
 

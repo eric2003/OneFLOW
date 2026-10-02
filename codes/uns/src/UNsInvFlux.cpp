@@ -54,7 +54,6 @@ BeginNameSpace( ONEFLOW )
 UNsInvFlux::UNsInvFlux()
 {
     limiter = std::make_unique<NsLimiter>();
-    limf = limiter->limf.get();
 }
 
 UNsInvFlux::~UNsInvFlux()

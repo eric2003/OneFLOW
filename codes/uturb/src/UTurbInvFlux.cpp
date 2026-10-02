@@ -42,7 +42,6 @@ UTurbInvFlux::UTurbInvFlux()
     limiter = std::make_unique<TurbLimiter>();
     nslimiter = std::make_unique<NsLimiter>();
     nslimiter->limflag = turbcom.tns_ilim;
-    limf = limiter->limf.get();
     limiter->limflag = turbcom.turb_ilim;
 }
 
@@ -100,7 +99,7 @@ void UTurbInvFlux::CalcFlux()
     unsf.Init();
     uturbf.Init();
 
-    invflux = new MRField( limf->nEqu, ug.nFaces );
+    invflux = new MRField( limiter->GetNEquations(), ug.nFaces);
 
     this->CalcInvFace();
     this->CalcInvFlux();

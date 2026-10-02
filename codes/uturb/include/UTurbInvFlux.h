@@ -28,8 +28,6 @@ License
 BeginNameSpace( ONEFLOW )
 
 class Limiter;
-class LimField;
-
 
 class UTurbInvFlux : public TurbInvFlux
 {
@@ -39,7 +37,6 @@ public:
 public:
     std::unique_ptr<Limiter> limiter;     // FIX: Changed to unique_ptr
     std::unique_ptr<Limiter> nslimiter;   // FIX: Changed to unique_ptr
-    LimField * limf;
     MRField * invflux;
 public:
     void CalcFlux();
