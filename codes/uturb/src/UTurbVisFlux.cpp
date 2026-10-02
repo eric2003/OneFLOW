@@ -51,23 +51,13 @@ UTurbVisFlux::~UTurbVisFlux()
 
 }
 
-void UTurbVisFlux::Alloc()
-{
-    visflux = new MRField( turbcom.nEqu, ug.nFaces );
-}
-
-void UTurbVisFlux::DeAlloc()
-{
-    delete visflux;
-}
-
 void UTurbVisFlux::CalcVisFlux()
 {
     ug.Init();
     uturbf.Init();
     visTurb.Init( turbcom.nEqu );
     this->SetVisPointer();
-    Alloc();
+    visflux = new MRField( turbcom.nEqu, ug.nFaces );
     if ( turbcom.nEqu == 1 )
     {
         this->CalcVisFlux1Equ();
@@ -76,7 +66,7 @@ void UTurbVisFlux::CalcVisFlux()
     {
         this->CalcVisFlux2Equ();
     }
-    DeAlloc();
+    delete visflux;
 }
 
 void UTurbVisFlux::SetVisPointer()

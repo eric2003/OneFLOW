@@ -73,16 +73,6 @@ void UINsVisterm::CalcViscoff()
     this->CalcVisterm();
 }
 
-void UINsVisterm::Alloc()
-{
-    visflux = new MRField( nscom.nEqu, ug.nFaces );
-}
-
-void UINsVisterm::DeAlloc()
-{
-    delete visflux;
-}
-
 void UINsVisterm::PrepareField()
 {
 	this->CalcPreandVisGrad();
@@ -225,7 +215,6 @@ void UINsVisterm::CalcVisterm()
 
 void UINsVisterm::CalcFaceVisterm()
 {
-
 	iinv.l2rdx = (*ug.xcc)[ug.rc] - (*ug.xcc)[ug.lc];  //Center distance between left and right units of interface
 	iinv.l2rdy = (*ug.ycc)[ug.rc] - (*ug.ycc)[ug.lc];
 	iinv.l2rdz = (*ug.zcc)[ug.rc] - (*ug.zcc)[ug.lc];

@@ -37,8 +37,6 @@ public:
     VisPointer visPointer;
     MRField * visflux;
 public:
-    void Alloc();
-    void DeAlloc();
     void AddVisFlux();
     void SetVisPointer();
     void CalcVisFlux();

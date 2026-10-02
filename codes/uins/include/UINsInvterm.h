@@ -41,8 +41,6 @@ public:
     UINsInvterm();
     ~UINsInvterm();
 public:
-    void Alloc();
-    void DeAlloc();
 	void CalcINsTimeStep();
 	void CalcINsPreflux();
 	void INsPreflux();
@@ -79,6 +77,5 @@ public:
 public:
     Real Number;
 };
-//void PrimToQ(RealField & prim, Real gama, RealField & q);
 extern UINsInvterm NonZero;
 EndNameSpace

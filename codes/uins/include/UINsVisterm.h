@@ -44,13 +44,8 @@ public:
     
 	void CalcVisterm();
 	void CalcFaceVisterm();
-	//void CalcBcFaceVisterm();
 
-    void Alloc();
-    void DeAlloc();
 	void CalcINsSrc();
-	//void Addcoff();
-
 	void CalcUnsteadcoff();
 public:
     void PrepareFaceValue();
@@ -60,9 +55,5 @@ public:
     void CalcGradCoef();
     void PrepareCellGeom();
 };
-
-//void ICalcLaminarViscosity( int flag );
-
-
 
 EndNameSpace

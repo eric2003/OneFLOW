@@ -97,7 +97,7 @@ void UNsVisFlux::CalcFlux()
     vis.Init();
     heat_flux.Init();
 
-    Alloc();
+    visflux = new MRField( nscom.nEqu, ug.nFaces );
 
     this->SetVisPointer();
 
@@ -105,16 +105,6 @@ void UNsVisFlux::CalcFlux()
     this->CalcVisFlux();
     this->AddVisFlux();
 
-    DeAlloc();
-}
-
-void UNsVisFlux::Alloc()
-{
-    visflux = new MRField( nscom.nEqu, ug.nFaces );
-}
-
-void UNsVisFlux::DeAlloc()
-{
     delete visflux;
 }
 
