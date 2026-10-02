@@ -25,6 +25,7 @@ License
 #include "INsInvterm.h"
 #include "systemSolver.h"
 #include "poisson.h"
+#include <memory>
 
 BeginNameSpace(ONEFLOW)
 
