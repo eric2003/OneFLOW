@@ -28,6 +28,7 @@ License
 #include "UTurbSpectrum.h"
 #include "UTurbUnsteady.h"
 #include "UTurbBcSolver.h"
+#include <memory> // Added for std::make_unique
 
 BeginNameSpace( ONEFLOW )
 
@@ -48,10 +49,9 @@ void TurbRhs::CalcRHS()
 
 void TurbCalcBc()
 {
-    UTurbBcSolver * uTurbBcSolver = new UTurbBcSolver();
-    uTurbBcSolver->Init();
-    uTurbBcSolver->CalcBc();
-    delete uTurbBcSolver;
+    UTurbBcSolver uTurbBcSolver;
+    uTurbBcSolver.Init();
+    uTurbBcSolver.CalcBc();
 }
 
 void TurbCalcRHS()
@@ -72,30 +72,26 @@ void TurbCalcRHS()
 
 void TurbCalcInvFlux()
 {
-    UTurbInvFlux * uTurbInvFlux = new UTurbInvFlux();
-    uTurbInvFlux->CalcFlux();
-    delete uTurbInvFlux;
+    UTurbInvFlux uTurbInvFlux;
+    uTurbInvFlux.CalcFlux();
 }
 
 void TurbCalcVisFlux()
 {
-    UTurbVisFlux * uTurbVisFlux = new UTurbVisFlux();
-    uTurbVisFlux->CalcVisFlux();
-    delete uTurbVisFlux;
+    UTurbVisFlux uTurbVisFlux;
+    uTurbVisFlux.CalcVisFlux();
 }
 
 void TurbCalcSrcFlux()
 {
-    UTurbSrcFlux * uTurbSrcFlux = new UTurbSrcFlux();
-    uTurbSrcFlux->CalcSrcFlux();
-    delete uTurbSrcFlux;
+    UTurbSrcFlux uTurbSrcFlux;
+    uTurbSrcFlux.CalcSrcFlux();
 }
 
 void TurbCalcSpectrum()
 {
-    UTurbSpectrum * uTurbSpectrum = new UTurbSpectrum();
-    uTurbSpectrum->CalcSpectrum();
-    delete uTurbSpectrum;
+    UTurbSpectrum uTurbSpectrum;
+    uTurbSpectrum.CalcSpectrum();
 }
 
 void TurbCalcDualTimeStepSrc()
@@ -103,18 +99,15 @@ void TurbCalcDualTimeStepSrc()
     //dual time step source
     if ( ctrl.idualtime == 1 )
     {
-        UTurbUnsteady * uTurbUnsteady = new UTurbUnsteady();
-        uTurbUnsteady->CalcDualTimeSrc();
-        delete uTurbUnsteady;
+        UTurbUnsteady uTurbUnsteady;
+        uTurbUnsteady.CalcDualTimeSrc();
     }
 }
 
 void CalcTurbulentViscosity()
 {
-    UTurbSrcFlux * uTurbSrcFlux = new UTurbSrcFlux();
-    uTurbSrcFlux->CalcVist();
-    delete uTurbSrcFlux;
-
+    UTurbSrcFlux uTurbSrcFlux;
+    uTurbSrcFlux.CalcVist();
 }
 
 EndNameSpace

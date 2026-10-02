@@ -46,9 +46,8 @@ void DumpResidual( StringField & data )
 {
     int solverType = SolverState::solverType;
 
-    Residual * residual = new UResidual();
-    residual->Dump( solverType );
-    delete residual;
+    UResidual residual;
+    residual.Dump( solverType );
 }
 
 EndNameSpace

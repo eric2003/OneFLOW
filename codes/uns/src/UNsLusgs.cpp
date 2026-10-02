@@ -67,9 +67,8 @@ void UNsLusgs::Init()
 
 void UNsLusgs::CalcSpectrum()
 {
-    UNsSpectrum * unsSpectrum = new UNsSpectrum();
-    unsSpectrum->CalcImplicitSpectrum();
-    delete unsSpectrum;
+    UNsSpectrum unsSpectrum;
+    unsSpectrum.CalcImplicitSpectrum();
 }
 
 void UNsLusgs::LowerSweep()

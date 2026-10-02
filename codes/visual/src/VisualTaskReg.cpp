@@ -64,11 +64,9 @@ void RegisterVisualTask()
 
 void Visualization( StringField & data )
 {
-    Visualize * visualize = new UVisualize();
+    UVisualize visualize;
 
-    visualize->Visual();
-
-    delete visualize;
+    visualize.Visual();
 }
 
 EndNameSpace
