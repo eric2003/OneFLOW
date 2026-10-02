@@ -20,6 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "MolecularProperty.h"
+#include <memory>
 #include "SchmidtNumber.h"
 #include "TextFileParser.h"
 #include "DataBook.h"
@@ -29,12 +30,11 @@ BeginNameSpace( ONEFLOW )
 
 MolecularProperty::MolecularProperty()
 {
-    schmidtNumber = new SchmidtNumber();
+    schmidtNumber = std::make_unique< SchmidtNumber >();
 }
 
 MolecularProperty::~MolecularProperty()
 {
-    delete schmidtNumber;
 }
 
 void MolecularProperty::Init( int nSpecies )

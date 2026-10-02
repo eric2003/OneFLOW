@@ -26,15 +26,19 @@ License
 #include <vector>
 #include <string>
 #include <fstream>
-
+#include <memory> // Added for std::unique_ptr
 
 BeginNameSpace( ONEFLOW )
+
 class NodeMesh;
 class FaceMesh;
 class CellMesh;
 class Mesh;
 class DataBase;
 
+// =====================================================================
+// HXRandomClass (Unchanged)
+// =====================================================================
 class HXRandomClass
 {
 public:
@@ -46,6 +50,12 @@ public:
     static void RangeRandom( int rangeMin, int rangeMax, std::vector< int > & results );
 };
 
+// =====================================================================
+// SimpleMesh2D (Unchanged)
+// Note: It holds a raw Mesh* pointer. Because std::unique_ptr overloads 
+// operator->, existing code like mesh->nodeMesh->xN will continue to 
+// work without any modifications.
+// =====================================================================
 class SimpleMesh2D
 {
 public:
@@ -75,21 +85,33 @@ protected:
     void PushCircleNode( RealField & xArray, RealField & yArray, IntField & nodeArray );
 };
 
-class NodeMesh;
+// =====================================================================
+// Mesh (Refactored)
+// =====================================================================
 class Mesh
 {
 public:
     Mesh();
     ~Mesh();
+
+    // Disable copy to prevent double-free of unique_ptrs
+    Mesh(const Mesh&) = delete;
+    Mesh& operator=(const Mesh&) = delete;
+
 public:
-    NodeMesh * nodeMesh;
-    FaceMesh * faceMesh;
-    CellMesh * cellMesh;
-    DataBase * dataBase;
+    // FIX: Use std::unique_ptr for automatic memory management.
+    std::unique_ptr<NodeMesh> nodeMesh;
+    std::unique_ptr<FaceMesh> faceMesh;
+    std::unique_ptr<CellMesh> cellMesh;
+    std::unique_ptr<DataBase> dataBase;
+
 public:
     void CreateMesh();
+
 public:
-    DataBase * GetDataBase() { return dataBase;  };
+    // Return raw pointer for compatibility with APIs expecting DataBase*
+    DataBase * GetDataBase() { return dataBase.get(); }
+
 public:
     void ConstructTopology();
     void SwapBoundary();

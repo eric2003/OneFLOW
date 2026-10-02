@@ -23,7 +23,6 @@ License
 #include "HeatFluxTask.h"
 #include "HeatFlux.h"
 #include "FaceJoint.h"
-
 #include "Prj.h"
 #include "WallVisual.h"
 #include "AeroForceTask.h"
@@ -48,17 +47,17 @@ License
 #include <fstream>
 #include <iostream>
 
-
 BeginNameSpace( ONEFLOW )
 
 HeatFluxTask::HeatFluxTask()
 {
-    wallManager = new FaceJointManager();
+    // FIX: Use std::make_unique for exception-safe allocation
+    wallManager = std::make_unique< FaceJointManager >();
 }
 
 HeatFluxTask::~HeatFluxTask()
 {
-    delete wallManager;
+    // std::unique_ptr automatically cleans up FaceJointManager
 }
 
 void HeatFluxTask::Run()
@@ -77,50 +76,46 @@ void HeatFluxTask::AllocVariable()
     for ( int zId = 0; zId < ZoneState::nZones; ++ zId )
     {
         ZoneState::zid = zId;
-        wallManager->patch.push_back( new FaceJoint() );
+        // FIX: Use std::make_unique and push_back
+        wallManager->patch.push_back( std::make_unique< FaceJoint >() );
     }
 }
 
 void HeatFluxTask::CollectWallFaceNode()
 {
     ActionState::dataBook = this->dataBook.get();
-
     for ( int zId = 0; zId < ZoneState::nZones; ++ zId )
     {
         ZoneState::zid = zId;
-
         if ( ZoneState::pid[ zId ] == Parallel::pid )
         {
             ONEFLOW::CollectWallFaceNode();
         }
-
         HXBcast( ActionState::dataBook, ZoneState::pid[ zId ] );
-
-        AddWallFaceNode( wallManager, zId );
+        // FIX: Use .get() to pass the raw pointer to legacy global functions
+        AddWallFaceNode( wallManager.get(), zId );
     }
 }
 
 void HeatFluxTask::CollectWallFaceValue()
 {
     ActionState::dataBook = this->dataBook.get();
-
     for ( int zId = 0; zId < ZoneState::nZones; ++ zId )
     {
         ZoneState::zid = zId;
-
         if ( ZoneState::pid[ zId ] == Parallel::pid )
         {
             ONEFLOW::CollectWallFaceValue();
         }
-
         HXBcast( ActionState::dataBook, ZoneState::pid[ zId ] );
-
-        AddWallFaceValue( wallManager, zId );
+        // FIX: Use .get()
+        AddWallFaceValue( wallManager.get(), zId );
     }
 }
 
 void HeatFluxTask::ConstructPointIndex()
 {
+    // unique_ptr overloads operator->, so no .get() needed here
     wallManager->ConstructPointIndex();
 }
 
@@ -133,46 +128,42 @@ void HeatFluxTask::VisualizeWallNodeValue()
 {
     std::fstream file;
     Prj::OpenPrjFile( file, ctrl.heatfluxFile, std::ios_base::out );
-
     int numberOfSubData = wallManager->patch.size();
     int iCount = 0;
     for ( int iData = 0; iData < numberOfSubData; ++ iData )
     {
-        FaceJoint * basicWall = wallManager->patch[ iData ];
+        // FIX: Use .get() to extract the raw pointer from the unique_ptr array
+        FaceJoint * basicWall = wallManager->patch[ iData ].get();
         if ( basicWall->isValid ) iCount ++;
         basicWall->Visual( file );
     }
     Prj::CloseFile( file );
 }
 
+// =====================================================================
+// Global functions (Unchanged, they accept raw pointers)
+// =====================================================================
+
 void CollectWallFaceNode()
 {
     Grid * gridIn = Zone::GetGrid();
     UnsGrid * grid = UnsGridCast( gridIn );
-
     int nSolidCells = GetNumberOfSolidCells( grid );
-
     ActionState::dataBook->MoveToBegin();
-
     HXWrite( ActionState::dataBook, nSolidCells );
-
     if ( nSolidCells <= 0 ) return;
 
     WallStructure::PointLink ptLink;
-
     RealField & x = grid->nodeMesh->xN;
     RealField & y = grid->nodeMesh->yN;
     RealField & z = grid->nodeMesh->zN;
-
     LinkField & f2n = grid->faceTopo->faces;
     IntField & bcType = grid->faceTopo->bcManager->bcRecord->bcType;
-
     int nBFaces = bcType.size();
 
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
         int bc_type = bcType[ iFace ];
-
         if ( bc_type == BC::SOLID_SURFACE )
         {
             WallStructure::PointField ptList;
@@ -183,14 +174,12 @@ void CollectWallFaceNode()
                 Real x0 = x[ index ];
                 Real y0 = y[ index ];
                 Real z0 = z[ index ];
-
                 WallStructure::PointType pt( x0, y0, z0 );
                 ptList.push_back( pt );
             }
             ptLink.push_back( ptList );
         }
     }
-
     HXWrite( ActionState::dataBook, ptLink );
 }
 
@@ -199,16 +188,14 @@ void AddWallFaceNode( FaceJointManager * walldata, int iZone )
     ActionState::dataBook->MoveToBegin();
     int nSolidCells;
     HXRead( ActionState::dataBook, nSolidCells );
-    
     WallStructure::PointLink ptLink;
-
     ptLink.resize( nSolidCells );
     HXRead( ActionState::dataBook, ptLink );
 
     if ( nSolidCells > 0 )
     {
-        FaceJoint * global = walldata->global;
-        FaceJoint * local = walldata->patch[ iZone ];
+        FaceJoint * global = walldata->global.get();
+        FaceJoint * local = walldata->patch[ iZone ].get();
         local->isValid = true;
         global->isValid = true;
         local->AddFacePoint( nSolidCells, ptLink );
@@ -221,17 +208,14 @@ void AddWallFaceValue( FaceJointManager * walldata, int iZone )
     ActionState::dataBook->MoveToBegin();
     int nSolidCells;
     HXRead( ActionState::dataBook, nSolidCells );
-
     RealField fcv;
-
     fcv.resize( nSolidCells );
     HXRead( ActionState::dataBook, fcv );
 
     if ( nSolidCells > 0 )
     {
-        FaceJoint * global = walldata->global;
-        FaceJoint * local  = walldata->patch[ iZone ];
-
+        FaceJoint * global = walldata->global.get();
+        FaceJoint * local  = walldata->patch[ iZone ].get();
         global->AddFaceCenterValue( nSolidCells, fcv );
         local->AddFaceCenterValue( nSolidCells, fcv );
     }
@@ -241,26 +225,17 @@ void CollectWallFaceValue()
 {
     ActionState::dataBook->MoveToBegin();
     ActionState::dataBook->Resize( 0 );
-
     Grid * gridIn = Zone::GetGrid();
     UnsGrid * grid = UnsGridCast( gridIn );
-
     int nSolidCells = GetNumberOfSolidCells( grid );
-
     HXWrite( ActionState::dataBook, nSolidCells );
-
     if ( nSolidCells == 0 ) return;
 
     int zId = ZoneState::zid;
-
-    SurfaceValue * heat_sur = heat_flux.heatflux[ zId ];
-    SurfaceValue * fric_sur = heat_flux.fricflux[ zId ];
-
-    RealField & hf = * heat_sur->var;
-
+    // FIX: Use .get() to access the RealField from the unique_ptr<SurfaceValue>
+    SurfaceValue * heat_sur = heat_flux.heatflux[ zId ].get();
+    RealField & hf = *(heat_sur->var);
     HXWrite( ActionState::dataBook, hf );
 }
-
-
 
 EndNameSpace

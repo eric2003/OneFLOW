@@ -27,6 +27,7 @@ License
 #include "HXArray.h"
 #include <sstream>
 #include <fstream>
+#include <memory> // Added for std::unique_ptr
 
 
 BeginNameSpace( ONEFLOW )
@@ -77,7 +78,8 @@ public:
     LamData();
     ~LamData();
 public:
-    HXVector< PlaneData * > data;
+    // FIX: Use std::unique_ptr for automatic memory management
+    HXVector< std::unique_ptr<PlaneData> > data;
 public:
     void Init();
     void AddVar( RealField & point, int p1, int p2, Real c1, Real c2 );
@@ -98,7 +100,8 @@ public:
 public:
     StringField nameList;
     SliceInfo sliceInfo;
-    HXVector< LamData * > sliceData;
+    // FIX: Use std::unique_ptr for automatic memory management
+    HXVector< std::unique_ptr<LamData> > sliceData;
 public:
     void Init();
     void Slice();

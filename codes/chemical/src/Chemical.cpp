@@ -20,6 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "Chemical.h"
+#include <memory>
 #include "MolecularProperty.h"
 #include "ReactionRate.h"
 #include "Stoichiometric.h"
@@ -53,20 +54,20 @@ Chemical::~Chemical()
 
 void Chemical::Alloc()
 {
-    moleProp = new MolecularProperty();
-    reactionRate = new ReactionRate();
-    stoichiometric = new Stoichiometric();
-    blotterCurve = new BlotterCurve();
-    thermodynamic = new Thermodynamic();
+    moleProp = std::make_unique< MolecularProperty >();
+    reactionRate = std::make_unique< ReactionRate >();
+    stoichiometric = std::make_unique< Stoichiometric >();
+    blotterCurve = std::make_unique< BlotterCurve >();
+    thermodynamic = std::make_unique< Thermodynamic >();
 }
 
 void Chemical::DeAlloc()
 {
-    delete moleProp;
-    delete reactionRate;
-    delete stoichiometric;
-    delete blotterCurve;
-    delete thermodynamic;
+    moleProp.reset();
+    reactionRate.reset();
+    stoichiometric.reset();
+    blotterCurve.reset();
+    thermodynamic.reset();
 }
 
 void Chemical::InitGasModel()

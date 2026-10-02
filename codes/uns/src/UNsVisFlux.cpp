@@ -165,7 +165,13 @@ void UNsVisFlux::SaveHeatFlux()
 {
     if ( ug.fId >= ug.nBFaces ) return;
     if ( ug.bcRecord->bcType[ ug.fId ] != BC::SOLID_SURFACE ) return;
-    SurfaceValue * heat_sur = heat_flux.heatflux[ ZoneState::zid ];
+
+    // FIX: Use .get() to obtain the non-owning raw pointer.
+    SurfaceValue * heat_sur = heat_flux.heatflux[ ZoneState::zid ].get();
+
+    // FIX: Dereference the unique_ptr to get the RealField reference.
+    RealField & hf = *(heat_sur->var);
+
     Real non_dim_heatflux = - nscom.oreynolds * vis.qNormal;
     heat_sur->var->push_back( non_dim_heatflux );
 }

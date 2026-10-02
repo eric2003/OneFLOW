@@ -21,15 +21,11 @@ License
 \*---------------------------------------------------------------------------*/
 #include "ADTTest.h"
 #include "SimuBase.h"
-#include "AdtTree.h"
+#include "HXAdtTree.h"
 #include <iostream> 
 #include <cassert>
 
 BeginNameSpace( ONEFLOW )
-
-// ============================================================================
-// 3. Test Cases (≤‚ ‘”√¿˝)
-// ============================================================================
 
 void TestBasicInsertionAndCount() {
     std::cout << "Running Test 1: Basic Insertion and Count... ";

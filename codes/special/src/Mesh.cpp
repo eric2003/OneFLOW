@@ -341,35 +341,40 @@ void SimpleMesh2D::PushCircleNode( RealField & xArray, RealField & yArray, IntFi
     }
 }
 
+// =====================================================================
+// Mesh Implementation (Refactored)
+// =====================================================================
+
 Mesh::Mesh()
 {
-    nodeMesh = 0;
-    faceMesh = 0;
-    cellMesh = 0;
-    dataBase = new DataBase();
+    // std::unique_ptr members are automatically initialized to nullptr.
+    // We only need to explicitly initialize dataBase as it was in the original code.
+    dataBase = std::make_unique<DataBase>();
 }
 
 Mesh::~Mesh()
 {
-    delete nodeMesh;
-    delete faceMesh;
-    delete cellMesh;
-    delete dataBase;
+    // std::unique_ptr automatically cleans up resources.
+    // No manual delete needed.
 }
 
 void Mesh::CreateMesh()
 {
     std::cout << "Mesh::CreateMesh()\n";
-    nodeMesh = new NodeMesh();
-    faceMesh = new FaceMesh();
-    cellMesh = new CellMesh();
+
+    // FIX: Use std::make_unique for exception-safe allocation.
+    // If CreateMesh is called multiple times, the old resources are 
+    // automatically released before reassignment, preventing leaks.
+    nodeMesh = std::make_unique<NodeMesh>();
+    faceMesh = std::make_unique<FaceMesh>();
+    cellMesh = std::make_unique<CellMesh>();
 
     SimpleMesh2D simpleMesh2D;
     simpleMesh2D.SetMesh( this );
     simpleMesh2D.GenerateMesh();
+
     this->ConstructTopology();
     ONEFLOW::Visual::Show( this );
-
     this->CalcMetrics();
 }
 
@@ -513,7 +518,7 @@ void Mesh::SwapBoundary()
 void Mesh::AllocateMetrics()
 {
     this->faceMesh->AllocateMetrics();
-    this->cellMesh->AllocateMetrics( this->faceMesh );
+    this->cellMesh->AllocateMetrics( this->faceMesh.get() );
 }
 
 void Mesh::CalcMetrics()
@@ -558,22 +563,22 @@ void Mesh::CalcMetrics3D()
 
 void Mesh::CalcFaceNormal2D()
 {
-    this->faceMesh->CalcFaceNormal2D( this->nodeMesh );
+    this->faceMesh->CalcFaceNormal2D( this->nodeMesh.get() );
 }
 
 void Mesh::CalcFaceCenter2D()
 {
-    this->faceMesh->CalcFaceCenter2D( this->nodeMesh );
+    this->faceMesh->CalcFaceCenter2D( this->nodeMesh.get() );
 }
 
 void Mesh::CalcFaceCenter1D()
 {
-    this->faceMesh->CalcFaceCenter1D( this->nodeMesh );
+    this->faceMesh->CalcFaceCenter1D( this->nodeMesh.get() );
 }
 
 void Mesh::CalcFaceNormal1D()
 {
-    this->faceMesh->CalcFaceNormal1D( this->nodeMesh, this->cellMesh );
+    this->faceMesh->CalcFaceNormal1D( this->nodeMesh.get(), this->cellMesh.get() );
 }
 
 void Mesh::CalcCellCenterVol1D()
@@ -913,12 +918,12 @@ void Mesh::CalcCellCenterVol3D()
 
 void Mesh::CalcFaceNormal3D()
 {
-    this->faceMesh->CalcFaceNormal3D( this->nodeMesh );
+    this->faceMesh->CalcFaceNormal3D( this->nodeMesh.get() );
 }
 
 void Mesh::CalcFaceCenter3D()
 {
-    this->faceMesh->CalcFaceCenter3D( this->nodeMesh );
+    this->faceMesh->CalcFaceCenter3D( this->nodeMesh.get() );
 }
 
 

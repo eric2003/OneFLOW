@@ -20,14 +20,13 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
 #pragma once
 #include "Point.h"
+#include <memory> // Added for std::unique_ptr
 
 BeginNameSpace( ONEFLOW )
 
 class FaceJointManager;
-
 class PointLocator;
 class FaceJoint;
 
@@ -36,9 +35,16 @@ class FaceJointManager
 public:
     FaceJointManager();
     ~FaceJointManager();
+
+    // FIX: Disable copy to prevent double-free of unique_ptrs
+    FaceJointManager(const FaceJointManager&) = delete;
+    FaceJointManager& operator=(const FaceJointManager&) = delete;
+
 public:
-    HXVector< FaceJoint * > patch;
-    FaceJoint * global;
+    // FIX: Use std::unique_ptr for automatic memory management
+    HXVector< std::unique_ptr< FaceJoint > > patch;
+    std::unique_ptr< FaceJoint > global;
+
 public:
     void ConstructPointIndex();
     void CalcNodeValue();
@@ -52,31 +58,44 @@ public:
     using PointType = Point< Real >;
     using PointField = HXVector< PointType >;
     using PointLink = HXVector< PointField >;
+
 public:
     FaceJoint();
     ~FaceJoint();
+
+    // FIX: Disable copy to prevent double-free of unique_ptrs
+    FaceJoint(const FaceJoint&) = delete;
+    FaceJoint& operator=(const FaceJoint&) = delete;
+
 public:
     bool isValid;
     IntField l2g;
+
 public:
-    PointLink fvp; //face vertex point;
-    LinkField fLink; //face link
+    PointLink fvp; 
+    LinkField fLink; 
     IntField  weightId;
-    RealField fcv; //face center value
-    RealField fnv; //face node value
+    RealField fcv; 
+    RealField fnv; 
+
 public:
     RealField pmin, pmax;
     Real dismin, dismax;
-    PointLocator * ps;
-    WallVisual * wallVisual;
+
+    // FIX: Use std::unique_ptr for automatic memory management
+    std::unique_ptr< PointLocator > ps;
+    std::unique_ptr< WallVisual > wallVisual;
+
 public:
     void CalcBoundBox();
     void ConstructPointIndex();
     void ConstructPointIndexMap( FaceJoint * globalBasicWall );
     void CalcNodeValue();
     void RemapNodeValue( FaceJoint * globalBasicWall );
+
 public:
     int GetSize() { return fvp.size(); }
+
 public:
     void AddFacePoint( int nSolidCells, FaceJoint::PointLink & ptLink );
     void AddFaceCenterValue( int nSolidCells, RealField & fcvIn );

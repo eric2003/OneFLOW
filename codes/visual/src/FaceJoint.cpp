@@ -31,41 +31,36 @@ BeginNameSpace( ONEFLOW )
 
 FaceJointManager::FaceJointManager()
 {
-    global = new FaceJoint();
+    // FIX: Use std::make_unique for exception-safe allocation
+    global = std::make_unique< FaceJoint >();
 }
 
 FaceJointManager::~FaceJointManager()
 {
-    delete global;
-    int nZone = this->patch.size();
-    for ( int zId = 0; zId < nZone; ++ zId )
-    {
-        delete this->patch[ zId ];
-    }
+    // std::unique_ptr automatically cleans up resources
 }
 
 void FaceJointManager::ConstructPointIndex()
 {
     this->global->ConstructPointIndex();
-
     int nLocal = this->patch.size();
     for ( int iLocal = 0; iLocal < nLocal; ++ iLocal )
     {
-        FaceJoint * local = this->patch[ iLocal ];
+        // FIX: Use .get() to access the raw pointer for non-owning operations
+        FaceJoint * local = this->patch[ iLocal ].get();
         local->ConstructPointIndex();
-        local->ConstructPointIndexMap( this->global );
+        local->ConstructPointIndexMap( this->global.get() );
     }
 }
 
 void FaceJointManager::CalcNodeValue()
 {
     this->global->CalcNodeValue();
-
     int nLocal = this->patch.size();
     for ( int iLocal = 0; iLocal < nLocal; ++ iLocal )
     {
-        FaceJoint * local = this->patch[ iLocal ];
-        local->RemapNodeValue( this->global );
+        FaceJoint * local = this->patch[ iLocal ].get();
+        local->RemapNodeValue( this->global.get() );
     }
 }
 
@@ -73,15 +68,15 @@ FaceJoint::FaceJoint()
 {
     pmin.resize( 3 );
     pmax.resize( 3 );
-    ps = new PointLocator();
-    wallVisual = new WallVisual();
+    // FIX: Use std::make_unique
+    ps = std::make_unique< PointLocator >();
+    wallVisual = std::make_unique< WallVisual >();
     isValid = false;
 }
 
 FaceJoint::~FaceJoint()
 {
-    delete ps;
-    delete wallVisual;
+    // std::unique_ptr automatically cleans up PointLocator and WallVisual
 }
 
 void FaceJoint::CalcBoundBox()

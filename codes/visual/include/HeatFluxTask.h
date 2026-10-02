@@ -20,10 +20,10 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
 #pragma once
 #include "Task.h"
 #include "Point.h"
+#include <memory> // Added for std::unique_ptr
 
 BeginNameSpace( ONEFLOW )
 
@@ -34,10 +34,18 @@ class HeatFluxTask : public Task
 public:
     HeatFluxTask ();
     ~HeatFluxTask() override;
+
+    // FIX: Disable copy to prevent double-free of unique_ptr
+    HeatFluxTask(const HeatFluxTask&) = delete;
+    HeatFluxTask& operator=(const HeatFluxTask&) = delete;
+
 public:
-    FaceJointManager * wallManager;
+    // FIX: Use std::unique_ptr for automatic memory management
+    std::unique_ptr< FaceJointManager > wallManager;
+
 public:
     void Run() override;
+
 public:
     void AllocVariable();
     void CollectWallFaceNode();
@@ -49,12 +57,11 @@ public:
 
 class PointLocator;
 class FaceJoint;
-
 class Grid;
 
+// Global helper functions (still use raw pointers for backward compatibility)
 void AddWallFaceNode( FaceJointManager * walldata, int iZone );
 void AddWallFaceValue( FaceJointManager * walldata, int iZone );
-
 void CollectWallFaceNode();
 void CollectWallFaceValue();
 

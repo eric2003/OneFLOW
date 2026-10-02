@@ -24,6 +24,7 @@ License
 #pragma once
 #include "Visualize.h"
 #include <sstream>
+#include <memory>
 
 
 BeginNameSpace( ONEFLOW )
@@ -37,7 +38,8 @@ public:
     ~VisualTool();
 public:
     StringField title;
-    HXVector< MRField * > qNodeField;
+    // FIX: Use std::unique_ptr for automatic memory management
+    HXVector< std::unique_ptr<MRField> > qNodeField;
 public:
     void Init();
     void AddTitle( const std::string & varName );

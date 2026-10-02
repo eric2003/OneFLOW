@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "UnsGrid.h"
+#include <memory>
 #include "BcRecord.h"
 #include "InterFace.h"
 #include "HXMath.h"
@@ -452,11 +453,9 @@ void UnsGrid::GetMinMaxDistance( Real & dismin, Real & dismax )
 
 void UnsGrid::WriteGrid( std::fstream & file )
 {
-    DataBook * databook = new DataBook();
-    this->WriteGrid( databook );
+    auto databook = std::make_unique< DataBook >();
+    this->WriteGrid( databook.get() );
     databook->WriteFile( file );
-    delete databook;
-
 }
 
 

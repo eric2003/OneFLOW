@@ -237,12 +237,9 @@ LamData::LamData()
 
 LamData::~LamData()
 {
-    int nField = data.size();
-    for ( int i = 0; i < nField; ++ i )
-    {
-        delete data[ i ];
-    }
+    // std::unique_ptr automatically cleans up PlaneData objects
 }
+
 
 void LamData::Init()
 {
@@ -310,12 +307,9 @@ CuttingClass::CuttingClass()
 
 CuttingClass::~CuttingClass()
 {
-    int nSlice = sliceData.size();
-    for ( int i = 0; i < nSlice; ++ i )
-    {
-        delete sliceData[ i ];
-    }
+    // std::unique_ptr automatically cleans up LamData objects
 }
+
 
 void CuttingClass::Init()
 {
@@ -323,15 +317,17 @@ void CuttingClass::Init()
     sliceData.resize( nSlice );
     for ( int i = 0; i < nSlice; ++ i )
     {
-        sliceData[ i ] = new LamData();
+        // FIX: Use std::make_unique
+        sliceData[ i ] = std::make_unique<LamData>();
     }
 }
 
 void CuttingClass::Slice()
 {
     int nField = nameList.size();
-    HXVector< MRField * > fields( nField );
 
+    // FIX: Use std::unique_ptr array to prevent memory leaks if an exception occurs
+    HXVector< std::unique_ptr<MRField> > fields( nField );
     for ( int i = 0; i < nField; ++ i )
     {
         fields[ i ] = InterpolateCellToNode( nameList[ i ] );
@@ -340,25 +336,19 @@ void CuttingClass::Slice()
     int nSlice = sliceData.size();
     for ( int iSlice = 0; iSlice < nSlice; ++ iSlice )
     {
-        LamData * lam = sliceData[ iSlice ];
-
+        LamData * lam = sliceData[ iSlice ].get();
         for ( int j = 0; j < nField; ++ j )
         {
-            PlaneData * pd = new PlaneData();
-            pd->nodedata = fields[ j ];
-            lam->data.push_back( pd );
+            auto pd = std::make_unique<PlaneData>();
+            pd->nodedata = fields[ j ].get(); // Non-owning observer pointer
+            lam->data.push_back( std::move(pd) );
         }
         lam->Init();
     }
 
     for ( int iSlice = 0; iSlice < nSlice; ++ iSlice )
     {
-        this->CutPlane( sliceInfo.slicepos[ iSlice ], sliceInfo.dir1[ iSlice ], this->sliceData[ iSlice ] );
-    }
-
-    for ( int i = 0; i < nField; ++ i )
-    {
-        delete fields[ i ];
+        this->CutPlane( sliceInfo.slicepos[ iSlice ], sliceInfo.dir1[ iSlice ], this->sliceData[ iSlice ].get() );
     }
 }
 
@@ -373,7 +363,7 @@ void CuttingClass::Write( DataBook * dataBook )
         HXWrite( dataBook, sliceInfo.dir1[ i ] );
         HXWrite( dataBook, sliceInfo.dir2[ i ] );
 
-        LamData * lamData = sliceData[ i ];
+        LamData * lamData = sliceData[ i ].get();
         lamData->Write( dataBook );
     }
 }
@@ -391,7 +381,7 @@ void CuttingClass::Read( DataBook * dataBook )
         HXRead( dataBook, dir1 );
         HXRead( dataBook, dir2 );
 
-        LamData * lamData = sliceData[ i ];
+        LamData * lamData = sliceData[ i ].get();
         lamData->Read( dataBook );
     }
 }

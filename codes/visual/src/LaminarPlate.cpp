@@ -91,7 +91,7 @@ void LamVelCut::Dump()
     int nSlice = sliceData.size();
     for ( int i = 0; i < nSlice; ++ i )
     {
-        LamData * lamData = sliceData[ i ];
+        LamData * lamData = sliceData[ i ].get();
         this->Dump( lamData, file, sliceInfo.dir2[ i ] );
     }
 
@@ -174,7 +174,7 @@ void LamFriCut::Dump()
     int nSlice = sliceData.size();
     for ( int i = 0; i < nSlice; ++ i )
     {
-        LamData * lamData = sliceData[ i ];
+        LamData * lamData = sliceData[ i ].get();
         this->Dump( lamData, file, sliceInfo.dir2[ i ] );
     }
 
@@ -227,20 +227,17 @@ void LamFriCut::Dump( LamData * lamData, std::fstream & file, int axis )
 
 LaminarFlatPlateTask::LaminarFlatPlateTask()
 {
-    velCut = new LamVelCut();
-    friCut = new LamFriCut();
+    velCut = std::make_unique<LamVelCut>();
+    friCut = std::make_unique<LamFriCut>();
 }
 
-LaminarFlatPlateTask::~LaminarFlatPlateTask()
-{
-    delete velCut;
-    delete friCut;
-}
+LaminarFlatPlateTask::~LaminarFlatPlateTask() = default;
+
 
 void LaminarFlatPlateTask::Run()
 {
-    this->OutProfile( velCut );
-    this->OutProfile( friCut );
+    this->OutProfile( velCut.get() );
+    this->OutProfile( friCut.get() );
 }
 
 void LaminarFlatPlateTask::OutProfile( CuttingClass * cut )

@@ -30,34 +30,32 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-MRField * AllocateNodeField( int nEqu )
+std::unique_ptr<MRField> AllocateNodeField( int nEqu )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     int nNodes = grid->nNodes;
-    MRField * nf = new MRField( nEqu, nNodes );
-    return nf;
+    return std::make_unique<MRField>( nEqu, nNodes );
 }
 
-MRField * InterpolateCellToNode( const std::string & name )
+std::unique_ptr<MRField> InterpolateCellToNode( const std::string & name )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     MRField * cf = GetFieldPointer< MRField > ( grid, name );
     int nNodes = grid->nNodes;
     int nEqu = cf->GetNEqu();
 
-    MRField * nf = AllocateNodeField( nEqu );
+    auto nf = AllocateNodeField( nEqu );
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
-        InterpolateCellToNodeForComponent( ( * nf )[ iEqu ], ( * cf )[ iEqu ] );
+        InterpolateCellToNodeForComponent( (*nf)[ iEqu ], (*cf)[ iEqu ] );
     }
     return nf;
 }
 
-MRField * InterpolateCellToNode( RealField & qc )
+std::unique_ptr<MRField> InterpolateCellToNode( RealField & qc )
 {
-    UnsGrid * grid = Zone::GetUnsGrid();
-    MRField * fn = AllocateNodeField( 1 );
-    InterpolateCellToNodeForComponent( ( * fn )[ 0 ], qc );
+    auto fn = AllocateNodeField( 1 );
+    InterpolateCellToNodeForComponent( (*fn)[ 0 ], qc );
     return fn;
 }
 

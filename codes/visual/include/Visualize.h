@@ -20,12 +20,11 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
 #pragma once
 #include "HXDefine.h"
 #include "HXArray.h"
 #include <sstream>
-
+#include <memory> // Added
 
 BeginNameSpace( ONEFLOW )
 
@@ -37,6 +36,7 @@ public:
 public:
     virtual void Visual(){};
 };
+
 
 class Plot
 {
