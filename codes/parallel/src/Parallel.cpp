@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Parallel.h"
+#include <vector>
 #include <memory>
 #include "BasicParallel.h"
 #include "DataBook.h"
@@ -222,19 +223,19 @@ void HXBcastString( std::string & cs, int pid )
 
     int nlen1 = nlen + 1;
 
-    char * data = new char[ nlen1 ];
+    std::vector<char> data( static_cast<std::size_t>( nlen1 ), '\0' );
+    if ( pid == Parallel::pid )
+    {
+        cs.copy( data.data(), nlen );
+    }
 
-    cs.copy( data, nlen );
-
-    HXBcast( data, nlen, pid );
+    HXBcast( data.data(), nlen, pid );
 
     if ( pid != Parallel::pid )
     {
-        data[ nlen ] = '\0';
-        cs = data;
+        data[ static_cast<std::size_t>( nlen ) ] = '\0';
+        cs = data.data();
     }
-
-    delete[] data;
 }
 
 EndNameSpace
