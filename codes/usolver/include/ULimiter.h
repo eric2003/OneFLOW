@@ -95,6 +95,13 @@ public:
     std::unique_ptr<LimField> limf;
     int limflag;
 public:
+    bool limfIsNullPtr() const {
+        return limf == nullptr;
+    }
+    int GetNEquations() const {
+        return limf->nEqu;
+    }
+public:
     void Alloc();
     void DeAlloc();
     void SetInitValue();

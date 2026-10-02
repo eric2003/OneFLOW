@@ -68,20 +68,20 @@ void UTurbInvFlux::CalcInvFace()
 
 void UTurbInvFlux::GetQlQrField()
 {
-    limf->GetQlQr();
-    nslimiter->limf->GetQlQr();
+    limiter->GetQlQr();
+    nslimiter->GetQlQr();
 }
 
 void UTurbInvFlux::ReconstructFaceValueField()
 {
-    limf->CalcFaceValue();
-    nslimiter->limf->CalcFaceValue();
+    limiter->CalcFaceValue();
+    nslimiter->CalcFaceValue();
 }
 
 void UTurbInvFlux::BoundaryQlQrFixField()
 {
-    limf->BcQlQrFix();
-    nslimiter->limf->BcQlQrFix();
+    limiter->BcQlQrFix();
+    nslimiter->BcQlQrFix();
 }
 
 void UTurbInvFlux::AddInvFlux()
@@ -90,29 +90,6 @@ void UTurbInvFlux::AddInvFlux()
     MRField * res = GetFieldPointer< MRField >( grid, "turbres" );
 
     ONEFLOW::AddF2CField( res, invflux );
-
-    std::vector< std::vector< Real > > tmp( turbcom.nEqu );
-    for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-    {
-        tmp[ iEqu ].resize( ug.nCells );
-        for ( int cId = 0; cId < ug.nCells; ++ cId )
-        {
-            tmp[ iEqu ][ cId ] = ( * invflux  )[ iEqu ][ cId ];
-        }
-    }
-
-    {
-    std::vector< std::vector< Real > > tmp( turbcom.nEqu );
-    for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-    {
-        tmp[ iEqu ].resize( ug.nCells );
-        for ( int cId = 0; cId < ug.nCells; ++ cId )
-        {
-            tmp[ iEqu ][ cId ] = ( * res   )[ iEqu ][ cId ];
-        }
-    }
-
-    }
 }
 
 void UTurbInvFlux::Alloc()
@@ -167,28 +144,38 @@ void UTurbInvFlux::PrepareFaceValue()
     gcom.vfn   = ( * ug.vfn   )[ ug.fId ];
     gcom.farea = ( * ug.farea )[ ug.fId ];
 
-    for ( int iEqu = 0; iEqu < limf->nEqu; ++ iEqu )
+    MRField * qf1 = limiter->GetLeftField();
+    MRField * qf2 = limiter->GetRightField();
+
+    int nEquations = limiter->GetNEquations();
+
+    for ( int iEqu = 0; iEqu < nEquations; ++ iEqu )
     {
-        inv.prim1[ iEqu ] = ( * limf->qf1 )[ iEqu ][ ug.fId ];
-        inv.prim2[ iEqu ] = ( * limf->qf2 )[ iEqu ][ ug.fId ];
+        inv.prim1[ iEqu ] = ( * qf1 )[ iEqu ][ ug.fId ];
+        inv.prim2[ iEqu ] = ( * qf2 )[ iEqu ][ ug.fId ];
     }
 
-    inv.rl = ( * nslimiter->limf->qf1 )[ IDX::IR ][ ug.fId ];
-    inv.ul = ( * nslimiter->limf->qf1 )[ IDX::IU ][ ug.fId ];
-    inv.vl = ( * nslimiter->limf->qf1 )[ IDX::IV ][ ug.fId ];
-    inv.wl = ( * nslimiter->limf->qf1 )[ IDX::IW ][ ug.fId ];
+    MRField * ns_qf1 = nslimiter->GetLeftField();
+    MRField * ns_qf2 = nslimiter->GetRightField();
 
-    inv.rr = ( * nslimiter->limf->qf2 )[ IDX::IR ][ ug.fId ];
-    inv.ur = ( * nslimiter->limf->qf2 )[ IDX::IU ][ ug.fId ];
-    inv.vr = ( * nslimiter->limf->qf2 )[ IDX::IV ][ ug.fId ];
-    inv.wr = ( * nslimiter->limf->qf2 )[ IDX::IW ][ ug.fId ];
+    inv.rl = ( * ns_qf1 )[ IDX::IR ][ ug.fId ];
+    inv.ul = ( * ns_qf1 )[ IDX::IU ][ ug.fId ];
+    inv.vl = ( * ns_qf1 )[ IDX::IV ][ ug.fId ];
+    inv.wl = ( * ns_qf1 )[ IDX::IW ][ ug.fId ];
+
+    inv.rr = ( * ns_qf2 )[ IDX::IR ][ ug.fId ];
+    inv.ur = ( * ns_qf2 )[ IDX::IU ][ ug.fId ];
+    inv.vr = ( * ns_qf2 )[ IDX::IV ][ ug.fId ];
+    inv.wr = ( * ns_qf2 )[ IDX::IW ][ ug.fId ];
 }
 
 void UTurbInvFlux::UpdateFaceInvFlux()
 {
     TurbInv & inv = turbInv;
 
-    for ( int iEqu = 0; iEqu < limf->nEqu; ++ iEqu )
+    int nEquations = limiter->GetNEquations();
+
+    for ( int iEqu = 0; iEqu < nEquations; ++ iEqu )
     {
         ( * invflux )[ iEqu ][ ug.fId ] = gcom.farea * inv.flux[ iEqu ];
     }

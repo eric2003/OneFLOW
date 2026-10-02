@@ -142,13 +142,13 @@ bool UNsInvFlux::UseCpuBatchAdapter() const
     if ( enabled == nullptr || enabled[ 0 ] != '1' ) return false;
     if ( AccelRuntime::Instance().IsAccelerator() ) return false;
     return nscom.ischeme == ISCHEME_LAX_FRIEDRICHS
-        && nscom.nEqu == 5 && limf != nullptr && limf->nEqu == 5;
+        && nscom.nEqu == 5 && !limiter->limfIsNullPtr() && limiter->GetNEquations() == 5;
 }
 
 void UNsInvFlux::CalcInvFluxCpuBatch()
 {
     const int nFaces = ug.nFaces;
-    const int nEquations = limf->nEqu;
+    const int nEquations = limiter->GetNEquations();
     std::vector< Real > primitiveLeft( nEquations * nFaces );
     std::vector< Real > primitiveRight( nEquations * nFaces );
     std::vector< Real > xNormal( nFaces );
@@ -222,10 +222,15 @@ void UNsInvFlux::PrepareFaceValue()
     inv.gama2 = nscom.gama2;
     inv.gama  = half * ( inv.gama1 + inv.gama2 );
 
-    for ( int iEqu = 0; iEqu < limf->nEqu; ++ iEqu )
+    MRField * qf1 = limiter->GetLeftField();
+    MRField * qf2 = limiter->GetRightField();
+
+    int nEquations = limiter->GetNEquations();
+
+    for ( int iEqu = 0; iEqu < nEquations; ++ iEqu )
     {
-        inv.prim1[ iEqu ] = ( * limf->qf1 )[ iEqu ][ ug.fId ];
-        inv.prim2[ iEqu ] = ( * limf->qf2 )[ iEqu ][ ug.fId ];
+        inv.prim1[ iEqu ] = ( * qf1 )[ iEqu ][ ug.fId ];
+        inv.prim2[ iEqu ] = ( * qf2 )[ iEqu ][ ug.fId ];
     }
 }
 
@@ -241,7 +246,11 @@ void UNsInvFlux::DumpInvFluxTrace()
 {
     const char * traceFile = std::getenv( "ONEFLOW_UNS_TRACE_FILE" );
     if ( traceFile == nullptr || traceFile[ 0 ] == '\0' ) return;
-    if ( limf == nullptr || limf->qf1 == nullptr || limf->qf2 == nullptr
+
+    MRField * qf1 = limiter->GetLeftField();
+    MRField * qf2 = limiter->GetRightField();
+
+    if ( limiter->limfIsNullPtr() || qf1 == nullptr || qf2 == nullptr
          || invflux == nullptr )
     {
         throw std::runtime_error(
@@ -257,7 +266,7 @@ void UNsInvFlux::DumpInvFluxTrace()
     const char magic[ 8 ] = { 'O', 'F', 'T', 'R', 'C', '0', '1', '\0' };
     const std::uint64_t nFaces = static_cast< std::uint64_t >( ug.nFaces );
     const std::uint32_t nEquations =
-        static_cast< std::uint32_t >( limf->nEqu );
+        static_cast< std::uint32_t >( limiter->GetNEquations() );
     const std::uint32_t nArrays = 3;
     output.write( magic, sizeof( magic ) );
     output.write(

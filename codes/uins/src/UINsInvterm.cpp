@@ -85,18 +85,17 @@ void UINsInvterm::CalcInvFace()  //Cell data reconstruction
 
 void UINsInvterm::GetQlQrField()
 {
-	limf->GetQlQr();
+	limiter->GetQlQr();
 }
 
 void UINsInvterm::ReconstructFaceValueField()
 {
-	limf->CalcFaceValue();
-	//limf->CalcFaceValueWeighted();
+	limiter->CalcFaceValue();
 }
 
 void UINsInvterm::BoundaryQlQrFixField()
 {
-	limf->BcQlQrFix();
+	limiter->BcQlQrFix();
 }
 
 void UINsInvterm::CalcInvcoff()
@@ -105,12 +104,8 @@ void UINsInvterm::CalcInvcoff()
 	iinv.Init();
 	ug.Init();
 	uinsf.Init();
-	//Alloc();
 
-	//this->CalcInvFace();
 	this->CalcInvMassFlux();  //needs to be changed
-
-   //DeAlloc();
 }
 
 void UINsInvterm::CalcINsTimeStep()
@@ -334,10 +329,15 @@ void UINsInvterm::PrepareFaceValue()
 	iinv.gama1 = nscom.gama1;
 	iinv.gama2 = nscom.gama2;
 
-	for (int iEqu = 0; iEqu < limf->nEqu; ++iEqu)
+	const int nEquations = limiter->GetNEquations();
+
+	MRField * qf1 = limiter->GetLeftField();
+	MRField * qf2 = limiter->GetRightField();
+
+	for ( int iEqu = 0; iEqu < nEquations; ++ iEqu )
 	{
-		iinv.prim1[iEqu] = (*limf->q)[iEqu][ug.lc];
-		iinv.prim2[iEqu] = (*limf->q)[iEqu][ug.rc];
+		iinv.prim1[ iEqu ] = ( * qf1 )[ iEqu ][ ug.fId ];
+		iinv.prim2[ iEqu ] = ( * qf2 )[ iEqu ][ ug.fId ];
 	}
 }
 
@@ -349,9 +349,6 @@ void UINsInvterm::PrepareProFaceValue()
 	gcom.vfn = (*ug.vfn)[ug.fId];
 	gcom.farea = (*ug.farea)[ug.fId];
 
-
-	//for (int iEqu = 0; iEqu < limf->nEqu; ++iEqu)
-	//{
 	iinv.prim1[IIDX::IIR] = (*uinsf.q)[IIDX::IIR][ug.lc];
 	iinv.prim1[IIDX::IIU] = iinv.uc[ug.lc];
 	iinv.prim1[IIDX::IIV] = iinv.vc[ug.lc];
@@ -363,7 +360,7 @@ void UINsInvterm::PrepareProFaceValue()
 	iinv.prim2[IIDX::IIV] = iinv.vc[ug.rc];
 	iinv.prim2[IIDX::IIW] = iinv.vc[ug.rc];
 	iinv.prim2[IIDX::IIP] = (*uinsf.q)[IIDX::IIP][ug.rc];
-	//}
+
 }
 
 UINsInvterm NonZero;
