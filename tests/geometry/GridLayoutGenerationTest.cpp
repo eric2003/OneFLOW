@@ -48,6 +48,7 @@ TEST( GridLayoutGenerationTest, GeneratesMinimalRectangle )
     SetDataString( "sourceGridFileName", outputFile.string() );
     SetDataString( "sourceGridBcName", bcFile.string() );
     SetDataString( "targetGridFileName", outputFile.string() );
+    SetDataString( "part_uns_file", ( outputDir / "partition.uns" ).string() );
 
     GridMachine().Run( layoutFile.string() );
 
