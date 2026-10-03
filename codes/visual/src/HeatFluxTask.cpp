@@ -148,7 +148,7 @@ void CollectWallFaceNode()
 {
     Grid * gridIn = Zone::GetGrid();
     UnsGrid * grid = UnsGridCast( gridIn );
-    int nSolidCells = GetNumberOfSolidCells( grid );
+    int nSolidCells = GetNumberOfSolidCells( *grid );
     ActionState::dataBook->MoveToBegin();
     HXWrite( ActionState::dataBook, nSolidCells );
     if ( nSolidCells <= 0 ) return;
@@ -227,7 +227,7 @@ void CollectWallFaceValue()
     ActionState::dataBook->Resize( 0 );
     Grid * gridIn = Zone::GetGrid();
     UnsGrid * grid = UnsGridCast( gridIn );
-    int nSolidCells = GetNumberOfSolidCells( grid );
+    int nSolidCells = GetNumberOfSolidCells( *grid );
     HXWrite( ActionState::dataBook, nSolidCells );
     if ( nSolidCells == 0 ) return;
 
