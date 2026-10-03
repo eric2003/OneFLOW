@@ -22,12 +22,11 @@ TEST(GridElemLifecycleTest, ValueSemanticsForInternalComponents)
         // 3. FaceSolver (faceTopo is internally managed)
         ONEFLOW::FaceSolver solver;
         EXPECT_NE(solver.faceTopo, nullptr);
-        
-        // 4. Inject observer pointer (mimicking GridElem constructor)
-        feature.face_solver = &solver;
-        EXPECT_EQ(feature.face_solver, &solver);
-        
+
+        // ElemFeature no longer stores a FaceSolver observer.
+        // ScanElements receives its dependency explicitly when needed.
+
         // When these objects go out of scope, their destructors run safely.
-        // This proves that GridElem's transition to value semantics is sound.
+        // This proves that GridElem's internal components can use value semantics.
     });
 }
