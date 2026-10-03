@@ -277,9 +277,9 @@ void CgnsZone::ReadElementConnectivities()
 {
     if ( this->cgnsZoneType == CGNS_ENUMV( Structured ) ) return;
 
-    this->ReadNumberOfCgnsSections();
+    const int nSections = this->ReadNumberOfCgnsSections();
 
-    this->CreateCgnsSections();
+    this->CreateCgnsSections( nSections );
 
     this->ReadCgnsSections();
 }
@@ -298,14 +298,14 @@ void CgnsZone::SetElemPosition()
     this->cgnsZsection->SetElemPosition();
 }
 
-void CgnsZone::ReadNumberOfCgnsSections()
+int CgnsZone::ReadNumberOfCgnsSections()
 {
-    this->cgnsZsection->ReadNumberOfCgnsSections();
+    return this->cgnsZsection->ReadNumberOfCgnsSections();
 }
 
-void CgnsZone::CreateCgnsSections()
+void CgnsZone::CreateCgnsSections( int nSections )
 {
-    this->cgnsZsection->CreateCgnsSection();
+    this->cgnsZsection->CreateCgnsSections( nSections );
 }
 
 void CgnsZone::ReadCgnsSections()
