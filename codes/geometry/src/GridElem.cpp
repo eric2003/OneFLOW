@@ -72,7 +72,7 @@ int Cgns2OneFlowZoneType( int zoneType )
     }
 }
 
-GridElem::GridElem( HXVector< CgnsZone * > & cgnsZones, int iZone )
+GridElem::GridElem( const HXVector< CgnsZone * > & cgnsZones, int iZone )
 {
     this->cgnsZones = cgnsZones;
     this->CreateGrid( cgnsZones, iZone );
@@ -94,12 +94,17 @@ CgnsZone * GridElem::GetCgnsZone( int iZone )
     return this->cgnsZones[ iZone ];
 }
 
-int GridElem::GetNZones()
+const CgnsZone * GridElem::GetCgnsZone( int iZone ) const
+{
+    return this->cgnsZones[ iZone ];
+}
+
+int GridElem::GetNZones() const
 {
     return this->cgnsZones.size();
 }
 
-void GridElem::CreateGrid( HXVector< CgnsZone * > cgnsZones, int iZone )
+void GridElem::CreateGrid( const HXVector< CgnsZone * > & cgnsZones, int iZone )
 {
     CgnsZone * cgnsZone = cgnsZones[ 0 ];
     int cgnsZoneType = cgnsZone->cgnsZoneType;
@@ -248,12 +253,12 @@ void GridElem::GenerateCalcElement()
 
 void GridElem::GenerateCalcGrid()
 {
-    this->GenerateCalcGrid( this->grid.get() );
+    this->GenerateCalcGrid( *this->grid );
 }
 
-void GridElem::GenerateCalcGrid(Grid * gridIn)
+void GridElem::GenerateCalcGrid( Grid & gridIn )
 {
-    UnsGrid * grid = UnsGridCast(gridIn);
+    UnsGrid * grid = UnsGridCast( &gridIn );
     grid->nCells = this->elem_feature.eTypes.size();
     grid->cellMesh->cellTopo.eTypes = this->elem_feature.eTypes;
     std::cout << "   nCells = " << grid->nCells << std::endl;
@@ -407,7 +412,7 @@ void ZgridElem::AddGridElem( std::unique_ptr< GridElem > gridElem )
     this->data.push_back( std::move( gridElem ) );
 }
 
-void ZgridElem::AddGridElem( HXVector< CgnsZone * > cgnsZones, int iZone )
+void ZgridElem::AddGridElem( const HXVector< CgnsZone * > & cgnsZones, int iZone )
 {
     this->AddGridElem( std::make_unique< GridElem >( cgnsZones, iZone ) );
 }
