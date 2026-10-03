@@ -60,9 +60,10 @@ private:
     std::unique_ptr< BcManager > bcManager;
     Grid * grid = nullptr;
 
-public:
+    // Temporary topology buffers used internally while rebuilding face data.
     LinkField facesNew;
     IntField lCellsNew, rCellsNew;
+
 public:
     HXSize_t GetNFaces() { return fTypes.size();  }
     HXSize_t CalcTotalFaceNodes();
