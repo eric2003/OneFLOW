@@ -43,7 +43,7 @@ namespace
         const GridConfig & config,
         const std::string & caseDir )
     {
-        self.DataBaseGrid();
+        self.DataBaseGrid( config );
         self.ConvertGrid( config, caseDir );
     }
 
@@ -153,10 +153,10 @@ void GridFactory::PartGrid()
     part.Run();
 }
 
-void GridFactory::DataBaseGrid()
+void GridFactory::DataBaseGrid( const GridConfig & config )
 {
     ClassicGrid classicGrid;
-    classicGrid.Run();
+    classicGrid.Run( config );
 }
 
 void GridFactory::ConvertGrid(

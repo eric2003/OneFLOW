@@ -81,11 +81,6 @@ Grid * Grid::Register( const std::string & type, std::unique_ptr< Grid > clone )
     return registeredGrid;
 }
 
-Grid * Grid::Register( const std::string & type, Grid * clone )
-{
-    return Grid::Register( type, std::unique_ptr< Grid >( clone ) );
-}
-
 void Grid::BasicInit()
 {
     this->Free();

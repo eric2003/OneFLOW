@@ -62,7 +62,8 @@ void Cavity::Run()
     int nk = 1;
 
     int nZone = 1;
-    GridMediator gridMediator;
+    auto ownedGridMediator = std::make_unique< GridMediator >();
+    GridMediator & gridMediator = *ownedGridMediator;
     gridMediator.gridFile = ONEFLOW::GetDataValue< std::string >( "sourceGridFileName" );
     gridMediator.bcFile   = ONEFLOW::GetDataValue< std::string >( "sourceGridBcName" );
     gridMediator.targetFile = ONEFLOW::GetDataValue< std::string >( "targetGridFileName" );
@@ -156,7 +157,7 @@ void Cavity::Run()
 
     this->DumpPlot3DGrid( gridMediator );
 
-    this->DumpCgnsGrid( gridMediator );
+    this->DumpCgnsGrid( std::move( ownedGridMediator ) );
 
 }
 
@@ -167,12 +168,12 @@ void Cavity::DumpPlot3DGrid( GridMediator & gridMediator )
 
 }
 
-void Cavity::DumpCgnsGrid( GridMediator & gridMediator )
+void Cavity::DumpCgnsGrid( std::unique_ptr< GridMediator > gridMediator )
 {
     CgnsFactory cgnsFactory;
 
     ZgridMediator zgridMediator;
-    zgridMediator.AddGridMediator( & gridMediator );
+    zgridMediator.AddGridMediator( std::move( gridMediator ) );
 
     cgnsFactory.DumpCgnsGrid( zgridMediator );
 }

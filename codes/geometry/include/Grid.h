@@ -56,8 +56,6 @@ public:
     // Preferred: exclusive ownership of a registered grid prototype clone.
     static std::unique_ptr< Grid > SafeCloneUnique( const std::string & type );
     static Grid * Register( const std::string & type, std::unique_ptr< Grid > clone );
-    // Compatibility overload; takes ownership of clone.
-    static Grid * Register( const std::string & type, Grid * clone );
 public:
     std::string name;
     int dimension;

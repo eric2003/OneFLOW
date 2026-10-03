@@ -23,7 +23,6 @@ License
 #include "BlkMesh.h"
 #include <memory>
 #include "Block2D.h"
-#include "MLine.h"
 #include "MDomain.h"
 
 #include "Prj.h"
@@ -94,11 +93,10 @@ void Block2D::DumpBlockMesh2D( std::fstream &file )
 int Block2D::GetNSubDomain()
 {
     int nSubDomain = 0;
-    int nMDomain = mLineList.size();
-    for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
+    for ( const auto & mDomain : mDomainList )
     {
-        MLine * mLine = mLineList[ iMDomain ];
-        nSubDomain += mLine->slineList.size();
+        // MDomain owns its subdomains; Block2D only aggregates their count.
+        nSubDomain += mDomain->GetNsubDomain();
     }
     return nSubDomain;
 }
@@ -126,22 +124,6 @@ void Block2D::ConstructTopo()
     this->CalcBlkDim();
 }
 
-void Block2D::GetCornerPoint( int & pt, int id1, int id2 )
-{
-    MLine * d1 = mLineList[ id1 ];
-    MLine * d2 = mLineList[ id2 ];
-
-    int nSize = d1->candidate_ctrlpoints.size();
-    for ( int i = 0; i < nSize; ++ i )
-    {
-        int ip = d1->candidate_ctrlpoints[ i ];
-        bool flag1 = InArray( ip, d2->candidate_ctrlpoints );
-        if ( ! flag1 ) continue;
-        pt = ip;
-        break;
-    }
-}
-
 void Block2D::SetInterfaceBc()
 {
     int nFaces = this->facelist.size();
@@ -167,7 +149,7 @@ void Block2D::SetInterfaceBc()
             {
                 tblk = blk1;
             }
-            Face2D * facet = blkFaceSolver.GetBlkFace2D( tblk, domain_id );
+            const Face2D * facet = blkFaceSolver.GetBlkFace2D( tblk, domain_id );
             face2d->t->bcType = tblk + 1;
             face2d->t->st = facet->st;
             face2d->t->ed = facet->ed;

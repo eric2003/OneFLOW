@@ -101,11 +101,13 @@ inline constexpr std::array< std::string_view, 7 > kGridOpTokens = {
 struct GridConfig
 {
     GridObjective objective{ GridObjective::ConvertOnly };
+    std::optional< GridGenerationType > generationType;
     GridFileType  sourceType{ GridFileType::Unknown };
     GridFileType  targetType{ GridFileType::Unknown };
     std::string   sourceFile;
     // Empty means the current case; otherwise this identifies the case that owns the source grid.
     std::string   sourceCaseDir;
+    std::string   layoutFile;
     std::string   bcFile;
     std::string   targetFile;
     std::string   partitionFile;

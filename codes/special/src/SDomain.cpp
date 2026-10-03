@@ -43,11 +43,11 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-SDomain::SDomain( MDomain * mDomain )
+SDomain::SDomain( CoorMap * coorMap )
 {
-    if ( mDomain )
+    if ( coorMap )
     {
-        this->coorMap = mDomain->coorMap;
+        this->coorMap = coorMap;
     }
     else
     {
@@ -58,7 +58,7 @@ SDomain::SDomain( MDomain * mDomain )
     int nMLine = 4;
     for ( int iMLine = 0; iMLine < nMLine; ++ iMLine )
     {
-        auto mLine = std::make_unique< MLine >( this );
+        auto mLine = std::make_unique< MLine >( this->coorMap );
         mLine->pos = iMLine;
         mLineList.push_back( std::move( mLine ) );
     }
@@ -93,7 +93,9 @@ void SDomain::ConstructSDomainCtrlPoint()
     for ( int iMLine = 0; iMLine < nMLine; ++ iMLine )
     {
         MLine * mLine = mLineList[ iMLine ].get();
-        mLine->ConstructPointToDomainMap();
+        LinkField pointIdLink;
+        this->GetPointIdLink( mLine->lineList, pointIdLink );
+        mLine->ConstructPointToDomainMap( pointIdLink );
         mLine->ConstructCtrlPoint();
         mLine->ConstructSLineCtrlPoint();
     }
@@ -229,7 +231,9 @@ void SDomain::ConstructPointToLineMap( std::map< int, IntSet > & pointToLineMap 
     for ( int iMLine = 0; iMLine < mLineList.size(); ++ iMLine )
     {
         MLine * mLine = mLineList[ iMLine ].get();
-        mLine->ConstructPointToLineMap( pointToLineMap );
+        LinkField pointIdLink;
+        this->GetPointIdLink( mLine->lineList, pointIdLink );
+        mLine->ConstructPointToLineMap( pointIdLink, pointToLineMap );
     }
 }
 

@@ -78,29 +78,29 @@ void BlkFaceSolver::Reset()
     slineList.clear();
 }
 
-Face2D * BlkFaceSolver::GetBlkFace( int blk, int face_id ) const
+const Face2D * BlkFaceSolver::GetBlkFace( int blk, int face_id ) const
 {
-    Block3D * blk3d = this->blkList[ blk ].get();
+    const Block3D * blk3d = this->blkList[ blk ].get();
     int nFaces = blk3d->facelist.size();
     for ( int i = 0; i < nFaces; ++ i )
     {
-        Face2D * face2d = blk3d->facelist[ i ].get();
+        const Face2D * face2d = blk3d->facelist[ i ].get();
         int fid = face2d->face_id;
         if ( fid == face_id )
         {
             return face2d;
         }
     }
-    return 0;
+    return nullptr;
 }
 
-Face2D * BlkFaceSolver::GetBlkFace2D( int blk, int face_id ) const
+const Face2D * BlkFaceSolver::GetBlkFace2D( int blk, int face_id ) const
 {
-    Block2D * blk2d = this->blkList2d[ blk ].get();
+    const Block2D * blk2d = this->blkList2d[ blk ].get();
     int nFaces = blk2d->facelist.size();
     for ( int i = 0; i < nFaces; ++ i )
     {
-        Face2D * face2d = blk2d->facelist[ i ].get();
+        const Face2D * face2d = blk2d->facelist[ i ].get();
         int fid = face2d->face_id;
         if ( fid == face_id )
         {
@@ -161,7 +161,8 @@ void BlkFaceSolver::MyFaceGenerateLineMesh()
         sLine->line_id = iSLine + 1;
         sLine->ni = line_Machine.dimList[ iSLine ];
         sLine->Alloc();
-        sLine->CopyMesh();
+        const CurveMesh * curveMesh = line_Machine.GetCurveMesh( sLine->line_id );
+        sLine->CopyMesh( *curveMesh );
         slineList[ iSLine ] = std::move( sLine );
     }
 }
@@ -626,9 +627,5 @@ void BlkFaceSolver::GenerateFaceBlockLink()
     }
 }
 
-IntField GlobalGetLine( int line_id )
-{
-    return blkFaceSolver.GetLine( line_id );
-}
 
 EndNameSpace

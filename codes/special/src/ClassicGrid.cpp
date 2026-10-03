@@ -23,8 +23,6 @@ License
 #include "ClassicGrid.h"
 #include "GridTypes.h"
 #include "GridCreate.h"
-#include "DataBase.h"
-#include "DataBaseIO.h"
 #include "Boundary.h"
 #include "HXMath.h"
 #include "Cavity.h"
@@ -38,33 +36,33 @@ BeginNameSpace( ONEFLOW )
 
 namespace
 {
-    using GridGenerator = void ( * )();
+    using GridGenerator = void ( * )( const GridConfig & );
 
-    void RunCavity()
+    void RunCavity( const GridConfig & )
     {
         Cavity cavity;
         cavity.Run();
     }
 
-    void RunRae2822()
+    void RunRae2822( const GridConfig & )
     {
         Rae2822 rae2822;
         rae2822.Run();
     }
 
-    void RunCylinder()
+    void RunCylinder( const GridConfig & )
     {
         Cylinder cylinder;
         cylinder.Run();
     }
 
-    void RunGridCreate()
+    void RunGridCreate( const GridConfig & config )
     {
         GridCreate gridCreate;
-        gridCreate.Run();
+        gridCreate.Run( config );
     }
 
-    void RunCgnsTest()
+    void RunCgnsTest( const GridConfig & )
     {
         CgnsTest cgnsTest;
         cgnsTest.Run();
@@ -95,23 +93,18 @@ ClassicGrid::~ClassicGrid()
     ;
 }
 
-void ClassicGrid::Run() const
+void ClassicGrid::Run( const GridConfig & config ) const
 {
-    const int generationId = GetDataValue< int >( "igene" );
-    const auto generationType = ParseGridGenerationType( generationId );
-
-    // Legacy "igene" is converted once at the configuration boundary.
-    // Concrete generators then receive no knowledge of its integer encoding.
-    if ( ! generationType )
+    if ( ! config.generationType )
     {
         return;
     }
 
     for ( const auto & entry : kGridGenerationEntries )
     {
-        if ( entry.type == *generationType )
+        if ( entry.type == *config.generationType )
         {
-            entry.run();
+            entry.run( config );
             return;
         }
     }

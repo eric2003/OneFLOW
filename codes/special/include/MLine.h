@@ -32,6 +32,7 @@ BeginNameSpace( ONEFLOW )
 
 class SDomain;
 class Block2D;
+class CurveMesh;
 
 class SLine
 {
@@ -46,17 +47,17 @@ public:
 public:
     void SetDomainBcMesh( SDomain * sDomain );
     void SetBlkBcMesh( Block2D * blk2d );
-    void ConstructCtrlPoints();
+    void ConstructCtrlPoints( const IntField & pointIdList );
     void Alloc();
-    void CopyMesh();
-    void ConstructPointToLineMap( std::map< int, IntSet > & pointToLineMap ) const;
+    void CopyMesh( const CurveMesh & curveMesh );
+    void ConstructPointToLineMap( const IntField & pointIdList, std::map< int, IntSet > & pointToLineMap ) const;
 
 };
 
 class MLine : public DomData
 {
 public:
-    MLine( SDomain * sDomain );
+    explicit MLine( CoorMap * coorMap );
     ~MLine();
 public:
     int pos;
@@ -69,10 +70,11 @@ public:
     void ConstructLineToDomainMap();
     void ConstructLineToDomainMap( int domain_id, std::map< int, IntSet > & lineToDomainMap );
     void ConstructPointToDomainMap();
+    void ConstructPointToDomainMap( const LinkField & pointIdLink );
     void ConstructPointToDomainMap( int domain_id, std::map< int, IntSet > & pointToDomainMap ) const;
     void ConstructPointToPointMap();
     void ConstructPointToPointMap( std::map< int, IntSet > & pointToPointMap ) const;
-    void ConstructPointToLineMap( std::map< int, IntSet > & pointToLineMap ) const;
+    void ConstructPointToLineMap( const LinkField & pointIdLink, std::map< int, IntSet > & pointToLineMap ) const;
 public:
     void AddSubLine( int line_id );
     void ConstructDomainTopo();

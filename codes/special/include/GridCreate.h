@@ -27,14 +27,16 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+struct GridConfig;
+
 class GridCreate
 {
 public:
     GridCreate();
     ~GridCreate();
 public:
-    void Run();
-    void GenePlate();
+    void Run( const GridConfig & config );
+    void GenePlate( const GridConfig & config );
 };
 
 EndNameSpace

@@ -23,6 +23,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include "GridTypes.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -32,7 +33,7 @@ public:
     ClassicGrid();
     ~ClassicGrid();
 public:
-    void Run() const;
+    void Run( const GridConfig & config ) const;
 };
 
 EndNameSpace

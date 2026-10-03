@@ -91,11 +91,6 @@ void GridMediator::ReadGridgen()
 {
 }
 
-void ZgridMediator::add( GridMediator * mediator )
-{
-    this->mediators_.emplace_back( mediator );
-}
-
 void ZgridMediator::add( std::unique_ptr< GridMediator > mediator )
 {
     this->mediators_.push_back( std::move( mediator ) );

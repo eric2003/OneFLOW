@@ -21,35 +21,13 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "BlockMachine.h"
-#include "LineMachine.h"
-#include "CurveInfo.h"
 #include "TextFileParser.h"
-
-#include "BgGrid.h"
-#include "StrGrid.h"
-#include "GridState.h"
-#include "NodeMesh.h"
-#include "DataBaseIO.h"
-#include "Prj.h"
-#include "BcRecord.h"
-#include "Dimension.h"
-#include "BlockElem.h"
 #include "BlockFaceSolver.h"
-#include "HXCgns.h"
-#include <fstream>
 
 
 BeginNameSpace( ONEFLOW )
 
 BlockMachine block_Machine;
-
-BlockMachine::BlockMachine()
-{
-}
-
-BlockMachine::~BlockMachine()
-{
-}
 
 void BlockMachine::AddFaceToBlock( TextFileParser & textFileParser )
 {
@@ -59,15 +37,7 @@ void BlockMachine::AddFaceToBlock( TextFileParser & textFileParser )
         int faceid = textFileParser.ReadNextDigit< int >();
         int pos = textFileParser.ReadNextDigit< int >();
         int lineid = textFileParser.ReadNextDigit< int >();
-        
-        if ( Dim::dimension == ONEFLOW::THREE_D )
-        {
-            blkFaceSolver.AddLineToFace( faceid, pos, lineid );
-        }
-        else
-        {
-            blkFaceSolver.AddLineToFace( faceid, pos, lineid );
-        }
+        blkFaceSolver.AddLineToFace( faceid, pos, lineid );
     }
     else if ( word == "F2B" )
     {
@@ -75,14 +45,7 @@ void BlockMachine::AddFaceToBlock( TextFileParser & textFileParser )
         int pos = textFileParser.ReadNextDigit< int >();
         int faceid = textFileParser.ReadNextDigit< int >();
 
-        if ( Dim::dimension == ONEFLOW::THREE_D )
-        {
-            blkFaceSolver.AddFace2Block( blockid, pos, faceid );
-        }
-        else
-        {
-            blkFaceSolver.AddFace2Block( blockid, pos, faceid );
-        }
+        blkFaceSolver.AddFace2Block( blockid, pos, faceid );
     }
 }
 
