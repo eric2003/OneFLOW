@@ -35,9 +35,10 @@ class CellMesh
 public:
     CellMesh();
     ~CellMesh();
-public:
+
 private:
     CellTopo cellTopo;
+
 public:
     RealField xcc, ycc, zcc;
     RealField vol;
