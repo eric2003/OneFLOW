@@ -77,7 +77,7 @@ void CgnsZbc1to1::CreateCgnsZbc()
 {
     for ( int i1to1 = 0; i1to1 < this->n1to1; ++ i1to1 )
     {
-        this->AddCgns1To1BcRegion( std::make_unique< CgnsBc1to1 >( this->cgnsZone ) );
+        this->AddCgns1To1BcRegion( std::make_unique< CgnsBc1to1 >( &this->cgnsZone ) );
     }
 }
 

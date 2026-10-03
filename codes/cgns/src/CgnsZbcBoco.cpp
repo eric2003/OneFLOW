@@ -73,7 +73,7 @@ void CgnsZbcBoco::CreateCgnsZbc()
 {
     for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
     {
-        this->AddCgnsBcBoco( std::make_unique< CgnsBcBoco >( this->cgnsZone ) );
+        this->AddCgnsBcBoco( std::make_unique< CgnsBcBoco >( &this->cgnsZone ) );
     }
 }
 
@@ -184,7 +184,7 @@ CgnsBcBoco * CgnsZbcBoco::WriteCgnsBoco( const std::string & bocoName, BCType_t 
     int baseId = cgnsZone.cgnsBase.baseId;
     int zId = cgnsZone.zId;
 
-    std::unique_ptr< CgnsBcBoco > ownedBcBoco = std::make_unique< CgnsBcBoco >( this->cgnsZone );
+    std::unique_ptr< CgnsBcBoco > ownedBcBoco = std::make_unique< CgnsBcBoco >( &this->cgnsZone );
     CgnsBcBoco * cgnsBcBoco = ownedBcBoco.get();
     this->AddCgnsBcBoco( std::move( ownedBcBoco ) );
 
@@ -227,7 +227,7 @@ void CgnsZbcBoco::GenerateUnsBcElemConn( CgIntField& bcConn )
 
         IntField ijkMin( 3 ), ijkMax( 3 );
         bcRegion->ExtractIJKRegionFromBcConn( ijkMin, ijkMax );
-        SetBcConn( this->cgnsZone, ijkMin, ijkMax, bcConn, pos, nBcElem );
+        SetBcConn( &cgnsZone, ijkMin, ijkMax, bcConn, pos, nBcElem );
         std::cout << " pos = " << pos << "\n";
         std::cout << " nBcElem = " << nBcElem << " boundaryElementSize = " << nBcElem * 4 << "\n";
     }
