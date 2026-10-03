@@ -408,7 +408,7 @@ void SDomain::SetBlkBcMesh( Block2D * blk2d )
     RealField2D & block_y2d = blk2d->y2d;
     RealField2D & block_z2d = blk2d->z2d;
 
-    SDomain * sDomain = blkFaceSolver.sDomainList[ this->domain_id ].get();
+    SDomain * sDomain = blkFaceSolver.GetSDomain( this->domain_id );
 
     RealField2D & x2d = sDomain->x2d;
     RealField2D & y2d = sDomain->y2d;
