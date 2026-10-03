@@ -162,10 +162,6 @@ void GridElem::PrepareUnsCalcGridNormal()
     this->elem_feature.ScanElements( this->face_solver );
     std::cout << " ScanBcFace()\n";
     this->ScanBcFace();
-
-    //Continue to parse
-    std::cout << " ScanElements()\n";
-    this->elem_feature.ScanElements( this->face_solver );
     this->GenerateCalcElement();
 }
 
