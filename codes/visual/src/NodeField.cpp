@@ -63,7 +63,7 @@ void InterpolateCellToNodeForComponent( RealField & qNodeField, RealField & qFie
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     FaceTopo * faceTopo = &grid->GetFaceTopo();
-    LinkField & f2c = faceTopo->faces;
+    LinkField & f2c = faceTopo->GetFaces();
 
     int nNodes = grid->nNodes;
     int nFaces = grid->nFaces;
@@ -105,7 +105,7 @@ void ApplyBoundaryConditionToNodeField( RealField & qNodeField, RealField & qFie
     UnsGrid * grid = Zone::GetUnsGrid();
     FaceTopo * faceTopo = &grid->GetFaceTopo();
     BcRecord * bcRecord = &faceTopo->GetBcRecord();
-    LinkField & f2c = faceTopo->faces;
+    LinkField & f2c = faceTopo->GetFaces();
 
     int nNodes = grid->nNodes;
     int nFaces = grid->nFaces;
