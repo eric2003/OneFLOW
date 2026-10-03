@@ -100,6 +100,13 @@ CgnsFactory& CgnsFactory::operator=( CgnsFactory && other ) noexcept
         cgns_global.ClearIfBoundTo( cgnsZbase.get() );
         zgridElem = std::move( other.zgridElem );
         cgnsZbase = std::move( other.cgnsZbase );
+
+        // zgridElem is an observer, so it must follow the new owner here too.
+        if ( zgridElem )
+        {
+            zgridElem->cgnsZbase = cgnsZbase.get();
+        }
+
         if ( globalBoundToEitherFactory )
         {
             cgns_global.Bind( cgnsZbase.get() );
