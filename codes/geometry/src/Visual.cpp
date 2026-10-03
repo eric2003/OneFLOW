@@ -131,11 +131,12 @@ void Visual::DumpFaceNodesLink( std::fstream & file, Mesh * mesh )
 
 void Visual::DumpFaceElementLink( std::fstream & file, Mesh * mesh )
 {
+    const FaceTopo & faceTopo = mesh->faceMesh->GetFaceTopo();
     HXSize_t nFaces = mesh->faceMesh->GetNFace();
     HXSize_t numberOfCells = mesh->cellMesh->GetNumberOfCells();
 
-    Visual::DumpFaceElementLink( file, nFaces, numberOfCells, mesh->faceMesh->faceTopo->lCells );
-    Visual::DumpFaceElementLink( file, nFaces, numberOfCells, mesh->faceMesh->faceTopo->rCells );
+    Visual::DumpFaceElementLink( file, nFaces, numberOfCells, faceTopo.lCells );
+    Visual::DumpFaceElementLink( file, nFaces, numberOfCells, faceTopo.rCells );
 }
 
 void Visual::DumpFaceElementLink( std::fstream & file, HXSize_t nFaces, HXSize_t numberOfElements, IntField & faceElementIndex )
