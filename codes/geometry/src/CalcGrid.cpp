@@ -194,7 +194,7 @@ void CalcGrid::ResetGridScaleAndTranslate()
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         Grid * grid = GridAt( grids, iZone );
-        ONEFLOW::ResetGridScaleAndTranslate( grid->nodeMesh.get(), this->config );
+        ONEFLOW::ResetGridScaleAndTranslate( *grid->nodeMesh, this->config );
     }
 }
 
@@ -300,18 +300,18 @@ void GenerateMultiZoneCalcGrids( Grids grids )
     calcGrid.GenerateMultiZoneCalcGrids( std::move( grids ) );
 }
 
-void ResetGridScaleAndTranslate( NodeMesh * nodeMesh, const GridConfig & config )
+void ResetGridScaleAndTranslate( NodeMesh & nodeMesh, const GridConfig & config )
 {
     const Real scale = config.scale;
     const auto & translate = config.translate;
 
-    const size_t nNodes = nodeMesh->GetNumberOfNodes();
+    const size_t nNodes = nodeMesh.GetNumberOfNodes();
 
     for ( size_t iNode = 0; iNode < nNodes; ++ iNode )
     {
-        nodeMesh->xN[ iNode ] *= scale;
-        nodeMesh->yN[ iNode ] *= scale;
-        nodeMesh->zN[ iNode ] *= scale;
+        nodeMesh.xN[ iNode ] *= scale;
+        nodeMesh.yN[ iNode ] *= scale;
+        nodeMesh.zN[ iNode ] *= scale;
 
         nodeMesh->xN[ iNode ] += translate[ 0 ];
         nodeMesh->yN[ iNode ] += translate[ 1 ];
@@ -324,12 +324,12 @@ void ResetGridScaleAndTranslate( NodeMesh * nodeMesh, const GridConfig & config 
     }
 }
 
-void ResetGridScaleAndTranslate( NodeMesh * nodeMesh )
+void ResetGridScaleAndTranslate( NodeMesh & nodeMesh )
 {
     ResetGridScaleAndTranslate( nodeMesh, GridConfig::FromDataBase() );
 }
 
-void TurnZAxisToYAxis( NodeMesh * nodeMesh )
+void TurnZAxisToYAxis( NodeMesh & nodeMesh )
 {
     size_t nNodes = nodeMesh->GetNumberOfNodes();
 
