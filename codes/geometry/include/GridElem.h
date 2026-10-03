@@ -82,9 +82,6 @@ public:
 public:
     CgnsZbase * cgnsZbase;
 public:
-    void AddGridElem( std::unique_ptr< GridElem > gridElem );
-    void AddGridElem( const HXVector< CgnsZone * > & cgnsZones, int iZone );
-public:
     [[nodiscard]] Grids GenerateLocalOneFlowGrids();
 private:
     [[nodiscard]] HXVector< std::unique_ptr< GridElem > > AllocateGridElem() const;
