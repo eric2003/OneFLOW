@@ -73,6 +73,8 @@ private:
     CgnsZone * GetCgnsZone( int iZone );
     const CgnsZone * GetCgnsZone( int iZone ) const;
     int GetNZones() const;
+    bool HasPolygonSection() const;
+    int GetVolBcType() const;
     HXVector< CgnsZone * > zoneViews;
 };
 
