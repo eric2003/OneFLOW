@@ -73,8 +73,8 @@ int Cgns2OneFlowZoneType( int zoneType )
     }
 }
 
-GridElem::GridElem( const HXVector< CgnsZone * > & cgnsZones )
-    : cgnsZones( cgnsZones ),
+GridElem::GridElem( HXVector< CgnsZone * > zoneViews )
+    : zoneViews( std::move( zoneViews ) ),
       minLen( LARGE ),
       maxLen( -LARGE )
 {
@@ -84,17 +84,17 @@ GridElem::~GridElem() = default;
 
 CgnsZone * GridElem::GetCgnsZone( int iZone )
 {
-    return this->cgnsZones[ iZone ];
+    return this->zoneViews[ iZone ];
 }
 
 const CgnsZone * GridElem::GetCgnsZone( int iZone ) const
 {
-    return this->cgnsZones[ iZone ];
+    return this->zoneViews[ iZone ];
 }
 
 int GridElem::GetNZones() const
 {
-    return this->cgnsZones.size();
+    return this->zoneViews.size();
 }
 
 void GridElem::PrepareUnsCalcGrid()
@@ -413,20 +413,20 @@ HXVector< std::unique_ptr< GridElem > > ZgridElem::CreateGridElements( bool mult
 
     if ( ! multiBlock )
     {
-        HXVector< CgnsZone * > cgnsZones;
+        HXVector< CgnsZone * > zoneViews;
 
         const int nOriZone = cgnsZbase->GetNZones();
 
         for ( int iZone = 0; iZone < nOriZone; ++ iZone )
         {
-            cgnsZones.push_back( cgnsZbase->GetCgnsZone( iZone ) );
+            zoneViews.push_back( cgnsZbase->GetCgnsZone( iZone ) );
         }
 
         const int nZones = 1;
 
         for ( int iZone = 0; iZone < nZones; ++ iZone )
         {
-            data.push_back( std::make_unique< GridElem >( cgnsZones ) );
+            data.push_back( std::make_unique< GridElem >( std::move( zoneViews ) ) );
         }
     }
     else
@@ -435,10 +435,10 @@ HXVector< std::unique_ptr< GridElem > > ZgridElem::CreateGridElements( bool mult
 
         for ( int iZone = 0; iZone < nZones; ++ iZone )
         {
-            HXVector< CgnsZone * > cgnsZones;
-            cgnsZones.push_back( cgnsZbase->GetCgnsZone( iZone ) );
+            HXVector< CgnsZone * > zoneViews;
+            zoneViews.push_back( cgnsZbase->GetCgnsZone( iZone ) );
 
-            data.push_back( std::make_unique< GridElem >( cgnsZones ) );
+            data.push_back( std::make_unique< GridElem >( std::move( zoneViews ) ) );
         }
     }
 
