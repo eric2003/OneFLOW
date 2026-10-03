@@ -136,8 +136,8 @@ void CgnsZbcBoco::PrintZnboco()
 
 void CgnsZbcBoco::ReadZnboco()
 {
-    int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
-    int baseId = cgnsZone->cgnsBase->baseId;
+    int fileId = cgnsZone->cgnsBase.cgnsFile->fileId;
+    int baseId = cgnsZone->cgnsBase.baseId;
     int zId = cgnsZone->zId;
 
     // Determine the number of boundary conditions for this zone.
@@ -180,8 +180,8 @@ void CgnsZbcBoco::DumpCgnsZbcBoco()
 
 CgnsBcBoco * CgnsZbcBoco::WriteCgnsBoco( const std::string & bocoName, BCType_t bocotype,  PointSetType_t ptset_type, cgsize_t npnts, const cgsize_t * pnts )
 {
-    int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
-    int baseId = cgnsZone->cgnsBase->baseId;
+    int fileId = cgnsZone->cgnsBase.cgnsFile->fileId;
+    int baseId = cgnsZone->cgnsBase.baseId;
     int zId = cgnsZone->zId;
 
     std::unique_ptr< CgnsBcBoco > ownedBcBoco = std::make_unique< CgnsBcBoco >( this->cgnsZone );

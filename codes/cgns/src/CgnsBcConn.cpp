@@ -47,8 +47,8 @@ CgnsBcConn::~CgnsBcConn()
 
 void CgnsBcConn::ReadCgnsBcConnInfo()
 {
-    int fileId = this->cgnsZone->cgnsBase->cgnsFile->fileId;
-    int baseId = this->cgnsZone->cgnsBase->baseId;
+    int fileId = this->cgnsZone->cgnsBase.cgnsFile->fileId;
+    int baseId = this->cgnsZone->cgnsBase.baseId;
     int zId = this->cgnsZone->zId;
 
     CgnsTraits::char33 connName;
@@ -74,8 +74,8 @@ void CgnsBcConn::ReadCgnsBcConnInfo()
 
 void CgnsBcConn::DumpCgnsBcConnInfo()
 {
-    int fileId = this->cgnsZone->cgnsBase->cgnsFile->fileId;
-    int baseId = this->cgnsZone->cgnsBase->baseId;
+    int fileId = this->cgnsZone->cgnsBase.cgnsFile->fileId;
+    int baseId = this->cgnsZone->cgnsBase.baseId;
     int zId = this->cgnsZone->zId;
 
     CgnsTraits::char33 connName;
@@ -101,8 +101,8 @@ void CgnsBcConn::DumpCgnsBcConnInfo()
 
 void CgnsBcConn::ReadCgnsBcConnData()
 {
-    int fileId = this->cgnsZone->cgnsBase->cgnsFile->fileId;
-    int baseId = this->cgnsZone->cgnsBase->baseId;
+    int fileId = this->cgnsZone->cgnsBase.cgnsFile->fileId;
+    int baseId = this->cgnsZone->cgnsBase.baseId;
     int zId = this->cgnsZone->zId;
 
     this->connPoint.resize( nConnPoints );
@@ -113,8 +113,8 @@ void CgnsBcConn::ReadCgnsBcConnData()
 
 void CgnsBcConn::DumpCgnsBcConnData()
 {
-    int fileId = this->cgnsZone->cgnsBase->cgnsFile->fileId;
-    int baseId = this->cgnsZone->cgnsBase->baseId;
+    int fileId = this->cgnsZone->cgnsBase.cgnsFile->fileId;
+    int baseId = this->cgnsZone->cgnsBase.baseId;
     int zId = this->cgnsZone->zId;
 
     //this->connPoint.resize( nConnPoints );

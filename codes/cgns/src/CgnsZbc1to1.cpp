@@ -98,8 +98,8 @@ void CgnsZbc1to1::ReadZn1to1( int n1to1 )
 
 void CgnsZbc1to1::ReadZn1to1()
 {
-    int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
-    int baseId = cgnsZone->cgnsBase->baseId;
+    int fileId = cgnsZone->cgnsBase.cgnsFile->fileId;
+    int baseId = cgnsZone->cgnsBase.baseId;
     int zId = cgnsZone->zId;
 
     // find out how many general interfaces there are in this zone

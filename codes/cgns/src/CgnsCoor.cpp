@@ -202,8 +202,8 @@ void CgnsCoor::DeAlloc()
 void CgnsCoor::ReadCgnsGridCoordinates()
 {
     //Determine the number and names of the coordinates.
-    int fileId = this->cgnsZone->cgnsBase->cgnsFile->fileId;
-    int baseId = this->cgnsZone->cgnsBase->baseId;
+    int fileId = this->cgnsZone->cgnsBase.cgnsFile->fileId;
+    int baseId = this->cgnsZone->cgnsBase.baseId;
     int zoneId = this->cgnsZone->zId;
 
     cg_ncoords( fileId, baseId, zoneId, & this->nCoor );
@@ -235,8 +235,8 @@ void CgnsCoor::ReadCgnsGridCoordinates()
 void CgnsCoor::ReadCgnsGridCoordinates( CgnsCoor * cgnsCoorIn )
 {
     //Determine the number and names of the coordinates.
-    int fileId = this->cgnsZone->cgnsBase->cgnsFile->fileId;
-    int baseId = this->cgnsZone->cgnsBase->baseId;
+    int fileId = this->cgnsZone->cgnsBase.cgnsFile->fileId;
+    int baseId = this->cgnsZone->cgnsBase.baseId;
     int zoneId = this->cgnsZone->zId;
 
     std::cout << " this->nCoor = " << this->nCoor << "\n";
@@ -261,8 +261,8 @@ void CgnsCoor::ReadCgnsGridCoordinates( CgnsCoor * cgnsCoorIn )
 void CgnsCoor::DumpCgnsGridCoordinates()
 {
     //Determine the number and names of the coordinates.
-    int fileId = this->cgnsZone->cgnsBase->cgnsFile->fileId;
-    int baseId = this->cgnsZone->cgnsBase->baseId;
+    int fileId = this->cgnsZone->cgnsBase.cgnsFile->fileId;
+    int baseId = this->cgnsZone->cgnsBase.baseId;
     int zoneId = this->cgnsZone->zId;
 
      std::cout << "   this->nCoor = " << this->nCoor << "\n";
@@ -337,14 +337,14 @@ void CgnsCoor::SetDimensionStr()
     int j = 0;
     irmax[ 0 ] = isize[ j ++ ];
     irmax[ 1 ] = isize[ j ++ ];
-    if ( this->cgnsZone->cgnsBase->celldim == THREE_D )
+    if ( this->cgnsZone->cgnsBase.celldim == THREE_D )
     {
         irmax[ 2 ] = isize[ j ++ ];
     }
     // cell size
     this->cellSize[ 0 ] = isize[ j ++ ];
     this->cellSize[ 1 ] = isize[ j ++ ];
-    if ( this->cgnsZone->cgnsBase->celldim == THREE_D )
+    if ( this->cgnsZone->cgnsBase.celldim == THREE_D )
     {
         cellSize[ 2 ] = isize[ j ++ ];
     }

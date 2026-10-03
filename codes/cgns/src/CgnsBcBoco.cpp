@@ -182,8 +182,8 @@ void CgnsBcBoco::DumpCgnsBcBoco()
 void CgnsBcBoco::ReadCgnsBocoInfo()
 {
     // Read the info for this boundary condition.
-    int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
-    int baseId = cgnsZone->cgnsBase->baseId;
+    int fileId = cgnsZone->cgnsBase.cgnsFile->fileId;
+    int baseId = cgnsZone->cgnsBase.baseId;
     int zId = cgnsZone->zId;
 
     CgnsTraits::char33 bcRegionName;
@@ -207,7 +207,7 @@ void CgnsBcBoco::ReadCgnsBocoInfo()
         CgnsTraits::char33 bcFamilyName;
         int ierr = cg_famname_read( bcFamilyName );
 
-        this->bcType = cgnsZone->cgnsBase->GetFamilyBcType( bcFamilyName );
+        this->bcType = cgnsZone->cgnsBase.GetFamilyBcType( bcFamilyName );
     }
 
     std::cout << "   CGNS Boundary Name             = " << bcRegionName << "\n";
@@ -216,8 +216,8 @@ void CgnsBcBoco::ReadCgnsBocoInfo()
 
 void CgnsBcBoco::DumpCgnsBocoInfo()
 {
-    int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
-    int baseId = cgnsZone->cgnsBase->baseId;
+    int fileId = cgnsZone->cgnsBase.cgnsFile->fileId;
+    int baseId = cgnsZone->cgnsBase.baseId;
     int zId = cgnsZone->zId;
 
     if ( this->bcType == FamilySpecified )
@@ -225,7 +225,7 @@ void CgnsBcBoco::DumpCgnsBocoInfo()
         //CgnsTraits::char33 bcFamilyName;
         //int ierr = cg_famname_read( bcFamilyName );
 
-        //this->bcType = cgnsZone->cgnsBase->GetFamilyBcType( bcFamilyName );
+        //this->bcType = cgnsZone->cgnsBase.GetFamilyBcType( bcFamilyName );
     }
 
     std::cout << "   CGNS Bc_Double_Id              = " << this->bc_double_id << "\n";
@@ -248,8 +248,8 @@ void CgnsBcBoco::DumpCgnsBocoInfo()
 
 void CgnsBcBoco::ReadCgnsBocoGridLocation()
 {
-    int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
-    int baseId = cgnsZone->cgnsBase->baseId;
+    int fileId = cgnsZone->cgnsBase.cgnsFile->fileId;
+    int baseId = cgnsZone->cgnsBase.baseId;
     int zId = cgnsZone->zId;
 
     GridLocation_t bcGridLocation;
@@ -268,8 +268,8 @@ void CgnsBcBoco::ReadCgnsBocoGridLocation()
 
 void CgnsBcBoco::DumpCgnsBocoGridLocation()
 {
-    int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
-    int baseId = cgnsZone->cgnsBase->baseId;
+    int fileId = cgnsZone->cgnsBase.cgnsFile->fileId;
+    int baseId = cgnsZone->cgnsBase.baseId;
     int zId = cgnsZone->zId;
 
     cg_boco_gridlocation_write( fileId, baseId, zId, this->bcId, this->gridLocation );
@@ -282,8 +282,8 @@ void CgnsBcBoco::DumpCgnsBocoGridLocation()
 
 void CgnsBcBoco::WriteGridLocation( const GridLocation_t & gridLocation )
 {
-    int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
-    int baseId = cgnsZone->cgnsBase->baseId;
+    int fileId = cgnsZone->cgnsBase.cgnsFile->fileId;
+    int baseId = cgnsZone->cgnsBase.baseId;
     int zId = cgnsZone->zId;
 
     this->gridLocation = gridLocation;
@@ -320,8 +320,8 @@ void CgnsBcBoco::CreateCgnsBcBoco()
 
 void CgnsBcBoco::ReadCgnsBcBocoConnList()
 {
-    int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
-    int baseId = cgnsZone->cgnsBase->baseId;
+    int fileId = cgnsZone->cgnsBase.cgnsFile->fileId;
+    int baseId = cgnsZone->cgnsBase.baseId;
     int zId = cgnsZone->zId;
 
     std::cout << "   CGNS PointSet Type Name        = " << GetCgnsPointSetName( this->pointSetType ) << "\n";
@@ -335,8 +335,8 @@ void CgnsBcBoco::ReadCgnsBcBocoConnList()
 
 void CgnsBcBoco::DumpCgnsBcBocoConnList()
 {
-    int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
-    int baseId = cgnsZone->cgnsBase->baseId;
+    int fileId = cgnsZone->cgnsBase.cgnsFile->fileId;
+    int baseId = cgnsZone->cgnsBase.baseId;
     int zId = cgnsZone->zId;
 
     std::cout << "   CGNS PointSet Type Name        = " << GetCgnsPointSetName( this->pointSetType ) << "\n";
@@ -386,7 +386,7 @@ void CgnsBcBoco::PrintCgnsBcBoco()
     }
     else
     {
-        int celldim = cgnsZone->cgnsBase->celldim;
+        int celldim = cgnsZone->cgnsBase.celldim;
 
         std::cout << "   The Boundary Range is :\n";
         StringField rangeTitle;
@@ -408,8 +408,8 @@ void CgnsBcBoco::PrintCgnsBcBoco()
 
 void CgnsBcBoco::WriteCgnsBoco( const std::string & bocoName, BCType_t bocotype, PointSetType_t ptset_type, cgsize_t npnts, const cgsize_t * pnts )
 {
-    int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
-    int baseId = cgnsZone->cgnsBase->baseId;
+    int fileId = cgnsZone->cgnsBase.cgnsFile->fileId;
+    int baseId = cgnsZone->cgnsBase.baseId;
     int zId = cgnsZone->zId;
     this->name = bocoName;
     this->bcType = bocotype;
@@ -434,7 +434,7 @@ void CgnsBcBoco::ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMa
 void CgnsBcBoco::ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax, CgIntField& bcConn )
 {
     int imin, imax, jmin, jmax, kmin, kmax;
-    int celldim = cgnsZone->cgnsBase->celldim;
+    int celldim = cgnsZone->cgnsBase.celldim;
     if ( celldim == TWO_D )
     {
         imin = bcConn[ 0 ];
@@ -507,7 +507,7 @@ CgInt CgnsBcBoco::GetActualNumberOfBoundaryElements()
     }
     else
     {
-        int celldim = cgnsZone->cgnsBase->celldim;
+        int celldim = cgnsZone->cgnsBase.celldim;
 
         IntField ijkMin( 3 ), ijkMax( 3 );
         this->ExtractIJKRegionFromBcConn( ijkMin, ijkMax );
@@ -540,7 +540,7 @@ void SetBcConn( CgnsZone * cgnsZone, IntField & ijkMin, IntField & ijkMax, CgInt
 
     std::cout << " ist, ied, jst, jed, kst, ked = " << ist << " " << ied << " " << jst << " " << jed << " " << kst << " " << ked << "\n";
 
-    int celldim = cgnsZone->cgnsBase->celldim;
+    int celldim = cgnsZone->cgnsBase.celldim;
     int numpt = 4;
     if ( celldim == TWO_D ) numpt = 2;
     if ( celldim == ONE_D ) numpt = 1;
