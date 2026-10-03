@@ -91,7 +91,6 @@ public:
 };
 
 void AddOneFlowGrid( Grids & grids, std::unique_ptr< Grid > grid );
-void AddOneFlowGrid( Grids & grids, Grid * grid );
 void GenerateLocalOneFlowGridFromSu2Grid( Su2Grid & su2Grid, Grids & grids );
 
 #endif
