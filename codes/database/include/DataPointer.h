@@ -50,6 +50,12 @@ public:
     {
     }
 
+    // Adopt ownership from unique_ptr.
+    explicit DataPointer( std::unique_ptr<T> ptr )
+        : data( std::move( ptr ) )
+    {
+    }
+
     ~DataPointer() override = default;
 protected:
     std::unique_ptr<T> data;

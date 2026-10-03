@@ -144,9 +144,9 @@ T & GetFieldReference( DataBase * database, const std::string & dataObjectName )
 template < typename T, typename TStorage >
 T & GetFieldReference( TStorage * storage, const std::string & dataObjectName );
 
-void CreateFieldPointer( DataBase * database, PointerWrap * pointerWrap, const std::string & dataObjectName );
+void CreateFieldPointer( DataBase * database, std::unique_ptr<PointerWrap> pointerWrap, const std::string & dataObjectName );
 template < typename TStorage >
-void CreateFieldPointer( TStorage * storage, PointerWrap * pointerWrap, const std::string & dataObjectName );
+void CreateFieldPointer( TStorage * storage, std::unique_ptr<PointerWrap> pointerWrap, const std::string & dataObjectName );
 
 template < typename T >
 T * GetFieldPointer( DataBase * database, const std::string & dataObjectName )
@@ -181,10 +181,10 @@ T & GetFieldReference( TStorage * storage, const std::string & dataObjectName )
 }
 
 template < typename TStorage >
-void CreateFieldPointer( TStorage * storage, PointerWrap * pointerWrap, const std::string & dataObjectName )
+void CreateFieldPointer( TStorage * storage, std::unique_ptr<PointerWrap> pointerWrap, const std::string & dataObjectName )
 {
     DataBase * database = storage->GetDataBase();
-    ONEFLOW::CreateFieldPointer( database, pointerWrap, dataObjectName );
+    ONEFLOW::CreateFieldPointer( database, std::move( pointerWrap ), dataObjectName );
 }
 
 void DumpDataBase( std::fstream & file );

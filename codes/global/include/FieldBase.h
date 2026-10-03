@@ -20,8 +20,10 @@ License
 
 \*---------------------------------------------------------------------------*/
 #pragma once
+#include <memory>
 #include "HXDefine.h"
 #include "DataBase.h"
+#include "DataPointer.h"
 #include <string>
 
 BeginNameSpace( ONEFLOW )
@@ -29,9 +31,9 @@ BeginNameSpace( ONEFLOW )
 template< typename T >
 void CreateMRField( T * storage, int nEqu, int nSize, const std::string & fieldName )
 {
-    MRField * mrField = new MRField( nEqu, nSize );
-
-    ONEFLOW::CreateFieldPointer( storage, new DataPointer< MRField >( mrField ), fieldName );
+    auto mrField = std::make_unique<MRField>( nEqu, nSize );
+    auto wrap = std::make_unique<DataPointer<MRField>>( std::move( mrField ) );
+    ONEFLOW::CreateFieldPointer( storage, std::move( wrap ), fieldName );
 }
 
 void ZeroField( MRField * field, int nEqu, int nSize );

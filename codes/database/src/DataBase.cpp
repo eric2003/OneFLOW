@@ -173,11 +173,10 @@ PointerWrap * GetPointerWrap( DataField * dataField, const std::string & dataObj
     return fieldEntry->GetPointerWrap();
 }
 
-void CreateFieldPointer( DataBase * database, PointerWrap * pointerWrap, const std::string & dataObjectName )
+void CreateFieldPointer( DataBase * database, std::unique_ptr<PointerWrap> pointerWrap, const std::string & dataObjectName )
 {
-    // Adopt the raw owning PointerWrap into unique_ptr.
     auto fieldEntry = std::make_unique<FieldEntry>(
-        dataObjectName, std::unique_ptr<PointerWrap>( pointerWrap ) );
+        dataObjectName, std::move( pointerWrap ) );
     database->dataField->UpdateFieldEntry( std::move( fieldEntry ) );
 }
 
