@@ -48,7 +48,7 @@ public:
     void SetBlkBcMesh( Block2D * blk2d );
     void ConstructCtrlPoints( const IntField & pointIdList );
     void Alloc();
-    void CopyMesh();
+    void CopyMesh( const CurveMesh & curveMesh );
     void ConstructPointToLineMap( const IntField & pointIdList, std::map< int, IntSet > & pointToLineMap ) const;
 
 };

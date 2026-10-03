@@ -58,9 +58,8 @@ void SLine::Alloc()
     this->z1d.resize( ni );
 }
 
-void SLine::CopyMesh()
+void SLine::CopyMesh( const CurveMesh & curveMesh )
 {
-    CurveMesh * curveMesh = line_Machine.GetCurveMesh( line_id );
     int p1 = curveMesh->curveInfo->p1;
     int p2 = curveMesh->curveInfo->p2;
     this->ctrlpoints.push_back( p1 );

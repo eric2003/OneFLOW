@@ -161,7 +161,8 @@ void BlkFaceSolver::MyFaceGenerateLineMesh()
         sLine->line_id = iSLine + 1;
         sLine->ni = line_Machine.dimList[ iSLine ];
         sLine->Alloc();
-        sLine->CopyMesh();
+        const CurveMesh * curveMesh = line_Machine.GetCurveMesh( sLine->line_id );
+        sLine->CopyMesh( *curveMesh );
         slineList[ iSLine ] = std::move( sLine );
     }
 }
