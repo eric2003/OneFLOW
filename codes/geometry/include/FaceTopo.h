@@ -49,6 +49,7 @@ public:
     LinkField faces;
     LinkField c2f;
 
+private:
     IntField lCells, rCells;
     IntField lPosition, rPosition;
     IntField faceFlags;
@@ -71,6 +72,10 @@ public:
     const Grid & GetGrid() const;
     BcRecord & GetBcRecord();
     const BcRecord & GetBcRecord() const;
+    IntField & GetLeftCells();
+    const IntField & GetLeftCells() const;
+    IntField & GetRightCells();
+    const IntField & GetRightCells() const;
     void PrepareBoundaryConditions();
     bool HasInterfaceBoundary() const;
     void ResizeAll();
