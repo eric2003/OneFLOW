@@ -42,10 +42,10 @@ void CurveMachine::AddLine( int id1, int id2 )
 {
     auto curveLine = std::make_unique< CurveLine >();
     curveLine->lineType = LINE;
-    PointType * p1 = point_Machine.GetPoint( id1 );
-    PointType * p2 = point_Machine.GetPoint( id2 );
-    curveLine->start_p = * p1;
-    curveLine->end_p   = * p2;
+    const PointType & p1 = point_Machine.GetPoint( id1 );
+    const PointType & p2 = point_Machine.GetPoint( id2 );
+    curveLine->start_p = p1;
+    curveLine->end_p   = p2;
     curveList.push_back( std::move( curveLine ) );
 }
 
@@ -55,10 +55,10 @@ void CurveMachine::AddCircle( int id1, int id2, int id3 )
     curveLine->lineType = CIRCLE;
     PointType * p1 = point_Machine.GetPoint( id1 );
     PointType * p2 = point_Machine.GetPoint( id2 );
-    PointType * p3 = point_Machine.GetPoint( id3 );
+    const PointType & p3 = point_Machine.GetPoint( id3 );
     curveLine->start_p = * p1;
-    curveLine->end_p = * p2;
-    curveLine->center_p = * p3;
+    curveLine->end_p = p2;
+    curveLine->center_p = p3;
     curveList.push_back( std::move( curveLine ) );
 }
 
