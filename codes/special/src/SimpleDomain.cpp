@@ -410,7 +410,7 @@ bool DomData::FindNextBcPoint( int ps, int pt, int & pnext, IntSet &bclines )
         int line_id = lines[ i ];
         if ( IsBcLine( bclines, line_id ) )
         {
-            IntField pointIdList = GlobalGetLine( line_id );
+            const IntField & pointIdList = GetLinePoints( line_id );
             int p1 = pointIdList[ 0 ];
             int p2 = pointIdList[ 1 ];
             if ( p1 == pt )
