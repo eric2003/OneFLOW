@@ -43,11 +43,11 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-SDomain::SDomain( CoorMap * parentCoorMap )
+SDomain::SDomain( CoorMap * coorMap )
 {
-    if ( mDomain )
+    if ( coorMap )
     {
-        this->coorMap = mDomain->coorMap;
+        this->coorMap = coorMap;
     }
     else
     {
