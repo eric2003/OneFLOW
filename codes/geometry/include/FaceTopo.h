@@ -80,6 +80,10 @@ public:
     const IntField & GetLeftCells() const;
     IntField & GetRightCells();
     const IntField & GetRightCells() const;
+    LinkField & GetFaces();
+    const LinkField & GetFaces() const;
+    IntField & GetFaceTypes();
+    const IntField & GetFaceTypes() const;
     void PrepareBoundaryConditions();
     bool HasInterfaceBoundary() const;
     void ResizeAll();
