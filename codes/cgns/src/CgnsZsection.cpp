@@ -95,14 +95,8 @@ bool CgnsZsection::HasPolygonSection() const
     return false;
 }
 
-void CgnsZsection::CreateCgnsSection()
-{
-    this->CreateCgnsSections( this->nSection );
-}
-
 void CgnsZsection::CreateCgnsSections( int nSections )
 {
-    this->nSection = nSections;
     for ( int iSection = 0; iSection < nSections; ++ iSection )
     {
         this->AddCgnsSection( std::make_unique< CgnsSection >( cgnsZone ) );
@@ -144,20 +138,22 @@ CgnsSection * CgnsZsection::GetSectionByEid( int eId )
     return 0;
 }
 
-void CgnsZsection::ReadNumberOfCgnsSections()
+int CgnsZsection::ReadNumberOfCgnsSections()
 {
     int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
     int baseId = cgnsZone->cgnsBase->baseId;
     int zId = cgnsZone->zId;
+    int nSections = 0;
 
     // Determine the number of sections for this zone. Note that
     // surface elements can be stored in a cellVolume zone, but they
-    // are NOT taken into account in the number obtained from 
+    // are NOT taken into account in the number obtained from
     // cg_zone_read.
 
-    cg_nsections( fileId, baseId, zId, & this->nSection );
+    cg_nsections( fileId, baseId, zId, & nSections );
 
-    std::cout << "   numberOfCgnsSections = " << this->nSection << "\n";
+    std::cout << "   numberOfCgnsSections = " << nSections << "\n";
+    return nSections;
 }
 
 void CgnsZsection::ReadCgnsSections()
