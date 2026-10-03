@@ -415,15 +415,9 @@ void ZgridElem::AddGridElem( const HXVector< CgnsZone * > & cgnsZones, int iZone
     this->AddGridElem( std::make_unique< GridElem >( cgnsZones, iZone ) );
 }
 
-GridElem * ZgridElem::GetGridElem( int iGridElem )
+HXVector< std::unique_ptr< GridElem > > ZgridElem::AllocateGridElem() const
 {
-    return this->data[ iGridElem ].get();
-}
-
-void ZgridElem::AllocateGridElem()
-{
-    // Rebuild the transient generation state on every generation request.
-    this->data.clear();
+    HXVector< std::unique_ptr< GridElem > > data;
 
     const int multiBlock = GetDataValue< int >( "multiBlock" );
 
@@ -431,62 +425,58 @@ void ZgridElem::AllocateGridElem()
     {
         HXVector< CgnsZone * > cgnsZones;
 
-        int nOriZone = cgnsZbase->GetNZones();
+        const int nOriZone = cgnsZbase->GetNZones();
 
         for ( int iZone = 0; iZone < nOriZone; ++ iZone )
         {
             cgnsZones.push_back( cgnsZbase->GetCgnsZone( iZone ) );
         }
 
-        int nZones = 1;
+        const int nZones = 1;
 
         for ( int iZone = 0; iZone < nZones; ++ iZone )
         {
-            this->AddGridElem( cgnsZones, iZone );
+            data.push_back( std::make_unique< GridElem >( cgnsZones, iZone ) );
         }
-
     }
     else
     {
-        int nZones = cgnsZbase->GetNZones();
+        const int nZones = cgnsZbase->GetNZones();
 
         for ( int iZone = 0; iZone < nZones; ++ iZone )
         {
             HXVector< CgnsZone * > cgnsZones;
             cgnsZones.push_back( cgnsZbase->GetCgnsZone( iZone ) );
 
-            this->AddGridElem( cgnsZones, iZone );
+            data.push_back( std::make_unique< GridElem >( cgnsZones, iZone ) );
         }
     }
+
+    return data;
 }
 
-void ZgridElem::PrepareUnsCalcGrid()
+void ZgridElem::PrepareUnsCalcGrid( HXVector< std::unique_ptr< GridElem > > & data ) const
 {
-    int nZones = this->data.size();
+    const int nZones = data.size();
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
-        GridElem * gridElem = this->GetGridElem( iZone );
-        gridElem->PrepareUnsCalcGrid();
+        data[ iZone ]->PrepareUnsCalcGrid();
     }
 }
 
 Grids ZgridElem::GenerateLocalOneFlowGrids()
 {
-    this->AllocateGridElem();
-    this->PrepareUnsCalcGrid();
+    HXVector< std::unique_ptr< GridElem > > data = this->AllocateGridElem();
+    this->PrepareUnsCalcGrid( data );
 
     Grids grids;
-    const int nZones = this->data.size();
+    const int nZones = data.size();
     grids.reserve( static_cast< std::size_t >( nZones ) );
 
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
-        GridElem * gridElem = this->GetGridElem( iZone );
-        grids.push_back( gridElem->GenerateCalcGrid( iZone ) );
+        grids.push_back( data[ iZone ]->GenerateCalcGrid( iZone ) );
     }
-
-    // GridElem objects are only generation-time state; the generated Grids own the result.
-    this->data.clear();
 
     return grids;
 }
