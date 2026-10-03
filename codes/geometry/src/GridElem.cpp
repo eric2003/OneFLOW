@@ -249,7 +249,7 @@ std::unique_ptr< Grid > GridElem::GenerateCalcGrid( int gridId )
     grid->type = gridType;
     grid->volBcType = cgnsZone->GetVolBcType();
 
-    this->GenerateCalcGrid( *grid );
+    this->GenerateCalcGrid( *grid.get() );
     return grid;
 }
 
