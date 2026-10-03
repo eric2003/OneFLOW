@@ -91,7 +91,7 @@ public:
     [[nodiscard]] Grids GenerateLocalOneFlowGrids( const GridConfig & config );
 private:
     [[nodiscard]] HXVector< std::unique_ptr< GridElem > > CreateGridElements( bool multiBlock ) const;
-    void PrepareUnsCalcGrid( HXVector< std::unique_ptr< GridElem > > & data ) const;
+    void PrepareUnsCalcGrid( const HXVector< std::unique_ptr< GridElem > > & data ) const;
 };
 
 EndNameSpace
