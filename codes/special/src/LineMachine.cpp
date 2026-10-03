@@ -49,8 +49,6 @@ void LineMachine::Reset()
     segmentCtrlList.clear();
     curveInfoList.clear();
     curveMeshList.clear();
-    ds1List.clear();
-    ds2List.clear();
     lineLookup.Clear();
     lineList.clear();
 }
