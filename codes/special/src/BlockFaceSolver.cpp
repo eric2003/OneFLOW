@@ -318,7 +318,7 @@ void BlkFaceSolver::SetBoundary()
     int nFaces = this->face2Block.size();
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
-        int bcType = domain_Machine.bctypeList[ iFace ];
+        int bcType = domain_Machine.GetBcType( iFace + 1 );
         BlkF2C & face_struct = this->face2Block[ iFace ];
         face_struct.bctype = bcType;
     }
