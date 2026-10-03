@@ -50,6 +50,7 @@ public:
 public:
     // Takes exclusive ownership of the collection.
     void Init( Grids grids );
+    void Init( Grids grids, const GridConfig & config );
 public:
     void GenerateOverset();
     void GenerateLink();
@@ -67,6 +68,7 @@ public:
     void ReconstructLink( int iZone );
 public:
     void GenerateMultiZoneCalcGrids( Grids grids );
+    void GenerateMultiZoneCalcGrids( Grids grids, const GridConfig & config );
 };
 
 std::string GetTargetGridFileName();
