@@ -49,6 +49,7 @@ public:
     int GetNSections() const;
     bool HasPolygonSection() const;
     void CreateCgnsSection();
+    void CreateCgnsSections( int nSections );
     void CreateConnList();
     void ConvertToInnerDataStandard();
     CgnsSection * GetSectionByEid( int eId );
