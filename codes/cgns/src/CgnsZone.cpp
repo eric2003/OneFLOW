@@ -49,7 +49,7 @@ License
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
 
-CgnsZone::CgnsZone( CgnsBase * cgnsBase )
+CgnsZone::CgnsZone( CgnsBase & cgnsBase )
     : cgnsBase( cgnsBase ),
       volBcType( -1 )
 {
@@ -215,7 +215,7 @@ void CgnsZone::ReadCgnsZoneBasicInfo()
 void CgnsZone::ReadCgnsZoneType()
 {
     //Check the zone type
-    cg_zone_type( cgnsBase->cgnsFile->fileId, cgnsBase->baseId, this->zId, & cgnsZoneType );
+    cg_zone_type( cgnsBase.cgnsFile->fileId, cgnsBase.baseId, this->zId, & cgnsZoneType );
 
     std::cout << "   The Zone Type is " << GetCgnsZoneTypeName( cgnsZoneType ) << " Zone" << "\n";
 }
@@ -223,7 +223,7 @@ void CgnsZone::ReadCgnsZoneType()
 void CgnsZone::DumpCgnsZoneType()
 {
     ////Check the zone type
-    //cg_zone_type( cgnsBase->fileId, cgnsBase->baseId, this->zId, & cgnsZoneType );
+    //cg_zone_type( cgnsBase.fileId, cgnsBase.baseId, this->zId, & cgnsZoneType );
 
     std::cout << "   The Zone Type is " << GetCgnsZoneTypeName( cgnsZoneType ) << " Zone" << "\n";
 }
@@ -233,7 +233,7 @@ void CgnsZone::ReadCgnsZoneNameAndGeneralizedDimension()
     CgnsTraits::char33 cgnsZoneName;
 
     //Determine the number of vertices and cellVolume elements in this zone
-    cg_zone_read( cgnsBase->cgnsFile->fileId, cgnsBase->baseId, this->zId, cgnsZoneName, this->isize );
+    cg_zone_read( cgnsBase.cgnsFile->fileId, cgnsBase.baseId, this->zId, cgnsZoneName, this->isize );
 
     this->zoneName = cgnsZoneName;
 
@@ -242,18 +242,18 @@ void CgnsZone::ReadCgnsZoneNameAndGeneralizedDimension()
 
 void CgnsZone::DumpCgnsZoneNameAndGeneralizedDimension()
 {
-    //std::cout << "   Cell Dimension = " << this->cgnsBase->celldim << " Physics Dimension = " << this->cgnsBase->phydim << "\n";
+    //std::cout << "   Cell Dimension = " << this->cgnsBase.celldim << " Physics Dimension = " << this->cgnsBase.phydim << "\n";
 
     //Determine the number of vertices and cellVolume elements in this zone
-    cg_zone_write( cgnsBase->cgnsFile->fileId, cgnsBase->baseId, zoneName.c_str(), isize, cgnsZoneType, &this->zId );
+    cg_zone_write( cgnsBase.cgnsFile->fileId, cgnsBase.baseId, zoneName.c_str(), isize, cgnsZoneType, &this->zId );
     std::cout << "   Zone Id = " << this->zId << "\n";
     std::cout << "   CGNS Zone Name = " << this->zoneName << "\n";
 }
 
 void CgnsZone::WriteZoneInfo( const std::string & zoneName, ZoneType_t zoneType, cgsize_t * isize )
 {
-    int fileId = cgnsBase->cgnsFile->fileId;
-    int baseId = cgnsBase->baseId;
+    int fileId = cgnsBase.cgnsFile->fileId;
+    int baseId = cgnsBase.baseId;
 
     this->Create();
 
@@ -350,29 +350,29 @@ void CgnsZone::ProcessPeriodicBc()
 
 void CgnsZone::GoToZone()
 {
-    int fileId = this->cgnsBase->cgnsFile->fileId;
-    int baseId = this->cgnsBase->baseId;
+    int fileId = this->cgnsBase.cgnsFile->fileId;
+    int baseId = this->cgnsBase.baseId;
     cg_goto( fileId, baseId,"Zone_t", this->zId, "end" );
 }
 
 void CgnsZone::GoToNode( const std::string & nodeName, int ith )
 {
-    int fileId = this->cgnsBase->cgnsFile->fileId;
-    int baseId = this->cgnsBase->baseId;
+    int fileId = this->cgnsBase.cgnsFile->fileId;
+    int baseId = this->cgnsBase.baseId;
     cg_goto( fileId, baseId, "Zone_t", this->zId, nodeName.c_str(), ith, "end" );
 }
 
 void CgnsZone::GoToNode( const std::string & nodeNamei, int ith, const std::string & nodeNamej, int jth )
 {
-    int fileId = this->cgnsBase->cgnsFile->fileId;
-    int baseId = this->cgnsBase->baseId;
+    int fileId = this->cgnsBase.cgnsFile->fileId;
+    int baseId = this->cgnsBase.baseId;
     cg_goto( fileId, baseId, "Zone_t", this->zId, nodeNamei.c_str(), ith, nodeNamej.c_str(), jth, "end" );
 }
 
 void CgnsZone::GoToNode( const std::string & nodeNamei, int ith, const std::string & nodeNamej, int jth, const std::string & nodeNamek, int kth )
 {
-    int fileId = this->cgnsBase->cgnsFile->fileId;
-    int baseId = this->cgnsBase->baseId;
+    int fileId = this->cgnsBase.cgnsFile->fileId;
+    int baseId = this->cgnsBase.baseId;
     cg_goto( fileId, baseId, "Zone_t", this->zId, nodeNamei.c_str(), ith, nodeNamej.c_str(), jth, nodeNamek.c_str(), kth, "end" );
 }
 

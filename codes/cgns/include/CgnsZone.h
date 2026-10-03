@@ -45,10 +45,10 @@ class CgnsBase;
 class CgnsZone
 {
 public:
-    CgnsZone( CgnsBase * cgnsBase );
+    explicit CgnsZone( CgnsBase & cgnsBase );
     ~CgnsZone();
 public:
-    CgnsBase * cgnsBase;
+    CgnsBase & cgnsBase;
     std::unique_ptr< CgnsCoor > cgnsCoor;
     std::unique_ptr< CgnsZsection > cgnsZsection;
     std::unique_ptr< CgnsZbc > cgnsZbc;
