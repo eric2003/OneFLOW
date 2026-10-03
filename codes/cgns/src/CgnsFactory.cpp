@@ -321,8 +321,8 @@ void CgnsFactory::CgnsToOneFlowGrid( const GridConfig & config )
 
     Grids grids = this->zgridElem->GenerateLocalOneFlowGrids();
 
-    // The grid is processed and the grid file used for calculation is output
-    ONEFLOW::GenerateMultiZoneCalcGrids( std::move( grids ) );
+    // Keep the explicit grid configuration through the calculation-grid stage.
+    ONEFLOW::GenerateMultiZoneCalcGrids( std::move( grids ), config );
 }
 
 void AddOneFlowGrid( Grids & grids, std::unique_ptr< Grid > grid )
