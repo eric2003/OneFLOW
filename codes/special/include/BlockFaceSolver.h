@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*\
+/*---------------------------------------------------------------------------*\\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
@@ -10,15 +10,15 @@ License
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-    for more details.
+    OneFLOW is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
-\*---------------------------------------------------------------------------*/
+\\*---------------------------------------------------------------------------*/
 
 
 #pragma once
@@ -57,7 +57,7 @@ public:
     bool flag;
 public:
     bool init_flag;
-    LinkField lineList; 
+    LinkField lineList;
     LinkField faceList;
     LinkField faceLinePosList;
     HXLookup<int> lineLookup;
@@ -71,18 +71,20 @@ public:
     void Reset();
     const Face2D * GetBlkFace( int blk, int face_id ) const;
     const Face2D * GetBlkFace2D( int blk, int face_id ) const;
-public:
-    void Alloc();
-    void InitializeLineTopology();
-    void CreateFaceList();
-    int  FindLineId( const IntField & line ) const;
     IntField & GetLine( int line_id );
-    void BuildSurfaceDomainList();
-    void GenerateSurfaceFaceMesh();
-    void GenerateSurfaceLineMesh();
+    int FindLineId( const IntField & line ) const;
 public:
     void AddLineToFace( int faceid, int pos, int lineid );
     void AddFace2Block( int blockid, int pos, int faceid );
+    void GenerateGrid();
+
+private:
+    void Alloc();
+    void InitializeLineTopology();
+    void CreateFaceList();
+    void BuildSurfaceDomainList();
+    void GenerateSurfaceFaceMesh();
+    void GenerateSurfaceLineMesh();
     void BuildBlkFace();
     void BuildBlkFace2D();
     void SetBoundary();
@@ -97,8 +99,6 @@ public:
     void DumpStandardGrid();
     void DumpStandardGrid2D();
     void DumpStandardGrid( Grids & strGridList );
-    void GenerateGrid();
-public:
     void DumpBlkScript();
     void DumpBlkScript( std::fstream & file, BlkElem * blkHexa, IntField & ctrlpoints );
     void DumpBlkScript( std::fstream & file, IntField & localid, IntField & ctrlpoints );
