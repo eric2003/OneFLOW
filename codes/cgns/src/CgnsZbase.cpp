@@ -204,8 +204,26 @@ CgnsBase * CgnsZbase::GetCgnsBase( int iBase )
 
 CgnsZone * CgnsZbase::GetCgnsZone( int globalZoneId )
 {
-    CgnsZone * cgnsZone = this->GetMultiBaseCgnsZone( 0, globalZoneId );
-    return cgnsZone;
+    if ( globalZoneId < 0 )
+    {
+        Fatal( "CgnsZbase global zone index cannot be negative." );
+    }
+
+    int zoneOffset = globalZoneId;
+    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
+    {
+        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
+        const int nZones = cgnsBase->GetNZones();
+
+        if ( zoneOffset < nZones )
+        {
+            return cgnsBase->GetCgnsZone( zoneOffset );
+        }
+
+        zoneOffset -= nZones;
+    }
+
+    Fatal( "CgnsZbase global zone index is out of range." );
 }
 
 CgnsZone * CgnsZbase::GetMultiBaseCgnsZone( int iBase, int iZone )
