@@ -37,9 +37,10 @@ class CgnsZsection
 public:
     CgnsZsection( CgnsZone * cgnsZone );
     ~CgnsZsection();
-public:
-    int nSection;
+private:
+    int nSection = 0;
 
+public:
     HXVector< std::unique_ptr< CgnsSection > > cgnsSections;
     CgnsZone * cgnsZone;
 public:
