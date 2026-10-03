@@ -65,11 +65,9 @@ void UnsGrid::Init()
     this->faceTopo.reset();
 
     this->BasicInit();
-    this->faceTopo = std::make_unique< FaceTopo >();
     this->faceMesh = std::make_unique< FaceMesh >();
     this->cellMesh = std::make_unique< CellMesh >();
-    faceTopo->BindGrid( *this );
-    this->GetFaceMesh().BindFaceTopo( *this->faceTopo );
+    this->SetFaceTopo( std::make_unique< FaceTopo >() );
 }
 
 FaceTopo & UnsGrid::GetFaceTopo()
@@ -106,6 +104,7 @@ void UnsGrid::SetFaceTopo( std::unique_ptr< FaceTopo > faceTopo )
 {
     this->faceTopo = std::move( faceTopo );
     this->GetFaceTopo().BindGrid( *this );
+    this->GetFaceMesh().BindFaceTopo( this->GetFaceTopo() );
 }
 
 void UnsGrid::Decode( DataBook * databook )
