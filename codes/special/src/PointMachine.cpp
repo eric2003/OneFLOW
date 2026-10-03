@@ -55,7 +55,7 @@ PointType & PointMachine::GetPoint( int id )
 const PointType & PointMachine::GetPoint( int id ) const
 {
     const int index = id - 1;
-    return * this->ptList.at( index );
+    return * this->ptList[ index ];
 }
 
 EndNameSpace
