@@ -73,13 +73,13 @@ public:
     const Face2D * GetBlkFace2D( int blk, int face_id ) const;
 public:
     void Alloc();
-    void MyFaceAlloc();
+    void InitializeLineTopology();
     void CreateFaceList();
     int  FindLineId( const IntField & line ) const;
     IntField & GetLine( int line_id );
-    void MyFaceBuildSDomainList();
-    void MyFaceGenerateFaceMesh();
-    void MyFaceGenerateLineMesh();
+    void BuildSurfaceDomainList();
+    void GenerateSurfaceFaceMesh();
+    void GenerateSurfaceLineMesh();
 public:
     void AddLineToFace( int faceid, int pos, int lineid );
     void AddFace2Block( int blockid, int pos, int faceid );
