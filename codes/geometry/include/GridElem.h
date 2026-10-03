@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*\
+/*---------------------------------------------------------------------------*\\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
@@ -18,18 +18,16 @@ License
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
-\*---------------------------------------------------------------------------*/
-
+\\*---------------------------------------------------------------------------*/
 
 #pragma once
 #include "HXDefine.h"
 #include "GridHandles.h"
 // These members are stored by value, so their types must be complete here.
-#include "ElemFeature.h"      
-#include "PointManager.h"     
-#include "FaceSolver.h"       
+#include "ElemFeature.h"
+#include "PointManager.h"
+#include "FaceSolver.h"
 #include <memory>
-
 
 BeginNameSpace( ONEFLOW )
 
@@ -82,17 +80,15 @@ public:
     ZgridElem( CgnsZbase * cgnsZbase );
     ~ZgridElem();
 public:
-    HXVector< std::unique_ptr< GridElem > > data;
     CgnsZbase * cgnsZbase;
 public:
-    GridElem * GetGridElem( int iGridElem );
     void AddGridElem( std::unique_ptr< GridElem > gridElem );
     void AddGridElem( const HXVector< CgnsZone * > & cgnsZones, int iZone );
 public:
     [[nodiscard]] Grids GenerateLocalOneFlowGrids();
-    void AllocateGridElem();
-    void PrepareUnsCalcGrid();
-
+private:
+    [[nodiscard]] HXVector< std::unique_ptr< GridElem > > AllocateGridElem() const;
+    void PrepareUnsCalcGrid( HXVector< std::unique_ptr< GridElem > > & data ) const;
 };
 
 EndNameSpace
