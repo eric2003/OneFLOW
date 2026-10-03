@@ -107,6 +107,7 @@ struct GridConfig
     std::string   sourceFile;
     // Empty means the current case; otherwise this identifies the case that owns the source grid.
     std::string   sourceCaseDir;
+    std::string   layoutFile;
     std::string   bcFile;
     std::string   targetFile;
     std::string   partitionFile;
