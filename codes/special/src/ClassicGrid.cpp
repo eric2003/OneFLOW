@@ -104,7 +104,7 @@ void ClassicGrid::Run( const std::optional< GridGenerationType > & generationTyp
 
     for ( const auto & entry : kGridGenerationEntries )
     {
-        if ( entry.type == *generationType )
+        if ( entry.type == *config.generationType )
         {
             entry.run( config );
             return;
