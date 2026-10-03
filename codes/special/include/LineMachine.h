@@ -20,7 +20,6 @@ private:
     HXVector< std::unique_ptr< SegmentCtrl > > segmentCtrlList;
     HXVector< std::unique_ptr< CurveInfo > > curveInfoList;
     HXVector< std::unique_ptr< CurveMesh > > curveMeshList;
-public:
     HXLookup<int> lineLookup;
     LinkField lineList;
 public:
