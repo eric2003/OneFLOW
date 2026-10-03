@@ -53,7 +53,6 @@ public:
     ElemFeature elem_feature;
     MeshPointManager point_factory;
     FaceSolver face_solver;
-    HXVector< CgnsZone * > cgnsZones;
     Real minLen, maxLen;
 public:
     CgnsZone * GetCgnsZone( int iZone );
@@ -73,6 +72,8 @@ public:
     void PrepareUnsCalcGridPolyhedron();
     void ScanPolygonFace();
     void SetPolyhedronElementType( CgnsSection & cgnsSection );
+private:
+    HXVector< CgnsZone * > cgnsZones;
 };
 
 class ZgridElem
