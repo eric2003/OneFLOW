@@ -63,4 +63,9 @@ void BlockMachine::GenerateGrid()
     blkFaceSolver.GenerateGrid();
 }
 
+void BlockMachine::Reset()
+{
+    blkFaceSolver.Reset();
+}
+
 EndNameSpace

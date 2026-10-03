@@ -22,7 +22,6 @@ License
 
 #include "GridMachine.h"
 #include "GridLayout.h"
-#include "BlockFaceSolver.h"
 #include "GridLayoutParser.h"
 #include "PointMachine.h"
 #include "LineMachine.h"
@@ -61,7 +60,7 @@ void GridMachine::Run( const std::string & fileName )
 
 void GridMachine::ResetState()
 {
-    blkFaceSolver.Reset();
+    block_Machine.Reset();
     line_Machine.Reset();
     point_Machine.Reset();
     domain_Machine.Reset();

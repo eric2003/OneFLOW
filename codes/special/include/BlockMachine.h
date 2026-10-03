@@ -15,6 +15,7 @@ public:
     void AddLineToFace( int faceId, int position, int lineId );
     void AddFaceToBlock( int blockId, int position, int faceId );
     void GenerateGrid();
+    void Reset();
 };
 
 extern BlockMachine block_Machine;
