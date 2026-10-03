@@ -139,7 +139,7 @@ void Visual::DumpFaceElementLink( std::fstream & file, Mesh * mesh )
     Visual::DumpFaceElementLink( file, nFaces, numberOfCells, faceTopo.rCells );
 }
 
-void Visual::DumpFaceElementLink( std::fstream & file, HXSize_t nFaces, HXSize_t numberOfElements, IntField & faceElementIndex )
+void Visual::DumpFaceElementLink( std::fstream & file, HXSize_t nFaces, HXSize_t numberOfElements, const IntField & faceElementIndex )
 {
     for ( HXSize_t iFace = 0; iFace < nFaces; ++ iFace )
     {

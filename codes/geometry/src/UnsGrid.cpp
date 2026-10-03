@@ -544,7 +544,7 @@ void UnsGrid::CalcCellCenterVol1D()
     RealField & zN = nodeMesh->zN;
 
     CellTopo * cellTopo = &this->cellMesh->cellTopo;
-    FaceTopo * faceTopo = this->faceMesh->faceTopo;
+    FaceTopo * faceTopo = &this->faceMesh->GetFaceTopo();
 
     for ( HXSize_t iCell = 0; iCell < numberOfCells; ++ iCell )
     {
@@ -583,7 +583,7 @@ void UnsGrid::CalcGhostCellCenterVol1D()
     RealField & area = this->faceMesh->area;
 
     CellTopo * cellTopo = &this->cellMesh->cellTopo;
-    FaceTopo * faceTopo = this->faceMesh->faceTopo;
+    FaceTopo * faceTopo = &this->faceMesh->GetFaceTopo();
 
     // For ghost cells
     for ( HXSize_t iFace = 0; iFace < nBFaces; ++ iFace )
@@ -642,7 +642,7 @@ void UnsGrid::CalcCellCenterVol2D()
     RealField & area = this->faceMesh->area;
 
     CellTopo * cellTopo = &this->cellMesh->cellTopo;
-    FaceTopo * faceTopo = this->faceMesh->faceTopo;
+    FaceTopo * faceTopo = &this->faceMesh->GetFaceTopo();
 
     xcc = 0;
     ycc = 0;
@@ -755,7 +755,7 @@ void UnsGrid::CalcCellCenterVol3D()
     RealField & area = this->faceMesh->area;
 
     CellTopo * cellTopo = &this->cellMesh->cellTopo;
-    FaceTopo * faceTopo = this->faceMesh->faceTopo;
+    FaceTopo * faceTopo = &this->faceMesh->GetFaceTopo();
 
     RealField & xN = nodeMesh->xN;
     RealField & yN = nodeMesh->yN;
