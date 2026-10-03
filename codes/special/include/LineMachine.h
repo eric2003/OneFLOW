@@ -32,6 +32,7 @@ public:
     void AddDs( TextFileParser & textFileParser );
     void SetDimension( int id, int pointCount );
     int GetDimension( int id ) const;
+    int GetNLine() const;
     void SetDistribution( const GridDistributionDefinition & distribution );
     void GenerateAllLineMesh();
     void CreateAllLineMesh();
