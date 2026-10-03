@@ -141,29 +141,29 @@ void LineMachine::SetDistribution( const GridDistributionDefinition & definition
     switch ( definition.type )
     {
     case GridDistributionType::Ratio:
-        segmentCtrl->distribution = 0;
+        segmentCtrl->distribution = SegmentCtrl::DistributionType::Ratio;
         segmentCtrl->ratio1 = definition.startValue;
         segmentCtrl->ratio2 = definition.endValue;
         break;
     case GridDistributionType::Distance:
-        segmentCtrl->distribution = 1;
+        segmentCtrl->distribution = SegmentCtrl::DistributionType::Distance;
         segmentCtrl->ds1 = definition.startValue;
         segmentCtrl->ds2 = definition.endValue;
         break;
     case GridDistributionType::Tanh:
-        segmentCtrl->distribution = 4;
+        segmentCtrl->distribution = SegmentCtrl::DistributionType::Tanh;
         segmentCtrl->ds1 = definition.startValue;
         segmentCtrl->ds2 = definition.endValue;
         break;
     case GridDistributionType::Copy:
     {
-        segmentCtrl->distribution = 2;
+        segmentCtrl->distribution = SegmentCtrl::DistributionType::Copy;
         segmentCtrl->segmentCopy = std::make_unique< SegmentCopy >();
         segmentCtrl->segmentCopy->lineList = definition.copyLineIds;
         break;
     }
     case GridDistributionType::Exponential:
-        segmentCtrl->distribution = 3;
+        segmentCtrl->distribution = SegmentCtrl::DistributionType::Exponential;
         segmentCtrl->cA1 = 0.5;
         segmentCtrl->cA2 = 1.0e-4;
         segmentCtrl->cA3 = 0.5;
