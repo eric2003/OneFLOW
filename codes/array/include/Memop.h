@@ -22,6 +22,7 @@ License
 #pragma once
 #include "NamespaceMacros.h"
 #include "Range.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -33,27 +34,24 @@ class ArrayPointer
 {
 public:
     ArrayPointer()
+        : shareMem( nullptr )
+        , data1( nullptr )
+        , data2( nullptr )
+        , data3( nullptr )
+        , data4( nullptr )
+        , datap1( nullptr )
+        , datap2( nullptr )
+        , datap3( nullptr )
+        , datap4( nullptr )
     {
-        shareMem = 0;
-        data1 = 0;
-        data2 = 0;
-        data3 = 0;
-        data4 = 0;
     }
 
-    ~ArrayPointer()
-    {
-        if ( ! shareMem )
-        {
-            delete[] data1;
-        }
-        
-        delete[] data2;
-        delete[] data3;
-        delete[] data4;
-    }
+    // unique_ptr members release owned blocks; shareMem views are not owned.
+    ~ArrayPointer() = default;
+
 public:
     T * shareMem;
+    // Non-owning views used by Multiarray indexing (may point into shareMem).
     T *    data1;
     T **   data2;
     T ***  data3;
@@ -63,6 +61,14 @@ public:
     T **   datap2;
     T ***  datap3;
     T **** datap4;
+
+private:
+    // Owned storage for index tables and element buffers.
+    std::unique_ptr<T[]>    owned1;
+    std::unique_ptr<T*[]>   owned2;
+    std::unique_ptr<T**[]>  owned3;
+    std::unique_ptr<T***[]> owned4;
+
 public:
 
     void Allocate( Range r0 )
@@ -119,10 +125,12 @@ public:
 
         if ( ! shareMem )
         {
-            this->data1 = new T [ bound0  ];
+            this->owned1 = std::make_unique<T[]>( static_cast<std::size_t>( bound0 ) );
+            this->data1 = this->owned1.get();
         }
         else
         {
+            this->owned1.reset();
             this->data1 = shareMem;
         }
 
@@ -131,20 +139,28 @@ public:
         this->datap1 = this->data1 - st1;
     }
 
+    void AllocateArray( Range r0 )
+    {
+        this->AllocateArray( r0, static_cast<T *>( nullptr ) );
+    }
+
     void AllocateArray( Range r0, Range r1 )
     {
         int bound0 = r0.Length();
         int bound1 = r1.Length();
 
         int bound01 = bound0 * bound1;
-        this->data2 = new T * [ bound1  ];
+        this->owned2 = std::make_unique<T*[]>( static_cast<std::size_t>( bound1 ) );
+        this->data2 = this->owned2.get();
 
         if ( ! shareMem )
         {
-            this->data1 = new T   [ bound01  ];
+            this->owned1 = std::make_unique<T[]>( static_cast<std::size_t>( bound01 ) );
+            this->data1 = this->owned1.get();
         }
         else
         {
+            this->owned1.reset();
             this->data1 = shareMem;
         }
 
@@ -168,15 +184,19 @@ public:
 
         int bound12  = bound1 * bound2;
         int bound012 = bound0 * bound12;
-        this->data3  = new T ** [ bound2   ];
-        this->data2  = new T *  [ bound12  ];
+        this->owned3 = std::make_unique<T**[]>( static_cast<std::size_t>( bound2 ) );
+        this->owned2 = std::make_unique<T*[]>( static_cast<std::size_t>( bound12 ) );
+        this->data3 = this->owned3.get();
+        this->data2 = this->owned2.get();
 
         if ( ! shareMem )
         {
-            this->data1 = new T   [ bound012  ];
+            this->owned1 = std::make_unique<T[]>( static_cast<std::size_t>( bound012 ) );
+            this->data1 = this->owned1.get();
         }
         else
         {
+            this->owned1.reset();
             this->data1 = shareMem;
         }
 
@@ -208,16 +228,22 @@ public:
         int bound23   = bound2 * bound3;
         int bound123  = bound1 * bound23;
         int bound0123 = bound0 * bound123;
-        
-        this->data4 = new T *** [ bound3    ];
-        this->data3 = new T **  [ bound23   ];
-        this->data2 = new T *   [ bound123  ];
+
+        this->owned4 = std::make_unique<T***[]>( static_cast<std::size_t>( bound3 ) );
+        this->owned3 = std::make_unique<T**[]>( static_cast<std::size_t>( bound23 ) );
+        this->owned2 = std::make_unique<T*[]>( static_cast<std::size_t>( bound123 ) );
+        this->data4 = this->owned4.get();
+        this->data3 = this->owned3.get();
+        this->data2 = this->owned2.get();
+
         if ( ! shareMem )
         {
-            this->data1 = new T   [ bound0123  ];
+            this->owned1 = std::make_unique<T[]>( static_cast<std::size_t>( bound0123 ) );
+            this->data1 = this->owned1.get();
         }
         else
         {
+            this->owned1.reset();
             this->data1 = shareMem;
         }
 
