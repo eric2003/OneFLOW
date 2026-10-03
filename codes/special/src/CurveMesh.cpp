@@ -43,7 +43,7 @@ bool CurveMesh::IsValidState() const
 {
     if ( this->state == 1 ) return false;
 
-    if ( segmentCtrl->distribution == 2 )
+    if ( segmentCtrl->distribution == SegmentCtrl::DistributionType::Copy )
     {
     }
     return true;
