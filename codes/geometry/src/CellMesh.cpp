@@ -89,7 +89,7 @@ void CellMesh::CalcCellSpan( UnsGrid & grid )
     if ( this->span.size() ) return;
     int nCells = this->GetNumberOfCells();
     this->span.resize( nCells );
-    CalcC2f( grid );
+    CalcC2f( &grid );
 
     FaceTopo * faceTopo = grid->faceTopo.get();
     LinkField & c2f = this->cellTopo.c2f;
