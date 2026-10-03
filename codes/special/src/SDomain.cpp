@@ -93,9 +93,9 @@ void SDomain::ConstructSDomainCtrlPoint()
     for ( int iMLine = 0; iMLine < nMLine; ++ iMLine )
     {
         MLine * mLine = mLineList[ iMLine ].get();
-        mLine->ConstructPointToDomainMap();
-        mLine->ConstructCtrlPoint();
-        mLine->ConstructSLineCtrlPoint();
+        LinkField pointIdLink;
+        this->GetPointIdLink( mLine->lineList, pointIdLink );
+        mLine->ConstructDomainTopo( this->domain_id, pointIdLink );
     }
 
     for ( int iMLine = 0; iMLine < nMLine; ++ iMLine )
