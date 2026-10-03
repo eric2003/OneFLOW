@@ -133,7 +133,7 @@ void Grad::StoreBcGrad()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
-    FaceTopo * faceTopo = grid->faceTopo.get();
+    FaceTopo * faceTopo = &grid->GetFaceTopo();
 
     IntField & bcType = faceTopo->bcManager->bcRecord->bcType;
 

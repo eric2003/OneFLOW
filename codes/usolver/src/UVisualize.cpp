@@ -172,7 +172,7 @@ void BcVisual::ResolveElementEdge()
 void BcVisual::Calcf2n( int bcType )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
-    FaceTopo * faceTopo = grid->faceTopo.get();
+    FaceTopo * faceTopo = &grid->GetFaceTopo();
     LinkField & total_f2n = faceTopo->faces;
     BcRecord * bcRecord = faceTopo->bcManager->bcRecord.get();
 
@@ -460,7 +460,7 @@ void UVisualize::ShowField( std::ostringstream & oss, VisualTool * visualTool )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
-    FaceTopo * faceTopo = grid->faceTopo.get();
+    FaceTopo * faceTopo = &grid->GetFaceTopo();
     LinkField & f2n = faceTopo->faces;
 
     int nNodes = grid->nNodes;
@@ -518,7 +518,7 @@ void UVisualize::ShowBc( std::ostringstream & oss, VisualTool * visualTool )
     UnsGrid * grid = Zone::GetUnsGrid();
 
     IntField bcTypeList;
-    grid->faceTopo->bcManager->CalcBcType( bcTypeList );
+    grid->GetFaceTopo().bcManager->CalcBcType(bcTypeList);
     int nBcType = bcTypeList.size();
 
     for ( int iBcType = 0; iBcType < nBcType; ++ iBcType )
@@ -543,7 +543,7 @@ void UVisualize::ShowBcDebugTest( std::ostringstream & oss, VisualTool * visualT
     UnsGrid * grid = Zone::GetUnsGrid();
 
     IntField bcTypeList;
-    grid->faceTopo->bcManager->CalcBcType( bcTypeList );
+    grid->GetFaceTopo().bcManager->CalcBcType(bcTypeList);
     int nBcType = bcTypeList.size();
 
     for ( int iBcType = 0; iBcType < nBcType; ++ iBcType )

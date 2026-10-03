@@ -72,7 +72,7 @@ void UTurbField::Init()
     matrix_r = GetFieldPointer< MRField > ( grid, "turb_matrix_r" );
     timestep = GetFieldPointer< MRField > ( grid, "timestep" );
 
-    dist = & grid->cellMesh->dist;
+    dist = & grid->GetCellMesh().dist;
 
     rhs = res;
 

@@ -100,7 +100,7 @@ void UploadInterfaceValue( UnsGrid * grid, MRField * field2D, const std::string 
         for ( int iFace = 0; iFace < nIFaces; ++ iFace )
         {
             int iCell;
-            grid->faceTopo->GetSId( iFace, ghostId + 1, iCell );
+            grid->GetFaceTopo().GetSId(iFace, ghostId + 1, iCell);
 
             for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
             {
@@ -136,7 +136,7 @@ void DownloadInterfaceValue( UnsGrid * grid, MRField * field2D, const std::strin
         for ( int iFace = 0; iFace < nIFaces; ++ iFace )
         {
             int iCell;
-            grid->faceTopo->GetTId( iFace, ghostId + 1, iCell );
+            grid->GetFaceTopo().GetTId(iFace, ghostId + 1, iCell);
 
             for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
             {

@@ -397,7 +397,7 @@ void UTurbSrcFlux::CalcLengthScaleOfSaDes()
 
     CalcLengthLesOfSa( lesLength );
 
-    RealField & wall_dist = grid->cellMesh->dist;
+    RealField & wall_dist = grid->GetCellMesh().dist;
 
     for ( int cId = 0; cId < numberOfCells; ++ cId ) 
     {
@@ -419,7 +419,7 @@ void UTurbSrcFlux::CalcLengthScaleOfSstDes()
 
     CalcLengthLesOfSst( lesLength );
 
-    RealField & wall_dist = grid->cellMesh->dist;
+    RealField & wall_dist = grid->GetCellMesh().dist;
 
     for ( int cId = 0; cId < numberOfCells; ++ cId ) 
     {
@@ -440,7 +440,7 @@ void UTurbSrcFlux::CalcLengthScaleOfSaDdes()
 
     int nCells = grid->nCells;
 
-    RealField & wall_dist = grid->cellMesh->dist;
+    RealField & wall_dist = grid->GetCellMesh().dist;
 
     RealField lesLength( nCells );
     CalcLengthLesOfSa( lesLength );
@@ -486,7 +486,7 @@ void UTurbSrcFlux::CalcLengthScaleOfSstDdes()
 
     int nCells = grid->nCells;
 
-    RealField & wall_dist = grid->cellMesh->dist;
+    RealField & wall_dist = grid->GetCellMesh().dist;
 
     RealField lesLength( nCells );
     CalcLengthLesOfSst( lesLength );
@@ -545,8 +545,8 @@ void UTurbSrcFlux::CalcLengthScaleOfSaIddes()
 
     int nCells = grid->nCells;
 
-    RealField & wall_dist = grid->cellMesh->dist;
-    RealField & span = grid->cellMesh->span;
+    RealField & wall_dist = grid->GetCellMesh().dist;
+    RealField & span = grid->GetCellMesh().span;
 
     RealField lesLength( nCells );
 
@@ -629,8 +629,8 @@ void UTurbSrcFlux::CalcLengthScaleOfSstIddes()
 
     int nCells = grid->nCells;
 
-    RealField & wall_dist = grid->cellMesh->dist;
-    RealField & span = grid->cellMesh->span;
+    RealField & wall_dist = grid->GetCellMesh().dist;
+    RealField & span = grid->GetCellMesh().span;
 
     RealField lesLength( nCells );
 
@@ -730,7 +730,7 @@ void UTurbSrcFlux::CalcLengthScaleOfWallDist()
     UnsGrid * grid = Zone::GetUnsGrid();
     MRField * len_scale = GetFieldPointer< MRField > ( grid, "len_scale" );
 
-    RealField & wall_dist = grid->cellMesh->dist;
+    RealField & wall_dist = grid->GetCellMesh().dist;
     int nCells = grid->nCells;
 
     for ( int cId = 0; cId < nCells; ++ cId ) 
@@ -926,7 +926,7 @@ void CalcSubgridLengthScale( RealField & lenth_scale )
 
     CalcCellSpan( *grid );
 
-    RealField & wall_dist = grid->cellMesh->dist;
+    RealField & wall_dist = grid->GetCellMesh().dist;
     RealField & largestSpacing = GetLargestSpacing();
 
     lenth_scale.resize( grid->nCells );
@@ -947,7 +947,7 @@ RealField & GetLargestSpacing()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     CalcCellSpan( *grid );
-    return grid->cellMesh->span;
+    return grid->GetCellMesh().span;
 }
 
 EndNameSpace
