@@ -69,7 +69,7 @@ void UnsGrid::Init()
     this->faceMesh = std::make_unique< FaceMesh >();
     this->cellMesh = std::make_unique< CellMesh >();
     faceTopo->grid = this;
-    this->faceMesh->faceTopo = this->faceTopo.get();
+    this->faceMesh->BindFaceTopo( *this->faceTopo );
 }
 
 void UnsGrid::Decode( DataBook * databook )
