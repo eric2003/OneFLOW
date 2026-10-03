@@ -46,7 +46,7 @@ int Cgns2OneFlowZoneType( int zoneType );
 class GridElem
 {
 public:
-    GridElem( const HXVector< CgnsZone * > & cgnsZones, int iZone );
+    GridElem( const HXVector< CgnsZone * > & cgnsZones );
     ~GridElem();
 public:
     ElemFeature elem_feature;
@@ -84,7 +84,7 @@ public:
 public:
     [[nodiscard]] Grids GenerateLocalOneFlowGrids();
 private:
-    [[nodiscard]] HXVector< std::unique_ptr< GridElem > > AllocateGridElem() const;
+    [[nodiscard]] HXVector< std::unique_ptr< GridElem > > CreateGridElements() const;
     void PrepareUnsCalcGrid( HXVector< std::unique_ptr< GridElem > > & data ) const;
 };
 

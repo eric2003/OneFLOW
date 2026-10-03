@@ -72,7 +72,7 @@ int Cgns2OneFlowZoneType( int zoneType )
     }
 }
 
-GridElem::GridElem( const HXVector< CgnsZone * > & cgnsZones, int iZone )
+GridElem::GridElem( const HXVector< CgnsZone * > & cgnsZones )
 {
     this->cgnsZones = cgnsZones;
 
@@ -405,7 +405,7 @@ ZgridElem::ZgridElem( CgnsZbase * cgnsZbase )
 
 ZgridElem::~ZgridElem() = default;
 
-HXVector< std::unique_ptr< GridElem > > ZgridElem::AllocateGridElem() const
+HXVector< std::unique_ptr< GridElem > > ZgridElem::CreateGridElements() const
 {
     HXVector< std::unique_ptr< GridElem > > data;
 
@@ -426,7 +426,7 @@ HXVector< std::unique_ptr< GridElem > > ZgridElem::AllocateGridElem() const
 
         for ( int iZone = 0; iZone < nZones; ++ iZone )
         {
-            data.push_back( std::make_unique< GridElem >( cgnsZones, iZone ) );
+            data.push_back( std::make_unique< GridElem >( cgnsZones ) );
         }
     }
     else
@@ -456,7 +456,7 @@ void ZgridElem::PrepareUnsCalcGrid( HXVector< std::unique_ptr< GridElem > > & da
 
 Grids ZgridElem::GenerateLocalOneFlowGrids()
 {
-    HXVector< std::unique_ptr< GridElem > > data = this->AllocateGridElem();
+    HXVector< std::unique_ptr< GridElem > > data = this->CreateGridElements();
     this->PrepareUnsCalcGrid( data );
 
     Grids grids;
