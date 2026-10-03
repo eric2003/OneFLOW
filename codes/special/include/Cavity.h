@@ -23,6 +23,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -35,7 +36,7 @@ public:
 public:
     void Run();
     void DumpPlot3DGrid( GridMediator & gridMediator );
-    void DumpCgnsGrid( GridMediator & gridMediator );
+    void DumpCgnsGrid( std::unique_ptr< GridMediator > gridMediator );
 };
 
 
