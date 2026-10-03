@@ -72,6 +72,36 @@ void UnsGrid::Init()
     this->faceMesh->BindFaceTopo( *this->faceTopo );
 }
 
+FaceTopo & UnsGrid::GetFaceTopo()
+{
+    return *this->faceTopo;
+}
+
+const FaceTopo & UnsGrid::GetFaceTopo() const
+{
+    return *this->faceTopo;
+}
+
+FaceMesh & UnsGrid::GetFaceMesh()
+{
+    return *this->faceMesh;
+}
+
+const FaceMesh & UnsGrid::GetFaceMesh() const
+{
+    return *this->faceMesh;
+}
+
+CellMesh & UnsGrid::GetCellMesh()
+{
+    return *this->cellMesh;
+}
+
+const CellMesh & UnsGrid::GetCellMesh() const
+{
+    return *this->cellMesh;
+}
+
 void UnsGrid::Decode( DataBook * databook )
 {
     this->ReadGrid( databook );
