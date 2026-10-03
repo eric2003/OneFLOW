@@ -152,8 +152,8 @@ void LineMachine::SetDistribution( const GridDistributionDefinition & definition
         break;
     case GridDistributionType::Tanh:
         segmentCtrl->distribution = 4;
-        segmentCtrl->ds1 = definition.value1;
-        segmentCtrl->ds2 = definition.value2;
+        segmentCtrl->ds1 = definition.startValue;
+        segmentCtrl->ds2 = definition.endValue;
         break;
     case GridDistributionType::Copy:
     {
