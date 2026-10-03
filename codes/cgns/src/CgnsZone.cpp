@@ -86,7 +86,7 @@ int CgnsZone::GetVolBcType() const
 
 void CgnsZone::Create()
 {
-    this->cgnsZsection = std::make_unique< CgnsZsection >( this );
+    this->cgnsZsection = std::make_unique< CgnsZsection >( *this );
     this->cgnsZbc = std::make_unique< CgnsZbc >( this );
     this->cgnsCoor = std::make_unique< CgnsCoor >( this );
 }
