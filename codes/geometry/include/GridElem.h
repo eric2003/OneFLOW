@@ -88,7 +88,6 @@ public:
 public:
     HXVector< std::unique_ptr< GridElem > > data;
     CgnsZbase * cgnsZbase;
-    Grids grids;
 public:
     GridElem * GetGridElem( int iGridElem );
     void AddGridElem( std::unique_ptr< GridElem > gridElem );
