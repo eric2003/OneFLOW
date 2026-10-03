@@ -51,26 +51,22 @@ public:
     GridElem( const HXVector< CgnsZone * > & cgnsZones, int iZone );
     ~GridElem();
 public:
-    // [Refactored] Changed from raw pointers to value types (Stack allocation).
-    // This eliminates manual new/delete and ensures exception safety.
     ElemFeature elem_feature;
     MeshPointManager point_factory;
     FaceSolver face_solver;
     HXVector< CgnsZone * > cgnsZones;
-    std::unique_ptr< Grid > grid;
     Real minLen, maxLen;
 public:
     CgnsZone * GetCgnsZone( int iZone );
     const CgnsZone * GetCgnsZone( int iZone ) const;
     int GetNZones() const;
 public:
-    void CreateGrid( const HXVector< CgnsZone * > & cgnsZones, int iZone );
     void PrepareUnsCalcGrid();
     void PrepareUnsCalcGridNormal();
     void InitCgnsElements();
     void ScanBcFace();
     void GenerateCalcElement();
-    void GenerateCalcGrid();
+    [[nodiscard]] std::unique_ptr< Grid > GenerateCalcGrid();
     void GenerateCalcGrid( Grid & grid );
     void CalcBoundaryType( UnsGrid & grid );
     void ReorderLink( UnsGrid & grid );
@@ -96,7 +92,6 @@ public:
     [[nodiscard]] Grids GenerateLocalOneFlowGrids();
     void AllocateGridElem();
     void PrepareUnsCalcGrid();
-    void GenerateCalcGrid();
 
 };
 
