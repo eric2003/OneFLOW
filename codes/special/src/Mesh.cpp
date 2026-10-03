@@ -390,8 +390,8 @@ void Mesh::ConstructTopology()
 
     // Estimate the number of faces and reserve space
     HXSize_t estimatedFaces = numberOfCells * 2;  // Rough estimate
-    faceTopo->lCells.reserve(estimatedFaces);
-    faceTopo->rCells.reserve(estimatedFaces);
+    faceTopo->GetLeftCells().reserve(estimatedFaces);
+    faceTopo->GetRightCells().reserve(estimatedFaces);
     faceTopo->lPosition.reserve(estimatedFaces);
     faceTopo->rPosition.reserve(estimatedFaces);
     faceTopo->fTypes.reserve(estimatedFaces);
@@ -423,8 +423,8 @@ void Mesh::ConstructTopology()
             if ( isNew )
             {
                 // Add face data
-                faceTopo->lCells.push_back(iCell);
-                faceTopo->rCells.push_back(ONEFLOW::INVALID_INDEX);
+                faceTopo->GetLeftCells().push_back(iCell);
+                faceTopo->GetRightCells().push_back(ONEFLOW::INVALID_INDEX);
                 faceTopo->lPosition.push_back(iLocalFace);
                 faceTopo->rPosition.push_back(ONEFLOW::INVALID_INDEX);
                 faceTopo->fTypes.push_back(faceType);
@@ -432,7 +432,7 @@ void Mesh::ConstructTopology()
             }
             else
             {
-                faceTopo->rCells[faceIndex] = iCell;
+                faceTopo->GetRightCells()[faceIndex] = iCell;
                 faceTopo->rPosition[faceIndex] = iLocalFace;
             }
         }
@@ -454,7 +454,7 @@ void Mesh::SwapBoundary()
     int iCount = 0;
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
-        int rc = faceTopo->rCells[ iFace ];
+        int rc = faceTopo->GetRightCells()[ iFace ];
         if ( rc == ONEFLOW::INVALID_INDEX )
         {
             orderMapping[ iCount ++ ] = iFace;
@@ -467,28 +467,28 @@ void Mesh::SwapBoundary()
 
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
-        int rc = faceTopo->rCells[ iFace ];
+        int rc = faceTopo->GetRightCells()[ iFace ];
         if ( rc != ONEFLOW::INVALID_INDEX )
         {
             orderMapping[ iCount ++ ] = iFace;
         }
     }
 
-    IntField lCellIndexSwap = faceTopo->lCells;
-    IntField rCellIndexSwap = faceTopo->rCells;
+    IntField lCellIndexSwap = faceTopo->GetLeftCells();
+    IntField rCellIndexSwap = faceTopo->GetRightCells();
 
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         int oldFaceIndex = orderMapping[ iFace ];
-        faceTopo->lCells[ iFace ] = lCellIndexSwap[ oldFaceIndex ];
-        faceTopo->rCells[ iFace ] = rCellIndexSwap[ oldFaceIndex ];
+        faceTopo->GetLeftCells()[ iFace ] = lCellIndexSwap[ oldFaceIndex ];
+        faceTopo->GetRightCells()[ iFace ] = rCellIndexSwap[ oldFaceIndex ];
     }
 
     HXSize_t numberOfCells = this->cellMesh->GetNumberOfCells();
 
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        faceTopo->rCells[ iFace ] = iFace + numberOfCells;
+        faceTopo->GetRightCells()[ iFace ] = iFace + numberOfCells;
     }
 
     IntField lPositionSwap = faceTopo->lPosition;
@@ -643,7 +643,7 @@ void Mesh::CalcGhostCellCenterVol1D()
     // For ghost cells
     for ( HXSize_t iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        int lc  = faceTopo->lCells[ iFace ];
+        int lc  = faceTopo->GetLeftCells()[ iFace ];
         int rc = iFace + numberOfCells;
         if ( area[ iFace ] > SMALL )
         {
@@ -696,7 +696,7 @@ void Mesh::CalcCellCenterVol2D()
 
     for ( HXSize_t iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        int lc = faceTopo->lCells[ iFace ];
+        int lc = faceTopo->GetLeftCells()[ iFace ];
         Real dot = ( xfc[ iFace ] * xfn[ iFace ] +
                      yfc[ iFace ] * yfn[ iFace ] +
                      zfc[ iFace ] * zfn[ iFace ] ) * area[ iFace ];
@@ -709,8 +709,8 @@ void Mesh::CalcCellCenterVol2D()
     // For interior cell faces
     for ( HXSize_t iFace = nBFaces; iFace < nFaces; ++ iFace )
     {
-        int lc = faceTopo->lCells[ iFace ];
-        int rc = faceTopo->rCells[ iFace ];
+        int lc = faceTopo->GetLeftCells()[ iFace ];
+        int rc = faceTopo->GetRightCells()[ iFace ];
         Real dot = ( xfc[ iFace ] * xfn[ iFace ] +
                      yfc[ iFace ] * yfn[ iFace ] +
                      zfc[ iFace ] * zfn[ iFace ] ) * area[ iFace ];
@@ -756,7 +756,7 @@ void Mesh::CalcCellCenterVol2D()
     // For ghost cells
     for ( HXSize_t iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        int lc = faceTopo->lCells[ iFace ];
+        int lc = faceTopo->GetLeftCells()[ iFace ];
         int rc = iFace + numberOfCells;
         if ( area[ iFace ] > SMALL )
         {
@@ -813,8 +813,8 @@ void Mesh::CalcCellCenterVol3D()
 
     for ( HXSize_t iFace = 0; iFace < nFaces; ++ iFace )
     {
-        int lc = faceTopo->lCells[ iFace ];
-        int rc = faceTopo->rCells[ iFace ];
+        int lc = faceTopo->GetLeftCells()[ iFace ];
+        int rc = faceTopo->GetRightCells()[ iFace ];
 
         IntField & faceIndex = faceTopo->faces[ iFace ];
 
@@ -894,7 +894,7 @@ void Mesh::CalcCellCenterVol3D()
     // For ghost cells
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        int lc = faceTopo->lCells[ iFace ];
+        int lc = faceTopo->GetLeftCells()[ iFace ];
         int rc = iFace + numberOfCells;
 
         if ( area[ iFace ] > SMALL )
