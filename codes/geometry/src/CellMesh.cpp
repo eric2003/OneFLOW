@@ -91,7 +91,7 @@ void CellMesh::CalcCellSpan( UnsGrid & grid )
     this->span.resize( nCells );
     CalcC2f( grid );
 
-    FaceTopo & faceTopo = *grid.faceTopo;
+    FaceTopo & faceTopo = grid.GetFaceTopo();
     LinkField & c2f = this->cellTopo.c2f;
     IntField & lcf = faceTopo.lCells;
     IntField & rcf = faceTopo.rCells;
@@ -123,7 +123,7 @@ void CellMesh::CalcCellSpan( UnsGrid & grid )
 
 void CalcCellSpan( UnsGrid & grid )
 {
-    grid.cellMesh->CalcCellSpan( grid );
+    grid.GetCellMesh().CalcCellSpan( grid );
 }
 
 EndNameSpace
