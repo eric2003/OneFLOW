@@ -125,15 +125,15 @@ void CellTopo::CalcC2C( FaceTopo & faceTopo )
 
 void CalcC2f( UnsGrid & grid )
 {
-    FaceTopo & faceTopo = *grid.faceTopo;
-    CellTopo & cellTopo = grid.cellMesh->cellTopo;
+    FaceTopo & faceTopo = grid.GetFaceTopo();
+    CellTopo & cellTopo = grid.GetCellMesh().cellTopo;
     cellTopo.CalcC2f( faceTopo );
 }
 
 void CalcC2C( UnsGrid & grid )
 {
-    FaceTopo & faceTopo = *grid.faceTopo;
-    CellTopo & cellTopo = grid.cellMesh->cellTopo;
+    FaceTopo & faceTopo = grid.GetFaceTopo();
+    CellTopo & cellTopo = grid.GetCellMesh().cellTopo;
     cellTopo.CalcC2C( faceTopo );
 }
 
