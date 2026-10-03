@@ -231,7 +231,9 @@ void SDomain::ConstructPointToLineMap( std::map< int, IntSet > & pointToLineMap 
     for ( int iMLine = 0; iMLine < mLineList.size(); ++ iMLine )
     {
         MLine * mLine = mLineList[ iMLine ].get();
-        mLine->ConstructPointToLineMap( pointToLineMap );
+        LinkField pointIdLink;
+        this->GetPointIdLink( mLine->lineList, pointIdLink );
+        mLine->ConstructPointToLineMap( pointIdLink, pointToLineMap );
     }
 }
 
