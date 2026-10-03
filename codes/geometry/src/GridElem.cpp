@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "GridElem.h"
+#include "GridTypes.h"
 #include "CgnsZone.h"
 #include "CgnsZbase.h"
 #include "DataBase.h"
@@ -401,13 +402,11 @@ ZgridElem::ZgridElem( CgnsZbase * cgnsZbase )
 
 ZgridElem::~ZgridElem() = default;
 
-HXVector< std::unique_ptr< GridElem > > ZgridElem::CreateGridElements() const
+HXVector< std::unique_ptr< GridElem > > ZgridElem::CreateGridElements( bool multiBlock ) const
 {
     HXVector< std::unique_ptr< GridElem > > data;
 
-    const int multiBlock = GetDataValue< int >( "multiBlock" );
-
-    if ( multiBlock == 0 )
+    if ( ! multiBlock )
     {
         HXVector< CgnsZone * > cgnsZones;
 
@@ -452,7 +451,13 @@ void ZgridElem::PrepareUnsCalcGrid( HXVector< std::unique_ptr< GridElem > > & da
 
 Grids ZgridElem::GenerateLocalOneFlowGrids()
 {
-    HXVector< std::unique_ptr< GridElem > > data = this->CreateGridElements();
+    return this->GenerateLocalOneFlowGrids( GridConfig::FromDataBase() );
+}
+
+Grids ZgridElem::GenerateLocalOneFlowGrids( const GridConfig & config )
+{
+    HXVector< std::unique_ptr< GridElem > > data =
+        this->CreateGridElements( config.multiBlock );
     this->PrepareUnsCalcGrid( data );
 
     Grids grids;
