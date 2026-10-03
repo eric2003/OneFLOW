@@ -126,14 +126,14 @@ void CellTopo::CalcC2C( FaceTopo & faceTopo )
 void CalcC2f( UnsGrid & grid )
 {
     FaceTopo & faceTopo = grid.GetFaceTopo();
-    CellTopo & cellTopo = grid.GetCellMesh().cellTopo;
+    CellTopo & cellTopo = grid.GetCellMesh().GetCellTopo();
     cellTopo.CalcC2f( faceTopo );
 }
 
 void CalcC2C( UnsGrid & grid )
 {
     FaceTopo & faceTopo = grid.GetFaceTopo();
-    CellTopo & cellTopo = grid.GetCellMesh().cellTopo;
+    CellTopo & cellTopo = grid.GetCellMesh().GetCellTopo();
     cellTopo.CalcC2C( faceTopo );
 }
 
