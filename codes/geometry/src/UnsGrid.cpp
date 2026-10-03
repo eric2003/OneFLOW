@@ -154,15 +154,15 @@ void UnsGrid::NormalizeBc()
 {
     for ( int iFace = 0; iFace < this->nBFaces; ++ iFace )
     {
-        this->GetFaceTopo().rCells[ iFace ] = iFace + this->nCells;
+        this->GetFaceTopo().GetRightCells()[ iFace ] = iFace + this->nCells;
     }
 }
 
 void UnsGrid::ReadGridFaceTopology( DataBook * databook )
 {
     this->GetFaceTopo().faces.resize( this->nFaces );
-    this->GetFaceTopo().lCells.resize( this->nFaces );
-    this->GetFaceTopo().rCells.resize( this->nFaces );
+    this->GetFaceTopo().GetLeftCells().resize( this->nFaces );
+    this->GetFaceTopo().GetRightCells().resize( this->nFaces );
     this->GetFaceTopo().fTypes.resize( this->nFaces );
 
     IntField numFaceNode( this->nFaces );
@@ -189,18 +189,18 @@ void UnsGrid::ReadGridFaceTopology( DataBook * databook )
 
     std::cout << "Setting the connection mode of face to cell......\n";
 
-    ONEFLOW::HXRead( databook, this->GetFaceTopo().lCells );
-    ONEFLOW::HXRead( databook, this->GetFaceTopo().rCells );
+    ONEFLOW::HXRead( databook, this->GetFaceTopo().GetLeftCells() );
+    ONEFLOW::HXRead( databook, this->GetFaceTopo().GetRightCells() );
 
     for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
     {
-        if ( this->GetFaceTopo().lCells[ iFace ] < 0 )
+        if ( this->GetFaceTopo().GetLeftCells()[ iFace ] < 0 )
         {
             //need to reverse the node ordering
             IntField & f2n = this->GetFaceTopo().faces[ iFace ];
             std::reverse( f2n.begin(), f2n.end() );
             // now reverse leftCellIndex  and rightCellIndex
-            ONEFLOW::SWAP( this->GetFaceTopo().lCells[ iFace ], this->GetFaceTopo().rCells[ iFace ] );
+            ONEFLOW::SWAP( this->GetFaceTopo().GetLeftCells()[ iFace ], this->GetFaceTopo().GetRightCells()[ iFace ] );
         }
     }
 }
@@ -293,8 +293,8 @@ void UnsGrid::WriteGridFaceTopology1D( DataBook * databook )
     }
     ONEFLOW::HXWrite( databook, faceNodeMem );
 
-    ONEFLOW::HXWrite( databook, this->GetFaceTopo().lCells );
-    ONEFLOW::HXWrite( databook, this->GetFaceTopo().rCells );
+    ONEFLOW::HXWrite( databook, this->GetFaceTopo().GetLeftCells() );
+    ONEFLOW::HXWrite( databook, this->GetFaceTopo().GetRightCells() );
 }
 
 void UnsGrid::WriteGridFaceTopology( DataBook * databook )
@@ -320,8 +320,8 @@ void UnsGrid::WriteGridFaceTopology( DataBook * databook )
     }
     ONEFLOW::HXWrite( databook, faceNodeMem );
 
-    ONEFLOW::HXWrite( databook, this->GetFaceTopo().lCells );
-    ONEFLOW::HXWrite( databook, this->GetFaceTopo().rCells );
+    ONEFLOW::HXWrite( databook, this->GetFaceTopo().GetLeftCells() );
+    ONEFLOW::HXWrite( databook, this->GetFaceTopo().GetRightCells() );
 }
 
 void UnsGrid::WriteBoundaryTopology( DataBook * databook )
