@@ -122,7 +122,7 @@ TEST( ZgridMediatorTest, AddUniquePtrTakesOwnership )
     EXPECT_EQ( zgm.GetGridMediator( 0 )->gridType, "plot3d" );
 }
 
-TEST( ZgridMediatorTest, AddUniquePtrTakesOwnership )
+TEST( ZgridMediatorTest, AddUniquePtrTakesOwnershipWithTwoZones )
 {
     ZgridMediator zgm;
     auto owned = std::make_unique< GridMediator >();
