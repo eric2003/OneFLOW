@@ -29,7 +29,7 @@ BeginNameSpace( ONEFLOW )
 
 BlockMachine block_Machine;
 
-void BlockMachine::AddFaceToBlock( TextFileParser & textFileParser )
+void BlockMachine::ApplyRelation( TextFileParser & textFileParser )
 {
     std::string word = textFileParser.ReadNextWord();
     if ( word == "L2F" )
