@@ -286,7 +286,7 @@ std::unique_ptr< UnsGrid > GridElem::GenerateCalcGrid( int gridId )
 void GridElem::GenerateCalcGrid( UnsGrid & grid )
 {
     grid.nCells = this->elem_feature.eTypes.size();
-    grid.GetCellMesh().cellTopo.eTypes = this->elem_feature.eTypes;
+    grid.GetCellMesh().GetCellTopo().eTypes = this->elem_feature.eTypes;
     std::cout << "   nCells = " << grid.nCells << std::endl;
 
     int nNodes = this->point_factory.localToGlobal.size();
