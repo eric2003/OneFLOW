@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "GridCreate.h"
+#include "GridTypes.h"
 #include "Transfinite.h"
 #include "CurveLine.h"
 #include "CurveMesh.h"
@@ -49,14 +50,14 @@ GridCreate::~GridCreate()
 {
 }
 
-void GridCreate::Run()
+void GridCreate::Run( const GridConfig & config )
 {
-    this->GenePlate();
+    this->GenePlate( config );
 }
 
-void GridCreate::GenePlate()
+void GridCreate::GenePlate( const GridConfig & config )
 {
-    grid_Machine.Run();
+    grid_Machine.Run( config.layoutFile );
 }
 
 
