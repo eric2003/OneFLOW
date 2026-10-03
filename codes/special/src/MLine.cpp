@@ -220,13 +220,15 @@ MLine::MLine( CoorMap * coorMap )
 
 MLine::~MLine() = default;
 
-void MLine::ConstructSLineCtrlPoint( const LinkField & pointIdLink )
+void MLine::ConstructSLineCtrlPoint()
 {
     int nSline = this->slineList.size();
     for ( int iSLine = 0; iSLine < nSline; ++ iSLine )
     {
         SLine * sLine = this->slineList[ iSLine ].get();
-        sLine->ConstructCtrlPoints( pointIdLink[ iSLine ] );
+        const int lineId = sLine->line_id;
+        const IntField & pointIdList = blkFaceSolver.GetLine( lineId );
+        sLine->ConstructCtrlPoints( pointIdList );
     }
 }
 
@@ -297,14 +299,14 @@ void MLine::CalcCoor()
     this->CalcBcCoor( this->coorMap, openLine );
 }
 
-void MLine::ConstructDomainTopo( int domainId, const LinkField & pointIdLink )
+void MLine::ConstructDomainTopo()
 {
     this->ConstructLineToDomainMap();
-    ONEFLOW::ConstructPointToDomainMap( domainId, pointIdLink, this->pointToDomainMap );
-    ONEFLOW::ConstructPointToPointMap( pointIdLink, this->pointToPointMap );
+    this->ConstructPointToDomainMap();
+    this->ConstructPointToPointMap();
     this->ConstructBcPoint();
     this->ConstructCtrlPoint();
-    this->ConstructSLineCtrlPoint( pointIdLink );
+    this->ConstructSLineCtrlPoint();
 }
 
 void MLine::AddSubLine( int line_id )
