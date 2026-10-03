@@ -42,9 +42,9 @@ License
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
 
-CgnsZbc1to1::CgnsZbc1to1( CgnsZone * cgnsZone )
+CgnsZbc1to1::CgnsZbc1to1( CgnsZone & cgnsZone )
+    : cgnsZone( cgnsZone )
 {
-    this->cgnsZone = cgnsZone;
     this->n1to1 = 0;
 }
 
@@ -98,9 +98,9 @@ void CgnsZbc1to1::ReadZn1to1( int n1to1 )
 
 void CgnsZbc1to1::ReadZn1to1()
 {
-    int fileId = cgnsZone->cgnsBase.cgnsFile->fileId;
-    int baseId = cgnsZone->cgnsBase.baseId;
-    int zId = cgnsZone->zId;
+    int fileId = cgnsZone.cgnsBase.cgnsFile->fileId;
+    int baseId = cgnsZone.cgnsBase.baseId;
+    int zId = cgnsZone.zId;
 
     // find out how many general interfaces there are in this zone
     // the following is the number of structured grid interface

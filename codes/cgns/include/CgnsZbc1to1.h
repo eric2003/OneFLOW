@@ -44,12 +44,12 @@ class CgnsBc1to1;
 class CgnsZbc1to1
 {
 public:
-    CgnsZbc1to1( CgnsZone * cgnsZone );
+    explicit CgnsZbc1to1( CgnsZone & cgnsZone );
     ~CgnsZbc1to1();
 public:
     int n1to1;
     HXVector< std::unique_ptr< CgnsBc1to1 > > cgnsBc1to1s;
-    CgnsZone * cgnsZone;
+    CgnsZone & cgnsZone;
 public:
     void AddCgns1To1BcRegion( CgnsBc1to1 * cgnsBc1to1 );
     void AddCgns1To1BcRegion( std::unique_ptr< CgnsBc1to1 > cgnsBc1to1 );

@@ -8,7 +8,7 @@ License
     OneFLOW is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+    (at your option) 3 of the License, or (at your option) any later version.
 
     OneFLOW is distributed in the hope that it will be useful, but WITHOUT
     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
@@ -44,12 +44,12 @@ class TestRegion;
 class CgnsZbcBoco
 {
 public:
-    CgnsZbcBoco( CgnsZone * cgnsZone );
+    explicit CgnsZbcBoco( CgnsZone & cgnsZone );
     ~CgnsZbcBoco();
 public:
     int nBoco;
     HXVector< std::unique_ptr< CgnsBcBoco > > cgnsBcBocos;
-    CgnsZone * cgnsZone;
+    CgnsZone & cgnsZone;
 public:
     void AddCgnsBcBoco( CgnsBcBoco * cgnsBcBoco );
     void AddCgnsBcBoco( std::unique_ptr< CgnsBcBoco > cgnsBcBoco );

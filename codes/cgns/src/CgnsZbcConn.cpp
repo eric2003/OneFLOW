@@ -44,9 +44,9 @@ License
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
 
-CgnsZbcConn::CgnsZbcConn( CgnsZone * cgnsZone )
+CgnsZbcConn::CgnsZbcConn( CgnsZone & cgnsZone )
+    : cgnsZone( cgnsZone )
 {
-    this->cgnsZone = cgnsZone;
     this->nConn = 0;
 }
 
@@ -91,9 +91,9 @@ void CgnsZbcConn::ReadZnconn( int nConn )
 
 void CgnsZbcConn::ReadZnconn()
 {
-    int fileId = cgnsZone->cgnsBase.cgnsFile->fileId;
-    int baseId = cgnsZone->cgnsBase.baseId;
-    int zId = cgnsZone->zId;
+    int fileId = cgnsZone.cgnsBase.cgnsFile->fileId;
+    int baseId = cgnsZone.cgnsBase.baseId;
+    int zId = cgnsZone.zId;
 
     cg_nconns( fileId, baseId, zId, & this->nConn );
     this->PrintZnconn();

@@ -45,13 +45,13 @@ class CgnsBcConn;
 class CgnsZbcConn
 {
 public:
-    CgnsZbcConn( CgnsZone * cgnsZone );
+    explicit CgnsZbcConn( CgnsZone & cgnsZone );
     ~CgnsZbcConn();
 public:
     int nConn;
     HXVector< std::unique_ptr< CgnsBcConn > > cgnsBcConns;
     
-    CgnsZone * cgnsZone;
+    CgnsZone & cgnsZone;
 public:
     void AddCgnsConnBcRegion( CgnsBcConn * cgnsBcConn );
     void AddCgnsConnBcRegion( std::unique_ptr< CgnsBcConn > cgnsBcConn );

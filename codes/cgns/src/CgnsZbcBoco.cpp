@@ -13,7 +13,7 @@ License
     OneFLOW is distributed in the hope that it will be useful, but WITHOUT
     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
     FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-    for more details.
+    along with the terms of the License.
 
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
@@ -43,9 +43,9 @@ License
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
 
-CgnsZbcBoco::CgnsZbcBoco( CgnsZone * cgnsZone )
+CgnsZbcBoco::CgnsZbcBoco( CgnsZone & cgnsZone )
+    : cgnsZone( cgnsZone )
 {
-    this->cgnsZone = cgnsZone;
     this->nBoco = 0;
 }
 
@@ -136,9 +136,9 @@ void CgnsZbcBoco::PrintZnboco()
 
 void CgnsZbcBoco::ReadZnboco()
 {
-    int fileId = cgnsZone->cgnsBase.cgnsFile->fileId;
-    int baseId = cgnsZone->cgnsBase.baseId;
-    int zId = cgnsZone->zId;
+    int fileId = cgnsZone.cgnsBase.cgnsFile->fileId;
+    int baseId = cgnsZone.cgnsBase.baseId;
+    int zId = cgnsZone.zId;
 
     // Determine the number of boundary conditions for this zone.
     cg_nbocos( fileId, baseId, zId, & this->nBoco );
@@ -180,9 +180,9 @@ void CgnsZbcBoco::DumpCgnsZbcBoco()
 
 CgnsBcBoco * CgnsZbcBoco::WriteCgnsBoco( const std::string & bocoName, BCType_t bocotype,  PointSetType_t ptset_type, cgsize_t npnts, const cgsize_t * pnts )
 {
-    int fileId = cgnsZone->cgnsBase.cgnsFile->fileId;
-    int baseId = cgnsZone->cgnsBase.baseId;
-    int zId = cgnsZone->zId;
+    int fileId = cgnsZone.cgnsBase.cgnsFile->fileId;
+    int baseId = cgnsZone.cgnsBase.baseId;
+    int zId = cgnsZone.zId;
 
     std::unique_ptr< CgnsBcBoco > ownedBcBoco = std::make_unique< CgnsBcBoco >( this->cgnsZone );
     CgnsBcBoco * cgnsBcBoco = ownedBcBoco.get();
