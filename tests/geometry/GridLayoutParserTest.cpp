@@ -30,7 +30,7 @@ TEST( GridLayoutParserTest, ParsesLaminarPlateLayout )
     EXPECT_DOUBLE_EQ( layout.points[ 0 ].x, -2.0 );
     EXPECT_EQ( layout.dimensions[ 2 ].pointCount, 85 );
     EXPECT_EQ( layout.distributions[ 0 ].type, GridDistributionType::Distance );
-    EXPECT_DOUBLE_EQ( layout.distributions[ 0 ].value2, 0.01 );
+    EXPECT_DOUBLE_EQ( layout.distributions[ 0 ].endValue, 0.01 );
     EXPECT_EQ( layout.boundaries[ 0 ].boundaryType, 3 );
     EXPECT_EQ( layout.lineToFaces[ 0 ].lineId, 1 );
     EXPECT_EQ( layout.faceToBlocks[ 1 ].blockId, 2 );

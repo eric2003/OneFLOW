@@ -49,8 +49,8 @@ struct GridDistributionDefinition
 {
     int lineId = 0;
     GridDistributionType type = GridDistributionType::Distance;
-    Real value1 = 0.0;
-    Real value2 = 0.0;
+    Real startValue = 0.0;
+    Real endValue = 0.0;
     std::vector< int > copyLineIds;
 };
 

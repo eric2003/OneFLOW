@@ -93,8 +93,8 @@ GridLayout GridLayoutParser::Parse( const std::string & fileName ) const
                       distribution.type == GridDistributionType::Distance ||
                       distribution.type == GridDistributionType::Tanh )
             {
-                distribution.value1 = parser.ReadNextDigit< Real >();
-                distribution.value2 = parser.ReadNextDigit< Real >();
+                distribution.startValue = parser.ReadNextDigit< Real >();
+                distribution.endValue = parser.ReadNextDigit< Real >();
             }
 
             layout.distributions.push_back( distribution );

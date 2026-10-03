@@ -142,13 +142,13 @@ void LineMachine::SetDistribution( const GridDistributionDefinition & definition
     {
     case GridDistributionType::Ratio:
         segmentCtrl->distribution = 0;
-        segmentCtrl->ratio1 = definition.value1;
-        segmentCtrl->ratio2 = definition.value2;
+        segmentCtrl->ratio1 = definition.startValue;
+        segmentCtrl->ratio2 = definition.endValue;
         break;
     case GridDistributionType::Distance:
         segmentCtrl->distribution = 1;
-        segmentCtrl->ds1 = definition.value1;
-        segmentCtrl->ds2 = definition.value2;
+        segmentCtrl->ds1 = definition.startValue;
+        segmentCtrl->ds2 = definition.endValue;
         break;
     case GridDistributionType::Tanh:
         segmentCtrl->distribution = 4;
