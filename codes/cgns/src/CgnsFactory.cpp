@@ -128,7 +128,7 @@ void CgnsFactory::ConvertStrCgns2UnsCgnsGrid()
     this->cgnsZbase = std::move(unsCgnsZbase);
 
     // Update the non-owning observer
-    this->zgridElem->cgnsZbase = this->cgnsZbase.get();
+    this->zgridElem->RebindCgnsZbase( this->cgnsZbase.get() );
     cgns_global.Bind( this->cgnsZbase.get() );
 }
 
