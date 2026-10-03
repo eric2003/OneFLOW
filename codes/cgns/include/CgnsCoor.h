@@ -37,7 +37,7 @@ class NodeMesh;
 class CgnsCoor
 {
 public:
-    CgnsCoor( CgnsZone * cgnsZone );
+    explicit CgnsCoor( CgnsZone & cgnsZone );
     ~CgnsCoor();
 public:
     int ndim;
@@ -46,7 +46,7 @@ public:
     HXVector< DataType_t > typeList;
     HXVector< void * > coor;
     StringField coorNameList;
-    CgnsZone * cgnsZone;
+    CgnsZone & cgnsZone;
     std::unique_ptr< NodeMesh > nodeMesh;
 public:
     CgInt irmin[ 3 ], irmax[ 3 ], cellSize[ 3 ];

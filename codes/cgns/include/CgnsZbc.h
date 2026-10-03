@@ -47,14 +47,14 @@ class CgnsZbcBoco;
 class CgnsZbc
 {
 public:
-    CgnsZbc( CgnsZone * cgnsZone );
+    explicit CgnsZbc( CgnsZone & cgnsZone );
     ~CgnsZbc();
 public:
     std::unique_ptr< CgnsZbcConn > cgnsZbcConn;
     std::unique_ptr< CgnsZbc1to1 > cgnsZbc1to1;
     std::unique_ptr< CgnsZbcBoco > cgnsZbcBoco;
 
-    CgnsZone * cgnsZone;
+    CgnsZone & cgnsZone;
 public:
     void ScanBcFace( FaceSolver & faceSolver );
 public:
