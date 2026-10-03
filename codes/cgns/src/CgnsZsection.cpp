@@ -72,7 +72,8 @@ int CgnsZsection::GetNSections() const
 bool CgnsZsection::ExistSection( const std::string & sectionName )
 {
     if ( this->cgnsSections.size() == 0 ) return false;
-    for ( int iSection = 0; iSection < this->nSection; ++ iSection )
+    const int nSections = this->GetNSections();
+    for ( int iSection = 0; iSection < nSections; ++ iSection )
     {
         CgnsSection * cgnsSection = this->GetCgnsSection( iSection );
         if ( cgnsSection->sectionName == sectionName ) return true;
@@ -110,7 +111,8 @@ void CgnsZsection::CreateCgnsSections( int nSections )
 
 void CgnsZsection::CreateConnList()
 {
-    for ( int iSection = 0; iSection < this->nSection; ++ iSection )
+    const int nSections = this->GetNSections();
+    for ( int iSection = 0; iSection < nSections; ++ iSection )
     {
         CgnsSection * cgnsSection = this->GetCgnsSection( iSection );
         cgnsSection->CreateConnList();
@@ -119,7 +121,8 @@ void CgnsZsection::CreateConnList()
 
 void CgnsZsection::ConvertToInnerDataStandard()
 {
-    for ( int iSection = 0; iSection < this->nSection; ++ iSection )
+    const int nSections = this->GetNSections();
+    for ( int iSection = 0; iSection < nSections; ++ iSection )
     {
         CgnsSection * cgnsSection = this->GetCgnsSection( iSection );
         cgnsSection->ConvertToInnerDataStandard();
@@ -128,7 +131,8 @@ void CgnsZsection::ConvertToInnerDataStandard()
 
 CgnsSection * CgnsZsection::GetSectionByEid( int eId )
 {
-    for ( int iSection = 0; iSection < this->nSection; ++ iSection )
+    const int nSections = this->GetNSections();
+    for ( int iSection = 0; iSection < nSections; ++ iSection )
     {
         CgnsSection * cgnsSection = this->GetCgnsSection( iSection );
         if ( cgnsSection->startId <= eId && 
@@ -161,9 +165,10 @@ void CgnsZsection::ReadCgnsSections()
     std::cout << "   Reading Cgns Section Data......\n";
     std::cout << "\n";
 
-    for ( int iSection = 0; iSection < this->nSection; ++ iSection )
+    const int nSections = this->GetNSections();
+    for ( int iSection = 0; iSection < nSections; ++ iSection )
     {
-        std::cout << "-->iSection     = " << iSection << " numberOfCgnsSections = " << this->nSection << "\n";
+        std::cout << "-->iSection     = " << iSection << " numberOfCgnsSections = " << nSections << "\n";
         CgnsSection * cgnsSection = this->GetCgnsSection( iSection );
         cgnsSection->ReadCgnsSection();
     }
@@ -174,9 +179,10 @@ void CgnsZsection::DumpCgnsSections()
     std::cout << "   Dumping Cgns Section Data......\n";
     std::cout << "\n";
 
-    for ( int iSection = 0; iSection < this->nSection; ++ iSection )
+    const int nSections = this->GetNSections();
+    for ( int iSection = 0; iSection < nSections; ++ iSection )
     {
-        std::cout << "-->iSection     = " << iSection << " numberOfCgnsSections = " << this->nSection << "\n";
+        std::cout << "-->iSection     = " << iSection << " numberOfCgnsSections = " << nSections << "\n";
         CgnsSection * cgnsSection = this->GetCgnsSection( iSection );
         cgnsSection->DumpCgnsSection();
     }
@@ -184,7 +190,8 @@ void CgnsZsection::DumpCgnsSections()
 
 void CgnsZsection::SetElemPosition()
 {
-    for ( int iSection = 0; iSection < this->nSection; ++ iSection )
+    const int nSections = this->GetNSections();
+    for ( int iSection = 0; iSection < nSections; ++ iSection )
     {
         CgnsSection * cgnsSection = this->GetCgnsSection( iSection );
         cgnsSection->SetElemPosition();
