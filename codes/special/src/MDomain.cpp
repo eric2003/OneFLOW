@@ -64,7 +64,7 @@ void MDomain::CalcSubDomainCtrlCoor()
 
 void MDomain::AddSubDomain( int fid, IntField & lineList, IntField & posList )
 {
-    auto sdomain = std::make_unique< SDomain >( this );
+    auto sdomain = std::make_unique< SDomain >( this->coorMap );
     sdomain->SetDomain( fid, lineList, posList );
     sDomainList.push_back( std::move( sdomain ) );
 }
