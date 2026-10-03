@@ -364,7 +364,7 @@ void InitSlipFaceTopo()
 
         UnsGrid * grid = Zone::GetUnsGrid();
 
-        BcRecord * bcRecord = grid->GetFaceTopo().bcManager->bcRecord.get();
+        BcRecord * bcRecord = grid->GetFaceTopo().&GetBcRecord();
         int nBFaces = bcRecord->GetNBFace();
 
         int nSlipFace = 0;
