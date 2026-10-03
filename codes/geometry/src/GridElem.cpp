@@ -74,7 +74,7 @@ int Cgns2OneFlowZoneType( int zoneType )
     }
 }
 
-GridElem::GridElem( HXVector< CgnsZone * > zoneViews )
+GridElem::GridElem( HXVector< std::reference_wrapper< CgnsZone > > zoneViews )
     : zoneViews( std::move( zoneViews ) ),
       minLen( LARGE ),
       maxLen( -LARGE )
@@ -83,14 +83,14 @@ GridElem::GridElem( HXVector< CgnsZone * > zoneViews )
 
 GridElem::~GridElem() = default;
 
-CgnsZone * GridElem::GetCgnsZone( int iZone )
+CgnsZone & GridElem::GetCgnsZone( int iZone )
 {
-    return this->zoneViews[ iZone ];
+    return this->zoneViews[ iZone ].get();
 }
 
-const CgnsZone * GridElem::GetCgnsZone( int iZone ) const
+const CgnsZone & GridElem::GetCgnsZone( int iZone ) const
 {
-    return this->zoneViews[ iZone ];
+    return this->zoneViews[ iZone ].get();
 }
 
 int GridElem::GetNZones() const
@@ -105,12 +105,12 @@ bool GridElem::HasPolygonSection() const
         Fatal( "GridElem requires at least one CGNS zone." );
     }
 
-    const bool hasPolygon = this->GetCgnsZone( 0 )->cgnsZsection->HasPolygonSection();
+    const bool hasPolygon = this->GetCgnsZone( 0 ).cgnsZsection->HasPolygonSection();
 
     for ( int iZone = 1; iZone < this->GetNZones(); ++ iZone )
     {
         const bool zoneHasPolygon =
-            this->GetCgnsZone( iZone )->cgnsZsection->HasPolygonSection();
+            this->GetCgnsZone( iZone ).cgnsZsection->HasPolygonSection();
 
         if ( zoneHasPolygon != hasPolygon )
         {
@@ -178,22 +178,22 @@ void GridElem::ScanPolygonFace()
     int nZone = this->GetNZones();
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
+        CgnsZone & cgnsZone = this->GetCgnsZone( iZone );
 
-        cgnsZone->ConstructCgnsGridPoints( &this->point_factory );
+        cgnsZone.ConstructCgnsGridPoints( &this->point_factory );
 
         //Scan NGON_n PolygonFace
         const int nSections = cgnsZone->cgnsZsection->GetNSections();
         for ( int iSection = 0; iSection < nSections; ++ iSection )
         {
-            CgnsSection * cgnsSection = cgnsZone->cgnsZsection->GetCgnsSection( iSection );
+            CgnsSection * cgnsSection = cgnsZone.cgnsZsection->GetCgnsSection( iSection );
             if ( cgnsSection->eType != NGON_n ) continue;
             this->face_solver.ScanPolygonFace( cgnsSection );
         }
         //Scan NFACE_n PolyhedronElement
         for ( int iSection = 0; iSection < nSections; ++ iSection )
         {
-            CgnsSection * cgnsSection = cgnsZone->cgnsZsection->GetCgnsSection( iSection );
+            CgnsSection * cgnsSection = cgnsZone.cgnsZsection->GetCgnsSection( iSection );
             if ( cgnsSection->eType != NFACE_n ) continue;
             this->face_solver.ScanPolyhedronElement( cgnsSection );
             this->SetPolyhedronElementType( *cgnsSection );
@@ -222,7 +222,7 @@ void GridElem::InitCgnsElements()
         CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
         
         cgnsZone->ConstructCgnsGridPoints( &this->point_factory );
-        cgnsZone->SetElementTypeAndNode( &this->elem_feature );
+        cgnsZone.SetElementTypeAndNode( &this->elem_feature );
     }
 }
 
@@ -232,7 +232,7 @@ void GridElem::ScanBcFace()
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
-        cgnsZone->ScanBcFace( this->face_solver );
+        cgnsZone.ScanBcFace( this->face_solver );
     }
 
     this->face_solver.ScanInterfaceBc();
@@ -446,13 +446,13 @@ HXVector< std::unique_ptr< GridElem > > ZgridElem::CreateGridElements(
 
     if ( assemblyMode == GridAssemblyMode::AggregateZones )
     {
-        HXVector< CgnsZone * > zoneViews;
+        HXVector< std::reference_wrapper< CgnsZone > > zoneViews;
 
         const int nOriZone = cgnsZbase.GetNZones();
 
         for ( int iZone = 0; iZone < nOriZone; ++ iZone )
         {
-            zoneViews.push_back( cgnsZbase.GetCgnsZone( iZone ) );
+            zoneViews.emplace_back( cgnsZbase.GetCgnsZone( iZone ) );
         }
 
         const int nGridElems = 1;
