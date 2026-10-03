@@ -128,11 +128,11 @@ int GridElem::GetVolBcType() const
         Fatal( "GridElem requires at least one CGNS zone." );
     }
 
-    const int volBcType = this->GetCgnsZone( 0 )->GetVolBcType();
+    const int volBcType = this->GetCgnsZone( 0 ).GetVolBcType();
 
     for ( int iZone = 1; iZone < this->GetNZones(); ++ iZone )
     {
-        if ( this->GetCgnsZone( iZone )->GetVolBcType() != volBcType )
+        if ( this->GetCgnsZone( iZone ).GetVolBcType() != volBcType )
         {
             Fatal( "GridElem cannot combine CGNS zones with different volume boundary types." );
         }
@@ -219,7 +219,7 @@ void GridElem::InitCgnsElements()
     int nZone = this->GetNZones();
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
+        CgnsZone & cgnsZone = this->GetCgnsZone( iZone );
         
         cgnsZone->ConstructCgnsGridPoints( &this->point_factory );
         cgnsZone.SetElementTypeAndNode( &this->elem_feature );
@@ -468,8 +468,8 @@ HXVector< std::unique_ptr< GridElem > > ZgridElem::CreateGridElements(
 
         for ( int iZone = 0; iZone < nZones; ++ iZone )
         {
-            HXVector< CgnsZone * > zoneViews;
-            zoneViews.push_back( cgnsZbase.GetCgnsZone( iZone ) );
+            HXVector< std::reference_wrapper< CgnsZone > > zoneViews;
+            zoneViews.emplace_back( cgnsZbase.GetCgnsZone( iZone ) );
 
             data.push_back( std::make_unique< GridElem >( std::move( zoneViews ) ) );
         }
