@@ -135,7 +135,7 @@ void Grad::StoreBcGrad()
 
     FaceTopo * faceTopo = &grid->GetFaceTopo();
 
-    IntField & bcType = faceTopo->bcManager->bcRecord->bcType;
+    IntField & bcType = faceTopo->GetBcRecord().bcType;
 
     int nBFaces = bcType.size();
 
