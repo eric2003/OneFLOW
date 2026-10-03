@@ -60,7 +60,7 @@ ElemFeature::~ElemFeature()
 }
 
 
-void ElemFeature::ScanElements()
+void ElemFeature::ScanElements( FaceSolver & faceSolver )
 {
     int nElement = this->eTypes.size();
 
@@ -84,10 +84,10 @@ void ElemFeature::ScanElements()
             std::cout << " eId = " << eId << " Total Element Number = " << nElement << std::endl;
         }
 
-        this->face_solver->ScanElementFace( this->eNodeId[ eId ], eType, eId );
+        faceSolver.ScanElementFace( this->eNodeId[ eId ], eType, eId );
     }
 
-    std::cout << " ScanElements Face number = " << this->face_solver->GetNSimpleFace() << std::endl;
+    std::cout << " ScanElements Face number = " << faceSolver.GetNSimpleFace() << std::endl;
 }
 
 

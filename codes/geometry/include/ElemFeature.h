@@ -58,8 +58,7 @@ public:
     IntField eTypes;       //Element type
     CgLinkField eNodeId;   //Element index
 public:
-    FaceSolver * face_solver;
-    void ScanElements();
+    void ScanElements( FaceSolver & faceSolver );
 
 };
 

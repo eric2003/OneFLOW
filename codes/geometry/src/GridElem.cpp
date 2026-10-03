@@ -82,8 +82,6 @@ GridElem::GridElem( const HXVector< CgnsZone * > & cgnsZones )
     // [Refactored] Removed manual 'new' allocations. 
     // Value types are automatically constructed by the compiler.
 
-    // Inject non-owning observer pointer into elem_feature
-    this->elem_feature.face_solver = &this->face_solver;
 }
 
 GridElem::~GridElem() = default;
@@ -122,13 +120,13 @@ void GridElem::PrepareUnsCalcGridNormal()
     std::cout << " InitCgnsElements()\n";
     this->InitCgnsElements();
     std::cout << " ScanElements()\n";
-    this->elem_feature.ScanElements();
+    this->elem_feature.ScanElements( this->face_solver );
     std::cout << " ScanBcFace()\n";
     this->ScanBcFace();
 
     //Continue to parse
     std::cout << " ScanElements()\n";
-    this->elem_feature.ScanElements();
+    this->elem_feature.ScanElements( this->face_solver );
     this->GenerateCalcElement();
 }
 
@@ -199,10 +197,10 @@ void GridElem::ScanBcFace()
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
-        cgnsZone->ScanBcFace( this->elem_feature.face_solver );
+        cgnsZone->ScanBcFace( &this->face_solver );
     }
 
-    this->elem_feature.face_solver->ScanInterfaceBc();
+    this->face_solver.ScanInterfaceBc();
 }
 
 void GridElem::GenerateCalcElement()
