@@ -96,8 +96,8 @@ void CircleLineMesh::CalcCoor( Real s, Real & xt, Real & yt, Real & zt )
 
     Real cit = alpha0 + ratio * angleSpan;
     xt = cp.x + radius * cos( cit );
-    yt = cp->y + radius * sin( cit );
-    zt = half * ( pt1->z + pt2.z );
+    yt = cp.y + radius * sin( cit );
+    zt = half * ( pt1.z + pt2.z );
 }
 
 EndNameSpace
