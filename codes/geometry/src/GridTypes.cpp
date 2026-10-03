@@ -60,10 +60,12 @@ GridConfig GridConfig::FromDataBase()
 
     cfg.sourceType = ParseGridFileType( GetDataValue< std::string >( "sourceGridType" ) );
     cfg.targetType = ParseGridFileType( GetDataValue< std::string >( "targetGridType" ) );
-    cfg.topo       = GetDataValue< std::string >( "topoType" );
+    cfg.topology = ParseGridTopology( GetDataValue< std::string >( "topoType" ) );
 
-    cfg.multiBlock    = GetDataValue< int >( "multiBlock" );
-    cfg.axisDir       = GetDataValue< int >( "axis_dir" );
+    cfg.multiBlock = GetDataValue< int >( "multiBlock" ) != 0;
+    cfg.axisDirection = GetDataValue< int >( "axis_dir" ) == 1
+        ? GridAxisDirection::ZToY
+        : GridAxisDirection::Y;
     cfg.partitionType = GetDataValue< int >( "partition_type" );
 
     try
