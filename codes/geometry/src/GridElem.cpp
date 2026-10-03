@@ -276,8 +276,6 @@ void GridElem::GenerateCalcElement()
 
 std::unique_ptr< UnsGrid > GridElem::GenerateCalcGrid( int gridId )
 {
-    const CgnsZone * cgnsZone = this->GetCgnsZone( 0 );
-
     auto grid = ONEFLOW::CreateUnsGridUnique();
     grid->level = 0;
     grid->id = gridId;
