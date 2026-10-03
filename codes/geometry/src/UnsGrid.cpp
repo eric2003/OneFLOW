@@ -160,10 +160,10 @@ void UnsGrid::NormalizeBc()
 
 void UnsGrid::ReadGridFaceTopology( DataBook * databook )
 {
-    this->GetFaceTopo().faces.resize( this->nFaces );
+    this->GetFaceTopo().GetFaces().resize( this->nFaces );
     this->GetFaceTopo().GetLeftCells().resize( this->nFaces );
     this->GetFaceTopo().GetRightCells().resize( this->nFaces );
-    this->GetFaceTopo().fTypes.resize( this->nFaces );
+    this->GetFaceTopo().GetFaceTypes().resize( this->nFaces );
 
     IntField numFaceNode( this->nFaces );
 
@@ -183,7 +183,7 @@ void UnsGrid::ReadGridFaceTopology( DataBook * databook )
         for ( int iNode = 0; iNode < nNodes; ++ iNode )
         {
             int pid = faceNodeMem[ ipos ++ ];
-            this->GetFaceTopo().faces[ iFace ].push_back( pid );
+            this->GetFaceTopo().GetFaces()[ iFace ].push_back( pid );
         }
     }
 
@@ -197,7 +197,7 @@ void UnsGrid::ReadGridFaceTopology( DataBook * databook )
         if ( this->GetFaceTopo().GetLeftCells()[ iFace ] < 0 )
         {
             //need to reverse the node ordering
-            IntField & f2n = this->GetFaceTopo().faces[ iFace ];
+            IntField & f2n = this->GetFaceTopo().GetFaces()[ iFace ];
             std::reverse( f2n.begin(), f2n.end() );
             // now reverse leftCellIndex  and rightCellIndex
             ONEFLOW::SWAP( this->GetFaceTopo().GetLeftCells()[ iFace ], this->GetFaceTopo().GetRightCells()[ iFace ] );
@@ -269,14 +269,14 @@ void UnsGrid::WriteGridFaceTopology1D( DataBook * databook )
     ONEFLOW::HXWrite( databook, this->GetCellMesh().GetCellTopo().eTypes );
 
     //write face types
-    int ntmpFaces = this->GetFaceTopo().fTypes.size();
-    ONEFLOW::HXWrite( databook, this->GetFaceTopo().fTypes );
+    int ntmpFaces = this->GetFaceTopo().GetFaceTypes().size();
+    ONEFLOW::HXWrite( databook, this->GetFaceTopo().GetFaceTypes() );
 
     IntField numFaceNode( this->nFaces );
 
     for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
     {
-        numFaceNode[ iFace ] = this->GetFaceTopo().faces[ iFace ].size();
+        numFaceNode[ iFace ] = this->GetFaceTopo().GetFaces()[ iFace ].size();
     }
 
     ONEFLOW::HXWrite( databook, numFaceNode );
@@ -288,7 +288,7 @@ void UnsGrid::WriteGridFaceTopology1D( DataBook * databook )
         int nNodes = numFaceNode[ iFace ];
         for ( int iNode = 0; iNode < nNodes; ++ iNode )
         {
-            faceNodeMem.push_back( this->GetFaceTopo().faces[ iFace ][ iNode ] );
+            faceNodeMem.push_back( this->GetFaceTopo().GetFaces()[ iFace ][ iNode ] );
         }
     }
     ONEFLOW::HXWrite( databook, faceNodeMem );
@@ -303,7 +303,7 @@ void UnsGrid::WriteGridFaceTopology( DataBook * databook )
 
     for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
     {
-        numFaceNode[ iFace ] = this->GetFaceTopo().faces[ iFace ].size();
+        numFaceNode[ iFace ] = this->GetFaceTopo().GetFaces()[ iFace ].size();
     }
 
     ONEFLOW::HXWrite( databook, numFaceNode );
@@ -315,7 +315,7 @@ void UnsGrid::WriteGridFaceTopology( DataBook * databook )
         int nNodes = numFaceNode[ iFace ];
         for ( int iNode = 0; iNode < nNodes; ++ iNode )
         {
-            faceNodeMem.push_back( this->GetFaceTopo().faces[ iFace ][ iNode ] );
+            faceNodeMem.push_back( this->GetFaceTopo().GetFaces()[ iFace ][ iNode ] );
         }
     }
     ONEFLOW::HXWrite( databook, faceNodeMem );
@@ -405,7 +405,7 @@ void UnsGrid::GenerateLgMapping( IFaceLink * iFaceLink )
         {
             continue;
         }
-        IntField & faceNode = this->GetFaceTopo().faces[ iBFace ];
+        IntField & faceNode = this->GetFaceTopo().GetFaces()[ iBFace ];
         int nNodes = faceNode.size();
 
         gINode.resize( nNodes );
@@ -468,7 +468,7 @@ void UnsGrid::GetMinMaxDistance( Real & dismin, Real & dismax )
 
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
-        IntField & faceNode = this->GetFaceTopo().faces[ iFace ];
+        IntField & faceNode = this->GetFaceTopo().GetFaces()[ iFace ];
         int nNodes = faceNode.size();
         for ( int iNode = 0; iNode < nNodes; ++ iNode )
         {
