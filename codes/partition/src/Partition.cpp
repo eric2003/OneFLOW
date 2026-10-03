@@ -437,7 +437,7 @@ void Partition::CalcG2lNode( UnsGrid * ggrid, int zid, UnsGrid * grid )
     int nFaces = ggrid->nFaces;
     int nNodes = ggrid->nNodes;
 
-    LinkField & f2n = ggrid->GetFaceTopo().faces;
+    LinkField & f2n = ggrid->GetFaceTopo().GetFaces();
 
     for ( int iNode = 0; iNode < nNodes; ++ iNode )
     {
@@ -522,8 +522,8 @@ void Partition::SetGeometricRelationship( UnsGrid * ggrid, int zid, UnsGrid * gr
 
 void Partition::CalcF2N( UnsGrid * ggrid, int zid, UnsGrid * grid )
 {
-    LinkField & f2n = grid->GetFaceTopo().faces;
-    LinkField & gf2n = ggrid->GetFaceTopo().faces;
+    LinkField & f2n = grid->GetFaceTopo().GetFaces();
+    LinkField & gf2n = ggrid->GetFaceTopo().GetFaces();
 
     int nFaces = grid->nFaces;
     f2n.resize( nFaces );
