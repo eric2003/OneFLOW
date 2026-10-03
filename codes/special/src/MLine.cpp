@@ -218,9 +218,9 @@ void SLine::ConstructPointToLineMap( std::map< int, IntSet > & pointToLineMap ) 
     ConstructInt2Map( p2, this->line_id, pointToLineMap );
 }
 
-MLine::MLine( SDomain * sDomain )
+MLine::MLine( CoorMap * coorMap )
+    : coorMap( coorMap )
 {
-    this->coorMap = sDomain->coorMap;
 }
 
 MLine::~MLine() = default;
