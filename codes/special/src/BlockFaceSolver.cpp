@@ -153,7 +153,7 @@ void BlkFaceSolver::MyFaceGenerateFaceMesh()
 
 void BlkFaceSolver::MyFaceGenerateLineMesh()
 {
-    int nLine = line_Machine.curveInfoList.size();
+    int nLine = line_Machine.GetNLine();
     slineList.resize( nLine );
     for ( int iSLine = 0; iSLine < nLine; ++ iSLine )
     {
