@@ -70,7 +70,7 @@ void UGeom::Init()
 
     FaceMesh & faceMesh = grid->GetFaceMesh();
     CellMesh & cellMesh = grid->GetCellMesh();
-    CellTopo & cellTopo = cellMesh.cellTopo;
+    CellTopo & cellTopo = cellMesh.GetCellTopo();
 
     ug.xfn = & faceMesh.xfn;
     ug.yfn = & faceMesh.yfn;
