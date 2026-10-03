@@ -521,7 +521,7 @@ void SDomain::CreateInpFaceList( HXVector< std::unique_ptr<Face2D> > &facelist )
     auto face2d = std::make_unique<Face2D>();
     face2d->face_id = sDomain->domain_id;
     face2d->ctrlpoints = sDomain->ctrlpoints;
-    BlkF2C & face_struct = blkFaceSolver.face2Block[ face2d->face_id - 1 ];
+    BlkF2C & face_struct = blkFaceSolver.GetFaceToBlock( face2d->face_id - 1 );
     face2d->bcType = face_struct.bctype;
     face2d->CalcStEd( coorMap );
     facelist.push_back( std::move( face2d ) );

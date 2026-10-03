@@ -228,6 +228,16 @@ const BlkF2C & BlkFaceSolver::GetLineToFace( int line_id ) const
     return line2Face[ line_id - 1 ];
 }
 
+BlkF2C & BlkFaceSolver::GetFaceToBlock( int faceIndex )
+{
+    return face2Block[ faceIndex ];
+}
+
+const BlkF2C & BlkFaceSolver::GetFaceToBlock( int faceIndex ) const
+{
+    return face2Block[ faceIndex ];
+}
+
 int BlkFaceSolver::FindLineId( const IntField & line ) const
 {
     return this->lineLookup.Find(line);
