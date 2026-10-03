@@ -107,10 +107,10 @@ void UGeom::Init()
 void UGeom::CreateBcTypeRegion()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
-    BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord.get();
-    bcRecord->CreateBcTypeRegion();
+    BcRecord & bcRecord = *grid->faceTopo->bcManager->bcRecord;
+    bcRecord.CreateBcTypeRegion();
 
-    ug.bcRecord = bcRecord;
+    ug.bcRecord = &bcRecord;
 }
 
 void UGeom::SetStEd( int flag )
