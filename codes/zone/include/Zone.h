@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*\
+/*---------------------------------------------------------------------------*\\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
@@ -18,8 +18,7 @@ License
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
-\*---------------------------------------------------------------------------*/
-
+\\*---------------------------------------------------------------------------*/
 
 #pragma once
 #include "HXDefine.h"
@@ -28,7 +27,6 @@ License
 #include <memory>
 #include <string>
 #include <vector>
-
 
 BeginNameSpace( ONEFLOW )
 
@@ -47,8 +45,6 @@ public:
     static std::vector< Grids > globalGrids;
     static int nLocalZones;
     static void AddGrid( int zid, std::unique_ptr< Grid > grid );
-    // Compatibility: takes ownership of a raw new'd Grid*.
-    static void AddGrid( int zid, Grid * grid );
     static void ReleaseGrids();
     static void InitLayout( StringField & fileNameList );
     static void InitLayout( StringField & fileNameList, const std::string & caseDir );
@@ -63,8 +59,6 @@ public:
     static UnsGrid * GetUnsGrid();
 public:
     static void AddScalarGrid( int zid, std::unique_ptr< ScalarGrid > grid );
-    // Compatibility: takes ownership of a raw new'd ScalarGrid*.
-    static void AddScalarGrid( int zid, ScalarGrid * grid );
     static ScalarGrid * GetScalarGrid( int iZone );
     static ScalarGrid * GetScalarGrid();
 public:
