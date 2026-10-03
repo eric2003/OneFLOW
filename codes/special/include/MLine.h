@@ -56,7 +56,7 @@ public:
 class MLine : public DomData
 {
 public:
-    MLine( SDomain * sDomain );
+    explicit MLine( CoorMap * coorMap );
     ~MLine();
 public:
     int pos;
