@@ -118,9 +118,9 @@ void CellTopo::CalcC2f( FaceTopo & faceTopo )
     }
 }
 
-void CellTopo::CalcC2C( FaceTopo * faceTopo )
+void CellTopo::CalcC2C( FaceTopo & faceTopo )
 {
-    faceTopo->CalcC2C( this->c2c );
+    faceTopo.CalcC2C( this->c2c );
 }
 
 void CalcC2f( UnsGrid * grid )
@@ -132,7 +132,7 @@ void CalcC2f( UnsGrid * grid )
 
 void CalcC2C( UnsGrid * grid )
 {
-    FaceTopo * faceTopo = grid->faceTopo.get();
+    FaceTopo & faceTopo = *grid->faceTopo;
     CellTopo * cellTopo = &grid->cellMesh->cellTopo;
     cellTopo->CalcC2C( faceTopo );
 }
