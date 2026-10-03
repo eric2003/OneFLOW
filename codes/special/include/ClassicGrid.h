@@ -33,7 +33,7 @@ public:
     ClassicGrid();
     ~ClassicGrid();
 public:
-    void Run( const std::optional< GridGenerationType > & generationType ) const;
+    void Run( const GridConfig & config ) const;
 };
 
 EndNameSpace
