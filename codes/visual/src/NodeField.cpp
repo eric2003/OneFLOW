@@ -104,7 +104,7 @@ void ApplyBoundaryConditionToNodeField( RealField & qNodeField, RealField & qFie
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     FaceTopo * faceTopo = &grid->GetFaceTopo();
-    BcRecord * bcRecord = faceTopo->bcManager->bcRecord.get();
+    BcRecord * bcRecord = &faceTopo->GetBcRecord();
     LinkField & f2c = faceTopo->faces;
 
     int nNodes = grid->nNodes;
