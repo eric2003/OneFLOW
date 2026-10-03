@@ -23,7 +23,6 @@ License
 #include "GridMachine.h"
 #include "GridLayout.h"
 #include "GridLayoutParser.h"
-#include "BlockFaceSolver.h"
 #include "PointMachine.h"
 #include "LineMachine.h"
 #include "DomainMachine.h"
