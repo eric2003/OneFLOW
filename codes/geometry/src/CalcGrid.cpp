@@ -67,11 +67,9 @@ void CalcGrid::Init( Grids grids )
 
 void CalcGrid::BuildInterfaceLink()
 {
-    const GridConfig config = GridConfig::FromDataBase();
-
-    if ( config.objective == GridObjective::Partition )
+    if ( this->config.objective == GridObjective::Partition )
     {
-        const int partitionType = config.partitionType;
+        const int partitionType = this->config.partitionType;
         if ( partitionType == 1 )
         {
             this->ReconstructLink();
@@ -217,9 +215,7 @@ void CalcGrid::GenerateLink()
 
 void CalcGrid::ModifyBcType()
 {
-    const GridConfig config = GridConfig::FromDataBase();
-
-    if ( config.ignoreNoBoundary ) return;
+    if ( this->config.ignoreNoBoundary ) return;
 
     const int nZone = GridsSize( grids );
     for ( int iZone = 0; iZone < nZone; ++ iZone )
