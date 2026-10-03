@@ -91,10 +91,10 @@ void CellMesh::CalcCellSpan( UnsGrid & grid )
     this->span.resize( nCells );
     CalcC2f( grid );
 
-    FaceTopo * faceTopo = grid.faceTopo.get();
+    FaceTopo & faceTopo = *grid.faceTopo;
     LinkField & c2f = this->cellTopo.c2f;
-    IntField & lcf = faceTopo->lCells;
-    IntField & rcf = faceTopo->rCells;
+    IntField & lcf = faceTopo.lCells;
+    IntField & rcf = faceTopo.rCells;
 
     for ( int ic = 0; ic < nCells; ++ ic )
     {
