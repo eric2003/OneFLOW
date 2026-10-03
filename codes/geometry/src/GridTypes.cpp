@@ -56,7 +56,6 @@ GridConfig GridConfig::FromDataBase()
 
     cfg.bcFile         = GetDataValue< std::string >( "sourceGridBcName" );
     cfg.targetFile     = GetDataValue< std::string >( "targetGridFileName" );
-    cfg.partitionFile  = GetDataValue< std::string >( "part_uns_file" );
 
     cfg.sourceType = ParseGridFileType( GetDataValue< std::string >( "sourceGridType" ) );
     cfg.targetType = ParseGridFileType( GetDataValue< std::string >( "targetGridType" ) );
@@ -66,7 +65,24 @@ GridConfig GridConfig::FromDataBase()
     cfg.axisDirection = GetDataValue< int >( "axis_dir" ) == 1
         ? GridAxisDirection::ZToY
         : GridAxisDirection::Y;
-    cfg.partitionType = GetDataValue< int >( "partition_type" );
+
+    // Partition-only parameters are required only when the partition workflow is selected.
+    // Other grid workflows may legitimately omit these database entries.
+    const int rawObj = GetDataValue< int >( "gridObj" );
+    if ( auto parsed = ParseGridObjective( rawObj ) )
+    {
+        cfg.objective = *parsed;
+    }
+    else
+    {
+        cfg.objective = static_cast< GridObjective >( rawObj );
+    }
+
+    if ( cfg.objective == GridObjective::Partition )
+    {
+        cfg.partitionFile = GetDataValue< std::string >( "part_uns_file" );
+        cfg.partitionType = GetDataValue< int >( "partition_type" );
+    }
 
     try
     {
@@ -81,17 +97,6 @@ GridConfig GridConfig::FromDataBase()
 
     const int generationId = GetDataValue< int >( "igene" );
     cfg.generationType = ParseGridGenerationType( generationId );
-
-    // Preserve historical integer encoding for gridObj.
-    const int rawObj = GetDataValue< int >( "gridObj" );
-    if ( auto parsed = ParseGridObjective( rawObj ) )
-    {
-        cfg.objective = *parsed;
-    }
-    else
-    {
-        cfg.objective = static_cast< GridObjective >( rawObj );
-    }
 
     // Prefer GetDataPointer over CopyArray so this TU only needs DataBase.h.
     cfg.translate = { 0.0, 0.0, 0.0 };
