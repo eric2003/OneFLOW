@@ -36,14 +36,17 @@ public:
     CellMesh();
     ~CellMesh();
 public:
-    // [Refactored] Changed from raw pointer to value type (Stack allocation)
-    CellTopo cellTopo; 
+private:
+    CellTopo cellTopo;
+public:
     RealField xcc, ycc, zcc;
     RealField vol;
     RealField dist;
     RealField span;
 public:
     HXSize_t GetNumberOfCells();
+    CellTopo & GetCellTopo();
+    const CellTopo & GetCellTopo() const;
     HXSize_t GetNumberOfTotalCells() { return vol.size(); }
     void AllocateMetrics( FaceMesh & faceMesh );
     void AllocDist();
