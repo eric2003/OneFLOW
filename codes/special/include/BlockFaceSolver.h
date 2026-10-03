@@ -97,7 +97,7 @@ public:
     void DumpStandardGrid();
     void DumpStandardGrid2D();
     void DumpStandardGrid( Grids & strGridList );
-    void GenerateFaceBlockLink();
+    void GenerateGrid();
 public:
     void DumpBlkScript();
     void DumpBlkScript( std::fstream & file, BlkElem * blkHexa, IntField & ctrlpoints );
