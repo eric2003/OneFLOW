@@ -319,7 +319,7 @@ void FaceMesh::AllocateMetrics()
     this->vfz = 0;
     this->vfn = 0;
     HXSize_t nBFaces = this->GetNBFace();
-    this->this->GetFaceTopo().bcManager->bcRecord->bcType.resize( nBFaces );
+    this->GetFaceTopo().bcManager->bcRecord->bcType.resize( nBFaces );
 }
 
 EndNameSpace
