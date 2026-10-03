@@ -37,9 +37,9 @@ License
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
 
-CgnsZsection::CgnsZsection( CgnsZone * cgnsZone )
+CgnsZsection::CgnsZsection( CgnsZone & cgnsZone )
+    : cgnsZone( cgnsZone )
 {
-    this->cgnsZone = cgnsZone;
 }
 
 CgnsZsection::~CgnsZsection()
@@ -99,7 +99,7 @@ void CgnsZsection::CreateCgnsSections( int nSections )
 {
     for ( int iSection = 0; iSection < nSections; ++ iSection )
     {
-        this->AddCgnsSection( std::make_unique< CgnsSection >( cgnsZone ) );
+        this->AddCgnsSection( std::make_unique< CgnsSection >( & cgnsZone ) );
     }
 }
 
