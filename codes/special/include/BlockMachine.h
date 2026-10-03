@@ -26,19 +26,13 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-class BlockInfo;
-class BlockMesh;
-class Grid;
 class TextFileParser;
 
 class BlockMachine
 {
 public:
-    BlockMachine();
-    ~BlockMachine();
-public:
-    HXVector< BlockInfo * > blockInfoList;
-    HXVector< BlockMesh * > blockMeshList;
+    BlockMachine() = default;
+    ~BlockMachine() = default;
 public:
     void AddFaceToBlock( TextFileParser & textFileParser );
     void GenerateFaceBlockLink();
