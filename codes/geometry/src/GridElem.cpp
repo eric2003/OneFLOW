@@ -177,7 +177,7 @@ void GridElem::ScanPolygonFace()
             CgnsSection * cgnsSection = cgnsZone->cgnsZsection->GetCgnsSection( iSection );
             if ( cgnsSection->eType != NFACE_n ) continue;
             this->face_solver.ScanPolyhedronElement( cgnsSection );
-            this->SetPolyhedronElementType( cgnsSection );
+            this->SetPolyhedronElementType( *cgnsSection );
         }
 
         int nFaces = this->face_solver.faceTopo->faces.size();
@@ -185,11 +185,11 @@ void GridElem::ScanPolygonFace()
     }
 }
 
-void GridElem::SetPolyhedronElementType( CgnsSection * cgnsSection )
+void GridElem::SetPolyhedronElementType( CgnsSection & cgnsSection )
 {
-    for ( int iElem = 0; iElem < cgnsSection->nElement; ++ iElem )
+    for ( int iElem = 0; iElem < cgnsSection.nElement; ++ iElem )
     {
-        int e_type = cgnsSection->eTypeList[ iElem ];
+        int e_type = cgnsSection.eTypeList[ iElem ];
 
         this->elem_feature.eTypes.push_back( e_type );
     }
@@ -279,24 +279,24 @@ void GridElem::GenerateCalcGrid( Grid & gridIn )
         grid->nodeMesh->zN[iNode] = z;
     }
 
-    this->CalcBoundaryType(grid);
-    this->ReorderLink(grid);
+    this->CalcBoundaryType( *grid );
+    this->ReorderLink( *grid );
     std::cout << "\n-->All the computing information is ready\n";
 }
 
-void GridElem::CalcBoundaryType( UnsGrid * grid )
+void GridElem::CalcBoundaryType( UnsGrid & grid )
 {
     std::cout << "\n-->Set boundary condition......\n";
-    grid->faceTopo = std::move( this->face_solver.faceTopo );
+    grid.faceTopo = std::move( this->face_solver.faceTopo );
     grid->faceTopo->grid = grid;
-    grid->faceMesh->faceTopo = grid->faceTopo.get();
+    grid.faceMesh->faceTopo = grid->faceTopo.get();
     int nFaces = grid->faceTopo->faces.size();
     std::cout << " nFaces = " << nFaces << "\n";
      
     BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord.get();
     int nBFaces = bcRecord->bcType.size();
 
-    grid->nBFaces = nBFaces;
+    grid.nBFaces = nBFaces;
 
     std::cout << " nBFaces = " << nBFaces << "\n";
 
@@ -356,7 +356,7 @@ void GridElem::CalcBoundaryType( UnsGrid * grid )
     std::cout << std::endl;
 }
 
-void GridElem::ReorderLink( UnsGrid * grid )
+void GridElem::ReorderLink( UnsGrid & grid )
 {
     FaceTopo * faceTopo = grid->faceTopo.get();
     int nFaces = faceTopo->fTypes.size();
