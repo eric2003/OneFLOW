@@ -59,11 +59,9 @@ BeginNameSpace( ONEFLOW )
 
 // Constructor uses member initializer list and std::make_unique
 CgnsFactory::CgnsFactory()
-    : cgnsZbase(std::make_unique<CgnsZbase>())
-{
-    // Pass raw pointer to ZgridElem as it is a non-owning observer
-    this->zgridElem = std::make_unique<ZgridElem>(this->cgnsZbase.get());
-}
+    : cgnsZbase(std::make_unique<CgnsZbase>()),
+      zgridElem(std::make_unique<ZgridElem>( *cgnsZbase ))
+{}
 
 // FIX: Define destructor and move operations here.
 // The compiler can now see the complete types and safely generate the 
@@ -73,17 +71,12 @@ CgnsFactory::~CgnsFactory()
     cgns_global.ClearIfBoundTo( cgnsZbase.get() );
 }
 CgnsFactory::CgnsFactory( CgnsFactory && other ) noexcept
+    : cgnsZbase( std::move( other.cgnsZbase ) ),
+      zgridElem( std::make_unique<ZgridElem>( *cgnsZbase ) )
 {
     const bool globalBoundToOther = cgns_global.IsBoundTo( other.cgnsZbase.get() );
 
-    cgnsZbase = std::move( other.cgnsZbase );
-    zgridElem = std::move( other.zgridElem );
-
-    // zgridElem is an observer, so it must be rebound after its owner moves.
-    if ( zgridElem )
-    {
-        zgridElem->RebindCgnsZbase( cgnsZbase.get() );
-    }
+    other.zgridElem.reset();
 
     if ( globalBoundToOther )
     {
@@ -98,14 +91,10 @@ CgnsFactory& CgnsFactory::operator=( CgnsFactory && other ) noexcept
             cgns_global.IsBoundTo( cgnsZbase.get() ) ||
             cgns_global.IsBoundTo( other.cgnsZbase.get() );
         cgns_global.ClearIfBoundTo( cgnsZbase.get() );
-        zgridElem = std::move( other.zgridElem );
-        cgnsZbase = std::move( other.cgnsZbase );
 
-        // zgridElem is an observer, so it must follow the new owner here too.
-        if ( zgridElem )
-        {
-            zgridElem->RebindCgnsZbase( cgnsZbase.get() );
-        }
+        cgnsZbase = std::move( other.cgnsZbase );
+        zgridElem = std::make_unique<ZgridElem>( *cgnsZbase );
+        other.zgridElem.reset();
 
         if ( globalBoundToEitherFactory )
         {
@@ -127,8 +116,8 @@ void CgnsFactory::ConvertStrCgns2UnsCgnsGrid()
     // Transfer ownership safely
     this->cgnsZbase = std::move(unsCgnsZbase);
 
-    // Update the non-owning observer
-    this->zgridElem->RebindCgnsZbase( this->cgnsZbase.get() );
+    // Recreate the view because its referenced CgnsZbase has changed.
+    this->zgridElem = std::make_unique<ZgridElem>( *this->cgnsZbase );
     cgns_global.Bind( this->cgnsZbase.get() );
 }
 

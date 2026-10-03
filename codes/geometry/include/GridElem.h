@@ -81,13 +81,12 @@ private:
 class ZgridElem
 {
 public:
-    ZgridElem( CgnsZbase * cgnsZbase );
+    explicit ZgridElem( CgnsZbase & cgnsZbase );
     ~ZgridElem();
 private:
-    CgnsZbase * cgnsZbase;
+    CgnsZbase & cgnsZbase;
 public:
-    [[nodiscard]] CgnsZbase * GetCgnsZbase() const;
-    void RebindCgnsZbase( CgnsZbase * cgnsZbase ) noexcept;
+    [[nodiscard]] CgnsZbase & GetCgnsZbase() const;
 
     [[nodiscard]] Grids GenerateLocalOneFlowGrids();
     [[nodiscard]] Grids GenerateLocalOneFlowGrids( const GridConfig & config );

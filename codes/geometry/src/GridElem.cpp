@@ -427,21 +427,16 @@ void GridElem::ReorderLink( UnsGrid & grid )
     faceTopo->rCells = faceTopo->rCellsNew;
 }
 
-ZgridElem::ZgridElem( CgnsZbase * cgnsZbase )
+ZgridElem::ZgridElem( CgnsZbase & cgnsZbase )
     : cgnsZbase( cgnsZbase )
 {
 }
 
 ZgridElem::~ZgridElem() = default;
 
-CgnsZbase * ZgridElem::GetCgnsZbase() const
+CgnsZbase & ZgridElem::GetCgnsZbase() const
 {
     return this->cgnsZbase;
-}
-
-void ZgridElem::RebindCgnsZbase( CgnsZbase * cgnsZbase ) noexcept
-{
-    this->cgnsZbase = cgnsZbase;
 }
 
 HXVector< std::unique_ptr< GridElem > > ZgridElem::CreateGridElements(
@@ -453,11 +448,11 @@ HXVector< std::unique_ptr< GridElem > > ZgridElem::CreateGridElements(
     {
         HXVector< CgnsZone * > zoneViews;
 
-        const int nOriZone = cgnsZbase->GetNZones();
+        const int nOriZone = cgnsZbase.GetNZones();
 
         for ( int iZone = 0; iZone < nOriZone; ++ iZone )
         {
-            zoneViews.push_back( cgnsZbase->GetCgnsZone( iZone ) );
+            zoneViews.push_back( cgnsZbase.GetCgnsZone( iZone ) );
         }
 
         const int nGridElems = 1;
@@ -469,7 +464,7 @@ HXVector< std::unique_ptr< GridElem > > ZgridElem::CreateGridElements(
     }
     else
     {
-        const int nZones = cgnsZbase->GetNZones();
+        const int nZones = cgnsZbase.GetNZones();
 
         for ( int iZone = 0; iZone < nZones; ++ iZone )
         {
