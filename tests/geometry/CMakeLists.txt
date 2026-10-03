@@ -70,6 +70,7 @@ set ( INCLUDE_DIRS
 set ( SRC_DIRS
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridFactory.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridTypes.cpp
+    ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridLayout.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridMediator.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/DomainInp.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/Su2Grid.cpp

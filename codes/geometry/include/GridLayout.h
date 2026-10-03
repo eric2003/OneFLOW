@@ -85,6 +85,8 @@ public:
     std::vector< GridBoundaryDefinition > boundaries;
     std::vector< GridLineToFaceDefinition > lineToFaces;
     std::vector< GridFaceToBlockDefinition > faceToBlocks;
+
+    void Validate() const;
 };
 
 EndNameSpace

@@ -4,6 +4,7 @@
 #include <gtest/gtest.h>
 
 #include <string>
+#include <stdexcept>
 
 namespace ONEFLOW
 {
@@ -33,6 +34,17 @@ TEST( GridLayoutParserTest, ParsesLaminarPlateLayout )
     EXPECT_EQ( layout.boundaries[ 0 ].boundaryType, 3 );
     EXPECT_EQ( layout.lineToFaces[ 0 ].lineId, 1 );
     EXPECT_EQ( layout.faceToBlocks[ 1 ].blockId, 2 );
+}
+
+TEST( GridLayoutParserTest, RejectsUnknownPointReference )
+{
+    const std::string fileName =
+        std::string( ONEFLOW_SOURCE_DIR ) +
+        "/tests/geometry/data/laminarPlate2dLayoutInvalid.txt";
+
+    EXPECT_THROW(
+        GridLayoutParser().Parse( fileName ),
+        std::runtime_error );
 }
 
 } // namespace ONEFLOW

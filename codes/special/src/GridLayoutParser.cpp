@@ -133,6 +133,7 @@ GridLayout GridLayoutParser::Parse( const std::string & fileName ) const
     }
 
     parser.CloseFile();
+    layout.Validate();
     return layout;
 }
 
