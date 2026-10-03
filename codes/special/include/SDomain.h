@@ -79,8 +79,8 @@ public:
     void GenerateSDomainMesh();
     void GenerateSDomainMesh( std::fstream & file );
 public:
-    void CreateInpFaceList( HXVector< Face2D * > &facelist );
-    void CreateInpFaceList1D( HXVector< Face2D * > &facelist );
+    void CreateInpFaceList( HXVector< std::unique_ptr<Face2D> > &facelist );
+    void CreateInpFaceList1D( HXVector< std::unique_ptr<Face2D> > &facelist );
 };
 
 

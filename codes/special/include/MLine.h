@@ -81,7 +81,7 @@ public:
     //void CalcCoor( CoorMap * localCoorMap );
     void CalcCoor();
     void SetDomainBcMesh( SDomain * sDomain );
-    void CreateInpFaceList1D( HXVector< Face2D * > &facelist );
+    void CreateInpFaceList1D( HXVector< std::unique_ptr<Face2D> > &facelist );
     void SetBlkBcMesh( Block2D * blk2d );
 };
 

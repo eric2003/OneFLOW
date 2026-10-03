@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "BlockFaceSolver.h"
+#include <memory>
 #include "MLine.h"
 #include "SimpleDomain.h"
 #include "LineMachine.h"
@@ -152,7 +153,7 @@ void MDomain::ConstructMultiPointToPointMap()
     }
 }
 
-void MDomain::CreateInpFaceList( HXVector< Face2D * > &facelist )
+void MDomain::CreateInpFaceList( HXVector< std::unique_ptr<Face2D> > &facelist )
 {
     for ( int iDomain = 0; iDomain < this->sDomainList.size(); ++ iDomain )
     {
@@ -161,7 +162,7 @@ void MDomain::CreateInpFaceList( HXVector< Face2D * > &facelist )
     }
 }
 
-void MDomain::CreateInpFaceList1D( HXVector< Face2D * > &facelist )
+void MDomain::CreateInpFaceList1D( HXVector< std::unique_ptr<Face2D> > &facelist )
 {
     for ( int iDomain = 0; iDomain < this->sDomainList.size(); ++ iDomain )
     {

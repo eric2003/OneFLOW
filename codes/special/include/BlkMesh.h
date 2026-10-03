@@ -22,6 +22,7 @@ License
 
 
 #pragma once
+#include <memory>
 #include "HXDefine.h"
 #include "CalcCoor.h"
 
@@ -44,7 +45,7 @@ public:
     int ni, nj, nk;
     LinkField localpt;
     IntField controlpoints;
-    HXVector< Face2D * > facelist;
+    HXVector< std::unique_ptr<Face2D> > facelist;
     IntField dimList;
     CoorMap coorMap;
 public:

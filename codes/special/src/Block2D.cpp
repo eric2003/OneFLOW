@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "BlkMesh.h"
+#include <memory>
 #include "Block2D.h"
 #include "MLine.h"
 #include "MDomain.h"
@@ -146,11 +147,11 @@ void Block2D::SetInterfaceBc()
     int nFaces = this->facelist.size();
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
-        Face2D * face2d = this->facelist[ iFace ];
+        Face2D * face2d = this->facelist[ iFace ].get();
         int domain_id = face2d->face_id;
         if ( face2d->bcType == -1 )
         {
-            face2d->t = new Face2D();
+            face2d->t = std::make_unique<Face2D>();
 
             BlkF2C & face_struct = blkFaceSolver.line2Face[ domain_id - 1 ];
             int n_neibor = face_struct.cellList.size();
