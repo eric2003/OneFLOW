@@ -135,8 +135,8 @@ void Visual::DumpFaceElementLink( std::fstream & file, Mesh * mesh )
     HXSize_t nFaces = mesh->faceMesh->GetNFace();
     HXSize_t numberOfCells = mesh->cellMesh->GetNumberOfCells();
 
-    Visual::DumpFaceElementLink( file, nFaces, numberOfCells, faceTopo.lCells );
-    Visual::DumpFaceElementLink( file, nFaces, numberOfCells, faceTopo.rCells );
+    Visual::DumpFaceElementLink( file, nFaces, numberOfCells, faceTopo.GetLeftCells() );
+    Visual::DumpFaceElementLink( file, nFaces, numberOfCells, faceTopo.GetRightCells() );
 }
 
 void Visual::DumpFaceElementLink( std::fstream & file, HXSize_t nFaces, HXSize_t numberOfElements, const IntField & faceElementIndex )

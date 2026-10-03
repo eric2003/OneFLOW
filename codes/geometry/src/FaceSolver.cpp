@@ -94,7 +94,7 @@ void FaceSolver::ScanPolygonFace( CgnsSection * cgnsSection )
             int newId = static_cast<int>(this->faceTopo->faces.size());
             this->faceTopo->faces.push_back(faceNodes);           // Preserve original order
             this->faceTopo->fTypes.push_back(cgnsSection->eType);
-            this->faceTopo->faceFlags.push_back(0);
+            this->faceTopo->GetFaceFlags().push_back(0);
         }
     }
 }
@@ -122,12 +122,12 @@ void FaceSolver::ScanPolyhedronElement( CgnsSection * cgnsSection )
             int polygonFaceId = std::abs(cgnsSection->connList[ i ]);
             faceIds.push_back( polygonFaceId );
 
-            int faceFlags = this->faceTopo->faceFlags[ polygonFaceId ];
+            int faceFlags = this->faceTopo->GetFaceFlags()[ polygonFaceId ];
 
             if ( faceFlags == 0 ) //face left element not set
             {
                 this->ResizeAll();
-                this->faceTopo->faceFlags[ polygonFaceId ] = 1;
+                this->faceTopo->GetFaceFlags()[ polygonFaceId ] = 1;
                 this->faceTopo->GetLeftCells()[ polygonFaceId ] = iElem;
                 this->faceTopo->GetRightCells()[ polygonFaceId ] = ONEFLOW::INVALID_INDEX;
 

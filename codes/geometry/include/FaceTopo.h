@@ -49,9 +49,10 @@ public:
     LinkField faces;
     LinkField c2f;
 
+public:
+    IntField lPosition, rPosition;
 private:
     IntField lCells, rCells;
-    IntField lPosition, rPosition;
     IntField faceFlags;
 
     HXSize_t nBFaces;
@@ -72,6 +73,8 @@ public:
     const Grid & GetGrid() const;
     BcRecord & GetBcRecord();
     const BcRecord & GetBcRecord() const;
+    IntField & GetFaceFlags();
+    const IntField & GetFaceFlags() const;
     IntField & GetLeftCells();
     const IntField & GetLeftCells() const;
     IntField & GetRightCells();
@@ -92,6 +95,7 @@ public:
     bool GetSId( int iFace, int iPosition, int & sId );
     bool GetTId( int iFace, int iPosition, int & tId );
     void CalcC2C( LinkField & c2c );
+    void ReorderLink();
 };
 
 EndNameSpace

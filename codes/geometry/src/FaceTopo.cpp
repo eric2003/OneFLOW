@@ -64,6 +64,16 @@ const BcRecord & FaceTopo::GetBcRecord() const
     return *this->bcManager->bcRecord;
 }
 
+IntField & FaceTopo::GetFaceFlags()
+{
+    return this->faceFlags;
+}
+
+const IntField & FaceTopo::GetFaceFlags() const
+{
+    return this->faceFlags;
+}
+
 IntField & FaceTopo::GetLeftCells()
 {
     return this->lCells;
@@ -458,6 +468,50 @@ void FaceTopo::CalcC2C( LinkField & c2c )
         c2c[ lc ].push_back( rc );
         c2c[ rc ].push_back( lc );
     }
+}
+
+void FaceTopo::ReorderLink()
+{
+    FaceTopo & faceTopo = *this;
+
+    int nFaces = faceTopo.fTypes.size();
+
+    IntField f1map( nFaces ), f2map( nFaces );
+    int iCount = 0;
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
+    {
+        int rc = faceTopo.GetRightCells()[ iFace ];
+        if ( rc == INVALID_INDEX )
+        {
+            f1map[ iFace ] = iCount;
+            f2map[ iCount ] = iFace;
+            ++ iCount;
+        }
+    }
+
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
+    {
+        int rc = faceTopo.GetRightCells()[ iFace ];
+        if ( rc != INVALID_INDEX )
+        {
+            f1map[ iFace ] = iCount;
+            f2map[ iCount ] = iFace;
+            ++ iCount;
+        }
+    }
+    faceTopo.facesNew.resize( nFaces );
+    faceTopo.lCellsNew.resize( nFaces );
+    faceTopo.rCellsNew.resize( nFaces );
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
+    {
+        int jFace = f2map[ iFace ];
+        faceTopo.facesNew[ iFace ] = faceTopo.faces[ jFace ];
+        faceTopo.lCellsNew[ iFace ] = faceTopo.GetLeftCells()[ jFace ];
+        faceTopo.rCellsNew[ iFace ] = faceTopo.GetRightCells()[ jFace ];
+    }
+    faceTopo.faces = faceTopo.facesNew;
+    faceTopo.lCells = faceTopo.lCellsNew;
+    faceTopo.rCells = faceTopo.rCellsNew;
 }
 
 EndNameSpace

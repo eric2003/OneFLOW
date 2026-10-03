@@ -508,8 +508,8 @@ void UVisualize::ShowField( std::ostringstream & oss, VisualTool * visualTool )
     }
 
     Plot::DumpFaceNodeLink( f2n );
-    Plot::DumpFaceElementLink( faceTopo->lCells, nCells );
-    Plot::DumpFaceElementLink( faceTopo->rCells, nCells );
+    Plot::DumpFaceElementLink( faceTopo->GetLeftCells(), nCells );
+    Plot::DumpFaceElementLink( faceTopo->GetRightCells(), nCells );
 }
 
 void UVisualize::ShowBc( std::ostringstream & oss, VisualTool * visualTool )

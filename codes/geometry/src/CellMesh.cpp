@@ -103,8 +103,8 @@ void CellMesh::CalcCellSpan( UnsGrid & grid )
 
     FaceTopo & faceTopo = grid.GetFaceTopo();
     LinkField & c2f = this->GetCellTopo().c2f;
-    IntField & lcf = faceTopo.lCells;
-    IntField & rcf = faceTopo.rCells;
+    IntField & lcf = faceTopo.GetLeftCells();
+    IntField & rcf = faceTopo.GetRightCells();
 
     for ( int ic = 0; ic < nCells; ++ ic )
     {

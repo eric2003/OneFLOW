@@ -105,14 +105,14 @@ void CellTopo::CalcC2f( FaceTopo & faceTopo )
 
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        int lc  = faceTopo.lCells[ iFace ];
+        int lc  = faceTopo.GetLeftCells()[iFace];
         c2f[ lc  ].push_back( iFace );
     }
 
     for ( int iFace = nBFaces; iFace < nFaces; ++ iFace )
     {
-        int lc  = faceTopo.lCells[ iFace ];
-        int rc  = faceTopo.rCells[ iFace ];
+        int lc  = faceTopo.GetLeftCells()[ iFace ];
+        int rc  = faceTopo.GetRightCells()[iFace];
         c2f[ lc ].push_back( iFace );
         c2f[ rc ].push_back( iFace );
     }

@@ -623,7 +623,7 @@ void UnsGrid::CalcGhostCellCenterVol1D()
     // For ghost cells
     for ( HXSize_t iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        int lc  = faceTopo.lCells[ iFace ];
+        int lc  = faceTopo.GetLeftCells()[ iFace ];
         int rc = iFace + numberOfCells;
         if ( area[ iFace ] > SMALL )
         {
@@ -686,7 +686,7 @@ void UnsGrid::CalcCellCenterVol2D()
 
     for ( HXSize_t iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        int lc = faceTopo.lCells[ iFace ];
+        int lc = faceTopo.GetLeftCells()[ iFace ];
         Real dot = ( xfc[ iFace ] * xfn[ iFace ] +
                      yfc[ iFace ] * yfn[ iFace ] +
                      zfc[ iFace ] * zfn[ iFace ] ) * area[ iFace ];
@@ -699,8 +699,8 @@ void UnsGrid::CalcCellCenterVol2D()
     // For interior cell faces
     for ( HXSize_t iFace = nBFaces; iFace < nFaces; ++ iFace )
     {
-        int lc = faceTopo.lCells[ iFace ];
-        int rc = faceTopo.rCells[ iFace ];
+        int lc = faceTopo.GetLeftCells()[ iFace ];
+        int rc = faceTopo.GetRightCells()[ iFace ];
         Real dot = ( xfc[ iFace ] * xfn[ iFace ] +
                      yfc[ iFace ] * yfn[ iFace ] +
                      zfc[ iFace ] * zfn[ iFace ] ) * area[ iFace ];
@@ -746,7 +746,7 @@ void UnsGrid::CalcCellCenterVol2D()
     // For ghost cells
     for ( HXSize_t iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        int lc = faceTopo.lCells[ iFace ];
+        int lc = faceTopo.GetLeftCells()[ iFace ];
         int rc = iFace + numberOfCells;
         if ( area[ iFace ] > SMALL )
         {
@@ -803,8 +803,8 @@ void UnsGrid::CalcCellCenterVol3D()
 
     for ( HXSize_t iFace = 0; iFace < nFaces; ++ iFace )
     {
-        int lc = faceTopo.lCells[ iFace ];
-        int rc = faceTopo.rCells[ iFace ];
+        int lc = faceTopo.GetLeftCells()[ iFace ];
+        int rc = faceTopo.GetRightCells()[iFace];
 
         IntField & faceIndex = faceTopo.faces[ iFace ];
 
@@ -884,7 +884,7 @@ void UnsGrid::CalcCellCenterVol3D()
     // For ghost cells
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        int lc = faceTopo.lCells[ iFace ];
+        int lc = faceTopo.GetLeftCells()[ iFace ];
         int rc = iFace + numberOfCells;
 
         if ( area[ iFace ] > SMALL )
