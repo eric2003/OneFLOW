@@ -77,6 +77,12 @@ CurveInfo * LineMachine::GetCurveInfo( int id )
     return this->curveInfoList[ idx ].get();
 }
 
+const CurveInfo * LineMachine::GetCurveInfo( int id ) const
+{
+    int idx = ABS( id ) - 1;
+    return this->curveInfoList[ idx ].get();
+}
+
 int LineMachine::AddLine(int p1, int p2)
 {
     IntField line;
