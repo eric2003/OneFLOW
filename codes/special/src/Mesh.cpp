@@ -520,7 +520,7 @@ void Mesh::SwapBoundary()
 void Mesh::AllocateMetrics()
 {
     this->faceMesh->AllocateMetrics();
-    this->cellMesh->AllocateMetrics( this->faceMesh.get() );
+    this->cellMesh->AllocateMetrics( *this->faceMesh );
 }
 
 void Mesh::CalcMetrics()
