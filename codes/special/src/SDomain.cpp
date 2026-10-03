@@ -43,7 +43,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-SDomain::SDomain( MDomain * mDomain )
+SDomain::SDomain( CoorMap * parentCoorMap )
 {
     if ( mDomain )
     {
@@ -58,7 +58,7 @@ SDomain::SDomain( MDomain * mDomain )
     int nMLine = 4;
     for ( int iMLine = 0; iMLine < nMLine; ++ iMLine )
     {
-        auto mLine = std::make_unique< MLine >( this );
+        auto mLine = std::make_unique< MLine >( this->coorMap );
         mLine->pos = iMLine;
         mLineList.push_back( std::move( mLine ) );
     }
