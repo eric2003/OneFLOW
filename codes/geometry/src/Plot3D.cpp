@@ -123,7 +123,7 @@ void Plot3D::ReadCoorBinary( GridMediator * gridMediator )
         }
 
         auto owned = ONEFLOW::CreateStrGridUnique();
-        StrGrid * grid = owned.get();
+        StrGrid * grid = StrGridCast( owned.get() );
         gridMediator->gridVector[ static_cast< std::size_t >( iZone ) ] = std::move( owned );
         grid->id = iZone;
         grid->ni = ni;
@@ -276,7 +276,7 @@ void Plot3D::ReadCoorAscii( GridMediator * gridMediator )
         }
 
         auto owned = ONEFLOW::CreateStrGridUnique();
-        StrGrid * grid = owned.get();
+        StrGrid * grid = StrGridCast( owned.get() );
         gridMediator->gridVector[ static_cast< std::size_t >( zCount ) ] = std::move( owned );
         grid->id = zCount;
         grid->ni = ni;

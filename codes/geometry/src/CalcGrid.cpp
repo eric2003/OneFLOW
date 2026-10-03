@@ -306,12 +306,6 @@ std::string GetTargetGridFileName()
     return GridConfig::FromDataBase().targetFile;
 }
 
-void GenerateMultiZoneCalcGrids( Grids grids )
-{
-    GenerateMultiZoneCalcGrids(
-        std::move( grids ), GridConfig::FromDataBase() );
-}
-
 void GenerateMultiZoneCalcGrids(
     Grids grids,
     const GridConfig & config )
@@ -319,6 +313,13 @@ void GenerateMultiZoneCalcGrids(
     CalcGrid calcGrid;
     calcGrid.GenerateMultiZoneCalcGrids( std::move( grids ), config );
 }
+
+void GenerateMultiZoneCalcGrids( Grids grids )
+{
+    GenerateMultiZoneCalcGrids(
+        std::move( grids ), GridConfig::FromDataBase() );
+}
+
 
 void ResetGridScaleAndTranslate( NodeMesh & nodeMesh, const GridConfig & config )
 {
