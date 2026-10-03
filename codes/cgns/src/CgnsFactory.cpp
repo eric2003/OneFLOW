@@ -72,7 +72,21 @@ CgnsFactory::~CgnsFactory()
 {
     cgns_global.ClearIfBoundTo( cgnsZbase.get() );
 }
-CgnsFactory::CgnsFactory(CgnsFactory&&) noexcept = default;
+CgnsFactory::CgnsFactory( CgnsFactory && other ) noexcept
+    : cgnsZbase( std::move( other.cgnsZbase ) ),
+      zgridElem( std::move( other.zgridElem ) )
+{
+    // zgridElem is an observer, so it must be rebound after its owner moves.
+    if ( zgridElem )
+    {
+        zgridElem->cgnsZbase = cgnsZbase.get();
+    }
+
+    if ( cgns_global.IsBoundTo( other.cgnsZbase.get() ) )
+    {
+        cgns_global.Bind( cgnsZbase.get() );
+    }
+}
 CgnsFactory& CgnsFactory::operator=( CgnsFactory && other ) noexcept
 {
     if ( this != &other )
