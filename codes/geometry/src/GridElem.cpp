@@ -315,7 +315,7 @@ void GridElem::CalcBoundaryType( UnsGrid & grid )
     std::cout << "\n-->Set boundary condition......\n";
     grid.faceTopo = this->face_solver.TakeFaceTopo();
     grid.faceTopo->grid = &grid;
-    grid.faceMesh->faceTopo = grid.faceTopo.get();
+    grid.faceMesh->BindFaceTopo( *grid.faceTopo );
     int nFaces = grid.faceTopo->faces.size();
     std::cout << " nFaces = " << nFaces << "\n";
      
