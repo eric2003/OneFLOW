@@ -493,7 +493,7 @@ void UnsGrid::CalcMetrics()
 void UnsGrid::AllocMetrics()
 {
     this->faceMesh->AllocateMetrics();
-    this->cellMesh->AllocateMetrics( this->faceMesh.get() );
+    this->cellMesh->AllocateMetrics( *this->faceMesh );
 }
 
 void UnsGrid::CalcMetrics1D()
