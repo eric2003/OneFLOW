@@ -32,6 +32,7 @@ BeginNameSpace( ONEFLOW )
 
 class SDomain;
 class Block2D;
+class CurveMesh;
 
 class SLine
 {
