@@ -422,9 +422,9 @@ HXVector< std::unique_ptr< GridElem > > ZgridElem::CreateGridElements( bool mult
             zoneViews.push_back( cgnsZbase->GetCgnsZone( iZone ) );
         }
 
-        const int nZones = 1;
+        const int nGridElems = 1;
 
-        for ( int iZone = 0; iZone < nZones; ++ iZone )
+        for ( int iGridElem = 0; iGridElem < nGridElems; ++ iGridElem )
         {
             data.push_back( std::make_unique< GridElem >( std::move( zoneViews ) ) );
         }
@@ -447,10 +447,10 @@ HXVector< std::unique_ptr< GridElem > > ZgridElem::CreateGridElements( bool mult
 
 void ZgridElem::PrepareUnsCalcGrid( const HXVector< std::unique_ptr< GridElem > > & data ) const
 {
-    const int nZones = data.size();
-    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    const int nGridElems = data.size();
+    for ( int iGridElem = 0; iGridElem < nGridElems; ++ iGridElem )
     {
-        data[ iZone ]->PrepareUnsCalcGrid();
+        data[ iGridElem ]->PrepareUnsCalcGrid();
     }
 }
 
@@ -466,12 +466,12 @@ Grids ZgridElem::GenerateLocalOneFlowGrids( const GridConfig & config )
     this->PrepareUnsCalcGrid( data );
 
     Grids grids;
-    const int nZones = data.size();
-    grids.reserve( static_cast< std::size_t >( nZones ) );
+    const int nGridElems = data.size();
+    grids.reserve( static_cast< std::size_t >( nGridElems ) );
 
-    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    for ( int iGridElem = 0; iGridElem < nGridElems; ++ iGridElem )
     {
-        grids.push_back( data[ iZone ]->GenerateCalcGrid( iZone ) );
+        grids.push_back( data[ iGridElem ]->GenerateCalcGrid( iGridElem ) );
     }
 
     return grids;
