@@ -806,7 +806,7 @@ void UnsGrid::CalcCellCenterVol3D()
         int lc = faceTopo.GetLeftCells()[ iFace ];
         int rc = faceTopo.GetRightCells()[iFace];
 
-        IntField & faceIndex = faceTopo.faces[ iFace ];
+        IntField & faceIndex = faceTopo.GetFaces()[ iFace ];
 
         HXSize_t faceNodeNumber = faceIndex.size();
         for ( HXSize_t iNode = 0; iNode < faceNodeNumber; ++ iNode )
