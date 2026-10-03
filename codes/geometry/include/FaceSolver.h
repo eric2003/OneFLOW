@@ -50,7 +50,9 @@ public:
     IntField faceBcType;
     LinkField childFid;
 public:
-    std::unique_ptr< FaceTopo > faceTopo;
+    FaceTopo & GetFaceTopo();
+    const FaceTopo & GetFaceTopo() const;
+    std::unique_ptr< FaceTopo > TakeFaceTopo() noexcept;
 public:
     bool CheckBcFace( IntSet & bcVertex, IntField & nodeId );
     void ScanElementFace( CgIntField & eNodeId, int eType, int eId );
@@ -62,6 +64,8 @@ public:
     void ResizeAll();
     void ScanPolygonFace( CgnsSection * cgnsSection );
     void ScanPolyhedronElement( CgnsSection * cgnsSection );
+private:
+    std::unique_ptr< FaceTopo > faceTopo;
 };
 
 EndNameSpace

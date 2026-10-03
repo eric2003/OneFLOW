@@ -199,7 +199,7 @@ void GridElem::ScanPolygonFace()
             this->SetPolyhedronElementType( *cgnsSection );
         }
 
-        int nFaces = this->face_solver.faceTopo->faces.size();
+        int nFaces = this->face_solver.GetFaceTopo().faces.size();
 
     }
 }
@@ -242,9 +242,9 @@ void GridElem::GenerateCalcElement()
 {
     int nElement =  this->elem_feature.eTypes.size();
 
-    FaceTopo * faceTopo = this->face_solver.faceTopo.get();
+    FaceTopo & faceTopo = this->face_solver.GetFaceTopo();
 
-    int nFaces = this->face_solver.faceTopo->faces.size();
+    int nFaces = this->face_solver.GetFaceTopo().faces.size();
     int nBFaces = 0;
 
     //std::cout << " nFaces = " << nFaces << "\n";
@@ -256,12 +256,12 @@ void GridElem::GenerateCalcElement()
             std::cout << " iFace = " << iFace << " numberOfTotalFaces = " << nFaces << std::endl;
         }
 
-        int rc = ( faceTopo->rCells )[ iFace ];
+        int rc = faceTopo.rCells[ iFace ];
 
         if ( rc == INVALID_INDEX )
         {
-            faceTopo->bcManager->bcRecord->bcType.push_back( this->face_solver.faceBcType[ iFace ] );
-            faceTopo->bcManager->bcRecord->bcNameId.push_back( this->face_solver.faceBcKey[ iFace ] );
+            faceTopo.bcManager->bcRecord->bcType.push_back( this->face_solver.faceBcType[ iFace ] );
+            faceTopo.bcManager->bcRecord->bcNameId.push_back( this->face_solver.faceBcKey[ iFace ] );
             ++ nBFaces;
         }
     }
@@ -313,7 +313,7 @@ void GridElem::GenerateCalcGrid( UnsGrid & grid )
 void GridElem::CalcBoundaryType( UnsGrid & grid )
 {
     std::cout << "\n-->Set boundary condition......\n";
-    grid.faceTopo = std::move( this->face_solver.faceTopo );
+    grid.faceTopo = this->face_solver.TakeFaceTopo();
     grid.faceTopo->grid = &grid;
     grid.faceMesh->faceTopo = grid.faceTopo.get();
     int nFaces = grid.faceTopo->faces.size();
@@ -384,16 +384,16 @@ void GridElem::CalcBoundaryType( UnsGrid & grid )
 
 void GridElem::ReorderLink( UnsGrid & grid )
 {
-    FaceTopo * faceTopo = grid.faceTopo.get();
+    FaceTopo & faceTopo = *grid.faceTopo;
 
-    int nFaces = faceTopo->fTypes.size();
+    int nFaces = faceTopo.fTypes.size();
     grid.nFaces = nFaces;
 
     IntField f1map( nFaces ), f2map( nFaces );
     int iCount = 0;
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
-        int rc = faceTopo->rCells[ iFace ];
+        int rc = faceTopo.rCells[ iFace ];
         if ( rc == INVALID_INDEX )
         {
             f1map[ iFace ] = iCount;
@@ -412,19 +412,19 @@ void GridElem::ReorderLink( UnsGrid & grid )
             ++ iCount;
         }
     }
-    faceTopo->facesNew.resize( nFaces );
-    faceTopo->lCellsNew.resize( nFaces );
-    faceTopo->rCellsNew.resize( nFaces );
+    faceTopo.facesNew.resize( nFaces );
+    faceTopo.lCellsNew.resize( nFaces );
+    faceTopo.rCellsNew.resize( nFaces );
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         int jFace = f2map[ iFace ];
-        faceTopo->facesNew[ iFace ] = faceTopo->faces[ jFace ];
-        faceTopo->lCellsNew[ iFace ] = faceTopo->lCells[ jFace ];
-        faceTopo->rCellsNew[ iFace ] = faceTopo->rCells[ jFace ];
+        faceTopo.facesNew[ iFace ] = faceTopo->faces[ jFace ];
+        faceTopo.lCellsNew[ iFace ] = faceTopo->lCells[ jFace ];
+        faceTopo.rCellsNew[ iFace ] = faceTopo->rCells[ jFace ];
     }
-    faceTopo->faces = faceTopo->facesNew;
-    faceTopo->lCells = faceTopo->lCellsNew;
-    faceTopo->rCells = faceTopo->rCellsNew;
+    faceTopo.faces = faceTopo.facesNew;
+    faceTopo.lCells = faceTopo.lCellsNew;
+    faceTopo.rCells = faceTopo.rCellsNew;
 }
 
 ZgridElem::ZgridElem( CgnsZbase & cgnsZbase )
