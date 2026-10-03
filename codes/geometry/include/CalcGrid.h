@@ -23,6 +23,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "GridHandles.h"
+#include "GridTypes.h"
 #include <memory>
 #include <utility>
 
@@ -41,6 +42,7 @@ public:
     Grids grids;
     std::string gridFileName;
     std::unique_ptr< IFaceLink > iFaceLink;
+    GridConfig config;
 public:
     void BuildInterfaceLink();
     void Dump();
@@ -71,6 +73,7 @@ std::string GetTargetGridFileName();
 int GetIgnoreNoBc();
 
 void GenerateMultiZoneCalcGrids( Grids grids );
+void ResetGridScaleAndTranslate( NodeMesh * nodeMesh, const GridConfig & config );
 void ResetGridScaleAndTranslate( NodeMesh * nodeMesh );
 void TurnZAxisToYAxis( NodeMesh * nodeMesh );
 
