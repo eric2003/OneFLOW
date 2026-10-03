@@ -129,10 +129,10 @@ void ResidualTask::CalcRes( int solverType, ResData & data )
         }
     }
 
-    RealField & xcc = grid->cellMesh->xcc;
-    RealField & ycc = grid->cellMesh->ycc;
-    RealField & zcc = grid->cellMesh->zcc;
-    RealField & vol = grid->cellMesh->vol;
+    RealField & xcc = grid->GetCellMesh().xcc;
+    RealField & ycc = grid->GetCellMesh().ycc;
+    RealField & zcc = grid->GetCellMesh().zcc;
+    RealField & vol = grid->GetCellMesh().vol;
 
     data.resmax.zid = grid->id;
 
