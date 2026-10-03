@@ -106,6 +106,5 @@ public:
 
 extern BlkFaceSolver blkFaceSolver;
 
-IntField GlobalGetLine( int line_id );
 
 EndNameSpace
