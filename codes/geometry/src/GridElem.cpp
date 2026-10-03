@@ -74,15 +74,10 @@ int Cgns2OneFlowZoneType( int zoneType )
 }
 
 GridElem::GridElem( const HXVector< CgnsZone * > & cgnsZones )
+    : cgnsZones( cgnsZones ),
+      minLen( LARGE ),
+      maxLen( -LARGE )
 {
-    this->cgnsZones = cgnsZones;
-
-    this->minLen = LARGE;
-    this->maxLen = -LARGE;
-
-    // [Refactored] Removed manual 'new' allocations. 
-    // Value types are automatically constructed by the compiler.
-
 }
 
 GridElem::~GridElem() = default;
