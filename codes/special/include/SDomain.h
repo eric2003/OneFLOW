@@ -43,7 +43,7 @@ class MLine;
 class SDomain : public DomData
 {
 public:
-    SDomain( MDomain * mDomain = 0 );
+    explicit SDomain( CoorMap * coorMap = nullptr );
     ~SDomain();
 public:
     int domain_id;
