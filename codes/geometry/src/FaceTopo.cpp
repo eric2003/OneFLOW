@@ -36,8 +36,22 @@ BeginNameSpace( ONEFLOW )
 
 FaceTopo::FaceTopo()
 {
-    this->grid = 0;
     this->bcManager = std::make_unique< BcManager >();
+}
+
+void FaceTopo::BindGrid( Grid & grid )
+{
+    this->grid = &grid;
+}
+
+Grid & FaceTopo::GetGrid()
+{
+    return *this->grid;
+}
+
+const Grid & FaceTopo::GetGrid() const
+{
+    return *this->grid;
 }
 
 FaceTopo::~FaceTopo() = default;
@@ -93,7 +107,7 @@ void FaceTopo::SetNewFace2Node( IFaceLink * iFaceLink )
 
         if ( BC::IsInterfaceBc( bcType ) )
         {
-            int gFid   = iFaceLink->l2g[ this->grid->id ][ localFid ];
+            int gFid   = iFaceLink->l2g[ this->GetGrid().id ][ localFid ];
             int nCFace = iFaceLink->face_search->cFaceId[ gFid ].size();
 
             if ( nCFace > 0 )
@@ -179,7 +193,7 @@ void FaceTopo::SetNewFace2Cell( IFaceLink * iFaceLink )
 
         if ( BC::IsInterfaceBc( bcType ) )
         {
-            int gFid   = iFaceLink->l2g[ this->grid->id ][ localFid ];
+            int gFid   = iFaceLink->l2g[ this->GetGrid().id ][ localFid ];
             int nCFace = iFaceLink->face_search->cFaceId[ gFid ].size();
 
             if ( nCFace > 0 )
@@ -203,7 +217,7 @@ void FaceTopo::SetNewFace2Cell( IFaceLink * iFaceLink )
 
     int nBFaceNew = this->lCellsNew.size();
 
-    int nCells = this->grid->nCells;
+    int nCells = this->GetGrid().nCells;
 
     for ( int iFace = 0; iFace < nBFaceNew; ++ iFace )
     {
@@ -250,12 +264,12 @@ void FaceTopo::ModifyBoundaryInformation( IFaceLink * iFaceLink )
 
     for ( int iFid = 0; iFid < nIFaces; ++ iFid )
     {
-        int gFid   = iFaceLink->l2g[ this->grid->id ][ iFid ];
+        int gFid   = iFaceLink->l2g[ this->GetGrid().id ][ iFid ];
         int nCFace = iFaceLink->face_search->cFaceId[ gFid ].size();
 
         if ( nCFace > 0 )
         {
-            iFaceLink->nChild[ this->grid->id ][ iFid ] = nCFace;
+            iFaceLink->nChild[ this->GetGrid().id ][ iFid ] = nCFace;
             for ( int iCFace = 0; iCFace < nCFace; ++ iCFace )
             {
                 int cFid = iFaceLink->face_search->cFaceId[ gFid ][ iCFace ];
@@ -263,7 +277,7 @@ void FaceTopo::ModifyBoundaryInformation( IFaceLink * iFaceLink )
                 // Correctly push back a 1D IntField containing the single element 'cFid'
                 iFaceLink->l2gNew.push_back( ONEFLOW::IntField{ cFid } );
 
-                iFaceLink->nChild[ this->grid->id ].push_back( 0 );
+                iFaceLink->nChild[ this->GetGrid().id ].push_back( 0 );
             }
             ++ nIFaceNew;
         }
@@ -293,7 +307,7 @@ void FaceTopo::ResetNumberOfBoundaryCondition( IFaceLink * iFaceLink )
         int bcType = this->bcManager->bcRecord->bcType[ iFace ];
         if ( BC::IsInterfaceBc( bcType ) )
         {
-            int gFid   = iFaceLink->l2g[ this->grid->id ][ localIid ];
+            int gFid   = iFaceLink->l2g[ this->GetGrid().id ][ localIid ];
             int nCFace = iFaceLink->face_search->cFaceId[ gFid ].size();
 
             if ( nCFace > 0 )
@@ -324,11 +338,11 @@ void FaceTopo::ResetNumberOfBoundaryCondition( IFaceLink * iFaceLink )
 
 void FaceTopo::ConstructNewInterfaceMap( IFaceLink * iFaceLink )
 {
-    int nIFaceNew = iFaceLink->l2gNew[ this->grid->id ].size();
+    int nIFaceNew = iFaceLink->l2gNew[ this->GetGrid().id ].size();
 
     for ( int localIFid = 0; localIFid < nIFaceNew; ++ localIFid )
     {
-        int gIFid = iFaceLink->l2gNew[ this->grid->id ][ localIFid ];
+        int gIFid = iFaceLink->l2gNew[ this->GetGrid().id ][ localIFid ];
 
         int oldSize = iFaceLink->gI2ZidNew.size();
         int newSize = ONEFLOW::MAX( gIFid + 1, oldSize );
@@ -340,7 +354,7 @@ void FaceTopo::ConstructNewInterfaceMap( IFaceLink * iFaceLink )
 
         if ( nFZone < 2 )
         {
-            iFaceLink->gI2ZidNew[ gIFid ].push_back( this->grid->id );
+            iFaceLink->gI2ZidNew[ gIFid ].push_back( this->GetGrid().id );
             iFaceLink->g2lNew   [ gIFid ].push_back( localIFid );
         }
     }
@@ -379,7 +393,7 @@ void FaceTopo::CalcC2C( LinkField & c2c )
 {
     if ( c2c.size() != 0 ) return;
 
-    int nCells = this->grid->nCells;
+    int nCells = this->GetGrid().nCells;
     int nBFaces = this->GetNBFaces();
     int nFaces = this->GetNFaces();
 
