@@ -27,6 +27,7 @@ License
 #include "DataBaseIO.h"
 #include <string>
 #include <set>
+#include <algorithm>
 
 BeginNameSpace( ONEFLOW )
 
@@ -58,141 +59,111 @@ void TDataObjectDump( std::fstream &file, std::vector< T > data )
 {
     if ( data.size() == 0 ) return;
     file << data[ 0 ];
-    for ( int i = 1; i < data.size(); ++ i )
+    for ( int i = 1; i < static_cast<int>(data.size()); ++ i )
     {
         file << " , ";
         file << data[ i ];
     }
-
 }
 
 template < typename T >
 class TDataObject : public DataObject
 {
 public:
-    TDataObject( int nSize )
+    explicit TDataObject( int nSize )
     {
-        this->data.resize( nSize );
+        this->data.resize( static_cast<HXSize_t>(nSize) );
     }
-    ~TDataObject(){}
+
+    // Virtual destructor for safe polymorphic deletion via base‑class pointer
+    virtual ~TDataObject() override = default;
+
+    // Delete copy constructor to avoid object slicing in inheritance hierarchy
+    TDataObject(const TDataObject&) = delete;
+    TDataObject& operator=(const TDataObject&) = delete;
+
+    // Enable move semantics
+    TDataObject(TDataObject&&) noexcept = default;
+    TDataObject& operator=(TDataObject&&) noexcept = default;
+
 public:
     std::vector< T > data;
+
 public:
-    void * GetVoidPointer() { return & data[ 0 ]; };
-    void CopyValue( const std::string * valueIn )
+    // Return raw pointer to underlying storage; return nullptr if container is empty
+    void* GetVoidPointer() override
     {
-        HXSize_t nSize = this->data.size();
-        for ( HXSize_t i = 0; i < nSize; ++ i )
+        if (data.empty())
+            return nullptr;
+        return &data[0];
+    };
+
+    // Copy values from typed‑array, copy at most nCopyElements items
+    void AssignFromString( const std::string * valueIn, HXSize_t nCopyElements )
+    {
+        const HXSize_t nSize = this->data.size();
+        const HXSize_t nActual = std::min(nSize, nCopyElements);
+        for ( HXSize_t i = 0; i < nActual; ++ i )
         {
             data[ i ] = StringToDigit< T >( valueIn[ i ], std::dec );
         }
     }
 
-    void CopyValue( T * valueIn )
+    // Copy values from typed‑array, copy at most nCopyElements items
+    void CopyValue( const T* valueIn, HXSize_t nCopyElements )
     {
-        HXSize_t size = this->data.size();
-        for ( HXSize_t i = 0; i < size; ++ i )
+        const HXSize_t size = this->data.size();
+        const HXSize_t nActual = std::min(size, nCopyElements);
+        for ( HXSize_t i = 0; i < nActual; ++ i )
         {
             data[ i ] = valueIn[ i ];
         }
     }
 
-    void Write( DataBook * dataBook )
+    // Serialize internal data to DataBook
+    void Write( DataBook* dataBook ) override
     {
-        HXSize_t numberOfElements = this->data.size();
+        const HXSize_t numberOfElements = this->data.size();
         for ( HXSize_t iElement = 0; iElement < numberOfElements; ++ iElement )
         {
-            T & value = this->data[ iElement ];
+            T& value = this->data[ iElement ];
             ONEFLOW::HXWrite( dataBook, value );
         }
     }
 
-    void Read( DataBook * dataBook, int numberOfElements )
+    // Deserialize numberOfElements items from DataBook into internal storage
+    void Read( DataBook* dataBook, int numberOfElements ) override
     {
-        this->data.resize( numberOfElements );
+        this->data.resize( static_cast<HXSize_t>(numberOfElements) );
         for ( int iElement = 0; iElement < numberOfElements; ++ iElement )
         {
             ONEFLOW::HXRead( dataBook, this->data[ iElement ] );
         }
     }
 
-    void Copy( DataObject * dataObject )
+    // Copy content from another DataObject instance
+    // Use dynamic_cast for runtime type checking to prevent undefined behaviour
+    void Copy( DataObject* dataObject ) override
     {
-        HXSize_t numberOfElements = this->data.size();
-        for ( HXSize_t iElement = 0; iElement < numberOfElements; ++ iElement )
+        if (dataObject == nullptr)
+            return;
+
+        TDataObject< T >* tDataObject = dynamic_cast<TDataObject< T >*>(dataObject);
+        if (tDataObject == nullptr)
+            return;
+
+        const HXSize_t srcSize = tDataObject->data.size();
+        const HXSize_t dstSize = this->data.size();
+        const HXSize_t nCopy = std::min(srcSize, dstSize);
+
+        for ( HXSize_t iElement = 0; iElement < nCopy; ++ iElement )
         {
-            TDataObject< T > * tDataObject = static_cast<TDataObject< T > *>( dataObject );
             data[ iElement ] = tDataObject->data[ iElement ];
         }
     }
 
-    void Dump( std::fstream &file )
-    {
-        TDataObjectDump( file, data );
-        //if ( this->data.size() == 0 ) return;
-        //file << this->data[ 0 ];
-        //for ( int i = 1; i < this->data.size(); ++ i )
-        //{
-        //    file << " , ";
-        //    file << this->data[ i ];
-        //}
-       
-    }
-};
-
-
-template <>
-class TDataObject< std::string > : public DataObject
-{
-public:
-    TDataObject( int nSize )
-    {
-        this->data.resize( nSize );
-    }
-    ~TDataObject() {}
-public:
-    std::vector< std::string > data;
-public:
-    void * GetVoidPointer() { return & data[ 0 ]; };
-    void CopyValue( const std::string * valueIn )
-    {
-        HXSize_t nSize = this->data.size();
-        for ( HXSize_t i = 0; i < nSize; ++ i )
-        {
-            data[ i ] = valueIn[ i ];
-        }
-    }
-
-    void Write( DataBook * dataBook )
-    {
-        HXSize_t numberOfElements = this->data.size();
-        for ( HXSize_t iElement = 0; iElement < numberOfElements; ++ iElement )
-        {
-            std::string & value = this->data[ iElement ];
-            ONEFLOW::HXWrite( dataBook, value );
-        }
-    }
-
-    void Read( DataBook * dataBook, int numberOfElements )
-    {
-        this->data.resize( numberOfElements );
-        for ( int iElement = 0; iElement < numberOfElements; ++ iElement )
-        {
-            ONEFLOW::HXRead( dataBook, this->data[ iElement ] );
-        }
-    }
-
-    void Copy( DataObject * dataObject )
-    {
-        HXSize_t numberOfElements = this->data.size();
-        for ( HXSize_t iElement = 0; iElement < numberOfElements; ++ iElement )
-        {
-            TDataObject< std::string > * tDataObject = static_cast<TDataObject< std::string > *>( dataObject );
-            data[ iElement ] = tDataObject->data[ iElement ];
-        }
-    }
-
-    void Dump( std::fstream &file )
+    // Dump data content to output file stream
+    void Dump( std::fstream& file ) override
     {
         TDataObjectDump( file, data );
     }

@@ -20,9 +20,6 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
-#pragma once
-
 #include "GridUtils.h"
 #include "BcRecord.h"
 #include "Boundary.h"

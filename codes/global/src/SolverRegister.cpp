@@ -20,12 +20,13 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "SolverRegister.h"
+#include <memory>
 #include "SolverRegData.h"
 #include "SolverTaskReg.h"
 
 BeginNameSpace( ONEFLOW )
 
-HXVector< SolverRegFun > * SolverRegister::solverRegFunList = 0;
+std::unique_ptr< HXVector< SolverRegFun > > SolverRegister::solverRegFunList;
 
 SolverRegister::SolverRegister()
 {
@@ -39,13 +40,17 @@ void SolverRegister::Register( SolverRegFun solverRegFun )
 {
     if ( ! SolverRegister::solverRegFunList )
     {
-        SolverRegister::solverRegFunList = new HXVector< SolverRegFun >;
+        SolverRegister::solverRegFunList = std::make_unique< HXVector< SolverRegFun > >();
     }
     SolverRegister::solverRegFunList->push_back( solverRegFun );
 }
 
 void SolverRegister::Run()
 {
+    if ( ! SolverRegister::solverRegFunList )
+    {
+        return;
+    }
     int n = SolverRegister::solverRegFunList->size();
     for ( int i = 0; i < n; ++ i )
     {

@@ -93,7 +93,7 @@ void SetData( const std::string & name, T * value, int type, int size )
     dataEntry->type = type;
     dataEntry->size = size;
     auto o = std::make_unique<TDataObject< T > >( size );
-    o->CopyValue( value );
+    o->CopyValue( value, size );
     dataEntry->data = std::move( o );
 
     DataBase * dataBase = ONEFLOW::GetGlobalDataBase();

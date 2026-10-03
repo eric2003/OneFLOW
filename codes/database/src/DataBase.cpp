@@ -29,11 +29,11 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-DataBase * globalDataBase = 0;
+std::unique_ptr<DataBase> globalDataBase;
 
 DataBase * GetGlobalDataBase()
 {
-    return globalDataBase;
+    return globalDataBase.get();
 }
 
 class HXInitGlobalDataBase
@@ -41,11 +41,11 @@ class HXInitGlobalDataBase
 public:
     HXInitGlobalDataBase()
     {
-        globalDataBase = new DataBase();
+        globalDataBase = std::make_unique<DataBase>();
     };
     ~HXInitGlobalDataBase()
     {
-        delete globalDataBase;
+        globalDataBase.reset();
     }
 };
 
@@ -98,19 +98,19 @@ void ProcessData( const std::string & name, const std::string * value, int type,
     if ( type == ONEFLOW::HX_STRING )
     {
         auto stringObject = std::make_unique<TDataObject< std::string > >( size );
-        stringObject->CopyValue( value );
+        stringObject->CopyValue( value, size );
         dataEntry->data = std::move( stringObject );
     }
     else if ( type == HX_INT )
     {
         auto intObject = std::make_unique<TDataObject< int > >( size );
-        intObject->CopyValue( value );
+        intObject->AssignFromString( value, size );
         dataEntry->data = std::move( intObject );
     }
     else if ( type == HX_REAL )
     {
         auto realObject = std::make_unique<TDataObject< Real > >( size );
-        realObject->CopyValue( value );
+        realObject->AssignFromString( value, size );
         dataEntry->data = std::move( realObject );
     }
     else

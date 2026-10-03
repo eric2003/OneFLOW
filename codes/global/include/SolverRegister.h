@@ -20,6 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #pragma once
+#include <memory>
 #include "HXDefine.h"
 #include "SolverRegData.h"
 
@@ -45,7 +46,7 @@ public:
     SolverRegister();
     ~SolverRegister();
 public:
-    static HXVector< SolverRegFun > * solverRegFunList;
+    static std::unique_ptr< HXVector< SolverRegFun > > solverRegFunList;
 public:
     static void Register( SolverRegFun solverRegFun );
     static void Run();

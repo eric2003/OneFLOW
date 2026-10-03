@@ -22,6 +22,7 @@ License
 
 #pragma once
 #include "NamespaceMacros.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -39,24 +40,21 @@ class DataPointer : public PointerWrap
 {
 public:
     DataPointer()
+        : data( std::make_unique<T>() )
     {
-        data = new T ();
     }
 
-    DataPointer( T * data )
+    // Adopt ownership of an existing T*.
+    explicit DataPointer( T * ptr )
+        : data( ptr )
     {
-        this->data = data;
     }
 
-    ~DataPointer() override
-    {
-        delete data;
-    }
+    ~DataPointer() override = default;
 protected:
-    T * data;
+    std::unique_ptr<T> data;
 public:
-    void * GetPointer() override { return data; };
+    void * GetPointer() override { return data.get(); };
 };
-
 
 EndNameSpace
