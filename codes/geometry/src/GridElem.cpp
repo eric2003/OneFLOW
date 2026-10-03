@@ -405,16 +405,6 @@ ZgridElem::ZgridElem( CgnsZbase * cgnsZbase )
 
 ZgridElem::~ZgridElem() = default;
 
-void ZgridElem::AddGridElem( std::unique_ptr< GridElem > gridElem )
-{
-    this->data.push_back( std::move( gridElem ) );
-}
-
-void ZgridElem::AddGridElem( const HXVector< CgnsZone * > & cgnsZones, int iZone )
-{
-    this->AddGridElem( std::make_unique< GridElem >( cgnsZones, iZone ) );
-}
-
 HXVector< std::unique_ptr< GridElem > > ZgridElem::AllocateGridElem() const
 {
     HXVector< std::unique_ptr< GridElem > > data;
