@@ -220,15 +220,13 @@ MLine::MLine( CoorMap * coorMap )
 
 MLine::~MLine() = default;
 
-void MLine::ConstructSLineCtrlPoint()
+void MLine::ConstructSLineCtrlPoint( const LinkField & pointIdLink )
 {
     int nSline = this->slineList.size();
     for ( int iSLine = 0; iSLine < nSline; ++ iSLine )
     {
         SLine * sLine = this->slineList[ iSLine ].get();
-        const int lineId = sLine->line_id;
-        const IntField & pointIdList = blkFaceSolver.GetLine( lineId );
-        sLine->ConstructCtrlPoints( pointIdList );
+        sLine->ConstructCtrlPoints( pointIdLink[ iSLine ] );
     }
 }
 
@@ -258,26 +256,13 @@ void MLine::ConstructPointToPointMap( std::map< int, IntSet > & pointToPointMap 
     ONEFLOW::ConstructPointToPointMap( pointIdLink, pointToPointMap );
 }
 
-void MLine::ConstructPointToLineMap( std::map< int, IntSet > & pointToLineMap ) const
+void MLine::ConstructPointToLineMap( const LinkField & pointIdLink, std::map< int, IntSet > & pointToLineMap ) const
 {
     int nSLine = slineList.size();
     for ( int iSLine = 0; iSLine < nSLine; ++ iSLine )
     {
         SLine * sLine = this->slineList[ iSLine ].get();
-        const int lineId = sLine->line_id;
-        const IntField & pointIdList = blkFaceSolver.GetLine( lineId );
-        sLine->ConstructPointToLineMap( pointIdList, pointToLineMap );
-    }
-}
-
-void MLine::ConstructPointToDomainMap()
-{
-    for ( int iLine = 0; iLine < lineList.size(); ++ iLine )
-    {
-        int line_id = lineList[ iLine ];
-        IntField & pointIdList = blkFaceSolver.GetLine( line_id );
-
-        ConstructIntList2Map( line_id, pointIdList, pointToDomainMap );
+        sLine->ConstructPointToLineMap( pointIdLink[ iSLine ], pointToLineMap );
     }
 }
 
@@ -312,14 +297,14 @@ void MLine::CalcCoor()
     this->CalcBcCoor( this->coorMap, openLine );
 }
 
-void MLine::ConstructDomainTopo()
+void MLine::ConstructDomainTopo( int domainId, const LinkField & pointIdLink )
 {
     this->ConstructLineToDomainMap();
-    this->ConstructPointToDomainMap();
-    this->ConstructPointToPointMap();
+    ONEFLOW::ConstructPointToDomainMap( domainId, pointIdLink, this->pointToDomainMap );
+    ONEFLOW::ConstructPointToPointMap( pointIdLink, this->pointToPointMap );
     this->ConstructBcPoint();
     this->ConstructCtrlPoint();
-    this->ConstructSLineCtrlPoint();
+    this->ConstructSLineCtrlPoint( pointIdLink );
 }
 
 void MLine::AddSubLine( int line_id )
