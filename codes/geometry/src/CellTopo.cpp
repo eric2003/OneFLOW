@@ -92,27 +92,27 @@ void CellTopo::PushElement( int p1, int p2, int p3, int p4, int elementType )
     }
 }
 
-void CellTopo::CalcC2f( FaceTopo * faceTopo )
+void CellTopo::CalcC2f( FaceTopo & faceTopo )
 {
     if ( c2f.size() != 0 ) return;
 
     int nCells = this->GetNumberOfCells();
-    int nBFaces = faceTopo->GetNBFaces();
-    int nFaces = faceTopo->GetNFaces();
+    int nBFaces = faceTopo.GetNBFaces();
+    int nFaces = faceTopo.GetNFaces();
     int nTCell = nCells + nBFaces;
     //c2f.resize( nCells );
     c2f.resize( nTCell ); //add boundary cell for incompressible ns
 
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        int lc  = faceTopo->lCells[ iFace ];
+        int lc  = faceTopo.lCells[ iFace ];
         c2f[ lc  ].push_back( iFace );
     }
 
     for ( int iFace = nBFaces; iFace < nFaces; ++ iFace )
     {
         int lc  = faceTopo->lCells[ iFace ];
-        int rc  = faceTopo->rCells[ iFace ];
+        int rc  = faceTopo.rCells[ iFace ];
         c2f[ lc ].push_back( iFace );
         c2f[ rc ].push_back( iFace );
     }
@@ -127,7 +127,7 @@ void CalcC2f( UnsGrid * grid )
 {
     FaceTopo * faceTopo = grid->faceTopo.get();
     CellTopo * cellTopo = &grid->cellMesh->cellTopo;
-    cellTopo->CalcC2f( faceTopo );
+    cellTopo->CalcC2f( *faceTopo );
 }
 
 void CalcC2C( UnsGrid * grid )
