@@ -51,6 +51,11 @@ void DomainMachine::AddBcType( TextFileParser & textFileParser )
     bctypeList.push_back( bctype );
 }
 
+void DomainMachine::SetBcType( int id, int bctype )
+{
+    bctypeList.push_back( bctype );
+}
+
 
 int DomainMachine::GetBcType( int id )
 {

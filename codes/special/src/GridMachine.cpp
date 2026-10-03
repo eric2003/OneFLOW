@@ -21,6 +21,8 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "GridMachine.h"
+#include "GridLayout.h"
+#include "GridLayoutParser.h"
 #include "PointMachine.h"
 #include "LineMachine.h"
 #include "DomainMachine.h"
@@ -28,7 +30,6 @@ License
 #include "BlockFaceSolver.h"
 #include "Dimension.h"
 #include "DataBase.h"
-#include "TextFileParser.h"
 #include "HXMath.h"
 #include <iostream>
 
@@ -50,7 +51,8 @@ void GridMachine::Run( const std::string & fileName )
     this->ResetState();
     try
     {
-        this->ReadScript( fileName );
+        const GridLayout layout = GridLayoutParser().Parse( fileName );
+        this->ApplyLayout( layout );
         this->GeneGrid();
     }
     catch ( ... )
@@ -69,70 +71,49 @@ void GridMachine::ResetState()
     domain_Machine.Reset();
 }
 
-void GridMachine::ReadScript( const std::string & fileName )
+void GridMachine::ApplyLayout( const GridLayout & layout )
 {
-    std::string separator = " =\r\n\t#$,;\"(){}";
-
-    TextFileParser textFileParser;
-
-    textFileParser.OpenPrjFile( fileName, std::ios_base::in );
-    textFileParser.SetDefaultSeparator( separator );
-
-    while ( ! textFileParser.ReachTheEndOfFile() )
+    for ( const auto & point : layout.points )
     {
-        bool resultFlag = textFileParser.ReadNextMeaningfulLine();
-        if ( ! resultFlag ) break;
+        point_Machine.AddPoint( point.x, point.y, point.z, point.id );
+    }
 
-        std::string keyWord = textFileParser.ReadNextWord();
-        std::string word;
+    for ( const auto & line : layout.lines )
+    {
+        line_Machine.AddLine( line.p1, line.p2, line.id );
+    }
 
-        if ( keyWord == "Point" )
-        {
-            int id = textFileParser.ReadNextDigit< int >();
+    for ( const auto & circle : layout.circles )
+    {
+        line_Machine.AddCircle( circle.p1, circle.pc, circle.p2, circle.id );
+    }
 
-            Real x = textFileParser.ReadNextDigit< Real >();
-            Real y = textFileParser.ReadNextDigit< Real >();
-            Real z = textFileParser.ReadNextDigit< Real >();
+    for ( const auto & dimension : layout.dimensions )
+    {
+        line_Machine.SetDimension( dimension.id, dimension.pointCount );
+    }
 
-            point_Machine.AddPoint( x, y, z, id );
-        }
-        else if ( keyWord == "Line" )
-        {
-            int id = textFileParser.ReadNextDigit< int >();
-            int p1 = textFileParser.ReadNextDigit< int >();
-            int p2 = textFileParser.ReadNextDigit< int >();
+    for ( const auto & distribution : layout.distributions )
+    {
+        line_Machine.SetDistribution( distribution );
+    }
 
-            line_Machine.AddLine( p1, p2, id );
-        }
-        else if ( keyWord == "Circle" )
-        {
-            int id = textFileParser.ReadNextDigit< int >();
-            int p1 = textFileParser.ReadNextDigit< int >();
-            int pc = textFileParser.ReadNextDigit< int >();
-            int p2 = textFileParser.ReadNextDigit< int >();
+    for ( const auto & boundary : layout.boundaries )
+    {
+        domain_Machine.SetBcType( boundary.id, boundary.boundaryType );
+    }
 
-            line_Machine.AddCircle( p1, pc, p2, id );
-        }
-        else if ( keyWord == "Dim" )
-        {
-            line_Machine.AddDimension( textFileParser );
-        }
-        else if ( keyWord == "Ds" )
-        {
-            line_Machine.AddDs( textFileParser );
-        }
-        else if ( keyWord == "Boundary" )
-        {
-            domain_Machine.AddBcType( textFileParser );
-        }
-        else if ( keyWord == "Add" )
-        {
-            block_Machine.AddFaceToBlock( textFileParser );
-        }
-        
-    };
+    for ( const auto & relation : layout.lineToFaces )
+    {
+        block_Machine.AddLineToFace(
+            relation.faceId, relation.position, relation.lineId );
+    }
 
-    textFileParser.CloseFile();
+    for ( const auto & relation : layout.faceToBlocks )
+    {
+        block_Machine.AddFaceToBlock(
+            relation.blockId, relation.position, relation.faceId );
+    }
 }
 
 void GridMachine::GeneGrid()

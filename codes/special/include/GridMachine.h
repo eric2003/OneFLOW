@@ -28,6 +28,8 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+class GridLayout;
+
 class GridMachine
 {
 public:
@@ -35,10 +37,10 @@ public:
     ~GridMachine();
 public:
     void Run( const std::string & fileName );
-    void ReadScript( const std::string & fileName );
     void GeneGrid();
 private:
     void ResetState();
+    void ApplyLayout( const GridLayout & layout );
 public:
     void GenerateFaceBlockLink();
     void GenerateAllLineMesh();

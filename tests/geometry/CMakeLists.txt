@@ -91,6 +91,7 @@ set ( SRC_DIRS
     ${CMAKE_SOURCE_DIR}/codes/special/src/Cylinder.cpp
     ${CMAKE_SOURCE_DIR}/codes/special/src/CgnsTest.cpp
     ${CMAKE_SOURCE_DIR}/codes/special/src/GridMachine.cpp
+    ${CMAKE_SOURCE_DIR}/codes/special/src/GridLayoutParser.cpp
     ${CMAKE_SOURCE_DIR}/codes/special/src/Transfinite.cpp
     ${CMAKE_SOURCE_DIR}/codes/special/src/CurveLine.cpp
     ${CMAKE_SOURCE_DIR}/codes/special/src/CurveMachine.cpp
@@ -227,3 +228,6 @@ add_oneflow_gtest(PointMachineLifecycleTest PointMachineLifecycleTest.cpp)
 add_oneflow_gtest(CellMeshLifecycleTest CellMeshLifecycleTest.cpp)
 add_oneflow_gtest(BcManagerLifecycleTest BcManagerLifecycleTest.cpp)
 add_oneflow_gtest(GridElemLifecycleTest GridElemLifecycleTest.cpp)
+
+add_oneflow_gtest(GridLayoutParserTest GridLayoutParserTest.cpp)
+target_compile_definitions(GridLayoutParserTest PRIVATE ONEFLOW_SOURCE_DIR="${CMAKE_SOURCE_DIR}")

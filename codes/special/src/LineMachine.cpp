@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "LineMachine.h"
+#include "GridLayout.h"
 #include "SegmentCtrl.h"
 #include "CurveInfo.h"
 #include "LineInfo.h"
@@ -124,6 +125,50 @@ void LineMachine::AddDs( TextFileParser & textFileParser )
     int id = textFileParser.ReadNextDigit< int >();
     SegmentCtrl * segmentCtrl = this->GetSegmentCtrl( id );
     segmentCtrl->Read( & textFileParser );
+}
+
+void LineMachine::SetDimension( int id, int pointCount )
+{
+    this->dimList.push_back( pointCount );
+    SegmentCtrl * segmentCtrl = this->GetSegmentCtrl( id );
+    segmentCtrl->nPoint = pointCount;
+}
+
+void LineMachine::SetDistribution( const GridDistributionDefinition & definition )
+{
+    SegmentCtrl * segmentCtrl = this->GetSegmentCtrl( definition.lineId );
+
+    switch ( definition.type )
+    {
+    case GridDistributionType::Ratio:
+        segmentCtrl->distribution = 0;
+        segmentCtrl->ratio1 = definition.value1;
+        segmentCtrl->ratio2 = definition.value2;
+        break;
+    case GridDistributionType::Distance:
+        segmentCtrl->distribution = 1;
+        segmentCtrl->ds1 = definition.value1;
+        segmentCtrl->ds2 = definition.value2;
+        break;
+    case GridDistributionType::Tanh:
+        segmentCtrl->distribution = 4;
+        segmentCtrl->ds1 = definition.value1;
+        segmentCtrl->ds2 = definition.value2;
+        break;
+    case GridDistributionType::Copy:
+    {
+        segmentCtrl->distribution = 2;
+        segmentCtrl->segmentCopy = std::make_unique< SegmentCopy >();
+        segmentCtrl->segmentCopy->lineList = definition.copyLineIds;
+        break;
+    }
+    case GridDistributionType::Exponential:
+        segmentCtrl->distribution = 3;
+        segmentCtrl->cA1 = 0.5;
+        segmentCtrl->cA2 = 1.0e-4;
+        segmentCtrl->cA3 = 0.5;
+        break;
+    }
 }
 
 void LineMachine::CreateAllLineMesh()

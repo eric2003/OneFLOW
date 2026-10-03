@@ -37,16 +37,25 @@ void BlockMachine::AddFaceToBlock( TextFileParser & textFileParser )
         int faceid = textFileParser.ReadNextDigit< int >();
         int pos = textFileParser.ReadNextDigit< int >();
         int lineid = textFileParser.ReadNextDigit< int >();
-        blkFaceSolver.AddLineToFace( faceid, pos, lineid );
+        this->AddLineToFace( faceid, pos, lineid );
     }
     else if ( word == "F2B" )
     {
         int blockid = textFileParser.ReadNextDigit< int >();
         int pos = textFileParser.ReadNextDigit< int >();
         int faceid = textFileParser.ReadNextDigit< int >();
-
-        blkFaceSolver.AddFace2Block( blockid, pos, faceid );
+        this->AddFaceToBlock( blockid, pos, faceid );
     }
+}
+
+void BlockMachine::AddLineToFace( int faceId, int position, int lineId )
+{
+    blkFaceSolver.AddLineToFace( faceId, position, lineId );
+}
+
+void BlockMachine::AddFaceToBlock( int blockId, int position, int faceId )
+{
+    blkFaceSolver.AddFace2Block( blockId, position, faceId );
 }
 
 void BlockMachine::GenerateFaceBlockLink()
