@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*\
+/*---------------------------------------------------------------------------*\\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
@@ -18,35 +18,15 @@ License
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
-\*---------------------------------------------------------------------------*/
+\\*---------------------------------------------------------------------------*/
 
 #include "BlockMachine.h"
-#include "TextFileParser.h"
 #include "BlockFaceSolver.h"
 
 
 BeginNameSpace( ONEFLOW )
 
 BlockMachine block_Machine;
-
-void BlockMachine::ApplyRelation( TextFileParser & textFileParser )
-{
-    std::string word = textFileParser.ReadNextWord();
-    if ( word == "L2F" )
-    {
-        int faceid = textFileParser.ReadNextDigit< int >();
-        int pos = textFileParser.ReadNextDigit< int >();
-        int lineid = textFileParser.ReadNextDigit< int >();
-        this->AddLineToFace( faceid, pos, lineid );
-    }
-    else if ( word == "F2B" )
-    {
-        int blockid = textFileParser.ReadNextDigit< int >();
-        int pos = textFileParser.ReadNextDigit< int >();
-        int faceid = textFileParser.ReadNextDigit< int >();
-        this->AddFaceToBlock( blockid, pos, faceid );
-    }
-}
 
 void BlockMachine::AddLineToFace( int faceId, int position, int lineId )
 {
