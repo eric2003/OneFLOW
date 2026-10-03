@@ -64,7 +64,7 @@ public:
     void InitCgnsElements();
     void ScanBcFace();
     void GenerateCalcElement();
-    [[nodiscard]] std::unique_ptr< Grid > GenerateCalcGrid( int gridId );
+    [[nodiscard]] std::unique_ptr< UnsGrid > GenerateCalcGrid( int gridId );
     void GenerateCalcGrid( UnsGrid & grid );
     void CalcBoundaryType( UnsGrid & grid );
     void ReorderLink( UnsGrid & grid );
