@@ -51,9 +51,13 @@ CalcGrid::~CalcGrid() = default;
 
 void CalcGrid::Init( Grids grids )
 {
-    this->grids = std::move( grids );
+    this->Init( std::move( grids ), GridConfig::FromDataBase() );
+}
 
-    this->config = GridConfig::FromDataBase();
+void CalcGrid::Init( Grids grids, const GridConfig & config )
+{
+    this->grids = std::move( grids );
+    this->config = config;
 
     if ( this->config.objective == GridObjective::Partition )
     {
@@ -277,9 +281,17 @@ void CalcGrid::MatchInterfaceTopology()
 
 void CalcGrid::GenerateMultiZoneCalcGrids( Grids grids )
 {
+    this->GenerateMultiZoneCalcGrids(
+        std::move( grids ), GridConfig::FromDataBase() );
+}
+
+void CalcGrid::GenerateMultiZoneCalcGrids(
+    Grids grids,
+    const GridConfig & config )
+{
     RegionNameMap::DumpRegion();
 
-    this->Init( std::move( grids ) );
+    this->Init( std::move( grids ), config );
     this->Post();
     this->Dump();
 }
@@ -296,8 +308,16 @@ std::string GetTargetGridFileName()
 
 void GenerateMultiZoneCalcGrids( Grids grids )
 {
+    GenerateMultiZoneCalcGrids(
+        std::move( grids ), GridConfig::FromDataBase() );
+}
+
+void GenerateMultiZoneCalcGrids(
+    Grids grids,
+    const GridConfig & config )
+{
     CalcGrid calcGrid;
-    calcGrid.GenerateMultiZoneCalcGrids( std::move( grids ) );
+    calcGrid.GenerateMultiZoneCalcGrids( std::move( grids ), config );
 }
 
 void ResetGridScaleAndTranslate( NodeMesh & nodeMesh, const GridConfig & config )
