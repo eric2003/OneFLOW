@@ -39,6 +39,7 @@ class FaceSolver;
 class Grid;
 class UnsGrid;
 class CgnsSection;
+struct GridConfig;
 
 int OneFlow2CgnsZoneType( int zoneType );
 int Cgns2OneFlowZoneType( int zoneType );
