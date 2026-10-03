@@ -123,7 +123,7 @@ void CellMesh::CalcCellSpan( UnsGrid & grid )
 
 void CalcCellSpan( UnsGrid & grid )
 {
-    grid->cellMesh->CalcCellSpan( grid );
+    grid.cellMesh->CalcCellSpan( grid );
 }
 
 EndNameSpace
