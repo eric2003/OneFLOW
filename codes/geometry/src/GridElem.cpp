@@ -422,6 +422,9 @@ GridElem * ZgridElem::GetGridElem( int iGridElem )
 
 void ZgridElem::AllocateGridElem()
 {
+    // Rebuild the transient generation state on every generation request.
+    this->data.clear();
+
     const int multiBlock = GetDataValue< int >( "multiBlock" );
 
     if ( multiBlock == 0 )
