@@ -27,10 +27,9 @@ License
 BeginNameSpace( ONEFLOW )
 
 class Grid;
-class UnsGrid;
 
 [[nodiscard]] std::unique_ptr< Grid > CreateGridUnique( int gridType );
-[[nodiscard]] std::unique_ptr< UnsGrid > CreateUnsGridUnique();
+[[nodiscard]] std::unique_ptr< Grid > CreateUnsGridUnique();
 [[nodiscard]] std::unique_ptr< Grid > CreateStrGridUnique();
 
 

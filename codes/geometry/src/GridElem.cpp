@@ -240,26 +240,29 @@ void GridElem::GenerateCalcElement()
 std::unique_ptr< Grid > GridElem::GenerateCalcGrid( int gridId )
 {
     CgnsZone * cgnsZone = this->GetCgnsZone( 0 );
-    auto grid = ONEFLOW::CreateUnsGridUnique();
+    const int gridType = Cgns2OneFlowZoneType( cgnsZone->cgnsZoneType );
+
+    auto grid = ONEFLOW::CreateGridUnique( gridType );
     grid->level = 0;
     grid->id = gridId;
     grid->localId = gridId;
-    grid->type = UMESH;
+    grid->type = gridType;
     grid->volBcType = cgnsZone->GetVolBcType();
 
     this->GenerateCalcGrid( *grid );
     return grid;
 }
 
-void GridElem::GenerateCalcGrid( UnsGrid & grid )
+void GridElem::GenerateCalcGrid( Grid & gridIn )
 {
-    grid.nCells = this->elem_feature.eTypes.size();
-    grid.cellMesh->cellTopo.eTypes = this->elem_feature.eTypes;
-    std::cout << "   nCells = " << grid.nCells << std::endl;
+    UnsGrid * grid = UnsGridCast( &gridIn );
+    grid->nCells = this->elem_feature.eTypes.size();
+    grid->cellMesh->cellTopo.eTypes = this->elem_feature.eTypes;
+    std::cout << "   nCells = " << grid->nCells << std::endl;
 
     int nNodes = this->point_factory.localToGlobal.size();
-    grid.nodeMesh->CreateNodes(nNodes);
-    grid.nNodes = nNodes;
+    grid->nodeMesh->CreateNodes(nNodes);
+    grid->nNodes = nNodes;
 
     for (int iNode = 0; iNode < nNodes; ++iNode)
     {
@@ -268,13 +271,13 @@ void GridElem::GenerateCalcGrid( UnsGrid & grid )
         Real x, y, z;
         this->point_factory.GetPoint(globalId, x, y, z);
 
-        grid.nodeMesh->xN[iNode] = x;
-        grid.nodeMesh->yN[iNode] = y;
-        grid.nodeMesh->zN[iNode] = z;
+        grid->nodeMesh->xN[iNode] = x;
+        grid->nodeMesh->yN[iNode] = y;
+        grid->nodeMesh->zN[iNode] = z;
     }
 
-    this->CalcBoundaryType( grid );
-    this->ReorderLink( grid );
+    this->CalcBoundaryType( *grid );
+    this->ReorderLink( *grid );
     std::cout << "\n-->All the computing information is ready\n";
 }
 

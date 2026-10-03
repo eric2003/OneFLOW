@@ -60,7 +60,7 @@ std::unique_ptr< Grid > CreateGridUnique( int gridType )
     return nullptr;
 }
 
-std::unique_ptr< UnsGrid > CreateUnsGridUnique()
+std::unique_ptr< Grid > CreateUnsGridUnique()
 {
     auto grid = std::make_unique< UnsGrid >();
     grid->Init();
