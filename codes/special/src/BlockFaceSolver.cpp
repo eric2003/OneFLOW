@@ -238,6 +238,16 @@ const BlkF2C & BlkFaceSolver::GetFaceToBlock( int faceIndex ) const
     return face2Block[ faceIndex ];
 }
 
+SDomain * BlkFaceSolver::GetSDomain( int domainIndex )
+{
+    return sDomainList[ domainIndex ].get();
+}
+
+SLine * BlkFaceSolver::GetSLine( int lineIndex )
+{
+    return slineList[ lineIndex ].get();
+}
+
 int BlkFaceSolver::FindLineId( const IntField & line ) const
 {
     return this->lineLookup.Find(line);

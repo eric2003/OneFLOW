@@ -62,8 +62,6 @@ public:
     HXLookup<int> lineLookup;
     HXLookup<int> faceLookup;
     IntSet faceset;
-    HXVector< std::unique_ptr< SDomain > > sDomainList;
-    HXVector< std::unique_ptr< SLine > > slineList;
 public:
     void Reset();
     const Face2D * GetBlkFace( int blk, int face_id ) const;
@@ -74,6 +72,8 @@ public:
     const BlkF2C & GetLineToFace( int line_id ) const;
     BlkF2C & GetFaceToBlock( int faceIndex );
     const BlkF2C & GetFaceToBlock( int faceIndex ) const;
+    SDomain * GetSDomain( int domainIndex );
+    SLine * GetSLine( int lineIndex );
     int FindLineId( const IntField & line ) const;
 public:
     void AddLineToFace( int faceid, int pos, int lineid );
@@ -81,6 +81,8 @@ public:
     void GenerateGrid();
 
 private:
+    HXVector< std::unique_ptr< SDomain > > sDomainList;
+    HXVector< std::unique_ptr< SLine > > slineList;
     LinkField lineList;
     HXVector< BlkF2C > line2Face;
     HXVector< BlkF2C > face2Block;
