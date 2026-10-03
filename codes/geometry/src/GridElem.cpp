@@ -197,7 +197,7 @@ void GridElem::ScanBcFace()
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
-        cgnsZone->ScanBcFace( &this->face_solver );
+        cgnsZone->ScanBcFace( this->face_solver );
     }
 
     this->face_solver.ScanInterfaceBc();
