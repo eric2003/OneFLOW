@@ -29,15 +29,10 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-class Block3D;
-
 class MDomain;
 class Face2D;
 class Grid;
 class StrGrid;
-
-
-class MLine;
 
 class Block2D : public BlkBasic
 {
@@ -46,7 +41,6 @@ public:
     ~Block2D() override;
 public:
     RealField2D x2d, y2d, z2d;
-    HXVector< MLine * > mLineList;
     HXVector< std::unique_ptr< MDomain > > mDomainList;
 public:
     void Alloc();
@@ -55,7 +49,6 @@ public:
     int GetNSubDomain() override;
     void ConstructTopo();
     void SetInterfaceBc();
-    void GetCornerPoint( int & pt, int id1, int id2 );
     void CalcBlkDim();
     void CreateFaceList();
     void FillStrGrid( Grid * gridIn, int iZone );
