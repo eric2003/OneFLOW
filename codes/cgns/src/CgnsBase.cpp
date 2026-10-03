@@ -86,11 +86,6 @@ void CgnsBase::SetDefaultCgnsBaseBasicInfo()
     this->baseName = ONEFLOW::AddString( "Base", this->baseId );
 }
 
-void CgnsBase::AddCgnsZone( CgnsZone * cgnsZone )
-{
-    this->AddCgnsZone( std::unique_ptr< CgnsZone >( cgnsZone ) );
-}
-
 void CgnsBase::AddCgnsZone( std::unique_ptr< CgnsZone > cgnsZone )
 {
     CgnsZone * zone = cgnsZone.get();

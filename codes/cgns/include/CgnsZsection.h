@@ -44,7 +44,6 @@ public:
     CgnsZone * cgnsZone;
 public:
     void AddCgnsSection( std::unique_ptr< CgnsSection > cgnsSection );
-    void AddCgnsSection( CgnsSection * cgnsSection );
     CgnsSection * GetCgnsSection( int iSection );
     const CgnsSection * GetCgnsSection( int iSection ) const;
     bool HasPolygonSection() const;

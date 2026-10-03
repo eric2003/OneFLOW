@@ -59,7 +59,6 @@ public:
 public:
     int GetNZones();
     void SetDefaultCgnsBaseBasicInfo();
-    void AddCgnsZone( CgnsZone * cgnsZone );
     void AddCgnsZone( std::unique_ptr< CgnsZone > cgnsZone );
     void AllocateAllCgnsZones();
     void ReadCgnsBaseBasicInfo();

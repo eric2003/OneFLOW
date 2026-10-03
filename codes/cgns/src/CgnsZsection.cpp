@@ -54,11 +54,6 @@ void CgnsZsection::AddCgnsSection( std::unique_ptr< CgnsSection > cgnsSection )
     section->id = secId;
 }
 
-void CgnsZsection::AddCgnsSection( CgnsSection * cgnsSection )
-{
-    this->AddCgnsSection( std::unique_ptr< CgnsSection >( cgnsSection ) );
-}
-
 CgnsSection * CgnsZsection::GetCgnsSection( int iSection )
 {
     return this->cgnsSections[ iSection ].get();
