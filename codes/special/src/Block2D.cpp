@@ -167,7 +167,7 @@ void Block2D::SetInterfaceBc()
             {
                 tblk = blk1;
             }
-            Face2D * facet = blkFaceSolver.GetBlkFace2D( tblk, domain_id );
+            const Face2D * facet = blkFaceSolver.GetBlkFace2D( tblk, domain_id );
             face2d->t->bcType = tblk + 1;
             face2d->t->st = facet->st;
             face2d->t->ed = facet->ed;
