@@ -94,6 +94,26 @@ const IntField & FaceTopo::GetRightCells() const
     return this->rCells;
 }
 
+LinkField & FaceTopo::GetFaces()
+{
+    return this->faces;
+}
+
+const LinkField & FaceTopo::GetFaces() const
+{
+    return this->faces;
+}
+
+IntField & FaceTopo::GetFaceTypes()
+{
+    return this->fTypes;
+}
+
+const IntField & FaceTopo::GetFaceTypes() const
+{
+    return this->fTypes;
+}
+
 void FaceTopo::PrepareBoundaryConditions()
 {
     this->bcManager->PreProcess();
