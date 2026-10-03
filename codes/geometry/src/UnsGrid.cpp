@@ -523,7 +523,7 @@ void UnsGrid::CalcMetrics()
 void UnsGrid::AllocMetrics()
 {
     this->GetFaceMesh().AllocateMetrics();
-    this->GetCellMesh().AllocateMetrics( *this->faceMesh );
+    this->GetCellMesh().AllocateMetrics( this->GetFaceMesh() );
 }
 
 void UnsGrid::CalcMetrics1D()
@@ -555,7 +555,7 @@ void UnsGrid::CalcFaceCenter1D()
 
 void UnsGrid::CalcFaceNormal1D()
 {
-    this->GetFaceMesh().CalcFaceNormal1D( this->nodeMesh.get(), this->cellMesh.get() );
+    this->GetFaceMesh().CalcFaceNormal1D( this->nodeMesh.get(), &this->GetCellMesh() );
 }
 
 void UnsGrid::CalcCellCenterVol1D()
