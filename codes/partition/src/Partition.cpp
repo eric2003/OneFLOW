@@ -555,8 +555,8 @@ void Partition::SetF2CAndBC( UnsGrid * ggrid, int zid, UnsGrid * grid )
     int nFaces  = grid->nFaces;
     int nBFaces = grid->nBFaces;
 
-    IntField & lCell = grid->GetFaceTopo().lCells;
-    IntField & rCell = grid->GetFaceTopo().rCells;
+    IntField & lCell = grid->GetFaceTopo().GetLeftCells();
+    IntField & rCell = grid->GetFaceTopo().GetRightCells();
     lCell.resize( nFaces );
     rCell.resize( nFaces );
 
@@ -691,8 +691,8 @@ bool FindMatch( UnsGrid * grid, FacePair * facePair )
     int nIFaces = interFace->nIFaces;
     int nPBFace = nBFaces - nIFaces;
 
-    IntField & lCell = grid->GetFaceTopo().lCells;
-    IntField & rCell = grid->GetFaceTopo().rCells;
+    IntField & lCell = grid->GetFaceTopo().GetLeftCells();
+    IntField & rCell = grid->GetFaceTopo().GetRightCells();
 
     for ( int iFace = 0; iFace < nIFaces; ++ iFace )
     {
