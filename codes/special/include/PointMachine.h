@@ -44,7 +44,6 @@ public:
 private:
     // PointMachine owns the layout points; callers receive non-owning views.
     HXVector< std::unique_ptr< PointType > > ptList;
-public:
 };
 
 extern PointMachine point_Machine;
