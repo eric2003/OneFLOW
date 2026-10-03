@@ -445,7 +445,7 @@ HXVector< std::unique_ptr< GridElem > > ZgridElem::CreateGridElements( bool mult
     return data;
 }
 
-void ZgridElem::PrepareUnsCalcGrid( HXVector< std::unique_ptr< GridElem > > & data ) const
+void ZgridElem::PrepareUnsCalcGrid( const HXVector< std::unique_ptr< GridElem > > & data ) const
 {
     const int nZones = data.size();
     for ( int iZone = 0; iZone < nZones; ++ iZone )
