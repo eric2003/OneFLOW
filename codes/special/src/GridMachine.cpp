@@ -27,7 +27,6 @@ License
 #include "LineMachine.h"
 #include "DomainMachine.h"
 #include "BlockMachine.h"
-#include "BlockFaceSolver.h"
 
 
 BeginNameSpace( ONEFLOW )
@@ -115,7 +114,7 @@ void GridMachine::ApplyLayout( const GridLayout & layout )
 void GridMachine::GenerateGrid()
 {
     // BlockFaceSolver owns the complete mesh-generation sequence.
-    block_Machine.GenerateFaceBlockLink();
+    block_Machine.GenerateGrid();
 }
 
 EndNameSpace
