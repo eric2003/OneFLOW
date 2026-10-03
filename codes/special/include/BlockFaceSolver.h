@@ -50,12 +50,11 @@ class BlkFaceSolver
 public:
     BlkFaceSolver();
     ~BlkFaceSolver();
-public:
+private:
     IntSet blkset;
     HXVector< std::unique_ptr< Block3D > > blkList;
     HXVector< std::unique_ptr< Block2D > > blkList2d;
     bool flag;
-private:
     bool init_flag;
     LinkField faceList;
     LinkField faceLinePosList;
