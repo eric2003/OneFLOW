@@ -47,7 +47,7 @@ int Cgns2OneFlowZoneType( int zoneType );
 class GridElem
 {
 public:
-    GridElem( const HXVector< CgnsZone * > & cgnsZones );
+    GridElem( HXVector< CgnsZone * > zoneViews );
     ~GridElem();
 public:
     ElemFeature elem_feature;
@@ -73,7 +73,7 @@ public:
     void ScanPolygonFace();
     void SetPolyhedronElementType( CgnsSection & cgnsSection );
 private:
-    HXVector< CgnsZone * > cgnsZones;
+    HXVector< CgnsZone * > zoneViews;
 };
 
 class ZgridElem
