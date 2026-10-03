@@ -73,12 +73,12 @@ public:
     void ConstructPointToDomainMap( int domain_id, std::map< int, IntSet > & pointToDomainMap ) const;
     void ConstructPointToPointMap();
     void ConstructPointToPointMap( std::map< int, IntSet > & pointToPointMap ) const;
-    void ConstructPointToLineMap( std::map< int, IntSet > & pointToLineMap ) const;
+    void ConstructPointToLineMap( const LinkField & pointIdLink, std::map< int, IntSet > & pointToLineMap ) const;
 public:
     void AddSubLine( int line_id );
-    void ConstructDomainTopo();
+    void ConstructDomainTopo( int domainId, const LinkField & pointIdLink );
     void ConstructCtrlPoint();
-    void ConstructSLineCtrlPoint();
+    void ConstructSLineCtrlPoint( const LinkField & pointIdLink );
     //void CalcCoor( CoorMap * localCoorMap );
     void CalcCoor();
     void SetDomainBcMesh( SDomain * sDomain );
