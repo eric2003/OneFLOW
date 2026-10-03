@@ -73,8 +73,8 @@ std::string GetTargetGridFileName();
 int GetIgnoreNoBc();
 
 void GenerateMultiZoneCalcGrids( Grids grids );
-void ResetGridScaleAndTranslate( NodeMesh * nodeMesh, const GridConfig & config );
-void ResetGridScaleAndTranslate( NodeMesh * nodeMesh );
-void TurnZAxisToYAxis( NodeMesh * nodeMesh );
+void ResetGridScaleAndTranslate( NodeMesh & nodeMesh, const GridConfig & config );
+void ResetGridScaleAndTranslate( NodeMesh & nodeMesh );
+void TurnZAxisToYAxis( NodeMesh & nodeMesh );
 
 EndNameSpace
