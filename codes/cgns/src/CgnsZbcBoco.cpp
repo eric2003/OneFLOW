@@ -73,7 +73,7 @@ void CgnsZbcBoco::CreateCgnsZbc()
 {
     for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
     {
-        this->AddCgnsBcBoco( std::make_unique< CgnsBcBoco >( this->cgnsZone ) );
+        this->AddCgnsBcBoco( std::make_unique< CgnsBcBoco >( & this->cgnsZone ) );
     }
 }
 
