@@ -184,7 +184,7 @@ CgnsBcBoco * CgnsZbcBoco::WriteCgnsBoco( const std::string & bocoName, BCType_t 
     int baseId = cgnsZone.cgnsBase.baseId;
     int zId = cgnsZone.zId;
 
-    std::unique_ptr< CgnsBcBoco > ownedBcBoco = std::make_unique< CgnsBcBoco >( this->cgnsZone );
+    std::unique_ptr< CgnsBcBoco > ownedBcBoco = std::make_unique< CgnsBcBoco >( & this->cgnsZone );
     CgnsBcBoco * cgnsBcBoco = ownedBcBoco.get();
     this->AddCgnsBcBoco( std::move( ownedBcBoco ) );
 
