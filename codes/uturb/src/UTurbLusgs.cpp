@@ -61,8 +61,8 @@ void UTurbLusgs::Init()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     FaceTopo & faceTopo = *grid->faceTopo;
-    CellTopo * cellTopo = &grid->cellMesh->cellTopo;
-    cellTopo->CalcC2f( faceTopo );
+    CellTopo & cellTopo = grid->cellMesh->cellTopo;
+    cellTopo.CalcC2f( faceTopo );
     ug.Init();
     turblu.Init();
     uturbf.Init();
