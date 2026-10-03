@@ -178,10 +178,10 @@ void FillSection( GridViews & grids, HXVector< std::unique_ptr< Int3D > > & unsI
 
     cgnsZone->cgnsZsection->CreateCgnsSections( 2 );
 
-    cgnsZone->cgnsZsection->GetCgnsSection( 0 )->startId = 1;
-    cgnsZone->cgnsZsection->GetCgnsSection( 0 )->endId   = nTCell;
+    cgnsZone->cgnsZsection->GetCgnsSection( 0 ).startId = 1;
+    cgnsZone->cgnsZsection->GetCgnsSection( 0 ).endId   = nTCell;
 
-    cgnsZone->cgnsZsection->GetCgnsSection( 1 )->startId = nTCell + 1;
+    cgnsZone->cgnsZsection->GetCgnsSection( 1 ).startId = nTCell + 1;
     cgnsZone->cgnsZsection->GetCgnsSection( 1 )->endId   = nTCell + 1 + nBFaces;
 
     if ( Dim::dimension == ONEFLOW::THREE_D )
