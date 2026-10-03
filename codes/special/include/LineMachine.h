@@ -41,6 +41,7 @@ public:
     const SegmentCtrl * GetSegmentCtrl( int id ) const;
     CurveMesh * GetCurveMesh( int id );
     CurveInfo * GetCurveInfo( int id );
+    const CurveInfo * GetCurveInfo( int id ) const;
 public:
     CurveMesh * GetLineMeshByTwoPoint( const int & p1, const int & p2, int & direction );
     int GetLineIdByTwoPoint( const int & p1, const int & p2 ) const;
