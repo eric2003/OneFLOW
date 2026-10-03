@@ -249,8 +249,8 @@ void CalcAeroForce(int idump_pres)
 		for (int iBCFace = 0; iBCFace < nBCFace; ++iBCFace)
 		{
 			int fId = bcInfo->bcFace[ir][iBCFace];
-			int lc = grid->GetFaceTopo().lCells[fId];
-			int rc = grid->GetFaceTopo().rCells[fId];
+			int lc = grid->GetFaceTopo().GetLeftCells()[fId];
+			int rc = grid->GetFaceTopo().GetRightCells()[fId];
 			stress.area = area[fId];
 			stress.fnx = xfn[fId];
 			stress.fny = yfn[fId];
