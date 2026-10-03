@@ -111,7 +111,7 @@ void CellTopo::CalcC2f( FaceTopo & faceTopo )
 
     for ( int iFace = nBFaces; iFace < nFaces; ++ iFace )
     {
-        int lc  = faceTopo->lCells[ iFace ];
+        int lc  = faceTopo.lCells[ iFace ];
         int rc  = faceTopo.rCells[ iFace ];
         c2f[ lc ].push_back( iFace );
         c2f[ rc ].push_back( iFace );
