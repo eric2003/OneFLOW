@@ -20,6 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "HeatFluxTaskReg.h"
+#include <memory>
 #include "HeatFluxTask.h"
 #include "SolverState.h"
 #include "TaskState.h"
@@ -35,8 +36,7 @@ void RegisterHeatFluxTask()
 
 void CreateHeatFluxTask( StringField & data )
 {
-    HeatFluxTask * task = new HeatFluxTask();
-    TaskState::createdTask = task;
+    TaskState::createdTask = std::make_unique<HeatFluxTask>();
 }
 
 EndNameSpace

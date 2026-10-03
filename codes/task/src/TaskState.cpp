@@ -21,12 +21,13 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "TaskState.h"
+#include <memory>
 #include "Task.h"
 
 BeginNameSpace( ONEFLOW )
 
 Task * TaskState::task = nullptr;
-Task * TaskState::createdTask = nullptr;
+std::unique_ptr<Task> TaskState::createdTask;
 
   
 EndNameSpace

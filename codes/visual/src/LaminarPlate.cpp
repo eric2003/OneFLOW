@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "LaminarPlate.h"
+#include <memory>
 #include "NodeField.h"
 #include "Zone.h"
 #include "ZoneState.h"
@@ -50,8 +51,7 @@ void SetPlateTask()
 
 void CreateLaminarPlateTask( StringField & data )
 {
-    LaminarFlatPlateTask * task = new LaminarFlatPlateTask();
-    TaskState::createdTask = task;
+    TaskState::createdTask = std::make_unique<LaminarFlatPlateTask>();
 }
 
 LamVelCut::LamVelCut()
