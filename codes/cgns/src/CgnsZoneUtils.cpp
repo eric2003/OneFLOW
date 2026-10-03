@@ -176,8 +176,7 @@ void FillSection( GridViews & grids, HXVector< std::unique_ptr< Int3D > > & unsI
 
     cgnsZone->cgnsCoor->SetNCell( nTCell );
 
-    cgnsZone->cgnsZsection->nSection = 2;
-    cgnsZone->cgnsZsection->CreateCgnsSection();
+    cgnsZone->cgnsZsection->CreateCgnsSections( 2 );
 
     cgnsZone->cgnsZsection->cgnsSections[ 0 ]->startId = 1;
     cgnsZone->cgnsZsection->cgnsSections[ 0 ]->endId   = nTCell;
@@ -577,8 +576,7 @@ void GenerateUnsVolElemConn( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
 
 void AllocateUnsElemConn( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
 {
-    myZone->cgnsZsection->nSection = 2;
-    myZone->cgnsZsection->CreateCgnsSection();
+    myZone->cgnsZsection->CreateCgnsSections( 2 );
 
     int s1, e1, s2, e2, etype1, etype2;
     //cgnsZoneIn->GetStrZonePara( s1, e1, s2, e2, etype1, etype2 );
