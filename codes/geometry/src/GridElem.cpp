@@ -485,6 +485,9 @@ Grids ZgridElem::GenerateLocalOneFlowGrids()
         grids.push_back( gridElem->GenerateCalcGrid( iZone ) );
     }
 
+    // GridElem objects are only generation-time state; the generated Grids own the result.
+    this->data.clear();
+
     return grids;
 }
 
