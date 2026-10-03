@@ -75,7 +75,6 @@ int Cgns2OneFlowZoneType( int zoneType )
 GridElem::GridElem( const HXVector< CgnsZone * > & cgnsZones, int iZone )
 {
     this->cgnsZones = cgnsZones;
-    this->CreateGrid( cgnsZones, iZone );
 
     this->minLen = LARGE;
     this->maxLen = -LARGE;
@@ -102,19 +101,6 @@ const CgnsZone * GridElem::GetCgnsZone( int iZone ) const
 int GridElem::GetNZones() const
 {
     return this->cgnsZones.size();
-}
-
-void GridElem::CreateGrid( const HXVector< CgnsZone * > & cgnsZones, int iZone )
-{
-    CgnsZone * cgnsZone = cgnsZones[ 0 ];
-    int cgnsZoneType = cgnsZone->cgnsZoneType;
-    int gridType = Cgns2OneFlowZoneType( cgnsZoneType );
-    this->grid = ONEFLOW::CreateGridUnique( gridType );
-    grid->level = 0;
-    grid->id = iZone;
-    grid->localId = iZone;
-    grid->type = gridType;
-    grid->volBcType = cgnsZone->GetVolBcType();
 }
 
 void GridElem::PrepareUnsCalcGrid()
@@ -251,9 +237,20 @@ void GridElem::GenerateCalcElement()
 
 }
 
-void GridElem::GenerateCalcGrid()
+std::unique_ptr< Grid > GridElem::GenerateCalcGrid()
 {
-    this->GenerateCalcGrid( *this->grid );
+    CgnsZone * cgnsZone = this->GetCgnsZone( 0 );
+    const int gridType = Cgns2OneFlowZoneType( cgnsZone->cgnsZoneType );
+
+    auto grid = ONEFLOW::CreateGridUnique( gridType );
+    grid->level = 0;
+    grid->id = 0;
+    grid->localId = 0;
+    grid->type = gridType;
+    grid->volBcType = cgnsZone->GetVolBcType();
+
+    this->GenerateCalcGrid( *grid );
+    return grid;
 }
 
 void GridElem::GenerateCalcGrid( Grid & gridIn )
@@ -470,23 +467,10 @@ void ZgridElem::PrepareUnsCalcGrid()
     }
 }
 
-void ZgridElem::GenerateCalcGrid()
-{
-    int nZones = this->data.size();
-    for ( int iZone = 0; iZone < nZones; ++ iZone )
-    {
-        GridElem * gridElem = this->GetGridElem( iZone );
-        gridElem->GenerateCalcGrid();
-    }
-}
-
 Grids ZgridElem::GenerateLocalOneFlowGrids()
 {
     this->AllocateGridElem();
-
     this->PrepareUnsCalcGrid();
-
-    this->GenerateCalcGrid();
 
     Grids grids;
     const int nZones = this->data.size();
@@ -495,7 +479,7 @@ Grids ZgridElem::GenerateLocalOneFlowGrids()
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
         GridElem * gridElem = this->GetGridElem( iZone );
-        grids.push_back( std::move( gridElem->grid ) );
+        grids.push_back( gridElem->GenerateCalcGrid() );
     }
 
     return grids;
