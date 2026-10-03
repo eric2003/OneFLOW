@@ -59,6 +59,12 @@ SegmentCtrl * LineMachine::GetSegmentCtrl( int id )
     return this->segmentCtrlList[ idx ].get();
 }
 
+const SegmentCtrl * LineMachine::GetSegmentCtrl( int id ) const
+{
+    int idx = ABS( id ) - 1;
+    return this->segmentCtrlList[ idx ].get();
+}
+
 CurveMesh * LineMachine::GetCurveMesh( int id )
 {
     int idx = ABS( id ) - 1;
