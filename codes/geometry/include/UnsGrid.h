@@ -49,6 +49,7 @@ public:
     const FaceMesh & GetFaceMesh() const;
     CellMesh & GetCellMesh();
     const CellMesh & GetCellMesh() const;
+    void SetFaceTopo( std::unique_ptr< FaceTopo > faceTopo );
     std::unique_ptr< FaceTopo > faceTopo;
     std::unique_ptr< FaceMesh > faceMesh;
     std::unique_ptr< CellMesh > cellMesh;
