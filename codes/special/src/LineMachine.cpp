@@ -53,19 +53,19 @@ void LineMachine::Reset()
     lineList.clear();
 }
 
-SegmentCtrl * LineMachine::GetSegmentCtrl( int id ) const
+SegmentCtrl * LineMachine::GetSegmentCtrl( int id )
 {
     int idx = ABS( id ) - 1;
     return this->segmentCtrlList[ idx ].get();
 }
 
-CurveMesh * LineMachine::GetCurveMesh( int id ) const
+CurveMesh * LineMachine::GetCurveMesh( int id )
 {
     int idx = ABS( id ) - 1;
     return this->curveMeshList[ idx ].get();
 }
 
-CurveInfo * LineMachine::GetCurveInfo( int id ) const
+CurveInfo * LineMachine::GetCurveInfo( int id )
 {
     int idx = ABS( id ) - 1;
     return this->curveInfoList[ idx ].get();
@@ -207,7 +207,7 @@ void LineMachine::GenerateAllLineMesh()
     }
 }
 
-CurveMesh * LineMachine::GetLineMeshByTwoPoint( const int & p1, const int & p2, int & direction ) const
+CurveMesh * LineMachine::GetLineMeshByTwoPoint( const int & p1, const int & p2, int & direction )
 {
     direction = 1;
     int nLine = curveInfoList.size();
@@ -239,7 +239,7 @@ int LineMachine::GetLineIdByTwoPoint( const int & p1, const int & p2 ) const
 
     for ( int iLine = 0; iLine < nLine; ++ iLine )
     {
-        CurveInfo * curveInfo = curveInfoList[ iLine ].get();
+        const CurveInfo * curveInfo = curveInfoList[ iLine ].get();
         if ( curveInfo->p1 == p1 &&
             curveInfo->p2 == p2 )
         {
