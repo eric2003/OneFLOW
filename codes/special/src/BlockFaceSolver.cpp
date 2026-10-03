@@ -600,7 +600,7 @@ void BlkFaceSolver::DumpStandardGrid( Grids & strGridList )
 
 }
 
-void BlkFaceSolver::GenerateFaceBlockLink()
+void BlkFaceSolver::GenerateGrid()
 {
     if ( Dim::dimension == ONEFLOW::THREE_D )
     {
