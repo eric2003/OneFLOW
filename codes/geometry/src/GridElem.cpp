@@ -240,13 +240,11 @@ void GridElem::GenerateCalcElement()
 std::unique_ptr< Grid > GridElem::GenerateCalcGrid( int gridId )
 {
     CgnsZone * cgnsZone = this->GetCgnsZone( 0 );
-    const int gridType = Cgns2OneFlowZoneType( cgnsZone->cgnsZoneType );
-
-    auto grid = ONEFLOW::CreateGridUnique( gridType );
+    auto grid = ONEFLOW::CreateUnsGridUnique();
     grid->level = 0;
     grid->id = gridId;
     grid->localId = gridId;
-    grid->type = gridType;
+    grid->type = UMESH;
     grid->volBcType = cgnsZone->GetVolBcType();
 
     this->GenerateCalcGrid( *grid );
