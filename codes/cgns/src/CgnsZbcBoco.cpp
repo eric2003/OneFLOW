@@ -125,7 +125,7 @@ void CgnsZbcBoco::ScanBcFace( FaceSolver & faceSolver )
         RegionNameMap::AddRegion( cgnsBcBoco->name );
         int bcNameId = RegionNameMap::FindRegionId( cgnsBcBoco->name );
         cgnsBcBoco->nameId = bcNameId;
-        cgnsBcBoco->ScanBcFace( face_solver );
+        cgnsBcBoco->ScanBcFace( faceSolver );
     }
 }
 
