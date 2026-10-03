@@ -480,17 +480,7 @@ void ZgridElem::GenerateCalcGrid()
     }
 }
 
-void ZgridElem::TransferGrids( Grids & grids )
-{
-    int nZones = this->data.size();
-    for ( int iZone = 0; iZone < nZones; ++ iZone )
-    {
-        GridElem * gridElem = this->GetGridElem( iZone );
-        grids.push_back( std::move( gridElem->grid ) );
-    }
-}
-
-void ZgridElem::GenerateLocalOneFlowGrid( Grids & grids )
+Grids ZgridElem::GenerateLocalOneFlowGrids()
 {
     this->AllocateGridElem();
 
@@ -498,7 +488,17 @@ void ZgridElem::GenerateLocalOneFlowGrid( Grids & grids )
 
     this->GenerateCalcGrid();
 
-    this->TransferGrids( grids );
+    Grids grids;
+    const int nZones = this->data.size();
+    grids.reserve( static_cast< std::size_t >( nZones ) );
+
+    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    {
+        GridElem * gridElem = this->GetGridElem( iZone );
+        grids.push_back( std::move( gridElem->grid ) );
+    }
+
+    return grids;
 }
 
 

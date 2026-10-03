@@ -93,12 +93,11 @@ public:
     void AddGridElem( std::unique_ptr< GridElem > gridElem );
     void AddGridElem( const HXVector< CgnsZone * > & cgnsZones, int iZone );
 public:
-    void GenerateLocalOneFlowGrid( Grids & grids );
+    [[nodiscard]] Grids GenerateLocalOneFlowGrids();
     void AllocateGridElem();
     void PrepareUnsCalcGrid();
     void GenerateCalcGrid();
-    // Transfer generated grids to the next owner in the calculation pipeline.
-    void TransferGrids( Grids & grids );
+
 };
 
 EndNameSpace
