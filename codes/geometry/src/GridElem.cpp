@@ -317,7 +317,7 @@ void GridElem::CalcBoundaryType( UnsGrid & grid )
     int nFaces = grid.GetFaceTopo().faces.size();
     std::cout << " nFaces = " << nFaces << "\n";
      
-    BcRecord * bcRecord = grid.GetFaceTopo().GetBcRecord();
+    BcRecord * bcRecord = &grid.GetFaceTopo().GetBcRecord();
     int nBFaces = bcRecord->bcType.size();
 
     grid.nBFaces = nBFaces;

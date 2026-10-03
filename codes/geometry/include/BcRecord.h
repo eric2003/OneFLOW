@@ -65,6 +65,7 @@ public:
     void GenerateI2B( InterFace * interFace );
 public:
     void CreateBcTypeRegion();
+    void CalcBcType( IntField & bcTypeList );
 };
 
 class IFaceLink;
