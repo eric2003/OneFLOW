@@ -49,7 +49,7 @@ void PointMachine::AddPoint( Real x, Real y, Real z, int id )
 PointType & PointMachine::GetPoint( int id )
 {
     const int index = id - 1;
-    return * this->ptList.at( index );
+    return * this->ptList[ index ];
 }
 
 const PointType & PointMachine::GetPoint( int id ) const
