@@ -57,22 +57,22 @@ const FaceTopo & FaceMesh::GetFaceTopo() const
 
 HXSize_t FaceMesh::GetNFace()
 {
-    return faceTopo->GetNFaces();  
+    return this->GetFaceTopo().GetNFaces();  
 }
 
 HXSize_t FaceMesh::CalcTotalFaceNodes()
 {
-    return faceTopo->CalcTotalFaceNodes();
+    return this->GetFaceTopo().CalcTotalFaceNodes();
 }
 
 HXSize_t FaceMesh::GetNBFace()
 {
-    return faceTopo->GetNBFaces();
+    return this->GetFaceTopo().GetNBFaces();
 }
 
 void FaceMesh::SetNBFace( HXSize_t nBFaces )
 {
-    faceTopo->SetNBFaces( nBFaces );
+    this->GetFaceTopo().SetNBFaces( nBFaces );
 }
 
 void FaceMesh::CalcFaceCenter1D( NodeMesh * nodeMesh )
@@ -84,7 +84,7 @@ void FaceMesh::CalcFaceCenter1D( NodeMesh * nodeMesh )
 
     for ( HXSize_t iFace = 0; iFace < nFaces; ++ iFace )
     {
-        IntField & nodeIndex = faceTopo->faces[ iFace ];
+        IntField & nodeIndex = this->GetFaceTopo().faces[ iFace ];
         int p1 = nodeIndex[ 0 ];
         int p2 = nodeIndex[ 0 ];
         xfc[ iFace ] = half * ( xN[ p1 ] + xN[ p2 ] );
@@ -107,7 +107,7 @@ void FaceMesh::CalcFaceNormal1D( NodeMesh * nodeMesh, CellMesh * cellMesh )
 
     for ( HXSize_t iFace = 0; iFace < nFaces; ++ iFace )
     {
-        int lc  = faceTopo->lCells[ iFace ];
+        int lc  = this->GetFaceTopo().lCells[ iFace ];
 
         Real dx = xfc[ iFace ] - xcc[ lc ];
         Real dy = yfc[ iFace ] - ycc[ lc ];
@@ -134,7 +134,7 @@ void FaceMesh::CalcFaceNormal2D( NodeMesh * nodeMesh )
 
     for ( HXSize_t iFace = 0; iFace < nFaces; ++ iFace )
     {
-        IntField & faceIndex = faceTopo->faces[ iFace ];
+        IntField & faceIndex = this->GetFaceTopo().faces[ iFace ];
         int p1 = faceIndex[ 0 ];
         int p2 = faceIndex[ 1 ];
 
@@ -163,7 +163,7 @@ void FaceMesh::CalcFaceCenter2D( NodeMesh * nodeMesh )
 
     for ( HXSize_t iFace = 0; iFace < nFaces; ++ iFace )
     {
-        IntField & nodeIndex = faceTopo->faces[ iFace ];
+        IntField & nodeIndex = this->GetFaceTopo().faces[ iFace ];
         int p1 = nodeIndex[ 0 ];
         int p2 = nodeIndex[ 1 ];
         xfc[ iFace ] = half * ( xN[ p1 ] + xN[ p2 ] );
@@ -188,7 +188,7 @@ void FaceMesh::CalcFaceNormal3D( NodeMesh * nodeMesh )
 
     for ( HXSize_t iFace = 0; iFace < nFaces; ++ iFace )
     {
-        IntField & faceIndex = faceTopo->faces[ iFace ];
+        IntField & faceIndex = this->GetFaceTopo().faces[ iFace ];
 
         HXSize_t faceNodeNumber = faceIndex.size();
         for ( HXSize_t iNodeInFace = 0; iNodeInFace < faceNodeNumber; ++ iNodeInFace )
@@ -236,7 +236,7 @@ void FaceMesh::CalcFaceCenter3D( NodeMesh * nodeMesh )
         Real y0 = 0.0;
         Real z0 = 0.0;
 
-        IntField & faceIndex = faceTopo->faces[ iFace ];
+        IntField & faceIndex = this->GetFaceTopo().faces[ iFace ];
 
         HXSize_t faceNodeNumber = faceIndex.size();
         for ( HXSize_t iNodeInFace = 0; iNodeInFace < faceNodeNumber; ++ iNodeInFace )
@@ -319,7 +319,7 @@ void FaceMesh::AllocateMetrics()
     this->vfz = 0;
     this->vfn = 0;
     HXSize_t nBFaces = this->GetNBFace();
-    this->faceTopo->bcManager->bcRecord->bcType.resize( nBFaces );
+    this->this->GetFaceTopo().bcManager->bcRecord->bcType.resize( nBFaces );
 }
 
 EndNameSpace
