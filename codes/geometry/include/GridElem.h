@@ -83,8 +83,9 @@ public:
     CgnsZbase * cgnsZbase;
 public:
     [[nodiscard]] Grids GenerateLocalOneFlowGrids();
+    [[nodiscard]] Grids GenerateLocalOneFlowGrids( const GridConfig & config );
 private:
-    [[nodiscard]] HXVector< std::unique_ptr< GridElem > > CreateGridElements() const;
+    [[nodiscard]] HXVector< std::unique_ptr< GridElem > > CreateGridElements( bool multiBlock ) const;
     void PrepareUnsCalcGrid( HXVector< std::unique_ptr< GridElem > > & data ) const;
 };
 
