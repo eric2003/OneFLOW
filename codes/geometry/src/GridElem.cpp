@@ -72,10 +72,9 @@ int Cgns2OneFlowZoneType( int zoneType )
     }
 }
 
-GridElem::GridElem( HXVector< CgnsZone * > & cgnsZones, int iZone )
+GridElem::GridElem( const HXVector< CgnsZone * > & cgnsZones, int iZone )
 {
     this->cgnsZones = cgnsZones;
-    this->CreateGrid( cgnsZones, iZone );
 
     this->minLen = LARGE;
     this->maxLen = -LARGE;
@@ -94,22 +93,14 @@ CgnsZone * GridElem::GetCgnsZone( int iZone )
     return this->cgnsZones[ iZone ];
 }
 
-int GridElem::GetNZones()
+const CgnsZone * GridElem::GetCgnsZone( int iZone ) const
 {
-    return this->cgnsZones.size();
+    return this->cgnsZones[ iZone ];
 }
 
-void GridElem::CreateGrid( HXVector< CgnsZone * > cgnsZones, int iZone )
+int GridElem::GetNZones() const
 {
-    CgnsZone * cgnsZone = cgnsZones[ 0 ];
-    int cgnsZoneType = cgnsZone->cgnsZoneType;
-    int gridType = Cgns2OneFlowZoneType( cgnsZoneType );
-    this->grid = ONEFLOW::CreateGridUnique( gridType );
-    grid->level = 0;
-    grid->id = iZone;
-    grid->localId = iZone;
-    grid->type = gridType;
-    grid->volBcType = cgnsZone->GetVolBcType();
+    return this->cgnsZones.size();
 }
 
 void GridElem::PrepareUnsCalcGrid()
@@ -172,7 +163,7 @@ void GridElem::ScanPolygonFace()
             CgnsSection * cgnsSection = cgnsZone->cgnsZsection->GetCgnsSection( iSection );
             if ( cgnsSection->eType != NFACE_n ) continue;
             this->face_solver.ScanPolyhedronElement( cgnsSection );
-            this->SetPolyhedronElementType( cgnsSection );
+            this->SetPolyhedronElementType( *cgnsSection );
         }
 
         int nFaces = this->face_solver.faceTopo->faces.size();
@@ -180,11 +171,11 @@ void GridElem::ScanPolygonFace()
     }
 }
 
-void GridElem::SetPolyhedronElementType( CgnsSection * cgnsSection )
+void GridElem::SetPolyhedronElementType( CgnsSection & cgnsSection )
 {
-    for ( int iElem = 0; iElem < cgnsSection->nElement; ++ iElem )
+    for ( int iElem = 0; iElem < cgnsSection.nElement; ++ iElem )
     {
-        int e_type = cgnsSection->eTypeList[ iElem ];
+        int e_type = cgnsSection.eTypeList[ iElem ];
 
         this->elem_feature.eTypes.push_back( e_type );
     }
@@ -246,14 +237,25 @@ void GridElem::GenerateCalcElement()
 
 }
 
-void GridElem::GenerateCalcGrid()
+std::unique_ptr< Grid > GridElem::GenerateCalcGrid( int gridId )
 {
-    this->GenerateCalcGrid( this->grid.get() );
+    CgnsZone * cgnsZone = this->GetCgnsZone( 0 );
+    const int gridType = Cgns2OneFlowZoneType( cgnsZone->cgnsZoneType );
+
+    auto grid = ONEFLOW::CreateGridUnique( gridType );
+    grid->level = 0;
+    grid->id = gridId;
+    grid->localId = gridId;
+    grid->type = gridType;
+    grid->volBcType = cgnsZone->GetVolBcType();
+
+    this->GenerateCalcGrid( *grid );
+    return grid;
 }
 
-void GridElem::GenerateCalcGrid(Grid * gridIn)
+void GridElem::GenerateCalcGrid( Grid & gridIn )
 {
-    UnsGrid * grid = UnsGridCast(gridIn);
+    UnsGrid * grid = UnsGridCast( &gridIn );
     grid->nCells = this->elem_feature.eTypes.size();
     grid->cellMesh->cellTopo.eTypes = this->elem_feature.eTypes;
     std::cout << "   nCells = " << grid->nCells << std::endl;
@@ -274,24 +276,24 @@ void GridElem::GenerateCalcGrid(Grid * gridIn)
         grid->nodeMesh->zN[iNode] = z;
     }
 
-    this->CalcBoundaryType(grid);
-    this->ReorderLink(grid);
+    this->CalcBoundaryType( *grid );
+    this->ReorderLink( *grid );
     std::cout << "\n-->All the computing information is ready\n";
 }
 
-void GridElem::CalcBoundaryType( UnsGrid * grid )
+void GridElem::CalcBoundaryType( UnsGrid & grid )
 {
     std::cout << "\n-->Set boundary condition......\n";
-    grid->faceTopo = std::move( this->face_solver.faceTopo );
-    grid->faceTopo->grid = grid;
-    grid->faceMesh->faceTopo = grid->faceTopo.get();
-    int nFaces = grid->faceTopo->faces.size();
+    grid.faceTopo = std::move( this->face_solver.faceTopo );
+    grid.faceTopo->grid = &grid;
+    grid.faceMesh->faceTopo = grid.faceTopo.get();
+    int nFaces = grid.faceTopo->faces.size();
     std::cout << " nFaces = " << nFaces << "\n";
      
-    BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord.get();
+    BcRecord * bcRecord = grid.faceTopo->bcManager->bcRecord.get();
     int nBFaces = bcRecord->bcType.size();
 
-    grid->nBFaces = nBFaces;
+    grid.nBFaces = nBFaces;
 
     std::cout << " nBFaces = " << nBFaces << "\n";
 
@@ -351,11 +353,12 @@ void GridElem::CalcBoundaryType( UnsGrid * grid )
     std::cout << std::endl;
 }
 
-void GridElem::ReorderLink( UnsGrid * grid )
+void GridElem::ReorderLink( UnsGrid & grid )
 {
-    FaceTopo * faceTopo = grid->faceTopo.get();
+    FaceTopo * faceTopo = grid.faceTopo.get();
+
     int nFaces = faceTopo->fTypes.size();
-    grid->nFaces = nFaces;
+    grid.nFaces = nFaces;
 
     IntField f1map( nFaces ), f2map( nFaces );
     int iCount = 0;
@@ -407,7 +410,7 @@ void ZgridElem::AddGridElem( std::unique_ptr< GridElem > gridElem )
     this->data.push_back( std::move( gridElem ) );
 }
 
-void ZgridElem::AddGridElem( HXVector< CgnsZone * > cgnsZones, int iZone )
+void ZgridElem::AddGridElem( const HXVector< CgnsZone * > & cgnsZones, int iZone )
 {
     this->AddGridElem( std::make_unique< GridElem >( cgnsZones, iZone ) );
 }
@@ -419,6 +422,9 @@ GridElem * ZgridElem::GetGridElem( int iGridElem )
 
 void ZgridElem::AllocateGridElem()
 {
+    // Rebuild the transient generation state on every generation request.
+    this->data.clear();
+
     const int multiBlock = GetDataValue< int >( "multiBlock" );
 
     if ( multiBlock == 0 )
@@ -464,35 +470,25 @@ void ZgridElem::PrepareUnsCalcGrid()
     }
 }
 
-void ZgridElem::GenerateCalcGrid()
-{
-    int nZones = this->data.size();
-    for ( int iZone = 0; iZone < nZones; ++ iZone )
-    {
-        GridElem * gridElem = this->GetGridElem( iZone );
-        gridElem->GenerateCalcGrid();
-    }
-}
-
-void ZgridElem::TransferGrids( Grids & grids )
-{
-    int nZones = this->data.size();
-    for ( int iZone = 0; iZone < nZones; ++ iZone )
-    {
-        GridElem * gridElem = this->GetGridElem( iZone );
-        grids.push_back( std::move( gridElem->grid ) );
-    }
-}
-
-void ZgridElem::GenerateLocalOneFlowGrid( Grids & grids )
+Grids ZgridElem::GenerateLocalOneFlowGrids()
 {
     this->AllocateGridElem();
-
     this->PrepareUnsCalcGrid();
 
-    this->GenerateCalcGrid();
+    Grids grids;
+    const int nZones = this->data.size();
+    grids.reserve( static_cast< std::size_t >( nZones ) );
 
-    this->TransferGrids( grids );
+    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    {
+        GridElem * gridElem = this->GetGridElem( iZone );
+        grids.push_back( gridElem->GenerateCalcGrid( iZone ) );
+    }
+
+    // GridElem objects are only generation-time state; the generated Grids own the result.
+    this->data.clear();
+
+    return grids;
 }
 
 

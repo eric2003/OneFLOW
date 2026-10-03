@@ -53,25 +53,23 @@ void CalcGrid::Init( Grids grids )
 {
     this->grids = std::move( grids );
 
-    const GridConfig config = GridConfig::FromDataBase();
+    this->config = GridConfig::FromDataBase();
 
-    if ( config.objective == GridObjective::Partition )
+    if ( this->config.objective == GridObjective::Partition )
     {
-        this->gridFileName = config.partitionFile;
+        this->gridFileName = this->config.partitionFile;
     }
     else
     {
-        this->gridFileName = config.targetFile;
+        this->gridFileName = this->config.targetFile;
     }
 }
 
 void CalcGrid::BuildInterfaceLink()
 {
-    const GridConfig config = GridConfig::FromDataBase();
-
-    if ( config.objective == GridObjective::Partition )
+    if ( this->config.objective == GridObjective::Partition )
     {
-        const int partitionType = config.partitionType;
+        const int partitionType = this->config.partitionType;
         if ( partitionType == 1 )
         {
             this->ReconstructLink();
@@ -196,7 +194,7 @@ void CalcGrid::ResetGridScaleAndTranslate()
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         Grid * grid = GridAt( grids, iZone );
-        ONEFLOW::ResetGridScaleAndTranslate( grid->nodeMesh.get() );
+        ONEFLOW::ResetGridScaleAndTranslate( *grid->nodeMesh, this->config );
     }
 }
 
@@ -217,9 +215,7 @@ void CalcGrid::GenerateLink()
 
 void CalcGrid::ModifyBcType()
 {
-    const GridConfig config = GridConfig::FromDataBase();
-
-    if ( config.ignoreNoBoundary ) return;
+    if ( this->config.ignoreNoBoundary ) return;
 
     const int nZone = GridsSize( grids );
     for ( int iZone = 0; iZone < nZone; ++ iZone )
@@ -304,38 +300,42 @@ void GenerateMultiZoneCalcGrids( Grids grids )
     calcGrid.GenerateMultiZoneCalcGrids( std::move( grids ) );
 }
 
-void ResetGridScaleAndTranslate( NodeMesh * nodeMesh )
+void ResetGridScaleAndTranslate( NodeMesh & nodeMesh, const GridConfig & config )
 {
-    const GridConfig config = GridConfig::FromDataBase();
     const Real scale = config.scale;
     const auto & translate = config.translate;
 
-    const size_t nNodes = nodeMesh->GetNumberOfNodes();
+    const size_t nNodes = nodeMesh.GetNumberOfNodes();
 
     for ( size_t iNode = 0; iNode < nNodes; ++ iNode )
     {
-        nodeMesh->xN[ iNode ] *= scale;
-        nodeMesh->yN[ iNode ] *= scale;
-        nodeMesh->zN[ iNode ] *= scale;
+        nodeMesh.xN[ iNode ] *= scale;
+        nodeMesh.yN[ iNode ] *= scale;
+        nodeMesh.zN[ iNode ] *= scale;
 
-        nodeMesh->xN[ iNode ] += translate[ 0 ];
-        nodeMesh->yN[ iNode ] += translate[ 1 ];
-        nodeMesh->zN[ iNode ] += translate[ 2 ];
+        nodeMesh.xN[ iNode ] += translate[ 0 ];
+        nodeMesh.yN[ iNode ] += translate[ 1 ];
+        nodeMesh.zN[ iNode ] += translate[ 2 ];
     }
 
-    if ( config.axisDir == 1 )
+    if ( config.axisDirection == GridAxisDirection::ZToY )
     {
         TurnZAxisToYAxis( nodeMesh );
     }
 }
 
-void TurnZAxisToYAxis( NodeMesh * nodeMesh )
+void ResetGridScaleAndTranslate( NodeMesh & nodeMesh )
 {
-    size_t nNodes = nodeMesh->GetNumberOfNodes();
+    ResetGridScaleAndTranslate( nodeMesh, GridConfig::FromDataBase() );
+}
 
-    RealField & xN = nodeMesh->xN;
-    RealField & yN = nodeMesh->yN;
-    RealField & zN = nodeMesh->zN;
+void TurnZAxisToYAxis( NodeMesh & nodeMesh )
+{
+    size_t nNodes = nodeMesh.GetNumberOfNodes();
+
+    RealField & xN = nodeMesh.xN;
+    RealField & yN = nodeMesh.yN;
+    RealField & zN = nodeMesh.zN;
 
     Real tmp;
     for ( int iNode = 0; iNode < nNodes; ++ iNode )

@@ -45,8 +45,6 @@ public:
     static void Allocate();
     static void DeAllocate();
     static void AddGrid( int zid, std::unique_ptr< ScalarGrid > grid );
-    // Compatibility: takes ownership of a raw new'd ScalarGrid*.
-    static void AddGrid( int zid, ScalarGrid * grid );
     static ScalarGrid * GetGrid( int iZone );
     static ScalarGrid * GetGrid();
 };

@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "LineMachine.h"
+#include "GridLayout.h"
 #include "SegmentCtrl.h"
 #include "CurveInfo.h"
 #include "LineInfo.h"
@@ -48,26 +49,35 @@ void LineMachine::Reset()
     segmentCtrlList.clear();
     curveInfoList.clear();
     curveMeshList.clear();
-    dimList.clear();
-    ds1List.clear();
-    ds2List.clear();
     lineLookup.Clear();
     lineList.clear();
 }
 
-SegmentCtrl * LineMachine::GetSegmentCtrl( int id ) const
+SegmentCtrl * LineMachine::GetSegmentCtrl( int id )
 {
     int idx = ABS( id ) - 1;
     return this->segmentCtrlList[ idx ].get();
 }
 
-CurveMesh * LineMachine::GetCurveMesh( int id ) const
+const SegmentCtrl * LineMachine::GetSegmentCtrl( int id ) const
+{
+    int idx = ABS( id ) - 1;
+    return this->segmentCtrlList[ idx ].get();
+}
+
+CurveMesh * LineMachine::GetCurveMesh( int id )
 {
     int idx = ABS( id ) - 1;
     return this->curveMeshList[ idx ].get();
 }
 
-CurveInfo * LineMachine::GetCurveInfo( int id ) const
+CurveInfo * LineMachine::GetCurveInfo( int id )
+{
+    int idx = ABS( id ) - 1;
+    return this->curveInfoList[ idx ].get();
+}
+
+const CurveInfo * LineMachine::GetCurveInfo( int id ) const
 {
     int idx = ABS( id ) - 1;
     return this->curveInfoList[ idx ].get();
@@ -114,7 +124,6 @@ void LineMachine::AddDimension( TextFileParser & textFileParser )
 {
     int id = textFileParser.ReadNextDigit< int >();
     int dim = textFileParser.ReadNextDigit< int >();
-    this->dimList.push_back( dim );
     SegmentCtrl * segmentCtrl = this->GetSegmentCtrl( id );
     segmentCtrl->nPoint = dim;
 }
@@ -124,6 +133,59 @@ void LineMachine::AddDs( TextFileParser & textFileParser )
     int id = textFileParser.ReadNextDigit< int >();
     SegmentCtrl * segmentCtrl = this->GetSegmentCtrl( id );
     segmentCtrl->Read( & textFileParser );
+}
+
+void LineMachine::SetDimension( int id, int pointCount )
+{
+    SegmentCtrl * segmentCtrl = this->GetSegmentCtrl( id );
+    segmentCtrl->nPoint = pointCount;
+}
+
+int LineMachine::GetDimension( int id ) const
+{
+    return this->GetSegmentCtrl( id )->nPoint;
+}
+
+int LineMachine::GetNLine() const
+{
+    return this->curveInfoList.size();
+}
+
+void LineMachine::SetDistribution( const GridDistributionDefinition & definition )
+{
+    SegmentCtrl * segmentCtrl = this->GetSegmentCtrl( definition.lineId );
+
+    switch ( definition.type )
+    {
+    case GridDistributionType::Ratio:
+        segmentCtrl->distribution = SegmentCtrl::DistributionType::Ratio;
+        segmentCtrl->ratio1 = definition.startValue;
+        segmentCtrl->ratio2 = definition.endValue;
+        break;
+    case GridDistributionType::Distance:
+        segmentCtrl->distribution = SegmentCtrl::DistributionType::Distance;
+        segmentCtrl->ds1 = definition.startValue;
+        segmentCtrl->ds2 = definition.endValue;
+        break;
+    case GridDistributionType::Tanh:
+        segmentCtrl->distribution = SegmentCtrl::DistributionType::Tanh;
+        segmentCtrl->ds1 = definition.startValue;
+        segmentCtrl->ds2 = definition.endValue;
+        break;
+    case GridDistributionType::Copy:
+    {
+        segmentCtrl->distribution = SegmentCtrl::DistributionType::Copy;
+        segmentCtrl->segmentCopy = std::make_unique< SegmentCopy >();
+        segmentCtrl->segmentCopy->lineList = definition.copyLineIds;
+        break;
+    }
+    case GridDistributionType::Exponential:
+        segmentCtrl->distribution = SegmentCtrl::DistributionType::Exponential;
+        segmentCtrl->cA1 = 0.5;
+        segmentCtrl->cA2 = 1.0e-4;
+        segmentCtrl->cA3 = 0.5;
+        break;
+    }
 }
 
 void LineMachine::CreateAllLineMesh()
@@ -157,7 +219,7 @@ void LineMachine::GenerateAllLineMesh()
     }
 }
 
-CurveMesh * LineMachine::GetLineMeshByTwoPoint( const int & p1, const int & p2, int & direction ) const
+CurveMesh * LineMachine::GetLineMeshByTwoPoint( const int & p1, const int & p2, int & direction )
 {
     direction = 1;
     int nLine = curveInfoList.size();
@@ -189,7 +251,7 @@ int LineMachine::GetLineIdByTwoPoint( const int & p1, const int & p2 ) const
 
     for ( int iLine = 0; iLine < nLine; ++ iLine )
     {
-        CurveInfo * curveInfo = curveInfoList[ iLine ].get();
+        const CurveInfo * curveInfo = curveInfoList[ iLine ].get();
         if ( curveInfo->p1 == p1 &&
             curveInfo->p2 == p2 )
         {

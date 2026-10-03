@@ -107,10 +107,10 @@ const Face2D * BlkFaceSolver::GetBlkFace2D( int blk, int face_id ) const
             return face2d;
         }
     }
-    return 0;
+    return nullptr;
 }
 
-void BlkFaceSolver::MyFaceBuildSDomainList()
+void BlkFaceSolver::BuildSurfaceDomainList()
 {
     int nFaces = this->face2Block.size();
     this->sDomainList.resize( nFaces );
@@ -136,7 +136,7 @@ void BlkFaceSolver::MyFaceBuildSDomainList()
 
 }
 
-void BlkFaceSolver::MyFaceGenerateFaceMesh()
+void BlkFaceSolver::GenerateSurfaceFaceMesh()
 {
     int nFaces = this->faceList.size();
     std::fstream file;
@@ -151,15 +151,15 @@ void BlkFaceSolver::MyFaceGenerateFaceMesh()
     Prj::CloseFile( file );
 }
 
-void BlkFaceSolver::MyFaceGenerateLineMesh()
+void BlkFaceSolver::GenerateSurfaceLineMesh()
 {
-    int nLine = line_Machine.curveInfoList.size();
+    int nLine = line_Machine.GetNLine();
     slineList.resize( nLine );
     for ( int iSLine = 0; iSLine < nLine; ++ iSLine )
     {
         auto sLine = std::make_unique< SLine >();
         sLine->line_id = iSLine + 1;
-        sLine->ni = line_Machine.dimList[ iSLine ];
+        sLine->ni = line_Machine.GetDimension( sLine->line_id );
         sLine->Alloc();
         const CurveMesh * curveMesh = line_Machine.GetCurveMesh( sLine->line_id );
         sLine->CopyMesh( *curveMesh );
@@ -212,19 +212,55 @@ IntField & BlkFaceSolver::GetLine( int line_id )
     return lineList[ id ];
 }
 
+const IntField & BlkFaceSolver::GetLine( int line_id ) const
+{
+    int id = line_id - 1;
+    return lineList[ id ];
+}
+
+BlkF2C & BlkFaceSolver::GetLineToFace( int line_id )
+{
+    return line2Face[ line_id - 1 ];
+}
+
+const BlkF2C & BlkFaceSolver::GetLineToFace( int line_id ) const
+{
+    return line2Face[ line_id - 1 ];
+}
+
+BlkF2C & BlkFaceSolver::GetFaceToBlock( int faceIndex )
+{
+    return face2Block[ faceIndex ];
+}
+
+const BlkF2C & BlkFaceSolver::GetFaceToBlock( int faceIndex ) const
+{
+    return face2Block[ faceIndex ];
+}
+
+SDomain * BlkFaceSolver::GetSDomain( int domainIndex )
+{
+    return sDomainList[ domainIndex ].get();
+}
+
+SLine * BlkFaceSolver::GetSLine( int lineIndex )
+{
+    return slineList[ lineIndex ].get();
+}
+
 int BlkFaceSolver::FindLineId( const IntField & line ) const
 {
     return this->lineLookup.Find(line);
 }
 
-void BlkFaceSolver::MyFaceAlloc()
+void BlkFaceSolver::InitializeLineTopology()
 {
     if ( init_flag ) return;
     init_flag = true;
-    int nLine = line_Machine.curveInfoList.size();
+    int nLine = line_Machine.GetNLine();
     for ( int i = 0; i < nLine; ++ i )
     {
-        CurveInfo * curveInfo = line_Machine.GetCurveInfo( i + 1 );
+        const CurveInfo * curveInfo = line_Machine.GetCurveInfo( i + 1 );
         IntField line;
         line.push_back( curveInfo->p1 );
         line.push_back( curveInfo->p2 );
@@ -243,7 +279,7 @@ void BlkFaceSolver::MyFaceAlloc()
 
 void BlkFaceSolver::AddLineToFace( int faceid, int pos, int lineid )
 {
-    this->MyFaceAlloc();
+    this->InitializeLineTopology();
 
     int id = lineid - 1;
     BlkF2C & line_struct = this->line2Face[ id ];
@@ -282,7 +318,7 @@ void BlkFaceSolver::SetBoundary()
     int nFaces = this->face2Block.size();
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
-        int bcType = domain_Machine.bctypeList[ iFace ];
+        int bcType = domain_Machine.GetBcType( iFace + 1 );
         BlkF2C & face_struct = this->face2Block[ iFace ];
         face_struct.bctype = bcType;
     }
@@ -515,14 +551,14 @@ void BlkFaceSolver::GenerateBlkMesh2D()
 
 void BlkFaceSolver::GenerateFaceMesh()
 {
-    this->MyFaceBuildSDomainList();
-    this->MyFaceGenerateFaceMesh();
+    this->BuildSurfaceDomainList();
+    this->GenerateSurfaceFaceMesh();
 }
 
 void BlkFaceSolver::GenerateLineMesh()
 {
     line_Machine.GenerateAllLineMesh();
-    this->MyFaceGenerateLineMesh();
+    this->GenerateSurfaceLineMesh();
 }
 
 void BlkFaceSolver::DumpStandardGrid()
@@ -600,7 +636,7 @@ void BlkFaceSolver::DumpStandardGrid( Grids & strGridList )
 
 }
 
-void BlkFaceSolver::GenerateFaceBlockLink()
+void BlkFaceSolver::GenerateGrid()
 {
     if ( Dim::dimension == ONEFLOW::THREE_D )
     {

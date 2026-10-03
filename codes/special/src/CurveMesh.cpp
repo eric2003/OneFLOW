@@ -43,7 +43,7 @@ bool CurveMesh::IsValidState() const
 {
     if ( this->state == 1 ) return false;
 
-    if ( segmentCtrl->distribution == 2 )
+    if ( segmentCtrl->distribution == SegmentCtrl::DistributionType::Copy )
     {
     }
     return true;
@@ -64,11 +64,11 @@ void CurveMesh::GenerateCurveMesh()
     int st = 0;
     int ed = segmentCtrl->nPoint - 1;
 
-    PointType * pt1 = point_Machine.GetPoint( this->curveInfo->p1 );
-    PointType * pt2 = point_Machine.GetPoint( this->curveInfo->p2 );
+    const PointType & pt1 = point_Machine.GetPoint( this->curveInfo->p1 );
+    const PointType & pt2 = point_Machine.GetPoint( this->curveInfo->p2 );
 
-    ptList[ st ] = * pt1;
-    ptList[ ed ] = * pt2;
+    ptList[ st ] = pt1;
+    ptList[ ed ] = pt2;
 
     this->CalcCurveGeometry();
     segmentCtrl->CalcFactor();

@@ -114,8 +114,7 @@ void GenerateLocalOneFlowGridFromSu2Grid( Su2Grid & su2Grid, Grids & grids )
     CgnsFactory cgnsFactory;
     cgnsFactory.CreateSu2CgnsZone( su2Grid );
 
-    Grids local_grids;
-    cgnsFactory.zgridElem->GenerateLocalOneFlowGrid( local_grids );
+    Grids local_grids = cgnsFactory.zgridElem->GenerateLocalOneFlowGrids();
     ONEFLOW::AddOneFlowGrid( grids, std::move( local_grids[ 0 ] ) );
 }
 
@@ -192,13 +191,16 @@ void CgnsFactory::CommonToOneFlowGrid()
 
 void CgnsFactory::CommonToOneFlowGrid( const GridConfig & config )
 {
-    if ( ONEFLOW::IsUnsGrid( config.topo ) )
+    switch ( config.topology )
     {
-        this->CommonToUnsGridTEST( config );
-    }
-    else if ( ONEFLOW::IsStrGrid( config.topo ) )
-    {
-        this->CommonToStrGrid();
+        case GridTopology::Unstructured:
+            this->CommonToUnsGridTEST( config );
+            break;
+        case GridTopology::Structured:
+            this->CommonToStrGrid();
+            break;
+        default:
+            return;
     }
 }
 
@@ -298,13 +300,11 @@ void CgnsFactory::CgnsToOneFlowGrid()
 
 void CgnsFactory::CgnsToOneFlowGrid( const GridConfig & config )
 {
-    if ( ! ONEFLOW::IsUnsGrid( config.topo ) ) return;
+    if ( config.topology != GridTopology::Unstructured ) return;
 
-    Grids grids;
+    Grids grids = this->zgridElem->GenerateLocalOneFlowGrids();
 
-    this->zgridElem->GenerateLocalOneFlowGrid( grids );
-
-    //The grid is processed and the grid file used for calculation is output
+    // The grid is processed and the grid file used for calculation is output
     ONEFLOW::GenerateMultiZoneCalcGrids( std::move( grids ) );
 }
 
@@ -314,12 +314,6 @@ void AddOneFlowGrid( Grids & grids, std::unique_ptr< Grid > grid )
     const int iZone = static_cast< int >( grids.size() );
     grid->id = iZone;
     grids.push_back( std::move( grid ) );
-}
-
-// Compatibility overload for legacy raw pointers (takes ownership).
-void AddOneFlowGrid( Grids & grids, Grid * grid )
-{
-    AddOneFlowGrid( grids, std::unique_ptr< Grid >( grid ) );
 }
 
 #endif

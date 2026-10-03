@@ -8,7 +8,7 @@ License
     OneFLOW is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+    later version.
 
     OneFLOW is distributed in the hope that it will be useful, but WITHOUT
     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
@@ -24,6 +24,7 @@ License
 #include "TextFileParser.h"
 #include "HXMath.h"
 #include <iostream>
+#include <stdexcept>
 
 
 BeginNameSpace( ONEFLOW )
@@ -48,7 +49,21 @@ void DomainMachine::AddBcType( TextFileParser & textFileParser )
 {
     int id = textFileParser.ReadNextDigit< int >();
     int bctype = textFileParser.ReadNextDigit< int >();
-    bctypeList.push_back( bctype );
+    this->SetBcType( id, bctype );
+}
+
+void DomainMachine::SetBcType( int id, int bctype )
+{
+    if ( id <= 0 )
+    {
+        throw std::invalid_argument( "Boundary id must be positive" );
+    }
+
+    if ( this->bctypeList.size() < id )
+    {
+        this->bctypeList.resize( id );
+    }
+    this->bctypeList[ id - 1 ] = bctype;
 }
 
 

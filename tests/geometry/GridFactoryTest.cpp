@@ -10,6 +10,7 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <set>
 
 using namespace ONEFLOW;
 
@@ -85,7 +86,9 @@ TEST( GridTypesTest, GridConfigDefaultValues )
     EXPECT_EQ( cfg.objective, GridObjective::ConvertOnly );
     EXPECT_EQ( cfg.sourceType, GridFileType::Unknown );
     EXPECT_EQ( cfg.targetType, GridFileType::Unknown );
-    EXPECT_EQ( cfg.multiBlock, 0 );
+    EXPECT_FALSE( cfg.multiBlock );
+    EXPECT_EQ( cfg.topology, GridTopology::Unknown );
+    EXPECT_EQ( cfg.axisDirection, GridAxisDirection::Y );
     EXPECT_EQ( cfg.scale, 1.0 );
     EXPECT_TRUE( cfg.sourceFile.empty() );
 }
@@ -184,4 +187,13 @@ TEST( GridTypesTest, ParseGridFileTypeGridgen )
     EXPECT_EQ( ParseGridFileType( "gridgen" ), GridFileType::Gridgen );
     EXPECT_EQ( ParseGridFileType( "GridGen" ), GridFileType::Gridgen );
     EXPECT_EQ( ToString( GridFileType::Gridgen ), "gridgen" );
+}
+
+TEST( GridTypesTest, ParseGridTopology )
+{
+    EXPECT_EQ( ParseGridTopology( "u" ), GridTopology::Unstructured );
+    EXPECT_EQ( ParseGridTopology( "UNSTRUCTURED" ), GridTopology::Unstructured );
+    EXPECT_EQ( ParseGridTopology( "s" ), GridTopology::Structured );
+    EXPECT_EQ( ParseGridTopology( "structured" ), GridTopology::Structured );
+    EXPECT_EQ( ParseGridTopology( "other" ), GridTopology::Unknown );
 }

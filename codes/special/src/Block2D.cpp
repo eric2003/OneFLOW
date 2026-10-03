@@ -135,7 +135,7 @@ void Block2D::SetInterfaceBc()
         {
             face2d->t = std::make_unique<Face2D>();
 
-            BlkF2C & face_struct = blkFaceSolver.line2Face[ domain_id - 1 ];
+            const BlkF2C & face_struct = blkFaceSolver.GetLineToFace( domain_id );
             int n_neibor = face_struct.cellList.size();
             int blk1 = face_struct.cellList[ 0 ] - 1;
             int blk2 = face_struct.cellList[ 1 ] - 1;

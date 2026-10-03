@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*\
+/*---------------------------------------------------------------------------*\\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
@@ -18,7 +18,7 @@ License
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
-\*---------------------------------------------------------------------------*/
+\\*---------------------------------------------------------------------------*/
 
 #include "GridTypes.h"
 #include "DataBase.h"
@@ -54,17 +54,81 @@ GridConfig GridConfig::FromDataBase()
     cfg.sourceCaseDir = GridConfig::GetSourceCaseDir();
     cfg.layoutFile = GetDataValue< std::string >( "gridLayoutFileName" );
 
-    cfg.bcFile         = GetDataValue< std::string >( "sourceGridBcName" );
-    cfg.targetFile     = GetDataValue< std::string >( "targetGridFileName" );
-    cfg.partitionFile  = GetDataValue< std::string >( "part_uns_file" );
+    cfg.bcFile     = GetDataValue< std::string >( "sourceGridBcName" );
+    cfg.targetFile = GetDataValue< std::string >( "targetGridFileName" );
 
-    cfg.sourceType = ParseGridFileType( GetDataValue< std::string >( "sourceGridType" ) );
-    cfg.targetType = ParseGridFileType( GetDataValue< std::string >( "targetGridType" ) );
-    cfg.topo       = GetDataValue< std::string >( "topoType" );
+    // These values belong to specific grid workflows. Keep their defaults when
+    // a smaller workflow does not register the corresponding database entries.
+    try
+    {
+        cfg.sourceType =
+            ParseGridFileType( GetDataValue< std::string >( "sourceGridType" ) );
+    }
+    catch ( const std::exception & )
+    {
+    }
 
-    cfg.multiBlock    = GetDataValue< int >( "multiBlock" );
-    cfg.axisDir       = GetDataValue< int >( "axis_dir" );
-    cfg.partitionType = GetDataValue< int >( "partition_type" );
+    try
+    {
+        cfg.targetType =
+            ParseGridFileType( GetDataValue< std::string >( "targetGridType" ) );
+    }
+    catch ( const std::exception & )
+    {
+    }
+
+    try
+    {
+        cfg.topology =
+            ParseGridTopology( GetDataValue< std::string >( "topoType" ) );
+    }
+    catch ( const std::exception & )
+    {
+    }
+
+    try
+    {
+        cfg.multiBlock = GetDataValue< int >( "multiBlock" ) != 0;
+    }
+    catch ( const std::exception & )
+    {
+    }
+
+    try
+    {
+        cfg.axisDirection = GetDataValue< int >( "axis_dir" ) == 1
+            ? GridAxisDirection::ZToY
+            : GridAxisDirection::Y;
+    }
+    catch ( const std::exception & )
+    {
+    }
+
+    // Objective is optional because generation and output workflows do not need
+    // to select a conversion or partition objective.
+    try
+    {
+        const int rawObj = GetDataValue< int >( "gridObj" );
+        if ( auto parsed = ParseGridObjective( rawObj ) )
+        {
+            cfg.objective = *parsed;
+        }
+        else
+        {
+            cfg.objective = static_cast< GridObjective >( rawObj );
+        }
+    }
+    catch ( const std::exception & )
+    {
+    }
+
+    // Partition-only parameters are required only when the partition workflow is selected.
+    // Other grid workflows may legitimately omit these database entries.
+    if ( cfg.objective == GridObjective::Partition )
+    {
+        cfg.partitionFile = GetDataValue< std::string >( "part_uns_file" );
+        cfg.partitionType = GetDataValue< int >( "partition_type" );
+    }
 
     try
     {
@@ -75,20 +139,23 @@ GridConfig GridConfig::FromDataBase()
         // Keep the default when legacy boundary control is not configured.
     }
 
-    cfg.scale = GetDataValue< Real >( "gridScale" );
-
-    const int generationId = GetDataValue< int >( "igene" );
-    cfg.generationType = ParseGridGenerationType( generationId );
-
-    // Preserve historical integer encoding for gridObj.
-    const int rawObj = GetDataValue< int >( "gridObj" );
-    if ( auto parsed = ParseGridObjective( rawObj ) )
+    try
     {
-        cfg.objective = *parsed;
+        cfg.scale = GetDataValue< Real >( "gridScale" );
     }
-    else
+    catch ( const std::exception & )
     {
-        cfg.objective = static_cast< GridObjective >( rawObj );
+        // Keep the unit scale for workflows that do not transform a source grid.
+    }
+
+    try
+    {
+        const int generationId = GetDataValue< int >( "igene" );
+        cfg.generationType = ParseGridGenerationType( generationId );
+    }
+    catch ( const std::exception & )
+    {
+        // Keep generationType empty when classic-grid generation is not selected.
     }
 
     // Prefer GetDataPointer over CopyArray so this TU only needs DataBase.h.

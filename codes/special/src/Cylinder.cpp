@@ -325,16 +325,16 @@ void Cylinder::SetBoundaryGrid()
     point_Machine.AddPoint( x4, y4, z4 );
     point_Machine.AddPoint( x0, y0, z0 );
 
-    PointType * p1 = point_Machine.GetPoint( 0 );
-    PointType * p2 = point_Machine.GetPoint( 1 );
-    PointType * p3 = point_Machine.GetPoint( 2 );
-    PointType * p4 = point_Machine.GetPoint( 3 );
-    PointType * p0 = point_Machine.GetPoint( 4 );
+    const PointType & p1 = point_Machine.GetPoint( 0 );
+    const PointType & p2 = point_Machine.GetPoint( 1 );
+    const PointType & p3 = point_Machine.GetPoint( 2 );
+    const PointType & p4 = point_Machine.GetPoint( 3 );
+    const PointType & p0 = point_Machine.GetPoint( 4 );
 
-    curve_Machine.AddLine( p1->id, p2->id );
-    curve_Machine.AddLine( p3->id, p4->id );
-    curve_Machine.AddCircle( p1->id, p3->id, p0->id );
-    curve_Machine.AddParabolic( p2->id, p4->id );
+    curve_Machine.AddLine( p1.id, p2.id );
+    curve_Machine.AddLine( p3.id, p4.id );
+    curve_Machine.AddCircle( p1.id, p3.id, p0.id );
+    curve_Machine.AddParabolic( p2.id, p4.id );
 
     this->strCurveLoop->AddCurve( 0 );
     this->strCurveLoop->AddCurve( 1 );

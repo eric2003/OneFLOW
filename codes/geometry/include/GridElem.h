@@ -48,35 +48,32 @@ int Cgns2OneFlowZoneType( int zoneType );
 class GridElem
 {
 public:
-    GridElem( HXVector< CgnsZone * > & cgnsZones, int iZone );
+    GridElem( const HXVector< CgnsZone * > & cgnsZones, int iZone );
     ~GridElem();
 public:
-    // [Refactored] Changed from raw pointers to value types (Stack allocation).
-    // This eliminates manual new/delete and ensures exception safety.
     ElemFeature elem_feature;
     MeshPointManager point_factory;
     FaceSolver face_solver;
     HXVector< CgnsZone * > cgnsZones;
-    std::unique_ptr< Grid > grid;
     Real minLen, maxLen;
 public:
     CgnsZone * GetCgnsZone( int iZone );
-    int GetNZones();
+    const CgnsZone * GetCgnsZone( int iZone ) const;
+    int GetNZones() const;
 public:
-    void CreateGrid( HXVector< CgnsZone * > cgnsZones, int iZone );
     void PrepareUnsCalcGrid();
     void PrepareUnsCalcGridNormal();
     void InitCgnsElements();
     void ScanBcFace();
     void GenerateCalcElement();
-    void GenerateCalcGrid();
-    void GenerateCalcGrid( Grid * grid );
-    void CalcBoundaryType( UnsGrid * grid );
-    void ReorderLink( UnsGrid * grid );
+    [[nodiscard]] std::unique_ptr< Grid > GenerateCalcGrid( int gridId );
+    void GenerateCalcGrid( Grid & grid );
+    void CalcBoundaryType( UnsGrid & grid );
+    void ReorderLink( UnsGrid & grid );
 public:
     void PrepareUnsCalcGridPolyhedron();
     void ScanPolygonFace();
-    void SetPolyhedronElementType( CgnsSection * cgnsSection );
+    void SetPolyhedronElementType( CgnsSection & cgnsSection );
 };
 
 class ZgridElem
@@ -87,18 +84,15 @@ public:
 public:
     HXVector< std::unique_ptr< GridElem > > data;
     CgnsZbase * cgnsZbase;
-    Grids grids;
 public:
     GridElem * GetGridElem( int iGridElem );
     void AddGridElem( std::unique_ptr< GridElem > gridElem );
-    void AddGridElem( HXVector< CgnsZone * > cgnsZones, int iZone );
+    void AddGridElem( const HXVector< CgnsZone * > & cgnsZones, int iZone );
 public:
-    void GenerateLocalOneFlowGrid( Grids & grids );
+    [[nodiscard]] Grids GenerateLocalOneFlowGrids();
     void AllocateGridElem();
     void PrepareUnsCalcGrid();
-    void GenerateCalcGrid();
-    // Transfer generated grids to the next owner in the calculation pipeline.
-    void TransferGrids( Grids & grids );
+
 };
 
 EndNameSpace

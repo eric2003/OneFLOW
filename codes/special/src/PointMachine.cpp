@@ -21,7 +21,6 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "PointMachine.h"
-#include <iostream>
 
 
 BeginNameSpace( ONEFLOW )
@@ -47,10 +46,16 @@ void PointMachine::AddPoint( Real x, Real y, Real z, int id )
 
 }
 
-PointType * PointMachine::GetPoint( int id )
+PointType & PointMachine::GetPoint( int id )
 {
-    int ida = id - 1;
-    return this->ptList[ ida ].get();
+    const int index = id - 1;
+    return * this->ptList[ index ];
+}
+
+const PointType & PointMachine::GetPoint( int id ) const
+{
+    const int index = id - 1;
+    return * this->ptList[ index ];
 }
 
 EndNameSpace

@@ -40,21 +40,21 @@ void CircleLineMesh::GenerateLineMesh()
 void CircleLineMesh::CalcCurveGeometry()
 {
     CircleInfo * circleInfo = static_cast< CircleInfo * >( this->curveInfo );
-    PointType * pt1 = point_Machine.GetPoint( circleInfo->p1 );
-    PointType * pt2 = point_Machine.GetPoint( circleInfo->p2 );
-    PointType * cp  = point_Machine.GetPoint( circleInfo->center );
+    const PointType & pt1 = point_Machine.GetPoint( circleInfo->p1 );
+    const PointType & pt2 = point_Machine.GetPoint( circleInfo->p2 );
+    const PointType & cp  = point_Machine.GetPoint( circleInfo->center );
 
-    Real x0 = pt1->x;
-    Real y0 = pt1->y;
-    Real z0 = pt1->z;
+    Real x0 = pt1.x;
+    Real y0 = pt1.y;
+    Real z0 = pt1.z;
 
-    Real x1 = pt2->x;
-    Real y1 = pt2->y;
-    Real z1 = pt2->z;
+    Real x1 = pt2.x;
+    Real y1 = pt2.y;
+    Real z1 = pt2.z;
 
-    Real xc = cp->x;
-    Real yc = cp->y;
-    Real zc = cp->z;
+    Real xc = cp.x;
+    Real yc = cp.y;
+    Real zc = cp.z;
 
     Real dx0 = x0 - xc;
     Real dy0 = y0 - yc;
@@ -87,17 +87,17 @@ void CircleLineMesh::CalcCurveGeometry()
 void CircleLineMesh::CalcCoor( Real s, Real & xt, Real & yt, Real & zt )
 {
     CircleInfo * circleInfo = static_cast< CircleInfo * >( this->curveInfo );
-    PointType * pt1 = point_Machine.GetPoint( circleInfo->p1 );
-    PointType * pt2 = point_Machine.GetPoint( circleInfo->p2 );
-    PointType * cp  = point_Machine.GetPoint( circleInfo->center );
+    const PointType & pt1 = point_Machine.GetPoint( circleInfo->p1 );
+    const PointType & pt2 = point_Machine.GetPoint( circleInfo->p2 );
+    const PointType & cp  = point_Machine.GetPoint( circleInfo->center );
 
     Real angleSpan = ( this->alpha1 - this->alpha0 );
     Real ratio = s / this->segmentCtrl->lenth;
 
     Real cit = alpha0 + ratio * angleSpan;
-    xt = cp->x + radius * cos( cit );
-    yt = cp->y + radius * sin( cit );
-    zt = half * ( pt1->z + pt2->z );
+    xt = cp.x + radius * cos( cit );
+    yt = cp.y + radius * sin( cit );
+    zt = half * ( pt1.z + pt2.z );
 }
 
 EndNameSpace

@@ -83,10 +83,6 @@ void Zone::AddGrid( int zid, std::unique_ptr< Grid > grid )
     Zone::globalGrids[ static_cast< std::size_t >( zid ) ].push_back( std::move( grid ) );
 }
 
-void Zone::AddGrid( int zid, Grid * grid )
-{
-    Zone::AddGrid( zid, std::unique_ptr< Grid >( grid ) );
-}
 
 Grid * Zone::GetGrid( int zid, int gl )
 {
@@ -206,10 +202,6 @@ void Zone::AddScalarGrid( int zid, std::unique_ptr< ScalarGrid > grid )
     ScalarZone::AddGrid( zid, std::move( grid ) );
 }
 
-void Zone::AddScalarGrid( int zid, ScalarGrid * grid )
-{
-    Zone::AddScalarGrid( zid, std::unique_ptr< ScalarGrid >( grid ) );
-}
 
 ScalarGrid * Zone::GetScalarGrid( int iZone )
 {

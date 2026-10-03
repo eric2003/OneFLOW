@@ -70,6 +70,7 @@ set ( INCLUDE_DIRS
 set ( SRC_DIRS
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridFactory.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridTypes.cpp
+    ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridLayout.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridMediator.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/DomainInp.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/Su2Grid.cpp
@@ -91,6 +92,7 @@ set ( SRC_DIRS
     ${CMAKE_SOURCE_DIR}/codes/special/src/Cylinder.cpp
     ${CMAKE_SOURCE_DIR}/codes/special/src/CgnsTest.cpp
     ${CMAKE_SOURCE_DIR}/codes/special/src/GridMachine.cpp
+    ${CMAKE_SOURCE_DIR}/codes/special/src/GridLayoutParser.cpp
     ${CMAKE_SOURCE_DIR}/codes/special/src/Transfinite.cpp
     ${CMAKE_SOURCE_DIR}/codes/special/src/CurveLine.cpp
     ${CMAKE_SOURCE_DIR}/codes/special/src/CurveMachine.cpp
@@ -223,6 +225,13 @@ add_oneflow_gtest(CgnsFactoryLifecycleTest CgnsFactoryLifecycleTest.cpp)
 add_oneflow_gtest(FaceSolverLifecycleTest FaceSolverLifecycleTest.cpp)
 add_oneflow_gtest(ElemFeatureLifecycleTest ElemFeatureLifecycleTest.cpp)
 add_oneflow_gtest(PointLocatorLifecycleTest PointLocatorLifecycleTest.cpp)
+add_oneflow_gtest(PointMachineLifecycleTest PointMachineLifecycleTest.cpp)
 add_oneflow_gtest(CellMeshLifecycleTest CellMeshLifecycleTest.cpp)
 add_oneflow_gtest(BcManagerLifecycleTest BcManagerLifecycleTest.cpp)
 add_oneflow_gtest(GridElemLifecycleTest GridElemLifecycleTest.cpp)
+
+add_oneflow_gtest(GridLayoutParserTest GridLayoutParserTest.cpp)
+add_oneflow_gtest(GridLayoutGenerationTest GridLayoutGenerationTest.cpp)
+add_oneflow_gtest(DomainMachineTest DomainMachineTest.cpp)
+target_compile_definitions(GridLayoutParserTest PRIVATE ONEFLOW_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
+target_compile_definitions(GridLayoutGenerationTest PRIVATE ONEFLOW_SOURCE_DIR="${CMAKE_SOURCE_DIR}")

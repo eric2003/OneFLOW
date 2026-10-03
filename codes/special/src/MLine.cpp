@@ -87,7 +87,7 @@ void SLine::SetDomainBcMesh( SDomain * sDomain )
     RealField2D & z2d = sDomain->z2d;
 
     int line_id = this->line_id - 1;
-    SLine * sLine = blkFaceSolver.slineList[ line_id ].get();
+    SLine * sLine = blkFaceSolver.GetSLine( line_id );
     ni = sLine->ni;
     RealField & x1d = sLine->x1d;
     RealField & y1d = sLine->y1d;
@@ -149,7 +149,7 @@ void SLine::SetBlkBcMesh( Block2D * blk2d )
     RealField2D & z2d = blk2d->z2d;
 
     int line_id = this->line_id - 1;
-    SLine * sLine = blkFaceSolver.slineList[ line_id ].get();
+    SLine * sLine = blkFaceSolver.GetSLine( line_id );
     ni = sLine->ni;
     RealField & x1d = sLine->x1d;
     RealField & y1d = sLine->y1d;
@@ -351,7 +351,7 @@ void MLine::CreateInpFaceList1D( HXVector< std::unique_ptr<Face2D> > &facelist )
         auto face2d = std::make_unique<Face2D>();
         face2d->face_id = sLine->line_id;
         face2d->Set1DRegion( sLine->ctrlpoints );
-        BlkF2C & face_struct = blkFaceSolver.line2Face[ face2d->face_id - 1 ];
+        BlkF2C & face_struct = blkFaceSolver.GetLineToFace( face2d->face_id );
         face2d->bcType = face_struct.bctype;
         face2d->CalcStEd( coorMap );
         facelist.push_back( std::move( face2d ) );

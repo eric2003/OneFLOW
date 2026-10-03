@@ -38,7 +38,7 @@ using Grids = std::vector< std::unique_ptr< Grid > >;
     return grids[ i ].get();
 }
 
-[[nodiscard]] inline Grid * GridAt( const Grids & grids, std::size_t i )
+[[nodiscard]] inline const Grid * GridAt( const Grids & grids, std::size_t i )
 {
     return grids[ i ].get();
 }

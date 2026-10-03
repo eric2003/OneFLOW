@@ -257,6 +257,62 @@ public:
         root->FindNodesInRegion( pmin_in, pmax_in, localNwmin.data(), localNwmax.data(), dim, ld );
     }
 
+    // Remove a node and rebuild the tree links around the remaining nodes.
+    // Node addresses remain stable because ownership stays in ownedNodes.
+    bool RemoveNode( AdtNode * node )
+    {
+        if ( node == nullptr )
+        {
+            return false;
+        }
+
+        auto iter = std::find_if(
+            this->ownedNodes.begin(),
+            this->ownedNodes.end(),
+            [ node ]( const std::unique_ptr<AdtNode> & ownedNode )
+            {
+                return ownedNode.get() == node;
+            } );
+
+        if ( iter == this->ownedNodes.end() )
+        {
+            return false;
+        }
+
+        // Detach the tree before destroying the removed node.
+        this->root = nullptr;
+        for ( auto & ownedNode : this->ownedNodes )
+        {
+            ownedNode->left = nullptr;
+            ownedNode->right = nullptr;
+            ownedNode->level = 0;
+        }
+
+        this->ownedNodes.erase( iter );
+
+        // Reinsert the remaining nodes using the existing ADT partition rule.
+        for ( auto & ownedNode : this->ownedNodes )
+        {
+            AdtNode * current = ownedNode.get();
+
+            if ( this->root == nullptr )
+            {
+                this->root = current;
+                continue;
+            }
+
+            HXVector<U> localNwmin = this->pmin;
+            HXVector<U> localNwmax = this->pmax;
+            this->root->AddNode(
+                current,
+                localNwmin.data(),
+                localNwmax.data(),
+                this->dim );
+        }
+
+        return true;
+    }
+
     [[nodiscard]] int nCount() const
     {
         return root ? root->nCount() : 0;
