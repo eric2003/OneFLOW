@@ -185,8 +185,8 @@ void CgnsSection::SetSectionInfo( const std::string & sectionName, int elemType,
 
 void CgnsSection::ReadCgnsSectionInfo()
 {
-    int fileId = cgnsZone.cgnsBase->cgnsFile->fileId;
-    int baseId = cgnsZone.cgnsBase->baseId;
+    int fileId = cgnsZone.cgnsBase.cgnsFile->fileId;
+    int baseId = cgnsZone.cgnsBase.baseId;
     int zId = cgnsZone.zId;
 
     ElementType_t elementType;
@@ -267,8 +267,8 @@ void CgnsSection::AllocateCgnsConnectionList()
 
 void CgnsSection::ReadCgnsSectionConnectionList()
 {
-    int fileId = cgnsZone.cgnsBase->cgnsFile->fileId;
-    int baseId = cgnsZone.cgnsBase->baseId;
+    int fileId = cgnsZone.cgnsBase.cgnsFile->fileId;
+    int baseId = cgnsZone.cgnsBase.baseId;
     int zId = cgnsZone.zId;
 
     // Read the connectivity. Again, the node numbering of the 
@@ -293,8 +293,8 @@ void CgnsSection::ReadCgnsSectionConnectionList()
 
 void CgnsSection::DumpCgnsSectionConnectionList()
 {
-    int fileId = cgnsZone.cgnsBase->cgnsFile->fileId;
-    int baseId = cgnsZone.cgnsBase->baseId;
+    int fileId = cgnsZone.cgnsBase.cgnsFile->fileId;
+    int baseId = cgnsZone.cgnsBase.baseId;
     int zId = cgnsZone.zId;
 
     // write element connectivity

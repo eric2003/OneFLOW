@@ -140,8 +140,8 @@ CgnsSection * CgnsZsection::GetSectionByEid( int eId )
 
 int CgnsZsection::ReadNumberOfCgnsSections()
 {
-    int fileId = cgnsZone.cgnsBase->cgnsFile->fileId;
-    int baseId = cgnsZone.cgnsBase->baseId;
+    int fileId = cgnsZone.cgnsBase.cgnsFile->fileId;
+    int baseId = cgnsZone.cgnsBase.baseId;
     int zId = cgnsZone.zId;
     int nSections = 0;
 
