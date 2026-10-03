@@ -48,7 +48,7 @@ public:
 
 public:
     // Pipeline steps (also used as registry targets).
-    void DataBaseGrid();
+    void DataBaseGrid( const GridConfig & config );
     void ConvertGrid( const GridConfig & config, const std::string & caseDir );
     void GeneInp();
     void PartGrid();
