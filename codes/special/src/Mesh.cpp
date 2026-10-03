@@ -394,8 +394,8 @@ void Mesh::ConstructTopology()
     faceTopo->GetRightCells().reserve(estimatedFaces);
     faceTopo->lPosition.reserve(estimatedFaces);
     faceTopo->rPosition.reserve(estimatedFaces);
-    faceTopo->fTypes.reserve(estimatedFaces);
-    faceTopo->faces.reserve(estimatedFaces);
+    faceTopo->GetFaceTypes().reserve(estimatedFaces);
+    faceTopo->GetFaces().reserve(estimatedFaces);
 
     HXLookup<int> faceLookup;
 
@@ -427,8 +427,8 @@ void Mesh::ConstructTopology()
                 faceTopo->GetRightCells().push_back(ONEFLOW::INVALID_INDEX);
                 faceTopo->lPosition.push_back(iLocalFace);
                 faceTopo->rPosition.push_back(ONEFLOW::INVALID_INDEX);
-                faceTopo->fTypes.push_back(faceType);
-                faceTopo->faces.push_back(std::move(faceNodeIndexArray));
+                faceTopo->GetFaceTypes().push_back(faceType);
+                faceTopo->GetFaces().push_back(std::move(faceNodeIndexArray));
             }
             else
             {
@@ -501,19 +501,19 @@ void Mesh::SwapBoundary()
         faceTopo->rPosition[ iFace ] = rPositionSwap[ oldFaceIndex ];
     }
 
-    LinkField faceToNodeSwap = faceTopo->faces;
+    LinkField faceToNodeSwap = faceTopo->GetFaces();
 
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         int oldFaceIndex = orderMapping[ iFace ];
-        faceTopo->faces[ iFace ] = faceToNodeSwap[ oldFaceIndex ];
+        faceTopo->GetFaces()[ iFace ] = faceToNodeSwap[ oldFaceIndex ];
     }
 
-    IntField faceTypeSwap = faceTopo->fTypes;
+    IntField faceTypeSwap = faceTopo->GetFaceTypes();
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         int oldFaceIndex = orderMapping[ iFace ];
-        faceTopo->fTypes[ iFace ] = faceTypeSwap[ oldFaceIndex ];
+        faceTopo->GetFaceTypes()[ iFace ] = faceTypeSwap[ oldFaceIndex ];
     }
 }
 
@@ -816,7 +816,7 @@ void Mesh::CalcCellCenterVol3D()
         int lc = faceTopo->GetLeftCells()[ iFace ];
         int rc = faceTopo->GetRightCells()[ iFace ];
 
-        IntField & faceIndex = faceTopo->faces[ iFace ];
+        IntField & faceIndex = faceTopo->GetFaces()[ iFace ];
 
         HXSize_t faceNodeNumber = faceIndex.size();
         for ( HXSize_t iNode = 0; iNode < faceNodeNumber; ++ iNode )
