@@ -23,7 +23,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "GridHandles.h"
-// These members are stored by value, so their types must be complete here.
+#include "GridTypes.h"
 #include "ElemFeature.h"
 #include "PointManager.h"
 #include "FaceSolver.h"
