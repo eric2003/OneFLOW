@@ -39,7 +39,7 @@ TEST(CgnsFactoryLifecycleTest, MoveSemanticsWork)
 
 // Verify that the factory correctly handles structured to unstructured conversion 
 // without memory leaks (Exception Safety).
-TEST(CgnsFactoryLifecycleTest, MoveAssignmentRebindsObserver)
+TEST(CgnsFactoryLifecycleTest, MoveAssignmentKeepsBaseBinding)
 {
     EXPECT_NO_THROW({
         ONEFLOW::CgnsFactory factory1;

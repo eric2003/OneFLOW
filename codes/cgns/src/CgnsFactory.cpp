@@ -71,11 +71,11 @@ CgnsFactory::~CgnsFactory()
     cgns_global.ClearIfBoundTo( cgnsZbase.get() );
 }
 CgnsFactory::CgnsFactory( CgnsFactory && other ) noexcept
-    : cgnsZbase( std::move( other.cgnsZbase ) ),
-      zgridElem( std::make_unique<ZgridElem>( *cgnsZbase ) )
 {
     const bool globalBoundToOther = cgns_global.IsBoundTo( other.cgnsZbase.get() );
 
+    cgnsZbase = std::move( other.cgnsZbase );
+    zgridElem = std::make_unique<ZgridElem>( *cgnsZbase );
     other.zgridElem.reset();
 
     if ( globalBoundToOther )
