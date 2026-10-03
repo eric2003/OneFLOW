@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*\
+/*---------------------------------------------------------------------------*\\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
@@ -18,7 +18,7 @@ License
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
-\*---------------------------------------------------------------------------*/
+\\*---------------------------------------------------------------------------*/
 
 #include "GridMachine.h"
 #include "GridLayout.h"
@@ -53,7 +53,7 @@ void GridMachine::Run( const std::string & fileName )
     {
         const GridLayout layout = GridLayoutParser().Parse( fileName );
         this->ApplyLayout( layout );
-        this->GeneGrid();
+        this->GenerateGrid();
     }
     catch ( ... )
     {
@@ -116,21 +116,10 @@ void GridMachine::ApplyLayout( const GridLayout & layout )
     }
 }
 
-void GridMachine::GeneGrid()
+void GridMachine::GenerateGrid()
 {
-    GenerateAllLineMesh();
-    GenerateFaceBlockLink();
-}
-
-void GridMachine::GenerateFaceBlockLink()
-{
+    // BlockFaceSolver owns the complete mesh-generation sequence.
     block_Machine.GenerateFaceBlockLink();
 }
-
-void GridMachine::GenerateAllLineMesh()
-{
-    line_Machine.GenerateAllLineMesh();
-}
-
 
 EndNameSpace

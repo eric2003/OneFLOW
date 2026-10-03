@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*\
+/*---------------------------------------------------------------------------*\\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
@@ -18,7 +18,7 @@ License
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
-\*---------------------------------------------------------------------------*/
+\\*---------------------------------------------------------------------------*/
 
 
 #pragma once
@@ -37,13 +37,10 @@ public:
     ~GridMachine();
 public:
     void Run( const std::string & fileName );
-    void GeneGrid();
 private:
     void ResetState();
     void ApplyLayout( const GridLayout & layout );
-public:
-    void GenerateFaceBlockLink();
-    void GenerateAllLineMesh();
+    void GenerateGrid();
 };
 
 extern GridMachine grid_Machine;
