@@ -192,13 +192,16 @@ void CgnsFactory::CommonToOneFlowGrid()
 
 void CgnsFactory::CommonToOneFlowGrid( const GridConfig & config )
 {
-    if ( ONEFLOW::IsUnsGrid( config.topo ) )
+    switch ( config.topology )
     {
-        this->CommonToUnsGridTEST( config );
-    }
-    else if ( ONEFLOW::IsStrGrid( config.topo ) )
-    {
-        this->CommonToStrGrid();
+        case GridTopology::Unstructured:
+            this->CommonToUnsGridTEST( config );
+            break;
+        case GridTopology::Structured:
+            this->CommonToStrGrid();
+            break;
+        default:
+            return;
     }
 }
 
@@ -298,7 +301,7 @@ void CgnsFactory::CgnsToOneFlowGrid()
 
 void CgnsFactory::CgnsToOneFlowGrid( const GridConfig & config )
 {
-    if ( ! ONEFLOW::IsUnsGrid( config.topo ) ) return;
+    if ( config.topology != GridTopology::Unstructured ) return;
 
     Grids grids;
 
