@@ -107,7 +107,7 @@ const Face2D * BlkFaceSolver::GetBlkFace2D( int blk, int face_id ) const
             return face2d;
         }
     }
-    return 0;
+    return nullptr;
 }
 
 void BlkFaceSolver::BuildSurfaceDomainList()
