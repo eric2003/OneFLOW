@@ -52,6 +52,6 @@ public:
     void CalcCellSpan( UnsGrid & grid );
 };
 
-void CalcCellSpan( UnsGrid * grid );
+void CalcCellSpan( UnsGrid & grid );
 
 EndNameSpace
