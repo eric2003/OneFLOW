@@ -571,7 +571,7 @@ void ConstructPointToDomainMap( int tid, const IntField & lineList, std::map< in
     for ( int iLine = 0; iLine < lineList.size(); ++ iLine )
     {
         int line_id = lineList[ iLine ] - 1;
-        IntField & pointIdList = blkFaceSolver.lineList[ line_id ];
+        const IntField & pointIdList = blkFaceSolver.GetLine( line_id + 1 );
 
         ConstructIntList2Map( tid, pointIdList, dataMap );
     }
@@ -596,10 +596,10 @@ void ConstructPointToPointMap( const IntField & lineList, std::map< int, IntSet 
     for ( int iLine = 0; iLine < lineList.size(); ++ iLine )
     {
         int line_id = lineList[ iLine ] - 1;
-        IntField & pointIdList = blkFaceSolver.lineList[ line_id ];
+        const IntField & pointIdList = blkFaceSolver.GetLine( line_id + 1 );
 
-        int & p1 = pointIdList[ 0 ];
-        int & p2 = pointIdList[ 1 ];
+        const int p1 = pointIdList[ 0 ];
+        const int p2 = pointIdList[ 1 ];
         ConstructInt2Map( p1, p2, dataMap );
         ConstructInt2Map( p2, p1, dataMap );
     }
@@ -621,7 +621,7 @@ void GetPointIdLink( const IntField & lineList, LinkField & pointIdLink )
     for ( int iLine = 0; iLine < lineList.size(); ++ iLine )
     {
         int line_id = lineList[ iLine ] - 1;
-        IntField & pointIdList = blkFaceSolver.lineList[ line_id ];
+        const IntField & pointIdList = blkFaceSolver.GetLine( line_id + 1 );
         pointIdLink.push_back( pointIdList );
     }
 }
