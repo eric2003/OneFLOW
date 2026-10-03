@@ -59,10 +59,6 @@ void ScalarZone::AddGrid( int zid, std::unique_ptr< ScalarGrid > grid )
     ScalarZone::scalar_grids[ static_cast< std::size_t >( zid ) ] = std::move( grid );
 }
 
-void ScalarZone::AddGrid( int zid, ScalarGrid * grid )
-{
-    ScalarZone::AddGrid( zid, std::unique_ptr< ScalarGrid >( grid ) );
-}
 
 ScalarGrid * ScalarZone::GetGrid( int iZone )
 {
