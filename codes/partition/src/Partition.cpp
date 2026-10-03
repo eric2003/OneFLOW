@@ -359,8 +359,8 @@ void Partition::CalcG2lFace( UnsGrid * ggrid, int zid, UnsGrid * grid )
     int nFaces  = ggrid->nFaces;
     int nBFaces = ggrid->nBFaces;
 
-    IntField & glCell = ggrid->GetFaceTopo().lCells;
-    IntField & grCell = ggrid->GetFaceTopo().rCells;
+    IntField & glCell = ggrid->GetFaceTopo().GetLeftCells();
+    IntField & grCell = ggrid->GetFaceTopo().GetRightCells();
 
     for ( int fid = 0; fid < nFaces; ++ fid )
     {
@@ -547,8 +547,8 @@ void Partition::SetF2CAndBC( UnsGrid * ggrid, int zid, UnsGrid * grid )
 {
     int nGBFace = ggrid->nBFaces;
 
-    IntField & glCell = ggrid->GetFaceTopo().lCells;
-    IntField & grCell = ggrid->GetFaceTopo().rCells;
+    IntField & glCell = ggrid->GetFaceTopo().GetLeftCells();
+    IntField & grCell = ggrid->GetFaceTopo().GetRightCells();
 
     IntField & gbcType = ggrid->GetFaceTopo().GetBcRecord().bcType;
 
@@ -630,8 +630,8 @@ void Partition::SetInterface( UnsGrid * ggrid, int zid, UnsGrid * grid )
     int nGFace = ggrid->nFaces;
     int nGBFace = ggrid->nBFaces;
 
-    IntField & glCell = ggrid->GetFaceTopo().lCells;
-    IntField & grCell = ggrid->GetFaceTopo().rCells;
+    IntField & glCell = ggrid->GetFaceTopo().GetLeftCells();
+    IntField & grCell = ggrid->GetFaceTopo().GetRightCells();
 
     //number of physical boundary face
     int nPBFace = nBFaces - nIFaces;
