@@ -20,7 +20,6 @@ public:
     HXVector< std::unique_ptr< SegmentCtrl > > segmentCtrlList;
     HXVector< std::unique_ptr< CurveInfo > > curveInfoList;
     HXVector< std::unique_ptr< CurveMesh > > curveMeshList;
-    IntField dimList;
     RealField ds1List, ds2List;
 public:
     HXLookup<int> lineLookup;
@@ -33,6 +32,7 @@ public:
     void AddDimension( TextFileParser & textFileParser );
     void AddDs( TextFileParser & textFileParser );
     void SetDimension( int id, int pointCount );
+    int GetDimension( int id ) const;
     void SetDistribution( const GridDistributionDefinition & distribution );
     void GenerateAllLineMesh();
     void CreateAllLineMesh();
