@@ -22,10 +22,11 @@ License
 
 
 #pragma once
+#include <memory>
 #include "Restart.h"
 
 BeginNameSpace( ONEFLOW )
 
-Restart * CreateTurbRestart();
+std::unique_ptr<Restart> CreateTurbRestart();
 
 EndNameSpace

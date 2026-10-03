@@ -22,6 +22,7 @@ License
 
 
 #pragma once
+#include <memory>
 #include "HXDefine.h"
 #include "CalcCoor.h"
 #include <set>
@@ -57,7 +58,7 @@ public:
     IntField ctrlpoints;
     CalcCoor st, ed;
     CalcCoor p1, p2;
-    Face2D * t;
+    std::unique_ptr<Face2D> t;
 public:
     void CalcRegion();
     void CalcStEd( CoorMap * coorMap );

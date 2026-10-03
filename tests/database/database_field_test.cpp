@@ -45,10 +45,10 @@ protected:
 TEST_F(DataFieldTest, CreateAndRetrievePointer)
 {
     // Create a DataPointer that owns a DummyField
-    auto* rawField = new DummyField{ 42, 3.14159 };
-    auto* wrap = new DataPointer<DummyField>( rawField );
+    auto rawField = std::make_unique<DummyField>( DummyField{ 42, 3.14159 } );
+    auto wrap = std::make_unique<DataPointer<DummyField>>( std::move( rawField ) );
 
-    CreateFieldPointer( db_, wrap, "dummy_field" );
+    CreateFieldPointer( db_, std::move( wrap ), "dummy_field" );
 
     // Retrieve via GetFieldPointer
     DummyField* ptr = GetFieldPointer<DummyField>( db_, "dummy_field" );
@@ -63,10 +63,10 @@ TEST_F(DataFieldTest, CreateAndRetrievePointer)
 // ----------------------------------------------------------------------------
 TEST_F(DataFieldTest, GetFieldReference)
 {
-    auto* rawField = new DummyField{ 7, 2.718 };
-    auto* wrap = new DataPointer<DummyField>( rawField );
+    auto rawField = std::make_unique<DummyField>( DummyField{ 7, 2.718 } );
+    auto wrap = std::make_unique<DataPointer<DummyField>>( std::move( rawField ) );
 
-    CreateFieldPointer( db_, wrap, "ref_field" );
+    CreateFieldPointer( db_, std::move( wrap ), "ref_field" );
 
     DummyField& ref = GetFieldReference<DummyField>( db_, "ref_field" );
 
@@ -93,10 +93,10 @@ TEST_F(DataFieldTest, GetNonExistentFieldReturnsNull)
 // ----------------------------------------------------------------------------
 TEST_F(DataFieldTest, DeleteField)
 {
-    auto* rawField = new DummyField{ 123, 1.0 };
-    auto* wrap = new DataPointer<DummyField>( rawField );
+    auto rawField = std::make_unique<DummyField>( DummyField{ 123, 1.0 } );
+    auto wrap = std::make_unique<DataPointer<DummyField>>( std::move( rawField ) );
 
-    CreateFieldPointer( db_, wrap, "to_delete_field" );
+    CreateFieldPointer( db_, std::move( wrap ), "to_delete_field" );
 
     // Confirm it exists
     ASSERT_NE( GetFieldPointer<DummyField>( db_, "to_delete_field" ), nullptr );
@@ -119,10 +119,10 @@ TEST_F(DataFieldTest, DestructorSafety)
     DataBase localDb;
 
     {
-        auto* rawField = new DummyField{ 1, 1.0 };
-        auto* wrap = new DataPointer<DummyField>( rawField );
+        auto rawField = std::make_unique<DummyField>( DummyField{ 1, 1.0 } );
+        auto wrap = std::make_unique<DataPointer<DummyField>>( std::move( rawField ) );
 
-        CreateFieldPointer( &localDb, wrap, "temp_field" );
+        CreateFieldPointer( &localDb, std::move( wrap ), "temp_field" );
 
         DummyField* p = GetFieldPointer<DummyField>( &localDb, "temp_field" );
         ASSERT_NE( p, nullptr );
@@ -139,11 +139,11 @@ TEST_F(DataFieldTest, DestructorSafety)
 // ----------------------------------------------------------------------------
 TEST_F(DataFieldTest, MultipleFieldsCoexist)
 {
-    auto* f1 = new DummyField{ 10, 1.1 };
-    auto* f2 = new DummyField{ 20, 2.2 };
+    auto f1 = std::make_unique<DummyField>( DummyField{ 10, 1.1 } );
+    auto f2 = std::make_unique<DummyField>( DummyField{ 20, 2.2 } );
 
-    CreateFieldPointer( db_, new DataPointer<DummyField>( f1 ), "field_a" );
-    CreateFieldPointer( db_, new DataPointer<DummyField>( f2 ), "field_b" );
+    CreateFieldPointer( db_, std::make_unique<DataPointer<DummyField>>( std::move( f1 ) ), "field_a" );
+    CreateFieldPointer( db_, std::make_unique<DataPointer<DummyField>>( std::move( f2 ) ), "field_b" );
 
     DummyField* p1 = GetFieldPointer<DummyField>( db_, "field_a" );
     DummyField* p2 = GetFieldPointer<DummyField>( db_, "field_b" );
@@ -164,11 +164,11 @@ TEST_F(DataFieldTest, ClearRemovesAllFields)
 {
     CreateFieldPointer(
         db_,
-        new DataPointer<DummyField>( new DummyField{ 1, 1.0 } ),
+        std::make_unique<DataPointer<DummyField>>( std::make_unique<DummyField>( DummyField{ 1, 1.0 } ) ),
         "clear_field_a" );
     CreateFieldPointer(
         db_,
-        new DataPointer<DummyField>( new DummyField{ 2, 2.0 } ),
+        std::make_unique<DataPointer<DummyField>>( std::make_unique<DummyField>( DummyField{ 2, 2.0 } ) ),
         "clear_field_b" );
 
     ASSERT_NE( GetFieldPointer<DummyField>( db_, "clear_field_a" ), nullptr );

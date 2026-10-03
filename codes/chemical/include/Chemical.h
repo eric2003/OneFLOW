@@ -98,7 +98,7 @@ public:
 public:
     void Read( DataBook * dataBook );
     void Write( DataBook * dataBook );
-    void CompressData( DataBook *& dataBook );
+    void CompressData( DataBook * dataBook );
     void DecompressData( DataBook * dataBook );
 public:
     void CalcDimCps( Real tm, RealField & dim_cps );
@@ -107,7 +107,7 @@ public:
 
 extern Chemical chem;
 
-void ChemicalCompressData( DataBook *& dataBook );
+void ChemicalCompressData( DataBook * dataBook );
 void ChemicalDecompressData( DataBook * dataBook );
 
 EndNameSpace

@@ -21,10 +21,11 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Category.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
-std::map< int, int > * Category::data = 0;
+std::unique_ptr< std::map< int, int > > Category::data;
 Category::Category()
 {
     ;
@@ -39,15 +40,13 @@ void Category::Init()
 {
     if ( ! Category::data )
     {
-        Category::data = new std::map< int, int >();
+        Category::data = std::make_unique< std::map< int, int > >();
     }
 }
 
 void Category::Free()
 {
-    if ( ! Category::data ) return;
-    delete Category::data;
-    Category::data = 0;
+    Category::data.reset();
 }
 
 void Category::AddCategory( int solverType, int category )

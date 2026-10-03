@@ -24,6 +24,7 @@ License
 #pragma once
 #include "NsVisFlux.h"
 #include "HXArray.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -35,7 +36,7 @@ public:
 public:
     using VisPointer = void ( UNsVisFlux:: * )();
     VisPointer visPointer;
-    MRField * visflux;
+    std::unique_ptr<MRField> visflux; // owned temporary face flux
 public:
     void SetVisPointer();
     void CalcFlux();

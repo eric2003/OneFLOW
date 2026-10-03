@@ -20,15 +20,15 @@ License
 \---------------------------------------------------------------------------*/
 
 #include "TurbUnsteady.h"
+#include <memory>
 #include "UTurbUnsteady.h"
 #include "TurbCom.h"
 
 BeginNameSpace( ONEFLOW )
 
-Unsteady * CreateTurbUnsteady()
+std::unique_ptr<Unsteady> CreateTurbUnsteady()
 {
-    Unsteady * unsteady = new UTurbUnsteady();
-    return unsteady;
+    return std::make_unique<UTurbUnsteady>();
 }
 
 

@@ -24,6 +24,7 @@ License
 #pragma once
 #include "TurbVisFlux.h"
 #include "VisGrad.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -35,7 +36,7 @@ public:
 public:
     using VisPointer = void ( UTurbVisFlux:: * )();
     VisPointer visPointer;
-    MRField * visflux;
+    std::unique_ptr<MRField> visflux; // owned temporary face flux
 public:
     void AddVisFlux();
     void SetVisPointer();

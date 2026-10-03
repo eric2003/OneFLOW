@@ -23,6 +23,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include <memory>
 BeginNameSpace( ONEFLOW )
 
 class FieldWrap;
@@ -33,8 +34,8 @@ public:
     Update();
     virtual ~Update();
 public:
-    FieldWrap *q;
-    FieldWrap *dq;
+    std::unique_ptr<FieldWrap> q;
+    std::unique_ptr<FieldWrap> dq;
 public:
     virtual void UpdateFlowField( int solverType ){};
 	virtual void UpdateINsFlowField(int solverType) {};
@@ -42,12 +43,12 @@ public:
     virtual void SolutionFix() {};
 };
 
-Update * CreateUpdate( int solverType );
+std::unique_ptr<Update> CreateUpdate( int solverType );
 
 
 void GetUpdateField(
     int solverType,
-    FieldWrap *& q,
-    FieldWrap *& dq );
+    std::unique_ptr<FieldWrap> & q,
+    std::unique_ptr<FieldWrap> & dq );
 
 EndNameSpace

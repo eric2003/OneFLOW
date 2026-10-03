@@ -21,15 +21,15 @@ License
 \---------------------------------------------------------------------------*/
 
 #include "NsUnsteady.h"
+#include <memory>
 #include "UNsUnsteady.h"
 #include "NsCom.h"
 
 BeginNameSpace( ONEFLOW )
 
-Unsteady * CreateNsUnsteady()
+std::unique_ptr<Unsteady> CreateNsUnsteady()
 {
-    Unsteady * unsteady = new UNsUnsteady();
-    return unsteady;
+    return std::make_unique<UNsUnsteady>();
 }
 
 

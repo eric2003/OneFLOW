@@ -91,7 +91,7 @@ void BlkBasic::DumpInp( std::fstream & file )
 
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
-        Face2D * face2d = this->facelist[ iFace ];
+        Face2D * face2d = this->facelist[ iFace ].get();
         face2d->CalcRegion();
 
         int imin = face2d->st.i;

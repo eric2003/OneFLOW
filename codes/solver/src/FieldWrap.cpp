@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "FieldWrap.h"
+#include <memory>
 #include "Fatal.h"
 #include "SolverMap.h"
 #include "BgField.h"
@@ -41,28 +42,37 @@ License
 BeginNameSpace( ONEFLOW )
 
 FieldWrap::FieldWrap()
+    : view( nullptr )
 {
-    unsField   = 0;
-    deleteFlag = false;
 }
 
 FieldWrap::~FieldWrap()
 {
-    if ( deleteFlag )
-    {
-        delete unsField;
-    }
 }
 
 MRField * FieldWrap::GetUnsField()
 {
-    return unsField;
+    return view;
 }
 
 void FieldWrap::SetUnsField( MRField * unsField, bool deleteFlag )
 {
-    this->unsField = unsField;
-    this->deleteFlag = deleteFlag;
+    if ( deleteFlag )
+    {
+        owned.reset( unsField );
+        view = owned.get();
+    }
+    else
+    {
+        owned.reset();
+        view = unsField;
+    }
+}
+
+void FieldWrap::SetOwnedField( std::unique_ptr<MRField> field )
+{
+    owned = std::move( field );
+    view = owned.get();
 }
 
 FieldHome::FieldHome()
@@ -75,18 +85,18 @@ FieldHome::~FieldHome()
     ;
 }
 
-FieldWrap * FieldHome::CreateField()
+std::unique_ptr<FieldWrap> FieldHome::CreateField()
 {
     SolverState::SetSolverTypeBySolverIndex( SolverState::solverIndex );
     return FieldHome::CreateField( SolverState::solverType, GridState::gridLevel );
 }
 
-FieldWrap * FieldHome::CreateField( int solverType )
+std::unique_ptr<FieldWrap> FieldHome::CreateField( int solverType )
 {
     return FieldHome::CreateField( solverType, GridState::gridLevel );
 }
 
-FieldWrap * FieldHome::CreateField( int solverType, int level )
+std::unique_ptr<FieldWrap> FieldHome::CreateField( int solverType, int level )
 {
     SolverInfo * info = SolverInfoFactory::GetSolverInfo( solverType );
 
@@ -94,22 +104,22 @@ FieldWrap * FieldHome::CreateField( int solverType, int level )
 
     int nTCell = grid->nCells + grid->nBFaces;
 
-    MRField * field = new MRField( info->nTEqu, nTCell );
+    auto field = std::make_unique<MRField>( info->nTEqu, nTCell );
 
-    FieldWrap * fieldWrap = new FieldWrap();
+    auto fieldWrap = std::make_unique<FieldWrap>();
 
-    fieldWrap->SetUnsField( field, true );
+    fieldWrap->SetOwnedField( std::move( field ) );
 
     return fieldWrap;
 }
 
-FieldWrap * FieldHome::GetFieldWrap( const std::string & fieldName )
+std::unique_ptr<FieldWrap> FieldHome::GetFieldWrap( const std::string & fieldName )
 {
     Grid * grid = Zone::GetGrid();
 
     MRField * field = ONEFLOW::GetFieldPointer< MRField >( grid, fieldName );
 
-    FieldWrap * fieldWrap = new FieldWrap();
+    auto fieldWrap = std::make_unique<FieldWrap>();
 
     fieldWrap->SetUnsField( field );
 

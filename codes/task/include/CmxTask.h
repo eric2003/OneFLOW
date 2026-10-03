@@ -22,6 +22,7 @@ License
 
 
 #pragma once
+#include <memory>
 #include "HXDefine.h"
 #include <ostream>
 
@@ -70,7 +71,7 @@ void AddCmdToList( int operationId, int solverType );
 // Task construction
 // ============================================================
 class Task;
-Task * CreateTask( int operationId, int solverType );
+std::unique_ptr<Task> CreateTask( int operationId, int solverType );
 
 // ============================================================
 // Resource preparation

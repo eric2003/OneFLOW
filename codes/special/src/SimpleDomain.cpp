@@ -47,12 +47,10 @@ BlkF2C::~BlkF2C()
 
 Face2D::Face2D()
 {
-    this->t = 0;
 }
 
 Face2D::~Face2D()
 {
-    delete this->t;
 }
 
 void Face2D::CalcRegion()

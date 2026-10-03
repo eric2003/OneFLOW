@@ -22,6 +22,7 @@ License
 
 
 #pragma once
+#include <memory>
 #include "HXDefine.h"
 
 
@@ -36,7 +37,8 @@ public:
     static Task * task;
 
     // Temporary result produced by a TASK_FUNC callback.
-    static Task * createdTask;
+    // Ownership is taken by CreateTaskByRegisteredFunction via std::move.
+    static std::unique_ptr<Task> createdTask;
 };
 
 EndNameSpace

@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "ParaFile.h"
+#include <memory>
 #include "TextFileParser.h"
 #include "DataBase.h"
 #include "DataBook.h"
@@ -87,7 +88,7 @@ void AnalysisArrayParameter( TextFileParser & textFileParser, int keyWordIndex )
 
     int arraySize = ONEFLOW::GetParameterArraySize( arraySizeName );
 
-    std::string * valueContainer = new std::string[ arraySize ];
+    std::vector<std::string> valueContainer( static_cast<std::size_t>( arraySize ) );
 
     for ( int i = 0; i < arraySize; ++ i )
     {
@@ -103,9 +104,8 @@ void AnalysisArrayParameter( TextFileParser & textFileParser, int keyWordIndex )
             }
         }
     }
-    ONEFLOW::ProcessData( arrayName, valueContainer, keyWordIndex, arraySize );
+    ONEFLOW::ProcessData( arrayName, valueContainer.data(), keyWordIndex, arraySize );
 
-    delete[] valueContainer;
 }
 
 int AnalysisScalarParameter( TextFileParser & textFileParser, int keyWordIndex )
@@ -116,13 +116,11 @@ int AnalysisScalarParameter( TextFileParser & textFileParser, int keyWordIndex )
     std::string name = textFileParser.ReadNextWord( separator );
 
     int arraySize = 1;
-    std::string * value = new std::string[ arraySize ];
+    std::vector<std::string> value( static_cast<std::size_t>( arraySize ) );
 
     value[ 0 ] = textFileParser.ReadNextWord( separator );
 
-    ONEFLOW::ProcessData( name, value, keyWordIndex, arraySize );
-
-    delete[] value;
+    ONEFLOW::ProcessData( name, value.data(), keyWordIndex, arraySize );
 
     return arraySize;
 }
@@ -339,7 +337,7 @@ void BroadcastControlParameterToAllProcessors()
     ONEFLOW::HXBcast( ONEFLOW::CompressData, ONEFLOW::DecompressData, Parallel::GetServerid() );
 }
 
-void CompressData( DataBook *& dataBook )
+void CompressData( DataBook * dataBook )
 {
     DataBase * globalDataBase = ONEFLOW::GetGlobalDataBase();
 
@@ -352,7 +350,7 @@ void DecompressData( DataBook * dataBook )
     ONEFLOW::DecompressData( globalDataBase, dataBook );
 }
 
-void CompressData( DataBase * dataBase, DataBook *& dataBook )
+void CompressData( DataBase * dataBase, DataBook * dataBook )
 {
     // Use the new type alias
     DataPara::DataMap * dataMap = dataBase->dataPara->GetDataMap();
@@ -363,7 +361,7 @@ void CompressData( DataBase * dataBase, DataBook *& dataBook )
     // Range-based for is cleaner with unordered_map
     for ( const auto & pair : *dataMap )
     {
-        DataEntry * dataEntry = pair.second;          // pair.first is the key (name), pair.second is DataV*
+        DataEntry * dataEntry = pair.second.get();  // pair.first is the key (name), pair.second owns DataEntry
         ONEFLOW::HXWriteDataEntry( dataBook, dataEntry );
     }
 }
@@ -378,9 +376,9 @@ void DecompressData( DataBase * dataBase, DataBook * dataBook )
 
     for ( int i = 0; i < ndata; ++ i )
     {
-        DataEntry * dataEntry = new DataEntry();
-        ONEFLOW::HXReadDataEntry( dataBook, dataEntry );
-        dataBase->dataPara->UpdateDataPointer( dataEntry );
+        auto dataEntry = std::make_unique<DataEntry>();
+        ONEFLOW::HXReadDataEntry( dataBook, dataEntry.get() );
+        dataBase->dataPara->UpdateDataPointer( std::move( dataEntry ) );
     }
 }
 

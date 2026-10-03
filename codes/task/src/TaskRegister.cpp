@@ -21,13 +21,14 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "TaskRegister.h"
+#include <memory>
 #include <iostream>
 
 
 BeginNameSpace( ONEFLOW )
 
-HXVector< VoidFunc > * TaskRegister::taskList = 0;
-HXVector< std::string > * TaskRegister::taskNameList = 0;
+std::unique_ptr< HXVector< VoidFunc > > TaskRegister::taskList;
+std::unique_ptr< HXVector< std::string > > TaskRegister::taskNameList;
 
 TaskRegister::TaskRegister()
 {
@@ -39,29 +40,17 @@ TaskRegister::~TaskRegister()
 
 void TaskRegister::Free()
 {
-    delete TaskRegister::taskList;
-    delete TaskRegister::taskNameList;
-
-    // FIX: null out pointers after delete. Without this, Free() leaves
-    // dangling pointers, which causes two separate hazards:
-    //   1. A subsequent Register() call would push_back into freed
-    //      memory (use-after-free), since the null-check in Register()
-    //      only guards against a NULL pointer, not a dangling one.
-    //   2. Free() itself was not idempotent: calling it twice (e.g. once
-    //      manually, then again via Tmp_Free_TaskRegister's destructor
-    //      at program exit) would double-free the same memory.
-    // Nulling the pointers makes Free() safe to call multiple times and
-    // makes the class safely re-usable after being freed.
-    TaskRegister::taskList = 0;
-    TaskRegister::taskNameList = 0;
+    // reset is idempotent; subsequent Register() will re-allocate.
+    TaskRegister::taskList.reset();
+    TaskRegister::taskNameList.reset();
 }
 
 void TaskRegister::Register( VoidFunc taskfun, std::string const & taskname )
 {
     if ( ! TaskRegister::taskList )
     {
-        TaskRegister::taskList = new HXVector< VoidFunc >;
-        TaskRegister::taskNameList = new HXVector< std::string >;
+        TaskRegister::taskList = std::make_unique< HXVector< VoidFunc > >();
+        TaskRegister::taskNameList = std::make_unique< HXVector< std::string > >();
     }
     TaskRegister::taskList->push_back( taskfun );
     TaskRegister::taskNameList->push_back( taskname );

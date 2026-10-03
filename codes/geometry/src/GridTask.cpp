@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "GridTask.h"
+#include <memory>
 #include "CmxTask.h"
 #include "TaskCom.h"
 #include "TaskState.h"
@@ -74,8 +75,7 @@ void DumpWallDist( StringField & data )
 
 void CreateCalcMetricsTask( StringField & data )
 {
-    CalcMetricsTask * task = new CalcMetricsTask();
-    TaskState::createdTask = task;
+    TaskState::createdTask = std::make_unique<CalcMetricsTask>();
 }
 
 void CalcMetrics( StringField & data )

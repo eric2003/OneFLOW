@@ -35,17 +35,15 @@ REGISTER_TASK(RegisterINsUpdateTask)
 void UpdateFlowField( StringField & data )
 {
     int solverType = SolverState::solverType;
-    Update * update = CreateUpdate( solverType );
+    auto update = CreateUpdate( solverType );
     update->UpdateFlowField( solverType );
-    delete update;
 }
 
 void UpdateINsFlowField(StringField & data)
 {
 	int solverType = SolverState::solverType;
-	Update * update = CreateUpdate(solverType);
+	auto update = CreateUpdate(solverType);
 	update->UpdateINsFlowField(solverType);
-	delete update;
 }
 
 void RegisterUpdateTask()

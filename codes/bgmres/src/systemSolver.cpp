@@ -1,4 +1,5 @@
 #include "poisson.h"
+#include <memory>
 #include "solution.h"
 #include "preconditioner.h"
 #include "GMRES.h"
@@ -44,12 +45,11 @@ void SolveMRhs::BGMRES()
 	clock_t start, finish;
 	double time;
 	start = clock();
-	Poisson* A = new Poisson;   // The operator to invert.
-	Solution* x = new Solution(Rank.RANKNUMBER);  // The approximation to calculate.
-	Solution* b = new Solution(Rank.RANKNUMBER);  // The forcing function for the r.h.s.
-	Solution* residual = new Solution(Rank.RANKNUMBER);
-	Preconditioner* pre =
-		new Preconditioner(Rank.RANKNUMBER);      // The preconditioner for the system.
+	auto A = std::make_unique<Poisson>();   // The operator to invert.
+	auto x = std::make_unique<Solution>(Rank.RANKNUMBER);  // The approximation to calculate.
+	auto b = std::make_unique<Solution>(Rank.RANKNUMBER);  // The forcing function for the r.h.s.
+	auto residual = std::make_unique<Solution>(Rank.RANKNUMBER);
+	auto pre = std::make_unique<Preconditioner>(Rank.RANKNUMBER);  // The preconditioner for the system.
 	int restart = 0;                    // Number of restarts to allow
 	int maxIt = 500;                      // Dimension of the Krylov subspace
 	double tol = 1.0E-8;                 // How close to make the approximation.
@@ -68,7 +68,7 @@ void SolveMRhs::BGMRES()
 		}
 	}
 	// Find an approximation to the system!
-	int result = GMRES(A, x, b, residual, pre, maxIt, restart, tol);
+	int result = GMRES(A.get(), x.get(), b.get(), residual.get(), pre.get(), maxIt, restart, tol);
 
 	// Output the solution
 	for (int lupe = 0; lupe < Rank.COLNUMBER; lupe++)
@@ -83,11 +83,7 @@ void SolveMRhs::BGMRES()
 	finish = clock();
 	time = (double)(finish - start);    //Calculate run time
 
-	delete A;
-	delete x;
-	delete b;
-	delete residual;
-	delete pre;
+	// unique_ptr members destroy A, x, b, residual, pre.
 
 
 #define SOLUTION

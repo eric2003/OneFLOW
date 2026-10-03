@@ -222,17 +222,17 @@ public:
     HXAdtTree( HXAdtTree&& ) noexcept = default;
     HXAdtTree& operator=( HXAdtTree&& ) noexcept = default;
 
-    // Insert a node into the ADT tree (tree takes memory ownership)
-    void AddNode( AdtNode * node )
+    // Insert a node into the ADT tree (tree takes memory ownership).
+    void AddNode( std::unique_ptr<AdtNode> node )
     {
         if ( node == nullptr ) return;
 
-        // Take ownership of memory to prevent memory leaks and stack overflows
-        ownedNodes.emplace_back( node );
+        AdtNode * raw = node.get();
+        ownedNodes.push_back( std::move( node ) );
 
         if ( root == nullptr )
         {
-            root = node;
+            root = raw;
             return;
         }
 
@@ -240,7 +240,7 @@ public:
         HXVector<U> localNwmin = this->pmin;
         HXVector<U> localNwmax = this->pmax;
 
-        root->AddNode( node, localNwmin.data(), localNwmax.data(), dim );
+        root->AddNode( raw, localNwmin.data(), localNwmax.data(), dim );
     }
 
     // Find all nodes falling inside region (pmin, pmax)

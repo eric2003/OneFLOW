@@ -78,7 +78,7 @@ GetClassCache & ClassCache()
     return cache;
 }
 
-Task * CreateTaskByRegisteredFunction(
+std::unique_ptr<Task> CreateTaskByRegisteredFunction(
     HXClone * cloneClass )
 {
     if ( cloneClass == nullptr )
@@ -86,17 +86,13 @@ Task * CreateTaskByRegisteredFunction(
         return nullptr;
     }
 
-    // TASK_FUNC callbacks return their construction result here.
-    TaskState::createdTask = nullptr;
+    // TASK_FUNC callbacks place their construction result here.
+    TaskState::createdTask.reset();
 
     cloneClass->Solve();
 
-    Task * task = TaskState::createdTask;
-
-    // Do not keep a stale construction result.
-    TaskState::createdTask = nullptr;
-
-    return task;
+    // Take ownership; leave the slot empty.
+    return std::move( TaskState::createdTask );
 }
 
 const char * GetFunctionTypeName(
@@ -228,7 +224,7 @@ void AddCmdToList(
     int solverType )
 {
     // Build the task associated with the operation.
-    Task * task =
+    auto task =
         ONEFLOW::CreateTask(
             operationId,
             solverType );
@@ -240,19 +236,15 @@ void AddCmdToList(
 
     // Prepare files/resources required by the operation.
     ONEFLOW::ConfigureTaskFile(
-        task,
+        task.get(),
         operationId,
         solverType );
 
-    // Take temporary ownership of the newly created Task.
-    std::unique_ptr< Task > ownedTask( task );
-
     // Build the command with RAII ownership.
-    std::unique_ptr< SimpleCmd > cmd(
-        new SimpleCmd() );
+    auto cmd = std::make_unique<SimpleCmd>();
 
     // Transfer Task ownership to the Command.
-    cmd->AddTask( std::move( ownedTask ) );
+    cmd->AddTask( std::move( task ) );
 
     // Transfer Command ownership to CMD.
     CMD::AddCmd( std::move( cmd ) );
@@ -263,9 +255,9 @@ void AddCmdToList(
 // Task construction
 // ============================================================
 
-Task * CreateTask( int operationId, int solverType )
+std::unique_ptr<Task> CreateTask( int operationId, int solverType )
 {
-    Task * task = nullptr;
+    std::unique_ptr<Task> task;
 
     HXClone * cloneClass =
         ONEFLOW::GetClass(
@@ -282,7 +274,7 @@ Task * CreateTask( int operationId, int solverType )
     else
     {
         // Use the default task implementation.
-        task = new SimpleTask();
+        task = std::make_unique<SimpleTask>();
     }
 
     if ( task == nullptr )
@@ -296,7 +288,7 @@ Task * CreateTask( int operationId, int solverType )
 
     SolverState::solverType = solverType;
 
-    SetTaskAction( task );
+    SetTaskAction( task.get() );
 
     return task;
 }

@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "UTurbSolver.h"
+#include <memory>
 #include "Mesh.h"
 #include "FaceMesh.h"
 #include "CellMesh.h"
@@ -51,7 +52,7 @@ UTurbSolver::~UTurbSolver()
 void UTurbSolver::StaticInit()
 {
     TurbSolver::StaticInit();
-    LusgsState::AddSolver( this->solverIndex, this->gridType, new UTurbLusgs() );
+    LusgsState::AddSolver( this->solverIndex, this->gridType, std::make_unique<UTurbLusgs>() );
 }
 
 void UTurbSolver::Init()

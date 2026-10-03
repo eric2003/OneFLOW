@@ -22,6 +22,7 @@ License
 
 
 #pragma once
+#include <memory>
 #include "Update.h"
 BeginNameSpace( ONEFLOW )
 
@@ -37,7 +38,7 @@ public:
     virtual void SmoothTurbulencePoint(){};
 };
 
-Update * CreateTurbUpdate();
+std::unique_ptr<Update> CreateTurbUpdate();
 
 
 EndNameSpace

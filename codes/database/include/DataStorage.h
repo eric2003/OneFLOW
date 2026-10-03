@@ -22,6 +22,7 @@ License
 
 #pragma once
 #include "NamespaceMacros.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -32,9 +33,9 @@ public:
     DataStorage();
     ~DataStorage();
 protected:
-    DataBase * dataBase;
+    std::unique_ptr<DataBase> dataBase;
 public:
-    DataBase * GetDataBase() { return dataBase;  };
+    DataBase * GetDataBase() { return dataBase.get(); };
 };
 
 EndNameSpace

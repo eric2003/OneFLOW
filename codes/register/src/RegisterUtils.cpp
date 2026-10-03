@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "RegisterUtils.h"
+#include <memory>
 #include "SolverDef.h"
 #include "Fatal.h"
 
@@ -39,8 +40,8 @@ void VarNameSolver::AddFieldName( const std::string & fieldName )
     this->data.push_back( fieldName );
 }
 
-std::map< int, VarNameSolver * > * VarNameFactory::data = 0;
-MapIntInt * VarNameFactory::mapData = 0;
+std::unique_ptr< std::map< int, std::unique_ptr<VarNameSolver> > > VarNameFactory::data;
+std::unique_ptr< MapIntInt > VarNameFactory::mapData;
 
 VarNameFactory::VarNameFactory()
 {
@@ -54,8 +55,9 @@ void VarNameFactory::Init()
 {
     if ( ! VarNameFactory::data )
     {
-        VarNameFactory::data = new std::map< int, VarNameSolver * >();
-        VarNameFactory::mapData = new MapIntInt();
+        VarNameFactory::data =
+            std::make_unique< std::map< int, std::unique_ptr<VarNameSolver> > >();
+        VarNameFactory::mapData = std::make_unique< MapIntInt >();
     }
 }
 
@@ -66,13 +68,11 @@ void VarNameFactory::AddVarNameSolver( int a, int b )
     VarNameFactory::mapData->AddData( a, b );
     int solverPos = VarNameFactory::mapData->GetId( a, b );
 
-    std::map< int, VarNameSolver * >::iterator iter;
-
-    iter = VarNameFactory::data->find( solverPos );
+    auto iter = VarNameFactory::data->find( solverPos );
     if ( iter == VarNameFactory::data->end() )
     {
-        VarNameSolver * varNameSolver = new VarNameSolver();
-        ( * VarNameFactory::data )[ solverPos ] = varNameSolver;
+        ( * VarNameFactory::data )[ solverPos ] =
+            std::make_unique<VarNameSolver>();
     }
 }
 
@@ -95,20 +95,13 @@ VarNameSolver * VarNameFactory::GetVarNameSolver( int a, int b )
 
 void VarNameFactory::FreeVarNameSolver()
 {
-    if ( ! VarNameFactory::data ) return;
-    std::map< int, VarNameSolver * >::iterator iter;
-    for ( iter = VarNameFactory::data->begin(); iter != VarNameFactory::data->end(); ++ iter )
+    // unique_ptr elements destroy VarNameSolver; reset is idempotent.
+    if ( VarNameFactory::data )
     {
-        delete iter->second;
+        VarNameFactory::data->clear();
     }
-
-    VarNameFactory::data->clear();
-
-    delete VarNameFactory::data;
-    VarNameFactory::data = 0;
-
-    delete VarNameFactory::mapData;
-    VarNameFactory::mapData = 0;
+    VarNameFactory::data.reset();
+    VarNameFactory::mapData.reset();
 }
 
 VarNameSolver * VarNameFactory::FindVarNameSolver(
@@ -133,15 +126,14 @@ VarNameSolver * VarNameFactory::FindVarNameSolver(
         return nullptr;
     }
 
-    std::map< int, VarNameSolver * >::iterator solverIter =
-        VarNameFactory::data->find( iter->second );
+    auto solverIter = VarNameFactory::data->find( iter->second );
 
     if ( solverIter == VarNameFactory::data->end() )
     {
         return nullptr;
     }
 
-    return solverIter->second;
+    return solverIter->second.get();
 }
 
 void VarNameFactory::Dump(

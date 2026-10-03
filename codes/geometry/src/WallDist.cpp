@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "WallDist.h"
+#include <memory>
 #include "CmxTask.h"
 #include "TaskState.h"
 #include "NsCtrl.h"
@@ -93,7 +94,7 @@ void SetWallTask()
 void FillWallStructTask( StringField & /*data*/ )
 {
     // TaskState still expects a raw Task*; ownership is transferred there.
-    TaskState::createdTask = new CFillWallStructTaskImp();
+    TaskState::createdTask = std::make_unique<CFillWallStructTaskImp>();
 }
 
 void FillWallStruct( StringField & /*data*/ )

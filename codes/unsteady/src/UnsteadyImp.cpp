@@ -20,6 +20,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "UnsteadyImp.h"
+#include <memory>
 #include "NsUnsteady.h"
 #include "TurbUnsteady.h"
 #include "SolverDef.h"
@@ -30,9 +31,9 @@ License
 BeginNameSpace( ONEFLOW )
 
 
-Unsteady * CreateUnsteady( int solverType )
+std::unique_ptr<Unsteady> CreateUnsteady( int solverType )
 {
-    Unsteady * unsteady = 0;
+    std::unique_ptr<Unsteady> unsteady;
 
     if ( solverType == NS_SOLVER )
     {
@@ -43,7 +44,7 @@ Unsteady * CreateUnsteady( int solverType )
         unsteady = CreateTurbUnsteady();
     }
 
-    if ( unsteady != 0 )
+    if ( unsteady != nullptr )
     {
         FieldManager * fieldManager =
             FieldManagerRegistry::GetFieldManager(

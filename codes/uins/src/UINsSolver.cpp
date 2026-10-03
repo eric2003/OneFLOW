@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "UINsSolver.h"
+#include <memory>
 #include "Mesh.h"
 #include "FaceMesh.h"
 #include "CellMesh.h"
@@ -51,7 +52,7 @@ UINsSolver::~UINsSolver()
 void UINsSolver::StaticInit()
 {
     INsSolver::StaticInit();
-    LusgsState::AddSolver( this->solverIndex, this->gridType, new UINsLusgs() );
+    LusgsState::AddSolver( this->solverIndex, this->gridType, std::make_unique<UINsLusgs>() );
 }
 
 void UINsSolver::Init()

@@ -203,7 +203,8 @@ void FieldSolverBasic::DownloadInterface()
 
 void FieldSolverBasic::UpdateInterface( TaskFunction sendAction, TaskFunction recvAction )
 {
-    ActionState::dataBook = new DataBook();
+    auto dataBook = std::make_unique<DataBook>();
+    ActionState::dataBook = dataBook.get();
     for ( int iZone = 0; iZone < ZoneState::nZones; ++ iZone )
     {
         //Loop through each zone
@@ -224,7 +225,7 @@ void FieldSolverBasic::UpdateInterface( TaskFunction sendAction, TaskFunction re
             this->SwapInterfaceData( iZone, jZone, sendAction, recvAction );
         }
     }
-    delete ActionState::dataBook;
+    ActionState::dataBook = nullptr;
 }
 
 void FieldSolverBasic::SwapInterfaceData( int iZone, int jZone, TaskFunction sendAction, TaskFunction recvAction )
@@ -271,8 +272,8 @@ void FieldSolverBasic::CommParallelInfo()
 
 void FieldSolverBasic::Visualize()
 {
-    DataBook * dataBook = new DataBook();
-    ActionState::dataBook = dataBook;
+    auto dataBook = std::make_unique<DataBook>();
+    ActionState::dataBook = dataBook.get();
     std::fstream file;
     ActionState::file = & file;
 
@@ -288,7 +289,7 @@ void FieldSolverBasic::Visualize()
 
         if ( Parallel::pid == sPid )
         {
-            this->GetVisualData( dataBook );
+            this->GetVisualData( dataBook.get() );
         }
 
         HXSwapData( ActionState::dataBook, sPid, rPid );
@@ -305,7 +306,7 @@ void FieldSolverBasic::Visualize()
         this->ToTecplot( xcoor, theory, "theory.plt" );
     }
 
-    delete dataBook;
+    ActionState::dataBook = nullptr;
 }
 
 

@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "AeroForceTaskReg.h"
+#include <memory>
 #include "AeroForceTask.h"
 #include "TaskState.h"
 #include "TaskRegister.h"
@@ -37,8 +38,7 @@ void RegisterForceTask()
 
 void DumpAerodynamicForceTask( StringField & data )
 {
-    AerodynamicForceTask * task = new AerodynamicForceTask();
-    TaskState::createdTask = task;
+    TaskState::createdTask = std::make_unique<AerodynamicForceTask>();
 }
 
 void DumpPressureCoeff( StringField & data )

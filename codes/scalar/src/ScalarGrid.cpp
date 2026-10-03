@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "ScalarGrid.h"
+#include <memory>
 #include "ScalarCgns.h"
 #include "CgnsZsection.h"
 #include "CgnsSection.h"
@@ -1144,19 +1145,17 @@ void ScalarGrid::DumpCalcGrid()
 	std::fstream file;
 	std::string fileName = "scalar.ofl";
 	Prj::OpenPrjFile( file, fileName, std::ios_base::out | std::ios_base::binary );
-	DataBook * databook = new DataBook();
-	this->WriteGrid( databook );
+	auto databook = std::make_unique<DataBook>();
+	this->WriteGrid( databook.get() );
 	databook->WriteFile( file );
-	delete databook;
 	Prj::CloseFile( file );
 }
 
 void ScalarGrid::WriteGrid( std::fstream & file )
 {
-	DataBook * databook = new DataBook();
-	this->WriteGrid( databook );
+	auto databook = std::make_unique<DataBook>();
+	this->WriteGrid( databook.get() );
 	databook->WriteFile( file );
-	delete databook;
 }
 
 void ScalarGrid::WriteGrid( DataBook * databook )
@@ -1197,19 +1196,17 @@ void ScalarGrid::ReadCalcGrid()
 	std::fstream file;
 	std::string fileName = "scalar.ofl";
 	Prj::OpenPrjFile( file, fileName, std::ios_base::in | std::ios_base::binary );
-	DataBook * databook = new DataBook();
+	auto databook = std::make_unique<DataBook>();
 	databook->ReadFile( file );
-	this->ReadGrid( databook );
-	delete databook;
+	this->ReadGrid( databook.get() );
 	Prj::CloseFile( file );
 }
 
 void ScalarGrid::ReadGrid( std::fstream & file )
 {
-	DataBook * databook = new DataBook();
+	auto databook = std::make_unique<DataBook>();
 	databook->ReadFile( file );
-	this->ReadGrid( databook );
-	delete databook;
+	this->ReadGrid( databook.get() );
 }
 
 void ScalarGrid::ReadGrid( DataBook * databook )

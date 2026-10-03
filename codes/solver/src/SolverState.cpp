@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "SolverState.h"
+#include "Lusgs.h"
 #include "SolverMap.h"
 #include "CmxTask.h"
 #include "CmxTaskNames.h"
@@ -29,11 +30,12 @@ License
 #include "ZoneState.h"
 #include "GridState.h"
 #include "Ctrl.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
-HXVector< LusgsSolver * > LusgsState::str;
-HXVector< LusgsSolver * > LusgsState::uns;
+HXVector< std::unique_ptr<LusgsSolver> > LusgsState::str;
+HXVector< std::unique_ptr<LusgsSolver> > LusgsState::uns;
 
 LusgsState::LusgsState()
 {
@@ -57,17 +59,17 @@ void LusgsState::Reset()
     LusgsState::uns.clear();
 }
 
-void LusgsState::AddSolver( int solverIndex, int gridType, LusgsSolver * solver )
+void LusgsState::AddSolver( int solverIndex, int gridType, std::unique_ptr<LusgsSolver> solver )
 {
     if ( gridType == ONEFLOW::UMESH )
     {
         if ( LusgsState::uns[ solverIndex ] ) return;
-        LusgsState::uns[ solverIndex ] = solver;
+        LusgsState::uns[ solverIndex ] = std::move( solver );
     }
     else
     {
         if ( LusgsState::str[ solverIndex ] ) return;
-        LusgsState::str[ solverIndex ] = solver;
+        LusgsState::str[ solverIndex ] = std::move( solver );
     }
 }
 
@@ -76,11 +78,11 @@ LusgsSolver * LusgsState::GetLusgsSolver()
     int gridType = ZoneState::zoneType[ ZoneState::zid ];
     if ( gridType == ONEFLOW::UMESH )
     {
-        return LusgsState::uns[ SolverState::solverIndex ];
+        return LusgsState::uns[ SolverState::solverIndex ].get();
     }
     else
     {
-        return LusgsState::str[ SolverState::solverIndex ];
+        return LusgsState::str[ SolverState::solverIndex ].get();
     }
 }
 

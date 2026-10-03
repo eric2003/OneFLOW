@@ -21,6 +21,8 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Parallel.h"
+#include <vector>
+#include <memory>
 #include "BasicParallel.h"
 #include "DataBook.h"
 #include "OStream.h"
@@ -178,24 +180,22 @@ void HXBcast( DATA_COMPRESS dataCompression, DATA_DECOMPRESS dataDecompression, 
 
     if ( nProc <= 1 ) return;
 
-    DataBook * dataBook = new DataBook();
+    auto dataBook = std::make_unique<DataBook>();
 
     if ( Parallel::GetPid() == rootid )
     {
         //Compress data, or store data to dataBook
-        dataCompression( dataBook );
+        dataCompression( dataBook.get() );
     }
 
     //Pass the dataBook to the required processes
-    ONEFLOW::HXBcast( dataBook, rootid );
+    ONEFLOW::HXBcast( dataBook.get(), rootid );
 
     if ( Parallel::GetPid() != rootid )
     {
         //Extract the data from dataBook to obtain the required information
-        dataDecompression( dataBook );
+        dataDecompression( dataBook.get() );
     }
-
-    delete dataBook;
 }
 
 void HXSwapData( DataBook * dataBook, int spid, int rpid, int tag )
@@ -223,19 +223,19 @@ void HXBcastString( std::string & cs, int pid )
 
     int nlen1 = nlen + 1;
 
-    char * data = new char[ nlen1 ];
+    std::vector<char> data( static_cast<std::size_t>( nlen1 ), '\0' );
+    if ( pid == Parallel::pid )
+    {
+        cs.copy( data.data(), nlen );
+    }
 
-    cs.copy( data, nlen );
-
-    HXBcast( data, nlen, pid );
+    HXBcast( data.data(), nlen, pid );
 
     if ( pid != Parallel::pid )
     {
-        data[ nlen ] = '\0';
-        cs = data;
+        data[ static_cast<std::size_t>( nlen ) ] = '\0';
+        cs = data.data();
     }
-
-    delete[] data;
 }
 
 EndNameSpace

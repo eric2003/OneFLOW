@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "DataBase.h"
+#include <memory>
 #include "Fatal.h"
 #include "DataPara.h"
 #include "DataObject.h"
@@ -28,11 +29,11 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-DataBase * globalDataBase = 0;
+std::unique_ptr<DataBase> globalDataBase;
 
 DataBase * GetGlobalDataBase()
 {
-    return globalDataBase;
+    return globalDataBase.get();
 }
 
 class HXInitGlobalDataBase
@@ -40,11 +41,11 @@ class HXInitGlobalDataBase
 public:
     HXInitGlobalDataBase()
     {
-        globalDataBase = new DataBase();
+        globalDataBase = std::make_unique<DataBase>();
     };
     ~HXInitGlobalDataBase()
     {
-        delete globalDataBase;
+        globalDataBase.reset();
     }
 };
 
@@ -52,15 +53,13 @@ HXInitGlobalDataBase initGlobalDataBase;
 
 
 DataBase::DataBase()
+    : dataPara( std::make_unique<DataPara>() )
+    , dataField( std::make_unique<DataField>() )
 {
-    dataPara = new DataPara();
-    dataField = new DataField();
 }
 
 DataBase::~DataBase()
 {
-    delete dataPara;
-    delete dataField;
 }
 
 void HXWriteVoid( DataBook * dataBook, const DataEntry * dataEntry )
@@ -86,64 +85,61 @@ void HXReadDataEntry( DataBook * dataBook, DataEntry * dataEntry )
 
 void HXReadVoid( DataBook * dataBook, DataEntry * dataEntry )
 {
-    DataObject * o = CreateDataObject( dataEntry->type, dataEntry->size );
-    dataEntry->data = o;
+    dataEntry->data = CreateDataObject( dataEntry->type, dataEntry->size );
     dataEntry->data->Read( dataBook, dataEntry->size );
 }
 
 void ProcessData( const std::string & name, const std::string * value, int type, int size )
 {
-    DataEntry * dataEntry = new DataEntry();
+    auto dataEntry = std::make_unique<DataEntry>();
     dataEntry->name = name;
     dataEntry->type = type;
     dataEntry->size = size;
     if ( type == ONEFLOW::HX_STRING )
     {
-        TDataObject< std::string > * stringObject = new TDataObject< std::string >( size );
-        stringObject->CopyValue( value );
-        dataEntry->data = stringObject;
+        auto stringObject = std::make_unique<TDataObject< std::string > >( size );
+        stringObject->CopyValue( value, size );
+        dataEntry->data = std::move( stringObject );
     }
     else if ( type == HX_INT )
     {
-        TDataObject< int > * intObject = new TDataObject< int >( size );
-        intObject->CopyValue( value );
-        dataEntry->data = intObject;
+        auto intObject = std::make_unique<TDataObject< int > >( size );
+        intObject->AssignFromString( value, size );
+        dataEntry->data = std::move( intObject );
     }
     else if ( type == HX_REAL )
     {
-        TDataObject< Real > * realObject = new TDataObject< Real >( size );
-        realObject->CopyValue( value );
-        dataEntry->data = realObject;
+        auto realObject = std::make_unique<TDataObject< Real > >( size );
+        realObject->AssignFromString( value, size );
+        dataEntry->data = std::move( realObject );
     }
     else
     {
         Fatal( " Parameter Type Error \n" );
     }
     DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
-    dataBase->dataPara->UpdateDataPointer( dataEntry );
+    dataBase->dataPara->UpdateDataPointer( std::move( dataEntry ) );
 }
 
-DataObject * CreateDataObject( int type, int size )
+std::unique_ptr<DataObject> CreateDataObject( int type, int size )
 {
     if ( type == ONEFLOW::HX_STRING )
     {
-        TDataObject< std::string > * stringObject = new TDataObject< std::string >( size );
-        return stringObject;
+        return std::make_unique<TDataObject< std::string > >( size );
     }
     else if ( type == HX_INT )
     {
-        TDataObject< int > * intObject = new TDataObject< int >( size );
-        return intObject;
+        return std::make_unique<TDataObject< int > >( size );
     }
     else if ( type == HX_REAL )
     {
-        TDataObject< Real > * realObject = new TDataObject< Real >( size );
-        return realObject;
+        return std::make_unique<TDataObject< Real > >( size );
     }
     else
     {
         Fatal( "Parameter Type Error In CreateDataObject" );
     }
+    return nullptr;
 }
 
 void SetDataInt( const std::string & varName, const int & value )
@@ -177,15 +173,16 @@ PointerWrap * GetPointerWrap( DataField * dataField, const std::string & dataObj
     return fieldEntry->GetPointerWrap();
 }
 
-void CreateFieldPointer( DataBase * database, PointerWrap * pointerWrap, const std::string & dataObjectName )
+void CreateFieldPointer( DataBase * database, std::unique_ptr<PointerWrap> pointerWrap, const std::string & dataObjectName )
 {
-    FieldEntry * fieldEntry = new FieldEntry( dataObjectName, pointerWrap );
-    database->dataField->UpdateFieldEntry( fieldEntry );
+    auto fieldEntry = std::make_unique<FieldEntry>(
+        dataObjectName, std::move( pointerWrap ) );
+    database->dataField->UpdateFieldEntry( std::move( fieldEntry ) );
 }
 
 void * GetFieldPointerVoid( DataBase * database, const std::string & dataObjectName )
 {
-    PointerWrap * pointerWrap = GetPointerWrap( database->dataField, dataObjectName );
+    PointerWrap * pointerWrap = GetPointerWrap( database->dataField.get(), dataObjectName );
     if ( pointerWrap )
     {
         return pointerWrap->GetPointer();

@@ -24,6 +24,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "HXArray.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -101,7 +102,7 @@ public:
     static void DumpField( const std::string & fileName, MRField * field );
     static std::string GetFullFileName( const std::string & fileName, int startStrategy );
     static void CompareFile( Real mindiff, int idump );
-    static MRField * ReadField( const std::string & fileName );
+    static std::unique_ptr<MRField> ReadField( const std::string & fileName );
     static void DumpCellInfo( int iCell );
     static void CheckNANField( MRField * field );
 };

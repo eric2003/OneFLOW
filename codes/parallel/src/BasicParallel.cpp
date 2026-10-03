@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "BasicParallel.h"
+#include <vector>
 #include <iostream>
 
 
@@ -150,14 +151,10 @@ void HXSendString( std::string & cs, int pid, int tag )
     ONEFLOW::HXSend( & nLength, 1, PL_INT, pid, tag );
 
     int nLength1 = nLength + 1;
-    char * data = new char[ nLength1 ];
+    std::vector<char> data( static_cast<std::size_t>( nLength1 ), '\0' );
+    cs.copy( data.data(), nLength );
 
-    cs.copy( data, nLength );
-    data[ nLength ] = '\0';
-
-    ONEFLOW::HXSend( data, nLength1, PL_CHAR, pid, tag );
-
-    delete[] data;
+    ONEFLOW::HXSend( data.data(), nLength1, PL_CHAR, pid, tag );
 }
 
 void HXRecvString( std::string & cs, int pid, int tag )
@@ -166,13 +163,11 @@ void HXRecvString( std::string & cs, int pid, int tag )
     ONEFLOW::HXRecv( & nLength, 1, PL_INT, pid, tag );
 
     int nLength1 = nLength + 1;
-    char * data = new char[ nLength1 ];
+    std::vector<char> data( static_cast<std::size_t>( nLength1 ), '\0' );
 
-    ONEFLOW::HXRecv( data, nLength1, PL_CHAR, pid, tag );
+    ONEFLOW::HXRecv( data.data(), nLength1, PL_CHAR, pid, tag );
 
-    cs = data;
-
-    delete[] data;
+    cs = data.data();
 }
 
 void HXReduceInt( const void * s, void * t, int nElem, PL_Op op )

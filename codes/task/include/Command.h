@@ -131,10 +131,10 @@ private:
         HXVector< std::unique_ptr< Command > >;
 
     // Non-owning view used to preserve command execution order.
-    static HXVector< Command * > * cmdList_;
+    static std::unique_ptr< HXVector< Command * > > cmdList_;
 
     // Actual owner of all commands currently in the queue.
-    static CommandOwnerList * commandOwners;
+    static std::unique_ptr< CommandOwnerList > commandOwners;
 };
 
 EndNameSpace

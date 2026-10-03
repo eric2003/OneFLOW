@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #pragma once
+#include <memory>
 #include "NamespaceMacros.h"
 #include "DataBook.h"
 #include "DataPara.h"
@@ -47,8 +48,8 @@ public:
     DataBase();
     ~DataBase();
 public:
-    DataPara *dataPara;
-    DataField *dataField;
+    std::unique_ptr<DataPara> dataPara;
+    std::unique_ptr<DataField> dataField;
 };
 void HXReadDataEntry( DataBook * dataBook, DataEntry * dataEntry );
 void HXWriteDataEntry( DataBook * dataBook, const DataEntry * dataEntry );
@@ -57,7 +58,7 @@ void HXReadVoid( DataBook * dataBook, DataEntry * dataEntry );
 
 DataBase * GetGlobalDataBase();
 void ProcessData( const std::string & name, const std::string * value, int type, int size );
-DataObject * CreateDataObject( int type, int size );
+std::unique_ptr<DataObject> CreateDataObject( int type, int size );
 
 class DataBase;
 template < typename T >
@@ -74,7 +75,7 @@ T GetDataValue( const std::string & varName, DataBase * database )
 
     if (dataEntry != nullptr )
     {
-        DataObject * data = dataEntry->data;
+        DataObject * data = dataEntry->data.get();
         return GetDataValue< T >(data);
     }
     else
@@ -87,16 +88,16 @@ T GetDataValue( const std::string & varName, DataBase * database )
 template < typename T >
 void SetData( const std::string & name, T * value, int type, int size )
 {
-    DataEntry * dataEntry = new DataEntry();
+    auto dataEntry = std::make_unique<DataEntry>();
     dataEntry->name = name;
     dataEntry->type = type;
     dataEntry->size = size;
-    TDataObject< T > * o = new TDataObject< T >( size );
-    o->CopyValue( value );
-    dataEntry->data = o;
+    auto o = std::make_unique<TDataObject< T > >( size );
+    o->CopyValue( value, size );
+    dataEntry->data = std::move( o );
 
     DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
-    dataBase->dataPara->UpdateDataPointer( dataEntry );
+    dataBase->dataPara->UpdateDataPointer( std::move( dataEntry ) );
 }
 
 void SetDataInt( const std::string & varName, const int & value );
@@ -118,7 +119,7 @@ T * GetDataPointer( const std::string & varName )
             "DataBase: cannot find variable \"" + varName + "\"" );
     }
 
-    DataObject * data = dataEntry->data;
+    DataObject * data = dataEntry->data.get();
     return static_cast< T * >( data->GetVoidPointer() );
 }
 
@@ -143,9 +144,9 @@ T & GetFieldReference( DataBase * database, const std::string & dataObjectName )
 template < typename T, typename TStorage >
 T & GetFieldReference( TStorage * storage, const std::string & dataObjectName );
 
-void CreateFieldPointer( DataBase * database, PointerWrap * pointerWrap, const std::string & dataObjectName );
+void CreateFieldPointer( DataBase * database, std::unique_ptr<PointerWrap> pointerWrap, const std::string & dataObjectName );
 template < typename TStorage >
-void CreateFieldPointer( TStorage * storage, PointerWrap * pointerWrap, const std::string & dataObjectName );
+void CreateFieldPointer( TStorage * storage, std::unique_ptr<PointerWrap> pointerWrap, const std::string & dataObjectName );
 
 template < typename T >
 T * GetFieldPointer( DataBase * database, const std::string & dataObjectName )
@@ -180,10 +181,10 @@ T & GetFieldReference( TStorage * storage, const std::string & dataObjectName )
 }
 
 template < typename TStorage >
-void CreateFieldPointer( TStorage * storage, PointerWrap * pointerWrap, const std::string & dataObjectName )
+void CreateFieldPointer( TStorage * storage, std::unique_ptr<PointerWrap> pointerWrap, const std::string & dataObjectName )
 {
     DataBase * database = storage->GetDataBase();
-    ONEFLOW::CreateFieldPointer( database, pointerWrap, dataObjectName );
+    ONEFLOW::CreateFieldPointer( database, std::move( pointerWrap ), dataObjectName );
 }
 
 void DumpDataBase( std::fstream & file );

@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "InterfaceTaskReg.h"
+#include <memory>
 #include "InterField.h"
 #include "Fatal.h"
 #include "ActionState.h"
@@ -176,13 +177,11 @@ void PrepareInterfaceField( StringField & data )
     int iFk  = ( * interfaceMap )[ data[ 0 ] ];
     int iSr  = ( * sendRecvMap )[ data[ 1 ] ];
 
-    FieldRecord * fieldRecord = new FieldRecord();
+    auto fieldRecord = std::make_unique<FieldRecord>();
 
-    PrepareInterfaceFieldRecord( solverType, iFk, iSr, fieldRecord );
+    PrepareInterfaceFieldRecord( solverType, iFk, iSr, fieldRecord.get() );
 
-    SetInterfaceFieldData( iSr, fieldRecord );
-
-    delete fieldRecord;
+    SetInterfaceFieldData( iSr, fieldRecord.get() );
 }
 
 void PrepareOversetInterfaceField( StringField & data )

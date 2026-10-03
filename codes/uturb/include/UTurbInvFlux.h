@@ -37,7 +37,7 @@ public:
 public:
     std::unique_ptr<Limiter> limiter;     // FIX: Changed to unique_ptr
     std::unique_ptr<Limiter> nslimiter;   // FIX: Changed to unique_ptr
-    MRField * invflux;
+    std::unique_ptr<MRField> invflux; // owned temporary face flux
 public:
     void CalcFlux();
     void CalcInvFlux();

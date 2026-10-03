@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "TurbPlate.h"
+#include <memory>
 #include "NodeField.h"
 #include "Zone.h"
 #include "ZoneState.h"
@@ -51,8 +52,7 @@ void SetTurbPlateTask()
 
 void CreateTurbPlateTask( StringField & data )
 {
-    TurbFlatPlateTask * task = new TurbFlatPlateTask();
-    TaskState::createdTask = task;
+    TaskState::createdTask = std::make_unique<TurbFlatPlateTask>();
 }
 
 TurbVelCut::TurbVelCut()

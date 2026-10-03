@@ -84,7 +84,7 @@ Face2D * BlkFaceSolver::GetBlkFace( int blk, int face_id ) const
     int nFaces = blk3d->facelist.size();
     for ( int i = 0; i < nFaces; ++ i )
     {
-        Face2D * face2d = blk3d->facelist[ i ];
+        Face2D * face2d = blk3d->facelist[ i ].get();
         int fid = face2d->face_id;
         if ( fid == face_id )
         {
@@ -100,7 +100,7 @@ Face2D * BlkFaceSolver::GetBlkFace2D( int blk, int face_id ) const
     int nFaces = blk2d->facelist.size();
     for ( int i = 0; i < nFaces; ++ i )
     {
-        Face2D * face2d = blk2d->facelist[ i ];
+        Face2D * face2d = blk2d->facelist[ i ].get();
         int fid = face2d->face_id;
         if ( fid == face_id )
         {

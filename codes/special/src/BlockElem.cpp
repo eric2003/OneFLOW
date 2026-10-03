@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "BlockElem.h"
+#include <memory>
 #include "HXCgns.h"
 #include "HXMath.h"
 
@@ -150,24 +151,20 @@ void BlkElemHome::Init()
     for ( int i = 0; i < a.size(); ++ i )
     {
         int eType = a[ i ];
-        BlkElem * elem = new BlkElem();
+        auto elem = std::make_unique<BlkElem>();
         elem->Init( eType );
-        elems[ eType ] = elem;
+        elems[ eType ] = std::move( elem );
     }
 }
 
 void BlkElemHome::Free()
 {
-    int nSize = elems.size();
-    for ( int i = 0; i < nSize; ++ i )
-    {
-        delete elems[ i ];
-    }
+    elems.clear();
 }
 
 BlkElem * BlkElemHome::GetBlkElem( int eType )
 {
-    return elems[ eType ];
+    return elems[ eType ].get();
 }
 
 BlkFace::BlkFace()

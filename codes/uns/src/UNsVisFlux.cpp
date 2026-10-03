@@ -97,7 +97,7 @@ void UNsVisFlux::CalcFlux()
     vis.Init();
     heat_flux.Init();
 
-    visflux = new MRField( nscom.nEqu, ug.nFaces );
+    visflux = std::make_unique<MRField>( nscom.nEqu, ug.nFaces );
 
     this->SetVisPointer();
 
@@ -105,7 +105,7 @@ void UNsVisFlux::CalcFlux()
     this->CalcVisFlux();
     this->AddVisFlux();
 
-    delete visflux;
+    visflux.reset();
 }
 
 void UNsVisFlux::PrepareField()
@@ -236,13 +236,13 @@ void UNsVisFlux::AddVisFlux()
     UnsGrid * grid = Zone::GetUnsGrid();
     MRField * res = GetFieldPointer< MRField >( grid, "res" );
 
-    ONEFLOW::AddF2CField( res, visflux );
+    ONEFLOW::AddF2CField( res, visflux.get() );
     if ( Iteration::outerSteps == -31 )
     {
         Real mindiff = 1.0e-10;
         int idumpface = 1;
         int idumpcell = 0;
-        HXDebug::DumpField( "VisFaceFlux.debug", visflux );
+        HXDebug::DumpField( "VisFaceFlux.debug", visflux.get() );
         HXDebug::CompareFile( mindiff, idumpface );
         HXDebug::DumpResField( "VisResFlux.debug" );
         HXDebug::CompareFile( mindiff, idumpcell );

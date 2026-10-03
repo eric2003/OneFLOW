@@ -40,7 +40,7 @@ public:
     int nCount;
     std::string fileName;
     std::ios_base::openmode fileOpenMode;
-    std::fstream * file;
+    std::fstream file;
     std::string sep;
 public:
     void OpenPrjFile( const std::string & fileName, const std::ios_base::openmode & fileOpenMode );
@@ -49,25 +49,25 @@ public:
 
     void WriteEndLine()
     {
-        ( * file ) << "\n";
+        file << "\n";
     }
 
     template< typename T >
     void Write( const T & value )
     {
-        ( * file ) << value << sep;
+        file << value << sep;
     }
 
     template< typename T >
     void WriteFormat( const T & value )
     {
-        ( * file ) << std::setw( nWidth ) << value;
+        file << std::setw( nWidth ) << value;
     }
 
     template< typename T >
     void WriteLine( const T & value )
     {
-        ( * file ) << value << "\n";
+        file << value << "\n";
     }
 
     void DumpCoorAscii( RealField & coor );

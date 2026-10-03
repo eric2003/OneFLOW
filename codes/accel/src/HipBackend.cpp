@@ -157,7 +157,7 @@ struct RegisterHipBackend
         AccelBackendRegistry::Instance().Register(
             AccelBackendKind::HIP,
             []() {
-                return std::unique_ptr< AccelBackend >( new HipBackend() );
+                return std::make_unique<HipBackend>();
             } );
     }
 };

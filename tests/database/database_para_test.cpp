@@ -88,7 +88,7 @@ TEST_F(DataParaTest, RejectUpdateWithDifferentType)
     );
 
     // Construct an update entry with a different data type.
-    DataEntry* dataEntry = new DataEntry();
+    auto dataEntry = std::make_unique<DataEntry>(); 
 
     dataEntry->name = "test_value";
     dataEntry->type = HX_REAL;
@@ -96,16 +96,15 @@ TEST_F(DataParaTest, RejectUpdateWithDifferentType)
 
     Real value = 20.0;
 
-    TDataObject< Real >* dataObject =
-        new TDataObject< Real >( 1 );
+    auto dataObject = std::make_unique<TDataObject<Real>>( 1 );
 
-    dataObject->CopyValue( &value );
+    dataObject->CopyValue( &value, 1 );
 
-    dataEntry->data = dataObject;
+    dataEntry->data = std::move( dataObject );
 
     // Updating an existing entry with a different type must fail.
     EXPECT_THROW(
-        db_->dataPara->UpdateDataPointer( dataEntry ),
+        db_->dataPara->UpdateDataPointer( std::move( dataEntry ) ),
         std::runtime_error
     );
 
@@ -142,7 +141,7 @@ TEST_F(DataParaTest, RejectUpdateWithDifferentSize)
     EXPECT_EQ( existing->size, 2 );
 
     // Construct an update entry with the same type but a different size.
-    DataEntry* dataEntry = new DataEntry();
+    auto dataEntry = std::make_unique<DataEntry>(); 
 
     dataEntry->name = "test_value";
     dataEntry->type = HX_INT;
@@ -150,16 +149,15 @@ TEST_F(DataParaTest, RejectUpdateWithDifferentSize)
 
     int newValues[3] = { 30, 40, 50 };
 
-    TDataObject< int >* dataObject =
-        new TDataObject< int >( 3 );
+    auto dataObject = std::make_unique<TDataObject< int >>( 3 );
 
-    dataObject->CopyValue( newValues );
+    dataObject->CopyValue( newValues, 3 ); 
 
-    dataEntry->data = dataObject;
+    dataEntry->data = std::move( dataObject );
 
     // Updating an existing entry with a different size must fail.
     EXPECT_THROW(
-        db_->dataPara->UpdateDataPointer( dataEntry ),
+        db_->dataPara->UpdateDataPointer( std::move( dataEntry ) ),
         std::runtime_error
     );
 
@@ -190,17 +188,17 @@ TEST(DataParaTestStandalone, ClearReleasesAllEntries)
 {
     DataPara dataPara;
 
-    DataEntry* dataEntry = new DataEntry();
+    auto dataEntry = std::make_unique<DataEntry>(); 
     dataEntry->name = "clear_value";
     dataEntry->type = HX_INT;
     dataEntry->size = 1;
 
     int value = 42;
-    TDataObject< int >* dataObject = new TDataObject< int >( 1 );
-    dataObject->CopyValue( &value );
-    dataEntry->data = dataObject;
+    auto dataObject = std::make_unique<TDataObject< int >>( 1 );
+    dataObject->CopyValue( &value, 1 );
+    dataEntry->data = std::move( dataObject );
 
-    dataPara.UpdateDataPointer( dataEntry );
+    dataPara.UpdateDataPointer( std::move( dataEntry ) );
 
     ASSERT_NE(
         dataPara.GetDataPointer( "clear_value" ),
@@ -213,4 +211,26 @@ TEST(DataParaTestStandalone, ClearReleasesAllEntries)
         dataPara.GetDataPointer( "clear_value" ),
         nullptr
     );
+}
+
+TEST(DataBookOwnership, UniquePtrAndRawViewShareObject)
+{
+    auto ownedBook = std::make_unique<DataBook>();
+    DataBook * dataBook = ownedBook.get();
+
+    ASSERT_EQ( dataBook, ownedBook.get() );
+
+    // Simulate compress: write through the raw view
+    int n = 42;
+    ONEFLOW::HXWrite( dataBook, n );
+
+    dataBook->MoveToBegin();
+    int out = 0;
+    ONEFLOW::HXRead( dataBook, out );
+    EXPECT_EQ( out, 42 );
+
+    // Rebinding the local pointer must not change ownership
+    DataBook * other = nullptr;
+    dataBook = other;
+    EXPECT_NE( ownedBook.get(), nullptr );  // still owns original
 }

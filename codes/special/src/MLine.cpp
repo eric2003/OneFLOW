@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "MLine.h"
+#include <memory>
 #include "CurveMesh.h"
 #include "BlkMesh.h"
 #include "Block2D.h"
@@ -340,18 +341,18 @@ void MLine::SetDomainBcMesh( SDomain * sDomain )
     }
 }
 
-void MLine::CreateInpFaceList1D( HXVector< Face2D * > &facelist )
+void MLine::CreateInpFaceList1D( HXVector< std::unique_ptr<Face2D> > &facelist )
 {
     for ( int iSLine = 0; iSLine < this->slineList.size(); ++ iSLine )
     {
         SLine * sLine = this->slineList[ iSLine ].get();
-        Face2D * face2d = new Face2D();
+        auto face2d = std::make_unique<Face2D>();
         face2d->face_id = sLine->line_id;
         face2d->Set1DRegion( sLine->ctrlpoints );
         BlkF2C & face_struct = blkFaceSolver.line2Face[ face2d->face_id - 1 ];
         face2d->bcType = face_struct.bctype;
         face2d->CalcStEd( coorMap );
-        facelist.push_back( face2d );
+        facelist.push_back( std::move( face2d ) );
     }
 }
 

@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "INsUpdate.h"
+#include <memory>
 #include "NsUpdate.h"
 #include "UINsUpdate.h"
 #include "INsInvterm.h"
@@ -214,10 +215,9 @@ bool INsUpdate::WeekSolutionFix()
     return flag;
 }
 
-Update * CreateINsUpdate()
+std::unique_ptr<Update> CreateINsUpdate()
 {
-    Update * update = new UINsUpdate();
-    return update;
+    return std::make_unique<UINsUpdate>();
 }
 
 

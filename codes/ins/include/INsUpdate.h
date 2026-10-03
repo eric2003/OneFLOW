@@ -22,6 +22,7 @@ License
 
 
 #pragma once
+#include <memory>
 #include "Update.h"
 BeginNameSpace( ONEFLOW )
 
@@ -37,7 +38,7 @@ public:
     bool WeekSolutionFix();
 };
 
-Update * CreateINsUpdate();
+std::unique_ptr<Update> CreateINsUpdate();
 
 
 EndNameSpace

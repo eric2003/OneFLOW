@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Theory.h"
+#include <memory>
 #include "Sod.h"
 #include <iostream>
 
@@ -43,9 +44,8 @@ void Theory::Run()
 
 void TheorySimu()
 {
-    Sod * sod = new Sod();
+    auto sod = std::make_unique<Sod>();
     sod->Run();
-    delete sod;
 }
 
 EndNameSpace

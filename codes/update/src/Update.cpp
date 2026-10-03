@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Update.h"
+#include <memory>
 #include "NsUpdate.h"
 #include "INsUpdate.h"
 #include "TurbUpdate.h"
@@ -35,17 +36,13 @@ BeginNameSpace( ONEFLOW )
 
 Update::Update()
 {
-    q = 0;
-    dq = 0;
 }
 
 Update::~Update()
 {
-    delete q;
-    delete dq;
 }
 
-Update * CreateUpdate( int solverType )
+std::unique_ptr<Update> CreateUpdate( int solverType )
 {
     if ( solverType == NS_SOLVER )
     {
@@ -59,13 +56,13 @@ Update * CreateUpdate( int solverType )
     {
         return CreateTurbUpdate();
     }
-    return 0;
+    return nullptr;
 }
 
 void GetUpdateField(
     int solverType,
-    FieldWrap *& q,
-    FieldWrap *& dq )
+    std::unique_ptr<FieldWrap> & q,
+    std::unique_ptr<FieldWrap> & dq )
 {
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
 
@@ -78,7 +75,14 @@ void GetUpdateField(
     }
     else
     {
-        q  = FieldHome::GetFieldWrap( FIELD_FLOW );
+        // FIELD_FLOW wrap is owned by BgField; only borrow its MRField via a
+        // non-owning FieldWrap that Update uniquely owns.
+        FieldWrap * bgFlow = FieldHome::GetFieldWrap( FIELD_FLOW );
+        auto flowWrap = std::make_unique<FieldWrap>();
+        flowWrap->SetUnsField( bgFlow->GetUnsField(), false );
+        q = std::move( flowWrap );
+
+        // residualName path builds a fresh non-owning wrapper; Update owns it.
         dq = FieldHome::GetFieldWrap( solverInfo->residualName );
     }
 }

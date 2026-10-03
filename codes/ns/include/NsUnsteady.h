@@ -20,11 +20,12 @@ License
 \\---------------------------------------------------------------------------*/
 
 #pragma once
+#include <memory>
 #include "UUnsteady.h"
 
 BeginNameSpace( ONEFLOW )
 
-Unsteady * CreateNsUnsteady();
+std::unique_ptr<Unsteady> CreateNsUnsteady();
 
 
 EndNameSpace

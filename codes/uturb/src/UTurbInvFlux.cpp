@@ -88,7 +88,7 @@ void UTurbInvFlux::AddInvFlux()
     UnsGrid * grid = Zone::GetUnsGrid();
     MRField * res = GetFieldPointer< MRField >( grid, "turbres" );
 
-    ONEFLOW::AddF2CField( res, invflux );
+    ONEFLOW::AddF2CField( res, invflux.get() );
 }
 
 void UTurbInvFlux::CalcFlux()
@@ -99,13 +99,13 @@ void UTurbInvFlux::CalcFlux()
     unsf.Init();
     uturbf.Init();
 
-    invflux = new MRField( limiter->GetNEquations(), ug.nFaces);
+    invflux = std::make_unique<MRField>( limiter->GetNEquations(), ug.nFaces );
 
     this->CalcInvFace();
     this->CalcInvFlux();
     this->AddInvFlux();
 
-    delete invflux;
+    invflux.reset();
 }
 
 void UTurbInvFlux::CalcInvFlux()

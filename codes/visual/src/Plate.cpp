@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Plate.h"
+#include <memory>
 #include "NodeField.h"
 #include "Zone.h"
 #include "UnsGrid.h"
@@ -391,20 +392,18 @@ void CuttingClass::Swap()
     int tag = 0;
     if ( Parallel::pid != Parallel::serverid )
     {
-        DataBook * dataBook = new DataBook();
-        this->Write( dataBook );
+        auto dataBook = std::make_unique<DataBook>();
+        this->Write( dataBook.get() );
         dataBook->Send( Parallel::serverid, tag );
-        delete dataBook;
     }
     else
     {
         for ( int pid = 0; pid < Parallel::nProc; ++ pid )
         {
             if ( pid == Parallel::serverid ) continue;
-            DataBook * dataBook = new DataBook();
+            auto dataBook = std::make_unique<DataBook>();
             dataBook->Recv( pid, tag );
-            this->Read( dataBook );
-            delete dataBook;
+            this->Read( dataBook.get() );
         }
     }
 }

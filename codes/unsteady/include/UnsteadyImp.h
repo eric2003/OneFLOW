@@ -22,10 +22,11 @@ License
 
 
 #pragma once
+#include <memory>
 #include "HXDefine.h"
 
 BeginNameSpace( ONEFLOW )
 class Unsteady;
-Unsteady * CreateUnsteady( int solverType );
+std::unique_ptr<Unsteady> CreateUnsteady( int solverType );
 
 EndNameSpace

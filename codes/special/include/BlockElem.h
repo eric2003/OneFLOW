@@ -22,6 +22,7 @@ License
 
 
 #pragma once
+#include <memory>
 #include "HXDefine.h"
 
 BeginNameSpace( ONEFLOW )
@@ -49,7 +50,7 @@ public:
     BlkElemHome();
     ~BlkElemHome();
 public:
-    HXVector< BlkElem * > elems;
+    HXVector< std::unique_ptr<BlkElem> > elems;
     bool initFlag;
 public:
     void Init();

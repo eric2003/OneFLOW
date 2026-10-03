@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "CgnsTest.h"
+#include <memory>
 #include "CgnsFile.h"
 #include "CgnsBase.h"
 #include "CgnsFactory.h"
@@ -269,9 +270,8 @@ void CgnsTest::WriteArray( CgnsFile * cgnsFile, CgnsBase * cgnsBase )
 
 void CgnsTest::ReadArray()
 {
-    CgnsFile * cgnsFile = new CgnsFile( "array.cgns", CG_MODE_READ );
+    auto cgnsFile = std::make_unique<CgnsFile>( "array.cgns", CG_MODE_READ );
     cgnsFile->ReadArray();
-    delete cgnsFile;
 }
 
 void CgnsTest::WriteReferenceState()
@@ -294,7 +294,7 @@ void CgnsTest::WriteReferenceState()
     double vy       = 0.0;
     double vz       = 0.0;
 
-    CgnsFile * cgnsFile = new CgnsFile( "refstate.cgns", CG_MODE_WRITE );
+    auto cgnsFile = std::make_unique<CgnsFile>( "refstate.cgns", CG_MODE_WRITE );
     CgnsBase * cgnsBase1 = cgnsFile->WriteBase( "Base1" );
 
     cgnsBase1->GoToBase();
@@ -330,8 +330,8 @@ void CgnsTest::WriteReferenceState()
     cgnsBase3->GoToBase();
     cg_state_write("Test2");
 
-    delete cgnsFile; 
 }
+
 
 void CgnsTest::ReadReferenceState()
 {

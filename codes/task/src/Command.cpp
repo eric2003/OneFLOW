@@ -177,8 +177,8 @@ void SimpleCmd::Execute()
 * cmdList is only a non-owning compatibility view.
 */
 
-HXVector< Command * > * CMD::cmdList_ = nullptr;
-CMD::CommandOwnerList * CMD::commandOwners = nullptr;
+std::unique_ptr< HXVector< Command * > > CMD::cmdList_;
+std::unique_ptr< CMD::CommandOwnerList > CMD::commandOwners;
 
 CMD::CMD()
 {
@@ -195,8 +195,8 @@ void CMD::Init()
         return;
     }
 
-    CMD::cmdList_ = new HXVector< Command * >;
-    CMD::commandOwners = new CommandOwnerList;
+    CMD::cmdList_ = std::make_unique< HXVector< Command * > >();
+    CMD::commandOwners = std::make_unique< CommandOwnerList >();
 }
 
 void CMD::Free()
@@ -209,11 +209,8 @@ void CMD::Free()
     */
     CMD::Clear();
 
-    delete CMD::commandOwners;
-    CMD::commandOwners = nullptr;
-
-    delete CMD::cmdList_;
-    CMD::cmdList_ = nullptr;
+    CMD::commandOwners.reset();
+    CMD::cmdList_.reset();
 
     TaskState::task = nullptr;
 }
@@ -254,7 +251,7 @@ void CMD::AddCmd( std::unique_ptr< Command > cmd )
 
 const HXVector< Command * > * CMD::GetCmdList()
 {
-    return CMD::cmdList_;
+    return CMD::cmdList_.get();
 }
 
 void CMD::RunCmd( Command * cmd )

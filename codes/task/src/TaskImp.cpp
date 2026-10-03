@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "TaskImp.h"
+#include <memory>
 #include "TaskCom.h"
 #include "TaskState.h"
 #include "ReadTask.h"
@@ -44,35 +45,33 @@ void RegisterComTask()
 
 void ReadBinaryFileTask( StringField & data )
 {
-    CReadFile * task = new CReadFile();
+    auto task = std::make_unique<CReadFile>();
     task->mainAction = & ReadBinaryFile;
-    TaskState::createdTask = task;
+    TaskState::createdTask = std::move( task );
 }
 
 void WriteBinaryFileTask( StringField & data )
 {
-    CWriteFile * task = new CWriteFile();
+    auto task = std::make_unique<CWriteFile>();
     task->mainAction = & WriteBinaryFile;
-    TaskState::createdTask = task;
+    TaskState::createdTask = std::move( task );
 }
 
 void WriteAsciiFileTask( StringField & data )
 {
-    CWriteFile * task = new CWriteFile();
+    auto task = std::make_unique<CWriteFile>();
     task->mainAction = & WriteAsciiFile;
-    TaskState::createdTask = task;
+    TaskState::createdTask = std::move( task );
 }
 
 void ServerUpdateInterfaceTask( StringField & data )
 {
-    CUpdateInterface * task = new CUpdateInterface();
-    TaskState::createdTask = task;
+    TaskState::createdTask = std::make_unique<CUpdateInterface>();
 }
 
 void ServerUpdateOversetInterfaceTask( StringField & data )
 {
-    OversetTask * task = new OversetTask();
-    TaskState::createdTask = task;
+    TaskState::createdTask = std::make_unique<OversetTask>();
 }
 
 EndNameSpace

@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Restart.h"
+#include <memory>
 #include "NsRestart.h"
 #include "TurbRestart.h"
 #include "ActionState.h"
@@ -67,7 +68,7 @@ namespace
     }
 }
 
-Restart * CreateRestart( int solverType )
+std::unique_ptr<Restart> CreateRestart( int solverType )
 {
     if ( solverType == NS_SOLVER )
     {
@@ -82,7 +83,7 @@ Restart * CreateRestart( int solverType )
         return CreateTurbRestart();
     }
 
-    return 0;
+    return nullptr;
 }
 
 Restart::Restart()

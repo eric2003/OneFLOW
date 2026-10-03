@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*\\
+/*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
@@ -18,92 +18,69 @@ License
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
-\\*---------------------------------------------------------------------------*/
+\*---------------------------------------------------------------------------*/
 
 #include "DataField.h"
 #include "DataPointer.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
 FieldEntry::FieldEntry()
 {
     this->name = "";
-    this->data = nullptr;
 }
 
-FieldEntry::FieldEntry( const std::string & name, PointerWrap * data )
+FieldEntry::FieldEntry( const std::string & name, std::unique_ptr<PointerWrap> data )
 {
     this->name = name;
-    this->data = data;
+    this->data = std::move( data );
 }
 
 FieldEntry::~FieldEntry()
 {
-    // data is owned and deleted by DataField
 }
 
 DataField::DataField()
 {
-    dataMap = new DataMap;
 }
 
 DataField::~DataField()
 {
     Clear();
-    delete dataMap;
 }
 
 void DataField::Clear()
 {
-    // Case teardown must release all field wrappers before the next case.
-    for ( auto & pair : *dataMap )
-    {
-        delete pair.second->data;
-        delete pair.second;
-    }
-    dataMap->clear();
+    dataMap.clear();
 }
 
-void DataField::UpdateFieldEntry( FieldEntry * fieldEntry )
+void DataField::UpdateFieldEntry( std::unique_ptr<FieldEntry> fieldEntry )
 {
     if ( fieldEntry == nullptr ) return;
 
-    auto it = dataMap->find( fieldEntry->name );
-    if ( it == dataMap->end() )
+    const std::string name = fieldEntry->name;
+    auto it = dataMap.find( name );
+    if ( it == dataMap.end() )
     {
-        // Not exist ¡ú take ownership
-        ( *dataMap )[ fieldEntry->name ] = fieldEntry;
+        dataMap[ name ] = std::move( fieldEntry );
     }
-    else
-    {
-        // Already exist ¡ú discard the new one
-        if ( it->second != fieldEntry )
-        {
-            delete fieldEntry->data;
-            delete fieldEntry;
-        }
-    }
+    // else: already exists - discard the new entry (unique_ptr destroys it)
 }
 
 FieldEntry * DataField::GetFieldEntry( const std::string & name )
 {
-    auto it = dataMap->find( name );
-    if ( it != dataMap->end() )
+    auto it = dataMap.find( name );
+    if ( it != dataMap.end() )
     {
-        return it->second;
+        return it->second.get();
     }
     return nullptr;
 }
 
 void DataField::DeleteFieldEntry( const std::string & name )
 {
-    auto it = dataMap->find( name );
-    if ( it != dataMap->end() )
-    {
-        delete it->second->data;
-        delete it->second;
-        dataMap->erase( it );
-    }
+    dataMap.erase( name );
 }
 
 EndNameSpace

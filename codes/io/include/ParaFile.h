@@ -53,10 +53,10 @@ void BroadcastControlParameterToAllProcessors();
 void DumpDataBase();
 void DumpDataBase( const std::string & caseDir );
 
-void CompressData( DataBase * dataBase, DataBook *& dataBook );
+void CompressData( DataBase * dataBase, DataBook * dataBook );
 void DecompressData( DataBase * dataBase, DataBook * dataBook );
 
-void CompressData( DataBook *& dataBook );
+void CompressData( DataBook * dataBook );
 void DecompressData( DataBook * dataBook );
 
 } // namespace ONEFLOW

@@ -22,6 +22,7 @@ License
 
 
 #include "DataBaseIO.h"
+#include <vector>
 #include "DataBook.h"
 
 BeginNameSpace( ONEFLOW )
@@ -31,27 +32,21 @@ void HXRead( DataBook * dataBook, std::string & cs )
     int nLength = 0;
     ONEFLOW::HXRead( dataBook, nLength );
 
-    char * data = new char[ nLength + 1 ];
-    dataBook->Read( data, nLength + 1 );
+    std::vector<char> data( static_cast<std::size_t>( nLength ) + 1, '\0' );
+    dataBook->Read( data.data(), nLength + 1 );
 
-    cs = data;
-
-    delete[] data;
+    cs = data.data();
 }
 
 void HXWrite( DataBook * dataBook, const std::string & cs )
 {
-    int nLength = cs.length();
+    int nLength = static_cast<int>( cs.length() );
     ONEFLOW::HXWrite( dataBook, nLength );
 
-    char * data = new char[ nLength + 1 ];
+    std::vector<char> data( static_cast<std::size_t>( nLength ) + 1, '\0' );
+    cs.copy( data.data(), nLength );
 
-    cs.copy( data, nLength );
-    data[ nLength ] = '\0';
-
-    dataBook->Write( data, nLength + 1 );
-
-    delete[] data;
+    dataBook->Write( data.data(), nLength + 1 );
 }
 
 void HXRead( DataBook * dataBook, MRField * field )

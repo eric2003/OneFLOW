@@ -22,6 +22,7 @@ License
 
 
 #pragma once
+#include <memory>
 #include "HXDefine.h"
 
 
@@ -44,8 +45,8 @@ public:
     TaskRegister();
     ~TaskRegister();
 public:
-    static HXVector< VoidFunc > * taskList;
-    static HXVector< std::string > * taskNameList;
+    static std::unique_ptr< HXVector< VoidFunc > > taskList;
+    static std::unique_ptr< HXVector< std::string > > taskNameList;
 public:
     static void Register( VoidFunc taskfun, std::string const & taskname );
     static void Run();

@@ -24,6 +24,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "HXArray.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -36,11 +37,14 @@ public:
     FieldWrap();
     ~FieldWrap();
 protected:
-    MRField * unsField;
-    bool deleteFlag;
+    // When owning: owned holds the field and view == owned.get().
+    // When non-owning: owned is null and view points at an external field.
+    std::unique_ptr<MRField> owned;
+    MRField * view;
 public:
     MRField * GetUnsField();
     void SetUnsField( MRField * unsField, bool deleteFlag = false );
+    void SetOwnedField( std::unique_ptr<MRField> field );
 };
 
 class Grid;
@@ -51,10 +55,11 @@ public:
     FieldHome();
     ~FieldHome();
 public:
-    static FieldWrap * CreateField();
-    static FieldWrap * CreateField( int solverType );
-    static FieldWrap * CreateField( int solverType, int level );
-    static FieldWrap * GetFieldWrap( const std::string & fieldName );
+    static std::unique_ptr<FieldWrap> CreateField();
+    static std::unique_ptr<FieldWrap> CreateField( int solverType );
+    static std::unique_ptr<FieldWrap> CreateField( int solverType, int level );
+    // Owns a temporary non-owning wrapper around a grid field looked up by name.
+    static std::unique_ptr<FieldWrap> GetFieldWrap( const std::string & fieldName );
 public:
     static void SetField( const std::string & fieldName, Real value );
     static void SetField( int fieldId, const std::string & fieldName, int orderFlag );

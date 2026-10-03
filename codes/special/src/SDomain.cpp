@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "BlockFaceSolver.h"
+#include <memory>
 #include "BlkMesh.h"
 #include "Block2D.h"
 #include "Block3D.h"
@@ -510,19 +511,19 @@ void SDomain::GenerateSDomainMesh( std::fstream & file )
     }
 }
 
-void SDomain::CreateInpFaceList( HXVector< Face2D * > &facelist )
+void SDomain::CreateInpFaceList( HXVector< std::unique_ptr<Face2D> > &facelist )
 {
     SDomain * sDomain = this;
-    Face2D * face2d = new Face2D();
+    auto face2d = std::make_unique<Face2D>();
     face2d->face_id = sDomain->domain_id;
     face2d->ctrlpoints = sDomain->ctrlpoints;
     BlkF2C & face_struct = blkFaceSolver.face2Block[ face2d->face_id - 1 ];
     face2d->bcType = face_struct.bctype;
     face2d->CalcStEd( coorMap );
-    facelist.push_back( face2d );
+    facelist.push_back( std::move( face2d ) );
 }
 
-void SDomain::CreateInpFaceList1D( HXVector< Face2D * > &facelist )
+void SDomain::CreateInpFaceList1D( HXVector< std::unique_ptr<Face2D> > &facelist )
 {
     int nMLine = mLineList.size();
     for ( int iMLine = 0; iMLine < nMLine; ++ iMLine )
