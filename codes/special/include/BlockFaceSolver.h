@@ -55,13 +55,14 @@ public:
     HXVector< std::unique_ptr< Block3D > > blkList;
     HXVector< std::unique_ptr< Block2D > > blkList2d;
     bool flag;
-public:
+private:
     bool init_flag;
     LinkField faceList;
     LinkField faceLinePosList;
     HXLookup<int> lineLookup;
     HXLookup<int> faceLookup;
     IntSet faceset;
+
 public:
     void Reset();
     const Face2D * GetBlkFace( int blk, int face_id ) const;
