@@ -36,9 +36,9 @@ License
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
 
-CgnsSection::CgnsSection( CgnsZone * cgnsZone )
+CgnsSection::CgnsSection( CgnsZone & cgnsZone )
+    : cgnsZone( cgnsZone )
 {
-    this->cgnsZone = cgnsZone;
     this->connSize = 0;
     this->pos_shift = 0;
     this->nbndry = 0;
@@ -150,7 +150,7 @@ void CgnsSection::SetElementTypeAndNode( ElemFeature * elem_feature )
 
         for ( int iNode = 0; iNode < eNodeNumber; ++ iNode )
         {
-            eNodeId[ iNode ] = this->cgnsZone->l2g[ eNodeId[ iNode ] ];
+            eNodeId[ iNode ] = this->cgnsZone.l2g[ eNodeId[ iNode ] ];
         }
         elem_feature->eNodeId.push_back( eNodeId );
     }
@@ -185,9 +185,9 @@ void CgnsSection::SetSectionInfo( const std::string & sectionName, int elemType,
 
 void CgnsSection::ReadCgnsSectionInfo()
 {
-    int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
-    int baseId = cgnsZone->cgnsBase->baseId;
-    int zId = cgnsZone->zId;
+    int fileId = cgnsZone.cgnsBase.cgnsFile->fileId;
+    int baseId = cgnsZone.cgnsBase.baseId;
+    int zId = cgnsZone.zId;
 
     ElementType_t elementType;
     CgnsTraits::char33 cgnsSectionName;
@@ -267,9 +267,9 @@ void CgnsSection::AllocateCgnsConnectionList()
 
 void CgnsSection::ReadCgnsSectionConnectionList()
 {
-    int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
-    int baseId = cgnsZone->cgnsBase->baseId;
-    int zId = cgnsZone->zId;
+    int fileId = cgnsZone.cgnsBase.cgnsFile->fileId;
+    int baseId = cgnsZone.cgnsBase.baseId;
+    int zId = cgnsZone.zId;
 
     // Read the connectivity. Again, the node numbering of the 
     // connectivities start at 1. If internally a starting index 
@@ -293,9 +293,9 @@ void CgnsSection::ReadCgnsSectionConnectionList()
 
 void CgnsSection::DumpCgnsSectionConnectionList()
 {
-    int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
-    int baseId = cgnsZone->cgnsBase->baseId;
-    int zId = cgnsZone->zId;
+    int fileId = cgnsZone.cgnsBase.cgnsFile->fileId;
+    int baseId = cgnsZone.cgnsBase.baseId;
+    int zId = cgnsZone.zId;
 
     // write element connectivity
     ElementType_t elementType = static_cast< ElementType_t >( this->eType );

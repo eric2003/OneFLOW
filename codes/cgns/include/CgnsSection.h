@@ -37,7 +37,7 @@ class ElemFeature;
 class CgnsSection
 {
 public:
-    CgnsSection( CgnsZone * cgnsZone );
+    explicit CgnsSection( CgnsZone & cgnsZone );
     ~CgnsSection();
 public:
     int eType;
@@ -50,7 +50,7 @@ public:
     int pos_shift;
 
     std::string sectionName;
-    CgnsZone * cgnsZone;
+    CgnsZone & cgnsZone;
     int id;
     int nCoor;
     int nElement;

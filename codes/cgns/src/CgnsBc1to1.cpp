@@ -54,8 +54,8 @@ CgnsBc1to1::~CgnsBc1to1()
 
 void CgnsBc1to1::ReadCgnsBc1To1()
 {
-    int fileId = this->cgnsZone->cgnsBase->cgnsFile->fileId;
-    int baseId = this->cgnsZone->cgnsBase->baseId;
+    int fileId = this->cgnsZone->cgnsBase.cgnsFile->fileId;
+    int baseId = this->cgnsZone->cgnsBase.baseId;
     int zId = this->cgnsZone->zId;
 
     this->nConnPoints = 6;
@@ -111,7 +111,7 @@ void CgnsBc1to1::ReadCgnsBc1To1()
     //[ sgn( a ) del( a ? 2 ) sgn( b ) del( b ? 2 ) sgn( c ) del( c ? 2 )]
     //[ sgn( a ) del( a ? 3 ) sgn( b ) del( b ? 3 ) sgn( c ) del( c ? 3 )]
 
-    int celldim = this->cgnsZone->cgnsBase->celldim;
+    int celldim = this->cgnsZone->cgnsBase.celldim;
 
     for ( int i = 0; i < celldim; ++ i )
     {

@@ -70,6 +70,12 @@ enum class GridAxisDirection
     ZToY
 };
 
+enum class GridAssemblyMode
+{
+    AggregateZones,
+    PerZone
+};
+
 enum class GridFileType
 {
     Plot3D,
@@ -125,7 +131,7 @@ struct GridConfig
     std::string   targetFile;
     std::string   partitionFile;
     GridTopology  topology{ GridTopology::Unknown };
-    bool          multiBlock{ false };
+    GridAssemblyMode assemblyMode{ GridAssemblyMode::AggregateZones };
     GridAxisDirection axisDirection{ GridAxisDirection::Y };
     int           partitionType{ 0 };
     bool          ignoreNoBoundary{ false };

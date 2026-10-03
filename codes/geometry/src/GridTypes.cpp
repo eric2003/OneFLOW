@@ -88,7 +88,9 @@ GridConfig GridConfig::FromDataBase()
 
     try
     {
-        cfg.multiBlock = GetDataValue< int >( "multiBlock" ) != 0;
+        cfg.assemblyMode = GetDataValue< int >( "multiBlock" ) != 0
+            ? GridAssemblyMode::PerZone
+            : GridAssemblyMode::AggregateZones;
     }
     catch ( const std::exception & )
     {

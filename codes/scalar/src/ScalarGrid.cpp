@@ -476,8 +476,7 @@ void ScalarGrid::SetCgnsZone( CgnsZone * cgnsZone )
 
 	CgnsZsection * cgnsZsection = cgnsZone->cgnsZsection.get();
 
-	cgnsZsection->nSection = nTotalSections;
-	cgnsZsection->CreateCgnsSection();
+	cgnsZsection->CreateCgnsSections( nTotalSections );
 
 	int nVolCell = volSec.CalcTotalElem();
 
@@ -598,9 +597,10 @@ void ScalarGrid::ReadFromCgnsZone( CgnsZone * cgnsZone )
 	std::cout << "   Convert Cgns Section Data to ScalarGrid......\n";
 	std::cout << "\n";
 	CgnsZsection * cgnsZsection = cgnsZone->cgnsZsection.get();
-	for ( int iSection = 0; iSection < cgnsZsection->nSection; ++ iSection )
+	const int nSections = cgnsZsection->GetNSections();
+	for ( int iSection = 0; iSection < nSections; ++ iSection )
 	{
-		std::cout << "-->iSection     = " << iSection << " numberOfCgnsSections = " << cgnsZsection->nSection << "\n";
+		std::cout << "-->iSection     = " << iSection << " numberOfCgnsSections = " << nSections << "\n";
 		CgnsSection * cgnsSection = cgnsZsection->GetCgnsSection( iSection );
 
 		if ( ! ONEFLOW::IsBasicVolumeElementType( cgnsSection->eType ) ) continue;

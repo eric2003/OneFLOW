@@ -54,7 +54,6 @@ public:
     void OpenCgnsFile( const std::string & fileName, int cgnsOpenMode );
     void CloseCgnsFile();
 public:
-    void AddCgnsBase( CgnsBase * cgnsBase );
     void AddCgnsBase( std::unique_ptr< CgnsBase > cgnsBase );
     CgnsBase * CreateCgnsBase();
     void InitCgnsBase();

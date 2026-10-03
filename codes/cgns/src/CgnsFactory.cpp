@@ -59,11 +59,9 @@ BeginNameSpace( ONEFLOW )
 
 // Constructor uses member initializer list and std::make_unique
 CgnsFactory::CgnsFactory()
-    : cgnsZbase(std::make_unique<CgnsZbase>())
-{
-    // Pass raw pointer to ZgridElem as it is a non-owning observer
-    this->zgridElem = std::make_unique<ZgridElem>(this->cgnsZbase.get());
-}
+    : cgnsZbase(std::make_unique<CgnsZbase>()),
+      zgridElem(std::make_unique<ZgridElem>( *cgnsZbase ))
+{}
 
 // FIX: Define destructor and move operations here.
 // The compiler can now see the complete types and safely generate the 
@@ -72,7 +70,19 @@ CgnsFactory::~CgnsFactory()
 {
     cgns_global.ClearIfBoundTo( cgnsZbase.get() );
 }
-CgnsFactory::CgnsFactory(CgnsFactory&&) noexcept = default;
+CgnsFactory::CgnsFactory( CgnsFactory && other ) noexcept
+{
+    const bool globalBoundToOther = cgns_global.IsBoundTo( other.cgnsZbase.get() );
+
+    cgnsZbase = std::move( other.cgnsZbase );
+    zgridElem = std::make_unique<ZgridElem>( *cgnsZbase );
+    other.zgridElem.reset();
+
+    if ( globalBoundToOther )
+    {
+        cgns_global.Bind( cgnsZbase.get() );
+    }
+}
 CgnsFactory& CgnsFactory::operator=( CgnsFactory && other ) noexcept
 {
     if ( this != &other )
@@ -81,8 +91,11 @@ CgnsFactory& CgnsFactory::operator=( CgnsFactory && other ) noexcept
             cgns_global.IsBoundTo( cgnsZbase.get() ) ||
             cgns_global.IsBoundTo( other.cgnsZbase.get() );
         cgns_global.ClearIfBoundTo( cgnsZbase.get() );
-        zgridElem = std::move( other.zgridElem );
+
         cgnsZbase = std::move( other.cgnsZbase );
+        zgridElem = std::make_unique<ZgridElem>( *cgnsZbase );
+        other.zgridElem.reset();
+
         if ( globalBoundToEitherFactory )
         {
             cgns_global.Bind( cgnsZbase.get() );
@@ -103,8 +116,8 @@ void CgnsFactory::ConvertStrCgns2UnsCgnsGrid()
     // Transfer ownership safely
     this->cgnsZbase = std::move(unsCgnsZbase);
 
-    // Update the non-owning observer
-    this->zgridElem->cgnsZbase = this->cgnsZbase.get();
+    // Recreate the view because its referenced CgnsZbase has changed.
+    this->zgridElem = std::make_unique<ZgridElem>( *this->cgnsZbase );
     cgns_global.Bind( this->cgnsZbase.get() );
 }
 
@@ -302,10 +315,10 @@ void CgnsFactory::CgnsToOneFlowGrid( const GridConfig & config )
 {
     if ( config.topology != GridTopology::Unstructured ) return;
 
-    Grids grids = this->zgridElem->GenerateLocalOneFlowGrids();
+    Grids grids = this->zgridElem->GenerateLocalOneFlowGrids( config );
 
-    // The grid is processed and the grid file used for calculation is output
-    ONEFLOW::GenerateMultiZoneCalcGrids( std::move( grids ) );
+    // Keep the explicit grid configuration through the calculation-grid stage.
+    ONEFLOW::GenerateMultiZoneCalcGrids( std::move( grids ), config );
 }
 
 void AddOneFlowGrid( Grids & grids, std::unique_ptr< Grid > grid )

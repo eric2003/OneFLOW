@@ -43,9 +43,9 @@ License
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
 
-CgnsZbcBoco::CgnsZbcBoco( CgnsZone * cgnsZone )
+CgnsZbcBoco::CgnsZbcBoco( CgnsZone & cgnsZone )
+    : cgnsZone( cgnsZone )
 {
-    this->cgnsZone = cgnsZone;
     this->nBoco = 0;
 }
 
@@ -73,7 +73,7 @@ void CgnsZbcBoco::CreateCgnsZbc()
 {
     for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
     {
-        this->AddCgnsBcBoco( std::make_unique< CgnsBcBoco >( this->cgnsZone ) );
+this->AddCgnsBcBoco( std::make_unique< CgnsBcBoco >( &this->cgnsZone ) );
     }
 }
 
@@ -110,7 +110,7 @@ void CgnsZbcBoco::ConvertToInnerDataStandard()
     }
 }
 
-void CgnsZbcBoco::ScanBcFace( FaceSolver * face_solver )
+void CgnsZbcBoco::ScanBcFace( FaceSolver & faceSolver )
 {
     std::cout << " Now ScanBcFace......\n\n";
     std::cout << " nBoco = " << this->nBoco << std::endl;
@@ -125,7 +125,7 @@ void CgnsZbcBoco::ScanBcFace( FaceSolver * face_solver )
         RegionNameMap::AddRegion( cgnsBcBoco->name );
         int bcNameId = RegionNameMap::FindRegionId( cgnsBcBoco->name );
         cgnsBcBoco->nameId = bcNameId;
-        cgnsBcBoco->ScanBcFace( face_solver );
+        cgnsBcBoco->ScanBcFace( faceSolver );
     }
 }
 
@@ -136,9 +136,9 @@ void CgnsZbcBoco::PrintZnboco()
 
 void CgnsZbcBoco::ReadZnboco()
 {
-    int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
-    int baseId = cgnsZone->cgnsBase->baseId;
-    int zId = cgnsZone->zId;
+    int fileId = cgnsZone.cgnsBase.cgnsFile->fileId;
+    int baseId = cgnsZone.cgnsBase.baseId;
+    int zId = cgnsZone.zId;
 
     // Determine the number of boundary conditions for this zone.
     cg_nbocos( fileId, baseId, zId, & this->nBoco );
@@ -180,11 +180,11 @@ void CgnsZbcBoco::DumpCgnsZbcBoco()
 
 CgnsBcBoco * CgnsZbcBoco::WriteCgnsBoco( const std::string & bocoName, BCType_t bocotype,  PointSetType_t ptset_type, cgsize_t npnts, const cgsize_t * pnts )
 {
-    int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
-    int baseId = cgnsZone->cgnsBase->baseId;
-    int zId = cgnsZone->zId;
+    int fileId = cgnsZone.cgnsBase.cgnsFile->fileId;
+    int baseId = cgnsZone.cgnsBase.baseId;
+    int zId = cgnsZone.zId;
 
-    std::unique_ptr< CgnsBcBoco > ownedBcBoco = std::make_unique< CgnsBcBoco >( this->cgnsZone );
+    std::unique_ptr< CgnsBcBoco > ownedBcBoco = std::make_unique< CgnsBcBoco >( &this->cgnsZone );
     CgnsBcBoco * cgnsBcBoco = ownedBcBoco.get();
     this->AddCgnsBcBoco( std::move( ownedBcBoco ) );
 
@@ -227,7 +227,7 @@ void CgnsZbcBoco::GenerateUnsBcElemConn( CgIntField& bcConn )
 
         IntField ijkMin( 3 ), ijkMax( 3 );
         bcRegion->ExtractIJKRegionFromBcConn( ijkMin, ijkMax );
-        SetBcConn( this->cgnsZone, ijkMin, ijkMax, bcConn, pos, nBcElem );
+        SetBcConn( &cgnsZone, ijkMin, ijkMax, bcConn, pos, nBcElem );
         std::cout << " pos = " << pos << "\n";
         std::cout << " nBcElem = " << nBcElem << " boundaryElementSize = " << nBcElem * 4 << "\n";
     }

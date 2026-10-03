@@ -215,7 +215,7 @@ void CalcAeroForce(int idump_pres)
 	stress.rey = GetDataValue< Real >("reynolds");
 	stress.orey = 1.0 / stress.rey;
 
-	int nSolidCells = GetNumberOfSolidCells(grid);
+	int nSolidCells = GetNumberOfSolidCells( *grid );
 	if (nSolidCells == 0) return;
 
 	if (idump_pres == 1)

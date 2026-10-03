@@ -45,10 +45,10 @@ class CgnsBase;
 class CgnsZone
 {
 public:
-    CgnsZone( CgnsBase * cgnsBase );
+    explicit CgnsZone( CgnsBase & cgnsBase );
     ~CgnsZone();
 public:
-    CgnsBase * cgnsBase;
+    CgnsBase & cgnsBase;
     std::unique_ptr< CgnsCoor > cgnsCoor;
     std::unique_ptr< CgnsZsection > cgnsZsection;
     std::unique_ptr< CgnsZbc > cgnsZbc;
@@ -67,7 +67,7 @@ public:
     void InitISize();
     void CopyISize( CgInt * isize );
     void SetVolBcType( int volBcType );
-    int  GetVolBcType();
+    int  GetVolBcType() const;
 public:
     void Create();
     void SetPeriodicBc();
@@ -76,7 +76,7 @@ public:
     void InitLgMapping();
     void ConvertToInnerDataStandard();
 public:
-    void ScanBcFace( FaceSolver * face_solver );
+    void ScanBcFace( FaceSolver & faceSolver );
     void GetElementNodeId( CgInt eId, CgIntField & eNodeId );
     void ReadCgnsGrid();
     void DumpCgnsGrid();
@@ -90,8 +90,8 @@ public:
     void SetDimension();
     void ReadElementConnectivities();
     void DumpElementConnectivities();
-    void ReadNumberOfCgnsSections();
-    void CreateCgnsSections();
+    int ReadNumberOfCgnsSections();
+    void CreateCgnsSections( int nSections );
     void ReadCgnsSections();
     void DumpCgnsSections();
     void ReadCgnsGridCoordinates();

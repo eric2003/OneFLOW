@@ -44,12 +44,12 @@ class TestRegion;
 class CgnsZbcBoco
 {
 public:
-    CgnsZbcBoco( CgnsZone * cgnsZone );
+    explicit CgnsZbcBoco( CgnsZone & cgnsZone );
     ~CgnsZbcBoco();
 public:
     int nBoco;
     HXVector< std::unique_ptr< CgnsBcBoco > > cgnsBcBocos;
-    CgnsZone * cgnsZone;
+    CgnsZone & cgnsZone;
 public:
     void AddCgnsBcBoco( CgnsBcBoco * cgnsBcBoco );
     void AddCgnsBcBoco( std::unique_ptr< CgnsBcBoco > cgnsBcBoco );
@@ -58,7 +58,7 @@ public:
     void CreateCgnsZbc();
     void ShiftBcRegion();
     void ConvertToInnerDataStandard();
-    void ScanBcFace( FaceSolver * face_solver );
+    void ScanBcFace( FaceSolver & faceSolver );
     void PrintZnboco();
     void ReadZnboco();
     void ReadZnboco( int nBoco );

@@ -44,7 +44,7 @@ License
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
 
-CgnsZbc::CgnsZbc( CgnsZone * cgnsZone )
+CgnsZbc::CgnsZbc( CgnsZone & cgnsZone )
     : cgnsZbcConn( std::make_unique< CgnsZbcConn >( cgnsZone ) ),
       cgnsZbc1to1( std::make_unique< CgnsZbc1to1 >( cgnsZone ) ),
       cgnsZbcBoco( std::make_unique< CgnsZbcBoco >( cgnsZone ) ),
@@ -65,9 +65,9 @@ void CgnsZbc::ConvertToInnerDataStandard()
     this->cgnsZbcBoco->ShiftBcRegion();
 }
 
-void CgnsZbc::ScanBcFace( FaceSolver * face_solver )
+void CgnsZbc::ScanBcFace( FaceSolver & faceSolver )
 {
-    this->cgnsZbcBoco->ScanBcFace( face_solver );
+    this->cgnsZbcBoco->ScanBcFace( faceSolver );
 }
 
 void CgnsZbc::ReadCgnsGridBoundary()
@@ -133,7 +133,7 @@ void CgnsZbc::FillBcPoints3D( int * start, int * end, cgsize_t * bcpnts )
 
 void CgnsZbc::FillRegion( TestRegion * r, cgsize_t * ipnts, int dimension )
 {
-    //int dimension = cgnsZone->cgnsBase->celldim;
+    //int dimension = cgnsZone.cgnsBase.celldim;
     int icount = 0;
     //lower point of receiver range
     ipnts[ icount ++ ] = r->p1[ 0 ];
@@ -177,9 +177,9 @@ void CgnsZbc::DumpCgnsGridBoundary( Grid * gridIn, const Grids & grids )
 
     int nBcRegions = bcRegionGroup->regions.size();
 
-    int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
-    int baseId = cgnsZone->cgnsBase->baseId;
-    int zoneId = cgnsZone->zId;
+    int fileId = cgnsZone.cgnsBase.cgnsFile->fileId;
+    int baseId = cgnsZone.cgnsBase.baseId;
+    int zoneId = cgnsZone.zId;
 
     std::cout << " fildId = " << fileId << " baseId = " << baseId << " zoneId = " << zoneId << "\n";
 
@@ -194,7 +194,7 @@ void CgnsZbc::DumpCgnsGridBoundary( Grid * gridIn, const Grids & grids )
         BcRegion * bcRegion = bcRegionGroup->GetBcRegion( ir );
 
         BCType_t bctype = static_cast< BCType_t >( bcTypeMap.OneFlow2Cgns( bcRegion->bcType ) );
-        int dimension = cgnsZone->cgnsBase->celldim;
+        int dimension = cgnsZone.cgnsBase.celldim;
         if ( bctype == BCTypeNull )
         {
             FillInterface( bcRegion, ipnts, ipntsdonor, itranfrm, dimension );

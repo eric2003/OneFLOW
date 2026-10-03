@@ -32,9 +32,9 @@ License
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
 
-CgnsCoor::CgnsCoor( CgnsZone * cgnsZone )
+CgnsCoor::CgnsCoor( CgnsZone & cgnsZone )
+    : cgnsZone( cgnsZone )
 {
-    this->cgnsZone = cgnsZone;
     this->ndim = 3;
     this->typeList.resize( this->ndim );
     this->coor.resize( this->ndim );
@@ -202,9 +202,9 @@ void CgnsCoor::DeAlloc()
 void CgnsCoor::ReadCgnsGridCoordinates()
 {
     //Determine the number and names of the coordinates.
-    int fileId = this->cgnsZone->cgnsBase->cgnsFile->fileId;
-    int baseId = this->cgnsZone->cgnsBase->baseId;
-    int zoneId = this->cgnsZone->zId;
+    int fileId = this->cgnsZone.cgnsBase.cgnsFile->fileId;
+    int baseId = this->cgnsZone.cgnsBase.baseId;
+    int zoneId = this->cgnsZone.zId;
 
     cg_ncoords( fileId, baseId, zoneId, & this->nCoor );
     std::cout << "   this->nCoor = " << this->nCoor << "\n";
@@ -235,9 +235,9 @@ void CgnsCoor::ReadCgnsGridCoordinates()
 void CgnsCoor::ReadCgnsGridCoordinates( CgnsCoor * cgnsCoorIn )
 {
     //Determine the number and names of the coordinates.
-    int fileId = this->cgnsZone->cgnsBase->cgnsFile->fileId;
-    int baseId = this->cgnsZone->cgnsBase->baseId;
-    int zoneId = this->cgnsZone->zId;
+    int fileId = this->cgnsZone.cgnsBase.cgnsFile->fileId;
+    int baseId = this->cgnsZone.cgnsBase.baseId;
+    int zoneId = this->cgnsZone.zId;
 
     std::cout << " this->nCoor = " << this->nCoor << "\n";
     this->nCoor = cgnsCoorIn->nCoor;
@@ -261,9 +261,9 @@ void CgnsCoor::ReadCgnsGridCoordinates( CgnsCoor * cgnsCoorIn )
 void CgnsCoor::DumpCgnsGridCoordinates()
 {
     //Determine the number and names of the coordinates.
-    int fileId = this->cgnsZone->cgnsBase->cgnsFile->fileId;
-    int baseId = this->cgnsZone->cgnsBase->baseId;
-    int zoneId = this->cgnsZone->zId;
+    int fileId = this->cgnsZone.cgnsBase.cgnsFile->fileId;
+    int baseId = this->cgnsZone.cgnsBase.baseId;
+    int zoneId = this->cgnsZone.zId;
 
      std::cout << "   this->nCoor = " << this->nCoor << "\n";
 
@@ -300,9 +300,9 @@ void CgnsCoor::SetDimension()
         }
     }
 
-    CgInt * isize = this->cgnsZone->isize;
+    CgInt * isize = this->cgnsZone.isize;
 
-    if ( this->cgnsZone->cgnsZoneType == CGNS_ENUMV( Structured ) )
+    if ( this->cgnsZone.cgnsZoneType == CGNS_ENUMV( Structured ) )
     {
         this->SetDimensionStr();
     }
@@ -316,7 +316,7 @@ void CgnsCoor::SetDimension()
 
 void CgnsCoor::SetDimensionStr()
 {
-    CgInt * isize = this->cgnsZone->isize;
+    CgInt * isize = this->cgnsZone.isize;
 
     // lower range index
     irmin[ 0 ] = 1;
@@ -337,14 +337,14 @@ void CgnsCoor::SetDimensionStr()
     int j = 0;
     irmax[ 0 ] = isize[ j ++ ];
     irmax[ 1 ] = isize[ j ++ ];
-    if ( this->cgnsZone->cgnsBase->celldim == THREE_D )
+    if ( this->cgnsZone.cgnsBase.celldim == THREE_D )
     {
         irmax[ 2 ] = isize[ j ++ ];
     }
     // cell size
     this->cellSize[ 0 ] = isize[ j ++ ];
     this->cellSize[ 1 ] = isize[ j ++ ];
-    if ( this->cgnsZone->cgnsBase->celldim == THREE_D )
+    if ( this->cgnsZone.cgnsBase.celldim == THREE_D )
     {
         cellSize[ 2 ] = isize[ j ++ ];
     }
@@ -360,7 +360,7 @@ void CgnsCoor::SetDimensionStr()
 
 void CgnsCoor::SetDimensionUns()
 {
-    CgInt * isize = this->cgnsZone->isize;
+    CgInt * isize = this->cgnsZone.isize;
     irmin[ 0 ] = 1;
     irmin[ 1 ] = 0;
     irmin[ 2 ] = 0;
@@ -379,7 +379,7 @@ void CgnsCoor::SetDimensionUns()
 
 void CgnsCoor::SetDimension( CgnsCoor * cgnsCoorIn )
 {
-    CgInt * isize = this->cgnsZone->isize;
+    CgInt * isize = this->cgnsZone.isize;
 
     isize[ 0 ] = cgnsCoorIn->GetNNode();
     isize[ 1 ] = cgnsCoorIn->GetNCell();
@@ -397,7 +397,7 @@ void CgnsCoor::SetDimension( CgnsCoor * cgnsCoorIn )
     this->SetNNode( irmax[ 0 ] );
     this->SetNCell( cellSize[ 0 ] );
 
-    this->cgnsZone->InitLgMapping();
+    this->cgnsZone.InitLgMapping();
 
     std::cout << "   numberOfNodes = " << this->GetNNode() << " numberOfCells = " << this->GetNCell() << "\n";
 }

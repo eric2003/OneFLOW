@@ -505,8 +505,7 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone & cgnsZone )
 
     CgnsZsection * cgnsZsection = cgnsZone.cgnsZsection.get();
 
-    cgnsZsection->nSection = nSection;
-    cgnsZsection->CreateCgnsSection();
+    cgnsZsection->CreateCgnsSections( nSection );
 
     int nVolCell = volSec.CalcTotalElem();
  

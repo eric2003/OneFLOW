@@ -3,6 +3,7 @@
 
 #ifdef ENABLE_CGNS
 #include "CgnsFactory.h"
+#include "GridElem.h"
 
 // Test that CgnsFactory can be safely instantiated and destroyed on the stack.
 // This ensures the transition to std::unique_ptr for internal members is correct.
@@ -30,6 +31,29 @@ TEST(CgnsFactoryLifecycleTest, MoveSemanticsWork)
         // factory2 should own the resources
         EXPECT_NE(factory2.cgnsZbase, nullptr);
         EXPECT_NE(factory2.zgridElem, nullptr);
+
+        // ZgridElem is lifetime-bound to the factory-owned CgnsZbase.
+        EXPECT_EQ( &factory2.zgridElem->GetCgnsZbase(), factory2.cgnsZbase.get() );
+    });
+}
+
+// Verify that the factory correctly handles structured to unstructured conversion 
+// without memory leaks (Exception Safety).
+TEST(CgnsFactoryLifecycleTest, MoveAssignmentKeepsBaseBinding)
+{
+    EXPECT_NO_THROW({
+        ONEFLOW::CgnsFactory factory1;
+        ONEFLOW::CgnsFactory factory2;
+
+        factory2 = std::move( factory1 );
+
+        EXPECT_EQ( factory1.cgnsZbase, nullptr );
+        EXPECT_EQ( factory1.zgridElem, nullptr );
+        EXPECT_NE( factory2.cgnsZbase, nullptr );
+        EXPECT_NE( factory2.zgridElem, nullptr );
+        EXPECT_EQ(
+            &factory2.zgridElem->GetCgnsZbase(),
+            factory2.cgnsZbase.get() );
     });
 }
 

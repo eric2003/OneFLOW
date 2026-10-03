@@ -86,7 +86,7 @@ TEST( GridTypesTest, GridConfigDefaultValues )
     EXPECT_EQ( cfg.objective, GridObjective::ConvertOnly );
     EXPECT_EQ( cfg.sourceType, GridFileType::Unknown );
     EXPECT_EQ( cfg.targetType, GridFileType::Unknown );
-    EXPECT_FALSE( cfg.multiBlock );
+    EXPECT_EQ( cfg.assemblyMode, GridAssemblyMode::AggregateZones );
     EXPECT_EQ( cfg.topology, GridTopology::Unknown );
     EXPECT_EQ( cfg.axisDirection, GridAxisDirection::Y );
     EXPECT_EQ( cfg.scale, 1.0 );

@@ -35,24 +35,23 @@ class CgnsSection;
 class CgnsZsection
 {
 public:
-    CgnsZsection( CgnsZone * cgnsZone );
+    explicit CgnsZsection( CgnsZone & cgnsZone );
     ~CgnsZsection();
-public:
-    int nSection;
-
+private:
     HXVector< std::unique_ptr< CgnsSection > > cgnsSections;
-    CgnsZone * cgnsZone;
+    CgnsZone & cgnsZone;
 public:
     void AddCgnsSection( std::unique_ptr< CgnsSection > cgnsSection );
-    void AddCgnsSection( CgnsSection * cgnsSection );
     CgnsSection * GetCgnsSection( int iSection );
-    bool HasPolygonSection();
-    void CreateCgnsSection();
+    const CgnsSection * GetCgnsSection( int iSection ) const;
+    int GetNSections() const;
+    bool HasPolygonSection() const;
+    void CreateCgnsSections( int nSections );
     void CreateConnList();
     void ConvertToInnerDataStandard();
     CgnsSection * GetSectionByEid( int eId );
 public:
-    void ReadNumberOfCgnsSections();
+    int ReadNumberOfCgnsSections();
     void ReadCgnsSections();
     void DumpCgnsSections();
     void SetElemPosition();

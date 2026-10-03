@@ -65,7 +65,7 @@ public:
     void ConvertToInnerDataStandard();
     int  CalcBase();
     void ShiftBcRegion();
-    void ScanBcFace( FaceSolver * face_solver );
+    void ScanBcFace( FaceSolver & faceSolver );
 public:
     void ProcessVertexBc( IntSet & bcVertex );
     void ProcessFaceBc( IntSet & bcVertex );
