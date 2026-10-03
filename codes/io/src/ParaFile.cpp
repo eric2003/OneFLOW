@@ -88,7 +88,7 @@ void AnalysisArrayParameter( TextFileParser & textFileParser, int keyWordIndex )
 
     int arraySize = ONEFLOW::GetParameterArraySize( arraySizeName );
 
-    std::string * valueContainer = new std::string[ arraySize ];
+    std::vector<std::string> valueContainer( static_cast<std::size_t>( arraySize ) );
 
     for ( int i = 0; i < arraySize; ++ i )
     {
@@ -104,9 +104,8 @@ void AnalysisArrayParameter( TextFileParser & textFileParser, int keyWordIndex )
             }
         }
     }
-    ONEFLOW::ProcessData( arrayName, valueContainer, keyWordIndex, arraySize );
+    ONEFLOW::ProcessData( arrayName, valueContainer.data(), keyWordIndex, arraySize );
 
-    delete[] valueContainer;
 }
 
 int AnalysisScalarParameter( TextFileParser & textFileParser, int keyWordIndex )
@@ -117,13 +116,11 @@ int AnalysisScalarParameter( TextFileParser & textFileParser, int keyWordIndex )
     std::string name = textFileParser.ReadNextWord( separator );
 
     int arraySize = 1;
-    std::string * value = new std::string[ arraySize ];
+    std::vector<std::string> value( static_cast<std::size_t>( arraySize ) );
 
     value[ 0 ] = textFileParser.ReadNextWord( separator );
 
-    ONEFLOW::ProcessData( name, value, keyWordIndex, arraySize );
-
-    delete[] value;
+    ONEFLOW::ProcessData( name, value.data(), keyWordIndex, arraySize );
 
     return arraySize;
 }

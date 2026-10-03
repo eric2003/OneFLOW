@@ -12,6 +12,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "AccelBackend.h"
+#include <memory>
 #include <algorithm>
 #include <cctype>
 #include <stdexcept>
@@ -44,7 +45,7 @@ void AccelBackendRegistry::Register(
         }
     }
 
-    std::unique_ptr< Entry > entry( new Entry() );
+    auto entry = std::make_unique<Entry>();
     entry->kind = kind;
     entry->factory = std::move( factory );
     entries.push_back( std::move( entry ) );

@@ -41,7 +41,7 @@ TEST_F(AdtTreeTest, BasicInsertionAndCount) {
 
     for (int i = 0; i < 5; ++i) {
         // Note: The refactored AddNode takes ownership of the raw pointer
-        tree.AddNode(new ONEFLOW::HXAdtNode<int, double>(3, pts[i], i));
+        tree.AddNode( std::make_unique<ONEFLOW::HXAdtNode<int, double>>(3, pts[i], i) );
     }
 
     // GTest assertion: prints expected vs. actual values on failure without aborting subsequent tests
@@ -60,7 +60,7 @@ TEST_F(AdtTreeTest, RegionQueryAccuracy) {
     };
 
     for (int i = 0; i < 4; ++i) {
-        tree.AddNode(new ONEFLOW::HXAdtNode<int, double>(3, pts[i], i));
+        tree.AddNode(std::make_unique<ONEFLOW::HXAdtNode<int, double>>(3, pts[i], i));
     }
 
     // Query box: [0.5, 4.0] for all dimensions
@@ -88,7 +88,7 @@ TEST_F(AdtTreeTest, FloatingPointBoundaryConditions) {
     ONEFLOW::HXAdtTree<int, double> tree(3, pmin_.data(), pmax_.data());
 
     double pt[] = {5.0, 5.0, 5.0};
-    tree.AddNode(new ONEFLOW::HXAdtNode<int, double>(3, pt, 99));
+    tree.AddNode( std::make_unique<ONEFLOW::HXAdtNode<int, double>>(3, pt, 99) );
 
     // Query box exactly touching the point, with a tiny floating-point offset
     double qmin[] = {5.0 - 1e-12, 5.0 - 1e-12, 5.0 - 1e-12};
@@ -126,7 +126,7 @@ TEST_F(AdtTreeTest, StressTestAndMemorySafety) {
             static_cast<double>(rand()) / RAND_MAX * 10.0,
             static_cast<double>(rand()) / RAND_MAX * 10.0
         };
-        tree.AddNode(new ONEFLOW::HXAdtNode<int, double>(3, pt, i));
+        tree.AddNode(std::make_unique<ONEFLOW::HXAdtNode<int, double>>(3, pt, i));
     }
 
     EXPECT_EQ(tree.nCount(), NUM_POINTS);

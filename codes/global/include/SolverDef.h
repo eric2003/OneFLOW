@@ -20,6 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #pragma once
+#include <memory>
 #include "HXDefine.h"
 #include <map>
 #include <string>
@@ -63,10 +64,10 @@ const int GREAT_ZERO  = 2;
 
 int GetOppositeSendRecv( int iSr );
 
-extern std::map< std::string, int > * solverTypeMap;
-extern std::map< std::string, int > * interfaceMap;
-extern std::map< std::string, int > * sendRecvMap;
-extern std::map< std::string, int > * fieldIdMap;
+extern std::unique_ptr< std::map< std::string, int > > solverTypeMap;
+extern std::unique_ptr< std::map< std::string, int > > interfaceMap;
+extern std::unique_ptr< std::map< std::string, int > > sendRecvMap;
+extern std::unique_ptr< std::map< std::string, int > > fieldIdMap;
 
 void CreateSysMap();
 

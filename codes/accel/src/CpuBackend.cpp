@@ -86,7 +86,7 @@ struct RegisterCpuBackend
         AccelBackendRegistry::Instance().Register(
             AccelBackendKind::CPU,
             []() {
-                return std::unique_ptr< AccelBackend >( new CpuBackend() );
+                return std::make_unique<CpuBackend>();
             } );
     }
 };

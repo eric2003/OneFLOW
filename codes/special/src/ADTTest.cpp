@@ -20,6 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "ADTTest.h"
+#include <memory>
 #include "SimuBase.h"
 #include "HXAdtTree.h"
 #include <iostream> 
@@ -45,7 +46,7 @@ void TestBasicInsertionAndCount() {
     };
 
     for (int i = 0; i < 5; ++i) {
-        tree.AddNode(new ONEFLOW::HXAdtNode<int, double>(3, pts[i], i));
+        tree.AddNode(std::make_unique<ONEFLOW::HXAdtNode<int, double>>(3, pts[i], i));
     }
 
     // Verify count
@@ -69,7 +70,7 @@ void TestRegionQueryAccuracy() {
     };
 
     for (int i = 0; i < 4; ++i) {
-        tree.AddNode(new ONEFLOW::HXAdtNode<int, double>(3, pts[i], i));
+        tree.AddNode(std::make_unique<ONEFLOW::HXAdtNode<int, double>>(3, pts[i], i));
     }
 
     // Query box: [0.5, 0.5, 0.5] to [4.0, 4.0, 4.0]
@@ -103,7 +104,7 @@ void TestBoundaryConditions() {
 
     // Insert a point exactly on the boundary of the query box
     double pt[] = {5.0, 5.0, 5.0};
-    tree.AddNode(new ONEFLOW::HXAdtNode<int, double>(3, pt, 99));
+    tree.AddNode(std::make_unique<ONEFLOW::HXAdtNode<int, double>>(3, pt, 99));
 
     // Query box exactly touching the point
     double qmin[] = {5.0, 5.0, 5.0};
@@ -133,7 +134,7 @@ void TestStressAndMemorySafety() {
             static_cast<double>(rand()) / RAND_MAX * 100.0,
             static_cast<double>(rand()) / RAND_MAX * 100.0
         };
-        tree.AddNode(new ONEFLOW::HXAdtNode<int, double>(3, pt, i));
+        tree.AddNode(std::make_unique<ONEFLOW::HXAdtNode<int, double>>(3, pt, i));
     }
 
     // Verify count matches

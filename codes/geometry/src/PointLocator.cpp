@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "PointLocator.h"
+#include <memory>
 #include "GridHandles.h"
 #include "Grid.h"
 #include "NodeMesh.h"
@@ -167,8 +168,7 @@ int PointLocator::AddPoint( RealField & coor )
     int newId = static_cast<int>( this->xCoor.size() );
 
     // The tree now safely manages the memory of this node (as verified in Step 1)
-    AdtNode * node = new AdtNode( 3, &coor[0], newId );
-    this->coorTree->AddNode( node );
+    this->coorTree->AddNode( std::make_unique<AdtNode>( 3, &coor[0], newId ) );
 
     this->xCoor.push_back( coor[0] );
     this->yCoor.push_back( coor[1] );

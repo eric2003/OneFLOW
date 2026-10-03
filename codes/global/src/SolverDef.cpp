@@ -20,20 +20,21 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "SolverDef.h"
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
-std::map< std::string, int > * solverTypeMap = 0;
-std::map< std::string, int > * interfaceMap = 0;
-std::map< std::string, int > * sendRecvMap = 0;
-std::map< std::string, int > * fieldIdMap = 0;
+std::unique_ptr< std::map< std::string, int > > solverTypeMap;
+std::unique_ptr< std::map< std::string, int > > interfaceMap;
+std::unique_ptr< std::map< std::string, int > > sendRecvMap;
+std::unique_ptr< std::map< std::string, int > > fieldIdMap;
 
 void CreateSysMap()
 {
-    solverTypeMap = new std::map< std::string, int >;
-    interfaceMap = new std::map< std::string, int >;
-    sendRecvMap = new std::map< std::string, int >;
-    fieldIdMap = new std::map< std::string, int >;
+    solverTypeMap = std::make_unique< std::map< std::string, int > >();
+    interfaceMap = std::make_unique< std::map< std::string, int > >();
+    sendRecvMap = std::make_unique< std::map< std::string, int > >();
+    fieldIdMap = std::make_unique< std::map< std::string, int > >();
 
     ( * solverTypeMap )[ "CFD_SOLVER"        ] = ONEFLOW::CFD_SOLVER;
     ( * solverTypeMap )[ "NS_SOLVER"         ] = ONEFLOW::NS_SOLVER;
