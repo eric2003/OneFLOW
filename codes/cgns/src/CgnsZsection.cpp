@@ -54,14 +54,14 @@ void CgnsZsection::AddCgnsSection( std::unique_ptr< CgnsSection > cgnsSection )
     section->id = secId;
 }
 
-CgnsSection * CgnsZsection::GetCgnsSection( int iSection )
+CgnsSection & CgnsZsection::GetCgnsSection( int iSection )
 {
-    return this->cgnsSections[ iSection ].get();
+    return *this->cgnsSections[ iSection ];
 }
 
-const CgnsSection * CgnsZsection::GetCgnsSection( int iSection ) const
+const CgnsSection & CgnsZsection::GetCgnsSection( int iSection ) const
 {
-    return this->cgnsSections[ iSection ].get();
+    return *this->cgnsSections[ iSection ];
 }
 
 int CgnsZsection::GetNSections() const
@@ -75,8 +75,8 @@ bool CgnsZsection::ExistSection( const std::string & sectionName )
     const int nSections = this->GetNSections();
     for ( int iSection = 0; iSection < nSections; ++ iSection )
     {
-        CgnsSection * cgnsSection = this->GetCgnsSection( iSection );
-        if ( cgnsSection->sectionName == sectionName ) return true;
+        CgnsSection & cgnsSection = this->GetCgnsSection( iSection );
+        if ( cgnsSection.sectionName == sectionName ) return true;
     }
     return false;
 }
@@ -85,9 +85,9 @@ bool CgnsZsection::HasPolygonSection() const
 {
     for ( int iSection = 0; iSection < this->cgnsSections.size(); ++ iSection )
     {
-        const CgnsSection * cgnsSection = this->GetCgnsSection( iSection );
-        if ( cgnsSection->eType == NGON_n ||
-             cgnsSection->eType == NFACE_n )
+        const CgnsSection & cgnsSection = this->GetCgnsSection( iSection );
+        if ( cgnsSection.eType == NGON_n ||
+             cgnsSection.eType == NFACE_n )
         {
             return true;
         }
@@ -108,8 +108,8 @@ void CgnsZsection::CreateConnList()
     const int nSections = this->GetNSections();
     for ( int iSection = 0; iSection < nSections; ++ iSection )
     {
-        CgnsSection * cgnsSection = this->GetCgnsSection( iSection );
-        cgnsSection->CreateConnList();
+        CgnsSection & cgnsSection = this->GetCgnsSection( iSection );
+        cgnsSection.CreateConnList();
     }
 }
 
@@ -118,8 +118,8 @@ void CgnsZsection::ConvertToInnerDataStandard()
     const int nSections = this->GetNSections();
     for ( int iSection = 0; iSection < nSections; ++ iSection )
     {
-        CgnsSection * cgnsSection = this->GetCgnsSection( iSection );
-        cgnsSection->ConvertToInnerDataStandard();
+        CgnsSection & cgnsSection = this->GetCgnsSection( iSection );
+        cgnsSection.ConvertToInnerDataStandard();
     }
 }
 
@@ -128,11 +128,11 @@ CgnsSection * CgnsZsection::GetSectionByEid( int eId )
     const int nSections = this->GetNSections();
     for ( int iSection = 0; iSection < nSections; ++ iSection )
     {
-        CgnsSection * cgnsSection = this->GetCgnsSection( iSection );
-        if ( cgnsSection->startId <= eId && 
-             eId <= cgnsSection->endId )
+        CgnsSection & cgnsSection = this->GetCgnsSection( iSection );
+        if ( cgnsSection.startId <= eId && 
+             eId <= cgnsSection.endId )
         {
-            return cgnsSection;
+            return &cgnsSection;
         }
     }
     return 0;
@@ -165,8 +165,8 @@ void CgnsZsection::ReadCgnsSections()
     for ( int iSection = 0; iSection < nSections; ++ iSection )
     {
         std::cout << "-->iSection     = " << iSection << " numberOfCgnsSections = " << nSections << "\n";
-        CgnsSection * cgnsSection = this->GetCgnsSection( iSection );
-        cgnsSection->ReadCgnsSection();
+        CgnsSection & cgnsSection = this->GetCgnsSection( iSection );
+        cgnsSection.ReadCgnsSection();
     }
 }
 
@@ -179,8 +179,8 @@ void CgnsZsection::DumpCgnsSections()
     for ( int iSection = 0; iSection < nSections; ++ iSection )
     {
         std::cout << "-->iSection     = " << iSection << " numberOfCgnsSections = " << nSections << "\n";
-        CgnsSection * cgnsSection = this->GetCgnsSection( iSection );
-        cgnsSection->DumpCgnsSection();
+        CgnsSection & cgnsSection = this->GetCgnsSection( iSection );
+        cgnsSection.DumpCgnsSection();
     }
 }
 
@@ -189,8 +189,8 @@ void CgnsZsection::SetElemPosition()
     const int nSections = this->GetNSections();
     for ( int iSection = 0; iSection < nSections; ++ iSection )
     {
-        CgnsSection * cgnsSection = this->GetCgnsSection( iSection );
-        cgnsSection->SetElemPosition();
+        CgnsSection & cgnsSection = this->GetCgnsSection( iSection );
+        cgnsSection.SetElemPosition();
     }
 }
 
