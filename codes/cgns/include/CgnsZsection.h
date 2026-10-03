@@ -37,9 +37,6 @@ class CgnsZsection
 public:
     CgnsZsection( CgnsZone * cgnsZone );
     ~CgnsZsection();
-private:
-    int nSection = 0;
-
 public:
     HXVector< std::unique_ptr< CgnsSection > > cgnsSections;
     CgnsZone * cgnsZone;
@@ -49,13 +46,12 @@ public:
     const CgnsSection * GetCgnsSection( int iSection ) const;
     int GetNSections() const;
     bool HasPolygonSection() const;
-    void CreateCgnsSection();
     void CreateCgnsSections( int nSections );
     void CreateConnList();
     void ConvertToInnerDataStandard();
     CgnsSection * GetSectionByEid( int eId );
 public:
-    void ReadNumberOfCgnsSections();
+    int ReadNumberOfCgnsSections();
     void ReadCgnsSections();
     void DumpCgnsSections();
     void SetElemPosition();
