@@ -39,6 +39,26 @@ TEST(CgnsFactoryLifecycleTest, MoveSemanticsWork)
 
 // Verify that the factory correctly handles structured to unstructured conversion 
 // without memory leaks (Exception Safety).
+TEST(CgnsFactoryLifecycleTest, MoveAssignmentRebindsObserver)
+{
+    EXPECT_NO_THROW({
+        ONEFLOW::CgnsFactory factory1;
+        ONEFLOW::CgnsFactory factory2;
+
+        factory2 = std::move( factory1 );
+
+        EXPECT_EQ( factory1.cgnsZbase, nullptr );
+        EXPECT_EQ( factory1.zgridElem, nullptr );
+        EXPECT_NE( factory2.cgnsZbase, nullptr );
+        EXPECT_NE( factory2.zgridElem, nullptr );
+        EXPECT_EQ(
+            factory2.zgridElem->cgnsZbase,
+            factory2.cgnsZbase.get() );
+    });
+}
+
+// Verify that the factory correctly handles structured to unstructured conversion 
+// without memory leaks (Exception Safety).
 TEST(CgnsFactoryLifecycleTest, ExceptionSafetyInConversion)
 {
     // Note: This test verifies the RAII pattern. 
