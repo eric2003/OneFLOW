@@ -139,7 +139,7 @@ void CalcGrid::ReconstructLink()
 
 void CalcGrid::ReconstructLink( int iZone )
 {
-    UnsGrid * grid = UnsGridCast( GridAt( grids, iZone ) );
+    UnsGrid * grid = static_cast< UnsGrid * >( GridAt( grids, iZone ) );
 
     InterFace * interFace = grid->interFace.get();
     grid->nIFaces = grid->interFace->nIFaces;
@@ -169,7 +169,7 @@ void CalcGrid::ReconstructLink( int iZone )
 
         if ( nei_zone_id >= iZone )
         {
-            UnsGrid * nei_Grid = UnsGridCast( GridAt( grids, nei_zone_id ) );
+            UnsGrid * nei_Grid = static_cast< UnsGrid * >( GridAt( grids, nei_zone_id ) );
 
             if ( FindMatch( nei_Grid, & facePair ) )
             {
