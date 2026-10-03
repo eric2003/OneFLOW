@@ -40,19 +40,19 @@ void CircleLineMesh::GenerateLineMesh()
 void CircleLineMesh::CalcCurveGeometry()
 {
     CircleInfo * circleInfo = static_cast< CircleInfo * >( this->curveInfo );
-    PointType * pt1 = point_Machine.GetPoint( circleInfo->p1 );
-    PointType * pt2 = point_Machine.GetPoint( circleInfo->p2 );
-    PointType * cp  = point_Machine.GetPoint( circleInfo->center );
+    const PointType & pt1 = point_Machine.GetPoint( circleInfo->p1 );
+    const PointType & pt2 = point_Machine.GetPoint( circleInfo->p2 );
+    const PointType & cp  = point_Machine.GetPoint( circleInfo->center );
 
-    Real x0 = pt1->x;
+    Real x0 = pt1.x;
     Real y0 = pt1->y;
     Real z0 = pt1->z;
 
-    Real x1 = pt2->x;
+    Real x1 = pt2.x;
     Real y1 = pt2->y;
     Real z1 = pt2->z;
 
-    Real xc = cp->x;
+    Real xc = cp.x;
     Real yc = cp->y;
     Real zc = cp->z;
 
