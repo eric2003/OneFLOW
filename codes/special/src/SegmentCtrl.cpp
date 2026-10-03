@@ -45,31 +45,31 @@ void SegmentCtrl::Read( TextFileParser * textFileParser )
 
     if ( distributionString == "r" )
     {
-        this->distribution = 0;
+        this->distribution = DistributionType::Ratio;
         this->ratio1 = textFileParser->ReadNextDigit< Real >();
         this->ratio2 = textFileParser->ReadNextDigit< Real >();
     }
     else if ( distributionString == "d" )
     {
-        this->distribution = 1;
+        this->distribution = DistributionType::Distance;
         this->ds1 = textFileParser->ReadNextDigit< Real >();
         this->ds2 = textFileParser->ReadNextDigit< Real >();
     }
     else if ( distributionString == "tanh" )
     {
-        this->distribution = 4;
+        this->distribution = DistributionType::Tanh;
         this->ds1 = textFileParser->ReadNextDigit< Real >();
         this->ds2 = textFileParser->ReadNextDigit< Real >();
     }
     else if ( distributionString.substr( 0, 1 ) == "c" )
     {
-        this->distribution = 2;
+        this->distribution = DistributionType::Copy;
         this->segmentCopy = std::make_unique< SegmentCopy >();
         this->segmentCopy->Read( textFileParser );
     }
     else if ( distributionString.substr( 0, 1 ) == "e" )
     {
-        this->distribution = 3;
+        this->distribution = DistributionType::Exponential;
         this->cA1 = 0.5;
         this->cA2 = 1.0e-4;
         this->cA3 = 0.5;
@@ -79,7 +79,7 @@ void SegmentCtrl::Read( TextFileParser * textFileParser )
 
 void SegmentCtrl::CalcFactor()
 {
-    if ( this->distribution == 2 )
+    if ( this->distribution == DistributionType::Copy )
     {
         this->CopyFactor();
     }
@@ -92,7 +92,7 @@ void SegmentCtrl::CalcFactor()
 Real SegmentCtrl::CalcFactor( Real compCoor )
 {
     Real factor = -1;
-    if ( this->distribution == 4 )
+    if ( this->distribution == DistributionType::Tanh )
     {
         factor = this->CalcTANHFactor( compCoor );
     }
@@ -264,7 +264,7 @@ void SegmentCtrl::CalcEffectiveRatioTest()
 
 void SegmentCtrl::CalcEffectiveRatio()
 {
-    if ( this->distribution == 1 )
+    if ( this->distribution == DistributionType::Distance )
     {
         Real ds = this->lenth / ( this->nPoint - 1 );
         this->ratio1 = this->ds1 / ds;
