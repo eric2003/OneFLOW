@@ -23,7 +23,6 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "GridHandles.h"
-#include "GridTypes.h"
 #include "ElemFeature.h"
 #include "PointManager.h"
 #include "FaceSolver.h"
@@ -40,6 +39,7 @@ class Grid;
 class UnsGrid;
 class CgnsSection;
 struct GridConfig;
+enum class GridAssemblyMode;
 
 int OneFlow2CgnsZoneType( int zoneType );
 int Cgns2OneFlowZoneType( int zoneType );
