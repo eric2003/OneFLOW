@@ -543,12 +543,12 @@ void UnsGrid::CalcCellCenterVol1D()
     RealField & yN = nodeMesh->yN;
     RealField & zN = nodeMesh->zN;
 
-    CellTopo * cellTopo = &this->cellMesh->cellTopo;
-    FaceTopo * faceTopo = &this->faceMesh->GetFaceTopo();
+    CellTopo & cellTopo = this->cellMesh->cellTopo;
+    FaceTopo & faceTopo = this->faceMesh->GetFaceTopo();
 
     for ( HXSize_t iCell = 0; iCell < numberOfCells; ++ iCell )
     {
-        IntField & element = cellTopo->elements[ iCell ];
+        IntField & element = cellTopo.elements[ iCell ];
         int p1 = element[ 0 ];
         int p2 = element[ 1 ];
         xcc[ iCell  ] = half * ( xN[ p1 ] + xN[ p2 ] );
@@ -582,13 +582,13 @@ void UnsGrid::CalcGhostCellCenterVol1D()
 
     RealField & area = this->faceMesh->area;
 
-    CellTopo * cellTopo = &this->cellMesh->cellTopo;
-    FaceTopo * faceTopo = &this->faceMesh->GetFaceTopo();
+    CellTopo & cellTopo = this->cellMesh->cellTopo;
+    FaceTopo & faceTopo = this->faceMesh->GetFaceTopo();
 
     // For ghost cells
     for ( HXSize_t iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        int lc  = faceTopo->lCells[ iFace ];
+        int lc  = faceTopo.lCells[ iFace ];
         int rc = iFace + numberOfCells;
         if ( area[ iFace ] > SMALL )
         {
@@ -641,8 +641,8 @@ void UnsGrid::CalcCellCenterVol2D()
 
     RealField & area = this->faceMesh->area;
 
-    CellTopo * cellTopo = &this->cellMesh->cellTopo;
-    FaceTopo * faceTopo = &this->faceMesh->GetFaceTopo();
+    CellTopo & cellTopo = this->cellMesh->cellTopo;
+    FaceTopo & faceTopo = this->faceMesh->GetFaceTopo();
 
     xcc = 0;
     ycc = 0;
@@ -651,7 +651,7 @@ void UnsGrid::CalcCellCenterVol2D()
 
     for ( HXSize_t iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        int lc = faceTopo->lCells[ iFace ];
+        int lc = faceTopo.lCells[ iFace ];
         Real dot = ( xfc[ iFace ] * xfn[ iFace ] +
                      yfc[ iFace ] * yfn[ iFace ] +
                      zfc[ iFace ] * zfn[ iFace ] ) * area[ iFace ];
@@ -664,8 +664,8 @@ void UnsGrid::CalcCellCenterVol2D()
     // For interior cell faces
     for ( HXSize_t iFace = nBFaces; iFace < nFaces; ++ iFace )
     {
-        int lc = faceTopo->lCells[ iFace ];
-        int rc = faceTopo->rCells[ iFace ];
+        int lc = faceTopo.lCells[ iFace ];
+        int rc = faceTopo.rCells[ iFace ];
         Real dot = ( xfc[ iFace ] * xfn[ iFace ] +
                      yfc[ iFace ] * yfn[ iFace ] +
                      zfc[ iFace ] * zfn[ iFace ] ) * area[ iFace ];
@@ -711,7 +711,7 @@ void UnsGrid::CalcCellCenterVol2D()
     // For ghost cells
     for ( HXSize_t iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        int lc = faceTopo->lCells[ iFace ];
+        int lc = faceTopo.lCells[ iFace ];
         int rc = iFace + numberOfCells;
         if ( area[ iFace ] > SMALL )
         {
@@ -754,8 +754,8 @@ void UnsGrid::CalcCellCenterVol3D()
 
     RealField & area = this->faceMesh->area;
 
-    CellTopo * cellTopo = &this->cellMesh->cellTopo;
-    FaceTopo * faceTopo = &this->faceMesh->GetFaceTopo();
+    CellTopo & cellTopo = this->cellMesh->cellTopo;
+    FaceTopo & faceTopo = this->faceMesh->GetFaceTopo();
 
     RealField & xN = nodeMesh->xN;
     RealField & yN = nodeMesh->yN;
@@ -768,10 +768,10 @@ void UnsGrid::CalcCellCenterVol3D()
 
     for ( HXSize_t iFace = 0; iFace < nFaces; ++ iFace )
     {
-        int lc = faceTopo->lCells[ iFace ];
-        int rc = faceTopo->rCells[ iFace ];
+        int lc = faceTopo.lCells[ iFace ];
+        int rc = faceTopo.rCells[ iFace ];
 
-        IntField & faceIndex = faceTopo->faces[ iFace ];
+        IntField & faceIndex = faceTopo.faces[ iFace ];
 
         HXSize_t faceNodeNumber = faceIndex.size();
         for ( HXSize_t iNode = 0; iNode < faceNodeNumber; ++ iNode )
@@ -849,7 +849,7 @@ void UnsGrid::CalcCellCenterVol3D()
     // For ghost cells
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        int lc = faceTopo->lCells[ iFace ];
+        int lc = faceTopo.lCells[ iFace ];
         int rc = iFace + numberOfCells;
 
         if ( area[ iFace ] > SMALL )
