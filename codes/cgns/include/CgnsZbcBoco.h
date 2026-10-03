@@ -58,7 +58,7 @@ public:
     void CreateCgnsZbc();
     void ShiftBcRegion();
     void ConvertToInnerDataStandard();
-    void ScanBcFace( FaceSolver * face_solver );
+    void ScanBcFace( FaceSolver & faceSolver );
     void PrintZnboco();
     void ReadZnboco();
     void ReadZnboco( int nBoco );

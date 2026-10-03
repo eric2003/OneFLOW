@@ -143,7 +143,7 @@ void CgnsBcBoco::ProcessFaceBc( IntSet & bcVertex )
 }
 
 
-void CgnsBcBoco::ScanBcFace( FaceSolver * face_solver )
+void CgnsBcBoco::ScanBcFace( FaceSolver & faceSolver )
 {
     IntSet bcVertex;
     if ( this->modifiedLocation == Vertex )
@@ -154,7 +154,7 @@ void CgnsBcBoco::ScanBcFace( FaceSolver * face_solver )
     {
         this->ProcessFaceBc( bcVertex );
     }
-    face_solver->ScanBcFaceDetail( bcVertex, this->bcType, this->nameId );
+    faceSolver.ScanBcFaceDetail( bcVertex, this->bcType, this->nameId );
 }
 
 void CgnsBcBoco::ReadCgnsBcBoco()

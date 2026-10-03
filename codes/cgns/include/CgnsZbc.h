@@ -56,7 +56,7 @@ public:
 
     CgnsZone * cgnsZone;
 public:
-    void ScanBcFace( FaceSolver * face_solver );
+    void ScanBcFace( FaceSolver & faceSolver );
 public:
     void ConvertToInnerDataStandard();
     void ReadCgnsGridBoundary();

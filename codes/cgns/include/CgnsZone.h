@@ -76,7 +76,7 @@ public:
     void InitLgMapping();
     void ConvertToInnerDataStandard();
 public:
-    void ScanBcFace( FaceSolver * face_solver );
+    void ScanBcFace( FaceSolver & faceSolver );
     void GetElementNodeId( CgInt eId, CgIntField & eNodeId );
     void ReadCgnsGrid();
     void DumpCgnsGrid();

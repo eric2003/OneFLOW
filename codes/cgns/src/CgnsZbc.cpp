@@ -65,9 +65,9 @@ void CgnsZbc::ConvertToInnerDataStandard()
     this->cgnsZbcBoco->ShiftBcRegion();
 }
 
-void CgnsZbc::ScanBcFace( FaceSolver * face_solver )
+void CgnsZbc::ScanBcFace( FaceSolver & faceSolver )
 {
-    this->cgnsZbcBoco->ScanBcFace( face_solver );
+    this->cgnsZbcBoco->ScanBcFace( faceSolver );
 }
 
 void CgnsZbc::ReadCgnsGridBoundary()

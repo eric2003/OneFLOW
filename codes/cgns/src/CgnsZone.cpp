@@ -157,9 +157,9 @@ void CgnsZone::ConstructCgnsGridPoints( MeshPointManager * point_factory )
     }
 }
 
-void CgnsZone::ScanBcFace( FaceSolver * face_solver )
+void CgnsZone::ScanBcFace( FaceSolver & faceSolver )
 {
-    this->cgnsZbc->ScanBcFace( face_solver );
+    this->cgnsZbc->ScanBcFace( faceSolver );
 }
 
 void CgnsZone::GetElementNodeId( CgInt eId, CgIntField & eNodeId )

@@ -110,7 +110,7 @@ void CgnsZbcBoco::ConvertToInnerDataStandard()
     }
 }
 
-void CgnsZbcBoco::ScanBcFace( FaceSolver * face_solver )
+void CgnsZbcBoco::ScanBcFace( FaceSolver & faceSolver )
 {
     std::cout << " Now ScanBcFace......\n\n";
     std::cout << " nBoco = " << this->nBoco << std::endl;
