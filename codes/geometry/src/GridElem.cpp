@@ -199,7 +199,7 @@ void GridElem::ScanPolygonFace()
             this->SetPolyhedronElementType( *cgnsSection );
         }
 
-        int nFaces = this->face_solver.GetFaceTopo().faces.size();
+        int nFaces = this->face_solver.GetFaceTopo().GetFaces().size();
 
     }
 }
@@ -244,7 +244,7 @@ void GridElem::GenerateCalcElement()
 
     FaceTopo & faceTopo = this->face_solver.GetFaceTopo();
 
-    int nFaces = this->face_solver.GetFaceTopo().faces.size();
+    int nFaces = this->face_solver.GetFaceTopo().GetFaces().size();
     int nBFaces = 0;
 
     //std::cout << " nFaces = " << nFaces << "\n";
@@ -314,7 +314,7 @@ void GridElem::CalcBoundaryType( UnsGrid & grid )
 {
     std::cout << "\n-->Set boundary condition......\n";
     grid.SetFaceTopo( this->face_solver.TakeFaceTopo() );
-    int nFaces = grid.GetFaceTopo().faces.size();
+    int nFaces = grid.GetFaceTopo().GetFaces().size();
     std::cout << " nFaces = " << nFaces << "\n";
      
     BcRecord * bcRecord = &grid.GetFaceTopo().GetBcRecord();
@@ -384,7 +384,7 @@ void GridElem::ReorderLink( UnsGrid & grid )
 {
     FaceTopo & faceTopo = grid.GetFaceTopo();
 
-    int nFaces = faceTopo.fTypes.size();
+    int nFaces = faceTopo.GetFaceTypes().size();
     grid.nFaces = nFaces;
 
     faceTopo.ReorderLink();
