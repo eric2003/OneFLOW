@@ -113,14 +113,15 @@ void Visual::DumpCoordinate( std::fstream & file, RealField & coordinate )
 
 void Visual::DumpFaceNodesLink( std::fstream & file, Mesh * mesh )
 {
+    const FaceTopo & faceTopo = mesh->faceMesh->GetFaceTopo();
     HXSize_t nodeCount = 0;
     HXSize_t nFaces = mesh->faceMesh->GetNFace();
     for ( HXSize_t iFace = 0; iFace < nFaces; ++ iFace )
     {
-        int numberOfNodesOnFace = mesh->faceMesh->faceTopo->faces[ iFace ].size();
+        int numberOfNodesOnFace = faceTopo.faces[ iFace ].size();
         for ( int iNodeOfFace = 0; iNodeOfFace < numberOfNodesOnFace; ++ iNodeOfFace )
         {
-            file << mesh->faceMesh->faceTopo->faces[ iFace ][ iNodeOfFace ] + 1 << " ";
+            file << faceTopo.faces[ iFace ][ iNodeOfFace ] + 1 << " ";
             if ( ( nodeCount + 1 ) % Visual::numberOfWords == 0 ) file << std::endl;
             nodeCount ++;
         }
