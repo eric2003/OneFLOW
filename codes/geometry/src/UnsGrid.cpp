@@ -214,7 +214,7 @@ void UnsGrid::ReadBoundaryTopology( DataBook * databook )
     //std::cout << " nBFaces = " << this->nBFaces << std::endl;
 
     //Setting boundary conditions
-    BcRecord * bcRecord = this->GetFaceTopo().bcManager->bcRecord.get();
+    BcRecord * bcRecord = this->GetFaceTopo().GetBcRecord();
     ONEFLOW::HXRead( databook, bcRecord->bcType );
     ONEFLOW::HXRead( databook, bcRecord->bcNameId );
     ONEFLOW::HXRead( databook, this->nIFaces );
@@ -329,8 +329,8 @@ void UnsGrid::WriteBoundaryTopology( DataBook * databook )
     int nBFaces = this->GetFaceTopo().GetNBFaces();
     ONEFLOW::HXWrite( databook, nBFaces );
 
-    ONEFLOW::HXWrite( databook, this->GetFaceTopo().bcManager->bcRecord->bcType );
-    ONEFLOW::HXWrite( databook, this->GetFaceTopo().bcManager->bcRecord->bcNameId );
+    ONEFLOW::HXWrite( databook, this->GetFaceTopo().GetBcRecord().bcType );
+    ONEFLOW::HXWrite( databook, this->GetFaceTopo().GetBcRecord().bcNameId );
 
     ONEFLOW::HXWrite( databook, this->interFace->nIFaces );
     if ( this->interFace->nIFaces > 0 )
@@ -346,8 +346,8 @@ void UnsGrid::WriteBoundaryTopology1D( DataBook * databook )
     int nBFaces = this->GetFaceTopo().GetNBFaces();
     ONEFLOW::HXWrite( databook, nBFaces );
 
-    ONEFLOW::HXWrite( databook, this->GetFaceTopo().bcManager->bcRecord->bcType );
-    ONEFLOW::HXWrite( databook, this->GetFaceTopo().bcManager->bcRecord->bcNameId );
+    ONEFLOW::HXWrite( databook, this->GetFaceTopo().GetBcRecord().bcType );
+    ONEFLOW::HXWrite( databook, this->GetFaceTopo().GetBcRecord().bcNameId );
 
     ONEFLOW::HXWrite( databook, this->interFace->nIFaces );
     if ( this->interFace->nIFaces > 0 )
@@ -361,13 +361,13 @@ void UnsGrid::WriteBoundaryTopology1D( DataBook * databook )
 
 void UnsGrid::ModifyBcType( int bcType1, int bcType2 )
 {
-    int nBFaces = this->GetFaceTopo().bcManager->bcRecord->bcType.size();
+    int nBFaces = this->GetFaceTopo().GetBcRecord().bcType.size();
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        int bctype = this->GetFaceTopo().bcManager->bcRecord->bcType[ iFace ];
+        int bctype = this->GetFaceTopo().GetBcRecord().bcType[ iFace ];
         if ( bctype == bcType1 )
         {
-            this->GetFaceTopo().bcManager->bcRecord->bcType[ iFace ] = bcType2;
+            this->GetFaceTopo().GetBcRecord().bcType[ iFace ] = bcType2;
         }
     }
 }
@@ -376,9 +376,9 @@ void UnsGrid::GenerateLgMapping( IFaceLink * iFaceLink )
 {
     std::cout << "zoneIndex = " << this->id << std::endl;
 
-    BcRecord * bcRecord = this->GetFaceTopo().bcManager->bcRecord.get();
+    BcRecord * bcRecord = this->GetFaceTopo().GetBcRecord();
 
-    this->GetFaceTopo().bcManager->PreProcess();
+    this->GetFaceTopo().PrepareBoundaryConditions();
 
     int nIFaces = bcRecord->CalcNIFace();
 
@@ -427,7 +427,7 @@ void UnsGrid::ReGenerateLgMapping( IFaceLink * iFaceLink )
 {
     std::cout << "zoneIndex = " << this->id << std::endl;
 
-    if ( ! this->GetFaceTopo().bcManager->ExistInterface() )
+    if ( ! this->GetFaceTopo().HasInterfaceBoundary() )
     {
         return;
     }
