@@ -72,12 +72,12 @@ public:
     void GenerateCalcElement();
     void GenerateCalcGrid();
     void GenerateCalcGrid( Grid & grid );
-    void CalcBoundaryType( UnsGrid * grid );
-    void ReorderLink( UnsGrid * grid );
+    void CalcBoundaryType( UnsGrid & grid );
+    void ReorderLink( UnsGrid & grid );
 public:
     void PrepareUnsCalcGridPolyhedron();
     void ScanPolygonFace();
-    void SetPolyhedronElementType( CgnsSection * cgnsSection );
+    void SetPolyhedronElementType( CgnsSection & cgnsSection );
 };
 
 class ZgridElem
