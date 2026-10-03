@@ -51,6 +51,6 @@ public:
 };
 
 void CalcC2f( UnsGrid * grid );
-void CalcC2C( UnsGrid * grid );
+void CalcC2C( UnsGrid & grid );
 
 EndNameSpace
