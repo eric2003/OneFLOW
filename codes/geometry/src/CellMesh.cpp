@@ -84,7 +84,7 @@ void CellMesh::DumpDist()
     HXWrite( ActionState::dataBook, dist );
 }
 
-void CellMesh::CalcCellSpan( UnsGrid * grid )
+void CellMesh::CalcCellSpan( UnsGrid & grid )
 {
     if ( this->span.size() ) return;
     int nCells = this->GetNumberOfCells();
