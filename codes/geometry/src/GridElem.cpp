@@ -286,7 +286,7 @@ std::unique_ptr< UnsGrid > GridElem::GenerateCalcGrid( int gridId )
 void GridElem::GenerateCalcGrid( UnsGrid & grid )
 {
     grid.nCells = this->elem_feature.eTypes.size();
-    grid.cellMesh->cellTopo.eTypes = this->elem_feature.eTypes;
+    grid.GetCellMesh().cellTopo.eTypes = this->elem_feature.eTypes;
     std::cout << "   nCells = " << grid.nCells << std::endl;
 
     int nNodes = this->point_factory.localToGlobal.size();
@@ -314,12 +314,12 @@ void GridElem::CalcBoundaryType( UnsGrid & grid )
 {
     std::cout << "\n-->Set boundary condition......\n";
     grid.faceTopo = this->face_solver.TakeFaceTopo();
-    grid.faceTopo->BindGrid( grid );
-    grid.faceMesh->BindFaceTopo( *grid.faceTopo );
-    int nFaces = grid.faceTopo->faces.size();
+    grid.GetFaceTopo().BindGrid( grid );
+    grid.GetFaceMesh().BindFaceTopo( *grid.faceTopo );
+    int nFaces = grid.GetFaceTopo().faces.size();
     std::cout << " nFaces = " << nFaces << "\n";
      
-    BcRecord * bcRecord = grid.faceTopo->bcManager->bcRecord.get();
+    BcRecord * bcRecord = grid.GetFaceTopo().bcManager->bcRecord.get();
     int nBFaces = bcRecord->bcType.size();
 
     grid.nBFaces = nBFaces;
@@ -384,7 +384,7 @@ void GridElem::CalcBoundaryType( UnsGrid & grid )
 
 void GridElem::ReorderLink( UnsGrid & grid )
 {
-    FaceTopo & faceTopo = *grid.faceTopo;
+    FaceTopo & faceTopo = grid.GetFaceTopo();
 
     int nFaces = faceTopo.fTypes.size();
     grid.nFaces = nFaces;
