@@ -99,7 +99,7 @@ void CgnsZsection::CreateCgnsSections( int nSections )
 {
     for ( int iSection = 0; iSection < nSections; ++ iSection )
     {
-        this->AddCgnsSection( std::make_unique< CgnsSection >( & cgnsZone ) );
+        this->AddCgnsSection( std::make_unique< CgnsSection >( cgnsZone ) );
     }
 }
 
