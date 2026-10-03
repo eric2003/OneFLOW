@@ -46,10 +46,10 @@ public:
 public:
     void SetDomainBcMesh( SDomain * sDomain );
     void SetBlkBcMesh( Block2D * blk2d );
-    void ConstructCtrlPoints();
+    void ConstructCtrlPoints( const IntField & pointIdList );
     void Alloc();
     void CopyMesh();
-    void ConstructPointToLineMap( std::map< int, IntSet > & pointToLineMap ) const;
+    void ConstructPointToLineMap( const IntField & pointIdList, std::map< int, IntSet > & pointToLineMap ) const;
 
 };
 
