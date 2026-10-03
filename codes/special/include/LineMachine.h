@@ -38,6 +38,7 @@ public:
     void CreateAllLineMesh();
 public:
     SegmentCtrl * GetSegmentCtrl( int id );
+    const SegmentCtrl * GetSegmentCtrl( int id ) const;
     CurveMesh * GetCurveMesh( int id );
     CurveInfo * GetCurveInfo( int id );
 public:
