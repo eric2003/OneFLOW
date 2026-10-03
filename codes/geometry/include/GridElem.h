@@ -26,6 +26,7 @@ License
 #include "ElemFeature.h"
 #include "PointManager.h"
 #include "FaceSolver.h"
+#include <functional>
 #include <memory>
 
 BeginNameSpace( ONEFLOW )
@@ -47,7 +48,7 @@ int Cgns2OneFlowZoneType( int zoneType );
 class GridElem
 {
 public:
-    GridElem( HXVector< CgnsZone * > zoneViews );
+    GridElem( HXVector< std::reference_wrapper< CgnsZone > > zoneViews );
     ~GridElem();
 public:
     ElemFeature elem_feature;
@@ -70,12 +71,12 @@ public:
     void ScanPolygonFace();
     void SetPolyhedronElementType( CgnsSection & cgnsSection );
 private:
-    CgnsZone * GetCgnsZone( int iZone );
-    const CgnsZone * GetCgnsZone( int iZone ) const;
+    CgnsZone & GetCgnsZone( int iZone );
+    const CgnsZone & GetCgnsZone( int iZone ) const;
     int GetNZones() const;
     bool HasPolygonSection() const;
     int GetVolBcType() const;
-    HXVector< CgnsZone * > zoneViews;
+    HXVector< std::reference_wrapper< CgnsZone > > zoneViews;
 };
 
 class ZgridElem
