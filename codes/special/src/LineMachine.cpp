@@ -134,6 +134,11 @@ int LineMachine::GetDimension( int id ) const
     return this->GetSegmentCtrl( id )->nPoint;
 }
 
+int LineMachine::GetNLine() const
+{
+    return this->curveInfoList.size();
+}
+
 void LineMachine::SetDistribution( const GridDistributionDefinition & definition )
 {
     SegmentCtrl * segmentCtrl = this->GetSegmentCtrl( definition.lineId );
