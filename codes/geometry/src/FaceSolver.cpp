@@ -91,9 +91,9 @@ void FaceSolver::ScanPolygonFace( CgnsSection * cgnsSection )
         if ( isNew )
         {
             // New face: ID is set to the current number of faces. 
-            int newId = static_cast<int>(this->faceTopo->faces.size());
-            this->faceTopo->faces.push_back(faceNodes);           // Preserve original order
-            this->faceTopo->fTypes.push_back(cgnsSection->eType);
+            int newId = static_cast<int>(this->faceTopo->GetFaces().size());
+            this->faceTopo->GetFaces().push_back(faceNodes);           // Preserve original order
+            this->faceTopo->GetFaceTypes().push_back(cgnsSection->eType);
             this->faceTopo->GetFaceFlags().push_back(0);
         }
     }
@@ -102,7 +102,7 @@ void FaceSolver::ScanPolygonFace( CgnsSection * cgnsSection )
 void FaceSolver::ResizeAll()
 {
     this->faceTopo->ResizeAll();
-    int nFaces = this->faceTopo->faces.size();
+    int nFaces = this->faceTopo->GetFaces().size();
     this->faceBcType.resize( nFaces );
     this->faceBcKey.resize( nFaces );
     this->childFid.resize( nFaces );
@@ -175,9 +175,9 @@ void FaceSolver::ScanElementFace( CgIntField & eNodeId, int eType, int eId )
 
             this->faceBcType.push_back( ONEFLOW::INVALID_INDEX );
             this->faceBcKey.push_back( ONEFLOW::INVALID_INDEX );
-            this->faceTopo->fTypes.push_back( fType );
+            this->faceTopo->GetFaceTypes().push_back( fType );
 
-            this->faceTopo->faces.push_back( aNodeId );
+            this->faceTopo->GetFaces().push_back( aNodeId );
             this->childFid.resize( totalfn );
         }
         else
@@ -234,7 +234,7 @@ void FaceSolver::ScanBcFace( IntSet& bcVertex, int bcType, int bcNameId )
         if ( ( rCell          == ONEFLOW::INVALID_INDEX ) && 
              ( originalBcType == ONEFLOW::INVALID_INDEX ) )
         {
-            if ( this->CheckBcFace( bcVertex, ( this->faceTopo->faces )[ iFace ] ) )
+            if ( this->CheckBcFace( bcVertex, ( this->faceTopo->GetFaces() )[ iFace ] ) )
             {
                 ++ nBFaces;
 
@@ -276,7 +276,7 @@ void FaceSolver::ScanBcFaceDetail( IntSet& bcVertex, int bcType, int bcNameId )
 
         if ( originalBcType == ONEFLOW::INVALID_INDEX )
         {
-            if ( this->CheckBcFace( bcVertex, ( this->faceTopo->faces )[ iFace ] ) )
+            if ( this->CheckBcFace( bcVertex, ( this->faceTopo->GetFaces() )[ iFace ] ) )
             {
                 ++ nBFaces;
 
@@ -315,7 +315,7 @@ int FaceSolver::GetNSimpleFace()
 {
     int nSimpleFace = 0;
 
-    for ( int iFace = 0; iFace < this->faceTopo->faces.size(); ++ iFace )
+    for ( int iFace = 0; iFace < this->faceTopo->GetFaces().size(); ++ iFace )
     {
         int nCFace = this->childFid[ iFace ].size();
         if ( nCFace == 0 )
