@@ -69,7 +69,7 @@ public:
 public:
     void ConstructLineToDomainMap();
     void ConstructLineToDomainMap( int domain_id, std::map< int, IntSet > & lineToDomainMap );
-    void ConstructPointToDomainMap();
+    void ConstructPointToDomainMap( const LinkField & pointIdLink );
     void ConstructPointToDomainMap( int domain_id, std::map< int, IntSet > & pointToDomainMap ) const;
     void ConstructPointToPointMap();
     void ConstructPointToPointMap( std::map< int, IntSet > & pointToPointMap ) const;
