@@ -237,15 +237,15 @@ void GridElem::GenerateCalcElement()
 
 }
 
-std::unique_ptr< Grid > GridElem::GenerateCalcGrid()
+std::unique_ptr< Grid > GridElem::GenerateCalcGrid( int gridId )
 {
     CgnsZone * cgnsZone = this->GetCgnsZone( 0 );
     const int gridType = Cgns2OneFlowZoneType( cgnsZone->cgnsZoneType );
 
     auto grid = ONEFLOW::CreateGridUnique( gridType );
     grid->level = 0;
-    grid->id = 0;
-    grid->localId = 0;
+    grid->id = gridId;
+    grid->localId = gridId;
     grid->type = gridType;
     grid->volBcType = cgnsZone->GetVolBcType();
 
@@ -479,7 +479,7 @@ Grids ZgridElem::GenerateLocalOneFlowGrids()
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
         GridElem * gridElem = this->GetGridElem( iZone );
-        grids.push_back( gridElem->GenerateCalcGrid() );
+        grids.push_back( gridElem->GenerateCalcGrid( iZone ) );
     }
 
     return grids;
