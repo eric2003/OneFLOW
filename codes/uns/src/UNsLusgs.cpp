@@ -56,7 +56,7 @@ void UNsLusgs::SingleSweep()
 void UNsLusgs::Init()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
-    FaceTopo & faceTopo = grid->GetFaceTopo();
+    FaceTopo & faceTopo = *grid->faceTopo;
     CellTopo * cellTopo = &grid->cellMesh->cellTopo;
     cellTopo->CalcC2f( faceTopo );
     ug.Init();
