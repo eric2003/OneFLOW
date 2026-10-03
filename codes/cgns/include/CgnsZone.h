@@ -90,8 +90,8 @@ public:
     void SetDimension();
     void ReadElementConnectivities();
     void DumpElementConnectivities();
-    void ReadNumberOfCgnsSections();
-    void CreateCgnsSections();
+    int ReadNumberOfCgnsSections();
+    void CreateCgnsSections( int nSections );
     void ReadCgnsSections();
     void DumpCgnsSections();
     void ReadCgnsGridCoordinates();
