@@ -260,8 +260,8 @@ void GridElem::GenerateCalcElement()
 
         if ( rc == INVALID_INDEX )
         {
-            faceTopo.bcManager->bcRecord->bcType.push_back( this->face_solver.faceBcType[ iFace ] );
-            faceTopo.bcManager->bcRecord->bcNameId.push_back( this->face_solver.faceBcKey[ iFace ] );
+            faceTopo.GetBcRecord().bcType.push_back( this->face_solver.faceBcType[ iFace ] );
+            faceTopo.GetBcRecord().bcNameId.push_back( this->face_solver.faceBcKey[ iFace ] );
             ++ nBFaces;
         }
     }
@@ -317,7 +317,7 @@ void GridElem::CalcBoundaryType( UnsGrid & grid )
     int nFaces = grid.GetFaceTopo().faces.size();
     std::cout << " nFaces = " << nFaces << "\n";
      
-    BcRecord * bcRecord = grid.GetFaceTopo().bcManager->bcRecord.get();
+    BcRecord * bcRecord = grid.GetFaceTopo().GetBcRecord();
     int nBFaces = bcRecord->bcType.size();
 
     grid.nBFaces = nBFaces;
