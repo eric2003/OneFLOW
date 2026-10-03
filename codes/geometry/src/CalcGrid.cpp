@@ -53,15 +53,15 @@ void CalcGrid::Init( Grids grids )
 {
     this->grids = std::move( grids );
 
-    const GridConfig config = GridConfig::FromDataBase();
+    this->config = GridConfig::FromDataBase();
 
-    if ( config.objective == GridObjective::Partition )
+    if ( this->config.objective == GridObjective::Partition )
     {
-        this->gridFileName = config.partitionFile;
+        this->gridFileName = this->config.partitionFile;
     }
     else
     {
-        this->gridFileName = config.targetFile;
+        this->gridFileName = this->config.targetFile;
     }
 }
 
@@ -196,7 +196,7 @@ void CalcGrid::ResetGridScaleAndTranslate()
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         Grid * grid = GridAt( grids, iZone );
-        ONEFLOW::ResetGridScaleAndTranslate( grid->nodeMesh.get() );
+        ONEFLOW::ResetGridScaleAndTranslate( grid->nodeMesh.get(), this->config );
     }
 }
 
@@ -304,9 +304,8 @@ void GenerateMultiZoneCalcGrids( Grids grids )
     calcGrid.GenerateMultiZoneCalcGrids( std::move( grids ) );
 }
 
-void ResetGridScaleAndTranslate( NodeMesh * nodeMesh )
+void ResetGridScaleAndTranslate( NodeMesh * nodeMesh, const GridConfig & config )
 {
-    const GridConfig config = GridConfig::FromDataBase();
     const Real scale = config.scale;
     const auto & translate = config.translate;
 
@@ -327,6 +326,11 @@ void ResetGridScaleAndTranslate( NodeMesh * nodeMesh )
     {
         TurnZAxisToYAxis( nodeMesh );
     }
+}
+
+void ResetGridScaleAndTranslate( NodeMesh * nodeMesh )
+{
+    ResetGridScaleAndTranslate( nodeMesh, GridConfig::FromDataBase() );
 }
 
 void TurnZAxisToYAxis( NodeMesh * nodeMesh )
