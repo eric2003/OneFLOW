@@ -73,12 +73,12 @@ void InitTimeStepUns()
 
     InitUnsField();
 
-    FaceTopo & faceTopo = *grid->faceTopo;
+    FaceTopo & faceTopo = grid->GetFaceTopo();
     ug.lcf = & faceTopo.lCells;
     ug.rcf = & faceTopo.rCells;
 
-    FaceMesh & faceMesh = *grid->faceMesh;
-    CellMesh & cellMesh = *grid->cellMesh;
+    FaceMesh & faceMesh = grid->GetFaceMesh();
+    CellMesh & cellMesh = grid->GetCellMesh();
 
     ug.xfn = & faceMesh.xfn;
     ug.yfn = & faceMesh.yfn;
