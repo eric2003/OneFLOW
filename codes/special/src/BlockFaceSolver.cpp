@@ -627,9 +627,5 @@ void BlkFaceSolver::GenerateFaceBlockLink()
     }
 }
 
-IntField GlobalGetLine( int line_id )
-{
-    return blkFaceSolver.GetLine( line_id );
-}
 
 EndNameSpace
