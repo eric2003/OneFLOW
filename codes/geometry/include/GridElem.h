@@ -92,7 +92,7 @@ public:
 public:
     GridElem * GetGridElem( int iGridElem );
     void AddGridElem( std::unique_ptr< GridElem > gridElem );
-    void AddGridElem( HXVector< CgnsZone * > cgnsZones, int iZone );
+    void AddGridElem( const HXVector< CgnsZone * > & cgnsZones, int iZone );
 public:
     void GenerateLocalOneFlowGrid( Grids & grids );
     void AllocateGridElem();
