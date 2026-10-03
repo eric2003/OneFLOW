@@ -235,26 +235,24 @@ void GridElem::GenerateCalcElement()
 
 }
 
-std::unique_ptr< Grid > GridElem::GenerateCalcGrid( int gridId )
+std::unique_ptr< UnsGrid > GridElem::GenerateCalcGrid( int gridId )
 {
     CgnsZone * cgnsZone = this->GetCgnsZone( 0 );
-    const int gridType = Cgns2OneFlowZoneType( cgnsZone->cgnsZoneType );
 
-    auto grid = ONEFLOW::CreateGridUnique( gridType );
+    auto grid = ONEFLOW::CreateUnsGridUnique();
     grid->level = 0;
     grid->id = gridId;
     grid->localId = gridId;
-    grid->type = gridType;
+    grid->type = UMESH;
     grid->volBcType = cgnsZone->GetVolBcType();
 
-    this->GenerateCalcGrid( *grid.get() );
+    this->GenerateCalcGrid( *grid );
     return grid;
 }
 
-void GridElem::GenerateCalcGrid( Grid & gridIn )
+void GridElem::GenerateCalcGrid( UnsGrid & grid )
 {
-    UnsGrid * grid = UnsGridCast( &gridIn );
-    grid->nCells = this->elem_feature.eTypes.size();
+    grid.nCells = this->elem_feature.eTypes.size();
     grid->cellMesh->cellTopo.eTypes = this->elem_feature.eTypes;
     std::cout << "   nCells = " << grid->nCells << std::endl;
 
