@@ -55,9 +55,6 @@ public:
     FaceSolver face_solver;
     Real minLen, maxLen;
 public:
-    CgnsZone * GetCgnsZone( int iZone );
-    const CgnsZone * GetCgnsZone( int iZone ) const;
-    int GetNZones() const;
 public:
     void PrepareUnsCalcGrid();
     void PrepareUnsCalcGridNormal();
@@ -73,6 +70,9 @@ public:
     void ScanPolygonFace();
     void SetPolyhedronElementType( CgnsSection & cgnsSection );
 private:
+    CgnsZone * GetCgnsZone( int iZone );
+    const CgnsZone * GetCgnsZone( int iZone ) const;
+    int GetNZones() const;
     HXVector< CgnsZone * > zoneViews;
 };
 
