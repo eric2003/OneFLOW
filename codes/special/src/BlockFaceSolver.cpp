@@ -221,10 +221,10 @@ void BlkFaceSolver::MyFaceAlloc()
 {
     if ( init_flag ) return;
     init_flag = true;
-    int nLine = line_Machine.curveInfoList.size();
+    int nLine = line_Machine.GetNLine();
     for ( int i = 0; i < nLine; ++ i )
     {
-        CurveInfo * curveInfo = line_Machine.GetCurveInfo( i + 1 );
+        const CurveInfo * curveInfo = line_Machine.GetCurveInfo( i + 1 );
         IntField line;
         line.push_back( curveInfo->p1 );
         line.push_back( curveInfo->p2 );
