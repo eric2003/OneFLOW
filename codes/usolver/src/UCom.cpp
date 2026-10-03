@@ -64,9 +64,9 @@ void UGeom::Init()
     this->SetStEd( F_TOTAL );
     this->CreateBcTypeRegion();
 
-    FaceTopo & faceTopo = grid->GetFaceTopo();
-    ug.lcf = & faceTopo->lCells;
-    ug.rcf = & faceTopo->rCells;
+    FaceTopo & faceTopo = *grid->faceTopo;
+    ug.lcf = & faceTopo.lCells;
+    ug.rcf = & faceTopo.rCells;
 
     FaceMesh * faceMesh = grid->faceMesh.get();
     CellMesh * cellMesh = grid->cellMesh.get();
