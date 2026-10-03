@@ -167,11 +167,6 @@ void CgnsZbase::ReadCgnsMultiBase()
     }
 }
 
-void CgnsZbase::AddCgnsBase( CgnsBase * cgnsBase )
-{
-    this->AddCgnsBase( std::unique_ptr< CgnsBase >( cgnsBase ) );
-}
-
 void CgnsZbase::AddCgnsBase( std::unique_ptr< CgnsBase > cgnsBase )
 {
     CgnsBase * base = cgnsBase.get();
