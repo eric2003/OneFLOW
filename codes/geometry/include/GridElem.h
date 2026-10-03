@@ -48,7 +48,7 @@ int Cgns2OneFlowZoneType( int zoneType );
 class GridElem
 {
 public:
-    GridElem( HXVector< CgnsZone * > & cgnsZones, int iZone );
+    GridElem( const HXVector< CgnsZone * > & cgnsZones, int iZone );
     ~GridElem();
 public:
     // [Refactored] Changed from raw pointers to value types (Stack allocation).
@@ -61,16 +61,17 @@ public:
     Real minLen, maxLen;
 public:
     CgnsZone * GetCgnsZone( int iZone );
-    int GetNZones();
+    const CgnsZone * GetCgnsZone( int iZone ) const;
+    int GetNZones() const;
 public:
-    void CreateGrid( HXVector< CgnsZone * > cgnsZones, int iZone );
+    void CreateGrid( const HXVector< CgnsZone * > & cgnsZones, int iZone );
     void PrepareUnsCalcGrid();
     void PrepareUnsCalcGridNormal();
     void InitCgnsElements();
     void ScanBcFace();
     void GenerateCalcElement();
     void GenerateCalcGrid();
-    void GenerateCalcGrid( Grid * grid );
+    void GenerateCalcGrid( Grid & grid );
     void CalcBoundaryType( UnsGrid * grid );
     void ReorderLink( UnsGrid * grid );
 public:
