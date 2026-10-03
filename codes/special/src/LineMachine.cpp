@@ -49,7 +49,6 @@ void LineMachine::Reset()
     segmentCtrlList.clear();
     curveInfoList.clear();
     curveMeshList.clear();
-    dimList.clear();
     ds1List.clear();
     ds2List.clear();
     lineLookup.Clear();
@@ -115,7 +114,6 @@ void LineMachine::AddDimension( TextFileParser & textFileParser )
 {
     int id = textFileParser.ReadNextDigit< int >();
     int dim = textFileParser.ReadNextDigit< int >();
-    this->dimList.push_back( dim );
     SegmentCtrl * segmentCtrl = this->GetSegmentCtrl( id );
     segmentCtrl->nPoint = dim;
 }
@@ -129,9 +127,13 @@ void LineMachine::AddDs( TextFileParser & textFileParser )
 
 void LineMachine::SetDimension( int id, int pointCount )
 {
-    this->dimList.push_back( pointCount );
     SegmentCtrl * segmentCtrl = this->GetSegmentCtrl( id );
     segmentCtrl->nPoint = pointCount;
+}
+
+int LineMachine::GetDimension( int id ) const
+{
+    return this->GetSegmentCtrl( id )->nPoint;
 }
 
 void LineMachine::SetDistribution( const GridDistributionDefinition & definition )
