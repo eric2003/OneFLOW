@@ -11,7 +11,7 @@ public:
     BlockMachine() = default;
     ~BlockMachine() = default;
 public:
-    void AddFaceToBlock( TextFileParser & textFileParser );
+    void ApplyRelation( TextFileParser & textFileParser );
     void AddLineToFace( int faceId, int position, int lineId );
     void AddFaceToBlock( int blockId, int position, int faceId );
     void GenerateGrid();
