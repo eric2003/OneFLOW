@@ -253,16 +253,15 @@ std::unique_ptr< Grid > GridElem::GenerateCalcGrid( int gridId )
     return grid;
 }
 
-void GridElem::GenerateCalcGrid( Grid & gridIn )
+void GridElem::GenerateCalcGrid( UnsGrid & grid )
 {
-    UnsGrid * grid = UnsGridCast( &gridIn );
-    grid->nCells = this->elem_feature.eTypes.size();
-    grid->cellMesh->cellTopo.eTypes = this->elem_feature.eTypes;
-    std::cout << "   nCells = " << grid->nCells << std::endl;
+    grid.nCells = this->elem_feature.eTypes.size();
+    grid.cellMesh->cellTopo.eTypes = this->elem_feature.eTypes;
+    std::cout << "   nCells = " << grid.nCells << std::endl;
 
     int nNodes = this->point_factory.localToGlobal.size();
-    grid->nodeMesh->CreateNodes(nNodes);
-    grid->nNodes = nNodes;
+    grid.nodeMesh->CreateNodes(nNodes);
+    grid.nNodes = nNodes;
 
     for (int iNode = 0; iNode < nNodes; ++iNode)
     {
@@ -271,13 +270,13 @@ void GridElem::GenerateCalcGrid( Grid & gridIn )
         Real x, y, z;
         this->point_factory.GetPoint(globalId, x, y, z);
 
-        grid->nodeMesh->xN[iNode] = x;
-        grid->nodeMesh->yN[iNode] = y;
-        grid->nodeMesh->zN[iNode] = z;
+        grid.nodeMesh->xN[iNode] = x;
+        grid.nodeMesh->yN[iNode] = y;
+        grid.nodeMesh->zN[iNode] = z;
     }
 
-    this->CalcBoundaryType( *grid );
-    this->ReorderLink( *grid );
+    this->CalcBoundaryType( grid );
+    this->ReorderLink( grid );
     std::cout << "\n-->All the computing information is ready\n";
 }
 
