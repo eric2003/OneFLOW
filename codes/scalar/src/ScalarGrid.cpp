@@ -483,7 +483,7 @@ void ScalarGrid::SetCgnsZone( CgnsZone * cgnsZone )
 	int currentElementPosition = 0;
 	for ( int iSection = 0; iSection < nTotalSections; ++ iSection )
 	{
-		CgnsSection * cgnsSection = cgnsZsection->GetCgnsSection( iSection );
+		CgnsSection & cgnsSection = cgnsZsection->GetCgnsSection( iSection );
 		SectionMarker * section = 0;
 		if ( iSection < nVolSections )
 		{
@@ -496,8 +496,8 @@ void ScalarGrid::SetCgnsZone( CgnsZone * cgnsZone )
 		}
 
 		int nElements = section->nElements;
-		cgnsSection->SetSectionInfo( section->name, section->cgns_type, currentElementPosition + 1, currentElementPosition + nElements );
-		cgnsSection->CreateConnList();
+		cgnsSection.SetSectionInfo( section->name, section->cgns_type, currentElementPosition + 1, currentElementPosition + nElements );
+		cgnsSection.CreateConnList();
 		currentElementPosition += nElements;
 
 		int position = 0;
@@ -507,15 +507,15 @@ void ScalarGrid::SetCgnsZone( CgnsZone * cgnsZone )
 			int nElementNodes = element.size();
 			for ( int iNode = 0; iNode < nElementNodes; ++ iNode )
 			{
-				cgnsSection->connList[ position ++ ]= element[ iNode ] + 1;
+				cgnsSection.connList[ position ++ ]= element[ iNode ] + 1;
 			}
 		}
 	}
 
 	for ( int iSection = 0; iSection < nTotalSections; ++ iSection )
 	{
-		CgnsSection * cgnsSection = cgnsZsection->GetCgnsSection( iSection );
-		cgnsSection->SetElemPosition();
+		CgnsSection & cgnsSection = cgnsZsection->GetCgnsSection( iSection );
+		cgnsSection.SetElemPosition();
 	}
 
 	CgnsZbc * cgnsZbc = cgnsZone->cgnsZbc.get();
@@ -601,16 +601,16 @@ void ScalarGrid::ReadFromCgnsZone( CgnsZone * cgnsZone )
 	for ( int iSection = 0; iSection < nSections; ++ iSection )
 	{
 		std::cout << "-->iSection     = " << iSection << " numberOfCgnsSections = " << nSections << "\n";
-		CgnsSection * cgnsSection = cgnsZsection->GetCgnsSection( iSection );
+		CgnsSection & cgnsSection = cgnsZsection->GetCgnsSection( iSection );
 
-		if ( ! ONEFLOW::IsBasicVolumeElementType( cgnsSection->eType ) ) continue;
+		if ( ! ONEFLOW::IsBasicVolumeElementType( cgnsSection.eType ) ) continue;
 
-		for ( int iElem = 0; iElem < cgnsSection->nElement; ++ iElem )
+		for ( int iElem = 0; iElem < cgnsSection.nElement; ++ iElem )
 		{
 			CgIntField eNodeId;
-			cgnsSection->GetElementNodeId( iElem, eNodeId );
+			cgnsSection.GetElementNodeId( iElem, eNodeId );
 
-			int eType = cgnsSection->eTypeList[ iElem ];
+			int eType = cgnsSection.eTypeList[ iElem ];
 
 			this->PushElement( eNodeId, eType );
 		}
