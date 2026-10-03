@@ -288,12 +288,12 @@ void GridElem::CalcBoundaryType( UnsGrid & grid )
 {
     std::cout << "\n-->Set boundary condition......\n";
     grid.faceTopo = std::move( this->face_solver.faceTopo );
-    grid->faceTopo->grid = grid;
-    grid.faceMesh->faceTopo = grid->faceTopo.get();
-    int nFaces = grid->faceTopo->faces.size();
+    grid.faceTopo->grid = &grid;
+    grid.faceMesh->faceTopo = grid.faceTopo.get();
+    int nFaces = grid.faceTopo->faces.size();
     std::cout << " nFaces = " << nFaces << "\n";
      
-    BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord.get();
+    BcRecord * bcRecord = grid.faceTopo->bcManager->bcRecord.get();
     int nBFaces = bcRecord->bcType.size();
 
     grid.nBFaces = nBFaces;
@@ -358,9 +358,10 @@ void GridElem::CalcBoundaryType( UnsGrid & grid )
 
 void GridElem::ReorderLink( UnsGrid & grid )
 {
-    FaceTopo * faceTopo = grid->faceTopo.get();
+    FaceTopo * faceTopo = grid.faceTopo.get();
+
     int nFaces = faceTopo->fTypes.size();
-    grid->nFaces = nFaces;
+    grid.nFaces = nFaces;
 
     IntField f1map( nFaces ), f2map( nFaces );
     int iCount = 0;
