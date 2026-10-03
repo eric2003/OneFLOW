@@ -178,21 +178,21 @@ void FillSection( GridViews & grids, HXVector< std::unique_ptr< Int3D > > & unsI
 
     cgnsZone->cgnsZsection->CreateCgnsSections( 2 );
 
-    cgnsZone->cgnsZsection->cgnsSections[ 0 ]->startId = 1;
-    cgnsZone->cgnsZsection->cgnsSections[ 0 ]->endId   = nTCell;
+    cgnsZone->cgnsZsection->GetCgnsSection( 0 )->startId = 1;
+    cgnsZone->cgnsZsection->GetCgnsSection( 0 )->endId   = nTCell;
 
-    cgnsZone->cgnsZsection->cgnsSections[ 1 ]->startId = nTCell + 1;
-    cgnsZone->cgnsZsection->cgnsSections[ 1 ]->endId   = nTCell + 1 + nBFaces;
+    cgnsZone->cgnsZsection->GetCgnsSection( 1 )->startId = nTCell + 1;
+    cgnsZone->cgnsZsection->GetCgnsSection( 1 )->endId   = nTCell + 1 + nBFaces;
 
     if ( Dim::dimension == ONEFLOW::THREE_D )
     {
-        cgnsZone->cgnsZsection->cgnsSections[ 0 ]->eType = HEXA_8;
-        cgnsZone->cgnsZsection->cgnsSections[ 1 ]->eType = QUAD_4;
+        cgnsZone->cgnsZsection->GetCgnsSection( 0 )->eType = HEXA_8;
+        cgnsZone->cgnsZsection->GetCgnsSection( 1 )->eType = QUAD_4;
     }
     else
     {
-        cgnsZone->cgnsZsection->cgnsSections[ 0 ]->eType = QUAD_4;
-        cgnsZone->cgnsZsection->cgnsSections[ 1 ]->eType = BAR_2;
+        cgnsZone->cgnsZsection->GetCgnsSection( 0 )->eType = QUAD_4;
+        cgnsZone->cgnsZsection->GetCgnsSection( 1 )->eType = BAR_2;
     }
 
     cgnsZone->cgnsZsection->CreateConnList();
