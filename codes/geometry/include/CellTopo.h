@@ -47,7 +47,7 @@ public:
     void Alloc( int nCells );
     HXSize_t GetNumberOfCells() { return eTypes.size(); }
     void CalcC2f( FaceTopo & faceTopo );
-    void CalcC2C( FaceTopo * faceTopo );
+    void CalcC2C( FaceTopo & faceTopo );
 };
 
 void CalcC2f( UnsGrid * grid );
