@@ -351,7 +351,7 @@ void MLine::CreateInpFaceList1D( HXVector< std::unique_ptr<Face2D> > &facelist )
         auto face2d = std::make_unique<Face2D>();
         face2d->face_id = sLine->line_id;
         face2d->Set1DRegion( sLine->ctrlpoints );
-        BlkF2C & face_struct = blkFaceSolver.line2Face[ face2d->face_id - 1 ];
+        BlkF2C & face_struct = blkFaceSolver.GetLineToFace( face2d->face_id );
         face2d->bcType = face_struct.bctype;
         face2d->CalcStEd( coorMap );
         facelist.push_back( std::move( face2d ) );

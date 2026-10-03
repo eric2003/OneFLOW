@@ -62,7 +62,6 @@ public:
     HXLookup<int> lineLookup;
     HXLookup<int> faceLookup;
     IntSet faceset;
-    HXVector< BlkF2C > line2Face;
     HXVector< BlkF2C > face2Block;
     HXVector< std::unique_ptr< SDomain > > sDomainList;
     HXVector< std::unique_ptr< SLine > > slineList;
@@ -72,6 +71,8 @@ public:
     const Face2D * GetBlkFace2D( int blk, int face_id ) const;
     IntField & GetLine( int line_id );
     const IntField & GetLine( int line_id ) const;
+    BlkF2C & GetLineToFace( int line_id );
+    const BlkF2C & GetLineToFace( int line_id ) const;
     int FindLineId( const IntField & line ) const;
 public:
     void AddLineToFace( int faceid, int pos, int lineid );
