@@ -94,6 +94,58 @@ void TestRegionQueryAccuracy() {
     std::cout << "PASSED\n";
 }
 
+void TestDeletionAndRebuild()
+{
+    std::cout << "Running Test 3: Deletion and Rebuild... ";
+
+    double pmin[] = {0.0, 0.0, 0.0};
+    double pmax[] = {10.0, 10.0, 10.0};
+
+    ONEFLOW::HXAdtTree<int, double> tree(3, pmin, pmax);
+
+    double pts[4][3] = {
+        {1.0, 1.0, 1.0},
+        {2.0, 2.0, 2.0},
+        {5.0, 5.0, 5.0},
+        {8.0, 8.0, 8.0}
+    };
+
+    ONEFLOW::HXAdtTree<int, double>::AdtNodeList nodes;
+    for (int i = 0; i < 4; ++i)
+    {
+        auto node = std::make_unique<ONEFLOW::HXAdtNode<int, double>>(3, pts[i], i);
+        nodes.push_back(node.get());
+        tree.AddNode(std::move(node));
+    }
+
+    assert(tree.nCount() == 4);
+    assert(tree.RemoveNode(nodes[1]));
+    assert(tree.nCount() == 3);
+
+    double qmin[] = {0.5, 0.5, 0.5};
+    double qmax[] = {9.0, 9.0, 9.0};
+
+    ONEFLOW::HXAdtTree<int, double>::AdtNodeList results;
+    tree.FindNodesInRegion(qmin, qmax, results);
+
+    assert(results.size() == 3);
+
+    bool found0 = false;
+    bool found2 = false;
+    bool found3 = false;
+    for (auto * node : results)
+    {
+        if (node->GetData() == 0) found0 = true;
+        if (node->GetData() == 2) found2 = true;
+        if (node->GetData() == 3) found3 = true;
+        assert(node->GetData() != 1);
+    }
+
+    assert(found0 && found2 && found3);
+
+    std::cout << "PASSED\n";
+}
+
 void TestBoundaryConditions() {
     std::cout << "Running Test 3: Boundary Conditions (Exact Match)... ";
 
@@ -172,6 +224,7 @@ void ADTTest::Run()
     try {
         TestBasicInsertionAndCount();
         TestRegionQueryAccuracy();
+        TestDeletionAndRebuild();
         TestBoundaryConditions();
         TestStressAndMemorySafety();
 
