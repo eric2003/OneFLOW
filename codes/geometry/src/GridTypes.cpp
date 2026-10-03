@@ -57,14 +57,52 @@ GridConfig GridConfig::FromDataBase()
     cfg.bcFile         = GetDataValue< std::string >( "sourceGridBcName" );
     cfg.targetFile     = GetDataValue< std::string >( "targetGridFileName" );
 
-    cfg.sourceType = ParseGridFileType( GetDataValue< std::string >( "sourceGridType" ) );
-    cfg.targetType = ParseGridFileType( GetDataValue< std::string >( "targetGridType" ) );
-    cfg.topology = ParseGridTopology( GetDataValue< std::string >( "topoType" ) );
+    // These values belong to specific grid workflows. Keep their defaults when
+    // a smaller workflow does not register the corresponding database entries.
+    try
+    {
+        cfg.sourceType =
+            ParseGridFileType( GetDataValue< std::string >( "sourceGridType" ) );
+    }
+    catch ( const std::exception & )
+    {
+    }
 
-    cfg.multiBlock = GetDataValue< int >( "multiBlock" ) != 0;
-    cfg.axisDirection = GetDataValue< int >( "axis_dir" ) == 1
-        ? GridAxisDirection::ZToY
-        : GridAxisDirection::Y;
+    try
+    {
+        cfg.targetType =
+            ParseGridFileType( GetDataValue< std::string >( "targetGridType" ) );
+    }
+    catch ( const std::exception & )
+    {
+    }
+
+    try
+    {
+        cfg.topology =
+            ParseGridTopology( GetDataValue< std::string >( "topoType" ) );
+    }
+    catch ( const std::exception & )
+    {
+    }
+
+    try
+    {
+        cfg.multiBlock = GetDataValue< int >( "multiBlock" ) != 0;
+    }
+    catch ( const std::exception & )
+    {
+    }
+
+    try
+    {
+        cfg.axisDirection = GetDataValue< int >( "axis_dir" ) == 1
+            ? GridAxisDirection::ZToY
+            : GridAxisDirection::Y;
+    }
+    catch ( const std::exception & )
+    {
+    }
 
     // Partition-only parameters are required only when the partition workflow is selected.
     // Other grid workflows may legitimately omit these database entries.
