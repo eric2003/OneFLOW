@@ -98,7 +98,7 @@ void CgnsZone::SetPeriodicBc()
 
 void CgnsZone::SetElementTypeAndNode( ElemFeature * elem_feature )
 {
-    size_t nSection = this->cgnsZsection->nSection;
+    const int nSection = this->cgnsZsection->GetNSections();
     for ( int iSection = 0; iSection < nSection; ++ iSection )
     {
         CgnsSection * cgnsSection = this->cgnsZsection->GetCgnsSection( iSection );
@@ -288,7 +288,7 @@ void CgnsZone::DumpElementConnectivities()
 {
     if ( this->cgnsZoneType == CGNS_ENUMV( Structured ) ) return;
 
-    std::cout << "   numberOfCgnsSections = " << this->cgnsZsection->nSection << "\n";
+    std::cout << "   numberOfCgnsSections = " << this->cgnsZsection->GetNSections() << "\n";
 
     this->DumpCgnsSections();
 }

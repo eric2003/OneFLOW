@@ -46,6 +46,7 @@ public:
     void AddCgnsSection( std::unique_ptr< CgnsSection > cgnsSection );
     CgnsSection * GetCgnsSection( int iSection );
     const CgnsSection * GetCgnsSection( int iSection ) const;
+    int GetNSections() const;
     bool HasPolygonSection() const;
     void CreateCgnsSection();
     void CreateConnList();
