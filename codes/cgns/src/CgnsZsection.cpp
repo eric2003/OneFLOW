@@ -64,6 +64,11 @@ CgnsSection * CgnsZsection::GetCgnsSection( int iSection )
     return this->cgnsSections[ iSection ].get();
 }
 
+const CgnsSection * CgnsZsection::GetCgnsSection( int iSection ) const
+{
+    return this->cgnsSections[ iSection ].get();
+}
+
 bool CgnsZsection::ExistSection( const std::string & sectionName )
 {
     if ( this->cgnsSections.size() == 0 ) return false;
@@ -75,11 +80,11 @@ bool CgnsZsection::ExistSection( const std::string & sectionName )
     return false;
 }
 
-bool CgnsZsection::HasPolygonSection()
+bool CgnsZsection::HasPolygonSection() const
 {
-    for ( int iSection = 0; iSection <  this->cgnsSections.size(); ++ iSection )
+    for ( int iSection = 0; iSection < this->cgnsSections.size(); ++ iSection )
     {
-        CgnsSection * cgnsSection = this->GetCgnsSection( iSection );
+        const CgnsSection * cgnsSection = this->GetCgnsSection( iSection );
         if ( cgnsSection->eType == NGON_n ||
              cgnsSection->eType == NFACE_n )
         {
