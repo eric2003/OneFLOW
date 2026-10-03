@@ -30,6 +30,9 @@ TEST(CgnsFactoryLifecycleTest, MoveSemanticsWork)
         // factory2 should own the resources
         EXPECT_NE(factory2.cgnsZbase, nullptr);
         EXPECT_NE(factory2.zgridElem, nullptr);
+
+        // The observer must follow the CgnsZbase owner after the move.
+        EXPECT_EQ( factory2.zgridElem->cgnsZbase, factory2.cgnsZbase.get() );
     });
 }
 
