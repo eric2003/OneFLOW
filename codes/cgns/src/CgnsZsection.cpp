@@ -96,7 +96,13 @@ bool CgnsZsection::HasPolygonSection() const
 
 void CgnsZsection::CreateCgnsSection()
 {
-    for ( int iSection = 0; iSection < this->nSection; ++ iSection )
+    this->CreateCgnsSections( this->nSection );
+}
+
+void CgnsZsection::CreateCgnsSections( int nSections )
+{
+    this->nSection = nSections;
+    for ( int iSection = 0; iSection < nSections; ++ iSection )
     {
         this->AddCgnsSection( std::make_unique< CgnsSection >( cgnsZone ) );
     }
