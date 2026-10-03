@@ -183,7 +183,7 @@ void GridElem::ScanPolygonFace()
         cgnsZone.ConstructCgnsGridPoints( &this->point_factory );
 
         //Scan NGON_n PolygonFace
-        const int nSections = cgnsZone->cgnsZsection->GetNSections();
+        const int nSections = cgnsZone.cgnsZsection->GetNSections();
         for ( int iSection = 0; iSection < nSections; ++ iSection )
         {
             CgnsSection * cgnsSection = cgnsZone.cgnsZsection->GetCgnsSection( iSection );
@@ -221,7 +221,7 @@ void GridElem::InitCgnsElements()
     {
         CgnsZone & cgnsZone = this->GetCgnsZone( iZone );
         
-        cgnsZone->ConstructCgnsGridPoints( &this->point_factory );
+        cgnsZone.ConstructCgnsGridPoints( &this->point_factory );
         cgnsZone.SetElementTypeAndNode( &this->elem_feature );
     }
 }
