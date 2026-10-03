@@ -42,6 +42,7 @@ License
 #include "BgGrid.h"
 #include "CgnsZsection.h"
 #include "CgnsSection.h"
+#include "Fatal.h"
 #include <iostream>
 #include <iomanip>
 #include <utility>
@@ -97,10 +98,52 @@ int GridElem::GetNZones() const
     return this->zoneViews.size();
 }
 
+bool GridElem::HasPolygonSection() const
+{
+    if ( this->GetNZones() == 0 )
+    {
+        Fatal( "GridElem requires at least one CGNS zone." );
+    }
+
+    const bool hasPolygon = this->GetCgnsZone( 0 )->cgnsZsection->HasPolygonSection();
+
+    for ( int iZone = 1; iZone < this->GetNZones(); ++ iZone )
+    {
+        const bool zoneHasPolygon =
+            this->GetCgnsZone( iZone )->cgnsZsection->HasPolygonSection();
+
+        if ( zoneHasPolygon != hasPolygon )
+        {
+            Fatal( "GridElem cannot combine CGNS zones with different element-generation modes." );
+        }
+    }
+
+    return hasPolygon;
+}
+
+int GridElem::GetVolBcType() const
+{
+    if ( this->GetNZones() == 0 )
+    {
+        Fatal( "GridElem requires at least one CGNS zone." );
+    }
+
+    const int volBcType = this->GetCgnsZone( 0 )->GetVolBcType();
+
+    for ( int iZone = 1; iZone < this->GetNZones(); ++ iZone )
+    {
+        if ( this->GetCgnsZone( iZone )->GetVolBcType() != volBcType )
+        {
+            Fatal( "GridElem cannot combine CGNS zones with different volume boundary types." );
+        }
+    }
+
+    return volBcType;
+}
+
 void GridElem::PrepareUnsCalcGrid()
 {
-    const CgnsZone * zone = this->GetCgnsZone( 0 );
-    bool flag = zone->cgnsZsection->HasPolygonSection();
+    const bool flag = this->HasPolygonSection();
     if ( flag )
     {
         this->PrepareUnsCalcGridPolyhedron();
@@ -240,7 +283,7 @@ std::unique_ptr< UnsGrid > GridElem::GenerateCalcGrid( int gridId )
     grid->id = gridId;
     grid->localId = gridId;
     grid->type = UMESH;
-    grid->volBcType = cgnsZone->GetVolBcType();
+    grid->volBcType = this->GetVolBcType();
 
     this->GenerateCalcGrid( *grid );
     return grid;
