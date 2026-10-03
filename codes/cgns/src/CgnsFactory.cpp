@@ -316,11 +316,5 @@ void AddOneFlowGrid( Grids & grids, std::unique_ptr< Grid > grid )
     grids.push_back( std::move( grid ) );
 }
 
-// Compatibility overload for legacy raw pointers (takes ownership).
-void AddOneFlowGrid( Grids & grids, Grid * grid )
-{
-    AddOneFlowGrid( grids, std::unique_ptr< Grid >( grid ) );
-}
-
 #endif
 EndNameSpace
