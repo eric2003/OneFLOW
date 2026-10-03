@@ -54,10 +54,10 @@ HXSize_t CellMesh::GetNumberOfCells()
     return cellTopo.GetNumberOfCells(); 
 }
 
-void CellMesh::AllocateMetrics( FaceMesh * faceMesh )
+void CellMesh::AllocateMetrics( FaceMesh & faceMesh )
 {
     HXSize_t numberOfCells = this->GetNumberOfCells();
-    HXSize_t nBFaces = faceMesh->GetNBFace();
+    HXSize_t nBFaces = faceMesh.GetNBFace();
     HXSize_t nTCell = numberOfCells + nBFaces;
     this->xcc.resize( nTCell );
     this->ycc.resize( nTCell );
