@@ -34,7 +34,7 @@ public:
     GridMachine();
     ~GridMachine();
 public:
-    void Run();
+    void Run( const std::string & fileName );
     void ReadScript( const std::string & fileName );
     void GeneGrid();
 private:
