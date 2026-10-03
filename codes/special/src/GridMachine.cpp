@@ -45,12 +45,11 @@ GridMachine::~GridMachine()
 {
 }
 
-void GridMachine::Run()
+void GridMachine::Run( const std::string & fileName )
 {
     this->ResetState();
     try
     {
-        std::string fileName = GetDataValue< std::string >( "gridLayoutFileName" );
         this->ReadScript( fileName );
         this->GeneGrid();
     }
