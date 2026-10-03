@@ -133,7 +133,7 @@ void UnsGrid::ReadGrid( DataBook * databook )
     std::cout << " number of elements : " << this->nCells << std::endl;
 
     this->nodeMesh->CreateNodes( this->nNodes );
-    this->GetCellMesh().cellTopo.Alloc( this->nCells );
+    this->GetCellMesh().GetCellTopo().Alloc( this->nCells );
 
     ONEFLOW::HXRead( databook, this->nodeMesh->xN );
     ONEFLOW::HXRead( databook, this->nodeMesh->yN );
@@ -265,8 +265,8 @@ void UnsGrid::WriteGridFaceTopology1D( DataBook * databook )
     std::cout << " Reading eTypes\n";
 
     //write element types
-    int ntmpElements = this->GetCellMesh().cellTopo.eTypes.size();
-    ONEFLOW::HXWrite( databook, this->GetCellMesh().cellTopo.eTypes );
+    int ntmpElements = this->GetCellMesh().GetCellTopo().eTypes.size();
+    ONEFLOW::HXWrite( databook, this->GetCellMesh().GetCellTopo().eTypes );
 
     //write face types
     int ntmpFaces = this->GetFaceTopo().fTypes.size();
@@ -578,7 +578,7 @@ void UnsGrid::CalcCellCenterVol1D()
     RealField & yN = nodeMesh->yN;
     RealField & zN = nodeMesh->zN;
 
-    CellTopo & cellTopo = this->GetCellMesh().cellTopo;
+    CellTopo & cellTopo = this->GetCellMesh().GetCellTopo();
     FaceTopo & faceTopo = this->GetFaceMesh().GetFaceTopo();
 
     for ( HXSize_t iCell = 0; iCell < numberOfCells; ++ iCell )
@@ -617,7 +617,7 @@ void UnsGrid::CalcGhostCellCenterVol1D()
 
     RealField & area = this->GetFaceMesh().area;
 
-    CellTopo & cellTopo = this->GetCellMesh().cellTopo;
+    CellTopo & cellTopo = this->GetCellMesh().GetCellTopo();
     FaceTopo & faceTopo = this->GetFaceMesh().GetFaceTopo();
 
     // For ghost cells
@@ -676,7 +676,7 @@ void UnsGrid::CalcCellCenterVol2D()
 
     RealField & area = this->GetFaceMesh().area;
 
-    CellTopo & cellTopo = this->GetCellMesh().cellTopo;
+    CellTopo & cellTopo = this->GetCellMesh().GetCellTopo();
     FaceTopo & faceTopo = this->GetFaceMesh().GetFaceTopo();
 
     xcc = 0;
@@ -789,7 +789,7 @@ void UnsGrid::CalcCellCenterVol3D()
 
     RealField & area = this->GetFaceMesh().area;
 
-    CellTopo & cellTopo = this->GetCellMesh().cellTopo;
+    CellTopo & cellTopo = this->GetCellMesh().GetCellTopo();
     FaceTopo & faceTopo = this->GetFaceMesh().GetFaceTopo();
 
     RealField & xN = nodeMesh->xN;
