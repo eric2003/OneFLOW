@@ -192,7 +192,7 @@ void BcManager::PreProcess()
     bcFlag.resize( nBFaces, 1 );
 }
 
-bool BcManager::ExistInterface()
+bool BcManager::ExistInterface() const
 {
     int nBFaces = this->bcRecord->GetNBFace();
 
