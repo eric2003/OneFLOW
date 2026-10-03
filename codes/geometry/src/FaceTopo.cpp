@@ -64,6 +64,26 @@ const BcRecord & FaceTopo::GetBcRecord() const
     return *this->bcManager->bcRecord;
 }
 
+IntField & FaceTopo::GetLeftCells()
+{
+    return this->lCells;
+}
+
+const IntField & FaceTopo::GetLeftCells() const
+{
+    return this->lCells;
+}
+
+IntField & FaceTopo::GetRightCells()
+{
+    return this->rCells;
+}
+
+const IntField & FaceTopo::GetRightCells() const
+{
+    return this->rCells;
+}
+
 void FaceTopo::PrepareBoundaryConditions()
 {
     this->bcManager->PreProcess();
