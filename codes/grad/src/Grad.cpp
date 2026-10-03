@@ -143,8 +143,8 @@ void Grad::StoreBcGrad()
     {
         int bc_type = bcType[ iFace ];
 
-        int lc = faceTopo->lCells[ iFace ];
-        int rc = faceTopo->rCells[ iFace ];
+        int lc = faceTopo->GetLeftCells()[ iFace ];
+        int rc = faceTopo->GetRightCells()[ iFace ];
 
         for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
         {
