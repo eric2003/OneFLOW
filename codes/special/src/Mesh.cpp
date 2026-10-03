@@ -366,7 +366,9 @@ void Mesh::CreateMesh()
     // If CreateMesh is called multiple times, the old resources are 
     // automatically released before reassignment, preventing leaks.
     nodeMesh = std::make_unique<NodeMesh>();
+    faceTopo = std::make_unique<FaceTopo>();
     faceMesh = std::make_unique<FaceMesh>();
+    faceMesh->BindFaceTopo( *faceTopo );
     cellMesh = std::make_unique<CellMesh>();
 
     SimpleMesh2D simpleMesh2D;
