@@ -101,6 +101,7 @@ inline constexpr std::array< std::string_view, 7 > kGridOpTokens = {
 struct GridConfig
 {
     GridObjective objective{ GridObjective::ConvertOnly };
+    std::optional< GridGenerationType > generationType;
     GridFileType  sourceType{ GridFileType::Unknown };
     GridFileType  targetType{ GridFileType::Unknown };
     std::string   sourceFile;
