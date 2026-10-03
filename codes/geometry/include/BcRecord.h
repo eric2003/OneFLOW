@@ -95,7 +95,7 @@ public:
     IntField bcFlag;
 public:
     void PreProcess();
-    bool ExistInterface();
+    bool ExistInterface() const;
     void Update();
     void CalcBcType( IntField & bcTypeList );
 };
