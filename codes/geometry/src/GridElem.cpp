@@ -448,11 +448,12 @@ void ZgridElem::RebindCgnsZbase( CgnsZbase * cgnsZbase ) noexcept
     this->cgnsZbase = cgnsZbase;
 }
 
-HXVector< std::unique_ptr< GridElem > > ZgridElem::CreateGridElements( bool multiBlock ) const
+HXVector< std::unique_ptr< GridElem > > ZgridElem::CreateGridElements(
+    GridAssemblyMode assemblyMode ) const
 {
     HXVector< std::unique_ptr< GridElem > > data;
 
-    if ( ! multiBlock )
+    if ( assemblyMode == GridAssemblyMode::AggregateZones )
     {
         HXVector< CgnsZone * > zoneViews;
 
@@ -503,7 +504,7 @@ Grids ZgridElem::GenerateLocalOneFlowGrids()
 Grids ZgridElem::GenerateLocalOneFlowGrids( const GridConfig & config )
 {
     HXVector< std::unique_ptr< GridElem > > data =
-        this->CreateGridElements( config.multiBlock );
+        this->CreateGridElements( config.assemblyMode );
     this->PrepareUnsCalcGrid( data );
 
     Grids grids;
