@@ -68,7 +68,7 @@ void UnsGrid::Init()
     this->faceTopo = std::make_unique< FaceTopo >();
     this->faceMesh = std::make_unique< FaceMesh >();
     this->cellMesh = std::make_unique< CellMesh >();
-    faceTopo->grid = this;
+    faceTopo->BindGrid( *this );
     this->faceMesh->BindFaceTopo( *this->faceTopo );
 }
 
