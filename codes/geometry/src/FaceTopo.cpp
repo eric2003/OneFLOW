@@ -54,6 +54,26 @@ const Grid & FaceTopo::GetGrid() const
     return *this->grid;
 }
 
+BcRecord & FaceTopo::GetBcRecord()
+{
+    return *this->bcManager->bcRecord;
+}
+
+const BcRecord & FaceTopo::GetBcRecord() const
+{
+    return *this->bcManager->bcRecord;
+}
+
+void FaceTopo::PrepareBoundaryConditions()
+{
+    this->bcManager->PreProcess();
+}
+
+bool FaceTopo::HasInterfaceBoundary() const
+{
+    return this->bcManager->ExistInterface();
+}
+
 FaceTopo::~FaceTopo() = default;
 
 HXSize_t FaceTopo::CalcTotalFaceNodes()
