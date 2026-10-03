@@ -93,11 +93,9 @@ ClassicGrid::~ClassicGrid()
     ;
 }
 
-void ClassicGrid::Run( const std::optional< GridGenerationType > & generationType ) const
+void ClassicGrid::Run( const GridConfig & config ) const
 {
-    // Legacy "igene" is converted once at the configuration boundary.
-    // Concrete generators then receive no knowledge of its integer encoding.
-    if ( ! generationType )
+    if ( ! config.generationType )
     {
         return;
     }
