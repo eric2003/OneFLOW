@@ -82,7 +82,7 @@ CgnsFactory::CgnsFactory( CgnsFactory && other ) noexcept
     // zgridElem is an observer, so it must be rebound after its owner moves.
     if ( zgridElem )
     {
-        zgridElem->cgnsZbase = cgnsZbase.get();
+        zgridElem->RebindCgnsZbase( cgnsZbase.get() );
     }
 
     if ( globalBoundToOther )
@@ -104,7 +104,7 @@ CgnsFactory& CgnsFactory::operator=( CgnsFactory && other ) noexcept
         // zgridElem is an observer, so it must follow the new owner here too.
         if ( zgridElem )
         {
-            zgridElem->cgnsZbase = cgnsZbase.get();
+            zgridElem->RebindCgnsZbase( cgnsZbase.get() );
         }
 
         if ( globalBoundToEitherFactory )

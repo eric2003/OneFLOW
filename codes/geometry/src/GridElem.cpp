@@ -396,11 +396,21 @@ void GridElem::ReorderLink( UnsGrid & grid )
 }
 
 ZgridElem::ZgridElem( CgnsZbase * cgnsZbase )
+    : cgnsZbase( cgnsZbase )
 {
-    this->cgnsZbase = cgnsZbase;
 }
 
 ZgridElem::~ZgridElem() = default;
+
+CgnsZbase * ZgridElem::GetCgnsZbase() const
+{
+    return this->cgnsZbase;
+}
+
+void ZgridElem::RebindCgnsZbase( CgnsZbase * cgnsZbase ) noexcept
+{
+    this->cgnsZbase = cgnsZbase;
+}
 
 HXVector< std::unique_ptr< GridElem > > ZgridElem::CreateGridElements( bool multiBlock ) const
 {

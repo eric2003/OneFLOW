@@ -80,9 +80,12 @@ class ZgridElem
 public:
     ZgridElem( CgnsZbase * cgnsZbase );
     ~ZgridElem();
-public:
+private:
     CgnsZbase * cgnsZbase;
 public:
+    [[nodiscard]] CgnsZbase * GetCgnsZbase() const;
+    void RebindCgnsZbase( CgnsZbase * cgnsZbase ) noexcept;
+
     [[nodiscard]] Grids GenerateLocalOneFlowGrids();
     [[nodiscard]] Grids GenerateLocalOneFlowGrids( const GridConfig & config );
 private:

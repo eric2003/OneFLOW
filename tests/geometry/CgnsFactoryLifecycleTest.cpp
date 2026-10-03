@@ -33,7 +33,7 @@ TEST(CgnsFactoryLifecycleTest, MoveSemanticsWork)
         EXPECT_NE(factory2.zgridElem, nullptr);
 
         // The observer must follow the CgnsZbase owner after the move.
-        EXPECT_EQ( factory2.zgridElem->cgnsZbase, factory2.cgnsZbase.get() );
+        EXPECT_EQ( factory2.zgridElem->GetCgnsZbase(), factory2.cgnsZbase.get() );
     });
 }
 
@@ -52,7 +52,7 @@ TEST(CgnsFactoryLifecycleTest, MoveAssignmentRebindsObserver)
         EXPECT_NE( factory2.cgnsZbase, nullptr );
         EXPECT_NE( factory2.zgridElem, nullptr );
         EXPECT_EQ(
-            factory2.zgridElem->cgnsZbase,
+            factory2.zgridElem->GetCgnsZbase(),
             factory2.cgnsZbase.get() );
     });
 }
