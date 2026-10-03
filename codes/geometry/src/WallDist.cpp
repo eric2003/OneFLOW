@@ -100,8 +100,8 @@ void FillWallStructTask( StringField & /*data*/ )
 void FillWallStruct( StringField & /*data*/ )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
-    const int nBFaces = grid->GetFaceTopo().bcManager->bcRecord->GetNBFace();
-    BcRecord * bcRecord = grid->GetFaceTopo().bcManager->bcRecord.get();
+    const int nBFaces = grid->GetFaceTopo().GetBcRecord().GetNBFace();
+    BcRecord * bcRecord = grid->GetFaceTopo().GetBcRecord();
 
     const int nWallFace = bcRecord->CalcNumWallFace();
 
