@@ -273,6 +273,15 @@ void MLine::ConstructPointToDomainMap()
     this->ConstructPointToDomainMap( this->pointToDomainMap );
 }
 
+void MLine::ConstructPointToDomainMap( const LinkField & pointIdLink )
+{
+    for ( int iLine = 0; iLine < lineList.size(); ++ iLine )
+    {
+        int line_id = lineList[ iLine ];
+        ConstructIntList2Map( line_id, pointIdLink[ iLine ], pointToDomainMap );
+    }
+}
+
 void MLine::ConstructPointToDomainMap( int domain_id, std::map< int, IntSet > & pointToDomainMap ) const
 {
     const MLine * mLine = this;
