@@ -76,6 +76,9 @@ GridConfig GridConfig::FromDataBase()
 
     cfg.scale = GetDataValue< Real >( "gridScale" );
 
+    const int generationId = GetDataValue< int >( "igene" );
+    cfg.generationType = ParseGridGenerationType( generationId );
+
     // Preserve historical integer encoding for gridObj.
     const int rawObj = GetDataValue< int >( "gridObj" );
     if ( auto parsed = ParseGridObjective( rawObj ) )
