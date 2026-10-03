@@ -122,14 +122,13 @@ void DomData::ConstructCtrlPoint()
 
 IntField & DomData::GetLinePoints( int line_id )
 {
-    int id = line_id - 1;
-    return blkFaceSolver.lineList[ id ];
+    return blkFaceSolver.GetLine( line_id );
 }
 
 const IntField & DomData::GetLinePoints( int line_id ) const
 {
-    int id = line_id - 1;
-    return blkFaceSolver.lineList[ id ];
+    const BlkFaceSolver & solver = blkFaceSolver;
+    return solver.GetLine( line_id );
 }
 
 void DomData::ConstructBcPoint()

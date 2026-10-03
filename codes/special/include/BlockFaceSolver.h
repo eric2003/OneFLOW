@@ -57,7 +57,6 @@ public:
     bool flag;
 public:
     bool init_flag;
-    LinkField lineList;
     LinkField faceList;
     LinkField faceLinePosList;
     HXLookup<int> lineLookup;
@@ -72,6 +71,7 @@ public:
     const Face2D * GetBlkFace( int blk, int face_id ) const;
     const Face2D * GetBlkFace2D( int blk, int face_id ) const;
     IntField & GetLine( int line_id );
+    const IntField & GetLine( int line_id ) const;
     int FindLineId( const IntField & line ) const;
 public:
     void AddLineToFace( int faceid, int pos, int lineid );
@@ -79,6 +79,8 @@ public:
     void GenerateGrid();
 
 private:
+    LinkField lineList;
+
     void Alloc();
     void InitializeLineTopology();
     void CreateFaceList();

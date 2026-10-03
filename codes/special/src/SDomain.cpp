@@ -247,7 +247,7 @@ void SDomain::GetPointIdLink( const IntField & lineList, LinkField & pointIdLink
     for ( int iLine = 0; iLine < lineList.size(); ++ iLine )
     {
         int line_id = lineList[ iLine ] - 1;
-        IntField & pointIdList = blkFaceSolver.lineList[ line_id ];
+        const IntField & pointIdList = blkFaceSolver.GetLine( line_id + 1 );
         pointIdLink.push_back( pointIdList );
     }
 }
