@@ -61,7 +61,7 @@ void SLine::Alloc()
 void SLine::CopyMesh( const CurveMesh & curveMesh )
 {
     int p1 = curveMesh.curveInfo->p1;
-    int p2 = curveMesh->curveInfo->p2;
+    int p2 = curveMesh.curveInfo->p2;
     this->ctrlpoints.push_back( p1 );
     this->ctrlpoints.push_back( p2 );
     for ( int i = 1; i <= ni; ++ i )
