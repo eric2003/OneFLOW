@@ -49,7 +49,7 @@ public:
     void AllocDist();
     void ReadDist();
     void DumpDist();
-    void CalcCellSpan( UnsGrid * grid );
+    void CalcCellSpan( UnsGrid & grid );
 };
 
 void CalcCellSpan( UnsGrid * grid );
