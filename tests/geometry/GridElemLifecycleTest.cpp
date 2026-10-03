@@ -21,7 +21,7 @@ TEST(GridElemLifecycleTest, ValueSemanticsForInternalComponents)
         
         // 3. FaceSolver (faceTopo is internally managed)
         ONEFLOW::FaceSolver solver;
-        EXPECT_NE(solver.faceTopo, nullptr);
+        EXPECT_NE(&solver.GetFaceTopo(), nullptr);
 
         // ElemFeature no longer stores a FaceSolver observer.
         // ScanElements receives its dependency explicitly when needed.

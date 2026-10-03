@@ -404,7 +404,7 @@ void GridElem::ReorderLink( UnsGrid & grid )
 
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
-        int rc = faceTopo->rCells[ iFace ];
+        int rc = faceTopo.rCells[ iFace ];
         if ( rc != INVALID_INDEX )
         {
             f1map[ iFace ] = iCount;
@@ -418,9 +418,9 @@ void GridElem::ReorderLink( UnsGrid & grid )
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         int jFace = f2map[ iFace ];
-        faceTopo.facesNew[ iFace ] = faceTopo->faces[ jFace ];
-        faceTopo.lCellsNew[ iFace ] = faceTopo->lCells[ jFace ];
-        faceTopo.rCellsNew[ iFace ] = faceTopo->rCells[ jFace ];
+        faceTopo.facesNew[ iFace ] = faceTopo.faces[ jFace ];
+        faceTopo.lCellsNew[ iFace ] = faceTopo.lCells[ jFace ];
+        faceTopo.rCellsNew[ iFace ] = faceTopo.rCells[ jFace ];
     }
     faceTopo.faces = faceTopo.facesNew;
     faceTopo.lCells = faceTopo.lCellsNew;
