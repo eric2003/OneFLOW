@@ -231,7 +231,7 @@ void GridElem::ScanBcFace()
     int nZone = this->GetNZones();
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
+        CgnsZone & cgnsZone = this->GetCgnsZone( iZone );
         cgnsZone.ScanBcFace( this->face_solver );
     }
 
@@ -452,7 +452,7 @@ HXVector< std::unique_ptr< GridElem > > ZgridElem::CreateGridElements(
 
         for ( int iZone = 0; iZone < nOriZone; ++ iZone )
         {
-            zoneViews.emplace_back( cgnsZbase.GetCgnsZone( iZone ) );
+            zoneViews.emplace_back( *cgnsZbase.GetCgnsZone( iZone ) );
         }
 
         const int nGridElems = 1;
@@ -469,7 +469,7 @@ HXVector< std::unique_ptr< GridElem > > ZgridElem::CreateGridElements(
         for ( int iZone = 0; iZone < nZones; ++ iZone )
         {
             HXVector< std::reference_wrapper< CgnsZone > > zoneViews;
-            zoneViews.emplace_back( cgnsZbase.GetCgnsZone( iZone ) );
+            zoneViews.emplace_back( *cgnsZbase.GetCgnsZone( iZone ) );
 
             data.push_back( std::make_unique< GridElem >( std::move( zoneViews ) ) );
         }
