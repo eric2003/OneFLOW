@@ -107,7 +107,7 @@ void FaceMesh::CalcFaceNormal1D( NodeMesh * nodeMesh, CellMesh * cellMesh )
 
     for ( HXSize_t iFace = 0; iFace < nFaces; ++ iFace )
     {
-        int lc  = this->GetFaceTopo().lCells[ iFace ];
+        int lc  = this->GetFaceTopo().GetLeftCells()[ iFace ];
 
         Real dx = xfc[ iFace ] - xcc[ lc ];
         Real dy = yfc[ iFace ] - ycc[ lc ];
