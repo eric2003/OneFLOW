@@ -550,7 +550,7 @@ void Partition::SetF2CAndBC( UnsGrid * ggrid, int zid, UnsGrid * grid )
     IntField & glCell = ggrid->GetFaceTopo().lCells;
     IntField & grCell = ggrid->GetFaceTopo().rCells;
 
-    IntField & gbcType = ggrid->GetFaceTopo().bcManager->bcRecord->bcType;
+    IntField & gbcType = ggrid->GetFaceTopo().GetBcRecord().bcType;
 
     int nFaces  = grid->nFaces;
     int nBFaces = grid->nBFaces;
@@ -562,7 +562,7 @@ void Partition::SetF2CAndBC( UnsGrid * ggrid, int zid, UnsGrid * grid )
 
     grid->GetFaceTopo().SetNBFaces( nBFaces );
 
-    IntField & local_bcType = grid->GetFaceTopo().bcManager->bcRecord->bcType;
+    IntField & local_bcType = grid->GetFaceTopo().GetBcRecord().bcType;
 
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
