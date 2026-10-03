@@ -78,7 +78,6 @@ public:
 public:
     // --- modern container-style API (prefer these in new code) ---
     void add( std::unique_ptr< GridMediator > mediator );
-    void add( GridMediator * mediator ); // takes ownership of a raw new'd pointer
 
     [[nodiscard]] GridMediator * at( int index );
     [[nodiscard]] const GridMediator * at( int index ) const;
@@ -87,7 +86,6 @@ public:
     [[nodiscard]] std::string targetFile() const;
 
     // --- historical names (thin wrappers; keep call sites compiling) ---
-    void AddGridMediator( GridMediator * gridMediator ) { add( gridMediator ); }
     void AddGridMediator( std::unique_ptr< GridMediator > gridMediator )
     {
         add( std::move( gridMediator ) );
