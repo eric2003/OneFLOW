@@ -55,7 +55,9 @@ public:
 
     HXSize_t nBFaces;
     std::unique_ptr< BcManager > bcManager;
-    Grid * grid;
+private:
+    Grid * grid = nullptr;
+
 public:
     LinkField facesNew;
     IntField lCellsNew, rCellsNew;
@@ -64,6 +66,9 @@ public:
     HXSize_t CalcTotalFaceNodes();
     HXSize_t GetNBFaces();
     void SetNBFaces( HXSize_t nBFaces );
+    void BindGrid( Grid & grid );
+    Grid & GetGrid();
+    const Grid & GetGrid() const;
     void ResizeAll();
 public:
     void ModifyFaceNodeId( IFaceLink * iFaceLink );
