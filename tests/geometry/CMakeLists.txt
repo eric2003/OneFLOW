@@ -231,5 +231,7 @@ add_oneflow_gtest(BcManagerLifecycleTest BcManagerLifecycleTest.cpp)
 add_oneflow_gtest(GridElemLifecycleTest GridElemLifecycleTest.cpp)
 
 add_oneflow_gtest(GridLayoutParserTest GridLayoutParserTest.cpp)
+add_oneflow_gtest(GridLayoutGenerationTest GridLayoutGenerationTest.cpp)
 add_oneflow_gtest(DomainMachineTest DomainMachineTest.cpp)
 target_compile_definitions(GridLayoutParserTest PRIVATE ONEFLOW_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
+target_compile_definitions(GridLayoutGenerationTest PRIVATE ONEFLOW_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
