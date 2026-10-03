@@ -58,19 +58,19 @@ void SetGridFunc()
 void AllocWallDist( StringField & data )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
-    grid->cellMesh->AllocDist();
+    grid->GetCellMesh().AllocDist();
 }
 
 void ReadWallDist( StringField & data )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
-    grid->cellMesh->ReadDist();
+    grid->GetCellMesh().ReadDist();
 }
 
 void DumpWallDist( StringField & data )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
-    grid->cellMesh->DumpDist();
+    grid->GetCellMesh().DumpDist();
 }
 
 void CreateCalcMetricsTask( StringField & data )
@@ -108,19 +108,19 @@ void SwapCellCenter( StringField & data )
 
     ActionState::dataBook->MoveToBegin();
 
-    CellMesh * cellMesh = grid->cellMesh.get();
+    CellMesh & cellMesh = grid->GetCellMesh();
 
-    RealField & xcc = cellMesh->xcc;
-    RealField & ycc = cellMesh->ycc;
-    RealField & zcc = cellMesh->zcc;
-    RealField & vol = cellMesh->vol;
+    RealField & xcc = cellMesh.xcc;
+    RealField & ycc = cellMesh.ycc;
+    RealField & zcc = cellMesh.zcc;
+    RealField & vol = cellMesh.vol;
 
     for ( int iLocalFace = 0; iLocalFace < nIFaces; ++ iLocalFace )
     {
         int s1;
         int iFace = interfaceId[ iLocalFace ];
 
-        grid->faceTopo->GetSId( iFace, 1, s1 );
+        grid->GetFaceTopo().GetSId( iFace, 1, s1 );
 
         HXWrite( ActionState::dataBook, xcc[ s1 ] );
         HXWrite( ActionState::dataBook, ycc[ s1 ] );
@@ -141,18 +141,18 @@ void DecodeCellCenter( StringField & data )
 
     ActionState::dataBook->MoveToBegin();
 
-    CellMesh * cellMesh = grid->cellMesh.get();
+    CellMesh & cellMesh = grid->GetCellMesh();
 
-    RealField & xcc = cellMesh->xcc;
-    RealField & ycc = cellMesh->ycc;
-    RealField & zcc = cellMesh->zcc;
-    RealField & vol = cellMesh->vol;
+    RealField & xcc = cellMesh.xcc;
+    RealField & ycc = cellMesh.ycc;
+    RealField & zcc = cellMesh.zcc;
+    RealField & vol = cellMesh.vol;
 
     for ( int iLocalFace = 0; iLocalFace < nIFaces; ++ iLocalFace )
     {
         int iFace = interfaceId[ iLocalFace ];
         int t1;
-        grid->faceTopo->GetTId( iFace, 1, t1 );
+        grid->GetFaceTopo().GetTId( iFace, 1, t1 );
 
         HXRead( ActionState::dataBook, xcc[ t1 ] );
         HXRead( ActionState::dataBook, ycc[ t1 ] );

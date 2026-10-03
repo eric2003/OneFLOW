@@ -45,13 +45,13 @@ public:
 public:
     HXSize_t GetNumberOfCells();
     HXSize_t GetNumberOfTotalCells() { return vol.size(); }
-    void AllocateMetrics( FaceMesh * faceMesh );
+    void AllocateMetrics( FaceMesh & faceMesh );
     void AllocDist();
     void ReadDist();
     void DumpDist();
-    void CalcCellSpan( UnsGrid * grid );
+    void CalcCellSpan( UnsGrid & grid );
 };
 
-void CalcCellSpan( UnsGrid * grid );
+void CalcCellSpan( UnsGrid & grid );
 
 EndNameSpace

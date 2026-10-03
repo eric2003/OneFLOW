@@ -57,9 +57,9 @@ void UINsLusgs::SingleSweep()
 void UINsLusgs::Init()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
-    FaceTopo * faceTopo = grid->faceTopo.get();
-    CellTopo * cellTopo = &grid->cellMesh->cellTopo;
-    cellTopo->CalcC2f( faceTopo );
+    FaceTopo & faceTopo = grid->GetFaceTopo();
+    CellTopo & cellTopo = grid->GetCellMesh().cellTopo;
+    cellTopo.CalcC2f( faceTopo );
     ug.Init();
     nslu.Init();
     uinsf.Init();

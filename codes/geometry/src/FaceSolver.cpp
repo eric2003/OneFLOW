@@ -42,6 +42,21 @@ FaceSolver::FaceSolver()
 FaceSolver::~FaceSolver()
     = default;
 
+FaceTopo & FaceSolver::GetFaceTopo()
+{
+    return *this->faceTopo;
+}
+
+const FaceTopo & FaceSolver::GetFaceTopo() const
+{
+    return *this->faceTopo;
+}
+
+std::unique_ptr< FaceTopo > FaceSolver::TakeFaceTopo() noexcept
+{
+    return std::move( this->faceTopo );
+}
+
 bool FaceSolver::CheckBcFace( IntSet & bcVertex, IntField & nodeId )
 {
     int size = nodeId.size();

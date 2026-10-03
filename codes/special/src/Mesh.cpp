@@ -366,7 +366,9 @@ void Mesh::CreateMesh()
     // If CreateMesh is called multiple times, the old resources are 
     // automatically released before reassignment, preventing leaks.
     nodeMesh = std::make_unique<NodeMesh>();
+    faceTopo = std::make_unique<FaceTopo>();
     faceMesh = std::make_unique<FaceMesh>();
+    faceMesh->BindFaceTopo( *faceTopo );
     cellMesh = std::make_unique<CellMesh>();
 
     SimpleMesh2D simpleMesh2D;
@@ -384,7 +386,7 @@ void Mesh::ConstructTopology()
     HXSize_t numberOfCells = this->cellMesh->GetNumberOfCells();
 
     CellTopo * cellTopo = &this->cellMesh->cellTopo;
-    FaceTopo * faceTopo = this->faceMesh->faceTopo;
+    FaceTopo * faceTopo = &this->faceMesh->GetFaceTopo();
 
     // Estimate the number of faces and reserve space
     HXSize_t estimatedFaces = numberOfCells * 2;  // Rough estimate
@@ -446,7 +448,7 @@ void Mesh::SwapBoundary()
     IntField orderMapping( nFaces );
 
     CellTopo * cellTopo = &this->cellMesh->cellTopo;
-    FaceTopo * faceTopo = this->faceMesh->faceTopo;
+    FaceTopo * faceTopo = &this->faceMesh->GetFaceTopo();
 
     int iBoundaryFaceCount = 0;
     int iCount = 0;
@@ -518,7 +520,7 @@ void Mesh::SwapBoundary()
 void Mesh::AllocateMetrics()
 {
     this->faceMesh->AllocateMetrics();
-    this->cellMesh->AllocateMetrics( this->faceMesh.get() );
+    this->cellMesh->AllocateMetrics( *this->faceMesh );
 }
 
 void Mesh::CalcMetrics()
@@ -597,7 +599,7 @@ void Mesh::CalcCellCenterVol1D()
     RealField & zN = nodeMesh->zN;
 
     CellTopo * cellTopo = &this->cellMesh->cellTopo;
-    FaceTopo * faceTopo = this->faceMesh->faceTopo;
+    FaceTopo * faceTopo = &this->faceMesh->GetFaceTopo();
 
     for ( HXSize_t iCell = 0; iCell < numberOfCells; ++ iCell )
     {
@@ -636,7 +638,7 @@ void Mesh::CalcGhostCellCenterVol1D()
     RealField & area = this->faceMesh->area;
 
     CellTopo * cellTopo = &this->cellMesh->cellTopo;
-    FaceTopo * faceTopo = this->faceMesh->faceTopo;
+    FaceTopo * faceTopo = &this->faceMesh->GetFaceTopo();
 
     // For ghost cells
     for ( HXSize_t iFace = 0; iFace < nBFaces; ++ iFace )
@@ -685,7 +687,7 @@ void Mesh::CalcCellCenterVol2D()
     RealField & area = this->faceMesh->area;
 
     CellTopo * cellTopo = &this->cellMesh->cellTopo;
-    FaceTopo * faceTopo = this->faceMesh->faceTopo;
+    FaceTopo * faceTopo = &this->faceMesh->GetFaceTopo();
 
     xcc  = 0;
     ycc  = 0;
@@ -798,7 +800,7 @@ void Mesh::CalcCellCenterVol3D()
     RealField & area = this->faceMesh->area;
 
     CellTopo * cellTopo = &this->cellMesh->cellTopo;
-    FaceTopo * faceTopo = this->faceMesh->faceTopo;
+    FaceTopo * faceTopo = &this->faceMesh->GetFaceTopo();
 
     RealField & xN = nodeMesh->xN;
     RealField & yN = nodeMesh->yN;

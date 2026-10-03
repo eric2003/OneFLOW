@@ -54,10 +54,10 @@ HXSize_t CellMesh::GetNumberOfCells()
     return cellTopo.GetNumberOfCells(); 
 }
 
-void CellMesh::AllocateMetrics( FaceMesh * faceMesh )
+void CellMesh::AllocateMetrics( FaceMesh & faceMesh )
 {
     HXSize_t numberOfCells = this->GetNumberOfCells();
-    HXSize_t nBFaces = faceMesh->GetNBFace();
+    HXSize_t nBFaces = faceMesh.GetNBFace();
     HXSize_t nTCell = numberOfCells + nBFaces;
     this->xcc.resize( nTCell );
     this->ycc.resize( nTCell );
@@ -84,17 +84,17 @@ void CellMesh::DumpDist()
     HXWrite( ActionState::dataBook, dist );
 }
 
-void CellMesh::CalcCellSpan( UnsGrid * grid )
+void CellMesh::CalcCellSpan( UnsGrid & grid )
 {
     if ( this->span.size() ) return;
     int nCells = this->GetNumberOfCells();
     this->span.resize( nCells );
     CalcC2f( grid );
 
-    FaceTopo * faceTopo = grid->faceTopo.get();
+    FaceTopo & faceTopo = grid.GetFaceTopo();
     LinkField & c2f = this->cellTopo.c2f;
-    IntField & lcf = faceTopo->lCells;
-    IntField & rcf = faceTopo->rCells;
+    IntField & lcf = faceTopo.lCells;
+    IntField & rcf = faceTopo.rCells;
 
     for ( int ic = 0; ic < nCells; ++ ic )
     {
@@ -121,9 +121,9 @@ void CellMesh::CalcCellSpan( UnsGrid * grid )
     }
 }
 
-void CalcCellSpan( UnsGrid * grid )
+void CalcCellSpan( UnsGrid & grid )
 {
-    grid->cellMesh->CalcCellSpan( grid );
+    grid.GetCellMesh().CalcCellSpan( grid );
 }
 
 EndNameSpace

@@ -73,34 +73,34 @@ void InitTimeStepUns()
 
     InitUnsField();
 
-    FaceTopo * faceTopo = grid->faceTopo.get();
-    ug.lcf = & faceTopo->lCells;
-    ug.rcf = & faceTopo->rCells;
+    FaceTopo & faceTopo = grid->GetFaceTopo();
+    ug.lcf = & faceTopo.lCells;
+    ug.rcf = & faceTopo.rCells;
 
-    FaceMesh * faceMesh = grid->faceMesh.get();
-    CellMesh * cellMesh = grid->cellMesh.get();
+    FaceMesh & faceMesh = grid->GetFaceMesh();
+    CellMesh & cellMesh = grid->GetCellMesh();
 
-    ug.xfn = & faceMesh->xfn;
-    ug.yfn = & faceMesh->yfn;
-    ug.zfn = & faceMesh->zfn;
-    ug.vfn = & faceMesh->vfn;
-    ug.farea = & faceMesh->area;
+    ug.xfn = & faceMesh.xfn;
+    ug.yfn = & faceMesh.yfn;
+    ug.zfn = & faceMesh.zfn;
+    ug.vfn = & faceMesh.vfn;
+    ug.farea = & faceMesh.area;
 
-    ug.vfx = & faceMesh->vfx;
-    ug.vfy = & faceMesh->vfy;
-    ug.vfz = & faceMesh->vfz;
+    ug.vfx = & faceMesh.vfx;
+    ug.vfy = & faceMesh.vfy;
+    ug.vfz = & faceMesh.vfz;
 
-    ug.xfc = & faceMesh->xfc;
-    ug.yfc = & faceMesh->yfc;
-    ug.zfc = & faceMesh->zfc;
+    ug.xfc = & faceMesh.xfc;
+    ug.yfc = & faceMesh.yfc;
+    ug.zfc = & faceMesh.zfc;
 
-    ug.xcc = & cellMesh->xcc;
-    ug.ycc = & cellMesh->ycc;
-    ug.zcc = & cellMesh->zcc;
+    ug.xcc = & cellMesh.xcc;
+    ug.ycc = & cellMesh.ycc;
+    ug.zcc = & cellMesh.zcc;
 
-    ug.cvol  = & cellMesh->vol;
-    ug.cvol1 = & cellMesh->vol;
-    ug.cvol2 = & cellMesh->vol;
+    ug.cvol  = & cellMesh.vol;
+    ug.cvol1 = & cellMesh.vol;
+    ug.cvol2 = & cellMesh.vol;
     nscom.Init();
 }
 

@@ -165,31 +165,31 @@ void AerodynamicForceTask::CalcForce()
 void CalcAeroForce(int idump_pres)
 {
 	UnsGrid * grid = Zone::GetUnsGrid();
-	BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord.get();
+	BcRecord * bcRecord = grid->GetFaceTopo().bcManager->bcRecord.get();
 	bcRecord->CreateBcTypeRegion();
 
 	BcInfo * bcInfo = bcRecord->bcInfo.get();
 
 	int nRegion = bcInfo->bcType.size();
 
-	RealField & xcc = grid->cellMesh->xcc;
-	RealField & ycc = grid->cellMesh->ycc;
-	RealField & zcc = grid->cellMesh->zcc;
-	RealField & vol = grid->cellMesh->vol;
+	RealField & xcc = grid->GetCellMesh().xcc;
+	RealField & ycc = grid->GetCellMesh().ycc;
+	RealField & zcc = grid->GetCellMesh().zcc;
+	RealField & vol = grid->GetCellMesh().vol;
 
-	RealField & xfn = grid->faceMesh->xfn;
-	RealField & yfn = grid->faceMesh->yfn;
-	RealField & zfn = grid->faceMesh->zfn;
+	RealField & xfn = grid->GetFaceMesh().xfn;
+	RealField & yfn = grid->GetFaceMesh().yfn;
+	RealField & zfn = grid->GetFaceMesh().zfn;
 
-	RealField & xfc = grid->faceMesh->xfc;
-	RealField & yfc = grid->faceMesh->yfc;
-	RealField & zfc = grid->faceMesh->zfc;
+	RealField & xfc = grid->GetFaceMesh().xfc;
+	RealField & yfc = grid->GetFaceMesh().yfc;
+	RealField & zfc = grid->GetFaceMesh().zfc;
 
-	RealField & vfx = grid->faceMesh->vfx;
-	RealField & vfy = grid->faceMesh->vfy;
-	RealField & vfz = grid->faceMesh->vfz;
+	RealField & vfx = grid->GetFaceMesh().vfx;
+	RealField & vfy = grid->GetFaceMesh().vfy;
+	RealField & vfz = grid->GetFaceMesh().vfz;
 
-	RealField & area = grid->faceMesh->area;
+	RealField & area = grid->GetFaceMesh().area;
 
 	MRField * q = GetFieldPointer< MRField >(grid, "q");
 	MRField * visl = GetFieldPointer< MRField >(grid, "visl");
@@ -249,8 +249,8 @@ void CalcAeroForce(int idump_pres)
 		for (int iBCFace = 0; iBCFace < nBCFace; ++iBCFace)
 		{
 			int fId = bcInfo->bcFace[ir][iBCFace];
-			int lc = grid->faceTopo->lCells[fId];
-			int rc = grid->faceTopo->rCells[fId];
+			int lc = grid->GetFaceTopo().lCells[fId];
+			int rc = grid->GetFaceTopo().rCells[fId];
 			stress.area = area[fId];
 			stress.fnx = xfn[fId];
 			stress.fny = yfn[fId];

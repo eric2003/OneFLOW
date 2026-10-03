@@ -10,7 +10,7 @@ TEST(FaceSolverLifecycleTest, InternalFieldsInitializationAndCleanup)
     ONEFLOW::FaceSolver* solver = new ONEFLOW::FaceSolver();
     
     // 1. Verify faceTopo is allocated
-    EXPECT_NE(solver->faceTopo, nullptr);
+    EXPECT_NE(&solver->GetFaceTopo(), nullptr);
     
     // 2. Verify value-type fields are accessible and empty initially
     EXPECT_EQ(solver->faceBcKey.size(), 0);

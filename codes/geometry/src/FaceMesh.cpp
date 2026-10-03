@@ -40,6 +40,21 @@ FaceMesh::~FaceMesh()
 {
 }
 
+void FaceMesh::BindFaceTopo( FaceTopo & faceTopo )
+{
+    this->faceTopo = &faceTopo;
+}
+
+FaceTopo & FaceMesh::GetFaceTopo()
+{
+    return *this->faceTopo;
+}
+
+const FaceTopo & FaceMesh::GetFaceTopo() const
+{
+    return *this->faceTopo;
+}
+
 HXSize_t FaceMesh::GetNFace()
 {
     return faceTopo->GetNFaces();  

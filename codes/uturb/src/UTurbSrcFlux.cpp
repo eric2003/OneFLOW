@@ -924,7 +924,7 @@ void CalcSubgridLengthScale( RealField & lenth_scale )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
-    CalcCellSpan( grid );
+    CalcCellSpan( *grid );
 
     RealField & wall_dist = grid->cellMesh->dist;
     RealField & largestSpacing = GetLargestSpacing();
@@ -946,7 +946,7 @@ void CalcSubgridLengthScale( RealField & lenth_scale )
 RealField & GetLargestSpacing()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
-    CalcCellSpan( grid );
+    CalcCellSpan( *grid );
     return grid->cellMesh->span;
 }
 

@@ -37,7 +37,10 @@ public:
     FaceMesh();
     ~FaceMesh();
 public:
-    FaceTopo * faceTopo;
+    void BindFaceTopo( FaceTopo & faceTopo );
+    FaceTopo & GetFaceTopo();
+    const FaceTopo & GetFaceTopo() const;
+
     RealField xfc, yfc, zfc;
     RealField xfn, yfn, zfn;
     RealField area;
@@ -56,6 +59,9 @@ public:
     void CalcFaceCenter3D( NodeMesh * nodeMesh );
 
     void AllocateMetrics();
+
+private:
+    FaceTopo * faceTopo = nullptr;
 };
 
 

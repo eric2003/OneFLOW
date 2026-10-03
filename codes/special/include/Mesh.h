@@ -31,6 +31,7 @@ License
 BeginNameSpace( ONEFLOW )
 
 class NodeMesh;
+class FaceTopo;
 class FaceMesh;
 class CellMesh;
 class Mesh;
@@ -101,6 +102,7 @@ public:
 public:
     // FIX: Use std::unique_ptr for automatic memory management.
     std::unique_ptr<NodeMesh> nodeMesh;
+    std::unique_ptr<FaceTopo> faceTopo;
     std::unique_ptr<FaceMesh> faceMesh;
     std::unique_ptr<CellMesh> cellMesh;
     std::unique_ptr<DataBase> dataBase;

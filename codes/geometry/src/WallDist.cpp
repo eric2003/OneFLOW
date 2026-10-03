@@ -100,14 +100,14 @@ void FillWallStructTask( StringField & /*data*/ )
 void FillWallStruct( StringField & /*data*/ )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
-    const int nBFaces = grid->faceTopo->bcManager->bcRecord->GetNBFace();
-    BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord.get();
+    const int nBFaces = grid->GetFaceTopo().bcManager->bcRecord->GetNBFace();
+    BcRecord * bcRecord = grid->GetFaceTopo().bcManager->bcRecord.get();
 
     const int nWallFace = bcRecord->CalcNumWallFace();
 
-    RealField & xfc = grid->faceMesh->xfc;
-    RealField & yfc = grid->faceMesh->yfc;
-    RealField & zfc = grid->faceMesh->zfc;
+    RealField & xfc = grid->GetFaceMesh().xfc;
+    RealField & yfc = grid->GetFaceMesh().yfc;
+    RealField & zfc = grid->GetFaceMesh().zfc;
 
     RealField & x = grid->nodeMesh->xN;
     RealField & y = grid->nodeMesh->yN;
@@ -127,7 +127,7 @@ void FillWallStruct( StringField & /*data*/ )
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
         const int bcType = bcRecord->bcType[ iFace ];
-        const int nNodes = static_cast< int >( grid->faceTopo->faces[ iFace ].size() );
+        const int nNodes = static_cast< int >( grid->GetFaceTopo().faces[ iFace ].size() );
 
         if ( bcType != BC::SOLID_SURFACE )
         {
@@ -139,7 +139,7 @@ void FillWallStruct( StringField & /*data*/ )
 
         for ( int iNode = 0; iNode < nNodes; ++ iNode )
         {
-            const int iPoint = grid->faceTopo->faces[ iFace ][ iNode ];
+            const int iPoint = grid->GetFaceTopo().faces[ iFace ][ iNode ];
             simpleFace.emplace_back( x[ iPoint ], y[ iPoint ], z[ iPoint ] );
         }
         fv.push_back( std::move( simpleFace ) );
@@ -159,14 +159,14 @@ void CalcWallDist( StringField & /*data*/ )
     }
 
     UnsGrid * grid = Zone::GetUnsGrid();
-    RealField & dist = grid->cellMesh->dist;
+    RealField & dist = grid->GetCellMesh().dist;
     const int nCells = grid->nCells;
 
     dist = LARGE;
 
-    RealField & xcc = grid->cellMesh->xcc;
-    RealField & ycc = grid->cellMesh->ycc;
-    RealField & zcc = grid->cellMesh->zcc;
+    RealField & xcc = grid->GetCellMesh().xcc;
+    RealField & ycc = grid->GetCellMesh().ycc;
+    RealField & zcc = grid->GetCellMesh().zcc;
 
     std::cout << "zone " << grid->id << std::endl;
 
