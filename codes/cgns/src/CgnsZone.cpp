@@ -101,8 +101,8 @@ void CgnsZone::SetElementTypeAndNode( ElemFeature * elem_feature )
     const int nSection = this->cgnsZsection->GetNSections();
     for ( int iSection = 0; iSection < nSection; ++ iSection )
     {
-        CgnsSection * cgnsSection = this->cgnsZsection->GetCgnsSection( iSection );
-        cgnsSection->SetElementTypeAndNode( elem_feature );
+        CgnsSection & cgnsSection = this->cgnsZsection->GetCgnsSection( iSection );
+        cgnsSection.SetElementTypeAndNode( elem_feature );
     }
     std::cout << "\n";
     std::cout << " iZone = " << this->zId << " nCells = " << this->cgnsCoor->GetNCell() << "\n";
@@ -165,7 +165,7 @@ void CgnsZone::ScanBcFace( FaceSolver & faceSolver )
 void CgnsZone::GetElementNodeId( CgInt eId, CgIntField & eNodeId )
 {
     CgnsSection * cgnsSection = this->cgnsZsection->GetSectionByEid( eId );
-    cgnsSection->GetElementNodeId( eId - cgnsSection->startId, eNodeId );
+    cgnsSection.GetElementNodeId( eId - cgnsSection.startId, eNodeId );
 }
 
 void CgnsZone::ReadCgnsGrid()
