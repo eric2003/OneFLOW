@@ -22,6 +22,7 @@ License
 
 
 #pragma once
+#include <memory>
 #include "HXDefine.h"
 #include <map>
 #include <string>
@@ -56,8 +57,8 @@ public:
     ~VarNameFactory();
 
 public:
-    static std::map< int, VarNameSolver * > * data;
-    static MapIntInt * mapData;
+    static std::unique_ptr< std::map< int, std::unique_ptr<VarNameSolver> > > data;
+    static std::unique_ptr< MapIntInt > mapData;
 
 public:
     static void Init();
