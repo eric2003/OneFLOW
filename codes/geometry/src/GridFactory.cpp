@@ -156,7 +156,7 @@ void GridFactory::PartGrid()
 void GridFactory::DataBaseGrid( const GridConfig & config )
 {
     ClassicGrid classicGrid;
-    classicGrid.Run( config.generationType );
+    classicGrid.Run( config );
 }
 
 void GridFactory::ConvertGrid(
