@@ -54,8 +54,8 @@ public:
     IntField faceFlags;
 
     HXSize_t nBFaces;
-    std::unique_ptr< BcManager > bcManager;
 private:
+    std::unique_ptr< BcManager > bcManager;
     Grid * grid = nullptr;
 
 public:
@@ -69,6 +69,10 @@ public:
     void BindGrid( Grid & grid );
     Grid & GetGrid();
     const Grid & GetGrid() const;
+    BcRecord & GetBcRecord();
+    const BcRecord & GetBcRecord() const;
+    void PrepareBoundaryConditions();
+    bool HasInterfaceBoundary() const;
     void ResizeAll();
 public:
     void ModifyFaceNodeId( IFaceLink * iFaceLink );
