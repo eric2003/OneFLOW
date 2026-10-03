@@ -323,7 +323,7 @@ void ResetGridScaleAndTranslate( NodeMesh * nodeMesh )
         nodeMesh->zN[ iNode ] += translate[ 2 ];
     }
 
-    if ( config.axisDir == 1 )
+    if ( config.axisDirection == GridAxisDirection::ZToY )
     {
         TurnZAxisToYAxis( nodeMesh );
     }
