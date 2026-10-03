@@ -3,6 +3,7 @@
 
 #ifdef ENABLE_CGNS
 #include "CgnsFactory.h"
+#include "GridElem.h"
 
 // Test that CgnsFactory can be safely instantiated and destroyed on the stack.
 // This ensures the transition to std::unique_ptr for internal members is correct.
