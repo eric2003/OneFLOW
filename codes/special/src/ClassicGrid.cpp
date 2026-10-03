@@ -23,8 +23,6 @@ License
 #include "ClassicGrid.h"
 #include "GridTypes.h"
 #include "GridCreate.h"
-#include "DataBase.h"
-#include "DataBaseIO.h"
 #include "Boundary.h"
 #include "HXMath.h"
 #include "Cavity.h"
@@ -95,11 +93,8 @@ ClassicGrid::~ClassicGrid()
     ;
 }
 
-void ClassicGrid::Run() const
+void ClassicGrid::Run( const std::optional< GridGenerationType > & generationType ) const
 {
-    const int generationId = GetDataValue< int >( "igene" );
-    const auto generationType = ParseGridGenerationType( generationId );
-
     // Legacy "igene" is converted once at the configuration boundary.
     // Concrete generators then receive no knowledge of its integer encoding.
     if ( ! generationType )
