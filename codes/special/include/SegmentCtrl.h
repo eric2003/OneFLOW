@@ -37,10 +37,19 @@ public:
     SegmentCtrl();
     ~SegmentCtrl();
 public:
+    enum class DistributionType
+    {
+        Ratio,
+        Distance,
+        Copy,
+        Exponential,
+        Tanh
+    };
+
     int id;
     int nPoint;
     Real ds1, ds2, lenth;
-    int distribution;
+    DistributionType distribution = DistributionType::Distance;
     int c1, c2;
     std::unique_ptr< SegmentCopy > segmentCopy;
 public:
