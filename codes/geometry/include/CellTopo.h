@@ -50,7 +50,7 @@ public:
     void CalcC2C( FaceTopo & faceTopo );
 };
 
-void CalcC2f( UnsGrid * grid );
+void CalcC2f( UnsGrid & grid );
 void CalcC2C( UnsGrid & grid );
 
 EndNameSpace
