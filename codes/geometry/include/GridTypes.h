@@ -57,6 +57,19 @@ enum class GridGenerationType : int
 // ---------------------------------------------------------------------------
 // Grid file formats used by ConvertGrid pipelines.
 // ---------------------------------------------------------------------------
+enum class GridTopology
+{
+    Unstructured,
+    Structured,
+    Unknown
+};
+
+enum class GridAxisDirection
+{
+    Y,
+    ZToY
+};
+
 enum class GridFileType
 {
     Plot3D,
@@ -111,9 +124,9 @@ struct GridConfig
     std::string   bcFile;
     std::string   targetFile;
     std::string   partitionFile;
-    std::string   topo;
-    int           multiBlock{ 0 };
-    int           axisDir{ 0 };
+    GridTopology  topology{ GridTopology::Unknown };
+    bool          multiBlock{ false };
+    GridAxisDirection axisDirection{ GridAxisDirection::Y };
     int           partitionType{ 0 };
     bool          ignoreNoBoundary{ false };
     Real          scale{ 1.0 };
@@ -174,6 +187,21 @@ inline bool EqualIgnoreCase( std::string_view a, std::string_view b ) noexcept
     return true;
 }
 } // namespace grid_types_detail
+
+[[nodiscard]] inline GridTopology ParseGridTopology( std::string_view name ) noexcept
+{
+    if ( grid_types_detail::EqualIgnoreCase( name, "u" ) ||
+         grid_types_detail::EqualIgnoreCase( name, "unstructured" ) )
+    {
+        return GridTopology::Unstructured;
+    }
+    if ( grid_types_detail::EqualIgnoreCase( name, "s" ) ||
+         grid_types_detail::EqualIgnoreCase( name, "structured" ) )
+    {
+        return GridTopology::Structured;
+    }
+    return GridTopology::Unknown;
+}
 
 [[nodiscard]] inline GridFileType ParseGridFileType( std::string_view name ) noexcept
 {
