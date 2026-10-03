@@ -102,6 +102,11 @@ const CellMesh & UnsGrid::GetCellMesh() const
     return *this->cellMesh;
 }
 
+void UnsGrid::SetFaceTopo( std::unique_ptr< FaceTopo > faceTopo )
+{
+    this->faceTopo = std::move( faceTopo );
+}
+
 void UnsGrid::Decode( DataBook * databook )
 {
     this->ReadGrid( databook );
