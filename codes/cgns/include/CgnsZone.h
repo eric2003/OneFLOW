@@ -67,7 +67,7 @@ public:
     void InitISize();
     void CopyISize( CgInt * isize );
     void SetVolBcType( int volBcType );
-    int  GetVolBcType();
+    int  GetVolBcType() const;
 public:
     void Create();
     void SetPeriodicBc();

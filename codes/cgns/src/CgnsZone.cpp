@@ -79,7 +79,7 @@ void CgnsZone::SetVolBcType( int volBcType )
     this->volBcType = volBcType;
 }
 
-int CgnsZone::GetVolBcType()
+int CgnsZone::GetVolBcType() const
 {
     return this->volBcType;
 }

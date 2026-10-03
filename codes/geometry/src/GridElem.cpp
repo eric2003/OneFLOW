@@ -99,7 +99,7 @@ int GridElem::GetNZones() const
 
 void GridElem::PrepareUnsCalcGrid()
 {
-    CgnsZone * zone = this->GetCgnsZone(0);
+    const CgnsZone * zone = this->GetCgnsZone( 0 );
     bool flag = zone->cgnsZsection->HasPolygonSection();
     if ( flag )
     {
@@ -233,7 +233,7 @@ void GridElem::GenerateCalcElement()
 
 std::unique_ptr< UnsGrid > GridElem::GenerateCalcGrid( int gridId )
 {
-    CgnsZone * cgnsZone = this->GetCgnsZone( 0 );
+    const CgnsZone * cgnsZone = this->GetCgnsZone( 0 );
 
     auto grid = ONEFLOW::CreateUnsGridUnique();
     grid->level = 0;
