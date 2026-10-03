@@ -81,6 +81,7 @@ public:
 
 private:
     LinkField lineList;
+    HXVector< BlkF2C > line2Face;
 
     void Alloc();
     void InitializeLineTopology();
