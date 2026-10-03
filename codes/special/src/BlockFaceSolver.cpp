@@ -159,7 +159,7 @@ void BlkFaceSolver::MyFaceGenerateLineMesh()
     {
         auto sLine = std::make_unique< SLine >();
         sLine->line_id = iSLine + 1;
-        sLine->ni = line_Machine.dimList[ iSLine ];
+        sLine->ni = line_Machine.GetDimension( sLine->line_id );
         sLine->Alloc();
         const CurveMesh * curveMesh = line_Machine.GetCurveMesh( sLine->line_id );
         sLine->CopyMesh( *curveMesh );
