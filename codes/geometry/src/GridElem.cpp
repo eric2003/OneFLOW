@@ -438,7 +438,7 @@ HXVector< std::unique_ptr< GridElem > > ZgridElem::CreateGridElements() const
             HXVector< CgnsZone * > cgnsZones;
             cgnsZones.push_back( cgnsZbase->GetCgnsZone( iZone ) );
 
-            data.push_back( std::make_unique< GridElem >( cgnsZones, iZone ) );
+            data.push_back( std::make_unique< GridElem >( cgnsZones ) );
         }
     }
 
