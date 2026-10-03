@@ -59,6 +59,9 @@ public:
     void CalcFaceCenter3D( NodeMesh * nodeMesh );
 
     void AllocateMetrics();
+
+private:
+    FaceTopo * faceTopo = nullptr;
 };
 
 
