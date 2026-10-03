@@ -319,7 +319,7 @@ void CgnsFactory::CgnsToOneFlowGrid( const GridConfig & config )
 {
     if ( config.topology != GridTopology::Unstructured ) return;
 
-    Grids grids = this->zgridElem->GenerateLocalOneFlowGrids();
+    Grids grids = this->zgridElem->GenerateLocalOneFlowGrids( config );
 
     // Keep the explicit grid configuration through the calculation-grid stage.
     ONEFLOW::GenerateMultiZoneCalcGrids( std::move( grids ), config );
