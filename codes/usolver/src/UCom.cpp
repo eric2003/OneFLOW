@@ -70,7 +70,7 @@ void UGeom::Init()
 
     FaceMesh * faceMesh = grid->faceMesh.get();
     CellMesh * cellMesh = grid->cellMesh.get();
-    CellTopo * cellTopo = &grid->cellMesh->cellTopo;
+    CellTopo & cellTopo = grid->cellMesh->cellTopo;
 
     ug.xfn = & faceMesh->xfn;
     ug.yfn = & faceMesh->yfn;
@@ -94,11 +94,11 @@ void UGeom::Init()
     ug.cvol1 = & cellMesh->vol;
     ug.cvol2 = & cellMesh->vol;
 
-    ug.blankf = & cellTopo->blank;
+    ug.blankf = & cellTopo.blank;
 
-    cellTopo->CalcC2f( faceTopo );
+    cellTopo.CalcC2f( faceTopo );
 
-    ug.c2f = & cellTopo->c2f;
+    ug.c2f = & cellTopo.c2f;
 
     //ug.ireconface = 0;
     ug.ireconface = 1;
