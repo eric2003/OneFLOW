@@ -313,9 +313,9 @@ void ResetGridScaleAndTranslate( NodeMesh & nodeMesh, const GridConfig & config 
         nodeMesh.yN[ iNode ] *= scale;
         nodeMesh.zN[ iNode ] *= scale;
 
-        nodeMesh->xN[ iNode ] += translate[ 0 ];
-        nodeMesh->yN[ iNode ] += translate[ 1 ];
-        nodeMesh->zN[ iNode ] += translate[ 2 ];
+        nodeMesh.xN[ iNode ] += translate[ 0 ];
+        nodeMesh.yN[ iNode ] += translate[ 1 ];
+        nodeMesh.zN[ iNode ] += translate[ 2 ];
     }
 
     if ( config.axisDirection == GridAxisDirection::ZToY )
@@ -331,11 +331,11 @@ void ResetGridScaleAndTranslate( NodeMesh & nodeMesh )
 
 void TurnZAxisToYAxis( NodeMesh & nodeMesh )
 {
-    size_t nNodes = nodeMesh->GetNumberOfNodes();
+    size_t nNodes = nodeMesh.GetNumberOfNodes();
 
-    RealField & xN = nodeMesh->xN;
-    RealField & yN = nodeMesh->yN;
-    RealField & zN = nodeMesh->zN;
+    RealField & xN = nodeMesh.xN;
+    RealField & yN = nodeMesh.yN;
+    RealField & zN = nodeMesh.zN;
 
     Real tmp;
     for ( int iNode = 0; iNode < nNodes; ++ iNode )
