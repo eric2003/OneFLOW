@@ -476,8 +476,7 @@ void ScalarGrid::SetCgnsZone( CgnsZone * cgnsZone )
 
 	CgnsZsection * cgnsZsection = cgnsZone->cgnsZsection.get();
 
-	cgnsZsection->nSection = nTotalSections;
-	cgnsZsection->CreateCgnsSection();
+	cgnsZsection->CreateCgnsSections( nTotalSections );
 
 	int nVolCell = volSec.CalcTotalElem();
 
