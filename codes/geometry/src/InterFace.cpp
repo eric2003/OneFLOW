@@ -185,7 +185,7 @@ void InterFace::FillRecvId( int iNei )
         if ( this->zoneId[ iFace ] == interfacePair.nzid )
         {
             //This shows that idrecv is counted locally by the interface of this block
-            interfacePair->idrecv[ iCount ] = iFace;
+            interfacePair.idrecv[ iCount ] = iFace;
             ++ iCount;
         }
     }
@@ -193,15 +193,15 @@ void InterFace::FillRecvId( int iNei )
 
 void InterFace::CalcSendId( int iNei, IntField & idsend )
 {
-    InterfacePair * interfacePair = interFacePairs[ iNei ].get();
+    InterfacePair & interfacePair = this->GetInterfacePair( iNei );
     idsend.resize( interfacePair.nIFaces );
 
     int iCount = 0;
     for ( int iFace = 0; iFace < this->nIFaces; ++ iFace )
     {
-        if ( this->zoneId[ iFace ] == interfacePair->nzid )
+        if ( this->zoneId[ iFace ] == interfacePair.nzid )
         {
-            //interfacePair->idsend[ iCount ] = this->localInterfaceId[ iFace ];
+            //interfacePair.idsend[ iCount ] = this->localInterfaceId[ iFace ];
             idsend[ iCount ] = this->localInterfaceId[ iFace ];
             ++ iCount;
         }
@@ -212,7 +212,7 @@ void InterFace::SetSendId( int zid, IntField & idsend )
 {
     int iNei = this->z2n[ zid ];
     InterfacePair * interfacePair = interFacePairs[ iNei ].get();
-    interfacePair->idsend = idsend;
+    interfacePair.idsend = idsend;
 }
 
 IntField & InterFace::GetInterfaceId( int neiId, int iSr )
@@ -391,9 +391,9 @@ void InterFaceTopo::SwapNeighborsSendContent()
             if ( Parallel::pid == spid )
             {
                 Grid * grid = Zone::GetGrid( iZone );
-                InterfacePair * interfacePair = grid->interFace->interFacePairs[ iNei ].get();
+                InterfacePair & interfacePair = grid->interFace->GetInterfacePair( iNei );
 
-                nIFaces = interfacePair->nIFaces;
+                nIFaces = interfacePair.nIFaces;
                 
                 grid->interFace->CalcSendId( iNei, idsend );
             }
