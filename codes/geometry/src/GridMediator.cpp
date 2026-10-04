@@ -55,7 +55,7 @@ void GridMediator::AddDefaultName()
 
     for ( int iZone = 0; iZone < numberOfZones; ++ iZone )
     {
-        StrGrid * grid = ONEFLOW::StrGridCast( GridAt( this->gridVector, iZone ) );
+        StrGrid * grid = ONEFLOW::StrGridCast( &GridAt( this->gridVector, iZone ) );
 
         grid->name = AddString( "Zone", iZone + 1 );
 

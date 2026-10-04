@@ -333,7 +333,7 @@ void Partition::CalcG2lCell()
 
 void Partition::BuildCalculationalGrid( int zid )
 {
-    UnsGrid * grid = UnsGridCast( GridAt( grids, zid ) );
+    UnsGrid * grid = UnsGridCast( &GridAt( grids, zid ) );
 
     grid->nCells = this->GetNCell( uns_grid, zid );
 

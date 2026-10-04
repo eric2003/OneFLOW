@@ -148,7 +148,7 @@ void Plot3D::ReadCoorBinary( GridMediator * gridMediator )
 
     for ( int iZone = 0; iZone < gridMediator->numberOfZones; ++ iZone )
     {
-        StrGrid * grid = static_cast< StrGrid * >( GridAt( gridMediator->gridVector, iZone ) );
+        StrGrid * grid = static_cast< StrGrid * >( &GridAt( gridMediator->gridVector, iZone ) );
         int numberOfNodes = grid->nNodes;
 
         int ni = grid->ni;
@@ -195,7 +195,7 @@ void Plot3D::DumpCoorBinary( GridMediator * gridMediator )
 
     for ( int iZone = 0; iZone < gridMediator->numberOfZones; ++ iZone )
     {
-        StrGrid * grid = static_cast< StrGrid * >( GridAt( gridMediator->gridVector, iZone ) );
+        StrGrid * grid = static_cast< StrGrid * >( &GridAt( gridMediator->gridVector, iZone ) );
 
         int ni = grid->ni;
         int nj = grid->nj;
@@ -223,7 +223,7 @@ void Plot3D::DumpCoorBinary( GridMediator * gridMediator )
 
     for ( int iZone = 0; iZone < gridMediator->numberOfZones; ++ iZone )
     {
-        StrGrid * grid = static_cast< StrGrid * >( GridAt( gridMediator->gridVector, iZone ) );
+        StrGrid * grid = static_cast< StrGrid * >( &GridAt( gridMediator->gridVector, iZone ) );
 
         int ni = grid->ni;
         int nj = grid->nj;
@@ -302,7 +302,7 @@ void Plot3D::ReadCoorAscii( GridMediator * gridMediator )
 
     for ( int iZone = 0; iZone < gridMediator->numberOfZones; ++ iZone )
     {
-        StrGrid * grid = static_cast< StrGrid * >( GridAt( gridMediator->gridVector, iZone ) );
+        StrGrid * grid = static_cast< StrGrid * >( &GridAt( gridMediator->gridVector, iZone ) );
         int numberOfNodes = grid->nNodes;
 
         int ni = grid->ni;
@@ -371,7 +371,7 @@ void Plot3D::DumpCoorAscii( GridMediator * gridMediator )
 
     for ( int iZone = 0; iZone < gridMediator->numberOfZones; ++ iZone )
     {
-        StrGrid * grid = static_cast< StrGrid * >( GridAt( gridMediator->gridVector, iZone ) );
+        StrGrid * grid = static_cast< StrGrid * >( &GridAt( gridMediator->gridVector, iZone ) );
 
         int ni = grid->ni;
         int nj = grid->nj;
@@ -398,7 +398,7 @@ void Plot3D::DumpCoorAscii( GridMediator * gridMediator )
 
     for ( int iZone = 0; iZone < gridMediator->numberOfZones; ++ iZone )
     {
-        StrGrid * grid = static_cast< StrGrid * >( GridAt( gridMediator->gridVector, iZone ) );
+        StrGrid * grid = static_cast< StrGrid * >( &GridAt( gridMediator->gridVector, iZone ) );
 
         int ni = grid->ni;
         int nj = grid->nj;
@@ -472,7 +472,7 @@ void Plot3D::ReadBc( GridMediator * gridMediator )
 
     for ( int iZone = 0; iZone < numberOfZones; ++ iZone )
     {
-        StrGrid * grid = static_cast< StrGrid * >( GridAt( gridMediator->gridVector, iZone ) );
+        StrGrid * grid = static_cast< StrGrid * >( &GridAt( gridMediator->gridVector, iZone ) );
         textFileParser.ReadNextNonEmptyLine();
 
         int ni = textFileParser.ReadNextDigit< int >();
@@ -602,7 +602,7 @@ void Plot3D::DumpBc( GridMediator * gridMediator )
 
     for ( int iZone = 0; iZone < numberOfZones; ++ iZone )
     {
-        StrGrid * grid = static_cast< StrGrid * >( GridAt( gridMediator->gridVector, iZone ) );
+        StrGrid * grid = static_cast< StrGrid * >( &GridAt( gridMediator->gridVector, iZone ) );
 
         int ni = grid->ni;
         int nj = grid->nj;

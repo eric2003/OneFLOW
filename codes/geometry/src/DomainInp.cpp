@@ -636,7 +636,7 @@ void DomainInp::GeneInp()
 
 void DomainInp::GetId( int zid, int i, int j, int k, int & id, GridMediator * gridMediator, PointLocator * pointSearch )
 {
-    StrGrid * grid = ONEFLOW::StrGridCast( GridAt( gridMediator->gridVector, zid ) );
+    StrGrid * grid = ONEFLOW::StrGridCast( &GridAt( gridMediator->gridVector, zid ) );
     Field3D & xs = * grid->strx;
     Field3D & ys = * grid->stry;
     Field3D & zs = * grid->strz;
@@ -652,7 +652,7 @@ void DomainInp::GetId( int zid, int i, int j, int k, int & id, GridMediator * gr
 
 void DomainInp::DumpCoor( int zid, int i, int j, int k, GridMediator * gridMediator, std::fstream & file )
 {
-    StrGrid * grid = ONEFLOW::StrGridCast( GridAt( gridMediator->gridVector, zid ) );
+    StrGrid * grid = ONEFLOW::StrGridCast( &GridAt( gridMediator->gridVector, zid ) );
     Field3D & xs = * grid->strx;
     Field3D & ys = * grid->stry;
     Field3D & zs = * grid->strz;

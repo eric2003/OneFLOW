@@ -284,7 +284,7 @@ void GetGridsMinMaxDistance( GridViews & grids, Real & mindis, Real & maxdis )
     for ( int iZone = 0; iZone < numberOfZones; ++ iZone )
     {
         Real dismin, dismax;
-        GridAt( grids, iZone )->GetMinMaxDistance( dismin, dismax );
+        GridAt( grids, iZone ).GetMinMaxDistance( dismin, dismax );
 
         mindis = ONEFLOW::MIN( mindis, dismin );
         maxdis = ONEFLOW::MAX( maxdis, dismax );
@@ -329,9 +329,9 @@ void GetBoundingBoxOfMultiZoneGrids( GridViews & grids, RealField & pmin, RealFi
 
     for ( int iZone = 0; iZone < numberOfZones; ++ iZone )
     {
-        GridAt( grids, iZone )->nodeMesh->CalcMinMaxBox();
-        RealField & localPmin = GridAt( grids, iZone )->nodeMesh->pmin;
-        RealField & localPmax = GridAt( grids, iZone )->nodeMesh->pmax;
+        GridAt( grids, iZone ).nodeMesh->CalcMinMaxBox();
+        RealField & localPmin = GridAt( grids, iZone ).nodeMesh->pmin;
+        RealField & localPmax = GridAt( grids, iZone ).nodeMesh->pmax;
 
         pmin[ 0 ] = ONEFLOW::MIN( pmin[ 0 ], localPmin[ 0 ] );
         pmin[ 1 ] = ONEFLOW::MIN( pmin[ 1 ], localPmin[ 1 ] );

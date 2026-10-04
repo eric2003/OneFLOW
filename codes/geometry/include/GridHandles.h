@@ -33,14 +33,14 @@ BeginNameSpace( ONEFLOW )
 // Owning collection of grids (one entry per zone / partition piece).
 using Grids = std::vector< std::unique_ptr< Grid > >;
 
-[[nodiscard]] inline Grid * GridAt( Grids & grids, std::size_t i )
+[[nodiscard]] inline Grid & GridAt( Grids & grids, std::size_t i )
 {
-    return grids[ i ].get();
+    return *grids[ i ];
 }
 
-[[nodiscard]] inline const Grid * GridAt( const Grids & grids, std::size_t i )
+[[nodiscard]] inline const Grid & GridAt( const Grids & grids, std::size_t i )
 {
-    return grids[ i ].get();
+    return *grids[ i ];
 }
 
 [[nodiscard]] inline int GridsSize( const Grids & grids ) noexcept

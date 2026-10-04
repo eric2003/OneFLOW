@@ -101,7 +101,7 @@ void CalcGrid::Dump()
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         ZoneState::pid[ iZone ] = iZone;
-        ZoneState::zoneType[ iZone ] = GridAt( grids, iZone )->type;
+        ZoneState::zoneType[ iZone ] = GridAt( grids, iZone ).type;
     }
 
     ONEFLOW::HXWrite( & file, nZone );
@@ -111,7 +111,7 @@ void CalcGrid::Dump()
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         std::cout << "iZone = " << iZone << " nZone = " << nZone << "\n";
-        GridAt( grids, iZone )->WriteGrid( file );
+        GridAt( grids, iZone ).WriteGrid( file );
     }
 
     Prj::CloseFile( file );

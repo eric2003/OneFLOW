@@ -613,7 +613,7 @@ void BlkFaceSolver::DumpStandardGrid( Grids & strGridList )
     HXWrite( & file, nZone );
     for ( int iBlock = 0; iBlock < nZone; ++ iBlock )
     {
-        Grid * gridstr = GridAt( strGridList, iBlock  );
+        Grid * gridstr = &GridAt( strGridList, iBlock  );
         StrGrid * grid = ONEFLOW::StrGridCast( gridstr );
         int ni = grid->ni;
         int nj = grid->nj;
@@ -625,7 +625,7 @@ void BlkFaceSolver::DumpStandardGrid( Grids & strGridList )
 
     for ( int iBlock = 0; iBlock < nZone; ++ iBlock )
     {
-        Grid * gridstr = GridAt( strGridList, iBlock  );
+        Grid * gridstr = &GridAt( strGridList, iBlock  );
         StrGrid * grid = ONEFLOW::StrGridCast( gridstr );
         HXWrite( & file, grid->nodeMesh->xN );
         HXWrite( & file, grid->nodeMesh->yN );
