@@ -75,12 +75,12 @@ void FaceMesh::SetNBFace( HXSize_t nBFaces )
     this->GetFaceTopo().SetNBFaces( nBFaces );
 }
 
-void FaceMesh::CalcFaceCenter1D( NodeMesh * nodeMesh )
+void FaceMesh::CalcFaceCenter1D( const NodeMesh & nodeMesh )
 {
     HXSize_t nFaces = this->GetNFace();
-    RealField & xN = nodeMesh->xN;
-    RealField & yN = nodeMesh->yN;
-    RealField & zN = nodeMesh->zN;
+    RealField & xN = nodeMesh.xN;
+    RealField & yN = nodeMesh.yN;
+    RealField & zN = nodeMesh.zN;
 
     for ( HXSize_t iFace = 0; iFace < nFaces; ++ iFace )
     {
@@ -93,17 +93,17 @@ void FaceMesh::CalcFaceCenter1D( NodeMesh * nodeMesh )
     }
 }
 
-void FaceMesh::CalcFaceNormal1D( NodeMesh * nodeMesh, CellMesh * cellMesh )
+void FaceMesh::CalcFaceNormal1D( const NodeMesh & nodeMesh, CellMesh & cellMesh )
 {
     HXSize_t nFaces = this->GetNFace();
-    RealField & xN = nodeMesh->xN;
-    RealField & yN = nodeMesh->yN;
-    RealField & zN = nodeMesh->zN;
+    RealField & xN = nodeMesh.xN;
+    RealField & yN = nodeMesh.yN;
+    RealField & zN = nodeMesh.zN;
 
-    RealField & xcc  = cellMesh->xcc ;
-    RealField & ycc  = cellMesh->ycc ;
-    RealField & zcc  = cellMesh->zcc ;
-    RealField & vol = cellMesh->vol;
+    RealField & xcc  = cellMesh.xcc ;
+    RealField & ycc  = cellMesh.ycc ;
+    RealField & zcc  = cellMesh.zcc ;
+    RealField & vol = cellMesh.vol;
 
     for ( HXSize_t iFace = 0; iFace < nFaces; ++ iFace )
     {
@@ -124,11 +124,11 @@ void FaceMesh::CalcFaceNormal1D( NodeMesh * nodeMesh, CellMesh * cellMesh )
 }
 
 
-void FaceMesh::CalcFaceNormal2D( NodeMesh * nodeMesh )
+void FaceMesh::CalcFaceNormal2D( const NodeMesh & nodeMesh )
 {
-    RealField & xN = nodeMesh->xN;
-    RealField & yN = nodeMesh->yN;
-    RealField & zN = nodeMesh->zN;
+    RealField & xN = nodeMesh.xN;
+    RealField & yN = nodeMesh.yN;
+    RealField & zN = nodeMesh.zN;
 
     HXSize_t nFaces = this->GetNFace();
 
@@ -154,12 +154,12 @@ void FaceMesh::CalcFaceNormal2D( NodeMesh * nodeMesh )
     }
 }
 
-void FaceMesh::CalcFaceCenter2D( NodeMesh * nodeMesh )
+void FaceMesh::CalcFaceCenter2D( const NodeMesh & nodeMesh )
 {
     HXSize_t nFaces = this->GetNFace();
-    RealField & xN = nodeMesh->xN;
-    RealField & yN = nodeMesh->yN;
-    RealField & zN = nodeMesh->zN;
+    RealField & xN = nodeMesh.xN;
+    RealField & yN = nodeMesh.yN;
+    RealField & zN = nodeMesh.zN;
 
     for ( HXSize_t iFace = 0; iFace < nFaces; ++ iFace )
     {
@@ -174,15 +174,15 @@ void FaceMesh::CalcFaceCenter2D( NodeMesh * nodeMesh )
 
 }
 
-void FaceMesh::CalcFaceNormal3D( NodeMesh * nodeMesh )
+void FaceMesh::CalcFaceNormal3D( const NodeMesh & nodeMesh )
 {
     xfn = 0;
     yfn = 0;
     zfn = 0;
 
-    RealField & xN = nodeMesh->xN;
-    RealField & yN = nodeMesh->yN;
-    RealField & zN = nodeMesh->zN;
+    RealField & xN = nodeMesh.xN;
+    RealField & yN = nodeMesh.yN;
+    RealField & zN = nodeMesh.zN;
 
     HXSize_t nFaces = this->GetNFace();
 
@@ -222,11 +222,11 @@ void FaceMesh::CalcFaceNormal3D( NodeMesh * nodeMesh )
     }
 }
 
-void FaceMesh::CalcFaceCenter3D( NodeMesh * nodeMesh )
+void FaceMesh::CalcFaceCenter3D( const NodeMesh & nodeMesh )
 {
-    RealField & xN = nodeMesh->xN;
-    RealField & yN = nodeMesh->yN;
-    RealField & zN = nodeMesh->zN;
+    RealField & xN = nodeMesh.xN;
+    RealField & yN = nodeMesh.yN;
+    RealField & zN = nodeMesh.zN;
 
     HXSize_t nFaces = this->GetNFace();
 

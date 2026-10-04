@@ -51,12 +51,12 @@ public:
     HXSize_t CalcTotalFaceNodes();
     HXSize_t GetNBFace();
     void SetNBFace( HXSize_t nBFaces );
-    void CalcFaceNormal1D( NodeMesh * nodeMesh, CellMesh * cellMesh );
-    void CalcFaceCenter1D( NodeMesh * nodeMesh );
-    void CalcFaceNormal2D( NodeMesh * nodeMesh );
-    void CalcFaceCenter2D( NodeMesh * nodeMesh );
-    void CalcFaceNormal3D( NodeMesh * nodeMesh );
-    void CalcFaceCenter3D( NodeMesh * nodeMesh );
+    void CalcFaceNormal1D( const NodeMesh & nodeMesh, CellMesh & cellMesh );
+    void CalcFaceCenter1D( const NodeMesh & nodeMesh );
+    void CalcFaceNormal2D( const NodeMesh & nodeMesh );
+    void CalcFaceCenter2D( const NodeMesh & nodeMesh );
+    void CalcFaceNormal3D( const NodeMesh & nodeMesh );
+    void CalcFaceCenter3D( const NodeMesh & nodeMesh );
 
     void AllocateMetrics();
 

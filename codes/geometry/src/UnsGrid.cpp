@@ -555,12 +555,12 @@ void UnsGrid::CalcMetrics3D()
 
 void UnsGrid::CalcFaceCenter1D()
 {
-    this->GetFaceMesh().CalcFaceCenter1D( this->nodeMesh.get() );
+    this->GetFaceMesh().CalcFaceCenter1D( *this->nodeMesh );
 }
 
 void UnsGrid::CalcFaceNormal1D()
 {
-    this->GetFaceMesh().CalcFaceNormal1D( this->nodeMesh.get(), &this->GetCellMesh() );
+    this->GetFaceMesh().CalcFaceNormal1D( *this->nodeMesh, this->GetCellMesh() );
 }
 
 void UnsGrid::CalcCellCenterVol1D()
@@ -647,12 +647,12 @@ void UnsGrid::CalcGhostCellCenterVol1D()
 
 void UnsGrid::CalcFaceNormal2D()
 {
-    this->GetFaceMesh().CalcFaceNormal2D( this->nodeMesh.get() );
+    this->GetFaceMesh().CalcFaceNormal2D( *this->nodeMesh );
 }
 
 void UnsGrid::CalcFaceCenter2D()
 {
-    this->GetFaceMesh().CalcFaceCenter2D( this->nodeMesh.get() );
+    this->GetFaceMesh().CalcFaceCenter2D( *this->nodeMesh );
 }
 
 void UnsGrid::CalcCellCenterVol2D()
@@ -910,12 +910,12 @@ void UnsGrid::CalcCellCenterVol3D()
 
 void UnsGrid::CalcFaceNormal3D()
 {
-    this->GetFaceMesh().CalcFaceNormal3D( this->nodeMesh.get() );
+    this->GetFaceMesh().CalcFaceNormal3D( *this->nodeMesh );
 }
 
 void UnsGrid::CalcFaceCenter3D()
 {
-    this->GetFaceMesh().CalcFaceCenter3D( this->nodeMesh.get() );
+    this->GetFaceMesh().CalcFaceCenter3D( *this->nodeMesh );
 }
 
 EndNameSpace
