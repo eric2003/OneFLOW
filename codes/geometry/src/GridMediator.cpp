@@ -93,17 +93,22 @@ void GridMediator::ReadGridgen()
 
 void ZgridMediator::add( std::unique_ptr< GridMediator > mediator )
 {
+    if ( ! mediator )
+    {
+        throw std::invalid_argument( "ZgridMediator cannot own a null GridMediator" );
+    }
+
     this->mediators_.push_back( std::move( mediator ) );
 }
 
-GridMediator * ZgridMediator::at( int index )
+GridMediator & ZgridMediator::at( int index )
 {
-    return this->mediators_[ static_cast< size_t >( index ) ].get();
+    return *this->mediators_.at( static_cast< size_t >( index ) );
 }
 
-const GridMediator * ZgridMediator::at( int index ) const
+const GridMediator & ZgridMediator::at( int index ) const
 {
-    return this->mediators_[ static_cast< size_t >( index ) ].get();
+    return *this->mediators_.at( static_cast< size_t >( index ) );
 }
 
 int ZgridMediator::size() const noexcept
