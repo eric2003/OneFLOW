@@ -121,8 +121,8 @@ TEST( ZgridMediatorTest, AddUniquePtrTakesOwnership )
     zgm.AddGridMediator( std::move( owned ) );
     EXPECT_EQ( owned, nullptr );
     ASSERT_EQ( zgm.GetSize(), 1 );
-    EXPECT_EQ( zgm.GetGridMediator( 0 )->numberOfZones, 7 );
-    EXPECT_EQ( zgm.GetGridMediator( 0 )->gridType, "plot3d" );
+    EXPECT_EQ( zgm.GetGridMediator( 0 ).numberOfZones, 7 );
+    EXPECT_EQ( zgm.GetGridMediator( 0 ).gridType, "plot3d" );
 }
 
 TEST( ZgridMediatorTest, AddUniquePtrTakesOwnershipWithTwoZones )
