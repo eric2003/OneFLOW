@@ -165,7 +165,7 @@ void CgnsZone::ScanBcFace( FaceSolver & faceSolver )
 void CgnsZone::GetElementNodeId( CgInt eId, CgIntField & eNodeId )
 {
     CgnsSection * cgnsSection = this->cgnsZsection->GetSectionByEid( eId );
-    cgnsSection.GetElementNodeId( eId - cgnsSection.startId, eNodeId );
+    cgnsSection->GetElementNodeId( eId - cgnsSection->startId, eNodeId );
 }
 
 void CgnsZone::ReadCgnsGrid()
