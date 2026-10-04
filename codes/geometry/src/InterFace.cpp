@@ -67,15 +67,6 @@ void InterFace::AllocSendRecv()
     }
 }
 
-void InterFace::DeAllocSendRecv()
-{
-    for ( int i = 0; i < MAX_GHOST_LEVELS; ++ i )
-    {
-        dataSend[ i ].reset();
-        dataRecv[ i ].reset();
-    }
-}
-
 void InterFace::Set( int nIFaces, Grid * parent )
 {
     this->Resize( nIFaces );
