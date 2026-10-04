@@ -147,14 +147,14 @@ void FaceSolver::ScanPolyhedronElement( CgnsSection * cgnsSection )
 
 void FaceSolver::ScanElementFace( CgIntField & eNodeId, int eType, int eId )
 {
-    UnitElement * unitElement = ElementHome::GetUnitElement( eType );
+    UnitElement & unitElement = ElementHome::GetUnitElement( eType );
 
     //composite Element not to be involved in analysis !!!
-    int nElemFace = unitElement->faceList.size();
+    int nElemFace = unitElement.faceList.size();
     for ( int iFace = 0; iFace < nElemFace; ++ iFace )
     {
-        IntField & rNodeId = unitElement->faceList[ iFace ];
-        int fType = unitElement->GetFaceType( iFace );
+        IntField & rNodeId = unitElement.faceList[ iFace ];
+        int fType = unitElement.GetFaceType( iFace );
          
         int nNodes = rNodeId.size();
 

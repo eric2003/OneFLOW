@@ -39,9 +39,9 @@ ElementHome::~ElementHome()
     ;
 }
 
-UnitElement * ElementHome::GetUnitElement( int elementType )
+UnitElement & ElementHome::GetUnitElement( int elementType )
 {
-    return unitElement[ elementType ].get();
+    return *unitElement[ elementType ];
 }
 
 void ElementHome::Initialize()
@@ -80,14 +80,14 @@ ElementHomeInit elementHomeInit;
 
 int GetElementNodeNumbers( int eType )
 {
-    UnitElement * unitElement = ElementHome::GetUnitElement( eType );
-    int nodeNumber = unitElement->GetElementNodeNumbers( eType );
+    UnitElement & unitElement = ElementHome::GetUnitElement( eType );
+    int nodeNumber = unitElement.GetElementNodeNumbers( eType );
     return nodeNumber;
 }
 
 bool IsBasicVolumeElementType( int eType )
 {
-    return ElementHome::GetUnitElement( eType )->IsBasicVolumeElementType( eType );
+    return ElementHome::GetUnitElement( eType ).IsBasicVolumeElementType( eType );
 }
 
 EndNameSpace

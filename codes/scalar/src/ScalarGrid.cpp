@@ -882,8 +882,8 @@ void ScalarGrid::CalcTopology()
 	{
 		const std::vector<int>& element = elements[iCell];
 		int eType = eTypes[iCell];
-		UnitElement* unitElement = ElementHome::GetUnitElement(eType);
-		int numberOfFaceInElement = unitElement->GetElementFaceNumber();
+		UnitElement& unitElement = ElementHome::GetUnitElement(eType);
+		int numberOfFaceInElement = unitElement.GetElementFaceNumber();
 
 		for ( int iLocalFace = 0; iLocalFace < numberOfFaceInElement; ++ iLocalFace )
 		{

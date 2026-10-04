@@ -403,13 +403,13 @@ void Mesh::ConstructTopology()
     {
         const IntField& element = cellTopo->elements[iCell];
         int elementType = cellTopo->eTypes[iCell];
-        UnitElement* unitElement = ONEFLOW::ElementHome::GetUnitElement(elementType);
-        int numberOfFaceInElement = unitElement->GetElementFaceNumber();
+        UnitElement & unitElement = ONEFLOW::ElementHome::GetUnitElement(elementType);
+        int numberOfFaceInElement = unitElement.GetElementFaceNumber();
 
         for (int iLocalFace = 0; iLocalFace < numberOfFaceInElement; ++iLocalFace)
         {
-            const IntField& localFaceNodeIndexArray = unitElement->GetElementFace(iLocalFace);
-            int faceType = unitElement->GetFaceType(iLocalFace);
+            const IntField& localFaceNodeIndexArray = unitElement.GetElementFace(iLocalFace);
+            int faceType = unitElement.GetFaceType(iLocalFace);
 
             // Build the global node array for the current face
             IntField faceNodeIndexArray;
