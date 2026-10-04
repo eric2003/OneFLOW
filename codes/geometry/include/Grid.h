@@ -27,7 +27,6 @@ License
 #include <vector>
 #include <string>
 #include <memory>
-#include <stdexcept>
 
 
 BeginNameSpace( ONEFLOW )
@@ -72,26 +71,7 @@ public:
     std::unique_ptr< SlipFace > slipFace;
     std::unique_ptr< DataBase > dataBase;
 public:
-    DataBase & GetDataBase()
-    {
-        if ( ! dataBase )
-        {
-            throw std::logic_error( "Grid DataBase is not initialized" );
-        }
-        return *dataBase;
-    }
-
-    const DataBase & GetDataBase() const
-    {
-        if ( ! dataBase )
-        {
-            throw std::logic_error( "Grid DataBase is not initialized" );
-        }
-        return *dataBase;
-    }
-
-    [[nodiscard]] DataBase * TryGetDataBase() noexcept { return dataBase.get(); }
-    [[nodiscard]] const DataBase * TryGetDataBase() const noexcept { return dataBase.get(); }
+    DataBase * GetDataBase() { return dataBase.get(); };
 public:
     void BasicInit();
     void Free();
