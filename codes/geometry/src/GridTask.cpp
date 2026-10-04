@@ -136,7 +136,7 @@ void DecodeCellCenter( StringField & data )
     if ( ! ONEFLOW::IsValid( interFace ) ) return;
 
     int iNei = interFace->z2n[ ZoneState::szid ];
-    int nIFaces  = interFace->interFacePairs[ iNei ]->nIFaces;
+    int nIFaces  = interFace->GetInterfacePair( iNei ).nIFaces;
     IntField & interfaceId = interFace->GetInterfaceId( iNei, GREAT_RECV );
 
     ActionState::dataBook->MoveToBegin();
