@@ -105,7 +105,7 @@ TEST( ZgridMediatorTest, CreateSimpleOwnsMediator )
     zgm.CreateSimple( 3 );
     ASSERT_EQ( zgm.GetSize(), 1 );
 
-    GridMediator * gm = zgm.GetGridMediator( 0 );
+    GridMediator * gm = &zgm.GetGridMediator( 0 );
     ASSERT_NE( gm, nullptr );
     EXPECT_EQ( gm->numberOfZones, 3 );
     // Destructor of zgm must free the unique_ptr without leak/crash.
