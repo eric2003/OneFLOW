@@ -118,7 +118,7 @@ void MergeToSingleZone( GridViews & grids, HXVector< std::unique_ptr< Int3D > > 
     nCells = 0;
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        StrGrid * grid = ONEFLOW::StrGridCast( &GridAt( grids, iZone ) );
+        StrGrid * grid = ONEFLOW::StrGridCast( GridAt( grids, iZone ) );
         int ni = grid->ni;
         int nj = grid->nj;
         int nk = grid->nk;
@@ -154,7 +154,7 @@ void FillSection( GridViews & grids, HXVector< std::unique_ptr< Int3D > > & unsI
 
     for ( int iZone = 0; iZone < grids.size(); ++ iZone )
     {
-        StrGrid * grid = ONEFLOW::StrGridCast( &GridAt( grids, iZone ) );
+        StrGrid * grid = ONEFLOW::StrGridCast( GridAt( grids, iZone ) );
         Int3D & unsId = * unsIdList[ iZone ];
 
         nTCell += grid->CalcNumberOfCell();
@@ -211,7 +211,7 @@ void FillSection( GridViews & grids, HXVector< std::unique_ptr< Int3D > > & unsI
 
     for ( int iZone = 0; iZone < grids.size(); ++ iZone )
     {
-        StrGrid * grid = ONEFLOW::StrGridCast( &GridAt( grids, iZone ) );
+        StrGrid * grid = ONEFLOW::StrGridCast( GridAt( grids, iZone ) );
         int ni = grid->ni;
         int nj = grid->nj;
         int nk = grid->nk;
@@ -264,7 +264,7 @@ void FillSection( GridViews & grids, HXVector< std::unique_ptr< Int3D > > & unsI
 
     for ( int iZone = 0; iZone < grids.size(); ++ iZone )
     {
-        StrGrid * grid = ONEFLOW::StrGridCast( &GridAt( grids, iZone ) );
+        StrGrid * grid = ONEFLOW::StrGridCast( GridAt( grids, iZone ) );
         int ni = grid->ni;
         int nj = grid->nj;
         int nk = grid->nk;
