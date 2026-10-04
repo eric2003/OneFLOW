@@ -57,6 +57,7 @@ void PrepareInterfaceFieldRecord( int solverType, int iFk, int iSr, FieldRecord 
 }
 
 void GetInterfaceDataStorageList( InterFace & interFace, HXVector< DataStorage * > * iDataStorageList, int srFlag )
+{
     for ( int ghostId = MAX_GHOST_LEVELS - 1; ghostId >= 0; -- ghostId )
     {
         DataStorage * dataStorage = GetInterfaceDataStorage( &interFace, srFlag, ghostId );
