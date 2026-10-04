@@ -75,6 +75,8 @@ public:
     void SetSendId( int zid, IntField & idsend );
     void AllocateNeighbor();
     int CalcNIFace( int iNei );
+    InterfacePair & GetInterfacePair( int iNei );
+    const InterfacePair & GetInterfacePair( int iNei ) const;
     IntField & GetInterfaceId( int neiId, int iSr );
 };
 
