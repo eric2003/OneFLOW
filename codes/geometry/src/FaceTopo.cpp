@@ -126,7 +126,7 @@ bool FaceTopo::HasInterfaceBoundary() const
 
 FaceTopo::~FaceTopo() = default;
 
-HXSize_t FaceTopo::CalcTotalFaceNodes()
+HXSize_t FaceTopo::CalcTotalFaceNodes() const
 {
     HXSize_t totalNumFaceNodes = 0;
     HXSize_t nFaces = this->GetNFaces();
@@ -137,7 +137,7 @@ HXSize_t FaceTopo::CalcTotalFaceNodes()
     return totalNumFaceNodes;
 }
 
-HXSize_t FaceTopo::GetNBFaces()
+HXSize_t FaceTopo::GetNBFaces() const
 {
     return this->bcManager->bcRecord->GetNBFace();
 }

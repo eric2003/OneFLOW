@@ -109,7 +109,7 @@ void BcRecord::CreateBcTypeRegion()
     }
 }
 
-int BcRecord::GetNBFace()
+int BcRecord::GetNBFace() const
 {
     return bcType.size();
 }

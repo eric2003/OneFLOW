@@ -55,17 +55,17 @@ const FaceTopo & FaceMesh::GetFaceTopo() const
     return *this->faceTopo;
 }
 
-HXSize_t FaceMesh::GetNFace()
+HXSize_t FaceMesh::GetNFace() const
 {
     return this->GetFaceTopo().GetNFaces();  
 }
 
-HXSize_t FaceMesh::CalcTotalFaceNodes()
+HXSize_t FaceMesh::CalcTotalFaceNodes() const
 {
     return this->GetFaceTopo().CalcTotalFaceNodes();
 }
 
-HXSize_t FaceMesh::GetNBFace()
+HXSize_t FaceMesh::GetNBFace() const
 {
     return this->GetFaceTopo().GetNBFaces();
 }

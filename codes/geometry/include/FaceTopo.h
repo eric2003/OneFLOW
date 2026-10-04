@@ -65,9 +65,9 @@ private:
     IntField lCellsNew, rCellsNew;
 
 public:
-    HXSize_t GetNFaces() { return fTypes.size();  }
-    HXSize_t CalcTotalFaceNodes();
-    HXSize_t GetNBFaces();
+    HXSize_t GetNFaces() const { return fTypes.size(); }
+    HXSize_t CalcTotalFaceNodes() const;
+    HXSize_t GetNBFaces() const;
     void SetNBFaces( HXSize_t nBFaces );
     void BindGrid( Grid & grid );
     Grid & GetGrid();

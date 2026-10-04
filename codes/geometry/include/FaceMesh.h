@@ -47,9 +47,9 @@ public:
     RealField vfx, vfy, vfz;
     RealField vfn;
 public:
-    HXSize_t GetNFace();
-    HXSize_t CalcTotalFaceNodes();
-    HXSize_t GetNBFace();
+    HXSize_t GetNFace() const;
+    HXSize_t CalcTotalFaceNodes() const;
+    HXSize_t GetNBFace() const;
     void SetNBFace( HXSize_t nBFaces );
     void CalcFaceNormal1D( const NodeMesh & nodeMesh, CellMesh & cellMesh );
     void CalcFaceCenter1D( const NodeMesh & nodeMesh );
