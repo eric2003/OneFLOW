@@ -887,8 +887,8 @@ void ScalarGrid::CalcTopology()
 
 		for ( int iLocalFace = 0; iLocalFace < numberOfFaceInElement; ++ iLocalFace )
 		{
-			const IntField& localFaceNodeIndexArray = unitElement->GetElementFace(iLocalFace);
-			int faceType = unitElement->GetFaceType(iLocalFace);
+			const IntField& localFaceNodeIndexArray = unitElement.GetElementFace(iLocalFace);
+			int faceType = unitElement.GetFaceType(iLocalFace);
 
 			// Build the global node array for the current face
 			IntField faceNodeIndexArray;
