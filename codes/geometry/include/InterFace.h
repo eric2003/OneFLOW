@@ -66,7 +66,6 @@ public:
     HXVector< std::unique_ptr< InterfacePair > > interFacePairs;
 public:
     void AllocSendRecv();
-    void DeAllocSendRecv();
     void Resize( int nIFaces );
     void InitNeighborFlag( IntField & flags );
     void InitNeighborZoneInfo();
