@@ -73,6 +73,16 @@ void InterFace::Set( int nIFaces, Grid * parent )
     this->parent = parent;
 }
 
+InterfacePair & InterFace::GetInterfacePair( int iNei )
+{
+    return *this->interFacePairs[ iNei ];
+}
+
+const InterfacePair & InterFace::GetInterfacePair( int iNei ) const
+{
+    return *this->interFacePairs[ iNei ];
+}
+
 void InterFace::Resize( int nIFaces )
 {
     if ( nIFaces <= 0 ) nIFaces = 0;
@@ -135,7 +145,7 @@ void InterFace::InitNeighborZoneInfo()
 
 int InterFace::CalcNIFace( int iNei )
 {
-    int expectedId = this->interFacePairs[ iNei ]->nzid;
+    int expectedId = this->GetInterfacePair( iNei ).nzid;
     int nIFaceCount = 0;
 
     for ( int iFace = 0; iFace < this->nIFaces; ++ iFace )
@@ -151,8 +161,8 @@ int InterFace::CalcNIFace( int iNei )
 
 void InterFace::InitNeighborZoneInfo( int iNei, int iZone )
 {
-    InterfacePair * interfacePair = interFacePairs[ iNei ].get();
-    interfacePair->nzid = iZone;
+    InterfacePair & interfacePair = this->GetInterfacePair( iNei );
+    interfacePair.nzid = iZone;
 
     this->z2n.insert( std::pair< int, int >( iZone, iNei ) );
 
