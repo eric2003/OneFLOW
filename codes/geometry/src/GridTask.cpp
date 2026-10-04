@@ -102,7 +102,7 @@ void SwapCellCenter( StringField & data )
     if ( ! ONEFLOW::IsValid( interFace ) ) return;
 
     int iNei = interFace->z2n[ ZoneState::rzid ];
-    int nIFaces  = interFace->interFacePairs[ iNei ]->nIFaces;
+    int nIFaces  = interFace->GetInterfacePair( iNei ).nIFaces;
 
     IntField & interfaceId = interFace->GetInterfaceId( iNei, GREAT_SEND );
 
