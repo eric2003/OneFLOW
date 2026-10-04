@@ -168,21 +168,21 @@ void InterFace::InitNeighborZoneInfo( int iNei, int iZone )
 
     int nIFaceCount = this->CalcNIFace( iNei );
 
-    interfacePair->nIFaces = nIFaceCount;
-    interfacePair->idsend.resize( nIFaceCount );
-    interfacePair->idrecv.resize( nIFaceCount );
+    interfacePair.nIFaces = nIFaceCount;
+    interfacePair.idsend.resize( nIFaceCount );
+    interfacePair.idrecv.resize( nIFaceCount );
 
     this->FillRecvId( iNei );
 }
 
 void InterFace::FillRecvId( int iNei )
 {
-    InterfacePair * interfacePair = interFacePairs[ iNei ].get();
+    InterfacePair & interfacePair = this->GetInterfacePair( iNei );
 
     int iCount = 0;
     for ( int iFace = 0; iFace < this->nIFaces; ++ iFace )
     {
-        if ( this->zoneId[ iFace ] == interfacePair->nzid )
+        if ( this->zoneId[ iFace ] == interfacePair.nzid )
         {
             //This shows that idrecv is counted locally by the interface of this block
             interfacePair->idrecv[ iCount ] = iFace;
@@ -194,7 +194,7 @@ void InterFace::FillRecvId( int iNei )
 void InterFace::CalcSendId( int iNei, IntField & idsend )
 {
     InterfacePair * interfacePair = interFacePairs[ iNei ].get();
-    idsend.resize( interfacePair->nIFaces );
+    idsend.resize( interfacePair.nIFaces );
 
     int iCount = 0;
     for ( int iFace = 0; iFace < this->nIFaces; ++ iFace )
@@ -219,9 +219,9 @@ IntField & InterFace::GetInterfaceId( int neiId, int iSr )
 {
     if ( iSr == GREAT_SEND )
     {
-        return this->interFacePairs[ neiId ]->idsend;
+        return this->GetInterfacePair( neiId ).idsend;
     }
-    return this->interFacePairs[ neiId ]->idrecv;
+    return this->GetInterfacePair( neiId ).idrecv;
 }
 
 
@@ -343,7 +343,7 @@ void InterFaceTopo::InitZoneNeighborsInfo()
 
         for ( int iNei = 0; iNei < grid->interFace->nNeighbor; ++ iNei )
         {
-            InterfacePair * interfacePair = grid->interFace->interFacePairs[ iNei ].get();
+            InterfacePair & interfacePair = grid->interFace->GetInterfacePair( iNei );
 
             t.push_back( interfacePair->nzid );
         }
