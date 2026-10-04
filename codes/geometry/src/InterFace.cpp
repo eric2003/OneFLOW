@@ -211,7 +211,7 @@ void InterFace::CalcSendId( int iNei, IntField & idsend )
 void InterFace::SetSendId( int zid, IntField & idsend )
 {
     int iNei = this->z2n[ zid ];
-    InterfacePair * interfacePair = interFacePairs[ iNei ].get();
+    InterfacePair & interfacePair = this->GetInterfacePair( iNei );
     interfacePair.idsend = idsend;
 }
 
@@ -345,7 +345,7 @@ void InterFaceTopo::InitZoneNeighborsInfo()
         {
             InterfacePair & interfacePair = grid->interFace->GetInterfacePair( iNei );
 
-            t.push_back( interfacePair->nzid );
+            t.push_back( interfacePair.nzid );
         }
         std::sort( t.begin(), t.end() );
     }
