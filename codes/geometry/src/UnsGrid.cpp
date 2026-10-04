@@ -43,6 +43,7 @@ License
 #include <algorithm>
 #include <iterator>
 #include <iomanip>
+#include <stdexcept>
 
 
 BeginNameSpace( ONEFLOW )
@@ -102,6 +103,11 @@ const CellMesh & UnsGrid::GetCellMesh() const
 
 void UnsGrid::SetFaceTopo( std::unique_ptr< FaceTopo > faceTopo )
 {
+    if ( ! faceTopo )
+    {
+        throw std::invalid_argument( "UnsGrid cannot own a null FaceTopo" );
+    }
+
     this->faceTopo = std::move( faceTopo );
     this->GetFaceTopo().BindGrid( *this );
     this->GetFaceMesh().BindFaceTopo( this->GetFaceTopo() );
