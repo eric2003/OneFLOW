@@ -192,16 +192,16 @@ void TopoSort::AddNewFace( int iCell, int face_pos, int faceType )
 
 void TopoSort::AddElementFaces( std::vector< int > & element, int eType, int iCell )
 {
-    UnitElement * unitElement = ElementHome::GetUnitElement( eType );
+    UnitElement & unitElement = ElementHome::GetUnitElement( eType );
 
-    int numberOfFaceInElement = unitElement->GetElementFaceNumber();
+    int numberOfFaceInElement = unitElement.GetElementFaceNumber();
 
     for ( int iLocalFace = 0; iLocalFace < numberOfFaceInElement; ++ iLocalFace )
     {
-        IntField & face = unitElement->GetElementFace( iLocalFace );
-        int faceType = unitElement->GetFaceType( iLocalFace );
+        IntField & face = unitElement.GetElementFace( iLocalFace );
+        int faceType = unitElement.GetFaceType( iLocalFace );
 
-        this->AddSingleFace( unitElement, element, iLocalFace, iCell );
+        this->AddSingleFace( &unitElement, element, iLocalFace, iCell );
     }
 }
 

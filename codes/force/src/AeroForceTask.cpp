@@ -165,7 +165,7 @@ void AerodynamicForceTask::CalcForce()
 void CalcAeroForce(int idump_pres)
 {
 	UnsGrid * grid = Zone::GetUnsGrid();
-	BcRecord * bcRecord = grid->GetFaceTopo().bcManager->bcRecord.get();
+	BcRecord * bcRecord = &grid->GetFaceTopo().GetBcRecord();
 	bcRecord->CreateBcTypeRegion();
 
 	BcInfo * bcInfo = bcRecord->bcInfo.get();
@@ -249,8 +249,8 @@ void CalcAeroForce(int idump_pres)
 		for (int iBCFace = 0; iBCFace < nBCFace; ++iBCFace)
 		{
 			int fId = bcInfo->bcFace[ir][iBCFace];
-			int lc = grid->GetFaceTopo().lCells[fId];
-			int rc = grid->GetFaceTopo().rCells[fId];
+			int lc = grid->GetFaceTopo().GetLeftCells()[fId];
+			int rc = grid->GetFaceTopo().GetRightCells()[fId];
 			stress.area = area[fId];
 			stress.fnx = xfn[fId];
 			stress.fny = yfn[fId];

@@ -63,7 +63,7 @@ void InterpolateCellToNodeForComponent( RealField & qNodeField, RealField & qFie
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     FaceTopo * faceTopo = &grid->GetFaceTopo();
-    LinkField & f2c = faceTopo->faces;
+    LinkField & f2c = faceTopo->GetFaces();
 
     int nNodes = grid->nNodes;
     int nFaces = grid->nFaces;
@@ -73,8 +73,8 @@ void InterpolateCellToNodeForComponent( RealField & qNodeField, RealField & qFie
 
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
-        int lc = faceTopo->lCells[ iFace ];
-        int rc = faceTopo->rCells[ iFace ];
+        int lc = faceTopo->GetLeftCells()[ iFace ];
+        int rc = faceTopo->GetRightCells()[ iFace ];
 
         int fnNode = f2c[ iFace ].size();
         for ( int iNode = 0; iNode < fnNode; ++ iNode )
@@ -104,8 +104,8 @@ void ApplyBoundaryConditionToNodeField( RealField & qNodeField, RealField & qFie
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     FaceTopo * faceTopo = &grid->GetFaceTopo();
-    BcRecord * bcRecord = faceTopo->bcManager->bcRecord.get();
-    LinkField & f2c = faceTopo->faces;
+    BcRecord * bcRecord = &faceTopo->GetBcRecord();
+    LinkField & f2c = faceTopo->GetFaces();
 
     int nNodes = grid->nNodes;
     int nFaces = grid->nFaces;
@@ -114,8 +114,8 @@ void ApplyBoundaryConditionToNodeField( RealField & qNodeField, RealField & qFie
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
         if ( bcRecord->bcType[ iFace ] != bcType ) continue;
-        int lc = faceTopo->lCells[ iFace ];
-        int rc = faceTopo->rCells[ iFace ];
+        int lc = faceTopo->GetLeftCells()[ iFace ];
+        int rc = faceTopo->GetRightCells()[ iFace ];
 
         int fnNode = f2c[ iFace ].size();
         for ( int iNode = 0; iNode < fnNode; ++ iNode )
@@ -130,8 +130,8 @@ void ApplyBoundaryConditionToNodeField( RealField & qNodeField, RealField & qFie
     {
         if ( bcRecord->bcType[ iFace ] != bcType ) continue;
 
-        int lc = faceTopo->lCells[ iFace ];
-        int rc = faceTopo->rCells[ iFace ];
+        int lc = faceTopo->GetLeftCells()[ iFace ];
+        int rc = faceTopo->GetRightCells()[ iFace ];
 
         int fnNode = f2c[ iFace ].size();
         for ( int iNode = 0; iNode < fnNode; ++ iNode )

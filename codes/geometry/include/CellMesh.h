@@ -35,15 +35,19 @@ class CellMesh
 public:
     CellMesh();
     ~CellMesh();
+
+private:
+    CellTopo cellTopo;
+
 public:
-    // [Refactored] Changed from raw pointer to value type (Stack allocation)
-    CellTopo cellTopo; 
     RealField xcc, ycc, zcc;
     RealField vol;
     RealField dist;
     RealField span;
 public:
     HXSize_t GetNumberOfCells();
+    CellTopo & GetCellTopo();
+    const CellTopo & GetCellTopo() const;
     HXSize_t GetNumberOfTotalCells() { return vol.size(); }
     void AllocateMetrics( FaceMesh & faceMesh );
     void AllocDist();

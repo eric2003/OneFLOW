@@ -636,7 +636,7 @@ void DomainInp::GeneInp()
 
 void DomainInp::GetId( int zid, int i, int j, int k, int & id, GridMediator * gridMediator, PointLocator * pointSearch )
 {
-    StrGrid * grid = ONEFLOW::StrGridCast( GridAt( gridMediator->gridVector, zid ) );
+    StrGrid * grid = ONEFLOW::StrGridCast( &GridAt( gridMediator->gridVector, zid ) );
     Field3D & xs = * grid->strx;
     Field3D & ys = * grid->stry;
     Field3D & zs = * grid->strz;
@@ -652,7 +652,7 @@ void DomainInp::GetId( int zid, int i, int j, int k, int & id, GridMediator * gr
 
 void DomainInp::DumpCoor( int zid, int i, int j, int k, GridMediator * gridMediator, std::fstream & file )
 {
-    StrGrid * grid = ONEFLOW::StrGridCast( GridAt( gridMediator->gridVector, zid ) );
+    StrGrid * grid = ONEFLOW::StrGridCast( &GridAt( gridMediator->gridVector, zid ) );
     Field3D & xs = * grid->strx;
     Field3D & ys = * grid->stry;
     Field3D & zs = * grid->strz;
@@ -713,7 +713,7 @@ void DomainInp::Dump( MultiDomain * md, GridMediator * gridMediator, PointLocato
     file << std::setw( width ) << nZone << std::endl;
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        StrGrid * grid = ONEFLOW::StrGridCast( GridAt( grids, iZone ) );
+        StrGrid * grid = ONEFLOW::StrGridCast( &GridAt( grids, iZone ) );
         int ni = grid->ni;
         int nj = grid->nj;
         int nk = grid->nk;
@@ -831,7 +831,7 @@ void DomainInp::OutputInp( GridMediator * gridMediator )
 
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        StrGrid * grid = ONEFLOW::StrGridCast( GridAt( grids, iZone ) );
+        StrGrid * grid = ONEFLOW::StrGridCast( &GridAt( grids, iZone ) );
         int ni = grid->ni;
         int nj = grid->nj;
         int nk = grid->nk;
@@ -863,8 +863,8 @@ void DomainInp::CalcDomainPatch( int iZone, int jZone, GridMediator * gridMediat
 {
     Grids & grids = gridMediator->gridVector;
 
-    StrGrid * grid_i = ONEFLOW::StrGridCast( GridAt( grids, iZone ) );
-    StrGrid * grid_j = ONEFLOW::StrGridCast( GridAt( grids, jZone ) );
+    StrGrid * grid_i = ONEFLOW::StrGridCast( &GridAt( grids, iZone ) );
+    StrGrid * grid_j = ONEFLOW::StrGridCast( &GridAt( grids, jZone ) );
 
     IjkBox ijkBox_i;
     ijkBox_i.CreateBox( grid_i );

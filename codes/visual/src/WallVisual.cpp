@@ -176,14 +176,14 @@ void WallVisual::ConstructTopology3D()
 
         int eType = elementType[ iCell ];
 
-        UnitElement * unitElement = ElementHome::GetUnitElement( eType );
+        UnitElement & unitElement = ElementHome::GetUnitElement( eType );
 
-        int elem_nFace = unitElement->GetElementFaceNumber();
+        int elem_nFace = unitElement.GetElementFaceNumber();
 
         for ( int loc_Face = 0; loc_Face < elem_nFace; ++ loc_Face )
         {
-            IntField & local_fn = unitElement->GetElementFace( loc_Face );
-            int face_type = unitElement->GetFaceType( loc_Face );
+            IntField & local_fn = unitElement.GetElementFace( loc_Face );
+            int face_type = unitElement.GetFaceType( loc_Face );
             int nNodes = local_fn.size();
             IntField fn;
             for ( int iFacePoint = 0; iFacePoint < nNodes; ++ iFacePoint )

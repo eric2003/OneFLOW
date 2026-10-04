@@ -66,9 +66,9 @@ void UINsRestart::InitinsRestart( int solverType )
 
     if ( ctrl.inflowType == 3 )
     {
-        RealField & xcc = grid->cellMesh->xcc;
-        RealField & ycc = grid->cellMesh->ycc;
-        RealField & zcc = grid->cellMesh->zcc;
+        RealField & xcc = grid->GetCellMesh().xcc;
+        RealField & ycc = grid->GetCellMesh().ycc;
+        RealField & zcc = grid->GetCellMesh().zcc;
 
         Real a = ctrl.initplane[ 0 ];
         Real b = ctrl.initplane[ 1 ];
@@ -101,9 +101,9 @@ void UINsRestart::InitinsRestart( int solverType )
     }
     else if ( ctrl.inflowType == 4 )
     {
-        RealField & xcc = grid->cellMesh->xcc;
-        RealField & ycc = grid->cellMesh->ycc;
-        RealField & zcc = grid->cellMesh->zcc;
+        RealField & xcc = grid->GetCellMesh().xcc;
+        RealField & ycc = grid->GetCellMesh().ycc;
+        RealField & zcc = grid->GetCellMesh().zcc;
 
         int nTCell = xcc.size();
 

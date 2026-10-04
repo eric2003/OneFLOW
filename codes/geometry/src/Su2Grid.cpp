@@ -512,7 +512,7 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone & cgnsZone )
     int sumElem = 0;
     for ( int iSection = 0; iSection < nSection; ++ iSection )
     {
-        CgnsSection * cgnsSection = cgnsZsection->GetCgnsSection( iSection );
+        CgnsSection & cgnsSection = cgnsZsection->GetCgnsSection( iSection );
         const SecMarker * sec = nullptr;
         if ( iSection < nVolSec )
         {
@@ -526,8 +526,8 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone & cgnsZone )
             
 
         const int nElem = sec->nElem;
-        cgnsSection->SetSectionInfo( sec->name, sec->cgns_type, sumElem + 1, sumElem + nElem );
-        cgnsSection->CreateConnList();
+        cgnsSection.SetSectionInfo( sec->name, sec->cgns_type, sumElem + 1, sumElem + nElem );
+        cgnsSection.CreateConnList();
         sumElem += nElem;
 
         int pos = 0;
@@ -537,7 +537,7 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone & cgnsZone )
             const int nNodes = elem.size();
             for ( int i = 0; i < nNodes; ++ i )
             {
-                cgnsSection->connList[ pos ++ ]= elem[ i ] + 1;
+                cgnsSection.connList[ pos ++ ]= elem[ i ] + 1;
             }
         }
 
@@ -545,8 +545,8 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone & cgnsZone )
 
     for ( int iSection = 0; iSection < nSection; ++ iSection )
     {
-        CgnsSection * cgnsSection = cgnsZsection->GetCgnsSection( iSection );
-        cgnsSection->SetElemPosition();
+        CgnsSection & cgnsSection = cgnsZsection->GetCgnsSection( iSection );
+        cgnsSection.SetElemPosition();
     }
 
     CgnsZbc * cgnsZbc = cgnsZone.cgnsZbc.get();

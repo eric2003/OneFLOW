@@ -247,8 +247,8 @@ void CgnsSection::CalcCapacityOfCgnsConnectionList()
     }
     else
     {
-        UnitElement * unitElement = ElementHome::GetUnitElement( this->eType );
-        int nodeNumber = unitElement->GetElementNodeNumbers( this->eType );
+        UnitElement & unitElement = ElementHome::GetUnitElement( this->eType );
+        int nodeNumber = unitElement.GetElementNodeNumbers( this->eType );
 
         this->connSize = this->nElement * nodeNumber;
     }

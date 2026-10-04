@@ -42,11 +42,9 @@ void PrepareInterfaceFieldRecord( int solverType, int iFk, int iSr, FieldRecord 
     Grid * grid = Zone::GetGrid();
     InterFace * interFace = grid->interFace.get();
 
-    InterFaceState::interFace = interFace;
-
     // Stack-local list: only used inside this function.
     HXVector< DataStorage * > iDataStorageList;
-    GetInterfaceDataStorageList( &iDataStorageList, iSr );
+    GetInterfaceDataStorageList( *interFace, &iDataStorageList, iSr );
 
     VarNameSolver * varNameSolver =
         VarNameFactory::GetVarNameSolver( solverType, iFk );
@@ -58,12 +56,11 @@ void PrepareInterfaceFieldRecord( int solverType, int iFk, int iSr, FieldRecord 
     }
 }
 
-void GetInterfaceDataStorageList( HXVector< DataStorage * > * iDataStorageList, int srFlag )
+void GetInterfaceDataStorageList( InterFace & interFace, HXVector< DataStorage * > * iDataStorageList, int srFlag )
 {
-    InterFace * interFace = InterFaceState::interFace;
     for ( int ghostId = MAX_GHOST_LEVELS - 1; ghostId >= 0; -- ghostId )
     {
-        DataStorage * dataStorage = GetInterfaceDataStorage( interFace, srFlag, ghostId );
+        DataStorage * dataStorage = GetInterfaceDataStorage( &interFace, srFlag, ghostId );
         iDataStorageList->push_back( dataStorage );
     }
 }
@@ -72,11 +69,11 @@ DataStorage * GetInterfaceDataStorage( InterFace * interFace, int srFlag, int gh
 {
     if ( srFlag == SEND_STORAGE )
     {
-        return interFace->dataSend[ ghostId ].get();
+        return &interFace->GetSendStorage( ghostId );
     }
     else if ( srFlag == RECV_STORAGE )
     {
-        return interFace->dataRecv[ ghostId ].get();
+        return &interFace->GetRecvStorage( ghostId );
     }
     else
     {
@@ -126,7 +123,7 @@ void SetInterfaceFieldData( int iSr, FieldRecord * fieldRecord )
     //How many neighbors of the current zone do you need to find out? This value is neiid.
 
     int neiId = interFace->z2n[ ZoneState::GetZid( oppoSr ) ];
-    int nIFaces = interFace->interFacePairs[ neiId ]->nIFaces;
+    int nIFaces = interFace->GetInterfacePair( neiId ).nIFaces;
     IntField & interfaceId = interFace->GetInterfaceId( neiId, iSr );
     
     ActionState::dataBook->MoveToBegin();

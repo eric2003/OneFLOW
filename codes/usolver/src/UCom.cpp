@@ -65,12 +65,12 @@ void UGeom::Init()
     this->CreateBcTypeRegion();
 
     FaceTopo & faceTopo = grid->GetFaceTopo();
-    ug.lcf = & faceTopo.lCells;
-    ug.rcf = & faceTopo.rCells;
+    ug.lcf = & faceTopo.GetLeftCells();
+    ug.rcf = & faceTopo.GetRightCells();
 
     FaceMesh & faceMesh = grid->GetFaceMesh();
     CellMesh & cellMesh = grid->GetCellMesh();
-    CellTopo & cellTopo = cellMesh.cellTopo;
+    CellTopo & cellTopo = cellMesh.GetCellTopo();
 
     ug.xfn = & faceMesh.xfn;
     ug.yfn = & faceMesh.yfn;
@@ -107,7 +107,7 @@ void UGeom::Init()
 void UGeom::CreateBcTypeRegion()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
-    BcRecord & bcRecord = *grid->GetFaceTopo().bcManager->bcRecord;
+    BcRecord & bcRecord = grid->GetFaceTopo().GetBcRecord();
     bcRecord.CreateBcTypeRegion();
 
     ug.bcRecord = &bcRecord;

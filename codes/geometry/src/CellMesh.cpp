@@ -54,6 +54,16 @@ HXSize_t CellMesh::GetNumberOfCells()
     return cellTopo.GetNumberOfCells(); 
 }
 
+CellTopo & CellMesh::GetCellTopo()
+{
+    return this->cellTopo;
+}
+
+const CellTopo & CellMesh::GetCellTopo() const
+{
+    return this->cellTopo;
+}
+
 void CellMesh::AllocateMetrics( FaceMesh & faceMesh )
 {
     HXSize_t numberOfCells = this->GetNumberOfCells();
@@ -92,9 +102,9 @@ void CellMesh::CalcCellSpan( UnsGrid & grid )
     CalcC2f( grid );
 
     FaceTopo & faceTopo = grid.GetFaceTopo();
-    LinkField & c2f = this->cellTopo.c2f;
-    IntField & lcf = faceTopo.lCells;
-    IntField & rcf = faceTopo.rCells;
+    LinkField & c2f = this->GetCellTopo().c2f;
+    IntField & lcf = faceTopo.GetLeftCells();
+    IntField & rcf = faceTopo.GetRightCells();
 
     for ( int ic = 0; ic < nCells; ++ ic )
     {

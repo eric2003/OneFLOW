@@ -29,9 +29,9 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-int GetNumberOfSolidCells( const UnsGrid & grid )
+int GetNumberOfSolidCells( UnsGrid & grid )
 {
-    BcRecord * bcRecord = grid.GetFaceTopo().bcManager->bcRecord.get();
+    BcRecord * bcRecord = &grid.GetFaceTopo().GetBcRecord();
     bcRecord->CreateBcTypeRegion();
 
     BcInfo * bcInfo = bcRecord->bcInfo.get();

@@ -100,8 +100,8 @@ void FillWallStructTask( StringField & /*data*/ )
 void FillWallStruct( StringField & /*data*/ )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
-    const int nBFaces = grid->GetFaceTopo().bcManager->bcRecord->GetNBFace();
-    BcRecord * bcRecord = grid->GetFaceTopo().bcManager->bcRecord.get();
+    const int nBFaces = grid->GetFaceTopo().GetBcRecord().GetNBFace();
+    BcRecord * bcRecord = &grid->GetFaceTopo().GetBcRecord();
 
     const int nWallFace = bcRecord->CalcNumWallFace();
 
@@ -127,7 +127,7 @@ void FillWallStruct( StringField & /*data*/ )
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
         const int bcType = bcRecord->bcType[ iFace ];
-        const int nNodes = static_cast< int >( grid->GetFaceTopo().faces[ iFace ].size() );
+        const int nNodes = static_cast< int >( grid->GetFaceTopo().GetFaces()[ iFace ].size() );
 
         if ( bcType != BC::SOLID_SURFACE )
         {
@@ -139,7 +139,7 @@ void FillWallStruct( StringField & /*data*/ )
 
         for ( int iNode = 0; iNode < nNodes; ++ iNode )
         {
-            const int iPoint = grid->GetFaceTopo().faces[ iFace ][ iNode ];
+            const int iPoint = grid->GetFaceTopo().GetFaces()[ iFace ][ iNode ];
             simpleFace.emplace_back( x[ iPoint ], y[ iPoint ], z[ iPoint ] );
         }
         fv.push_back( std::move( simpleFace ) );

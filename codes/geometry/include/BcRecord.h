@@ -43,7 +43,7 @@ public:
     LinkField bcNameId;
     IntField bcType;
 public:
-    HXSize_t GetNBcRegion() { return bcType.size(); }
+    HXSize_t GetNBcRegion() const { return bcType.size(); }
 };
 
 class BcRecord
@@ -59,12 +59,13 @@ public:
     std::unique_ptr< BcInfo > bcInfo;
 public:
     void Init( HXSize_t nBFaces );
-    int GetNBFace();
+    int GetNBFace() const;
     int CalcNIFace();
     int CalcNumWallFace();
     void GenerateI2B( InterFace * interFace );
 public:
     void CreateBcTypeRegion();
+    void CalcBcType( IntField & bcTypeList );
 };
 
 class IFaceLink;
@@ -95,7 +96,7 @@ public:
     IntField bcFlag;
 public:
     void PreProcess();
-    bool ExistInterface();
+    bool ExistInterface() const;
     void Update();
     void CalcBcType( IntField & bcTypeList );
 };

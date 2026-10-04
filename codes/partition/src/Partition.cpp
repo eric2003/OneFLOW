@@ -153,7 +153,7 @@ void G2LMapping::GetXadjAdjncy( UnsGrid * ggrid, std::vector<idx_t> & xadj, std:
 {   
     int  nCells = ggrid->nCells;
     CalcC2C( *ggrid );
-    LinkField & c2c = ggrid->GetCellMesh().cellTopo.c2c;
+    LinkField & c2c = ggrid->GetCellMesh().GetCellTopo().c2c;
     xadj[ 0 ]  = 0;
     int iCount = 0;
     for ( int iCell = 0; iCell < nCells; ++ iCell )
@@ -333,7 +333,7 @@ void Partition::CalcG2lCell()
 
 void Partition::BuildCalculationalGrid( int zid )
 {
-    UnsGrid * grid = UnsGridCast( GridAt( grids, zid ) );
+    UnsGrid * grid = UnsGridCast( &GridAt( grids, zid ) );
 
     grid->nCells = this->GetNCell( uns_grid, zid );
 
@@ -359,8 +359,8 @@ void Partition::CalcG2lFace( UnsGrid * ggrid, int zid, UnsGrid * grid )
     int nFaces  = ggrid->nFaces;
     int nBFaces = ggrid->nBFaces;
 
-    IntField & glCell = ggrid->GetFaceTopo().lCells;
-    IntField & grCell = ggrid->GetFaceTopo().rCells;
+    IntField & glCell = ggrid->GetFaceTopo().GetLeftCells();
+    IntField & grCell = ggrid->GetFaceTopo().GetRightCells();
 
     for ( int fid = 0; fid < nFaces; ++ fid )
     {
@@ -437,7 +437,7 @@ void Partition::CalcG2lNode( UnsGrid * ggrid, int zid, UnsGrid * grid )
     int nFaces = ggrid->nFaces;
     int nNodes = ggrid->nNodes;
 
-    LinkField & f2n = ggrid->GetFaceTopo().faces;
+    LinkField & f2n = ggrid->GetFaceTopo().GetFaces();
 
     for ( int iNode = 0; iNode < nNodes; ++ iNode )
     {
@@ -522,8 +522,8 @@ void Partition::SetGeometricRelationship( UnsGrid * ggrid, int zid, UnsGrid * gr
 
 void Partition::CalcF2N( UnsGrid * ggrid, int zid, UnsGrid * grid )
 {
-    LinkField & f2n = grid->GetFaceTopo().faces;
-    LinkField & gf2n = ggrid->GetFaceTopo().faces;
+    LinkField & f2n = grid->GetFaceTopo().GetFaces();
+    LinkField & gf2n = ggrid->GetFaceTopo().GetFaces();
 
     int nFaces = grid->nFaces;
     f2n.resize( nFaces );
@@ -547,22 +547,22 @@ void Partition::SetF2CAndBC( UnsGrid * ggrid, int zid, UnsGrid * grid )
 {
     int nGBFace = ggrid->nBFaces;
 
-    IntField & glCell = ggrid->GetFaceTopo().lCells;
-    IntField & grCell = ggrid->GetFaceTopo().rCells;
+    IntField & glCell = ggrid->GetFaceTopo().GetLeftCells();
+    IntField & grCell = ggrid->GetFaceTopo().GetRightCells();
 
-    IntField & gbcType = ggrid->GetFaceTopo().bcManager->bcRecord->bcType;
+    IntField & gbcType = ggrid->GetFaceTopo().GetBcRecord().bcType;
 
     int nFaces  = grid->nFaces;
     int nBFaces = grid->nBFaces;
 
-    IntField & lCell = grid->GetFaceTopo().lCells;
-    IntField & rCell = grid->GetFaceTopo().rCells;
+    IntField & lCell = grid->GetFaceTopo().GetLeftCells();
+    IntField & rCell = grid->GetFaceTopo().GetRightCells();
     lCell.resize( nFaces );
     rCell.resize( nFaces );
 
     grid->GetFaceTopo().SetNBFaces( nBFaces );
 
-    IntField & local_bcType = grid->GetFaceTopo().bcManager->bcRecord->bcType;
+    IntField & local_bcType = grid->GetFaceTopo().GetBcRecord().bcType;
 
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
@@ -630,8 +630,8 @@ void Partition::SetInterface( UnsGrid * ggrid, int zid, UnsGrid * grid )
     int nGFace = ggrid->nFaces;
     int nGBFace = ggrid->nBFaces;
 
-    IntField & glCell = ggrid->GetFaceTopo().lCells;
-    IntField & grCell = ggrid->GetFaceTopo().rCells;
+    IntField & glCell = ggrid->GetFaceTopo().GetLeftCells();
+    IntField & grCell = ggrid->GetFaceTopo().GetRightCells();
 
     //number of physical boundary face
     int nPBFace = nBFaces - nIFaces;
@@ -691,8 +691,8 @@ bool FindMatch( UnsGrid * grid, FacePair * facePair )
     int nIFaces = interFace->nIFaces;
     int nPBFace = nBFaces - nIFaces;
 
-    IntField & lCell = grid->GetFaceTopo().lCells;
-    IntField & rCell = grid->GetFaceTopo().rCells;
+    IntField & lCell = grid->GetFaceTopo().GetLeftCells();
+    IntField & rCell = grid->GetFaceTopo().GetRightCells();
 
     for ( int iFace = 0; iFace < nIFaces; ++ iFace )
     {

@@ -105,14 +105,14 @@ void CellTopo::CalcC2f( FaceTopo & faceTopo )
 
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        int lc  = faceTopo.lCells[ iFace ];
+        int lc  = faceTopo.GetLeftCells()[iFace];
         c2f[ lc  ].push_back( iFace );
     }
 
     for ( int iFace = nBFaces; iFace < nFaces; ++ iFace )
     {
-        int lc  = faceTopo.lCells[ iFace ];
-        int rc  = faceTopo.rCells[ iFace ];
+        int lc  = faceTopo.GetLeftCells()[ iFace ];
+        int rc  = faceTopo.GetRightCells()[iFace];
         c2f[ lc ].push_back( iFace );
         c2f[ rc ].push_back( iFace );
     }
@@ -126,14 +126,14 @@ void CellTopo::CalcC2C( FaceTopo & faceTopo )
 void CalcC2f( UnsGrid & grid )
 {
     FaceTopo & faceTopo = grid.GetFaceTopo();
-    CellTopo & cellTopo = grid.GetCellMesh().cellTopo;
+    CellTopo & cellTopo = grid.GetCellMesh().GetCellTopo();
     cellTopo.CalcC2f( faceTopo );
 }
 
 void CalcC2C( UnsGrid & grid )
 {
     FaceTopo & faceTopo = grid.GetFaceTopo();
-    CellTopo & cellTopo = grid.GetCellMesh().cellTopo;
+    CellTopo & cellTopo = grid.GetCellMesh().GetCellTopo();
     cellTopo.CalcC2C( faceTopo );
 }
 

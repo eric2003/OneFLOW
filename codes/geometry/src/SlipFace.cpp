@@ -364,7 +364,7 @@ void InitSlipFaceTopo()
 
         UnsGrid * grid = Zone::GetUnsGrid();
 
-        BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord.get();
+        BcRecord * bcRecord = &grid->GetFaceTopo().GetBcRecord();
         int nBFaces = bcRecord->GetNBFace();
 
         int nSlipFace = 0;
@@ -394,9 +394,9 @@ void InitSlipFaceTopo()
             slipFace->s2b[ iFace ++ ] = iBFace;
         }
 
-        RealField & xfc = grid->faceMesh->xfc;
-        RealField & yfc = grid->faceMesh->yfc;
-        RealField & zfc = grid->faceMesh->zfc;
+        RealField & xfc = grid->GetFaceMesh().xfc;
+        RealField & yfc = grid->GetFaceMesh().yfc;
+        RealField & zfc = grid->GetFaceMesh().zfc;
 
         for ( int iSlip = 0; iSlip < nSlipFace; ++ iSlip )
         {

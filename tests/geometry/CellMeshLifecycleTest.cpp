@@ -9,11 +9,11 @@ TEST(CellMeshLifecycleTest, ValueSemanticsForCellTopo)
     ONEFLOW::CellMesh cellMesh;
     
     // 1. Verify cellTopo is accessible and empty initially
-    EXPECT_EQ(cellMesh.cellTopo.GetNumberOfCells(), 0);
+    EXPECT_EQ(cellMesh.GetCellTopo().GetNumberOfCells(), 0);
     
     // 2. Simulate internal resizing (mimicking UnsGrid::ReadGrid)
-    cellMesh.cellTopo.Alloc(100);
-    EXPECT_EQ(cellMesh.cellTopo.GetNumberOfCells(), 100);
+    cellMesh.GetCellTopo().Alloc(100);
+    EXPECT_EQ(cellMesh.GetCellTopo().GetNumberOfCells(), 100);
     
     // 3. cellMesh goes out of scope here. 
     // The CellTopo value type is safely cleaned up by RAII.
@@ -24,6 +24,6 @@ TEST(CellMeshLifecycleTest, StackAllocationIsSafe)
 {
     EXPECT_NO_THROW({
         ONEFLOW::CellMesh cellMesh;
-        cellMesh.cellTopo.Alloc(10);
+        cellMesh.GetCellTopo().Alloc(10);
     });
 }

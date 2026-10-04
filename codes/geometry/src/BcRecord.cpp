@@ -109,7 +109,7 @@ void BcRecord::CreateBcTypeRegion()
     }
 }
 
-int BcRecord::GetNBFace()
+int BcRecord::GetNBFace() const
 {
     return bcType.size();
 }
@@ -172,6 +172,24 @@ void BcRecord::GenerateI2B( InterFace * interFace )
     }
 }
 
+void BcRecord::CalcBcType( IntField & bcTypeList )
+{
+    IntSet bcTypeSet;
+
+    int nBFaces = this->GetNBFace();
+
+    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
+    {
+        int bcType = this->bcType[ iFace ];
+        bcTypeSet.insert( bcType );
+    }
+
+    for ( IntSet::iterator iter = bcTypeSet.begin(); iter != bcTypeSet.end(); ++ iter )
+    {
+        bcTypeList.push_back( * iter );
+    }
+}
+
 BcManager::BcManager()
 {
     // [Refactored] Use std::make_unique for exception-safe allocation.
@@ -192,7 +210,7 @@ void BcManager::PreProcess()
     bcFlag.resize( nBFaces, 1 );
 }
 
-bool BcManager::ExistInterface()
+bool BcManager::ExistInterface() const
 {
     int nBFaces = this->bcRecord->GetNBFace();
 
@@ -222,20 +240,7 @@ void BcManager::Update()
 
 void BcManager::CalcBcType( IntField & bcTypeList )
 {
-    IntSet bcTypeSet;
-
-    int nBFaces = this->bcRecord->GetNBFace();
-
-    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
-    {
-        int bcType = this->bcRecord->bcType[ iFace ];
-        bcTypeSet.insert( bcType );
-    }
-
-    for ( IntSet::iterator iter = bcTypeSet.begin(); iter != bcTypeSet.end(); ++ iter )
-    {
-        bcTypeList.push_back( * iter );
-    }
+    this->bcRecord->CalcBcType( bcTypeList );
 }
 
 void BasicRegion::SetRegion( int ist, int ied, int jst, int jed )

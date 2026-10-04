@@ -54,9 +54,79 @@ const Grid & FaceTopo::GetGrid() const
     return *this->grid;
 }
 
+BcRecord & FaceTopo::GetBcRecord()
+{
+    return *this->bcManager->bcRecord;
+}
+
+const BcRecord & FaceTopo::GetBcRecord() const
+{
+    return *this->bcManager->bcRecord;
+}
+
+IntField & FaceTopo::GetFaceFlags()
+{
+    return this->faceFlags;
+}
+
+const IntField & FaceTopo::GetFaceFlags() const
+{
+    return this->faceFlags;
+}
+
+IntField & FaceTopo::GetLeftCells()
+{
+    return this->lCells;
+}
+
+const IntField & FaceTopo::GetLeftCells() const
+{
+    return this->lCells;
+}
+
+IntField & FaceTopo::GetRightCells()
+{
+    return this->rCells;
+}
+
+const IntField & FaceTopo::GetRightCells() const
+{
+    return this->rCells;
+}
+
+LinkField & FaceTopo::GetFaces()
+{
+    return this->faces;
+}
+
+const LinkField & FaceTopo::GetFaces() const
+{
+    return this->faces;
+}
+
+IntField & FaceTopo::GetFaceTypes()
+{
+    return this->fTypes;
+}
+
+const IntField & FaceTopo::GetFaceTypes() const
+{
+    return this->fTypes;
+}
+
+void FaceTopo::PrepareBoundaryConditions()
+{
+    this->bcManager->PreProcess();
+}
+
+bool FaceTopo::HasInterfaceBoundary() const
+{
+    return this->bcManager->ExistInterface();
+}
+
 FaceTopo::~FaceTopo() = default;
 
-HXSize_t FaceTopo::CalcTotalFaceNodes()
+HXSize_t FaceTopo::CalcTotalFaceNodes() const
 {
     HXSize_t totalNumFaceNodes = 0;
     HXSize_t nFaces = this->GetNFaces();
@@ -67,7 +137,7 @@ HXSize_t FaceTopo::CalcTotalFaceNodes()
     return totalNumFaceNodes;
 }
 
-HXSize_t FaceTopo::GetNBFaces()
+HXSize_t FaceTopo::GetNBFaces() const
 {
     return this->bcManager->bcRecord->GetNBFace();
 }
@@ -418,6 +488,50 @@ void FaceTopo::CalcC2C( LinkField & c2c )
         c2c[ lc ].push_back( rc );
         c2c[ rc ].push_back( lc );
     }
+}
+
+void FaceTopo::ReorderLink()
+{
+    FaceTopo & faceTopo = *this;
+
+    int nFaces = faceTopo.fTypes.size();
+
+    IntField f1map( nFaces ), f2map( nFaces );
+    int iCount = 0;
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
+    {
+        int rc = faceTopo.GetRightCells()[ iFace ];
+        if ( rc == INVALID_INDEX )
+        {
+            f1map[ iFace ] = iCount;
+            f2map[ iCount ] = iFace;
+            ++ iCount;
+        }
+    }
+
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
+    {
+        int rc = faceTopo.GetRightCells()[ iFace ];
+        if ( rc != INVALID_INDEX )
+        {
+            f1map[ iFace ] = iCount;
+            f2map[ iCount ] = iFace;
+            ++ iCount;
+        }
+    }
+    faceTopo.facesNew.resize( nFaces );
+    faceTopo.lCellsNew.resize( nFaces );
+    faceTopo.rCellsNew.resize( nFaces );
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
+    {
+        int jFace = f2map[ iFace ];
+        faceTopo.facesNew[ iFace ] = faceTopo.faces[ jFace ];
+        faceTopo.lCellsNew[ iFace ] = faceTopo.GetLeftCells()[ jFace ];
+        faceTopo.rCellsNew[ iFace ] = faceTopo.GetRightCells()[ jFace ];
+    }
+    faceTopo.faces = faceTopo.facesNew;
+    faceTopo.lCells = faceTopo.lCellsNew;
+    faceTopo.rCells = faceTopo.rCellsNew;
 }
 
 EndNameSpace

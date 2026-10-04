@@ -101,7 +101,7 @@ void CalcGrid::Dump()
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         ZoneState::pid[ iZone ] = iZone;
-        ZoneState::zoneType[ iZone ] = GridAt( grids, iZone )->type;
+        ZoneState::zoneType[ iZone ] = GridAt( grids, iZone ).type;
     }
 
     ONEFLOW::HXWrite( & file, nZone );
@@ -111,7 +111,7 @@ void CalcGrid::Dump()
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         std::cout << "iZone = " << iZone << " nZone = " << nZone << "\n";
-        GridAt( grids, iZone )->WriteGrid( file );
+        GridAt( grids, iZone ).WriteGrid( file );
     }
 
     Prj::CloseFile( file );
@@ -143,7 +143,7 @@ void CalcGrid::ReconstructLink()
 
 void CalcGrid::ReconstructLink( int iZone )
 {
-    UnsGrid * grid = static_cast< UnsGrid * >( GridAt( grids, iZone ) );
+    UnsGrid * grid = static_cast< UnsGrid * >( &GridAt( grids, iZone ) );
 
     InterFace * interFace = grid->interFace.get();
     grid->nIFaces = grid->interFace->nIFaces;
@@ -154,8 +154,8 @@ void CalcGrid::ReconstructLink( int iZone )
     int nIFaces = interFace->nIFaces;
     int nPBFace = nBFaces - nIFaces;
 
-    IntField & lCell = grid->faceTopo->lCells;
-    IntField & rCell = grid->faceTopo->rCells;
+    IntField & lCell = grid->GetFaceTopo().GetLeftCells();
+    IntField & rCell = grid->GetFaceTopo().GetRightCells();
 
     FacePair facePair;
     for ( int iFace = 0; iFace < nIFaces; ++ iFace )
@@ -173,7 +173,7 @@ void CalcGrid::ReconstructLink( int iZone )
 
         if ( nei_zone_id >= iZone )
         {
-            UnsGrid * nei_Grid = static_cast< UnsGrid * >( GridAt( grids, nei_zone_id ) );
+            UnsGrid * nei_Grid = static_cast< UnsGrid * >( &GridAt( grids, nei_zone_id ) );
 
             if ( FindMatch( nei_Grid, & facePair ) )
             {
@@ -197,7 +197,7 @@ void CalcGrid::ResetGridScaleAndTranslate()
     const int nZone = GridsSize( grids );
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        Grid * grid = GridAt( grids, iZone );
+        Grid * grid = &GridAt( grids, iZone );
         ONEFLOW::ResetGridScaleAndTranslate( *grid->nodeMesh, this->config );
     }
 }
@@ -224,7 +224,7 @@ void CalcGrid::ModifyBcType()
     const int nZone = GridsSize( grids );
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        Grid * grid = GridAt( grids, iZone );
+        Grid * grid = &GridAt( grids, iZone );
         grid->ModifyBcType( BC::NO_BOUNDARY, BC::INTERFACE );
     }
 }
@@ -234,7 +234,7 @@ void CalcGrid::GenerateLgMapping()
     const int nZone = GridsSize( grids );
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        Grid * grid = GridAt( grids, iZone );
+        Grid * grid = &GridAt( grids, iZone );
         grid->GenerateLgMapping( this->iFaceLink.get() );
     }
 }
@@ -246,7 +246,7 @@ void CalcGrid::ReGenerateLgMapping()
     const int nZone = GridsSize( grids );
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        Grid * grid = GridAt( grids, iZone );
+        Grid * grid = &GridAt( grids, iZone );
         grid->ReGenerateLgMapping( this->iFaceLink.get() );
     }
 
@@ -264,7 +264,7 @@ void CalcGrid::UpdateOtherTopologyTerm()
     const int nZone = GridsSize( grids );
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        Grid * grid = GridAt( grids, iZone );
+        Grid * grid = &GridAt( grids, iZone );
         grid->UpdateOtherTopologyTerm( this->iFaceLink.get() );
     }
 }
@@ -274,7 +274,7 @@ void CalcGrid::MatchInterfaceTopology()
     const int nZone = GridsSize( grids );
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        Grid * grid = GridAt( grids, iZone );
+        Grid * grid = &GridAt( grids, iZone );
         this->iFaceLink->MatchInterfaceTopology( grid );
     }
 }

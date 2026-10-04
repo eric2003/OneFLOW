@@ -27,6 +27,6 @@ License
 BeginNameSpace( ONEFLOW )
 
 class UnsGrid;
-int GetNumberOfSolidCells( const UnsGrid & grid );
+int GetNumberOfSolidCells( UnsGrid & grid );
 
 EndNameSpace

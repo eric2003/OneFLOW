@@ -118,7 +118,7 @@ void MergeToSingleZone( GridViews & grids, HXVector< std::unique_ptr< Int3D > > 
     nCells = 0;
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        StrGrid * grid = ONEFLOW::StrGridCast( GridAt( grids, iZone  ) );
+        StrGrid * grid = ONEFLOW::StrGridCast( GridAt( grids, iZone ) );
         int ni = grid->ni;
         int nj = grid->nj;
         int nk = grid->nk;
@@ -154,7 +154,7 @@ void FillSection( GridViews & grids, HXVector< std::unique_ptr< Int3D > > & unsI
 
     for ( int iZone = 0; iZone < grids.size(); ++ iZone )
     {
-        StrGrid * grid = ONEFLOW::StrGridCast( GridAt( grids, iZone  ) );
+        StrGrid * grid = ONEFLOW::StrGridCast( GridAt( grids, iZone ) );
         Int3D & unsId = * unsIdList[ iZone ];
 
         nTCell += grid->CalcNumberOfCell();
@@ -178,21 +178,21 @@ void FillSection( GridViews & grids, HXVector< std::unique_ptr< Int3D > > & unsI
 
     cgnsZone->cgnsZsection->CreateCgnsSections( 2 );
 
-    cgnsZone->cgnsZsection->GetCgnsSection( 0 )->startId = 1;
-    cgnsZone->cgnsZsection->GetCgnsSection( 0 )->endId   = nTCell;
+    cgnsZone->cgnsZsection->GetCgnsSection( 0 ).startId = 1;
+    cgnsZone->cgnsZsection->GetCgnsSection( 0 ).endId   = nTCell;
 
-    cgnsZone->cgnsZsection->GetCgnsSection( 1 )->startId = nTCell + 1;
-    cgnsZone->cgnsZsection->GetCgnsSection( 1 )->endId   = nTCell + 1 + nBFaces;
+    cgnsZone->cgnsZsection->GetCgnsSection( 1 ).startId = nTCell + 1;
+    cgnsZone->cgnsZsection->GetCgnsSection( 1 ).endId   = nTCell + 1 + nBFaces;
 
     if ( Dim::dimension == ONEFLOW::THREE_D )
     {
-        cgnsZone->cgnsZsection->GetCgnsSection( 0 )->eType = HEXA_8;
-        cgnsZone->cgnsZsection->GetCgnsSection( 1 )->eType = QUAD_4;
+        cgnsZone->cgnsZsection->GetCgnsSection( 0 ).eType = HEXA_8;
+        cgnsZone->cgnsZsection->GetCgnsSection( 1 ).eType = QUAD_4;
     }
     else
     {
-        cgnsZone->cgnsZsection->GetCgnsSection( 0 )->eType = QUAD_4;
-        cgnsZone->cgnsZsection->GetCgnsSection( 1 )->eType = BAR_2;
+        cgnsZone->cgnsZsection->GetCgnsSection( 0 ).eType = QUAD_4;
+        cgnsZone->cgnsZsection->GetCgnsSection( 1 ).eType = BAR_2;
     }
 
     cgnsZone->cgnsZsection->CreateConnList();
@@ -201,17 +201,17 @@ void FillSection( GridViews & grids, HXVector< std::unique_ptr< Int3D > > & unsI
     cgnsZbc->cgnsZbcBoco->ReadZnboco( nTBcRegion );
     cgnsZbc->CreateCgnsZbc( cgnsZbc );
 
-    CgnsSection * secV = cgnsZone->cgnsZsection->GetCgnsSection( 0 );
-    CgnsSection * secB = cgnsZone->cgnsZsection->GetCgnsSection( 1 );
+    CgnsSection & secV = cgnsZone->cgnsZsection->GetCgnsSection( 0 );
+    CgnsSection & secB = cgnsZone->cgnsZsection->GetCgnsSection( 1 );
 
-    CgIntField& connList  = secV->connList;
-    CgIntField& bConnList = secB->connList;
+    CgIntField& connList  = secV.connList;
+    CgIntField& bConnList = secB.connList;
 
     int pos = 0;
 
     for ( int iZone = 0; iZone < grids.size(); ++ iZone )
     {
-        StrGrid * grid = ONEFLOW::StrGridCast( GridAt( grids, iZone  ) );
+        StrGrid * grid = ONEFLOW::StrGridCast( GridAt( grids, iZone ) );
         int ni = grid->ni;
         int nj = grid->nj;
         int nk = grid->nk;
@@ -227,7 +227,7 @@ void FillSection( GridViews & grids, HXVector< std::unique_ptr< Int3D > > & unsI
 
         if ( Dim::dimension == ONEFLOW::TWO_D ) ks = 0;
 
-        int eNodeNumbers = ONEFLOW::GetElementNodeNumbers( secV->eType );
+        int eNodeNumbers = ONEFLOW::GetElementNodeNumbers( secV.eType );
 
         for ( int k = IJKRange::kst; k <= IJKRange::ked; ++ k )
         {
@@ -252,8 +252,8 @@ void FillSection( GridViews & grids, HXVector< std::unique_ptr< Int3D > > & unsI
         }
     }
 
-    secV->SetElemPosition();
-    secB->SetElemPosition();
+    secV.SetElemPosition();
+    secB.SetElemPosition();
 
     int irc  = 0;
     int eIdPos  = nTCell;
@@ -264,7 +264,7 @@ void FillSection( GridViews & grids, HXVector< std::unique_ptr< Int3D > > & unsI
 
     for ( int iZone = 0; iZone < grids.size(); ++ iZone )
     {
-        StrGrid * grid = ONEFLOW::StrGridCast( GridAt( grids, iZone  ) );
+        StrGrid * grid = ONEFLOW::StrGridCast( GridAt( grids, iZone ) );
         int ni = grid->ni;
         int nj = grid->nj;
         int nk = grid->nk;
@@ -482,20 +482,20 @@ void SetUnsBcConn( BcRegion * bcRegion, CgIntField& conn, int & pos, Int3D & uns
 void GenerateUnsBcElemConn( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
 {
     int iSection = 1;
-    CgnsSection * cgnsSection = myZone->cgnsZsection->GetCgnsSection( iSection );
+    CgnsSection & cgnsSection = myZone->cgnsZsection->GetCgnsSection( iSection );
 
     myZone->cgnsZbc->CreateCgnsZbc( cgnsZoneIn->cgnsZbc.get() );
 
-    std::cout << " ConnectionList Size = " << cgnsSection->connSize << "\n";
-    cgnsZoneIn->cgnsZbc->GenerateUnsBcElemConn( cgnsSection->connList );
+    std::cout << " ConnectionList Size = " << cgnsSection.connSize << "\n";
+    cgnsZoneIn->cgnsZbc->GenerateUnsBcElemConn( cgnsSection.connList );
 }
 
 void GenerateUnsBcCondConn( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
 {
     int iSection = 1;
-    CgnsSection * cgnsSection = myZone->cgnsZsection->GetCgnsSection( iSection );
+    CgnsSection & cgnsSection = myZone->cgnsZsection->GetCgnsSection( iSection );
 
-    CgInt startId = cgnsSection->startId;
+    CgInt startId = cgnsSection.startId;
 
     int nBoco = cgnsZoneIn->cgnsZbc->cgnsZbcBoco->nBoco;
     for ( int iBoco = 0; iBoco < nBoco; ++ iBoco )
@@ -515,7 +515,7 @@ void GenerateUnsVolElemConn( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
     std::cout << " ni = " << ni << " nj = " << nj << " nk = " << nk << "\n";
 
     int iSection = 0;
-    CgnsSection * cgnsSection = myZone->cgnsZsection->GetCgnsSection( iSection );
+    CgnsSection & cgnsSection = myZone->cgnsZsection->GetCgnsSection( iSection );
 
     Range I, J, K;
     GetRange( ni, nj, nk, 0, -1, I, J, K );
@@ -532,7 +532,7 @@ void GenerateUnsVolElemConn( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
     if ( cell_dim == TWO_D ) kl1 = 0;
     if ( cell_dim == ONE_D ) jl1 = 0;
 
-    CgIntField & connList = cgnsSection->connList;
+    CgIntField & connList = cgnsSection.connList;
 
     int pos = 0;
 
@@ -582,10 +582,10 @@ void AllocateUnsElemConn( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
     //cgnsZoneIn->GetStrZonePara( s1, e1, s2, e2, etype1, etype2 );
     ONEFLOW::GetStrZonePara( cgnsZoneIn, s1, e1, s2, e2, etype1, etype2 );
 
-    CgnsSection * cgnsSection1 = myZone->cgnsZsection->GetCgnsSection( 0 );
-    CgnsSection * cgnsSection2 = myZone->cgnsZsection->GetCgnsSection( 1 );
-    cgnsSection1->SetSectionInfo( "Section1", etype1, s1, e1 );
-    cgnsSection2->SetSectionInfo( "Section2", etype2, s2, e2 );
+    CgnsSection & cgnsSection1 = myZone->cgnsZsection->GetCgnsSection( 0 );
+    CgnsSection & cgnsSection2 = myZone->cgnsZsection->GetCgnsSection( 1 );
+    cgnsSection1.SetSectionInfo( "Section1", etype1, s1, e1 );
+    cgnsSection2.SetSectionInfo( "Section2", etype2, s2, e2 );
 
     myZone->cgnsZsection->CreateConnList();
 }

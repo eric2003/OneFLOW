@@ -85,7 +85,7 @@ void UploadInterfaceValue( UnsGrid * grid, MRField * field2D, const std::string 
 
     for ( int ghostId = MAX_GHOST_LEVELS - 1; ghostId >= 0; -- ghostId )
     {
-        DataStorage * dataSend = interFace->dataSend[ ghostId ].get();
+        DataStorage * dataSend = &interFace->GetSendStorage( ghostId );
 
         MRField * fieldStorage =
             ONEFLOW::GetFieldPointer< MRField >( dataSend, name );
@@ -100,7 +100,7 @@ void UploadInterfaceValue( UnsGrid * grid, MRField * field2D, const std::string 
         for ( int iFace = 0; iFace < nIFaces; ++ iFace )
         {
             int iCell;
-            grid->faceTopo->GetSId( iFace, ghostId + 1, iCell );
+            grid->GetFaceTopo().GetSId(iFace, ghostId + 1, iCell);
 
             for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
             {
@@ -120,7 +120,7 @@ void DownloadInterfaceValue( UnsGrid * grid, MRField * field2D, const std::strin
 
     for ( int ghostId = MAX_GHOST_LEVELS - 1; ghostId >= 0; -- ghostId )
     {
-        DataStorage * dataRecv = interFace->dataRecv[ ghostId ].get();
+        DataStorage * dataRecv = &interFace->GetRecvStorage( ghostId );
 
         MRField * fieldStorage =
             ONEFLOW::GetFieldPointer< MRField >( dataRecv, name );
@@ -136,7 +136,7 @@ void DownloadInterfaceValue( UnsGrid * grid, MRField * field2D, const std::strin
         for ( int iFace = 0; iFace < nIFaces; ++ iFace )
         {
             int iCell;
-            grid->faceTopo->GetTId( iFace, ghostId + 1, iCell );
+            grid->GetFaceTopo().GetTId(iFace, ghostId + 1, iCell);
 
             for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
             {

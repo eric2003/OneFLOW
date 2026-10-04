@@ -49,26 +49,43 @@ public:
     LinkField faces;
     LinkField c2f;
 
-    IntField lCells, rCells;
+public:
     IntField lPosition, rPosition;
+private:
+    IntField lCells, rCells;
     IntField faceFlags;
 
     HXSize_t nBFaces;
-    std::unique_ptr< BcManager > bcManager;
 private:
+    std::unique_ptr< BcManager > bcManager;
     Grid * grid = nullptr;
 
-public:
+    // Temporary topology buffers used internally while rebuilding face data.
     LinkField facesNew;
     IntField lCellsNew, rCellsNew;
+
 public:
-    HXSize_t GetNFaces() { return fTypes.size();  }
-    HXSize_t CalcTotalFaceNodes();
-    HXSize_t GetNBFaces();
+    HXSize_t GetNFaces() const { return fTypes.size(); }
+    HXSize_t CalcTotalFaceNodes() const;
+    HXSize_t GetNBFaces() const;
     void SetNBFaces( HXSize_t nBFaces );
     void BindGrid( Grid & grid );
     Grid & GetGrid();
     const Grid & GetGrid() const;
+    BcRecord & GetBcRecord();
+    const BcRecord & GetBcRecord() const;
+    IntField & GetFaceFlags();
+    const IntField & GetFaceFlags() const;
+    IntField & GetLeftCells();
+    const IntField & GetLeftCells() const;
+    IntField & GetRightCells();
+    const IntField & GetRightCells() const;
+    LinkField & GetFaces();
+    const LinkField & GetFaces() const;
+    IntField & GetFaceTypes();
+    const IntField & GetFaceTypes() const;
+    void PrepareBoundaryConditions();
+    bool HasInterfaceBoundary() const;
     void ResizeAll();
 public:
     void ModifyFaceNodeId( IFaceLink * iFaceLink );
@@ -83,6 +100,7 @@ public:
     bool GetSId( int iFace, int iPosition, int & sId );
     bool GetTId( int iFace, int iPosition, int & tId );
     void CalcC2C( LinkField & c2c );
+    void ReorderLink();
 };
 
 EndNameSpace

@@ -71,7 +71,6 @@ void Zone::ReleaseGrids()
 
     ScalarZone::DeAllocate();
     interFaceTopo.data.clear();
-    InterFaceState::interFace = 0;
 }
 
 void Zone::AddGrid( int zid, std::unique_ptr< Grid > grid )
@@ -86,7 +85,7 @@ void Zone::AddGrid( int zid, std::unique_ptr< Grid > grid )
 
 Grid * Zone::GetGrid( int zid, int gl )
 {
-    return GridAt( Zone::globalGrids[ static_cast< std::size_t >( zid ) ], gl );
+    return &GridAt( Zone::globalGrids[ static_cast< std::size_t >( zid ) ], gl );
 }
 
 Grid * Zone::GetGrid()

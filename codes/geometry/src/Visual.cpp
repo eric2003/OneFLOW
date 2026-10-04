@@ -118,10 +118,10 @@ void Visual::DumpFaceNodesLink( std::fstream & file, Mesh * mesh )
     HXSize_t nFaces = mesh->faceMesh->GetNFace();
     for ( HXSize_t iFace = 0; iFace < nFaces; ++ iFace )
     {
-        int numberOfNodesOnFace = faceTopo.faces[ iFace ].size();
+        int numberOfNodesOnFace = faceTopo.GetFaces()[ iFace ].size();
         for ( int iNodeOfFace = 0; iNodeOfFace < numberOfNodesOnFace; ++ iNodeOfFace )
         {
-            file << faceTopo.faces[ iFace ][ iNodeOfFace ] + 1 << " ";
+            file << faceTopo.GetFaces()[ iFace ][ iNodeOfFace ] + 1 << " ";
             if ( ( nodeCount + 1 ) % Visual::numberOfWords == 0 ) file << std::endl;
             nodeCount ++;
         }
@@ -135,8 +135,8 @@ void Visual::DumpFaceElementLink( std::fstream & file, Mesh * mesh )
     HXSize_t nFaces = mesh->faceMesh->GetNFace();
     HXSize_t numberOfCells = mesh->cellMesh->GetNumberOfCells();
 
-    Visual::DumpFaceElementLink( file, nFaces, numberOfCells, faceTopo.lCells );
-    Visual::DumpFaceElementLink( file, nFaces, numberOfCells, faceTopo.rCells );
+    Visual::DumpFaceElementLink( file, nFaces, numberOfCells, faceTopo.GetLeftCells() );
+    Visual::DumpFaceElementLink( file, nFaces, numberOfCells, faceTopo.GetRightCells() );
 }
 
 void Visual::DumpFaceElementLink( std::fstream & file, HXSize_t nFaces, HXSize_t numberOfElements, const IntField & faceElementIndex )

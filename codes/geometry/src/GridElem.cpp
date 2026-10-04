@@ -186,20 +186,20 @@ void GridElem::ScanPolygonFace()
         const int nSections = cgnsZone.cgnsZsection->GetNSections();
         for ( int iSection = 0; iSection < nSections; ++ iSection )
         {
-            CgnsSection * cgnsSection = cgnsZone.cgnsZsection->GetCgnsSection( iSection );
-            if ( cgnsSection->eType != NGON_n ) continue;
-            this->face_solver.ScanPolygonFace( cgnsSection );
+            CgnsSection & cgnsSection = cgnsZone.cgnsZsection->GetCgnsSection( iSection );
+            if ( cgnsSection.eType != NGON_n ) continue;
+            this->face_solver.ScanPolygonFace( &cgnsSection );
         }
         //Scan NFACE_n PolyhedronElement
         for ( int iSection = 0; iSection < nSections; ++ iSection )
         {
-            CgnsSection * cgnsSection = cgnsZone.cgnsZsection->GetCgnsSection( iSection );
-            if ( cgnsSection->eType != NFACE_n ) continue;
-            this->face_solver.ScanPolyhedronElement( cgnsSection );
-            this->SetPolyhedronElementType( *cgnsSection );
+            CgnsSection & cgnsSection = cgnsZone.cgnsZsection->GetCgnsSection( iSection );
+            if ( cgnsSection.eType != NFACE_n ) continue;
+            this->face_solver.ScanPolyhedronElement( &cgnsSection );
+            this->SetPolyhedronElementType( cgnsSection );
         }
 
-        int nFaces = this->face_solver.GetFaceTopo().faces.size();
+        int nFaces = this->face_solver.GetFaceTopo().GetFaces().size();
 
     }
 }
@@ -244,7 +244,7 @@ void GridElem::GenerateCalcElement()
 
     FaceTopo & faceTopo = this->face_solver.GetFaceTopo();
 
-    int nFaces = this->face_solver.GetFaceTopo().faces.size();
+    int nFaces = this->face_solver.GetFaceTopo().GetFaces().size();
     int nBFaces = 0;
 
     //std::cout << " nFaces = " << nFaces << "\n";
@@ -256,12 +256,12 @@ void GridElem::GenerateCalcElement()
             std::cout << " iFace = " << iFace << " numberOfTotalFaces = " << nFaces << std::endl;
         }
 
-        int rc = faceTopo.rCells[ iFace ];
+        int rc = faceTopo.GetRightCells()[ iFace ];
 
         if ( rc == INVALID_INDEX )
         {
-            faceTopo.bcManager->bcRecord->bcType.push_back( this->face_solver.faceBcType[ iFace ] );
-            faceTopo.bcManager->bcRecord->bcNameId.push_back( this->face_solver.faceBcKey[ iFace ] );
+            faceTopo.GetBcRecord().bcType.push_back( this->face_solver.faceBcType[ iFace ] );
+            faceTopo.GetBcRecord().bcNameId.push_back( this->face_solver.faceBcKey[ iFace ] );
             ++ nBFaces;
         }
     }
@@ -286,7 +286,7 @@ std::unique_ptr< UnsGrid > GridElem::GenerateCalcGrid( int gridId )
 void GridElem::GenerateCalcGrid( UnsGrid & grid )
 {
     grid.nCells = this->elem_feature.eTypes.size();
-    grid.GetCellMesh().cellTopo.eTypes = this->elem_feature.eTypes;
+    grid.GetCellMesh().GetCellTopo().eTypes = this->elem_feature.eTypes;
     std::cout << "   nCells = " << grid.nCells << std::endl;
 
     int nNodes = this->point_factory.localToGlobal.size();
@@ -314,11 +314,10 @@ void GridElem::CalcBoundaryType( UnsGrid & grid )
 {
     std::cout << "\n-->Set boundary condition......\n";
     grid.SetFaceTopo( this->face_solver.TakeFaceTopo() );
-    grid.GetFaceMesh().BindFaceTopo( grid.GetFaceTopo() );
-    int nFaces = grid.GetFaceTopo().faces.size();
+    int nFaces = grid.GetFaceTopo().GetFaces().size();
     std::cout << " nFaces = " << nFaces << "\n";
      
-    BcRecord * bcRecord = grid.GetFaceTopo().bcManager->bcRecord.get();
+    BcRecord * bcRecord = &grid.GetFaceTopo().GetBcRecord();
     int nBFaces = bcRecord->bcType.size();
 
     grid.nBFaces = nBFaces;
@@ -385,45 +384,10 @@ void GridElem::ReorderLink( UnsGrid & grid )
 {
     FaceTopo & faceTopo = grid.GetFaceTopo();
 
-    int nFaces = faceTopo.fTypes.size();
+    int nFaces = faceTopo.GetFaceTypes().size();
     grid.nFaces = nFaces;
 
-    IntField f1map( nFaces ), f2map( nFaces );
-    int iCount = 0;
-    for ( int iFace = 0; iFace < nFaces; ++ iFace )
-    {
-        int rc = faceTopo.rCells[ iFace ];
-        if ( rc == INVALID_INDEX )
-        {
-            f1map[ iFace ] = iCount;
-            f2map[ iCount ] = iFace;
-            ++ iCount;
-        }
-    }
-
-    for ( int iFace = 0; iFace < nFaces; ++ iFace )
-    {
-        int rc = faceTopo.rCells[ iFace ];
-        if ( rc != INVALID_INDEX )
-        {
-            f1map[ iFace ] = iCount;
-            f2map[ iCount ] = iFace;
-            ++ iCount;
-        }
-    }
-    faceTopo.facesNew.resize( nFaces );
-    faceTopo.lCellsNew.resize( nFaces );
-    faceTopo.rCellsNew.resize( nFaces );
-    for ( int iFace = 0; iFace < nFaces; ++ iFace )
-    {
-        int jFace = f2map[ iFace ];
-        faceTopo.facesNew[ iFace ] = faceTopo.faces[ jFace ];
-        faceTopo.lCellsNew[ iFace ] = faceTopo.lCells[ jFace ];
-        faceTopo.rCellsNew[ iFace ] = faceTopo.rCells[ jFace ];
-    }
-    faceTopo.faces = faceTopo.facesNew;
-    faceTopo.lCells = faceTopo.lCellsNew;
-    faceTopo.rCells = faceTopo.rCellsNew;
+    faceTopo.ReorderLink();
 }
 
 ZgridElem::ZgridElem( CgnsZbase & cgnsZbase )
