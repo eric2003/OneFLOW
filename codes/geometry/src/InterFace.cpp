@@ -83,6 +83,26 @@ const InterfacePair & InterFace::GetInterfacePair( int iNei ) const
     return *this->interFacePairs[ iNei ];
 }
 
+DataStorage & InterFace::GetSendStorage( int ghostId )
+{
+    return *this->dataSend[ ghostId ];
+}
+
+const DataStorage & InterFace::GetSendStorage( int ghostId ) const
+{
+    return *this->dataSend[ ghostId ];
+}
+
+DataStorage & InterFace::GetRecvStorage( int ghostId )
+{
+    return *this->dataRecv[ ghostId ];
+}
+
+const DataStorage & InterFace::GetRecvStorage( int ghostId ) const
+{
+    return *this->dataRecv[ ghostId ];
+}
+
 void InterFace::Resize( int nIFaces )
 {
     if ( nIFaces <= 0 ) nIFaces = 0;

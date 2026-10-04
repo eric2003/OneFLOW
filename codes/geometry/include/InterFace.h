@@ -77,6 +77,10 @@ public:
     int CalcNIFace( int iNei );
     InterfacePair & GetInterfacePair( int iNei );
     const InterfacePair & GetInterfacePair( int iNei ) const;
+    DataStorage & GetSendStorage( int ghostId );
+    const DataStorage & GetSendStorage( int ghostId ) const;
+    DataStorage & GetRecvStorage( int ghostId );
+    const DataStorage & GetRecvStorage( int ghostId ) const;
     IntField & GetInterfaceId( int neiId, int iSr );
 };
 
