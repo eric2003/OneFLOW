@@ -565,22 +565,22 @@ void Mesh::CalcMetrics3D()
 
 void Mesh::CalcFaceNormal2D()
 {
-    this->faceMesh->CalcFaceNormal2D( this->nodeMesh.get() );
+    this->faceMesh->CalcFaceNormal2D( *this->nodeMesh.get() );
 }
 
 void Mesh::CalcFaceCenter2D()
 {
-    this->faceMesh->CalcFaceCenter2D( this->nodeMesh.get() );
+    this->faceMesh->CalcFaceCenter2D( *this->nodeMesh.get() );
 }
 
 void Mesh::CalcFaceCenter1D()
 {
-    this->faceMesh->CalcFaceCenter1D( this->nodeMesh.get() );
+    this->faceMesh->CalcFaceCenter1D( *this->nodeMesh.get() );
 }
 
 void Mesh::CalcFaceNormal1D()
 {
-    this->faceMesh->CalcFaceNormal1D( this->nodeMesh.get(), this->cellMesh.get() );
+    this->faceMesh->CalcFaceNormal1D( *this->nodeMesh.get(), *this->cellMesh.get() );
 }
 
 void Mesh::CalcCellCenterVol1D()
@@ -920,12 +920,12 @@ void Mesh::CalcCellCenterVol3D()
 
 void Mesh::CalcFaceNormal3D()
 {
-    this->faceMesh->CalcFaceNormal3D( this->nodeMesh.get() );
+    this->faceMesh->CalcFaceNormal3D( *this->nodeMesh.get() );
 }
 
 void Mesh::CalcFaceCenter3D()
 {
-    this->faceMesh->CalcFaceCenter3D( this->nodeMesh.get() );
+    this->faceMesh->CalcFaceCenter3D( *this->nodeMesh.get() );
 }
 
 
