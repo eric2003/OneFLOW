@@ -120,15 +120,6 @@ public:
 
 void InitInterfaceTopo();
 
-class InterFaceState
-{
-public:
-    InterFaceState();
-    ~InterFaceState();
-public:
-    static InterFace * interFace;
-};
-
 extern InterFaceTopo interFaceTopo;
 
 EndNameSpace

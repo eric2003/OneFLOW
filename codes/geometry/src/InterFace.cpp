@@ -444,14 +444,4 @@ void InitInterfaceTopo()
     interFaceTopo.InitInterfaceTopo();
 }
 
-InterFace * InterFaceState::interFace = 0;
-
-InterFaceState::InterFaceState()
-{
-}
-
-InterFaceState::~InterFaceState()
-{
-}
-
 EndNameSpace

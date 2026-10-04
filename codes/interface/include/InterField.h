@@ -34,7 +34,7 @@ class FieldRecord;
 class UnsGrid;
 
 DataStorage * GetInterfaceDataStorage( InterFace * interFace, int srFlag, int ghostId );
-void GetInterfaceDataStorageList( HXVector< DataStorage * > * iDataStorageList, int srFlag );
+void GetInterfaceDataStorageList( InterFace & interFace, HXVector< DataStorage * > * iDataStorageList, int srFlag );
 void AddFieldRecord(
     FieldRecord * fieldRecord,
     DataStorage * dataStorage,

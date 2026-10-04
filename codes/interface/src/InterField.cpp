@@ -42,11 +42,9 @@ void PrepareInterfaceFieldRecord( int solverType, int iFk, int iSr, FieldRecord 
     Grid * grid = Zone::GetGrid();
     InterFace * interFace = grid->interFace.get();
 
-    InterFaceState::interFace = interFace;
-
     // Stack-local list: only used inside this function.
     HXVector< DataStorage * > iDataStorageList;
-    GetInterfaceDataStorageList( &iDataStorageList, iSr );
+    GetInterfaceDataStorageList( *interFace, &iDataStorageList, iSr );
 
     VarNameSolver * varNameSolver =
         VarNameFactory::GetVarNameSolver( solverType, iFk );
@@ -58,12 +56,10 @@ void PrepareInterfaceFieldRecord( int solverType, int iFk, int iSr, FieldRecord 
     }
 }
 
-void GetInterfaceDataStorageList( HXVector< DataStorage * > * iDataStorageList, int srFlag )
-{
-    InterFace * interFace = InterFaceState::interFace;
+void GetInterfaceDataStorageList( InterFace & interFace, HXVector< DataStorage * > * iDataStorageList, int srFlag )
     for ( int ghostId = MAX_GHOST_LEVELS - 1; ghostId >= 0; -- ghostId )
     {
-        DataStorage * dataStorage = GetInterfaceDataStorage( interFace, srFlag, ghostId );
+        DataStorage * dataStorage = GetInterfaceDataStorage( &interFace, srFlag, ghostId );
         iDataStorageList->push_back( dataStorage );
     }
 }
