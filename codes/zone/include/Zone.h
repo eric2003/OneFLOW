@@ -48,6 +48,7 @@ public:
     static std::unique_ptr< InterFaceTopo > interfaceTopo;
     static void AddGrid( int zid, std::unique_ptr< Grid > grid );
     static void ReleaseGrids();
+    static void Reset();
     static InterFaceTopo & GetInterfaceTopo();
     static void InitInterfaceTopo();
     static void InitLayout( StringField & fileNameList );
