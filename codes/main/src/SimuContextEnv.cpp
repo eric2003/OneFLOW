@@ -31,7 +31,6 @@ License
 #include "SolverMap.h"
 #include "SolverNameList.h"
 #include "Zone.h"
-#include "ZoneState.h"
 #include "GridState.h"
 #include "FieldManager.h"
 #include "DataBase.h"
