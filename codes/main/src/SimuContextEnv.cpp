@@ -41,6 +41,7 @@ License
 #include "TurbCom.h"
 #include "Tolerance.h"
 #include "LogFile.h"
+#include "ActionState.h"
 #include <iostream>
 
 BeginNameSpace( ONEFLOW )
@@ -112,6 +113,7 @@ void SimuContext::TeardownCase()
     turbcom.Reset();
     Tolerance::Reset();
     Zone::Reset();
+    ActionState::Reset();
     FieldManagerRegistry::FreeFieldManager();
     GetGlobalDataBase()->dataField->Clear();
     GetGlobalDataBase()->dataPara->Clear();
