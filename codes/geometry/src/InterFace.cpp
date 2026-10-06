@@ -437,11 +437,5 @@ void InterFaceTopo::SwapNeighborsSendContent()
     }
 }
 
-InterFaceTopo interFaceTopo;
-
-void InitInterfaceTopo()
-{
-    interFaceTopo.InitInterfaceTopo();
-}
 
 EndNameSpace

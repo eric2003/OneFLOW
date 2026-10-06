@@ -53,6 +53,7 @@ BeginNameSpace( ONEFLOW )
 std::vector< Grids > Zone::globalGrids;
 int Zone::nLocalZones = 0;
 int Zone::flag_test_grid = 0;
+std::unique_ptr< InterFaceTopo > Zone::interfaceTopo;
 
 Zone::Zone()
 {
@@ -70,7 +71,21 @@ void Zone::ReleaseGrids()
     Zone::flag_test_grid = 0;
 
     ScalarZone::DeAllocate();
-    interFaceTopo.data.clear();
+    Zone::interfaceTopo.reset();
+}
+
+InterFaceTopo & Zone::GetInterfaceTopo()
+{
+    if ( ! Zone::interfaceTopo )
+    {
+        Zone::interfaceTopo = std::make_unique< InterFaceTopo >();
+    }
+    return *Zone::interfaceTopo;
+}
+
+void Zone::InitInterfaceTopo()
+{
+    Zone::GetInterfaceTopo().InitInterfaceTopo();
 }
 
 void Zone::AddGrid( int zid, std::unique_ptr< Grid > grid )
@@ -214,12 +229,12 @@ ScalarGrid * Zone::GetScalarGrid()
 
 int Zone::GetNumberOfZoneNeighbors( int zoneId )
 {
-    return interFaceTopo.data[ zoneId ].size();
+    return Zone::GetInterfaceTopo().data[ zoneId ].size();
 }
 
 int Zone::GetNeighborZoneId( int zoneId, int iNeighbor )
 {
-    return interFaceTopo.data[ zoneId ][ iNeighbor ];
+    return Zone::GetInterfaceTopo().data[ zoneId ][ iNeighbor ];
 }
 
 EndNameSpace

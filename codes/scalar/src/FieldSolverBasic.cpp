@@ -73,8 +73,8 @@ void FieldSolverBasic::LoadGrid()
     this->FillTmpGridVector();
     this->CalcGridMetrics();
 
-    interFaceTopo.flag_test = 1;
-    interFaceTopo.InitInterfaceTopo();
+    Zone::GetInterfaceTopo().flag_test = 1;
+    Zone::InitInterfaceTopo();
 
 }
 

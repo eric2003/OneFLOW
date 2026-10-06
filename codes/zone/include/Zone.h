@@ -33,6 +33,7 @@ BeginNameSpace( ONEFLOW )
 class Grid;
 class UnsGrid;
 class ScalarGrid;
+class InterFaceTopo;
 
 class Zone
 {
@@ -44,8 +45,11 @@ public:
     // One Grids list per zone id (multigrid levels stored as successive unique_ptrs).
     static std::vector< Grids > globalGrids;
     static int nLocalZones;
+    static std::unique_ptr< InterFaceTopo > interfaceTopo;
     static void AddGrid( int zid, std::unique_ptr< Grid > grid );
     static void ReleaseGrids();
+    static InterFaceTopo & GetInterfaceTopo();
+    static void InitInterfaceTopo();
     static void InitLayout( StringField & fileNameList );
     static void InitLayout( StringField & fileNameList, const std::string & caseDir );
     static void ReadGrid( StringField & fileNameList );
