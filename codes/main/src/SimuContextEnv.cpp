@@ -113,8 +113,7 @@ void SimuContext::TeardownCase()
     TurbSolver::Reset();
     turbcom.Reset();
     Tolerance::Reset();
-    Zone::ReleaseGrids();
-    ZoneState::Reset();
+    Zone::Reset();
     GridState::Reset();
     FieldManagerRegistry::FreeFieldManager();
     GetGlobalDataBase()->dataField->Clear();
