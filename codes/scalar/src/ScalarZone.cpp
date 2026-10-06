@@ -45,9 +45,10 @@ void ScalarZone::Allocate()
 {
 }
 
-void ScalarZone::DeAllocate()
+void ScalarZone::Reset()
 {
     ScalarZone::scalar_grids.clear();
+    ScalarZone::nLocalZones = 0;
 }
 
 void ScalarZone::AddGrid( int zid, std::unique_ptr< ScalarGrid > grid )

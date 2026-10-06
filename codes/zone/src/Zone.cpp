@@ -70,7 +70,7 @@ void Zone::ReleaseGrids()
     Zone::nLocalZones = 0;
     Zone::flag_test_grid = 0;
 
-    ScalarZone::DeAllocate();
+    ScalarZone::Reset();
     Zone::interfaceTopo.reset();
 }
 

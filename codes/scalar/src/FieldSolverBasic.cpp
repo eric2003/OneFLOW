@@ -52,7 +52,7 @@ FieldSolverBasic::FieldSolverBasic()
 FieldSolverBasic::~FieldSolverBasic()
 {
     // grids are non-owning views into ScalarZone; unique_ptr members free themselves.
-    ScalarZone::DeAllocate();
+    ScalarZone::Reset();
 }
 
 void FieldSolverBasic::Run()
