@@ -74,6 +74,12 @@ void Zone::ReleaseGrids()
     Zone::interfaceTopo.reset();
 }
 
+void Zone::Reset()
+{
+    Zone::ReleaseGrids();
+    ZoneState::Reset();
+}
+
 InterFaceTopo & Zone::GetInterfaceTopo()
 {
     if ( ! Zone::interfaceTopo )
