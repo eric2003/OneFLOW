@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*\
+/*---------------------------------------------------------------------------*\\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
@@ -11,14 +11,14 @@ License
     (at your option) any later version.
 
     OneFLOW is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
     for more details.
 
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
-\*---------------------------------------------------------------------------*/
+\\*---------------------------------------------------------------------------*/
 // Production environment bootstrap for SimuContext.
 // Delegates to existing globals (compatibility layer for phase 2).
 
@@ -113,7 +113,6 @@ void SimuContext::TeardownCase()
     turbcom.Reset();
     Tolerance::Reset();
     Zone::Reset();
-    GridState::Reset();
     FieldManagerRegistry::FreeFieldManager();
     GetGlobalDataBase()->dataField->Clear();
     GetGlobalDataBase()->dataPara->Clear();

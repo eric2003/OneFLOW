@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*\
+/*---------------------------------------------------------------------------*\\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
@@ -11,14 +11,14 @@ License
     (at your option) any later version.
 
     OneFLOW is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
     for more details.
 
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
-\*---------------------------------------------------------------------------*/
+\\*---------------------------------------------------------------------------*/
 
 #include "Zone.h"
 #include <vector>
@@ -78,6 +78,7 @@ void Zone::Reset()
 {
     Zone::ReleaseGrids();
     ZoneState::Reset();
+    GridState::Reset();
 }
 
 InterFaceTopo & Zone::GetInterfaceTopo()
@@ -170,7 +171,7 @@ void Zone::InitLayout(
         PIO::CloseFile( file );
     }
     std::cout << " nTZones = " << nTZones << std::endl;
-    logFile << "  nTZones = " << nTZones << "\n";
+    logFile << "  nTZones = " << nTZones << "\\n";
 
     ZoneState::nZones = nTZones;
     ZoneState::pid.resize( ZoneState::nZones );
