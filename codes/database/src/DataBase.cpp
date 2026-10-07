@@ -202,7 +202,7 @@ void * GetFieldPointerVoid( DataBase * database, const std::string & dataObjectN
         throw std::runtime_error( "DataBase: database is not initialized" );
     }
 
-    PointerWrap * pointerWrap = GetPointerWrap( database->dataField.get(), dataObjectName );
+    PointerWrap * pointerWrap = GetPointerWrap( database->GetDataField(), dataObjectName );
     if ( pointerWrap )
     {
         return pointerWrap->GetPointer();
@@ -217,7 +217,7 @@ const void * GetFieldPointerVoid( const DataBase * database, const std::string &
         throw std::runtime_error( "DataBase: database is not initialized" );
     }
 
-    const PointerWrap * pointerWrap = GetPointerWrap( database->dataField.get(), dataObjectName );
+    const PointerWrap * pointerWrap = GetPointerWrap( database->GetDataField(), dataObjectName );
     if ( pointerWrap )
     {
         return pointerWrap->GetPointer();
