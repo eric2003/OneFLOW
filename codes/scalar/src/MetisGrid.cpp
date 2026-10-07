@@ -151,11 +151,11 @@ GridPartition::~GridPartition()
 	;
 }
 
-void GridPartition::PartitionGrid( ScalarGrid * ggrid, int nPart, std::vector< std::unique_ptr< ScalarGrid > > * grids )
+void GridPartition::PartitionGrid( ScalarGrid & ggrid, int nPart, std::vector< std::unique_ptr< ScalarGrid > > & grids )
 {
-	this->ggrid = ggrid;
+	this->ggrid = &ggrid;
 	this->nPart = nPart;
-	this->grids = grids;
+	this->grids = &grids;
 
 	this->ReconstructGridFaceTopo();
 	this->ReconstructNeighbor();
