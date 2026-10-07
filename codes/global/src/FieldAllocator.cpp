@@ -561,16 +561,15 @@ namespace
     void AllocateGridFields(
         FieldManager * fieldManager )
     {
-        Grid * gridIn = Zone::GetGrid();
+        Grid & gridIn = Zone::GetGridReference();
 
-
-        if ( ONEFLOW::IsUnsGrid( gridIn->type ) )
+        if ( ONEFLOW::IsUnsGrid( gridIn.type ) )
         {
             UnsGrid * grid =
-                ONEFLOW::UnsGridCast( gridIn );
+                ONEFLOW::UnsGridCast( &gridIn );
 
             FieldApplicability applicability =
-                GetGridApplicability( gridIn->type );
+                GetGridApplicability( gridIn.type );
 
             // All fields are common to every supported grid type.
             AllocateGridFields(
@@ -608,13 +607,13 @@ namespace
 
     void AllocateInterfaceField( InterfaceFieldProperty * interfaceFieldProperty )
     {
-        Grid * grid = Zone::GetGrid();
+        Grid & grid = Zone::GetGridReference();
 
-        InterFace * interFace = grid->interFace.get();
+        InterFace * interFace = grid.interFace.get();
 
         if ( ! ONEFLOW::IsValid( interFace ) ) return;
 
-        int nIFaces = grid->interFace->nIFaces;
+        int nIFaces = interFace->nIFaces;
         for ( int ghostId = MAX_GHOST_LEVELS - 1; ghostId >= 0; -- ghostId )
         {
             AllocateInterfaceField( interfaceFieldProperty, nIFaces, &interFace->GetSendStorage( ghostId ) );
