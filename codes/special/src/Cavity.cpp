@@ -171,7 +171,6 @@ namespace
     cgnsFactory.DumpCgnsGrid( zgridMediator );
 }
 
-    }
 }
 
 EndNameSpace
