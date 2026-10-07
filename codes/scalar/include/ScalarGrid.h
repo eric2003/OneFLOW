@@ -219,11 +219,11 @@ private:
     void ResetGeometryData();
     std::unique_ptr< DataBase > dataBase;
 public:
-    int GetNNodes();
-    int GetNCells();
-    int GetNFaces();
-    int GetNBFaces();
-    int GetNTCells();
+    int GetNNodes() const;
+    int GetNCells() const;
+    int GetNFaces() const;
+    int GetNBFaces() const;
+    int GetNTCells() const;
     void GenerateGrid( int ni, Real xmin, Real xmax );
     void CalcTopology();
     void PushElement( int p1, int p2, int eType );

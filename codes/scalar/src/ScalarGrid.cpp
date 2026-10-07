@@ -359,29 +359,29 @@ void ScalarGrid::ResetGeometryData()
 	nTCells = 0;
 }
 
-int ScalarGrid::GetNNodes()
+int ScalarGrid::GetNNodes() const
 {
 	return this->xn.GetNElements();
 }
 
-int ScalarGrid::GetNCells()
+int ScalarGrid::GetNCells() const
 {
 	return this->eTypes.GetNElements();
 }
 
-int ScalarGrid::GetNTCells()
+int ScalarGrid::GetNTCells() const
 {
 	size_t nBFaces = this->GetNBFaces();
 	size_t nCells = this->GetNCells();
 	return nBFaces + nCells;
 }
 
-int ScalarGrid::GetNFaces()
+int ScalarGrid::GetNFaces() const
 {
 	return this->faces.GetNElements();
 }
 
-int ScalarGrid::GetNBFaces()
+int ScalarGrid::GetNBFaces() const
 {
 	return this->bcTypes.GetNElements();
 }
