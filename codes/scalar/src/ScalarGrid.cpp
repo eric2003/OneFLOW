@@ -350,7 +350,6 @@ void ScalarGrid::GenerateGrid( int ni, Real xmin, Real xmax )
 	scalarBccoR->AddBcPoint( ptR );
 	scalarBccos->AddBcco( std::move( scalarBccoR ) );
 
-	this->DumpCgnsGrid();
 }
 
 void ScalarGrid::CalcVolumeSection( SectionManager * volumeSectionManager )
@@ -575,7 +574,6 @@ void ScalarGrid::SetCgnsZone( CgnsZone * cgnsZone )
 
 void ScalarGrid::DumpCgnsGrid()
 {
-	std::fstream file;
 	std::string prjFileName = Prj::GetPrjFileName( "scalar.cgns" );
 	// FIX: Use stack allocation instead of raw pointer
 	CgnsZbase cgnsZbase;
