@@ -209,6 +209,7 @@ public:
     int localId;
     int volBcType;
 private:
+    void ResetMeshData();
     std::unique_ptr< DataBase > dataBase;
 public:
     int GetNNodes();
