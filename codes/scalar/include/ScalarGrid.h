@@ -256,7 +256,7 @@ public:
     void CalcFaceNormal1D();
     void CalcGhostCellCenterVol1D();
 public:
-    void CalcC2C( EList & c2c );
+    void CalcC2C( EList & c2c ) const;
     void CalcInterfaceToBcFace();
     void Normalize();
 public:
