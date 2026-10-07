@@ -72,9 +72,9 @@ void MetisSplit::ManualPartition( const ScalarGrid & ggrid, int nPart, MetisIntL
 
 void MetisSplit::MetisPartition( const ScalarGrid & ggrid, int nPart, MetisIntList & cellzone )
 {
-	int nFaces = ggrid->GetNFaces();
-	int nCells = ggrid->GetNCells();
-	int nBFaces = ggrid->GetNBFaces();
+	int nFaces = ggrid.GetNFaces();
+	int nCells = ggrid.GetNCells();
+	int nBFaces = ggrid.GetNBFaces();
 	int nInnerFaces = nFaces - nBFaces;
 
 	xadj.resize( nCells + 1 );
@@ -93,7 +93,7 @@ void MetisSplit::MetisPartition( const ScalarGrid & ggrid, int nPart, MetisIntLi
 
 void MetisSplit::ScalarGetXadjAdjncy( const ScalarGrid & ggrid, MetisIntList & xadj, MetisIntList & adjncy )
 {   
-	int nCells = ggrid->GetNCells();
+	int nCells = ggrid.GetNCells();
 
 	EList c2c;
 	ggrid.CalcC2C( c2c );
