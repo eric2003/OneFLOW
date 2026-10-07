@@ -25,7 +25,6 @@ License
 #include "HXType.h"
 #include "HXDefine.h"
 #include "HXCgns.h"
-#include "DataStorage.h"
 #include "metis.h"
 #include <vector>
 #include <fstream>
@@ -160,7 +159,7 @@ class CgnsZbase;
 class CgnsZone;
 class SectionManager;
 
-class ScalarGrid : public DataStorage
+class ScalarGrid
 {
 public:
     ScalarGrid();
