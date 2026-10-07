@@ -126,12 +126,7 @@ Grid & Zone::GetGridReference()
 
 UnsGrid * Zone::GetUnsGrid()
 {
-    return &Zone::GetUnsGridReference();
-}
-
-UnsGrid & Zone::GetUnsGridReference()
-{
-    return *ONEFLOW::UnsGridCast( &Zone::GetGridReference() );
+    return ONEFLOW::UnsGridCast( Zone::GetGrid() );
 }
 
 Grid * Zone::GetCGrid( Grid * grid )
@@ -185,7 +180,7 @@ void Zone::InitLayout(
         PIO::CloseFile( file );
     }
     std::cout << " nTZones = " << nTZones << std::endl;
-    logFile << "  nTZones = " << nTZones << "\\n";
+    logFile << "  nTZones = " << nTZones << "\n";
 
     ZoneState::nZones = nTZones;
     ZoneState::pid.resize( ZoneState::nZones );
