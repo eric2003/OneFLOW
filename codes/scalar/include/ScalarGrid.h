@@ -212,7 +212,7 @@ public:
     {
         if ( dataBase == nullptr )
         {
-            throw std::logic_error( "Grid: DataBase is not initialized" );
+            throw std::logic_error( "ScalarGrid: DataBase is not initialized" );
         }
         return *dataBase;
     }
