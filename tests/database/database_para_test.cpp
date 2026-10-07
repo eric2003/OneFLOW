@@ -104,7 +104,7 @@ TEST_F(DataParaTest, RejectUpdateWithDifferentType)
 
     // Updating an existing entry with a different type must fail.
     EXPECT_THROW(
-        db_->GetDataPara()->UpdateDataPointer( std::move( dataEntry ) ),
+        db_->GetDataPara()->SetDataEntry( std::move( dataEntry ) ),
         std::runtime_error
     );
 
@@ -157,7 +157,7 @@ TEST_F(DataParaTest, RejectUpdateWithDifferentSize)
 
     // Updating an existing entry with a different size must fail.
     EXPECT_THROW(
-        db_->GetDataPara()->UpdateDataPointer( std::move( dataEntry ) ),
+        db_->GetDataPara()->SetDataEntry( std::move( dataEntry ) ),
         std::runtime_error
     );
 
@@ -198,7 +198,7 @@ TEST(DataParaTestStandalone, ClearReleasesAllEntries)
     dataObject->CopyValue( &value, 1 );
     dataEntry->SetDataObject( std::move( dataObject ) );
 
-    dataPara.UpdateDataPointer( std::move( dataEntry ) );
+    dataPara.SetDataEntry( std::move( dataEntry ) );
 
     ASSERT_NE(
         dataPara.GetDataPointer( "clear_value" ),

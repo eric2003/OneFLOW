@@ -97,7 +97,7 @@ DataPara::~DataPara()
     Clear();
 }
 
-void DataPara::UpdateDataPointer( std::unique_ptr<DataEntry> data )
+void DataPara::SetDataEntry( std::unique_ptr<DataEntry> data )
 {
     if ( data == nullptr )
     {
@@ -140,7 +140,7 @@ const DataEntry * DataPara::GetDataPointer( const std::string & name ) const
     return nullptr;
 }
 
-void DataPara::DeleteDataPointer( const std::string & name )
+void DataPara::RemoveDataEntry( const std::string & name )
 {
     dataMap.erase( name );
 }

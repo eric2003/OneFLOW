@@ -124,7 +124,7 @@ void ProcessData( const std::string & name, const std::string * value, int type,
         Fatal( " Parameter Type Error \n" );
     }
     DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
-    dataBase->GetDataPara()->UpdateDataPointer( std::move( dataEntry ) );
+    dataBase->GetDataPara()->SetDataEntry( std::move( dataEntry ) );
 }
 
 std::unique_ptr<DataObject> CreateDataObject( int type, int size )

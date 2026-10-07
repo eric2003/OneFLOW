@@ -129,7 +129,7 @@ void SetData( const std::string & name, T * value, int type, int size )
     dataEntry->SetDataObject( std::move( o ) );
 
     DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
-    dataBase->GetDataPara()->UpdateDataPointer( std::move( dataEntry ) );
+    dataBase->GetDataPara()->SetDataEntry( std::move( dataEntry ) );
 }
 
 void SetDataInt( const std::string & varName, const int & value );

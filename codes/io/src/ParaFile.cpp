@@ -378,7 +378,7 @@ void DecompressData( DataBase * dataBase, DataBook * dataBook )
     {
         auto dataEntry = std::make_unique<DataEntry>();
         ONEFLOW::HXReadDataEntry( dataBook, dataEntry.get() );
-        dataBase->GetDataPara()->UpdateDataPointer( std::move( dataEntry ) );
+        dataBase->GetDataPara()->SetDataEntry( std::move( dataEntry ) );
     }
 }
 

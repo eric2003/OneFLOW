@@ -70,10 +70,10 @@ protected:
     DataMap dataMap;
 public:
     // Takes ownership of data.
-    void UpdateDataPointer( std::unique_ptr<DataEntry> data );
+    void SetDataEntry( std::unique_ptr<DataEntry> data );
     DataEntry * GetDataPointer( const std::string & name );
     const DataEntry * GetDataPointer( const std::string & name ) const;
-    void DeleteDataPointer( const std::string & name );
+    void RemoveDataEntry( const std::string & name );
 
     // Release all case-local parameter entries while keeping the database alive.
     void Clear();
