@@ -88,19 +88,11 @@ TEST_F(DataParaTest, RejectUpdateWithDifferentType)
     );
 
     // Construct an update entry with a different data type.
-    auto dataEntry = std::make_unique<DataEntry>(); 
-
-    dataEntry->SetName( "test_value" );
-    dataEntry->SetType( HX_REAL );
-    dataEntry->SetSize( 1 );
-
     Real value = 20.0;
-
     auto dataObject = std::make_unique<TDataObject<Real>>( 1 );
-
     dataObject->CopyValue( &value, 1 );
-
-    dataEntry->SetDataObject( std::move( dataObject ) );
+    auto dataEntry = std::make_unique<DataEntry>(
+        "test_value", HX_REAL, 1, std::move( dataObject ) );
 
     // Updating an existing entry with a different type must fail.
     EXPECT_THROW(
@@ -141,19 +133,11 @@ TEST_F(DataParaTest, RejectUpdateWithDifferentSize)
     EXPECT_EQ( existing->GetSize(), 2 );
 
     // Construct an update entry with the same type but a different size.
-    auto dataEntry = std::make_unique<DataEntry>(); 
-
-    dataEntry->SetName( "test_value" );
-    dataEntry->SetType( HX_INT );
-    dataEntry->SetSize( 3 );
-
     int newValues[3] = { 30, 40, 50 };
-
     auto dataObject = std::make_unique<TDataObject< int >>( 3 );
-
-    dataObject->CopyValue( newValues, 3 ); 
-
-    dataEntry->SetDataObject( std::move( dataObject ) );
+    dataObject->CopyValue( newValues, 3 );
+    auto dataEntry = std::make_unique<DataEntry>(
+        "test_value", HX_INT, 3, std::move( dataObject ) );
 
     // Updating an existing entry with a different size must fail.
     EXPECT_THROW(
@@ -188,15 +172,11 @@ TEST(DataParaTestStandalone, ClearReleasesAllEntries)
 {
     DataPara dataPara;
 
-    auto dataEntry = std::make_unique<DataEntry>(); 
-    dataEntry->SetName( "clear_value" );
-    dataEntry->SetType( HX_INT );
-    dataEntry->SetSize( 1 );
-
     int value = 42;
     auto dataObject = std::make_unique<TDataObject< int >>( 1 );
     dataObject->CopyValue( &value, 1 );
-    dataEntry->SetDataObject( std::move( dataObject ) );
+    auto dataEntry = std::make_unique<DataEntry>(
+        "clear_value", HX_INT, 1, std::move( dataObject ) );
 
     dataPara.SetDataEntry( std::move( dataEntry ) );
 

@@ -28,20 +28,16 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-DataEntry::DataEntry()
-    : name()
-    , type( 0 )
-    , size( 0 )
-    , data( nullptr )
-{
-}
-
 DataEntry::DataEntry( const std::string & name, int type, int size, std::unique_ptr<DataObject> data )
+    : name( name )
+    , type( type )
+    , size( size )
+    , data( std::move( data ) )
 {
-    this->name = name;
-    this->type = type;
-    this->size = size;
-    this->data = std::move( data );
+    if ( this->data == nullptr )
+    {
+        throw std::invalid_argument( "DataEntry: data object is null" );
+    }
 }
 
 DataEntry::~DataEntry()
@@ -50,12 +46,6 @@ DataEntry::~DataEntry()
 
 void DataEntry::Copy( const DataEntry & inputData )
 {
-    if ( this->data == nullptr || inputData.data == nullptr )
-    {
-        throw std::runtime_error(
-            "DataEntry::Copy: data pointer is null" );
-    }
-
     if ( this->type != inputData.type )
     {
         throw std::runtime_error(

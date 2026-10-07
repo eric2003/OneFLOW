@@ -75,7 +75,7 @@ void HXWriteDataEntry( DataBook * dataBook, const DataEntry * dataEntry )
     ONEFLOW::HXWriteVoid( dataBook, dataEntry );
 }
 
-void HXReadDataEntry( DataBook * dataBook, DataEntry * dataEntry )
+std::unique_ptr<DataEntry> HXReadDataEntry( DataBook * dataBook )
 {
     std::string name;
     int type = 0;
@@ -83,46 +83,42 @@ void HXReadDataEntry( DataBook * dataBook, DataEntry * dataEntry )
     ONEFLOW::HXRead( dataBook, name );
     ONEFLOW::HXRead( dataBook, type );
     ONEFLOW::HXRead( dataBook, size );
-    dataEntry->SetName( name );
-    dataEntry->SetType( type );
-    dataEntry->SetSize( size );
-    ONEFLOW::HXReadVoid( dataBook, dataEntry );
-}
 
-void HXReadVoid( DataBook * dataBook, DataEntry * dataEntry )
-{
-    dataEntry->SetDataObject( CreateDataObject( dataEntry->GetType(), dataEntry->GetSize() ) );
-    dataEntry->GetDataObject()->Read( dataBook, dataEntry->GetSize() );
+    auto dataObject = CreateDataObject( type, size );
+    dataObject->Read( dataBook, size );
+
+    return std::make_unique<DataEntry>(
+        name, type, size, std::move( dataObject ) );
 }
 
 void ProcessData( const std::string & name, const std::string * value, int type, int size )
 {
-    auto dataEntry = std::make_unique<DataEntry>();
-    dataEntry->SetName( name );
-    dataEntry->SetType( type );
-    dataEntry->SetSize( size );
+    std::unique_ptr<DataObject> dataObject;
     if ( type == ONEFLOW::HX_STRING )
     {
         auto stringObject = std::make_unique<TDataObject< std::string > >( size );
         stringObject->CopyValue( value, size );
-        dataEntry->SetDataObject( std::move( stringObject ) );
+        dataObject = std::move( stringObject );
     }
     else if ( type == HX_INT )
     {
         auto intObject = std::make_unique<TDataObject< int > >( size );
         intObject->AssignFromString( value, size );
-        dataEntry->SetDataObject( std::move( intObject ) );
+        dataObject = std::move( intObject );
     }
     else if ( type == HX_REAL )
     {
         auto realObject = std::make_unique<TDataObject< Real > >( size );
         realObject->AssignFromString( value, size );
-        dataEntry->SetDataObject( std::move( realObject ) );
+        dataObject = std::move( realObject );
     }
     else
     {
         Fatal( " Parameter Type Error \n" );
     }
+
+    auto dataEntry = std::make_unique<DataEntry>(
+        name, type, size, std::move( dataObject ) );
     DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
     dataBase->GetDataPara()->SetDataEntry( std::move( dataEntry ) );
 }

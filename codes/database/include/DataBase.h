@@ -57,10 +57,9 @@ public:
     DataField * GetDataField() { return dataField.get(); }
     const DataField * GetDataField() const { return dataField.get(); }
 };
-void HXReadDataEntry( DataBook * dataBook, DataEntry * dataEntry );
+std::unique_ptr<DataEntry> HXReadDataEntry( DataBook * dataBook );
 void HXWriteDataEntry( DataBook * dataBook, const DataEntry * dataEntry );
 void HXWriteVoid( DataBook * dataBook, const DataEntry * dataEntry );
-void HXReadVoid( DataBook * dataBook, DataEntry * dataEntry );
 
 DataBase * GetGlobalDataBase();
 void ProcessData( const std::string & name, const std::string * value, int type, int size );
@@ -120,13 +119,10 @@ T GetDataValue( const std::string & varName, const DataBase * database )
 template < typename T >
 void SetData( const std::string & name, T * value, int type, int size )
 {
-    auto dataEntry = std::make_unique<DataEntry>();
-    dataEntry->SetName( name );
-    dataEntry->SetType( type );
-    dataEntry->SetSize( size );
     auto o = std::make_unique<TDataObject< T > >( size );
     o->CopyValue( value, size );
-    dataEntry->SetDataObject( std::move( o ) );
+    auto dataEntry = std::make_unique<DataEntry>(
+        name, type, size, std::move( o ) );
 
     DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
     dataBase->GetDataPara()->SetDataEntry( std::move( dataEntry ) );

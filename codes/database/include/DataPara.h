@@ -34,13 +34,12 @@ class DataObject;
 class DataEntry
 {
 public:
-    DataEntry();
     DataEntry( const std::string & name, int type, int size, std::unique_ptr<DataObject> data );
     ~DataEntry();
 private:
-    std::string name;
-    int type = 0;
-    int size = 0;
+    const std::string name;
+    const int type;
+    const int size;
     std::unique_ptr<DataObject> data;
 public:
     const std::string & GetName() const { return name; }
@@ -48,11 +47,6 @@ public:
     int GetSize() const { return size; }
     DataObject * GetDataObject() { return data.get(); }
     const DataObject * GetDataObject() const { return data.get(); }
-
-    void SetName( const std::string & value ) { name = value; }
-    void SetType( int value ) { type = value; }
-    void SetSize( int value ) { size = value; }
-    void SetDataObject( std::unique_ptr<DataObject> value ) { data = std::move( value ); }
 
     void Copy( const DataEntry & inputData );
     void Dump( std::fstream & file ) const;
