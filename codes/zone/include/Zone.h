@@ -58,7 +58,9 @@ public:
     static void NormalizeLayout();
 public:
     static Grid * GetGrid( int zid, int gl = 0 );
+    static Grid & GetGridReference( int zid, int gl = 0 );
     static Grid * GetGrid();
+    static Grid & GetGridReference();
     static Grid * GetCGrid( Grid * grid );
     static Grid * GetFGrid( Grid * grid );
     static UnsGrid * GetUnsGrid();
