@@ -252,8 +252,8 @@ void Partition::ReadGrid()
     }
     else
     {
-        Grid * grid = Zone::GetGrid();
-        uns_grid = UnsGridCast( grid );
+        Grid & grid = Zone::GetGridReference();
+        uns_grid = UnsGridCast( &grid );
     }
 }
 
