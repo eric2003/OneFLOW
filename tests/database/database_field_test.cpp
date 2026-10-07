@@ -178,6 +178,6 @@ TEST_F(DataFieldTest, ClearRemovesAllFields)
 
     EXPECT_EQ( GetFieldPointer<DummyField>( db_, "clear_field_a" ), nullptr );
     EXPECT_EQ( GetFieldPointer<DummyField>( db_, "clear_field_b" ), nullptr );
-    EXPECT_TRUE( db_->GetDataField()->GetDataMap()->empty() );
+    EXPECT_TRUE( db_->GetDataField()->GetDataMap().empty() );
 }
 

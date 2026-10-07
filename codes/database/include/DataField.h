@@ -63,8 +63,7 @@ public:
     void DeleteFieldEntry( const std::string & name );
     void Clear();
 
-    DataMap * GetDataMap() { return &dataMap; }
-    const DataMap * GetDataMap() const { return &dataMap; }
+    const DataMap & GetDataMap() const { return dataMap; }
 };
 
 EndNameSpace

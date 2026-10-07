@@ -67,8 +67,7 @@ public:
     // Release all case-local parameter entries while keeping the database alive.
     void Clear();
 
-    DataMap * GetDataMap() { return &dataMap; }
-    const DataMap * GetDataMap() const { return &dataMap; }
+    const DataMap & GetDataMap() const { return dataMap; }
 
     void DumpData( std::fstream & file ) const;
 };

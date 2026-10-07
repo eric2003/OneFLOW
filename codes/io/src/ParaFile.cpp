@@ -353,15 +353,15 @@ void DecompressData( DataBook * dataBook )
 void CompressData( DataBase * dataBase, DataBook * dataBook )
 {
     // Use the new type alias
-    DataPara::DataMap * dataMap = dataBase->GetDataPara()->GetDataMap();
+    const DataPara::DataMap & dataMap = dataBase->GetDataPara()->GetDataMap();
 
-    int ndata = static_cast<int>( dataMap->size() );
+    int ndata = static_cast<int>( dataMap.size() );
     ONEFLOW::HXWrite( dataBook, ndata );
 
     // Range-based for is cleaner with unordered_map
-    for ( const auto & pair : *dataMap )
+    for ( const auto & pair : dataMap )
     {
-        DataEntry * dataEntry = pair.second.get();  // pair.first is the key (name), pair.second owns DataEntry
+        const DataEntry * dataEntry = pair.second.get();  // pair.first is the key (name), pair.second owns DataEntry
         ONEFLOW::HXWriteDataEntry( dataBook, dataEntry );
     }
 }
