@@ -133,7 +133,7 @@ void MetisSplit::ScalarPartitionByMetis( idx_t nCells, MetisIntList & xadj, Meti
 	std::cout << "Partition is finished!\n";
 }
 
-void GridPartition::PartitionGrid( ScalarGrid & ggrid, int nPart, std::vector< std::unique_ptr< ScalarGrid > > & grids )
+void GridPartition::PartitionGrid( const ScalarGrid & ggrid, int nPart, std::vector< std::unique_ptr< ScalarGrid > > & grids )
 {
     this->ReconstructGridFaceTopo( ggrid, nPart, grids );
     this->ReconstructNeighbor( grids );
