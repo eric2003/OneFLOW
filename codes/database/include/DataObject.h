@@ -41,7 +41,7 @@ public:
     virtual const void * GetVoidPointer() const { return nullptr; };
     virtual void Write( DataBook * dataBook ) {};
     virtual void Read( DataBook * dataBook, int numberOfElements ) {};
-    virtual void Copy( DataObject * dataObject ) {};
+    virtual void Copy( const DataObject * dataObject ) {};
     virtual void Dump( std::fstream & file ) const {};
 };
 
@@ -160,12 +160,12 @@ public:
 
     // Copy content from another DataObject instance
     // Use dynamic_cast for runtime type checking to prevent undefined behaviour
-    void Copy( DataObject* dataObject ) override
+    void Copy( const DataObject* dataObject ) override
     {
         if (dataObject == nullptr)
             return;
 
-        TDataObject< T >* tDataObject = dynamic_cast<TDataObject< T >*>(dataObject);
+        const TDataObject< T >* tDataObject = dynamic_cast<const TDataObject< T >*>(dataObject);
         if (tDataObject == nullptr)
             return;
 
