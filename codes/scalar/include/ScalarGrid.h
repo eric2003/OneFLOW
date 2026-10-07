@@ -153,6 +153,7 @@ public:
     void ScanBcFace( ScalarGrid * grid );
 };
 
+class DataBase;
 class DataBook;
 class ScalarIFace;
 class CgnsZbase;
@@ -164,6 +165,11 @@ class ScalarGrid
 public:
     ScalarGrid();
     ~ScalarGrid();
+public:
+    DataBase * GetDataBase();
+    const DataBase * GetDataBase() const;
+    DataBase & RequireDataBase();
+    const DataBase & RequireDataBase() const;
 public:
     int nNodes, nCells, nBFaces, nFaces;
     int nTCells;
@@ -202,7 +208,8 @@ public:
     int id;
     int localId;
     int volBcType;
-public:
+private:
+    std::unique_ptr< DataBase > dataBase;
 public:
     int GetNNodes();
     int GetNCells();
