@@ -253,28 +253,4 @@ void GridFactory::ConvertGrid(
     DispatchConverter( config, caseDir );
 }
 
-void GridFactory::Plot3DProcess(
-    const GridConfig & config,
-    const std::string & caseDir )
-{
-    ConvertPlot3D( config, caseDir );
-}
-
-void GridFactory::SU2Process( const GridConfig & config, const std::string & caseDir )
-{
-    ConvertSU2( config, caseDir );
-}
-
-void GridFactory::CGNSProcess( const std::string & caseDir )
-{
-    this->CGNSProcess( GridConfig::FromDataBase(), caseDir );
-}
-
-void GridFactory::CGNSProcess(
-    const GridConfig & config,
-    const std::string & caseDir )
-{
-    ConvertCGNS( config, caseDir );
-}
-
 EndNameSpace
