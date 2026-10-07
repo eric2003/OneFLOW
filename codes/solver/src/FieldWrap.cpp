@@ -115,9 +115,9 @@ std::unique_ptr<FieldWrap> FieldHome::CreateField( int solverType, int level )
 
 std::unique_ptr<FieldWrap> FieldHome::GetFieldWrap( const std::string & fieldName )
 {
-    Grid * grid = Zone::GetGrid();
+    Grid & grid = Zone::GetGridReference();
 
-    MRField * field = ONEFLOW::GetFieldPointer< MRField >( grid, fieldName );
+    MRField * field = ONEFLOW::GetFieldPointer< MRField >( &grid, fieldName );
 
     auto fieldWrap = std::make_unique<FieldWrap>();
 
@@ -129,9 +129,9 @@ std::unique_ptr<FieldWrap> FieldHome::GetFieldWrap( const std::string & fieldNam
 void FieldHome::SetField( const std::string & fieldName, Real value )
 {
     // Direct path: no temporary FieldWrap for constant init from alloc/init.txt.
-    Grid * grid = Zone::GetGrid();
+    Grid & grid = Zone::GetGridReference();
     MRField * field =
-        ONEFLOW::GetFieldPointer< MRField >( grid, fieldName );
+        ONEFLOW::GetFieldPointer< MRField >( &grid, fieldName );
 
     if ( field == nullptr )
     {
