@@ -37,15 +37,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-MetisSplit::MetisSplit()
-{
-}
-
-MetisSplit::~MetisSplit()
-{
-	;
-}
-
 void MetisSplit::ManualPartition( const ScalarGrid & ggrid, int nPart, MetisIntList & cellzone )
 {
 	int nFaces = ggrid.GetNFaces();
@@ -77,8 +68,8 @@ void MetisSplit::MetisPartition( const ScalarGrid & ggrid, int nPart, MetisIntLi
 	int nBFaces = ggrid.GetNBFaces();
 	int nInnerFaces = nFaces - nBFaces;
 
-	xadj.resize( nCells + 1 );
-	adjncy.resize( 2 * nInnerFaces );
+	MetisIntList xadj( nCells + 1 );
+	MetisIntList adjncy( 2 * nInnerFaces );
 	cellzone.resize( nCells );
 
 	if ( nPart == nCells )
@@ -140,15 +131,6 @@ void MetisSplit::ScalarPartitionByMetis( idx_t nCells, MetisIntList & xadj, Meti
 	}
 	std::cout << "The interface number: " << objval << std::endl; 
 	std::cout << "Partition is finished!\n";
-}
-
-GridPartition::GridPartition()
-{
-}
-
-GridPartition::~GridPartition()
-{
-	;
 }
 
 void GridPartition::PartitionGrid( ScalarGrid & ggrid, int nPart, std::vector< std::unique_ptr< ScalarGrid > > & grids )
