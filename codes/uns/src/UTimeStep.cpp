@@ -189,7 +189,7 @@ void UTimeStep::CalcInvSpectrumField()
 {
     Grid & grid = Zone::GetGridReference();
 
-    MRField * invsr = ONEFLOW::GetFieldPointer< MRField >( grid, "invsr" );
+    MRField * invsr = ONEFLOW::GetFieldPointer< MRField >( &grid, "invsr" );
 
     ONEFLOW::ZeroField( invsr, 1, grid.nCells );
 
@@ -209,7 +209,7 @@ void UTimeStep::CalcVisSpectrumField()
 {
     Grid & grid = Zone::GetGridReference();
 
-    MRField * vissr = ONEFLOW::GetFieldPointer< MRField >( grid, "vissr" );
+    MRField * vissr = ONEFLOW::GetFieldPointer< MRField >( &grid, "vissr" );
 
     ONEFLOW::ZeroField( vissr, 1, grid.nCells );
 
