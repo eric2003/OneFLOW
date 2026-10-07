@@ -56,6 +56,34 @@ Grid::~Grid()
     this->Free();
 }
 
+DataBase * Grid::GetDataBase()
+{
+    return dataBase.get();
+}
+
+const DataBase * Grid::GetDataBase() const
+{
+    return dataBase.get();
+}
+
+DataBase & Grid::RequireDataBase()
+{
+    if ( dataBase == nullptr )
+    {
+        throw std::logic_error( "Grid: DataBase is not initialized" );
+    }
+    return *dataBase;
+}
+
+const DataBase & Grid::RequireDataBase() const
+{
+    if ( dataBase == nullptr )
+    {
+        throw std::logic_error( "Grid: DataBase is not initialized" );
+    }
+    return *dataBase;
+}
+
 std::unique_ptr< Grid > Grid::SafeCloneUnique( const std::string & type )
 {
     GridRegistry & registry = GetGridRegistry();
