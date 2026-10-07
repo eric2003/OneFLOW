@@ -162,8 +162,8 @@ void SetData( const std::string & name, T * value, int type, int size )
     auto dataEntry = std::make_unique<DataEntry>(
         name, type, size, std::move( o ) );
 
-    DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
-    dataBase->RequireDataPara().SetDataEntry( std::move( dataEntry ) );
+    DataBase & dataBase = ONEFLOW::RequireGlobalDataBase();
+    dataBase.RequireDataPara().SetDataEntry( std::move( dataEntry ) );
 }
 
 void SetDataInt( const std::string & varName, const int & value );
@@ -173,8 +173,8 @@ void SetDataString( const std::string & varName, const std::string & value );
 template < typename T >
 T * GetDataPointer( const std::string & varName )
 {
-    DataBase * database = ONEFLOW::GetGlobalDataBase();
-    DataEntry * dataEntry = database->RequireDataPara().FindDataEntry( varName );
+    DataBase & database = ONEFLOW::RequireGlobalDataBase();
+    DataEntry * dataEntry = database.RequireDataPara().FindDataEntry( varName );
 
     // Required lookup: match GetDataValue -- missing name must not
     // dereference a null DataEntry.
