@@ -240,9 +240,9 @@ void DataToGridImp( DataBook * dataBook, int zid )
 
     if ( Parallel::pid != rpid ) return;
 
-    Grid * grid = Zone::GetGrid( zid, 0 );
+    Grid & grid = Zone::GetGridReference( zid, 0 );
 
-    grid->Decode( dataBook );
+    grid.Decode( dataBook );
 }
 
 void DataToGridTest( DataBook * dataBook, int zid )
