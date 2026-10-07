@@ -64,17 +64,11 @@ public:
     std::unique_ptr< FieldPara > para;
     std::unique_ptr< ScalarFieldManager > scalarFieldManager;
     std::vector< std::unique_ptr< ScalarField > > fields;
-    // Non-owning views into ScalarZone::scalar_grids (do not delete).
-    std::vector< ScalarGrid * > grids;
-public:
-    //tmp
-    void FillTmpGridVector();
 public:
     virtual void Run();
     void Init();
     void LoadGrid();
     void InitCtrlParameter();
-    void AddZoneGrid();
     void CalcGridMetrics();
     void InitFlowField();
     void InitFlowField_Basic();

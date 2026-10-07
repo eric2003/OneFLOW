@@ -51,7 +51,6 @@ FieldSolverBasic::FieldSolverBasic()
 
 FieldSolverBasic::~FieldSolverBasic()
 {
-    // grids are non-owning views into ScalarZone; unique_ptr members free themselves.
     ScalarZone::Reset();
 }
 
@@ -70,23 +69,11 @@ void FieldSolverBasic::LoadGrid()
     Zone::flag_test_grid = 1;
     Zone::ReadGrid( gridFileList );
 
-    this->FillTmpGridVector();
     this->CalcGridMetrics();
 
     Zone::GetInterfaceTopo().flag_test = 1;
     Zone::InitInterfaceTopo();
 
-}
-
-void FieldSolverBasic::FillTmpGridVector()
-{
-    for ( int iZone = 0; iZone < ZoneState::nZones; ++ iZone )
-    {
-        if ( ! ZoneState::IsValidZone( iZone ) ) continue;
-
-        ScalarGrid & grid = Zone::GetScalarGridReference( iZone );
-        this->grids.push_back( &grid );
-    }
 }
 
 void FieldSolverBasic::Init()
@@ -98,13 +85,6 @@ void FieldSolverBasic::Init()
     this->InitFlowField();
 
     this->CommParallelInfo();
-}
-
-void FieldSolverBasic::AddZoneGrid()
-{
-    // ScalarZone already owns the grids installed via Zone::AddScalarGrid /
-    // GridGroup::CreateGridTest. this->grids holds non-owning views only.
-    ZoneState::nZones = static_cast< int >( this->grids.size() );
 }
 
 void FieldSolverBasic::CalcGridMetrics()
