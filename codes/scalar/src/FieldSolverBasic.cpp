@@ -355,8 +355,6 @@ void FieldSolverBasic::GetVisualData( DataBook & dataBook )
     int nCells = grid.GetNCells();
 
     Real time = para->dt * para->nt;
-    Real xs = para->c * time;
-
     RealField theory;
     Theory( grid, time, theory );
 
@@ -397,29 +395,6 @@ void FieldSolverBasic::AddVisualData( DataBook & dataBook, RealField & qList, Re
         qList.push_back( q[ iCell ] );
         theoryList.push_back( theory[ iCell ] );
         xcoorList.push_back( xcoor[ iCell ] );
-    }
-}
-
-void FieldSolverBasic::AddVisualData( RealField & qList, RealField & theoryList, RealField & xcoorList )
-{
-    ScalarGrid & grid = ScalarZone::GetGridReference();
-
-    RealField & q = GetFieldReference< MRField > ( &grid, "q" ).AsOneD();
-
-    int nCells = grid.GetNCells();
-
-    Real time = para->dt * para->nt;
-    Real xs = para->c * time;
-
-    RealField theory;
-    Theory( grid, time, theory );
-
-    for ( int iCell = 0; iCell < nCells; ++ iCell )
-    {
-        Real xm = grid.xcc[ iCell ];
-        qList.push_back( q[ iCell ] );
-        theoryList.push_back( theory[ iCell ] );
-        xcoorList.push_back( xm );
     }
 }
 
