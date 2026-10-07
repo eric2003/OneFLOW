@@ -46,11 +46,11 @@ MetisSplit::~MetisSplit()
 	;
 }
 
-void MetisSplit::ManualPartition( ScalarGrid * ggrid, int nPart, MetisIntList & cellzone )
+void MetisSplit::ManualPartition( const ScalarGrid & ggrid, int nPart, MetisIntList & cellzone )
 {
-	int nFaces = ggrid->GetNFaces();
-	int nCells = ggrid->GetNCells();
-	int nBFaces = ggrid->GetNBFaces();
+	int nFaces = ggrid.GetNFaces();
+	int nCells = ggrid.GetNCells();
+	int nBFaces = ggrid.GetNBFaces();
 	int nInnerFaces = nFaces - nBFaces;
 
 	std::vector< int > tmp;
@@ -70,7 +70,7 @@ void MetisSplit::ManualPartition( ScalarGrid * ggrid, int nPart, MetisIntList & 
 	}
 }
 
-void MetisSplit::MetisPartition( ScalarGrid * ggrid, int nPart, MetisIntList & cellzone )
+void MetisSplit::MetisPartition( const ScalarGrid & ggrid, int nPart, MetisIntList & cellzone )
 {
 	int nFaces = ggrid->GetNFaces();
 	int nCells = ggrid->GetNCells();
@@ -91,12 +91,12 @@ void MetisSplit::MetisPartition( ScalarGrid * ggrid, int nPart, MetisIntList & c
 	ScalarPartitionByMetis( nCells, xadj, adjncy, nPart, cellzone );
 }
 
-void MetisSplit::ScalarGetXadjAdjncy( ScalarGrid * ggrid, MetisIntList & xadj, MetisIntList & adjncy )
+void MetisSplit::ScalarGetXadjAdjncy( const ScalarGrid & ggrid, MetisIntList & xadj, MetisIntList & adjncy )
 {   
 	int nCells = ggrid->GetNCells();
 
 	EList c2c;
-	ggrid->CalcC2C( c2c );
+	ggrid.CalcC2C( c2c );
 
 	xadj[ 0 ]  = 0;
 	int iCount = 0;
@@ -184,7 +184,7 @@ void GridPartition::ReconstructGridFaceTopo()
 	//calc cellzone;
 	MetisSplit metisSplit;
 	MetisIntList cellzone;
-	metisSplit.MetisPartition( this->ggrid, this->nPart, cellzone );
+	metisSplit.MetisPartition( *this->ggrid, this->nPart, cellzone );
 
 	this->AllocateGrid( this->nPart );
 
