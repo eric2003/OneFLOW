@@ -215,6 +215,22 @@ TEST(DataBookOwnership, UniquePtrAndRawViewShareObject)
     EXPECT_NE( ownedBook.get(), nullptr );  // still owns original
 }
 
+TEST(DataBaseInvariant, RequiredStoreAccessorsExposeOwnedStores)
+{
+    DataBase database;
+
+    EXPECT_EQ( &database.RequireDataPara(), database.GetDataPara() );
+    EXPECT_EQ( &database.RequireDataField(), database.GetDataField() );
+}
+
+TEST(DataBaseInvariant, ConstRequiredStoreAccessorsPreserveConstness)
+{
+    const DataBase database;
+
+    EXPECT_EQ( &database.RequireDataPara(), database.GetDataPara() );
+    EXPECT_EQ( &database.RequireDataField(), database.GetDataField() );
+}
+
 TEST(DataEntryInvariant, DataObjectIsRequired)
 {
     int value = 42;
