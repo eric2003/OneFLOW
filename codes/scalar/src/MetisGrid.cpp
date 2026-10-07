@@ -180,7 +180,7 @@ void GridPartition::ReconstructGridFaceTopo( const ScalarGrid & ggrid, int nPart
 		int iZone = cellzone[ iCell ];
 		localCells[ iCell ] = zoneCount[ iZone ] ++;
 		int eType = ggrid.eTypes[ iCell ];
-		ScalarGrid * grid = ( * grids )[ iZone  ].get();
+		ScalarGrid * grid = ( grids )[ iZone  ].get();
 		grid->eTypes.AddData( eType );
 	}
 
@@ -196,7 +196,7 @@ void GridPartition::ReconstructGridFaceTopo( const ScalarGrid & ggrid, int nPart
 		//local coor x[1],y[1],z[1],x[2],y[2],z[2]
 		int localCell = localCells[ lc ];
 		int ftype = ggrid.fTypes[ iFace ];
-		ScalarGrid * gridL = ( * grids )[ lZone  ].get();
+		ScalarGrid * gridL = grids[ lZone  ].get();
 		gridL->AddFaceType( ftype );
 		gridL->AddPhysicalBcFace( iFace, bctype, localCell, ONEFLOW::INVALID_INDEX );
 	}
@@ -218,8 +218,8 @@ void GridPartition::ReconstructGridFaceTopo( const ScalarGrid & ggrid, int nPart
 
 			int bctype = -1;
 
-			ScalarGrid * gridL = ( * grids )[ lZone  ].get();
-			ScalarGrid * gridR = ( * grids )[ rZone  ].get();
+			ScalarGrid * gridL = grids[ lZone  ].get();
+			ScalarGrid * gridR = grids[ rZone  ].get();
 
 			gridL->AddFaceType( ftype );
 			gridR->AddFaceType( ftype );
@@ -244,7 +244,7 @@ void GridPartition::ReconstructGridFaceTopo( const ScalarGrid & ggrid, int nPart
 			int localCell_L = localCells[ lc ];
 			int localCell_R = localCells[ rc ];
 
-			ScalarGrid * grid = ( * grids )[ lZone  ].get();
+			ScalarGrid * grid = grids[ lZone  ].get();
 
 			int ftype = ggrid.fTypes[ iFace ];
 
@@ -259,25 +259,25 @@ void GridPartition::ReconstructInterfaceTopo( std::vector< std::unique_ptr< Scal
 	int nZones = this->GetNZones( grids );
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
-		int nNeis = ( * grids )[ iZone ]->scalarIFace->data.size();
+		int nNeis = grids[ iZone ]->scalarIFace->data.size();
 		for ( int iNei = 0; iNei < nNeis; ++ iNei )
 		{
-			ScalarIFaceIJ & iFaceIJ = ( * grids )[ iZone ]->scalarIFace->data[ iNei ];
+			ScalarIFaceIJ & iFaceIJ = grids[ iZone ]->scalarIFace->data[ iNei ];
 			int jZone =  iFaceIJ.zonej;
 			std::cout << " iZone = " << iZone << " iNei = " << iNei << " jZone = " << jZone << "\n";
-			( * grids )[ jZone ]->scalarIFace->CalcLocalInterfaceId( iZone, iFaceIJ.iglobalfaces, iFaceIJ.target_ifaces );
+			grids[ jZone ]->scalarIFace->CalcLocalInterfaceId( iZone, iFaceIJ.iglobalfaces, iFaceIJ.target_ifaces );
 		}
 	}
 
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
-		ScalarIFace * scalarIFace = ( * grids )[ iZone ]->scalarIFace.get();
+		ScalarIFace * scalarIFace = grids[ iZone ]->scalarIFace.get();
 		int nIFaces = scalarIFace->iglobalfaces.size();
 		for ( int iFace = 0; iFace < nIFaces; ++ iFace )
 		{
 			int igface = scalarIFace->iglobalfaces[ iFace ];
 			int jZone  = scalarIFace->zones[ iFace ];
-			int jlocalface = ( * grids )[ jZone ]->scalarIFace->GetLocalInterfaceId( igface );
+			int jlocalface = grids[ jZone ]->scalarIFace->GetLocalInterfaceId( igface );
 			scalarIFace->target_interfaces.push_back( jlocalface );
 		}
 	}
@@ -289,7 +289,7 @@ void GridPartition::CalcInterfaceToBcFace( std::vector< std::unique_ptr< ScalarG
 	int nZones = this->GetNZones( grids );
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
-		( * grids )[ iZone ]->CalcInterfaceToBcFace();
+		grids[ iZone ]->CalcInterfaceToBcFace();
 	}
 }
 
@@ -298,7 +298,7 @@ void GridPartition::ReconstructNeighbor( std::vector< std::unique_ptr< ScalarGri
 	int nZones = this->GetNZones( grids );
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
-		( * grids )[ iZone ]->scalarIFace->ReconstructNeighbor();
+		grids[ iZone ]->scalarIFace->ReconstructNeighbor();
 	}
 }
 
@@ -307,7 +307,7 @@ void GridPartition::ReconstructNode( const ScalarGrid & ggrid, std::vector< std:
 	int nZones = this->GetNZones( grids );
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
-		ScalarGrid * grid = ( * grids )[ iZone  ].get();
+		ScalarGrid * grid = grids[ iZone  ].get();
 		grid->ReconstructNode( ggrid );
 		grid->Normalize();
 		grid->CalcMetrics1D();
