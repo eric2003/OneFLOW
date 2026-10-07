@@ -104,7 +104,7 @@ void DataPara::SetDataEntry( std::unique_ptr<DataEntry> data )
     it->second->Copy( *data );
 }
 
-DataEntry * DataPara::GetDataPointer( const std::string & name )
+DataEntry * DataPara::FindDataEntry( const std::string & name )
 {
     auto it = dataMap.find( name );
     if ( it != dataMap.end() )
@@ -114,7 +114,7 @@ DataEntry * DataPara::GetDataPointer( const std::string & name )
     return nullptr;
 }
 
-const DataEntry * DataPara::GetDataPointer( const std::string & name ) const
+const DataEntry * DataPara::FindDataEntry( const std::string & name ) const
 {
     auto it = dataMap.find( name );
     if ( it != dataMap.end() )

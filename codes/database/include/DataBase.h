@@ -83,7 +83,7 @@ T GetDataValue( const std::string & varName, DataBase * database )
         throw std::runtime_error( "DataBase: database is not initialized" );
     }
 
-    DataEntry * dataEntry = database->GetDataPara()->GetDataPointer( varName );
+    DataEntry * dataEntry = database->GetDataPara()->FindDataEntry( varName );
 
     if (dataEntry != nullptr )
     {
@@ -105,7 +105,7 @@ T GetDataValue( const std::string & varName, const DataBase * database )
         throw std::runtime_error( "DataBase: database is not initialized" );
     }
 
-    const DataEntry * dataEntry = database->GetDataPara()->GetDataPointer( varName );
+    const DataEntry * dataEntry = database->GetDataPara()->FindDataEntry( varName );
 
     if ( dataEntry != nullptr )
     {
@@ -136,7 +136,7 @@ template < typename T >
 T * GetDataPointer( const std::string & varName )
 {
     DataBase * database = ONEFLOW::GetGlobalDataBase();
-    DataEntry * dataEntry = database->GetDataPara()->GetDataPointer( varName );
+    DataEntry * dataEntry = database->GetDataPara()->FindDataEntry( varName );
 
     // Required lookup: match GetDataValue -- missing name must not
     // dereference a null DataEntry.

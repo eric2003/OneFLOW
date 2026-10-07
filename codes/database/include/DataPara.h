@@ -65,8 +65,8 @@ protected:
 public:
     // Takes ownership of data.
     void SetDataEntry( std::unique_ptr<DataEntry> data );
-    DataEntry * GetDataPointer( const std::string & name );
-    const DataEntry * GetDataPointer( const std::string & name ) const;
+    DataEntry * FindDataEntry( const std::string & name );
+    const DataEntry * FindDataEntry( const std::string & name ) const;
     void RemoveDataEntry( const std::string & name );
 
     // Release all case-local parameter entries while keeping the database alive.

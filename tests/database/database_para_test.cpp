@@ -125,7 +125,7 @@ TEST_F(DataParaTest, RejectUpdateWithDifferentSize)
     );
 
     DataEntry* existing =
-        db_->GetDataPara()->GetDataPointer( "test_value" );
+        db_->GetDataPara()->FindDataEntry( "test_value" );
 
     ASSERT_NE( existing, nullptr );
 
@@ -147,7 +147,7 @@ TEST_F(DataParaTest, RejectUpdateWithDifferentSize)
 
     // Verify that the original entry was not modified.
     existing =
-        db_->GetDataPara()->GetDataPointer( "test_value" );
+        db_->GetDataPara()->FindDataEntry( "test_value" );
 
     ASSERT_NE( existing, nullptr );
 
@@ -181,14 +181,14 @@ TEST(DataParaTestStandalone, ClearReleasesAllEntries)
     dataPara.SetDataEntry( std::move( dataEntry ) );
 
     ASSERT_NE(
-        dataPara.GetDataPointer( "clear_value" ),
+        dataPara.FindDataEntry( "clear_value" ),
         nullptr
     );
 
     dataPara.Clear();
 
     EXPECT_EQ(
-        dataPara.GetDataPointer( "clear_value" ),
+        dataPara.FindDataEntry( "clear_value" ),
         nullptr
     );
 }
