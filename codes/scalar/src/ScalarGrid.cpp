@@ -383,7 +383,7 @@ int ScalarGrid::GetNFaces() const
 
 int ScalarGrid::GetNBFaces() const
 {
-	return this->bcTypes.GetNElements();
+	return  this->bcTypes.GetNElements();
 }
 
 void ScalarGrid::GenerateGrid( int ni, Real xmin, Real xmax )
