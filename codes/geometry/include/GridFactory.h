@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*\
+/*---------------------------------------------------------------------------*\\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
@@ -18,7 +18,7 @@ License
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
-\*---------------------------------------------------------------------------*/
+\\*---------------------------------------------------------------------------*/
 
 #pragma once
 
@@ -29,7 +29,8 @@ License
 BeginNameSpace( ONEFLOW )
 
 // Offline grid generation / conversion / partition entry.
-// Dispatch is table-driven (see GridFactory.cpp); no magic switch on int.
+// The factory is stateless; workflow execution is handled by the dispatch
+// tables in GridFactory.cpp.
 class GridFactory
 {
 public:
@@ -45,14 +46,6 @@ public:
 
     // Run with an explicit case directory for multi-case execution.
     void Run( const GridConfig & config, const std::string & caseDir );
-
-public:
-    // Pipeline steps (also used as registry targets).
-    void DataBaseGrid( const GridConfig & config );
-    void ConvertGrid( const GridConfig & config, const std::string & caseDir );
-    void GeneInp();
-    void PartGrid();
-
 };
 
 // Public entry used by the rest of the code base.

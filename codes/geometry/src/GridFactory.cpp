@@ -35,59 +35,6 @@ BeginNameSpace( ONEFLOW )
 
 namespace
 {
-    // Free-function pipelines keep the registry simple (essence of the
-    // suggested map + std::function design) while avoiding type-erasure
-    // and heap cost: a plain function pointer table is enough.
-    void PipelineGenerateClassic(
-        GridFactory & self,
-        const GridConfig & config,
-        const std::string & caseDir )
-    {
-        self.DataBaseGrid( config );
-        self.ConvertGrid( config, caseDir );
-    }
-
-    void PipelineConvertOnly(
-        GridFactory & self,
-        const GridConfig & config,
-        const std::string & caseDir )
-    {
-        self.ConvertGrid( config, caseDir );
-    }
-
-    void PipelineGenerateInp(
-        GridFactory & self,
-        const GridConfig & /*config*/,
-        const std::string & /*caseDir*/ )
-    {
-        self.GeneInp();
-    }
-
-    void PipelinePartition(
-        GridFactory & self,
-        const GridConfig & /*config*/,
-        const std::string & /*caseDir*/ )
-    {
-        self.PartGrid();
-    }
-
-    struct PipelineEntry
-    {
-        GridObjective objective;
-        void ( * run )(
-            GridFactory &,
-            const GridConfig &,
-            const std::string & );
-    };
-
-    // Fixed-size, data-driven table. Easy to extend; no switch on magic int.
-    constexpr PipelineEntry kPipelines[] = {
-        { GridObjective::GenerateClassic, &PipelineGenerateClassic },
-        { GridObjective::ConvertOnly,     &PipelineConvertOnly     },
-        { GridObjective::GenerateInp,    &PipelineGenerateInp      },
-        { GridObjective::Partition,      &PipelinePartition        },
-    };
-
     using Converter = void ( * )(
         const GridConfig &,
         const std::string & );
@@ -157,25 +104,6 @@ namespace
         { GridFileType::CGNS,   &ConvertCGNS },
     };
 
-    void DispatchPipeline(
-        GridFactory & self,
-        const GridConfig & config,
-        const std::string & caseDir )
-    {
-        for ( const auto & entry : kPipelines )
-        {
-            if ( entry.objective == config.objective )
-            {
-                entry.run( self, config, caseDir );
-                return;
-            }
-        }
-
-        throw std::invalid_argument(
-            std::string( "Unknown GridObjective / gridObj: " ) +
-            std::string( ToString( config.objective ) ) );
-    }
-
     void DispatchConverter(
         const GridConfig & config,
         const std::string & caseDir )
@@ -193,64 +121,103 @@ namespace
             std::string( "Unsupported source grid type: " ) +
             std::string( ToString( config.sourceType ) ) );
     }
+
+    void GenerateClassic(
+        const GridConfig & config,
+        const std::string & caseDir )
+    {
+        ClassicGrid classicGrid;
+        classicGrid.Run( config );
+        DispatchConverter( config, caseDir );
+    }
+
+    void ConvertOnly(
+        const GridConfig & config,
+        const std::string & caseDir )
+    {
+        DispatchConverter( config, caseDir );
+    }
+
+    void GenerateInp(
+        const GridConfig & /*config*/,
+        const std::string & /*caseDir*/ )
+    {
+        DomainInp domainInp;
+        domainInp.Run();
+    }
+
+    void PartitionGrid(
+        const GridConfig & /*config*/,
+        const std::string & /*caseDir*/ )
+    {
+        Partition part;
+        part.Run();
+    }
+
+    struct PipelineEntry
+    {
+        GridObjective objective;
+        void ( * run )(
+            const GridConfig &,
+            const std::string & );
+    };
+
+    // The factory only selects a workflow. Concrete workflow steps do not
+    // depend on a GridFactory instance.
+    constexpr PipelineEntry kPipelines[] = {
+        { GridObjective::GenerateClassic, &GenerateClassic },
+        { GridObjective::ConvertOnly,     &ConvertOnly },
+        { GridObjective::GenerateInp,     &GenerateInp },
+        { GridObjective::Partition,      &PartitionGrid },
+    };
+
+    void DispatchPipeline(
+        const GridConfig & config,
+        const std::string & caseDir )
+    {
+        for ( const auto & entry : kPipelines )
+        {
+            if ( entry.objective == config.objective )
+            {
+                entry.run( config, caseDir );
+                return;
+            }
+        }
+
+        throw std::invalid_argument(
+            std::string( "Unknown GridObjective / gridObj: " ) +
+            std::string( ToString( config.objective ) ) );
+    }
 }
 
 // Generates the grid based on the global configuration.
 void GenerateGrid()
 {
-    // Stack allocation: no polymorphic need, automatic cleanup.
     GridFactory gf;
     gf.Run();
 }
 
 void GenerateGrid( const std::string & caseDir )
 {
-    // The case directory is explicit at the multi-case boundary.
     GridFactory gf;
     gf.Run( GridConfig::FromDataBase(), caseDir );
 }
 
 void GridFactory::Run()
 {
-    // Load the typed configuration directly from the database.
     Run( GridConfig::FromDataBase() );
 }
 
 void GridFactory::Run( const GridConfig & config )
 {
-    DispatchPipeline( *this, config, "" );
+    DispatchPipeline( config, "" );
 }
 
 void GridFactory::Run(
     const GridConfig & config,
     const std::string & caseDir )
 {
-    DispatchPipeline( *this, config, caseDir );
-}
-
-void GridFactory::GeneInp()
-{
-    DomainInp domainInp;
-    domainInp.Run();
-}
-
-void GridFactory::PartGrid()
-{
-    Partition part;
-    part.Run();
-}
-
-void GridFactory::DataBaseGrid( const GridConfig & config )
-{
-    ClassicGrid classicGrid;
-    classicGrid.Run( config );
-}
-
-void GridFactory::ConvertGrid(
-    const GridConfig & config,
-    const std::string & caseDir )
-{
-    DispatchConverter( config, caseDir );
+    DispatchPipeline( config, caseDir );
 }
 
 EndNameSpace
