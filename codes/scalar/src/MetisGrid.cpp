@@ -330,7 +330,7 @@ void GridPartition::ReconstructNode()
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
 		ScalarGrid * grid = ( * this->grids )[ iZone  ].get();
-		grid->ReconstructNode( ggrid );
+		grid->ReconstructNode( *ggrid );
 		grid->Normalize();
 		grid->CalcMetrics1D();
 	}
