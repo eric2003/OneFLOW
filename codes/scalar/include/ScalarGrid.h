@@ -206,6 +206,7 @@ public:
     int volBcType;
 public:
     DataBase * GetDataBase() { return dataBase.get(); };
+    const DataBase * GetDataBase() const { return dataBase.get(); }
 public:
     int GetNNodes();
     int GetNCells();

@@ -113,6 +113,7 @@ public:
 public:
     // Return raw pointer for compatibility with APIs expecting DataBase*
     DataBase * GetDataBase() { return dataBase.get(); }
+    const DataBase * GetDataBase() const { return dataBase.get(); }
 
 public:
     void ConstructTopology();

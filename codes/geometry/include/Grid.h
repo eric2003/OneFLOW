@@ -72,6 +72,7 @@ public:
     std::unique_ptr< DataBase > dataBase;
 public:
     DataBase * GetDataBase() { return dataBase.get(); };
+    const DataBase * GetDataBase() const { return dataBase.get(); }
 public:
     void BasicInit();
     void Free();

@@ -36,6 +36,7 @@ protected:
     std::unique_ptr<DataBase> dataBase;
 public:
     DataBase * GetDataBase() { return dataBase.get(); };
+    const DataBase * GetDataBase() const { return dataBase.get(); }
 };
 
 EndNameSpace
