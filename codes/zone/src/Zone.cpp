@@ -234,6 +234,16 @@ ScalarGrid * Zone::GetScalarGrid()
     return ScalarZone::GetGrid();
 }
 
+ScalarGrid & Zone::GetScalarGridReference( int iZone )
+{
+    return ScalarZone::GetGridReference( iZone );
+}
+
+ScalarGrid & Zone::GetScalarGridReference()
+{
+    return ScalarZone::GetGridReference();
+}
+
 int Zone::GetNumberOfZoneNeighbors( int zoneId )
 {
     return Zone::GetInterfaceTopo().data[ zoneId ].size();
