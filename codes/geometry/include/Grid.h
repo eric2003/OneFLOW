@@ -23,6 +23,7 @@ License
 
 #pragma once
 #include "Constant.h"
+#include "DataStorage.h"
 #include "HXDefine.h"
 #include <vector>
 #include <string>
@@ -43,10 +44,9 @@ class DataBook;
 class NodeMesh;
 class InterFace;
 class SlipFace;
-class DataBase;
 class IFaceLink;
 
-class Grid
+class Grid : public DataStorage
 {
 public:
     Grid();
@@ -70,26 +70,6 @@ public:
     std::unique_ptr< NodeMesh > nodeMesh;
     std::unique_ptr< InterFace > interFace;
     std::unique_ptr< SlipFace > slipFace;
-    std::unique_ptr< DataBase > dataBase;
-public:
-    DataBase * GetDataBase() { return dataBase.get(); };
-    const DataBase * GetDataBase() const { return dataBase.get(); }
-    DataBase & RequireDataBase()
-    {
-        if ( dataBase == nullptr )
-        {
-            throw std::logic_error( "Grid: DataBase is not initialized" );
-        }
-        return *dataBase;
-    }
-    const DataBase & RequireDataBase() const
-    {
-        if ( dataBase == nullptr )
-        {
-            throw std::logic_error( "Grid: DataBase is not initialized" );
-        }
-        return *dataBase;
-    }
 public:
     void BasicInit();
     void Free();
