@@ -224,11 +224,11 @@ void ReadControlInfo( const std::string & caseDir )
 
 void DumpDataBase()
 {
-    DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
+    DataBase & dataBase = ONEFLOW::RequireGlobalDataBase();
     std::fstream file;
     std::string fileName = "/log/database.log";
     PIO::OpenPrjFile( file, fileName, std::ios_base::out );
-    dataBase->GetDataPara()->DumpData( file );
+    dataBase.RequireDataPara().DumpData( file );
     PIO::CloseFile( file );
 }
 
@@ -339,15 +339,15 @@ void BroadcastControlParameterToAllProcessors()
 
 void CompressData( DataBook * dataBook )
 {
-    DataBase * globalDataBase = ONEFLOW::GetGlobalDataBase();
+    DataBase & globalDataBase = ONEFLOW::RequireGlobalDataBase();
 
-    ONEFLOW::CompressData( globalDataBase, dataBook );
+    ONEFLOW::CompressData( &globalDataBase, dataBook );
 }
 
 void DecompressData( DataBook * dataBook )
 {
-    DataBase * globalDataBase = ONEFLOW::GetGlobalDataBase();
-    ONEFLOW::DecompressData( globalDataBase, dataBook );
+    DataBase & globalDataBase = ONEFLOW::RequireGlobalDataBase();
+    ONEFLOW::DecompressData( &globalDataBase, dataBook );
 }
 
 void CompressData( DataBase * dataBase, DataBook * dataBook )
