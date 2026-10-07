@@ -36,6 +36,15 @@ DataBase * GetGlobalDataBase()
     return globalDataBase.get();
 }
 
+DataBase & RequireGlobalDataBase()
+{
+    if ( globalDataBase == nullptr )
+    {
+        throw std::logic_error( "DataBase: global database is not initialized" );
+    }
+    return *globalDataBase;
+}
+
 class HXInitGlobalDataBase
 {
 public:
@@ -64,61 +73,63 @@ DataBase::~DataBase()
 
 void HXWriteVoid( DataBook * dataBook, const DataEntry * dataEntry )
 {
-    dataEntry->data->Write( dataBook );
+    dataEntry->GetDataObject().Write( dataBook );
 }
 
 void HXWriteDataEntry( DataBook * dataBook, const DataEntry * dataEntry )
 {
-    ONEFLOW::HXWrite( dataBook, dataEntry->name );
-    ONEFLOW::HXWrite( dataBook, dataEntry->type );
-    ONEFLOW::HXWrite( dataBook, dataEntry->size );
+    ONEFLOW::HXWrite( dataBook, dataEntry->GetName() );
+    ONEFLOW::HXWrite( dataBook, dataEntry->GetType() );
+    ONEFLOW::HXWrite( dataBook, dataEntry->GetSize() );
     ONEFLOW::HXWriteVoid( dataBook, dataEntry );
 }
 
-void HXReadDataEntry( DataBook * dataBook, DataEntry * dataEntry )
+std::unique_ptr<DataEntry> HXReadDataEntry( DataBook * dataBook )
 {
-    ONEFLOW::HXRead( dataBook, dataEntry->name );
-    ONEFLOW::HXRead( dataBook, dataEntry->type );
-    ONEFLOW::HXRead( dataBook, dataEntry->size );
-    ONEFLOW::HXReadVoid( dataBook, dataEntry );
-}
+    std::string name;
+    int type = 0;
+    int size = 0;
+    ONEFLOW::HXRead( dataBook, name );
+    ONEFLOW::HXRead( dataBook, type );
+    ONEFLOW::HXRead( dataBook, size );
 
-void HXReadVoid( DataBook * dataBook, DataEntry * dataEntry )
-{
-    dataEntry->data = CreateDataObject( dataEntry->type, dataEntry->size );
-    dataEntry->data->Read( dataBook, dataEntry->size );
+    auto dataObject = CreateDataObject( type, size );
+    dataObject->Read( dataBook, size );
+
+    return std::make_unique<DataEntry>(
+        name, type, size, std::move( dataObject ) );
 }
 
 void ProcessData( const std::string & name, const std::string * value, int type, int size )
 {
-    auto dataEntry = std::make_unique<DataEntry>();
-    dataEntry->name = name;
-    dataEntry->type = type;
-    dataEntry->size = size;
+    std::unique_ptr<DataObject> dataObject;
     if ( type == ONEFLOW::HX_STRING )
     {
         auto stringObject = std::make_unique<TDataObject< std::string > >( size );
         stringObject->CopyValue( value, size );
-        dataEntry->data = std::move( stringObject );
+        dataObject = std::move( stringObject );
     }
     else if ( type == HX_INT )
     {
         auto intObject = std::make_unique<TDataObject< int > >( size );
         intObject->AssignFromString( value, size );
-        dataEntry->data = std::move( intObject );
+        dataObject = std::move( intObject );
     }
     else if ( type == HX_REAL )
     {
         auto realObject = std::make_unique<TDataObject< Real > >( size );
         realObject->AssignFromString( value, size );
-        dataEntry->data = std::move( realObject );
+        dataObject = std::move( realObject );
     }
     else
     {
         Fatal( " Parameter Type Error \n" );
     }
-    DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
-    dataBase->dataPara->UpdateDataPointer( std::move( dataEntry ) );
+
+    auto dataEntry = std::make_unique<DataEntry>(
+        name, type, size, std::move( dataObject ) );
+    DataBase & dataBase = ONEFLOW::RequireGlobalDataBase();
+    dataBase.RequireDataPara().SetDataEntry( std::move( dataEntry ) );
 }
 
 std::unique_ptr<DataObject> CreateDataObject( int type, int size )
@@ -173,16 +184,46 @@ PointerWrap * GetPointerWrap( DataField * dataField, const std::string & dataObj
     return fieldEntry->GetPointerWrap();
 }
 
-void CreateFieldPointer( DataBase * database, std::unique_ptr<PointerWrap> pointerWrap, const std::string & dataObjectName )
+const PointerWrap * GetPointerWrap( const DataField * dataField, const std::string & dataObjectName )
+{
+    const FieldEntry * fieldEntry = dataField->GetFieldEntry( dataObjectName );
+    if ( fieldEntry == nullptr )
+    {
+        return nullptr;
+    }
+    return fieldEntry->GetPointerWrap();
+}
+
+void CreateFieldPointer( DataBase & database, std::unique_ptr<PointerWrap> pointerWrap, const std::string & dataObjectName )
 {
     auto fieldEntry = std::make_unique<FieldEntry>(
         dataObjectName, std::move( pointerWrap ) );
-    database->dataField->UpdateFieldEntry( std::move( fieldEntry ) );
+    database.RequireDataField().UpdateFieldEntry( std::move( fieldEntry ) );
 }
 
 void * GetFieldPointerVoid( DataBase * database, const std::string & dataObjectName )
 {
-    PointerWrap * pointerWrap = GetPointerWrap( database->dataField.get(), dataObjectName );
+    if ( database == nullptr )
+    {
+        throw std::runtime_error( "DataBase: database is not initialized" );
+    }
+
+    PointerWrap * pointerWrap = GetPointerWrap( &database->RequireDataField(), dataObjectName );
+    if ( pointerWrap )
+    {
+        return pointerWrap->GetPointer();
+    }
+    return nullptr;
+}
+
+const void * GetFieldPointerVoid( const DataBase * database, const std::string & dataObjectName )
+{
+    if ( database == nullptr )
+    {
+        throw std::runtime_error( "DataBase: database is not initialized" );
+    }
+
+    const PointerWrap * pointerWrap = GetPointerWrap( &database->RequireDataField(), dataObjectName );
     if ( pointerWrap )
     {
         return pointerWrap->GetPointer();
@@ -192,8 +233,8 @@ void * GetFieldPointerVoid( DataBase * database, const std::string & dataObjectN
 
 void DumpDataBase( std::fstream & file )
 {
-    DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
-    dataBase->dataPara->DumpData( file );
+    DataBase & dataBase = ONEFLOW::RequireGlobalDataBase();
+    dataBase.RequireDataPara().DumpData( file );
 }
 
 EndNameSpace

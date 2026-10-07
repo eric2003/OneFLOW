@@ -43,7 +43,7 @@ public:
     static std::vector< std::unique_ptr< ScalarGrid > > scalar_grids;
 public:
     static void Allocate();
-    static void DeAllocate();
+    static void Reset();
     static void AddGrid( int zid, std::unique_ptr< ScalarGrid > grid );
     static ScalarGrid * GetGrid( int iZone );
     static ScalarGrid * GetGrid();

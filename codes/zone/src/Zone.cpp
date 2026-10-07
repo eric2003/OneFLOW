@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*\
+/*---------------------------------------------------------------------------*\\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
@@ -11,14 +11,14 @@ License
     (at your option) any later version.
 
     OneFLOW is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
     for more details.
 
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
-\*---------------------------------------------------------------------------*/
+\\*---------------------------------------------------------------------------*/
 
 #include "Zone.h"
 #include <vector>
@@ -53,6 +53,7 @@ BeginNameSpace( ONEFLOW )
 std::vector< Grids > Zone::globalGrids;
 int Zone::nLocalZones = 0;
 int Zone::flag_test_grid = 0;
+std::unique_ptr< InterFaceTopo > Zone::interfaceTopo;
 
 Zone::Zone()
 {
@@ -69,8 +70,29 @@ void Zone::ReleaseGrids()
     Zone::nLocalZones = 0;
     Zone::flag_test_grid = 0;
 
-    ScalarZone::DeAllocate();
-    interFaceTopo.data.clear();
+    ScalarZone::Reset();
+    Zone::interfaceTopo.reset();
+}
+
+void Zone::Reset()
+{
+    Zone::ReleaseGrids();
+    ZoneState::Reset();
+    GridState::Reset();
+}
+
+InterFaceTopo & Zone::GetInterfaceTopo()
+{
+    if ( ! Zone::interfaceTopo )
+    {
+        Zone::interfaceTopo = std::make_unique< InterFaceTopo >();
+    }
+    return *Zone::interfaceTopo;
+}
+
+void Zone::InitInterfaceTopo()
+{
+    Zone::GetInterfaceTopo().InitInterfaceTopo();
 }
 
 void Zone::AddGrid( int zid, std::unique_ptr< Grid > grid )
@@ -149,7 +171,7 @@ void Zone::InitLayout(
         PIO::CloseFile( file );
     }
     std::cout << " nTZones = " << nTZones << std::endl;
-    logFile << "  nTZones = " << nTZones << "\n";
+    logFile << "  nTZones = " << nTZones << "\\n";
 
     ZoneState::nZones = nTZones;
     ZoneState::pid.resize( ZoneState::nZones );
@@ -214,12 +236,12 @@ ScalarGrid * Zone::GetScalarGrid()
 
 int Zone::GetNumberOfZoneNeighbors( int zoneId )
 {
-    return interFaceTopo.data[ zoneId ].size();
+    return Zone::GetInterfaceTopo().data[ zoneId ].size();
 }
 
 int Zone::GetNeighborZoneId( int zoneId, int iNeighbor )
 {
-    return interFaceTopo.data[ zoneId ][ iNeighbor ];
+    return Zone::GetInterfaceTopo().data[ zoneId ][ iNeighbor ];
 }
 
 EndNameSpace

@@ -21,11 +21,11 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Grid.h"
+#include "DataBase.h"
 #include "Dimension.h"
 #include "NodeMesh.h"
 #include "InterFace.h"
 #include "SlipFace.h"
-#include "DataBase.h"
 #include <iostream>
 #include <memory>
 #include <utility>
@@ -54,6 +54,34 @@ Grid::Grid()
 Grid::~Grid()
 {
     this->Free();
+}
+
+DataBase * Grid::GetDataBase()
+{
+    return dataBase.get();
+}
+
+const DataBase * Grid::GetDataBase() const
+{
+    return dataBase.get();
+}
+
+DataBase & Grid::RequireDataBase()
+{
+    if ( dataBase == nullptr )
+    {
+        throw std::logic_error( "Grid: DataBase is not initialized" );
+    }
+    return *dataBase;
+}
+
+const DataBase & Grid::RequireDataBase() const
+{
+    if ( dataBase == nullptr )
+    {
+        throw std::logic_error( "Grid: DataBase is not initialized" );
+    }
+    return *dataBase;
 }
 
 std::unique_ptr< Grid > Grid::SafeCloneUnique( const std::string & type )
@@ -87,7 +115,7 @@ void Grid::BasicInit()
     nodeMesh  = std::make_unique< NodeMesh >();
     interFace = std::make_unique< InterFace >();
     slipFace  = std::make_unique< SlipFace >();
-    dataBase  = std::make_unique< DataBase >();
+    dataBase = std::make_unique< DataBase >();
 }
 
 void Grid::Free()

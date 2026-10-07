@@ -50,6 +50,23 @@ Iteration::~Iteration()
     ;
 }
 
+void Iteration::Reset()
+{
+    Iteration::innerSteps = 0;
+    Iteration::outerSteps = 0;
+    Iteration::maxSteps = 1000;
+    Iteration::maxIterSteps = 1000;
+    Iteration::dualtime = 0;
+    Iteration::nFieldSave = 100;
+    Iteration::nVisualSave = 100;
+    Iteration::nResSave = 1;
+    Iteration::nForceSave = 1;
+    Iteration::cfl = 1.0;
+    Iteration::cflst = 1.0;
+    Iteration::cfled = 1.0;
+    Iteration::ncfl = 100;
+}
+
 void Iteration::Init()
 {
     Iteration::innerSteps = 0;

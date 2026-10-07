@@ -45,6 +45,7 @@ public:
     static int ncfl;
 public:
     static void Init();
+    static void Reset();
     static bool InnerOk();
     static bool ResOk();
     static bool ForceOk();

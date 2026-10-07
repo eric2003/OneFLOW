@@ -224,11 +224,11 @@ void ReadControlInfo( const std::string & caseDir )
 
 void DumpDataBase()
 {
-    DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
+    DataBase & dataBase = ONEFLOW::RequireGlobalDataBase();
     std::fstream file;
     std::string fileName = "/log/database.log";
     PIO::OpenPrjFile( file, fileName, std::ios_base::out );
-    dataBase->dataPara->DumpData( file );
+    dataBase.RequireDataPara().DumpData( file );
     PIO::CloseFile( file );
 }
 
@@ -237,7 +237,7 @@ void DumpDataBase( const std::string & caseDir )
     DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
     std::fstream file;
     Prj::OpenCaseFile( file, caseDir, "log/database.log", std::ios_base::out );
-    dataBase->dataPara->DumpData( file );
+    dataBase->GetDataPara()->DumpData( file );
     PIO::CloseFile( file );
 }
 
@@ -339,29 +339,29 @@ void BroadcastControlParameterToAllProcessors()
 
 void CompressData( DataBook * dataBook )
 {
-    DataBase * globalDataBase = ONEFLOW::GetGlobalDataBase();
+    DataBase & globalDataBase = ONEFLOW::RequireGlobalDataBase();
 
-    ONEFLOW::CompressData( globalDataBase, dataBook );
+    ONEFLOW::CompressData( &globalDataBase, dataBook );
 }
 
 void DecompressData( DataBook * dataBook )
 {
-    DataBase * globalDataBase = ONEFLOW::GetGlobalDataBase();
-    ONEFLOW::DecompressData( globalDataBase, dataBook );
+    DataBase & globalDataBase = ONEFLOW::RequireGlobalDataBase();
+    ONEFLOW::DecompressData( &globalDataBase, dataBook );
 }
 
 void CompressData( DataBase * dataBase, DataBook * dataBook )
 {
     // Use the new type alias
-    DataPara::DataMap * dataMap = dataBase->dataPara->GetDataMap();
+    const DataPara::DataMap & dataMap = dataBase->GetDataPara()->GetDataMap();
 
-    int ndata = static_cast<int>( dataMap->size() );
+    int ndata = static_cast<int>( dataMap.size() );
     ONEFLOW::HXWrite( dataBook, ndata );
 
     // Range-based for is cleaner with unordered_map
-    for ( const auto & pair : *dataMap )
+    for ( const auto & pair : dataMap )
     {
-        DataEntry * dataEntry = pair.second.get();  // pair.first is the key (name), pair.second owns DataEntry
+        const DataEntry * dataEntry = pair.second.get();  // pair.first is the key (name), pair.second owns DataEntry
         ONEFLOW::HXWriteDataEntry( dataBook, dataEntry );
     }
 }
@@ -376,9 +376,8 @@ void DecompressData( DataBase * dataBase, DataBook * dataBook )
 
     for ( int i = 0; i < ndata; ++ i )
     {
-        auto dataEntry = std::make_unique<DataEntry>();
-        ONEFLOW::HXReadDataEntry( dataBook, dataEntry.get() );
-        dataBase->dataPara->UpdateDataPointer( std::move( dataEntry ) );
+        auto dataEntry = ONEFLOW::HXReadDataEntry( dataBook );
+        dataBase->GetDataPara()->SetDataEntry( std::move( dataEntry ) );
     }
 }
 

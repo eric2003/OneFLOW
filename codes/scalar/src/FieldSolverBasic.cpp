@@ -52,7 +52,7 @@ FieldSolverBasic::FieldSolverBasic()
 FieldSolverBasic::~FieldSolverBasic()
 {
     // grids are non-owning views into ScalarZone; unique_ptr members free themselves.
-    ScalarZone::DeAllocate();
+    ScalarZone::Reset();
 }
 
 void FieldSolverBasic::Run()
@@ -73,8 +73,8 @@ void FieldSolverBasic::LoadGrid()
     this->FillTmpGridVector();
     this->CalcGridMetrics();
 
-    interFaceTopo.flag_test = 1;
-    interFaceTopo.InitInterfaceTopo();
+    Zone::GetInterfaceTopo().flag_test = 1;
+    Zone::InitInterfaceTopo();
 
 }
 

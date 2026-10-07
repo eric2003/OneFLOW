@@ -32,7 +32,6 @@ License
 #include "HXCgns.h"
 #include "Visual.h"
 #include "Dimension.h"
-#include "DataBase.h"
 #include "HXLookup.h"
 #include <algorithm>
 #include <iostream>
@@ -347,15 +346,10 @@ void SimpleMesh2D::PushCircleNode( RealField & xArray, RealField & yArray, IntFi
 
 Mesh::Mesh()
 {
-    // std::unique_ptr members are automatically initialized to nullptr.
-    // We only need to explicitly initialize dataBase as it was in the original code.
-    dataBase = std::make_unique<DataBase>();
 }
 
 Mesh::~Mesh()
 {
-    // std::unique_ptr automatically cleans up resources.
-    // No manual delete needed.
 }
 
 void Mesh::CreateMesh()

@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "ScalarGrid.h"
+#include "DataBase.h"
 #include <memory>
 #include "ScalarCgns.h"
 #include "CgnsZsection.h"
@@ -47,8 +48,8 @@ License
 #include "Boundary.h"
 #include "MetisGrid.h"
 #include "ScalarIFace.h"
-#include "DataBase.h"
 #include "DataBook.h"
+#include "DataBaseIO.h"
 #include "Prj.h"
 
 #include <iostream>
@@ -69,7 +70,7 @@ RealList::~RealList()
 	;
 }
 
-size_t RealList::GetNElements()
+size_t RealList::GetNElements() const
 {
 	return data.size();
 }
@@ -99,7 +100,7 @@ IntList::IntList( const IntList & rhs )
 	this->data = rhs.data;
 }
 
-size_t IntList::GetNElements()
+size_t IntList::GetNElements() const
 {
 	return data.size();
 }
@@ -141,7 +142,7 @@ EList::~EList()
 	;
 }
 
-size_t EList::GetNElements()
+size_t EList::GetNElements() const
 {
 	return data.size();
 }
@@ -151,7 +152,7 @@ void EList::AddElem( IntList &elem )
 	this->data.push_back( elem.data );
 }
 
-void EList::AddElem( std::vector< int > &elem )
+void EList::AddElem( const std::vector< int > &elem )
 {
 	this->data.push_back( elem );
 }
@@ -240,8 +241,8 @@ void ScalarBccos::ScanBcFace( ScalarGrid * grid )
 }
 
 ScalarGrid::ScalarGrid()
-	: scalarBccos( std::make_unique< ScalarBccos >() ),
-	  dataBase( std::make_unique< DataBase >() ),
+	: dataBase( std::make_unique< DataBase >() ),
+	  scalarBccos( std::make_unique< ScalarBccos >() ),
 	  scalarIFace( std::make_unique< ScalarIFace >() )
 {
 	this->id = 0;
@@ -252,35 +253,143 @@ ScalarGrid::ScalarGrid()
 
 ScalarGrid::~ScalarGrid() = default;
 
-int ScalarGrid::GetNNodes()
+DataBase * ScalarGrid::GetDataBase()
+{
+	return dataBase.get();
+}
+
+const DataBase * ScalarGrid::GetDataBase() const
+{
+	return dataBase.get();
+}
+
+DataBase & ScalarGrid::RequireDataBase()
+{
+	if ( dataBase == nullptr )
+	{
+		throw std::logic_error( "ScalarGrid: DataBase is not initialized" );
+	}
+	return *dataBase;
+}
+
+const DataBase & ScalarGrid::RequireDataBase() const
+{
+	if ( dataBase == nullptr )
+	{
+		throw std::logic_error( "ScalarGrid: DataBase is not initialized" );
+	}
+	return *dataBase;
+}
+
+void ScalarGrid::ResetMeshData()
+{
+	xn.data.clear();
+	yn.data.clear();
+	zn.data.clear();
+
+	xfc.data.clear();
+	yfc.data.clear();
+	zfc.data.clear();
+	xfn.data.clear();
+	yfn.data.clear();
+	zfn.data.clear();
+	xcc.data.clear();
+	ycc.data.clear();
+	zcc.data.clear();
+	vol.data.clear();
+
+	lc.data.clear();
+	rc.data.clear();
+	lpos.data.clear();
+	rpos.data.clear();
+	cell2faces.clear();
+	c2fpos.clear();
+	global_faceid.clear();
+
+	faces.data.clear();
+	elements.data.clear();
+	boundaryElements.data.clear();
+
+	bcETypes.data.clear();
+	fTypes.data.clear();
+	eTypes.data.clear();
+	fBcTypes.data.clear();
+	bcTypes.data.clear();
+	bcNameIds.data.clear();
+
+	scalarBccos = std::make_unique< ScalarBccos >();
+	scalarIFace = std::make_unique< ScalarIFace >();
+
+	nNodes = 0;
+	nCells = 0;
+	nBFaces = 0;
+	nFaces = 0;
+	nTCells = 0;
+}
+
+void ScalarGrid::ResetTopologyData()
+{
+	lc.data.clear();
+	rc.data.clear();
+	lpos.data.clear();
+	rpos.data.clear();
+	faces.data.clear();
+	fTypes.data.clear();
+	fBcTypes.data.clear();
+	bcTypes.data.clear();
+
+	nFaces = 0;
+	nBFaces = 0;
+}
+
+void ScalarGrid::ResetGeometryData()
+{
+	xfc.data.clear();
+	yfc.data.clear();
+	zfc.data.clear();
+	xfn.data.clear();
+	yfn.data.clear();
+	zfn.data.clear();
+	area.data.clear();
+	xcc.data.clear();
+	ycc.data.clear();
+	zcc.data.clear();
+	vol.data.clear();
+
+	nTCells = 0;
+}
+
+int ScalarGrid::GetNNodes() const
 {
 	return this->xn.GetNElements();
 }
 
-int ScalarGrid::GetNCells()
+int ScalarGrid::GetNCells() const
 {
 	return this->eTypes.GetNElements();
 }
 
-int ScalarGrid::GetNTCells()
+int ScalarGrid::GetNTCells() const
 {
 	size_t nBFaces = this->GetNBFaces();
 	size_t nCells = this->GetNCells();
 	return nBFaces + nCells;
 }
 
-int ScalarGrid::GetNFaces()
+int ScalarGrid::GetNFaces() const
 {
 	return this->faces.GetNElements();
 }
 
-int ScalarGrid::GetNBFaces()
+int ScalarGrid::GetNBFaces() const
 {
 	return this->bcTypes.GetNElements();
 }
 
 void ScalarGrid::GenerateGrid( int ni, Real xmin, Real xmax )
 {
+	this->ResetMeshData();
+
 	Real dx = ( xmax - xmin ) / ( ni - 1 );
 
 	for ( int i = 0; i < ni; ++ i )
@@ -321,7 +430,6 @@ void ScalarGrid::GenerateGrid( int ni, Real xmin, Real xmax )
 	scalarBccoR->AddBcPoint( ptR );
 	scalarBccos->AddBcco( std::move( scalarBccoR ) );
 
-	this->DumpCgnsGrid();
 }
 
 void ScalarGrid::CalcVolumeSection( SectionManager * volumeSectionManager )
@@ -546,7 +654,6 @@ void ScalarGrid::SetCgnsZone( CgnsZone * cgnsZone )
 
 void ScalarGrid::DumpCgnsGrid()
 {
-	std::fstream file;
 	std::string prjFileName = Prj::GetPrjFileName( "scalar.cgns" );
 	// FIX: Use stack allocation instead of raw pointer
 	CgnsZbase cgnsZbase;
@@ -684,6 +791,8 @@ void ScalarGrid::AllocGeom()
 
 void ScalarGrid::CalcMetrics1D()
 {
+	this->ResetGeometryData();
+
 	//must compute face center first for one dimensional case
 	//then face normal
 	this->AllocGeom();
@@ -862,6 +971,8 @@ void ScalarGrid::CalcGhostCellCenterVol1D()
 
 void ScalarGrid::CalcTopology()
 {
+	this->ResetTopologyData();
+
 	this->nNodes = this->GetNNodes();
 	this->nCells = this->GetNCells();
 
@@ -1060,13 +1171,13 @@ void ScalarGrid::SetBcTypes()
 	}
 }
 
-void ScalarGrid::CalcC2C( EList & c2c )
+void ScalarGrid::CalcC2C( EList & c2c ) const
 {
 	if ( c2c.GetNElements() != 0 ) return;
 
-	this->nFaces = this->GetNFaces();
-	this->nCells = this->GetNCells();
-	this->nBFaces = this->GetNBFaces();
+	int nFaces = this->GetNFaces();
+	int nCells = this->GetNCells();
+	int nBFaces = this->GetNBFaces();
 
 	c2c.Resize( nCells );
 
@@ -1455,7 +1566,7 @@ void ScalarGrid::AddInterface( int global_interface_id, int neighbor_zoneid, int
 	this->scalarIFace->AddInterface( global_interface_id, neighbor_zoneid, neighbor_cellid );
 }
 
-void ScalarGrid::ReconstructNode( ScalarGrid * ggrid )
+void ScalarGrid::ReconstructNode( const ScalarGrid & ggrid )
 {
 	int nFaces = this->global_faceid.size();
 	std::set<int> nodeset;
@@ -1464,7 +1575,7 @@ void ScalarGrid::ReconstructNode( ScalarGrid * ggrid )
 	{
 		//global face id
 		int iGFace = this->global_faceid[ iFace ];
-		std::vector< int > & face = ggrid->faces[ iGFace ];
+		const std::vector< int > & face = ggrid.faces[ iGFace ];
 		int nNodes = face.size();
 		for ( int iNode = 0; iNode < nNodes; ++ iNode )
 		{
@@ -1494,9 +1605,9 @@ void ScalarGrid::ReconstructNode( ScalarGrid * ggrid )
 	for ( std::set<int>::iterator iter = nodeset.begin(); iter != nodeset.end(); ++ iter )
 	{
 		int iNode = *iter;
-		Real xm = ggrid->xn[ iNode ];
-		Real ym = ggrid->yn[ iNode ];
-		Real zm = ggrid->zn[ iNode ];
+		Real xm = ggrid.xn[ iNode ];
+		Real ym = ggrid.yn[ iNode ];
+		Real zm = ggrid.zn[ iNode ];
 
 		this->xn.AddData( xm );
 		this->yn.AddData( ym );

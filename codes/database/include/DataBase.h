@@ -35,6 +35,7 @@ License
 #include <set>
 #include <map>
 #include <stdexcept>
+#include <type_traits>
 
 BeginNameSpace( ONEFLOW )
 
@@ -47,16 +48,59 @@ class DataBase
 public:
     DataBase();
     ~DataBase();
-public:
+private:
     std::unique_ptr<DataPara> dataPara;
     std::unique_ptr<DataField> dataField;
+
+public:
+    // The database owns these stores for its entire lifetime.
+    // Use pointer access only for compatibility with existing nullable APIs.
+    DataPara * GetDataPara() { return dataPara.get(); }
+    const DataPara * GetDataPara() const { return dataPara.get(); }
+
+    DataPara & RequireDataPara()
+    {
+        if ( dataPara == nullptr )
+        {
+            throw std::logic_error( "DataBase: DataPara is not initialized" );
+        }
+        return *dataPara;
+    }
+    const DataPara & RequireDataPara() const
+    {
+        if ( dataPara == nullptr )
+        {
+            throw std::logic_error( "DataBase: DataPara is not initialized" );
+        }
+        return *dataPara;
+    }
+
+    DataField * GetDataField() { return dataField.get(); }
+    const DataField * GetDataField() const { return dataField.get(); }
+
+    DataField & RequireDataField()
+    {
+        if ( dataField == nullptr )
+        {
+            throw std::logic_error( "DataBase: DataField is not initialized" );
+        }
+        return *dataField;
+    }
+    const DataField & RequireDataField() const
+    {
+        if ( dataField == nullptr )
+        {
+            throw std::logic_error( "DataBase: DataField is not initialized" );
+        }
+        return *dataField;
+    }
 };
-void HXReadDataEntry( DataBook * dataBook, DataEntry * dataEntry );
+std::unique_ptr<DataEntry> HXReadDataEntry( DataBook * dataBook );
 void HXWriteDataEntry( DataBook * dataBook, const DataEntry * dataEntry );
 void HXWriteVoid( DataBook * dataBook, const DataEntry * dataEntry );
-void HXReadVoid( DataBook * dataBook, DataEntry * dataEntry );
 
 DataBase * GetGlobalDataBase();
+DataBase & RequireGlobalDataBase();
 void ProcessData( const std::string & name, const std::string * value, int type, int size );
 std::unique_ptr<DataObject> CreateDataObject( int type, int size );
 
@@ -66,38 +110,61 @@ void SetData( const std::string & name, T * value, int type, int size );
 
 template < typename T >
 T GetDataValue( const std::string & varName, DataBase * database = ONEFLOW::GetGlobalDataBase() );
+template < typename T >
+T GetDataValue( const std::string & varName, const DataBase * database );
 
 //Read the value of the variable with parameter type T and name Varname from the database
 template < typename T >
 T GetDataValue( const std::string & varName, DataBase * database )
 {
-    DataEntry * dataEntry = database->dataPara->GetDataPointer( varName );
+    if ( database == nullptr )
+    {
+        throw std::runtime_error( "DataBase: database is not initialized" );
+    }
+
+    DataEntry * dataEntry = database->RequireDataPara().FindDataEntry( varName );
 
     if (dataEntry != nullptr )
     {
-        DataObject * data = dataEntry->data.get();
-        return GetDataValue< T >(data);
+        DataObject & data = dataEntry->GetDataObject();
+        return GetDataValue< T >( &data );
     }
     else
     {
         // Short-term: throw instead of exit, so unit tests can catch it
         throw std::runtime_error( "DataBase: cannot find variable \"" + varName + "\"" );
-    }   
+    }
+}
+
+template < typename T >
+T GetDataValue( const std::string & varName, const DataBase * database )
+{
+    if ( database == nullptr )
+    {
+        throw std::runtime_error( "DataBase: database is not initialized" );
+    }
+
+    const DataEntry * dataEntry = database->RequireDataPara().FindDataEntry( varName );
+
+    if ( dataEntry != nullptr )
+    {
+        const DataObject & data = dataEntry->GetDataObject();
+        return GetDataValue< T >( &data );
+    }
+
+    throw std::runtime_error( "DataBase: cannot find variable \"" + varName + "\"" );
 }
 
 template < typename T >
 void SetData( const std::string & name, T * value, int type, int size )
 {
-    auto dataEntry = std::make_unique<DataEntry>();
-    dataEntry->name = name;
-    dataEntry->type = type;
-    dataEntry->size = size;
     auto o = std::make_unique<TDataObject< T > >( size );
     o->CopyValue( value, size );
-    dataEntry->data = std::move( o );
+    auto dataEntry = std::make_unique<DataEntry>(
+        name, type, size, std::move( o ) );
 
-    DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
-    dataBase->dataPara->UpdateDataPointer( std::move( dataEntry ) );
+    DataBase & dataBase = ONEFLOW::RequireGlobalDataBase();
+    dataBase.RequireDataPara().SetDataEntry( std::move( dataEntry ) );
 }
 
 void SetDataInt( const std::string & varName, const int & value );
@@ -107,8 +174,8 @@ void SetDataString( const std::string & varName, const std::string & value );
 template < typename T >
 T * GetDataPointer( const std::string & varName )
 {
-    DataBase * database = ONEFLOW::GetGlobalDataBase();
-    DataEntry * dataEntry = database->dataPara->GetDataPointer( varName );
+    DataBase & database = ONEFLOW::RequireGlobalDataBase();
+    DataEntry * dataEntry = database.RequireDataPara().FindDataEntry( varName );
 
     // Required lookup: match GetDataValue -- missing name must not
     // dereference a null DataEntry.
@@ -119,32 +186,40 @@ T * GetDataPointer( const std::string & varName )
             "DataBase: cannot find variable \"" + varName + "\"" );
     }
 
-    DataObject * data = dataEntry->data.get();
-    return static_cast< T * >( data->GetVoidPointer() );
+    DataObject & data = dataEntry->GetDataObject();
+    return static_cast< T * >( data.GetVoidPointer() );
 }
 
 class PointerWrap;
 PointerWrap * GetPointerWrap( DataField * dataField, const std::string & dataObjectName );
+const PointerWrap * GetPointerWrap( const DataField * dataField, const std::string & dataObjectName );
 
 // Field storage lookup (optional): returns nullptr if the named field
-// is not registered. Callers that require the field must null-check
-// or Fatal. Contrast with GetDataValue / GetDataPointer (required).
+// is not registered. The DataBase itself is required and must be initialized.
 void * GetFieldPointerVoid( DataBase * database, const std::string & dataObjectName );
+const void * GetFieldPointerVoid( const DataBase * database, const std::string & dataObjectName );
 
 template < typename T >
 T * GetFieldPointer( DataBase * database, const std::string & dataObjectName );
+template < typename T >
+const T * GetFieldPointer( const DataBase * database, const std::string & dataObjectName );
 template < typename T, typename TStorage >
 T * GetFieldPointer( TStorage * storage, const std::string & dataObjectName );
+template < typename T, typename TStorage >
+const T * GetFieldPointer( const TStorage * storage, const std::string & dataObjectName );
 
-// Required field access: dereferences GetFieldPointer. The named field
-// must already be registered; otherwise this is undefined behavior.
-// Prefer GetFieldPointer + null-check/Fatal when presence is uncertain.
+// Required field access: throws when the named field is not registered.
+// The DataBase itself is required and must be initialized.
 template < typename T >
 T & GetFieldReference( DataBase * database, const std::string & dataObjectName );
+template < typename T >
+const T & GetFieldReference( const DataBase * database, const std::string & dataObjectName );
 template < typename T, typename TStorage >
 T & GetFieldReference( TStorage * storage, const std::string & dataObjectName );
+template < typename T, typename TStorage >
+const T & GetFieldReference( const TStorage * storage, const std::string & dataObjectName );
 
-void CreateFieldPointer( DataBase * database, std::unique_ptr<PointerWrap> pointerWrap, const std::string & dataObjectName );
+void CreateFieldPointer( DataBase & database, std::unique_ptr<PointerWrap> pointerWrap, const std::string & dataObjectName );
 template < typename TStorage >
 void CreateFieldPointer( TStorage * storage, std::unique_ptr<PointerWrap> pointerWrap, const std::string & dataObjectName );
 
@@ -163,27 +238,85 @@ T * GetFieldPointer( DataBase * database, const std::string & dataObjectName )
 template < typename T, typename TStorage >
 T * GetFieldPointer( TStorage * storage, const std::string & dataObjectName )
 {
-    DataBase * database = storage->GetDataBase();
-    T * pointer = ONEFLOW::GetFieldPointer< T >( database, dataObjectName );
+    DataBase & database = storage->RequireDataBase();
+    T * pointer = ONEFLOW::GetFieldPointer< T >( &database, dataObjectName );
     return pointer;
+}
+
+template < typename T >
+const T * GetFieldPointer( const DataBase * database, const std::string & dataObjectName )
+{
+    const void * p = GetFieldPointerVoid( database, dataObjectName );
+    if ( p )
+    {
+        return reinterpret_cast< const T * >( p );
+    }
+    return nullptr;
+}
+
+template < typename T, typename TStorage >
+const T * GetFieldPointer( const TStorage * storage, const std::string & dataObjectName )
+{
+    const DataBase & database = storage->RequireDataBase();
+    return ONEFLOW::GetFieldPointer< T >( &database, dataObjectName );
 }
 
 template < typename T >
 T & GetFieldReference( DataBase * database, const std::string & dataObjectName )
 {
-    return * ONEFLOW::GetFieldPointer< T >( database, dataObjectName );
+    T * pointer = ONEFLOW::GetFieldPointer< T >( database, dataObjectName );
+    if ( pointer == nullptr )
+    {
+        throw std::runtime_error(
+            "DataBase: cannot find field \"" + dataObjectName + "\"" );
+    }
+    return * pointer;
+}
+
+
+template < typename T >
+const T & GetFieldReference( const DataBase * database, const std::string & dataObjectName )
+{
+    const T * pointer = ONEFLOW::GetFieldPointer< T >( database, dataObjectName );
+    if ( pointer == nullptr )
+    {
+        throw std::runtime_error(
+            "DataBase: cannot find field \"" + dataObjectName + "\"" );
+    }
+    return * pointer;
 }
 
 template < typename T, typename TStorage >
 T & GetFieldReference( TStorage * storage, const std::string & dataObjectName )
 {
-    return * ONEFLOW::GetFieldPointer< T, TStorage >( storage, dataObjectName );
+    return ONEFLOW::GetFieldReference< T >( &storage->RequireDataBase(), dataObjectName );
+}
+
+template < typename T, typename TStorage >
+const T & GetFieldReference( const TStorage * storage, const std::string & dataObjectName )
+{
+    return ONEFLOW::GetFieldReference< T >( &storage->RequireDataBase(), dataObjectName );
 }
 
 template < typename TStorage >
 void CreateFieldPointer( TStorage * storage, std::unique_ptr<PointerWrap> pointerWrap, const std::string & dataObjectName )
 {
-    DataBase * database = storage->GetDataBase();
+    DataBase & database = [&]() -> DataBase &
+    {
+        if constexpr ( std::is_same_v< TStorage, DataBase > )
+        {
+            if ( storage == nullptr )
+            {
+                throw std::runtime_error( "DataBase: database is not initialized" );
+            }
+            return *storage;
+        }
+        else
+        {
+            return storage->RequireDataBase();
+        }
+    }();
+
     ONEFLOW::CreateFieldPointer( database, std::move( pointerWrap ), dataObjectName );
 }
 

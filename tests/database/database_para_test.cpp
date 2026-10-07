@@ -88,23 +88,15 @@ TEST_F(DataParaTest, RejectUpdateWithDifferentType)
     );
 
     // Construct an update entry with a different data type.
-    auto dataEntry = std::make_unique<DataEntry>(); 
-
-    dataEntry->name = "test_value";
-    dataEntry->type = HX_REAL;
-    dataEntry->size = 1;
-
     Real value = 20.0;
-
     auto dataObject = std::make_unique<TDataObject<Real>>( 1 );
-
     dataObject->CopyValue( &value, 1 );
-
-    dataEntry->data = std::move( dataObject );
+    auto dataEntry = std::make_unique<DataEntry>(
+        "test_value", HX_REAL, 1, std::move( dataObject ) );
 
     // Updating an existing entry with a different type must fail.
     EXPECT_THROW(
-        db_->dataPara->UpdateDataPointer( std::move( dataEntry ) ),
+        db_->GetDataPara()->SetDataEntry( std::move( dataEntry ) ),
         std::runtime_error
     );
 
@@ -133,42 +125,34 @@ TEST_F(DataParaTest, RejectUpdateWithDifferentSize)
     );
 
     DataEntry* existing =
-        db_->dataPara->GetDataPointer( "test_value" );
+        db_->GetDataPara()->FindDataEntry( "test_value" );
 
     ASSERT_NE( existing, nullptr );
 
-    EXPECT_EQ( existing->type, HX_INT );
-    EXPECT_EQ( existing->size, 2 );
+    EXPECT_EQ( existing->GetType(), HX_INT );
+    EXPECT_EQ( existing->GetSize(), 2 );
 
     // Construct an update entry with the same type but a different size.
-    auto dataEntry = std::make_unique<DataEntry>(); 
-
-    dataEntry->name = "test_value";
-    dataEntry->type = HX_INT;
-    dataEntry->size = 3;
-
     int newValues[3] = { 30, 40, 50 };
-
     auto dataObject = std::make_unique<TDataObject< int >>( 3 );
-
-    dataObject->CopyValue( newValues, 3 ); 
-
-    dataEntry->data = std::move( dataObject );
+    dataObject->CopyValue( newValues, 3 );
+    auto dataEntry = std::make_unique<DataEntry>(
+        "test_value", HX_INT, 3, std::move( dataObject ) );
 
     // Updating an existing entry with a different size must fail.
     EXPECT_THROW(
-        db_->dataPara->UpdateDataPointer( std::move( dataEntry ) ),
+        db_->GetDataPara()->SetDataEntry( std::move( dataEntry ) ),
         std::runtime_error
     );
 
     // Verify that the original entry was not modified.
     existing =
-        db_->dataPara->GetDataPointer( "test_value" );
+        db_->GetDataPara()->FindDataEntry( "test_value" );
 
     ASSERT_NE( existing, nullptr );
 
-    EXPECT_EQ( existing->type, HX_INT );
-    EXPECT_EQ( existing->size, 2 );
+    EXPECT_EQ( existing->GetType(), HX_INT );
+    EXPECT_EQ( existing->GetSize(), 2 );
 
     // Verify that the original data is still intact.
     int* values =
@@ -188,27 +172,23 @@ TEST(DataParaTestStandalone, ClearReleasesAllEntries)
 {
     DataPara dataPara;
 
-    auto dataEntry = std::make_unique<DataEntry>(); 
-    dataEntry->name = "clear_value";
-    dataEntry->type = HX_INT;
-    dataEntry->size = 1;
-
     int value = 42;
     auto dataObject = std::make_unique<TDataObject< int >>( 1 );
     dataObject->CopyValue( &value, 1 );
-    dataEntry->data = std::move( dataObject );
+    auto dataEntry = std::make_unique<DataEntry>(
+        "clear_value", HX_INT, 1, std::move( dataObject ) );
 
-    dataPara.UpdateDataPointer( std::move( dataEntry ) );
+    dataPara.SetDataEntry( std::move( dataEntry ) );
 
     ASSERT_NE(
-        dataPara.GetDataPointer( "clear_value" ),
+        dataPara.FindDataEntry( "clear_value" ),
         nullptr
     );
 
     dataPara.Clear();
 
     EXPECT_EQ(
-        dataPara.GetDataPointer( "clear_value" ),
+        dataPara.FindDataEntry( "clear_value" ),
         nullptr
     );
 }
@@ -233,4 +213,51 @@ TEST(DataBookOwnership, UniquePtrAndRawViewShareObject)
     DataBook * other = nullptr;
     dataBook = other;
     EXPECT_NE( ownedBook.get(), nullptr );  // still owns original
+}
+
+TEST(DataBaseInvariant, RequiredStoreAccessorsExposeOwnedStores)
+{
+    DataBase database;
+
+    EXPECT_EQ( &database.RequireDataPara(), database.GetDataPara() );
+    EXPECT_EQ( &database.RequireDataField(), database.GetDataField() );
+}
+
+TEST(DataBaseInvariant, ConstRequiredStoreAccessorsPreserveConstness)
+{
+    const DataBase database;
+
+    EXPECT_EQ( &database.RequireDataPara(), database.GetDataPara() );
+    EXPECT_EQ( &database.RequireDataField(), database.GetDataField() );
+}
+
+TEST(DataEntryInvariant, DataObjectIsRequired)
+{
+    int value = 42;
+    auto dataObject = std::make_unique<TDataObject< int >>( 1 );
+    dataObject->CopyValue( &value, 1 );
+    DataEntry dataEntry( "required_data", HX_INT, 1, std::move( dataObject ) );
+
+    DataObject & object = dataEntry.GetDataObject();
+    EXPECT_EQ( object.GetVoidPointer(), dataEntry.GetDataObject().GetVoidPointer() );
+    EXPECT_EQ( GetDataValue< int >( &object ), 42 );
+}
+
+TEST(DataEntryInvariant, NullDataObjectIsRejected)
+{
+    EXPECT_THROW(
+        DataEntry( "invalid_data", HX_INT, 1, nullptr ),
+        std::invalid_argument
+    );
+}
+
+
+TEST(DataParaInvariant, NullDataEntryIsRejected)
+{
+    DataPara dataPara;
+
+    EXPECT_THROW(
+        dataPara.SetDataEntry( nullptr ),
+        std::invalid_argument
+    );
 }

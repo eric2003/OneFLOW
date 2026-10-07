@@ -35,4 +35,14 @@ DataStorage::~DataStorage()
 {
 }
 
+void DataStorage::InitializeDataBase()
+{
+    dataBase = std::make_unique< DataBase >();
+}
+
+void DataStorage::ResetDataBase() noexcept
+{
+    dataBase.reset();
+}
+
 EndNameSpace

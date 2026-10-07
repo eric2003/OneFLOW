@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*\
+/*---------------------------------------------------------------------------*\\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
@@ -11,14 +11,14 @@ License
     (at your option) any later version.
 
     OneFLOW is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
     for more details.
 
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
-\*---------------------------------------------------------------------------*/
+\\*---------------------------------------------------------------------------*/
 // Production environment bootstrap for SimuContext.
 // Delegates to existing globals (compatibility layer for phase 2).
 
@@ -31,8 +31,6 @@ License
 #include "SolverMap.h"
 #include "SolverNameList.h"
 #include "Zone.h"
-#include "ZoneState.h"
-#include "GridState.h"
 #include "FieldManager.h"
 #include "DataBase.h"
 #include "HeatFlux.h"
@@ -43,6 +41,8 @@ License
 #include "TurbCom.h"
 #include "Tolerance.h"
 #include "LogFile.h"
+#include "ActionState.h"
+#include "Iteration.h"
 #include <iostream>
 
 BeginNameSpace( ONEFLOW )
@@ -113,14 +113,22 @@ void SimuContext::TeardownCase()
     TurbSolver::Reset();
     turbcom.Reset();
     Tolerance::Reset();
-    Zone::ReleaseGrids();
-    ZoneState::Reset();
-    GridState::Reset();
+    Zone::Reset();
+    ActionState::Reset();
+    Iteration::Reset();
     FieldManagerRegistry::FreeFieldManager();
-    GetGlobalDataBase()->dataField->Clear();
-    GetGlobalDataBase()->dataPara->Clear();
+    DataBase & dataBase = RequireGlobalDataBase();
+    dataBase.RequireDataField().Clear();
+    dataBase.RequireDataPara().Clear();
     logFile.ClearCaseDir();
     Prj::ClearPrjBaseDir();
+
+    // Clear context-owned case state so the same process can bind a new case
+    // without carrying task or solver-name state from the previous case.
+    task_ = TaskEnum::SOLVE_FIELD;
+    taskName_ = "Solve";
+    taskResolved_ = false;
+    expandedSolverNames_.clear();
     envReady_ = false;
 }
 

@@ -27,6 +27,7 @@ License
 #include <vector>
 #include <string>
 #include <memory>
+#include <stdexcept>
 
 
 BeginNameSpace( ONEFLOW )
@@ -38,11 +39,11 @@ std::unique_ptr< Grid > Clone() const override { return std::make_unique< TYPE >
     Grid * TYPE ## _myClass = \
         Grid::Register( #TYPE, std::make_unique< TYPE >() );
 
+class DataBase;
 class DataBook;
 class NodeMesh;
 class InterFace;
 class SlipFace;
-class DataBase;
 class IFaceLink;
 
 class Grid
@@ -50,6 +51,11 @@ class Grid
 public:
     Grid();
     virtual ~Grid();
+public:
+    DataBase * GetDataBase();
+    const DataBase * GetDataBase() const;
+    DataBase & RequireDataBase();
+    const DataBase & RequireDataBase() const;
 public:
     virtual std::unique_ptr< Grid > Clone() const = 0;
 public:
@@ -66,12 +72,12 @@ public:
     int nBFaces;
     int nIFaces;
     int volBcType;
+private:
+    std::unique_ptr< DataBase > dataBase;
+public:
     std::unique_ptr< NodeMesh > nodeMesh;
     std::unique_ptr< InterFace > interFace;
     std::unique_ptr< SlipFace > slipFace;
-    std::unique_ptr< DataBase > dataBase;
-public:
-    DataBase * GetDataBase() { return dataBase.get(); };
 public:
     void BasicInit();
     void Free();

@@ -48,7 +48,7 @@ TEST_F(DataFieldTest, CreateAndRetrievePointer)
     auto rawField = std::make_unique<DummyField>( DummyField{ 42, 3.14159 } );
     auto wrap = std::make_unique<DataPointer<DummyField>>( std::move( rawField ) );
 
-    CreateFieldPointer( db_, std::move( wrap ), "dummy_field" );
+    CreateFieldPointer( *db_, std::move( wrap ), "dummy_field" );
 
     // Retrieve via GetFieldPointer
     DummyField* ptr = GetFieldPointer<DummyField>( db_, "dummy_field" );
@@ -66,7 +66,7 @@ TEST_F(DataFieldTest, GetFieldReference)
     auto rawField = std::make_unique<DummyField>( DummyField{ 7, 2.718 } );
     auto wrap = std::make_unique<DataPointer<DummyField>>( std::move( rawField ) );
 
-    CreateFieldPointer( db_, std::move( wrap ), "ref_field" );
+    CreateFieldPointer( *db_, std::move( wrap ), "ref_field" );
 
     DummyField& ref = GetFieldReference<DummyField>( db_, "ref_field" );
 
@@ -96,13 +96,13 @@ TEST_F(DataFieldTest, DeleteField)
     auto rawField = std::make_unique<DummyField>( DummyField{ 123, 1.0 } );
     auto wrap = std::make_unique<DataPointer<DummyField>>( std::move( rawField ) );
 
-    CreateFieldPointer( db_, std::move( wrap ), "to_delete_field" );
+    CreateFieldPointer( *db_, std::move( wrap ), "to_delete_field" );
 
     // Confirm it exists
     ASSERT_NE( GetFieldPointer<DummyField>( db_, "to_delete_field" ), nullptr );
 
     // Delete
-    db_->dataField->DeleteFieldEntry( "to_delete_field" );
+    db_->GetDataField()->DeleteFieldEntry( "to_delete_field" );
 
     // Should now be gone
     EXPECT_EQ( GetFieldPointer<DummyField>( db_, "to_delete_field" ), nullptr );
@@ -122,7 +122,7 @@ TEST_F(DataFieldTest, DestructorSafety)
         auto rawField = std::make_unique<DummyField>( DummyField{ 1, 1.0 } );
         auto wrap = std::make_unique<DataPointer<DummyField>>( std::move( rawField ) );
 
-        CreateFieldPointer( &localDb, std::move( wrap ), "temp_field" );
+        CreateFieldPointer( localDb, std::move( wrap ), "temp_field" );
 
         DummyField* p = GetFieldPointer<DummyField>( &localDb, "temp_field" );
         ASSERT_NE( p, nullptr );
@@ -142,8 +142,8 @@ TEST_F(DataFieldTest, MultipleFieldsCoexist)
     auto f1 = std::make_unique<DummyField>( DummyField{ 10, 1.1 } );
     auto f2 = std::make_unique<DummyField>( DummyField{ 20, 2.2 } );
 
-    CreateFieldPointer( db_, std::make_unique<DataPointer<DummyField>>( std::move( f1 ) ), "field_a" );
-    CreateFieldPointer( db_, std::make_unique<DataPointer<DummyField>>( std::move( f2 ) ), "field_b" );
+    CreateFieldPointer( *db_, std::make_unique<DataPointer<DummyField>>( std::move( f1 ) ), "field_a" );
+    CreateFieldPointer( *db_, std::make_unique<DataPointer<DummyField>>( std::move( f2 ) ), "field_b" );
 
     DummyField* p1 = GetFieldPointer<DummyField>( db_, "field_a" );
     DummyField* p2 = GetFieldPointer<DummyField>( db_, "field_b" );
@@ -163,21 +163,21 @@ TEST_F(DataFieldTest, MultipleFieldsCoexist)
 TEST_F(DataFieldTest, ClearRemovesAllFields)
 {
     CreateFieldPointer(
-        db_,
+        *db_,
         std::make_unique<DataPointer<DummyField>>( std::make_unique<DummyField>( DummyField{ 1, 1.0 } ) ),
         "clear_field_a" );
     CreateFieldPointer(
-        db_,
+        *db_,
         std::make_unique<DataPointer<DummyField>>( std::make_unique<DummyField>( DummyField{ 2, 2.0 } ) ),
         "clear_field_b" );
 
     ASSERT_NE( GetFieldPointer<DummyField>( db_, "clear_field_a" ), nullptr );
     ASSERT_NE( GetFieldPointer<DummyField>( db_, "clear_field_b" ), nullptr );
 
-    db_->dataField->Clear();
+    db_->GetDataField()->Clear();
 
     EXPECT_EQ( GetFieldPointer<DummyField>( db_, "clear_field_a" ), nullptr );
     EXPECT_EQ( GetFieldPointer<DummyField>( db_, "clear_field_b" ), nullptr );
-    EXPECT_TRUE( db_->dataField->GetDataMap()->empty() );
+    EXPECT_TRUE( db_->GetDataField()->GetDataMap().empty() );
 }
 

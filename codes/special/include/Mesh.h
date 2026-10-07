@@ -23,10 +23,12 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include "DataStorage.h"
 #include <vector>
 #include <string>
 #include <fstream>
 #include <memory> // Added for std::unique_ptr
+#include <stdexcept>
 
 BeginNameSpace( ONEFLOW )
 
@@ -35,7 +37,6 @@ class FaceTopo;
 class FaceMesh;
 class CellMesh;
 class Mesh;
-class DataBase;
 
 // =====================================================================
 // HXRandomClass (Unchanged)
@@ -89,7 +90,7 @@ protected:
 // =====================================================================
 // Mesh (Refactored)
 // =====================================================================
-class Mesh
+class Mesh : public DataStorage
 {
 public:
     Mesh();
@@ -105,14 +106,9 @@ public:
     std::unique_ptr<FaceTopo> faceTopo;
     std::unique_ptr<FaceMesh> faceMesh;
     std::unique_ptr<CellMesh> cellMesh;
-    std::unique_ptr<DataBase> dataBase;
 
 public:
     void CreateMesh();
-
-public:
-    // Return raw pointer for compatibility with APIs expecting DataBase*
-    DataBase * GetDataBase() { return dataBase.get(); }
 
 public:
     void ConstructTopology();

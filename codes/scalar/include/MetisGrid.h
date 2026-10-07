@@ -47,10 +47,10 @@ public:
     MetisIntList xadj;
     MetisIntList adjncy;
 public:
-    void MetisPartition( ScalarGrid * ggrid, int nPart, MetisIntList & cellzone );
-    void ManualPartition( ScalarGrid * ggrid, int nPart, MetisIntList & cellzone );
+    void MetisPartition( const ScalarGrid & ggrid, int nPart, MetisIntList & cellzone );
+    void ManualPartition( const ScalarGrid & ggrid, int nPart, MetisIntList & cellzone );
 private:
-    void ScalarGetXadjAdjncy( ScalarGrid * ggrid, MetisIntList & xadj, MetisIntList & adjncy );
+    void ScalarGetXadjAdjncy( const ScalarGrid & ggrid, MetisIntList & xadj, MetisIntList & adjncy );
     void ScalarPartitionByMetis( idx_t nCells, MetisIntList & xadj, MetisIntList & adjncy, int nPart, MetisIntList & cellzone );
 
 };

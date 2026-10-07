@@ -38,14 +38,17 @@ public:
     virtual ~DataObject() {};
 public:
     virtual void * GetVoidPointer() { return 0; };
-    virtual void Write( DataBook * dataBook ) {};
+    virtual const void * GetVoidPointer() const { return nullptr; };
+    virtual void Write( DataBook * dataBook ) const {};
     virtual void Read( DataBook * dataBook, int numberOfElements ) {};
-    virtual void Copy( DataObject * dataObject ) {};
-    virtual void Dump( std::fstream & file ) {};
+    virtual void Copy( const DataObject * dataObject ) {};
+    virtual void Dump( std::fstream & file ) const {};
 };
 
 template < typename T >
 T GetDataValue( DataObject * dataObject, int iElement = 0 );
+template < typename T >
+T GetDataValue( const DataObject * dataObject, int iElement );
 
 template < typename T >
 T GetDataValue( DataObject * dataObject, int iElement )
@@ -55,7 +58,14 @@ T GetDataValue( DataObject * dataObject, int iElement )
 }
 
 template < typename T >
-void TDataObjectDump( std::fstream &file, std::vector< T > data )
+T GetDataValue( const DataObject * dataObject, int iElement )
+{
+    const T * data = static_cast< const T * >( dataObject->GetVoidPointer() );
+    return data[ iElement ];
+}
+
+template < typename T >
+void TDataObjectDump( std::fstream &file, const std::vector< T > & data )
 {
     if ( data.size() == 0 ) return;
     file << data[ 0 ];
@@ -75,7 +85,7 @@ public:
         this->data.resize( static_cast<HXSize_t>(nSize) );
     }
 
-    // Virtual destructor for safe polymorphic deletion via base‑class pointer
+    // Virtual destructor for safe polymorphic deletion via base-class pointer
     virtual ~TDataObject() override = default;
 
     // Delete copy constructor to avoid object slicing in inheritance hierarchy
@@ -98,7 +108,14 @@ public:
         return &data[0];
     };
 
-    // Copy values from typed‑array, copy at most nCopyElements items
+    const void* GetVoidPointer() const override
+    {
+        if (data.empty())
+            return nullptr;
+        return data.data();
+    };
+
+    // Copy values from typed-array, copy at most nCopyElements items
     void AssignFromString( const std::string * valueIn, HXSize_t nCopyElements )
     {
         const HXSize_t nSize = this->data.size();
@@ -109,7 +126,7 @@ public:
         }
     }
 
-    // Copy values from typed‑array, copy at most nCopyElements items
+    // Copy values from typed-array, copy at most nCopyElements items
     void CopyValue( const T* valueIn, HXSize_t nCopyElements )
     {
         const HXSize_t size = this->data.size();
@@ -121,12 +138,12 @@ public:
     }
 
     // Serialize internal data to DataBook
-    void Write( DataBook* dataBook ) override
+    void Write( DataBook* dataBook ) const override
     {
         const HXSize_t numberOfElements = this->data.size();
         for ( HXSize_t iElement = 0; iElement < numberOfElements; ++ iElement )
         {
-            T& value = this->data[ iElement ];
+            const T& value = this->data[ iElement ];
             ONEFLOW::HXWrite( dataBook, value );
         }
     }
@@ -143,12 +160,12 @@ public:
 
     // Copy content from another DataObject instance
     // Use dynamic_cast for runtime type checking to prevent undefined behaviour
-    void Copy( DataObject* dataObject ) override
+    void Copy( const DataObject* dataObject ) override
     {
         if (dataObject == nullptr)
             return;
 
-        TDataObject< T >* tDataObject = dynamic_cast<TDataObject< T >*>(dataObject);
+        const TDataObject< T >* tDataObject = dynamic_cast<const TDataObject< T >*>(dataObject);
         if (tDataObject == nullptr)
             return;
 
@@ -163,7 +180,7 @@ public:
     }
 
     // Dump data content to output file stream
-    void Dump( std::fstream& file ) override
+    void Dump( std::fstream& file ) const override
     {
         TDataObjectDump( file, data );
     }

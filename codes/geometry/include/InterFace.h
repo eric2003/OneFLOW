@@ -118,8 +118,5 @@ public:
     void SwapNeighborZoneInfo();
 };
 
-void InitInterfaceTopo();
-
-extern InterFaceTopo interFaceTopo;
 
 EndNameSpace

@@ -34,17 +34,22 @@ class DataObject;
 class DataEntry
 {
 public:
-    DataEntry();
     DataEntry( const std::string & name, int type, int size, std::unique_ptr<DataObject> data );
     ~DataEntry();
-public:
-    std::string  name;
-    int          type;
-    int          size;
+private:
+    const std::string name;
+    const int type;
+    const int size;
     std::unique_ptr<DataObject> data;
 public:
-    void Copy( DataEntry * inputData );
-    void Dump( std::fstream & file );
+    const std::string & GetName() const { return name; }
+    int GetType() const { return type; }
+    int GetSize() const { return size; }
+    DataObject & GetDataObject() { return *data; }
+    const DataObject & GetDataObject() const { return *data; }
+
+    void Copy( const DataEntry & inputData );
+    void Dump( std::fstream & file ) const;
 };
 
 class DataPara
@@ -59,16 +64,17 @@ protected:
     DataMap dataMap;
 public:
     // Takes ownership of data.
-    void UpdateDataPointer( std::unique_ptr<DataEntry> data );
-    DataEntry * GetDataPointer( const std::string & name );
-    void DeleteDataPointer( const std::string & name );
+    void SetDataEntry( std::unique_ptr<DataEntry> data );
+    DataEntry * FindDataEntry( const std::string & name );
+    const DataEntry * FindDataEntry( const std::string & name ) const;
+    void RemoveDataEntry( const std::string & name );
 
     // Release all case-local parameter entries while keeping the database alive.
     void Clear();
 
-    DataMap * GetDataMap() { return &dataMap; }
+    const DataMap & GetDataMap() const { return dataMap; }
 
-    void DumpData( std::fstream & file );
+    void DumpData( std::fstream & file ) const;
 };
 
 EndNameSpace
