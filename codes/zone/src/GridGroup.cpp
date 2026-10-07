@@ -254,7 +254,7 @@ void DataToGridTest( DataBook & dataBook, int zid )
 
     if ( Parallel::pid != rpid ) return;
 
-    ScalarGrid & grid = Zone::GetScalarGridReference( zid );
+    ScalarGrid & grid = ScalarZone::GetGridReference( zid );
     grid.ReadGrid( &dataBook );
 }
 
