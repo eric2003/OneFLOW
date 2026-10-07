@@ -207,6 +207,8 @@ public:
 public:
     DataBase * GetDataBase() { return dataBase.get(); };
     const DataBase * GetDataBase() const { return dataBase.get(); }
+    DataBase & RequireDataBase() { return *dataBase; }
+    const DataBase & RequireDataBase() const { return *dataBase; }
 public:
     int GetNNodes();
     int GetNCells();
