@@ -259,10 +259,12 @@ void GridPartition::ReconstructInterfaceTopo( std::vector< std::unique_ptr< Scal
 	int nZones = this->GetNZones( grids );
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
-		int nNeis = grids[ iZone ]->scalarIFace->data.size();
+		ScalarGrid & grid = *grids[ iZone ];
+		ScalarIFace & scalarIFace = *grid.scalarIFace;
+		int nNeis = scalarIFace.data.size();
 		for ( int iNei = 0; iNei < nNeis; ++ iNei )
 		{
-			ScalarIFaceIJ & iFaceIJ = grids[ iZone ]->scalarIFace->data[ iNei ];
+			ScalarIFaceIJ & iFaceIJ = scalarIFace.data[ iNei ];
 			int jZone =  iFaceIJ.zonej;
 			std::cout << " iZone = " << iZone << " iNei = " << iNei << " jZone = " << jZone << "\n";
 			grids[ jZone ]->scalarIFace->CalcLocalInterfaceId( iZone, iFaceIJ.iglobalfaces, iFaceIJ.target_ifaces );
@@ -271,14 +273,14 @@ void GridPartition::ReconstructInterfaceTopo( std::vector< std::unique_ptr< Scal
 
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
-		ScalarIFace * scalarIFace = grids[ iZone ]->scalarIFace.get();
-		int nIFaces = scalarIFace->iglobalfaces.size();
+		ScalarIFace & scalarIFace = *grids[ iZone ]->scalarIFace;
+		int nIFaces = scalarIFace.iglobalfaces.size();
 		for ( int iFace = 0; iFace < nIFaces; ++ iFace )
 		{
-			int igface = scalarIFace->iglobalfaces[ iFace ];
-			int jZone  = scalarIFace->zones[ iFace ];
+			int igface = scalarIFace.iglobalfaces[ iFace ];
+			int jZone = scalarIFace.zones[ iFace ];
 			int jlocalface = grids[ jZone ]->scalarIFace->GetLocalInterfaceId( igface );
-			scalarIFace->target_interfaces.push_back( jlocalface );
+			scalarIFace.target_interfaces.push_back( jlocalface );
 		}
 	}
 
