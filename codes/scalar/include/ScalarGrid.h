@@ -41,7 +41,7 @@ public:
 public:
     std::vector< Real > data;
 public:
-    size_t GetNElements();
+    size_t GetNElements() const;
     void AddData( Real value );
     Real operator [] ( int i ) const
     {
@@ -74,7 +74,7 @@ public:
 public:
     std::vector< int > data;
 public:
-    size_t GetNElements();
+    size_t GetNElements() const;
     void AddData( int value );
 
     int operator [] ( int i ) const
@@ -102,7 +102,7 @@ public:
 public:
     std::vector< std::vector< int > > data;
 public:
-    size_t GetNElements();
+    size_t GetNElements() const;
     void AddElem( IntList &elem );
     void AddElem( const std::vector< int > &elem );
 
