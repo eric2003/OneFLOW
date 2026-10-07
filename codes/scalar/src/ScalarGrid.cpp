@@ -152,7 +152,7 @@ void EList::AddElem( IntList &elem )
 	this->data.push_back( elem.data );
 }
 
-void EList::AddElem( std::vector< int > &elem )
+void EList::AddElem( const std::vector< int > &elem )
 {
 	this->data.push_back( elem );
 }
