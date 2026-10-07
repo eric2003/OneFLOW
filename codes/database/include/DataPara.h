@@ -54,7 +54,7 @@ public:
     void SetSize( int value ) { size = value; }
     void SetDataObject( std::unique_ptr<DataObject> value ) { data = std::move( value ); }
 
-    void Copy( const DataEntry * inputData );
+    void Copy( const DataEntry & inputData );
     void Dump( std::fstream & file ) const;
 };
 

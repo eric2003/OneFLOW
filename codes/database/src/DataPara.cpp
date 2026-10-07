@@ -48,28 +48,22 @@ DataEntry::~DataEntry()
 {
 }
 
-void DataEntry::Copy( const DataEntry * inputData )
+void DataEntry::Copy( const DataEntry & inputData )
 {
-    if ( inputData == nullptr )
-    {
-        throw std::invalid_argument(
-            "DataEntry::Copy: inputData is null" );
-    }
-
-    if ( this->data == nullptr || inputData->data == nullptr )
+    if ( this->data == nullptr || inputData.data == nullptr )
     {
         throw std::runtime_error(
             "DataEntry::Copy: data pointer is null" );
     }
 
-    if ( this->type != inputData->type )
+    if ( this->type != inputData.type )
     {
         throw std::runtime_error(
             "DataEntry::Copy: data type mismatch for entry '" +
             this->name + "'" );
     }
 
-    if ( this->size != inputData->size )
+    if ( this->size != inputData.size )
     {
         throw std::runtime_error(
             "DataEntry::Copy: data size mismatch for entry '" +
@@ -78,7 +72,7 @@ void DataEntry::Copy( const DataEntry * inputData )
 
     // Copy only the data value.
     // Name, type, and size belong to the existing DataEntry.
-    this->data->Copy( inputData->GetDataObject() );
+    this->data->Copy( inputData.data.get() );
 }
 
 void DataEntry::Dump( std::fstream & file ) const
@@ -117,7 +111,7 @@ void DataPara::SetDataEntry( std::unique_ptr<DataEntry> data )
 
     // Copy() validates type and size before updating the value.
     // Temporary DataEntry is destroyed automatically when unique_ptr goes out of scope.
-    it->second->Copy( data.get() );
+    it->second->Copy( *data );
 }
 
 DataEntry * DataPara::GetDataPointer( const std::string & name )
