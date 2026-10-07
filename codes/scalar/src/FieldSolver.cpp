@@ -146,27 +146,6 @@ void FieldSolver::SolveFlowField()
     this->Visualize();
 }
 
-//void FieldSolver::SolveOneStep()
-//{
-//    TimeTest ts;
-//    this->Boundary();
-//    ts.ShowTimeSpan("Boundary");
-//    this->GetQLQR();
-//    ts.ShowTimeSpan("GetQLQR");
-//    this->CalcInvFlux();
-//    ts.ShowTimeSpan("CalcInvFlux");
-//    this->UpdateResidual();
-//    ts.ShowTimeSpan("UpdateResidual");
-//    this->TimeIntergral();
-//    ts.ShowTimeSpan("TimeIntergral");
-//    this->Update();
-//    ts.ShowTimeSpan("Update");
-//    this->CommParallelInfo();
-//    ts.ShowTimeSpan("CommParallelInfo");
-//    //this->Visualize();
-//    //ts.ShowTimeSpan("Visualize");
-//}
-
 void FieldSolver::SolveOneStep()
 {
     this->Boundary();
@@ -194,7 +173,7 @@ void FieldSolver::ZoneBoundary()
     ScalarGrid & grid = ScalarZone::GetGridReference();
     int nBFaces = grid.GetNBFaces();
 
-    RealField  & q = GetFieldReference< MRField > ( grid, "q" ).AsOneD();
+    RealField  & q = GetFieldReference< MRField > ( &grid, "q" ).AsOneD();
 
     int nTCells = grid.GetNTCells();
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
