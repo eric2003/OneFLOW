@@ -99,6 +99,7 @@ void HXWriteDataEntry( DataBook * dataBook, const DataEntry * dataEntry );
 void HXWriteVoid( DataBook * dataBook, const DataEntry * dataEntry );
 
 DataBase * GetGlobalDataBase();
+DataBase & RequireGlobalDataBase();
 void ProcessData( const std::string & name, const std::string * value, int type, int size );
 std::unique_ptr<DataObject> CreateDataObject( int type, int size );
 
