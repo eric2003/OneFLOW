@@ -136,8 +136,7 @@ T * GetFieldPointer( DataBase * database, const std::string & dataObjectName );
 template < typename T, typename TStorage >
 T * GetFieldPointer( TStorage * storage, const std::string & dataObjectName );
 
-// Required field access: dereferences GetFieldPointer. The named field
-// must already be registered; otherwise this is undefined behavior.
+// Required field access: throws when the named field is not registered.
 // Prefer GetFieldPointer + null-check/Fatal when presence is uncertain.
 template < typename T >
 T & GetFieldReference( DataBase * database, const std::string & dataObjectName );
@@ -171,13 +170,19 @@ T * GetFieldPointer( TStorage * storage, const std::string & dataObjectName )
 template < typename T >
 T & GetFieldReference( DataBase * database, const std::string & dataObjectName )
 {
-    return * ONEFLOW::GetFieldPointer< T >( database, dataObjectName );
+    T * pointer = ONEFLOW::GetFieldPointer< T >( database, dataObjectName );
+    if ( pointer == nullptr )
+    {
+        throw std::runtime_error(
+            "DataBase: cannot find field \"" + dataObjectName + "\"" );
+    }
+    return * pointer;
 }
 
 template < typename T, typename TStorage >
 T & GetFieldReference( TStorage * storage, const std::string & dataObjectName )
 {
-    return * ONEFLOW::GetFieldPointer< T, TStorage >( storage, dataObjectName );
+    return ONEFLOW::GetFieldReference< T >( storage->GetDataBase(), dataObjectName );
 }
 
 template < typename TStorage >
