@@ -86,7 +86,7 @@ public:
 public:
     void Visualize();
     void ToTecplot( RealField & xList, RealField & varlist, std::string const & fileName );
-    void Theory( ScalarGrid * grid, Real time, RealField & theory );
+    void Theory( ScalarGrid & grid, Real time, RealField & theory );
     void GetVisualData( DataBook & dataBook );
     void AddVisualData( RealField & qList, RealField & theoryList, RealField & xcoorList );
     void AddVisualData( DataBook & dataBook, RealField & qList, RealField & theoryList, RealField & xcoorList );
