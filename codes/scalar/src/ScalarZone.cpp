@@ -33,18 +33,6 @@ BeginNameSpace( ONEFLOW )
 int ScalarZone::nLocalZones = 0;
 std::vector< std::unique_ptr< ScalarGrid > > ScalarZone::scalar_grids;
 
-ScalarZone::ScalarZone()
-{
-}
-
-ScalarZone::~ScalarZone()
-{
-}
-
-void ScalarZone::Allocate()
-{
-}
-
 void ScalarZone::Reset()
 {
     ScalarZone::scalar_grids.clear();

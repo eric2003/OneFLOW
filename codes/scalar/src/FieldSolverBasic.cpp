@@ -42,7 +42,6 @@ FieldSolverBasic::FieldSolverBasic()
 {
     this->para = std::make_unique< FieldPara >();
     this->scalarFieldManager = std::make_unique< ScalarFieldManager >();
-    ScalarZone::Allocate();
 }
 
 FieldSolverBasic::~FieldSolverBasic()

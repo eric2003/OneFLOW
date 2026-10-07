@@ -35,14 +35,11 @@ class ScalarGrid;
 class ScalarZone
 {
 public:
-    ScalarZone();
-    ~ScalarZone();
 public:
     static int nLocalZones;
     // Exclusive owner of per-zone scalar grids.
     static std::vector< std::unique_ptr< ScalarGrid > > scalar_grids;
 public:
-    static void Allocate();
     static void Reset();
     static void AddGrid( int zid, std::unique_ptr< ScalarGrid > grid );
     static ScalarGrid * GetGrid( int iZone );
