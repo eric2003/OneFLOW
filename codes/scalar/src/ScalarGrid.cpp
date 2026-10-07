@@ -342,6 +342,23 @@ void ScalarGrid::ResetTopologyData()
 	nBFaces = 0;
 }
 
+void ScalarGrid::ResetGeometryData()
+{
+	xfc.data.clear();
+	yfc.data.clear();
+	zfc.data.clear();
+	xfn.data.clear();
+	yfn.data.clear();
+	zfn.data.clear();
+	area.data.clear();
+	xcc.data.clear();
+	ycc.data.clear();
+	zcc.data.clear();
+	vol.data.clear();
+
+	nTCells = 0;
+}
+
 int ScalarGrid::GetNNodes()
 {
 	return this->xn.GetNElements();
@@ -774,6 +791,8 @@ void ScalarGrid::AllocGeom()
 
 void ScalarGrid::CalcMetrics1D()
 {
+	this->ResetGeometryData();
+
 	//must compute face center first for one dimensional case
 	//then face normal
 	this->AllocGeom();
