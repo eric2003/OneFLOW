@@ -83,9 +83,9 @@ public:
     void Free();
     virtual void Init();
 public:
-    bool IsOneD();
-    bool IsTwoD();
-    bool IsThreeD();
+    bool IsOneD() const;
+    bool IsTwoD() const;
+    bool IsThreeD() const;
 public:
     virtual void ReadGrid ( std::fstream & file ) {};
     virtual void WriteGrid( std::fstream & file ) {};

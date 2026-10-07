@@ -131,17 +131,17 @@ void Grid::Init()
     this->BasicInit();
 }
 
-bool Grid::IsOneD()
+bool Grid::IsOneD() const
 {
     return this->dimension == ONEFLOW::ONE_D;
 }
 
-bool Grid::IsTwoD()
+bool Grid::IsTwoD() const
 {
     return this->dimension == ONEFLOW::TWO_D;
 }
 
-bool Grid::IsThreeD()
+bool Grid::IsThreeD() const
 {
     return this->dimension == ONEFLOW::THREE_D;
 }
