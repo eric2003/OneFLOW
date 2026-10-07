@@ -19,6 +19,7 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 *---------------------------------------------------------------------------*/
 
+// Cavity grid generation is a stateless workflow.
 #include "Cavity.h"
 #include "CurveLine.h"
 #include "CurveMesh.h"
@@ -38,24 +39,14 @@ License
 #include "Dimension.h"
 #include "Plot3D.h"
 #include "DataBase.h"
-#include <iostream>
 #include <memory>
 #include <utility>
 
 
 BeginNameSpace( ONEFLOW )
 
-Cavity::Cavity()
-{
-    ;
-}
 
-Cavity::~Cavity()
-{
-    ;
-}
-
-void Cavity::Run()
+void GenerateCavityGrid()
 {
     int ni = 101;
     int nj = 51;
@@ -155,20 +146,22 @@ void Cavity::Run()
     bcRegionGroup->SetBcRegion( ir, std::move( bcRegion ) );
     ++ ir;
 
-    this->DumpPlot3DGrid( gridMediator );
+    DumpPlot3DGrid( gridMediator );
 
-    this->DumpCgnsGrid( std::move( ownedGridMediator ) );
+    DumpCgnsGrid( std::move( ownedGridMediator ) );
 
 }
 
-void Cavity::DumpPlot3DGrid( GridMediator & gridMediator )
+namespace
+{
+    void DumpPlot3DGrid( GridMediator & gridMediator )
 {
     Plot3D::DumpCoor( & gridMediator );
     Plot3D::DumpBc( & gridMediator );
 
 }
 
-void Cavity::DumpCgnsGrid( std::unique_ptr< GridMediator > gridMediator )
+    void DumpCgnsGrid( std::unique_ptr< GridMediator > gridMediator )
 {
     CgnsFactory cgnsFactory;
 
@@ -178,5 +171,7 @@ void Cavity::DumpCgnsGrid( std::unique_ptr< GridMediator > gridMediator )
     cgnsFactory.DumpCgnsGrid( zgridMediator );
 }
 
+    }
+}
 
 EndNameSpace

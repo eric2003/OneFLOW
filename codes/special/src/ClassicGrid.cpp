@@ -40,8 +40,7 @@ namespace
 
     void RunCavity( const GridConfig & )
     {
-        Cavity cavity;
-        cavity.Run();
+        GenerateCavityGrid();
     }
 
     void RunRae2822( const GridConfig & )
