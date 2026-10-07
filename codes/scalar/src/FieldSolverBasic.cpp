@@ -272,8 +272,8 @@ void FieldSolverBasic::CommParallelInfo()
 
 void FieldSolverBasic::Visualize()
 {
-    auto dataBook = std::make_unique<DataBook>();
-    ActionState::dataBook = dataBook.get();
+    DataBook dataBook;
+    ActionState::dataBook = & dataBook;
     std::fstream file;
     ActionState::file = & file;
 
@@ -289,7 +289,7 @@ void FieldSolverBasic::Visualize()
 
         if ( Parallel::pid == sPid )
         {
-            this->GetVisualData( dataBook.get() );
+            this->GetVisualData( & dataBook );
         }
 
         HXSwapData( ActionState::dataBook, sPid, rPid );
