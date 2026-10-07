@@ -127,7 +127,7 @@ Grid & Zone::GetGridReference()
 
 UnsGrid * Zone::GetUnsGrid()
 {
-    return ONEFLOW::UnsGridCast( Zone::GetGrid() );
+    return &Zone::GetUnsGridReference();
 }
 
 UnsGrid & Zone::GetUnsGridReference()
