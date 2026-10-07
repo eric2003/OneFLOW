@@ -241,12 +241,12 @@ void Zone::AddScalarGrid( int zid, std::unique_ptr< ScalarGrid > grid )
 
 ScalarGrid * Zone::GetScalarGrid( int iZone )
 {
-    return ScalarZone::GetGrid( iZone );
+    return &Zone::GetScalarGridReference( iZone );
 }
 
 ScalarGrid * Zone::GetScalarGrid()
 {
-    return ScalarZone::GetGrid();
+    return &Zone::GetScalarGridReference();
 }
 
 ScalarGrid & Zone::GetScalarGridReference( int iZone )
