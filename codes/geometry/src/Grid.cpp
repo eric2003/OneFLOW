@@ -25,7 +25,6 @@ License
 #include "NodeMesh.h"
 #include "InterFace.h"
 #include "SlipFace.h"
-#include "DataBase.h"
 #include <iostream>
 #include <memory>
 #include <utility>
@@ -46,6 +45,7 @@ GridRegistry & GetGridRegistry()
 
 Grid::Grid()
 {
+    ResetDataBase();
     name = "grid";
     this->dimension = THREE_D;
     this->volBcType = -1;
@@ -87,7 +87,7 @@ void Grid::BasicInit()
     nodeMesh  = std::make_unique< NodeMesh >();
     interFace = std::make_unique< InterFace >();
     slipFace  = std::make_unique< SlipFace >();
-    dataBase  = std::make_unique< DataBase >();
+    InitializeDataBase();
 }
 
 void Grid::Free()
@@ -95,7 +95,7 @@ void Grid::Free()
     nodeMesh.reset();
     interFace.reset();
     slipFace.reset();
-    dataBase.reset();
+    ResetDataBase();
 }
 
 void Grid::Init()
