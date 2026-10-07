@@ -88,7 +88,7 @@ namespace
         { GridObjective::Partition,      &PipelinePartition        },
     };
 
-    using Converter = void ( GridFactory::* )(
+    using Converter = void ( * )(
         const GridConfig &,
         const std::string & );
 
@@ -98,11 +98,63 @@ namespace
         Converter convert;
     };
 
-    // Keep source-format dispatch data-driven just like pipeline dispatch.
+    void ConvertPlot3DToOneFLOW(
+        const GridConfig & config,
+        const std::string & /*caseDir*/ )
+    {
+        CgnsFactory cgnsFactory;
+        cgnsFactory.CommonToOneFlowGrid( config );
+    }
+
+    void ConvertPlot3DToCGNS(
+        const GridConfig & config,
+        const std::string & caseDir )
+    {
+        CgnsFactory cgnsFactory;
+        ZgridMediator zgridMediator;
+        Plot3D::Plot3DToCgns( &zgridMediator, config, caseDir );
+        cgnsFactory.DumpCgnsGrid( zgridMediator );
+    }
+
+    void ConvertPlot3D(
+        const GridConfig & config,
+        const std::string & caseDir )
+    {
+        switch ( config.targetType )
+        {
+            case GridFileType::OneFLOW:
+                ConvertPlot3DToOneFLOW( config, caseDir );
+                return;
+            case GridFileType::CGNS:
+                ConvertPlot3DToCGNS( config, caseDir );
+                return;
+            default:
+                throw std::invalid_argument(
+                    std::string( "Unsupported Plot3D target type: " ) +
+                    std::string( ToString( config.targetType ) ) );
+        }
+    }
+
+    void ConvertSU2(
+        const GridConfig & config,
+        const std::string & caseDir )
+    {
+        Su2Grid su2Grid;
+        su2Grid.Su2ToOneFlowGrid( config, caseDir );
+    }
+
+    void ConvertCGNS(
+        const GridConfig & config,
+        const std::string & caseDir )
+    {
+        CgnsFactory cgnsFactory;
+        cgnsFactory.GenerateGrid( config, caseDir );
+    }
+
     constexpr ConverterEntry kConverters[] = {
-        { GridFileType::Plot3D, &GridFactory::Plot3DProcess },
-        { GridFileType::SU2,    &GridFactory::SU2Process },
-        { GridFileType::CGNS,   &GridFactory::CGNSProcess },
+        { GridFileType::Plot3D, &ConvertPlot3D },
+        { GridFileType::SU2,    &ConvertSU2 },
+        { GridFileType::CGNS,   &ConvertCGNS },
     };
 
     void DispatchPipeline(
@@ -125,7 +177,6 @@ namespace
     }
 
     void DispatchConverter(
-        GridFactory & self,
         const GridConfig & config,
         const std::string & caseDir )
     {
@@ -133,7 +184,7 @@ namespace
         {
             if ( entry.sourceType == config.sourceType )
             {
-                ( self.*entry.convert )( config, caseDir );
+                entry.convert( config, caseDir );
                 return;
             }
         }
@@ -199,41 +250,19 @@ void GridFactory::ConvertGrid(
     const GridConfig & config,
     const std::string & caseDir )
 {
-    DispatchConverter( *this, config, caseDir );
+    DispatchConverter( config, caseDir );
 }
 
 void GridFactory::Plot3DProcess(
     const GridConfig & config,
     const std::string & caseDir )
 {
-    switch ( config.targetType )
-    {
-        case GridFileType::OneFLOW:
-        {
-            CgnsFactory cgnsFactory;
-            cgnsFactory.CommonToOneFlowGrid( config );
-            return;
-        }
-        case GridFileType::CGNS:
-        {
-            CgnsFactory cgnsFactory;
-            ZgridMediator zgridMediator;
-            // Owned GridMediator instances are cleaned up automatically.
-            Plot3D::Plot3DToCgns( &zgridMediator, config, caseDir );
-            cgnsFactory.DumpCgnsGrid( zgridMediator );
-            return;
-        }
-        default:
-            throw std::invalid_argument(
-                std::string( "Unsupported Plot3D target type: " ) +
-                std::string( ToString( config.targetType ) ) );
-    }
+    ConvertPlot3D( config, caseDir );
 }
 
 void GridFactory::SU2Process( const GridConfig & config, const std::string & caseDir )
 {
-    Su2Grid su2Grid;
-    su2Grid.Su2ToOneFlowGrid( config, caseDir );
+    ConvertSU2( config, caseDir );
 }
 
 void GridFactory::CGNSProcess( const std::string & caseDir )
@@ -245,8 +274,7 @@ void GridFactory::CGNSProcess(
     const GridConfig & config,
     const std::string & caseDir )
 {
-    CgnsFactory cgnsFactory;
-    cgnsFactory.GenerateGrid( config, caseDir );
+    ConvertCGNS( config, caseDir );
 }
 
 EndNameSpace
