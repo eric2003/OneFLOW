@@ -34,7 +34,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-class ScalarField;
 class ScalarGrid;
 class FieldPara;
 class ScalarFieldManager;
@@ -61,7 +60,6 @@ public:
 public:
     std::unique_ptr< FieldPara > para;
     std::unique_ptr< ScalarFieldManager > scalarFieldManager;
-    std::vector< std::unique_ptr< ScalarField > > fields;
 public:
     virtual void Run();
     void Init();

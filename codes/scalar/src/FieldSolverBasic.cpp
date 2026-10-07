@@ -21,8 +21,6 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "FieldSolverBasic.h"
-#include <memory>
-#include "ScalarField.h"
 #include "FieldPara.h"
 #include "ScalarAlloc.h"
 #include "ScalarZone.h"
@@ -110,14 +108,6 @@ void FieldSolverBasic::InitFlowField()
         if ( ! ZoneState::IsValidZone( iZone ) ) continue;
         ZoneState::zid = iZone;
         this->scalarFieldManager->AllocateAllFields();
-    }
-
-    for ( int iZone = 0; iZone < ZoneState::nZones; ++ iZone )
-    {
-        if ( ! ZoneState::IsValidZone( iZone ) ) continue;
-        ZoneState::zid = iZone;
-
-        this->fields.push_back( std::make_unique< ScalarField >() );
     }
 
     for ( int iZone = 0; iZone < ZoneState::nZones; ++ iZone )
