@@ -215,7 +215,7 @@ void UTimeStep::CalcVisSpectrumField()
 
     if ( vis_model.vismodel <= 0 ) return;
 
-    for ( int iFace = 0; iFace < grid->nFaces; ++ iFace )
+    for ( int iFace = 0; iFace < grid.nFaces; ++ iFace )
     {
         this->SetId( iFace );
 
