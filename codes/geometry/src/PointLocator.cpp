@@ -77,7 +77,7 @@ void PointLocator::Initialize( Grids & grids )
     this->Initialize( views );
 }
 
-void PointLocator::Initialize( GridViews & grids )
+void PointLocator::Initialize( const GridViews & grids )
 {
     ONEFLOW::CreateStandardADT( grids, this->coorTree, tolerance );
 }
@@ -224,7 +224,7 @@ void CreateStandardADT( Grids & grids, std::unique_ptr<AdtTree>& adtTree, Real &
     CreateStandardADT( views, adtTree, tolerance );
 }
 
-void CreateStandardADT( GridViews & grids, std::unique_ptr<AdtTree>& adtTree, Real & tolerance )
+void CreateStandardADT( const GridViews & grids, std::unique_ptr<AdtTree>& adtTree, Real & tolerance )
 {
     RealField pmin( 3 ), pmax( 3 );
     ONEFLOW::GetBoundingBoxOfMultiZoneGrids( grids, pmin, pmax );
@@ -247,7 +247,7 @@ void CreateStandardADTByTolerance( Grids & grids, std::unique_ptr<AdtTree>& adtT
     CreateStandardADTByTolerance( views, adtTree, tolerance );
 }
 
-void CreateStandardADTByTolerance( GridViews & grids, std::unique_ptr<AdtTree>& adtTree, Real & tolerance )
+void CreateStandardADTByTolerance( const GridViews & grids, std::unique_ptr<AdtTree>& adtTree, Real & tolerance )
 {
     RealField pmin( 3 ), pmax( 3 );
     ONEFLOW::GetBoundingBoxOfMultiZoneGrids( grids, pmin, pmax );
@@ -274,7 +274,7 @@ void GetGridsMinMaxDistance( Grids & grids, Real & mindis, Real & maxdis )
     GetGridsMinMaxDistance( views, mindis, maxdis );
 }
 
-void GetGridsMinMaxDistance( GridViews & grids, Real & mindis, Real & maxdis )
+void GetGridsMinMaxDistance( const GridViews & grids, Real & mindis, Real & maxdis )
 {
     mindis =   LARGE;
     maxdis = - LARGE;
@@ -297,7 +297,7 @@ Real CalcGridTolerance( Grids & grids )
     return CalcGridTolerance( views );
 }
 
-Real CalcGridTolerance( GridViews & grids )
+Real CalcGridTolerance( const GridViews & grids )
 {
     Real mindis =   LARGE;
     Real maxdis = - LARGE;
@@ -315,7 +315,7 @@ void GetBoundingBoxOfMultiZoneGrids( Grids & grids, RealField & pmin, RealField 
     GetBoundingBoxOfMultiZoneGrids( views, pmin, pmax );
 }
 
-void GetBoundingBoxOfMultiZoneGrids( GridViews & grids, RealField & pmin, RealField & pmax )
+void GetBoundingBoxOfMultiZoneGrids( const GridViews & grids, RealField & pmin, RealField & pmax )
 {
     pmin[ 0 ] = LARGE;
     pmin[ 1 ] = LARGE;

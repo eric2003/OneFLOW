@@ -57,7 +57,7 @@ public:
     void Initialize( Grid * grid );
     void InitializeSpecial( Grid * grid, Real toleranceIn );
     void Initialize( Grids & grids );
-    void Initialize( GridViews & grids );
+    void Initialize( const GridViews & grids );
 public:
     int GetNPoint() { return static_cast<int> (xCoor.size()); }
     int FindPoint( Real xm, Real ym, Real zm );
@@ -74,16 +74,16 @@ public:
 void CreateStandardADT( RealField & ptmin, RealField & ptmax, std::unique_ptr<AdtTree>& adtTree, Real & tolerance );
 void CreateStandardADT( Grid * grid, std::unique_ptr<AdtTree>& adtTree, Real & tolerance );
 void CreateStandardADT( Grids & grids, std::unique_ptr<AdtTree>& adtTree, Real & tolerance );
-void CreateStandardADT( GridViews & grids, std::unique_ptr<AdtTree>& adtTree, Real & tolerance );
+void CreateStandardADT( const GridViews & grids, std::unique_ptr<AdtTree>& adtTree, Real & tolerance );
 void CreateStandardADTByTolerance( Grids & grids, std::unique_ptr<AdtTree>& adtTree, Real & tolerance );
-void CreateStandardADTByTolerance( GridViews & grids, std::unique_ptr<AdtTree>& adtTree, Real & tolerance );
+void CreateStandardADTByTolerance( const GridViews & grids, std::unique_ptr<AdtTree>& adtTree, Real & tolerance );
 
 void ShiftMinMaxBox( RealField & pmin, RealField & pmax, Real tolerance );
 void GetGridsMinMaxDistance( Grids & grids, Real & mindis, Real & maxdis );
-void GetGridsMinMaxDistance( GridViews & grids, Real & mindis, Real & maxdis );
+void GetGridsMinMaxDistance( const GridViews & grids, Real & mindis, Real & maxdis );
 Real CalcGridTolerance( Grids & grids );
-Real CalcGridTolerance( GridViews & grids );
+Real CalcGridTolerance( const GridViews & grids );
 void GetBoundingBoxOfMultiZoneGrids( Grids & grids, RealField & pmin, RealField & pmax );
-void GetBoundingBoxOfMultiZoneGrids( GridViews & grids, RealField & pmin, RealField & pmax );
+void GetBoundingBoxOfMultiZoneGrids( const GridViews & grids, RealField & pmin, RealField & pmax );
 
 EndNameSpace
