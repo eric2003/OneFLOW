@@ -47,9 +47,15 @@ class DataBase
 public:
     DataBase();
     ~DataBase();
-public:
+private:
     std::unique_ptr<DataPara> dataPara;
     std::unique_ptr<DataField> dataField;
+
+public:
+    DataPara * GetDataPara() { return dataPara.get(); }
+    const DataPara * GetDataPara() const { return dataPara.get(); }
+    DataField * GetDataField() { return dataField.get(); }
+    const DataField * GetDataField() const { return dataField.get(); }
 };
 void HXReadDataEntry( DataBook * dataBook, DataEntry * dataEntry );
 void HXWriteDataEntry( DataBook * dataBook, const DataEntry * dataEntry );
@@ -78,7 +84,7 @@ T GetDataValue( const std::string & varName, DataBase * database )
         throw std::runtime_error( "DataBase: database is not initialized" );
     }
 
-    DataEntry * dataEntry = database->dataPara->GetDataPointer( varName );
+    DataEntry * dataEntry = database->GetDataPara()->GetDataPointer( varName );
 
     if (dataEntry != nullptr )
     {
@@ -100,7 +106,7 @@ T GetDataValue( const std::string & varName, const DataBase * database )
         throw std::runtime_error( "DataBase: database is not initialized" );
     }
 
-    const DataEntry * dataEntry = database->dataPara->GetDataPointer( varName );
+    const DataEntry * dataEntry = database->GetDataPara()->GetDataPointer( varName );
 
     if ( dataEntry != nullptr )
     {
@@ -134,7 +140,7 @@ template < typename T >
 T * GetDataPointer( const std::string & varName )
 {
     DataBase * database = ONEFLOW::GetGlobalDataBase();
-    DataEntry * dataEntry = database->dataPara->GetDataPointer( varName );
+    DataEntry * dataEntry = database->GetDataPara()->GetDataPointer( varName );
 
     // Required lookup: match GetDataValue -- missing name must not
     // dereference a null DataEntry.

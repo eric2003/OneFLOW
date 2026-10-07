@@ -118,7 +118,7 @@ void ProcessData( const std::string & name, const std::string * value, int type,
         Fatal( " Parameter Type Error \n" );
     }
     DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
-    dataBase->dataPara->UpdateDataPointer( std::move( dataEntry ) );
+    dataBase->GetDataPara()->UpdateDataPointer( std::move( dataEntry ) );
 }
 
 std::unique_ptr<DataObject> CreateDataObject( int type, int size )
@@ -192,7 +192,7 @@ void CreateFieldPointer( DataBase * database, std::unique_ptr<PointerWrap> point
 
     auto fieldEntry = std::make_unique<FieldEntry>(
         dataObjectName, std::move( pointerWrap ) );
-    database->dataField->UpdateFieldEntry( std::move( fieldEntry ) );
+    database->GetDataField()->UpdateFieldEntry( std::move( fieldEntry ) );
 }
 
 void * GetFieldPointerVoid( DataBase * database, const std::string & dataObjectName )
@@ -228,7 +228,7 @@ const void * GetFieldPointerVoid( const DataBase * database, const std::string &
 void DumpDataBase( std::fstream & file )
 {
     DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
-    dataBase->dataPara->DumpData( file );
+    dataBase->GetDataPara()->DumpData( file );
 }
 
 EndNameSpace

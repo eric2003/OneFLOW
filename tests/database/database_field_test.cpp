@@ -102,7 +102,7 @@ TEST_F(DataFieldTest, DeleteField)
     ASSERT_NE( GetFieldPointer<DummyField>( db_, "to_delete_field" ), nullptr );
 
     // Delete
-    db_->dataField->DeleteFieldEntry( "to_delete_field" );
+    db_->GetDataField()->DeleteFieldEntry( "to_delete_field" );
 
     // Should now be gone
     EXPECT_EQ( GetFieldPointer<DummyField>( db_, "to_delete_field" ), nullptr );
@@ -174,10 +174,10 @@ TEST_F(DataFieldTest, ClearRemovesAllFields)
     ASSERT_NE( GetFieldPointer<DummyField>( db_, "clear_field_a" ), nullptr );
     ASSERT_NE( GetFieldPointer<DummyField>( db_, "clear_field_b" ), nullptr );
 
-    db_->dataField->Clear();
+    db_->GetDataField()->Clear();
 
     EXPECT_EQ( GetFieldPointer<DummyField>( db_, "clear_field_a" ), nullptr );
     EXPECT_EQ( GetFieldPointer<DummyField>( db_, "clear_field_b" ), nullptr );
-    EXPECT_TRUE( db_->dataField->GetDataMap()->empty() );
+    EXPECT_TRUE( db_->GetDataField()->GetDataMap()->empty() );
 }
 

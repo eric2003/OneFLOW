@@ -228,7 +228,7 @@ void DumpDataBase()
     std::fstream file;
     std::string fileName = "/log/database.log";
     PIO::OpenPrjFile( file, fileName, std::ios_base::out );
-    dataBase->dataPara->DumpData( file );
+    dataBase->GetDataPara()->DumpData( file );
     PIO::CloseFile( file );
 }
 
@@ -237,7 +237,7 @@ void DumpDataBase( const std::string & caseDir )
     DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
     std::fstream file;
     Prj::OpenCaseFile( file, caseDir, "log/database.log", std::ios_base::out );
-    dataBase->dataPara->DumpData( file );
+    dataBase->GetDataPara()->DumpData( file );
     PIO::CloseFile( file );
 }
 
@@ -353,7 +353,7 @@ void DecompressData( DataBook * dataBook )
 void CompressData( DataBase * dataBase, DataBook * dataBook )
 {
     // Use the new type alias
-    DataPara::DataMap * dataMap = dataBase->dataPara->GetDataMap();
+    DataPara::DataMap * dataMap = dataBase->GetDataPara()->GetDataMap();
 
     int ndata = static_cast<int>( dataMap->size() );
     ONEFLOW::HXWrite( dataBook, ndata );
@@ -378,7 +378,7 @@ void DecompressData( DataBase * dataBase, DataBook * dataBook )
     {
         auto dataEntry = std::make_unique<DataEntry>();
         ONEFLOW::HXReadDataEntry( dataBook, dataEntry.get() );
-        dataBase->dataPara->UpdateDataPointer( std::move( dataEntry ) );
+        dataBase->GetDataPara()->UpdateDataPointer( std::move( dataEntry ) );
     }
 }
 
