@@ -449,22 +449,22 @@ void SlipFaceTopo::InitZoneNeighborsInfo()
     {
         if ( ! ZoneState::IsValidZone( iZone ) ) continue;
 
-        Grid * grid = Zone::GetGrid( iZone );
+        Grid & grid = Zone::GetGridReference( iZone );
 
-        grid->slipFace->InitNeighborZoneInfo();
+        grid.slipFace->InitNeighborZoneInfo();
     }
 
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         if ( ! ZoneState::IsValidZone( iZone ) ) continue;
 
-        Grid * grid = Zone::GetGrid( iZone );
+        Grid & grid = Zone::GetGridReference( iZone );
 
         IntField & t = this->data[ iZone ];
 
-        for ( int iNei = 0; iNei < grid->slipFace->nNeighbor; ++ iNei )
+        for ( int iNei = 0; iNei < grid.slipFace->nNeighbor; ++ iNei )
         {
-            SlipfacePair * slipfacePair = grid->slipFace->GetSlipfacePair( iNei );
+            SlipfacePair * slipfacePair = grid.slipFace->GetSlipfacePair( iNei );
 
             t.push_back( slipfacePair->nzid );
         }
@@ -511,10 +511,10 @@ void SlipFaceTopo::SwapNeighborsSendContent()
 
             if ( Parallel::pid == spid )
             {
-                Grid * grid = Zone::GetGrid( iZone );
-                SlipfacePair * slipfacePair = grid->slipFace->GetSlipfacePair( iNei );
+                Grid & grid = Zone::GetGridReference( iZone );
+                SlipfacePair * slipfacePair = grid.slipFace->GetSlipfacePair( iNei );
 
-                grid->slipFace->CalcSendId( iNei, idsend );
+                grid.slipFace->CalcSendId( iNei, idsend );
 
                 nSend = idsend.size();
             }
@@ -531,8 +531,8 @@ void SlipFaceTopo::SwapNeighborsSendContent()
 
             if ( Parallel::pid == rpid )
             {
-                Grid * gridN = Zone::GetGrid( nZid );
-                gridN->slipFace->SetSendId( iZone, idsend );
+                Grid & gridN = Zone::GetGridReference( nZid );
+                gridN.slipFace->SetSendId( iZone, idsend );
             }
         }
     }
