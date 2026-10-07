@@ -110,9 +110,19 @@ Grid * Zone::GetGrid( int zid, int gl )
     return &GridAt( Zone::globalGrids[ static_cast< std::size_t >( zid ) ], gl );
 }
 
+Grid & Zone::GetGridReference( int zid, int gl )
+{
+    return GridAt( Zone::globalGrids[ static_cast< std::size_t >( zid ) ], gl );
+}
+
 Grid * Zone::GetGrid()
 {
     return Zone::GetGrid( ZoneState::zid, GridState::gridLevel );
+}
+
+Grid & Zone::GetGridReference()
+{
+    return Zone::GetGridReference( ZoneState::zid, GridState::gridLevel );
 }
 
 UnsGrid * Zone::GetUnsGrid()
