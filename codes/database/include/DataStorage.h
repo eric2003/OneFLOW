@@ -55,6 +55,10 @@ public:
         }
         return *dataBase;
     }
+
+protected:
+    void InitializeDataBase();
+    void ResetDataBase() noexcept;
 };
 
 EndNameSpace
