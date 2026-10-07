@@ -1171,13 +1171,13 @@ void ScalarGrid::SetBcTypes()
 	}
 }
 
-void ScalarGrid::CalcC2C( EList & c2c )
+void ScalarGrid::CalcC2C( EList & c2c ) const
 {
 	if ( c2c.GetNElements() != 0 ) return;
 
-	this->nFaces = this->GetNFaces();
-	this->nCells = this->GetNCells();
-	this->nBFaces = this->GetNBFaces();
+	int nFaces = this->GetNFaces();
+	int nCells = this->GetNCells();
+	int nBFaces = this->GetNBFaces();
 
 	c2c.Resize( nCells );
 
