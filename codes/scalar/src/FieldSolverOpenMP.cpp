@@ -113,21 +113,21 @@ void FieldSolverOpenMP::BoundaryOpenMP()
 
 void FieldSolverOpenMP::ZoneBoundaryOpenMP()
 {
-    ScalarGrid * grid = ScalarZone::GetGrid();
-    int nBFaces = grid->GetNBFaces();
+    ScalarGrid & grid = ScalarZone::GetGridReference();
+    int nBFaces = grid.GetNBFaces();
 
-    RealField  & q = GetFieldReference< MRField > ( grid, "q" ).AsOneD();
+    RealField  & q = GetFieldReference< MRField > ( &grid, "q" ).AsOneD();
 
-    int nTCells = grid->GetNTCells();
+    int nTCells = grid.GetNTCells();
 #pragma omp parallel for
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        int bcType = grid->bcTypes[ iFace ];
-        int lc = grid->lc[ iFace ];
-        int rc = grid->rc[ iFace ];
+        int bcType = grid.bcTypes[ iFace ];
+        int lc = grid.lc[ iFace ];
+        int rc = grid.rc[ iFace ];
         if ( bcType == ONEFLOW::BCInflow )
         {
-            Real xm = grid->xcc[ rc ];
+            Real xm = grid.xcc[ rc ];
             q[ rc ] = this->ScalarFun( xm );
         }
         else if ( bcType == ONEFLOW::BCOutflow )
@@ -149,18 +149,18 @@ void FieldSolverOpenMP::GetQLQROpenMP()
 
 void FieldSolverOpenMP::ZoneGetQLQROpenMP()
 {
-    ScalarGrid * grid = ScalarZone::GetGrid();
-    int nFaces = grid->GetNFaces();
+    ScalarGrid & grid = ScalarZone::GetGridReference();
+    int nFaces = grid.GetNFaces();
 
-    RealField & q   = GetFieldReference< MRField > ( grid, "q" ).AsOneD();
-    RealField & qf1 = GetFieldReference< MRField > ( grid, "qf1" ).AsOneD();
-    RealField & qf2 = GetFieldReference< MRField > ( grid, "qf2" ).AsOneD();
+    RealField & q   = GetFieldReference< MRField > ( &grid, "q" ).AsOneD();
+    RealField & qf1 = GetFieldReference< MRField > ( &grid, "qf1" ).AsOneD();
+    RealField & qf2 = GetFieldReference< MRField > ( &grid, "qf2" ).AsOneD();
 
 #pragma omp parallel for
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
-        int lc = grid->lc[ iFace ];
-        int rc = grid->rc[ iFace ];
+        int lc = grid.lc[ iFace ];
+        int rc = grid.rc[ iFace ];
 
         qf1[ iFace ] = q[ lc ];
         qf2[ iFace ] = q[ rc ];
@@ -179,13 +179,13 @@ void FieldSolverOpenMP::CalcInvFluxOpenMP()
 
 void FieldSolverOpenMP::ZoneCalcInvFluxOpenMP()
 {
-    ScalarGrid * grid = ScalarZone::GetGrid();
+    ScalarGrid & grid = ScalarZone::GetGridReference();
 
-    RealField & invflux = GetFieldReference< MRField > ( grid, "invflux" ).AsOneD();
-    RealField & qf1 = GetFieldReference< MRField > ( grid, "qf1" ).AsOneD();
-    RealField & qf2 = GetFieldReference< MRField > ( grid, "qf2" ).AsOneD();
+    RealField & invflux = GetFieldReference< MRField > ( &grid, "invflux" ).AsOneD();
+    RealField & qf1 = GetFieldReference< MRField > ( &grid, "qf1" ).AsOneD();
+    RealField & qf2 = GetFieldReference< MRField > ( &grid, "qf2" ).AsOneD();
 
-    int nFaces = grid->GetNFaces();
+    int nFaces = grid.GetNFaces();
     Real vxl = 1.0;
     Real vyl = 0.0;
     Real vzl = 0.0;
@@ -199,8 +199,8 @@ void FieldSolverOpenMP::ZoneCalcInvFluxOpenMP()
         Real q_L = qf1[ iFace ];
         Real q_R = qf2[ iFace ];
 
-        Real vnl  = grid->xfn[ iFace ] * vxl + grid->yfn[ iFace ] * vyl + grid->zfn[ iFace ] * vzl;
-        Real vnr  = grid->xfn[ iFace ] * vxr + grid->yfn[ iFace ] * vyr + grid->zfn[ iFace ] * vzr;
+        Real vnl  = grid.xfn[ iFace ] * vxl + grid.yfn[ iFace ] * vyl + grid.zfn[ iFace ] * vzl;
+        Real vnr  = grid.xfn[ iFace ] * vxr + grid.yfn[ iFace ] * vyr + grid.zfn[ iFace ] * vzr;
 
         Real eigenL = vnl;
         Real eigenR = vnr;
@@ -212,7 +212,7 @@ void FieldSolverOpenMP::ZoneCalcInvFluxOpenMP()
         Real fR = q_R * eigenR;
         Real fM = fL + fR;
 
-        Real area = grid->area[ iFace ];
+        Real area = grid.area[ iFace ];
         invflux[ iFace ] = fM * area;
     }
 }
@@ -229,13 +229,13 @@ void FieldSolverOpenMP::UpdateResidualOpenMP()
 
 void FieldSolverOpenMP::ZoneUpdateResidualOpenMP()
 {
-    ScalarGrid * grid = ScalarZone::GetGrid();
+    ScalarGrid & grid = ScalarZone::GetGridReference();
 
-    RealField & res = GetFieldReference< MRField > ( grid, "res" ).AsOneD();
-    RealField & invflux = GetFieldReference< MRField > ( grid, "invflux" ).AsOneD();
+    RealField & res = GetFieldReference< MRField > ( &grid, "res" ).AsOneD();
+    RealField & invflux = GetFieldReference< MRField > ( &grid, "invflux" ).AsOneD();
 
     res = 0;
-    this->AddF2CFieldOpenMP( grid, res, invflux );
+    this->AddF2CFieldOpenMP( &grid, res, invflux );
 }
 
 void FieldSolverOpenMP::AddF2CFieldOpenMP( ScalarGrid * grid, RealField & cField, RealField & fField )
@@ -273,14 +273,14 @@ void FieldSolverOpenMP::TimeIntergralOpenMP()
 
 void FieldSolverOpenMP::ZoneTimeIntergralOpenMP()
 {
-    ScalarGrid * grid = ScalarZone::GetGrid();
-    RealField & res = GetFieldReference< MRField > ( grid, "res" ).AsOneD();
+    ScalarGrid & grid = ScalarZone::GetGridReference();
+    RealField & res = GetFieldReference< MRField > ( &grid, "res" ).AsOneD();
 
-    int nCells = grid->GetNCells();
+    int nCells = grid.GetNCells();
 #pragma omp parallel for
     for ( int iCell = 0; iCell < nCells; ++ iCell )
     {
-        Real ovol = 1.0 / grid->vol[ iCell ];
+        Real ovol = 1.0 / grid.vol[ iCell ];
         Real coef = para->dt * ovol;
         res[ iCell ] *= coef;
     }
@@ -298,11 +298,11 @@ void FieldSolverOpenMP::UpdateOpenMP()
 
 void FieldSolverOpenMP::ZoneUpdateOpenMP()
 {
-    ScalarGrid * grid = ScalarZone::GetGrid();
-    RealField & q = GetFieldReference< MRField > ( grid, "q" ).AsOneD();
-    RealField & res = GetFieldReference< MRField > ( grid, "res" ).AsOneD();
+    ScalarGrid & grid = ScalarZone::GetGridReference();
+    RealField & q = GetFieldReference< MRField > ( &grid, "q" ).AsOneD();
+    RealField & res = GetFieldReference< MRField > ( &grid, "res" ).AsOneD();
 
-    int nCells = grid->GetNCells();
+    int nCells = grid.GetNCells();
 #pragma omp parallel for
     for ( int iCell = 0; iCell < nCells; ++ iCell )
     {
