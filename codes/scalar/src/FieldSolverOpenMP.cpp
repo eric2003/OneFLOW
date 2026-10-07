@@ -235,26 +235,26 @@ void FieldSolverOpenMP::ZoneUpdateResidualOpenMP()
     RealField & invflux = GetFieldReference< MRField > ( &grid, "invflux" ).AsOneD();
 
     res = 0;
-    this->AddF2CFieldOpenMP( &grid, res, invflux );
+    this->AddF2CFieldOpenMP( grid, res, invflux );
 }
 
-void FieldSolverOpenMP::AddF2CFieldOpenMP( ScalarGrid * grid, RealField & cField, RealField & fField )
+void FieldSolverOpenMP::AddF2CFieldOpenMP( ScalarGrid & grid, RealField & cField, RealField & fField )
 {
-    int nFaces = grid->GetNFaces();
-    int nBFaces = grid->GetNBFaces();
+    int nFaces = grid.GetNFaces();
+    int nBFaces = grid.GetNBFaces();
 
 #pragma omp parallel for
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        int lc = grid->lc[ iFace ];
+        int lc = grid.lc[ iFace ];
         cField[ lc ] -= fField[ iFace ];
     }
 
 #pragma omp parallel for
     for ( int iFace = nBFaces; iFace < nFaces; ++ iFace )
     {
-        int lc = grid->lc[ iFace ];
-        int rc = grid->rc[ iFace ];
+        int lc = grid.lc[ iFace ];
+        int rc = grid.rc[ iFace ];
 
         cField[ lc ] -= fField[ iFace ];
         cField[ rc ] += fField[ iFace ];

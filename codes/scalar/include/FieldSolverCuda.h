@@ -52,8 +52,8 @@ public:
     void ZoneTimeIntergralCuda();
     void ZoneUpdate();
     void ZoneUpdateCuda();
-    void AddF2CField( ScalarGrid * grid, RealField & cField, RealField & fField );
-    void AddF2CFieldCuda( ScalarGrid * grid, RealField & cField, RealField & fField );
+    void AddF2CField( ScalarGrid & grid, RealField & cField, RealField & fField );
+    void AddF2CFieldCuda( ScalarGrid & grid, RealField & cField, RealField & fField );
 };
 
 EndNameSpace

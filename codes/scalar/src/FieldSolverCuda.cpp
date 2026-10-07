@@ -259,39 +259,39 @@ void FieldSolverCuda::ZoneUpdateResidual()
     RealField & invflux = GetFieldReference< MRField > ( &grid, "invflux" ).AsOneD();
 
     res = 0;
-    this->AddF2CFieldCuda( &grid, res, invflux );
+    this->AddF2CFieldCuda( grid, res, invflux );
 
 }
 
-void FieldSolverCuda::AddF2CField( ScalarGrid * grid, RealField & cField, RealField & fField )
+void FieldSolverCuda::AddF2CField( ScalarGrid & grid, RealField & cField, RealField & fField )
 {
-    int nFaces = grid->GetNFaces();
-    int nBFaces = grid->GetNBFaces();
+    int nFaces = grid.GetNFaces();
+    int nBFaces = grid.GetNBFaces();
 
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        int lc = grid->lc[ iFace ];
+        int lc = grid.lc[ iFace ];
         cField[ lc ] -= fField[ iFace ];
     }
 
     for ( int iFace = nBFaces; iFace < nFaces; ++ iFace )
     {
-        int lc = grid->lc[ iFace ];
-        int rc = grid->rc[ iFace ];
+        int lc = grid.lc[ iFace ];
+        int rc = grid.rc[ iFace ];
 
         cField[ lc ] -= fField[ iFace ];
         cField[ rc ] += fField[ iFace ];
     }
 }
 
-void FieldSolverCuda::AddF2CFieldCuda( ScalarGrid * grid, RealField & cField, RealField & fField )
+void FieldSolverCuda::AddF2CFieldCuda( ScalarGrid & grid, RealField & cField, RealField & fField )
 {
-    int nFaces = grid->GetNFaces();
-    int nBFaces = grid->GetNBFaces();
-    int nCells = grid->GetNCells();
+    int nFaces = grid.GetNFaces();
+    int nBFaces = grid.GetNBFaces();
+    int nCells = grid.GetNCells();
     int nTCells = nCells + nBFaces;
 #ifdef ENABLE_CUDA
-    MyAddF2CFieldCuda(&fField[0], &cField[0], &grid->lc.data[0], &grid->rc.data[0], nBFaces, nFaces, nTCells);
+    MyAddF2CFieldCuda(&fField[0], &cField[0], &grid.lc.data[0], &grid.rc.data[0], nBFaces, nFaces, nTCells);
 #endif
 }
 

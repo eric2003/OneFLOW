@@ -322,21 +322,21 @@ void FieldSolver::ZoneUpdateResidual()
     }
 }
 
-void FieldSolver::AddF2CField( ScalarGrid * grid, RealField & cField, RealField & fField )
+void FieldSolver::AddF2CField( ScalarGrid & grid, RealField & cField, RealField & fField )
 {
-    int nFaces = grid->GetNFaces();
-    int nBFaces = grid->GetNBFaces();
+    int nFaces = grid.GetNFaces();
+    int nBFaces = grid.GetNBFaces();
 
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        int lc = grid->lc[ iFace ];
+        int lc = grid.lc[ iFace ];
         cField[ lc ] -= fField[ iFace ];
     }
 
     for ( int iFace = nBFaces; iFace < nFaces; ++ iFace )
     {
-        int lc = grid->lc[ iFace ];
-        int rc = grid->rc[ iFace ];
+        int lc = grid.lc[ iFace ];
+        int rc = grid.rc[ iFace ];
 
         cField[ lc ] -= fField[ iFace ];
         cField[ rc ] += fField[ iFace ];

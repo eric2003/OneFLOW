@@ -49,7 +49,7 @@ public:
     void ZoneUpdateResidual();
     void ZoneTimeIntergral();
     void ZoneUpdate();
-    void AddF2CField( ScalarGrid * grid, RealField & cField, RealField & fField );
+    void AddF2CField( ScalarGrid & grid, RealField & cField, RealField & fField );
 };
 
 
