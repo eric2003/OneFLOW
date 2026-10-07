@@ -87,7 +87,7 @@ void ScalarMetis::Run()
     std::cout << " scalar_npart = " << scalar_npart << "\n";
 
     GridPartition gridPartition;
-    gridPartition.PartitionGrid( root_grid, scalar_npart, & part_grids );
+    gridPartition.PartitionGrid( *root_grid, scalar_npart, part_grids );
 
     ScalarMetisAddZoneGrid( part_grids );
     ScalarDumpGrid( scalar_grid_filename, part_grids );
