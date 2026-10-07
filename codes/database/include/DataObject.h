@@ -42,7 +42,7 @@ public:
     virtual void Write( DataBook * dataBook ) {};
     virtual void Read( DataBook * dataBook, int numberOfElements ) {};
     virtual void Copy( DataObject * dataObject ) {};
-    virtual void Dump( std::fstream & file ) {};
+    virtual void Dump( std::fstream & file ) const {};
 };
 
 template < typename T >
@@ -180,7 +180,7 @@ public:
     }
 
     // Dump data content to output file stream
-    void Dump( std::fstream& file ) override
+    void Dump( std::fstream& file ) const override
     {
         TDataObjectDump( file, data );
     }
