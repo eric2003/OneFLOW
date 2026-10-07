@@ -210,6 +210,7 @@ public:
     int volBcType;
 private:
     void ResetMeshData();
+    void ResetTopologyData();
     std::unique_ptr< DataBase > dataBase;
 public:
     int GetNNodes();
