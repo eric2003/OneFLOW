@@ -39,7 +39,7 @@ public:
 public:
     virtual void * GetVoidPointer() { return 0; };
     virtual const void * GetVoidPointer() const { return nullptr; };
-    virtual void Write( DataBook * dataBook ) {};
+    virtual void Write( DataBook * dataBook ) const {};
     virtual void Read( DataBook * dataBook, int numberOfElements ) {};
     virtual void Copy( const DataObject * dataObject ) {};
     virtual void Dump( std::fstream & file ) const {};
@@ -138,12 +138,12 @@ public:
     }
 
     // Serialize internal data to DataBook
-    void Write( DataBook* dataBook ) override
+    void Write( DataBook* dataBook ) const override
     {
         const HXSize_t numberOfElements = this->data.size();
         for ( HXSize_t iElement = 0; iElement < numberOfElements; ++ iElement )
         {
-            T& value = this->data[ iElement ];
+            const T& value = this->data[ iElement ];
             ONEFLOW::HXWrite( dataBook, value );
         }
     }
