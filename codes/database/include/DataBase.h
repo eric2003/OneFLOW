@@ -87,8 +87,8 @@ T GetDataValue( const std::string & varName, DataBase * database )
 
     if (dataEntry != nullptr )
     {
-        DataObject * data = dataEntry->GetDataObject();
-        return GetDataValue< T >(data);
+        DataObject & data = dataEntry->GetDataObject();
+        return GetDataValue< T >( &data );
     }
     else
     {
@@ -109,8 +109,8 @@ T GetDataValue( const std::string & varName, const DataBase * database )
 
     if ( dataEntry != nullptr )
     {
-        const DataObject * data = dataEntry->GetDataObject();
-        return GetDataValue< T >( data );
+        const DataObject & data = dataEntry->GetDataObject();
+        return GetDataValue< T >( &data );
     }
 
     throw std::runtime_error( "DataBase: cannot find variable \"" + varName + "\"" );
@@ -147,8 +147,8 @@ T * GetDataPointer( const std::string & varName )
             "DataBase: cannot find variable \"" + varName + "\"" );
     }
 
-    DataObject * data = dataEntry->GetDataObject();
-    return static_cast< T * >( data->GetVoidPointer() );
+    DataObject & data = dataEntry->GetDataObject();
+    return static_cast< T * >( data.GetVoidPointer() );
 }
 
 class PointerWrap;

@@ -214,3 +214,23 @@ TEST(DataBookOwnership, UniquePtrAndRawViewShareObject)
     dataBook = other;
     EXPECT_NE( ownedBook.get(), nullptr );  // still owns original
 }
+
+TEST(DataEntryInvariant, DataObjectIsRequired)
+{
+    int value = 42;
+    auto dataObject = std::make_unique<TDataObject< int >>( 1 );
+    dataObject->CopyValue( &value, 1 );
+    DataEntry dataEntry( "required_data", HX_INT, 1, std::move( dataObject ) );
+
+    DataObject & object = dataEntry.GetDataObject();
+    EXPECT_EQ( object.GetVoidPointer(), dataEntry.GetDataObject().GetVoidPointer() );
+    EXPECT_EQ( GetDataValue< int >( &object ), 42 );
+}
+
+TEST(DataEntryInvariant, NullDataObjectIsRejected)
+{
+    EXPECT_THROW(
+        DataEntry( "invalid_data", HX_INT, 1, nullptr ),
+        std::invalid_argument
+    );
+}

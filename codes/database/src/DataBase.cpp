@@ -64,7 +64,7 @@ DataBase::~DataBase()
 
 void HXWriteVoid( DataBook * dataBook, const DataEntry * dataEntry )
 {
-    dataEntry->GetDataObject()->Write( dataBook );
+    dataEntry->GetDataObject().Write( dataBook );
 }
 
 void HXWriteDataEntry( DataBook * dataBook, const DataEntry * dataEntry )

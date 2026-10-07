@@ -45,8 +45,8 @@ public:
     const std::string & GetName() const { return name; }
     int GetType() const { return type; }
     int GetSize() const { return size; }
-    DataObject * GetDataObject() { return data.get(); }
-    const DataObject * GetDataObject() const { return data.get(); }
+    DataObject & GetDataObject() { return *data; }
+    const DataObject & GetDataObject() const { return *data; }
 
     void Copy( const DataEntry & inputData );
     void Dump( std::fstream & file ) const;
