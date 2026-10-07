@@ -26,14 +26,8 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-class Rae2822
-{
-public:
-    Rae2822();
-    ~Rae2822();
-public:
-    void Run();
-};
+// Generate the built-in RAE2822 grid.
+void GenerateRae2822Grid();
 
 
 EndNameSpace

@@ -45,8 +45,7 @@ namespace
 
     void RunRae2822( const GridConfig & )
     {
-        Rae2822 rae2822;
-        rae2822.Run();
+        GenerateRae2822Grid();
     }
 
     void RunCylinder( const GridConfig & )
