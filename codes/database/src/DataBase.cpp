@@ -185,6 +185,11 @@ const PointerWrap * GetPointerWrap( const DataField * dataField, const std::stri
 
 void CreateFieldPointer( DataBase * database, std::unique_ptr<PointerWrap> pointerWrap, const std::string & dataObjectName )
 {
+    if ( database == nullptr )
+    {
+        throw std::runtime_error( "DataBase: database is not initialized" );
+    }
+
     auto fieldEntry = std::make_unique<FieldEntry>(
         dataObjectName, std::move( pointerWrap ) );
     database->dataField->UpdateFieldEntry( std::move( fieldEntry ) );
@@ -192,6 +197,11 @@ void CreateFieldPointer( DataBase * database, std::unique_ptr<PointerWrap> point
 
 void * GetFieldPointerVoid( DataBase * database, const std::string & dataObjectName )
 {
+    if ( database == nullptr )
+    {
+        throw std::runtime_error( "DataBase: database is not initialized" );
+    }
+
     PointerWrap * pointerWrap = GetPointerWrap( database->dataField.get(), dataObjectName );
     if ( pointerWrap )
     {
@@ -202,6 +212,11 @@ void * GetFieldPointerVoid( DataBase * database, const std::string & dataObjectN
 
 const void * GetFieldPointerVoid( const DataBase * database, const std::string & dataObjectName )
 {
+    if ( database == nullptr )
+    {
+        throw std::runtime_error( "DataBase: database is not initialized" );
+    }
+
     const PointerWrap * pointerWrap = GetPointerWrap( database->dataField.get(), dataObjectName );
     if ( pointerWrap )
     {

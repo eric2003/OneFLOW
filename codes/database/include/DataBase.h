@@ -73,6 +73,11 @@ T GetDataValue( const std::string & varName, const DataBase * database );
 template < typename T >
 T GetDataValue( const std::string & varName, DataBase * database )
 {
+    if ( database == nullptr )
+    {
+        throw std::runtime_error( "DataBase: database is not initialized" );
+    }
+
     DataEntry * dataEntry = database->dataPara->GetDataPointer( varName );
 
     if (dataEntry != nullptr )
@@ -90,6 +95,11 @@ T GetDataValue( const std::string & varName, DataBase * database )
 template < typename T >
 T GetDataValue( const std::string & varName, const DataBase * database )
 {
+    if ( database == nullptr )
+    {
+        throw std::runtime_error( "DataBase: database is not initialized" );
+    }
+
     const DataEntry * dataEntry = database->dataPara->GetDataPointer( varName );
 
     if ( dataEntry != nullptr )
@@ -144,8 +154,7 @@ PointerWrap * GetPointerWrap( DataField * dataField, const std::string & dataObj
 const PointerWrap * GetPointerWrap( const DataField * dataField, const std::string & dataObjectName );
 
 // Field storage lookup (optional): returns nullptr if the named field
-// is not registered. Callers that require the field must null-check
-// or Fatal. Contrast with GetDataValue / GetDataPointer (required).
+// is not registered. The DataBase itself is required and must be initialized.
 void * GetFieldPointerVoid( DataBase * database, const std::string & dataObjectName );
 const void * GetFieldPointerVoid( const DataBase * database, const std::string & dataObjectName );
 
@@ -159,7 +168,7 @@ template < typename T, typename TStorage >
 const T * GetFieldPointer( const TStorage * storage, const std::string & dataObjectName );
 
 // Required field access: throws when the named field is not registered.
-// Prefer GetFieldPointer + null-check/Fatal when presence is uncertain.
+// The DataBase itself is required and must be initialized.
 template < typename T >
 T & GetFieldReference( DataBase * database, const std::string & dataObjectName );
 template < typename T >
