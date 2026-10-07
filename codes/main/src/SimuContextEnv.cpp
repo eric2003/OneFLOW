@@ -117,8 +117,9 @@ void SimuContext::TeardownCase()
     ActionState::Reset();
     Iteration::Reset();
     FieldManagerRegistry::FreeFieldManager();
-    GetGlobalDataBase()->GetDataField()->Clear();
-    GetGlobalDataBase()->GetDataPara()->Clear();
+    DataBase & dataBase = RequireGlobalDataBase();
+    dataBase.RequireDataField().Clear();
+    dataBase.RequireDataPara().Clear();
     logFile.ClearCaseDir();
     Prj::ClearPrjBaseDir();
 
