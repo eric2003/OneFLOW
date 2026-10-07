@@ -211,7 +211,7 @@ void UTimeStep::CalcVisSpectrumField()
 
     MRField * vissr = ONEFLOW::GetFieldPointer< MRField >( grid, "vissr" );
 
-    ONEFLOW::ZeroField( vissr, 1, grid->nCells );
+    ONEFLOW::ZeroField( vissr, 1, grid.nCells );
 
     if ( vis_model.vismodel <= 0 ) return;
 
