@@ -59,7 +59,7 @@ void DataField::UpdateFieldEntry( std::unique_ptr<FieldEntry> fieldEntry )
 {
     if ( fieldEntry == nullptr ) return;
 
-    const std::string name = fieldEntry->name;
+    const std::string name = fieldEntry->GetName();
     auto it = dataMap.find( name );
     if ( it == dataMap.end() )
     {
