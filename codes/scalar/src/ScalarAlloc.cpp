@@ -92,10 +92,10 @@ void ScalarFieldManager::AllocateAllFields()
 
 void ScalarFieldManager::AllocateInterfaceField()
 {
-    ScalarGrid * grid = ScalarZone::GetGrid();
-    ScalarIFace * scalarIFace = grid->scalarIFace.get();
+    ScalarGrid & grid = *ScalarZone::GetGrid();
+    ScalarIFace & scalarIFace = *grid.scalarIFace;
 
-    int nIFaces = scalarIFace->GetNIFaces();
+    int nIFaces = scalarIFace.GetNIFaces();
     //std::cout << " nIFaces = " << nIFaces << "\n";
 
     if ( nIFaces == 0 ) return;
@@ -106,18 +106,18 @@ void ScalarFieldManager::AllocateInterfaceField()
 
 void ScalarFieldManager::AllocateInnnerField()
 {
-    ScalarGrid * grid = ScalarZone::GetGrid();
-    int nTCells = grid->GetNTCells();
+    ScalarGrid & grid = *ScalarZone::GetGrid();
+    int nTCells = grid.GetNTCells();
 
-    inner->AllocateField( grid, nTCells );
+    inner->AllocateField( &grid, nTCells );
 }
 
 void ScalarFieldManager::AllocateFaceField()
 {
-    ScalarGrid * grid = ScalarZone::GetGrid();
-    int nFaces = grid->GetNFaces();
+    ScalarGrid & grid = *ScalarZone::GetGrid();
+    int nFaces = grid.GetNFaces();
 
-    faceField->AllocateField( grid, nFaces );
+    faceField->AllocateField( &grid, nFaces );
 }
 
 void ScalarFieldManager::UploadInterfaceField()
@@ -132,7 +132,7 @@ void ScalarFieldManager::UploadInterfaceField()
 
     for ( std::map< std::string, int >::iterator iter = this->interfaceAlloc->data.begin(); iter != this->interfaceAlloc->data.end(); ++ iter )
     {
-        ONEFLOW::ScalarUploadInterfaceValue( grid, iter->first );
+        ONEFLOW::ScalarUploadInterfaceValue( &grid, iter->first );
     }
 }
 
@@ -148,7 +148,7 @@ void ScalarFieldManager::DownloadInterfaceField()
 
     for ( std::map< std::string, int >::iterator iter = this->interfaceAlloc->data.begin(); iter != this->interfaceAlloc->data.end(); ++ iter )
     {
-        ONEFLOW::ScalarDownloadInterfaceValue( grid, iter->first );
+        ONEFLOW::ScalarDownloadInterfaceValue( &grid, iter->first );
     }
 }
 
@@ -160,7 +160,7 @@ void ScalarUploadInterfaceValue( ScalarGrid * grid, const std::string & name )
 
     int nEqu = field2D->GetNEqu();
 
-    DataStorage * dataSend = grid->scalarIFace->dataSend.get();
+    DataStorage * dataSend = grid.scalarIFace->dataSend.get();
 
     MRField * fieldStorage = ONEFLOW::GetFieldPointer< MRField >( dataSend, name );
 
