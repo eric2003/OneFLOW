@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*\
+/*---------------------------------------------------------------------------*\\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
@@ -17,8 +17,7 @@ License
 
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
-
-\*---------------------------------------------------------------------------*/
+\\*---------------------------------------------------------------------------*/
 
 #include "WallDist.h"
 #include <memory>
@@ -99,7 +98,7 @@ void FillWallStructTask( StringField & /*data*/ )
 
 void FillWallStruct( StringField & /*data*/ )
 {
-    UnsGrid & grid = Zone::GetUnsGridReference();
+    UnsGrid & grid = *Zone::GetUnsGrid();
     const int nBFaces = grid.GetFaceTopo().GetBcRecord().GetNBFace();
     BcRecord * bcRecord = &grid.GetFaceTopo().GetBcRecord();
 
@@ -158,7 +157,7 @@ void CalcWallDist( StringField & /*data*/ )
         return;
     }
 
-    UnsGrid & grid = Zone::GetUnsGridReference();
+    UnsGrid & grid = *Zone::GetUnsGrid();
     RealField & dist = grid.GetCellMesh().dist;
     const int nCells = grid.nCells;
 
