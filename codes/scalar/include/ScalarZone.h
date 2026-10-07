@@ -47,6 +47,8 @@ public:
     static void AddGrid( int zid, std::unique_ptr< ScalarGrid > grid );
     static ScalarGrid * GetGrid( int iZone );
     static ScalarGrid * GetGrid();
+    static ScalarGrid & GetGridReference( int iZone );
+    static ScalarGrid & GetGridReference();
 };
 
 EndNameSpace
