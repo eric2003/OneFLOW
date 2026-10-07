@@ -79,7 +79,7 @@ void DataEntry::Copy( DataEntry * inputData )
     this->data->Copy( inputData->data.get() );
 }
 
-void DataEntry::Dump( std::fstream & file )
+void DataEntry::Dump( std::fstream & file ) const
 {
     file << name << " , " << DataBaseType::GetName( type ) << " : ";
     this->data->Dump( file );
@@ -148,11 +148,11 @@ void DataPara::Clear()
     dataMap.clear();
 }
 
-void DataPara::DumpData( std::fstream & file )
+void DataPara::DumpData( std::fstream & file ) const
 {
     std::cout << " Dumping database:\n";
     int count = 0;
-    for ( auto & pair : dataMap )
+    for ( const auto & pair : dataMap )
     {
         file << ++ count << ": ";
         pair.second->Dump( file );
