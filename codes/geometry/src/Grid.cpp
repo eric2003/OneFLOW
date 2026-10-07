@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Grid.h"
+#include "Fatal.h"
 #include "DataBase.h"
 #include "Dimension.h"
 #include "NodeMesh.h"
@@ -90,8 +91,8 @@ std::unique_ptr< Grid > Grid::SafeCloneUnique( const std::string & type )
     GridRegistry::iterator iter = registry.find( type );
     if ( iter == registry.end() )
     {
-        std::cout << type << " class not found" << std::endl;
-        exit( 0 );
+        Fatal( type + " class not found" );
+        return nullptr;
     }
 
     return iter->second->Clone();
