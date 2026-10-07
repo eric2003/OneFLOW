@@ -104,7 +104,7 @@ public:
 public:
     size_t GetNElements();
     void AddElem( IntList &elem );
-    void AddElem( std::vector< int > &elem );
+    void AddElem( const std::vector< int > &elem );
 
     std::vector< int > & operator [] ( int i )
     {
