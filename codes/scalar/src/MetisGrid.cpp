@@ -300,7 +300,9 @@ void GridPartition::ReconstructNeighbor( std::vector< std::unique_ptr< ScalarGri
 	int nZones = this->GetNZones( grids );
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
-		grids[ iZone ]->scalarIFace->ReconstructNeighbor();
+		ScalarGrid & grid = *grids[ iZone ];
+		ScalarIFace & scalarIFace = *grid.scalarIFace;
+		scalarIFace.ReconstructNeighbor();
 	}
 }
 
