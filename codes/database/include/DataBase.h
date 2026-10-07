@@ -35,6 +35,7 @@ License
 #include <set>
 #include <map>
 #include <stdexcept>
+#include <type_traits>
 
 BeginNameSpace( ONEFLOW )
 
@@ -300,7 +301,22 @@ const T & GetFieldReference( const TStorage * storage, const std::string & dataO
 template < typename TStorage >
 void CreateFieldPointer( TStorage * storage, std::unique_ptr<PointerWrap> pointerWrap, const std::string & dataObjectName )
 {
-    DataBase & database = storage->RequireDataBase();
+    DataBase & database = [&]() -> DataBase &
+    {
+        if constexpr ( std::is_same_v< TStorage, DataBase > )
+        {
+            if ( storage == nullptr )
+            {
+                throw std::runtime_error( "DataBase: database is not initialized" );
+            }
+            return *storage;
+        }
+        else
+        {
+            return storage->RequireDataBase();
+        }
+    }();
+
     ONEFLOW::CreateFieldPointer( database, std::move( pointerWrap ), dataObjectName );
 }
 
