@@ -230,8 +230,8 @@ void FieldSolver::ZoneGetQLQR()
     int nFaces = grid.GetNFaces();
 
     RealField & q   = GetFieldReference< MRField > ( &grid, "q" ).AsOneD();
-    RealField & qf1 = GetFieldReference< MRField > ( grid, "qf1" ).AsOneD();
-    RealField & qf2 = GetFieldReference< MRField > ( grid, "qf2" ).AsOneD();
+    RealField & qf1 = GetFieldReference< MRField > ( &grid, "qf1" ).AsOneD();
+    RealField & qf2 = GetFieldReference< MRField > ( &grid, "qf2" ).AsOneD();
 
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
@@ -258,8 +258,8 @@ void FieldSolver::ZoneCalcInvFlux()
     ScalarGrid & grid = ScalarZone::GetGridReference();
 
     RealField & invflux = GetFieldReference< MRField > ( &grid, "invflux" ).AsOneD();
-    RealField & qf1 = GetFieldReference< MRField > ( grid, "qf1" ).AsOneD();
-    RealField & qf2 = GetFieldReference< MRField > ( grid, "qf2" ).AsOneD();
+    RealField & qf1 = GetFieldReference< MRField > ( &grid, "qf1" ).AsOneD();
+    RealField & qf2 = GetFieldReference< MRField > ( &grid, "qf2" ).AsOneD();
 
     const int nFaces = grid.GetNFaces();
     FaceStateView state;
@@ -307,7 +307,7 @@ void FieldSolver::ZoneUpdateResidual()
     ScalarGrid & grid = ScalarZone::GetGridReference();
 
     RealField & res = GetFieldReference< MRField > ( &grid, "res" ).AsOneD();
-    RealField & invflux = GetFieldReference< MRField > ( grid, "invflux" ).AsOneD();
+    RealField & invflux = GetFieldReference< MRField > ( &grid, "invflux" ).AsOneD();
 
     res = 0;
     const int nFaces = grid.GetNFaces();
@@ -402,7 +402,7 @@ void FieldSolver::ZoneUpdate()
 {
     ScalarGrid & grid = ScalarZone::GetGridReference();
     RealField & q = GetFieldReference< MRField > ( &grid, "q" ).AsOneD();
-    RealField & res = GetFieldReference< MRField > ( grid, "res" ).AsOneD();
+    RealField & res = GetFieldReference< MRField > ( &grid, "res" ).AsOneD();
 
     int nCells = grid.GetNCells();
     for ( int iCell = 0; iCell < nCells; ++ iCell )
