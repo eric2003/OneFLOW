@@ -41,12 +41,6 @@ class ScalarGrid;
 class MetisSplit
 {
 public:
-    MetisSplit();
-    ~MetisSplit();
-public:
-    MetisIntList xadj;
-    MetisIntList adjncy;
-public:
     void MetisPartition( const ScalarGrid & ggrid, int nPart, MetisIntList & cellzone );
     void ManualPartition( const ScalarGrid & ggrid, int nPart, MetisIntList & cellzone );
 private:
@@ -59,9 +53,6 @@ class ScalarIFace;
 
 class GridPartition
 {
-public:
-    GridPartition();
-    ~GridPartition();
 public:
     void PartitionGrid( ScalarGrid & ggrid, int nPart, std::vector< std::unique_ptr< ScalarGrid > > & grids );
 private:
