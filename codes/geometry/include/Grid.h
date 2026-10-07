@@ -23,7 +23,6 @@ License
 
 #pragma once
 #include "Constant.h"
-#include "DataStorage.h"
 #include "HXDefine.h"
 #include <vector>
 #include <string>
@@ -40,17 +39,23 @@ std::unique_ptr< Grid > Clone() const override { return std::make_unique< TYPE >
     Grid * TYPE ## _myClass = \
         Grid::Register( #TYPE, std::make_unique< TYPE >() );
 
+class DataBase;
 class DataBook;
 class NodeMesh;
 class InterFace;
 class SlipFace;
 class IFaceLink;
 
-class Grid : public DataStorage
+class Grid
 {
 public:
     Grid();
     virtual ~Grid();
+public:
+    DataBase * GetDataBase();
+    const DataBase * GetDataBase() const;
+    DataBase & RequireDataBase();
+    const DataBase & RequireDataBase() const;
 public:
     virtual std::unique_ptr< Grid > Clone() const = 0;
 public:
@@ -67,6 +72,7 @@ public:
     int nBFaces;
     int nIFaces;
     int volBcType;
+    std::unique_ptr< DataBase > dataBase;
     std::unique_ptr< NodeMesh > nodeMesh;
     std::unique_ptr< InterFace > interFace;
     std::unique_ptr< SlipFace > slipFace;
