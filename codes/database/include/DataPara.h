@@ -44,7 +44,7 @@ public:
     std::unique_ptr<DataObject> data;
 public:
     void Copy( DataEntry * inputData );
-    void Dump( std::fstream & file );
+    void Dump( std::fstream & file ) const;
 };
 
 class DataPara
@@ -70,7 +70,7 @@ public:
     DataMap * GetDataMap() { return &dataMap; }
     const DataMap * GetDataMap() const { return &dataMap; }
 
-    void DumpData( std::fstream & file );
+    void DumpData( std::fstream & file ) const;
 };
 
 EndNameSpace
