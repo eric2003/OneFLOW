@@ -289,13 +289,13 @@ void FieldSolverBasic::Visualize()
 
         if ( Parallel::pid == sPid )
         {
-            this->GetVisualData( & dataBook );
+            this->GetVisualData( dataBook );
         }
 
         HXSwapData( ActionState::dataBook, sPid, rPid );
         if ( Parallel::pid == rPid )
         {
-            this->AddVisualData( ActionState::dataBook, q, theory, xcoor );
+            this->AddVisualData( dataBook, q, theory, xcoor );
         }
     }
 
@@ -346,7 +346,7 @@ void FieldSolverBasic::Reorder( RealField & a, RealField & b, RealField & c )
     }
 }
 
-void FieldSolverBasic::GetVisualData( DataBook * dataBook )
+void FieldSolverBasic::GetVisualData( DataBook & dataBook )
 {
     ScalarGrid & grid = ScalarZone::GetGridReference();
 
@@ -370,27 +370,27 @@ void FieldSolverBasic::GetVisualData( DataBook * dataBook )
         xcoor.push_back( xm );
         qvisual.push_back( q[ iCell ] );
     }
-    dataBook->MoveToBegin();
+    dataBook.MoveToBegin();
 
-    ONEFLOW::HXWrite( dataBook, nCells );
-    ONEFLOW::HXWrite( dataBook, qvisual );
-    ONEFLOW::HXWrite( dataBook, theory );
-    ONEFLOW::HXWrite( dataBook, xcoor );
+    ONEFLOW::HXWrite( & dataBook, nCells );
+    ONEFLOW::HXWrite( & dataBook, qvisual );
+    ONEFLOW::HXWrite( & dataBook, theory );
+    ONEFLOW::HXWrite( & dataBook, xcoor );
 }
 
-void FieldSolverBasic::AddVisualData( DataBook * dataBook, RealField & qList, RealField & theoryList, RealField & xcoorList )
+void FieldSolverBasic::AddVisualData( DataBook & dataBook, RealField & qList, RealField & theoryList, RealField & xcoorList )
 {
-    dataBook->MoveToBegin();
+    dataBook.MoveToBegin();
 
     int nCells = -1;
-    ONEFLOW::HXRead( dataBook, nCells );
+    ONEFLOW::HXRead( & dataBook, nCells );
     RealField q, theory, xcoor;
     q.resize( nCells );
     theory.resize( nCells );
     xcoor.resize( nCells );
-    ONEFLOW::HXRead( dataBook, q    );
-    ONEFLOW::HXRead( dataBook, theory );
-    ONEFLOW::HXRead( dataBook, xcoor  );
+    ONEFLOW::HXRead( & dataBook, q    );
+    ONEFLOW::HXRead( & dataBook, theory );
+    ONEFLOW::HXRead( & dataBook, xcoor  );
 
     for ( int iCell = 0; iCell < nCells; ++ iCell )
     {
