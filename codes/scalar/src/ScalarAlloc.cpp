@@ -100,8 +100,8 @@ void ScalarFieldManager::AllocateInterfaceField()
 
     if ( nIFaces == 0 ) return;
 
-    interfaceAlloc->AllocateField( scalarIFace->dataSend.get(), nIFaces );
-    interfaceAlloc->AllocateField( scalarIFace->dataRecv.get(), nIFaces );
+    interfaceAlloc->AllocateField( scalarIFace.dataSend.get(), nIFaces );
+    interfaceAlloc->AllocateField( scalarIFace.dataRecv.get(), nIFaces );
 }
 
 void ScalarFieldManager::AllocateInnnerField()
@@ -132,7 +132,7 @@ void ScalarFieldManager::UploadInterfaceField()
 
     for ( std::map< std::string, int >::iterator iter = this->interfaceAlloc->data.begin(); iter != this->interfaceAlloc->data.end(); ++ iter )
     {
-        ONEFLOW::ScalarUploadInterfaceValue( &grid, iter->first );
+        ONEFLOW::ScalarUploadInterfaceValue( grid, iter->first );
     }
 }
 
@@ -148,7 +148,7 @@ void ScalarFieldManager::DownloadInterfaceField()
 
     for ( std::map< std::string, int >::iterator iter = this->interfaceAlloc->data.begin(); iter != this->interfaceAlloc->data.end(); ++ iter )
     {
-        ONEFLOW::ScalarDownloadInterfaceValue( &grid, iter->first );
+        ONEFLOW::ScalarDownloadInterfaceValue( grid, iter->first );
     }
 }
 
@@ -160,7 +160,7 @@ void ScalarUploadInterfaceValue( ScalarGrid * grid, const std::string & name )
 
     int nEqu = field2D->GetNEqu();
 
-    DataStorage * dataSend = grid.scalarIFace->dataSend.get();
+    DataStorage * dataSend = grid->scalarIFace->dataSend.get();
 
     MRField * fieldStorage = ONEFLOW::GetFieldPointer< MRField >( dataSend, name );
 
