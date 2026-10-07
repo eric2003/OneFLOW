@@ -36,7 +36,7 @@ public:
     FieldEntry();
     FieldEntry( const std::string & name, std::unique_ptr<PointerWrap> data );
     ~FieldEntry();
-public:
+private:
     std::string name;
     std::unique_ptr<PointerWrap> data;
 public:
