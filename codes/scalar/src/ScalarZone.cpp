@@ -30,13 +30,11 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-int ScalarZone::nLocalZones = 0;
 std::vector< std::unique_ptr< ScalarGrid > > ScalarZone::scalar_grids;
 
 void ScalarZone::Reset()
 {
     ScalarZone::scalar_grids.clear();
-    ScalarZone::nLocalZones = 0;
 }
 
 void ScalarZone::AddGrid( int zid, std::unique_ptr< ScalarGrid > grid )

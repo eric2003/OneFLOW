@@ -35,8 +35,6 @@ class ScalarGrid;
 class ScalarZone
 {
 public:
-public:
-    static int nLocalZones;
     // Exclusive owner of per-zone scalar grids.
     static std::vector< std::unique_ptr< ScalarGrid > > scalar_grids;
 public:
