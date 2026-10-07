@@ -42,8 +42,6 @@ BeginNameSpace( ONEFLOW )
 
 FieldSolverBasic::FieldSolverBasic()
 {
-    this->grid = std::make_unique< ScalarGrid >();
-    this->field = std::make_unique< ScalarField >();
     this->para = std::make_unique< FieldPara >();
     this->scalarFieldManager = std::make_unique< ScalarFieldManager >();
     ScalarZone::Allocate();

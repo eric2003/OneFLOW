@@ -59,8 +59,6 @@ public:
     FieldSolverBasic();
     ~FieldSolverBasic();
 public:
-    std::unique_ptr< ScalarField > field;
-    std::unique_ptr< ScalarGrid > grid;
     std::unique_ptr< FieldPara > para;
     std::unique_ptr< ScalarFieldManager > scalarFieldManager;
     std::vector< std::unique_ptr< ScalarField > > fields;
