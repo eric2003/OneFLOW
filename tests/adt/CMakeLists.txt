@@ -3,6 +3,7 @@ set(CMAKE_FOLDER ${CMAKE_FOLDER}/adt)
 set(OneFLOW_Root ${CMAKE_SOURCE_DIR}/codes )
 set(ADT_INCLUDE_DIR ${OneFLOW_Root}/adt/include)
 set(BASIC_INCLUDE_DIR ${OneFLOW_Root}/basic/include)
+set(DATABASE_INCLUDE_DIR ${OneFLOW_Root}/database/include)
 set(GEOMETRY_INCLUDE_DIR ${OneFLOW_Root}/geometry/include)
 set(GEOMETRY_SRC_DIR ${OneFLOW_Root}/geometry/src)
 
@@ -24,6 +25,7 @@ target_include_directories(adt_test
   PRIVATE
     ${ADT_INCLUDE_DIR}
 	${BASIC_INCLUDE_DIR}
+	${DATABASE_INCLUDE_DIR}
 	${GEOMETRY_INCLUDE_DIR}
 )
 
