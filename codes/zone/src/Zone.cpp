@@ -107,7 +107,7 @@ void Zone::AddGrid( int zid, std::unique_ptr< Grid > grid )
 
 Grid * Zone::GetGrid( int zid, int gl )
 {
-    return &GridAt( Zone::globalGrids[ static_cast< std::size_t >( zid ) ], gl );
+    return &Zone::GetGridReference( zid, gl );
 }
 
 Grid & Zone::GetGridReference( int zid, int gl )
@@ -117,7 +117,7 @@ Grid & Zone::GetGridReference( int zid, int gl )
 
 Grid * Zone::GetGrid()
 {
-    return Zone::GetGrid( ZoneState::zid, GridState::gridLevel );
+    return &Zone::GetGridReference();
 }
 
 Grid & Zone::GetGridReference()
