@@ -211,6 +211,7 @@ public:
 private:
     void ResetMeshData();
     void ResetTopologyData();
+    void ResetGeometryData();
     std::unique_ptr< DataBase > dataBase;
 public:
     int GetNNodes();
