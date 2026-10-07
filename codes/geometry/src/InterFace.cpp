@@ -300,17 +300,16 @@ void InterFaceTopo::InitZoneNeighborsInfoTest()
     {
         if ( ! ZoneState::IsValidZone( iZone ) ) continue;
 
-        ScalarGrid * grid = Zone::GetScalarGrid( iZone );
-
-        ScalarIFace * scalarIFace = grid->scalarIFace.get();
+        ScalarGrid & grid = Zone::GetScalarGridReference( iZone );
+        ScalarIFace & scalarIFace = *grid.scalarIFace;
 
         IntField & neiborZoneIds = this->data[ iZone ];
 
-        int nNei = scalarIFace->data.size();
+        int nNei = static_cast< int >( scalarIFace.data.size() );
 
         for ( int iNei = 0; iNei < nNei; ++ iNei )
         {
-            ScalarIFaceIJ & sij = scalarIFace->data[ iNei ];
+            ScalarIFaceIJ & sij = scalarIFace.data[ iNei ];
             neiborZoneIds.push_back( sij.zonej );
         }
     }
