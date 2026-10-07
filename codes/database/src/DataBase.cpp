@@ -36,6 +36,15 @@ DataBase * GetGlobalDataBase()
     return globalDataBase.get();
 }
 
+DataBase & RequireGlobalDataBase()
+{
+    if ( globalDataBase == nullptr )
+    {
+        throw std::logic_error( "DataBase: global database is not initialized" );
+    }
+    return *globalDataBase;
+}
+
 class HXInitGlobalDataBase
 {
 public:
@@ -119,8 +128,8 @@ void ProcessData( const std::string & name, const std::string * value, int type,
 
     auto dataEntry = std::make_unique<DataEntry>(
         name, type, size, std::move( dataObject ) );
-    DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
-    dataBase->RequireDataPara().SetDataEntry( std::move( dataEntry ) );
+    DataBase & dataBase = ONEFLOW::RequireGlobalDataBase();
+    dataBase.RequireDataPara().SetDataEntry( std::move( dataEntry ) );
 }
 
 std::unique_ptr<DataObject> CreateDataObject( int type, int size )
@@ -229,8 +238,8 @@ const void * GetFieldPointerVoid( const DataBase * database, const std::string &
 
 void DumpDataBase( std::fstream & file )
 {
-    DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
-    dataBase->RequireDataPara().DumpData( file );
+    DataBase & dataBase = ONEFLOW::RequireGlobalDataBase();
+    dataBase.RequireDataPara().DumpData( file );
 }
 
 EndNameSpace
