@@ -121,6 +121,13 @@ void SimuContext::TeardownCase()
     GetGlobalDataBase()->dataPara->Clear();
     logFile.ClearCaseDir();
     Prj::ClearPrjBaseDir();
+
+    // Clear context-owned case state so the same process can bind a new case
+    // without carrying task or solver-name state from the previous case.
+    task_ = TaskEnum::SOLVE_FIELD;
+    taskName_ = "Solve";
+    taskResolved_ = false;
+    expandedSolverNames_.clear();
     envReady_ = false;
 }
 
