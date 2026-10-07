@@ -58,10 +58,10 @@ protected:
 };
 
 class DataBook;
-void ReadAbstractData( std::fstream & file, DataBook * dataBook, int sendpid, int recvpid, int tag = 0 );
-void DataToGrid( DataBook * dataBook, int zid );
-void DataToGridImp( DataBook * dataBook, int zid );
-void DataToGridTest( DataBook * dataBook, int zid );
+void ReadAbstractData( std::fstream & file, DataBook & dataBook, int sendpid, int recvpid, int tag = 0 );
+void DataToGrid( DataBook & dataBook, int zid );
+void DataToGridImp( DataBook & dataBook, int zid );
+void DataToGridTest( DataBook & dataBook, int zid );
 
 
 EndNameSpace
