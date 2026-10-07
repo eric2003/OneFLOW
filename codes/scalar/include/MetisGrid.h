@@ -69,7 +69,7 @@ public:
 public:
     int GetNZones();
     void AllocateGrid( int nZones );
-    void PartitionGrid( ScalarGrid * ggrid, int nPart, std::vector< std::unique_ptr< ScalarGrid > > * grids );
+    void PartitionGrid( ScalarGrid & ggrid, int nPart, std::vector< std::unique_ptr< ScalarGrid > > & grids );
     void ReconstructGridFaceTopo();
     void ReconstructInterfaceTopo();
     void ReconstructNode();
