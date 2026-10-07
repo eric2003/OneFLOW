@@ -52,10 +52,19 @@ private:
     std::unique_ptr<DataField> dataField;
 
 public:
+    // The database owns these stores for its entire lifetime.
+    // Use pointer access only for compatibility with existing nullable APIs.
     DataPara * GetDataPara() { return dataPara.get(); }
     const DataPara * GetDataPara() const { return dataPara.get(); }
+
+    DataPara & RequireDataPara() { return *dataPara; }
+    const DataPara & RequireDataPara() const { return *dataPara; }
+
     DataField * GetDataField() { return dataField.get(); }
     const DataField * GetDataField() const { return dataField.get(); }
+
+    DataField & RequireDataField() { return *dataField; }
+    const DataField & RequireDataField() const { return *dataField; }
 };
 std::unique_ptr<DataEntry> HXReadDataEntry( DataBook * dataBook );
 void HXWriteDataEntry( DataBook * dataBook, const DataEntry * dataEntry );
