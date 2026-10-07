@@ -111,6 +111,11 @@ public:
         return data[ i ];
     }
 
+    const std::vector< int > & operator [] ( int i ) const
+    {
+        return data[ i ];
+    }
+
     void ReOrder( IntList & orderMap );
 
     void Reserve( int new_size );
@@ -277,7 +282,7 @@ public:
     void AddPhysicalBcFace( int global_face_id, int bctype, int lcell, int rcell );
     void AddInnerFace( int global_face_id, int bctype, int lcell, int rcell );
     void AddInterfaceBcFace( int global_face_id, int bctype, int lcell, int rcell, int nei_zoneid, int nei_cellid );
-    void ReconstructNode( ScalarGrid * ggrid );
+    void ReconstructNode( const ScalarGrid & ggrid );
 
 };
 
