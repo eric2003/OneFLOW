@@ -92,7 +92,7 @@ void ScalarFieldManager::AllocateAllFields()
 
 void ScalarFieldManager::AllocateInterfaceField()
 {
-    ScalarGrid & grid = *ScalarZone::GetGrid();
+    ScalarGrid & grid = ScalarZone::GetGridReference();
     ScalarIFace & scalarIFace = *grid.scalarIFace;
 
     int nIFaces = scalarIFace.GetNIFaces();
@@ -106,7 +106,7 @@ void ScalarFieldManager::AllocateInterfaceField()
 
 void ScalarFieldManager::AllocateInnnerField()
 {
-    ScalarGrid & grid = *ScalarZone::GetGrid();
+    ScalarGrid & grid = ScalarZone::GetGridReference();
     int nTCells = grid.GetNTCells();
 
     inner->AllocateField( &grid, nTCells );
@@ -114,7 +114,7 @@ void ScalarFieldManager::AllocateInnnerField()
 
 void ScalarFieldManager::AllocateFaceField()
 {
-    ScalarGrid & grid = *ScalarZone::GetGrid();
+    ScalarGrid & grid = ScalarZone::GetGridReference();
     int nFaces = grid.GetNFaces();
 
     faceField->AllocateField( &grid, nFaces );
@@ -122,8 +122,8 @@ void ScalarFieldManager::AllocateFaceField()
 
 void ScalarFieldManager::UploadInterfaceField()
 {
-    ScalarGrid * grid = ScalarZone::GetGrid();
-    ScalarIFace * scalarIFace = grid->scalarIFace.get();
+    ScalarGrid & grid = ScalarZone::GetGridReference();
+    ScalarIFace * scalarIFace = grid.scalarIFace.get();
 
     int nIFaces = scalarIFace->GetNIFaces();
     //std::cout << " nIFaces = " << nIFaces << "\n";
@@ -132,14 +132,14 @@ void ScalarFieldManager::UploadInterfaceField()
 
     for ( std::map< std::string, int >::iterator iter = this->interfaceAlloc->data.begin(); iter != this->interfaceAlloc->data.end(); ++ iter )
     {
-        ONEFLOW::ScalarUploadInterfaceValue( grid, iter->first );
+        ONEFLOW::ScalarUploadInterfaceValue( &grid, iter->first );
     }
 }
 
 void ScalarFieldManager::DownloadInterfaceField()
 {
-    ScalarGrid * grid = ScalarZone::GetGrid();
-    ScalarIFace * scalarIFace = grid->scalarIFace.get();
+    ScalarGrid & grid = ScalarZone::GetGridReference();
+    ScalarIFace * scalarIFace = grid.scalarIFace.get();
 
     int nIFaces = scalarIFace->GetNIFaces();
     //std::cout << " nIFaces = " << nIFaces << "\n";
@@ -148,7 +148,7 @@ void ScalarFieldManager::DownloadInterfaceField()
 
     for ( std::map< std::string, int >::iterator iter = this->interfaceAlloc->data.begin(); iter != this->interfaceAlloc->data.end(); ++ iter )
     {
-        ONEFLOW::ScalarDownloadInterfaceValue( grid, iter->first );
+        ONEFLOW::ScalarDownloadInterfaceValue( &grid, iter->first );
     }
 }
 
