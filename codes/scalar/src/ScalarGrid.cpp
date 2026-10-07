@@ -327,6 +327,21 @@ void ScalarGrid::ResetMeshData()
 	nTCells = 0;
 }
 
+void ScalarGrid::ResetTopologyData()
+{
+	lc.data.clear();
+	rc.data.clear();
+	lpos.data.clear();
+	rpos.data.clear();
+	faces.data.clear();
+	fTypes.data.clear();
+	fBcTypes.data.clear();
+	bcTypes.data.clear();
+
+	nFaces = 0;
+	nBFaces = 0;
+}
+
 int ScalarGrid::GetNNodes()
 {
 	return this->xn.GetNElements();
@@ -937,6 +952,8 @@ void ScalarGrid::CalcGhostCellCenterVol1D()
 
 void ScalarGrid::CalcTopology()
 {
+	this->ResetTopologyData();
+
 	this->nNodes = this->GetNNodes();
 	this->nCells = this->GetNCells();
 
