@@ -196,7 +196,7 @@ TEST(DataParaTestStandalone, ClearReleasesAllEntries)
     int value = 42;
     auto dataObject = std::make_unique<TDataObject< int >>( 1 );
     dataObject->CopyValue( &value, 1 );
-    dataEntry->data = std::move( dataObject );
+    dataEntry->SetDataObject( std::move( dataObject ) );
 
     dataPara.UpdateDataPointer( std::move( dataEntry ) );
 
