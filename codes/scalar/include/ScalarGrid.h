@@ -25,11 +25,11 @@ License
 #include "HXType.h"
 #include "HXDefine.h"
 #include "HXCgns.h"
+#include "DataStorage.h"
 #include "metis.h"
 #include <vector>
 #include <fstream>
 #include <memory>
-#include <stdexcept>
 
 
 BeginNameSpace( ONEFLOW )
@@ -154,14 +154,13 @@ public:
     void ScanBcFace( ScalarGrid * grid );
 };
 
-class DataBase;
 class DataBook;
 class ScalarIFace;
 class CgnsZbase;
 class CgnsZone;
 class SectionManager;
 
-class ScalarGrid
+class ScalarGrid : public DataStorage
 {
 public:
     ScalarGrid();
@@ -199,31 +198,12 @@ public:
     IntList bcTypes;
     IntList bcNameIds;
     std::unique_ptr< ScalarBccos > scalarBccos;
-    std::unique_ptr< DataBase > dataBase;
     std::unique_ptr< ScalarIFace > scalarIFace;
     int type, level;
     int id;
     int localId;
     int volBcType;
 public:
-    DataBase * GetDataBase() { return dataBase.get(); };
-    const DataBase * GetDataBase() const { return dataBase.get(); }
-    DataBase & RequireDataBase()
-    {
-        if ( dataBase == nullptr )
-        {
-            throw std::logic_error( "ScalarGrid: DataBase is not initialized" );
-        }
-        return *dataBase;
-    }
-    const DataBase & RequireDataBase() const
-    {
-        if ( dataBase == nullptr )
-        {
-            throw std::logic_error( "ScalarGrid: DataBase is not initialized" );
-        }
-        return *dataBase;
-    }
 public:
     int GetNNodes();
     int GetNCells();
