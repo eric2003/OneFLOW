@@ -100,9 +100,9 @@ std::unique_ptr<FieldWrap> FieldHome::CreateField( int solverType, int level )
 {
     SolverInfo * info = SolverInfoFactory::GetSolverInfo( solverType );
 
-    Grid * grid = Zone::GetGrid();
+    Grid & grid = Zone::GetGridReference();
 
-    int nTCell = grid->nCells + grid->nBFaces;
+    int nTCell = grid.nCells + grid.nBFaces;
 
     auto field = std::make_unique<MRField>( info->nTEqu, nTCell );
 
