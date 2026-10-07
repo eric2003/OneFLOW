@@ -42,6 +42,7 @@ License
 #include "Tolerance.h"
 #include "LogFile.h"
 #include "ActionState.h"
+#include "Iteration.h"
 #include <iostream>
 
 BeginNameSpace( ONEFLOW )
@@ -114,6 +115,7 @@ void SimuContext::TeardownCase()
     Tolerance::Reset();
     Zone::Reset();
     ActionState::Reset();
+    Iteration::Reset();
     FieldManagerRegistry::FreeFieldManager();
     GetGlobalDataBase()->dataField->Clear();
     GetGlobalDataBase()->dataPara->Clear();
