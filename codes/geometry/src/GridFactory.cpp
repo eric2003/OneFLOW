@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*\
+/*---------------------------------------------------------------------------*\\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
@@ -18,7 +18,7 @@ License
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
-\*---------------------------------------------------------------------------*/
+\\*---------------------------------------------------------------------------*/
 
 #include "GridFactory.h"
 #include "CgnsFactory.h"
@@ -88,6 +88,23 @@ namespace
         { GridObjective::Partition,      &PipelinePartition        },
     };
 
+    using Converter = void ( GridFactory::* )(
+        const GridConfig &,
+        const std::string & );
+
+    struct ConverterEntry
+    {
+        GridFileType sourceType;
+        Converter convert;
+    };
+
+    // Keep source-format dispatch data-driven just like pipeline dispatch.
+    constexpr ConverterEntry kConverters[] = {
+        { GridFileType::Plot3D, &GridFactory::Plot3DProcess },
+        { GridFileType::SU2,    &GridFactory::SU2Process },
+        { GridFileType::CGNS,   &GridFactory::CGNSProcess },
+    };
+
     void DispatchPipeline(
         GridFactory & self,
         const GridConfig & config,
@@ -105,6 +122,25 @@ namespace
         throw std::invalid_argument(
             std::string( "Unknown GridObjective / gridObj: " ) +
             std::string( ToString( config.objective ) ) );
+    }
+
+    void DispatchConverter(
+        GridFactory & self,
+        const GridConfig & config,
+        const std::string & caseDir )
+    {
+        for ( const auto & entry : kConverters )
+        {
+            if ( entry.sourceType == config.sourceType )
+            {
+                ( self.*entry.convert )( config, caseDir );
+                return;
+            }
+        }
+
+        throw std::invalid_argument(
+            std::string( "Unsupported source grid type: " ) +
+            std::string( ToString( config.sourceType ) ) );
     }
 }
 
@@ -163,24 +199,8 @@ void GridFactory::ConvertGrid(
     const GridConfig & config,
     const std::string & caseDir )
 {
-    switch ( config.sourceType )
-    {
-        case GridFileType::Plot3D:
-            this->Plot3DProcess( config, caseDir );
-            break;
-        case GridFileType::SU2:
-            this->SU2Process( config, caseDir );
-            break;
-        case GridFileType::CGNS:
-            this->CGNSProcess( config, caseDir );
-            break;
-        default:
-            throw std::invalid_argument(
-                std::string( "Unsupported source grid type: " ) +
-                std::string( ToString( config.sourceType ) ) );
-    }
+    DispatchConverter( *this, config, caseDir );
 }
-
 
 void GridFactory::Plot3DProcess(
     const GridConfig & config,
