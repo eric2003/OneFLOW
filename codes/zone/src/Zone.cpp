@@ -28,7 +28,6 @@ License
 #include "ZoneState.h"
 #include "InterFace.h"
 #include "ScalarZone.h"
-#include "ScalarGrid.h"
 #include "GridGroup.h"
 #include "PIO.h"
 #include "Parallel.h"
@@ -231,26 +230,6 @@ void Zone::ReadGrid(
         zid += gridGroup->nZones;
     }
     Zone::NormalizeLayout();
-}
-
-ScalarGrid * Zone::GetScalarGrid( int iZone )
-{
-    return &Zone::GetScalarGridReference( iZone );
-}
-
-ScalarGrid * Zone::GetScalarGrid()
-{
-    return &Zone::GetScalarGridReference();
-}
-
-ScalarGrid & Zone::GetScalarGridReference( int iZone )
-{
-    return ScalarZone::GetGridReference( iZone );
-}
-
-ScalarGrid & Zone::GetScalarGridReference()
-{
-    return ScalarZone::GetGridReference();
 }
 
 int Zone::GetNumberOfZoneNeighbors( int zoneId )

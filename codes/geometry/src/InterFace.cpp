@@ -26,6 +26,7 @@ License
 #include "Grid.h"
 #include "BgGrid.h"
 #include "Zone.h"
+#include "ScalarZone.h"
 #include "ZoneState.h"
 #include "DataStorage.h"
 #include "Parallel.h"
@@ -300,7 +301,7 @@ void InterFaceTopo::InitZoneNeighborsInfoTest()
     {
         if ( ! ZoneState::IsValidZone( iZone ) ) continue;
 
-        ScalarGrid & grid = Zone::GetScalarGridReference( iZone );
+        ScalarGrid & grid = ScalarZone::GetGridReference( iZone );
         ScalarIFace & scalarIFace = *grid.scalarIFace;
 
         IntField & neiborZoneIds = this->data[ iZone ];

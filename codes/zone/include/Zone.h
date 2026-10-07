@@ -32,7 +32,6 @@ BeginNameSpace( ONEFLOW )
 
 class Grid;
 class UnsGrid;
-class ScalarGrid;
 class InterFaceTopo;
 
 class Zone
@@ -65,11 +64,6 @@ public:
     static Grid * GetFGrid( Grid * grid );
     static UnsGrid * GetUnsGrid();
     static UnsGrid & GetUnsGridReference();
-public:
-    static ScalarGrid * GetScalarGrid( int iZone );
-    static ScalarGrid * GetScalarGrid();
-    static ScalarGrid & GetScalarGridReference( int iZone );
-    static ScalarGrid & GetScalarGridReference();
 public:
     static int GetNumberOfZoneNeighbors( int zoneId );
     static int GetNeighborZoneId( int zoneId, int iNeighbor );

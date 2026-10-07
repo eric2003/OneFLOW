@@ -88,7 +88,7 @@ void FieldSolverBasic::CalcGridMetrics()
     {
         if ( ! ZoneState::IsValidZone( iZone ) ) continue;
 
-        ScalarGrid & grid = Zone::GetScalarGridReference( iZone );
+        ScalarGrid & grid = ScalarZone::GetGridReference( iZone );
         grid.CalcMetrics1D();
     }
 }
