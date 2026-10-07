@@ -149,11 +149,11 @@ void FieldHome::SetField( int fieldId, const std::string & fieldName, int orderF
 
 void FieldHome::SetUnsField( int fieldId, const std::string & fieldName, int orderFlag )
 {
-    Grid * gridIn = Zone::GetGrid();
-    UnsGrid * grid = ONEFLOW::UnsGridCast( gridIn );
+    Grid & grid = Zone::GetGridReference();
+    UnsGrid * unsGrid = ONEFLOW::UnsGridCast( &grid );
 
     MRField * sField, * tField;
-    FieldHome::GetSourceTargetField( grid, fieldId, fieldName, sField, tField, orderFlag );
+    FieldHome::GetSourceTargetField( unsGrid, fieldId, fieldName, sField, tField, orderFlag );
 
     ONEFLOW::SetField( tField, sField );
 }
