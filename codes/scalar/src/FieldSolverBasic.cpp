@@ -84,8 +84,8 @@ void FieldSolverBasic::FillTmpGridVector()
     {
         if ( ! ZoneState::IsValidZone( iZone ) ) continue;
 
-        ScalarGrid * grid = Zone::GetScalarGrid( iZone );
-        this->grids.push_back( grid );
+        ScalarGrid & grid = Zone::GetScalarGridReference( iZone );
+        this->grids.push_back( &grid );
     }
 }
 
@@ -113,8 +113,8 @@ void FieldSolverBasic::CalcGridMetrics()
     {
         if ( ! ZoneState::IsValidZone( iZone ) ) continue;
 
-        ScalarGrid * grid = Zone::GetScalarGrid( iZone );
-        grid->CalcMetrics1D();
+        ScalarGrid & grid = Zone::GetScalarGridReference( iZone );
+        grid.CalcMetrics1D();
     }
 }
 
