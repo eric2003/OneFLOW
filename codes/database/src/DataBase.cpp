@@ -120,7 +120,7 @@ void ProcessData( const std::string & name, const std::string * value, int type,
     auto dataEntry = std::make_unique<DataEntry>(
         name, type, size, std::move( dataObject ) );
     DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
-    dataBase->GetDataPara()->SetDataEntry( std::move( dataEntry ) );
+    dataBase->RequireDataPara().SetDataEntry( std::move( dataEntry ) );
 }
 
 std::unique_ptr<DataObject> CreateDataObject( int type, int size )
@@ -194,7 +194,7 @@ void CreateFieldPointer( DataBase * database, std::unique_ptr<PointerWrap> point
 
     auto fieldEntry = std::make_unique<FieldEntry>(
         dataObjectName, std::move( pointerWrap ) );
-    database->GetDataField()->UpdateFieldEntry( std::move( fieldEntry ) );
+    database->RequireDataField().UpdateFieldEntry( std::move( fieldEntry ) );
 }
 
 void * GetFieldPointerVoid( DataBase * database, const std::string & dataObjectName )
@@ -204,7 +204,7 @@ void * GetFieldPointerVoid( DataBase * database, const std::string & dataObjectN
         throw std::runtime_error( "DataBase: database is not initialized" );
     }
 
-    PointerWrap * pointerWrap = GetPointerWrap( database->GetDataField(), dataObjectName );
+    PointerWrap * pointerWrap = GetPointerWrap( &database->RequireDataField(), dataObjectName );
     if ( pointerWrap )
     {
         return pointerWrap->GetPointer();
@@ -219,7 +219,7 @@ const void * GetFieldPointerVoid( const DataBase * database, const std::string &
         throw std::runtime_error( "DataBase: database is not initialized" );
     }
 
-    const PointerWrap * pointerWrap = GetPointerWrap( database->GetDataField(), dataObjectName );
+    const PointerWrap * pointerWrap = GetPointerWrap( &database->RequireDataField(), dataObjectName );
     if ( pointerWrap )
     {
         return pointerWrap->GetPointer();
@@ -230,7 +230,7 @@ const void * GetFieldPointerVoid( const DataBase * database, const std::string &
 void DumpDataBase( std::fstream & file )
 {
     DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
-    dataBase->GetDataPara()->DumpData( file );
+    dataBase->RequireDataPara().DumpData( file );
 }
 
 EndNameSpace
