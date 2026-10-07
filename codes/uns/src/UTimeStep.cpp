@@ -187,13 +187,13 @@ void UTimeStep::CalcSpectrumField()
 
 void UTimeStep::CalcInvSpectrumField()
 {
-    Grid * grid = Zone::GetGrid();
+    Grid & grid = Zone::GetGridReference();
 
     MRField * invsr = ONEFLOW::GetFieldPointer< MRField >( grid, "invsr" );
 
-    ONEFLOW::ZeroField( invsr, 1, grid->nCells );
+    ONEFLOW::ZeroField( invsr, 1, grid.nCells );
 
-    for ( int iFace = 0; iFace < grid->nFaces; ++ iFace )
+    for ( int iFace = 0; iFace < grid.nFaces; ++ iFace )
     {
         this->SetId( iFace );
 
@@ -207,7 +207,7 @@ void UTimeStep::CalcInvSpectrumField()
 
 void UTimeStep::CalcVisSpectrumField()
 {
-    Grid * grid = Zone::GetGrid();
+    Grid & grid = Zone::GetGridReference();
 
     MRField * vissr = ONEFLOW::GetFieldPointer< MRField >( grid, "vissr" );
 
