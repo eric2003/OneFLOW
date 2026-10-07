@@ -22,6 +22,7 @@ License
 
 #include "DataPara.h"
 #include <memory>
+#include <stdexcept>
 #include "DataObject.h"
 #include "DataBaseType.h"
 #include <iostream>
@@ -85,7 +86,7 @@ void DataPara::SetDataEntry( std::unique_ptr<DataEntry> data )
 {
     if ( data == nullptr )
     {
-        return;
+        throw std::invalid_argument( "DataPara::SetDataEntry: data entry is null" );
     }
 
     auto it = dataMap.find( data->GetName() );

@@ -234,3 +234,14 @@ TEST(DataEntryInvariant, NullDataObjectIsRejected)
         std::invalid_argument
     );
 }
+
+
+TEST(DataParaInvariant, NullDataEntryIsRejected)
+{
+    DataPara dataPara;
+
+    EXPECT_THROW(
+        dataPara.SetDataEntry( nullptr ),
+        std::invalid_argument
+    );
+}
