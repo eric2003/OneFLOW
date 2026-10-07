@@ -41,12 +41,6 @@ class ScalarGrid;
 class MetisSplit
 {
 public:
-    MetisSplit();
-    ~MetisSplit();
-public:
-    MetisIntList xadj;
-    MetisIntList adjncy;
-public:
     void MetisPartition( const ScalarGrid & ggrid, int nPart, MetisIntList & cellzone );
     void ManualPartition( const ScalarGrid & ggrid, int nPart, MetisIntList & cellzone );
 private:
@@ -60,21 +54,15 @@ class ScalarIFace;
 class GridPartition
 {
 public:
-    GridPartition();
-    ~GridPartition();
-public:
-    ScalarGrid * ggrid;
-    int nPart;
-    std::vector< std::unique_ptr< ScalarGrid > > * grids;
-public:
-    int GetNZones();
-    void AllocateGrid( int nZones );
-    void PartitionGrid( ScalarGrid * ggrid, int nPart, std::vector< std::unique_ptr< ScalarGrid > > * grids );
-    void ReconstructGridFaceTopo();
-    void ReconstructInterfaceTopo();
-    void ReconstructNode();
-    void ReconstructNeighbor();
-    void CalcInterfaceToBcFace();
+    void PartitionGrid( const ScalarGrid & ggrid, int nPart, std::vector< std::unique_ptr< ScalarGrid > > & grids );
+private:
+    int GetNZones( const std::vector< std::unique_ptr< ScalarGrid > > & grids ) const;
+    void AllocateGrid( int nZones, std::vector< std::unique_ptr< ScalarGrid > > & grids );
+    void ReconstructGridFaceTopo( const ScalarGrid & ggrid, int nPart, std::vector< std::unique_ptr< ScalarGrid > > & grids );
+    void ReconstructInterfaceTopo( std::vector< std::unique_ptr< ScalarGrid > > & grids );
+    void ReconstructNode( const ScalarGrid & ggrid, std::vector< std::unique_ptr< ScalarGrid > > & grids );
+    void ReconstructNeighbor( std::vector< std::unique_ptr< ScalarGrid > > & grids );
+    void CalcInterfaceToBcFace( std::vector< std::unique_ptr< ScalarGrid > > & grids );
 };
 
 

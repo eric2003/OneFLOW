@@ -28,7 +28,6 @@ License
 #include "ZoneState.h"
 #include "InterFace.h"
 #include "ScalarZone.h"
-#include "ScalarGrid.h"
 #include "GridGroup.h"
 #include "PIO.h"
 #include "Parallel.h"
@@ -107,12 +106,22 @@ void Zone::AddGrid( int zid, std::unique_ptr< Grid > grid )
 
 Grid * Zone::GetGrid( int zid, int gl )
 {
-    return &GridAt( Zone::globalGrids[ static_cast< std::size_t >( zid ) ], gl );
+    return &Zone::GetGridReference( zid, gl );
+}
+
+Grid & Zone::GetGridReference( int zid, int gl )
+{
+    return GridAt( Zone::globalGrids[ static_cast< std::size_t >( zid ) ], gl );
 }
 
 Grid * Zone::GetGrid()
 {
-    return Zone::GetGrid( ZoneState::zid, GridState::gridLevel );
+    return &Zone::GetGridReference();
+}
+
+Grid & Zone::GetGridReference()
+{
+    return Zone::GetGridReference( ZoneState::zid, GridState::gridLevel );
 }
 
 UnsGrid * Zone::GetUnsGrid()
@@ -171,7 +180,7 @@ void Zone::InitLayout(
         PIO::CloseFile( file );
     }
     std::cout << " nTZones = " << nTZones << std::endl;
-    logFile << "  nTZones = " << nTZones << "\\n";
+    logFile << "  nTZones = " << nTZones << "\n";
 
     ZoneState::nZones = nTZones;
     ZoneState::pid.resize( ZoneState::nZones );
@@ -216,22 +225,6 @@ void Zone::ReadGrid(
         zid += gridGroup->nZones;
     }
     Zone::NormalizeLayout();
-}
-
-void Zone::AddScalarGrid( int zid, std::unique_ptr< ScalarGrid > grid )
-{
-    ScalarZone::AddGrid( zid, std::move( grid ) );
-}
-
-
-ScalarGrid * Zone::GetScalarGrid( int iZone )
-{
-    return ScalarZone::GetGrid( iZone );
-}
-
-ScalarGrid * Zone::GetScalarGrid()
-{
-    return ScalarZone::GetGrid();
 }
 
 int Zone::GetNumberOfZoneNeighbors( int zoneId )

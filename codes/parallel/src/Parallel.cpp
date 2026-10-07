@@ -22,7 +22,6 @@ License
 
 #include "Parallel.h"
 #include <vector>
-#include <memory>
 #include "BasicParallel.h"
 #include "DataBook.h"
 #include "OStream.h"
@@ -180,21 +179,21 @@ void HXBcast( DATA_COMPRESS dataCompression, DATA_DECOMPRESS dataDecompression, 
 
     if ( nProc <= 1 ) return;
 
-    auto dataBook = std::make_unique<DataBook>();
+    DataBook dataBook;
 
     if ( Parallel::GetPid() == rootid )
     {
         //Compress data, or store data to dataBook
-        dataCompression( dataBook.get() );
+        dataCompression( & dataBook );
     }
 
     //Pass the dataBook to the required processes
-    ONEFLOW::HXBcast( dataBook.get(), rootid );
+    ONEFLOW::HXBcast( & dataBook, rootid );
 
     if ( Parallel::GetPid() != rootid )
     {
         //Extract the data from dataBook to obtain the required information
-        dataDecompression( dataBook.get() );
+        dataDecompression( & dataBook );
     }
 }
 

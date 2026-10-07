@@ -100,9 +100,9 @@ std::unique_ptr<FieldWrap> FieldHome::CreateField( int solverType, int level )
 {
     SolverInfo * info = SolverInfoFactory::GetSolverInfo( solverType );
 
-    Grid * grid = Zone::GetGrid();
+    Grid & grid = Zone::GetGridReference();
 
-    int nTCell = grid->nCells + grid->nBFaces;
+    int nTCell = grid.nCells + grid.nBFaces;
 
     auto field = std::make_unique<MRField>( info->nTEqu, nTCell );
 
@@ -115,9 +115,9 @@ std::unique_ptr<FieldWrap> FieldHome::CreateField( int solverType, int level )
 
 std::unique_ptr<FieldWrap> FieldHome::GetFieldWrap( const std::string & fieldName )
 {
-    Grid * grid = Zone::GetGrid();
+    Grid & grid = Zone::GetGridReference();
 
-    MRField * field = ONEFLOW::GetFieldPointer< MRField >( grid, fieldName );
+    MRField * field = ONEFLOW::GetFieldPointer< MRField >( &grid, fieldName );
 
     auto fieldWrap = std::make_unique<FieldWrap>();
 
@@ -129,9 +129,9 @@ std::unique_ptr<FieldWrap> FieldHome::GetFieldWrap( const std::string & fieldNam
 void FieldHome::SetField( const std::string & fieldName, Real value )
 {
     // Direct path: no temporary FieldWrap for constant init from alloc/init.txt.
-    Grid * grid = Zone::GetGrid();
+    Grid & grid = Zone::GetGridReference();
     MRField * field =
-        ONEFLOW::GetFieldPointer< MRField >( grid, fieldName );
+        ONEFLOW::GetFieldPointer< MRField >( &grid, fieldName );
 
     if ( field == nullptr )
     {
@@ -149,11 +149,11 @@ void FieldHome::SetField( int fieldId, const std::string & fieldName, int orderF
 
 void FieldHome::SetUnsField( int fieldId, const std::string & fieldName, int orderFlag )
 {
-    Grid * gridIn = Zone::GetGrid();
-    UnsGrid * grid = ONEFLOW::UnsGridCast( gridIn );
+    Grid & grid = Zone::GetGridReference();
+    UnsGrid * unsGrid = ONEFLOW::UnsGridCast( &grid );
 
     MRField * sField, * tField;
-    FieldHome::GetSourceTargetField( grid, fieldId, fieldName, sField, tField, orderFlag );
+    FieldHome::GetSourceTargetField( unsGrid, fieldId, fieldName, sField, tField, orderFlag );
 
     ONEFLOW::SetField( tField, sField );
 }

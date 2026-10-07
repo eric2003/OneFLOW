@@ -494,9 +494,9 @@ void UnsGrid::GetMinMaxDistance( Real & dismin, Real & dismax )
 
 void UnsGrid::WriteGrid( std::fstream & file )
 {
-    auto databook = std::make_unique< DataBook >();
-    this->WriteGrid( databook.get() );
-    databook->WriteFile( file );
+    DataBook databook;
+    this->WriteGrid( &databook );
+    databook.WriteFile( file );
 }
 
 

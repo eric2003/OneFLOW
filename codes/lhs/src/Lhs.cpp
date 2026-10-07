@@ -41,8 +41,8 @@ Lhs::~Lhs()
 
 std::unique_ptr<Lhs> CreateLhs( int solverType )
 {
-    Grid * grid = Zone::GetGrid();
-    if ( grid->type == UMESH )
+    Grid & grid = Zone::GetGridReference();
+    if ( grid.type == UMESH )
     {
         return std::make_unique<ULhs>();
     }

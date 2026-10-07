@@ -70,9 +70,9 @@ void NsInitFinal( StringField & data )
 
     NsCalcBoundary( data );
 
-    Grid * grid = Zone::GetGrid();
+    Grid & grid = Zone::GetGridReference();
 
-    if ( Zone::GetCGrid( grid ) )
+    if ( Zone::GetCGrid( &grid ) )
     {
         //RestrictAllQ( NS_SOLVER, FLOW_FIELD_INDEX );
 

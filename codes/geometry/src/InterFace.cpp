@@ -26,6 +26,7 @@ License
 #include "Grid.h"
 #include "BgGrid.h"
 #include "Zone.h"
+#include "ScalarZone.h"
 #include "ZoneState.h"
 #include "DataStorage.h"
 #include "Parallel.h"
@@ -300,17 +301,16 @@ void InterFaceTopo::InitZoneNeighborsInfoTest()
     {
         if ( ! ZoneState::IsValidZone( iZone ) ) continue;
 
-        ScalarGrid * grid = Zone::GetScalarGrid( iZone );
-
-        ScalarIFace * scalarIFace = grid->scalarIFace.get();
+        ScalarGrid & grid = ScalarZone::GetGridReference( iZone );
+        ScalarIFace & scalarIFace = *grid.scalarIFace;
 
         IntField & neiborZoneIds = this->data[ iZone ];
 
-        int nNei = scalarIFace->data.size();
+        int nNei = static_cast< int >( scalarIFace.data.size() );
 
         for ( int iNei = 0; iNei < nNei; ++ iNei )
         {
-            ScalarIFaceIJ & sij = scalarIFace->data[ iNei ];
+            ScalarIFaceIJ & sij = scalarIFace.data[ iNei ];
             neiborZoneIds.push_back( sij.zonej );
         }
     }
@@ -348,22 +348,22 @@ void InterFaceTopo::InitZoneNeighborsInfo()
     {
         if ( ! ZoneState::IsValidZone( iZone ) ) continue;
 
-        Grid * grid = Zone::GetGrid( iZone );
+        Grid & grid = Zone::GetGridReference( iZone );
 
-        grid->interFace->InitNeighborZoneInfo();
+        grid.interFace->InitNeighborZoneInfo();
     }
 
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         if ( ! ZoneState::IsValidZone( iZone ) ) continue;
 
-        Grid * grid = Zone::GetGrid( iZone );
+        Grid & grid = Zone::GetGridReference( iZone );
 
         IntField & t = this->data[ iZone ];
 
-        for ( int iNei = 0; iNei < grid->interFace->nNeighbor; ++ iNei )
+        for ( int iNei = 0; iNei < grid.interFace->nNeighbor; ++ iNei )
         {
-            InterfacePair & interfacePair = grid->interFace->GetInterfacePair( iNei );
+            InterfacePair & interfacePair = grid.interFace->GetInterfacePair( iNei );
 
             t.push_back( interfacePair.nzid );
         }
@@ -410,12 +410,12 @@ void InterFaceTopo::SwapNeighborsSendContent()
 
             if ( Parallel::pid == spid )
             {
-                Grid * grid = Zone::GetGrid( iZone );
-                InterfacePair & interfacePair = grid->interFace->GetInterfacePair( iNei );
+                Grid & grid = Zone::GetGridReference( iZone );
+                InterfacePair & interfacePair = grid.interFace->GetInterfacePair( iNei );
 
                 nIFaces = interfacePair.nIFaces;
                 
-                grid->interFace->CalcSendId( iNei, idsend );
+                grid.interFace->CalcSendId( iNei, idsend );
             }
 
             ONEFLOW::HXSwapData( & nIFaces, 1, spid, rpid, iZone + gl * ZoneState::nZones );
@@ -430,8 +430,8 @@ void InterFaceTopo::SwapNeighborsSendContent()
 
             if ( Parallel::pid == rpid )
             {
-                Grid * gridN = Zone::GetGrid( nZid );
-                gridN->interFace->SetSendId( iZone, idsend );
+                Grid & gridN = Zone::GetGridReference( nZid );
+                gridN.interFace->SetSendId( iZone, idsend );
             }
         }
     }

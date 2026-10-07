@@ -21,8 +21,6 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "FieldSolverBasic.h"
-#include <memory>
-#include "ScalarField.h"
 #include "FieldPara.h"
 #include "ScalarAlloc.h"
 #include "ScalarZone.h"
@@ -42,16 +40,12 @@ BeginNameSpace( ONEFLOW )
 
 FieldSolverBasic::FieldSolverBasic()
 {
-    this->grid = std::make_unique< ScalarGrid >();
-    this->field = std::make_unique< ScalarField >();
     this->para = std::make_unique< FieldPara >();
     this->scalarFieldManager = std::make_unique< ScalarFieldManager >();
-    ScalarZone::Allocate();
 }
 
 FieldSolverBasic::~FieldSolverBasic()
 {
-    // grids are non-owning views into ScalarZone; unique_ptr members free themselves.
     ScalarZone::Reset();
 }
 
@@ -70,23 +64,11 @@ void FieldSolverBasic::LoadGrid()
     Zone::flag_test_grid = 1;
     Zone::ReadGrid( gridFileList );
 
-    this->FillTmpGridVector();
     this->CalcGridMetrics();
 
     Zone::GetInterfaceTopo().flag_test = 1;
     Zone::InitInterfaceTopo();
 
-}
-
-void FieldSolverBasic::FillTmpGridVector()
-{
-    for ( int iZone = 0; iZone < ZoneState::nZones; ++ iZone )
-    {
-        if ( ! ZoneState::IsValidZone( iZone ) ) continue;
-
-        ScalarGrid * grid = Zone::GetScalarGrid( iZone );
-        this->grids.push_back( grid );
-    }
 }
 
 void FieldSolverBasic::Init()
@@ -100,21 +82,14 @@ void FieldSolverBasic::Init()
     this->CommParallelInfo();
 }
 
-void FieldSolverBasic::AddZoneGrid()
-{
-    // ScalarZone already owns the grids installed via Zone::AddScalarGrid /
-    // GridGroup::CreateGridTest. this->grids holds non-owning views only.
-    ZoneState::nZones = static_cast< int >( this->grids.size() );
-}
-
 void FieldSolverBasic::CalcGridMetrics()
 {
     for ( int iZone = 0; iZone < ZoneState::nZones; ++ iZone )
     {
         if ( ! ZoneState::IsValidZone( iZone ) ) continue;
 
-        ScalarGrid * grid = Zone::GetScalarGrid( iZone );
-        grid->CalcMetrics1D();
+        ScalarGrid & grid = ScalarZone::GetGridReference( iZone );
+        grid.CalcMetrics1D();
     }
 }
 
@@ -138,29 +113,21 @@ void FieldSolverBasic::InitFlowField()
     {
         if ( ! ZoneState::IsValidZone( iZone ) ) continue;
         ZoneState::zid = iZone;
-
-        this->fields.push_back( std::make_unique< ScalarField >() );
-    }
-
-    for ( int iZone = 0; iZone < ZoneState::nZones; ++ iZone )
-    {
-        if ( ! ZoneState::IsValidZone( iZone ) ) continue;
-        ZoneState::zid = iZone;
         this->InitFlowField_Basic();
     }
 }
 
 void FieldSolverBasic::InitFlowField_Basic()
 {
-    ScalarGrid * grid = ScalarZone::GetGrid();
+    ScalarGrid & grid = ScalarZone::GetGridReference();
 
-    RealField & q   = GetFieldReference< MRField > ( grid, "q" ).AsOneD();
+    RealField & q   = GetFieldReference< MRField > ( &grid, "q" ).AsOneD();
 
-    int nTCells = grid->GetNTCells();
+    int nTCells = grid.GetNTCells();
 
     for ( int iCell = 0; iCell < nTCells; ++ iCell )
     {
-        Real xm = grid->xcc[ iCell ];
+        Real xm = grid.xcc[ iCell ];
         q[ iCell ] = this->ScalarFun( xm );
     }
 }
@@ -203,8 +170,8 @@ void FieldSolverBasic::DownloadInterface()
 
 void FieldSolverBasic::UpdateInterface( TaskFunction sendAction, TaskFunction recvAction )
 {
-    auto dataBook = std::make_unique<DataBook>();
-    ActionState::dataBook = dataBook.get();
+    DataBook dataBook;
+    ActionState::dataBook = & dataBook;
     for ( int iZone = 0; iZone < ZoneState::nZones; ++ iZone )
     {
         //Loop through each zone
@@ -272,8 +239,8 @@ void FieldSolverBasic::CommParallelInfo()
 
 void FieldSolverBasic::Visualize()
 {
-    auto dataBook = std::make_unique<DataBook>();
-    ActionState::dataBook = dataBook.get();
+    DataBook dataBook;
+    ActionState::dataBook = & dataBook;
     std::fstream file;
     ActionState::file = & file;
 
@@ -289,13 +256,13 @@ void FieldSolverBasic::Visualize()
 
         if ( Parallel::pid == sPid )
         {
-            this->GetVisualData( dataBook.get() );
+            this->GetVisualData( dataBook );
         }
 
         HXSwapData( ActionState::dataBook, sPid, rPid );
         if ( Parallel::pid == rPid )
         {
-            this->AddVisualData( ActionState::dataBook, q, theory, xcoor );
+            this->AddVisualData( dataBook, q, theory, xcoor );
         }
     }
 
@@ -346,17 +313,15 @@ void FieldSolverBasic::Reorder( RealField & a, RealField & b, RealField & c )
     }
 }
 
-void FieldSolverBasic::GetVisualData( DataBook * dataBook )
+void FieldSolverBasic::GetVisualData( DataBook & dataBook )
 {
-    ScalarGrid * grid = ScalarZone::GetGrid();
+    ScalarGrid & grid = ScalarZone::GetGridReference();
 
-    RealField & q = GetFieldReference< MRField > ( grid, "q" ).AsOneD();
+    RealField & q = GetFieldReference< MRField > ( &grid, "q" ).AsOneD();
 
-    int nCells = grid->GetNCells();
+    int nCells = grid.GetNCells();
 
     Real time = para->dt * para->nt;
-    Real xs = para->c * time;
-
     RealField theory;
     Theory( grid, time, theory );
 
@@ -366,31 +331,31 @@ void FieldSolverBasic::GetVisualData( DataBook * dataBook )
 
     for ( int iCell = 0; iCell < nCells; ++ iCell )
     {
-        Real xm = grid->xcc[ iCell ];
+        Real xm = grid.xcc[ iCell ];
         xcoor.push_back( xm );
         qvisual.push_back( q[ iCell ] );
     }
-    dataBook->MoveToBegin();
+    dataBook.MoveToBegin();
 
-    ONEFLOW::HXWrite( dataBook, nCells );
-    ONEFLOW::HXWrite( dataBook, qvisual );
-    ONEFLOW::HXWrite( dataBook, theory );
-    ONEFLOW::HXWrite( dataBook, xcoor );
+    ONEFLOW::HXWrite( & dataBook, nCells );
+    ONEFLOW::HXWrite( & dataBook, qvisual );
+    ONEFLOW::HXWrite( & dataBook, theory );
+    ONEFLOW::HXWrite( & dataBook, xcoor );
 }
 
-void FieldSolverBasic::AddVisualData( DataBook * dataBook, RealField & qList, RealField & theoryList, RealField & xcoorList )
+void FieldSolverBasic::AddVisualData( DataBook & dataBook, RealField & qList, RealField & theoryList, RealField & xcoorList )
 {
-    dataBook->MoveToBegin();
+    dataBook.MoveToBegin();
 
     int nCells = -1;
-    ONEFLOW::HXRead( dataBook, nCells );
+    ONEFLOW::HXRead( & dataBook, nCells );
     RealField q, theory, xcoor;
     q.resize( nCells );
     theory.resize( nCells );
     xcoor.resize( nCells );
-    ONEFLOW::HXRead( dataBook, q    );
-    ONEFLOW::HXRead( dataBook, theory );
-    ONEFLOW::HXRead( dataBook, xcoor  );
+    ONEFLOW::HXRead( & dataBook, q    );
+    ONEFLOW::HXRead( & dataBook, theory );
+    ONEFLOW::HXRead( & dataBook, xcoor  );
 
     for ( int iCell = 0; iCell < nCells; ++ iCell )
     {
@@ -400,39 +365,16 @@ void FieldSolverBasic::AddVisualData( DataBook * dataBook, RealField & qList, Re
     }
 }
 
-void FieldSolverBasic::AddVisualData( RealField & qList, RealField & theoryList, RealField & xcoorList )
+void FieldSolverBasic::Theory( ScalarGrid & grid, Real time, RealField & theory )
 {
-    ScalarGrid * grid = ScalarZone::GetGrid();
-
-    RealField & q = GetFieldReference< MRField > ( grid, "q" ).AsOneD();
-
-    int nCells = grid->GetNCells();
-
-    Real time = para->dt * para->nt;
-    Real xs = para->c * time;
-
-    RealField theory;
-    Theory( grid, time, theory );
-
-    for ( int iCell = 0; iCell < nCells; ++ iCell )
-    {
-        Real xm = grid->xcc[ iCell ];
-        qList.push_back( q[ iCell ] );
-        theoryList.push_back( theory[ iCell ] );
-        xcoorList.push_back( xm );
-    }
-}
-
-void FieldSolverBasic::Theory( ScalarGrid * grid, Real time, RealField & theory )
-{
-    int nCells = grid->GetNCells();
+    int nCells = grid.GetNCells();
     theory.resize( nCells );
 
     Real xs = para->c * time;
 
     for ( int iCell = 0; iCell < nCells; ++ iCell )
     {
-        Real xm = grid->xcc[ iCell ];
+        Real xm = grid.xcc[ iCell ];
         Real xm_new = xm - xs;
         theory[ iCell ] = this->ScalarFun( xm_new );
     }
@@ -462,13 +404,13 @@ void PrepareFieldSendData()
 {
     auto fieldRecord = PrepareSendScalarFieldRecord();
 
-    ScalarGrid * grid = ScalarZone::GetGrid();
-    ScalarIFace * scalarIFace = grid->scalarIFace.get();
+    ScalarGrid & grid = ScalarZone::GetGridReference();
+    ScalarIFace & scalarIFace = *grid.scalarIFace;
 
-    int nNei = scalarIFace->data.size();
+    int nNei = scalarIFace.data.size();
     int iNei = ZoneState::inei;
 
-    ScalarIFaceIJ & sij = scalarIFace->data[ iNei ];
+    ScalarIFaceIJ & sij = scalarIFace.data[ iNei ];
     std::vector< int > & interfaceId = sij.ifaces;
 
     ActionState::dataBook->MoveToBegin();
@@ -490,13 +432,13 @@ void PrepareFieldRecvData()
     //By design, the current zone is the jth neighbor of zone I.
     //How many neighbors of the current zone do you need to find out? This value is neiid.
 
-    ScalarGrid * grid = ScalarZone::GetGrid();
-    ScalarIFace * scalarIFace = grid->scalarIFace.get();
+    ScalarGrid & grid = ScalarZone::GetGridReference();
+    ScalarIFace & scalarIFace = *grid.scalarIFace;
 
-    int nNei = scalarIFace->data.size();
-    int jNei = scalarIFace->FindINeibor( ZoneState::szid );
+    int nNei = scalarIFace.data.size();
+    int jNei = scalarIFace.FindINeibor( ZoneState::szid );
 
-    ScalarIFaceIJ & sij = scalarIFace->data[ jNei ];
+    ScalarIFaceIJ & sij = scalarIFace.data[ jNei ];
     std::vector< int > & interfaceId = sij.recv_ifaces;
 
     ActionState::dataBook->MoveToBegin();
@@ -515,13 +457,13 @@ std::unique_ptr< ScalarFieldRecord > PrepareSendScalarFieldRecord()
 {
     auto fieldRecord = std::make_unique< ScalarFieldRecord >();
 
-    ScalarGrid * grid = ScalarZone::GetGrid();
-    ScalarIFace * scalarIFace = grid->scalarIFace.get();
+    ScalarGrid & grid = ScalarZone::GetGridReference();
+    ScalarIFace & scalarIFace = *grid.scalarIFace;
 
     StringField fieldNameList;
     fieldNameList.push_back( "q" );
 
-    fieldRecord->AddFieldRecord( scalarIFace->dataSend.get(), fieldNameList );
+    fieldRecord->AddFieldRecord( scalarIFace.dataSend.get(), fieldNameList );
 
     return fieldRecord;
 }
@@ -530,26 +472,26 @@ std::unique_ptr< ScalarFieldRecord > PrepareRecvScalarFieldRecord()
 {
     auto fieldRecord = std::make_unique< ScalarFieldRecord >();
 
-    ScalarGrid * grid = ScalarZone::GetGrid();
-    ScalarIFace * scalarIFace = grid->scalarIFace.get();
+    ScalarGrid & grid = ScalarZone::GetGridReference();
+    ScalarIFace & scalarIFace = *grid.scalarIFace;
 
     StringField fieldNameList;
     fieldNameList.push_back( "q" );
 
-    fieldRecord->AddFieldRecord( scalarIFace->dataRecv.get(), fieldNameList );
+    fieldRecord->AddFieldRecord( scalarIFace.dataRecv.get(), fieldNameList );
 
     return fieldRecord;
 }
 
 void PrepareGeomSendData()
 {
-    ScalarGrid * grid = ScalarZone::GetGrid();
-    ScalarIFace * scalarIFace = grid->scalarIFace.get();
+    ScalarGrid & grid = ScalarZone::GetGridReference();
+    ScalarIFace & scalarIFace = *grid.scalarIFace;
 
-    int nNei = scalarIFace->data.size();
+    int nNei = scalarIFace.data.size();
     int iNei = ZoneState::inei;
 
-    ScalarIFaceIJ & sij = scalarIFace->data[ iNei ];
+    ScalarIFaceIJ & sij = scalarIFace.data[ iNei ];
     std::vector< int > & interfaceId = sij.ifaces;
 
     ActionState::dataBook->MoveToBegin();
@@ -559,12 +501,12 @@ void PrepareGeomSendData()
         int s1;
         int interface_id = interfaceId[ iLocalFace ];
 
-        grid->GetSId( interface_id, s1 );
+        grid.GetSId( interface_id, s1 );
 
-        HXWrite( ActionState::dataBook, grid->xcc[ s1 ] );
-        HXWrite( ActionState::dataBook, grid->ycc[ s1 ] );
-        HXWrite( ActionState::dataBook, grid->zcc[ s1 ] );
-        HXWrite( ActionState::dataBook, grid->vol[ s1 ] );
+        HXWrite( ActionState::dataBook, grid.xcc[ s1 ] );
+        HXWrite( ActionState::dataBook, grid.ycc[ s1 ] );
+        HXWrite( ActionState::dataBook, grid.zcc[ s1 ] );
+        HXWrite( ActionState::dataBook, grid.vol[ s1 ] );
     }
 }
 
@@ -573,13 +515,13 @@ void PrepareGeomRecvData()
     //By design, the current zone is the jth neighbor of zone I.
     //How many neighbors of the current zone do you need to find out? This value is neiid.
 
-    ScalarGrid * grid = ScalarZone::GetGrid();
-    ScalarIFace * scalarIFace = grid->scalarIFace.get();
+    ScalarGrid & grid = ScalarZone::GetGridReference();
+    ScalarIFace & scalarIFace = *grid.scalarIFace;
 
-    int nNei = scalarIFace->data.size();
-    int jNei = scalarIFace->FindINeibor( ZoneState::szid );
+    int nNei = scalarIFace.data.size();
+    int jNei = scalarIFace.FindINeibor( ZoneState::szid );
 
-    ScalarIFaceIJ & sij = scalarIFace->data[ jNei ];
+    ScalarIFaceIJ & sij = scalarIFace.data[ jNei ];
     std::vector< int > & interfaceId = sij.recv_ifaces;
 
     ActionState::dataBook->MoveToBegin();
@@ -588,12 +530,12 @@ void PrepareGeomRecvData()
     {
         int interface_id = interfaceId[ iLocalFace ];
         int t1;
-        grid->GetTId( interface_id, t1 );
+        grid.GetTId( interface_id, t1 );
 
-        HXRead( ActionState::dataBook, grid->xcc[ t1 ] );
-        HXRead( ActionState::dataBook, grid->ycc[ t1 ] );
-        HXRead( ActionState::dataBook, grid->zcc[ t1 ] );
-        HXRead( ActionState::dataBook, grid->vol[ t1 ] );
+        HXRead( ActionState::dataBook, grid.xcc[ t1 ] );
+        HXRead( ActionState::dataBook, grid.ycc[ t1 ] );
+        HXRead( ActionState::dataBook, grid.zcc[ t1 ] );
+        HXRead( ActionState::dataBook, grid.vol[ t1 ] );
     }
 }
 

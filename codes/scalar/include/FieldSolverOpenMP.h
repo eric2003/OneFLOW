@@ -49,7 +49,7 @@ public:
     void ZoneUpdateResidualOpenMP();
     void ZoneTimeIntergralOpenMP();
     void ZoneUpdateOpenMP();
-    void AddF2CFieldOpenMP( ScalarGrid * grid, RealField & cField, RealField & fField );
+    void AddF2CFieldOpenMP( ScalarGrid & grid, RealField & cField, RealField & fField );
 };
 
 EndNameSpace

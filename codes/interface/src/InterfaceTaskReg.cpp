@@ -91,13 +91,13 @@ void CalcInterfaceGrad( StringField & data )
 
 void UploadInterfaceData( StringField & data )
 {
-    Grid * gridIn = Zone::GetGrid();
-    if ( ! ONEFLOW::IsUnsGrid( gridIn->type ) )
+    Grid & baseGrid = Zone::GetGridReference();
+    if ( ! ONEFLOW::IsUnsGrid( baseGrid.type ) )
     {
         return;
     }
 
-    UnsGrid * grid = ONEFLOW::UnsGridCast( gridIn );
+    UnsGrid * grid = ONEFLOW::UnsGridCast( &baseGrid );
 
     int solverType = SolverState::solverType;
     FieldManager * fieldManager =
@@ -130,13 +130,13 @@ void UploadInterfaceData( StringField & data )
 
 void DownloadInterfaceData( StringField & data )
 {
-    Grid * gridIn = Zone::GetGrid();
-    if ( ! ONEFLOW::IsUnsGrid( gridIn->type ) )
+    Grid & baseGrid = Zone::GetGridReference();
+    if ( ! ONEFLOW::IsUnsGrid( baseGrid.type ) )
     {
         return;
     }
 
-    UnsGrid * grid = ONEFLOW::UnsGridCast( gridIn );
+    UnsGrid * grid = ONEFLOW::UnsGridCast( &baseGrid );
 
     int solverType = SolverState::solverType;
     FieldManager * fieldManager =
@@ -169,8 +169,8 @@ void DownloadInterfaceData( StringField & data )
 
 void PrepareInterfaceField( StringField & data )
 {
-    Grid * grid = Zone::GetGrid();
-    InterFace * interFace = grid->interFace.get();
+    Grid & grid = Zone::GetGridReference();
+    InterFace * interFace = grid.interFace.get();
     if ( ! ONEFLOW::IsValid( interFace ) ) return;
 
     int solverType = SolverState::solverType;

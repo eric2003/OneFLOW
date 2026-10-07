@@ -25,7 +25,6 @@ License
 #include "DataStorage.h"
 #include "DataBaseIO.h"
 #include "DataBook.h"
-#include "SolverDef.h"
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -167,22 +166,6 @@ void ScalarIFace::ReconstructNeighbor()
             }
         }
         this->data.push_back( sij );
-    }
-}
-
-DataStorage * ScalarIFace::GetDataStorage( int iSendRecv )
-{
-    if ( iSendRecv == SEND_STORAGE )
-    {
-        return this->dataSend.get();
-    }
-    else if ( iSendRecv == RECV_STORAGE )
-    {
-        return this->dataRecv.get();
-    }
-    else
-    {
-        return 0;
     }
 }
 

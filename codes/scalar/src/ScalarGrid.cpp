@@ -1256,17 +1256,17 @@ void ScalarGrid::DumpCalcGrid()
 	std::fstream file;
 	std::string fileName = "scalar.ofl";
 	Prj::OpenPrjFile( file, fileName, std::ios_base::out | std::ios_base::binary );
-	auto databook = std::make_unique<DataBook>();
-	this->WriteGrid( databook.get() );
-	databook->WriteFile( file );
+	DataBook databook;
+	this->WriteGrid( &databook );
+	databook.WriteFile( file );
 	Prj::CloseFile( file );
 }
 
 void ScalarGrid::WriteGrid( std::fstream & file )
 {
-	auto databook = std::make_unique<DataBook>();
-	this->WriteGrid( databook.get() );
-	databook->WriteFile( file );
+	DataBook databook;
+	this->WriteGrid( &databook );
+	databook.WriteFile( file );
 }
 
 void ScalarGrid::WriteGrid( DataBook * databook )
@@ -1307,17 +1307,17 @@ void ScalarGrid::ReadCalcGrid()
 	std::fstream file;
 	std::string fileName = "scalar.ofl";
 	Prj::OpenPrjFile( file, fileName, std::ios_base::in | std::ios_base::binary );
-	auto databook = std::make_unique<DataBook>();
-	databook->ReadFile( file );
-	this->ReadGrid( databook.get() );
+	DataBook databook;
+	databook.ReadFile( file );
+	this->ReadGrid( &databook );
 	Prj::CloseFile( file );
 }
 
 void ScalarGrid::ReadGrid( std::fstream & file )
 {
-	auto databook = std::make_unique<DataBook>();
-	databook->ReadFile( file );
-	this->ReadGrid( databook.get() );
+	DataBook databook;
+	databook.ReadFile( file );
+	this->ReadGrid( &databook );
 }
 
 void ScalarGrid::ReadGrid( DataBook * databook )

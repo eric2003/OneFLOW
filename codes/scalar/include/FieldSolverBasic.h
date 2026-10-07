@@ -34,7 +34,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-class ScalarField;
 class ScalarGrid;
 class FieldPara;
 class ScalarFieldManager;
@@ -59,22 +58,13 @@ public:
     FieldSolverBasic();
     ~FieldSolverBasic();
 public:
-    std::unique_ptr< ScalarField > field;
-    std::unique_ptr< ScalarGrid > grid;
     std::unique_ptr< FieldPara > para;
     std::unique_ptr< ScalarFieldManager > scalarFieldManager;
-    std::vector< std::unique_ptr< ScalarField > > fields;
-    // Non-owning views into ScalarZone::scalar_grids (do not delete).
-    std::vector< ScalarGrid * > grids;
-public:
-    //tmp
-    void FillTmpGridVector();
 public:
     virtual void Run();
     void Init();
     void LoadGrid();
     void InitCtrlParameter();
-    void AddZoneGrid();
     void CalcGridMetrics();
     void InitFlowField();
     void InitFlowField_Basic();
@@ -86,10 +76,9 @@ public:
 public:
     void Visualize();
     void ToTecplot( RealField & xList, RealField & varlist, std::string const & fileName );
-    void Theory( ScalarGrid * grid, Real time, RealField & theory );
-    void GetVisualData( DataBook * dataBook );
-    void AddVisualData( RealField & qList, RealField & theoryList, RealField & xcoorList );
-    void AddVisualData( DataBook * dataBook, RealField & qList, RealField & theoryList, RealField & xcoorList );
+    void Theory( ScalarGrid & grid, Real time, RealField & theory );
+    void GetVisualData( DataBook & dataBook );
+    void AddVisualData( DataBook & dataBook, RealField & qList, RealField & theoryList, RealField & xcoorList );
     void Reorder( RealField & a, RealField & b, RealField & c );
 public:
     Real ScalarFun( Real xm );

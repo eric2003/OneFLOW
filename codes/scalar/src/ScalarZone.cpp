@@ -30,25 +30,11 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-int ScalarZone::nLocalZones = 0;
 std::vector< std::unique_ptr< ScalarGrid > > ScalarZone::scalar_grids;
-
-ScalarZone::ScalarZone()
-{
-}
-
-ScalarZone::~ScalarZone()
-{
-}
-
-void ScalarZone::Allocate()
-{
-}
 
 void ScalarZone::Reset()
 {
     ScalarZone::scalar_grids.clear();
-    ScalarZone::nLocalZones = 0;
 }
 
 void ScalarZone::AddGrid( int zid, std::unique_ptr< ScalarGrid > grid )
@@ -63,12 +49,22 @@ void ScalarZone::AddGrid( int zid, std::unique_ptr< ScalarGrid > grid )
 
 ScalarGrid * ScalarZone::GetGrid( int iZone )
 {
-    return ScalarZone::scalar_grids[ static_cast< std::size_t >( iZone ) ].get();
+    return &ScalarZone::GetGridReference( iZone );
 }
 
 ScalarGrid * ScalarZone::GetGrid()
 {
-    return ScalarZone::GetGrid( ZoneState::zid );
+    return &ScalarZone::GetGridReference();
+}
+
+ScalarGrid & ScalarZone::GetGridReference( int iZone )
+{
+    return *ScalarZone::scalar_grids[ static_cast< std::size_t >( iZone ) ];
+}
+
+ScalarGrid & ScalarZone::GetGridReference()
+{
+    return ScalarZone::GetGridReference( ZoneState::zid );
 }
 
 EndNameSpace

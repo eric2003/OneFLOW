@@ -146,27 +146,6 @@ void FieldSolver::SolveFlowField()
     this->Visualize();
 }
 
-//void FieldSolver::SolveOneStep()
-//{
-//    TimeTest ts;
-//    this->Boundary();
-//    ts.ShowTimeSpan("Boundary");
-//    this->GetQLQR();
-//    ts.ShowTimeSpan("GetQLQR");
-//    this->CalcInvFlux();
-//    ts.ShowTimeSpan("CalcInvFlux");
-//    this->UpdateResidual();
-//    ts.ShowTimeSpan("UpdateResidual");
-//    this->TimeIntergral();
-//    ts.ShowTimeSpan("TimeIntergral");
-//    this->Update();
-//    ts.ShowTimeSpan("Update");
-//    this->CommParallelInfo();
-//    ts.ShowTimeSpan("CommParallelInfo");
-//    //this->Visualize();
-//    //ts.ShowTimeSpan("Visualize");
-//}
-
 void FieldSolver::SolveOneStep()
 {
     this->Boundary();
@@ -191,20 +170,20 @@ void FieldSolver::Boundary()
 
 void FieldSolver::ZoneBoundary()
 {
-    ScalarGrid * grid = ScalarZone::GetGrid();
-    int nBFaces = grid->GetNBFaces();
+    ScalarGrid & grid = ScalarZone::GetGridReference();
+    int nBFaces = grid.GetNBFaces();
 
-    RealField  & q = GetFieldReference< MRField > ( grid, "q" ).AsOneD();
+    RealField  & q = GetFieldReference< MRField > ( &grid, "q" ).AsOneD();
 
-    int nTCells = grid->GetNTCells();
+    int nTCells = grid.GetNTCells();
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        int bcType = grid->bcTypes[ iFace ];
-        int lc = grid->lc[ iFace ];
-        int rc = grid->rc[ iFace ];
+        int bcType = grid.bcTypes[ iFace ];
+        int lc = grid.lc[ iFace ];
+        int rc = grid.rc[ iFace ];
         if ( bcType == ONEFLOW::BCInflow )
         {
-            Real xm = grid->xcc[ rc ];
+            Real xm = grid.xcc[ rc ];
             q[ rc ] = this->ScalarFun( xm );
         }
         else if ( bcType == ONEFLOW::BCOutflow )
@@ -226,17 +205,17 @@ void FieldSolver::GetQLQR()
 
 void FieldSolver::ZoneGetQLQR()
 {
-    ScalarGrid * grid = ScalarZone::GetGrid();
-    int nFaces = grid->GetNFaces();
+    ScalarGrid & grid = ScalarZone::GetGridReference();
+    int nFaces = grid.GetNFaces();
 
-    RealField & q   = GetFieldReference< MRField > ( grid, "q" ).AsOneD();
-    RealField & qf1 = GetFieldReference< MRField > ( grid, "qf1" ).AsOneD();
-    RealField & qf2 = GetFieldReference< MRField > ( grid, "qf2" ).AsOneD();
+    RealField & q   = GetFieldReference< MRField > ( &grid, "q" ).AsOneD();
+    RealField & qf1 = GetFieldReference< MRField > ( &grid, "qf1" ).AsOneD();
+    RealField & qf2 = GetFieldReference< MRField > ( &grid, "qf2" ).AsOneD();
 
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
-        int lc = grid->lc[ iFace ];
-        int rc = grid->rc[ iFace ];
+        int lc = grid.lc[ iFace ];
+        int rc = grid.rc[ iFace ];
 
         qf1[ iFace ] = q[ lc ];
         qf2[ iFace ] = q[ rc ];
@@ -255,22 +234,22 @@ void FieldSolver::CalcInvFlux()
 
 void FieldSolver::ZoneCalcInvFlux()
 {
-    ScalarGrid * grid = ScalarZone::GetGrid();
+    ScalarGrid & grid = ScalarZone::GetGridReference();
 
-    RealField & invflux = GetFieldReference< MRField > ( grid, "invflux" ).AsOneD();
-    RealField & qf1 = GetFieldReference< MRField > ( grid, "qf1" ).AsOneD();
-    RealField & qf2 = GetFieldReference< MRField > ( grid, "qf2" ).AsOneD();
+    RealField & invflux = GetFieldReference< MRField > ( &grid, "invflux" ).AsOneD();
+    RealField & qf1 = GetFieldReference< MRField > ( &grid, "qf1" ).AsOneD();
+    RealField & qf2 = GetFieldReference< MRField > ( &grid, "qf2" ).AsOneD();
 
-    const int nFaces = grid->GetNFaces();
+    const int nFaces = grid.GetNFaces();
     FaceStateView state;
     state.nFaces = nFaces;
     state.nEquations = 1;
     state.qLeft = &qf1[ 0 ];
     state.qRight = &qf2[ 0 ];
-    state.xNormal = &grid->xfn[ 0 ];
-    state.yNormal = &grid->yfn[ 0 ];
-    state.zNormal = &grid->zfn[ 0 ];
-    state.faceArea = &grid->area[ 0 ];
+    state.xNormal = &grid.xfn[ 0 ];
+    state.yNormal = &grid.yfn[ 0 ];
+    state.zNormal = &grid.zfn[ 0 ];
+    state.faceArea = &grid.area[ 0 ];
 
     FaceFluxView flux;
     flux.nFaces = nFaces;
@@ -304,13 +283,13 @@ void FieldSolver::UpdateResidual()
 
 void FieldSolver::ZoneUpdateResidual()
 {
-    ScalarGrid * grid = ScalarZone::GetGrid();
+    ScalarGrid & grid = ScalarZone::GetGridReference();
 
-    RealField & res = GetFieldReference< MRField > ( grid, "res" ).AsOneD();
-    RealField & invflux = GetFieldReference< MRField > ( grid, "invflux" ).AsOneD();
+    RealField & res = GetFieldReference< MRField > ( &grid, "res" ).AsOneD();
+    RealField & invflux = GetFieldReference< MRField > ( &grid, "invflux" ).AsOneD();
 
     res = 0;
-    const int nFaces = grid->GetNFaces();
+    const int nFaces = grid.GetNFaces();
     FaceFluxView flux;
     flux.nFaces = nFaces;
     flux.nEquations = 1;
@@ -318,12 +297,12 @@ void FieldSolver::ZoneUpdateResidual()
 
     FaceConnectivityView connectivity;
     connectivity.nFaces = nFaces;
-    connectivity.nBoundaryFaces = grid->GetNBFaces();
-    connectivity.leftCell = &grid->lc[ 0 ];
-    connectivity.rightCell = &grid->rc[ 0 ];
+    connectivity.nBoundaryFaces = grid.GetNBFaces();
+    connectivity.leftCell = &grid.lc[ 0 ];
+    connectivity.rightCell = &grid.rc[ 0 ];
 
     ResidualView residual;
-    residual.nCells = grid->GetNCells();
+    residual.nCells = grid.GetNCells();
     residual.nEquations = 1;
     residual.values = &res[ 0 ];
     GetScalarFluxBackend().AddFaceFlux( flux, connectivity, residual );
@@ -343,21 +322,21 @@ void FieldSolver::ZoneUpdateResidual()
     }
 }
 
-void FieldSolver::AddF2CField( ScalarGrid * grid, RealField & cField, RealField & fField )
+void FieldSolver::AddF2CField( ScalarGrid & grid, RealField & cField, RealField & fField )
 {
-    int nFaces = grid->GetNFaces();
-    int nBFaces = grid->GetNBFaces();
+    int nFaces = grid.GetNFaces();
+    int nBFaces = grid.GetNBFaces();
 
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        int lc = grid->lc[ iFace ];
+        int lc = grid.lc[ iFace ];
         cField[ lc ] -= fField[ iFace ];
     }
 
     for ( int iFace = nBFaces; iFace < nFaces; ++ iFace )
     {
-        int lc = grid->lc[ iFace ];
-        int rc = grid->rc[ iFace ];
+        int lc = grid.lc[ iFace ];
+        int rc = grid.rc[ iFace ];
 
         cField[ lc ] -= fField[ iFace ];
         cField[ rc ] += fField[ iFace ];
@@ -376,13 +355,13 @@ void FieldSolver::TimeIntergral()
 
 void FieldSolver::ZoneTimeIntergral()
 {
-    ScalarGrid * grid = ScalarZone::GetGrid();
-    RealField & res = GetFieldReference< MRField > ( grid, "res" ).AsOneD();
+    ScalarGrid & grid = ScalarZone::GetGridReference();
+    RealField & res = GetFieldReference< MRField > ( &grid, "res" ).AsOneD();
 
-    int nCells = grid->GetNCells();
+    int nCells = grid.GetNCells();
     for ( int iCell = 0; iCell < nCells; ++ iCell )
     {
-        Real ovol = 1.0 / grid->vol[ iCell ];
+        Real ovol = 1.0 / grid.vol[ iCell ];
         Real coef = para->dt * ovol;
         res[ iCell ] *= coef;
     }
@@ -400,11 +379,11 @@ void FieldSolver::Update()
 
 void FieldSolver::ZoneUpdate()
 {
-    ScalarGrid * grid = ScalarZone::GetGrid();
-    RealField & q = GetFieldReference< MRField > ( grid, "q" ).AsOneD();
-    RealField & res = GetFieldReference< MRField > ( grid, "res" ).AsOneD();
+    ScalarGrid & grid = ScalarZone::GetGridReference();
+    RealField & q = GetFieldReference< MRField > ( &grid, "q" ).AsOneD();
+    RealField & res = GetFieldReference< MRField > ( &grid, "res" ).AsOneD();
 
-    int nCells = grid->GetNCells();
+    int nCells = grid.GetNCells();
     for ( int iCell = 0; iCell < nCells; ++ iCell )
     {
         q[ iCell ] += res[ iCell ];

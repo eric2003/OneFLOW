@@ -32,7 +32,6 @@ BeginNameSpace( ONEFLOW )
 
 class Grid;
 class UnsGrid;
-class ScalarGrid;
 class InterFaceTopo;
 
 class Zone
@@ -58,14 +57,12 @@ public:
     static void NormalizeLayout();
 public:
     static Grid * GetGrid( int zid, int gl = 0 );
+    static Grid & GetGridReference( int zid, int gl = 0 );
     static Grid * GetGrid();
+    static Grid & GetGridReference();
     static Grid * GetCGrid( Grid * grid );
     static Grid * GetFGrid( Grid * grid );
     static UnsGrid * GetUnsGrid();
-public:
-    static void AddScalarGrid( int zid, std::unique_ptr< ScalarGrid > grid );
-    static ScalarGrid * GetScalarGrid( int iZone );
-    static ScalarGrid * GetScalarGrid();
 public:
     static int GetNumberOfZoneNeighbors( int zoneId );
     static int GetNeighborZoneId( int zoneId, int iNeighbor );

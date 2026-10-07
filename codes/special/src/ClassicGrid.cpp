@@ -40,14 +40,12 @@ namespace
 
     void RunCavity( const GridConfig & )
     {
-        Cavity cavity;
-        cavity.Run();
+        GenerateCavityGrid();
     }
 
     void RunRae2822( const GridConfig & )
     {
-        Rae2822 rae2822;
-        rae2822.Run();
+        GenerateRae2822Grid();
     }
 
     void RunCylinder( const GridConfig & )
@@ -58,8 +56,7 @@ namespace
 
     void RunGridCreate( const GridConfig & config )
     {
-        GridCreate gridCreate;
-        gridCreate.Run( config );
+        GenerateLayoutGrid( config );
     }
 
     void RunCgnsTest( const GridConfig & )
@@ -83,17 +80,7 @@ namespace
     };
 }
 
-ClassicGrid::ClassicGrid()
-{
-    ;
-}
-
-ClassicGrid::~ClassicGrid()
-{
-    ;
-}
-
-void ClassicGrid::Run( const GridConfig & config ) const
+void GenerateClassicGrid( const GridConfig & config )
 {
     if ( ! config.generationType )
     {

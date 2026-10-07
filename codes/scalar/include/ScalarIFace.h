@@ -91,7 +91,6 @@ public:
     void CalcLocalInterfaceId( int iZone, std::vector<int> & globalfaces, std::vector<int> & localfaces );
     void AddInterface( int global_interface_id, int neighbor_zoneid, int neighbor_cellid );
     void ReconstructNeighbor();
-    DataStorage * GetDataStorage( int iSendRecv );
 public:
     void WriteInterfaceTopology( DataBook * databook );
     void ReadInterfaceTopology( DataBook * databook );

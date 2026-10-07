@@ -39,12 +39,12 @@ BeginNameSpace( ONEFLOW )
 
 void PrepareInterfaceFieldRecord( int solverType, int iFk, int iSr, FieldRecord * fieldRecord )
 {
-    Grid * grid = Zone::GetGrid();
-    InterFace * interFace = grid->interFace.get();
+    Grid & grid = Zone::GetGridReference();
+    InterFace & interFace = *grid.interFace;
 
     // Stack-local list: only used inside this function.
     HXVector< DataStorage * > iDataStorageList;
-    GetInterfaceDataStorageList( *interFace, &iDataStorageList, iSr );
+    GetInterfaceDataStorageList( interFace, &iDataStorageList, iSr );
 
     VarNameSolver * varNameSolver =
         VarNameFactory::GetVarNameSolver( solverType, iFk );
@@ -113,8 +113,8 @@ void AddFieldRecord(
 
 void SetInterfaceFieldData( int iSr, FieldRecord * fieldRecord )
 {
-    Grid * grid = Zone::GetGrid();
-    InterFace * interFace = grid->interFace.get();
+    Grid & grid = Zone::GetGridReference();
+    InterFace * interFace = grid.interFace.get();
     if ( ! ONEFLOW::IsValid( interFace ) ) return;
 
     int oppoSr = GetOppositeSendRecv( iSr );

@@ -21,26 +21,11 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Rae2822.h"
-#include "ClassicGrid.h"
-#include "DataBaseIO.h"
-#include "Boundary.h"
-#include "HXMath.h"
-#include <iostream>
 
 
 BeginNameSpace( ONEFLOW )
 
-Rae2822::Rae2822()
-{
-    ;
-}
-
-Rae2822::~Rae2822()
-{
-    ;
-}
-
-void Rae2822::Run()
+void GenerateRae2822Grid()
 {
 }
 

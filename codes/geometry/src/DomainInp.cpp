@@ -24,7 +24,6 @@ License
 #include "GridMediator.h"
 #include "Su2Grid.h"
 #include "DataBase.h"
-#include "ClassicGrid.h"
 #include "StrGrid.h"
 #include "PointLocator.h"
 #include "BcRecord.h"
