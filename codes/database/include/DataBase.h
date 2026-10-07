@@ -125,23 +125,33 @@ T * GetDataPointer( const std::string & varName )
 
 class PointerWrap;
 PointerWrap * GetPointerWrap( DataField * dataField, const std::string & dataObjectName );
+const PointerWrap * GetPointerWrap( const DataField * dataField, const std::string & dataObjectName );
 
 // Field storage lookup (optional): returns nullptr if the named field
 // is not registered. Callers that require the field must null-check
 // or Fatal. Contrast with GetDataValue / GetDataPointer (required).
 void * GetFieldPointerVoid( DataBase * database, const std::string & dataObjectName );
+const void * GetFieldPointerVoid( const DataBase * database, const std::string & dataObjectName );
 
 template < typename T >
 T * GetFieldPointer( DataBase * database, const std::string & dataObjectName );
+template < typename T >
+const T * GetFieldPointer( const DataBase * database, const std::string & dataObjectName );
 template < typename T, typename TStorage >
 T * GetFieldPointer( TStorage * storage, const std::string & dataObjectName );
+template < typename T, typename TStorage >
+const T * GetFieldPointer( const TStorage * storage, const std::string & dataObjectName );
 
 // Required field access: throws when the named field is not registered.
 // Prefer GetFieldPointer + null-check/Fatal when presence is uncertain.
 template < typename T >
 T & GetFieldReference( DataBase * database, const std::string & dataObjectName );
+template < typename T >
+const T & GetFieldReference( const DataBase * database, const std::string & dataObjectName );
 template < typename T, typename TStorage >
 T & GetFieldReference( TStorage * storage, const std::string & dataObjectName );
+template < typename T, typename TStorage >
+const T & GetFieldReference( const TStorage * storage, const std::string & dataObjectName );
 
 void CreateFieldPointer( DataBase * database, std::unique_ptr<PointerWrap> pointerWrap, const std::string & dataObjectName );
 template < typename TStorage >
@@ -168,6 +178,24 @@ T * GetFieldPointer( TStorage * storage, const std::string & dataObjectName )
 }
 
 template < typename T >
+const T * GetFieldPointer( const DataBase * database, const std::string & dataObjectName )
+{
+    const void * p = GetFieldPointerVoid( database, dataObjectName );
+    if ( p )
+    {
+        return reinterpret_cast< const T * >( p );
+    }
+    return nullptr;
+}
+
+template < typename T, typename TStorage >
+const T * GetFieldPointer( const TStorage * storage, const std::string & dataObjectName )
+{
+    const DataBase * database = storage->GetDataBase();
+    return ONEFLOW::GetFieldPointer< T >( database, dataObjectName );
+}
+
+template < typename T >
 T & GetFieldReference( DataBase * database, const std::string & dataObjectName )
 {
     T * pointer = ONEFLOW::GetFieldPointer< T >( database, dataObjectName );
@@ -179,8 +207,27 @@ T & GetFieldReference( DataBase * database, const std::string & dataObjectName )
     return * pointer;
 }
 
+
+template < typename T >
+const T & GetFieldReference( const DataBase * database, const std::string & dataObjectName )
+{
+    const T * pointer = ONEFLOW::GetFieldPointer< T >( database, dataObjectName );
+    if ( pointer == nullptr )
+    {
+        throw std::runtime_error(
+            "DataBase: cannot find field \"" + dataObjectName + "\"" );
+    }
+    return * pointer;
+}
+
 template < typename T, typename TStorage >
 T & GetFieldReference( TStorage * storage, const std::string & dataObjectName )
+{
+    return ONEFLOW::GetFieldReference< T >( storage->GetDataBase(), dataObjectName );
+}
+
+template < typename T, typename TStorage >
+const T & GetFieldReference( const TStorage * storage, const std::string & dataObjectName )
 {
     return ONEFLOW::GetFieldReference< T >( storage->GetDataBase(), dataObjectName );
 }

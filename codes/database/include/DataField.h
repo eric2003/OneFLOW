@@ -41,7 +41,9 @@ public:
     std::unique_ptr<PointerWrap> data;
 public:
     std::string & GetName() { return name; }
+    const std::string & GetName() const { return name; }
     PointerWrap * GetPointerWrap() { return data.get(); }
+    const PointerWrap * GetPointerWrap() const { return data.get(); }
 };
 
 class DataField
@@ -57,10 +59,12 @@ public:
     // Takes ownership of fieldEntry.
     void UpdateFieldEntry( std::unique_ptr<FieldEntry> fieldEntry );
     FieldEntry * GetFieldEntry( const std::string & name );
+    const FieldEntry * GetFieldEntry( const std::string & name ) const;
     void DeleteFieldEntry( const std::string & name );
     void Clear();
 
     DataMap * GetDataMap() { return &dataMap; }
+    const DataMap * GetDataMap() const { return &dataMap; }
 };
 
 EndNameSpace

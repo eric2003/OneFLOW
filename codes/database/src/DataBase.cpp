@@ -173,6 +173,16 @@ PointerWrap * GetPointerWrap( DataField * dataField, const std::string & dataObj
     return fieldEntry->GetPointerWrap();
 }
 
+const PointerWrap * GetPointerWrap( const DataField * dataField, const std::string & dataObjectName )
+{
+    const FieldEntry * fieldEntry = dataField->GetFieldEntry( dataObjectName );
+    if ( fieldEntry == nullptr )
+    {
+        return nullptr;
+    }
+    return fieldEntry->GetPointerWrap();
+}
+
 void CreateFieldPointer( DataBase * database, std::unique_ptr<PointerWrap> pointerWrap, const std::string & dataObjectName )
 {
     auto fieldEntry = std::make_unique<FieldEntry>(
@@ -183,6 +193,16 @@ void CreateFieldPointer( DataBase * database, std::unique_ptr<PointerWrap> point
 void * GetFieldPointerVoid( DataBase * database, const std::string & dataObjectName )
 {
     PointerWrap * pointerWrap = GetPointerWrap( database->dataField.get(), dataObjectName );
+    if ( pointerWrap )
+    {
+        return pointerWrap->GetPointer();
+    }
+    return nullptr;
+}
+
+const void * GetFieldPointerVoid( const DataBase * database, const std::string & dataObjectName )
+{
+    const PointerWrap * pointerWrap = GetPointerWrap( database->dataField.get(), dataObjectName );
     if ( pointerWrap )
     {
         return pointerWrap->GetPointer();

@@ -32,7 +32,8 @@ public:
     PointerWrap() {};
     virtual ~PointerWrap() {};
 public:
-    virtual void * GetPointer() { return 0; };
+    virtual void * GetPointer() { return nullptr; }
+    virtual const void * GetPointer() const { return nullptr; }
 };
 
 template < typename T >
@@ -60,7 +61,8 @@ public:
 protected:
     std::unique_ptr<T> data;
 public:
-    void * GetPointer() override { return data.get(); };
+    void * GetPointer() override { return data.get(); }
+    const void * GetPointer() const override { return data.get(); }
 };
 
 EndNameSpace
