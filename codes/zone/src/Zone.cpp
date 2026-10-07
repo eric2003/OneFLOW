@@ -233,12 +233,6 @@ void Zone::ReadGrid(
     Zone::NormalizeLayout();
 }
 
-void Zone::AddScalarGrid( int zid, std::unique_ptr< ScalarGrid > grid )
-{
-    ScalarZone::AddGrid( zid, std::move( grid ) );
-}
-
-
 ScalarGrid * Zone::GetScalarGrid( int iZone )
 {
     return &Zone::GetScalarGridReference( iZone );

@@ -26,6 +26,7 @@ License
 #include "Zone.h"
 #include "ZoneState.h"
 #include "ScalarGrid.h"
+#include "ScalarZone.h"
 
 #include "PIO.h"
 #include "Parallel.h"
@@ -205,7 +206,7 @@ void GridGroup::CreateGridTest( int zoneId )
     grid->localId = Zone::nLocalZones ++;
     grid->type = gridType;
 
-    Zone::AddScalarGrid( zoneId, std::move( grid ) );
+    ScalarZone::AddGrid( zoneId, std::move( grid ) );
 }
 
 void ReadAbstractData( std::fstream & file, DataBook & dataBook, int sendpid, int recvpid, int tag )
