@@ -88,7 +88,7 @@ T GetDataValue( const std::string & varName, DataBase * database )
 
     if (dataEntry != nullptr )
     {
-        DataObject * data = dataEntry->data.get();
+        DataObject * data = dataEntry->GetDataObject();
         return GetDataValue< T >(data);
     }
     else
@@ -110,7 +110,7 @@ T GetDataValue( const std::string & varName, const DataBase * database )
 
     if ( dataEntry != nullptr )
     {
-        const DataObject * data = dataEntry->data.get();
+        const DataObject * data = dataEntry->GetDataObject();
         return GetDataValue< T >( data );
     }
 
@@ -121,12 +121,12 @@ template < typename T >
 void SetData( const std::string & name, T * value, int type, int size )
 {
     auto dataEntry = std::make_unique<DataEntry>();
-    dataEntry->name = name;
-    dataEntry->type = type;
-    dataEntry->size = size;
+    dataEntry->SetName( name );
+    dataEntry->SetType( type );
+    dataEntry->SetSize( size );
     auto o = std::make_unique<TDataObject< T > >( size );
     o->CopyValue( value, size );
-    dataEntry->data = std::move( o );
+    dataEntry->SetDataObject( std::move( o ) );
 
     DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
     dataBase->GetDataPara()->UpdateDataPointer( std::move( dataEntry ) );
@@ -151,7 +151,7 @@ T * GetDataPointer( const std::string & varName )
             "DataBase: cannot find variable \"" + varName + "\"" );
     }
 
-    DataObject * data = dataEntry->data.get();
+    DataObject * data = dataEntry->GetDataObject();
     return static_cast< T * >( data->GetVoidPointer() );
 }
 

@@ -64,54 +64,60 @@ DataBase::~DataBase()
 
 void HXWriteVoid( DataBook * dataBook, const DataEntry * dataEntry )
 {
-    dataEntry->data->Write( dataBook );
+    dataEntry->GetDataObject()->Write( dataBook );
 }
 
 void HXWriteDataEntry( DataBook * dataBook, const DataEntry * dataEntry )
 {
-    ONEFLOW::HXWrite( dataBook, dataEntry->name );
-    ONEFLOW::HXWrite( dataBook, dataEntry->type );
-    ONEFLOW::HXWrite( dataBook, dataEntry->size );
+    ONEFLOW::HXWrite( dataBook, dataEntry->GetName() );
+    ONEFLOW::HXWrite( dataBook, dataEntry->GetType() );
+    ONEFLOW::HXWrite( dataBook, dataEntry->GetSize() );
     ONEFLOW::HXWriteVoid( dataBook, dataEntry );
 }
 
 void HXReadDataEntry( DataBook * dataBook, DataEntry * dataEntry )
 {
-    ONEFLOW::HXRead( dataBook, dataEntry->name );
-    ONEFLOW::HXRead( dataBook, dataEntry->type );
-    ONEFLOW::HXRead( dataBook, dataEntry->size );
+    std::string name;
+    int type = 0;
+    int size = 0;
+    ONEFLOW::HXRead( dataBook, name );
+    ONEFLOW::HXRead( dataBook, type );
+    ONEFLOW::HXRead( dataBook, size );
+    dataEntry->SetName( name );
+    dataEntry->SetType( type );
+    dataEntry->SetSize( size );
     ONEFLOW::HXReadVoid( dataBook, dataEntry );
 }
 
 void HXReadVoid( DataBook * dataBook, DataEntry * dataEntry )
 {
-    dataEntry->data = CreateDataObject( dataEntry->type, dataEntry->size );
-    dataEntry->data->Read( dataBook, dataEntry->size );
+    dataEntry->SetDataObject( CreateDataObject( dataEntry->GetType(), dataEntry->GetSize() ) );
+    dataEntry->GetDataObject()->Read( dataBook, dataEntry->GetSize() );
 }
 
 void ProcessData( const std::string & name, const std::string * value, int type, int size )
 {
     auto dataEntry = std::make_unique<DataEntry>();
-    dataEntry->name = name;
-    dataEntry->type = type;
-    dataEntry->size = size;
+    dataEntry->SetName( name );
+    dataEntry->SetType( type );
+    dataEntry->SetSize( size );
     if ( type == ONEFLOW::HX_STRING )
     {
         auto stringObject = std::make_unique<TDataObject< std::string > >( size );
         stringObject->CopyValue( value, size );
-        dataEntry->data = std::move( stringObject );
+        dataEntry->SetDataObject( std::move( stringObject ) );
     }
     else if ( type == HX_INT )
     {
         auto intObject = std::make_unique<TDataObject< int > >( size );
         intObject->AssignFromString( value, size );
-        dataEntry->data = std::move( intObject );
+        dataEntry->SetDataObject( std::move( intObject ) );
     }
     else if ( type == HX_REAL )
     {
         auto realObject = std::make_unique<TDataObject< Real > >( size );
         realObject->AssignFromString( value, size );
-        dataEntry->data = std::move( realObject );
+        dataEntry->SetDataObject( std::move( realObject ) );
     }
     else
     {

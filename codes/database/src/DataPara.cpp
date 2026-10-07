@@ -29,9 +29,11 @@ License
 BeginNameSpace( ONEFLOW )
 
 DataEntry::DataEntry()
+    : name()
+    , type( 0 )
+    , size( 0 )
+    , data( nullptr )
 {
-    this->name = "";
-    this->data = nullptr;
 }
 
 DataEntry::DataEntry( const std::string & name, int type, int size, std::unique_ptr<DataObject> data )
@@ -76,12 +78,12 @@ void DataEntry::Copy( const DataEntry * inputData )
 
     // Copy only the data value.
     // Name, type, and size belong to the existing DataEntry.
-    this->data->Copy( inputData->data.get() );
+    this->data->Copy( inputData->GetDataObject() );
 }
 
 void DataEntry::Dump( std::fstream & file ) const
 {
-    file << name << " , " << DataBaseType::GetName( type ) << " : ";
+    file << GetName() << " , " << DataBaseType::GetName( GetType() ) << " : ";
     this->data->Dump( file );
     file << "\n";
 }
@@ -102,13 +104,13 @@ void DataPara::UpdateDataPointer( std::unique_ptr<DataEntry> data )
         return;
     }
 
-    auto it = dataMap.find( data->name );
+    auto it = dataMap.find( data->GetName() );
 
     if ( it == dataMap.end() )
     {
         // No entry with the same name exists.
         // DataPara takes ownership of the new DataEntry.
-        const std::string name = data->name;
+        const std::string name = data->GetName();
         dataMap[ name ] = std::move( data );
         return;
     }

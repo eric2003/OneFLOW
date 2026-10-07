@@ -90,9 +90,9 @@ TEST_F(DataParaTest, RejectUpdateWithDifferentType)
     // Construct an update entry with a different data type.
     auto dataEntry = std::make_unique<DataEntry>(); 
 
-    dataEntry->name = "test_value";
-    dataEntry->type = HX_REAL;
-    dataEntry->size = 1;
+    dataEntry->SetName( "test_value" );
+    dataEntry->SetType( HX_REAL );
+    dataEntry->SetSize( 1 );
 
     Real value = 20.0;
 
@@ -100,7 +100,7 @@ TEST_F(DataParaTest, RejectUpdateWithDifferentType)
 
     dataObject->CopyValue( &value, 1 );
 
-    dataEntry->data = std::move( dataObject );
+    dataEntry->SetDataObject( std::move( dataObject ) );
 
     // Updating an existing entry with a different type must fail.
     EXPECT_THROW(
@@ -137,15 +137,15 @@ TEST_F(DataParaTest, RejectUpdateWithDifferentSize)
 
     ASSERT_NE( existing, nullptr );
 
-    EXPECT_EQ( existing->type, HX_INT );
-    EXPECT_EQ( existing->size, 2 );
+    EXPECT_EQ( existing->GetType(), HX_INT );
+    EXPECT_EQ( existing->GetSize(), 2 );
 
     // Construct an update entry with the same type but a different size.
     auto dataEntry = std::make_unique<DataEntry>(); 
 
     dataEntry->name = "test_value";
-    dataEntry->type = HX_INT;
-    dataEntry->size = 3;
+    dataEntry->SetType( HX_INT );
+    dataEntry->SetSize( 3 );
 
     int newValues[3] = { 30, 40, 50 };
 
@@ -189,7 +189,7 @@ TEST(DataParaTestStandalone, ClearReleasesAllEntries)
     DataPara dataPara;
 
     auto dataEntry = std::make_unique<DataEntry>(); 
-    dataEntry->name = "clear_value";
+    dataEntry->SetName( "clear_value" );
     dataEntry->type = HX_INT;
     dataEntry->size = 1;
 

@@ -37,12 +37,23 @@ public:
     DataEntry();
     DataEntry( const std::string & name, int type, int size, std::unique_ptr<DataObject> data );
     ~DataEntry();
-public:
-    std::string  name;
-    int          type;
-    int          size;
+private:
+    std::string name;
+    int type = 0;
+    int size = 0;
     std::unique_ptr<DataObject> data;
 public:
+    const std::string & GetName() const { return name; }
+    int GetType() const { return type; }
+    int GetSize() const { return size; }
+    DataObject * GetDataObject() { return data.get(); }
+    const DataObject * GetDataObject() const { return data.get(); }
+
+    void SetName( const std::string & value ) { name = value; }
+    void SetType( int value ) { type = value; }
+    void SetSize( int value ) { size = value; }
+    void SetDataObject( std::unique_ptr<DataObject> value ) { data = std::move( value ); }
+
     void Copy( const DataEntry * inputData );
     void Dump( std::fstream & file ) const;
 };
