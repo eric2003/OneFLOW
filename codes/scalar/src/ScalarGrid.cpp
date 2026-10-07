@@ -281,6 +281,52 @@ const DataBase & ScalarGrid::RequireDataBase() const
 	return *dataBase;
 }
 
+void ScalarGrid::ResetMeshData()
+{
+	xn.data.clear();
+	yn.data.clear();
+	zn.data.clear();
+
+	xfc.data.clear();
+	yfc.data.clear();
+	zfc.data.clear();
+	xfn.data.clear();
+	yfn.data.clear();
+	zfn.data.clear();
+	xcc.data.clear();
+	ycc.data.clear();
+	zcc.data.clear();
+	vol.data.clear();
+
+	lc.data.clear();
+	rc.data.clear();
+	lpos.data.clear();
+	rpos.data.clear();
+	cell2faces.clear();
+	c2fpos.clear();
+	global_faceid.clear();
+
+	faces.data.clear();
+	elements.data.clear();
+	boundaryElements.data.clear();
+
+	bcETypes.data.clear();
+	fTypes.data.clear();
+	eTypes.data.clear();
+	fBcTypes.data.clear();
+	bcTypes.data.clear();
+	bcNameIds.data.clear();
+
+	scalarBccos = std::make_unique< ScalarBccos >();
+	scalarIFace = std::make_unique< ScalarIFace >();
+
+	nNodes = 0;
+	nCells = 0;
+	nBFaces = 0;
+	nFaces = 0;
+	nTCells = 0;
+}
+
 int ScalarGrid::GetNNodes()
 {
 	return this->xn.GetNElements();
@@ -310,6 +356,8 @@ int ScalarGrid::GetNBFaces()
 
 void ScalarGrid::GenerateGrid( int ni, Real xmin, Real xmax )
 {
+	this->ResetMeshData();
+
 	Real dx = ( xmax - xmin ) / ( ni - 1 );
 
 	for ( int i = 0; i < ni; ++ i )
