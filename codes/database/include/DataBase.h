@@ -227,8 +227,8 @@ const T * GetFieldPointer( const DataBase * database, const std::string & dataOb
 template < typename T, typename TStorage >
 const T * GetFieldPointer( const TStorage * storage, const std::string & dataObjectName )
 {
-    const DataBase * database = storage->GetDataBase();
-    return ONEFLOW::GetFieldPointer< T >( database, dataObjectName );
+    const DataBase & database = storage->RequireDataBase();
+    return ONEFLOW::GetFieldPointer< T >( &database, dataObjectName );
 }
 
 template < typename T >
