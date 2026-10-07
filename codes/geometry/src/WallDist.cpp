@@ -99,19 +99,19 @@ void FillWallStructTask( StringField & /*data*/ )
 
 void FillWallStruct( StringField & /*data*/ )
 {
-    UnsGrid * grid = Zone::GetUnsGrid();
-    const int nBFaces = grid->GetFaceTopo().GetBcRecord().GetNBFace();
-    BcRecord * bcRecord = &grid->GetFaceTopo().GetBcRecord();
+    UnsGrid & grid = Zone::GetUnsGridReference();
+    const int nBFaces = grid.GetFaceTopo().GetBcRecord().GetNBFace();
+    BcRecord * bcRecord = &grid.GetFaceTopo().GetBcRecord();
 
     const int nWallFace = bcRecord->CalcNumWallFace();
 
-    RealField & xfc = grid->GetFaceMesh().xfc;
-    RealField & yfc = grid->GetFaceMesh().yfc;
-    RealField & zfc = grid->GetFaceMesh().zfc;
+    RealField & xfc = grid.GetFaceMesh().xfc;
+    RealField & yfc = grid.GetFaceMesh().yfc;
+    RealField & zfc = grid.GetFaceMesh().zfc;
 
-    RealField & x = grid->nodeMesh->xN;
-    RealField & y = grid->nodeMesh->yN;
-    RealField & z = grid->nodeMesh->zN;
+    RealField & x = grid.nodeMesh->xN;
+    RealField & y = grid.nodeMesh->yN;
+    RealField & z = grid.nodeMesh->zN;
 
     ActionState::dataBook->MoveToBegin();
     HXWrite( ActionState::dataBook, nWallFace );
@@ -127,7 +127,7 @@ void FillWallStruct( StringField & /*data*/ )
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
         const int bcType = bcRecord->bcType[ iFace ];
-        const int nNodes = static_cast< int >( grid->GetFaceTopo().GetFaces()[ iFace ].size() );
+        const int nNodes = static_cast< int >( grid.GetFaceTopo().GetFaces()[ iFace ].size() );
 
         if ( bcType != BC::SOLID_SURFACE )
         {
@@ -139,7 +139,7 @@ void FillWallStruct( StringField & /*data*/ )
 
         for ( int iNode = 0; iNode < nNodes; ++ iNode )
         {
-            const int iPoint = grid->GetFaceTopo().GetFaces()[ iFace ][ iNode ];
+            const int iPoint = grid.GetFaceTopo().GetFaces()[ iFace ][ iNode ];
             simpleFace.emplace_back( x[ iPoint ], y[ iPoint ], z[ iPoint ] );
         }
         fv.push_back( std::move( simpleFace ) );
@@ -158,17 +158,17 @@ void CalcWallDist( StringField & /*data*/ )
         return;
     }
 
-    UnsGrid * grid = Zone::GetUnsGrid();
-    RealField & dist = grid->GetCellMesh().dist;
-    const int nCells = grid->nCells;
+    UnsGrid & grid = Zone::GetUnsGridReference();
+    RealField & dist = grid.GetCellMesh().dist;
+    const int nCells = grid.nCells;
 
     dist = LARGE;
 
-    RealField & xcc = grid->GetCellMesh().xcc;
-    RealField & ycc = grid->GetCellMesh().ycc;
-    RealField & zcc = grid->GetCellMesh().zcc;
+    RealField & xcc = grid.GetCellMesh().xcc;
+    RealField & ycc = grid.GetCellMesh().ycc;
+    RealField & zcc = grid.GetCellMesh().zcc;
 
-    std::cout << "zone " << grid->id << std::endl;
+    std::cout << "zone " << grid.id << std::endl;
 
     WallStructure::PointField & fc = ws->fc;
     WallStructure::PointLink  & fv = ws->fv;
@@ -178,7 +178,7 @@ void CalcWallDist( StringField & /*data*/ )
     {
         if ( cId % 10000 == 0 )
         {
-            std::cout << " pid = " << Parallel::pid << " Zone = " << grid->id
+            std::cout << " pid = " << Parallel::pid << " Zone = " << grid.id
                       << " cid = " << cId << " nCells = " << nCells
                       << " nWFace = " << nWFace << std::endl;
         }

@@ -64,6 +64,7 @@ public:
     static Grid * GetCGrid( Grid * grid );
     static Grid * GetFGrid( Grid * grid );
     static UnsGrid * GetUnsGrid();
+    static UnsGrid & GetUnsGridReference();
 public:
     static void AddScalarGrid( int zid, std::unique_ptr< ScalarGrid > grid );
     static ScalarGrid * GetScalarGrid( int iZone );

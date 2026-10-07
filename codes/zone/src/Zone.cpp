@@ -130,6 +130,11 @@ UnsGrid * Zone::GetUnsGrid()
     return ONEFLOW::UnsGridCast( Zone::GetGrid() );
 }
 
+UnsGrid & Zone::GetUnsGridReference()
+{
+    return *ONEFLOW::UnsGridCast( &Zone::GetGridReference() );
+}
+
 Grid * Zone::GetCGrid( Grid * grid )
 {
     int level = grid->level + 1;
