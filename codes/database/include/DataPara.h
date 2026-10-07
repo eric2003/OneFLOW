@@ -43,7 +43,7 @@ public:
     int          size;
     std::unique_ptr<DataObject> data;
 public:
-    void Copy( DataEntry * inputData );
+    void Copy( const DataEntry * inputData );
     void Dump( std::fstream & file ) const;
 };
 

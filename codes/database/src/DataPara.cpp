@@ -46,7 +46,7 @@ DataEntry::~DataEntry()
 {
 }
 
-void DataEntry::Copy( DataEntry * inputData )
+void DataEntry::Copy( const DataEntry * inputData )
 {
     if ( inputData == nullptr )
     {
