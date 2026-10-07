@@ -70,7 +70,7 @@ RealList::~RealList()
 	;
 }
 
-size_t RealList::GetNElements()
+size_t RealList::GetNElements() const
 {
 	return data.size();
 }
@@ -100,7 +100,7 @@ IntList::IntList( const IntList & rhs )
 	this->data = rhs.data;
 }
 
-size_t IntList::GetNElements()
+size_t IntList::GetNElements() const
 {
 	return data.size();
 }
@@ -142,7 +142,7 @@ EList::~EList()
 	;
 }
 
-size_t EList::GetNElements()
+size_t EList::GetNElements() const
 {
 	return data.size();
 }
