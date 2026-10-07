@@ -27,13 +27,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-class ClassicGrid
-{
-public:
-    ClassicGrid();
-    ~ClassicGrid();
-public:
-    void Run( const GridConfig & config ) const;
-};
+// Dispatch classic grid generation selected by GridConfig::generationType.
+void GenerateClassicGrid( const GridConfig & config );
 
 EndNameSpace

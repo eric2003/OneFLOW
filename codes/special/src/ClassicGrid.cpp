@@ -83,17 +83,7 @@ namespace
     };
 }
 
-ClassicGrid::ClassicGrid()
-{
-    ;
-}
-
-ClassicGrid::~ClassicGrid()
-{
-    ;
-}
-
-void ClassicGrid::Run( const GridConfig & config ) const
+void GenerateClassicGrid( const GridConfig & config )
 {
     if ( ! config.generationType )
     {

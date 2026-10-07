@@ -126,8 +126,7 @@ namespace
         const GridConfig & config,
         const std::string & caseDir )
     {
-        ClassicGrid classicGrid;
-        classicGrid.Run( config );
+        GenerateClassicGrid( config );
         DispatchConverter( config, caseDir );
     }
 
