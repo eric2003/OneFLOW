@@ -27,6 +27,7 @@ License
 #include <vector>
 #include <string>
 #include <memory>
+#include <stdexcept>
 
 
 BeginNameSpace( ONEFLOW )
@@ -73,8 +74,22 @@ public:
 public:
     DataBase * GetDataBase() { return dataBase.get(); };
     const DataBase * GetDataBase() const { return dataBase.get(); }
-    DataBase & RequireDataBase() { return *dataBase; }
-    const DataBase & RequireDataBase() const { return *dataBase; }
+    DataBase & RequireDataBase()
+    {
+        if ( dataBase == nullptr )
+        {
+            throw std::logic_error( "Grid: DataBase is not initialized" );
+        }
+        return *dataBase;
+    }
+    const DataBase & RequireDataBase() const
+    {
+        if ( dataBase == nullptr )
+        {
+            throw std::logic_error( "Grid: DataBase is not initialized" );
+        }
+        return *dataBase;
+    }
 public:
     void BasicInit();
     void Free();

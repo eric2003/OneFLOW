@@ -57,14 +57,42 @@ public:
     DataPara * GetDataPara() { return dataPara.get(); }
     const DataPara * GetDataPara() const { return dataPara.get(); }
 
-    DataPara & RequireDataPara() { return *dataPara; }
-    const DataPara & RequireDataPara() const { return *dataPara; }
+    DataPara & RequireDataPara()
+    {
+        if ( dataPara == nullptr )
+        {
+            throw std::logic_error( "DataBase: DataPara is not initialized" );
+        }
+        return *dataPara;
+    }
+    const DataPara & RequireDataPara() const
+    {
+        if ( dataPara == nullptr )
+        {
+            throw std::logic_error( "DataBase: DataPara is not initialized" );
+        }
+        return *dataPara;
+    }
 
     DataField * GetDataField() { return dataField.get(); }
     const DataField * GetDataField() const { return dataField.get(); }
 
-    DataField & RequireDataField() { return *dataField; }
-    const DataField & RequireDataField() const { return *dataField; }
+    DataField & RequireDataField()
+    {
+        if ( dataField == nullptr )
+        {
+            throw std::logic_error( "DataBase: DataField is not initialized" );
+        }
+        return *dataField;
+    }
+    const DataField & RequireDataField() const
+    {
+        if ( dataField == nullptr )
+        {
+            throw std::logic_error( "DataBase: DataField is not initialized" );
+        }
+        return *dataField;
+    }
 };
 std::unique_ptr<DataEntry> HXReadDataEntry( DataBook * dataBook );
 void HXWriteDataEntry( DataBook * dataBook, const DataEntry * dataEntry );

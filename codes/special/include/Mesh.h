@@ -27,6 +27,7 @@ License
 #include <string>
 #include <fstream>
 #include <memory> // Added for std::unique_ptr
+#include <stdexcept>
 
 BeginNameSpace( ONEFLOW )
 
@@ -114,8 +115,22 @@ public:
     // Return raw pointer for compatibility with APIs expecting DataBase*
     DataBase * GetDataBase() { return dataBase.get(); }
     const DataBase * GetDataBase() const { return dataBase.get(); }
-    DataBase & RequireDataBase() { return *dataBase; }
-    const DataBase & RequireDataBase() const { return *dataBase; }
+    DataBase & RequireDataBase()
+    {
+        if ( dataBase == nullptr )
+        {
+            throw std::logic_error( "Mesh: DataBase is not initialized" );
+        }
+        return *dataBase;
+    }
+    const DataBase & RequireDataBase() const
+    {
+        if ( dataBase == nullptr )
+        {
+            throw std::logic_error( "Mesh: DataBase is not initialized" );
+        }
+        return *dataBase;
+    }
 
 public:
     void ConstructTopology();
