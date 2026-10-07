@@ -1566,7 +1566,7 @@ void ScalarGrid::AddInterface( int global_interface_id, int neighbor_zoneid, int
 	this->scalarIFace->AddInterface( global_interface_id, neighbor_zoneid, neighbor_cellid );
 }
 
-void ScalarGrid::ReconstructNode( ScalarGrid * ggrid )
+void ScalarGrid::ReconstructNode( const ScalarGrid & ggrid )
 {
 	int nFaces = this->global_faceid.size();
 	std::set<int> nodeset;
@@ -1575,7 +1575,7 @@ void ScalarGrid::ReconstructNode( ScalarGrid * ggrid )
 	{
 		//global face id
 		int iGFace = this->global_faceid[ iFace ];
-		std::vector< int > & face = ggrid->faces[ iGFace ];
+		const std::vector< int > & face = ggrid.faces[ iGFace ];
 		int nNodes = face.size();
 		for ( int iNode = 0; iNode < nNodes; ++ iNode )
 		{
@@ -1605,9 +1605,9 @@ void ScalarGrid::ReconstructNode( ScalarGrid * ggrid )
 	for ( std::set<int>::iterator iter = nodeset.begin(); iter != nodeset.end(); ++ iter )
 	{
 		int iNode = *iter;
-		Real xm = ggrid->xn[ iNode ];
-		Real ym = ggrid->yn[ iNode ];
-		Real zm = ggrid->zn[ iNode ];
+		Real xm = ggrid.xn[ iNode ];
+		Real ym = ggrid.yn[ iNode ];
+		Real zm = ggrid.zn[ iNode ];
 
 		this->xn.AddData( xm );
 		this->yn.AddData( ym );
