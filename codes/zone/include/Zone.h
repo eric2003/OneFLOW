@@ -66,6 +66,8 @@ public:
     static void AddScalarGrid( int zid, std::unique_ptr< ScalarGrid > grid );
     static ScalarGrid * GetScalarGrid( int iZone );
     static ScalarGrid * GetScalarGrid();
+    static ScalarGrid & GetScalarGridReference( int iZone );
+    static ScalarGrid & GetScalarGridReference();
 public:
     static int GetNumberOfZoneNeighbors( int zoneId );
     static int GetNeighborZoneId( int zoneId, int iNeighbor );
