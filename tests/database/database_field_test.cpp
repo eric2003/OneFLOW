@@ -163,11 +163,11 @@ TEST_F(DataFieldTest, MultipleFieldsCoexist)
 TEST_F(DataFieldTest, ClearRemovesAllFields)
 {
     CreateFieldPointer(
-        db_,
+        *db_,
         std::make_unique<DataPointer<DummyField>>( std::make_unique<DummyField>( DummyField{ 1, 1.0 } ) ),
         "clear_field_a" );
     CreateFieldPointer(
-        db_,
+        *db_,
         std::make_unique<DataPointer<DummyField>>( std::make_unique<DummyField>( DummyField{ 2, 2.0 } ) ),
         "clear_field_b" );
 
