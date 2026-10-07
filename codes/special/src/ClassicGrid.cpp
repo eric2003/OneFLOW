@@ -58,8 +58,7 @@ namespace
 
     void RunGridCreate( const GridConfig & config )
     {
-        GridCreate gridCreate;
-        gridCreate.Run( config );
+        GenerateLayoutGrid( config );
     }
 
     void RunCgnsTest( const GridConfig & )

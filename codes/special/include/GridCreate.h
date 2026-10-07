@@ -29,14 +29,7 @@ BeginNameSpace( ONEFLOW )
 
 struct GridConfig;
 
-class GridCreate
-{
-public:
-    GridCreate();
-    ~GridCreate();
-public:
-    void Run( const GridConfig & config );
-    void GenePlate( const GridConfig & config );
-};
+// Generate a grid from the configured layout file.
+void GenerateLayoutGrid( const GridConfig & config );
 
 EndNameSpace

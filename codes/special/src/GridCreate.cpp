@@ -42,20 +42,7 @@ License
 BeginNameSpace( ONEFLOW )
 
 
-GridCreate::GridCreate()
-{
-}
-
-GridCreate::~GridCreate()
-{
-}
-
-void GridCreate::Run( const GridConfig & config )
-{
-    this->GenePlate( config );
-}
-
-void GridCreate::GenePlate( const GridConfig & config )
+void GenerateLayoutGrid( const GridConfig & config )
 {
     grid_Machine.Run( config.layoutFile );
 }
