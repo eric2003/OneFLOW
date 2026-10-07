@@ -180,11 +180,11 @@ void GridPartition::ReconstructGridFaceTopo( const ScalarGrid & ggrid, int nPart
 	//calc cellzone;
 	MetisSplit metisSplit;
 	MetisIntList cellzone;
-	metisSplit.MetisPartition( *ggrid, nPart, cellzone );
+	metisSplit.MetisPartition( ggrid, nPart, cellzone );
 
 	this->AllocateGrid( nPart, grids );
 
-	int nZones = this->GetNZones();
+	int nZones = this->GetNZones( grids );
 	int nFaces = ggrid.GetNFaces();
 	int nCells = ggrid.GetNCells();
 	int nBFaces = ggrid.GetNBFaces();
@@ -274,7 +274,7 @@ void GridPartition::ReconstructGridFaceTopo( const ScalarGrid & ggrid, int nPart
 
 void GridPartition::ReconstructInterfaceTopo( std::vector< std::unique_ptr< ScalarGrid > > & grids )
 {
-	int nZones = this->GetNZones();
+	int nZones = this->GetNZones( grids );
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
 		int nNeis = ( * grids )[ iZone ]->scalarIFace->data.size();
@@ -304,7 +304,7 @@ void GridPartition::ReconstructInterfaceTopo( std::vector< std::unique_ptr< Scal
 
 void GridPartition::CalcInterfaceToBcFace( std::vector< std::unique_ptr< ScalarGrid > > & grids )
 {
-	int nZones = this->GetNZones();
+	int nZones = this->GetNZones( grids );
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
 		( * grids )[ iZone ]->CalcInterfaceToBcFace();
@@ -313,7 +313,7 @@ void GridPartition::CalcInterfaceToBcFace( std::vector< std::unique_ptr< ScalarG
 
 void GridPartition::ReconstructNeighbor( std::vector< std::unique_ptr< ScalarGrid > > & grids )
 {
-	int nZones = this->GetNZones();
+	int nZones = this->GetNZones( grids );
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
 		( * grids )[ iZone ]->scalarIFace->ReconstructNeighbor();
@@ -322,7 +322,7 @@ void GridPartition::ReconstructNeighbor( std::vector< std::unique_ptr< ScalarGri
 
 void GridPartition::ReconstructNode( const ScalarGrid & ggrid, std::vector< std::unique_ptr< ScalarGrid > > & grids )
 {
-	int nZones = this->GetNZones();
+	int nZones = this->GetNZones( grids );
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
 		ScalarGrid * grid = ( * grids )[ iZone  ].get();
