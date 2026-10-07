@@ -23,7 +23,6 @@ License
 #include "GridGroup.h"
 #include <memory>
 #include <utility>
-#include <utility>
 #include "Zone.h"
 #include "ZoneState.h"
 #include "ScalarGrid.h"
@@ -169,8 +168,8 @@ void GridGroup::ReadGrid( std::fstream & file, int zid )
     // This guarantees exception safety and eliminates memory leaks 
     // if ReadAbstractData or DataToGrid throws an exception.
     DataBook dataBook;
-    ONEFLOW::ReadAbstractData( file, &dataBook, spid, rpid );
-    ONEFLOW::DataToGrid( &dataBook, zid );
+    ONEFLOW::ReadAbstractData( file, dataBook, spid, rpid );
+    ONEFLOW::DataToGrid( dataBook, zid );
 }
 
 void GridGroup::CreateGrid( int zoneId )
@@ -209,17 +208,17 @@ void GridGroup::CreateGridTest( int zoneId )
     Zone::AddScalarGrid( zoneId, std::move( grid ) );
 }
 
-void ReadAbstractData( std::fstream & file, DataBook * dataBook, int sendpid, int recvpid, int tag )
+void ReadAbstractData( std::fstream & file, DataBook & dataBook, int sendpid, int recvpid, int tag )
 {
     if ( Parallel::pid == sendpid )
     {
-        dataBook->ReadFile( file );
+        dataBook.ReadFile( file );
     }
 
-    dataBook->SendRecv( sendpid, recvpid, tag );
+    dataBook.SendRecv( sendpid, recvpid, tag );
 }
 
-void DataToGrid( DataBook * dataBook, int zid )
+void DataToGrid( DataBook & dataBook, int zid )
 {
     if ( Zone::flag_test_grid == 0 )
     {
@@ -231,7 +230,7 @@ void DataToGrid( DataBook * dataBook, int zid )
     }
 }
 
-void DataToGridImp( DataBook * dataBook, int zid )
+void DataToGridImp( DataBook & dataBook, int zid )
 {
     int spid = 0;
     int rpid = 0;
@@ -242,10 +241,10 @@ void DataToGridImp( DataBook * dataBook, int zid )
 
     Grid & grid = Zone::GetGridReference( zid, 0 );
 
-    grid.Decode( dataBook );
+    grid.Decode( &dataBook );
 }
 
-void DataToGridTest( DataBook * dataBook, int zid )
+void DataToGridTest( DataBook & dataBook, int zid )
 {
     int spid = 0;
     int rpid = 0;
@@ -255,7 +254,7 @@ void DataToGridTest( DataBook * dataBook, int zid )
     if ( Parallel::pid != rpid ) return;
 
     ScalarGrid & grid = Zone::GetScalarGridReference( zid );
-    grid.ReadGrid( dataBook );
+    grid.ReadGrid( &dataBook );
 }
 
 EndNameSpace
