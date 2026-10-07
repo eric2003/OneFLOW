@@ -46,6 +46,12 @@ License
 BeginNameSpace( ONEFLOW )
 
 
+namespace
+{
+    void DumpPlot3DGrid( GridMediator & gridMediator );
+    void DumpCgnsGrid( std::unique_ptr< GridMediator > gridMediator );
+}
+
 void GenerateCavityGrid()
 {
     int ni = 101;
