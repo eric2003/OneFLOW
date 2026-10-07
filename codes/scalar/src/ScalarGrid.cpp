@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "ScalarGrid.h"
+#include "DataBase.h"
 #include <memory>
 #include "ScalarCgns.h"
 #include "CgnsZsection.h"
@@ -240,7 +241,8 @@ void ScalarBccos::ScanBcFace( ScalarGrid * grid )
 }
 
 ScalarGrid::ScalarGrid()
-	: scalarBccos( std::make_unique< ScalarBccos >() ),
+	: dataBase( std::make_unique< DataBase >() ),
+	  scalarBccos( std::make_unique< ScalarBccos >() ),
 	  scalarIFace( std::make_unique< ScalarIFace >() )
 {
 	this->id = 0;
@@ -250,6 +252,34 @@ ScalarGrid::ScalarGrid()
 }
 
 ScalarGrid::~ScalarGrid() = default;
+
+DataBase * ScalarGrid::GetDataBase()
+{
+	return dataBase.get();
+}
+
+const DataBase * ScalarGrid::GetDataBase() const
+{
+	return dataBase.get();
+}
+
+DataBase & ScalarGrid::RequireDataBase()
+{
+	if ( dataBase == nullptr )
+	{
+		throw std::logic_error( "ScalarGrid: DataBase is not initialized" );
+	}
+	return *dataBase;
+}
+
+const DataBase & ScalarGrid::RequireDataBase() const
+{
+	if ( dataBase == nullptr )
+	{
+		throw std::logic_error( "ScalarGrid: DataBase is not initialized" );
+	}
+	return *dataBase;
+}
 
 int ScalarGrid::GetNNodes()
 {
