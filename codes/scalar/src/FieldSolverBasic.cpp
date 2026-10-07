@@ -203,8 +203,8 @@ void FieldSolverBasic::DownloadInterface()
 
 void FieldSolverBasic::UpdateInterface( TaskFunction sendAction, TaskFunction recvAction )
 {
-    auto dataBook = std::make_unique<DataBook>();
-    ActionState::dataBook = dataBook.get();
+    DataBook dataBook;
+    ActionState::dataBook = & dataBook;
     for ( int iZone = 0; iZone < ZoneState::nZones; ++ iZone )
     {
         //Loop through each zone
