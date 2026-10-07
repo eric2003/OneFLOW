@@ -66,6 +66,8 @@ void SetData( const std::string & name, T * value, int type, int size );
 
 template < typename T >
 T GetDataValue( const std::string & varName, DataBase * database = ONEFLOW::GetGlobalDataBase() );
+template < typename T >
+T GetDataValue( const std::string & varName, const DataBase * database );
 
 //Read the value of the variable with parameter type T and name Varname from the database
 template < typename T >
@@ -82,7 +84,21 @@ T GetDataValue( const std::string & varName, DataBase * database )
     {
         // Short-term: throw instead of exit, so unit tests can catch it
         throw std::runtime_error( "DataBase: cannot find variable \"" + varName + "\"" );
-    }   
+    }
+}
+
+template < typename T >
+T GetDataValue( const std::string & varName, const DataBase * database )
+{
+    const DataEntry * dataEntry = database->dataPara->GetDataPointer( varName );
+
+    if ( dataEntry != nullptr )
+    {
+        const DataObject * data = dataEntry->data.get();
+        return GetDataValue< T >( data );
+    }
+
+    throw std::runtime_error( "DataBase: cannot find variable \"" + varName + "\"" );
 }
 
 template < typename T >

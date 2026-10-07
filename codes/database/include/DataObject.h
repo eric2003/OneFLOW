@@ -38,6 +38,7 @@ public:
     virtual ~DataObject() {};
 public:
     virtual void * GetVoidPointer() { return 0; };
+    virtual const void * GetVoidPointer() const { return nullptr; };
     virtual void Write( DataBook * dataBook ) {};
     virtual void Read( DataBook * dataBook, int numberOfElements ) {};
     virtual void Copy( DataObject * dataObject ) {};
@@ -46,11 +47,20 @@ public:
 
 template < typename T >
 T GetDataValue( DataObject * dataObject, int iElement = 0 );
+template < typename T >
+T GetDataValue( const DataObject * dataObject, int iElement );
 
 template < typename T >
 T GetDataValue( DataObject * dataObject, int iElement )
 {
     T * data = static_cast< T *>( dataObject->GetVoidPointer() );
+    return data[ iElement ];
+}
+
+template < typename T >
+T GetDataValue( const DataObject * dataObject, int iElement )
+{
+    const T * data = static_cast< const T * >( dataObject->GetVoidPointer() );
     return data[ iElement ];
 }
 
@@ -96,6 +106,13 @@ public:
         if (data.empty())
             return nullptr;
         return &data[0];
+    };
+
+    const void* GetVoidPointer() const override
+    {
+        if (data.empty())
+            return nullptr;
+        return data.data();
     };
 
     // Copy values from typed‑array, copy at most nCopyElements items

@@ -61,12 +61,14 @@ public:
     // Takes ownership of data.
     void UpdateDataPointer( std::unique_ptr<DataEntry> data );
     DataEntry * GetDataPointer( const std::string & name );
+    const DataEntry * GetDataPointer( const std::string & name ) const;
     void DeleteDataPointer( const std::string & name );
 
     // Release all case-local parameter entries while keeping the database alive.
     void Clear();
 
     DataMap * GetDataMap() { return &dataMap; }
+    const DataMap * GetDataMap() const { return &dataMap; }
 
     void DumpData( std::fstream & file );
 };

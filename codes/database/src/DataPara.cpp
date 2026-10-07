@@ -128,6 +128,16 @@ DataEntry * DataPara::GetDataPointer( const std::string & name )
     return nullptr;
 }
 
+const DataEntry * DataPara::GetDataPointer( const std::string & name ) const
+{
+    auto it = dataMap.find( name );
+    if ( it != dataMap.end() )
+    {
+        return it->second.get();
+    }
+    return nullptr;
+}
+
 void DataPara::DeleteDataPointer( const std::string & name )
 {
     dataMap.erase( name );
