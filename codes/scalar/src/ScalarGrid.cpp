@@ -47,7 +47,6 @@ License
 #include "Boundary.h"
 #include "MetisGrid.h"
 #include "ScalarIFace.h"
-#include "DataBase.h"
 #include "DataBook.h"
 #include "Prj.h"
 
@@ -241,7 +240,6 @@ void ScalarBccos::ScanBcFace( ScalarGrid * grid )
 
 ScalarGrid::ScalarGrid()
 	: scalarBccos( std::make_unique< ScalarBccos >() ),
-	  dataBase( std::make_unique< DataBase >() ),
 	  scalarIFace( std::make_unique< ScalarIFace >() )
 {
 	this->id = 0;
