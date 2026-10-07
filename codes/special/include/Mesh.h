@@ -23,6 +23,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include "DataStorage.h"
 #include <vector>
 #include <string>
 #include <fstream>
@@ -36,7 +37,6 @@ class FaceTopo;
 class FaceMesh;
 class CellMesh;
 class Mesh;
-class DataBase;
 
 // =====================================================================
 // HXRandomClass (Unchanged)
@@ -90,7 +90,7 @@ protected:
 // =====================================================================
 // Mesh (Refactored)
 // =====================================================================
-class Mesh
+class Mesh : public DataStorage
 {
 public:
     Mesh();
@@ -106,31 +106,9 @@ public:
     std::unique_ptr<FaceTopo> faceTopo;
     std::unique_ptr<FaceMesh> faceMesh;
     std::unique_ptr<CellMesh> cellMesh;
-    std::unique_ptr<DataBase> dataBase;
 
 public:
     void CreateMesh();
-
-public:
-    // Return raw pointer for compatibility with APIs expecting DataBase*
-    DataBase * GetDataBase() { return dataBase.get(); }
-    const DataBase * GetDataBase() const { return dataBase.get(); }
-    DataBase & RequireDataBase()
-    {
-        if ( dataBase == nullptr )
-        {
-            throw std::logic_error( "Mesh: DataBase is not initialized" );
-        }
-        return *dataBase;
-    }
-    const DataBase & RequireDataBase() const
-    {
-        if ( dataBase == nullptr )
-        {
-            throw std::logic_error( "Mesh: DataBase is not initialized" );
-        }
-        return *dataBase;
-    }
 
 public:
     void ConstructTopology();
