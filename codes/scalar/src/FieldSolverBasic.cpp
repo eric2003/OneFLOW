@@ -358,7 +358,7 @@ void FieldSolverBasic::GetVisualData( DataBook * dataBook )
     Real xs = para->c * time;
 
     RealField theory;
-    Theory( grid, time, theory );
+    Theory( &grid, time, theory );
 
     RealField xcoor;
 
@@ -412,7 +412,7 @@ void FieldSolverBasic::AddVisualData( RealField & qList, RealField & theoryList,
     Real xs = para->c * time;
 
     RealField theory;
-    Theory( grid, time, theory );
+    Theory( &grid, time, theory );
 
     for ( int iCell = 0; iCell < nCells; ++ iCell )
     {
