@@ -662,12 +662,12 @@ bool FindMatch( UnsGrid & grid, FacePair & facePair )
 {
     bool found = false;
 
-    InterFace * interFace = grid.interFace.get();
+    InterFace * interFace = grid.interFace->get();
 
     if ( ! ONEFLOW::IsValid( interFace ) ) return found;
 
     int nBFaces = grid.nBFaces;
-    int nIFaces = interFace.nIFaces;
+    int nIFaces = interFace->nIFaces;
     int nPBFace = nBFaces - nIFaces;
 
     IntField & lCell = grid.GetFaceTopo().GetLeftCells();
@@ -679,11 +679,11 @@ bool FindMatch( UnsGrid & grid, FacePair & facePair )
         int rc = rCell[ iFace + nPBFace ];
         int cell_id = MAX( lc, rc );
 
-        if ( ( interFace.zoneId[ iFace ]      == facePair.lf.zone_id ) &&
-             ( interFace.localCellId[ iFace ] == facePair.lf.cell_id ) && 
+        if ( ( interFace->zoneId[ iFace ]      == facePair.lf.zone_id ) &&
+             ( interFace->localCellId[ iFace ] == facePair.lf.cell_id ) && 
              ( cell_id                         == facePair.rf.cell_id ) )
         {
-            interFace.localInterfaceId[ iFace ] = facePair.lf.face_id;
+            interFace->localInterfaceId[ iFace ] = facePair.lf.face_id;
             facePair.rf.face_id = iFace;
             found = true;
             break;
