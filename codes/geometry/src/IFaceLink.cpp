@@ -33,7 +33,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-IFaceLink::IFaceLink( Grids & gridsIn )
+IFaceLink::IFaceLink( Grids & gridsIn ) : grids( gridsIn )
 {
     const int nZone = GridsSize( gridsIn );
     this->l2g.resize( nZone );
@@ -44,6 +44,11 @@ IFaceLink::IFaceLink( Grids & gridsIn )
 }
 
 IFaceLink::~IFaceLink() = default;
+
+Grid & IFaceLink::GetGrid( int zoneIndex )
+{
+    return GridAt( this->grids, zoneIndex );
+}
 
 void IFaceLink::Init( Grid & grid )
 {

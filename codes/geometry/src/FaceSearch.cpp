@@ -238,10 +238,10 @@ bool FaceSearch::GetLine( const IntField & nodeId, LinkField & localLineId, Link
         Fatal( "impossible" );
     }
     int zoneIndex = this->iFaceLink->gI2Zid[ this->gFid ][ 0 ];
-    Grid * grid = &GridAt( *this->iFaceLink->grids, zoneIndex );
-    int nNodes = grid->nodeMesh->GetNumberOfNodes();
+    Grid & grid = this->iFaceLink->GetGrid( zoneIndex );
+    int nNodes = grid.nodeMesh->GetNumberOfNodes();
     int pId = nNodes;
-    grid->nodeMesh->AddPoint( coor2[ 0 ], coor2[ 1 ], coor2[ 2 ] );
+    grid.nodeMesh->AddPoint( coor2[ 0 ], coor2[ 1 ], coor2[ 2 ] );
     int p2 = point_search->AddPoint( coor2[ 0 ], coor2[ 1 ], coor2[ 2 ] );
 
     IntField id1( 2 ), id2( 2 );

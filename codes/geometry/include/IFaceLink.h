@@ -54,7 +54,11 @@ public:
     std::unique_ptr< FaceSearch > face_search;
     std::unique_ptr< PointLocator > point_search;
 
+private:
+    Grids & grids;
+
 public:
+    [[nodiscard]] Grid & GetGrid( int zoneIndex );
     void Init( Grid & grid );
 public:
     void CreateLink( IntField & faceNode, int zid, int lCount );
