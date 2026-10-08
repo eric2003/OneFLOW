@@ -194,7 +194,7 @@ void G2LMapping::PartByMetis( idx_t nCells, std::vector<idx_t>& xadj, std::vecto
 #endif
 
 Partition::Partition( const GridConfig & config )
-    : sourceFile( config.sourceFile ), partitionType( config.partitionType ), npartproc( config.partitionType == config.partitionType ? GetDataValue< int >( "npartproc" ) : GetDataValue< int >( "npartproc" ) )
+    : sourceFile( config.sourceFile ), partitionType( config.partitionType ), npartproc( config.partitionCount )
 {
 }
 

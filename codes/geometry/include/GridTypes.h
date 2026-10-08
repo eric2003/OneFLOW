@@ -129,6 +129,7 @@ struct GridConfig
     GridAssemblyMode assemblyMode{ GridAssemblyMode::AggregateZones };
     GridAxisDirection axisDirection{ GridAxisDirection::Y };
     int           partitionType{ 0 };
+    int           partitionCount{ 1 };
     bool          ignoreNoBoundary{ false };
     Real          scale{ 1.0 };
     std::array< Real, 3 > translate{};
