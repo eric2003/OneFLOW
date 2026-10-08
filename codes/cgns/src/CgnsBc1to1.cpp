@@ -61,8 +61,8 @@ void CgnsBc1to1::ReadCgnsBc1To1()
     this->SetNConnPoints( 6 );
     this->SetNConnDonorPoints( 6 );
 
-    this->ResizeConnPoint( nConnPoints );
-    this->ResizeConnDonorPoint( nConnDonorPoints );
+    this->ResizeConnPoint( this->GetNConnPoints() );
+    this->ResizeConnDonorPoint( this->GetNConnDonorPoints() );
 
     this->donorPointSetType = CGNS_ENUMV( PointRange );
     this->donorDataType     = CGNS_ENUMV( Integer );
@@ -80,8 +80,8 @@ void CgnsBc1to1::ReadCgnsBc1To1()
     std::cout << "   connName      = " << connName << " donorZoneName = " << donorZoneName << "\n";
     std::cout << "   donorDataType = " << DataTypeName[ this->donorDataType ] << "\n";
     std::cout << "   donorPointSetType = " << PointSetTypeName[ this->donorPointSetType ] << "\n";
-    std::cout << "   nConnPoints      = " << nConnPoints << "\n";
-    std::cout << "   nConnDonorPoints = " << nConnDonorPoints << "\n";
+    std::cout << "   nConnPoints      = " << this->GetNConnPoints() << "\n";
+    std::cout << "   nConnDonorPoints = " << this->GetNConnDonorPoints() << "\n";
 
     std::cout << "   range (this zone )= ";
     int width = 5;
