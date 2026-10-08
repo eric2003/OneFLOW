@@ -68,6 +68,9 @@ public:
     void CopyISize( CgInt * isize );
     void SetVolBcType( int volBcType );
     int  GetVolBcType() const;
+    CgnsCoor & RequireCgnsCoor();
+    CgnsZsection & RequireCgnsZsection();
+    CgnsZbc & RequireCgnsZbc();
 public:
     void Create();
     void SetPeriodicBc();

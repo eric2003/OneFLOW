@@ -44,6 +44,7 @@ License
 #include "Fatal.h"
 #include <iostream>
 #include <iomanip>
+#include <stdexcept>
 
 
 BeginNameSpace( ONEFLOW )
@@ -82,6 +83,33 @@ void CgnsZone::SetVolBcType( int volBcType )
 int CgnsZone::GetVolBcType() const
 {
     return this->volBcType;
+}
+
+CgnsCoor & CgnsZone::RequireCgnsCoor()
+{
+    if ( this->cgnsCoor == nullptr )
+    {
+        throw std::logic_error( "CgnsZone: CgnsCoor is not initialized" );
+    }
+    return *this->cgnsCoor;
+}
+
+CgnsZsection & CgnsZone::RequireCgnsZsection()
+{
+    if ( this->cgnsZsection == nullptr )
+    {
+        throw std::logic_error( "CgnsZone: CgnsZsection is not initialized" );
+    }
+    return *this->cgnsZsection;
+}
+
+CgnsZbc & CgnsZone::RequireCgnsZbc()
+{
+    if ( this->cgnsZbc == nullptr )
+    {
+        throw std::logic_error( "CgnsZone: CgnsZbc is not initialized" );
+    }
+    return *this->cgnsZbc;
 }
 
 void CgnsZone::Create()
