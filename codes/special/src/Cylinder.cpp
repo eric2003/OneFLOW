@@ -59,16 +59,16 @@ void DomainData::Alloc()
 void DomainData::Symmetry( const DomainData & datain )
 {
     this->ni = datain.ni;
-    this->nj = datain->nj;
+    this->nj = datain.nj;
     this->Alloc();
 
     for ( int j = 0; j < nj; ++ j )
     {
         for ( int i = 0; i < ni; ++ i )
         {
-            Real xx = datain->x[ i ][ j ];
-            Real yy = datain->y[ i ][ j ];
-            Real zz = datain->z[ i ][ j ];
+            Real xx = datain.x[ i ][ j ];
+            Real yy = datain.y[ i ][ j ];
+            Real zz = datain.z[ i ][ j ];
 
             this->x[ i ][ j ] =   xx;
             this->y[ i ][ j ] = - yy;
@@ -80,17 +80,17 @@ void DomainData::Symmetry( const DomainData & datain )
 void DomainData::Join( const DomainData & d1, const DomainData & d2 )
 {
     this->ni = 2 * d1.ni - 1;
-    this->nj = d1->nj;
+    this->nj = d1.nj;
     this->Alloc();
 
     for ( int j = 0; j < d2.nj; ++ j )
     {
-        for ( int i = 0; i < d2->ni; ++ i )
+        for ( int i = 0; i < d2.ni; ++ i )
         {
-            int ii = d2->ni - i - 1;
-            Real xx = d2->x[ ii ][ j ];
-            Real yy = d2->y[ ii ][ j ];
-            Real zz = d2->z[ ii ][ j ];
+            int ii = d2.ni - i - 1;
+            Real xx = d2.x[ ii ][ j ];
+            Real yy = d2.y[ ii ][ j ];
+            Real zz = d2.z[ ii ][ j ];
 
             this->x[ i ][ j ] = xx;
             this->y[ i ][ j ] = yy;
@@ -98,16 +98,16 @@ void DomainData::Join( const DomainData & d1, const DomainData & d2 )
         }
     }
 
-    for ( int j = 0; j < d1->nj; ++ j )
+    for ( int j = 0; j < d1.nj; ++ j )
     {
-        for ( int i = 0; i < d1->ni; ++ i )
+        for ( int i = 0; i < d1.ni; ++ i )
         {
             int ii = i;
-            Real xx = d1->x[ ii ][ j ];
-            Real yy = d1->y[ ii ][ j ];
-            Real zz = d1->z[ ii ][ j ];
+            Real xx = d1.x[ ii ][ j ];
+            Real yy = d1.y[ ii ][ j ];
+            Real zz = d1.z[ ii ][ j ];
 
-            int i1 = i + d2->ni - 1;
+            int i1 = i + d2.ni - 1;
 
             this->x[ i1 ][ j ] = xx;
             this->y[ i1 ][ j ] = yy;
@@ -200,11 +200,11 @@ void Cylinder::DumpGrid( const std::string & fileName, const std::string & caseD
 
     for ( int j = 0; j < domain.nj; ++ j )
     {
-        for ( int i = 0; i < domain->ni; ++ i )
+        for ( int i = 0; i < domain.ni; ++ i )
         {
-            xN.push_back( domain->x[ i ][ j ] );
-            yN.push_back( domain->y[ i ][ j ] );
-            zN.push_back( domain->z[ i ][ j ] );
+            xN.push_back( domain.x[ i ][ j ] );
+            yN.push_back( domain.y[ i ][ j ] );
+            zN.push_back( domain.z[ i ][ j ] );
         }
     }
 
@@ -213,8 +213,8 @@ void Cylinder::DumpGrid( const std::string & fileName, const std::string & caseD
     int nZone = 1;
     int nk = 1;
     HXWrite( & file, nZone );
-    HXWrite( & file, domain->ni );
-    HXWrite( & file, domain->nj );
+    HXWrite( & file, domain.ni );
+    HXWrite( & file, domain.nj );
     HXWrite( & file, nk );
 
     HXWrite( & file, xN );
@@ -233,22 +233,22 @@ void Cylinder::DumpBcFile( const std::string & fileName, const std::string & cas
     int nBc = 4;
     file << solver << std::endl;
     file << nZone << std::endl;
-    file << domain->ni << " " << domain->nj << std::endl;
+    file << domain.ni << " " << domain.nj << std::endl;
     file << zName << std::endl;
     file << nBc << std::endl;
 
-    DumpBc( file, 1         , domain->ni, 1         , 1         , bcList[ 0 ] );
-    DumpBc( file, 1         , domain->ni, domain->nj, domain->nj, bcList[ 1 ] );
-    DumpBc( file, 1         , 1         , 1         , domain->nj, bcList[ 2 ] );
-    DumpBc( file, domain->ni, domain->ni, 1         , domain->nj, bcList[ 3 ] );
+    DumpBc( file, 1         , domain.ni, 1         , 1         , bcList[ 0 ] );
+    DumpBc( file, 1         , domain.ni, domain.nj, domain.nj, bcList[ 1 ] );
+    DumpBc( file, 1         , 1         , 1         , domain.nj, bcList[ 2 ] );
+    DumpBc( file, domain.ni, domain.ni, 1         , domain.nj, bcList[ 3 ] );
 
     Prj::CloseFile( file );
 }
 
 void Cylinder::ToTecplot( const std::string & fileName, const std::string & caseDir, const DomainData & domain )
 {
-    int ni = domain->ni;
-    int nj = domain->nj;
+    int ni = domain.ni;
+    int nj = domain.nj;
     int nk = 1;
 
     std::fstream file;
@@ -256,9 +256,9 @@ void Cylinder::ToTecplot( const std::string & fileName, const std::string & case
     file << " VARIABLES = \"X\" \"Y\" \"Z\"" << "\n";
     file << "ZONE DATAPACKING = BLOCK, I = " << ni << ", J = " << nj << ", K = " << nk << "\n";
 
-    ONEFLOW::ToTecplot( file, domain->x, ni, nj, nk );
-    ONEFLOW::ToTecplot( file, domain->y, ni, nj, nk );
-    ONEFLOW::ToTecplot( file, domain->z, ni, nj, nk );
+    ONEFLOW::ToTecplot( file, domain.x, ni, nj, nk );
+    ONEFLOW::ToTecplot( file, domain.y, ni, nj, nk );
+    ONEFLOW::ToTecplot( file, domain.z, ni, nj, nk );
 
     Prj::CloseFile( file );
 }
