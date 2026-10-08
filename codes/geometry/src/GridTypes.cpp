@@ -152,12 +152,11 @@ GridConfig GridConfig::FromDataBase()
 
     try
     {
-        const int generationId = GetDataValue< int >( "igene" );
-        cfg.generationType = ParseGridGenerationType( generationId );
+        cfg.generationId = GetDataValue< int >( "igene" );
     }
     catch ( const std::exception & )
     {
-        // Keep generationType empty when classic-grid generation is not selected.
+        // Keep generationId empty when classic-grid generation is not selected.
     }
 
     // Prefer GetDataPointer over CopyArray so this TU only needs DataBase.h.

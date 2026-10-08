@@ -32,23 +32,12 @@ License
 #include "DataBaseIO.h"
 #include "Boundary.h"
 #include "HXMath.h"
-#include "DataBase.h"
 #include "TextFileParser.h"
 #include <iostream>
 #include <iomanip>
 
 
 BeginNameSpace( ONEFLOW )
-
-DomainData::DomainData()
-{
-    ;
-}
-
-DomainData::~DomainData()
-{
-    ;
-}
 
 void DomainData::Alloc()
 {
@@ -57,19 +46,19 @@ void DomainData::Alloc()
     ONEFLOW::AllocateVector(z, ni, nj);
 }
 
-void DomainData::Symmetry( DomainData * datain )
+void DomainData::Symmetry( const DomainData & datain )
 {
-    this->ni = datain->ni;
-    this->nj = datain->nj;
+    this->ni = datain.ni;
+    this->nj = datain.nj;
     this->Alloc();
 
     for ( int j = 0; j < nj; ++ j )
     {
         for ( int i = 0; i < ni; ++ i )
         {
-            Real xx = datain->x[ i ][ j ];
-            Real yy = datain->y[ i ][ j ];
-            Real zz = datain->z[ i ][ j ];
+            Real xx = datain.x[ i ][ j ];
+            Real yy = datain.y[ i ][ j ];
+            Real zz = datain.z[ i ][ j ];
 
             this->x[ i ][ j ] =   xx;
             this->y[ i ][ j ] = - yy;
@@ -78,20 +67,20 @@ void DomainData::Symmetry( DomainData * datain )
     }
 }
 
-void DomainData::Join( DomainData * d1, DomainData * d2 )
+void DomainData::Join( const DomainData & d1, const DomainData & d2 )
 {
-    this->ni = 2 * d1->ni - 1;
-    this->nj = d1->nj;
+    this->ni = 2 * d1.ni - 1;
+    this->nj = d1.nj;
     this->Alloc();
 
-    for ( int j = 0; j < d2->nj; ++ j )
+    for ( int j = 0; j < d2.nj; ++ j )
     {
-        for ( int i = 0; i < d2->ni; ++ i )
+        for ( int i = 0; i < d2.ni; ++ i )
         {
-            int ii = d2->ni - i - 1;
-            Real xx = d2->x[ ii ][ j ];
-            Real yy = d2->y[ ii ][ j ];
-            Real zz = d2->z[ ii ][ j ];
+            int ii = d2.ni - i - 1;
+            Real xx = d2.x[ ii ][ j ];
+            Real yy = d2.y[ ii ][ j ];
+            Real zz = d2.z[ ii ][ j ];
 
             this->x[ i ][ j ] = xx;
             this->y[ i ][ j ] = yy;
@@ -99,16 +88,16 @@ void DomainData::Join( DomainData * d1, DomainData * d2 )
         }
     }
 
-    for ( int j = 0; j < d1->nj; ++ j )
+    for ( int j = 0; j < d1.nj; ++ j )
     {
-        for ( int i = 0; i < d1->ni; ++ i )
+        for ( int i = 0; i < d1.ni; ++ i )
         {
             int ii = i;
-            Real xx = d1->x[ ii ][ j ];
-            Real yy = d1->y[ ii ][ j ];
-            Real zz = d1->z[ ii ][ j ];
+            Real xx = d1.x[ ii ][ j ];
+            Real yy = d1.y[ ii ][ j ];
+            Real zz = d1.z[ ii ][ j ];
 
-            int i1 = i + d2->ni - 1;
+            int i1 = i + d2.ni - 1;
 
             this->x[ i1 ][ j ] = xx;
             this->y[ i1 ][ j ] = yy;
@@ -117,16 +106,13 @@ void DomainData::Join( DomainData * d1, DomainData * d2 )
     }
 }
 
-Cylinder::Cylinder()
-{
-    this->strCurveLoop = std::make_unique< StrCurveLoop >();
-}
+Cylinder::Cylinder() = default;
 
 Cylinder::~Cylinder() = default;
 
-void Cylinder::Run()
+void Cylinder::Run( const GridConfig & config, const std::string & caseDir )
 {
-    this->HalfCylinder();
+    this->HalfCylinder( config, caseDir );
 
     // Keep the alternative geometry available for future explicit selection.
     //this->QuarterCylinder();
@@ -136,18 +122,18 @@ void Cylinder::GenePlate()
 {
 }
 
-void Cylinder::HalfCylinder()
+void Cylinder::HalfCylinder( const GridConfig & config, const std::string & caseDir )
 {
-    strCurveLoop->ni = 61;
-    strCurveLoop->nj = 81;
-    domain_data.ni = strCurveLoop->ni;
-    domain_data.nj = strCurveLoop->nj;
+    strCurveLoop.ni = 61;
+    strCurveLoop.nj = 81;
+    domain_data.ni = strCurveLoop.ni;
+    domain_data.nj = strCurveLoop.nj;
     domain_data.Alloc();
 
-    this->SetBoundaryGrid();
+    this->SetBoundaryGrid( config, caseDir );
     this->GeneDomain();
-    symm_domain.Symmetry( & domain_data );
-    final_domain.Join( & domain_data, & symm_domain );
+    symm_domain.Symmetry( domain_data );
+    final_domain.Join( domain_data, symm_domain );
 
     this->nZone = 1;
 
@@ -157,12 +143,12 @@ void Cylinder::HalfCylinder()
     bcList.push_back( BC::OUTFLOW );
     bcList.push_back( BC::OUTFLOW );
 
-    DumpGrid( "/grid/halfcylinder.grd", & final_domain );
-    DumpBcFile( "/grid/halfcylinder.inp", & final_domain, bcList );
-    this->ToTecplot( "/grid/halfcylinder-tecplot.dat", & final_domain );
+    DumpGrid( config.sourceFile, caseDir, final_domain );
+    DumpBcFile( config.bcFile, caseDir, final_domain, bcList );
+    this->ToTecplot( "grid/halfcylinder-tecplot.dat", caseDir, final_domain );
 }
 
-void Cylinder::QuarterCylinder()
+void Cylinder::QuarterCylinder( const GridConfig & config, const std::string & caseDir )
 {
     int ni = 61;
     int nj = 81;
@@ -178,7 +164,7 @@ void Cylinder::QuarterCylinder()
     s3.Alloc( nj );
     s4.Alloc( nj );
 
-    this->SetBoundaryGrid();
+    this->SetBoundaryGrid( config, caseDir );
     this->GeneDomain();
 
     this->nZone = 1;
@@ -188,34 +174,34 @@ void Cylinder::QuarterCylinder()
     bcList.push_back( BC::SYMMETRY );
     bcList.push_back( BC::OUTFLOW );
 
-    DumpGrid( "/grid/cylinder.grd", & domain_data );
-    DumpBcFile( "/grid/cylinder.inp", & domain_data, bcList );
-    this->ToTecplot( "/grid/cylinder-tecplot.dat", & domain_data );
+    DumpGrid( "grid/cylinder.grd", caseDir, domain_data );
+    DumpBcFile( "grid/cylinder.inp", caseDir, domain_data, bcList );
+    this->ToTecplot( "grid/cylinder-tecplot.dat", caseDir, domain_data );
 }
 
-void Cylinder::DumpGrid( const std::string & fileName, DomainData * domain )
+void Cylinder::DumpGrid( const std::string & fileName, const std::string & caseDir, const DomainData & domain )
 {
     RealField xN;
     RealField yN;
     RealField zN;
 
-    for ( int j = 0; j < domain->nj; ++ j )
+    for ( int j = 0; j < domain.nj; ++ j )
     {
-        for ( int i = 0; i < domain->ni; ++ i )
+        for ( int i = 0; i < domain.ni; ++ i )
         {
-            xN.push_back( domain->x[ i ][ j ] );
-            yN.push_back( domain->y[ i ][ j ] );
-            zN.push_back( domain->z[ i ][ j ] );
+            xN.push_back( domain.x[ i ][ j ] );
+            yN.push_back( domain.y[ i ][ j ] );
+            zN.push_back( domain.z[ i ][ j ] );
         }
     }
 
     std::fstream file;
-    Prj::OpenPrjFile( file, fileName, std::ios_base::out | std::ios_base::binary );
+    Prj::OpenCaseFile( file, caseDir, fileName, std::ios_base::out | std::ios_base::binary );
     int nZone = 1;
     int nk = 1;
     HXWrite( & file, nZone );
-    HXWrite( & file, domain->ni );
-    HXWrite( & file, domain->nj );
+    HXWrite( & file, domain.ni );
+    HXWrite( & file, domain.nj );
     HXWrite( & file, nk );
 
     HXWrite( & file, xN );
@@ -225,41 +211,41 @@ void Cylinder::DumpGrid( const std::string & fileName, DomainData * domain )
     Prj::CloseFile( file );
 }
 
-void Cylinder::DumpBcFile( const std::string & fileName, DomainData * domain, IntField & bcList )
+void Cylinder::DumpBcFile( const std::string & fileName, const std::string & caseDir, const DomainData & domain, const IntField & bcList )
 {
     std::fstream file;
-    Prj::OpenPrjFile( file, fileName, std::ios_base::out );
+    Prj::OpenCaseFile( file, caseDir, fileName, std::ios_base::out );
     int solver = 1;
     std::string zName = "A";
     int nBc = 4;
     file << solver << std::endl;
     file << nZone << std::endl;
-    file << domain->ni << " " << domain->nj << std::endl;
+    file << domain.ni << " " << domain.nj << std::endl;
     file << zName << std::endl;
     file << nBc << std::endl;
 
-    DumpBc( file, 1         , domain->ni, 1         , 1         , bcList[ 0 ] );
-    DumpBc( file, 1         , domain->ni, domain->nj, domain->nj, bcList[ 1 ] );
-    DumpBc( file, 1         , 1         , 1         , domain->nj, bcList[ 2 ] );
-    DumpBc( file, domain->ni, domain->ni, 1         , domain->nj, bcList[ 3 ] );
+    DumpBc( file, 1         , domain.ni, 1         , 1         , bcList[ 0 ] );
+    DumpBc( file, 1         , domain.ni, domain.nj, domain.nj, bcList[ 1 ] );
+    DumpBc( file, 1         , 1         , 1         , domain.nj, bcList[ 2 ] );
+    DumpBc( file, domain.ni, domain.ni, 1         , domain.nj, bcList[ 3 ] );
 
     Prj::CloseFile( file );
 }
 
-void Cylinder::ToTecplot( const std::string & fileName, DomainData * domain )
+void Cylinder::ToTecplot( const std::string & fileName, const std::string & caseDir, const DomainData & domain )
 {
-    int ni = domain->ni;
-    int nj = domain->nj;
+    int ni = domain.ni;
+    int nj = domain.nj;
     int nk = 1;
 
     std::fstream file;
-    Prj::OpenPrjFile( file, fileName, std::ios_base::out );
+    Prj::OpenCaseFile( file, caseDir, fileName, std::ios_base::out );
     file << " VARIABLES = \"X\" \"Y\" \"Z\"" << "\n";
     file << "ZONE DATAPACKING = BLOCK, I = " << ni << ", J = " << nj << ", K = " << nk << "\n";
 
-    ONEFLOW::ToTecplot( file, domain->x, ni, nj, nk );
-    ONEFLOW::ToTecplot( file, domain->y, ni, nj, nk );
-    ONEFLOW::ToTecplot( file, domain->z, ni, nj, nk );
+    ONEFLOW::ToTecplot( file, domain.x, ni, nj, nk );
+    ONEFLOW::ToTecplot( file, domain.y, ni, nj, nk );
+    ONEFLOW::ToTecplot( file, domain.z, ni, nj, nk );
 
     Prj::CloseFile( file );
 }
@@ -276,14 +262,14 @@ void Cylinder::CalcCircleCenter( PointType & p1, PointType & p2, PointType & p0,
     pcenter.z = p1.z - coef * ( p1.z - p0.z );
 }
 
-void Cylinder::SetBoundaryGrid()
+void Cylinder::SetBoundaryGrid( const GridConfig & config, const std::string & caseDir )
 {
-    std::string fileName = GetDataValue< std::string >( "gridLayoutFileName" );
+    const std::string & fileName = config.layoutFile;
     std::string separator = " =\r\n\t#$,;\"";
 
     TextFileParser textFileParser;
 
-    textFileParser.OpenPrjFile( fileName, std::ios_base::in );
+    textFileParser.OpenCaseFile( caseDir, fileName, std::ios_base::in );
     textFileParser.SetDefaultSeparator( separator );
 
     textFileParser.ReadNextNonEmptyLine();
@@ -336,17 +322,17 @@ void Cylinder::SetBoundaryGrid()
     curve_Machine.AddCircle( p1.id, p3.id, p0.id );
     curve_Machine.AddParabolic( p2.id, p4.id );
 
-    this->strCurveLoop->AddCurve( 0 );
-    this->strCurveLoop->AddCurve( 1 );
-    this->strCurveLoop->AddCurve( 2 );
-    this->strCurveLoop->AddCurve( 3 );
+    this->strCurveLoop.AddCurve( 0 );
+    this->strCurveLoop.AddCurve( 1 );
+    this->strCurveLoop.AddCurve( 2 );
+    this->strCurveLoop.AddCurve( 3 );
 
-    this->strCurveLoop->SetDimension();
+    this->strCurveLoop.SetDimension();
 
-    CurveLine * s1 = this->strCurveLoop->GetCurve( 0 );
-    CurveLine * s2 = this->strCurveLoop->GetCurve( 1 );
-    CurveLine * s3 = this->strCurveLoop->GetCurve( 2 );
-    CurveLine * s4 = this->strCurveLoop->GetCurve( 3 );
+    CurveLine * s1 = this->strCurveLoop.GetCurve( 0 );
+    CurveLine * s2 = this->strCurveLoop.GetCurve( 1 );
+    CurveLine * s3 = this->strCurveLoop.GetCurve( 2 );
+    CurveLine * s4 = this->strCurveLoop.GetCurve( 3 );
 
     s3->GenerateCurveLine();
     s4->GenerateCurveLine();
@@ -356,10 +342,10 @@ void Cylinder::SetBoundaryGrid()
 
 void Cylinder::GeneDomain()
 {
-    CurveLine * s1 = this->strCurveLoop->GetCurve( 0 );
-    CurveLine * s2 = this->strCurveLoop->GetCurve( 1 );
-    CurveLine * s3 = this->strCurveLoop->GetCurve( 2 );
-    CurveLine * s4 = this->strCurveLoop->GetCurve( 3 );
+    CurveLine * s1 = this->strCurveLoop.GetCurve( 0 );
+    CurveLine * s2 = this->strCurveLoop.GetCurve( 1 );
+    CurveLine * s3 = this->strCurveLoop.GetCurve( 2 );
+    CurveLine * s4 = this->strCurveLoop.GetCurve( 3 );
 
     int ni = s1->nNodes;
     int nj = s3->nNodes;
@@ -396,7 +382,6 @@ void Cylinder::GeneDomain()
     TransfiniteInterpolation( domain_data.y, ni, nj );
     TransfiniteInterpolation( domain_data.z, ni, nj );
 
-    this->beta = 1.002;
     RealField nbx, nby, nbz;
     s1->CalcNormal( nbx, nby, nbz );
     nbx[ 0 ] = - 1.0;
@@ -409,7 +394,7 @@ void Cylinder::GeneDomain()
     AlgebraInterpolation( domain_data.x, domain_data.y, domain_data.z, ni, nj, nbx, nby, nbz, this->beta );
 }
 
-void ToTecplot( std::fstream & file, RealField2D & coor, int ni, int nj, int nk )
+void ToTecplot( std::fstream & file, const RealField2D & coor, int ni, int nj, int nk )
 {
     int numberOfWords = 5;
 

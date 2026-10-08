@@ -52,7 +52,7 @@ public:
 public:
     FaceTopo & GetFaceTopo();
     const FaceTopo & GetFaceTopo() const;
-    std::unique_ptr< FaceTopo > TakeFaceTopo() noexcept;
+    [[nodiscard]] std::unique_ptr< FaceTopo > ReleaseFaceTopo() noexcept;
 public:
     bool CheckBcFace( IntSet & bcVertex, IntField & nodeId );
     void ScanElementFace( CgIntField & eNodeId, int eType, int eId );

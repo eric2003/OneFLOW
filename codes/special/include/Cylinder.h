@@ -24,63 +24,67 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "Point.h"
-#include <memory>
+#include "GridTypes.h"
+#include "CurveLine.h"
+#include <string>
 
 BeginNameSpace( ONEFLOW )
-
-class CurveLine;
 
 using PointType = Point< Real >;
 
 class DomainData
 {
 public:
-    DomainData();
-    ~DomainData();
+    DomainData() = default;
+    ~DomainData() = default;
 public:
     RealField2D x;
     RealField2D y;
     RealField2D z;
-    int ni, nj;
+    int ni = 0;
+    int nj = 0;
 public:
     void Alloc();
-    void Symmetry( DomainData * datain );
-    void Join( DomainData * d1, DomainData * d2 );
+    void Symmetry( const DomainData & datain );
+    void Join( const DomainData & d1, const DomainData & d2 );
 };
 
-class StrCurveLoop;
 
 class Cylinder
 {
 public:
     Cylinder();
     ~Cylinder();
+    Cylinder( const Cylinder & ) = delete;
+    Cylinder & operator = ( const Cylinder & ) = delete;
+    Cylinder( Cylinder && ) = delete;
+    Cylinder & operator = ( Cylinder && ) = delete;
 public:
     DomainData domain_data;
     DomainData symm_domain;
     DomainData final_domain;
     int nZone;
 
-    std::unique_ptr< StrCurveLoop > strCurveLoop;
+    StrCurveLoop strCurveLoop;
 public:
     Real beta;
 public:
-    void Run();
-    void HalfCylinder();
-    void QuarterCylinder();
+    void Run( const GridConfig & config, const std::string & caseDir );
+    void HalfCylinder( const GridConfig & config, const std::string & caseDir );
+    void QuarterCylinder( const GridConfig & config, const std::string & caseDir );
     void GenePlate();
 public:
-    void SetBoundaryGrid();
+    void SetBoundaryGrid( const GridConfig & config, const std::string & caseDir );
     void GeneDomain();
 public:
     void CalcCircleCenter( PointType & p1, PointType & p2, PointType & p0, PointType & pcenter );
 public:
-    void DumpGrid( const std::string & fileName, DomainData * domain );
-    void DumpBcFile( const std::string & fileName, DomainData * domain, IntField & bcList );
-    void ToTecplot( const std::string & fileName, DomainData * domain );
+    void DumpGrid( const std::string & fileName, const std::string & caseDir, const DomainData & domain );
+    void DumpBcFile( const std::string & fileName, const std::string & caseDir, const DomainData & domain, const IntField & bcList );
+    void ToTecplot( const std::string & fileName, const std::string & caseDir, const DomainData & domain );
 };
 
-void ToTecplot( std::fstream & file, RealField2D & coor, int ni, int nj, int nk );
+void ToTecplot( std::fstream & file, const RealField2D & coor, int ni, int nj, int nk );
 void DumpBc( std::fstream &file, int imin, int imax, int jmin, int jmax, int bcType );
 
 EndNameSpace

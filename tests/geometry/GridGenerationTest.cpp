@@ -1,9 +1,10 @@
-// tests/geometry/GridFactoryTest.cpp
-// Lifecycle + typed config / mediator unit tests (no file I/O, no global DataBase).
+// tests/geometry/GridGenerationTest.cpp
+// Typed grid workflow configuration and mediator unit tests.
 
 #include <gtest/gtest.h>
 
-#include "GridFactory.h"
+#include "GridGeneration.h"
+#include "ClassicGridGeneration.h"
 #include "GridMediator.h"
 #include "GridTypes.h"
 
@@ -15,28 +16,20 @@
 using namespace ONEFLOW;
 
 // ---------------------------------------------------------------------------
-// GridFactory lifecycle (existing characterization)
-// ---------------------------------------------------------------------------
-
-TEST( GridFactoryLifecycleTest, StackAllocationIsSafe )
-{
-    EXPECT_NO_THROW( {
-        GridFactory gf;
-        // Do not call Run(): avoids DataBase / file I/O in unit tests.
-    } );
-}
-
-TEST( GridFactoryLifecycleTest, HeapAllocationAlsoWorksButIsDiscouraged )
-{
-    EXPECT_NO_THROW( {
-        auto * gf = new GridFactory();
-        delete gf;
-    } );
-}
-
-// ---------------------------------------------------------------------------
 // GridTypes: objective / file type parsing (header-only helpers)
 // ---------------------------------------------------------------------------
+
+TEST( GridTypesTest, LegacyGenerationIdIsOpaqueToGeometryConfig )
+{
+    GridConfig cfg;
+    EXPECT_FALSE( cfg.generationId.has_value() );
+
+    cfg.generationId = 1;
+    EXPECT_EQ( *cfg.generationId, 1 );
+
+    cfg.generationId = 99;
+    EXPECT_EQ( *cfg.generationId, 99 );
+}
 
 TEST( GridTypesTest, ParseGridObjectiveKnownValues )
 {
@@ -50,6 +43,14 @@ TEST( GridTypesTest, ParseGridObjectiveUnknownIsNullopt )
 {
     EXPECT_FALSE( ParseGridObjective( -1 ).has_value() );
     EXPECT_FALSE( ParseGridObjective( 99 ).has_value() );
+}
+
+TEST( ClassicGridGenerationTest, UnknownGenerationIdThrows )
+{
+    GridConfig cfg;
+    cfg.generationId = 99;
+
+    EXPECT_THROW( GenerateClassicGrid( cfg, "" ), std::invalid_argument );
 }
 
 TEST( GridTypesTest, ParseGridFileTypeCaseInsensitive )
@@ -136,14 +137,22 @@ TEST( ZgridMediatorTest, AddUniquePtrTakesOwnershipWithTwoZones )
     EXPECT_EQ( zgm.GetGridMediator( 0 ).numberOfZones, 2 );
 }
 
-TEST( GridFactoryDispatchTest, UnknownObjectiveThrows )
+TEST( GridGenerationDispatchTest, UnknownObjectiveThrows )
 {
-    GridFactory gf;
     GridConfig cfg;
-    // Force an out-of-range objective without going through ParseGridObjective.
     cfg.objective = static_cast< GridObjective >( 42 );
 
-    EXPECT_THROW( gf.Run( cfg ), std::invalid_argument );
+    EXPECT_THROW( GenerateGrid( cfg ), std::invalid_argument );
+}
+
+TEST( GridGenerationDispatchTest, UnknownObjectiveWithCaseDirThrows )
+{
+    GridConfig cfg;
+    cfg.objective = static_cast< GridObjective >( 42 );
+
+    EXPECT_THROW(
+        GenerateGrid( cfg, "test-case" ),
+        std::invalid_argument );
 }
 
 

@@ -7,8 +7,7 @@ License
 
     OneFLOW is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+    the Free Software Foundation.
 
     OneFLOW is distributed in the hope that it will be useful, but WITHOUT
     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
@@ -20,14 +19,17 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
 #pragma once
+
 #include "HXDefine.h"
 #include "GridTypes.h"
+#include <string>
 
 BeginNameSpace( ONEFLOW )
 
-// Dispatch classic grid generation selected by GridConfig::generationType.
-void GenerateClassicGrid( const GridConfig & config );
+// Execute the classic-grid workflow owned by the special module.
+void ExecuteClassicGridWorkflow(
+    const GridConfig & config,
+    const std::string & caseDir );
 
 EndNameSpace

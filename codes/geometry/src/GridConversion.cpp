@@ -20,14 +20,11 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "GridFactory.h"
+#include "GridConversion.h"
 #include "CgnsFactory.h"
 #include "GridMediator.h"
-#include "DomainInp.h"
 #include "Su2Grid.h"
-#include "ClassicGrid.h"
 #include "Plot3D.h"
-#include "Partition.h"
 #include <stdexcept>
 #include <string>
 
@@ -103,120 +100,24 @@ namespace
         { GridFileType::SU2,    &ConvertSU2 },
         { GridFileType::CGNS,   &ConvertCGNS },
     };
-
-    void DispatchConverter(
-        const GridConfig & config,
-        const std::string & caseDir )
-    {
-        for ( const auto & entry : kConverters )
-        {
-            if ( entry.sourceType == config.sourceType )
-            {
-                entry.convert( config, caseDir );
-                return;
-            }
-        }
-
-        throw std::invalid_argument(
-            std::string( "Unsupported source grid type: " ) +
-            std::string( ToString( config.sourceType ) ) );
-    }
-
-    void GenerateClassic(
-        const GridConfig & config,
-        const std::string & caseDir )
-    {
-        GenerateClassicGrid( config );
-        DispatchConverter( config, caseDir );
-    }
-
-    void ConvertOnly(
-        const GridConfig & config,
-        const std::string & caseDir )
-    {
-        DispatchConverter( config, caseDir );
-    }
-
-    void GenerateInp(
-        const GridConfig & /*config*/,
-        const std::string & /*caseDir*/ )
-    {
-        DomainInp domainInp;
-        domainInp.Run();
-    }
-
-    void PartitionGrid(
-        const GridConfig & /*config*/,
-        const std::string & /*caseDir*/ )
-    {
-        Partition part;
-        part.Run();
-    }
-
-    struct PipelineEntry
-    {
-        GridObjective objective;
-        void ( * run )(
-            const GridConfig &,
-            const std::string & );
-    };
-
-    // The factory only selects a workflow. Concrete workflow steps do not
-    // depend on a GridFactory instance.
-    constexpr PipelineEntry kPipelines[] = {
-        { GridObjective::GenerateClassic, &GenerateClassic },
-        { GridObjective::ConvertOnly,     &ConvertOnly },
-        { GridObjective::GenerateInp,     &GenerateInp },
-        { GridObjective::Partition,      &PartitionGrid },
-    };
-
-    void DispatchPipeline(
-        const GridConfig & config,
-        const std::string & caseDir )
-    {
-        for ( const auto & entry : kPipelines )
-        {
-            if ( entry.objective == config.objective )
-            {
-                entry.run( config, caseDir );
-                return;
-            }
-        }
-
-        throw std::invalid_argument(
-            std::string( "Unknown GridObjective / gridObj: " ) +
-            std::string( ToString( config.objective ) ) );
-    }
 }
 
-// Generates the grid based on the global configuration.
-void GenerateGrid()
-{
-    GridFactory gf;
-    gf.Run();
-}
-
-void GenerateGrid( const std::string & caseDir )
-{
-    GridFactory gf;
-    gf.Run( GridConfig::FromDataBase(), caseDir );
-}
-
-void GridFactory::Run()
-{
-    Run( GridConfig::FromDataBase() );
-}
-
-void GridFactory::Run( const GridConfig & config )
-{
-    DispatchPipeline( config, "" );
-}
-
-void GridFactory::Run(
+void ConvertGrid(
     const GridConfig & config,
     const std::string & caseDir )
 {
-    DispatchPipeline( config, caseDir );
+    for ( const auto & entry : kConverters )
+    {
+        if ( entry.sourceType == config.sourceType )
+        {
+            entry.convert( config, caseDir );
+            return;
+        }
+    }
+
+    throw std::invalid_argument(
+        std::string( "Unsupported source grid type: " ) +
+        std::string( ToString( config.sourceType ) ) );
 }
 
 EndNameSpace

@@ -29,30 +29,16 @@ License
 BeginNameSpace( ONEFLOW )
 
 // Offline grid generation / conversion / partition entry.
-// The factory is stateless; workflow execution is handled by the dispatch
-// tables in GridFactory.cpp.
-class GridFactory
-{
-public:
-    GridFactory() = default;
-    ~GridFactory() = default;
-
-    // Load config from DataBase and run the selected pipeline.
-    void Run();
-
-    // Run with an explicit config (preferred for tests and callers that
-    // already hold a GridConfig).
-    void Run( const GridConfig & config );
-
-    // Run with an explicit case directory for multi-case execution.
-    void Run( const GridConfig & config, const std::string & caseDir );
-};
-
-// Public entry used by the rest of the code base.
+// Workflow execution is handled by the dispatch tables in GridGeneration.cpp.
 void GenerateGrid();
 
-// Multi-case entry: pass case ownership explicitly instead of relying on
-// the process-wide legacy project directory.
+// Load the legacy database configuration and run it for a specific case.
 void GenerateGrid( const std::string & caseDir );
+
+// Run an explicit configuration.
+void GenerateGrid( const GridConfig & config );
+
+// Run an explicit configuration for a specific case.
+void GenerateGrid( const GridConfig & config, const std::string & caseDir );
 
 EndNameSpace

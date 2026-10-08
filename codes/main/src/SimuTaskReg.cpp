@@ -27,7 +27,7 @@ License
 #include "SimuContext.h"
 #include "SimuTaskRequire.h"
 #include "FieldSimu.h"
-#include "GridFactory.h"
+#include "GridGeneration.h"
 #include "MultiBlock.h"
 #include "Test.h"
 #include "Theory.h"
