@@ -212,7 +212,7 @@ void ScalarDumpGrid( const std::string & gridFileName, ScalarGrid & grid )
     Prj::CloseFile( file );
 }
 
-void ScalarDumpGrid( const std::string & gridFileName, std::vector< std::unique_ptr< ScalarGrid > > & grids )
+void ScalarDumpGrid( const std::string & gridFileName, const std::vector< std::unique_ptr< ScalarGrid > > & grids )
 {
     std::fstream file;
     Prj::OpenPrjFile( file, gridFileName, std::ios_base::out|std::ios_base::binary|std::ios_base::trunc );
