@@ -143,8 +143,6 @@ void G2LMapping::GenerateGC2Z( UnsGrid & ggrid )
 
     this->GetXadjAdjncy( ggrid, xadj, adjncy );
     this->PartByMetis( nCells, xadj, adjncy );
-    //this->DumpGC2Z( gridForPartition );
-    //this->ReadGC2Z( gridForPartition );
 }
 #ifdef ENABLE_METIS
 void G2LMapping::GetXadjAdjncy( UnsGrid & ggrid, std::vector<idx_t> & xadj, std::vector<idx_t>& adjncy )
@@ -196,22 +194,6 @@ void G2LMapping::PartByMetis( idx_t nCells, std::vector<idx_t>& xadj, std::vecto
     std::cout << "Partition is finished!\n";
 }
 #endif
-
-void G2LMapping::DumpXadjAdjncy( UnsGrid * grid, IntField & xadj, IntField & adjncy )
-{
-    ;
-}
-
-void G2LMapping::DumpGC2Z( UnsGrid * grid )
-{
-    ;
-}
-
-void G2LMapping::ReadGC2Z( UnsGrid * grid )
-{
-    ;
-}
-
 
 Partition::Partition()
 {

@@ -71,16 +71,12 @@ public:
     IntField g2l_cell;
     std::vector<idx_t> gc2lzone;
     int npartproc;
-    LinkField c2c;
 public:
     void GenerateGC2Z( UnsGrid & ggrid );
 #ifdef ENABLE_METIS
     void GetXadjAdjncy( UnsGrid & ggrid, std::vector<idx_t>& xadj, std::vector<idx_t>& adjncy );
     void PartByMetis( idx_t nCells, std::vector<idx_t>& xadj, std::vector<idx_t>& adjncy );
 #endif
-    void DumpXadjAdjncy( UnsGrid * grid, IntField & xadj, IntField & adjncy );
-    void DumpGC2Z( UnsGrid * grid );
-    void ReadGC2Z( UnsGrid * grid );
 };
 
 class Partition
