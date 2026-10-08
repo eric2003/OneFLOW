@@ -271,22 +271,12 @@ void Partition::AllocPart()
 
 void Partition::BuildCalculationalGrid( UnsGrid & ggrid )
 {
-    this->PreProcess();
     for ( int pid = 0; pid < npartproc; ++ pid )
     {
         std::cout << "BuildCalculationalGrid pid = " << pid << " npartproc = " << npartproc << "\n";
         //for unstructured grid, each processor only contains one zone, so pid equal to zid
         this->BuildCalculationalGrid( ggrid, pid );
     }
-    this->PostProcess();
-}
-
-void Partition::PreProcess()
-{
-}
-
-void Partition::PostProcess()
-{
 }
 
 void Partition::CalcG2lCell( UnsGrid & ggrid )
