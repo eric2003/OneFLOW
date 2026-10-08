@@ -394,7 +394,7 @@ void UnsGrid::GenerateLgMapping( IFaceLink & iFaceLink )
 
     if ( nIFaces == 0 ) return;
 
-    iFaceLink.Init( this );
+    iFaceLink.Init( *this );
 
     this->GetFaceTopo().GenerateI2B( *this->interFace );
 
@@ -420,7 +420,7 @@ void UnsGrid::GenerateLgMapping( IFaceLink & iFaceLink )
         zList.resize( nNodes );
 
         ONEFLOW::GetFaceCoorList( faceNode, xList, yList, zList, this->nodeMesh.get() );
-        ONEFLOW::GetCoorIdList( &iFaceLink, xList, yList, zList, nNodes, gINode );
+        ONEFLOW::GetCoorIdList( iFaceLink, xList, yList, zList, nNodes, gINode );
         iFaceLink.CreateLink( gINode, this->id, lCount );
 
         ++ lCount;

@@ -47,10 +47,10 @@ IFaceLink::IFaceLink( Grids & gridsIn )
 
 IFaceLink::~IFaceLink() = default;
 
-void IFaceLink::Init( Grid * grid )
+void IFaceLink::Init( Grid & grid )
 {
-    int zid = grid->id;
-    int nIFaces = grid->interFace->nIFaces;
+    int zid = grid.id;
+    int nIFaces = grid.interFace->nIFaces;
 
     this->l2g[ zid ].resize( nIFaces );
 }
@@ -212,7 +212,7 @@ void GetFaceCoorList( IntField & faceNode, RealField & xList, RealField & yList,
     }
 }
 
-void GetCoorIdList( IFaceLink * iFaceLink, RealField & xList, RealField & yList, RealField & zList, int nPoint, IntField & pointId )
+void GetCoorIdList( IFaceLink & iFaceLink, RealField & xList, RealField & yList, RealField & zList, int nPoint, IntField & pointId )
 {
     for ( int iNode = 0; iNode < nPoint; ++ iNode )
     {
@@ -220,7 +220,7 @@ void GetCoorIdList( IFaceLink * iFaceLink, RealField & xList, RealField & yList,
         Real ym = yList[ iNode ];
         Real zm = zList[ iNode ];
 
-        pointId[ iNode ] = iFaceLink->point_search->AddPoint( xm, ym, zm );
+        pointId[ iNode ] = iFaceLink.point_search->AddPoint( xm, ym, zm );
     }
 }
 

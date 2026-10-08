@@ -58,7 +58,7 @@ public:
     // Non-owning back-pointer to the pipeline's Grids.
     Grids * grids{ nullptr };
 public:
-    void Init( Grid * grid );
+    void Init( Grid & grid );
     Grid * GetGrid( int zoneIndex ) { return &GridAt( *grids, zoneIndex ); }
 public:
     void CreateLink( IntField & faceNode, int zid, int lCount );
@@ -74,6 +74,6 @@ public:
 };
 
 void GetFaceCoorList( IntField & faceNode, RealField & xList, RealField & yList, RealField & zList, NodeMesh * nodeMesh );
-void GetCoorIdList( IFaceLink * iFaceLink, RealField & xList, RealField & yList, RealField & zList, int nPoint, IntField & pointId );
+void GetCoorIdList( IFaceLink & iFaceLink, RealField & xList, RealField & yList, RealField & zList, int nPoint, IntField & pointId );
 
 EndNameSpace
