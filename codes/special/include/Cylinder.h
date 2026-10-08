@@ -35,13 +35,14 @@ using PointType = Point< Real >;
 class DomainData
 {
 public:
-    DomainData();
-    ~DomainData();
+    DomainData() = default;
+    ~DomainData() = default;
 public:
     RealField2D x;
     RealField2D y;
     RealField2D z;
-    int ni, nj;
+    int ni = 0;
+    int nj = 0;
 public:
     void Alloc();
     void Symmetry( const DomainData & datain );
