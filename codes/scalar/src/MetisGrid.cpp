@@ -103,6 +103,8 @@ std::pair< MetisIntList, MetisIntList > MetisSplit::ScalarGetXadjAdjncy( const S
 MetisIntList MetisSplit::ScalarPartitionByMetis( idx_t nCells, const MetisIntList & xadj, const MetisIntList & adjncy, int nPart )
 {
 	MetisIntList cellzone( nCells );
+	MetisIntList metisXadj = xadj;
+	MetisIntList metisAdjncy = adjncy;
 	idx_t   ncon     = 1;
 	idx_t   * vwgt   = 0;
 	idx_t   * vsize  = 0;
@@ -120,13 +122,13 @@ MetisIntList MetisSplit::ScalarPartitionByMetis( idx_t nCells, const MetisIntLis
 	if ( nZone > 8 )
 	{
 		std::cout << "Using K-way Partitioning!\n";
-		METIS_PartGraphKway( & nCells, & ncon, & xadj[ 0 ], & adjncy[ 0 ], vwgt, vsize, adjwgt, 
+		METIS_PartGraphKway( & nCells, & ncon, & metisXadj[ 0 ], & metisAdjncy[ 0 ], vwgt, vsize, adjwgt, 
 			& nZone, tpwgts, ubvec, options, & objval, & cellzone[ 0 ] );
 	}
 	else
 	{
 		std::cout << "Using Recursive Partitioning!\n";
-		METIS_PartGraphRecursive( & nCells, & ncon, & xadj[ 0 ], & adjncy[ 0 ], vwgt, vsize, adjwgt, 
+		METIS_PartGraphRecursive( & nCells, & ncon, & metisXadj[ 0 ], & metisAdjncy[ 0 ], vwgt, vsize, adjwgt, 
 			& nZone, tpwgts, ubvec, options, & objval, & cellzone[ 0 ] );
 	}
 	std::cout << "The interface number: " << objval << std::endl; 
