@@ -486,7 +486,7 @@ int Partition::GetNCell( UnsGrid & ggrid, int zid )
 
 void Partition::CreateL2g( UnsGrid & ggrid, int zid, UnsGrid & grid )
 {
-    l2g->CalcL2G( ggrid, zid, grid, *this->g2l );
+    l2g->CalcL2G( &ggrid, zid, &grid, *this->g2l );
 }
 
 void Partition::SetCoor( UnsGrid & ggrid, int zid, UnsGrid & grid )
