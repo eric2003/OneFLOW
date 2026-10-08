@@ -54,6 +54,15 @@ CgnsZbc::CgnsZbc( CgnsZone & cgnsZone )
 
 CgnsZbc::~CgnsZbc() = default;
 
+CgnsZbcBoco & CgnsZbc::RequireCgnsZbcBoco()
+{
+    if ( this->cgnsZbcBoco == nullptr )
+    {
+        throw std::logic_error( "CgnsZbc: CgnsZbcBoco is not initialized" );
+    }
+    return *this->cgnsZbcBoco;
+}
+
 void CgnsZbc::ConvertToInnerDataStandard()
 {
     this->cgnsZbcBoco->ConvertToInnerDataStandard();
