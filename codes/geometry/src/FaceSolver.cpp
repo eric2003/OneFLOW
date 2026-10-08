@@ -70,19 +70,19 @@ bool FaceSolver::CheckBcFace( IntSet & bcVertex, IntField & nodeId )
     return true;
 }
 
-void FaceSolver::ScanPolygonFace( CgnsSection * cgnsSection )
+void FaceSolver::ScanPolygonFace( CgnsSection & cgnsSection )
 {
     //std::vector<int> faceNodes;
     IntField faceNodes;
-    for ( int iElem = 0; iElem < cgnsSection->nElement; ++ iElem )
+    for ( int iElem = 0; iElem < cgnsSection.nElement; ++ iElem )
     {
-        int st = cgnsSection->ePosList[ iElem ];
-        int ed = cgnsSection->ePosList[ iElem + 1 ];
+        int st = cgnsSection.ePosList[ iElem ];
+        int ed = cgnsSection.ePosList[ iElem + 1 ];
         int nNode = ed - st;
         faceNodes.resize( 0 );
         for ( int i = st; i < ed; ++ i )
         {
-            int node = cgnsSection->connList[ i ];
+            int node = cgnsSection.connList[ i ];
             faceNodes.push_back( node );
         }
 
@@ -92,7 +92,7 @@ void FaceSolver::ScanPolygonFace( CgnsSection * cgnsSection )
             // New face: ID is set to the current number of faces. 
             int newId = static_cast<int>(this->faceTopo->GetFaces().size());
             this->faceTopo->GetFaces().push_back(faceNodes);           // Preserve original order
-            this->faceTopo->GetFaceTypes().push_back(cgnsSection->eType);
+            this->faceTopo->GetFaceTypes().push_back(cgnsSection.eType);
             this->faceTopo->GetFaceFlags().push_back(0);
         }
     }
@@ -107,18 +107,18 @@ void FaceSolver::ResizeAll()
     this->childFid.resize( nFaces );
 }
 
-void FaceSolver::ScanPolyhedronElement( CgnsSection * cgnsSection )
+void FaceSolver::ScanPolyhedronElement( CgnsSection & cgnsSection )
 {
     std::vector<int> faceIds;
-    for ( int iElem = 0; iElem < cgnsSection->nElement; ++ iElem )
+    for ( int iElem = 0; iElem < cgnsSection.nElement; ++ iElem )
     {
-        int st = cgnsSection->ePosList[ iElem ];
-        int ed = cgnsSection->ePosList[ iElem + 1 ];
+        int st = cgnsSection.ePosList[ iElem ];
+        int ed = cgnsSection.ePosList[ iElem + 1 ];
         int nFace = ed - st;
         faceIds.resize( 0 );
         for ( int i = st; i < ed; ++ i )
         {
-            int polygonFaceId = std::abs(cgnsSection->connList[ i ]);
+            int polygonFaceId = std::abs(cgnsSection.connList[ i ]);
             faceIds.push_back( polygonFaceId );
 
             int faceFlags = this->faceTopo->GetFaceFlags()[ polygonFaceId ];

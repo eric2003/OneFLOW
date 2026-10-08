@@ -62,8 +62,8 @@ public:
     int GetNSimpleFace();
 public:
     void ResizeAll();
-    void ScanPolygonFace( CgnsSection * cgnsSection );
-    void ScanPolyhedronElement( CgnsSection * cgnsSection );
+    void ScanPolygonFace( CgnsSection & cgnsSection );
+    void ScanPolyhedronElement( CgnsSection & cgnsSection );
 private:
     std::unique_ptr< FaceTopo > faceTopo;
 };
