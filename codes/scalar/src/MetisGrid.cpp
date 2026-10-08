@@ -63,9 +63,7 @@ MetisIntList MetisSplit::ManualPartition( const ScalarGrid & ggrid )
 
 MetisIntList MetisSplit::MetisPartition( const ScalarGrid & ggrid, int nPart )
 {
-	int nFaces = ggrid.GetNFaces();
 	int nCells = ggrid.GetNCells();
-	int nBFaces = ggrid.GetNBFaces();
 
 	if ( nPart == nCells )
 	{
