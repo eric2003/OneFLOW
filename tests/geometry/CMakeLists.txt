@@ -69,6 +69,7 @@ set ( INCLUDE_DIRS
 
 set ( SRC_DIRS
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridGeneration.cpp
+    ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridWorkflow.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridConversion.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridTypes.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridLayout.cpp
