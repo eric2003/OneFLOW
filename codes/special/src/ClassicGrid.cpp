@@ -61,31 +61,44 @@ namespace
         cgnsTest.Run();
     }
 
+    // Concrete generator identities stay inside the special module.
+    enum class ClassicGeneratorId : int
+    {
+        Cavity     = 1,
+        Rae2822    = 2,
+        Cylinder   = 3,
+        GridCreate = 4,
+        CgnsTest   = 5
+    };
+
     struct GridGenerationEntry
     {
-        GridGenerationType type;
+        ClassicGeneratorId id;
         GridGenerator run;
     };
 
     constexpr GridGenerationEntry kGridGenerationEntries[] = {
-        { GridGenerationType::Cavity,     &RunCavity },
-        { GridGenerationType::Rae2822,    &RunRae2822 },
-        { GridGenerationType::Cylinder,   &RunCylinder },
-        { GridGenerationType::GridCreate, &RunGridCreate },
-        { GridGenerationType::CgnsTest,   &RunCgnsTest },
+        { ClassicGeneratorId::Cavity,     &RunCavity },
+        { ClassicGeneratorId::Rae2822,    &RunRae2822 },
+        { ClassicGeneratorId::Cylinder,   &RunCylinder },
+        { ClassicGeneratorId::GridCreate, &RunGridCreate },
+        { ClassicGeneratorId::CgnsTest,   &RunCgnsTest },
     };
 }
 
 void GenerateClassicGrid( const GridConfig & config )
 {
-    if ( ! config.generationType )
+    if ( ! config.generationId )
     {
         return;
     }
 
+    const auto generatorId =
+        static_cast< ClassicGeneratorId >( *config.generationId );
+
     for ( const auto & entry : kGridGenerationEntries )
     {
-        if ( entry.type == *config.generationType )
+        if ( entry.id == generatorId )
         {
             entry.run( config );
             return;

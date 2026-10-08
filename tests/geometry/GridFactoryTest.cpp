@@ -38,6 +38,18 @@ TEST( GridFactoryLifecycleTest, HeapAllocationAlsoWorksButIsDiscouraged )
 // GridTypes: objective / file type parsing (header-only helpers)
 // ---------------------------------------------------------------------------
 
+TEST( GridTypesTest, LegacyGenerationIdIsOpaqueToGeometryConfig )
+{
+    GridConfig cfg;
+    EXPECT_FALSE( cfg.generationId.has_value() );
+
+    cfg.generationId = 1;
+    EXPECT_EQ( *cfg.generationId, 1 );
+
+    cfg.generationId = 99;
+    EXPECT_EQ( *cfg.generationId, 99 );
+}
+
 TEST( GridTypesTest, ParseGridObjectiveKnownValues )
 {
     EXPECT_EQ( ParseGridObjective( 0 ), GridObjective::GenerateClassic );

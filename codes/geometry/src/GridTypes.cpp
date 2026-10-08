@@ -152,8 +152,7 @@ GridConfig GridConfig::FromDataBase()
 
     try
     {
-        const int generationId = GetDataValue< int >( "igene" );
-        cfg.generationType = ParseGridGenerationType( generationId );
+        cfg.generationId = GetDataValue< int >( "igene" );
     }
     catch ( const std::exception & )
     {
