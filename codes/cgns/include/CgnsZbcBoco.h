@@ -46,7 +46,6 @@ class CgnsZbcBoco
 public:
     explicit CgnsZbcBoco( CgnsZone & cgnsZone );
     ~CgnsZbcBoco();
-public:
 private:
     int nBoco;
     HXVector< std::unique_ptr< CgnsBcBoco > > cgnsBcBocos;

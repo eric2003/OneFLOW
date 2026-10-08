@@ -46,7 +46,6 @@ class CgnsZbc1to1
 public:
     explicit CgnsZbc1to1( CgnsZone & cgnsZone );
     ~CgnsZbc1to1();
-public:
 private:
     int n1to1;
     HXVector< std::unique_ptr< CgnsBc1to1 > > cgnsBc1to1s;

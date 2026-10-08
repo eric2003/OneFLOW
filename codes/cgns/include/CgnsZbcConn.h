@@ -47,7 +47,6 @@ class CgnsZbcConn
 public:
     explicit CgnsZbcConn( CgnsZone & cgnsZone );
     ~CgnsZbcConn();
-public:
 private:
     int nConn;
     HXVector< std::unique_ptr< CgnsBcConn > > cgnsBcConns;
