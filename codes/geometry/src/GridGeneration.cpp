@@ -21,10 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "GridGeneration.h"
-#include "GridConversion.h"
-#include "DomainInp.h"
-#include "ClassicGrid.h"
-#include "Partition.h"
+#include "GridWorkflow.h"
 #include <stdexcept>
 #include <string>
 
