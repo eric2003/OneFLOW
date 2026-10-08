@@ -27,7 +27,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-// Dispatch classic grid generation selected by GridConfig::generationType.
+// Dispatch classic grid generation selected by the opaque legacy generation ID.
 void GenerateClassicGrid( const GridConfig & config );
 
 EndNameSpace

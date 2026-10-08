@@ -156,7 +156,7 @@ GridConfig GridConfig::FromDataBase()
     }
     catch ( const std::exception & )
     {
-        // Keep generationType empty when classic-grid generation is not selected.
+        // Keep generationId empty when classic-grid generation is not selected.
     }
 
     // Prefer GetDataPointer over CopyArray so this TU only needs DataBase.h.
