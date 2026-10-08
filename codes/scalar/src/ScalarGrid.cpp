@@ -592,7 +592,7 @@ void ScalarGrid::SetCgnsZone( CgnsZone * cgnsZone )
 	int currentElementPosition = 0;
 	for ( int iSection = 0; iSection < nTotalSections; ++ iSection )
 	{
-		CgnsSection & cgnsSection = cgnsZsection.GetCgnsSection( iSection );
+		CgnsSection & cgnsSection = cgnsZsection->GetCgnsSection( iSection );
 		SectionMarker & section = iSection < nVolSections
 			? *volSec.data[ iSection ]
 			: *bcSec.data[ iSection - nVolSections ];
@@ -697,7 +697,7 @@ void ScalarGrid::ReadFromCgnsZone( CgnsZone * cgnsZone )
 	std::cout << "   Convert Cgns Section Data to ScalarGrid......\n";
 	std::cout << "\n";
 	CgnsZsection * cgnsZsection = cgnsZone->cgnsZsection.get();
-	const int nSections = cgnsZsection.GetNSections();
+	const int nSections = cgnsZsection->GetNSections();
 	for ( int iSection = 0; iSection < nSections; ++ iSection )
 	{
 		std::cout << "-->iSection     = " << iSection << " numberOfCgnsSections = " << nSections << "\n";
@@ -716,7 +716,7 @@ void ScalarGrid::ReadFromCgnsZone( CgnsZone * cgnsZone )
 		}
 	}
 	CgnsCoor * cgnsCoor = cgnsZone->cgnsCoor.get();
-	NodeMesh * nodeMesh = cgnsCoor.nodeMesh.get();
+	NodeMesh * nodeMesh = cgnsCoor->nodeMesh.get();
 	for ( int i = 0; i < nodeMesh->xN.size(); ++ i )
 	{
 		Real xm = nodeMesh->xN[ i ];
