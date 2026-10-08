@@ -407,8 +407,8 @@ void Partition::CalcG2lFace( UnsGrid & ggrid, int zid, UnsGrid & grid )
     grid.nFaces  = nFaceNow;
     grid.nBFaces = nBFaceNow;
 
-    InterFace * interFace = grid.interFace.get();
-    interFace->Set( nIFaceNow );
+    InterFace & interFace = *grid.interFace;
+    interFace.Set( nIFaceNow );
     grid.nIFaces = nIFaceNow;
 }
 
@@ -602,8 +602,8 @@ void Partition::SetInterface( UnsGrid & ggrid, int zid, UnsGrid & grid )
 {
     if ( this->partition_type != 1 ) return;
 
-    InterFace * interFace = grid.interFace.get();
-    int nIFaces = interFace->nIFaces;
+    InterFace & interFace = *grid.interFace;
+    int nIFaces = interFace.nIFaces;
     int nBFaces = grid.nBFaces;
 
     int nGFace = ggrid.nFaces;
@@ -633,12 +633,12 @@ void Partition::SetInterface( UnsGrid & ggrid, int zid, UnsGrid & grid )
 
             if ( leftZone == zid )
             {
-                interFace->idir[ ifid ] = 1;
+                interFace.idir[ ifid ] = 1;
                 gcid = grc;
             }
             else if ( rightZone == zid )
             {
-                interFace->idir[ ifid ] = - 1;
+                interFace.idir[ ifid ] = - 1;
                 gcid = glc;
             }
             else
@@ -650,10 +650,10 @@ void Partition::SetInterface( UnsGrid & ggrid, int zid, UnsGrid & grid )
             //   |face
             //   |cell
             //
-            interFace->zoneId          [ ifid ] = this->g2l->gc2lzone[ gcid ];
-            interFace->localInterfaceId[ ifid ] = this->g2l->g2l_cell[ gcid ];
-            interFace->localCellId     [ ifid ] = this->g2l->g2l_cell[ gcid ];
-            interFace->i2b             [ ifid ] = this->g2l->g2l_face[ gfid ];
+            interFace.zoneId          [ ifid ] = this->g2l->gc2lzone[ gcid ];
+            interFace.localInterfaceId[ ifid ] = this->g2l->g2l_cell[ gcid ];
+            interFace.localCellId     [ ifid ] = this->g2l->g2l_cell[ gcid ];
+            interFace.i2b             [ ifid ] = this->g2l->g2l_face[ gfid ];
         }
     }
 }
@@ -667,7 +667,7 @@ bool FindMatch( UnsGrid & grid, FacePair & facePair )
     if ( ! ONEFLOW::IsValid( interFace ) ) return found;
 
     int nBFaces = grid.nBFaces;
-    int nIFaces = interFace->nIFaces;
+    int nIFaces = interFace.nIFaces;
     int nPBFace = nBFaces - nIFaces;
 
     IntField & lCell = grid.GetFaceTopo().GetLeftCells();
@@ -679,11 +679,11 @@ bool FindMatch( UnsGrid & grid, FacePair & facePair )
         int rc = rCell[ iFace + nPBFace ];
         int cell_id = MAX( lc, rc );
 
-        if ( ( interFace->zoneId[ iFace ]      == facePair.lf.zone_id ) &&
-             ( interFace->localCellId[ iFace ] == facePair.lf.cell_id ) && 
+        if ( ( interFace.zoneId[ iFace ]      == facePair.lf.zone_id ) &&
+             ( interFace.localCellId[ iFace ] == facePair.lf.cell_id ) && 
              ( cell_id                         == facePair.rf.cell_id ) )
         {
-            interFace->localInterfaceId[ iFace ] = facePair.lf.face_id;
+            interFace.localInterfaceId[ iFace ] = facePair.lf.face_id;
             facePair.rf.face_id = iFace;
             found = true;
             break;
