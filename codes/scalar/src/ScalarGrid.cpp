@@ -592,7 +592,7 @@ void ScalarGrid::SetCgnsZone( CgnsZone * cgnsZone )
 	int currentElementPosition = 0;
 	for ( int iSection = 0; iSection < nTotalSections; ++ iSection )
 	{
-		CgnsSection & cgnsSection = cgnsZsection->GetCgnsSection( iSection );
+		CgnsSection & cgnsSection = cgnsZsection.GetCgnsSection( iSection );
 		SectionMarker & section = iSection < nVolSections
 			? *volSec.data[ iSection ]
 			: *bcSec.data[ iSection - nVolSections ];
