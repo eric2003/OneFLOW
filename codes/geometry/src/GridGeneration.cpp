@@ -21,12 +21,9 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "GridGeneration.h"
-#include "CgnsFactory.h"
-#include "GridMediator.h"
+#include "GridConversion.h"
 #include "DomainInp.h"
-#include "Su2Grid.h"
 #include "ClassicGrid.h"
-#include "Plot3D.h"
 #include "Partition.h"
 #include <stdexcept>
 #include <string>
@@ -35,106 +32,19 @@ BeginNameSpace( ONEFLOW )
 
 namespace
 {
-    using Converter = void ( * )(
-        const GridConfig &,
-        const std::string & );
-
-    struct ConverterEntry
-    {
-        GridFileType sourceType;
-        Converter convert;
-    };
-
-    void ConvertPlot3DToOneFLOW(
-        const GridConfig & config,
-        const std::string & /*caseDir*/ )
-    {
-        CgnsFactory cgnsFactory;
-        cgnsFactory.CommonToOneFlowGrid( config );
-    }
-
-    void ConvertPlot3DToCGNS(
-        const GridConfig & config,
-        const std::string & caseDir )
-    {
-        CgnsFactory cgnsFactory;
-        ZgridMediator zgridMediator;
-        Plot3D::Plot3DToCgns( &zgridMediator, config, caseDir );
-        cgnsFactory.DumpCgnsGrid( zgridMediator );
-    }
-
-    void ConvertPlot3D(
-        const GridConfig & config,
-        const std::string & caseDir )
-    {
-        switch ( config.targetType )
-        {
-            case GridFileType::OneFLOW:
-                ConvertPlot3DToOneFLOW( config, caseDir );
-                return;
-            case GridFileType::CGNS:
-                ConvertPlot3DToCGNS( config, caseDir );
-                return;
-            default:
-                throw std::invalid_argument(
-                    std::string( "Unsupported Plot3D target type: " ) +
-                    std::string( ToString( config.targetType ) ) );
-        }
-    }
-
-    void ConvertSU2(
-        const GridConfig & config,
-        const std::string & caseDir )
-    {
-        Su2Grid su2Grid;
-        su2Grid.Su2ToOneFlowGrid( config, caseDir );
-    }
-
-    void ConvertCGNS(
-        const GridConfig & config,
-        const std::string & caseDir )
-    {
-        CgnsFactory cgnsFactory;
-        cgnsFactory.GenerateGrid( config, caseDir );
-    }
-
-    constexpr ConverterEntry kConverters[] = {
-        { GridFileType::Plot3D, &ConvertPlot3D },
-        { GridFileType::SU2,    &ConvertSU2 },
-        { GridFileType::CGNS,   &ConvertCGNS },
-    };
-
-    void DispatchConverter(
-        const GridConfig & config,
-        const std::string & caseDir )
-    {
-        for ( const auto & entry : kConverters )
-        {
-            if ( entry.sourceType == config.sourceType )
-            {
-                entry.convert( config, caseDir );
-                return;
-            }
-        }
-
-        throw std::invalid_argument(
-            std::string( "Unsupported source grid type: " ) +
-            std::string( ToString( config.sourceType ) ) );
-    }
-
     void GenerateClassic(
         const GridConfig & config,
         const std::string & caseDir )
     {
         GenerateClassicGrid( config );
-        DispatchConverter( config, caseDir );
+        ConvertGrid( config, caseDir );
     }
 
     void ConvertOnly(
         const GridConfig & config,
         const std::string & caseDir )
     {
-        DispatchConverter( config, caseDir );
+        ConvertGrid( config, caseDir );
     }
 
     void GenerateInp(
