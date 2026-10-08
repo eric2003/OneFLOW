@@ -28,6 +28,7 @@ License
 #include "Dimension.h"
 #include <iostream>
 #include <iomanip>
+#include <stdexcept>
 
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
@@ -286,6 +287,15 @@ void CgnsCoor::FreeMesh()
 NodeMesh * CgnsCoor::GetNodeMesh()
 {
     return this->nodeMesh.get();
+}
+
+NodeMesh & CgnsCoor::RequireNodeMesh()
+{
+    if ( this->nodeMesh == nullptr )
+    {
+        throw std::logic_error( "CgnsCoor: NodeMesh is not initialized" );
+    }
+    return *this->nodeMesh;
 }
 
 void CgnsCoor::SetDimension()
