@@ -613,6 +613,8 @@ void Partition::SetInterface( UnsGrid & ggrid, int zid, UnsGrid & grid )
 {
     if ( this->partition_type != 1 ) return;
 
+    G2LMapping & mapping = *this->g2l;
+
     InterFace & interFace = *grid.interFace;
     int nIFaces = interFace.nIFaces;
     int nBFaces = grid.nBFaces;
@@ -628,7 +630,7 @@ void Partition::SetInterface( UnsGrid & ggrid, int zid, UnsGrid & grid )
 
     for ( int gfid = nGBFace; gfid < nGFace; ++ gfid )
     {
-        int fid = this->g2l->g2l_face[ gfid ];
+        int fid = mapping.g2l_face[ gfid ];
         if ( fid < nBFaces && fid > - 1 )
         {
             //local interface id
@@ -637,8 +639,8 @@ void Partition::SetInterface( UnsGrid & ggrid, int zid, UnsGrid & grid )
             int glc = glCell[ gfid ];
             int grc = grCell[ gfid ];
 
-            int leftZone  = this->g2l->gc2lzone[ glc ];
-            int rightZone = this->g2l->gc2lzone[ grc ];
+            int leftZone  = mapping.gc2lzone[ glc ];
+            int rightZone = mapping.gc2lzone[ grc ];
 
             int gcid = -1;
 
@@ -661,10 +663,10 @@ void Partition::SetInterface( UnsGrid & ggrid, int zid, UnsGrid & grid )
             //   |face
             //   |cell
             //
-            interFace.zoneId          [ ifid ] = this->g2l->gc2lzone[ gcid ];
-            interFace.localInterfaceId[ ifid ] = this->g2l->g2l_cell[ gcid ];
-            interFace.localCellId     [ ifid ] = this->g2l->g2l_cell[ gcid ];
-            interFace.i2b             [ ifid ] = this->g2l->g2l_face[ gfid ];
+            interFace.zoneId          [ ifid ] = mapping.gc2lzone[ gcid ];
+            interFace.localInterfaceId[ ifid ] = mapping.g2l_cell[ gcid ];
+            interFace.localCellId     [ ifid ] = mapping.g2l_cell[ gcid ];
+            interFace.i2b             [ ifid ] = mapping.g2l_face[ gfid ];
         }
     }
 }
