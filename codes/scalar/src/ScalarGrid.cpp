@@ -544,7 +544,7 @@ void ScalarGrid::SetCgnsZone( CgnsZone & cgnsZone )
 	/* boundary vertex size (zero if elements not sorted) */
 	cgnsZone.isize[ 2 ] = 0;
 
-	CgnsCoor & cgnsCoor = *cgnsZone.cgnsCoor;
+	CgnsCoor & cgnsCoor = cgnsZone.RequireCgnsCoor();
 
 	cgnsCoor.SetNNode( nNodes );
 	cgnsCoor.SetNCell( nCells );
@@ -583,7 +583,7 @@ void ScalarGrid::SetCgnsZone( CgnsZone & cgnsZone )
 
 	int nTotalSections = nVolSections + nBcSections;
 
-	CgnsZsection & cgnsZsection = *cgnsZone.cgnsZsection;
+	CgnsZsection & cgnsZsection = cgnsZone.RequireCgnsZsection();
 
 	cgnsZsection.CreateCgnsSections( nTotalSections );
 
