@@ -144,19 +144,20 @@ void CalcGrid::ReconstructLink()
 
 void CalcGrid::ReconstructLink( int iZone )
 {
-    UnsGrid * grid = static_cast< UnsGrid * >( &GridAt( grids, iZone ) );
+    UnsGrid & grid = static_cast< UnsGrid & >( GridAt( grids, iZone ) );
 
-    InterFace * interFace = grid->interFace.get();
-    grid->nIFaces = grid->interFace->nIFaces;
+    InterFace * interFace = grid.interFace.get();
 
     if ( ! ONEFLOW::IsValid( interFace ) ) return;
 
-    int nBFaces = grid->nBFaces;
+    grid.nIFaces = interFace->nIFaces;
+
+    int nBFaces = grid.nBFaces;
     int nIFaces = interFace->nIFaces;
     int nPBFace = nBFaces - nIFaces;
 
-    IntField & lCell = grid->GetFaceTopo().GetLeftCells();
-    IntField & rCell = grid->GetFaceTopo().GetRightCells();
+    IntField & lCell = grid.GetFaceTopo().GetLeftCells();
+    IntField & rCell = grid.GetFaceTopo().GetRightCells();
 
     FacePair facePair;
     for ( int iFace = 0; iFace < nIFaces; ++ iFace )
@@ -174,9 +175,9 @@ void CalcGrid::ReconstructLink( int iZone )
 
         if ( nei_zone_id >= iZone )
         {
-            UnsGrid * nei_Grid = static_cast< UnsGrid * >( &GridAt( grids, nei_zone_id ) );
+            UnsGrid & neiGrid = static_cast< UnsGrid & >( GridAt( grids, nei_zone_id ) );
 
-            if ( FindMatch( *nei_Grid, facePair ) )
+            if ( FindMatch( neiGrid, facePair ) )
             {
                 interFace->localInterfaceId[ iFace ] = facePair.rf.face_id;
             }
