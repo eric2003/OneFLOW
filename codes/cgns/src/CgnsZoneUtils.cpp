@@ -284,7 +284,7 @@ void FillSection( GridViews & grids, HXVector< std::unique_ptr< Int3D > > & unsI
             
             cgnsBcBoco.SetCgnsBcRegionGridLocation( CellCenter );
             cgnsBcBoco.nElements    = 2;
-            cgnsBcBoco.bcType       = static_cast< BCType_t >( bcTypeMap.OneFlow2Cgns( bcRegion.bcType ) );
+            cgnsBcBoco.bcType       = static_cast< BCType_t >( bcTypeMap.OneFlow2Cgns( bcRegion->bcType ) );
             cgnsBcBoco.pointSetType = PointRange;
 
             //cgnsBcBoco.SetCgnsBcRegion( nElements, bcType, );
@@ -502,7 +502,7 @@ void GenerateUnsBcCondConn( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
     {
         CgnsBcBoco & bcRegion    = myZone    ->RequireCgnsZbc().RequireCgnsZbcBoco().GetCgnsBc( iBoco );
         CgnsBcBoco & strBcRegion = cgnsZoneIn->RequireCgnsZbc().RequireCgnsZbcBoco().GetCgnsBc( iBoco );
-        bcRegion.CopyStrBcRegion( strBcRegion, startId );
+        bcRegion.CopyStrBcRegion( &strBcRegion, startId );
     }
 }
 

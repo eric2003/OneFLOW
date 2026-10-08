@@ -188,7 +188,7 @@ CgnsBcBoco * CgnsZbcBoco::WriteCgnsBoco( const std::string & bocoName, BCType_t 
     CgnsBcBoco * cgnsBcBoco = ownedBcBoco.get();
     this->AddCgnsBcBoco( std::move( ownedBcBoco ) );
 
-    cgnsBcBoco.WriteCgnsBoco( bocoName, bocotype, ptset_type, npnts, pnts );
+    cgnsBcBoco->WriteCgnsBoco( bocoName, bocotype, ptset_type, npnts, pnts );
 
     return cgnsBcBoco;
 }
