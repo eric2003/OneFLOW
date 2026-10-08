@@ -94,6 +94,15 @@ CgnsCoor & CgnsZone::RequireCgnsCoor()
     return *this->cgnsCoor;
 }
 
+const CgnsCoor & CgnsZone::RequireCgnsCoor() const
+{
+    if ( this->cgnsCoor == nullptr )
+    {
+        throw std::logic_error( "CgnsZone: CgnsCoor is not initialized" );
+    }
+    return *this->cgnsCoor;
+}
+
 CgnsZsection & CgnsZone::RequireCgnsZsection()
 {
     if ( this->cgnsZsection == nullptr )
