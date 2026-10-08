@@ -113,14 +113,13 @@ void L2GMapping::CalcL2GCell( UnsGrid & ggrid, int zid, UnsGrid & grid, G2LMappi
     }
 }
 
-G2LMapping::G2LMapping( UnsGrid & ggrid )
+G2LMapping::G2LMapping( UnsGrid & ggrid, int npartprocIn ) : npartproc( npartprocIn )
 {
     this->g2l_cell.resize( ggrid.nCells );
     this->g2l_face.resize( ggrid.nFaces );
     this->g2l_node.resize( ggrid.nNodes );
     this->gc2lzone.resize( ggrid.nCells );
 
-    this->npartproc = GetDataValue< int >( "npartproc" );
 }
 
 G2LMapping::~G2LMapping()
@@ -248,8 +247,7 @@ void Partition::GenerateMultiZoneGrid()
 
 void Partition::CreatePart()
 {
-    g2l = std::make_unique< G2LMapping >( *uns_grid );
-    g2l->npartproc = this->npartproc;
+    g2l = std::make_unique< G2LMapping >( *uns_grid, this->npartproc );
     g2l->GenerateGC2Z( *uns_grid );
     this->CalcG2lCell();
 

@@ -63,14 +63,14 @@ public:
 class G2LMapping
 {
 public:
-    explicit G2LMapping( UnsGrid & ggrid );
+    G2LMapping( UnsGrid & ggrid, int npartproc );
     ~G2LMapping();
 public:
     IntField g2l_node;
     IntField g2l_face;
     IntField g2l_cell;
     std::vector<idx_t> gc2lzone;
-    int npartproc;
+    const int npartproc;
 public:
     void GenerateGC2Z( UnsGrid & ggrid );
 #ifdef ENABLE_METIS
