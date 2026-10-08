@@ -683,16 +683,16 @@ bool FindMatch( UnsGrid & grid, FacePair & facePair )
 {
     bool found = false;
 
-    InterFace * interFace = grid->interFace.get();
+    InterFace * interFace = grid.interFace.get();
 
     if ( ! ONEFLOW::IsValid( interFace ) ) return found;
 
-    int nBFaces = grid->nBFaces;
+    int nBFaces = grid.nBFaces;
     int nIFaces = interFace->nIFaces;
     int nPBFace = nBFaces - nIFaces;
 
-    IntField & lCell = grid->GetFaceTopo().GetLeftCells();
-    IntField & rCell = grid->GetFaceTopo().GetRightCells();
+    IntField & lCell = grid.GetFaceTopo().GetLeftCells();
+    IntField & rCell = grid.GetFaceTopo().GetRightCells();
 
     for ( int iFace = 0; iFace < nIFaces; ++ iFace )
     {
