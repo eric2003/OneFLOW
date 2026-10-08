@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*\
+/*---------------------------------------------------------------------------*\\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
@@ -18,10 +18,11 @@ License
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
-\*---------------------------------------------------------------------------*/
+\\*---------------------------------------------------------------------------*/
 
 #include "GridGeneration.h"
 #include "GridWorkflow.h"
+#include "ClassicGridWorkflow.h"
 #include <stdexcept>
 #include <string>
 
@@ -42,7 +43,7 @@ namespace
         { GridObjective::GenerateClassic, &ExecuteClassicGridWorkflow },
         { GridObjective::ConvertOnly,     &ExecuteGridConversion },
         { GridObjective::GenerateInp,     &ExecuteDomainInpWorkflow },
-        { GridObjective::Partition,      &ExecutePartitionWorkflow },
+        { GridObjective::Partition,       &ExecutePartitionWorkflow },
     };
 
     void DispatchPipeline(

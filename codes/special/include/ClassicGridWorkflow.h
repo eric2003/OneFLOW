@@ -28,15 +28,8 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-void ExecuteGridConversion(
-    const GridConfig & config,
-    const std::string & caseDir );
-
-void ExecuteDomainInpWorkflow(
-    const GridConfig & config,
-    const std::string & caseDir );
-
-void ExecutePartitionWorkflow(
+// Execute the classic-grid workflow owned by the special module.
+void ExecuteClassicGridWorkflow(
     const GridConfig & config,
     const std::string & caseDir );
 

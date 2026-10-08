@@ -21,8 +21,8 @@ License
 \\*---------------------------------------------------------------------------*/
 
 #include "ClassicGridGeneration.h"
+#include "ClassicGridWorkflow.h"
 #include "GridConversion.h"
-#include "GridWorkflow.h"
 
 BeginNameSpace( ONEFLOW )
 
