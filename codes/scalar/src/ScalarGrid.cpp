@@ -236,7 +236,8 @@ void ScalarBccos::ScanBcFace( ScalarGrid & grid )
 	for ( int iBoco = 0; iBoco < this->bccos.size(); ++ iBoco )
 	{
 		std::cout << " iBoco = " << iBoco << " ";
-		this->bccos[ iBoco ]->ScanBcFace( grid );
+		ScalarBcco & scalarBcco = *this->bccos[ iBoco ];
+		scalarBcco.ScanBcFace( grid );
 	}
 }
 
@@ -452,19 +453,19 @@ void ScalarGrid::CalcVolumeSection( SectionManager & volumeSectionManager )
 	for ( int iType = 0; iType < nElementTypes; ++ iType )
 	{
 		int current_eType = cgns_types[ iType ];
-		SectionMarker * sectionMarker = volumeSectionManager.data[ iType ].get();
-		sectionMarker->cgns_type = current_eType;
-		sectionMarker->name = ElementTypeName[ sectionMarker->cgns_type ];
+		SectionMarker & sectionMarker = *volumeSectionManager.data[ iType ];
+		sectionMarker.cgns_type = current_eType;
+		sectionMarker.name = ElementTypeName[ sectionMarker.cgns_type ];
 		for ( int iElement = 0; iElement < nElements; ++ iElement )
 		{
 			int eType = this->eTypes[ iElement ];
 			if ( eType == current_eType )
 			{
-				sectionMarker->elements.push_back( this->elements[ iElement ] );
-				sectionMarker->elementIds.push_back( iElement );
+				sectionMarker.elements.push_back( this->elements[ iElement ] );
+				sectionMarker.elementIds.push_back( iElement );
 			}
 		}
-		sectionMarker->nElements = sectionMarker->elements.size();
+		sectionMarker.nElements = sectionMarker.elements.size();
 	}
 }
 
@@ -502,9 +503,9 @@ void ScalarGrid::CalcBoundarySection( SectionManager & bcSectionManager )
 	for ( int iType = 0; iType < nElementTypes; ++ iType )
 	{
 		int current_eType = cgns_types[ iType ];
-		SectionMarker * sectionMarker = bcSectionManager.data[ iType ].get();
-		sectionMarker->cgns_type = current_eType;
-		sectionMarker->name = ElementTypeName[ sectionMarker->cgns_type ];
+		SectionMarker & sectionMarker = *bcSectionManager.data[ iType ];
+		sectionMarker.cgns_type = current_eType;
+		sectionMarker.name = ElementTypeName[ sectionMarker.cgns_type ];
 		for ( int iBcco = 0; iBcco < nBccos; ++ iBcco )
 		{
 			ScalarBcco & scalarBcco = *scalarBccos->bccos[ iBcco ];
@@ -515,8 +516,8 @@ void ScalarGrid::CalcBoundarySection( SectionManager & bcSectionManager )
 				int eType = scalarBcco.eTypes[ iElement ];
 				if ( eType == current_eType )
 				{
-					sectionMarker->elements.push_back( scalarBcco.elements[ iElement ] );
-					sectionMarker->elementIds.push_back( globalElementId );
+					sectionMarker.elements.push_back( scalarBcco.elements[ iElement ] );
+					sectionMarker.elementIds.push_back( globalElementId );
 					scalarBcco.local_globalIds[ iElement ] = globalElementId;
 					++ globalElementId;
 				}
@@ -592,26 +593,19 @@ void ScalarGrid::SetCgnsZone( CgnsZone * cgnsZone )
 	for ( int iSection = 0; iSection < nTotalSections; ++ iSection )
 	{
 		CgnsSection & cgnsSection = cgnsZsection->GetCgnsSection( iSection );
-		SectionMarker * section = 0;
-		if ( iSection < nVolSections )
-		{
-			section = volSec.data[ iSection ].get();
-		}
-		else
-		{
-			int jSection = iSection - nVolSections;
-			section = bcSec.data[ jSection ].get();
-		}
+		SectionMarker & section = iSection < nVolSections
+			? *volSec.data[ iSection ]
+			: *bcSec.data[ iSection - nVolSections ];
 
-		int nElements = section->nElements;
-		cgnsSection.SetSectionInfo( section->name, section->cgns_type, currentElementPosition + 1, currentElementPosition + nElements );
+		int nElements = section.nElements;
+		cgnsSection.SetSectionInfo( section.name, section.cgns_type, currentElementPosition + 1, currentElementPosition + nElements );
 		cgnsSection.CreateConnList();
 		currentElementPosition += nElements;
 
 		int position = 0;
 		for ( int iElement = 0; iElement < nElements; ++ iElement )
 		{
-			IntField & element = section->elements[ iElement ];
+			IntField & element = section.elements[ iElement ];
 			int nElementNodes = element.size();
 			for ( int iNode = 0; iNode < nElementNodes; ++ iNode )
 			{
@@ -634,18 +628,17 @@ void ScalarGrid::SetCgnsZone( CgnsZone * cgnsZone )
 	for ( int iBcco = 0; iBcco < cgnsZbc->cgnsZbcBoco->nBoco; ++ iBcco )
 	{
 		CgnsBcBoco * cgnsBcBoco = cgnsZbc->cgnsZbcBoco->GetCgnsBc( iBcco );
-		ScalarBcco * scalarBcco = scalarBccos->bccos[ iBcco ].get();
-		int nElements = scalarBcco->eTypes.GetNElements();
-		cgnsBcBoco->name = scalarBcco->bcName;
-		cgnsBcBoco->gridLocation = CellCenter;
-		cgnsBcBoco->nElements = scalarBcco->eTypes.GetNElements();
-		cgnsBcBoco->bcType = static_cast< BCType_t >( scalarBcco->bcType );
+		ScalarBcco & scalarBcco = *scalarBccos->bccos[ iBcco ];
+		int nElements = scalarBcco.eTypes.GetNElements();
+		cgnsBcBoco->name = scalarBcco.bcName;
+		cgnsBcBoco->nElements = scalarBcco.eTypes.GetNElements();
+		cgnsBcBoco->bcType = static_cast< BCType_t >( scalarBcco.bcType );
 		cgnsBcBoco->pointSetType = PointList;
 		cgnsBcBoco->CreateCgnsBcBoco();
 
 		for ( int iElement = 0; iElement < nElements; ++ iElement )
 		{
-			int bcElemId = scalarBcco->local_globalIds[ iElement ];
+			int bcElemId = scalarBcco.local_globalIds[ iElement ];
 			cgnsBcBoco->connList[ iElement ] = bcElemId + 1 + nVolCell;
 		}
 	}
