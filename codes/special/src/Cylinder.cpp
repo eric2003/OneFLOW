@@ -29,6 +29,7 @@ License
 #include "GridMachine.h"
 #include "LineMachine.h"
 #include "Prj.h"
+#include "DataBaseIO.h"
 #include "Boundary.h"
 #include "HXMath.h"
 #include "TextFileParser.h"
