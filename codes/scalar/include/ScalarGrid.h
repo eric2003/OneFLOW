@@ -155,7 +155,7 @@ public:
     std::vector< std::unique_ptr< ScalarBcco > > bccos;
 public:
     void AddBcco( std::unique_ptr< ScalarBcco > scalarBcco );
-    void ScanBcFace( ScalarGrid * grid );
+    void ScanBcFace( ScalarGrid & grid );
 };
 
 class DataBase;
