@@ -427,7 +427,7 @@ void Partition::CalcG2lFace( UnsGrid * ggrid, int zid, UnsGrid * grid )
     grid->nFaces  = nFaceNow;
     grid->nBFaces = nBFaceNow;
 
-    InterFace * interFace = grid.interFace.get();
+    InterFace * interFace = grid->interFace.get();
     interFace->Set( nIFaceNow );
     grid->nIFaces = nIFaceNow;
 }
@@ -553,10 +553,10 @@ void Partition::SetF2CAndBC( UnsGrid * ggrid, int zid, UnsGrid * grid )
     IntField & gbcType = ggrid->GetFaceTopo().GetBcRecord().bcType;
 
     int nFaces  = grid->nFaces;
-    int nBFaces = grid.nBFaces;
+    int nBFaces = grid->nBFaces;
 
-    IntField & lCell = grid.GetFaceTopo().GetLeftCells();
-    IntField & rCell = grid.GetFaceTopo().GetRightCells();
+    IntField & lCell = grid->GetFaceTopo().GetLeftCells();
+    IntField & rCell = grid->GetFaceTopo().GetRightCells();
     lCell.resize( nFaces );
     rCell.resize( nFaces );
 
