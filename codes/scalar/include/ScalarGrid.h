@@ -142,7 +142,7 @@ public:
 public:
     void PushBoundaryFace( int pt, int eType );
     void AddBcPoint( int bcVertex );
-    void ScanBcFace( ScalarGrid * grid );
+    void ScanBcFace( ScalarGrid & grid );
     void ProcessVertexBc( IntSet & bcVertex );
 };
 
@@ -155,7 +155,7 @@ public:
     std::vector< std::unique_ptr< ScalarBcco > > bccos;
 public:
     void AddBcco( std::unique_ptr< ScalarBcco > scalarBcco );
-    void ScanBcFace( ScalarGrid * grid );
+    void ScanBcFace( ScalarGrid & grid );
 };
 
 class DataBase;
@@ -245,8 +245,8 @@ public:
     void DumpCgnsGrid();
     void SetCgnsZone( CgnsZone * cgnsZone );
 public:
-    void CalcVolumeSection( SectionManager * volumeSectionManager );
-    void CalcBoundarySection( SectionManager * bcSectionManager );
+    void CalcVolumeSection( SectionManager & volumeSectionManager );
+    void CalcBoundarySection( SectionManager & bcSectionManager );
 public:
     void CalcMetrics1D();
     void CalcFaceCenter1D();

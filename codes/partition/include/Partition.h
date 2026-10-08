@@ -23,7 +23,9 @@ License
 
 #pragma once
 #include <memory>
+#include <optional>
 #include "HXDefine.h"
+#include "GridTypes.h"
 #include "GridHandles.h"
 #include "HXCgns.h"
 #include <vector>
@@ -53,75 +55,65 @@ public:
     IntField l2g_face;
     IntField l2g_cell;
 public:
-    std::unique_ptr< G2LMapping > g2l;
-public:
-    void Alloc( UnsGrid * grid );
-    void CalcL2G    ( UnsGrid * ggrid, int zid, UnsGrid * grid );
-    void CalcL2GNode( UnsGrid * ggrid, int zid, UnsGrid * grid );
-    void CalcL2GFace( UnsGrid * ggrid, int zid, UnsGrid * grid );
-    void CalcL2GCell( UnsGrid * ggrid, int zid, UnsGrid * grid );
+    void Alloc( UnsGrid & grid );
+    void CalcL2G    ( UnsGrid & ggrid, int zid, UnsGrid & grid, G2LMapping & g2l );
+    void CalcL2GNode( UnsGrid & ggrid, int zid, UnsGrid & grid, G2LMapping & g2l );
+    void CalcL2GFace( UnsGrid & ggrid, int zid, UnsGrid & grid, G2LMapping & g2l );
+    void CalcL2GCell( UnsGrid & ggrid, int zid, UnsGrid & grid, G2LMapping & g2l );
 };
 
 class G2LMapping
 {
 public:
-    G2LMapping( UnsGrid * ggrid );
+    G2LMapping( UnsGrid & ggrid, int npartproc );
     ~G2LMapping();
 public:
     IntField g2l_node;
     IntField g2l_face;
     IntField g2l_cell;
     std::vector<idx_t> gc2lzone;
-    UnsGrid * ggrid;
-    int npartproc;
-    LinkField c2c;
+    const int npartproc;
 public:
-    void GenerateGC2Z();
+    void GenerateGC2Z( UnsGrid & ggrid );
 #ifdef ENABLE_METIS
-    void GetXadjAdjncy( UnsGrid * ggrid, std::vector<idx_t>& xadj, std::vector<idx_t>& adjncy );
+    void GetXadjAdjncy( UnsGrid & ggrid, std::vector<idx_t>& xadj, std::vector<idx_t>& adjncy );
     void PartByMetis( idx_t nCells, std::vector<idx_t>& xadj, std::vector<idx_t>& adjncy );
 #endif
-    void DumpXadjAdjncy( UnsGrid * grid, IntField & xadj, IntField & adjncy );
-    void DumpGC2Z( UnsGrid * grid );
-    void ReadGC2Z( UnsGrid * grid );
 };
 
 class Partition
 {
+private:
+    std::string sourceFile;
+    int partitionType;
 public:
-    Partition();
+    explicit Partition( const GridConfig & config );
     ~Partition();
 public:
     Grids grids;
 public:
-    UnsGrid * uns_grid;
     int npartproc;
-    int partition_type;
-    int partition_c2n;
-    std::unique_ptr< G2LMapping > g2l;
-    std::unique_ptr< L2GMapping > l2g;
+    std::optional< G2LMapping > g2l;
+    L2GMapping l2g;
 public:
     void Run();
-    void ReadGrid();
-    void GenerateMultiZoneGrid();
-    void CreatePart();
+    UnsGrid & ReadGrid( const std::string & sourceFile );
+    void GenerateMultiZoneGrid( UnsGrid & ggrid );
+    void CreatePart( UnsGrid & ggrid );
     void AllocPart();
-    void BuildCalculationalGrid();
-    void BuildCalculationalGrid( int zid );
-    void PreProcess();
-    void PostProcess();
+    void BuildCalculationalGrid( UnsGrid & ggrid );
+    void BuildCalculationalGrid( UnsGrid & ggrid, int zid );
 public:
-    void CalcGC2N();
-    void CalcG2lCell();
-    void CalcG2lFace( UnsGrid * ggrid, int zid, UnsGrid * grid );
-    void CalcG2lNode( UnsGrid * ggrid, int zid, UnsGrid * grid );
-    int GetNCell( UnsGrid * ggrid, int zid );
-    void CreateL2g( UnsGrid * ggrid, int zid, UnsGrid * grid );
-    void SetCoor( UnsGrid * ggrid, int zid, UnsGrid * grid );
-    void SetGeometricRelationship( UnsGrid * ggrid, int zid, UnsGrid * grid );
-    void CalcF2N( UnsGrid * ggrid, int zid, UnsGrid * grid );
-    void SetF2CAndBC( UnsGrid * ggrid, int zid, UnsGrid * grid );
-    void SetInterface( UnsGrid * ggrid, int zid, UnsGrid * grid );
+    void CalcG2lCell( UnsGrid & ggrid );
+    void CalcG2lFace( UnsGrid & ggrid, int zid, UnsGrid & grid );
+    void CalcG2lNode( UnsGrid & ggrid, int zid, UnsGrid & grid );
+    int GetNCell( UnsGrid & ggrid, int zid );
+    void CreateL2g( UnsGrid & ggrid, int zid, UnsGrid & grid );
+    void SetCoor( UnsGrid & ggrid, int zid, UnsGrid & grid );
+    void SetGeometricRelationship( UnsGrid & ggrid, int zid, UnsGrid & grid );
+    void CalcF2N( UnsGrid & ggrid, int zid, UnsGrid & grid );
+    void SetF2CAndBC( UnsGrid & ggrid, int zid, UnsGrid & grid );
+    void SetInterface( UnsGrid & ggrid, int zid, UnsGrid & grid, int partitionType );
 };
 
 class FacePairBasic
@@ -144,6 +136,6 @@ public:
     FacePairBasic lf, rf;
 };
 
-bool FindMatch( UnsGrid * grid, FacePair * facePair );
+bool FindMatch( UnsGrid & grid, FacePair & facePair );
 
 EndNameSpace

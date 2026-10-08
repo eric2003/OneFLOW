@@ -8,7 +8,8 @@ License
     OneFLOW is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+    (at your option) under the terms of the GNU General Public License
+    as published by the Free Software Foundation.
 
     OneFLOW is distributed in the hope that it will be useful, but WITHOUT
     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
@@ -143,19 +144,20 @@ void CalcGrid::ReconstructLink()
 
 void CalcGrid::ReconstructLink( int iZone )
 {
-    UnsGrid * grid = static_cast< UnsGrid * >( &GridAt( grids, iZone ) );
+    UnsGrid & grid = static_cast< UnsGrid & >( GridAt( grids, iZone ) );
 
-    InterFace * interFace = grid->interFace.get();
-    grid->nIFaces = grid->interFace->nIFaces;
+    InterFace * interFace = grid.interFace.get();
 
     if ( ! ONEFLOW::IsValid( interFace ) ) return;
 
-    int nBFaces = grid->nBFaces;
+    grid.nIFaces = interFace->nIFaces;
+
+    int nBFaces = grid.nBFaces;
     int nIFaces = interFace->nIFaces;
     int nPBFace = nBFaces - nIFaces;
 
-    IntField & lCell = grid->GetFaceTopo().GetLeftCells();
-    IntField & rCell = grid->GetFaceTopo().GetRightCells();
+    IntField & lCell = grid.GetFaceTopo().GetLeftCells();
+    IntField & rCell = grid.GetFaceTopo().GetRightCells();
 
     FacePair facePair;
     for ( int iFace = 0; iFace < nIFaces; ++ iFace )
@@ -173,9 +175,9 @@ void CalcGrid::ReconstructLink( int iZone )
 
         if ( nei_zone_id >= iZone )
         {
-            UnsGrid * nei_Grid = static_cast< UnsGrid * >( &GridAt( grids, nei_zone_id ) );
+            UnsGrid & neiGrid = static_cast< UnsGrid & >( GridAt( grids, nei_zone_id ) );
 
-            if ( FindMatch( nei_Grid, & facePair ) )
+            if ( FindMatch( neiGrid, facePair ) )
             {
                 interFace->localInterfaceId[ iFace ] = facePair.rf.face_id;
             }
@@ -197,8 +199,8 @@ void CalcGrid::ResetGridScaleAndTranslate()
     const int nZone = GridsSize( grids );
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        Grid * grid = &GridAt( grids, iZone );
-        ONEFLOW::ResetGridScaleAndTranslate( *grid->nodeMesh, this->config );
+        Grid & grid = GridAt( grids, iZone );
+        ONEFLOW::ResetGridScaleAndTranslate( *grid.nodeMesh, this->config );
     }
 }
 
@@ -224,8 +226,8 @@ void CalcGrid::ModifyBcType()
     const int nZone = GridsSize( grids );
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        Grid * grid = &GridAt( grids, iZone );
-        grid->ModifyBcType( BC::NO_BOUNDARY, BC::INTERFACE );
+        Grid & grid = GridAt( grids, iZone );
+        grid.ModifyBcType( BC::NO_BOUNDARY, BC::INTERFACE );
     }
 }
 
@@ -234,8 +236,8 @@ void CalcGrid::GenerateLgMapping()
     const int nZone = GridsSize( grids );
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        Grid * grid = &GridAt( grids, iZone );
-        grid->GenerateLgMapping( this->iFaceLink.get() );
+        Grid & grid = GridAt( grids, iZone );
+        grid.GenerateLgMapping( *this->iFaceLink );
     }
 }
 
@@ -246,8 +248,8 @@ void CalcGrid::ReGenerateLgMapping()
     const int nZone = GridsSize( grids );
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        Grid * grid = &GridAt( grids, iZone );
-        grid->ReGenerateLgMapping( this->iFaceLink.get() );
+        Grid & grid = GridAt( grids, iZone );
+        grid.ReGenerateLgMapping( *this->iFaceLink );
     }
 
     this->UpdateLgMapping();
@@ -264,8 +266,8 @@ void CalcGrid::UpdateOtherTopologyTerm()
     const int nZone = GridsSize( grids );
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        Grid * grid = &GridAt( grids, iZone );
-        grid->UpdateOtherTopologyTerm( this->iFaceLink.get() );
+        Grid & grid = GridAt( grids, iZone );
+        grid.UpdateOtherTopologyTerm( *this->iFaceLink );
     }
 }
 
@@ -274,7 +276,7 @@ void CalcGrid::MatchInterfaceTopology()
     const int nZone = GridsSize( grids );
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        Grid * grid = &GridAt( grids, iZone );
+        Grid & grid = GridAt( grids, iZone );
         this->iFaceLink->MatchInterfaceTopology( grid );
     }
 }

@@ -130,6 +130,7 @@ GridConfig GridConfig::FromDataBase()
     {
         cfg.partitionFile = GetDataValue< std::string >( "part_uns_file" );
         cfg.partitionType = GetDataValue< int >( "partition_type" );
+        cfg.partitionCount = GetDataValue< int >( "npartproc" );
     }
 
     try

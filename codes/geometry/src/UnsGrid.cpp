@@ -220,9 +220,9 @@ void UnsGrid::ReadBoundaryTopology( DataBook * databook )
     //std::cout << " nBFaces = " << this->nBFaces << std::endl;
 
     //Setting boundary conditions
-    BcRecord * bcRecord = &this->GetFaceTopo().GetBcRecord();
-    ONEFLOW::HXRead( databook, bcRecord->bcType );
-    ONEFLOW::HXRead( databook, bcRecord->bcNameId );
+    BcRecord & bcRecord = this->GetFaceTopo().GetBcRecord();
+    ONEFLOW::HXRead( databook, bcRecord.bcType );
+    ONEFLOW::HXRead( databook, bcRecord.bcNameId );
     ONEFLOW::HXRead( databook, this->nIFaces );
     std::cout << " nBFaces = " << this->nBFaces;
     std::cout << " nIFaces = " << this->nIFaces << std::endl;
@@ -378,15 +378,15 @@ void UnsGrid::ModifyBcType( int bcType1, int bcType2 )
     }
 }
 
-void UnsGrid::GenerateLgMapping( IFaceLink * iFaceLink )
+void UnsGrid::GenerateLgMapping( IFaceLink & iFaceLink )
 {
     std::cout << "zoneIndex = " << this->id << std::endl;
 
-    BcRecord * bcRecord = &this->GetFaceTopo().GetBcRecord();
+    BcRecord & bcRecord = this->GetFaceTopo().GetBcRecord();
 
     this->GetFaceTopo().PrepareBoundaryConditions();
 
-    int nIFaces = bcRecord->CalcNIFace();
+    int nIFaces = bcRecord.CalcNIFace();
 
     std::cout << "nIFaces = " << nIFaces << std::endl;
     this->nIFaces = nIFaces;
@@ -394,11 +394,11 @@ void UnsGrid::GenerateLgMapping( IFaceLink * iFaceLink )
 
     if ( nIFaces == 0 ) return;
 
-    iFaceLink->Init( this );
+    iFaceLink.Init( *this );
 
-    this->GetFaceTopo().GenerateI2B( this->interFace.get() );
+    this->GetFaceTopo().GenerateI2B( *this->interFace );
 
-    int nBFaces = bcRecord->GetNBFace();
+    int nBFaces = bcRecord.GetNBFace();
 
     RealField xList, yList, zList;
     IntField gINode;
@@ -407,7 +407,7 @@ void UnsGrid::GenerateLgMapping( IFaceLink * iFaceLink )
 
     for ( int iBFace = 0; iBFace < nBFaces; ++ iBFace )
     {
-        if ( ! BC::IsInterfaceBc( bcRecord->bcType[ iBFace ] ) )
+        if ( ! BC::IsInterfaceBc( bcRecord.bcType[ iBFace ] ) )
         {
             continue;
         }
@@ -419,9 +419,9 @@ void UnsGrid::GenerateLgMapping( IFaceLink * iFaceLink )
         yList.resize( nNodes );
         zList.resize( nNodes );
 
-        ONEFLOW::GetFaceCoorList( faceNode, xList, yList, zList, this->nodeMesh.get() );
+        ONEFLOW::GetFaceCoorList( faceNode, xList, yList, zList, *this->nodeMesh );
         ONEFLOW::GetCoorIdList( iFaceLink, xList, yList, zList, nNodes, gINode );
-        iFaceLink->CreateLink( gINode, this->id, lCount );
+        iFaceLink.CreateLink( gINode, this->id, lCount );
 
         ++ lCount;
     }
@@ -429,7 +429,7 @@ void UnsGrid::GenerateLgMapping( IFaceLink * iFaceLink )
     std::cout << "local interface count = " << lCount << std::endl;
 }
 
-void UnsGrid::ReGenerateLgMapping( IFaceLink * iFaceLink )
+void UnsGrid::ReGenerateLgMapping( IFaceLink & iFaceLink )
 {
     std::cout << "zoneIndex = " << this->id << std::endl;
 
@@ -447,16 +447,16 @@ void UnsGrid::ReGenerateLgMapping( IFaceLink * iFaceLink )
     this->GetFaceTopo().ModifyBoundaryInformation( iFaceLink );
 }
 
-void UnsGrid::UpdateOtherTopologyTerm( IFaceLink * iFaceLink )
+void UnsGrid::UpdateOtherTopologyTerm( IFaceLink & iFaceLink )
 {
     if ( ! IsValid( this->interFace.get() ) ) return;
 
     this->GetFaceTopo().UpdateOtherTopologyTerm();
 
-    int nIFaces = iFaceLink->l2g[ this->id ].size();
+    int nIFaces = iFaceLink.l2g[ this->id ].size();
 
     this->interFace->Resize( nIFaces );
-    this->GetFaceTopo().GenerateI2B( this->interFace.get() );
+    this->GetFaceTopo().GenerateI2B( *this->interFace );
 }
 
 void UnsGrid::GetMinMaxDistance( Real & dismin, Real & dismax )

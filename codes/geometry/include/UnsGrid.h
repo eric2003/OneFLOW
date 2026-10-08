@@ -69,9 +69,9 @@ public:
     void WriteGridFaceTopology1D( DataBook * databook );
 public:
     void ModifyBcType( int bcType1, int bcType2 ) override;
-    void GenerateLgMapping( IFaceLink * iFaceLink ) override;
-    void ReGenerateLgMapping( IFaceLink * iFaceLink ) override;
-    void UpdateOtherTopologyTerm( IFaceLink * iFaceLink ) override;
+    void GenerateLgMapping( IFaceLink & iFaceLink ) override;
+    void ReGenerateLgMapping( IFaceLink & iFaceLink ) override;
+    void UpdateOtherTopologyTerm( IFaceLink & iFaceLink ) override;
     void NormalizeBc();
 public:
     void GetMinMaxDistance( Real & dismin, Real & dismax ) override;

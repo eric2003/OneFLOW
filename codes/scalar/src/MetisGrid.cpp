@@ -37,13 +37,11 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-void MetisSplit::ManualPartition( const ScalarGrid & ggrid, int nPart, MetisIntList & cellzone )
+MetisIntList MetisSplit::ManualPartition( const ScalarGrid & ggrid )
 {
-	int nFaces = ggrid.GetNFaces();
 	int nCells = ggrid.GetNCells();
-	int nBFaces = ggrid.GetNBFaces();
-	int nInnerFaces = nFaces - nBFaces;
 
+	MetisIntList cellzone( nCells );
 	std::vector< int > tmp;
 	for ( int iCell = 0; iCell < nCells; iCell += 2 )
 	{
@@ -59,50 +57,52 @@ void MetisSplit::ManualPartition( const ScalarGrid & ggrid, int nPart, MetisIntL
 	{
 		cellzone[ iCell ] = tmp[ iCell ];
 	}
+
+	return cellzone;
 }
 
-void MetisSplit::MetisPartition( const ScalarGrid & ggrid, int nPart, MetisIntList & cellzone )
+MetisIntList MetisSplit::MetisPartition( const ScalarGrid & ggrid, int nPart )
 {
-	int nFaces = ggrid.GetNFaces();
 	int nCells = ggrid.GetNCells();
-	int nBFaces = ggrid.GetNBFaces();
-	int nInnerFaces = nFaces - nBFaces;
-
-	MetisIntList xadj( nCells + 1 );
-	MetisIntList adjncy( 2 * nInnerFaces );
-	cellzone.resize( nCells );
 
 	if ( nPart == nCells )
 	{
-		ManualPartition( ggrid, nPart, cellzone );
-		return;
+		return ManualPartition( ggrid );
 	}
 
-	ScalarGetXadjAdjncy( ggrid, xadj, adjncy );
-	ScalarPartitionByMetis( nCells, xadj, adjncy, nPart, cellzone );
+	auto graph = ScalarGetXadjAdjncy( ggrid );
+	return ScalarPartitionByMetis( nCells, graph.first, graph.second, nPart );
 }
 
-void MetisSplit::ScalarGetXadjAdjncy( const ScalarGrid & ggrid, MetisIntList & xadj, MetisIntList & adjncy )
-{   
+std::pair< MetisIntList, MetisIntList > MetisSplit::ScalarGetXadjAdjncy( const ScalarGrid & ggrid )
+{
 	int nCells = ggrid.GetNCells();
 
 	EList c2c;
 	ggrid.CalcC2C( c2c );
 
-	xadj[ 0 ]  = 0;
-	int iCount = 0;
+	MetisIntList xadj( nCells + 1 );
+	MetisIntList adjncy;
+	adjncy.reserve( 2 * ( ggrid.GetNFaces() - ggrid.GetNBFaces() ) );
+
+	xadj[ 0 ] = 0;
 	for ( int iCell = 0; iCell < nCells; ++ iCell )
 	{
 		xadj[ iCell + 1 ] = xadj[ iCell ] + c2c[ iCell ].size();
 		for ( int j = 0; j < c2c[ iCell ].size(); ++ j )
 		{
-			adjncy[ iCount ++ ] = c2c[ iCell ][ j ];
+			adjncy.push_back( c2c[ iCell ][ j ] );
 		}
 	}
+
+	return { std::move( xadj ), std::move( adjncy ) };
 }
 
-void MetisSplit::ScalarPartitionByMetis( idx_t nCells, MetisIntList & xadj, MetisIntList & adjncy, int nPart, MetisIntList & cellzone )
+MetisIntList MetisSplit::ScalarPartitionByMetis( idx_t nCells, const MetisIntList & xadj, const MetisIntList & adjncy, int nPart )
 {
+	MetisIntList cellzone( nCells );
+	MetisIntList metisXadj = xadj;
+	MetisIntList metisAdjncy = adjncy;
 	idx_t   ncon     = 1;
 	idx_t   * vwgt   = 0;
 	idx_t   * vsize  = 0;
@@ -120,53 +120,53 @@ void MetisSplit::ScalarPartitionByMetis( idx_t nCells, MetisIntList & xadj, Meti
 	if ( nZone > 8 )
 	{
 		std::cout << "Using K-way Partitioning!\n";
-		METIS_PartGraphKway( & nCells, & ncon, & xadj[ 0 ], & adjncy[ 0 ], vwgt, vsize, adjwgt, 
+		METIS_PartGraphKway( & nCells, & ncon, & metisXadj[ 0 ], & metisAdjncy[ 0 ], vwgt, vsize, adjwgt, 
 			& nZone, tpwgts, ubvec, options, & objval, & cellzone[ 0 ] );
 	}
 	else
 	{
 		std::cout << "Using Recursive Partitioning!\n";
-		METIS_PartGraphRecursive( & nCells, & ncon, & xadj[ 0 ], & adjncy[ 0 ], vwgt, vsize, adjwgt, 
+		METIS_PartGraphRecursive( & nCells, & ncon, & metisXadj[ 0 ], & metisAdjncy[ 0 ], vwgt, vsize, adjwgt, 
 			& nZone, tpwgts, ubvec, options, & objval, & cellzone[ 0 ] );
 	}
 	std::cout << "The interface number: " << objval << std::endl; 
 	std::cout << "Partition is finished!\n";
+	return cellzone;
 }
 
-void GridPartition::PartitionGrid( const ScalarGrid & ggrid, int nPart, std::vector< std::unique_ptr< ScalarGrid > > & grids )
+std::vector< std::unique_ptr< ScalarGrid > > GridPartition::PartitionGrid( const ScalarGrid & ggrid, int nPart )
 {
-    this->ReconstructGridFaceTopo( ggrid, nPart, grids );
-    this->ReconstructNeighbor( grids );
-    this->ReconstructInterfaceTopo( grids );
-    this->CalcInterfaceToBcFace( grids );
-    this->ReconstructNode( ggrid, grids );
+    std::vector< std::unique_ptr< ScalarGrid > > grids;
+
+    grids = ReconstructGridFaceTopo( ggrid, nPart );
+    ReconstructNeighbor( grids );
+    ReconstructInterfaceTopo( grids );
+    CalcInterfaceToBcFace( grids );
+    ReconstructNode( ggrid, grids );
+
+    return grids;
 }
 
-int GridPartition::GetNZones( const std::vector< std::unique_ptr< ScalarGrid > > & grids ) const
+std::vector< std::unique_ptr< ScalarGrid > > GridPartition::AllocateGrid( int nZones )
 {
-    return static_cast< int >( grids.size() );
-}
-
-void GridPartition::AllocateGrid( int nZones, std::vector< std::unique_ptr< ScalarGrid > > & grids )
-{
+    std::vector< std::unique_ptr< ScalarGrid > > grids;
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
         auto grid = std::make_unique< ScalarGrid >();
         grid->id = iZone;
         grids.push_back( std::move( grid ) );
     }
+    return grids;
 }
 
-void GridPartition::ReconstructGridFaceTopo( const ScalarGrid & ggrid, int nPart, std::vector< std::unique_ptr< ScalarGrid > > & grids )
+std::vector< std::unique_ptr< ScalarGrid > > GridPartition::ReconstructGridFaceTopo( const ScalarGrid & ggrid, int nPart )
 {
 	//calc cellzone;
-	MetisSplit metisSplit;
-	MetisIntList cellzone;
-	metisSplit.MetisPartition( ggrid, nPart, cellzone );
+	MetisIntList cellzone = MetisSplit::MetisPartition( ggrid, nPart );
 
-	this->AllocateGrid( nPart, grids );
+	std::vector< std::unique_ptr< ScalarGrid > > grids = AllocateGrid( nPart );
 
-	int nZones = this->GetNZones( grids );
+	int nZones = static_cast< int >( grids.size() );
 	int nFaces = ggrid.GetNFaces();
 	int nCells = ggrid.GetNCells();
 	int nBFaces = ggrid.GetNBFaces();
@@ -252,11 +252,12 @@ void GridPartition::ReconstructGridFaceTopo( const ScalarGrid & ggrid, int nPart
 			grid.AddInnerFace( iFace, bctype, localCell_L, localCell_R );
 		}
 	}
+    return grids;
 }
 
 void GridPartition::ReconstructInterfaceTopo( std::vector< std::unique_ptr< ScalarGrid > > & grids )
 {
-	int nZones = this->GetNZones( grids );
+	int nZones = static_cast< int >( grids.size() );
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
 		ScalarGrid & grid = *grids[ iZone ];
@@ -288,7 +289,7 @@ void GridPartition::ReconstructInterfaceTopo( std::vector< std::unique_ptr< Scal
 
 void GridPartition::CalcInterfaceToBcFace( std::vector< std::unique_ptr< ScalarGrid > > & grids )
 {
-	int nZones = this->GetNZones( grids );
+	int nZones = static_cast< int >( grids.size() );
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
 		grids[ iZone ]->CalcInterfaceToBcFace();
@@ -297,7 +298,7 @@ void GridPartition::CalcInterfaceToBcFace( std::vector< std::unique_ptr< ScalarG
 
 void GridPartition::ReconstructNeighbor( std::vector< std::unique_ptr< ScalarGrid > > & grids )
 {
-	int nZones = this->GetNZones( grids );
+	int nZones = static_cast< int >( grids.size() );
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
 		ScalarGrid & grid = *grids[ iZone ];
@@ -308,7 +309,7 @@ void GridPartition::ReconstructNeighbor( std::vector< std::unique_ptr< ScalarGri
 
 void GridPartition::ReconstructNode( const ScalarGrid & ggrid, std::vector< std::unique_ptr< ScalarGrid > > & grids )
 {
-	int nZones = this->GetNZones( grids );
+	int nZones = static_cast< int >( grids.size() );
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
 		ScalarGrid & grid = *grids[ iZone ];

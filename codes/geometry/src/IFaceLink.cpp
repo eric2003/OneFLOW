@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*\
+/*---------------------------------------------------------------------------*\\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
@@ -12,13 +12,13 @@ License
 
     OneFLOW is distributed in the hope that it will be useful, but WITHOUT
     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-    for more details.
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
-\*---------------------------------------------------------------------------*/
+\\*---------------------------------------------------------------------------*/
 
 #include "IFaceLink.h"
 #include "Constant.h"
@@ -33,24 +33,27 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-IFaceLink::IFaceLink( Grids & gridsIn )
+IFaceLink::IFaceLink( Grids & gridsIn ) : grids( gridsIn )
 {
-    this->grids = & gridsIn;
-
-    const int nZone = GridsSize( *this->grids );
+    const int nZone = GridsSize( gridsIn );
     this->l2g.resize( nZone );
 
     this->face_search = std::make_unique< FaceSearch >();
     this->point_search = std::make_unique< PointLocator >();
-    this->point_search->Initialize( *this->grids );
+    this->point_search->Initialize( gridsIn );
 }
 
 IFaceLink::~IFaceLink() = default;
 
-void IFaceLink::Init( Grid * grid )
+Grid & IFaceLink::GetGrid( int zoneIndex )
 {
-    int zid = grid->id;
-    int nIFaces = grid->interFace->nIFaces;
+    return GridAt( this->grids, zoneIndex );
+}
+
+void IFaceLink::Init( Grid & grid )
+{
+    int zid = grid.id;
+    int nIFaces = grid.interFace->nIFaces;
 
     this->l2g[ zid ].resize( nIFaces );
 }
@@ -87,7 +90,7 @@ void IFaceLink::CreateLink( IntField & faceNode, int zid, int lCount )
 
 void IFaceLink::ReconstructInterFace()
 {
-    this->face_search->CalcNewFaceId( this );
+    this->face_search->CalcNewFaceId( *this );
 }
 
 void IFaceLink::InitNewLgMapping()
@@ -102,18 +105,18 @@ void IFaceLink::UpdateLgMapping()
     this->g2l = this->g2lNew;
 }
 
-void IFaceLink::MatchInterfaceTopology( Grid * grid )
+void IFaceLink::MatchInterfaceTopology( Grid & grid )
 {
-    InterFace * interFace = grid->interFace.get();
+    InterFace * interFace = grid.interFace.get();
     if ( ! interFace ) return;
 
     int missingPeriodicPartnerCount = 0;
 
-    int nIFaces = this->l2g[ grid->id ].size();
+    int nIFaces = this->l2g[ grid.id ].size();
 
     for ( int iIFace = 0; iIFace < nIFaces; ++ iIFace )
     {
-        int gIFace = this->l2g[ grid->id ][ iIFace ];
+        int gIFace = this->l2g[ grid.id ][ iIFace ];
         int nIZone = this->gI2Zid[ gIFace ].size();
 
         if ( nIZone != 2 )
@@ -131,7 +134,7 @@ void IFaceLink::MatchInterfaceTopology( Grid * grid )
         {
             int nZid = this->gI2Zid[ gIFace ][ iIZone ];
             int lId  = this->g2l[ gIFace ][ iIZone ];
-            if ( ( nZid != grid->id ) ||
+            if ( ( nZid != grid.id ) ||
                  ( lId  != iIFace   ) )
             {
                 interFace->zoneId[ iIFace ] = nZid;
@@ -144,16 +147,16 @@ void IFaceLink::MatchInterfaceTopology( Grid * grid )
               << missingPeriodicPartnerCount << "\n";
 }
 
-void IFaceLink::MatchPeriodicInterface( Grid * grid )
+void IFaceLink::MatchPeriodicInterface( Grid & grid )
 {
-    InterFace * interFace = grid->interFace.get();
+    InterFace * interFace = grid.interFace.get();
     if ( ! interFace ) return;
 
-    int nIFaces = this->l2g[ grid->id ].size();
+    int nIFaces = this->l2g[ grid.id ].size();
 
     for ( int iIFace = 0; iIFace < nIFaces; ++ iIFace )
     {
-        int gIFace = this->l2g[ grid->id ][ iIFace ];
+        int gIFace = this->l2g[ grid.id ][ iIFace ];
         int nIZone = this->gI2Zid[ gIFace ].size();
 
         if ( nIZone == 2 ) continue;
@@ -200,19 +203,19 @@ void IFaceLink::MatchPeriodicInterface( Grid * grid )
     }
 }
 
-void GetFaceCoorList( IntField & faceNode, RealField & xList, RealField & yList, RealField & zList, NodeMesh * nodeMesh )
+void GetFaceCoorList( const IntField & faceNode, RealField & xList, RealField & yList, RealField & zList, const NodeMesh & nodeMesh )
 {
     int nPoint = faceNode.size();
     for ( int iNode = 0; iNode < nPoint; ++ iNode )
     {
         int gN = faceNode[ iNode ];
-        xList[ iNode ] = nodeMesh->xN[ gN ];
-        yList[ iNode ] = nodeMesh->yN[ gN ];
-        zList[ iNode ] = nodeMesh->zN[ gN ];
+        xList[ iNode ] = nodeMesh.xN[ gN ];
+        yList[ iNode ] = nodeMesh.yN[ gN ];
+        zList[ iNode ] = nodeMesh.zN[ gN ];
     }
 }
 
-void GetCoorIdList( IFaceLink * iFaceLink, RealField & xList, RealField & yList, RealField & zList, int nPoint, IntField & pointId )
+void GetCoorIdList( IFaceLink & iFaceLink, RealField & xList, RealField & yList, RealField & zList, int nPoint, IntField & pointId )
 {
     for ( int iNode = 0; iNode < nPoint; ++ iNode )
     {
@@ -220,7 +223,7 @@ void GetCoorIdList( IFaceLink * iFaceLink, RealField & xList, RealField & yList,
         Real ym = yList[ iNode ];
         Real zm = zList[ iNode ];
 
-        pointId[ iNode ] = iFaceLink->point_search->AddPoint( xm, ym, zm );
+        pointId[ iNode ] = iFaceLink.point_search->AddPoint( xm, ym, zm );
     }
 }
 
