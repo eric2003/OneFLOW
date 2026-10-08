@@ -100,8 +100,6 @@ public:
     void AllocPart();
     void BuildCalculationalGrid( UnsGrid & ggrid );
     void BuildCalculationalGrid( UnsGrid & ggrid, int zid );
-    void PreProcess();
-    void PostProcess();
 public:
     void CalcG2lCell( UnsGrid & ggrid );
     void CalcG2lFace( UnsGrid & ggrid, int zid, UnsGrid & grid );
