@@ -59,11 +59,11 @@ public:
     Grids * grids{ nullptr };
 public:
     void Init( Grid & grid );
-    Grid * GetGrid( int zoneIndex ) { return &GridAt( *grids, zoneIndex ); }
+    Grid & GetGrid( int zoneIndex ) { return GridAt( *grids, zoneIndex ); }
 public:
     void CreateLink( IntField & faceNode, int zid, int lCount );
-    void MatchInterfaceTopology( Grid * grid );
-    void MatchPeriodicInterface( Grid * grid );
+    void MatchInterfaceTopology( Grid & grid );
+    void MatchPeriodicInterface( Grid & grid );
     void MatchPeoridicInterface( Grid * grid ) { MatchPeriodicInterface( grid ); }
     void ReconstructInterFace();
 protected:

@@ -275,7 +275,7 @@ void CalcGrid::MatchInterfaceTopology()
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         Grid * grid = &GridAt( grids, iZone );
-        this->iFaceLink->MatchInterfaceTopology( grid );
+        this->iFaceLink->MatchInterfaceTopology( *grid );
     }
 }
 

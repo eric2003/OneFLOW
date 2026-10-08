@@ -102,14 +102,14 @@ void IFaceLink::UpdateLgMapping()
     this->g2l = this->g2lNew;
 }
 
-void IFaceLink::MatchInterfaceTopology( Grid * grid )
+void IFaceLink::MatchInterfaceTopology( Grid & grid )
 {
-    InterFace * interFace = grid->interFace.get();
+    InterFace * interFace = grid.interFace.get();
     if ( ! interFace ) return;
 
     int missingPeriodicPartnerCount = 0;
 
-    int nIFaces = this->l2g[ grid->id ].size();
+    int nIFaces = this->l2g[ grid.id ].size();
 
     for ( int iIFace = 0; iIFace < nIFaces; ++ iIFace )
     {
@@ -131,7 +131,7 @@ void IFaceLink::MatchInterfaceTopology( Grid * grid )
         {
             int nZid = this->gI2Zid[ gIFace ][ iIZone ];
             int lId  = this->g2l[ gIFace ][ iIZone ];
-            if ( ( nZid != grid->id ) ||
+            if ( ( nZid != grid.id ) ||
                  ( lId  != iIFace   ) )
             {
                 interFace->zoneId[ iIFace ] = nZid;
@@ -144,9 +144,9 @@ void IFaceLink::MatchInterfaceTopology( Grid * grid )
               << missingPeriodicPartnerCount << "\n";
 }
 
-void IFaceLink::MatchPeriodicInterface( Grid * grid )
+void IFaceLink::MatchPeriodicInterface( Grid & grid )
 {
-    InterFace * interFace = grid->interFace.get();
+    InterFace * interFace = grid.interFace.get();
     if ( ! interFace ) return;
 
     int nIFaces = this->l2g[ grid->id ].size();
