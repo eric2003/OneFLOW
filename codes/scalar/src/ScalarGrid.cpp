@@ -480,7 +480,7 @@ void ScalarGrid::CalcBoundarySection( SectionManager * bcSectionManager )
 
 		for ( int iElement = 0; iElement < nElements; ++ iElement )
 		{
-			int eType = scalarBcco->eTypes[ iElement ];
+			int eType = scalarBcco.eTypes[ iElement ];
 			typeSet.insert( eType );
 		}
 	}
@@ -491,8 +491,8 @@ void ScalarGrid::CalcBoundarySection( SectionManager * bcSectionManager )
 
 	for ( int iBcco = 0; iBcco < nBccos; ++ iBcco )
 	{
-		ScalarBcco * scalarBcco = scalarBccos->bccos[ iBcco ].get();
-		int nElements = scalarBcco->eTypes.GetNElements();
+		ScalarBcco & scalarBcco = *scalarBccos->bccos[ iBcco ];
+		int nElements = scalarBcco.eTypes.GetNElements();
 		scalarBcco.local_globalIds.Resize( nElements );
 	}
 
@@ -507,17 +507,17 @@ void ScalarGrid::CalcBoundarySection( SectionManager * bcSectionManager )
 		sectionMarker->name = ElementTypeName[ sectionMarker->cgns_type ];
 		for ( int iBcco = 0; iBcco < nBccos; ++ iBcco )
 		{
-			ScalarBcco * scalarBcco = scalarBccos->bccos[ iBcco ].get();
-			int nElements = scalarBcco->eTypes.GetNElements();
+			ScalarBcco & scalarBcco = *scalarBccos->bccos[ iBcco ];
+			int nElements = scalarBcco.eTypes.GetNElements();
 
 			for ( int iElement = 0; iElement < nElements; ++ iElement )
 			{
-				int eType = scalarBcco->eTypes[ iElement ];
+				int eType = scalarBcco.eTypes[ iElement ];
 				if ( eType == current_eType )
 				{
 					sectionMarker->elements.push_back( scalarBcco.elements[ iElement ] );
 					sectionMarker->elementIds.push_back( globalElementId );
-					scalarBcco->local_globalIds[ iElement ] = globalElementId;
+					scalarBcco.local_globalIds[ iElement ] = globalElementId;
 					++ globalElementId;
 				}
 			}
