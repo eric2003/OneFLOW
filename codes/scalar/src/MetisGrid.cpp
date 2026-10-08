@@ -75,6 +75,7 @@ MetisIntList MetisSplit::MetisPartition( const ScalarGrid & ggrid, int nPart )
 
 	MetisIntList xadj( nCells + 1 );
 	MetisIntList adjncy( 2 * nInnerFaces );
+	ScalarGetXadjAdjncy( ggrid, xadj, adjncy );
 	return ScalarPartitionByMetis( nCells, xadj, adjncy, nPart );
 }
 
