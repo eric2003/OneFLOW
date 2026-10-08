@@ -10,10 +10,10 @@ License
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-    for more details.
+    OneFLOW is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
@@ -63,9 +63,9 @@ void CgnsZbc1to1::AddCgns1To1BcRegion( std::unique_ptr< CgnsBc1to1 > cgnsBc1to1 
     bc1to1->bcId = id;
 }
 
-CgnsBc1to1 * CgnsZbc1to1::GetCgnsBcRegion1to1( int i1to1 )
+CgnsBc1to1 & CgnsZbc1to1::GetCgnsBcRegion1to1( int i1to1 )
 {
-    return this->cgnsBc1to1s[ i1to1 ].get();
+    return *this->cgnsBc1to1s[ i1to1 ];
 }
 
 void CgnsZbc1to1::PrintZn1to1()
@@ -85,8 +85,8 @@ void CgnsZbc1to1::ConvertToInnerDataStandard()
 {
     for ( int i1to1 = 0; i1to1 < this->n1to1; ++ i1to1 )
     {
-        CgnsBc1to1 * cgnsBc1to1 = this->GetCgnsBcRegion1to1( i1to1 );
-        cgnsBc1to1->ConvertToInnerDataStandard();
+        CgnsBc1to1 & cgnsBc1to1 = this->GetCgnsBcRegion1to1( i1to1 );
+        cgnsBc1to1.ConvertToInnerDataStandard();
     }
 }
 
@@ -116,8 +116,8 @@ void CgnsZbc1to1::ReadCgnsZbc1to1()
 
     for ( int i1to1 = 0; i1to1 < this->n1to1; ++ i1to1 )
     {
-        CgnsBc1to1 * cgnsBc1to1 = this->GetCgnsBcRegion1to1( i1to1 );
-        cgnsBc1to1->ReadCgnsBc1To1();
+        CgnsBc1to1 & cgnsBc1to1 = this->GetCgnsBcRegion1to1( i1to1 );
+        cgnsBc1to1.ReadCgnsBc1To1();
     }
 }
 void CgnsZbc1to1::DumpCgnsZbc1to1()
@@ -126,8 +126,8 @@ void CgnsZbc1to1::DumpCgnsZbc1to1()
 
     for ( int i1to1 = 0; i1to1 < this->n1to1; ++ i1to1 )
     {
-        CgnsBc1to1 * cgnsBc1to1 = this->GetCgnsBcRegion1to1( i1to1 );
-        cgnsBc1to1->DumpCgnsBc1To1();
+        CgnsBc1to1 & cgnsBc1to1 = this->GetCgnsBcRegion1to1( i1to1 );
+        cgnsBc1to1.DumpCgnsBc1To1();
     }
 }
 

@@ -10,10 +10,10 @@ License
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-    for more details.
+    OneFLOW is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
@@ -55,7 +55,7 @@ public:
     CgnsZone & cgnsZone;
 public:
     void AddCgns1To1BcRegion( std::unique_ptr< CgnsBc1to1 > cgnsBc1to1 );
-    CgnsBc1to1 * GetCgnsBcRegion1to1( int i1to1 );
+    CgnsBc1to1 & GetCgnsBcRegion1to1( int i1to1 );
     void CreateCgnsZbc();
     void ConvertToInnerDataStandard();
     void ReadZn1to1( int n1to1 );

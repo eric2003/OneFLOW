@@ -10,10 +10,10 @@ License
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-    for more details.
+    OneFLOW is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
@@ -65,9 +65,9 @@ void CgnsZbcConn::AddCgnsConnBcRegion( std::unique_ptr< CgnsBcConn > cgnsBcConn 
     bcConn->bcId = id;
 }
 
-CgnsBcConn * CgnsZbcConn::GetCgnsBc( int iConn )
+CgnsBcConn & CgnsZbcConn::GetCgnsBc( int iConn )
 {
-    return this->cgnsBcConns[ iConn ].get();
+    return *this->cgnsBcConns[ iConn ];
 }
 
 void CgnsZbcConn::CreateCgnsZbc()
@@ -105,8 +105,8 @@ void CgnsZbcConn::ReadCgnsZbcConn()
     this->CreateCgnsZbc();
     for ( int iConn = 0; iConn < this->nConn; ++ iConn )
     {
-        CgnsBcConn * cgnsBcConn = this->GetCgnsBc( iConn );
-        cgnsBcConn->ReadCgnsBcConn();
+        CgnsBcConn & cgnsBcConn = this->GetCgnsBc( iConn );
+        cgnsBcConn.ReadCgnsBcConn();
     }
 }
 
@@ -115,8 +115,8 @@ void CgnsZbcConn::DumpCgnsZbcConn()
     this->PrintZnconn();
     for ( int iConn = 0; iConn < this->nConn; ++ iConn )
     {
-        CgnsBcConn * cgnsBcConn = this->GetCgnsBc( iConn );
-        cgnsBcConn->DumpCgnsBcConn();
+        CgnsBcConn & cgnsBcConn = this->GetCgnsBc( iConn );
+        cgnsBcConn.DumpCgnsBcConn();
     }
 }
 
@@ -124,8 +124,8 @@ void CgnsZbcConn::SetPeriodicBc()
 {
     for ( int iConn = 0; iConn < this->nConn; ++ iConn )
     {
-        CgnsBcConn * cgnsBcConn = this->GetCgnsBc( iConn );
-        cgnsBcConn->SetPeriodicBc();
+        CgnsBcConn & cgnsBcConn = this->GetCgnsBc( iConn );
+        cgnsBcConn.SetPeriodicBc();
     }
 }
 
@@ -133,8 +133,8 @@ void CgnsZbcConn::ConvertToInnerDataStandard()
 {
     for ( int iConn = 0; iConn < this->nConn; ++ iConn )
     {
-        CgnsBcConn * cgnsBcConn = this->GetCgnsBc( iConn );
-        cgnsBcConn->ConvertToInnerDataStandard();
+        CgnsBcConn & cgnsBcConn = this->GetCgnsBc( iConn );
+        cgnsBcConn.ConvertToInnerDataStandard();
     }
 }
 
