@@ -382,7 +382,6 @@ void Cylinder::GeneDomain()
     TransfiniteInterpolation( domain_data.y, ni, nj );
     TransfiniteInterpolation( domain_data.z, ni, nj );
 
-    this->beta = 1.002;
     RealField nbx, nby, nbz;
     s1->CalcNormal( nbx, nby, nbz );
     nbx[ 0 ] = - 1.0;
