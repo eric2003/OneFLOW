@@ -138,11 +138,11 @@ std::vector< std::unique_ptr< ScalarGrid > > GridPartition::PartitionGrid( const
 {
     std::vector< std::unique_ptr< ScalarGrid > > grids;
 
-    grids = this->ReconstructGridFaceTopo( ggrid, nPart );
-    this->ReconstructNeighbor( grids );
-    this->ReconstructInterfaceTopo( grids );
-    this->CalcInterfaceToBcFace( grids );
-    this->ReconstructNode( ggrid, grids );
+    grids = ReconstructGridFaceTopo( ggrid, nPart );
+    ReconstructNeighbor( grids );
+    ReconstructInterfaceTopo( grids );
+    CalcInterfaceToBcFace( grids );
+    ReconstructNode( ggrid, grids );
 
     return grids;
 }
@@ -162,10 +162,9 @@ std::vector< std::unique_ptr< ScalarGrid > > GridPartition::AllocateGrid( int nZ
 std::vector< std::unique_ptr< ScalarGrid > > GridPartition::ReconstructGridFaceTopo( const ScalarGrid & ggrid, int nPart )
 {
 	//calc cellzone;
-	MetisSplit metisSplit;
-	MetisIntList cellzone = metisSplit.MetisPartition( ggrid, nPart );
+	MetisIntList cellzone = MetisSplit::MetisPartition( ggrid, nPart );
 
-	std::vector< std::unique_ptr< ScalarGrid > > grids = this->AllocateGrid( nPart );
+	std::vector< std::unique_ptr< ScalarGrid > > grids = AllocateGrid( nPart );
 
 	int nZones = static_cast< int >( grids.size() );
 	int nFaces = ggrid.GetNFaces();

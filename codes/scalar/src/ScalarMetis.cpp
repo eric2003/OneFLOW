@@ -83,9 +83,8 @@ void ScalarMetis::Run()
     int scalar_npart = ONEFLOW::GetDataValue< int >( "scalar_npart" );
     std::cout << " scalar_npart = " << scalar_npart << "\n";
 
-    GridPartition gridPartition;
     std::vector< std::unique_ptr< ScalarGrid > > part_grids =
-        gridPartition.PartitionGrid( root_grid, scalar_npart );
+        GridPartition::PartitionGrid( root_grid, scalar_npart );
 
     ScalarDumpGrid( scalar_grid_filename, part_grids );
     ScalarMetisAddZoneGrid( std::move( part_grids ) );
