@@ -443,8 +443,8 @@ void UnsGrid::ReGenerateLgMapping( IFaceLink * iFaceLink )
     //modify the face node indexes
     //modify the face node number
 
-    this->GetFaceTopo().ModifyFaceNodeId( iFaceLink );
-    this->GetFaceTopo().ModifyBoundaryInformation( iFaceLink );
+    this->GetFaceTopo().ModifyFaceNodeId( *iFaceLink );
+    this->GetFaceTopo().ModifyBoundaryInformation( *iFaceLink );
 }
 
 void UnsGrid::UpdateOtherTopologyTerm( IFaceLink * iFaceLink )

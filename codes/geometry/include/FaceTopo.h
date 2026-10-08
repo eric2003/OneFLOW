@@ -88,12 +88,12 @@ public:
     bool HasInterfaceBoundary() const;
     void ResizeAll();
 public:
-    void ModifyFaceNodeId( IFaceLink * iFaceLink );
-    void SetNewFace2Node( IFaceLink * iFaceLink );
-    void SetNewFace2Cell( IFaceLink * iFaceLink );
-    void ModifyBoundaryInformation( IFaceLink * iFaceLink );
-    void ResetNumberOfBoundaryCondition( IFaceLink * iFaceLink );
-    void ConstructNewInterfaceMap( IFaceLink * iFaceLink );
+    void ModifyFaceNodeId( IFaceLink & iFaceLink );
+    void SetNewFace2Node( IFaceLink & iFaceLink );
+    void SetNewFace2Cell( IFaceLink & iFaceLink );
+    void ModifyBoundaryInformation( IFaceLink & iFaceLink );
+    void ResetNumberOfBoundaryCondition( IFaceLink & iFaceLink );
+    void ConstructNewInterfaceMap( IFaceLink & iFaceLink );
     void UpdateOtherTopologyTerm();
     void GenerateI2B( InterFace & interFace );
 public:

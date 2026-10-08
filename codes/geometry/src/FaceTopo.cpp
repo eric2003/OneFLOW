@@ -156,13 +156,13 @@ void FaceTopo::ResizeAll()
     this->rPosition.resize( nFaces );
 }
 
-void FaceTopo::ModifyFaceNodeId( IFaceLink * iFaceLink )
+void FaceTopo::ModifyFaceNodeId( IFaceLink & iFaceLink )
 {
     this->SetNewFace2Node( iFaceLink );
     this->SetNewFace2Cell( iFaceLink );
 }
 
-void FaceTopo::SetNewFace2Node( IFaceLink * iFaceLink )
+void FaceTopo::SetNewFace2Node( IFaceLink & iFaceLink )
 {
     int nBFaces = this->bcManager->bcRecord->GetNBFace();
     this->facesNew.resize( 0 );
@@ -304,7 +304,7 @@ void FaceTopo::SetNewFace2Cell( IFaceLink * iFaceLink )
 }
 
 
-void FaceTopo::ModifyBoundaryInformation( IFaceLink * iFaceLink )
+void FaceTopo::ModifyBoundaryInformation( IFaceLink & iFaceLink )
 {
     //find the new number of boundary faces
     int nBFaces = this->bcManager->bcRecord->GetNBFace();
@@ -363,7 +363,7 @@ void FaceTopo::ModifyBoundaryInformation( IFaceLink * iFaceLink )
     this->ResetNumberOfBoundaryCondition( iFaceLink );
 }
 
-void FaceTopo::ResetNumberOfBoundaryCondition( IFaceLink * iFaceLink )
+void FaceTopo::ResetNumberOfBoundaryCondition( IFaceLink & iFaceLink )
 {
     int nBFaces = this->bcManager->bcRecord->GetNBFace();
 
@@ -406,7 +406,7 @@ void FaceTopo::ResetNumberOfBoundaryCondition( IFaceLink * iFaceLink )
     this->ConstructNewInterfaceMap( iFaceLink );
 }
 
-void FaceTopo::ConstructNewInterfaceMap( IFaceLink * iFaceLink )
+void FaceTopo::ConstructNewInterfaceMap( IFaceLink & iFaceLink )
 {
     int nIFaceNew = iFaceLink->l2gNew[ this->GetGrid().id ].size();
 
