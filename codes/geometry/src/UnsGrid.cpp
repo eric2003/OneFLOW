@@ -378,7 +378,7 @@ void UnsGrid::ModifyBcType( int bcType1, int bcType2 )
     }
 }
 
-void UnsGrid::GenerateLgMapping( IFaceLink * iFaceLink )
+void UnsGrid::GenerateLgMapping( IFaceLink & iFaceLink )
 {
     std::cout << "zoneIndex = " << this->id << std::endl;
 
@@ -394,7 +394,7 @@ void UnsGrid::GenerateLgMapping( IFaceLink * iFaceLink )
 
     if ( nIFaces == 0 ) return;
 
-    iFaceLink->Init( this );
+    iFaceLink.Init( this );
 
     this->GetFaceTopo().GenerateI2B( *this->interFace );
 
@@ -420,8 +420,8 @@ void UnsGrid::GenerateLgMapping( IFaceLink * iFaceLink )
         zList.resize( nNodes );
 
         ONEFLOW::GetFaceCoorList( faceNode, xList, yList, zList, this->nodeMesh.get() );
-        ONEFLOW::GetCoorIdList( iFaceLink, xList, yList, zList, nNodes, gINode );
-        iFaceLink->CreateLink( gINode, this->id, lCount );
+        ONEFLOW::GetCoorIdList( &iFaceLink, xList, yList, zList, nNodes, gINode );
+        iFaceLink.CreateLink( gINode, this->id, lCount );
 
         ++ lCount;
     }
@@ -429,7 +429,7 @@ void UnsGrid::GenerateLgMapping( IFaceLink * iFaceLink )
     std::cout << "local interface count = " << lCount << std::endl;
 }
 
-void UnsGrid::ReGenerateLgMapping( IFaceLink * iFaceLink )
+void UnsGrid::ReGenerateLgMapping( IFaceLink & iFaceLink )
 {
     std::cout << "zoneIndex = " << this->id << std::endl;
 
@@ -443,17 +443,17 @@ void UnsGrid::ReGenerateLgMapping( IFaceLink * iFaceLink )
     //modify the face node indexes
     //modify the face node number
 
-    this->GetFaceTopo().ModifyFaceNodeId( *iFaceLink );
-    this->GetFaceTopo().ModifyBoundaryInformation( *iFaceLink );
+    this->GetFaceTopo().ModifyFaceNodeId( iFaceLink );
+    this->GetFaceTopo().ModifyBoundaryInformation( iFaceLink );
 }
 
-void UnsGrid::UpdateOtherTopologyTerm( IFaceLink * iFaceLink )
+void UnsGrid::UpdateOtherTopologyTerm( IFaceLink & iFaceLink )
 {
     if ( ! IsValid( this->interFace.get() ) ) return;
 
     this->GetFaceTopo().UpdateOtherTopologyTerm();
 
-    int nIFaces = iFaceLink->l2g[ this->id ].size();
+    int nIFaces = iFaceLink.l2g[ this->id ].size();
 
     this->interFace->Resize( nIFaces );
     this->GetFaceTopo().GenerateI2B( *this->interFace );

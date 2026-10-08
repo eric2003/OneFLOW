@@ -94,9 +94,9 @@ public:
     virtual void ReadGrid( DataBook * databook ){};
     virtual void WriteGrid( DataBook * databook ){};
     virtual void ModifyBcType( int bcType1, int bcType2 ) {};
-    virtual void GenerateLgMapping( IFaceLink * iFaceLink ){};
-    virtual void ReGenerateLgMapping( IFaceLink * iFaceLink ){};
-    virtual void UpdateOtherTopologyTerm( IFaceLink * iFaceLink ){};
+    virtual void GenerateLgMapping( IFaceLink & iFaceLink ){};
+    virtual void ReGenerateLgMapping( IFaceLink & iFaceLink ){};
+    virtual void UpdateOtherTopologyTerm( IFaceLink & iFaceLink ){};
 public:
     virtual void GetMinMaxDistance( Real & dismin, Real & dismax ) {};
     virtual void CalcMetrics() {};
