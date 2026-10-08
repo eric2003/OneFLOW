@@ -696,12 +696,12 @@ void ScalarGrid::ReadFromCgnsZone( CgnsZone & cgnsZone )
 {
 	std::cout << "   Convert Cgns Section Data to ScalarGrid......\n";
 	std::cout << "\n";
-	CgnsZsection * cgnsZsection = cgnsZone.cgnsZsection.get();
-	const int nSections = cgnsZsection->GetNSections();
+	CgnsZsection & cgnsZsection = *cgnsZone.cgnsZsection;
+	const int nSections = cgnsZsection.GetNSections();
 	for ( int iSection = 0; iSection < nSections; ++ iSection )
 	{
 		std::cout << "-->iSection     = " << iSection << " numberOfCgnsSections = " << nSections << "\n";
-		CgnsSection & cgnsSection = cgnsZsection->GetCgnsSection( iSection );
+		CgnsSection & cgnsSection = cgnsZsection.GetCgnsSection( iSection );
 
 		if ( ! ONEFLOW::IsBasicVolumeElementType( cgnsSection.eType ) ) continue;
 
@@ -715,13 +715,13 @@ void ScalarGrid::ReadFromCgnsZone( CgnsZone & cgnsZone )
 			this->PushElement( eNodeId, eType );
 		}
 	}
-	CgnsCoor * cgnsCoor = cgnsZone.cgnsCoor.get();
-	NodeMesh * nodeMesh = cgnsCoor->nodeMesh.get();
-	for ( int i = 0; i < nodeMesh->xN.size(); ++ i )
+	CgnsCoor & cgnsCoor = *cgnsZone.cgnsCoor;
+	NodeMesh & nodeMesh = *cgnsCoor.nodeMesh;
+	for ( int i = 0; i < nodeMesh.xN.size(); ++ i )
 	{
-		Real xm = nodeMesh->xN[ i ];
-		Real ym = nodeMesh->yN[ i ];
-		Real zm = nodeMesh->zN[ i ];
+		Real xm = nodeMesh.xN[ i ];
+		Real ym = nodeMesh.yN[ i ];
+		Real zm = nodeMesh.zN[ i ];
 		this->xn.AddData( xm );
 		this->yn.AddData( ym );
 		this->zn.AddData( zm );
