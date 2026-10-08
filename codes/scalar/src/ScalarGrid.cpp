@@ -665,7 +665,7 @@ void ScalarGrid::DumpCgnsGrid()
 
 		int iZone = 0;
 		CgnsZone * cgnsZone = cgnsBase->GetCgnsZone( iZone );
-		this->SetCgnsZone( cgnsZone );
+		this->SetCgnsZone( *cgnsZone );
 	}
 
 	cgnsZbase.cgnsFile->OpenCgnsFile( prjFileName, CG_MODE_WRITE );
