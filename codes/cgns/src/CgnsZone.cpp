@@ -103,6 +103,15 @@ CgnsZsection & CgnsZone::RequireCgnsZsection()
     return *this->cgnsZsection;
 }
 
+const CgnsZsection & CgnsZone::RequireCgnsZsection() const
+{
+    if ( this->cgnsZsection == nullptr )
+    {
+        throw std::logic_error( "CgnsZone: CgnsZsection is not initialized" );
+    }
+    return *this->cgnsZsection;
+}
+
 CgnsZbc & CgnsZone::RequireCgnsZbc()
 {
     if ( this->cgnsZbc == nullptr )
