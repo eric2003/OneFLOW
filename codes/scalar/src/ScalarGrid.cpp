@@ -701,7 +701,7 @@ void ScalarGrid::ReadFromCgnsZone( CgnsZone * cgnsZone )
 	for ( int iSection = 0; iSection < nSections; ++ iSection )
 	{
 		std::cout << "-->iSection     = " << iSection << " numberOfCgnsSections = " << nSections << "\n";
-		CgnsSection & cgnsSection = cgnsZsection.GetCgnsSection( iSection );
+		CgnsSection & cgnsSection = cgnsZsection->GetCgnsSection( iSection );
 
 		if ( ! ONEFLOW::IsBasicVolumeElementType( cgnsSection.eType ) ) continue;
 
