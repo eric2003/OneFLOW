@@ -161,8 +161,8 @@ namespace
             const std::string & );
     };
 
-    // The factory only selects a workflow. Concrete workflow steps do not
-    // depend on a GridFactory instance.
+    // The public functions only select a workflow. Concrete workflow steps do
+    // not depend on a GridFactory instance.
     constexpr PipelineEntry kPipelines[] = {
         { GridObjective::GenerateClassic, &GenerateClassic },
         { GridObjective::ConvertOnly,     &ConvertOnly },
@@ -189,30 +189,22 @@ namespace
     }
 }
 
-// Generates the grid based on the global configuration.
 void GenerateGrid()
 {
-    GridFactory gf;
-    gf.Run();
+    GenerateGrid( GridConfig::FromDataBase() );
 }
 
 void GenerateGrid( const std::string & caseDir )
 {
-    GridFactory gf;
-    gf.Run( GridConfig::FromDataBase(), caseDir );
+    GenerateGrid( GridConfig::FromDataBase(), caseDir );
 }
 
-void GridFactory::Run()
-{
-    Run( GridConfig::FromDataBase() );
-}
-
-void GridFactory::Run( const GridConfig & config )
+void GenerateGrid( const GridConfig & config )
 {
     DispatchPipeline( config, "" );
 }
 
-void GridFactory::Run(
+void GenerateGrid(
     const GridConfig & config,
     const std::string & caseDir )
 {

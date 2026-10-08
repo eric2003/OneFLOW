@@ -1,5 +1,5 @@
 // tests/geometry/GridFactoryTest.cpp
-// Lifecycle + typed config / mediator unit tests (no file I/O, no global DataBase).
+// Typed grid workflow configuration and mediator unit tests.
 
 #include <gtest/gtest.h>
 
@@ -14,24 +14,22 @@
 
 using namespace ONEFLOW;
 
-// ---------------------------------------------------------------------------
-// GridFactory lifecycle (existing characterization)
-// ---------------------------------------------------------------------------
-
-TEST( GridFactoryLifecycleTest, StackAllocationIsSafe )
+TEST( GridFactoryDispatchTest, UnknownObjectiveThrows )
 {
-    EXPECT_NO_THROW( {
-        GridFactory gf;
-        // Do not call Run(): avoids DataBase / file I/O in unit tests.
-    } );
+    GridConfig cfg;
+    cfg.objective = static_cast< GridObjective >( 42 );
+
+    EXPECT_THROW( GenerateGrid( cfg ), std::invalid_argument );
 }
 
-TEST( GridFactoryLifecycleTest, HeapAllocationAlsoWorksButIsDiscouraged )
+TEST( GridFactoryDispatchTest, UnknownObjectiveWithCaseDirThrows )
 {
-    EXPECT_NO_THROW( {
-        auto * gf = new GridFactory();
-        delete gf;
-    } );
+    GridConfig cfg;
+    cfg.objective = static_cast< GridObjective >( 42 );
+
+    EXPECT_THROW(
+        GenerateGrid( cfg, "test-case" ),
+        std::invalid_argument );
 }
 
 // ---------------------------------------------------------------------------
@@ -150,13 +148,6 @@ TEST( ZgridMediatorTest, AddUniquePtrTakesOwnershipWithTwoZones )
 
 TEST( GridFactoryDispatchTest, UnknownObjectiveThrows )
 {
-    GridFactory gf;
-    GridConfig cfg;
-    // Force an out-of-range objective without going through ParseGridObjective.
-    cfg.objective = static_cast< GridObjective >( 42 );
-
-    EXPECT_THROW( gf.Run( cfg ), std::invalid_argument );
-}
 
 
 TEST( GridOpCatalogTest, AllTokensRoundTrip )

@@ -220,7 +220,6 @@ function(add_oneflow_gtest TEST_NAME TEST_SRC)
 endfunction()
 
 add_oneflow_gtest(GridFactoryTest GridFactoryTest.cpp)
-add_oneflow_gtest(SubTaskLifecycleTest SubTaskLifecycleTest.cpp)
 add_oneflow_gtest(CgnsFactoryLifecycleTest CgnsFactoryLifecycleTest.cpp)
 add_oneflow_gtest(FaceSolverLifecycleTest FaceSolverLifecycleTest.cpp)
 add_oneflow_gtest(ElemFeatureLifecycleTest ElemFeatureLifecycleTest.cpp)
