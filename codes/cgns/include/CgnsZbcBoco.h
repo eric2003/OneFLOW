@@ -47,8 +47,12 @@ public:
     explicit CgnsZbcBoco( CgnsZone & cgnsZone );
     ~CgnsZbcBoco();
 public:
+private:
     int nBoco;
     HXVector< std::unique_ptr< CgnsBcBoco > > cgnsBcBocos;
+
+public:
+    int GetNBoco() const;
     CgnsZone & cgnsZone;
 public:
     void AddCgnsBcBoco( CgnsBcBoco * cgnsBcBoco );

@@ -52,6 +52,11 @@ CgnsZbcConn::CgnsZbcConn( CgnsZone & cgnsZone )
 
 CgnsZbcConn::~CgnsZbcConn() = default;
 
+int CgnsZbcConn::GetNConn() const
+{
+    return this->nConn;
+}
+
 void CgnsZbcConn::AddCgnsConnBcRegion( CgnsBcConn * cgnsBcConn )
 {
     this->AddCgnsConnBcRegion( std::unique_ptr< CgnsBcConn >( cgnsBcConn ) );

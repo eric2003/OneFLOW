@@ -497,7 +497,7 @@ void GenerateUnsBcCondConn( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
 
     CgInt startId = cgnsSection.startId;
 
-    int nBoco = cgnsZoneIn->RequireCgnsZbc().RequireCgnsZbcBoco().nBoco;
+    int nBoco = cgnsZoneIn->RequireCgnsZbc().RequireCgnsZbcBoco().GetNBoco();
     for ( int iBoco = 0; iBoco < nBoco; ++ iBoco )
     {
         CgnsBcBoco * bcRegion    = myZone    ->RequireCgnsZbc().RequireCgnsZbcBoco().GetCgnsBc( iBoco );

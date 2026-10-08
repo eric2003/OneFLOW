@@ -626,7 +626,7 @@ void ScalarGrid::SetCgnsZone( CgnsZone & cgnsZone )
 	cgnsZbcBoco.CreateCgnsZbc();
 
 	int currentBcElementPosition = nVolCell;
-	for ( int iBcco = 0; iBcco < cgnsZbcBoco.nBoco; ++ iBcco )
+	for ( int iBcco = 0; iBcco < cgnsZbcBoco.GetNBoco(); ++ iBcco )
 	{
 		CgnsBcBoco * cgnsBcBoco = cgnsZbcBoco.GetCgnsBc( iBcco );
 		ScalarBcco & scalarBcco = *scalarBccos->bccos[ iBcco ];

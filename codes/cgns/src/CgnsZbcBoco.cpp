@@ -51,6 +51,11 @@ CgnsZbcBoco::CgnsZbcBoco( CgnsZone & cgnsZone )
 
 CgnsZbcBoco::~CgnsZbcBoco() = default;
 
+int CgnsZbcBoco::GetNBoco() const
+{
+    return this->nBoco;
+}
+
 void CgnsZbcBoco::AddCgnsBcBoco( CgnsBcBoco * cgnsBcBoco )
 {
     this->AddCgnsBcBoco( std::unique_ptr< CgnsBcBoco >( cgnsBcBoco ) );

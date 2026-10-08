@@ -50,6 +50,11 @@ CgnsZbc1to1::CgnsZbc1to1( CgnsZone & cgnsZone )
 
 CgnsZbc1to1::~CgnsZbc1to1() = default;
 
+int CgnsZbc1to1::GetN1to1() const
+{
+    return this->n1to1;
+}
+
 void CgnsZbc1to1::AddCgns1To1BcRegion( CgnsBc1to1 * cgnsBc1to1 )
 {
     this->AddCgns1To1BcRegion( std::unique_ptr< CgnsBc1to1 >( cgnsBc1to1 ) );

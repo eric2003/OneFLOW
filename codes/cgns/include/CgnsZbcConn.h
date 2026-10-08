@@ -48,9 +48,12 @@ public:
     explicit CgnsZbcConn( CgnsZone & cgnsZone );
     ~CgnsZbcConn();
 public:
+private:
     int nConn;
     HXVector< std::unique_ptr< CgnsBcConn > > cgnsBcConns;
-    
+
+public:
+    int GetNConn() const;
     CgnsZone & cgnsZone;
 public:
     void AddCgnsConnBcRegion( CgnsBcConn * cgnsBcConn );

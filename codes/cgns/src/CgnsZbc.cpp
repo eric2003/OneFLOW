@@ -248,13 +248,13 @@ void CgnsZbc::DumpCgnsGridBoundary( Grid * gridIn, const Grids & grids )
 
 void CgnsZbc::CreateCgnsZbc( CgnsZbc * cgnsZbcIn )
 {
-    this->RequireCgnsZbcBoco().ReadZnboco( cgnsZbcIn->RequireCgnsZbcBoco().nBoco );
+    this->RequireCgnsZbcBoco().ReadZnboco( cgnsZbcIn->RequireCgnsZbcBoco().GetNBoco() );
     this->RequireCgnsZbcBoco().CreateCgnsZbc();
 
-    this->RequireCgnsZbc1to1().ReadZn1to1( cgnsZbcIn->RequireCgnsZbc1to1().n1to1 );
+    this->RequireCgnsZbc1to1().ReadZn1to1( cgnsZbcIn->RequireCgnsZbc1to1().GetN1to1() );
     this->RequireCgnsZbc1to1().CreateCgnsZbc();
 
-    this->RequireCgnsZbcConn().ReadZnconn( cgnsZbcIn->RequireCgnsZbcConn().nConn );
+    this->RequireCgnsZbcConn().ReadZnconn( cgnsZbcIn->RequireCgnsZbcConn().GetNConn() );
     this->RequireCgnsZbcConn().CreateCgnsZbc();
 }
 
