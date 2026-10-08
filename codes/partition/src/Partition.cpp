@@ -508,6 +508,8 @@ void Partition::SetGeometricRelationship( UnsGrid & ggrid, int zid, UnsGrid & gr
 
 void Partition::CalcF2N( UnsGrid & ggrid, int zid, UnsGrid & grid )
 {
+    G2LMapping & mapping = *this->g2l;
+
     LinkField & f2n = grid.GetFaceTopo().GetFaces();
     LinkField & gf2n = ggrid.GetFaceTopo().GetFaces();
 
@@ -523,7 +525,7 @@ void Partition::CalcF2N( UnsGrid & ggrid, int zid, UnsGrid & grid )
         for ( int iNode = 0; iNode < nFNode; ++ iNode )
         {
             int gnid = gf2n[ gfid ][ iNode ];
-            int nid  = g2l->g2l_node[ gnid ];
+            int nid  = mapping.g2l_node[ gnid ];
             f2n[ fid ].push_back( nid );
         }
     }
