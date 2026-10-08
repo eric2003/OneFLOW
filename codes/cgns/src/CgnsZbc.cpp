@@ -54,6 +54,24 @@ CgnsZbc::CgnsZbc( CgnsZone & cgnsZone )
 
 CgnsZbc::~CgnsZbc() = default;
 
+CgnsZbcConn & CgnsZbc::RequireCgnsZbcConn()
+{
+    if ( this->cgnsZbcConn == nullptr )
+    {
+        throw std::logic_error( "CgnsZbc: CgnsZbcConn is not initialized" );
+    }
+    return *this->cgnsZbcConn;
+}
+
+CgnsZbc1to1 & CgnsZbc::RequireCgnsZbc1to1()
+{
+    if ( this->cgnsZbc1to1 == nullptr )
+    {
+        throw std::logic_error( "CgnsZbc: CgnsZbc1to1 is not initialized" );
+    }
+    return *this->cgnsZbc1to1;
+}
+
 CgnsZbcBoco & CgnsZbc::RequireCgnsZbcBoco()
 {
     if ( this->cgnsZbcBoco == nullptr )
@@ -65,11 +83,11 @@ CgnsZbcBoco & CgnsZbc::RequireCgnsZbcBoco()
 
 void CgnsZbc::ConvertToInnerDataStandard()
 {
-    this->cgnsZbcBoco->ConvertToInnerDataStandard();
+    this->RequireCgnsZbcBoco().ConvertToInnerDataStandard();
 
-    this->cgnsZbcConn->ConvertToInnerDataStandard();
+    this->RequireCgnsZbcConn().ConvertToInnerDataStandard();
 
-    this->cgnsZbc1to1->ConvertToInnerDataStandard();
+    this->RequireCgnsZbc1to1().ConvertToInnerDataStandard();
 
     this->cgnsZbcBoco->ShiftBcRegion();
 }
@@ -230,13 +248,13 @@ void CgnsZbc::DumpCgnsGridBoundary( Grid * gridIn, const Grids & grids )
 
 void CgnsZbc::CreateCgnsZbc( CgnsZbc * cgnsZbcIn )
 {
-    this->cgnsZbcBoco->ReadZnboco( cgnsZbcIn->cgnsZbcBoco->nBoco );
+    this->cgnsZbcBoco->ReadZnboco( cgnsZbcIn->RequireCgnsZbcBoco().nBoco );
     this->cgnsZbcBoco->CreateCgnsZbc();
 
-    this->cgnsZbc1to1->ReadZn1to1( cgnsZbcIn->cgnsZbc1to1->n1to1 );
+    this->cgnsZbc1to1->ReadZn1to1( cgnsZbcIn->RequireCgnsZbc1to1().n1to1 );
     this->cgnsZbc1to1->CreateCgnsZbc();
 
-    this->cgnsZbcConn->ReadZnconn( cgnsZbcIn->cgnsZbcConn->nConn );
+    this->cgnsZbcConn->ReadZnconn( cgnsZbcIn->RequireCgnsZbcConn().nConn );
     this->cgnsZbcConn->CreateCgnsZbc();
 }
 
