@@ -71,8 +71,6 @@ void ScalarMetis::Run()
     Dim::SetDimension( ONEFLOW::GetDataValue< int >( "dimension" ) );
 
     std::vector< std::unique_ptr< ScalarGrid > > input_grids;
-    std::vector< std::unique_ptr< ScalarGrid > > part_grids;
-
     int dimension = 1;
     std::string root_gridfile = ONEFLOW::GetDataValue< std::string >( "root_gridfile" );
     std::string scalar_grid_filename = ONEFLOW::GetDataValue< std::string >( "scalar_grid_filename" );
@@ -87,7 +85,8 @@ void ScalarMetis::Run()
     std::cout << " scalar_npart = " << scalar_npart << "\n";
 
     GridPartition gridPartition;
-    gridPartition.PartitionGrid( root_grid, scalar_npart, part_grids );
+    std::vector< std::unique_ptr< ScalarGrid > > part_grids =
+        gridPartition.PartitionGrid( root_grid, scalar_npart );
 
     ScalarMetisAddZoneGrid( part_grids );
     ScalarDumpGrid( scalar_grid_filename, part_grids );

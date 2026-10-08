@@ -54,7 +54,7 @@ class ScalarIFace;
 class GridPartition
 {
 public:
-    void PartitionGrid( const ScalarGrid & ggrid, int nPart, std::vector< std::unique_ptr< ScalarGrid > > & grids );
+    std::vector< std::unique_ptr< ScalarGrid > > PartitionGrid( const ScalarGrid & ggrid, int nPart );
 private:
     int GetNZones( const std::vector< std::unique_ptr< ScalarGrid > > & grids ) const;
     void AllocateGrid( int nZones, std::vector< std::unique_ptr< ScalarGrid > > & grids );
