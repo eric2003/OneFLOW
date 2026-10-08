@@ -620,7 +620,7 @@ void ScalarGrid::SetCgnsZone( CgnsZone & cgnsZone )
 		cgnsSection.SetElemPosition();
 	}
 
-	CgnsZbc & cgnsZbc = *cgnsZone.cgnsZbc;
+	CgnsZbc & cgnsZbc = cgnsZone.RequireCgnsZbc();
 	cgnsZbc.cgnsZbcBoco->ReadZnboco( scalarBccos->bccos.size() );
 	cgnsZbc.cgnsZbcBoco->CreateCgnsZbc();
 
@@ -696,7 +696,7 @@ void ScalarGrid::ReadFromCgnsZone( CgnsZone & cgnsZone )
 {
 	std::cout << "   Convert Cgns Section Data to ScalarGrid......\n";
 	std::cout << "\n";
-	CgnsZsection & cgnsZsection = *cgnsZone.cgnsZsection;
+	CgnsZsection & cgnsZsection = cgnsZone.RequireCgnsZsection();
 	const int nSections = cgnsZsection.GetNSections();
 	for ( int iSection = 0; iSection < nSections; ++ iSection )
 	{
@@ -715,7 +715,7 @@ void ScalarGrid::ReadFromCgnsZone( CgnsZone & cgnsZone )
 			this->PushElement( eNodeId, eType );
 		}
 	}
-	CgnsCoor & cgnsCoor = *cgnsZone.cgnsCoor;
+	CgnsCoor & cgnsCoor = cgnsZone.RequireCgnsCoor();
 	NodeMesh & nodeMesh = cgnsCoor.RequireNodeMesh();
 	for ( int i = 0; i < nodeMesh.xN.size(); ++ i )
 	{
