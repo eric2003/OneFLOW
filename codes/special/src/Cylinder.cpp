@@ -116,10 +116,7 @@ void DomainData::Join( const DomainData & d1, const DomainData & d2 )
     }
 }
 
-Cylinder::Cylinder()
-{
-    this->strCurveLoop = std::make_unique< StrCurveLoop >();
-}
+Cylinder::Cylinder() = default;
 
 Cylinder::~Cylinder() = default;
 
@@ -137,10 +134,10 @@ void Cylinder::GenePlate()
 
 void Cylinder::HalfCylinder( const GridConfig & config, const std::string & caseDir )
 {
-    strCurveLoop->ni = 61;
-    strCurveLoop->nj = 81;
-    domain_data.ni = strCurveLoop->ni;
-    domain_data.nj = strCurveLoop->nj;
+    strCurveLoop.ni = 61;
+    strCurveLoop.nj = 81;
+    domain_data.ni = strCurveLoop.ni;
+    domain_data.nj = strCurveLoop.nj;
     domain_data.Alloc();
 
     this->SetBoundaryGrid( config, caseDir );
@@ -335,17 +332,17 @@ void Cylinder::SetBoundaryGrid( const GridConfig & config, const std::string & c
     curve_Machine.AddCircle( p1.id, p3.id, p0.id );
     curve_Machine.AddParabolic( p2.id, p4.id );
 
-    this->strCurveLoop->AddCurve( 0 );
-    this->strCurveLoop->AddCurve( 1 );
-    this->strCurveLoop->AddCurve( 2 );
-    this->strCurveLoop->AddCurve( 3 );
+    this->strCurveLoop.AddCurve( 0 );
+    this->strCurveLoop.AddCurve( 1 );
+    this->strCurveLoop.AddCurve( 2 );
+    this->strCurveLoop.AddCurve( 3 );
 
-    this->strCurveLoop->SetDimension();
+    this->strCurveLoop.SetDimension();
 
-    CurveLine * s1 = this->strCurveLoop->GetCurve( 0 );
-    CurveLine * s2 = this->strCurveLoop->GetCurve( 1 );
-    CurveLine * s3 = this->strCurveLoop->GetCurve( 2 );
-    CurveLine * s4 = this->strCurveLoop->GetCurve( 3 );
+    CurveLine * s1 = this->strCurveLoop.GetCurve( 0 );
+    CurveLine * s2 = this->strCurveLoop.GetCurve( 1 );
+    CurveLine * s3 = this->strCurveLoop.GetCurve( 2 );
+    CurveLine * s4 = this->strCurveLoop.GetCurve( 3 );
 
     s3->GenerateCurveLine();
     s4->GenerateCurveLine();
@@ -355,10 +352,10 @@ void Cylinder::SetBoundaryGrid( const GridConfig & config, const std::string & c
 
 void Cylinder::GeneDomain()
 {
-    CurveLine * s1 = this->strCurveLoop->GetCurve( 0 );
-    CurveLine * s2 = this->strCurveLoop->GetCurve( 1 );
-    CurveLine * s3 = this->strCurveLoop->GetCurve( 2 );
-    CurveLine * s4 = this->strCurveLoop->GetCurve( 3 );
+    CurveLine * s1 = this->strCurveLoop.GetCurve( 0 );
+    CurveLine * s2 = this->strCurveLoop.GetCurve( 1 );
+    CurveLine * s3 = this->strCurveLoop.GetCurve( 2 );
+    CurveLine * s4 = this->strCurveLoop.GetCurve( 3 );
 
     int ni = s1->nNodes;
     int nj = s3->nNodes;

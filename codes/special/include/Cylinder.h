@@ -25,12 +25,10 @@ License
 #include "HXDefine.h"
 #include "Point.h"
 #include "GridTypes.h"
-#include <memory>
+#include "CurveLine.h"
 #include <string>
 
 BeginNameSpace( ONEFLOW )
-
-class CurveLine;
 
 using PointType = Point< Real >;
 
@@ -50,20 +48,23 @@ public:
     void Join( const DomainData & d1, const DomainData & d2 );
 };
 
-class StrCurveLoop;
 
 class Cylinder
 {
 public:
     Cylinder();
     ~Cylinder();
+    Cylinder( const Cylinder & ) = delete;
+    Cylinder & operator = ( const Cylinder & ) = delete;
+    Cylinder( Cylinder && ) = delete;
+    Cylinder & operator = ( Cylinder && ) = delete;
 public:
     DomainData domain_data;
     DomainData symm_domain;
     DomainData final_domain;
     int nZone;
 
-    std::unique_ptr< StrCurveLoop > strCurveLoop;
+    StrCurveLoop strCurveLoop;
 public:
     Real beta;
 public:
