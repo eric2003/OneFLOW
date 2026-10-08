@@ -243,7 +243,7 @@ public:
     void PushElement( CgIntField & eNodeId, int eType );
     void GenerateGridFromCgns( const std::string & prjFileName );
     void DumpCgnsGrid();
-    void SetCgnsZone( CgnsZone * cgnsZone );
+    void SetCgnsZone( CgnsZone & cgnsZone );
 public:
     void CalcVolumeSection( SectionManager & volumeSectionManager );
     void CalcBoundarySection( SectionManager & bcSectionManager );
