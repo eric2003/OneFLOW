@@ -62,8 +62,8 @@ int SectionManager::CalcTotalElem()
     int nElements = 0;
     for ( int i = 0; i < nType; ++ i )
     {
-        SectionMarker * sectionMarker = this->data[ i ].get();
-        nElements += sectionMarker->nElements;
+        SectionMarker & sectionMarker = *this->data[ i ];
+        nElements += sectionMarker.nElements;
     }
     return nElements;
 }
