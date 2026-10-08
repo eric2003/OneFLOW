@@ -56,6 +56,8 @@ public:
 
     CgnsZone & cgnsZone;
 public:
+    CgnsZbcConn & RequireCgnsZbcConn();
+    CgnsZbc1to1 & RequireCgnsZbc1to1();
     CgnsZbcBoco & RequireCgnsZbcBoco();
     void ScanBcFace( FaceSolver & faceSolver );
 public:
