@@ -544,17 +544,17 @@ void ScalarGrid::SetCgnsZone( CgnsZone * cgnsZone )
 	/* boundary vertex size (zero if elements not sorted) */
 	cgnsZone->isize[ 2 ] = 0;
 
-	CgnsCoor * cgnsCoor = cgnsZone->cgnsCoor.get();
+	CgnsCoor & cgnsCoor = *cgnsZone->cgnsCoor;
 
-	cgnsCoor->SetNNode( nNodes );
-	cgnsCoor->SetNCell( nCells );
-	cgnsCoor->nCoor = 3;
+	cgnsCoor.SetNNode( nNodes );
+	cgnsCoor.SetNCell( nCells );
+	cgnsCoor.nCoor = 3;
 
-	cgnsCoor->coorNameList[ 0 ] = "X";
-	cgnsCoor->coorNameList[ 1 ] = "Y";
-	cgnsCoor->coorNameList[ 2 ] = "Z";
+	cgnsCoor.coorNameList[ 0 ] = "X";
+	cgnsCoor.coorNameList[ 1 ] = "Y";
+	cgnsCoor.coorNameList[ 2 ] = "Z";
 
-	NodeMesh * nodeMesh = cgnsCoor->GetNodeMesh();
+	NodeMesh * nodeMesh = cgnsCoor.GetNodeMesh();
 	nodeMesh->CreateNodes( nNodes );
 	nodeMesh->xN = this->xn.data;
 	nodeMesh->yN = this->yn.data;
@@ -562,15 +562,15 @@ void ScalarGrid::SetCgnsZone( CgnsZone * cgnsZone )
 
 	DataType_t dataType = RealDouble;
 
-	for ( int iCoor = 0; iCoor < cgnsCoor->nCoor; ++ iCoor )
+	for ( int iCoor = 0; iCoor < cgnsCoor.nCoor; ++ iCoor )
 	{
 		int coordId = iCoor + 1;
-		cgnsCoor->typeList[ iCoor ] = dataType;
-		cgnsCoor->nNodeList[ iCoor ] = nNodes;
-		cgnsCoor->Alloc( iCoor, static_cast<int>( nNodes ), dataType );
+		cgnsCoor.typeList[ iCoor ] = dataType;
+		cgnsCoor.nNodeList[ iCoor ] = nNodes;
+		cgnsCoor.Alloc( iCoor, static_cast<int>( nNodes ), dataType );
 	}
 
-	cgnsCoor->SetAllCoorData();
+	cgnsCoor.SetAllCoorData();
 
 	SectionManager volSec;
 	SectionManager bcSec;
@@ -583,16 +583,16 @@ void ScalarGrid::SetCgnsZone( CgnsZone * cgnsZone )
 
 	int nTotalSections = nVolSections + nBcSections;
 
-	CgnsZsection * cgnsZsection = cgnsZone->cgnsZsection.get();
+	CgnsZsection & cgnsZsection = *cgnsZone->cgnsZsection;
 
-	cgnsZsection->CreateCgnsSections( nTotalSections );
+	cgnsZsection.CreateCgnsSections( nTotalSections );
 
 	int nVolCell = volSec.CalcTotalElem();
 
 	int currentElementPosition = 0;
 	for ( int iSection = 0; iSection < nTotalSections; ++ iSection )
 	{
-		CgnsSection & cgnsSection = cgnsZsection->GetCgnsSection( iSection );
+		CgnsSection & cgnsSection = cgnsZsection.GetCgnsSection( iSection );
 		SectionMarker & section = iSection < nVolSections
 			? *volSec.data[ iSection ]
 			: *bcSec.data[ iSection - nVolSections ];
@@ -616,18 +616,18 @@ void ScalarGrid::SetCgnsZone( CgnsZone * cgnsZone )
 
 	for ( int iSection = 0; iSection < nTotalSections; ++ iSection )
 	{
-		CgnsSection & cgnsSection = cgnsZsection->GetCgnsSection( iSection );
+		CgnsSection & cgnsSection = cgnsZsection.GetCgnsSection( iSection );
 		cgnsSection.SetElemPosition();
 	}
 
-	CgnsZbc * cgnsZbc = cgnsZone->cgnsZbc.get();
-	cgnsZbc->cgnsZbcBoco->ReadZnboco( scalarBccos->bccos.size() );
-	cgnsZbc->cgnsZbcBoco->CreateCgnsZbc();
+	CgnsZbc & cgnsZbc = *cgnsZone->cgnsZbc;
+	cgnsZbc.cgnsZbcBoco->ReadZnboco( scalarBccos->bccos.size() );
+	cgnsZbc.cgnsZbcBoco->CreateCgnsZbc();
 
 	int currentBcElementPosition = nVolCell;
-	for ( int iBcco = 0; iBcco < cgnsZbc->cgnsZbcBoco->nBoco; ++ iBcco )
+	for ( int iBcco = 0; iBcco < cgnsZbc.cgnsZbcBoco->nBoco; ++ iBcco )
 	{
-		CgnsBcBoco * cgnsBcBoco = cgnsZbc->cgnsZbcBoco->GetCgnsBc( iBcco );
+		CgnsBcBoco * cgnsBcBoco = cgnsZbc.cgnsZbcBoco->GetCgnsBc( iBcco );
 		ScalarBcco & scalarBcco = *scalarBccos->bccos[ iBcco ];
 		int nElements = scalarBcco.eTypes.GetNElements();
 		cgnsBcBoco->name = scalarBcco.bcName;
@@ -697,11 +697,11 @@ void ScalarGrid::ReadFromCgnsZone( CgnsZone * cgnsZone )
 	std::cout << "   Convert Cgns Section Data to ScalarGrid......\n";
 	std::cout << "\n";
 	CgnsZsection * cgnsZsection = cgnsZone->cgnsZsection.get();
-	const int nSections = cgnsZsection->GetNSections();
+	const int nSections = cgnsZsection.GetNSections();
 	for ( int iSection = 0; iSection < nSections; ++ iSection )
 	{
 		std::cout << "-->iSection     = " << iSection << " numberOfCgnsSections = " << nSections << "\n";
-		CgnsSection & cgnsSection = cgnsZsection->GetCgnsSection( iSection );
+		CgnsSection & cgnsSection = cgnsZsection.GetCgnsSection( iSection );
 
 		if ( ! ONEFLOW::IsBasicVolumeElementType( cgnsSection.eType ) ) continue;
 
@@ -716,7 +716,7 @@ void ScalarGrid::ReadFromCgnsZone( CgnsZone * cgnsZone )
 		}
 	}
 	CgnsCoor * cgnsCoor = cgnsZone->cgnsCoor.get();
-	NodeMesh * nodeMesh = cgnsCoor->nodeMesh.get();
+	NodeMesh * nodeMesh = cgnsCoor.nodeMesh.get();
 	for ( int i = 0; i < nodeMesh->xN.size(); ++ i )
 	{
 		Real xm = nodeMesh->xN[ i ];
