@@ -36,8 +36,12 @@ void ExecuteGridConversion(
     const GridConfig & config,
     const std::string & caseDir );
 
-void ExecuteDomainInpWorkflow();
+void ExecuteDomainInpWorkflow(
+    const GridConfig & config,
+    const std::string & caseDir );
 
-void ExecutePartitionWorkflow();
+void ExecutePartitionWorkflow(
+    const GridConfig & config,
+    const std::string & caseDir );
 
 EndNameSpace
