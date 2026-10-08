@@ -238,8 +238,8 @@ public:
     void AllocateBc();
     void SetBcTypes();
 public:
-    void ReadFromCgnsZbase( CgnsZbase * cgnsZbase );
-    void ReadFromCgnsZone( CgnsZone * cgnsZone );
+    void ReadFromCgnsZbase( CgnsZbase & cgnsZbase );
+    void ReadFromCgnsZone( CgnsZone & cgnsZone );
     void PushElement( CgIntField & eNodeId, int eType );
     void GenerateGridFromCgns( const std::string & prjFileName );
     void DumpCgnsGrid();
