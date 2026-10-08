@@ -53,12 +53,12 @@ L2GMapping::~L2GMapping()
     ;
 }
 
-void L2GMapping::CalcL2G( UnsGrid * ggrid, int zid, UnsGrid * grid )
+void L2GMapping::CalcL2G( UnsGrid * ggrid, int zid, UnsGrid * grid, G2LMapping & g2l )
 {
     this->Alloc( grid );
-    this->CalcL2GNode( ggrid, zid, grid );
-    this->CalcL2GFace( ggrid, zid, grid );
-    this->CalcL2GCell( ggrid, zid, grid );
+    this->CalcL2GNode( ggrid, zid, grid, g2l );
+    this->CalcL2GFace( ggrid, zid, grid, g2l );
+    this->CalcL2GCell( ggrid, zid, grid, g2l );
 }
 
 void L2GMapping::Alloc( UnsGrid * grid )
@@ -72,26 +72,26 @@ void L2GMapping::Alloc( UnsGrid * grid )
     this->l2g_cell.resize( nCells );
 }
 
-void L2GMapping::CalcL2GNode( UnsGrid * ggrid, int zid, UnsGrid * grid )
+void L2GMapping::CalcL2GNode( UnsGrid * ggrid, int zid, UnsGrid * grid, G2LMapping & g2l )
 {
     int nNodes = ggrid->nNodes;
 
     for ( int iNode = 0; iNode < nNodes; ++ iNode )
     {
-        if ( g2l->g2l_node[ iNode ] > - 1 )
+        if ( g2l.g2l_node[ iNode ] > - 1 )
         {
-            this->l2g_node[ g2l->g2l_node[ iNode ] ] = iNode;
+            this->l2g_node[ g2l.g2l_node[ iNode ] ] = iNode;
         }
     }
 }
 
-void L2GMapping::CalcL2GFace( UnsGrid * ggrid, int zid, UnsGrid * grid )
+void L2GMapping::CalcL2GFace( UnsGrid * ggrid, int zid, UnsGrid * grid, G2LMapping & g2l )
 {
     int nFaces = ggrid->nFaces;
 
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
-        int fid = g2l->g2l_face[ iFace ];
+        int fid = g2l.g2l_face[ iFace ];
         if ( fid >= 0 )
         {
             this->l2g_face[ fid ] = iFace;
@@ -99,13 +99,13 @@ void L2GMapping::CalcL2GFace( UnsGrid * ggrid, int zid, UnsGrid * grid )
     }
 }
 
-void L2GMapping::CalcL2GCell( UnsGrid * ggrid, int zid, UnsGrid * grid )
+void L2GMapping::CalcL2GCell( UnsGrid * ggrid, int zid, UnsGrid * grid, G2LMapping & g2l )
 {
     int nCells = ggrid->nCells;
     int cid = 0;
     for ( int gcid = 0; gcid < nCells; ++ gcid )
     {
-        if ( g2l->gc2lzone[ gcid ] == zid )
+        if ( g2l.gc2lzone[ gcid ] == zid )
         {
             this->l2g_cell[ cid ] = gcid;
             ++ cid;
@@ -486,8 +486,7 @@ int Partition::GetNCell( UnsGrid * ggrid, int zid )
 
 void Partition::CreateL2g( UnsGrid * ggrid, int zid, UnsGrid * grid )
 {
-    l2g->g2l = std::move(this->g2l);
-    l2g->CalcL2G( ggrid, zid, grid );
+    l2g->CalcL2G( ggrid, zid, grid, *this->g2l );
 }
 
 void Partition::SetCoor( UnsGrid * ggrid, int zid, UnsGrid * grid )

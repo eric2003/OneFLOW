@@ -53,13 +53,12 @@ public:
     IntField l2g_face;
     IntField l2g_cell;
 public:
-    std::unique_ptr< G2LMapping > g2l;
 public:
     void Alloc( UnsGrid * grid );
-    void CalcL2G    ( UnsGrid * ggrid, int zid, UnsGrid * grid );
-    void CalcL2GNode( UnsGrid * ggrid, int zid, UnsGrid * grid );
-    void CalcL2GFace( UnsGrid * ggrid, int zid, UnsGrid * grid );
-    void CalcL2GCell( UnsGrid * ggrid, int zid, UnsGrid * grid );
+    void CalcL2G    ( UnsGrid * ggrid, int zid, UnsGrid * grid, G2LMapping & g2l );
+    void CalcL2GNode( UnsGrid * ggrid, int zid, UnsGrid * grid, G2LMapping & g2l );
+    void CalcL2GFace( UnsGrid * ggrid, int zid, UnsGrid * grid, G2LMapping & g2l );
+    void CalcL2GCell( UnsGrid * ggrid, int zid, UnsGrid * grid, G2LMapping & g2l );
 };
 
 class G2LMapping
