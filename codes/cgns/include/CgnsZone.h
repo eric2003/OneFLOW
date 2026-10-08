@@ -69,6 +69,7 @@ public:
     void SetVolBcType( int volBcType );
     int  GetVolBcType() const;
     CgnsCoor & RequireCgnsCoor();
+    const CgnsCoor & RequireCgnsCoor() const;
     CgnsZsection & RequireCgnsZsection();
     const CgnsZsection & RequireCgnsZsection() const;
     CgnsZbc & RequireCgnsZbc();
