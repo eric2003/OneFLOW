@@ -142,7 +142,7 @@ public:
 public:
     void PushBoundaryFace( int pt, int eType );
     void AddBcPoint( int bcVertex );
-    void ScanBcFace( ScalarGrid * grid );
+    void ScanBcFace( ScalarGrid & grid );
     void ProcessVertexBc( IntSet & bcVertex );
 };
 

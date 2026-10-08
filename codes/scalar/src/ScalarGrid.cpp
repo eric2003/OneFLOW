@@ -201,14 +201,14 @@ void ScalarBcco::AddBcPoint( int bcVertex )
 	vertexList.push_back( bcVertex );
 }
 
-void ScalarBcco::ScanBcFace( ScalarGrid * grid )
+void ScalarBcco::ScanBcFace( ScalarGrid & grid )
 {
 	std::cout << " BCTypeName = " << ONEFLOW::GetCgnsBcName( this->bcType ) << std::endl;
 
 	IntSet bcVertex;
 	this->ProcessVertexBc( bcVertex );
 	
-	grid->ScanBcFace( bcVertex, this->bcType );
+	grid.ScanBcFace( bcVertex, this->bcType );
 }
 
 void ScalarBcco::ProcessVertexBc( IntSet & bcVertex )
@@ -231,7 +231,7 @@ void ScalarBccos::AddBcco( std::unique_ptr< ScalarBcco > scalarBcco )
 	this->bccos.push_back( std::move( scalarBcco ) );
 }
 
-void ScalarBccos::ScanBcFace( ScalarGrid * grid )
+void ScalarBccos::ScanBcFace( ScalarGrid & grid )
 {
 	for ( int iBoco = 0; iBoco < this->bccos.size(); ++ iBoco )
 	{
@@ -1045,7 +1045,7 @@ void ScalarGrid::CalcTopology()
 void ScalarGrid::ScanBcFace()
 {
 	this->AllocateBc();
-	scalarBccos->ScanBcFace( this );
+	scalarBccos->ScanBcFace( *this );
 	this->SetBcTypes();
 }
 
