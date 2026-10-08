@@ -66,39 +66,41 @@ MetisIntList MetisSplit::MetisPartition( const ScalarGrid & ggrid, int nPart )
 	int nFaces = ggrid.GetNFaces();
 	int nCells = ggrid.GetNCells();
 	int nBFaces = ggrid.GetNBFaces();
-	int nInnerFaces = nFaces - nBFaces;
 
 	if ( nPart == nCells )
 	{
 		return ManualPartition( ggrid );
 	}
 
-	MetisIntList xadj( nCells + 1 );
-	MetisIntList adjncy( 2 * nInnerFaces );
-	ScalarGetXadjAdjncy( ggrid, xadj, adjncy );
-	return ScalarPartitionByMetis( nCells, xadj, adjncy, nPart );
+	auto graph = ScalarGetXadjAdjncy( ggrid );
+	return ScalarPartitionByMetis( nCells, graph.first, graph.second, nPart );
 }
 
-void MetisSplit::ScalarGetXadjAdjncy( const ScalarGrid & ggrid, MetisIntList & xadj, MetisIntList & adjncy )
-{   
+std::pair< MetisIntList, MetisIntList > MetisSplit::ScalarGetXadjAdjncy( const ScalarGrid & ggrid )
+{
 	int nCells = ggrid.GetNCells();
 
 	EList c2c;
 	ggrid.CalcC2C( c2c );
 
-	xadj[ 0 ]  = 0;
-	int iCount = 0;
+	MetisIntList xadj( nCells + 1 );
+	MetisIntList adjncy;
+	adjncy.reserve( 2 * ( ggrid.GetNFaces() - ggrid.GetNBFaces() ) );
+
+	xadj[ 0 ] = 0;
 	for ( int iCell = 0; iCell < nCells; ++ iCell )
 	{
 		xadj[ iCell + 1 ] = xadj[ iCell ] + c2c[ iCell ].size();
 		for ( int j = 0; j < c2c[ iCell ].size(); ++ j )
 		{
-			adjncy[ iCount ++ ] = c2c[ iCell ][ j ];
+			adjncy.push_back( c2c[ iCell ][ j ] );
 		}
 	}
+
+	return { std::move( xadj ), std::move( adjncy ) };
 }
 
-MetisIntList MetisSplit::ScalarPartitionByMetis( idx_t nCells, MetisIntList & xadj, MetisIntList & adjncy, int nPart )
+MetisIntList MetisSplit::ScalarPartitionByMetis( idx_t nCells, const MetisIntList & xadj, const MetisIntList & adjncy, int nPart )
 {
 	MetisIntList cellzone( nCells );
 	idx_t   ncon     = 1;
