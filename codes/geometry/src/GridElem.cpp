@@ -313,7 +313,7 @@ void GridElem::GenerateCalcGrid( UnsGrid & grid )
 void GridElem::CalcBoundaryType( UnsGrid & grid )
 {
     std::cout << "\n-->Set boundary condition......\n";
-    grid.SetFaceTopo( this->face_solver.TakeFaceTopo() );
+    grid.SetFaceTopo( this->face_solver.ReleaseFaceTopo() );
     int nFaces = grid.GetFaceTopo().GetFaces().size();
     std::cout << " nFaces = " << nFaces << "\n";
      

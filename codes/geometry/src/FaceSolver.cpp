@@ -31,7 +31,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-// FaceSolver.cpp (Constructors and Destructors)
 FaceSolver::FaceSolver()
 {
     // [Refactored] faceBcKey, faceBcType, childFid are now value types, 
@@ -52,7 +51,7 @@ const FaceTopo & FaceSolver::GetFaceTopo() const
     return *this->faceTopo;
 }
 
-std::unique_ptr< FaceTopo > FaceSolver::TakeFaceTopo() noexcept
+std::unique_ptr< FaceTopo > FaceSolver::ReleaseFaceTopo() noexcept
 {
     return std::move( this->faceTopo );
 }
