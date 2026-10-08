@@ -288,7 +288,7 @@ void GridPartition::ReconstructInterfaceTopo( std::vector< std::unique_ptr< Scal
 
 void GridPartition::CalcInterfaceToBcFace( std::vector< std::unique_ptr< ScalarGrid > > & grids )
 {
-	int nZones = this->GetNZones( grids );
+	int nZones = static_cast< int >( grids.size() );
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
 		grids[ iZone ]->CalcInterfaceToBcFace();
@@ -297,7 +297,7 @@ void GridPartition::CalcInterfaceToBcFace( std::vector< std::unique_ptr< ScalarG
 
 void GridPartition::ReconstructNeighbor( std::vector< std::unique_ptr< ScalarGrid > > & grids )
 {
-	int nZones = this->GetNZones( grids );
+	int nZones = static_cast< int >( grids.size() );
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
 		ScalarGrid & grid = *grids[ iZone ];
@@ -308,7 +308,7 @@ void GridPartition::ReconstructNeighbor( std::vector< std::unique_ptr< ScalarGri
 
 void GridPartition::ReconstructNode( const ScalarGrid & ggrid, std::vector< std::unique_ptr< ScalarGrid > > & grids )
 {
-	int nZones = this->GetNZones( grids );
+	int nZones = static_cast< int >( grids.size() );
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
 		ScalarGrid & grid = *grids[ iZone ];
