@@ -113,14 +113,12 @@ void L2GMapping::CalcL2GCell( UnsGrid & ggrid, int zid, UnsGrid & grid, G2LMappi
     }
 }
 
-G2LMapping::G2LMapping( UnsGrid * ggrid )
+G2LMapping::G2LMapping( const UnsGrid & ggrid )
 {
-    this->ggrid = ggrid;
-
-    this->g2l_cell.resize( ggrid->nCells );
-    this->g2l_face.resize( ggrid->nFaces );
-    this->g2l_node.resize( ggrid->nNodes );
-    this->gc2lzone.resize( ggrid->nCells );
+    this->g2l_cell.resize( ggrid.nCells );
+    this->g2l_face.resize( ggrid.nFaces );
+    this->g2l_node.resize( ggrid.nNodes );
+    this->gc2lzone.resize( ggrid.nCells );
 
     this->npartproc = GetDataValue< int >( "npartproc" );
 }
@@ -129,18 +127,18 @@ G2LMapping::~G2LMapping()
 {
 }
 
-void G2LMapping::GenerateGC2Z()
+void G2LMapping::GenerateGC2Z( const UnsGrid & ggrid )
 {
     if ( npartproc < 2 )
     {
         Fatal( "The number of partitions should be greater than 1!\n" );
     }
 
-    int nCells  = ggrid->nCells;
-    int nFaces  = ggrid->nFaces;
-    int nBFaces = ggrid->nBFaces;
+    int nCells  = ggrid.nCells;
+    int nFaces  = ggrid.nFaces;
+    int nBFaces = ggrid.nBFaces;
 
-    std::vector<idx_t> xadj  ( ggrid->nCells + 1 );
+    std::vector<idx_t> xadj  ( ggrid.nCells + 1 );
     std::vector<idx_t> adjncy( 2 * ( nFaces - nBFaces ) );
 
     this->GetXadjAdjncy( ggrid, xadj, adjncy );
@@ -149,11 +147,11 @@ void G2LMapping::GenerateGC2Z()
     //this->ReadGC2Z( gridForPartition );
 }
 #ifdef ENABLE_METIS
-void G2LMapping::GetXadjAdjncy( UnsGrid * ggrid, std::vector<idx_t> & xadj, std::vector<idx_t>& adjncy )
+void G2LMapping::GetXadjAdjncy( const UnsGrid & ggrid, std::vector<idx_t> & xadj, std::vector<idx_t>& adjncy )
 {   
-    int  nCells = ggrid->nCells;
-    CalcC2C( *ggrid );
-    LinkField & c2c = ggrid->GetCellMesh().GetCellTopo().c2c;
+    int  nCells = ggrid.nCells;
+    CalcC2C( const_cast< UnsGrid & >( ggrid ) );
+    LinkField & c2c = const_cast< UnsGrid & >( ggrid ).GetCellMesh().GetCellTopo().c2c;
     xadj[ 0 ]  = 0;
     int iCount = 0;
     for ( int iCell = 0; iCell < nCells; ++ iCell )
@@ -268,9 +266,9 @@ void Partition::GenerateMultiZoneGrid()
 
 void Partition::CreatePart()
 {
-    g2l = std::make_unique< G2LMapping >( uns_grid );
+    g2l = std::make_unique< G2LMapping >( *uns_grid );
     g2l->npartproc = this->npartproc;
-    g2l->GenerateGC2Z();
+    g2l->GenerateGC2Z( *uns_grid );
     this->CalcG2lCell();
 
     if ( this->partition_c2n )
