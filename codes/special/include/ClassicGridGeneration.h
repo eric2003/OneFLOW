@@ -11,8 +11,8 @@ License
     (at your option) any later version.
 
     OneFLOW is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
     for more details.
 
     You should have received a copy of the GNU General Public License
@@ -20,18 +20,14 @@ License
 
 \\*---------------------------------------------------------------------------*/
 
-#include "ClassicGridGeneration.h"
-#include "GridConversion.h"
-#include "GridWorkflow.h"
+#pragma once
+
+#include "HXDefine.h"
+#include "GridTypes.h"
 
 BeginNameSpace( ONEFLOW )
 
-void ExecuteClassicGridWorkflow(
-    const GridConfig & config,
-    const std::string & caseDir )
-{
-    GenerateClassicGrid( config );
-    ConvertGrid( config, caseDir );
-}
+// Generate a classic grid selected by the special-module generation id.
+void GenerateClassicGrid( const GridConfig & config );
 
 EndNameSpace
