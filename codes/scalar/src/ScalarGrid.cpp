@@ -525,7 +525,7 @@ void ScalarGrid::CalcBoundarySection( SectionManager & bcSectionManager )
 
 		}
 
-		sectionMarker->nElements = sectionMarker->elements.size();
+		sectionMarker.nElements = sectionMarker.elements.size();
 	}
 }
 
