@@ -145,11 +145,6 @@ std::vector< std::unique_ptr< ScalarGrid > > GridPartition::PartitionGrid( const
     return grids;
 }
 
-int GridPartition::GetNZones( const std::vector< std::unique_ptr< ScalarGrid > > & grids ) const
-{
-    return static_cast< int >( grids.size() );
-}
-
 std::vector< std::unique_ptr< ScalarGrid > > GridPartition::AllocateGrid( int nZones )
 {
     std::vector< std::unique_ptr< ScalarGrid > > grids;
@@ -261,7 +256,7 @@ std::vector< std::unique_ptr< ScalarGrid > > GridPartition::ReconstructGridFaceT
 
 void GridPartition::ReconstructInterfaceTopo( std::vector< std::unique_ptr< ScalarGrid > > & grids )
 {
-	int nZones = this->GetNZones( grids );
+	int nZones = static_cast< int >( grids.size() );
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
 		ScalarGrid & grid = *grids[ iZone ];
