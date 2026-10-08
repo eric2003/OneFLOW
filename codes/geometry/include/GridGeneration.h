@@ -29,7 +29,7 @@ License
 BeginNameSpace( ONEFLOW )
 
 // Offline grid generation / conversion / partition entry.
-// Workflow execution is handled by the dispatch tables in GridFactory.cpp.
+// Workflow execution is handled by the dispatch tables in GridGeneration.cpp.
 void GenerateGrid();
 
 // Load the legacy database configuration and run it for a specific case.

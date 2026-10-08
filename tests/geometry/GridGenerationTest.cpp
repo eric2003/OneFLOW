@@ -1,9 +1,9 @@
-// tests/geometry/GridFactoryTest.cpp
+// tests/geometry/GridGenerationTest.cpp
 // Typed grid workflow configuration and mediator unit tests.
 
 #include <gtest/gtest.h>
 
-#include "GridFactory.h"
+#include "GridGeneration.h"
 #include "GridMediator.h"
 #include "GridTypes.h"
 
@@ -128,7 +128,7 @@ TEST( ZgridMediatorTest, AddUniquePtrTakesOwnershipWithTwoZones )
     EXPECT_EQ( zgm.GetGridMediator( 0 ).numberOfZones, 2 );
 }
 
-TEST( GridFactoryDispatchTest, UnknownObjectiveThrows )
+TEST( GridGenerationDispatchTest, UnknownObjectiveThrows )
 {
     GridConfig cfg;
     cfg.objective = static_cast< GridObjective >( 42 );
@@ -136,7 +136,7 @@ TEST( GridFactoryDispatchTest, UnknownObjectiveThrows )
     EXPECT_THROW( GenerateGrid( cfg ), std::invalid_argument );
 }
 
-TEST( GridFactoryDispatchTest, UnknownObjectiveWithCaseDirThrows )
+TEST( GridGenerationDispatchTest, UnknownObjectiveWithCaseDirThrows )
 {
     GridConfig cfg;
     cfg.objective = static_cast< GridObjective >( 42 );

@@ -68,7 +68,7 @@ set ( INCLUDE_DIRS
 )
 
 set ( SRC_DIRS
-    ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridFactory.cpp
+    ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridGeneration.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridTypes.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridLayout.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridMediator.cpp
@@ -219,7 +219,7 @@ function(add_oneflow_gtest TEST_NAME TEST_SRC)
     gtest_discover_tests(${TEST_NAME} DISCOVERY_MODE PRE_TEST)
 endfunction()
 
-add_oneflow_gtest(GridFactoryTest GridFactoryTest.cpp)
+add_oneflow_gtest(GridGenerationTest GridGenerationTest.cpp)
 add_oneflow_gtest(CgnsFactoryLifecycleTest CgnsFactoryLifecycleTest.cpp)
 add_oneflow_gtest(FaceSolverLifecycleTest FaceSolverLifecycleTest.cpp)
 add_oneflow_gtest(ElemFeatureLifecycleTest ElemFeatureLifecycleTest.cpp)

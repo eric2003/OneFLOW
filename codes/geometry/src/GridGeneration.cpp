@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "GridFactory.h"
+#include "GridGeneration.h"
 #include "CgnsFactory.h"
 #include "GridMediator.h"
 #include "DomainInp.h"
@@ -162,7 +162,7 @@ namespace
     };
 
     // The public functions only select a workflow. Concrete workflow steps do
-    // not depend on a GridFactory instance.
+    // not depend on a GridGeneration instance.
     constexpr PipelineEntry kPipelines[] = {
         { GridObjective::GenerateClassic, &GenerateClassic },
         { GridObjective::ConvertOnly,     &ConvertOnly },
