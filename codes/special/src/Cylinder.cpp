@@ -39,16 +39,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-DomainData::DomainData()
-{
-    ;
-}
-
-DomainData::~DomainData()
-{
-    ;
-}
-
 void DomainData::Alloc()
 {
     ONEFLOW::AllocateVector(x, ni, nj);
