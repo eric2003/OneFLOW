@@ -272,7 +272,6 @@ void CgnsZbc::SetPeriodicBc()
 {
     this->RequireCgnsZbcConn().SetPeriodicBc();
 
-    this->RequireCgnsZbc1to1().SetPeriodicBc();
 }
 
 #endif

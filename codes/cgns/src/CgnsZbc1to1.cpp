@@ -137,10 +137,5 @@ void CgnsZbc1to1::DumpCgnsZbc1to1()
 }
 
 
-void CgnsZbc1to1::SetPeriodicBc()
-{
-}
-
-
 #endif
 EndNameSpace
