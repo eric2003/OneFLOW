@@ -198,7 +198,6 @@ Partition::Partition()
 {
     this->partition_type = GetDataValue< int >( "partition_type" );
     this->npartproc = GetDataValue< int >( "npartproc" );
-    this->partition_c2n = GetDataValue< int >( "partition_c2n" );
 }
 
 Partition::~Partition()
@@ -252,10 +251,6 @@ void Partition::CreatePart( UnsGrid & ggrid )
     g2l->GenerateGC2Z( ggrid );
     this->CalcG2lCell( ggrid );
 
-    if ( this->partition_c2n )
-    {
-        this->CalcGC2N();
-    }
 }
 
 void Partition::AllocPart()
@@ -294,10 +289,6 @@ void Partition::PostProcess()
 {
 }
 
-void Partition::CalcGC2N()
-{
-}
-
 void Partition::CalcG2lCell( UnsGrid & ggrid )
 {
     UnsGrid & grid = ggrid;
@@ -321,12 +312,6 @@ void Partition::BuildCalculationalGrid( UnsGrid & ggrid, int zid )
 
     this->CalcG2lFace( ggrid, zid, grid );
     this->CalcG2lNode( ggrid, zid, grid );
-
-    if ( partition_c2n )
-    {
-    //    this->CalcGlobalToLocalCellToNodeMapping( uns_grid, zid, grid );
-    //    this->WriteCellToNode( grid );
-    }
 
     this->CreateL2g( ggrid, zid, grid );
     this->SetCoor  ( ggrid, zid, grid );

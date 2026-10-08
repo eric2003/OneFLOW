@@ -90,7 +90,6 @@ public:
 public:
     int npartproc;
     int partition_type;
-    int partition_c2n;
     std::optional< G2LMapping > g2l;
     L2GMapping l2g;
 public:
@@ -104,7 +103,6 @@ public:
     void PreProcess();
     void PostProcess();
 public:
-    void CalcGC2N();
     void CalcG2lCell( UnsGrid & ggrid );
     void CalcG2lFace( UnsGrid & ggrid, int zid, UnsGrid & grid );
     void CalcG2lNode( UnsGrid & ggrid, int zid, UnsGrid & grid );
