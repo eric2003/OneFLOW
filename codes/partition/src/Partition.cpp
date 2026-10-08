@@ -334,6 +334,8 @@ void Partition::BuildCalculationalGrid( int zid )
 
 void Partition::CalcG2lFace( UnsGrid & ggrid, int zid, UnsGrid & grid )
 {
+    G2LMapping & mapping = *this->g2l;
+
     int nCells  = ggrid.nCells;
     int nFaces  = ggrid.nFaces;
     int nBFaces = ggrid.nBFaces;
@@ -343,7 +345,7 @@ void Partition::CalcG2lFace( UnsGrid & ggrid, int zid, UnsGrid & grid )
 
     for ( int fid = 0; fid < nFaces; ++ fid )
     {
-        g2l->g2l_face[ fid ] = - 2;
+        mapping.g2l_face[ fid ] = - 2;
     }
 
     //set all face in iZone to -1
@@ -351,13 +353,13 @@ void Partition::CalcG2lFace( UnsGrid & ggrid, int zid, UnsGrid & grid )
     {
         int glc = glCell[ fid ];
         int grc = grCell[ fid ];
-        if ( g2l->gc2lzone[ glc ] == zid )
+        if ( mapping.gc2lzone[ glc ] == zid )
         {
-            g2l->g2l_face[ fid ] = - 1;
+            mapping.g2l_face[ fid ] = - 1;
         }
-        else if ( grc < nCells && g2l->gc2lzone[ grc ] == zid )
+        else if ( grc < nCells && mapping.gc2lzone[ grc ] == zid )
         {
-            g2l->g2l_face[ fid ] = - 1;
+            mapping.g2l_face[ fid ] = - 1;
         }
     }
 
@@ -366,22 +368,22 @@ void Partition::CalcG2lFace( UnsGrid & ggrid, int zid, UnsGrid & grid )
     //physical boundary
     for ( int fid = 0; fid < nBFaces; ++ fid )
     {
-        if ( g2l->g2l_face[ fid ] == - 1 )
+        if ( mapping.g2l_face[ fid ] == - 1 )
         {
-            g2l->g2l_face[ fid ] = nFaceNow ++;
+            mapping.g2l_face[ fid ] = nFaceNow ++;
         }
     }
 
     int nIFaceNow = 0;
     for ( int fid = nBFaces; fid < nFaces; ++ fid )
     {
-        if ( g2l->g2l_face[ fid ] == - 1 )
+        if ( mapping.g2l_face[ fid ] == - 1 )
         {
             int glc = glCell[ fid ];
             int grc = grCell[ fid ];
-            if ( g2l->gc2lzone[ glc ] != g2l->gc2lzone[ grc ] )
+            if ( mapping.gc2lzone[ glc ] != mapping.gc2lzone[ grc ] )
             {
-                g2l->g2l_face[ fid ] = nFaceNow ++;
+                mapping.g2l_face[ fid ] = nFaceNow ++;
                 nIFaceNow ++;
             }
         }
@@ -391,14 +393,14 @@ void Partition::CalcG2lFace( UnsGrid & ggrid, int zid, UnsGrid & grid )
     int nBFaceNow = nFaceNow;
     for ( int fid = nBFaces; fid < nFaces; ++ fid )
     {
-        if ( g2l->g2l_face[ fid ] == - 1 )
+        if ( mapping.g2l_face[ fid ] == - 1 )
         {
             int glc = glCell[ fid ];
             int grc = grCell[ fid ];
 
-            if ( g2l->gc2lzone[ glc ] == g2l->gc2lzone[ grc ] )
+            if ( mapping.gc2lzone[ glc ] == mapping.gc2lzone[ grc ] )
             {
-                g2l->g2l_face[ fid ] = nFaceNow ++;
+                mapping.g2l_face[ fid ] = nFaceNow ++;
             }
         }
     }
