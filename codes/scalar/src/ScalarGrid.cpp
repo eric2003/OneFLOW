@@ -680,23 +680,23 @@ void ScalarGrid::GenerateGridFromCgns( const std::string & prjFileName )
 	cgnsZbase.OpenCgnsFile( prjFileName, CG_MODE_READ );
 	cgnsZbase.ReadCgnsMultiBase();
 	cgnsZbase.CloseCgnsFile();
-	this->ReadFromCgnsZbase( &cgnsZbase );
+	this->ReadFromCgnsZbase( cgnsZbase );
 }
 
-void ScalarGrid::ReadFromCgnsZbase( CgnsZbase * cgnsZbase )
+void ScalarGrid::ReadFromCgnsZbase( CgnsZbase & cgnsZbase )
 {
 	int iBase = 0;
 	int iZone = 0;
-	CgnsBase * cgnsBase = cgnsZbase->GetCgnsBase( 0 );
+	CgnsBase * cgnsBase = cgnsZbase.GetCgnsBase( 0 );
 	CgnsZone * cgnsZone = cgnsBase->GetCgnsZone( iZone );
-	this->ReadFromCgnsZone( cgnsZone );
+	this->ReadFromCgnsZone( *cgnsZone );
 }
 
-void ScalarGrid::ReadFromCgnsZone( CgnsZone * cgnsZone )
+void ScalarGrid::ReadFromCgnsZone( CgnsZone & cgnsZone )
 {
 	std::cout << "   Convert Cgns Section Data to ScalarGrid......\n";
 	std::cout << "\n";
-	CgnsZsection * cgnsZsection = cgnsZone->cgnsZsection.get();
+	CgnsZsection * cgnsZsection = cgnsZone.cgnsZsection.get();
 	const int nSections = cgnsZsection->GetNSections();
 	for ( int iSection = 0; iSection < nSections; ++ iSection )
 	{
@@ -715,7 +715,7 @@ void ScalarGrid::ReadFromCgnsZone( CgnsZone * cgnsZone )
 			this->PushElement( eNodeId, eType );
 		}
 	}
-	CgnsCoor * cgnsCoor = cgnsZone->cgnsCoor.get();
+	CgnsCoor * cgnsCoor = cgnsZone.cgnsCoor.get();
 	NodeMesh * nodeMesh = cgnsCoor->nodeMesh.get();
 	for ( int i = 0; i < nodeMesh->xN.size(); ++ i )
 	{
