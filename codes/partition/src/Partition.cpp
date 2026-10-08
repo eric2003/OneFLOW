@@ -662,7 +662,7 @@ bool FindMatch( UnsGrid & grid, FacePair & facePair )
 {
     bool found = false;
 
-    InterFace * interFace = grid.interFace->get();
+    InterFace * interFace = grid.interFace.get();
 
     if ( ! ONEFLOW::IsValid( interFace ) ) return found;
 
