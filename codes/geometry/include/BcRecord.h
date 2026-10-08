@@ -62,7 +62,7 @@ public:
     int GetNBFace() const;
     int CalcNIFace();
     int CalcNumWallFace();
-    void GenerateI2B( InterFace * interFace );
+    void GenerateI2B( InterFace & interFace );
 public:
     void CreateBcTypeRegion();
     void CalcBcType( IntField & bcTypeList );

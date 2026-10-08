@@ -95,7 +95,7 @@ public:
     void ResetNumberOfBoundaryCondition( IFaceLink * iFaceLink );
     void ConstructNewInterfaceMap( IFaceLink * iFaceLink );
     void UpdateOtherTopologyTerm();
-    void GenerateI2B( InterFace * interFace );
+    void GenerateI2B( InterFace & interFace );
 public:
     bool GetSId( int iFace, int iPosition, int & sId );
     bool GetTId( int iFace, int iPosition, int & tId );

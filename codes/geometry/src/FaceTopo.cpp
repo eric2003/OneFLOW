@@ -438,7 +438,7 @@ void FaceTopo::UpdateOtherTopologyTerm()
     this->faces = this->facesNew;
 }
 
-void FaceTopo::GenerateI2B( InterFace * interFace )
+void FaceTopo::GenerateI2B( InterFace & interFace )
 {
     this->bcManager->bcRecord->GenerateI2B( interFace );
 }

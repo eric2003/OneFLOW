@@ -153,9 +153,8 @@ int BcRecord::CalcNumWallFace()
     return nWFace;
 }
 
-void BcRecord::GenerateI2B( InterFace * interFace )
+void BcRecord::GenerateI2B( InterFace & interFace )
 {
-    if ( ! interFace ) return;
 
     int nBFaces = this->GetNBFace();
 
@@ -167,7 +166,7 @@ void BcRecord::GenerateI2B( InterFace * interFace )
             continue;
         }
 
-        interFace->i2b[ iFace ] = iBFace;
+        interFace.i2b[ iFace ] = iBFace;
         ++ iFace;
     }
 }
