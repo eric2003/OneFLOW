@@ -130,30 +130,30 @@ void CgnsZone::Create()
 
 void CgnsZone::SetPeriodicBc()
 {
-    this->cgnsZbc->SetPeriodicBc();
+    this->RequireCgnsZbc().SetPeriodicBc();
 }
 
 void CgnsZone::SetElementTypeAndNode( ElemFeature * elem_feature )
 {
-    const int nSection = this->cgnsZsection->GetNSections();
+    const int nSection = this->RequireCgnsZsection().GetNSections();
     for ( int iSection = 0; iSection < nSection; ++ iSection )
     {
-        CgnsSection & cgnsSection = this->cgnsZsection->GetCgnsSection( iSection );
+        CgnsSection & cgnsSection = this->RequireCgnsZsection().GetCgnsSection( iSection );
         cgnsSection.SetElementTypeAndNode( elem_feature );
     }
     std::cout << "\n";
-    std::cout << " iZone = " << this->zId << " nCells = " << this->cgnsCoor->GetNCell() << "\n";
+    std::cout << " iZone = " << this->zId << " nCells = " << this->RequireCgnsCoor().GetNCell() << "\n";
     std::cout << " elem_feature->eType.size() = " << elem_feature->eTypes.size() << std::endl;
 }
 
 bool CgnsZone::ExistSection( const std::string & sectionName )
 {
-    return this->cgnsZsection->ExistSection( sectionName );
+    return this->RequireCgnsZsection().ExistSection( sectionName );
 }
 
 void CgnsZone::InitLgMapping()
 {
-    int nNodes = this->cgnsCoor->GetNNode();
+    int nNodes = this->RequireCgnsCoor().GetNNode();
     this->l2g.resize( nNodes );
 
     for ( int iNode = 0; iNode < nNodes; ++ iNode )
@@ -170,14 +170,14 @@ void CgnsZone::ConvertToInnerDataStandard()
         return;
     }
 
-    this->cgnsZsection->ConvertToInnerDataStandard();
-    this->cgnsZbc->ConvertToInnerDataStandard();
+    this->RequireCgnsZsection().ConvertToInnerDataStandard();
+    this->RequireCgnsZbc().ConvertToInnerDataStandard();
 
 }
 
 void CgnsZone::ConstructCgnsGridPoints( MeshPointManager * point_factory )
 {
-    NodeMesh * nodeMesh = this->cgnsCoor->GetNodeMesh();
+    NodeMesh * nodeMesh = this->RequireCgnsCoor().GetNodeMesh();
     RealField & x = nodeMesh->xN;
     RealField & y = nodeMesh->yN;
     RealField & z = nodeMesh->zN;
@@ -196,12 +196,12 @@ void CgnsZone::ConstructCgnsGridPoints( MeshPointManager * point_factory )
 
 void CgnsZone::ScanBcFace( FaceSolver & faceSolver )
 {
-    this->cgnsZbc->ScanBcFace( faceSolver );
+    this->RequireCgnsZbc().ScanBcFace( faceSolver );
 }
 
 void CgnsZone::GetElementNodeId( CgInt eId, CgIntField & eNodeId )
 {
-    CgnsSection * cgnsSection = this->cgnsZsection->GetSectionByEid( eId );
+    CgnsSection * cgnsSection = this->RequireCgnsZsection().GetSectionByEid( eId );
     cgnsSection->GetElementNodeId( eId - cgnsSection->startId, eNodeId );
 }
 
@@ -303,12 +303,12 @@ void CgnsZone::WriteZoneInfo( const std::string & zoneName, ZoneType_t zoneType,
 
 void CgnsZone::SetDimension()
 {
-    this->cgnsCoor->SetDimension();
+    this->RequireCgnsCoor().SetDimension();
 }
 
-CgInt CgnsZone::GetNI() const { return this->cgnsCoor->irmax[0]; };
-CgInt CgnsZone::GetNJ() const { return this->cgnsCoor->irmax[1]; };
-CgInt CgnsZone::GetNK() const { return this->cgnsCoor->irmax[2]; };
+CgInt CgnsZone::GetNI() const { return this->RequireCgnsCoor().irmax[0]; };
+CgInt CgnsZone::GetNJ() const { return this->RequireCgnsCoor().irmax[1]; };
+CgInt CgnsZone::GetNK() const { return this->RequireCgnsCoor().irmax[2]; };
 
 void CgnsZone::ReadElementConnectivities()
 {
@@ -325,49 +325,49 @@ void CgnsZone::DumpElementConnectivities()
 {
     if ( this->cgnsZoneType == CGNS_ENUMV( Structured ) ) return;
 
-    std::cout << "   numberOfCgnsSections = " << this->cgnsZsection->GetNSections() << "\n";
+    std::cout << "   numberOfCgnsSections = " << this->RequireCgnsZsection().GetNSections() << "\n";
 
     this->DumpCgnsSections();
 }
 
 void CgnsZone::SetElemPosition()
 {
-    this->cgnsZsection->SetElemPosition();
+    this->RequireCgnsZsection().SetElemPosition();
 }
 
 int CgnsZone::ReadNumberOfCgnsSections()
 {
-    return this->cgnsZsection->ReadNumberOfCgnsSections();
+    return this->RequireCgnsZsection().ReadNumberOfCgnsSections();
 }
 
 void CgnsZone::CreateCgnsSections( int nSections )
 {
-    this->cgnsZsection->CreateCgnsSections( nSections );
+    this->RequireCgnsZsection().CreateCgnsSections( nSections );
 }
 
 void CgnsZone::ReadCgnsSections()
 {
-    this->cgnsZsection->ReadCgnsSections();
+    this->RequireCgnsZsection().ReadCgnsSections();
 }
 
 void CgnsZone::DumpCgnsSections()
 {
-    this->cgnsZsection->DumpCgnsSections();
+    this->RequireCgnsZsection().DumpCgnsSections();
 }
 
 void CgnsZone::ReadCgnsGridCoordinates()
 {
-    cgnsCoor->ReadCgnsGridCoordinates();
+    RequireCgnsCoor().ReadCgnsGridCoordinates();
 }
 
 void CgnsZone::ReadCgnsGridCoordinates( CgnsZone * cgnsZoneIn )
 {
-    cgnsCoor->ReadCgnsGridCoordinates( cgnsZoneIn->cgnsCoor.get() );
+    RequireCgnsCoor().ReadCgnsGridCoordinates( &cgnsZoneIn->RequireCgnsCoor() );
 }
 
 void CgnsZone::DumpCgnsGridCoordinates()
 {
-    cgnsCoor->DumpCgnsGridCoordinates();
+    RequireCgnsCoor().DumpCgnsGridCoordinates();
 }
 
 void CgnsZone::ReadCgnsGridBoundary()
