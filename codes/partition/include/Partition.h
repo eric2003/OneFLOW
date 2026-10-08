@@ -111,15 +111,15 @@ public:
 public:
     void CalcGC2N();
     void CalcG2lCell();
-    void CalcG2lFace( UnsGrid * ggrid, int zid, UnsGrid * grid );
-    void CalcG2lNode( UnsGrid * ggrid, int zid, UnsGrid * grid );
-    int GetNCell( UnsGrid * ggrid, int zid );
-    void CreateL2g( UnsGrid * ggrid, int zid, UnsGrid * grid );
-    void SetCoor( UnsGrid * ggrid, int zid, UnsGrid * grid );
-    void SetGeometricRelationship( UnsGrid * ggrid, int zid, UnsGrid * grid );
-    void CalcF2N( UnsGrid * ggrid, int zid, UnsGrid * grid );
-    void SetF2CAndBC( UnsGrid * ggrid, int zid, UnsGrid * grid );
-    void SetInterface( UnsGrid * ggrid, int zid, UnsGrid * grid );
+    void CalcG2lFace( UnsGrid & ggrid, int zid, UnsGrid & grid );
+    void CalcG2lNode( UnsGrid & ggrid, int zid, UnsGrid & grid );
+    int GetNCell( UnsGrid & ggrid, int zid );
+    void CreateL2g( UnsGrid & ggrid, int zid, UnsGrid & grid );
+    void SetCoor( UnsGrid & ggrid, int zid, UnsGrid & grid );
+    void SetGeometricRelationship( UnsGrid & ggrid, int zid, UnsGrid & grid );
+    void CalcF2N( UnsGrid & ggrid, int zid, UnsGrid & grid );
+    void SetF2CAndBC( UnsGrid & ggrid, int zid, UnsGrid & grid );
+    void SetInterface( UnsGrid & ggrid, int zid, UnsGrid & grid );
 };
 
 class FacePairBasic

@@ -333,12 +333,12 @@ void Partition::CalcG2lCell()
 
 void Partition::BuildCalculationalGrid( int zid )
 {
-    UnsGrid * grid = UnsGridCast( &GridAt( grids, zid ) );
+    UnsGrid & grid = static_cast< UnsGrid & >( GridAt( grids, zid ) );
 
-    grid->nCells = this->GetNCell( uns_grid, zid );
+    grid.nCells = this->GetNCell( *uns_grid, zid );
 
-    this->CalcG2lFace( uns_grid, zid, grid );
-    this->CalcG2lNode( uns_grid, zid, grid );
+    this->CalcG2lFace( *uns_grid, zid, grid );
+    this->CalcG2lNode( *uns_grid, zid, grid );
 
     if ( partition_c2n )
     {
@@ -347,20 +347,20 @@ void Partition::BuildCalculationalGrid( int zid )
     }
 
     this->l2g = std::make_unique< L2GMapping >();
-    this->CreateL2g( uns_grid, zid, grid );
-    this->SetCoor  ( uns_grid, zid, grid );
-    this->SetGeometricRelationship( uns_grid, zid, grid );
+    this->CreateL2g( *uns_grid, zid, grid );
+    this->SetCoor  ( *uns_grid, zid, grid );
+    this->SetGeometricRelationship( *uns_grid, zid, grid );
     this->l2g.reset();
 }
 
-void Partition::CalcG2lFace( UnsGrid * ggrid, int zid, UnsGrid * grid )
+void Partition::CalcG2lFace( UnsGrid & ggrid, int zid, UnsGrid & grid )
 {
-    int nCells  = ggrid->nCells;
-    int nFaces  = ggrid->nFaces;
-    int nBFaces = ggrid->nBFaces;
+    int nCells  = ggrid.nCells;
+    int nFaces  = ggrid.nFaces;
+    int nBFaces = ggrid.nBFaces;
 
-    IntField & glCell = ggrid->GetFaceTopo().GetLeftCells();
-    IntField & grCell = ggrid->GetFaceTopo().GetRightCells();
+    IntField & glCell = ggrid.GetFaceTopo().GetLeftCells();
+    IntField & grCell = ggrid.GetFaceTopo().GetRightCells();
 
     for ( int fid = 0; fid < nFaces; ++ fid )
     {
@@ -424,20 +424,20 @@ void Partition::CalcG2lFace( UnsGrid * ggrid, int zid, UnsGrid * grid )
         }
     }
 
-    grid->nFaces  = nFaceNow;
-    grid->nBFaces = nBFaceNow;
+    grid.nFaces  = nFaceNow;
+    grid.nBFaces = nBFaceNow;
 
-    InterFace * interFace = grid->interFace.get();
+    InterFace * interFace = grid.interFace.get();
     interFace->Set( nIFaceNow );
-    grid->nIFaces = nIFaceNow;
+    grid.nIFaces = nIFaceNow;
 }
 
-void Partition::CalcG2lNode( UnsGrid * ggrid, int zid, UnsGrid * grid )
+void Partition::CalcG2lNode( UnsGrid & ggrid, int zid, UnsGrid & grid )
 {
-    int nFaces = ggrid->nFaces;
-    int nNodes = ggrid->nNodes;
+    int nFaces = ggrid.nFaces;
+    int nNodes = ggrid.nNodes;
 
-    LinkField & f2n = ggrid->GetFaceTopo().GetFaces();
+    LinkField & f2n = ggrid.GetFaceTopo().GetFaces();
 
     for ( int iNode = 0; iNode < nNodes; ++ iNode )
     {
@@ -467,12 +467,12 @@ void Partition::CalcG2lNode( UnsGrid * ggrid, int zid, UnsGrid * grid )
         }
     }
 
-    grid->nNodes = nLNode;
+    grid.nNodes = nLNode;
 }
 
-int Partition::GetNCell( UnsGrid * ggrid, int zid )
+int Partition::GetNCell( UnsGrid & ggrid, int zid )
 {
-    int nCells = ggrid->nCells;
+    int nCells = ggrid.nCells;
     int iCount = 0;
     for ( int iCell = 0; iCell < nCells; ++ iCell )
     {
@@ -484,24 +484,24 @@ int Partition::GetNCell( UnsGrid * ggrid, int zid )
     return iCount;
 }
 
-void Partition::CreateL2g( UnsGrid * ggrid, int zid, UnsGrid * grid )
+void Partition::CreateL2g( UnsGrid & ggrid, int zid, UnsGrid & grid )
 {
     l2g->CalcL2G( ggrid, zid, grid, *this->g2l );
 }
 
-void Partition::SetCoor( UnsGrid * ggrid, int zid, UnsGrid * grid )
+void Partition::SetCoor( UnsGrid & ggrid, int zid, UnsGrid & grid )
 {
-    int nNodes = grid->nNodes;
-    grid->nodeMesh->CreateNodes( nNodes );
+    int nNodes = grid.nNodes;
+    grid.nodeMesh->CreateNodes( nNodes );
 
     int iCount = 0;
-    for ( int iNode = 0; iNode < ggrid->nNodes; ++ iNode )
+    for ( int iNode = 0; iNode < ggrid.nNodes; ++ iNode )
     {
         if ( g2l->g2l_node[ iNode ] > - 1 )
         {
-            grid->nodeMesh->xN[ iCount ] = ggrid->nodeMesh->xN[ iNode ];
-            grid->nodeMesh->yN[ iCount ] = ggrid->nodeMesh->yN[ iNode ];
-            grid->nodeMesh->zN[ iCount ] = ggrid->nodeMesh->zN[ iNode ];
+            grid.nodeMesh->xN[ iCount ] = ggrid.nodeMesh->xN[ iNode ];
+            grid.nodeMesh->yN[ iCount ] = ggrid.nodeMesh->yN[ iNode ];
+            grid.nodeMesh->zN[ iCount ] = ggrid.nodeMesh->zN[ iNode ];
             ++ iCount;
         }
     }
@@ -512,19 +512,19 @@ void Partition::SetCoor( UnsGrid * ggrid, int zid, UnsGrid * grid )
     }
 }
 
-void Partition::SetGeometricRelationship( UnsGrid * ggrid, int zid, UnsGrid * grid )
+void Partition::SetGeometricRelationship( UnsGrid & ggrid, int zid, UnsGrid & grid )
 {
     this->CalcF2N( ggrid, zid, grid );
     this->SetF2CAndBC( ggrid, zid, grid );
     this->SetInterface( ggrid, zid, grid );
 }
 
-void Partition::CalcF2N( UnsGrid * ggrid, int zid, UnsGrid * grid )
+void Partition::CalcF2N( UnsGrid & ggrid, int zid, UnsGrid & grid )
 {
-    LinkField & f2n = grid->GetFaceTopo().GetFaces();
-    LinkField & gf2n = ggrid->GetFaceTopo().GetFaces();
+    LinkField & f2n = grid.GetFaceTopo().GetFaces();
+    LinkField & gf2n = ggrid.GetFaceTopo().GetFaces();
 
-    int nFaces = grid->nFaces;
+    int nFaces = grid.nFaces;
     f2n.resize( nFaces );
 
     for ( int fid = 0; fid < nFaces; ++ fid )
@@ -542,26 +542,26 @@ void Partition::CalcF2N( UnsGrid * ggrid, int zid, UnsGrid * grid )
     }
 }
 
-void Partition::SetF2CAndBC( UnsGrid * ggrid, int zid, UnsGrid * grid )
+void Partition::SetF2CAndBC( UnsGrid & ggrid, int zid, UnsGrid & grid )
 {
-    int nGBFace = ggrid->nBFaces;
+    int nGBFace = ggrid.nBFaces;
 
-    IntField & glCell = ggrid->GetFaceTopo().GetLeftCells();
-    IntField & grCell = ggrid->GetFaceTopo().GetRightCells();
+    IntField & glCell = ggrid.GetFaceTopo().GetLeftCells();
+    IntField & grCell = ggrid.GetFaceTopo().GetRightCells();
 
-    IntField & gbcType = ggrid->GetFaceTopo().GetBcRecord().bcType;
+    IntField & gbcType = ggrid.GetFaceTopo().GetBcRecord().bcType;
 
-    int nFaces  = grid->nFaces;
-    int nBFaces = grid->nBFaces;
+    int nFaces  = grid.nFaces;
+    int nBFaces = grid.nBFaces;
 
-    IntField & lCell = grid->GetFaceTopo().GetLeftCells();
-    IntField & rCell = grid->GetFaceTopo().GetRightCells();
+    IntField & lCell = grid.GetFaceTopo().GetLeftCells();
+    IntField & rCell = grid.GetFaceTopo().GetRightCells();
     lCell.resize( nFaces );
     rCell.resize( nFaces );
 
-    grid->GetFaceTopo().SetNBFaces( nBFaces );
+    grid.GetFaceTopo().SetNBFaces( nBFaces );
 
-    IntField & local_bcType = grid->GetFaceTopo().GetBcRecord().bcType;
+    IntField & local_bcType = grid.GetFaceTopo().GetBcRecord().bcType;
 
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
@@ -618,19 +618,19 @@ void Partition::SetF2CAndBC( UnsGrid * ggrid, int zid, UnsGrid * grid )
     }
 }
 
-void Partition::SetInterface( UnsGrid * ggrid, int zid, UnsGrid * grid )
+void Partition::SetInterface( UnsGrid & ggrid, int zid, UnsGrid & grid )
 {
     if ( this->partition_type != 1 ) return;
 
-    InterFace * interFace = grid->interFace.get();
+    InterFace * interFace = grid.interFace.get();
     int nIFaces = interFace->nIFaces;
-    int nBFaces = grid->nBFaces;
+    int nBFaces = grid.nBFaces;
 
-    int nGFace = ggrid->nFaces;
-    int nGBFace = ggrid->nBFaces;
+    int nGFace = ggrid.nFaces;
+    int nGBFace = ggrid.nBFaces;
 
-    IntField & glCell = ggrid->GetFaceTopo().GetLeftCells();
-    IntField & grCell = ggrid->GetFaceTopo().GetRightCells();
+    IntField & glCell = ggrid.GetFaceTopo().GetLeftCells();
+    IntField & grCell = ggrid.GetFaceTopo().GetRightCells();
 
     //number of physical boundary face
     int nPBFace = nBFaces - nIFaces;
