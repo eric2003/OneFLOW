@@ -44,12 +44,12 @@ CgnsBcLink::~CgnsBcLink()
 
 CgInt CgnsBcLink::GetNConnPoints() const
 {
-    return this->GetNConnPoints();
+    return this->nConnPoints;
 }
 
 CgInt CgnsBcLink::GetNConnDonorPoints() const
 {
-    return this->GetNConnDonorPoints();
+    return this->nConnDonorPoints;
 }
 
 void CgnsBcLink::SetNConnPoints( CgInt value )
@@ -104,12 +104,12 @@ CgInt * CgnsBcLink::GetConnDonorPointData()
 
 void CgnsBcLink::ConvertToInnerDataStandard()
 {
-    for ( int eId = 0; eId < this->nConnPoints; ++ eId )
+    for ( int eId = 0; eId < this->GetNConnPoints(); ++ eId )
     {
         this->SetConnPointValue( eId, this->GetConnPointValue( eId ) - 1 );
     }
 
-    for ( int eId = 0; eId < this->nConnDonorPoints; ++ eId )
+    for ( int eId = 0; eId < this->GetNConnDonorPoints(); ++ eId )
     {
         this->SetConnDonorPointValue( eId, this->GetConnDonorPointValue( eId ) - 1 );
     }
