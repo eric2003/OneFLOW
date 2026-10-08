@@ -4,6 +4,7 @@
 #include <gtest/gtest.h>
 
 #include "GridGeneration.h"
+#include "ClassicGridGeneration.h"
 #include "GridMediator.h"
 #include "GridTypes.h"
 
@@ -42,6 +43,14 @@ TEST( GridTypesTest, ParseGridObjectiveUnknownIsNullopt )
 {
     EXPECT_FALSE( ParseGridObjective( -1 ).has_value() );
     EXPECT_FALSE( ParseGridObjective( 99 ).has_value() );
+}
+
+TEST( ClassicGridGenerationTest, UnknownGenerationIdThrows )
+{
+    GridConfig cfg;
+    cfg.generationId = 99;
+
+    EXPECT_THROW( GenerateClassicGrid( cfg ), std::invalid_argument );
 }
 
 TEST( GridTypesTest, ParseGridFileTypeCaseInsensitive )

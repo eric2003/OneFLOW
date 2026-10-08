@@ -26,6 +26,7 @@ License
 #include "Rae2822.h"
 #include "Cylinder.h"
 #include "CgnsTest.h"
+#include <stdexcept>
 
 BeginNameSpace( ONEFLOW )
 
@@ -102,6 +103,10 @@ void GenerateClassicGrid( const GridConfig & config )
             return;
         }
     }
+
+    throw std::invalid_argument(
+        "Unknown classic grid generation id: " +
+        std::to_string( *config.generationId ) );
 }
 
 EndNameSpace
