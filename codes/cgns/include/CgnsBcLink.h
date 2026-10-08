@@ -40,11 +40,20 @@ public:
 public:
     void ConvertToInnerDataStandard();
 public:
-    CgInt          nConnPoints;
-    CgIntField     connPoint;
+    CgInt GetNConnPoints() const;
+    CgInt GetNConnDonorPoints() const;
+    void SetNConnPoints( CgInt value );
+    void SetNConnDonorPoints( CgInt value );
 
-    CgInt          nConnDonorPoints;
-    CgIntField     connDonorPoint;
+    void ResizeConnPoint( CgInt size );
+    void ResizeConnDonorPoint( CgInt size );
+    CgInt GetConnPointValue( CgInt index ) const;
+    CgInt GetConnDonorPointValue( CgInt index ) const;
+    void SetConnPointValue( CgInt index, CgInt value );
+    void SetConnDonorPointValue( CgInt index, CgInt value );
+
+    CgInt * GetConnPointData();
+    CgInt * GetConnDonorPointData();
 
     ZoneType_t     donorZoneType;
     PointSetType_t donorPointSetType;
@@ -55,6 +64,12 @@ public:
 
     CgnsZone * cgnsZone;
     int bcId;
+private:
+    CgInt      nConnPoints;
+    CgIntField connPoint;
+
+    CgInt      nConnDonorPoints;
+    CgIntField connDonorPoint;
 };
 
 #endif

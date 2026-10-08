@@ -105,10 +105,10 @@ void CgnsBcConn::ReadCgnsBcConnData()
     int baseId = this->cgnsZone->cgnsBase.baseId;
     int zId = this->cgnsZone->zId;
 
-    this->connPoint.resize( nConnPoints );
-    this->connDonorPoint.resize( nConnDonorPoints );
+    this->ResizeConnPoint( nConnPoints );
+    this->ResizeConnDonorPoint( nConnDonorPoints );
 
-    cg_conn_read( fileId, baseId, zId, this->bcId, & this->connPoint[ 0 ], this->donorDataType, & this->connDonorPoint[ 0 ] );
+    cg_conn_read( fileId, baseId, zId, this->bcId, this->GetConnPointData(), this->donorDataType, this->GetConnDonorPointData() );
 }
 
 void CgnsBcConn::DumpCgnsBcConnData()
@@ -144,8 +144,8 @@ void CgnsBcConn::SetPeriodicBc()
 
     for ( int i = 0; i < nConnPoints; ++ i )
     {
-        int id1 = this->connPoint[ i ];
-        int id2 = this->connDonorPoint[ i ];
+        int id1 = this->GetConnPointValue( i );
+        int id2 = this->GetConnDonorPointValue( i );
 
         CgIntField fNodeId1, fNodeId2;
         sZone->GetElementNodeId( id1, fNodeId1 );

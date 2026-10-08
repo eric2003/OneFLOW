@@ -42,16 +42,76 @@ CgnsBcLink::~CgnsBcLink()
 {
 }
 
+CgInt CgnsBcLink::GetNConnPoints() const
+{
+    return this->GetNConnPoints();
+}
+
+CgInt CgnsBcLink::GetNConnDonorPoints() const
+{
+    return this->GetNConnDonorPoints();
+}
+
+void CgnsBcLink::SetNConnPoints( CgInt value )
+{
+    this->nConnPoints = value;
+}
+
+void CgnsBcLink::SetNConnDonorPoints( CgInt value )
+{
+    this->nConnDonorPoints = value;
+}
+
+void CgnsBcLink::ResizeConnPoint( CgInt size )
+{
+    this->connPoint.resize( size );
+}
+
+void CgnsBcLink::ResizeConnDonorPoint( CgInt size )
+{
+    this->connDonorPoint.resize( size );
+}
+
+CgInt CgnsBcLink::GetConnPointValue( CgInt index ) const
+{
+    return this->connPoint[ index ];
+}
+
+CgInt CgnsBcLink::GetConnDonorPointValue( CgInt index ) const
+{
+    return this->connDonorPoint[ index ];
+}
+
+void CgnsBcLink::SetConnPointValue( CgInt index, CgInt value )
+{
+    this->connPoint[ index ] = value;
+}
+
+void CgnsBcLink::SetConnDonorPointValue( CgInt index, CgInt value )
+{
+    this->connDonorPoint[ index ] = value;
+}
+
+CgInt * CgnsBcLink::GetConnPointData()
+{
+    return this->connPoint.empty() ? nullptr : & this->connPoint[ 0 ];
+}
+
+CgInt * CgnsBcLink::GetConnDonorPointData()
+{
+    return this->connDonorPoint.empty() ? nullptr : & this->connDonorPoint[ 0 ];
+}
+
 void CgnsBcLink::ConvertToInnerDataStandard()
 {
     for ( int eId = 0; eId < this->nConnPoints; ++ eId )
     {
-        this->connPoint[ eId ] -= 1;
+        this->SetConnPointValue( eId, this->GetConnPointValue( eId ) - 1 );
     }
 
     for ( int eId = 0; eId < this->nConnDonorPoints; ++ eId )
     {
-        this->connDonorPoint[ eId ] -= 1;
+        this->SetConnDonorPointValue( eId, this->GetConnDonorPointValue( eId ) - 1 );
     }
 
 }
