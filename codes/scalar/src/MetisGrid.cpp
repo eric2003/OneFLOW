@@ -170,7 +170,7 @@ std::vector< std::unique_ptr< ScalarGrid > > GridPartition::ReconstructGridFaceT
 	MetisIntList cellzone;
 	metisSplit.MetisPartition( ggrid, nPart, cellzone );
 
-	grids = this->AllocateGrid( nPart );
+	std::vector< std::unique_ptr< ScalarGrid > > grids = this->AllocateGrid( nPart );
 
 	int nZones = this->GetNZones( grids );
 	int nFaces = ggrid.GetNFaces();
