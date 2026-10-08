@@ -176,7 +176,7 @@ void CalcGrid::ReconstructLink( int iZone )
         {
             UnsGrid * nei_Grid = static_cast< UnsGrid * >( &GridAt( grids, nei_zone_id ) );
 
-            if ( FindMatch( nei_Grid, & facePair ) )
+            if ( FindMatch( *nei_Grid, facePair ) )
             {
                 interFace->localInterfaceId[ iFace ] = facePair.rf.face_id;
             }

@@ -144,6 +144,6 @@ public:
     FacePairBasic lf, rf;
 };
 
-bool FindMatch( UnsGrid * grid, FacePair * facePair );
+bool FindMatch( UnsGrid & grid, FacePair & facePair );
 
 EndNameSpace

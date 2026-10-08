@@ -427,7 +427,7 @@ void Partition::CalcG2lFace( UnsGrid * ggrid, int zid, UnsGrid * grid )
     grid->nFaces  = nFaceNow;
     grid->nBFaces = nBFaceNow;
 
-    InterFace * interFace = grid->interFace.get();
+    InterFace * interFace = grid.interFace.get();
     interFace->Set( nIFaceNow );
     grid->nIFaces = nIFaceNow;
 }
@@ -553,10 +553,10 @@ void Partition::SetF2CAndBC( UnsGrid * ggrid, int zid, UnsGrid * grid )
     IntField & gbcType = ggrid->GetFaceTopo().GetBcRecord().bcType;
 
     int nFaces  = grid->nFaces;
-    int nBFaces = grid->nBFaces;
+    int nBFaces = grid.nBFaces;
 
-    IntField & lCell = grid->GetFaceTopo().GetLeftCells();
-    IntField & rCell = grid->GetFaceTopo().GetRightCells();
+    IntField & lCell = grid.GetFaceTopo().GetLeftCells();
+    IntField & rCell = grid.GetFaceTopo().GetRightCells();
     lCell.resize( nFaces );
     rCell.resize( nFaces );
 
@@ -679,7 +679,7 @@ void Partition::SetInterface( UnsGrid * ggrid, int zid, UnsGrid * grid )
     }
 }
 
-bool FindMatch( UnsGrid * grid, FacePair * facePair )
+bool FindMatch( UnsGrid & grid, FacePair & facePair )
 {
     bool found = false;
 
@@ -700,12 +700,12 @@ bool FindMatch( UnsGrid * grid, FacePair * facePair )
         int rc = rCell[ iFace + nPBFace ];
         int cell_id = MAX( lc, rc );
 
-        if ( ( interFace->zoneId[ iFace ]      == facePair->lf.zone_id ) &&
-             ( interFace->localCellId[ iFace ] == facePair->lf.cell_id ) && 
-             ( cell_id                         == facePair->rf.cell_id ) )
+        if ( ( interFace->zoneId[ iFace ]      == facePair.lf.zone_id ) &&
+             ( interFace->localCellId[ iFace ] == facePair.lf.cell_id ) && 
+             ( cell_id                         == facePair.rf.cell_id ) )
         {
-            interFace->localInterfaceId[ iFace ] = facePair->lf.face_id;
-            facePair->rf.face_id = iFace;
+            interFace->localInterfaceId[ iFace ] = facePair.lf.face_id;
+            facePair.rf.face_id = iFace;
             found = true;
             break;
         } 
