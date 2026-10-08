@@ -43,13 +43,17 @@ void ExecuteGridConversion(
     ConvertGrid( config, caseDir );
 }
 
-void ExecuteDomainInpWorkflow()
+void ExecuteDomainInpWorkflow(
+    const GridConfig & /*config*/,
+    const std::string & /*caseDir*/ )
 {
     DomainInp domainInp;
     domainInp.Run();
 }
 
-void ExecutePartitionWorkflow()
+void ExecutePartitionWorkflow(
+    const GridConfig & /*config*/,
+    const std::string & /*caseDir*/ )
 {
     Partition partition;
     partition.Run();
