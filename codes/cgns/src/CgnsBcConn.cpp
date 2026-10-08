@@ -80,29 +80,23 @@ void CgnsBcConn::ReadCgnsBcConnInfo()
 
 void CgnsBcConn::DumpCgnsBcConnInfo()
 {
-    int fileId = this->cgnsZone->cgnsBase.cgnsFile->fileId;
-    int baseId = this->cgnsZone->cgnsBase.baseId;
-    int zId = this->cgnsZone->zId;
-
-    CgnsTraits::char33 connName;
-    CgnsTraits::char33 donorZoneName;
-
-    //cg_conn_info( fileId, baseId, zId, this->bcId,
-    //    connName, & this->gridLocation, & this->gridConnType, & this->pointSetType,
-    //    & nConnPoints, donorZoneName, & donorZoneType, & donorPointSetType, & donorDataType, & nConnDonorPoints );
-
-    //this->connName = connName;
-    //this->donorZoneName  = donorZoneName;
-
     std::cout << "\n";
-    std::cout << "   connName      = " << connName << " donorZoneName = " << donorZoneName << "\n";
-    std::cout << "   gridLocation  = " << GridLocationName[ this->gridLocation ] << "\n";
-    std::cout << "   donorDataType = " << DataTypeName[ donorDataType ] << "\n";
-    std::cout << "   gridConnType  = " << GridConnectivityTypeName[ this->gridConnType ] << "\n";
-    std::cout << "   pointSetType  = " << PointSetTypeName[ this->pointSetType ];
-    std::cout << "   donorPointSetType = " << PointSetTypeName[ donorPointSetType ] << "\n";
-    std::cout << "   nConnPoints      = " << nConnPoints << "\n";
-    std::cout << "   nConnDonorPoints = " << nConnDonorPoints << "\n";
+    std::cout << "   connName      = " << this->connName
+        << " donorZoneName = " << this->donorZoneName << "\n";
+    std::cout << "   gridLocation  = "
+        << GridLocationName[ this->gridLocation ] << "\n";
+    std::cout << "   donorDataType = "
+        << DataTypeName[ this->donorDataType ] << "\n";
+    std::cout << "   gridConnType  = "
+        << GridConnectivityTypeName[ this->gridConnType ] << "\n";
+    std::cout << "   pointSetType  = "
+        << PointSetTypeName[ this->pointSetType ];
+    std::cout << "   donorPointSetType = "
+        << PointSetTypeName[ this->donorPointSetType ] << "\n";
+    std::cout << "   nConnPoints      = "
+        << this->GetNConnPoints() << "\n";
+    std::cout << "   nConnDonorPoints = "
+        << this->GetNConnDonorPoints() << "\n";
 }
 
 void CgnsBcConn::ReadCgnsBcConnData()
