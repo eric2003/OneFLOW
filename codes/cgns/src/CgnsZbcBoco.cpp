@@ -46,14 +46,14 @@ BeginNameSpace( ONEFLOW )
 CgnsZbcBoco::CgnsZbcBoco( CgnsZone & cgnsZone )
     : cgnsZone( cgnsZone )
 {
-    this->nBoco = 0;
+    this->nBocoToCreate = 0;
 }
 
 CgnsZbcBoco::~CgnsZbcBoco() = default;
 
 int CgnsZbcBoco::GetNBoco() const
 {
-    return this->nBoco;
+    return static_cast< int >( this->cgnsBcBocos.size() );
 }
 
 void CgnsZbcBoco::AddCgnsBcBoco( std::unique_ptr< CgnsBcBoco > cgnsBcBoco )
@@ -71,7 +71,7 @@ CgnsBcBoco & CgnsZbcBoco::GetCgnsBc( int iBoco )
 
 void CgnsZbcBoco::CreateCgnsZbc()
 {
-    for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
+    for ( int iBoco = 0; iBoco < this->nBocoToCreate; ++ iBoco )
     {
 this->AddCgnsBcBoco( std::make_unique< CgnsBcBoco >( &this->cgnsZone ) );
     }
@@ -81,7 +81,7 @@ void CgnsZbcBoco::ShiftBcRegion()
 {
     int baseFlag = 1;
 
-    for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
+    for ( int iBoco = 0; iBoco < this->GetNBoco(); ++ iBoco )
     {
         CgnsBcBoco & cgnsBcBoco = this->GetCgnsBc( iBoco );
         if ( ! cgnsBcBoco.CalcBase() )
@@ -93,7 +93,7 @@ void CgnsZbcBoco::ShiftBcRegion()
 
     if ( baseFlag == 0 )
     {
-        for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
+        for ( int iBoco = 0; iBoco < this->GetNBoco(); ++ iBoco )
         {
             CgnsBcBoco & cgnsBcBoco = this->GetCgnsBc( iBoco );
             cgnsBcBoco.ShiftBcRegion();
@@ -103,7 +103,7 @@ void CgnsZbcBoco::ShiftBcRegion()
 
 void CgnsZbcBoco::ConvertToInnerDataStandard()
 {
-    for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
+    for ( int iBoco = 0; iBoco < this->GetNBoco(); ++ iBoco )
     {
         CgnsBcBoco & cgnsBcBoco = this->GetCgnsBc( iBoco );
         cgnsBcBoco.ConvertToInnerDataStandard();
@@ -113,9 +113,9 @@ void CgnsZbcBoco::ConvertToInnerDataStandard()
 void CgnsZbcBoco::ScanBcFace( FaceSolver & faceSolver )
 {
     std::cout << " Now ScanBcFace......\n\n";
-    std::cout << " nBoco = " << this->nBoco << std::endl;
+    std::cout << " nBoco = " << this->GetNBoco() << std::endl;
 
-    for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
+    for ( int iBoco = 0; iBoco < this->GetNBoco(); ++ iBoco )
     {
         std::cout << " iBoco = " << iBoco << " ";
         CgnsBcBoco & cgnsBcBoco = this->GetCgnsBc( iBoco );
@@ -131,7 +131,7 @@ void CgnsZbcBoco::ScanBcFace( FaceSolver & faceSolver )
 
 void CgnsZbcBoco::PrintZnboco()
 {
-    std::cout << "   nBoco        = " << this->nBoco << std::endl;
+    std::cout << "   nBoco        = " << this->nBocoToCreate << std::endl;
 }
 
 void CgnsZbcBoco::ReadZnboco()
@@ -141,13 +141,13 @@ void CgnsZbcBoco::ReadZnboco()
     int zId = cgnsZone.zId;
 
     // Determine the number of boundary conditions for this zone.
-    cg_nbocos( fileId, baseId, zId, & this->nBoco );
+    cg_nbocos( fileId, baseId, zId, & this->nBocoToCreate );
     this->PrintZnboco();
 }
 
 void CgnsZbcBoco::ReadZnboco( int nBoco )
 {
-    this->nBoco = nBoco;
+    this->nBocoToCreate = nBoco;
     this->PrintZnboco();
 }
 
@@ -156,10 +156,10 @@ void CgnsZbcBoco::ReadCgnsZbcBoco()
     this->ReadZnboco();
     this->CreateCgnsZbc();
 
-    for ( int iBoco = 0; iBoco < nBoco; ++ iBoco )
+    for ( int iBoco = 0; iBoco < this->GetNBoco(); ++ iBoco )
     {
         std::cout << "\n";
-        std::cout << "-->iBoco  = " << iBoco << " nBoco = " << nBoco << "\n";
+        std::cout << "-->iBoco  = " << iBoco << " nBoco = " << this->GetNBoco() << "\n";
         CgnsBcBoco & cgnsBcBoco = this->GetCgnsBc( iBoco );
         cgnsBcBoco.ReadCgnsBcBoco();
     }
@@ -169,10 +169,10 @@ void CgnsZbcBoco::DumpCgnsZbcBoco()
 {
     this->PrintZnboco();
 
-    for ( int iBoco = 0; iBoco < nBoco; ++ iBoco )
+    for ( int iBoco = 0; iBoco < this->GetNBoco(); ++ iBoco )
     {
         std::cout << "\n";
-        std::cout << "-->iBoco  = " << iBoco << " nBoco = " << nBoco << "\n";
+        std::cout << "-->iBoco  = " << iBoco << " nBoco = " << this->GetNBoco() << "\n";
         CgnsBcBoco & cgnsBcBoco = this->GetCgnsBc( iBoco );
         cgnsBcBoco.DumpCgnsBcBoco();
     }
@@ -198,7 +198,7 @@ int CgnsZbcBoco::GetNumberOfActualBcElements()
     int nBFaces = 0;
     int nActualBcFace = 0;
 
-    for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
+    for ( int iBoco = 0; iBoco < this->GetNBoco(); ++ iBoco )
     {
         CgnsBcBoco & cgnsBcBoco = this->GetCgnsBc( iBoco );
         int nBcElement = cgnsBcBoco.nElements;
@@ -221,7 +221,7 @@ void CgnsZbcBoco::GenerateUnsBcElemConn( CgIntField& bcConn )
 
     std::cout << " pos = " << pos << "\n";
 
-    for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
+    for ( int iBoco = 0; iBoco < this->GetNBoco(); ++ iBoco )
     {
         CgnsBcBoco & bcRegion = this->GetCgnsBc( iBoco );
 
