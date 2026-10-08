@@ -419,7 +419,7 @@ void UnsGrid::GenerateLgMapping( IFaceLink & iFaceLink )
         yList.resize( nNodes );
         zList.resize( nNodes );
 
-        ONEFLOW::GetFaceCoorList( faceNode, xList, yList, zList, this->nodeMesh.get() );
+        ONEFLOW::GetFaceCoorList( faceNode, xList, yList, zList, *this->nodeMesh );
         ONEFLOW::GetCoorIdList( iFaceLink, xList, yList, zList, nNodes, gINode );
         iFaceLink.CreateLink( gINode, this->id, lCount );
 

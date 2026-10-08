@@ -76,9 +76,9 @@ FaceSearch::~FaceSearch()
     ;
 }
 
-void FaceSearch::CalcNewFaceId( IFaceLink * iFaceLink )
+void FaceSearch::CalcNewFaceId( IFaceLink & iFaceLink )
 {
-    this->iFaceLink = iFaceLink;
+    this->iFaceLink = &iFaceLink;
     int nFaces = this->faceArray.size();
     this->status.resize( nFaces, -1 );
     this->cFaceId.resize( nFaces );

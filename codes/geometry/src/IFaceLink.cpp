@@ -87,7 +87,7 @@ void IFaceLink::CreateLink( IntField & faceNode, int zid, int lCount )
 
 void IFaceLink::ReconstructInterFace()
 {
-    this->face_search->CalcNewFaceId( this );
+    this->face_search->CalcNewFaceId( *this );
 }
 
 void IFaceLink::InitNewLgMapping()
@@ -200,15 +200,15 @@ void IFaceLink::MatchPeriodicInterface( Grid * grid )
     }
 }
 
-void GetFaceCoorList( IntField & faceNode, RealField & xList, RealField & yList, RealField & zList, NodeMesh * nodeMesh )
+void GetFaceCoorList( const IntField & faceNode, RealField & xList, RealField & yList, RealField & zList, const NodeMesh & nodeMesh )
 {
     int nPoint = faceNode.size();
     for ( int iNode = 0; iNode < nPoint; ++ iNode )
     {
         int gN = faceNode[ iNode ];
-        xList[ iNode ] = nodeMesh->xN[ gN ];
-        yList[ iNode ] = nodeMesh->yN[ gN ];
-        zList[ iNode ] = nodeMesh->zN[ gN ];
+        xList[ iNode ] = nodeMesh.xN[ gN ];
+        yList[ iNode ] = nodeMesh.yN[ gN ];
+        zList[ iNode ] = nodeMesh.zN[ gN ];
     }
 }
 

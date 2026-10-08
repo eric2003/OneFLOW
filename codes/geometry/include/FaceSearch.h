@@ -65,7 +65,7 @@ public:
     IFaceLink * iFaceLink;
     int gFid;
 public:
-    void CalcNewFaceId( IFaceLink * iFaceLink );
+    void CalcNewFaceId( IFaceLink & iFaceLink );
     void SplitQuad2Tri( int faceId );
     void SplitLine( int faceId );
     void GetLocalTri( LinkField & localTriId, LinkField & localTriFlag );
