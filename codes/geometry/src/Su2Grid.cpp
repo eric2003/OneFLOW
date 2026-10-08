@@ -551,15 +551,16 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone & cgnsZone )
     }
 
     CgnsZbc & cgnsZbc = cgnsZone.RequireCgnsZbc();
-    cgnsZbc.cgnsZbcBoco->ReadZnboco( this->mmark.nMarker );
-    cgnsZbc.cgnsZbcBoco->CreateCgnsZbc();
+    CgnsZbcBoco & cgnsZbcBoco = cgnsZbc.RequireCgnsZbcBoco();
+    cgnsZbcBoco.ReadZnboco( this->mmark.nMarker );
+    cgnsZbcBoco.CreateCgnsZbc();
 
     for ( int iMarker = 0; iMarker < this->mmark.nMarker; ++ iMarker )
     {
         const Marker * marker = & this->mmark.markerList[ iMarker ];
         const std::string & name = marker->name;
 
-        CgnsBcBoco * cgnsBcBoco = cgnsZbc.cgnsZbcBoco->GetCgnsBc( iMarker );
+        CgnsBcBoco * cgnsBcBoco = cgnsZbcBoco.GetCgnsBc( iMarker );
         cgnsBcBoco->name = name;
         cgnsBcBoco->gridLocation = CellCenter;
         cgnsBcBoco->nElements    = marker->nElem;
