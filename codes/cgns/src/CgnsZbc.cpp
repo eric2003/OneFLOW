@@ -89,26 +89,26 @@ void CgnsZbc::ConvertToInnerDataStandard()
 
     this->RequireCgnsZbc1to1().ConvertToInnerDataStandard();
 
-    this->cgnsZbcBoco->ShiftBcRegion();
+    this->RequireCgnsZbcBoco().ShiftBcRegion();
 }
 
 void CgnsZbc::ScanBcFace( FaceSolver & faceSolver )
 {
-    this->cgnsZbcBoco->ScanBcFace( faceSolver );
+    this->RequireCgnsZbcBoco().ScanBcFace( faceSolver );
 }
 
 void CgnsZbc::ReadCgnsGridBoundary()
 {
-    this->cgnsZbcBoco->ReadCgnsZbcBoco();
-    this->cgnsZbcConn->ReadCgnsZbcConn();
-    this->cgnsZbc1to1->ReadCgnsZbc1to1();
+    this->RequireCgnsZbcBoco().ReadCgnsZbcBoco();
+    this->RequireCgnsZbcConn().ReadCgnsZbcConn();
+    this->RequireCgnsZbc1to1().ReadCgnsZbc1to1();
 }
 
 void CgnsZbc::DumpCgnsGridBoundary()
 {
-    this->cgnsZbcBoco->DumpCgnsZbcBoco();
-    this->cgnsZbcConn->DumpCgnsZbcConn();
-    this->cgnsZbc1to1->DumpCgnsZbc1to1();
+    this->RequireCgnsZbcBoco().DumpCgnsZbcBoco();
+    this->RequireCgnsZbcConn().DumpCgnsZbcConn();
+    this->RequireCgnsZbc1to1().DumpCgnsZbc1to1();
 }
 
 void CgnsZbc::FillBcPoints( int * start, int * end, cgsize_t * bcpnts, int dimension )
@@ -248,31 +248,31 @@ void CgnsZbc::DumpCgnsGridBoundary( Grid * gridIn, const Grids & grids )
 
 void CgnsZbc::CreateCgnsZbc( CgnsZbc * cgnsZbcIn )
 {
-    this->cgnsZbcBoco->ReadZnboco( cgnsZbcIn->RequireCgnsZbcBoco().nBoco );
-    this->cgnsZbcBoco->CreateCgnsZbc();
+    this->RequireCgnsZbcBoco().ReadZnboco( cgnsZbcIn->RequireCgnsZbcBoco().nBoco );
+    this->RequireCgnsZbcBoco().CreateCgnsZbc();
 
-    this->cgnsZbc1to1->ReadZn1to1( cgnsZbcIn->RequireCgnsZbc1to1().n1to1 );
-    this->cgnsZbc1to1->CreateCgnsZbc();
+    this->RequireCgnsZbc1to1().ReadZn1to1( cgnsZbcIn->RequireCgnsZbc1to1().n1to1 );
+    this->RequireCgnsZbc1to1().CreateCgnsZbc();
 
-    this->cgnsZbcConn->ReadZnconn( cgnsZbcIn->RequireCgnsZbcConn().nConn );
-    this->cgnsZbcConn->CreateCgnsZbc();
+    this->RequireCgnsZbcConn().ReadZnconn( cgnsZbcIn->RequireCgnsZbcConn().nConn );
+    this->RequireCgnsZbcConn().CreateCgnsZbc();
 }
 
 int CgnsZbc::GetNumberOfActualBcElements()
 {
-    return this->cgnsZbcBoco->GetNumberOfActualBcElements();
+    return this->RequireCgnsZbcBoco().GetNumberOfActualBcElements();
 }
 
 void CgnsZbc::GenerateUnsBcElemConn( CgIntField& bcConn )
 {
-    this->cgnsZbcBoco->GenerateUnsBcElemConn( bcConn );
+    this->RequireCgnsZbcBoco().GenerateUnsBcElemConn( bcConn );
 }
 
 void CgnsZbc::SetPeriodicBc()
 {
-    this->cgnsZbcConn->SetPeriodicBc();
+    this->RequireCgnsZbcConn().SetPeriodicBc();
 
-    this->cgnsZbc1to1->SetPeriodicBc();
+    this->RequireCgnsZbc1to1().SetPeriodicBc();
 }
 
 #endif
