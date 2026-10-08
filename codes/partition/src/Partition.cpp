@@ -533,6 +533,8 @@ void Partition::CalcF2N( UnsGrid & ggrid, int zid, UnsGrid & grid )
 
 void Partition::SetF2CAndBC( UnsGrid & ggrid, int zid, UnsGrid & grid )
 {
+    G2LMapping & mapping = *this->g2l;
+
     int nGBFace = ggrid.nBFaces;
 
     IntField & glCell = ggrid.GetFaceTopo().GetLeftCells();
@@ -564,21 +566,21 @@ void Partition::SetF2CAndBC( UnsGrid & ggrid, int zid, UnsGrid & grid )
         if ( gfid < nGBFace )
         {
             rc = - 1;
-            lc = this->g2l->g2l_cell[ glc ];
+            lc = mapping.g2l_cell[ glc ];
             bctype = gbcType[ gfid ];
          }
         else
         {
             bctype = -1;
             // int face
-            if ( this->g2l->gc2lzone[ glc ] == zid )
+            if ( mapping.gc2lzone[ glc ] == zid )
             {
-                lc = this->g2l->g2l_cell[ glc ];
+                lc = mapping.g2l_cell[ glc ];
                 rc = - 1;
             }
-            else if ( this->g2l->gc2lzone[ grc ] == zid )
+            else if ( mapping.gc2lzone[ grc ] == zid )
             {
-                rc = this->g2l->g2l_cell[ grc ];
+                rc = mapping.g2l_cell[ grc ];
                 lc = - 1;
             }
             else
@@ -599,8 +601,8 @@ void Partition::SetF2CAndBC( UnsGrid & ggrid, int zid, UnsGrid & grid )
         int glc = glCell[ gfid ];
         int grc = grCell[ gfid ];
 
-        int lc = this->g2l->g2l_cell[ glc ];
-        int rc = this->g2l->g2l_cell[ grc ];
+        int lc = mapping.g2l_cell[ glc ];
+        int rc = mapping.g2l_cell[ grc ];
 
         lCell[ iFace ] = lc;
         rCell[ iFace ] = rc;
