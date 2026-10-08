@@ -137,7 +137,7 @@ std::vector< std::unique_ptr< ScalarGrid > > GridPartition::PartitionGrid( const
 {
     std::vector< std::unique_ptr< ScalarGrid > > grids;
 
-    this->ReconstructGridFaceTopo( ggrid, nPart, grids );
+    grids = this->ReconstructGridFaceTopo( ggrid, nPart );
     this->ReconstructNeighbor( grids );
     this->ReconstructInterfaceTopo( grids );
     this->CalcInterfaceToBcFace( grids );
@@ -163,7 +163,7 @@ std::vector< std::unique_ptr< ScalarGrid > > GridPartition::AllocateGrid( int nZ
     return grids;
 }
 
-void GridPartition::ReconstructGridFaceTopo( const ScalarGrid & ggrid, int nPart, std::vector< std::unique_ptr< ScalarGrid > > & grids )
+std::vector< std::unique_ptr< ScalarGrid > > GridPartition::ReconstructGridFaceTopo( const ScalarGrid & ggrid, int nPart )
 {
 	//calc cellzone;
 	MetisSplit metisSplit;
@@ -258,6 +258,7 @@ void GridPartition::ReconstructGridFaceTopo( const ScalarGrid & ggrid, int nPart
 			grid.AddInnerFace( iFace, bctype, localCell_L, localCell_R );
 		}
 	}
+    return grids;
 }
 
 void GridPartition::ReconstructInterfaceTopo( std::vector< std::unique_ptr< ScalarGrid > > & grids )
