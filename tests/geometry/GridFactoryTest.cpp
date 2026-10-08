@@ -14,24 +14,6 @@
 
 using namespace ONEFLOW;
 
-TEST( GridFactoryDispatchTest, UnknownObjectiveThrows )
-{
-    GridConfig cfg;
-    cfg.objective = static_cast< GridObjective >( 42 );
-
-    EXPECT_THROW( GenerateGrid( cfg ), std::invalid_argument );
-}
-
-TEST( GridFactoryDispatchTest, UnknownObjectiveWithCaseDirThrows )
-{
-    GridConfig cfg;
-    cfg.objective = static_cast< GridObjective >( 42 );
-
-    EXPECT_THROW(
-        GenerateGrid( cfg, "test-case" ),
-        std::invalid_argument );
-}
-
 // ---------------------------------------------------------------------------
 // GridTypes: objective / file type parsing (header-only helpers)
 // ---------------------------------------------------------------------------
@@ -148,6 +130,21 @@ TEST( ZgridMediatorTest, AddUniquePtrTakesOwnershipWithTwoZones )
 
 TEST( GridFactoryDispatchTest, UnknownObjectiveThrows )
 {
+    GridConfig cfg;
+    cfg.objective = static_cast< GridObjective >( 42 );
+
+    EXPECT_THROW( GenerateGrid( cfg ), std::invalid_argument );
+}
+
+TEST( GridFactoryDispatchTest, UnknownObjectiveWithCaseDirThrows )
+{
+    GridConfig cfg;
+    cfg.objective = static_cast< GridObjective >( 42 );
+
+    EXPECT_THROW(
+        GenerateGrid( cfg, "test-case" ),
+        std::invalid_argument );
+}
 
 
 TEST( GridOpCatalogTest, AllTokensRoundTrip )
