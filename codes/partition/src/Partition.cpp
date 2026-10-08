@@ -299,13 +299,16 @@ void Partition::CalcGC2N()
 
 void Partition::CalcG2lCell()
 {
+    UnsGrid & grid = *this->uns_grid;
+    G2LMapping & mapping = *this->g2l;
+
     IntField zCount( npartproc, 0 );
 
-    int nCells = uns_grid->nCells;
+    int nCells = grid.nCells;
     for ( int cid = 0; cid < nCells; ++ cid )
     {
-        int zid = g2l->gc2lzone[ cid ];
-        g2l->g2l_cell[ cid ] = zCount[ zid ] ++;
+        int zid = mapping.gc2lzone[ cid ];
+        mapping.g2l_cell[ cid ] = zCount[ zid ] ++;
     }
 }
 
