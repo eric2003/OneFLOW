@@ -29,7 +29,7 @@ void ExecuteClassicGridWorkflow(
     const GridConfig & config,
     const std::string & caseDir )
 {
-    GenerateClassicGrid( config );
+    GenerateClassicGrid( config, caseDir );
     ConvertGrid( config, caseDir );
 }
 

@@ -29,10 +29,8 @@ License
 #include "GridMachine.h"
 #include "LineMachine.h"
 #include "Prj.h"
-#include "DataBaseIO.h"
 #include "Boundary.h"
 #include "HXMath.h"
-#include "DataBase.h"
 #include "TextFileParser.h"
 #include <iostream>
 #include <iomanip>
@@ -124,9 +122,9 @@ Cylinder::Cylinder()
 
 Cylinder::~Cylinder() = default;
 
-void Cylinder::Run()
+void Cylinder::Run( const GridConfig & config, const std::string & caseDir )
 {
-    this->HalfCylinder();
+    this->HalfCylinder( config, caseDir );
 
     // Keep the alternative geometry available for future explicit selection.
     //this->QuarterCylinder();
@@ -136,7 +134,7 @@ void Cylinder::GenePlate()
 {
 }
 
-void Cylinder::HalfCylinder()
+void Cylinder::HalfCylinder( const GridConfig & config, const std::string & caseDir )
 {
     strCurveLoop->ni = 61;
     strCurveLoop->nj = 81;
@@ -144,7 +142,7 @@ void Cylinder::HalfCylinder()
     domain_data.nj = strCurveLoop->nj;
     domain_data.Alloc();
 
-    this->SetBoundaryGrid();
+    this->SetBoundaryGrid( config, caseDir );
     this->GeneDomain();
     symm_domain.Symmetry( & domain_data );
     final_domain.Join( & domain_data, & symm_domain );
@@ -157,12 +155,12 @@ void Cylinder::HalfCylinder()
     bcList.push_back( BC::OUTFLOW );
     bcList.push_back( BC::OUTFLOW );
 
-    DumpGrid( "/grid/halfcylinder.grd", & final_domain );
-    DumpBcFile( "/grid/halfcylinder.inp", & final_domain, bcList );
-    this->ToTecplot( "/grid/halfcylinder-tecplot.dat", & final_domain );
+    DumpGrid( config.sourceFile, caseDir, & final_domain );
+    DumpBcFile( config.bcFile, caseDir, & final_domain, bcList );
+    this->ToTecplot( "grid/halfcylinder-tecplot.dat", caseDir, & final_domain );
 }
 
-void Cylinder::QuarterCylinder()
+void Cylinder::QuarterCylinder( const GridConfig & config, const std::string & caseDir )
 {
     int ni = 61;
     int nj = 81;
@@ -178,7 +176,7 @@ void Cylinder::QuarterCylinder()
     s3.Alloc( nj );
     s4.Alloc( nj );
 
-    this->SetBoundaryGrid();
+    this->SetBoundaryGrid( config, caseDir );
     this->GeneDomain();
 
     this->nZone = 1;
@@ -188,12 +186,12 @@ void Cylinder::QuarterCylinder()
     bcList.push_back( BC::SYMMETRY );
     bcList.push_back( BC::OUTFLOW );
 
-    DumpGrid( "/grid/cylinder.grd", & domain_data );
-    DumpBcFile( "/grid/cylinder.inp", & domain_data, bcList );
-    this->ToTecplot( "/grid/cylinder-tecplot.dat", & domain_data );
+    DumpGrid( "grid/cylinder.grd", caseDir, & domain_data );
+    DumpBcFile( "grid/cylinder.inp", caseDir, & domain_data, bcList );
+    this->ToTecplot( "grid/cylinder-tecplot.dat", caseDir, & domain_data );
 }
 
-void Cylinder::DumpGrid( const std::string & fileName, DomainData * domain )
+void Cylinder::DumpGrid( const std::string & fileName, const std::string & caseDir, DomainData * domain )
 {
     RealField xN;
     RealField yN;
@@ -210,7 +208,7 @@ void Cylinder::DumpGrid( const std::string & fileName, DomainData * domain )
     }
 
     std::fstream file;
-    Prj::OpenPrjFile( file, fileName, std::ios_base::out | std::ios_base::binary );
+    Prj::OpenCaseFile( file, caseDir, fileName, std::ios_base::out | std::ios_base::binary );
     int nZone = 1;
     int nk = 1;
     HXWrite( & file, nZone );
@@ -225,10 +223,10 @@ void Cylinder::DumpGrid( const std::string & fileName, DomainData * domain )
     Prj::CloseFile( file );
 }
 
-void Cylinder::DumpBcFile( const std::string & fileName, DomainData * domain, IntField & bcList )
+void Cylinder::DumpBcFile( const std::string & fileName, const std::string & caseDir, DomainData * domain, IntField & bcList )
 {
     std::fstream file;
-    Prj::OpenPrjFile( file, fileName, std::ios_base::out );
+    Prj::OpenCaseFile( file, caseDir, fileName, std::ios_base::out );
     int solver = 1;
     std::string zName = "A";
     int nBc = 4;
@@ -246,14 +244,14 @@ void Cylinder::DumpBcFile( const std::string & fileName, DomainData * domain, In
     Prj::CloseFile( file );
 }
 
-void Cylinder::ToTecplot( const std::string & fileName, DomainData * domain )
+void Cylinder::ToTecplot( const std::string & fileName, const std::string & caseDir, DomainData * domain )
 {
     int ni = domain->ni;
     int nj = domain->nj;
     int nk = 1;
 
     std::fstream file;
-    Prj::OpenPrjFile( file, fileName, std::ios_base::out );
+    Prj::OpenCaseFile( file, caseDir, fileName, std::ios_base::out );
     file << " VARIABLES = \"X\" \"Y\" \"Z\"" << "\n";
     file << "ZONE DATAPACKING = BLOCK, I = " << ni << ", J = " << nj << ", K = " << nk << "\n";
 
@@ -276,14 +274,14 @@ void Cylinder::CalcCircleCenter( PointType & p1, PointType & p2, PointType & p0,
     pcenter.z = p1.z - coef * ( p1.z - p0.z );
 }
 
-void Cylinder::SetBoundaryGrid()
+void Cylinder::SetBoundaryGrid( const GridConfig & config, const std::string & caseDir )
 {
-    std::string fileName = GetDataValue< std::string >( "gridLayoutFileName" );
+    const std::string & fileName = config.layoutFile;
     std::string separator = " =\r\n\t#$,;\"";
 
     TextFileParser textFileParser;
 
-    textFileParser.OpenPrjFile( fileName, std::ios_base::in );
+    textFileParser.OpenCaseFile( caseDir, fileName, std::ios_base::in );
     textFileParser.SetDefaultSeparator( separator );
 
     textFileParser.ReadNextNonEmptyLine();

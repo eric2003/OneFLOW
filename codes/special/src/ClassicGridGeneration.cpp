@@ -32,30 +32,30 @@ BeginNameSpace( ONEFLOW )
 
 namespace
 {
-    using GridGenerator = void ( * )( const GridConfig & );
+    using GridGenerator = void ( * )( const GridConfig &, const std::string & );
 
-    void RunCavity( const GridConfig & )
+    void RunCavity( const GridConfig &, const std::string & )
     {
         GenerateCavityGrid();
     }
 
-    void RunRae2822( const GridConfig & )
+    void RunRae2822( const GridConfig &, const std::string & )
     {
         GenerateRae2822Grid();
     }
 
-    void RunCylinder( const GridConfig & )
+    void RunCylinder( const GridConfig & config, const std::string & caseDir )
     {
         Cylinder cylinder;
-        cylinder.Run();
+        cylinder.Run( config, caseDir );
     }
 
-    void RunGridCreate( const GridConfig & config )
+    void RunGridCreate( const GridConfig & config, const std::string & )
     {
         GenerateLayoutGrid( config );
     }
 
-    void RunCgnsTest( const GridConfig & )
+    void RunCgnsTest( const GridConfig &, const std::string & )
     {
         CgnsTest cgnsTest;
         cgnsTest.Run();
@@ -85,7 +85,7 @@ namespace
     };
 }
 
-void GenerateClassicGrid( const GridConfig & config )
+void GenerateClassicGrid( const GridConfig & config, const std::string & caseDir )
 {
     if ( ! config.generationId )
     {
@@ -99,7 +99,7 @@ void GenerateClassicGrid( const GridConfig & config )
     {
         if ( entry.id == generatorId )
         {
-            entry.run( config );
+            entry.run( config, caseDir );
             return;
         }
     }

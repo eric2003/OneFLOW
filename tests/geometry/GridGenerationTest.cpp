@@ -50,7 +50,7 @@ TEST( ClassicGridGenerationTest, UnknownGenerationIdThrows )
     GridConfig cfg;
     cfg.generationId = 99;
 
-    EXPECT_THROW( GenerateClassicGrid( cfg ), std::invalid_argument );
+    EXPECT_THROW( GenerateClassicGrid( cfg, "" ), std::invalid_argument );
 }
 
 TEST( GridTypesTest, ParseGridFileTypeCaseInsensitive )

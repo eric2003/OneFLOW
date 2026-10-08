@@ -24,10 +24,11 @@ License
 
 #include "HXDefine.h"
 #include "GridTypes.h"
+#include <string>
 
 BeginNameSpace( ONEFLOW )
 
 // Generate a classic grid selected by the special-module generation id.
-void GenerateClassicGrid( const GridConfig & config );
+void GenerateClassicGrid( const GridConfig & config, const std::string & caseDir );
 
 EndNameSpace

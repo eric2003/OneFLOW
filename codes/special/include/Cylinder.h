@@ -24,7 +24,9 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "Point.h"
+#include "GridTypes.h"
 #include <memory>
+#include <string>
 
 BeginNameSpace( ONEFLOW )
 
@@ -65,19 +67,19 @@ public:
 public:
     Real beta;
 public:
-    void Run();
-    void HalfCylinder();
-    void QuarterCylinder();
+    void Run( const GridConfig & config, const std::string & caseDir );
+    void HalfCylinder( const GridConfig & config, const std::string & caseDir );
+    void QuarterCylinder( const GridConfig & config, const std::string & caseDir );
     void GenePlate();
 public:
-    void SetBoundaryGrid();
+    void SetBoundaryGrid( const GridConfig & config, const std::string & caseDir );
     void GeneDomain();
 public:
     void CalcCircleCenter( PointType & p1, PointType & p2, PointType & p0, PointType & pcenter );
 public:
-    void DumpGrid( const std::string & fileName, DomainData * domain );
-    void DumpBcFile( const std::string & fileName, DomainData * domain, IntField & bcList );
-    void ToTecplot( const std::string & fileName, DomainData * domain );
+    void DumpGrid( const std::string & fileName, const std::string & caseDir, DomainData * domain );
+    void DumpBcFile( const std::string & fileName, const std::string & caseDir, DomainData * domain, IntField & bcList );
+    void ToTecplot( const std::string & fileName, const std::string & caseDir, DomainData * domain );
 };
 
 void ToTecplot( std::fstream & file, RealField2D & coor, int ni, int nj, int nk );
