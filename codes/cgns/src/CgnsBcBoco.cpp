@@ -74,7 +74,7 @@ int CgnsBcBoco::CalcBase()
 {
     for ( int eId = 0; eId < this->nElements; ++ eId )
     {
-        if ( this->connList[ eId ] < this->cgnsZone->cgnsCoor->GetNCell() )
+        if ( this->connList[ eId ] < this->cgnsZone->RequireCgnsCoor().GetNCell() )
         {
             return 0;
         }
@@ -88,7 +88,7 @@ void CgnsBcBoco::ShiftBcRegion()
     {
         for ( int eId = 0; eId < this->nElements; ++ eId )
         {
-            this->connList[ eId ] += this->cgnsZone->cgnsCoor->GetNCell(); //If the offset is added here, the corresponding cell number should also increase the offset
+            this->connList[ eId ] += this->cgnsZone->RequireCgnsCoor().GetNCell(); //If the offset is added here, the corresponding cell number should also increase the offset
         }
     }
 }
