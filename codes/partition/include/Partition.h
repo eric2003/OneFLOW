@@ -87,7 +87,6 @@ public:
 public:
     Grids grids;
 public:
-    UnsGrid * uns_grid;
     int npartproc;
     int partition_type;
     int partition_c2n;
@@ -95,17 +94,17 @@ public:
     L2GMapping l2g;
 public:
     void Run();
-    void ReadGrid();
-    void GenerateMultiZoneGrid();
-    void CreatePart();
+    UnsGrid & ReadGrid();
+    void GenerateMultiZoneGrid( UnsGrid & ggrid );
+    void CreatePart( UnsGrid & ggrid );
     void AllocPart();
-    void BuildCalculationalGrid();
-    void BuildCalculationalGrid( int zid );
+    void BuildCalculationalGrid( UnsGrid & ggrid );
+    void BuildCalculationalGrid( UnsGrid & ggrid, int zid );
     void PreProcess();
     void PostProcess();
 public:
     void CalcGC2N();
-    void CalcG2lCell();
+    void CalcG2lCell( UnsGrid & ggrid );
     void CalcG2lFace( UnsGrid & ggrid, int zid, UnsGrid & grid );
     void CalcG2lNode( UnsGrid & ggrid, int zid, UnsGrid & grid );
     int GetNCell( UnsGrid & ggrid, int zid );

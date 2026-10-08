@@ -208,14 +208,13 @@ Partition::~Partition()
 
 void Partition::Run()
 {
-    this->ReadGrid();
-
-    this->GenerateMultiZoneGrid();
+    UnsGrid & ggrid = this->ReadGrid();
+    this->GenerateMultiZoneGrid( ggrid );
 
     ONEFLOW::GenerateMultiZoneCalcGrids( std::move( grids ) );
 }
 
-void Partition::ReadGrid()
+UnsGrid & Partition::ReadGrid()
 {
     StringField gridFileList;
     std::string ori_uns_file = GetDataValue< std::string >( "ori_uns_file" );
@@ -227,29 +226,32 @@ void Partition::ReadGrid()
 
     if ( nZones > 1 )
     {
-        std::cout << " At present, there is no support for multiple blocks such as nZones > 1 !\n";
+        Fatal( " At present, there is no support for multiple blocks such as nZones > 1 !\n" );
     }
-    else
+
+    Grid & grid = Zone::GetGridReference();
+    UnsGrid * unsGrid = UnsGridCast( &grid );
+    if ( ! unsGrid )
     {
-        Grid & grid = Zone::GetGridReference();
-        uns_grid = UnsGridCast( &grid );
+        Fatal( "Partition requires an unstructured grid!\n" );
     }
+    return *unsGrid;
 }
 
-void Partition::GenerateMultiZoneGrid()
+void Partition::GenerateMultiZoneGrid( UnsGrid & ggrid )
 {
-    this->CreatePart();
+    this->CreatePart( ggrid );
 
     this->AllocPart();
 
     this->BuildCalculationalGrid();
 }
 
-void Partition::CreatePart()
+void Partition::CreatePart( UnsGrid & ggrid )
 {
-    g2l = std::make_unique< G2LMapping >( *uns_grid, this->npartproc );
-    g2l->GenerateGC2Z( *uns_grid );
-    this->CalcG2lCell();
+    g2l = std::make_unique< G2LMapping >( ggrid, this->npartproc );
+    g2l->GenerateGC2Z( ggrid );
+    this->CalcG2lCell( ggrid );
 
     if ( this->partition_c2n )
     {
@@ -273,14 +275,14 @@ void Partition::AllocPart()
     }
 }
 
-void Partition::BuildCalculationalGrid()
+void Partition::BuildCalculationalGrid( UnsGrid & ggrid )
 {
     this->PreProcess();
     for ( int pid = 0; pid < npartproc; ++ pid )
     {
         std::cout << "BuildCalculationalGrid pid = " << pid << " npartproc = " << npartproc << "\n";
         //for unstructured grid, each processor only contains one zone, so pid equal to zid
-        this->BuildCalculationalGrid( pid );
+        this->BuildCalculationalGrid( ggrid, pid );
     }
     this->PostProcess();
 }
@@ -297,9 +299,9 @@ void Partition::CalcGC2N()
 {
 }
 
-void Partition::CalcG2lCell()
+void Partition::CalcG2lCell( UnsGrid & ggrid )
 {
-    UnsGrid & grid = *this->uns_grid;
+    UnsGrid & grid = ggrid;
     G2LMapping & mapping = *this->g2l;
 
     IntField zCount( npartproc, 0 );
@@ -312,14 +314,14 @@ void Partition::CalcG2lCell()
     }
 }
 
-void Partition::BuildCalculationalGrid( int zid )
+void Partition::BuildCalculationalGrid( UnsGrid & ggrid, int zid )
 {
     UnsGrid & grid = static_cast< UnsGrid & >( GridAt( grids, zid ) );
 
-    grid.nCells = this->GetNCell( *uns_grid, zid );
+    grid.nCells = this->GetNCell( ggrid, zid );
 
-    this->CalcG2lFace( *uns_grid, zid, grid );
-    this->CalcG2lNode( *uns_grid, zid, grid );
+    this->CalcG2lFace( ggrid, zid, grid );
+    this->CalcG2lNode( ggrid, zid, grid );
 
     if ( partition_c2n )
     {
@@ -327,9 +329,9 @@ void Partition::BuildCalculationalGrid( int zid )
     //    this->WriteCellToNode( grid );
     }
 
-    this->CreateL2g( *uns_grid, zid, grid );
-    this->SetCoor  ( *uns_grid, zid, grid );
-    this->SetGeometricRelationship( *uns_grid, zid, grid );
+    this->CreateL2g( ggrid, zid, grid );
+    this->SetCoor  ( ggrid, zid, grid );
+    this->SetGeometricRelationship( ggrid, zid, grid );
 }
 
 void Partition::CalcG2lFace( UnsGrid & ggrid, int zid, UnsGrid & grid )
