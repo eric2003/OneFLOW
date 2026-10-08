@@ -317,8 +317,8 @@ void GridElem::CalcBoundaryType( UnsGrid & grid )
     int nFaces = grid.GetFaceTopo().GetFaces().size();
     std::cout << " nFaces = " << nFaces << "\n";
      
-    BcRecord * bcRecord = &grid.GetFaceTopo().GetBcRecord();
-    int nBFaces = bcRecord->bcType.size();
+    BcRecord & bcRecord = grid.GetFaceTopo().GetBcRecord();
+    int nBFaces = bcRecord.bcType.size();
 
     grid.nBFaces = nBFaces;
 
@@ -327,17 +327,17 @@ void GridElem::CalcBoundaryType( UnsGrid & grid )
     BcTypeMap bcTypeMap;
     bcTypeMap.Init();
 
-    IntField cgnsBcArray = bcRecord->bcType;
+    IntField cgnsBcArray = bcRecord.bcType;
 
     IntSet originalBcSet, finalBcSet;
     int iCount = 0;
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        int cgnsBcType = bcRecord->bcType[ iFace ];
-        int bcNameId = bcRecord->bcNameId[ iFace ];
+        int cgnsBcType = bcRecord.bcType[ iFace ];
+        int bcNameId = bcRecord.bcNameId[ iFace ];
         int bcType = bcTypeMap.Cgns2OneFlow( cgnsBcType );
 
-        bcRecord->bcType[ iCount ] = bcType;
+        bcRecord.bcType[ iCount ] = bcType;
 
         originalBcSet.insert( cgnsBcType );
         finalBcSet.insert( bcType );
