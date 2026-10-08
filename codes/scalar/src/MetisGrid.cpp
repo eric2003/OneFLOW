@@ -170,7 +170,7 @@ void GridPartition::ReconstructGridFaceTopo( const ScalarGrid & ggrid, int nPart
 	MetisIntList cellzone;
 	metisSplit.MetisPartition( ggrid, nPart, cellzone );
 
-	this->AllocateGrid( nPart, grids );
+	grids = this->AllocateGrid( nPart );
 
 	int nZones = this->GetNZones( grids );
 	int nFaces = ggrid.GetNFaces();
