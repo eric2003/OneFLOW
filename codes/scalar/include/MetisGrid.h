@@ -57,7 +57,7 @@ public:
     std::vector< std::unique_ptr< ScalarGrid > > PartitionGrid( const ScalarGrid & ggrid, int nPart );
 private:
     int GetNZones( const std::vector< std::unique_ptr< ScalarGrid > > & grids ) const;
-    void AllocateGrid( int nZones, std::vector< std::unique_ptr< ScalarGrid > > & grids );
+    std::vector< std::unique_ptr< ScalarGrid > > AllocateGrid( int nZones );
     void ReconstructGridFaceTopo( const ScalarGrid & ggrid, int nPart, std::vector< std::unique_ptr< ScalarGrid > > & grids );
     void ReconstructInterfaceTopo( std::vector< std::unique_ptr< ScalarGrid > > & grids );
     void ReconstructNode( const ScalarGrid & ggrid, std::vector< std::unique_ptr< ScalarGrid > > & grids );

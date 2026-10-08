@@ -151,14 +151,16 @@ int GridPartition::GetNZones( const std::vector< std::unique_ptr< ScalarGrid > >
     return static_cast< int >( grids.size() );
 }
 
-void GridPartition::AllocateGrid( int nZones, std::vector< std::unique_ptr< ScalarGrid > > & grids )
+std::vector< std::unique_ptr< ScalarGrid > > GridPartition::AllocateGrid( int nZones )
 {
+    std::vector< std::unique_ptr< ScalarGrid > > grids;
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
         auto grid = std::make_unique< ScalarGrid >();
         grid->id = iZone;
         grids.push_back( std::move( grid ) );
     }
+    return grids;
 }
 
 void GridPartition::ReconstructGridFaceTopo( const ScalarGrid & ggrid, int nPart, std::vector< std::unique_ptr< ScalarGrid > > & grids )
