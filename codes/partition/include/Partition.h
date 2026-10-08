@@ -25,6 +25,7 @@ License
 #include <memory>
 #include <optional>
 #include "HXDefine.h"
+#include "GridTypes.h"
 #include "GridHandles.h"
 #include "HXCgns.h"
 #include <vector>
@@ -82,19 +83,21 @@ public:
 
 class Partition
 {
+private:
+    std::string sourceFile;
+    int partitionType;
 public:
-    Partition();
+    explicit Partition( const GridConfig & config );
     ~Partition();
 public:
     Grids grids;
 public:
     int npartproc;
-    int partition_type;
     std::optional< G2LMapping > g2l;
     L2GMapping l2g;
 public:
     void Run();
-    UnsGrid & ReadGrid();
+    UnsGrid & ReadGrid( const std::string & sourceFile );
     void GenerateMultiZoneGrid( UnsGrid & ggrid );
     void CreatePart( UnsGrid & ggrid );
     void AllocPart();
@@ -110,7 +113,7 @@ public:
     void SetGeometricRelationship( UnsGrid & ggrid, int zid, UnsGrid & grid );
     void CalcF2N( UnsGrid & ggrid, int zid, UnsGrid & grid );
     void SetF2CAndBC( UnsGrid & ggrid, int zid, UnsGrid & grid );
-    void SetInterface( UnsGrid & ggrid, int zid, UnsGrid & grid );
+    void SetInterface( UnsGrid & ggrid, int zid, UnsGrid & grid, int partitionType );
 };
 
 class FacePairBasic

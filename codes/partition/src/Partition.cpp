@@ -37,7 +37,6 @@ License
 #include "NodeMesh.h"
 #include "InterFace.h"
 #include "CalcGrid.h"
-#include "DataBase.h"
 #include <iostream>
 
 
@@ -194,10 +193,9 @@ void G2LMapping::PartByMetis( idx_t nCells, std::vector<idx_t>& xadj, std::vecto
 }
 #endif
 
-Partition::Partition()
+Partition::Partition( const GridConfig & config )
+    : sourceFile( config.sourceFile ), partitionType( config.partitionType ), npartproc( config.partitionType == config.partitionType ? GetDataValue< int >( "npartproc" ) : GetDataValue< int >( "npartproc" ) )
 {
-    this->partition_type = GetDataValue< int >( "partition_type" );
-    this->npartproc = GetDataValue< int >( "npartproc" );
 }
 
 Partition::~Partition()
@@ -206,17 +204,16 @@ Partition::~Partition()
 
 void Partition::Run()
 {
-    UnsGrid & ggrid = this->ReadGrid();
+    UnsGrid & ggrid = this->ReadGrid( this->sourceFile );
     this->GenerateMultiZoneGrid( ggrid );
 
     ONEFLOW::GenerateMultiZoneCalcGrids( std::move( grids ) );
 }
 
-UnsGrid & Partition::ReadGrid()
+UnsGrid & Partition::ReadGrid( const std::string & sourceFile )
 {
     StringField gridFileList;
-    std::string ori_uns_file = GetDataValue< std::string >( "ori_uns_file" );
-    gridFileList.push_back( ori_uns_file );
+    gridFileList.push_back( sourceFile );
 
     Zone::ReadGrid( gridFileList );
 
@@ -479,7 +476,7 @@ void Partition::SetGeometricRelationship( UnsGrid & ggrid, int zid, UnsGrid & gr
 {
     this->CalcF2N( ggrid, zid, grid );
     this->SetF2CAndBC( ggrid, zid, grid );
-    this->SetInterface( ggrid, zid, grid );
+    this->SetInterface( ggrid, zid, grid, this->partitionType );
 }
 
 void Partition::CalcF2N( UnsGrid & ggrid, int zid, UnsGrid & grid )
@@ -585,9 +582,9 @@ void Partition::SetF2CAndBC( UnsGrid & ggrid, int zid, UnsGrid & grid )
     }
 }
 
-void Partition::SetInterface( UnsGrid & ggrid, int zid, UnsGrid & grid )
+void Partition::SetInterface( UnsGrid & ggrid, int zid, UnsGrid & grid, int partitionType )
 {
-    if ( this->partition_type != 1 ) return;
+    if ( partitionType != 1 ) return;
 
     G2LMapping & mapping = this->g2l.value();
 

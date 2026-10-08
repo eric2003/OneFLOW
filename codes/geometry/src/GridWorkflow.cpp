@@ -43,10 +43,10 @@ void ExecuteDomainInpWorkflow(
 }
 
 void ExecutePartitionWorkflow(
-    const GridConfig & /*config*/,
+    const GridConfig & config,
     const std::string & /*caseDir*/ )
 {
-    Partition partition;
+    Partition partition( config );
     partition.Run();
 }
 
