@@ -21,15 +21,11 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "ClassicGrid.h"
-#include "GridTypes.h"
 #include "GridCreate.h"
-#include "Boundary.h"
-#include "HXMath.h"
 #include "Cavity.h"
 #include "Rae2822.h"
 #include "Cylinder.h"
 #include "CgnsTest.h"
-#include <iostream>
 
 
 BeginNameSpace( ONEFLOW )
