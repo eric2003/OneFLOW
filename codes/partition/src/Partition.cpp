@@ -196,7 +196,6 @@ void G2LMapping::PartByMetis( idx_t nCells, std::vector<idx_t>& xadj, std::vecto
 
 Partition::Partition()
 {
-    g2l = nullptr;
     this->partition_type = GetDataValue< int >( "partition_type" );
     this->npartproc = GetDataValue< int >( "npartproc" );
     this->partition_c2n = GetDataValue< int >( "partition_c2n" );
@@ -249,7 +248,7 @@ void Partition::GenerateMultiZoneGrid( UnsGrid & ggrid )
 
 void Partition::CreatePart( UnsGrid & ggrid )
 {
-    g2l = std::make_unique< G2LMapping >( ggrid, this->npartproc );
+    g2l.emplace( ggrid, this->npartproc );
     g2l->GenerateGC2Z( ggrid );
     this->CalcG2lCell( ggrid );
 
@@ -302,7 +301,7 @@ void Partition::CalcGC2N()
 void Partition::CalcG2lCell( UnsGrid & ggrid )
 {
     UnsGrid & grid = ggrid;
-    G2LMapping & mapping = *this->g2l;
+    G2LMapping & mapping = this->g2l;
 
     IntField zCount( npartproc, 0 );
 
@@ -336,7 +335,7 @@ void Partition::BuildCalculationalGrid( UnsGrid & ggrid, int zid )
 
 void Partition::CalcG2lFace( UnsGrid & ggrid, int zid, UnsGrid & grid )
 {
-    G2LMapping & mapping = *this->g2l;
+    G2LMapping & mapping = this->g2l;
 
     int nCells  = ggrid.nCells;
     int nFaces  = ggrid.nFaces;
@@ -417,7 +416,7 @@ void Partition::CalcG2lFace( UnsGrid & ggrid, int zid, UnsGrid & grid )
 
 void Partition::CalcG2lNode( UnsGrid & ggrid, int zid, UnsGrid & grid )
 {
-    G2LMapping & mapping = *this->g2l;
+    G2LMapping & mapping = this->g2l;
 
     int nFaces = ggrid.nFaces;
     int nNodes = ggrid.nNodes;
@@ -457,7 +456,7 @@ void Partition::CalcG2lNode( UnsGrid & ggrid, int zid, UnsGrid & grid )
 
 int Partition::GetNCell( UnsGrid & ggrid, int zid )
 {
-    G2LMapping & mapping = *this->g2l;
+    G2LMapping & mapping = this->g2l;
 
     int nCells = ggrid.nCells;
     int iCount = 0;
@@ -473,12 +472,12 @@ int Partition::GetNCell( UnsGrid & ggrid, int zid )
 
 void Partition::CreateL2g( UnsGrid & ggrid, int zid, UnsGrid & grid )
 {
-    this->l2g.CalcL2G( ggrid, zid, grid, *this->g2l );
+    this->l2g.CalcL2G( ggrid, zid, grid, this->g2l );
 }
 
 void Partition::SetCoor( UnsGrid & ggrid, int zid, UnsGrid & grid )
 {
-    G2LMapping & mapping = *this->g2l;
+    G2LMapping & mapping = this->g2l;
 
     int nNodes = grid.nNodes;
     grid.nodeMesh->CreateNodes( nNodes );
@@ -510,7 +509,7 @@ void Partition::SetGeometricRelationship( UnsGrid & ggrid, int zid, UnsGrid & gr
 
 void Partition::CalcF2N( UnsGrid & ggrid, int zid, UnsGrid & grid )
 {
-    G2LMapping & mapping = *this->g2l;
+    G2LMapping & mapping = this->g2l;
 
     LinkField & f2n = grid.GetFaceTopo().GetFaces();
     LinkField & gf2n = ggrid.GetFaceTopo().GetFaces();
@@ -535,7 +534,7 @@ void Partition::CalcF2N( UnsGrid & ggrid, int zid, UnsGrid & grid )
 
 void Partition::SetF2CAndBC( UnsGrid & ggrid, int zid, UnsGrid & grid )
 {
-    G2LMapping & mapping = *this->g2l;
+    G2LMapping & mapping = this->g2l;
 
     int nGBFace = ggrid.nBFaces;
 
@@ -615,7 +614,7 @@ void Partition::SetInterface( UnsGrid & ggrid, int zid, UnsGrid & grid )
 {
     if ( this->partition_type != 1 ) return;
 
-    G2LMapping & mapping = *this->g2l;
+    G2LMapping & mapping = this->g2l;
 
     InterFace & interFace = *grid.interFace;
     int nIFaces = interFace.nIFaces;
