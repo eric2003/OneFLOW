@@ -415,6 +415,8 @@ void Partition::CalcG2lFace( UnsGrid & ggrid, int zid, UnsGrid & grid )
 
 void Partition::CalcG2lNode( UnsGrid & ggrid, int zid, UnsGrid & grid )
 {
+    G2LMapping & mapping = *this->g2l;
+
     int nFaces = ggrid.nFaces;
     int nNodes = ggrid.nNodes;
 
@@ -422,19 +424,19 @@ void Partition::CalcG2lNode( UnsGrid & ggrid, int zid, UnsGrid & grid )
 
     for ( int iNode = 0; iNode < nNodes; ++ iNode )
     {
-        g2l->g2l_node[ iNode ] = - 2;
+        mapping.g2l_node[ iNode ] = - 2;
     }
 
     //set iZone g2l->g2l_node to -1
     int iCount = 0;
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
-        if ( g2l->g2l_face[ iFace ] > - 1 )
+        if ( mapping.g2l_face[ iFace ] > - 1 )
         {
             int nFNode = f2n[ iFace ].size();
             for ( int iNode = 0; iNode < nFNode; ++ iNode )
             {
-                g2l->g2l_node[ f2n[ iFace ][ iNode ] ] = - 1;
+                mapping.g2l_node[ f2n[ iFace ][ iNode ] ] = - 1;
             }
         }
     }
@@ -442,9 +444,9 @@ void Partition::CalcG2lNode( UnsGrid & ggrid, int zid, UnsGrid & grid )
     int nLNode = 0;
     for ( int iNode = 0; iNode < nNodes; ++ iNode )
     {
-        if ( g2l->g2l_node[ iNode ] == - 1 )
+        if ( mapping.g2l_node[ iNode ] == - 1 )
         {
-            g2l->g2l_node[ iNode ] = nLNode ++;
+            mapping.g2l_node[ iNode ] = nLNode ++;
         }
     }
 
