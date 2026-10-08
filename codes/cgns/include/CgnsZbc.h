@@ -56,6 +56,7 @@ public:
 
     CgnsZone & cgnsZone;
 public:
+    CgnsZbcBoco & RequireCgnsZbcBoco();
     void ScanBcFace( FaceSolver & faceSolver );
 public:
     void ConvertToInnerDataStandard();
