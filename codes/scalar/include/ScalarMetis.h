@@ -44,8 +44,8 @@ public:
     static void CreateCgnsMesh1D();
 };
 
-void ScalarMetisAddZoneGrid( std::vector< std::unique_ptr< ScalarGrid > > & part_grids );
-void ScalarReadGrid( const std::string & gridFileName, std::vector< std::unique_ptr< ScalarGrid > > & grids );
+void ScalarMetisAddZoneGrid( std::vector< std::unique_ptr< ScalarGrid > > part_grids );
+std::vector< std::unique_ptr< ScalarGrid > > ScalarReadGrid( const std::string & gridFileName );
 void ScalarDumpGrid( const std::string & gridFileName, ScalarGrid & grid );
 void ScalarDumpGrid( const std::string & gridFileName, std::vector< std::unique_ptr< ScalarGrid > > & grids );
 

@@ -70,14 +70,13 @@ void ScalarMetis::Run()
 {
     Dim::SetDimension( ONEFLOW::GetDataValue< int >( "dimension" ) );
 
-    std::vector< std::unique_ptr< ScalarGrid > > input_grids;
     int dimension = 1;
     std::string root_gridfile = ONEFLOW::GetDataValue< std::string >( "root_gridfile" );
     std::string scalar_grid_filename = ONEFLOW::GetDataValue< std::string >( "scalar_grid_filename" );
 
     int scalar_flag = ONEFLOW::GetDataValue< int >( "scalar_flag" );
 
-    ScalarReadGrid( root_gridfile, input_grids );
+    std::vector< std::unique_ptr< ScalarGrid > > input_grids = ScalarReadGrid( root_gridfile );
     ScalarGrid & root_grid = *input_grids[ 0 ];
     root_grid.CalcMetrics1D();
 
@@ -88,8 +87,8 @@ void ScalarMetis::Run()
     std::vector< std::unique_ptr< ScalarGrid > > part_grids =
         gridPartition.PartitionGrid( root_grid, scalar_npart );
 
-    ScalarMetisAddZoneGrid( part_grids );
     ScalarDumpGrid( scalar_grid_filename, part_grids );
+    ScalarMetisAddZoneGrid( std::move( part_grids ) );
 }
 
 void ScalarMetis::Create1DMesh()
@@ -144,7 +143,7 @@ void ScalarMetis::Create1DMeshFromCgns()
 
 }
 
-void ScalarMetisAddZoneGrid( std::vector< std::unique_ptr< ScalarGrid > > & part_grids )
+void ScalarMetisAddZoneGrid( std::vector< std::unique_ptr< ScalarGrid > > part_grids )
 {
     int nZones = static_cast< int >( part_grids.size() );
     ZoneState::nZones = nZones;
@@ -154,8 +153,9 @@ void ScalarMetisAddZoneGrid( std::vector< std::unique_ptr< ScalarGrid > > & part
     }
 }
 
-void ScalarReadGrid( const std::string & gridFileName, std::vector< std::unique_ptr< ScalarGrid > > & grids )
+std::vector< std::unique_ptr< ScalarGrid > > ScalarReadGrid( const std::string & gridFileName )
 {
+    std::vector< std::unique_ptr< ScalarGrid > > grids;
     std::fstream file;
     Prj::OpenPrjFile( file, gridFileName, std::ios_base::in|std::ios_base::binary );
 
@@ -188,6 +188,7 @@ void ScalarReadGrid( const std::string & gridFileName, std::vector< std::unique_
     }
 
     Prj::CloseFile( file );
+    return grids;
 }
 
 void ScalarDumpGrid( const std::string & gridFileName, ScalarGrid & grid )
