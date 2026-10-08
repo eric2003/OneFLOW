@@ -628,19 +628,19 @@ void ScalarGrid::SetCgnsZone( CgnsZone & cgnsZone )
 	int currentBcElementPosition = nVolCell;
 	for ( int iBcco = 0; iBcco < cgnsZbcBoco.GetNBoco(); ++ iBcco )
 	{
-		CgnsBcBoco * cgnsBcBoco = cgnsZbcBoco.GetCgnsBc( iBcco );
+		CgnsBcBoco & cgnsBcBoco = cgnsZbcBoco.GetCgnsBc( iBcco );
 		ScalarBcco & scalarBcco = *scalarBccos->bccos[ iBcco ];
 		int nElements = scalarBcco.eTypes.GetNElements();
-		cgnsBcBoco->name = scalarBcco.bcName;
-		cgnsBcBoco->nElements = scalarBcco.eTypes.GetNElements();
-		cgnsBcBoco->bcType = static_cast< BCType_t >( scalarBcco.bcType );
-		cgnsBcBoco->pointSetType = PointList;
-		cgnsBcBoco->CreateCgnsBcBoco();
+		cgnsBcBoco.name = scalarBcco.bcName;
+		cgnsBcBoco.nElements = scalarBcco.eTypes.GetNElements();
+		cgnsBcBoco.bcType = static_cast< BCType_t >( scalarBcco.bcType );
+		cgnsBcBoco.pointSetType = PointList;
+		cgnsBcBoco.CreateCgnsBcBoco();
 
 		for ( int iElement = 0; iElement < nElements; ++ iElement )
 		{
 			int bcElemId = scalarBcco.local_globalIds[ iElement ];
-			cgnsBcBoco->SetConnListValue( iElement, bcElemId + 1 + nVolCell );
+			cgnsBcBoco.SetConnListValue( iElement, bcElemId + 1 + nVolCell );
 		}
 	}
 

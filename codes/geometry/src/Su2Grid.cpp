@@ -560,21 +560,21 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone & cgnsZone )
         const Marker * marker = & this->mmark.markerList[ iMarker ];
         const std::string & name = marker->name;
 
-        CgnsBcBoco * cgnsBcBoco = cgnsZbcBoco.GetCgnsBc( iMarker );
-        cgnsBcBoco->name = name;
-        cgnsBcBoco->gridLocation = CellCenter;
-        cgnsBcBoco->nElements    = marker->nElem;
-        cgnsBcBoco->bcType = static_cast< BCType_t >( marker->cgns_bcType );
-        cgnsBcBoco->pointSetType = PointList;
-        cgnsBcBoco->CreateCgnsBcBoco();
+        CgnsBcBoco & cgnsBcBoco = cgnsZbcBoco.GetCgnsBc( iMarker );
+        cgnsBcBoco.name = name;
+        cgnsBcBoco.gridLocation = CellCenter;
+        cgnsBcBoco.nElements    = marker->nElem;
+        cgnsBcBoco.bcType = static_cast< BCType_t >( marker->cgns_bcType );
+        cgnsBcBoco.pointSetType = PointList;
+        cgnsBcBoco.CreateCgnsBcBoco();
 
         for ( int iElem = 0; iElem < marker->nElem; ++ iElem )
         {
             const int elemId = this->mmark.l2g[ iMarker ][ iElem ];
-            cgnsBcBoco->SetConnListValue( iElem, elemId + 1 + nVolCell );
+            cgnsBcBoco.SetConnListValue( iElem, elemId + 1 + nVolCell );
         }
         
-        //string bcName = GetCgnsBcName( cgnsBcBoco->bcType );
+        //string bcName = GetCgnsBcName( cgnsBcBoco.bcType );
     }
 
     cgnsZone.cgnsZoneType = Unstructured;

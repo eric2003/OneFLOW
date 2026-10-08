@@ -165,9 +165,9 @@ void FillSection( GridViews & grids, HXVector< std::unique_ptr< Int3D > > & unsI
         for ( int ir = 0; ir < nBcRegions; ++ ir )
         {
             BcRegion * bcRegion = bcRegionGroup->regions[ ir ].get();
-            if ( BC::IsNotNormalBc( bcRegion->bcType ) ) continue;
+            if ( BC::IsNotNormalBc( bcRegion.bcType ) ) continue;
             
-            nBFaces += bcRegion->CalcRegionCells();
+            nBFaces += bcRegion.CalcRegionCells();
             nTBcRegion ++;
         }
     }
@@ -277,23 +277,23 @@ void FillSection( GridViews & grids, HXVector< std::unique_ptr< Int3D > > & unsI
         for ( int ir = 0; ir < nBcRegions; ++ ir )
         {
             BcRegion * bcRegion = bcRegionGroup->regions[ ir ].get();
-            if ( BC::IsNotNormalBc( bcRegion->bcType ) ) continue;
-            int nRegionCell = bcRegion->CalcRegionCells();
+            if ( BC::IsNotNormalBc( bcRegion.bcType ) ) continue;
+            int nRegionCell = bcRegion.CalcRegionCells();
 
-            CgnsBcBoco * cgnsBcBoco = cgnsZbc->RequireCgnsZbcBoco().GetCgnsBc( irc );
+            CgnsBcBoco & cgnsBcBoco = cgnsZbc->RequireCgnsZbcBoco().GetCgnsBc( irc );
             
-            cgnsBcBoco->SetCgnsBcRegionGridLocation( CellCenter );
-            cgnsBcBoco->nElements    = 2;
-            cgnsBcBoco->bcType       = static_cast< BCType_t >( bcTypeMap.OneFlow2Cgns( bcRegion->bcType ) );
-            cgnsBcBoco->pointSetType = PointRange;
+            cgnsBcBoco.SetCgnsBcRegionGridLocation( CellCenter );
+            cgnsBcBoco.nElements    = 2;
+            cgnsBcBoco.bcType       = static_cast< BCType_t >( bcTypeMap.OneFlow2Cgns( bcRegion.bcType ) );
+            cgnsBcBoco.pointSetType = PointRange;
 
-            //cgnsBcBoco->SetCgnsBcRegion( nElements, bcType, );
+            //cgnsBcBoco.SetCgnsBcRegion( nElements, bcType, );
 
-            cgnsBcBoco->CreateCgnsBcBoco();
-            cgnsBcBoco->SetConnListValue( 0, eIdPos + 1 );
-            cgnsBcBoco->SetConnListValue( 1, eIdPos + nRegionCell );
-            std::string bcName = GetCgnsBcName( cgnsBcBoco->bcType );
-            cgnsBcBoco->name = AddString( bcName, ir );
+            cgnsBcBoco.CreateCgnsBcBoco();
+            cgnsBcBoco.SetConnListValue( 0, eIdPos + 1 );
+            cgnsBcBoco.SetConnListValue( 1, eIdPos + nRegionCell );
+            std::string bcName = GetCgnsBcName( cgnsBcBoco.bcType );
+            cgnsBcBoco.name = AddString( bcName, ir );
 
             eIdPos += nRegionCell;
 
@@ -347,7 +347,7 @@ void CalcUnsId( StrGrid * grid, PointLocator * pointSearch, Int3D * unsId )
 void SetUnsBcConn( BcRegion * bcRegion, CgIntField& conn, int & pos, Int3D & unsId )
 {
     int ist, ied, jst, jed, kst, ked;
-    bcRegion->GetNormalizeIJKRegion( ist, ied, jst, jed, kst, ked );
+    bcRegion.GetNormalizeIJKRegion( ist, ied, jst, jed, kst, ked );
 
     std::cout << " ist, ied, jst, jed, kst, ked = " << ist << " " << ied << " " << jst << " " << jed << " " << kst << " " << ked << std::endl;
     int numpt = 4;
@@ -500,9 +500,9 @@ void GenerateUnsBcCondConn( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
     int nBoco = cgnsZoneIn->RequireCgnsZbc().RequireCgnsZbcBoco().GetNBoco();
     for ( int iBoco = 0; iBoco < nBoco; ++ iBoco )
     {
-        CgnsBcBoco * bcRegion    = myZone    ->RequireCgnsZbc().RequireCgnsZbcBoco().GetCgnsBc( iBoco );
-        CgnsBcBoco * strBcRegion = cgnsZoneIn->RequireCgnsZbc().RequireCgnsZbcBoco().GetCgnsBc( iBoco );
-        bcRegion->CopyStrBcRegion( strBcRegion, startId );
+        CgnsBcBoco & bcRegion    = myZone    ->RequireCgnsZbc().RequireCgnsZbcBoco().GetCgnsBc( iBoco );
+        CgnsBcBoco & strBcRegion = cgnsZoneIn->RequireCgnsZbc().RequireCgnsZbcBoco().GetCgnsBc( iBoco );
+        bcRegion.CopyStrBcRegion( strBcRegion, startId );
     }
 }
 
