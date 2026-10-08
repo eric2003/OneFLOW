@@ -70,6 +70,7 @@ public:
     int  GetVolBcType() const;
     CgnsCoor & RequireCgnsCoor();
     CgnsZsection & RequireCgnsZsection();
+    const CgnsZsection & RequireCgnsZsection() const;
     CgnsZbc & RequireCgnsZbc();
 public:
     void Create();
