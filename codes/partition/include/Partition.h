@@ -53,7 +53,6 @@ public:
     IntField l2g_face;
     IntField l2g_cell;
 public:
-public:
     void Alloc( UnsGrid * grid );
     void CalcL2G    ( UnsGrid * ggrid, int zid, UnsGrid * grid, G2LMapping & g2l );
     void CalcL2GNode( UnsGrid * ggrid, int zid, UnsGrid * grid, G2LMapping & g2l );
