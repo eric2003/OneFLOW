@@ -170,7 +170,7 @@ std::vector< std::unique_ptr< ScalarGrid > > GridPartition::ReconstructGridFaceT
 
 	std::vector< std::unique_ptr< ScalarGrid > > grids = this->AllocateGrid( nPart );
 
-	int nZones = this->GetNZones( grids );
+	int nZones = static_cast< int >( grids.size() );
 	int nFaces = ggrid.GetNFaces();
 	int nCells = ggrid.GetNCells();
 	int nBFaces = ggrid.GetNBFaces();
