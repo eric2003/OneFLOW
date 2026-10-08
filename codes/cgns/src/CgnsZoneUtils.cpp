@@ -90,7 +90,7 @@ void GetIJKRegion( Range & I, Range & J, Range & K, int & ist, int & ied, int & 
 
 void PrepareCgnsZoneSub( GridViews & grids, CgnsZone * cgnsZone )
 {
-    NodeMesh * nodeMesh = cgnsZone->cgnsCoor->GetNodeMesh();
+    NodeMesh * nodeMesh = cgnsZone->RequireCgnsCoor().GetNodeMesh();
 
     int nNodes, nCells;
 
@@ -98,8 +98,8 @@ void PrepareCgnsZoneSub( GridViews & grids, CgnsZone * cgnsZone )
 
     MergeToSingleZone( grids, unsIdList, nodeMesh, nNodes, nCells );
 
-    cgnsZone->cgnsCoor->SetNNode( nNodes );
-    cgnsZone->cgnsCoor->SetNCell( nCells );
+    cgnsZone->RequireCgnsCoor().SetNNode( nNodes );
+    cgnsZone->RequireCgnsCoor().SetNCell( nCells );
 
     FillSection( grids, unsIdList, cgnsZone );
 
@@ -174,35 +174,35 @@ void FillSection( GridViews & grids, HXVector< std::unique_ptr< Int3D > > & unsI
 
     std::cout << " nBFaces = " << nBFaces << "\n";
 
-    cgnsZone->cgnsCoor->SetNCell( nTCell );
+    cgnsZone->RequireCgnsCoor().SetNCell( nTCell );
 
-    cgnsZone->cgnsZsection->CreateCgnsSections( 2 );
+    cgnsZone->RequireCgnsZsection().CreateCgnsSections( 2 );
 
-    cgnsZone->cgnsZsection->GetCgnsSection( 0 ).startId = 1;
-    cgnsZone->cgnsZsection->GetCgnsSection( 0 ).endId   = nTCell;
+    cgnsZone->RequireCgnsZsection().GetCgnsSection( 0 ).startId = 1;
+    cgnsZone->RequireCgnsZsection().GetCgnsSection( 0 ).endId   = nTCell;
 
-    cgnsZone->cgnsZsection->GetCgnsSection( 1 ).startId = nTCell + 1;
-    cgnsZone->cgnsZsection->GetCgnsSection( 1 ).endId   = nTCell + 1 + nBFaces;
+    cgnsZone->RequireCgnsZsection().GetCgnsSection( 1 ).startId = nTCell + 1;
+    cgnsZone->RequireCgnsZsection().GetCgnsSection( 1 ).endId   = nTCell + 1 + nBFaces;
 
     if ( Dim::dimension == ONEFLOW::THREE_D )
     {
-        cgnsZone->cgnsZsection->GetCgnsSection( 0 ).eType = HEXA_8;
-        cgnsZone->cgnsZsection->GetCgnsSection( 1 ).eType = QUAD_4;
+        cgnsZone->RequireCgnsZsection().GetCgnsSection( 0 ).eType = HEXA_8;
+        cgnsZone->RequireCgnsZsection().GetCgnsSection( 1 ).eType = QUAD_4;
     }
     else
     {
-        cgnsZone->cgnsZsection->GetCgnsSection( 0 ).eType = QUAD_4;
-        cgnsZone->cgnsZsection->GetCgnsSection( 1 ).eType = BAR_2;
+        cgnsZone->RequireCgnsZsection().GetCgnsSection( 0 ).eType = QUAD_4;
+        cgnsZone->RequireCgnsZsection().GetCgnsSection( 1 ).eType = BAR_2;
     }
 
-    cgnsZone->cgnsZsection->CreateConnList();
+    cgnsZone->RequireCgnsZsection().CreateConnList();
 
-    CgnsZbc * cgnsZbc = cgnsZone->cgnsZbc.get();
-    cgnsZbc->cgnsZbcBoco->ReadZnboco( nTBcRegion );
+    CgnsZbc * cgnsZbc = &cgnsZone->RequireCgnsZbc();
+    cgnsZbc->RequireCgnsZbcBoco().ReadZnboco( nTBcRegion );
     cgnsZbc->CreateCgnsZbc( cgnsZbc );
 
-    CgnsSection & secV = cgnsZone->cgnsZsection->GetCgnsSection( 0 );
-    CgnsSection & secB = cgnsZone->cgnsZsection->GetCgnsSection( 1 );
+    CgnsSection & secV = cgnsZone->RequireCgnsZsection().GetCgnsSection( 0 );
+    CgnsSection & secB = cgnsZone->RequireCgnsZsection().GetCgnsSection( 1 );
 
     CgIntField& connList  = secV.connList;
     CgIntField& bConnList = secB.connList;
@@ -280,7 +280,7 @@ void FillSection( GridViews & grids, HXVector< std::unique_ptr< Int3D > > & unsI
             if ( BC::IsNotNormalBc( bcRegion->bcType ) ) continue;
             int nRegionCell = bcRegion->CalcRegionCells();
 
-            CgnsBcBoco * cgnsBcBoco = cgnsZbc->cgnsZbcBoco->GetCgnsBc( irc );
+            CgnsBcBoco * cgnsBcBoco = cgnsZbc->RequireCgnsZbcBoco().GetCgnsBc( irc );
             
             cgnsBcBoco->SetCgnsBcRegionGridLocation( CellCenter );
             cgnsBcBoco->nElements    = 2;
@@ -482,26 +482,26 @@ void SetUnsBcConn( BcRegion * bcRegion, CgIntField& conn, int & pos, Int3D & uns
 void GenerateUnsBcElemConn( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
 {
     int iSection = 1;
-    CgnsSection & cgnsSection = myZone->cgnsZsection->GetCgnsSection( iSection );
+    CgnsSection & cgnsSection = myZone->RequireCgnsZsection().GetCgnsSection( iSection );
 
-    myZone->cgnsZbc->CreateCgnsZbc( cgnsZoneIn->cgnsZbc.get() );
+    myZone->RequireCgnsZbc().CreateCgnsZbc( &cgnsZoneIn->RequireCgnsZbc() );
 
     std::cout << " ConnectionList Size = " << cgnsSection.connSize << "\n";
-    cgnsZoneIn->cgnsZbc->GenerateUnsBcElemConn( cgnsSection.connList );
+    cgnsZoneIn->RequireCgnsZbc().GenerateUnsBcElemConn( cgnsSection.connList );
 }
 
 void GenerateUnsBcCondConn( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
 {
     int iSection = 1;
-    CgnsSection & cgnsSection = myZone->cgnsZsection->GetCgnsSection( iSection );
+    CgnsSection & cgnsSection = myZone->RequireCgnsZsection().GetCgnsSection( iSection );
 
     CgInt startId = cgnsSection.startId;
 
-    int nBoco = cgnsZoneIn->cgnsZbc->cgnsZbcBoco->nBoco;
+    int nBoco = cgnsZoneIn->RequireCgnsZbc().RequireCgnsZbcBoco().nBoco;
     for ( int iBoco = 0; iBoco < nBoco; ++ iBoco )
     {
-        CgnsBcBoco * bcRegion    = myZone    ->cgnsZbc->cgnsZbcBoco->GetCgnsBc( iBoco );
-        CgnsBcBoco * strBcRegion = cgnsZoneIn->cgnsZbc->cgnsZbcBoco->GetCgnsBc( iBoco );
+        CgnsBcBoco * bcRegion    = myZone    ->cgnsZbc->RequireCgnsZbcBoco().GetCgnsBc( iBoco );
+        CgnsBcBoco * strBcRegion = cgnsZoneIn->RequireCgnsZbc().RequireCgnsZbcBoco().GetCgnsBc( iBoco );
         bcRegion->CopyStrBcRegion( strBcRegion, startId );
     }
 }
@@ -515,7 +515,7 @@ void GenerateUnsVolElemConn( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
     std::cout << " ni = " << ni << " nj = " << nj << " nk = " << nk << "\n";
 
     int iSection = 0;
-    CgnsSection & cgnsSection = myZone->cgnsZsection->GetCgnsSection( iSection );
+    CgnsSection & cgnsSection = myZone->RequireCgnsZsection().GetCgnsSection( iSection );
 
     Range I, J, K;
     GetRange( ni, nj, nk, 0, -1, I, J, K );
@@ -576,18 +576,18 @@ void GenerateUnsVolElemConn( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
 
 void AllocateUnsElemConn( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
 {
-    myZone->cgnsZsection->CreateCgnsSections( 2 );
+    myZone->RequireCgnsZsection().CreateCgnsSections( 2 );
 
     int s1, e1, s2, e2, etype1, etype2;
     //cgnsZoneIn->GetStrZonePara( s1, e1, s2, e2, etype1, etype2 );
     ONEFLOW::GetStrZonePara( cgnsZoneIn, s1, e1, s2, e2, etype1, etype2 );
 
-    CgnsSection & cgnsSection1 = myZone->cgnsZsection->GetCgnsSection( 0 );
-    CgnsSection & cgnsSection2 = myZone->cgnsZsection->GetCgnsSection( 1 );
+    CgnsSection & cgnsSection1 = myZone->RequireCgnsZsection().GetCgnsSection( 0 );
+    CgnsSection & cgnsSection2 = myZone->RequireCgnsZsection().GetCgnsSection( 1 );
     cgnsSection1.SetSectionInfo( "Section1", etype1, s1, e1 );
     cgnsSection2.SetSectionInfo( "Section2", etype2, s2, e2 );
 
-    myZone->cgnsZsection->CreateConnList();
+    myZone->RequireCgnsZsection().CreateConnList();
 }
 
 void ReadElementConnectivities( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
@@ -601,10 +601,10 @@ void ReadElementConnectivities( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
 
 void GetStrZonePara( CgnsZone * myZone, int & s1, int & e1, int & s2, int & e2, int & etype1, int & etype2  )
 {
-    int nActualBcFace = myZone->cgnsZbc->GetNumberOfActualBcElements();
+    int nActualBcFace = myZone->RequireCgnsZbc().GetNumberOfActualBcElements();
 
     s1 = 1;
-    e1 = myZone->cgnsCoor->GetNCell();
+    e1 = myZone->RequireCgnsCoor().GetNCell();
 
     s2 = e1 + 1;
     e2 = e1 + nActualBcFace;
@@ -643,14 +643,14 @@ void ReadCgnsZoneNameAndGeneralizedDimension( CgnsZone * myZone, CgnsZone * cgns
 void SetDimension( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
 {
     CgnsCoor * cgnsCoorIn = cgnsZoneIn->cgnsCoor.get();
-    myZone->cgnsCoor->SetDimension( cgnsCoorIn );
+    myZone->RequireCgnsCoor().SetDimension( cgnsCoorIn );
 }
 
 void ReadCgnsGridCoordinates( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
 {
     myZone->ReadCgnsGridCoordinates( cgnsZoneIn );
-    //NodeMesh * nodeMesh1 = myZone->cgnsCoor->GetNodeMesh();
-    //NodeMesh * nodeMesh2 = cgnsZoneIn->cgnsCoor->GetNodeMesh();
+    //NodeMesh * nodeMesh1 = myZone->RequireCgnsCoor().GetNodeMesh();
+    //NodeMesh * nodeMesh2 = cgnsZoneIn->RequireCgnsCoor().GetNodeMesh();
 
     //* nodeMesh1 = * nodeMesh2;
 }
@@ -746,7 +746,7 @@ void DumpCgnsZoneAttribute( CgnsZone * myZone, Grid * grid )
 
 void DumpCgnsGridBoundary( CgnsZone * myZone, Grid * grid, const Grids & grids )
 {
-    myZone->cgnsZbc->DumpCgnsGridBoundary( grid, grids );
+    myZone->RequireCgnsZbc().DumpCgnsGridBoundary( grid, grids );
 }
 
 void DumpCgnsGridCoordinates( CgnsZone * myZone, Grid * grid )
