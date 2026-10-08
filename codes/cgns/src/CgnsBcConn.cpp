@@ -30,7 +30,6 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include "NodeMesh.h"
 #include "HXMath.h"
 #include <iostream>
-#include <iomanip>
 
 BeginNameSpace( ONEFLOW )
 
@@ -111,17 +110,6 @@ void CgnsBcConn::ReadCgnsBcConnData()
     cg_conn_read( fileId, baseId, zId, this->bcId, this->GetConnPointData(), this->donorDataType, this->GetConnDonorPointData() );
 }
 
-void CgnsBcConn::DumpCgnsBcConnData()
-{
-    int fileId = this->cgnsZone->cgnsBase.cgnsFile->fileId;
-    int baseId = this->cgnsZone->cgnsBase.baseId;
-    int zId = this->cgnsZone->zId;
-
-    //this->connPoint.resize( nConnPoints );
-    //this->connDonorPoint.resize( nConnDonorPoints );
-
-    //cg_conn_read( fileId, baseId, zId, this->bcId, & this->connPoint[ 0 ], this->donorDataType, & this->connDonorPoint[ 0 ] );
-}
 
 void CgnsBcConn::ReadCgnsBcConn()
 {
@@ -132,7 +120,6 @@ void CgnsBcConn::ReadCgnsBcConn()
 void CgnsBcConn::DumpCgnsBcConn()
 {
     this->DumpCgnsBcConnInfo();
-    this->DumpCgnsBcConnData();
 }
 
 void CgnsBcConn::SetPeriodicBc()
