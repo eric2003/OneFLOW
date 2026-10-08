@@ -969,7 +969,7 @@ void CgnsTest::mytest_write()
     std::string zoneName = "Zone1";
     CgnsZone * cgnsZone = cgnsBase->WriteZoneInfo( zoneName, CGNS_ENUMV(Unstructured), isize[ 0 ] );
 
-    CgnsZbcBoco & cgnsZbcBoco = cgnsZone->RequireCgnsZbc().RequireCgnsZbcBoco();
+    CgnsZbcBoco * cgnsZbcBoco = &cgnsZone->RequireCgnsZbc().RequireCgnsZbcBoco();
     CgnsBcBoco * cgnsBcBoco = 0;
     cgnsBcBoco = cgnsZbcBoco->WriteCgnsBoco( "Bc1", CGNS_ENUMV(BCTunnelInflow), CGNS_ENUMV(PointList), icounts, ipnts );
     cgnsBcBoco->WriteGridLocation( CGNS_ENUMV(FaceCenter) );
