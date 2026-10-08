@@ -81,6 +81,7 @@ public:
     void FreeMesh();
 public:
     NodeMesh * GetNodeMesh();
+    NodeMesh & RequireNodeMesh();
     void SetDimension();
     void SetDimension( CgnsCoor * cgnsCoorIn );
     void SetDimensionStr();
