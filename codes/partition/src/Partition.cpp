@@ -113,7 +113,7 @@ void L2GMapping::CalcL2GCell( UnsGrid & ggrid, int zid, UnsGrid & grid, G2LMappi
     }
 }
 
-G2LMapping::G2LMapping( const UnsGrid & ggrid )
+G2LMapping::G2LMapping( UnsGrid & ggrid )
 {
     this->g2l_cell.resize( ggrid.nCells );
     this->g2l_face.resize( ggrid.nFaces );
@@ -127,7 +127,7 @@ G2LMapping::~G2LMapping()
 {
 }
 
-void G2LMapping::GenerateGC2Z( const UnsGrid & ggrid )
+void G2LMapping::GenerateGC2Z( UnsGrid & ggrid )
 {
     if ( npartproc < 2 )
     {
@@ -147,11 +147,11 @@ void G2LMapping::GenerateGC2Z( const UnsGrid & ggrid )
     //this->ReadGC2Z( gridForPartition );
 }
 #ifdef ENABLE_METIS
-void G2LMapping::GetXadjAdjncy( const UnsGrid & ggrid, std::vector<idx_t> & xadj, std::vector<idx_t>& adjncy )
+void G2LMapping::GetXadjAdjncy( UnsGrid & ggrid, std::vector<idx_t> & xadj, std::vector<idx_t>& adjncy )
 {   
     int  nCells = ggrid.nCells;
-    CalcC2C( const_cast< UnsGrid & >( ggrid ) );
-    LinkField & c2c = const_cast< UnsGrid & >( ggrid ).GetCellMesh().GetCellTopo().c2c;
+    CalcC2C( ggrid );
+    LinkField & c2c = ggrid.GetCellMesh().GetCellTopo().c2c;
     xadj[ 0 ]  = 0;
     int iCount = 0;
     for ( int iCell = 0; iCell < nCells; ++ iCell )

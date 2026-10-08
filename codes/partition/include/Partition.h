@@ -63,7 +63,7 @@ public:
 class G2LMapping
 {
 public:
-    explicit G2LMapping( const UnsGrid & ggrid );
+    explicit G2LMapping( UnsGrid & ggrid );
     ~G2LMapping();
 public:
     IntField g2l_node;
@@ -73,9 +73,9 @@ public:
     int npartproc;
     LinkField c2c;
 public:
-    void GenerateGC2Z( const UnsGrid & ggrid );
+    void GenerateGC2Z( UnsGrid & ggrid );
 #ifdef ENABLE_METIS
-    void GetXadjAdjncy( const UnsGrid & ggrid, std::vector<idx_t>& xadj, std::vector<idx_t>& adjncy );
+    void GetXadjAdjncy( UnsGrid & ggrid, std::vector<idx_t>& xadj, std::vector<idx_t>& adjncy );
     void PartByMetis( idx_t nCells, std::vector<idx_t>& xadj, std::vector<idx_t>& adjncy );
 #endif
     void DumpXadjAdjncy( UnsGrid * grid, IntField & xadj, IntField & adjncy );
