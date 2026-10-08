@@ -476,13 +476,15 @@ void Partition::CreateL2g( UnsGrid & ggrid, int zid, UnsGrid & grid )
 
 void Partition::SetCoor( UnsGrid & ggrid, int zid, UnsGrid & grid )
 {
+    G2LMapping & mapping = *this->g2l;
+
     int nNodes = grid.nNodes;
     grid.nodeMesh->CreateNodes( nNodes );
 
     int iCount = 0;
     for ( int iNode = 0; iNode < ggrid.nNodes; ++ iNode )
     {
-        if ( g2l->g2l_node[ iNode ] > - 1 )
+        if ( mapping.g2l_node[ iNode ] > - 1 )
         {
             grid.nodeMesh->xN[ iCount ] = ggrid.nodeMesh->xN[ iNode ];
             grid.nodeMesh->yN[ iCount ] = ggrid.nodeMesh->yN[ iNode ];
