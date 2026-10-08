@@ -41,11 +41,11 @@ class ScalarGrid;
 class MetisSplit
 {
 public:
-    void MetisPartition( const ScalarGrid & ggrid, int nPart, MetisIntList & cellzone );
-    void ManualPartition( const ScalarGrid & ggrid, int nPart, MetisIntList & cellzone );
+    MetisIntList MetisPartition( const ScalarGrid & ggrid, int nPart );
+    MetisIntList ManualPartition( const ScalarGrid & ggrid, int nPart );
 private:
     void ScalarGetXadjAdjncy( const ScalarGrid & ggrid, MetisIntList & xadj, MetisIntList & adjncy );
-    void ScalarPartitionByMetis( idx_t nCells, MetisIntList & xadj, MetisIntList & adjncy, int nPart, MetisIntList & cellzone );
+    MetisIntList ScalarPartitionByMetis( idx_t nCells, MetisIntList & xadj, MetisIntList & adjncy, int nPart );
 
 };
 

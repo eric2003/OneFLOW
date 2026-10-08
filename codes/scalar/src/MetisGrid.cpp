@@ -37,13 +37,11 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-void MetisSplit::ManualPartition( const ScalarGrid & ggrid, int nPart, MetisIntList & cellzone )
+MetisIntList MetisSplit::ManualPartition( const ScalarGrid & ggrid, int nPart )
 {
-	int nFaces = ggrid.GetNFaces();
 	int nCells = ggrid.GetNCells();
-	int nBFaces = ggrid.GetNBFaces();
-	int nInnerFaces = nFaces - nBFaces;
 
+	MetisIntList cellzone( nCells );
 	std::vector< int > tmp;
 	for ( int iCell = 0; iCell < nCells; iCell += 2 )
 	{
@@ -59,27 +57,25 @@ void MetisSplit::ManualPartition( const ScalarGrid & ggrid, int nPart, MetisIntL
 	{
 		cellzone[ iCell ] = tmp[ iCell ];
 	}
+
+	return cellzone;
 }
 
-void MetisSplit::MetisPartition( const ScalarGrid & ggrid, int nPart, MetisIntList & cellzone )
+MetisIntList MetisSplit::MetisPartition( const ScalarGrid & ggrid, int nPart )
 {
 	int nFaces = ggrid.GetNFaces();
 	int nCells = ggrid.GetNCells();
 	int nBFaces = ggrid.GetNBFaces();
 	int nInnerFaces = nFaces - nBFaces;
 
-	MetisIntList xadj( nCells + 1 );
-	MetisIntList adjncy( 2 * nInnerFaces );
-	cellzone.resize( nCells );
-
 	if ( nPart == nCells )
 	{
-		ManualPartition( ggrid, nPart, cellzone );
-		return;
+		return ManualPartition( ggrid, nPart );
 	}
 
-	ScalarGetXadjAdjncy( ggrid, xadj, adjncy );
-	ScalarPartitionByMetis( nCells, xadj, adjncy, nPart, cellzone );
+	MetisIntList xadj( nCells + 1 );
+	MetisIntList adjncy( 2 * nInnerFaces );
+	return ScalarPartitionByMetis( nCells, xadj, adjncy, nPart );
 }
 
 void MetisSplit::ScalarGetXadjAdjncy( const ScalarGrid & ggrid, MetisIntList & xadj, MetisIntList & adjncy )
@@ -101,8 +97,9 @@ void MetisSplit::ScalarGetXadjAdjncy( const ScalarGrid & ggrid, MetisIntList & x
 	}
 }
 
-void MetisSplit::ScalarPartitionByMetis( idx_t nCells, MetisIntList & xadj, MetisIntList & adjncy, int nPart, MetisIntList & cellzone )
+MetisIntList MetisSplit::ScalarPartitionByMetis( idx_t nCells, MetisIntList & xadj, MetisIntList & adjncy, int nPart )
 {
+	MetisIntList cellzone( nCells );
 	idx_t   ncon     = 1;
 	idx_t   * vwgt   = 0;
 	idx_t   * vsize  = 0;
@@ -131,6 +128,7 @@ void MetisSplit::ScalarPartitionByMetis( idx_t nCells, MetisIntList & xadj, Meti
 	}
 	std::cout << "The interface number: " << objval << std::endl; 
 	std::cout << "Partition is finished!\n";
+	return cellzone;
 }
 
 std::vector< std::unique_ptr< ScalarGrid > > GridPartition::PartitionGrid( const ScalarGrid & ggrid, int nPart )
@@ -167,8 +165,7 @@ std::vector< std::unique_ptr< ScalarGrid > > GridPartition::ReconstructGridFaceT
 {
 	//calc cellzone;
 	MetisSplit metisSplit;
-	MetisIntList cellzone;
-	metisSplit.MetisPartition( ggrid, nPart, cellzone );
+	MetisIntList cellzone = metisSplit.MetisPartition( ggrid, nPart );
 
 	std::vector< std::unique_ptr< ScalarGrid > > grids = this->AllocateGrid( nPart );
 
