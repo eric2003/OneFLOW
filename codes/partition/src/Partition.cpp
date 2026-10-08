@@ -324,11 +324,9 @@ void Partition::BuildCalculationalGrid( int zid )
     //    this->WriteCellToNode( grid );
     }
 
-    this->l2g = std::make_unique< L2GMapping >();
     this->CreateL2g( *uns_grid, zid, grid );
     this->SetCoor  ( *uns_grid, zid, grid );
     this->SetGeometricRelationship( *uns_grid, zid, grid );
-    this->l2g.reset();
 }
 
 void Partition::CalcG2lFace( UnsGrid & ggrid, int zid, UnsGrid & grid )
@@ -543,7 +541,7 @@ void Partition::SetF2CAndBC( UnsGrid & ggrid, int zid, UnsGrid & grid )
 
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        int gfid = this->l2g->l2g_face[ iFace ];
+        int gfid = this->l2g.l2g_face[ iFace ];
 
         int glc = glCell[ gfid ];
         int grc = grCell[ gfid ];
@@ -584,7 +582,7 @@ void Partition::SetF2CAndBC( UnsGrid & ggrid, int zid, UnsGrid & grid )
 
     for ( int iFace = nBFaces; iFace < nFaces; ++ iFace )
     {
-        int gfid = this->l2g->l2g_face[ iFace ];
+        int gfid = this->l2g.l2g_face[ iFace ];
         int glc = glCell[ gfid ];
         int grc = grCell[ gfid ];
 

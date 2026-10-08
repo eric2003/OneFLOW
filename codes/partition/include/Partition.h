@@ -92,7 +92,7 @@ public:
     int partition_type;
     int partition_c2n;
     std::unique_ptr< G2LMapping > g2l;
-    std::unique_ptr< L2GMapping > l2g;
+    L2GMapping l2g;
 public:
     void Run();
     void ReadGrid();
