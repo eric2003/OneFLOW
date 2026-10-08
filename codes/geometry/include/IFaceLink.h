@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*\
+/*---------------------------------------------------------------------------*\\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
@@ -18,7 +18,7 @@ License
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
-\*---------------------------------------------------------------------------*/
+\\*---------------------------------------------------------------------------*/
 
 #pragma once
 #include "HXDefine.h"
@@ -37,7 +37,6 @@ class NodeMesh;
 class IFaceLink
 {
 public:
-    // Observes caller's owning Grids; gridsIn must outlive this object.
     explicit IFaceLink( Grids & gridsIn );
     ~IFaceLink();
 public:
@@ -55,11 +54,8 @@ public:
     std::unique_ptr< FaceSearch > face_search;
     std::unique_ptr< PointLocator > point_search;
 
-    // Non-owning back-pointer to the pipeline's Grids.
-    Grids * grids{ nullptr };
 public:
     void Init( Grid & grid );
-    Grid & GetGrid( int zoneIndex ) { return GridAt( *grids, zoneIndex ); }
 public:
     void CreateLink( IntField & faceNode, int zid, int lCount );
     void MatchInterfaceTopology( Grid & grid );

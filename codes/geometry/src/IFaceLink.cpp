@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*\
+/*---------------------------------------------------------------------------*\\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
@@ -12,13 +12,13 @@ License
 
     OneFLOW is distributed in the hope that it will be useful, but WITHOUT
     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-    for more details.
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
-\*---------------------------------------------------------------------------*/
+\\*---------------------------------------------------------------------------*/
 
 #include "IFaceLink.h"
 #include "Constant.h"
@@ -35,14 +35,12 @@ BeginNameSpace( ONEFLOW )
 
 IFaceLink::IFaceLink( Grids & gridsIn )
 {
-    this->grids = & gridsIn;
-
-    const int nZone = GridsSize( *this->grids );
+    const int nZone = GridsSize( gridsIn );
     this->l2g.resize( nZone );
 
     this->face_search = std::make_unique< FaceSearch >();
     this->point_search = std::make_unique< PointLocator >();
-    this->point_search->Initialize( *this->grids );
+    this->point_search->Initialize( gridsIn );
 }
 
 IFaceLink::~IFaceLink() = default;
