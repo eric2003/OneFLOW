@@ -505,7 +505,7 @@ void Partition::CalcF2N( UnsGrid & ggrid, int zid, UnsGrid & grid )
 
     for ( int fid = 0; fid < nFaces; ++ fid )
     {
-        int gfid = l2g->l2g_face[ fid ];
+        int gfid = this->l2g.l2g_face[ fid ];
 
         int nFNode = gf2n[ gfid ].size();
 
