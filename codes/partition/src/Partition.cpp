@@ -244,7 +244,7 @@ void Partition::GenerateMultiZoneGrid( UnsGrid & ggrid )
 
     this->AllocPart();
 
-    this->BuildCalculationalGrid();
+    this->BuildCalculationalGrid( ggrid );
 }
 
 void Partition::CreatePart( UnsGrid & ggrid )
