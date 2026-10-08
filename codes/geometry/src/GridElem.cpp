@@ -193,7 +193,7 @@ void GridElem::ScanPolygonFace()
         //Scan NFACE_n PolyhedronElement
         for ( int iSection = 0; iSection < nSections; ++ iSection )
         {
-            CgnsSection & cgnsSection = cgnsZone.cgnsZsection->GetCgnsSection( iSection );
+            CgnsSection & cgnsSection = cgnsZone.RequireCgnsZsection().GetCgnsSection( iSection );
             if ( cgnsSection.eType != NFACE_n ) continue;
             this->face_solver.ScanPolyhedronElement( cgnsSection );
             this->SetPolyhedronElementType( cgnsSection );
