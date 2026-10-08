@@ -32,37 +32,6 @@ BeginNameSpace( ONEFLOW )
 
 namespace
 {
-    void GenerateClassic(
-        const GridConfig & config,
-        const std::string & caseDir )
-    {
-        GenerateClassicGrid( config );
-        ConvertGrid( config, caseDir );
-    }
-
-    void ConvertOnly(
-        const GridConfig & config,
-        const std::string & caseDir )
-    {
-        ConvertGrid( config, caseDir );
-    }
-
-    void GenerateInp(
-        const GridConfig & /*config*/,
-        const std::string & /*caseDir*/ )
-    {
-        DomainInp domainInp;
-        domainInp.Run();
-    }
-
-    void PartitionGrid(
-        const GridConfig & /*config*/,
-        const std::string & /*caseDir*/ )
-    {
-        Partition part;
-        part.Run();
-    }
-
     struct PipelineEntry
     {
         GridObjective objective;
@@ -71,13 +40,12 @@ namespace
             const std::string & );
     };
 
-    // The public functions only select a workflow. Concrete workflow steps do
-    // not depend on a GridGeneration instance.
+    // The dispatcher selects an explicit workflow implementation.
     constexpr PipelineEntry kPipelines[] = {
-        { GridObjective::GenerateClassic, &GenerateClassic },
-        { GridObjective::ConvertOnly,     &ConvertOnly },
-        { GridObjective::GenerateInp,     &GenerateInp },
-        { GridObjective::Partition,      &PartitionGrid },
+        { GridObjective::GenerateClassic, &ExecuteClassicGridWorkflow },
+        { GridObjective::ConvertOnly,     &ExecuteGridConversion },
+        { GridObjective::GenerateInp,     &ExecuteDomainInpWorkflow },
+        { GridObjective::Partition,      &ExecutePartitionWorkflow },
     };
 
     void DispatchPipeline(
