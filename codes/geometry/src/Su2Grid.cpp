@@ -546,7 +546,7 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone & cgnsZone )
 
     for ( int iSection = 0; iSection < nSection; ++ iSection )
     {
-        CgnsSection & cgnsSection = cgnsZsection->GetCgnsSection( iSection );
+        CgnsSection & cgnsSection = cgnsZsection.GetCgnsSection( iSection );
         cgnsSection.SetElemPosition();
     }
 
