@@ -529,22 +529,22 @@ void ScalarGrid::CalcBoundarySection( SectionManager & bcSectionManager )
 	}
 }
 
-void ScalarGrid::SetCgnsZone( CgnsZone * cgnsZone )
+void ScalarGrid::SetCgnsZone( CgnsZone & cgnsZone )
 {
-	cgnsZone->zoneName = ONEFLOW::AddString( "Zone", cgnsZone->zId );
-	cgnsZone->cgnsZoneType = CGNS_ENUMV( Unstructured );
+	cgnsZone.zoneName = ONEFLOW::AddString( "Zone", cgnsZone.zId );
+	cgnsZone.cgnsZoneType = CGNS_ENUMV( Unstructured );
 
 	int nNodes = this->GetNNodes();
 	int nCells = this->GetNCells();
 
 	/* vertex size */
-	cgnsZone->isize[ 0 ] = nNodes;
+	cgnsZone.isize[ 0 ] = nNodes;
 	/* cell size */
-	cgnsZone->isize[ 1 ] = nCells;
+	cgnsZone.isize[ 1 ] = nCells;
 	/* boundary vertex size (zero if elements not sorted) */
-	cgnsZone->isize[ 2 ] = 0;
+	cgnsZone.isize[ 2 ] = 0;
 
-	CgnsCoor & cgnsCoor = *cgnsZone->cgnsCoor;
+	CgnsCoor & cgnsCoor = cgnsZone.cgnsCoor;
 
 	cgnsCoor.SetNNode( nNodes );
 	cgnsCoor.SetNCell( nCells );
@@ -583,7 +583,7 @@ void ScalarGrid::SetCgnsZone( CgnsZone * cgnsZone )
 
 	int nTotalSections = nVolSections + nBcSections;
 
-	CgnsZsection & cgnsZsection = *cgnsZone->cgnsZsection;
+	CgnsZsection & cgnsZsection = cgnsZone.cgnsZsection;
 
 	cgnsZsection.CreateCgnsSections( nTotalSections );
 
@@ -620,7 +620,7 @@ void ScalarGrid::SetCgnsZone( CgnsZone * cgnsZone )
 		cgnsSection.SetElemPosition();
 	}
 
-	CgnsZbc & cgnsZbc = *cgnsZone->cgnsZbc;
+	CgnsZbc & cgnsZbc = cgnsZone.cgnsZbc;
 	cgnsZbc.cgnsZbcBoco->ReadZnboco( scalarBccos->bccos.size() );
 	cgnsZbc.cgnsZbcBoco->CreateCgnsZbc();
 
