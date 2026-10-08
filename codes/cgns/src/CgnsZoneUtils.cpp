@@ -500,7 +500,7 @@ void GenerateUnsBcCondConn( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
     int nBoco = cgnsZoneIn->RequireCgnsZbc().RequireCgnsZbcBoco().nBoco;
     for ( int iBoco = 0; iBoco < nBoco; ++ iBoco )
     {
-        CgnsBcBoco * bcRegion    = myZone    ->cgnsZbc->RequireCgnsZbcBoco().GetCgnsBc( iBoco );
+        CgnsBcBoco * bcRegion    = myZone    ->RequireCgnsZbc().RequireCgnsZbcBoco().GetCgnsBc( iBoco );
         CgnsBcBoco * strBcRegion = cgnsZoneIn->RequireCgnsZbc().RequireCgnsZbcBoco().GetCgnsBc( iBoco );
         bcRegion->CopyStrBcRegion( strBcRegion, startId );
     }
@@ -642,7 +642,7 @@ void ReadCgnsZoneNameAndGeneralizedDimension( CgnsZone * myZone, CgnsZone * cgns
 
 void SetDimension( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
 {
-    CgnsCoor * cgnsCoorIn = cgnsZoneIn->cgnsCoor.get();
+    CgnsCoor * cgnsCoorIn = &cgnsZoneIn->RequireCgnsCoor();
     myZone->RequireCgnsCoor().SetDimension( cgnsCoorIn );
 }
 
