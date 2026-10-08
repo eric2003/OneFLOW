@@ -113,7 +113,7 @@ void IFaceLink::MatchInterfaceTopology( Grid & grid )
 
     for ( int iIFace = 0; iIFace < nIFaces; ++ iIFace )
     {
-        int gIFace = this->l2g[ grid->id ][ iIFace ];
+        int gIFace = this->l2g[ grid.id ][ iIFace ];
         int nIZone = this->gI2Zid[ gIFace ].size();
 
         if ( nIZone != 2 )
@@ -149,11 +149,11 @@ void IFaceLink::MatchPeriodicInterface( Grid & grid )
     InterFace * interFace = grid.interFace.get();
     if ( ! interFace ) return;
 
-    int nIFaces = this->l2g[ grid->id ].size();
+    int nIFaces = this->l2g[ grid.id ].size();
 
     for ( int iIFace = 0; iIFace < nIFaces; ++ iIFace )
     {
-        int gIFace = this->l2g[ grid->id ][ iIFace ];
+        int gIFace = this->l2g[ grid.id ][ iIFace ];
         int nIZone = this->gI2Zid[ gIFace ].size();
 
         if ( nIZone == 2 ) continue;
