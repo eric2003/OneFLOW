@@ -199,7 +199,7 @@ void FillSection( GridViews & grids, HXVector< std::unique_ptr< Int3D > > & unsI
 
     CgnsZbc * cgnsZbc = &cgnsZone->RequireCgnsZbc();
     cgnsZbc->RequireCgnsZbcBoco().ReadZnboco( nTBcRegion );
-    cgnsZbc->CreateCgnsZbc( cgnsZbc );
+    cgnsZbc->RequireCgnsZbcBoco().CreateCgnsZbc();
 
     CgnsSection & secV = cgnsZone->RequireCgnsZsection().GetCgnsSection( 0 );
     CgnsSection & secB = cgnsZone->RequireCgnsZsection().GetCgnsSection( 1 );
