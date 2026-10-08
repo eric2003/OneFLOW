@@ -157,6 +157,21 @@ void CgnsBcBoco::ScanBcFace( FaceSolver & faceSolver )
     faceSolver.ScanBcFaceDetail( bcVertex, this->bcType, this->nameId );
 }
 
+void CgnsBcBoco::ResizeConnList( CgInt size )
+{
+    this->connList.resize( size );
+}
+
+void CgnsBcBoco::SetConnListValue( CgInt index, CgInt value )
+{
+    this->connList[ index ] = value;
+}
+
+CgInt CgnsBcBoco::GetConnListValue( CgInt index ) const
+{
+    return this->connList[ index ];
+}
+
 void CgnsBcBoco::ReadCgnsBcBoco()
 {
     this->ReadCgnsBocoInfo();

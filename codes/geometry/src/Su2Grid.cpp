@@ -571,7 +571,7 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone & cgnsZone )
         for ( int iElem = 0; iElem < marker->nElem; ++ iElem )
         {
             const int elemId = this->mmark.l2g[ iMarker ][ iElem ];
-            cgnsBcBoco->connList[ iElem ] = elemId + 1 + nVolCell;
+            cgnsBcBoco->SetConnListValue( iElem, elemId + 1 + nVolCell );
         }
         
         //string bcName = GetCgnsBcName( cgnsBcBoco->bcType );

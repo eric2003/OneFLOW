@@ -290,8 +290,8 @@ void FillSection( GridViews & grids, HXVector< std::unique_ptr< Int3D > > & unsI
             //cgnsBcBoco->SetCgnsBcRegion( nElements, bcType, );
 
             cgnsBcBoco->CreateCgnsBcBoco();
-            cgnsBcBoco->connList[ 0 ] = eIdPos + 1;
-            cgnsBcBoco->connList[ 1 ] = eIdPos + nRegionCell;
+            cgnsBcBoco->SetConnListValue( 0, eIdPos + 1 );
+            cgnsBcBoco->SetConnListValue( 1, eIdPos + nRegionCell );
             std::string bcName = GetCgnsBcName( cgnsBcBoco->bcType );
             cgnsBcBoco->name = AddString( bcName, ir );
 

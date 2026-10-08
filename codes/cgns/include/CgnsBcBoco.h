@@ -79,6 +79,9 @@ public:
     void WriteGridLocation( const GridLocation_t & gridLocation );
     void SetCgnsBcRegionGridLocation( const GridLocation_t & bcGridLocation );
     void CreateCgnsBcBoco();
+    void ResizeConnList( CgInt size );
+    void SetConnListValue( CgInt index, CgInt value );
+    CgInt GetConnListValue( CgInt index ) const;
     void ReadCgnsBcBocoConnList();
     void DumpCgnsBcBocoConnList();
     void PrintCgnsBcBoco();

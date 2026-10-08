@@ -640,7 +640,7 @@ void ScalarGrid::SetCgnsZone( CgnsZone & cgnsZone )
 		for ( int iElement = 0; iElement < nElements; ++ iElement )
 		{
 			int bcElemId = scalarBcco.local_globalIds[ iElement ];
-			cgnsBcBoco->connList[ iElement ] = bcElemId + 1 + nVolCell;
+			cgnsBcBoco->SetConnListValue( iElement, bcElemId + 1 + nVolCell );
 		}
 	}
 
