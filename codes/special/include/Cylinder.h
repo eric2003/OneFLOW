@@ -46,8 +46,8 @@ public:
     int ni, nj;
 public:
     void Alloc();
-    void Symmetry( DomainData * datain );
-    void Join( DomainData * d1, DomainData * d2 );
+    void Symmetry( const DomainData & datain );
+    void Join( const DomainData & d1, const DomainData & d2 );
 };
 
 class StrCurveLoop;
@@ -77,12 +77,12 @@ public:
 public:
     void CalcCircleCenter( PointType & p1, PointType & p2, PointType & p0, PointType & pcenter );
 public:
-    void DumpGrid( const std::string & fileName, const std::string & caseDir, DomainData * domain );
-    void DumpBcFile( const std::string & fileName, const std::string & caseDir, DomainData * domain, IntField & bcList );
-    void ToTecplot( const std::string & fileName, const std::string & caseDir, DomainData * domain );
+    void DumpGrid( const std::string & fileName, const std::string & caseDir, const DomainData & domain );
+    void DumpBcFile( const std::string & fileName, const std::string & caseDir, const DomainData & domain, const IntField & bcList );
+    void ToTecplot( const std::string & fileName, const std::string & caseDir, const DomainData & domain );
 };
 
-void ToTecplot( std::fstream & file, RealField2D & coor, int ni, int nj, int nk );
+void ToTecplot( std::fstream & file, const RealField2D & coor, int ni, int nj, int nk );
 void DumpBc( std::fstream &file, int imin, int imax, int jmin, int jmax, int bcType );
 
 EndNameSpace

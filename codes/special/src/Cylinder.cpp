@@ -56,9 +56,9 @@ void DomainData::Alloc()
     ONEFLOW::AllocateVector(z, ni, nj);
 }
 
-void DomainData::Symmetry( DomainData * datain )
+void DomainData::Symmetry( const DomainData & datain )
 {
-    this->ni = datain->ni;
+    this->ni = datain.ni;
     this->nj = datain->nj;
     this->Alloc();
 
@@ -77,13 +77,13 @@ void DomainData::Symmetry( DomainData * datain )
     }
 }
 
-void DomainData::Join( DomainData * d1, DomainData * d2 )
+void DomainData::Join( const DomainData & d1, const DomainData & d2 )
 {
-    this->ni = 2 * d1->ni - 1;
+    this->ni = 2 * d1.ni - 1;
     this->nj = d1->nj;
     this->Alloc();
 
-    for ( int j = 0; j < d2->nj; ++ j )
+    for ( int j = 0; j < d2.nj; ++ j )
     {
         for ( int i = 0; i < d2->ni; ++ i )
         {
@@ -145,8 +145,8 @@ void Cylinder::HalfCylinder( const GridConfig & config, const std::string & case
 
     this->SetBoundaryGrid( config, caseDir );
     this->GeneDomain();
-    symm_domain.Symmetry( & domain_data );
-    final_domain.Join( & domain_data, & symm_domain );
+    symm_domain.Symmetry( domain_data );
+    final_domain.Join( domain_data, symm_domain );
 
     this->nZone = 1;
 
@@ -156,9 +156,9 @@ void Cylinder::HalfCylinder( const GridConfig & config, const std::string & case
     bcList.push_back( BC::OUTFLOW );
     bcList.push_back( BC::OUTFLOW );
 
-    DumpGrid( config.sourceFile, caseDir, & final_domain );
-    DumpBcFile( config.bcFile, caseDir, & final_domain, bcList );
-    this->ToTecplot( "grid/halfcylinder-tecplot.dat", caseDir, & final_domain );
+    DumpGrid( config.sourceFile, caseDir, final_domain );
+    DumpBcFile( config.bcFile, caseDir, final_domain, bcList );
+    this->ToTecplot( "grid/halfcylinder-tecplot.dat", caseDir, final_domain );
 }
 
 void Cylinder::QuarterCylinder( const GridConfig & config, const std::string & caseDir )
@@ -187,18 +187,18 @@ void Cylinder::QuarterCylinder( const GridConfig & config, const std::string & c
     bcList.push_back( BC::SYMMETRY );
     bcList.push_back( BC::OUTFLOW );
 
-    DumpGrid( "grid/cylinder.grd", caseDir, & domain_data );
-    DumpBcFile( "grid/cylinder.inp", caseDir, & domain_data, bcList );
-    this->ToTecplot( "grid/cylinder-tecplot.dat", caseDir, & domain_data );
+    DumpGrid( "grid/cylinder.grd", caseDir, domain_data );
+    DumpBcFile( "grid/cylinder.inp", caseDir, domain_data, bcList );
+    this->ToTecplot( "grid/cylinder-tecplot.dat", caseDir, domain_data );
 }
 
-void Cylinder::DumpGrid( const std::string & fileName, const std::string & caseDir, DomainData * domain )
+void Cylinder::DumpGrid( const std::string & fileName, const std::string & caseDir, const DomainData & domain )
 {
     RealField xN;
     RealField yN;
     RealField zN;
 
-    for ( int j = 0; j < domain->nj; ++ j )
+    for ( int j = 0; j < domain.nj; ++ j )
     {
         for ( int i = 0; i < domain->ni; ++ i )
         {
@@ -224,7 +224,7 @@ void Cylinder::DumpGrid( const std::string & fileName, const std::string & caseD
     Prj::CloseFile( file );
 }
 
-void Cylinder::DumpBcFile( const std::string & fileName, const std::string & caseDir, DomainData * domain, IntField & bcList )
+void Cylinder::DumpBcFile( const std::string & fileName, const std::string & caseDir, const DomainData & domain, const IntField & bcList )
 {
     std::fstream file;
     Prj::OpenCaseFile( file, caseDir, fileName, std::ios_base::out );
@@ -245,7 +245,7 @@ void Cylinder::DumpBcFile( const std::string & fileName, const std::string & cas
     Prj::CloseFile( file );
 }
 
-void Cylinder::ToTecplot( const std::string & fileName, const std::string & caseDir, DomainData * domain )
+void Cylinder::ToTecplot( const std::string & fileName, const std::string & caseDir, const DomainData & domain )
 {
     int ni = domain->ni;
     int nj = domain->nj;
@@ -408,7 +408,7 @@ void Cylinder::GeneDomain()
     AlgebraInterpolation( domain_data.x, domain_data.y, domain_data.z, ni, nj, nbx, nby, nbz, this->beta );
 }
 
-void ToTecplot( std::fstream & file, RealField2D & coor, int ni, int nj, int nk )
+void ToTecplot( std::fstream & file, const RealField2D & coor, int ni, int nj, int nk )
 {
     int numberOfWords = 5;
 
