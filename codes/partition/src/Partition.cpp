@@ -53,7 +53,7 @@ L2GMapping::~L2GMapping()
     ;
 }
 
-void L2GMapping::CalcL2G( UnsGrid * ggrid, int zid, UnsGrid * grid, G2LMapping & g2l )
+void L2GMapping::CalcL2G( UnsGrid & ggrid, int zid, UnsGrid & grid, G2LMapping & g2l )
 {
     this->Alloc( grid );
     this->CalcL2GNode( ggrid, zid, grid, g2l );
@@ -61,20 +61,20 @@ void L2GMapping::CalcL2G( UnsGrid * ggrid, int zid, UnsGrid * grid, G2LMapping &
     this->CalcL2GCell( ggrid, zid, grid, g2l );
 }
 
-void L2GMapping::Alloc( UnsGrid * grid )
+void L2GMapping::Alloc( UnsGrid & grid )
 {
-    int nNodes = grid->nNodes;
-    int nFaces = grid->nFaces;
-    int nCells = grid->nCells;
+    int nNodes = grid.nNodes;
+    int nFaces = grid.nFaces;
+    int nCells = grid.nCells;
 
     this->l2g_node.resize( nNodes );
     this->l2g_face.resize( nFaces );
     this->l2g_cell.resize( nCells );
 }
 
-void L2GMapping::CalcL2GNode( UnsGrid * ggrid, int zid, UnsGrid * grid, G2LMapping & g2l )
+void L2GMapping::CalcL2GNode( UnsGrid & ggrid, int zid, UnsGrid & grid, G2LMapping & g2l )
 {
-    int nNodes = ggrid->nNodes;
+    int nNodes = ggrid.nNodes;
 
     for ( int iNode = 0; iNode < nNodes; ++ iNode )
     {
@@ -85,9 +85,9 @@ void L2GMapping::CalcL2GNode( UnsGrid * ggrid, int zid, UnsGrid * grid, G2LMappi
     }
 }
 
-void L2GMapping::CalcL2GFace( UnsGrid * ggrid, int zid, UnsGrid * grid, G2LMapping & g2l )
+void L2GMapping::CalcL2GFace( UnsGrid & ggrid, int zid, UnsGrid & grid, G2LMapping & g2l )
 {
-    int nFaces = ggrid->nFaces;
+    int nFaces = ggrid.nFaces;
 
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
@@ -99,9 +99,9 @@ void L2GMapping::CalcL2GFace( UnsGrid * ggrid, int zid, UnsGrid * grid, G2LMappi
     }
 }
 
-void L2GMapping::CalcL2GCell( UnsGrid * ggrid, int zid, UnsGrid * grid, G2LMapping & g2l )
+void L2GMapping::CalcL2GCell( UnsGrid & ggrid, int zid, UnsGrid & grid, G2LMapping & g2l )
 {
-    int nCells = ggrid->nCells;
+    int nCells = ggrid.nCells;
     int cid = 0;
     for ( int gcid = 0; gcid < nCells; ++ gcid )
     {
