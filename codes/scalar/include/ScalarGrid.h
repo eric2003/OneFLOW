@@ -245,8 +245,8 @@ public:
     void DumpCgnsGrid();
     void SetCgnsZone( CgnsZone * cgnsZone );
 public:
-    void CalcVolumeSection( SectionManager * volumeSectionManager );
-    void CalcBoundarySection( SectionManager * bcSectionManager );
+    void CalcVolumeSection( SectionManager & volumeSectionManager );
+    void CalcBoundarySection( SectionManager & bcSectionManager );
 public:
     void CalcMetrics1D();
     void CalcFaceCenter1D();

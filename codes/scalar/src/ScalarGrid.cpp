@@ -432,7 +432,7 @@ void ScalarGrid::GenerateGrid( int ni, Real xmin, Real xmax )
 
 }
 
-void ScalarGrid::CalcVolumeSection( SectionManager * volumeSectionManager )
+void ScalarGrid::CalcVolumeSection( SectionManager & volumeSectionManager )
 {
 	IntSet typeSet;
 	int nElements = this->elements.GetNElements();
@@ -447,12 +447,12 @@ void ScalarGrid::CalcVolumeSection( SectionManager * volumeSectionManager )
 	ONEFLOW::Set2Array( typeSet, cgns_types );
 
 	int nElementTypes = cgns_types.size();
-	volumeSectionManager->Alloc( nElementTypes );
+	volumeSectionManager.Alloc( nElementTypes );
 
 	for ( int iType = 0; iType < nElementTypes; ++ iType )
 	{
 		int current_eType = cgns_types[ iType ];
-		SectionMarker * sectionMarker = volumeSectionManager->data[ iType ].get();
+		SectionMarker * sectionMarker = volumeSectionManager.data[ iType ].get();
 		sectionMarker->cgns_type = current_eType;
 		sectionMarker->name = ElementTypeName[ sectionMarker->cgns_type ];
 		for ( int iElement = 0; iElement < nElements; ++ iElement )
@@ -468,7 +468,7 @@ void ScalarGrid::CalcVolumeSection( SectionManager * volumeSectionManager )
 	}
 }
 
-void ScalarGrid::CalcBoundarySection( SectionManager * bcSectionManager )
+void ScalarGrid::CalcBoundarySection( SectionManager & bcSectionManager )
 {
 	IntSet typeSet;
 
@@ -497,12 +497,12 @@ void ScalarGrid::CalcBoundarySection( SectionManager * bcSectionManager )
 	}
 
 	int nElementTypes = cgns_types.size();
-	bcSectionManager->Alloc( nElementTypes );
+	bcSectionManager.Alloc( nElementTypes );
 	int globalElementId = 0;
 	for ( int iType = 0; iType < nElementTypes; ++ iType )
 	{
 		int current_eType = cgns_types[ iType ];
-		SectionMarker * sectionMarker = bcSectionManager->data[ iType ].get();
+		SectionMarker * sectionMarker = bcSectionManager.data[ iType ].get();
 		sectionMarker->cgns_type = current_eType;
 		sectionMarker->name = ElementTypeName[ sectionMarker->cgns_type ];
 		for ( int iBcco = 0; iBcco < nBccos; ++ iBcco )
@@ -574,8 +574,8 @@ void ScalarGrid::SetCgnsZone( CgnsZone * cgnsZone )
 	SectionManager volSec;
 	SectionManager bcSec;
 
-	this->CalcVolumeSection( & volSec );
-	this->CalcBoundarySection( & bcSec );
+	this->CalcVolumeSection( volSec );
+	this->CalcBoundarySection( bcSec );
 
 	int nVolSections = volSec.GetNSections();
 	int nBcSections = bcSec.GetNSections();
