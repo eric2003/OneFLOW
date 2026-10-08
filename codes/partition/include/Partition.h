@@ -23,6 +23,7 @@ License
 
 #pragma once
 #include <memory>
+#include <optional>
 #include "HXDefine.h"
 #include "GridHandles.h"
 #include "HXCgns.h"
@@ -90,7 +91,7 @@ public:
     int npartproc;
     int partition_type;
     int partition_c2n;
-    std::unique_ptr< G2LMapping > g2l;
+    std::optional< G2LMapping > g2l;
     L2GMapping l2g;
 public:
     void Run();
