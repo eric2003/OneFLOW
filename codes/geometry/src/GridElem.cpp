@@ -105,12 +105,12 @@ bool GridElem::HasPolygonSection() const
         Fatal( "GridElem requires at least one CGNS zone." );
     }
 
-    const bool hasPolygon = this->GetCgnsZone( 0 ).cgnsZsection->HasPolygonSection();
+    const bool hasPolygon = this->GetCgnsZone( 0 ).RequireCgnsZsection().HasPolygonSection();
 
     for ( int iZone = 1; iZone < this->GetNZones(); ++ iZone )
     {
         const bool zoneHasPolygon =
-            this->GetCgnsZone( iZone ).cgnsZsection->HasPolygonSection();
+            this->GetCgnsZone( iZone ).RequireCgnsZsection().HasPolygonSection();
 
         if ( zoneHasPolygon != hasPolygon )
         {
@@ -183,10 +183,10 @@ void GridElem::ScanPolygonFace()
         cgnsZone.ConstructCgnsGridPoints( &this->point_factory );
 
         //Scan NGON_n PolygonFace
-        const int nSections = cgnsZone.cgnsZsection->GetNSections();
+        const int nSections = cgnsZone.RequireCgnsZsection().GetNSections();
         for ( int iSection = 0; iSection < nSections; ++ iSection )
         {
-            CgnsSection & cgnsSection = cgnsZone.cgnsZsection->GetCgnsSection( iSection );
+            CgnsSection & cgnsSection = cgnsZone.RequireCgnsZsection().GetCgnsSection( iSection );
             if ( cgnsSection.eType != NGON_n ) continue;
             this->face_solver.ScanPolygonFace( cgnsSection );
         }
