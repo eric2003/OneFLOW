@@ -8,7 +8,8 @@ License
     OneFLOW is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+    (at your option) under the terms of the GNU General Public License
+    as published by the Free Software Foundation.
 
     OneFLOW is distributed in the hope that it will be useful, but WITHOUT
     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
@@ -197,8 +198,8 @@ void CalcGrid::ResetGridScaleAndTranslate()
     const int nZone = GridsSize( grids );
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        Grid * grid = &GridAt( grids, iZone );
-        ONEFLOW::ResetGridScaleAndTranslate( *grid->nodeMesh, this->config );
+        Grid & grid = GridAt( grids, iZone );
+        ONEFLOW::ResetGridScaleAndTranslate( *grid.nodeMesh, this->config );
     }
 }
 
@@ -224,8 +225,8 @@ void CalcGrid::ModifyBcType()
     const int nZone = GridsSize( grids );
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        Grid * grid = &GridAt( grids, iZone );
-        grid->ModifyBcType( BC::NO_BOUNDARY, BC::INTERFACE );
+        Grid & grid = GridAt( grids, iZone );
+        grid.ModifyBcType( BC::NO_BOUNDARY, BC::INTERFACE );
     }
 }
 
@@ -234,8 +235,8 @@ void CalcGrid::GenerateLgMapping()
     const int nZone = GridsSize( grids );
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        Grid * grid = &GridAt( grids, iZone );
-        grid->GenerateLgMapping( *this->iFaceLink );
+        Grid & grid = GridAt( grids, iZone );
+        grid.GenerateLgMapping( *this->iFaceLink );
     }
 }
 
@@ -246,8 +247,8 @@ void CalcGrid::ReGenerateLgMapping()
     const int nZone = GridsSize( grids );
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        Grid * grid = &GridAt( grids, iZone );
-        grid->ReGenerateLgMapping( *this->iFaceLink );
+        Grid & grid = GridAt( grids, iZone );
+        grid.ReGenerateLgMapping( *this->iFaceLink );
     }
 
     this->UpdateLgMapping();
@@ -264,8 +265,8 @@ void CalcGrid::UpdateOtherTopologyTerm()
     const int nZone = GridsSize( grids );
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        Grid * grid = &GridAt( grids, iZone );
-        grid->UpdateOtherTopologyTerm( *this->iFaceLink );
+        Grid & grid = GridAt( grids, iZone );
+        grid.UpdateOtherTopologyTerm( *this->iFaceLink );
     }
 }
 
@@ -274,8 +275,8 @@ void CalcGrid::MatchInterfaceTopology()
     const int nZone = GridsSize( grids );
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        Grid * grid = &GridAt( grids, iZone );
-        this->iFaceLink->MatchInterfaceTopology( *grid );
+        Grid & grid = GridAt( grids, iZone );
+        this->iFaceLink->MatchInterfaceTopology( grid );
     }
 }
 
