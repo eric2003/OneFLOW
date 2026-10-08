@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*\
+/*---------------------------------------------------------------------------*\\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
@@ -18,15 +18,15 @@ License
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
-\*---------------------------------------------------------------------------*/
+\\*---------------------------------------------------------------------------*/
 
-#include "ClassicGrid.h"
+#include "GridWorkflow.h"
+#include "GridConversion.h"
 #include "GridCreate.h"
 #include "Cavity.h"
 #include "Rae2822.h"
 #include "Cylinder.h"
 #include "CgnsTest.h"
-
 
 BeginNameSpace( ONEFLOW )
 
@@ -61,7 +61,6 @@ namespace
         cgnsTest.Run();
     }
 
-    // Concrete generator identities stay inside the special module.
     enum class ClassicGeneratorId : int
     {
         Cavity     = 1,
@@ -84,26 +83,34 @@ namespace
         { ClassicGeneratorId::GridCreate, &RunGridCreate },
         { ClassicGeneratorId::CgnsTest,   &RunCgnsTest },
     };
-}
 
-void GenerateClassicGrid( const GridConfig & config )
-{
-    if ( ! config.generationId )
+    void GenerateClassicGrid( const GridConfig & config )
     {
-        return;
-    }
-
-    const auto generatorId =
-        static_cast< ClassicGeneratorId >( *config.generationId );
-
-    for ( const auto & entry : kGridGenerationEntries )
-    {
-        if ( entry.id == generatorId )
+        if ( ! config.generationId )
         {
-            entry.run( config );
             return;
         }
+
+        const auto generatorId =
+            static_cast< ClassicGeneratorId >( *config.generationId );
+
+        for ( const auto & entry : kGridGenerationEntries )
+        {
+            if ( entry.id == generatorId )
+            {
+                entry.run( config );
+                return;
+            }
+        }
     }
+}
+
+void ExecuteClassicGridWorkflow(
+    const GridConfig & config,
+    const std::string & caseDir )
+{
+    GenerateClassicGrid( config );
+    ConvertGrid( config, caseDir );
 }
 
 EndNameSpace

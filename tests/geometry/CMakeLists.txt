@@ -87,7 +87,7 @@ set ( SRC_DIRS
     ${CMAKE_SOURCE_DIR}/codes/io/src/FileUtils.cpp
     ${CMAKE_SOURCE_DIR}/codes/io/src/LogFile.cpp
     ${CMAKE_SOURCE_DIR}/codes/io/src/PIO.cpp
-    ${CMAKE_SOURCE_DIR}/codes/special/src/ClassicGrid.cpp  
+    ${CMAKE_SOURCE_DIR}/codes/special/src/ClassicGridWorkflow.cpp
     ${CMAKE_SOURCE_DIR}/codes/special/src/GridCreate.cpp
     ${CMAKE_SOURCE_DIR}/codes/special/src/Cavity.cpp
     ${CMAKE_SOURCE_DIR}/codes/special/src/Rae2822.cpp
