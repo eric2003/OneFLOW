@@ -37,7 +37,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-MetisIntList MetisSplit::ManualPartition( const ScalarGrid & ggrid, int nPart )
+MetisIntList MetisSplit::ManualPartition( const ScalarGrid & ggrid )
 {
 	int nCells = ggrid.GetNCells();
 
@@ -70,7 +70,7 @@ MetisIntList MetisSplit::MetisPartition( const ScalarGrid & ggrid, int nPart )
 
 	if ( nPart == nCells )
 	{
-		return ManualPartition( ggrid, nPart );
+		return ManualPartition( ggrid );
 	}
 
 	MetisIntList xadj( nCells + 1 );

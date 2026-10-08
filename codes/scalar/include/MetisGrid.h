@@ -42,7 +42,7 @@ class MetisSplit
 {
 public:
     MetisIntList MetisPartition( const ScalarGrid & ggrid, int nPart );
-    MetisIntList ManualPartition( const ScalarGrid & ggrid, int nPart );
+    MetisIntList ManualPartition( const ScalarGrid & ggrid );
 private:
     void ScalarGetXadjAdjncy( const ScalarGrid & ggrid, MetisIntList & xadj, MetisIntList & adjncy );
     MetisIntList ScalarPartitionByMetis( idx_t nCells, MetisIntList & xadj, MetisIntList & adjncy, int nPart );
