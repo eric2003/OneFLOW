@@ -165,9 +165,9 @@ void FillSection( GridViews & grids, HXVector< std::unique_ptr< Int3D > > & unsI
         for ( int ir = 0; ir < nBcRegions; ++ ir )
         {
             BcRegion * bcRegion = bcRegionGroup->regions[ ir ].get();
-            if ( BC::IsNotNormalBc( bcRegion.bcType ) ) continue;
+            if ( BC::IsNotNormalBc( bcRegion->bcType ) ) continue;
             
-            nBFaces += bcRegion.CalcRegionCells();
+            nBFaces += bcRegion->CalcRegionCells();
             nTBcRegion ++;
         }
     }
@@ -277,8 +277,8 @@ void FillSection( GridViews & grids, HXVector< std::unique_ptr< Int3D > > & unsI
         for ( int ir = 0; ir < nBcRegions; ++ ir )
         {
             BcRegion * bcRegion = bcRegionGroup->regions[ ir ].get();
-            if ( BC::IsNotNormalBc( bcRegion.bcType ) ) continue;
-            int nRegionCell = bcRegion.CalcRegionCells();
+            if ( BC::IsNotNormalBc( bcRegion->bcType ) ) continue;
+            int nRegionCell = bcRegion->CalcRegionCells();
 
             CgnsBcBoco & cgnsBcBoco = cgnsZbc->RequireCgnsZbcBoco().GetCgnsBc( irc );
             
@@ -347,7 +347,7 @@ void CalcUnsId( StrGrid * grid, PointLocator * pointSearch, Int3D * unsId )
 void SetUnsBcConn( BcRegion * bcRegion, CgIntField& conn, int & pos, Int3D & unsId )
 {
     int ist, ied, jst, jed, kst, ked;
-    bcRegion.GetNormalizeIJKRegion( ist, ied, jst, jed, kst, ked );
+    bcRegion->GetNormalizeIJKRegion( ist, ied, jst, jed, kst, ked );
 
     std::cout << " ist, ied, jst, jed, kst, ked = " << ist << " " << ied << " " << jst << " " << jed << " " << kst << " " << ked << std::endl;
     int numpt = 4;
