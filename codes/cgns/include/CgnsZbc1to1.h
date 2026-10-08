@@ -54,7 +54,6 @@ public:
     int GetN1to1() const;
     CgnsZone & cgnsZone;
 public:
-    void AddCgns1To1BcRegion( CgnsBc1to1 * cgnsBc1to1 );
     void AddCgns1To1BcRegion( std::unique_ptr< CgnsBc1to1 > cgnsBc1to1 );
     CgnsBc1to1 * GetCgnsBcRegion1to1( int i1to1 );
     void CreateCgnsZbc();

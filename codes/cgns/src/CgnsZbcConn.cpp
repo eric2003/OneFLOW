@@ -57,11 +57,6 @@ int CgnsZbcConn::GetNConn() const
     return this->nConn;
 }
 
-void CgnsZbcConn::AddCgnsConnBcRegion( CgnsBcConn * cgnsBcConn )
-{
-    this->AddCgnsConnBcRegion( std::unique_ptr< CgnsBcConn >( cgnsBcConn ) );
-}
-
 void CgnsZbcConn::AddCgnsConnBcRegion( std::unique_ptr< CgnsBcConn > cgnsBcConn )
 {
     CgnsBcConn * bcConn = cgnsBcConn.get();

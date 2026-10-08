@@ -55,7 +55,6 @@ public:
     int GetNConn() const;
     CgnsZone & cgnsZone;
 public:
-    void AddCgnsConnBcRegion( CgnsBcConn * cgnsBcConn );
     void AddCgnsConnBcRegion( std::unique_ptr< CgnsBcConn > cgnsBcConn );
     CgnsBcConn * GetCgnsBc( int iConn );
     void CreateCgnsZbc();

@@ -55,11 +55,6 @@ int CgnsZbc1to1::GetN1to1() const
     return this->n1to1;
 }
 
-void CgnsZbc1to1::AddCgns1To1BcRegion( CgnsBc1to1 * cgnsBc1to1 )
-{
-    this->AddCgns1To1BcRegion( std::unique_ptr< CgnsBc1to1 >( cgnsBc1to1 ) );
-}
-
 void CgnsZbc1to1::AddCgns1To1BcRegion( std::unique_ptr< CgnsBc1to1 > cgnsBc1to1 )
 {
     CgnsBc1to1 * bc1to1 = cgnsBc1to1.get();

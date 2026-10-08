@@ -56,11 +56,6 @@ int CgnsZbcBoco::GetNBoco() const
     return this->nBoco;
 }
 
-void CgnsZbcBoco::AddCgnsBcBoco( CgnsBcBoco * cgnsBcBoco )
-{
-    this->AddCgnsBcBoco( std::unique_ptr< CgnsBcBoco >( cgnsBcBoco ) );
-}
-
 void CgnsZbcBoco::AddCgnsBcBoco( std::unique_ptr< CgnsBcBoco > cgnsBcBoco )
 {
     CgnsBcBoco * bcBoco = cgnsBcBoco.get();
