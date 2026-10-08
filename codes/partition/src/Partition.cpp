@@ -455,11 +455,13 @@ void Partition::CalcG2lNode( UnsGrid & ggrid, int zid, UnsGrid & grid )
 
 int Partition::GetNCell( UnsGrid & ggrid, int zid )
 {
+    G2LMapping & mapping = *this->g2l;
+
     int nCells = ggrid.nCells;
     int iCount = 0;
     for ( int iCell = 0; iCell < nCells; ++ iCell )
     {
-        if ( g2l->gc2lzone[ iCell ] == zid )
+        if ( mapping.gc2lzone[ iCell ] == zid )
         {
             iCount ++;
         }
