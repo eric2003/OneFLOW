@@ -201,7 +201,6 @@ std::vector< std::unique_ptr< ScalarGrid > > GridPartition::ReconstructGridFaceT
 
 	int nZones = static_cast< int >( grids.size() );
 	int nFaces = ggrid.GetNFaces();
-	int nCells = ggrid.GetNCells();
 	int nBFaces = ggrid.GetNBFaces();
 
 	std::vector<int> zoneCount( nZones, 0 );
