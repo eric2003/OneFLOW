@@ -415,7 +415,6 @@ void GridPartition::ReconstructInterfaceTopo( std::vector< std::unique_ptr< Scal
 {
 	const size_t nZones = grids.size();
 
-	// Validate every zone object before inspecting cross-zone relationships.
 	for ( size_t iZone = 0; iZone < nZones; ++ iZone )
 	{
 		if ( ! grids[ iZone ] || ! grids[ iZone ]->scalarIFace )
@@ -424,44 +423,64 @@ void GridPartition::ReconstructInterfaceTopo( std::vector< std::unique_ptr< Scal
 		}
 	}
 
-	// Preflight all neighbor references and global-to-local lookups before changing derived mappings.
+	// Stage every derived mapping before changing any zone's current interface state.
+	std::vector< std::vector< std::vector< int > > > stagedTargets( nZones );
+	std::vector< std::vector< std::vector< int > > > stagedReceives( nZones );
+	std::vector< std::vector< int > > stagedTargetInterfaces( nZones );
+
 	for ( size_t iZone = 0; iZone < nZones; ++ iZone )
 	{
 		const ScalarIFace & scalarIFace = *grids[ iZone ]->scalarIFace;
-		for ( const ScalarIFaceIJ & iFaceIJ : scalarIFace.data )
+		const size_t nEntries = scalarIFace.data.size();
+		stagedTargets[ iZone ].resize( nEntries );
+		stagedReceives[ iZone ].resize( nEntries );
+
+		for ( size_t iEntry = 0; iEntry < nEntries; ++ iEntry )
 		{
-			const int jZone = iFaceIJ.zonej;
+			const ScalarIFaceIJ & entry = scalarIFace.data[ iEntry ];
+			const int jZone = entry.zonej;
 			if ( jZone < 0 || static_cast< size_t >( jZone ) >= nZones )
 			{
 				throw std::runtime_error( "GridPartition::ReconstructInterfaceTopo: interface references an invalid neighbor zone" );
 			}
-			const ScalarIFace & neighborIFace = *grids[ jZone ]->scalarIFace;
-			if ( iFaceIJ.iglobalfaces.size() != iFaceIJ.ifaces.size() ||
-				 iFaceIJ.iglobalfaces.size() != iFaceIJ.cells.size() )
+			if ( entry.iglobalfaces.size() != entry.ifaces.size() ||
+				 entry.iglobalfaces.size() != entry.cells.size() )
 			{
 				throw std::runtime_error( "GridPartition::ReconstructInterfaceTopo: neighbor interface arrays have inconsistent sizes" );
 			}
-			bool hasReciprocalNeighbor = false;
-			for ( const ScalarIFaceIJ & neighbor : neighborIFace.data )
+
+			const ScalarIFace & neighborIFace = *grids[ jZone ]->scalarIFace;
+			size_t reciprocalIndex = neighborIFace.data.size();
+			for ( size_t jEntry = 0; jEntry < neighborIFace.data.size(); ++ jEntry )
 			{
-				if ( neighbor.zonej == static_cast< int >( iZone ) )
+				if ( neighborIFace.data[ jEntry ].zonej == static_cast< int >( iZone ) )
 				{
-					hasReciprocalNeighbor = true;
-					break;
+					if ( reciprocalIndex != neighborIFace.data.size() )
+					{
+						throw std::runtime_error( "GridPartition::ReconstructInterfaceTopo: duplicate reciprocal neighbor entries" );
+					}
+					reciprocalIndex = jEntry;
 				}
 			}
-			if ( ! hasReciprocalNeighbor )
+			if ( reciprocalIndex == neighborIFace.data.size() )
 			{
 				throw std::runtime_error( "GridPartition::ReconstructInterfaceTopo: reciprocal neighbor zone was not found" );
 			}
-			for ( const int globalFaceId : iFaceIJ.iglobalfaces )
+
+			std::vector< int > localFaces;
+			localFaces.reserve( entry.iglobalfaces.size() );
+			for ( const int globalFaceId : entry.iglobalfaces )
 			{
-				if ( neighborIFace.global_to_local_interfaces.find( globalFaceId ) ==
-					 neighborIFace.global_to_local_interfaces.end() )
+				const auto iter = neighborIFace.global_to_local_interfaces.find( globalFaceId );
+				if ( iter == neighborIFace.global_to_local_interfaces.end() )
 				{
 					throw std::runtime_error( "GridPartition::ReconstructInterfaceTopo: neighbor is missing a global interface id" );
 				}
+				localFaces.push_back( iter->second );
 			}
+
+			stagedTargets[ iZone ][ iEntry ] = localFaces;
+			stagedReceives[ jZone ][ reciprocalIndex ] = std::move( localFaces );
 		}
 
 		const size_t nIFaces = scalarIFace.iglobalfaces.size();
@@ -469,6 +488,8 @@ void GridPartition::ReconstructInterfaceTopo( std::vector< std::unique_ptr< Scal
 		{
 			throw std::runtime_error( "GridPartition::ReconstructInterfaceTopo: interface mapping arrays have inconsistent sizes" );
 		}
+		std::vector< int > & targetInterfaces = stagedTargetInterfaces[ iZone ];
+		targetInterfaces.reserve( nIFaces );
 		for ( size_t iFace = 0; iFace < nIFaces; ++ iFace )
 		{
 			const int jZone = scalarIFace.zones[ iFace ];
@@ -477,42 +498,25 @@ void GridPartition::ReconstructInterfaceTopo( std::vector< std::unique_ptr< Scal
 				throw std::runtime_error( "GridPartition::ReconstructInterfaceTopo: interface mapping references an invalid neighbor zone" );
 			}
 			const ScalarIFace & neighborIFace = *grids[ jZone ]->scalarIFace;
-			if ( neighborIFace.global_to_local_interfaces.find( scalarIFace.iglobalfaces[ iFace ] ) ==
-				 neighborIFace.global_to_local_interfaces.end() )
+			const auto iter = neighborIFace.global_to_local_interfaces.find( scalarIFace.iglobalfaces[ iFace ] );
+			if ( iter == neighborIFace.global_to_local_interfaces.end() )
 			{
 				throw std::runtime_error( "GridPartition::ReconstructInterfaceTopo: neighbor is missing a mapped global interface id" );
 			}
+			targetInterfaces.push_back( iter->second );
 		}
 	}
 
-	// All topology lookups are now known to be valid; rebuild the derived neighbor mappings.
+	// Commit only after all lookups and allocations have succeeded.
 	for ( size_t iZone = 0; iZone < nZones; ++ iZone )
 	{
 		ScalarIFace & scalarIFace = *grids[ iZone ]->scalarIFace;
-		for ( ScalarIFaceIJ & iFaceIJ : scalarIFace.data )
+		for ( size_t iEntry = 0; iEntry < scalarIFace.data.size(); ++ iEntry )
 		{
-			const int jZone = iFaceIJ.zonej;
-			grids[ jZone ]->scalarIFace->CalcLocalInterfaceId(
-				static_cast< int >( iZone ), iFaceIJ.iglobalfaces, iFaceIJ.target_ifaces );
+			scalarIFace.data[ iEntry ].target_ifaces = std::move( stagedTargets[ iZone ][ iEntry ] );
+			scalarIFace.data[ iEntry ].recv_ifaces = std::move( stagedReceives[ iZone ][ iEntry ] );
 		}
-	}
-
-	for ( size_t iZone = 0; iZone < nZones; ++ iZone )
-	{
-		ScalarIFace & scalarIFace = *grids[ iZone ]->scalarIFace;
-		const size_t nIFaces = scalarIFace.iglobalfaces.size();
-
-		// Build derived target IDs separately so repeated reconstruction replaces stale results.
-		std::vector< int > targetInterfaces;
-		targetInterfaces.reserve( nIFaces );
-		for ( size_t iFace = 0; iFace < nIFaces; ++ iFace )
-		{
-			const int igface = scalarIFace.iglobalfaces[ iFace ];
-			const int jZone = scalarIFace.zones[ iFace ];
-			const int jlocalface = grids[ jZone ]->scalarIFace->GetLocalInterfaceId( igface );
-			targetInterfaces.push_back( jlocalface );
-		}
-		scalarIFace.target_interfaces = std::move( targetInterfaces );
+		scalarIFace.target_interfaces = std::move( stagedTargetInterfaces[ iZone ] );
 	}
 }
 
