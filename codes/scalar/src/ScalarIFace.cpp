@@ -21,7 +21,6 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "ScalarIFace.h"
-#include "MetisGrid.h"
 #include "DataStorage.h"
 #include "DataBaseIO.h"
 #include "DataBook.h"
