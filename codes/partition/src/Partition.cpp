@@ -45,9 +45,9 @@ BeginNameSpace( ONEFLOW )
 void L2GMapping::CalcL2G( UnsGrid & ggrid, int zid, UnsGrid & grid, G2LMapping & g2l )
 {
     this->Alloc( grid );
-    this->CalcL2GNode( ggrid, zid, grid, g2l );
-    this->CalcL2GFace( ggrid, zid, grid, g2l );
-    this->CalcL2GCell( ggrid, zid, grid, g2l );
+    this->CalcL2GNode( ggrid, g2l );
+    this->CalcL2GFace( ggrid, g2l );
+    this->CalcL2GCell( ggrid, zid, g2l );
 }
 
 void L2GMapping::Alloc( UnsGrid & grid )
@@ -61,7 +61,7 @@ void L2GMapping::Alloc( UnsGrid & grid )
     this->l2g_cell.resize( nCells );
 }
 
-void L2GMapping::CalcL2GNode( UnsGrid & ggrid, int zid, UnsGrid & grid, G2LMapping & g2l )
+void L2GMapping::CalcL2GNode( UnsGrid & ggrid, G2LMapping & g2l )
 {
     int nNodes = ggrid.nNodes;
 
@@ -74,7 +74,7 @@ void L2GMapping::CalcL2GNode( UnsGrid & ggrid, int zid, UnsGrid & grid, G2LMappi
     }
 }
 
-void L2GMapping::CalcL2GFace( UnsGrid & ggrid, int zid, UnsGrid & grid, G2LMapping & g2l )
+void L2GMapping::CalcL2GFace( UnsGrid & ggrid, G2LMapping & g2l )
 {
     int nFaces = ggrid.nFaces;
 
@@ -88,7 +88,7 @@ void L2GMapping::CalcL2GFace( UnsGrid & ggrid, int zid, UnsGrid & grid, G2LMappi
     }
 }
 
-void L2GMapping::CalcL2GCell( UnsGrid & ggrid, int zid, UnsGrid & grid, G2LMapping & g2l )
+void L2GMapping::CalcL2GCell( UnsGrid & ggrid, int zid, G2LMapping & g2l )
 {
     int nCells = ggrid.nCells;
     int cid = 0;
