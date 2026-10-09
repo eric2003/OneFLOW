@@ -57,6 +57,10 @@ void ScalarIFaceIJ::ReadInterfaceTopology( DataBook * databook )
     ONEFLOW::HXRead( databook, this->zonej );
     int nIFaces = -1;
     ONEFLOW::HXRead( databook, nIFaces );
+    if ( nIFaces < 0 )
+    {
+        throw std::runtime_error( "ScalarIFaceIJ::ReadInterfaceTopology: interface count must be non-negative" );
+    }
     this->ifaces.resize( nIFaces );
     this->recv_ifaces.resize( nIFaces );
 
@@ -223,10 +227,22 @@ void ScalarIFace::ReadInterfaceTopology( DataBook * databook )
 {
     int nIFaces = -1;
     ONEFLOW::HXRead( databook, nIFaces );
+    if ( nIFaces < 0 )
+    {
+        throw std::runtime_error( "ScalarIFace::ReadInterfaceTopology: interface count must be non-negative" );
+    }
 
     std::cout << " nIFaces = " << nIFaces << std::endl;
 
-    if ( nIFaces > 0 )
+    if ( nIFaces == 0 )
+    {
+        this->zones.clear();
+        this->target_interfaces.clear();
+        this->interface_to_bcface.clear();
+        this->data.clear();
+        return;
+    }
+
     {
         this->zones.resize( nIFaces );
         this->target_interfaces.resize( nIFaces );
@@ -238,6 +254,10 @@ void ScalarIFace::ReadInterfaceTopology( DataBook * databook )
 
         int nNeis = -1;
         ONEFLOW::HXRead( databook, nNeis );
+        if ( nNeis < 0 )
+        {
+            throw std::runtime_error( "ScalarIFace::ReadInterfaceTopology: neighbor count must be non-negative" );
+        }
         this->data.resize( nNeis );
         for ( int iNei = 0; iNei < nNeis; ++ iNei )
         {
