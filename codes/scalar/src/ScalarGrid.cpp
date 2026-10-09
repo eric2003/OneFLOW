@@ -957,6 +957,7 @@ void ScalarGrid::CalcGhostCellCenterVol1D()
 void ScalarGrid::CalcTopology()
 {
 	this->ResetTopologyData();
+	this->ResetGeometryData();
 
 	this->nNodes = this->GetNNodes();
 	this->nCells = this->GetNCells();
