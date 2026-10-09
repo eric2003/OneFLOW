@@ -194,7 +194,18 @@ void CalcGrid::ReconstructLink()
 
 void CalcGrid::ReconstructLink( int iZone )
 {
-    UnsGrid & grid = static_cast< UnsGrid & >( GridAt( grids, iZone ) );
+    if ( iZone < 0 || static_cast< size_t >( iZone ) >= grids.size() )
+    {
+        throw std::out_of_range( "CalcGrid::ReconstructLink: zone index is out of range" );
+    }
+
+    Grid & baseGrid = GridAt( grids, static_cast< size_t >( iZone ) );
+    UnsGrid * gridPtr = dynamic_cast< UnsGrid * >( &baseGrid );
+    if ( ! gridPtr )
+    {
+        throw std::invalid_argument( "CalcGrid::ReconstructLink: zone must use an unstructured grid" );
+    }
+    UnsGrid & grid = *gridPtr;
 
     InterFace * interFace = grid.interFace.get();
 
@@ -213,6 +224,11 @@ void CalcGrid::ReconstructLink( int iZone )
     for ( int iFace = 0; iFace < nIFaces; ++ iFace )
     {
         int nei_zone_id = interFace->zoneId[ iFace ];
+        if ( nei_zone_id < 0 || static_cast< size_t >( nei_zone_id ) >= grids.size() )
+        {
+            throw std::out_of_range( "CalcGrid::ReconstructLink: interface neighbor zone is out of range" );
+        }
+
         int lc = lCell[ iFace + nPBFace ];
         int rc = rCell[ iFace + nPBFace ];
         int cellIndex  = MAX( lc, rc );
