@@ -964,8 +964,15 @@ void ScalarGrid::CalcTopology()
 	// Use HXLookup to manage unique faces (key is automatically sorted)
 	HXLookup<int> faceLookup;
 
-	// Estimate the number of faces and reserve space
-	int estimatedFaces = this->nCells * 2;  // Rough estimate
+	// Reserve for all element-local faces to avoid repeated growth.
+	int estimatedFaces = 0;
+	for ( int iCell = 0; iCell < nCells; ++ iCell )
+	{
+		int eType = this->eTypes[ iCell ];
+		UnitElement& unitElement = ElementHome::GetUnitElement( eType );
+		estimatedFaces += unitElement.GetElementFaceNumber();
+	}
+
 	this->lc.Reserve(estimatedFaces);
 	this->rc.Reserve(estimatedFaces);
 	this->lpos.Reserve(estimatedFaces);
