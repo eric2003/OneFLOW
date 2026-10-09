@@ -223,33 +223,33 @@ void ScalarIFace::ReconstructNeighbor()
         throw std::runtime_error( "ScalarIFace::ReconstructNeighbor: interface mapping arrays have inconsistent sizes" );
     }
 
-    std::set<int> neighborZones;
-    for ( const int neighborZone : zones )
+    // Group interfaces in one pass while keeping neighbor zones and face order deterministic.
+    std::map< int, ScalarIFaceIJ > interfacesByZone;
+    for ( size_t iInterface = 0; iInterface < nInterfaces; ++ iInterface )
     {
+        const int neighborZone = zones[ iInterface ];
         if ( neighborZone < 0 )
         {
             throw std::runtime_error( "ScalarIFace::ReconstructNeighbor: neighbor zone id must be non-negative" );
         }
-        neighborZones.insert( neighborZone );
+
+        auto result = interfacesByZone.try_emplace( neighborZone );
+        ScalarIFaceIJ & interfaceData = result.first->second;
+        if ( result.second )
+        {
+            interfaceData.zonej = neighborZone;
+        }
+
+        interfaceData.cells.push_back( cells[ iInterface ] );
+        interfaceData.iglobalfaces.push_back( iglobalfaces[ iInterface ] );
+        interfaceData.ifaces.push_back( static_cast< int >( iInterface ) );
     }
 
     std::vector< ScalarIFaceIJ > reconstructed;
-    reconstructed.reserve( neighborZones.size() );
-    for ( const int neighborZone : neighborZones )
+    reconstructed.reserve( interfacesByZone.size() );
+    for ( auto & entry : interfacesByZone )
     {
-        ScalarIFaceIJ interfaceData;
-        interfaceData.zonej = neighborZone;
-
-        for ( size_t iInterface = 0; iInterface < nInterfaces; ++ iInterface )
-        {
-            if ( zones[ iInterface ] == neighborZone )
-            {
-                interfaceData.cells.push_back( cells[ iInterface ] );
-                interfaceData.iglobalfaces.push_back( iglobalfaces[ iInterface ] );
-                interfaceData.ifaces.push_back( static_cast< int >( iInterface ) );
-            }
-        }
-        reconstructed.push_back( std::move( interfaceData ) );
+        reconstructed.push_back( std::move( entry.second ) );
     }
 
     // Replace derived neighbor data so repeated reconstruction cannot append duplicates.
