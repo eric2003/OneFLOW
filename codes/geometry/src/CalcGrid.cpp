@@ -201,6 +201,9 @@ void CalcGrid::GenerateOverset()
 
 void CalcGrid::ReconstructLink()
 {
+    // This public operation may be called without BuildInterfaceLink().
+    ValidateGridCollection( grids );
+
     const int nZone = GridsSize( grids );
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
@@ -299,6 +302,9 @@ void CalcGrid::ResetGridScaleAndTranslate()
 
 void CalcGrid::GenerateLink()
 {
+    // Validate before constructing an interface-link object from the collection.
+    ValidateGridCollection( grids );
+
     this->iFaceLink = std::make_unique< IFaceLink >( grids );
 
     this->ModifyBcType();
