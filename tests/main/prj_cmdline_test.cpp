@@ -313,6 +313,37 @@ TEST( PrjCasePath, OpenPrjFileInCaseRoot )
     std::filesystem::remove_all( caseDir );
 }
 
+TEST( PrjCasePath, OpenCaseFileInCaseRoot )
+{
+    const std::filesystem::path caseDir =
+        std::filesystem::temp_directory_path()
+        / "OneFLOW_PrjOpenCaseRootFileTest"
+        / "case";
+
+    std::filesystem::remove_all( caseDir );
+    std::filesystem::create_directories( caseDir );
+
+    Prj::current_dir = std::filesystem::current_path().string();
+    Prj::SetPrjBaseDir( caseDir.string() );
+
+    std::fstream file;
+
+    Prj::OpenCaseFile(
+        file,
+        caseDir.string(),
+        "test.dat",
+        std::ios_base::out );
+
+    ASSERT_TRUE( file.is_open() );
+
+    file << "OneFLOW";
+    Prj::CloseFile( file );
+
+    EXPECT_TRUE( std::filesystem::is_regular_file( caseDir / "test.dat" ) );
+
+    std::filesystem::remove_all( caseDir );
+}
+
 TEST( PrjCasePath, OpenPrjFileUsesAbsolutePath )
 {
     const std::filesystem::path caseDir =
