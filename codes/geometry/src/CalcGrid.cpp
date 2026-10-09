@@ -68,6 +68,16 @@ void ValidateGridCollection( const Grids & grids )
         }
     }
 }
+
+UnsGrid & RequireUnsGrid( Grid & grid, const char * errorMessage )
+{
+    UnsGrid * unsGrid = dynamic_cast< UnsGrid * >( &grid );
+    if ( ! unsGrid )
+    {
+        throw std::invalid_argument( errorMessage );
+    }
+    return *unsGrid;
+}
 } // namespace
 
 CalcGrid::CalcGrid() = default;
@@ -200,12 +210,8 @@ void CalcGrid::ReconstructLink( int iZone )
     }
 
     Grid & baseGrid = GridAt( grids, static_cast< size_t >( iZone ) );
-    UnsGrid * gridPtr = dynamic_cast< UnsGrid * >( &baseGrid );
-    if ( ! gridPtr )
-    {
-        throw std::invalid_argument( "CalcGrid::ReconstructLink: zone must use an unstructured grid" );
-    }
-    UnsGrid & grid = *gridPtr;
+    UnsGrid & grid = RequireUnsGrid(
+        baseGrid, "CalcGrid::ReconstructLink: zone must use an unstructured grid" );
 
     InterFace * interFace = grid.interFace.get();
 
@@ -242,13 +248,9 @@ void CalcGrid::ReconstructLink( int iZone )
         if ( nei_zone_id >= iZone )
         {
             Grid & neighborBaseGrid = GridAt( grids, static_cast< size_t >( nei_zone_id ) );
-            UnsGrid * neighborGridPtr = dynamic_cast< UnsGrid * >( &neighborBaseGrid );
-            if ( ! neighborGridPtr )
-            {
-                throw std::invalid_argument(
-                    "CalcGrid::ReconstructLink: interface neighbor zone must use an unstructured grid" );
-            }
-            UnsGrid & neiGrid = *neighborGridPtr;
+            UnsGrid & neiGrid = RequireUnsGrid(
+                neighborBaseGrid,
+                "CalcGrid::ReconstructLink: interface neighbor zone must use an unstructured grid" );
 
             if ( FindMatch( neiGrid, facePair ) )
             {
