@@ -266,8 +266,7 @@ void Prj::MakePrjDir( const std::string & dirName )
 {
     std::string prjDirName = Prj::GetPrjFileName( dirName );
 
-    if ( ! HX_CreateDirectory( prjDirName ) &&
-        ! HX_IsDirectory( prjDirName ) )
+    if ( ! HX_CreateDirectory( prjDirName ) )
     {
         Fatal( "Could not create project directory: " + prjDirName );
     }
@@ -306,9 +305,7 @@ void Prj::CreateDirIfNeeded( const std::string & prjFileName )
         return;
     }
 
-    if ( ! HX_IsDirectory( dirName ) &&
-        ! HX_CreateDirectory( dirName ) &&
-        ! HX_IsDirectory( dirName ) )
+    if ( ! HX_CreateDirectory( dirName ) )
     {
         Fatal( "Could not create parent directory for file: " + prjFileName );
     }
