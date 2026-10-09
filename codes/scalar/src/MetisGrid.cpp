@@ -454,6 +454,10 @@ void GridPartition::ReconstructInterfaceTopo( std::vector< std::unique_ptr< Scal
 		{
 			throw std::runtime_error( "GridPartition::ReconstructInterfaceTopo: interface mapping arrays have inconsistent sizes" );
 		}
+
+		// Build derived target IDs separately so repeated reconstruction replaces stale results.
+		std::vector< int > targetInterfaces;
+		targetInterfaces.reserve( nIFaces );
 		for ( size_t iFace = 0; iFace < nIFaces; ++ iFace )
 		{
 			const int igface = scalarIFace.iglobalfaces[ iFace ];
@@ -463,8 +467,9 @@ void GridPartition::ReconstructInterfaceTopo( std::vector< std::unique_ptr< Scal
 				throw std::runtime_error( "GridPartition::ReconstructInterfaceTopo: interface mapping references an invalid neighbor zone" );
 			}
 			const int jlocalface = grids[ jZone ]->scalarIFace->GetLocalInterfaceId( igface );
-			scalarIFace.target_interfaces.push_back( jlocalface );
+			targetInterfaces.push_back( jlocalface );
 		}
+		scalarIFace.target_interfaces = std::move( targetInterfaces );
 	}
 
 }
