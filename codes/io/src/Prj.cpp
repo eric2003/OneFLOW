@@ -29,6 +29,28 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+namespace
+{
+
+std::string ResolvePathUnderRoot(
+    const std::string & rootName,
+    const std::string & fileName )
+{
+    const std::filesystem::path path( fileName );
+
+    // Only fully absolute paths bypass the configured root.
+    if ( path.is_absolute() )
+    {
+        return path.lexically_normal().string();
+    }
+
+    return ( std::filesystem::path( rootName ) / path )
+        .lexically_normal().string();
+}
+
+}
+
+
 bool Prj::hx_debug = false;
 bool Prj::run_from_ide = false;
 std::string Prj::system_root = "";
@@ -251,16 +273,7 @@ void Prj::MakePrjDir( const std::string & dirName )
 // string concatenation that used to live in individual business-logic files.
 std::string Prj::GetSystemFileName( const std::string & fileName )
 {
-    std::filesystem::path path( fileName );
-
-    // Only a complete filesystem absolute path bypasses the system directory.
-    if ( path.is_absolute() )
-    {
-        return path.lexically_normal().string();
-    }
-
-    std::filesystem::path systemRoot( Prj::system_root );
-    return ( systemRoot / path ).lexically_normal().string();
+    return ResolvePathUnderRoot( Prj::system_root, fileName );
 }
 
 std::string Prj::GetDirName( const std::string & fileName )
@@ -297,16 +310,7 @@ void Prj::CreateDirIfNeeded( const std::string & prjFileName )
 
 std::string Prj::GetPrjFileName( const std::string & fileName )
 {
-    std::filesystem::path path( fileName );
-
-    // Only a complete filesystem absolute path bypasses the project directory.
-    if ( path.is_absolute() )
-    {
-        return path.lexically_normal().string();
-    }
-
-    std::filesystem::path projectRoot( Prj::prjBaseDir );
-    return ( projectRoot / path ).lexically_normal().string();
+    return ResolvePathUnderRoot( Prj::prjBaseDir, fileName );
 }
 
 std::string Prj::GetCaseFileName(
