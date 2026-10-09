@@ -359,9 +359,7 @@ int ScalarGrid::GetNCells() const
 
 int ScalarGrid::GetNTCells() const
 {
-	size_t nBFaces = this->GetNBFaces();
-	size_t nCells = this->GetNCells();
-	return nBFaces + nCells;
+	return this->GetNBFaces() + this->GetNCells();
 }
 
 int ScalarGrid::GetNFaces() const
