@@ -488,8 +488,12 @@ void GridPartition::ReconstructNeighbor( std::vector< std::unique_ptr< ScalarGri
 	int nZones = static_cast< int >( grids.size() );
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
-		ScalarGrid & grid = *grids[ iZone ];
-		ScalarIFace & scalarIFace = *grid.scalarIFace;
+		if ( ! grids[ iZone ] || ! grids[ iZone ]->scalarIFace )
+		{
+			throw std::runtime_error( "GridPartition::ReconstructNeighbor: zone has no interface topology" );
+		}
+
+		ScalarIFace & scalarIFace = *grids[ iZone ]->scalarIFace;
 		scalarIFace.ReconstructNeighbor();
 	}
 }
