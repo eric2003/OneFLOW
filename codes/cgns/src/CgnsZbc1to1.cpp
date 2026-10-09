@@ -38,6 +38,7 @@ License
 #include "BcRecord.h"
 #include <iostream>
 #include <utility>
+#include <stdexcept>
 
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
@@ -57,6 +58,11 @@ int CgnsZbc1to1::GetN1to1() const
 
 void CgnsZbc1to1::AddCgns1To1BcRegion( std::unique_ptr< CgnsBc1to1 > cgnsBc1to1 )
 {
+    if ( cgnsBc1to1 == nullptr )
+    {
+        throw std::invalid_argument( "CgnsZbc1to1: cannot add a null interface" );
+    }
+
     CgnsBc1to1 * bc1to1 = cgnsBc1to1.get();
     this->cgnsBc1to1s.push_back( std::move( cgnsBc1to1 ) );
     int id = this->cgnsBc1to1s.size();
@@ -65,7 +71,7 @@ void CgnsZbc1to1::AddCgns1To1BcRegion( std::unique_ptr< CgnsBc1to1 > cgnsBc1to1 
 
 CgnsBc1to1 & CgnsZbc1to1::GetCgnsBcRegion1to1( int i1to1 )
 {
-    return *this->cgnsBc1to1s[ i1to1 ];
+    return *this->cgnsBc1to1s.at( i1to1 );
 }
 
 void CgnsZbc1to1::PrintZn1to1()

@@ -38,6 +38,7 @@ License
 #include "BcRecord.h"
 #include <iostream>
 #include <utility>
+#include <stdexcept>
 
 
 
@@ -59,6 +60,11 @@ int CgnsZbcConn::GetNConn() const
 
 void CgnsZbcConn::AddCgnsConnBcRegion( std::unique_ptr< CgnsBcConn > cgnsBcConn )
 {
+    if ( cgnsBcConn == nullptr )
+    {
+        throw std::invalid_argument( "CgnsZbcConn: cannot add a null connection" );
+    }
+
     CgnsBcConn * bcConn = cgnsBcConn.get();
     this->cgnsBcConns.push_back( std::move( cgnsBcConn ) );
     int id = this->cgnsBcConns.size();
@@ -67,7 +73,7 @@ void CgnsZbcConn::AddCgnsConnBcRegion( std::unique_ptr< CgnsBcConn > cgnsBcConn 
 
 CgnsBcConn & CgnsZbcConn::GetCgnsBc( int iConn )
 {
-    return *this->cgnsBcConns[ iConn ];
+    return *this->cgnsBcConns.at( iConn );
 }
 
 void CgnsZbcConn::CreateCgnsZbc()

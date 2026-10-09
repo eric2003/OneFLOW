@@ -37,6 +37,7 @@ License
 #include "BcRecord.h"
 #include <iostream>
 #include <utility>
+#include <stdexcept>
 
 
 
@@ -58,6 +59,11 @@ int CgnsZbcBoco::GetNBoco() const
 
 void CgnsZbcBoco::AddCgnsBcBoco( std::unique_ptr< CgnsBcBoco > cgnsBcBoco )
 {
+    if ( cgnsBcBoco == nullptr )
+    {
+        throw std::invalid_argument( "CgnsZbcBoco: cannot add a null boundary condition" );
+    }
+
     CgnsBcBoco * bcBoco = cgnsBcBoco.get();
     this->cgnsBcBocos.push_back( std::move( cgnsBcBoco ) );
     int id = this->cgnsBcBocos.size();
@@ -66,7 +72,7 @@ void CgnsZbcBoco::AddCgnsBcBoco( std::unique_ptr< CgnsBcBoco > cgnsBcBoco )
 
 CgnsBcBoco & CgnsZbcBoco::GetCgnsBc( int iBoco )
 {
-    return *this->cgnsBcBocos[ iBoco ];
+    return *this->cgnsBcBocos.at( iBoco );
 }
 
 void CgnsZbcBoco::CreateCgnsZbc()
