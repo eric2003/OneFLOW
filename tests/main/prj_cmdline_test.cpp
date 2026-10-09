@@ -560,3 +560,38 @@ TEST( PrjSetPrjBaseDir, RelativePathRequiresInitializedCurrentDirectory )
 
     Prj::current_dir = savedCurrentDir;
 }
+
+TEST( FileUtilsCreateDirectory, ExistingDirectoryIsSuccess )
+{
+    const std::filesystem::path directory =
+        std::filesystem::temp_directory_path()
+        / "OneFLOW_HXCreateDirectoryExistingTest";
+
+    std::filesystem::remove_all( directory );
+    ASSERT_TRUE( std::filesystem::create_directories( directory ) );
+
+    EXPECT_TRUE( ONEFLOW::HX_CreateDirectory( directory.string() ));
+
+    std::filesystem::remove_all( directory );
+}
+
+TEST( FileUtilsCreateDirectory, ExistingFileIsFailure )
+{
+    const std::filesystem::path root =
+        std::filesystem::temp_directory_path()
+        / "OneFLOW_HXCreateDirectoryFileTest";
+    const std::filesystem::path filePath = root / "not_a_directory";
+
+    std::filesystem::remove_all( root );
+    std::filesystem::create_directories( root );
+    {
+        std::ofstream file( filePath );
+        ASSERT_TRUE( file.is_open() );
+        file << "block";
+    }
+
+    EXPECT_FALSE( ONEFLOW::HX_CreateDirectory( filePath.string() ));
+
+    std::filesystem::remove_all( root );
+}
+

@@ -47,44 +47,59 @@ bool HX_IsDirectory(const std::string& dirName)
 
 bool HX_CreateDirectory( const std::string & dirName )
 {
-    try
-    {
-        if ( std::filesystem::exists( dirName ) )
-        {
-            if ( std::filesystem::is_directory( dirName ) )
-            {
-                std::cout << "Directory already exists: "
-                    << dirName << std::endl;
-                return true;
-            }
-            else
-            {
-                std::cerr << "Path exists but is not a directory: "
-                    << dirName << std::endl;
-                return false;
-            }
-        }
+    std::error_code ec;
 
-        // Create the directory recursively with default permissions.
-        if ( std::filesystem::create_directories( dirName ) )
+    if ( std::filesystem::exists( dirName, ec ) )
+    {
+        if ( ! ec && std::filesystem::is_directory( dirName, ec ) && ! ec )
         {
-            std::cout << "Directory created successfully: "
+            std::cout << "Directory already exists: "
                 << dirName << std::endl;
             return true;
         }
-        else
-        {
-            std::cerr << "Failed to create directory: "
-                << dirName << std::endl;
-            return false;
-        }
-    }
-    catch ( const std::filesystem::filesystem_error & e )
-    {
-        std::cerr << "Filesystem error: "
-            << e.what() << std::endl;
+
+        std::cerr << "Path exists but is not a directory: "
+            << dirName << std::endl;
         return false;
     }
+
+    if ( ec )
+    {
+        std::cerr << "Filesystem error while checking directory: "
+            << ec.message() << std::endl;
+        return false;
+    }
+
+    // Another process may create the directory after the existence check.
+    const bool created = std::filesystem::create_directories( dirName, ec );
+    if ( created )
+    {
+        std::cout << "Directory created successfully: "
+            << dirName << std::endl;
+        return true;
+    }
+
+    // Treat a concurrent successful creation as success, but never accept a
+    // regular file (or another non-directory entry) at the requested path.
+    ec.clear();
+    if ( std::filesystem::is_directory( dirName, ec ) && ! ec )
+    {
+        std::cout << "Directory already exists: "
+            << dirName << std::endl;
+        return true;
+    }
+
+    if ( ec )
+    {
+        std::cerr << "Filesystem error: "
+            << ec.message() << std::endl;
+    }
+    else
+    {
+        std::cerr << "Failed to create directory: "
+            << dirName << std::endl;
+    }
+    return false;
 }
 
 std::string HX_GetExeDirectory()
