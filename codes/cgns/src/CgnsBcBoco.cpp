@@ -441,12 +441,12 @@ void CgnsBcBoco::WriteCgnsBoco( const std::string & bocoName, BCType_t bocotype,
     std::cout << "   CGNS Bc Id = " << bcId << "\n";
 }
 
-void CgnsBcBoco::ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax )
+void CgnsBcBoco::ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax ) const
 {
     this->ExtractIJKRegionFromBcConn( ijkMin, ijkMax, this->connList );
 }
 
-void CgnsBcBoco::ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax, CgIntField& bcConn )
+void CgnsBcBoco::ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax, const CgIntField & bcConn ) const
 {
     int imin, imax, jmin, jmax, kmin, kmax;
     int celldim = cgnsZone->cgnsBase.celldim;
@@ -500,7 +500,7 @@ void CgnsBcBoco::ReadCgnsBcBocoConnList( CgnsBcBoco & strBcRegion, CgInt& startI
     startId += actualNumberOfBoundaryElement;
 }
 
-CgInt CgnsBcBoco::GetActualNumberOfBoundaryElements()
+CgInt CgnsBcBoco::GetActualNumberOfBoundaryElements() const
 {
     if ( cgnsZone->cgnsZoneType == CGNS_ENUMV( Unstructured ) )
     {

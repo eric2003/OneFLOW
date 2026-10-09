@@ -204,14 +204,14 @@ CgnsBcBoco & CgnsZbcBoco::WriteCgnsBoco( const std::string & bocoName, BCType_t 
     return *cgnsBcBoco;
 }
 
-int CgnsZbcBoco::GetNumberOfActualBcElements()
+int CgnsZbcBoco::GetNumberOfActualBcElements() const
 {
     int nBFaces = 0;
     int nActualBcFace = 0;
 
     for ( int iBoco = 0; iBoco < this->GetNBoco(); ++ iBoco )
     {
-        CgnsBcBoco & cgnsBcBoco = this->GetCgnsBc( iBoco );
+        const CgnsBcBoco & cgnsBcBoco = this->GetCgnsBc( iBoco );
         int nBcElement = cgnsBcBoco.nElements;
         int nActualBcElement = cgnsBcBoco.GetActualNumberOfBoundaryElements();
         nBFaces += nBcElement;
