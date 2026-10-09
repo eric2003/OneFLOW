@@ -42,6 +42,7 @@ License
 #include "Prj.h"
 #include <iostream>
 #include <utility>
+#include <vector>
 
 
 BeginNameSpace( ONEFLOW )
@@ -96,18 +97,19 @@ void CalcGrid::Dump()
     Prj::OpenPrjFile( file, gridFileName, std::ios_base::out|std::ios_base::binary|std::ios_base::trunc );
     const int nZone = GridsSize( grids );
 
-    ZoneState::pid.resize( nZone );
-    ZoneState::zoneType.resize( nZone );
+    // Serialization metadata belongs to the output file, not global runtime state.
+    std::vector< int > zoneIds( static_cast< size_t >( nZone ) );
+    std::vector< int > zoneTypes( static_cast< size_t >( nZone ) );
 
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        ZoneState::pid[ iZone ] = iZone;
-        ZoneState::zoneType[ iZone ] = GridAt( grids, iZone ).type;
+        zoneIds[ iZone ] = iZone;
+        zoneTypes[ iZone ] = GridAt( grids, iZone ).type;
     }
 
     ONEFLOW::HXWrite( & file, nZone );
-    ONEFLOW::HXWrite( & file, ZoneState::pid );
-    ONEFLOW::HXWrite( & file, ZoneState::zoneType );
+    ONEFLOW::HXWrite( & file, zoneIds );
+    ONEFLOW::HXWrite( & file, zoneTypes );
 
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
@@ -115,7 +117,7 @@ void CalcGrid::Dump()
         GridAt( grids, iZone ).WriteGrid( file );
     }
 
-    Prj::CloseFile( file );
+    Prj::CloseOutputFile( file, "CalcGrid::Dump" );
 }
 
 void CalcGrid::Post()

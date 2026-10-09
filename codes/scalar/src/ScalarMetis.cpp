@@ -163,6 +163,10 @@ std::vector< std::unique_ptr< ScalarGrid > > ScalarReadGrid( const std::string &
     int nZone = -1;
 
     ONEFLOW::HXRead( & file, nZone );
+    if ( ! file )
+    {
+        throw std::runtime_error( "ScalarReadGrid: failed to read the grid zone count" );
+    }
 
     if ( nZone <= 0 )
     {
@@ -170,17 +174,23 @@ std::vector< std::unique_ptr< ScalarGrid > > ScalarReadGrid( const std::string &
         throw std::runtime_error( "ScalarReadGrid: grid file must contain at least one zone" );
     }
 
-    ZoneState::pid.resize( nZone );
-    ZoneState::zoneType.resize( nZone );
+    // Keep file metadata local until every zone has been read successfully.
+    // A truncated file must not leave the global runtime layout partially updated.
+    IntField zonePids( nZone );
+    IntField zoneTypes( nZone );
 
-    ONEFLOW::HXRead( & file, ZoneState::pid );
-    ONEFLOW::HXRead( & file, ZoneState::zoneType );
+    ONEFLOW::HXRead( & file, zonePids );
+    ONEFLOW::HXRead( & file, zoneTypes );
+    if ( ! file )
+    {
+        throw std::runtime_error( "ScalarReadGrid: truncated zone metadata" );
+    }
 
     if ( Parallel::zoneMode == 0 )
     {
         for ( int iZone = 0; iZone < nZone; ++ iZone )
         {
-            ZoneState::pid[ iZone ] = ( iZone ) % Parallel::nProc;
+            zonePids[ iZone ] = iZone % Parallel::nProc;
         }
     }
 
@@ -189,10 +199,18 @@ std::vector< std::unique_ptr< ScalarGrid > > ScalarReadGrid( const std::string &
         std::cout << "iZone = " << iZone << " nZone = " << nZone << "\n";
         auto grid = std::make_unique< ScalarGrid >();
         grid->id = iZone;
-        grid->type = ZoneState::zoneType[ iZone ];
+        grid->type = zoneTypes[ iZone ];
         grid->ReadGrid( file );
+        if ( ! file )
+        {
+            throw std::runtime_error( "ScalarReadGrid: truncated grid data for zone " + std::to_string( iZone ) );
+        }
         grids.push_back( std::move( grid ) );
     }
+
+    // Publish the layout only after the entire file has been parsed.
+    ZoneState::pid = std::move( zonePids );
+    ZoneState::zoneType = std::move( zoneTypes );
 
     Prj::CloseFile( file );
     return grids;
@@ -203,20 +221,18 @@ void ScalarDumpGrid( const std::string & gridFileName, ScalarGrid & grid )
     std::fstream file;
     Prj::OpenPrjFile( file, gridFileName, std::ios_base::out|std::ios_base::binary|std::ios_base::trunc );
 
-    int nZone = 1;
-    ZoneState::pid.resize( nZone );
-    ZoneState::zoneType.resize( nZone );
-    ZoneState::pid[ 0 ] = 0;
-    ZoneState::zoneType[ 0 ] = grid.type;
+    const int nZone = 1;
+    const std::vector< int > zoneIds = { 0 };
+    const std::vector< int > zoneTypes = { grid.type };
 
     ONEFLOW::HXWrite( & file, nZone );
-    ONEFLOW::HXWrite( & file, ZoneState::pid );
-    ONEFLOW::HXWrite( & file, ZoneState::zoneType );
+    ONEFLOW::HXWrite( & file, zoneIds );
+    ONEFLOW::HXWrite( & file, zoneTypes );
 
     std::cout << "iZone = 0 nZone = 1\n";
     grid.WriteGrid( file );
 
-    Prj::CloseFile( file );
+    Prj::CloseOutputFile( file, "ScalarDumpGrid" );
 }
 
 void ScalarDumpGrid( const std::string & gridFileName, const std::vector< std::unique_ptr< ScalarGrid > > & grids )
@@ -242,18 +258,18 @@ void ScalarDumpGrid( const std::string & gridFileName, const std::vector< std::u
     std::fstream file;
     Prj::OpenPrjFile( file, gridFileName, std::ios_base::out|std::ios_base::binary|std::ios_base::trunc );
 
-    ZoneState::pid.resize( nZone );
-    ZoneState::zoneType.resize( nZone );
+    std::vector< int > zoneIds( static_cast< size_t >( nZone ) );
+    std::vector< int > zoneTypes( static_cast< size_t >( nZone ) );
 
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        ZoneState::pid[ iZone ] = iZone;
-        ZoneState::zoneType[ iZone ] = grids[ iZone ]->type;
+        zoneIds[ iZone ] = iZone;
+        zoneTypes[ iZone ] = grids[ iZone ]->type;
     }
 
     ONEFLOW::HXWrite( & file, nZone );
-    ONEFLOW::HXWrite( & file, ZoneState::pid );
-    ONEFLOW::HXWrite( & file, ZoneState::zoneType );
+    ONEFLOW::HXWrite( & file, zoneIds );
+    ONEFLOW::HXWrite( & file, zoneTypes );
 
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
@@ -261,7 +277,7 @@ void ScalarDumpGrid( const std::string & gridFileName, const std::vector< std::u
         grids[ iZone ]->WriteGrid( file );
     }
 
-    Prj::CloseFile( file );
+    Prj::CloseOutputFile( file, "ScalarDumpGrid" );
 }
 
 EndNameSpace

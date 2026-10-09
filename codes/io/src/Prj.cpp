@@ -26,6 +26,7 @@ License
 #include "FileUtils.h"
 #include <iostream>
 #include <filesystem>
+#include <stdexcept>
 
 BeginNameSpace( ONEFLOW )
 
@@ -189,14 +190,7 @@ void Prj::OpenCaseFile(
     const std::ios_base::openmode & openMode )
 {
     std::string caseFileName = Prj::GetCaseFileName( caseDir, fileName );
-
-    // Create parent directories only for write operations.
-    if ( ( openMode & std::ios_base::out ) != 0 )
-    {
-        CreateDirIfNeeded( caseFileName );
-    }
-
-    Prj::OpenFile( file, caseFileName, openMode );
+    Prj::OpenFileWithParentDirectory( file, caseFileName, openMode );
 }
 
 void Prj::OpenPrjFile(
@@ -205,14 +199,21 @@ void Prj::OpenPrjFile(
     const std::ios_base::openmode & openMode )
 {
     std::string prjFileName = Prj::GetPrjFileName( fileName );
+    Prj::OpenFileWithParentDirectory( file, prjFileName, openMode );
+}
 
+void Prj::OpenFileWithParentDirectory(
+    std::fstream & file,
+    const std::string & fileName,
+    const std::ios_base::openmode & openMode )
+{
     // Create parent directories only for write operations.
     if ( ( openMode & std::ios_base::out ) != 0 )
     {
-        CreateDirIfNeeded( prjFileName );
+        CreateDirIfNeeded( fileName );
     }
 
-    Prj::OpenFile( file, prjFileName, openMode );
+    Prj::OpenFile( file, fileName, openMode );
 }
 
 void Prj::OpenFile(
@@ -232,6 +233,21 @@ void Prj::CloseFile( std::fstream & file )
 {
     file.close();
     file.clear();
+}
+
+void Prj::CloseOutputFile( std::fstream & file, const std::string & operation )
+{
+    file.flush();
+    if ( ! file )
+    {
+        throw std::runtime_error( operation + ": failed to write output data" );
+    }
+
+    file.close();
+    if ( ! file )
+    {
+        throw std::runtime_error( operation + ": failed to close output file" );
+    }
 }
 
 void Prj::MakePrjDir( const std::string & dirName )

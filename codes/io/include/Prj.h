@@ -70,6 +70,7 @@ public:
     static void OpenCaseFile( std::fstream & file, const std::string & caseDir, const std::string & fileName, const std::ios_base::openmode & openMode );
     static void OpenFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode );
     static void CloseFile( std::fstream & file );
+    static void CloseOutputFile( std::fstream & file, const std::string & operation );
     static void CreateDirIfNeeded( const std::string & prjFileName );
     static std::string GetPrjFileName( const std::string & fileName );
     static std::string GetCaseFileName( const std::string & caseDir, const std::string & fileName );
@@ -78,6 +79,7 @@ public:
     static void MakePrjDir( const std::string & dirName );
 
 private:
+    static void OpenFileWithParentDirectory( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode );
     static std::string FindSystemRoot();
     static bool IsSystemRoot( const std::filesystem::path & path );
 };
