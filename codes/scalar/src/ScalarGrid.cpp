@@ -1632,31 +1632,48 @@ void ScalarGrid::AddFaceType( int fType )
 //for partition
 void ScalarGrid::AddPhysicalBcFace( int global_face_id, int bctype, int lcell, int rcell )
 {
+	// Reserve every destination before changing the logical face record.
+	this->global_faceid.reserve( this->global_faceid.size() + 1 );
+	this->bcTypes.data.reserve( this->bcTypes.data.size() + 1 );
+	this->fBcTypes.data.reserve( this->fBcTypes.data.size() + 1 );
+	this->lc.data.reserve( this->lc.data.size() + 1 );
+	this->rc.data.reserve( this->rc.data.size() + 1 );
+
 	this->global_faceid.push_back( global_face_id );
 	this->bcTypes.AddData( bctype );
 	this->fBcTypes.AddData( bctype );
-
 	this->lc.AddData( lcell );
 	this->rc.AddData( rcell );
 }
 
 void ScalarGrid::AddInterfaceBcFace( int global_face_id, int bctype, int lcell, int rcell, int nei_zoneid, int nei_cellid )
 {
+	// Allocate the face arrays first; interface insertion can fail and must happen
+	// before the non-throwing integer appends commit the face record.
+	this->global_faceid.reserve( this->global_faceid.size() + 1 );
+	this->bcTypes.data.reserve( this->bcTypes.data.size() + 1 );
+	this->fBcTypes.data.reserve( this->fBcTypes.data.size() + 1 );
+	this->lc.data.reserve( this->lc.data.size() + 1 );
+	this->rc.data.reserve( this->rc.data.size() + 1 );
+
+	this->AddInterface( global_face_id, nei_zoneid, nei_cellid );
+
 	this->global_faceid.push_back( global_face_id );
 	this->bcTypes.AddData( bctype );
 	this->fBcTypes.AddData( bctype );
-
 	this->lc.AddData( lcell );
 	this->rc.AddData( rcell );
-
-	this->AddInterface( global_face_id, nei_zoneid, nei_cellid );
 }
 
 void ScalarGrid::AddInnerFace( int global_face_id, int bctype, int lcell, int rcell )
 {
+	this->global_faceid.reserve( this->global_faceid.size() + 1 );
+	this->fBcTypes.data.reserve( this->fBcTypes.data.size() + 1 );
+	this->lc.data.reserve( this->lc.data.size() + 1 );
+	this->rc.data.reserve( this->rc.data.size() + 1 );
+
 	this->global_faceid.push_back( global_face_id );
 	this->fBcTypes.AddData( bctype );
-
 	this->lc.AddData( lcell );
 	this->rc.AddData( rcell );
 }
