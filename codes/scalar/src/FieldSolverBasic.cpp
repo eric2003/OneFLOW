@@ -415,7 +415,7 @@ void PrepareFieldSendData()
 
     ActionState::dataBook->MoveToBegin();
 
-    int nRecords = fieldRecord->nEquList.size();
+    int nRecords = fieldRecord->GetNumberOfFields();
 
     for ( int fieldId = 0; fieldId < nRecords; ++ fieldId )
     {
@@ -443,7 +443,7 @@ void PrepareFieldRecvData()
 
     ActionState::dataBook->MoveToBegin();
 
-    int nRecords = fieldRecord->nEquList.size();
+    int nRecords = fieldRecord->GetNumberOfFields();
 
     for ( int fieldId = 0; fieldId < nRecords; ++ fieldId )
     {
