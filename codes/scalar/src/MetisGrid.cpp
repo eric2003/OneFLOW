@@ -275,9 +275,47 @@ std::vector< std::unique_ptr< ScalarGrid > > GridPartition::AllocateGrid( int nZ
 
 std::vector< std::unique_ptr< ScalarGrid > > GridPartition::ReconstructGridFaceTopo( const ScalarGrid & ggrid, int nPart )
 {
+	const int nCells = ggrid.GetNCells();
+	const int nFaces = ggrid.GetNFaces();
+	const int nBFaces = ggrid.GetNBFaces();
+	if ( nCells <= 0 || nBFaces < 0 || nFaces < nBFaces )
+	{
+		throw std::invalid_argument( "GridPartition::ReconstructGridFaceTopo: invalid global topology counts" );
+	}
+	if ( nPart <= 0 || nPart > nCells )
+	{
+		throw std::invalid_argument( "GridPartition::ReconstructGridFaceTopo: nPart must be between 1 and the number of cells" );
+	}
+	if ( ggrid.eTypes.GetNElements() != static_cast< size_t >( nCells ) ||
+		 ggrid.fTypes.GetNElements() != static_cast< size_t >( nFaces ) ||
+		 ggrid.lc.GetNElements() != static_cast< size_t >( nFaces ) ||
+		 ggrid.rc.GetNElements() != static_cast< size_t >( nFaces ) ||
+		 ggrid.bcTypes.GetNElements() != static_cast< size_t >( nBFaces ) )
+	{
+		throw std::runtime_error( "GridPartition::ReconstructGridFaceTopo: global topology arrays have inconsistent sizes" );
+	}
+
+	// Validate face references before they are used to index the partition mapping.
+	for ( int iFace = 0; iFace < nBFaces; ++ iFace )
+	{
+		const int leftCell = ggrid.lc[ iFace ];
+		if ( leftCell < 0 || leftCell >= nCells )
+		{
+			throw std::runtime_error( "GridPartition::ReconstructGridFaceTopo: boundary face references an invalid physical cell" );
+		}
+	}
+	for ( int iFace = nBFaces; iFace < nFaces; ++ iFace )
+	{
+		const int leftCell = ggrid.lc[ iFace ];
+		const int rightCell = ggrid.rc[ iFace ];
+		if ( leftCell < 0 || leftCell >= nCells || rightCell < 0 || rightCell >= nCells )
+		{
+			throw std::runtime_error( "GridPartition::ReconstructGridFaceTopo: internal face references an invalid physical cell" );
+		}
+	}
+
 	// Calculate the cell-to-zone mapping before allocating zone-local topology.
 	MetisIntList cellzone = MetisSplit::MetisPartition( ggrid, nPart );
-	const int nCells = ggrid.GetNCells();
 	if ( cellzone.size() != static_cast< size_t >( nCells ) )
 	{
 		throw std::runtime_error( "GridPartition::ReconstructGridFaceTopo: partition result size does not match the cell count" );
@@ -293,8 +331,6 @@ std::vector< std::unique_ptr< ScalarGrid > > GridPartition::ReconstructGridFaceT
 	std::vector< std::unique_ptr< ScalarGrid > > grids = AllocateGrid( nPart );
 
 	int nZones = static_cast< int >( grids.size() );
-	int nFaces = ggrid.GetNFaces();
-	int nBFaces = ggrid.GetNBFaces();
 
 	std::vector<int> zoneCount( nZones, 0 );
 	std::vector<int> localCells; //global cell id -> local cell id
