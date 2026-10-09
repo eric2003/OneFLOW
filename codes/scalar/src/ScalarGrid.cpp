@@ -314,9 +314,6 @@ void ScalarGrid::ResetMeshData()
 
 	nNodes = 0;
 	nCells = 0;
-	nBFaces = 0;
-	nFaces = 0;
-	nTCells = 0;
 }
 
 void ScalarGrid::ResetTopologyData()
