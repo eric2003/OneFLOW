@@ -118,6 +118,9 @@ void CalcGrid::Init( Grids grids, const GridConfig & config )
 
 void CalcGrid::BuildInterfaceLink()
 {
+    // This public operation can be called independently of Post().
+    ValidateGridCollection( grids );
+
     if ( this->config.objective == GridObjective::Partition )
     {
         const int partitionType = this->config.partitionType;
