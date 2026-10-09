@@ -89,8 +89,8 @@ public:
     void ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax );
     void WriteCgnsBoco( const std::string & bocoName, BCType_t bocotype, PointSetType_t ptset_type, cgsize_t npnts, const cgsize_t * pnts );
 public:
-    void CopyStrBcRegion( CgnsBcBoco * strBcRegion, CgInt& startId );
-    void ReadCgnsBcBocoConnList( CgnsBcBoco * strBcRegion, CgInt & startId );
+    void CopyStrBcRegion( CgnsBcBoco & strBcRegion, CgInt& startId );
+    void ReadCgnsBcBocoConnList( CgnsBcBoco & strBcRegion, CgInt & startId );
     CgInt GetActualNumberOfBoundaryElements();
 };
 

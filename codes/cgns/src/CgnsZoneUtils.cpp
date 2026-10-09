@@ -502,7 +502,7 @@ void GenerateUnsBcCondConn( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
     {
         CgnsBcBoco & bcRegion    = myZone    ->RequireCgnsZbc().RequireCgnsZbcBoco().GetCgnsBc( iBoco );
         CgnsBcBoco & strBcRegion = cgnsZoneIn->RequireCgnsZbc().RequireCgnsZbcBoco().GetCgnsBc( iBoco );
-        bcRegion.CopyStrBcRegion( &strBcRegion, startId );
+        bcRegion.CopyStrBcRegion( strBcRegion, startId );
     }
 }
 

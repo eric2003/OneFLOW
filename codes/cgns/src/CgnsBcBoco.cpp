@@ -478,11 +478,11 @@ void CgnsBcBoco::ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMa
     ijkMax[ 2 ] = MAX( ABS( kmin ), ABS( kmax ) );
 }
 
-void CgnsBcBoco::CopyStrBcRegion( CgnsBcBoco * strBcRegion, CgInt & startId )
+void CgnsBcBoco::CopyStrBcRegion( CgnsBcBoco & strBcRegion, CgInt & startId )
 {
-    this->name = strBcRegion->name;
+    this->name = strBcRegion.name;
     this->nElements = 2;
-    this->bcType = strBcRegion->bcType;
+    this->bcType = strBcRegion.bcType;
     this->pointSetType = CGNS_ENUMV( ElementRange );
     this->gridLocation = CGNS_ENUMV( CellCenter   );
     this->modifiedLocation = this->gridLocation;
@@ -492,9 +492,9 @@ void CgnsBcBoco::CopyStrBcRegion( CgnsBcBoco * strBcRegion, CgInt & startId )
     this->ReadCgnsBcBocoConnList( strBcRegion, startId );
 }
 
-void CgnsBcBoco::ReadCgnsBcBocoConnList( CgnsBcBoco * strBcRegion, CgInt& startId )
+void CgnsBcBoco::ReadCgnsBcBocoConnList( CgnsBcBoco & strBcRegion, CgInt& startId )
 {
-    CgInt actualNumberOfBoundaryElement = strBcRegion->GetActualNumberOfBoundaryElements();
+    CgInt actualNumberOfBoundaryElement = strBcRegion.GetActualNumberOfBoundaryElements();
     this->connList[ 0 ] = startId;
     this->connList[ 1 ] = actualNumberOfBoundaryElement - 1 + startId;
     startId += actualNumberOfBoundaryElement;
