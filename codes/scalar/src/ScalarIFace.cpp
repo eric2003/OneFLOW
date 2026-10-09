@@ -107,11 +107,37 @@ void ScalarIFace::AddInterface( int global_interface_id, int neighbor_zoneid, in
     }
 
     const int localInterfaceId = static_cast< int >( nInterfaces );
+
+    // Allocate vector capacity before changing the logical interface mapping.
+    this->iglobalfaces.reserve( nInterfaces + 1 );
+    this->zones.reserve( nInterfaces + 1 );
+    this->cells.reserve( nInterfaces + 1 );
+
+    const auto globalEntry = this->global_to_local_interfaces.emplace( global_interface_id, localInterfaceId );
+    if ( ! globalEntry.second )
+    {
+        throw std::invalid_argument( "ScalarIFace::AddInterface: duplicate global interface ID" );
+    }
+
+    try
+    {
+        const auto localEntry = this->local_to_global_interfaces.emplace( localInterfaceId, global_interface_id );
+        if ( ! localEntry.second )
+        {
+            throw std::logic_error( "ScalarIFace::AddInterface: local interface ID is already mapped" );
+        }
+    }
+    catch ( ... )
+    {
+        this->global_to_local_interfaces.erase( globalEntry.first );
+        throw;
+    }
+
+    // Integer appends cannot allocate after the reserves above, so all five
+    // representations are committed together.
     this->iglobalfaces.push_back( global_interface_id );
     this->zones.push_back( neighbor_zoneid );
     this->cells.push_back( neighbor_cellid );
-    this->global_to_local_interfaces.emplace( global_interface_id, localInterfaceId );
-    this->local_to_global_interfaces.emplace( localInterfaceId, global_interface_id );
 }
 
 int ScalarIFace::GetLocalInterfaceId( int global_interface_id )
