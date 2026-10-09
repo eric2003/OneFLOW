@@ -1413,6 +1413,7 @@ void ScalarGrid::WriteGridFaceTopology( DataBook * databook )
 	//std::cout << "\n";
 
 	IntField faceNodeMem;
+	faceNodeMem.reserve( nsum );
 
 	for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
 	{
