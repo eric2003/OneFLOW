@@ -1366,22 +1366,29 @@ void ScalarGrid::ReadGrid( DataBook * databook )
 		throw std::invalid_argument( "ScalarGrid::ReadGrid: databook must not be null" );
 	}
 
-	// Loading a grid replaces the current mesh state.
-	this->ResetMeshData();
-
 	std::cout << "Reading unstructured grid data files......\n";
 	//Read the number of nodes, number of elements and number of elements faces
 
 	std::cout << "Grid dimension = " << Dim::dimension << std::endl;
 
-	ONEFLOW::HXRead( databook, this->nNodes );
-	ONEFLOW::HXRead( databook, this->nFaces );
-	ONEFLOW::HXRead( databook, this->nCells );
+	// Validate the header before discarding the currently loaded mesh.
+	int nodeCount = 0;
+	int faceCount = 0;
+	int cellCount = 0;
+	ONEFLOW::HXRead( databook, nodeCount );
+	ONEFLOW::HXRead( databook, faceCount );
+	ONEFLOW::HXRead( databook, cellCount );
 
-	if ( this->nNodes < 0 || this->nFaces < 0 || this->nCells < 0 )
+	if ( nodeCount < 0 || faceCount < 0 || cellCount < 0 )
 	{
 		throw std::runtime_error( "ScalarGrid::ReadGrid: grid header contains a negative count" );
 	}
+
+	// A valid header starts a replacement load; subsequent arrays belong to this mesh.
+	this->ResetMeshData();
+	this->nNodes = nodeCount;
+	this->nFaces = faceCount;
+	this->nCells = cellCount;
 
 	std::cout << " number of nodes    : " << this->nNodes << std::endl;
 	std::cout << " number of surfaces : " << this->nFaces << std::endl;
