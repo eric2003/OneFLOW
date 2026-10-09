@@ -1319,6 +1319,9 @@ void ScalarGrid::ReadGrid( std::fstream & file )
 
 void ScalarGrid::ReadGrid( DataBook * databook )
 {
+	// Loading a grid replaces the current mesh state.
+	this->ResetMeshData();
+
 	std::cout << "Reading unstructured grid data files......\n";
 	//Read the number of nodes, number of elements and number of elements faces
 
@@ -1468,11 +1471,15 @@ void ScalarGrid::ReadGridFaceTopology( DataBook * databook )
 	int ipos = 0;
 	for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
 	{
+		std::vector< int > & face = this->faces[ iFace ];
+		face.clear();
+
 		int nNodes = numFaceNode[ iFace ];
+		face.reserve( nNodes );
 		for ( int iNode = 0; iNode < nNodes; ++ iNode )
 		{
 			int pid = faceNodeMem[ ipos ++ ];
-			this->faces[ iFace ].push_back( pid );
+			face.push_back( pid );
 		}
 	}
 
