@@ -193,11 +193,13 @@ std::vector< std::unique_ptr< ScalarGrid > > ScalarReadGrid( const std::string &
         throw std::runtime_error( "ScalarReadGrid: grid file must contain at least one zone" );
     }
 
-    ZoneState::pid.resize( nZone );
-    ZoneState::zoneType.resize( nZone );
+    // Keep file metadata local until every zone has been read successfully.
+    // A truncated file must not leave the global runtime layout partially updated.
+    IntField zonePids( nZone );
+    IntField zoneTypes( nZone );
 
-    ONEFLOW::HXRead( & file, ZoneState::pid );
-    ONEFLOW::HXRead( & file, ZoneState::zoneType );
+    ONEFLOW::HXRead( & file, zonePids );
+    ONEFLOW::HXRead( & file, zoneTypes );
     if ( ! file )
     {
         throw std::runtime_error( "ScalarReadGrid: truncated zone metadata" );
@@ -207,7 +209,7 @@ std::vector< std::unique_ptr< ScalarGrid > > ScalarReadGrid( const std::string &
     {
         for ( int iZone = 0; iZone < nZone; ++ iZone )
         {
-            ZoneState::pid[ iZone ] = ( iZone ) % Parallel::nProc;
+            zonePids[ iZone ] = iZone % Parallel::nProc;
         }
     }
 
@@ -216,7 +218,7 @@ std::vector< std::unique_ptr< ScalarGrid > > ScalarReadGrid( const std::string &
         std::cout << "iZone = " << iZone << " nZone = " << nZone << "\n";
         auto grid = std::make_unique< ScalarGrid >();
         grid->id = iZone;
-        grid->type = ZoneState::zoneType[ iZone ];
+        grid->type = zoneTypes[ iZone ];
         grid->ReadGrid( file );
         if ( ! file )
         {
@@ -224,6 +226,10 @@ std::vector< std::unique_ptr< ScalarGrid > > ScalarReadGrid( const std::string &
         }
         grids.push_back( std::move( grid ) );
     }
+
+    // Publish the layout only after the entire file has been parsed.
+    ZoneState::pid = std::move( zonePids );
+    ZoneState::zoneType = std::move( zoneTypes );
 
     Prj::CloseFile( file );
     return grids;
