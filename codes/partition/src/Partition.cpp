@@ -284,10 +284,10 @@ void Partition::BuildCalculationalGrid( UnsGrid & ggrid, int zid )
     grid.nCells = this->GetNCell( ggrid, zid );
 
     this->CalcG2lFace( ggrid, zid, grid );
-    this->CalcG2lNode( ggrid, zid, grid );
+    this->CalcG2lNode( ggrid, grid );
 
     this->CreateL2g( ggrid, zid, grid );
-    this->SetCoor  ( ggrid, zid, grid );
+    this->SetCoor  ( ggrid, grid );
     this->SetGeometricRelationship( ggrid, zid, grid );
 }
 
@@ -372,7 +372,7 @@ void Partition::CalcG2lFace( UnsGrid & ggrid, int zid, UnsGrid & grid )
     grid.nIFaces = nIFaceNow;
 }
 
-void Partition::CalcG2lNode( UnsGrid & ggrid, int zid, UnsGrid & grid )
+void Partition::CalcG2lNode( UnsGrid & ggrid, UnsGrid & grid )
 {
     G2LMapping & mapping = this->g2l.value();
 
@@ -387,7 +387,6 @@ void Partition::CalcG2lNode( UnsGrid & ggrid, int zid, UnsGrid & grid )
     }
 
     //set iZone g2l->g2l_node to -1
-    int iCount = 0;
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         if ( mapping.g2l_face[ iFace ] > - 1 )
@@ -433,7 +432,7 @@ void Partition::CreateL2g( UnsGrid & ggrid, int zid, UnsGrid & grid )
     this->l2g.CalcL2G( ggrid, zid, grid, this->g2l.value() );
 }
 
-void Partition::SetCoor( UnsGrid & ggrid, int zid, UnsGrid & grid )
+void Partition::SetCoor( UnsGrid & ggrid, UnsGrid & grid )
 {
     G2LMapping & mapping = this->g2l.value();
 
@@ -460,12 +459,12 @@ void Partition::SetCoor( UnsGrid & ggrid, int zid, UnsGrid & grid )
 
 void Partition::SetGeometricRelationship( UnsGrid & ggrid, int zid, UnsGrid & grid )
 {
-    this->CalcF2N( ggrid, zid, grid );
+    this->CalcF2N( ggrid, grid );
     this->SetF2CAndBC( ggrid, zid, grid );
     this->SetInterface( ggrid, zid, grid, this->partitionType );
 }
 
-void Partition::CalcF2N( UnsGrid & ggrid, int zid, UnsGrid & grid )
+void Partition::CalcF2N( UnsGrid & ggrid, UnsGrid & grid )
 {
     G2LMapping & mapping = this->g2l.value();
 
