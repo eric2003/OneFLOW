@@ -1696,7 +1696,7 @@ void ScalarGrid::ReconstructNode( const ScalarGrid & ggrid )
 		throw std::runtime_error( "ScalarGrid::ReconstructNode: global node or face arrays have inconsistent sizes" );
 	}
 
-	std::set<int> nodeset;
+	std::vector< int > globalNodeIds;
 	std::vector< std::vector< int > > reconstructedFaces;
 	reconstructedFaces.reserve( nFaces );
 
@@ -1714,38 +1714,31 @@ void ScalarGrid::ReconstructNode( const ScalarGrid & ggrid )
 			{
 				throw std::runtime_error( "ScalarGrid::ReconstructNode: face references an invalid global node id" );
 			}
-			nodeset.insert( globalNodeId );
+			globalNodeIds.push_back( globalNodeId );
 		}
 		reconstructedFaces.push_back( face );
 	}
 
-	std::map<int, int> global_local_node;
-	int count = 0;
-	for ( const int globalNodeId : nodeset )
-	{
-		global_local_node.emplace( globalNodeId, count++ );
-	}
+	// Sort and deduplicate node ids to keep local numbering deterministic.
+	std::sort( globalNodeIds.begin(), globalNodeIds.end() );
+	globalNodeIds.erase( std::unique( globalNodeIds.begin(), globalNodeIds.end() ), globalNodeIds.end() );
 
 	for ( std::vector< int > & face : reconstructedFaces )
 	{
 		for ( int & globalNodeId : face )
 		{
-			const auto localNode = global_local_node.find( globalNodeId );
-			if ( localNode == global_local_node.end() )
-			{
-				throw std::runtime_error( "ScalarGrid::ReconstructNode: global-to-local node mapping is incomplete" );
-			}
-			globalNodeId = localNode->second;
+			const auto localNode = std::lower_bound( globalNodeIds.begin(), globalNodeIds.end(), globalNodeId );
+			globalNodeId = static_cast< int >( localNode - globalNodeIds.begin() );
 		}
 	}
 
 	std::vector< Real > reconstructedX;
 	std::vector< Real > reconstructedY;
 	std::vector< Real > reconstructedZ;
-	reconstructedX.reserve( nodeset.size() );
-	reconstructedY.reserve( nodeset.size() );
-	reconstructedZ.reserve( nodeset.size() );
-	for ( const int globalNodeId : nodeset )
+	reconstructedX.reserve( globalNodeIds.size() );
+	reconstructedY.reserve( globalNodeIds.size() );
+	reconstructedZ.reserve( globalNodeIds.size() );
+	for ( const int globalNodeId : globalNodeIds )
 	{
 		reconstructedX.push_back( ggrid.xn[ globalNodeId ] );
 		reconstructedY.push_back( ggrid.yn[ globalNodeId ] );
