@@ -43,6 +43,7 @@ License
 #include <iostream>
 #include <utility>
 #include <stdexcept>
+#include <limits>
 
 
 BeginNameSpace( ONEFLOW )
@@ -93,7 +94,24 @@ void CalcGrid::BuildInterfaceLink()
 
 void CalcGrid::Dump()
 {
-    const int nZone = GridsSize( grids );
+    if ( grids.empty() )
+    {
+        throw std::invalid_argument( "CalcGrid::Dump: at least one grid zone is required" );
+    }
+    if ( grids.size() > static_cast< size_t >( std::numeric_limits< int >::max() ) )
+    {
+        throw std::length_error( "CalcGrid::Dump: zone count exceeds the file format limit" );
+    }
+    for ( const auto & grid : grids )
+    {
+        if ( ! grid )
+        {
+            throw std::invalid_argument( "CalcGrid::Dump: grid zone must not be null" );
+        }
+    }
+
+    // Validate the complete collection before truncating the destination file.
+    const int nZone = static_cast< int >( grids.size() );
     IntField zonePids( nZone );
     IntField zoneTypes( nZone );
 
