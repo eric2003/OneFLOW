@@ -352,23 +352,31 @@ void DecompressData( DataBook * dataBook )
 
 void CompressData( DataBase * dataBase, DataBook * dataBook )
 {
-    // Use the new type alias
-    const DataPara::DataMap & dataMap = dataBase->GetDataPara()->GetDataMap();
+    if ( dataBase == nullptr )
+    {
+        throw std::runtime_error( "DataBase: database is not initialized" );
+    }
+
+    const DataPara::DataMap & dataMap = dataBase->RequireDataPara().GetDataMap();
 
     int ndata = static_cast<int>( dataMap.size() );
     ONEFLOW::HXWrite( dataBook, ndata );
 
-    // Range-based for is cleaner with unordered_map
     for ( const auto & pair : dataMap )
     {
-        const DataEntry * dataEntry = pair.second.get();  // pair.first is the key (name), pair.second owns DataEntry
+        const DataEntry * dataEntry = pair.second.get();
         ONEFLOW::HXWriteDataEntry( dataBook, dataEntry );
     }
 }
 
 void DecompressData( DataBase * dataBase, DataBook * dataBook )
 {
-    // No longer need to touch the internal map directly for reading
+    if ( dataBase == nullptr )
+    {
+        throw std::runtime_error( "DataBase: database is not initialized" );
+    }
+
+    DataPara & dataPara = dataBase->RequireDataPara();
     dataBook->MoveToBegin();
 
     int ndata = 0;
@@ -377,7 +385,7 @@ void DecompressData( DataBase * dataBase, DataBook * dataBook )
     for ( int i = 0; i < ndata; ++ i )
     {
         auto dataEntry = ONEFLOW::HXReadDataEntry( dataBook );
-        dataBase->GetDataPara()->SetDataEntry( std::move( dataEntry ) );
+        dataPara.SetDataEntry( std::move( dataEntry ) );
     }
 }
 
