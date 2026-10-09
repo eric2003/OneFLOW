@@ -86,23 +86,50 @@ MetisIntList MetisSplit::MetisPartition( const ScalarGrid & ggrid, int nPart )
 
 std::pair< MetisIntList, MetisIntList > MetisSplit::ScalarGetXadjAdjncy( const ScalarGrid & ggrid )
 {
-	int nCells = ggrid.GetNCells();
+	const int nCells = ggrid.GetNCells();
+	const int nFaces = ggrid.GetNFaces();
+	const int nBFaces = ggrid.GetNBFaces();
+	if ( nCells <= 0 || nBFaces < 0 || nFaces < nBFaces )
+	{
+		throw std::invalid_argument( "MetisSplit::ScalarGetXadjAdjncy: invalid grid topology counts" );
+	}
 
 	EList c2c;
 	ggrid.CalcC2C( c2c );
+	if ( c2c.GetNElements() != static_cast< size_t >( nCells ) )
+	{
+		throw std::runtime_error( "MetisSplit::ScalarGetXadjAdjncy: cell adjacency row count does not match the cell count" );
+	}
 
-	MetisIntList xadj( nCells + 1 );
+	MetisIntList xadj( static_cast< size_t >( nCells ) + 1 );
 	MetisIntList adjncy;
-	adjncy.reserve( 2 * ( ggrid.GetNFaces() - ggrid.GetNBFaces() ) );
+	const size_t nInternalFaces = static_cast< size_t >( nFaces - nBFaces );
+	if ( nInternalFaces <= adjncy.max_size() / 2 )
+	{
+		adjncy.reserve( 2 * nInternalFaces );
+	}
 
 	xadj[ 0 ] = 0;
 	for ( int iCell = 0; iCell < nCells; ++ iCell )
 	{
-		xadj[ iCell + 1 ] = xadj[ iCell ] + c2c[ iCell ].size();
-		for ( int j = 0; j < c2c[ iCell ].size(); ++ j )
+		for ( const int neighbor : c2c[ iCell ] )
 		{
-			adjncy.push_back( c2c[ iCell ][ j ] );
+			if ( neighbor < 0 || neighbor >= nCells + nBFaces )
+			{
+				throw std::runtime_error( "MetisSplit::ScalarGetXadjAdjncy: cell adjacency contains an invalid cell index" );
+			}
+			// METIS partitions physical cells only; interface ghost cells are not graph vertices.
+			if ( neighbor >= nCells )
+			{
+				continue;
+			}
+			if ( adjncy.size() >= static_cast< size_t >( std::numeric_limits< idx_t >::max() ) )
+			{
+				throw std::overflow_error( "MetisSplit::ScalarGetXadjAdjncy: adjacency exceeds METIS index range" );
+			}
+			adjncy.push_back( static_cast< idx_t >( neighbor ) );
 		}
+		xadj[ iCell + 1 ] = static_cast< idx_t >( adjncy.size() );
 	}
 
 	return { std::move( xadj ), std::move( adjncy ) };
