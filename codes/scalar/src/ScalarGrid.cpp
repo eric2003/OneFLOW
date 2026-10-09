@@ -246,7 +246,13 @@ ScalarGrid::ScalarGrid()
 	  scalarBccos( std::make_unique< ScalarBccos >() ),
 	  scalarIFace( std::make_unique< ScalarIFace >() )
 {
+	this->nNodes = 0;
+	this->nCells = 0;
+	this->nBFaces = 0;
+	this->nFaces = 0;
+	this->nTCells = 0;
 	this->id = 0;
+	this->localId = 0;
 	this->level = 0;
 	this->volBcType = -1;
 	this->type = ONEFLOW::UMESH;
