@@ -81,6 +81,8 @@ class Partition
 private:
     std::string sourceFile;
     int partitionType;
+    std::optional< G2LMapping > g2l;
+    G2LMapping & GetG2LMapping();
 public:
     explicit Partition( const GridConfig & config );
     ~Partition();
@@ -88,7 +90,6 @@ public:
     Grids grids;
 public:
     int npartproc;
-    std::optional< G2LMapping > g2l;
     L2GMapping l2g;
 public:
     void Run();

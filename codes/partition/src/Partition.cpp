@@ -188,6 +188,11 @@ Partition::~Partition()
 {
 }
 
+G2LMapping & Partition::GetG2LMapping()
+{
+    return this->g2l.value();
+}
+
 void Partition::Run()
 {
     UnsGrid & ggrid = this->ReadGrid( this->sourceFile );
@@ -265,7 +270,7 @@ void Partition::BuildCalculationalGrid( UnsGrid & ggrid )
 void Partition::CalcG2lCell( UnsGrid & ggrid )
 {
     UnsGrid & grid = ggrid;
-    G2LMapping & mapping = this->g2l.value();
+    G2LMapping & mapping = this->GetG2LMapping();
 
     IntField zCount( npartproc, 0 );
 
@@ -293,7 +298,7 @@ void Partition::BuildCalculationalGrid( UnsGrid & ggrid, int zid )
 
 void Partition::CalcG2lFace( UnsGrid & ggrid, int zid, UnsGrid & grid )
 {
-    G2LMapping & mapping = this->g2l.value();
+    G2LMapping & mapping = this->GetG2LMapping();
 
     int nCells  = ggrid.nCells;
     int nFaces  = ggrid.nFaces;
@@ -374,7 +379,7 @@ void Partition::CalcG2lFace( UnsGrid & ggrid, int zid, UnsGrid & grid )
 
 void Partition::CalcG2lNode( UnsGrid & ggrid, UnsGrid & grid )
 {
-    G2LMapping & mapping = this->g2l.value();
+    G2LMapping & mapping = this->GetG2LMapping();
 
     int nFaces = ggrid.nFaces;
     int nNodes = ggrid.nNodes;
@@ -413,7 +418,7 @@ void Partition::CalcG2lNode( UnsGrid & ggrid, UnsGrid & grid )
 
 int Partition::GetNCell( UnsGrid & ggrid, int zid )
 {
-    G2LMapping & mapping = this->g2l.value();
+    G2LMapping & mapping = this->GetG2LMapping();
 
     int nCells = ggrid.nCells;
     int iCount = 0;
@@ -429,12 +434,12 @@ int Partition::GetNCell( UnsGrid & ggrid, int zid )
 
 void Partition::CreateL2g( UnsGrid & ggrid, int zid, UnsGrid & grid )
 {
-    this->l2g.CalcL2G( ggrid, zid, grid, this->g2l.value() );
+    this->l2g.CalcL2G( ggrid, zid, grid, this->GetG2LMapping() );
 }
 
 void Partition::SetCoor( UnsGrid & ggrid, UnsGrid & grid )
 {
-    G2LMapping & mapping = this->g2l.value();
+    G2LMapping & mapping = this->GetG2LMapping();
 
     int nNodes = grid.nNodes;
     grid.nodeMesh->CreateNodes( nNodes );
@@ -466,7 +471,7 @@ void Partition::SetGeometricRelationship( UnsGrid & ggrid, int zid, UnsGrid & gr
 
 void Partition::CalcF2N( UnsGrid & ggrid, UnsGrid & grid )
 {
-    G2LMapping & mapping = this->g2l.value();
+    G2LMapping & mapping = this->GetG2LMapping();
 
     LinkField & f2n = grid.GetFaceTopo().GetFaces();
     LinkField & gf2n = ggrid.GetFaceTopo().GetFaces();
@@ -491,7 +496,7 @@ void Partition::CalcF2N( UnsGrid & ggrid, UnsGrid & grid )
 
 void Partition::SetF2CAndBC( UnsGrid & ggrid, int zid, UnsGrid & grid )
 {
-    G2LMapping & mapping = this->g2l.value();
+    G2LMapping & mapping = this->GetG2LMapping();
 
     int nGBFace = ggrid.nBFaces;
 
@@ -571,7 +576,7 @@ void Partition::SetInterface( UnsGrid & ggrid, int zid, UnsGrid & grid, int part
 {
     if ( partitionType != 1 ) return;
 
-    G2LMapping & mapping = this->g2l.value();
+    G2LMapping & mapping = this->GetG2LMapping();
 
     InterFace & interFace = *grid.interFace;
     int nIFaces = interFace.nIFaces;
