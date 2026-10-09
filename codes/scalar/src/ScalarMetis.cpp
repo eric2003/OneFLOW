@@ -52,6 +52,7 @@ License
 #include "SmartGrid.h"
 #include <iostream>
 #include <vector>
+#include <stdexcept>
 
 
 BeginNameSpace( ONEFLOW )
@@ -161,6 +162,12 @@ std::vector< std::unique_ptr< ScalarGrid > > ScalarReadGrid( const std::string &
     int nZone = -1;
 
     ONEFLOW::HXRead( & file, nZone );
+
+    if ( nZone <= 0 )
+    {
+        Prj::CloseFile( file );
+        throw std::runtime_error( "ScalarReadGrid: grid file must contain at least one zone" );
+    }
 
     ZoneState::pid.resize( nZone );
     ZoneState::zoneType.resize( nZone );
