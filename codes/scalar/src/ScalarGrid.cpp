@@ -332,6 +332,9 @@ void ScalarGrid::ResetTopologyData()
 
 	nFaces = 0;
 	nBFaces = 0;
+
+	// Geometry is derived from topology and must be invalidated with it.
+	this->ResetGeometryData();
 }
 
 void ScalarGrid::ResetGeometryData()
@@ -957,7 +960,6 @@ void ScalarGrid::CalcGhostCellCenterVol1D()
 void ScalarGrid::CalcTopology()
 {
 	this->ResetTopologyData();
-	this->ResetGeometryData();
 
 	this->nNodes = this->GetNNodes();
 	this->nCells = this->GetNCells();
