@@ -46,15 +46,18 @@ class CgnsZbcBoco
 public:
     explicit CgnsZbcBoco( CgnsZone & cgnsZone );
     ~CgnsZbcBoco();
-public:
-    int nBoco;
+private:
+    int nBocoToCreate;
     HXVector< std::unique_ptr< CgnsBcBoco > > cgnsBcBocos;
+
+public:
+    int GetNBoco() const;
     CgnsZone & cgnsZone;
 public:
-    void AddCgnsBcBoco( CgnsBcBoco * cgnsBcBoco );
     void AddCgnsBcBoco( std::unique_ptr< CgnsBcBoco > cgnsBcBoco );
-    CgnsBcBoco * WriteCgnsBoco( const std::string & bocoName, BCType_t bocotype, PointSetType_t ptset_type, cgsize_t npnts, const cgsize_t * pnts );
-    CgnsBcBoco * GetCgnsBc( int iBoco );
+    CgnsBcBoco & WriteCgnsBoco( const std::string & bocoName, BCType_t bocotype, PointSetType_t ptset_type, cgsize_t npnts, const cgsize_t * pnts );
+    CgnsBcBoco & GetCgnsBc( int iBoco );
+    const CgnsBcBoco & GetCgnsBc( int iBoco ) const;
     void CreateCgnsZbc();
     void ShiftBcRegion();
     void ConvertToInnerDataStandard();
@@ -64,7 +67,7 @@ public:
     void ReadZnboco( int nBoco );
     void ReadCgnsZbcBoco();
     void DumpCgnsZbcBoco();
-    int GetNumberOfActualBcElements();
+    int GetNumberOfActualBcElements() const;
     void GenerateUnsBcElemConn( CgIntField& bcConn );
 };
 

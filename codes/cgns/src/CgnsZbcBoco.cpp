@@ -37,6 +37,7 @@ License
 #include "BcRecord.h"
 #include <iostream>
 #include <utility>
+#include <stdexcept>
 
 
 
@@ -46,34 +47,44 @@ BeginNameSpace( ONEFLOW )
 CgnsZbcBoco::CgnsZbcBoco( CgnsZone & cgnsZone )
     : cgnsZone( cgnsZone )
 {
-    this->nBoco = 0;
+    this->nBocoToCreate = 0;
 }
 
 CgnsZbcBoco::~CgnsZbcBoco() = default;
 
-void CgnsZbcBoco::AddCgnsBcBoco( CgnsBcBoco * cgnsBcBoco )
+int CgnsZbcBoco::GetNBoco() const
 {
-    this->AddCgnsBcBoco( std::unique_ptr< CgnsBcBoco >( cgnsBcBoco ) );
+    return static_cast< int >( this->cgnsBcBocos.size() );
 }
 
 void CgnsZbcBoco::AddCgnsBcBoco( std::unique_ptr< CgnsBcBoco > cgnsBcBoco )
 {
+    if ( cgnsBcBoco == nullptr )
+    {
+        throw std::invalid_argument( "CgnsZbcBoco: cannot add a null boundary condition" );
+    }
+
     CgnsBcBoco * bcBoco = cgnsBcBoco.get();
     this->cgnsBcBocos.push_back( std::move( cgnsBcBoco ) );
     int id = this->cgnsBcBocos.size();
     bcBoco->bcId = id;
 }
 
-CgnsBcBoco * CgnsZbcBoco::GetCgnsBc( int iBoco )
+CgnsBcBoco & CgnsZbcBoco::GetCgnsBc( int iBoco )
 {
-    return this->cgnsBcBocos[ iBoco ].get();
+    return *this->cgnsBcBocos.at( iBoco );
+}
+
+const CgnsBcBoco & CgnsZbcBoco::GetCgnsBc( int iBoco ) const
+{
+    return *this->cgnsBcBocos.at( iBoco );
 }
 
 void CgnsZbcBoco::CreateCgnsZbc()
 {
-    for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
+    for ( int iBoco = this->GetNBoco(); iBoco < this->nBocoToCreate; ++ iBoco )
     {
-this->AddCgnsBcBoco( std::make_unique< CgnsBcBoco >( &this->cgnsZone ) );
+        this->AddCgnsBcBoco( std::make_unique< CgnsBcBoco >( &this->cgnsZone ) );
     }
 }
 
@@ -81,10 +92,10 @@ void CgnsZbcBoco::ShiftBcRegion()
 {
     int baseFlag = 1;
 
-    for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
+    for ( int iBoco = 0; iBoco < this->GetNBoco(); ++ iBoco )
     {
-        CgnsBcBoco * cgnsBcBoco = this->GetCgnsBc( iBoco );
-        if ( ! cgnsBcBoco->CalcBase() )
+        CgnsBcBoco & cgnsBcBoco = this->GetCgnsBc( iBoco );
+        if ( ! cgnsBcBoco.CalcBase() )
         {
             baseFlag = 0;
             break;
@@ -93,45 +104,45 @@ void CgnsZbcBoco::ShiftBcRegion()
 
     if ( baseFlag == 0 )
     {
-        for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
+        for ( int iBoco = 0; iBoco < this->GetNBoco(); ++ iBoco )
         {
-            CgnsBcBoco * cgnsBcBoco = this->GetCgnsBc( iBoco );
-            cgnsBcBoco->ShiftBcRegion();
+            CgnsBcBoco & cgnsBcBoco = this->GetCgnsBc( iBoco );
+            cgnsBcBoco.ShiftBcRegion();
         }
     }
 }
 
 void CgnsZbcBoco::ConvertToInnerDataStandard()
 {
-    for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
+    for ( int iBoco = 0; iBoco < this->GetNBoco(); ++ iBoco )
     {
-        CgnsBcBoco * cgnsBcBoco = this->GetCgnsBc( iBoco );
-        cgnsBcBoco->ConvertToInnerDataStandard();
+        CgnsBcBoco & cgnsBcBoco = this->GetCgnsBc( iBoco );
+        cgnsBcBoco.ConvertToInnerDataStandard();
     }
 }
 
 void CgnsZbcBoco::ScanBcFace( FaceSolver & faceSolver )
 {
     std::cout << " Now ScanBcFace......\n\n";
-    std::cout << " nBoco = " << this->nBoco << std::endl;
+    std::cout << " nBoco = " << this->GetNBoco() << std::endl;
 
-    for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
+    for ( int iBoco = 0; iBoco < this->GetNBoco(); ++ iBoco )
     {
         std::cout << " iBoco = " << iBoco << " ";
-        CgnsBcBoco * cgnsBcBoco = this->GetCgnsBc( iBoco );
-        std::cout << " BCTypeName = " << ONEFLOW::GetCgnsBcName( cgnsBcBoco->bcType ) << std::endl;
-        std::cout << " BCRegion Name = " << cgnsBcBoco->name << std::endl;
+        CgnsBcBoco & cgnsBcBoco = this->GetCgnsBc( iBoco );
+        std::cout << " BCTypeName = " << ONEFLOW::GetCgnsBcName( cgnsBcBoco.bcType ) << std::endl;
+        std::cout << " BCRegion Name = " << cgnsBcBoco.name << std::endl;
 
-        RegionNameMap::AddRegion( cgnsBcBoco->name );
-        int bcNameId = RegionNameMap::FindRegionId( cgnsBcBoco->name );
-        cgnsBcBoco->nameId = bcNameId;
-        cgnsBcBoco->ScanBcFace( faceSolver );
+        RegionNameMap::AddRegion( cgnsBcBoco.name );
+        int bcNameId = RegionNameMap::FindRegionId( cgnsBcBoco.name );
+        cgnsBcBoco.nameId = bcNameId;
+        cgnsBcBoco.ScanBcFace( faceSolver );
     }
 }
 
 void CgnsZbcBoco::PrintZnboco()
 {
-    std::cout << "   nBoco        = " << this->nBoco << std::endl;
+    std::cout << "   nBoco        = " << this->nBocoToCreate << std::endl;
 }
 
 void CgnsZbcBoco::ReadZnboco()
@@ -141,13 +152,13 @@ void CgnsZbcBoco::ReadZnboco()
     int zId = cgnsZone.zId;
 
     // Determine the number of boundary conditions for this zone.
-    cg_nbocos( fileId, baseId, zId, & this->nBoco );
+    cg_nbocos( fileId, baseId, zId, & this->nBocoToCreate );
     this->PrintZnboco();
 }
 
 void CgnsZbcBoco::ReadZnboco( int nBoco )
 {
-    this->nBoco = nBoco;
+    this->nBocoToCreate = nBoco;
     this->PrintZnboco();
 }
 
@@ -156,12 +167,12 @@ void CgnsZbcBoco::ReadCgnsZbcBoco()
     this->ReadZnboco();
     this->CreateCgnsZbc();
 
-    for ( int iBoco = 0; iBoco < nBoco; ++ iBoco )
+    for ( int iBoco = 0; iBoco < this->GetNBoco(); ++ iBoco )
     {
         std::cout << "\n";
-        std::cout << "-->iBoco  = " << iBoco << " nBoco = " << nBoco << "\n";
-        CgnsBcBoco * cgnsBcBoco = this->GetCgnsBc( iBoco );
-        cgnsBcBoco->ReadCgnsBcBoco();
+        std::cout << "-->iBoco  = " << iBoco << " nBoco = " << this->GetNBoco() << "\n";
+        CgnsBcBoco & cgnsBcBoco = this->GetCgnsBc( iBoco );
+        cgnsBcBoco.ReadCgnsBcBoco();
     }
 }
 
@@ -169,16 +180,16 @@ void CgnsZbcBoco::DumpCgnsZbcBoco()
 {
     this->PrintZnboco();
 
-    for ( int iBoco = 0; iBoco < nBoco; ++ iBoco )
+    for ( int iBoco = 0; iBoco < this->GetNBoco(); ++ iBoco )
     {
         std::cout << "\n";
-        std::cout << "-->iBoco  = " << iBoco << " nBoco = " << nBoco << "\n";
-        CgnsBcBoco * cgnsBcBoco = this->GetCgnsBc( iBoco );
-        cgnsBcBoco->DumpCgnsBcBoco();
+        std::cout << "-->iBoco  = " << iBoco << " nBoco = " << this->GetNBoco() << "\n";
+        CgnsBcBoco & cgnsBcBoco = this->GetCgnsBc( iBoco );
+        cgnsBcBoco.DumpCgnsBcBoco();
     }
 }
 
-CgnsBcBoco * CgnsZbcBoco::WriteCgnsBoco( const std::string & bocoName, BCType_t bocotype,  PointSetType_t ptset_type, cgsize_t npnts, const cgsize_t * pnts )
+CgnsBcBoco & CgnsZbcBoco::WriteCgnsBoco( const std::string & bocoName, BCType_t bocotype,  PointSetType_t ptset_type, cgsize_t npnts, const cgsize_t * pnts )
 {
     int fileId = cgnsZone.cgnsBase.cgnsFile->fileId;
     int baseId = cgnsZone.cgnsBase.baseId;
@@ -190,19 +201,19 @@ CgnsBcBoco * CgnsZbcBoco::WriteCgnsBoco( const std::string & bocoName, BCType_t 
 
     cgnsBcBoco->WriteCgnsBoco( bocoName, bocotype, ptset_type, npnts, pnts );
 
-    return cgnsBcBoco;
+    return *cgnsBcBoco;
 }
 
-int CgnsZbcBoco::GetNumberOfActualBcElements()
+int CgnsZbcBoco::GetNumberOfActualBcElements() const
 {
     int nBFaces = 0;
     int nActualBcFace = 0;
 
-    for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
+    for ( int iBoco = 0; iBoco < this->GetNBoco(); ++ iBoco )
     {
-        CgnsBcBoco * cgnsBcBoco = this->GetCgnsBc( iBoco );
-        int nBcElement = cgnsBcBoco->nElements;
-        int nActualBcElement = cgnsBcBoco->GetActualNumberOfBoundaryElements();
+        const CgnsBcBoco & cgnsBcBoco = this->GetCgnsBc( iBoco );
+        int nBcElement = cgnsBcBoco.nElements;
+        int nActualBcElement = cgnsBcBoco.GetActualNumberOfBoundaryElements();
         nBFaces += nBcElement;
         nActualBcFace += nActualBcElement;
 
@@ -221,13 +232,13 @@ void CgnsZbcBoco::GenerateUnsBcElemConn( CgIntField& bcConn )
 
     std::cout << " pos = " << pos << "\n";
 
-    for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
+    for ( int iBoco = 0; iBoco < this->GetNBoco(); ++ iBoco )
     {
-        CgnsBcBoco * bcRegion = this->GetCgnsBc( iBoco );
+        CgnsBcBoco & bcRegion = this->GetCgnsBc( iBoco );
 
         IntField ijkMin( 3 ), ijkMax( 3 );
-        bcRegion->ExtractIJKRegionFromBcConn( ijkMin, ijkMax );
-        SetBcConn( &cgnsZone, ijkMin, ijkMax, bcConn, pos, nBcElem );
+        bcRegion.ExtractIJKRegionFromBcConn( ijkMin, ijkMax );
+        SetBcConn( cgnsZone, ijkMin, ijkMax, bcConn, pos, nBcElem );
         std::cout << " pos = " << pos << "\n";
         std::cout << " nBcElem = " << nBcElem << " boundaryElementSize = " << nBcElem * 4 << "\n";
     }

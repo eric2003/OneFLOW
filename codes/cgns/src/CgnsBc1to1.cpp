@@ -58,11 +58,11 @@ void CgnsBc1to1::ReadCgnsBc1To1()
     int baseId = this->cgnsZone->cgnsBase.baseId;
     int zId = this->cgnsZone->zId;
 
-    this->nConnPoints = 6;
-    this->nConnDonorPoints = 6;
+    this->SetNConnPoints( 6 );
+    this->SetNConnDonorPoints( 6 );
 
-    this->connPoint.resize( nConnPoints );
-    this->connDonorPoint.resize( nConnDonorPoints );
+    this->ResizeConnPoint( this->GetNConnPoints() );
+    this->ResizeConnDonorPoint( this->GetNConnDonorPoints() );
 
     this->donorPointSetType = CGNS_ENUMV( PointRange );
     this->donorDataType     = CGNS_ENUMV( Integer );
@@ -71,7 +71,7 @@ void CgnsBc1to1::ReadCgnsBc1To1()
     CgnsTraits::char33 donorZoneName;
 
 
-    cg_1to1_read( fileId, baseId, zId, this->bcId, connName, donorZoneName, & this->connPoint[ 0 ], & this->connDonorPoint[ 0 ], itranfrm );
+    cg_1to1_read( fileId, baseId, zId, this->bcId, connName, donorZoneName, this->GetConnPointData(), this->GetConnDonorPointData(), itranfrm );
 
     this->connName = connName;
     this->donorZoneName  = donorZoneName;
@@ -80,26 +80,26 @@ void CgnsBc1to1::ReadCgnsBc1To1()
     std::cout << "   connName      = " << connName << " donorZoneName = " << donorZoneName << "\n";
     std::cout << "   donorDataType = " << DataTypeName[ this->donorDataType ] << "\n";
     std::cout << "   donorPointSetType = " << PointSetTypeName[ this->donorPointSetType ] << "\n";
-    std::cout << "   nConnPoints      = " << nConnPoints << "\n";
-    std::cout << "   nConnDonorPoints = " << nConnDonorPoints << "\n";
+    std::cout << "   nConnPoints      = " << this->GetNConnPoints() << "\n";
+    std::cout << "   nConnDonorPoints = " << this->GetNConnDonorPoints() << "\n";
 
     std::cout << "   range (this zone )= ";
     int width = 5;
-    std::cout << std::setw( width ) << connPoint[ 0 ];
-    std::cout << std::setw( width ) << connPoint[ 1 ];
-    std::cout << std::setw( width ) << connPoint[ 2 ] << "\n";
+    std::cout << std::setw( width ) << GetConnPointValue( 0 );
+    std::cout << std::setw( width ) << GetConnPointValue( 1 );
+    std::cout << std::setw( width ) << GetConnPointValue( 2 ) << "\n";
     std::cout << "                       ";
-    std::cout << std::setw( width ) << connPoint[ 3 ];
-    std::cout << std::setw( width ) << connPoint[ 4 ];
-    std::cout << std::setw( width ) << connPoint[ 5 ] << "\n";
+    std::cout << std::setw( width ) << GetConnPointValue( 3 );
+    std::cout << std::setw( width ) << GetConnPointValue( 4 );
+    std::cout << std::setw( width ) << GetConnPointValue( 5 ) << "\n";
     std::cout << "   range (donor zone)= ";
-    std::cout << std::setw( width ) << connDonorPoint[ 0 ];
-    std::cout << std::setw( width ) << connDonorPoint[ 1 ];
-    std::cout << std::setw( width ) << connDonorPoint[ 2 ] << "\n";
+    std::cout << std::setw( width ) << GetConnDonorPointValue( 0 );
+    std::cout << std::setw( width ) << GetConnDonorPointValue( 1 );
+    std::cout << std::setw( width ) << GetConnDonorPointValue( 2 ) << "\n";
     std::cout << "                       ";
-    std::cout << std::setw( width ) << connDonorPoint[ 3 ];
-    std::cout << std::setw( width ) << connDonorPoint[ 4 ];
-    std::cout << std::setw( width ) << connDonorPoint[ 5 ] << "\n";
+    std::cout << std::setw( width ) << GetConnDonorPointValue( 3 );
+    std::cout << std::setw( width ) << GetConnDonorPointValue( 4 );
+    std::cout << std::setw( width ) << GetConnDonorPointValue( 5 ) << "\n";
     std::cout << "   transform = " << itranfrm[ 0 ] << " " << itranfrm[ 1 ] << " " << itranfrm[ 2 ] << "\n";
 
     int transform[ 3 ][ 3 ];

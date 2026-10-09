@@ -56,6 +56,12 @@ public:
 
     CgnsZone & cgnsZone;
 public:
+    CgnsZbcConn & RequireCgnsZbcConn();
+    const CgnsZbcConn & RequireCgnsZbcConn() const;
+    CgnsZbc1to1 & RequireCgnsZbc1to1();
+    const CgnsZbc1to1 & RequireCgnsZbc1to1() const;
+    CgnsZbcBoco & RequireCgnsZbcBoco();
+    const CgnsZbcBoco & RequireCgnsZbcBoco() const;
     void ScanBcFace( FaceSolver & faceSolver );
 public:
     void ConvertToInnerDataStandard();
@@ -68,7 +74,7 @@ public:
     void FillRegion( TestRegion * r, cgsize_t * ipnts, int dimension );
     void DumpCgnsGridBoundary( Grid * gridIn, const Grids & grids );
 public:
-    void CreateCgnsZbc( CgnsZbc * cgnsZbcIn );
+    void CreateCgnsZbc( const CgnsZbc & cgnsZbcIn );
 public:
     void GenerateUnsBcElemConn( CgIntField& bcConn );
     int GetNumberOfActualBcElements();

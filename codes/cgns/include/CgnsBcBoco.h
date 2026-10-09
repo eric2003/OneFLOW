@@ -79,19 +79,22 @@ public:
     void WriteGridLocation( const GridLocation_t & gridLocation );
     void SetCgnsBcRegionGridLocation( const GridLocation_t & bcGridLocation );
     void CreateCgnsBcBoco();
+    void ResizeConnList( CgInt size );
+    void SetConnListValue( CgInt index, CgInt value );
+    CgInt GetConnListValue( CgInt index ) const;
     void ReadCgnsBcBocoConnList();
     void DumpCgnsBcBocoConnList();
     void PrintCgnsBcBoco();
-    void ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax, CgIntField& bcConn );
-    void ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax );
+    void ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax, const CgIntField & bcConn ) const;
+    void ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax ) const;
     void WriteCgnsBoco( const std::string & bocoName, BCType_t bocotype, PointSetType_t ptset_type, cgsize_t npnts, const cgsize_t * pnts );
 public:
-    void CopyStrBcRegion( CgnsBcBoco * strBcRegion, CgInt& startId );
-    void ReadCgnsBcBocoConnList( CgnsBcBoco * strBcRegion, CgInt & startId );
-    CgInt GetActualNumberOfBoundaryElements();
+    void CopyStrBcRegion( CgnsBcBoco & strBcRegion, CgInt& startId );
+    void ReadCgnsBcBocoConnList( CgnsBcBoco & strBcRegion, CgInt & startId );
+    CgInt GetActualNumberOfBoundaryElements() const;
 };
 
-void SetBcConn( CgnsZone * cgnsZone, IntField & ijkMin, IntField & ijkMax, CgIntField& conn, int & pos, int & nElem );
+void SetBcConn( CgnsZone & cgnsZone, IntField & ijkMin, IntField & ijkMax, CgIntField& conn, int & pos, int & nElem );
 
 #endif
 

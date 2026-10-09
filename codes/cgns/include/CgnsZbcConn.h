@@ -47,15 +47,17 @@ class CgnsZbcConn
 public:
     explicit CgnsZbcConn( CgnsZone & cgnsZone );
     ~CgnsZbcConn();
-public:
-    int nConn;
+private:
+    int nConnToCreate;
     HXVector< std::unique_ptr< CgnsBcConn > > cgnsBcConns;
-    
+
+public:
+    int GetNConn() const;
     CgnsZone & cgnsZone;
 public:
-    void AddCgnsConnBcRegion( CgnsBcConn * cgnsBcConn );
     void AddCgnsConnBcRegion( std::unique_ptr< CgnsBcConn > cgnsBcConn );
-    CgnsBcConn * GetCgnsBc( int iConn );
+    CgnsBcConn & GetCgnsBc( int iConn );
+    const CgnsBcConn & GetCgnsBc( int iConn ) const;
     void CreateCgnsZbc();
     void PrintZnconn();
     void ReadZnconn( int nConn );

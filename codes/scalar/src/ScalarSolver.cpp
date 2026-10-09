@@ -180,6 +180,9 @@ void ScalarSolver::InitGrid()
 
 void ScalarSolver::SetScalarZone()
 {
+    // Rebuilding the experimental zone layout replaces the previous one.
+    this->FreeScalarZones();
+
     int nZones = 4;
     int dn = nx / nZones;
 

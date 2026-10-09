@@ -74,7 +74,7 @@ int CgnsBcBoco::CalcBase()
 {
     for ( int eId = 0; eId < this->nElements; ++ eId )
     {
-        if ( this->connList[ eId ] < this->cgnsZone->cgnsCoor->GetNCell() )
+        if ( this->connList[ eId ] < this->cgnsZone->RequireCgnsCoor().GetNCell() )
         {
             return 0;
         }
@@ -88,7 +88,7 @@ void CgnsBcBoco::ShiftBcRegion()
     {
         for ( int eId = 0; eId < this->nElements; ++ eId )
         {
-            this->connList[ eId ] += this->cgnsZone->cgnsCoor->GetNCell(); //If the offset is added here, the corresponding cell number should also increase the offset
+            this->connList[ eId ] += this->cgnsZone->RequireCgnsCoor().GetNCell(); //If the offset is added here, the corresponding cell number should also increase the offset
         }
     }
 }
@@ -155,6 +155,21 @@ void CgnsBcBoco::ScanBcFace( FaceSolver & faceSolver )
         this->ProcessFaceBc( bcVertex );
     }
     faceSolver.ScanBcFaceDetail( bcVertex, this->bcType, this->nameId );
+}
+
+void CgnsBcBoco::ResizeConnList( CgInt size )
+{
+    this->connList.resize( size );
+}
+
+void CgnsBcBoco::SetConnListValue( CgInt index, CgInt value )
+{
+    this->connList[ index ] = value;
+}
+
+CgInt CgnsBcBoco::GetConnListValue( CgInt index ) const
+{
+    return this->connList[ index ];
 }
 
 void CgnsBcBoco::ReadCgnsBcBoco()
@@ -426,12 +441,12 @@ void CgnsBcBoco::WriteCgnsBoco( const std::string & bocoName, BCType_t bocotype,
     std::cout << "   CGNS Bc Id = " << bcId << "\n";
 }
 
-void CgnsBcBoco::ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax )
+void CgnsBcBoco::ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax ) const
 {
     this->ExtractIJKRegionFromBcConn( ijkMin, ijkMax, this->connList );
 }
 
-void CgnsBcBoco::ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax, CgIntField& bcConn )
+void CgnsBcBoco::ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax, const CgIntField & bcConn ) const
 {
     int imin, imax, jmin, jmax, kmin, kmax;
     int celldim = cgnsZone->cgnsBase.celldim;
@@ -463,11 +478,11 @@ void CgnsBcBoco::ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMa
     ijkMax[ 2 ] = MAX( ABS( kmin ), ABS( kmax ) );
 }
 
-void CgnsBcBoco::CopyStrBcRegion( CgnsBcBoco * strBcRegion, CgInt & startId )
+void CgnsBcBoco::CopyStrBcRegion( CgnsBcBoco & strBcRegion, CgInt & startId )
 {
-    this->name = strBcRegion->name;
+    this->name = strBcRegion.name;
     this->nElements = 2;
-    this->bcType = strBcRegion->bcType;
+    this->bcType = strBcRegion.bcType;
     this->pointSetType = CGNS_ENUMV( ElementRange );
     this->gridLocation = CGNS_ENUMV( CellCenter   );
     this->modifiedLocation = this->gridLocation;
@@ -477,15 +492,15 @@ void CgnsBcBoco::CopyStrBcRegion( CgnsBcBoco * strBcRegion, CgInt & startId )
     this->ReadCgnsBcBocoConnList( strBcRegion, startId );
 }
 
-void CgnsBcBoco::ReadCgnsBcBocoConnList( CgnsBcBoco * strBcRegion, CgInt& startId )
+void CgnsBcBoco::ReadCgnsBcBocoConnList( CgnsBcBoco & strBcRegion, CgInt& startId )
 {
-    CgInt actualNumberOfBoundaryElement = strBcRegion->GetActualNumberOfBoundaryElements();
+    CgInt actualNumberOfBoundaryElement = strBcRegion.GetActualNumberOfBoundaryElements();
     this->connList[ 0 ] = startId;
     this->connList[ 1 ] = actualNumberOfBoundaryElement - 1 + startId;
     startId += actualNumberOfBoundaryElement;
 }
 
-CgInt CgnsBcBoco::GetActualNumberOfBoundaryElements()
+CgInt CgnsBcBoco::GetActualNumberOfBoundaryElements() const
 {
     if ( cgnsZone->cgnsZoneType == CGNS_ENUMV( Unstructured ) )
     {
@@ -522,11 +537,11 @@ CgInt CgnsBcBoco::GetActualNumberOfBoundaryElements()
     }
 }
 
-void SetBcConn( CgnsZone * cgnsZone, IntField & ijkMin, IntField & ijkMax, CgIntField& conn, int & pos, int & nElem )
+void SetBcConn( CgnsZone & cgnsZone, IntField & ijkMin, IntField & ijkMax, CgIntField& conn, int & pos, int & nElem )
 {
-    int ni = static_cast<int> (cgnsZone->GetNI());
-    int nj = static_cast<int> (cgnsZone->GetNJ());
-    int nk = static_cast<int> (cgnsZone->GetNK());
+    int ni = static_cast<int> (cgnsZone.GetNI());
+    int nj = static_cast<int> (cgnsZone.GetNJ());
+    int nk = static_cast<int> (cgnsZone.GetNK());
 
     int ist, jst, kst, ied, jed, ked;
 
@@ -540,7 +555,7 @@ void SetBcConn( CgnsZone * cgnsZone, IntField & ijkMin, IntField & ijkMax, CgInt
 
     std::cout << " ist, ied, jst, jed, kst, ked = " << ist << " " << ied << " " << jst << " " << jed << " " << kst << " " << ked << "\n";
 
-    int celldim = cgnsZone->cgnsBase.celldim;
+    int celldim = cgnsZone.cgnsBase.celldim;
     int numpt = 4;
     if ( celldim == TWO_D ) numpt = 2;
     if ( celldim == ONE_D ) numpt = 1;

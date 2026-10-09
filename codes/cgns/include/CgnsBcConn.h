@@ -44,7 +44,6 @@ public:
     void DumpCgnsBcConnInfo();
     
     void ReadCgnsBcConnData();
-    void DumpCgnsBcConnData();
 
     void ReadCgnsBcConn();
     void DumpCgnsBcConn();

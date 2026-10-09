@@ -103,7 +103,7 @@ public:
     std::vector< std::vector< int > > data;
 public:
     size_t GetNElements() const;
-    void AddElem( IntList &elem );
+    void AddElem( const IntList &elem );
     void AddElem( const std::vector< int > &elem );
 
     std::vector< int > & operator [] ( int i )
@@ -238,12 +238,12 @@ public:
     void AllocateBc();
     void SetBcTypes();
 public:
-    void ReadFromCgnsZbase( CgnsZbase * cgnsZbase );
-    void ReadFromCgnsZone( CgnsZone * cgnsZone );
+    void ReadFromCgnsZbase( CgnsZbase & cgnsZbase );
+    void ReadFromCgnsZone( CgnsZone & cgnsZone );
     void PushElement( CgIntField & eNodeId, int eType );
     void GenerateGridFromCgns( const std::string & prjFileName );
     void DumpCgnsGrid();
-    void SetCgnsZone( CgnsZone * cgnsZone );
+    void SetCgnsZone( CgnsZone & cgnsZone );
 public:
     void CalcVolumeSection( SectionManager & volumeSectionManager );
     void CalcBoundarySection( SectionManager & bcSectionManager );

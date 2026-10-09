@@ -46,14 +46,17 @@ class CgnsZbc1to1
 public:
     explicit CgnsZbc1to1( CgnsZone & cgnsZone );
     ~CgnsZbc1to1();
-public:
-    int n1to1;
+private:
+    int n1to1ToCreate;
     HXVector< std::unique_ptr< CgnsBc1to1 > > cgnsBc1to1s;
+
+public:
+    int GetN1to1() const;
     CgnsZone & cgnsZone;
 public:
-    void AddCgns1To1BcRegion( CgnsBc1to1 * cgnsBc1to1 );
     void AddCgns1To1BcRegion( std::unique_ptr< CgnsBc1to1 > cgnsBc1to1 );
-    CgnsBc1to1 * GetCgnsBcRegion1to1( int i1to1 );
+    CgnsBc1to1 & GetCgnsBcRegion1to1( int i1to1 );
+    const CgnsBc1to1 & GetCgnsBcRegion1to1( int i1to1 ) const;
     void CreateCgnsZbc();
     void ConvertToInnerDataStandard();
     void ReadZn1to1( int n1to1 );
@@ -61,7 +64,6 @@ public:
     void PrintZn1to1();
     void ReadCgnsZbc1to1();
     void DumpCgnsZbc1to1();
-    void SetPeriodicBc();
 };
 
 #endif

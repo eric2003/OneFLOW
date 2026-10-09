@@ -482,15 +482,16 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone & cgnsZone )
     const int nNodes = this->xN.size();
     const int nCells = this->nElem;
 
-    cgnsZone.cgnsCoor->SetNNode( nNodes );
-    cgnsZone.cgnsCoor->SetNCell( nCells );
+    CgnsCoor & cgnsCoor = cgnsZone.RequireCgnsCoor();
+    cgnsCoor.SetNNode( nNodes );
+    cgnsCoor.SetNCell( nCells );
 
-    NodeMesh * nodeMesh = cgnsZone.cgnsCoor->GetNodeMesh();
+    NodeMesh & nodeMesh = cgnsCoor.RequireNodeMesh();
 
-    nodeMesh->CreateNodes( nNodes );
-    nodeMesh->xN = this->xN;
-    nodeMesh->yN = this->yN;
-    nodeMesh->zN = this->zN;
+    nodeMesh.CreateNodes( nNodes );
+    nodeMesh.xN = this->xN;
+    nodeMesh.yN = this->yN;
+    nodeMesh.zN = this->zN;
     
     SecMarkerManager volSec;
 
@@ -503,16 +504,16 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone & cgnsZone )
 
     const int nSection = nVolSec + nBcSec;
 
-    CgnsZsection * cgnsZsection = cgnsZone.cgnsZsection.get();
+    CgnsZsection & cgnsZsection = cgnsZone.RequireCgnsZsection();
 
-    cgnsZsection->CreateCgnsSections( nSection );
+    cgnsZsection.CreateCgnsSections( nSection );
 
     int nVolCell = volSec.CalcTotalElem();
  
     int sumElem = 0;
     for ( int iSection = 0; iSection < nSection; ++ iSection )
     {
-        CgnsSection & cgnsSection = cgnsZsection->GetCgnsSection( iSection );
+        CgnsSection & cgnsSection = cgnsZsection.GetCgnsSection( iSection );
         const SecMarker * sec = nullptr;
         if ( iSection < nVolSec )
         {
@@ -545,34 +546,35 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone & cgnsZone )
 
     for ( int iSection = 0; iSection < nSection; ++ iSection )
     {
-        CgnsSection & cgnsSection = cgnsZsection->GetCgnsSection( iSection );
+        CgnsSection & cgnsSection = cgnsZsection.GetCgnsSection( iSection );
         cgnsSection.SetElemPosition();
     }
 
-    CgnsZbc * cgnsZbc = cgnsZone.cgnsZbc.get();
-    cgnsZbc->cgnsZbcBoco->ReadZnboco( this->mmark.nMarker );
-    cgnsZbc->cgnsZbcBoco->CreateCgnsZbc();
+    CgnsZbc & cgnsZbc = cgnsZone.RequireCgnsZbc();
+    CgnsZbcBoco & cgnsZbcBoco = cgnsZbc.RequireCgnsZbcBoco();
+    cgnsZbcBoco.ReadZnboco( this->mmark.nMarker );
+    cgnsZbcBoco.CreateCgnsZbc();
 
     for ( int iMarker = 0; iMarker < this->mmark.nMarker; ++ iMarker )
     {
         const Marker * marker = & this->mmark.markerList[ iMarker ];
         const std::string & name = marker->name;
 
-        CgnsBcBoco * cgnsBcBoco = cgnsZbc->cgnsZbcBoco->GetCgnsBc( iMarker );
-        cgnsBcBoco->name = name;
-        cgnsBcBoco->gridLocation = CellCenter;
-        cgnsBcBoco->nElements    = marker->nElem;
-        cgnsBcBoco->bcType = static_cast< BCType_t >( marker->cgns_bcType );
-        cgnsBcBoco->pointSetType = PointList;
-        cgnsBcBoco->CreateCgnsBcBoco();
+        CgnsBcBoco & cgnsBcBoco = cgnsZbcBoco.GetCgnsBc( iMarker );
+        cgnsBcBoco.name = name;
+        cgnsBcBoco.gridLocation = CellCenter;
+        cgnsBcBoco.nElements    = marker->nElem;
+        cgnsBcBoco.bcType = static_cast< BCType_t >( marker->cgns_bcType );
+        cgnsBcBoco.pointSetType = PointList;
+        cgnsBcBoco.CreateCgnsBcBoco();
 
         for ( int iElem = 0; iElem < marker->nElem; ++ iElem )
         {
             const int elemId = this->mmark.l2g[ iMarker ][ iElem ];
-            cgnsBcBoco->connList[ iElem ] = elemId + 1 + nVolCell;
+            cgnsBcBoco.SetConnListValue( iElem, elemId + 1 + nVolCell );
         }
         
-        //string bcName = GetCgnsBcName( cgnsBcBoco->bcType );
+        //string bcName = GetCgnsBcName( cgnsBcBoco.bcType );
     }
 
     cgnsZone.cgnsZoneType = Unstructured;

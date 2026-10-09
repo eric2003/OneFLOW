@@ -54,34 +54,88 @@ CgnsZbc::CgnsZbc( CgnsZone & cgnsZone )
 
 CgnsZbc::~CgnsZbc() = default;
 
+CgnsZbcConn & CgnsZbc::RequireCgnsZbcConn()
+{
+    if ( this->cgnsZbcConn == nullptr )
+    {
+        throw std::logic_error( "CgnsZbc: CgnsZbcConn is not initialized" );
+    }
+    return *this->cgnsZbcConn;
+}
+
+const CgnsZbcConn & CgnsZbc::RequireCgnsZbcConn() const
+{
+    if ( this->cgnsZbcConn == nullptr )
+    {
+        throw std::logic_error( "CgnsZbc: CgnsZbcConn is not initialized" );
+    }
+    return *this->cgnsZbcConn;
+}
+
+CgnsZbc1to1 & CgnsZbc::RequireCgnsZbc1to1()
+{
+    if ( this->cgnsZbc1to1 == nullptr )
+    {
+        throw std::logic_error( "CgnsZbc: CgnsZbc1to1 is not initialized" );
+    }
+    return *this->cgnsZbc1to1;
+}
+
+const CgnsZbc1to1 & CgnsZbc::RequireCgnsZbc1to1() const
+{
+    if ( this->cgnsZbc1to1 == nullptr )
+    {
+        throw std::logic_error( "CgnsZbc: CgnsZbc1to1 is not initialized" );
+    }
+    return *this->cgnsZbc1to1;
+}
+
+CgnsZbcBoco & CgnsZbc::RequireCgnsZbcBoco()
+{
+    if ( this->cgnsZbcBoco == nullptr )
+    {
+        throw std::logic_error( "CgnsZbc: CgnsZbcBoco is not initialized" );
+    }
+    return *this->cgnsZbcBoco;
+}
+
+const CgnsZbcBoco & CgnsZbc::RequireCgnsZbcBoco() const
+{
+    if ( this->cgnsZbcBoco == nullptr )
+    {
+        throw std::logic_error( "CgnsZbc: CgnsZbcBoco is not initialized" );
+    }
+    return *this->cgnsZbcBoco;
+}
+
 void CgnsZbc::ConvertToInnerDataStandard()
 {
-    this->cgnsZbcBoco->ConvertToInnerDataStandard();
+    this->RequireCgnsZbcBoco().ConvertToInnerDataStandard();
 
-    this->cgnsZbcConn->ConvertToInnerDataStandard();
+    this->RequireCgnsZbcConn().ConvertToInnerDataStandard();
 
-    this->cgnsZbc1to1->ConvertToInnerDataStandard();
+    this->RequireCgnsZbc1to1().ConvertToInnerDataStandard();
 
-    this->cgnsZbcBoco->ShiftBcRegion();
+    this->RequireCgnsZbcBoco().ShiftBcRegion();
 }
 
 void CgnsZbc::ScanBcFace( FaceSolver & faceSolver )
 {
-    this->cgnsZbcBoco->ScanBcFace( faceSolver );
+    this->RequireCgnsZbcBoco().ScanBcFace( faceSolver );
 }
 
 void CgnsZbc::ReadCgnsGridBoundary()
 {
-    this->cgnsZbcBoco->ReadCgnsZbcBoco();
-    this->cgnsZbcConn->ReadCgnsZbcConn();
-    this->cgnsZbc1to1->ReadCgnsZbc1to1();
+    this->RequireCgnsZbcBoco().ReadCgnsZbcBoco();
+    this->RequireCgnsZbcConn().ReadCgnsZbcConn();
+    this->RequireCgnsZbc1to1().ReadCgnsZbc1to1();
 }
 
 void CgnsZbc::DumpCgnsGridBoundary()
 {
-    this->cgnsZbcBoco->DumpCgnsZbcBoco();
-    this->cgnsZbcConn->DumpCgnsZbcConn();
-    this->cgnsZbc1to1->DumpCgnsZbc1to1();
+    this->RequireCgnsZbcBoco().DumpCgnsZbcBoco();
+    this->RequireCgnsZbcConn().DumpCgnsZbcConn();
+    this->RequireCgnsZbc1to1().DumpCgnsZbc1to1();
 }
 
 void CgnsZbc::FillBcPoints( int * start, int * end, cgsize_t * bcpnts, int dimension )
@@ -219,33 +273,32 @@ void CgnsZbc::DumpCgnsGridBoundary( Grid * gridIn, const Grids & grids )
 
 }
 
-void CgnsZbc::CreateCgnsZbc( CgnsZbc * cgnsZbcIn )
+void CgnsZbc::CreateCgnsZbc( const CgnsZbc & cgnsZbcIn )
 {
-    this->cgnsZbcBoco->ReadZnboco( cgnsZbcIn->cgnsZbcBoco->nBoco );
-    this->cgnsZbcBoco->CreateCgnsZbc();
+    this->RequireCgnsZbcBoco().ReadZnboco( cgnsZbcIn.RequireCgnsZbcBoco().GetNBoco() );
+    this->RequireCgnsZbcBoco().CreateCgnsZbc();
 
-    this->cgnsZbc1to1->ReadZn1to1( cgnsZbcIn->cgnsZbc1to1->n1to1 );
-    this->cgnsZbc1to1->CreateCgnsZbc();
+    this->RequireCgnsZbc1to1().ReadZn1to1( cgnsZbcIn.RequireCgnsZbc1to1().GetN1to1() );
+    this->RequireCgnsZbc1to1().CreateCgnsZbc();
 
-    this->cgnsZbcConn->ReadZnconn( cgnsZbcIn->cgnsZbcConn->nConn );
-    this->cgnsZbcConn->CreateCgnsZbc();
+    this->RequireCgnsZbcConn().ReadZnconn( cgnsZbcIn.RequireCgnsZbcConn().GetNConn() );
+    this->RequireCgnsZbcConn().CreateCgnsZbc();
 }
 
 int CgnsZbc::GetNumberOfActualBcElements()
 {
-    return this->cgnsZbcBoco->GetNumberOfActualBcElements();
+    return this->RequireCgnsZbcBoco().GetNumberOfActualBcElements();
 }
 
 void CgnsZbc::GenerateUnsBcElemConn( CgIntField& bcConn )
 {
-    this->cgnsZbcBoco->GenerateUnsBcElemConn( bcConn );
+    this->RequireCgnsZbcBoco().GenerateUnsBcElemConn( bcConn );
 }
 
 void CgnsZbc::SetPeriodicBc()
 {
-    this->cgnsZbcConn->SetPeriodicBc();
+    this->RequireCgnsZbcConn().SetPeriodicBc();
 
-    this->cgnsZbc1to1->SetPeriodicBc();
 }
 
 #endif

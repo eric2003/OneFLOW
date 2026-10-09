@@ -30,7 +30,6 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include "NodeMesh.h"
 #include "HXMath.h"
 #include <iostream>
-#include <iomanip>
 
 BeginNameSpace( ONEFLOW )
 
@@ -54,9 +53,15 @@ void CgnsBcConn::ReadCgnsBcConnInfo()
     CgnsTraits::char33 connName;
     CgnsTraits::char33 donorZoneName;
 
+    CgInt nConnPoints = 0;
+    CgInt nConnDonorPoints = 0;
+
     cg_conn_info( fileId, baseId, zId, this->bcId,
         connName, & this->gridLocation, & this->gridConnType, & this->pointSetType,
         & nConnPoints, donorZoneName, & donorZoneType, & donorPointSetType, & donorDataType, & nConnDonorPoints );
+
+    this->SetNConnPoints( nConnPoints );
+    this->SetNConnDonorPoints( nConnDonorPoints );
 
     this->connName = connName;
     this->donorZoneName  = donorZoneName;
@@ -68,35 +73,29 @@ void CgnsBcConn::ReadCgnsBcConnInfo()
     std::cout << "   gridConnType  = " << GridConnectivityTypeName[ this->gridConnType ] << "\n";
     std::cout << "   pointSetType  = " << PointSetTypeName[ this->pointSetType ];
     std::cout << "   donorPointSetType = " << PointSetTypeName[ donorPointSetType ] << "\n";
-    std::cout << "   nConnPoints      = " << nConnPoints << "\n";
-    std::cout << "   nConnDonorPoints = " << nConnDonorPoints << "\n";
+    std::cout << "   nConnPoints      = " << this->GetNConnPoints() << "\n";
+    std::cout << "   nConnDonorPoints = " << this->GetNConnDonorPoints() << "\n";
 }
 
 void CgnsBcConn::DumpCgnsBcConnInfo()
 {
-    int fileId = this->cgnsZone->cgnsBase.cgnsFile->fileId;
-    int baseId = this->cgnsZone->cgnsBase.baseId;
-    int zId = this->cgnsZone->zId;
-
-    CgnsTraits::char33 connName;
-    CgnsTraits::char33 donorZoneName;
-
-    //cg_conn_info( fileId, baseId, zId, this->bcId,
-    //    connName, & this->gridLocation, & this->gridConnType, & this->pointSetType,
-    //    & nConnPoints, donorZoneName, & donorZoneType, & donorPointSetType, & donorDataType, & nConnDonorPoints );
-
-    //this->connName = connName;
-    //this->donorZoneName  = donorZoneName;
-
     std::cout << "\n";
-    std::cout << "   connName      = " << connName << " donorZoneName = " << donorZoneName << "\n";
-    std::cout << "   gridLocation  = " << GridLocationName[ this->gridLocation ] << "\n";
-    std::cout << "   donorDataType = " << DataTypeName[ donorDataType ] << "\n";
-    std::cout << "   gridConnType  = " << GridConnectivityTypeName[ this->gridConnType ] << "\n";
-    std::cout << "   pointSetType  = " << PointSetTypeName[ this->pointSetType ];
-    std::cout << "   donorPointSetType = " << PointSetTypeName[ donorPointSetType ] << "\n";
-    std::cout << "   nConnPoints      = " << nConnPoints << "\n";
-    std::cout << "   nConnDonorPoints = " << nConnDonorPoints << "\n";
+    std::cout << "   connName      = " << this->connName
+        << " donorZoneName = " << this->donorZoneName << "\n";
+    std::cout << "   gridLocation  = "
+        << GridLocationName[ this->gridLocation ] << "\n";
+    std::cout << "   donorDataType = "
+        << DataTypeName[ this->donorDataType ] << "\n";
+    std::cout << "   gridConnType  = "
+        << GridConnectivityTypeName[ this->gridConnType ] << "\n";
+    std::cout << "   pointSetType  = "
+        << PointSetTypeName[ this->pointSetType ];
+    std::cout << "   donorPointSetType = "
+        << PointSetTypeName[ this->donorPointSetType ] << "\n";
+    std::cout << "   nConnPoints      = "
+        << this->GetNConnPoints() << "\n";
+    std::cout << "   nConnDonorPoints = "
+        << this->GetNConnDonorPoints() << "\n";
 }
 
 void CgnsBcConn::ReadCgnsBcConnData()
@@ -105,23 +104,12 @@ void CgnsBcConn::ReadCgnsBcConnData()
     int baseId = this->cgnsZone->cgnsBase.baseId;
     int zId = this->cgnsZone->zId;
 
-    this->connPoint.resize( nConnPoints );
-    this->connDonorPoint.resize( nConnDonorPoints );
+    this->ResizeConnPoint( this->GetNConnPoints() );
+    this->ResizeConnDonorPoint( this->GetNConnDonorPoints() );
 
-    cg_conn_read( fileId, baseId, zId, this->bcId, & this->connPoint[ 0 ], this->donorDataType, & this->connDonorPoint[ 0 ] );
+    cg_conn_read( fileId, baseId, zId, this->bcId, this->GetConnPointData(), this->donorDataType, this->GetConnDonorPointData() );
 }
 
-void CgnsBcConn::DumpCgnsBcConnData()
-{
-    int fileId = this->cgnsZone->cgnsBase.cgnsFile->fileId;
-    int baseId = this->cgnsZone->cgnsBase.baseId;
-    int zId = this->cgnsZone->zId;
-
-    //this->connPoint.resize( nConnPoints );
-    //this->connDonorPoint.resize( nConnDonorPoints );
-
-    //cg_conn_read( fileId, baseId, zId, this->bcId, & this->connPoint[ 0 ], this->donorDataType, & this->connDonorPoint[ 0 ] );
-}
 
 void CgnsBcConn::ReadCgnsBcConn()
 {
@@ -132,20 +120,19 @@ void CgnsBcConn::ReadCgnsBcConn()
 void CgnsBcConn::DumpCgnsBcConn()
 {
     this->DumpCgnsBcConnInfo();
-    this->DumpCgnsBcConnData();
 }
 
 void CgnsBcConn::SetPeriodicBc()
 {
     CgnsZone * sZone = this->cgnsZone;
     CgnsZone * tZone = ONEFLOW::GetCgnsZoneByName( this->donorZoneName );
-    NodeMesh * nodeMesh1 = sZone->cgnsCoor->GetNodeMesh();
-    NodeMesh * nodeMesh2 = tZone->cgnsCoor->GetNodeMesh();
+    NodeMesh * nodeMesh1 = sZone->RequireCgnsCoor().GetNodeMesh();
+    NodeMesh * nodeMesh2 = tZone->RequireCgnsCoor().GetNodeMesh();
 
-    for ( int i = 0; i < nConnPoints; ++ i )
+    for ( int i = 0; i < this->GetNConnPoints(); ++ i )
     {
-        int id1 = this->connPoint[ i ];
-        int id2 = this->connDonorPoint[ i ];
+        int id1 = this->GetConnPointValue( i );
+        int id2 = this->GetConnDonorPointValue( i );
 
         CgIntField fNodeId1, fNodeId2;
         sZone->GetElementNodeId( id1, fNodeId1 );
