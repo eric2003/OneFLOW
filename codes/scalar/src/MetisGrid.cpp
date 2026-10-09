@@ -182,8 +182,20 @@ std::vector< std::unique_ptr< ScalarGrid > > GridPartition::AllocateGrid( int nZ
 
 std::vector< std::unique_ptr< ScalarGrid > > GridPartition::ReconstructGridFaceTopo( const ScalarGrid & ggrid, int nPart )
 {
-	//calc cellzone;
+	// Calculate the cell-to-zone mapping before allocating zone-local topology.
 	MetisIntList cellzone = MetisSplit::MetisPartition( ggrid, nPart );
+	const int nCells = ggrid.GetNCells();
+	if ( cellzone.size() != static_cast< size_t >( nCells ) )
+	{
+		throw std::runtime_error( "GridPartition::ReconstructGridFaceTopo: partition result size does not match the cell count" );
+	}
+	for ( int iCell = 0; iCell < nCells; ++ iCell )
+	{
+		if ( cellzone[ iCell ] < 0 || cellzone[ iCell ] >= nPart )
+		{
+			throw std::runtime_error( "GridPartition::ReconstructGridFaceTopo: partition result contains an invalid zone id" );
+		}
+	}
 
 	std::vector< std::unique_ptr< ScalarGrid > > grids = AllocateGrid( nPart );
 
