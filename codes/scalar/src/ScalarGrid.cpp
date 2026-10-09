@@ -1104,7 +1104,7 @@ bool ScalarGrid::CheckBcFace( IntSet & bcVertex, std::vector< int > & nodeId )
 
 void ScalarGrid::AllocateBc()
 {
-	this->nFaces = this->faces.GetNElements();
+	this->nFaces = this->GetNFaces();
 	std::cout << " nFaces = " << nFaces << "\n";
 
 	int nTraditionalBc = 0;
@@ -1122,7 +1122,7 @@ void ScalarGrid::AllocateBc()
 
 void ScalarGrid::ScanBcFace( IntSet& bcVertex, int bcType )
 {
-	this->nFaces = this->faces.GetNElements();
+	this->nFaces = this->GetNFaces();
 	int nBcFaces_local = 0;
 	for ( int iFace = 0; iFace < nFaces; ++ iFace )
 	{
