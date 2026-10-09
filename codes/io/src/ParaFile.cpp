@@ -31,7 +31,6 @@ License
 #include "DataBase.h"
 #include "Parallel.h"
 #include "LogFile.h"
-#include "OStream.h"
 #include "Fatal.h"
 #include "Prj.h"
 #include "FileUtils.h"
@@ -131,12 +130,7 @@ std::string GetJsonFileName( const std::string & fileName )
     ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
     std::string newExtensionName = "json";
 
-    OStream &logger = OStream::Instance();
-    logger.ClearAll();
-    logger << mainName << "." << newExtensionName;
-
-    std::string newFileName = logger.str();
-    return newFileName;
+    return mainName + "." + newExtensionName;
 }
 
 void GetParaInfo( TextFileParser & textFileParser, std::string & varName, std::vector< std::string > & varArray )
