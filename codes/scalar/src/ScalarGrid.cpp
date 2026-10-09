@@ -288,25 +288,18 @@ void ScalarGrid::ResetMeshData()
 	yn.data.clear();
 	zn.data.clear();
 
-	this->ResetGeometryData();
+	// Reuse the topology reset so mesh and topology rebuilds share one lifecycle path.
+	this->ResetTopologyData();
 
-	lc.data.clear();
-	rc.data.clear();
-	lpos.data.clear();
-	rpos.data.clear();
 	cell2faces.clear();
 	c2fpos.clear();
 	global_faceid.clear();
 
-	faces.data.clear();
 	elements.data.clear();
 	boundaryElements.data.clear();
 
 	bcETypes.data.clear();
-	fTypes.data.clear();
 	eTypes.data.clear();
-	fBcTypes.data.clear();
-	bcTypes.data.clear();
 	bcNameIds.data.clear();
 
 	scalarBccos = std::make_unique< ScalarBccos >();
