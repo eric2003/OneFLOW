@@ -184,10 +184,6 @@ Partition::Partition( const GridConfig & config )
 {
 }
 
-Partition::~Partition()
-{
-}
-
 G2LMapping & Partition::GetG2LMapping()
 {
     return this->g2l.value();

@@ -85,7 +85,7 @@ private:
     G2LMapping & GetG2LMapping();
 public:
     explicit Partition( const GridConfig & config );
-    ~Partition();
+    ~Partition() = default;
 public:
     Grids grids;
 public:
