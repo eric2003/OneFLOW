@@ -504,8 +504,17 @@ void GridPartition::ReconstructNeighbor( std::vector< std::unique_ptr< ScalarGri
 
 void GridPartition::ReconstructNode( const ScalarGrid & ggrid, std::vector< std::unique_ptr< ScalarGrid > > & grids )
 {
-	int nZones = static_cast< int >( grids.size() );
-	for ( int iZone = 0; iZone < nZones; ++ iZone )
+	const size_t nZones = grids.size();
+	for ( size_t iZone = 0; iZone < nZones; ++ iZone )
+	{
+		if ( ! grids[ iZone ] )
+		{
+			throw std::runtime_error( "GridPartition::ReconstructNode: zone grid is null" );
+		}
+	}
+
+	// Validate all zone objects before rebuilding any zone-local node data.
+	for ( size_t iZone = 0; iZone < nZones; ++ iZone )
 	{
 		ScalarGrid & grid = *grids[ iZone ];
 		grid.ReconstructNode( ggrid );
