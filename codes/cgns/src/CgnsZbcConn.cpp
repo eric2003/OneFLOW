@@ -47,14 +47,14 @@ BeginNameSpace( ONEFLOW )
 CgnsZbcConn::CgnsZbcConn( CgnsZone & cgnsZone )
     : cgnsZone( cgnsZone )
 {
-    this->nConn = 0;
+    this->nConnToCreate = 0;
 }
 
 CgnsZbcConn::~CgnsZbcConn() = default;
 
 int CgnsZbcConn::GetNConn() const
 {
-    return this->nConn;
+    return static_cast< int >( this->cgnsBcConns.size() );
 }
 
 void CgnsZbcConn::AddCgnsConnBcRegion( std::unique_ptr< CgnsBcConn > cgnsBcConn )
@@ -72,7 +72,7 @@ CgnsBcConn & CgnsZbcConn::GetCgnsBc( int iConn )
 
 void CgnsZbcConn::CreateCgnsZbc()
 {
-    for ( int iConn = 0; iConn < this->nConn; ++ iConn )
+    for ( int iConn = 0; iConn < this->nConnToCreate; ++ iConn )
     {
 this->AddCgnsConnBcRegion( std::make_unique< CgnsBcConn >( &this->cgnsZone ) );
     }
@@ -80,12 +80,12 @@ this->AddCgnsConnBcRegion( std::make_unique< CgnsBcConn >( &this->cgnsZone ) );
 
 void CgnsZbcConn::PrintZnconn()
 {
-    std::cout << "   nConn        = " << this->nConn << std::endl;
+    std::cout << "   nConn        = " << this->nConnToCreate << std::endl;
 }
 
 void CgnsZbcConn::ReadZnconn( int nConn )
 {
-    this->nConn = nConn;
+    this->nConnToCreate = nConn;
     this->PrintZnconn();
 }
 
@@ -95,7 +95,7 @@ void CgnsZbcConn::ReadZnconn()
     int baseId = cgnsZone.cgnsBase.baseId;
     int zId = cgnsZone.zId;
 
-    cg_nconns( fileId, baseId, zId, & this->nConn );
+    cg_nconns( fileId, baseId, zId, & this->nConnToCreate );
     this->PrintZnconn();
 }
 
@@ -103,7 +103,7 @@ void CgnsZbcConn::ReadCgnsZbcConn()
 {
     this->ReadZnconn();
     this->CreateCgnsZbc();
-    for ( int iConn = 0; iConn < this->nConn; ++ iConn )
+    for ( int iConn = 0; iConn < this->GetNConn(); ++ iConn )
     {
         CgnsBcConn & cgnsBcConn = this->GetCgnsBc( iConn );
         cgnsBcConn.ReadCgnsBcConn();
@@ -113,7 +113,7 @@ void CgnsZbcConn::ReadCgnsZbcConn()
 void CgnsZbcConn::DumpCgnsZbcConn()
 {
     this->PrintZnconn();
-    for ( int iConn = 0; iConn < this->nConn; ++ iConn )
+    for ( int iConn = 0; iConn < this->GetNConn(); ++ iConn )
     {
         CgnsBcConn & cgnsBcConn = this->GetCgnsBc( iConn );
         cgnsBcConn.DumpCgnsBcConn();
@@ -122,7 +122,7 @@ void CgnsZbcConn::DumpCgnsZbcConn()
 
 void CgnsZbcConn::SetPeriodicBc()
 {
-    for ( int iConn = 0; iConn < this->nConn; ++ iConn )
+    for ( int iConn = 0; iConn < this->GetNConn(); ++ iConn )
     {
         CgnsBcConn & cgnsBcConn = this->GetCgnsBc( iConn );
         cgnsBcConn.SetPeriodicBc();
@@ -131,7 +131,7 @@ void CgnsZbcConn::SetPeriodicBc()
 
 void CgnsZbcConn::ConvertToInnerDataStandard()
 {
-    for ( int iConn = 0; iConn < this->nConn; ++ iConn )
+    for ( int iConn = 0; iConn < this->GetNConn(); ++ iConn )
     {
         CgnsBcConn & cgnsBcConn = this->GetCgnsBc( iConn );
         cgnsBcConn.ConvertToInnerDataStandard();

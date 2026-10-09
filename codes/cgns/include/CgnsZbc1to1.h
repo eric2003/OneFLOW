@@ -47,7 +47,7 @@ public:
     explicit CgnsZbc1to1( CgnsZone & cgnsZone );
     ~CgnsZbc1to1();
 private:
-    int n1to1;
+    int n1to1ToCreate;
     HXVector< std::unique_ptr< CgnsBc1to1 > > cgnsBc1to1s;
 
 public:

@@ -45,14 +45,14 @@ BeginNameSpace( ONEFLOW )
 CgnsZbc1to1::CgnsZbc1to1( CgnsZone & cgnsZone )
     : cgnsZone( cgnsZone )
 {
-    this->n1to1 = 0;
+    this->n1to1ToCreate = 0;
 }
 
 CgnsZbc1to1::~CgnsZbc1to1() = default;
 
 int CgnsZbc1to1::GetN1to1() const
 {
-    return this->n1to1;
+    return static_cast< int >( this->cgnsBc1to1s.size() );
 }
 
 void CgnsZbc1to1::AddCgns1To1BcRegion( std::unique_ptr< CgnsBc1to1 > cgnsBc1to1 )
@@ -70,12 +70,12 @@ CgnsBc1to1 & CgnsZbc1to1::GetCgnsBcRegion1to1( int i1to1 )
 
 void CgnsZbc1to1::PrintZn1to1()
 {
-    std::cout << "   n1to1        = " << this->n1to1 << std::endl;
+    std::cout << "   n1to1        = " << this->n1to1ToCreate << std::endl;
 }
 
 void CgnsZbc1to1::CreateCgnsZbc()
 {
-    for ( int i1to1 = 0; i1to1 < this->n1to1; ++ i1to1 )
+    for ( int i1to1 = 0; i1to1 < this->n1to1ToCreate; ++ i1to1 )
     {
 this->AddCgns1To1BcRegion( std::make_unique< CgnsBc1to1 >( &this->cgnsZone ) );
     }
@@ -83,7 +83,7 @@ this->AddCgns1To1BcRegion( std::make_unique< CgnsBc1to1 >( &this->cgnsZone ) );
 
 void CgnsZbc1to1::ConvertToInnerDataStandard()
 {
-    for ( int i1to1 = 0; i1to1 < this->n1to1; ++ i1to1 )
+    for ( int i1to1 = 0; i1to1 < this->GetN1to1(); ++ i1to1 )
     {
         CgnsBc1to1 & cgnsBc1to1 = this->GetCgnsBcRegion1to1( i1to1 );
         cgnsBc1to1.ConvertToInnerDataStandard();
@@ -92,7 +92,7 @@ void CgnsZbc1to1::ConvertToInnerDataStandard()
 
 void CgnsZbc1to1::ReadZn1to1( int n1to1 )
 {
-    this->n1to1 = n1to1;
+    this->n1to1ToCreate = n1to1;
     this->PrintZn1to1();
 }
 
@@ -104,7 +104,7 @@ void CgnsZbc1to1::ReadZn1to1()
 
     // find out how many general interfaces there are in this zone
     // the following is the number of structured grid interface
-    cg_n1to1( fileId, baseId, zId, & this->n1to1 );
+    cg_n1to1( fileId, baseId, zId, & this->n1to1ToCreate );
 
     this->PrintZn1to1();
 }
@@ -114,7 +114,7 @@ void CgnsZbc1to1::ReadCgnsZbc1to1()
     this->ReadZn1to1();
     this->CreateCgnsZbc();
 
-    for ( int i1to1 = 0; i1to1 < this->n1to1; ++ i1to1 )
+    for ( int i1to1 = 0; i1to1 < this->GetN1to1(); ++ i1to1 )
     {
         CgnsBc1to1 & cgnsBc1to1 = this->GetCgnsBcRegion1to1( i1to1 );
         cgnsBc1to1.ReadCgnsBc1To1();
@@ -124,7 +124,7 @@ void CgnsZbc1to1::DumpCgnsZbc1to1()
 {
     this->PrintZn1to1();
 
-    for ( int i1to1 = 0; i1to1 < this->n1to1; ++ i1to1 )
+    for ( int i1to1 = 0; i1to1 < this->GetN1to1(); ++ i1to1 )
     {
         CgnsBc1to1 & cgnsBc1to1 = this->GetCgnsBcRegion1to1( i1to1 );
         cgnsBc1to1.DumpCgnsBc1To1();
