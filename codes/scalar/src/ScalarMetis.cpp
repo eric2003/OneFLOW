@@ -58,25 +58,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-namespace
-{
-void CloseScalarGridOutput( std::fstream & file )
-{
-    file.flush();
-    if ( ! file )
-    {
-        throw std::runtime_error( "ScalarDumpGrid: failed to write grid data" );
-    }
-
-    file.close();
-    if ( ! file )
-    {
-        throw std::runtime_error( "ScalarDumpGrid: failed to close grid file" );
-    }
-}
-}
-
-
 ScalarMetis::ScalarMetis()
 {
     ;
@@ -251,7 +232,7 @@ void ScalarDumpGrid( const std::string & gridFileName, ScalarGrid & grid )
     std::cout << "iZone = 0 nZone = 1\n";
     grid.WriteGrid( file );
 
-    CloseScalarGridOutput( file );
+    Prj::CloseOutputFile( file, "ScalarDumpGrid" );
 }
 
 void ScalarDumpGrid( const std::string & gridFileName, const std::vector< std::unique_ptr< ScalarGrid > > & grids )
@@ -296,7 +277,7 @@ void ScalarDumpGrid( const std::string & gridFileName, const std::vector< std::u
         grids[ iZone ]->WriteGrid( file );
     }
 
-    CloseScalarGridOutput( file );
+    Prj::CloseOutputFile( file, "ScalarDumpGrid" );
 }
 
 EndNameSpace
