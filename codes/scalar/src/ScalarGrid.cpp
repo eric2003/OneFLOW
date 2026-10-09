@@ -147,7 +147,7 @@ size_t EList::GetNElements() const
 	return data.size();
 }
 
-void EList::AddElem( IntList &elem )
+void EList::AddElem( const IntList &elem )
 {
 	this->data.push_back( elem.data );
 }

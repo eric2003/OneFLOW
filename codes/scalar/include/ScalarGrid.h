@@ -103,7 +103,7 @@ public:
     std::vector< std::vector< int > > data;
 public:
     size_t GetNElements() const;
-    void AddElem( IntList &elem );
+    void AddElem( const IntList &elem );
     void AddElem( const std::vector< int > &elem );
 
     std::vector< int > & operator [] ( int i )
