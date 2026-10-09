@@ -42,6 +42,7 @@ License
 #include "Prj.h"
 #include <iostream>
 #include <utility>
+#include <stdexcept>
 
 
 BeginNameSpace( ONEFLOW )
@@ -92,22 +93,22 @@ void CalcGrid::BuildInterfaceLink()
 
 void CalcGrid::Dump()
 {
-    std::fstream file;
-    Prj::OpenPrjFile( file, gridFileName, std::ios_base::out|std::ios_base::binary|std::ios_base::trunc );
     const int nZone = GridsSize( grids );
-
-    ZoneState::pid.resize( nZone );
-    ZoneState::zoneType.resize( nZone );
+    IntField zonePids( nZone );
+    IntField zoneTypes( nZone );
 
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        ZoneState::pid[ iZone ] = iZone;
-        ZoneState::zoneType[ iZone ] = GridAt( grids, iZone ).type;
+        zonePids[ iZone ] = iZone;
+        zoneTypes[ iZone ] = GridAt( grids, iZone ).type;
     }
 
+    std::fstream file;
+    Prj::OpenPrjFile( file, gridFileName, std::ios_base::out|std::ios_base::binary|std::ios_base::trunc );
+
     ONEFLOW::HXWrite( & file, nZone );
-    ONEFLOW::HXWrite( & file, ZoneState::pid );
-    ONEFLOW::HXWrite( & file, ZoneState::zoneType );
+    ONEFLOW::HXWrite( & file, zonePids );
+    ONEFLOW::HXWrite( & file, zoneTypes );
 
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
@@ -115,7 +116,16 @@ void CalcGrid::Dump()
         GridAt( grids, iZone ).WriteGrid( file );
     }
 
+    file.flush();
+    if ( ! file )
+    {
+        throw std::runtime_error( "CalcGrid::Dump: failed to write grid data" );
+    }
     Prj::CloseFile( file );
+
+    // Publish zone metadata only after the grid output succeeds.
+    ZoneState::pid = std::move( zonePids );
+    ZoneState::zoneType = std::move( zoneTypes );
 }
 
 void CalcGrid::Post()
