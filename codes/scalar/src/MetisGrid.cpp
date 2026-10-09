@@ -124,21 +124,33 @@ MetisIntList MetisSplit::ScalarPartitionByMetis( idx_t nCells, const MetisIntLis
 	idx_t objval;
 	idx_t nZone = nPart;
 
-	METIS_SetDefaultOptions( options );
+	const int optionsStatus = METIS_SetDefaultOptions( options );
+	if ( optionsStatus != METIS_OK )
+	{
+		throw std::runtime_error( "MetisSplit::ScalarPartitionByMetis: failed to initialize METIS options" );
+	}
+
 	std::cout << "Now begining partition graph!\n";
+	int partitionStatus = METIS_OK;
 	if ( nZone > 8 )
 	{
 		std::cout << "Using K-way Partitioning!\n";
-		METIS_PartGraphKway( & nCells, & ncon, & metisXadj[ 0 ], & metisAdjncy[ 0 ], vwgt, vsize, adjwgt, 
+		partitionStatus = METIS_PartGraphKway( & nCells, & ncon, & metisXadj[ 0 ], & metisAdjncy[ 0 ], vwgt, vsize, adjwgt,
 			& nZone, tpwgts, ubvec, options, & objval, & cellzone[ 0 ] );
 	}
 	else
 	{
 		std::cout << "Using Recursive Partitioning!\n";
-		METIS_PartGraphRecursive( & nCells, & ncon, & metisXadj[ 0 ], & metisAdjncy[ 0 ], vwgt, vsize, adjwgt, 
+		partitionStatus = METIS_PartGraphRecursive( & nCells, & ncon, & metisXadj[ 0 ], & metisAdjncy[ 0 ], vwgt, vsize, adjwgt,
 			& nZone, tpwgts, ubvec, options, & objval, & cellzone[ 0 ] );
 	}
-	std::cout << "The interface number: " << objval << std::endl; 
+
+	if ( partitionStatus != METIS_OK )
+	{
+		throw std::runtime_error( "MetisSplit::ScalarPartitionByMetis: METIS graph partitioning failed" );
+	}
+
+	std::cout << "The interface number: " << objval << std::endl;
 	std::cout << "Partition is finished!\n";
 	return cellzone;
 }
