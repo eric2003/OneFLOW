@@ -1198,10 +1198,14 @@ void ScalarGrid::CalcC2C( EList & c2c ) const
 
 void ScalarGrid::CalcInterfaceToBcFace()
 {
+	this->scalarIFace->interface_to_bcface.clear();
 	if ( this->scalarIFace->GetNIFaces() == 0 ) return;
-	int nBFaces = this->GetNBFaces();
 
-	this->scalarIFace->interface_to_bcface.resize( 0 );
+	const int nBFaces = this->GetNBFaces();
+	if ( this->bcTypes.GetNElements() < static_cast< size_t >( nBFaces ) )
+	{
+		throw std::runtime_error( "ScalarGrid::CalcInterfaceToBcFace: boundary condition array is smaller than the boundary face count" );
+	}
 
 	for ( int iBFace = 0; iBFace < nBFaces; ++ iBFace )
 	{
