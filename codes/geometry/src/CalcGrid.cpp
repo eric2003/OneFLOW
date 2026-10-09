@@ -180,6 +180,9 @@ void CalcGrid::Dump()
 
 void CalcGrid::Post()
 {
+    // Validate the mutable public collection before any post-processing side effects.
+    ValidateGridCollection( grids );
+
     logFile << "GenerateOverset\n";
     this->GenerateOverset();
     logFile << "BuildInterfaceLink\n";
