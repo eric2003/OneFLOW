@@ -41,30 +41,11 @@ License
 #include "Fatal.h"
 #include "Prj.h"
 #include <iostream>
-#include <stdexcept>
 #include <utility>
 #include <vector>
 
 
 BeginNameSpace( ONEFLOW )
-
-namespace
-{
-void CloseGridOutput( std::fstream & file )
-{
-    file.flush();
-    if ( ! file )
-    {
-        throw std::runtime_error( "CalcGrid::Dump: failed to write grid data" );
-    }
-
-    file.close();
-    if ( ! file )
-    {
-        throw std::runtime_error( "CalcGrid::Dump: failed to close grid file" );
-    }
-}
-}
 
 CalcGrid::CalcGrid() = default;
 
@@ -136,7 +117,7 @@ void CalcGrid::Dump()
         GridAt( grids, iZone ).WriteGrid( file );
     }
 
-    CloseGridOutput( file );
+    Prj::CloseOutputFile( file, "CalcGrid::Dump" );
 }
 
 void CalcGrid::Post()
