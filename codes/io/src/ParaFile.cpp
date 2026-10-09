@@ -234,10 +234,10 @@ void DumpDataBase()
 
 void DumpDataBase( const std::string & caseDir )
 {
-    DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
+    DataBase & dataBase = ONEFLOW::RequireGlobalDataBase();
     std::fstream file;
     Prj::OpenCaseFile( file, caseDir, "log/database.log", std::ios_base::out );
-    dataBase->GetDataPara()->DumpData( file );
+    dataBase.RequireDataPara().DumpData( file );
     PIO::CloseFile( file );
 }
 
