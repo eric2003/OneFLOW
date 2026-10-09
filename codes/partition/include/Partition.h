@@ -30,7 +30,6 @@ License
 #include "HXCgns.h"
 #include <vector>
 #include <string>
-#include <fstream>
 
 #ifdef ENABLE_METIS
 #include "metis.h"
