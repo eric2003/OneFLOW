@@ -26,6 +26,7 @@ License
 #include "FileUtils.h"
 #include <iostream>
 #include <filesystem>
+#include <stdexcept>
 
 BeginNameSpace( ONEFLOW )
 
@@ -232,6 +233,21 @@ void Prj::CloseFile( std::fstream & file )
 {
     file.close();
     file.clear();
+}
+
+void Prj::CloseOutputFile( std::fstream & file, const std::string & operation )
+{
+    file.flush();
+    if ( ! file )
+    {
+        throw std::runtime_error( operation + ": failed to write output data" );
+    }
+
+    file.close();
+    if ( ! file )
+    {
+        throw std::runtime_error( operation + ": failed to close output file" );
+    }
 }
 
 void Prj::MakePrjDir( const std::string & dirName )
