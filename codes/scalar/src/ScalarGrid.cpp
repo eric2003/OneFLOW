@@ -692,6 +692,9 @@ void ScalarGrid::ReadFromCgnsZbase( CgnsZbase & cgnsZbase )
 
 void ScalarGrid::ReadFromCgnsZone( CgnsZone & cgnsZone )
 {
+	// Importing a zone replaces the current mesh rather than appending to it.
+	this->ResetMeshData();
+
 	std::cout << "   Convert Cgns Section Data to ScalarGrid......\n";
 	std::cout << "\n";
 	CgnsZsection & cgnsZsection = cgnsZone.RequireCgnsZsection();
