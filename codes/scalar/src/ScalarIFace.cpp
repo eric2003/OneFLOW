@@ -251,23 +251,20 @@ void ScalarIFace::ReadInterfaceTopology( DataBook * databook )
 
     std::cout << " nIFaces = " << nIFaces << std::endl;
 
-    if ( nIFaces == 0 )
-    {
-        this->zones.clear();
-        this->target_interfaces.clear();
-        this->interface_to_bcface.clear();
-        this->data.clear();
-        return;
-    }
+    std::vector< int > zones;
+    std::vector< int > targetInterfaces;
+    std::vector< int > interfaceToBcface;
+    std::vector< ScalarIFaceIJ > interfaceData;
 
+    if ( nIFaces > 0 )
     {
-        this->zones.resize( nIFaces );
-        this->target_interfaces.resize( nIFaces );
-        this->interface_to_bcface.resize( nIFaces );
+        zones.resize( nIFaces );
+        targetInterfaces.resize( nIFaces );
+        interfaceToBcface.resize( nIFaces );
 
-        ONEFLOW::HXRead( databook, this->zones               );
-        ONEFLOW::HXRead( databook, this->target_interfaces   );
-        ONEFLOW::HXRead( databook, this->interface_to_bcface );
+        ONEFLOW::HXRead( databook, zones );
+        ONEFLOW::HXRead( databook, targetInterfaces );
+        ONEFLOW::HXRead( databook, interfaceToBcface );
 
         int nNeis = -1;
         ONEFLOW::HXRead( databook, nNeis );
@@ -275,13 +272,19 @@ void ScalarIFace::ReadInterfaceTopology( DataBook * databook )
         {
             throw std::runtime_error( "ScalarIFace::ReadInterfaceTopology: neighbor count must be non-negative" );
         }
-        this->data.resize( nNeis );
+
+        interfaceData.resize( nNeis );
         for ( int iNei = 0; iNei < nNeis; ++ iNei )
         {
-            ScalarIFaceIJ & iFaceIJ = data[ iNei ];
-            iFaceIJ.ReadInterfaceTopology( databook );
+            interfaceData[ iNei ].ReadInterfaceTopology( databook );
         }
     }
+
+    // Replace serialized interface state only after the complete read succeeds.
+    this->zones = std::move( zones );
+    this->target_interfaces = std::move( targetInterfaces );
+    this->interface_to_bcface = std::move( interfaceToBcface );
+    this->data = std::move( interfaceData );
 }
 
 EndNameSpace
