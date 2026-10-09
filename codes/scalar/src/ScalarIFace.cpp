@@ -113,7 +113,8 @@ int ScalarIFace::FindINeibor( int iZone )
 
 void ScalarIFace::CalcLocalInterfaceId( int iZone, std::vector<int> & globalfaces, std::vector<int> & localfaces )
 {
-    const int firstLocalFace = static_cast< int >( localfaces.size() );
+    std::vector< int > reconstructedLocalFaces;
+    reconstructedLocalFaces.reserve( globalfaces.size() );
     for ( int i = 0; i < globalfaces.size(); ++ i )
     {
         const int gid = globalfaces[ i ];
@@ -122,7 +123,7 @@ void ScalarIFace::CalcLocalInterfaceId( int iZone, std::vector<int> & globalface
         {
             throw std::runtime_error( "ScalarIFace::CalcLocalInterfaceId: global interface id was not found" );
         }
-        localfaces.push_back( iter->second );
+        reconstructedLocalFaces.push_back( iter->second );
     }
 
     // The neighbor of iZone must have a reciprocal entry in this interface list.
@@ -131,8 +132,10 @@ void ScalarIFace::CalcLocalInterfaceId( int iZone, std::vector<int> & globalface
     {
         throw std::runtime_error( "ScalarIFace::CalcLocalInterfaceId: reciprocal neighbor zone was not found" );
     }
-    ScalarIFaceIJ & iFaceIJ = this->data[ jNei ];
-    iFaceIJ.recv_ifaces.assign( localfaces.begin() + firstLocalFace, localfaces.end() );
+
+    // Replace derived mappings instead of appending duplicate IDs on repeated reconstruction.
+    localfaces = reconstructedLocalFaces;
+    this->data[ jNei ].recv_ifaces = std::move( reconstructedLocalFaces );
 }
 
 void ScalarIFace::DumpInterfaceMap()
