@@ -76,6 +76,11 @@ CgnsBcConn & CgnsZbcConn::GetCgnsBc( int iConn )
     return *this->cgnsBcConns.at( iConn );
 }
 
+const CgnsBcConn & CgnsZbcConn::GetCgnsBc( int iConn ) const
+{
+    return *this->cgnsBcConns.at( iConn );
+}
+
 void CgnsZbcConn::CreateCgnsZbc()
 {
     for ( int iConn = this->GetNConn(); iConn < this->nConnToCreate; ++ iConn )

@@ -75,6 +75,11 @@ CgnsBcBoco & CgnsZbcBoco::GetCgnsBc( int iBoco )
     return *this->cgnsBcBocos.at( iBoco );
 }
 
+const CgnsBcBoco & CgnsZbcBoco::GetCgnsBc( int iBoco ) const
+{
+    return *this->cgnsBcBocos.at( iBoco );
+}
+
 void CgnsZbcBoco::CreateCgnsZbc()
 {
     for ( int iBoco = this->GetNBoco(); iBoco < this->nBocoToCreate; ++ iBoco )

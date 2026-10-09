@@ -74,6 +74,11 @@ CgnsBc1to1 & CgnsZbc1to1::GetCgnsBcRegion1to1( int i1to1 )
     return *this->cgnsBc1to1s.at( i1to1 );
 }
 
+const CgnsBc1to1 & CgnsZbc1to1::GetCgnsBcRegion1to1( int i1to1 ) const
+{
+    return *this->cgnsBc1to1s.at( i1to1 );
+}
+
 void CgnsZbc1to1::PrintZn1to1()
 {
     std::cout << "   n1to1        = " << this->n1to1ToCreate << std::endl;

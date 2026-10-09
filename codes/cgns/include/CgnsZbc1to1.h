@@ -56,6 +56,7 @@ public:
 public:
     void AddCgns1To1BcRegion( std::unique_ptr< CgnsBc1to1 > cgnsBc1to1 );
     CgnsBc1to1 & GetCgnsBcRegion1to1( int i1to1 );
+    const CgnsBc1to1 & GetCgnsBcRegion1to1( int i1to1 ) const;
     void CreateCgnsZbc();
     void ConvertToInnerDataStandard();
     void ReadZn1to1( int n1to1 );
