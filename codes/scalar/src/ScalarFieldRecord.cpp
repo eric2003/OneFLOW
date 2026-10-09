@@ -69,8 +69,17 @@ void ScalarFieldRecord::AddField( MRField * field, int nEqu )
         throw std::invalid_argument( "ScalarFieldRecord::AddField: field must not be null" );
     }
 
-    this->nEquList.push_back( nEqu );
+    // Keep the parallel field and dimension lists synchronized if allocation fails.
     this->fields.push_back( field );
+    try
+    {
+        this->nEquList.push_back( nEqu );
+    }
+    catch ( ... )
+    {
+        this->fields.pop_back();
+        throw;
+    }
 }
 
 MRField * ScalarFieldRecord::GetField( int id )
