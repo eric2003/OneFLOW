@@ -1624,13 +1624,8 @@ void ScalarGrid::ReadBoundaryTopology( DataBook * databook )
 	this->scalarIFace->ReadInterfaceTopology( databook );
 }
 
-void ScalarGrid::AddFaceType( int fType )
-{
-	this->fTypes.AddData( fType );
-}
-
 //for partition
-void ScalarGrid::AddPhysicalBcFace( int global_face_id, int bctype, int lcell, int rcell )
+void ScalarGrid::AddPhysicalBcFace( int global_face_id, int bctype, int lcell, int rcell, int ftype )
 {
 	// Reserve every destination before changing the logical face record.
 	this->global_faceid.reserve( this->global_faceid.size() + 1 );
@@ -1638,23 +1633,25 @@ void ScalarGrid::AddPhysicalBcFace( int global_face_id, int bctype, int lcell, i
 	this->fBcTypes.data.reserve( this->fBcTypes.data.size() + 1 );
 	this->lc.data.reserve( this->lc.data.size() + 1 );
 	this->rc.data.reserve( this->rc.data.size() + 1 );
+	this->fTypes.data.reserve( this->fTypes.data.size() + 1 );
 
 	this->global_faceid.push_back( global_face_id );
 	this->bcTypes.AddData( bctype );
 	this->fBcTypes.AddData( bctype );
 	this->lc.AddData( lcell );
 	this->rc.AddData( rcell );
+	this->fTypes.AddData( ftype );
 }
 
-void ScalarGrid::AddInterfaceBcFace( int global_face_id, int bctype, int lcell, int rcell, int nei_zoneid, int nei_cellid )
+void ScalarGrid::AddInterfaceBcFace( int global_face_id, int bctype, int lcell, int rcell, int nei_zoneid, int nei_cellid, int ftype )
 {
-	// Allocate the face arrays first; interface insertion can fail and must happen
-	// before the non-throwing integer appends commit the face record.
+	// Reserve every destination before mutating interface or face topology.
 	this->global_faceid.reserve( this->global_faceid.size() + 1 );
 	this->bcTypes.data.reserve( this->bcTypes.data.size() + 1 );
 	this->fBcTypes.data.reserve( this->fBcTypes.data.size() + 1 );
 	this->lc.data.reserve( this->lc.data.size() + 1 );
 	this->rc.data.reserve( this->rc.data.size() + 1 );
+	this->fTypes.data.reserve( this->fTypes.data.size() + 1 );
 
 	this->AddInterface( global_face_id, nei_zoneid, nei_cellid );
 
@@ -1663,19 +1660,22 @@ void ScalarGrid::AddInterfaceBcFace( int global_face_id, int bctype, int lcell, 
 	this->fBcTypes.AddData( bctype );
 	this->lc.AddData( lcell );
 	this->rc.AddData( rcell );
+	this->fTypes.AddData( ftype );
 }
 
-void ScalarGrid::AddInnerFace( int global_face_id, int bctype, int lcell, int rcell )
+void ScalarGrid::AddInnerFace( int global_face_id, int bctype, int lcell, int rcell, int ftype )
 {
 	this->global_faceid.reserve( this->global_faceid.size() + 1 );
 	this->fBcTypes.data.reserve( this->fBcTypes.data.size() + 1 );
 	this->lc.data.reserve( this->lc.data.size() + 1 );
 	this->rc.data.reserve( this->rc.data.size() + 1 );
+	this->fTypes.data.reserve( this->fTypes.data.size() + 1 );
 
 	this->global_faceid.push_back( global_face_id );
 	this->fBcTypes.AddData( bctype );
 	this->lc.AddData( lcell );
 	this->rc.AddData( rcell );
+	this->fTypes.AddData( ftype );
 }
 
 void ScalarGrid::AddInterface( int global_interface_id, int neighbor_zoneid, int neighbor_cellid )
