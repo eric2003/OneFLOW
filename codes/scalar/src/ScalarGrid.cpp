@@ -994,10 +994,6 @@ void ScalarGrid::CalcTopology()
 				faceNodeIndexArray.push_back(element[nodeIndex]);
 			}
 
-			// Sort the node array for unique face identification
-			IntField sortedNodes = faceNodeIndexArray;
-			std::sort(sortedNodes.begin(), sortedNodes.end());
-
 			// Find or add the face (HXLookup automatically sorts the nodes)
 			auto [faceIndex, isNew] = faceLookup.FindOrAdd(faceNodeIndexArray);
 
