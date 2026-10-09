@@ -94,7 +94,7 @@ public:
     CgInt GetActualNumberOfBoundaryElements() const;
 };
 
-void SetBcConn( CgnsZone * cgnsZone, IntField & ijkMin, IntField & ijkMax, CgIntField& conn, int & pos, int & nElem );
+void SetBcConn( CgnsZone & cgnsZone, IntField & ijkMin, IntField & ijkMax, CgIntField& conn, int & pos, int & nElem );
 
 #endif
 

@@ -537,11 +537,11 @@ CgInt CgnsBcBoco::GetActualNumberOfBoundaryElements() const
     }
 }
 
-void SetBcConn( CgnsZone * cgnsZone, IntField & ijkMin, IntField & ijkMax, CgIntField& conn, int & pos, int & nElem )
+void SetBcConn( CgnsZone & cgnsZone, IntField & ijkMin, IntField & ijkMax, CgIntField& conn, int & pos, int & nElem )
 {
-    int ni = static_cast<int> (cgnsZone->GetNI());
-    int nj = static_cast<int> (cgnsZone->GetNJ());
-    int nk = static_cast<int> (cgnsZone->GetNK());
+    int ni = static_cast<int> (cgnsZone.GetNI());
+    int nj = static_cast<int> (cgnsZone.GetNJ());
+    int nk = static_cast<int> (cgnsZone.GetNK());
 
     int ist, jst, kst, ied, jed, ked;
 
@@ -555,7 +555,7 @@ void SetBcConn( CgnsZone * cgnsZone, IntField & ijkMin, IntField & ijkMax, CgInt
 
     std::cout << " ist, ied, jst, jed, kst, ked = " << ist << " " << ied << " " << jst << " " << jed << " " << kst << " " << ked << "\n";
 
-    int celldim = cgnsZone->cgnsBase.celldim;
+    int celldim = cgnsZone.cgnsBase.celldim;
     int numpt = 4;
     if ( celldim == TWO_D ) numpt = 2;
     if ( celldim == ONE_D ) numpt = 1;

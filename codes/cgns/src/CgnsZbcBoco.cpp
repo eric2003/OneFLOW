@@ -238,7 +238,7 @@ void CgnsZbcBoco::GenerateUnsBcElemConn( CgIntField& bcConn )
 
         IntField ijkMin( 3 ), ijkMax( 3 );
         bcRegion.ExtractIJKRegionFromBcConn( ijkMin, ijkMax );
-        SetBcConn( &cgnsZone, ijkMin, ijkMax, bcConn, pos, nBcElem );
+        SetBcConn( cgnsZone, ijkMin, ijkMax, bcConn, pos, nBcElem );
         std::cout << " pos = " << pos << "\n";
         std::cout << " nBcElem = " << nBcElem << " boundaryElementSize = " << nBcElem * 4 << "\n";
     }
