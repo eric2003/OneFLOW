@@ -48,6 +48,28 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+namespace
+{
+void ValidateGridCollection( const Grids & grids )
+{
+    if ( grids.empty() )
+    {
+        throw std::invalid_argument( "CalcGrid: at least one grid zone is required" );
+    }
+    if ( grids.size() > static_cast< size_t >( std::numeric_limits< int >::max() ) )
+    {
+        throw std::length_error( "CalcGrid: zone count exceeds the file format limit" );
+    }
+    for ( const auto & grid : grids )
+    {
+        if ( ! grid )
+        {
+            throw std::invalid_argument( "CalcGrid: grid zone must not be null" );
+        }
+    }
+}
+} // namespace
+
 CalcGrid::CalcGrid() = default;
 
 CalcGrid::~CalcGrid() = default;
@@ -59,6 +81,9 @@ void CalcGrid::Init( Grids grids )
 
 void CalcGrid::Init( Grids grids, const GridConfig & config )
 {
+    // Validate before taking ownership; Post() traverses this collection.
+    ValidateGridCollection( grids );
+
     this->grids = std::move( grids );
     this->config = config;
 
@@ -94,21 +119,9 @@ void CalcGrid::BuildInterfaceLink()
 
 void CalcGrid::Dump()
 {
-    if ( grids.empty() )
-    {
-        throw std::invalid_argument( "CalcGrid::Dump: at least one grid zone is required" );
-    }
-    if ( grids.size() > static_cast< size_t >( std::numeric_limits< int >::max() ) )
-    {
-        throw std::length_error( "CalcGrid::Dump: zone count exceeds the file format limit" );
-    }
-    for ( const auto & grid : grids )
-    {
-        if ( ! grid )
-        {
-            throw std::invalid_argument( "CalcGrid::Dump: grid zone must not be null" );
-        }
-    }
+    // Public collection state can be changed after Init(), so validate again
+    // before traversing it or truncating the destination file.
+    ValidateGridCollection( grids );
 
     // Validate the complete collection before truncating the destination file.
     const int nZone = static_cast< int >( grids.size() );
