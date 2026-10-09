@@ -234,15 +234,13 @@ void ScalarDumpGrid( const std::string & gridFileName, ScalarGrid & grid )
     std::fstream file;
     Prj::OpenPrjFile( file, gridFileName, std::ios_base::out|std::ios_base::binary|std::ios_base::trunc );
 
-    int nZone = 1;
-    ZoneState::pid.resize( nZone );
-    ZoneState::zoneType.resize( nZone );
-    ZoneState::pid[ 0 ] = 0;
-    ZoneState::zoneType[ 0 ] = grid.type;
+    const int nZone = 1;
+    const std::vector< int > zoneIds = { 0 };
+    const std::vector< int > zoneTypes = { grid.type };
 
     ONEFLOW::HXWrite( & file, nZone );
-    ONEFLOW::HXWrite( & file, ZoneState::pid );
-    ONEFLOW::HXWrite( & file, ZoneState::zoneType );
+    ONEFLOW::HXWrite( & file, zoneIds );
+    ONEFLOW::HXWrite( & file, zoneTypes );
 
     std::cout << "iZone = 0 nZone = 1\n";
     grid.WriteGrid( file );
@@ -273,18 +271,18 @@ void ScalarDumpGrid( const std::string & gridFileName, const std::vector< std::u
     std::fstream file;
     Prj::OpenPrjFile( file, gridFileName, std::ios_base::out|std::ios_base::binary|std::ios_base::trunc );
 
-    ZoneState::pid.resize( nZone );
-    ZoneState::zoneType.resize( nZone );
+    std::vector< int > zoneIds( static_cast< size_t >( nZone ) );
+    std::vector< int > zoneTypes( static_cast< size_t >( nZone ) );
 
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        ZoneState::pid[ iZone ] = iZone;
-        ZoneState::zoneType[ iZone ] = grids[ iZone ]->type;
+        zoneIds[ iZone ] = iZone;
+        zoneTypes[ iZone ] = grids[ iZone ]->type;
     }
 
     ONEFLOW::HXWrite( & file, nZone );
-    ONEFLOW::HXWrite( & file, ZoneState::pid );
-    ONEFLOW::HXWrite( & file, ZoneState::zoneType );
+    ONEFLOW::HXWrite( & file, zoneIds );
+    ONEFLOW::HXWrite( & file, zoneTypes );
 
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
