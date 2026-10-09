@@ -17,7 +17,6 @@ License
 
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
-
 \*---------------------------------------------------------------------------*/
 #pragma once
 #include "HXDefine.h"
@@ -49,6 +48,10 @@ public:
 public:
     void AddField( MRField * field, int nEqu );
     MRField * GetField( int id );
+    int GetNumberOfFields() const
+    {
+        return static_cast< int >( this->fields.size() );
+    }
 public:
     void AddFieldRecord( DataStorage * dataStorage, StringField & fieldNameList );
 public:
