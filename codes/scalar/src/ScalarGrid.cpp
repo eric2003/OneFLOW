@@ -1360,6 +1360,11 @@ void ScalarGrid::ReadGrid( std::fstream & file )
 
 void ScalarGrid::ReadGrid( DataBook * databook )
 {
+	if ( databook == nullptr )
+	{
+		throw std::invalid_argument( "ScalarGrid::ReadGrid: databook must not be null" );
+	}
+
 	// Loading a grid replaces the current mesh state.
 	this->ResetMeshData();
 
@@ -1371,6 +1376,11 @@ void ScalarGrid::ReadGrid( DataBook * databook )
 	ONEFLOW::HXRead( databook, this->nNodes );
 	ONEFLOW::HXRead( databook, this->nFaces );
 	ONEFLOW::HXRead( databook, this->nCells );
+
+	if ( this->nNodes < 0 || this->nFaces < 0 || this->nCells < 0 )
+	{
+		throw std::runtime_error( "ScalarGrid::ReadGrid: grid header contains a negative count" );
+	}
 
 	std::cout << " number of nodes    : " << this->nNodes << std::endl;
 	std::cout << " number of surfaces : " << this->nFaces << std::endl;
@@ -1559,6 +1569,11 @@ void ScalarGrid::ReadBoundaryTopology( DataBook * databook )
 {
 	std::cout << "Setting the boundary condition......\n";
 	ONEFLOW::HXRead( databook, this->nBFaces );
+
+	if ( this->nBFaces < 0 || this->nBFaces > this->nFaces )
+	{
+		throw std::runtime_error( "ScalarGrid::ReadBoundaryTopology: boundary face count is outside the total face range" );
+	}
 
 	this->bcTypes.Resize( this->nBFaces );
 	this->bcNameIds.Resize( this->nBFaces );
