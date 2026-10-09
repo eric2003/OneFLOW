@@ -548,3 +548,15 @@ TEST( PrjPathUtils, SlashRemoval )
     EXPECT_EQ( ONEFLOW::RemoveEndSlash( "grid" ), "grid" );
     EXPECT_EQ( ONEFLOW::RemoveEndSlash( "" ), "" );
 }
+
+TEST( PrjSetPrjBaseDir, RelativePathRequiresInitializedCurrentDirectory )
+{
+    const std::string savedCurrentDir = Prj::current_dir;
+    Prj::current_dir.clear();
+
+    EXPECT_THROW(
+        Prj::ResolveCaseDir( "plate" ),
+        std::runtime_error );
+
+    Prj::current_dir = savedCurrentDir;
+}

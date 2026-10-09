@@ -173,6 +173,12 @@ std::string Prj::ResolveCaseDir( const std::string & caseDir )
 
     if ( projectPath.is_relative() )
     {
+        if ( Prj::current_dir.empty() )
+        {
+            Fatal( "Current directory is not initialized; cannot resolve "
+                "relative project path: " + caseDir );
+        }
+
         projectPath =
             std::filesystem::path( Prj::current_dir ) / projectPath;
     }
