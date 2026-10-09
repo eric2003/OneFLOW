@@ -74,6 +74,15 @@ CalcGrid::CalcGrid() = default;
 
 CalcGrid::~CalcGrid() = default;
 
+IFaceLink & CalcGrid::GetInterfaceLink()
+{
+    if ( ! this->iFaceLink )
+    {
+        throw std::logic_error( "CalcGrid: interface link has not been generated" );
+    }
+    return *this->iFaceLink;
+}
+
 void CalcGrid::Init( Grids grids )
 {
     this->Init( std::move( grids ), GridConfig::FromDataBase() );
@@ -232,7 +241,7 @@ void CalcGrid::ReconstructLink( int iZone )
 
 void CalcGrid::ReconstructInterFace()
 {
-    this->iFaceLink->ReconstructInterFace();
+    this->GetInterfaceLink().ReconstructInterFace();
 }
 
 void CalcGrid::ResetGridScaleAndTranslate()
@@ -278,19 +287,19 @@ void CalcGrid::GenerateLgMapping()
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         Grid & grid = GridAt( grids, iZone );
-        grid.GenerateLgMapping( *this->iFaceLink );
+        grid.GenerateLgMapping( this->GetInterfaceLink() );
     }
 }
 
 void CalcGrid::ReGenerateLgMapping()
 {
-    this->iFaceLink->InitNewLgMapping();
+    this->GetInterfaceLink().InitNewLgMapping();
 
     const int nZone = GridsSize( grids );
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         Grid & grid = GridAt( grids, iZone );
-        grid.ReGenerateLgMapping( *this->iFaceLink );
+        grid.ReGenerateLgMapping( this->GetInterfaceLink() );
     }
 
     this->UpdateLgMapping();
@@ -299,7 +308,7 @@ void CalcGrid::ReGenerateLgMapping()
 
 void CalcGrid::UpdateLgMapping()
 {
-    iFaceLink->UpdateLgMapping();
+    this->GetInterfaceLink().UpdateLgMapping();
 }
 
 void CalcGrid::UpdateOtherTopologyTerm()
@@ -308,7 +317,7 @@ void CalcGrid::UpdateOtherTopologyTerm()
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         Grid & grid = GridAt( grids, iZone );
-        grid.UpdateOtherTopologyTerm( *this->iFaceLink );
+        grid.UpdateOtherTopologyTerm( this->GetInterfaceLink() );
     }
 }
 
@@ -318,7 +327,7 @@ void CalcGrid::MatchInterfaceTopology()
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         Grid & grid = GridAt( grids, iZone );
-        this->iFaceLink->MatchInterfaceTopology( grid );
+        this->GetInterfaceLink().MatchInterfaceTopology( grid );
     }
 }
 
