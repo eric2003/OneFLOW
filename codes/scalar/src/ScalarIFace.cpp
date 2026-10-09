@@ -28,6 +28,7 @@ License
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <stdexcept>
 
 
 BeginNameSpace( ONEFLOW )
@@ -82,7 +83,12 @@ void ScalarIFace::AddInterface( int global_interface_id, int neighbor_zoneid, in
 
 int ScalarIFace::GetLocalInterfaceId( int global_interface_id )
 {
-    return this->global_to_local_interfaces[ global_interface_id ];
+    const auto iter = this->global_to_local_interfaces.find( global_interface_id );
+    if ( iter == this->global_to_local_interfaces.end() )
+    {
+        throw std::runtime_error( "ScalarIFace::GetLocalInterfaceId: global interface id was not found" );
+    }
+    return iter->second;
 }
 
 int ScalarIFace::GetNIFaces()
@@ -106,17 +112,26 @@ int ScalarIFace::FindINeibor( int iZone )
 
 void ScalarIFace::CalcLocalInterfaceId( int iZone, std::vector<int> & globalfaces, std::vector<int> & localfaces )
 {
+    const int firstLocalFace = static_cast< int >( localfaces.size() );
     for ( int i = 0; i < globalfaces.size(); ++ i )
     {
-        int gid = globalfaces[ i ];
-        int lid = this->global_to_local_interfaces[ gid ];
-        localfaces.push_back( lid );
+        const int gid = globalfaces[ i ];
+        const auto iter = this->global_to_local_interfaces.find( gid );
+        if ( iter == this->global_to_local_interfaces.end() )
+        {
+            throw std::runtime_error( "ScalarIFace::CalcLocalInterfaceId: global interface id was not found" );
+        }
+        localfaces.push_back( iter->second );
     }
-    //The neighbor of iZone iNei is jzone, and the jNei neighbor of jZone is iZone
-    int jNei = FindINeibor( iZone );
-    //std::cout << " zoneid = " << this->zoneid << " iZone() = " << iZone << " jNei = " << jNei << "\n";
+
+    // The neighbor of iZone must have a reciprocal entry in this interface list.
+    const int jNei = FindINeibor( iZone );
+    if ( jNei < 0 )
+    {
+        throw std::runtime_error( "ScalarIFace::CalcLocalInterfaceId: reciprocal neighbor zone was not found" );
+    }
     ScalarIFaceIJ & iFaceIJ = this->data[ jNei ];
-    iFaceIJ.recv_ifaces = localfaces;
+    iFaceIJ.recv_ifaces.assign( localfaces.begin() + firstLocalFace, localfaces.end() );
 }
 
 void ScalarIFace::DumpInterfaceMap()
