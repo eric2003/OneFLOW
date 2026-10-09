@@ -168,11 +168,18 @@ std::string RemoveEndSlash( const std::string & fileName )
 
 void GetFileNameExtension( const std::string & fullName, std::string & mainName, std::string & extensionName, const std::string & fileNameSeparator )
 {
-    std::basic_string <char>::size_type index;
+    const std::string::size_type index =
+        fullName.find_last_of( fileNameSeparator );
 
-    index         = fullName.find_last_of( fileNameSeparator );
-    mainName      = fullName.substr( 0, index );
-    extensionName = fullName.substr( index+1, fullName.length() - index - 1 );
+    if ( index == std::string::npos )
+    {
+        mainName = fullName;
+        extensionName.clear();
+        return;
+    }
+
+    mainName = fullName.substr( 0, index );
+    extensionName = fullName.substr( index + 1 );
 }
 
 void ModifyFileMainName( std::string & fileName,  const std::string & newMainName )

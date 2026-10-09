@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 #include "TextFileParser.h"
+#include "FileUtils.h"
 #include <fstream>
 #include <cstdio>
 
@@ -176,3 +177,21 @@ TEST( SystemConfigRead, SkipsCommentLinesAndFindsBlock )
     std::remove( "block_test.txt" );
 }
 
+
+TEST( FileUtils, SplitsFileNameOnlyWhenSeparatorExists )
+{
+    std::string mainName;
+    std::string extensionName;
+
+    GetFileNameExtension( "restart", mainName, extensionName, "." );
+    EXPECT_EQ( mainName, "restart" );
+    EXPECT_TRUE( extensionName.empty() );
+
+    GetFileNameExtension( "restart.dat", mainName, extensionName, "." );
+    EXPECT_EQ( mainName, "restart" );
+    EXPECT_EQ( extensionName, "dat" );
+
+    GetFileNameExtension( "restart.backup.dat", mainName, extensionName, "." );
+    EXPECT_EQ( mainName, "restart.backup" );
+    EXPECT_EQ( extensionName, "dat" );
+}
