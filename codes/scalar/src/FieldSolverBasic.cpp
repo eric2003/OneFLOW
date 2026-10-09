@@ -24,6 +24,7 @@ License
 #include "FieldPara.h"
 #include "ScalarAlloc.h"
 #include "ScalarZone.h"
+#include "ScalarGrid.h"
 #include "Zone.h"
 #include "InterFace.h"
 #include "ZoneState.h"
