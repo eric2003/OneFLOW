@@ -47,7 +47,6 @@ class G2LMapping;
 class L2GMapping
 {
 public:
-public:
     IntField l2g_node;
     IntField l2g_face;
     IntField l2g_cell;
