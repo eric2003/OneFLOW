@@ -376,7 +376,7 @@ std::vector< std::unique_ptr< ScalarGrid > > GridPartition::ReconstructGridFaceT
 		//global coor x[20],y[20],z[20],x[10],y[10],z[10]
 		//local coor x[1],y[1],z[1],x[2],y[2],z[2]
 		int localCell = localCells[ lc ];
-		int ftype = ggrid.fTypes[ iFace ];
+		int ftype =  ggrid.fTypes[ iFace ];
 		ScalarGrid & gridL = *grids[ lZone ];
 		gridL.AddPhysicalBcFace( iFace, bctype, localCell, ONEFLOW::INVALID_INDEX, ftype );
 	}
