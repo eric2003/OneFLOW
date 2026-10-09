@@ -45,7 +45,12 @@ ScalarIFaceIJ::~ScalarIFaceIJ()
 
 void ScalarIFaceIJ::WriteInterfaceTopology( DataBook * databook )
 {
-    int nIFaces = ifaces.size();
+    if ( this->ifaces.size() != this->recv_ifaces.size() )
+    {
+        throw std::logic_error( "ScalarIFaceIJ::WriteInterfaceTopology: interface arrays have inconsistent sizes" );
+    }
+
+    int nIFaces = static_cast< int >( this->ifaces.size() );
     ONEFLOW::HXWrite( databook, this->zonej );
     ONEFLOW::HXWrite( databook, nIFaces );
     ONEFLOW::HXWrite( databook, this->ifaces );
@@ -227,8 +232,22 @@ void ScalarIFace::ReconstructNeighbor()
 
 void ScalarIFace::WriteInterfaceTopology( DataBook * databook )
 {
-    int nIFaces = this->GetNIFaces();
+    const size_t nInterfaces = this->zones.size();
+    if ( nInterfaces > 0 &&
+         ( this->target_interfaces.size() != nInterfaces ||
+           this->interface_to_bcface.size() != nInterfaces ) )
+    {
+        throw std::logic_error( "ScalarIFace::WriteInterfaceTopology: interface arrays have inconsistent sizes" );
+    }
+    for ( const ScalarIFaceIJ & neighborData : this->data )
+    {
+        if ( neighborData.ifaces.size() != neighborData.recv_ifaces.size() )
+        {
+            throw std::logic_error( "ScalarIFace::WriteInterfaceTopology: neighbor interface arrays have inconsistent sizes" );
+        }
+    }
 
+    int nIFaces = static_cast< int >( nInterfaces );
     ONEFLOW::HXWrite( databook, nIFaces );
     if ( nIFaces > 0 )
     {
