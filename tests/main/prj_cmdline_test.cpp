@@ -384,6 +384,31 @@ TEST( PrjCasePath, OpenPrjFileUsesAbsolutePath )
     std::filesystem::remove_all( absoluteFile.parent_path() );
 }
 
+TEST( PrjCasePath, MakePrjDirFailsWhenPathCannotBeCreated )
+{
+    const std::filesystem::path testRoot =
+        std::filesystem::temp_directory_path()
+        / "OneFLOW_PrjMakeDirFailureTest";
+    const std::filesystem::path blockingFile = testRoot / "not_a_directory";
+
+    std::filesystem::remove_all( testRoot );
+    std::filesystem::create_directories( testRoot );
+    {
+        std::ofstream file( blockingFile );
+        ASSERT_TRUE( file.is_open() );
+        file << "block";
+    }
+
+    Prj::current_dir = std::filesystem::current_path().string();
+    Prj::SetPrjBaseDir( testRoot.string() );
+
+    EXPECT_THROW(
+        Prj::MakePrjDir( "not_a_directory/child" ),
+        std::runtime_error );
+
+    std::filesystem::remove_all( testRoot );
+}
+
 TEST( PrjCasePath, MakePrjDirUsesRelativePath )
 {
     const std::filesystem::path caseDir =
