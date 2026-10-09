@@ -1220,15 +1220,34 @@ void ScalarGrid::CalcInterfaceToBcFace()
 
 void ScalarGrid::Normalize()
 {
-	int nFaces = this->GetNFaces();
+	const int nFaces = this->GetNFaces();
+	const int nBFaces = this->GetNBFaces();
+	if ( this->lc.GetNElements() != static_cast< size_t >( nFaces ) ||
+		 this->rc.GetNElements() != static_cast< size_t >( nFaces ) )
+	{
+		throw std::runtime_error( "ScalarGrid::Normalize: face-cell arrays have inconsistent sizes" );
+	}
+	if ( nBFaces > nFaces )
+	{
+		throw std::runtime_error( "ScalarGrid::Normalize: boundary face count exceeds total face count" );
+	}
+
+	// Validate the complete face-cell structure before changing face orientation.
+	for ( int iFace = 0; iFace < nFaces; ++ iFace )
+	{
+		if ( this->lc[ iFace ] < 0 && this->rc[ iFace ] < 0 )
+		{
+			throw std::runtime_error( "ScalarGrid::Normalize: face has no valid adjacent cell" );
+		}
+	}
+
 	for ( int iFace = 0; iFace < nFaces; ++ iFace )
 	{
 		if ( this->lc[ iFace ] < 0 )
 		{
-			//need to reverse the node ordering
+			// Reverse face orientation so the left cell is valid.
 			std::vector< int > & face = this->faces[ iFace ];
 			std::reverse( face.begin(), face.end() );
-			// now reverse lc and rc
 			ONEFLOW::SWAP( this->lc[ iFace ], this->rc[ iFace ] );
 		}
 	}
