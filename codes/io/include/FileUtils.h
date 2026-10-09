@@ -57,7 +57,11 @@ std::string AddSymbolToFileName( const std::string & fileName, const T & symbol 
     ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
 
     std::ostringstream oss;
-    oss << mainName << symbol << "." << extensionName;
+    oss << mainName << symbol;
+    if ( ! extensionName.empty() )
+    {
+        oss << "." << extensionName;
+    }
     return oss.str();
 }
 
@@ -68,7 +72,11 @@ std::string AddSymbolToFileName( const std::string & fileName, const T1 & v1, co
     ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
 
     std::ostringstream oss;
-    oss << mainName << v1 << v2 << "." << extensionName;
+    oss << mainName << v1 << v2;
+    if ( ! extensionName.empty() )
+    {
+        oss << "." << extensionName;
+    }
     return oss.str();
 }
 
@@ -79,7 +87,11 @@ std::string AddSymbolToFileName( const std::string & fileName, const T1 & v1, co
     ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
 
     std::ostringstream oss;
-    oss << mainName << v1 << v2 << v3 << "." << extensionName;
+    oss << mainName << v1 << v2 << v3;
+    if ( ! extensionName.empty() )
+    {
+        oss << "." << extensionName;
+    }
     return oss.str();
 }
 

@@ -195,3 +195,25 @@ TEST( FileUtils, SplitsFileNameOnlyWhenSeparatorExists )
     EXPECT_EQ( mainName, "restart.backup" );
     EXPECT_EQ( extensionName, "dat" );
 }
+
+TEST( FileUtils, FilenameModifiersPreserveExtensionlessNames )
+{
+    std::string fileName = "restart";
+    ModifyFileMainName( fileName, "checkpoint" );
+    EXPECT_EQ( fileName, "checkpoint" );
+
+    fileName = "restart.dat";
+    ModifyFileMainName( fileName, "checkpoint" );
+    EXPECT_EQ( fileName, "checkpoint.dat" );
+
+    fileName = "restart";
+    ModifyFileExtensionName( fileName, "dat" );
+    EXPECT_EQ( fileName, "restart.dat" );
+
+    fileName = "restart.dat";
+    ModifyFileExtensionName( fileName, "bin" );
+    EXPECT_EQ( fileName, "restart.bin" );
+
+    EXPECT_EQ( AddSymbolToFileName( "restart", "_backup" ), "restart_backup" );
+    EXPECT_EQ( AddSymbolToFileName( "restart.dat", "_backup" ), "restart_backup.dat" );
+}

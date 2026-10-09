@@ -188,7 +188,11 @@ void ModifyFileMainName( std::string & fileName,  const std::string & newMainNam
     ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
 
     std::ostringstream oss;
-    oss << newMainName << "." << extensionName;
+    oss << newMainName;
+    if ( ! extensionName.empty() )
+    {
+        oss << "." << extensionName;
+    }
 
     fileName = oss.str();
 }
@@ -199,7 +203,11 @@ void ModifyFileExtensionName( std::string & fileName,  const std::string & newEx
     ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
 
     std::ostringstream oss;
-    oss << mainName << "." << newExtensionName;
+    oss << mainName;
+    if ( ! newExtensionName.empty() )
+    {
+        oss << "." << newExtensionName;
+    }
 
     fileName = oss.str();
 }
