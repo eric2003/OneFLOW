@@ -751,7 +751,7 @@ void ScalarGrid::AllocGeom()
 	this->nCells = this->GetNCells();
 	this->nBFaces = this->GetNBFaces();
 
-	this->nTCells = this->nBFaces + this->nCells;
+	this->nTCells = this->GetNTCells();
 
 	this->xfc.Resize( this->nFaces );
 	this->yfc.Resize( this->nFaces );
