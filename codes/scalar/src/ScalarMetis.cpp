@@ -161,8 +161,11 @@ std::vector< std::unique_ptr< ScalarGrid > > ScalarReadGrid( const std::string &
     Prj::OpenPrjFile( file, gridFileName, std::ios_base::in|std::ios_base::binary );
 
     int nZone = -1;
-
     ONEFLOW::HXRead( & file, nZone );
+    if ( ! file )
+    {
+        throw std::runtime_error( "ScalarReadGrid: failed to read the grid zone count" );
+    }
 
     if ( nZone <= 0 )
     {
@@ -170,17 +173,25 @@ std::vector< std::unique_ptr< ScalarGrid > > ScalarReadGrid( const std::string &
         throw std::runtime_error( "ScalarReadGrid: grid file must contain at least one zone" );
     }
 
-    ZoneState::pid.resize( nZone );
-    ZoneState::zoneType.resize( nZone );
-
-    ONEFLOW::HXRead( & file, ZoneState::pid );
-    ONEFLOW::HXRead( & file, ZoneState::zoneType );
+    // Parse metadata locally so malformed input cannot partially mutate global zone state.
+    IntField zonePids( nZone );
+    IntField zoneTypes( nZone );
+    ONEFLOW::HXRead( & file, zonePids );
+    ONEFLOW::HXRead( & file, zoneTypes );
+    if ( ! file )
+    {
+        throw std::runtime_error( "ScalarReadGrid: truncated zone metadata" );
+    }
 
     if ( Parallel::zoneMode == 0 )
     {
+        if ( Parallel::nProc <= 0 )
+        {
+            throw std::runtime_error( "ScalarReadGrid: process count must be positive" );
+        }
         for ( int iZone = 0; iZone < nZone; ++ iZone )
         {
-            ZoneState::pid[ iZone ] = ( iZone ) % Parallel::nProc;
+            zonePids[ iZone ] = iZone % Parallel::nProc;
         }
     }
 
@@ -189,10 +200,19 @@ std::vector< std::unique_ptr< ScalarGrid > > ScalarReadGrid( const std::string &
         std::cout << "iZone = " << iZone << " nZone = " << nZone << "\n";
         auto grid = std::make_unique< ScalarGrid >();
         grid->id = iZone;
-        grid->type = ZoneState::zoneType[ iZone ];
+        grid->type = zoneTypes[ iZone ];
         grid->ReadGrid( file );
+        if ( ! file )
+        {
+            throw std::runtime_error(
+                "ScalarReadGrid: truncated grid data for zone " + std::to_string( iZone ) );
+        }
         grids.push_back( std::move( grid ) );
     }
+
+    // Publish zone metadata only after every zone has been read successfully.
+    ZoneState::pid = std::move( zonePids );
+    ZoneState::zoneType = std::move( zoneTypes );
 
     Prj::CloseFile( file );
     return grids;
