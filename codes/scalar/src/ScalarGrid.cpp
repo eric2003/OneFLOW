@@ -288,16 +288,7 @@ void ScalarGrid::ResetMeshData()
 	yn.data.clear();
 	zn.data.clear();
 
-	xfc.data.clear();
-	yfc.data.clear();
-	zfc.data.clear();
-	xfn.data.clear();
-	yfn.data.clear();
-	zfn.data.clear();
-	xcc.data.clear();
-	ycc.data.clear();
-	zcc.data.clear();
-	vol.data.clear();
+	this->ResetGeometryData();
 
 	lc.data.clear();
 	rc.data.clear();
