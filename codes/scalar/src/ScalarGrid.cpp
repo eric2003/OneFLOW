@@ -1200,14 +1200,23 @@ void ScalarGrid::CalcC2C( EList & c2c ) const
 
 void ScalarGrid::CalcInterfaceToBcFace()
 {
-	this->scalarIFace->interface_to_bcface.clear();
-	if ( this->scalarIFace->GetNIFaces() == 0 ) return;
-
 	const int nBFaces = this->GetNBFaces();
-	if ( this->bcTypes.GetNElements() < static_cast< size_t >( nBFaces ) )
+	const int nFaces = this->GetNFaces();
+	if ( nBFaces > nFaces ||
+		 this->lc.GetNElements() < static_cast< size_t >( nBFaces ) ||
+		 this->rc.GetNElements() < static_cast< size_t >( nBFaces ) ||
+		 this->fBcTypes.GetNElements() < static_cast< size_t >( nBFaces ) )
 	{
-		throw std::runtime_error( "ScalarGrid::CalcInterfaceToBcFace: boundary condition array is smaller than the boundary face count" );
+		throw std::runtime_error( "ScalarGrid::CalcInterfaceToBcFace: boundary face topology arrays have inconsistent sizes" );
 	}
+
+	std::vector< int > interfaceToBcFace;
+	if ( this->scalarIFace->GetNIFaces() == 0 )
+	{
+		this->scalarIFace->interface_to_bcface = std::move( interfaceToBcFace );
+		return;
+	}
+	interfaceToBcFace.reserve( this->scalarIFace->GetNIFaces() );
 
 	for ( int iBFace = 0; iBFace < nBFaces; ++ iBFace )
 	{
@@ -1216,8 +1225,16 @@ void ScalarGrid::CalcInterfaceToBcFace()
 			continue;
 		}
 
-		this->scalarIFace->interface_to_bcface.push_back( iBFace );
+		interfaceToBcFace.push_back( iBFace );
 	}
+
+	if ( interfaceToBcFace.size() != static_cast< size_t >( this->scalarIFace->GetNIFaces() ) )
+	{
+		throw std::runtime_error( "ScalarGrid::CalcInterfaceToBcFace: interface face count does not match interface topology" );
+	}
+
+	// Commit the complete derived mapping only after validation succeeds.
+	this->scalarIFace->interface_to_bcface = std::move( interfaceToBcFace );
 }
 
 void ScalarGrid::Normalize()
