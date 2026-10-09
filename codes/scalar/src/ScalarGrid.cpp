@@ -1559,6 +1559,19 @@ void ScalarGrid::ReadGridFaceTopology( DataBook * databook )
 	ONEFLOW::HXRead( databook, this->lc.data );
 	ONEFLOW::HXRead( databook, this->rc.data );
 
+	// Validate all cell references before changing face orientation.
+	for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
+	{
+		const int leftCell = this->lc[ iFace ];
+		const int rightCell = this->rc[ iFace ];
+		if ( leftCell < -1 || rightCell < -1 ||
+			 leftCell >= this->nCells || rightCell >= this->nCells ||
+			 ( leftCell < 0 && rightCell < 0 ) )
+		{
+			throw std::runtime_error( "ScalarGrid::ReadGridFaceTopology: face references invalid adjacent cells" );
+		}
+	}
+
 	for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
 	{
 		if ( this->lc[ iFace ] < 0 )
