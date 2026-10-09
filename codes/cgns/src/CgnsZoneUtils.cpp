@@ -484,7 +484,7 @@ void GenerateUnsBcElemConn( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
     int iSection = 1;
     CgnsSection & cgnsSection = myZone->RequireCgnsZsection().GetCgnsSection( iSection );
 
-    myZone->RequireCgnsZbc().CreateCgnsZbc( &cgnsZoneIn->RequireCgnsZbc() );
+    myZone->RequireCgnsZbc().CreateCgnsZbc( cgnsZoneIn->RequireCgnsZbc() );
 
     std::cout << " ConnectionList Size = " << cgnsSection.connSize << "\n";
     cgnsZoneIn->RequireCgnsZbc().GenerateUnsBcElemConn( cgnsSection.connList );

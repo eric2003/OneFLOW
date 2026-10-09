@@ -71,7 +71,7 @@ public:
     void FillRegion( TestRegion * r, cgsize_t * ipnts, int dimension );
     void DumpCgnsGridBoundary( Grid * gridIn, const Grids & grids );
 public:
-    void CreateCgnsZbc( CgnsZbc * cgnsZbcIn );
+    void CreateCgnsZbc( const CgnsZbc & cgnsZbcIn );
 public:
     void GenerateUnsBcElemConn( CgIntField& bcConn );
     int GetNumberOfActualBcElements();
