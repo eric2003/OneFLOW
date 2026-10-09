@@ -223,6 +223,22 @@ void ScalarIFace::ReconstructNeighbor()
         throw std::runtime_error( "ScalarIFace::ReconstructNeighbor: interface mapping arrays have inconsistent sizes" );
     }
 
+    // Validate the dimension-independent interface identity before rebuilding
+    // the neighbor groups. A global face may cross at most one partition boundary
+    // per zone, so duplicate IDs indicate inconsistent partition topology.
+    std::set< int > seenGlobalFaces;
+    for ( size_t iInterface = 0; iInterface < nInterfaces; ++ iInterface )
+    {
+        if ( iglobalfaces[ iInterface ] < 0 || cells[ iInterface ] < 0 )
+        {
+            throw std::runtime_error( "ScalarIFace::ReconstructNeighbor: global face and neighbor cell IDs must be non-negative" );
+        }
+        if ( ! seenGlobalFaces.insert( iglobalfaces[ iInterface ] ).second )
+        {
+            throw std::runtime_error( "ScalarIFace::ReconstructNeighbor: duplicate global interface ID" );
+        }
+    }
+
     // Group interfaces in one pass while keeping neighbor zones and face order deterministic.
     std::map< int, ScalarIFaceIJ > interfacesByZone;
     for ( size_t iInterface = 0; iInterface < nInterfaces; ++ iInterface )
