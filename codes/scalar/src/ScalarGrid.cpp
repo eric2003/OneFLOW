@@ -1666,5 +1666,8 @@ void ScalarGrid::ReconstructNode( const ScalarGrid & ggrid )
 	this->xn.data = std::move( reconstructedX );
 	this->yn.data = std::move( reconstructedY );
 	this->zn.data = std::move( reconstructedZ );
+
+	// Face geometry, cell centers, and volumes are derived from the replaced mesh data.
+	this->ResetGeometryData();
 }
 EndNameSpace
