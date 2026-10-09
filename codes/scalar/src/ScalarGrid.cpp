@@ -298,10 +298,6 @@ void ScalarGrid::ResetMeshData()
 	// Reuse the topology reset so mesh and topology rebuilds share one lifecycle path.
 	this->ResetTopologyData();
 
-	cell2faces.clear();
-	c2fpos.clear();
-	global_faceid.clear();
-
 	elements.data.clear();
 	boundaryElements.data.clear();
 
@@ -326,6 +322,11 @@ void ScalarGrid::ResetTopologyData()
 	fTypes.data.clear();
 	fBcTypes.data.clear();
 	bcTypes.data.clear();
+
+	// These mappings are derived from the face topology and cannot survive its reset.
+	cell2faces.clear();
+	c2fpos.clear();
+	global_faceid.clear();
 
 	nFaces = 0;
 	nBFaces = 0;
