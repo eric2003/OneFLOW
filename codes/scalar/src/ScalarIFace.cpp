@@ -54,18 +54,24 @@ void ScalarIFaceIJ::WriteInterfaceTopology( DataBook * databook )
 
 void ScalarIFaceIJ::ReadInterfaceTopology( DataBook * databook )
 {
-    ONEFLOW::HXRead( databook, this->zonej );
+    int zonej = -1;
     int nIFaces = -1;
+    ONEFLOW::HXRead( databook, zonej );
     ONEFLOW::HXRead( databook, nIFaces );
     if ( nIFaces < 0 )
     {
         throw std::runtime_error( "ScalarIFaceIJ::ReadInterfaceTopology: interface count must be non-negative" );
     }
-    this->ifaces.resize( nIFaces );
-    this->recv_ifaces.resize( nIFaces );
 
-    ONEFLOW::HXRead( databook, this->ifaces );
-    ONEFLOW::HXRead( databook, this->recv_ifaces );
+    std::vector< int > ifaces( nIFaces );
+    std::vector< int > recvIfaces( nIFaces );
+    ONEFLOW::HXRead( databook, ifaces );
+    ONEFLOW::HXRead( databook, recvIfaces );
+
+    // Commit the decoded neighbor topology only after all fields have been read.
+    this->zonej = zonej;
+    this->ifaces = std::move( ifaces );
+    this->recv_ifaces = std::move( recvIfaces );
 }
 
 ScalarIFace::ScalarIFace()
