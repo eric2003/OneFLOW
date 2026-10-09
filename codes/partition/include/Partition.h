@@ -47,8 +47,6 @@ class G2LMapping;
 class L2GMapping
 {
 public:
-    L2GMapping();
-    ~L2GMapping();
 public:
     IntField l2g_node;
     IntField l2g_face;
@@ -65,7 +63,6 @@ class G2LMapping
 {
 public:
     G2LMapping( UnsGrid & ggrid, int npartproc );
-    ~G2LMapping();
 public:
     IntField g2l_node;
     IntField g2l_face;
