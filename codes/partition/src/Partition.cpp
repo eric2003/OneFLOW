@@ -157,24 +157,40 @@ void G2LMapping::PartByMetis( idx_t nCells, std::vector<idx_t>& xadj, std::vecto
     idx_t options[ METIS_NOPTIONS ];
     idx_t wgtflag = 0;
     idx_t numflag = 0;
-    idx_t objval;
+    idx_t objval = 0;
     idx_t nZone = npartproc;
 
     METIS_SetDefaultOptions( options );
     std::cout << "Now begining partition graph!\n";
+    int status = METIS_OK;
     if ( nZone > 8 )
     {
         std::cout << "Using K-way Partitioning!\n";
-        METIS_PartGraphKway( & nCells, & ncon, & xadj[ 0 ], & adjncy[ 0 ], vwgt, vsize, adjwgt, 
-                             & nZone, tpwgts, ubvec, options, & objval, & gc2lzone[ 0 ] );
+        status = METIS_PartGraphKway( & nCells, & ncon, & xadj[ 0 ], & adjncy[ 0 ], vwgt, vsize, adjwgt,
+                                      & nZone, tpwgts, ubvec, options, & objval, & gc2lzone[ 0 ] );
     }
     else
     {
         std::cout << "Using Recursive Partitioning!\n";
-        METIS_PartGraphRecursive( & nCells, & ncon, & xadj[ 0 ], & adjncy[ 0 ], vwgt, vsize, adjwgt, 
-                                  & nZone, tpwgts, ubvec, options, & objval, & gc2lzone[ 0 ] );
+        status = METIS_PartGraphRecursive( & nCells, & ncon, & xadj[ 0 ], & adjncy[ 0 ], vwgt, vsize, adjwgt,
+                                           & nZone, tpwgts, ubvec, options, & objval, & gc2lzone[ 0 ] );
     }
-    std::cout << "The interface number: " << objval << std::endl; 
+
+    if ( status != METIS_OK )
+    {
+        Fatal( "METIS failed to partition the grid.\n" );
+    }
+
+    for ( idx_t cellId = 0; cellId < nCells; ++ cellId )
+    {
+        const idx_t zoneId = gc2lzone[ cellId ];
+        if ( zoneId < 0 || zoneId >= nZone )
+        {
+            Fatal( "METIS returned an invalid partition id.\n" );
+        }
+    }
+
+    std::cout << "The interface number: " << objval << std::endl;
     std::cout << "Partition is finished!\n";
 }
 #endif
