@@ -56,6 +56,7 @@ License
 #include <vector>
 #include <algorithm>
 #include <utility>
+#include <stdexcept>
 
 
 BeginNameSpace( ONEFLOW )
@@ -380,6 +381,11 @@ int ScalarGrid::GetNBFaces() const
 
 void ScalarGrid::GenerateGrid( int ni, Real xmin, Real xmax )
 {
+	if ( ni < 2 )
+	{
+		throw std::invalid_argument( "ScalarGrid::GenerateGrid: ni must be at least 2" );
+	}
+
 	this->ResetMeshData();
 
 	Real dx = ( xmax - xmin ) / ( ni - 1 );
