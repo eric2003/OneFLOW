@@ -122,8 +122,6 @@ void FieldSolverCuda::ZoneBoundary()
 
     RealField  & q = GetFieldReference< MRField > ( &grid, "q" ).AsOneD();
 
-    int nTCells = grid.GetNTCells();
-
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
         int bcType = grid.bcTypes[ iFace ];
@@ -161,9 +159,7 @@ void FieldSolverCuda::ZoneGetQLQR()
     RealField & qf2 = GetFieldReference< MRField > ( &grid, "qf2" ).AsOneD();
 
 #ifdef ENABLE_CUDA
-    int nBFaces = grid.GetNBFaces();
-    int nCells = grid.GetNCells();
-    int nTCells = nCells + nBFaces;
+    int nTCells = grid.GetNTCells();
     SetFaceValueCuda(&qf1[0], &q[0], &grid.lc.data[0], nFaces, nTCells);
     SetFaceValueCuda(&qf2[0], &q[0], &grid.rc.data[0], nFaces, nTCells);
 #endif
@@ -288,8 +284,7 @@ void FieldSolverCuda::AddF2CFieldCuda( ScalarGrid & grid, RealField & cField, Re
 {
     int nFaces = grid.GetNFaces();
     int nBFaces = grid.GetNBFaces();
-    int nCells = grid.GetNCells();
-    int nTCells = nCells + nBFaces;
+    int nTCells = grid.GetNTCells();
 #ifdef ENABLE_CUDA
     MyAddF2CFieldCuda(&fField[0], &cField[0], &grid.lc.data[0], &grid.rc.data[0], nBFaces, nFaces, nTCells);
 #endif
@@ -326,8 +321,6 @@ void FieldSolverCuda::ZoneTimeIntergralCuda()
     RealField & res = GetFieldReference< MRField > ( &grid, "res" ).AsOneD();
 
     int nCells = grid.GetNCells();
-    int nBFaces = grid.GetNBFaces();
-    int nTCells = nCells + nBFaces;
 #ifdef ENABLE_CUDA
     MyZoneTimeIntergralCuda(&res[0], &grid.vol.data[0], para->dt, nCells);
 #endif
