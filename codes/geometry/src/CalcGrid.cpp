@@ -241,7 +241,14 @@ void CalcGrid::ReconstructLink( int iZone )
 
         if ( nei_zone_id >= iZone )
         {
-            UnsGrid & neiGrid = static_cast< UnsGrid & >( GridAt( grids, nei_zone_id ) );
+            Grid & neighborBaseGrid = GridAt( grids, static_cast< size_t >( nei_zone_id ) );
+            UnsGrid * neighborGridPtr = dynamic_cast< UnsGrid * >( &neighborBaseGrid );
+            if ( ! neighborGridPtr )
+            {
+                throw std::invalid_argument(
+                    "CalcGrid::ReconstructLink: interface neighbor zone must use an unstructured grid" );
+            }
+            UnsGrid & neiGrid = *neighborGridPtr;
 
             if ( FindMatch( neiGrid, facePair ) )
             {
