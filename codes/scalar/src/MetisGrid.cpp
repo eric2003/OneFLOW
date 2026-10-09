@@ -441,7 +441,16 @@ void GridPartition::ReconstructInterfaceTopo( std::vector< std::unique_ptr< Scal
 			{
 				throw std::runtime_error( "GridPartition::ReconstructInterfaceTopo: neighbor interface arrays have inconsistent sizes" );
 			}
-			if ( neighborIFace.FindINeibor( static_cast< int >( iZone ) ) < 0 )
+			bool hasReciprocalNeighbor = false;
+			for ( const ScalarIFaceIJ & neighbor : neighborIFace.data )
+			{
+				if ( neighbor.zonej == static_cast< int >( iZone ) )
+				{
+					hasReciprocalNeighbor = true;
+					break;
+				}
+			}
+			if ( ! hasReciprocalNeighbor )
 			{
 				throw std::runtime_error( "GridPartition::ReconstructInterfaceTopo: reciprocal neighbor zone was not found" );
 			}
