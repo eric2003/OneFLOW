@@ -1238,13 +1238,33 @@ void ScalarGrid::Normalize()
 
 void ScalarGrid::GetSId( int i_interface, int & sId )
 {
-	int iBFace = this->scalarIFace->interface_to_bcface[ i_interface ];
+	const auto & interfaceToBcFace = this->scalarIFace->interface_to_bcface;
+	if ( i_interface < 0 || static_cast< size_t >( i_interface ) >= interfaceToBcFace.size() )
+	{
+		throw std::out_of_range( "ScalarGrid::GetSId: interface index is out of range" );
+	}
+
+	const int iBFace = interfaceToBcFace[ i_interface ];
+	if ( iBFace < 0 || static_cast< size_t >( iBFace ) >= this->lc.GetNElements() )
+	{
+		throw std::out_of_range( "ScalarGrid::GetSId: boundary face index is out of range" );
+	}
 	sId = this->lc[ iBFace ];
 }
 
 void ScalarGrid::GetTId( int i_interface, int & tId )
 {
-	int iBFace = this->scalarIFace->interface_to_bcface[ i_interface ];
+	const auto & interfaceToBcFace = this->scalarIFace->interface_to_bcface;
+	if ( i_interface < 0 || static_cast< size_t >( i_interface ) >= interfaceToBcFace.size() )
+	{
+		throw std::out_of_range( "ScalarGrid::GetTId: interface index is out of range" );
+	}
+
+	const int iBFace = interfaceToBcFace[ i_interface ];
+	if ( iBFace < 0 || static_cast< size_t >( iBFace ) >= this->rc.GetNElements() )
+	{
+		throw std::out_of_range( "ScalarGrid::GetTId: boundary face index is out of range" );
+	}
 	tId = this->rc[ iBFace ];
 }
 
