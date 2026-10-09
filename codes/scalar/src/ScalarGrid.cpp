@@ -121,7 +121,7 @@ void IntList::Reserve( int new_size )
 	data.reserve( new_size );
 }
 
-void IntList::ReOrder( IntList & orderMap )
+void IntList::ReOrder( const IntList & orderMap )
 {
 	IntList dataSwap = * this;
 	size_t nElems = this->GetNElements();
@@ -158,7 +158,7 @@ void EList::AddElem( const std::vector< int > &elem )
 	this->data.push_back( elem );
 }
 
-void EList::ReOrder( IntList & orderMap )
+void EList::ReOrder( const IntList & orderMap )
 {
 	EList dataSwap = * this;
 	size_t nElems = this->GetNElements();
