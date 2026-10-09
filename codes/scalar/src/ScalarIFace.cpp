@@ -291,6 +291,13 @@ void ScalarIFace::ReadInterfaceTopology( DataBook * databook )
     this->target_interfaces = std::move( targetInterfaces );
     this->interface_to_bcface = std::move( interfaceToBcface );
     this->data = std::move( interfaceData );
+
+    // These mappings are not serialized; retaining them would associate the new
+    // topology with interface IDs from the previously loaded mesh.
+    this->iglobalfaces.clear();
+    this->cells.clear();
+    this->global_to_local_interfaces.clear();
+    this->local_to_global_interfaces.clear();
 }
 
 EndNameSpace
