@@ -358,8 +358,7 @@ std::vector< std::unique_ptr< ScalarGrid > > GridPartition::ReconstructGridFaceT
 		int localCell = localCells[ lc ];
 		int ftype = ggrid.fTypes[ iFace ];
 		ScalarGrid & gridL = *grids[ lZone ];
-		gridL.AddFaceType( ftype );
-		gridL.AddPhysicalBcFace( iFace, bctype, localCell, ONEFLOW::INVALID_INDEX );
+		gridL.AddPhysicalBcFace( iFace, bctype, localCell, ONEFLOW::INVALID_INDEX, ftype );
 	}
 
 	//Then scan the internal block interface
@@ -382,11 +381,8 @@ std::vector< std::unique_ptr< ScalarGrid > > GridPartition::ReconstructGridFaceT
 			ScalarGrid & gridL = *grids[ lZone ];
 			ScalarGrid & gridR = *grids[ rZone ];
 
-			gridL.AddFaceType( ftype );
-			gridR.AddFaceType( ftype );
-
-			gridL.AddInterfaceBcFace( iFace, bctype, localCell_L, ONEFLOW::INVALID_INDEX, rZone, localCell_R );
-			gridR.AddInterfaceBcFace( iFace, bctype, ONEFLOW::INVALID_INDEX, localCell_R, lZone, localCell_L );
+			gridL.AddInterfaceBcFace( iFace, bctype, localCell_L, ONEFLOW::INVALID_INDEX, rZone, localCell_R, ftype );
+			gridR.AddInterfaceBcFace( iFace, bctype, ONEFLOW::INVALID_INDEX, localCell_R, lZone, localCell_L, ftype );
 		}
 	}
 
@@ -409,8 +405,7 @@ std::vector< std::unique_ptr< ScalarGrid > > GridPartition::ReconstructGridFaceT
 
 			int ftype = ggrid.fTypes[ iFace ];
 
-			grid.AddFaceType( ftype );
-			grid.AddInnerFace( iFace, bctype, localCell_L, localCell_R );
+			grid.AddInnerFace( iFace, bctype, localCell_L, localCell_R, ftype );
 		}
 	}
     return grids;
