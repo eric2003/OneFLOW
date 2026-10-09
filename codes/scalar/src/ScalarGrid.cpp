@@ -1570,25 +1570,41 @@ void ScalarGrid::AddInterface( int global_interface_id, int neighbor_zoneid, int
 
 void ScalarGrid::ReconstructNode( const ScalarGrid & ggrid )
 {
-	int nFaces = this->global_faceid.size();
+	const int nFaces = static_cast< int >( this->global_faceid.size() );
+	const int nGlobalFaces = ggrid.GetNFaces();
+	const int nGlobalNodes = ggrid.GetNNodes();
+	if ( ggrid.xn.GetNElements() != static_cast< size_t >( nGlobalNodes ) ||
+		 ggrid.yn.GetNElements() != static_cast< size_t >( nGlobalNodes ) ||
+		 ggrid.zn.GetNElements() != static_cast< size_t >( nGlobalNodes ) )
+	{
+		throw std::runtime_error( "ScalarGrid::ReconstructNode: global node coordinate arrays have inconsistent sizes" );
+	}
+
 	std::set<int> nodeset;
 
 	for ( int iFace = 0; iFace < nFaces; ++ iFace )
 	{
-		//global face id
-		int iGFace = this->global_faceid[ iFace ];
-		const std::vector< int > & face = ggrid.faces[ iGFace ];
-		int nNodes = face.size();
-		for ( int iNode = 0; iNode < nNodes; ++ iNode )
+		const int iGFace = this->global_faceid[ iFace ];
+		if ( iGFace < 0 || iGFace >= nGlobalFaces )
 		{
-			nodeset.insert( face[ iNode ] );
+			throw std::runtime_error( "ScalarGrid::ReconstructNode: global face id is out of range" );
+		}
+		const std::vector< int > & face = ggrid.faces[ iGFace ];
+		for ( int iNode = 0; iNode < static_cast< int >( face.size() ); ++ iNode )
+		{
+			const int globalNodeId = face[ iNode ];
+			if ( globalNodeId < 0 || globalNodeId >= nGlobalNodes )
+			{
+				throw std::runtime_error( "ScalarGrid::ReconstructNode: face references an invalid global node id" );
+			}
+			nodeset.insert( globalNodeId );
 		}
 		this->faces.AddElem( face );
 	}
 
 	std::map<int, int> global_local_node;
 	int count = 0;
-	for ( std::set<int>::iterator iter = nodeset.begin(); iter != nodeset.end(); ++ iter )
+	for ( std::set<int>::const_iterator iter = nodeset.begin(); iter != nodeset.end(); ++ iter )
 	{
 		global_local_node.insert( std::pair<int, int>( *iter, count ++ ) );
 	}
@@ -1596,24 +1612,24 @@ void ScalarGrid::ReconstructNode( const ScalarGrid & ggrid )
 	for ( int iFace = 0; iFace < nFaces; ++ iFace )
 	{
 		std::vector< int > & face = this->faces[ iFace ];
-		int nNodes = face.size();
-		for ( int iNode = 0; iNode < nNodes; ++ iNode )
+		for ( int iNode = 0; iNode < static_cast< int >( face.size() ); ++ iNode )
 		{
-			int glbal_node_id = face[ iNode ];
-			face[ iNode ] = global_local_node[ glbal_node_id ];
+			const int globalNodeId = face[ iNode ];
+			const auto localNode = global_local_node.find( globalNodeId );
+			if ( localNode == global_local_node.end() )
+			{
+				throw std::runtime_error( "ScalarGrid::ReconstructNode: global-to-local node mapping is incomplete" );
+			}
+			face[ iNode ] = localNode->second;
 		}
 	}
 
-	for ( std::set<int>::iterator iter = nodeset.begin(); iter != nodeset.end(); ++ iter )
+	for ( std::set<int>::const_iterator iter = nodeset.begin(); iter != nodeset.end(); ++ iter )
 	{
-		int iNode = *iter;
-		Real xm = ggrid.xn[ iNode ];
-		Real ym = ggrid.yn[ iNode ];
-		Real zm = ggrid.zn[ iNode ];
-
-		this->xn.AddData( xm );
-		this->yn.AddData( ym );
-		this->zn.AddData( zm );
+		const int iNode = *iter;
+		this->xn.AddData( ggrid.xn[ iNode ] );
+		this->yn.AddData( ggrid.yn[ iNode ] );
+		this->zn.AddData( ggrid.zn[ iNode ] );
 	}
 }
 
