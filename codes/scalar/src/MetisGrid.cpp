@@ -328,11 +328,23 @@ std::vector< std::unique_ptr< ScalarGrid > > GridPartition::ReconstructGridFaceT
 	{
 		throw std::runtime_error( "GridPartition::ReconstructGridFaceTopo: partition result size does not match the cell count" );
 	}
+	std::vector< int > zoneCellCounts( nPart, 0 );
 	for ( int iCell = 0; iCell < nCells; ++ iCell )
 	{
-		if ( cellzone[ iCell ] < 0 || cellzone[ iCell ] >= nPart )
+		const int zoneId = cellzone[ iCell ];
+		if ( zoneId < 0 || zoneId >= nPart )
 		{
 			throw std::runtime_error( "GridPartition::ReconstructGridFaceTopo: partition result contains an invalid zone id" );
+		}
+		++ zoneCellCounts[ zoneId ];
+	}
+
+	// Every requested zone must own at least one physical cell.
+	for ( int iZone = 0; iZone < nPart; ++ iZone )
+	{
+		if ( zoneCellCounts[ iZone ] == 0 )
+		{
+			throw std::runtime_error( "GridPartition::ReconstructGridFaceTopo: partition result contains an empty zone" );
 		}
 	}
 
