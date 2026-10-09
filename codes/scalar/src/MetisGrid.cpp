@@ -292,13 +292,26 @@ void GridPartition::ReconstructInterfaceTopo( std::vector< std::unique_ptr< Scal
 	int nZones = static_cast< int >( grids.size() );
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
+		if ( ! grids[ iZone ] || ! grids[ iZone ]->scalarIFace )
+		{
+			throw std::runtime_error( "GridPartition::ReconstructInterfaceTopo: zone has no interface topology" );
+		}
 		ScalarGrid & grid = *grids[ iZone ];
 		ScalarIFace & scalarIFace = *grid.scalarIFace;
-		int nNeis = scalarIFace.data.size();
+		int nNeis = static_cast< int >( scalarIFace.data.size() );
 		for ( int iNei = 0; iNei < nNeis; ++ iNei )
 		{
 			ScalarIFaceIJ & iFaceIJ = scalarIFace.data[ iNei ];
-			int jZone =  iFaceIJ.zonej;
+			const int jZone = iFaceIJ.zonej;
+			if ( jZone < 0 || jZone >= nZones || ! grids[ jZone ] || ! grids[ jZone ]->scalarIFace )
+			{
+				throw std::runtime_error( "GridPartition::ReconstructInterfaceTopo: interface references an invalid neighbor zone" );
+			}
+			if ( iFaceIJ.iglobalfaces.size() != iFaceIJ.ifaces.size() ||
+				 iFaceIJ.iglobalfaces.size() != iFaceIJ.cells.size() )
+			{
+				throw std::runtime_error( "GridPartition::ReconstructInterfaceTopo: neighbor interface arrays have inconsistent sizes" );
+			}
 			std::cout << " iZone = " << iZone << " iNei = " << iNei << " jZone = " << jZone << "\n";
 			grids[ jZone ]->scalarIFace->CalcLocalInterfaceId( iZone, iFaceIJ.iglobalfaces, iFaceIJ.target_ifaces );
 		}
@@ -307,12 +320,20 @@ void GridPartition::ReconstructInterfaceTopo( std::vector< std::unique_ptr< Scal
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
 		ScalarIFace & scalarIFace = *grids[ iZone ]->scalarIFace;
-		int nIFaces = scalarIFace.iglobalfaces.size();
-		for ( int iFace = 0; iFace < nIFaces; ++ iFace )
+		const size_t nIFaces = scalarIFace.iglobalfaces.size();
+		if ( scalarIFace.zones.size() != nIFaces || scalarIFace.cells.size() != nIFaces )
 		{
-			int igface = scalarIFace.iglobalfaces[ iFace ];
-			int jZone = scalarIFace.zones[ iFace ];
-			int jlocalface = grids[ jZone ]->scalarIFace->GetLocalInterfaceId( igface );
+			throw std::runtime_error( "GridPartition::ReconstructInterfaceTopo: interface mapping arrays have inconsistent sizes" );
+		}
+		for ( size_t iFace = 0; iFace < nIFaces; ++ iFace )
+		{
+			const int igface = scalarIFace.iglobalfaces[ iFace ];
+			const int jZone = scalarIFace.zones[ iFace ];
+			if ( jZone < 0 || jZone >= nZones || ! grids[ jZone ] || ! grids[ jZone ]->scalarIFace )
+			{
+				throw std::runtime_error( "GridPartition::ReconstructInterfaceTopo: interface mapping references an invalid neighbor zone" );
+			}
+			const int jlocalface = grids[ jZone ]->scalarIFace->GetLocalInterfaceId( igface );
 			scalarIFace.target_interfaces.push_back( jlocalface );
 		}
 	}
