@@ -72,6 +72,8 @@ bool HX_CreateDirectory( const std::string & dirName )
     const bool created = std::filesystem::create_directories( dirName, ec );
     if ( created )
     {
+        std::cout << "Directory created successfully: "
+            << dirName << std::endl;
         return true;
     }
 
