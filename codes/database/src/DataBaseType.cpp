@@ -41,13 +41,13 @@ DataBaseType::~DataBaseType()
 void DataBaseType::Init()
 {
     if ( DataBaseType::init_flag ) return;
-    DataBaseType::init_flag = true;
     DataBaseType::AddItem( "int", HX_INT );
     DataBaseType::AddItem( "float", HX_FLOAT );
     DataBaseType::AddItem( "double", HX_DOUBLE );
     DataBaseType::AddItem( "Real", HX_REAL );
     DataBaseType::AddItem( "string", HX_STRING );
     DataBaseType::AddItem( "bool", HX_BOOL );
+    DataBaseType::init_flag = true;
 }
 
 void DataBaseType::AddItem( const std::string &name, int index )
