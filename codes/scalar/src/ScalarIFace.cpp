@@ -78,12 +78,29 @@ ScalarIFace::~ScalarIFace() = default;
 
 void ScalarIFace::AddInterface( int global_interface_id, int neighbor_zoneid, int neighbor_cellid )
 {
-    int ilocal_interface = this->iglobalfaces.size();
+    if ( global_interface_id < 0 || neighbor_zoneid < 0 || neighbor_cellid < 0 )
+    {
+        throw std::invalid_argument( "ScalarIFace::AddInterface: interface and neighbor IDs must be non-negative" );
+    }
+
+    const size_t nInterfaces = this->iglobalfaces.size();
+    if ( this->zones.size() != nInterfaces || this->cells.size() != nInterfaces ||
+         this->global_to_local_interfaces.size() != nInterfaces ||
+         this->local_to_global_interfaces.size() != nInterfaces )
+    {
+        throw std::logic_error( "ScalarIFace::AddInterface: existing interface mappings are inconsistent" );
+    }
+    if ( this->global_to_local_interfaces.find( global_interface_id ) != this->global_to_local_interfaces.end() )
+    {
+        throw std::invalid_argument( "ScalarIFace::AddInterface: duplicate global interface ID" );
+    }
+
+    const int localInterfaceId = static_cast< int >( nInterfaces );
     this->iglobalfaces.push_back( global_interface_id );
     this->zones.push_back( neighbor_zoneid );
     this->cells.push_back( neighbor_cellid );
-    this->global_to_local_interfaces[ global_interface_id ] = ilocal_interface;
-    this->local_to_global_interfaces[ ilocal_interface ] = global_interface_id;
+    this->global_to_local_interfaces.emplace( global_interface_id, localInterfaceId );
+    this->local_to_global_interfaces.emplace( localInterfaceId, global_interface_id );
 }
 
 int ScalarIFace::GetLocalInterfaceId( int global_interface_id )
