@@ -115,8 +115,8 @@ public:
 class FacePairBasic
 {
 public:
-    FacePairBasic() {};
-    ~FacePairBasic() {};
+    FacePairBasic() = default;
+    ~FacePairBasic() = default;
 public:
     int zone_id;
     int face_id;
@@ -126,8 +126,8 @@ public:
 class FacePair
 {
 public:
-    FacePair() {};
-    ~FacePair() {};
+    FacePair() = default;
+    ~FacePair() = default;
 public:
     FacePairBasic lf, rf;
 };
