@@ -155,33 +155,43 @@ void ScalarIFace::DumpMap( std::map<int,int> & mapin )
 
 void ScalarIFace::ReconstructNeighbor()
 {
-    int nSize = zones.size();
-    std::set<int> nei_zoneidset;
-    for ( int i = 0; i < nSize; ++ i )
+    const size_t nInterfaces = zones.size();
+    if ( cells.size() != nInterfaces || iglobalfaces.size() != nInterfaces )
     {
-        int nei_zoneid = zones[ i ];
-        nei_zoneidset.insert( nei_zoneid );
+        throw std::runtime_error( "ScalarIFace::ReconstructNeighbor: interface mapping arrays have inconsistent sizes" );
     }
 
-    for ( std::set<int>::iterator iter = nei_zoneidset.begin(); iter != nei_zoneidset.end(); ++ iter )
+    std::set<int> neighborZones;
+    for ( const int neighborZone : zones )
     {
-        ScalarIFaceIJ sij;
-        int current_nei_zoneid = * iter;
-        //sij.zonei = zoneid;
-        sij.zonej = current_nei_zoneid;
-
-        for ( int i = 0; i < nSize; ++ i )
+        if ( neighborZone < 0 )
         {
-            int nei_zoneid = zones[ i ];
-            if ( nei_zoneid == current_nei_zoneid )
+            throw std::runtime_error( "ScalarIFace::ReconstructNeighbor: neighbor zone id must be non-negative" );
+        }
+        neighborZones.insert( neighborZone );
+    }
+
+    std::vector< ScalarIFaceIJ > reconstructed;
+    reconstructed.reserve( neighborZones.size() );
+    for ( const int neighborZone : neighborZones )
+    {
+        ScalarIFaceIJ interfaceData;
+        interfaceData.zonej = neighborZone;
+
+        for ( size_t iInterface = 0; iInterface < nInterfaces; ++ iInterface )
+        {
+            if ( zones[ iInterface ] == neighborZone )
             {
-                sij.cells.push_back( this->cells[ i ] );
-                sij.iglobalfaces.push_back( this->iglobalfaces[ i ] );
-                sij.ifaces.push_back( i );
+                interfaceData.cells.push_back( cells[ iInterface ] );
+                interfaceData.iglobalfaces.push_back( iglobalfaces[ iInterface ] );
+                interfaceData.ifaces.push_back( static_cast< int >( iInterface ) );
             }
         }
-        this->data.push_back( sij );
+        reconstructed.push_back( std::move( interfaceData ) );
     }
+
+    // Replace derived neighbor data so repeated reconstruction cannot append duplicates.
+    data = std::move( reconstructed );
 }
 
 void ScalarIFace::WriteInterfaceTopology( DataBook * databook )
