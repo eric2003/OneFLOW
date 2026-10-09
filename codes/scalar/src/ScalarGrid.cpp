@@ -57,6 +57,7 @@ License
 #include <algorithm>
 #include <utility>
 #include <stdexcept>
+#include <limits>
 
 
 BeginNameSpace( ONEFLOW )
@@ -1505,7 +1506,17 @@ void ScalarGrid::ReadGridFaceTopology( DataBook * databook )
 
 	ONEFLOW::HXRead( databook, numFaceNode );
 
-	int nsum = ONEFLOW::SUM( numFaceNode );
+	size_t nsum = 0;
+	for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
+	{
+		const int nFaceNodes = numFaceNode[ iFace ];
+		if ( nFaceNodes < 0 ||
+			 static_cast< size_t >( nFaceNodes ) > std::numeric_limits< int >::max() - nsum )
+		{
+			throw std::runtime_error( "ScalarGrid::ReadGridFaceTopology: invalid or overflowing face-node count" );
+		}
+		nsum += static_cast< size_t >( nFaceNodes );
+	}
 	std::cout << " nsum = " << nsum << "\n";
 	std::cout << " this->nFaces = " << this->nFaces << "\n";
 	std::cout << "numFaceNode = \n";
@@ -1519,6 +1530,14 @@ void ScalarGrid::ReadGridFaceTopology( DataBook * databook )
 	IntField faceNodeMem( nsum );
 	std::cout << " Reading faceNodeMem\n";
 	ONEFLOW::HXRead( databook, faceNodeMem );
+
+	for ( const int nodeId : faceNodeMem )
+	{
+		if ( nodeId < 0 || nodeId >= this->nNodes )
+		{
+			throw std::runtime_error( "ScalarGrid::ReadGridFaceTopology: face references an invalid node index" );
+		}
+	}
 
 	int ipos = 0;
 	for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
