@@ -115,6 +115,11 @@ void ScalarFieldRecord::AddFieldRecord( DataStorage * dataStorage, StringField &
         resolvedFields.push_back( field );
     }
 
+    // Reserve both parallel arrays before appending so allocation failure cannot
+    // leave this record with only a subset of the requested fields.
+    this->fields.reserve( this->fields.size() + resolvedFields.size() );
+    this->nEquList.reserve( this->nEquList.size() + resolvedFields.size() );
+
     for ( size_t iField = 0; iField < fieldNameList.size(); ++ iField )
     {
         const int nEqu = GFieldDim::GetNEqu( fieldNameList[ iField ] );
