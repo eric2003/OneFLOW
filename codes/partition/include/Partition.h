@@ -30,7 +30,6 @@ License
 #include "HXCgns.h"
 #include <vector>
 #include <string>
-#include <fstream>
 
 #ifdef ENABLE_METIS
 #include "metis.h"
@@ -48,25 +47,21 @@ class G2LMapping;
 class L2GMapping
 {
 public:
-    L2GMapping();
-    ~L2GMapping();
-public:
     IntField l2g_node;
     IntField l2g_face;
     IntField l2g_cell;
 public:
     void Alloc( UnsGrid & grid );
     void CalcL2G    ( UnsGrid & ggrid, int zid, UnsGrid & grid, G2LMapping & g2l );
-    void CalcL2GNode( UnsGrid & ggrid, int zid, UnsGrid & grid, G2LMapping & g2l );
-    void CalcL2GFace( UnsGrid & ggrid, int zid, UnsGrid & grid, G2LMapping & g2l );
-    void CalcL2GCell( UnsGrid & ggrid, int zid, UnsGrid & grid, G2LMapping & g2l );
+    void CalcL2GNode( UnsGrid & ggrid, G2LMapping & g2l );
+    void CalcL2GFace( UnsGrid & ggrid, G2LMapping & g2l );
+    void CalcL2GCell( UnsGrid & ggrid, int zid, G2LMapping & g2l );
 };
 
 class G2LMapping
 {
 public:
     G2LMapping( UnsGrid & ggrid, int npartproc );
-    ~G2LMapping();
 public:
     IntField g2l_node;
     IntField g2l_face;
@@ -86,14 +81,15 @@ class Partition
 private:
     std::string sourceFile;
     int partitionType;
+    std::optional< G2LMapping > g2l;
+    G2LMapping & GetG2LMapping();
 public:
     explicit Partition( const GridConfig & config );
-    ~Partition();
+    ~Partition() = default;
 public:
     Grids grids;
 public:
     int npartproc;
-    std::optional< G2LMapping > g2l;
     L2GMapping l2g;
 public:
     void Run();
@@ -106,12 +102,12 @@ public:
 public:
     void CalcG2lCell( UnsGrid & ggrid );
     void CalcG2lFace( UnsGrid & ggrid, int zid, UnsGrid & grid );
-    void CalcG2lNode( UnsGrid & ggrid, int zid, UnsGrid & grid );
+    void CalcG2lNode( UnsGrid & ggrid, UnsGrid & grid );
     int GetNCell( UnsGrid & ggrid, int zid );
     void CreateL2g( UnsGrid & ggrid, int zid, UnsGrid & grid );
-    void SetCoor( UnsGrid & ggrid, int zid, UnsGrid & grid );
+    void SetCoor( UnsGrid & ggrid, UnsGrid & grid );
     void SetGeometricRelationship( UnsGrid & ggrid, int zid, UnsGrid & grid );
-    void CalcF2N( UnsGrid & ggrid, int zid, UnsGrid & grid );
+    void CalcF2N( UnsGrid & ggrid, UnsGrid & grid );
     void SetF2CAndBC( UnsGrid & ggrid, int zid, UnsGrid & grid );
     void SetInterface( UnsGrid & ggrid, int zid, UnsGrid & grid, int partitionType );
 };
@@ -119,8 +115,8 @@ public:
 class FacePairBasic
 {
 public:
-    FacePairBasic() {};
-    ~FacePairBasic() {};
+    FacePairBasic() = default;
+    ~FacePairBasic() = default;
 public:
     int zone_id;
     int face_id;
@@ -130,8 +126,8 @@ public:
 class FacePair
 {
 public:
-    FacePair() {};
-    ~FacePair() {};
+    FacePair() = default;
+    ~FacePair() = default;
 public:
     FacePairBasic lf, rf;
 };

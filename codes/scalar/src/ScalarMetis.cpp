@@ -52,6 +52,8 @@ License
 #include "SmartGrid.h"
 #include <iostream>
 #include <vector>
+#include <stdexcept>
+#include <limits>
 
 
 BeginNameSpace( ONEFLOW )
@@ -162,6 +164,12 @@ std::vector< std::unique_ptr< ScalarGrid > > ScalarReadGrid( const std::string &
 
     ONEFLOW::HXRead( & file, nZone );
 
+    if ( nZone <= 0 )
+    {
+        Prj::CloseFile( file );
+        throw std::runtime_error( "ScalarReadGrid: grid file must contain at least one zone" );
+    }
+
     ZoneState::pid.resize( nZone );
     ZoneState::zoneType.resize( nZone );
 
@@ -213,9 +221,26 @@ void ScalarDumpGrid( const std::string & gridFileName, ScalarGrid & grid )
 
 void ScalarDumpGrid( const std::string & gridFileName, const std::vector< std::unique_ptr< ScalarGrid > > & grids )
 {
+    if ( grids.empty() )
+    {
+        throw std::invalid_argument( "ScalarDumpGrid: at least one grid zone is required" );
+    }
+    if ( grids.size() > static_cast< size_t >( std::numeric_limits< int >::max() ) )
+    {
+        throw std::length_error( "ScalarDumpGrid: zone count exceeds the file format limit" );
+    }
+    for ( const auto & grid : grids )
+    {
+        if ( ! grid )
+        {
+            throw std::invalid_argument( "ScalarDumpGrid: grid zone must not be null" );
+        }
+    }
+
+    // Validate the complete collection before truncating the destination file.
+    int nZone = static_cast<int>( grids.size() );
     std::fstream file;
     Prj::OpenPrjFile( file, gridFileName, std::ios_base::out|std::ios_base::binary|std::ios_base::trunc );
-    int nZone = static_cast<int>( grids.size() );
 
     ZoneState::pid.resize( nZone );
     ZoneState::zoneType.resize( nZone );

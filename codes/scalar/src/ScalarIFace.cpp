@@ -21,13 +21,15 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "ScalarIFace.h"
-#include "MetisGrid.h"
 #include "DataStorage.h"
 #include "DataBaseIO.h"
 #include "DataBook.h"
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <set>
+#include <stdexcept>
+#include <utility>
 
 
 BeginNameSpace( ONEFLOW )
@@ -43,7 +45,12 @@ ScalarIFaceIJ::~ScalarIFaceIJ()
 
 void ScalarIFaceIJ::WriteInterfaceTopology( DataBook * databook )
 {
-    int nIFaces = ifaces.size();
+    if ( this->ifaces.size() != this->recv_ifaces.size() )
+    {
+        throw std::logic_error( "ScalarIFaceIJ::WriteInterfaceTopology: interface arrays have inconsistent sizes" );
+    }
+
+    int nIFaces = static_cast< int >( this->ifaces.size() );
     ONEFLOW::HXWrite( databook, this->zonej );
     ONEFLOW::HXWrite( databook, nIFaces );
     ONEFLOW::HXWrite( databook, this->ifaces );
@@ -52,14 +59,24 @@ void ScalarIFaceIJ::WriteInterfaceTopology( DataBook * databook )
 
 void ScalarIFaceIJ::ReadInterfaceTopology( DataBook * databook )
 {
-    ONEFLOW::HXRead( databook, this->zonej );
+    int zonej = -1;
     int nIFaces = -1;
+    ONEFLOW::HXRead( databook, zonej );
     ONEFLOW::HXRead( databook, nIFaces );
-    this->ifaces.resize( nIFaces );
-    this->recv_ifaces.resize( nIFaces );
+    if ( nIFaces < 0 )
+    {
+        throw std::runtime_error( "ScalarIFaceIJ::ReadInterfaceTopology: interface count must be non-negative" );
+    }
 
-    ONEFLOW::HXRead( databook, this->ifaces );
-    ONEFLOW::HXRead( databook, this->recv_ifaces );
+    std::vector< int > ifaces( nIFaces );
+    std::vector< int > recvIfaces( nIFaces );
+    ONEFLOW::HXRead( databook, ifaces );
+    ONEFLOW::HXRead( databook, recvIfaces );
+
+    // Commit the decoded neighbor topology only after all fields have been read.
+    this->zonej = zonej;
+    this->ifaces = std::move( ifaces );
+    this->recv_ifaces = std::move( recvIfaces );
 }
 
 ScalarIFace::ScalarIFace()
@@ -72,17 +89,65 @@ ScalarIFace::~ScalarIFace() = default;
 
 void ScalarIFace::AddInterface( int global_interface_id, int neighbor_zoneid, int neighbor_cellid )
 {
-    int ilocal_interface = this->iglobalfaces.size();
+    if ( global_interface_id < 0 || neighbor_zoneid < 0 || neighbor_cellid < 0 )
+    {
+        throw std::invalid_argument( "ScalarIFace::AddInterface: interface and neighbor IDs must be non-negative" );
+    }
+
+    const size_t nInterfaces = this->iglobalfaces.size();
+    if ( this->zones.size() != nInterfaces || this->cells.size() != nInterfaces ||
+         this->global_to_local_interfaces.size() != nInterfaces ||
+         this->local_to_global_interfaces.size() != nInterfaces )
+    {
+        throw std::logic_error( "ScalarIFace::AddInterface: existing interface mappings are inconsistent" );
+    }
+    if ( this->global_to_local_interfaces.find( global_interface_id ) != this->global_to_local_interfaces.end() )
+    {
+        throw std::invalid_argument( "ScalarIFace::AddInterface: duplicate global interface ID" );
+    }
+
+    const int localInterfaceId = static_cast< int >( nInterfaces );
+
+    // Allocate vector capacity before changing the logical interface mapping.
+    this->iglobalfaces.reserve( nInterfaces + 1 );
+    this->zones.reserve( nInterfaces + 1 );
+    this->cells.reserve( nInterfaces + 1 );
+
+    const auto globalEntry = this->global_to_local_interfaces.emplace( global_interface_id, localInterfaceId );
+    if ( ! globalEntry.second )
+    {
+        throw std::invalid_argument( "ScalarIFace::AddInterface: duplicate global interface ID" );
+    }
+
+    try
+    {
+        const auto localEntry = this->local_to_global_interfaces.emplace( localInterfaceId, global_interface_id );
+        if ( ! localEntry.second )
+        {
+            throw std::logic_error( "ScalarIFace::AddInterface: local interface ID is already mapped" );
+        }
+    }
+    catch ( ... )
+    {
+        this->global_to_local_interfaces.erase( globalEntry.first );
+        throw;
+    }
+
+    // Integer appends cannot allocate after the reserves above, so all five
+    // representations are committed together.
     this->iglobalfaces.push_back( global_interface_id );
     this->zones.push_back( neighbor_zoneid );
     this->cells.push_back( neighbor_cellid );
-    this->global_to_local_interfaces[ global_interface_id ] = ilocal_interface;
-    this->local_to_global_interfaces[ ilocal_interface ] = global_interface_id;
 }
 
 int ScalarIFace::GetLocalInterfaceId( int global_interface_id )
 {
-    return this->global_to_local_interfaces[ global_interface_id ];
+    const auto iter = this->global_to_local_interfaces.find( global_interface_id );
+    if ( iter == this->global_to_local_interfaces.end() )
+    {
+        throw std::runtime_error( "ScalarIFace::GetLocalInterfaceId: global interface id was not found" );
+    }
+    return iter->second;
 }
 
 int ScalarIFace::GetNIFaces()
@@ -106,17 +171,29 @@ int ScalarIFace::FindINeibor( int iZone )
 
 void ScalarIFace::CalcLocalInterfaceId( int iZone, std::vector<int> & globalfaces, std::vector<int> & localfaces )
 {
+    std::vector< int > reconstructedLocalFaces;
+    reconstructedLocalFaces.reserve( globalfaces.size() );
     for ( int i = 0; i < globalfaces.size(); ++ i )
     {
-        int gid = globalfaces[ i ];
-        int lid = this->global_to_local_interfaces[ gid ];
-        localfaces.push_back( lid );
+        const int gid = globalfaces[ i ];
+        const auto iter = this->global_to_local_interfaces.find( gid );
+        if ( iter == this->global_to_local_interfaces.end() )
+        {
+            throw std::runtime_error( "ScalarIFace::CalcLocalInterfaceId: global interface id was not found" );
+        }
+        reconstructedLocalFaces.push_back( iter->second );
     }
-    //The neighbor of iZone iNei is jzone, and the jNei neighbor of jZone is iZone
-    int jNei = FindINeibor( iZone );
-    //std::cout << " zoneid = " << this->zoneid << " iZone() = " << iZone << " jNei = " << jNei << "\n";
-    ScalarIFaceIJ & iFaceIJ = this->data[ jNei ];
-    iFaceIJ.recv_ifaces = localfaces;
+
+    // The neighbor of iZone must have a reciprocal entry in this interface list.
+    const int jNei = FindINeibor( iZone );
+    if ( jNei < 0 )
+    {
+        throw std::runtime_error( "ScalarIFace::CalcLocalInterfaceId: reciprocal neighbor zone was not found" );
+    }
+
+    // Replace derived mappings instead of appending duplicate IDs on repeated reconstruction.
+    localfaces = reconstructedLocalFaces;
+    this->data[ jNei ].recv_ifaces = std::move( reconstructedLocalFaces );
 }
 
 void ScalarIFace::DumpInterfaceMap()
@@ -140,39 +217,79 @@ void ScalarIFace::DumpMap( std::map<int,int> & mapin )
 
 void ScalarIFace::ReconstructNeighbor()
 {
-    int nSize = zones.size();
-    std::set<int> nei_zoneidset;
-    for ( int i = 0; i < nSize; ++ i )
+    const size_t nInterfaces = zones.size();
+    if ( cells.size() != nInterfaces || iglobalfaces.size() != nInterfaces )
     {
-        int nei_zoneid = zones[ i ];
-        nei_zoneidset.insert( nei_zoneid );
+        throw std::runtime_error( "ScalarIFace::ReconstructNeighbor: interface mapping arrays have inconsistent sizes" );
     }
 
-    for ( std::set<int>::iterator iter = nei_zoneidset.begin(); iter != nei_zoneidset.end(); ++ iter )
+    // Validate the dimension-independent interface identity before rebuilding
+    // the neighbor groups. A global face may cross at most one partition boundary
+    // per zone, so duplicate IDs indicate inconsistent partition topology.
+    std::set< int > seenGlobalFaces;
+    for ( size_t iInterface = 0; iInterface < nInterfaces; ++ iInterface )
     {
-        ScalarIFaceIJ sij;
-        int current_nei_zoneid = * iter;
-        //sij.zonei = zoneid;
-        sij.zonej = current_nei_zoneid;
-
-        for ( int i = 0; i < nSize; ++ i )
+        if ( iglobalfaces[ iInterface ] < 0 || cells[ iInterface ] < 0 )
         {
-            int nei_zoneid = zones[ i ];
-            if ( nei_zoneid == current_nei_zoneid )
-            {
-                sij.cells.push_back( this->cells[ i ] );
-                sij.iglobalfaces.push_back( this->iglobalfaces[ i ] );
-                sij.ifaces.push_back( i );
-            }
+            throw std::runtime_error( "ScalarIFace::ReconstructNeighbor: global face and neighbor cell IDs must be non-negative" );
         }
-        this->data.push_back( sij );
+        if ( ! seenGlobalFaces.insert( iglobalfaces[ iInterface ] ).second )
+        {
+            throw std::runtime_error( "ScalarIFace::ReconstructNeighbor: duplicate global interface ID" );
+        }
     }
+
+    // Group interfaces in one pass while keeping neighbor zones and face order deterministic.
+    std::map< int, ScalarIFaceIJ > interfacesByZone;
+    for ( size_t iInterface = 0; iInterface < nInterfaces; ++ iInterface )
+    {
+        const int neighborZone = zones[ iInterface ];
+        if ( neighborZone < 0 )
+        {
+            throw std::runtime_error( "ScalarIFace::ReconstructNeighbor: neighbor zone id must be non-negative" );
+        }
+
+        auto result = interfacesByZone.try_emplace( neighborZone );
+        ScalarIFaceIJ & interfaceData = result.first->second;
+        if ( result.second )
+        {
+            interfaceData.zonej = neighborZone;
+        }
+
+        interfaceData.cells.push_back( cells[ iInterface ] );
+        interfaceData.iglobalfaces.push_back( iglobalfaces[ iInterface ] );
+        interfaceData.ifaces.push_back( static_cast< int >( iInterface ) );
+    }
+
+    std::vector< ScalarIFaceIJ > reconstructed;
+    reconstructed.reserve( interfacesByZone.size() );
+    for ( auto & entry : interfacesByZone )
+    {
+        reconstructed.push_back( std::move( entry.second ) );
+    }
+
+    // Replace derived neighbor data so repeated reconstruction cannot append duplicates.
+    data = std::move( reconstructed );
 }
 
 void ScalarIFace::WriteInterfaceTopology( DataBook * databook )
 {
-    int nIFaces = this->GetNIFaces();
+    const size_t nInterfaces = this->zones.size();
+    if ( nInterfaces > 0 &&
+         ( this->target_interfaces.size() != nInterfaces ||
+           this->interface_to_bcface.size() != nInterfaces ) )
+    {
+        throw std::logic_error( "ScalarIFace::WriteInterfaceTopology: interface arrays have inconsistent sizes" );
+    }
+    for ( const ScalarIFaceIJ & neighborData : this->data )
+    {
+        if ( neighborData.ifaces.size() != neighborData.recv_ifaces.size() )
+        {
+            throw std::logic_error( "ScalarIFace::WriteInterfaceTopology: neighbor interface arrays have inconsistent sizes" );
+        }
+    }
 
+    int nIFaces = static_cast< int >( nInterfaces );
     ONEFLOW::HXWrite( databook, nIFaces );
     if ( nIFaces > 0 )
     {
@@ -194,28 +311,54 @@ void ScalarIFace::ReadInterfaceTopology( DataBook * databook )
 {
     int nIFaces = -1;
     ONEFLOW::HXRead( databook, nIFaces );
+    if ( nIFaces < 0 )
+    {
+        throw std::runtime_error( "ScalarIFace::ReadInterfaceTopology: interface count must be non-negative" );
+    }
 
     std::cout << " nIFaces = " << nIFaces << std::endl;
 
+    std::vector< int > zones;
+    std::vector< int > targetInterfaces;
+    std::vector< int > interfaceToBcface;
+    std::vector< ScalarIFaceIJ > interfaceData;
+
     if ( nIFaces > 0 )
     {
-        this->zones.resize( nIFaces );
-        this->target_interfaces.resize( nIFaces );
-        this->interface_to_bcface.resize( nIFaces );
+        zones.resize( nIFaces );
+        targetInterfaces.resize( nIFaces );
+        interfaceToBcface.resize( nIFaces );
 
-        ONEFLOW::HXRead( databook, this->zones               );
-        ONEFLOW::HXRead( databook, this->target_interfaces   );
-        ONEFLOW::HXRead( databook, this->interface_to_bcface );
+        ONEFLOW::HXRead( databook, zones );
+        ONEFLOW::HXRead( databook, targetInterfaces );
+        ONEFLOW::HXRead( databook, interfaceToBcface );
 
         int nNeis = -1;
         ONEFLOW::HXRead( databook, nNeis );
-        this->data.resize( nNeis );
+        if ( nNeis < 0 )
+        {
+            throw std::runtime_error( "ScalarIFace::ReadInterfaceTopology: neighbor count must be non-negative" );
+        }
+
+        interfaceData.resize( nNeis );
         for ( int iNei = 0; iNei < nNeis; ++ iNei )
         {
-            ScalarIFaceIJ & iFaceIJ = data[ iNei ];
-            iFaceIJ.ReadInterfaceTopology( databook );
+            interfaceData[ iNei ].ReadInterfaceTopology( databook );
         }
     }
+
+    // Replace serialized interface state only after the complete read succeeds.
+    this->zones = std::move( zones );
+    this->target_interfaces = std::move( targetInterfaces );
+    this->interface_to_bcface = std::move( interfaceToBcface );
+    this->data = std::move( interfaceData );
+
+    // These mappings are not serialized; retaining them would associate the new
+    // topology with interface IDs from the previously loaded mesh.
+    this->iglobalfaces.clear();
+    this->cells.clear();
+    this->global_to_local_interfaces.clear();
+    this->local_to_global_interfaces.clear();
 }
 
 EndNameSpace

@@ -25,7 +25,6 @@ License
 #include "NamespaceMacros.h"
 #include "HXType.h"
 #include "HXDefine.h"
-#include "MetisGrid.h"
 #include <vector>
 #include <map>
 #include <memory>

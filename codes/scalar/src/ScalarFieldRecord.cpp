@@ -22,6 +22,8 @@ License
 #include "ScalarFieldRecord.h"
 #include "DataStorage.h"
 #include "DataBase.h"
+#include <stdexcept>
+#include <vector>
 
 BeginNameSpace( ONEFLOW )
 
@@ -62,23 +64,66 @@ ScalarFieldRecord::~ScalarFieldRecord()
 
 void ScalarFieldRecord::AddField( MRField * field, int nEqu )
 {
-    this->nEquList.push_back( nEqu );
+    if ( field == nullptr )
+    {
+        throw std::invalid_argument( "ScalarFieldRecord::AddField: field must not be null" );
+    }
+
+    // Keep the parallel field and dimension lists synchronized if allocation fails.
     this->fields.push_back( field );
+    try
+    {
+        this->nEquList.push_back( nEqu );
+    }
+    catch ( ... )
+    {
+        this->fields.pop_back();
+        throw;
+    }
 }
 
 MRField * ScalarFieldRecord::GetField( int id )
 {
+    if ( id < 0 || static_cast< size_t >( id ) >= this->fields.size() )
+    {
+        throw std::out_of_range( "ScalarFieldRecord::GetField: field index is out of range" );
+    }
+
     return this->fields[ id ];
 }
 
 void ScalarFieldRecord::AddFieldRecord( DataStorage * dataStorage, StringField & fieldNameList )
 {
-    for ( int iField = 0; iField < fieldNameList.size(); ++ iField )
+    if ( dataStorage == nullptr )
     {
-        std::string & fieldName = fieldNameList[ iField ];
+        throw std::invalid_argument( "ScalarFieldRecord::AddFieldRecord: data storage must not be null" );
+    }
+
+    // Resolve all fields before mutating the record, so a missing field cannot
+    // leave a partially populated collection of non-owning pointers.
+    std::vector< MRField * > resolvedFields;
+    resolvedFields.reserve( fieldNameList.size() );
+
+    for ( const std::string & fieldName : fieldNameList )
+    {
         MRField * field = ONEFLOW::GetFieldPointer< MRField >( dataStorage, fieldName );
-        int nEqu = GFieldDim::GetNEqu( fieldName );
-        this->AddField( field, nEqu );
+        if ( field == nullptr )
+        {
+            throw std::runtime_error(
+                "ScalarFieldRecord::AddFieldRecord: field '" + fieldName + "' was not found in data storage" );
+        }
+        resolvedFields.push_back( field );
+    }
+
+    // Reserve both parallel arrays before appending so allocation failure cannot
+    // leave this record with only a subset of the requested fields.
+    this->fields.reserve( this->fields.size() + resolvedFields.size() );
+    this->nEquList.reserve( this->nEquList.size() + resolvedFields.size() );
+
+    for ( size_t iField = 0; iField < fieldNameList.size(); ++ iField )
+    {
+        const int nEqu = GFieldDim::GetNEqu( fieldNameList[ iField ] );
+        this->AddField( resolvedFields[ iField ], nEqu );
     }
 }
 

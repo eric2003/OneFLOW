@@ -25,6 +25,7 @@ License
 #include "DataBase.h"
 #include "FieldBase.h"
 #include "ScalarZone.h"
+#include "ScalarGrid.h"
 #include "ScalarIFace.h"
 
 BeginNameSpace( ONEFLOW )

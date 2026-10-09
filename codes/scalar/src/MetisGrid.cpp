@@ -33,6 +33,8 @@ License
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <stdexcept>
+#include <limits>
 
 
 BeginNameSpace( ONEFLOW )
@@ -63,7 +65,15 @@ MetisIntList MetisSplit::ManualPartition( const ScalarGrid & ggrid )
 
 MetisIntList MetisSplit::MetisPartition( const ScalarGrid & ggrid, int nPart )
 {
-	int nCells = ggrid.GetNCells();
+	const int nCells = ggrid.GetNCells();
+	if ( nCells <= 0 )
+	{
+		throw std::invalid_argument( "MetisSplit::MetisPartition: input grid must contain at least one cell" );
+	}
+	if ( nPart <= 0 || nPart > nCells )
+	{
+		throw std::invalid_argument( "MetisSplit::MetisPartition: nPart must be between 1 and the number of cells" );
+	}
 
 	if ( nPart == nCells )
 	{
@@ -76,23 +86,80 @@ MetisIntList MetisSplit::MetisPartition( const ScalarGrid & ggrid, int nPart )
 
 std::pair< MetisIntList, MetisIntList > MetisSplit::ScalarGetXadjAdjncy( const ScalarGrid & ggrid )
 {
-	int nCells = ggrid.GetNCells();
+	const int nCells = ggrid.GetNCells();
+	const int nFaces = ggrid.GetNFaces();
+	const int nBFaces = ggrid.GetNBFaces();
+	if ( nCells <= 0 || nBFaces < 0 || nFaces < nBFaces ||
+		 nBFaces > std::numeric_limits< int >::max() - nCells )
+	{
+		throw std::invalid_argument( "MetisSplit::ScalarGetXadjAdjncy: invalid grid topology counts" );
+	}
+	if ( ggrid.lc.GetNElements() != static_cast< size_t >( nFaces ) ||
+		 ggrid.rc.GetNElements() != static_cast< size_t >( nFaces ) ||
+		 ggrid.bcTypes.GetNElements() != static_cast< size_t >( nBFaces ) )
+	{
+		throw std::runtime_error( "MetisSplit::ScalarGetXadjAdjncy: face topology arrays have inconsistent sizes" );
+	}
+
+	// Validate physical cell references before CalcC2C indexes the adjacency rows.
+	for ( int iFace = 0; iFace < nBFaces; ++ iFace )
+	{
+		const int leftCell = ggrid.lc[ iFace ];
+		if ( leftCell < 0 || leftCell >= nCells )
+		{
+			throw std::runtime_error( "MetisSplit::ScalarGetXadjAdjncy: boundary face references an invalid physical cell" );
+		}
+	}
+	for ( int iFace = nBFaces; iFace < nFaces; ++ iFace )
+	{
+		const int leftCell = ggrid.lc[ iFace ];
+		const int rightCell = ggrid.rc[ iFace ];
+		if ( leftCell < 0 || leftCell >= nCells || rightCell < 0 || rightCell >= nCells )
+		{
+			throw std::runtime_error( "MetisSplit::ScalarGetXadjAdjncy: internal face references an invalid physical cell" );
+		}
+		if ( leftCell == rightCell )
+		{
+			throw std::runtime_error( "MetisSplit::ScalarGetXadjAdjncy: internal face must connect two distinct physical cells" );
+		}
+	}
 
 	EList c2c;
 	ggrid.CalcC2C( c2c );
+	if ( c2c.GetNElements() != static_cast< size_t >( nCells ) )
+	{
+		throw std::runtime_error( "MetisSplit::ScalarGetXadjAdjncy: cell adjacency row count does not match the cell count" );
+	}
 
-	MetisIntList xadj( nCells + 1 );
+	MetisIntList xadj( static_cast< size_t >( nCells ) + 1 );
 	MetisIntList adjncy;
-	adjncy.reserve( 2 * ( ggrid.GetNFaces() - ggrid.GetNBFaces() ) );
+	const size_t nInternalFaces = static_cast< size_t >( nFaces - nBFaces );
+	if ( nInternalFaces <= adjncy.max_size() / 2 )
+	{
+		adjncy.reserve( 2 * nInternalFaces );
+	}
 
 	xadj[ 0 ] = 0;
 	for ( int iCell = 0; iCell < nCells; ++ iCell )
 	{
-		xadj[ iCell + 1 ] = xadj[ iCell ] + c2c[ iCell ].size();
-		for ( int j = 0; j < c2c[ iCell ].size(); ++ j )
+		for ( const int neighbor : c2c[ iCell ] )
 		{
-			adjncy.push_back( c2c[ iCell ][ j ] );
+			if ( neighbor < 0 || neighbor >= nCells + nBFaces )
+			{
+				throw std::runtime_error( "MetisSplit::ScalarGetXadjAdjncy: cell adjacency contains an invalid cell index" );
+			}
+			// METIS partitions physical cells only; interface ghost cells are not graph vertices.
+			if ( neighbor >= nCells )
+			{
+				continue;
+			}
+			if ( adjncy.size() >= static_cast< size_t >( std::numeric_limits< idx_t >::max() ) )
+			{
+				throw std::overflow_error( "MetisSplit::ScalarGetXadjAdjncy: adjacency exceeds METIS index range" );
+			}
+			adjncy.push_back( static_cast< idx_t >( neighbor ) );
 		}
+		xadj[ iCell + 1 ] = static_cast< idx_t >( adjncy.size() );
 	}
 
 	return { std::move( xadj ), std::move( adjncy ) };
@@ -100,36 +167,87 @@ std::pair< MetisIntList, MetisIntList > MetisSplit::ScalarGetXadjAdjncy( const S
 
 MetisIntList MetisSplit::ScalarPartitionByMetis( idx_t nCells, const MetisIntList & xadj, const MetisIntList & adjncy, int nPart )
 {
-	MetisIntList cellzone( nCells );
+	if ( nCells <= 0 )
+	{
+		throw std::invalid_argument( "MetisSplit::ScalarPartitionByMetis: number of cells must be positive" );
+	}
+	if ( nPart <= 0 || nPart > nCells )
+	{
+		throw std::invalid_argument( "MetisSplit::ScalarPartitionByMetis: nPart must be between 1 and the number of cells" );
+	}
+	if ( xadj.size() != static_cast< size_t >( nCells ) + 1 || xadj.empty() || xadj[ 0 ] != 0 )
+	{
+		throw std::invalid_argument( "MetisSplit::ScalarPartitionByMetis: invalid CSR row offsets" );
+	}
+	if ( adjncy.size() > static_cast< size_t >( std::numeric_limits< idx_t >::max() ) )
+	{
+		throw std::invalid_argument( "MetisSplit::ScalarPartitionByMetis: adjacency array exceeds METIS index range" );
+	}
+	for ( idx_t iCell = 0; iCell < nCells; ++ iCell )
+	{
+		if ( xadj[ iCell ] < 0 || xadj[ iCell + 1 ] < xadj[ iCell ] ||
+			 static_cast< size_t >( xadj[ iCell + 1 ] ) > adjncy.size() )
+		{
+			throw std::invalid_argument( "MetisSplit::ScalarPartitionByMetis: CSR row offsets are not monotonic or exceed adjacency data" );
+		}
+	}
+	if ( static_cast< size_t >( xadj[ nCells ] ) != adjncy.size() )
+	{
+		throw std::invalid_argument( "MetisSplit::ScalarPartitionByMetis: final CSR offset does not match adjacency size" );
+	}
+	for ( const idx_t neighbor : adjncy )
+	{
+		if ( neighbor < 0 || neighbor >= nCells )
+		{
+			throw std::invalid_argument( "MetisSplit::ScalarPartitionByMetis: adjacency contains an invalid cell index" );
+		}
+	}
+
+	MetisIntList cellzone( static_cast< size_t >( nCells ) );
 	MetisIntList metisXadj = xadj;
 	MetisIntList metisAdjncy = adjncy;
-	idx_t   ncon     = 1;
-	idx_t   * vwgt   = 0;
-	idx_t   * vsize  = 0;
-	idx_t   * adjwgt = 0;
+	idx_t ncon = 1;
+	idx_t * vwgt = 0;
+	idx_t * vsize = 0;
+	idx_t * adjwgt = 0;
 	float * tpwgts = 0;
-	float * ubvec  = 0;
+	float * ubvec = 0;
 	idx_t options[ METIS_NOPTIONS ];
 	idx_t wgtflag = 0;
 	idx_t numflag = 0;
 	idx_t objval;
 	idx_t nZone = nPart;
+	idx_t emptyAdjacency = 0;
+	idx_t * xadjData = metisXadj.data();
+	idx_t * adjncyData = metisAdjncy.empty() ? & emptyAdjacency : metisAdjncy.data();
 
-	METIS_SetDefaultOptions( options );
+	const int optionsStatus = METIS_SetDefaultOptions( options );
+	if ( optionsStatus != METIS_OK )
+	{
+		throw std::runtime_error( "MetisSplit::ScalarPartitionByMetis: failed to initialize METIS options" );
+	}
+
 	std::cout << "Now begining partition graph!\n";
+	int partitionStatus = METIS_OK;
 	if ( nZone > 8 )
 	{
 		std::cout << "Using K-way Partitioning!\n";
-		METIS_PartGraphKway( & nCells, & ncon, & metisXadj[ 0 ], & metisAdjncy[ 0 ], vwgt, vsize, adjwgt, 
-			& nZone, tpwgts, ubvec, options, & objval, & cellzone[ 0 ] );
+		partitionStatus = METIS_PartGraphKway( & nCells, & ncon, xadjData, adjncyData, vwgt, vsize, adjwgt,
+			& nZone, tpwgts, ubvec, options, & objval, cellzone.data() );
 	}
 	else
 	{
 		std::cout << "Using Recursive Partitioning!\n";
-		METIS_PartGraphRecursive( & nCells, & ncon, & metisXadj[ 0 ], & metisAdjncy[ 0 ], vwgt, vsize, adjwgt, 
-			& nZone, tpwgts, ubvec, options, & objval, & cellzone[ 0 ] );
+		partitionStatus = METIS_PartGraphRecursive( & nCells, & ncon, xadjData, adjncyData, vwgt, vsize, adjwgt,
+			& nZone, tpwgts, ubvec, options, & objval, cellzone.data() );
 	}
-	std::cout << "The interface number: " << objval << std::endl; 
+
+	if ( partitionStatus != METIS_OK )
+	{
+		throw std::runtime_error( "MetisSplit::ScalarPartitionByMetis: METIS graph partitioning failed" );
+	}
+
+	std::cout << "The interface number: " << objval << std::endl;
 	std::cout << "Partition is finished!\n";
 	return cellzone;
 }
@@ -161,15 +279,78 @@ std::vector< std::unique_ptr< ScalarGrid > > GridPartition::AllocateGrid( int nZ
 
 std::vector< std::unique_ptr< ScalarGrid > > GridPartition::ReconstructGridFaceTopo( const ScalarGrid & ggrid, int nPart )
 {
-	//calc cellzone;
+	const int nCells = ggrid.GetNCells();
+	const int nFaces = ggrid.GetNFaces();
+	const int nBFaces = ggrid.GetNBFaces();
+	if ( nCells <= 0 || nBFaces < 0 || nFaces < nBFaces )
+	{
+		throw std::invalid_argument( "GridPartition::ReconstructGridFaceTopo: invalid global topology counts" );
+	}
+	if ( nPart <= 0 || nPart > nCells )
+	{
+		throw std::invalid_argument( "GridPartition::ReconstructGridFaceTopo: nPart must be between 1 and the number of cells" );
+	}
+	if ( ggrid.eTypes.GetNElements() != static_cast< size_t >( nCells ) ||
+		 ggrid.fTypes.GetNElements() != static_cast< size_t >( nFaces ) ||
+		 ggrid.lc.GetNElements() != static_cast< size_t >( nFaces ) ||
+		 ggrid.rc.GetNElements() != static_cast< size_t >( nFaces ) ||
+		 ggrid.bcTypes.GetNElements() != static_cast< size_t >( nBFaces ) )
+	{
+		throw std::runtime_error( "GridPartition::ReconstructGridFaceTopo: global topology arrays have inconsistent sizes" );
+	}
+
+	// Validate face references before they are used to index the partition mapping.
+	for ( int iFace = 0; iFace < nBFaces; ++ iFace )
+	{
+		const int leftCell = ggrid.lc[ iFace ];
+		if ( leftCell < 0 || leftCell >= nCells )
+		{
+			throw std::runtime_error( "GridPartition::ReconstructGridFaceTopo: boundary face references an invalid physical cell" );
+		}
+	}
+	for ( int iFace = nBFaces; iFace < nFaces; ++ iFace )
+	{
+		const int leftCell = ggrid.lc[ iFace ];
+		const int rightCell = ggrid.rc[ iFace ];
+		if ( leftCell < 0 || leftCell >= nCells || rightCell < 0 || rightCell >= nCells )
+		{
+			throw std::runtime_error( "GridPartition::ReconstructGridFaceTopo: internal face references an invalid physical cell" );
+		}
+		if ( leftCell == rightCell )
+		{
+			throw std::runtime_error( "GridPartition::ReconstructGridFaceTopo: internal face must connect two distinct physical cells" );
+		}
+	}
+
+	// Calculate the cell-to-zone mapping before allocating zone-local topology.
 	MetisIntList cellzone = MetisSplit::MetisPartition( ggrid, nPart );
+	if ( cellzone.size() != static_cast< size_t >( nCells ) )
+	{
+		throw std::runtime_error( "GridPartition::ReconstructGridFaceTopo: partition result size does not match the cell count" );
+	}
+	std::vector< int > zoneCellCounts( nPart, 0 );
+	for ( int iCell = 0; iCell < nCells; ++ iCell )
+	{
+		const int zoneId = cellzone[ iCell ];
+		if ( zoneId < 0 || zoneId >= nPart )
+		{
+			throw std::runtime_error( "GridPartition::ReconstructGridFaceTopo: partition result contains an invalid zone id" );
+		}
+		++ zoneCellCounts[ zoneId ];
+	}
+
+	// Every requested zone must own at least one physical cell.
+	for ( int iZone = 0; iZone < nPart; ++ iZone )
+	{
+		if ( zoneCellCounts[ iZone ] == 0 )
+		{
+			throw std::runtime_error( "GridPartition::ReconstructGridFaceTopo: partition result contains an empty zone" );
+		}
+	}
 
 	std::vector< std::unique_ptr< ScalarGrid > > grids = AllocateGrid( nPart );
 
 	int nZones = static_cast< int >( grids.size() );
-	int nFaces = ggrid.GetNFaces();
-	int nCells = ggrid.GetNCells();
-	int nBFaces = ggrid.GetNBFaces();
 
 	std::vector<int> zoneCount( nZones, 0 );
 	std::vector<int> localCells; //global cell id -> local cell id
@@ -197,8 +378,7 @@ std::vector< std::unique_ptr< ScalarGrid > > GridPartition::ReconstructGridFaceT
 		int localCell = localCells[ lc ];
 		int ftype = ggrid.fTypes[ iFace ];
 		ScalarGrid & gridL = *grids[ lZone ];
-		gridL.AddFaceType( ftype );
-		gridL.AddPhysicalBcFace( iFace, bctype, localCell, ONEFLOW::INVALID_INDEX );
+		gridL.AddPhysicalBcFace( iFace, bctype, localCell, ONEFLOW::INVALID_INDEX, ftype );
 	}
 
 	//Then scan the internal block interface
@@ -221,11 +401,8 @@ std::vector< std::unique_ptr< ScalarGrid > > GridPartition::ReconstructGridFaceT
 			ScalarGrid & gridL = *grids[ lZone ];
 			ScalarGrid & gridR = *grids[ rZone ];
 
-			gridL.AddFaceType( ftype );
-			gridR.AddFaceType( ftype );
-
-			gridL.AddInterfaceBcFace( iFace, bctype, localCell_L, ONEFLOW::INVALID_INDEX, rZone, localCell_R );
-			gridR.AddInterfaceBcFace( iFace, bctype, ONEFLOW::INVALID_INDEX, localCell_R, lZone, localCell_L );
+			gridL.AddInterfaceBcFace( iFace, bctype, localCell_L, ONEFLOW::INVALID_INDEX, rZone, localCell_R, ftype );
+			gridR.AddInterfaceBcFace( iFace, bctype, ONEFLOW::INVALID_INDEX, localCell_R, lZone, localCell_L, ftype );
 		}
 	}
 
@@ -248,8 +425,7 @@ std::vector< std::unique_ptr< ScalarGrid > > GridPartition::ReconstructGridFaceT
 
 			int ftype = ggrid.fTypes[ iFace ];
 
-			grid.AddFaceType( ftype );
-			grid.AddInnerFace( iFace, bctype, localCell_L, localCell_R );
+			grid.AddInnerFace( iFace, bctype, localCell_L, localCell_R, ftype );
 		}
 	}
     return grids;
@@ -257,40 +433,131 @@ std::vector< std::unique_ptr< ScalarGrid > > GridPartition::ReconstructGridFaceT
 
 void GridPartition::ReconstructInterfaceTopo( std::vector< std::unique_ptr< ScalarGrid > > & grids )
 {
-	int nZones = static_cast< int >( grids.size() );
-	for ( int iZone = 0; iZone < nZones; ++ iZone )
+	const size_t nZones = grids.size();
+
+	for ( size_t iZone = 0; iZone < nZones; ++ iZone )
 	{
-		ScalarGrid & grid = *grids[ iZone ];
-		ScalarIFace & scalarIFace = *grid.scalarIFace;
-		int nNeis = scalarIFace.data.size();
-		for ( int iNei = 0; iNei < nNeis; ++ iNei )
+		if ( ! grids[ iZone ] || ! grids[ iZone ]->scalarIFace )
 		{
-			ScalarIFaceIJ & iFaceIJ = scalarIFace.data[ iNei ];
-			int jZone =  iFaceIJ.zonej;
-			std::cout << " iZone = " << iZone << " iNei = " << iNei << " jZone = " << jZone << "\n";
-			grids[ jZone ]->scalarIFace->CalcLocalInterfaceId( iZone, iFaceIJ.iglobalfaces, iFaceIJ.target_ifaces );
+			throw std::runtime_error( "GridPartition::ReconstructInterfaceTopo: zone has no interface topology" );
 		}
 	}
 
-	for ( int iZone = 0; iZone < nZones; ++ iZone )
+	// Stage every derived mapping before changing any zone's current interface state.
+	std::vector< std::vector< std::vector< int > > > stagedTargets( nZones );
+	std::vector< std::vector< std::vector< int > > > stagedReceives( nZones );
+	std::vector< std::vector< int > > stagedTargetInterfaces( nZones );
+
+	for ( size_t iZone = 0; iZone < nZones; ++ iZone )
+	{
+		const size_t nEntries = grids[ iZone ]->scalarIFace->data.size();
+		stagedTargets[ iZone ].resize( nEntries );
+		stagedReceives[ iZone ].resize( nEntries );
+	}
+
+	for ( size_t iZone = 0; iZone < nZones; ++ iZone )
+	{
+		const ScalarIFace & scalarIFace = *grids[ iZone ]->scalarIFace;
+		const size_t nEntries = scalarIFace.data.size();
+
+		for ( size_t iEntry = 0; iEntry < nEntries; ++ iEntry )
+		{
+			const ScalarIFaceIJ & entry = scalarIFace.data[ iEntry ];
+			const int jZone = entry.zonej;
+			if ( jZone < 0 || static_cast< size_t >( jZone ) >= nZones )
+			{
+				throw std::runtime_error( "GridPartition::ReconstructInterfaceTopo: interface references an invalid neighbor zone" );
+			}
+			if ( entry.iglobalfaces.size() != entry.ifaces.size() ||
+				 entry.iglobalfaces.size() != entry.cells.size() )
+			{
+				throw std::runtime_error( "GridPartition::ReconstructInterfaceTopo: neighbor interface arrays have inconsistent sizes" );
+			}
+
+			const ScalarIFace & neighborIFace = *grids[ jZone ]->scalarIFace;
+			size_t reciprocalIndex = neighborIFace.data.size();
+			for ( size_t jEntry = 0; jEntry < neighborIFace.data.size(); ++ jEntry )
+			{
+				if ( neighborIFace.data[ jEntry ].zonej == static_cast< int >( iZone ) )
+				{
+					if ( reciprocalIndex != neighborIFace.data.size() )
+					{
+						throw std::runtime_error( "GridPartition::ReconstructInterfaceTopo: duplicate reciprocal neighbor entries" );
+					}
+					reciprocalIndex = jEntry;
+				}
+			}
+			if ( reciprocalIndex == neighborIFace.data.size() )
+			{
+				throw std::runtime_error( "GridPartition::ReconstructInterfaceTopo: reciprocal neighbor zone was not found" );
+			}
+
+			std::vector< int > localFaces;
+			localFaces.reserve( entry.iglobalfaces.size() );
+			for ( const int globalFaceId : entry.iglobalfaces )
+			{
+				const auto iter = neighborIFace.global_to_local_interfaces.find( globalFaceId );
+				if ( iter == neighborIFace.global_to_local_interfaces.end() )
+				{
+					throw std::runtime_error( "GridPartition::ReconstructInterfaceTopo: neighbor is missing a global interface id" );
+				}
+				localFaces.push_back( iter->second );
+			}
+
+			stagedTargets[ iZone ][ iEntry ] = localFaces;
+			stagedReceives[ jZone ][ reciprocalIndex ] = std::move( localFaces );
+		}
+
+		const size_t nIFaces = scalarIFace.iglobalfaces.size();
+		if ( scalarIFace.zones.size() != nIFaces || scalarIFace.cells.size() != nIFaces )
+		{
+			throw std::runtime_error( "GridPartition::ReconstructInterfaceTopo: interface mapping arrays have inconsistent sizes" );
+		}
+		std::vector< int > & targetInterfaces = stagedTargetInterfaces[ iZone ];
+		targetInterfaces.reserve( nIFaces );
+		for ( size_t iFace = 0; iFace < nIFaces; ++ iFace )
+		{
+			const int jZone = scalarIFace.zones[ iFace ];
+			if ( jZone < 0 || static_cast< size_t >( jZone ) >= nZones )
+			{
+				throw std::runtime_error( "GridPartition::ReconstructInterfaceTopo: interface mapping references an invalid neighbor zone" );
+			}
+			const ScalarIFace & neighborIFace = *grids[ jZone ]->scalarIFace;
+			const auto iter = neighborIFace.global_to_local_interfaces.find( scalarIFace.iglobalfaces[ iFace ] );
+			if ( iter == neighborIFace.global_to_local_interfaces.end() )
+			{
+				throw std::runtime_error( "GridPartition::ReconstructInterfaceTopo: neighbor is missing a mapped global interface id" );
+			}
+			targetInterfaces.push_back( iter->second );
+		}
+	}
+
+	// Commit only after all lookups and allocations have succeeded.
+	for ( size_t iZone = 0; iZone < nZones; ++ iZone )
 	{
 		ScalarIFace & scalarIFace = *grids[ iZone ]->scalarIFace;
-		int nIFaces = scalarIFace.iglobalfaces.size();
-		for ( int iFace = 0; iFace < nIFaces; ++ iFace )
+		for ( size_t iEntry = 0; iEntry < scalarIFace.data.size(); ++ iEntry )
 		{
-			int igface = scalarIFace.iglobalfaces[ iFace ];
-			int jZone = scalarIFace.zones[ iFace ];
-			int jlocalface = grids[ jZone ]->scalarIFace->GetLocalInterfaceId( igface );
-			scalarIFace.target_interfaces.push_back( jlocalface );
+			scalarIFace.data[ iEntry ].target_ifaces = std::move( stagedTargets[ iZone ][ iEntry ] );
+			scalarIFace.data[ iEntry ].recv_ifaces = std::move( stagedReceives[ iZone ][ iEntry ] );
 		}
+		scalarIFace.target_interfaces = std::move( stagedTargetInterfaces[ iZone ] );
 	}
-
 }
 
 void GridPartition::CalcInterfaceToBcFace( std::vector< std::unique_ptr< ScalarGrid > > & grids )
 {
-	int nZones = static_cast< int >( grids.size() );
-	for ( int iZone = 0; iZone < nZones; ++ iZone )
+	const size_t nZones = grids.size();
+	for ( size_t iZone = 0; iZone < nZones; ++ iZone )
+	{
+		if ( ! grids[ iZone ] || ! grids[ iZone ]->scalarIFace )
+		{
+			throw std::runtime_error( "GridPartition::CalcInterfaceToBcFace: zone has no interface topology" );
+		}
+	}
+
+	// Validate the complete zone set before rebuilding any derived mapping.
+	for ( size_t iZone = 0; iZone < nZones; ++ iZone )
 	{
 		grids[ iZone ]->CalcInterfaceToBcFace();
 	}
@@ -301,16 +568,29 @@ void GridPartition::ReconstructNeighbor( std::vector< std::unique_ptr< ScalarGri
 	int nZones = static_cast< int >( grids.size() );
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
-		ScalarGrid & grid = *grids[ iZone ];
-		ScalarIFace & scalarIFace = *grid.scalarIFace;
+		if ( ! grids[ iZone ] || ! grids[ iZone ]->scalarIFace )
+		{
+			throw std::runtime_error( "GridPartition::ReconstructNeighbor: zone has no interface topology" );
+		}
+
+		ScalarIFace & scalarIFace = *grids[ iZone ]->scalarIFace;
 		scalarIFace.ReconstructNeighbor();
 	}
 }
 
 void GridPartition::ReconstructNode( const ScalarGrid & ggrid, std::vector< std::unique_ptr< ScalarGrid > > & grids )
 {
-	int nZones = static_cast< int >( grids.size() );
-	for ( int iZone = 0; iZone < nZones; ++ iZone )
+	const size_t nZones = grids.size();
+	for ( size_t iZone = 0; iZone < nZones; ++ iZone )
+	{
+		if ( ! grids[ iZone ] )
+		{
+			throw std::runtime_error( "GridPartition::ReconstructNode: zone grid is null" );
+		}
+	}
+
+	// Validate all zone objects before rebuilding any zone-local node data.
+	for ( size_t iZone = 0; iZone < nZones; ++ iZone )
 	{
 		ScalarGrid & grid = *grids[ iZone ];
 		grid.ReconstructNode( ggrid );

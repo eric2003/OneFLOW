@@ -25,12 +25,10 @@ License
 #include "NamespaceMacros.h"
 #include "HXType.h"
 #include "HXDefine.h"
-#include "ScalarGrid.h"
 #include "metis.h"
 #include <memory>
+#include <utility>
 #include <vector>
-#include <set>
-#include <map>
 
 
 BeginNameSpace( ONEFLOW )
@@ -48,8 +46,6 @@ private:
     static MetisIntList ScalarPartitionByMetis( idx_t nCells, const MetisIntList & xadj, const MetisIntList & adjncy, int nPart );
 
 };
-
-class ScalarIFace;
 
 class GridPartition
 {

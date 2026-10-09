@@ -24,6 +24,7 @@ License
 #include "FieldPara.h"
 #include "ScalarAlloc.h"
 #include "ScalarZone.h"
+#include "ScalarGrid.h"
 #include "Zone.h"
 #include "InterFace.h"
 #include "ZoneState.h"
@@ -415,7 +416,7 @@ void PrepareFieldSendData()
 
     ActionState::dataBook->MoveToBegin();
 
-    int nRecords = fieldRecord->nEquList.size();
+    int nRecords = fieldRecord->GetNumberOfFields();
 
     for ( int fieldId = 0; fieldId < nRecords; ++ fieldId )
     {
@@ -443,7 +444,7 @@ void PrepareFieldRecvData()
 
     ActionState::dataBook->MoveToBegin();
 
-    int nRecords = fieldRecord->nEquList.size();
+    int nRecords = fieldRecord->GetNumberOfFields();
 
     for ( int fieldId = 0; fieldId < nRecords; ++ fieldId )
     {

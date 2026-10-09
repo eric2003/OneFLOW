@@ -231,6 +231,7 @@ add_oneflow_gtest(PointMachineLifecycleTest PointMachineLifecycleTest.cpp)
 add_oneflow_gtest(CellMeshLifecycleTest CellMeshLifecycleTest.cpp)
 add_oneflow_gtest(BcManagerLifecycleTest BcManagerLifecycleTest.cpp)
 add_oneflow_gtest(GridElemLifecycleTest GridElemLifecycleTest.cpp)
+add_oneflow_gtest(ScalarIFaceLifecycleTest ScalarIFaceLifecycleTest.cpp)
 
 add_oneflow_gtest(GridLayoutParserTest GridLayoutParserTest.cpp)
 add_oneflow_gtest(GridLayoutGenerationTest GridLayoutGenerationTest.cpp)
