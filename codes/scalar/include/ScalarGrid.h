@@ -91,7 +91,7 @@ public:
 
     void Reserve( int new_size );
 
-    void ReOrder( IntList & orderMap );
+    void ReOrder( const IntList & orderMap );
 };
 
 class EList
@@ -116,7 +116,7 @@ public:
         return data[ i ];
     }
 
-    void ReOrder( IntList & orderMap );
+    void ReOrder( const IntList & orderMap );
 
     void Reserve( int new_size );
 
