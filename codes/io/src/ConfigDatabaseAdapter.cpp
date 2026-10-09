@@ -28,7 +28,6 @@ namespace ONEFLOW {
 
 void ConfigDatabaseAdapter::Commit( const ConfigDocument& document )
 {
-    DataBaseType::Init();
     for ( const ParameterEntry& entry : document.Entries() )
     {
         const int type = DataBaseType::GetIndex( entry.typeName );
