@@ -70,6 +70,11 @@ void ScalarFieldRecord::AddField( MRField * field, int nEqu )
 
 MRField * ScalarFieldRecord::GetField( int id )
 {
+    if ( id < 0 || static_cast< size_t >( id ) >= this->fields.size() )
+    {
+        throw std::out_of_range( "ScalarFieldRecord::GetField: field index is out of range" );
+    }
+
     return this->fields[ id ];
 }
 
