@@ -277,6 +277,12 @@ void Prj::CreateDirIfNeeded( const std::string & prjFileName )
 {
     std::string dirName = Prj::GetDirName( prjFileName );
 
+    // A file in the current directory has no parent directory to create.
+    if ( dirName.empty() )
+    {
+        return;
+    }
+
     if ( ! HX_IsDirectory( dirName ) )
     {
         HX_CreateDirectory( dirName );
