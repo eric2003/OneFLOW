@@ -63,6 +63,15 @@ CgnsZbcConn & CgnsZbc::RequireCgnsZbcConn()
     return *this->cgnsZbcConn;
 }
 
+const CgnsZbcConn & CgnsZbc::RequireCgnsZbcConn() const
+{
+    if ( this->cgnsZbcConn == nullptr )
+    {
+        throw std::logic_error( "CgnsZbc: CgnsZbcConn is not initialized" );
+    }
+    return *this->cgnsZbcConn;
+}
+
 CgnsZbc1to1 & CgnsZbc::RequireCgnsZbc1to1()
 {
     if ( this->cgnsZbc1to1 == nullptr )
@@ -72,7 +81,25 @@ CgnsZbc1to1 & CgnsZbc::RequireCgnsZbc1to1()
     return *this->cgnsZbc1to1;
 }
 
+const CgnsZbc1to1 & CgnsZbc::RequireCgnsZbc1to1() const
+{
+    if ( this->cgnsZbc1to1 == nullptr )
+    {
+        throw std::logic_error( "CgnsZbc: CgnsZbc1to1 is not initialized" );
+    }
+    return *this->cgnsZbc1to1;
+}
+
 CgnsZbcBoco & CgnsZbc::RequireCgnsZbcBoco()
+{
+    if ( this->cgnsZbcBoco == nullptr )
+    {
+        throw std::logic_error( "CgnsZbc: CgnsZbcBoco is not initialized" );
+    }
+    return *this->cgnsZbcBoco;
+}
+
+const CgnsZbcBoco & CgnsZbc::RequireCgnsZbcBoco() const
 {
     if ( this->cgnsZbcBoco == nullptr )
     {

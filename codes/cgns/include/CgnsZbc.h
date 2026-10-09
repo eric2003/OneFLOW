@@ -57,8 +57,11 @@ public:
     CgnsZone & cgnsZone;
 public:
     CgnsZbcConn & RequireCgnsZbcConn();
+    const CgnsZbcConn & RequireCgnsZbcConn() const;
     CgnsZbc1to1 & RequireCgnsZbc1to1();
+    const CgnsZbc1to1 & RequireCgnsZbc1to1() const;
     CgnsZbcBoco & RequireCgnsZbcBoco();
+    const CgnsZbcBoco & RequireCgnsZbcBoco() const;
     void ScanBcFace( FaceSolver & faceSolver );
 public:
     void ConvertToInnerDataStandard();
