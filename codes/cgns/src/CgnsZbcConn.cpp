@@ -78,9 +78,9 @@ CgnsBcConn & CgnsZbcConn::GetCgnsBc( int iConn )
 
 void CgnsZbcConn::CreateCgnsZbc()
 {
-    for ( int iConn = 0; iConn < this->nConnToCreate; ++ iConn )
+    for ( int iConn = this->GetNConn(); iConn < this->nConnToCreate; ++ iConn )
     {
-this->AddCgnsConnBcRegion( std::make_unique< CgnsBcConn >( &this->cgnsZone ) );
+        this->AddCgnsConnBcRegion( std::make_unique< CgnsBcConn >( &this->cgnsZone ) );
     }
 }
 
