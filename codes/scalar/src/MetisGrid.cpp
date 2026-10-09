@@ -89,9 +89,35 @@ std::pair< MetisIntList, MetisIntList > MetisSplit::ScalarGetXadjAdjncy( const S
 	const int nCells = ggrid.GetNCells();
 	const int nFaces = ggrid.GetNFaces();
 	const int nBFaces = ggrid.GetNBFaces();
-	if ( nCells <= 0 || nBFaces < 0 || nFaces < nBFaces )
+	if ( nCells <= 0 || nBFaces < 0 || nFaces < nBFaces ||
+		 nBFaces > std::numeric_limits< int >::max() - nCells )
 	{
 		throw std::invalid_argument( "MetisSplit::ScalarGetXadjAdjncy: invalid grid topology counts" );
+	}
+	if ( ggrid.lc.GetNElements() != static_cast< size_t >( nFaces ) ||
+		 ggrid.rc.GetNElements() != static_cast< size_t >( nFaces ) ||
+		 ggrid.bcTypes.GetNElements() != static_cast< size_t >( nBFaces ) )
+	{
+		throw std::runtime_error( "MetisSplit::ScalarGetXadjAdjncy: face topology arrays have inconsistent sizes" );
+	}
+
+	// Validate physical cell references before CalcC2C indexes the adjacency rows.
+	for ( int iFace = 0; iFace < nBFaces; ++ iFace )
+	{
+		const int leftCell = ggrid.lc[ iFace ];
+		if ( leftCell < 0 || leftCell >= nCells )
+		{
+			throw std::runtime_error( "MetisSplit::ScalarGetXadjAdjncy: boundary face references an invalid physical cell" );
+		}
+	}
+	for ( int iFace = nBFaces; iFace < nFaces; ++ iFace )
+	{
+		const int leftCell = ggrid.lc[ iFace ];
+		const int rightCell = ggrid.rc[ iFace ];
+		if ( leftCell < 0 || leftCell >= nCells || rightCell < 0 || rightCell >= nCells )
+		{
+			throw std::runtime_error( "MetisSplit::ScalarGetXadjAdjncy: internal face references an invalid physical cell" );
+		}
 	}
 
 	EList c2c;
