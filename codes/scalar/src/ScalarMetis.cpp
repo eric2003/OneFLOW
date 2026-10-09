@@ -228,6 +228,12 @@ void ScalarDumpGrid( const std::string & gridFileName, ScalarGrid & grid )
     std::cout << "iZone = 0 nZone = 1\n";
     grid.WriteGrid( file );
 
+    file.flush();
+    if ( ! file )
+    {
+        throw std::runtime_error( "ScalarDumpGrid: failed to write grid data" );
+    }
+
     Prj::CloseFile( file );
 }
 
@@ -271,6 +277,12 @@ void ScalarDumpGrid( const std::string & gridFileName, const std::vector< std::u
     {
         std::cout << "iZone = " << iZone << " nZone = " << nZone << "\n";
         grids[ iZone ]->WriteGrid( file );
+    }
+
+    file.flush();
+    if ( ! file )
+    {
+        throw std::runtime_error( "ScalarDumpGrid: failed to write grid data" );
     }
 
     Prj::CloseFile( file );
