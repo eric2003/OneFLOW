@@ -163,6 +163,10 @@ std::vector< std::unique_ptr< ScalarGrid > > ScalarReadGrid( const std::string &
     int nZone = -1;
 
     ONEFLOW::HXRead( & file, nZone );
+    if ( ! file )
+    {
+        throw std::runtime_error( "ScalarReadGrid: failed to read the grid zone count" );
+    }
 
     if ( nZone <= 0 )
     {
@@ -175,6 +179,10 @@ std::vector< std::unique_ptr< ScalarGrid > > ScalarReadGrid( const std::string &
 
     ONEFLOW::HXRead( & file, ZoneState::pid );
     ONEFLOW::HXRead( & file, ZoneState::zoneType );
+    if ( ! file )
+    {
+        throw std::runtime_error( "ScalarReadGrid: truncated zone metadata" );
+    }
 
     if ( Parallel::zoneMode == 0 )
     {
@@ -191,6 +199,10 @@ std::vector< std::unique_ptr< ScalarGrid > > ScalarReadGrid( const std::string &
         grid->id = iZone;
         grid->type = ZoneState::zoneType[ iZone ];
         grid->ReadGrid( file );
+        if ( ! file )
+        {
+            throw std::runtime_error( "ScalarReadGrid: truncated grid data for zone " + std::to_string( iZone ) );
+        }
         grids.push_back( std::move( grid ) );
     }
 
