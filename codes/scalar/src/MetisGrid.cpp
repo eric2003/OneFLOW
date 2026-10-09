@@ -34,6 +34,7 @@ License
 #include <vector>
 #include <algorithm>
 #include <stdexcept>
+#include <limits>
 
 
 BeginNameSpace( ONEFLOW )
@@ -109,20 +110,59 @@ std::pair< MetisIntList, MetisIntList > MetisSplit::ScalarGetXadjAdjncy( const S
 
 MetisIntList MetisSplit::ScalarPartitionByMetis( idx_t nCells, const MetisIntList & xadj, const MetisIntList & adjncy, int nPart )
 {
-	MetisIntList cellzone( nCells );
+	if ( nCells <= 0 )
+	{
+		throw std::invalid_argument( "MetisSplit::ScalarPartitionByMetis: number of cells must be positive" );
+	}
+	if ( nPart <= 0 || nPart > nCells )
+	{
+		throw std::invalid_argument( "MetisSplit::ScalarPartitionByMetis: nPart must be between 1 and the number of cells" );
+	}
+	if ( xadj.size() != static_cast< size_t >( nCells ) + 1 || xadj.empty() || xadj[ 0 ] != 0 )
+	{
+		throw std::invalid_argument( "MetisSplit::ScalarPartitionByMetis: invalid CSR row offsets" );
+	}
+	if ( adjncy.size() > static_cast< size_t >( std::numeric_limits< idx_t >::max() ) )
+	{
+		throw std::invalid_argument( "MetisSplit::ScalarPartitionByMetis: adjacency array exceeds METIS index range" );
+	}
+	for ( idx_t iCell = 0; iCell < nCells; ++ iCell )
+	{
+		if ( xadj[ iCell ] < 0 || xadj[ iCell + 1 ] < xadj[ iCell ] ||
+			 static_cast< size_t >( xadj[ iCell + 1 ] ) > adjncy.size() )
+		{
+			throw std::invalid_argument( "MetisSplit::ScalarPartitionByMetis: CSR row offsets are not monotonic or exceed adjacency data" );
+		}
+	}
+	if ( static_cast< size_t >( xadj[ nCells ] ) != adjncy.size() )
+	{
+		throw std::invalid_argument( "MetisSplit::ScalarPartitionByMetis: final CSR offset does not match adjacency size" );
+	}
+	for ( const idx_t neighbor : adjncy )
+	{
+		if ( neighbor < 0 || neighbor >= nCells )
+		{
+			throw std::invalid_argument( "MetisSplit::ScalarPartitionByMetis: adjacency contains an invalid cell index" );
+		}
+	}
+
+	MetisIntList cellzone( static_cast< size_t >( nCells ) );
 	MetisIntList metisXadj = xadj;
 	MetisIntList metisAdjncy = adjncy;
-	idx_t   ncon     = 1;
-	idx_t   * vwgt   = 0;
-	idx_t   * vsize  = 0;
-	idx_t   * adjwgt = 0;
+	idx_t ncon = 1;
+	idx_t * vwgt = 0;
+	idx_t * vsize = 0;
+	idx_t * adjwgt = 0;
 	float * tpwgts = 0;
-	float * ubvec  = 0;
+	float * ubvec = 0;
 	idx_t options[ METIS_NOPTIONS ];
 	idx_t wgtflag = 0;
 	idx_t numflag = 0;
 	idx_t objval;
 	idx_t nZone = nPart;
+	idx_t emptyAdjacency = 0;
+	idx_t * xadjData = metisXadj.data();
+	idx_t * adjncyData = metisAdjncy.empty() ? & emptyAdjacency : metisAdjncy.data();
 
 	const int optionsStatus = METIS_SetDefaultOptions( options );
 	if ( optionsStatus != METIS_OK )
@@ -135,14 +175,14 @@ MetisIntList MetisSplit::ScalarPartitionByMetis( idx_t nCells, const MetisIntLis
 	if ( nZone > 8 )
 	{
 		std::cout << "Using K-way Partitioning!\n";
-		partitionStatus = METIS_PartGraphKway( & nCells, & ncon, & metisXadj[ 0 ], & metisAdjncy[ 0 ], vwgt, vsize, adjwgt,
-			& nZone, tpwgts, ubvec, options, & objval, & cellzone[ 0 ] );
+		partitionStatus = METIS_PartGraphKway( & nCells, & ncon, xadjData, adjncyData, vwgt, vsize, adjwgt,
+			& nZone, tpwgts, ubvec, options, & objval, cellzone.data() );
 	}
 	else
 	{
 		std::cout << "Using Recursive Partitioning!\n";
-		partitionStatus = METIS_PartGraphRecursive( & nCells, & ncon, & metisXadj[ 0 ], & metisAdjncy[ 0 ], vwgt, vsize, adjwgt,
-			& nZone, tpwgts, ubvec, options, & objval, & cellzone[ 0 ] );
+		partitionStatus = METIS_PartGraphRecursive( & nCells, & ncon, xadjData, adjncyData, vwgt, vsize, adjwgt,
+			& nZone, tpwgts, ubvec, options, & objval, cellzone.data() );
 	}
 
 	if ( partitionStatus != METIS_OK )
