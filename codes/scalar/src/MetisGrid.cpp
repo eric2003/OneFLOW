@@ -118,6 +118,10 @@ std::pair< MetisIntList, MetisIntList > MetisSplit::ScalarGetXadjAdjncy( const S
 		{
 			throw std::runtime_error( "MetisSplit::ScalarGetXadjAdjncy: internal face references an invalid physical cell" );
 		}
+		if ( leftCell == rightCell )
+		{
+			throw std::runtime_error( "MetisSplit::ScalarGetXadjAdjncy: internal face must connect two distinct physical cells" );
+		}
 	}
 
 	EList c2c;
@@ -311,6 +315,10 @@ std::vector< std::unique_ptr< ScalarGrid > > GridPartition::ReconstructGridFaceT
 		if ( leftCell < 0 || leftCell >= nCells || rightCell < 0 || rightCell >= nCells )
 		{
 			throw std::runtime_error( "GridPartition::ReconstructGridFaceTopo: internal face references an invalid physical cell" );
+		}
+		if ( leftCell == rightCell )
+		{
+			throw std::runtime_error( "GridPartition::ReconstructGridFaceTopo: internal face must connect two distinct physical cells" );
 		}
 	}
 
