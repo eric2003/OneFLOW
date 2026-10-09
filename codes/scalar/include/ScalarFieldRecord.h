@@ -54,9 +54,8 @@ public:
     }
 public:
     void AddFieldRecord( DataStorage * dataStorage, StringField & fieldNameList );
-public:
-    IntField nEquList;
 private:
+    IntField nEquList;
     HXVector< MRField * > fields;
 };
 
