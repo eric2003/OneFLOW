@@ -42,16 +42,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-L2GMapping::L2GMapping()
-{
-    ;
-}
-
-L2GMapping::~L2GMapping()
-{
-    ;
-}
-
 void L2GMapping::CalcL2G( UnsGrid & ggrid, int zid, UnsGrid & grid, G2LMapping & g2l )
 {
     this->Alloc( grid );
@@ -119,10 +109,6 @@ G2LMapping::G2LMapping( UnsGrid & ggrid, int npartprocIn ) : npartproc( npartpro
     this->g2l_node.resize( ggrid.nNodes );
     this->gc2lzone.resize( ggrid.nCells );
 
-}
-
-G2LMapping::~G2LMapping()
-{
 }
 
 void G2LMapping::GenerateGC2Z( UnsGrid & ggrid )
