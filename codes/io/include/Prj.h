@@ -79,6 +79,7 @@ public:
     static void MakePrjDir( const std::string & dirName );
 
 private:
+    static void OpenFileWithParentDirectory( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode );
     static std::string FindSystemRoot();
     static bool IsSystemRoot( const std::filesystem::path & path );
 };

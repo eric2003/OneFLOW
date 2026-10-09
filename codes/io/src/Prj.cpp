@@ -190,14 +190,7 @@ void Prj::OpenCaseFile(
     const std::ios_base::openmode & openMode )
 {
     std::string caseFileName = Prj::GetCaseFileName( caseDir, fileName );
-
-    // Create parent directories only for write operations.
-    if ( ( openMode & std::ios_base::out ) != 0 )
-    {
-        CreateDirIfNeeded( caseFileName );
-    }
-
-    Prj::OpenFile( file, caseFileName, openMode );
+    Prj::OpenFileWithParentDirectory( file, caseFileName, openMode );
 }
 
 void Prj::OpenPrjFile(
@@ -206,14 +199,21 @@ void Prj::OpenPrjFile(
     const std::ios_base::openmode & openMode )
 {
     std::string prjFileName = Prj::GetPrjFileName( fileName );
+    Prj::OpenFileWithParentDirectory( file, prjFileName, openMode );
+}
 
+void Prj::OpenFileWithParentDirectory(
+    std::fstream & file,
+    const std::string & fileName,
+    const std::ios_base::openmode & openMode )
+{
     // Create parent directories only for write operations.
     if ( ( openMode & std::ios_base::out ) != 0 )
     {
-        CreateDirIfNeeded( prjFileName );
+        CreateDirIfNeeded( fileName );
     }
 
-    Prj::OpenFile( file, prjFileName, openMode );
+    Prj::OpenFile( file, fileName, openMode );
 }
 
 void Prj::OpenFile(
