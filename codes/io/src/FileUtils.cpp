@@ -53,8 +53,6 @@ bool HX_CreateDirectory( const std::string & dirName )
     {
         if ( ! ec && std::filesystem::is_directory( dirName, ec ) && ! ec )
         {
-            std::cout << "Directory already exists: "
-                << dirName << std::endl;
             return true;
         }
 
@@ -74,8 +72,6 @@ bool HX_CreateDirectory( const std::string & dirName )
     const bool created = std::filesystem::create_directories( dirName, ec );
     if ( created )
     {
-        std::cout << "Directory created successfully: "
-            << dirName << std::endl;
         return true;
     }
 
@@ -84,8 +80,6 @@ bool HX_CreateDirectory( const std::string & dirName )
     ec.clear();
     if ( std::filesystem::is_directory( dirName, ec ) && ! ec )
     {
-        std::cout << "Directory already exists: "
-            << dirName << std::endl;
         return true;
     }
 
