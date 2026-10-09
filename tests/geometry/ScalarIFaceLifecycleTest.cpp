@@ -38,6 +38,26 @@ TEST(ScalarIFaceLifecycleTest, RejectsDuplicateInterfaceWithoutChangingState)
     EXPECT_EQ(interfaceData.local_to_global_interfaces.at(0), 100);
 }
 
+TEST(ScalarIFaceLifecycleTest, RejectsInvalidTopologyWithoutReplacingNeighborGroups)
+{
+    ONEFLOW::ScalarIFace interfaceData;
+    interfaceData.AddInterface(30, 3, 300);
+    interfaceData.ReconstructNeighbor();
+    ASSERT_EQ(interfaceData.data.size(), 1u);
+
+    // Public legacy arrays can be populated outside AddInterface; reject invalid
+    // state before replacing the previously reconstructed neighbor groups.
+    interfaceData.iglobalfaces.push_back(30);
+    interfaceData.zones.push_back(4);
+    interfaceData.cells.push_back(400);
+
+    EXPECT_THROW(interfaceData.ReconstructNeighbor(), std::runtime_error);
+    ASSERT_EQ(interfaceData.data.size(), 1u);
+    EXPECT_EQ(interfaceData.data[0].zonej, 3);
+    ASSERT_EQ(interfaceData.data[0].iglobalfaces.size(), 1u);
+    EXPECT_EQ(interfaceData.data[0].iglobalfaces[0], 30);
+}
+
 TEST(ScalarIFaceLifecycleTest, ReconstructNeighborIsGroupedOrderedAndRepeatable)
 {
     ONEFLOW::ScalarIFace interfaceData;
