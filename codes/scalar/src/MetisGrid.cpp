@@ -471,8 +471,17 @@ void GridPartition::ReconstructInterfaceTopo( std::vector< std::unique_ptr< Scal
 
 void GridPartition::CalcInterfaceToBcFace( std::vector< std::unique_ptr< ScalarGrid > > & grids )
 {
-	int nZones = static_cast< int >( grids.size() );
-	for ( int iZone = 0; iZone < nZones; ++ iZone )
+	const size_t nZones = grids.size();
+	for ( size_t iZone = 0; iZone < nZones; ++ iZone )
+	{
+		if ( ! grids[ iZone ] || ! grids[ iZone ]->scalarIFace )
+		{
+			throw std::runtime_error( "GridPartition::CalcInterfaceToBcFace: zone has no interface topology" );
+		}
+	}
+
+	// Validate the complete zone set before rebuilding any derived mapping.
+	for ( size_t iZone = 0; iZone < nZones; ++ iZone )
 	{
 		grids[ iZone ]->CalcInterfaceToBcFace();
 	}
