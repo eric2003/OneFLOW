@@ -274,6 +274,18 @@ void CalcGrid::ReconstructInterFace()
 
 void CalcGrid::ResetGridScaleAndTranslate()
 {
+    // Check all node meshes before transforming any zone, so a malformed
+    // collection cannot leave earlier zones scaled while later zones fail.
+    ValidateGridCollection( grids );
+    for ( const auto & grid : grids )
+    {
+        if ( ! grid->nodeMesh )
+        {
+            throw std::logic_error(
+                "CalcGrid::ResetGridScaleAndTranslate: grid node mesh is not initialized" );
+        }
+    }
+
     const int nZone = GridsSize( grids );
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
@@ -439,7 +451,7 @@ void TurnZAxisToYAxis( NodeMesh & nodeMesh )
     RealField & zN = nodeMesh.zN;
 
     Real tmp;
-    for ( int iNode = 0; iNode < nNodes; ++ iNode )
+    for ( size_t iNode = 0; iNode < nNodes; ++ iNode )
     {
         tmp         = yN[ iNode ];
         yN[ iNode ] = zN[ iNode ];
