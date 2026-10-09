@@ -33,6 +33,7 @@ License
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <stdexcept>
 
 
 BeginNameSpace( ONEFLOW )
@@ -63,7 +64,15 @@ MetisIntList MetisSplit::ManualPartition( const ScalarGrid & ggrid )
 
 MetisIntList MetisSplit::MetisPartition( const ScalarGrid & ggrid, int nPart )
 {
-	int nCells = ggrid.GetNCells();
+	const int nCells = ggrid.GetNCells();
+	if ( nCells <= 0 )
+	{
+		throw std::invalid_argument( "MetisSplit::MetisPartition: input grid must contain at least one cell" );
+	}
+	if ( nPart <= 0 || nPart > nCells )
+	{
+		throw std::invalid_argument( "MetisSplit::MetisPartition: nPart must be between 1 and the number of cells" );
+	}
 
 	if ( nPart == nCells )
 	{
