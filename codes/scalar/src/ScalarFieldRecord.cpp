@@ -64,6 +64,11 @@ ScalarFieldRecord::~ScalarFieldRecord()
 
 void ScalarFieldRecord::AddField( MRField * field, int nEqu )
 {
+    if ( field == nullptr )
+    {
+        throw std::invalid_argument( "ScalarFieldRecord::AddField: field must not be null" );
+    }
+
     this->nEquList.push_back( nEqu );
     this->fields.push_back( field );
 }
