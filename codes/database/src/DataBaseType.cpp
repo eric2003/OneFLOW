@@ -58,6 +58,7 @@ void DataBaseType::AddItem( const std::string &name, int index )
 
 int DataBaseType::GetIndex( const std::string & name )
 {
+    DataBaseType::Init();
     const auto iter = DataBaseType::indexMap.find( name );
     if ( iter == DataBaseType::indexMap.end() )
     {
@@ -68,6 +69,7 @@ int DataBaseType::GetIndex( const std::string & name )
 
 const std::string & DataBaseType::GetName( int index )
 {
+    DataBaseType::Init();
     const auto iter = DataBaseType::nameMap.find( index );
     if ( iter == DataBaseType::nameMap.end() )
     {

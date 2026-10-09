@@ -51,3 +51,25 @@ target_link_libraries(database_test
 gtest_discover_tests(database_test
   DISCOVERY_MODE PRE_TEST          # 关键！
 )
+
+# Run in its own process so the test starts with DataBaseType's static
+# registry uninitialized, independent of database_test fixture setup.
+add_executable(database_type_init_test
+  database_type_init_test.cpp
+  ${DATABASE_SRC_DIR}/DataBaseType.cpp
+)
+
+target_include_directories(database_type_init_test
+  PRIVATE
+    ${DATABASE_INCLUDE_DIR}
+    ${BASIC_INCLUDE_DIR}
+)
+
+target_link_libraries(database_type_init_test
+  PRIVATE
+    GTest::gtest_main
+)
+
+gtest_discover_tests(database_type_init_test
+  DISCOVERY_MODE PRE_TEST
+)
