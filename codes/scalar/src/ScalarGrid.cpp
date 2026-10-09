@@ -1033,7 +1033,7 @@ void ScalarGrid::ScanBcFace()
 
 void ScalarGrid::CalcOrderMap( IntList &orderMap )
 {
-	this->nFaces = this->faces.GetNElements();
+	this->nFaces = this->GetNFaces();
 	orderMap.Resize( this->nFaces );
 
 	int iBoundaryFaceCount = 0;
@@ -1204,7 +1204,7 @@ void ScalarGrid::CalcInterfaceToBcFace()
 
 void ScalarGrid::Normalize()
 {
-	int nFaces = this->faces.GetNElements();
+	int nFaces = this->GetNFaces();
 	for ( int iFace = 0; iFace < nFaces; ++ iFace )
 	{
 		if ( this->lc[ iFace ] < 0 )
