@@ -430,10 +430,15 @@ void GridPartition::ReconstructInterfaceTopo( std::vector< std::unique_ptr< Scal
 
 	for ( size_t iZone = 0; iZone < nZones; ++ iZone )
 	{
-		const ScalarIFace & scalarIFace = *grids[ iZone ]->scalarIFace;
-		const size_t nEntries = scalarIFace.data.size();
+		const size_t nEntries = grids[ iZone ]->scalarIFace->data.size();
 		stagedTargets[ iZone ].resize( nEntries );
 		stagedReceives[ iZone ].resize( nEntries );
+	}
+
+	for ( size_t iZone = 0; iZone < nZones; ++ iZone )
+	{
+		const ScalarIFace & scalarIFace = *grids[ iZone ]->scalarIFace;
+		const size_t nEntries = scalarIFace.data.size();
 
 		for ( size_t iEntry = 0; iEntry < nEntries; ++ iEntry )
 		{
