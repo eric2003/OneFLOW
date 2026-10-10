@@ -82,11 +82,11 @@ public:
     //mapping relationship between local interface bc ID and boundary bc ID
     std::vector< int > interface_to_bcface;
 public:
-    int GetNIFaces();
-    int FindINeibor( int iZone );
+    int GetNIFaces() const;
+    int FindINeibor( int iZone ) const;
     void DumpInterfaceMap();
     void DumpMap( std::map<int, int> & mapin );
-    int GetLocalInterfaceId( int global_interface_id );
+    int GetLocalInterfaceId( int global_interface_id ) const;
     void CalcLocalInterfaceId( int iZone, std::vector<int> & globalfaces, std::vector<int> & localfaces );
     void AddInterface( int global_interface_id, int neighbor_zoneid, int neighbor_cellid );
     void ReconstructNeighbor();
