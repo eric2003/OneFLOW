@@ -77,6 +77,16 @@ CgnsZone * CgnsBase::GetCgnsZone( int iZone )
     return this->cgnsZones[ static_cast< size_t >( iZone ) ].get();
 }
 
+const CgnsZone * CgnsBase::GetCgnsZone( int iZone ) const
+{
+    if ( iZone < 0 || static_cast< size_t >( iZone ) >= this->cgnsZones.size() )
+    {
+        throw std::out_of_range( "CgnsBase::GetCgnsZone: zone index is out of range" );
+    }
+
+    return this->cgnsZones[ static_cast< size_t >( iZone ) ].get();
+}
+
 CgnsZone * CgnsBase::GetCgnsZoneByName( const std::string & zoneName )
 {
     const auto iter = this->zoneNameMap.find( zoneName );
@@ -88,7 +98,18 @@ CgnsZone * CgnsBase::GetCgnsZoneByName( const std::string & zoneName )
     return this->GetCgnsZone( iter->second - 1 );
 }
 
-int CgnsBase::GetNZones()
+const CgnsZone * CgnsBase::GetCgnsZoneByName( const std::string & zoneName ) const
+{
+    const auto iter = this->zoneNameMap.find( zoneName );
+    if ( iter == this->zoneNameMap.end() )
+    {
+        throw std::out_of_range( "CgnsBase::GetCgnsZoneByName: unknown zone name '" + zoneName + "'" );
+    }
+
+    return this->GetCgnsZone( iter->second - 1 );
+}
+
+int CgnsBase::GetNZones() const
 {
     return static_cast< int >( this->cgnsZones.size() );
 }
@@ -299,12 +320,12 @@ void CgnsBase::ConvertToInnerDataStandard()
     }
 }
 
-void CgnsBase::SetFamilyBc( BCType_t & bcType, const std::string & bcRegionName )
+void CgnsBase::SetFamilyBc( BCType_t & bcType, const std::string & bcRegionName ) const
 {
     this->familyBc->SetFamilyBc( bcType, bcRegionName );
 }
 
-BCType_t CgnsBase::GetFamilyBcType( const std::string & bcFamilyName )
+BCType_t CgnsBase::GetFamilyBcType( const std::string & bcFamilyName ) const
 {
     return this->familyBc->GetFamilyBcType( bcFamilyName );
 }

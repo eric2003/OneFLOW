@@ -52,12 +52,14 @@ public:
 public:
     void FreeZoneList();
     CgnsZone * GetCgnsZoneByName( const std::string & zoneName );
+    const CgnsZone * GetCgnsZoneByName( const std::string & zoneName ) const;
     CgnsZone * GetCgnsZone( int iZone );
+    const CgnsZone * GetCgnsZone( int iZone ) const;
     void ConstructZoneNameMap();
     std::map< std::string, int > zoneNameMap;
     std::unique_ptr< CgnsFamilyBc > familyBc;
 public:
-    int GetNZones();
+    int GetNZones() const;
     void SetDefaultCgnsBaseBasicInfo();
     void AddCgnsZone( std::unique_ptr< CgnsZone > cgnsZone );
     void AllocateAllCgnsZones();
@@ -71,8 +73,8 @@ public:
     void ProcessCgnsZones();
     void ConvertToInnerDataStandard();
 public:
-    void SetFamilyBc( BCType_t & bcType, const std::string & bcRegionName );
-    BCType_t GetFamilyBcType( const std::string & bcFamilyName );
+    void SetFamilyBc( BCType_t & bcType, const std::string & bcRegionName ) const;
+    BCType_t GetFamilyBcType( const std::string & bcFamilyName ) const;
     void ReadFamilySpecifiedBc();
 public:
     void GoToBase();
