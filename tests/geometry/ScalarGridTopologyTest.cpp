@@ -77,6 +77,21 @@ TEST(ScalarGridTopologyTest, CalcInterfaceToBcFaceRejectsMissingInterfaceTopolog
     EXPECT_THROW(grid.CalcInterfaceToBcFace(), std::logic_error);
 }
 
+TEST(ScalarGridTopologyTest, CalcTopologyRejectsMismatchedCoordinateArraysWithoutResettingTopology)
+{
+    ONEFLOW::ScalarGrid grid;
+    grid.xn.Resize(2);
+    grid.yn.Resize(1);
+    grid.zn.Resize(2);
+    grid.faces.Resize(1);
+    grid.lc.AddData(31);
+
+    EXPECT_THROW(grid.CalcTopology(), std::runtime_error);
+    ASSERT_EQ(grid.faces.GetNElements(), 1u);
+    ASSERT_EQ(grid.lc.GetNElements(), 1u);
+    EXPECT_EQ(grid.lc[0], 31);
+}
+
 TEST(ScalarGridTopologyTest, CalcTopologyRejectsMismatchedCellArraysWithoutResettingTopology)
 {
     ONEFLOW::ScalarGrid grid;

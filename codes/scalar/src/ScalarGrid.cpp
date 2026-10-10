@@ -967,6 +967,12 @@ void ScalarGrid::CalcTopology()
 	const int nodeCount = this->GetNNodes();
 	const int cellCount = this->GetNCells();
 
+	if ( this->yn.GetNElements() != static_cast< size_t >( nodeCount ) ||
+		 this->zn.GetNElements() != static_cast< size_t >( nodeCount ) )
+	{
+		throw std::runtime_error( "ScalarGrid::CalcTopology: coordinate arrays have inconsistent sizes" );
+	}
+
 	if ( this->elements.GetNElements() != static_cast< size_t >( cellCount ) )
 	{
 		throw std::runtime_error( "ScalarGrid::CalcTopology: cell connectivity and element type arrays have inconsistent sizes" );
