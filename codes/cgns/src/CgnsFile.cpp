@@ -29,6 +29,7 @@ License
 #include "Fatal.h"
 #include <iostream>
 #include <iomanip>
+#include <stdexcept>
 #include <utility>
 
 BeginNameSpace( ONEFLOW )
@@ -169,7 +170,18 @@ void CgnsFile::GoPath( const std::string & path )
 
 void CgnsFile::ReadNumberOfBases()
 {
-    cg_nbases( this->fileId, & this->nBases );
+    int baseCount = -1;
+    const int status = cg_nbases( this->fileId, & baseCount );
+    if ( status != CG_OK )
+    {
+        throw std::runtime_error( "CgnsFile::ReadNumberOfBases: " + std::string( cg_get_error() ) );
+    }
+    if ( baseCount < 0 )
+    {
+        throw std::runtime_error( "CgnsFile::ReadNumberOfBases: CGNS returned a negative base count" );
+    }
+
+    this->nBases = baseCount;
     std::cout << " Total number of CGNS Base = " << this->nBases << "\n";
 }
 
@@ -188,6 +200,7 @@ CgnsBase * CgnsFile::CreateCgnsBase()
 
 void CgnsFile::ReadBases()
 {
+    this->FreeBaseList();
     this->ReadNumberOfBases();
     for ( int iBase = 0; iBase < this->nBases; ++ iBase )
     {
