@@ -27,6 +27,7 @@ License
 #include "InterFace.h"
 #include "FaceSearch.h"
 #include "Grid.h"
+#include "NodeMesh.h"
 #include "HXMath.h"
 #include <iostream>
 #include <algorithm>
@@ -250,15 +251,30 @@ void FaceTopo::SetNewFace2Node( IFaceLink & iFaceLink )
                     {
                         int flag = iFaceLink.face_search->rCNodeFlag[ cFid ][ iNode ];
                         int nodeIndex;
+                        const int mappedNodeId =
+                            iFaceLink.face_search->rCNodeId[ cFid ][ iNode ];
                         if ( flag == 1 )
                         {
-                            int rNId = iFaceLink.face_search->rCNodeId[ cFid ][ iNode ];
-                            nodeIndex = this->faces[ iFace ][ rNId ];
+                            if ( mappedNodeId < 0 ||
+                                 static_cast< size_t >( mappedNodeId ) >= this->faces[ iFace ].size() )
+                            {
+                                throw std::out_of_range(
+                                    "FaceTopo::SetNewFace2Node: local child node ID is out of range" );
+                            }
+                            nodeIndex = this->faces[ iFace ][ mappedNodeId ];
                         }
                         else
                         {
-                            //At this time, the storage is not a relative value, but an absolute new punctuation
-                            nodeIndex = iFaceLink.face_search->rCNodeId[ cFid ][ iNode ];
+                            // Non-relative entries are absolute node IDs created during interface splitting.
+                            if ( ! this->GetGrid().nodeMesh ||
+                                 mappedNodeId < 0 ||
+                                 static_cast< size_t >( mappedNodeId ) >=
+                                     this->GetGrid().nodeMesh->GetNumberOfNodes() )
+                            {
+                                throw std::out_of_range(
+                                    "FaceTopo::SetNewFace2Node: absolute child node ID is out of range" );
+                            }
+                            nodeIndex = mappedNodeId;
                         }
                         tmpVector.push_back( nodeIndex );
                     }
