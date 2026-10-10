@@ -84,10 +84,10 @@ public:
 public:
     int GetNIFaces() const;
     int FindINeibor( int iZone ) const;
-    void DumpInterfaceMap();
-    void DumpMap( std::map<int, int> & mapin );
+    void DumpInterfaceMap() const;
+    void DumpMap( const std::map<int, int> & mapin ) const;
     int GetLocalInterfaceId( int global_interface_id ) const;
-    void CalcLocalInterfaceId( int iZone, std::vector<int> & globalfaces, std::vector<int> & localfaces );
+    void CalcLocalInterfaceId( int iZone, const std::vector<int> & globalfaces, std::vector<int> & localfaces );
     void AddInterface( int global_interface_id, int neighbor_zoneid, int neighbor_cellid );
     void ReconstructNeighbor();
 public:
