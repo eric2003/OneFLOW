@@ -452,9 +452,28 @@ void CgnsSection::DumpCgnsSectionConnectionList()
     int baseId = cgnsZone.cgnsBase.baseId;
     int zId = cgnsZone.zId;
 
-    // write element connectivity
+    if ( this->connSize < 0 ||
+         this->connList.size() != static_cast< size_t >( this->connSize ) ||
+         this->connList.empty() )
+    {
+        throw std::runtime_error(
+            "CgnsSection::DumpCgnsSectionConnectionList: connectivity storage is invalid" );
+    }
+
+    // Write element connectivity and publish the section ID only on success.
     ElementType_t elementType = static_cast< ElementType_t >( this->eType );
-    cg_section_write( fileId, baseId, zId, this->sectionName.c_str(), elementType, this->startId, this->endId, this->nbndry, & this->connList[ 0 ], & this->id );
+    int sectionId = 0;
+    const int status = cg_section_write(
+        fileId, baseId, zId, this->sectionName.c_str(), elementType,
+        this->startId, this->endId, this->nbndry, this->connList.data(), & sectionId );
+    if ( status != CG_OK )
+    {
+        throw std::runtime_error(
+            "CgnsSection::DumpCgnsSectionConnectionList (cg_section_write): " +
+            std::string( cg_get_error() ) );
+    }
+
+    this->id = sectionId;
 }
 
 void CgnsSection::SetElemPosition()
