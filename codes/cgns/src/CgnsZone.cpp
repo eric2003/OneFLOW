@@ -260,10 +260,15 @@ void CgnsZone::ReadCgnsZoneBasicInfo()
 
 void CgnsZone::ReadCgnsZoneType()
 {
-    //Check the zone type
-    cg_zone_type( cgnsBase.cgnsFile->fileId, cgnsBase.baseId, this->zId, & cgnsZoneType );
+    ZoneType_t zoneType = this->cgnsZoneType;
+    const int status = cg_zone_type( cgnsBase.cgnsFile->fileId, cgnsBase.baseId, this->zId, & zoneType );
+    if ( status != CG_OK )
+    {
+        throw std::runtime_error( "CgnsZone::ReadCgnsZoneType: " + std::string( cg_get_error() ) );
+    }
 
-    std::cout << "   The Zone Type is " << GetCgnsZoneTypeName( cgnsZoneType ) << " Zone" << "\n";
+    this->cgnsZoneType = zoneType;
+    std::cout << "   The Zone Type is " << GetCgnsZoneTypeName( this->cgnsZoneType ) << " Zone" << "\n";
 }
 
 void CgnsZone::DumpCgnsZoneType()
@@ -277,13 +282,22 @@ void CgnsZone::DumpCgnsZoneType()
 void CgnsZone::ReadCgnsZoneNameAndGeneralizedDimension()
 {
     CgnsTraits::char33 cgnsZoneName;
+    cgsize_t zoneSize[ 9 ] = {};
 
     //Determine the number of vertices and cellVolume elements in this zone
-    cg_zone_read( cgnsBase.cgnsFile->fileId, cgnsBase.baseId, this->zId, cgnsZoneName, this->isize );
+    const int status = cg_zone_read( cgnsBase.cgnsFile->fileId, cgnsBase.baseId, this->zId, cgnsZoneName, zoneSize );
+    if ( status != CG_OK )
+    {
+        throw std::runtime_error( "CgnsZone::ReadCgnsZoneNameAndGeneralizedDimension: " + std::string( cg_get_error() ) );
+    }
 
+    for ( int i = 0; i < 9; ++ i )
+    {
+        this->isize[ i ] = zoneSize[ i ];
+    }
     this->zoneName = cgnsZoneName;
 
-    std::cout << "   CGNS Zone Name = " << cgnsZoneName << "\n";
+    std::cout << "   CGNS Zone Name = " << this->zoneName << "\n";
 }
 
 void CgnsZone::DumpCgnsZoneNameAndGeneralizedDimension()
