@@ -106,10 +106,14 @@ void CgnsBase::SetDefaultCgnsBaseBasicInfo()
 
 void CgnsBase::AddCgnsZone( std::unique_ptr< CgnsZone > cgnsZone )
 {
+    if ( ! cgnsZone )
+    {
+        throw std::invalid_argument( "CgnsBase::AddCgnsZone: cannot add a null zone" );
+    }
+
     CgnsZone * zone = cgnsZone.get();
-    cgnsZones.push_back( std::move( cgnsZone ) );
-    int zId = cgnsZones.size();
-    zone->zId = zId;
+    zone->zId = static_cast< int >( this->cgnsZones.size() + 1 );
+    this->cgnsZones.push_back( std::move( cgnsZone ) );
 }
 
 void CgnsBase::AllocateAllCgnsZones()
