@@ -30,6 +30,7 @@ License
 #include "NodeMesh.h"
 #include <algorithm>
 #include <iostream>
+#include <stdexcept>
 
 BeginNameSpace( ONEFLOW )
 
@@ -52,10 +53,23 @@ Grid & IFaceLink::GetGrid( int zoneIndex )
 
 void IFaceLink::Init( Grid & grid )
 {
-    int zid = grid.id;
-    int nIFaces = grid.interFace->nIFaces;
+    const int zid = grid.id;
+    if ( zid < 0 || static_cast< size_t >( zid ) >= this->l2g.size() )
+    {
+        throw std::out_of_range( "IFaceLink::Init: grid zone index is out of range" );
+    }
+    if ( ! grid.interFace )
+    {
+        throw std::logic_error( "IFaceLink::Init: grid interface data is not initialized" );
+    }
 
-    this->l2g[ zid ].resize( nIFaces );
+    const int nIFaces = grid.interFace->nIFaces;
+    if ( nIFaces < 0 )
+    {
+        throw std::invalid_argument( "IFaceLink::Init: interface face count must not be negative" );
+    }
+
+    this->l2g[ zid ].resize( static_cast< size_t >( nIFaces ) );
 }
 
 void IFaceLink::AddFace( const IntField & facePointIndexes )
