@@ -240,6 +240,13 @@ void CgnsCoor::ReadCgnsGridCoordinates()
                     std::string( cg_get_error() ) );
             }
 
+            if ( dataType != RealSingle && dataType != RealDouble )
+            {
+                throw std::runtime_error(
+                    "CgnsCoor::ReadCgnsGridCoordinates: unsupported coordinate data type for '" +
+                    std::string( coorName ) + "'" );
+            }
+
             std::cout << "   coorName = " << coorName << " dataType = " << dataType << " dataTypeName = " << DataTypeName[ dataType ] << "\n";
             this->typeList[ iCoor ] = dataType;
             this->nNodeList[ iCoor ] = nNodes;
