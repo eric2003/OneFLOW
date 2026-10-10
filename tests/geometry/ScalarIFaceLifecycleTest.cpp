@@ -89,3 +89,19 @@ TEST(ScalarIFaceLifecycleTest, ReconstructNeighborIsGroupedOrderedAndRepeatable)
     EXPECT_EQ(interfaceData.data[0].iglobalfaces.size(), 1u);
     EXPECT_EQ(interfaceData.data[1].iglobalfaces.size(), 2u);
 }
+
+TEST(ScalarIFaceLifecycleTest, RejectsNegativeNeighborZoneWithoutReplacingNeighborGroups)
+{
+    ONEFLOW::ScalarIFace interfaceData;
+    interfaceData.AddInterface(30, 3, 300);
+    interfaceData.ReconstructNeighbor();
+    ASSERT_EQ(interfaceData.data.size(), 1u);
+
+    interfaceData.zones[0] = -1;
+
+    EXPECT_THROW(interfaceData.ReconstructNeighbor(), std::runtime_error);
+    ASSERT_EQ(interfaceData.data.size(), 1u);
+    EXPECT_EQ(interfaceData.data[0].zonej, 3);
+    ASSERT_EQ(interfaceData.data[0].iglobalfaces.size(), 1u);
+    EXPECT_EQ(interfaceData.data[0].iglobalfaces[0], 30);
+}
