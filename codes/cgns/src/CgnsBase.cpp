@@ -175,10 +175,20 @@ CgnsZone * CgnsBase::CreateCgnsZone()
 
 void CgnsBase::CreateCgnsZones( int nZones )
 {
+    if ( nZones < 0 )
+    {
+        throw std::invalid_argument( "CgnsBase::CreateCgnsZones: zone count cannot be negative" );
+    }
+
+    if ( ! this->cgnsZones.empty() )
+    {
+        throw std::logic_error( "CgnsBase::CreateCgnsZones: zones have already been created" );
+    }
+
     this->nZones = nZones;
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
-        CgnsZone * cgnsZone = this->CreateCgnsZone();
+        this->CreateCgnsZone();
     }
 }
 
