@@ -3,6 +3,7 @@
 
 #include "ScalarGrid.h"
 #include "Boundary.h"
+#include "ScalarIFace.h"
 
 TEST(ScalarGridTopologyTest, CalcC2CRejectsInvalidInternalCellReferences)
 {
