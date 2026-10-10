@@ -314,7 +314,6 @@ void FaceTopo::SetNewFace2Node( IFaceLink & iFaceLink )
     }
 
     //Inner Face
-    int nFaces = this->GetNFaces();
     for ( int iFace = nBFaces; iFace < nFaces; ++ iFace )
     {
         int nFNode = this->faces[ iFace ].size();
