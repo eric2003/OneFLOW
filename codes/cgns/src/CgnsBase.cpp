@@ -167,7 +167,18 @@ void CgnsBase::ReadCgnsBaseBasicInfo()
 
 void CgnsBase::DumpCgnsBaseBasicInfo()
 {
-    cg_base_write( this->cgnsFile->fileId, this->baseName.c_str(), this->celldim, this->phydim, &this->baseId );
+    int baseId = -1;
+    const int status = cg_base_write(
+        this->cgnsFile->fileId, this->baseName.c_str(),
+        this->celldim, this->phydim, &baseId );
+    if ( status != CG_OK )
+    {
+        throw std::runtime_error(
+            "CgnsBase::DumpCgnsBaseBasicInfo (cg_base_write): " +
+            std::string( cg_get_error() ) );
+    }
+
+    this->baseId = baseId;
     std::cout << " baseId = " << this->baseId << " baseName = " << this->baseName << "\n";
 }
 
