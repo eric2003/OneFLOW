@@ -77,6 +77,49 @@ TEST(ScalarGridTopologyTest, CalcInterfaceToBcFaceRejectsMissingInterfaceTopolog
     EXPECT_THROW(grid.CalcInterfaceToBcFace(), std::logic_error);
 }
 
+TEST(ScalarGridTopologyTest, CalcTopologyRejectsUnmatchedBoundaryFaceWithoutResettingTopology)
+{
+    ONEFLOW::ScalarGrid grid;
+    grid.xn.Resize(2);
+    grid.yn.Resize(2);
+    grid.zn.Resize(2);
+    grid.elements.AddElem(std::vector<int>{0, 1});
+    grid.eTypes.AddData(ONEFLOW::BAR_2);
+    grid.faces.Resize(1);
+    grid.lc.AddData(23);
+
+    EXPECT_THROW(grid.CalcTopology(), std::runtime_error);
+    ASSERT_EQ(grid.faces.GetNElements(), 1u);
+    ASSERT_EQ(grid.lc.GetNElements(), 1u);
+    EXPECT_EQ(grid.lc[0], 23);
+}
+
+TEST(ScalarGridTopologyTest, CalcTopologyRejectsBoundaryFaceMatchingMultipleConditions)
+{
+    ONEFLOW::ScalarGrid grid;
+    grid.xn.Resize(2);
+    grid.yn.Resize(2);
+    grid.zn.Resize(2);
+    grid.elements.AddElem(std::vector<int>{0, 1});
+    grid.eTypes.AddData(ONEFLOW::BAR_2);
+    grid.faces.Resize(1);
+    grid.lc.AddData(19);
+
+    auto firstBoundary = std::make_unique< ONEFLOW::ScalarBcco >();
+    firstBoundary->AddBcPoint(0);
+    firstBoundary->AddBcPoint(1);
+    grid.scalarBccos->AddBcco(std::move(firstBoundary));
+
+    auto overlappingBoundary = std::make_unique< ONEFLOW::ScalarBcco >();
+    overlappingBoundary->AddBcPoint(0);
+    grid.scalarBccos->AddBcco(std::move(overlappingBoundary));
+
+    EXPECT_THROW(grid.CalcTopology(), std::runtime_error);
+    ASSERT_EQ(grid.faces.GetNElements(), 1u);
+    ASSERT_EQ(grid.lc.GetNElements(), 1u);
+    EXPECT_EQ(grid.lc[0], 19);
+}
+
 TEST(ScalarGridTopologyTest, CalcTopologyRejectsNullBoundaryConditionWithoutResettingTopology)
 {
     ONEFLOW::ScalarGrid grid;

@@ -1014,6 +1014,8 @@ void ScalarGrid::CalcTopology()
 		throw std::logic_error( "ScalarGrid::CalcTopology: boundary condition collection is not initialized" );
 	}
 
+	std::vector< IntSet > boundaryVertexSets;
+	boundaryVertexSets.reserve( this->scalarBccos->bccos.size() );
 	for ( const std::unique_ptr< ScalarBcco > & boundaryCondition : this->scalarBccos->bccos )
 	{
 		if ( boundaryCondition == nullptr )
@@ -1021,13 +1023,16 @@ void ScalarGrid::CalcTopology()
 			throw std::runtime_error( "ScalarGrid::CalcTopology: boundary condition collection contains a null entry" );
 		}
 
+		IntSet boundaryVertices;
 		for ( int nodeId : boundaryCondition->vertexList )
 		{
 			if ( nodeId < 0 || nodeId >= nodeCount )
 			{
 				throw std::runtime_error( "ScalarGrid::CalcTopology: boundary condition references an invalid node index" );
 			}
+			boundaryVertices.insert( nodeId );
 		}
+		boundaryVertexSets.push_back( std::move( boundaryVertices ) );
 	}
 
 	// A face in a conforming volume/line mesh may belong to at most two cells.
@@ -1036,6 +1041,7 @@ void ScalarGrid::CalcTopology()
 	HXLookup< int > incidenceLookup;
 	std::vector< int > faceOwnerCell;
 	std::vector< int > faceIncidenceCount;
+	std::vector< std::vector< int > > faceNodeLists;
 	for ( int iCell = 0; iCell < cellCount; ++ iCell )
 	{
 		const std::vector< int > & element = this->elements[ iCell ];
@@ -1056,6 +1062,7 @@ void ScalarGrid::CalcTopology()
 			{
 				faceOwnerCell.push_back( iCell );
 				faceIncidenceCount.push_back( 1 );
+				faceNodeLists.push_back( std::move( faceNodes ) );
 				continue;
 			}
 
@@ -1068,6 +1075,34 @@ void ScalarGrid::CalcTopology()
 				throw std::runtime_error( "ScalarGrid::CalcTopology: a face is shared by more than two cells" );
 			}
 			++ faceIncidenceCount[ faceIndex ];
+		}
+	}
+
+	// Every exterior face must map to exactly one boundary condition. Validate
+	// this before resetting topology so missing or ambiguous BC data cannot
+	// leave a partially rebuilt mesh or silently depend on scan order.
+	for ( size_t iFace = 0; iFace < faceIncidenceCount.size(); ++ iFace )
+	{
+		if ( faceIncidenceCount[ iFace ] != 1 )
+		{
+			continue;
+		}
+
+		int matchingBoundaryConditions = 0;
+		for ( const IntSet & boundaryVertices : boundaryVertexSets )
+		{
+			if ( this->CheckBcFace( boundaryVertices, faceNodeLists[ iFace ] ) )
+			{
+				++ matchingBoundaryConditions;
+				if ( matchingBoundaryConditions > 1 )
+				{
+					throw std::runtime_error( "ScalarGrid::CalcTopology: boundary face matches multiple boundary conditions" );
+				}
+			}
+		}
+		if ( matchingBoundaryConditions == 0 )
+		{
+			throw std::runtime_error( "ScalarGrid::CalcTopology: boundary face does not match any boundary condition" );
 		}
 	}
 
