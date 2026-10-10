@@ -30,8 +30,46 @@ License
 #include "NodeMesh.h"
 #include <algorithm>
 #include <iostream>
+#include <stdexcept>
+#include <string>
 
 BeginNameSpace( ONEFLOW )
+
+namespace
+{
+void ValidateGlobalFaceMapping(
+    int globalFaceId, const LinkField & zoneIds, const LinkField & localFaceIds,
+    const char * operation )
+{
+    if ( globalFaceId < 0 ||
+         static_cast< size_t >( globalFaceId ) >= zoneIds.size() ||
+         static_cast< size_t >( globalFaceId ) >= localFaceIds.size() )
+    {
+        throw std::logic_error( std::string( operation ) + ": global face mapping is out of range" );
+    }
+
+    if ( zoneIds[ globalFaceId ].size() != localFaceIds[ globalFaceId ].size() )
+    {
+        throw std::logic_error( std::string( operation ) + ": global face references are inconsistent" );
+    }
+}
+
+void ValidateGlobalFaceMappings(
+    const LinkField & zoneIds, const LinkField & localFaceIds,
+    const char * operation )
+{
+    if ( zoneIds.size() != localFaceIds.size() )
+    {
+        throw std::logic_error( std::string( operation ) + ": global face mapping tables have different sizes" );
+    }
+
+    for ( size_t globalFaceId = 0; globalFaceId < zoneIds.size(); ++ globalFaceId )
+    {
+        ValidateGlobalFaceMapping(
+            static_cast< int >( globalFaceId ), zoneIds, localFaceIds, operation );
+    }
+}
+}
 
 IFaceLink::IFaceLink( Grids & gridsIn ) : grids( gridsIn )
 {
@@ -47,15 +85,43 @@ IFaceLink::~IFaceLink() = default;
 
 Grid & IFaceLink::GetGrid( int zoneIndex )
 {
-    return GridAt( this->grids, zoneIndex );
+    if ( zoneIndex < 0 || static_cast< size_t >( zoneIndex ) >= this->grids.size() )
+    {
+        throw std::out_of_range( "IFaceLink::GetGrid: zone index is out of range" );
+    }
+    return GridAt( this->grids, static_cast< size_t >( zoneIndex ) );
+}
+
+void IFaceLink::ValidateGridIndex( const Grid & grid, const char * operation ) const
+{
+    const int zid = grid.id;
+    if ( zid < 0 || static_cast< size_t >( zid ) >= this->l2g.size() )
+    {
+        throw std::out_of_range( std::string( operation ) + ": grid zone index is out of range" );
+    }
+    if ( & GridAt( this->grids, static_cast< size_t >( zid ) ) != & grid )
+    {
+        throw std::invalid_argument(
+            std::string( operation ) + ": grid does not belong to the linked collection" );
+    }
 }
 
 void IFaceLink::Init( Grid & grid )
 {
-    int zid = grid.id;
-    int nIFaces = grid.interFace->nIFaces;
+    ValidateGridIndex( grid, "IFaceLink::Init" );
+    const int zid = grid.id;
+    if ( ! grid.interFace )
+    {
+        throw std::logic_error( "IFaceLink::Init: grid interface data is not initialized" );
+    }
 
-    this->l2g[ zid ].resize( nIFaces );
+    const int nIFaces = grid.interFace->nIFaces;
+    if ( nIFaces < 0 )
+    {
+        throw std::invalid_argument( "IFaceLink::Init: interface face count must not be negative" );
+    }
+
+    this->l2g[ zid ].resize( static_cast< size_t >( nIFaces ) );
 }
 
 void IFaceLink::AddFace( const IntField & facePointIndexes )
@@ -65,12 +131,30 @@ void IFaceLink::AddFace( const IntField & facePointIndexes )
 
 void IFaceLink::CreateLink( IntField & faceNode, int zid, int lCount )
 {
+    if ( zid < 0 || static_cast< size_t >( zid ) >= this->l2g.size() )
+    {
+        throw std::out_of_range( "IFaceLink::CreateLink: zone index is out of range" );
+    }
+    if ( lCount < 0 || static_cast< size_t >( lCount ) >= this->l2g[ zid ].size() )
+    {
+        throw std::out_of_range( "IFaceLink::CreateLink: local face index is out of range" );
+    }
+    if ( this->gI2Zid.size() != this->g2l.size() )
+    {
+        throw std::logic_error( "IFaceLink::CreateLink: global face mappings are inconsistent" );
+    }
+
     this->AddFace( faceNode );
 
     auto [gIid, isNew] = this->faceLookup.FindOrAdd( faceNode );
 
     if ( isNew )
     {
+        if ( gIid < 0 || static_cast< size_t >( gIid ) != this->gI2Zid.size() )
+        {
+            throw std::logic_error( "IFaceLink::CreateLink: new global face ID is inconsistent" );
+        }
+
         this->l2g[ zid ][ lCount ] = gIid;
 
         IntField zids;
@@ -82,6 +166,15 @@ void IFaceLink::CreateLink( IntField & faceNode, int zid, int lCount )
     }
     else
     {
+        if ( gIid < 0 || static_cast< size_t >( gIid ) >= this->gI2Zid.size() )
+        {
+            throw std::logic_error( "IFaceLink::CreateLink: global face ID is out of range" );
+        }
+        if ( this->gI2Zid[ gIid ].size() != this->g2l[ gIid ].size() )
+        {
+            throw std::logic_error( "IFaceLink::CreateLink: global face references are inconsistent" );
+        }
+
         this->l2g[ zid ][ lCount ] = gIid;
         this->gI2Zid[ gIid ].push_back( zid );
         this->g2l[ gIid ].push_back( lCount );
@@ -97,16 +190,24 @@ void IFaceLink::InitNewLgMapping()
 {
     this->gI2ZidNew = this->gI2Zid;
     this->g2lNew = this->g2l;
+
+    this->l2gNew.clear();
+    this->l2gNew.resize( this->l2g.size() );
 }
 
 void IFaceLink::UpdateLgMapping()
 {
-    this->gI2Zid = this->gI2ZidNew;
-    this->g2l = this->g2lNew;
+    ValidateGlobalFaceMappings(
+        this->gI2ZidNew, this->g2lNew, "IFaceLink::UpdateLgMapping" );
+
+    this->gI2Zid.swap( this->gI2ZidNew );
+    this->g2l.swap( this->g2lNew );
+    this->l2g.swap( this->l2gNew );
 }
 
 void IFaceLink::MatchInterfaceTopology( Grid & grid )
 {
+    ValidateGridIndex( grid, "IFaceLink::MatchInterfaceTopology" );
     InterFace * interFace = grid.interFace.get();
     if ( ! interFace ) return;
 
@@ -117,7 +218,9 @@ void IFaceLink::MatchInterfaceTopology( Grid & grid )
     for ( int iIFace = 0; iIFace < nIFaces; ++ iIFace )
     {
         int gIFace = this->l2g[ grid.id ][ iIFace ];
-        int nIZone = this->gI2Zid[ gIFace ].size();
+        ValidateGlobalFaceMapping(
+            gIFace, this->gI2Zid, this->g2l, "IFaceLink::MatchInterfaceTopology" );
+        int nIZone = static_cast< int >( this->gI2Zid[ gIFace ].size() );
 
         if ( nIZone != 2 )
         {
@@ -149,6 +252,7 @@ void IFaceLink::MatchInterfaceTopology( Grid & grid )
 
 void IFaceLink::MatchPeriodicInterface( Grid & grid )
 {
+    ValidateGridIndex( grid, "IFaceLink::MatchPeriodicInterface" );
     InterFace * interFace = grid.interFace.get();
     if ( ! interFace ) return;
 
@@ -157,7 +261,13 @@ void IFaceLink::MatchPeriodicInterface( Grid & grid )
     for ( int iIFace = 0; iIFace < nIFaces; ++ iIFace )
     {
         int gIFace = this->l2g[ grid.id ][ iIFace ];
-        int nIZone = this->gI2Zid[ gIFace ].size();
+        ValidateGlobalFaceMapping(
+            gIFace, this->gI2Zid, this->g2l, "IFaceLink::MatchPeriodicInterface" );
+        if ( static_cast< size_t >( gIFace ) >= this->face_search->faceArray.size() )
+        {
+            throw std::logic_error( "IFaceLink::MatchPeriodicInterface: global face ID is out of range" );
+        }
+        int nIZone = static_cast< int >( this->gI2Zid[ gIFace ].size() );
 
         if ( nIZone == 2 ) continue;
 
@@ -190,10 +300,24 @@ void IFaceLink::MatchPeriodicInterface( Grid & grid )
 
         int faceId_period = this->face_search->FindFace( faceNode_period );
         if ( faceId_period == INVALID_INDEX ) continue;
+        ValidateGlobalFaceMapping(
+            faceId_period, this->gI2Zid, this->g2l,
+            "IFaceLink::MatchPeriodicInterface periodic partner" );
+
+        if ( static_cast< size_t >( faceId_period ) >= this->face_search->faceArray.size() )
+        {
+            throw std::logic_error(
+                "IFaceLink::MatchPeriodicInterface: periodic face ID is out of range" );
+        }
 
         const IntField & periodicZones = this->gI2Zid[ faceId_period ];
         const IntField & periodicLocalIds = this->g2l[ faceId_period ];
-        if ( periodicZones.empty() || periodicLocalIds.empty() ) continue;
+        if ( periodicZones.size() != periodicLocalIds.size() )
+        {
+            throw std::logic_error(
+                "IFaceLink::MatchPeriodicInterface: periodic face references are inconsistent" );
+        }
+        if ( periodicZones.empty() ) continue;
 
         int nZid_period = periodicZones[ 0 ];
         int lId_period  = periodicLocalIds[ 0 ];
@@ -205,10 +329,26 @@ void IFaceLink::MatchPeriodicInterface( Grid & grid )
 
 void GetFaceCoorList( const IntField & faceNode, RealField & xList, RealField & yList, RealField & zList, const NodeMesh & nodeMesh )
 {
-    int nPoint = faceNode.size();
-    for ( int iNode = 0; iNode < nPoint; ++ iNode )
+    const size_t nPoint = faceNode.size();
+    if ( xList.size() < nPoint || yList.size() < nPoint || zList.size() < nPoint )
     {
-        int gN = faceNode[ iNode ];
+        throw std::invalid_argument( "GetFaceCoorList: coordinate buffers are too small" );
+    }
+
+    const size_t nNodes = nodeMesh.xN.size();
+    if ( nodeMesh.yN.size() != nNodes || nodeMesh.zN.size() != nNodes )
+    {
+        throw std::logic_error( "GetFaceCoorList: node coordinate arrays have different sizes" );
+    }
+
+    for ( size_t iNode = 0; iNode < nPoint; ++ iNode )
+    {
+        const int gN = faceNode[ iNode ];
+        if ( gN < 0 || static_cast< size_t >( gN ) >= nNodes )
+        {
+            throw std::out_of_range( "GetFaceCoorList: node index is out of range" );
+        }
+
         xList[ iNode ] = nodeMesh.xN[ gN ];
         yList[ iNode ] = nodeMesh.yN[ gN ];
         zList[ iNode ] = nodeMesh.zN[ gN ];
@@ -217,11 +357,27 @@ void GetFaceCoorList( const IntField & faceNode, RealField & xList, RealField & 
 
 void GetCoorIdList( IFaceLink & iFaceLink, RealField & xList, RealField & yList, RealField & zList, int nPoint, IntField & pointId )
 {
-    for ( int iNode = 0; iNode < nPoint; ++ iNode )
+    if ( nPoint < 0 )
     {
-        Real xm = xList[ iNode ];
-        Real ym = yList[ iNode ];
-        Real zm = zList[ iNode ];
+        throw std::invalid_argument( "GetCoorIdList: point count must not be negative" );
+    }
+
+    const size_t count = static_cast< size_t >( nPoint );
+    if ( xList.size() < count || yList.size() < count ||
+         zList.size() < count || pointId.size() < count )
+    {
+        throw std::invalid_argument( "GetCoorIdList: input or output buffers are too small" );
+    }
+    if ( ! iFaceLink.point_search )
+    {
+        throw std::logic_error( "GetCoorIdList: point locator is not initialized" );
+    }
+
+    for ( size_t iNode = 0; iNode < count; ++ iNode )
+    {
+        const Real xm = xList[ iNode ];
+        const Real ym = yList[ iNode ];
+        const Real zm = zList[ iNode ];
 
         pointId[ iNode ] = iFaceLink.point_search->AddPoint( xm, ym, zm );
     }

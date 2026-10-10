@@ -47,44 +47,55 @@ bool HX_IsDirectory(const std::string& dirName)
 
 bool HX_CreateDirectory( const std::string & dirName )
 {
-    try
-    {
-        if ( std::filesystem::exists( dirName ) )
-        {
-            if ( std::filesystem::is_directory( dirName ) )
-            {
-                std::cout << "Directory already exists: "
-                    << dirName << std::endl;
-                return true;
-            }
-            else
-            {
-                std::cerr << "Path exists but is not a directory: "
-                    << dirName << std::endl;
-                return false;
-            }
-        }
+    std::error_code ec;
 
-        // Create the directory recursively with default permissions.
-        if ( std::filesystem::create_directories( dirName ) )
+    if ( std::filesystem::exists( dirName, ec ) )
+    {
+        if ( ! ec && std::filesystem::is_directory( dirName, ec ) && ! ec )
         {
-            std::cout << "Directory created successfully: "
-                << dirName << std::endl;
             return true;
         }
-        else
-        {
-            std::cerr << "Failed to create directory: "
-                << dirName << std::endl;
-            return false;
-        }
-    }
-    catch ( const std::filesystem::filesystem_error & e )
-    {
-        std::cerr << "Filesystem error: "
-            << e.what() << std::endl;
+
+        std::cerr << "Path exists but is not a directory: "
+            << dirName << std::endl;
         return false;
     }
+
+    if ( ec )
+    {
+        std::cerr << "Filesystem error while checking directory: "
+            << ec.message() << std::endl;
+        return false;
+    }
+
+    // Another process may create the directory after the existence check.
+    const bool created = std::filesystem::create_directories( dirName, ec );
+    if ( created )
+    {
+        std::cout << "Directory created successfully: "
+            << dirName << std::endl;
+        return true;
+    }
+
+    // Treat a concurrent successful creation as success, but never accept a
+    // regular file (or another non-directory entry) at the requested path.
+    ec.clear();
+    if ( std::filesystem::is_directory( dirName, ec ) && ! ec )
+    {
+        return true;
+    }
+
+    if ( ec )
+    {
+        std::cerr << "Filesystem error: "
+            << ec.message() << std::endl;
+    }
+    else
+    {
+        std::cerr << "Failed to create directory: "
+            << dirName << std::endl;
+    }
+    return false;
 }
 
 std::string HX_GetExeDirectory()
@@ -168,11 +179,18 @@ std::string RemoveEndSlash( const std::string & fileName )
 
 void GetFileNameExtension( const std::string & fullName, std::string & mainName, std::string & extensionName, const std::string & fileNameSeparator )
 {
-    std::basic_string <char>::size_type index;
+    const std::string::size_type index =
+        fullName.find_last_of( fileNameSeparator );
 
-    index         = fullName.find_last_of( fileNameSeparator );
-    mainName      = fullName.substr( 0, index );
-    extensionName = fullName.substr( index+1, fullName.length() - index - 1 );
+    if ( index == std::string::npos )
+    {
+        mainName = fullName;
+        extensionName.clear();
+        return;
+    }
+
+    mainName = fullName.substr( 0, index );
+    extensionName = fullName.substr( index + 1 );
 }
 
 void ModifyFileMainName( std::string & fileName,  const std::string & newMainName )
@@ -181,7 +199,11 @@ void ModifyFileMainName( std::string & fileName,  const std::string & newMainNam
     ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
 
     std::ostringstream oss;
-    oss << newMainName << "." << extensionName;
+    oss << newMainName;
+    if ( ! extensionName.empty() )
+    {
+        oss << "." << extensionName;
+    }
 
     fileName = oss.str();
 }
@@ -192,7 +214,11 @@ void ModifyFileExtensionName( std::string & fileName,  const std::string & newEx
     ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
 
     std::ostringstream oss;
-    oss << mainName << "." << newExtensionName;
+    oss << mainName;
+    if ( ! newExtensionName.empty() )
+    {
+        oss << "." << newExtensionName;
+    }
 
     fileName = oss.str();
 }

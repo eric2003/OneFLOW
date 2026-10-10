@@ -69,6 +69,9 @@ public:
 public:
     void GenerateMultiZoneCalcGrids( Grids grids );
     void GenerateMultiZoneCalcGrids( Grids grids, const GridConfig & config );
+private:
+    // Interface-link operations are valid only after GenerateLink() succeeds.
+    IFaceLink & GetInterfaceLink();
 };
 
 std::string GetTargetGridFileName();

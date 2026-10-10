@@ -142,7 +142,7 @@ void CgnsZone::SetPeriodicBc()
     this->RequireCgnsZbc().SetPeriodicBc();
 }
 
-void CgnsZone::SetElementTypeAndNode( ElemFeature * elem_feature )
+void CgnsZone::SetElementTypeAndNode( ElemFeature & elem_feature )
 {
     const int nSection = this->RequireCgnsZsection().GetNSections();
     for ( int iSection = 0; iSection < nSection; ++ iSection )
@@ -152,7 +152,7 @@ void CgnsZone::SetElementTypeAndNode( ElemFeature * elem_feature )
     }
     std::cout << "\n";
     std::cout << " iZone = " << this->zId << " nCells = " << this->RequireCgnsCoor().GetNCell() << "\n";
-    std::cout << " elem_feature->eType.size() = " << elem_feature->eTypes.size() << std::endl;
+    std::cout << " elem_feature.eTypes.size() = " << elem_feature.eTypes.size() << std::endl;
 }
 
 bool CgnsZone::ExistSection( const std::string & sectionName )

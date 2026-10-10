@@ -28,6 +28,7 @@ License
 #include "Dimension.h"
 #include "Fatal.h"
 #include <algorithm>
+#include <stdexcept>
 
 
 BeginNameSpace( ONEFLOW )
@@ -80,10 +81,10 @@ void FaceSearch::CalcNewFaceId( IFaceLink & iFaceLink )
 {
     this->iFaceLink = &iFaceLink;
     int nFaces = this->faceArray.size();
-    this->status.resize( nFaces, -1 );
-    this->cFaceId.resize( nFaces );
-    this->rCNodeId.resize( nFaces );
-    this->rCNodeFlag.resize( nFaces );
+    this->status.assign( nFaces, -1 );
+    this->cFaceId.assign( nFaces, IntField{} );
+    this->rCNodeId.assign( nFaces, IntField{} );
+    this->rCNodeFlag.assign( nFaces, IntField{} );
 
     if ( Dim::dimension == ONEFLOW::THREE_D )
     {
@@ -108,9 +109,14 @@ void FaceSearch::CalcNewFaceId( IFaceLink & iFaceLink )
 
 void FaceSearch::SplitQuad2Tri( int faceId )
 {
+    if ( faceId < 0 || static_cast< size_t >( faceId ) >= this->faceArray.size() )
+    {
+        throw std::out_of_range( "FaceSearch::SplitQuad2Tri: face ID is out of range" );
+    }
+
     const IntField & nodeId = this->faceArray[ faceId ];
     int nNodes = nodeId.size();
-    if ( nNodes <= 3 ) return;
+    if ( nNodes != 4 ) return;
 
     LinkField localTriId, localTriFlag;
     this->GetLocalTri( localTriId, localTriFlag );
@@ -133,9 +139,14 @@ void FaceSearch::SplitQuad2Tri( int faceId )
 
 void FaceSearch::SplitLine( int faceId )
 {
+    if ( faceId < 0 || static_cast< size_t >( faceId ) >= this->faceArray.size() )
+    {
+        throw std::out_of_range( "FaceSearch::SplitLine: face ID is out of range" );
+    }
+
     const IntField & nodeId = this->faceArray[ faceId ];
     int nNodes = nodeId.size();
-    if ( nNodes >= 3 ) return;
+    if ( nNodes != 2 ) return;
 
     LinkField localLineId, localLineFlag;
     LinkField lineId;
@@ -232,12 +243,21 @@ bool FaceSearch::GetLine( const IntField & nodeId, LinkField & localLineId, Link
     }
     if ( point_search->FindPoint( coor2[ 0 ], coor2[ 1 ], coor2[ 2 ] ) == -1 ) return false;
 
-    int nNZone = this->iFaceLink->gI2Zid[ this->gFid ].size();
-    if ( nNZone > 1 )
+    const LinkField & globalFaceZones = this->iFaceLink->gI2Zid;
+    if ( this->gFid < 0 ||
+         static_cast< size_t >( this->gFid ) >= globalFaceZones.size() )
     {
-        Fatal( "impossible" );
+        throw std::out_of_range( "FaceSearch::GetLine: global face ID is out of range" );
     }
-    int zoneIndex = this->iFaceLink->gI2Zid[ this->gFid ][ 0 ];
+
+    const IntField & zoneIds = globalFaceZones[ this->gFid ];
+    if ( zoneIds.size() != 1 )
+    {
+        throw std::logic_error(
+            "FaceSearch::GetLine: a split line must reference exactly one zone" );
+    }
+
+    int zoneIndex = zoneIds[ 0 ];
     Grid & grid = this->iFaceLink->GetGrid( zoneIndex );
     int nNodes = grid.nodeMesh->GetNumberOfNodes();
     int pId = nNodes;

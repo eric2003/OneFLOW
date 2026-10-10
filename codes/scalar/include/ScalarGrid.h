@@ -217,6 +217,7 @@ private:
     void ResetMeshData();
     void ResetTopologyData();
     void ResetGeometryData();
+    std::vector< IntSet > CollectBoundaryVertexSets( int nodeCount ) const;
     std::unique_ptr< DataBase > dataBase;
 public:
     int GetNNodes() const;
@@ -234,7 +235,7 @@ public:
     void AllocGeom();
     void ScanBcFace();
     void ScanBcFace( IntSet& bcVertex, int bcType );
-    bool CheckBcFace( IntSet & bcVertex, std::vector< int > & nodeId );
+    bool CheckBcFace( const IntSet & bcVertex, const std::vector< int > & nodeId ) const;
     void AllocateBc();
     void SetBcTypes();
 public:

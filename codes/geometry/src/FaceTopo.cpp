@@ -27,12 +27,90 @@ License
 #include "InterFace.h"
 #include "FaceSearch.h"
 #include "Grid.h"
+#include "NodeMesh.h"
 #include "HXMath.h"
 #include <iostream>
 #include <algorithm>
+#include <stdexcept>
+#include <string>
 
 
 BeginNameSpace( ONEFLOW )
+
+namespace
+{
+int GetBoundaryFaceId(
+    const Grid & grid, int interfaceFaceId, const IntField & cellIds,
+    const char * operation )
+{
+    if ( ! grid.interFace )
+    {
+        throw std::logic_error( std::string( operation ) + ": interface data is not initialized" );
+    }
+    const IntField & interfaceToBoundary = grid.interFace->i2b;
+    if ( interfaceFaceId < 0 ||
+         static_cast< size_t >( interfaceFaceId ) >= interfaceToBoundary.size() )
+    {
+        throw std::out_of_range( std::string( operation ) + ": interface face ID is out of range" );
+    }
+
+    const int boundaryFaceId = interfaceToBoundary[ interfaceFaceId ];
+    if ( boundaryFaceId < 0 ||
+         static_cast< size_t >( boundaryFaceId ) >= cellIds.size() )
+    {
+        throw std::out_of_range( std::string( operation ) + ": boundary face ID is out of range" );
+    }
+    return boundaryFaceId;
+}
+
+const IntField & GetChildFaceIds(
+    const IFaceLink & interfaceLink, int zoneId, int localFaceId,
+    const char * operation )
+{
+    if ( ! interfaceLink.face_search )
+    {
+        throw std::logic_error( std::string( operation ) + ": face search is not initialized" );
+    }
+    if ( zoneId < 0 ||
+         static_cast< size_t >( zoneId ) >= interfaceLink.l2g.size() ||
+         localFaceId < 0 ||
+         static_cast< size_t >( localFaceId ) >= interfaceLink.l2g[ zoneId ].size() )
+    {
+        throw std::out_of_range( std::string( operation ) + ": local interface face is out of range" );
+    }
+
+    const int globalFaceId = interfaceLink.l2g[ zoneId ][ localFaceId ];
+    const LinkField & childFaces = interfaceLink.face_search->cFaceId;
+    if ( globalFaceId < 0 ||
+         static_cast< size_t >( globalFaceId ) >= childFaces.size() )
+    {
+        throw std::out_of_range( std::string( operation ) + ": global interface face is out of range" );
+    }
+
+    const IntField & childFaceIds = childFaces[ globalFaceId ];
+    const LinkField & childNodeIds = interfaceLink.face_search->rCNodeId;
+    const LinkField & childNodeFlags = interfaceLink.face_search->rCNodeFlag;
+
+    for ( int childIndex = 0; childIndex < childFaceIds.size(); ++ childIndex )
+    {
+        const int childFaceId = childFaceIds[ childIndex ];
+        if ( childFaceId < 0 ||
+             static_cast< size_t >( childFaceId ) >= childNodeIds.size() ||
+             static_cast< size_t >( childFaceId ) >= childNodeFlags.size() )
+        {
+            throw std::out_of_range(
+                std::string( operation ) + ": child face ID is out of range" );
+        }
+        if ( childNodeIds[ childFaceId ].size() != childNodeFlags[ childFaceId ].size() )
+        {
+            throw std::logic_error(
+                std::string( operation ) + ": child face node IDs and flags have different sizes" );
+        }
+    }
+
+    return childFaceIds;
+}
+}
 
 FaceTopo::FaceTopo()
 {
@@ -46,11 +124,19 @@ void FaceTopo::BindGrid( Grid & grid )
 
 Grid & FaceTopo::GetGrid()
 {
+    if ( ! this->grid )
+    {
+        throw std::logic_error( "FaceTopo::GetGrid: grid is not bound" );
+    }
     return *this->grid;
 }
 
 const Grid & FaceTopo::GetGrid() const
 {
+    if ( ! this->grid )
+    {
+        throw std::logic_error( "FaceTopo::GetGrid: grid is not bound" );
+    }
     return *this->grid;
 }
 
@@ -164,7 +250,17 @@ void FaceTopo::ModifyFaceNodeId( IFaceLink & iFaceLink )
 
 void FaceTopo::SetNewFace2Node( IFaceLink & iFaceLink )
 {
-    int nBFaces = this->bcManager->bcRecord->GetNBFace();
+    const HXSize_t nFaces = this->GetNFaces();
+    const HXSize_t nBoundaryFaces = this->bcManager->bcRecord->GetNBFace();
+
+    // A face has one node list and one face type; boundary faces must be a subset.
+    if ( this->faces.size() != nFaces || nBoundaryFaces > nFaces )
+    {
+        throw std::logic_error(
+            "FaceTopo::SetNewFace2Node: face, face-type, and boundary-face counts are inconsistent" );
+    }
+
+    int nBFaces = static_cast< int >( nBoundaryFaces );
     this->facesNew.resize( 0 );
 
     int localFid = 0;
@@ -177,8 +273,9 @@ void FaceTopo::SetNewFace2Node( IFaceLink & iFaceLink )
 
         if ( BC::IsInterfaceBc( bcType ) )
         {
-            int gFid   = iFaceLink.l2g[ this->GetGrid().id ][ localFid ];
-            int nCFace = iFaceLink.face_search->cFaceId[ gFid ].size();
+            const IntField & childFaceIds = GetChildFaceIds(
+                iFaceLink, this->GetGrid().id, localFid, "FaceTopo::SetNewFace2Node" );
+            int nCFace = childFaceIds.size();
 
             if ( nCFace > 0 )
             {
@@ -186,7 +283,7 @@ void FaceTopo::SetNewFace2Node( IFaceLink & iFaceLink )
                 {
                     //this->lCellNew.push_back( this->lCell[ iFace ] );
 
-                    int cFid = iFaceLink.face_search->cFaceId[ gFid ][ iCFace ];
+                    int cFid = childFaceIds[ iCFace ];
 
                     int nCNode = iFaceLink.face_search->rCNodeId[ cFid ].size();
 
@@ -196,15 +293,30 @@ void FaceTopo::SetNewFace2Node( IFaceLink & iFaceLink )
                     {
                         int flag = iFaceLink.face_search->rCNodeFlag[ cFid ][ iNode ];
                         int nodeIndex;
+                        const int mappedNodeId =
+                            iFaceLink.face_search->rCNodeId[ cFid ][ iNode ];
                         if ( flag == 1 )
                         {
-                            int rNId = iFaceLink.face_search->rCNodeId[ cFid ][ iNode ];
-                            nodeIndex = this->faces[ iFace ][ rNId ];
+                            if ( mappedNodeId < 0 ||
+                                 static_cast< size_t >( mappedNodeId ) >= this->faces[ iFace ].size() )
+                            {
+                                throw std::out_of_range(
+                                    "FaceTopo::SetNewFace2Node: local child node ID is out of range" );
+                            }
+                            nodeIndex = this->faces[ iFace ][ mappedNodeId ];
                         }
                         else
                         {
-                            //At this time, the storage is not a relative value, but an absolute new punctuation
-                            nodeIndex = iFaceLink.face_search->rCNodeId[ cFid ][ iNode ];
+                            // Non-relative entries are absolute node IDs created during interface splitting.
+                            if ( ! this->GetGrid().nodeMesh ||
+                                 mappedNodeId < 0 ||
+                                 static_cast< size_t >( mappedNodeId ) >=
+                                     this->GetGrid().nodeMesh->GetNumberOfNodes() )
+                            {
+                                throw std::out_of_range(
+                                    "FaceTopo::SetNewFace2Node: absolute child node ID is out of range" );
+                            }
+                            nodeIndex = mappedNodeId;
                         }
                         tmpVector.push_back( nodeIndex );
                     }
@@ -234,7 +346,6 @@ void FaceTopo::SetNewFace2Node( IFaceLink & iFaceLink )
     }
 
     //Inner Face
-    int nFaces = this->GetNFaces();
     for ( int iFace = nBFaces; iFace < nFaces; ++ iFace )
     {
         int nFNode = this->faces[ iFace ].size();
@@ -263,8 +374,9 @@ void FaceTopo::SetNewFace2Cell( IFaceLink & iFaceLink )
 
         if ( BC::IsInterfaceBc( bcType ) )
         {
-            int gFid   = iFaceLink.l2g[ this->GetGrid().id ][ localFid ];
-            int nCFace = iFaceLink.face_search->cFaceId[ gFid ].size();
+            const IntField & childFaceIds = GetChildFaceIds(
+                iFaceLink, this->GetGrid().id, localFid, "FaceTopo::SetNewFace2Cell" );
+            int nCFace = childFaceIds.size();
 
             if ( nCFace > 0 )
             {
@@ -329,21 +441,23 @@ void FaceTopo::ModifyBoundaryInformation( IFaceLink & iFaceLink )
 
     int nIFaceNew = nIFaces;
 
-    iFaceLink.nChild.resize( nIFaces );
+    iFaceLink.nChild.resize( iFaceLink.l2g.size() );
+    iFaceLink.nChild[ this->GetGrid().id ].assign( nIFaces, 0 );
 
     for ( int iFid = 0; iFid < nIFaces; ++ iFid )
     {
-        int gFid   = iFaceLink.l2g[ this->GetGrid().id ][ iFid ];
-        int nCFace = iFaceLink.face_search->cFaceId[ gFid ].size();
+        const IntField & childFaceIds = GetChildFaceIds(
+            iFaceLink, this->GetGrid().id, iFid, "FaceTopo::ModifyBoundaryInformation" );
+        const int gFid = iFaceLink.l2g[ this->GetGrid().id ][ iFid ];
+        int nCFace = childFaceIds.size();
 
         if ( nCFace > 0 )
         {
             iFaceLink.nChild[ this->GetGrid().id ][ iFid ] = nCFace;
             for ( int iCFace = 0; iCFace < nCFace; ++ iCFace )
             {
-                int cFid = iFaceLink.face_search->cFaceId[ gFid ][ iCFace ];
-                // Correctly push back a 1D IntField containing the single element 'cFid'
-                iFaceLink.l2gNew.push_back( ONEFLOW::IntField{ cFid } );
+                int cFid = childFaceIds[ iCFace ];
+                iFaceLink.l2gNew[ this->GetGrid().id ].push_back( cFid );
 
                 iFaceLink.nChild[ this->GetGrid().id ].push_back( 0 );
             }
@@ -351,8 +465,7 @@ void FaceTopo::ModifyBoundaryInformation( IFaceLink & iFaceLink )
         }
         else
         {
-            // Correctly push back a 1D IntField containing the single element 'gFid'
-            iFaceLink.l2gNew.push_back( ONEFLOW::IntField{ gFid } );
+            iFaceLink.l2gNew[ this->GetGrid().id ].push_back( gFid );
         }
     }
     std::cout << "original number of interfaces = " << nIFaces << " new number of interfaces = " << nIFaceNew << std::endl;
@@ -374,8 +487,9 @@ void FaceTopo::ResetNumberOfBoundaryCondition( IFaceLink & iFaceLink )
         int bcType = this->bcManager->bcRecord->bcType[ iFace ];
         if ( BC::IsInterfaceBc( bcType ) )
         {
-            int gFid   = iFaceLink.l2g[ this->GetGrid().id ][ localIid ];
-            int nCFace = iFaceLink.face_search->cFaceId[ gFid ].size();
+            const IntField & childFaceIds = GetChildFaceIds(
+                iFaceLink, this->GetGrid().id, localIid, "FaceTopo::ResetNumberOfBoundaryCondition" );
+            int nCFace = childFaceIds.size();
 
             if ( nCFace > 0 )
             {
@@ -441,16 +555,20 @@ void FaceTopo::GenerateI2B( InterFace & interFace )
 
 bool FaceTopo::GetSId( int iFace, int iPosition, int & sId )
 {
-    int iBFace = grid->interFace->i2b[ iFace ];
-    sId = this->lCells[ iBFace ];
+    const Grid & grid = this->GetGrid();
+    const int boundaryFaceId = GetBoundaryFaceId(
+        grid, iFace, this->lCells, "FaceTopo::GetSId" );
+    sId = this->lCells[ boundaryFaceId ];
 
     return true;
 }
 
 bool FaceTopo::GetTId( int iFace, int iPosition, int & tId )
 {
-    int iBFace = grid->interFace->i2b[ iFace ];
-    tId = this->rCells[ iBFace ];
+    const Grid & grid = this->GetGrid();
+    const int boundaryFaceId = GetBoundaryFaceId(
+        grid, iFace, this->rCells, "FaceTopo::GetTId" );
+    tId = this->rCells[ boundaryFaceId ];
 
     return true;
 }

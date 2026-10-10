@@ -52,7 +52,7 @@ public:
     std::vector< int > target_ifaces;
     std::vector< int > recv_ifaces;
 public:
-    void WriteInterfaceTopology( DataBook * databook );
+    void WriteInterfaceTopology( DataBook * databook ) const;
     void ReadInterfaceTopology( DataBook * databook );
 };
 
@@ -82,17 +82,18 @@ public:
     //mapping relationship between local interface bc ID and boundary bc ID
     std::vector< int > interface_to_bcface;
 public:
-    int GetNIFaces();
-    int FindINeibor( int iZone );
-    void DumpInterfaceMap();
-    void DumpMap( std::map<int, int> & mapin );
-    int GetLocalInterfaceId( int global_interface_id );
-    void CalcLocalInterfaceId( int iZone, std::vector<int> & globalfaces, std::vector<int> & localfaces );
+    int GetNIFaces() const;
+    int FindINeibor( int iZone ) const;
+    void DumpInterfaceMap() const;
+    void DumpMap( const std::map<int, int> & mapin ) const;
+    int GetLocalInterfaceId( int global_interface_id ) const;
+    void CalcLocalInterfaceId( int iZone, const std::vector<int> & globalfaces, std::vector<int> & localfaces );
     void AddInterface( int global_interface_id, int neighbor_zoneid, int neighbor_cellid );
     void ReconstructNeighbor();
 public:
-    void WriteInterfaceTopology( DataBook * databook );
+    void WriteInterfaceTopology( DataBook * databook ) const;
     void ReadInterfaceTopology( DataBook * databook );
+    void ValidateInterfaceMappings() const;
 };
 
 

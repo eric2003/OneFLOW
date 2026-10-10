@@ -283,6 +283,67 @@ TEST( PrjCasePath, OpenPrjFileUsesRelativePath )
     std::filesystem::remove_all( caseDir );
 }
 
+TEST( PrjCasePath, OpenPrjFileInCaseRoot )
+{
+    const std::filesystem::path caseDir =
+        std::filesystem::temp_directory_path()
+        / "OneFLOW_PrjOpenRootFileTest"
+        / "case";
+
+    std::filesystem::remove_all( caseDir );
+    std::filesystem::create_directories( caseDir );
+
+    Prj::current_dir = std::filesystem::current_path().string();
+    Prj::SetPrjBaseDir( caseDir.string() );
+
+    std::fstream file;
+
+    Prj::OpenPrjFile(
+        file,
+        "test.dat",
+        std::ios_base::out );
+
+    ASSERT_TRUE( file.is_open() );
+
+    file << "OneFLOW";
+    Prj::CloseFile( file );
+
+    EXPECT_TRUE( std::filesystem::is_regular_file( caseDir / "test.dat" ) );
+
+    std::filesystem::remove_all( caseDir );
+}
+
+TEST( PrjCasePath, OpenCaseFileInCaseRoot )
+{
+    const std::filesystem::path caseDir =
+        std::filesystem::temp_directory_path()
+        / "OneFLOW_PrjOpenCaseRootFileTest"
+        / "case";
+
+    std::filesystem::remove_all( caseDir );
+    std::filesystem::create_directories( caseDir );
+
+    Prj::current_dir = std::filesystem::current_path().string();
+    Prj::SetPrjBaseDir( caseDir.string() );
+
+    std::fstream file;
+
+    Prj::OpenCaseFile(
+        file,
+        caseDir.string(),
+        "test.dat",
+        std::ios_base::out );
+
+    ASSERT_TRUE( file.is_open() );
+
+    file << "OneFLOW";
+    Prj::CloseFile( file );
+
+    EXPECT_TRUE( std::filesystem::is_regular_file( caseDir / "test.dat" ) );
+
+    std::filesystem::remove_all( caseDir );
+}
+
 TEST( PrjCasePath, OpenPrjFileUsesAbsolutePath )
 {
     const std::filesystem::path caseDir =
@@ -321,6 +382,31 @@ TEST( PrjCasePath, OpenPrjFileUsesAbsolutePath )
 
     std::filesystem::remove_all( caseDir );
     std::filesystem::remove_all( absoluteFile.parent_path() );
+}
+
+TEST( PrjCasePath, MakePrjDirFailsWhenPathCannotBeCreated )
+{
+    const std::filesystem::path testRoot =
+        std::filesystem::temp_directory_path()
+        / "OneFLOW_PrjMakeDirFailureTest";
+    const std::filesystem::path blockingFile = testRoot / "not_a_directory";
+
+    std::filesystem::remove_all( testRoot );
+    std::filesystem::create_directories( testRoot );
+    {
+        std::ofstream file( blockingFile );
+        ASSERT_TRUE( file.is_open() );
+        file << "block";
+    }
+
+    Prj::current_dir = std::filesystem::current_path().string();
+    Prj::SetPrjBaseDir( testRoot.string() );
+
+    EXPECT_THROW(
+        Prj::MakePrjDir( "not_a_directory/child" ),
+        std::runtime_error );
+
+    std::filesystem::remove_all( testRoot );
 }
 
 TEST( PrjCasePath, MakePrjDirUsesRelativePath )
@@ -462,3 +548,50 @@ TEST( PrjPathUtils, SlashRemoval )
     EXPECT_EQ( ONEFLOW::RemoveEndSlash( "grid" ), "grid" );
     EXPECT_EQ( ONEFLOW::RemoveEndSlash( "" ), "" );
 }
+
+TEST( PrjSetPrjBaseDir, RelativePathRequiresInitializedCurrentDirectory )
+{
+    const std::string savedCurrentDir = Prj::current_dir;
+    Prj::current_dir.clear();
+
+    EXPECT_THROW(
+        Prj::ResolveCaseDir( "plate" ),
+        std::runtime_error );
+
+    Prj::current_dir = savedCurrentDir;
+}
+
+TEST( FileUtilsCreateDirectory, ExistingDirectoryIsSuccess )
+{
+    const std::filesystem::path directory =
+        std::filesystem::temp_directory_path()
+        / "OneFLOW_HXCreateDirectoryExistingTest";
+
+    std::filesystem::remove_all( directory );
+    ASSERT_TRUE( std::filesystem::create_directories( directory ) );
+
+    EXPECT_TRUE( ONEFLOW::HX_CreateDirectory( directory.string() ));
+
+    std::filesystem::remove_all( directory );
+}
+
+TEST( FileUtilsCreateDirectory, ExistingFileIsFailure )
+{
+    const std::filesystem::path root =
+        std::filesystem::temp_directory_path()
+        / "OneFLOW_HXCreateDirectoryFileTest";
+    const std::filesystem::path filePath = root / "not_a_directory";
+
+    std::filesystem::remove_all( root );
+    std::filesystem::create_directories( root );
+    {
+        std::ofstream file( filePath );
+        ASSERT_TRUE( file.is_open() );
+        file << "block";
+    }
+
+    EXPECT_FALSE( ONEFLOW::HX_CreateDirectory( filePath.string() ));
+
+    std::filesystem::remove_all( root );
+}
+

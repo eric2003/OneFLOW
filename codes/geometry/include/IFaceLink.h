@@ -56,6 +56,7 @@ public:
 
 private:
     Grids & grids;
+    void ValidateGridIndex( const Grid & grid, const char * operation ) const;
 
 public:
     [[nodiscard]] Grid & GetGrid( int zoneIndex );

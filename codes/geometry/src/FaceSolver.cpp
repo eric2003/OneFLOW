@@ -27,6 +27,9 @@ License
 #include "CgnsSection.h"
 #include <iostream>
 #include <algorithm>
+#include <limits>
+#include <stdexcept>
+#include <unordered_set>
 
 
 BeginNameSpace( ONEFLOW )
@@ -72,28 +75,44 @@ bool FaceSolver::CheckBcFace( IntSet & bcVertex, IntField & nodeId )
 
 void FaceSolver::ScanPolygonFace( CgnsSection & cgnsSection )
 {
-    //std::vector<int> faceNodes;
+    const auto & offsets = cgnsSection.ePosList;
+    const auto & connectivity = cgnsSection.connList;
+
+    if ( cgnsSection.nElement < 0 ||
+         static_cast< std::size_t >( cgnsSection.nElement ) + 1 > offsets.size() )
+    {
+        throw std::runtime_error( "FaceSolver::ScanPolygonFace: polygon offsets are incomplete" );
+    }
+
+    // Validate every span before mutating the face lookup or topology.
+    for ( int iElem = 0; iElem < cgnsSection.nElement; ++ iElem )
+    {
+        const CgInt start = offsets[ iElem ];
+        const CgInt end = offsets[ iElem + 1 ];
+        if ( start < 0 || end < start ||
+             static_cast< std::size_t >( end ) > connectivity.size() )
+        {
+            throw std::runtime_error( "FaceSolver::ScanPolygonFace: polygon connectivity span is invalid" );
+        }
+    }
+
     IntField faceNodes;
     for ( int iElem = 0; iElem < cgnsSection.nElement; ++ iElem )
     {
-        int st = cgnsSection.ePosList[ iElem ];
-        int ed = cgnsSection.ePosList[ iElem + 1 ];
-        int nNode = ed - st;
+        const CgInt start = offsets[ iElem ];
+        const CgInt end = offsets[ iElem + 1 ];
         faceNodes.resize( 0 );
-        for ( int i = st; i < ed; ++ i )
+        for ( CgInt i = start; i < end; ++ i )
         {
-            int node = cgnsSection.connList[ i ];
-            faceNodes.push_back( node );
+            faceNodes.push_back( connectivity[ static_cast< std::size_t >( i ) ] );
         }
 
-        auto [faceIndex, isNew] = faceLookup.FindOrAdd(faceNodes);
+        auto [faceIndex, isNew] = faceLookup.FindOrAdd( faceNodes );
         if ( isNew )
         {
-            // New face: ID is set to the current number of faces. 
-            int newId = static_cast<int>(this->faceTopo->GetFaces().size());
-            this->faceTopo->GetFaces().push_back(faceNodes);           // Preserve original order
-            this->faceTopo->GetFaceTypes().push_back(cgnsSection.eType);
-            this->faceTopo->GetFaceFlags().push_back(0);
+            this->faceTopo->GetFaces().push_back( faceNodes );
+            this->faceTopo->GetFaceTypes().push_back( cgnsSection.eType );
+            this->faceTopo->GetFaceFlags().push_back( 0 );
         }
     }
 }
@@ -109,21 +128,96 @@ void FaceSolver::ResizeAll()
 
 void FaceSolver::ScanPolyhedronElement( CgnsSection & cgnsSection )
 {
-    std::vector<int> faceIds;
+    const auto & offsets = cgnsSection.ePosList;
+    const auto & connectivity = cgnsSection.connList;
+    const auto & faces = this->faceTopo->GetFaces();
+
+    if ( cgnsSection.nElement < 0 ||
+         static_cast< std::size_t >( cgnsSection.nElement ) + 1 > offsets.size() )
+    {
+        throw std::runtime_error( "FaceSolver::ScanPolyhedronElement: element offsets are incomplete" );
+    }
+
+    // Count existing cell incidences so a third cell cannot overwrite the right cell.
+    const auto & faceFlags = this->faceTopo->GetFaceFlags();
+    const auto & rightCells = this->faceTopo->GetRightCells();
+    std::vector< int > faceUseCount( faces.size(), 0 );
+    for ( std::size_t iFace = 0; iFace < faces.size(); ++ iFace )
+    {
+        if ( iFace < faceFlags.size() && faceFlags[ iFace ] != 0 )
+        {
+            faceUseCount[ iFace ] =
+                iFace < rightCells.size() && rightCells[ iFace ] != ONEFLOW::INVALID_INDEX ? 2 : 1;
+        }
+    }
+
+    // Validate the complete section before changing cell adjacency.
     for ( int iElem = 0; iElem < cgnsSection.nElement; ++ iElem )
     {
-        int st = cgnsSection.ePosList[ iElem ];
-        int ed = cgnsSection.ePosList[ iElem + 1 ];
-        int nFace = ed - st;
-        faceIds.resize( 0 );
-        for ( int i = st; i < ed; ++ i )
+        const CgInt start = offsets[ iElem ];
+        const CgInt end = offsets[ iElem + 1 ];
+        if ( start < 0 || end < start ||
+             static_cast< std::size_t >( end ) > connectivity.size() )
         {
-            int polygonFaceId = std::abs(cgnsSection.connList[ i ]);
-            faceIds.push_back( polygonFaceId );
+            throw std::runtime_error( "FaceSolver::ScanPolyhedronElement: connectivity span is invalid" );
+        }
 
-            int faceFlags = this->faceTopo->GetFaceFlags()[ polygonFaceId ];
+        std::unordered_set< std::size_t > referencedFaces;
+        for ( CgInt i = start; i < end; ++ i )
+        {
+            const CgInt signedFaceId = connectivity[ static_cast< std::size_t >( i ) ];
+            if ( signedFaceId == std::numeric_limits< CgInt >::min() )
+            {
+                throw std::runtime_error( "FaceSolver::ScanPolyhedronElement: face reference is out of range" );
+            }
 
-            if ( faceFlags == 0 ) //face left element not set
+            const CgInt faceId = signedFaceId < 0 ? -signedFaceId : signedFaceId;
+            if ( faceId < 0 || static_cast< std::size_t >( faceId ) >= faces.size() )
+            {
+                throw std::runtime_error( "FaceSolver::ScanPolyhedronElement: face reference is out of range" );
+            }
+
+            if ( ! referencedFaces.insert( static_cast< std::size_t >( faceId ) ).second )
+            {
+                throw std::runtime_error( "FaceSolver::ScanPolyhedronElement: polyhedron references the same face more than once" );
+            }
+
+            const std::size_t polygonFaceId = static_cast< std::size_t >( faceId );
+            if ( ++ faceUseCount[ polygonFaceId ] > 2 )
+            {
+                throw std::runtime_error( "FaceSolver::ScanPolyhedronElement: face is referenced by more than two cells" );
+            }
+        }
+    }
+
+    for ( int iElem = 0; iElem < cgnsSection.nElement; ++ iElem )
+    {
+        const CgInt start = offsets[ iElem ];
+        const CgInt end = offsets[ iElem + 1 ];
+        if ( start < 0 || end < start ||
+             static_cast< std::size_t >( end ) > connectivity.size() )
+        {
+            throw std::runtime_error( "FaceSolver::ScanPolyhedronElement: connectivity span is invalid" );
+        }
+
+        for ( CgInt i = start; i < end; ++ i )
+        {
+            const CgInt signedFaceId = connectivity[ static_cast< std::size_t >( i ) ];
+            if ( signedFaceId == std::numeric_limits< CgInt >::min() )
+            {
+                throw std::runtime_error( "FaceSolver::ScanPolyhedronElement: face reference is out of range" );
+            }
+
+            const CgInt faceId = signedFaceId < 0 ? -signedFaceId : signedFaceId;
+            if ( faceId < 0 || static_cast< std::size_t >( faceId ) >= faces.size() )
+            {
+                throw std::runtime_error( "FaceSolver::ScanPolyhedronElement: face reference is out of range" );
+            }
+
+            const std::size_t polygonFaceId = static_cast< std::size_t >( faceId );
+            const int faceFlags = this->faceTopo->GetFaceFlags()[ polygonFaceId ];
+
+            if ( faceFlags == 0 )
             {
                 this->ResizeAll();
                 this->faceTopo->GetFaceFlags()[ polygonFaceId ] = 1;
@@ -137,11 +231,8 @@ void FaceSolver::ScanPolyhedronElement( CgnsSection & cgnsSection )
             {
                 this->faceTopo->GetRightCells()[ polygonFaceId ] = iElem;
             }
-
         }
-
     }
-
 }
 
 void FaceSolver::ScanElementFace( CgIntField & eNodeId, int eType, int eId )

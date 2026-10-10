@@ -42,14 +42,56 @@ License
 #include "Prj.h"
 #include <iostream>
 #include <utility>
-#include <vector>
+#include <stdexcept>
+#include <limits>
 
 
 BeginNameSpace( ONEFLOW )
 
+namespace
+{
+void ValidateGridCollection( const Grids & grids )
+{
+    if ( grids.empty() )
+    {
+        throw std::invalid_argument( "CalcGrid: at least one grid zone is required" );
+    }
+    if ( grids.size() > static_cast< size_t >( std::numeric_limits< int >::max() ) )
+    {
+        throw std::length_error( "CalcGrid: zone count exceeds the file format limit" );
+    }
+    for ( const auto & grid : grids )
+    {
+        if ( ! grid )
+        {
+            throw std::invalid_argument( "CalcGrid: grid zone must not be null" );
+        }
+    }
+}
+
+UnsGrid & RequireUnsGrid( Grid & grid, const char * errorMessage )
+{
+    UnsGrid * unsGrid = dynamic_cast< UnsGrid * >( &grid );
+    if ( ! unsGrid )
+    {
+        throw std::invalid_argument( errorMessage );
+    }
+    return *unsGrid;
+}
+} // namespace
+
 CalcGrid::CalcGrid() = default;
 
 CalcGrid::~CalcGrid() = default;
+
+IFaceLink & CalcGrid::GetInterfaceLink()
+{
+    if ( ! this->iFaceLink )
+    {
+        throw std::logic_error( "CalcGrid: interface link has not been generated" );
+    }
+    return *this->iFaceLink;
+}
 
 void CalcGrid::Init( Grids grids )
 {
@@ -58,6 +100,12 @@ void CalcGrid::Init( Grids grids )
 
 void CalcGrid::Init( Grids grids, const GridConfig & config )
 {
+    // Validate before taking ownership; Post() traverses this collection.
+    ValidateGridCollection( grids );
+
+    // IFaceLink stores a reference to the current grid collection. Destroy it
+    // before replacing that collection, including when Init() is called again.
+    this->iFaceLink.reset();
     this->grids = std::move( grids );
     this->config = config;
 
@@ -73,6 +121,9 @@ void CalcGrid::Init( Grids grids, const GridConfig & config )
 
 void CalcGrid::BuildInterfaceLink()
 {
+    // This public operation can be called independently of Post().
+    ValidateGridCollection( grids );
+
     if ( this->config.objective == GridObjective::Partition )
     {
         const int partitionType = this->config.partitionType;
@@ -93,22 +144,26 @@ void CalcGrid::BuildInterfaceLink()
 
 void CalcGrid::Dump()
 {
-    std::fstream file;
-    Prj::OpenPrjFile( file, gridFileName, std::ios_base::out|std::ios_base::binary|std::ios_base::trunc );
-    const int nZone = GridsSize( grids );
+    // Public collection state can be changed after Init(), so validate again
+    // before traversing it or truncating the destination file.
+    ValidateGridCollection( grids );
 
-    // Serialization metadata belongs to the output file, not global runtime state.
-    std::vector< int > zoneIds( static_cast< size_t >( nZone ) );
-    std::vector< int > zoneTypes( static_cast< size_t >( nZone ) );
+    // Validate the complete collection before truncating the destination file.
+    const int nZone = static_cast< int >( grids.size() );
+    IntField zonePids( nZone );
+    IntField zoneTypes( nZone );
 
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        zoneIds[ iZone ] = iZone;
+        zonePids[ iZone ] = iZone;
         zoneTypes[ iZone ] = GridAt( grids, iZone ).type;
     }
 
+    std::fstream file;
+    Prj::OpenPrjFile( file, gridFileName, std::ios_base::out|std::ios_base::binary|std::ios_base::trunc );
+
     ONEFLOW::HXWrite( & file, nZone );
-    ONEFLOW::HXWrite( & file, zoneIds );
+    ONEFLOW::HXWrite( & file, zonePids );
     ONEFLOW::HXWrite( & file, zoneTypes );
 
     for ( int iZone = 0; iZone < nZone; ++ iZone )
@@ -117,11 +172,23 @@ void CalcGrid::Dump()
         GridAt( grids, iZone ).WriteGrid( file );
     }
 
-    Prj::CloseOutputFile( file, "CalcGrid::Dump" );
+    file.flush();
+    if ( ! file )
+    {
+        throw std::runtime_error( "CalcGrid::Dump: failed to write grid data" );
+    }
+    Prj::CloseFile( file );
+
+    // Publish zone metadata only after the grid output succeeds.
+    ZoneState::pid = std::move( zonePids );
+    ZoneState::zoneType = std::move( zoneTypes );
 }
 
 void CalcGrid::Post()
 {
+    // Validate the mutable public collection before any post-processing side effects.
+    ValidateGridCollection( grids );
+
     logFile << "GenerateOverset\n";
     this->GenerateOverset();
     logFile << "BuildInterfaceLink\n";
@@ -137,6 +204,9 @@ void CalcGrid::GenerateOverset()
 
 void CalcGrid::ReconstructLink()
 {
+    // This public operation may be called without BuildInterfaceLink().
+    ValidateGridCollection( grids );
+
     const int nZone = GridsSize( grids );
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
@@ -146,7 +216,14 @@ void CalcGrid::ReconstructLink()
 
 void CalcGrid::ReconstructLink( int iZone )
 {
-    UnsGrid & grid = static_cast< UnsGrid & >( GridAt( grids, iZone ) );
+    if ( iZone < 0 || static_cast< size_t >( iZone ) >= grids.size() )
+    {
+        throw std::out_of_range( "CalcGrid::ReconstructLink: zone index is out of range" );
+    }
+
+    Grid & baseGrid = GridAt( grids, static_cast< size_t >( iZone ) );
+    UnsGrid & grid = RequireUnsGrid(
+        baseGrid, "CalcGrid::ReconstructLink: zone must use an unstructured grid" );
 
     InterFace * interFace = grid.interFace.get();
 
@@ -165,6 +242,11 @@ void CalcGrid::ReconstructLink( int iZone )
     for ( int iFace = 0; iFace < nIFaces; ++ iFace )
     {
         int nei_zone_id = interFace->zoneId[ iFace ];
+        if ( nei_zone_id < 0 || static_cast< size_t >( nei_zone_id ) >= grids.size() )
+        {
+            throw std::out_of_range( "CalcGrid::ReconstructLink: interface neighbor zone is out of range" );
+        }
+
         int lc = lCell[ iFace + nPBFace ];
         int rc = rCell[ iFace + nPBFace ];
         int cellIndex  = MAX( lc, rc );
@@ -177,7 +259,10 @@ void CalcGrid::ReconstructLink( int iZone )
 
         if ( nei_zone_id >= iZone )
         {
-            UnsGrid & neiGrid = static_cast< UnsGrid & >( GridAt( grids, nei_zone_id ) );
+            Grid & neighborBaseGrid = GridAt( grids, static_cast< size_t >( nei_zone_id ) );
+            UnsGrid & neiGrid = RequireUnsGrid(
+                neighborBaseGrid,
+                "CalcGrid::ReconstructLink: interface neighbor zone must use an unstructured grid" );
 
             if ( FindMatch( neiGrid, facePair ) )
             {
@@ -193,11 +278,23 @@ void CalcGrid::ReconstructLink( int iZone )
 
 void CalcGrid::ReconstructInterFace()
 {
-    this->iFaceLink->ReconstructInterFace();
+    this->GetInterfaceLink().ReconstructInterFace();
 }
 
 void CalcGrid::ResetGridScaleAndTranslate()
 {
+    // Check all node meshes before transforming any zone, so a malformed
+    // collection cannot leave earlier zones scaled while later zones fail.
+    ValidateGridCollection( grids );
+    for ( const auto & grid : grids )
+    {
+        if ( ! grid->nodeMesh )
+        {
+            throw std::logic_error(
+                "CalcGrid::ResetGridScaleAndTranslate: grid node mesh is not initialized" );
+        }
+    }
+
     const int nZone = GridsSize( grids );
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
@@ -208,17 +305,28 @@ void CalcGrid::ResetGridScaleAndTranslate()
 
 void CalcGrid::GenerateLink()
 {
+    // Discard any previous or partially built link before starting a new attempt.
+    this->iFaceLink.reset();
+
+    // Validate before constructing an interface-link object from the collection.
+    ValidateGridCollection( grids );
+
     this->iFaceLink = std::make_unique< IFaceLink >( grids );
 
-    this->ModifyBcType();
-
-    this->GenerateLgMapping();
-
-    this->ReconstructInterFace();
-
-    this->ReGenerateLgMapping();
-
-    this->MatchInterfaceTopology();
+    try
+    {
+        this->ModifyBcType();
+        this->GenerateLgMapping();
+        this->ReconstructInterFace();
+        this->ReGenerateLgMapping();
+        this->MatchInterfaceTopology();
+    }
+    catch ( ... )
+    {
+        // A failed generation must not expose an incompletely initialized link.
+        this->iFaceLink.reset();
+        throw;
+    }
 }
 
 void CalcGrid::ModifyBcType()
@@ -239,19 +347,19 @@ void CalcGrid::GenerateLgMapping()
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         Grid & grid = GridAt( grids, iZone );
-        grid.GenerateLgMapping( *this->iFaceLink );
+        grid.GenerateLgMapping( this->GetInterfaceLink() );
     }
 }
 
 void CalcGrid::ReGenerateLgMapping()
 {
-    this->iFaceLink->InitNewLgMapping();
+    this->GetInterfaceLink().InitNewLgMapping();
 
     const int nZone = GridsSize( grids );
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         Grid & grid = GridAt( grids, iZone );
-        grid.ReGenerateLgMapping( *this->iFaceLink );
+        grid.ReGenerateLgMapping( this->GetInterfaceLink() );
     }
 
     this->UpdateLgMapping();
@@ -260,7 +368,7 @@ void CalcGrid::ReGenerateLgMapping()
 
 void CalcGrid::UpdateLgMapping()
 {
-    iFaceLink->UpdateLgMapping();
+    this->GetInterfaceLink().UpdateLgMapping();
 }
 
 void CalcGrid::UpdateOtherTopologyTerm()
@@ -269,7 +377,7 @@ void CalcGrid::UpdateOtherTopologyTerm()
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         Grid & grid = GridAt( grids, iZone );
-        grid.UpdateOtherTopologyTerm( *this->iFaceLink );
+        grid.UpdateOtherTopologyTerm( this->GetInterfaceLink() );
     }
 }
 
@@ -279,7 +387,7 @@ void CalcGrid::MatchInterfaceTopology()
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         Grid & grid = GridAt( grids, iZone );
-        this->iFaceLink->MatchInterfaceTopology( grid );
+        this->GetInterfaceLink().MatchInterfaceTopology( grid );
     }
 }
 
@@ -363,7 +471,7 @@ void TurnZAxisToYAxis( NodeMesh & nodeMesh )
     RealField & zN = nodeMesh.zN;
 
     Real tmp;
-    for ( int iNode = 0; iNode < nNodes; ++ iNode )
+    for ( size_t iNode = 0; iNode < nNodes; ++ iNode )
     {
         tmp         = yN[ iNode ];
         yN[ iNode ] = zN[ iNode ];

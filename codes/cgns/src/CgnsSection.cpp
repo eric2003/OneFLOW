@@ -32,6 +32,8 @@ License
 #include "LogFile.h"
 
 #include <iostream>
+#include <iterator>
+#include <stdexcept>
 
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
@@ -66,7 +68,7 @@ void CgnsSection::ConvertToInnerDataStandard()
             int e_type = this->eTypeList[ iElem ];
             int npe;
             cg_npe( static_cast< ElementType_t >( e_type ), & npe );
-            int pos = ePosList[ iElem ] + this->pos_shift;
+            int pos = ePosList[ iElem ] + ( this->eType == MIXED ? 1 : this->pos_shift );
             for ( int iNode = 0; iNode < npe; ++ iNode )
             {
                 int id = pos + iNode;
@@ -101,18 +103,43 @@ void CgnsSection::ConvertToInnerDataStandard()
 
 CgInt * CgnsSection::GetAddress( CgInt eId )
 {
-    int pos = this->ePosList[ eId ] + this->pos_shift;
-    return & this->connList[ pos ];
+    if ( eId < 0 || eId >= this->nElement ||
+         static_cast< size_t >( eId + 1 ) >= this->ePosList.size() ||
+         static_cast< size_t >( eId ) >= this->eTypeList.size() )
+    {
+        throw std::runtime_error( "CgnsSection::GetAddress: element index is out of range" );
+    }
+
+    const int eNodeNumber = ONEFLOW::GetElementNodeNumbers( this->eTypeList[ eId ] );
+    const CgInt pos = this->ePosList[ eId ] + ( this->eType == MIXED ? 1 : this->pos_shift );
+    if ( eNodeNumber <= 0 || pos < 0 ||
+         static_cast< size_t >( pos ) > this->connList.size() ||
+         static_cast< size_t >( eNodeNumber ) > this->connList.size() - static_cast< size_t >( pos ) )
+    {
+        throw std::runtime_error( "CgnsSection::GetAddress: element connectivity span is invalid" );
+    }
+
+    return & this->connList[ static_cast< size_t >( pos ) ];
 }
 
 void CgnsSection::GetElementNodeId( CgInt eId, CgIntField & eNodeId )
 {
+    if ( eId < 0 || eId >= this->nElement )
+    {
+        throw std::runtime_error( "CgnsSection::GetElementNodeId: element index is out of range" );
+    }
+
+    eNodeId.resize( 0 );
     if ( this->eType != NGON_n )
     {
-        int eNodeNumber = ONEFLOW::GetElementNodeNumbers( this->eTypeList[ eId ] );
+        if ( static_cast< size_t >( eId ) >= this->eTypeList.size() )
+        {
+            throw std::runtime_error( "CgnsSection::GetElementNodeId: element type data is incomplete" );
+        }
+
+        const int eNodeNumber = ONEFLOW::GetElementNodeNumbers( this->eTypeList[ eId ] );
         CgInt * eAddress = this->GetAddress( eId );
 
-        eNodeId.resize( 0 );
         for ( int iNode = 0; iNode < eNodeNumber; ++ iNode )
         {
             eNodeId.push_back( eAddress[ iNode ] );
@@ -120,40 +147,78 @@ void CgnsSection::GetElementNodeId( CgInt eId, CgIntField & eNodeId )
     }
     else
     {
-        //PolygonFace NGON_n
-        int st = this->ePosList[ eId ];
-        int ed = this->ePosList[ eId + 1 ];
-        int nNode = ed - st;
-        eNodeId.resize( 0 );
-        for ( int i = st; i < ed; ++ i )
+        // Polygon offsets delimit a variable-length node list for each face.
+        if ( static_cast< size_t >( eId + 1 ) >= this->ePosList.size() )
         {
-            int node = this->connList[ i ];
-            eNodeId.push_back( node );
+            throw std::runtime_error( "CgnsSection::GetElementNodeId: NGON offsets are incomplete" );
+        }
+
+        const CgInt start = this->ePosList[ eId ];
+        const CgInt end = this->ePosList[ eId + 1 ];
+        if ( start < 0 || end < start ||
+             static_cast< size_t >( end ) > this->connList.size() )
+        {
+            throw std::runtime_error( "CgnsSection::GetElementNodeId: NGON connectivity span is invalid" );
+        }
+
+        for ( CgInt i = start; i < end; ++ i )
+        {
+            eNodeId.push_back( this->connList[ static_cast< size_t >( i ) ] );
         }
     }
 }
 
-void CgnsSection::SetElementTypeAndNode( ElemFeature * elem_feature )
+void CgnsSection::SetElementTypeAndNode( ElemFeature & elem_feature )
 {
+    if ( this->nElement < 0 || static_cast< size_t >( this->nElement ) > this->eTypeList.size() )
+    {
+        throw std::runtime_error( "CgnsSection::SetElementTypeAndNode: element type data is incomplete" );
+    }
+
+    // Stage the section output so invalid connectivity cannot leave the two
+    // parallel element arrays with different lengths.
+    IntField sectionTypes;
+    CgLinkField sectionNodeIds;
+    sectionTypes.reserve( this->nElement );
+    sectionNodeIds.reserve( this->nElement );
+
     for ( int iElem = 0; iElem < this->nElement; ++ iElem )
     {
-        int e_type = this->eTypeList[ iElem ];
+        const int e_type = this->eTypeList[ iElem ];
 
         if ( ! ONEFLOW::IsBasicVolumeElementType( e_type ) ) continue;
-
-        elem_feature->eTypes.push_back( e_type );
 
         CgIntField eNodeId;
         this->GetElementNodeId( iElem, eNodeId );
 
-        int eNodeNumber  = ONEFLOW::GetElementNodeNumbers( this->eTypeList[ iElem ] );
+        const int eNodeNumber = ONEFLOW::GetElementNodeNumbers( e_type );
+        if ( eNodeId.size() != static_cast< size_t >( eNodeNumber ) )
+        {
+            throw std::runtime_error( "CgnsSection::SetElementTypeAndNode: element connectivity has an unexpected node count" );
+        }
 
+        const auto & localToGlobal = this->cgnsZone.l2g;
         for ( int iNode = 0; iNode < eNodeNumber; ++ iNode )
         {
-            eNodeId[ iNode ] = this->cgnsZone.l2g[ eNodeId[ iNode ] ];
+            const CgInt localNodeId = eNodeId[ iNode ];
+            if ( localNodeId < 0 ||
+                 static_cast< size_t >( localNodeId ) >= localToGlobal.size() )
+            {
+                throw std::runtime_error( "CgnsSection::SetElementTypeAndNode: local node index is out of range" );
+            }
+            eNodeId[ iNode ] = localToGlobal[ static_cast< size_t >( localNodeId ) ];
         }
-        elem_feature->eNodeId.push_back( eNodeId );
+
+        sectionTypes.push_back( e_type );
+        sectionNodeIds.push_back( std::move( eNodeId ) );
     }
+
+    elem_feature.eTypes.reserve( elem_feature.eTypes.size() + sectionTypes.size() );
+    elem_feature.eNodeId.reserve( elem_feature.eNodeId.size() + sectionNodeIds.size() );
+    elem_feature.eTypes.insert( elem_feature.eTypes.end(), sectionTypes.begin(), sectionTypes.end() );
+    elem_feature.eNodeId.insert( elem_feature.eNodeId.end(),
+                                 std::make_move_iterator( sectionNodeIds.begin() ),
+                                 std::make_move_iterator( sectionNodeIds.end() ) );
 }
 
 void CgnsSection::ReadCgnsSection()
@@ -329,17 +394,32 @@ void CgnsSection::SetElemPositionOri()
 
 void CgnsSection::SetElemPositionMixed()
 {
-    int pos = 0;
-    ePosList[ 0 ] = pos;
+    size_t pos = 0;
+    ePosList[ 0 ] = 0;
     for ( int iElem = 0; iElem < this->nElement; ++ iElem )
     {
-        int e_type = this->connList[ pos ];
-        eTypeList[ iElem ] = e_type;
-        int npe;
-        cg_npe( static_cast< ElementType_t >( e_type ), & npe );
-        pos += npe + this->pos_shift;
+        if ( pos >= this->connList.size() )
+        {
+            throw std::runtime_error( "CgnsSection::SetElemPositionMixed: missing element type tag" );
+        }
 
-        ePosList[ iElem + 1 ] = pos;
+        const int e_type = this->connList[ pos ];
+        int npe = -1;
+        cg_npe( static_cast< ElementType_t >( e_type ), & npe );
+
+        if ( npe <= 0 || static_cast< size_t >( npe ) + 1 > this->connList.size() - pos )
+        {
+            throw std::runtime_error( "CgnsSection::SetElemPositionMixed: invalid element connectivity span" );
+        }
+
+        this->eTypeList[ iElem ] = e_type;
+        pos += static_cast< size_t >( npe ) + 1;
+        ePosList[ iElem + 1 ] = static_cast< CgInt >( pos );
+    }
+
+    if ( pos != this->connList.size() )
+    {
+        throw std::runtime_error( "CgnsSection::SetElemPositionMixed: unused connectivity entries" );
     }
 }
 

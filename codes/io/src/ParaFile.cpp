@@ -31,7 +31,6 @@ License
 #include "DataBase.h"
 #include "Parallel.h"
 #include "LogFile.h"
-#include "OStream.h"
 #include "Fatal.h"
 #include "Prj.h"
 #include "FileUtils.h"
@@ -131,12 +130,7 @@ std::string GetJsonFileName( const std::string & fileName )
     ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
     std::string newExtensionName = "json";
 
-    OStream &logger = OStream::Instance();
-    logger.ClearAll();
-    logger << mainName << "." << newExtensionName;
-
-    std::string newFileName = logger.str();
-    return newFileName;
+    return mainName + "." + newExtensionName;
 }
 
 void GetParaInfo( TextFileParser & textFileParser, std::string & varName, std::vector< std::string > & varArray )
@@ -234,10 +228,10 @@ void DumpDataBase()
 
 void DumpDataBase( const std::string & caseDir )
 {
-    DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
+    DataBase & dataBase = ONEFLOW::RequireGlobalDataBase();
     std::fstream file;
     Prj::OpenCaseFile( file, caseDir, "log/database.log", std::ios_base::out );
-    dataBase->GetDataPara()->DumpData( file );
+    dataBase.RequireDataPara().DumpData( file );
     PIO::CloseFile( file );
 }
 
@@ -352,23 +346,31 @@ void DecompressData( DataBook * dataBook )
 
 void CompressData( DataBase * dataBase, DataBook * dataBook )
 {
-    // Use the new type alias
-    const DataPara::DataMap & dataMap = dataBase->GetDataPara()->GetDataMap();
+    if ( dataBase == nullptr )
+    {
+        throw std::runtime_error( "DataBase: database is not initialized" );
+    }
+
+    const DataPara::DataMap & dataMap = dataBase->RequireDataPara().GetDataMap();
 
     int ndata = static_cast<int>( dataMap.size() );
     ONEFLOW::HXWrite( dataBook, ndata );
 
-    // Range-based for is cleaner with unordered_map
     for ( const auto & pair : dataMap )
     {
-        const DataEntry * dataEntry = pair.second.get();  // pair.first is the key (name), pair.second owns DataEntry
+        const DataEntry * dataEntry = pair.second.get();
         ONEFLOW::HXWriteDataEntry( dataBook, dataEntry );
     }
 }
 
 void DecompressData( DataBase * dataBase, DataBook * dataBook )
 {
-    // No longer need to touch the internal map directly for reading
+    if ( dataBase == nullptr )
+    {
+        throw std::runtime_error( "DataBase: database is not initialized" );
+    }
+
+    DataPara & dataPara = dataBase->RequireDataPara();
     dataBook->MoveToBegin();
 
     int ndata = 0;
@@ -377,7 +379,7 @@ void DecompressData( DataBase * dataBase, DataBook * dataBook )
     for ( int i = 0; i < ndata; ++ i )
     {
         auto dataEntry = ONEFLOW::HXReadDataEntry( dataBook );
-        dataBase->GetDataPara()->SetDataEntry( std::move( dataEntry ) );
+        dataPara.SetDataEntry( std::move( dataEntry ) );
     }
 }
 
