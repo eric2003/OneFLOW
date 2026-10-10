@@ -103,6 +103,9 @@ void CalcGrid::Init( Grids grids, const GridConfig & config )
     // Validate before taking ownership; Post() traverses this collection.
     ValidateGridCollection( grids );
 
+    // IFaceLink stores a reference to the current grid collection. Destroy it
+    // before replacing that collection, including when Init() is called again.
+    this->iFaceLink.reset();
     this->grids = std::move( grids );
     this->config = config;
 
