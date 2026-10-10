@@ -96,7 +96,7 @@ int ScalarFieldRecord::GetNEqu( int id ) const
     return this->nEquList[ id ];
 }
 
-void ScalarFieldRecord::AddFieldRecord( DataStorage * dataStorage, StringField & fieldNameList )
+void ScalarFieldRecord::AddFieldRecord( DataStorage * dataStorage, const StringField & fieldNameList )
 {
     if ( dataStorage == nullptr )
     {

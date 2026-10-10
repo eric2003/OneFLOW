@@ -58,7 +58,7 @@ public:
     }
     int GetNEqu( int id ) const;
 public:
-    void AddFieldRecord( DataStorage * dataStorage, StringField & fieldNameList );
+    void AddFieldRecord( DataStorage * dataStorage, const StringField & fieldNameList );
 private:
     IntField nEquList;
     HXVector< MRField * > fields;

@@ -56,16 +56,16 @@ public:
     int GetElementFaceNumber() const;
     int GetElementPhysicsFaceNumber() const;
     int GetElementType() const;
-    int GetElementNodeNumbers( int elementType );
+    int GetElementNodeNumbers( int elementType ) const;
 
-    int GetRefinedElementType( int elementType );
-    int GetSimpleElementType ( int elementType );
+    int GetRefinedElementType( int elementType ) const;
+    int GetSimpleElementType ( int elementType ) const;
 
-    bool IsUnitElementType  ( int elementType );
-    bool IsFaceElementType   ( int elementType );
+    bool IsUnitElementType  ( int elementType ) const;
+    bool IsFaceElementType   ( int elementType ) const;
 
-    bool IsFaceElementTypeAtLeast( int elementType );
-    bool IsBasicVolumeElementType( int elementType );
+    bool IsFaceElementTypeAtLeast( int elementType ) const;
+    bool IsBasicVolumeElementType( int elementType ) const;
 
     IntField & GetElementFace(int iFace);
     int GetFaceType(int iFace) const;

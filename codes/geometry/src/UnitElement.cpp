@@ -37,7 +37,7 @@ UnitElement::~UnitElement()
     ;
 }
 
-int UnitElement::GetElementNodeNumbers( int elementType )
+int UnitElement::GetElementNodeNumbers( int elementType ) const
 {
     int nodeNumberOfElement = 0;
     if ( elementType == ONEFLOW::NODE )
@@ -985,7 +985,7 @@ void UnitElement::Initialize( int elementType )
     }
 }
 
-int UnitElement::GetRefinedElementType( int elementType )
+int UnitElement::GetRefinedElementType( int elementType ) const
 {
     int nextElementType = -1;
     if ( elementType == ONEFLOW::NODE )
@@ -1052,7 +1052,7 @@ int UnitElement::GetRefinedElementType( int elementType )
     return nextElementType;
 }
 
-int UnitElement::GetSimpleElementType( int elementType )
+int UnitElement::GetSimpleElementType( int elementType ) const
 {
     int previousElementType = -1;
     if ( elementType == ONEFLOW::NODE )
@@ -1120,7 +1120,7 @@ int UnitElement::GetSimpleElementType( int elementType )
     return previousElementType;
 }
 
-bool UnitElement::IsUnitElementType( int elementType )
+bool UnitElement::IsUnitElementType( int elementType ) const
 {
     bool results = false;
     if ( elementType == ONEFLOW::NODE )
@@ -1187,7 +1187,7 @@ bool UnitElement::IsUnitElementType( int elementType )
     return results;
 }
 
-bool UnitElement::IsFaceElementType( int elementType )
+bool UnitElement::IsFaceElementType( int elementType ) const
 {
     bool results = false;
 
@@ -1227,7 +1227,7 @@ bool UnitElement::IsFaceElementType( int elementType )
     return results;
 }
 
-bool UnitElement::IsFaceElementTypeAtLeast( int elementType )
+bool UnitElement::IsFaceElementTypeAtLeast( int elementType ) const
 {
     bool results = IsUnitElementType( elementType );
 
@@ -1245,7 +1245,7 @@ bool UnitElement::IsFaceElementTypeAtLeast( int elementType )
     return results;
 }
 
-bool UnitElement::IsBasicVolumeElementType( int elementType )
+bool UnitElement::IsBasicVolumeElementType( int elementType ) const
 {
     if ( ONEFLOW::IsOneD() )
     {
