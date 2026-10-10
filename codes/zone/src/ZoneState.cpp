@@ -37,16 +37,6 @@ IntField ZoneState::pid;
 IntField ZoneState::zoneType;
 IntField ZoneState::localZid;
 
-ZoneState::ZoneState()
-{
-    ;
-}
-
-ZoneState::~ZoneState()
-{
-    ;
-}
-
 void ZoneState::Reset()
 {
     ZoneState::nZones = 0;

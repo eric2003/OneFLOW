@@ -74,7 +74,7 @@ public:
     void FillRecvId( int iNei );
     void SetSendId( int zid, IntField & idsend );
     void AllocateNeighbor();
-    int CalcNIFace( int iNei );
+    int CalcNIFace( int iNei ) const;
     InterfacePair & GetInterfacePair( int iNei );
     const InterfacePair & GetInterfacePair( int iNei ) const;
     DataStorage & GetSendStorage( int ghostId );
@@ -82,13 +82,14 @@ public:
     DataStorage & GetRecvStorage( int ghostId );
     const DataStorage & GetRecvStorage( int ghostId ) const;
     IntField & GetInterfaceId( int neiId, int iSr );
+    const IntField & GetInterfaceId( int neiId, int iSr ) const;
 };
 
 class InterfacePair
 {
 public:
-    InterfacePair();
-    ~InterfacePair();
+    InterfacePair() = default;
+    ~InterfacePair() = default;
 public:
     //zid, nzid is the block number of the neighboring block (neighbor)
     int zid, nzid;

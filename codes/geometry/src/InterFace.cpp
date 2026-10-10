@@ -164,7 +164,7 @@ void InterFace::InitNeighborZoneInfo()
     }
 }
 
-int InterFace::CalcNIFace( int iNei )
+int InterFace::CalcNIFace( int iNei ) const
 {
     int expectedId = this->GetInterfacePair( iNei ).nzid;
     int nIFaceCount = 0;
@@ -245,14 +245,13 @@ IntField & InterFace::GetInterfaceId( int neiId, int iSr )
     return this->GetInterfacePair( neiId ).idrecv;
 }
 
-
-InterfacePair::InterfacePair()
+const IntField & InterFace::GetInterfaceId( int neiId, int iSr ) const
 {
-    ;
-}
-
-InterfacePair::~InterfacePair()
-{
+    if ( iSr == GREAT_SEND )
+    {
+        return this->GetInterfacePair( neiId ).idsend;
+    }
+    return this->GetInterfacePair( neiId ).idrecv;
 }
 
 InterFaceTopo::InterFaceTopo()

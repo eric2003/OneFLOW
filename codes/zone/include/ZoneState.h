@@ -29,8 +29,8 @@ BeginNameSpace( ONEFLOW )
 class ZoneState
 {
 public:
-    ZoneState();
-    ~ZoneState();
+    ZoneState() = default;
+    ~ZoneState() = default;
 public:
     static int nZones;
     static int nLocal;
