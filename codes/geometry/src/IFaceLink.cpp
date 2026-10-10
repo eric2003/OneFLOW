@@ -53,6 +53,22 @@ void ValidateGlobalFaceMapping(
         throw std::logic_error( std::string( operation ) + ": global face references are inconsistent" );
     }
 }
+
+void ValidateGlobalFaceMappings(
+    const LinkField & zoneIds, const LinkField & localFaceIds,
+    const char * operation )
+{
+    if ( zoneIds.size() != localFaceIds.size() )
+    {
+        throw std::logic_error( std::string( operation ) + ": global face mapping tables have different sizes" );
+    }
+
+    for ( size_t globalFaceId = 0; globalFaceId < zoneIds.size(); ++ globalFaceId )
+    {
+        ValidateGlobalFaceMapping(
+            static_cast< int >( globalFaceId ), zoneIds, localFaceIds, operation );
+    }
+}
 }
 
 IFaceLink::IFaceLink( Grids & gridsIn ) : grids( gridsIn )
@@ -174,8 +190,11 @@ void IFaceLink::InitNewLgMapping()
 
 void IFaceLink::UpdateLgMapping()
 {
-    this->gI2Zid = this->gI2ZidNew;
-    this->g2l = this->g2lNew;
+    ValidateGlobalFaceMappings(
+        this->gI2ZidNew, this->g2lNew, "IFaceLink::UpdateLgMapping" );
+
+    this->gI2Zid.swap( this->gI2ZidNew );
+    this->g2l.swap( this->g2lNew );
 }
 
 void IFaceLink::MatchInterfaceTopology( Grid & grid )
