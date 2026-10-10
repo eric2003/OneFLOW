@@ -90,7 +90,7 @@ CgnsZone * CgnsBase::GetCgnsZoneByName( const std::string & zoneName )
 
 int CgnsBase::GetNZones()
 {
-    return this->cgnsZones.size();
+    return static_cast< int >( this->cgnsZones.size() );
 }
 
 void CgnsBase::SetDefaultCgnsBaseBasicInfo()
@@ -215,10 +215,10 @@ void CgnsBase::ReadAllCgnsZones()
     this->ReadFamilySpecifiedBc();
     std::cout << "   numberOfCgnsZones       = " << this->nZones << "\n\n";
 
-    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    for ( size_t iZone = 0; iZone < this->cgnsZones.size(); ++ iZone )
     {
-        std::cout << "==>iZone = " << iZone << " numberOfCgnsZones = " << this->nZones << "\n";
-        CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
+        std::cout << "==>iZone = " << iZone << " numberOfCgnsZones = " << this->cgnsZones.size() << "\n";
+        CgnsZone * cgnsZone = this->GetCgnsZone( static_cast< int >( iZone ) );
         cgnsZone->ReadCgnsGrid();
     }
 }
@@ -230,10 +230,10 @@ void CgnsBase::DumpAllCgnsZones()
     //this->ReadFamilySpecifiedBc();
     std::cout << "   numberOfCgnsZones       = " << this->nZones << "\n\n";
 
-    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    for ( size_t iZone = 0; iZone < this->cgnsZones.size(); ++ iZone )
     {
-        std::cout << "==>iZone = " << iZone << " numberOfCgnsZones = " << this->nZones << "\n";
-        CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
+        std::cout << "==>iZone = " << iZone << " numberOfCgnsZones = " << this->cgnsZones.size() << "\n";
+        CgnsZone * cgnsZone = this->GetCgnsZone( static_cast< int >( iZone ) );
         cgnsZone->DumpCgnsGrid();
     }
 }
@@ -244,11 +244,11 @@ void CgnsBase::ProcessCgnsZones()
 
     this->ConstructZoneNameMap();
 
-    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    for ( size_t iZone = 0; iZone < this->cgnsZones.size(); ++ iZone )
     {
-        std::cout << "==>iZone = " << iZone << " numberOfCgnsZones = " << this->nZones << "\n";
+        std::cout << "==>iZone = " << iZone << " numberOfCgnsZones = " << this->cgnsZones.size() << "\n";
         std::cout << "cgnsZone->SetPeriodicBc\n";
-        CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
+        CgnsZone * cgnsZone = this->GetCgnsZone( static_cast< int >( iZone ) );
         cgnsZone->SetPeriodicBc();
     }
 }
@@ -257,10 +257,10 @@ void CgnsBase::ConvertToInnerDataStandard()
 {
     std::cout << "   ConvertToInnerDataStandard \n";
 
-    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    for ( size_t iZone = 0; iZone < this->cgnsZones.size(); ++ iZone )
     {
-        std::cout << "==>iZone = " << iZone << " numberOfCgnsZones = " << this->nZones << "\n";
-        CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
+        std::cout << "==>iZone = " << iZone << " numberOfCgnsZones = " << this->cgnsZones.size() << "\n";
+        CgnsZone * cgnsZone = this->GetCgnsZone( static_cast< int >( iZone ) );
         cgnsZone->ConvertToInnerDataStandard();
     }
 }
@@ -445,9 +445,9 @@ void CgnsBase::ReadFlowEqn()
 {
     this->ReadCgnsZones();
 
-    for ( int iZone = 0; iZone < this->nZones; ++ iZone )
+    for ( size_t iZone = 0; iZone < this->cgnsZones.size(); ++ iZone )
     {
-        CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
+        CgnsZone * cgnsZone = this->GetCgnsZone( static_cast< int >( iZone ) );
         cgnsZone->ReadFlowEqn();
     }
 }
