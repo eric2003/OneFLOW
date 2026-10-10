@@ -140,7 +140,7 @@ void ScalarIFace::AddInterface( int global_interface_id, int neighbor_zoneid, in
     this->cells.push_back( neighbor_cellid );
 }
 
-int ScalarIFace::GetLocalInterfaceId( int global_interface_id )
+int ScalarIFace::GetLocalInterfaceId( int global_interface_id ) const
 {
     const auto iter = this->global_to_local_interfaces.find( global_interface_id );
     if ( iter == this->global_to_local_interfaces.end() )
@@ -150,12 +150,12 @@ int ScalarIFace::GetLocalInterfaceId( int global_interface_id )
     return iter->second;
 }
 
-int ScalarIFace::GetNIFaces()
+int ScalarIFace::GetNIFaces() const
 {
     return zones.size();
 }
 
-int ScalarIFace::FindINeibor( int iZone )
+int ScalarIFace::FindINeibor( int iZone ) const
 {
     int nNeis = data.size();
     for( int iNei = 0; iNei < nNeis; ++ iNei)
