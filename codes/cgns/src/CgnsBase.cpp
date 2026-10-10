@@ -346,12 +346,20 @@ void CgnsBase::SetTestISize( cgsize_t * isize )
 
 void CgnsBase::GoToBase()
 {
-    cg_goto( this->cgnsFile->fileId, this->baseId, "end" );
+    const int status = cg_goto( this->cgnsFile->fileId, this->baseId, "end" );
+    if ( status != CG_OK )
+    {
+        throw std::runtime_error( "CgnsBase::GoToBase (cg_goto): " + std::string( cg_get_error() ) );
+    }
 }
 
 void CgnsBase::GoToNode( const std::string & nodeName, int ith )
 {
-    cg_goto( this->cgnsFile->fileId, this->baseId, nodeName.c_str(), ith, NULL );
+    const int status = cg_goto( this->cgnsFile->fileId, this->baseId, nodeName.c_str(), ith, NULL );
+    if ( status != CG_OK )
+    {
+        throw std::runtime_error( "CgnsBase::GoToNode (cg_goto): " + std::string( cg_get_error() ) );
+    }
 }
 
 void CgnsBase::ReadArray()
