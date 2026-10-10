@@ -53,6 +53,7 @@ CgnsBase::~CgnsBase() = default;
 void CgnsBase::FreeZoneList()
 {
     this->cgnsZones.clear();
+    this->zoneNameMap.clear();
     this->nZones = 0;
 }
 
@@ -161,11 +162,20 @@ void CgnsBase::CreateCgnsZones( int nZones )
 
 void CgnsBase::ConstructZoneNameMap()
 {
-    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    this->zoneNameMap.clear();
+
+    std::map< std::string, int > stagedZoneNameMap;
+    for ( size_t iZone = 0; iZone < this->cgnsZones.size(); ++ iZone )
     {
-        CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
-        zoneNameMap[ cgnsZone->zoneName ] = cgnsZone->zId;
+        const CgnsZone * cgnsZone = this->cgnsZones[ iZone ].get();
+        const auto inserted = stagedZoneNameMap.emplace( cgnsZone->zoneName, cgnsZone->zId );
+        if ( ! inserted.second )
+        {
+            throw std::runtime_error( "CgnsBase::ConstructZoneNameMap: duplicate zone name '" + cgnsZone->zoneName + "'" );
+        }
     }
+
+    this->zoneNameMap.swap( stagedZoneNameMap );
 }
 
 void CgnsBase::ReadAllCgnsZones()
