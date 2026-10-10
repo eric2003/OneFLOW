@@ -146,10 +146,18 @@ CgnsBase * CgnsFile::WriteBase( const std::string & baseName )
 CgnsBase * CgnsFile::WriteBase( const std::string & baseName, int celldim, int physdim )
 {
     int baseId = -1;
-    cg_base_write( fileId, baseName.c_str(), celldim, physdim, & baseId );
-    std::cout << " CGNS Base index = " << baseId << "\n";
+    const int status = cg_base_write(
+        this->fileId, baseName.c_str(), celldim, physdim, & baseId );
+    if ( status != CG_OK )
+    {
+        throw std::runtime_error(
+            "CgnsFile::WriteBase (cg_base_write): " + std::string( cg_get_error() ) );
+    }
+
+    CgnsBase * base = this->AddBase( this->fileId, baseName, celldim, physdim, baseId );
     this->currBaseId = baseId;
-    return this->AddBase( fileId, baseName, celldim, physdim, baseId );
+    std::cout << " CGNS Base index = " << baseId << "\n";
+    return base;
 }
 
 void CgnsFile::FreeBaseList()
