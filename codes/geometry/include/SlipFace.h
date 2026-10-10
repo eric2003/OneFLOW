@@ -74,8 +74,8 @@ public:
 class LocalSlipFace
 {
 public:
-    LocalSlipFace();
-    ~LocalSlipFace();
+    LocalSlipFace() = default;
+    ~LocalSlipFace() = default;
 public:
     HXVector< SlipFace * > data; // Non-owning pointers to each grid's SlipFace.
     void AddSlipFace( SlipFace * slipFace );
@@ -88,8 +88,8 @@ class DataBook;
 class GlobalSlipFace
 {
 public:
-    GlobalSlipFace();
-    ~GlobalSlipFace();
+    GlobalSlipFace() = default;
+    ~GlobalSlipFace() = default;
 public:
     HXVector< std::unique_ptr< SlipFace > > data;
 public:
@@ -118,16 +118,16 @@ public:
     int zid, nzid;
     IntField idrecv; // using in receiving, interface number in the current zone
     IntField idsend; // using in sending,   interface number in the tagret  zone
-    int GetNSend() { return static_cast<int> (idsend.size()); };
-    int GetNRecv() { return static_cast<int> (idrecv.size()); };
+    int GetNSend() const { return static_cast<int> (idsend.size()); }
+    int GetNRecv() const { return static_cast<int> (idrecv.size()); }
 };
 
 
 class SlipFaceTopo
 {
 public:
-    SlipFaceTopo ();
-    ~SlipFaceTopo();
+    SlipFaceTopo() = default;
+    ~SlipFaceTopo() = default;
 public:
     LinkField data;
 public:

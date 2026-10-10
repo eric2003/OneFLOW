@@ -30,16 +30,6 @@ std::fstream * ActionState::file = 0;
 std::ios_base::openmode ActionState::openMode;
 std::string ActionState::fileName;
 
-ActionState::ActionState()
-{
-    ;
-}
-
-ActionState::~ActionState()
-{
-    ;
-}
-
 void ActionState::Reset()
 {
     ActionState::dataBook = 0;

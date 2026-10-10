@@ -193,13 +193,6 @@ void SlipFace::SetSendId( int zid, IntField & idsend )
     slipfacePair->idsend = idsend;
 }
 
-LocalSlipFace::LocalSlipFace()
-{
-    ;
-}
-
-LocalSlipFace::~LocalSlipFace() = default;
-
 void LocalSlipFace::AddSlipFace( SlipFace * slipFace )
 {
     this->data.push_back( slipFace );
@@ -218,13 +211,6 @@ void LocalSlipFace::InitDist()
         slipface->InitDist();
     }
 }
-
-GlobalSlipFace::GlobalSlipFace()
-{
-    ;
-}
-
-GlobalSlipFace::~GlobalSlipFace() = default;
 
 void GlobalSlipFace::AddSlipFace( std::unique_ptr< SlipFace > slipFace )
 {
@@ -423,15 +409,6 @@ void InitSlipFaceTopo()
     FreeSlip();
 
 
-}
-
-SlipFaceTopo::SlipFaceTopo()
-{
-    ;
-}
-
-SlipFaceTopo::~SlipFaceTopo()
-{
 }
 
 void SlipFaceTopo::InitZoneNeighborsInfo()
