@@ -28,6 +28,7 @@ License
 #include "Dimension.h"
 #include <iostream>
 #include <iomanip>
+#include <limits>
 #include <stdexcept>
 
 BeginNameSpace( ONEFLOW )
@@ -223,7 +224,13 @@ void CgnsCoor::ReadCgnsGridCoordinates()
             "CgnsCoor::ReadCgnsGridCoordinates: coordinate count is outside the supported range" );
     }
 
-    int nNodes = static_cast<int>( this->GetNNode() );
+    const CgInt nodeCount = this->GetNNode();
+    if ( nodeCount <= 0 || nodeCount > std::numeric_limits< int >::max() )
+    {
+        throw std::runtime_error(
+            "CgnsCoor::ReadCgnsGridCoordinates: node count is outside the supported range" );
+    }
+    const int nNodes = static_cast< int >( nodeCount );
 
     try
     {
