@@ -441,6 +441,10 @@ void GridPartition::ReconstructInterfaceTopo( std::vector< std::unique_ptr< Scal
 		{
 			throw std::runtime_error( "GridPartition::ReconstructInterfaceTopo: zone has no interface topology" );
 		}
+		// Validate each zone once before resolving many global-to-local face IDs.
+		// This keeps the reciprocal identity invariant without rescanning all maps
+		// for every individual face lookup.
+		grids[ iZone ]->scalarIFace->ValidateInterfaceMappings();
 	}
 
 	// Stage every derived mapping before changing any zone's current interface state.

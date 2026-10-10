@@ -93,9 +93,8 @@ public:
 public:
     void WriteInterfaceTopology( DataBook * databook ) const;
     void ReadInterfaceTopology( DataBook * databook );
-
-private:
     void ValidateInterfaceMappings() const;
+};
 };
 
 
