@@ -39,6 +39,30 @@ BeginNameSpace( ONEFLOW )
 
 namespace
 {
+int GetBoundaryFaceId(
+    const Grid & grid, int interfaceFaceId, const IntField & cellIds,
+    const char * operation )
+{
+    if ( ! grid.interFace )
+    {
+        throw std::logic_error( std::string( operation ) + ": interface data is not initialized" );
+    }
+    const IntField & interfaceToBoundary = grid.interFace->i2b;
+    if ( interfaceFaceId < 0 ||
+         static_cast< size_t >( interfaceFaceId ) >= interfaceToBoundary.size() )
+    {
+        throw std::out_of_range( std::string( operation ) + ": interface face ID is out of range" );
+    }
+
+    const int boundaryFaceId = interfaceToBoundary[ interfaceFaceId ];
+    if ( boundaryFaceId < 0 ||
+         static_cast< size_t >( boundaryFaceId ) >= cellIds.size() )
+    {
+        throw std::out_of_range( std::string( operation ) + ": boundary face ID is out of range" );
+    }
+    return boundaryFaceId;
+}
+
 const IntField & GetChildFaceIds(
     const IFaceLink & interfaceLink, int zoneId, int localFaceId,
     const char * operation )
@@ -531,16 +555,20 @@ void FaceTopo::GenerateI2B( InterFace & interFace )
 
 bool FaceTopo::GetSId( int iFace, int iPosition, int & sId )
 {
-    int iBFace = this->GetGrid().interFace->i2b[ iFace ];
-    sId = this->lCells[ iBFace ];
+    const Grid & grid = this->GetGrid();
+    const int boundaryFaceId = GetBoundaryFaceId(
+        grid, iFace, this->lCells, "FaceTopo::GetSId" );
+    sId = this->lCells[ boundaryFaceId ];
 
     return true;
 }
 
 bool FaceTopo::GetTId( int iFace, int iPosition, int & tId )
 {
-    int iBFace = this->GetGrid().interFace->i2b[ iFace ];
-    tId = this->rCells[ iBFace ];
+    const Grid & grid = this->GetGrid();
+    const int boundaryFaceId = GetBoundaryFaceId(
+        grid, iFace, this->rCells, "FaceTopo::GetTId" );
+    tId = this->rCells[ boundaryFaceId ];
 
     return true;
 }
