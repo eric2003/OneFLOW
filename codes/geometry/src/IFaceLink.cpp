@@ -186,6 +186,9 @@ void IFaceLink::InitNewLgMapping()
 {
     this->gI2ZidNew = this->gI2Zid;
     this->g2lNew = this->g2l;
+
+    this->l2gNew.clear();
+    this->l2gNew.resize( this->l2g.size() );
 }
 
 void IFaceLink::UpdateLgMapping()
