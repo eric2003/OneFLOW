@@ -722,12 +722,15 @@ void ScalarGrid::ReadFromCgnsZone( CgnsZone & cgnsZone )
 			if ( ! ONEFLOW::IsBasicVolumeElementType( eType ) ) continue;
 
 			const int nodeCount = ONEFLOW::GetElementNodeNumbers( eType );
-			const int connectionBegin = cgnsSection.ePosList[ iElem ] + cgnsSection.pos_shift;
-			const int connectionEnd = connectionBegin + nodeCount;
-			if ( connectionBegin < 0 ||
-				 connectionEnd < connectionBegin ||
-				 static_cast< size_t >( connectionEnd ) > cgnsSection.connList.size() ||
-				 cgnsSection.ePosList[ iElem + 1 ] < cgnsSection.ePosList[ iElem ] )
+			const long long connectionBegin = static_cast< long long >( cgnsSection.ePosList[ iElem ] ) +
+				static_cast< long long >( cgnsSection.pos_shift );
+			const long long nextConnectionBegin = static_cast< long long >( cgnsSection.ePosList[ iElem + 1 ] ) +
+				static_cast< long long >( cgnsSection.pos_shift );
+			if ( nodeCount <= 0 ||
+				 connectionBegin < 0 ||
+				 nextConnectionBegin < connectionBegin ||
+				 nextConnectionBegin > static_cast< long long >( cgnsSection.connList.size() ) ||
+				 connectionBegin + nodeCount > nextConnectionBegin )
 			{
 				throw std::invalid_argument(
 					"ScalarGrid::ReadFromCgnsZone: invalid connectivity range in volume section" );
