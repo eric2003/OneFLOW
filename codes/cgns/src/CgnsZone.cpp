@@ -132,9 +132,18 @@ CgnsZbc & CgnsZone::RequireCgnsZbc()
 
 void CgnsZone::Create()
 {
-    this->cgnsZsection = std::make_unique< CgnsZsection >( *this );
-    this->cgnsZbc = std::make_unique< CgnsZbc >( *this );
-    this->cgnsCoor = std::make_unique< CgnsCoor >( *this );
+    if ( this->cgnsZsection || this->cgnsZbc || this->cgnsCoor )
+    {
+        throw std::logic_error( "CgnsZone::Create: subobjects have already been initialized" );
+    }
+
+    auto cgnsZsection = std::make_unique< CgnsZsection >( *this );
+    auto cgnsZbc = std::make_unique< CgnsZbc >( *this );
+    auto cgnsCoor = std::make_unique< CgnsCoor >( *this );
+
+    this->cgnsZsection = std::move( cgnsZsection );
+    this->cgnsZbc = std::move( cgnsZbc );
+    this->cgnsCoor = std::move( cgnsCoor );
 }
 
 void CgnsZone::SetPeriodicBc()
