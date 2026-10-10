@@ -62,6 +62,7 @@ void ElementHome::Initialize()
 void ElementHome::Free()
 {
     unitElement.clear();
+    ElementHome::numberOfUnitElement = 0;
 }
 
 class ElementHomeInit

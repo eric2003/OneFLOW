@@ -23,14 +23,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-FieldRecord::FieldRecord()
-{
-}
-
-FieldRecord::~FieldRecord()
-{
-}
-
 void FieldRecord::AddField( MRField * field )
 {
     this->fields.push_back( field );
@@ -41,9 +33,14 @@ MRField * FieldRecord::GetField( int id )
     return this->fields[ id ];
 }
 
+const MRField * FieldRecord::GetField( int id ) const
+{
+    return this->fields[ id ];
+}
+
 int FieldRecord::Size() const
 {
-    return this->fields.size();
+    return static_cast< int >( this->fields.size() );
 }
 
 

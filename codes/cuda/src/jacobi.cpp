@@ -4,7 +4,7 @@
 #include "laplace2d.h"
 #include <string.h>
 #include <stdio.h>
-#include <stdlib.h>
+#include <vector>
 #include <omp.h>
 
 void Jacobi_Test()
@@ -16,10 +16,11 @@ void Jacobi_Test()
     const double tol = 1.0e-6;
     double error = 1.0;
 
-    double *restrict A    = (double*)malloc(sizeof(double)*n*m);
-    double *restrict Anew = (double*)malloc(sizeof(double)*n*m);
+    // RAII: vector owns the buffers; pass .data() to the C-style kernels.
+    std::vector< double > A( static_cast< size_t >( n ) * static_cast< size_t >( m ) );
+    std::vector< double > Anew( static_cast< size_t >( n ) * static_cast< size_t >( m ) );
     
-    initialize(A, Anew, m, n);
+    initialize( A.data(), Anew.data(), m, n );
         
     printf("Jacobi relaxation Calculation: %d x %d mesh\n", n, m);
     
@@ -28,8 +29,8 @@ void Jacobi_Test()
    
     while ( error > tol && iter < iter_max )
     {
-        error = calcNext(A, Anew, m, n);
-        swap(A, Anew, m, n);
+        error = calcNext( A.data(), Anew.data(), m, n );
+        swap( A.data(), Anew.data(), m, n );
 
         if(iter % 100 == 0) printf("%5d, %0.6f\n", iter, error);
         
@@ -41,7 +42,6 @@ void Jacobi_Test()
  
     printf(" total: %f s\n", runtime);
 
-    deallocate(A, Anew);
-
+    // A / Anew destroyed automatically; do not free() vector storage.
 }
 

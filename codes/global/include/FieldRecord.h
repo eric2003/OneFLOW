@@ -25,15 +25,17 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+// Non-owning view of MRField pointers. Callers keep field lifetime.
 class FieldRecord
 {
 public:
-    FieldRecord();
-    ~FieldRecord();
+    FieldRecord() = default;
+    ~FieldRecord() = default;
 
 public:
     void AddField( MRField * field );
     MRField * GetField( int id );
+    const MRField * GetField( int id ) const;
     int Size() const;
 
 private:
