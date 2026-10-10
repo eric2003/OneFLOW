@@ -95,7 +95,6 @@ public:
     void ReadInterfaceTopology( DataBook * databook );
     void ValidateInterfaceMappings() const;
 };
-};
 
 
 EndNameSpace
