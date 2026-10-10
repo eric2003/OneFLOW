@@ -74,28 +74,44 @@ bool FaceSolver::CheckBcFace( IntSet & bcVertex, IntField & nodeId )
 
 void FaceSolver::ScanPolygonFace( CgnsSection & cgnsSection )
 {
-    //std::vector<int> faceNodes;
+    const auto & offsets = cgnsSection.ePosList;
+    const auto & connectivity = cgnsSection.connList;
+
+    if ( cgnsSection.nElement < 0 ||
+         static_cast< std::size_t >( cgnsSection.nElement ) + 1 > offsets.size() )
+    {
+        throw std::runtime_error( "FaceSolver::ScanPolygonFace: polygon offsets are incomplete" );
+    }
+
+    // Validate every span before mutating the face lookup or topology.
+    for ( int iElem = 0; iElem < cgnsSection.nElement; ++ iElem )
+    {
+        const CgInt start = offsets[ iElem ];
+        const CgInt end = offsets[ iElem + 1 ];
+        if ( start < 0 || end < start ||
+             static_cast< std::size_t >( end ) > connectivity.size() )
+        {
+            throw std::runtime_error( "FaceSolver::ScanPolygonFace: polygon connectivity span is invalid" );
+        }
+    }
+
     IntField faceNodes;
     for ( int iElem = 0; iElem < cgnsSection.nElement; ++ iElem )
     {
-        int st = cgnsSection.ePosList[ iElem ];
-        int ed = cgnsSection.ePosList[ iElem + 1 ];
-        int nNode = ed - st;
+        const CgInt start = offsets[ iElem ];
+        const CgInt end = offsets[ iElem + 1 ];
         faceNodes.resize( 0 );
-        for ( int i = st; i < ed; ++ i )
+        for ( CgInt i = start; i < end; ++ i )
         {
-            int node = cgnsSection.connList[ i ];
-            faceNodes.push_back( node );
+            faceNodes.push_back( connectivity[ static_cast< std::size_t >( i ) ] );
         }
 
-        auto [faceIndex, isNew] = faceLookup.FindOrAdd(faceNodes);
+        auto [faceIndex, isNew] = faceLookup.FindOrAdd( faceNodes );
         if ( isNew )
         {
-            // New face: ID is set to the current number of faces. 
-            int newId = static_cast<int>(this->faceTopo->GetFaces().size());
-            this->faceTopo->GetFaces().push_back(faceNodes);           // Preserve original order
-            this->faceTopo->GetFaceTypes().push_back(cgnsSection.eType);
-            this->faceTopo->GetFaceFlags().push_back(0);
+            this->faceTopo->GetFaces().push_back( faceNodes );
+            this->faceTopo->GetFaceTypes().push_back( cgnsSection.eType );
+            this->faceTopo->GetFaceFlags().push_back( 0 );
         }
     }
 }
