@@ -247,7 +247,7 @@ void IFaceLink::MatchInterfaceTopology( Grid & grid )
         }
     }
     std::cout << " Periodic boundary faces missing a partner = "
-              << missingPeriodicPartnerCount << "\\n";
+              << missingPeriodicPartnerCount << "\n";
 }
 
 void IFaceLink::MatchPeriodicInterface( Grid & grid )
