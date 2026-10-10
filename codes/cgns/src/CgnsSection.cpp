@@ -255,21 +255,54 @@ void CgnsSection::ReadCgnsSectionInfo()
     int zId = cgnsZone.zId;
 
     ElementType_t elementType;
-    CgnsTraits::char33 cgnsSectionName;
+    CgnsTraits::char33 cgnsSectionName = {};
 
-    cg_section_read( fileId, baseId, zId, this->id, cgnsSectionName, & elementType, & this->startId, & this->endId, & nbndry, & iparentflag );
+    CgInt sectionStartId = 0;
+    CgInt sectionEndId = -1;
+    int sectionBoundaryCount = 0;
+    int parentDataFlag = 0;
+    const int sectionStatus = cg_section_read(
+        fileId, baseId, zId, this->id, cgnsSectionName, & elementType,
+        & sectionStartId, & sectionEndId, & sectionBoundaryCount, & parentDataFlag );
+    if ( sectionStatus != CG_OK )
+    {
+        throw std::runtime_error(
+            "CgnsSection::ReadCgnsSectionInfo (cg_section_read): " +
+            std::string( cg_get_error() ) );
+    }
+    if ( sectionStartId < 1 || sectionEndId < sectionStartId )
+    {
+        throw std::runtime_error(
+            "CgnsSection::ReadCgnsSectionInfo: invalid element ID range" );
+    }
 
+    CgInt sectionElementDataSize = -1;
+    const int sizeStatus = cg_ElementDataSize( fileId, baseId, zId, this->id, & sectionElementDataSize );
+    if ( sizeStatus != CG_OK )
+    {
+        throw std::runtime_error(
+            "CgnsSection::ReadCgnsSectionInfo (cg_ElementDataSize): " +
+            std::string( cg_get_error() ) );
+    }
+    if ( sectionElementDataSize < 0 )
+    {
+        throw std::runtime_error(
+            "CgnsSection::ReadCgnsSectionInfo: CGNS returned a negative element data size" );
+    }
+
+    // Publish section metadata only after both CGNS queries have succeeded.
     this->sectionName = cgnsSectionName;
+    this->eType = elementType;
+    this->startId = sectionStartId;
+    this->endId = sectionEndId;
+    this->nbndry = sectionBoundaryCount;
+    this->iparentflag = parentDataFlag;
+    this->elementDataSize = sectionElementDataSize;
 
     std::cout << "   Section Name = " << cgnsSectionName << "\n";
     std::cout << "   Section Type = " << ElementTypeName[ elementType ] << "\n";
     std::cout << "   startId, endId = " << this->startId << " " << this->endId << "\n";
-    this->eType = elementType;
-
-    this->elementDataSize = -1;
-    cg_ElementDataSize( fileId, baseId, zId, this->id, & this->elementDataSize );
-
-    std::cout << "   elementDataSize = " << elementDataSize << "\n";
+    std::cout << "   elementDataSize = " << this->elementDataSize << "\n";
 
     //if ( this->IsMixedSection() )
     //{
@@ -341,18 +374,27 @@ void CgnsSection::ReadCgnsSectionConnectionList()
     // of 0 is used ( typical for C-codes ) 1 must be substracted 
     // from the connectivities read. 
 
-    CgInt *addr = NULL;
-    if ( this->iparentflag )
+    CgInt * parentData = this->iparentflag ? this->iparentdata.data() : nullptr;
+    const int connectivityStatus = cg_elements_read(
+        fileId, baseId, zId, this->id, this->connList.data(), parentData );
+    if ( connectivityStatus != CG_OK )
     {
-        addr = & iparentdata[ 0 ];
+        throw std::runtime_error(
+            "CgnsSection::ReadCgnsSectionConnectionList (cg_elements_read): " +
+            std::string( cg_get_error() ) );
     }
-
-    cg_elements_read( fileId, baseId, zId, this->id, this->connList.data(), addr );
 
     if ( this->eType == NGON_n || this->eType == NFACE_n )
     {
+        const int polygonStatus = cg_poly_elements_read(
+            fileId, baseId, zId, this->id, this->connList.data(), this->ePosList.data(), 0 );
+        if ( polygonStatus != CG_OK )
+        {
+            throw std::runtime_error(
+                "CgnsSection::ReadCgnsSectionConnectionList (cg_poly_elements_read): " +
+                std::string( cg_get_error() ) );
+        }
         this->pos_shift = 1;
-        cg_poly_elements_read ( fileId, baseId, zId, this->id, this->connList.data(), this->ePosList.data(), 0 );
     }
 }
 
