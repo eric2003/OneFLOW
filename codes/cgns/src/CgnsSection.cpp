@@ -423,14 +423,41 @@ void CgnsSection::SetElemPosition()
 
 void CgnsSection::SetElemPositionOri()
 {
-    int pos = 0;
-    ePosList[ 0 ] = pos;
+    if ( this->nElement < 0 ||
+         static_cast< size_t >( this->nElement ) >= this->ePosList.size() )
+    {
+        throw std::runtime_error(
+            "CgnsSection::SetElemPositionOri: element offset storage is incomplete" );
+    }
+
+    int npe = 0;
+    const int npeStatus = cg_npe( static_cast< ElementType_t >( this->eType ), & npe );
+    if ( npeStatus != CG_OK || npe <= 0 )
+    {
+        throw std::runtime_error(
+            "CgnsSection::SetElemPositionOri (cg_npe): invalid element node count" );
+    }
+
+    const size_t nodeCount = static_cast< size_t >( npe );
+    if ( nodeCount > this->connList.size() ||
+         static_cast< size_t >( this->nElement ) >
+             this->connList.size() / nodeCount )
+    {
+        throw std::runtime_error(
+            "CgnsSection::SetElemPositionOri: connectivity storage is incomplete" );
+    }
+
+    size_t pos = 0;
+    this->ePosList[ 0 ] = 0;
     for ( int iElem = 0; iElem < this->nElement; ++ iElem )
     {
-        int npe;
-        cg_npe( static_cast< ElementType_t >( this->eType ), & npe );
-        pos += npe + this->pos_shift;
-        ePosList[ iElem + 1 ] = pos;
+        pos += nodeCount;
+        if ( pos > this->connList.size() )
+        {
+            throw std::runtime_error(
+                "CgnsSection::SetElemPositionOri: element connectivity span is invalid" );
+        }
+        this->ePosList[ iElem + 1 ] = static_cast< CgInt >( pos );
     }
 }
 
