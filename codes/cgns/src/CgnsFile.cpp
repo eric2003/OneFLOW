@@ -56,11 +56,16 @@ std::string GetCgnsFileTypeName( int file_type )
 }
 
 CgnsFile::CgnsFile()
+    : fileId( -1 ),
+      openMode( 0 ),
+      openStatus( CG_ERROR ),
+      nBases( 0 ),
+      currBaseId( 0 )
 {
-    this->openStatus = CG_ERROR;
 }
 
 CgnsFile::CgnsFile( const std::string & fileName, int openMode )
+    : CgnsFile()
 {
     this->OpenCgnsFile( fileName, openMode );
 }
@@ -75,8 +80,14 @@ CgnsFile::~CgnsFile()
 
 void CgnsFile::OpenCgnsFile( const std::string & fileName, int cgnsOpenMode )
 {
+    if ( this->openStatus == CG_OK )
+    {
+        this->CloseCgnsFile();
+    }
+
     this->fileName = fileName;
-    this->openMode = openMode;
+    this->openMode = cgnsOpenMode;
+    this->fileId = -1;
 
     this->openStatus = cg_open( fileName.c_str(), cgnsOpenMode, & this->fileId );
     std::string stars("**************************************************************");
@@ -108,7 +119,14 @@ void CgnsFile::OpenCgnsFile( const std::string & fileName, int cgnsOpenMode )
 
 void CgnsFile::CloseCgnsFile()
 {
+    if ( this->openStatus != CG_OK )
+    {
+        return;
+    }
+
     cg_close( this->fileId );
+    this->fileId = -1;
+    this->openStatus = CG_ERROR;
 }
 
 CgnsBase * CgnsFile::WriteBase( const std::string & baseName )
