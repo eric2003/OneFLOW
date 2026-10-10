@@ -180,11 +180,22 @@ void CgnsSection::SetElementTypeAndNode( ElemFeature * elem_feature )
         CgIntField eNodeId;
         this->GetElementNodeId( iElem, eNodeId );
 
-        int eNodeNumber  = ONEFLOW::GetElementNodeNumbers( this->eTypeList[ iElem ] );
+        const int eNodeNumber = ONEFLOW::GetElementNodeNumbers( this->eTypeList[ iElem ] );
+        if ( eNodeId.size() != static_cast< size_t >( eNodeNumber ) )
+        {
+            throw std::runtime_error( "CgnsSection::SetElementTypeAndNode: element connectivity has an unexpected node count" );
+        }
 
+        const auto & localToGlobal = this->cgnsZone.l2g;
         for ( int iNode = 0; iNode < eNodeNumber; ++ iNode )
         {
-            eNodeId[ iNode ] = this->cgnsZone.l2g[ eNodeId[ iNode ] ];
+            const CgInt localNodeId = eNodeId[ iNode ];
+            if ( localNodeId < 0 ||
+                 static_cast< size_t >( localNodeId ) >= localToGlobal.size() )
+            {
+                throw std::runtime_error( "CgnsSection::SetElementTypeAndNode: local node index is out of range" );
+            }
+            eNodeId[ iNode ] = localToGlobal[ static_cast< size_t >( localNodeId ) ];
         }
         elem_feature->eNodeId.push_back( eNodeId );
     }
