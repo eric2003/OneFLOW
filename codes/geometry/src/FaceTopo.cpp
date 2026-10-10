@@ -329,7 +329,8 @@ void FaceTopo::ModifyBoundaryInformation( IFaceLink & iFaceLink )
 
     int nIFaceNew = nIFaces;
 
-    iFaceLink.nChild.resize( nIFaces );
+    iFaceLink.nChild.resize( iFaceLink.l2g.size() );
+    iFaceLink.nChild[ this->GetGrid().id ].resize( nIFaces );
 
     for ( int iFid = 0; iFid < nIFaces; ++ iFid )
     {
