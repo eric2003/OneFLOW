@@ -723,9 +723,9 @@ void ScalarGrid::ReadFromCgnsZone( CgnsZone & cgnsZone )
 
 			const int nodeCount = ONEFLOW::GetElementNodeNumbers( eType );
 			const long long connectionBegin = static_cast< long long >( cgnsSection.ePosList[ iElem ] ) +
-				static_cast< long long >( cgnsSection.pos_shift );
+				( isMixedSection ? 1LL : static_cast< long long >( cgnsSection.pos_shift ) );
 			const long long nextConnectionBegin = static_cast< long long >( cgnsSection.ePosList[ iElem + 1 ] ) +
-				static_cast< long long >( cgnsSection.pos_shift );
+				( isMixedSection ? 0LL : static_cast< long long >( cgnsSection.pos_shift ) );
 			if ( nodeCount <= 0 ||
 				 connectionBegin < 0 ||
 				 nextConnectionBegin < connectionBegin ||

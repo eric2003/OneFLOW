@@ -66,7 +66,7 @@ void CgnsSection::ConvertToInnerDataStandard()
             int e_type = this->eTypeList[ iElem ];
             int npe;
             cg_npe( static_cast< ElementType_t >( e_type ), & npe );
-            int pos = ePosList[ iElem ] + this->pos_shift;
+            int pos = ePosList[ iElem ] + ( this->eType == MIXED ? 1 : this->pos_shift );
             for ( int iNode = 0; iNode < npe; ++ iNode )
             {
                 int id = pos + iNode;
@@ -101,7 +101,8 @@ void CgnsSection::ConvertToInnerDataStandard()
 
 CgInt * CgnsSection::GetAddress( CgInt eId )
 {
-    int pos = this->ePosList[ eId ] + this->pos_shift;
+    const int elementOffset = this->eType == MIXED ? 1 : this->pos_shift;
+    int pos = this->ePosList[ eId ] + elementOffset;
     return & this->connList[ pos ];
 }
 
@@ -337,7 +338,8 @@ void CgnsSection::SetElemPositionMixed()
         eTypeList[ iElem ] = e_type;
         int npe;
         cg_npe( static_cast< ElementType_t >( e_type ), & npe );
-        pos += npe + this->pos_shift;
+        // MIXED connectivity stores an element-type tag before its node IDs.
+        pos += npe + 1;
 
         ePosList[ iElem + 1 ] = pos;
     }
