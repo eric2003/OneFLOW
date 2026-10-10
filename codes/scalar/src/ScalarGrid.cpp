@@ -1009,6 +1009,27 @@ void ScalarGrid::CalcTopology()
 		}
 	}
 
+	if ( this->scalarBccos == nullptr )
+	{
+		throw std::logic_error( "ScalarGrid::CalcTopology: boundary condition collection is not initialized" );
+	}
+
+	for ( const std::unique_ptr< ScalarBcco > & boundaryCondition : this->scalarBccos->bccos )
+	{
+		if ( boundaryCondition == nullptr )
+		{
+			throw std::runtime_error( "ScalarGrid::CalcTopology: boundary condition collection contains a null entry" );
+		}
+
+		for ( int nodeId : boundaryCondition->vertexList )
+		{
+			if ( nodeId < 0 || nodeId >= nodeCount )
+			{
+				throw std::runtime_error( "ScalarGrid::CalcTopology: boundary condition references an invalid node index" );
+			}
+		}
+	}
+
 	// A face in a conforming volume/line mesh may belong to at most two cells.
 	// Check incidence before resetting the current topology, so malformed meshes
 	// cannot silently overwrite a third cell or destroy the previous topology.

@@ -77,6 +77,41 @@ TEST(ScalarGridTopologyTest, CalcInterfaceToBcFaceRejectsMissingInterfaceTopolog
     EXPECT_THROW(grid.CalcInterfaceToBcFace(), std::logic_error);
 }
 
+TEST(ScalarGridTopologyTest, CalcTopologyRejectsNullBoundaryConditionWithoutResettingTopology)
+{
+    ONEFLOW::ScalarGrid grid;
+    grid.xn.Resize(2);
+    grid.yn.Resize(2);
+    grid.zn.Resize(2);
+    grid.faces.Resize(1);
+    grid.lc.AddData(37);
+    grid.scalarBccos->bccos.push_back(nullptr);
+
+    EXPECT_THROW(grid.CalcTopology(), std::runtime_error);
+    ASSERT_EQ(grid.faces.GetNElements(), 1u);
+    ASSERT_EQ(grid.lc.GetNElements(), 1u);
+    EXPECT_EQ(grid.lc[0], 37);
+}
+
+TEST(ScalarGridTopologyTest, CalcTopologyRejectsInvalidBoundaryNodeWithoutResettingTopology)
+{
+    ONEFLOW::ScalarGrid grid;
+    grid.xn.Resize(2);
+    grid.yn.Resize(2);
+    grid.zn.Resize(2);
+    grid.faces.Resize(1);
+    grid.lc.AddData(41);
+
+    auto boundaryCondition = std::make_unique< ONEFLOW::ScalarBcco >();
+    boundaryCondition->AddBcPoint(2);
+    grid.scalarBccos->AddBcco(std::move(boundaryCondition));
+
+    EXPECT_THROW(grid.CalcTopology(), std::runtime_error);
+    ASSERT_EQ(grid.faces.GetNElements(), 1u);
+    ASSERT_EQ(grid.lc.GetNElements(), 1u);
+    EXPECT_EQ(grid.lc[0], 41);
+}
+
 TEST(ScalarGridTopologyTest, CalcTopologyRejectsMismatchedCoordinateArraysWithoutResettingTopology)
 {
     ONEFLOW::ScalarGrid grid;
