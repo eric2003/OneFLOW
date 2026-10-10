@@ -311,10 +311,19 @@ void CgnsZone::ReadCgnsZoneNameAndGeneralizedDimension()
 
 void CgnsZone::DumpCgnsZoneNameAndGeneralizedDimension()
 {
-    //std::cout << "   Cell Dimension = " << this->cgnsBase.celldim << " Physics Dimension = " << this->cgnsBase.phydim << "\n";
+    // Determine the number of vertices and cell-volume elements in this zone.
+    int zoneId = -1;
+    const int status = cg_zone_write(
+        this->cgnsBase.cgnsFile->fileId, this->cgnsBase.baseId,
+        this->zoneName.c_str(), this->isize, this->cgnsZoneType, &zoneId );
+    if ( status != CG_OK )
+    {
+        throw std::runtime_error(
+            "CgnsZone::DumpCgnsZoneNameAndGeneralizedDimension (cg_zone_write): " +
+            std::string( cg_get_error() ) );
+    }
 
-    //Determine the number of vertices and cellVolume elements in this zone
-    cg_zone_write( cgnsBase.cgnsFile->fileId, cgnsBase.baseId, zoneName.c_str(), isize, cgnsZoneType, &this->zId );
+    this->zId = zoneId;
     std::cout << "   Zone Id = " << this->zId << "\n";
     std::cout << "   CGNS Zone Name = " << this->zoneName << "\n";
 }
