@@ -330,7 +330,7 @@ void FaceTopo::ModifyBoundaryInformation( IFaceLink & iFaceLink )
     int nIFaceNew = nIFaces;
 
     iFaceLink.nChild.resize( iFaceLink.l2g.size() );
-    iFaceLink.nChild[ this->GetGrid().id ].resize( nIFaces );
+    iFaceLink.nChild[ this->GetGrid().id ].assign( nIFaces, 0 );
 
     for ( int iFid = 0; iFid < nIFaces; ++ iFid )
     {
@@ -343,7 +343,6 @@ void FaceTopo::ModifyBoundaryInformation( IFaceLink & iFaceLink )
             for ( int iCFace = 0; iCFace < nCFace; ++ iCFace )
             {
                 int cFid = iFaceLink.face_search->cFaceId[ gFid ][ iCFace ];
-                // Correctly push back a 1D IntField containing the single element 'cFid'
                 iFaceLink.l2gNew[ this->GetGrid().id ].push_back( cFid );
 
                 iFaceLink.nChild[ this->GetGrid().id ].push_back( 0 );
@@ -352,7 +351,6 @@ void FaceTopo::ModifyBoundaryInformation( IFaceLink & iFaceLink )
         }
         else
         {
-            // Correctly push back a 1D IntField containing the single element 'gFid'
             iFaceLink.l2gNew[ this->GetGrid().id ].push_back( gFid );
         }
     }
