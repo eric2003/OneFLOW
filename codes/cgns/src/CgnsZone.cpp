@@ -142,22 +142,17 @@ void CgnsZone::SetPeriodicBc()
     this->RequireCgnsZbc().SetPeriodicBc();
 }
 
-void CgnsZone::SetElementTypeAndNode( ElemFeature * elem_feature )
+void CgnsZone::SetElementTypeAndNode( ElemFeature & elem_feature )
 {
-    if ( elem_feature == nullptr )
-    {
-        throw std::invalid_argument( "CgnsZone::SetElementTypeAndNode: element feature is null" );
-    }
-
     const int nSection = this->RequireCgnsZsection().GetNSections();
     for ( int iSection = 0; iSection < nSection; ++ iSection )
     {
         CgnsSection & cgnsSection = this->RequireCgnsZsection().GetCgnsSection( iSection );
-        cgnsSection.SetElementTypeAndNode( *elem_feature );
+        cgnsSection.SetElementTypeAndNode( elem_feature );
     }
     std::cout << "\n";
     std::cout << " iZone = " << this->zId << " nCells = " << this->RequireCgnsCoor().GetNCell() << "\n";
-    std::cout << " elem_feature->eType.size() = " << elem_feature->eTypes.size() << std::endl;
+    std::cout << " elem_feature.eTypes.size() = " << elem_feature.eTypes.size() << std::endl;
 }
 
 bool CgnsZone::ExistSection( const std::string & sectionName )

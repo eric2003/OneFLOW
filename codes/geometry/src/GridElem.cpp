@@ -222,7 +222,7 @@ void GridElem::InitCgnsElements()
         CgnsZone & cgnsZone = this->GetCgnsZone( iZone );
         
         cgnsZone.ConstructCgnsGridPoints( &this->point_factory );
-        cgnsZone.SetElementTypeAndNode( &this->elem_feature );
+        cgnsZone.SetElementTypeAndNode( this->elem_feature );
     }
 }
 
