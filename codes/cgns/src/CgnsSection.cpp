@@ -32,6 +32,7 @@ License
 #include "LogFile.h"
 
 #include <iostream>
+#include <stdexcept>
 
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
@@ -330,18 +331,32 @@ void CgnsSection::SetElemPositionOri()
 
 void CgnsSection::SetElemPositionMixed()
 {
-    int pos = 0;
-    ePosList[ 0 ] = pos;
+    size_t pos = 0;
+    ePosList[ 0 ] = 0;
     for ( int iElem = 0; iElem < this->nElement; ++ iElem )
     {
-        int e_type = this->connList[ pos ];
-        eTypeList[ iElem ] = e_type;
-        int npe;
-        cg_npe( static_cast< ElementType_t >( e_type ), & npe );
-        // MIXED connectivity stores an element-type tag before its node IDs.
-        pos += npe + 1;
+        if ( pos >= this->connList.size() )
+        {
+            throw std::runtime_error( "CgnsSection::SetElemPositionMixed: missing element type tag" );
+        }
 
-        ePosList[ iElem + 1 ] = pos;
+        const int e_type = this->connList[ pos ];
+        int npe = -1;
+        cg_npe( static_cast< ElementType_t >( e_type ), & npe );
+
+        if ( npe <= 0 || static_cast< size_t >( npe ) + 1 > this->connList.size() - pos )
+        {
+            throw std::runtime_error( "CgnsSection::SetElemPositionMixed: invalid element connectivity span" );
+        }
+
+        this->eTypeList[ iElem ] = e_type;
+        pos += static_cast< size_t >( npe ) + 1;
+        ePosList[ iElem + 1 ] = static_cast< CgInt >( pos );
+    }
+
+    if ( pos != this->connList.size() )
+    {
+        throw std::runtime_error( "CgnsSection::SetElemPositionMixed: unused connectivity entries" );
     }
 }
 
