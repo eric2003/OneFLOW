@@ -195,14 +195,14 @@ void CgnsZone::ConvertToInnerDataStandard()
 
 void CgnsZone::ConstructCgnsGridPoints( MeshPointManager * point_factory )
 {
-    NodeMesh * nodeMesh = this->RequireCgnsCoor().GetNodeMesh();
-    RealField & x = nodeMesh->xN;
-    RealField & y = nodeMesh->yN;
-    RealField & z = nodeMesh->zN;
+    NodeMesh & nodeMesh = this->RequireCgnsCoor().RequireNodeMesh();
+    RealField & x = nodeMesh.xN;
+    RealField & y = nodeMesh.yN;
+    RealField & z = nodeMesh.zN;
 
     this->InitLgMapping();
 
-    size_t nNodes = nodeMesh->GetNumberOfNodes();
+    size_t nNodes = nodeMesh.GetNumberOfNodes();
 
     for ( int iNode = 0; iNode < nNodes; ++ iNode )
     {
@@ -315,7 +315,7 @@ void CgnsZone::DumpCgnsZoneNameAndGeneralizedDimension()
     int zoneId = -1;
     const int status = cg_zone_write(
         this->cgnsBase.cgnsFile->fileId, this->cgnsBase.baseId,
-        this->zoneName.c_str(), this->isize, this->cgnsZoneType, &zoneId );
+        this->zoneName.c_str(), this->isize, this->cgnsZoneType, &this->zId );
     if ( status != CG_OK )
     {
         throw std::runtime_error(
