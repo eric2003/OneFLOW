@@ -164,3 +164,21 @@ TEST(ScalarIFaceLifecycleTest, RejectsSerializedArraysWhenInterfaceCountIsZero)
     // Validation must run before writing to the output buffer.
     EXPECT_THROW(interfaceData.WriteInterfaceTopology(nullptr), std::logic_error);
 }
+
+TEST(ScalarIFaceLifecycleTest, ReconstructNeighborRejectsCorruptedIdentityMapsWithoutReplacingGroups)
+{
+    ONEFLOW::ScalarIFace interfaceData;
+    interfaceData.AddInterface(100, 2, 7);
+    interfaceData.ReconstructNeighbor();
+    ASSERT_EQ(interfaceData.data.size(), 1u);
+
+    // Simulate a legacy direct mutation that bypasses AddInterface().
+    interfaceData.global_to_local_interfaces[100] = 4;
+
+    EXPECT_THROW(interfaceData.ReconstructNeighbor(), std::logic_error);
+
+    ASSERT_EQ(interfaceData.data.size(), 1u);
+    EXPECT_EQ(interfaceData.data[0].zonej, 2);
+    ASSERT_EQ(interfaceData.data[0].ifaces.size(), 1u);
+    EXPECT_EQ(interfaceData.data[0].ifaces[0], 0);
+}

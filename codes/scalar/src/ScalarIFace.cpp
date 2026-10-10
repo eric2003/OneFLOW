@@ -94,29 +94,8 @@ void ScalarIFace::AddInterface( int global_interface_id, int neighbor_zoneid, in
         throw std::invalid_argument( "ScalarIFace::AddInterface: interface and neighbor IDs must be non-negative" );
     }
 
+    this->ValidateInterfaceMappings();
     const size_t nInterfaces = this->iglobalfaces.size();
-    if ( this->zones.size() != nInterfaces || this->cells.size() != nInterfaces ||
-         this->global_to_local_interfaces.size() != nInterfaces ||
-         this->local_to_global_interfaces.size() != nInterfaces )
-    {
-        throw std::logic_error( "ScalarIFace::AddInterface: existing interface mappings are inconsistent" );
-    }
-
-    // Validate both directions, not just container sizes: these public legacy
-    // maps can otherwise contain stale or cross-wired IDs with matching counts.
-    for ( size_t iInterface = 0; iInterface < nInterfaces; ++ iInterface )
-    {
-        const int globalId = this->iglobalfaces[ iInterface ];
-        const auto globalEntry = this->global_to_local_interfaces.find( globalId );
-        const auto localEntry = this->local_to_global_interfaces.find( static_cast< int >( iInterface ) );
-        if ( globalEntry == this->global_to_local_interfaces.end() ||
-             globalEntry->second != static_cast< int >( iInterface ) ||
-             localEntry == this->local_to_global_interfaces.end() ||
-             localEntry->second != globalId )
-        {
-            throw std::logic_error( "ScalarIFace::AddInterface: existing interface maps are not reciprocal" );
-        }
-    }
 
     if ( this->global_to_local_interfaces.find( global_interface_id ) != this->global_to_local_interfaces.end() )
     {
@@ -155,6 +134,32 @@ void ScalarIFace::AddInterface( int global_interface_id, int neighbor_zoneid, in
     this->iglobalfaces.push_back( global_interface_id );
     this->zones.push_back( neighbor_zoneid );
     this->cells.push_back( neighbor_cellid );
+}
+
+void ScalarIFace::ValidateInterfaceMappings() const
+{
+    const size_t nInterfaces = this->iglobalfaces.size();
+    if ( this->zones.size() != nInterfaces || this->cells.size() != nInterfaces ||
+         this->global_to_local_interfaces.size() != nInterfaces ||
+         this->local_to_global_interfaces.size() != nInterfaces )
+    {
+        throw std::logic_error( "ScalarIFace: interface mapping arrays and maps have inconsistent sizes" );
+    }
+
+    // Both directions must describe the same local/global identity.
+    for ( size_t iInterface = 0; iInterface < nInterfaces; ++ iInterface )
+    {
+        const int globalId = this->iglobalfaces[ iInterface ];
+        const auto globalEntry = this->global_to_local_interfaces.find( globalId );
+        const auto localEntry = this->local_to_global_interfaces.find( static_cast< int >( iInterface ) );
+        if ( globalId < 0 || globalEntry == this->global_to_local_interfaces.end() ||
+             globalEntry->second != static_cast< int >( iInterface ) ||
+             localEntry == this->local_to_global_interfaces.end() ||
+             localEntry->second != globalId )
+        {
+            throw std::logic_error( "ScalarIFace: interface maps are not reciprocal" );
+        }
+    }
 }
 
 int ScalarIFace::GetLocalInterfaceId( int global_interface_id ) const
@@ -234,6 +239,10 @@ void ScalarIFace::DumpMap( const std::map<int,int> & mapin ) const
 
 void ScalarIFace::ReconstructNeighbor()
 {
+    // The maps and parallel arrays are one identity relation; reject stale
+    // legacy mutations before deriving neighbor groups from those arrays.
+    this->ValidateInterfaceMappings();
+
     const size_t nInterfaces = zones.size();
     if ( cells.size() != nInterfaces || iglobalfaces.size() != nInterfaces )
     {
