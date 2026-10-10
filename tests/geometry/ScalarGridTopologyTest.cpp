@@ -80,13 +80,19 @@ TEST(ScalarGridTopologyTest, CalcInterfaceToBcFaceRejectsMissingInterfaceTopolog
 TEST(ScalarGridTopologyTest, CalcTopologyRejectsUnmatchedBoundaryFaceWithoutResettingTopology)
 {
     ONEFLOW::ScalarGrid grid;
-    grid.xn.Resize(2);
-    grid.yn.Resize(2);
-    grid.zn.Resize(2);
+    grid.xn.Resize(3);
+    grid.yn.Resize(3);
+    grid.zn.Resize(3);
     grid.elements.AddElem(std::vector<int>{0, 1});
+    grid.elements.AddElem(std::vector<int>{1, 2});
+    grid.eTypes.AddData(ONEFLOW::BAR_2);
     grid.eTypes.AddData(ONEFLOW::BAR_2);
     grid.faces.Resize(1);
     grid.lc.AddData(23);
+
+    auto boundaryCondition = std::make_unique< ONEFLOW::ScalarBcco >();
+    boundaryCondition->AddBcPoint(0);
+    grid.scalarBccos->AddBcco(std::move(boundaryCondition));
 
     EXPECT_THROW(grid.CalcTopology(), std::runtime_error);
     ASSERT_EQ(grid.faces.GetNElements(), 1u);

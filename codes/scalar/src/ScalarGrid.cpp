@@ -1078,31 +1078,35 @@ void ScalarGrid::CalcTopology()
 		}
 	}
 
-	// Every exterior face must map to exactly one boundary condition. Validate
-	// this before resetting topology so missing or ambiguous BC data cannot
-	// leave a partially rebuilt mesh or silently depend on scan order.
-	for ( size_t iFace = 0; iFace < faceIncidenceCount.size(); ++ iFace )
+	// When boundary-condition metadata is supplied, require each exterior
+	// face to match exactly one condition. Some import paths construct scalar
+	// topology before importing BC metadata, so an empty collection is valid
+	// at this stage and must not prevent topology construction.
+	if ( ! boundaryVertexSets.empty() )
 	{
-		if ( faceIncidenceCount[ iFace ] != 1 )
+		for ( size_t iFace = 0; iFace < faceIncidenceCount.size(); ++ iFace )
 		{
-			continue;
-		}
-
-		int matchingBoundaryConditions = 0;
-		for ( const IntSet & boundaryVertices : boundaryVertexSets )
-		{
-			if ( this->CheckBcFace( boundaryVertices, faceNodeLists[ iFace ] ) )
+			if ( faceIncidenceCount[ iFace ] != 1 )
 			{
-				++ matchingBoundaryConditions;
-				if ( matchingBoundaryConditions > 1 )
+				continue;
+			}
+
+			int matchingBoundaryConditions = 0;
+			for ( const IntSet & boundaryVertices : boundaryVertexSets )
+			{
+				if ( this->CheckBcFace( boundaryVertices, faceNodeLists[ iFace ] ) )
 				{
-					throw std::runtime_error( "ScalarGrid::CalcTopology: boundary face matches multiple boundary conditions" );
+					++ matchingBoundaryConditions;
+					if ( matchingBoundaryConditions > 1 )
+					{
+						throw std::runtime_error( "ScalarGrid::CalcTopology: boundary face matches multiple boundary conditions" );
+					}
 				}
 			}
-		}
-		if ( matchingBoundaryConditions == 0 )
-		{
-			throw std::runtime_error( "ScalarGrid::CalcTopology: boundary face does not match any boundary condition" );
+			if ( matchingBoundaryConditions == 0 )
+			{
+				throw std::runtime_error( "ScalarGrid::CalcTopology: boundary face does not match any boundary condition" );
+			}
 		}
 	}
 
