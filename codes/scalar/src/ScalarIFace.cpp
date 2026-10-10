@@ -169,7 +169,7 @@ int ScalarIFace::FindINeibor( int iZone ) const
     return -1;
 }
 
-void ScalarIFace::CalcLocalInterfaceId( int iZone, std::vector<int> & globalfaces, std::vector<int> & localfaces )
+void ScalarIFace::CalcLocalInterfaceId( int iZone, const std::vector<int> & globalfaces, std::vector<int> & localfaces )
 {
     std::vector< int > reconstructedLocalFaces;
     reconstructedLocalFaces.reserve( globalfaces.size() );
@@ -196,7 +196,7 @@ void ScalarIFace::CalcLocalInterfaceId( int iZone, std::vector<int> & globalface
     this->data[ jNei ].recv_ifaces = std::move( reconstructedLocalFaces );
 }
 
-void ScalarIFace::DumpInterfaceMap()
+void ScalarIFace::DumpInterfaceMap() const
 {
     std::cout << " global_to_local_interfaces std::map \n";
     this->DumpMap( this->global_to_local_interfaces );
@@ -206,9 +206,9 @@ void ScalarIFace::DumpInterfaceMap()
     std::cout << "\n";
 }
 
-void ScalarIFace::DumpMap( std::map<int,int> & mapin )
+void ScalarIFace::DumpMap( const std::map<int,int> & mapin ) const
 {
-    for ( std::map<int, int>::iterator iter = mapin.begin(); iter != mapin.end(); ++ iter )
+    for ( std::map<int, int>::const_iterator iter = mapin.begin(); iter != mapin.end(); ++ iter )
     {
         std::cout << iter->first << " " << iter->second << "\n";
     }
