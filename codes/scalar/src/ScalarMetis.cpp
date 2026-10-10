@@ -235,7 +235,16 @@ void ScalarDumpGrid( const std::string & gridFileName, ScalarGrid & grid )
 
     std::cout << "iZone = 0 nZone = 1\n";
     grid.WriteGrid( file );
-    Prj::CloseOutputFile( file, "ScalarDumpGrid" );
+    file.flush();
+    if ( ! file )
+    {
+        throw std::runtime_error( "ScalarDumpGrid: failed to write grid data" );
+    }
+    Prj::CloseFile( file );
+
+    // Publish metadata only after the output stream has completed successfully.
+    ZoneState::pid = std::move( zonePids );
+    ZoneState::zoneType = std::move( zoneTypes );
 }
 
 void ScalarDumpGrid( const std::string & gridFileName, const std::vector< std::unique_ptr< ScalarGrid > > & grids )
@@ -278,7 +287,16 @@ void ScalarDumpGrid( const std::string & gridFileName, const std::vector< std::u
         std::cout << "iZone = " << iZone << " nZone = " << nZone << "\n";
         grids[ iZone ]->WriteGrid( file );
     }
-    Prj::CloseOutputFile( file, "ScalarDumpGrid" );
+    file.flush();
+    if ( ! file )
+    {
+        throw std::runtime_error( "ScalarDumpGrid: failed to write grid data" );
+    }
+    Prj::CloseFile( file );
+
+    // Publish metadata only after the output stream has completed successfully.
+    ZoneState::pid = std::move( zonePids );
+    ZoneState::zoneType = std::move( zoneTypes );
 }
 
 EndNameSpace
