@@ -58,6 +58,11 @@ void IFaceLink::Init( Grid & grid )
     {
         throw std::out_of_range( "IFaceLink::Init: grid zone index is out of range" );
     }
+    if ( & GridAt( this->grids, static_cast< size_t >( zid ) ) != & grid )
+    {
+        throw std::invalid_argument(
+            "IFaceLink::Init: grid does not belong to the linked collection" );
+    }
     if ( ! grid.interFace )
     {
         throw std::logic_error( "IFaceLink::Init: grid interface data is not initialized" );
