@@ -31,6 +31,7 @@ License
 
 #include <iostream>
 #include <memory>
+#include <stdexcept>
 #include <utility>
 
 BeginNameSpace( ONEFLOW )
@@ -38,13 +39,21 @@ BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
 
 CgnsBase::CgnsBase()
+    : cgnsFile( nullptr ),
+      baseId( 0 ),
+      nZones( 0 ),
+      celldim( 0 ),
+      phydim( 0 )
 {
-    this->cgnsFile = 0;
 }
 
 CgnsBase::CgnsBase( CgnsFile * cgnsFile )
+    : cgnsFile( cgnsFile ),
+      baseId( 0 ),
+      nZones( 0 ),
+      celldim( 0 ),
+      phydim( 0 )
 {
-    this->cgnsFile = cgnsFile;
 }
 
 CgnsBase::~CgnsBase() = default;
@@ -52,27 +61,36 @@ CgnsBase::~CgnsBase() = default;
 void CgnsBase::FreeZoneList()
 {
     this->cgnsZones.clear();
+    this->zoneNameMap.clear();
     this->nZones = 0;
 }
 
 
 CgnsZone * CgnsBase::GetCgnsZone( int iZone )
 {
-    //iZone base on 0
-    return this->cgnsZones[ iZone ].get();
+    // Zone indices are zero-based internally.
+    if ( iZone < 0 || static_cast< size_t >( iZone ) >= this->cgnsZones.size() )
+    {
+        throw std::out_of_range( "CgnsBase::GetCgnsZone: zone index is out of range" );
+    }
+
+    return this->cgnsZones[ static_cast< size_t >( iZone ) ].get();
 }
 
 CgnsZone * CgnsBase::GetCgnsZoneByName( const std::string & zoneName )
 {
-    std::map< std::string, int >::iterator iter;
-    iter = zoneNameMap.find( zoneName );
-    int iZone = iter->second - 1;
-    return this->GetCgnsZone( iZone );
+    const auto iter = this->zoneNameMap.find( zoneName );
+    if ( iter == this->zoneNameMap.end() )
+    {
+        throw std::out_of_range( "CgnsBase::GetCgnsZoneByName: unknown zone name '" + zoneName + "'" );
+    }
+
+    return this->GetCgnsZone( iter->second - 1 );
 }
 
 int CgnsBase::GetNZones()
 {
-    return this->cgnsZones.size();
+    return static_cast< int >( this->cgnsZones.size() );
 }
 
 void CgnsBase::SetDefaultCgnsBaseBasicInfo()
@@ -88,15 +106,29 @@ void CgnsBase::SetDefaultCgnsBaseBasicInfo()
 
 void CgnsBase::AddCgnsZone( std::unique_ptr< CgnsZone > cgnsZone )
 {
+    if ( ! cgnsZone )
+    {
+        throw std::invalid_argument( "CgnsBase::AddCgnsZone: cannot add a null zone" );
+    }
+
     CgnsZone * zone = cgnsZone.get();
-    cgnsZones.push_back( std::move( cgnsZone ) );
-    int zId = cgnsZones.size();
-    zone->zId = zId;
+    zone->zId = static_cast< int >( this->cgnsZones.size() + 1 );
+    this->cgnsZones.push_back( std::move( cgnsZone ) );
 }
 
 void CgnsBase::AllocateAllCgnsZones()
 {
-    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    if ( this->nZones < 0 )
+    {
+        throw std::invalid_argument( "CgnsBase::AllocateAllCgnsZones: zone count cannot be negative" );
+    }
+
+    if ( ! this->cgnsZones.empty() )
+    {
+        throw std::logic_error( "CgnsBase::AllocateAllCgnsZones: zones have already been allocated" );
+    }
+
+    for ( int iZone = 0; iZone < this->nZones; ++ iZone )
     {
         auto cgnsZone = std::make_unique< CgnsZone >( *this );
         CgnsZone * zone = cgnsZone.get();
@@ -110,26 +142,60 @@ void CgnsBase::ReadCgnsBaseBasicInfo()
 {
     CgnsTraits::char33 cgnsBaseName;
 
-    double double_base_id;
-    cg_base_id( this->cgnsFile->fileId, this->baseId, & double_base_id );
+    double double_base_id = 0.0;
+    const int idStatus = cg_base_id( this->cgnsFile->fileId, this->baseId, & double_base_id );
+    if ( idStatus != CG_OK )
+    {
+        throw std::runtime_error( "CgnsBase::ReadCgnsBaseBasicInfo (cg_base_id): " + std::string( cg_get_error() ) );
+    }
     std::cout << "   double_base_id = " << double_base_id << "\n";
-    //Check the cell and physical dimensions of the bases.
-    cg_base_read( this->cgnsFile->fileId, this->baseId, cgnsBaseName, & this->celldim, & this->phydim );
+
+    int cellDimension = 0;
+    int physicalDimension = 0;
+    const int readStatus = cg_base_read( this->cgnsFile->fileId, this->baseId, cgnsBaseName, & cellDimension, & physicalDimension );
+    if ( readStatus != CG_OK )
+    {
+        throw std::runtime_error( "CgnsBase::ReadCgnsBaseBasicInfo (cg_base_read): " + std::string( cg_get_error() ) );
+    }
+
     this->baseName = cgnsBaseName;
-    std::cout << "   baseId = " << this->baseId << " baseName = " << cgnsBaseName << "\n";
+    this->celldim = cellDimension;
+    this->phydim = physicalDimension;
+    std::cout << "   baseId = " << this->baseId << " baseName = " << this->baseName << "\n";
     std::cout << "   cell dim = " << this->celldim << " physical dim = " << this->phydim << "\n";
 }
 
 void CgnsBase::DumpCgnsBaseBasicInfo()
 {
-    cg_base_write( this->cgnsFile->fileId, this->baseName.c_str(), this->celldim, this->phydim, &this->baseId );
+    int baseId = -1;
+    const int status = cg_base_write(
+        this->cgnsFile->fileId, this->baseName.c_str(),
+        this->celldim, this->phydim, &baseId );
+    if ( status != CG_OK )
+    {
+        throw std::runtime_error(
+            "CgnsBase::DumpCgnsBaseBasicInfo (cg_base_write): " +
+            std::string( cg_get_error() ) );
+    }
+
+    this->baseId = baseId;
     std::cout << " baseId = " << this->baseId << " baseName = " << this->baseName << "\n";
 }
 
 void CgnsBase::ReadNumberOfCgnsZones()
 {
-    //Read the number of zones in the grid.
-    cg_nzones( this->cgnsFile->fileId, this->baseId, & this->nZones );
+    int zoneCount = -1;
+    const int status = cg_nzones( this->cgnsFile->fileId, this->baseId, & zoneCount );
+    if ( status != CG_OK )
+    {
+        throw std::runtime_error( "CgnsBase::ReadNumberOfCgnsZones: " + std::string( cg_get_error() ) );
+    }
+    if ( zoneCount < 0 )
+    {
+        throw std::runtime_error( "CgnsBase::ReadNumberOfCgnsZones: CGNS returned a negative zone count" );
+    }
+
+    this->nZones = zoneCount;
 }
 
 CgnsZone * CgnsBase::CreateCgnsZone()
@@ -143,20 +209,37 @@ CgnsZone * CgnsBase::CreateCgnsZone()
 
 void CgnsBase::CreateCgnsZones( int nZones )
 {
+    if ( nZones < 0 )
+    {
+        throw std::invalid_argument( "CgnsBase::CreateCgnsZones: zone count cannot be negative" );
+    }
+
+    if ( ! this->cgnsZones.empty() )
+    {
+        throw std::logic_error( "CgnsBase::CreateCgnsZones: zones have already been created" );
+    }
+
     this->nZones = nZones;
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
-        CgnsZone * cgnsZone = this->CreateCgnsZone();
+        this->CreateCgnsZone();
     }
 }
 
 void CgnsBase::ConstructZoneNameMap()
 {
-    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    std::map< std::string, int > stagedZoneNameMap;
+    for ( size_t iZone = 0; iZone < this->cgnsZones.size(); ++ iZone )
     {
-        CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
-        zoneNameMap[ cgnsZone->zoneName ] = cgnsZone->zId;
+        const CgnsZone * cgnsZone = this->cgnsZones[ iZone ].get();
+        const auto inserted = stagedZoneNameMap.emplace( cgnsZone->zoneName, cgnsZone->zId );
+        if ( ! inserted.second )
+        {
+            throw std::runtime_error( "CgnsBase::ConstructZoneNameMap: duplicate zone name '" + cgnsZone->zoneName + "'" );
+        }
     }
+
+    this->zoneNameMap.swap( stagedZoneNameMap );
 }
 
 void CgnsBase::ReadAllCgnsZones()
@@ -166,10 +249,10 @@ void CgnsBase::ReadAllCgnsZones()
     this->ReadFamilySpecifiedBc();
     std::cout << "   numberOfCgnsZones       = " << this->nZones << "\n\n";
 
-    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    for ( size_t iZone = 0; iZone < this->cgnsZones.size(); ++ iZone )
     {
-        std::cout << "==>iZone = " << iZone << " numberOfCgnsZones = " << this->nZones << "\n";
-        CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
+        std::cout << "==>iZone = " << iZone << " numberOfCgnsZones = " << this->cgnsZones.size() << "\n";
+        CgnsZone * cgnsZone = this->GetCgnsZone( static_cast< int >( iZone ) );
         cgnsZone->ReadCgnsGrid();
     }
 }
@@ -181,10 +264,10 @@ void CgnsBase::DumpAllCgnsZones()
     //this->ReadFamilySpecifiedBc();
     std::cout << "   numberOfCgnsZones       = " << this->nZones << "\n\n";
 
-    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    for ( size_t iZone = 0; iZone < this->cgnsZones.size(); ++ iZone )
     {
-        std::cout << "==>iZone = " << iZone << " numberOfCgnsZones = " << this->nZones << "\n";
-        CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
+        std::cout << "==>iZone = " << iZone << " numberOfCgnsZones = " << this->cgnsZones.size() << "\n";
+        CgnsZone * cgnsZone = this->GetCgnsZone( static_cast< int >( iZone ) );
         cgnsZone->DumpCgnsGrid();
     }
 }
@@ -195,11 +278,11 @@ void CgnsBase::ProcessCgnsZones()
 
     this->ConstructZoneNameMap();
 
-    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    for ( size_t iZone = 0; iZone < this->cgnsZones.size(); ++ iZone )
     {
-        std::cout << "==>iZone = " << iZone << " numberOfCgnsZones = " << this->nZones << "\n";
+        std::cout << "==>iZone = " << iZone << " numberOfCgnsZones = " << this->cgnsZones.size() << "\n";
         std::cout << "cgnsZone->SetPeriodicBc\n";
-        CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
+        CgnsZone * cgnsZone = this->GetCgnsZone( static_cast< int >( iZone ) );
         cgnsZone->SetPeriodicBc();
     }
 }
@@ -208,10 +291,10 @@ void CgnsBase::ConvertToInnerDataStandard()
 {
     std::cout << "   ConvertToInnerDataStandard \n";
 
-    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    for ( size_t iZone = 0; iZone < this->cgnsZones.size(); ++ iZone )
     {
-        std::cout << "==>iZone = " << iZone << " numberOfCgnsZones = " << this->nZones << "\n";
-        CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
+        std::cout << "==>iZone = " << iZone << " numberOfCgnsZones = " << this->cgnsZones.size() << "\n";
+        CgnsZone * cgnsZone = this->GetCgnsZone( static_cast< int >( iZone ) );
         cgnsZone->ConvertToInnerDataStandard();
     }
 }
@@ -234,14 +317,11 @@ void CgnsBase::ReadFamilySpecifiedBc()
 
 CgnsZone * CgnsBase::WriteZoneInfo( const std::string & zoneName, ZoneType_t zoneType, cgsize_t * isize )
 {
-    int cgzone = -1;
-    cg_zone_write( this->cgnsFile->fileId, this->baseId, zoneName.c_str(), isize, zoneType, & cgzone );
     auto cgnsZone = std::make_unique< CgnsZone >( *this );
     CgnsZone * zone = cgnsZone.get();
-    this->AddCgnsZone( std::move( cgnsZone ) );
-
     zone->WriteZoneInfo( zoneName, zoneType, isize );
 
+    this->AddCgnsZone( std::move( cgnsZone ) );
     return zone;
 }
 
@@ -266,12 +346,20 @@ void CgnsBase::SetTestISize( cgsize_t * isize )
 
 void CgnsBase::GoToBase()
 {
-    cg_goto( this->cgnsFile->fileId, this->baseId, "end" );
+    const int status = cg_goto( this->cgnsFile->fileId, this->baseId, "end" );
+    if ( status != CG_OK )
+    {
+        throw std::runtime_error( "CgnsBase::GoToBase (cg_goto): " + std::string( cg_get_error() ) );
+    }
 }
 
 void CgnsBase::GoToNode( const std::string & nodeName, int ith )
 {
-    cg_goto( this->cgnsFile->fileId, this->baseId, nodeName.c_str(), ith, NULL );
+    const int status = cg_goto( this->cgnsFile->fileId, this->baseId, nodeName.c_str(), ith, NULL );
+    if ( status != CG_OK )
+    {
+        throw std::runtime_error( "CgnsBase::GoToNode (cg_goto): " + std::string( cg_get_error() ) );
+    }
 }
 
 void CgnsBase::ReadArray()
@@ -369,27 +457,40 @@ void CgnsBase::ReadConvergence()
 
 void CgnsBase::ReadCgnsZones()
 {
-    this->ReadNumberOfCgnsZones();
-
-    for ( int iZone = 0; iZone < this->nZones; ++ iZone )
+    if ( ! this->cgnsZones.empty() )
     {
-        int zoneId = iZone + 1;
+        throw std::logic_error( "CgnsBase::ReadCgnsZones: zones have already been read or allocated" );
+    }
 
+    this->nZones = 0;
+    this->ReadNumberOfCgnsZones();
+    const int zoneCount = this->nZones;
+    this->nZones = 0;
+
+    // Publish the zone list only after every zone has valid basic metadata.
+    HXVector< std::unique_ptr< CgnsZone > > stagedZones;
+    stagedZones.reserve( static_cast< size_t >( zoneCount ) );
+
+    for ( int iZone = 0; iZone < zoneCount; ++ iZone )
+    {
         auto cgnsZone = std::make_unique< CgnsZone >( *this );
         CgnsZone * zone = cgnsZone.get();
-        zone->zId = zoneId;
-        this->AddCgnsZone( std::move( cgnsZone ) );
+        zone->zId = iZone + 1;
         zone->ReadCgnsZoneBasicInfo();
+        stagedZones.push_back( std::move( cgnsZone ) );
     }
+
+    this->cgnsZones.swap( stagedZones );
+    this->nZones = zoneCount;
 }
 
 void CgnsBase::ReadFlowEqn()
 {
     this->ReadCgnsZones();
 
-    for ( int iZone = 0; iZone < this->nZones; ++ iZone )
+    for ( size_t iZone = 0; iZone < this->cgnsZones.size(); ++ iZone )
     {
-        CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
+        CgnsZone * cgnsZone = this->GetCgnsZone( static_cast< int >( iZone ) );
         cgnsZone->ReadFlowEqn();
     }
 }

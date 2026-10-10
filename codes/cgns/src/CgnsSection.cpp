@@ -34,6 +34,7 @@ License
 #include <iostream>
 #include <iterator>
 #include <stdexcept>
+#include <limits>
 
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
@@ -255,21 +256,54 @@ void CgnsSection::ReadCgnsSectionInfo()
     int zId = cgnsZone.zId;
 
     ElementType_t elementType;
-    CgnsTraits::char33 cgnsSectionName;
+    CgnsTraits::char33 cgnsSectionName = {};
 
-    cg_section_read( fileId, baseId, zId, this->id, cgnsSectionName, & elementType, & this->startId, & this->endId, & nbndry, & iparentflag );
+    CgInt sectionStartId = 0;
+    CgInt sectionEndId = -1;
+    int sectionBoundaryCount = 0;
+    int parentDataFlag = 0;
+    const int sectionStatus = cg_section_read(
+        fileId, baseId, zId, this->id, cgnsSectionName, & elementType,
+        & sectionStartId, & sectionEndId, & sectionBoundaryCount, & parentDataFlag );
+    if ( sectionStatus != CG_OK )
+    {
+        throw std::runtime_error(
+            "CgnsSection::ReadCgnsSectionInfo (cg_section_read): " +
+            std::string( cg_get_error() ) );
+    }
+    if ( sectionStartId < 1 || sectionEndId < sectionStartId )
+    {
+        throw std::runtime_error(
+            "CgnsSection::ReadCgnsSectionInfo: invalid element ID range" );
+    }
 
+    CgInt sectionElementDataSize = -1;
+    const int sizeStatus = cg_ElementDataSize( fileId, baseId, zId, this->id, & sectionElementDataSize );
+    if ( sizeStatus != CG_OK )
+    {
+        throw std::runtime_error(
+            "CgnsSection::ReadCgnsSectionInfo (cg_ElementDataSize): " +
+            std::string( cg_get_error() ) );
+    }
+    if ( sectionElementDataSize < 0 )
+    {
+        throw std::runtime_error(
+            "CgnsSection::ReadCgnsSectionInfo: CGNS returned a negative element data size" );
+    }
+
+    // Publish section metadata only after both CGNS queries have succeeded.
     this->sectionName = cgnsSectionName;
+    this->eType = elementType;
+    this->startId = sectionStartId;
+    this->endId = sectionEndId;
+    this->nbndry = sectionBoundaryCount;
+    this->iparentflag = parentDataFlag;
+    this->elementDataSize = sectionElementDataSize;
 
     std::cout << "   Section Name = " << cgnsSectionName << "\n";
     std::cout << "   Section Type = " << ElementTypeName[ elementType ] << "\n";
     std::cout << "   startId, endId = " << this->startId << " " << this->endId << "\n";
-    this->eType = elementType;
-
-    this->elementDataSize = -1;
-    cg_ElementDataSize( fileId, baseId, zId, this->id, & this->elementDataSize );
-
-    std::cout << "   elementDataSize = " << elementDataSize << "\n";
+    std::cout << "   elementDataSize = " << this->elementDataSize << "\n";
 
     //if ( this->IsMixedSection() )
     //{
@@ -298,36 +332,83 @@ void CgnsSection::CreateConnList()
 
 void CgnsSection::CalcNumberOfSectionElements()
 {
-    this->nElement = this->endId - this->startId + 1;
+    if ( this->startId < 1 || this->endId < this->startId )
+    {
+        throw std::runtime_error(
+            "CgnsSection::CalcNumberOfSectionElements: invalid element ID range" );
+    }
+
+    const CgInt elementCount = this->endId - this->startId + 1;
+    if ( elementCount > static_cast< CgInt >( std::numeric_limits< int >::max() ) )
+    {
+        throw std::runtime_error(
+            "CgnsSection::CalcNumberOfSectionElements: element count exceeds supported range" );
+    }
+
+    this->nElement = static_cast< int >( elementCount );
 }
 
 void CgnsSection::CalcCapacityOfCgnsConnectionList()
 {
-    if ( eType == MIXED ||
-         eType == NGON_n ||
-         eType == NFACE_n )
+    if ( this->nElement < 0 )
     {
-        this->connSize = this->elementDataSize;
+        throw std::runtime_error(
+            "CgnsSection::CalcCapacityOfCgnsConnectionList: invalid element count" );
+    }
 
+    CgInt connectionCount = 0;
+    if ( this->eType == MIXED ||
+         this->eType == NGON_n ||
+         this->eType == NFACE_n )
+    {
+        connectionCount = this->elementDataSize;
     }
     else
     {
         UnitElement & unitElement = ElementHome::GetUnitElement( this->eType );
-        int nodeNumber = unitElement.GetElementNodeNumbers( this->eType );
+        const int nodeNumber = unitElement.GetElementNodeNumbers( this->eType );
+        if ( nodeNumber <= 0 )
+        {
+            throw std::runtime_error(
+                "CgnsSection::CalcCapacityOfCgnsConnectionList: invalid element node count" );
+        }
 
-        this->connSize = this->nElement * nodeNumber;
+        if ( this->nElement > std::numeric_limits< int >::max() / nodeNumber )
+        {
+            throw std::runtime_error(
+                "CgnsSection::CalcCapacityOfCgnsConnectionList: connectivity size overflow" );
+        }
+        connectionCount = static_cast< CgInt >( this->nElement ) * nodeNumber;
     }
+
+    if ( connectionCount < 0 ||
+         connectionCount > static_cast< CgInt >( std::numeric_limits< int >::max() ) )
+    {
+        throw std::runtime_error(
+            "CgnsSection::CalcCapacityOfCgnsConnectionList: connectivity size exceeds supported range" );
+    }
+
+    this->connSize = static_cast< int >( connectionCount );
 }
 
 void CgnsSection::AllocateCgnsConnectionList()
 {
-    this->connList.resize( this->connSize );
+    if ( this->nElement < 0 || this->connSize < 0 ||
+         this->nElement == std::numeric_limits< int >::max() ||
+         ( this->iparentflag &&
+           this->nElement > std::numeric_limits< int >::max() / 4 ) )
+    {
+        throw std::runtime_error(
+            "CgnsSection::AllocateCgnsConnectionList: allocation size exceeds supported range" );
+    }
+
+    this->connList.resize( static_cast< size_t >( this->connSize ) );
     if ( this->iparentflag )
     {
-        this->iparentdata.resize( this->nElement * 4 );
+        this->iparentdata.resize( static_cast< size_t >( this->nElement ) * 4 );
     }
-    this->ePosList.resize( this->nElement + 1 );
-    this->eTypeList.resize( this->nElement, this->eType );
+    this->ePosList.resize( static_cast< size_t >( this->nElement ) + 1 );
+    this->eTypeList.resize( static_cast< size_t >( this->nElement ), this->eType );
 }
 
 void CgnsSection::ReadCgnsSectionConnectionList()
@@ -341,18 +422,27 @@ void CgnsSection::ReadCgnsSectionConnectionList()
     // of 0 is used ( typical for C-codes ) 1 must be substracted 
     // from the connectivities read. 
 
-    CgInt *addr = NULL;
-    if ( this->iparentflag )
+    CgInt * parentData = this->iparentflag ? this->iparentdata.data() : nullptr;
+    const int connectivityStatus = cg_elements_read(
+        fileId, baseId, zId, this->id, this->connList.data(), parentData );
+    if ( connectivityStatus != CG_OK )
     {
-        addr = & iparentdata[ 0 ];
+        throw std::runtime_error(
+            "CgnsSection::ReadCgnsSectionConnectionList (cg_elements_read): " +
+            std::string( cg_get_error() ) );
     }
-
-    cg_elements_read( fileId, baseId, zId, this->id, this->connList.data(), addr );
 
     if ( this->eType == NGON_n || this->eType == NFACE_n )
     {
+        const int polygonStatus = cg_poly_elements_read(
+            fileId, baseId, zId, this->id, this->connList.data(), this->ePosList.data(), 0 );
+        if ( polygonStatus != CG_OK )
+        {
+            throw std::runtime_error(
+                "CgnsSection::ReadCgnsSectionConnectionList (cg_poly_elements_read): " +
+                std::string( cg_get_error() ) );
+        }
         this->pos_shift = 1;
-        cg_poly_elements_read ( fileId, baseId, zId, this->id, this->connList.data(), this->ePosList.data(), 0 );
     }
 }
 
@@ -362,9 +452,28 @@ void CgnsSection::DumpCgnsSectionConnectionList()
     int baseId = cgnsZone.cgnsBase.baseId;
     int zId = cgnsZone.zId;
 
-    // write element connectivity
+    if ( this->connSize < 0 ||
+         this->connList.size() != static_cast< size_t >( this->connSize ) ||
+         this->connList.empty() )
+    {
+        throw std::runtime_error(
+            "CgnsSection::DumpCgnsSectionConnectionList: connectivity storage is invalid" );
+    }
+
+    // Write element connectivity and publish the section ID only on success.
     ElementType_t elementType = static_cast< ElementType_t >( this->eType );
-    cg_section_write( fileId, baseId, zId, this->sectionName.c_str(), elementType, this->startId, this->endId, this->nbndry, & this->connList[ 0 ], & this->id );
+    int sectionId = 0;
+    const int status = cg_section_write(
+        fileId, baseId, zId, this->sectionName.c_str(), elementType,
+        this->startId, this->endId, this->nbndry, this->connList.data(), & sectionId );
+    if ( status != CG_OK )
+    {
+        throw std::runtime_error(
+            "CgnsSection::DumpCgnsSectionConnectionList (cg_section_write): " +
+            std::string( cg_get_error() ) );
+    }
+
+    this->id = sectionId;
 }
 
 void CgnsSection::SetElemPosition()
@@ -381,14 +490,41 @@ void CgnsSection::SetElemPosition()
 
 void CgnsSection::SetElemPositionOri()
 {
-    int pos = 0;
-    ePosList[ 0 ] = pos;
+    if ( this->nElement < 0 ||
+         static_cast< size_t >( this->nElement ) >= this->ePosList.size() )
+    {
+        throw std::runtime_error(
+            "CgnsSection::SetElemPositionOri: element offset storage is incomplete" );
+    }
+
+    int npe = 0;
+    const int npeStatus = cg_npe( static_cast< ElementType_t >( this->eType ), & npe );
+    if ( npeStatus != CG_OK || npe <= 0 )
+    {
+        throw std::runtime_error(
+            "CgnsSection::SetElemPositionOri (cg_npe): invalid element node count" );
+    }
+
+    const size_t nodeCount = static_cast< size_t >( npe );
+    if ( nodeCount > this->connList.size() ||
+         static_cast< size_t >( this->nElement ) >
+             this->connList.size() / nodeCount )
+    {
+        throw std::runtime_error(
+            "CgnsSection::SetElemPositionOri: connectivity storage is incomplete" );
+    }
+
+    size_t pos = 0;
+    this->ePosList[ 0 ] = 0;
     for ( int iElem = 0; iElem < this->nElement; ++ iElem )
     {
-        int npe;
-        cg_npe( static_cast< ElementType_t >( this->eType ), & npe );
-        pos += npe + this->pos_shift;
-        ePosList[ iElem + 1 ] = pos;
+        pos += nodeCount;
+        if ( pos > this->connList.size() )
+        {
+            throw std::runtime_error(
+                "CgnsSection::SetElemPositionOri: element connectivity span is invalid" );
+        }
+        this->ePosList[ iElem + 1 ] = static_cast< CgInt >( pos );
     }
 }
 

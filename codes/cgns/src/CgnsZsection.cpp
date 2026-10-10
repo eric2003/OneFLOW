@@ -31,6 +31,7 @@ License
 #include "ElementHome.h"
 #include "ElemFeature.h"
 #include <iostream>
+#include <stdexcept>
 #include <utility>
 
 
@@ -97,9 +98,23 @@ bool CgnsZsection::HasPolygonSection() const
 
 void CgnsZsection::CreateCgnsSections( int nSections )
 {
+    if ( nSections < 0 )
+    {
+        throw std::invalid_argument( "CgnsZsection::CreateCgnsSections: section count cannot be negative" );
+    }
+
+    HXVector< std::unique_ptr< CgnsSection > > stagedSections;
+    stagedSections.reserve( static_cast< size_t >( nSections ) );
     for ( int iSection = 0; iSection < nSections; ++ iSection )
     {
-        this->AddCgnsSection( std::make_unique< CgnsSection >( cgnsZone ) );
+        stagedSections.push_back( std::make_unique< CgnsSection >( cgnsZone ) );
+    }
+
+    this->cgnsSections.reserve( this->cgnsSections.size() + stagedSections.size() );
+    for ( auto & section : stagedSections )
+    {
+        section->id = static_cast< int >( this->cgnsSections.size() + 1 );
+        this->cgnsSections.push_back( std::move( section ) );
     }
 }
 

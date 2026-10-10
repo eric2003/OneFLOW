@@ -26,6 +26,7 @@ License
 #include "CgnsFile.h"
 #include "Fatal.h"
 #include <iostream>
+#include <stdexcept>
 #include <utility>
 
 BeginNameSpace( ONEFLOW )
@@ -58,9 +59,9 @@ void CgnsZbase::CloseCgnsFile()
 int CgnsZbase::GetNZones()
 {
     int nZones = 0;
-    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
+    for ( size_t iBase = 0; iBase < this->baseVector.size(); ++ iBase )
     {
-        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
+        CgnsBase * cgnsBase = this->GetCgnsBase( static_cast< int >( iBase ) );
         nZones += cgnsBase->GetNZones();
     }
     return nZones;
@@ -115,9 +116,9 @@ void CgnsZbase::ReadCgnsGrid( const std::string & fileName )
 
 void CgnsZbase::DumpCgnsMultiBase()
 {
-    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
+    for ( size_t iBase = 0; iBase < this->baseVector.size(); ++ iBase )
     {
-        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
+        CgnsBase * cgnsBase = this->GetCgnsBase( static_cast< int >( iBase ) );
 
         cgnsBase->DumpCgnsBaseBasicInfo();
         cgnsBase->DumpAllCgnsZones();
@@ -127,25 +128,35 @@ void CgnsZbase::DumpCgnsMultiBase()
 
 void CgnsZbase::ReadNumCgnsBase()
 {
-    //Determine the of bases in the grid
-    cg_nbases( this->cgnsFile->fileId, & this->nBases );
+    int baseCount = -1;
+    const int status = cg_nbases( this->cgnsFile->fileId, & baseCount );
+    if ( status != CG_OK )
+    {
+        throw std::runtime_error( "CgnsZbase::ReadNumCgnsBase: " + std::string( cg_get_error() ) );
+    }
+    if ( baseCount < 0 )
+    {
+        throw std::runtime_error( "CgnsZbase::ReadNumCgnsBase: CGNS returned a negative base count" );
+    }
+
+    this->nBases = baseCount;
     std::cout << "   Total number of CGNS Base = " << this->nBases << "\n";
 }
 
 void CgnsZbase::ConvertToInnerDataStandard()
 {
-    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
+    for ( size_t iBase = 0; iBase < this->baseVector.size(); ++ iBase )
     {
-        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
+        CgnsBase * cgnsBase = this->GetCgnsBase( static_cast< int >( iBase ) );
         cgnsBase->ConvertToInnerDataStandard();
     }
 }
 
 void CgnsZbase::ProcessCgnsBases()
 {
-    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
+    for ( size_t iBase = 0; iBase < this->baseVector.size(); ++ iBase )
     {
-        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
+        CgnsBase * cgnsBase = this->GetCgnsBase( static_cast< int >( iBase ) );
         cgnsBase->ProcessCgnsZones();
     }
 }
@@ -156,9 +167,9 @@ void CgnsZbase::ReadCgnsMultiBase()
 
     this->InitCgnsBase();
 
-    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
+    for ( size_t iBase = 0; iBase < this->baseVector.size(); ++ iBase )
     {
-        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
+        CgnsBase * cgnsBase = this->GetCgnsBase( static_cast< int >( iBase ) );
 
         cgnsBase->ReadCgnsBaseBasicInfo();
         cgnsBase->ReadNumberOfCgnsZones();
@@ -194,7 +205,12 @@ void CgnsZbase::InitCgnsBase()
 
 CgnsBase * CgnsZbase::GetCgnsBase( int iBase )
 {
-    return baseVector[ iBase ].get();
+    if ( iBase < 0 || static_cast< size_t >( iBase ) >= this->baseVector.size() )
+    {
+        throw std::out_of_range( "CgnsZbase::GetCgnsBase: base index is out of range" );
+    }
+
+    return this->baseVector[ static_cast< size_t >( iBase ) ].get();
 }
 
 CgnsZone * CgnsZbase::GetCgnsZone( int globalZoneId )
@@ -205,9 +221,9 @@ CgnsZone * CgnsZbase::GetCgnsZone( int globalZoneId )
     }
 
     int zoneOffset = globalZoneId;
-    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
+    for ( size_t iBase = 0; iBase < this->baseVector.size(); ++ iBase )
     {
-        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
+        CgnsBase * cgnsBase = this->GetCgnsBase( static_cast< int >( iBase ) );
         const int nZones = cgnsBase->GetNZones();
 
         if ( zoneOffset < nZones )

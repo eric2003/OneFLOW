@@ -132,9 +132,18 @@ CgnsZbc & CgnsZone::RequireCgnsZbc()
 
 void CgnsZone::Create()
 {
-    this->cgnsZsection = std::make_unique< CgnsZsection >( *this );
-    this->cgnsZbc = std::make_unique< CgnsZbc >( *this );
-    this->cgnsCoor = std::make_unique< CgnsCoor >( *this );
+    if ( this->cgnsZsection || this->cgnsZbc || this->cgnsCoor )
+    {
+        throw std::logic_error( "CgnsZone::Create: subobjects have already been initialized" );
+    }
+
+    auto cgnsZsection = std::make_unique< CgnsZsection >( *this );
+    auto cgnsZbc = std::make_unique< CgnsZbc >( *this );
+    auto cgnsCoor = std::make_unique< CgnsCoor >( *this );
+
+    this->cgnsZsection = std::move( cgnsZsection );
+    this->cgnsZbc = std::move( cgnsZbc );
+    this->cgnsCoor = std::move( cgnsCoor );
 }
 
 void CgnsZone::SetPeriodicBc()
@@ -186,14 +195,14 @@ void CgnsZone::ConvertToInnerDataStandard()
 
 void CgnsZone::ConstructCgnsGridPoints( MeshPointManager * point_factory )
 {
-    NodeMesh * nodeMesh = this->RequireCgnsCoor().GetNodeMesh();
-    RealField & x = nodeMesh->xN;
-    RealField & y = nodeMesh->yN;
-    RealField & z = nodeMesh->zN;
+    NodeMesh & nodeMesh = this->RequireCgnsCoor().RequireNodeMesh();
+    RealField & x = nodeMesh.xN;
+    RealField & y = nodeMesh.yN;
+    RealField & z = nodeMesh.zN;
 
     this->InitLgMapping();
 
-    size_t nNodes = nodeMesh->GetNumberOfNodes();
+    size_t nNodes = nodeMesh.GetNumberOfNodes();
 
     for ( int iNode = 0; iNode < nNodes; ++ iNode )
     {
@@ -260,10 +269,15 @@ void CgnsZone::ReadCgnsZoneBasicInfo()
 
 void CgnsZone::ReadCgnsZoneType()
 {
-    //Check the zone type
-    cg_zone_type( cgnsBase.cgnsFile->fileId, cgnsBase.baseId, this->zId, & cgnsZoneType );
+    ZoneType_t zoneType = this->cgnsZoneType;
+    const int status = cg_zone_type( cgnsBase.cgnsFile->fileId, cgnsBase.baseId, this->zId, & zoneType );
+    if ( status != CG_OK )
+    {
+        throw std::runtime_error( "CgnsZone::ReadCgnsZoneType: " + std::string( cg_get_error() ) );
+    }
 
-    std::cout << "   The Zone Type is " << GetCgnsZoneTypeName( cgnsZoneType ) << " Zone" << "\n";
+    this->cgnsZoneType = zoneType;
+    std::cout << "   The Zone Type is " << GetCgnsZoneTypeName( this->cgnsZoneType ) << " Zone" << "\n";
 }
 
 void CgnsZone::DumpCgnsZoneType()
@@ -277,21 +291,39 @@ void CgnsZone::DumpCgnsZoneType()
 void CgnsZone::ReadCgnsZoneNameAndGeneralizedDimension()
 {
     CgnsTraits::char33 cgnsZoneName;
+    cgsize_t zoneSize[ 9 ] = {};
 
     //Determine the number of vertices and cellVolume elements in this zone
-    cg_zone_read( cgnsBase.cgnsFile->fileId, cgnsBase.baseId, this->zId, cgnsZoneName, this->isize );
+    const int status = cg_zone_read( cgnsBase.cgnsFile->fileId, cgnsBase.baseId, this->zId, cgnsZoneName, zoneSize );
+    if ( status != CG_OK )
+    {
+        throw std::runtime_error( "CgnsZone::ReadCgnsZoneNameAndGeneralizedDimension: " + std::string( cg_get_error() ) );
+    }
 
+    for ( int i = 0; i < 9; ++ i )
+    {
+        this->isize[ i ] = zoneSize[ i ];
+    }
     this->zoneName = cgnsZoneName;
 
-    std::cout << "   CGNS Zone Name = " << cgnsZoneName << "\n";
+    std::cout << "   CGNS Zone Name = " << this->zoneName << "\n";
 }
 
 void CgnsZone::DumpCgnsZoneNameAndGeneralizedDimension()
 {
-    //std::cout << "   Cell Dimension = " << this->cgnsBase.celldim << " Physics Dimension = " << this->cgnsBase.phydim << "\n";
+    // Determine the number of vertices and cell-volume elements in this zone.
+    int zoneId = -1;
+    const int status = cg_zone_write(
+        this->cgnsBase.cgnsFile->fileId, this->cgnsBase.baseId,
+        this->zoneName.c_str(), this->isize, this->cgnsZoneType, &zoneId );
+    if ( status != CG_OK )
+    {
+        throw std::runtime_error(
+            "CgnsZone::DumpCgnsZoneNameAndGeneralizedDimension (cg_zone_write): " +
+            std::string( cg_get_error() ) );
+    }
 
-    //Determine the number of vertices and cellVolume elements in this zone
-    cg_zone_write( cgnsBase.cgnsFile->fileId, cgnsBase.baseId, zoneName.c_str(), isize, cgnsZoneType, &this->zId );
+    this->zId = zoneId;
     std::cout << "   Zone Id = " << this->zId << "\n";
     std::cout << "   CGNS Zone Name = " << this->zoneName << "\n";
 }
@@ -307,7 +339,11 @@ void CgnsZone::WriteZoneInfo( const std::string & zoneName, ZoneType_t zoneType,
     this->cgnsZoneType = zoneType;
     this->CopyISize( isize );
 
-    cg_zone_write( fileId, baseId, zoneName.c_str(), isize, cgnsZoneType, &this->zId );
+    const int status = cg_zone_write( fileId, baseId, zoneName.c_str(), isize, cgnsZoneType, &this->zId );
+    if ( status != CG_OK )
+    {
+        throw std::runtime_error( "CgnsZone::WriteZoneInfo: " + std::string( cg_get_error() ) );
+    }
 }
 
 void CgnsZone::SetDimension()
@@ -371,7 +407,12 @@ void CgnsZone::ReadCgnsGridCoordinates()
 
 void CgnsZone::ReadCgnsGridCoordinates( CgnsZone * cgnsZoneIn )
 {
-    RequireCgnsCoor().ReadCgnsGridCoordinates( &cgnsZoneIn->RequireCgnsCoor() );
+    if ( cgnsZoneIn == nullptr )
+    {
+        throw std::invalid_argument( "CgnsZone::ReadCgnsGridCoordinates: source zone is null" );
+    }
+
+    this->RequireCgnsCoor().ReadCgnsGridCoordinates( &cgnsZoneIn->RequireCgnsCoor() );
 }
 
 void CgnsZone::DumpCgnsGridCoordinates()
@@ -381,12 +422,12 @@ void CgnsZone::DumpCgnsGridCoordinates()
 
 void CgnsZone::ReadCgnsGridBoundary()
 {
-    cgnsZbc->ReadCgnsGridBoundary();
+    this->RequireCgnsZbc().ReadCgnsGridBoundary();
 }
 
 void CgnsZone::DumpCgnsGridBoundary()
 {
-    cgnsZbc->DumpCgnsGridBoundary();
+    this->RequireCgnsZbc().DumpCgnsGridBoundary();
 }
 
 void CgnsZone::ProcessPeriodicBc()
@@ -396,30 +437,46 @@ void CgnsZone::ProcessPeriodicBc()
 
 void CgnsZone::GoToZone()
 {
-    int fileId = this->cgnsBase.cgnsFile->fileId;
-    int baseId = this->cgnsBase.baseId;
-    cg_goto( fileId, baseId,"Zone_t", this->zId, "end" );
+    const int fileId = this->cgnsBase.cgnsFile->fileId;
+    const int baseId = this->cgnsBase.baseId;
+    const int status = cg_goto( fileId, baseId, "Zone_t", this->zId, "end" );
+    if ( status != CG_OK )
+    {
+        throw std::runtime_error( "CgnsZone::GoToZone (cg_goto): " + std::string( cg_get_error() ) );
+    }
 }
 
 void CgnsZone::GoToNode( const std::string & nodeName, int ith )
 {
-    int fileId = this->cgnsBase.cgnsFile->fileId;
-    int baseId = this->cgnsBase.baseId;
-    cg_goto( fileId, baseId, "Zone_t", this->zId, nodeName.c_str(), ith, "end" );
+    const int fileId = this->cgnsBase.cgnsFile->fileId;
+    const int baseId = this->cgnsBase.baseId;
+    const int status = cg_goto( fileId, baseId, "Zone_t", this->zId, nodeName.c_str(), ith, "end" );
+    if ( status != CG_OK )
+    {
+        throw std::runtime_error( "CgnsZone::GoToNode (cg_goto): " + std::string( cg_get_error() ) );
+    }
 }
 
 void CgnsZone::GoToNode( const std::string & nodeNamei, int ith, const std::string & nodeNamej, int jth )
 {
-    int fileId = this->cgnsBase.cgnsFile->fileId;
-    int baseId = this->cgnsBase.baseId;
-    cg_goto( fileId, baseId, "Zone_t", this->zId, nodeNamei.c_str(), ith, nodeNamej.c_str(), jth, "end" );
+    const int fileId = this->cgnsBase.cgnsFile->fileId;
+    const int baseId = this->cgnsBase.baseId;
+    const int status = cg_goto( fileId, baseId, "Zone_t", this->zId, nodeNamei.c_str(), ith, nodeNamej.c_str(), jth, "end" );
+    if ( status != CG_OK )
+    {
+        throw std::runtime_error( "CgnsZone::GoToNode (cg_goto): " + std::string( cg_get_error() ) );
+    }
 }
 
 void CgnsZone::GoToNode( const std::string & nodeNamei, int ith, const std::string & nodeNamej, int jth, const std::string & nodeNamek, int kth )
 {
-    int fileId = this->cgnsBase.cgnsFile->fileId;
-    int baseId = this->cgnsBase.baseId;
-    cg_goto( fileId, baseId, "Zone_t", this->zId, nodeNamei.c_str(), ith, nodeNamej.c_str(), jth, nodeNamek.c_str(), kth, "end" );
+    const int fileId = this->cgnsBase.cgnsFile->fileId;
+    const int baseId = this->cgnsBase.baseId;
+    const int status = cg_goto( fileId, baseId, "Zone_t", this->zId, nodeNamei.c_str(), ith, nodeNamej.c_str(), jth, nodeNamek.c_str(), kth, "end" );
+    if ( status != CG_OK )
+    {
+        throw std::runtime_error( "CgnsZone::GoToNode (cg_goto): " + std::string( cg_get_error() ) );
+    }
 }
 
 void CgnsZone::ReadFlowEqn()
