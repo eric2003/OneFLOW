@@ -386,7 +386,8 @@ void FaceTopo::ModifyBoundaryInformation( IFaceLink & iFaceLink )
         }
         else
         {
-            iFaceLink.l2gNew[ this->GetGrid().id ].push_back( gFid );
+            iFaceLink.l2gNew[ this->GetGrid().id ].push_back(
+                iFaceLink.l2g[ this->GetGrid().id ][ iFid ] );
         }
     }
     std::cout << "original number of interfaces = " << nIFaces << " new number of interfaces = " << nIFaceNew << std::endl;
