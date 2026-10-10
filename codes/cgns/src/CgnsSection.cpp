@@ -34,6 +34,7 @@ License
 #include <iostream>
 #include <iterator>
 #include <stdexcept>
+#include <limits>
 
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
@@ -331,36 +332,83 @@ void CgnsSection::CreateConnList()
 
 void CgnsSection::CalcNumberOfSectionElements()
 {
-    this->nElement = this->endId - this->startId + 1;
+    if ( this->startId < 1 || this->endId < this->startId )
+    {
+        throw std::runtime_error(
+            "CgnsSection::CalcNumberOfSectionElements: invalid element ID range" );
+    }
+
+    const CgInt elementCount = this->endId - this->startId + 1;
+    if ( elementCount > static_cast< CgInt >( std::numeric_limits< int >::max() ) )
+    {
+        throw std::runtime_error(
+            "CgnsSection::CalcNumberOfSectionElements: element count exceeds supported range" );
+    }
+
+    this->nElement = static_cast< int >( elementCount );
 }
 
 void CgnsSection::CalcCapacityOfCgnsConnectionList()
 {
-    if ( eType == MIXED ||
-         eType == NGON_n ||
-         eType == NFACE_n )
+    if ( this->nElement < 0 )
     {
-        this->connSize = this->elementDataSize;
+        throw std::runtime_error(
+            "CgnsSection::CalcCapacityOfCgnsConnectionList: invalid element count" );
+    }
 
+    CgInt connectionCount = 0;
+    if ( this->eType == MIXED ||
+         this->eType == NGON_n ||
+         this->eType == NFACE_n )
+    {
+        connectionCount = this->elementDataSize;
     }
     else
     {
         UnitElement & unitElement = ElementHome::GetUnitElement( this->eType );
-        int nodeNumber = unitElement.GetElementNodeNumbers( this->eType );
+        const int nodeNumber = unitElement.GetElementNodeNumbers( this->eType );
+        if ( nodeNumber <= 0 )
+        {
+            throw std::runtime_error(
+                "CgnsSection::CalcCapacityOfCgnsConnectionList: invalid element node count" );
+        }
 
-        this->connSize = this->nElement * nodeNumber;
+        if ( this->nElement > std::numeric_limits< int >::max() / nodeNumber )
+        {
+            throw std::runtime_error(
+                "CgnsSection::CalcCapacityOfCgnsConnectionList: connectivity size overflow" );
+        }
+        connectionCount = static_cast< CgInt >( this->nElement ) * nodeNumber;
     }
+
+    if ( connectionCount < 0 ||
+         connectionCount > static_cast< CgInt >( std::numeric_limits< int >::max() ) )
+    {
+        throw std::runtime_error(
+            "CgnsSection::CalcCapacityOfCgnsConnectionList: connectivity size exceeds supported range" );
+    }
+
+    this->connSize = static_cast< int >( connectionCount );
 }
 
 void CgnsSection::AllocateCgnsConnectionList()
 {
-    this->connList.resize( this->connSize );
+    if ( this->nElement < 0 || this->connSize < 0 ||
+         this->nElement == std::numeric_limits< int >::max() ||
+         ( this->iparentflag &&
+           this->nElement > std::numeric_limits< int >::max() / 4 ) )
+    {
+        throw std::runtime_error(
+            "CgnsSection::AllocateCgnsConnectionList: allocation size exceeds supported range" );
+    }
+
+    this->connList.resize( static_cast< size_t >( this->connSize ) );
     if ( this->iparentflag )
     {
-        this->iparentdata.resize( this->nElement * 4 );
+        this->iparentdata.resize( static_cast< size_t >( this->nElement ) * 4 );
     }
-    this->ePosList.resize( this->nElement + 1 );
-    this->eTypeList.resize( this->nElement, this->eType );
+    this->ePosList.resize( static_cast< size_t >( this->nElement ) + 1 );
+    this->eTypeList.resize( static_cast< size_t >( this->nElement ), this->eType );
 }
 
 void CgnsSection::ReadCgnsSectionConnectionList()
