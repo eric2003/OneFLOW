@@ -57,6 +57,10 @@ private:
     CgnsBase * AddBase( int fileId, const std::string & baseName, int celldim, int physdim, int baseId );
     void FreeBaseList();
 public:
+    int GetNBases() const;
+    CgnsBase * GetBase( int iBase );
+    const CgnsBase * GetBase( int iBase ) const;
+public:
     void GoPath( const std::string & path );
     void ReadNumberOfBases();
     void ReadBases();
