@@ -171,7 +171,16 @@ void IFaceLink::MatchInterfaceTopology( Grid & grid )
     for ( int iIFace = 0; iIFace < nIFaces; ++ iIFace )
     {
         int gIFace = this->l2g[ grid.id ][ iIFace ];
-        int nIZone = this->gI2Zid[ gIFace ].size();
+        if ( gIFace < 0 || static_cast< size_t >( gIFace ) >= this->gI2Zid.size() ||
+             static_cast< size_t >( gIFace ) >= this->g2l.size() )
+        {
+            throw std::logic_error( "IFaceLink::MatchInterfaceTopology: global face mapping is out of range" );
+        }
+        if ( this->gI2Zid[ gIFace ].size() != this->g2l[ gIFace ].size() )
+        {
+            throw std::logic_error( "IFaceLink::MatchInterfaceTopology: global face references are inconsistent" );
+        }
+        int nIZone = static_cast< int >( this->gI2Zid[ gIFace ].size() );
 
         if ( nIZone != 2 )
         {
@@ -212,7 +221,17 @@ void IFaceLink::MatchPeriodicInterface( Grid & grid )
     for ( int iIFace = 0; iIFace < nIFaces; ++ iIFace )
     {
         int gIFace = this->l2g[ grid.id ][ iIFace ];
-        int nIZone = this->gI2Zid[ gIFace ].size();
+        if ( gIFace < 0 || static_cast< size_t >( gIFace ) >= this->gI2Zid.size() ||
+             static_cast< size_t >( gIFace ) >= this->g2l.size() ||
+             static_cast< size_t >( gIFace ) >= this->face_search->faceArray.size() )
+        {
+            throw std::logic_error( "IFaceLink::MatchPeriodicInterface: global face mapping is out of range" );
+        }
+        if ( this->gI2Zid[ gIFace ].size() != this->g2l[ gIFace ].size() )
+        {
+            throw std::logic_error( "IFaceLink::MatchPeriodicInterface: global face references are inconsistent" );
+        }
+        int nIZone = static_cast< int >( this->gI2Zid[ gIFace ].size() );
 
         if ( nIZone == 2 ) continue;
 
