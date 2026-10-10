@@ -218,7 +218,17 @@ void FaceTopo::ModifyFaceNodeId( IFaceLink & iFaceLink )
 
 void FaceTopo::SetNewFace2Node( IFaceLink & iFaceLink )
 {
-    int nBFaces = this->bcManager->bcRecord->GetNBFace();
+    const HXSize_t nFaces = this->GetNFaces();
+    const HXSize_t nBoundaryFaces = this->bcManager->bcRecord->GetNBFace();
+
+    // A face has one node list and one face type; boundary faces must be a subset.
+    if ( this->faces.size() != nFaces || nBoundaryFaces > nFaces )
+    {
+        throw std::logic_error(
+            "FaceTopo::SetNewFace2Node: face, face-type, and boundary-face counts are inconsistent" );
+    }
+
+    int nBFaces = static_cast< int >( nBoundaryFaces );
     this->facesNew.resize( 0 );
 
     int localFid = 0;
