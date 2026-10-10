@@ -399,12 +399,12 @@ void CgnsZone::DumpCgnsGridCoordinates()
 
 void CgnsZone::ReadCgnsGridBoundary()
 {
-    cgnsZbc->ReadCgnsGridBoundary();
+    this->RequireCgnsZbc().ReadCgnsGridBoundary();
 }
 
 void CgnsZone::DumpCgnsGridBoundary()
 {
-    cgnsZbc->DumpCgnsGridBoundary();
+    this->RequireCgnsZbc().DumpCgnsGridBoundary();
 }
 
 void CgnsZone::ProcessPeriodicBc()
