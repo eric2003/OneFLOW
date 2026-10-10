@@ -36,7 +36,7 @@ public:
     RealField pmin, pmax;
     bool boxFlag;
 public:
-    HXSize_t GetNumberOfNodes() { return xN.size(); }
+    HXSize_t GetNumberOfNodes() const { return xN.size(); }
     void CreateNodes( int numberOfNodes );
     void CalcMinMaxBox();
     void AddPoint( Real xp, Real yp, Real zp );

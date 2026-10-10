@@ -48,14 +48,16 @@ class BlkElemHome
 {
 public:
     BlkElemHome();
-    ~BlkElemHome();
+    ~BlkElemHome() = default;
 public:
     HXVector< std::unique_ptr<BlkElem> > elems;
-    bool initFlag;
+    bool initFlag{ false };
 public:
     void Init();
+    // Clears owned elements and allows Init() to run again.
     void Free();
     BlkElem * GetBlkElem( int eType );
+    const BlkElem * GetBlkElem( int eType ) const;
 };
 
 extern BlkElemHome bbElemHome;

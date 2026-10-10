@@ -124,15 +124,7 @@ void BlkElem::PushElementFace( int faceType, int p1, int p2, int p3, int p4 )
     faceList.push_back( face );
 }
 
-BlkElemHome::BlkElemHome()
-{
-    initFlag = false;
-}
-
-BlkElemHome::~BlkElemHome()
-{
-    Free();
-}
+BlkElemHome::BlkElemHome() = default;
 
 void BlkElemHome::Init()
 {
@@ -160,9 +152,15 @@ void BlkElemHome::Init()
 void BlkElemHome::Free()
 {
     elems.clear();
+    initFlag = false;
 }
 
 BlkElem * BlkElemHome::GetBlkElem( int eType )
+{
+    return elems[ eType ].get();
+}
+
+const BlkElem * BlkElemHome::GetBlkElem( int eType ) const
 {
     return elems[ eType ].get();
 }
