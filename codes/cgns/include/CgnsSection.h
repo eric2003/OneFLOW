@@ -61,7 +61,7 @@ public:
     CgIntField iparentdata;
 public:
     void ConvertToInnerDataStandard();
-    void SetElementTypeAndNode( ElemFeature * elem_feature );
+    void SetElementTypeAndNode( ElemFeature & elem_feature );
     CgInt * GetAddress( CgInt eId );
     void GetElementNodeId( CgInt eId, CgIntField & eNodeId );
 public:

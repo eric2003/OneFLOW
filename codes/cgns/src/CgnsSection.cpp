@@ -167,15 +167,20 @@ void CgnsSection::GetElementNodeId( CgInt eId, CgIntField & eNodeId )
     }
 }
 
-void CgnsSection::SetElementTypeAndNode( ElemFeature * elem_feature )
+void CgnsSection::SetElementTypeAndNode( ElemFeature & elem_feature )
 {
+    if ( this->nElement < 0 || static_cast< size_t >( this->nElement ) > this->eTypeList.size() )
+    {
+        throw std::runtime_error( "CgnsSection::SetElementTypeAndNode: element type data is incomplete" );
+    }
+
     for ( int iElem = 0; iElem < this->nElement; ++ iElem )
     {
         int e_type = this->eTypeList[ iElem ];
 
         if ( ! ONEFLOW::IsBasicVolumeElementType( e_type ) ) continue;
 
-        elem_feature->eTypes.push_back( e_type );
+        elem_feature.eTypes.push_back( e_type );
 
         CgIntField eNodeId;
         this->GetElementNodeId( iElem, eNodeId );
@@ -197,7 +202,7 @@ void CgnsSection::SetElementTypeAndNode( ElemFeature * elem_feature )
             }
             eNodeId[ iNode ] = localToGlobal[ static_cast< size_t >( localNodeId ) ];
         }
-        elem_feature->eNodeId.push_back( eNodeId );
+        elem_feature.eNodeId.push_back( eNodeId );
     }
 }
 
