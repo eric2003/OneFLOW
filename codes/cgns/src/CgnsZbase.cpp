@@ -59,9 +59,9 @@ void CgnsZbase::CloseCgnsFile()
 int CgnsZbase::GetNZones()
 {
     int nZones = 0;
-    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
+    for ( size_t iBase = 0; iBase < this->baseVector.size(); ++ iBase )
     {
-        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
+        CgnsBase * cgnsBase = this->GetCgnsBase( static_cast< int >( iBase ) );
         nZones += cgnsBase->GetNZones();
     }
     return nZones;
@@ -116,9 +116,9 @@ void CgnsZbase::ReadCgnsGrid( const std::string & fileName )
 
 void CgnsZbase::DumpCgnsMultiBase()
 {
-    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
+    for ( size_t iBase = 0; iBase < this->baseVector.size(); ++ iBase )
     {
-        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
+        CgnsBase * cgnsBase = this->GetCgnsBase( static_cast< int >( iBase ) );
 
         cgnsBase->DumpCgnsBaseBasicInfo();
         cgnsBase->DumpAllCgnsZones();
@@ -135,18 +135,18 @@ void CgnsZbase::ReadNumCgnsBase()
 
 void CgnsZbase::ConvertToInnerDataStandard()
 {
-    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
+    for ( size_t iBase = 0; iBase < this->baseVector.size(); ++ iBase )
     {
-        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
+        CgnsBase * cgnsBase = this->GetCgnsBase( static_cast< int >( iBase ) );
         cgnsBase->ConvertToInnerDataStandard();
     }
 }
 
 void CgnsZbase::ProcessCgnsBases()
 {
-    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
+    for ( size_t iBase = 0; iBase < this->baseVector.size(); ++ iBase )
     {
-        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
+        CgnsBase * cgnsBase = this->GetCgnsBase( static_cast< int >( iBase ) );
         cgnsBase->ProcessCgnsZones();
     }
 }
@@ -157,9 +157,9 @@ void CgnsZbase::ReadCgnsMultiBase()
 
     this->InitCgnsBase();
 
-    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
+    for ( size_t iBase = 0; iBase < this->baseVector.size(); ++ iBase )
     {
-        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
+        CgnsBase * cgnsBase = this->GetCgnsBase( static_cast< int >( iBase ) );
 
         cgnsBase->ReadCgnsBaseBasicInfo();
         cgnsBase->ReadNumberOfCgnsZones();
@@ -211,9 +211,9 @@ CgnsZone * CgnsZbase::GetCgnsZone( int globalZoneId )
     }
 
     int zoneOffset = globalZoneId;
-    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
+    for ( size_t iBase = 0; iBase < this->baseVector.size(); ++ iBase )
     {
-        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
+        CgnsBase * cgnsBase = this->GetCgnsBase( static_cast< int >( iBase ) );
         const int nZones = cgnsBase->GetNZones();
 
         if ( zoneOffset < nZones )
