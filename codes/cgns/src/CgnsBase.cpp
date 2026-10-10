@@ -418,7 +418,16 @@ void CgnsBase::ReadConvergence()
 
 void CgnsBase::ReadCgnsZones()
 {
+    if ( ! this->cgnsZones.empty() )
+    {
+        throw std::logic_error( "CgnsBase::ReadCgnsZones: zones have already been read or allocated" );
+    }
+
     this->ReadNumberOfCgnsZones();
+    if ( this->nZones < 0 )
+    {
+        throw std::runtime_error( "CgnsBase::ReadCgnsZones: CGNS returned a negative zone count" );
+    }
 
     for ( int iZone = 0; iZone < this->nZones; ++ iZone )
     {
