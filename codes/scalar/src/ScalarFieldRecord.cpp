@@ -29,14 +29,6 @@ BeginNameSpace( ONEFLOW )
 
 std::map< std::string, int > GFieldDim::data;
 
-GFieldDim::GFieldDim()
-{
-}
-
-GFieldDim::~GFieldDim()
-{
-}
-
 void GFieldDim::AddField( const std::string & fileName, int nEqu )
 {
     GFieldDim::data[ fileName ] = nEqu;
@@ -53,14 +45,6 @@ int GFieldDim::GetNEqu( const std::string & fileName )
     return -1;
 }
 
-
-ScalarFieldRecord::ScalarFieldRecord()
-{
-}
-
-ScalarFieldRecord::~ScalarFieldRecord()
-{
-}
 
 void ScalarFieldRecord::AddField( MRField * field, int nEqu )
 {
@@ -90,6 +74,26 @@ MRField * ScalarFieldRecord::GetField( int id )
     }
 
     return this->fields[ id ];
+}
+
+const MRField * ScalarFieldRecord::GetField( int id ) const
+{
+    if ( id < 0 || static_cast< size_t >( id ) >= this->fields.size() )
+    {
+        throw std::out_of_range( "ScalarFieldRecord::GetField: field index is out of range" );
+    }
+
+    return this->fields[ id ];
+}
+
+int ScalarFieldRecord::GetNEqu( int id ) const
+{
+    if ( id < 0 || static_cast< size_t >( id ) >= this->nEquList.size() )
+    {
+        throw std::out_of_range( "ScalarFieldRecord::GetNEqu: field index is out of range" );
+    }
+
+    return this->nEquList[ id ];
 }
 
 void ScalarFieldRecord::AddFieldRecord( DataStorage * dataStorage, StringField & fieldNameList )
