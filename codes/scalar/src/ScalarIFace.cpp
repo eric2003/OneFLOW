@@ -193,6 +193,9 @@ int ScalarIFace::FindINeibor( int iZone ) const
 
 void ScalarIFace::CalcLocalInterfaceId( int iZone, const std::vector<int> & globalfaces, std::vector<int> & localfaces )
 {
+    // Resolve local IDs only while the global/local identity relation is coherent.
+    this->ValidateInterfaceMappings();
+
     std::vector< int > reconstructedLocalFaces;
     reconstructedLocalFaces.reserve( globalfaces.size() );
     for ( int i = 0; i < globalfaces.size(); ++ i )

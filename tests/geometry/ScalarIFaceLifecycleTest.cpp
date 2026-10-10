@@ -182,3 +182,21 @@ TEST(ScalarIFaceLifecycleTest, ReconstructNeighborRejectsCorruptedIdentityMapsWi
     ASSERT_EQ(interfaceData.data[0].ifaces.size(), 1u);
     EXPECT_EQ(interfaceData.data[0].ifaces[0], 0);
 }
+
+TEST(ScalarIFaceLifecycleTest, CalcLocalInterfaceIdRejectsCorruptedMapsWithoutChangingOutputs)
+{
+    ONEFLOW::ScalarIFace interfaceData;
+    interfaceData.AddInterface(100, 2, 7);
+    interfaceData.ReconstructNeighbor();
+
+    std::vector<int> localFaces{77};
+    interfaceData.data[0].recv_ifaces = {42};
+    interfaceData.global_to_local_interfaces[100] = 4;
+
+    EXPECT_THROW(interfaceData.CalcLocalInterfaceId(2, std::vector<int>{100}, localFaces), std::logic_error);
+
+    ASSERT_EQ(localFaces.size(), 1u);
+    EXPECT_EQ(localFaces[0], 77);
+    ASSERT_EQ(interfaceData.data[0].recv_ifaces.size(), 1u);
+    EXPECT_EQ(interfaceData.data[0].recv_ifaces[0], 42);
+}
