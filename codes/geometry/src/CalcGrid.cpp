@@ -305,20 +305,28 @@ void CalcGrid::ResetGridScaleAndTranslate()
 
 void CalcGrid::GenerateLink()
 {
+    // Discard any previous or partially built link before starting a new attempt.
+    this->iFaceLink.reset();
+
     // Validate before constructing an interface-link object from the collection.
     ValidateGridCollection( grids );
 
     this->iFaceLink = std::make_unique< IFaceLink >( grids );
 
-    this->ModifyBcType();
-
-    this->GenerateLgMapping();
-
-    this->ReconstructInterFace();
-
-    this->ReGenerateLgMapping();
-
-    this->MatchInterfaceTopology();
+    try
+    {
+        this->ModifyBcType();
+        this->GenerateLgMapping();
+        this->ReconstructInterFace();
+        this->ReGenerateLgMapping();
+        this->MatchInterfaceTopology();
+    }
+    catch ( ... )
+    {
+        // A failed generation must not expose an incompletely initialized link.
+        this->iFaceLink.reset();
+        throw;
+    }
 }
 
 void CalcGrid::ModifyBcType()
