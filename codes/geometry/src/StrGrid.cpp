@@ -54,7 +54,7 @@ void StrGrid::Encode( DataBook * databook )
     this->WriteGrid( databook );
 }
 
-int StrGrid::CalcNumberOfNode()
+int StrGrid::CalcNumberOfNode() const
 {
     if ( ONEFLOW::IsTwoD() )
     {
@@ -63,7 +63,7 @@ int StrGrid::CalcNumberOfNode()
     return ONEFLOW::CalcNumberOfNode( ni, nj, nk );
 }
 
-int StrGrid::CalcNumberOfCell()
+int StrGrid::CalcNumberOfCell() const
 {
     if ( ONEFLOW::IsTwoD() )
     {
@@ -72,7 +72,7 @@ int StrGrid::CalcNumberOfCell()
     return ONEFLOW::CalcNumberOfCell( ni, nj, nk );
 }
 
-int StrGrid::CalcNumberOfFace()
+int StrGrid::CalcNumberOfFace() const
 {
     if ( ONEFLOW::IsTwoD() )
     {
@@ -135,14 +135,14 @@ void StrGrid::WriteBoundaryTopology( DataBook * databook )
 {
 }
 
-void StrGrid::CalcMinMaxDis3D( Real & dismin, Real & dismax )
+void StrGrid::CalcMinMaxDis3D( Real & dismin, Real & dismax ) const
 {
     dismin =   LARGE;
     dismax = - LARGE;
 
-    Field3D & xs = * this->strx;
-    Field3D & ys = * this->stry;
-    Field3D & zs = * this->strz;
+    const Field3D & xs = * this->strx;
+    const Field3D & ys = * this->stry;
+    const Field3D & zs = * this->strz;
 
     int ist, ied, jst, jed, kst, ked;
 
@@ -225,14 +225,14 @@ void StrGrid::CalcMinMaxDis3D( Real & dismin, Real & dismax )
     }
 }
 
-void StrGrid::CalcMinMaxDis2D( Real & dismin, Real & dismax )
+void StrGrid::CalcMinMaxDis2D( Real & dismin, Real & dismax ) const
 {
     dismin =   LARGE;
     dismax = - LARGE;
 
-    Field3D & xs = * this->strx;
-    Field3D & ys = * this->stry;
-    Field3D & zs = * this->strz;
+    const Field3D & xs = * this->strx;
+    const Field3D & ys = * this->stry;
+    const Field3D & zs = * this->strz;
 
     int ist, ied, jst, jed, kst, ked;
 
@@ -283,14 +283,14 @@ void StrGrid::CalcMinMaxDis2D( Real & dismin, Real & dismax )
     }
 }
 
-void StrGrid::CalcMinMaxDis1D( Real & dismin, Real & dismax )
+void StrGrid::CalcMinMaxDis1D( Real & dismin, Real & dismax ) const
 {
     dismin =   LARGE;
     dismax = - LARGE;
 
-    Field3D & xs = * this->strx;
-    Field3D & ys = * this->stry;
-    Field3D & zs = * this->strz;
+    const Field3D & xs = * this->strx;
+    const Field3D & ys = * this->stry;
+    const Field3D & zs = * this->strz;
 
     int ist, ied, jst, jed, kst, ked;
 
@@ -329,7 +329,7 @@ void StrGrid::CalcMinMaxDis1D( Real & dismin, Real & dismax )
     }
 }
 
-void StrGrid::GetMinMaxDistance( Real & dismin, Real & dismax )
+void StrGrid::GetMinMaxDistance( Real & dismin, Real & dismax ) const
 {
     if ( Dim::dimension == THREE_D )
     {

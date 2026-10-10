@@ -57,14 +57,14 @@ public:
     void SetBasicDimension();
     void SetLayout();
 public:
-    int CalcNumberOfNode();
-    int CalcNumberOfCell();
-    int CalcNumberOfFace();
+    int CalcNumberOfNode() const;
+    int CalcNumberOfCell() const;
+    int CalcNumberOfFace() const;
 public:
-    void GetMinMaxDistance( Real & dismin, Real & dismax ) override;
-    void CalcMinMaxDis3D( Real & dismin, Real & dismax );
-    void CalcMinMaxDis2D( Real & dismin, Real & dismax );
-    void CalcMinMaxDis1D( Real & dismin, Real & dismax );
+    void GetMinMaxDistance( Real & dismin, Real & dismax ) const override;
+    void CalcMinMaxDis3D( Real & dismin, Real & dismax ) const;
+    void CalcMinMaxDis2D( Real & dismin, Real & dismax ) const;
+    void CalcMinMaxDis1D( Real & dismin, Real & dismax ) const;
 };
 
 int CalcNumberOfFace( const int & ni );

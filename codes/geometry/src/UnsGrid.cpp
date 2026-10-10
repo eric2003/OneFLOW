@@ -459,22 +459,22 @@ void UnsGrid::UpdateOtherTopologyTerm( IFaceLink & iFaceLink )
     this->GetFaceTopo().GenerateI2B( *this->interFace );
 }
 
-void UnsGrid::GetMinMaxDistance( Real & dismin, Real & dismax )
+void UnsGrid::GetMinMaxDistance( Real & dismin, Real & dismax ) const
 {
     dismin =   LARGE;
     dismax = - LARGE;
 
-    RealField & x = this->nodeMesh->xN;
-    RealField & y = this->nodeMesh->yN;
-    RealField & z = this->nodeMesh->zN;
+    const RealField & x = this->nodeMesh->xN;
+    const RealField & y = this->nodeMesh->yN;
+    const RealField & z = this->nodeMesh->zN;
 
-    int nFaces = this->GetFaceTopo().GetNFaces();
+    int nFaces = static_cast< int >( this->GetFaceTopo().GetNFaces() );
 
     Real ptTol = Tolerance::GetTol();
 
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
-        IntField & faceNode = this->GetFaceTopo().GetFaces()[ iFace ];
+        const IntField & faceNode = this->GetFaceTopo().GetFaces()[ iFace ];
         int nNodes = faceNode.size();
         for ( int iNode = 0; iNode < nNodes; ++ iNode )
         {
