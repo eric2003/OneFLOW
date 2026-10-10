@@ -283,8 +283,6 @@ void CgnsBase::ReadFamilySpecifiedBc()
 
 CgnsZone * CgnsBase::WriteZoneInfo( const std::string & zoneName, ZoneType_t zoneType, cgsize_t * isize )
 {
-    int cgzone = -1;
-    cg_zone_write( this->cgnsFile->fileId, this->baseId, zoneName.c_str(), isize, zoneType, & cgzone );
     auto cgnsZone = std::make_unique< CgnsZone >( *this );
     CgnsZone * zone = cgnsZone.get();
     this->AddCgnsZone( std::move( cgnsZone ) );
