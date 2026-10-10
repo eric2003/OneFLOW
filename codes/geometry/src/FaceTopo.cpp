@@ -531,7 +531,7 @@ void FaceTopo::GenerateI2B( InterFace & interFace )
 
 bool FaceTopo::GetSId( int iFace, int iPosition, int & sId )
 {
-    int iBFace = grid->interFace->i2b[ iFace ];
+    int iBFace = this->GetGrid().interFace->i2b[ iFace ];
     sId = this->lCells[ iBFace ];
 
     return true;
@@ -539,7 +539,7 @@ bool FaceTopo::GetSId( int iFace, int iPosition, int & sId )
 
 bool FaceTopo::GetTId( int iFace, int iPosition, int & tId )
 {
-    int iBFace = grid->interFace->i2b[ iFace ];
+    int iBFace = this->GetGrid().interFace->i2b[ iFace ];
     tId = this->rCells[ iBFace ];
 
     return true;

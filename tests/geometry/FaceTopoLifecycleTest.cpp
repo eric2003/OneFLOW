@@ -10,4 +10,7 @@ TEST(FaceTopoLifecycleTest, GetGridRejectsUnboundGrid)
 
     EXPECT_THROW(faceTopo.GetGrid(), std::logic_error);
     EXPECT_THROW(constFaceTopo.GetGrid(), std::logic_error);
+    int value = 0;
+    EXPECT_THROW(faceTopo.GetSId(0, 0, value), std::logic_error);
+    EXPECT_THROW(faceTopo.GetTId(0, 0, value), std::logic_error);
 }
