@@ -101,7 +101,8 @@ TEST(ScalarIFaceLifecycleTest, RejectsInvalidTopologyWithoutReplacingNeighborGro
     interfaceData.zones.push_back(4);
     interfaceData.cells.push_back(400);
 
-    EXPECT_THROW(interfaceData.ReconstructNeighbor(), std::runtime_error);
+    // Identity-map validation detects the inconsistency before neighbor grouping.
+    EXPECT_THROW(interfaceData.ReconstructNeighbor(), std::logic_error);
     ASSERT_EQ(interfaceData.data.size(), 1u);
     EXPECT_EQ(interfaceData.data[0].zonej, 3);
     ASSERT_EQ(interfaceData.data[0].iglobalfaces.size(), 1u);
