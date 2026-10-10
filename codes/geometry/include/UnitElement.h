@@ -52,6 +52,7 @@ public:
     void Initialize( int elementType );
 public:
     IntField & GetElementPhysicsFace(int iFace);
+    const IntField & GetElementPhysicsFace(int iFace) const;
     int GetElementPhysicsFaceType(int iFace) const;
     int GetElementFaceNumber() const;
     int GetElementPhysicsFaceNumber() const;
@@ -68,14 +69,17 @@ public:
     bool IsBasicVolumeElementType( int elementType ) const;
 
     IntField & GetElementFace(int iFace);
+    const IntField & GetElementFace(int iFace) const;
     int GetFaceType(int iFace) const;
 
     IntField & GetRelatedPointListForMiddlePointCalcutation(int iMiddlePoint);
+    const IntField & GetRelatedPointListForMiddlePointCalcutation(int iMiddlePoint) const;
 
     IntField & GetChildElementRelativeNodeIndex(int iChildElement);
+    const IntField & GetChildElementRelativeNodeIndex(int iChildElement) const;
 
     int GetChildElementNumbers() const;
-    int GetChildElementType(int iChild);
+    int GetChildElementType(int iChild) const;
 public:
     void PushElementFace( int faceType, int p1 );
     void PushElementFace( int faceType, int p1, int p2 );
