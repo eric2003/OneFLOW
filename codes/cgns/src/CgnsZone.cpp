@@ -307,7 +307,11 @@ void CgnsZone::WriteZoneInfo( const std::string & zoneName, ZoneType_t zoneType,
     this->cgnsZoneType = zoneType;
     this->CopyISize( isize );
 
-    cg_zone_write( fileId, baseId, zoneName.c_str(), isize, cgnsZoneType, &this->zId );
+    const int status = cg_zone_write( fileId, baseId, zoneName.c_str(), isize, cgnsZoneType, &this->zId );
+    if ( status != CG_OK )
+    {
+        throw std::runtime_error( "CgnsZone::WriteZoneInfo: " + std::string( cg_get_error() ) );
+    }
 }
 
 void CgnsZone::SetDimension()
