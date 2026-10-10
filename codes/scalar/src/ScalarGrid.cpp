@@ -1171,31 +1171,62 @@ void ScalarGrid::CalcC2C( EList & c2c ) const
 {
 	if ( c2c.GetNElements() != 0 ) return;
 
-	int nFaces = this->GetNFaces();
-	int nCells = this->GetNCells();
-	int nBFaces = this->GetNBFaces();
+	const int nFaces = this->GetNFaces();
+	const int nCells = this->GetNCells();
+	const int nBFaces = this->GetNBFaces();
+	if ( nBFaces < 0 || nBFaces > nFaces ||
+		 this->lc.GetNElements() != static_cast< size_t >( nFaces ) ||
+		 this->rc.GetNElements() != static_cast< size_t >( nFaces ) )
+	{
+		throw std::runtime_error( "ScalarGrid::CalcC2C: face topology arrays have inconsistent sizes" );
+	}
 
-	c2c.Resize( nCells );
-
-	// If boundary is an INTERFACE, need to count ghost cell
+	// Validate every cell index before using it to index an adjacency row.
 	for ( int iFace = 0; iFace < nBFaces; ++ iFace )
 	{
-		int bcType = this->bcTypes[ iFace ];
-		if ( BC::IsInterfaceBc( bcType ) )
+		if ( BC::IsInterfaceBc( this->bcTypes[ iFace ] ) )
 		{
-			int lc  = this->lc[ iFace ];
-			int rc  = this->rc[ iFace ];
-			c2c[ lc  ].push_back( rc );
+			const int leftCell = this->lc[ iFace ];
+			if ( leftCell < 0 || leftCell >= nCells )
+			{
+				throw std::runtime_error( "ScalarGrid::CalcC2C: interface boundary face references an invalid physical cell" );
+			}
 		}
 	}
 
 	for ( int iFace = nBFaces; iFace < nFaces; ++ iFace )
 	{
-		int lc  = this->lc[ iFace ];
-		int rc  = this->rc[ iFace ];
-		c2c[ lc ].push_back( rc );
-		c2c[ rc ].push_back( lc );
+		const int leftCell = this->lc[ iFace ];
+		const int rightCell = this->rc[ iFace ];
+		if ( leftCell < 0 || leftCell >= nCells ||
+			 rightCell < 0 || rightCell >= nCells || leftCell == rightCell )
+		{
+			throw std::runtime_error( "ScalarGrid::CalcC2C: internal face must connect two distinct valid physical cells" );
+		}
 	}
+
+	// Build into a temporary so invalid topology never leaves partial adjacency.
+	EList reconstructed;
+	reconstructed.Resize( nCells );
+
+	// If boundary is an INTERFACE, need to count ghost cell
+	for ( int iFace = 0; iFace < nBFaces; ++ iFace )
+	{
+		if ( BC::IsInterfaceBc( this->bcTypes[ iFace ] ) )
+		{
+			reconstructed[ this->lc[ iFace ] ].push_back( this->rc[ iFace ] );
+		}
+	}
+
+	for ( int iFace = nBFaces; iFace < nFaces; ++ iFace )
+	{
+		const int leftCell = this->lc[ iFace ];
+		const int rightCell = this->rc[ iFace ];
+		reconstructed[ leftCell ].push_back( rightCell );
+		reconstructed[ rightCell ].push_back( leftCell );
+	}
+
+	c2c.data = std::move( reconstructed.data );
 }
 
 void ScalarGrid::CalcInterfaceToBcFace()
