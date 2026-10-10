@@ -703,14 +703,18 @@ void ScalarGrid::ReadFromCgnsZone( CgnsZone & cgnsZone )
 		std::cout << "-->iSection     = " << iSection << " numberOfCgnsSections = " << nSections << "\n";
 		CgnsSection & cgnsSection = cgnsZsection.GetCgnsSection( iSection );
 
-		if ( ! ONEFLOW::IsBasicVolumeElementType( cgnsSection.eType ) ) continue;
+		const bool isHomogeneousVolumeSection =
+			ONEFLOW::IsBasicVolumeElementType( cgnsSection.eType );
+		const bool isMixedSection = cgnsSection.eType == MIXED;
+		if ( ! isHomogeneousVolumeSection && ! isMixedSection ) continue;
 
 		for ( int iElem = 0; iElem < cgnsSection.nElement; ++ iElem )
 		{
+			const int eType = cgnsSection.eTypeList[ iElem ];
+			if ( ! ONEFLOW::IsBasicVolumeElementType( eType ) ) continue;
+
 			CgIntField eNodeId;
 			cgnsSection.GetElementNodeId( iElem, eNodeId );
-
-			const int eType = cgnsSection.eTypeList[ iElem ];
 			importedGrid.PushElement( eNodeId, eType );
 		}
 	}
