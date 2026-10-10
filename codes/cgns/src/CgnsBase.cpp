@@ -160,8 +160,18 @@ void CgnsBase::DumpCgnsBaseBasicInfo()
 
 void CgnsBase::ReadNumberOfCgnsZones()
 {
-    //Read the number of zones in the grid.
-    cg_nzones( this->cgnsFile->fileId, this->baseId, & this->nZones );
+    int zoneCount = -1;
+    const int status = cg_nzones( this->cgnsFile->fileId, this->baseId, & zoneCount );
+    if ( status != CG_OK )
+    {
+        throw std::runtime_error( "CgnsBase::ReadNumberOfCgnsZones: " + std::string( cg_get_error() ) );
+    }
+    if ( zoneCount < 0 )
+    {
+        throw std::runtime_error( "CgnsBase::ReadNumberOfCgnsZones: CGNS returned a negative zone count" );
+    }
+
+    this->nZones = zoneCount;
 }
 
 CgnsZone * CgnsBase::CreateCgnsZone()
