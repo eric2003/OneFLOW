@@ -996,6 +996,47 @@ void ScalarGrid::CalcTopology()
 		}
 	}
 
+	// A face in a conforming volume/line mesh may belong to at most two cells.
+	// Check incidence before resetting the current topology, so malformed meshes
+	// cannot silently overwrite a third cell or destroy the previous topology.
+	HXLookup< int > incidenceLookup;
+	std::vector< int > faceOwnerCell;
+	std::vector< int > faceIncidenceCount;
+	for ( int iCell = 0; iCell < cellCount; ++ iCell )
+	{
+		const std::vector< int > & element = this->elements[ iCell ];
+		UnitElement & unitElement = ElementHome::GetUnitElement( this->eTypes[ iCell ] );
+		const int localFaceCount = unitElement.GetElementFaceNumber();
+		for ( int iLocalFace = 0; iLocalFace < localFaceCount; ++ iLocalFace )
+		{
+			const IntField & localFaceNodes = unitElement.GetElementFace( iLocalFace );
+			IntField faceNodes;
+			faceNodes.reserve( localFaceNodes.size() );
+			for ( int localNodeId : localFaceNodes )
+			{
+				faceNodes.push_back( element[ localNodeId ] );
+			}
+
+			auto [ faceIndex, isNew ] = incidenceLookup.FindOrAdd( faceNodes );
+			if ( isNew )
+			{
+				faceOwnerCell.push_back( iCell );
+				faceIncidenceCount.push_back( 1 );
+				continue;
+			}
+
+			if ( faceOwnerCell[ faceIndex ] == iCell )
+			{
+				throw std::runtime_error( "ScalarGrid::CalcTopology: a cell contains a duplicate face" );
+			}
+			if ( faceIncidenceCount[ faceIndex ] >= 2 )
+			{
+				throw std::runtime_error( "ScalarGrid::CalcTopology: a face is shared by more than two cells" );
+			}
+			++ faceIncidenceCount[ faceIndex ];
+		}
+	}
+
 	// Validate the input before clearing existing topology so failed rebuilds
 	// do not destroy a previously available topology.
 	this->ResetTopologyData();
