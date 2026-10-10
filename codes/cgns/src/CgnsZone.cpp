@@ -130,6 +130,15 @@ CgnsZbc & CgnsZone::RequireCgnsZbc()
     return *this->cgnsZbc;
 }
 
+const CgnsZbc & CgnsZone::RequireCgnsZbc() const
+{
+    if ( this->cgnsZbc == nullptr )
+    {
+        throw std::logic_error( "CgnsZone: CgnsZbc is not initialized" );
+    }
+    return *this->cgnsZbc;
+}
+
 void CgnsZone::Create()
 {
     if ( this->cgnsZsection || this->cgnsZbc || this->cgnsCoor )
@@ -164,7 +173,7 @@ void CgnsZone::SetElementTypeAndNode( ElemFeature & elem_feature )
     std::cout << " elem_feature.eTypes.size() = " << elem_feature.eTypes.size() << std::endl;
 }
 
-bool CgnsZone::ExistSection( const std::string & sectionName )
+bool CgnsZone::ExistSection( const std::string & sectionName ) const
 {
     return this->RequireCgnsZsection().ExistSection( sectionName );
 }

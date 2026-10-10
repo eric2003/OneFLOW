@@ -73,6 +73,7 @@ public:
     CgnsZsection & RequireCgnsZsection();
     const CgnsZsection & RequireCgnsZsection() const;
     CgnsZbc & RequireCgnsZbc();
+    const CgnsZbc & RequireCgnsZbc() const;
 public:
     void Create();
     void SetPeriodicBc();
@@ -113,7 +114,7 @@ public:
     CgInt GetNJ() const;
     CgInt GetNK() const;
 public:
-    bool ExistSection( const std::string & sectionName );
+    bool ExistSection( const std::string & sectionName ) const;
     void GoToZone();
     void GoToNode( const std::string & nodeName, int ith );
     void GoToNode( const std::string & nodeNamei, int ith, const std::string & nodeNamej, int jth );

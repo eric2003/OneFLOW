@@ -56,12 +56,12 @@ void CgnsZbase::CloseCgnsFile()
     this->cgnsFile->CloseCgnsFile();
 }
 
-int CgnsZbase::GetNZones()
+int CgnsZbase::GetNZones() const
 {
     int nZones = 0;
     for ( size_t iBase = 0; iBase < this->baseVector.size(); ++ iBase )
     {
-        CgnsBase * cgnsBase = this->GetCgnsBase( static_cast< int >( iBase ) );
+        const CgnsBase * cgnsBase = this->GetCgnsBase( static_cast< int >( iBase ) );
         nZones += cgnsBase->GetNZones();
     }
     return nZones;
@@ -213,6 +213,16 @@ CgnsBase * CgnsZbase::GetCgnsBase( int iBase )
     return this->baseVector[ static_cast< size_t >( iBase ) ].get();
 }
 
+const CgnsBase * CgnsZbase::GetCgnsBase( int iBase ) const
+{
+    if ( iBase < 0 || static_cast< size_t >( iBase ) >= this->baseVector.size() )
+    {
+        throw std::out_of_range( "CgnsZbase::GetCgnsBase: base index is out of range" );
+    }
+
+    return this->baseVector[ static_cast< size_t >( iBase ) ].get();
+}
+
 CgnsZone * CgnsZbase::GetCgnsZone( int globalZoneId )
 {
     if ( globalZoneId < 0 )
@@ -237,11 +247,41 @@ CgnsZone * CgnsZbase::GetCgnsZone( int globalZoneId )
     Fatal( "CgnsZbase global zone index is out of range." );
 }
 
+const CgnsZone * CgnsZbase::GetCgnsZone( int globalZoneId ) const
+{
+    if ( globalZoneId < 0 )
+    {
+        Fatal( "CgnsZbase global zone index cannot be negative." );
+    }
+
+    int zoneOffset = globalZoneId;
+    for ( size_t iBase = 0; iBase < this->baseVector.size(); ++ iBase )
+    {
+        const CgnsBase * cgnsBase = this->GetCgnsBase( static_cast< int >( iBase ) );
+        const int nZones = cgnsBase->GetNZones();
+
+        if ( zoneOffset < nZones )
+        {
+            return cgnsBase->GetCgnsZone( zoneOffset );
+        }
+
+        zoneOffset -= nZones;
+    }
+
+    Fatal( "CgnsZbase global zone index is out of range." );
+}
+
 CgnsZone * CgnsZbase::GetMultiBaseCgnsZone( int iBase, int iZone )
 {
     CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
     CgnsZone * cgnsZone = cgnsBase->GetCgnsZone( iZone );
     return cgnsZone;
+}
+
+const CgnsZone * CgnsZbase::GetMultiBaseCgnsZone( int iBase, int iZone ) const
+{
+    const CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
+    return cgnsBase->GetCgnsZone( iZone );
 }
 
 #endif

@@ -70,13 +70,13 @@ int CgnsZsection::GetNSections() const
     return static_cast< int >( this->cgnsSections.size() );
 }
 
-bool CgnsZsection::ExistSection( const std::string & sectionName )
+bool CgnsZsection::ExistSection( const std::string & sectionName ) const
 {
     if ( this->cgnsSections.size() == 0 ) return false;
     const int nSections = this->GetNSections();
     for ( int iSection = 0; iSection < nSections; ++ iSection )
     {
-        CgnsSection & cgnsSection = this->GetCgnsSection( iSection );
+        const CgnsSection & cgnsSection = this->GetCgnsSection( iSection );
         if ( cgnsSection.sectionName == sectionName ) return true;
     }
     return false;

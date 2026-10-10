@@ -58,10 +58,13 @@ public:
     CgnsBase * CreateCgnsBase();
     void InitCgnsBase();
 public:
-    int GetNZones();
+    int GetNZones() const;
     CgnsBase * GetCgnsBase( int iBase );
+    const CgnsBase * GetCgnsBase( int iBase ) const;
     CgnsZone * GetCgnsZone( int globalZoneId );
+    const CgnsZone * GetCgnsZone( int globalZoneId ) const;
     CgnsZone * GetMultiBaseCgnsZone( int iBase, int iZone );
+    const CgnsZone * GetMultiBaseCgnsZone( int iBase, int iZone ) const;
 public:
     void FreeCgnsBases();
     void CreateCgnsZones( int nZones = 0 );
