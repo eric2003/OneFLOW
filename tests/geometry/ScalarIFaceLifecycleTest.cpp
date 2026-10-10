@@ -35,6 +35,22 @@ TEST(ScalarIFaceLifecycleTest, ReadOnlyQueriesCanUseConstInterface)
     EXPECT_EQ(readOnlyInterface.FindINeibor(9), -1);
 }
 
+TEST(ScalarIFaceLifecycleTest, CalculatesLocalIdsFromReadOnlyGlobalIds)
+{
+    ONEFLOW::ScalarIFace interfaceData;
+    interfaceData.AddInterface(100, 2, 7);
+    interfaceData.ReconstructNeighbor();
+
+    const std::vector<int> globalFaces{100};
+    std::vector<int> localFaces;
+    interfaceData.CalcLocalInterfaceId(2, globalFaces, localFaces);
+
+    ASSERT_EQ(localFaces.size(), 1u);
+    EXPECT_EQ(localFaces[0], 0);
+    ASSERT_EQ(interfaceData.data[0].recv_ifaces.size(), 1u);
+    EXPECT_EQ(interfaceData.data[0].recv_ifaces[0], 0);
+}
+
 TEST(ScalarIFaceLifecycleTest, RejectsDuplicateInterfaceWithoutChangingState)
 {
     ONEFLOW::ScalarIFace interfaceData;
