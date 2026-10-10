@@ -26,6 +26,7 @@ License
 #include "CgnsFile.h"
 #include "Fatal.h"
 #include <iostream>
+#include <stdexcept>
 #include <utility>
 
 BeginNameSpace( ONEFLOW )
@@ -194,7 +195,12 @@ void CgnsZbase::InitCgnsBase()
 
 CgnsBase * CgnsZbase::GetCgnsBase( int iBase )
 {
-    return baseVector[ iBase ].get();
+    if ( iBase < 0 || static_cast< size_t >( iBase ) >= this->baseVector.size() )
+    {
+        throw std::out_of_range( "CgnsZbase::GetCgnsBase: base index is out of range" );
+    }
+
+    return this->baseVector[ static_cast< size_t >( iBase ) ].get();
 }
 
 CgnsZone * CgnsZbase::GetCgnsZone( int globalZoneId )
