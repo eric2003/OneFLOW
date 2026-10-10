@@ -30,20 +30,19 @@ BeginNameSpace( ONEFLOW )
 
 class Task;
 
+// Command owns its Tasks via unique_ptr. Execution order is the order of
+// AddTask() calls (index order in the owner vector).
 class Command
 {
 public:
-    using TList = HXVector< Task * >;
     using TaskOwnerList = HXVector< std::unique_ptr< Task > >;
 
 public:
-    Command();
-    virtual ~Command();
+    Command() = default;
+    virtual ~Command() = default;
 
     Command( const Command & ) = delete;
     Command & operator=( const Command & ) = delete;
-
-    // Moving is disabled because task ownership and task order are maintained separately.
     Command( Command && ) = delete;
     Command & operator=( Command && ) = delete;
 
@@ -51,24 +50,20 @@ public:
     virtual void Execute() = 0;
 
 public:
-    // Return a read-only view of the task list.
-    const TList * GetTaskList() const
+    // Non-owning accessors (order == ownership vector order).
+    HXSize_t GetTaskCount() const { return ownedTasks_.size(); }
+    Task * GetTask( HXSize_t index ) const
     {
-        return & taskList_;
+        return ownedTasks_[ index ].get();
     }
 
-    // Takes ownership of the raw Task pointer.
-    // This overload preserves compatibility with existing code.
+    // Takes ownership of the raw Task pointer (legacy compatibility).
     void AddTask( Task * task );
 
     // Preferred RAII interface for new code.
     void AddTask( std::unique_ptr< Task > task );
 
 private:
-    // Non-owning task references used to preserve execution order.
-    TList taskList_;
-
-    // Actual owner of all Tasks stored by this Command.
     TaskOwnerList ownedTasks_;
 };
 
@@ -84,25 +79,27 @@ public:
 class SimpleCmd : public Command
 {
 public:
-    SimpleCmd();
-    ~SimpleCmd() override;
+    SimpleCmd() = default;
+    ~SimpleCmd() override = default;
 
     void Execute() override;
 };
 
+// Process-wide command queue. Owns every queued Command via unique_ptr.
+// Execution order is the order of AddCmd() (index order in the owner vector).
+// There is no parallel non-owning pointer list.
 class CMD
 {
 public:
-    CMD();
-    ~CMD();
+    CMD() = default;
+    ~CMD() = default;
 
 public:
     static void Init();
     static void Free();
 
 public:
-    // Takes ownership of the raw Command pointer.
-    // This overload preserves compatibility with existing code.
+    // Takes ownership of the raw Command pointer (legacy compatibility).
     static void AddCmd( Command * cmd );
 
     // Preferred RAII interface for new code.
@@ -120,20 +117,17 @@ public:
     static void ShowCmdInfo( Command * cmd, int iCmd );
 
     // Dump the current command queue without changing execution state.
-    static void DumpCommandQueue(
-        std::ostream & output );
+    static void DumpCommandQueue( std::ostream & output );
 
-    // Return a read-only view of the current command queue.
-    static const HXVector< Command * > * GetCmdList();
+    // Non-owning accessors into the owned queue.
+    // GetCmdCount() == 0 when uninitialized or empty after Clear/Free.
+    static HXSize_t GetCmdCount();
+    static Command * GetCmd( HXSize_t index );
 
 private:
-    using CommandOwnerList =
-        HXVector< std::unique_ptr< Command > >;
+    using CommandOwnerList = HXVector< std::unique_ptr< Command > >;
 
-    // Non-owning view used to preserve command execution order.
-    static std::unique_ptr< HXVector< Command * > > cmdList_;
-
-    // Actual owner of all commands currently in the queue.
+    // Sole owner of all commands currently in the queue.
     static std::unique_ptr< CommandOwnerList > commandOwners;
 };
 
