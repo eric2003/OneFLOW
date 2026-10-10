@@ -443,22 +443,26 @@ void CgnsBase::ReadCgnsZones()
         throw std::logic_error( "CgnsBase::ReadCgnsZones: zones have already been read or allocated" );
     }
 
+    this->nZones = 0;
     this->ReadNumberOfCgnsZones();
-    if ( this->nZones < 0 )
-    {
-        throw std::runtime_error( "CgnsBase::ReadCgnsZones: CGNS returned a negative zone count" );
-    }
+    const int zoneCount = this->nZones;
+    this->nZones = 0;
 
-    for ( int iZone = 0; iZone < this->nZones; ++ iZone )
-    {
-        int zoneId = iZone + 1;
+    // Publish the zone list only after every zone has valid basic metadata.
+    HXVector< std::unique_ptr< CgnsZone > > stagedZones;
+    stagedZones.reserve( static_cast< size_t >( zoneCount ) );
 
+    for ( int iZone = 0; iZone < zoneCount; ++ iZone )
+    {
         auto cgnsZone = std::make_unique< CgnsZone >( *this );
         CgnsZone * zone = cgnsZone.get();
-        zone->zId = zoneId;
-        this->AddCgnsZone( std::move( cgnsZone ) );
+        zone->zId = iZone + 1;
         zone->ReadCgnsZoneBasicInfo();
+        stagedZones.push_back( std::move( cgnsZone ) );
     }
+
+    this->cgnsZones.swap( stagedZones );
+    this->nZones = zoneCount;
 }
 
 void CgnsBase::ReadFlowEqn()
