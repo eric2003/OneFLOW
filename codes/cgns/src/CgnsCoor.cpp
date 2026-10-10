@@ -164,16 +164,51 @@ void CgnsCoor::SetAllCoorData()
 
 void CgnsCoor::CopyCoorData( CgnsCoor * cgnsCoorIn )
 {
-    for ( int iCoor = 0; iCoor < this->nCoor; ++ iCoor )
+    if ( cgnsCoorIn == nullptr )
     {
-        int nNodes = this->nNodeList[ iCoor ];
-        DataType_t dataType = this->typeList[ iCoor ];
+        throw std::invalid_argument( "CgnsCoor::CopyCoorData: source is null" );
+    }
+    if ( cgnsCoorIn == this )
+    {
+        throw std::logic_error( "CgnsCoor::CopyCoorData: self-copy is not supported" );
+    }
+
+    const int coordinateCount = this->nCoor;
+    if ( coordinateCount <= 0 || coordinateCount > this->ndim ||
+         cgnsCoorIn->nCoor != coordinateCount ||
+         this->typeList.size() < coordinateCount ||
+         this->nNodeList.size() < coordinateCount ||
+         this->coor.size() < coordinateCount ||
+         cgnsCoorIn->typeList.size() < coordinateCount ||
+         cgnsCoorIn->nNodeList.size() < coordinateCount ||
+         cgnsCoorIn->coor.size() < coordinateCount )
+    {
+        throw std::runtime_error( "CgnsCoor::CopyCoorData: inconsistent coordinate metadata" );
+    }
+
+    for ( int iCoor = 0; iCoor < coordinateCount; ++ iCoor )
+    {
+        const int nNodes = this->nNodeList[ iCoor ];
+        const DataType_t dataType = this->typeList[ iCoor ];
+        if ( nNodes <= 0 || cgnsCoorIn->nNodeList[ iCoor ] != nNodes ||
+             cgnsCoorIn->typeList[ iCoor ] != dataType ||
+             ( dataType != RealSingle && dataType != RealDouble ) ||
+             cgnsCoorIn->coor[ iCoor ] == nullptr )
+        {
+            throw std::runtime_error( "CgnsCoor::CopyCoorData: incompatible coordinate buffer" );
+        }
+    }
+
+    for ( int iCoor = 0; iCoor < coordinateCount; ++ iCoor )
+    {
+        const int nNodes = this->nNodeList[ iCoor ];
+        const DataType_t dataType = this->typeList[ iCoor ];
         this->Alloc( iCoor, nNodes, dataType );
 
         if ( dataType == RealSingle )
         {
             float * data = static_cast<float *>( this->coor[ iCoor ] );
-            float * dataIn = static_cast<float *>( cgnsCoorIn->coor[ iCoor ] );
+            const float * dataIn = static_cast<const float *>( cgnsCoorIn->coor[ iCoor ] );
             for ( int iNode = 0; iNode < nNodes; ++ iNode )
             {
                 data[ iNode ] = dataIn[ iNode ];
@@ -182,7 +217,7 @@ void CgnsCoor::CopyCoorData( CgnsCoor * cgnsCoorIn )
         else
         {
             double * data = static_cast<double *>( this->coor[ iCoor ] );
-            double * dataIn = static_cast<double *>( cgnsCoorIn->coor[ iCoor ] );
+            const double * dataIn = static_cast<const double *>( cgnsCoorIn->coor[ iCoor ] );
             for ( int iNode = 0; iNode < nNodes; ++ iNode )
             {
                 data[ iNode ] = dataIn[ iNode ];
@@ -282,28 +317,24 @@ void CgnsCoor::ReadCgnsGridCoordinates()
 }
 void CgnsCoor::ReadCgnsGridCoordinates( CgnsCoor * cgnsCoorIn )
 {
-    //Determine the number and names of the coordinates.
-    int fileId = this->cgnsZone.cgnsBase.cgnsFile->fileId;
-    int baseId = this->cgnsZone.cgnsBase.baseId;
-    int zoneId = this->cgnsZone.zId;
+    if ( cgnsCoorIn == nullptr )
+    {
+        throw std::invalid_argument( "CgnsCoor::ReadCgnsGridCoordinates: source is null" );
+    }
+    if ( cgnsCoorIn == this )
+    {
+        throw std::logic_error( "CgnsCoor::ReadCgnsGridCoordinates: self-copy is not supported" );
+    }
 
-    std::cout << " this->nCoor = " << this->nCoor << "\n";
+    NodeMesh & nodeMesh = this->RequireNodeMesh();
+    NodeMesh & nodeMeshIn = cgnsCoorIn->RequireNodeMesh();
+
     this->nCoor = cgnsCoorIn->nCoor;
-    std::cout << " this->nCoor = " << this->nCoor << "\n";
-
-    int nNodes = this->GetNNode();
-
-    std::cout << " this->nNodes = " << this->nNodes << "\n";
-
     this->typeList = cgnsCoorIn->typeList;
     this->nNodeList = cgnsCoorIn->nNodeList;
     this->coorNameList = cgnsCoorIn->coorNameList;
     this->CopyCoorData( cgnsCoorIn );
-
-    NodeMesh * nodeMesh = this->GetNodeMesh();
-    NodeMesh * nodeMeshIn = cgnsCoorIn->GetNodeMesh();
-
-    * nodeMesh = * nodeMeshIn;
+    nodeMesh = nodeMeshIn;
 }
 
 void CgnsCoor::DumpCgnsGridCoordinates()
