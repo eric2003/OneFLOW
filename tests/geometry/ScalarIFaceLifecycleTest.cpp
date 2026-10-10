@@ -51,6 +51,26 @@ TEST(ScalarIFaceLifecycleTest, CalculatesLocalIdsFromReadOnlyGlobalIds)
     EXPECT_EQ(interfaceData.data[0].recv_ifaces[0], 0);
 }
 
+TEST(ScalarIFaceLifecycleTest, RejectsNonReciprocalMapsBeforeAddingInterface)
+{
+    ONEFLOW::ScalarIFace interfaceData;
+    interfaceData.AddInterface(100, 2, 7);
+
+    // Equal map sizes are not sufficient: the two directions must describe
+    // the same local/global interface identity.
+    interfaceData.local_to_global_interfaces[0] = 999;
+
+    EXPECT_THROW(interfaceData.AddInterface(105, 3, 9), std::logic_error);
+
+    ASSERT_EQ(interfaceData.iglobalfaces.size(), 1u);
+    EXPECT_EQ(interfaceData.iglobalfaces[0], 100);
+    EXPECT_EQ(interfaceData.zones.size(), 1u);
+    EXPECT_EQ(interfaceData.cells.size(), 1u);
+    EXPECT_EQ(interfaceData.global_to_local_interfaces.size(), 1u);
+    EXPECT_EQ(interfaceData.local_to_global_interfaces.at(0), 999);
+    EXPECT_EQ(interfaceData.global_to_local_interfaces.count(105), 0u);
+}
+
 TEST(ScalarIFaceLifecycleTest, RejectsDuplicateInterfaceWithoutChangingState)
 {
     ONEFLOW::ScalarIFace interfaceData;

@@ -101,6 +101,23 @@ void ScalarIFace::AddInterface( int global_interface_id, int neighbor_zoneid, in
     {
         throw std::logic_error( "ScalarIFace::AddInterface: existing interface mappings are inconsistent" );
     }
+
+    // Validate both directions, not just container sizes: these public legacy
+    // maps can otherwise contain stale or cross-wired IDs with matching counts.
+    for ( size_t iInterface = 0; iInterface < nInterfaces; ++ iInterface )
+    {
+        const int globalId = this->iglobalfaces[ iInterface ];
+        const auto globalEntry = this->global_to_local_interfaces.find( globalId );
+        const auto localEntry = this->local_to_global_interfaces.find( static_cast< int >( iInterface ) );
+        if ( globalEntry == this->global_to_local_interfaces.end() ||
+             globalEntry->second != static_cast< int >( iInterface ) ||
+             localEntry == this->local_to_global_interfaces.end() ||
+             localEntry->second != globalId )
+        {
+            throw std::logic_error( "ScalarIFace::AddInterface: existing interface maps are not reciprocal" );
+        }
+    }
+
     if ( this->global_to_local_interfaces.find( global_interface_id ) != this->global_to_local_interfaces.end() )
     {
         throw std::invalid_argument( "ScalarIFace::AddInterface: duplicate global interface ID" );
