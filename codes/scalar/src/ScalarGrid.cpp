@@ -730,10 +730,31 @@ void ScalarGrid::ReadFromCgnsZone( CgnsZone & cgnsZone )
 
 void ScalarGrid::PushElement( CgIntField & eNodeId, int eType )
 {
-	IntList elem;
-	for ( int i = 0; i < eNodeId.size(); ++ i )
+	if ( eType < 0 || eType >= NofValidElementTypes ||
+		 ! ONEFLOW::IsBasicVolumeElementType( eType ) )
 	{
-		elem.AddData( eNodeId[ i ] - 1 );
+		throw std::invalid_argument( "ScalarGrid::PushElement: invalid volume element type" );
+	}
+
+	const int expectedNodeCount = ONEFLOW::GetElementNodeNumbers( eType );
+	if ( expectedNodeCount <= 0 || eNodeId.size() != static_cast< size_t >( expectedNodeCount ) )
+	{
+		throw std::invalid_argument( "ScalarGrid::PushElement: connectivity does not match the element type" );
+	}
+
+	// CGNS connectivity is one-based; validate it before converting to internal indices.
+	for ( int nodeId : eNodeId )
+	{
+		if ( nodeId <= 0 )
+		{
+			throw std::invalid_argument( "ScalarGrid::PushElement: CGNS node indices must be positive" );
+		}
+	}
+
+	IntList elem;
+	for ( int nodeId : eNodeId )
+	{
+		elem.AddData( nodeId - 1 );
 	}
 
 	this->elements.AddElem( elem );
