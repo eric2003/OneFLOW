@@ -109,6 +109,11 @@ void FaceSearch::CalcNewFaceId( IFaceLink & iFaceLink )
 
 void FaceSearch::SplitQuad2Tri( int faceId )
 {
+    if ( faceId < 0 || static_cast< size_t >( faceId ) >= this->faceArray.size() )
+    {
+        throw std::out_of_range( "FaceSearch::SplitQuad2Tri: face ID is out of range" );
+    }
+
     const IntField & nodeId = this->faceArray[ faceId ];
     int nNodes = nodeId.size();
     if ( nNodes != 4 ) return;
@@ -134,6 +139,11 @@ void FaceSearch::SplitQuad2Tri( int faceId )
 
 void FaceSearch::SplitLine( int faceId )
 {
+    if ( faceId < 0 || static_cast< size_t >( faceId ) >= this->faceArray.size() )
+    {
+        throw std::out_of_range( "FaceSearch::SplitLine: face ID is out of range" );
+    }
+
     const IntField & nodeId = this->faceArray[ faceId ];
     int nNodes = nodeId.size();
     if ( nNodes != 2 ) return;
