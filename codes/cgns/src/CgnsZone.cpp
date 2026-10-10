@@ -315,7 +315,7 @@ void CgnsZone::DumpCgnsZoneNameAndGeneralizedDimension()
     int zoneId = -1;
     const int status = cg_zone_write(
         this->cgnsBase.cgnsFile->fileId, this->cgnsBase.baseId,
-        this->zoneName.c_str(), this->isize, this->cgnsZoneType, &this->zId );
+        this->zoneName.c_str(), this->isize, this->cgnsZoneType, &zoneId );
     if ( status != CG_OK )
     {
         throw std::runtime_error(
