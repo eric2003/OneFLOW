@@ -100,11 +100,19 @@ void FaceTopo::BindGrid( Grid & grid )
 
 Grid & FaceTopo::GetGrid()
 {
+    if ( ! this->grid )
+    {
+        throw std::logic_error( "FaceTopo::GetGrid: grid is not bound" );
+    }
     return *this->grid;
 }
 
 const Grid & FaceTopo::GetGrid() const
 {
+    if ( ! this->grid )
+    {
+        throw std::logic_error( "FaceTopo::GetGrid: grid is not bound" );
+    }
     return *this->grid;
 }
 

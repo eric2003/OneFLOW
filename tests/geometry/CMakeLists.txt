@@ -230,6 +230,7 @@ add_oneflow_gtest(PointLocatorLifecycleTest PointLocatorLifecycleTest.cpp)
 add_oneflow_gtest(PointMachineLifecycleTest PointMachineLifecycleTest.cpp)
 add_oneflow_gtest(CellMeshLifecycleTest CellMeshLifecycleTest.cpp)
 add_oneflow_gtest(BcManagerLifecycleTest BcManagerLifecycleTest.cpp)
+add_oneflow_gtest(FaceTopoLifecycleTest FaceTopoLifecycleTest.cpp)
 add_oneflow_gtest(GridElemLifecycleTest GridElemLifecycleTest.cpp)
 add_oneflow_gtest(ScalarIFaceLifecycleTest ScalarIFaceLifecycleTest.cpp)
 
