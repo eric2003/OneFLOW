@@ -91,6 +91,11 @@ SlipfacePair * SlipFace::GetSlipfacePair( int iNei )
     return this->slipfacePairs[ iNei ].get();
 }
 
+const SlipfacePair * SlipFace::GetSlipfacePair( int iNei ) const
+{
+    return this->slipfacePairs[ iNei ].get();
+}
+
 void SlipFace::InitNeighborZoneInfo()
 {
     int nZone = ZoneState::nZones;
@@ -418,16 +423,6 @@ void InitSlipFaceTopo()
     FreeSlip();
 
 
-}
-
-SlipfacePair::SlipfacePair()
-{
-    ;
-}
-
-SlipfacePair::~SlipfacePair()
-{
-    ;
 }
 
 SlipFaceTopo::SlipFaceTopo()

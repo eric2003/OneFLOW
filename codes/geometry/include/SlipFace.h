@@ -61,6 +61,7 @@ public:
     int   nNeighbor;     //no of neighbors
     HXVector< std::unique_ptr< SlipfacePair > > slipfacePairs;
     SlipfacePair * GetSlipfacePair( int iNei );
+    const SlipfacePair * GetSlipfacePair( int iNei ) const;
     void InitNeighborZoneInfo();
     void InitNeighborZoneInfo( int iNei, int iZone );
     void InitNeighborFlag( IntField & flags );
@@ -110,8 +111,8 @@ void InitSlipFaceTopo();
 class SlipfacePair
 {
 public:
-    SlipfacePair();
-    ~SlipfacePair();
+    SlipfacePair() = default;
+    ~SlipfacePair() = default;
 public:
     //zid, nzid is the block number of the neighboring block (neighbor)
     int zid, nzid;
