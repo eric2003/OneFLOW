@@ -29,6 +29,7 @@ License
 #include <algorithm>
 #include <limits>
 #include <stdexcept>
+#include <unordered_set>
 
 
 BeginNameSpace( ONEFLOW )
@@ -135,6 +136,39 @@ void FaceSolver::ScanPolyhedronElement( CgnsSection & cgnsSection )
          static_cast< std::size_t >( cgnsSection.nElement ) + 1 > offsets.size() )
     {
         throw std::runtime_error( "FaceSolver::ScanPolyhedronElement: element offsets are incomplete" );
+    }
+
+    // Validate the complete section before changing cell adjacency.
+    for ( int iElem = 0; iElem < cgnsSection.nElement; ++ iElem )
+    {
+        const CgInt start = offsets[ iElem ];
+        const CgInt end = offsets[ iElem + 1 ];
+        if ( start < 0 || end < start ||
+             static_cast< std::size_t >( end ) > connectivity.size() )
+        {
+            throw std::runtime_error( "FaceSolver::ScanPolyhedronElement: connectivity span is invalid" );
+        }
+
+        std::unordered_set< std::size_t > referencedFaces;
+        for ( CgInt i = start; i < end; ++ i )
+        {
+            const CgInt signedFaceId = connectivity[ static_cast< std::size_t >( i ) ];
+            if ( signedFaceId == std::numeric_limits< CgInt >::min() )
+            {
+                throw std::runtime_error( "FaceSolver::ScanPolyhedronElement: face reference is out of range" );
+            }
+
+            const CgInt faceId = signedFaceId < 0 ? -signedFaceId : signedFaceId;
+            if ( faceId < 0 || static_cast< std::size_t >( faceId ) >= faces.size() )
+            {
+                throw std::runtime_error( "FaceSolver::ScanPolyhedronElement: face reference is out of range" );
+            }
+
+            if ( ! referencedFaces.insert( static_cast< std::size_t >( faceId ) ).second )
+            {
+                throw std::runtime_error( "FaceSolver::ScanPolyhedronElement: polyhedron references the same face more than once" );
+            }
+        }
     }
 
     for ( int iElem = 0; iElem < cgnsSection.nElement; ++ iElem )
