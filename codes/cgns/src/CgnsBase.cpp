@@ -285,10 +285,9 @@ CgnsZone * CgnsBase::WriteZoneInfo( const std::string & zoneName, ZoneType_t zon
 {
     auto cgnsZone = std::make_unique< CgnsZone >( *this );
     CgnsZone * zone = cgnsZone.get();
-    this->AddCgnsZone( std::move( cgnsZone ) );
-
     zone->WriteZoneInfo( zoneName, zoneType, isize );
 
+    this->AddCgnsZone( std::move( cgnsZone ) );
     return zone;
 }
 
