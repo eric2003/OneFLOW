@@ -964,10 +964,44 @@ void ScalarGrid::CalcGhostCellCenterVol1D()
 
 void ScalarGrid::CalcTopology()
 {
+	const int nodeCount = this->GetNNodes();
+	const int cellCount = this->GetNCells();
+
+	if ( this->elements.GetNElements() != static_cast< size_t >( cellCount ) )
+	{
+		throw std::runtime_error( "ScalarGrid::CalcTopology: cell connectivity and element type arrays have inconsistent sizes" );
+	}
+
+	for ( int iCell = 0; iCell < cellCount; ++ iCell )
+	{
+		const int elementType = this->eTypes[ iCell ];
+		if ( elementType < 0 || elementType >= NofValidElementTypes )
+		{
+			throw std::runtime_error( "ScalarGrid::CalcTopology: invalid element type" );
+		}
+
+		const int expectedNodeCount = ONEFLOW::GetElementNodeNumbers( elementType );
+		const std::vector< int > & element = this->elements[ iCell ];
+		if ( expectedNodeCount <= 0 || element.size() != static_cast< size_t >( expectedNodeCount ) )
+		{
+			throw std::runtime_error( "ScalarGrid::CalcTopology: cell connectivity does not match its element type" );
+		}
+
+		for ( int nodeId : element )
+		{
+			if ( nodeId < 0 || nodeId >= nodeCount )
+			{
+				throw std::runtime_error( "ScalarGrid::CalcTopology: cell references an invalid node index" );
+			}
+		}
+	}
+
+	// Validate the input before clearing existing topology so failed rebuilds
+	// do not destroy a previously available topology.
 	this->ResetTopologyData();
 
-	this->nNodes = this->GetNNodes();
-	this->nCells = this->GetNCells();
+	this->nNodes = nodeCount;
+	this->nCells = cellCount;
 
 	// Use HXLookup to manage unique faces (key is automatically sorted)
 	HXLookup<int> faceLookup;
