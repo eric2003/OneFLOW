@@ -142,6 +142,7 @@ void CgnsZbase::ReadNumCgnsBase()
     this->nBases = baseCount;
     std::cout << "   Total number of CGNS Base = " << this->nBases << "\n";
 }
+
 void CgnsZbase::ConvertToInnerDataStandard()
 {
     for ( size_t iBase = 0; iBase < this->baseVector.size(); ++ iBase )
