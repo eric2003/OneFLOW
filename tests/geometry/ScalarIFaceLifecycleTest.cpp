@@ -200,3 +200,14 @@ TEST(ScalarIFaceLifecycleTest, CalcLocalInterfaceIdRejectsCorruptedMapsWithoutCh
     ASSERT_EQ(interfaceData.data[0].recv_ifaces.size(), 1u);
     EXPECT_EQ(interfaceData.data[0].recv_ifaces[0], 42);
 }
+
+TEST(ScalarIFaceLifecycleTest, GetLocalInterfaceIdRejectsCorruptedIdentityMaps)
+{
+    ONEFLOW::ScalarIFace interfaceData;
+    interfaceData.AddInterface(100, 2, 7);
+
+    // Public legacy maps can be modified without going through AddInterface().
+    interfaceData.local_to_global_interfaces[0] = 999;
+
+    EXPECT_THROW(interfaceData.GetLocalInterfaceId(100), std::logic_error);
+}

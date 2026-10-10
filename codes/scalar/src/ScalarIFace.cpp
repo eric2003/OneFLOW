@@ -164,6 +164,9 @@ void ScalarIFace::ValidateInterfaceMappings() const
 
 int ScalarIFace::GetLocalInterfaceId( int global_interface_id ) const
 {
+    // Keep this public lookup consistent with the reciprocal identity-map invariant.
+    this->ValidateInterfaceMappings();
+
     const auto iter = this->global_to_local_interfaces.find( global_interface_id );
     if ( iter == this->global_to_local_interfaces.end() )
     {
