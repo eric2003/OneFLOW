@@ -52,7 +52,7 @@ public:
     std::vector< int > target_ifaces;
     std::vector< int > recv_ifaces;
 public:
-    void WriteInterfaceTopology( DataBook * databook );
+    void WriteInterfaceTopology( DataBook * databook ) const;
     void ReadInterfaceTopology( DataBook * databook );
 };
 
@@ -91,7 +91,7 @@ public:
     void AddInterface( int global_interface_id, int neighbor_zoneid, int neighbor_cellid );
     void ReconstructNeighbor();
 public:
-    void WriteInterfaceTopology( DataBook * databook );
+    void WriteInterfaceTopology( DataBook * databook ) const;
     void ReadInterfaceTopology( DataBook * databook );
 };
 

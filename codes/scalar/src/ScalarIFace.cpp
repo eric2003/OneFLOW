@@ -43,7 +43,7 @@ ScalarIFaceIJ::~ScalarIFaceIJ()
 {
 }
 
-void ScalarIFaceIJ::WriteInterfaceTopology( DataBook * databook )
+void ScalarIFaceIJ::WriteInterfaceTopology( DataBook * databook ) const
 {
     if ( this->ifaces.size() != this->recv_ifaces.size() )
     {
@@ -272,7 +272,7 @@ void ScalarIFace::ReconstructNeighbor()
     data = std::move( reconstructed );
 }
 
-void ScalarIFace::WriteInterfaceTopology( DataBook * databook )
+void ScalarIFace::WriteInterfaceTopology( DataBook * databook ) const
 {
     const size_t nInterfaces = this->zones.size();
     if ( nInterfaces > 0 &&
@@ -301,7 +301,7 @@ void ScalarIFace::WriteInterfaceTopology( DataBook * databook )
         ONEFLOW::HXWrite( databook, nNeis );
         for ( int iNei = 0; iNei < nNeis; ++ iNei )
         {
-            ScalarIFaceIJ & iFaceIJ = data[ iNei ];
+            const ScalarIFaceIJ & iFaceIJ = data[ iNei ];
             iFaceIJ.WriteInterfaceTopology( databook );
         }
     }
