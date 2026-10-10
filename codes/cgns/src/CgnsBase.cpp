@@ -142,13 +142,26 @@ void CgnsBase::ReadCgnsBaseBasicInfo()
 {
     CgnsTraits::char33 cgnsBaseName;
 
-    double double_base_id;
-    cg_base_id( this->cgnsFile->fileId, this->baseId, & double_base_id );
+    double double_base_id = 0.0;
+    const int idStatus = cg_base_id( this->cgnsFile->fileId, this->baseId, & double_base_id );
+    if ( idStatus != CG_OK )
+    {
+        throw std::runtime_error( "CgnsBase::ReadCgnsBaseBasicInfo (cg_base_id): " + std::string( cg_get_error() ) );
+    }
     std::cout << "   double_base_id = " << double_base_id << "\n";
-    //Check the cell and physical dimensions of the bases.
-    cg_base_read( this->cgnsFile->fileId, this->baseId, cgnsBaseName, & this->celldim, & this->phydim );
+
+    int cellDimension = 0;
+    int physicalDimension = 0;
+    const int readStatus = cg_base_read( this->cgnsFile->fileId, this->baseId, cgnsBaseName, & cellDimension, & physicalDimension );
+    if ( readStatus != CG_OK )
+    {
+        throw std::runtime_error( "CgnsBase::ReadCgnsBaseBasicInfo (cg_base_read): " + std::string( cg_get_error() ) );
+    }
+
     this->baseName = cgnsBaseName;
-    std::cout << "   baseId = " << this->baseId << " baseName = " << cgnsBaseName << "\n";
+    this->celldim = cellDimension;
+    this->phydim = physicalDimension;
+    std::cout << "   baseId = " << this->baseId << " baseName = " << this->baseName << "\n";
     std::cout << "   cell dim = " << this->celldim << " physical dim = " << this->phydim << "\n";
 }
 
