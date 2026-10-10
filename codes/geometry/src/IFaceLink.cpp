@@ -272,6 +272,12 @@ void IFaceLink::MatchPeriodicInterface( Grid & grid )
                 "IFaceLink::MatchPeriodicInterface: periodic face mapping is out of range" );
         }
 
+        if ( static_cast< size_t >( faceId_period ) >= this->face_search->faceArray.size() )
+        {
+            throw std::logic_error(
+                "IFaceLink::MatchPeriodicInterface: periodic face ID is out of range" );
+        }
+
         const IntField & periodicZones = this->gI2Zid[ faceId_period ];
         const IntField & periodicLocalIds = this->g2l[ faceId_period ];
         if ( periodicZones.size() != periodicLocalIds.size() )
