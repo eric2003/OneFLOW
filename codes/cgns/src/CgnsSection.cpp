@@ -102,19 +102,38 @@ void CgnsSection::ConvertToInnerDataStandard()
 
 CgInt * CgnsSection::GetAddress( CgInt eId )
 {
-    const int elementOffset = this->eType == MIXED ? 1 : this->pos_shift;
-    int pos = this->ePosList[ eId ] + elementOffset;
-    return & this->connList[ pos ];
+    if ( eId < 0 || eId >= this->nElement ||
+         static_cast< size_t >( eId + 1 ) >= this->ePosList.size() ||
+         static_cast< size_t >( eId ) >= this->eTypeList.size() )
+    {
+        throw std::runtime_error( "CgnsSection::GetAddress: element index is out of range" );
+    }
+
+    const int eNodeNumber = ONEFLOW::GetElementNodeNumbers( this->eTypeList[ eId ] );
+    const CgInt pos = this->ePosList[ eId ] + ( this->eType == MIXED ? 1 : this->pos_shift );
+    if ( eNodeNumber <= 0 || pos < 0 ||
+         static_cast< size_t >( pos ) > this->connList.size() ||
+         static_cast< size_t >( eNodeNumber ) > this->connList.size() - static_cast< size_t >( pos ) )
+    {
+        throw std::runtime_error( "CgnsSection::GetAddress: element connectivity span is invalid" );
+    }
+
+    return & this->connList[ static_cast< size_t >( pos ) ];
 }
 
 void CgnsSection::GetElementNodeId( CgInt eId, CgIntField & eNodeId )
 {
+    if ( eId < 0 || eId >= this->nElement )
+    {
+        throw std::runtime_error( "CgnsSection::GetElementNodeId: element index is out of range" );
+    }
+
+    eNodeId.resize( 0 );
     if ( this->eType != NGON_n )
     {
-        int eNodeNumber = ONEFLOW::GetElementNodeNumbers( this->eTypeList[ eId ] );
+        const int eNodeNumber = ONEFLOW::GetElementNodeNumbers( this->eTypeList[ eId ] );
         CgInt * eAddress = this->GetAddress( eId );
 
-        eNodeId.resize( 0 );
         for ( int iNode = 0; iNode < eNodeNumber; ++ iNode )
         {
             eNodeId.push_back( eAddress[ iNode ] );
@@ -122,15 +141,23 @@ void CgnsSection::GetElementNodeId( CgInt eId, CgIntField & eNodeId )
     }
     else
     {
-        //PolygonFace NGON_n
-        int st = this->ePosList[ eId ];
-        int ed = this->ePosList[ eId + 1 ];
-        int nNode = ed - st;
-        eNodeId.resize( 0 );
-        for ( int i = st; i < ed; ++ i )
+        // Polygon offsets delimit a variable-length node list for each face.
+        if ( static_cast< size_t >( eId + 1 ) >= this->ePosList.size() )
         {
-            int node = this->connList[ i ];
-            eNodeId.push_back( node );
+            throw std::runtime_error( "CgnsSection::GetElementNodeId: NGON offsets are incomplete" );
+        }
+
+        const CgInt start = this->ePosList[ eId ];
+        const CgInt end = this->ePosList[ eId + 1 ];
+        if ( start < 0 || end < start ||
+             static_cast< size_t >( end ) > this->connList.size() )
+        {
+            throw std::runtime_error( "CgnsSection::GetElementNodeId: NGON connectivity span is invalid" );
+        }
+
+        for ( CgInt i = start; i < end; ++ i )
+        {
+            eNodeId.push_back( this->connList[ static_cast< size_t >( i ) ] );
         }
     }
 }
