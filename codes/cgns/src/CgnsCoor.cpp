@@ -202,7 +202,9 @@ void CgnsCoor::DeAlloc()
 
 void CgnsCoor::ReadCgnsGridCoordinates()
 {
-    // Determine the number and names of the coordinates.
+    // Validate the mesh destination before changing the coordinate state.
+    NodeMesh & nodeMesh = this->RequireNodeMesh();
+
     int fileId = this->cgnsZone.cgnsBase.cgnsFile->fileId;
     int baseId = this->cgnsZone.cgnsBase.baseId;
     int zoneId = this->cgnsZone.zId;
@@ -220,44 +222,49 @@ void CgnsCoor::ReadCgnsGridCoordinates()
         throw std::runtime_error(
             "CgnsCoor::ReadCgnsGridCoordinates: coordinate count exceeds supported dimensions" );
     }
-    this->nCoor = coordinateCount;
-    std::cout << "   this->nCoor = " << this->nCoor << "\n";
 
     int nNodes = static_cast<int>( this->GetNNode() );
 
-    for ( int iCoor = 0; iCoor < this->nCoor; ++ iCoor )
+    try
     {
-        DataType_t dataType;
-        CgnsTraits::char33 coorName = {};
-        int coordId = iCoor + 1;
-        result = cg_coord_info( fileId, baseId, zoneId, coordId, &dataType, coorName );
-        if ( result != CG_OK )
+        for ( int iCoor = 0; iCoor < coordinateCount; ++ iCoor )
         {
-            throw std::runtime_error(
-                "CgnsCoor::ReadCgnsGridCoordinates: failed to read coordinate metadata: " +
-                std::string( cg_get_error() ) );
+            DataType_t dataType;
+            CgnsTraits::char33 coorName = {};
+            int coordId = iCoor + 1;
+            result = cg_coord_info( fileId, baseId, zoneId, coordId, &dataType, coorName );
+            if ( result != CG_OK )
+            {
+                throw std::runtime_error(
+                    "CgnsCoor::ReadCgnsGridCoordinates: failed to read coordinate metadata: " +
+                    std::string( cg_get_error() ) );
+            }
+
+            std::cout << "   coorName = " << coorName << " dataType = " << dataType << " dataTypeName = " << DataTypeName[ dataType ] << "\n";
+            this->typeList[ iCoor ] = dataType;
+            this->nNodeList[ iCoor ] = nNodes;
+            this->coorNameList[ iCoor ] = coorName;
+            this->Alloc( iCoor, nNodes, dataType );
+
+            result = cg_coord_read( fileId, baseId, zoneId, coorName, dataType, this->irmin, this->irmax, this->GetCoor( iCoor ) );
+            if ( result != CG_OK )
+            {
+                throw std::runtime_error(
+                    "CgnsCoor::ReadCgnsGridCoordinates: failed to read coordinate '" +
+                    std::string( coorName ) + "': " + cg_get_error() );
+            }
         }
 
-        std::cout << "   coorName = " << coorName << " dataType = " << dataType << " dataTypeName = " << DataTypeName[ dataType ] << "\n";
-        this->typeList[ iCoor ] = dataType;
-        this->nNodeList[ iCoor ] = nNodes;
-        this->coorNameList[ iCoor ] = coorName;
-        this->Alloc( iCoor, nNodes, dataType );
-
-        // Read the coordinate values.
-        result = cg_coord_read( fileId, baseId, zoneId, coorName, dataType, this->irmin, this->irmax, this->GetCoor( iCoor ) );
-        if ( result != CG_OK )
-        {
-            throw std::runtime_error(
-                "CgnsCoor::ReadCgnsGridCoordinates: failed to read coordinate '" +
-                std::string( coorName ) + "': " + cg_get_error() );
-        }
+        this->nCoor = coordinateCount;
+        nodeMesh.CreateNodes( nNodes );
+        this->SetAllData( nodeMesh.xN, nodeMesh.yN, nodeMesh.zN );
     }
-
-    NodeMesh * nodeMesh = this->GetNodeMesh();
-    nodeMesh->CreateNodes( nNodes );
-
-    this->SetAllData( nodeMesh->xN, nodeMesh->yN, nodeMesh->zN );
+    catch ( ... )
+    {
+        this->DeAlloc();
+        this->nCoor = 0;
+        throw;
+    }
 }
 void CgnsCoor::ReadCgnsGridCoordinates( CgnsCoor * cgnsCoorIn )
 {
