@@ -432,30 +432,46 @@ void CgnsZone::ProcessPeriodicBc()
 
 void CgnsZone::GoToZone()
 {
-    int fileId = this->cgnsBase.cgnsFile->fileId;
-    int baseId = this->cgnsBase.baseId;
-    cg_goto( fileId, baseId,"Zone_t", this->zId, "end" );
+    const int fileId = this->cgnsBase.cgnsFile->fileId;
+    const int baseId = this->cgnsBase.baseId;
+    const int status = cg_goto( fileId, baseId, "Zone_t", this->zId, "end" );
+    if ( status != CG_OK )
+    {
+        throw std::runtime_error( "CgnsZone::GoToZone (cg_goto): " + std::string( cg_get_error() ) );
+    }
 }
 
 void CgnsZone::GoToNode( const std::string & nodeName, int ith )
 {
-    int fileId = this->cgnsBase.cgnsFile->fileId;
-    int baseId = this->cgnsBase.baseId;
-    cg_goto( fileId, baseId, "Zone_t", this->zId, nodeName.c_str(), ith, "end" );
+    const int fileId = this->cgnsBase.cgnsFile->fileId;
+    const int baseId = this->cgnsBase.baseId;
+    const int status = cg_goto( fileId, baseId, "Zone_t", this->zId, nodeName.c_str(), ith, "end" );
+    if ( status != CG_OK )
+    {
+        throw std::runtime_error( "CgnsZone::GoToNode (cg_goto): " + std::string( cg_get_error() ) );
+    }
 }
 
 void CgnsZone::GoToNode( const std::string & nodeNamei, int ith, const std::string & nodeNamej, int jth )
 {
-    int fileId = this->cgnsBase.cgnsFile->fileId;
-    int baseId = this->cgnsBase.baseId;
-    cg_goto( fileId, baseId, "Zone_t", this->zId, nodeNamei.c_str(), ith, nodeNamej.c_str(), jth, "end" );
+    const int fileId = this->cgnsBase.cgnsFile->fileId;
+    const int baseId = this->cgnsBase.baseId;
+    const int status = cg_goto( fileId, baseId, "Zone_t", this->zId, nodeNamei.c_str(), ith, nodeNamej.c_str(), jth, "end" );
+    if ( status != CG_OK )
+    {
+        throw std::runtime_error( "CgnsZone::GoToNode (cg_goto): " + std::string( cg_get_error() ) );
+    }
 }
 
 void CgnsZone::GoToNode( const std::string & nodeNamei, int ith, const std::string & nodeNamej, int jth, const std::string & nodeNamek, int kth )
 {
-    int fileId = this->cgnsBase.cgnsFile->fileId;
-    int baseId = this->cgnsBase.baseId;
-    cg_goto( fileId, baseId, "Zone_t", this->zId, nodeNamei.c_str(), ith, nodeNamej.c_str(), jth, nodeNamek.c_str(), kth, "end" );
+    const int fileId = this->cgnsBase.cgnsFile->fileId;
+    const int baseId = this->cgnsBase.baseId;
+    const int status = cg_goto( fileId, baseId, "Zone_t", this->zId, nodeNamei.c_str(), ith, nodeNamej.c_str(), jth, nodeNamek.c_str(), kth, "end" );
+    if ( status != CG_OK )
+    {
+        throw std::runtime_error( "CgnsZone::GoToNode (cg_goto): " + std::string( cg_get_error() ) );
+    }
 }
 
 void CgnsZone::ReadFlowEqn()
