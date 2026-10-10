@@ -174,18 +174,23 @@ void CgnsSection::SetElementTypeAndNode( ElemFeature & elem_feature )
         throw std::runtime_error( "CgnsSection::SetElementTypeAndNode: element type data is incomplete" );
     }
 
+    // Stage the section output so invalid connectivity cannot leave the two
+    // parallel element arrays with different lengths.
+    IntField sectionTypes;
+    CgLinkField sectionNodeIds;
+    sectionTypes.reserve( this->nElement );
+    sectionNodeIds.reserve( this->nElement );
+
     for ( int iElem = 0; iElem < this->nElement; ++ iElem )
     {
-        int e_type = this->eTypeList[ iElem ];
+        const int e_type = this->eTypeList[ iElem ];
 
         if ( ! ONEFLOW::IsBasicVolumeElementType( e_type ) ) continue;
-
-        elem_feature.eTypes.push_back( e_type );
 
         CgIntField eNodeId;
         this->GetElementNodeId( iElem, eNodeId );
 
-        const int eNodeNumber = ONEFLOW::GetElementNodeNumbers( this->eTypeList[ iElem ] );
+        const int eNodeNumber = ONEFLOW::GetElementNodeNumbers( e_type );
         if ( eNodeId.size() != static_cast< size_t >( eNodeNumber ) )
         {
             throw std::runtime_error( "CgnsSection::SetElementTypeAndNode: element connectivity has an unexpected node count" );
@@ -202,8 +207,17 @@ void CgnsSection::SetElementTypeAndNode( ElemFeature & elem_feature )
             }
             eNodeId[ iNode ] = localToGlobal[ static_cast< size_t >( localNodeId ) ];
         }
-        elem_feature.eNodeId.push_back( eNodeId );
+
+        sectionTypes.push_back( e_type );
+        sectionNodeIds.push_back( std::move( eNodeId ) );
     }
+
+    elem_feature.eTypes.reserve( elem_feature.eTypes.size() + sectionTypes.size() );
+    elem_feature.eNodeId.reserve( elem_feature.eNodeId.size() + sectionNodeIds.size() );
+    elem_feature.eTypes.insert( elem_feature.eTypes.end(), sectionTypes.begin(), sectionTypes.end() );
+    elem_feature.eNodeId.insert( elem_feature.eNodeId.end(),
+                                 std::make_move_iterator( sectionNodeIds.begin() ),
+                                 std::make_move_iterator( sectionNodeIds.end() ) );
 }
 
 void CgnsSection::ReadCgnsSection()
