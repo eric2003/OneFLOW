@@ -26,16 +26,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-Stoichiometric::Stoichiometric()
-{
-    ;
-}
-
-Stoichiometric::~Stoichiometric()
-{
-    ;
-}
-
 void Stoichiometric::Init( int nSpecies, int nReaction )
 {
     this->nSpecies  = nSpecies;

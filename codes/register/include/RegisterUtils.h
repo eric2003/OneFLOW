@@ -36,8 +36,8 @@ BeginNameSpace( ONEFLOW )
 class VarNameSolver
 {
 public:
-    VarNameSolver();
-    ~VarNameSolver();
+    VarNameSolver() = default;
+    ~VarNameSolver() = default;
 public:
     StringField data;
 public:
@@ -53,8 +53,8 @@ class MapIntInt;
 class VarNameFactory
 {
 public:
-    VarNameFactory();
-    ~VarNameFactory();
+    VarNameFactory() = default;
+    ~VarNameFactory() = default;
 
 public:
     static std::unique_ptr< std::map< int, std::unique_ptr<VarNameSolver> > > data;
@@ -96,8 +96,8 @@ public:
 class MapIntInt
 {
 public:
-    MapIntInt();
-    ~MapIntInt();
+    MapIntInt() = default;
+    ~MapIntInt() = default;
 public:
     std::map< DataAB, int, CmpDataAB > data;
 public:

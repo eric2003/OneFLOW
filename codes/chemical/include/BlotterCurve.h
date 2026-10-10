@@ -30,8 +30,8 @@ class DataBook;
 class BlotterCurve
 {
 public:
-    BlotterCurve();
-    ~BlotterCurve();
+    BlotterCurve() = default;
+    ~BlotterCurve() = default;
 public:
     int nSpecies;
     RealField a, b, c, d, e;

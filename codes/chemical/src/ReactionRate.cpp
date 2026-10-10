@@ -26,16 +26,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-ReactionRate::ReactionRate()
-{
-    ;
-}
-
-ReactionRate::~ReactionRate()
-{
-    ;
-}
-
 void ReactionRate::Init( int nReaction )
 {
     this->nReaction = nReaction;

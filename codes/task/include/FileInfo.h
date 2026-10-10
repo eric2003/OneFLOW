@@ -31,8 +31,8 @@ BeginNameSpace( ONEFLOW )
 class FileInfo
 {
 public:
-    FileInfo();
-    ~FileInfo();
+    FileInfo() = default;
+    ~FileInfo() = default;
 public:
     std::string fileName;
     std::ios_base::openmode openMode;

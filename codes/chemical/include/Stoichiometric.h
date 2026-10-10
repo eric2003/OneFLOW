@@ -30,8 +30,8 @@ class DataBook;
 class Stoichiometric
 {
 public:
-    Stoichiometric();
-    ~Stoichiometric();
+    Stoichiometric() = default;
+    ~Stoichiometric() = default;
 public:
     int nSpecies, nReaction;
     //forward and bakward reaction stoichiometric coefficient matrix

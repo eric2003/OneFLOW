@@ -24,15 +24,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-FileInfo::FileInfo()
-{
-    ;
-}
-
-FileInfo::~FileInfo()
-{
-    ;
-}
-
+// FileInfo: defaulted special members (header).
 
 EndNameSpace

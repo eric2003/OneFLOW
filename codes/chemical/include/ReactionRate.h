@@ -30,8 +30,8 @@ class DataBook;
 class ReactionRate
 {
 public:
-    ReactionRate();
-    ~ReactionRate();
+    ReactionRate() = default;
+    ~ReactionRate() = default;
 public:
     int nReaction;
     //forward reaction rate coefficient
