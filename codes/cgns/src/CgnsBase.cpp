@@ -39,13 +39,21 @@ BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
 
 CgnsBase::CgnsBase()
+    : cgnsFile( nullptr ),
+      baseId( 0 ),
+      nZones( 0 ),
+      celldim( 0 ),
+      phydim( 0 )
 {
-    this->cgnsFile = 0;
 }
 
 CgnsBase::CgnsBase( CgnsFile * cgnsFile )
+    : cgnsFile( cgnsFile ),
+      baseId( 0 ),
+      nZones( 0 ),
+      celldim( 0 ),
+      phydim( 0 )
 {
-    this->cgnsFile = cgnsFile;
 }
 
 CgnsBase::~CgnsBase() = default;
