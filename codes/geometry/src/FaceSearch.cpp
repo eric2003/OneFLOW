@@ -80,10 +80,10 @@ void FaceSearch::CalcNewFaceId( IFaceLink & iFaceLink )
 {
     this->iFaceLink = &iFaceLink;
     int nFaces = this->faceArray.size();
-    this->status.resize( nFaces, -1 );
-    this->cFaceId.resize( nFaces );
-    this->rCNodeId.resize( nFaces );
-    this->rCNodeFlag.resize( nFaces );
+    this->status.assign( nFaces, -1 );
+    this->cFaceId.assign( nFaces, IntField{} );
+    this->rCNodeId.assign( nFaces, IntField{} );
+    this->rCNodeFlag.assign( nFaces, IntField{} );
 
     if ( Dim::dimension == ONEFLOW::THREE_D )
     {
