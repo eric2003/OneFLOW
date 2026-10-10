@@ -118,7 +118,17 @@ void CgnsBase::AddCgnsZone( std::unique_ptr< CgnsZone > cgnsZone )
 
 void CgnsBase::AllocateAllCgnsZones()
 {
-    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    if ( this->nZones < 0 )
+    {
+        throw std::invalid_argument( "CgnsBase::AllocateAllCgnsZones: zone count cannot be negative" );
+    }
+
+    if ( ! this->cgnsZones.empty() )
+    {
+        throw std::logic_error( "CgnsBase::AllocateAllCgnsZones: zones have already been allocated" );
+    }
+
+    for ( int iZone = 0; iZone < this->nZones; ++ iZone )
     {
         auto cgnsZone = std::make_unique< CgnsZone >( *this );
         CgnsZone * zone = cgnsZone.get();
