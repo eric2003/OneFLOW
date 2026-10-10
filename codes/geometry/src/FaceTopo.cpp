@@ -62,7 +62,28 @@ const IntField & GetChildFaceIds(
         throw std::out_of_range( std::string( operation ) + ": global interface face is out of range" );
     }
 
-    return childFaces[ globalFaceId ];
+    const IntField & childFaceIds = childFaces[ globalFaceId ];
+    const LinkField & childNodeIds = interfaceLink.face_search->rCNodeId;
+    const LinkField & childNodeFlags = interfaceLink.face_search->rCNodeFlag;
+
+    for ( int childIndex = 0; childIndex < childFaceIds.size(); ++ childIndex )
+    {
+        const int childFaceId = childFaceIds[ childIndex ];
+        if ( childFaceId < 0 ||
+             static_cast< size_t >( childFaceId ) >= childNodeIds.size() ||
+             static_cast< size_t >( childFaceId ) >= childNodeFlags.size() )
+        {
+            throw std::out_of_range(
+                std::string( operation ) + ": child face ID is out of range" );
+        }
+        if ( childNodeIds[ childFaceId ].size() != childNodeFlags[ childFaceId ].size() )
+        {
+            throw std::logic_error(
+                std::string( operation ) + ": child face node IDs and flags have different sizes" );
+        }
+    }
+
+    return childFaceIds;
 }
 }
 
