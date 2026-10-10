@@ -21,6 +21,20 @@ TEST(ScalarIFaceLifecycleTest, AddInterfaceKeepsMappingsConsistent)
     EXPECT_EQ(interfaceData.local_to_global_interfaces.at(1), 105);
 }
 
+
+TEST(ScalarIFaceLifecycleTest, ReadOnlyQueriesCanUseConstInterface)
+{
+    ONEFLOW::ScalarIFace interfaceData;
+    interfaceData.AddInterface(100, 2, 7);
+    interfaceData.ReconstructNeighbor();
+
+    const ONEFLOW::ScalarIFace & readOnlyInterface = interfaceData;
+    EXPECT_EQ(readOnlyInterface.GetNIFaces(), 1);
+    EXPECT_EQ(readOnlyInterface.GetLocalInterfaceId(100), 0);
+    EXPECT_EQ(readOnlyInterface.FindINeibor(2), 0);
+    EXPECT_EQ(readOnlyInterface.FindINeibor(9), -1);
+}
+
 TEST(ScalarIFaceLifecycleTest, RejectsDuplicateInterfaceWithoutChangingState)
 {
     ONEFLOW::ScalarIFace interfaceData;
