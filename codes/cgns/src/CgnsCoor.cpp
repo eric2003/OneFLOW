@@ -100,7 +100,8 @@ void CgnsCoor::SetAllData( RealField & x, RealField & y, RealField & z )
     {
         DataType_t data_type = this->typeList[ iCoor ];
         SetData( iCoor, data_type, xyz[ iCoor ] );
-    }}
+    }
+}
 
 void CgnsCoor::SetData( int iCoor, DataType_t data_type, Real * var )
 {
