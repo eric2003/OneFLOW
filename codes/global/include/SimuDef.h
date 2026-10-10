@@ -56,8 +56,8 @@ const std::map<std::string, TaskEnum> TaskFilter =
 class SimuState
 {
 public:
-    SimuState();
-    virtual ~SimuState();
+    SimuState() = default;
+    virtual ~SimuState() = default;
 public:
     //According to the database parameters, std::set the corresponding value of simutask
     void Init();

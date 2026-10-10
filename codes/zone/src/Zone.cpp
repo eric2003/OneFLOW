@@ -21,6 +21,7 @@ License
 \\*---------------------------------------------------------------------------*/
 
 #include "Zone.h"
+#include "GridHandles.h"
 #include <vector>
 #include <utility>
 #include <memory>
@@ -122,6 +123,26 @@ Grid * Zone::GetGrid()
 Grid & Zone::GetGridReference()
 {
     return Zone::GetGridReference( ZoneState::zid, GridState::gridLevel );
+}
+
+const Grid * Zone::GetConstGrid( int zid, int gl )
+{
+    return &Zone::GetConstGridReference( zid, gl );
+}
+
+const Grid & Zone::GetConstGridReference( int zid, int gl )
+{
+    return GridAt( Zone::globalGrids[ static_cast< std::size_t >( zid ) ], static_cast< std::size_t >( gl ) );
+}
+
+const Grid * Zone::GetConstGrid()
+{
+    return &Zone::GetConstGridReference();
+}
+
+const Grid & Zone::GetConstGridReference()
+{
+    return Zone::GetConstGridReference( ZoneState::zid, GridState::gridLevel );
 }
 
 UnsGrid * Zone::GetUnsGrid()

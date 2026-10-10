@@ -223,7 +223,9 @@ void AddCmdToList(
     int operationId,
     int solverType )
 {
-    // Build the task associated with the operation.
+    // Ownership pipeline (unique_ptr only):
+    //   CreateTask -> ConfigureTaskFile(task.get()) -> SimpleCmd::AddTask(move)
+    //   -> CMD::AddCmd(move). No raw new/delete on the hot path.
     auto task =
         ONEFLOW::CreateTask(
             operationId,

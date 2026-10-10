@@ -27,16 +27,6 @@ BeginNameSpace( ONEFLOW )
 Real Tolerance::tol = 1.0;
 bool Tolerance::flag = false;
 
-Tolerance::Tolerance()
-{
-    ;
-}
-
-Tolerance::~Tolerance()
-{
-    ;
-}
-
 
 void Tolerance::Init()
 {

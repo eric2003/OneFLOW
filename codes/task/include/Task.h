@@ -21,8 +21,6 @@ License
 \*---------------------------------------------------------------------------*/
 #pragma once
 
-#pragma once
-
 #include "HXDefine.h"
 
 #include <memory>
@@ -59,6 +57,7 @@ public:
     TaskFunction sendAction = nullptr;
     TaskFunction recvAction = nullptr;
 
+    // Owned resources (constructed in Task::Task via make_unique).
     std::unique_ptr< DataBook > dataBook;
     std::unique_ptr< FileInfo > fileInfo;
 };

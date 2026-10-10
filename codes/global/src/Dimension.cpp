@@ -25,16 +25,6 @@ BeginNameSpace( ONEFLOW )
 
 int Dim::dimension = -1;
 
-Dim::Dim()
-{
-    ;
-}
-
-Dim::~Dim()
-{
-    ;
-}
-
 int Dim::GetDimension()
 {
     return Dim::dimension;

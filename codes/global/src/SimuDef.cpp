@@ -28,16 +28,6 @@ BeginNameSpace( ONEFLOW )
 
 SimuState simu_state;
 
-SimuState::SimuState()
-{
-    ;
-}
-
-SimuState::~SimuState()
-{
-    ;
-}
-
 void SimuState::Init()
 {
     const std::string& taskStr = ONEFLOW::GetDataValue< std::string >("simutask");
