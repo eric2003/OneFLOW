@@ -160,7 +160,7 @@ int ScalarIFace::FindINeibor( int iZone ) const
     int nNeis = data.size();
     for( int iNei = 0; iNei < nNeis; ++ iNei)
     {
-        ScalarIFaceIJ & iFaceIJ = data[ iNei ];
+        const ScalarIFaceIJ & iFaceIJ = data[ iNei ];
         if ( iZone == iFaceIJ.zonej )
         {
             return iNei;
