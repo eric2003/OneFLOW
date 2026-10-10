@@ -172,7 +172,16 @@ void CalcGrid::Dump()
         GridAt( grids, iZone ).WriteGrid( file );
     }
 
-    Prj::CloseOutputFile( file, "CalcGrid::Dump" );
+    file.flush();
+    if ( ! file )
+    {
+        throw std::runtime_error( "CalcGrid::Dump: failed to write grid data" );
+    }
+    Prj::CloseFile( file );
+
+    // Publish zone metadata only after the grid output succeeds.
+    ZoneState::pid = std::move( zonePids );
+    ZoneState::zoneType = std::move( zoneTypes );
 }
 
 void CalcGrid::Post()
