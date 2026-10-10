@@ -207,16 +207,28 @@ CgnsBase * CgnsFile::CreateCgnsBase()
 void CgnsFile::ReadBases()
 {
     this->FreeBaseList();
+    this->nBases = 0;
     this->ReadNumberOfBases();
-    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
+
+    const int baseCount = this->nBases;
+    this->nBases = 0;
+
+    // Keep partially read bases private until every base has valid metadata.
+    std::vector< std::unique_ptr< CgnsBase > > stagedBases;
+    stagedBases.reserve( static_cast< size_t >( baseCount ) );
+
+    for ( int iBase = 0; iBase < baseCount; ++ iBase )
     {
-        int baseId = iBase + 1;
+        const int baseId = iBase + 1;
         auto ownedBase = std::make_unique< CgnsBase >( this );
         CgnsBase * cgnsBase = ownedBase.get();
-        this->baseList.push_back( std::move( ownedBase ) );
         cgnsBase->baseId = baseId;
         cgnsBase->ReadCgnsBaseBasicInfo();
+        stagedBases.push_back( std::move( ownedBase ) );
     }
+
+    this->baseList.swap( stagedBases );
+    this->nBases = baseCount;
 }
 
 void CgnsFile::ReadArray()
