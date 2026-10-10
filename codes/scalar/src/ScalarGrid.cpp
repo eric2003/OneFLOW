@@ -1211,7 +1211,7 @@ void ScalarGrid::SetBcGhostCell()
 	}
 }
 
-bool ScalarGrid::CheckBcFace( IntSet & bcVertex, std::vector< int > & nodeId )
+bool ScalarGrid::CheckBcFace( const IntSet & bcVertex, const std::vector< int > & nodeId ) const
 {
 	int size = nodeId.size();
 	for ( int iNode = 0; iNode < size; ++ iNode )
