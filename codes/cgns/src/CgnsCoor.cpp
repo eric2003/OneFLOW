@@ -96,12 +96,11 @@ void CgnsCoor::SetAllData( RealField & x, RealField & y, RealField & z )
     xyz[ 1 ] = & y[ 0 ];
     xyz[ 2 ] = & z[ 0 ];
 
-    for ( int iCoor = 0; iCoor < this->ndim; ++ iCoor )
+    for ( int iCoor = 0; iCoor < this->nCoor; ++ iCoor )
     {
         DataType_t data_type = this->typeList[ iCoor ];
         SetData( iCoor, data_type, xyz[ iCoor ] );
-    }
-}
+    }}
 
 void CgnsCoor::SetData( int iCoor, DataType_t data_type, Real * var )
 {
@@ -217,10 +216,10 @@ void CgnsCoor::ReadCgnsGridCoordinates()
             "CgnsCoor::ReadCgnsGridCoordinates: failed to read coordinate count: " +
             std::string( cg_get_error() ) );
     }
-    if ( coordinateCount < 0 || coordinateCount > this->ndim )
+    if ( coordinateCount <= 0 || coordinateCount > this->ndim )
     {
         throw std::runtime_error(
-            "CgnsCoor::ReadCgnsGridCoordinates: coordinate count exceeds supported dimensions" );
+            "CgnsCoor::ReadCgnsGridCoordinates: coordinate count is outside the supported range" );
     }
 
     int nNodes = static_cast<int>( this->GetNNode() );
