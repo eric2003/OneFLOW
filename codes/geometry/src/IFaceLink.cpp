@@ -198,6 +198,7 @@ void IFaceLink::UpdateLgMapping()
 
     this->gI2Zid.swap( this->gI2ZidNew );
     this->g2l.swap( this->g2lNew );
+    this->l2g.swap( this->l2gNew );
 }
 
 void IFaceLink::MatchInterfaceTopology( Grid & grid )
