@@ -31,6 +31,7 @@ License
 
 #include <iostream>
 #include <memory>
+#include <stdexcept>
 #include <utility>
 
 BeginNameSpace( ONEFLOW )
@@ -58,16 +59,24 @@ void CgnsBase::FreeZoneList()
 
 CgnsZone * CgnsBase::GetCgnsZone( int iZone )
 {
-    //iZone base on 0
-    return this->cgnsZones[ iZone ].get();
+    // Zone indices are zero-based internally.
+    if ( iZone < 0 || static_cast< size_t >( iZone ) >= this->cgnsZones.size() )
+    {
+        throw std::out_of_range( "CgnsBase::GetCgnsZone: zone index is out of range" );
+    }
+
+    return this->cgnsZones[ static_cast< size_t >( iZone ) ].get();
 }
 
 CgnsZone * CgnsBase::GetCgnsZoneByName( const std::string & zoneName )
 {
-    std::map< std::string, int >::iterator iter;
-    iter = zoneNameMap.find( zoneName );
-    int iZone = iter->second - 1;
-    return this->GetCgnsZone( iZone );
+    const auto iter = this->zoneNameMap.find( zoneName );
+    if ( iter == this->zoneNameMap.end() )
+    {
+        throw std::out_of_range( "CgnsBase::GetCgnsZoneByName: unknown zone name '" + zoneName + "'" );
+    }
+
+    return this->GetCgnsZone( iter->second - 1 );
 }
 
 int CgnsBase::GetNZones()
