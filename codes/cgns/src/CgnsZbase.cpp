@@ -128,11 +128,20 @@ void CgnsZbase::DumpCgnsMultiBase()
 
 void CgnsZbase::ReadNumCgnsBase()
 {
-    //Determine the of bases in the grid
-    cg_nbases( this->cgnsFile->fileId, & this->nBases );
+    int baseCount = -1;
+    const int status = cg_nbases( this->cgnsFile->fileId, & baseCount );
+    if ( status != CG_OK )
+    {
+        throw std::runtime_error( "CgnsZbase::ReadNumCgnsBase: " + std::string( cg_get_error() ) );
+    }
+    if ( baseCount < 0 )
+    {
+        throw std::runtime_error( "CgnsZbase::ReadNumCgnsBase: CGNS returned a negative base count" );
+    }
+
+    this->nBases = baseCount;
     std::cout << "   Total number of CGNS Base = " << this->nBases << "\n";
 }
-
 void CgnsZbase::ConvertToInnerDataStandard()
 {
     for ( size_t iBase = 0; iBase < this->baseVector.size(); ++ iBase )
