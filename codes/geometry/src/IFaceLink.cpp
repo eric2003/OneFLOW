@@ -31,6 +31,7 @@ License
 #include <algorithm>
 #include <iostream>
 #include <stdexcept>
+#include <string>
 
 BeginNameSpace( ONEFLOW )
 
@@ -51,18 +52,24 @@ Grid & IFaceLink::GetGrid( int zoneIndex )
     return GridAt( this->grids, zoneIndex );
 }
 
-void IFaceLink::Init( Grid & grid )
+void IFaceLink::ValidateGridIndex( const Grid & grid, const char * operation ) const
 {
     const int zid = grid.id;
     if ( zid < 0 || static_cast< size_t >( zid ) >= this->l2g.size() )
     {
-        throw std::out_of_range( "IFaceLink::Init: grid zone index is out of range" );
+        throw std::out_of_range( std::string( operation ) + ": grid zone index is out of range" );
     }
     if ( & GridAt( this->grids, static_cast< size_t >( zid ) ) != & grid )
     {
         throw std::invalid_argument(
-            "IFaceLink::Init: grid does not belong to the linked collection" );
+            std::string( operation ) + ": grid does not belong to the linked collection" );
     }
+}
+
+void IFaceLink::Init( Grid & grid )
+{
+    ValidateGridIndex( grid, "IFaceLink::Init" );
+    const int zid = grid.id;
     if ( ! grid.interFace )
     {
         throw std::logic_error( "IFaceLink::Init: grid interface data is not initialized" );
@@ -126,6 +133,7 @@ void IFaceLink::UpdateLgMapping()
 
 void IFaceLink::MatchInterfaceTopology( Grid & grid )
 {
+    ValidateGridIndex( grid, "IFaceLink::MatchInterfaceTopology" );
     InterFace * interFace = grid.interFace.get();
     if ( ! interFace ) return;
 
@@ -168,6 +176,7 @@ void IFaceLink::MatchInterfaceTopology( Grid & grid )
 
 void IFaceLink::MatchPeriodicInterface( Grid & grid )
 {
+    ValidateGridIndex( grid, "IFaceLink::MatchPeriodicInterface" );
     InterFace * interFace = grid.interFace.get();
     if ( ! interFace ) return;
 
