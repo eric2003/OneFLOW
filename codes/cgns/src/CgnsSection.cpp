@@ -32,6 +32,7 @@ License
 #include "LogFile.h"
 
 #include <iostream>
+#include <iterator>
 #include <stdexcept>
 
 BeginNameSpace( ONEFLOW )
