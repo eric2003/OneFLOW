@@ -274,7 +274,13 @@ void CgnsCoor::DumpCgnsGridCoordinates()
          std::string & coorName = this->coorNameList[ iCoor ];
           //Write the x-, y-, z-coordinates.
          int indexCoor = -1;
-         cg_coord_write( fileId, baseId, zoneId, dataType, coorName.c_str(), this->GetCoor( iCoor ), &indexCoor );
+         int result = cg_coord_write( fileId, baseId, zoneId, dataType, coorName.c_str(), this->GetCoor( iCoor ), &indexCoor );
+         if ( result != CG_OK )
+         {
+             throw std::runtime_error(
+                 "CgnsCoor::DumpCgnsGridCoordinates: failed to write coordinate '" +
+                 coorName + "': " + cg_get_error() );
+         }
          std::cout << "   coorName = " << coorName << " dataType = " << dataType << " indexCoor = " << indexCoor << "\n";
      }
 }
