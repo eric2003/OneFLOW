@@ -407,7 +407,12 @@ void CgnsZone::ReadCgnsGridCoordinates()
 
 void CgnsZone::ReadCgnsGridCoordinates( CgnsZone * cgnsZoneIn )
 {
-    RequireCgnsCoor().ReadCgnsGridCoordinates( &cgnsZoneIn->RequireCgnsCoor() );
+    if ( cgnsZoneIn == nullptr )
+    {
+        throw std::invalid_argument( "CgnsZone::ReadCgnsGridCoordinates: source zone is null" );
+    }
+
+    this->RequireCgnsCoor().ReadCgnsGridCoordinates( &cgnsZoneIn->RequireCgnsCoor() );
 }
 
 void CgnsZone::DumpCgnsGridCoordinates()
