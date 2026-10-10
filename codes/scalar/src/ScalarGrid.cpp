@@ -691,8 +691,8 @@ void ScalarGrid::ReadFromCgnsZbase( CgnsZbase & cgnsZbase )
 
 void ScalarGrid::ReadFromCgnsZone( CgnsZone & cgnsZone )
 {
-	// Importing a zone replaces the current mesh rather than appending to it.
-	this->ResetMeshData();
+	// Stage the complete import so malformed input cannot destroy the current mesh.
+	ScalarGrid importedGrid;
 
 	std::cout << "   Convert Cgns Section Data to ScalarGrid......\n";
 	std::cout << "\n";
@@ -710,22 +710,45 @@ void ScalarGrid::ReadFromCgnsZone( CgnsZone & cgnsZone )
 			CgIntField eNodeId;
 			cgnsSection.GetElementNodeId( iElem, eNodeId );
 
-			int eType = cgnsSection.eTypeList[ iElem ];
-
-			this->PushElement( eNodeId, eType );
+			const int eType = cgnsSection.eTypeList[ iElem ];
+			importedGrid.PushElement( eNodeId, eType );
 		}
 	}
+
 	CgnsCoor & cgnsCoor = cgnsZone.RequireCgnsCoor();
 	NodeMesh & nodeMesh = cgnsCoor.RequireNodeMesh();
-	for ( int i = 0; i < nodeMesh.xN.size(); ++ i )
+	if ( nodeMesh.xN.size() != nodeMesh.yN.size() ||
+		 nodeMesh.xN.size() != nodeMesh.zN.size() )
 	{
-		Real xm = nodeMesh.xN[ i ];
-		Real ym = nodeMesh.yN[ i ];
-		Real zm = nodeMesh.zN[ i ];
-		this->xn.AddData( xm );
-		this->yn.AddData( ym );
-		this->zn.AddData( zm );
+		throw std::invalid_argument( "ScalarGrid::ReadFromCgnsZone: coordinate arrays have inconsistent sizes" );
 	}
+
+	for ( size_t i = 0; i < nodeMesh.xN.size(); ++ i )
+	{
+		importedGrid.xn.AddData( nodeMesh.xN[ i ] );
+		importedGrid.yn.AddData( nodeMesh.yN[ i ] );
+		importedGrid.zn.AddData( nodeMesh.zN[ i ] );
+	}
+
+	const size_t nodeCount = importedGrid.xn.GetNElements();
+	for ( const std::vector< int > & element : importedGrid.elements.data )
+	{
+		for ( const int nodeId : element )
+		{
+			if ( nodeId < 0 || static_cast< size_t >( nodeId ) >= nodeCount )
+			{
+				throw std::invalid_argument( "ScalarGrid::ReadFromCgnsZone: connectivity references a node outside the imported zone" );
+			}
+		}
+	}
+
+	// Commit only after sections, coordinates, and connectivity all validate.
+	this->ResetMeshData();
+	this->elements.data = std::move( importedGrid.elements.data );
+	this->eTypes.data = std::move( importedGrid.eTypes.data );
+	this->xn.data = std::move( importedGrid.xn.data );
+	this->yn.data = std::move( importedGrid.yn.data );
+	this->zn.data = std::move( importedGrid.zn.data );
 }
 
 void ScalarGrid::PushElement( CgIntField & eNodeId, int eType )
