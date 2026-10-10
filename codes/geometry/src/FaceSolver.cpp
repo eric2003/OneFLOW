@@ -138,6 +138,19 @@ void FaceSolver::ScanPolyhedronElement( CgnsSection & cgnsSection )
         throw std::runtime_error( "FaceSolver::ScanPolyhedronElement: element offsets are incomplete" );
     }
 
+    // Count existing cell incidences so a third cell cannot overwrite the right cell.
+    const auto & faceFlags = this->faceTopo->GetFaceFlags();
+    const auto & rightCells = this->faceTopo->GetRightCells();
+    std::vector< int > faceUseCount( faces.size(), 0 );
+    for ( std::size_t iFace = 0; iFace < faces.size(); ++ iFace )
+    {
+        if ( iFace < faceFlags.size() && faceFlags[ iFace ] != 0 )
+        {
+            faceUseCount[ iFace ] =
+                iFace < rightCells.size() && rightCells[ iFace ] != ONEFLOW::INVALID_INDEX ? 2 : 1;
+        }
+    }
+
     // Validate the complete section before changing cell adjacency.
     for ( int iElem = 0; iElem < cgnsSection.nElement; ++ iElem )
     {
@@ -167,6 +180,12 @@ void FaceSolver::ScanPolyhedronElement( CgnsSection & cgnsSection )
             if ( ! referencedFaces.insert( static_cast< std::size_t >( faceId ) ).second )
             {
                 throw std::runtime_error( "FaceSolver::ScanPolyhedronElement: polyhedron references the same face more than once" );
+            }
+
+            const std::size_t polygonFaceId = static_cast< std::size_t >( faceId );
+            if ( ++ faceUseCount[ polygonFaceId ] > 2 )
+            {
+                throw std::runtime_error( "FaceSolver::ScanPolyhedronElement: face is referenced by more than two cells" );
             }
         }
     }
