@@ -86,6 +86,12 @@ void CgnsFile::OpenCgnsFile( const std::string & fileName, int cgnsOpenMode )
         this->CloseCgnsFile();
     }
 
+    // Base objects belong to the file that was previously open. Discard them
+    // before changing the file handle so they cannot be mistaken for new data.
+    this->FreeBaseList();
+    this->nBases = 0;
+    this->currBaseId = 0;
+
     this->fileName = fileName;
     this->openMode = cgnsOpenMode;
     this->fileId = -1;
