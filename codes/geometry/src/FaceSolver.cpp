@@ -27,6 +27,8 @@ License
 #include "CgnsSection.h"
 #include <iostream>
 #include <algorithm>
+#include <limits>
+#include <stdexcept>
 
 
 BeginNameSpace( ONEFLOW )
@@ -109,21 +111,44 @@ void FaceSolver::ResizeAll()
 
 void FaceSolver::ScanPolyhedronElement( CgnsSection & cgnsSection )
 {
-    std::vector<int> faceIds;
+    const auto & offsets = cgnsSection.ePosList;
+    const auto & connectivity = cgnsSection.connList;
+    const auto & faces = this->faceTopo->GetFaces();
+
+    if ( cgnsSection.nElement < 0 ||
+         static_cast< std::size_t >( cgnsSection.nElement ) + 1 > offsets.size() )
+    {
+        throw std::runtime_error( "FaceSolver::ScanPolyhedronElement: element offsets are incomplete" );
+    }
+
     for ( int iElem = 0; iElem < cgnsSection.nElement; ++ iElem )
     {
-        int st = cgnsSection.ePosList[ iElem ];
-        int ed = cgnsSection.ePosList[ iElem + 1 ];
-        int nFace = ed - st;
-        faceIds.resize( 0 );
-        for ( int i = st; i < ed; ++ i )
+        const CgInt start = offsets[ iElem ];
+        const CgInt end = offsets[ iElem + 1 ];
+        if ( start < 0 || end < start ||
+             static_cast< std::size_t >( end ) > connectivity.size() )
         {
-            int polygonFaceId = std::abs(cgnsSection.connList[ i ]);
-            faceIds.push_back( polygonFaceId );
+            throw std::runtime_error( "FaceSolver::ScanPolyhedronElement: connectivity span is invalid" );
+        }
 
-            int faceFlags = this->faceTopo->GetFaceFlags()[ polygonFaceId ];
+        for ( CgInt i = start; i < end; ++ i )
+        {
+            const CgInt signedFaceId = connectivity[ static_cast< std::size_t >( i ) ];
+            if ( signedFaceId == std::numeric_limits< CgInt >::min() )
+            {
+                throw std::runtime_error( "FaceSolver::ScanPolyhedronElement: face reference is out of range" );
+            }
 
-            if ( faceFlags == 0 ) //face left element not set
+            const CgInt faceId = signedFaceId < 0 ? -signedFaceId : signedFaceId;
+            if ( faceId < 0 || static_cast< std::size_t >( faceId ) >= faces.size() )
+            {
+                throw std::runtime_error( "FaceSolver::ScanPolyhedronElement: face reference is out of range" );
+            }
+
+            const std::size_t polygonFaceId = static_cast< std::size_t >( faceId );
+            const int faceFlags = this->faceTopo->GetFaceFlags()[ polygonFaceId ];
+
+            if ( faceFlags == 0 )
             {
                 this->ResizeAll();
                 this->faceTopo->GetFaceFlags()[ polygonFaceId ] = 1;
@@ -137,11 +162,8 @@ void FaceSolver::ScanPolyhedronElement( CgnsSection & cgnsSection )
             {
                 this->faceTopo->GetRightCells()[ polygonFaceId ] = iElem;
             }
-
         }
-
     }
-
 }
 
 void FaceSolver::ScanElementFace( CgIntField & eNodeId, int eType, int eId )
