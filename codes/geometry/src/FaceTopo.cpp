@@ -370,6 +370,7 @@ void FaceTopo::ModifyBoundaryInformation( IFaceLink & iFaceLink )
     {
         const IntField & childFaceIds = GetChildFaceIds(
             iFaceLink, this->GetGrid().id, iFid, "FaceTopo::ModifyBoundaryInformation" );
+        const int gFid = iFaceLink.l2g[ this->GetGrid().id ][ iFid ];
         int nCFace = childFaceIds.size();
 
         if ( nCFace > 0 )
@@ -386,8 +387,7 @@ void FaceTopo::ModifyBoundaryInformation( IFaceLink & iFaceLink )
         }
         else
         {
-            iFaceLink.l2gNew[ this->GetGrid().id ].push_back(
-                iFaceLink.l2g[ this->GetGrid().id ][ iFid ] );
+            iFaceLink.l2gNew[ this->GetGrid().id ].push_back( gFid );
         }
     }
     std::cout << "original number of interfaces = " << nIFaces << " new number of interfaces = " << nIFaceNew << std::endl;
