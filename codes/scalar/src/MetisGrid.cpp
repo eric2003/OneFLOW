@@ -496,6 +496,24 @@ void GridPartition::ReconstructInterfaceTopo( std::vector< std::unique_ptr< Scal
 				throw std::runtime_error( "GridPartition::ReconstructInterfaceTopo: reciprocal neighbor zone was not found" );
 			}
 
+			// Both sides of a partition interface must describe the same global faces.
+			// Compare sorted identity lists rather than relying on local face ordering.
+			const ScalarIFaceIJ & reciprocalEntry = neighborIFace.data[ reciprocalIndex ];
+			if ( reciprocalEntry.iglobalfaces.size() != reciprocalEntry.ifaces.size() ||
+				 reciprocalEntry.iglobalfaces.size() != reciprocalEntry.cells.size() ||
+				 reciprocalEntry.iglobalfaces.size() != entry.iglobalfaces.size() )
+			{
+				throw std::runtime_error( "GridPartition::ReconstructInterfaceTopo: reciprocal interface arrays have inconsistent sizes" );
+			}
+			std::vector< int > expectedGlobalFaces = entry.iglobalfaces;
+			std::vector< int > actualGlobalFaces = reciprocalEntry.iglobalfaces;
+			std::sort( expectedGlobalFaces.begin(), expectedGlobalFaces.end() );
+			std::sort( actualGlobalFaces.begin(), actualGlobalFaces.end() );
+			if ( expectedGlobalFaces != actualGlobalFaces )
+			{
+				throw std::runtime_error( "GridPartition::ReconstructInterfaceTopo: reciprocal interface global face IDs do not match" );
+			}
+
 			std::vector< int > localFaces;
 			localFaces.reserve( entry.iglobalfaces.size() );
 			for ( const int globalFaceId : entry.iglobalfaces )
