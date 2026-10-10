@@ -12,8 +12,8 @@ License
 
     OneFLOW is distributed in the hope that it will be useful, but WITHOUT
     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
 
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
@@ -247,7 +247,7 @@ void IFaceLink::MatchInterfaceTopology( Grid & grid )
         }
     }
     std::cout << " Periodic boundary faces missing a partner = "
-              << missingPeriodicPartnerCount << "\n";
+              << missingPeriodicPartnerCount << "\\n";
 }
 
 void IFaceLink::MatchPeriodicInterface( Grid & grid )
@@ -329,10 +329,26 @@ void IFaceLink::MatchPeriodicInterface( Grid & grid )
 
 void GetFaceCoorList( const IntField & faceNode, RealField & xList, RealField & yList, RealField & zList, const NodeMesh & nodeMesh )
 {
-    int nPoint = faceNode.size();
-    for ( int iNode = 0; iNode < nPoint; ++ iNode )
+    const size_t nPoint = faceNode.size();
+    if ( xList.size() < nPoint || yList.size() < nPoint || zList.size() < nPoint )
     {
-        int gN = faceNode[ iNode ];
+        throw std::invalid_argument( "GetFaceCoorList: coordinate buffers are too small" );
+    }
+
+    const size_t nNodes = nodeMesh.xN.size();
+    if ( nodeMesh.yN.size() != nNodes || nodeMesh.zN.size() != nNodes )
+    {
+        throw std::logic_error( "GetFaceCoorList: node coordinate arrays have different sizes" );
+    }
+
+    for ( size_t iNode = 0; iNode < nPoint; ++ iNode )
+    {
+        const int gN = faceNode[ iNode ];
+        if ( gN < 0 || static_cast< size_t >( gN ) >= nNodes )
+        {
+            throw std::out_of_range( "GetFaceCoorList: node index is out of range" );
+        }
+
         xList[ iNode ] = nodeMesh.xN[ gN ];
         yList[ iNode ] = nodeMesh.yN[ gN ];
         zList[ iNode ] = nodeMesh.zN[ gN ];
@@ -341,11 +357,27 @@ void GetFaceCoorList( const IntField & faceNode, RealField & xList, RealField & 
 
 void GetCoorIdList( IFaceLink & iFaceLink, RealField & xList, RealField & yList, RealField & zList, int nPoint, IntField & pointId )
 {
-    for ( int iNode = 0; iNode < nPoint; ++ iNode )
+    if ( nPoint < 0 )
     {
-        Real xm = xList[ iNode ];
-        Real ym = yList[ iNode ];
-        Real zm = zList[ iNode ];
+        throw std::invalid_argument( "GetCoorIdList: point count must not be negative" );
+    }
+
+    const size_t count = static_cast< size_t >( nPoint );
+    if ( xList.size() < count || yList.size() < count ||
+         zList.size() < count || pointId.size() < count )
+    {
+        throw std::invalid_argument( "GetCoorIdList: input or output buffers are too small" );
+    }
+    if ( ! iFaceLink.point_search )
+    {
+        throw std::logic_error( "GetCoorIdList: point locator is not initialized" );
+    }
+
+    for ( size_t iNode = 0; iNode < count; ++ iNode )
+    {
+        const Real xm = xList[ iNode ];
+        const Real ym = yList[ iNode ];
+        const Real zm = zList[ iNode ];
 
         pointId[ iNode ] = iFaceLink.point_search->AddPoint( xm, ym, zm );
     }
