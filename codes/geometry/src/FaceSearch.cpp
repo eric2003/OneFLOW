@@ -110,7 +110,7 @@ void FaceSearch::SplitQuad2Tri( int faceId )
 {
     const IntField & nodeId = this->faceArray[ faceId ];
     int nNodes = nodeId.size();
-    if ( nNodes <= 3 ) return;
+    if ( nNodes != 4 ) return;
 
     LinkField localTriId, localTriFlag;
     this->GetLocalTri( localTriId, localTriFlag );
