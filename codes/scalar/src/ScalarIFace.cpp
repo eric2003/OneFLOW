@@ -275,9 +275,8 @@ void ScalarIFace::ReconstructNeighbor()
 void ScalarIFace::WriteInterfaceTopology( DataBook * databook ) const
 {
     const size_t nInterfaces = this->zones.size();
-    if ( nInterfaces > 0 &&
-         ( this->target_interfaces.size() != nInterfaces ||
-           this->interface_to_bcface.size() != nInterfaces ) )
+    if ( this->target_interfaces.size() != nInterfaces ||
+         this->interface_to_bcface.size() != nInterfaces )
     {
         throw std::logic_error( "ScalarIFace::WriteInterfaceTopology: interface arrays have inconsistent sizes" );
     }

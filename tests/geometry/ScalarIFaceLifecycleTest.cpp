@@ -135,3 +135,12 @@ TEST(ScalarIFaceLifecycleTest, RejectsNegativeNeighborZoneWithoutReplacingNeighb
     ASSERT_EQ(interfaceData.data[0].iglobalfaces.size(), 1u);
     EXPECT_EQ(interfaceData.data[0].iglobalfaces[0], 30);
 }
+
+TEST(ScalarIFaceLifecycleTest, RejectsSerializedArraysWhenInterfaceCountIsZero)
+{
+    ONEFLOW::ScalarIFace interfaceData;
+    interfaceData.target_interfaces.push_back(4);
+
+    // Validation must run before writing to the output buffer.
+    EXPECT_THROW(interfaceData.WriteInterfaceTopology(nullptr), std::logic_error);
+}
