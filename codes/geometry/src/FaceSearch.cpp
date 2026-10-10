@@ -28,6 +28,7 @@ License
 #include "Dimension.h"
 #include "Fatal.h"
 #include <algorithm>
+#include <stdexcept>
 
 
 BeginNameSpace( ONEFLOW )
@@ -232,12 +233,21 @@ bool FaceSearch::GetLine( const IntField & nodeId, LinkField & localLineId, Link
     }
     if ( point_search->FindPoint( coor2[ 0 ], coor2[ 1 ], coor2[ 2 ] ) == -1 ) return false;
 
-    int nNZone = this->iFaceLink->gI2Zid[ this->gFid ].size();
-    if ( nNZone > 1 )
+    const LinkField & globalFaceZones = this->iFaceLink->gI2Zid;
+    if ( this->gFid < 0 ||
+         static_cast< size_t >( this->gFid ) >= globalFaceZones.size() )
     {
-        Fatal( "impossible" );
+        throw std::out_of_range( "FaceSearch::GetLine: global face ID is out of range" );
     }
-    int zoneIndex = this->iFaceLink->gI2Zid[ this->gFid ][ 0 ];
+
+    const IntField & zoneIds = globalFaceZones[ this->gFid ];
+    if ( zoneIds.size() != 1 )
+    {
+        throw std::logic_error(
+            "FaceSearch::GetLine: a split line must reference exactly one zone" );
+    }
+
+    int zoneIndex = zoneIds[ 0 ];
     Grid & grid = this->iFaceLink->GetGrid( zoneIndex );
     int nNodes = grid.nodeMesh->GetNumberOfNodes();
     int pId = nNodes;
