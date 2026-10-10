@@ -131,6 +131,11 @@ void CgnsSection::GetElementNodeId( CgInt eId, CgIntField & eNodeId )
     eNodeId.resize( 0 );
     if ( this->eType != NGON_n )
     {
+        if ( static_cast< size_t >( eId ) >= this->eTypeList.size() )
+        {
+            throw std::runtime_error( "CgnsSection::GetElementNodeId: element type data is incomplete" );
+        }
+
         const int eNodeNumber = ONEFLOW::GetElementNodeNumbers( this->eTypeList[ eId ] );
         CgInt * eAddress = this->GetAddress( eId );
 
