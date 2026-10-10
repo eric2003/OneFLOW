@@ -264,10 +264,22 @@ void IFaceLink::MatchPeriodicInterface( Grid & grid )
 
         int faceId_period = this->face_search->FindFace( faceNode_period );
         if ( faceId_period == INVALID_INDEX ) continue;
+        if ( faceId_period < 0 ||
+             static_cast< size_t >( faceId_period ) >= this->gI2Zid.size() ||
+             static_cast< size_t >( faceId_period ) >= this->g2l.size() )
+        {
+            throw std::logic_error(
+                "IFaceLink::MatchPeriodicInterface: periodic face mapping is out of range" );
+        }
 
         const IntField & periodicZones = this->gI2Zid[ faceId_period ];
         const IntField & periodicLocalIds = this->g2l[ faceId_period ];
-        if ( periodicZones.empty() || periodicLocalIds.empty() ) continue;
+        if ( periodicZones.size() != periodicLocalIds.size() )
+        {
+            throw std::logic_error(
+                "IFaceLink::MatchPeriodicInterface: periodic face references are inconsistent" );
+        }
+        if ( periodicZones.empty() ) continue;
 
         int nZid_period = periodicZones[ 0 ];
         int lId_period  = periodicLocalIds[ 0 ];
