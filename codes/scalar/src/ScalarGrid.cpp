@@ -962,6 +962,36 @@ void ScalarGrid::CalcGhostCellCenterVol1D()
 	}
 }
 
+std::vector< IntSet > ScalarGrid::CollectBoundaryVertexSets( int nodeCount ) const
+{
+	if ( this->scalarBccos == nullptr )
+	{
+		throw std::logic_error( "ScalarGrid::CalcTopology: boundary condition collection is not initialized" );
+	}
+
+	std::vector< IntSet > boundaryVertexSets;
+	boundaryVertexSets.reserve( this->scalarBccos->bccos.size() );
+	for ( const std::unique_ptr< ScalarBcco > & boundaryCondition : this->scalarBccos->bccos )
+	{
+		if ( boundaryCondition == nullptr )
+		{
+			throw std::runtime_error( "ScalarGrid::CalcTopology: boundary condition collection contains a null entry" );
+		}
+
+		IntSet boundaryVertices;
+		for ( int nodeId : boundaryCondition->vertexList )
+		{
+			if ( nodeId < 0 || nodeId >= nodeCount )
+			{
+				throw std::runtime_error( "ScalarGrid::CalcTopology: boundary condition references an invalid node index" );
+			}
+			boundaryVertices.insert( nodeId );
+		}
+		boundaryVertexSets.push_back( std::move( boundaryVertices ) );
+	}
+	return boundaryVertexSets;
+}
+
 void ScalarGrid::CalcTopology()
 {
 	const int nodeCount = this->GetNNodes();
@@ -1009,31 +1039,7 @@ void ScalarGrid::CalcTopology()
 		}
 	}
 
-	if ( this->scalarBccos == nullptr )
-	{
-		throw std::logic_error( "ScalarGrid::CalcTopology: boundary condition collection is not initialized" );
-	}
-
-	std::vector< IntSet > boundaryVertexSets;
-	boundaryVertexSets.reserve( this->scalarBccos->bccos.size() );
-	for ( const std::unique_ptr< ScalarBcco > & boundaryCondition : this->scalarBccos->bccos )
-	{
-		if ( boundaryCondition == nullptr )
-		{
-			throw std::runtime_error( "ScalarGrid::CalcTopology: boundary condition collection contains a null entry" );
-		}
-
-		IntSet boundaryVertices;
-		for ( int nodeId : boundaryCondition->vertexList )
-		{
-			if ( nodeId < 0 || nodeId >= nodeCount )
-			{
-				throw std::runtime_error( "ScalarGrid::CalcTopology: boundary condition references an invalid node index" );
-			}
-			boundaryVertices.insert( nodeId );
-		}
-		boundaryVertexSets.push_back( std::move( boundaryVertices ) );
-	}
+	const std::vector< IntSet > boundaryVertexSets = this->CollectBoundaryVertexSets( nodeCount );
 
 	// A face in a conforming volume/line mesh may belong to at most two cells.
 	// Check incidence before resetting the current topology, so malformed meshes
