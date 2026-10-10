@@ -708,10 +708,30 @@ void ScalarGrid::ReadFromCgnsZone( CgnsZone & cgnsZone )
 		const bool isMixedSection = cgnsSection.eType == MIXED;
 		if ( ! isHomogeneousVolumeSection && ! isMixedSection ) continue;
 
+		if ( cgnsSection.nElement < 0 ||
+			 cgnsSection.eTypeList.size() != static_cast< size_t >( cgnsSection.nElement ) ||
+			 cgnsSection.ePosList.size() != static_cast< size_t >( cgnsSection.nElement ) + 1 )
+		{
+			throw std::invalid_argument(
+				"ScalarGrid::ReadFromCgnsZone: inconsistent element metadata in volume section" );
+		}
+
 		for ( int iElem = 0; iElem < cgnsSection.nElement; ++ iElem )
 		{
 			const int eType = cgnsSection.eTypeList[ iElem ];
 			if ( ! ONEFLOW::IsBasicVolumeElementType( eType ) ) continue;
+
+			const int nodeCount = ONEFLOW::GetElementNodeNumbers( eType );
+			const int connectionBegin = cgnsSection.ePosList[ iElem ] + cgnsSection.pos_shift;
+			const int connectionEnd = connectionBegin + nodeCount;
+			if ( connectionBegin < 0 ||
+				 connectionEnd < connectionBegin ||
+				 static_cast< size_t >( connectionEnd ) > cgnsSection.connList.size() ||
+				 cgnsSection.ePosList[ iElem + 1 ] < cgnsSection.ePosList[ iElem ] )
+			{
+				throw std::invalid_argument(
+					"ScalarGrid::ReadFromCgnsZone: invalid connectivity range in volume section" );
+			}
 
 			CgIntField eNodeId;
 			cgnsSection.GetElementNodeId( iElem, eNodeId );
