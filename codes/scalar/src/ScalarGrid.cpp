@@ -1234,11 +1234,15 @@ void ScalarGrid::CalcInterfaceToBcFace()
 	const int nBFaces = this->GetNBFaces();
 	const int nFaces = this->GetNFaces();
 	if ( nBFaces > nFaces ||
-		 this->lc.GetNElements() < static_cast< size_t >( nBFaces ) ||
-		 this->rc.GetNElements() < static_cast< size_t >( nBFaces ) ||
-		 this->fBcTypes.GetNElements() < static_cast< size_t >( nBFaces ) )
+		 this->lc.GetNElements() != static_cast< size_t >( nFaces ) ||
+		 this->rc.GetNElements() != static_cast< size_t >( nFaces ) ||
+		 this->fBcTypes.GetNElements() != static_cast< size_t >( nFaces ) )
 	{
-		throw std::runtime_error( "ScalarGrid::CalcInterfaceToBcFace: boundary face topology arrays have inconsistent sizes" );
+		throw std::runtime_error( "ScalarGrid::CalcInterfaceToBcFace: face topology arrays have inconsistent sizes" );
+	}
+	if ( this->scalarIFace == nullptr )
+	{
+		throw std::logic_error( "ScalarGrid::CalcInterfaceToBcFace: interface topology is not initialized" );
 	}
 
 	std::vector< int > interfaceToBcFace;
