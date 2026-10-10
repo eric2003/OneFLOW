@@ -91,12 +91,30 @@ void IFaceLink::AddFace( const IntField & facePointIndexes )
 
 void IFaceLink::CreateLink( IntField & faceNode, int zid, int lCount )
 {
+    if ( zid < 0 || static_cast< size_t >( zid ) >= this->l2g.size() )
+    {
+        throw std::out_of_range( "IFaceLink::CreateLink: zone index is out of range" );
+    }
+    if ( lCount < 0 || static_cast< size_t >( lCount ) >= this->l2g[ zid ].size() )
+    {
+        throw std::out_of_range( "IFaceLink::CreateLink: local face index is out of range" );
+    }
+    if ( this->gI2Zid.size() != this->g2l.size() )
+    {
+        throw std::logic_error( "IFaceLink::CreateLink: global face mappings are inconsistent" );
+    }
+
     this->AddFace( faceNode );
 
     auto [gIid, isNew] = this->faceLookup.FindOrAdd( faceNode );
 
     if ( isNew )
     {
+        if ( gIid < 0 || static_cast< size_t >( gIid ) != this->gI2Zid.size() )
+        {
+            throw std::logic_error( "IFaceLink::CreateLink: new global face ID is inconsistent" );
+        }
+
         this->l2g[ zid ][ lCount ] = gIid;
 
         IntField zids;
@@ -108,6 +126,15 @@ void IFaceLink::CreateLink( IntField & faceNode, int zid, int lCount )
     }
     else
     {
+        if ( gIid < 0 || static_cast< size_t >( gIid ) >= this->gI2Zid.size() )
+        {
+            throw std::logic_error( "IFaceLink::CreateLink: global face ID is out of range" );
+        }
+        if ( this->gI2Zid[ gIid ].size() != this->g2l[ gIid ].size() )
+        {
+            throw std::logic_error( "IFaceLink::CreateLink: global face references are inconsistent" );
+        }
+
         this->l2g[ zid ][ lCount ] = gIid;
         this->gI2Zid[ gIid ].push_back( zid );
         this->g2l[ gIid ].push_back( lCount );
