@@ -135,7 +135,7 @@ void FaceSearch::SplitLine( int faceId )
 {
     const IntField & nodeId = this->faceArray[ faceId ];
     int nNodes = nodeId.size();
-    if ( nNodes >= 3 ) return;
+    if ( nNodes != 2 ) return;
 
     LinkField localLineId, localLineFlag;
     LinkField lineId;
