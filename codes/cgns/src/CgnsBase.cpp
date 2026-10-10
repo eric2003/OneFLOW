@@ -162,8 +162,6 @@ void CgnsBase::CreateCgnsZones( int nZones )
 
 void CgnsBase::ConstructZoneNameMap()
 {
-    this->zoneNameMap.clear();
-
     std::map< std::string, int > stagedZoneNameMap;
     for ( size_t iZone = 0; iZone < this->cgnsZones.size(); ++ iZone )
     {
