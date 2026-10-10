@@ -123,3 +123,18 @@ TEST(ScalarGridTopologyTest, CalcTopologyRejectsNonManifoldFaceWithoutResettingT
     ASSERT_EQ(grid.lc.GetNElements(), 1u);
     EXPECT_EQ(grid.lc[0], 23);
 }
+
+TEST(ScalarGridTopologyTest, CalcTopologyRejectsDuplicateCellNodesWithoutResettingTopology)
+{
+    ONEFLOW::ScalarGrid grid;
+    grid.xn.Resize(2);
+    grid.elements.AddElem(std::vector<int>{0, 0});
+    grid.eTypes.AddData(ONEFLOW::BAR_2);
+    grid.faces.Resize(1);
+    grid.lc.AddData(29);
+
+    EXPECT_THROW(grid.CalcTopology(), std::runtime_error);
+    ASSERT_EQ(grid.faces.GetNElements(), 1u);
+    ASSERT_EQ(grid.lc.GetNElements(), 1u);
+    EXPECT_EQ(grid.lc[0], 29);
+}

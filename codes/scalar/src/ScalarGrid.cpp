@@ -994,6 +994,13 @@ void ScalarGrid::CalcTopology()
 				throw std::runtime_error( "ScalarGrid::CalcTopology: cell references an invalid node index" );
 			}
 		}
+
+		std::vector< int > sortedNodeIds( element );
+		std::sort( sortedNodeIds.begin(), sortedNodeIds.end() );
+		if ( std::adjacent_find( sortedNodeIds.begin(), sortedNodeIds.end() ) != sortedNodeIds.end() )
+		{
+			throw std::runtime_error( "ScalarGrid::CalcTopology: cell connectivity contains duplicate node indices" );
+		}
 	}
 
 	// A face in a conforming volume/line mesh may belong to at most two cells.
