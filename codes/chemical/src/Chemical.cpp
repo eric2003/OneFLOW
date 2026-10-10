@@ -43,31 +43,12 @@ BeginNameSpace( ONEFLOW )
 Chemical chem;
 
 Chemical::Chemical()
+    : moleProp( std::make_unique< MolecularProperty >() )
+    , reactionRate( std::make_unique< ReactionRate >() )
+    , stoichiometric( std::make_unique< Stoichiometric >() )
+    , blotterCurve( std::make_unique< BlotterCurve >() )
+    , thermodynamic( std::make_unique< Thermodynamic >() )
 {
-    Alloc();
-}
-
-Chemical::~Chemical()
-{
-    DeAlloc();
-}
-
-void Chemical::Alloc()
-{
-    moleProp = std::make_unique< MolecularProperty >();
-    reactionRate = std::make_unique< ReactionRate >();
-    stoichiometric = std::make_unique< Stoichiometric >();
-    blotterCurve = std::make_unique< BlotterCurve >();
-    thermodynamic = std::make_unique< Thermodynamic >();
-}
-
-void Chemical::DeAlloc()
-{
-    moleProp.reset();
-    reactionRate.reset();
-    stoichiometric.reset();
-    blotterCurve.reset();
-    thermodynamic.reset();
 }
 
 void Chemical::InitGasModel()
