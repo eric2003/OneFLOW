@@ -179,3 +179,20 @@ TEST(NodeMeshBoundsTest, CreateNodesRejectsNegativeCountWithoutChangingMesh)
     EXPECT_DOUBLE_EQ( mesh.yN[ 0 ], 2.0 );
     EXPECT_DOUBLE_EQ( mesh.zN[ 0 ], 3.0 );
 }
+
+TEST(NodeMeshBoundsTest, RecalculatesBoundsAfterDirectCoordinateMutation)
+{
+    ONEFLOW::NodeMesh mesh;
+    mesh.AddPoint( 1.0, 2.0, 3.0 );
+    mesh.CalcMinMaxBox();
+    ASSERT_TRUE( mesh.boxFlag );
+
+    // Public SoA arrays remain part of the existing API, so callers can bypass
+    // SetPoint and its cache invalidation.
+    mesh.xN[ 0 ] = -8.0;
+
+    mesh.CalcMinMaxBox();
+
+    EXPECT_DOUBLE_EQ( mesh.pmin[ 0 ], -8.0 );
+    EXPECT_DOUBLE_EQ( mesh.pmax[ 0 ], -8.0 );
+}
