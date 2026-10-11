@@ -105,7 +105,7 @@ public:
     static void CompareFile( Real mindiff, int idump );
     static std::unique_ptr<MRField> ReadField( const std::string & fileName );
     static void DumpCellInfo( int iCell );
-    static void CheckNANField( MRField * field );
+    static void CheckNANField( const MRField * field );
 };
 
 EndNameSpace
