@@ -38,6 +38,7 @@ License
 #include "InterFace.h"
 #include "CalcGrid.h"
 #include <iostream>
+#include <utility>
 
 
 BeginNameSpace( ONEFLOW )
@@ -453,17 +454,19 @@ void Partition::SetCoor( UnsGrid & ggrid, UnsGrid & grid )
 {
     G2LMapping & mapping = this->GetG2LMapping();
 
-    int nNodes = grid.nNodes;
-    grid.nodeMesh->CreateNodes( nNodes );
+    const int nNodes = grid.nNodes;
+    RealField xCoordinates( nNodes );
+    RealField yCoordinates( nNodes );
+    RealField zCoordinates( nNodes );
 
     int iCount = 0;
     for ( int iNode = 0; iNode < ggrid.nNodes; ++ iNode )
     {
         if ( mapping.g2l_node[ iNode ] > - 1 )
         {
-            grid.nodeMesh->xN[ iCount ] = ggrid.nodeMesh->xN[ iNode ];
-            grid.nodeMesh->yN[ iCount ] = ggrid.nodeMesh->yN[ iNode ];
-            grid.nodeMesh->zN[ iCount ] = ggrid.nodeMesh->zN[ iNode ];
+            xCoordinates[ iCount ] = ggrid.nodeMesh->xN[ iNode ];
+            yCoordinates[ iCount ] = ggrid.nodeMesh->yN[ iNode ];
+            zCoordinates[ iCount ] = ggrid.nodeMesh->zN[ iNode ];
             ++ iCount;
         }
     }
@@ -471,7 +474,13 @@ void Partition::SetCoor( UnsGrid & ggrid, UnsGrid & grid )
     if ( iCount != nNodes )
     {
         std::cout << "error in Partition::SetCoor\n";
+        return;
     }
+
+    grid.nodeMesh->SetCoordinates(
+        std::move( xCoordinates ),
+        std::move( yCoordinates ),
+        std::move( zCoordinates ) );
 }
 
 void Partition::SetGeometricRelationship( UnsGrid & ggrid, int zid, UnsGrid & grid )
