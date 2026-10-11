@@ -124,8 +124,6 @@ void Plot3D::ReadCoorBinary( GridMediator * gridMediator )
         grid->SetBasicDimension();
         grid->nodeMesh->CreateNodes( grid->nNodes );
 
-        grid->SetLayout();
-
         int wordWidth = 8;
 
         std::cout << std::setiosflags( std::ios::right );
@@ -163,6 +161,9 @@ void Plot3D::ReadCoorBinary( GridMediator * gridMediator )
             std::move( xCoordinates ),
             std::move( yCoordinates ),
             std::move( zCoordinates ) );
+
+        // Build non-owning coordinate views after the coordinate storage is final.
+        grid->SetLayout();
     }
 
     Prj::CloseFile( file );
@@ -282,8 +283,6 @@ void Plot3D::ReadCoorAscii( GridMediator * gridMediator )
         grid->SetBasicDimension();
         grid->nodeMesh->CreateNodes( grid->nNodes );
 
-        grid->SetLayout();
-
         int wordWidth = 8;
 
         std::cout << std::setiosflags( std::ios::right );
@@ -345,6 +344,9 @@ void Plot3D::ReadCoorAscii( GridMediator * gridMediator )
             std::move( xCoordinates ),
             std::move( yCoordinates ),
             std::move( zCoordinates ) );
+
+        // Build non-owning coordinate views after the coordinate storage is final.
+        grid->SetLayout();
     }
 
     textFileParser.CloseFile();
