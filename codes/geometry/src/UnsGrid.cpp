@@ -336,6 +336,17 @@ void UnsGrid::WriteGridFaceTopology1D( DataBook * databook )
         throw std::logic_error(
             "UnsGrid::WriteGridFaceTopology1D: face type count does not match face count" );
     }
+    if ( this->GetFaceTopo().GetFaces().size() != static_cast< std::size_t >( this->nFaces ) )
+    {
+        throw std::logic_error(
+            "UnsGrid::WriteGridFaceTopology1D: face connectivity count does not match face count" );
+    }
+    if ( this->GetFaceTopo().GetLeftCells().size() != static_cast< std::size_t >( this->nFaces ) ||
+         this->GetFaceTopo().GetRightCells().size() != static_cast< std::size_t >( this->nFaces ) )
+    {
+        throw std::logic_error(
+            "UnsGrid::WriteGridFaceTopology1D: face-cell connectivity count does not match face count" );
+    }
 
     ONEFLOW::HXWrite( databook, cellTypes );
     ONEFLOW::HXWrite( databook, faceTypes );
