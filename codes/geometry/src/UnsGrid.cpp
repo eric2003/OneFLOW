@@ -244,6 +244,11 @@ void UnsGrid::ReadBoundaryTopology( DataBook * databook )
 {
     std::cout << "Setting the boundary condition......\n";
     ONEFLOW::HXRead( databook, this->nBFaces );
+    if ( this->nBFaces < 0 || this->nBFaces > this->nFaces )
+    {
+        throw std::runtime_error(
+            "UnsGrid::ReadBoundaryTopology: invalid boundary-face count" );
+    }
     this->GetFaceTopo().SetNBFaces( this->nBFaces );
 
     //std::cout << " nBFaces = " << this->nBFaces << std::endl;
@@ -253,6 +258,11 @@ void UnsGrid::ReadBoundaryTopology( DataBook * databook )
     ONEFLOW::HXRead( databook, bcRecord.bcType );
     ONEFLOW::HXRead( databook, bcRecord.bcNameId );
     ONEFLOW::HXRead( databook, this->nIFaces );
+    if ( this->nIFaces < 0 || this->nIFaces > this->nBFaces )
+    {
+        throw std::runtime_error(
+            "UnsGrid::ReadBoundaryTopology: invalid interface-face count" );
+    }
     std::cout << " nBFaces = " << this->nBFaces;
     std::cout << " nIFaces = " << this->nIFaces << std::endl;
     this->interFace->Set( this->nIFaces, this );
