@@ -36,8 +36,8 @@ class InterFace;
 class BcInfo
 {
 public:
-    BcInfo();
-    ~BcInfo();
+    BcInfo() = default;
+    ~BcInfo() = default;
 public:
     LinkField bcFace;
     LinkField bcNameId;
@@ -49,10 +49,10 @@ public:
 class BcRecord
 {
 public:
-    BcRecord();
+    BcRecord() = default;
     BcRecord( const BcRecord & other );
     BcRecord & operator=( const BcRecord & other );
-    ~BcRecord();
+    ~BcRecord() = default;
 public:
     IntField bcType;
     IntField bcNameId;
@@ -118,8 +118,8 @@ class BasicRegion;
 class TestRegion
 {
 public:
-    TestRegion();
-    ~TestRegion();
+    TestRegion() = default;
+    ~TestRegion() = default;
     int p1[ 3 ], p2[ 3 ];
     int a[ 3 ];
     int sign[ 3 ];
@@ -131,8 +131,8 @@ class BcRegion;
 class TestRegionM
 {
 public:
-    TestRegionM();
-    ~TestRegionM();
+    TestRegionM() = default;
+    ~TestRegionM() = default;
 public:
     int dimension;
     TestRegion s, t;
@@ -161,8 +161,8 @@ public:
 class BcRegionGroup
 {
 public:
-    BcRegionGroup();
-    ~BcRegionGroup();
+    BcRegionGroup() = default;
+    ~BcRegionGroup() = default;
 public:
     int zoneIndex;
     int nBFaces, nIFaces;

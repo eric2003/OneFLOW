@@ -98,5 +98,6 @@ private:
 };
 
 UnsGrid * UnsGridCast( Grid * gridIn );
+const UnsGrid * UnsGridCast( const Grid * gridIn );
 
 EndNameSpace

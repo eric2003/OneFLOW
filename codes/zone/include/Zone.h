@@ -68,6 +68,7 @@ public:
     static Grid * GetCGrid( Grid * grid );
     static Grid * GetFGrid( Grid * grid );
     static UnsGrid * GetUnsGrid();
+    static const UnsGrid * GetConstUnsGrid();
 public:
     static int GetNumberOfZoneNeighbors( int zoneId );
     static int GetNeighborZoneId( int zoneId, int iNeighbor );

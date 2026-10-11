@@ -46,6 +46,10 @@ class SLine;
 class Block2D;
 class BlkElem;
 
+// Ownership note:
+//   - Owns blkList / blkList2d / sDomainList / slineList (unique_ptr to Block3D/Block2D/SDomain/SLine).
+//   - Destructor must remain out-of-line in BlockFaceSolver.cpp (complete element types at delete).
+//     Do not =default ~BlkFaceSolver in this header.
 class BlkFaceSolver
 {
 public:

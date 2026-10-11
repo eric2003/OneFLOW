@@ -55,6 +55,11 @@ UnsGrid * UnsGridCast( Grid * gridIn )
     return static_cast< UnsGrid * >( gridIn );
 }
 
+const UnsGrid * UnsGridCast( const Grid * gridIn )
+{
+    return static_cast< const UnsGrid * >( gridIn );
+}
+
 UnsGrid::UnsGrid() = default;
 
 UnsGrid::~UnsGrid() = default;

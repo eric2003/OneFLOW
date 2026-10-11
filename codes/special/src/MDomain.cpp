@@ -39,6 +39,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+// Out-of-line: unique_ptr<SDomain> requires complete SDomain at delete.
 MDomain::~MDomain() = default;
 
 void MDomain::CalcSubDomainCtrlCoor()

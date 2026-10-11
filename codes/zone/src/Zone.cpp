@@ -150,6 +150,11 @@ UnsGrid * Zone::GetUnsGrid()
     return ONEFLOW::UnsGridCast( Zone::GetGrid() );
 }
 
+const UnsGrid * Zone::GetConstUnsGrid()
+{
+    return ONEFLOW::UnsGridCast( Zone::GetConstGrid() );
+}
+
 Grid * Zone::GetCGrid( Grid * grid )
 {
     int level = grid->level + 1;
