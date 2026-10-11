@@ -551,10 +551,7 @@ void ScalarGrid::SetCgnsZone( CgnsZone & cgnsZone )
 	cgnsCoor.coorNameList[ 2 ] = "Z";
 
 	NodeMesh * nodeMesh = cgnsCoor.GetNodeMesh();
-	nodeMesh->CreateNodes( nNodes );
-	nodeMesh->xN = this->xn.data;
-	nodeMesh->yN = this->yn.data;
-	nodeMesh->zN = this->zn.data;
+	nodeMesh->SetCoordinates( this->xn.data, this->yn.data, this->zn.data );
 
 	DataType_t dataType = RealDouble;
 
