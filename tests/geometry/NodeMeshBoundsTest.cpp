@@ -197,6 +197,45 @@ TEST(NodeMeshBoundsTest, CreateNodesRejectsNegativeCountWithoutChangingMesh)
     EXPECT_DOUBLE_EQ( mesh.zN[ 0 ], 3.0 );
 }
 
+TEST(NodeMeshBoundsTest, SetCoordinatesReplacesStorageAndInvalidatesBounds)
+{
+    ONEFLOW::NodeMesh mesh;
+    mesh.AddPoint( 1.0, 2.0, 3.0 );
+    mesh.CalcMinMaxBox();
+    ASSERT_TRUE( mesh.boxFlag );
+
+    ONEFLOW::RealField x = { -1.0, -2.0 };
+    ONEFLOW::RealField y = { 4.0, 5.0 };
+    ONEFLOW::RealField z = { 6.0, 7.0 };
+    mesh.SetCoordinates( x, y, z );
+
+    EXPECT_FALSE( mesh.boxFlag );
+    ASSERT_EQ( mesh.GetNumberOfNodes(), 2 );
+    EXPECT_DOUBLE_EQ( mesh.xN[ 0 ], -1.0 );
+    EXPECT_DOUBLE_EQ( mesh.yN[ 1 ], 5.0 );
+    EXPECT_DOUBLE_EQ( mesh.zN[ 1 ], 7.0 );
+
+    mesh.CalcMinMaxBox();
+    EXPECT_DOUBLE_EQ( mesh.pmin[ 0 ], -2.0 );
+    EXPECT_DOUBLE_EQ( mesh.pmax[ 2 ], 7.0 );
+}
+
+TEST(NodeMeshBoundsTest, SetCoordinatesRejectsMismatchedSizesWithoutMutation)
+{
+    ONEFLOW::NodeMesh mesh;
+    mesh.AddPoint( 1.0, 2.0, 3.0 );
+
+    ONEFLOW::RealField x = { 4.0, 5.0 };
+    ONEFLOW::RealField y = { 6.0 };
+    ONEFLOW::RealField z = { 7.0, 8.0 };
+
+    EXPECT_THROW( mesh.SetCoordinates( x, y, z ), std::invalid_argument );
+    ASSERT_EQ( mesh.GetNumberOfNodes(), 1 );
+    EXPECT_DOUBLE_EQ( mesh.xN[ 0 ], 1.0 );
+    EXPECT_DOUBLE_EQ( mesh.yN[ 0 ], 2.0 );
+    EXPECT_DOUBLE_EQ( mesh.zN[ 0 ], 3.0 );
+}
+
 TEST(NodeMeshBoundsTest, RecalculatesBoundsAfterDirectCoordinateMutation)
 {
     ONEFLOW::NodeMesh mesh;
