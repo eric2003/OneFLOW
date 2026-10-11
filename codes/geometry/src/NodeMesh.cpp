@@ -144,6 +144,7 @@ void NodeMesh::CalcMinMaxBox()
 
 void NodeMesh::AddPoint( Real xp, Real yp, Real zp )
 {
+    ValidateCoordinateArrays( *this );
     this->xN.push_back( xp );
     this->yN.push_back( yp );
     this->zN.push_back( zp );

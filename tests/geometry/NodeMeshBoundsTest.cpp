@@ -252,3 +252,18 @@ TEST(NodeMeshBoundsTest, RecalculatesBoundsAfterDirectCoordinateMutation)
     EXPECT_DOUBLE_EQ( mesh.pmin[ 0 ], -8.0 );
     EXPECT_DOUBLE_EQ( mesh.pmax[ 0 ], -8.0 );
 }
+
+TEST(NodeMeshBoundsTest, AddPointRejectsInconsistentCoordinateArraysWithoutMutation)
+{
+    ONEFLOW::NodeMesh mesh;
+    mesh.AddPoint( 1.0, 2.0, 3.0 );
+    mesh.yN.clear();
+
+    EXPECT_THROW( mesh.AddPoint( 4.0, 5.0, 6.0 ), std::logic_error );
+
+    ASSERT_EQ( mesh.xN.size(), 1 );
+    EXPECT_TRUE( mesh.yN.empty() );
+    ASSERT_EQ( mesh.zN.size(), 1 );
+    EXPECT_DOUBLE_EQ( mesh.xN[ 0 ], 1.0 );
+    EXPECT_DOUBLE_EQ( mesh.zN[ 0 ], 3.0 );
+}
