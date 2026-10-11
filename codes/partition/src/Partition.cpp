@@ -473,8 +473,7 @@ void Partition::SetCoor( UnsGrid & ggrid, UnsGrid & grid )
 
     if ( iCount != nNodes )
     {
-        std::cout << "error in Partition::SetCoor\n";
-        return;
+        Fatal( "Partition::SetCoor produced an inconsistent local node count.\n" );
     }
 
     grid.nodeMesh->SetCoordinates(
