@@ -427,7 +427,7 @@ void Plot3D::DumpCoorAscii( GridMediator * gridMediator )
 
         if ( nkflag )
         {
-            fileO.DumpCoorAscii( grid->nodeMesh->yN );
+            fileO.DumpCoorAscii( grid->nodeMesh->zN );
         }
     }
 
