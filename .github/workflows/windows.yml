@@ -139,3 +139,47 @@ jobs:
               "mpiexec -n 1" `
               "$oneflow_exe"
         shell: pwsh
+
+      - name: Run OneFLOW Grid Conversion Tests
+        env:
+          ONEFLOW_ROOT: ${{ github.workspace }}/install
+          HDF5_ROOT: ${{ github.workspace }}/_deps/hdf5/${{ env.HDF5_VERSION }}
+          CGNS_ROOT: ${{ github.workspace }}/_deps/cgns/${{ env.CGNS_VERSION }}
+          MSMPI_ROOT: C:/Program Files/Microsoft MPI
+        run: |
+          $ErrorActionPreference = "Stop"
+
+          $oneflow_exe = "$env:ONEFLOW_ROOT/bin/OneFLOW.exe"
+
+          if ( -not ( Test-Path $oneflow_exe ) ) {
+              throw "OneFLOW.exe not found: $oneflow_exe"
+          }
+
+          if ( -not ( Test-Path "$env:ONEFLOW_ROOT/bin/system" ) ) {
+              throw "OneFLOW system directory not found: $env:ONEFLOW_ROOT/bin/system"
+          }
+
+          $runtime_paths = @(
+              "$env:ONEFLOW_ROOT/bin"
+              "$env:HDF5_ROOT/bin"
+              "$env:CGNS_ROOT/bin"
+              "$env:MSMPI_ROOT/Bin"
+          )
+
+          foreach ( $runtime_path in $runtime_paths ) {
+              if ( Test-Path $runtime_path ) {
+                  $env:Path = "$runtime_path;$env:Path"
+              }
+          }
+
+          if ( -not ( Get-Command mpiexec.exe -ErrorAction SilentlyContinue ) ) {
+              throw "mpiexec.exe not found"
+          }
+
+          cd "${{ github.workspace }}/test"
+
+          python test.py `
+              "mpiexec -n 1" `
+              "$oneflow_exe" `
+              "suites/grid-serial.txt"
+        shell: pwsh
