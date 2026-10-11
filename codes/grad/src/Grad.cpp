@@ -120,12 +120,15 @@ void Grad::SwapBcGrad()
         Real mindiff = 1.0e-10;
         int idumpface = 1;
         int idumpcell = 0;
+        const MRField * dqdxField = dqdx;
+        const MRField * dqdyField = dqdy;
+        const MRField * dqdzField = dqdz;
 
-        HXDebug::DumpField( "grad.dqdxDownload.debug", dqdx );
+        HXDebug::DumpField( "grad.dqdxDownload.debug", dqdxField );
         HXDebug::CompareFile( mindiff, idumpcell );
-        HXDebug::DumpField( "grad.dqdyDownload.debug", dqdy );
+        HXDebug::DumpField( "grad.dqdyDownload.debug", dqdyField );
         HXDebug::CompareFile( mindiff, idumpcell );
-        HXDebug::DumpField( "grad.dqdzDownload.debug", dqdz );
+        HXDebug::DumpField( "grad.dqdzDownload.debug", dqdzField );
         HXDebug::CompareFile( mindiff, idumpcell );
     }
     if ( istore == 1 )
