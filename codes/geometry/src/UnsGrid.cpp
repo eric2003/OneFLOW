@@ -306,7 +306,7 @@ void UnsGrid::WriteGrid( DataBook * databook )
     if ( ONEFLOW::IsOneD() )
     {
         this->WriteGridFaceTopology1D( databook );
-        this->WriteBoundaryTopology1D( databook );
+        this->WriteBoundaryTopology( databook );
     }
     else
     {
@@ -380,23 +380,6 @@ void UnsGrid::WriteGridFaceTopology( DataBook * databook )
 }
 
 void UnsGrid::WriteBoundaryTopology( DataBook * databook )
-{
-    int nBFaces = this->GetFaceTopo().GetNBFaces();
-    ONEFLOW::HXWrite( databook, nBFaces );
-
-    ONEFLOW::HXWrite( databook, this->GetFaceTopo().GetBcRecord().bcType );
-    ONEFLOW::HXWrite( databook, this->GetFaceTopo().GetBcRecord().bcNameId );
-
-    ONEFLOW::HXWrite( databook, this->interFace->nIFaces );
-    if ( this->interFace->nIFaces > 0 )
-    {
-        ONEFLOW::HXWrite( databook, this->interFace->zoneId            );
-        ONEFLOW::HXWrite( databook, this->interFace->localInterfaceId  );
-        ONEFLOW::HXWrite( databook, this->interFace->i2b               );
-    }
-}
-
-void UnsGrid::WriteBoundaryTopology1D( DataBook * databook )
 {
     int nBFaces = this->GetFaceTopo().GetNBFaces();
     ONEFLOW::HXWrite( databook, nBFaces );
