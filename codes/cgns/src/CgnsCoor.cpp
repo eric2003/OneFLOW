@@ -182,8 +182,7 @@ void CgnsCoor::CopyCoorData( CgnsCoor * cgnsCoorIn )
          this->coordinateBuffers.size() < static_cast< std::size_t >( coordinateCount ) ||
          cgnsCoorIn->typeList.size() < coordinateCount ||
          cgnsCoorIn->nNodeList.size() < coordinateCount ||
-         cgnsCoorIn->coor.size() < coordinateCount ||
-         cgnsCoorIn->coordinateBuffers.size() < static_cast< std::size_t >( coordinateCount ) )
+         cgnsCoorIn->coor.size() < coordinateCount )
     {
         throw std::runtime_error( "CgnsCoor::CopyCoorData: inconsistent coordinate metadata" );
     }
@@ -336,8 +335,7 @@ void CgnsCoor::ReadCgnsGridCoordinates( CgnsCoor * cgnsCoorIn )
          cgnsCoorIn->typeList.size() < static_cast< std::size_t >( coordinateCount ) ||
          cgnsCoorIn->nNodeList.size() < static_cast< std::size_t >( coordinateCount ) ||
          cgnsCoorIn->coorNameList.size() < static_cast< std::size_t >( coordinateCount ) ||
-         cgnsCoorIn->coor.size() < static_cast< std::size_t >( coordinateCount ) ||
-         cgnsCoorIn->coordinateBuffers.size() < static_cast< std::size_t >( coordinateCount ) )
+         cgnsCoorIn->coor.size() < static_cast< std::size_t >( coordinateCount ) )
     {
         throw std::runtime_error( "CgnsCoor::ReadCgnsGridCoordinates: inconsistent source coordinate metadata" );
     }
