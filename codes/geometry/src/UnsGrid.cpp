@@ -138,6 +138,12 @@ void UnsGrid::ReadGrid( DataBook * databook )
     ONEFLOW::HXRead( databook, this->nFaces );
     ONEFLOW::HXRead( databook, this->nCells );
 
+    if ( this->nNodes < 0 || this->nFaces < 0 || this->nCells < 0 )
+    {
+        throw std::runtime_error(
+            "UnsGrid::ReadGrid: negative node, face, or cell count" );
+    }
+
     std::cout << "Grid dimension = " << Dim::dimension << std::endl;
 
     std::cout << " number of nodes    : " << this->nNodes << std::endl;
