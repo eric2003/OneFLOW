@@ -46,6 +46,29 @@ NodeMesh::NodeMesh()
     pmax.resize( 3 );
 }
 
+NodeMesh::Point3 NodeMesh::GetPoint( HXSize_t nodeIndex ) const
+{
+    ValidateCoordinateArrays( *this );
+    if ( nodeIndex >= this->xN.size() )
+    {
+        throw std::out_of_range( "NodeMesh node index is out of range" );
+    }
+    return { this->xN[ nodeIndex ], this->yN[ nodeIndex ], this->zN[ nodeIndex ] };
+}
+
+void NodeMesh::SetPoint( HXSize_t nodeIndex, Real xp, Real yp, Real zp )
+{
+    ValidateCoordinateArrays( *this );
+    if ( nodeIndex >= this->xN.size() )
+    {
+        throw std::out_of_range( "NodeMesh node index is out of range" );
+    }
+    this->xN[ nodeIndex ] = xp;
+    this->yN[ nodeIndex ] = yp;
+    this->zN[ nodeIndex ] = zp;
+    this->boxFlag = false;
+}
+
 void NodeMesh::CreateNodes( int numberOfNodes )
 {
     if ( numberOfNodes < 0 )

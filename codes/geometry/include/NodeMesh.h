@@ -23,7 +23,6 @@ License
 
 #pragma once
 #include "HXDefine.h"
-#include <stdexcept>
 
 BeginNameSpace( ONEFLOW )
 class NodeMesh
@@ -46,34 +45,8 @@ public:
     HXSize_t GetNumberOfNodes() const { return xN.size(); }
 
     // Keep SoA as the owning storage while offering a value-type point interface.
-    Point3 GetPoint( HXSize_t nodeIndex ) const
-    {
-        if ( xN.size() != yN.size() || xN.size() != zN.size() )
-        {
-            throw std::logic_error( "NodeMesh coordinate arrays have inconsistent sizes" );
-        }
-        if ( nodeIndex >= xN.size() )
-        {
-            throw std::out_of_range( "NodeMesh node index is out of range" );
-        }
-        return { xN[ nodeIndex ], yN[ nodeIndex ], zN[ nodeIndex ] };
-    }
-
-    void SetPoint( HXSize_t nodeIndex, Real xp, Real yp, Real zp )
-    {
-        if ( xN.size() != yN.size() || xN.size() != zN.size() )
-        {
-            throw std::logic_error( "NodeMesh coordinate arrays have inconsistent sizes" );
-        }
-        if ( nodeIndex >= xN.size() )
-        {
-            throw std::out_of_range( "NodeMesh node index is out of range" );
-        }
-        xN[ nodeIndex ] = xp;
-        yN[ nodeIndex ] = yp;
-        zN[ nodeIndex ] = zp;
-        this->boxFlag = false;
-    }
+    Point3 GetPoint( HXSize_t nodeIndex ) const;
+    void SetPoint( HXSize_t nodeIndex, Real xp, Real yp, Real zp );
 
     void CreateNodes( int numberOfNodes );
     void SetCoordinates( RealField x, RealField y, RealField z );
