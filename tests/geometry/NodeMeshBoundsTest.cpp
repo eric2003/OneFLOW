@@ -58,3 +58,46 @@ TEST(NodeMeshBoundsTest, ResizingInvalidatesCachedBounds)
     mesh.CreateNodes( 2 );
     EXPECT_FALSE( mesh.boxFlag );
 }
+
+TEST(NodeMeshBoundsTest, PointValueInterfaceReadsSoAStorage)
+{
+    ONEFLOW::NodeMesh mesh;
+    mesh.AddPoint( 1.25, -2.5, 3.75 );
+    mesh.AddPoint( 4.0, 5.0, 6.0 );
+
+    const ONEFLOW::NodeMesh & constMesh = mesh;
+    const ONEFLOW::NodeMesh::Point3 point = constMesh.GetPoint( 1 );
+
+    EXPECT_DOUBLE_EQ( point.x, 4.0 );
+    EXPECT_DOUBLE_EQ( point.y, 5.0 );
+    EXPECT_DOUBLE_EQ( point.z, 6.0 );
+}
+
+TEST(NodeMeshBoundsTest, SettingPointUpdatesSoAStorageAndInvalidatesBounds)
+{
+    ONEFLOW::NodeMesh mesh;
+    mesh.AddPoint( 1.0, 2.0, 3.0 );
+    mesh.CalcMinMaxBox();
+    ASSERT_TRUE( mesh.boxFlag );
+
+    mesh.SetPoint( 0, -4.0, 5.0, -6.0 );
+
+    EXPECT_FALSE( mesh.boxFlag );
+    EXPECT_DOUBLE_EQ( mesh.xN[ 0 ], -4.0 );
+    EXPECT_DOUBLE_EQ( mesh.yN[ 0 ], 5.0 );
+    EXPECT_DOUBLE_EQ( mesh.zN[ 0 ], -6.0 );
+
+    mesh.CalcMinMaxBox();
+    EXPECT_DOUBLE_EQ( mesh.pmin[ 0 ], -4.0 );
+    EXPECT_DOUBLE_EQ( mesh.pmax[ 1 ], 5.0 );
+    EXPECT_DOUBLE_EQ( mesh.pmin[ 2 ], -6.0 );
+}
+
+TEST(NodeMeshBoundsTest, PointValueInterfaceRejectsOutOfRangeIndex)
+{
+    ONEFLOW::NodeMesh mesh;
+    mesh.AddPoint( 1.0, 2.0, 3.0 );
+
+    EXPECT_THROW( mesh.GetPoint( 1 ), std::out_of_range );
+    EXPECT_THROW( mesh.SetPoint( 1, 4.0, 5.0, 6.0 ), std::out_of_range );
+}
