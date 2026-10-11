@@ -134,7 +134,7 @@ jobs:
           # make -j 4
           ctest --output-on-failure
         shell: bash        
-      - name: Run OneFLOW CFD Tests
+      - name: Run OneFLOW Regression Tests
         env:
           prefix: ${{ github.workspace }}/Run
           MPICH_NO_UCX: 1
