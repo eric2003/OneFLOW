@@ -730,6 +730,13 @@ _DUMMY_SCENARIOS = [
         "result_content": None,  # the fake solver won't write anything
         "exit_code": 0,
     },
+    {
+        "name": "dummy_case_no_output_assertions",
+        "baseline_content": 'Variables=\\n"iter"\\n"rho"\\n0 1.0\\n',
+        "result_content": 'Variables=\\n"iter"\\n"rho"\\n0 1.0\\n',
+        "exit_code": 0,
+        "no_assertions": True,
+    },
 ]
 
 
@@ -771,8 +778,9 @@ def build_dummy_suite(root: str):
     for scenario in _DUMMY_SCENARIOS:
         case_dir = os.path.join(root, scenario["name"])
         os.makedirs(os.path.join(case_dir, "autotest"), exist_ok=True)
-        with open(os.path.join(case_dir, "autotest", "compare.txt"), "w", encoding="utf-8") as f:
-            f.write(_DUMMY_RESULT_RELATIVE_PATH + "\n")
+        if not scenario.get("no_assertions"):
+            with open(os.path.join(case_dir, "autotest", "compare.txt"), "w", encoding="utf-8") as f:
+                f.write(_DUMMY_RESULT_RELATIVE_PATH + "\n")
         with open(os.path.join(case_dir, "autotest", "residual.dat"), "w", encoding="utf-8") as f:
             f.write(scenario["baseline_content"])
         scenario_data = {
