@@ -405,18 +405,45 @@ void UnsGrid::WriteGridFaceTopology( DataBook * databook )
 
 void UnsGrid::WriteBoundaryTopology( DataBook * databook )
 {
-    int nBFaces = this->GetFaceTopo().GetNBFaces();
+    const HXSize_t nBFaces = this->GetFaceTopo().GetNBFaces();
+    const BcRecord & bcRecord = this->GetFaceTopo().GetBcRecord();
+    const InterFace & interFace = *this->interFace;
+
+    if ( nBFaces < 0 || nBFaces > this->nFaces )
+    {
+        throw std::logic_error(
+            "UnsGrid::WriteBoundaryTopology: invalid boundary-face count" );
+    }
+    if ( bcRecord.bcType.size() != static_cast< std::size_t >( nBFaces ) ||
+         bcRecord.bcNameId.size() != static_cast< std::size_t >( nBFaces ) )
+    {
+        throw std::logic_error(
+            "UnsGrid::WriteBoundaryTopology: boundary record count does not match boundary-face count" );
+    }
+    if ( interFace.nIFaces < 0 || interFace.nIFaces > nBFaces )
+    {
+        throw std::logic_error(
+            "UnsGrid::WriteBoundaryTopology: invalid interface-face count" );
+    }
+    if ( interFace.zoneId.size() != static_cast< std::size_t >( interFace.nIFaces ) ||
+         interFace.localInterfaceId.size() != static_cast< std::size_t >( interFace.nIFaces ) ||
+         interFace.i2b.size() != static_cast< std::size_t >( interFace.nIFaces ) )
+    {
+        throw std::logic_error(
+            "UnsGrid::WriteBoundaryTopology: interface mapping count does not match interface-face count" );
+    }
+
     ONEFLOW::HXWrite( databook, nBFaces );
 
-    ONEFLOW::HXWrite( databook, this->GetFaceTopo().GetBcRecord().bcType );
-    ONEFLOW::HXWrite( databook, this->GetFaceTopo().GetBcRecord().bcNameId );
+    ONEFLOW::HXWrite( databook, bcRecord.bcType );
+    ONEFLOW::HXWrite( databook, bcRecord.bcNameId );
 
-    ONEFLOW::HXWrite( databook, this->interFace->nIFaces );
-    if ( this->interFace->nIFaces > 0 )
+    ONEFLOW::HXWrite( databook, interFace.nIFaces );
+    if ( interFace.nIFaces > 0 )
     {
-        ONEFLOW::HXWrite( databook, this->interFace->zoneId            );
-        ONEFLOW::HXWrite( databook, this->interFace->localInterfaceId  );
-        ONEFLOW::HXWrite( databook, this->interFace->i2b               );
+        ONEFLOW::HXWrite( databook, interFace.zoneId );
+        ONEFLOW::HXWrite( databook, interFace.localInterfaceId );
+        ONEFLOW::HXWrite( databook, interFace.i2b );
     }
 }
 
