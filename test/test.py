@@ -688,11 +688,9 @@ def report_results(
 
 
 # ---------------------------------------------------------------------------
-# --dry-run: a handful of self-contained fake test cases, used to exercise
-# run_test/run_all_test/report_results without needing a real OneFLOW
-# binary or a real suite file. Each scenario is designed to fail for a
-# DIFFERENT reason, so the summary output demonstrates that the pipeline
-# correctly tells different kinds of failures apart.
+# --dry-run: self-contained fake cases used to exercise manifest validation,
+# process execution, output comparison, and final reporting without a real
+# OneFLOW binary or suite file. Failure scenarios target distinct assertions.
 # ---------------------------------------------------------------------------
 
 _DUMMY_RESULT_RELATIVE_PATH = "results/residual.dat"
