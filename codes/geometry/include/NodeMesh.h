@@ -76,6 +76,7 @@ public:
     }
 
     void CreateNodes( int numberOfNodes );
+    void SetCoordinates( RealField x, RealField y, RealField z );
     void CalcMinMaxBox();
     void AddPoint( Real xp, Real yp, Real zp );
 
