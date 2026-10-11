@@ -338,7 +338,6 @@ void HXDebug::CompareFile( Real mindiff, int idump )
     int startStrategy = ONEFLOW::GetDataValue< int >("startStrategy");
     if ( startStrategy != 1 ) return;
 
-    UnsGrid * grid = Zone::GetUnsGrid();
     std::unique_ptr<MRField> field1 = HXDebug::ReadField( HXDebug::fileName1 );
     std::unique_ptr<MRField> field2 = HXDebug::ReadField( HXDebug::fileName2 );
     int nEqu = field1->GetNEqu();
@@ -368,7 +367,6 @@ void HXDebug::CompareFile( Real mindiff, int idump )
 
 void HXDebug::DumpCellInfo( int iCell )
 {
-    UnsGrid * grid = Zone::GetUnsGrid();
     int nFaces = ( * ug.c2f )[ iCell ].size();
     int nBFaces = ( * ug.bcRecord ).bcType.size();
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
@@ -383,7 +381,7 @@ void HXDebug::DumpCellInfo( int iCell )
     }
 }
 
-void HXDebug::CheckNANField( MRField * field )
+void HXDebug::CheckNANField( const MRField * field )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
