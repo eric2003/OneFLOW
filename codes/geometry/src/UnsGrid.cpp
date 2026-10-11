@@ -323,15 +323,22 @@ void UnsGrid::WriteGrid( DataBook * databook )
 
 void UnsGrid::WriteGridFaceTopology1D( DataBook * databook )
 {
-    std::cout << " Reading eTypes\n";
+    const IntField & cellTypes = this->GetCellMesh().GetCellTopo().eTypes;
+    const IntField & faceTypes = this->GetFaceTopo().GetFaceTypes();
 
-    //write element types
-    int ntmpElements = this->GetCellMesh().GetCellTopo().eTypes.size();
-    ONEFLOW::HXWrite( databook, this->GetCellMesh().GetCellTopo().eTypes );
+    if ( cellTypes.size() != this->nCells )
+    {
+        throw std::logic_error(
+            "UnsGrid::WriteGridFaceTopology1D: cell type count does not match cell count" );
+    }
+    if ( faceTypes.size() != this->nFaces )
+    {
+        throw std::logic_error(
+            "UnsGrid::WriteGridFaceTopology1D: face type count does not match face count" );
+    }
 
-    //write face types
-    int ntmpFaces = this->GetFaceTopo().GetFaceTypes().size();
-    ONEFLOW::HXWrite( databook, this->GetFaceTopo().GetFaceTypes() );
+    ONEFLOW::HXWrite( databook, cellTypes );
+    ONEFLOW::HXWrite( databook, faceTypes );
 
     IntField numFaceNode( this->nFaces );
 
