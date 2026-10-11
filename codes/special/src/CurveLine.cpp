@@ -30,16 +30,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-StrCurveLoop::StrCurveLoop()
-{
-    ;
-}
-
-StrCurveLoop::~StrCurveLoop()
-{
-    ;
-}
-
 void StrCurveLoop::AddCurve( int curveId )
 {
     this->curveIdList.push_back( curveId );

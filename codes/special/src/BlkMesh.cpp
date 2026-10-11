@@ -36,16 +36,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-BlkBasic::BlkBasic()
-{
-    ;
-}
-
-BlkBasic::~BlkBasic()
-{
-    ;
-}
-
 void BlkBasic::AddLocalPt( int p1, int p2 )
 {
     IntField face;

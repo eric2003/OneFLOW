@@ -29,14 +29,6 @@ BeginNameSpace( ONEFLOW )
 
 BlkElemHome bbElemHome;
 
-BlkElem::BlkElem()
-{
-}
-
-BlkElem::~BlkElem()
-{
-}
-
 void BlkElem::Init( int eType )
 {
     this->eType = eType;
@@ -163,16 +155,6 @@ BlkElem * BlkElemHome::GetBlkElem( int eType )
 const BlkElem * BlkElemHome::GetBlkElem( int eType ) const
 {
     return elems[ eType ].get();
-}
-
-BlkFace::BlkFace()
-{
-    ;
-}
-
-BlkFace::~BlkFace()
-{
-    ;
 }
 
 EndNameSpace

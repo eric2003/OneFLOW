@@ -29,15 +29,11 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+DomainMachine::DomainMachine() = default;
+
+DomainMachine::~DomainMachine() = default;
+
 DomainMachine domain_Machine;
-
-DomainMachine::DomainMachine()
-{
-}
-
-DomainMachine::~DomainMachine()
-{
-}
 
 void DomainMachine::Reset()
 {

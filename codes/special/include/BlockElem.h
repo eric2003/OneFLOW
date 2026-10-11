@@ -30,8 +30,8 @@ BeginNameSpace( ONEFLOW )
 class BlkElem
 {
 public:
-    BlkElem();
-    ~BlkElem();
+    BlkElem() = default;
+    ~BlkElem() = default;
 public:
     int eType;
     IntField nodeId;
@@ -66,8 +66,8 @@ extern BlkElemHome bbElemHome;
 class BlkFace
 {
 public:
-    BlkFace();
-    ~BlkFace();
+    BlkFace() = default;
+    ~BlkFace() = default;
 public:
     IntField lblk, rblk;
     IntField lloc, rloc;

@@ -31,8 +31,8 @@ BeginNameSpace( ONEFLOW )
 class CalcCoor
 {
 public:
-    CalcCoor();
-    ~CalcCoor();
+    CalcCoor() = default;
+    ~CalcCoor() = default;
 public:
     int i, j, k;
 public:

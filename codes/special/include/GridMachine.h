@@ -33,8 +33,8 @@ class GridLayout;
 class GridMachine
 {
 public:
-    GridMachine();
-    ~GridMachine();
+    GridMachine() = default;
+    ~GridMachine() = default;
 public:
     void Run( const std::string & fileName );
 private:

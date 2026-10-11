@@ -35,24 +35,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-BlkF2C::BlkF2C()
-{
-    ;
-}
-
-BlkF2C::~BlkF2C()
-{
-    ;
-}
-
-Face2D::Face2D()
-{
-}
-
-Face2D::~Face2D()
-{
-}
-
 void Face2D::CalcRegion()
 {
     if ( this->bcType != -1 )
@@ -86,24 +68,6 @@ void Face2D::Set1DRegion( IntField & ctrlpoints )
     this->ctrlpoints.push_back( ctrlpoints[ 0 ] );
     this->ctrlpoints.push_back( ctrlpoints[ 1 ] );
     this->ctrlpoints.push_back( ctrlpoints[ 1 ] );
-}
-
-DomDataBasic::DomDataBasic()
-{
-    ;
-}
-
-DomDataBasic::~DomDataBasic()
-{
-}
-
-DomData::DomData()
-{
-    ;
-}
-
-DomData::~DomData()
-{
 }
 
 void DomData::ConstructCtrlPoint()

@@ -39,11 +39,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-MDomain::MDomain()
-{
-    ;
-}
-
 MDomain::~MDomain() = default;
 
 void MDomain::CalcSubDomainCtrlCoor()

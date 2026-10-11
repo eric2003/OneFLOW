@@ -40,14 +40,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-HXRandomClass::HXRandomClass()
-{
-}
-
-HXRandomClass::~HXRandomClass()
-{
-}
-
 void HXRandomClass::Initialize()
 {
     ::srand( ::time( 0 ) );
@@ -79,16 +71,6 @@ void HXRandomClass::RangeRandom( int rangeMin, int rangeMax, std::vector< int > 
     }
 }
 
-
-SimpleMesh2D::SimpleMesh2D()
-{
-    ;
-}
-
-SimpleMesh2D::~SimpleMesh2D()
-{
-    ;
-}
 
 void SimpleMesh2D::GenerateMesh()
 {
@@ -343,14 +325,6 @@ void SimpleMesh2D::PushCircleNode( RealField & xArray, RealField & yArray, IntFi
 // =====================================================================
 // Mesh Implementation (Refactored)
 // =====================================================================
-
-Mesh::Mesh()
-{
-}
-
-Mesh::~Mesh()
-{
-}
 
 void Mesh::CreateMesh()
 {

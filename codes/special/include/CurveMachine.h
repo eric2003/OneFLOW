@@ -32,8 +32,8 @@ class CurveLine;
 class CurveMachine
 {
 public:
-    CurveMachine();
-    ~CurveMachine();
+    CurveMachine() = default;
+    ~CurveMachine() = default;
 public:
     HXVector< std::unique_ptr< CurveLine > > curveList;
 public:

@@ -39,8 +39,8 @@ class Face2D;
 class BlkF2C
 {
 public:
-    BlkF2C();
-    ~BlkF2C();
+    BlkF2C() = default;
+    ~BlkF2C() = default;
 public:
     int id, type, bctype;
     IntField cellList;
@@ -50,8 +50,8 @@ public:
 class Face2D
 {
 public:
-    Face2D();
-    ~Face2D();
+    Face2D() = default;
+    ~Face2D() = default;
 public:
     int face_id;
     int bcType;
@@ -68,8 +68,8 @@ public:
 class DomDataBasic
 {
 public:
-    DomDataBasic();
-    ~DomDataBasic();
+    DomDataBasic() = default;
+    ~DomDataBasic() = default;
 public:
     IntField candidate_ctrlpoints;
     IntField candidate_bcpoints;
@@ -89,8 +89,8 @@ public:
 class DomData : public DomDataBasic
 {
 public:
-    DomData();
-    ~DomData();
+    DomData() = default;
+    ~DomData() = default;
 public:
     IntField & GetLinePoints( int line_id );
     const IntField & GetLinePoints( int line_id ) const;

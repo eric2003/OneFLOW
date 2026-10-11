@@ -33,6 +33,7 @@ License
 BeginNameSpace( ONEFLOW )
 
 class Block3D;
+class Block2D;
 class BlkMesh;
 class SDomain;
 class MDomain;

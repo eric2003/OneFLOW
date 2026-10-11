@@ -25,6 +25,7 @@ License
 #include "HXDefine.h"
 #include "CalcCoor.h"
 #include "SimpleDomain.h"
+#include "SDomain.h"
 #include <set>
 #include <map>
 #include <fstream>
@@ -44,7 +45,7 @@ class MLine;
 class MDomain : public DomData
 {
 public:
-    MDomain();
+    MDomain() = default;
     ~MDomain();
 public:
     int pos;

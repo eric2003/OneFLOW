@@ -34,8 +34,8 @@ class CurveLine;
 class StrCurveLoop
 {
 public:
-    StrCurveLoop();
-    ~StrCurveLoop();
+    StrCurveLoop() = default;
+    ~StrCurveLoop() = default;
 public:
     int ni, nj;
     IntField curveIdList;

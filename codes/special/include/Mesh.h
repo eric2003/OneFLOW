@@ -44,8 +44,8 @@ class Mesh;
 class HXRandomClass
 {
 public:
-    HXRandomClass();
-    ~HXRandomClass();
+    HXRandomClass() = default;
+    ~HXRandomClass() = default;
 public:
     static void Initialize();
     static int Random( int rangeMin, int rangeMax );
@@ -61,8 +61,8 @@ public:
 class SimpleMesh2D
 {
 public:
-    SimpleMesh2D();
-    ~SimpleMesh2D();
+    SimpleMesh2D() = default;
+    ~SimpleMesh2D() = default;
 public:
     int ni, nj;
     RealField2D xx;
@@ -93,8 +93,8 @@ protected:
 class Mesh : public DataStorage
 {
 public:
-    Mesh();
-    ~Mesh();
+    Mesh() = default;
+    ~Mesh() = default;
 
     // Disable copy to prevent double-free of unique_ptrs
     Mesh(const Mesh&) = delete;
