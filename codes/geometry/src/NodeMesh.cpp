@@ -112,9 +112,13 @@ void NodeMesh::ScaleAndTranslate( Real scale, Real tx, Real ty, Real tz )
     const size_t nNodes = this->GetNumberOfNodes();
     for ( size_t iNode = 0; iNode < nNodes; ++ iNode )
     {
-        this->xN[ iNode ] = this->xN[ iNode ] * scale + tx;
-        this->yN[ iNode ] = this->yN[ iNode ] * scale + ty;
-        this->zN[ iNode ] = this->zN[ iNode ] * scale + tz;
+        this->xN[ iNode ] *= scale;
+        this->yN[ iNode ] *= scale;
+        this->zN[ iNode ] *= scale;
+
+        this->xN[ iNode ] += tx;
+        this->yN[ iNode ] += ty;
+        this->zN[ iNode ] += tz;
     }
     this->boxFlag = false;
 }
