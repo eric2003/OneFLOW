@@ -405,7 +405,7 @@ void UnsGrid::WriteGridFaceTopology( DataBook * databook )
 
 void UnsGrid::WriteBoundaryTopology( DataBook * databook )
 {
-    const HXSize_t nBFaces = this->GetFaceTopo().GetNBFaces();
+    const int nBFaces = static_cast< int >( this->GetFaceTopo().GetNBFaces() );
     const BcRecord & bcRecord = this->GetFaceTopo().GetBcRecord();
     const InterFace & interFace = *this->interFace;
 
