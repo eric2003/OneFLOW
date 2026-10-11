@@ -68,8 +68,8 @@ void Grad::CalcGrad()
         HXDebug::DumpField( fname, q );
         HXDebug::CompareFile( 1.0e-12, idumpcell );
 
-        UnsGrid * grid = Zone::GetUnsGrid();
-        MRField * qq = GetFieldPointer< MRField >( grid, "q" );
+        const UnsGrid * grid = Zone::GetConstUnsGrid();
+        const MRField * qq = GetFieldPointer< MRField >( grid, "q" );
         HXDebug::DumpField( "flowq.debug", qq );
         HXDebug::CompareFile( 1.0e-12, idumpcell );
 
