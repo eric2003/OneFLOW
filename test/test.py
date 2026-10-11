@@ -256,11 +256,10 @@ def build_comparison_pairs(
 
 @dataclass
 class TestResult:
-    """Outcome of running one test case, with enough detail to say not just
-    "did it pass" but "what exactly failed", for reporting purposes.
-    """
+    """Outcome of one case, including its path for unambiguous reporting."""
 
     case_name: str
+    case_dir: str
     passed: bool
     return_code: Optional[int] = None
     files_ok: Optional[bool] = None
@@ -377,6 +376,7 @@ def run_test(
 
     result = TestResult(
         case_name=case_name,
+        case_dir=os.path.normpath(test_project_dir),
         passed=not failure_reasons,
         return_code=return_code,
         files_ok=files_ok,
@@ -491,28 +491,100 @@ def run_all_test(
     return results
 
 
-def report_results(results: List[TestResult]) -> None:
-    """Print a summary of which cases passed and which failed, by name -
-    not just a pass/fail count.
-    """
-    passed_names = [r.case_name for r in results if r.passed]
-    failed_results = [r for r in results if not r.passed]
+def _normalized_case_path(path: str) -> str:
+    return os.path.normcase(os.path.normpath(path.replace("\\\\", os.sep).replace("/", os.sep)))
 
-    logger.info(
-        "Passed (%d): %s", len(passed_names), ", ".join(passed_names) or "(none)"
-    )
+
+def read_suite_groups(filename: str):
+    """Return named suite memberships for reporting, including included suites."""
+    groups = []
+    visited = set()
+
+    def visit(suite_filename: str) -> None:
+        suite_path = os.path.abspath(suite_filename)
+        normalized_suite = os.path.normcase(os.path.normpath(suite_path))
+        if normalized_suite in visited:
+            return
+        visited.add(normalized_suite)
+        with open(suite_path, "r", encoding="utf-8-sig") as stream:
+            entries = [line.strip() for line in stream if line.strip() and not line.strip().startswith("#")]
+        case_dirs = read_suite_file(suite_path)
+        groups.append((os.path.basename(suite_path), case_dirs))
+        for entry in entries:
+            if entry.startswith("@") and entry[1:].strip():
+                include_name = entry[1:].strip()
+                include_path = include_name if os.path.isabs(include_name) else os.path.join(os.path.dirname(suite_path), include_name)
+                visit(include_path)
+
+    visit(filename)
+    return groups
+
+
+def _summarize_results(results: List[TestResult]) -> str:
+    passed = sum(1 for result in results if result.passed)
+    failed = len(results) - passed
+    return f"{passed}/{len(results)} passed, {failed} failed"
+
+
+def report_results(
+    results: List[TestResult],
+    suite_groups=None,
+    selected_suite: Optional[str] = None,
+    total_elapsed: Optional[float] = None,
+) -> None:
+    """Print a layered report by case, suite membership, and case directory."""
+    passed_results = [result for result in results if result.passed]
+    failed_results = [result for result in results if not result.passed]
+
+    print()
+    print("=" * 78)
+    print("OneFLOW Regression Test Report")
+    print("=" * 78)
+    if selected_suite:
+        print(f"Selected suite : {selected_suite}")
+    print(f"Overall        : {_summarize_results(results)}")
+    if total_elapsed is not None:
+        print(f"Elapsed        : {total_elapsed:.2f} s")
+    print(f"Suite groups   : {len(suite_groups or [])}")
+    print()
+
+    if suite_groups:
+        print("By suite manifest (groups may overlap; totals are not additive):")
+        for group_name, group_cases in suite_groups:
+            normalized = {_normalized_case_path(path) for path in group_cases}
+            group_results = [result for result in results if _normalized_case_path(result.case_dir) in normalized]
+            print(f"  {group_name:<28} {_summarize_results(group_results)}")
+        print()
+
+    directory_groups = {}
+    for result in results:
+        parts = result.case_dir.replace("\\\\", "/").split("/")
+        category = parts[0] if len(parts) > 1 else "(root)"
+        directory_groups.setdefault(category, []).append(result)
+    print("By case directory:")
+    for category in sorted(directory_groups):
+        print(f"  {category + '/':<28} {_summarize_results(directory_groups[category])}")
+    print()
+
+    print(f"Passed ({len(passed_results)}):")
+    if passed_results:
+        for result in passed_results:
+            print(f"  [PASS] {result.case_dir}")
+    else:
+        print("  (none)")
+
+    print(f"Failed ({len(failed_results)}):")
     if failed_results:
-        logger.info("Failed (%d):", len(failed_results))
-        for r in failed_results:
-            logger.info("  - %s -> %s", r.case_name, r.failure_summary or "unknown reason")
+        for result in failed_results:
+            print(f"  [FAIL] {result.case_dir}")
+            print(f"         {result.failure_summary or 'unknown reason'}")
     else:
-        logger.info("Failed (0): (none)")
+        print("  (none)")
 
-    if not failed_results:
-        logger.info("Total tests passed!")
-    else:
-        logger.info("ERROR: Some tests failed")
-    logger.info("%s tests passed! %s tests failed!", len(passed_names), len(failed_results))
+    print("-" * 78)
+    status = "PASS" if not failed_results else "FAIL"
+    print(f"FINAL STATUS: {status} | {len(passed_results)} passed / {len(failed_results)} failed / {len(results)} total")
+    print("=" * 78)
 
 
 # ---------------------------------------------------------------------------
@@ -681,6 +753,8 @@ def main() -> int:
     list_directory_contents(location)
 
     dry_run_dir = None
+    suite_groups = []
+    selected_suite = args.suite_file if not args.dry_run else "--dry-run"
     if args.dry_run:
         dry_run_dir = tempfile.mkdtemp(prefix="oneflow_test_dryrun_")
         case_dirs, mpi_cmd, exe_cmd = build_dummy_suite(dry_run_dir)
@@ -695,6 +769,7 @@ def main() -> int:
             parser.error("mpi_cmd and exe_cmd are required unless --dry-run is given")
         try:
             case_dirs = read_suite_file(args.suite_file)
+            suite_groups = read_suite_groups(args.suite_file)
         except (OSError, ValueError) as error:
             parser.error(str(error))
         mpi_cmd, exe_cmd = args.mpi_cmd, args.exe_cmd
@@ -712,6 +787,7 @@ def main() -> int:
     )
     logger.info("process_timeout=%s", args.timeout)
 
+    suite_start = time.perf_counter()
     try:
         results = run_all_test(
             case_dirs, mpi_cmd, exe_cmd, residual_db, residual_tolerance, args.timeout
@@ -720,7 +796,12 @@ def main() -> int:
         if dry_run_dir:
             shutil.rmtree(dry_run_dir, ignore_errors=True)
 
-    report_results(results)
+    report_results(
+        results,
+        suite_groups=suite_groups,
+        selected_suite=selected_suite,
+        total_elapsed=time.perf_counter() - suite_start,
+    )
     n_fail = sum(1 for r in results if not r.passed)
     return 0 if n_fail == 0 else 1
 
