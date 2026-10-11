@@ -29,8 +29,10 @@ def build_database(
         for line in suite_file.read_text(encoding="utf-8-sig").splitlines()
         if line.strip() and not line.lstrip().startswith("#")
     ]
-    for case_name in case_names:
-        autotest_dir = TEST_ROOT / case_name / "autotest"
+    for case_entry in case_names:
+        case_path = TEST_ROOT / case_entry
+        case_name = Path(case_entry).name
+        autotest_dir = case_path / "autotest"
         files: Dict[str, Any] = {}
         reference_names = {"res.dat", "turbres.dat"}
         for source in sorted(autotest_dir.glob("*.dat")):
@@ -38,7 +40,7 @@ def build_database(
                 continue
             variables, rows = parse_residual_file(source)
             files[f"results/{source.name}"] = {
-                "source_reference": f"{case_name}/autotest/{source.name}",
+                "source_reference": f"{case_entry}/autotest/{source.name}",
                 "sha256": sha256_file(source),
                 "variables": variables,
                 "rows": rows,

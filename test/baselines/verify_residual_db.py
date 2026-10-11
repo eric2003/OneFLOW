@@ -27,11 +27,15 @@ def verify(database_path: Path) -> list[str]:
     if not suite_path.is_file():
         errors.append(f"missing suite file: {suite_path}")
         return errors
-    suite_cases = [
+    suite_entries = [
         line.strip()
         for line in suite_path.read_text(encoding="utf-8-sig").splitlines()
         if line.strip() and not line.lstrip().startswith("#")
     ]
+    suite_cases = [Path(entry).name for entry in suite_entries]
+    for entry in suite_entries:
+        if not (TEST_ROOT / entry).is_dir():
+            errors.append(f"missing suite case directory: {TEST_ROOT / entry}")
     database_cases = list(database.get("cases", {}))
     if database_cases != suite_cases:
         errors.append(
