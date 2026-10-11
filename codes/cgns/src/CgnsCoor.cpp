@@ -327,11 +327,12 @@ void CgnsCoor::ReadCgnsGridCoordinates( CgnsCoor * cgnsCoorIn )
         throw std::logic_error( "CgnsCoor::ReadCgnsGridCoordinates: self-copy is not supported" );
     }
 
-    NodeMesh & nodeMesh = this->RequireNodeMesh();
+    this->RequireNodeMesh();
     NodeMesh & nodeMeshIn = cgnsCoorIn->RequireNodeMesh();
 
     const int coordinateCount = cgnsCoorIn->nCoor;
-    if ( coordinateCount <= 0 || coordinateCount > cgnsCoorIn->ndim ||
+    if ( coordinateCount <= 0 || coordinateCount > this->ndim ||
+         coordinateCount > cgnsCoorIn->ndim ||
          cgnsCoorIn->typeList.size() < static_cast< std::size_t >( coordinateCount ) ||
          cgnsCoorIn->nNodeList.size() < static_cast< std::size_t >( coordinateCount ) ||
          cgnsCoorIn->coorNameList.size() < static_cast< std::size_t >( coordinateCount ) ||
@@ -359,12 +360,48 @@ void CgnsCoor::ReadCgnsGridCoordinates( CgnsCoor * cgnsCoorIn )
         }
     }
 
-    this->nCoor = coordinateCount;
-    this->typeList = cgnsCoorIn->typeList;
-    this->nNodeList = cgnsCoorIn->nNodeList;
-    this->coorNameList = cgnsCoorIn->coorNameList;
-    this->CopyCoorData( cgnsCoorIn );
-    nodeMesh = nodeMeshIn;
+    // Build the replacement state before changing this object.
+    CgnsCoor staged( this->cgnsZone );
+    staged.nCoor = coordinateCount;
+    staged.typeList = cgnsCoorIn->typeList;
+    staged.nNodeList = cgnsCoorIn->nNodeList;
+    staged.coorNameList = cgnsCoorIn->coorNameList;
+    staged.CopyCoorData( cgnsCoorIn );
+    staged.nodeMesh = std::make_unique< NodeMesh >( nodeMeshIn );
+
+    using std::swap;
+    swap( this->nCoor, staged.nCoor );
+    swap( this->typeList, staged.typeList );
+    swap( this->nNodeList, staged.nNodeList );
+    swap( this->coorNameList, staged.coorNameList );
+    swap( this->coordinateBuffers, staged.coordinateBuffers );
+    swap( this->nodeMesh, staged.nodeMesh );
+
+    // Rebind raw views to the buffers now owned by each object.
+    for ( int iCoor = 0; iCoor < this->ndim; ++ iCoor )
+    {
+        if ( iCoor < this->nCoor )
+        {
+            this->coor[ iCoor ] = this->typeList[ iCoor ] == RealSingle
+                ? static_cast< void * >( this->coordinateBuffers[ iCoor ].singlePrecision.get() )
+                : static_cast< void * >( this->coordinateBuffers[ iCoor ].doublePrecision.get() );
+        }
+        else
+        {
+            this->coor[ iCoor ] = nullptr;
+        }
+
+        if ( iCoor < staged.nCoor )
+        {
+            staged.coor[ iCoor ] = staged.typeList[ iCoor ] == RealSingle
+                ? static_cast< void * >( staged.coordinateBuffers[ iCoor ].singlePrecision.get() )
+                : static_cast< void * >( staged.coordinateBuffers[ iCoor ].doublePrecision.get() );
+        }
+        else
+        {
+            staged.coor[ iCoor ] = nullptr;
+        }
+    }
 }
 
 void CgnsCoor::DumpCgnsGridCoordinates()
