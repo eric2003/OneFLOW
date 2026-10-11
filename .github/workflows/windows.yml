@@ -130,6 +130,7 @@ jobs:
           }
 
           cd "${{ github.workspace }}/test"
+          python -m py_compile test.py gui.py residual_db.py
           python --version
 
           python test.py `
