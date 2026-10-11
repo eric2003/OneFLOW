@@ -26,16 +26,6 @@ BeginNameSpace( ONEFLOW )
 
 NsCtrl ns_ctrl;
 
-NsCtrl::NsCtrl()
-{
-    ;
-}
-
-NsCtrl::~NsCtrl()
-{
-    ;
-}
-
 void NsCtrl::Init()
 {
     this->time_integral = GetDataValue< int >( "time_integral" );

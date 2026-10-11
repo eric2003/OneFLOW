@@ -64,16 +64,6 @@ Real FPSplit5( const Real & mach, const Real & alpha, const Real & ipn )
     return FMSplit2( mach, ipn ) * ( ( two * ipn - mach ) - ipn * sixteen * alpha * mach * FMSplit2( mach,-ipn ) );
 }
 
-NsInv::NsInv()
-{
-    ;
-}
-
-NsInv::~NsInv()
-{
-    ;
-}
-
 void NsInv::Init()
 {
     int nEqu = nscom.nEqu;
@@ -90,16 +80,6 @@ void NsInv::Init()
     flux.resize( nEqu );
     flux1.resize( nEqu );
     flux2.resize( nEqu );
-}
-
-NsInvFlux::NsInvFlux()
-{
-    ;
-}
-
-NsInvFlux::~NsInvFlux()
-{
-    ;
 }
 
 void NsInvFlux::SetPointer( int schemeId )

@@ -38,14 +38,6 @@ REGISTER_SOLVER( NsSolver )
 
 bool NsSolver::initFlag = false;
 
-NsSolver::NsSolver()
-{
-}
-
-NsSolver::~NsSolver()
-{
-}
-
 void NsSolver::Reset()
 {
     NsSolver::initFlag = false;

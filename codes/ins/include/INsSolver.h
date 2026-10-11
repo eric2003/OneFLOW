@@ -30,8 +30,8 @@ BeginNameSpace( ONEFLOW )
 class INsSolver : public Solver
 {
 public:
-    INsSolver();
-    ~INsSolver();
+    INsSolver() = default;
+    ~INsSolver() = default;
 public:
     IMPLEMENT_SOLVER_CLONE( INsSolver )
 public:

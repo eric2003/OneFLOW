@@ -29,8 +29,8 @@ BeginNameSpace( ONEFLOW )
 class INsRhs : public Rhs
 {
 public:
-    INsRhs ();
-    ~INsRhs();
+    INsRhs() = default;
+    ~INsRhs() = default;
 public:
     void UpdateResiduals();
 };

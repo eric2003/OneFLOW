@@ -33,15 +33,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-FaceSearchBasic::FaceSearchBasic()
-{
-}
-
-FaceSearchBasic::~FaceSearchBasic()
-{
-    // No raw pointers to delete anymore
-}
-
 int FaceSearchBasic::AddFace( const IntField & faceNode )
 {
     // HXLookup automatically sorts the nodes for uniqueness
@@ -65,16 +56,6 @@ void FaceSearchBasic::Clear()
 {
     faceArray.clear();
     lookup_.Clear();
-}
-
-FaceSearch::FaceSearch()
-{
-    ;
-}
-
-FaceSearch::~FaceSearch()
-{
-    ;
 }
 
 void FaceSearch::CalcNewFaceId( IFaceLink & iFaceLink )

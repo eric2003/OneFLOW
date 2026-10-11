@@ -29,8 +29,8 @@ BeginNameSpace( ONEFLOW )
 class INsUpdate : public Update
 {
 public:
-    INsUpdate ();
-    ~INsUpdate();
+    INsUpdate() = default;
+    ~INsUpdate() = default;
 public:
     void CalcFlowField();
     void CalcFlowFieldHyperSonic();

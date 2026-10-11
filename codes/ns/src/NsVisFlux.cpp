@@ -35,29 +35,9 @@ NsVis vis;
 VisGrad visQ;
 VisGrad visT;
 
-NsVis::NsVis()
-{
-    ;
-}
-
-NsVis::~NsVis()
-{
-    ;
-}
-
 void NsVis::Init()
 {
     fvis.resize( nscom.nEqu );
-}
-
-NsVisFlux::NsVisFlux()
-{
-    ;
-}
-
-NsVisFlux::~NsVisFlux()
-{
-    ;
 }
 
 void NsVisFlux::AverGrad()

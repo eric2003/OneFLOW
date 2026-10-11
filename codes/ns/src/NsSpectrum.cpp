@@ -30,14 +30,4 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-NsSpectrum::NsSpectrum()
-{
-    ;
-}
-
-NsSpectrum::~NsSpectrum()
-{
-    ;
-}
-
 EndNameSpace

@@ -28,8 +28,8 @@ BeginNameSpace( ONEFLOW )
 class LusgsData
 {
 public:
-    LusgsData();
-    ~LusgsData();
+    LusgsData() = default;
+    ~LusgsData() = default;
 public:
     void Init();
 public:
@@ -67,8 +67,8 @@ extern LusgsData nslu;
 class NsLusgs : public LusgsSolver
 {
 public:
-    NsLusgs ();
-    ~NsLusgs();
+    NsLusgs() = default;
+    ~NsLusgs() = default;
 public:
     void InitializeSub();
 public:

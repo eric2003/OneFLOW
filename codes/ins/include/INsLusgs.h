@@ -28,8 +28,8 @@ BeginNameSpace( ONEFLOW )
 class INsLusgs : public LusgsSolver
 {
 public:
-    INsLusgs ();
-    ~INsLusgs();
+    INsLusgs() = default;
+    ~INsLusgs() = default;
 public:
     void InitializeSub();
 public:

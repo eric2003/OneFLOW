@@ -54,16 +54,6 @@ int BC::GENERIC_3        =   10;
 int BC::INTERIOR         =   100;
 int BC::OVERSET          =   1000;
 
-BC::BC()
-{
-    ;
-}
-
-BC::~BC()
-{
-    ;
-}
-
 bool BC::IsInterfaceBc( int bcType )
 {
     if ( bcType == BC::INTERFACE || bcType < 0 )
@@ -104,16 +94,6 @@ bool BC::IsWallBc( int bcType )
         return true;
     }
     return false;
-}
-
-BcTypeMap::BcTypeMap()
-{
-    ;
-}
-
-BcTypeMap::~BcTypeMap()
-{
-    ;
 }
 
 void BcTypeMap::Init()
@@ -223,14 +203,6 @@ void DumpRegion( const std::string & fileName, CommonNameMap & nameMap )
 
 CommonNameMap RegionNameMap::nameMap;
 
-RegionNameMap::RegionNameMap()
-{
-}
-
-RegionNameMap::~RegionNameMap()
-{
-}
-
 void RegionNameMap::AddRegion( const std::string & regionName )
 {
     RegionNameMap::nameMap.AddName( regionName );
@@ -248,14 +220,6 @@ void RegionNameMap::DumpRegion()
 }
 
 CommonNameMap VolumeNameMap::nameMap;
-
-VolumeNameMap::VolumeNameMap()
-{
-}
-
-VolumeNameMap::~VolumeNameMap()
-{
-}
 
 void VolumeNameMap::AddRegion( const std::string & regionName )
 {

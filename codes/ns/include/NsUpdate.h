@@ -29,8 +29,8 @@ BeginNameSpace( ONEFLOW )
 class NsUpdate : public Update
 {
 public:
-    NsUpdate ();
-    ~NsUpdate();
+    NsUpdate() = default;
+    ~NsUpdate() = default;
 public:
     void CalcFlowField();
     void CalcFlowFieldHyperSonic();

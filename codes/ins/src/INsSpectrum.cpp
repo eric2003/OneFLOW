@@ -30,14 +30,4 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-INsSpectrum::INsSpectrum()
-{
-    ;
-}
-
-INsSpectrum::~INsSpectrum()
-{
-    ;
-}
-
 EndNameSpace

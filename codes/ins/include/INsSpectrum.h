@@ -29,8 +29,8 @@ BeginNameSpace( ONEFLOW )
 class INsSpectrum
 {
 public:
-    INsSpectrum();
-    ~INsSpectrum();
+    INsSpectrum() = default;
+    ~INsSpectrum() = default;
 public:
 };
 

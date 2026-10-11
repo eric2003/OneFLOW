@@ -29,8 +29,8 @@ BeginNameSpace( ONEFLOW )
 class NsRhs : public Rhs
 {
 public:
-    NsRhs ();
-    ~NsRhs();
+    NsRhs() = default;
+    ~NsRhs() = default;
 public:
     void UpdateResiduals() override;
 };

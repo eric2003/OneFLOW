@@ -32,16 +32,6 @@ BeginNameSpace( ONEFLOW )
 
 LusgsData nslu;
 
-LusgsData::LusgsData()
-{
-    ;
-}
-
-LusgsData::~LusgsData()
-{
-    ;
-}
-
 void LusgsData::Init()
 {
     nEqu = nscom.nEqu;
@@ -58,14 +48,6 @@ void LusgsData::Init()
     drhs.resize( nEqu );
     rhs.resize( nEqu );
     tmp.resize( nEqu );
-}
-
-NsLusgs::NsLusgs()
-{
-}
-
-NsLusgs::~NsLusgs()
-{
 }
 
 void NsLusgs::InitializeSub()

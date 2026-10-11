@@ -32,14 +32,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-FaceMesh::FaceMesh()
-{
-}
-
-FaceMesh::~FaceMesh()
-{
-}
-
 void FaceMesh::BindFaceTopo( FaceTopo & faceTopo )
 {
     this->faceTopo = &faceTopo;

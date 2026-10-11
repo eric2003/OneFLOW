@@ -82,7 +82,9 @@ void SlipFace::InitDist()
 
 void SlipFace::Init()
 {
-    Grid * grid = Zone::GetGrid();
+    // Read-only access to current zone grid (length/scale callers may use later).
+    const Grid * grid = Zone::GetConstGrid();
+    (void)grid;
     IntField bcIdList;
 }
 

@@ -29,8 +29,8 @@ BeginNameSpace( ONEFLOW )
 class NsSpectrum
 {
 public:
-    NsSpectrum();
-    ~NsSpectrum();
+    NsSpectrum() = default;
+    ~NsSpectrum() = default;
 public:
 };
 

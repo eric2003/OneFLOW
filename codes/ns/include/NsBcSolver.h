@@ -29,8 +29,8 @@ BeginNameSpace( ONEFLOW )
 class NsBcSolver
 {
 public:
-    NsBcSolver();
-    ~NsBcSolver();
+    NsBcSolver() = default;
+    ~NsBcSolver() = default;
 public:
     using BcPointer = void ( NsBcSolver:: * )();
 public:

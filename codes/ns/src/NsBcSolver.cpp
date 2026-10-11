@@ -38,16 +38,6 @@ BeginNameSpace( ONEFLOW )
 
 BcData ns_bc_data;
 
-NsBcSolver::NsBcSolver()
-{
-    ;
-}
-
-NsBcSolver::~NsBcSolver()
-{
-    ;
-}
-
 void NsBcSolver::SetBc()
 {
     this->bcPointer = & NsBcSolver::NoBc;

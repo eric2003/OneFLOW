@@ -48,8 +48,8 @@ Real FPSplit5( const Real & mach, const Real & alpha, const Real & ipn );
 class INsInv
 {
 public:
-    INsInv();
-    ~INsInv();
+    INsInv() = default;
+    ~INsInv() = default;
 public:
     void Init();
 public:
@@ -86,8 +86,8 @@ extern INsInv iinv;
 class INsInvterm
 {
 public:
-	INsInvterm();
-    ~INsInvterm();
+	INsInvterm() = default;
+    ~INsInvterm() = default;
 public:
     //using InvtermPointer = void (INsInvterm:: * )();
 public:

@@ -26,16 +26,6 @@ BeginNameSpace( ONEFLOW )
 
 INsCtrl ins_ctrl;
 
-INsCtrl::INsCtrl()
-{
-    ;
-}
-
-INsCtrl::~INsCtrl()
-{
-    ;
-}
-
 void INsCtrl::Init()
 {
     this->time_integral = GetDataValue< int >( "time_integral" );

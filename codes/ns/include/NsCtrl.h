@@ -28,8 +28,8 @@ BeginNameSpace( ONEFLOW )
 class NsCtrl : public Ctrl
 {
 public:
-    NsCtrl();
-    ~NsCtrl();
+    NsCtrl() = default;
+    ~NsCtrl() = default;
 public:
     int ireadwdst;
     int isowallbc;
