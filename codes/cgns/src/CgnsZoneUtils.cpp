@@ -131,18 +131,17 @@ void MergeToSingleZone( GridViews & grids, HXVector< std::unique_ptr< Int3D > > 
     nNodes = pointSearch.GetNPoint();
 
     std::cout << " First nNodes = " << nNodes << "\n";
-    nodeMesh->xN.resize( nNodes );
-    nodeMesh->yN.resize( nNodes );
-    nodeMesh->zN.resize( nNodes );
+    RealField xCoordinates( nNodes );
+    RealField yCoordinates( nNodes );
+    RealField zCoordinates( nNodes );
     for ( int i = 0; i < nNodes; ++ i )
     {
-        Real xm, ym, zm;
-        pointSearch.GetPoint( i, xm, ym, zm );
-
-        nodeMesh->xN[ i ] = xm;
-        nodeMesh->yN[ i ] = ym;
-        nodeMesh->zN[ i ] = zm;
+        pointSearch.GetPoint( i, xCoordinates[ i ], yCoordinates[ i ], zCoordinates[ i ] );
     }
+    nodeMesh->SetCoordinates(
+        std::move( xCoordinates ),
+        std::move( yCoordinates ),
+        std::move( zCoordinates ) );
 }
 
 void FillSection( GridViews & grids, HXVector< std::unique_ptr< Int3D > > & unsIdList, CgnsZone * cgnsZone )
