@@ -454,10 +454,7 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone & cgnsZone )
 
     NodeMesh & nodeMesh = cgnsCoor.RequireNodeMesh();
 
-    nodeMesh.CreateNodes( nNodes );
-    nodeMesh.xN = this->xN;
-    nodeMesh.yN = this->yN;
-    nodeMesh.zN = this->zN;
+    nodeMesh.SetCoordinates( this->xN, this->yN, this->zN );
     
     SecMarkerManager volSec;
 
