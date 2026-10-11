@@ -46,14 +46,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-Plot3D::Plot3D()
-{
-}
-
-Plot3D::~Plot3D()
-{
-}
-
 void Plot3D::ReadPlot3D( GridMediator * gridMediator )
 {
     Plot3D::ReadCoor( gridMediator );

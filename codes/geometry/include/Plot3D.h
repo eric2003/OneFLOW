@@ -40,8 +40,8 @@ struct GridConfig;
 class Plot3D
 {
 public:
-    Plot3D();
-    ~Plot3D();
+    Plot3D() = default;
+    ~Plot3D() = default;
 public:
     static void ReadPlot3D( GridMediator * gridMediator );
     static void ReadCoor( GridMediator * gridMediator );

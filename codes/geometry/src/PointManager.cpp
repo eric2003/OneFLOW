@@ -155,14 +155,6 @@ void PointManager::GetFaceCoorList( IntField & nodeIds, RealField &xList, RealFi
 }
 
 
-MeshPointManager::MeshPointManager()
-{
-}
-
-MeshPointManager::~MeshPointManager()
-{
-}
-
 void MeshPointManager::InitLocalToGlobal()
 {
     int nPoint = this->GetNPoint();
