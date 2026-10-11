@@ -405,7 +405,13 @@ void UnsGrid::WriteGridFaceTopology( DataBook * databook )
 
 void UnsGrid::WriteBoundaryTopology( DataBook * databook )
 {
-    const int nBFaces = static_cast< int >( this->GetFaceTopo().GetNBFaces() );
+    const HXSize_t boundaryFaceCount = this->GetFaceTopo().GetNBFaces();
+    if ( boundaryFaceCount > static_cast< HXSize_t >( std::numeric_limits< int >::max() ) )
+    {
+        throw std::length_error(
+            "UnsGrid::WriteBoundaryTopology: boundary-face count exceeds supported range" );
+    }
+    const int nBFaces = static_cast< int >( boundaryFaceCount );
     const BcRecord & bcRecord = this->GetFaceTopo().GetBcRecord();
     const InterFace & interFace = *this->interFace;
 
