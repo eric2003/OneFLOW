@@ -134,7 +134,7 @@ jobs:
           # make -j 4
           ctest --output-on-failure
         shell: bash        
-      - name: Run OneFLOW CFD Tests
+      - name: Run OneFLOW Regression Tests
         env:
           prefix: ${{ github.workspace }}/Run
           MPICH_NO_UCX: 1
@@ -153,8 +153,9 @@ jobs:
           #ldd ${{env.prefix}}/bin/OneFLOW
           OneFLOW
           cd "${{ github.workspace }}/test"
+          python -m py_compile test.py gui.py residual_db.py
           ls
           python --version
           #python test.py " " " " linux
-          python test.py "mpirun -np 1" "OneFLOW" "suites/cpu-serial.txt" "baselines/residual-baseline.json" "1e-8"
+          python test.py "mpirun -np 1" "OneFLOW" "suites/ci-serial.txt" "baselines/residual-baseline.json" "1e-8"
         shell: bash

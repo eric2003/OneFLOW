@@ -146,12 +146,41 @@ run_cpu_suite()
     return "$rc"
 }
 
+run_grid_serial()
+{
+    local grid_work="$work_dir/grid-serial"
+    local case_name="grid/rae2822convert"
+    local rc
+
+    mkdir -p "$grid_work/grid"
+    cp -a "$source_dir/test/$case_name" "$grid_work/$case_name"
+
+    (
+        cd "$grid_work"
+        export ONEFLOW_ACCEL_BACKEND="${backend}"
+        timeout --signal=TERM --kill-after=10s "$serial_timeout" \
+            python3 "$source_dir/test/test.py" \
+            "mpirun -np 1" \
+            "$binary" \
+            "$source_dir/test/suites/grid-serial.txt"
+    )
+    rc=$?
+    {
+        echo "backend=${backend}"
+        echo "result=${rc}"
+    } > "$artifact_dir/grid-serial.txt"
+    return "$rc"
+}
+
 run_cpu_serial()
 {
     local rc=0
     run_cpu_suite normal || rc=$?
     if [ "$rc" -eq 0 ]; then
         run_cpu_suite strict || rc=$?
+    fi
+    if [ "$rc" -eq 0 ]; then
+        run_grid_serial || rc=$?
     fi
     return "$rc"
 }

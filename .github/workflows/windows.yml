@@ -87,18 +87,17 @@ jobs:
           ctest --output-on-failure -C Release
         shell: pwsh 
 
-      - name: Run OneFLOW CFD Tests
+      - name: Run OneFLOW Regression Tests
         env:
           ONEFLOW_ROOT: ${{ github.workspace }}/install
           HDF5_ROOT: ${{ github.workspace }}/_deps/hdf5/${{ env.HDF5_VERSION }}
           CGNS_ROOT: ${{ github.workspace }}/_deps/cgns/${{ env.CGNS_VERSION }}
-          METIS_ROOT: ${{ github.workspace }}/_deps/metis/METIS-VS2022-STATIC/${{ env.METIS_VERSION }}          
-          MSMPI_ROOT: C:/Program Files/Microsoft MPI          
+          METIS_ROOT: ${{ github.workspace }}/_deps/metis/METIS-VS2022-STATIC/${{ env.METIS_VERSION }}
+          MSMPI_ROOT: C:/Program Files/Microsoft MPI
         run: |
           $ErrorActionPreference = "Stop"
 
           $oneflow_exe = "$env:ONEFLOW_ROOT/bin/OneFLOW.exe"
-
           Write-Host "OneFLOW executable: $oneflow_exe"
 
           if ( -not ( Test-Path $oneflow_exe ) ) {
@@ -109,7 +108,6 @@ jobs:
               throw "OneFLOW system directory not found: $env:ONEFLOW_ROOT/bin/system"
           }
 
-          # Add runtime dependency directories to the current process.
           $runtime_paths = @(
               "$env:ONEFLOW_ROOT/bin"
               "$env:HDF5_ROOT/bin"
@@ -132,10 +130,11 @@ jobs:
           }
 
           cd "${{ github.workspace }}/test"
-
+          python -m py_compile test.py gui.py residual_db.py
           python --version
 
           python test.py `
               "mpiexec -n 1" `
-              "$oneflow_exe"
+              "$oneflow_exe" `
+              "suites/ci-serial.txt"
         shell: pwsh

@@ -187,6 +187,101 @@ def get_optional_filename_list(filename: str) -> List[str]:
         return []
 
 
+def _validate_case_manifests(
+    test_project_dir: str,
+    text_names: List[str],
+    binary_names: List[str],
+    required_names: List[str],
+) -> List[str]:
+    """Validate output manifests before running a solver.
+
+    Manifest entries are case-relative paths. Comparison baselines are stored
+    by output basename, so two compared paths with the same basename would
+    otherwise silently share one reference file.
+    """
+    errors: List[str] = []
+    case_root = os.path.abspath(test_project_dir)
+    compared_basenames = {}
+
+    for manifest_name, names, compared in (
+        ("compare.txt", text_names, True),
+        ("binary.txt", binary_names, True),
+        ("required.txt", required_names, False),
+    ):
+        for relative_name in names:
+            normalized = relative_name.replace("\\", "/")
+            parts = normalized.split("/")
+            if (
+                not normalized
+                or os.path.isabs(normalized)
+                or any(part in {"", ".", ".."} for part in parts)
+            ):
+                errors.append(
+                    f"{manifest_name}: invalid case-relative path {relative_name!r}"
+                )
+                continue
+
+            resolved = os.path.abspath(os.path.join(case_root, normalized))
+            if os.path.commonpath([case_root, resolved]) != case_root:
+                errors.append(
+                    f"{manifest_name}: path escapes case directory {relative_name!r}"
+                )
+                continue
+
+            if compared:
+                basename = os.path.basename(normalized).casefold()
+                previous = compared_basenames.get(basename)
+                if previous is not None:
+                    errors.append(
+                        f"{manifest_name}: {relative_name!r} and {previous!r} "
+                        "share a baseline basename"
+                    )
+                else:
+                    compared_basenames[basename] = relative_name
+
+    if not text_names and not binary_names and not required_names:
+        errors.append(
+            "no output assertions configured; a successful process exit alone "
+            "cannot validate a test case"
+        )
+    return errors
+
+
+def _required_output_path(test_project_dir: str, relative_name: str) -> str:
+    """Resolve a required output path without allowing paths outside the case."""
+    normalized = relative_name.replace("\\", "/")
+    parts = normalized.split("/")
+    if not normalized or os.path.isabs(normalized) or any(part == ".." for part in parts):
+        raise ValueError(f"Required output must be a case-relative path: {relative_name!r}")
+    case_root = os.path.abspath(test_project_dir)
+    output_path = os.path.abspath(os.path.join(case_root, normalized))
+    if os.path.commonpath([case_root, output_path]) != case_root:
+        raise ValueError(f"Required output escapes case directory: {relative_name!r}")
+    return output_path
+
+
+def _remove_previous_required_outputs(test_project_dir: str, relative_names: List[str]) -> None:
+    """Remove old outputs before execution so stale files cannot satisfy a test."""
+    for relative_name in relative_names:
+        output_path = _required_output_path(test_project_dir, relative_name)
+        if os.path.isfile(output_path) or os.path.islink(output_path):
+            os.remove(output_path)
+
+
+def _check_required_outputs(test_project_dir: str, relative_names: List[str]) -> bool:
+    """Require each declared output to be a non-empty regular file."""
+    all_ok = True
+    for relative_name in relative_names:
+        output_path = _required_output_path(test_project_dir, relative_name)
+        if not os.path.isfile(output_path):
+            logger.info("Required output is missing: %s", output_path)
+            all_ok = False
+        elif os.path.getsize(output_path) == 0:
+            logger.info("Required output is empty: %s", output_path)
+            all_ok = False
+    return all_ok
+
+
 @dataclass
 class ComparisonPair:
     """One (baseline, generated) result-file pair to compare for a test case."""
@@ -221,15 +316,15 @@ def build_comparison_pairs(
 
 @dataclass
 class TestResult:
-    """Outcome of running one test case, with enough detail to say not just
-    "did it pass" but "what exactly failed", for reporting purposes.
-    """
+    """Outcome of one case, including its path for unambiguous reporting."""
 
     case_name: str
+    case_dir: str
     passed: bool
     return_code: Optional[int] = None
     files_ok: Optional[bool] = None
     residual_ok: Optional[bool] = None
+    required_outputs_ok: Optional[bool] = None
     failure_reasons: List[str] = field(default_factory=list)
 
     @property
@@ -280,8 +375,30 @@ def _compare_residuals(
     """
     if not residual_db_path:
         return None
+
+    # Residual baselines are optional per case. Grid conversion cases validate
+    # generated artifacts and required outputs but do not produce CFD residuals.
+    try:
+        with open(residual_db_path, "r", encoding="utf-8") as stream:
+            database = json.load(stream)
+    except (OSError, ValueError):
+        residual_result = compare_case(
+            test_project_dir, residual_db_path, absolute_tolerance=residual_tolerance
+        )
+        logger.info("residual_baseline=%s", residual_result)
+        return residual_result["ok"]
+
+    case_name = os.path.basename(os.path.normpath(test_project_dir))
+    if case_name not in database.get("cases", {}):
+        normalized_case_dir = os.path.normpath(test_project_dir)
+        category = normalized_case_dir.split(os.sep, 1)[0]
+        if category != "cfd":
+            logger.info("residual_baseline=SKIPPED (no baseline applies to case=%s)", case_name)
+            return None
+        # CFD cases remain strict: a missing baseline entry is a test failure.
+
     residual_result = compare_case(
-        test_project_dir, residual_db_path, absolute_tolerance=residual_tolerance
+        test_project_dir, database, absolute_tolerance=residual_tolerance
     )
     logger.info("residual_baseline=%s", residual_result)
     return residual_result["ok"]
@@ -308,12 +425,33 @@ def run_test(
     start_time = time.perf_counter()
     logger.debug("test_project_dir=%s", test_project_dir)
 
-    test_script = test_project_dir + "/autotest/test.txt"
+    test_script = test_project_dir + "/autotest/compare.txt"
     abs_test_script = os.path.normpath(os.path.abspath(test_script))
     relative_names = get_filename_list(abs_test_script)
     binary_script = os.path.join(test_project_dir, "autotest", "binary.txt")
     binary_names = get_optional_filename_list(binary_script)
     comparison_pairs = build_comparison_pairs(test_project_dir, relative_names, binary_names)
+    required_script = os.path.join(test_project_dir, "autotest", "required.txt")
+    required_names = get_optional_filename_list(required_script)
+
+    manifest_errors = _validate_case_manifests(
+        test_project_dir, relative_names, binary_names, required_names
+    )
+    if manifest_errors:
+        result = TestResult(
+            case_name=case_name,
+            case_dir=os.path.normpath(test_project_dir),
+            passed=False,
+            files_ok=False,
+            failure_reasons=manifest_errors,
+        )
+        logger.error(
+            "case=%s manifest validation failed: %s",
+            case_name, "; ".join(manifest_errors),
+        )
+        return result
+
+    _remove_previous_required_outputs(test_project_dir, required_names)
 
     cmd = mpi_cmd + " " + exe_cmd + " 0 " + test_project_dir
     logger.debug("cmd=%s", cmd)
@@ -321,6 +459,10 @@ def run_test(
     return_code = _run_solver_process(cmd, process_timeout)
     files_ok = _compare_result_files(comparison_pairs)
     residual_ok = _compare_residuals(test_project_dir, residual_db_path, residual_tolerance)
+    required_outputs_ok = (
+        _check_required_outputs(test_project_dir, required_names)
+        if required_names else None
+    )
 
     failure_reasons = []
     if return_code != 0:
@@ -329,24 +471,29 @@ def run_test(
         failure_reasons.append("result file mismatch")
     if residual_ok is False:
         failure_reasons.append("residual baseline mismatch")
+    if required_outputs_ok is False:
+        failure_reasons.append("required output missing or empty")
 
     result = TestResult(
         case_name=case_name,
+        case_dir=os.path.normpath(test_project_dir),
         passed=not failure_reasons,
         return_code=return_code,
         files_ok=files_ok,
         residual_ok=residual_ok,
+        required_outputs_ok=required_outputs_ok,
         failure_reasons=failure_reasons,
     )
     elapsed_time = time.perf_counter() - start_time
 
     logger.info(
         "case=%s return_code=%s files_ok=%s residual_ok=%s "
-        "passed=%s elapsed=%.2f s",
+        "required_outputs_ok=%s passed=%s elapsed=%.2f s",
         case_name,
         return_code,
         files_ok,
         residual_ok,
+        required_outputs_ok,
         result.passed,
         elapsed_time,
     )    
@@ -354,9 +501,66 @@ def run_test(
 
 
 def read_suite_file(filename: str) -> List[str]:
-    """Read one test-case directory per line from a suite list file."""
-    with open(filename, "r", encoding="utf-8-sig") as f:
-        return [line.strip() for line in f.readlines() if line.strip()]
+    """Expand a suite file into an ordered list of case directories.
+
+    A line beginning with '@' includes another suite file, resolved relative
+    to the including suite. This lets focused suites compose into CI suites
+    without duplicating case lists.
+    """
+    def expand_suite(suite_filename: str, include_stack: List[str]) -> List[str]:
+        suite_path = os.path.abspath(suite_filename)
+        if suite_path in include_stack:
+            cycle = include_stack + [suite_path]
+            raise ValueError(
+                "Suite include cycle: " + " -> ".join(cycle)
+            )
+
+        try:
+            with open(suite_path, "r", encoding="utf-8-sig") as suite_file:
+                lines = suite_file.readlines()
+        except OSError as error:
+            raise OSError(
+                f"Cannot read suite file {suite_path}: {error}"
+            ) from error
+
+        case_dirs: List[str] = []
+        for line_number, raw_line in enumerate(lines, start=1):
+            entry = raw_line.strip()
+            if not entry or entry.startswith("#"):
+                continue
+
+            if entry.startswith("@"):
+                include_name = entry[1:].strip()
+                if not include_name:
+                    raise ValueError(
+                        f"Empty suite include at {suite_path}:{line_number}"
+                    )
+                include_path = (
+                    include_name
+                    if os.path.isabs(include_name)
+                    else os.path.join(os.path.dirname(suite_path), include_name)
+                )
+                case_dirs.extend(
+                    expand_suite(include_path, include_stack + [suite_path])
+                )
+            else:
+                case_dirs.append(entry)
+
+        return case_dirs
+
+    case_dirs = expand_suite(filename, [])
+    seen = set()
+    for case_dir in case_dirs:
+        normalized = os.path.normcase(
+            os.path.normpath(case_dir.replace("\\", os.sep).replace("/", os.sep))
+        )
+        if normalized in seen:
+            raise ValueError(
+                f"Duplicate case in expanded suite {filename}: {case_dir}"
+            )
+        seen.add(normalized)
+
+    return case_dirs
 
 
 def run_all_test(
@@ -387,36 +591,106 @@ def run_all_test(
     return results
 
 
-def report_results(results: List[TestResult]) -> None:
-    """Print a summary of which cases passed and which failed, by name -
-    not just a pass/fail count.
-    """
-    passed_names = [r.case_name for r in results if r.passed]
-    failed_results = [r for r in results if not r.passed]
+def _normalized_case_path(path: str) -> str:
+    return os.path.normcase(os.path.normpath(path.replace("\\", os.sep).replace("/", os.sep)))
 
-    logger.info(
-        "Passed (%d): %s", len(passed_names), ", ".join(passed_names) or "(none)"
-    )
+
+def read_suite_groups(filename: str):
+    """Return named suite memberships for reporting, including included suites."""
+    groups = []
+    visited = set()
+
+    def visit(suite_filename: str) -> None:
+        suite_path = os.path.abspath(suite_filename)
+        normalized_suite = os.path.normcase(os.path.normpath(suite_path))
+        if normalized_suite in visited:
+            return
+        visited.add(normalized_suite)
+        with open(suite_path, "r", encoding="utf-8-sig") as stream:
+            entries = [line.strip() for line in stream if line.strip() and not line.strip().startswith("#")]
+        case_dirs = read_suite_file(suite_path)
+        groups.append((os.path.basename(suite_path), case_dirs))
+        for entry in entries:
+            if entry.startswith("@") and entry[1:].strip():
+                include_name = entry[1:].strip()
+                include_path = include_name if os.path.isabs(include_name) else os.path.join(os.path.dirname(suite_path), include_name)
+                visit(include_path)
+
+    visit(filename)
+    return groups
+
+
+def _summarize_results(results: List[TestResult]) -> str:
+    passed = sum(1 for result in results if result.passed)
+    failed = len(results) - passed
+    return f"{passed}/{len(results)} passed, {failed} failed"
+
+
+def report_results(
+    results: List[TestResult],
+    suite_groups=None,
+    selected_suite: Optional[str] = None,
+    total_elapsed: Optional[float] = None,
+) -> None:
+    """Print a layered report by case, suite membership, and case directory."""
+    passed_results = [result for result in results if result.passed]
+    failed_results = [result for result in results if not result.passed]
+
+    print()
+    print("=" * 78)
+    print("OneFLOW Regression Test Report")
+    print("=" * 78)
+    if selected_suite:
+        print(f"Selected suite : {selected_suite}")
+    print(f"Overall        : {_summarize_results(results)}")
+    if total_elapsed is not None:
+        print(f"Elapsed        : {total_elapsed:.2f} s")
+    print(f"Suite groups   : {len(suite_groups or [])}")
+    print()
+
+    if suite_groups:
+        print("By suite manifest (groups may overlap; totals are not additive):")
+        for group_name, group_cases in suite_groups:
+            normalized = {_normalized_case_path(path) for path in group_cases}
+            group_results = [result for result in results if _normalized_case_path(result.case_dir) in normalized]
+            print(f"  {group_name:<28} {_summarize_results(group_results)}")
+        print()
+
+    directory_groups = {}
+    for result in results:
+        parts = result.case_dir.replace("\\", "/").split("/")
+        category = parts[0] if len(parts) > 1 else "(root)"
+        directory_groups.setdefault(category, []).append(result)
+    print("By case directory:")
+    for category in sorted(directory_groups):
+        print(f"  {category + '/':<28} {_summarize_results(directory_groups[category])}")
+    print()
+
+    print(f"Passed ({len(passed_results)}):")
+    if passed_results:
+        for result in passed_results:
+            print(f"  [PASS] {result.case_dir}")
+    else:
+        print("  (none)")
+
+    print(f"Failed ({len(failed_results)}):")
     if failed_results:
-        logger.info("Failed (%d):", len(failed_results))
-        for r in failed_results:
-            logger.info("  - %s -> %s", r.case_name, r.failure_summary or "unknown reason")
+        for result in failed_results:
+            print(f"  [FAIL] {result.case_dir}")
+            print(f"         {result.failure_summary or 'unknown reason'}")
     else:
-        logger.info("Failed (0): (none)")
+        print("  (none)")
 
-    if not failed_results:
-        logger.info("Total tests passed!")
-    else:
-        logger.info("ERROR: Some tests failed")
-    logger.info("%s tests passed! %s tests failed!", len(passed_names), len(failed_results))
+    print("-" * 78)
+    status = "PASS" if not failed_results else "FAIL"
+    print(f"FINAL STATUS: {status} | {len(passed_results)} passed / {len(failed_results)} failed / {len(results)} total")
+    print("=" * 78)
 
 
 # ---------------------------------------------------------------------------
-# --dry-run: a handful of self-contained fake test cases, used to exercise
-# run_test/run_all_test/report_results without needing a real OneFLOW
-# binary or a real suite file. Each scenario is designed to fail for a
-# DIFFERENT reason, so the summary output demonstrates that the pipeline
-# correctly tells different kinds of failures apart.
+# --dry-run: self-contained fake cases used to exercise manifest validation,
+# process execution, output comparison, and final reporting without a real
+# OneFLOW binary or suite file. Failure scenarios target distinct assertions.
 # ---------------------------------------------------------------------------
 
 _DUMMY_RESULT_RELATIVE_PATH = "results/residual.dat"
@@ -453,6 +727,13 @@ _DUMMY_SCENARIOS = [
         "baseline_content": 'Variables=\n"iter"\n"rho"\n0 1.0\n',
         "result_content": None,  # the fake solver won't write anything
         "exit_code": 0,
+    },
+    {
+        "name": "dummy_case_no_output_assertions",
+        "baseline_content": 'Variables=\\n"iter"\\n"rho"\\n0 1.0\\n',
+        "result_content": 'Variables=\\n"iter"\\n"rho"\\n0 1.0\\n',
+        "exit_code": 0,
+        "no_assertions": True,
     },
 ]
 
@@ -495,8 +776,9 @@ def build_dummy_suite(root: str):
     for scenario in _DUMMY_SCENARIOS:
         case_dir = os.path.join(root, scenario["name"])
         os.makedirs(os.path.join(case_dir, "autotest"), exist_ok=True)
-        with open(os.path.join(case_dir, "autotest", "test.txt"), "w", encoding="utf-8") as f:
-            f.write(_DUMMY_RESULT_RELATIVE_PATH + "\n")
+        if not scenario.get("no_assertions"):
+            with open(os.path.join(case_dir, "autotest", "compare.txt"), "w", encoding="utf-8") as f:
+                f.write(_DUMMY_RESULT_RELATIVE_PATH + "\n")
         with open(os.path.join(case_dir, "autotest", "residual.dat"), "w", encoding="utf-8") as f:
             f.write(scenario["baseline_content"])
         scenario_data = {
@@ -577,6 +859,8 @@ def main() -> int:
     list_directory_contents(location)
 
     dry_run_dir = None
+    suite_groups = []
+    selected_suite = args.suite_file if not args.dry_run else "--dry-run"
     if args.dry_run:
         dry_run_dir = tempfile.mkdtemp(prefix="oneflow_test_dryrun_")
         case_dirs, mpi_cmd, exe_cmd = build_dummy_suite(dry_run_dir)
@@ -589,7 +873,11 @@ def main() -> int:
     else:
         if not args.mpi_cmd or not args.exe_cmd:
             parser.error("mpi_cmd and exe_cmd are required unless --dry-run is given")
-        case_dirs = read_suite_file(args.suite_file)
+        try:
+            case_dirs = read_suite_file(args.suite_file)
+            suite_groups = read_suite_groups(args.suite_file)
+        except (OSError, ValueError) as error:
+            parser.error(str(error))
         mpi_cmd, exe_cmd = args.mpi_cmd, args.exe_cmd
         residual_db, residual_tolerance = args.residual_db, args.residual_tolerance
 
@@ -605,6 +893,7 @@ def main() -> int:
     )
     logger.info("process_timeout=%s", args.timeout)
 
+    suite_start = time.perf_counter()
     try:
         results = run_all_test(
             case_dirs, mpi_cmd, exe_cmd, residual_db, residual_tolerance, args.timeout
@@ -613,7 +902,12 @@ def main() -> int:
         if dry_run_dir:
             shutil.rmtree(dry_run_dir, ignore_errors=True)
 
-    report_results(results)
+    report_results(
+        results,
+        suite_groups=suite_groups,
+        selected_suite=selected_suite,
+        total_elapsed=time.perf_counter() - suite_start,
+    )
     n_fail = sum(1 for r in results if not r.passed)
     return 0 if n_fail == 0 else 1
 
