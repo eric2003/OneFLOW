@@ -28,10 +28,10 @@ bool BuildCurrentEulerDomainState(
     EulerDomainStateKey & key,
     std::unique_ptr< EulerDomainMrFieldSnapshot > & snapshot )
 {
-    Grid * grid = Zone::GetGrid();
+    const Grid * grid = Zone::GetConstGrid();
     if ( grid == nullptr || grid->nCells <= 0 ) return false;
 
-    MRField * q = GetFieldPointer< MRField >( grid, "q" );
+    const MRField * q = GetFieldPointer< MRField >( grid, "q" );
     if ( q == nullptr ) return false;
 
     const int nEquations = static_cast< int >( q->GetNEqu() );
