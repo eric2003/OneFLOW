@@ -38,8 +38,6 @@ public:
 
 public:
     NodeMesh();
-    NodeMesh( const NodeMesh & rhs );
-    ~NodeMesh();
 public:
     RealField xN, yN, zN;
     RealField pmin, pmax;
