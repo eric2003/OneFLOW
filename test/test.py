@@ -427,7 +427,7 @@ def run_test(
 
     test_script = test_project_dir + "/autotest/compare.txt"
     abs_test_script = os.path.normpath(os.path.abspath(test_script))
-    relative_names = get_filename_list(abs_test_script)
+    relative_names = get_optional_filename_list(abs_test_script)
     binary_script = os.path.join(test_project_dir, "autotest", "binary.txt")
     binary_names = get_optional_filename_list(binary_script)
     comparison_pairs = build_comparison_pairs(test_project_dir, relative_names, binary_names)
@@ -730,8 +730,8 @@ _DUMMY_SCENARIOS = [
     },
     {
         "name": "dummy_case_no_output_assertions",
-        "baseline_content": 'Variables=\\n"iter"\\n"rho"\\n0 1.0\\n',
-        "result_content": 'Variables=\\n"iter"\\n"rho"\\n0 1.0\\n',
+        "baseline_content": 'Variables=\n"iter"\n"rho"\n0 1.0\n',
+        "result_content": 'Variables=\n"iter"\n"rho"\n0 1.0\n',
         "exit_code": 0,
         "no_assertions": True,
     },
@@ -842,7 +842,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
         "--dry-run", action="store_true",
         help=(
             "Run a handful of self-contained fake test cases (one guaranteed to "
-            "pass, three each failing for a different reason) instead of a real "
+            "pass, with other cases failing for different reasons) instead of a real "
             "suite. No OneFLOW binary or suite file is needed - useful for "
             "smoke-testing this script itself and demonstrating the report format."
         ),
