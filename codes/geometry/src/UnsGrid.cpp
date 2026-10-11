@@ -183,6 +183,12 @@ void UnsGrid::ReadGridFaceTopology( DataBook * databook )
     this->GetFaceTopo().GetRightCells().resize( this->nFaces );
     this->GetFaceTopo().GetFaceTypes().resize( this->nFaces );
 
+    if ( ONEFLOW::IsOneD() )
+    {
+        ONEFLOW::HXRead( databook, this->GetCellMesh().GetCellTopo().eTypes );
+        ONEFLOW::HXRead( databook, this->GetFaceTopo().GetFaceTypes() );
+    }
+
     IntField numFaceNode( this->nFaces );
 
     ONEFLOW::HXRead( databook, numFaceNode );
