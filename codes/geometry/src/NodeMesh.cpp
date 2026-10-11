@@ -44,21 +44,6 @@ NodeMesh::NodeMesh()
     pmax.resize( 3 );
 }
 
-NodeMesh::NodeMesh( const NodeMesh & rhs )
-{
-    this->boxFlag = rhs.boxFlag;
-    this->pmin = rhs.pmin;
-    this->pmax = rhs.pmax;
-    this->xN = rhs.xN;
-    this->yN = rhs.yN;
-    this->zN = rhs.zN;
-}
-
-NodeMesh::~NodeMesh()
-{
-    ;
-}
-
 void NodeMesh::CreateNodes( int numberOfNodes )
 {
     if ( numberOfNodes < 0 )
