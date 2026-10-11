@@ -30,14 +30,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-MyRegion::MyRegion()
-{
-}
-
-MyRegion::~MyRegion()
-{
-}
-
 int MyRegion::GetDirection()
 {
     int dir = -1;
@@ -58,10 +50,6 @@ int MyRegion::GetDirection()
         }
     }
     return dir;
-}
-
-MyRRegion::MyRRegion()
-{
 }
 
 void MyRRegion::AddRefRegion( MyRegion * region )
@@ -250,10 +238,6 @@ bool MyRRegion::InRegion( MyRegion * r1, MyRegion * r2 )
     if ( r1->ijkmin[ 2 ] < r2->ijkmin[ 2 ] ) return false;
     if ( r1->ijkmax[ 2 ] > r2->ijkmax[ 2 ] ) return false;
     return true;
-}
-
-MyRegionFactory::MyRegionFactory()
-{
 }
 
 void MyRegionFactory::CreateRegion()

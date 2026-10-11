@@ -29,14 +29,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-StrBcSetting::StrBcSetting()
-{
-}
-
-StrBcSetting::~StrBcSetting()
-{
-}
-
 void StrBcSetting::ConstructBcMap()
 {
     boundaryMap.insert( std::pair< std::string, int >( "interface", BC::INTERFACE ) );

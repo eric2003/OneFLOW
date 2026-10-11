@@ -25,14 +25,11 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-PointMachine point_Machine;
-
-PointMachine::PointMachine()
-{
-    ;
-}
+PointMachine::PointMachine() = default;
 
 PointMachine::~PointMachine() = default;
+
+PointMachine point_Machine;
 
 void PointMachine::Reset()
 {

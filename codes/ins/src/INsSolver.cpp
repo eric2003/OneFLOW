@@ -39,14 +39,6 @@ REGISTER_SOLVER( INsSolver )
 
 bool INsSolver::initFlag = false;
 
-INsSolver::INsSolver()
-{
-}
-
-INsSolver::~INsSolver()
-{
-}
-
 void INsSolver::Reset()
 {
     INsSolver::initFlag = false;

@@ -32,14 +32,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-FaceMesh::FaceMesh()
-{
-}
-
-FaceMesh::~FaceMesh()
-{
-}
-
 void FaceMesh::BindFaceTopo( FaceTopo & faceTopo )
 {
     this->faceTopo = &faceTopo;
@@ -84,7 +76,7 @@ void FaceMesh::CalcFaceCenter1D( const NodeMesh & nodeMesh )
 
     for ( HXSize_t iFace = 0; iFace < nFaces; ++ iFace )
     {
-        IntField & nodeIndex = this->GetFaceTopo().GetFaces()[ iFace ];
+        const IntField & nodeIndex = this->GetFaceTopo().GetFaces()[ iFace ];
         int p1 = nodeIndex[ 0 ];
         int p2 = nodeIndex[ 0 ];
         xfc[ iFace ] = half * ( xN[ p1 ] + xN[ p2 ] );
@@ -134,7 +126,7 @@ void FaceMesh::CalcFaceNormal2D( const NodeMesh & nodeMesh )
 
     for ( HXSize_t iFace = 0; iFace < nFaces; ++ iFace )
     {
-        IntField & faceIndex = this->GetFaceTopo().GetFaces()[ iFace ];
+        const IntField & faceIndex = this->GetFaceTopo().GetFaces()[ iFace ];
         int p1 = faceIndex[ 0 ];
         int p2 = faceIndex[ 1 ];
 
@@ -163,7 +155,7 @@ void FaceMesh::CalcFaceCenter2D( const NodeMesh & nodeMesh )
 
     for ( HXSize_t iFace = 0; iFace < nFaces; ++ iFace )
     {
-        IntField & nodeIndex = this->GetFaceTopo().GetFaces()[ iFace ];
+        const IntField & nodeIndex = this->GetFaceTopo().GetFaces()[ iFace ];
         int p1 = nodeIndex[ 0 ];
         int p2 = nodeIndex[ 1 ];
         xfc[ iFace ] = half * ( xN[ p1 ] + xN[ p2 ] );
@@ -188,7 +180,7 @@ void FaceMesh::CalcFaceNormal3D( const NodeMesh & nodeMesh )
 
     for ( HXSize_t iFace = 0; iFace < nFaces; ++ iFace )
     {
-        IntField & faceIndex = this->GetFaceTopo().GetFaces()[ iFace ];
+        const IntField & faceIndex = this->GetFaceTopo().GetFaces()[ iFace ];
 
         HXSize_t faceNodeNumber = faceIndex.size();
         for ( HXSize_t iNodeInFace = 0; iNodeInFace < faceNodeNumber; ++ iNodeInFace )
@@ -236,7 +228,7 @@ void FaceMesh::CalcFaceCenter3D( const NodeMesh & nodeMesh )
         Real y0 = 0.0;
         Real z0 = 0.0;
 
-        IntField & faceIndex = this->GetFaceTopo().GetFaces()[ iFace ];
+        const IntField & faceIndex = this->GetFaceTopo().GetFaces()[ iFace ];
 
         HXSize_t faceNodeNumber = faceIndex.size();
         for ( HXSize_t iNodeInFace = 0; iNodeInFace < faceNodeNumber; ++ iNodeInFace )

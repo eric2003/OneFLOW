@@ -27,16 +27,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-ThermodynamicFunction::ThermodynamicFunction()
-{
-    ;
-}
-
-ThermodynamicFunction::~ThermodynamicFunction()
-{
-    ;
-}
-
 void ThermodynamicFunction::Init( int nTSpan, int nPolyCoef )
 {
     this->nTSpan = nTSpan;
@@ -84,15 +74,6 @@ void ThermodynamicFunction::WritePolynomialCoefficient( DataBook * dataBook )
     }
 }
 
-
-Thermodynamic::Thermodynamic()
-{
-    ;
-}
-
-Thermodynamic::~Thermodynamic()
-{
-}
 
 void Thermodynamic::Init( int nSpecies )
 {

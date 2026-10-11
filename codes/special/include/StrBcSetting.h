@@ -34,8 +34,8 @@ class StrGrid;
 class StrBcSetting
 {
 public:
-    StrBcSetting();
-    ~StrBcSetting();
+    StrBcSetting() = default;
+    ~StrBcSetting() = default;
 public:
     IntField iminList, imaxList, jminList, jmaxList, kminList, kmaxList, bcTypeList;
 public:

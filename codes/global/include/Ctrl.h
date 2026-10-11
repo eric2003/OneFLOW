@@ -27,8 +27,8 @@ BeginNameSpace( ONEFLOW )
 class Ctrl
 {
 public:
-    Ctrl();
-    ~Ctrl();
+    Ctrl() = default;
+    ~Ctrl() = default;
 public:
     int startStrategy;
     int ireadwdst;
@@ -65,8 +65,8 @@ public:
 class VisModel
 {
 public:
-    VisModel();
-    ~VisModel();
+    VisModel() = default;
+    ~VisModel() = default;
 public:
     void Init();
 public:

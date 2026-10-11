@@ -42,15 +42,6 @@ License
 BeginNameSpace( ONEFLOW )
 
 
-SLine::SLine()
-{
-    ;
-}
-
-SLine::~SLine()
-{
-}
-
 void SLine::Alloc()
 {
     this->x1d.resize( ni );

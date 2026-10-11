@@ -38,8 +38,8 @@ class StrGrid;
 class BlkBasic
 {
 public:
-    BlkBasic();
-    virtual ~BlkBasic();
+    BlkBasic() = default;
+    virtual ~BlkBasic() = default;
 public:
     int blk_id;
     int ni, nj, nk;

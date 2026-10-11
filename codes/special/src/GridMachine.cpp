@@ -33,14 +33,6 @@ BeginNameSpace( ONEFLOW )
 
 GridMachine grid_Machine;
 
-GridMachine::GridMachine()
-{
-}
-
-GridMachine::~GridMachine()
-{
-}
-
 void GridMachine::Run( const std::string & fileName )
 {
     this->ResetState();

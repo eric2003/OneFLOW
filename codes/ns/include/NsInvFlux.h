@@ -48,8 +48,8 @@ Real FPSplit5( const Real & mach, const Real & alpha, const Real & ipn );
 class NsInv
 {
 public:
-    NsInv();
-    ~NsInv();
+    NsInv() = default;
+    ~NsInv() = default;
 public:
     void Init();
 public:
@@ -81,8 +81,8 @@ extern NsInv inv;
 class NsInvFlux
 {
 public:
-    NsInvFlux ();
-    ~NsInvFlux();
+    NsInvFlux() = default;
+    ~NsInvFlux() = default;
 public:
     using InvFluxPointer = void ( NsInvFlux:: * )();
 public:

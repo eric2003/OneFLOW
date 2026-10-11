@@ -79,8 +79,8 @@ public:
 class SegmentCopy
 {
 public:
-    SegmentCopy();
-    ~SegmentCopy();
+    SegmentCopy() = default;
+    ~SegmentCopy() = default;
 public:
     IntField lineList;
     IntField lowerIdList, upperIdList;

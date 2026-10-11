@@ -39,8 +39,8 @@ void SetGridFunc();
 class CalcMetricsTask : public Task
 {
 public:
-    CalcMetricsTask () {};
-    ~CalcMetricsTask() override {};
+    CalcMetricsTask() = default;
+    ~CalcMetricsTask() override = default;
 public:
     void Run() override;
 };

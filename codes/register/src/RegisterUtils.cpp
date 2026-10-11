@@ -27,14 +27,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-VarNameSolver::VarNameSolver()
-{
-}
-
-VarNameSolver::~VarNameSolver()
-{
-}
-
 void VarNameSolver::AddFieldName( const std::string & fieldName )
 {
     this->data.push_back( fieldName );
@@ -42,14 +34,6 @@ void VarNameSolver::AddFieldName( const std::string & fieldName )
 
 std::unique_ptr< std::map< int, std::unique_ptr<VarNameSolver> > > VarNameFactory::data;
 std::unique_ptr< MapIntInt > VarNameFactory::mapData;
-
-VarNameFactory::VarNameFactory()
-{
-}
-
-VarNameFactory::~VarNameFactory()
-{
-}
 
 void VarNameFactory::Init()
 {
@@ -217,14 +201,6 @@ bool CmpDataAB::operator()( const DataAB & k1, const DataAB & k2 ) const
     return k1.b < k2.b;
 }
 
-
-MapIntInt::MapIntInt()
-{
-}
-
-MapIntInt::~MapIntInt()
-{
-}
 
 void MapIntInt::AddData( int a, int b )
 {

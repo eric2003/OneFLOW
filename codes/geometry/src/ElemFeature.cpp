@@ -38,16 +38,6 @@ int EState::BC_FACE  = 6;
 int EState::H_FACE   = 7;
 int EState::G_FACE   = 8;
 
-EState::EState()
-{
-    ;
-}
-
-EState::~EState()
-{
-    ;
-}
-
 // ElemFeature.cpp
 ElemFeature::ElemFeature()
 {

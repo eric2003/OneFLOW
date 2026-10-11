@@ -34,8 +34,8 @@ class CellMesh;
 class FaceMesh
 {
 public:
-    FaceMesh();
-    ~FaceMesh();
+    FaceMesh() = default;
+    ~FaceMesh() = default;
 public:
     void BindFaceTopo( FaceTopo & faceTopo );
     FaceTopo & GetFaceTopo();

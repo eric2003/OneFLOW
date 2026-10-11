@@ -57,6 +57,7 @@ BlkFaceSolver::BlkFaceSolver()
     this->init_flag = false;
 }
 
+// Out-of-line: unique_ptr members require complete element types at delete.
 BlkFaceSolver::~BlkFaceSolver() = default;
 
 void BlkFaceSolver::Reset()

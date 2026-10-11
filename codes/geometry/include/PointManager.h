@@ -61,8 +61,7 @@ void PointCompare< T >::ResetTolerance( const T & toleranceIn )
 class PointManager
 {
 public:
-    using PointType = Point<Real>;          // 推荐用 PointType（更通用）
-    // using PointKey  = Point<Real>;       // 如果想强调它是 map 的 key，也可以
+    using PointType = Point<Real>;          
 
     using PointCompareType = PointCompare<Real>;
     using PointMap         = std::map<PointType, int, PointCompareType>;  // geometry -> id
@@ -112,8 +111,8 @@ protected:
 class MeshPointManager : public PointManager
 {
 public:
-    MeshPointManager();
-    ~MeshPointManager();
+    MeshPointManager() = default;
+    ~MeshPointManager() = default;
 
 public:
     IntField localToGlobal;     // local point id -> global point id

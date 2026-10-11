@@ -62,16 +62,6 @@ int VTK_TYPE::HEXAHEDRON    = 12;
 int VTK_TYPE::PRISM         = 13;
 int VTK_TYPE::PYRAMID       = 14;
 
-VTK_TYPE::VTK_TYPE()
-{
-    ;
-}
-
-VTK_TYPE::~VTK_TYPE()
-{
-    ;
-}
-
 VTK_CgnsMap::VTK_CgnsMap()
 {
     this->Init();
@@ -96,11 +86,6 @@ void VTK_CgnsMap::Init()
     vtk2Cgns.insert( IntPair( VTK_TYPE::PYRAMID      , PYRA_5 ) );
 }
 
-SecMarkerManager::SecMarkerManager()
-{
-    ;
-}
-
 void SecMarkerManager::Alloc( int nType )
 {
     this->nType = nType;
@@ -118,11 +103,6 @@ int SecMarkerManager::CalcTotalElem() const
         nElem += sec->nElem;
     }
     return nElem;
-}
-
-MarkerManager::MarkerManager()
-{
-    ;
 }
 
 void MarkerManager::CreateMarkerList( int nMarker )
@@ -182,16 +162,6 @@ void MarkerManager::CalcSecMarker( SecMarkerManager & secMarkerManager )
         secMarker->nElem = secMarker->elems.size();
     }
 
-}
-
-VolumeSecManager::VolumeSecManager()
-{
-    ;
-}
-
-VolumeSecManager::~VolumeSecManager()
-{
-    ;
 }
 
 void VolumeSecManager::CalcVolSec( const Su2Grid & su2Grid, SecMarkerManager & secMarkerManager )
@@ -289,12 +259,12 @@ int Su2Bc::GetCgnsBcType( const std::string & geoName ) const
 }
 
 Su2Grid::Su2Grid()
+    : ndim( 0 )
+    , nPoin( 0 )
+    , nElem( 0 )
+    , nZone( 1 )
 {
-    ndim = 0;
-    nPoin = 0;
-    nElem = 0;
-    nZone = 1;
-    vtkmap.resize( MAX_VTK_TYPE, 0 );
+    vtkmap.assign( MAX_VTK_TYPE, 0 );
     vtkmap[ VTK_TYPE::VERTEX ] = 1;
     vtkmap[ VTK_TYPE::LINE ] = 2;
     vtkmap[ VTK_TYPE::TRIANGLE ] = 3;
@@ -303,10 +273,6 @@ Su2Grid::Su2Grid()
     vtkmap[ VTK_TYPE::HEXAHEDRON ] = 8;
     vtkmap[ VTK_TYPE::PRISM ] = 6;
     vtkmap[ VTK_TYPE::PYRAMID ] = 5;
-}
-
-Su2Grid::~Su2Grid()
-{
 }
 
 void Su2Grid::ReadSu2Grid( GridMediator * gridMediator )

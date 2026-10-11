@@ -31,8 +31,8 @@ const int THREE_D = 3;
 class Dim
 {
 public:
-    Dim();
-    ~Dim();
+    Dim() = default;
+    ~Dim() = default;
 public:
     static int dimension;
 public:

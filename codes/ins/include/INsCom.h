@@ -32,8 +32,8 @@ BeginNameSpace( ONEFLOW )
 class INsCom : public NsCom
 {
 public:
-    INsCom();
-    ~INsCom();
+    INsCom() = default;
+    ~INsCom() = default;
 };
 
 void INsExtract( RealField & prim, Real & rm, Real & um, Real & vm, Real & wm, Real & pm );

@@ -27,16 +27,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-SchmidtNumber::SchmidtNumber()
-{
-    ;
-}
-
-SchmidtNumber::~SchmidtNumber()
-{
-    ;
-}
-
 void SchmidtNumber::Init( int nSpecies )
 {
     this->nSpecies = nSpecies;

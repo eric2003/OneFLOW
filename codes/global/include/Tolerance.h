@@ -28,8 +28,8 @@ BeginNameSpace( ONEFLOW )
 class Tolerance
 {
 public:
-    Tolerance();
-    ~Tolerance();
+    Tolerance() = default;
+    ~Tolerance() = default;
 public:
     static Real tol;
     static bool flag;

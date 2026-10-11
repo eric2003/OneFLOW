@@ -30,8 +30,8 @@ BeginNameSpace( ONEFLOW )
 class BlkElem
 {
 public:
-    BlkElem();
-    ~BlkElem();
+    BlkElem() = default;
+    ~BlkElem() = default;
 public:
     int eType;
     IntField nodeId;
@@ -48,14 +48,16 @@ class BlkElemHome
 {
 public:
     BlkElemHome();
-    ~BlkElemHome();
+    ~BlkElemHome() = default;
 public:
     HXVector< std::unique_ptr<BlkElem> > elems;
-    bool initFlag;
+    bool initFlag{ false };
 public:
     void Init();
+    // Clears owned elements and allows Init() to run again.
     void Free();
     BlkElem * GetBlkElem( int eType );
+    const BlkElem * GetBlkElem( int eType ) const;
 };
 
 extern BlkElemHome bbElemHome;
@@ -64,8 +66,8 @@ extern BlkElemHome bbElemHome;
 class BlkFace
 {
 public:
-    BlkFace();
-    ~BlkFace();
+    BlkFace() = default;
+    ~BlkFace() = default;
 public:
     IntField lblk, rblk;
     IntField lloc, rloc;

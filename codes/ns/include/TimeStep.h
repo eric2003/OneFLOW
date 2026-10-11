@@ -29,8 +29,8 @@ BeginNameSpace( ONEFLOW )
 class TimeStep
 {
 public:
-    TimeStep();
-    ~TimeStep();
+    TimeStep() = default;
+    ~TimeStep() = default;
 public:
     void CalcCfl();
     void CalcFaceInvSpec();

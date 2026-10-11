@@ -40,16 +40,6 @@ Real Iteration::cflst = 1.0;
 Real Iteration::cfled = 1.0;
 int  Iteration::ncfl = 100;
 
-Iteration::Iteration()
-{
-    ;
-}
-
-Iteration::~Iteration()
-{
-    ;
-}
-
 void Iteration::Reset()
 {
     Iteration::innerSteps = 0;
@@ -131,16 +121,6 @@ bool Iteration::ForceOk()
     }
 }
 
-SimuIterState::SimuIterState()
-{
-    ;
-}
-
-SimuIterState::~SimuIterState()
-{
-    ;
-}
-
 bool SimuIterState::Running()
 {
     if ( ctrl.iexitflag == 0 )
@@ -168,16 +148,6 @@ bool SimuIterState::InnerRunning()
 
 
 int SaveState::nFileSaveSteps = 1;
-
-SaveState::SaveState()
-{
-    ;
-}
-
-SaveState::~SaveState()
-{
-    ;
-}
 
 
 EndNameSpace

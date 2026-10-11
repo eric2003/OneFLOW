@@ -31,8 +31,8 @@ BeginNameSpace( ONEFLOW )
 class MyRegion
 {
 public:
-    MyRegion();
-    ~MyRegion();
+    MyRegion() = default;
+    ~MyRegion() = default;
 public:
     IntField ijkmin, ijkmax;
 public:
@@ -57,7 +57,7 @@ using MyRegionViews = std::vector< MyRegion * >;
 class MyRRegion
 {
 public:
-    MyRRegion();
+    MyRRegion() = default;
     ~MyRRegion() = default;
 public:
     IntField idiv, jdiv, kdiv;
@@ -84,7 +84,7 @@ public:
 class MyRegionFactory
 {
 public:
-    MyRegionFactory();
+    MyRegionFactory() = default;
     ~MyRegionFactory() = default;
 public:
     int ni, nj, nk;

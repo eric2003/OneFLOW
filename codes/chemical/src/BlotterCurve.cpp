@@ -26,16 +26,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-BlotterCurve::BlotterCurve()
-{
-    ;
-}
-
-BlotterCurve::~BlotterCurve()
-{
-    ;
-}
-
 void BlotterCurve::Init( int nSpecies )
 {
     this->nSpecies = nSpecies;

@@ -49,16 +49,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-INsRhs::INsRhs()
-{
-    ;
-}
-
-INsRhs::~INsRhs()
-{
-    ;
-}
-
 void INsRhs::UpdateResiduals()
 {
 	INsCalcRHS();

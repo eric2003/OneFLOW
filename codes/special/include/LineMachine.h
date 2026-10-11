@@ -14,8 +14,8 @@ struct GridDistributionDefinition;
 class LineMachine
 {
 public:
-    LineMachine();
-    ~LineMachine();
+    LineMachine() = default;
+    ~LineMachine() = default;
 private:
     HXVector< std::unique_ptr< SegmentCtrl > > segmentCtrlList;
     HXVector< std::unique_ptr< CurveInfo > > curveInfoList;

@@ -27,16 +27,6 @@ BeginNameSpace( ONEFLOW )
 Ctrl ctrl;
 VisModel vis_model;
 
-Ctrl::Ctrl()
-{
-    ;
-}
-
-Ctrl::~Ctrl()
-{
-    ;
-}
-
 void Ctrl::Init()
 {
     initplane.clear();
@@ -100,16 +90,6 @@ void CopyArray( RealField & arr, const std::string & name )
     {
         arr[ i ] = tmp[ i ];
     }
-}
-
-VisModel::VisModel()
-{
-    ;
-}
-
-VisModel::~VisModel()
-{
-    ;
 }
 
 void VisModel::Init()

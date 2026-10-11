@@ -32,18 +32,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-BcInfo::BcInfo()
-{
-    ;
-}
-
-BcInfo::~BcInfo()
-{
-    ;
-}
-
-BcRecord::BcRecord() = default;
-
 BcRecord::BcRecord( const BcRecord & other )
     : bcType( other.bcType ), bcNameId( other.bcNameId ), bcInfo( nullptr )
 {
@@ -59,8 +47,6 @@ BcRecord & BcRecord::operator=( const BcRecord & other )
     this->bcNameId = other.bcNameId;
     return *this;
 }
-
-BcRecord::~BcRecord() = default;
 
 void BcRecord::CreateBcTypeRegion()
 {
@@ -189,20 +175,6 @@ void BcRecord::CalcBcType( IntField & bcTypeList )
     }
 }
 
-BcManager::BcManager()
-{
-    // [Refactored] Use std::make_unique for exception-safe allocation.
-    this->bcRecord = std::make_unique<BcRecord>();
-    this->bcRecordNew = std::make_unique<BcRecord>();
-}
-
-BcManager::~BcManager()
-{
-    // [Refactored] Destructor is now empty. 
-    // std::unique_ptr automatically cleans up the owned BcRecord objects.
-}
-
-
 void BcManager::PreProcess()
 {
     int nBFaces = this->bcRecord->GetNBFace();
@@ -262,16 +234,6 @@ void BasicRegion::SetRegion( int ist, int ied, int jst, int jed, int kst, int ke
     this->end  [ 2 ] = ked;
 }
 
-TestRegion::TestRegion()
-{
-    ;
-}
-
-TestRegion::~TestRegion()
-{
-    ;
-}
-
 void TestRegion::Run( BasicRegion * r, int dimension ) 
 {
     int n = dimension;
@@ -323,16 +285,6 @@ void TestRegion::Run( BasicRegion * r, int dimension )
         p1[ m ] = aa;
         p2[ m ] = bb;
     }
-}
-
-TestRegionM::TestRegionM()
-{
-    ;
-}
-
-TestRegionM::~TestRegionM()
-{
-    ;
 }
 
 void TestRegionM::Run( BcRegion * bcRegion, int dimension )
@@ -392,10 +344,6 @@ int BcRegion::CalcRegionCells()
 
     return nRegionCells;
 }
-
-BcRegionGroup::BcRegionGroup() = default;
-
-BcRegionGroup::~BcRegionGroup() = default;
 
 void BcRegionGroup::Create( int nBcRegions )
 {

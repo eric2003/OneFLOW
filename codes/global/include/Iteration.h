@@ -27,8 +27,8 @@ BeginNameSpace( ONEFLOW )
 class Iteration
 {
 public:
-    Iteration();
-    ~Iteration();
+    Iteration() = default;
+    ~Iteration() = default;
 public:
     static int innerSteps;
     static int outerSteps;
@@ -54,8 +54,8 @@ public:
 class SimuIterState
 {
 public:
-    SimuIterState();
-    ~SimuIterState();
+    SimuIterState() = default;
+    ~SimuIterState() = default;
 public:
     static bool Running();
     static bool InnerRunning();
@@ -64,8 +64,8 @@ public:
 class SaveState
 {
 public:
-    SaveState();
-    ~SaveState();
+    SaveState() = default;
+    ~SaveState() = default;
 public:
     static int nFileSaveSteps;
 };

@@ -132,11 +132,7 @@ TEST_F( CMDTest, InitCreatesEmptyCommandList )
 {
     ONEFLOW::CMD::Init();
 
-    const auto * commandList =
-        ONEFLOW::CMD::GetCmdList();
-
-    ASSERT_NE( commandList, nullptr );
-    EXPECT_TRUE( commandList->empty() );
+    EXPECT_EQ( ONEFLOW::CMD::GetCmdCount(), 0 );
 }
 
 TEST_F( CMDTest, AddCmdTransfersOwnership )
@@ -146,17 +142,8 @@ TEST_F( CMDTest, AddCmdTransfersOwnership )
 
     ONEFLOW::CMD::AddCmd( command );
 
-    const auto * commandList =
-        ONEFLOW::CMD::GetCmdList();
-
-    ASSERT_NE( commandList, nullptr );
-    EXPECT_EQ( commandList->size(), 1 );
-
-
-    EXPECT_EQ(
-        ( * commandList )[ 0 ],
-        command
-    );
+    ASSERT_EQ( ONEFLOW::CMD::GetCmdCount(), 1 );
+    EXPECT_EQ( ONEFLOW::CMD::GetCmd( 0 ), command );
 
     EXPECT_EQ( g_cmdDestroyCount, 0 );
 
@@ -174,12 +161,8 @@ TEST_F( CMDTest, AddUniqueCmdTransfersOwnership )
 
     EXPECT_EQ( command, nullptr );
 
-    const auto * commandList =
-        ONEFLOW::CMD::GetCmdList();
-
-
-    ASSERT_NE( commandList, nullptr );
-    ASSERT_EQ( commandList->size(), 1 );
+    ASSERT_EQ( ONEFLOW::CMD::GetCmdCount(), 1 );
+    EXPECT_NE( ONEFLOW::CMD::GetCmd( 0 ), nullptr );
 
     EXPECT_EQ( g_cmdDestroyCount, 0 );
 
@@ -190,29 +173,26 @@ TEST_F( CMDTest, AddUniqueCmdTransfersOwnership )
 
 TEST_F( CMDTest, AddNullRawCommandDoesNothing )
 {
-    const auto * commandList =
-        ONEFLOW::CMD::GetCmdList();
-
-    EXPECT_EQ( commandList, nullptr );
+    EXPECT_EQ( ONEFLOW::CMD::GetCmdCount(), 0 );
 
     ONEFLOW::CMD::AddCmd(
         static_cast< ONEFLOW::Command * >( nullptr )
     );
 
     // Adding a null command should not initialize the queue.
-    EXPECT_EQ( ONEFLOW::CMD::GetCmdList(), nullptr );
+    EXPECT_EQ( ONEFLOW::CMD::GetCmdCount(), 0 );
 }
 
 TEST_F( CMDTest, AddNullUniqueCommandDoesNothing )
 {
     std::unique_ptr< ONEFLOW::Command > command;
 
-    EXPECT_EQ( ONEFLOW::CMD::GetCmdList(), nullptr );
+    EXPECT_EQ( ONEFLOW::CMD::GetCmdCount(), 0 );
 
     ONEFLOW::CMD::AddCmd( std::move( command ) );
 
     // Adding a null command should not initialize the queue.
-    EXPECT_EQ( ONEFLOW::CMD::GetCmdList(), nullptr );
+    EXPECT_EQ( ONEFLOW::CMD::GetCmdCount(), 0 );
 }
 
 TEST_F( CMDTest, CommandsExecuteInInsertionOrder )
@@ -281,17 +261,11 @@ TEST_F( CMDTest, ExecuteCmdClearsCommandList )
         std::make_unique< ONEFLOW::SimpleCmd >()
     );
 
-    const auto * commandList =
-        ONEFLOW::CMD::GetCmdList();
-
-
-    ASSERT_NE( commandList, nullptr );
-    ASSERT_EQ( commandList->size(), 1 );
+    ASSERT_EQ( ONEFLOW::CMD::GetCmdCount(), 1 );
 
     ONEFLOW::CMD::ExecuteCmd();
 
-    ASSERT_NE( commandList, nullptr );
-    EXPECT_TRUE( commandList->empty() );
+    EXPECT_EQ( ONEFLOW::CMD::GetCmdCount(), 0 );
 }
 
 TEST_F( CMDTest, ExecuteCmdClearsTaskState )
@@ -333,11 +307,7 @@ TEST_F( CMDTest, ClearDestroysQueuedCommands )
 
     EXPECT_EQ( g_cmdDestroyCount, 3 );
 
-    const auto * commandList =
-        ONEFLOW::CMD::GetCmdList();
-
-    ASSERT_NE( commandList, nullptr );
-    EXPECT_TRUE( commandList->empty() );
+    EXPECT_EQ( ONEFLOW::CMD::GetCmdCount(), 0 );
 }
 
 TEST_F( CMDTest, FreeDestroysQueuedCommands )
@@ -355,7 +325,7 @@ TEST_F( CMDTest, FreeDestroysQueuedCommands )
     ONEFLOW::CMD::Free();
 
     EXPECT_EQ( g_cmdDestroyCount, 2 );
-    EXPECT_EQ( ONEFLOW::CMD::GetCmdList(), nullptr);
+    EXPECT_EQ( ONEFLOW::CMD::GetCmdCount(), 0 );
 }
 
 TEST_F( CMDTest, FreeReleasesCommandsAndTasks )
@@ -374,7 +344,7 @@ TEST_F( CMDTest, FreeReleasesCommandsAndTasks )
     ONEFLOW::CMD::Free();
 
     EXPECT_EQ( g_cmdTaskDestroyCount, 1 );
-    EXPECT_EQ( ONEFLOW::CMD::GetCmdList(), nullptr);
+    EXPECT_EQ( ONEFLOW::CMD::GetCmdCount(), 0 );
 }
 
 TEST_F( CMDTest, RunCmdDoesNotTakeOwnership )
@@ -399,10 +369,7 @@ TEST_F( CMDTest, FreeCanBeCalledWhenNotInitialized )
         ONEFLOW::CMD::Free()
     );
 
-    EXPECT_EQ(
-        ONEFLOW::CMD::GetCmdList(),
-        nullptr
-    );
+    EXPECT_EQ( ONEFLOW::CMD::GetCmdCount(), 0 );
 }
 
 TEST_F( CMDTest, ExecuteCmdBeforeInitDoesNotCrash )
@@ -499,20 +466,12 @@ TEST_F( CMDTest, ClearCanBeCalledMultipleTimes )
     EXPECT_EQ( g_cmdDestroyCount, 1 );
 }
 
-TEST_F( CMDTest, GetCmdListProvidesReadOnlyView )
+TEST_F( CMDTest, GetCmdAccessorsProvideReadOnlyView )
 {
     ONEFLOW::CMD::AddCmd(
         std::make_unique< ONEFLOW::SimpleCmd >()
     );
 
-    const ONEFLOW::HXVector< ONEFLOW::Command * > * commandList =
-        ONEFLOW::CMD::GetCmdList();
-
-    ASSERT_NE( commandList, nullptr );
-    ASSERT_EQ( commandList->size(), 1 );
-
-    EXPECT_NE(
-        ( * commandList )[ 0 ],
-        nullptr
-    );
+    ASSERT_EQ( ONEFLOW::CMD::GetCmdCount(), 1 );
+    EXPECT_NE( ONEFLOW::CMD::GetCmd( 0 ), nullptr );
 }

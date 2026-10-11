@@ -46,10 +46,10 @@ public:
     void Free();
     void Register( const std::string & regionName, int bcType );
     void Unregister( const std::string & regionName );
-    int GetBcType( const std::string & regionName );
+    int GetBcType( const std::string & regionName ) const;
 public:
-    void SetFamilyBc( BCType_t & bcType, const std::string & bcRegionName );
-    BCType_t GetFamilyBcType( const std::string & bcFamilyName );
+    void SetFamilyBc( BCType_t & bcType, const std::string & bcRegionName ) const;
+    BCType_t GetFamilyBcType( const std::string & bcFamilyName ) const;
     void ReadFamilySpecifiedBc();
 };
 

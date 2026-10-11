@@ -342,16 +342,6 @@ void SegmentCtrl::CopyFactor()
     }
 }
 
-SegmentCopy::SegmentCopy()
-{
-    ;
-}
-
-SegmentCopy::~SegmentCopy()
-{
-    ;
-}
-
 void SegmentCopy::Read( TextFileParser * textFileParser )
 {
     while ( true )

@@ -207,6 +207,8 @@ template < typename T, typename TStorage >
 T * GetFieldPointer( TStorage * storage, const std::string & dataObjectName );
 template < typename T, typename TStorage >
 const T * GetFieldPointer( const TStorage * storage, const std::string & dataObjectName );
+// Prefer this overload for read-only access via const Grid* / const storage
+// (requires const RequireDataBase()).
 
 // Required field access: throws when the named field is not registered.
 // The DataBase itself is required and must be initialized.

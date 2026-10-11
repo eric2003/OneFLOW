@@ -36,8 +36,8 @@ class Mesh;
 class Visual
 {
 public:
-    Visual();
-    ~Visual();
+    Visual() = default;
+    ~Visual() = default;
 public:
     static int numberOfWords;
 public:

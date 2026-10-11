@@ -32,12 +32,6 @@ BeginNameSpace( ONEFLOW )
 
 CurveMachine curve_Machine;
 
-CurveMachine::CurveMachine()
-{
-}
-
-CurveMachine::~CurveMachine() = default;
-
 void CurveMachine::AddLine( int id1, int id2 )
 {
     auto curveLine = std::make_unique< CurveLine >();

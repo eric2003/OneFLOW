@@ -61,14 +61,6 @@ BeginNameSpace( ONEFLOW )
 //    tmp.resize( nEqu );
 //}
 
-INsLusgs::INsLusgs()
-{
-}
-
-INsLusgs::~INsLusgs()
-{
-}
-
 void INsLusgs::InitializeSub()
 {
 }

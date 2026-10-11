@@ -31,8 +31,8 @@ class DataBook;
 class ThermodynamicFunction
 {
 public:
-    ThermodynamicFunction();
-    ~ThermodynamicFunction();
+    ThermodynamicFunction() = default;
+    ~ThermodynamicFunction() = default;
 public:
     int nTSpan, nPolyCoef;
     RealField2D polyCoef;
@@ -46,8 +46,8 @@ public:
 class Thermodynamic
 {
 public:
-    Thermodynamic();
-    ~Thermodynamic();
+    Thermodynamic() = default;
+    ~Thermodynamic() = default;
 public:
     int nSpecies;
     int nTSpan, nPolyCoef;

@@ -29,16 +29,6 @@ License
 BeginNameSpace( ONEFLOW )
 
 
-CellTopo::CellTopo()
-{
-    ;
-}
-
-CellTopo::~CellTopo()
-{
-    ;
-}
-
 void CellTopo::Alloc( int nCells )
 {
     blank.resize( nCells );

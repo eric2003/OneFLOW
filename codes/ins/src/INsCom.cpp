@@ -30,14 +30,6 @@ License
 BeginNameSpace( ONEFLOW )
 
 
-INsCom::INsCom()
-{
-}
-
-INsCom::~INsCom()
-{
-}
-
 void INsExtract(RealField & prim, Real & rm, Real & um, Real & vm, Real & wm, Real & pm)
 {
 	rm = prim[IIDX::IIR];

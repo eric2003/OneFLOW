@@ -37,16 +37,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-PBlk::PBlk()
-{
-    ;
-}
-
-PBlk::~PBlk()
-{
-    ;
-}
-
 bool PBlk::operator < ( const PBlk * rhs ) const
 {
     if ( this->blk != rhs->blk )
@@ -268,11 +258,6 @@ void PatchBox::CalcIdMap( PatchBox * box )
 }
 
 
-MultiDomain::MultiDomain()
-{
-    ;
-}
-
 MultiDomain::~MultiDomain() = default;
 
 void MultiDomain::Add( int zid1, int fid1, int zid2, int fid2, PatchBox * box1, PatchBox * box2 )
@@ -287,11 +272,6 @@ void MultiDomain::Add( int zid1, int fid1, int zid2, int fid2, PatchBox * box1, 
 
     this->boxlist1.push_back( std::move( b1 ) );
     this->boxlist2.push_back( std::move( b2 ) );
-}
-
-PBlkSet::PBlkSet()
-{
-    ;
 }
 
 PBlkSet::~PBlkSet() = default;
@@ -512,16 +492,6 @@ bool PBlkSet::CrossDomain( int iZone, int idomain, int jZone, int jdomain, Patch
     return valid_i && valid_j;
 }
 
-IjkSlice::IjkSlice()
-{
-    ;
-}
-
-IjkSlice::~IjkSlice()
-{
-    ;
-}
-
 void IjkSlice::CalcIdir()
 {
     if ( imin == imax )
@@ -607,14 +577,6 @@ void IjkBox::Add( int iminIn, int imaxIn, int jminIn, int jmaxIn, int kminIn, in
     this->kmax.push_back( kmaxIn );
 
     this->idir.push_back( idirIn );
-}
-
-DomainInp::DomainInp()
-{
-}
-
-DomainInp::~DomainInp()
-{
 }
 
 void DomainInp::Run()

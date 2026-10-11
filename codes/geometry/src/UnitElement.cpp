@@ -27,17 +27,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-UnitElement::UnitElement()
-{
-    ;
-}
-
-UnitElement::~UnitElement()
-{
-    ;
-}
-
-int UnitElement::GetElementNodeNumbers( int elementType )
+int UnitElement::GetElementNodeNumbers( int elementType ) const
 {
     int nodeNumberOfElement = 0;
     if ( elementType == ONEFLOW::NODE )
@@ -985,7 +975,7 @@ void UnitElement::Initialize( int elementType )
     }
 }
 
-int UnitElement::GetRefinedElementType( int elementType )
+int UnitElement::GetRefinedElementType( int elementType ) const
 {
     int nextElementType = -1;
     if ( elementType == ONEFLOW::NODE )
@@ -1052,7 +1042,7 @@ int UnitElement::GetRefinedElementType( int elementType )
     return nextElementType;
 }
 
-int UnitElement::GetSimpleElementType( int elementType )
+int UnitElement::GetSimpleElementType( int elementType ) const
 {
     int previousElementType = -1;
     if ( elementType == ONEFLOW::NODE )
@@ -1120,7 +1110,7 @@ int UnitElement::GetSimpleElementType( int elementType )
     return previousElementType;
 }
 
-bool UnitElement::IsUnitElementType( int elementType )
+bool UnitElement::IsUnitElementType( int elementType ) const
 {
     bool results = false;
     if ( elementType == ONEFLOW::NODE )
@@ -1187,7 +1177,7 @@ bool UnitElement::IsUnitElementType( int elementType )
     return results;
 }
 
-bool UnitElement::IsFaceElementType( int elementType )
+bool UnitElement::IsFaceElementType( int elementType ) const
 {
     bool results = false;
 
@@ -1227,7 +1217,7 @@ bool UnitElement::IsFaceElementType( int elementType )
     return results;
 }
 
-bool UnitElement::IsFaceElementTypeAtLeast( int elementType )
+bool UnitElement::IsFaceElementTypeAtLeast( int elementType ) const
 {
     bool results = IsUnitElementType( elementType );
 
@@ -1245,7 +1235,7 @@ bool UnitElement::IsFaceElementTypeAtLeast( int elementType )
     return results;
 }
 
-bool UnitElement::IsBasicVolumeElementType( int elementType )
+bool UnitElement::IsBasicVolumeElementType( int elementType ) const
 {
     if ( ONEFLOW::IsOneD() )
     {
@@ -1442,6 +1432,7 @@ void UnitElement::PushChildElement( int elementType, int p1, int p2, int p3, int
 
 
 IntField & UnitElement::GetElementPhysicsFace(int iFace) { return compositeFaceList[iFace]; };
+const IntField & UnitElement::GetElementPhysicsFace(int iFace) const { return compositeFaceList[iFace]; };
 int UnitElement::GetElementPhysicsFaceType(int iFace) const { return compositeFaceElementType[iFace]; }
 int UnitElement::GetElementFaceNumber() const { return faceList.size(); }
 int UnitElement::GetElementPhysicsFaceNumber() const { return compositeFaceList.size(); }
@@ -1449,13 +1440,16 @@ int UnitElement::GetElementType() const { return elementType; };
 
 
 IntField & UnitElement::GetElementFace(int iFace) { return faceList[iFace]; };
+const IntField & UnitElement::GetElementFace(int iFace) const { return faceList[iFace]; };
 int UnitElement::GetFaceType(int iFace) const { return faceTypeContainer[iFace]; };
 
 IntField & UnitElement::GetRelatedPointListForMiddlePointCalcutation(int iMiddlePoint) { return middlePointStruct[iMiddlePoint]; }
+const IntField & UnitElement::GetRelatedPointListForMiddlePointCalcutation(int iMiddlePoint) const { return middlePointStruct[iMiddlePoint]; }
 IntField & UnitElement::GetChildElementRelativeNodeIndex(int iChildElement) { return childElementIndex[iChildElement]; };
+const IntField & UnitElement::GetChildElementRelativeNodeIndex(int iChildElement) const { return childElementIndex[iChildElement]; };
 
 int UnitElement::GetChildElementNumbers() const { return childElementType.size(); };
-int UnitElement::GetChildElementType(int iChild) { return childElementType[iChild]; }
+int UnitElement::GetChildElementType(int iChild) const { return childElementType[iChild]; }
 
 void UnitElement::PushChildElement( int elementType, int p1, int p2, int p3, int p4, int p5, int p6, int p7, int p8 )
 {

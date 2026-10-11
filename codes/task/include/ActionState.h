@@ -31,8 +31,8 @@ class DataBook;
 class ActionState
 {
 public:
-    ActionState();
-    ~ActionState();
+    ActionState() = default;
+    ~ActionState() = default;
 public:
     static DataBook * dataBook;
     static std::fstream * file;

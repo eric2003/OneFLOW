@@ -107,8 +107,7 @@ TEST_F( CommandTest, DefaultCommandHasNoTasks )
 {
     ONEFLOW::SimpleCmd command;
 
-    ASSERT_NE( command.GetTaskList(), nullptr );
-    EXPECT_TRUE( command.GetTaskList()->empty() );
+    EXPECT_EQ( command.GetTaskCount(), 0 );
 }
 
 TEST_F( CommandTest, AddRawTaskStoresTask )
@@ -118,13 +117,8 @@ TEST_F( CommandTest, AddRawTaskStoresTask )
     ONEFLOW::SimpleCmd command;
     command.AddTask( task );
 
-    ASSERT_NE( command.GetTaskList(), nullptr );
-    ASSERT_EQ( command.GetTaskList()->size(), 1 );
-
-    EXPECT_EQ(
-        ( * command.GetTaskList() )[ 0 ],
-        task
-    );
+    ASSERT_EQ( command.GetTaskCount(), 1 );
+    EXPECT_EQ( command.GetTask( 0 ), task );
 }
 
 TEST_F( CommandTest, AddUniqueTaskTransfersOwnership )
@@ -136,12 +130,8 @@ TEST_F( CommandTest, AddUniqueTaskTransfersOwnership )
 
     EXPECT_EQ( task, nullptr );
 
-    ASSERT_NE( command.GetTaskList(), nullptr );
-    ASSERT_EQ( command.GetTaskList()->size(), 1 );
-    EXPECT_NE(
-        ( * command.GetTaskList() )[ 0 ],
-        nullptr
-    );
+    ASSERT_EQ( command.GetTaskCount(), 1 );
+    EXPECT_NE( command.GetTask( 0 ), nullptr );
 }
 
 TEST_F( CommandTest, AddNullRawTaskDoesNothing )
@@ -152,8 +142,7 @@ TEST_F( CommandTest, AddNullRawTaskDoesNothing )
         static_cast< ONEFLOW::Task * >( nullptr )
     );
 
-    ASSERT_NE( command.GetTaskList(), nullptr );
-    EXPECT_TRUE( command.GetTaskList()->empty() );
+    EXPECT_EQ( command.GetTaskCount(), 0 );
 }
 
 TEST_F( CommandTest, AddNullUniqueTaskDoesNothing )
@@ -164,8 +153,7 @@ TEST_F( CommandTest, AddNullUniqueTaskDoesNothing )
 
     command.AddTask( std::move( task ) );
 
-    ASSERT_NE( command.GetTaskList(), nullptr );
-    EXPECT_TRUE( command.GetTaskList()->empty() );
+    EXPECT_EQ( command.GetTaskCount(), 0 );
 }
 
 TEST_F( CommandTest, SimpleCmdExecutesStoredTask )
@@ -266,7 +254,7 @@ TEST( CommandTypeTest, SimpleCmdIsNotCopyable )
     );
 }
 
-TEST_F( CommandTest, GetTaskListProvidesReadOnlyView )
+TEST_F( CommandTest, ConstAccessorsProvideReadOnlyView )
 {
     ONEFLOW::SimpleCmd command;
 
@@ -276,14 +264,11 @@ TEST_F( CommandTest, GetTaskListProvidesReadOnlyView )
 
     const ONEFLOW::Command * constCommand = & command;
 
-    const ONEFLOW::Command::TList * taskList =
-        constCommand->GetTaskList();
-
-    ASSERT_NE( taskList, nullptr );
-    ASSERT_EQ( taskList->size(), 1 );
+    ASSERT_EQ( constCommand->GetTaskCount(), 1 );
+    EXPECT_NE( constCommand->GetTask( 0 ), nullptr );
 }
 
-TEST_F( CommandTest, TaskListMatchesOwnedTasks )
+TEST_F( CommandTest, TaskAccessorsMatchOwnedTasks )
 {
     ONEFLOW::SimpleCmd command;
 
@@ -296,12 +281,7 @@ TEST_F( CommandTest, TaskListMatchesOwnedTasks )
     command.AddTask( std::move( task1 ) );
     command.AddTask( std::move( task2 ) );
 
-    const ONEFLOW::Command::TList * taskList =
-        command.GetTaskList();
-
-    ASSERT_NE( taskList, nullptr );
-    ASSERT_EQ( taskList->size(), 2 );
-
-    EXPECT_EQ( ( * taskList )[ 0 ], rawTask1 );
-    EXPECT_EQ( ( * taskList )[ 1 ], rawTask2 );
+    ASSERT_EQ( command.GetTaskCount(), 2 );
+    EXPECT_EQ( command.GetTask( 0 ), rawTask1 );
+    EXPECT_EQ( command.GetTask( 1 ), rawTask2 );
 }

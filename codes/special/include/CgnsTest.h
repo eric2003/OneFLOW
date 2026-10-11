@@ -36,8 +36,8 @@ class CgnsFile;
 class CgnsTest
 {
 public:
-    CgnsTest();
-    ~CgnsTest();
+    CgnsTest() = default;
+    ~CgnsTest() = default;
 public:
     std::string fileName;
 public:

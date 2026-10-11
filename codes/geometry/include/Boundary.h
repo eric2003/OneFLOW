@@ -32,8 +32,8 @@ BeginNameSpace( ONEFLOW )
 class BC
 {
 public:
-    BC();
-    ~BC();
+    BC() = default;
+    ~BC() = default;
 public:
     static int PERIODIC        ;
     static int WAKE            ;
@@ -66,8 +66,8 @@ public:
 class BcTypeMap
 {
 public:
-    BcTypeMap();
-    ~BcTypeMap();
+    BcTypeMap() = default;
+    ~BcTypeMap() = default;
 private:
     int numberOfMaxBoundaryConditions;
     std::map< int, int > cgns2OneFlow;
@@ -97,8 +97,8 @@ void DumpRegion( const std::string & fileName, CommonNameMap & nameMap );
 class RegionNameMap
 {
 public:
-    RegionNameMap();
-    ~RegionNameMap();
+    RegionNameMap() = default;
+    ~RegionNameMap() = default;
 public:
     static CommonNameMap nameMap;
 public:
@@ -110,8 +110,8 @@ public:
 class VolumeNameMap
 {
 public:
-    VolumeNameMap();
-    ~VolumeNameMap();
+    VolumeNameMap() = default;
+    ~VolumeNameMap() = default;
 public:
     static CommonNameMap nameMap;
 public:

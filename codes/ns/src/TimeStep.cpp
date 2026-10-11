@@ -30,16 +30,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-TimeStep::TimeStep()
-{
-    ;
-}
-
-TimeStep::~TimeStep()
-{
-    ;
-}
-
 void TimeStep::CalcCfl()
 {
     int iter = Iteration::outerSteps;

@@ -29,8 +29,8 @@ BeginNameSpace( ONEFLOW )
 class NsVis
 {
 public:
-    NsVis();
-    ~NsVis();
+    NsVis() = default;
+    ~NsVis() = default;
 public:
     void Init();
 public:
@@ -59,8 +59,8 @@ extern NsVis vis;
 class NsVisFlux
 {
 public:
-    NsVisFlux ();
-    ~NsVisFlux();
+    NsVisFlux() = default;
+    ~NsVisFlux() = default;
 public:
     void AverGrad();
     void ZeroNormalGrad();

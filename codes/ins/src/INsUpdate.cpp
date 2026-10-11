@@ -31,14 +31,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-INsUpdate::INsUpdate()
-{
-}
-
-INsUpdate::~INsUpdate()
-{
-}
-
 void INsUpdate::CalcFlowField()
 {
     for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )

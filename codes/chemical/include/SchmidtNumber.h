@@ -28,8 +28,8 @@ class DataBook;
 class SchmidtNumber
 {
 public:
-    SchmidtNumber();
-    ~SchmidtNumber();
+    SchmidtNumber() = default;
+    ~SchmidtNumber() = default;
 public:
     int nSpecies;
     RealField lamSchmidt, olamSchmidt;

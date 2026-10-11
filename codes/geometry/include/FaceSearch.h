@@ -31,8 +31,8 @@ BeginNameSpace( ONEFLOW )
 class FaceSearchBasic
 {
 public:
-    FaceSearchBasic();
-    ~FaceSearchBasic();
+    FaceSearchBasic() = default;
+    ~FaceSearchBasic() = default;
 public:
     // Store original node order of each face (index == faceId)
     HXVector< IntField > faceArray;
@@ -55,8 +55,8 @@ class IFaceLink;
 class FaceSearch : public FaceSearchBasic
 {
 public:
-    FaceSearch();
-    ~FaceSearch();
+    FaceSearch() = default;
+    ~FaceSearch() = default;
 public:
     IntField status;
     LinkField cFaceId;

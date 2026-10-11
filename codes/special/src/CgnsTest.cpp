@@ -39,16 +39,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-CgnsTest::CgnsTest()
-{
-    ;
-}
-
-CgnsTest::~CgnsTest()
-{
-    ;
-}
-
 void CgnsTest::Init()
 {
     this->SetDefaultGridName();

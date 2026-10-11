@@ -27,16 +27,6 @@ BeginNameSpace( ONEFLOW )
 
 GCom gcom;
 
-GCom::GCom()
-{
-    ;
-}
-
-GCom::~GCom()
-{
-    ;
-}
-
 void GCom::SetGeometry()
 {
     this->xfn   = ( * ug.xfn   )[ ug.fId ];

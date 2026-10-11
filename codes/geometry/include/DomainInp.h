@@ -37,8 +37,8 @@ class GridMediator;
 class PBlk
 {
 public:
-    PBlk();
-    ~PBlk();
+    PBlk() = default;
+    ~PBlk() = default;
 public:
     int blk, fid;
     int i, j, k;
@@ -80,7 +80,7 @@ public:
 class MultiDomain
 {
 public:
-    MultiDomain();
+    MultiDomain() = default;
     ~MultiDomain();
 public:
     HXVector< std::unique_ptr< PatchBox > > boxlist1;
@@ -95,7 +95,7 @@ public:
 class PBlkSet
 {
 public:
-    PBlkSet();
+    PBlkSet() = default;
     ~PBlkSet();
 public:
     IntField id;
@@ -132,8 +132,8 @@ public:
 class IjkSlice
 {
 public:
-    IjkSlice();
-    ~IjkSlice();
+    IjkSlice() = default;
+    ~IjkSlice() = default;
 public:
     int imin, imax, jmin, jmax, kmin, kmax;
     int idir;
@@ -151,8 +151,8 @@ class PointLocator;
 class DomainInp
 {
 public:
-    DomainInp();
-    ~DomainInp();
+    DomainInp() = default;
+    ~DomainInp() = default;
 public:
     void Run();
 public:

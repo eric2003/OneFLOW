@@ -30,8 +30,8 @@ BeginNameSpace( ONEFLOW )
 class NsSolver : public Solver
 {
 public:
-    NsSolver();
-    ~NsSolver();
+    NsSolver() = default;
+    ~NsSolver() = default;
 public:
     IMPLEMENT_SOLVER_CLONE( NsSolver )
 public:

@@ -34,8 +34,8 @@ class FaceSolver;
 class EState
 {
 public:
-    EState();
-    ~EState();
+    EState() = default;
+    ~EState() = default;
 public:
     static int SPLIT   ;
     static int NOCHANGE;

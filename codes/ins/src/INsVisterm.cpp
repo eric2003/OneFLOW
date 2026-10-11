@@ -32,29 +32,9 @@ BeginNameSpace( ONEFLOW )
 
 INsVis Ivis;
 
-INsVis::INsVis()
-{
-    ;
-}
-
-INsVis::~INsVis()
-{
-    ;
-}
-
 void INsVis::Init()
 {
     fvis.resize( nscom.nEqu );
-}
-
-INsVisterm::INsVisterm()
-{
-    ;
-}
-
-INsVisterm::~INsVisterm()
-{
-    ;
 }
 
 void INsVisterm::AverGrad()

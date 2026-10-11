@@ -37,8 +37,8 @@ class CurveMesh;
 class SLine
 {
 public:
-    SLine();
-    ~SLine();
+    SLine() = default;
+    ~SLine() = default;
 public:
     int line_id;
     int ni;

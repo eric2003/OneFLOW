@@ -32,8 +32,8 @@ class UnsGrid;
 class CellTopo
 {
 public:
-    CellTopo();
-    ~CellTopo();
+    CellTopo() = default;
+    ~CellTopo() = default;
 public:
     IntField eTypes;
     IntField blank;
@@ -45,7 +45,7 @@ public:
     void PushElement( int p1, int p2, int p3, int p4, int elementType );
 public:
     void Alloc( int nCells );
-    HXSize_t GetNumberOfCells() { return eTypes.size(); }
+    HXSize_t GetNumberOfCells() const { return eTypes.size(); }
     void CalcC2f( FaceTopo & faceTopo );
     void CalcC2C( FaceTopo & faceTopo );
 };

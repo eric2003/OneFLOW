@@ -74,7 +74,7 @@ public:
     void UpdateOtherTopologyTerm( IFaceLink & iFaceLink ) override;
     void NormalizeBc();
 public:
-    void GetMinMaxDistance( Real & dismin, Real & dismax ) override;
+    void GetMinMaxDistance( Real & dismin, Real & dismax ) const override;
     void WriteGrid( std::fstream & file );
 public:
     void CalcMetrics() override;
@@ -98,5 +98,6 @@ private:
 };
 
 UnsGrid * UnsGridCast( Grid * gridIn );
+const UnsGrid * UnsGridCast( const Grid * gridIn );
 
 EndNameSpace

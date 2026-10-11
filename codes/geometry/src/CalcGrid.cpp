@@ -80,8 +80,6 @@ UnsGrid & RequireUnsGrid( Grid & grid, const char * errorMessage )
 }
 } // namespace
 
-CalcGrid::CalcGrid() = default;
-
 CalcGrid::~CalcGrid() = default;
 
 IFaceLink & CalcGrid::GetInterfaceLink()

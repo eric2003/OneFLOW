@@ -36,8 +36,8 @@ class InterFace;
 class BcInfo
 {
 public:
-    BcInfo();
-    ~BcInfo();
+    BcInfo() = default;
+    ~BcInfo() = default;
 public:
     LinkField bcFace;
     LinkField bcNameId;
@@ -49,10 +49,10 @@ public:
 class BcRecord
 {
 public:
-    BcRecord();
+    BcRecord() = default;
     BcRecord( const BcRecord & other );
     BcRecord & operator=( const BcRecord & other );
-    ~BcRecord();
+    ~BcRecord() = default;
 public:
     IntField bcType;
     IntField bcNameId;
@@ -73,8 +73,8 @@ class IFaceLink;
 class BcManager
 {
 public:
-    BcManager();
-    ~BcManager();
+    BcManager() = default;
+    ~BcManager() = default;
 
     // Disable copying to prevent accidental double-free of unique_ptrs
     BcManager(const BcManager&) = delete;
@@ -82,9 +82,9 @@ public:
 public:
     bool deleteBoundaryCondition;
 
-    // [Refactored] Changed from raw pointers to std::unique_ptr for automatic memory management.
-    std::unique_ptr<BcRecord> bcRecord;
-    std::unique_ptr<BcRecord> bcRecordNew;
+    // Owned boundary records (default-constructed via make_unique; no ctor body needed).
+    std::unique_ptr<BcRecord> bcRecord = std::make_unique<BcRecord>();
+    std::unique_ptr<BcRecord> bcRecordNew = std::make_unique<BcRecord>();
     IntField l2gNew;
 
     IntField bcKeyVector;
@@ -118,8 +118,8 @@ class BasicRegion;
 class TestRegion
 {
 public:
-    TestRegion();
-    ~TestRegion();
+    TestRegion() = default;
+    ~TestRegion() = default;
     int p1[ 3 ], p2[ 3 ];
     int a[ 3 ];
     int sign[ 3 ];
@@ -131,8 +131,8 @@ class BcRegion;
 class TestRegionM
 {
 public:
-    TestRegionM();
-    ~TestRegionM();
+    TestRegionM() = default;
+    ~TestRegionM() = default;
 public:
     int dimension;
     TestRegion s, t;
@@ -161,8 +161,8 @@ public:
 class BcRegionGroup
 {
 public:
-    BcRegionGroup();
-    ~BcRegionGroup();
+    BcRegionGroup() = default;
+    ~BcRegionGroup() = default;
 public:
     int zoneIndex;
     int nBFaces, nIFaces;

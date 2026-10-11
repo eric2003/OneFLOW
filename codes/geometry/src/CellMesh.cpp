@@ -37,19 +37,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-CellMesh::CellMesh()
-{
-    // [Refactored] Removed: this->cellTopo = new CellTopo();
-    // Value type is automatically initialized.
-}
-
-CellMesh::~CellMesh()
-{
-    // [Refactored] Removed: delete this->cellTopo;
-    // Value type is automatically destroyed.
-}
-
-HXSize_t CellMesh::GetNumberOfCells()
+HXSize_t CellMesh::GetNumberOfCells() const
 { 
     return cellTopo.GetNumberOfCells(); 
 }

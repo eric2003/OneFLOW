@@ -29,8 +29,8 @@ BeginNameSpace( ONEFLOW )
 class INsVis
 {
 public:
-    INsVis();
-    ~INsVis();
+    INsVis() = default;
+    ~INsVis() = default;
 public:
     void Init();
 public:
@@ -61,8 +61,8 @@ extern INsVis Ivis;
 class INsVisterm
 {
 public:
-	INsVisterm();
-    ~INsVisterm();
+	INsVisterm() = default;
+    ~INsVisterm() = default;
 public:
     void AverGrad();
     void ZeroNormalGrad();

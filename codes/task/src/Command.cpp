@@ -107,15 +107,7 @@ namespace
 
 }
 
-/*
-* Command implementation
-*
-* The actual Task ownership is maintained by ownedTasks_.
-* taskList_ only provides a non-owning compatibility view.
-*/
-
-Command::Command() = default;
-Command::~Command() = default;
+// Command: single ownership vector ownedTasks_ (order == AddTask order).
 
 void Command::AddTask( Task * task )
 {
@@ -124,8 +116,6 @@ void Command::AddTask( Task * task )
         return;
     }
 
-    // Preserve the legacy raw-pointer interface while transferring
-    // ownership to the RAII implementation.
     AddTask( std::unique_ptr< Task >( task ) );
 }
 
@@ -136,82 +126,46 @@ void Command::AddTask( std::unique_ptr< Task > task )
         return;
     }
 
-    Task * rawTask = task.get();
-
-    // Transfer ownership to the Command.
     ownedTasks_.push_back( std::move( task ) );
-
-    // Keep the execution-order view non-owning.
-    taskList_.push_back( rawTask );
 }
-
-SimpleCmd::SimpleCmd() = default;
-
-SimpleCmd::~SimpleCmd() = default;
 
 void SimpleCmd::Execute()
 {
-    const TList & taskList = * GetTaskList();
+    const HXSize_t nTask = GetTaskCount();
 
-    for ( HXSize_t iTask = 0; iTask < taskList.size(); ++ iTask )
+    for ( HXSize_t iTask = 0; iTask < nTask; ++ iTask )
     {
-        Task * task = taskList[ iTask ];
+        Task * task = GetTask( iTask );
 
         if ( task == nullptr )
         {
             continue;
         }
 
-        // Set the currently executing Task.
         TaskState::task = task;
-
         task->Run();
     }
 }
 
 
-/*
-* CMD implementation
-*
-* commandOwners is the actual owner of every Command in the queue.
-* cmdList is only a non-owning compatibility view.
-*/
+// CMD: single ownership vector commandOwners (order == AddCmd order).
 
-std::unique_ptr< HXVector< Command * > > CMD::cmdList_;
 std::unique_ptr< CMD::CommandOwnerList > CMD::commandOwners;
-
-CMD::CMD()
-{
-}
-
-CMD::~CMD()
-{
-}
 
 void CMD::Init()
 {
-    if ( CMD::cmdList_ != nullptr )
+    if ( CMD::commandOwners != nullptr )
     {
         return;
     }
 
-    CMD::cmdList_ = std::make_unique< HXVector< Command * > >();
     CMD::commandOwners = std::make_unique< CommandOwnerList >();
 }
 
 void CMD::Free()
 {
-    /*
-    * Clear() releases every owned Command first.
-    *
-    * This is important because simply deleting cmdList_ would only
-    * destroy the non-owning pointer container.
-    */
     CMD::Clear();
-
     CMD::commandOwners.reset();
-    CMD::cmdList_.reset();
-
     TaskState::task = nullptr;
 }
 
@@ -222,8 +176,6 @@ void CMD::AddCmd( Command * cmd )
         return;
     }
 
-    // Preserve the legacy raw-pointer interface while transferring
-    // ownership to the RAII implementation.
     CMD::AddCmd( std::unique_ptr< Command >( cmd ) );
 }
 
@@ -235,23 +187,25 @@ void CMD::AddCmd( std::unique_ptr< Command > cmd )
     }
 
     CMD::Init();
-
-    Command * rawCmd = cmd.get();
-
-    /*
-    * Transfer ownership into the queue.
-    */
     CMD::commandOwners->push_back( std::move( cmd ) );
-
-    /*
-    * Keep the non-owning execution view synchronized.
-    */
-    CMD::cmdList_->push_back( rawCmd );
 }
 
-const HXVector< Command * > * CMD::GetCmdList()
+HXSize_t CMD::GetCmdCount()
 {
-    return CMD::cmdList_.get();
+    if ( CMD::commandOwners == nullptr )
+    {
+        return 0;
+    }
+    return CMD::commandOwners->size();
+}
+
+Command * CMD::GetCmd( HXSize_t index )
+{
+    if ( CMD::commandOwners == nullptr )
+    {
+        return nullptr;
+    }
+    return ( * CMD::commandOwners )[ index ].get();
 }
 
 void CMD::RunCmd( Command * cmd )
@@ -266,70 +220,39 @@ void CMD::RunCmd( Command * cmd )
 
 void CMD::Clear()
 {
-    if ( CMD::cmdList_ == nullptr )
+    if ( CMD::commandOwners == nullptr )
     {
         return;
     }
 
-    /*
-    * Destroy Commands first.
-    *
-    * Command destruction also destroys all Tasks owned by the Command.
-    */
-    if ( CMD::commandOwners != nullptr )
-    {
-        CMD::commandOwners->clear();
-    }
-
-    /*
-    * cmdList_ contains only non-owning pointers.
-    * Clear it after destroying the actual objects so that no stale
-    * pointers remain visible through the read-only compatibility view.
-    */
-    CMD::cmdList_->clear();
-
+    // unique_ptr elements destroy Commands (and their Tasks) on clear.
+    CMD::commandOwners->clear();
     TaskState::task = nullptr;
 }
 
 void CMD::ExecuteCmd()
 {
-    if ( CMD::cmdList_ == nullptr )
+    if ( CMD::commandOwners == nullptr )
     {
         return;
     }
 
-    /*
-    * Keep the original batch semantics:
-    *
-    * - Only Commands that existed when ExecuteCmd() started are
-    *   executed in this dispatch cycle.
-    * - Commands are executed in FIFO order.
-    *
-    * Commands added while a Command is executing are not executed
-    * in the current batch. Clear() subsequently releases them.
-    */
-    const HXSize_t nCmd = CMD::cmdList_->size();
+    // Batch semantics: only commands present at entry are executed.
+    // Commands enqueued during Execute run in a later batch after Clear.
+    const HXSize_t nCmd = CMD::commandOwners->size();
 
     for ( HXSize_t iCmd = 0; iCmd < nCmd; ++ iCmd )
     {
-        Command * cmd = ( * CMD::cmdList_ )[ iCmd ];
+        Command * cmd = ( * CMD::commandOwners )[ iCmd ].get();
 
         if ( cmd == nullptr )
         {
             continue;
         }
 
-        // CMD::ShowCmdInfo( cmd, static_cast< int >( iCmd ) );
-
         cmd->Execute();
     }
 
-    /*
-    * No individual delete is required here.
-    *
-    * commandOwners owns all Commands and Clear() releases them
-    * through unique_ptr.
-    */
     CMD::Clear();
 }
 
@@ -340,19 +263,18 @@ void CMD::ShowCmdInfo( Command * cmd, int iCmd )
         return;
     }
 
-    const Command::TList & tasks = * cmd->GetTaskList();
+    const HXSize_t nTask = cmd->GetTaskCount();
 
-    for ( HXSize_t i = 0; i < tasks.size(); ++ i )
+    for ( HXSize_t i = 0; i < nTask; ++ i )
     {
-        Task * task = tasks[ i ];
+        Task * task = cmd->GetTask( i );
 
         if ( task == nullptr )
         {
             continue;
         }
 
-        int iTaskGlobal =
-            iCmd + static_cast< int >( i );
+        const int iTaskGlobal = iCmd + static_cast< int >( i );
 
         std::cout
             << " iTaskGlobal = " << iTaskGlobal
@@ -363,14 +285,13 @@ void CMD::ShowCmdInfo( Command * cmd, int iCmd )
     }
 }
 
-void CMD::DumpCommandQueue(
-    std::ostream & output )
+void CMD::DumpCommandQueue( std::ostream & output )
 {
     output
         << "========== Command Environment ==========\n";
 
-    if ( CMD::cmdList_ == nullptr ||
-        CMD::cmdList_->empty() )
+    if ( CMD::commandOwners == nullptr ||
+        CMD::commandOwners->empty() )
     {
         output
             << "  <empty>\n"
@@ -379,11 +300,11 @@ void CMD::DumpCommandQueue(
     }
 
     for ( HXSize_t iCmd = 0;
-        iCmd < CMD::cmdList_->size();
+        iCmd < CMD::commandOwners->size();
         ++ iCmd )
     {
         Command * cmd =
-            ( * CMD::cmdList_ )[ iCmd ];
+            ( * CMD::commandOwners )[ iCmd ].get();
 
         output
             << "\n[Command "
@@ -397,21 +318,18 @@ void CMD::DumpCommandQueue(
             continue;
         }
 
-        const Command::TList & tasks =
-            * cmd->GetTaskList();
+        const HXSize_t nTask = cmd->GetTaskCount();
 
         output
             << "  Tasks: "
-            << tasks.size()
+            << nTask
             << "\n";
 
-        for ( HXSize_t iTask = 0;
-            iTask < tasks.size();
-            ++ iTask )
+        for ( HXSize_t iTask = 0; iTask < nTask; ++ iTask )
         {
             DumpTaskInfo(
                 output,
-                tasks[ iTask ],
+                cmd->GetTask( iTask ),
                 static_cast< int >( iTask ) );
         }
     }

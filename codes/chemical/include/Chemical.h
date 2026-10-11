@@ -41,7 +41,7 @@ class Chemical
 {
 public:
     Chemical();
-    ~Chemical();
+    ~Chemical() = default;
 public:
     std::unique_ptr< MolecularProperty > moleProp;
     std::unique_ptr< ReactionRate > reactionRate;
@@ -86,8 +86,6 @@ public:
     void CalcRefMolecularInfoAir();
     void CalcRefMolecularInfoChem();
 public:
-    void Alloc();
-    void DeAlloc();
     void InitRefPara();
     void InitGasModel();
     void ReadGasModel();

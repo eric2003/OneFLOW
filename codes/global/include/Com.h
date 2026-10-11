@@ -27,8 +27,8 @@ BeginNameSpace( ONEFLOW )
 class GCom
 {
 public:
-    GCom();
-    ~GCom();
+    GCom() = default;
+    ~GCom() = default;
 public:
     void Reverse();
     void CalcTangent();

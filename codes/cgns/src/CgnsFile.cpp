@@ -165,6 +165,29 @@ void CgnsFile::FreeBaseList()
     this->baseList.clear();
 }
 
+int CgnsFile::GetNBases() const
+{
+    return static_cast< int >( this->baseList.size() );
+}
+
+CgnsBase * CgnsFile::GetBase( int iBase )
+{
+    if ( iBase < 0 || static_cast< size_t >( iBase ) >= this->baseList.size() )
+    {
+        throw std::out_of_range( "CgnsFile::GetBase: base index is out of range" );
+    }
+    return this->baseList[ static_cast< size_t >( iBase ) ].get();
+}
+
+const CgnsBase * CgnsFile::GetBase( int iBase ) const
+{
+    if ( iBase < 0 || static_cast< size_t >( iBase ) >= this->baseList.size() )
+    {
+        throw std::out_of_range( "CgnsFile::GetBase: base index is out of range" );
+    }
+    return this->baseList[ static_cast< size_t >( iBase ) ].get();
+}
+
 CgnsBase * CgnsFile::AddBase( int fileId, const std::string & baseName, int celldim, int physdim, int baseId )
 {
     auto ownedBase = std::make_unique< CgnsBase >( this );
@@ -244,7 +267,7 @@ void CgnsFile::ReadArray()
     this->ReadBases();
     for ( int iBase = 0; iBase < this->nBases; ++ iBase )
     {
-        CgnsBase * cgnsBase = this->baseList[ iBase ].get();
+        CgnsBase * cgnsBase = this->GetBase( iBase );
         cgnsBase->ReadArray();
     }
 }
@@ -254,7 +277,7 @@ void CgnsFile::ReadReferenceState()
     this->ReadBases();
     for ( int iBase = 0; iBase < this->nBases; ++ iBase )
     {
-        CgnsBase * cgnsBase = this->baseList[ iBase ].get();
+        CgnsBase * cgnsBase = this->GetBase( iBase );
         cgnsBase->ReadReferenceState();
     }
 }
@@ -264,7 +287,7 @@ void CgnsFile::ReadBaseDescriptor()
     this->ReadBases();
     for ( int iBase = 0; iBase < this->nBases; ++ iBase )
     {
-        CgnsBase * cgnsBase = this->baseList[ iBase ].get();
+        CgnsBase * cgnsBase = this->GetBase( iBase );
         cgnsBase->ReadBaseDescriptor();
     }
 }
@@ -297,7 +320,7 @@ void CgnsFile::ReadConvergence()
     this->ReadBases();
     for ( int iBase = 0; iBase < this->nBases; ++ iBase )
     {
-        CgnsBase * cgnsBase = this->baseList[ iBase ].get();
+        CgnsBase * cgnsBase = this->GetBase( iBase );
         cgnsBase->ReadConvergence();
     }
 }
@@ -307,7 +330,7 @@ void CgnsFile::ReadFlowEqn()
     this->ReadBases();
     for ( int iBase = 0; iBase < this->nBases; ++ iBase )
     {
-        CgnsBase * cgnsBase = this->baseList[ iBase ].get();
+        CgnsBase * cgnsBase = this->GetBase( iBase );
         cgnsBase->ReadFlowEqn();
     }
 }

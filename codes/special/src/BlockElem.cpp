@@ -29,14 +29,6 @@ BeginNameSpace( ONEFLOW )
 
 BlkElemHome bbElemHome;
 
-BlkElem::BlkElem()
-{
-}
-
-BlkElem::~BlkElem()
-{
-}
-
 void BlkElem::Init( int eType )
 {
     this->eType = eType;
@@ -124,15 +116,7 @@ void BlkElem::PushElementFace( int faceType, int p1, int p2, int p3, int p4 )
     faceList.push_back( face );
 }
 
-BlkElemHome::BlkElemHome()
-{
-    initFlag = false;
-}
-
-BlkElemHome::~BlkElemHome()
-{
-    Free();
-}
+BlkElemHome::BlkElemHome() = default;
 
 void BlkElemHome::Init()
 {
@@ -160,6 +144,7 @@ void BlkElemHome::Init()
 void BlkElemHome::Free()
 {
     elems.clear();
+    initFlag = false;
 }
 
 BlkElem * BlkElemHome::GetBlkElem( int eType )
@@ -167,14 +152,9 @@ BlkElem * BlkElemHome::GetBlkElem( int eType )
     return elems[ eType ].get();
 }
 
-BlkFace::BlkFace()
+const BlkElem * BlkElemHome::GetBlkElem( int eType ) const
 {
-    ;
-}
-
-BlkFace::~BlkFace()
-{
-    ;
+    return elems[ eType ].get();
 }
 
 EndNameSpace

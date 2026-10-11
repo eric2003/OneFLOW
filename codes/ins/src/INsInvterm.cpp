@@ -42,16 +42,6 @@ INsInv iinv;
 
 
 
-INsInv::INsInv()
-{
-    ;
-}
-
-INsInv::~INsInv()
-{
-    ;
-}
-
 void INsInv::Init()
 {
     int nEqu = nscom.nEqu;
@@ -70,16 +60,6 @@ void INsInv::Init()
     flux1.resize( nEqu );
     flux2.resize( nEqu );
 
-}
-
-INsInvterm::INsInvterm()
-{
-    ;
-}
-
-INsInvterm::~INsInvterm()
-{
-    ;
 }
 
 void INsInvterm::Solve()

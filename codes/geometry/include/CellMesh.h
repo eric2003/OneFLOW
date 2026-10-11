@@ -33,8 +33,8 @@ class UnsGrid;
 class CellMesh
 {
 public:
-    CellMesh();
-    ~CellMesh();
+    CellMesh() = default;
+    ~CellMesh() = default;
 
 private:
     CellTopo cellTopo;
@@ -45,10 +45,10 @@ public:
     RealField dist;
     RealField span;
 public:
-    HXSize_t GetNumberOfCells();
+    HXSize_t GetNumberOfCells() const;
     CellTopo & GetCellTopo();
     const CellTopo & GetCellTopo() const;
-    HXSize_t GetNumberOfTotalCells() { return vol.size(); }
+    HXSize_t GetNumberOfTotalCells() const { return vol.size(); }
     void AllocateMetrics( FaceMesh & faceMesh );
     void AllocDist();
     void ReadDist();

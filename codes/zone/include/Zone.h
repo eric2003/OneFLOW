@@ -60,9 +60,15 @@ public:
     static Grid & GetGridReference( int zid, int gl = 0 );
     static Grid * GetGrid();
     static Grid & GetGridReference();
+    // Read-only named accessors (static methods cannot overload on const).
+    static const Grid * GetConstGrid( int zid, int gl = 0 );
+    static const Grid & GetConstGridReference( int zid, int gl = 0 );
+    static const Grid * GetConstGrid();
+    static const Grid & GetConstGridReference();
     static Grid * GetCGrid( Grid * grid );
     static Grid * GetFGrid( Grid * grid );
     static UnsGrid * GetUnsGrid();
+    static const UnsGrid * GetConstUnsGrid();
 public:
     static int GetNumberOfZoneNeighbors( int zoneId );
     static int GetNeighborZoneId( int zoneId, int iNeighbor );

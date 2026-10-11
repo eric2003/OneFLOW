@@ -25,6 +25,7 @@ License
 #include "HXDefine.h"
 #include "CalcCoor.h"
 #include "SimpleDomain.h"
+#include "SDomain.h"
 #include <set>
 #include <map>
 #include <fstream>
@@ -41,10 +42,14 @@ class CalcCoor;
 class Face2D;
 class MLine;
 
+// Ownership note:
+//   - Owns sDomainList (unique_ptr<SDomain>). SDomain is included/complete for HXVector traits.
+//   - Destructor stays out-of-line in MDomain.cpp so unique_ptr delete runs with full SDomain layout.
+//     Do not =default ~MDomain in this header.
 class MDomain : public DomData
 {
 public:
-    MDomain();
+    MDomain() = default;
     ~MDomain();
 public:
     int pos;

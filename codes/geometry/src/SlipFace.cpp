@@ -82,11 +82,18 @@ void SlipFace::InitDist()
 
 void SlipFace::Init()
 {
-    Grid * grid = Zone::GetGrid();
+    // Read-only access to current zone grid (length/scale callers may use later).
+    const Grid * grid = Zone::GetConstGrid();
+    (void)grid;
     IntField bcIdList;
 }
 
 SlipfacePair * SlipFace::GetSlipfacePair( int iNei )
+{
+    return this->slipfacePairs[ iNei ].get();
+}
+
+const SlipfacePair * SlipFace::GetSlipfacePair( int iNei ) const
 {
     return this->slipfacePairs[ iNei ].get();
 }
@@ -188,13 +195,6 @@ void SlipFace::SetSendId( int zid, IntField & idsend )
     slipfacePair->idsend = idsend;
 }
 
-LocalSlipFace::LocalSlipFace()
-{
-    ;
-}
-
-LocalSlipFace::~LocalSlipFace() = default;
-
 void LocalSlipFace::AddSlipFace( SlipFace * slipFace )
 {
     this->data.push_back( slipFace );
@@ -213,13 +213,6 @@ void LocalSlipFace::InitDist()
         slipface->InitDist();
     }
 }
-
-GlobalSlipFace::GlobalSlipFace()
-{
-    ;
-}
-
-GlobalSlipFace::~GlobalSlipFace() = default;
 
 void GlobalSlipFace::AddSlipFace( std::unique_ptr< SlipFace > slipFace )
 {
@@ -418,25 +411,6 @@ void InitSlipFaceTopo()
     FreeSlip();
 
 
-}
-
-SlipfacePair::SlipfacePair()
-{
-    ;
-}
-
-SlipfacePair::~SlipfacePair()
-{
-    ;
-}
-
-SlipFaceTopo::SlipFaceTopo()
-{
-    ;
-}
-
-SlipFaceTopo::~SlipFaceTopo()
-{
 }
 
 void SlipFaceTopo::InitZoneNeighborsInfo()

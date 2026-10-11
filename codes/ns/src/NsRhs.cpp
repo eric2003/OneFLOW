@@ -42,16 +42,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-NsRhs::NsRhs()
-{
-    ;
-}
-
-NsRhs::~NsRhs()
-{
-    ;
-}
-
 void NsRhs::UpdateResiduals()
 {
 	NsCalcRHS();

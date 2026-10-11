@@ -24,14 +24,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-CalcCoor::CalcCoor()
-{
-}
-
-CalcCoor::~CalcCoor()
-{
-}
-
 void CalcCoor::SetCoor( int i, int j, int k )
 {
     this->i = i;

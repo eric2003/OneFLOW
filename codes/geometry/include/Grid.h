@@ -98,7 +98,7 @@ public:
     virtual void ReGenerateLgMapping( IFaceLink & iFaceLink ){};
     virtual void UpdateOtherTopologyTerm( IFaceLink & iFaceLink ){};
 public:
-    virtual void GetMinMaxDistance( Real & dismin, Real & dismax ) {};
+    virtual void GetMinMaxDistance( Real & dismin, Real & dismax ) const {};
     virtual void CalcMetrics() {};
 };
 

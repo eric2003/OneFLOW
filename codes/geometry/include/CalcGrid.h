@@ -33,10 +33,12 @@ class Grid;
 class IFaceLink;
 class NodeMesh;
 
+// Ownership: iFaceLink is unique_ptr<IFaceLink> (IFaceLink only forward-declared here).
+// Keep ~CalcGrid() out-of-line in CalcGrid.cpp where IFaceLink is complete.
 class CalcGrid
 {
 public:
-    CalcGrid();
+    CalcGrid() = default;
     ~CalcGrid();
 public:
     Grids grids;

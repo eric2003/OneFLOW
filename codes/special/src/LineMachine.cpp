@@ -38,12 +38,6 @@ BeginNameSpace( ONEFLOW )
 
 LineMachine line_Machine;
 
-LineMachine::LineMachine()
-{
-}
-
-LineMachine::~LineMachine() = default;
-
 void LineMachine::Reset()
 {
     segmentCtrlList.clear();
