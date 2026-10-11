@@ -309,8 +309,14 @@ void CgnsCoor::ReadCgnsGridCoordinates()
 
     staged.nCoor = coordinateCount;
     NodeMesh & stagedNodeMesh = staged.RequireNodeMesh();
-    stagedNodeMesh.CreateNodes( nNodes );
-    staged.SetAllData( stagedNodeMesh.xN, stagedNodeMesh.yN, stagedNodeMesh.zN );
+    RealField xCoordinates( nNodes );
+    RealField yCoordinates( nNodes );
+    RealField zCoordinates( nNodes );
+    staged.SetAllData( xCoordinates, yCoordinates, zCoordinates );
+    stagedNodeMesh.SetCoordinates(
+        std::move( xCoordinates ),
+        std::move( yCoordinates ),
+        std::move( zCoordinates ) );
 
     using std::swap;
     swap( this->nCoor, staged.nCoor );
