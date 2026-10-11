@@ -365,7 +365,7 @@ def run_test(
     start_time = time.perf_counter()
     logger.debug("test_project_dir=%s", test_project_dir)
 
-    test_script = test_project_dir + "/autotest/test.txt"
+    test_script = test_project_dir + "/autotest/compare.txt"
     abs_test_script = os.path.normpath(os.path.abspath(test_script))
     relative_names = get_filename_list(abs_test_script)
     binary_script = os.path.join(test_project_dir, "autotest", "binary.txt")
@@ -693,7 +693,7 @@ def build_dummy_suite(root: str):
     for scenario in _DUMMY_SCENARIOS:
         case_dir = os.path.join(root, scenario["name"])
         os.makedirs(os.path.join(case_dir, "autotest"), exist_ok=True)
-        with open(os.path.join(case_dir, "autotest", "test.txt"), "w", encoding="utf-8") as f:
+        with open(os.path.join(case_dir, "autotest", "compare.txt"), "w", encoding="utf-8") as f:
             f.write(_DUMMY_RESULT_RELATIVE_PATH + "\n")
         with open(os.path.join(case_dir, "autotest", "residual.dat"), "w", encoding="utf-8") as f:
             f.write(scenario["baseline_content"])

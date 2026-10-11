@@ -10,6 +10,7 @@ not belong here.
 test/
 ├── README.md
 ├── suites/
+│   ├── ci-serial.txt
 │   ├── cpu-serial.txt
 │   └── grid-serial.txt
 ├── baselines/
@@ -18,7 +19,6 @@ test/
 │   ├── verify_residual_db.py
 │   └── residual-baseline.json
 ├── test.py
-├── test.txt
 ├── cfd/
 │   └── <CFD case directories>/
 └── grid/
@@ -27,7 +27,7 @@ test/
 
 - Add reusable suite lists under `test/suites/` with stable names. Suite entries are paths relative to the runner's working directory; the canonical CPU CI job stages cases under matching relative paths.
 - Keep accepted numerical references under each case's `autotest/` directory.
-- `autotest/test.txt` lists text outputs compared line by line with numeric tolerance. An optional `autotest/binary.txt` lists binary outputs compared byte for byte; each reference is stored in `autotest/` using the output basename. Use byte comparison only for deterministic binary artifacts: compiler, endian, metadata, or serialization differences can make it too strict for portable grid regression. Grid cases should also validate the reloaded grid's dimensions, finite coordinates, bounding box, and topology.
+- `autotest/compare.txt` lists text outputs compared line by line with numeric tolerance. An optional `autotest/binary.txt` lists binary outputs compared byte for byte; each reference is stored in `autotest/` using the output basename. Use byte comparison only for deterministic binary artifacts: compiler, endian, metadata, or serialization differences can make it too strict for portable grid regression. Grid cases should also validate the reloaded grid's dimensions, finite coordinates, bounding box, and topology.
 - An optional `autotest/required.txt` lists outputs that must be created as non-empty files during the current run. The runner removes these outputs before launching the case, preventing stale artifacts from making a failed grid conversion look successful. This is suitable for the first-stage grid conversion smoke test while a reviewed ASCII reference is being prepared.
 - Keep structured residual baselines under `test/baselines/`; regenerate them
   only when the accepted numerical result changes.
@@ -56,6 +56,8 @@ The checked-in files under each case's `autotest/` directory are the CPU
 reference results. Accelerator implementations must first match these results
 through the existing numeric comparison tolerance before performance results
 are considered.
+
+The top-level `test/test.txt` was a duplicate of `suites/cpu-serial.txt`; suite files under `suites/` are now the sole case-list source. `autotest/compare.txt` names the expected text-output comparison manifest explicitly, alongside `binary.txt` and `required.txt`.
 
 Run only this baseline suite from the `test` directory:
 
