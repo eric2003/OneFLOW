@@ -63,9 +63,14 @@ void Grad::CalcGrad()
         Real mindiff = 1.0e-10;
         int idumpface = 1;
         int idumpcell = 0;
+        const MRField * qField = q;
+        const MRField * dqdxField = dqdx;
+        const MRField * dqdyField = dqdy;
+        const MRField * dqdzField = dqdz;
+
         std::string fname = AddString( "grad.", name, ".debug" );
         std::cout << "varname = " << name << "\n";
-        HXDebug::DumpField( fname, q );
+        HXDebug::DumpField( fname, qField );
         HXDebug::CompareFile( 1.0e-12, idumpcell );
 
         const UnsGrid * grid = Zone::GetConstUnsGrid();
@@ -77,11 +82,11 @@ void Grad::CalcGrad()
         std::string fnamedqdy = AddString( "grad.", name, ".dqdy.debug" );
         std::string fnamedqdz = AddString( "grad.", name, ".dqdz.debug" );
 
-        HXDebug::DumpField( fnamedqdx, dqdx );
+        HXDebug::DumpField( fnamedqdx, dqdxField );
         HXDebug::CompareFile( mindiff, idumpcell );
-        HXDebug::DumpField( fnamedqdy, dqdy );
+        HXDebug::DumpField( fnamedqdy, dqdyField );
         HXDebug::CompareFile( mindiff, idumpcell );
-        HXDebug::DumpField( fnamedqdz, dqdz );
+        HXDebug::DumpField( fnamedqdz, dqdzField );
         HXDebug::CompareFile( mindiff, idumpcell );
     }
 
