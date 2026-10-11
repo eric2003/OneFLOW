@@ -30,6 +30,7 @@ License
 #include <iomanip>
 #include <limits>
 #include <stdexcept>
+#include <utility>
 
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
@@ -239,12 +240,12 @@ void CgnsCoor::DeAlloc()
 
 void CgnsCoor::ReadCgnsGridCoordinates()
 {
-    // Validate the mesh destination before changing the coordinate state.
-    NodeMesh & nodeMesh = this->RequireNodeMesh();
+    // Read into a temporary state so a failed CGNS read preserves the current mesh.
+    this->RequireNodeMesh();
 
-    int fileId = this->cgnsZone.cgnsBase.cgnsFile->fileId;
-    int baseId = this->cgnsZone.cgnsBase.baseId;
-    int zoneId = this->cgnsZone.zId;
+    const int fileId = this->cgnsZone.cgnsBase.cgnsFile->fileId;
+    const int baseId = this->cgnsZone.cgnsBase.baseId;
+    const int zoneId = this->cgnsZone.zId;
 
     int coordinateCount = 0;
     int result = cg_ncoords( fileId, baseId, zoneId, &coordinateCount );
@@ -268,54 +269,84 @@ void CgnsCoor::ReadCgnsGridCoordinates()
     }
     const int nNodes = static_cast< int >( nodeCount );
 
-    try
+    CgnsCoor staged( this->cgnsZone );
+    for ( int iCoor = 0; iCoor < coordinateCount; ++ iCoor )
     {
-        for ( int iCoor = 0; iCoor < coordinateCount; ++ iCoor )
+        DataType_t dataType;
+        CgnsTraits::char33 coorName = {};
+        const int coordId = iCoor + 1;
+        result = cg_coord_info( fileId, baseId, zoneId, coordId, &dataType, coorName );
+        if ( result != CG_OK )
         {
-            DataType_t dataType;
-            CgnsTraits::char33 coorName = {};
-            int coordId = iCoor + 1;
-            result = cg_coord_info( fileId, baseId, zoneId, coordId, &dataType, coorName );
-            if ( result != CG_OK )
-            {
-                throw std::runtime_error(
-                    "CgnsCoor::ReadCgnsGridCoordinates: failed to read coordinate metadata: " +
-                    std::string( cg_get_error() ) );
-            }
-
-            if ( dataType != RealSingle && dataType != RealDouble )
-            {
-                throw std::runtime_error(
-                    "CgnsCoor::ReadCgnsGridCoordinates: unsupported coordinate data type for '" +
-                    std::string( coorName ) + "'" );
-            }
-
-            std::cout << "   coorName = " << coorName << " dataType = " << dataType << " dataTypeName = " << DataTypeName[ dataType ] << "\n";
-            this->typeList[ iCoor ] = dataType;
-            this->nNodeList[ iCoor ] = nNodes;
-            this->coorNameList[ iCoor ] = coorName;
-            this->Alloc( iCoor, nNodes, dataType );
-
-            result = cg_coord_read( fileId, baseId, zoneId, coorName, dataType, this->irmin, this->irmax, this->GetCoor( iCoor ) );
-            if ( result != CG_OK )
-            {
-                throw std::runtime_error(
-                    "CgnsCoor::ReadCgnsGridCoordinates: failed to read coordinate '" +
-                    std::string( coorName ) + "': " + cg_get_error() );
-            }
+            throw std::runtime_error(
+                "CgnsCoor::ReadCgnsGridCoordinates: failed to read coordinate metadata: " +
+                std::string( cg_get_error() ) );
         }
 
-        this->nCoor = coordinateCount;
-        nodeMesh.CreateNodes( nNodes );
-        this->SetAllData( nodeMesh.xN, nodeMesh.yN, nodeMesh.zN );
+        if ( dataType != RealSingle && dataType != RealDouble )
+        {
+            throw std::runtime_error(
+                "CgnsCoor::ReadCgnsGridCoordinates: unsupported coordinate data type for '" +
+                std::string( coorName ) + "'" );
+        }
+
+        std::cout << "   coorName = " << coorName << " dataType = " << dataType
+                  << " dataTypeName = " << DataTypeName[ dataType ] << "\n";
+        staged.typeList[ iCoor ] = dataType;
+        staged.nNodeList[ iCoor ] = nNodes;
+        staged.coorNameList[ iCoor ] = coorName;
+        staged.Alloc( iCoor, nNodes, dataType );
+
+        result = cg_coord_read( fileId, baseId, zoneId, coorName, dataType,
+                                this->irmin, this->irmax, staged.GetCoor( iCoor ) );
+        if ( result != CG_OK )
+        {
+            throw std::runtime_error(
+                "CgnsCoor::ReadCgnsGridCoordinates: failed to read coordinate '" +
+                std::string( coorName ) + "': " + cg_get_error() );
+        }
     }
-    catch ( ... )
+
+    staged.nCoor = coordinateCount;
+    NodeMesh & stagedNodeMesh = staged.RequireNodeMesh();
+    stagedNodeMesh.CreateNodes( nNodes );
+    staged.SetAllData( stagedNodeMesh.xN, stagedNodeMesh.yN, stagedNodeMesh.zN );
+
+    using std::swap;
+    swap( this->nCoor, staged.nCoor );
+    swap( this->typeList, staged.typeList );
+    swap( this->nNodeList, staged.nNodeList );
+    swap( this->coorNameList, staged.coorNameList );
+    swap( this->coordinateBuffers, staged.coordinateBuffers );
+    swap( this->nodeMesh, staged.nodeMesh );
+
+    // Rebind raw coordinate views after transferring buffer ownership.
+    for ( int iCoor = 0; iCoor < this->ndim; ++ iCoor )
     {
-        this->DeAlloc();
-        this->nCoor = 0;
-        throw;
+        if ( iCoor < this->nCoor )
+        {
+            this->coor[ iCoor ] = this->typeList[ iCoor ] == RealSingle
+                ? static_cast< void * >( this->coordinateBuffers[ iCoor ].singlePrecision.get() )
+                : static_cast< void * >( this->coordinateBuffers[ iCoor ].doublePrecision.get() );
+        }
+        else
+        {
+            this->coor[ iCoor ] = nullptr;
+        }
+
+        if ( iCoor < staged.nCoor )
+        {
+            staged.coor[ iCoor ] = staged.typeList[ iCoor ] == RealSingle
+                ? static_cast< void * >( staged.coordinateBuffers[ iCoor ].singlePrecision.get() )
+                : static_cast< void * >( staged.coordinateBuffers[ iCoor ].doublePrecision.get() );
+        }
+        else
+        {
+            staged.coor[ iCoor ] = nullptr;
+        }
     }
 }
+
 void CgnsCoor::ReadCgnsGridCoordinates( CgnsCoor * cgnsCoorIn )
 {
     if ( cgnsCoorIn == nullptr )
