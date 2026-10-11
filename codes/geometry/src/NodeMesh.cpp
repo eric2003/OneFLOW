@@ -74,9 +74,9 @@ void NodeMesh::CreateNodes( int numberOfNodes )
 
 void NodeMesh::CalcMinMaxBox()
 {
-    // Validate even when bounds are cached because coordinate arrays are public.
+    // Coordinate arrays are public, so callers can mutate them without invalidating
+    // the cached bounds. Recompute to keep the bounding box correct at this boundary.
     ValidateCoordinateArrays( *this );
-    if ( this->boxFlag ) return;
 
     const HXSize_t numberOfNodes = this->GetNumberOfNodes();
     if ( numberOfNodes == 0 )
