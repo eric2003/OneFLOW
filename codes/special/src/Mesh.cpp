@@ -181,9 +181,7 @@ void SimpleMesh2D::GenerateRectangleMesh()
             Real xNode = this->xx[ i ][ j ];
             Real yNode = this->yy[ i ][ j ];
             Real zNode = this->zz[ i ][ j ];
-            mesh->nodeMesh->xN.push_back( xNode );
-            mesh->nodeMesh->yN.push_back( yNode );
-            mesh->nodeMesh->zN.push_back( zNode );
+            mesh->nodeMesh->AddPoint( xNode, yNode, zNode );
         }
     }
 
@@ -316,9 +314,7 @@ void SimpleMesh2D::PushCircleNode( RealField & xArray, RealField & yArray, IntFi
     for ( int iNode = 0; iNode < numberOfNodes; ++ iNode )
     {
         nodeArray[ iNode ] = mesh->nodeMesh->xN.size();
-        mesh->nodeMesh->xN.push_back( xArray[ iNode ] );
-        mesh->nodeMesh->yN.push_back( yArray[ iNode ] );
-        mesh->nodeMesh->zN.push_back( 0.0 );
+        mesh->nodeMesh->AddPoint( xArray[ iNode ], yArray[ iNode ], 0.0 );
     }
 }
 
