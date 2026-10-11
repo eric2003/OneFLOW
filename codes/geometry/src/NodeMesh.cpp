@@ -25,6 +25,18 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+namespace
+{
+void ValidateCoordinateArrays( const NodeMesh & nodeMesh )
+{
+    if ( nodeMesh.xN.size() != nodeMesh.yN.size() ||
+         nodeMesh.xN.size() != nodeMesh.zN.size() )
+    {
+        throw std::logic_error( "NodeMesh coordinate arrays have inconsistent sizes" );
+    }
+}
+} // namespace
+
 NodeMesh::NodeMesh()
 {
     boxFlag = false;
@@ -57,6 +69,8 @@ void NodeMesh::CreateNodes( int numberOfNodes )
 
 void NodeMesh::CalcMinMaxBox()
 {
+    // Validate even when bounds are cached because coordinate arrays are public.
+    ValidateCoordinateArrays( *this );
     if ( this->boxFlag ) return;
 
     const int numberOfNodes = static_cast< int >( this->GetNumberOfNodes() );
@@ -109,6 +123,7 @@ void NodeMesh::AddPoint( Real xp, Real yp, Real zp )
 
 void NodeMesh::ScaleAndTranslate( Real scale, Real tx, Real ty, Real tz )
 {
+    ValidateCoordinateArrays( *this );
     const size_t nNodes = this->GetNumberOfNodes();
     for ( size_t iNode = 0; iNode < nNodes; ++ iNode )
     {
@@ -125,6 +140,7 @@ void NodeMesh::ScaleAndTranslate( Real scale, Real tx, Real ty, Real tz )
 
 void NodeMesh::TurnZAxisToYAxis()
 {
+    ValidateCoordinateArrays( *this );
     const size_t nNodes = this->GetNumberOfNodes();
     for ( size_t iNode = 0; iNode < nNodes; ++ iNode )
     {
