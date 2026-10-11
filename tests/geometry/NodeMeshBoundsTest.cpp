@@ -166,3 +166,16 @@ TEST(NodeMeshBoundsTest, CoordinateTransformsRejectInconsistentArraysBeforeMutat
     EXPECT_THROW( mesh.TurnZAxisToYAxis(), std::logic_error );
     EXPECT_DOUBLE_EQ( mesh.xN[ 0 ], 1.0 );
 }
+
+TEST(NodeMeshBoundsTest, CreateNodesRejectsNegativeCountWithoutChangingMesh)
+{
+    ONEFLOW::NodeMesh mesh;
+    mesh.AddPoint( 1.0, 2.0, 3.0 );
+
+    EXPECT_THROW( mesh.CreateNodes( -1 ), std::invalid_argument );
+
+    ASSERT_EQ( mesh.GetNumberOfNodes(), 1 );
+    EXPECT_DOUBLE_EQ( mesh.xN[ 0 ], 1.0 );
+    EXPECT_DOUBLE_EQ( mesh.yN[ 0 ], 2.0 );
+    EXPECT_DOUBLE_EQ( mesh.zN[ 0 ], 3.0 );
+}
