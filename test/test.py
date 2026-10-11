@@ -510,7 +510,7 @@ def run_all_test(
 
 
 def _normalized_case_path(path: str) -> str:
-    return os.path.normcase(os.path.normpath(path.replace("\\\\", os.sep).replace("/", os.sep)))
+    return os.path.normcase(os.path.normpath(path.replace("\\", os.sep).replace("/", os.sep)))
 
 
 def read_suite_groups(filename: str):
@@ -576,7 +576,7 @@ def report_results(
 
     directory_groups = {}
     for result in results:
-        parts = result.case_dir.replace("\\\\", "/").split("/")
+        parts = result.case_dir.replace("\\", "/").split("/")
         category = parts[0] if len(parts) > 1 else "(root)"
         directory_groups.setdefault(category, []).append(result)
     print("By case directory:")
