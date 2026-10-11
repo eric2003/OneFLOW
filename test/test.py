@@ -401,9 +401,66 @@ def run_test(
 
 
 def read_suite_file(filename: str) -> List[str]:
-    """Read one test-case directory per line from a suite list file."""
-    with open(filename, "r", encoding="utf-8-sig") as f:
-        return [line.strip() for line in f.readlines() if line.strip()]
+    """Expand a suite file into an ordered list of case directories.
+
+    A line beginning with '@' includes another suite file, resolved relative
+    to the including suite. This lets focused suites compose into CI suites
+    without duplicating case lists.
+    """
+    def expand_suite(suite_filename: str, include_stack: List[str]) -> List[str]:
+        suite_path = os.path.abspath(suite_filename)
+        if suite_path in include_stack:
+            cycle = include_stack + [suite_path]
+            raise ValueError(
+                "Suite include cycle: " + " -> ".join(cycle)
+            )
+
+        try:
+            with open(suite_path, "r", encoding="utf-8-sig") as suite_file:
+                lines = suite_file.readlines()
+        except OSError as error:
+            raise OSError(
+                f"Cannot read suite file {suite_path}: {error}"
+            ) from error
+
+        case_dirs: List[str] = []
+        for line_number, raw_line in enumerate(lines, start=1):
+            entry = raw_line.strip()
+            if not entry or entry.startswith("#"):
+                continue
+
+            if entry.startswith("@"):
+                include_name = entry[1:].strip()
+                if not include_name:
+                    raise ValueError(
+                        f"Empty suite include at {suite_path}:{line_number}"
+                    )
+                include_path = (
+                    include_name
+                    if os.path.isabs(include_name)
+                    else os.path.join(os.path.dirname(suite_path), include_name)
+                )
+                case_dirs.extend(
+                    expand_suite(include_path, include_stack + [suite_path])
+                )
+            else:
+                case_dirs.append(entry)
+
+        return case_dirs
+
+    case_dirs = expand_suite(filename, [])
+    seen = set()
+    for case_dir in case_dirs:
+        normalized = os.path.normcase(
+            os.path.normpath(case_dir.replace("\\", os.sep).replace("/", os.sep))
+        )
+        if normalized in seen:
+            raise ValueError(
+                f"Duplicate case in expanded suite {filename}: {case_dir}"
+            )
+        seen.add(normalized)
+
+    return case_dirs
 
 
 def run_all_test(
@@ -636,7 +693,10 @@ def main() -> int:
     else:
         if not args.mpi_cmd or not args.exe_cmd:
             parser.error("mpi_cmd and exe_cmd are required unless --dry-run is given")
-        case_dirs = read_suite_file(args.suite_file)
+        try:
+            case_dirs = read_suite_file(args.suite_file)
+        except (OSError, ValueError) as error:
+            parser.error(str(error))
         mpi_cmd, exe_cmd = args.mpi_cmd, args.exe_cmd
         residual_db, residual_tolerance = args.residual_db, args.residual_tolerance
 
