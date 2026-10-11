@@ -28,18 +28,34 @@ BeginNameSpace( ONEFLOW )
 class NodeMesh
 {
 public:
+    struct Point3
+    {
+        Real x;
+        Real y;
+        Real z;
+    };
+
+public:
     NodeMesh();
-    NodeMesh( const NodeMesh & rhs );
-    ~NodeMesh();
 public:
     RealField xN, yN, zN;
     RealField pmin, pmax;
     bool boxFlag;
 public:
     HXSize_t GetNumberOfNodes() const { return xN.size(); }
+
+    // Keep SoA as the owning storage while offering a value-type point interface.
+    Point3 GetPoint( HXSize_t nodeIndex ) const;
+    void SetPoint( HXSize_t nodeIndex, Real xp, Real yp, Real zp );
+
     void CreateNodes( int numberOfNodes );
+    void SetCoordinates( RealField x, RealField y, RealField z );
     void CalcMinMaxBox();
     void AddPoint( Real xp, Real yp, Real zp );
+
+    // Geometry mutations live with the coordinate owner so cached bounds stay valid.
+    void ScaleAndTranslate( Real scale, Real tx, Real ty, Real tz );
+    void TurnZAxisToYAxis();
 };
 
 

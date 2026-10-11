@@ -46,6 +46,25 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+namespace
+{
+void SetPlot3DCoordinates(
+    StrGrid * grid,
+    RealField xCoordinates,
+    RealField yCoordinates,
+    RealField zCoordinates )
+{
+    grid->nodeMesh->SetCoordinates(
+        std::move( xCoordinates ),
+        std::move( yCoordinates ),
+        std::move( zCoordinates ) );
+
+    // Field3D stores non-owning pointers into NodeMesh coordinate arrays.
+    // Rebuild those views only after the owning arrays have their final storage.
+    grid->SetLayout();
+}
+} // namespace
+
 void Plot3D::ReadPlot3D( GridMediator * gridMediator )
 {
     Plot3D::ReadCoor( gridMediator );
@@ -124,8 +143,6 @@ void Plot3D::ReadCoorBinary( GridMediator * gridMediator )
         grid->SetBasicDimension();
         grid->nodeMesh->CreateNodes( grid->nNodes );
 
-        grid->SetLayout();
-
         int wordWidth = 8;
 
         std::cout << std::setiosflags( std::ios::right );
@@ -147,17 +164,23 @@ void Plot3D::ReadCoorBinary( GridMediator * gridMediator )
         int nj = grid->nj;
         int nk = grid->nk;
 
-        HXRead( & file, grid->nodeMesh->xN );
-        HXRead( & file, grid->nodeMesh->yN );
+        RealField xCoordinates( numberOfNodes );
+        RealField yCoordinates( numberOfNodes );
+        RealField zCoordinates( numberOfNodes );
+
+        HXRead( & file, xCoordinates );
+        HXRead( & file, yCoordinates );
 
         if ( nkflag )
         {
-            HXRead( & file, grid->nodeMesh->zN );
+            HXRead( & file, zCoordinates );
         }
-        else
-        {
-            grid->nodeMesh->zN = 0;
-        }
+
+        SetPlot3DCoordinates(
+            grid,
+            std::move( xCoordinates ),
+            std::move( yCoordinates ),
+            std::move( zCoordinates ) );
     }
 
     Prj::CloseFile( file );
@@ -277,8 +300,6 @@ void Plot3D::ReadCoorAscii( GridMediator * gridMediator )
         grid->SetBasicDimension();
         grid->nodeMesh->CreateNodes( grid->nNodes );
 
-        grid->SetLayout();
-
         int wordWidth = 8;
 
         std::cout << std::setiosflags( std::ios::right );
@@ -311,16 +332,20 @@ void Plot3D::ReadCoorAscii( GridMediator * gridMediator )
         RealField coor;
 
         Plot3D::ReadCoor( & textFileParser, coor, total_size );
+        RealField xCoordinates( numberOfNodes );
+        RealField yCoordinates( numberOfNodes );
+        RealField zCoordinates( numberOfNodes );
+
         int pos = 0;
         for ( int i = 0; i < numberOfNodes; ++ i )
         {
-            grid->nodeMesh->xN[ i ] = coor[ i + pos ];
+            xCoordinates[ i ] = coor[ i + pos ];
         }
         pos += numberOfNodes;
 
         for ( int i = 0; i < numberOfNodes; ++ i )
         {
-            grid->nodeMesh->yN[ i ] = coor[ i + pos ];
+            yCoordinates[ i ] = coor[ i + pos ];
         }
         pos += numberOfNodes;
 
@@ -328,14 +353,15 @@ void Plot3D::ReadCoorAscii( GridMediator * gridMediator )
         {
             for ( int i = 0; i < numberOfNodes; ++ i )
             {
-                grid->nodeMesh->zN[ i ] = coor[ i + pos ];
+                zCoordinates[ i ] = coor[ i + pos ];
             }
-            pos += numberOfNodes;
         }
-        else
-        {
-            grid->nodeMesh->zN = 0;
-        }
+
+        SetPlot3DCoordinates(
+            grid,
+            std::move( xCoordinates ),
+            std::move( yCoordinates ),
+            std::move( zCoordinates ) );
     }
 
     textFileParser.CloseFile();
@@ -401,7 +427,7 @@ void Plot3D::DumpCoorAscii( GridMediator * gridMediator )
 
         if ( nkflag )
         {
-            fileO.DumpCoorAscii( grid->nodeMesh->yN );
+            fileO.DumpCoorAscii( grid->nodeMesh->zN );
         }
     }
 

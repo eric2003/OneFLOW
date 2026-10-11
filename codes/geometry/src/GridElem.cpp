@@ -300,9 +300,7 @@ void GridElem::GenerateCalcGrid( UnsGrid & grid )
         Real x, y, z;
         this->point_factory.GetPoint(globalId, x, y, z);
 
-        grid.nodeMesh->xN[iNode] = x;
-        grid.nodeMesh->yN[iNode] = y;
-        grid.nodeMesh->zN[iNode] = z;
+        grid.nodeMesh->SetPoint( iNode, x, y, z );
     }
 
     this->CalcBoundaryType( grid );

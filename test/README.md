@@ -18,14 +18,16 @@ test/
 │   └── residual-baseline.json
 ├── test.py
 ├── test.txt
-└── <case directories>/
+├── cfd/
+│   └── <CFD case directories>/
     ├── autotest/
     ├── grid/
     └── script/
 ```
 
-- Add reusable suite lists under `test/suites/` with stable names.
+- Add reusable suite lists under `test/suites/` with stable names. Suite entries are paths relative to the runner's working directory; the canonical CPU CI job stages cases under matching relative paths.
 - Keep accepted numerical references under each case's `autotest/` directory.
+- `autotest/test.txt` lists text outputs compared line by line with numeric tolerance. An optional `autotest/binary.txt` lists binary outputs compared byte for byte; each reference is stored in `autotest/` using the output basename. Use byte comparison only for deterministic binary artifacts: compiler, endian, metadata, or serialization differences can make it too strict for portable grid regression. Grid cases should also validate the reloaded grid's dimensions, finite coordinates, bounding box, and topology.
 - Keep structured residual baselines under `test/baselines/`; regenerate them
   only when the accepted numerical result changes.
 - Write generated logs, results, reports, and temporary files outside
@@ -36,8 +38,8 @@ test/
 
 ## CPU regression baseline
 
-The canonical CPU baseline contains the five existing OneFLOW
-cases:
+The canonical CPU baseline contains the five existing OneFLOW CFD
+cases under `test/cfd/`:
 
 | Case | Coverage | Reference outputs |
 |---|---|---|

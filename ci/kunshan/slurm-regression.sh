@@ -106,11 +106,13 @@ run_cpu_suite()
         case_name=${case_name#$'\ufeff'}
         case_name=${case_name%$'\r'}
         [ -n "$case_name" ] || continue
+        mkdir -p "$cpu_work/$(dirname "$case_name")"
         cp -a "$source_dir/test/$case_name" "$cpu_work/$case_name"
         rm -rf \
             "$cpu_work/$case_name/results" \
             "$cpu_work/$case_name/log"
-        if [ "$case_name" != "plateuns2dslau2_34950_35000" ]; then
+        case_basename=${case_name##*/}
+        if [ "$case_basename" != "plateuns2dslau2_34950_35000" ]; then
             rm -rf "$cpu_work/$case_name/restart"
         fi
         mkdir -p \

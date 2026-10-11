@@ -22,8 +22,22 @@ License
 
 #include "NodeMesh.h"
 #include "HXMath.h"
+#include <utility>
+#include <stdexcept>
 
 BeginNameSpace( ONEFLOW )
+
+namespace
+{
+void ValidateCoordinateArrays( const NodeMesh & nodeMesh )
+{
+    if ( nodeMesh.xN.size() != nodeMesh.yN.size() ||
+         nodeMesh.xN.size() != nodeMesh.zN.size() )
+    {
+        throw std::logic_error( "NodeMesh coordinate arrays have inconsistent sizes" );
+    }
+}
+} // namespace
 
 NodeMesh::NodeMesh()
 {
@@ -32,33 +46,73 @@ NodeMesh::NodeMesh()
     pmax.resize( 3 );
 }
 
-NodeMesh::NodeMesh( const NodeMesh & rhs )
+NodeMesh::Point3 NodeMesh::GetPoint( HXSize_t nodeIndex ) const
 {
-    this->boxFlag = rhs.boxFlag;
-    this->pmin = rhs.pmin;
-    this->pmax = rhs.pmax;
-    this->xN = rhs.xN;
-    this->yN = rhs.yN;
-    this->zN = rhs.zN;
+    ValidateCoordinateArrays( *this );
+    if ( nodeIndex >= this->xN.size() )
+    {
+        throw std::out_of_range( "NodeMesh node index is out of range" );
+    }
+    return { this->xN[ nodeIndex ], this->yN[ nodeIndex ], this->zN[ nodeIndex ] };
 }
 
-NodeMesh::~NodeMesh()
+void NodeMesh::SetPoint( HXSize_t nodeIndex, Real xp, Real yp, Real zp )
 {
-    ;
+    ValidateCoordinateArrays( *this );
+    if ( nodeIndex >= this->xN.size() )
+    {
+        throw std::out_of_range( "NodeMesh node index is out of range" );
+    }
+    this->xN[ nodeIndex ] = xp;
+    this->yN[ nodeIndex ] = yp;
+    this->zN[ nodeIndex ] = zp;
+    this->boxFlag = false;
 }
 
 void NodeMesh::CreateNodes( int numberOfNodes )
 {
-    xN.resize( numberOfNodes );
-    yN.resize( numberOfNodes );
-    zN.resize( numberOfNodes );
+    if ( numberOfNodes < 0 )
+    {
+        throw std::invalid_argument( "NodeMesh node count cannot be negative" );
+    }
+
+    xN.resize( static_cast< HXSize_t >( numberOfNodes ) );
+    yN.resize( static_cast< HXSize_t >( numberOfNodes ) );
+    zN.resize( static_cast< HXSize_t >( numberOfNodes ) );
+    this->boxFlag = false;
+}
+
+void NodeMesh::SetCoordinates( RealField x, RealField y, RealField z )
+{
+    if ( x.size() != y.size() || x.size() != z.size() )
+    {
+        throw std::invalid_argument(
+            "NodeMesh coordinate arrays must have equal sizes" );
+    }
+
+    this->xN = std::move( x );
+    this->yN = std::move( y );
+    this->zN = std::move( z );
+    this->boxFlag = false;
 }
 
 void NodeMesh::CalcMinMaxBox()
 {
-    if ( this->boxFlag ) return;
+    // Coordinate arrays are public, so callers can mutate them without invalidating
+    // the cached bounds. Recompute to keep the bounding box correct at this boundary.
+    ValidateCoordinateArrays( *this );
 
-    int numberOfNodes = this->GetNumberOfNodes();
+    const HXSize_t numberOfNodes = this->GetNumberOfNodes();
+    if ( numberOfNodes == 0 )
+    {
+        for ( int iDim = 0; iDim < 3; ++ iDim )
+        {
+            this->pmin[ iDim ] = 0;
+            this->pmax[ iDim ] = 0;
+        }
+        this->boxFlag = true;
+        return;
+    }
 
     Real xmin =   LARGE;
     Real ymin =   LARGE;
@@ -67,10 +121,8 @@ void NodeMesh::CalcMinMaxBox()
     Real ymax = - LARGE;
     Real zmax = - LARGE;
 
-    for ( int iNode = 0; iNode < numberOfNodes; ++ iNode )
+    for ( HXSize_t iNode = 0; iNode < numberOfNodes; ++ iNode )
     {
-        Real tmp = ABS( zN[ iNode ] );
-
         xmin = ONEFLOW::MIN( xmin, xN[ iNode ] );
         ymin = ONEFLOW::MIN( ymin, yN[ iNode ] );
         zmin = ONEFLOW::MIN( zmin, zN[ iNode ] );
@@ -87,13 +139,46 @@ void NodeMesh::CalcMinMaxBox()
     pmax[ 0 ] = xmax;
     pmax[ 1 ] = ymax;
     pmax[ 2 ] = zmax;
+    this->boxFlag = true;
 }
 
 void NodeMesh::AddPoint( Real xp, Real yp, Real zp )
 {
+    ValidateCoordinateArrays( *this );
     this->xN.push_back( xp );
     this->yN.push_back( yp );
     this->zN.push_back( zp );
+    this->boxFlag = false;
+}
+
+void NodeMesh::ScaleAndTranslate( Real scale, Real tx, Real ty, Real tz )
+{
+    ValidateCoordinateArrays( *this );
+    const size_t nNodes = this->GetNumberOfNodes();
+    for ( size_t iNode = 0; iNode < nNodes; ++ iNode )
+    {
+        this->xN[ iNode ] *= scale;
+        this->yN[ iNode ] *= scale;
+        this->zN[ iNode ] *= scale;
+
+        this->xN[ iNode ] += tx;
+        this->yN[ iNode ] += ty;
+        this->zN[ iNode ] += tz;
+    }
+    this->boxFlag = false;
+}
+
+void NodeMesh::TurnZAxisToYAxis()
+{
+    ValidateCoordinateArrays( *this );
+    const size_t nNodes = this->GetNumberOfNodes();
+    for ( size_t iNode = 0; iNode < nNodes; ++ iNode )
+    {
+        const Real y = this->yN[ iNode ];
+        this->yN[ iNode ] = this->zN[ iNode ];
+        this->zN[ iNode ] = - y;
+    }
+    this->boxFlag = false;
 }
 
 

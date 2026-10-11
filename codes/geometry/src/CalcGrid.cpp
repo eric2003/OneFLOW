@@ -433,25 +433,13 @@ void GenerateMultiZoneCalcGrids( Grids grids )
 
 void ResetGridScaleAndTranslate( NodeMesh & nodeMesh, const GridConfig & config )
 {
-    const Real scale = config.scale;
     const auto & translate = config.translate;
-
-    const size_t nNodes = nodeMesh.GetNumberOfNodes();
-
-    for ( size_t iNode = 0; iNode < nNodes; ++ iNode )
-    {
-        nodeMesh.xN[ iNode ] *= scale;
-        nodeMesh.yN[ iNode ] *= scale;
-        nodeMesh.zN[ iNode ] *= scale;
-
-        nodeMesh.xN[ iNode ] += translate[ 0 ];
-        nodeMesh.yN[ iNode ] += translate[ 1 ];
-        nodeMesh.zN[ iNode ] += translate[ 2 ];
-    }
+    nodeMesh.ScaleAndTranslate(
+        config.scale, translate[ 0 ], translate[ 1 ], translate[ 2 ] );
 
     if ( config.axisDirection == GridAxisDirection::ZToY )
     {
-        TurnZAxisToYAxis( nodeMesh );
+        nodeMesh.TurnZAxisToYAxis();
     }
 }
 
@@ -462,19 +450,7 @@ void ResetGridScaleAndTranslate( NodeMesh & nodeMesh )
 
 void TurnZAxisToYAxis( NodeMesh & nodeMesh )
 {
-    size_t nNodes = nodeMesh.GetNumberOfNodes();
-
-    RealField & xN = nodeMesh.xN;
-    RealField & yN = nodeMesh.yN;
-    RealField & zN = nodeMesh.zN;
-
-    Real tmp;
-    for ( size_t iNode = 0; iNode < nNodes; ++ iNode )
-    {
-        tmp         = yN[ iNode ];
-        yN[ iNode ] = zN[ iNode ];
-        zN[ iNode ] = - tmp;
-    }
+    nodeMesh.TurnZAxisToYAxis();
 }
 
 EndNameSpace

@@ -24,7 +24,7 @@
     "plateuns2dslau2": {
       "files": {
         "results/res.dat": {
-          "source_reference": "plateuns2dslau2/autotest/res.dat",
+          "source_reference": "cfd/plateuns2dslau2/autotest/res.dat",
           "sha256": "7a55f879a72dc081d54c707480af90242ae33eed212730abc7d706d3dfead507",
           "variables": [
             "iter",
@@ -521,7 +521,7 @@
     "plateuns2dslau2_34950_35000": {
       "files": {
         "results/res.dat": {
-          "source_reference": "plateuns2dslau2_34950_35000/autotest/res.dat",
+          "source_reference": "cfd/plateuns2dslau2_34950_35000/autotest/res.dat",
           "sha256": "200e6225b582a0f8ce0a257b75728f920d21f63b3ee9ef8c66f47d65e0da8a25",
           "variables": [
             "iter",
@@ -1018,7 +1018,7 @@
     "turbplateuns2droe_sa": {
       "files": {
         "results/res.dat": {
-          "source_reference": "turbplateuns2droe_sa/autotest/res.dat",
+          "source_reference": "cfd/turbplateuns2droe_sa/autotest/res.dat",
           "sha256": "79f489aac349128def36ab7bb83886af7e3aebbd9e00640a5de94469c53a32ed",
           "variables": [
             "iter",
@@ -1511,7 +1511,7 @@
           }
         },
         "results/turbres.dat": {
-          "source_reference": "turbplateuns2droe_sa/autotest/turbres.dat",
+          "source_reference": "cfd/turbplateuns2droe_sa/autotest/turbres.dat",
           "sha256": "dd811c67688725c6533a1f01b34e8826670af6cc62116758a33a20375c7df86f",
           "variables": [
             "iter",
@@ -1792,7 +1792,7 @@
     "rae2822_roe_sa": {
       "files": {
         "results/res.dat": {
-          "source_reference": "rae2822_roe_sa/autotest/res.dat",
+          "source_reference": "cfd/rae2822_roe_sa/autotest/res.dat",
           "sha256": "662d8a45d1bfc24c30120ffacf0611bb2ffe7e60f882007558fffad3dd251fa7",
           "variables": [
             "iter",
@@ -2285,7 +2285,7 @@
           }
         },
         "results/turbres.dat": {
-          "source_reference": "rae2822_roe_sa/autotest/turbres.dat",
+          "source_reference": "cfd/rae2822_roe_sa/autotest/turbres.dat",
           "sha256": "cd1409c5ac747d3755def0296b9452768f4b11429b42d81950b42292b7b46886",
           "variables": [
             "iter",
@@ -2566,7 +2566,7 @@
     "m6wingroe_sa": {
       "files": {
         "results/res.dat": {
-          "source_reference": "m6wingroe_sa/autotest/res.dat",
+          "source_reference": "cfd/m6wingroe_sa/autotest/res.dat",
           "sha256": "3d24301314287f473f304fd424b8db78582bb59992eca12181f30d6d94dda586",
           "variables": [
             "iter",
@@ -3059,7 +3059,7 @@
           }
         },
         "results/turbres.dat": {
-          "source_reference": "m6wingroe_sa/autotest/turbres.dat",
+          "source_reference": "cfd/m6wingroe_sa/autotest/turbres.dat",
           "sha256": "021d536419d89a7b34616db4fd6c46845e0dcb26b9bdcea40329168f3d8f6026",
           "variables": [
             "iter",

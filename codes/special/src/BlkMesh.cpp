@@ -147,9 +147,9 @@ void SetGridXYZ3D( StrGrid * grid, RealField3D & x3d, RealField3D & y3d, RealFie
         {
             for ( int i = 0; i < ni; ++ i )
             {
-                grid->nodeMesh->xN[ pos ] = x3d[ i ][ j ][ k ];
-                grid->nodeMesh->yN[ pos ] = y3d[ i ][ j ][ k ];
-                grid->nodeMesh->zN[ pos ] = z3d[ i ][ j ][ k ];
+                grid->nodeMesh->SetPoint( pos, x3d[ i ][ j ][ k ],
+                                          y3d[ i ][ j ][ k ],
+                                          z3d[ i ][ j ][ k ] );
                 ++ pos;
             }
         }
@@ -167,9 +167,9 @@ void SetGridXYZ2D( StrGrid * grid, RealField2D & x2d, RealField2D & y2d, RealFie
     {
         for ( int i = 0; i < ni; ++ i )
         {
-            grid->nodeMesh->xN[ pos ] = x2d[ i ][ j ];
-            grid->nodeMesh->yN[ pos ] = y2d[ i ][ j ];
-            grid->nodeMesh->zN[ pos ] = z2d[ i ][ j ];
+            grid->nodeMesh->SetPoint( pos, x2d[ i ][ j ],
+                                      y2d[ i ][ j ],
+                                      z2d[ i ][ j ] );
             ++ pos;
         }
     }

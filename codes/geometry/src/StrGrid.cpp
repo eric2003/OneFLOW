@@ -31,6 +31,7 @@ License
 #include "DataBook.h"
 #include "Tolerance.h"
 #include <iostream>
+#include <stdexcept>
 
 
 BeginNameSpace( ONEFLOW )
@@ -100,19 +101,37 @@ void StrGrid::SetLayout()
     this->stry.reset();
     this->strz.reset();
 
-   if ( this->nodeMesh->xN.size() != 0 &&
-        this->nodeMesh->yN.size() != 0 &&
-        this->nodeMesh->zN.size() != 0 )
-    {
-        Range I, J, K;
-        I.SetRange( 1, ni );
-        J.SetRange( 1, nj );
-        K.SetRange( 1, nk );
+    const HXSize_t nx = this->nodeMesh->xN.size();
+    const HXSize_t ny = this->nodeMesh->yN.size();
+    const HXSize_t nz = this->nodeMesh->zN.size();
 
-        this->strx = std::make_unique< Field3D >( & this->nodeMesh->xN[ 0 ], I, J, K );
-        this->stry = std::make_unique< Field3D >( & this->nodeMesh->yN[ 0 ], I, J, K );
-        this->strz = std::make_unique< Field3D >( & this->nodeMesh->zN[ 0 ], I, J, K );
+    // An empty mesh has no coordinate views to expose yet.
+    if ( nx == 0 && ny == 0 && nz == 0 )
+    {
+        return;
     }
+
+    if ( nx != ny || nx != nz )
+    {
+        throw std::logic_error(
+            "StrGrid cannot create coordinate views from inconsistent NodeMesh arrays" );
+    }
+
+    const int expectedNodeCount = this->CalcNumberOfNode();
+    if ( expectedNodeCount < 0 || nx != static_cast< HXSize_t >( expectedNodeCount ) )
+    {
+        throw std::logic_error(
+            "StrGrid dimensions do not match the NodeMesh coordinate count" );
+    }
+
+    Range I, J, K;
+    I.SetRange( 1, ni );
+    J.SetRange( 1, nj );
+    K.SetRange( 1, nk );
+
+    this->strx = std::make_unique< Field3D >( & this->nodeMesh->xN[ 0 ], I, J, K );
+    this->stry = std::make_unique< Field3D >( & this->nodeMesh->yN[ 0 ], I, J, K );
+    this->strz = std::make_unique< Field3D >( & this->nodeMesh->zN[ 0 ], I, J, K );
 }
 
 void StrGrid::ReadGrid( DataBook * databook )

@@ -9,25 +9,25 @@ using ONEFLOW::CmdLineOptions;
 TEST( PrjParseCmdLineArgs, NormalRun )
 {
     CmdLineOptions opt = Prj::ParseCmdLineArgs(
-        { "OneFlow.exe", "r", "test/plateuns2dslau2/" } );
+        { "OneFlow.exe", "r", "test/cfd/plateuns2dslau2/" } );
 
     EXPECT_FALSE( opt.debug );
-    EXPECT_EQ( opt.caseDir, "test/plateuns2dslau2/" );
+    EXPECT_EQ( opt.caseDir, "test/cfd/plateuns2dslau2/" );
 }
 
 TEST( PrjParseCmdLineArgs, DebugFlagRecognized )
 {
     CmdLineOptions opt = Prj::ParseCmdLineArgs(
-        { "OneFlow.exe", "d", "test/plateuns2dslau2/" } );
+        { "OneFlow.exe", "d", "test/cfd/plateuns2dslau2/" } );
 
     EXPECT_TRUE( opt.debug );
-    EXPECT_EQ( opt.caseDir, "test/plateuns2dslau2/" );
+    EXPECT_EQ( opt.caseDir, "test/cfd/plateuns2dslau2/" );
 }
 
 TEST( PrjParseCmdLineArgs, NonDFlagIsNotDebug )
 {
     CmdLineOptions opt = Prj::ParseCmdLineArgs(
-        { "OneFlow.exe", "x", "test/plateuns2dslau2/" } );
+        { "OneFlow.exe", "x", "test/cfd/plateuns2dslau2/" } );
 
     EXPECT_FALSE( opt.debug );
 }
