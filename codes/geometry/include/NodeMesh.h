@@ -80,6 +80,10 @@ public:
     void CreateNodes( int numberOfNodes );
     void CalcMinMaxBox();
     void AddPoint( Real xp, Real yp, Real zp );
+
+    // Geometry mutations live with the coordinate owner so cached bounds stay valid.
+    void ScaleAndTranslate( Real scale, Real tx, Real ty, Real tz );
+    void TurnZAxisToYAxis();
 };
 
 
