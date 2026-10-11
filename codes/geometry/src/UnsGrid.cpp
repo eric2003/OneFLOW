@@ -170,6 +170,36 @@ void UnsGrid::ReadGrid( DataBook * databook )
 
 void UnsGrid::NormalizeBc()
 {
+    const auto & leftCells = this->GetFaceTopo().GetLeftCells();
+    const auto & rightCells = this->GetFaceTopo().GetRightCells();
+
+    if ( leftCells.size() != static_cast< std::size_t >( this->nFaces ) ||
+         rightCells.size() != static_cast< std::size_t >( this->nFaces ) )
+    {
+        throw std::logic_error(
+            "UnsGrid::NormalizeBc: face-cell connectivity count does not match face count" );
+    }
+
+    for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
+    {
+        const int leftCell = leftCells[ iFace ];
+        if ( leftCell < 0 || leftCell >= this->nCells )
+        {
+            throw std::out_of_range(
+                "UnsGrid::NormalizeBc: left cell ID is out of range" );
+        }
+
+        if ( iFace >= this->nBFaces )
+        {
+            const int rightCell = rightCells[ iFace ];
+            if ( rightCell < 0 || rightCell >= this->nCells )
+            {
+                throw std::out_of_range(
+                    "UnsGrid::NormalizeBc: internal-face right cell ID is out of range" );
+            }
+        }
+    }
+
     for ( int iFace = 0; iFace < this->nBFaces; ++ iFace )
     {
         this->GetFaceTopo().GetRightCells()[ iFace ] = iFace + this->nCells;
