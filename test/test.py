@@ -315,8 +315,26 @@ def _compare_residuals(
     """
     if not residual_db_path:
         return None
+
+    # Residual baselines are optional per case. Grid conversion cases validate
+    # generated artifacts and required outputs but do not produce CFD residuals.
+    try:
+        with open(residual_db_path, "r", encoding="utf-8") as stream:
+            database = json.load(stream)
+    except (OSError, ValueError):
+        residual_result = compare_case(
+            test_project_dir, residual_db_path, absolute_tolerance=residual_tolerance
+        )
+        logger.info("residual_baseline=%s", residual_result)
+        return residual_result["ok"]
+
+    case_name = os.path.basename(os.path.normpath(test_project_dir))
+    if case_name not in database.get("cases", {}):
+        logger.info("residual_baseline=SKIPPED (no baseline entry for case=%s)", case_name)
+        return None
+
     residual_result = compare_case(
-        test_project_dir, residual_db_path, absolute_tolerance=residual_tolerance
+        test_project_dir, database, absolute_tolerance=residual_tolerance
     )
     logger.info("residual_baseline=%s", residual_result)
     return residual_result["ok"]
