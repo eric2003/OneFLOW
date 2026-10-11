@@ -259,12 +259,12 @@ int Su2Bc::GetCgnsBcType( const std::string & geoName ) const
 }
 
 Su2Grid::Su2Grid()
+    : ndim( 0 )
+    , nPoin( 0 )
+    , nElem( 0 )
+    , nZone( 1 )
 {
-    ndim = 0;
-    nPoin = 0;
-    nElem = 0;
-    nZone = 1;
-    vtkmap.resize( MAX_VTK_TYPE, 0 );
+    vtkmap.assign( MAX_VTK_TYPE, 0 );
     vtkmap[ VTK_TYPE::VERTEX ] = 1;
     vtkmap[ VTK_TYPE::LINE ] = 2;
     vtkmap[ VTK_TYPE::TRIANGLE ] = 3;

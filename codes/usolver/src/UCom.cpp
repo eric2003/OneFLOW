@@ -267,12 +267,18 @@ std::string HXDebug::GetFullFileName( const std::string & fileName, int startStr
 
 void HXDebug::DumpResField( const std::string & fileName )
 {
-    UnsGrid * grid = Zone::GetUnsGrid();
-    MRField * res = GetFieldPointer< MRField >( grid, "res" );
+    // Read-only dump of residual field.
+    const UnsGrid * grid = Zone::GetConstUnsGrid();
+    const MRField * res = GetFieldPointer< MRField >( grid, "res" );
     HXDebug::DumpField( fileName, res );
 }
 
 void HXDebug::DumpField( const std::string & fileName, MRField * field )
+{
+    HXDebug::DumpField( fileName, static_cast< const MRField * >( field ) );
+}
+
+void HXDebug::DumpField( const std::string & fileName, const MRField * field )
 {
     std::fstream file;
 

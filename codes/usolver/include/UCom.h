@@ -100,6 +100,7 @@ public:
 public:
     static void DumpResField( const std::string & fileName );
     static void DumpField( const std::string & fileName, MRField * field );
+    static void DumpField( const std::string & fileName, const MRField * field );
     static std::string GetFullFileName( const std::string & fileName, int startStrategy );
     static void CompareFile( Real mindiff, int idump );
     static std::unique_ptr<MRField> ReadField( const std::string & fileName );
