@@ -31,16 +31,6 @@ BeginNameSpace( ONEFLOW )
 
 int Visual::numberOfWords = 5;
 
-Visual::Visual()
-{
-    ;
-}
-
-Visual::~Visual()
-{
-    ;
-}
-
 void Visual::SetNumberOfWords( int numberOfWords )
 {
     Visual::numberOfWords = numberOfWords;

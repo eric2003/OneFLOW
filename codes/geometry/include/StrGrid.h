@@ -85,8 +85,8 @@ void GetIJKRange( int ni, int nj, int nk, int startShift, int endShift, Range & 
 class IJKRange
 {
 public:
-    IJKRange();
-    ~IJKRange();
+    IJKRange() = default;
+    ~IJKRange() = default;
 public:
     static Range I, J, K;
     static int ist, ied;

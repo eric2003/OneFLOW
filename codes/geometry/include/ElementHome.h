@@ -30,8 +30,8 @@ BeginNameSpace( ONEFLOW )
 class ElementHome
 {
 public:
-    ElementHome();
-    ~ElementHome();
+    ElementHome() = default;
+    ~ElementHome() = default;
 public:
     static HXVector< std::unique_ptr< UnitElement > > unitElement;
     static int numberOfUnitElement;

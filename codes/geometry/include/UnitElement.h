@@ -35,8 +35,8 @@ BeginNameSpace( ONEFLOW )
 class UnitElement
 {
 public:
-    UnitElement();
-    ~UnitElement();
+    UnitElement() = default;
+    ~UnitElement() = default;
 public:
     int elementType;
     IntField nodeId;

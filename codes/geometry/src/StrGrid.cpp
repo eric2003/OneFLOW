@@ -418,16 +418,6 @@ int IJKRange::jed;
 int IJKRange::kst;
 int IJKRange::ked;
 
-IJKRange::IJKRange()
-{
-    ;
-}
-
-IJKRange::~IJKRange()
-{
-    ;
-}
-
 void IJKRange::Calc( int ni, int nj, int nk, int ss, int es )
 {
     IJKRange::I.SetRange( 1 + ss, ni + es );

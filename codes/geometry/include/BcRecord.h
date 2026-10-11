@@ -73,8 +73,8 @@ class IFaceLink;
 class BcManager
 {
 public:
-    BcManager();
-    ~BcManager();
+    BcManager() = default;
+    ~BcManager() = default;
 
     // Disable copying to prevent accidental double-free of unique_ptrs
     BcManager(const BcManager&) = delete;
@@ -82,9 +82,9 @@ public:
 public:
     bool deleteBoundaryCondition;
 
-    // [Refactored] Changed from raw pointers to std::unique_ptr for automatic memory management.
-    std::unique_ptr<BcRecord> bcRecord;
-    std::unique_ptr<BcRecord> bcRecordNew;
+    // Owned boundary records (default-constructed via make_unique; no ctor body needed).
+    std::unique_ptr<BcRecord> bcRecord = std::make_unique<BcRecord>();
+    std::unique_ptr<BcRecord> bcRecordNew = std::make_unique<BcRecord>();
     IntField l2gNew;
 
     IntField bcKeyVector;

@@ -37,8 +37,8 @@ const int MAX_VTK_TYPE = 100;
 class VTK_TYPE
 {
 public:
-    VTK_TYPE();
-    ~VTK_TYPE();
+    VTK_TYPE() = default;
+    ~VTK_TYPE() = default;
 public:
     static int VERTEX       ;
     static int LINE         ;
@@ -93,7 +93,7 @@ public:
 class SecMarkerManager
 {
 public:
-    SecMarkerManager();
+    SecMarkerManager() = default;
     ~SecMarkerManager() = default;
 public:
     int nType;
@@ -106,7 +106,7 @@ public:
 class MarkerManager
 {
 public:
-    MarkerManager();
+    MarkerManager() = default;
     ~MarkerManager() = default;
 public:
     int nMarker;
@@ -123,8 +123,8 @@ class Su2Grid;
 class VolumeSecManager
 {
 public:
-    VolumeSecManager();
-    ~VolumeSecManager();
+    VolumeSecManager() = default;
+    ~VolumeSecManager() = default;
 public:
     int nSection;
 

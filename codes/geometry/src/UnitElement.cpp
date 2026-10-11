@@ -27,16 +27,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-UnitElement::UnitElement()
-{
-    ;
-}
-
-UnitElement::~UnitElement()
-{
-    ;
-}
-
 int UnitElement::GetElementNodeNumbers( int elementType ) const
 {
     int nodeNumberOfElement = 0;

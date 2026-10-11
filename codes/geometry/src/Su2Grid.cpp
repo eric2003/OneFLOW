@@ -62,16 +62,6 @@ int VTK_TYPE::HEXAHEDRON    = 12;
 int VTK_TYPE::PRISM         = 13;
 int VTK_TYPE::PYRAMID       = 14;
 
-VTK_TYPE::VTK_TYPE()
-{
-    ;
-}
-
-VTK_TYPE::~VTK_TYPE()
-{
-    ;
-}
-
 VTK_CgnsMap::VTK_CgnsMap()
 {
     this->Init();
@@ -96,11 +86,6 @@ void VTK_CgnsMap::Init()
     vtk2Cgns.insert( IntPair( VTK_TYPE::PYRAMID      , PYRA_5 ) );
 }
 
-SecMarkerManager::SecMarkerManager()
-{
-    ;
-}
-
 void SecMarkerManager::Alloc( int nType )
 {
     this->nType = nType;
@@ -118,11 +103,6 @@ int SecMarkerManager::CalcTotalElem() const
         nElem += sec->nElem;
     }
     return nElem;
-}
-
-MarkerManager::MarkerManager()
-{
-    ;
 }
 
 void MarkerManager::CreateMarkerList( int nMarker )
@@ -182,16 +162,6 @@ void MarkerManager::CalcSecMarker( SecMarkerManager & secMarkerManager )
         secMarker->nElem = secMarker->elems.size();
     }
 
-}
-
-VolumeSecManager::VolumeSecManager()
-{
-    ;
-}
-
-VolumeSecManager::~VolumeSecManager()
-{
-    ;
 }
 
 void VolumeSecManager::CalcVolSec( const Su2Grid & su2Grid, SecMarkerManager & secMarkerManager )

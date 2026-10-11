@@ -175,15 +175,6 @@ void BcRecord::CalcBcType( IntField & bcTypeList )
     }
 }
 
-BcManager::BcManager()
-{
-    // [Refactored] Use std::make_unique for exception-safe allocation.
-    this->bcRecord = std::make_unique<BcRecord>();
-    this->bcRecordNew = std::make_unique<BcRecord>();
-}
-
-BcManager::~BcManager() = default;
-
 void BcManager::PreProcess()
 {
     int nBFaces = this->bcRecord->GetNBFace();

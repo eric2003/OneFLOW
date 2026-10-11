@@ -29,16 +29,6 @@ BeginNameSpace( ONEFLOW )
 HXVector< std::unique_ptr< UnitElement > > ElementHome::unitElement;
 int ElementHome::numberOfUnitElement = 0;
 
-ElementHome::ElementHome()
-{
-    ;
-}
-
-ElementHome::~ElementHome()
-{
-    ;
-}
-
 UnitElement & ElementHome::GetUnitElement( int elementType )
 {
     return *unitElement[ elementType ];
