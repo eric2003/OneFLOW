@@ -189,7 +189,7 @@ def get_optional_filename_list(filename: str) -> List[str]:
 
 def _required_output_path(test_project_dir: str, relative_name: str) -> str:
     """Resolve a required output path without allowing paths outside the case."""
-    normalized = relative_name.replace("\\\\", "/")
+    normalized = relative_name.replace("\\", "/")
     parts = normalized.split("/")
     if not normalized or os.path.isabs(normalized) or any(part == ".." for part in parts):
         raise ValueError(f"Required output must be a case-relative path: {relative_name!r}")
