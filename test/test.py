@@ -95,18 +95,34 @@ def cmp_file(
     file_name1: str,
     file_name2: str,
     max_reported_diffs: int = MAX_REPORTED_LINE_DIFFS,
+    mode: str = "text",
 ) -> bool:
-    """Line-by-line comparison of two result files.
+    """Compare text results numerically by line or binary artifacts byte-for-byte.
 
-    BUGFIX (step 2): collects every differing line instead of stopping at
-    the first one, and uses `with` so a mid-read error can't leak a file
-    handle.
-    BUGFIX (step 4): missing/unreadable files (e.g. the solver never wrote
-    its output) are now reported as a normal failure instead of raising an
-    uncaught FileNotFoundError - this matters for --dry-run's
-    "missing output file" scenario, and can happen for real if a case
-    crashes before writing anything.
+    Binary paths must be listed in the case's optional autotest/binary.txt
+    manifest. Byte comparison is suitable only for deterministic binary
+    formats; grid tests should additionally validate geometry and topology.
     """
+    if mode == "binary":
+        try:
+            with open(file_name1, "rb") as f1, open(file_name2, "rb") as f2:
+                expected = f1.read()
+                actual = f2.read()
+        except OSError as error:
+            logger.info("Could not compare binary files %s vs %s: %s", file_name1, file_name2, error)
+            return False
+        if expected == actual:
+            return True
+        mismatch = next(
+            (index for index, (left, right) in enumerate(zip(expected, actual)) if left != right),
+            min(len(expected), len(actual)),
+        )
+        logger.info(
+            "Binary mismatch: %s vs %s (expected_bytes=%d actual_bytes=%d first_difference_offset=%d)",
+            file_name1, file_name2, len(expected), len(actual), mismatch,
+        )
+        return False
+
     differences: List[str] = []
     try:
         with open(file_name1, "r", encoding="utf-8-sig") as f1, \
@@ -143,9 +159,17 @@ def cmp_file(
 
 
 def get_filename_list(filename: str) -> List[str]:
-    """Read one relative result-file path per line from `filename`."""
+    """Read one relative result-file path per line from a manifest."""
     with open(filename, "r", encoding="utf-8-sig") as f:
-        return [line.strip() for line in f.readlines()]
+        return [line.strip() for line in f.readlines() if line.strip()]
+
+
+def get_optional_filename_list(filename: str) -> List[str]:
+    """Read an optional path manifest, returning an empty list when absent."""
+    try:
+        return get_filename_list(filename)
+    except FileNotFoundError:
+        return []
 
 
 @dataclass
@@ -154,26 +178,27 @@ class ComparisonPair:
 
     baseline_path: str
     generated_path: str
+    mode: str = "text"
 
 
 def build_comparison_pairs(
-    test_project_dir: str, relative_names: List[str]
+    test_project_dir: str,
+    relative_names: List[str],
+    binary_names: Optional[List[str]] = None,
 ) -> List[ComparisonPair]:
-    """Build the list of (baseline, generated) file pairs for one test case.
-
-    REFACTOR (step 3): replaces three index-aligned parallel lists from the
-    original script with a single list of paired values, removing the risk
-    of the lists silently drifting out of alignment.
-    """
+    """Build comparison pairs from text and optional binary file manifests."""
     pairs = []
-    for relative_name in relative_names:
-        base_name = relative_name.split("/")[-1]
-        baseline_file = test_project_dir + "/autotest/" + base_name
-        generated_file = test_project_dir + "/" + relative_name
+    file_specs = [(name, "text") for name in relative_names]
+    file_specs.extend((name, "binary") for name in (binary_names or []))
+    for relative_name, mode in file_specs:
+        base_name = relative_name.replace("\\", "/").split("/")[-1]
+        baseline_file = os.path.join(test_project_dir, "autotest", base_name)
+        generated_file = os.path.join(test_project_dir, relative_name)
         pairs.append(
             ComparisonPair(
                 baseline_path=os.path.normpath(os.path.abspath(baseline_file)),
                 generated_path=os.path.normpath(os.path.abspath(generated_file)),
+                mode=mode,
             )
         )
     return pairs
@@ -223,7 +248,7 @@ def _compare_result_files(comparison_pairs: List[ComparisonPair]) -> bool:
     """
     all_ok = True
     for pair in comparison_pairs:
-        if not cmp_file(pair.baseline_path, pair.generated_path):
+        if not cmp_file(pair.baseline_path, pair.generated_path, mode=pair.mode):
             all_ok = False
     return all_ok
 
@@ -271,7 +296,9 @@ def run_test(
     test_script = test_project_dir + "/autotest/test.txt"
     abs_test_script = os.path.normpath(os.path.abspath(test_script))
     relative_names = get_filename_list(abs_test_script)
-    comparison_pairs = build_comparison_pairs(test_project_dir, relative_names)
+    binary_script = os.path.join(test_project_dir, "autotest", "binary.txt")
+    binary_names = get_optional_filename_list(binary_script)
+    comparison_pairs = build_comparison_pairs(test_project_dir, relative_names, binary_names)
 
     cmd = mpi_cmd + " " + exe_cmd + " 0 " + test_project_dir
     logger.debug("cmd=%s", cmd)
@@ -378,8 +405,16 @@ def report_results(results: List[TestResult]) -> None:
 # ---------------------------------------------------------------------------
 
 _DUMMY_RESULT_RELATIVE_PATH = "results/residual.dat"
+_DUMMY_BINARY_RELATIVE_PATH = "grid/generated.ofl"
 
 _DUMMY_SCENARIOS = [
+    {
+        "name": "dummy_case_binary_grid_ok",
+        "baseline_content": 'Variables=\n"iter"\n"rho"\n0 1.0\n1 1.1\n',
+        "result_content": 'Variables=\n"iter"\n"rho"\n0 1.0\n1 1.1\n',
+        "binary_hex": "0001027f80feff004f464c",
+        "exit_code": 0,
+    },
     {
         "name": "dummy_case_ok",
         "baseline_content": 'Variables=\n"iter"\n"rho"\n0 1.0\n1 1.1\n',
@@ -426,6 +461,11 @@ def _write_fake_solver(root: str) -> str:
         "    os.makedirs(os.path.dirname(result_path), exist_ok=True)\n"
         "    with open(result_path, 'w', encoding='utf-8') as f:\n"
         "        f.write(scenario['result_content'])\n"
+        "if scenario.get('binary_hex') is not None:\n"
+        "    binary_path = os.path.join(project_dir, scenario['binary_relative_path'])\n"
+        "    os.makedirs(os.path.dirname(binary_path), exist_ok=True)\n"
+        "    with open(binary_path, 'wb') as f:\n"
+        "        f.write(bytes.fromhex(scenario['binary_hex']))\n"
         "sys.exit(scenario.get('exit_code', 0))\n"
     )
     with open(stub_path, "w", encoding="utf-8") as f:
@@ -434,11 +474,7 @@ def _write_fake_solver(root: str) -> str:
 
 
 def build_dummy_suite(root: str):
-    """Create a handful of fake test cases under `root` for --dry-run.
-
-    Returns (case_dirs, mpi_cmd, exe_cmd) that can be passed straight to
-    run_all_test() - no suite file or real OneFLOW binary needed.
-    """
+    """Create fake cases for --dry-run, including a binary-output comparison."""
     fake_solver_path = _write_fake_solver(root)
     case_dirs = []
     for scenario in _DUMMY_SCENARIOS:
@@ -448,19 +484,26 @@ def build_dummy_suite(root: str):
             f.write(_DUMMY_RESULT_RELATIVE_PATH + "\n")
         with open(os.path.join(case_dir, "autotest", "residual.dat"), "w", encoding="utf-8") as f:
             f.write(scenario["baseline_content"])
+        scenario_data = {
+            "result_relative_path": _DUMMY_RESULT_RELATIVE_PATH,
+            "exit_code": scenario["exit_code"],
+            "write_result": scenario["result_content"] is not None,
+            "result_content": scenario["result_content"] or "",
+        }
+        if scenario.get("binary_hex") is not None:
+            scenario_data["binary_relative_path"] = _DUMMY_BINARY_RELATIVE_PATH
+            scenario_data["binary_hex"] = scenario["binary_hex"]
+            with open(os.path.join(case_dir, "autotest", "binary.txt"), "w", encoding="utf-8") as f:
+                f.write(_DUMMY_BINARY_RELATIVE_PATH + "\n")
+            baseline_binary = os.path.join(case_dir, "autotest", os.path.basename(_DUMMY_BINARY_RELATIVE_PATH))
+            os.makedirs(os.path.dirname(baseline_binary), exist_ok=True)
+            with open(baseline_binary, "wb") as f:
+                f.write(bytes.fromhex(scenario["binary_hex"]))
         with open(os.path.join(case_dir, "scenario.json"), "w", encoding="utf-8") as f:
-            json.dump(
-                {
-                    "result_relative_path": _DUMMY_RESULT_RELATIVE_PATH,
-                    "exit_code": scenario["exit_code"],
-                    "write_result": scenario["result_content"] is not None,
-                    "result_content": scenario["result_content"] or "",
-                },
-                f,
-            )
+            json.dump(scenario_data, f)
         case_dirs.append(case_dir)
 
-    mpi_cmd = sys.executable  # reuse the current Python interpreter as the "launcher"
+    mpi_cmd = sys.executable
     exe_cmd = fake_solver_path
     return case_dirs, mpi_cmd, exe_cmd
 

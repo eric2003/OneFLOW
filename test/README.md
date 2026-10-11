@@ -26,6 +26,7 @@ test/
 
 - Add reusable suite lists under `test/suites/` with stable names.
 - Keep accepted numerical references under each case's `autotest/` directory.
+- `autotest/test.txt` lists text outputs compared line by line with numeric tolerance. An optional `autotest/binary.txt` lists binary outputs compared byte for byte; each reference is stored in `autotest/` using the output basename. Use byte comparison only for deterministic binary artifacts: compiler, endian, metadata, or serialization differences can make it too strict for portable grid regression. Grid cases should also validate the reloaded grid's dimensions, finite coordinates, bounding box, and topology.
 - Keep structured residual baselines under `test/baselines/`; regenerate them
   only when the accepted numerical result changes.
 - Write generated logs, results, reports, and temporary files outside
