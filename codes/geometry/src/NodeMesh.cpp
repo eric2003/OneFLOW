@@ -22,6 +22,8 @@ License
 
 #include "NodeMesh.h"
 #include "HXMath.h"
+#include <utility>
+#include <stdexcept>
 
 BeginNameSpace( ONEFLOW )
 
@@ -54,6 +56,20 @@ void NodeMesh::CreateNodes( int numberOfNodes )
     xN.resize( static_cast< HXSize_t >( numberOfNodes ) );
     yN.resize( static_cast< HXSize_t >( numberOfNodes ) );
     zN.resize( static_cast< HXSize_t >( numberOfNodes ) );
+    this->boxFlag = false;
+}
+
+void NodeMesh::SetCoordinates( RealField x, RealField y, RealField z )
+{
+    if ( x.size() != y.size() || x.size() != z.size() )
+    {
+        throw std::invalid_argument(
+            "NodeMesh coordinate arrays must have equal sizes" );
+    }
+
+    this->xN = std::move( x );
+    this->yN = std::move( y );
+    this->zN = std::move( z );
     this->boxFlag = false;
 }
 
