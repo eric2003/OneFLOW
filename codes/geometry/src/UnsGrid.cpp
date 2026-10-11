@@ -44,6 +44,7 @@ License
 #include <iterator>
 #include <iomanip>
 #include <stdexcept>
+#include <limits>
 
 
 BeginNameSpace( ONEFLOW )
@@ -180,7 +181,24 @@ void UnsGrid::ReadGridFaceTopology( DataBook * databook )
 
     ONEFLOW::HXRead( databook, numFaceNode );
 
-    int nsum = ONEFLOW::SUM( numFaceNode );
+    HXSize_t totalFaceNodes = 0;
+    for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
+    {
+        const int nNodes = numFaceNode[ iFace ];
+        if ( nNodes < 0 )
+        {
+            throw std::runtime_error(
+                "UnsGrid::ReadGridFaceTopology: negative face-node count" );
+        }
+        totalFaceNodes += static_cast< HXSize_t >( nNodes );
+        if ( totalFaceNodes > static_cast< HXSize_t >( std::numeric_limits< int >::max() ) )
+        {
+            throw std::length_error(
+                "UnsGrid::ReadGridFaceTopology: packed face-node count exceeds supported range" );
+        }
+    }
+
+    const int nsum = static_cast< int >( totalFaceNodes );
 
     std::cout << "Setting the connection mode of face to point......\n";
     IntField faceNodeMem( nsum );
