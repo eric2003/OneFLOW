@@ -139,3 +139,30 @@ TEST(NodeMeshBoundsTest, AxisTransformUpdatesCoordinatesAndInvalidatesBounds)
     EXPECT_DOUBLE_EQ( point.y, 3.0 );
     EXPECT_DOUBLE_EQ( point.z, -2.0 );
 }
+
+TEST(NodeMeshBoundsTest, BoundsRejectInconsistentCoordinateArraysEvenWhenCached)
+{
+    ONEFLOW::NodeMesh mesh;
+    mesh.AddPoint( 1.0, 2.0, 3.0 );
+    mesh.CalcMinMaxBox();
+    ASSERT_TRUE( mesh.boxFlag );
+
+    mesh.yN.clear();
+
+    EXPECT_THROW( mesh.CalcMinMaxBox(), std::logic_error );
+}
+
+TEST(NodeMeshBoundsTest, CoordinateTransformsRejectInconsistentArraysBeforeMutation)
+{
+    ONEFLOW::NodeMesh mesh;
+    mesh.AddPoint( 1.0, 2.0, 3.0 );
+    mesh.yN.clear();
+
+    EXPECT_THROW(
+        mesh.ScaleAndTranslate( 2.0, 10.0, 20.0, 30.0 ),
+        std::logic_error );
+    EXPECT_DOUBLE_EQ( mesh.xN[ 0 ], 1.0 );
+
+    EXPECT_THROW( mesh.TurnZAxisToYAxis(), std::logic_error );
+    EXPECT_DOUBLE_EQ( mesh.xN[ 0 ], 1.0 );
+}
