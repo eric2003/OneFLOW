@@ -46,6 +46,25 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+namespace
+{
+void SetPlot3DCoordinates(
+    StrGrid * grid,
+    RealField xCoordinates,
+    RealField yCoordinates,
+    RealField zCoordinates )
+{
+    grid->nodeMesh->SetCoordinates(
+        std::move( xCoordinates ),
+        std::move( yCoordinates ),
+        std::move( zCoordinates ) );
+
+    // Field3D stores non-owning pointers into NodeMesh coordinate arrays.
+    // Rebuild those views only after the owning arrays have their final storage.
+    grid->SetLayout();
+}
+} // namespace
+
 void Plot3D::ReadPlot3D( GridMediator * gridMediator )
 {
     Plot3D::ReadCoor( gridMediator );
@@ -157,13 +176,11 @@ void Plot3D::ReadCoorBinary( GridMediator * gridMediator )
             HXRead( & file, zCoordinates );
         }
 
-        grid->nodeMesh->SetCoordinates(
+        SetPlot3DCoordinates(
+            grid,
             std::move( xCoordinates ),
             std::move( yCoordinates ),
             std::move( zCoordinates ) );
-
-        // Build non-owning coordinate views after the coordinate storage is final.
-        grid->SetLayout();
     }
 
     Prj::CloseFile( file );
@@ -340,13 +357,11 @@ void Plot3D::ReadCoorAscii( GridMediator * gridMediator )
             }
         }
 
-        grid->nodeMesh->SetCoordinates(
+        SetPlot3DCoordinates(
+            grid,
             std::move( xCoordinates ),
             std::move( yCoordinates ),
             std::move( zCoordinates ) );
-
-        // Build non-owning coordinate views after the coordinate storage is final.
-        grid->SetLayout();
     }
 
     textFileParser.CloseFile();
