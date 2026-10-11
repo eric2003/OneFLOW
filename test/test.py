@@ -187,6 +187,41 @@ def get_optional_filename_list(filename: str) -> List[str]:
         return []
 
 
+def _required_output_path(test_project_dir: str, relative_name: str) -> str:
+    """Resolve a required output path without allowing paths outside the case."""
+    normalized = relative_name.replace("\\\\", "/")
+    parts = normalized.split("/")
+    if not normalized or os.path.isabs(normalized) or any(part == ".." for part in parts):
+        raise ValueError(f"Required output must be a case-relative path: {relative_name!r}")
+    case_root = os.path.abspath(test_project_dir)
+    output_path = os.path.abspath(os.path.join(case_root, normalized))
+    if os.path.commonpath([case_root, output_path]) != case_root:
+        raise ValueError(f"Required output escapes case directory: {relative_name!r}")
+    return output_path
+
+
+def _remove_previous_required_outputs(test_project_dir: str, relative_names: List[str]) -> None:
+    """Remove old outputs before execution so stale files cannot satisfy a test."""
+    for relative_name in relative_names:
+        output_path = _required_output_path(test_project_dir, relative_name)
+        if os.path.isfile(output_path) or os.path.islink(output_path):
+            os.remove(output_path)
+
+
+def _check_required_outputs(test_project_dir: str, relative_names: List[str]) -> bool:
+    """Require each declared output to be a non-empty regular file."""
+    all_ok = True
+    for relative_name in relative_names:
+        output_path = _required_output_path(test_project_dir, relative_name)
+        if not os.path.isfile(output_path):
+            logger.info("Required output is missing: %s", output_path)
+            all_ok = False
+        elif os.path.getsize(output_path) == 0:
+            logger.info("Required output is empty: %s", output_path)
+            all_ok = False
+    return all_ok
+
+
 @dataclass
 class ComparisonPair:
     """One (baseline, generated) result-file pair to compare for a test case."""
@@ -230,6 +265,7 @@ class TestResult:
     return_code: Optional[int] = None
     files_ok: Optional[bool] = None
     residual_ok: Optional[bool] = None
+    required_outputs_ok: Optional[bool] = None
     failure_reasons: List[str] = field(default_factory=list)
 
     @property
@@ -314,6 +350,9 @@ def run_test(
     binary_script = os.path.join(test_project_dir, "autotest", "binary.txt")
     binary_names = get_optional_filename_list(binary_script)
     comparison_pairs = build_comparison_pairs(test_project_dir, relative_names, binary_names)
+    required_script = os.path.join(test_project_dir, "autotest", "required.txt")
+    required_names = get_optional_filename_list(required_script)
+    _remove_previous_required_outputs(test_project_dir, required_names)
 
     cmd = mpi_cmd + " " + exe_cmd + " 0 " + test_project_dir
     logger.debug("cmd=%s", cmd)
@@ -321,6 +360,10 @@ def run_test(
     return_code = _run_solver_process(cmd, process_timeout)
     files_ok = _compare_result_files(comparison_pairs)
     residual_ok = _compare_residuals(test_project_dir, residual_db_path, residual_tolerance)
+    required_outputs_ok = (
+        _check_required_outputs(test_project_dir, required_names)
+        if required_names else None
+    )
 
     failure_reasons = []
     if return_code != 0:
@@ -329,6 +372,8 @@ def run_test(
         failure_reasons.append("result file mismatch")
     if residual_ok is False:
         failure_reasons.append("residual baseline mismatch")
+    if required_outputs_ok is False:
+        failure_reasons.append("required output missing or empty")
 
     result = TestResult(
         case_name=case_name,
@@ -336,17 +381,19 @@ def run_test(
         return_code=return_code,
         files_ok=files_ok,
         residual_ok=residual_ok,
+        required_outputs_ok=required_outputs_ok,
         failure_reasons=failure_reasons,
     )
     elapsed_time = time.perf_counter() - start_time
 
     logger.info(
         "case=%s return_code=%s files_ok=%s residual_ok=%s "
-        "passed=%s elapsed=%.2f s",
+        "required_outputs_ok=%s passed=%s elapsed=%.2f s",
         case_name,
         return_code,
         files_ok,
         residual_ok,
+        required_outputs_ok,
         result.passed,
         elapsed_time,
     )    
