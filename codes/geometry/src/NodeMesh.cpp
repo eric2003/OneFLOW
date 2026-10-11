@@ -52,13 +52,24 @@ void NodeMesh::CreateNodes( int numberOfNodes )
     xN.resize( numberOfNodes );
     yN.resize( numberOfNodes );
     zN.resize( numberOfNodes );
+    this->boxFlag = false;
 }
 
 void NodeMesh::CalcMinMaxBox()
 {
     if ( this->boxFlag ) return;
 
-    int numberOfNodes = this->GetNumberOfNodes();
+    const int numberOfNodes = static_cast< int >( this->GetNumberOfNodes() );
+    if ( numberOfNodes == 0 )
+    {
+        for ( int iDim = 0; iDim < 3; ++ iDim )
+        {
+            this->pmin[ iDim ] = 0;
+            this->pmax[ iDim ] = 0;
+        }
+        this->boxFlag = true;
+        return;
+    }
 
     Real xmin =   LARGE;
     Real ymin =   LARGE;
@@ -69,8 +80,6 @@ void NodeMesh::CalcMinMaxBox()
 
     for ( int iNode = 0; iNode < numberOfNodes; ++ iNode )
     {
-        Real tmp = ABS( zN[ iNode ] );
-
         xmin = ONEFLOW::MIN( xmin, xN[ iNode ] );
         ymin = ONEFLOW::MIN( ymin, yN[ iNode ] );
         zmin = ONEFLOW::MIN( zmin, zN[ iNode ] );
@@ -87,6 +96,7 @@ void NodeMesh::CalcMinMaxBox()
     pmax[ 0 ] = xmax;
     pmax[ 1 ] = ymax;
     pmax[ 2 ] = zmax;
+    this->boxFlag = true;
 }
 
 void NodeMesh::AddPoint( Real xp, Real yp, Real zp )
@@ -94,6 +104,7 @@ void NodeMesh::AddPoint( Real xp, Real yp, Real zp )
     this->xN.push_back( xp );
     this->yN.push_back( yp );
     this->zN.push_back( zp );
+    this->boxFlag = false;
 }
 
 
