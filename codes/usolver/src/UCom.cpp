@@ -273,11 +273,6 @@ void HXDebug::DumpResField( const std::string & fileName )
     HXDebug::DumpField( fileName, res );
 }
 
-void HXDebug::DumpField( const std::string & fileName, MRField * field )
-{
-    HXDebug::DumpField( fileName, static_cast< const MRField * >( field ) );
-}
-
 void HXDebug::DumpField( const std::string & fileName, const MRField * field )
 {
     std::fstream file;
