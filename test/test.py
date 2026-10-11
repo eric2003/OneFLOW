@@ -330,8 +330,12 @@ def _compare_residuals(
 
     case_name = os.path.basename(os.path.normpath(test_project_dir))
     if case_name not in database.get("cases", {}):
-        logger.info("residual_baseline=SKIPPED (no baseline entry for case=%s)", case_name)
-        return None
+        normalized_case_dir = os.path.normpath(test_project_dir)
+        category = normalized_case_dir.split(os.sep, 1)[0]
+        if category != "cfd":
+            logger.info("residual_baseline=SKIPPED (no baseline applies to case=%s)", case_name)
+            return None
+        # CFD cases remain strict: a missing baseline entry is a test failure.
 
     residual_result = compare_case(
         test_project_dir, database, absolute_tolerance=residual_tolerance
