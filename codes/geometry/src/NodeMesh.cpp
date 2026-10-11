@@ -61,9 +61,14 @@ NodeMesh::~NodeMesh()
 
 void NodeMesh::CreateNodes( int numberOfNodes )
 {
-    xN.resize( numberOfNodes );
-    yN.resize( numberOfNodes );
-    zN.resize( numberOfNodes );
+    if ( numberOfNodes < 0 )
+    {
+        throw std::invalid_argument( "NodeMesh node count cannot be negative" );
+    }
+
+    xN.resize( static_cast< HXSize_t >( numberOfNodes ) );
+    yN.resize( static_cast< HXSize_t >( numberOfNodes ) );
+    zN.resize( static_cast< HXSize_t >( numberOfNodes ) );
     this->boxFlag = false;
 }
 
@@ -73,7 +78,7 @@ void NodeMesh::CalcMinMaxBox()
     ValidateCoordinateArrays( *this );
     if ( this->boxFlag ) return;
 
-    const int numberOfNodes = static_cast< int >( this->GetNumberOfNodes() );
+    const HXSize_t numberOfNodes = this->GetNumberOfNodes();
     if ( numberOfNodes == 0 )
     {
         for ( int iDim = 0; iDim < 3; ++ iDim )
@@ -92,7 +97,7 @@ void NodeMesh::CalcMinMaxBox()
     Real ymax = - LARGE;
     Real zmax = - LARGE;
 
-    for ( int iNode = 0; iNode < numberOfNodes; ++ iNode )
+    for ( HXSize_t iNode = 0; iNode < numberOfNodes; ++ iNode )
     {
         xmin = ONEFLOW::MIN( xmin, xN[ iNode ] );
         ymin = ONEFLOW::MIN( ymin, yN[ iNode ] );
