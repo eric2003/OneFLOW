@@ -211,6 +211,16 @@ void UnsGrid::ReadGridFaceTopology( DataBook * databook )
 
     ONEFLOW::HXRead( databook, faceNodeMem );
 
+    for ( int iNode = 0; iNode < nsum; ++ iNode )
+    {
+        const int nodeId = faceNodeMem[ iNode ];
+        if ( nodeId < 0 || nodeId >= this->nNodes )
+        {
+            throw std::out_of_range(
+                "UnsGrid::ReadGridFaceTopology: face node ID is out of range" );
+        }
+    }
+
     int ipos = 0;
     for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
     {
