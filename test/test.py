@@ -187,6 +187,66 @@ def get_optional_filename_list(filename: str) -> List[str]:
         return []
 
 
+def _validate_case_manifests(
+    test_project_dir: str,
+    text_names: List[str],
+    binary_names: List[str],
+    required_names: List[str],
+) -> List[str]:
+    """Validate output manifests before running a solver.
+
+    Manifest entries are case-relative paths. Comparison baselines are stored
+    by output basename, so two compared paths with the same basename would
+    otherwise silently share one reference file.
+    """
+    errors: List[str] = []
+    case_root = os.path.abspath(test_project_dir)
+    compared_basenames = {}
+
+    for manifest_name, names, compared in (
+        ("compare.txt", text_names, True),
+        ("binary.txt", binary_names, True),
+        ("required.txt", required_names, False),
+    ):
+        for relative_name in names:
+            normalized = relative_name.replace("\\", "/")
+            parts = normalized.split("/")
+            if (
+                not normalized
+                or os.path.isabs(normalized)
+                or any(part in {"", ".", ".."} for part in parts)
+            ):
+                errors.append(
+                    f"{manifest_name}: invalid case-relative path {relative_name!r}"
+                )
+                continue
+
+            resolved = os.path.abspath(os.path.join(case_root, normalized))
+            if os.path.commonpath([case_root, resolved]) != case_root:
+                errors.append(
+                    f"{manifest_name}: path escapes case directory {relative_name!r}"
+                )
+                continue
+
+            if compared:
+                basename = os.path.basename(normalized).casefold()
+                previous = compared_basenames.get(basename)
+                if previous is not None:
+                    errors.append(
+                        f"{manifest_name}: {relative_name!r} and {previous!r} "
+                        "share a baseline basename"
+                    )
+                else:
+                    compared_basenames[basename] = relative_name
+
+    if not text_names and not binary_names and not required_names:
+        errors.append(
+            "no output assertions configured; a successful process exit alone "
+            "cannot validate a test case"
+        )
+    return errors
+
+
 def _required_output_path(test_project_dir: str, relative_name: str) -> str:
     """Resolve a required output path without allowing paths outside the case."""
     normalized = relative_name.replace("\\", "/")
@@ -373,6 +433,24 @@ def run_test(
     comparison_pairs = build_comparison_pairs(test_project_dir, relative_names, binary_names)
     required_script = os.path.join(test_project_dir, "autotest", "required.txt")
     required_names = get_optional_filename_list(required_script)
+
+    manifest_errors = _validate_case_manifests(
+        test_project_dir, relative_names, binary_names, required_names
+    )
+    if manifest_errors:
+        result = TestResult(
+            case_name=case_name,
+            case_dir=os.path.normpath(test_project_dir),
+            passed=False,
+            files_ok=False,
+            failure_reasons=manifest_errors,
+        )
+        logger.error(
+            "case=%s manifest validation failed: %s",
+            case_name, "; ".join(manifest_errors),
+        )
+        return result
+
     _remove_previous_required_outputs(test_project_dir, required_names)
 
     cmd = mpi_cmd + " " + exe_cmd + " 0 " + test_project_dir
