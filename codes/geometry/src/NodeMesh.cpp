@@ -107,5 +107,29 @@ void NodeMesh::AddPoint( Real xp, Real yp, Real zp )
     this->boxFlag = false;
 }
 
+void NodeMesh::ScaleAndTranslate( Real scale, Real tx, Real ty, Real tz )
+{
+    const size_t nNodes = this->GetNumberOfNodes();
+    for ( size_t iNode = 0; iNode < nNodes; ++ iNode )
+    {
+        this->xN[ iNode ] = this->xN[ iNode ] * scale + tx;
+        this->yN[ iNode ] = this->yN[ iNode ] * scale + ty;
+        this->zN[ iNode ] = this->zN[ iNode ] * scale + tz;
+    }
+    this->boxFlag = false;
+}
+
+void NodeMesh::TurnZAxisToYAxis()
+{
+    const size_t nNodes = this->GetNumberOfNodes();
+    for ( size_t iNode = 0; iNode < nNodes; ++ iNode )
+    {
+        const Real y = this->yN[ iNode ];
+        this->yN[ iNode ] = this->zN[ iNode ];
+        this->zN[ iNode ] = - y;
+    }
+    this->boxFlag = false;
+}
+
 
 EndNameSpace
