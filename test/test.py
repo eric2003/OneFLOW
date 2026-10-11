@@ -27,6 +27,7 @@ import json
 import os
 import sys
 import logging
+import math
 import time
 import shutil
 import subprocess
@@ -81,9 +82,23 @@ def cmp_float_str(str1: str, str2: str) -> bool:
     if len(tokens1) != len(tokens2):
         return False
     for token1, token2 in zip(tokens1, tokens2):
-        if not is_number(token1):
+        # Labels and integer/topology identifiers are semantic data, not
+        # approximate numbers. They must match exactly.
+        if not is_number(token1) or not is_number(token2):
+            if token1 != token2:
+                return False
             continue
-        if abs(float(token1) - float(token2)) > FLOAT_ABS_TOLERANCE:
+
+        value1 = float(token1)
+        value2 = float(token2)
+        # NaN/Inf must never make a malformed result look equivalent because
+        # comparisons involving NaN are false.
+        if not math.isfinite(value1) or not math.isfinite(value2):
+            if token1 != token2:
+                return False
+            # Even identical non-finite values are invalid numerical output.
+            return False
+        if abs(value1 - value2) > FLOAT_ABS_TOLERANCE:
             return False
     return True
 
