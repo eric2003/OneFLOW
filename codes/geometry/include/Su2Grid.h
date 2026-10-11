@@ -157,7 +157,7 @@ class Su2Grid
 {
 public:
     Su2Grid();
-    ~Su2Grid();
+    ~Su2Grid() = default;
 public:
     void ReadSu2Grid( GridMediator * gridMediator );
     void ReadSu2GridAscii( const std::string & fileName, const std::string & caseDir );

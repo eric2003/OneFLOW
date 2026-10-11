@@ -275,10 +275,6 @@ Su2Grid::Su2Grid()
     vtkmap[ VTK_TYPE::PYRAMID ] = 5;
 }
 
-Su2Grid::~Su2Grid()
-{
-}
-
 void Su2Grid::ReadSu2Grid( GridMediator * gridMediator )
 {
 }

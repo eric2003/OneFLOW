@@ -96,12 +96,14 @@ void ResidualTask::Run()
 
 void ResidualTask::CalcRes( int solverType, ResData & data )
 {
-    UnsGrid * grid = Zone::GetUnsGrid();
+    // Read-only residual aggregation: const grid + const field lookup.
+    const UnsGrid * grid = Zone::GetConstUnsGrid();
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
 
     int nEqu = solverInfo->nEqu;
 
-    MRField * res = ONEFLOW::GetFieldPointer< MRField >( grid, solverInfo->residualName );
+    const MRField * res =
+        ONEFLOW::GetFieldPointer< MRField >( grid, solverInfo->residualName );
 
     data.resave.Zero();
     data.resave.nCells =  grid->nCells;
@@ -129,10 +131,10 @@ void ResidualTask::CalcRes( int solverType, ResData & data )
         }
     }
 
-    RealField & xcc = grid->GetCellMesh().xcc;
-    RealField & ycc = grid->GetCellMesh().ycc;
-    RealField & zcc = grid->GetCellMesh().zcc;
-    RealField & vol = grid->GetCellMesh().vol;
+    const RealField & xcc = grid->GetCellMesh().xcc;
+    const RealField & ycc = grid->GetCellMesh().ycc;
+    const RealField & zcc = grid->GetCellMesh().zcc;
+    const RealField & vol = grid->GetCellMesh().vol;
 
     data.resmax.zid = grid->id;
 
