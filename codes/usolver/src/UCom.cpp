@@ -383,8 +383,6 @@ void HXDebug::DumpCellInfo( int iCell )
 
 void HXDebug::CheckNANField( const MRField * field )
 {
-    UnsGrid * grid = Zone::GetUnsGrid();
-
     int nEqu = field->GetNEqu();
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
