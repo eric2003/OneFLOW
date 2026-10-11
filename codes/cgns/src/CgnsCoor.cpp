@@ -179,9 +179,11 @@ void CgnsCoor::CopyCoorData( CgnsCoor * cgnsCoorIn )
          this->typeList.size() < coordinateCount ||
          this->nNodeList.size() < coordinateCount ||
          this->coor.size() < coordinateCount ||
+         this->coordinateBuffers.size() < static_cast< std::size_t >( coordinateCount ) ||
          cgnsCoorIn->typeList.size() < coordinateCount ||
          cgnsCoorIn->nNodeList.size() < coordinateCount ||
-         cgnsCoorIn->coor.size() < coordinateCount )
+         cgnsCoorIn->coor.size() < coordinateCount ||
+         cgnsCoorIn->coordinateBuffers.size() < static_cast< std::size_t >( coordinateCount ) )
     {
         throw std::runtime_error( "CgnsCoor::CopyCoorData: inconsistent coordinate metadata" );
     }
@@ -329,7 +331,37 @@ void CgnsCoor::ReadCgnsGridCoordinates( CgnsCoor * cgnsCoorIn )
     NodeMesh & nodeMesh = this->RequireNodeMesh();
     NodeMesh & nodeMeshIn = cgnsCoorIn->RequireNodeMesh();
 
-    this->nCoor = cgnsCoorIn->nCoor;
+    const int coordinateCount = cgnsCoorIn->nCoor;
+    if ( coordinateCount <= 0 || coordinateCount > cgnsCoorIn->ndim ||
+         cgnsCoorIn->typeList.size() < static_cast< std::size_t >( coordinateCount ) ||
+         cgnsCoorIn->nNodeList.size() < static_cast< std::size_t >( coordinateCount ) ||
+         cgnsCoorIn->coorNameList.size() < static_cast< std::size_t >( coordinateCount ) ||
+         cgnsCoorIn->coor.size() < static_cast< std::size_t >( coordinateCount ) ||
+         cgnsCoorIn->coordinateBuffers.size() < static_cast< std::size_t >( coordinateCount ) )
+    {
+        throw std::runtime_error( "CgnsCoor::ReadCgnsGridCoordinates: inconsistent source coordinate metadata" );
+    }
+
+    const HXSize_t nodeCount = cgnsCoorIn->nNodeList[ 0 ];
+    if ( nodeCount == 0 ||
+         nodeMeshIn.xN.size() != nodeCount ||
+         nodeMeshIn.yN.size() != nodeCount ||
+         nodeMeshIn.zN.size() != nodeCount )
+    {
+        throw std::runtime_error( "CgnsCoor::ReadCgnsGridCoordinates: source NodeMesh size does not match coordinate data" );
+    }
+    for ( int iCoor = 0; iCoor < coordinateCount; ++ iCoor )
+    {
+        if ( cgnsCoorIn->nNodeList[ iCoor ] != nodeCount ||
+             cgnsCoorIn->coor[ iCoor ] == nullptr ||
+             ( cgnsCoorIn->typeList[ iCoor ] != RealSingle &&
+               cgnsCoorIn->typeList[ iCoor ] != RealDouble ) )
+        {
+            throw std::runtime_error( "CgnsCoor::ReadCgnsGridCoordinates: incompatible source coordinate buffer" );
+        }
+    }
+
+    this->nCoor = coordinateCount;
     this->typeList = cgnsCoorIn->typeList;
     this->nNodeList = cgnsCoorIn->nNodeList;
     this->coorNameList = cgnsCoorIn->coorNameList;
