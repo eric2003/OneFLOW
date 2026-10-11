@@ -59,6 +59,23 @@ TEST(NodeMeshBoundsTest, ResizingInvalidatesCachedBounds)
     EXPECT_FALSE( mesh.boxFlag );
 }
 
+TEST(NodeMeshBoundsTest, CopyOwnsIndependentCoordinateStorage)
+{
+    ONEFLOW::NodeMesh original;
+    original.AddPoint( 1.0, 2.0, 3.0 );
+    original.CalcMinMaxBox();
+
+    ONEFLOW::NodeMesh copy = original;
+    copy.SetPoint( 0, -4.0, -5.0, -6.0 );
+
+    EXPECT_DOUBLE_EQ( original.xN[ 0 ], 1.0 );
+    EXPECT_DOUBLE_EQ( original.yN[ 0 ], 2.0 );
+    EXPECT_DOUBLE_EQ( original.zN[ 0 ], 3.0 );
+    EXPECT_DOUBLE_EQ( copy.xN[ 0 ], -4.0 );
+    EXPECT_FALSE( copy.boxFlag );
+    EXPECT_TRUE( original.boxFlag );
+}
+
 TEST(NodeMeshBoundsTest, PointValueInterfaceReadsSoAStorage)
 {
     ONEFLOW::NodeMesh mesh;
