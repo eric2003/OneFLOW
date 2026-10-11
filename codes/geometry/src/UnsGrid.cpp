@@ -351,56 +351,61 @@ void UnsGrid::WriteGridFaceTopology1D( DataBook * databook )
     ONEFLOW::HXWrite( databook, cellTypes );
     ONEFLOW::HXWrite( databook, faceTypes );
 
-    IntField numFaceNode( this->nFaces );
-
-    for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
-    {
-        numFaceNode[ iFace ] = this->GetFaceTopo().GetFaces()[ iFace ].size();
-    }
-
-    ONEFLOW::HXWrite( databook, numFaceNode );
-
-    IntField faceNodeMem;
-
-    for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
-    {
-        int nNodes = numFaceNode[ iFace ];
-        for ( int iNode = 0; iNode < nNodes; ++ iNode )
-        {
-            faceNodeMem.push_back( this->GetFaceTopo().GetFaces()[ iFace ][ iNode ] );
-        }
-    }
-    ONEFLOW::HXWrite( databook, faceNodeMem );
-
-    ONEFLOW::HXWrite( databook, this->GetFaceTopo().GetLeftCells() );
-    ONEFLOW::HXWrite( databook, this->GetFaceTopo().GetRightCells() );
+    this->WriteGridFaceTopology( databook );
 }
 
 void UnsGrid::WriteGridFaceTopology( DataBook * databook )
 {
-    IntField numFaceNode( this->nFaces );
+    const FaceTopo & faceTopo = this->GetFaceTopo();
+    const auto & faces = faceTopo.GetFaces();
+    const auto & leftCells = faceTopo.GetLeftCells();
+    const auto & rightCells = faceTopo.GetRightCells();
 
-    for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
+    if ( this->nFaces < 0 || this->nNodes < 0 )
     {
-        numFaceNode[ iFace ] = this->GetFaceTopo().GetFaces()[ iFace ].size();
+        throw std::logic_error(
+            "UnsGrid::WriteGridFaceTopology: negative grid count" );
+    }
+    if ( faces.size() != static_cast< std::size_t >( this->nFaces ) )
+    {
+        throw std::logic_error(
+            "UnsGrid::WriteGridFaceTopology: face connectivity count does not match face count" );
+    }
+    if ( leftCells.size() != static_cast< std::size_t >( this->nFaces ) ||
+         rightCells.size() != static_cast< std::size_t >( this->nFaces ) )
+    {
+        throw std::logic_error(
+            "UnsGrid::WriteGridFaceTopology: face-cell connectivity count does not match face count" );
     }
 
-    ONEFLOW::HXWrite( databook, numFaceNode );
-
+    IntField numFaceNode( this->nFaces );
     IntField faceNodeMem;
 
     for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
     {
-        int nNodes = numFaceNode[ iFace ];
-        for ( int iNode = 0; iNode < nNodes; ++ iNode )
+        const auto & faceNodes = faces[ iFace ];
+        if ( faceNodes.size() > static_cast< std::size_t >( std::numeric_limits< int >::max() ) )
         {
-            faceNodeMem.push_back( this->GetFaceTopo().GetFaces()[ iFace ][ iNode ] );
+            throw std::length_error(
+                "UnsGrid::WriteGridFaceTopology: face-node count exceeds supported range" );
+        }
+        numFaceNode[ iFace ] = static_cast< int >( faceNodes.size() );
+
+        for ( int nodeId : faceNodes )
+        {
+            if ( nodeId < 0 || nodeId >= this->nNodes )
+            {
+                throw std::out_of_range(
+                    "UnsGrid::WriteGridFaceTopology: face node ID is out of range" );
+            }
+            faceNodeMem.push_back( nodeId );
         }
     }
-    ONEFLOW::HXWrite( databook, faceNodeMem );
 
-    ONEFLOW::HXWrite( databook, this->GetFaceTopo().GetLeftCells() );
-    ONEFLOW::HXWrite( databook, this->GetFaceTopo().GetRightCells() );
+    ONEFLOW::HXWrite( databook, numFaceNode );
+    ONEFLOW::HXWrite( databook, faceNodeMem );
+    ONEFLOW::HXWrite( databook, leftCells );
+    ONEFLOW::HXWrite( databook, rightCells );
 }
 
 void UnsGrid::WriteBoundaryTopology( DataBook * databook )
