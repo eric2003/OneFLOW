@@ -101,3 +101,41 @@ TEST(NodeMeshBoundsTest, PointValueInterfaceRejectsOutOfRangeIndex)
     EXPECT_THROW( mesh.GetPoint( 1 ), std::out_of_range );
     EXPECT_THROW( mesh.SetPoint( 1, 4.0, 5.0, 6.0 ), std::out_of_range );
 }
+
+
+TEST(NodeMeshBoundsTest, ScaleAndTranslateUpdatesCoordinatesAndInvalidatesBounds)
+{
+    ONEFLOW::NodeMesh mesh;
+    mesh.AddPoint( 1.0, -2.0, 3.0 );
+    mesh.CalcMinMaxBox();
+    ASSERT_TRUE( mesh.boxFlag );
+
+    mesh.ScaleAndTranslate( 2.0, 10.0, 20.0, -4.0 );
+
+    EXPECT_FALSE( mesh.boxFlag );
+    const auto point = mesh.GetPoint( 0 );
+    EXPECT_DOUBLE_EQ( point.x, 12.0 );
+    EXPECT_DOUBLE_EQ( point.y, 16.0 );
+    EXPECT_DOUBLE_EQ( point.z, 2.0 );
+
+    mesh.CalcMinMaxBox();
+    EXPECT_DOUBLE_EQ( mesh.pmin[ 0 ], 12.0 );
+    EXPECT_DOUBLE_EQ( mesh.pmax[ 1 ], 16.0 );
+    EXPECT_DOUBLE_EQ( mesh.pmin[ 2 ], 2.0 );
+}
+
+TEST(NodeMeshBoundsTest, AxisTransformUpdatesCoordinatesAndInvalidatesBounds)
+{
+    ONEFLOW::NodeMesh mesh;
+    mesh.AddPoint( 1.0, 2.0, 3.0 );
+    mesh.CalcMinMaxBox();
+    ASSERT_TRUE( mesh.boxFlag );
+
+    mesh.TurnZAxisToYAxis();
+
+    EXPECT_FALSE( mesh.boxFlag );
+    const auto point = mesh.GetPoint( 0 );
+    EXPECT_DOUBLE_EQ( point.x, 1.0 );
+    EXPECT_DOUBLE_EQ( point.y, 3.0 );
+    EXPECT_DOUBLE_EQ( point.z, -2.0 );
+}
