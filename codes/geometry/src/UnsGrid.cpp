@@ -197,6 +197,12 @@ void UnsGrid::NormalizeBc()
                 throw std::out_of_range(
                     "UnsGrid::NormalizeBc: internal-face right cell ID is out of range" );
             }
+
+            if ( rightCell == leftCell )
+            {
+                throw std::logic_error(
+                    "UnsGrid::NormalizeBc: internal face must connect distinct cells" );
+            }
         }
     }
 

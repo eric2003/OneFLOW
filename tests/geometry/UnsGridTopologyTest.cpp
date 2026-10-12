@@ -69,6 +69,21 @@ TEST(UnsGridTopologyTest, RejectsInvalidLeftCellBeforeChangingBoundaryCells)
     EXPECT_EQ( rightCells[ 1 ], -1 );
 }
 
+TEST(UnsGridTopologyTest, RejectsInternalFaceConnectingCellToItselfBeforeChangingBoundaryCells)
+{
+    ONEFLOW::UnsGrid grid;
+    grid.Init();
+    SetFaceCellConnectivity( grid );
+    grid.GetFaceTopo().GetRightCells()[ 2 ] = 0;
+
+    EXPECT_THROW( grid.NormalizeBc(), std::logic_error );
+
+    const auto & rightCells = grid.GetFaceTopo().GetRightCells();
+    EXPECT_EQ( rightCells[ 0 ], -1 );
+    EXPECT_EQ( rightCells[ 1 ], -1 );
+    EXPECT_EQ( rightCells[ 2 ], 0 );
+}
+
 TEST(UnsGridTopologyTest, RejectsConnectivityArrayLengthMismatch)
 {
     ONEFLOW::UnsGrid grid;
