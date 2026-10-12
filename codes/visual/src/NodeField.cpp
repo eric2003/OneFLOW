@@ -149,4 +149,54 @@ void ApplyBoundaryConditionToNodeField( RealField & qNodeField, const RealField 
     }
 }
 
+
+std::unique_ptr<MRField> AllocateCellField( int nEqu )
+{
+    // Cell storage includes ghost/boundary cells (nCells + nBFaces).
+    const UnsGrid * grid = Zone::GetConstUnsGrid();
+    int nTCell = grid->nCells + grid->nBFaces;
+    return std::make_unique<MRField>( nEqu, nTCell );
+}
+
+std::unique_ptr<MRField> InterpolateNodeToCell( const RealField & qn )
+{
+    auto fc = AllocateCellField( 1 );
+    InterpolateNodeToCellForComponent( ( * fc )[ 0 ], qn );
+    return fc;
+}
+
+void InterpolateNodeToCellForComponent( RealField & qCellField, const RealField & qNodeField )
+{
+    // Inverse of face-based cell-to-node accumulation: average node values to cells.
+    const UnsGrid * grid = Zone::GetConstUnsGrid();
+    const FaceTopo * faceTopo = &grid->GetFaceTopo();
+    const LinkField & f2n = faceTopo->GetFaces();
+
+    int nFaces = grid->nFaces;
+    int nTCell = grid->nCells + grid->nBFaces;
+    RealField nCount( nTCell );
+    nCount = 0.0;
+    qCellField = 0.0;
+
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
+    {
+        int lc = faceTopo->GetLeftCells()[ iFace ];
+        int rc = faceTopo->GetRightCells()[ iFace ];
+        int fnNode = f2n[ iFace ].size();
+        for ( int iNode = 0; iNode < fnNode; ++ iNode )
+        {
+            int nodeId = f2n[ iFace ][ iNode ];
+            qCellField[ lc ] += qNodeField[ nodeId ];
+            nCount[ lc ] += 1.0;
+            qCellField[ rc ] += qNodeField[ nodeId ];
+            nCount[ rc ] += 1.0;
+        }
+    }
+
+    for ( int iCell = 0; iCell < nTCell; ++ iCell )
+    {
+        qCellField[ iCell ] /= ( nCount[ iCell ] + SMALL );
+    }
+}
+
 EndNameSpace

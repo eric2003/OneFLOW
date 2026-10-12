@@ -42,6 +42,11 @@ public:
     void Free();
 };
 
+// Multi-solver / multi-level field slots (logistics for algorithm plugins).
+// Layout: data[zone] -> BasicBgField::data[solverIndex][fid][gridLevel]
+//   fid: 0 = FLOW, 1 = RHS (see BasicBgField::Init)
+// Each slot is FieldHome::CreateField() -> unique_ptr<FieldWrap> owning MRField.
+// GetFieldWrap returns a non-owning raw view (.get()) for solvers to read/write in place.
 class BgField
 {
 public:
@@ -53,6 +58,7 @@ public:
     static bool flag;
     static void Init();
     static void Free();
+    // Non-owning: lifetime owned by BgField::data[zid].
     static FieldWrap * GetFieldWrap( int zid, int solverIndex, int fid, int gl );
 };
 

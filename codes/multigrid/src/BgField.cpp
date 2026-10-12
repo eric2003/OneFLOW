@@ -62,6 +62,7 @@ void BasicBgField::Init()
             {
                 GridState::gridLevel = gl;
                 
+                // CreateField: owned FieldWrap+MRField for this solver/level/slot.
                 this->data[ solverIndex ][ fid ][ gl ] = FieldHome::CreateField();
             }
         }

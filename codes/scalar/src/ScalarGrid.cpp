@@ -1596,7 +1596,7 @@ void ScalarGrid::Normalize()
 	this->SetBcGhostCell();
 }
 
-void ScalarGrid::GetSId( int i_interface, int & sId )
+void ScalarGrid::GetSId( int i_interface, int & sId ) const
 {
 	const auto & interfaceToBcFace = this->scalarIFace->interface_to_bcface;
 	if ( i_interface < 0 || static_cast< size_t >( i_interface ) >= interfaceToBcFace.size() )

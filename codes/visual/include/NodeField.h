@@ -44,6 +44,11 @@ void InterpolateCellToNodeForComponent( RealField & qNodeField, const RealField 
 // BC correction on node accumulation; qField is read-only cell data.
 void ApplyBoundaryConditionToNodeField( RealField & qNodeField, const RealField & qField, RealField & nCount, int bcType, bool twoSide );
 
+// Symmetric logistics: node-centered -> cell-centered (caller owns result).
+std::unique_ptr<MRField> AllocateCellField( int nEqu = 1 );
+std::unique_ptr<MRField> InterpolateNodeToCell( const RealField & qn );
+void InterpolateNodeToCellForComponent( RealField & qCellField, const RealField & qNodeField );
+
 template < typename T >
 void ReorderList( HXVector< T > & x, IntField & indexList )
 {

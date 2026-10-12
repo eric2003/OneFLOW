@@ -261,7 +261,7 @@ public:
     void CalcInterfaceToBcFace();
     void Normalize();
 public:
-    void GetSId( int i_interface, int & sId );
+    void GetSId( int i_interface, int & sId ) const;
     void GetTId( int i_interface, int & tId );
 public:
     void DumpCalcGrid();

@@ -486,7 +486,8 @@ std::unique_ptr< ScalarFieldRecord > PrepareRecvScalarFieldRecord()
 
 void PrepareGeomSendData()
 {
-    ScalarGrid & grid = ScalarZone::GetGridReference();
+    // Geometry export is read-only on the scalar grid.
+    const ScalarGrid & grid = ScalarZone::GetConstGridReference();
     ScalarIFace & scalarIFace = *grid.scalarIFace;
 
     int nNei = scalarIFace.data.size();
