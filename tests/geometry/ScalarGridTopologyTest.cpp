@@ -6,6 +6,7 @@
 #include "ScalarIFace.h"
 #include "DataBook.h"
 #include "DataBaseIO.h"
+#include "Constant.h"
 
 TEST(ScalarGridTopologyTest, CalcC2CRejectsInvalidInternalCellReferences)
 {
