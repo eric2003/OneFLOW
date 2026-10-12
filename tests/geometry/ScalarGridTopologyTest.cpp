@@ -876,3 +876,32 @@ TEST( ScalarGridTopologyTest, PushElementRejectsOutOfRangeCgnsNodeWithoutInvalid
 	EXPECT_EQ( grid.nFaces, 1 );
 	EXPECT_EQ( grid.nBFaces, 1 );
 }
+
+
+TEST( ScalarGridTopologyTest, GenerateGridBuildsOneDimensionalUnstructuredMesh )
+{
+	ONEFLOW::ScalarGrid grid;
+	grid.GenerateGrid( 4, 0.0, 3.0 );
+
+	ASSERT_EQ( grid.GetNNodes(), 4 );
+	ASSERT_EQ( grid.GetNCells(), 3 );
+	EXPECT_EQ( grid.xn[ 0 ], 0.0 );
+	EXPECT_EQ( grid.xn[ 1 ], 1.0 );
+	EXPECT_EQ( grid.xn[ 2 ], 2.0 );
+	EXPECT_EQ( grid.xn[ 3 ], 3.0 );
+	EXPECT_EQ( grid.elements.GetNElements(), 3u );
+	EXPECT_EQ( grid.elements[ 0 ], ( std::vector< int >{ 0, 1 } ) );
+	EXPECT_EQ( grid.elements[ 1 ], ( std::vector< int >{ 1, 2 } ) );
+	EXPECT_EQ( grid.elements[ 2 ], ( std::vector< int >{ 2, 3 } ) );
+	EXPECT_EQ( grid.eTypes[ 0 ], ONEFLOW::BAR_2 );
+	EXPECT_EQ( grid.eTypes[ 1 ], ONEFLOW::BAR_2 );
+	EXPECT_EQ( grid.eTypes[ 2 ], ONEFLOW::BAR_2 );
+
+	// Source-mesh generation does not eagerly construct derived face topology.
+	EXPECT_EQ( grid.GetNFaces(), 0 );
+	EXPECT_EQ( grid.GetNBFaces(), 0 );
+	EXPECT_TRUE( grid.xfc.data.empty() );
+	ASSERT_EQ( grid.scalarBccos->bccos.size(), 2u );
+	EXPECT_EQ( grid.scalarBccos->bccos[ 0 ]->vertexList, ( std::vector< int >{ 0 } ) );
+	EXPECT_EQ( grid.scalarBccos->bccos[ 1 ]->vertexList, ( std::vector< int >{ 3 } ) );
+}

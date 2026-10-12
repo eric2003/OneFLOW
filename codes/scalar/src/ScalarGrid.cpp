@@ -565,9 +565,12 @@ void ScalarGrid::GenerateGrid( int ni, Real xmin, Real xmax )
 		int p1 = i;
 		int p2 = i + 1;
 
-		int eType = ONEFLOW::BAR_2;
+		const int eType = ONEFLOW::BAR_2;
 
-		this->PushElement( p1, p2, eType );
+		// This batch builder invalidated derived data once in ResetMeshData().
+		// Append source connectivity directly instead of resetting topology per cell.
+		this->elements.AddElem( std::vector< int >{ p1, p2 } );
+		this->eTypes.AddData( eType );
 	}
 
 	auto scalarBccoL = std::make_unique< ScalarBcco >();
