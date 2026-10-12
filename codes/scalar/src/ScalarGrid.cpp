@@ -1928,35 +1928,54 @@ void ScalarGrid::WriteBoundaryTopology( DataBook * databook )
 void ScalarGrid::ReadBoundaryTopology( DataBook * databook )
 {
 	std::cout << "Setting the boundary condition......\n";
-	ONEFLOW::HXRead( databook, this->nBFaces );
+	int boundaryFaceCount = 0;
+	ONEFLOW::HXRead( databook, boundaryFaceCount );
 
-	if ( this->nBFaces < 0 || this->nBFaces > this->nFaces )
+	if ( boundaryFaceCount < 0 || boundaryFaceCount > this->nFaces )
 	{
 		throw std::runtime_error( "ScalarGrid::ReadBoundaryTopology: boundary face count is outside the total face range" );
 	}
 
-	this->bcTypes.Resize( this->nBFaces );
-	this->bcNameIds.Resize( this->nBFaces );
+	// Keep serialized boundary state local until the interface topology is consistent.
+	IntList boundaryTypes;
+	IntList boundaryNameIds;
+	boundaryTypes.Resize( boundaryFaceCount );
+	boundaryNameIds.Resize( boundaryFaceCount );
+	ONEFLOW::HXRead( databook, boundaryTypes.data );
+	ONEFLOW::HXRead( databook, boundaryNameIds.data );
 
-	//Setting boundary conditions
-	ONEFLOW::HXRead( databook, this->bcTypes.data );
-	ONEFLOW::HXRead( databook, this->bcNameIds.data );
-
-	this->scalarIFace->ReadInterfaceTopology( databook );
+	ScalarIFace stagedInterface;
+	stagedInterface.ReadInterfaceTopology( databook );
 
 	int nInterfaceBcFaces = 0;
-	for ( int iBFace = 0; iBFace < this->nBFaces; ++ iBFace )
+	for ( int iBFace = 0; iBFace < boundaryFaceCount; ++ iBFace )
 	{
-		if ( BC::IsInterfaceBc( this->bcTypes[ iBFace ] ) )
+		if ( BC::IsInterfaceBc( boundaryTypes[ iBFace ] ) )
 		{
 			++ nInterfaceBcFaces;
 		}
 	}
-	if ( nInterfaceBcFaces != this->scalarIFace->GetNIFaces() )
+	if ( nInterfaceBcFaces != stagedInterface.GetNIFaces() )
 	{
 		throw std::runtime_error(
 			"ScalarGrid::ReadBoundaryTopology: interface boundary-face count does not match interface topology" );
 	}
+
+	// Preserve runtime send/receive storage while replacing only serialized topology.
+	if ( this->scalarIFace == nullptr )
+		this->scalarIFace = std::make_unique< ScalarIFace >();
+	this->scalarIFace->zones = std::move( stagedInterface.zones );
+	this->scalarIFace->target_interfaces = std::move( stagedInterface.target_interfaces );
+	this->scalarIFace->interface_to_bcface = std::move( stagedInterface.interface_to_bcface );
+	this->scalarIFace->data = std::move( stagedInterface.data );
+	this->scalarIFace->iglobalfaces.clear();
+	this->scalarIFace->cells.clear();
+	this->scalarIFace->global_to_local_interfaces.clear();
+	this->scalarIFace->local_to_global_interfaces.clear();
+
+	this->bcTypes.data = std::move( boundaryTypes.data );
+	this->bcNameIds.data = std::move( boundaryNameIds.data );
+	this->nBFaces = boundaryFaceCount;
 }
 
 //for partition

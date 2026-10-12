@@ -364,6 +364,10 @@ TEST( ScalarGridTopologyTest, ReadBoundaryTopologyRejectsInterfaceCountMismatch 
 {
     ONEFLOW::ScalarGrid grid;
     grid.nFaces = 1;
+    grid.nBFaces = 0;
+    grid.bcTypes.AddData( 77 );
+    grid.bcNameIds.AddData( 88 );
+    grid.scalarIFace->zones.push_back( 123 );
 
     ONEFLOW::DataBook databook;
     const int nBoundaryFaces = 1;
@@ -377,4 +381,11 @@ TEST( ScalarGridTopologyTest, ReadBoundaryTopologyRejectsInterfaceCountMismatch 
     databook.MoveToBegin();
 
     EXPECT_THROW( grid.ReadBoundaryTopology( &databook ), std::runtime_error );
+    EXPECT_EQ( grid.nBFaces, 0 );
+    ASSERT_EQ( grid.bcTypes.GetNElements(), 1u );
+    EXPECT_EQ( grid.bcTypes[ 0 ], 77 );
+    ASSERT_EQ( grid.bcNameIds.GetNElements(), 1u );
+    EXPECT_EQ( grid.bcNameIds[ 0 ], 88 );
+    ASSERT_EQ( grid.scalarIFace->zones.size(), 1u );
+    EXPECT_EQ( grid.scalarIFace->zones[ 0 ], 123 );
 }
