@@ -43,6 +43,7 @@ public:
 };
 
 int GetElementNodeNumbers( int eType );
+int GetElementDimension( int eType );
 bool IsBasicVolumeElementType( int eType );
 
 EndNameSpace

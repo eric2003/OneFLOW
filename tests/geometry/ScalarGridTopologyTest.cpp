@@ -9,6 +9,7 @@
 #include "DataBook.h"
 #include "DataBaseIO.h"
 #include "Constant.h"
+#include "ElementHome.h"
 
 TEST(ScalarGridTopologyTest, CalcC2CRejectsInvalidInternalCellReferences)
 {
@@ -1005,4 +1006,36 @@ TEST( ScalarGridTopologyTest, GenerateGridBuildsOneDimensionalUnstructuredMesh )
 	ASSERT_EQ( grid.scalarBccos->bccos.size(), 2u );
 	EXPECT_EQ( grid.scalarBccos->bccos[ 0 ]->vertexList, ( std::vector< int >{ 0 } ) );
 	EXPECT_EQ( grid.scalarBccos->bccos[ 1 ]->vertexList, ( std::vector< int >{ 3 } ) );
+}
+
+
+TEST( ElementDimensionTest, ReportsIntrinsicDimensionIndependentOfMeshDimension )
+{
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::NODE ), 0 );
+
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::BAR_2 ), 1 );
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::BAR_3 ), 1 );
+
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::TRI_3 ), 2 );
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::TRI_6 ), 2 );
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::QUAD_4 ), 2 );
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::QUAD_8 ), 2 );
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::QUAD_9 ), 2 );
+
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::TETRA_4 ), 3 );
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::TETRA_10 ), 3 );
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::PYRA_5 ), 3 );
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::PYRA_14 ), 3 );
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::PENTA_6 ), 3 );
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::PENTA_15 ), 3 );
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::PENTA_18 ), 3 );
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::HEXA_8 ), 3 );
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::HEXA_20 ), 3 );
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::HEXA_27 ), 3 );
+}
+
+TEST( ElementDimensionTest, RejectsInvalidOrUnsupportedElementTypes )
+{
+    EXPECT_EQ( ONEFLOW::GetElementDimension( -1 ), -1 );
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::NofValidElementTypes ), -1 );
 }

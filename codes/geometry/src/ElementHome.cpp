@@ -76,6 +76,39 @@ int GetElementNodeNumbers( int eType )
     return nodeNumber;
 }
 
+int GetElementDimension( int eType )
+{
+    if ( eType < 0 || eType >= NofValidElementTypes ) return -1;
+
+    switch ( eType )
+    {
+    case NODE:
+        return 0;
+    case BAR_2:
+    case BAR_3:
+        return 1;
+    case TRI_3:
+    case TRI_6:
+    case QUAD_4:
+    case QUAD_8:
+    case QUAD_9:
+        return 2;
+    case TETRA_4:
+    case TETRA_10:
+    case PYRA_5:
+    case PYRA_14:
+    case PENTA_6:
+    case PENTA_15:
+    case PENTA_18:
+    case HEXA_8:
+    case HEXA_20:
+    case HEXA_27:
+        return 3;
+    default:
+        return -1;
+    }
+}
+
 bool IsBasicVolumeElementType( int eType )
 {
     return ElementHome::GetUnitElement( eType ).IsBasicVolumeElementType( eType );
