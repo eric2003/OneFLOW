@@ -237,3 +237,83 @@ TEST(ScalarGridTopologyTest, CalcTopologyRejectsDuplicateCellNodesWithoutResetti
     ASSERT_EQ(grid.lc.GetNElements(), 1u);
     EXPECT_EQ(grid.lc[0], 29);
 }
+
+
+namespace
+{
+void SetScalarFaceAdjacency( ONEFLOW::ScalarGrid & grid )
+{
+    grid.nCells = 2;
+    grid.nFaces = 3;
+    grid.nBFaces = 2;
+    grid.lc.AddData( 0 );
+    grid.lc.AddData( 1 );
+    grid.lc.AddData( 0 );
+    grid.rc.AddData( -1 );
+    grid.rc.AddData( -1 );
+    grid.rc.AddData( 1 );
+}
+}
+
+TEST( ScalarGridTopologyTest, NormalizeBcAssignsGhostCellsAndPreservesInternalAdjacency )
+{
+    ONEFLOW::ScalarGrid grid;
+    SetScalarFaceAdjacency( grid );
+
+    grid.NormalizeBc();
+
+    ASSERT_EQ( grid.rc.GetNElements(), 3u );
+    EXPECT_EQ( grid.rc[ 0 ], 2 );
+    EXPECT_EQ( grid.rc[ 1 ], 3 );
+    EXPECT_EQ( grid.rc[ 2 ], 1 );
+}
+
+TEST( ScalarGridTopologyTest, NormalizeBcRejectsSelfConnectedInternalFaceBeforeMutation )
+{
+    ONEFLOW::ScalarGrid grid;
+    SetScalarFaceAdjacency( grid );
+    grid.rc[ 2 ] = 0;
+
+    EXPECT_THROW( grid.NormalizeBc(), std::logic_error );
+
+    EXPECT_EQ( grid.rc[ 0 ], -1 );
+    EXPECT_EQ( grid.rc[ 1 ], -1 );
+    EXPECT_EQ( grid.rc[ 2 ], 0 );
+}
+
+TEST( ScalarGridTopologyTest, NormalizeBcRejectsInvalidLeftCellBeforeMutation )
+{
+    ONEFLOW::ScalarGrid grid;
+    SetScalarFaceAdjacency( grid );
+    grid.lc[ 1 ] = 2;
+
+    EXPECT_THROW( grid.NormalizeBc(), std::out_of_range );
+
+    EXPECT_EQ( grid.rc[ 0 ], -1 );
+    EXPECT_EQ( grid.rc[ 1 ], -1 );
+}
+
+TEST( ScalarGridTopologyTest, NormalizeBcRejectsBoundaryFaceWithUnexpectedRightCell )
+{
+    ONEFLOW::ScalarGrid grid;
+    SetScalarFaceAdjacency( grid );
+    grid.rc[ 0 ] = 1;
+
+    EXPECT_THROW( grid.NormalizeBc(), std::logic_error );
+
+    EXPECT_EQ( grid.rc[ 0 ], 1 );
+    EXPECT_EQ( grid.rc[ 1 ], -1 );
+}
+
+TEST( ScalarGridTopologyTest, NormalizeBcRejectsConnectivitySizeMismatch )
+{
+    ONEFLOW::ScalarGrid grid;
+    SetScalarFaceAdjacency( grid );
+    grid.rc.data.pop_back();
+
+    EXPECT_THROW( grid.NormalizeBc(), std::logic_error );
+
+    EXPECT_EQ( grid.rc.GetNElements(), 2u );
+    EXPECT_EQ( grid.rc[ 0 ], -1 );
+    EXPECT_EQ( grid.rc[ 1 ], -1 );
+}
