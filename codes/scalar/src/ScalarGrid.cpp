@@ -408,7 +408,6 @@ void ScalarGrid::ValidateFaceTopology( const char * operation ) const
 		{
 			const int expectedGhostCell = cellCount + iFace;
 			const bool leftIsPhysical = leftCell >= 0 && leftCell < cellCount;
-			const bool rightIsPhysical = rightCell >= 0 && rightCell < cellCount;
 			const bool rightIsBoundarySentinel = rightCell == -1;
 			const bool rightIsExpectedGhost = rightCell == expectedGhostCell;
 
