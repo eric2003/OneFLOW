@@ -857,8 +857,8 @@ TEST( ScalarGridTopologyTest, PushElementRejectsOutOfRangeCgnsNodeWithoutInvalid
 	grid.nFaces = 1;
 	grid.nBFaces = 1;
 
-	const ONEFLOW::CgIntField invalidConnectivity{ 1, 3 };
-	EXPECT_THROW( grid.PushElement( const_cast< ONEFLOW::CgIntField & >( invalidConnectivity ), ONEFLOW::BAR_2 ),
+	ONEFLOW::CgIntField invalidConnectivity{ 1, 3 };
+	EXPECT_THROW( grid.PushElement( invalidConnectivity, ONEFLOW::BAR_2 ),
 		std::invalid_argument );
 
 	ASSERT_EQ( grid.elements.GetNElements(), 1u );
