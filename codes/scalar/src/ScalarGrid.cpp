@@ -1922,6 +1922,15 @@ void ScalarGrid::NormalizeBc()
 
 void ScalarGrid::CreateNodes( int numberOfNodes )
 {
+	if ( numberOfNodes < 0 )
+	{
+		throw std::invalid_argument( "ScalarGrid::CreateNodes: number of nodes must be non-negative" );
+	}
+
+	// Node storage defines the index space used by both topology and geometry.
+	// Invalidate derived data before changing that index space.
+	this->ResetTopologyData();
+
 	this->xn.Resize( numberOfNodes );
 	this->yn.Resize( numberOfNodes );
 	this->zn.Resize( numberOfNodes );
