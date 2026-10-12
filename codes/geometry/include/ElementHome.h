@@ -33,7 +33,7 @@ public:
     ElementHome() = default;
     ~ElementHome() = default;
 private:
-    static HXVector< std::unique_ptr< UnitElement > > unitElement;
+    static HXVector< std::unique_ptr< UnitElement > > unitElements;
 public:
     static int GetNumberOfUnitElements();
     static UnitElement & GetUnitElement( int elementType );
