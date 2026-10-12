@@ -661,7 +661,35 @@ TEST( ScalarGridTopologyTest, CalcTopologyResetsInterfaceTopology )
     neighbor.recv_ifaces = { 1 };
     grid.scalarIFace->data.push_back( neighbor );
 
+    // Geometry metrics are derived from the face/cell topology and must not
+    // survive a successful topology rebuild.
+    grid.xfc.AddData( 10.0 );
+    grid.yfc.AddData( 11.0 );
+    grid.zfc.AddData( 12.0 );
+    grid.xfn.AddData( 13.0 );
+    grid.yfn.AddData( 14.0 );
+    grid.zfn.AddData( 15.0 );
+    grid.area.AddData( 16.0 );
+    grid.xcc.AddData( 17.0 );
+    grid.ycc.AddData( 18.0 );
+    grid.zcc.AddData( 19.0 );
+    grid.vol.AddData( 20.0 );
+    grid.nTCells = 21;
+
     grid.CalcTopology();
+
+    EXPECT_TRUE( grid.xfc.data.empty() );
+    EXPECT_TRUE( grid.yfc.data.empty() );
+    EXPECT_TRUE( grid.zfc.data.empty() );
+    EXPECT_TRUE( grid.xfn.data.empty() );
+    EXPECT_TRUE( grid.yfn.data.empty() );
+    EXPECT_TRUE( grid.zfn.data.empty() );
+    EXPECT_TRUE( grid.area.data.empty() );
+    EXPECT_TRUE( grid.xcc.data.empty() );
+    EXPECT_TRUE( grid.ycc.data.empty() );
+    EXPECT_TRUE( grid.zcc.data.empty() );
+    EXPECT_TRUE( grid.vol.data.empty() );
+    EXPECT_EQ( grid.nTCells, 0 );
 
     EXPECT_TRUE( grid.scalarIFace->iglobalfaces.empty() );
     EXPECT_TRUE( grid.scalarIFace->zones.empty() );
