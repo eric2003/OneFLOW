@@ -341,6 +341,28 @@ TEST( ScalarGridTopologyTest, WriteGridFaceTopologyRejectsInconsistentParallelAr
     EXPECT_THROW( grid.WriteGridFaceTopology( &databook ), std::logic_error );
 }
 
+TEST( ScalarGridTopologyTest, WriteGridFaceTopologyRejectsDuplicateNodeIndices )
+{
+    ONEFLOW::ScalarGrid grid;
+    grid.nNodes = 2;
+    grid.nCells = 1;
+    grid.nFaces = 1;
+    grid.xn.AddData( 0.0 );
+    grid.xn.AddData( 1.0 );
+    grid.yn.AddData( 0.0 );
+    grid.yn.AddData( 0.0 );
+    grid.zn.AddData( 0.0 );
+    grid.zn.AddData( 0.0 );
+    grid.eTypes.AddData( ONEFLOW::BAR_2 );
+    grid.faces.AddElem( std::vector< int >{ 0, 0 } );
+    grid.fTypes.AddData( ONEFLOW::NODE );
+    grid.lc.AddData( 0 );
+    grid.rc.AddData( -1 );
+
+    ONEFLOW::DataBook databook;
+    EXPECT_THROW( grid.WriteGridFaceTopology( &databook ), std::logic_error );
+}
+
 TEST( ScalarGridTopologyTest, ReadGridFaceTopologyRejectsEmptyFace )
 {
     ONEFLOW::ScalarGrid grid;
