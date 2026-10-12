@@ -899,11 +899,12 @@ void ScalarGrid::PushElement( CgIntField & eNodeId, int eType )
 	}
 
 	// CGNS connectivity is one-based; validate it before converting to internal indices.
+	const int nodeCount = this->GetNNodes();
 	for ( int nodeId : eNodeId )
 	{
-		if ( nodeId <= 0 )
+		if ( nodeId <= 0 || nodeId > nodeCount )
 		{
-			throw std::invalid_argument( "ScalarGrid::PushElement: CGNS node indices must be positive" );
+			throw std::invalid_argument( "ScalarGrid::PushElement: CGNS node index is outside the node range" );
 		}
 	}
 
