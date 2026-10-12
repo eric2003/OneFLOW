@@ -336,3 +336,22 @@ TEST( ScalarGridTopologyTest, ReadGridFaceTopologyRejectsEmptyFace )
 
     EXPECT_THROW( grid.ReadGridFaceTopology( &databook ), std::runtime_error );
 }
+
+TEST( ScalarGridTopologyTest, ReadBoundaryTopologyRejectsInterfaceCountMismatch )
+{
+    ONEFLOW::ScalarGrid grid;
+    grid.nFaces = 1;
+
+    ONEFLOW::DataBook databook;
+    const int nBoundaryFaces = 1;
+    ONEFLOW::IntField boundaryTypes{ ONEFLOW::BC::INTERFACE };
+    ONEFLOW::IntField boundaryNameIds{ 0 };
+    const int nInterfaces = 0;
+    ONEFLOW::HXWrite( &databook, nBoundaryFaces );
+    ONEFLOW::HXWrite( &databook, boundaryTypes );
+    ONEFLOW::HXWrite( &databook, boundaryNameIds );
+    ONEFLOW::HXWrite( &databook, nInterfaces );
+    databook.MoveToBegin();
+
+    EXPECT_THROW( grid.ReadBoundaryTopology( &databook ), std::runtime_error );
+}

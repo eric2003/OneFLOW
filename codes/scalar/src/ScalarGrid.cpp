@@ -1938,6 +1938,20 @@ void ScalarGrid::ReadBoundaryTopology( DataBook * databook )
 	ONEFLOW::HXRead( databook, this->bcNameIds.data );
 
 	this->scalarIFace->ReadInterfaceTopology( databook );
+
+	int nInterfaceBcFaces = 0;
+	for ( int iBFace = 0; iBFace < this->nBFaces; ++ iBFace )
+	{
+		if ( BC::IsInterfaceBc( this->bcTypes[ iBFace ] ) )
+		{
+			++ nInterfaceBcFaces;
+		}
+	}
+	if ( nInterfaceBcFaces != this->scalarIFace->GetNIFaces() )
+	{
+		throw std::runtime_error(
+			"ScalarGrid::ReadBoundaryTopology: interface boundary-face count does not match interface topology" );
+	}
 }
 
 //for partition
