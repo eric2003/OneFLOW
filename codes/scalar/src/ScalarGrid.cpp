@@ -774,6 +774,10 @@ void ScalarGrid::ReadFromCgnsZone( CgnsZone & cgnsZone )
 	this->xn.data = std::move( importedGrid.xn.data );
 	this->yn.data = std::move( importedGrid.yn.data );
 	this->zn.data = std::move( importedGrid.zn.data );
+
+	// Keep cached counts consistent with the newly committed storage.
+	this->nNodes = this->GetNNodes();
+	this->nCells = this->GetNCells();
 }
 
 void ScalarGrid::PushElement( CgIntField & eNodeId, int eType )
