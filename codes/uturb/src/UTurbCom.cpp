@@ -46,7 +46,7 @@ UTurbField::~UTurbField()
 void UTurbField::Init()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
-    q   = GetFieldPointer< MRField > ( grid, "turbq" );
+    q   = FieldHome::GetSolutionField( grid );  // turb solver -> "turbq"
     q1  = GetFieldPointer< MRField > ( grid, "turbq1" );
     q2  = GetFieldPointer< MRField > ( grid, "turbq2" );
     dq  = GetFieldPointer< MRField > ( grid, "turbdq" );

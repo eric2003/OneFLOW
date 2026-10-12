@@ -48,7 +48,7 @@ void UINsField::Init()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
-    q  = GetFieldPointer< MRField > ( grid, "q" );
+    q  = FieldHome::GetSolutionField( grid );
     q1  = GetFieldPointer< MRField > ( grid, "q1" );
     q2  = GetFieldPointer< MRField > ( grid, "q2" );
     dq  = GetFieldPointer< MRField > ( grid, "dq" );

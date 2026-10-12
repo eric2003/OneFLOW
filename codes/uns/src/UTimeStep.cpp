@@ -50,7 +50,7 @@ void InitUnsField()
     unsf.invsr = ONEFLOW::GetFieldPointer< MRField >( grid, "invsr" );
     unsf.vissr = ONEFLOW::GetFieldPointer< MRField >( grid, "vissr" );
     unsf.gama  = ONEFLOW::GetFieldPointer< MRField >( grid, "gama" );
-    unsf.q  = ONEFLOW::GetFieldPointer< MRField >( grid, "q" );
+    unsf.q  = FieldHome::GetSolutionField( grid );
     //unsf.q1 = ONEFLOW::GetFieldPointer< MRField >( grid, "q1" );
     //unsf.q2 = ONEFLOW::GetFieldPointer< MRField >( grid, "q2" );
     unsf.dq = ONEFLOW::GetFieldPointer< MRField >( grid, "dq" );
