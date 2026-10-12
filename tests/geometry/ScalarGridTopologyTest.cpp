@@ -1062,6 +1062,26 @@ TEST( ElementDimensionTest, RegistryRejectsOutOfRangeElementTypes )
         std::out_of_range );
 }
 
+TEST( ElementDimensionTest, RegistryFreeClearsStorageAndCanBeReinitialized )
+{
+    const int expectedCount = ONEFLOW::ElementHome::numberOfUnitElement;
+    ASSERT_GT( expectedCount, 0 );
+
+    ONEFLOW::ElementHome::Free();
+
+    EXPECT_EQ( ONEFLOW::ElementHome::numberOfUnitElement, 0 );
+    EXPECT_TRUE( ONEFLOW::ElementHome::unitElement.empty() );
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::BAR_2 ), -1 );
+    EXPECT_THROW(
+        ONEFLOW::ElementHome::GetUnitElement( ONEFLOW::BAR_2 ),
+        std::out_of_range );
+
+    ONEFLOW::ElementHome::Initialize();
+
+    EXPECT_EQ( ONEFLOW::ElementHome::numberOfUnitElement, expectedCount );
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::BAR_2 ), 1 );
+}
+
 TEST( ElementDimensionTest, RegistryInitializationCanBeRepeated )
 {
     const int expectedCount = ONEFLOW::ElementHome::numberOfUnitElement;
