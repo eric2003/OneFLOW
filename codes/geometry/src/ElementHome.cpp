@@ -23,6 +23,7 @@ License
 #include "ElementHome.h"
 #include "HXCgns.h"
 #include <utility>
+#include <stdexcept>
 
 BeginNameSpace( ONEFLOW )
 
@@ -31,7 +32,14 @@ int ElementHome::numberOfUnitElement = 0;
 
 UnitElement & ElementHome::GetUnitElement( int elementType )
 {
-    return *unitElement[ elementType ];
+    if ( elementType < 0 ||
+         static_cast< std::size_t >( elementType ) >= unitElement.size() ||
+         ! unitElement[ static_cast< std::size_t >( elementType ) ] )
+    {
+        throw std::out_of_range( "ElementHome::GetUnitElement: element type is out of range" );
+    }
+
+    return *unitElement[ static_cast< std::size_t >( elementType ) ];
 }
 
 void ElementHome::Initialize()
