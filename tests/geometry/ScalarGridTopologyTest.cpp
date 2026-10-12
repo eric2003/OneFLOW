@@ -707,6 +707,9 @@ TEST( ScalarGridTopologyTest, CalcTopologyResetsInterfaceTopology )
 TEST( ScalarGridTopologyTest, PushElementInvalidatesDerivedTopologyAndGeometry )
 {
 	ONEFLOW::ScalarGrid grid;
+	grid.xn.Resize( 2 );
+	grid.yn.Resize( 2 );
+	grid.zn.Resize( 2 );
 	grid.faces.AddElem( std::vector< int >{ 0 } );
 	grid.fTypes.AddData( ONEFLOW::NODE );
 	grid.lc.AddData( 0 );

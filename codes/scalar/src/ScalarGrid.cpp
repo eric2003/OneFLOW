@@ -1005,10 +1005,9 @@ void ScalarGrid::PushElement( CgIntField & eNodeId, int eType )
 void ScalarGrid::PushElement( int p1, int p2, int eType )
 {
 	if ( eType < 0 || eType >= NofValidElementTypes ||
-		 ! ONEFLOW::IsBasicVolumeElementType( eType ) ||
 		 ONEFLOW::GetElementNodeNumbers( eType ) != 2 )
 	{
-		throw std::invalid_argument( "ScalarGrid::PushElement: element type must describe a two-node volume element" );
+		throw std::invalid_argument( "ScalarGrid::PushElement: element type must describe a two-node element" );
 	}
 
 	const int nodeCount = this->GetNNodes();
