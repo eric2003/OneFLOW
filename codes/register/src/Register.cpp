@@ -60,7 +60,7 @@ void HXRegister::FreeAll()
 
 HXRegister * MRegister::GetRegister( int index )
 {
-    // FIX: previously `return this->data[index];` ¡ª out-of-bounds access
+    // Registration helper.
     // via vector::operator[] is undefined behavior. Bounds-check and
     // return nullptr instead; callers must handle the nullptr case.
     if ( index < 0 || index >= static_cast< int >( this->data.size() ) )

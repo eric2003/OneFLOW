@@ -21,6 +21,10 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "FieldTaskReg.h"
+#include "NodeField.h"
+#include "Fatal.h"
+#include "DataBase.h"
+#include "Grid.h"
 #include "InterField.h"
 #include "ActionState.h"
 #include "HXMath.h"
@@ -62,6 +66,7 @@ void RegisterFieldTask()
     REGISTER_DATA_CLASS( LoadQ );
     REGISTER_DATA_CLASS( StoreRHS );
     REGISTER_DATA_CLASS( SetField );
+    REGISTER_DATA_CLASS( ConvertNodeFieldToCell );
 }
 
 void LoadResiduals( StringField & data )
@@ -74,7 +79,7 @@ void LoadResiduals( StringField & data )
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
     std::string & residualName = solverInfo->residualName;
 
-    MRField * resField = ONEFLOW::GetFieldPointer< MRField >( grid, residualName );
+    MRField * resField = FieldHome::GetResidualField( grid );
     MRField * rhsField = FieldHome::GetUnsField( fieldId );
 
     NegField( resField, rhsField );
@@ -128,6 +133,39 @@ void StoreRHS( StringField & data )
     std::string & residualName = solverInfo->residualName;
 
     FieldHome::SetField( fieldId, residualName, FLOW_RHS_ORDER );
+}
+
+
+void ConvertNodeFieldToCell( StringField & data )
+{
+    // data[0]: source cell-centered field name on current zone grid.
+    // data[1]: optional target cell field name (default: same as source — in-place update).
+    // Real coupling: cell -> node -> cell, then write back into the named target field.
+    if ( data.empty() )
+    {
+        return;
+    }
+    const std::string & srcName = data[ 0 ];
+    const std::string & dstName = ( data.size() > 1 ) ? data[ 1 ] : data[ 0 ];
+
+    auto nodeField = InterpolateCellToNode( srcName );
+
+    Grid * grid = Zone::GetGrid();
+    MRField * target = ONEFLOW::GetFieldPointer< MRField >( grid, dstName );
+    if ( target == nullptr )
+    {
+        Fatal( "ConvertNodeFieldToCell: target field not allocated: " + dstName );
+    }
+
+    const int nEqu = nodeField->GetNEqu();
+    if ( target->GetNEqu() < nEqu )
+    {
+        Fatal( "ConvertNodeFieldToCell: target field nEqu smaller than source" );
+    }
+    for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
+    {
+        InterpolateNodeToCellForComponent( ( * target )[ iEqu ], ( * nodeField )[ iEqu ] );
+    }
 }
 
 EndNameSpace

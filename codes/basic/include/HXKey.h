@@ -33,7 +33,7 @@ public:
     //using container_type = std::vector<T>;
     using container_type = HXVector<T>;
 
-    container_type data;   // 始终保持有序
+    container_type data;   // Always kept sorted (normalized).
 
     HXKey() = default;
 
@@ -49,14 +49,14 @@ public:
         Normalize();
     }
 
-    // 方便两点边
+    // Alternate constructor (commented out).
     //HXKey(T a, T b)
     //{
     //    data = {a, b};
     //    Normalize();
     //}
 
-    // 两点快捷构造（对边很有用）
+    // Convenience ctor for edge-like keys (two nodes).
     HXKey(const T& a, const T& b)
     {
         data.resize(2);
@@ -68,7 +68,7 @@ public:
     void Normalize()
     {
         std::sort(data.begin(), data.end());
-        // 如果业务上不允许重复节点，可打开下一行
+        // Optional: drop duplicate nodes on coincident vertices.
         // data.erase(std::unique(data.begin(), data.end()), data.end());
     }
 

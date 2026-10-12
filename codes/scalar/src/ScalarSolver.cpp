@@ -34,14 +34,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-ScalarZoneTmp::ScalarZoneTmp()
-{
-}
-
-ScalarZoneTmp::~ScalarZoneTmp()
-{
-}
-
 void ScalarZoneTmp::Init( int ist, int ied )
 {
     this->ist = ist;

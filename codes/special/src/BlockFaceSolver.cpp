@@ -198,7 +198,7 @@ void BlkFaceSolver::CreateFaceList()
     }
 
     this->face2Block.resize( nFaces );
-    // Register existing faces to faceLookup (key ¡ú id).
+    // Registration helper.
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         IntField & face = this->faceList[ iFace ];

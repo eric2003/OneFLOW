@@ -29,7 +29,7 @@ class INsLimField : public LimField
 {
 public:
     INsLimField();
-    ~INsLimField() override;
+    ~INsLimField() override = default;
 public:
     void Init() override;
     void BcQlQrFix() override;
@@ -39,7 +39,7 @@ class INsLimiter : public Limiter
 {
 public:
     INsLimiter();
-    ~INsLimiter() override;
+    ~INsLimiter() override = default;
 };
 
 EndNameSpace

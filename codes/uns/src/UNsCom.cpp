@@ -26,6 +26,7 @@ License
 #include "UnsGrid.h"
 #include "Zone.h"
 #include "DataBase.h"
+#include "FieldWrap.h"
 #include "Ctrl.h"
 #include "TimeIntegral.h"
 
@@ -33,29 +34,21 @@ BeginNameSpace( ONEFLOW )
 
 UNsField unsf;
 
-UNsField::UNsField()
-{
-    ;
-}
-
-UNsField::~UNsField()
-{
-    ;
-}
-
 void UNsField::Init()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
-    q  = GetFieldPointer< MRField > ( grid, "q" );
+    q  = FieldHome::GetSolutionField( grid );  // NS -> "q"
     q1  = GetFieldPointer< MRField > ( grid, "q1" );
     q2  = GetFieldPointer< MRField > ( grid, "q2" );
+    // dq: literal "dq". MULTI_STAGE below rebinds dq = res (same storage as residual).
+    // Do not route via a FieldHome helper until implicitString sites are unified.
     dq  = GetFieldPointer< MRField > ( grid, "dq" );
     limiter  = GetFieldPointer< MRField > ( grid, "limiter" );
     gama  = GetFieldPointer< MRField > ( grid, "gama" );
-    dqdx  = GetFieldPointer< MRField > ( grid, "dqdx" );
-    dqdy  = GetFieldPointer< MRField > ( grid, "dqdy" );
-    dqdz  = GetFieldPointer< MRField > ( grid, "dqdz" );
+    dqdx  = FieldHome::GetGradField( grid, 1 );
+    dqdy  = FieldHome::GetGradField( grid, 2 );
+    dqdz  = FieldHome::GetGradField( grid, 3 );
 
     dtdx  = GetFieldPointer< MRField > ( grid, "dtdx" );
     dtdy  = GetFieldPointer< MRField > ( grid, "dtdy" );
@@ -76,7 +69,7 @@ void UNsField::Init()
     vissr = ONEFLOW::GetFieldPointer< MRField >( grid, "vissr" );
     impsr = ONEFLOW::GetFieldPointer< MRField >( grid, "impsr" );
 
-    res  = GetFieldPointer< MRField > ( grid, "res" );
+    res  = FieldHome::GetResidualField( grid );
     res1  = GetFieldPointer< MRField > ( grid, "res1" );
     res2  = GetFieldPointer< MRField > ( grid, "res2" );
 
@@ -84,6 +77,7 @@ void UNsField::Init()
 
     if ( ctrl.time_integral == MULTI_STAGE )
     {
+        // Alias: update delta shares residual storage for multi-stage schemes.
         dq = res;
     }
 }

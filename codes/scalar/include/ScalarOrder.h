@@ -31,8 +31,8 @@ BeginNameSpace( ONEFLOW )
 class ScalarPara
 {
 public:
-    ScalarPara();
-    ~ScalarPara();
+    ScalarPara() = default;
+    ~ScalarPara() = default;
 public:
     int nx;
     double len;
@@ -49,8 +49,8 @@ public:
 class ScalarOrder
 {
 public:
-    ScalarOrder();
-    ~ScalarOrder();
+    ScalarOrder() = default;
+    ~ScalarOrder() = default;
 public:
     void Run();
     void Run1();

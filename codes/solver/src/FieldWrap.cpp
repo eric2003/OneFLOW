@@ -41,16 +41,12 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-FieldWrap::FieldWrap()
-    : view( nullptr )
-{
-}
-
-FieldWrap::~FieldWrap()
-{
-}
-
 MRField * FieldWrap::GetUnsField()
+{
+    return view;
+}
+
+const MRField * FieldWrap::GetConstUnsField() const
 {
     return view;
 }
@@ -73,16 +69,6 @@ void FieldWrap::SetOwnedField( std::unique_ptr<MRField> field )
 {
     owned = std::move( field );
     view = owned.get();
-}
-
-FieldHome::FieldHome()
-{
-    ;
-}
-
-FieldHome::~FieldHome()
-{
-    ;
 }
 
 std::unique_ptr<FieldWrap> FieldHome::CreateField()
@@ -169,6 +155,93 @@ MRField * FieldHome::GetUnsField( int fieldId )
     FieldWrap * fieldWrap = FieldHome::GetFieldWrap( fieldId );
     MRField * field = fieldWrap->GetUnsField();
     return field;
+}
+
+
+const FieldWrap * FieldHome::GetConstFieldWrap( int fieldId )
+{
+    return BgField::GetConstFieldWrap( ZoneState::zid, SolverState::solverIndex, fieldId, GridState::gridLevel );
+}
+
+const MRField * FieldHome::GetConstUnsField( int fieldId )
+{
+    const FieldWrap * fieldWrap = FieldHome::GetConstFieldWrap( fieldId );
+    return fieldWrap->GetConstUnsField();
+}
+
+const MRField * FieldHome::GetConstUnsField( const Grid * grid, const std::string & fieldName )
+{
+    return ONEFLOW::GetFieldPointer< MRField >( grid, fieldName );
+}
+
+const std::string & FieldHome::GetResidualName()
+{
+    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( SolverState::solverType );
+    return solverInfo->residualName;
+}
+
+MRField * FieldHome::GetResidualField( Grid * grid )
+{
+    return FieldHome::GetUnsField( grid, FieldHome::GetResidualName() );
+}
+
+const MRField * FieldHome::GetConstResidualField( const Grid * grid )
+{
+    return FieldHome::GetConstUnsField( grid, FieldHome::GetResidualName() );
+}
+
+
+const std::string & FieldHome::GetSolutionName()
+{
+    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( SolverState::solverType );
+    if ( ! solverInfo->gradString.empty() )
+    {
+        return solverInfo->gradString[ 0 ];
+    }
+    // Fallback when gradString not configured.
+    static const std::string kDefaultQ = "q";
+    return kDefaultQ;
+}
+
+MRField * FieldHome::GetSolutionField( Grid * grid )
+{
+    return FieldHome::GetUnsField( grid, FieldHome::GetSolutionName() );
+}
+
+const MRField * FieldHome::GetConstSolutionField( const Grid * grid )
+{
+    return FieldHome::GetConstUnsField( grid, FieldHome::GetSolutionName() );
+}
+
+const std::string & FieldHome::GetGradName( int index )
+{
+    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( SolverState::solverType );
+    if ( index >= 0 && index < static_cast< int >( solverInfo->gradString.size() ) )
+    {
+        return solverInfo->gradString[ index ];
+    }
+    static const std::string kEmpty;
+    return kEmpty;
+}
+
+MRField * FieldHome::GetGradField( Grid * grid, int index )
+{
+    const std::string & name = FieldHome::GetGradName( index );
+    if ( name.empty() )
+    {
+        return nullptr;
+    }
+    return FieldHome::GetUnsField( grid, name );
+}
+
+const MRField * FieldHome::GetConstGradField( const Grid * grid, int index )
+{
+    const std::string & name = FieldHome::GetGradName( index );
+    if ( name.empty() )
+    {
+        return nullptr;
+    }
+    return FieldHome::GetConstUnsField( grid, name );
 }
 
 MRField * FieldHome::GetUnsField( Grid * grid, const std::string & fieldName )

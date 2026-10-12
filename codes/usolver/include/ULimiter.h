@@ -42,8 +42,8 @@ Real VencatEric( Real x, Real y, Real eps );
 class Lim
 {
 public:
-    Lim();
-    ~Lim();
+    Lim() = default;
+    ~Lim() = default;
 public:
     RealField *q, *dqdx, *dqdy, *dqdz;
     RealField *limiter;
@@ -62,10 +62,18 @@ using CheckFun = bool ( * )( RealField & );
 class LimField
 {
 public:
-    LimField();
-    virtual ~LimField();
+    LimField() = default;
+    virtual ~LimField() = default;
 public:
     virtual void Init(){};
+    // Bind q/dq*/limiter field views and allocate face-side buffers.
+    void BindFieldsAndAllocFaces(
+        class UnsGrid * grid,
+        const char * qName,
+        const char * dqdxName,
+        const char * dqdyName,
+        const char * dqdzName,
+        const char * limiterName );
     Real ModifyLimiter( Real phil, Real phir );
     void CalcFaceValue();
     void CalcFaceValueWeighted();
@@ -87,16 +95,20 @@ public:
 class Limiter
 {
 public:
-    Limiter();
-    virtual ~Limiter();
+    Limiter() = default;
+    virtual ~Limiter() = default;
 public:
-    // FIX: Use std::unique_ptr for exclusive ownership
-    std::unique_ptr<Lim> lim;
+    // Owned limiter workspace (created at construction).
+    std::unique_ptr<Lim> lim = std::make_unique<Lim>();
     std::unique_ptr<LimField> limf;
     int limflag;
 public:
     bool limfIsNullPtr() const {
         return limf == nullptr;
+    }
+    // Inject solver-specific LimField (Ns/INs/Turb) after construction.
+    void InjectLimField( std::unique_ptr< LimField > field ) {
+        limf = std::move( field );
     }
     int GetNEquations() const {
         return limf->nEqu;

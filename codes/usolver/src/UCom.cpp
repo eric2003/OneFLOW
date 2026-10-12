@@ -32,6 +32,7 @@ License
 #include "PIO.h"
 #include "Fatal.h"
 #include "DataBase.h"
+#include "FieldWrap.h"
 #include "OStream.h"
 #include "HXMath.h"
 #include "FileUtils.h"
@@ -40,16 +41,6 @@ License
 BeginNameSpace( ONEFLOW )
 
 UGeom ug;
-
-UGeom::UGeom()
-{
-    ;
-}
-
-UGeom::~UGeom()
-{
-    ;
-}
 
 void UGeom::Init()
 {
@@ -62,7 +53,7 @@ void UGeom::Init()
     ug.nFaces = grid->nFaces;
 
     this->SetStEd( F_TOTAL );
-    this->CreateBcTypeRegion();
+    this->EnsureBcTypeRegion();
 
     FaceTopo & faceTopo = grid->GetFaceTopo();
     ug.lcf = & faceTopo.GetLeftCells();
@@ -104,11 +95,11 @@ void UGeom::Init()
     ug.ireconface = 1;
 }
 
-void UGeom::CreateBcTypeRegion()
+void UGeom::EnsureBcTypeRegion()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     BcRecord & bcRecord = grid->GetFaceTopo().GetBcRecord();
-    bcRecord.CreateBcTypeRegion();
+    bcRecord.EnsureBcTypeRegion();
 
     ug.bcRecord = &bcRecord;
 }
@@ -239,16 +230,6 @@ void AddF2CFieldDebug( MRField * cellField, MRField * faceField )
 std::string HXDebug::fileName1;
 std::string HXDebug::fileName2;
 
-HXDebug::HXDebug()
-{
-    ;
-}
-
-HXDebug::~HXDebug()
-{
-    ;
-}
-
 std::string HXDebug::GetFullFileName( const std::string & fileName, int startStrategy )
 {
     std::string newFileName = fileName;
@@ -269,13 +250,8 @@ void HXDebug::DumpResField( const std::string & fileName )
 {
     // Read-only dump of residual field.
     const UnsGrid * grid = Zone::GetConstUnsGrid();
-    const MRField * res = GetFieldPointer< MRField >( grid, "res" );
+    const MRField * res = FieldHome::GetConstResidualField( grid );
     HXDebug::DumpField( fileName, res );
-}
-
-void HXDebug::DumpField( const std::string & fileName, MRField * field )
-{
-    HXDebug::DumpField( fileName, static_cast< const MRField * >( field ) );
 }
 
 void HXDebug::DumpField( const std::string & fileName, const MRField * field )
@@ -338,7 +314,6 @@ void HXDebug::CompareFile( Real mindiff, int idump )
     int startStrategy = ONEFLOW::GetDataValue< int >("startStrategy");
     if ( startStrategy != 1 ) return;
 
-    UnsGrid * grid = Zone::GetUnsGrid();
     std::unique_ptr<MRField> field1 = HXDebug::ReadField( HXDebug::fileName1 );
     std::unique_ptr<MRField> field2 = HXDebug::ReadField( HXDebug::fileName2 );
     int nEqu = field1->GetNEqu();
@@ -368,7 +343,6 @@ void HXDebug::CompareFile( Real mindiff, int idump )
 
 void HXDebug::DumpCellInfo( int iCell )
 {
-    UnsGrid * grid = Zone::GetUnsGrid();
     int nFaces = ( * ug.c2f )[ iCell ].size();
     int nBFaces = ( * ug.bcRecord ).bcType.size();
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
@@ -383,10 +357,8 @@ void HXDebug::DumpCellInfo( int iCell )
     }
 }
 
-void HXDebug::CheckNANField( MRField * field )
+void HXDebug::CheckNANField( const MRField * field )
 {
-    UnsGrid * grid = Zone::GetUnsGrid();
-
     int nEqu = field->GetNEqu();
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {

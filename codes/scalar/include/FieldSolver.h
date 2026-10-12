@@ -29,8 +29,8 @@ BeginNameSpace( ONEFLOW )
 class FieldSolver : public FieldSolverBasic
 {
 public:
-    FieldSolver();
-    ~FieldSolver();
+    FieldSolver() = default;
+    ~FieldSolver() = default;
 public:
     virtual void Run();
     void SolveFlowField();

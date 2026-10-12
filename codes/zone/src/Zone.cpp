@@ -55,14 +55,6 @@ int Zone::nLocalZones = 0;
 int Zone::flag_test_grid = 0;
 std::unique_ptr< InterFaceTopo > Zone::interfaceTopo;
 
-Zone::Zone()
-{
-}
-
-Zone::~Zone()
-{
-}
-
 void Zone::ReleaseGrids()
 {
     // Destroying each Grids vector releases all owned Grid instances.

@@ -38,8 +38,8 @@ const int SIMPLE = 3;
 class SweepState
 {
 public:
-    SweepState ();
-    ~SweepState();
+    SweepState() = default;
+    ~SweepState() = default;
 public:
     static int nSweeps;
 };
@@ -47,8 +47,8 @@ public:
 class TimeIntegral
 {
 public:
-    TimeIntegral ();
-    ~TimeIntegral();
+    TimeIntegral() = default;
+    ~TimeIntegral() = default;
 public:
     static TIME_INTEGRAL timeIntegral;
 public:

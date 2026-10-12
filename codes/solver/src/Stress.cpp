@@ -28,16 +28,6 @@ BeginNameSpace( ONEFLOW )
 
 Stress stress;
 
-Stress::Stress()
-{
-    ;
-}
-
-Stress::~Stress()
-{
-    ;
-}
-
 void Stress::CalcStress()
 {
     Real divv2p3 = two3rd * ( dudx + dvdy + dwdz );

@@ -48,9 +48,9 @@ public:
     static int nWords;
     static void DumpField( RealField & field );
     static void DumpField( IntField & l2g, RealField & x );
-    static void DumpFaceNodeNumber( LinkField & f2n );
-    static void DumpFaceNodeLink( LinkField & f2n );
-    static void DumpFaceElementLink( IntField & elementId, int nElem );
+    static void DumpFaceNodeNumber( const LinkField & f2n );
+    static void DumpFaceNodeLink( const LinkField & f2n );
+    static void DumpFaceElementLink( const IntField & elementId, int nElem );
 };
 
 int GetTotalNumFaceNodes( LinkField & f2n );

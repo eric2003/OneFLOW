@@ -34,15 +34,16 @@ const int RHS_FLOW_ORDER = 1;
 class FieldWrap
 {
 public:
-    FieldWrap();
-    ~FieldWrap();
+    FieldWrap() = default;
+    ~FieldWrap() = default;
 protected:
     // When owning: owned holds the field and view == owned.get().
     // When non-owning: owned is null and view points at an external field.
     std::unique_ptr<MRField> owned;
-    MRField * view;
+    MRField * view = nullptr;
 public:
     MRField * GetUnsField();
+    const MRField * GetConstUnsField() const;
     void SetUnsField( MRField * unsField, bool deleteFlag = false );
     void SetOwnedField( std::unique_ptr<MRField> field );
 };
@@ -52,13 +53,14 @@ class Grid;
 class FieldHome
 {
 public:
-    FieldHome();
-    ~FieldHome();
+    FieldHome() = default;
+    ~FieldHome() = default;
 public:
+    // Factory: allocate owned MRField + FieldWrap (solver plugs in via solverType/level).
     static std::unique_ptr<FieldWrap> CreateField();
     static std::unique_ptr<FieldWrap> CreateField( int solverType );
     static std::unique_ptr<FieldWrap> CreateField( int solverType, int level );
-    // Owns a temporary non-owning wrapper around a grid field looked up by name.
+    // Non-owning view of an existing named field on the current grid (wrapper still unique_ptr).
     static std::unique_ptr<FieldWrap> GetFieldWrap( const std::string & fieldName );
 public:
     static void SetField( const std::string & fieldName, Real value );
@@ -66,10 +68,54 @@ public:
     static void SetUnsField( int fieldId, const std::string & fieldName, int orderFlag );
 public:
     static FieldWrap * GetFieldWrap( int fieldId );
+    static const FieldWrap * GetConstFieldWrap( int fieldId );
     static MRField * GetUnsField( int fieldId );
+    static const MRField * GetConstUnsField( int fieldId );
     static MRField * GetUnsField( Grid * grid, const std::string & fieldName );
+    static const MRField * GetConstUnsField( const Grid * grid, const std::string & fieldName );
+    // Named residual on the zone grid (NS/INS: "res", Turb: "turbres" via SolverInfo::residualName).
+    static const std::string & GetResidualName();
+    static MRField * GetResidualField( Grid * grid );
+    static const MRField * GetConstResidualField( const Grid * grid );
+    // Primary solution field name: SolverInfo::gradString[0] (NS: "q", Turb: "turbq").
+    // Prefer this over hard-coded "q" for current-solver logistics. Do not use for
+    // cross-solver coupling (e.g. turb reading NS mean flow still uses literal "q").
+    static const std::string & GetSolutionName();
+    static MRField * GetSolutionField( Grid * grid );
+    static const MRField * GetConstSolutionField( const Grid * grid );
+    // Gradient names from SolverInfo::gradString: [0]=solution, [1]=dx, [2]=dy, [3]=dz.
+    // index 0 == GetSolutionName(); out-of-range returns empty string / null field.
+    static const std::string & GetGradName( int index );
+    static MRField * GetGradField( Grid * grid, int index );
+    static const MRField * GetConstGradField( const Grid * grid, int index );
     static void GetSourceTargetField( Grid * grid, int fieldId, const std::string & fieldName, MRField *& sField, MRField *& tField, int orderFlag );
 };
+
+// ---------------------------------------------------------------------------
+// Field naming convention (prefix strategy)
+// ---------------------------------------------------------------------------
+// Driven by SolverInfo for the *current* solver (SolverState::solverType):
+//
+//   Role              NS / INS              Turbulence
+//   ---------------   -------------------   -------------------
+//   solution          q                     turbq
+//   residual          res                   turbres
+//   grad (d*/dx,y,z)  dqdx, dqdy, dqdz      turbdqdx, turbdqdy, turbdqdz
+//   update delta      dq                    turbdq
+//   BC face grad      bcdqdx/y/z            turbbcdqdx/y/z
+//
+// Rules:
+//   1. Current-solver logistics (UNsCom, UTurbCom, U*Grad, residual tasks):
+//      use FieldHome::GetSolutionField / GetResidualField / GetGradField.
+//   2. Cross-solver coupling (turb reads NS mean flow, aero force, visualize
+//      primitive NS components with IDX::*): keep literal names ("q", "dqdx", ...).
+//   3. Derived fields not in SolverInfo (q1/q2, limiter, visl, tempr, ...):
+//      stay literal until a dedicated registry exists.
+//   4. dq / implicitString: MULTI_STAGE aliases dq pointer to residual storage
+//      (UNsCom/UINsCom/UTurbCom). GetUpdateField already uses implicitString.
+//      ULhs scales residualName (local var historically named "dq"). Do not
+//      introduce GetUpdateDeltaField until those sites are audited together.
+// ---------------------------------------------------------------------------
 
 void SetField( FieldWrap * fieldWrap, Real value );
 void SetField( MRField * field, Real value );

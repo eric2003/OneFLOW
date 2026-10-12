@@ -33,8 +33,8 @@ BeginNameSpace( ONEFLOW )
 class Numpy
 {
 public:
-    Numpy();
-    ~Numpy();
+    Numpy() = default;
+    ~Numpy() = default;
 public:
     static void OpenPrjFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode );
     static std::string AddFileName( const std::string & prefix, const std::string & fileName );

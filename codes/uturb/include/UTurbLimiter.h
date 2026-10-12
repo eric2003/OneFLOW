@@ -29,7 +29,7 @@ class TurbLimField : public LimField
 {
 public:
     TurbLimField();
-    ~TurbLimField() override;
+    ~TurbLimField() override = default;
 public:
     void Init() override;
 };
@@ -38,7 +38,7 @@ class TurbLimiter : public Limiter
 {
 public:
     TurbLimiter();
-    ~TurbLimiter() override;
+    ~TurbLimiter() override = default;
 };
 
 EndNameSpace

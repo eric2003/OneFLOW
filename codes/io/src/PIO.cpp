@@ -35,16 +35,6 @@ License
 BeginNameSpace( ONEFLOW )
 
 
-PIO::PIO()
-{
-    ;
-}
-
-PIO::~PIO()
-{
-    ;
-}
-
 void PIO::ParallelOpen( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode )
 {
     if ( Parallel::pid != Parallel::GetFid() ) return;

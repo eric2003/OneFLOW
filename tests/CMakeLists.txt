@@ -45,3 +45,6 @@ add_subdirectory(io)
 # 11. geometry
 add_subdirectory(geometry)
 
+# 12. basic utilities
+add_subdirectory(basic)
+

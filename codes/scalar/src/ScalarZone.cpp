@@ -67,4 +67,24 @@ ScalarGrid & ScalarZone::GetGridReference()
     return ScalarZone::GetGridReference( ZoneState::zid );
 }
 
+const ScalarGrid * ScalarZone::GetConstGrid( int iZone )
+{
+    return &ScalarZone::GetConstGridReference( iZone );
+}
+
+const ScalarGrid * ScalarZone::GetConstGrid()
+{
+    return &ScalarZone::GetConstGridReference();
+}
+
+const ScalarGrid & ScalarZone::GetConstGridReference( int iZone )
+{
+    return *ScalarZone::scalar_grids[ static_cast< std::size_t >( iZone ) ];
+}
+
+const ScalarGrid & ScalarZone::GetConstGridReference()
+{
+    return ScalarZone::GetConstGridReference( ZoneState::zid );
+}
+
 EndNameSpace

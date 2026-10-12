@@ -36,14 +36,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-FieldSolverCuda::FieldSolverCuda()
-{
-}
-
-FieldSolverCuda::~FieldSolverCuda()
-{
-}
-
 void FieldSolverCuda::Run()
 {
     int scalar_flag = ONEFLOW::GetDataValue< int >("scalar_flag");

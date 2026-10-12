@@ -38,14 +38,6 @@ BeginNameSpace( ONEFLOW )
 HXVector< std::unique_ptr< Solver > > SolverMap::strSolver;
 HXVector< std::unique_ptr< Solver > > SolverMap::unsSolver;
 
-SolverMap::SolverMap()
-{
-}
-
-SolverMap::~SolverMap()
-{
-}
-
 HXVector< std::unique_ptr< Solver > > * SolverMap::SolverBucket( int gridType )
 {
     if ( gridType == ONEFLOW::UMESH )

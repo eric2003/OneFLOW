@@ -22,6 +22,8 @@ License
 
 #include "UVisualize.h"
 #include "NodeField.h"
+#include "Iteration.h"
+#include "Ctrl.h"
 #include "HXMath.h"
 #include "DataBook.h"
 #include "DataBase.h"
@@ -47,13 +49,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-VisualTool::VisualTool() { ; }
-
-VisualTool::~VisualTool()
-{
-    // std::unique_ptr automatically cleans up MRField objects
-}
-
 void VisualTool::Init()
 {
     title.push_back( "title=\"THE FLOW FIELD OF ONEFLOW\"" );
@@ -68,7 +63,7 @@ void VisualTool::AddTitle( const std::string & varName )
     title.push_back( AddString( "\"",  varName, "\"" ) );
 }
 
-MRField * VisualTool::AddField( RealField & qc, const std::string & varName )
+MRField * VisualTool::AddField( const RealField & qc, const std::string & varName )
 {
     this->AddTitle( varName );
     auto fn = InterpolateCellToNode( qc );
@@ -95,21 +90,16 @@ MRField * VisualTool::CreateField( const std::string & varName, int nEqu )
     return rawPtr;
 }
 
-
-BcVisual::BcVisual()
+std::unique_ptr<MRField> VisualTool::ConvertNodeComponentToCell( int nodeFieldIndex, int iEqu ) const
 {
-    ;
+    // Logistics API for cell-center solvers consuming node-based visualization/coupling fields.
+    const MRField * nodeField = qNodeField[ static_cast< HXSize_t >( nodeFieldIndex ) ].get();
+    return InterpolateNodeToCell( ( * nodeField )[ iEqu ] );
 }
 
-BcVisual::~BcVisual()
-{
-    ;
-}
 
 void BcVisual::Calc( int bcType )
 {
-    UnsGrid * grid = Zone::GetUnsGrid();
-
     this->Calcf2n( bcType );
 
     e2n.resize( 0 );
@@ -171,19 +161,20 @@ void BcVisual::ResolveElementEdge()
 
 void BcVisual::Calcf2n( int bcType )
 {
-    UnsGrid * grid = Zone::GetUnsGrid();
-    FaceTopo * faceTopo = &grid->GetFaceTopo();
-    LinkField & total_f2n = faceTopo->faces;
-    BcRecord * bcRecord = &faceTopo->GetBcRecord();
+    // Read topology from const grid; write into this BcVisual only.
+    const UnsGrid * grid = Zone::GetConstUnsGrid();
+    const FaceTopo * faceTopo = &grid->GetFaceTopo();
+    const LinkField & total_f2n = faceTopo->faces;
+    const BcRecord * bcRecord = &faceTopo->GetBcRecord();
 
-    // 清空数据
+    // Debug visualization helper.
     this->f2n.clear();
     this->l2g.clear();
 
     HXLookup<int> nodeLookup;
 
-    std::unordered_map<int, int> globalNodeToIndex;  // 全局节点编号 -> 局部索引
-    globalNodeToIndex.reserve(grid->nBFaces * 4);     // 预分配空间
+    std::unordered_map<int, int> globalNodeToIndex; // global id -> local index
+    // Preallocate roughly for boundary faces.
 
     int nBFaces = grid->nBFaces;
 
@@ -202,7 +193,7 @@ void BcVisual::Calcf2n( int bcType )
             auto it = globalNodeToIndex.find(globalNodeId);
             if (it == globalNodeToIndex.end())
             {
-                // 新节点：添加到全局池
+                // Debug visualization helper.
                 int localIndex = this->l2g.size();
                 globalNodeToIndex[globalNodeId] = localIndex;
                 this->l2g.push_back(globalNodeId);
@@ -210,7 +201,7 @@ void BcVisual::Calcf2n( int bcType )
             }
             else
             {
-                // 已存在的节点：使用已有索引
+                // Debug visualization helper.
                 localf2n.push_back(it->second);
             }
         }
@@ -221,7 +212,8 @@ void BcVisual::Calcf2n( int bcType )
 
 void BcVisual::Dump( std::ostringstream & oss, VisualTool * visualTool, std::string & bcTitle )
 {
-    UnsGrid * grid = Zone::GetUnsGrid();
+    // Read-only dump of precomputed BC surface topology.
+    const UnsGrid * grid = Zone::GetConstUnsGrid();
 
     for ( HXSize_t i = 0; i < visualTool->title.size(); ++ i )
     {
@@ -265,7 +257,8 @@ void BcVisual::Dump( std::ostringstream & oss, VisualTool * visualTool, std::str
 
 void BcVisual::DumpDebug( std::ostringstream & oss, VisualTool * visualTool, std::string & bcTitle )
 {
-    UnsGrid * grid = Zone::GetUnsGrid();
+    // Read-only debug dump of BC surface geometry.
+    const UnsGrid * grid = Zone::GetConstUnsGrid();
 
     int nNodes = l2g.size();
     int nFaces = e2n.size();
@@ -313,7 +306,7 @@ void BcVisual::DumpDebug( std::ostringstream & oss, VisualTool * visualTool, std
 
 void BcVisual::DumpSeveralElement()
 {
-    UnsGrid * grid = Zone::GetUnsGrid();
+    const UnsGrid * grid = Zone::GetConstUnsGrid();
 
     int nNodes = l2g.size();
     int nFaces = e2n.size();
@@ -332,11 +325,11 @@ void BcVisual::DumpSeveralElement()
     IntField eList = {1360, 1361};
     IntField nList, nList1, nList2;
 
-    // 使用 unordered_map 做节点去重和索引映射
-    std::unordered_map<int, int> nodeToIndex;  // 节点编号 -> 去重后的索引
-    IntField uniqueNodes;                      // 去重后的节点列表（按索引顺序）
-    IntField nodeIndices;                      // 每个原始节点的去重索引
-    IntField localNodeIds;                     // 原始节点编号列表
+    // Debug visualization helper.
+    std::unordered_map<int, int> nodeToIndex; // global id -> local index
+    IntField uniqueNodes; // local index map
+    IntField nodeIndices; // local index map
+    IntField localNodeIds; // local index map
 
     int iCount = 0;
     for ( int e : eList )
@@ -348,7 +341,7 @@ void BcVisual::DumpSeveralElement()
             auto it = nodeToIndex.find( nodeId );
             if ( it == nodeToIndex.end() )
             {
-                // 新节点：分配索引
+                // Emit node coordinates / connectivity (debug).
                 int newIndex = uniqueNodes.size();
                 nodeToIndex[ nodeId ] = newIndex;
                 uniqueNodes.push_back( nodeId );
@@ -356,7 +349,7 @@ void BcVisual::DumpSeveralElement()
             }
             else
             {
-                // 已存在的节点：使用已有索引
+                // Emit node coordinates / connectivity (debug).
                 nodeIndices.push_back( it->second );
             }
         }
@@ -375,14 +368,14 @@ void BcVisual::DumpSeveralElement()
         file << "\n";
     }
 
-    // 输出节点编号（调试信息）
+    // Emit node coordinates / connectivity (debug).
     for (int nodeId : localNodeIds)
     {
         int globalId = l2g[nodeId];
         file << globalId << "\n";
     }
 
-    // 输出单元连接
+    // Emit node coordinates / connectivity (debug).
     int pos = 0;
     int nodesPerFace = 4;  // QUADRILATERAL
     for (int e = 0; e < eList.size(); ++e)
@@ -394,16 +387,6 @@ void BcVisual::DumpSeveralElement()
         file << "\n";
         pos += nodesPerFace;
     }
-}
-
-UVisualize::UVisualize()
-{
-    ;
-}
-
-UVisualize::~UVisualize()
-{
-    ;
 }
 
 bool UVisualize::NeedVisualField()
@@ -456,12 +439,24 @@ int UVisualize::GetTotalNumFaceNodes( LinkField & f2n )
     return totalNumFaceNodes;
 }
 
+int UVisualize::GetTotalNumFaceNodes( const LinkField & f2n ) const
+{
+    int totalNumFaceNodes = 0;
+    int nSize = static_cast< int >( f2n.size() );
+    for ( int i = 0; i < nSize; ++ i )
+    {
+        totalNumFaceNodes += static_cast< int >( f2n[ i ].size() );
+    }
+    return totalNumFaceNodes;
+}
+
 void UVisualize::ShowField( std::ostringstream & oss, VisualTool * visualTool )
 {
-    UnsGrid * grid = Zone::GetUnsGrid();
+    // Read-only topology dump.
+    const UnsGrid * grid = Zone::GetConstUnsGrid();
 
-    FaceTopo * faceTopo = &grid->GetFaceTopo();
-    LinkField & f2n = faceTopo->faces;
+    const FaceTopo * faceTopo = &grid->GetFaceTopo();
+    const LinkField & f2n = faceTopo->faces;
 
     int nNodes = grid->nNodes;
     int nCells = grid->nCells;
@@ -515,7 +510,8 @@ void UVisualize::ShowField( std::ostringstream & oss, VisualTool * visualTool )
 void UVisualize::ShowBc( std::ostringstream & oss, VisualTool * visualTool )
 {
     if ( IsTwoD() ) return;
-    UnsGrid * grid = Zone::GetUnsGrid();
+    // Read-only boundary visualization (CalcBcType is const).
+    const UnsGrid * grid = Zone::GetConstUnsGrid();
 
     IntField bcTypeList;
     grid->GetFaceTopo().GetBcRecord().CalcBcType(bcTypeList);
@@ -540,7 +536,8 @@ void UVisualize::ShowBc( std::ostringstream & oss, VisualTool * visualTool )
 void UVisualize::ShowBcDebugTest( std::ostringstream & oss, VisualTool * visualTool )
 {
     if ( IsTwoD() ) return;
-    UnsGrid * grid = Zone::GetUnsGrid();
+    // Read-only boundary debug visualization.
+    const UnsGrid * grid = Zone::GetConstUnsGrid();
 
     IntField bcTypeList;
     grid->GetFaceTopo().GetBcRecord().CalcBcType(bcTypeList);
@@ -565,21 +562,28 @@ void UVisualize::ShowBcDebugTest( std::ostringstream & oss, VisualTool * visualT
 
 void UVisualize::CalcNodeField( VisualTool * visualTool )
 {
-    UnsGrid * grid = Zone::GetUnsGrid();
-    MRField * q = ONEFLOW::GetFieldPointer< MRField >( grid, "q" );
+    // Cell->node logistics: read cell fields, own temporary node fields.
+    // Literal "q": visualize NS primitives via IDX::*; not turbq / GetSolutionField.
+    // See FieldWrap.h naming convention (cross-solver / NS-only path).
+    const UnsGrid * grid = Zone::GetConstUnsGrid();
+    const MRField * q = ONEFLOW::GetFieldPointer< MRField >( grid, "q" );
     MRField * rn = visualTool->AddField( (*q)[IDX::IR], "r" );
     MRField * un = visualTool->AddField( (*q)[IDX::IU], "u" );
     MRField * vn = visualTool->AddField( (*q)[IDX::IV], "v" );
     MRField * wn = visualTool->AddField( (*q)[IDX::IW], "w" );
     MRField * pn = visualTool->AddField( (*q)[IDX::IP], "p" );
 
-    // FIX: Use std::unique_ptr to manage gaman's lifetime
     auto gaman = InterpolateCellToNode( "gama" );
     MRField * machn = visualTool->CreateField( "mach" );
     CalcMach( rn, un, vn, wn, pn, gaman.get(), machn );
-    // gaman is automatically released here
+    // Optional formal coupling probe (ctrl.probeNodeToCell from control DB; default 0).
+    if ( ctrl.probeNodeToCell != 0 && ! visualTool->qNodeField.empty() )
+    {
+        auto cellBack = visualTool->ConvertNodeComponentToCell( 0, 0 );
+        (void)cellBack;
+    }
 
-    MRField * tempr = ONEFLOW::GetFieldPointer< MRField >( grid, "tempr" );
+    const MRField * tempr = ONEFLOW::GetFieldPointer< MRField >( grid, "tempr" );
     visualTool->AddField( (*tempr)[IDX::ITT], "tempr" );
 
     if ( vis_model.vismodel > 0 )
@@ -592,7 +596,7 @@ void UVisualize::CalcNodeField( VisualTool * visualTool )
 
 void CalcMach( MRField * r, MRField * u, MRField * v, MRField * w, MRField * p, MRField * gama, MRField * mach )
 {
-    UnsGrid * grid = Zone::GetUnsGrid();
+    const UnsGrid * grid = Zone::GetConstUnsGrid();
     int nNodes = grid->nNodes;
     for ( int iNode = 0; iNode < nNodes; ++ iNode )
     {

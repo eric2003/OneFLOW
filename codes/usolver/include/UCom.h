@@ -38,12 +38,16 @@ class UnsGrid;
 class UGeom
 {
 public:
-    UGeom();
-    ~UGeom();
+    UGeom() = default;
+    ~UGeom() = default;
 public:
+    // Bind current zone geometry pointers into the global UGeom (ug).
     void Init();
-    void CreateBcTypeRegion();
+    // Ensure BcRecord::bcInfo is built for the current zone.
+    void EnsureBcTypeRegion();
+    // Set face iteration range: inner / boundary / total.
     void SetStEd( int flag );
+    // Debug dump of faces attached to a cell.
     void DumpCellFace( int cId );
 public:
     UnsGrid * grid;
@@ -94,18 +98,17 @@ void AddF2CFieldDebug( MRField * cellField, MRField * faceField );
 class HXDebug
 {
 public:
-    HXDebug();
-    ~HXDebug();
+    HXDebug() = default;
+    ~HXDebug() = default;
     static std::string fileName1, fileName2;
 public:
     static void DumpResField( const std::string & fileName );
-    static void DumpField( const std::string & fileName, MRField * field );
     static void DumpField( const std::string & fileName, const MRField * field );
     static std::string GetFullFileName( const std::string & fileName, int startStrategy );
     static void CompareFile( Real mindiff, int idump );
     static std::unique_ptr<MRField> ReadField( const std::string & fileName );
     static void DumpCellInfo( int iCell );
-    static void CheckNANField( MRField * field );
+    static void CheckNANField( const MRField * field );
 };
 
 EndNameSpace

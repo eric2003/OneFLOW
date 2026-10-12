@@ -46,8 +46,8 @@ struct CmdLineOptions
 class Prj
 {
 public:
-    Prj();
-    ~Prj();
+    Prj() = default;
+    ~Prj() = default;
 
 public:
     static bool hx_debug;

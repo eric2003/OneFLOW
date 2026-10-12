@@ -36,8 +36,8 @@ extern LogFile logFile;
 class LogFile
 {
 public:
-    LogFile();
-    ~LogFile();
+    LogFile() = default;
+    ~LogFile() = default;
     std::fstream my_fstream;
 
 private:

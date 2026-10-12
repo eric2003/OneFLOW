@@ -86,16 +86,6 @@ std::unique_ptr<Restart> CreateRestart( int solverType )
     return nullptr;
 }
 
-Restart::Restart()
-{
-    ;
-}
-
-Restart::~Restart()
-{
-    ;
-}
-
 void Restart::ReadUnsteady( int solverType )
 {
     UnsteadyFieldView fieldView;

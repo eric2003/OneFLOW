@@ -37,16 +37,6 @@ BeginNameSpace( ONEFLOW )
 HXVector< std::unique_ptr<LusgsSolver> > LusgsState::str;
 HXVector< std::unique_ptr<LusgsSolver> > LusgsState::uns;
 
-LusgsState::LusgsState()
-{
-    ;
-}
-
-LusgsState::~LusgsState()
-{
-    ;
-}
-
 void LusgsState::Init( int nSolver )
 {
     LusgsState::str.resize( nSolver );
@@ -91,16 +81,6 @@ int SolverState::solverType = 0;
 int SolverState::nSolver = 0;
 int SolverState::msgId = -1;
 IntField SolverState::convergeFlag;
-
-SolverState::SolverState()
-{
-    ;
-}
-
-SolverState::~SolverState()
-{
-    ;
-}
 
 void SolverState::Init( int nSolver )
 {

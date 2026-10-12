@@ -31,8 +31,8 @@ BeginNameSpace( ONEFLOW )
 class PIO
 {
 public:
-    PIO();
-    ~PIO();
+    PIO() = default;
+    ~PIO() = default;
 public:
     static void OpenPrjFile();
     static void ParallelOpen( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode );

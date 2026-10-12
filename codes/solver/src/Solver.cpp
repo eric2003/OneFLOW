@@ -43,14 +43,6 @@ SolverRegistry & GetSolverRegistry()
 }
 }
 
-Solver::Solver()
-{
-}
-
-Solver::~Solver()
-{
-}
-
 std::unique_ptr< Solver > Solver::SafeCloneUnique( const std::string & type )
 {
     SolverRegistry & registry = GetSolverRegistry();

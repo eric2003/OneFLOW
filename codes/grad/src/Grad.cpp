@@ -33,6 +33,7 @@ License
 #include "CellTopo.h"
 #include "Zone.h"
 #include "Iteration.h"
+#include "Ctrl.h"
 #include "DataBase.h"
 #include "StringUtils.h"
 #include <iostream>
@@ -41,16 +42,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-Grad::Grad()
-{
-    istore = 0;
-}
-
-Grad::~Grad()
-{
-    ;
-}
-
 void Grad::CalcGrad()
 {
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
@@ -58,18 +49,25 @@ void Grad::CalcGrad()
         ONEFLOW::CalcGradGGCellWeight( ( * q )[ iEqu ], ( * dqdx )[ iEqu ], ( * dqdy )[ iEqu ], ( * dqdz )[ iEqu ] );
     }
 
-    if ( Iteration::outerSteps == -31 )
+    if ( ctrl.debugFieldDump != 0 )
     {
         Real mindiff = 1.0e-10;
         int idumpface = 1;
         int idumpcell = 0;
+        const MRField * qField = q;
+        const MRField * dqdxField = dqdx;
+        const MRField * dqdyField = dqdy;
+        const MRField * dqdzField = dqdz;
+
         std::string fname = AddString( "grad.", name, ".debug" );
         std::cout << "varname = " << name << "\n";
-        HXDebug::DumpField( fname, q );
+        HXDebug::DumpField( fname, qField );
         HXDebug::CompareFile( 1.0e-12, idumpcell );
 
-        UnsGrid * grid = Zone::GetUnsGrid();
-        MRField * qq = GetFieldPointer< MRField >( grid, "q" );
+        // Literal "q": debug always dumps NS mean-flow reference, even when
+        // Grad::name is turbq/tempr. See FieldWrap.h (cross-solver path).
+        const UnsGrid * grid = Zone::GetConstUnsGrid();
+        const MRField * qq = GetFieldPointer< MRField >( grid, "q" );
         HXDebug::DumpField( "flowq.debug", qq );
         HXDebug::CompareFile( 1.0e-12, idumpcell );
 
@@ -77,11 +75,11 @@ void Grad::CalcGrad()
         std::string fnamedqdy = AddString( "grad.", name, ".dqdy.debug" );
         std::string fnamedqdz = AddString( "grad.", name, ".dqdz.debug" );
 
-        HXDebug::DumpField( fnamedqdx, dqdx );
+        HXDebug::DumpField( fnamedqdx, dqdxField );
         HXDebug::CompareFile( mindiff, idumpcell );
-        HXDebug::DumpField( fnamedqdy, dqdy );
+        HXDebug::DumpField( fnamedqdy, dqdyField );
         HXDebug::CompareFile( mindiff, idumpcell );
-        HXDebug::DumpField( fnamedqdz, dqdz );
+        HXDebug::DumpField( fnamedqdz, dqdzField );
         HXDebug::CompareFile( mindiff, idumpcell );
     }
 
@@ -110,17 +108,20 @@ void Grad::SwapBcGrad()
     DownloadInterfaceValue( grid, dqdy, namey, nEqu );
     DownloadInterfaceValue( grid, dqdz, namez, nEqu );
 
-    if ( Iteration::outerSteps == -31 )
+    if ( ctrl.debugFieldDump != 0 )
     {
         Real mindiff = 1.0e-10;
         int idumpface = 1;
         int idumpcell = 0;
+        const MRField * dqdxField = dqdx;
+        const MRField * dqdyField = dqdy;
+        const MRField * dqdzField = dqdz;
 
-        HXDebug::DumpField( "grad.dqdxDownload.debug", dqdx );
+        HXDebug::DumpField( "grad.dqdxDownload.debug", dqdxField );
         HXDebug::CompareFile( mindiff, idumpcell );
-        HXDebug::DumpField( "grad.dqdyDownload.debug", dqdy );
+        HXDebug::DumpField( "grad.dqdyDownload.debug", dqdyField );
         HXDebug::CompareFile( mindiff, idumpcell );
-        HXDebug::DumpField( "grad.dqdzDownload.debug", dqdz );
+        HXDebug::DumpField( "grad.dqdzDownload.debug", dqdzField );
         HXDebug::CompareFile( mindiff, idumpcell );
     }
     if ( istore == 1 )

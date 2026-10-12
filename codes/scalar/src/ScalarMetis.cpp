@@ -58,16 +58,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-ScalarMetis::ScalarMetis()
-{
-    ;
-}
-
-ScalarMetis::~ScalarMetis()
-{
-    ;
-}
-
 void ScalarMetis::Run()
 {
     Dim::SetDimension( ONEFLOW::GetDataValue< int >( "dimension" ) );

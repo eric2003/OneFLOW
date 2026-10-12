@@ -36,6 +36,7 @@ License
 #include "HXMath.h"
 #include "Fatal.h"
 #include "DataBase.h"
+#include "FieldWrap.h"
 #include "FieldBase.h"
 #include "Iteration.h"
 #include <iostream>
@@ -49,18 +50,19 @@ void InitUnsField()
     unsf.invsr = ONEFLOW::GetFieldPointer< MRField >( grid, "invsr" );
     unsf.vissr = ONEFLOW::GetFieldPointer< MRField >( grid, "vissr" );
     unsf.gama  = ONEFLOW::GetFieldPointer< MRField >( grid, "gama" );
-    unsf.q  = ONEFLOW::GetFieldPointer< MRField >( grid, "q" );
+    unsf.q  = FieldHome::GetSolutionField( grid );
     //unsf.q1 = ONEFLOW::GetFieldPointer< MRField >( grid, "q1" );
     //unsf.q2 = ONEFLOW::GetFieldPointer< MRField >( grid, "q2" );
+    // dq stays literal (MULTI_STAGE alias in UNsCom); grad via SolverInfo.
     unsf.dq = ONEFLOW::GetFieldPointer< MRField >( grid, "dq" );
-    unsf.dqdx = ONEFLOW::GetFieldPointer< MRField >( grid, "dqdx" );
-    unsf.dqdy = ONEFLOW::GetFieldPointer< MRField >( grid, "dqdy" );
-    unsf.dqdz = ONEFLOW::GetFieldPointer< MRField >( grid, "dqdz" );
+    unsf.dqdx = FieldHome::GetGradField( grid, 1 );
+    unsf.dqdy = FieldHome::GetGradField( grid, 2 );
+    unsf.dqdz = FieldHome::GetGradField( grid, 3 );
 
     unsf.visl = ONEFLOW::GetFieldPointer< MRField >( grid, "visl" );
     unsf.vist = ONEFLOW::GetFieldPointer< MRField >( grid, "vist" );
     //unsf.timestep = ONEFLOW::GetFieldPointer< MRField >( grid, "timestep" );
-    unsf.res = ONEFLOW::GetFieldPointer< MRField >( grid, "res" );
+    unsf.res = FieldHome::GetResidualField( grid );
     unsf.res1 = ONEFLOW::GetFieldPointer< MRField >( grid, "res1" );
     unsf.res2 = ONEFLOW::GetFieldPointer< MRField >( grid, "res2" );
 

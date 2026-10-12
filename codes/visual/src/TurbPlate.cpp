@@ -63,6 +63,7 @@ TurbVelCut::TurbVelCut()
     sliceInfo.AddSlice( 0.49981e+07 / nscom.reynolds, X_DIR, Y_DIR );
     sliceInfo.AddSlice( 0.76206e+07 / nscom.reynolds, X_DIR, Y_DIR );
     sliceInfo.AddSlice( 0.10274e+08 / nscom.reynolds, X_DIR, Y_DIR );
+    // Literal "q": plate postprocess is NS mean-flow (see FieldWrap.h).
     nameList.push_back( "q" );
     nameList.push_back( "visl" );
     this->Init();
@@ -271,6 +272,7 @@ void TurbVelCut::DumpDetail( LamData * lamData, std::fstream & file, int axis )
 TurbFriCut::TurbFriCut()
 {
     sliceInfo.AddSlice( 5.0e-7, Y_DIR, X_DIR );
+    // Literal "q": plate postprocess is NS mean-flow (see FieldWrap.h).
     nameList.push_back( "q" );
     nameList.push_back( "visl" );
     this->Init();

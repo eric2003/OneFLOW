@@ -38,26 +38,11 @@ NsLimField::NsLimField()
     this->nEqu = nscom.nEqu;
 }
 
-NsLimField::~NsLimField()
-{
-}
-
 void NsLimField::Init()
 {
+    // Bind zone field views and allocate face buffers.
     UnsGrid * grid = Zone::GetUnsGrid();
-
-    q       = GetFieldPointer< MRField > ( grid, "q" );
-    dqdx    = GetFieldPointer< MRField > ( grid, "dqdx" );
-    dqdy    = GetFieldPointer< MRField > ( grid, "dqdy" );
-    dqdz    = GetFieldPointer< MRField > ( grid, "dqdz" );
-    limiter = GetFieldPointer< MRField > ( grid, "limiter" );
-
-    this->nEqu = q->GetNEqu();
-
-    // FIX: Use std::make_unique
-    qf1 = std::make_unique<MRField>( this->nEqu, grid->nFaces );
-    qf2 = std::make_unique<MRField>( this->nEqu, grid->nFaces );
-
+    BindFieldsAndAllocFaces( grid, "q", "dqdx", "dqdy", "dqdz", "limiter" );
     this->ckfun = & NsCheckFunction;
 }
 
@@ -94,12 +79,8 @@ void NsLimField::BcQlQrFix()
 
 NsLimiter::NsLimiter()
 {
-    limf = std::make_unique<NsLimField>();
+    InjectLimField( std::make_unique<NsLimField>() );
     limflag = ctrl.ilim;
-}
-
-NsLimiter::~NsLimiter()
-{
 }
 
 EndNameSpace

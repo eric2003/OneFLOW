@@ -29,8 +29,8 @@ BeginNameSpace( ONEFLOW )
 class UResidual : public Residual
 {
 public:
-    UResidual();
-    ~UResidual();
+    UResidual() = default;
+    ~UResidual() = default;
 };
 
 

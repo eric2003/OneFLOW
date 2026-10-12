@@ -29,8 +29,8 @@ BeginNameSpace( ONEFLOW )
 class TimeIntegration
 {
 public:
-    TimeIntegration();
-    ~TimeIntegration();
+    TimeIntegration() = default;
+    ~TimeIntegration() = default;
 
 public:
     Real bsc1, bsc2, bsc3;

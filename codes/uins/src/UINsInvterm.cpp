@@ -31,6 +31,7 @@ License
 #include "Atmosphere.h"
 #include "UnsGrid.h"
 #include "DataBase.h"
+#include "FieldWrap.h"
 #include "UCom.h"
 #include "UINsCom.h"
 #include "INsCom.h"
@@ -507,7 +508,7 @@ void UINsInvterm::MomPre()
 	{
 		ug.fId = fId;
 
-		BcInfo * bcInfo = ug.bcRecord->bcInfo.get();
+		BcInfo * bcInfo = ug.bcRecord->GetBcInfo();
 
 		ug.fId = bcInfo->bcFace[ ug.ir ][ fId ];
 		ug.bcNameId = bcInfo->bcNameId[ ug.ir ][ fId ];
@@ -731,7 +732,7 @@ void UINsInvterm::CalcINsMomRes()
 void UINsInvterm::AddFlux()
 {
 	UnsGrid* grid = Zone::GetUnsGrid();
-	MRField* res = GetFieldPointer< MRField >(grid, "res");
+	MRField * res = FieldHome::GetResidualField( grid );
 	int nEqu = res->GetNEqu();
 	for (int fId = 0; fId < ug.nBFaces; ++fId)
 	{
@@ -1152,7 +1153,7 @@ void UINsInvterm::UpdateSpeed()
 	{
 		ug.fId = fId;
 
-		BcInfo * bcInfo = ug.bcRecord->bcInfo.get();
+		BcInfo * bcInfo = ug.bcRecord->GetBcInfo();
 
 		ug.fId = bcInfo->bcFace[ug.ir][fId];
 		ug.bcNameId = bcInfo->bcNameId[ug.ir][fId];

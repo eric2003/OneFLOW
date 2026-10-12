@@ -25,16 +25,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-CommentLine::CommentLine()
-{
-    ;
-}
-
-CommentLine::~CommentLine()
-{
-    ;
-}
-
 void CommentLine::AddString( const std::string& cs )
 {
     this->commentdata.push_back(cs);

@@ -31,8 +31,8 @@ BeginNameSpace( ONEFLOW )
 class Blasius
 {
 public:
-    Blasius();
-    ~Blasius();
+    Blasius() = default;
+    ~Blasius() = default;
 public:
     void Run();
     void BlasiusFun( std::vector<double> &y, std::vector<double> &k );

@@ -29,16 +29,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-FieldPara::FieldPara()
-{
-    ;
-}
-
-FieldPara::~FieldPara()
-{
-    ;
-}
-
 //void FieldPara::Init()
 //{
 //    //this->nx = 41;

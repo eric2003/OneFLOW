@@ -23,17 +23,31 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "HXArray.h"
-#include <memory> // Added for std::unique_ptr
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
-// FIX: Return std::unique_ptr to explicitly transfer ownership
-std::unique_ptr<MRField> AllocateNodeField( int nEqu = 1 );
-std::unique_ptr<MRField> InterpolateCellToNode( const std::string & name );
-std::unique_ptr<MRField> InterpolateCellToNode( RealField & qc );
+// Cell-centered <-> node-centered conversion (logistics for multi-method coupling).
+// Ownership: returned unique_ptr is owned by the caller; cell sources are non-owning reads.
 
-void InterpolateCellToNodeForComponent( RealField & qNodeField, RealField & qField );
-void ApplyBoundaryConditionToNodeField( RealField & qNodeField, RealField & qField, RealField & nCount, int bcType, bool twoSide );
+std::unique_ptr<MRField> AllocateNodeField( int nEqu = 1 );
+
+// Look up cell field by name (const read) and allocate a node field.
+std::unique_ptr<MRField> InterpolateCellToNode( const std::string & name );
+
+// Interpolate from an existing cell-centered component (const read).
+std::unique_ptr<MRField> InterpolateCellToNode( const RealField & qc );
+
+// Write node field from const cell component.
+void InterpolateCellToNodeForComponent( RealField & qNodeField, const RealField & qField );
+
+// BC correction on node accumulation; qField is read-only cell data.
+void ApplyBoundaryConditionToNodeField( RealField & qNodeField, const RealField & qField, RealField & nCount, int bcType, bool twoSide );
+
+// Symmetric logistics: node-centered -> cell-centered (caller owns result).
+std::unique_ptr<MRField> AllocateCellField( int nEqu = 1 );
+std::unique_ptr<MRField> InterpolateNodeToCell( const RealField & qn );
+void InterpolateNodeToCellForComponent( RealField & qCellField, const RealField & qNodeField );
 
 template < typename T >
 void ReorderList( HXVector< T > & x, IntField & indexList )

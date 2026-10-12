@@ -36,8 +36,8 @@ const int SCALAR_EXTRAPOLATE = 2;
 class ScalarZoneTmp
 {
 public:
-    ScalarZoneTmp();
-    ~ScalarZoneTmp();
+    ScalarZoneTmp() = default;
+    ~ScalarZoneTmp() = default;
 public:
     void Init( int ist, int ied );
     void InitField( std::vector< double > & uGlobal );

@@ -44,6 +44,11 @@ public:
     static ScalarGrid * GetGrid();
     static ScalarGrid & GetGridReference( int iZone );
     static ScalarGrid & GetGridReference();
+    // Read-only accessors (same storage; for pure-read algorithms / diagnostics).
+    static const ScalarGrid * GetConstGrid( int iZone );
+    static const ScalarGrid * GetConstGrid();
+    static const ScalarGrid & GetConstGridReference( int iZone );
+    static const ScalarGrid & GetConstGridReference();
 };
 
 EndNameSpace

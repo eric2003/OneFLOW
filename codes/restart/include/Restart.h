@@ -30,8 +30,8 @@ BeginNameSpace( ONEFLOW )
 class Restart
 {
 public:
-    Restart();
-    virtual ~Restart();
+    Restart() = default;
+    virtual ~Restart() = default;
 public:
     int solverType;
 public:

@@ -33,7 +33,7 @@ enum class FlowWallDistAction
     Create           // compute and write wall distance
 };
 
-// Pure decision ¡ª no I/O, no tasks. Safe for unit tests.
+// Test helper.
 inline FlowWallDistAction DecideFlowWallDistAction(
     int vismodel,
     int startStrategy,

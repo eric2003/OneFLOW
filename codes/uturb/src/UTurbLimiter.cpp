@@ -34,36 +34,18 @@ TurbLimField::TurbLimField()
     this->nEqu = turbcom.nEqu;
 }
 
-TurbLimField::~TurbLimField()
-{
-}
-
 void TurbLimField::Init()
 {
+    // Bind zone field views and allocate face buffers.
     UnsGrid * grid = Zone::GetUnsGrid();
-
-    q       = GetFieldPointer< MRField > ( grid, "turbq" );
-    dqdx    = GetFieldPointer< MRField > ( grid, "turbdqdx" );
-    dqdy    = GetFieldPointer< MRField > ( grid, "turbdqdy" );
-    dqdz    = GetFieldPointer< MRField > ( grid, "turbdqdz" );
-    limiter = GetFieldPointer< MRField > ( grid, "turblimiter" );
-
-    this->nEqu = q->GetNEqu();
-
-    qf1 = std::make_unique<MRField>( this->nEqu, grid->nFaces );
-    qf2 = std::make_unique<MRField>( this->nEqu, grid->nFaces );
-
+    BindFieldsAndAllocFaces( grid, "turbq", "turbdqdx", "turbdqdy", "turbdqdz", "turblimiter" );
     this->ckfun = & NoCheck;
 }
 
 TurbLimiter::TurbLimiter()
 {
-    limf = std::make_unique<TurbLimField>();
+    InjectLimField( std::make_unique<TurbLimField>() );
     limflag = ILMT_ZERO;
-}
-
-TurbLimiter::~TurbLimiter()
-{
 }
 
 EndNameSpace

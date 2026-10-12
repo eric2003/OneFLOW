@@ -28,14 +28,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-Blasius::Blasius()
-{
-}
-
-Blasius::~Blasius()
-{
-}
-
 //void Blasius::Run()
 //{
 //    double deta = 0.01;

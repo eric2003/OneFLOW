@@ -31,15 +31,4 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-UResidual::UResidual()
-{
-    ;
-}
-
-UResidual::~UResidual()
-{
-    ;
-}
-
-
 EndNameSpace

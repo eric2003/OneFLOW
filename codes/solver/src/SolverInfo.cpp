@@ -28,25 +28,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-SolverInfo::SolverInfo()
-{
-    ;
-}
-
-SolverInfo::~SolverInfo()
-{
-    ;
-}
-
 std::unique_ptr< std::map< int, std::unique_ptr< SolverInfo > > > SolverInfoFactory::data;
-
-SolverInfoFactory::SolverInfoFactory()
-{
-}
-
-SolverInfoFactory::~SolverInfoFactory()
-{
-}
 
 void SolverInfoFactory::Init()
 {

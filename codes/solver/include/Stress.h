@@ -30,8 +30,8 @@ class Force;
 class Stress
 {
 public:
-    Stress();
-    ~Stress();
+    Stress() = default;
+    ~Stress() = default;
 public:
     void CalcStress();
     void CalcForce( Force * force );

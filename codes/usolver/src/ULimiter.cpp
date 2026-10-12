@@ -21,6 +21,9 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "ULimiter.h"
+#include "UnsGrid.h"
+#include "DataBase.h"
+#include "Zone.h"
 #include "NsCom.h"
 #include "UCom.h"
 #include "UNsCom.h"
@@ -31,6 +34,26 @@ License
 #include "Iteration.h"
 
 BeginNameSpace( ONEFLOW )
+
+void LimField::BindFieldsAndAllocFaces(
+    UnsGrid * grid,
+    const char * qName,
+    const char * dqdxName,
+    const char * dqdyName,
+    const char * dqdzName,
+    const char * limiterName )
+{
+    q       = GetFieldPointer< MRField >( grid, qName );
+    dqdx    = GetFieldPointer< MRField >( grid, dqdxName );
+    dqdy    = GetFieldPointer< MRField >( grid, dqdyName );
+    dqdz    = GetFieldPointer< MRField >( grid, dqdzName );
+    limiter = GetFieldPointer< MRField >( grid, limiterName );
+
+    this->nEqu = q->GetNEqu();
+    qf1 = std::make_unique< MRField >( this->nEqu, grid->nFaces );
+    qf2 = std::make_unique< MRField >( this->nEqu, grid->nFaces );
+}
+
 
 Real BarthFunction( Real dq, Real minv, Real maxv, Real dot )
 {
@@ -94,26 +117,6 @@ Real VencatFunctionEric( Real dq, Real minv, Real maxv, Real eps )
     }
 
     return 1.0;
-}
-
-Lim::Lim()
-{
-    ;
-}
-
-Lim::~Lim()
-{
-    ;
-}
-
-LimField::LimField()
-{
-    ;
-}
-
-LimField::~LimField()
-{
-    ;
 }
 
 Real LimField::ModifyLimiter( Real phil, Real phir )
@@ -346,17 +349,6 @@ void LimField::CalcFaceValueWeighted()
             }
         }
     }
-}
-
-Limiter::Limiter()
-{
-    // FIX: Use std::make_unique
-    lim = std::make_unique<Lim>();
-}
-
-Limiter::~Limiter()
-{
-    // std::unique_ptr automatically cleans up
 }
 
 void Limiter::CalcLimiter()

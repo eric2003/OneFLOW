@@ -31,6 +31,7 @@ DEFINE_DATA_CLASS( ZeroResiduals );
 DEFINE_DATA_CLASS( LoadQ );
 DEFINE_DATA_CLASS( StoreRHS );
 DEFINE_DATA_CLASS( SetField );
+DEFINE_DATA_CLASS( ConvertNodeFieldToCell );
 
 void RegisterFieldTask();
 

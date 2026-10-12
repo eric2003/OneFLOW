@@ -166,9 +166,9 @@ void CalcAeroForce(int idump_pres)
 {
 	UnsGrid * grid = Zone::GetUnsGrid();
 	BcRecord * bcRecord = &grid->GetFaceTopo().GetBcRecord();
-	bcRecord->CreateBcTypeRegion();
+	bcRecord->EnsureBcTypeRegion();
 
-	BcInfo * bcInfo = bcRecord->bcInfo.get();
+	BcInfo * bcInfo = bcRecord->GetBcInfo();
 
 	int nRegion = bcInfo->bcType.size();
 
@@ -191,6 +191,8 @@ void CalcAeroForce(int idump_pres)
 
 	RealField & area = grid->GetFaceMesh().area;
 
+	// Literal "q": aero force is always NS mean-flow (IDX/IIDX), not current-solver
+	// solution name. See FieldWrap.h naming convention (cross-solver / NS-only path).
 	MRField * q = GetFieldPointer< MRField >(grid, "q");
 	MRField * visl = GetFieldPointer< MRField >(grid, "visl");
 

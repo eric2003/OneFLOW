@@ -44,11 +44,11 @@ public:
         : backend_(backend)
     {}
 
-    //---------------------- 核心接口 ----------------------
-    // 查找或插入，返回 id。支持 HXVector 和 std::vector
+    // ---- Core interface ----
+    // Find or insert a face key; return stable id (HXVector or std::vector).
     int FindOrAdd(const container_type& nodes)
     {
-        key_type key(nodes);          // 自动 Normalize
+        key_type key(nodes);
         return (backend_ == LookupBackend::Set)
                    ? FindOrAdd_Set(key)
                    : FindOrAdd_Map(key);
@@ -62,7 +62,7 @@ public:
                    : FindOrAdd_Map(key);
     }
 
-    // 只查找，不插入
+    // Lookup only (no insert). Returns -1 if not found.
     int Find(const container_type& nodes) const
     {
         key_type key(nodes);
@@ -79,7 +79,7 @@ public:
                    : Find_Map(key);
     }
 
-    //---------------------- 辅助接口 ----------------------
+    // ---- Auxiliary interface ----
     std::size_t Size() const
     {
         return (backend_ == LookupBackend::Set) ? set_.size() : map_.size();
@@ -97,7 +97,7 @@ public:
 private:
     LookupBackend backend_;
 
-    // -------------------- Set 后端 --------------------
+    // ---- Set backend ----
     struct KeyWithId
     {
         key_type key;
@@ -127,10 +127,10 @@ private:
     {
         KeyWithId tmp{key, -1};
         auto it = set_.find(tmp);
-        return (it == set_.end()) ? -1 : it->id;   // -1 建议后续换成项目的 INVALID_INDEX
+        return (it == set_.end()) ? -1 : it->id;
     }
 
-    // -------------------- Map 后端 --------------------
+    // ---- Map backend ----
     std::map<key_type, int> map_;
 
     int FindOrAdd_Map(const key_type& key)
@@ -151,7 +151,7 @@ private:
     }
 };
 
-// 方便使用的别名（与项目风格一致）
+// Convenience alias used across the mesh topology code.
 using IntFaceLookup = FaceLookup<int>;
 
 EndNameSpace

@@ -31,14 +31,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-Numpy::Numpy()
-{
-}
-
-Numpy::~Numpy()
-{
-}
-
 std::string Numpy::AddFileName( const std::string & prefix, const std::string & fileName )
 {
     std::string fileNameNew = AddString(prefix, "/", fileName );

@@ -33,8 +33,8 @@ class UnsGrid;
 class UnsteadyFieldView
 {
 public:
-    UnsteadyFieldView();
-    ~UnsteadyFieldView();
+    UnsteadyFieldView() = default;
+    ~UnsteadyFieldView() = default;
 
 public:
     void BindFields(

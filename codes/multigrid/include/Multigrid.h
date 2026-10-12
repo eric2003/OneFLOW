@@ -33,8 +33,8 @@ class MG
 public:
     using FunctionPointer = void ( MG::* )( int );
 public:
-    MG();
-    ~MG();
+    MG() = default;
+    ~MG() = default;
 public:
     static int nPre;
     static int nPost;

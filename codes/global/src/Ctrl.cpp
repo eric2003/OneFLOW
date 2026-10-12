@@ -46,6 +46,22 @@ void Ctrl::Init()
     this->inflowType = GetDataValue< int >( "inflowType" );
     this->ireadwdst = GetDataValue< int >( "ireadwdst" );
     this->showfield = GetDataValue< int >( "showfield" );
+    this->probeNodeToCell = 0;
+    {
+        DataEntry * entry = ONEFLOW::GetGlobalDataBase()->RequireDataPara().FindDataEntry( "probeNodeToCell" );
+        if ( entry != nullptr )
+        {
+            this->probeNodeToCell = GetDataValue< int >( "probeNodeToCell" );
+        }
+    }
+    this->debugFieldDump = 0;
+    {
+        DataEntry * entry = ONEFLOW::GetGlobalDataBase()->RequireDataPara().FindDataEntry( "debugFieldDump" );
+        if ( entry != nullptr )
+        {
+            this->debugFieldDump = GetDataValue< int >( "debugFieldDump" );
+        }
+    }
     this->heatfluxFile = GetDataValue< std::string >( "heatfluxFile" );
     this->addVisualizationSteps = GetDataValue< int >( "addVisualizationSteps" );
     

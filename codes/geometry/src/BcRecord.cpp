@@ -50,6 +50,7 @@ BcRecord & BcRecord::operator=( const BcRecord & other )
 
 void BcRecord::CreateBcTypeRegion()
 {
+    // Write path: allocate and fill bcInfo once.
     if ( bcInfo ) return;
     this->bcInfo = std::make_unique< BcInfo >();
 
@@ -107,7 +108,7 @@ void BcRecord::Init( HXSize_t nBFaces )
     this->bcNameId.resize( nBFaces );
 }
 
-int BcRecord::CalcNIFace()
+int BcRecord::CalcNIFace() const
 {
     int nBFaces = this->GetNBFace();
 
@@ -123,7 +124,7 @@ int BcRecord::CalcNIFace()
     return nIFaces;
 }
 
-int BcRecord::CalcNumWallFace()
+int BcRecord::CalcNumWallFace() const
 {
     int nBFaces = this->GetNBFace();
 
@@ -157,7 +158,7 @@ void BcRecord::GenerateI2B( InterFace & interFace )
     }
 }
 
-void BcRecord::CalcBcType( IntField & bcTypeList )
+void BcRecord::CalcBcType( IntField & bcTypeList ) const
 {
     IntSet bcTypeSet;
 

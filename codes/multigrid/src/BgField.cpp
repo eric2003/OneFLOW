@@ -33,10 +33,6 @@ License
 #include <iostream>
 
 BeginNameSpace( ONEFLOW )
-BasicBgField::BasicBgField()
-{
-}
-
 BasicBgField::~BasicBgField()
 {
     this->Free();
@@ -62,6 +58,7 @@ void BasicBgField::Init()
             {
                 GridState::gridLevel = gl;
                 
+                // CreateField: owned FieldWrap+MRField for this solver/level/slot.
                 this->data[ solverIndex ][ fid ][ gl ] = FieldHome::CreateField();
             }
         }
@@ -77,14 +74,6 @@ void BasicBgField::Free()
 
 HXVector< std::unique_ptr< BasicBgField > > BgField::data;
 bool BgField::flag = false;
-
-BgField::BgField()
-{
-}
-
-BgField::~BgField()
-{
-}
 
 void BgField::Init()
 {
@@ -111,6 +100,11 @@ void BgField::Free()
 }
 
 FieldWrap * BgField::GetFieldWrap( int zid, int solverIndex, int fid, int gl )
+{
+    return BgField::data[ zid ]->data[ solverIndex ][ fid ][ gl ].get();
+}
+
+const FieldWrap * BgField::GetConstFieldWrap( int zid, int solverIndex, int fid, int gl )
 {
     return BgField::data[ zid ]->data[ solverIndex ][ fid ][ gl ].get();
 }

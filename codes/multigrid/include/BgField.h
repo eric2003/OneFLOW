@@ -31,8 +31,8 @@ class FieldWrap;
 class BasicBgField
 {
 public:
-    BasicBgField ();
-    ~BasicBgField();
+    BasicBgField() = default;
+    ~BasicBgField();  // out-of-line: Free()
 public:
     using Field3DType = HXVector< HXVector< HXVector< std::unique_ptr<FieldWrap> > > >;
 public:
@@ -42,18 +42,37 @@ public:
     void Free();
 };
 
+// Multi-solver / multi-level field slots (logistics for algorithm plugins).
+// Layout: data[zone] -> BasicBgField::data[solverIndex][fid][gridLevel]
+//   fid: 0 = FLOW  (solver working buffer; not the same object as named grid field "q")
+//   fid: 1 = RHS   (solver residual buffer accessed via FieldHome::GetUnsField(fieldId))
+// Each slot is FieldHome::CreateField() -> unique_ptr<FieldWrap> owning MRField.
+// GetFieldWrap returns a non-owning raw view (.get()) for solvers to read/write in place.
+//
+// Relation to named residual fields on UnsGrid:
+//   SolverInfo::residualName is the zone-local database field name:
+//     NS / INS -> "res"
+//     Turbulence -> "turbres"
+//   Never hard-code "res"/"turbres" at call sites; use FieldHome::GetResidualField /
+//   GetConstResidualField / GetResidualName (driven by SolverState::solverType).
+//   LoadResiduals: NegField(named residual, BgField RHS slot) - fid=1 -> residualName field.
+//   ResidualTask aggregates the named residual (FieldHome::GetConstResidualField).
+//   Do not confuse BgField fid=1 storage with the string keys "res" / "turbres" on the grid DataBase.
 class BgField
 {
 public:
-    BgField ();
-    ~BgField();
+    BgField() = default;
+    ~BgField() = default;
 protected:
     static HXVector< std::unique_ptr< BasicBgField > > data;
 public:
     static bool flag;
     static void Init();
     static void Free();
+    // Non-owning: lifetime owned by BgField::data[zid].
     static FieldWrap * GetFieldWrap( int zid, int solverIndex, int fid, int gl );
+    // Read-only view for diagnostics / pure-read algorithms.
+    static const FieldWrap * GetConstFieldWrap( int zid, int solverIndex, int fid, int gl );
 };
 
 

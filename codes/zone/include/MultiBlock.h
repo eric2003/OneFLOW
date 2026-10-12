@@ -29,8 +29,8 @@ BeginNameSpace( ONEFLOW )
 class MultiBlock
 {
 public:
-    MultiBlock();
-    ~MultiBlock();
+    MultiBlock() = default;
+    ~MultiBlock() = default;
 public:
     static void ReadMultiBlockGrid();
     static void SetUpMultigrid();

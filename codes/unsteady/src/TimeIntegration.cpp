@@ -29,16 +29,6 @@ BeginNameSpace( ONEFLOW )
 
 TimeIntegration timeIntegration;
 
-TimeIntegration::TimeIntegration()
-{
-    ;
-}
-
-TimeIntegration::~TimeIntegration()
-{
-    ;
-}
-
 void TimeIntegration::InitCoef()
 {
     // linearTwoStepMethods

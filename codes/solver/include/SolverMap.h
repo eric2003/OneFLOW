@@ -33,8 +33,8 @@ class Solver;
 class SolverMap
 {
 public:
-    SolverMap();
-    ~SolverMap();
+    SolverMap() = default;
+    ~SolverMap() = default;
 public:
     static IntField solverTypes;
     static std::map< int, int > solverTypeToIndex;
@@ -58,7 +58,7 @@ public:
     static void FreeSolverMap();
     static void FreeSolverMap( int gridType );
 
-    // Clear type↔index maps (and solverTypes). Called by FreeSolverMap;
+    // Solver name / mapping helper.
     // also available for unit tests that exercise AddSolverInfo in isolation.
     static void ClearIndexMaps();
 

@@ -52,16 +52,6 @@ int MG::iterMode;
 int MG::cycleType;
 int MG::currentGridLevel = 0;
 
-MG::MG()
-{
-    ;
-}
-
-MG::~MG()
-{
-    ;
-}
-
 void MG::Init()
 {
     MG::nPre = ONEFLOW::GetDataValue< int >( "nmgPreSmoothingSteps" );

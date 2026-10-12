@@ -31,8 +31,8 @@ class BcRecord;
 class UNsField
 {
 public:
-    UNsField();
-    ~UNsField();
+    UNsField() = default;
+    ~UNsField() = default;
 public:
     void Init();
 public:

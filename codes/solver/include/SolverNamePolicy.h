@@ -66,7 +66,7 @@ inline std::vector<std::string> ExpandSolverNamesForStructured(
     return out;
 }
 
-// Must come AFTER Make* ¡ª GCC two-phase lookup requires visible declarations
+// Lookup key helper.
 // at the point of the template definition (MSVC is more permissive).
 template< typename StringRange >
 inline void FillExpandedSolverNames(

@@ -28,14 +28,6 @@ License
 BeginNameSpace( ONEFLOW )
 
 
-UnsteadyFieldView::UnsteadyFieldView()
-{
-}
-
-UnsteadyFieldView::~UnsteadyFieldView()
-{
-}
-
 void UnsteadyFieldView::BindFields(
     UnsGrid * grid,
     const UnsteadyFieldNames & fieldNames )

@@ -30,6 +30,7 @@ License
 #include "Com.h"
 #include "UnsGrid.h"
 #include "DataBase.h"
+#include "FieldWrap.h"
 #include "UCom.h"
 #include "Ctrl.h"
 #include "VisGrad.h"
@@ -273,7 +274,7 @@ void UTurbVisFlux::CalcVisFlux2Equ()
 void UTurbVisFlux::AddVisFlux()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
-    MRField * res = GetFieldPointer< MRField >( grid, "turbres" );
+    MRField * res = FieldHome::GetResidualField( grid );
 
     ONEFLOW::AddF2CField( res, visflux.get() );
 }
