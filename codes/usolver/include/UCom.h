@@ -41,9 +41,13 @@ public:
     UGeom() = default;
     ~UGeom() = default;
 public:
+    // Bind current zone geometry pointers into the global UGeom (ug).
     void Init();
+    // Ensure BcRecord::bcInfo is built for the current zone.
     void EnsureBcTypeRegion();
+    // Set face iteration range: inner / boundary / total.
     void SetStEd( int flag );
+    // Debug dump of faces attached to a cell.
     void DumpCellFace( int cId );
 public:
     UnsGrid * grid;

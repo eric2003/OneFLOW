@@ -55,7 +55,7 @@ void MultiBlock::ReadMultiBlockGrid()
     std::string gridFileName = ONEFLOW::GetGridFileName();
     gridFileList.push_back( gridFileName );
 
-    // Legacy note.
+    // InitLayout(nZones) -> per-file GridGroup::ReadGrid -> NormalizeLayout(localZid).
     Zone::ReadGrid( gridFileList );
 }
 
@@ -67,7 +67,7 @@ void MultiBlock::SetUpMultigrid()
 
 void MultiBlock::LoadGridAndBuildLink()
 {
-    // Block/face topology helper.
+    // Stage L1: control DB -> grid path -> Zone layout + binary grid read.
     MultiBlock::ReadMultiBlockGrid();
 
     // Stage L2: geometric metrics (GRID_SOLVER / CALC_METRICS task)

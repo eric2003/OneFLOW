@@ -33,7 +33,7 @@ public:
     //using container_type = std::vector<T>;
     using container_type = HXVector<T>;
 
-    container_type data;
+    container_type data;   // Always kept sorted (normalized).
 
     HXKey() = default;
 
@@ -49,14 +49,14 @@ public:
         Normalize();
     }
 
-    // Lookup key helper.
+    // Alternate constructor (commented out).
     //HXKey(T a, T b)
     //{
     //    data = {a, b};
     //    Normalize();
     //}
 
-    // Lookup key helper.
+    // Convenience ctor for edge-like keys (two nodes).
     HXKey(const T& a, const T& b)
     {
         data.resize(2);
@@ -68,7 +68,7 @@ public:
     void Normalize()
     {
         std::sort(data.begin(), data.end());
-        // Legacy note.
+        // Optional: drop duplicate nodes on coincident vertices.
         // data.erase(std::unique(data.begin(), data.end()), data.end());
     }
 

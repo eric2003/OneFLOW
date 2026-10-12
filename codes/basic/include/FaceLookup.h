@@ -44,8 +44,8 @@ public:
         : backend_(backend)
     {}
 
-    // Legacy note.
-    // Legacy note.
+    // ---- Core interface ----
+    // Find or insert a face key; return stable id (HXVector or std::vector).
     int FindOrAdd(const container_type& nodes)
     {
         key_type key(nodes);
@@ -62,7 +62,7 @@ public:
                    : FindOrAdd_Map(key);
     }
 
-    // Legacy note.
+    // Lookup only (no insert). Returns -1 if not found.
     int Find(const container_type& nodes) const
     {
         key_type key(nodes);
@@ -79,7 +79,7 @@ public:
                    : Find_Map(key);
     }
 
-    // Legacy note.
+    // ---- Auxiliary interface ----
     std::size_t Size() const
     {
         return (backend_ == LookupBackend::Set) ? set_.size() : map_.size();
@@ -97,7 +97,7 @@ public:
 private:
     LookupBackend backend_;
 
-    // Lookup key helper.
+    // ---- Set backend ----
     struct KeyWithId
     {
         key_type key;
@@ -130,7 +130,7 @@ private:
         return (it == set_.end()) ? -1 : it->id;
     }
 
-    // Legacy note.
+    // ---- Map backend ----
     std::map<key_type, int> map_;
 
     int FindOrAdd_Map(const key_type& key)
@@ -151,7 +151,7 @@ private:
     }
 };
 
-// Block/face topology helper.
+// Convenience alias used across the mesh topology code.
 using IntFaceLookup = FaceLookup<int>;
 
 EndNameSpace

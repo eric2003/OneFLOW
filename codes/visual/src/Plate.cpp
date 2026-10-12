@@ -163,22 +163,21 @@ void PlaneData::SortData( RealField & varList )
     int nNodes = this->x.size();
     if (nNodes <= 0) return;
 
-    // Legacy note.
+    // 1. Build index list [0, 1, ..., nNodes-1].
     IntField indexList(nNodes);
     std::iota(indexList.begin(), indexList.end(), 0);
 
-    // Legacy note.
+    // 2. Sort indices by varList values (ascending).
     std::sort(indexList.begin(), indexList.end(),
         [&](int i, int j) { 
             return varList[i] < varList[j];
         });
 
-    // Legacy note.
-    // Legacy note.
-    // indexList = [3, 1, 4, 0, 2]
-    // Legacy note.
+    // Example: varList = [5, 2, 8, 1, 3]
+    // indexList becomes [3, 1, 4, 0, 2]
+    // (smallest at pos 3, next at 1, ...)
 
-    // Legacy note.
+    // 3. Reorder coordinates and slice data by sorted indices.
     ReorderList(x, indexList);
     ReorderList(y, indexList);
     ReorderList(z, indexList);
