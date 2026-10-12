@@ -1038,38 +1038,38 @@ TEST( ElementDimensionTest, RejectsInvalidOrUnsupportedElementTypes )
 {
     EXPECT_EQ( ONEFLOW::GetElementDimension( -1 ), -1 );
     // Use the geometry registry count instead of duplicating the CGNS element-count macro.
-    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::ElementHome::numberOfUnitElement ), -1 );
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::ElementHome::GetNumberOfUnitElements() ), -1 );
 }
 
-TEST( ElementDimensionTest, DimensionLookupUsesRegistryAsSourceOfTruth )
+TEST( ElementDimensionTest, DimensionLookupUsesRegistryStorageAsSourceOfTruth )
 {
-    const int savedCount = ONEFLOW::ElementHome::numberOfUnitElement;
-    ONEFLOW::ElementHome::numberOfUnitElement = 0;
+    ONEFLOW::ElementHome::Free();
 
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::BAR_2 ), -1 );
+
+    ONEFLOW::ElementHome::Initialize();
     EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::BAR_2 ), 1 );
-
-    ONEFLOW::ElementHome::numberOfUnitElement = savedCount;
 }
 
 TEST( ElementDimensionTest, RegistryRejectsOutOfRangeElementTypes )
 {
     EXPECT_THROW( ONEFLOW::ElementHome::GetUnitElement( -1 ), std::out_of_range );
     EXPECT_THROW(
-        ONEFLOW::ElementHome::GetUnitElement( ONEFLOW::ElementHome::numberOfUnitElement ),
+        ONEFLOW::ElementHome::GetUnitElement( ONEFLOW::ElementHome::GetNumberOfUnitElements() ),
         std::out_of_range );
     EXPECT_THROW(
-        ONEFLOW::GetElementNodeNumbers( ONEFLOW::ElementHome::numberOfUnitElement ),
+        ONEFLOW::GetElementNodeNumbers( ONEFLOW::ElementHome::GetNumberOfUnitElements() ),
         std::out_of_range );
 }
 
 TEST( ElementDimensionTest, RegistryFreeClearsStorageAndCanBeReinitialized )
 {
-    const int expectedCount = ONEFLOW::ElementHome::numberOfUnitElement;
+    const int expectedCount = ONEFLOW::ElementHome::GetNumberOfUnitElements();
     ASSERT_GT( expectedCount, 0 );
 
     ONEFLOW::ElementHome::Free();
 
-    EXPECT_EQ( ONEFLOW::ElementHome::numberOfUnitElement, 0 );
+    EXPECT_EQ( ONEFLOW::ElementHome::GetNumberOfUnitElements(), 0 );
     EXPECT_TRUE( ONEFLOW::ElementHome::unitElement.empty() );
     EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::BAR_2 ), -1 );
     EXPECT_THROW(
@@ -1078,21 +1078,21 @@ TEST( ElementDimensionTest, RegistryFreeClearsStorageAndCanBeReinitialized )
 
     ONEFLOW::ElementHome::Initialize();
 
-    EXPECT_EQ( ONEFLOW::ElementHome::numberOfUnitElement, expectedCount );
+    EXPECT_EQ( ONEFLOW::ElementHome::GetNumberOfUnitElements(), expectedCount );
     EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::BAR_2 ), 1 );
 }
 
 TEST( ElementDimensionTest, RegistryInitializationCanBeRepeated )
 {
-    const int expectedCount = ONEFLOW::ElementHome::numberOfUnitElement;
+    const int expectedCount = ONEFLOW::ElementHome::GetNumberOfUnitElements();
     ASSERT_GT( expectedCount, 0 );
 
     ONEFLOW::ElementHome::Initialize();
-    EXPECT_EQ( ONEFLOW::ElementHome::numberOfUnitElement, expectedCount );
+    EXPECT_EQ( ONEFLOW::ElementHome::GetNumberOfUnitElements(), expectedCount );
     EXPECT_EQ(
         ONEFLOW::ElementHome::GetUnitElement( ONEFLOW::BAR_2 ).GetElementType(),
         ONEFLOW::BAR_2 );
 
     ONEFLOW::ElementHome::Initialize();
-    EXPECT_EQ( ONEFLOW::ElementHome::numberOfUnitElement, expectedCount );
+    EXPECT_EQ( ONEFLOW::ElementHome::GetNumberOfUnitElements(), expectedCount );
 }

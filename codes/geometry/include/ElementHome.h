@@ -32,10 +32,10 @@ class ElementHome
 public:
     ElementHome() = default;
     ~ElementHome() = default;
-public:
+private:
     static HXVector< std::unique_ptr< UnitElement > > unitElement;
-    static int numberOfUnitElement;
 public:
+    static int GetNumberOfUnitElements();
     static UnitElement & GetUnitElement( int elementType );
 public:
     static void Initialize();

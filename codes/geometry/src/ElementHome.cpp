@@ -28,7 +28,11 @@ License
 BeginNameSpace( ONEFLOW )
 
 HXVector< std::unique_ptr< UnitElement > > ElementHome::unitElement;
-int ElementHome::numberOfUnitElement = 0;
+
+int ElementHome::GetNumberOfUnitElements()
+{
+    return static_cast< int >( unitElement.size() );
+}
 
 UnitElement & ElementHome::GetUnitElement( int elementType )
 {
@@ -55,13 +59,13 @@ void ElementHome::Initialize()
     }
 
     unitElement.swap( initializedElements );
-    ElementHome::numberOfUnitElement = static_cast< int >( unitElement.size() );
+
 }
 
 void ElementHome::Free()
 {
     unitElement.clear();
-    ElementHome::numberOfUnitElement = 0;
+
 }
 
 class ElementHomeInit
@@ -87,7 +91,7 @@ int GetElementNodeNumbers( int eType )
 
 int GetElementDimension( int eType )
 {
-    if ( eType < 0 || static_cast< std::size_t >( eType ) >= ElementHome::unitElement.size() ) return -1;
+    if ( eType < 0 || eType >= ElementHome::GetNumberOfUnitElements() ) return -1;
 
     switch ( eType )
     {
