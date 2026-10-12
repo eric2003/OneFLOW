@@ -87,7 +87,7 @@ int GetElementNodeNumbers( int eType )
 
 int GetElementDimension( int eType )
 {
-    if ( eType < 0 || eType >= ElementHome::numberOfUnitElement ) return -1;
+    if ( eType < 0 || static_cast< std::size_t >( eType ) >= ElementHome::unitElement.size() ) return -1;
 
     switch ( eType )
     {
