@@ -2,6 +2,7 @@
 #include <stdexcept>
 
 #include "UnsGrid.h"
+#include "FaceTopo.h"
 
 namespace
 {
