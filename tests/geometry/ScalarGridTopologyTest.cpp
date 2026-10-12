@@ -360,6 +360,43 @@ TEST( ScalarGridTopologyTest, ReadGridFaceTopologyRejectsDuplicateNodeIndices )
     EXPECT_EQ( grid.fTypes.GetNElements(), 0u );
 }
 
+TEST( ScalarGridTopologyTest, ReadGridPreservesExistingMeshWhenPayloadIsTruncated )
+{
+	ONEFLOW::ScalarGrid grid;
+	grid.nNodes = 1;
+	grid.nCells = 1;
+	grid.nFaces = 1;
+	grid.nBFaces = 1;
+	grid.xn.AddData( 12.5 );
+	grid.yn.AddData( 23.5 );
+	grid.zn.AddData( 34.5 );
+	grid.eTypes.AddData( ONEFLOW::BAR_2 );
+	grid.faces.AddElem( std::vector< int >{ 0 } );
+	grid.bcTypes.AddData( 77 );
+
+	ONEFLOW::DataBook databook;
+	const int nodeCount = 2;
+	const int faceCount = 1;
+	const int cellCount = 1;
+	ONEFLOW::HXWrite( &databook, nodeCount );
+	ONEFLOW::HXWrite( &databook, faceCount );
+	ONEFLOW::HXWrite( &databook, cellCount );
+	databook.MoveToBegin();
+
+	EXPECT_THROW( grid.ReadGrid( &databook ), std::exception );
+
+	EXPECT_EQ( grid.nNodes, 1 );
+	EXPECT_EQ( grid.nCells, 1 );
+	EXPECT_EQ( grid.nFaces, 1 );
+	EXPECT_EQ( grid.nBFaces, 1 );
+	ASSERT_EQ( grid.xn.GetNElements(), 1u );
+	EXPECT_DOUBLE_EQ( grid.xn[ 0 ], 12.5 );
+	ASSERT_EQ( grid.eTypes.GetNElements(), 1u );
+	EXPECT_EQ( grid.eTypes[ 0 ], ONEFLOW::BAR_2 );
+	ASSERT_EQ( grid.bcTypes.GetNElements(), 1u );
+	EXPECT_EQ( grid.bcTypes[ 0 ], 77 );
+}
+
 TEST( ScalarGridTopologyTest, ReadBoundaryTopologyRejectsInterfaceCountMismatch )
 {
     ONEFLOW::ScalarGrid grid;

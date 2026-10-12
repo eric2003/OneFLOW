@@ -1642,11 +1642,8 @@ void ScalarGrid::ReadGrid( DataBook * databook )
 	}
 
 	std::cout << "Reading unstructured grid data files......\n";
-	//Read the number of nodes, number of elements and number of elements faces
-
 	std::cout << "Grid dimension = " << Dim::dimension << std::endl;
 
-	// Validate the header before discarding the currently loaded mesh.
 	int nodeCount = 0;
 	int faceCount = 0;
 	int cellCount = 0;
@@ -1659,42 +1656,79 @@ void ScalarGrid::ReadGrid( DataBook * databook )
 		throw std::runtime_error( "ScalarGrid::ReadGrid: grid header contains a negative count" );
 	}
 
-	// A valid header starts a replacement load; subsequent arrays belong to this mesh.
-	this->ResetMeshData();
-	this->nNodes = nodeCount;
-	this->nFaces = faceCount;
-	this->nCells = cellCount;
+	// Parse and validate the replacement independently; a failed read must not
+	// leave the current grid with a mixture of old and partially loaded data.
+	ScalarGrid stagedGrid;
+	stagedGrid.nNodes = nodeCount;
+	stagedGrid.nFaces = faceCount;
+	stagedGrid.nCells = cellCount;
 
-	std::cout << " number of nodes    : " << this->nNodes << std::endl;
-	std::cout << " number of surfaces : " << this->nFaces << std::endl;
-	std::cout << " number of elements : " << this->nCells << std::endl;
+	std::cout << " number of nodes    : " << stagedGrid.nNodes << std::endl;
+	std::cout << " number of surfaces : " << stagedGrid.nFaces << std::endl;
+	std::cout << " number of elements : " << stagedGrid.nCells << std::endl;
 
-	this->CreateNodes( this->nNodes );
-
+	stagedGrid.CreateNodes( stagedGrid.nNodes );
 	std::cout << " Reading xn,yn,zn\n";
-
-	ONEFLOW::HXRead( databook, this->xn.data );
-	ONEFLOW::HXRead( databook, this->yn.data );
-	ONEFLOW::HXRead( databook, this->zn.data );
+	ONEFLOW::HXRead( databook, stagedGrid.xn.data );
+	ONEFLOW::HXRead( databook, stagedGrid.yn.data );
+	ONEFLOW::HXRead( databook, stagedGrid.zn.data );
 
 	std::cout << " Reading volBcType\n";
-	this->volBcType = -1000;
-	ONEFLOW::HXRead( databook, this->volBcType  );
-
-	std::cout << " this->volBcType = " << this->volBcType << "\n";
+	stagedGrid.volBcType = -1000;
+	ONEFLOW::HXRead( databook, stagedGrid.volBcType );
+	std::cout << " this->volBcType = " << stagedGrid.volBcType << "\n";
 
 	std::cout << " Reading eTypes\n";
-
-	//element
-	this->eTypes.Resize( this->nCells );
-	ONEFLOW::HXRead( databook, this->eTypes.data );
+	stagedGrid.eTypes.Resize( stagedGrid.nCells );
+	ONEFLOW::HXRead( databook, stagedGrid.eTypes.data );
 
 	std::cout << "The grid nodes have been read\n";
+	stagedGrid.ReadGridFaceTopology( databook );
+	stagedGrid.ReadBoundaryTopology( databook );
+	stagedGrid.NormalizeBc();
 
-	//this->nodeMesh->CalcMinMaxBox();
-	this->ReadGridFaceTopology( databook );
-	this->ReadBoundaryTopology( databook );
-	this->NormalizeBc();
+	// Publish a complete, normalized mesh in one commit. The DataBase and grid
+	// identity belong to this ScalarGrid instance and are intentionally retained.
+	this->xn.data = std::move( stagedGrid.xn.data );
+	this->yn.data = std::move( stagedGrid.yn.data );
+	this->zn.data = std::move( stagedGrid.zn.data );
+	this->xfc.data = std::move( stagedGrid.xfc.data );
+	this->yfc.data = std::move( stagedGrid.yfc.data );
+	this->zfc.data = std::move( stagedGrid.zfc.data );
+	this->xfn.data = std::move( stagedGrid.xfn.data );
+	this->yfn.data = std::move( stagedGrid.yfn.data );
+	this->zfn.data = std::move( stagedGrid.zfn.data );
+	this->area.data = std::move( stagedGrid.area.data );
+	this->xcc.data = std::move( stagedGrid.xcc.data );
+	this->ycc.data = std::move( stagedGrid.ycc.data );
+	this->zcc.data = std::move( stagedGrid.zcc.data );
+	this->vol.data = std::move( stagedGrid.vol.data );
+
+	this->lc.data = std::move( stagedGrid.lc.data );
+	this->rc.data = std::move( stagedGrid.rc.data );
+	this->lpos.data = std::move( stagedGrid.lpos.data );
+	this->rpos.data = std::move( stagedGrid.rpos.data );
+	this->cell2faces = std::move( stagedGrid.cell2faces );
+	this->c2fpos = std::move( stagedGrid.c2fpos );
+	this->global_faceid = std::move( stagedGrid.global_faceid );
+	this->faces.data = std::move( stagedGrid.faces.data );
+	this->elements.data = std::move( stagedGrid.elements.data );
+	this->boundaryElements.data = std::move( stagedGrid.boundaryElements.data );
+	this->bcETypes.data = std::move( stagedGrid.bcETypes.data );
+	this->fTypes.data = std::move( stagedGrid.fTypes.data );
+	this->eTypes.data = std::move( stagedGrid.eTypes.data );
+	this->fBcTypes.data = std::move( stagedGrid.fBcTypes.data );
+	this->bcTypes.data = std::move( stagedGrid.bcTypes.data );
+	this->bcNameIds.data = std::move( stagedGrid.bcNameIds.data );
+	this->scalarBccos = std::move( stagedGrid.scalarBccos );
+	this->scalarIFace = std::move( stagedGrid.scalarIFace );
+
+	this->nNodes = stagedGrid.nNodes;
+	this->nCells = stagedGrid.nCells;
+	this->nBFaces = stagedGrid.nBFaces;
+	this->nFaces = stagedGrid.nFaces;
+	this->nTCells = stagedGrid.nTCells;
+	this->volBcType = stagedGrid.volBcType;
 
 	std::cout << "All the computing information is ready!\n";
 }
