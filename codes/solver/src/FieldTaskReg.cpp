@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "FieldTaskReg.h"
+#include "NodeField.h"
 #include "InterField.h"
 #include "ActionState.h"
 #include "HXMath.h"
@@ -62,6 +63,7 @@ void RegisterFieldTask()
     REGISTER_DATA_CLASS( LoadQ );
     REGISTER_DATA_CLASS( StoreRHS );
     REGISTER_DATA_CLASS( SetField );
+    REGISTER_DATA_CLASS( ConvertNodeFieldToCell );
 }
 
 void LoadResiduals( StringField & data )
@@ -128,6 +130,21 @@ void StoreRHS( StringField & data )
     std::string & residualName = solverInfo->residualName;
 
     FieldHome::SetField( fieldId, residualName, FLOW_RHS_ORDER );
+}
+
+
+void ConvertNodeFieldToCell( StringField & data )
+{
+    // data[0]: cell-centered field name on current zone grid.
+    // Pipeline: cell -> node -> cell (formal bidirectional logistics / coupling hook).
+    if ( data.empty() )
+    {
+        return;
+    }
+    const std::string & cellFieldName = data[ 0 ];
+    auto nodeField = InterpolateCellToNode( cellFieldName );
+    auto cellBack = InterpolateNodeToCell( ( * nodeField )[ 0 ] );
+    (void)cellBack;
 }
 
 EndNameSpace

@@ -30,6 +30,8 @@ License
 #include "SolverInfo.h"
 #include "DataBase.h"
 #include "UnsGrid.h"
+#include "Grid.h"
+#include "FieldWrap.h"
 #include "HXMath.h"
 #include "CellMesh.h"
 #include "Iteration.h"
@@ -102,8 +104,9 @@ void ResidualTask::CalcRes( int solverType, ResData & data )
 
     int nEqu = solverInfo->nEqu;
 
+    // FieldHome const path (named residual field on zone grid).
     const MRField * res =
-        ONEFLOW::GetFieldPointer< MRField >( grid, solverInfo->residualName );
+        FieldHome::GetConstUnsField( static_cast< const Grid * >( grid ), solverInfo->residualName );
 
     data.resave.Zero();
     data.resave.nCells =  grid->nCells;

@@ -23,6 +23,7 @@ License
 #include "UVisualize.h"
 #include "NodeField.h"
 #include "Iteration.h"
+#include "Ctrl.h"
 #include "HXMath.h"
 #include "DataBook.h"
 #include "DataBase.h"
@@ -573,8 +574,8 @@ void UVisualize::CalcNodeField( VisualTool * visualTool )
     auto gaman = InterpolateCellToNode( "gama" );
     MRField * machn = visualTool->CreateField( "mach" );
     CalcMach( rn, un, vn, wn, pn, gaman.get(), machn );
-    // Optional formal coupling: convert first node field (e.g. density) back to cell (debug only).
-    if ( Iteration::outerSteps == -31 && ! visualTool->qNodeField.empty() )
+    // Optional formal coupling probe (ctrl.probeNodeToCell from control DB; default 0).
+    if ( ctrl.probeNodeToCell != 0 && ! visualTool->qNodeField.empty() )
     {
         auto cellBack = visualTool->ConvertNodeComponentToCell( 0, 0 );
         (void)cellBack;
