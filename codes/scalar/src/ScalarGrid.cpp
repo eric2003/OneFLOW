@@ -848,6 +848,24 @@ void ScalarGrid::ReadFromCgnsZone( CgnsZone & cgnsZone )
 	// Stage the complete import so malformed input cannot destroy the current mesh.
 	ScalarGrid importedGrid;
 
+	// Load coordinates first because PushElement validates one-based CGNS node IDs
+	// against the imported mesh's current node count.
+	CgnsCoor & cgnsCoor = cgnsZone.RequireCgnsCoor();
+	NodeMesh & nodeMesh = cgnsCoor.RequireNodeMesh();
+	if ( nodeMesh.xN.size() != nodeMesh.yN.size() ||
+		 nodeMesh.xN.size() != nodeMesh.zN.size() )
+	{
+		throw std::invalid_argument( "ScalarGrid::ReadFromCgnsZone: coordinate arrays have inconsistent sizes" );
+	}
+
+	for ( size_t i = 0; i < nodeMesh.xN.size(); ++ i )
+	{
+		importedGrid.xn.AddData( nodeMesh.xN[ i ] );
+		importedGrid.yn.AddData( nodeMesh.yN[ i ] );
+		importedGrid.zn.AddData( nodeMesh.zN[ i ] );
+	}
+
+
 	std::cout << "   Convert Cgns Section Data to ScalarGrid......\n";
 	std::cout << "\n";
 	CgnsZsection & cgnsZsection = cgnsZone.RequireCgnsZsection();
@@ -896,20 +914,6 @@ void ScalarGrid::ReadFromCgnsZone( CgnsZone & cgnsZone )
 		}
 	}
 
-	CgnsCoor & cgnsCoor = cgnsZone.RequireCgnsCoor();
-	NodeMesh & nodeMesh = cgnsCoor.RequireNodeMesh();
-	if ( nodeMesh.xN.size() != nodeMesh.yN.size() ||
-		 nodeMesh.xN.size() != nodeMesh.zN.size() )
-	{
-		throw std::invalid_argument( "ScalarGrid::ReadFromCgnsZone: coordinate arrays have inconsistent sizes" );
-	}
-
-	for ( size_t i = 0; i < nodeMesh.xN.size(); ++ i )
-	{
-		importedGrid.xn.AddData( nodeMesh.xN[ i ] );
-		importedGrid.yn.AddData( nodeMesh.yN[ i ] );
-		importedGrid.zn.AddData( nodeMesh.zN[ i ] );
-	}
 
 	const size_t nodeCount = importedGrid.xn.GetNElements();
 	for ( const std::vector< int > & element : importedGrid.elements.data )
