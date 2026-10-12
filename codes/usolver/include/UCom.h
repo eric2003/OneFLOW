@@ -42,7 +42,7 @@ public:
     ~UGeom() = default;
 public:
     void Init();
-    void CreateBcTypeRegion();
+    void EnsureBcTypeRegion();
     void SetStEd( int flag );
     void DumpCellFace( int cId );
 public:

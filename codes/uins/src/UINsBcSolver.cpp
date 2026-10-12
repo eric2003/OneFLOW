@@ -54,13 +54,13 @@ void UINsBcSolver::Init()
 
 void UINsBcSolver::CalcBc()
 {
-    ug.nRegion = ug.bcRecord->bcInfo->bcType.size();
+    ug.nRegion = ug.bcRecord->GetBcInfo()->bcType.size();
 
     for ( int ir = 0; ir < ug.nRegion; ++ ir )
     {
         ug.ir = ir;
-        ug.bctype = ug.bcRecord->bcInfo->bcType[ ir ];
-        ug.nRBFace = ug.bcRecord->bcInfo->bcFace[ ir ].size();
+        ug.bctype = ug.bcRecord->GetBcInfo()->bcType[ ir ];
+        ug.nRBFace = ug.bcRecord->GetBcInfo()->bcFace[ ir ].size();
         this->SetBc();
 
         this->CalcBcRegion();

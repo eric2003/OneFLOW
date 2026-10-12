@@ -163,22 +163,22 @@ void PlaneData::SortData( RealField & varList )
     int nNodes = this->x.size();
     if (nNodes <= 0) return;
 
-    // 1. 创建索引列表 [0, 1, 2, ..., nNodes-1]
+    // Legacy note.
     IntField indexList(nNodes);
     std::iota(indexList.begin(), indexList.end(), 0);
 
-    // 2. 按 varList 的值对索引进行排序
+    // Legacy note.
     std::sort(indexList.begin(), indexList.end(),
         [&](int i, int j) { 
             return varList[i] < varList[j];
         });
 
-    // 现在 indexList 包含的是排序后的位置索引
-    // 例如：varList = [5, 2, 8, 1, 3]
+    // Legacy note.
+    // Legacy note.
     // indexList = [3, 1, 4, 0, 2]
-    // 意思是：最小的在位置3，第二小的在位置1，依此类推
+    // Legacy note.
 
-    // 3. 用排序后的索引重排所有数据
+    // Legacy note.
     ReorderList(x, indexList);
     ReorderList(y, indexList);
     ReorderList(z, indexList);

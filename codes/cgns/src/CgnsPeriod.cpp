@@ -121,7 +121,7 @@ void F2FMap::FindFace(RealField &xList, RealField &yList, RealField &zList,
         int ip = node_period[i];
 
         Real x, y, z;
-        this->pointBasic->GetPoint(ip, x, y, z);   // 使用公共接口
+        this->pointBasic->GetPoint(ip, x, y, z);
 
         xxList.push_back(x);
         yyList.push_back(y);

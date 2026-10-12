@@ -44,11 +44,11 @@ public:
         : backend_(backend)
     {}
 
-    //---------------------- 核心接口 ----------------------
-    // 查找或插入，返回 id。支持 HXVector 和 std::vector
+    // Legacy note.
+    // Legacy note.
     int FindOrAdd(const container_type& nodes)
     {
-        key_type key(nodes);          // 自动 Normalize
+        key_type key(nodes);
         return (backend_ == LookupBackend::Set)
                    ? FindOrAdd_Set(key)
                    : FindOrAdd_Map(key);
@@ -62,7 +62,7 @@ public:
                    : FindOrAdd_Map(key);
     }
 
-    // 只查找，不插入
+    // Legacy note.
     int Find(const container_type& nodes) const
     {
         key_type key(nodes);
@@ -79,7 +79,7 @@ public:
                    : Find_Map(key);
     }
 
-    //---------------------- 辅助接口 ----------------------
+    // Legacy note.
     std::size_t Size() const
     {
         return (backend_ == LookupBackend::Set) ? set_.size() : map_.size();
@@ -97,7 +97,7 @@ public:
 private:
     LookupBackend backend_;
 
-    // -------------------- Set 后端 --------------------
+    // Lookup key helper.
     struct KeyWithId
     {
         key_type key;
@@ -127,10 +127,10 @@ private:
     {
         KeyWithId tmp{key, -1};
         auto it = set_.find(tmp);
-        return (it == set_.end()) ? -1 : it->id;   // -1 建议后续换成项目的 INVALID_INDEX
+        return (it == set_.end()) ? -1 : it->id;
     }
 
-    // -------------------- Map 后端 --------------------
+    // Legacy note.
     std::map<key_type, int> map_;
 
     int FindOrAdd_Map(const key_type& key)
@@ -151,7 +151,7 @@ private:
     }
 };
 
-// 方便使用的别名（与项目风格一致）
+// Block/face topology helper.
 using IntFaceLookup = FaceLookup<int>;
 
 EndNameSpace
