@@ -354,7 +354,10 @@ TEST( ScalarGridTopologyTest, ReadGridFaceTopologyRejectsDuplicateNodeIndices )
     databook.MoveToBegin();
 
     EXPECT_THROW( grid.ReadGridFaceTopology( &databook ), std::runtime_error );
-    EXPECT_EQ( grid.faces[ 0 ].size(), 0u );
+    EXPECT_EQ( grid.faces.GetNElements(), 0u );
+    EXPECT_EQ( grid.lc.GetNElements(), 0u );
+    EXPECT_EQ( grid.rc.GetNElements(), 0u );
+    EXPECT_EQ( grid.fTypes.GetNElements(), 0u );
 }
 
 TEST( ScalarGridTopologyTest, ReadBoundaryTopologyRejectsInterfaceCountMismatch )

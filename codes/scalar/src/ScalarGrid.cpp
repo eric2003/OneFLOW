@@ -1807,26 +1807,15 @@ void ScalarGrid::WriteGridFaceTopology( DataBook * databook )
 
 void ScalarGrid::ReadGridFaceTopology( DataBook * databook )
 {
-	this->faces.Resize( this->nFaces );
-	this->lc.Resize( this->nFaces );
-	this->rc.Resize( this->nFaces );
-	this->fTypes.Resize( this->nFaces );
+	// Parse and validate into local storage so malformed input cannot leave partial topology.
+	IntList faceTypes;
+	faceTypes.Resize( this->nFaces );
 
 	std::cout << " Reading this->fTypes\n";
-
-	ONEFLOW::HXRead( databook, this->fTypes.data );
-
-	//std::cout << "fTypes = \n";
-	//for ( int iFace = 0; iFace < this->fTypes.data.size(); ++ iFace )
-	//{
-	//	std::cout << this->fTypes.data[ iFace ] << " ";
-	//}
-	//std::cout << "\n";
+	ONEFLOW::HXRead( databook, faceTypes.data );
 
 	IntField numFaceNode( this->nFaces );
-
 	std::cout << " Reading numFaceNode\n";
-
 	ONEFLOW::HXRead( databook, numFaceNode );
 
 	size_t nsum = 0;
@@ -1841,16 +1830,9 @@ void ScalarGrid::ReadGridFaceTopology( DataBook * databook )
 		}
 		nsum += static_cast< size_t >( nFaceNodes );
 	}
+
 	std::cout << " nsum = " << nsum << "\n";
 	std::cout << " this->nFaces = " << this->nFaces << "\n";
-	std::cout << "numFaceNode = \n";
-	//for ( int iFace = 0; iFace < numFaceNode.size(); ++ iFace )
-	//{
-	//	std::cout << numFaceNode[ iFace ] << " ";
-	//}
-	//std::cout << "\n";
-
-	std::cout << "Setting the connection mode of face to point......\n";
 	IntField faceNodeMem( nsum );
 	std::cout << " Reading faceNodeMem\n";
 	ONEFLOW::HXRead( databook, faceNodeMem );
@@ -1863,7 +1845,6 @@ void ScalarGrid::ReadGridFaceTopology( DataBook * databook )
 		}
 	}
 
-	// A face is a set of distinct mesh nodes; repeated IDs create degenerate topology.
 	int faceNodeOffset = 0;
 	for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
 	{
@@ -1880,31 +1861,34 @@ void ScalarGrid::ReadGridFaceTopology( DataBook * databook )
 		faceNodeOffset += nFaceNodes;
 	}
 
+	EList stagedFaces;
+	stagedFaces.Resize( this->nFaces );
 	int ipos = 0;
 	for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
 	{
-		std::vector< int > & face = this->faces[ iFace ];
-		face.clear();
-
-		int nNodes = numFaceNode[ iFace ];
+		std::vector< int > & face = stagedFaces[ iFace ];
+		const int nNodes = numFaceNode[ iFace ];
 		face.reserve( nNodes );
 		for ( int iNode = 0; iNode < nNodes; ++ iNode )
 		{
-			int pid = faceNodeMem[ ipos ++ ];
-			face.push_back( pid );
+			face.push_back( faceNodeMem[ ipos ++ ] );
 		}
 	}
 
-	std::cout << "Setting the connection mode of face to cell......\n";
+	IntList leftCells;
+	IntList rightCells;
+	leftCells.Resize( this->nFaces );
+	rightCells.Resize( this->nFaces );
 
-	ONEFLOW::HXRead( databook, this->lc.data );
-	ONEFLOW::HXRead( databook, this->rc.data );
+	std::cout << "Setting the connection mode of face to cell......\n";
+	ONEFLOW::HXRead( databook, leftCells.data );
+	ONEFLOW::HXRead( databook, rightCells.data );
 
 	// Validate all cell references before changing face orientation.
 	for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
 	{
-		const int leftCell = this->lc[ iFace ];
-		const int rightCell = this->rc[ iFace ];
+		const int leftCell = leftCells[ iFace ];
+		const int rightCell = rightCells[ iFace ];
 		if ( leftCell < -1 || rightCell < -1 ||
 			 leftCell >= this->nCells || rightCell >= this->nCells ||
 			 ( leftCell < 0 && rightCell < 0 ) )
@@ -1915,15 +1899,18 @@ void ScalarGrid::ReadGridFaceTopology( DataBook * databook )
 
 	for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
 	{
-		if ( this->lc[ iFace ] < 0 )
+		if ( leftCells[ iFace ] < 0 )
 		{
-			//need to reverse the node ordering
-			std::vector< int > & face = this->faces[ iFace ];
-			std::reverse( face.begin(), face.end() );
-			// now reverse leftCellIndex  and rightCellIndex
-			ONEFLOW::SWAP( this->lc[ iFace ], this->rc[ iFace ] );
+			std::reverse( stagedFaces[ iFace ].begin(), stagedFaces[ iFace ].end() );
+			ONEFLOW::SWAP( leftCells[ iFace ], rightCells[ iFace ] );
 		}
 	}
+
+	// Publish the complete topology only after all input and adjacency checks pass.
+	this->faces.data = std::move( stagedFaces.data );
+	this->fTypes.data = std::move( faceTypes.data );
+	this->lc.data = std::move( leftCells.data );
+	this->rc.data = std::move( rightCells.data );
 }
 
 void ScalarGrid::WriteBoundaryTopology( DataBook * databook )
