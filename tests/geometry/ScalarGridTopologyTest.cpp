@@ -623,3 +623,32 @@ TEST( ScalarGridTopologyTest, ReadBoundaryTopologyRejectsInterfaceCountMismatch 
     ASSERT_EQ( grid.scalarIFace->zones.size(), 1u );
     EXPECT_EQ( grid.scalarIFace->zones[ 0 ], 123 );
 }
+
+
+TEST( ScalarGridTopologyTest, NormalizeRejectsOutOfRangeAdjacencyBeforeMutation )
+{
+	ONEFLOW::ScalarGrid grid;
+	grid.nCells = 1;
+	grid.faces.AddElem( std::vector< int >{ 0, 1 } );
+	grid.lc.AddData( 0 );
+	grid.rc.AddData( 2 );
+
+	EXPECT_THROW( grid.Normalize(), std::runtime_error );
+	ASSERT_EQ( grid.faces.GetNElements(), 1u );
+	EXPECT_EQ( grid.faces[ 0 ], ( std::vector< int >{ 0, 1 } ) );
+	EXPECT_EQ( grid.lc[ 0 ], 0 );
+	EXPECT_EQ( grid.rc[ 0 ], 2 );
+}
+
+TEST( ScalarGridTopologyTest, NormalizeRejectsMissingFaceConnectivityBeforeMutation )
+{
+	ONEFLOW::ScalarGrid grid;
+	grid.nCells = 1;
+	grid.nBFaces = 1;
+	grid.lc.AddData( ONEFLOW::INVALID_INDEX );
+	grid.rc.AddData( 0 );
+
+	EXPECT_THROW( grid.Normalize(), std::runtime_error );
+	EXPECT_EQ( grid.lc[ 0 ], ONEFLOW::INVALID_INDEX );
+	EXPECT_EQ( grid.rc[ 0 ], 0 );
+}
