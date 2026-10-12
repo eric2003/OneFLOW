@@ -628,7 +628,7 @@ TEST( ScalarGridTopologyTest, ReadBoundaryTopologyRejectsInterfaceCountMismatch 
 TEST( ScalarGridTopologyTest, NormalizeRejectsOutOfRangeAdjacencyBeforeMutation )
 {
 	ONEFLOW::ScalarGrid grid;
-	grid.nCells = 1;
+	grid.eTypes.AddData( ONEFLOW::BAR_2 );
 	grid.faces.AddElem( std::vector< int >{ 0, 1 } );
 	grid.lc.AddData( 0 );
 	grid.rc.AddData( 2 );
@@ -643,8 +643,8 @@ TEST( ScalarGridTopologyTest, NormalizeRejectsOutOfRangeAdjacencyBeforeMutation 
 TEST( ScalarGridTopologyTest, NormalizeRejectsMissingFaceConnectivityBeforeMutation )
 {
 	ONEFLOW::ScalarGrid grid;
-	grid.nCells = 1;
-	grid.nBFaces = 1;
+	grid.eTypes.AddData( ONEFLOW::BAR_2 );
+	grid.bcTypes.AddData( 0 );
 	grid.lc.AddData( ONEFLOW::INVALID_INDEX );
 	grid.rc.AddData( 0 );
 
