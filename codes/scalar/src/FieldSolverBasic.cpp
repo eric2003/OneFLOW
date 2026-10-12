@@ -316,9 +316,10 @@ void FieldSolverBasic::Reorder( RealField & a, RealField & b, RealField & c )
 
 void FieldSolverBasic::GetVisualData( DataBook & dataBook )
 {
-    ScalarGrid & grid = ScalarZone::GetGridReference();
+    // Diagnostic export: read-only on grid and field q.
+    const ScalarGrid & grid = ScalarZone::GetConstGridReference();
 
-    RealField & q = GetFieldReference< MRField > ( &grid, "q" ).AsOneD();
+    const RealField & q = GetFieldReference< MRField >( &grid, "q" ).AsOneD();
 
     int nCells = grid.GetNCells();
 
@@ -366,7 +367,7 @@ void FieldSolverBasic::AddVisualData( DataBook & dataBook, RealField & qList, Re
     }
 }
 
-void FieldSolverBasic::Theory( ScalarGrid & grid, Real time, RealField & theory )
+void FieldSolverBasic::Theory( const ScalarGrid & grid, Real time, RealField & theory )
 {
     int nCells = grid.GetNCells();
     theory.resize( nCells );

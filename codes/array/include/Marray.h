@@ -66,6 +66,11 @@ public:
         return data[ 0 ];
     }
 
+    const HXVector< T > & AsOneD() const
+    {
+        return data[ 0 ];
+    }
+
     Marray< T > & operator = ( const T & value )
     {
         HXSize_t nEqu = this->GetNEqu();

@@ -116,4 +116,9 @@ FieldWrap * BgField::GetFieldWrap( int zid, int solverIndex, int fid, int gl )
     return BgField::data[ zid ]->data[ solverIndex ][ fid ][ gl ].get();
 }
 
+const FieldWrap * BgField::GetConstFieldWrap( int zid, int solverIndex, int fid, int gl )
+{
+    return BgField::data[ zid ]->data[ solverIndex ][ fid ][ gl ].get();
+}
+
 EndNameSpace

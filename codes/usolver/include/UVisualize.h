@@ -43,7 +43,7 @@ public:
 public:
     void Init();
     void AddTitle( const std::string & varName );
-    MRField * AddField( RealField & qCellField, const std::string & varName );
+    MRField * AddField( const RealField & qCellField, const std::string & varName );
     MRField * AddField( const std::string & varName );
     MRField * CreateField( const std::string & varName, int nEqu = 1 );
 };

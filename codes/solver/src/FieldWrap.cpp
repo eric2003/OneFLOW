@@ -46,6 +46,11 @@ MRField * FieldWrap::GetUnsField()
     return view;
 }
 
+const MRField * FieldWrap::GetConstUnsField() const
+{
+    return view;
+}
+
 void FieldWrap::SetUnsField( MRField * unsField, bool deleteFlag )
 {
     if ( deleteFlag )

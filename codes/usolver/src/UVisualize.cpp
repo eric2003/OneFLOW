@@ -22,6 +22,7 @@ License
 
 #include "UVisualize.h"
 #include "NodeField.h"
+#include "Iteration.h"
 #include "HXMath.h"
 #include "DataBook.h"
 #include "DataBase.h"
@@ -61,7 +62,7 @@ void VisualTool::AddTitle( const std::string & varName )
     title.push_back( AddString( "\"",  varName, "\"" ) );
 }
 
-MRField * VisualTool::AddField( RealField & qc, const std::string & varName )
+MRField * VisualTool::AddField( const RealField & qc, const std::string & varName )
 {
     this->AddTitle( varName );
     auto fn = InterpolateCellToNode( qc );
@@ -553,21 +554,27 @@ void UVisualize::ShowBcDebugTest( std::ostringstream & oss, VisualTool * visualT
 
 void UVisualize::CalcNodeField( VisualTool * visualTool )
 {
-    UnsGrid * grid = Zone::GetUnsGrid();
-    MRField * q = ONEFLOW::GetFieldPointer< MRField >( grid, "q" );
+    // Cell->node logistics: read cell fields, own temporary node fields.
+    const UnsGrid * grid = Zone::GetConstUnsGrid();
+    const MRField * q = ONEFLOW::GetFieldPointer< MRField >( grid, "q" );
     MRField * rn = visualTool->AddField( (*q)[IDX::IR], "r" );
     MRField * un = visualTool->AddField( (*q)[IDX::IU], "u" );
     MRField * vn = visualTool->AddField( (*q)[IDX::IV], "v" );
     MRField * wn = visualTool->AddField( (*q)[IDX::IW], "w" );
     MRField * pn = visualTool->AddField( (*q)[IDX::IP], "p" );
 
-    // FIX: Use std::unique_ptr to manage gaman's lifetime
     auto gaman = InterpolateCellToNode( "gama" );
     MRField * machn = visualTool->CreateField( "mach" );
     CalcMach( rn, un, vn, wn, pn, gaman.get(), machn );
-    // gaman is automatically released here
 
-    MRField * tempr = ONEFLOW::GetFieldPointer< MRField >( grid, "tempr" );
+    // Pilot: node->cell round-trip exercises the inverse conversion component.
+    if ( Iteration::outerSteps == -31 )
+    {
+        auto cellBack = InterpolateNodeToCell( ( * gaman )[ 0 ] );
+        (void)cellBack;
+    }
+
+    const MRField * tempr = ONEFLOW::GetFieldPointer< MRField >( grid, "tempr" );
     visualTool->AddField( (*tempr)[IDX::ITT], "tempr" );
 
     if ( vis_model.vismodel > 0 )
@@ -580,7 +587,7 @@ void UVisualize::CalcNodeField( VisualTool * visualTool )
 
 void CalcMach( MRField * r, MRField * u, MRField * v, MRField * w, MRField * p, MRField * gama, MRField * mach )
 {
-    UnsGrid * grid = Zone::GetUnsGrid();
+    const UnsGrid * grid = Zone::GetConstUnsGrid();
     int nNodes = grid->nNodes;
     for ( int iNode = 0; iNode < nNodes; ++ iNode )
     {

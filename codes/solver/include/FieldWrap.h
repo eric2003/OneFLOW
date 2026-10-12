@@ -43,6 +43,7 @@ protected:
     MRField * view = nullptr;
 public:
     MRField * GetUnsField();
+    const MRField * GetConstUnsField() const;
     void SetUnsField( MRField * unsField, bool deleteFlag = false );
     void SetOwnedField( std::unique_ptr<MRField> field );
 };

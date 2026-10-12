@@ -60,6 +60,8 @@ public:
     static void Free();
     // Non-owning: lifetime owned by BgField::data[zid].
     static FieldWrap * GetFieldWrap( int zid, int solverIndex, int fid, int gl );
+    // Read-only view for diagnostics / pure-read algorithms.
+    static const FieldWrap * GetConstFieldWrap( int zid, int solverIndex, int fid, int gl );
 };
 
 
