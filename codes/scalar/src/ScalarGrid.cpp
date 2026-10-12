@@ -137,13 +137,28 @@ void IntList::Reserve( int new_size )
 
 void IntList::ReOrder( const IntList & orderMap )
 {
-	IntList dataSwap = * this;
-	size_t nElems = this->GetNElements();
+	const size_t nElems = this->GetNElements();
+	if ( orderMap.GetNElements() != nElems )
+	{
+		throw std::invalid_argument( "IntList::ReOrder: order map size must match list size" );
+	}
 
+	std::vector< bool > seen( nElems, false );
 	for ( size_t i = 0; i < nElems; ++ i )
 	{
-		size_t j = orderMap[ i ];
-		( * this )[ i ] = dataSwap[ j ];
+		const int sourceIndex = orderMap[ i ];
+		if ( sourceIndex < 0 || static_cast< size_t >( sourceIndex ) >= nElems ||
+			 seen[ static_cast< size_t >( sourceIndex ) ] )
+		{
+			throw std::invalid_argument( "IntList::ReOrder: order map must be a permutation" );
+		}
+		seen[ static_cast< size_t >( sourceIndex ) ] = true;
+	}
+
+	const std::vector< int > original = data;
+	for ( size_t i = 0; i < nElems; ++ i )
+	{
+		data[ i ] = original[ static_cast< size_t >( orderMap[ i ] ) ];
 	}
 }
 
@@ -174,13 +189,28 @@ void EList::AddElem( const std::vector< int > &elem )
 
 void EList::ReOrder( const IntList & orderMap )
 {
-	EList dataSwap = * this;
-	size_t nElems = this->GetNElements();
+	const size_t nElems = this->GetNElements();
+	if ( orderMap.GetNElements() != nElems )
+	{
+		throw std::invalid_argument( "EList::ReOrder: order map size must match list size" );
+	}
 
+	std::vector< bool > seen( nElems, false );
 	for ( size_t i = 0; i < nElems; ++ i )
 	{
-		size_t j = orderMap[ i ];
-		( * this )[ i ] = dataSwap[ j ];
+		const int sourceIndex = orderMap[ i ];
+		if ( sourceIndex < 0 || static_cast< size_t >( sourceIndex ) >= nElems ||
+			 seen[ static_cast< size_t >( sourceIndex ) ] )
+		{
+			throw std::invalid_argument( "EList::ReOrder: order map must be a permutation" );
+		}
+		seen[ static_cast< size_t >( sourceIndex ) ] = true;
+	}
+
+	const std::vector< std::vector< int > > original = data;
+	for ( size_t i = 0; i < nElems; ++ i )
+	{
+		data[ i ] = original[ static_cast< size_t >( orderMap[ i ] ) ];
 	}
 }
 
@@ -1327,12 +1357,22 @@ void ScalarGrid::ReorderFaces()
 	IntList orderMap;
 	this->CalcOrderMap( orderMap );
 
+	const size_t nFaces = orderMap.GetNElements();
+	if ( this->lc.GetNElements() != nFaces ||
+		 this->rc.GetNElements() != nFaces ||
+		 this->lpos.GetNElements() != nFaces ||
+		 this->rpos.GetNElements() != nFaces ||
+		 this->fTypes.GetNElements() != nFaces ||
+		 this->fBcTypes.GetNElements() != nFaces ||
+		 this->faces.GetNElements() != nFaces )
+	{
+		throw std::logic_error( "ScalarGrid::ReorderFaces: face topology arrays have inconsistent sizes" );
+	}
+
 	this->lc.ReOrder( orderMap );
 	this->rc.ReOrder( orderMap );
-
 	this->lpos.ReOrder( orderMap );
 	this->rpos.ReOrder( orderMap );
-
 	this->fTypes.ReOrder( orderMap );
 	this->fBcTypes.ReOrder( orderMap );
 	this->faces.ReOrder( orderMap );
