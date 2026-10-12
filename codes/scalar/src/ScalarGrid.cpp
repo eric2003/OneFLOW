@@ -73,6 +73,15 @@ void RealList::AddData( Real value )
 	data.push_back( value );
 }
 
+void RealList::Reserve( int new_capacity )
+{
+	if ( new_capacity < 0 )
+	{
+		throw std::invalid_argument( "RealList::Reserve: capacity must be non-negative" );
+	}
+	data.reserve( static_cast< size_t >( new_capacity ) );
+}
+
 void RealList::Resize( int new_size )
 {
 	if ( new_size < 0 )
@@ -491,6 +500,14 @@ void ScalarGrid::GenerateGrid( int ni, Real xmin, Real xmax )
 	}
 
 	this->ResetMeshData();
+
+	// Reserve source-mesh storage once when the final sizes are known.
+	// Topology is still built separately by CalcTopology().
+	xn.Reserve( ni );
+	yn.Reserve( ni );
+	zn.Reserve( ni );
+	elements.Reserve( ni - 1 );
+	eTypes.Reserve( ni - 1 );
 
 	Real dx = ( xmax - xmin ) / ( ni - 1 );
 
