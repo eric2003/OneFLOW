@@ -64,6 +64,8 @@ void Grad::CalcGrad()
         HXDebug::DumpField( fname, qField );
         HXDebug::CompareFile( 1.0e-12, idumpcell );
 
+        // Literal "q": debug always dumps NS mean-flow reference, even when
+        // Grad::name is turbq/tempr. See FieldWrap.h (cross-solver path).
         const UnsGrid * grid = Zone::GetConstUnsGrid();
         const MRField * qq = GetFieldPointer< MRField >( grid, "q" );
         HXDebug::DumpField( "flowq.debug", qq );

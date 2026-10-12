@@ -53,10 +53,11 @@ void InitUnsField()
     unsf.q  = FieldHome::GetSolutionField( grid );
     //unsf.q1 = ONEFLOW::GetFieldPointer< MRField >( grid, "q1" );
     //unsf.q2 = ONEFLOW::GetFieldPointer< MRField >( grid, "q2" );
+    // dq stays literal (MULTI_STAGE alias in UNsCom); grad via SolverInfo.
     unsf.dq = ONEFLOW::GetFieldPointer< MRField >( grid, "dq" );
-    unsf.dqdx = ONEFLOW::GetFieldPointer< MRField >( grid, "dqdx" );
-    unsf.dqdy = ONEFLOW::GetFieldPointer< MRField >( grid, "dqdy" );
-    unsf.dqdz = ONEFLOW::GetFieldPointer< MRField >( grid, "dqdz" );
+    unsf.dqdx = FieldHome::GetGradField( grid, 1 );
+    unsf.dqdy = FieldHome::GetGradField( grid, 2 );
+    unsf.dqdz = FieldHome::GetGradField( grid, 3 );
 
     unsf.visl = ONEFLOW::GetFieldPointer< MRField >( grid, "visl" );
     unsf.vist = ONEFLOW::GetFieldPointer< MRField >( grid, "vist" );

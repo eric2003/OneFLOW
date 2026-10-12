@@ -191,6 +191,8 @@ void CalcAeroForce(int idump_pres)
 
 	RealField & area = grid->GetFaceMesh().area;
 
+	// Literal "q": aero force is always NS mean-flow (IDX/IIDX), not current-solver
+	// solution name. See FieldWrap.h naming convention (cross-solver / NS-only path).
 	MRField * q = GetFieldPointer< MRField >(grid, "q");
 	MRField * visl = GetFieldPointer< MRField >(grid, "visl");
 

@@ -24,6 +24,7 @@ License
 #include "UCom.h"
 #include "TurbCom.h"
 #include "DataBase.h"
+#include "FieldWrap.h"
 #include "FieldManager.h"
 #include "FaceTopo.h"
 #include "BcRecord.h"
@@ -52,15 +53,16 @@ void UTurbGrad::Init()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
-    name  = "turbq";
-    namex = "turbdqdx";
-    namey = "turbdqdy";
-    namez = "turbdqdz";
+    // Current-solver solution/grad via SolverInfo::gradString.
+    name  = FieldHome::GetGradName( 0 );
+    namex = FieldHome::GetGradName( 1 );
+    namey = FieldHome::GetGradName( 2 );
+    namez = FieldHome::GetGradName( 3 );
 
-    q    = GetFieldPointer< MRField > ( grid, name  );
-    dqdx = GetFieldPointer< MRField > ( grid, namex );
-    dqdy = GetFieldPointer< MRField > ( grid, namey );
-    dqdz = GetFieldPointer< MRField > ( grid, namez );
+    q    = FieldHome::GetSolutionField( grid );
+    dqdx = FieldHome::GetGradField( grid, 1 );
+    dqdy = FieldHome::GetGradField( grid, 2 );
+    dqdz = FieldHome::GetGradField( grid, 3 );
 
     bdqdx = GetFieldPointer< MRField > ( grid, "turbbcdqdx" );
     bdqdy = GetFieldPointer< MRField > ( grid, "turbbcdqdy" );

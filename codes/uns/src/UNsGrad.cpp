@@ -24,6 +24,7 @@ License
 #include "UCom.h"
 #include "NsCom.h"
 #include "DataBase.h"
+#include "FieldWrap.h"
 #include "FieldManager.h"
 #include "FaceTopo.h"
 #include "BcRecord.h"
@@ -52,15 +53,16 @@ void UNsGrad::Init()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
-    name  = "q";
-    namex = "dqdx";
-    namey = "dqdy";
-    namez = "dqdz";
+    // Current-solver solution/grad via SolverInfo::gradString.
+    name  = FieldHome::GetGradName( 0 );
+    namex = FieldHome::GetGradName( 1 );
+    namey = FieldHome::GetGradName( 2 );
+    namez = FieldHome::GetGradName( 3 );
 
-    q    = GetFieldPointer< MRField > ( grid, name  );
-    dqdx = GetFieldPointer< MRField > ( grid, namex );
-    dqdy = GetFieldPointer< MRField > ( grid, namey );
-    dqdz = GetFieldPointer< MRField > ( grid, namez );
+    q    = FieldHome::GetSolutionField( grid );
+    dqdx = FieldHome::GetGradField( grid, 1 );
+    dqdy = FieldHome::GetGradField( grid, 2 );
+    dqdz = FieldHome::GetGradField( grid, 3 );
     bdqdx = GetFieldPointer< MRField > ( grid, "bcdqdx" );
     bdqdy = GetFieldPointer< MRField > ( grid, "bcdqdy" );
     bdqdz = GetFieldPointer< MRField > ( grid, "bcdqdz" );

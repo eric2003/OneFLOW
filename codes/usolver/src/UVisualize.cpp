@@ -563,6 +563,8 @@ void UVisualize::ShowBcDebugTest( std::ostringstream & oss, VisualTool * visualT
 void UVisualize::CalcNodeField( VisualTool * visualTool )
 {
     // Cell->node logistics: read cell fields, own temporary node fields.
+    // Literal "q": visualize NS primitives via IDX::*; not turbq / GetSolutionField.
+    // See FieldWrap.h naming convention (cross-solver / NS-only path).
     const UnsGrid * grid = Zone::GetConstUnsGrid();
     const MRField * q = ONEFLOW::GetFieldPointer< MRField >( grid, "q" );
     MRField * rn = visualTool->AddField( (*q)[IDX::IR], "r" );

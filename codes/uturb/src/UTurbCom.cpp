@@ -46,15 +46,17 @@ UTurbField::~UTurbField()
 void UTurbField::Init()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
-    q   = FieldHome::GetSolutionField( grid );  // turb solver -> "turbq"
+    q   = FieldHome::GetSolutionField( grid );  // TURB -> "turbq"
     q1  = GetFieldPointer< MRField > ( grid, "turbq1" );
     q2  = GetFieldPointer< MRField > ( grid, "turbq2" );
+    // dq: literal "turbdq". MULTI_STAGE rebinds dq = res (see below).
     dq  = GetFieldPointer< MRField > ( grid, "turbdq" );
 
-    dqdx = GetFieldPointer< MRField > ( grid, "turbdqdx" );
-    dqdy = GetFieldPointer< MRField > ( grid, "turbdqdy" );
-    dqdz = GetFieldPointer< MRField > ( grid, "turbdqdz" );
+    dqdx = FieldHome::GetGradField( grid, 1 );
+    dqdy = FieldHome::GetGradField( grid, 2 );
+    dqdz = FieldHome::GetGradField( grid, 3 );
 
+    // Cross-solver: turb always reads NS mean flow by literal name (see FieldWrap.h).
     q_ns    = GetFieldPointer< MRField > ( grid, "q" );
     dqdx_ns = GetFieldPointer< MRField > ( grid, "dqdx" );
     dqdy_ns = GetFieldPointer< MRField > ( grid, "dqdy" );
@@ -79,6 +81,7 @@ void UTurbField::Init()
 
     if ( ctrl.time_integral == MULTI_STAGE )
     {
+        // Alias: update delta shares residual storage for multi-stage schemes.
         dq = res;
     }
 }

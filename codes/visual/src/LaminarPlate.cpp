@@ -60,6 +60,7 @@ LamVelCut::LamVelCut()
     sliceInfo.AddSlice( 0.4, X_DIR, Y_DIR );
     sliceInfo.AddSlice( 0.6, X_DIR, Y_DIR );
     sliceInfo.AddSlice( 0.8, X_DIR, Y_DIR );
+    // Literal "q": plate postprocess is NS mean-flow (see FieldWrap.h).
     nameList.push_back( "q" );
     nameList.push_back( "visl" );
     this->Init();
@@ -145,6 +146,7 @@ void LamVelCut::Dump( LamData * lamData, std::fstream & file, int axis )
 LamFriCut::LamFriCut()
 {
     sliceInfo.AddSlice( 0.0005, Y_DIR, X_DIR );
+    // Literal "q": plate postprocess is NS mean-flow (see FieldWrap.h).
     nameList.push_back( "q" );
     nameList.push_back( "visl" );
     this->Init();

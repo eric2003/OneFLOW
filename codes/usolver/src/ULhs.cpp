@@ -39,9 +39,10 @@ void ULhs::CalcLHS( int solverType )
     UnsGrid * grid = Zone::GetUnsGrid();
 
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
-    std::string & residualName = solverInfo->residualName;
-
-    MRField * dq = FieldHome::GetUnsField( grid, residualName );
+    // LHS scales the *residual* field (NS "res" / Turb "turbres"), not the
+    // database field named "dq". Local name is historical; under MULTI_STAGE
+    // UNsCom aliases dq pointer to this same residual storage.
+    MRField * residual = FieldHome::GetResidualField( grid );
 
     for ( int iEqu = 0; iEqu < solverInfo->nTEqu; ++ iEqu )
     {
@@ -49,7 +50,7 @@ void ULhs::CalcLHS( int solverType )
         {
             //Real dt = ctrl.pdt;
             Real dt = ( * unsf.timestep )[ 0 ][ cId ];
-            ( * dq )[ iEqu ][ cId ] *= ( dt / ( * ug.cvol )[ cId ] ) * ctrl.lhscoef;
+            ( * residual )[ iEqu ][ cId ] *= ( dt / ( * ug.cvol )[ cId ] ) * ctrl.lhscoef;
         }
     }
 }

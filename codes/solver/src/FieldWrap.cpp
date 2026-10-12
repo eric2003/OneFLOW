@@ -213,7 +213,36 @@ const MRField * FieldHome::GetConstSolutionField( const Grid * grid )
     return FieldHome::GetConstUnsField( grid, FieldHome::GetSolutionName() );
 }
 
+const std::string & FieldHome::GetGradName( int index )
+{
+    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( SolverState::solverType );
+    if ( index >= 0 && index < static_cast< int >( solverInfo->gradString.size() ) )
+    {
+        return solverInfo->gradString[ index ];
+    }
+    static const std::string kEmpty;
+    return kEmpty;
+}
 
+MRField * FieldHome::GetGradField( Grid * grid, int index )
+{
+    const std::string & name = FieldHome::GetGradName( index );
+    if ( name.empty() )
+    {
+        return nullptr;
+    }
+    return FieldHome::GetUnsField( grid, name );
+}
+
+const MRField * FieldHome::GetConstGradField( const Grid * grid, int index )
+{
+    const std::string & name = FieldHome::GetGradName( index );
+    if ( name.empty() )
+    {
+        return nullptr;
+    }
+    return FieldHome::GetConstUnsField( grid, name );
+}
 
 MRField * FieldHome::GetUnsField( Grid * grid, const std::string & fieldName )
 {

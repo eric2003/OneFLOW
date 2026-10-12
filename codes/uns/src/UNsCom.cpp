@@ -38,15 +38,17 @@ void UNsField::Init()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
-    q  = FieldHome::GetSolutionField( grid );  // pilot: solver-driven name (NS -> "q")
+    q  = FieldHome::GetSolutionField( grid );  // NS -> "q"
     q1  = GetFieldPointer< MRField > ( grid, "q1" );
     q2  = GetFieldPointer< MRField > ( grid, "q2" );
+    // dq: literal "dq". MULTI_STAGE below rebinds dq = res (same storage as residual).
+    // Do not route via a FieldHome helper until implicitString sites are unified.
     dq  = GetFieldPointer< MRField > ( grid, "dq" );
     limiter  = GetFieldPointer< MRField > ( grid, "limiter" );
     gama  = GetFieldPointer< MRField > ( grid, "gama" );
-    dqdx  = GetFieldPointer< MRField > ( grid, "dqdx" );
-    dqdy  = GetFieldPointer< MRField > ( grid, "dqdy" );
-    dqdz  = GetFieldPointer< MRField > ( grid, "dqdz" );
+    dqdx  = FieldHome::GetGradField( grid, 1 );
+    dqdy  = FieldHome::GetGradField( grid, 2 );
+    dqdz  = FieldHome::GetGradField( grid, 3 );
 
     dtdx  = GetFieldPointer< MRField > ( grid, "dtdx" );
     dtdy  = GetFieldPointer< MRField > ( grid, "dtdy" );
@@ -75,6 +77,7 @@ void UNsField::Init()
 
     if ( ctrl.time_integral == MULTI_STAGE )
     {
+        // Alias: update delta shares residual storage for multi-stage schemes.
         dq = res;
     }
 }

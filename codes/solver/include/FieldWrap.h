@@ -83,8 +83,39 @@ public:
     static const std::string & GetSolutionName();
     static MRField * GetSolutionField( Grid * grid );
     static const MRField * GetConstSolutionField( const Grid * grid );
+    // Gradient names from SolverInfo::gradString: [0]=solution, [1]=dx, [2]=dy, [3]=dz.
+    // index 0 == GetSolutionName(); out-of-range returns empty string / null field.
+    static const std::string & GetGradName( int index );
+    static MRField * GetGradField( Grid * grid, int index );
+    static const MRField * GetConstGradField( const Grid * grid, int index );
     static void GetSourceTargetField( Grid * grid, int fieldId, const std::string & fieldName, MRField *& sField, MRField *& tField, int orderFlag );
 };
+
+// ---------------------------------------------------------------------------
+// Field naming convention (prefix strategy)
+// ---------------------------------------------------------------------------
+// Driven by SolverInfo for the *current* solver (SolverState::solverType):
+//
+//   Role              NS / INS              Turbulence
+//   ---------------   -------------------   -------------------
+//   solution          q                     turbq
+//   residual          res                   turbres
+//   grad (d*/dx,y,z)  dqdx, dqdy, dqdz      turbdqdx, turbdqdy, turbdqdz
+//   update delta      dq                    turbdq
+//   BC face grad      bcdqdx/y/z            turbbcdqdx/y/z
+//
+// Rules:
+//   1. Current-solver logistics (UNsCom, UTurbCom, U*Grad, residual tasks):
+//      use FieldHome::GetSolutionField / GetResidualField / GetGradField.
+//   2. Cross-solver coupling (turb reads NS mean flow, aero force, visualize
+//      primitive NS components with IDX::*): keep literal names ("q", "dqdx", ...).
+//   3. Derived fields not in SolverInfo (q1/q2, limiter, visl, tempr, ...):
+//      stay literal until a dedicated registry exists.
+//   4. dq / implicitString: MULTI_STAGE aliases dq pointer to residual storage
+//      (UNsCom/UINsCom/UTurbCom). GetUpdateField already uses implicitString.
+//      ULhs scales residualName (local var historically named "dq"). Do not
+//      introduce GetUpdateDeltaField until those sites are audited together.
+// ---------------------------------------------------------------------------
 
 void SetField( FieldWrap * fieldWrap, Real value );
 void SetField( MRField * field, Real value );
