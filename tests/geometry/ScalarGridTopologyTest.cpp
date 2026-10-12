@@ -422,6 +422,8 @@ TEST( ScalarGridTopologyTest, FaceTopologyRoundTripReconstructsBoundaryGhostCell
     // These right-cell IDs are derived by NormalizeBc, not persisted topology.
     source.rc.AddData( 1 );
     source.rc.AddData( 2 );
+    source.bcTypes.AddData( 0 );
+    source.bcTypes.AddData( 0 );
 
     ONEFLOW::DataBook databook;
     source.WriteGridFaceTopology( &databook );
