@@ -44,17 +44,18 @@ UnitElement & ElementHome::GetUnitElement( int elementType )
 
 void ElementHome::Initialize()
 {
-    ElementHome::numberOfUnitElement = NofValidElementTypes;
+    HXVector< std::unique_ptr< UnitElement > > initializedElements;
+    initializedElements.reserve( NofValidElementTypes );
 
-    unitElement.clear();
-    unitElement.reserve( numberOfUnitElement );
-
-    for ( HXSize_t iUnitElement = 0; iUnitElement < numberOfUnitElement; ++ iUnitElement )
+    for ( HXSize_t iUnitElement = 0; iUnitElement < NofValidElementTypes; ++ iUnitElement )
     {
         auto unit = std::make_unique< UnitElement >();
         unit->Initialize( iUnitElement );
-        unitElement.push_back( std::move( unit ) );
+        initializedElements.push_back( std::move( unit ) );
     }
+
+    unitElement.swap( initializedElements );
+    ElementHome::numberOfUnitElement = static_cast< int >( unitElement.size() );
 }
 
 void ElementHome::Free()
