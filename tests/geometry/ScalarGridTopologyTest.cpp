@@ -1051,3 +1051,18 @@ TEST( ElementDimensionTest, RegistryRejectsOutOfRangeElementTypes )
         ONEFLOW::GetElementNodeNumbers( ONEFLOW::ElementHome::numberOfUnitElement ),
         std::out_of_range );
 }
+
+TEST( ElementDimensionTest, RegistryInitializationCanBeRepeated )
+{
+    const int expectedCount = ONEFLOW::ElementHome::numberOfUnitElement;
+    ASSERT_GT( expectedCount, 0 );
+
+    ONEFLOW::ElementHome::Initialize();
+    EXPECT_EQ( ONEFLOW::ElementHome::numberOfUnitElement, expectedCount );
+    EXPECT_EQ(
+        ONEFLOW::ElementHome::GetUnitElement( ONEFLOW::BAR_2 ).GetElementType(),
+        ONEFLOW::BAR_2 );
+
+    ONEFLOW::ElementHome::Initialize();
+    EXPECT_EQ( ONEFLOW::ElementHome::numberOfUnitElement, expectedCount );
+}
