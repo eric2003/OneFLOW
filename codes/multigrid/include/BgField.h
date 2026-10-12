@@ -44,9 +44,16 @@ public:
 
 // Multi-solver / multi-level field slots (logistics for algorithm plugins).
 // Layout: data[zone] -> BasicBgField::data[solverIndex][fid][gridLevel]
-//   fid: 0 = FLOW, 1 = RHS (see BasicBgField::Init)
+//   fid: 0 = FLOW  (solver working buffer; not the same object as named grid field "q")
+//   fid: 1 = RHS   (solver residual buffer accessed via FieldHome::GetUnsField(fieldId))
 // Each slot is FieldHome::CreateField() -> unique_ptr<FieldWrap> owning MRField.
 // GetFieldWrap returns a non-owning raw view (.get()) for solvers to read/write in place.
+//
+// Relation to named residual "res" on UnsGrid:
+//   SolverInfo::residualName (typically "res") is a zone-local database field on the grid.
+//   LoadResiduals: NegField(named "res", BgField RHS slot) — copies from fid=1 into "res".
+//   ResidualTask aggregates the named "res" field (FieldHome::GetConstUnsField(grid, residualName)).
+//   Do not confuse BgField fid=1 storage with the string key "res" on the grid DataBase.
 class BgField
 {
 public:

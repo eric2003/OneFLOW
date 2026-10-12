@@ -33,6 +33,7 @@ License
 #include "CellTopo.h"
 #include "Zone.h"
 #include "Iteration.h"
+#include "Ctrl.h"
 #include "DataBase.h"
 #include "StringUtils.h"
 #include <iostream>
@@ -48,7 +49,7 @@ void Grad::CalcGrad()
         ONEFLOW::CalcGradGGCellWeight( ( * q )[ iEqu ], ( * dqdx )[ iEqu ], ( * dqdy )[ iEqu ], ( * dqdz )[ iEqu ] );
     }
 
-    if ( Iteration::outerSteps == -31 )
+    if ( ctrl.debugFieldDump != 0 )
     {
         Real mindiff = 1.0e-10;
         int idumpface = 1;
@@ -105,7 +106,7 @@ void Grad::SwapBcGrad()
     DownloadInterfaceValue( grid, dqdy, namey, nEqu );
     DownloadInterfaceValue( grid, dqdz, namez, nEqu );
 
-    if ( Iteration::outerSteps == -31 )
+    if ( ctrl.debugFieldDump != 0 )
     {
         Real mindiff = 1.0e-10;
         int idumpface = 1;

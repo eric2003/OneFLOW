@@ -22,6 +22,9 @@ License
 
 #include "FieldTaskReg.h"
 #include "NodeField.h"
+#include "Fatal.h"
+#include "DataBase.h"
+#include "Grid.h"
 #include "InterField.h"
 #include "ActionState.h"
 #include "HXMath.h"
@@ -135,16 +138,34 @@ void StoreRHS( StringField & data )
 
 void ConvertNodeFieldToCell( StringField & data )
 {
-    // data[0]: cell-centered field name on current zone grid.
-    // Pipeline: cell -> node -> cell (formal bidirectional logistics / coupling hook).
+    // data[0]: source cell-centered field name on current zone grid.
+    // data[1]: optional target cell field name (default: same as source — in-place update).
+    // Real coupling: cell -> node -> cell, then write back into the named target field.
     if ( data.empty() )
     {
         return;
     }
-    const std::string & cellFieldName = data[ 0 ];
-    auto nodeField = InterpolateCellToNode( cellFieldName );
-    auto cellBack = InterpolateNodeToCell( ( * nodeField )[ 0 ] );
-    (void)cellBack;
+    const std::string & srcName = data[ 0 ];
+    const std::string & dstName = ( data.size() > 1 ) ? data[ 1 ] : data[ 0 ];
+
+    auto nodeField = InterpolateCellToNode( srcName );
+
+    Grid * grid = Zone::GetGrid();
+    MRField * target = ONEFLOW::GetFieldPointer< MRField >( grid, dstName );
+    if ( target == nullptr )
+    {
+        Fatal( "ConvertNodeFieldToCell: target field not allocated: " + dstName );
+    }
+
+    const int nEqu = nodeField->GetNEqu();
+    if ( target->GetNEqu() < nEqu )
+    {
+        Fatal( "ConvertNodeFieldToCell: target field nEqu smaller than source" );
+    }
+    for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
+    {
+        InterpolateNodeToCellForComponent( ( * target )[ iEqu ], ( * nodeField )[ iEqu ] );
+    }
 }
 
 EndNameSpace

@@ -37,8 +37,10 @@ public:
     Real pdt, pdt1;
     int linearTwoStepMethods;
     int showfield;
-    // 1: enable node<->cell coupling probe in visualization (replaces outerSteps==-31 magic).
+    // 1: enable node<->cell coupling probe in visualization.
     int probeNodeToCell;
+    // 1: enable Grad/VisFlux debug field dump/compare (replaces outerSteps==-31 magic).
+    int debugFieldDump;
     int addVisualizationSteps;
     int idualtime;
     int time_integral;

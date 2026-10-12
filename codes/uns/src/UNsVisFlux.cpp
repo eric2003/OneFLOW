@@ -40,6 +40,7 @@ License
 #include "ULimiter.h"
 #include "FieldManager.h"
 #include "Iteration.h"
+#include "Ctrl.h"
 #include <iostream>
 #include <iomanip>
 
@@ -237,7 +238,7 @@ void UNsVisFlux::AddVisFlux()
     MRField * res = GetFieldPointer< MRField >( grid, "res" );
 
     ONEFLOW::AddF2CField( res, visflux.get() );
-    if ( Iteration::outerSteps == -31 )
+    if ( ctrl.debugFieldDump != 0 )
     {
         Real mindiff = 1.0e-10;
         int idumpface = 1;

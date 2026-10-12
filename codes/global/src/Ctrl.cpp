@@ -54,6 +54,14 @@ void Ctrl::Init()
             this->probeNodeToCell = GetDataValue< int >( "probeNodeToCell" );
         }
     }
+    this->debugFieldDump = 0;
+    {
+        DataEntry * entry = ONEFLOW::GetGlobalDataBase()->RequireDataPara().FindDataEntry( "debugFieldDump" );
+        if ( entry != nullptr )
+        {
+            this->debugFieldDump = GetDataValue< int >( "debugFieldDump" );
+        }
+    }
     this->heatfluxFile = GetDataValue< std::string >( "heatfluxFile" );
     this->addVisualizationSteps = GetDataValue< int >( "addVisualizationSteps" );
     
