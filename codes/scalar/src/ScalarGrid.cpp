@@ -85,7 +85,11 @@ void RealList::AddData( Real value )
 
 void RealList::Resize( int new_size )
 {
-	data.resize( new_size );
+	if ( new_size < 0 )
+	{
+		throw std::invalid_argument( "RealList::Resize: size must be non-negative" );
+	}
+	data.resize( static_cast< size_t >( new_size ) );
 }
 
 IntList::IntList()
@@ -115,12 +119,20 @@ void IntList::AddData( int value )
 
 void IntList::Resize( int new_size )
 {
-	data.resize( new_size );
+	if ( new_size < 0 )
+	{
+		throw std::invalid_argument( "IntList::Resize: size must be non-negative" );
+	}
+	data.resize( static_cast< size_t >( new_size ) );
 }
 
 void IntList::Reserve( int new_size )
 {
-	data.reserve( new_size );
+	if ( new_size < 0 )
+	{
+		throw std::invalid_argument( "IntList::Reserve: size must be non-negative" );
+	}
+	data.reserve( static_cast< size_t >( new_size ) );
 }
 
 void IntList::ReOrder( const IntList & orderMap )
@@ -174,12 +186,20 @@ void EList::ReOrder( const IntList & orderMap )
 
 void EList::Resize( int new_size )
 {
-	data.resize( new_size );
+	if ( new_size < 0 )
+	{
+		throw std::invalid_argument( "EList::Resize: size must be non-negative" );
+	}
+	data.resize( static_cast< size_t >( new_size ) );
 }
 
 void EList::Reserve( int new_size )
 {
-	data.reserve( new_size );
+	if ( new_size < 0 )
+	{
+		throw std::invalid_argument( "EList::Reserve: size must be non-negative" );
+	}
+	data.reserve( static_cast< size_t >( new_size ) );
 }
 
 ScalarBcco::ScalarBcco()
