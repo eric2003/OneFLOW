@@ -32,9 +32,9 @@ BeginNameSpace( ONEFLOW )
 int GetNumberOfSolidCells( UnsGrid & grid )
 {
     BcRecord * bcRecord = &grid.GetFaceTopo().GetBcRecord();
-    bcRecord->CreateBcTypeRegion();
+    bcRecord->EnsureBcTypeRegion();
 
-    BcInfo * bcInfo = bcRecord->bcInfo.get();
+    BcInfo * bcInfo = bcRecord->GetBcInfo();
 
     int nRegion = bcInfo->bcType.size();
 

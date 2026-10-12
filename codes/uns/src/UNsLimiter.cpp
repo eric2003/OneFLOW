@@ -40,21 +40,9 @@ NsLimField::NsLimField()
 
 void NsLimField::Init()
 {
-    // Bind field views and allocate face buffers for this zone.
+    // Bind zone field views and allocate face buffers.
     UnsGrid * grid = Zone::GetUnsGrid();
-
-    q       = GetFieldPointer< MRField > ( grid, "q" );
-    dqdx    = GetFieldPointer< MRField > ( grid, "dqdx" );
-    dqdy    = GetFieldPointer< MRField > ( grid, "dqdy" );
-    dqdz    = GetFieldPointer< MRField > ( grid, "dqdz" );
-    limiter = GetFieldPointer< MRField > ( grid, "limiter" );
-
-    this->nEqu = q->GetNEqu();
-
-    // FIX: Use std::make_unique
-    qf1 = std::make_unique<MRField>( this->nEqu, grid->nFaces );
-    qf2 = std::make_unique<MRField>( this->nEqu, grid->nFaces );
-
+    BindFieldsAndAllocFaces( grid, "q", "dqdx", "dqdy", "dqdz", "limiter" );
     this->ckfun = & NsCheckFunction;
 }
 

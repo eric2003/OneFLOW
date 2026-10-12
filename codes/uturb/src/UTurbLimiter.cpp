@@ -36,20 +36,9 @@ TurbLimField::TurbLimField()
 
 void TurbLimField::Init()
 {
-    // Bind field views and allocate face buffers for this zone.
+    // Bind zone field views and allocate face buffers.
     UnsGrid * grid = Zone::GetUnsGrid();
-
-    q       = GetFieldPointer< MRField > ( grid, "turbq" );
-    dqdx    = GetFieldPointer< MRField > ( grid, "turbdqdx" );
-    dqdy    = GetFieldPointer< MRField > ( grid, "turbdqdy" );
-    dqdz    = GetFieldPointer< MRField > ( grid, "turbdqdz" );
-    limiter = GetFieldPointer< MRField > ( grid, "turblimiter" );
-
-    this->nEqu = q->GetNEqu();
-
-    qf1 = std::make_unique<MRField>( this->nEqu, grid->nFaces );
-    qf2 = std::make_unique<MRField>( this->nEqu, grid->nFaces );
-
+    BindFieldsAndAllocFaces( grid, "turbq", "turbdqdx", "turbdqdy", "turbdqdz", "turblimiter" );
     this->ckfun = & NoCheck;
 }
 

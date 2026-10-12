@@ -158,14 +158,14 @@ void BcVisual::Calcf2n( int bcType )
     const LinkField & total_f2n = faceTopo->faces;
     const BcRecord * bcRecord = &faceTopo->GetBcRecord();
 
-    // 清空数据
+    // Debug visualization helper.
     this->f2n.clear();
     this->l2g.clear();
 
     HXLookup<int> nodeLookup;
 
-    std::unordered_map<int, int> globalNodeToIndex;  // 全局节点编号 -> 局部索引
-    globalNodeToIndex.reserve(grid->nBFaces * 4);     // 预分配空间
+    std::unordered_map<int, int> globalNodeToIndex; // global id -> local index
+    // Preallocate roughly for boundary faces.
 
     int nBFaces = grid->nBFaces;
 
@@ -184,7 +184,7 @@ void BcVisual::Calcf2n( int bcType )
             auto it = globalNodeToIndex.find(globalNodeId);
             if (it == globalNodeToIndex.end())
             {
-                // 新节点：添加到全局池
+                // Debug visualization helper.
                 int localIndex = this->l2g.size();
                 globalNodeToIndex[globalNodeId] = localIndex;
                 this->l2g.push_back(globalNodeId);
@@ -192,7 +192,7 @@ void BcVisual::Calcf2n( int bcType )
             }
             else
             {
-                // 已存在的节点：使用已有索引
+                // Debug visualization helper.
                 localf2n.push_back(it->second);
             }
         }
@@ -316,11 +316,11 @@ void BcVisual::DumpSeveralElement()
     IntField eList = {1360, 1361};
     IntField nList, nList1, nList2;
 
-    // 使用 unordered_map 做节点去重和索引映射
-    std::unordered_map<int, int> nodeToIndex;  // 节点编号 -> 去重后的索引
-    IntField uniqueNodes;                      // 去重后的节点列表（按索引顺序）
-    IntField nodeIndices;                      // 每个原始节点的去重索引
-    IntField localNodeIds;                     // 原始节点编号列表
+    // Debug visualization helper.
+    std::unordered_map<int, int> nodeToIndex; // global id -> local index
+    IntField uniqueNodes; // local index map
+    IntField nodeIndices; // local index map
+    IntField localNodeIds; // local index map
 
     int iCount = 0;
     for ( int e : eList )
@@ -332,7 +332,7 @@ void BcVisual::DumpSeveralElement()
             auto it = nodeToIndex.find( nodeId );
             if ( it == nodeToIndex.end() )
             {
-                // 新节点：分配索引
+                // Emit node coordinates / connectivity (debug).
                 int newIndex = uniqueNodes.size();
                 nodeToIndex[ nodeId ] = newIndex;
                 uniqueNodes.push_back( nodeId );
@@ -340,7 +340,7 @@ void BcVisual::DumpSeveralElement()
             }
             else
             {
-                // 已存在的节点：使用已有索引
+                // Emit node coordinates / connectivity (debug).
                 nodeIndices.push_back( it->second );
             }
         }
@@ -359,14 +359,14 @@ void BcVisual::DumpSeveralElement()
         file << "\n";
     }
 
-    // 输出节点编号（调试信息）
+    // Emit node coordinates / connectivity (debug).
     for (int nodeId : localNodeIds)
     {
         int globalId = l2g[nodeId];
         file << globalId << "\n";
     }
 
-    // 输出单元连接
+    // Emit node coordinates / connectivity (debug).
     int pos = 0;
     int nodesPerFace = 4;  // QUADRILATERAL
     for (int e = 0; e < eList.size(); ++e)

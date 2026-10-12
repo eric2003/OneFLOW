@@ -166,9 +166,9 @@ void CalcAeroForce(int idump_pres)
 {
 	UnsGrid * grid = Zone::GetUnsGrid();
 	BcRecord * bcRecord = &grid->GetFaceTopo().GetBcRecord();
-	bcRecord->CreateBcTypeRegion();
+	bcRecord->EnsureBcTypeRegion();
 
-	BcInfo * bcInfo = bcRecord->bcInfo.get();
+	BcInfo * bcInfo = bcRecord->GetBcInfo();
 
 	int nRegion = bcInfo->bcType.size();
 

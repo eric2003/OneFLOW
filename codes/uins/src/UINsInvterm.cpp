@@ -507,7 +507,7 @@ void UINsInvterm::MomPre()
 	{
 		ug.fId = fId;
 
-		BcInfo * bcInfo = ug.bcRecord->bcInfo.get();
+		BcInfo * bcInfo = ug.bcRecord->GetBcInfo();
 
 		ug.fId = bcInfo->bcFace[ ug.ir ][ fId ];
 		ug.bcNameId = bcInfo->bcNameId[ ug.ir ][ fId ];
@@ -1152,7 +1152,7 @@ void UINsInvterm::UpdateSpeed()
 	{
 		ug.fId = fId;
 
-		BcInfo * bcInfo = ug.bcRecord->bcInfo.get();
+		BcInfo * bcInfo = ug.bcRecord->GetBcInfo();
 
 		ug.fId = bcInfo->bcFace[ug.ir][fId];
 		ug.bcNameId = bcInfo->bcNameId[ug.ir][fId];

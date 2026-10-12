@@ -42,7 +42,7 @@ BeginNameSpace( ONEFLOW )
 //{
 //    UnsGrid * grid = Zone::GetUnsGrid();
 //    BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord;
-//    bcRecord->CreateBcTypeRegion();
+//    bcRecord->EnsureBcTypeRegion();
 //
 //    ug.bcRecord = bcRecord;
 //}

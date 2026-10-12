@@ -71,7 +71,7 @@ void UINsBcSolver::SetId( int bcfId )
 {
     ug.bcfId = bcfId;
 
-    BcInfo * bcInfo = ug.bcRecord->bcInfo.get();
+    BcInfo * bcInfo = ug.bcRecord->GetBcInfo();
 
     ug.fId = bcInfo->bcFace[ ug.ir ][ bcfId ];
     ug.bcNameId = bcInfo->bcNameId[ ug.ir ][ bcfId ];

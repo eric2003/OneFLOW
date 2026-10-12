@@ -66,6 +66,14 @@ public:
     virtual ~LimField() = default;
 public:
     virtual void Init(){};
+    // Bind q/dq*/limiter field views and allocate face-side buffers.
+    void BindFieldsAndAllocFaces(
+        class UnsGrid * grid,
+        const char * qName,
+        const char * dqdxName,
+        const char * dqdyName,
+        const char * dqdzName,
+        const char * limiterName );
     Real ModifyLimiter( Real phil, Real phir );
     void CalcFaceValue();
     void CalcFaceValueWeighted();

@@ -98,7 +98,7 @@ void UGeom::CreateBcTypeRegion()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     BcRecord & bcRecord = grid->GetFaceTopo().GetBcRecord();
-    bcRecord.CreateBcTypeRegion();
+    bcRecord.EnsureBcTypeRegion();
 
     ug.bcRecord = &bcRecord;
 }
