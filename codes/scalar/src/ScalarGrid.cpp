@@ -364,11 +364,16 @@ void ScalarGrid::ValidateFaceTopology( const char * operation ) const
 
 	const int nodeCount = this->GetNNodes();
 	const int cellCount = this->GetNCells();
-	if ( this->yn.GetNElements() != static_cast< size_t >( nodeCount ) ||
+	if ( this->nNodes != nodeCount || this->yn.GetNElements() != static_cast< size_t >( nodeCount ) ||
 		 this->zn.GetNElements() != static_cast< size_t >( nodeCount ) )
 	{
 		throw std::logic_error( std::string( operation ) +
-			": node coordinate arrays have inconsistent sizes" );
+			": node count and coordinate arrays have inconsistent sizes" );
+	}
+	if ( this->nCells != cellCount )
+	{
+		throw std::logic_error( std::string( operation ) +
+			": cell count and element type array have inconsistent sizes" );
 	}
 
 	for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
