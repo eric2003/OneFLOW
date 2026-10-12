@@ -1037,5 +1037,6 @@ TEST( ElementDimensionTest, ReportsIntrinsicDimensionIndependentOfMeshDimension 
 TEST( ElementDimensionTest, RejectsInvalidOrUnsupportedElementTypes )
 {
     EXPECT_EQ( ONEFLOW::GetElementDimension( -1 ), -1 );
-    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::NofValidElementTypes ), -1 );
+    // CGNS exposes NofValidElementTypes as a macro, so it cannot be namespace-qualified.
+    EXPECT_EQ( ONEFLOW::GetElementDimension( 57 ), -1 );
 }
