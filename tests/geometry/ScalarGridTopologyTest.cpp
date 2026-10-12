@@ -626,6 +626,32 @@ TEST( ScalarGridTopologyTest, ReadBoundaryTopologyRejectsInterfaceCountMismatch 
 }
 
 
+TEST( ScalarGridTopologyTest, CalcTopologyInvalidatesInterfaceFaceMap )
+{
+    ONEFLOW::ScalarGrid grid;
+    grid.xn.AddData( 0.0 );
+    grid.xn.AddData( 1.0 );
+    grid.yn.AddData( 0.0 );
+    grid.yn.AddData( 0.0 );
+    grid.zn.AddData( 0.0 );
+    grid.zn.AddData( 0.0 );
+    grid.elements.AddElem( std::vector< int >{ 0, 1 } );
+    grid.eTypes.AddData( ONEFLOW::BAR_2 );
+
+    auto leftBoundary = std::make_unique< ONEFLOW::ScalarBcco >();
+    leftBoundary->AddBcPoint( 0 );
+    grid.scalarBccos->AddBcco( std::move( leftBoundary ) );
+
+    auto rightBoundary = std::make_unique< ONEFLOW::ScalarBcco >();
+    rightBoundary->AddBcPoint( 1 );
+    grid.scalarBccos->AddBcco( std::move( rightBoundary ) );
+
+    grid.scalarIFace->interface_to_bcface = { 17 };
+    grid.CalcTopology();
+
+    EXPECT_TRUE( grid.scalarIFace->interface_to_bcface.empty() );
+}
+
 TEST( ScalarGridTopologyTest, NormalizeRejectsOutOfRangeAdjacencyBeforeMutation )
 {
 	ONEFLOW::ScalarGrid grid;
