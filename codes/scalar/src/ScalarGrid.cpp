@@ -347,7 +347,8 @@ void ScalarGrid::ResetTopologyData()
 
 void ScalarGrid::ValidateFaceTopology( const char * operation ) const
 {
-	if ( this->nFaces < 0 || this->nBFaces < 0 || this->nBFaces > this->nFaces )
+	if ( this->nFaces < 0 || this->nBFaces < 0 || this->nBFaces > this->nFaces ||
+		 this->nBFaces != this->GetNBFaces() )
 	{
 		throw std::logic_error( std::string( operation ) +
 			": face and boundary-face counts are inconsistent" );
@@ -411,12 +412,8 @@ void ScalarGrid::ValidateFaceTopology( const char * operation ) const
 			const bool rightIsBoundarySentinel = rightCell == -1;
 			const bool rightIsExpectedGhost = rightCell == expectedGhostCell;
 
-			if ( leftCell < -1 || leftCell >= cellCount ||
-				 rightCell < -1 ||
-				 ( ! rightIsPhysical && ! rightIsBoundarySentinel && ! rightIsExpectedGhost ) ||
-				 ( ! leftIsPhysical && ! rightIsPhysical ) ||
-				 ( leftIsPhysical && rightIsPhysical ) ||
-				 ( rightIsExpectedGhost && ! leftIsPhysical ) )
+			if ( ! leftIsPhysical ||
+				 ( ! rightIsBoundarySentinel && ! rightIsExpectedGhost ) )
 			{
 				throw std::out_of_range( std::string( operation ) +
 					": boundary face must have exactly one physical adjacent cell" );
