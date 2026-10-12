@@ -59,13 +59,11 @@ void ElementHome::Initialize()
     }
 
     unitElement.swap( initializedElements );
-
 }
 
 void ElementHome::Free()
 {
     unitElement.clear();
-
 }
 
 class ElementHomeInit

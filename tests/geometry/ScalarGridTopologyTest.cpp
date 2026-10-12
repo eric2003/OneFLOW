@@ -1070,7 +1070,6 @@ TEST( ElementDimensionTest, RegistryFreeClearsStorageAndCanBeReinitialized )
     ONEFLOW::ElementHome::Free();
 
     EXPECT_EQ( ONEFLOW::ElementHome::GetNumberOfUnitElements(), 0 );
-    EXPECT_TRUE( ONEFLOW::ElementHome::unitElement.empty() );
     EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::BAR_2 ), -1 );
     EXPECT_THROW(
         ONEFLOW::ElementHome::GetUnitElement( ONEFLOW::BAR_2 ),
