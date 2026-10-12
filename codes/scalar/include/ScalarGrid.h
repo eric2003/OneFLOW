@@ -43,6 +43,7 @@ public:
 public:
     size_t GetNElements() const;
     void AddData( Real value );
+    void Reserve( int new_capacity );
     Real operator [] ( int i ) const
     {
         return data[ i ];
