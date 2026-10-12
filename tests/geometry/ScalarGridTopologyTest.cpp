@@ -1040,3 +1040,14 @@ TEST( ElementDimensionTest, RejectsInvalidOrUnsupportedElementTypes )
     // Use the geometry registry count instead of duplicating the CGNS element-count macro.
     EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::ElementHome::numberOfUnitElement ), -1 );
 }
+
+TEST( ElementDimensionTest, RegistryRejectsOutOfRangeElementTypes )
+{
+    EXPECT_THROW( ONEFLOW::ElementHome::GetUnitElement( -1 ), std::out_of_range );
+    EXPECT_THROW(
+        ONEFLOW::ElementHome::GetUnitElement( ONEFLOW::ElementHome::numberOfUnitElement ),
+        std::out_of_range );
+    EXPECT_THROW(
+        ONEFLOW::GetElementNodeNumbers( ONEFLOW::ElementHome::numberOfUnitElement ),
+        std::out_of_range );
+}
