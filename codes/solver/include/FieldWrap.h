@@ -34,13 +34,13 @@ const int RHS_FLOW_ORDER = 1;
 class FieldWrap
 {
 public:
-    FieldWrap();
-    ~FieldWrap();
+    FieldWrap() = default;
+    ~FieldWrap() = default;
 protected:
     // When owning: owned holds the field and view == owned.get().
     // When non-owning: owned is null and view points at an external field.
     std::unique_ptr<MRField> owned;
-    MRField * view;
+    MRField * view = nullptr;
 public:
     MRField * GetUnsField();
     void SetUnsField( MRField * unsField, bool deleteFlag = false );
@@ -52,8 +52,8 @@ class Grid;
 class FieldHome
 {
 public:
-    FieldHome();
-    ~FieldHome();
+    FieldHome() = default;
+    ~FieldHome() = default;
 public:
     static std::unique_ptr<FieldWrap> CreateField();
     static std::unique_ptr<FieldWrap> CreateField( int solverType );

@@ -41,15 +41,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-FieldWrap::FieldWrap()
-    : view( nullptr )
-{
-}
-
-FieldWrap::~FieldWrap()
-{
-}
-
 MRField * FieldWrap::GetUnsField()
 {
     return view;
@@ -73,16 +64,6 @@ void FieldWrap::SetOwnedField( std::unique_ptr<MRField> field )
 {
     owned = std::move( field );
     view = owned.get();
-}
-
-FieldHome::FieldHome()
-{
-    ;
-}
-
-FieldHome::~FieldHome()
-{
-    ;
 }
 
 std::unique_ptr<FieldWrap> FieldHome::CreateField()

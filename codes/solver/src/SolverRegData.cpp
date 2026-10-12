@@ -23,14 +23,4 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-SolverRegData::SolverRegData()
-{
-    ;
-}
-
-SolverRegData::~SolverRegData()
-{
-    ;
-}
-
 EndNameSpace

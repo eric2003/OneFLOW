@@ -32,16 +32,6 @@ StringField SolverNameClass::unsSolverNameList;
 StringField SolverNameClass::strSolverNameList;
 bool SolverNameClass::flag = false;
 
-SolverNameClass::SolverNameClass()
-{
-    ;
-}
-
-SolverNameClass::~SolverNameClass()
-{
-    ;
-}
-
 void SolverNameClass::Init()
 {
     if ( flag ) return;

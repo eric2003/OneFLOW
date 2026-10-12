@@ -29,8 +29,8 @@ BeginNameSpace( ONEFLOW )
 class ConvergeTask : public Task
 {
 public:
-    ConvergeTask();
-    ~ConvergeTask() override;
+    ConvergeTask() = default;
+    ~ConvergeTask() override = default;
 public:
     void Run() override;
     void CalcBool();

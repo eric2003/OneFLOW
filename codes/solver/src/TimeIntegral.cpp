@@ -42,16 +42,6 @@ BeginNameSpace( ONEFLOW )
 
 int SweepState::nSweeps = 1;
 
-SweepState::SweepState()
-{
-    ;
-}
-
-SweepState::~SweepState()
-{
-    ;
-}
-
 TIME_INTEGRAL TimeIntegral::timeIntegral;
 
 namespace
@@ -104,16 +94,6 @@ EulerRungeKuttaCapabilityRequest CurrentEulerRungeKuttaCapabilityRequest(
     return request;
 }
 
-}
-
-TimeIntegral::TimeIntegral()
-{
-    ;
-}
-
-TimeIntegral::~TimeIntegral()
-{
-    ;
 }
 
 void TimeIntegral::Init()

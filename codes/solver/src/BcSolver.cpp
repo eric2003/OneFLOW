@@ -24,28 +24,9 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-BcCom::BcCom()
-{
-    ;
-}
-
-BcCom::~BcCom()
-{
-    ;
-}
-
 void BcCom::Init()
 {
     ;
 }
 
-BcSolver::BcSolver()
-{
-    ;
-}
-
-BcSolver::~BcSolver()
-{
-    ;
-}
 EndNameSpace

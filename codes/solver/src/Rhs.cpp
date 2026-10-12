@@ -41,16 +41,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-Rhs::Rhs()
-{
-    ;
-}
-
-Rhs::~Rhs()
-{
-    ;
-}
-
 void Rhs::UpdateResiduals()
 {
 }

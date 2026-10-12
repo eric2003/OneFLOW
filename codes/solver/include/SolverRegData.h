@@ -27,8 +27,8 @@ BeginNameSpace( ONEFLOW )
 class SolverRegData
 {
 public:
-    SolverRegData();
-    ~SolverRegData();
+    SolverRegData() = default;
+    ~SolverRegData() = default;
 public:
     int solverType;
     std::string solverName;

@@ -31,8 +31,8 @@ BeginNameSpace( ONEFLOW )
 class SolverInfo
 {
 public:
-    SolverInfo();
-    ~SolverInfo();
+    SolverInfo() = default;
+    ~SolverInfo() = default;
 public:
     int nEqu;
     int nTEqu;
@@ -54,8 +54,8 @@ public:
 class SolverInfoFactory
 {
 public:
-    SolverInfoFactory();
-    ~SolverInfoFactory();
+    SolverInfoFactory() = default;
+    ~SolverInfoFactory() = default;
 public:
     // Owning storage of SolverInfo instances.
     static std::unique_ptr< std::map< int, std::unique_ptr< SolverInfo > > > data;

@@ -30,16 +30,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-ConvergeTask::ConvergeTask()
-{
-    ;
-}
-
-ConvergeTask::~ConvergeTask()
-{
-    ;
-}
-
 void ConvergeTask::Run()
 {
     ActionState::dataBook = this->dataBook.get();

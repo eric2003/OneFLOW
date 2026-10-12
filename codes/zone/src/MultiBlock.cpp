@@ -37,16 +37,6 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 BeginNameSpace( ONEFLOW )
 
-MultiBlock::MultiBlock()
-{
-    ;
-}
-
-MultiBlock::~MultiBlock()
-{
-    ;
-}
-
 void MultiBlock::ReadMultiBlockGrid()
 {
     StringField gridFileList;
@@ -55,7 +45,7 @@ void MultiBlock::ReadMultiBlockGrid()
     std::string gridFileName = ONEFLOW::GetGridFileName();
     gridFileList.push_back( gridFileName );
 
-    // InitLayout(nZones) -> per-file GridGroup::ReadGrid -> NormalizeLayout(localZid).
+    // Legacy note.
     Zone::ReadGrid( gridFileList );
 }
 
@@ -67,7 +57,7 @@ void MultiBlock::SetUpMultigrid()
 
 void MultiBlock::LoadGridAndBuildLink()
 {
-    // Stage L1: control DB -> grid path -> Zone layout + binary grid read.
+    // Block/face topology helper.
     MultiBlock::ReadMultiBlockGrid();
 
     // Stage L2: geometric metrics (GRID_SOLVER / CALC_METRICS task)

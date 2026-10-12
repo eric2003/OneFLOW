@@ -40,8 +40,8 @@ class SolverInfo;
 class Solver
 {
 public:
-    Solver();
-    virtual ~Solver();
+    Solver() = default;
+    virtual ~Solver() = default;
 public:
     virtual std::unique_ptr< Solver > Clone() const = 0;
 public:

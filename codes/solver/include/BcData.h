@@ -29,8 +29,8 @@ BeginNameSpace( ONEFLOW )
 class BcData
 {
 public:
-    BcData();
-    ~BcData();
+    BcData() = default;
+    ~BcData() = default;
 public:
     void Init( const std::string & fileName );
     void ReadList( const std::string & fileName );

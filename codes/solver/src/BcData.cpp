@@ -27,14 +27,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-BcData::BcData()
-{
-}
-
-BcData::~BcData()
-{
-}
-
 void BcData::Init( const std::string & fileName )
 {
     // BcData is reused by multiple cases in one process.

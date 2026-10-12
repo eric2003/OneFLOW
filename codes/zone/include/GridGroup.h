@@ -36,7 +36,7 @@ class GridGroup
 {
 public:
     GridGroup( int zoneStart = 0 );
-    ~GridGroup();
+    ~GridGroup() = default;
 public:
     int   nZones;
     IntField pid;

@@ -29,8 +29,8 @@ BeginNameSpace( ONEFLOW )
 class Rhs
 {
 public:
-    Rhs ();
-    ~Rhs();
+    Rhs() = default;
+    ~Rhs() = default;
 public:
     virtual void UpdateResiduals();
 };

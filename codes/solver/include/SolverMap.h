@@ -33,8 +33,8 @@ class Solver;
 class SolverMap
 {
 public:
-    SolverMap();
-    ~SolverMap();
+    SolverMap() = default;
+    ~SolverMap() = default;
 public:
     static IntField solverTypes;
     static std::map< int, int > solverTypeToIndex;

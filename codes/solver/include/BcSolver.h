@@ -29,8 +29,8 @@ BeginNameSpace( ONEFLOW )
 class BcCom
 {
 public:
-    BcCom();
-    ~BcCom();
+    BcCom() = default;
+    ~BcCom() = default;
 public:
     virtual void Init();
 public:
@@ -54,8 +54,8 @@ public:
 class BcSolver
 {
 public:
-    BcSolver();
-    ~BcSolver();
+    BcSolver() = default;
+    ~BcSolver() = default;
 };
 
 

@@ -32,8 +32,8 @@ BeginNameSpace( ONEFLOW )
 class SolverNameClass
 {
 public:
-    SolverNameClass();
-    ~SolverNameClass();
+    SolverNameClass() = default;
+    ~SolverNameClass() = default;
 
     static StringField unsSolverNameList;
     static StringField strSolverNameList;

@@ -37,8 +37,8 @@ class InterFaceTopo;
 class Zone
 {
 public:
-    Zone();
-    ~Zone();
+    Zone() = default;
+    ~Zone() = default;
 public:
     static int flag_test_grid;
     // One Grids list per zone id (multigrid levels stored as successive unique_ptrs).

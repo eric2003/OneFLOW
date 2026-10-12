@@ -37,8 +37,8 @@ class LusgsPair;
 class LusgsState
 {
 public:
-    LusgsState();
-    ~LusgsState();
+    LusgsState() = default;
+    ~LusgsState() = default;
 public:
     static HXVector< std::unique_ptr<LusgsSolver> > str;
     static HXVector< std::unique_ptr<LusgsSolver> > uns;
@@ -52,8 +52,8 @@ public:
 class SolverState
 {
 public:
-    SolverState();
-    ~SolverState();
+    SolverState() = default;
+    ~SolverState() = default;
 public:
     static int solverIndex; // Position of the active solver instance in the solver list.
     static int solverType;  // SolverType identifier of the active solver.

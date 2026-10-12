@@ -52,10 +52,6 @@ GridGroup::GridGroup( int zoneStart )
     this->zoneStart = zoneStart;
 }
 
-GridGroup::~GridGroup()
-{
-}
-
 void GridGroup::InitZoneLayout( const std::string & fileName )
 {
     this->InitZoneLayout( fileName, std::string() );
