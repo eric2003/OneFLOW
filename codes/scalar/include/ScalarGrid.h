@@ -36,8 +36,8 @@ BeginNameSpace( ONEFLOW )
 class RealList
 {
 public:
-    RealList() ;
-    ~RealList();
+    RealList() = default;
+    ~RealList() = default;
 public:
     std::vector< Real > data;
 public:
@@ -68,8 +68,8 @@ public:
 class IntList
 {
 public:
-    IntList() ;
-    ~IntList();
+    IntList() = default;
+    ~IntList() = default;
     IntList( const IntList & rhs );
 public:
     std::vector< int > data;
@@ -97,8 +97,8 @@ public:
 class EList
 {
 public:
-    EList() ;
-    ~EList();
+    EList() = default;
+    ~EList() = default;
 public:
     std::vector< std::vector< int > > data;
 public:
@@ -128,8 +128,8 @@ class ScalarGrid;
 class ScalarBcco
 {
 public:
-    ScalarBcco();
-    ~ScalarBcco();
+    ScalarBcco() = default;
+    ~ScalarBcco() = default;
 public:
     std::string bcName;
     int bcType;
@@ -149,7 +149,7 @@ public:
 class ScalarBccos
 {
 public:
-    ScalarBccos();
+    ScalarBccos() = default;
     ~ScalarBccos();
 public:
     std::vector< std::unique_ptr< ScalarBcco > > bccos;

@@ -34,16 +34,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-ScalarField::ScalarField()
-{
-	;
-}
-
-ScalarField::~ScalarField()
-{
-	;
-}
-
 void ScalarField::InitFlowField( ScalarGrid * grid )
 {
     this->grid = grid;

@@ -38,8 +38,8 @@ class DataBook;
 class ScalarIFaceIJ
 {
 public:
-    ScalarIFaceIJ() ;
-    ~ScalarIFaceIJ();
+    ScalarIFaceIJ() = default;
+    ~ScalarIFaceIJ() = default;
 public:
     int zonei, zonej;
     std::vector< int > ghostCells;

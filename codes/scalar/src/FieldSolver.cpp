@@ -86,14 +86,6 @@ void CheckScalarAccelError(
 
 }
 
-FieldSolver::FieldSolver()
-{
-}
-
-FieldSolver::~FieldSolver()
-{
-}
-
 void FieldSolver::Run()
 {
     TestMPI();

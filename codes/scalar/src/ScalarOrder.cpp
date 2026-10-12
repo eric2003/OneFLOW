@@ -32,22 +32,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-ScalarPara::ScalarPara()
-{
-}
-
-ScalarPara::~ScalarPara()
-{
-}
-
-ScalarOrder::ScalarOrder()
-{
-}
-
-ScalarOrder::~ScalarOrder()
-{
-}
-
 void ScalarOrder::Run1()
 {
     int nx0 = 40;

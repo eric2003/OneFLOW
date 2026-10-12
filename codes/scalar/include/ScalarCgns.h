@@ -33,8 +33,8 @@ BeginNameSpace( ONEFLOW )
 class SectionMarker
 {
 public:
-    SectionMarker();
-    ~SectionMarker();
+    SectionMarker() = default;
+    ~SectionMarker() = default;
 public:
     int cgns_type;
     std::string name;

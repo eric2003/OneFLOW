@@ -32,8 +32,8 @@ BeginNameSpace( ONEFLOW )
 class FieldPara
 {
 public:
-    FieldPara();
-    ~FieldPara();
+    FieldPara() = default;
+    ~FieldPara() = default;
 public:
     int nx;
     int nt;

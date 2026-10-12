@@ -85,14 +85,6 @@ void CloseLogFile( std::fstream & file )
     file.clear();
 }
 
-LogFile::LogFile()
-{
-}
-
-LogFile::~LogFile()
-{
-}
-
 void LogFile::SetCaseDir( const std::string & caseDir )
 {
     // Close any stream that may still belong to the previous case.

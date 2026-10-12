@@ -35,8 +35,8 @@ class ScalarGrid;
 class ScalarMetis
 {
 public:
-    ScalarMetis();
-    ~ScalarMetis();
+    ScalarMetis() = default;
+    ~ScalarMetis() = default;
 public:
     static void Run();
     static void Create1DMesh();

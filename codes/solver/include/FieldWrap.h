@@ -77,6 +77,12 @@ public:
     static const std::string & GetResidualName();
     static MRField * GetResidualField( Grid * grid );
     static const MRField * GetConstResidualField( const Grid * grid );
+    // Primary solution field name: SolverInfo::gradString[0] (NS: "q", Turb: "turbq").
+    // Prefer this over hard-coded "q" for current-solver logistics. Do not use for
+    // cross-solver coupling (e.g. turb reading NS mean flow still uses literal "q").
+    static const std::string & GetSolutionName();
+    static MRField * GetSolutionField( Grid * grid );
+    static const MRField * GetConstSolutionField( const Grid * grid );
     static void GetSourceTargetField( Grid * grid, int fieldId, const std::string & fieldName, MRField *& sField, MRField *& tField, int orderFlag );
 };
 

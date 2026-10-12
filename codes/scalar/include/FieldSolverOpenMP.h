@@ -29,8 +29,8 @@ BeginNameSpace( ONEFLOW )
 class FieldSolverOpenMP : public FieldSolverBasic
 {
 public:
-    FieldSolverOpenMP();
-    ~FieldSolverOpenMP();
+    FieldSolverOpenMP() = default;
+    ~FieldSolverOpenMP() = default;
 public:
     virtual void Run();
 public:

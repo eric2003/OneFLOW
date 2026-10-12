@@ -59,16 +59,6 @@ std::string Prj::execute_dir = "";
 std::string Prj::current_dir = "";
 std::string Prj::prjBaseDir = "";
 
-Prj::Prj()
-{
-    ;
-}
-
-Prj::~Prj()
-{
-    ;
-}
-
 void Prj::ProcessCmdLineArgs( std::vector<std::string> & args )
 {
     CmdLineOptions opt = Prj::ParseCmdLineArgs( args );

@@ -32,14 +32,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-FieldSolverOpenMP::FieldSolverOpenMP()
-{
-}
-
-FieldSolverOpenMP::~FieldSolverOpenMP()
-{
-}
-
 void FieldSolverOpenMP::Run()
 {
     int scalar_flag = ONEFLOW::GetDataValue< int >("scalar_flag");

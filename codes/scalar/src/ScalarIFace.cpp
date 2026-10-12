@@ -34,15 +34,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-ScalarIFaceIJ::ScalarIFaceIJ()
-{
-    ;
-}
-
-ScalarIFaceIJ::~ScalarIFaceIJ()
-{
-}
-
 void ScalarIFaceIJ::WriteInterfaceTopology( DataBook * databook ) const
 {
     if ( this->ifaces.size() != this->recv_ifaces.size() )

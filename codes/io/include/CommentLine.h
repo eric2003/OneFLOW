@@ -28,8 +28,8 @@ BeginNameSpace( ONEFLOW )
 class CommentLine
 {
 public:
-    CommentLine();
-    ~CommentLine();
+    CommentLine() = default;
+    ~CommentLine() = default;
 public:
     StringField commentdata;
 public:

@@ -31,8 +31,8 @@ BeginNameSpace( ONEFLOW )
 class Scalar
 {
 public:
-    Scalar();
-    ~Scalar();
+    Scalar() = default;
+    ~Scalar() = default;
 public:
     void Run();
 private:

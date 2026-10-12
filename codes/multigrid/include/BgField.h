@@ -55,7 +55,7 @@ public:
 //     Turbulence -> "turbres"
 //   Never hard-code "res"/"turbres" at call sites; use FieldHome::GetResidualField /
 //   GetConstResidualField / GetResidualName (driven by SolverState::solverType).
-//   LoadResiduals: NegField(named residual, BgField RHS slot) — fid=1 -> residualName field.
+//   LoadResiduals: NegField(named residual, BgField RHS slot) - fid=1 -> residualName field.
 //   ResidualTask aggregates the named residual (FieldHome::GetConstResidualField).
 //   Do not confuse BgField fid=1 storage with the string keys "res" / "turbres" on the grid DataBase.
 class BgField

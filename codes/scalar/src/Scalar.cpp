@@ -32,14 +32,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-Scalar::Scalar()
-{
-}
-
-Scalar::~Scalar()
-{
-}
-
 void Scalar::Run()
 {
     //Blasius * blasius = new Blasius();

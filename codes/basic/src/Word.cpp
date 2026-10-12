@@ -25,16 +25,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-Word::Word()
-{
-    ;
-}
-
-Word::~Word()
-{
-    ;
-}
-
 void Word::SkipLines( std::fstream & file, int numberOfLines )
 {
     std::string line;

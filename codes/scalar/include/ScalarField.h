@@ -35,8 +35,8 @@ class FieldPara;
 class ScalarField
 {
 public:
-    ScalarField();
-    ~ScalarField();
+    ScalarField() = default;
+    ~ScalarField() = default;
 public:
     ScalarGrid * grid;
     RealList q;

@@ -72,8 +72,8 @@ inline std::string DigitToString( T t, std::ios_base & ( * f )( std::ios_base & 
 class Word
 {
 public:
-    Word();
-    ~Word();
+    Word() = default;
+    ~Word() = default;
 public:
     static void ReadNextLine( std::fstream & file, std::string & line );
     static void SkipLines( std::fstream & file, int numberOfLines );

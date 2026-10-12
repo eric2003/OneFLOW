@@ -191,6 +191,30 @@ const MRField * FieldHome::GetConstResidualField( const Grid * grid )
 }
 
 
+const std::string & FieldHome::GetSolutionName()
+{
+    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( SolverState::solverType );
+    if ( ! solverInfo->gradString.empty() )
+    {
+        return solverInfo->gradString[ 0 ];
+    }
+    // Fallback when gradString not configured.
+    static const std::string kDefaultQ = "q";
+    return kDefaultQ;
+}
+
+MRField * FieldHome::GetSolutionField( Grid * grid )
+{
+    return FieldHome::GetUnsField( grid, FieldHome::GetSolutionName() );
+}
+
+const MRField * FieldHome::GetConstSolutionField( const Grid * grid )
+{
+    return FieldHome::GetConstUnsField( grid, FieldHome::GetSolutionName() );
+}
+
+
+
 MRField * FieldHome::GetUnsField( Grid * grid, const std::string & fieldName )
 {
     MRField * field = ONEFLOW::GetFieldPointer< MRField >( grid, fieldName );

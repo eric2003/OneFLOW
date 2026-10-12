@@ -63,16 +63,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-RealList::RealList()
-{
-	;
-}
-
-RealList::~RealList()
-{
-	;
-}
-
 size_t RealList::GetNElements() const
 {
 	return data.size();
@@ -90,16 +80,6 @@ void RealList::Resize( int new_size )
 		throw std::invalid_argument( "RealList::Resize: size must be non-negative" );
 	}
 	data.resize( static_cast< size_t >( new_size ) );
-}
-
-IntList::IntList()
-{
-	;
-}
-
-IntList::~IntList()
-{
-	;
 }
 
 IntList::IntList( const IntList & rhs )
@@ -162,16 +142,6 @@ void IntList::ReOrder( const IntList & orderMap )
 	}
 }
 
-EList::EList()
-{
-	;
-}
-
-EList::~EList()
-{
-	;
-}
-
 size_t EList::GetNElements() const
 {
 	return data.size();
@@ -232,14 +202,6 @@ void EList::Reserve( int new_size )
 	data.reserve( static_cast< size_t >( new_size ) );
 }
 
-ScalarBcco::ScalarBcco()
-{
-}
-
-ScalarBcco::~ScalarBcco()
-{
-}
-
 void ScalarBcco::PushBoundaryFace( int pt, int eType )
 {
 	IntList elem;
@@ -272,10 +234,6 @@ void ScalarBcco::ProcessVertexBc( IntSet & bcVertex )
 	}
 }
 
-
-ScalarBccos::ScalarBccos()
-{
-}
 
 ScalarBccos::~ScalarBccos() = default;
 

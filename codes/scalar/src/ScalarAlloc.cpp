@@ -30,14 +30,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-ScalarFieldProperty::ScalarFieldProperty()
-{
-}
-
-ScalarFieldProperty::~ScalarFieldProperty()
-{
-}
-
 void ScalarFieldProperty::AddField( const std::string & fieldName, int nEqu )
 {
     this->data[ fieldName ] = nEqu;
@@ -54,23 +46,11 @@ int ScalarFieldProperty::GetNEqu( const std::string & fileName )
     return -1;
 }
 
-ScalarFieldAlloc::ScalarFieldAlloc()
-{
-}
-
-ScalarFieldAlloc::~ScalarFieldAlloc()
-{
-}
-
 ScalarFieldManager::ScalarFieldManager()
 {
     this->interfaceAlloc = std::make_unique< ScalarFieldAlloc >();
     this->inner = std::make_unique< ScalarFieldAlloc >();
     this->faceField = std::make_unique< ScalarFieldAlloc >();
-}
-
-ScalarFieldManager::~ScalarFieldManager()
-{
 }
 
 void ScalarFieldManager::Init()

@@ -24,16 +24,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-SectionMarker::SectionMarker()
-{
-    ;
-}
-
-SectionMarker::~SectionMarker()
-{
-    ;
-}
-
 SectionManager::SectionManager()
 {
     ;

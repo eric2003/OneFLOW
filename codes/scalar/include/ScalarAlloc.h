@@ -32,8 +32,8 @@ BeginNameSpace( ONEFLOW )
 class ScalarFieldProperty
 {
 public:
-    ScalarFieldProperty();
-    ~ScalarFieldProperty();
+    ScalarFieldProperty() = default;
+    ~ScalarFieldProperty() = default;
 public:
     std::map< std::string, int > data;
 public:
@@ -46,8 +46,8 @@ class DataStorage;
 class ScalarFieldAlloc : public ScalarFieldProperty
 {
 public:
-    ScalarFieldAlloc();
-    ~ScalarFieldAlloc();
+    ScalarFieldAlloc() = default;
+    ~ScalarFieldAlloc() = default;
 public:
     template < typename TStorage >
     void AllocateField( TStorage * storage, int nElements )
@@ -79,7 +79,7 @@ class ScalarFieldManager
 {
 public:
     ScalarFieldManager();
-    ~ScalarFieldManager();
+    ~ScalarFieldManager() = default;
 public:
     std::unique_ptr< ScalarFieldAlloc > interfaceAlloc;
     std::unique_ptr< ScalarFieldAlloc > inner;
