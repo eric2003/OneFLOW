@@ -626,7 +626,7 @@ TEST( ScalarGridTopologyTest, ReadBoundaryTopologyRejectsInterfaceCountMismatch 
 }
 
 
-TEST( ScalarGridTopologyTest, CalcTopologyInvalidatesInterfaceFaceMap )
+TEST( ScalarGridTopologyTest, CalcTopologyResetsInterfaceTopology )
 {
     ONEFLOW::ScalarGrid grid;
     grid.xn.AddData( 0.0 );
