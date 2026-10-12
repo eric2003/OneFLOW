@@ -1004,6 +1004,24 @@ void ScalarGrid::PushElement( CgIntField & eNodeId, int eType )
 
 void ScalarGrid::PushElement( int p1, int p2, int eType )
 {
+	if ( eType < 0 || eType >= NofValidElementTypes ||
+		 ! ONEFLOW::IsBasicVolumeElementType( eType ) ||
+		 ONEFLOW::GetElementNodeNumbers( eType ) != 2 )
+	{
+		throw std::invalid_argument( "ScalarGrid::PushElement: element type must describe a two-node volume element" );
+	}
+
+	const int nodeCount = this->GetNNodes();
+	if ( p1 < 0 || p1 >= nodeCount || p2 < 0 || p2 >= nodeCount )
+	{
+		throw std::out_of_range( "ScalarGrid::PushElement: node index is outside the mesh node range" );
+	}
+	if ( p1 == p2 )
+	{
+		throw std::invalid_argument( "ScalarGrid::PushElement: cell connectivity must reference distinct nodes" );
+	}
+
+	// Validate the source connectivity before invalidating derived topology.
 	this->ResetTopologyData();
 
 	IntList elem;
