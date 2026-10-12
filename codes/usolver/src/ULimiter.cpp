@@ -328,17 +328,6 @@ void LimField::CalcFaceValueWeighted()
     }
 }
 
-Limiter::Limiter()
-{
-    // FIX: Use std::make_unique
-    lim = std::make_unique<Lim>();
-}
-
-Limiter::~Limiter()
-{
-    // std::unique_ptr automatically cleans up
-}
-
 void Limiter::CalcLimiter()
 {
     ug.Init();

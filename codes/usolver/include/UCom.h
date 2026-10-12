@@ -38,8 +38,8 @@ class UnsGrid;
 class UGeom
 {
 public:
-    UGeom();
-    ~UGeom();
+    UGeom() = default;
+    ~UGeom() = default;
 public:
     void Init();
     void CreateBcTypeRegion();
@@ -94,8 +94,8 @@ void AddF2CFieldDebug( MRField * cellField, MRField * faceField );
 class HXDebug
 {
 public:
-    HXDebug();
-    ~HXDebug();
+    HXDebug() = default;
+    ~HXDebug() = default;
     static std::string fileName1, fileName2;
 public:
     static void DumpResField( const std::string & fileName );

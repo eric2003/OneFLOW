@@ -28,8 +28,8 @@ BeginNameSpace( ONEFLOW )
 class ULhs : public Lhs
 {
 public:
-    ULhs();
-    ~ULhs() override;
+    ULhs() = default;
+    ~ULhs() override = default;
 public:
     void CalcLHS( int solverType ) override;
 };

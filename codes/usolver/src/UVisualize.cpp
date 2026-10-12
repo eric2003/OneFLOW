@@ -91,8 +91,6 @@ MRField * VisualTool::CreateField( const std::string & varName, int nEqu )
 
 void BcVisual::Calc( int bcType )
 {
-    UnsGrid * grid = Zone::GetUnsGrid();
-
     this->Calcf2n( bcType );
 
     e2n.resize( 0 );
@@ -154,10 +152,11 @@ void BcVisual::ResolveElementEdge()
 
 void BcVisual::Calcf2n( int bcType )
 {
-    UnsGrid * grid = Zone::GetUnsGrid();
-    FaceTopo * faceTopo = &grid->GetFaceTopo();
-    LinkField & total_f2n = faceTopo->faces;
-    BcRecord * bcRecord = &faceTopo->GetBcRecord();
+    // Read topology from const grid; write into this BcVisual only.
+    const UnsGrid * grid = Zone::GetConstUnsGrid();
+    const FaceTopo * faceTopo = &grid->GetFaceTopo();
+    const LinkField & total_f2n = faceTopo->faces;
+    const BcRecord * bcRecord = &faceTopo->GetBcRecord();
 
     // Çå¿ÕÊý¾Ý
     this->f2n.clear();
@@ -204,7 +203,8 @@ void BcVisual::Calcf2n( int bcType )
 
 void BcVisual::Dump( std::ostringstream & oss, VisualTool * visualTool, std::string & bcTitle )
 {
-    UnsGrid * grid = Zone::GetUnsGrid();
+    // Read-only dump of precomputed BC surface topology.
+    const UnsGrid * grid = Zone::GetConstUnsGrid();
 
     for ( HXSize_t i = 0; i < visualTool->title.size(); ++ i )
     {
@@ -296,7 +296,7 @@ void BcVisual::DumpDebug( std::ostringstream & oss, VisualTool * visualTool, std
 
 void BcVisual::DumpSeveralElement()
 {
-    UnsGrid * grid = Zone::GetUnsGrid();
+    const UnsGrid * grid = Zone::GetConstUnsGrid();
 
     int nNodes = l2g.size();
     int nFaces = e2n.size();
@@ -526,7 +526,8 @@ void UVisualize::ShowBc( std::ostringstream & oss, VisualTool * visualTool )
 void UVisualize::ShowBcDebugTest( std::ostringstream & oss, VisualTool * visualTool )
 {
     if ( IsTwoD() ) return;
-    UnsGrid * grid = Zone::GetUnsGrid();
+    // Read-only boundary debug visualization.
+    const UnsGrid * grid = Zone::GetConstUnsGrid();
 
     IntField bcTypeList;
     grid->GetFaceTopo().GetBcRecord().CalcBcType(bcTypeList);

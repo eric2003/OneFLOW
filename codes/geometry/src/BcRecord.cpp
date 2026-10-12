@@ -107,7 +107,7 @@ void BcRecord::Init( HXSize_t nBFaces )
     this->bcNameId.resize( nBFaces );
 }
 
-int BcRecord::CalcNIFace()
+int BcRecord::CalcNIFace() const
 {
     int nBFaces = this->GetNBFace();
 
@@ -123,7 +123,7 @@ int BcRecord::CalcNIFace()
     return nIFaces;
 }
 
-int BcRecord::CalcNumWallFace()
+int BcRecord::CalcNumWallFace() const
 {
     int nBFaces = this->GetNBFace();
 

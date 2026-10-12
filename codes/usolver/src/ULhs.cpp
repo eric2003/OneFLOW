@@ -34,16 +34,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-ULhs::ULhs()
-{
-    ;
-}
-
-ULhs::~ULhs()
-{
-    ;
-}
-
 void ULhs::CalcLHS( int solverType )
 {
     UnsGrid * grid = Zone::GetUnsGrid();

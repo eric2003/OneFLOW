@@ -87,11 +87,11 @@ public:
 class Limiter
 {
 public:
-    Limiter();
-    virtual ~Limiter();
+    Limiter() = default;
+    virtual ~Limiter() = default;
 public:
-    // FIX: Use std::unique_ptr for exclusive ownership
-    std::unique_ptr<Lim> lim;
+    // Owned limiter workspace (created at construction).
+    std::unique_ptr<Lim> lim = std::make_unique<Lim>();
     std::unique_ptr<LimField> limf;
     int limflag;
 public:

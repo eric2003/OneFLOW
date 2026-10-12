@@ -31,16 +31,6 @@ BeginNameSpace( ONEFLOW )
 
 VisGradGeom vgg;
 
-VisGradGeom::VisGradGeom()
-{
-    skewAngle = 20.0;
-}
-
-VisGradGeom::~VisGradGeom()
-{
-    ;
-}
-
 void VisGradGeom::CalcFaceWeight()
 {
     dxl = ( * ug.xfc )[ ug.fId ] - ( * ug.xcc )[ ug.lc ];
@@ -109,16 +99,6 @@ void VisGradGeom::CalcGradCoef()
     this->dz *= this->ods;
 }
 
-
-VisGrad::VisGrad()
-{
-    ;
-}
-
-VisGrad::~VisGrad()
-{
-    ;
-}
 
 void VisGrad::Init( int nEqu )
 {

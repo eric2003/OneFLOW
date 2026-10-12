@@ -34,8 +34,8 @@ const int VIS_NEW2 = 4;
 class VisGradGeom
 {
 public:
-    VisGradGeom();
-    ~VisGradGeom();
+    VisGradGeom() = default;
+    ~VisGradGeom() = default;
 public:
     void CalcFaceWeight();
     void CalcAngle( Real dx, Real dy, Real dz, Real dist, Real & angle );
@@ -53,7 +53,7 @@ public:
     Real c1, c2;
     Real d1, d2, d, od;
     Real angle1, angle2;
-    Real skewAngle;
+    Real skewAngle = 20.0;
 
     Real dx, dy, dz, ods;
 };
@@ -63,8 +63,8 @@ extern VisGradGeom vgg;
 class VisGrad
 {
 public:
-    VisGrad ();
-    ~VisGrad();
+    VisGrad() = default;
+    ~VisGrad() = default;
 public:
     int nEqu;
     void Init( int nEqu );

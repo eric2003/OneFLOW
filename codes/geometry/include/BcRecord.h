@@ -60,8 +60,8 @@ public:
 public:
     void Init( HXSize_t nBFaces );
     int GetNBFace() const;
-    int CalcNIFace();
-    int CalcNumWallFace();
+    int CalcNIFace() const;
+    int CalcNumWallFace() const;
     void GenerateI2B( InterFace & interFace );
 public:
     void CreateBcTypeRegion();

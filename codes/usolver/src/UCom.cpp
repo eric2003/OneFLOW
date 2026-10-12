@@ -41,16 +41,6 @@ BeginNameSpace( ONEFLOW )
 
 UGeom ug;
 
-UGeom::UGeom()
-{
-    ;
-}
-
-UGeom::~UGeom()
-{
-    ;
-}
-
 void UGeom::Init()
 {
     //UnsGrid * grid = Zone::GetUnsGrid();
@@ -238,16 +228,6 @@ void AddF2CFieldDebug( MRField * cellField, MRField * faceField )
 
 std::string HXDebug::fileName1;
 std::string HXDebug::fileName2;
-
-HXDebug::HXDebug()
-{
-    ;
-}
-
-HXDebug::~HXDebug()
-{
-    ;
-}
 
 std::string HXDebug::GetFullFileName( const std::string & fileName, int startStrategy )
 {
