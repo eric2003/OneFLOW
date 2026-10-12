@@ -217,6 +217,7 @@ private:
     void ResetMeshData();
     void ResetTopologyData();
     void ResetGeometryData();
+    void ValidateFaceTopology( const char * operation ) const;
     std::vector< IntSet > CollectBoundaryVertexSets( int nodeCount ) const;
     std::unique_ptr< DataBase > dataBase;
 public:
