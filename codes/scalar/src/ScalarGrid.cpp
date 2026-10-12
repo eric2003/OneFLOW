@@ -907,6 +907,10 @@ void ScalarGrid::PushElement( CgIntField & eNodeId, int eType )
 		}
 	}
 
+	// Cell connectivity defines the topology's source data; discard derived state
+	// before appending a cell to an existing mesh.
+	this->ResetTopologyData();
+
 	IntList elem;
 	for ( int nodeId : eNodeId )
 	{
@@ -919,6 +923,8 @@ void ScalarGrid::PushElement( CgIntField & eNodeId, int eType )
 
 void ScalarGrid::PushElement( int p1, int p2, int eType )
 {
+	this->ResetTopologyData();
+
 	IntList elem;
 	elem.AddData( p1 );
 	elem.AddData( p2 );
@@ -929,6 +935,8 @@ void ScalarGrid::PushElement( int p1, int p2, int eType )
 
 void ScalarGrid::PushBoundaryFace( int pt, int eType )
 {
+	this->ResetTopologyData();
+
 	IntList elem;
 	elem.AddData( pt );
 
