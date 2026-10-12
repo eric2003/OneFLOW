@@ -1832,7 +1832,8 @@ void ScalarGrid::ReadGridFaceTopology( DataBook * databook )
 	for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
 	{
 		const int nFaceNodes = numFaceNode[ iFace ];
-		if ( nFaceNodes < 0 ||
+		// Every face has at least one node, including point-faces in 1D.
+		if ( nFaceNodes <= 0 ||
 			 static_cast< size_t >( nFaceNodes ) > std::numeric_limits< int >::max() - nsum )
 		{
 			throw std::runtime_error( "ScalarGrid::ReadGridFaceTopology: invalid or overflowing face-node count" );

@@ -4,6 +4,8 @@
 #include "ScalarGrid.h"
 #include "Boundary.h"
 #include "ScalarIFace.h"
+#include "DataBook.h"
+#include "HXStd.h"
 
 TEST(ScalarGridTopologyTest, CalcC2CRejectsInvalidInternalCellReferences)
 {
@@ -316,4 +318,21 @@ TEST( ScalarGridTopologyTest, NormalizeBcRejectsConnectivitySizeMismatch )
     EXPECT_EQ( grid.rc.GetNElements(), 2u );
     EXPECT_EQ( grid.rc[ 0 ], -1 );
     EXPECT_EQ( grid.rc[ 1 ], -1 );
+}
+
+TEST( ScalarGridTopologyTest, ReadGridFaceTopologyRejectsEmptyFace )
+{
+    ONEFLOW::ScalarGrid grid;
+    grid.nNodes = 2;
+    grid.nCells = 1;
+    grid.nFaces = 1;
+
+    ONEFLOW::DataBook databook;
+    ONEFLOW::IntField faceTypes{ ONEFLOW::NODE };
+    ONEFLOW::IntField faceNodeCounts{ 0 };
+    ONEFLOW::HXWrite( &databook, faceTypes );
+    ONEFLOW::HXWrite( &databook, faceNodeCounts );
+    databook.MoveToBegin();
+
+    EXPECT_THROW( grid.ReadGridFaceTopology( &databook ), std::runtime_error );
 }
