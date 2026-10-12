@@ -1041,6 +1041,16 @@ TEST( ElementDimensionTest, RejectsInvalidOrUnsupportedElementTypes )
     EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::ElementHome::numberOfUnitElement ), -1 );
 }
 
+TEST( ElementDimensionTest, DimensionLookupUsesRegistryAsSourceOfTruth )
+{
+    const int savedCount = ONEFLOW::ElementHome::numberOfUnitElement;
+    ONEFLOW::ElementHome::numberOfUnitElement = 0;
+
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::BAR_2 ), 1 );
+
+    ONEFLOW::ElementHome::numberOfUnitElement = savedCount;
+}
+
 TEST( ElementDimensionTest, RegistryRejectsOutOfRangeElementTypes )
 {
     EXPECT_THROW( ONEFLOW::ElementHome::GetUnitElement( -1 ), std::out_of_range );
