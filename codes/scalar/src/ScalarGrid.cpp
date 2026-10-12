@@ -385,12 +385,18 @@ void ScalarGrid::ValidateFaceTopology( const char * operation ) const
 				": face connectivity must not be empty" );
 		}
 
+		std::unordered_set< int > uniqueNodeIds;
 		for ( const int nodeId : face )
 		{
 			if ( nodeId < 0 || nodeId >= nodeCount )
 			{
 				throw std::out_of_range( std::string( operation ) +
 					": face references an invalid node index" );
+			}
+			if ( ! uniqueNodeIds.insert( nodeId ).second )
+			{
+				throw std::logic_error( std::string( operation ) +
+					": face connectivity contains duplicate node indices" );
 			}
 		}
 
