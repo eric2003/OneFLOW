@@ -345,6 +345,62 @@ void ScalarGrid::ResetTopologyData()
 	this->ResetGeometryData();
 }
 
+void ScalarGrid::ValidateFaceTopology( const char * operation ) const
+{
+	if ( this->nFaces < 0 )
+	{
+		throw std::logic_error( std::string( operation ) + ": nFaces must be non-negative" );
+	}
+
+	const size_t faceCount = static_cast< size_t >( this->nFaces );
+	if ( this->faces.GetNElements() != faceCount ||
+		 this->fTypes.GetNElements() != faceCount ||
+		 this->lc.GetNElements() != faceCount ||
+		 this->rc.GetNElements() != faceCount )
+	{
+		throw std::logic_error( std::string( operation ) +
+			": face connectivity, types, and adjacency arrays must match nFaces" );
+	}
+
+	const int nodeCount = this->GetNNodes();
+	const int cellCount = this->GetNCells();
+	if ( this->yn.GetNElements() != static_cast< size_t >( nodeCount ) ||
+		 this->zn.GetNElements() != static_cast< size_t >( nodeCount ) )
+	{
+		throw std::logic_error( std::string( operation ) +
+			": node coordinate arrays have inconsistent sizes" );
+	}
+
+	for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
+	{
+		const std::vector< int > & face = this->faces[ iFace ];
+		if ( face.empty() )
+		{
+			throw std::logic_error( std::string( operation ) +
+				": face connectivity must not be empty" );
+		}
+
+		for ( const int nodeId : face )
+		{
+			if ( nodeId < 0 || nodeId >= nodeCount )
+			{
+				throw std::out_of_range( std::string( operation ) +
+					": face references an invalid node index" );
+			}
+		}
+
+		const int leftCell = this->lc[ iFace ];
+		const int rightCell = this->rc[ iFace ];
+		if ( leftCell < -1 || leftCell >= cellCount ||
+			 rightCell < -1 || rightCell >= cellCount ||
+			 ( leftCell < 0 && rightCell < 0 ) )
+		{
+			throw std::out_of_range( std::string( operation ) +
+				": face references invalid adjacent cells" );
+		}
+	}
+}
+
 void ScalarGrid::ResetGeometryData()
 {
 	xfc.data.clear();
@@ -1813,6 +1869,9 @@ void ScalarGrid::CreateNodes( int numberOfNodes )
 
 void ScalarGrid::WriteGridFaceTopology( DataBook * databook )
 {
+	// Validate the complete topology before writing any part of the serialized record.
+	this->ValidateFaceTopology( "ScalarGrid::WriteGridFaceTopology" );
+
 	std::cout << " Dumping this->fTypes \n";
 	ONEFLOW::HXWrite( databook, this->fTypes.data );
 
