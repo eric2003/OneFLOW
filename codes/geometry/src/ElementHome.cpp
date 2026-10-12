@@ -78,7 +78,7 @@ int GetElementNodeNumbers( int eType )
 
 int GetElementDimension( int eType )
 {
-    if ( eType < 0 || eType >= NofValidElementTypes ) return -1;
+    if ( eType < 0 || eType >= ElementHome::numberOfUnitElement ) return -1;
 
     switch ( eType )
     {
