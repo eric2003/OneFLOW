@@ -29,9 +29,16 @@ BeginNameSpace( ONEFLOW )
 
 class ElementHome
 {
-public:
-    ElementHome() = default;
-    ~ElementHome() = default;
+private:
+    ElementHome() = delete;
+    ~ElementHome() = delete;
+
+    ElementHome( const ElementHome & ) = delete;
+    ElementHome & operator=( const ElementHome & ) = delete;
+
+    ElementHome( ElementHome && ) = delete;
+    ElementHome & operator=( ElementHome && ) = delete;
+
 private:
     static HXVector< std::unique_ptr< UnitElement > > unitElements;
 public:
