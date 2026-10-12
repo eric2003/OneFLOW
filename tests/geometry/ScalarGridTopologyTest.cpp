@@ -320,6 +320,27 @@ TEST( ScalarGridTopologyTest, NormalizeBcRejectsConnectivitySizeMismatch )
     EXPECT_EQ( grid.rc[ 1 ], -1 );
 }
 
+TEST( ScalarGridTopologyTest, WriteGridFaceTopologyRejectsInconsistentParallelArrays )
+{
+    ONEFLOW::ScalarGrid grid;
+    grid.nNodes = 2;
+    grid.nCells = 1;
+    grid.nFaces = 1;
+    grid.xn.AddData( 0.0 );
+    grid.xn.AddData( 1.0 );
+    grid.yn.AddData( 0.0 );
+    grid.yn.AddData( 0.0 );
+    grid.zn.AddData( 0.0 );
+    grid.zn.AddData( 0.0 );
+    grid.faces.AddElem( std::vector< int >{ 0 } );
+    grid.lc.AddData( 0 );
+    grid.rc.AddData( -1 );
+    // fTypes intentionally remains empty to violate the face-record invariant.
+
+    ONEFLOW::DataBook databook;
+    EXPECT_THROW( grid.WriteGridFaceTopology( &databook ), std::logic_error );
+}
+
 TEST( ScalarGridTopologyTest, ReadGridFaceTopologyRejectsEmptyFace )
 {
     ONEFLOW::ScalarGrid grid;
