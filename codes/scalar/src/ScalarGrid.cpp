@@ -534,7 +534,29 @@ void ScalarGrid::GenerateGrid( int ni, Real xmin, Real xmax )
 			"ScalarGrid::GenerateGrid: domain bounds must define a finite, positive interval" );
 	}
 
-	// Validate all scalar inputs before clearing an existing mesh.
+	Real dx = domainLength / ( ni - 1 );
+	if ( ! std::isfinite( dx ) || dx <= 0.0 )
+	{
+		throw std::invalid_argument(
+			"ScalarGrid::GenerateGrid: spacing must be finite and positive" );
+	}
+
+	// A positive interval can still be too small to represent ni distinct
+	// floating-point coordinates. Check representability before replacing the
+	// current mesh, and keep the requested right endpoint exact.
+	Real previousX = xmin;
+	for ( int i = 1; i < ni; ++ i )
+	{
+		const Real x = i == ni - 1 ? xmax : xmin + i * dx;
+		if ( ! std::isfinite( x ) || x <= previousX )
+		{
+			throw std::invalid_argument(
+				"ScalarGrid::GenerateGrid: coordinates must be finite and strictly increasing" );
+		}
+		previousX = x;
+	}
+
+	// Validate scalar inputs and coordinate representability before clearing an existing mesh.
 	this->ResetMeshData();
 
 	// Reserve source-mesh storage once when the final sizes are known.
@@ -545,11 +567,9 @@ void ScalarGrid::GenerateGrid( int ni, Real xmin, Real xmax )
 	elements.Reserve( ni - 1 );
 	eTypes.Reserve( ni - 1 );
 
-	Real dx = ( xmax - xmin ) / ( ni - 1 );
-
 	for ( int i = 0; i < ni; ++ i )
 	{
-		Real xm = xmin + i * dx;
+		Real xm = i == ni - 1 ? xmax : xmin + i * dx;
 		Real ym = 0.0;
 		Real zm = 0.0;
 

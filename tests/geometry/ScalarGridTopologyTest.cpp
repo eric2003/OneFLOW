@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <stdexcept>
 #include <limits>
+#include <cmath>
 
 #include "ScalarGrid.h"
 #include "Boundary.h"
@@ -919,6 +920,25 @@ TEST( ScalarGridTopologyTest, GenerateGridRejectsNonFiniteDomainWithoutClearingE
 
 	ASSERT_EQ( grid.xn.GetNElements(), 1u );
 	EXPECT_DOUBLE_EQ( grid.xn[ 0 ], 7.0 );
+}
+
+TEST( ScalarGridTopologyTest, GenerateGridRejectsUnrepresentableSpacingWithoutClearingExistingMesh )
+{
+	ONEFLOW::ScalarGrid grid;
+	grid.xn.AddData( 42.0 );
+	grid.yn.AddData( 0.0 );
+	grid.zn.AddData( 0.0 );
+	grid.elements.AddElem( std::vector< int >{ 0, 0 } );
+	grid.eTypes.AddData( ONEFLOW::BAR_2 );
+
+	const ONEFLOW::Real xmin = 1.0;
+	const ONEFLOW::Real xmax = std::nextafter( xmin, 2.0 );
+	EXPECT_THROW( grid.GenerateGrid( 3, xmin, xmax ), std::invalid_argument );
+
+	ASSERT_EQ( grid.xn.GetNElements(), 1u );
+	EXPECT_DOUBLE_EQ( grid.xn[ 0 ], 42.0 );
+	ASSERT_EQ( grid.elements.GetNElements(), 1u );
+	EXPECT_EQ( grid.elements[ 0 ], ( std::vector< int >{ 0, 0 } ) );
 }
  
 TEST( ScalarGridTopologyTest, GenerateGridBuildsOneDimensionalUnstructuredMesh )
