@@ -89,6 +89,13 @@ MRField * VisualTool::CreateField( const std::string & varName, int nEqu )
     return rawPtr;
 }
 
+std::unique_ptr<MRField> VisualTool::ConvertNodeComponentToCell( int nodeFieldIndex, int iEqu ) const
+{
+    // Logistics API for cell-center solvers consuming node-based visualization/coupling fields.
+    const MRField * nodeField = qNodeField[ static_cast< HXSize_t >( nodeFieldIndex ) ].get();
+    return InterpolateNodeToCell( ( * nodeField )[ iEqu ] );
+}
+
 
 void BcVisual::Calc( int bcType )
 {
@@ -566,11 +573,10 @@ void UVisualize::CalcNodeField( VisualTool * visualTool )
     auto gaman = InterpolateCellToNode( "gama" );
     MRField * machn = visualTool->CreateField( "mach" );
     CalcMach( rn, un, vn, wn, pn, gaman.get(), machn );
-
-    // Pilot: node->cell round-trip exercises the inverse conversion component.
-    if ( Iteration::outerSteps == -31 )
+    // Optional formal coupling: convert first node field (e.g. density) back to cell (debug only).
+    if ( Iteration::outerSteps == -31 && ! visualTool->qNodeField.empty() )
     {
-        auto cellBack = InterpolateNodeToCell( ( * gaman )[ 0 ] );
+        auto cellBack = visualTool->ConvertNodeComponentToCell( 0, 0 );
         (void)cellBack;
     }
 

@@ -46,6 +46,8 @@ public:
     MRField * AddField( const RealField & qCellField, const std::string & varName );
     MRField * AddField( const std::string & varName );
     MRField * CreateField( const std::string & varName, int nEqu = 1 );
+    // Formal coupling: convert an owned node-field component back to cell-centered (caller owns result).
+    std::unique_ptr<MRField> ConvertNodeComponentToCell( int nodeFieldIndex, int iEqu = 0 ) const;
 };
 
 class BcVisual

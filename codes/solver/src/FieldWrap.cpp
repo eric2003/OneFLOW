@@ -157,6 +157,23 @@ MRField * FieldHome::GetUnsField( int fieldId )
     return field;
 }
 
+
+const FieldWrap * FieldHome::GetConstFieldWrap( int fieldId )
+{
+    return BgField::GetConstFieldWrap( ZoneState::zid, SolverState::solverIndex, fieldId, GridState::gridLevel );
+}
+
+const MRField * FieldHome::GetConstUnsField( int fieldId )
+{
+    const FieldWrap * fieldWrap = FieldHome::GetConstFieldWrap( fieldId );
+    return fieldWrap->GetConstUnsField();
+}
+
+const MRField * FieldHome::GetConstUnsField( const Grid * grid, const std::string & fieldName )
+{
+    return ONEFLOW::GetFieldPointer< MRField >( grid, fieldName );
+}
+
 MRField * FieldHome::GetUnsField( Grid * grid, const std::string & fieldName )
 {
     MRField * field = ONEFLOW::GetFieldPointer< MRField >( grid, fieldName );

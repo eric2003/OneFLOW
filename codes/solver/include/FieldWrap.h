@@ -68,8 +68,11 @@ public:
     static void SetUnsField( int fieldId, const std::string & fieldName, int orderFlag );
 public:
     static FieldWrap * GetFieldWrap( int fieldId );
+    static const FieldWrap * GetConstFieldWrap( int fieldId );
     static MRField * GetUnsField( int fieldId );
+    static const MRField * GetConstUnsField( int fieldId );
     static MRField * GetUnsField( Grid * grid, const std::string & fieldName );
+    static const MRField * GetConstUnsField( const Grid * grid, const std::string & fieldName );
     static void GetSourceTargetField( Grid * grid, int fieldId, const std::string & fieldName, MRField *& sField, MRField *& tField, int orderFlag );
 };
 
