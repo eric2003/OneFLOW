@@ -29,7 +29,7 @@ class NsLimField : public LimField
 {
 public:
     NsLimField();
-    ~NsLimField() override;
+    ~NsLimField() override = default;
 public:
     void Init() override;
     void BcQlQrFix() override;
@@ -39,7 +39,7 @@ class NsLimiter : public Limiter
 {
 public:
     NsLimiter();
-    ~NsLimiter() override;
+    ~NsLimiter() override = default;
 };
 
 EndNameSpace

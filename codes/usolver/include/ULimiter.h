@@ -98,6 +98,10 @@ public:
     bool limfIsNullPtr() const {
         return limf == nullptr;
     }
+    // Inject solver-specific LimField (Ns/INs/Turb) after construction.
+    void InjectLimField( std::unique_ptr< LimField > field ) {
+        limf = std::move( field );
+    }
     int GetNEquations() const {
         return limf->nEqu;
     }

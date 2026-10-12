@@ -50,6 +50,7 @@ BcRecord & BcRecord::operator=( const BcRecord & other )
 
 void BcRecord::CreateBcTypeRegion()
 {
+    // Write path: allocate and fill bcInfo once.
     if ( bcInfo ) return;
     this->bcInfo = std::make_unique< BcInfo >();
 

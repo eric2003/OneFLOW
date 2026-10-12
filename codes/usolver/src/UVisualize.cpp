@@ -248,7 +248,8 @@ void BcVisual::Dump( std::ostringstream & oss, VisualTool * visualTool, std::str
 
 void BcVisual::DumpDebug( std::ostringstream & oss, VisualTool * visualTool, std::string & bcTitle )
 {
-    UnsGrid * grid = Zone::GetUnsGrid();
+    // Read-only debug dump of BC surface geometry.
+    const UnsGrid * grid = Zone::GetConstUnsGrid();
 
     int nNodes = l2g.size();
     int nFaces = e2n.size();

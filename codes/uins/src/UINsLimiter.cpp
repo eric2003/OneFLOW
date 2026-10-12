@@ -43,14 +43,9 @@ INsLimField::INsLimField()
     this->nEqu = nscom.nEqu;
 }
 
-INsLimField::~INsLimField()
-{
-    //delete qf1;
-    //delete qf2;
-}
-
 void INsLimField::Init()
 {
+    // Bind field views and allocate face buffers for this zone.
     UnsGrid * grid = Zone::GetUnsGrid();
 
     q       = GetFieldPointer< MRField > ( grid, "q" );
@@ -105,12 +100,8 @@ void INsLimField::BcQlQrFix()
 
 INsLimiter::INsLimiter()
 {
-    limf = std::make_unique<INsLimField>();
+    InjectLimField( std::make_unique<INsLimField>() );
     limflag = ctrl.ilim;
-}
-
-INsLimiter::~INsLimiter()
-{
 }
 
 EndNameSpace

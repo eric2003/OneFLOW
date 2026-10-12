@@ -64,7 +64,17 @@ public:
     int CalcNumWallFace() const;
     void GenerateI2B( InterFace & interFace );
 public:
+    // Write path: builds bcInfo (unique_ptr) on first use.
     void CreateBcTypeRegion();
+    // Ensure bcInfo exists (write on first call only).
+    void EnsureBcTypeRegion() { CreateBcTypeRegion(); }
+
+    // Read-only accessors (call EnsureBcTypeRegion first if bcInfo may be null).
+    BcInfo * GetBcInfo() { return bcInfo.get(); }
+    const BcInfo * GetBcInfo() const { return bcInfo.get(); }
+
+    // Read-only: list distinct BC type ids without mutating bcInfo.
+    void CollectBcTypes( IntField & bcTypeList ) const { CalcBcType( bcTypeList ); }
     void CalcBcType( IntField & bcTypeList ) const;
 };
 
