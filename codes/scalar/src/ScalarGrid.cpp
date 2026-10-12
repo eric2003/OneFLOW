@@ -63,6 +63,41 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+namespace
+{
+template< typename T >
+void ReserveForAppend( std::vector< T > & values )
+{
+	if ( values.size() < values.capacity() )
+	{
+		return;
+	}
+
+	const size_t requiredCapacity = values.size() + 1;
+	const size_t maxCapacity = values.max_size();
+	if ( requiredCapacity > maxCapacity )
+	{
+		throw std::length_error( "ScalarGrid: append exceeds vector maximum size" );
+	}
+
+	const size_t currentCapacity = values.capacity();
+	size_t newCapacity = currentCapacity == 0 ? 1 : currentCapacity;
+	if ( newCapacity <= maxCapacity / 2 )
+	{
+		newCapacity *= 2;
+	}
+	else
+	{
+		newCapacity = maxCapacity;
+	}
+	if ( newCapacity < requiredCapacity )
+	{
+		newCapacity = requiredCapacity;
+	}
+	values.reserve( newCapacity );
+}
+}
+
 size_t RealList::GetNElements() const
 {
 	return data.size();
@@ -2204,12 +2239,12 @@ void ScalarGrid::ReadBoundaryTopology( DataBook * databook )
 void ScalarGrid::AddPhysicalBcFace( int global_face_id, int bctype, int lcell, int rcell, int ftype )
 {
 	// Reserve every destination before changing the logical face record.
-	this->global_faceid.reserve( this->global_faceid.size() + 1 );
-	this->bcTypes.data.reserve( this->bcTypes.data.size() + 1 );
-	this->fBcTypes.data.reserve( this->fBcTypes.data.size() + 1 );
-	this->lc.data.reserve( this->lc.data.size() + 1 );
-	this->rc.data.reserve( this->rc.data.size() + 1 );
-	this->fTypes.data.reserve( this->fTypes.data.size() + 1 );
+	ReserveForAppend( this->global_faceid );
+	ReserveForAppend( this->bcTypes.data );
+	ReserveForAppend( this->fBcTypes.data );
+	ReserveForAppend( this->lc.data );
+	ReserveForAppend( this->rc.data );
+	ReserveForAppend( this->fTypes.data );
 
 	this->global_faceid.push_back( global_face_id );
 	this->bcTypes.AddData( bctype );
@@ -2222,12 +2257,12 @@ void ScalarGrid::AddPhysicalBcFace( int global_face_id, int bctype, int lcell, i
 void ScalarGrid::AddInterfaceBcFace( int global_face_id, int bctype, int lcell, int rcell, int nei_zoneid, int nei_cellid, int ftype )
 {
 	// Reserve every destination before mutating interface or face topology.
-	this->global_faceid.reserve( this->global_faceid.size() + 1 );
-	this->bcTypes.data.reserve( this->bcTypes.data.size() + 1 );
-	this->fBcTypes.data.reserve( this->fBcTypes.data.size() + 1 );
-	this->lc.data.reserve( this->lc.data.size() + 1 );
-	this->rc.data.reserve( this->rc.data.size() + 1 );
-	this->fTypes.data.reserve( this->fTypes.data.size() + 1 );
+	ReserveForAppend( this->global_faceid );
+	ReserveForAppend( this->bcTypes.data );
+	ReserveForAppend( this->fBcTypes.data );
+	ReserveForAppend( this->lc.data );
+	ReserveForAppend( this->rc.data );
+	ReserveForAppend( this->fTypes.data );
 
 	this->AddInterface( global_face_id, nei_zoneid, nei_cellid );
 
@@ -2241,11 +2276,11 @@ void ScalarGrid::AddInterfaceBcFace( int global_face_id, int bctype, int lcell, 
 
 void ScalarGrid::AddInnerFace( int global_face_id, int bctype, int lcell, int rcell, int ftype )
 {
-	this->global_faceid.reserve( this->global_faceid.size() + 1 );
-	this->fBcTypes.data.reserve( this->fBcTypes.data.size() + 1 );
-	this->lc.data.reserve( this->lc.data.size() + 1 );
-	this->rc.data.reserve( this->rc.data.size() + 1 );
-	this->fTypes.data.reserve( this->fTypes.data.size() + 1 );
+	ReserveForAppend( this->global_faceid );
+	ReserveForAppend( this->fBcTypes.data );
+	ReserveForAppend( this->lc.data );
+	ReserveForAppend( this->rc.data );
+	ReserveForAppend( this->fTypes.data );
 
 	this->global_faceid.push_back( global_face_id );
 	this->fBcTypes.AddData( bctype );
