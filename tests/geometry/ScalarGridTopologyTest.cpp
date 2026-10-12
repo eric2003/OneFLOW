@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <stdexcept>
+#include <limits>
 
 #include "ScalarGrid.h"
 #include "Boundary.h"
@@ -878,6 +879,48 @@ TEST( ScalarGridTopologyTest, PushElementRejectsOutOfRangeCgnsNodeWithoutInvalid
 }
 
 
+TEST( ScalarGridTopologyTest, GenerateGridRejectsInvalidDomainWithoutClearingExistingMesh )
+{
+	ONEFLOW::ScalarGrid grid;
+	grid.xn.AddData( 12.0 );
+	grid.yn.AddData( 0.0 );
+	grid.zn.AddData( 0.0 );
+	grid.elements.AddElem( std::vector< int >{ 0, 0 } );
+	grid.eTypes.AddData( ONEFLOW::BAR_2 );
+	grid.faces.AddElem( std::vector< int >{ 0 } );
+	grid.fTypes.AddData( ONEFLOW::NODE );
+	grid.lc.AddData( 0 );
+	grid.rc.AddData( -1 );
+	grid.nFaces = 1;
+	grid.nBFaces = 1;
+
+	EXPECT_THROW( grid.GenerateGrid( 3, 2.0, 2.0 ), std::invalid_argument );
+	EXPECT_THROW( grid.GenerateGrid( 3, 3.0, 2.0 ), std::invalid_argument );
+
+	ASSERT_EQ( grid.xn.GetNElements(), 1u );
+	EXPECT_DOUBLE_EQ( grid.xn[ 0 ], 12.0 );
+	ASSERT_EQ( grid.elements.GetNElements(), 1u );
+	EXPECT_EQ( grid.elements[ 0 ], ( std::vector< int >{ 0, 0 } ) );
+	ASSERT_EQ( grid.faces.GetNElements(), 1u );
+	EXPECT_EQ( grid.faces[ 0 ], ( std::vector< int >{ 0 } ) );
+	EXPECT_EQ( grid.nFaces, 1 );
+	EXPECT_EQ( grid.nBFaces, 1 );
+}
+
+TEST( ScalarGridTopologyTest, GenerateGridRejectsNonFiniteDomainWithoutClearingExistingMesh )
+{
+	ONEFLOW::ScalarGrid grid;
+	grid.xn.AddData( 7.0 );
+	grid.yn.AddData( 0.0 );
+	grid.zn.AddData( 0.0 );
+
+	EXPECT_THROW( grid.GenerateGrid( 3, 0.0,
+		std::numeric_limits< ONEFLOW::Real >::infinity() ), std::invalid_argument );
+
+	ASSERT_EQ( grid.xn.GetNElements(), 1u );
+	EXPECT_DOUBLE_EQ( grid.xn[ 0 ], 7.0 );
+}
+ 
 TEST( ScalarGridTopologyTest, GenerateGridBuildsOneDimensionalUnstructuredMesh )
 {
 	ONEFLOW::ScalarGrid grid;

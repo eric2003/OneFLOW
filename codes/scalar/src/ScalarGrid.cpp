@@ -55,6 +55,7 @@ License
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <cmath>
 #include <utility>
 #include <stdexcept>
 #include <limits>
@@ -525,7 +526,15 @@ void ScalarGrid::GenerateGrid( int ni, Real xmin, Real xmax )
 	{
 		throw std::invalid_argument( "ScalarGrid::GenerateGrid: ni must be at least 2" );
 	}
+	const Real domainLength = xmax - xmin;
+	if ( ! std::isfinite( xmin ) || ! std::isfinite( xmax ) ||
+		 ! std::isfinite( domainLength ) || domainLength <= 0.0 )
+	{
+		throw std::invalid_argument(
+			"ScalarGrid::GenerateGrid: domain bounds must define a finite, positive interval" );
+	}
 
+	// Validate all scalar inputs before clearing an existing mesh.
 	this->ResetMeshData();
 
 	// Reserve source-mesh storage once when the final sizes are known.
