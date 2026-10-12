@@ -838,3 +838,41 @@ TEST( ScalarGridTopologyTest, NormalizeRejectsMissingFaceConnectivityBeforeMutat
 	EXPECT_EQ( grid.lc[ 0 ], ONEFLOW::INVALID_INDEX );
 	EXPECT_EQ( grid.rc[ 0 ], 0 );
 }
+
+
+TEST( ScalarGridTopologyTest, PushElementRejectsOutOfRangeCgnsNodeWithoutInvalidatingDerivedState )
+{
+	ONEFLOW::ScalarGrid grid;
+	grid.xn.Resize( 2 );
+	grid.yn.Resize( 2 );
+	grid.zn.Resize( 2 );
+	grid.elements.AddElem( std::vector< int >{ 0, 1 } );
+	grid.eTypes.AddData( ONEFLOW::BAR_2 );
+	grid.faces.AddElem( std::vector< int >{ 0 } );
+	grid.fTypes.AddData( ONEFLOW::NODE );
+	grid.lc.AddData( 0 );
+	grid.rc.AddData( -1 );
+	grid.bcTypes.AddData( ONEFLOW::BCOutflow );
+	grid.xfc.AddData( 10.0 );
+	grid.nFaces = 1;
+	grid.nBFaces = 1;
+
+	const ONEFLOW::CgIntField invalidConnectivity{ 1, 3 };
+	EXPECT_THROW( grid.PushElement( const_cast< ONEFLOW::CgIntField & >( invalidConnectivity ), ONEFLOW::BAR_2 ),
+		std::invalid_argument );
+
+	ASSERT_EQ( grid.elements.GetNElements(), 1u );
+	EXPECT_EQ( grid.elements[ 0 ], ( std::vector< int >{ 0, 1 } ) );
+	ASSERT_EQ( grid.eTypes.GetNElements(), 1u );
+	EXPECT_EQ( grid.eTypes[ 0 ], ONEFLOW::BAR_2 );
+	ASSERT_EQ( grid.faces.GetNElements(), 1u );
+	EXPECT_EQ( grid.faces[ 0 ], ( std::vector< int >{ 0 } ) );
+	ASSERT_EQ( grid.lc.GetNElements(), 1u );
+	EXPECT_EQ( grid.lc[ 0 ], 0 );
+	ASSERT_EQ( grid.rc.GetNElements(), 1u );
+	EXPECT_EQ( grid.rc[ 0 ], -1 );
+	ASSERT_EQ( grid.xfc.GetNElements(), 1u );
+	EXPECT_DOUBLE_EQ( grid.xfc[ 0 ], 10.0 );
+	EXPECT_EQ( grid.nFaces, 1 );
+	EXPECT_EQ( grid.nBFaces, 1 );
+}
