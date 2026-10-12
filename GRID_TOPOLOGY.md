@@ -27,11 +27,13 @@ The geometry of a 1D face is a point, not a line segment. The cell is the interv
 Two cells sharing one edge:
 
 ```text
-       n2 -------- f_shared -------- n3
-        |             |              |
-        |    cell 0   |    cell 1    |
-        |             |              |
-       n0 ----------- n1 ------------+
+n2 ------------- n3 ------------- n4
+|                |                |
+|    cell 0      |     cell 1      |
+|                |                |
+n0 ------------- n1 ------------- n5
+                 |
+              f_shared
 ```
 
 The sketch is schematic: each cell has an ordered node loop, each edge has an ordered node list, and the shared edge has two adjacent cells. Boundary edges have one real adjacent cell and a boundary label/patch.
