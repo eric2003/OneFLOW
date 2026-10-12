@@ -79,7 +79,7 @@ void LoadResiduals( StringField & data )
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
     std::string & residualName = solverInfo->residualName;
 
-    MRField * resField = ONEFLOW::GetFieldPointer< MRField >( grid, residualName );
+    MRField * resField = FieldHome::GetResidualField( grid );
     MRField * rhsField = FieldHome::GetUnsField( fieldId );
 
     NegField( resField, rhsField );

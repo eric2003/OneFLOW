@@ -73,6 +73,10 @@ public:
     static const MRField * GetConstUnsField( int fieldId );
     static MRField * GetUnsField( Grid * grid, const std::string & fieldName );
     static const MRField * GetConstUnsField( const Grid * grid, const std::string & fieldName );
+    // Named residual on the zone grid (NS/INS: "res", Turb: "turbres" via SolverInfo::residualName).
+    static const std::string & GetResidualName();
+    static MRField * GetResidualField( Grid * grid );
+    static const MRField * GetConstResidualField( const Grid * grid );
     static void GetSourceTargetField( Grid * grid, int fieldId, const std::string & fieldName, MRField *& sField, MRField *& tField, int orderFlag );
 };
 

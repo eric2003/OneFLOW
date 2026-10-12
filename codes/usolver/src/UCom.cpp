@@ -32,6 +32,7 @@ License
 #include "PIO.h"
 #include "Fatal.h"
 #include "DataBase.h"
+#include "FieldWrap.h"
 #include "OStream.h"
 #include "HXMath.h"
 #include "FileUtils.h"
@@ -249,7 +250,7 @@ void HXDebug::DumpResField( const std::string & fileName )
 {
     // Read-only dump of residual field.
     const UnsGrid * grid = Zone::GetConstUnsGrid();
-    const MRField * res = GetFieldPointer< MRField >( grid, "res" );
+    const MRField * res = FieldHome::GetConstResidualField( grid );
     HXDebug::DumpField( fileName, res );
 }
 

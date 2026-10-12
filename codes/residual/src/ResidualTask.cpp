@@ -104,9 +104,8 @@ void ResidualTask::CalcRes( int solverType, ResData & data )
 
     int nEqu = solverInfo->nEqu;
 
-    // FieldHome const path (named residual field on zone grid).
-    const MRField * res =
-        FieldHome::GetConstUnsField( static_cast< const Grid * >( grid ), solverInfo->residualName );
+    // Named residual via SolverInfo::residualName ("res" or "turbres").
+    const MRField * res = FieldHome::GetConstResidualField( grid );
 
     data.resave.Zero();
     data.resave.nCells =  grid->nCells;

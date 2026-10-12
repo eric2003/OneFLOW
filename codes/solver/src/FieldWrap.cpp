@@ -174,6 +174,23 @@ const MRField * FieldHome::GetConstUnsField( const Grid * grid, const std::strin
     return ONEFLOW::GetFieldPointer< MRField >( grid, fieldName );
 }
 
+const std::string & FieldHome::GetResidualName()
+{
+    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( SolverState::solverType );
+    return solverInfo->residualName;
+}
+
+MRField * FieldHome::GetResidualField( Grid * grid )
+{
+    return FieldHome::GetUnsField( grid, FieldHome::GetResidualName() );
+}
+
+const MRField * FieldHome::GetConstResidualField( const Grid * grid )
+{
+    return FieldHome::GetConstUnsField( grid, FieldHome::GetResidualName() );
+}
+
+
 MRField * FieldHome::GetUnsField( Grid * grid, const std::string & fieldName )
 {
     MRField * field = ONEFLOW::GetFieldPointer< MRField >( grid, fieldName );

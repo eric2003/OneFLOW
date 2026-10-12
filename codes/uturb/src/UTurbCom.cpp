@@ -27,6 +27,7 @@ License
 #include "Ctrl.h"
 #include "TimeIntegral.h"
 #include "DataBase.h"
+#include "FieldWrap.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -64,7 +65,7 @@ void UTurbField::Init()
 
     bld   = GetFieldPointer< MRField > ( grid, "bld" );
 
-    res   = GetFieldPointer< MRField > ( grid, "turbres" );
+    res   = FieldHome::GetResidualField( grid );
     impsr = GetFieldPointer< MRField > ( grid, "turbimpsr" );
     cross = GetFieldPointer< MRField > ( grid, "cross" );
     len_scale = GetFieldPointer< MRField > ( grid, "len_scale" );

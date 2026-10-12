@@ -26,6 +26,7 @@ License
 #include "UnsGrid.h"
 #include "Zone.h"
 #include "DataBase.h"
+#include "FieldWrap.h"
 #include "Ctrl.h"
 #include "TimeIntegral.h"
 
@@ -76,7 +77,7 @@ void UINsField::Init()
     vissr = ONEFLOW::GetFieldPointer< MRField >( grid, "vissr" );
     impsr = ONEFLOW::GetFieldPointer< MRField >( grid, "impsr" );
 
-    res  = GetFieldPointer< MRField > ( grid, "res" );
+    res  = FieldHome::GetResidualField( grid );
     res1  = GetFieldPointer< MRField > ( grid, "res1" );
     res2  = GetFieldPointer< MRField > ( grid, "res2" );
 

@@ -36,6 +36,7 @@ License
 #include "HXMath.h"
 #include "Fatal.h"
 #include "DataBase.h"
+#include "FieldWrap.h"
 #include "FieldBase.h"
 #include "Iteration.h"
 #include <iostream>
@@ -60,7 +61,7 @@ void InitUnsField()
     unsf.visl = ONEFLOW::GetFieldPointer< MRField >( grid, "visl" );
     unsf.vist = ONEFLOW::GetFieldPointer< MRField >( grid, "vist" );
     //unsf.timestep = ONEFLOW::GetFieldPointer< MRField >( grid, "timestep" );
-    unsf.res = ONEFLOW::GetFieldPointer< MRField >( grid, "res" );
+    unsf.res = FieldHome::GetResidualField( grid );
     unsf.res1 = ONEFLOW::GetFieldPointer< MRField >( grid, "res1" );
     unsf.res2 = ONEFLOW::GetFieldPointer< MRField >( grid, "res2" );
 

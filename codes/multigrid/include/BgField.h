@@ -49,11 +49,15 @@ public:
 // Each slot is FieldHome::CreateField() -> unique_ptr<FieldWrap> owning MRField.
 // GetFieldWrap returns a non-owning raw view (.get()) for solvers to read/write in place.
 //
-// Relation to named residual "res" on UnsGrid:
-//   SolverInfo::residualName (typically "res") is a zone-local database field on the grid.
-//   LoadResiduals: NegField(named "res", BgField RHS slot) — copies from fid=1 into "res".
-//   ResidualTask aggregates the named "res" field (FieldHome::GetConstUnsField(grid, residualName)).
-//   Do not confuse BgField fid=1 storage with the string key "res" on the grid DataBase.
+// Relation to named residual fields on UnsGrid:
+//   SolverInfo::residualName is the zone-local database field name:
+//     NS / INS -> "res"
+//     Turbulence -> "turbres"
+//   Never hard-code "res"/"turbres" at call sites; use FieldHome::GetResidualField /
+//   GetConstResidualField / GetResidualName (driven by SolverState::solverType).
+//   LoadResiduals: NegField(named residual, BgField RHS slot) — fid=1 -> residualName field.
+//   ResidualTask aggregates the named residual (FieldHome::GetConstResidualField).
+//   Do not confuse BgField fid=1 storage with the string keys "res" / "turbres" on the grid DataBase.
 class BgField
 {
 public:

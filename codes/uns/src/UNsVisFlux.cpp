@@ -27,6 +27,7 @@ License
 #include "ZoneState.h"
 #include "UnsGrid.h"
 #include "DataBase.h"
+#include "FieldWrap.h"
 #include "NsCtrl.h"
 #include "UCom.h"
 #include "UNsCom.h"
@@ -235,7 +236,7 @@ void UNsVisFlux::AddHeatFlux()
 void UNsVisFlux::AddVisFlux()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
-    MRField * res = GetFieldPointer< MRField >( grid, "res" );
+    MRField * res = FieldHome::GetResidualField( grid );
 
     ONEFLOW::AddF2CField( res, visflux.get() );
     if ( ctrl.debugFieldDump != 0 )
