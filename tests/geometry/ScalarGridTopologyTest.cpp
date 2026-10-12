@@ -360,6 +360,69 @@ TEST( ScalarGridTopologyTest, ReadGridFaceTopologyRejectsDuplicateNodeIndices )
     EXPECT_EQ( grid.fTypes.GetNElements(), 0u );
 }
 
+TEST( ScalarGridTopologyTest, ReadGridReplacesMeshAndKeepsCountsConsistent )
+{
+    ONEFLOW::ScalarGrid grid;
+    grid.nNodes = 1;
+    grid.nCells = 1;
+    grid.nFaces = 1;
+    grid.nBFaces = 1;
+    grid.xn.AddData( 99.0 );
+    grid.yn.AddData( 0.0 );
+    grid.zn.AddData( 0.0 );
+    grid.xfc.AddData( 99.0 );
+    grid.eTypes.AddData( ONEFLOW::BAR_2 );
+
+    ONEFLOW::DataBook databook;
+    const int nodeCount = 2;
+    const int faceCount = 2;
+    const int cellCount = 1;
+    const std::vector< ONEFLOW::Real > x{ 0.0, 1.0 };
+    const std::vector< ONEFLOW::Real > y{ 0.0, 0.0 };
+    const std::vector< ONEFLOW::Real > z{ 0.0, 0.0 };
+    const int volumeBcType = -1;
+    const std::vector< int > elementTypes{ ONEFLOW::BAR_2 };
+    const std::vector< int > faceTypes{ ONEFLOW::NODE, ONEFLOW::NODE };
+    const std::vector< int > faceNodeCounts{ 1, 1 };
+    const std::vector< int > faceNodeIds{ 0, 1 };
+    const std::vector< int > leftCells{ 0, 0 };
+    const std::vector< int > rightCells{ -1, -1 };
+    const int boundaryFaceCount = 2;
+    const std::vector< int > boundaryTypes{ 0, 0 };
+    const std::vector< int > boundaryNameIds{ 0, 0 };
+    const int interfaceCount = 0;
+
+    ONEFLOW::HXWrite( &databook, nodeCount );
+    ONEFLOW::HXWrite( &databook, faceCount );
+    ONEFLOW::HXWrite( &databook, cellCount );
+    ONEFLOW::HXWrite( &databook, x );
+    ONEFLOW::HXWrite( &databook, y );
+    ONEFLOW::HXWrite( &databook, z );
+    ONEFLOW::HXWrite( &databook, volumeBcType );
+    ONEFLOW::HXWrite( &databook, elementTypes );
+    ONEFLOW::HXWrite( &databook, faceTypes );
+    ONEFLOW::HXWrite( &databook, faceNodeCounts );
+    ONEFLOW::HXWrite( &databook, faceNodeIds );
+    ONEFLOW::HXWrite( &databook, leftCells );
+    ONEFLOW::HXWrite( &databook, rightCells );
+    ONEFLOW::HXWrite( &databook, boundaryFaceCount );
+    ONEFLOW::HXWrite( &databook, boundaryTypes );
+    ONEFLOW::HXWrite( &databook, boundaryNameIds );
+    ONEFLOW::HXWrite( &databook, interfaceCount );
+    databook.MoveToBegin();
+
+    grid.ReadGrid( &databook );
+
+    EXPECT_EQ( grid.nNodes, grid.GetNNodes() );
+    EXPECT_EQ( grid.nCells, grid.GetNCells() );
+    EXPECT_EQ( grid.nFaces, grid.GetNFaces() );
+    EXPECT_EQ( grid.nBFaces, grid.GetNBFaces() );
+    ASSERT_EQ( grid.xn.GetNElements(), 2u );
+    EXPECT_DOUBLE_EQ( grid.xn[ 0 ], 0.0 );
+    EXPECT_DOUBLE_EQ( grid.xn[ 1 ], 1.0 );
+    EXPECT_EQ( grid.xfc.GetNElements(), 0u );
+}
+
 TEST( ScalarGridTopologyTest, ReadGridPreservesExistingMeshWhenPayloadIsTruncated )
 {
 	ONEFLOW::ScalarGrid grid;
