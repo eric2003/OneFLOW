@@ -27,23 +27,23 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-HXVector< std::unique_ptr< UnitElement > > ElementHome::unitElement;
+HXVector< std::unique_ptr< UnitElement > > ElementHome::unitElements;
 
 int ElementHome::GetNumberOfUnitElements()
 {
-    return static_cast< int >( unitElement.size() );
+    return static_cast< int >( unitElements.size() );
 }
 
 UnitElement & ElementHome::GetUnitElement( int elementType )
 {
     if ( elementType < 0 ||
-         static_cast< std::size_t >( elementType ) >= unitElement.size() ||
-         ! unitElement[ static_cast< std::size_t >( elementType ) ] )
+         static_cast< std::size_t >( elementType ) >= unitElements.size() ||
+         ! unitElements[ static_cast< std::size_t >( elementType ) ] )
     {
         throw std::out_of_range( "ElementHome::GetUnitElement: element type is out of range" );
     }
 
-    return *unitElement[ static_cast< std::size_t >( elementType ) ];
+    return *unitElements[ static_cast< std::size_t >( elementType ) ];
 }
 
 void ElementHome::Initialize()
@@ -58,12 +58,12 @@ void ElementHome::Initialize()
         initializedElements.push_back( std::move( unit ) );
     }
 
-    unitElement.swap( initializedElements );
+    unitElements.swap( initializedElements );
 }
 
 void ElementHome::Free()
 {
-    unitElement.clear();
+    unitElements.clear();
 }
 
 class ElementHomeInit
