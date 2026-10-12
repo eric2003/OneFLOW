@@ -347,9 +347,10 @@ void ScalarGrid::ResetTopologyData()
 
 void ScalarGrid::ValidateFaceTopology( const char * operation ) const
 {
-	if ( this->nFaces < 0 )
+	if ( this->nFaces < 0 || this->nBFaces < 0 || this->nBFaces > this->nFaces )
 	{
-		throw std::logic_error( std::string( operation ) + ": nFaces must be non-negative" );
+		throw std::logic_error( std::string( operation ) +
+			": face and boundary-face counts are inconsistent" );
 	}
 
 	const size_t faceCount = static_cast< size_t >( this->nFaces );
@@ -402,17 +403,38 @@ void ScalarGrid::ValidateFaceTopology( const char * operation ) const
 
 		const int leftCell = this->lc[ iFace ];
 		const int rightCell = this->rc[ iFace ];
-		if ( leftCell < -1 || leftCell >= cellCount ||
-			 rightCell < -1 || rightCell >= cellCount ||
-			 ( leftCell < 0 && rightCell < 0 ) )
+		if ( iFace < this->nBFaces )
 		{
-			throw std::out_of_range( std::string( operation ) +
-				": face references invalid adjacent cells" );
+			const int expectedGhostCell = cellCount + iFace;
+			const bool leftIsPhysical = leftCell >= 0 && leftCell < cellCount;
+			const bool rightIsPhysical = rightCell >= 0 && rightCell < cellCount;
+			const bool rightIsBoundarySentinel = rightCell == -1;
+			const bool rightIsExpectedGhost = rightCell == expectedGhostCell;
+
+			if ( leftCell < -1 || leftCell >= cellCount ||
+				 rightCell < -1 ||
+				 ( ! rightIsPhysical && ! rightIsBoundarySentinel && ! rightIsExpectedGhost ) ||
+				 ( ! leftIsPhysical && ! rightIsPhysical ) ||
+				 ( leftIsPhysical && rightIsPhysical ) ||
+				 ( rightIsExpectedGhost && ! leftIsPhysical ) )
+			{
+				throw std::out_of_range( std::string( operation ) +
+					": boundary face must have exactly one physical adjacent cell" );
+			}
 		}
-		if ( leftCell >= 0 && leftCell == rightCell )
+		else
 		{
-			throw std::logic_error( std::string( operation ) +
-				": face must not connect a cell to itself" );
+			if ( leftCell < 0 || leftCell >= cellCount ||
+				 rightCell < 0 || rightCell >= cellCount )
+			{
+				throw std::out_of_range( std::string( operation ) +
+					": internal face references an invalid physical cell" );
+			}
+			if ( leftCell == rightCell )
+			{
+				throw std::logic_error( std::string( operation ) +
+					": internal face must connect distinct cells" );
+			}
 		}
 	}
 }
@@ -1933,7 +1955,14 @@ void ScalarGrid::WriteGridFaceTopology( DataBook * databook )
 	ONEFLOW::HXWrite( databook, faceNodeMem );
 
 	ONEFLOW::HXWrite( databook, this->lc.data );
-	ONEFLOW::HXWrite( databook, this->rc.data );
+
+	// Ghost-cell IDs are reconstructed by NormalizeBc; persist boundary sentinels instead.
+	IntField serializedRightCells = this->rc.data;
+	for ( int iFace = 0; iFace < this->nBFaces; ++ iFace )
+	{
+		serializedRightCells[ iFace ] = -1;
+	}
+	ONEFLOW::HXWrite( databook, serializedRightCells );
 }
 
 void ScalarGrid::ReadGridFaceTopology( DataBook * databook )
