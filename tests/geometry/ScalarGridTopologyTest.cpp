@@ -1037,6 +1037,6 @@ TEST( ElementDimensionTest, ReportsIntrinsicDimensionIndependentOfMeshDimension 
 TEST( ElementDimensionTest, RejectsInvalidOrUnsupportedElementTypes )
 {
     EXPECT_EQ( ONEFLOW::GetElementDimension( -1 ), -1 );
-    // CGNS exposes NofValidElementTypes as a macro, so it cannot be namespace-qualified.
-    EXPECT_EQ( ONEFLOW::GetElementDimension( 57 ), -1 );
+    // Use the geometry registry count instead of duplicating the CGNS element-count macro.
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::ElementHome::numberOfUnitElement ), -1 );
 }
