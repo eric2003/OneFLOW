@@ -33,10 +33,6 @@ License
 #include <iostream>
 
 BeginNameSpace( ONEFLOW )
-BasicBgField::BasicBgField()
-{
-}
-
 BasicBgField::~BasicBgField()
 {
     this->Free();
@@ -78,14 +74,6 @@ void BasicBgField::Free()
 
 HXVector< std::unique_ptr< BasicBgField > > BgField::data;
 bool BgField::flag = false;
-
-BgField::BgField()
-{
-}
-
-BgField::~BgField()
-{
-}
 
 void BgField::Init()
 {

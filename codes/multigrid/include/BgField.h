@@ -31,8 +31,8 @@ class FieldWrap;
 class BasicBgField
 {
 public:
-    BasicBgField ();
-    ~BasicBgField();
+    BasicBgField() = default;
+    ~BasicBgField();  // out-of-line: Free()
 public:
     using Field3DType = HXVector< HXVector< HXVector< std::unique_ptr<FieldWrap> > > >;
 public:
@@ -61,8 +61,8 @@ public:
 class BgField
 {
 public:
-    BgField ();
-    ~BgField();
+    BgField() = default;
+    ~BgField() = default;
 protected:
     static HXVector< std::unique_ptr< BasicBgField > > data;
 public:
