@@ -702,6 +702,63 @@ TEST( ScalarGridTopologyTest, CalcTopologyResetsInterfaceTopology )
 }
 
 
+TEST( ScalarGridTopologyTest, PushElementInvalidatesDerivedTopologyAndGeometry )
+{
+	ONEFLOW::ScalarGrid grid;
+	grid.faces.AddElem( std::vector< int >{ 0 } );
+	grid.fTypes.AddData( ONEFLOW::NODE );
+	grid.lc.AddData( 0 );
+	grid.rc.AddData( -1 );
+	grid.bcTypes.AddData( ONEFLOW::BCOutflow );
+	grid.xfc.AddData( 10.0 );
+	grid.xcc.AddData( 20.0 );
+	grid.vol.AddData( 30.0 );
+	grid.nFaces = 1;
+	grid.nBFaces = 1;
+	grid.nTCells = 1;
+
+	grid.PushElement( 0, 1, ONEFLOW::BAR_2 );
+
+	ASSERT_EQ( grid.elements.GetNElements(), 1u );
+	ASSERT_EQ( grid.eTypes.GetNElements(), 1u );
+	EXPECT_TRUE( grid.faces.data.empty() );
+	EXPECT_TRUE( grid.fTypes.data.empty() );
+	EXPECT_TRUE( grid.lc.data.empty() );
+	EXPECT_TRUE( grid.rc.data.empty() );
+	EXPECT_TRUE( grid.bcTypes.data.empty() );
+	EXPECT_TRUE( grid.xfc.data.empty() );
+	EXPECT_TRUE( grid.xcc.data.empty() );
+	EXPECT_TRUE( grid.vol.data.empty() );
+	EXPECT_EQ( grid.nFaces, 0 );
+	EXPECT_EQ( grid.nBFaces, 0 );
+	EXPECT_EQ( grid.nTCells, 0 );
+}
+
+TEST( ScalarGridTopologyTest, PushBoundaryFaceInvalidatesDerivedTopologyAndGeometry )
+{
+	ONEFLOW::ScalarGrid grid;
+	grid.faces.AddElem( std::vector< int >{ 0 } );
+	grid.fTypes.AddData( ONEFLOW::NODE );
+	grid.lc.AddData( 0 );
+	grid.rc.AddData( -1 );
+	grid.bcTypes.AddData( ONEFLOW::BCOutflow );
+	grid.xfc.AddData( 10.0 );
+	grid.nFaces = 1;
+	grid.nBFaces = 1;
+
+	grid.PushBoundaryFace( 0, ONEFLOW::NODE );
+
+	ASSERT_EQ( grid.boundaryElements.GetNElements(), 1u );
+	ASSERT_EQ( grid.bcETypes.GetNElements(), 1u );
+	EXPECT_TRUE( grid.faces.data.empty() );
+	EXPECT_TRUE( grid.lc.data.empty() );
+	EXPECT_TRUE( grid.rc.data.empty() );
+	EXPECT_TRUE( grid.bcTypes.data.empty() );
+	EXPECT_TRUE( grid.xfc.data.empty() );
+	EXPECT_EQ( grid.nFaces, 0 );
+	EXPECT_EQ( grid.nBFaces, 0 );
+}
+
 TEST( ScalarGridTopologyTest, CreateNodesInvalidatesTopologyAndGeometry )
 {
 	ONEFLOW::ScalarGrid grid;
