@@ -78,6 +78,18 @@ ScalarIFace::ScalarIFace()
 
 ScalarIFace::~ScalarIFace() = default;
 
+void ScalarIFace::ResetTopology()
+{
+    data.clear();
+    iglobalfaces.clear();
+    zones.clear();
+    cells.clear();
+    target_interfaces.clear();
+    global_to_local_interfaces.clear();
+    local_to_global_interfaces.clear();
+    interface_to_bcface.clear();
+}
+
 void ScalarIFace::AddInterface( int global_interface_id, int neighbor_zoneid, int neighbor_cellid )
 {
     if ( global_interface_id < 0 || neighbor_zoneid < 0 || neighbor_cellid < 0 )
