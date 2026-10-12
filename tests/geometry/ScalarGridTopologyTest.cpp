@@ -337,6 +337,26 @@ TEST( ScalarGridTopologyTest, ReadGridFaceTopologyRejectsEmptyFace )
     EXPECT_THROW( grid.ReadGridFaceTopology( &databook ), std::runtime_error );
 }
 
+TEST( ScalarGridTopologyTest, ReadGridFaceTopologyRejectsDuplicateNodeIndices )
+{
+    ONEFLOW::ScalarGrid grid;
+    grid.nNodes = 2;
+    grid.nCells = 1;
+    grid.nFaces = 1;
+
+    ONEFLOW::DataBook databook;
+    ONEFLOW::IntField faceTypes{ ONEFLOW::BAR_2 };
+    ONEFLOW::IntField faceNodeCounts{ 2 };
+    ONEFLOW::IntField faceNodeIds{ 0, 0 };
+    ONEFLOW::HXWrite( &databook, faceTypes );
+    ONEFLOW::HXWrite( &databook, faceNodeCounts );
+    ONEFLOW::HXWrite( &databook, faceNodeIds );
+    databook.MoveToBegin();
+
+    EXPECT_THROW( grid.ReadGridFaceTopology( &databook ), std::runtime_error );
+    EXPECT_EQ( grid.faces[ 0 ].size(), 0u );
+}
+
 TEST( ScalarGridTopologyTest, ReadBoundaryTopologyRejectsInterfaceCountMismatch )
 {
     ONEFLOW::ScalarGrid grid;

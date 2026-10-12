@@ -58,6 +58,7 @@ License
 #include <utility>
 #include <stdexcept>
 #include <limits>
+#include <unordered_set>
 
 
 BeginNameSpace( ONEFLOW )
@@ -1860,6 +1861,23 @@ void ScalarGrid::ReadGridFaceTopology( DataBook * databook )
 		{
 			throw std::runtime_error( "ScalarGrid::ReadGridFaceTopology: face references an invalid node index" );
 		}
+	}
+
+	// A face is a set of distinct mesh nodes; repeated IDs create degenerate topology.
+	int faceNodeOffset = 0;
+	for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
+	{
+		std::unordered_set< int > uniqueNodeIds;
+		const int nFaceNodes = numFaceNode[ iFace ];
+		for ( int iNode = 0; iNode < nFaceNodes; ++ iNode )
+		{
+			const int nodeId = faceNodeMem[ faceNodeOffset + iNode ];
+			if ( ! uniqueNodeIds.insert( nodeId ).second )
+			{
+				throw std::runtime_error( "ScalarGrid::ReadGridFaceTopology: face contains duplicate node indices" );
+			}
+		}
+		faceNodeOffset += nFaceNodes;
 	}
 
 	int ipos = 0;
