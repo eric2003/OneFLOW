@@ -648,10 +648,29 @@ TEST( ScalarGridTopologyTest, CalcTopologyInvalidatesInterfaceFaceMap )
     rightBoundary->AddBcPoint( 1 );
     grid.scalarBccos->AddBcco( std::move( rightBoundary ) );
 
-    grid.scalarIFace->interface_to_bcface = { 17 };
+    grid.scalarIFace->iglobalfaces = { 17 };
+    grid.scalarIFace->zones = { 2 };
+    grid.scalarIFace->cells = { 4 };
+    grid.scalarIFace->target_interfaces = { 6 };
+    grid.scalarIFace->global_to_local_interfaces.emplace( 17, 0 );
+    grid.scalarIFace->local_to_global_interfaces.emplace( 0, 17 );
+    grid.scalarIFace->interface_to_bcface = { 1 };
+    ONEFLOW::ScalarIFaceIJ neighbor;
+    neighbor.zonej = 2;
+    neighbor.ifaces = { 0 };
+    neighbor.recv_ifaces = { 1 };
+    grid.scalarIFace->data.push_back( neighbor );
+
     grid.CalcTopology();
 
+    EXPECT_TRUE( grid.scalarIFace->iglobalfaces.empty() );
+    EXPECT_TRUE( grid.scalarIFace->zones.empty() );
+    EXPECT_TRUE( grid.scalarIFace->cells.empty() );
+    EXPECT_TRUE( grid.scalarIFace->target_interfaces.empty() );
+    EXPECT_TRUE( grid.scalarIFace->global_to_local_interfaces.empty() );
+    EXPECT_TRUE( grid.scalarIFace->local_to_global_interfaces.empty() );
     EXPECT_TRUE( grid.scalarIFace->interface_to_bcface.empty() );
+    EXPECT_TRUE( grid.scalarIFace->data.empty() );
 }
 
 TEST( ScalarGridTopologyTest, NormalizeRejectsOutOfRangeAdjacencyBeforeMutation )
