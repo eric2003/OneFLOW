@@ -399,6 +399,50 @@ TEST( ScalarGridTopologyTest, WriteGridFaceTopologyRejectsSelfConnectedFace )
     EXPECT_THROW( grid.WriteGridFaceTopology( &databook ), std::logic_error );
 }
 
+TEST( ScalarGridTopologyTest, FaceTopologyRoundTripReconstructsBoundaryGhostCells )
+{
+    ONEFLOW::ScalarGrid source;
+    source.nNodes = 2;
+    source.nCells = 1;
+    source.nFaces = 2;
+    source.nBFaces = 2;
+    source.xn.AddData( 0.0 );
+    source.xn.AddData( 1.0 );
+    source.yn.AddData( 0.0 );
+    source.yn.AddData( 0.0 );
+    source.zn.AddData( 0.0 );
+    source.zn.AddData( 0.0 );
+    source.eTypes.AddData( ONEFLOW::BAR_2 );
+    source.faces.AddElem( std::vector< int >{ 0 } );
+    source.faces.AddElem( std::vector< int >{ 1 } );
+    source.fTypes.AddData( ONEFLOW::NODE );
+    source.fTypes.AddData( ONEFLOW::NODE );
+    source.lc.AddData( 0 );
+    source.lc.AddData( 0 );
+    // These right-cell IDs are derived by NormalizeBc, not persisted topology.
+    source.rc.AddData( 1 );
+    source.rc.AddData( 2 );
+
+    ONEFLOW::DataBook databook;
+    source.WriteGridFaceTopology( &databook );
+    databook.MoveToBegin();
+
+    ONEFLOW::ScalarGrid restored;
+    restored.nNodes = 2;
+    restored.nCells = 1;
+    restored.nFaces = 2;
+    restored.ReadGridFaceTopology( &databook );
+
+    ASSERT_EQ( restored.rc.GetNElements(), 2u );
+    EXPECT_EQ( restored.rc[ 0 ], -1 );
+    EXPECT_EQ( restored.rc[ 1 ], -1 );
+
+    restored.nBFaces = 2;
+    restored.NormalizeBc();
+    EXPECT_EQ( restored.rc[ 0 ], 1 );
+    EXPECT_EQ( restored.rc[ 1 ], 2 );
+}
+
 TEST( ScalarGridTopologyTest, ReadGridFaceTopologyRejectsSelfConnectedFace )
 {
     ONEFLOW::ScalarGrid grid;
