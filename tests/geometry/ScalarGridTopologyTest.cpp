@@ -639,10 +639,12 @@ TEST( ScalarGridTopologyTest, CalcTopologyInvalidatesInterfaceFaceMap )
     grid.eTypes.AddData( ONEFLOW::BAR_2 );
 
     auto leftBoundary = std::make_unique< ONEFLOW::ScalarBcco >();
+    leftBoundary->bcType = ONEFLOW::BCOutflow;
     leftBoundary->AddBcPoint( 0 );
     grid.scalarBccos->AddBcco( std::move( leftBoundary ) );
 
     auto rightBoundary = std::make_unique< ONEFLOW::ScalarBcco >();
+    rightBoundary->bcType = ONEFLOW::BCOutflow;
     rightBoundary->AddBcPoint( 1 );
     grid.scalarBccos->AddBcco( std::move( rightBoundary ) );
 
