@@ -1611,30 +1611,50 @@ void ScalarGrid::Normalize()
 {
 	const int nFaces = this->GetNFaces();
 	const int nBFaces = this->GetNBFaces();
+	const int nCells = this->GetNCells();
 	if ( this->lc.GetNElements() != static_cast< size_t >( nFaces ) ||
-		 this->rc.GetNElements() != static_cast< size_t >( nFaces ) )
+		 this->rc.GetNElements() != static_cast< size_t >( nFaces ) ||
+		 this->faces.GetNElements() != static_cast< size_t >( nFaces ) )
 	{
-		throw std::runtime_error( "ScalarGrid::Normalize: face-cell arrays have inconsistent sizes" );
+		throw std::runtime_error( "ScalarGrid::Normalize: face topology arrays have inconsistent sizes" );
 	}
 	if ( nBFaces > nFaces )
 	{
 		throw std::runtime_error( "ScalarGrid::Normalize: boundary face count exceeds total face count" );
 	}
 
-	// Validate the complete face-cell structure before changing face orientation.
+	// Validate all physical adjacency before changing orientation or assigning ghost IDs.
 	for ( int iFace = 0; iFace < nFaces; ++ iFace )
 	{
-		if ( this->lc[ iFace ] < 0 && this->rc[ iFace ] < 0 )
+		const int leftCell = this->lc[ iFace ];
+		const int rightCell = this->rc[ iFace ];
+		const bool leftIsPhysical = leftCell >= 0 && leftCell < nCells;
+		const bool rightIsPhysical = rightCell >= 0 && rightCell < nCells;
+		const bool leftIsMissing = leftCell == ONEFLOW::INVALID_INDEX;
+		const bool rightIsMissing = rightCell == ONEFLOW::INVALID_INDEX;
+
+		if ( iFace < nBFaces )
 		{
-			throw std::runtime_error( "ScalarGrid::Normalize: face has no valid adjacent cell" );
+			if ( leftIsPhysical == rightIsPhysical ||
+				 ( ! leftIsPhysical && ! leftIsMissing ) ||
+				 ( ! rightIsPhysical && ! rightIsMissing ) )
+			{
+				throw std::runtime_error(
+					"ScalarGrid::Normalize: boundary face must have one physical cell and one missing neighbor" );
+			}
+		}
+		else if ( ! leftIsPhysical || ! rightIsPhysical || leftCell == rightCell )
+		{
+			throw std::runtime_error(
+				"ScalarGrid::Normalize: internal face must connect two distinct physical cells" );
 		}
 	}
 
 	for ( int iFace = 0; iFace < nFaces; ++ iFace )
 	{
-		if ( this->lc[ iFace ] < 0 )
+		if ( this->lc[ iFace ] == ONEFLOW::INVALID_INDEX )
 		{
-			// Reverse face orientation so the left cell is valid.
+			// Reverse face orientation so the physical cell is on the left.
 			std::vector< int > & face = this->faces[ iFace ];
 			std::reverse( face.begin(), face.end() );
 			ONEFLOW::SWAP( this->lc[ iFace ], this->rc[ iFace ] );
