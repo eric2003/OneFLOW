@@ -96,26 +96,6 @@ Real VencatFunctionEric( Real dq, Real minv, Real maxv, Real eps )
     return 1.0;
 }
 
-Lim::Lim()
-{
-    ;
-}
-
-Lim::~Lim()
-{
-    ;
-}
-
-LimField::LimField()
-{
-    ;
-}
-
-LimField::~LimField()
-{
-    ;
-}
-
 Real LimField::ModifyLimiter( Real phil, Real phir )
 {
     if ( ug.ireconface == 0 )

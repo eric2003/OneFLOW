@@ -42,8 +42,8 @@ Real VencatEric( Real x, Real y, Real eps );
 class Lim
 {
 public:
-    Lim();
-    ~Lim();
+    Lim() = default;
+    ~Lim() = default;
 public:
     RealField *q, *dqdx, *dqdy, *dqdz;
     RealField *limiter;
@@ -62,8 +62,8 @@ using CheckFun = bool ( * )( RealField & );
 class LimField
 {
 public:
-    LimField();
-    virtual ~LimField();
+    LimField() = default;
+    virtual ~LimField() = default;
 public:
     virtual void Init(){};
     Real ModifyLimiter( Real phil, Real phir );

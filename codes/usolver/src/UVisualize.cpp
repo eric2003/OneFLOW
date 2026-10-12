@@ -47,13 +47,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-VisualTool::VisualTool() { ; }
-
-VisualTool::~VisualTool()
-{
-    // std::unique_ptr automatically cleans up MRField objects
-}
-
 void VisualTool::Init()
 {
     title.push_back( "title=\"THE FLOW FIELD OF ONEFLOW\"" );
@@ -95,16 +88,6 @@ MRField * VisualTool::CreateField( const std::string & varName, int nEqu )
     return rawPtr;
 }
 
-
-BcVisual::BcVisual()
-{
-    ;
-}
-
-BcVisual::~BcVisual()
-{
-    ;
-}
 
 void BcVisual::Calc( int bcType )
 {
@@ -396,16 +379,6 @@ void BcVisual::DumpSeveralElement()
     }
 }
 
-UVisualize::UVisualize()
-{
-    ;
-}
-
-UVisualize::~UVisualize()
-{
-    ;
-}
-
 bool UVisualize::NeedVisualField()
 {
     bool flag1 = Dim::dimension == TWO_D;
@@ -456,12 +429,24 @@ int UVisualize::GetTotalNumFaceNodes( LinkField & f2n )
     return totalNumFaceNodes;
 }
 
+int UVisualize::GetTotalNumFaceNodes( const LinkField & f2n ) const
+{
+    int totalNumFaceNodes = 0;
+    int nSize = static_cast< int >( f2n.size() );
+    for ( int i = 0; i < nSize; ++ i )
+    {
+        totalNumFaceNodes += static_cast< int >( f2n[ i ].size() );
+    }
+    return totalNumFaceNodes;
+}
+
 void UVisualize::ShowField( std::ostringstream & oss, VisualTool * visualTool )
 {
-    UnsGrid * grid = Zone::GetUnsGrid();
+    // Read-only topology dump.
+    const UnsGrid * grid = Zone::GetConstUnsGrid();
 
-    FaceTopo * faceTopo = &grid->GetFaceTopo();
-    LinkField & f2n = faceTopo->faces;
+    const FaceTopo * faceTopo = &grid->GetFaceTopo();
+    const LinkField & f2n = faceTopo->faces;
 
     int nNodes = grid->nNodes;
     int nCells = grid->nCells;
@@ -515,7 +500,8 @@ void UVisualize::ShowField( std::ostringstream & oss, VisualTool * visualTool )
 void UVisualize::ShowBc( std::ostringstream & oss, VisualTool * visualTool )
 {
     if ( IsTwoD() ) return;
-    UnsGrid * grid = Zone::GetUnsGrid();
+    // Read-only boundary visualization (CalcBcType is const).
+    const UnsGrid * grid = Zone::GetConstUnsGrid();
 
     IntField bcTypeList;
     grid->GetFaceTopo().GetBcRecord().CalcBcType(bcTypeList);

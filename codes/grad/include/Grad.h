@@ -30,15 +30,15 @@ BeginNameSpace( ONEFLOW )
 class Grad
 {
 public:
-    Grad();
-    ~Grad();
+    Grad() = default;
+    ~Grad() = default;
 public:
     int nEqu;
     MRField * q;
     MRField * dqdx, * dqdy, * dqdz;
     MRField * bdqdx, * bdqdy, * bdqdz;
     std::string name, namex, namey, namez;
-    int istore;
+    int istore = 0;
 public:
     virtual void Init(){};
     void CalcGrad();

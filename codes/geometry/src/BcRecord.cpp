@@ -157,7 +157,7 @@ void BcRecord::GenerateI2B( InterFace & interFace )
     }
 }
 
-void BcRecord::CalcBcType( IntField & bcTypeList )
+void BcRecord::CalcBcType( IntField & bcTypeList ) const
 {
     IntSet bcTypeSet;
 

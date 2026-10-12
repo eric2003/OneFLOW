@@ -41,16 +41,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-Grad::Grad()
-{
-    istore = 0;
-}
-
-Grad::~Grad()
-{
-    ;
-}
-
 void Grad::CalcGrad()
 {
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )

@@ -34,8 +34,8 @@ class DataBook;
 class VisualTool
 {
 public:
-    VisualTool();
-    ~VisualTool();
+    VisualTool() = default;
+    ~VisualTool() = default;
 public:
     StringField title;
     // FIX: Use std::unique_ptr for automatic memory management
@@ -51,8 +51,8 @@ public:
 class BcVisual
 {
 public:
-    BcVisual();
-    ~BcVisual();
+    BcVisual() = default;
+    ~BcVisual() = default;
 public:
     void Calc( int bcType );
     void Calcf2n( int bcType );
@@ -72,8 +72,8 @@ public:
 class UVisualize : public Visualize
 {
 public:
-    UVisualize();
-    ~UVisualize() override;
+    UVisualize() = default;
+    ~UVisualize() override = default;
 public:
     void Visual() override;
     bool NeedVisualField();
@@ -83,6 +83,7 @@ public:
     void ShowBcDebugTest( std::ostringstream & oss, VisualTool * visualTool );
     void ExtractLinkNum( LinkField & f2n, IntField & fnNumber );
     int  GetTotalNumFaceNodes( LinkField & f2n );
+    int  GetTotalNumFaceNodes( const LinkField & f2n ) const;
 };
 
 void CalcMach( MRField * r, MRField * u, MRField * v, MRField * w, MRField * p, MRField * gama, MRField * mach );
