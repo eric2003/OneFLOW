@@ -1797,6 +1797,9 @@ void ScalarGrid::ReadGrid( DataBook * databook )
 	// Parse and validate the replacement independently; a failed read must not
 	// leave the current grid with a mixture of old and partially loaded data.
 	ScalarGrid stagedGrid;
+	stagedGrid.CreateNodes( nodeCount );
+	// CreateNodes invalidates topology-derived counts, so publish the file header
+	// counts only after establishing the replacement node storage.
 	stagedGrid.nNodes = nodeCount;
 	stagedGrid.nFaces = faceCount;
 	stagedGrid.nCells = cellCount;
@@ -1804,8 +1807,6 @@ void ScalarGrid::ReadGrid( DataBook * databook )
 	std::cout << " number of nodes    : " << stagedGrid.nNodes << std::endl;
 	std::cout << " number of surfaces : " << stagedGrid.nFaces << std::endl;
 	std::cout << " number of elements : " << stagedGrid.nCells << std::endl;
-
-	stagedGrid.CreateNodes( stagedGrid.nNodes );
 	std::cout << " Reading xn,yn,zn\n";
 	ONEFLOW::HXRead( databook, stagedGrid.xn.data );
 	ONEFLOW::HXRead( databook, stagedGrid.yn.data );
