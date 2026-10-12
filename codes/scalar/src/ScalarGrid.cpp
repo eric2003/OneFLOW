@@ -1700,6 +1700,47 @@ void ScalarGrid::ReadGrid( DataBook * databook )
 
 void ScalarGrid::NormalizeBc()
 {
+	if ( this->nBFaces < 0 || this->nBFaces > this->nFaces ||
+		 this->lc.GetNElements() != static_cast< size_t >( this->nFaces ) ||
+		 this->rc.GetNElements() != static_cast< size_t >( this->nFaces ) )
+	{
+		throw std::logic_error( "ScalarGrid::NormalizeBc: inconsistent face topology sizes" );
+	}
+
+	// Validate the complete face adjacency before assigning any ghost-cell IDs.
+	for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
+	{
+		const int leftCell = this->lc[ iFace ];
+		const int rightCell = this->rc[ iFace ];
+
+		if ( leftCell < 0 || leftCell >= this->nCells )
+		{
+			throw std::out_of_range( "ScalarGrid::NormalizeBc: invalid left cell index" );
+		}
+
+		if ( iFace < this->nBFaces )
+		{
+			const int expectedGhostCell = iFace + this->nCells;
+			if ( rightCell != -1 && rightCell != expectedGhostCell )
+			{
+				throw std::logic_error(
+					"ScalarGrid::NormalizeBc: boundary face must have one real adjacent cell" );
+			}
+		}
+		else
+		{
+			if ( rightCell < 0 || rightCell >= this->nCells )
+			{
+				throw std::out_of_range( "ScalarGrid::NormalizeBc: invalid internal right cell index" );
+			}
+			if ( rightCell == leftCell )
+			{
+				throw std::logic_error(
+					"ScalarGrid::NormalizeBc: internal face must connect distinct cells" );
+			}
+		}
+	}
+
 	for ( int iFace = 0; iFace < this->nBFaces; ++ iFace )
 	{
 		this->rc[ iFace ] = iFace + this->nCells;
