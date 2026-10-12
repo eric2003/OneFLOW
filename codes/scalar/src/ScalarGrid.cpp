@@ -409,6 +409,11 @@ void ScalarGrid::ValidateFaceTopology( const char * operation ) const
 			throw std::out_of_range( std::string( operation ) +
 				": face references invalid adjacent cells" );
 		}
+		if ( leftCell >= 0 && leftCell == rightCell )
+		{
+			throw std::logic_error( std::string( operation ) +
+				": face must not connect a cell to itself" );
+		}
 	}
 }
 
@@ -2020,6 +2025,10 @@ void ScalarGrid::ReadGridFaceTopology( DataBook * databook )
 			 ( leftCell < 0 && rightCell < 0 ) )
 		{
 			throw std::runtime_error( "ScalarGrid::ReadGridFaceTopology: face references invalid adjacent cells" );
+		}
+		if ( leftCell >= 0 && leftCell == rightCell )
+		{
+			throw std::runtime_error( "ScalarGrid::ReadGridFaceTopology: face must not connect a cell to itself" );
 		}
 	}
 
