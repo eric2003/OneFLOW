@@ -966,7 +966,7 @@ void ScalarGrid::ReadFromCgnsZone( CgnsZone & cgnsZone )
 
 void ScalarGrid::PushElement( CgIntField & eNodeId, int eType )
 {
-	if ( eType < 0 || eType >= NofValidElementTypes ||
+	if ( eType < 0 || eType >= ElementHome::numberOfUnitElement ||
 		 ! ONEFLOW::IsBasicVolumeElementType( eType ) )
 	{
 		throw std::invalid_argument( "ScalarGrid::PushElement: invalid volume element type" );
@@ -1004,7 +1004,7 @@ void ScalarGrid::PushElement( CgIntField & eNodeId, int eType )
 
 void ScalarGrid::PushElement( int p1, int p2, int eType )
 {
-	if ( eType < 0 || eType >= NofValidElementTypes ||
+	if ( eType < 0 || eType >= ElementHome::numberOfUnitElement ||
 		 ONEFLOW::GetElementNodeNumbers( eType ) != 2 )
 	{
 		throw std::invalid_argument( "ScalarGrid::PushElement: element type must describe a two-node element" );
@@ -1294,7 +1294,7 @@ void ScalarGrid::CalcTopology()
 	for ( int iCell = 0; iCell < cellCount; ++ iCell )
 	{
 		const int elementType = this->eTypes[ iCell ];
-		if ( elementType < 0 || elementType >= NofValidElementTypes )
+		if ( elementType < 0 || elementType >= ElementHome::numberOfUnitElement )
 		{
 			throw std::runtime_error( "ScalarGrid::CalcTopology: invalid element type" );
 		}
