@@ -32,38 +32,39 @@ BeginNameSpace( ONEFLOW )
 
 std::unique_ptr<MRField> AllocateNodeField( int nEqu )
 {
-    UnsGrid * grid = Zone::GetUnsGrid();
+    // Topology size only; const grid is enough.
+    const UnsGrid * grid = Zone::GetConstUnsGrid();
     int nNodes = grid->nNodes;
     return std::make_unique<MRField>( nEqu, nNodes );
 }
 
 std::unique_ptr<MRField> InterpolateCellToNode( const std::string & name )
 {
-    UnsGrid * grid = Zone::GetUnsGrid();
-    MRField * cf = GetFieldPointer< MRField > ( grid, name );
-    int nNodes = grid->nNodes;
+    // Read cell field; write a new owned node field.
+    const UnsGrid * grid = Zone::GetConstUnsGrid();
+    const MRField * cf = GetFieldPointer< MRField >( grid, name );
     int nEqu = cf->GetNEqu();
 
     auto nf = AllocateNodeField( nEqu );
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
-        InterpolateCellToNodeForComponent( (*nf)[ iEqu ], (*cf)[ iEqu ] );
+        InterpolateCellToNodeForComponent( ( * nf )[ iEqu ], ( * cf )[ iEqu ] );
     }
     return nf;
 }
 
-std::unique_ptr<MRField> InterpolateCellToNode( RealField & qc )
+std::unique_ptr<MRField> InterpolateCellToNode( const RealField & qc )
 {
     auto fn = AllocateNodeField( 1 );
-    InterpolateCellToNodeForComponent( (*fn)[ 0 ], qc );
+    InterpolateCellToNodeForComponent( ( * fn )[ 0 ], qc );
     return fn;
 }
 
-void InterpolateCellToNodeForComponent( RealField & qNodeField, RealField & qField )
+void InterpolateCellToNodeForComponent( RealField & qNodeField, const RealField & qField )
 {
-    UnsGrid * grid = Zone::GetUnsGrid();
-    FaceTopo * faceTopo = &grid->GetFaceTopo();
-    LinkField & f2c = faceTopo->GetFaces();
+    const UnsGrid * grid = Zone::GetConstUnsGrid();
+    const FaceTopo * faceTopo = &grid->GetFaceTopo();
+    const LinkField & f2c = faceTopo->GetFaces();
 
     int nNodes = grid->nNodes;
     int nFaces = grid->nFaces;
@@ -100,12 +101,12 @@ void InterpolateCellToNodeForComponent( RealField & qNodeField, RealField & qFie
     }
 }
 
-void ApplyBoundaryConditionToNodeField( RealField & qNodeField, RealField & qField, RealField & nCount, int bcType, bool twoSide )
+void ApplyBoundaryConditionToNodeField( RealField & qNodeField, const RealField & qField, RealField & nCount, int bcType, bool twoSide )
 {
-    UnsGrid * grid = Zone::GetUnsGrid();
-    FaceTopo * faceTopo = &grid->GetFaceTopo();
-    BcRecord * bcRecord = &faceTopo->GetBcRecord();
-    LinkField & f2c = faceTopo->GetFaces();
+    const UnsGrid * grid = Zone::GetConstUnsGrid();
+    const FaceTopo * faceTopo = &grid->GetFaceTopo();
+    const BcRecord * bcRecord = &faceTopo->GetBcRecord();
+    const LinkField & f2c = faceTopo->GetFaces();
 
     int nNodes = grid->nNodes;
     int nFaces = grid->nFaces;

@@ -55,10 +55,11 @@ public:
     FieldHome() = default;
     ~FieldHome() = default;
 public:
+    // Factory: allocate owned MRField + FieldWrap (solver plugs in via solverType/level).
     static std::unique_ptr<FieldWrap> CreateField();
     static std::unique_ptr<FieldWrap> CreateField( int solverType );
     static std::unique_ptr<FieldWrap> CreateField( int solverType, int level );
-    // Owns a temporary non-owning wrapper around a grid field looked up by name.
+    // Non-owning view of an existing named field on the current grid (wrapper still unique_ptr).
     static std::unique_ptr<FieldWrap> GetFieldWrap( const std::string & fieldName );
 public:
     static void SetField( const std::string & fieldName, Real value );
