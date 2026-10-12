@@ -23,6 +23,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 #include "NamespaceMacros.h"
+#include <initializer_list>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -76,6 +77,13 @@ public:
         {
             ( *this )[ i ] = value;
         }
+        return *this;
+    }
+
+    // Assign from an initializer list, matching std::vector's interface.
+    HXVector & operator=( std::initializer_list< T > values )
+    {
+        this->assign( values.begin(), values.end() );
         return *this;
     }
 

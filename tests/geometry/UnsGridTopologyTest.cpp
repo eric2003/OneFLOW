@@ -13,8 +13,8 @@ void SetFaceCellConnectivity( ONEFLOW::UnsGrid & grid )
     grid.nBFaces = 2;
 
     auto & faceTopo = grid.GetFaceTopo();
-    faceTopo.GetLeftCells().assign( { 0, 1, 0 } );
-    faceTopo.GetRightCells().assign( { -1, -1, 1 } );
+    faceTopo.GetLeftCells() = { 0, 1, 0 };
+    faceTopo.GetRightCells() = { -1, -1, 1 };
 }
 }
 
