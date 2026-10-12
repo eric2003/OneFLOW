@@ -380,6 +380,51 @@ TEST( ScalarGridTopologyTest, ReadGridFaceTopologyRejectsEmptyFace )
     EXPECT_THROW( grid.ReadGridFaceTopology( &databook ), std::runtime_error );
 }
 
+TEST( ScalarGridTopologyTest, WriteGridFaceTopologyRejectsSelfConnectedFace )
+{
+    ONEFLOW::ScalarGrid grid;
+    grid.nNodes = 1;
+    grid.nCells = 1;
+    grid.nFaces = 1;
+    grid.xn.AddData( 0.0 );
+    grid.yn.AddData( 0.0 );
+    grid.zn.AddData( 0.0 );
+    grid.eTypes.AddData( ONEFLOW::BAR_2 );
+    grid.faces.AddElem( std::vector< int >{ 0 } );
+    grid.fTypes.AddData( ONEFLOW::NODE );
+    grid.lc.AddData( 0 );
+    grid.rc.AddData( 0 );
+
+    ONEFLOW::DataBook databook;
+    EXPECT_THROW( grid.WriteGridFaceTopology( &databook ), std::logic_error );
+}
+
+TEST( ScalarGridTopologyTest, ReadGridFaceTopologyRejectsSelfConnectedFace )
+{
+    ONEFLOW::ScalarGrid grid;
+    grid.nNodes = 1;
+    grid.nCells = 1;
+    grid.nFaces = 1;
+
+    ONEFLOW::DataBook databook;
+    const ONEFLOW::IntField faceTypes{ ONEFLOW::NODE };
+    const ONEFLOW::IntField faceNodeCounts{ 1 };
+    const ONEFLOW::IntField faceNodeIds{ 0 };
+    const ONEFLOW::IntField leftCells{ 0 };
+    const ONEFLOW::IntField rightCells{ 0 };
+    ONEFLOW::HXWrite( &databook, faceTypes );
+    ONEFLOW::HXWrite( &databook, faceNodeCounts );
+    ONEFLOW::HXWrite( &databook, faceNodeIds );
+    ONEFLOW::HXWrite( &databook, leftCells );
+    ONEFLOW::HXWrite( &databook, rightCells );
+    databook.MoveToBegin();
+
+    EXPECT_THROW( grid.ReadGridFaceTopology( &databook ), std::runtime_error );
+    EXPECT_EQ( grid.faces.GetNElements(), 0u );
+    EXPECT_EQ( grid.lc.GetNElements(), 0u );
+    EXPECT_EQ( grid.rc.GetNElements(), 0u );
+}
+
 TEST( ScalarGridTopologyTest, ReadGridFaceTopologyRejectsDuplicateNodeIndices )
 {
     ONEFLOW::ScalarGrid grid;
