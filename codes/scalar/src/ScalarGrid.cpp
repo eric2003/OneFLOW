@@ -338,6 +338,12 @@ void ScalarGrid::ResetTopologyData()
 	c2fpos.clear();
 	global_faceid.clear();
 
+	// The interface-to-boundary-face map is also derived from this topology.
+	if ( scalarIFace != nullptr )
+	{
+		scalarIFace->interface_to_bcface.clear();
+	}
+
 	nFaces = 0;
 	nBFaces = 0;
 
