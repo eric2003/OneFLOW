@@ -65,6 +65,28 @@ BeginNameSpace( ONEFLOW )
 
 namespace
 {
+void ValidateReorderMap( const IntList & orderMap, size_t elementCount, const char * operation )
+{
+	if ( orderMap.GetNElements() != elementCount )
+	{
+		throw std::invalid_argument( std::string( operation ) +
+			": order map size must match list size" );
+	}
+
+	std::vector< bool > seen( elementCount, false );
+	for ( size_t i = 0; i < elementCount; ++ i )
+	{
+		const int sourceIndex = orderMap[ i ];
+		if ( sourceIndex < 0 || static_cast< size_t >( sourceIndex ) >= elementCount ||
+			 seen[ static_cast< size_t >( sourceIndex ) ] )
+		{
+			throw std::invalid_argument( std::string( operation ) +
+				": order map must be a permutation" );
+		}
+		seen[ static_cast< size_t >( sourceIndex ) ] = true;
+	}
+}
+
 template< typename T >
 void ReserveForAppend( std::vector< T > & values )
 {
@@ -162,22 +184,7 @@ void IntList::Reserve( int new_size )
 void IntList::ReOrder( const IntList & orderMap )
 {
 	const size_t nElems = this->GetNElements();
-	if ( orderMap.GetNElements() != nElems )
-	{
-		throw std::invalid_argument( "IntList::ReOrder: order map size must match list size" );
-	}
-
-	std::vector< bool > seen( nElems, false );
-	for ( size_t i = 0; i < nElems; ++ i )
-	{
-		const int sourceIndex = orderMap[ i ];
-		if ( sourceIndex < 0 || static_cast< size_t >( sourceIndex ) >= nElems ||
-			 seen[ static_cast< size_t >( sourceIndex ) ] )
-		{
-			throw std::invalid_argument( "IntList::ReOrder: order map must be a permutation" );
-		}
-		seen[ static_cast< size_t >( sourceIndex ) ] = true;
-	}
+	ValidateReorderMap( orderMap, nElems, "IntList::ReOrder" );
 
 	const std::vector< int > original = data;
 	for ( size_t i = 0; i < nElems; ++ i )
@@ -204,22 +211,7 @@ void EList::AddElem( const std::vector< int > &elem )
 void EList::ReOrder( const IntList & orderMap )
 {
 	const size_t nElems = this->GetNElements();
-	if ( orderMap.GetNElements() != nElems )
-	{
-		throw std::invalid_argument( "EList::ReOrder: order map size must match list size" );
-	}
-
-	std::vector< bool > seen( nElems, false );
-	for ( size_t i = 0; i < nElems; ++ i )
-	{
-		const int sourceIndex = orderMap[ i ];
-		if ( sourceIndex < 0 || static_cast< size_t >( sourceIndex ) >= nElems ||
-			 seen[ static_cast< size_t >( sourceIndex ) ] )
-		{
-			throw std::invalid_argument( "EList::ReOrder: order map must be a permutation" );
-		}
-		seen[ static_cast< size_t >( sourceIndex ) ] = true;
-	}
+	ValidateReorderMap( orderMap, nElems, "EList::ReOrder" );
 
 	const std::vector< std::vector< int > > original = data;
 	for ( size_t i = 0; i < nElems; ++ i )
