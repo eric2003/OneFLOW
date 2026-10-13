@@ -38,7 +38,7 @@ public:
     UnitElement() = default;
     ~UnitElement() = default;
 public:
-    int elementType;
+    int elementType = -1;
     IntField nodeId;
     LinkField middlePointStruct; //Midpoint data structure
     LinkField childElementIndex;
