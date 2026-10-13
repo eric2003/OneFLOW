@@ -125,6 +125,30 @@ TEST(UnitElementTest, DefaultConstructionStartsUninitialized)
     EXPECT_EQ(element.GetChildElementNumbers(), 0);
 }
 
+TEST(UnitElementTest, ReinitializeReplacesThePreviousTopologyDefinition)
+{
+    ONEFLOW::UnitElement element;
+    element.Initialize(ONEFLOW::QUAD_4);
+
+    element.PushElementFace(ONEFLOW::BAR_2, 1, 3);
+    element.PushChildElement(ONEFLOW::TRI_3, 1, 2, 3);
+    element.PushCompositeFace(ONEFLOW::TRI_3, 1, 2, 3);
+    element.PushMiddlePoint(4, 1, 2);
+
+    ASSERT_EQ(element.GetElementFaceNumber(), 5);
+    ASSERT_EQ(element.GetChildElementNumbers(), 1);
+    ASSERT_EQ(element.GetElementPhysicsFaceNumber(), 1);
+
+    element.Initialize(ONEFLOW::BAR_2);
+
+    EXPECT_EQ(element.GetElementType(), ONEFLOW::BAR_2);
+    EXPECT_EQ(element.GetElementFaceNumber(), 2);
+    EXPECT_EQ(element.GetChildElementNumbers(), 0);
+    EXPECT_EQ(element.GetElementPhysicsFaceNumber(), 0);
+    EXPECT_EQ(
+        element.GetRelatedPointListForMiddlePointCalculation(1).size(), 0);
+}
+
 TEST(UnitElementTest, CorrectlySpelledMiddlePointAccessorIsAvailable)
 {
     ONEFLOW::UnitElement element;
