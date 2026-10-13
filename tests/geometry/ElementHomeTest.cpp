@@ -10,6 +10,30 @@ static_assert(
         decltype(ONEFLOW::ElementHome::GetUnitElementDefinition(ONEFLOW::HEXA_8))>>,
     "ElementHome must expose unit element definitions as read-only");
 
+using ConstElementFaceResult = decltype(
+    std::declval< const ONEFLOW::UnitElement & >().GetElementFace(0));
+using ConstPhysicsFaceResult = decltype(
+    std::declval< const ONEFLOW::UnitElement & >().GetElementPhysicsFace(0));
+using ConstMiddlePointResult = decltype(
+    std::declval< const ONEFLOW::UnitElement & >()
+        .GetRelatedPointListForMiddlePointCalculation(0));
+using ConstChildNodeResult = decltype(
+    std::declval< const ONEFLOW::UnitElement & >()
+        .GetChildElementRelativeNodeIndex(0));
+
+static_assert(
+    std::is_const_v<std::remove_reference_t<ConstElementFaceResult>>,
+    "Reading a face from a const unit element must not expose mutable topology");
+static_assert(
+    std::is_const_v<std::remove_reference_t<ConstPhysicsFaceResult>>,
+    "Reading a physics face from a const unit element must not expose mutable topology");
+static_assert(
+    std::is_const_v<std::remove_reference_t<ConstMiddlePointResult>>,
+    "Reading middle-point relations from a const unit element must be read-only");
+static_assert(
+    std::is_const_v<std::remove_reference_t<ConstChildNodeResult>>,
+    "Reading child-element node mappings from a const unit element must be read-only");
+
 TEST(ElementHomeTest, InitializeBuildsRegistryWithStableEnumIndices)
 {
     ONEFLOW::ElementHome::Initialize();
