@@ -172,6 +172,41 @@ TEST(UnitElementTest, TopologyAccessorsRejectOutOfRangeIndices)
     EXPECT_THROW(element.GetChildElementType(0), std::out_of_range);
 }
 
+TEST(UnitElementTest, TopologyBuildersConvertOneBasedDefinitionsToZeroBasedIndices)
+{
+    ONEFLOW::UnitElement element;
+    element.Initialize(ONEFLOW::QUAD_4);
+
+    element.PushElementFace(ONEFLOW::BAR_2, 4, 1);
+    const auto & face = element.GetElementFace(element.GetElementFaceNumber() - 1);
+    ASSERT_EQ(face.size(), 2);
+    EXPECT_EQ(face[0], 3);
+    EXPECT_EQ(face[1], 0);
+
+    element.PushChildElement(ONEFLOW::TRI_3, 4, 2, 1);
+    const auto & childNodes =
+        element.GetChildElementRelativeNodeIndex(element.GetChildElementNumbers() - 1);
+    ASSERT_EQ(childNodes.size(), 3);
+    EXPECT_EQ(childNodes[0], 3);
+    EXPECT_EQ(childNodes[1], 1);
+    EXPECT_EQ(childNodes[2], 0);
+
+    element.PushCompositeFace(ONEFLOW::TRI_3, 3, 2, 1);
+    const auto & physicsFace =
+        element.GetElementPhysicsFace(element.GetElementPhysicsFaceNumber() - 1);
+    ASSERT_EQ(physicsFace.size(), 3);
+    EXPECT_EQ(physicsFace[0], 2);
+    EXPECT_EQ(physicsFace[1], 1);
+    EXPECT_EQ(physicsFace[2], 0);
+
+    element.PushMiddlePoint(4, 1, 2);
+    const auto & relatedNodes =
+        element.GetRelatedPointListForMiddlePointCalculation(3);
+    ASSERT_EQ(relatedNodes.size(), 2);
+    EXPECT_EQ(relatedNodes[0], 0);
+    EXPECT_EQ(relatedNodes[1], 1);
+}
+
 TEST(UnitElementTest, PushMiddlePointRejectsInvalidLocalNodeIndicesWithoutMutation)
 {
     ONEFLOW::UnitElement element;
