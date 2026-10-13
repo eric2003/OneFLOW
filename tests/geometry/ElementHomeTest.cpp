@@ -22,6 +22,18 @@ TEST(ElementHomeTest, InitializeBuildsRegistryWithStableEnumIndices)
     EXPECT_EQ(ONEFLOW::GetElementDimension(ONEFLOW::HEXA_8), 3);
 }
 
+TEST(ElementHomeTest, ReadOnlyDefinitionAccessorPreservesRegistryTopology)
+{
+    ONEFLOW::ElementHome::Initialize();
+
+    const ONEFLOW::UnitElement & element =
+        ONEFLOW::ElementHome::GetUnitElementDefinition(ONEFLOW::HEXA_8);
+
+    EXPECT_EQ(element.GetElementType(), ONEFLOW::HEXA_8);
+    EXPECT_EQ(element.GetElementNodeNumbers(ONEFLOW::HEXA_8), 8);
+    EXPECT_EQ(element.GetElementFaceNumber(), 6);
+}
+
 TEST(ElementHomeTest, RepeatedInitializeRebuildsEquivalentRegistry)
 {
     ONEFLOW::ElementHome::Initialize();
