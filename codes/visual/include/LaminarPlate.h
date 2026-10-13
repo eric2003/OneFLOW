@@ -60,7 +60,7 @@ public:
     LaminarFlatPlateTask();
     ~LaminarFlatPlateTask() override;
 public:
-    // FIX: Use std::unique_ptr for automatic memory management
+    // Owned via std::unique_ptr (RAII).
     std::unique_ptr<LamVelCut> velCut;
     std::unique_ptr<LamFriCut> friCut;
 public:

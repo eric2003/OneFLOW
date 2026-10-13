@@ -63,7 +63,7 @@ CgnsFactory::CgnsFactory()
       zgridElem(std::make_unique<ZgridElem>( *cgnsZbase ))
 {}
 
-// FIX: Define destructor and move operations here.
+// Define destructor and move operations here.
 // The compiler can now see the complete types and safely generate the 
 // code to delete the unique_ptr members.
 CgnsFactory::~CgnsFactory()
@@ -104,7 +104,7 @@ CgnsFactory& CgnsFactory::operator=( CgnsFactory && other ) noexcept
     return *this;
 }
 
-// FIX: Exception-safe ownership transfer
+// Exception-safe ownership transfer
 void CgnsFactory::ConvertStrCgns2UnsCgnsGrid()
 {
     auto unsCgnsZbase = std::make_unique<CgnsZbase>();

@@ -91,7 +91,7 @@ void CgnsTest::SetDefaultGridName()
 
 void CgnsTest::WriteSimpleMultiBaseTest()
 {
-    // FIX: Stack allocation. Destructor automatically closes the file.
+    // Stack allocation. Destructor automatically closes the file.
     CgnsFile cgnsFile( "smiplebase.cgns", CG_MODE_WRITE );
     cgnsFile.WriteBase( "OneFLOW1" );
     cgnsFile.WriteBase( "OneFLOW 2" );

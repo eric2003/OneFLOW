@@ -36,12 +36,12 @@ public:
     FaceJointManager();
     ~FaceJointManager();
 
-    // FIX: Disable copy to prevent double-free of unique_ptrs
+    // Non-copyable: unique_ptr members.
     FaceJointManager(const FaceJointManager&) = delete;
     FaceJointManager& operator=(const FaceJointManager&) = delete;
 
 public:
-    // FIX: Use std::unique_ptr for automatic memory management
+    // Owned via std::unique_ptr (RAII).
     HXVector< std::unique_ptr< FaceJoint > > patch;
     std::unique_ptr< FaceJoint > global;
 
@@ -63,7 +63,7 @@ public:
     FaceJoint();
     ~FaceJoint();
 
-    // FIX: Disable copy to prevent double-free of unique_ptrs
+    // Non-copyable: unique_ptr members.
     FaceJoint(const FaceJoint&) = delete;
     FaceJoint& operator=(const FaceJoint&) = delete;
 
@@ -82,7 +82,7 @@ public:
     RealField pmin, pmax;
     Real dismin, dismax;
 
-    // FIX: Use std::unique_ptr for automatic memory management
+    // Owned via std::unique_ptr (RAII).
     std::unique_ptr< PointLocator > ps;
     std::unique_ptr< WallVisual > wallVisual;
 

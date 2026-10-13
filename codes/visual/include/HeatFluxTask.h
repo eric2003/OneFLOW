@@ -35,12 +35,12 @@ public:
     HeatFluxTask ();
     ~HeatFluxTask() override;
 
-    // FIX: Disable copy to prevent double-free of unique_ptr
+    // Non-copyable: unique_ptr members.
     HeatFluxTask(const HeatFluxTask&) = delete;
     HeatFluxTask& operator=(const HeatFluxTask&) = delete;
 
 public:
-    // FIX: Use std::unique_ptr for automatic memory management
+    // Owned via std::unique_ptr (RAII).
     std::unique_ptr< FaceJointManager > wallManager;
 
 public:

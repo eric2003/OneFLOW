@@ -31,7 +31,7 @@ BeginNameSpace( ONEFLOW )
 
 FaceJointManager::FaceJointManager()
 {
-    // FIX: Use std::make_unique for exception-safe allocation
+    // Allocate with std::make_unique.
     global = std::make_unique< FaceJoint >();
 }
 
@@ -46,7 +46,7 @@ void FaceJointManager::ConstructPointIndex()
     int nLocal = this->patch.size();
     for ( int iLocal = 0; iLocal < nLocal; ++ iLocal )
     {
-        // FIX: Use .get() to access the raw pointer for non-owning operations
+        // Use .get() to access the raw pointer for non-owning operations
         FaceJoint * local = this->patch[ iLocal ].get();
         local->ConstructPointIndex();
         local->ConstructPointIndexMap( this->global.get() );
@@ -68,7 +68,7 @@ FaceJoint::FaceJoint()
 {
     pmin.resize( 3 );
     pmax.resize( 3 );
-    // FIX: Use std::make_unique
+    // Use std::make_unique
     ps = std::make_unique< PointLocator >();
     wallVisual = std::make_unique< WallVisual >();
     isValid = false;

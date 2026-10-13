@@ -326,7 +326,7 @@ void Mesh::CreateMesh()
 {
     std::cout << "Mesh::CreateMesh()\n";
 
-    // FIX: Use std::make_unique for exception-safe allocation.
+    // Allocate with std::make_unique..
     // If CreateMesh is called multiple times, the old resources are 
     // automatically released before reassignment, preventing leaks.
     nodeMesh = std::make_unique<NodeMesh>();

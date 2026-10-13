@@ -51,7 +51,7 @@ BeginNameSpace( ONEFLOW )
 
 HeatFluxTask::HeatFluxTask()
 {
-    // FIX: Use std::make_unique for exception-safe allocation
+    // Allocate with std::make_unique.
     wallManager = std::make_unique< FaceJointManager >();
 }
 
@@ -76,7 +76,7 @@ void HeatFluxTask::AllocVariable()
     for ( int zId = 0; zId < ZoneState::nZones; ++ zId )
     {
         ZoneState::zid = zId;
-        // FIX: Use std::make_unique and push_back
+        // Allocate with std::make_unique; push_back into container.
         wallManager->patch.push_back( std::make_unique< FaceJoint >() );
     }
 }
@@ -92,7 +92,7 @@ void HeatFluxTask::CollectWallFaceNode()
             ONEFLOW::CollectWallFaceNode();
         }
         HXBcast( ActionState::dataBook, ZoneState::pid[ zId ] );
-        // FIX: Use .get() to pass the raw pointer to legacy global functions
+        // Use .get() to pass the raw pointer to legacy global functions
         AddWallFaceNode( wallManager.get(), zId );
     }
 }
@@ -108,7 +108,7 @@ void HeatFluxTask::CollectWallFaceValue()
             ONEFLOW::CollectWallFaceValue();
         }
         HXBcast( ActionState::dataBook, ZoneState::pid[ zId ] );
-        // FIX: Use .get()
+        // Use .get()
         AddWallFaceValue( wallManager.get(), zId );
     }
 }
@@ -132,7 +132,7 @@ void HeatFluxTask::VisualizeWallNodeValue()
     int iCount = 0;
     for ( int iData = 0; iData < numberOfSubData; ++ iData )
     {
-        // FIX: Use .get() to extract the raw pointer from the unique_ptr array
+        // Use .get() to extract the raw pointer from the unique_ptr array
         FaceJoint * basicWall = wallManager->patch[ iData ].get();
         if ( basicWall->isValid ) iCount ++;
         basicWall->Visual( file );
@@ -232,7 +232,7 @@ void CollectWallFaceValue()
     if ( nSolidCells == 0 ) return;
 
     int zId = ZoneState::zid;
-    // FIX: Use .get() to access the RealField from the unique_ptr<SurfaceValue>
+    // Use .get() to access the RealField from the unique_ptr<SurfaceValue>
     SurfaceValue * heat_sur = heat_flux.heatflux[ zId ].get();
     RealField & hf = *(heat_sur->var);
     HXWrite( ActionState::dataBook, hf );

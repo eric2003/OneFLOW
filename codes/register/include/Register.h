@@ -34,7 +34,7 @@ class HXRegister
 {
 public:
     HXRegister() = default;
-    // FIX: previously an empty destructor left every HXClone* in `data`
+    // previously an empty destructor left every HXClone* in `data`
     // leaked, since only FreeAll() (never automatically called) freed
     // them. Switching to unique_ptr means destruction is automatic and
     // exception-safe, and this class no longer needs a hand-written
@@ -58,7 +58,7 @@ class MRegister
 {
 public:
     MRegister() = default;
-    // FIX: unique_ptr in `data` makes destruction automatic; no more
+    // unique_ptr in `data` makes destruction automatic; no more
     // hand-written loop that only freed the HXRegister* itself while
     // silently leaking everything each HXRegister owned.
     ~MRegister() = default;

@@ -59,7 +59,7 @@ void TaskRegister::Register( VoidFunc taskfun, std::string const & taskname )
 
 void TaskRegister::Run()
 {
-    // FIX: guard against Run() being called before any Register() call
+    // guard against Run() being called before any Register() call
     // has happened (taskList would still be null in that case).
     if ( ! TaskRegister::taskList )
     {

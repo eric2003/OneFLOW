@@ -161,7 +161,7 @@ void GridGroup::ReadGrid( std::fstream & file, int zid )
         this->CreateGrid( zid );
     }
 
-    // FIX: Use stack allocation instead of raw pointers. 
+    // Use stack allocation instead of raw pointers. 
     // This guarantees exception safety and eliminates memory leaks 
     // if ReadAbstractData or DataToGrid throws an exception.
     DataBook dataBook;
