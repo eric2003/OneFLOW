@@ -50,6 +50,8 @@ public:
     LinkField compositeFaceList;
 public:
     void Initialize( int elementType );
+private:
+    void BuildTopology( int elementType );
 public:
     IntField & GetElementPhysicsFace(int iFace);
     const IntField & GetElementPhysicsFace(int iFace) const;

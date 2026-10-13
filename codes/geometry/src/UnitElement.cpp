@@ -26,6 +26,7 @@ License
 #include <cstddef>
 #include <stdexcept>
 #include <initializer_list>
+#include <utility>
 
 
 BeginNameSpace( ONEFLOW )
@@ -145,14 +146,31 @@ int UnitElement::GetElementNodeNumbers( int elementType )
 
 void UnitElement::Initialize( int elementType )
 {
+    // Build the replacement first so a failed initialization preserves the
+    // currently valid topology definition.
+    UnitElement replacement;
+    replacement.BuildTopology( elementType );
+
+    using std::swap;
+    swap( this->elementType, replacement.elementType );
+    swap( nodeId, replacement.nodeId );
+    swap( middlePointStruct, replacement.middlePointStruct );
+    swap( childElementIndex, replacement.childElementIndex );
+    swap( childElementType, replacement.childElementType );
+    swap( faceTypeContainer, replacement.faceTypeContainer );
+    swap( faceList, replacement.faceList );
+    swap( compositeFaceElementType, replacement.compositeFaceElementType );
+    swap( compositeFaceList, replacement.compositeFaceList );
+}
+
+void UnitElement::BuildTopology( int elementType )
+{
     const int elementNodeNumbers = GetElementNodeNumbers( elementType );
     if ( elementNodeNumbers <= 0 )
     {
         throw std::invalid_argument( "UnitElement::Initialize: unsupported element type" );
     }
 
-    // Validate before mutation so a failed initialization preserves the
-    // existing topology definition.
     // Initialization replaces the complete topology definition; it must not
     // append to data left by an earlier initialization.
     nodeId.clear();
