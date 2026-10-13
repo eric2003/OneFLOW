@@ -27,7 +27,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-HXVector< std::unique_ptr< UnitElement > > ElementHome::unitElements;
+HXVector< std::unique_ptr< const UnitElement > > ElementHome::unitElements;
 
 int ElementHome::GetNumberOfUnitElements()
 {
@@ -55,7 +55,7 @@ void ElementHome::Initialize()
 {
     // Keep enum values as registry indices, including unsupported gaps.
     // A null slot means that the element type has no UnitElement definition.
-    HXVector< std::unique_ptr< UnitElement > > initializedElements;
+    HXVector< std::unique_ptr< const UnitElement > > initializedElements;
     initializedElements.resize( NofValidElementTypes );
 
     for ( HXSize_t iUnitElement = 0; iUnitElement < NofValidElementTypes; ++ iUnitElement )

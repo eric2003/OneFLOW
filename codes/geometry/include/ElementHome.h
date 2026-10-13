@@ -40,7 +40,7 @@ private:
     ElementHome & operator=( ElementHome && ) = delete;
 
 private:
-    static HXVector< std::unique_ptr< UnitElement > > unitElements;
+    static HXVector< std::unique_ptr< const UnitElement > > unitElements;
 public:
     static int GetNumberOfUnitElements();
     static bool HasUnitElement( int elementType );
