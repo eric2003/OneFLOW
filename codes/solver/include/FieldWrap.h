@@ -120,6 +120,13 @@ public:
 //   update delta      dq                    turbdq
 //   BC face grad      bcdqdx/y/z            turbbcdqdx/y/z
 //
+// Role separation (multi-solver):
+//   - "Current solver logistics"  -> Get*(grid) or Get*(grid, SolverState::solverType)
+//   - "Foreign solver read"       -> Get*(grid, foreignSolverType)  e.g. turb reads NS
+//   - "Dual-use binder"           -> must pin identity (UNsField::Init -> NS_SOLVER)
+//   - "Shared physics fields"     -> literal names (visl, vist, timestep) until owned
+//   Prefer typed views (UNsField / UTurbField) over ad-hoc GetFieldPointer in kernels.
+//
 // Rules:
 //   1. Current-solver: FieldHome::Get*(grid) via SolverState.
 //   2. Cross-solver / dual-use: FieldHome::Get*(grid, solverType).
