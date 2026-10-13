@@ -1574,8 +1574,7 @@ void UnitElement::PushChildElement( int elementType, int p1, int p2, int p3, int
 void UnitElement::PushMiddlePoint( int pm, int p1, int p2 )
 {
     CheckLocalNodeIndex( pm, nodeId.size(), "UnitElement::PushMiddlePoint: midpoint index out of range" );
-    CheckLocalNodeIndex( p1, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
-    CheckLocalNodeIndex( p2, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
+    CheckLocalNodeIndices( { p1, p2 }, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
 
     middlePointStruct[ pm - 1 ].push_back( p1 - 1 );
     middlePointStruct[ pm - 1 ].push_back( p2 - 1 );
@@ -1584,9 +1583,7 @@ void UnitElement::PushMiddlePoint( int pm, int p1, int p2 )
 void UnitElement::PushMiddlePoint( int pm, int p1, int p2, int p3 )
 {
     CheckLocalNodeIndex( pm, nodeId.size(), "UnitElement::PushMiddlePoint: midpoint index out of range" );
-    CheckLocalNodeIndex( p1, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
-    CheckLocalNodeIndex( p2, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
-    CheckLocalNodeIndex( p3, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
+    CheckLocalNodeIndices( { p1, p2, p3 }, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
 
     middlePointStruct[ pm - 1 ].push_back( p1 - 1 );
     middlePointStruct[ pm - 1 ].push_back( p2 - 1 );
@@ -1596,10 +1593,7 @@ void UnitElement::PushMiddlePoint( int pm, int p1, int p2, int p3 )
 void UnitElement::PushMiddlePoint( int pm, int p1, int p2, int p3, int p4 )
 {
     CheckLocalNodeIndex( pm, nodeId.size(), "UnitElement::PushMiddlePoint: midpoint index out of range" );
-    CheckLocalNodeIndex( p1, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
-    CheckLocalNodeIndex( p2, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
-    CheckLocalNodeIndex( p3, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
-    CheckLocalNodeIndex( p4, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
+    CheckLocalNodeIndices( { p1, p2, p3, p4 }, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
 
     middlePointStruct[ pm - 1 ].push_back( p1 - 1 );
     middlePointStruct[ pm - 1 ].push_back( p2 - 1 );
@@ -1610,14 +1604,7 @@ void UnitElement::PushMiddlePoint( int pm, int p1, int p2, int p3, int p4 )
 void UnitElement::PushMiddlePoint( int pm, int p1, int p2, int p3, int p4, int p5, int p6, int p7, int p8 )
 {
     CheckLocalNodeIndex( pm, nodeId.size(), "UnitElement::PushMiddlePoint: midpoint index out of range" );
-    CheckLocalNodeIndex( p1, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
-    CheckLocalNodeIndex( p2, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
-    CheckLocalNodeIndex( p3, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
-    CheckLocalNodeIndex( p4, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
-    CheckLocalNodeIndex( p5, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
-    CheckLocalNodeIndex( p6, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
-    CheckLocalNodeIndex( p7, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
-    CheckLocalNodeIndex( p8, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
+    CheckLocalNodeIndices( { p1, p2, p3, p4, p5, p6, p7, p8 }, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
 
     middlePointStruct[ pm - 1 ].push_back( p1 - 1 );
     middlePointStruct[ pm - 1 ].push_back( p2 - 1 );
