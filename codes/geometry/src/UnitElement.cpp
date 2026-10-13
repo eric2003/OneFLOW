@@ -23,6 +23,7 @@ License
 #include "UnitElement.h"
 #include "HXCgns.h"
 #include "Dimension.h"
+#include <cstddef>
 #include <stdexcept>
 
 
