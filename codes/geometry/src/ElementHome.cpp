@@ -48,14 +48,21 @@ UnitElement & ElementHome::GetUnitElement( int elementType )
 
 void ElementHome::Initialize()
 {
+    // Keep enum values as registry indices, including unsupported gaps.
+    // A null slot means that the element type has no UnitElement definition.
     HXVector< std::unique_ptr< UnitElement > > initializedElements;
-    initializedElements.reserve( NofValidElementTypes );
+    initializedElements.resize( NofValidElementTypes );
 
     for ( HXSize_t iUnitElement = 0; iUnitElement < NofValidElementTypes; ++ iUnitElement )
     {
         auto unit = std::make_unique< UnitElement >();
+        if ( unit->GetElementNodeNumbers( iUnitElement ) <= 0 )
+        {
+            continue;
+        }
+
         unit->Initialize( iUnitElement );
-        initializedElements.push_back( std::move( unit ) );
+        initializedElements[ iUnitElement ] = std::move( unit );
     }
 
     unitElements.swap( initializedElements );
