@@ -89,6 +89,11 @@ ElementHomeInit elementHomeInit;
 
 int GetElementNodeNumbers( int eType )
 {
+    if ( eType < 0 || eType >= ElementHome::GetNumberOfUnitElements() )
+    {
+        throw std::out_of_range( "GetElementNodeNumbers: element type is out of range" );
+    }
+
     try
     {
         UnitElement & unitElement = ElementHome::GetUnitElement( eType );
@@ -96,6 +101,7 @@ int GetElementNodeNumbers( int eType )
     }
     catch ( const std::out_of_range & )
     {
+        // The enum value is in range, but this type has no registered definition.
         return 0;
     }
 }
