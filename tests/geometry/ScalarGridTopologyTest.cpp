@@ -1084,9 +1084,9 @@ TEST( ElementDimensionTest, DimensionLookupUsesRegistryStorageAsSourceOfTruth )
 
 TEST( ElementDimensionTest, RegistryRejectsOutOfRangeElementTypes )
 {
-    EXPECT_THROW( ONEFLOW::ElementHome::GetUnitElement( -1 ), std::out_of_range );
+    EXPECT_THROW( ONEFLOW::ElementHome::GetUnitElementDefinition( -1 ), std::out_of_range );
     EXPECT_THROW(
-        ONEFLOW::ElementHome::GetUnitElement( ONEFLOW::ElementHome::GetNumberOfUnitElements() ),
+        ONEFLOW::ElementHome::GetUnitElementDefinition( ONEFLOW::ElementHome::GetNumberOfUnitElements() ),
         std::out_of_range );
     EXPECT_THROW(
         ONEFLOW::GetElementNodeNumbers( ONEFLOW::ElementHome::GetNumberOfUnitElements() ),
@@ -1111,7 +1111,7 @@ TEST( ElementDimensionTest, RegistryDistinguishesUnsupportedSlotsFromOutOfRangeI
         EXPECT_EQ( ONEFLOW::GetElementDimension( elementType ), -1 );
         EXPECT_FALSE( ONEFLOW::IsBasicVolumeElementType( elementType ) );
         EXPECT_THROW(
-            ONEFLOW::ElementHome::GetUnitElement( elementType ),
+            ONEFLOW::ElementHome::GetUnitElementDefinition( elementType ),
             std::out_of_range );
         break;
     }
@@ -1130,7 +1130,7 @@ TEST( ElementDimensionTest, RegistryFreeClearsStorageAndCanBeReinitialized )
     EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::BAR_2 ), -1 );
     EXPECT_FALSE( ONEFLOW::IsBasicVolumeElementType( ONEFLOW::BAR_2 ) );
     EXPECT_THROW(
-        ONEFLOW::ElementHome::GetUnitElement( ONEFLOW::BAR_2 ),
+        ONEFLOW::ElementHome::GetUnitElementDefinition( ONEFLOW::BAR_2 ),
         std::out_of_range );
 
     ONEFLOW::ElementHome::Initialize();
@@ -1147,7 +1147,7 @@ TEST( ElementDimensionTest, RegistryInitializationCanBeRepeated )
     ONEFLOW::ElementHome::Initialize();
     EXPECT_EQ( ONEFLOW::ElementHome::GetNumberOfUnitElements(), expectedCount );
     EXPECT_EQ(
-        ONEFLOW::ElementHome::GetUnitElement( ONEFLOW::BAR_2 ).GetElementType(),
+        ONEFLOW::ElementHome::GetUnitElementDefinition( ONEFLOW::BAR_2 ).GetElementType(),
         ONEFLOW::BAR_2 );
 
     ONEFLOW::ElementHome::Initialize();
