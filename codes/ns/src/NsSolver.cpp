@@ -59,7 +59,7 @@ void NsSolver::StaticInit()
     solverInfo->nTEqu = nscom.nTEqu;
     solverInfo->residualName = "res";
     solverInfo->solutionGradNames.clear();
-    solverInfo->implicitString.clear();
+    solverInfo->implicitFieldNames.clear();
     solverInfo->bcGradString.clear();
     solverInfo->resFileName = GetDataValue< std::string >( "resFile" );
     solverInfo->solutionGradNames.push_back( "q"    );
@@ -67,8 +67,8 @@ void NsSolver::StaticInit()
     solverInfo->solutionGradNames.push_back( "dqdy" );
     solverInfo->solutionGradNames.push_back( "dqdz" );
 
-    solverInfo->implicitString.push_back( "q"  );
-    solverInfo->implicitString.push_back( "dq" );
+    solverInfo->implicitFieldNames.push_back( "q"  );
+    solverInfo->implicitFieldNames.push_back( "dq" );
 
     solverInfo->bcGradString.push_back( "bcdqdx" );
     solverInfo->bcGradString.push_back( "bcdqdy" );

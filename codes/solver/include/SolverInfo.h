@@ -37,11 +37,10 @@ public:
     int nEqu;
     int nTEqu;
     int numberOfImplicitSweeps;
-    // Historical name: [0]=solution, [1..3]=cell-center grad (dx,dy,dz).
-    // [0]=solution, [1..3]=cell-center grad. Prefer FieldHome::GetSolutionName / GetGradName.
+    // [0]=solution, [1..3]=cell-center grad (dx,dy,dz). Prefer FieldHome::GetSolutionName / GetGradName.
     StringField solutionGradNames;
-    // [0]=solution, [1]=update delta ("dq" / "turbdq"). Prefer FieldHome helpers.
-    StringField implicitString;
+    // [0]=solution, [1]=update delta ("dq" / "turbdq"). Prefer FieldHome::GetUpdateDelta*.
+    StringField implicitFieldNames;
     // BC face gradient storage: [0]=dx, [1]=dy, [2]=dz
     // (NS: bcdqdx/y/z, Turb: turbbcdqdx/y/z). Prefer FieldHome::GetBcGrad*.
     StringField bcGradString;

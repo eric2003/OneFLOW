@@ -62,15 +62,15 @@ void INsSolver::StaticInit()
     solverInfo->residualName = "res";
     solverInfo->resFileName = GetDataValue< std::string >( "resFile" );
     solverInfo->solutionGradNames.clear();
-    solverInfo->implicitString.clear();
+    solverInfo->implicitFieldNames.clear();
     solverInfo->bcGradString.clear();
     solverInfo->solutionGradNames.push_back( "q"    );
     solverInfo->solutionGradNames.push_back( "dqdx" );
     solverInfo->solutionGradNames.push_back( "dqdy" );
     solverInfo->solutionGradNames.push_back( "dqdz" );
 
-    solverInfo->implicitString.push_back( "q"  );
-    solverInfo->implicitString.push_back( "dq" );
+    solverInfo->implicitFieldNames.push_back( "q"  );
+    solverInfo->implicitFieldNames.push_back( "dq" );
 
     solverInfo->bcGradString.push_back( "bcdqdx" );
     solverInfo->bcGradString.push_back( "bcdqdy" );

@@ -273,9 +273,9 @@ const std::string & FieldHome::GetUpdateDeltaName()
 const std::string & FieldHome::GetUpdateDeltaName( int solverType )
 {
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
-    if ( solverInfo->implicitString.size() >= 2 )
+    if ( solverInfo->implicitFieldNames.size() >= 2 )
     {
-        return solverInfo->implicitString[ 1 ];
+        return solverInfo->implicitFieldNames[ 1 ];
     }
     static const std::string kDefaultDq = "dq";
     return kDefaultDq;

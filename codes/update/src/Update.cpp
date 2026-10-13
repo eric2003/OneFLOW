@@ -66,13 +66,13 @@ void GetUpdateField(
 {
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
 
-    // LUSGS path: implicitString[0]=solution ("q"/"turbq"), [1]=delta ("dq"/"turbdq").
+    // LUSGS path: implicitFieldNames[0]=solution ("q"/"turbq"), [1]=delta ("dq"/"turbdq").
     // Note: *Com MULTI_STAGE may have aliased the zone-local dq pointer to residual;
-    // this path still binds the database field named in implicitString.
+    // this path still binds the database field named in implicitFieldNames.
     if ( TaskState::task->taskName == kUpdateFlowFieldLusgsTaskName )
     {
-        std::string & qFieldString  = solverInfo->implicitString[ 0 ];
-        std::string & dQFieldString = solverInfo->implicitString[ 1 ];
+        std::string & qFieldString  = solverInfo->implicitFieldNames[ 0 ];
+        std::string & dQFieldString = solverInfo->implicitFieldNames[ 1 ];
         q  = FieldHome::GetFieldWrap( qFieldString  );
         dq = FieldHome::GetFieldWrap( dQFieldString );
     }
