@@ -125,7 +125,7 @@ TEST(UnitElementTest, DefaultConstructionStartsUninitialized)
     EXPECT_EQ(element.GetElementType(), -1);
     EXPECT_EQ(element.GetElementFaceNumber(), 0);
     EXPECT_EQ(element.GetCompositeFaceNumber(), 0);
-    EXPECT_EQ(element.GetChildElementNumbers(), 0);
+    EXPECT_EQ(element.GetChildElementCount(), 0);
 }
 
 TEST(UnitElementTest, ReinitializeReplacesThePreviousTopologyDefinition)
@@ -139,14 +139,14 @@ TEST(UnitElementTest, ReinitializeReplacesThePreviousTopologyDefinition)
     element.PushMiddlePoint(4, 1, 2);
 
     ASSERT_EQ(element.GetElementFaceNumber(), 5);
-    ASSERT_EQ(element.GetChildElementNumbers(), 1);
+    ASSERT_EQ(element.GetChildElementCount(), 1);
     ASSERT_EQ(element.GetCompositeFaceNumber(), 1);
 
     element.Initialize(ONEFLOW::BAR_2);
 
     EXPECT_EQ(element.GetElementType(), ONEFLOW::BAR_2);
     EXPECT_EQ(element.GetElementFaceNumber(), 2);
-    EXPECT_EQ(element.GetChildElementNumbers(), 0);
+    EXPECT_EQ(element.GetChildElementCount(), 0);
     EXPECT_EQ(element.GetCompositeFaceNumber(), 0);
     EXPECT_EQ(
         element.GetRelatedPointListForMiddlePointCalculation(1).size(), 0);
@@ -212,7 +212,7 @@ TEST(UnitElementTest, TopologyBuildersConvertOneBasedDefinitionsToZeroBasedIndic
 
     element.PushChildElement(ONEFLOW::TRI_3, 4, 2, 1);
     const auto & childNodes =
-        element.GetChildElementRelativeNodeIndex(element.GetChildElementNumbers() - 1);
+        element.GetChildElementRelativeNodeIndex(element.GetChildElementCount() - 1);
     ASSERT_EQ(childNodes.size(), 3);
     EXPECT_EQ(childNodes[0], 3);
     EXPECT_EQ(childNodes[1], 1);
@@ -273,7 +273,7 @@ TEST(UnitElementTest, TopologyBuildersRejectInvalidLocalNodeIndicesWithoutMutati
     element.Initialize(ONEFLOW::QUAD_4);
 
     const int initialFaceCount = element.GetElementFaceNumber();
-    const int initialChildCount = element.GetChildElementNumbers();
+    const int initialChildCount = element.GetChildElementCount();
     const int initialCompositeFaceCount = element.GetCompositeFaceNumber();
 
     EXPECT_THROW(element.PushElementFace(ONEFLOW::BAR_2, 0, 2), std::out_of_range);
@@ -281,6 +281,7 @@ TEST(UnitElementTest, TopologyBuildersRejectInvalidLocalNodeIndicesWithoutMutati
     EXPECT_THROW(element.PushCompositeFace(ONEFLOW::BAR_3, 1, 2, 5), std::out_of_range);
 
     EXPECT_EQ(element.GetElementFaceNumber(), initialFaceCount);
-    EXPECT_EQ(element.GetChildElementNumbers(), initialChildCount);
+    EXPECT_EQ(element.GetChildElementCount(), initialChildCount);
+    EXPECT_EQ(element.GetChildElementNumbers(), element.GetChildElementCount());
     EXPECT_EQ(element.GetCompositeFaceNumber(), initialCompositeFaceCount);
 }

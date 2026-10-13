@@ -1561,7 +1561,15 @@ const IntField & UnitElement::GetChildElementRelativeNodeIndex( int iChildElemen
     return childElementIndex[ iChildElement ];
 }
 
-int UnitElement::GetChildElementNumbers() const { return childElementType.size(); }
+int UnitElement::GetChildElementCount() const
+{
+    return static_cast< int >( childElementType.size() );
+}
+
+int UnitElement::GetChildElementNumbers() const
+{
+    return GetChildElementCount();
+}
 
 int UnitElement::GetChildElementType( int iChild ) const
 {

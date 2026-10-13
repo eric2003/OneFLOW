@@ -1016,12 +1016,12 @@ TEST( UnitElementInitializationTest, ReinitializationReplacesPreviousTopology )
     element.Initialize( ONEFLOW::BAR_3 );
     EXPECT_EQ( element.GetElementType(), ONEFLOW::BAR_3 );
     EXPECT_EQ( element.GetElementFaceNumber(), 2 );
-    EXPECT_EQ( element.GetChildElementNumbers(), 2 );
+    EXPECT_EQ( element.GetChildElementCount(), 2 );
 
     element.Initialize( ONEFLOW::TRI_3 );
     EXPECT_EQ( element.GetElementType(), ONEFLOW::TRI_3 );
     EXPECT_EQ( element.GetElementFaceNumber(), 3 );
-    EXPECT_EQ( element.GetChildElementNumbers(), 0 );
+    EXPECT_EQ( element.GetChildElementCount(), 0 );
 }
 
 TEST( UnitElementInitializationTest, UnsupportedTypePreservesExistingTopology )
@@ -1032,12 +1032,12 @@ TEST( UnitElementInitializationTest, UnsupportedTypePreservesExistingTopology )
     EXPECT_THROW( element.Initialize( -1 ), std::invalid_argument );
     EXPECT_EQ( element.GetElementType(), ONEFLOW::BAR_3 );
     EXPECT_EQ( element.GetElementFaceNumber(), 2 );
-    EXPECT_EQ( element.GetChildElementNumbers(), 2 );
+    EXPECT_EQ( element.GetChildElementCount(), 2 );
 
     EXPECT_THROW( element.Initialize( 9999 ), std::invalid_argument );
     EXPECT_EQ( element.GetElementType(), ONEFLOW::BAR_3 );
     EXPECT_EQ( element.GetElementFaceNumber(), 2 );
-    EXPECT_EQ( element.GetChildElementNumbers(), 2 );
+    EXPECT_EQ( element.GetChildElementCount(), 2 );
 }
 
 TEST( ElementDimensionTest, ReportsIntrinsicDimensionIndependentOfMeshDimension )

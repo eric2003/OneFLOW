@@ -84,6 +84,8 @@ public:
     IntField & GetChildElementRelativeNodeIndex(int iChildElement);
     const IntField & GetChildElementRelativeNodeIndex(int iChildElement) const;
 
+    int GetChildElementCount() const;
+    // Compatibility wrapper; prefer GetChildElementCount() for new code.
     int GetChildElementNumbers() const;
     int GetChildElementType(int iChild) const;
 public:
