@@ -365,20 +365,22 @@ void CgnsSection::CalcCapacityOfCgnsConnectionList()
     }
     else
     {
-        UnitElement & unitElement = ElementHome::GetUnitElement( this->eType );
-        const int nodeNumber = unitElement.GetElementNodeNumbers( this->eType );
-        if ( nodeNumber <= 0 )
+        const UnitElement & elementDefinition =
+            ElementHome::GetUnitElementDefinition( this->eType );
+        const int nodesPerElement =
+            elementDefinition.GetElementNodeNumbers( this->eType );
+        if ( nodesPerElement <= 0 )
         {
             throw std::runtime_error(
                 "CgnsSection::CalcCapacityOfCgnsConnectionList: invalid element node count" );
         }
 
-        if ( this->nElement > std::numeric_limits< int >::max() / nodeNumber )
+        if ( this->nElement > std::numeric_limits< int >::max() / nodesPerElement )
         {
             throw std::runtime_error(
                 "CgnsSection::CalcCapacityOfCgnsConnectionList: connectivity size overflow" );
         }
-        connectionCount = static_cast< CgInt >( this->nElement ) * nodeNumber;
+        connectionCount = static_cast< CgInt >( this->nElement ) * nodesPerElement;
     }
 
     if ( connectionCount < 0 ||
