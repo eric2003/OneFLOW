@@ -139,6 +139,8 @@ int GetElementDimension( int eType )
 
 bool IsBasicVolumeElementType( int eType )
 {
+    if ( ! ElementHome::HasUnitElement( eType ) ) return false;
+
     return ElementHome::GetUnitElement( eType ).IsBasicVolumeElementType( eType );
 }
 
