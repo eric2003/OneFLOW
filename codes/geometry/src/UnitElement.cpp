@@ -1528,16 +1528,26 @@ int UnitElement::GetFaceType( int iFace ) const
     return faceTypeContainer[ iFace ];
 }
 
+IntField & UnitElement::GetRelatedPointListForMiddlePointCalculation( int iMiddlePoint )
+{
+    CheckTopologyIndex( iMiddlePoint, middlePointStruct.size(), "UnitElement::GetRelatedPointListForMiddlePointCalculation: index out of range" );
+    return middlePointStruct[ iMiddlePoint ];
+}
+
+const IntField & UnitElement::GetRelatedPointListForMiddlePointCalculation( int iMiddlePoint ) const
+{
+    CheckTopologyIndex( iMiddlePoint, middlePointStruct.size(), "UnitElement::GetRelatedPointListForMiddlePointCalculation: index out of range" );
+    return middlePointStruct[ iMiddlePoint ];
+}
+
 IntField & UnitElement::GetRelatedPointListForMiddlePointCalcutation( int iMiddlePoint )
 {
-    CheckTopologyIndex( iMiddlePoint, middlePointStruct.size(), "UnitElement::GetRelatedPointListForMiddlePointCalcutation: index out of range" );
-    return middlePointStruct[ iMiddlePoint ];
+    return GetRelatedPointListForMiddlePointCalculation( iMiddlePoint );
 }
 
 const IntField & UnitElement::GetRelatedPointListForMiddlePointCalcutation( int iMiddlePoint ) const
 {
-    CheckTopologyIndex( iMiddlePoint, middlePointStruct.size(), "UnitElement::GetRelatedPointListForMiddlePointCalcutation: index out of range" );
-    return middlePointStruct[ iMiddlePoint ];
+    return GetRelatedPointListForMiddlePointCalculation( iMiddlePoint );
 }
 
 IntField & UnitElement::GetChildElementRelativeNodeIndex( int iChildElement )

@@ -97,6 +97,21 @@ TEST(UnitElementTest, DefaultConstructionStartsUninitialized)
     EXPECT_EQ(element.GetChildElementNumbers(), 0);
 }
 
+TEST(UnitElementTest, CorrectlySpelledMiddlePointAccessorIsAvailable)
+{
+    ONEFLOW::UnitElement element;
+    element.Initialize(ONEFLOW::QUAD_4);
+
+    EXPECT_THROW(
+        element.GetRelatedPointListForMiddlePointCalculation(-1),
+        std::out_of_range);
+
+    const ONEFLOW::UnitElement & constElement = element;
+    EXPECT_THROW(
+        constElement.GetRelatedPointListForMiddlePointCalculation(0),
+        std::out_of_range);
+}
+
 TEST(UnitElementTest, TopologyAccessorsRejectOutOfRangeIndices)
 {
     ONEFLOW::UnitElement element;
