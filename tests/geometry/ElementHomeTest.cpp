@@ -156,3 +156,22 @@ TEST(UnitElementTest, FailedInitializePreservesExistingTopology)
     ASSERT_EQ(element.GetElementFaceNumber(), 4);
     EXPECT_EQ(element.GetElementFace(0).size(), 2);
 }
+
+
+TEST(UnitElementTest, TopologyBuildersRejectInvalidLocalNodeIndicesWithoutMutation)
+{
+    ONEFLOW::UnitElement element;
+    element.Initialize(ONEFLOW::QUAD_4);
+
+    const int initialFaceCount = element.GetElementFaceNumber();
+    const int initialChildCount = element.GetChildElementNumbers();
+    const int initialPhysicsFaceCount = element.GetElementPhysicsFaceNumber();
+
+    EXPECT_THROW(element.PushElementFace(ONEFLOW::BAR_2, 0, 2), std::out_of_range);
+    EXPECT_THROW(element.PushChildElement(ONEFLOW::TRI_3, 1, 0, 3), std::out_of_range);
+    EXPECT_THROW(element.PushCompositeFace(ONEFLOW::BAR_3, 1, 2, 5), std::out_of_range);
+
+    EXPECT_EQ(element.GetElementFaceNumber(), initialFaceCount);
+    EXPECT_EQ(element.GetChildElementNumbers(), initialChildCount);
+    EXPECT_EQ(element.GetElementPhysicsFaceNumber(), initialPhysicsFaceCount);
+}

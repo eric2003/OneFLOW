@@ -25,6 +25,7 @@ License
 #include "Dimension.h"
 #include <cstddef>
 #include <stdexcept>
+#include <initializer_list>
 
 
 BeginNameSpace( ONEFLOW )
@@ -1304,6 +1305,7 @@ bool UnitElement::IsBasicVolumeElementType( int elementType ) const
 
 void UnitElement::PushElementFace( int faceType, int p1 )
 {
+    CheckLocalNodeIndices( { p1 }, nodeId.size(), "UnitElement::PushElementFace: local node index out of range" );
     faceTypeContainer.push_back( faceType );
 
     IntField face;
@@ -1317,6 +1319,7 @@ void UnitElement::PushElementFace( int faceType, int p1 )
 
 void UnitElement::PushElementFace( int faceType, int p1, int p2 )
 {
+    CheckLocalNodeIndices( { p1, p2 }, nodeId.size(), "UnitElement::PushElementFace: local node index out of range" );
     faceTypeContainer.push_back( faceType );
 
     IntField face;
@@ -1331,6 +1334,7 @@ void UnitElement::PushElementFace( int faceType, int p1, int p2 )
 
 void UnitElement::PushElementFace( int faceType, int p1, int p2, int p3 )
 {
+    CheckLocalNodeIndices( { p1, p2, p3 }, nodeId.size(), "UnitElement::PushElementFace: local node index out of range" );
     faceTypeContainer.push_back( faceType );
 
     IntField face;
@@ -1346,6 +1350,7 @@ void UnitElement::PushElementFace( int faceType, int p1, int p2, int p3 )
 
 void UnitElement::PushElementFace( int faceType, int p1, int p2, int p3, int p4 )
 {
+    CheckLocalNodeIndices( { p1, p2, p3, p4 }, nodeId.size(), "UnitElement::PushElementFace: local node index out of range" );
     faceTypeContainer.push_back( faceType );
 
     IntField face;
@@ -1362,6 +1367,7 @@ void UnitElement::PushElementFace( int faceType, int p1, int p2, int p3, int p4 
 
 void UnitElement::PushChildElement( int elementType, int p1, int p2 )
 {
+    CheckLocalNodeIndices( { p1, p2 }, nodeId.size(), "UnitElement::PushChildElement: local node index out of range" );
     childElementType.push_back( elementType );
 
     IntField element;
@@ -1378,6 +1384,7 @@ void UnitElement::PushChildElement( int elementType, int p1, int p2 )
 
 void UnitElement::PushChildElement( int elementType, int p1, int p2, int p3 )
 {
+    CheckLocalNodeIndices( { p1, p2, p3 }, nodeId.size(), "UnitElement::PushChildElement: local node index out of range" );
     childElementType.push_back( elementType );
 
     IntField element;
@@ -1395,6 +1402,7 @@ void UnitElement::PushChildElement( int elementType, int p1, int p2, int p3 )
 
 void UnitElement::PushChildElement( int elementType, int p1, int p2, int p3, int p4 )
 {
+    CheckLocalNodeIndices( { p1, p2, p3, p4 }, nodeId.size(), "UnitElement::PushChildElement: local node index out of range" );
     childElementType.push_back( elementType );
 
     IntField element;
@@ -1413,6 +1421,7 @@ void UnitElement::PushChildElement( int elementType, int p1, int p2, int p3, int
 
 void UnitElement::PushChildElement( int elementType, int p1, int p2, int p3, int p4, int p5 )
 {
+    CheckLocalNodeIndices( { p1, p2, p3, p4, p5 }, nodeId.size(), "UnitElement::PushChildElement: local node index out of range" );
     childElementType.push_back( elementType );
 
     IntField element;
@@ -1432,6 +1441,7 @@ void UnitElement::PushChildElement( int elementType, int p1, int p2, int p3, int
 
 void UnitElement::PushChildElement( int elementType, int p1, int p2, int p3, int p4, int p5, int p6 )
 {
+    CheckLocalNodeIndices( { p1, p2, p3, p4, p5, p6 }, nodeId.size(), "UnitElement::PushChildElement: local node index out of range" );
     childElementType.push_back( elementType );
 
     IntField element;
@@ -1466,6 +1476,14 @@ void CheckLocalNodeIndex( int index, std::size_t nodeCount, const char * accesso
     if ( index < 1 || static_cast< std::size_t >( index ) > nodeCount )
     {
         throw std::out_of_range( accessor );
+    }
+}
+
+void CheckLocalNodeIndices( std::initializer_list< int > indices, std::size_t nodeCount, const char * accessor )
+{
+    for ( int index : indices )
+    {
+        CheckLocalNodeIndex( index, nodeCount, accessor );
     }
 }
 }
@@ -1544,6 +1562,7 @@ int UnitElement::GetChildElementType( int iChild ) const
 
 void UnitElement::PushChildElement( int elementType, int p1, int p2, int p3, int p4, int p5, int p6, int p7, int p8 )
 {
+    CheckLocalNodeIndices( { p1, p2, p3, p4, p5, p6, p7, p8 }, nodeId.size(), "UnitElement::PushChildElement: local node index out of range" );
     childElementType.push_back( elementType );
 
     IntField element;
@@ -1624,6 +1643,7 @@ void UnitElement::PushMiddlePoint( int pm, int p1, int p2, int p3, int p4, int p
 
 void UnitElement::PushCompositeFace( int faceElementType, int p1, int p2, int p3 )
 {
+    CheckLocalNodeIndices( { p1, p2, p3 }, nodeId.size(), "UnitElement::PushCompositeFace: local node index out of range" );
     compositeFaceElementType.push_back( faceElementType );
 
     IntField face;
@@ -1641,6 +1661,7 @@ void UnitElement::PushCompositeFace( int faceElementType, int p1, int p2, int p3
 
 void UnitElement::PushCompositeFace( int faceElementType, int p1, int p2, int p3, int p4, int p5, int p6 )
 {
+    CheckLocalNodeIndices( { p1, p2, p3, p4, p5, p6 }, nodeId.size(), "UnitElement::PushCompositeFace: local node index out of range" );
     compositeFaceElementType.push_back( faceElementType );
 
     IntField face;
@@ -1661,6 +1682,7 @@ void UnitElement::PushCompositeFace( int faceElementType, int p1, int p2, int p3
 
 void UnitElement::PushCompositeFace( int faceElementType, int p1, int p2, int p3, int p4, int p5, int p6, int p7, int p8, int p9 )
 {
+    CheckLocalNodeIndices( { p1, p2, p3, p4, p5, p6, p7, p8, p9 }, nodeId.size(), "UnitElement::PushCompositeFace: local node index out of range" );
     compositeFaceElementType.push_back( faceElementType );
 
     IntField face;
