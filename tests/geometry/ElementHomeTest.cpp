@@ -87,6 +87,16 @@ TEST(ElementHomeTest, FreeClearsRegistryAndInitializeRestoresIt)
     EXPECT_EQ(ONEFLOW::GetElementNodeNumbers(ONEFLOW::HEXA_8), 8);
 }
 
+TEST(UnitElementTest, DefaultConstructionStartsUninitialized)
+{
+    const ONEFLOW::UnitElement element;
+
+    EXPECT_EQ(element.GetElementType(), -1);
+    EXPECT_EQ(element.GetElementFaceNumber(), 0);
+    EXPECT_EQ(element.GetElementPhysicsFaceNumber(), 0);
+    EXPECT_EQ(element.GetChildElementNumbers(), 0);
+}
+
 TEST(UnitElementTest, FailedInitializePreservesExistingTopology)
 {
     ONEFLOW::UnitElement element;
