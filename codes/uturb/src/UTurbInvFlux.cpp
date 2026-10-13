@@ -97,6 +97,7 @@ void UTurbInvFlux::CalcFlux()
     TurbInv & inv = turbInv;
     inv.Init();
     ug.Init();
+    // UNsField::Init pins NS_SOLVER (safe while SolverState is TURB).
     unsf.Init();
     uturbf.Init();
 

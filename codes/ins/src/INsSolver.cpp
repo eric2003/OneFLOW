@@ -75,6 +75,8 @@ void INsSolver::StaticInit()
     solverInfo->bcGradString.push_back( "bcdqdx" );
     solverInfo->bcGradString.push_back( "bcdqdy" );
     solverInfo->bcGradString.push_back( "bcdqdz" );
+    solverInfo->limiterName = "limiter";
+    solverInfo->bcSolutionName = "bc_q";
 }
 
 EndNameSpace

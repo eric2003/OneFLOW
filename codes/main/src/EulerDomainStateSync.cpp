@@ -31,7 +31,7 @@ bool BuildCurrentEulerDomainState(
     const Grid * grid = Zone::GetConstGrid();
     if ( grid == nullptr || grid->nCells <= 0 ) return false;
 
-    // Literal "q": Euler domain is NS mean-flow only (see FieldWrap.h rule 2).
+    // Literal "q": Euler domain is NS mean-flow only (FieldWrap.h rule 2).
     const MRField * q = GetFieldPointer< MRField >( grid, "q" );
     if ( q == nullptr ) return false;
 

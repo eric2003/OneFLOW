@@ -45,7 +45,7 @@ INsLimField::INsLimField()
 
 void INsLimField::Init()
 {
-    // Bind zone field views and allocate face buffers.
+    // Literal INS names only (must not depend on SolverState::solverType).
     UnsGrid * grid = Zone::GetUnsGrid();
     BindFieldsAndAllocFaces( grid, "q", "dqdx", "dqdy", "dqdz", "limiter" );
     this->ckfun = & INsCheckFunction;

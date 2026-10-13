@@ -93,7 +93,7 @@ void LoadQ( StringField & data )
     int solverType = SolverState::solverType;
     int fieldId = ( * fieldIdMap )[ fName ];
 
-    // Current-solver solution name (gradString[0] / GetSolutionName).
+    // Current-solver solution name (solutionGradNames[0] / GetSolutionName).
     const std::string & fieldName = FieldHome::GetSolutionName();
 
     FieldHome::SetField( fieldId, fieldName, FLOW_RHS_ORDER );

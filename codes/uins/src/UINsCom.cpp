@@ -27,6 +27,7 @@ License
 #include "Zone.h"
 #include "DataBase.h"
 #include "FieldWrap.h"
+#include "SolverDef.h"
 #include "Ctrl.h"
 #include "TimeIntegral.h"
 
@@ -48,24 +49,25 @@ void UINsField::Init()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
-    q  = FieldHome::GetSolutionField( grid );  // INS -> "q"
+    // INS mean-flow view - pin INC_NS_SOLVER (do not depend on ambient SolverState).
+    const int ins = INC_NS_SOLVER;
+    q  = FieldHome::GetSolutionField( grid, ins );
     q1  = GetFieldPointer< MRField > ( grid, "q1" );
     q2  = GetFieldPointer< MRField > ( grid, "q2" );
-    // Database field from implicitString[1]; MULTI_STAGE may rebind dq = res (see below).
-    dq  = FieldHome::GetUpdateDeltaField( grid );
+    dq  = FieldHome::GetUpdateDeltaField( grid, ins );
     limiter  = GetFieldPointer< MRField > ( grid, "limiter" );
     gama  = GetFieldPointer< MRField > ( grid, "gama" );
-    dqdx  = FieldHome::GetGradField( grid, 1 );
-    dqdy  = FieldHome::GetGradField( grid, 2 );
-    dqdz  = FieldHome::GetGradField( grid, 3 );
+    dqdx  = FieldHome::GetGradField( grid, ins, 1 );
+    dqdy  = FieldHome::GetGradField( grid, ins, 2 );
+    dqdz  = FieldHome::GetGradField( grid, ins, 3 );
 
     dtdx  = GetFieldPointer< MRField > ( grid, "dtdx" );
     dtdy  = GetFieldPointer< MRField > ( grid, "dtdy" );
     dtdz  = GetFieldPointer< MRField > ( grid, "dtdz" );
     bc_q    = GetFieldPointer< MRField > ( grid, "bc_q" );
-    bcdqdx  = FieldHome::GetBcGradField( grid, 0 );
-    bcdqdy  = FieldHome::GetBcGradField( grid, 1 );
-    bcdqdz  = FieldHome::GetBcGradField( grid, 2 );
+    bcdqdx  = FieldHome::GetBcGradField( grid, ins, 0 );
+    bcdqdy  = FieldHome::GetBcGradField( grid, ins, 1 );
+    bcdqdz  = FieldHome::GetBcGradField( grid, ins, 2 );
 
     visl  = GetFieldPointer< MRField > ( grid, "visl" );
     vist  = GetFieldPointer< MRField > ( grid, "vist" );
@@ -78,7 +80,7 @@ void UINsField::Init()
     vissr = ONEFLOW::GetFieldPointer< MRField >( grid, "vissr" );
     impsr = ONEFLOW::GetFieldPointer< MRField >( grid, "impsr" );
 
-    res  = FieldHome::GetResidualField( grid );
+    res  = FieldHome::GetResidualField( grid, ins );
     res1  = GetFieldPointer< MRField > ( grid, "res1" );
     res2  = GetFieldPointer< MRField > ( grid, "res2" );
 

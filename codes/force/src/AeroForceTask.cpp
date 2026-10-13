@@ -196,7 +196,7 @@ void CalcAeroForce(int idump_pres)
 	MRField * q = GetFieldPointer< MRField >(grid, "q");
 	MRField * visl = GetFieldPointer< MRField >(grid, "visl");
 
-	// Literal NS BC face grads (aero is NS-only path; not GetBcGradField).
+	// Literal NS BC face grads (aero is NS-only; not GetBcGradField).
 	MRField * bcdqdx = GetFieldPointer< MRField >(grid, "bcdqdx");
 	MRField * bcdqdy = GetFieldPointer< MRField >(grid, "bcdqdy");
 	MRField * bcdqdz = GetFieldPointer< MRField >(grid, "bcdqdz");

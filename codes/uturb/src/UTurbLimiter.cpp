@@ -36,7 +36,7 @@ TurbLimField::TurbLimField()
 
 void TurbLimField::Init()
 {
-    // Bind zone field views and allocate face buffers.
+    // Literal turb names (class is turb-only; keep independent of FieldHome timing).
     UnsGrid * grid = Zone::GetUnsGrid();
     BindFieldsAndAllocFaces( grid, "turbq", "turbdqdx", "turbdqdy", "turbdqdz", "turblimiter" );
     this->ckfun = & NoCheck;

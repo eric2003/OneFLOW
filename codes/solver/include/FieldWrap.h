@@ -73,30 +73,37 @@ public:
     static const MRField * GetConstUnsField( int fieldId );
     static MRField * GetUnsField( Grid * grid, const std::string & fieldName );
     static const MRField * GetConstUnsField( const Grid * grid, const std::string & fieldName );
-    // Named residual on the zone grid (NS/INS: "res", Turb: "turbres" via SolverInfo::residualName).
+    // No-arg overloads use SolverState::solverType (current solver only).
+    // solverType overloads are for cross-solver binders (e.g. UNsField::Init under TURB).
+
     static const std::string & GetResidualName();
+    static const std::string & GetResidualName( int solverType );
     static MRField * GetResidualField( Grid * grid );
+    static MRField * GetResidualField( Grid * grid, int solverType );
     static const MRField * GetConstResidualField( const Grid * grid );
-    // Primary solution field name: SolverInfo::gradString[0] (NS: "q", Turb: "turbq").
-    // Prefer this over hard-coded "q" for current-solver logistics. Do not use for
-    // cross-solver coupling (e.g. turb reading NS mean flow still uses literal "q").
+
     static const std::string & GetSolutionName();
+    static const std::string & GetSolutionName( int solverType );
     static MRField * GetSolutionField( Grid * grid );
+    static MRField * GetSolutionField( Grid * grid, int solverType );
     static const MRField * GetConstSolutionField( const Grid * grid );
-    // Gradient names from SolverInfo::gradString: [0]=solution, [1]=dx, [2]=dy, [3]=dz.
-    // index 0 == GetSolutionName(); out-of-range returns empty string / null field.
+
     static const std::string & GetGradName( int index );
+    static const std::string & GetGradName( int solverType, int index );
     static MRField * GetGradField( Grid * grid, int index );
+    static MRField * GetGradField( Grid * grid, int solverType, int index );
     static const MRField * GetConstGradField( const Grid * grid, int index );
-    // Update-delta database name: SolverInfo::implicitString[1] (NS: "dq", Turb: "turbdq").
-    // Binds the named field only. MULTI_STAGE may later alias the *Com dq pointer to residual
-    // storage; that alias is independent of this name lookup.
+
     static const std::string & GetUpdateDeltaName();
+    static const std::string & GetUpdateDeltaName( int solverType );
     static MRField * GetUpdateDeltaField( Grid * grid );
-    // BC face gradient names from SolverInfo::bcGradString: [0]=dx, [1]=dy, [2]=dz.
-    // NS/INS: bcdqdx/y/z; Turb: turbbcdqdx/y/z. Out-of-range -> empty / null.
+    static MRField * GetUpdateDeltaField( Grid * grid, int solverType );
+
     static const std::string & GetBcGradName( int index );
+    static const std::string & GetBcGradName( int solverType, int index );
     static MRField * GetBcGradField( Grid * grid, int index );
+    static MRField * GetBcGradField( Grid * grid, int solverType, int index );
+
     static void GetSourceTargetField( Grid * grid, int fieldId, const std::string & fieldName, MRField *& sField, MRField *& tField, int orderFlag );
 };
 
@@ -114,17 +121,12 @@ public:
 //   BC face grad      bcdqdx/y/z            turbbcdqdx/y/z
 //
 // Rules:
-//   1. Current-solver logistics (UNsCom, UTurbCom, U*Grad, residual tasks):
-//      use FieldHome::GetSolutionField / GetResidualField / GetGradField /
-//      GetUpdateDeltaField / GetBcGradField.
-//   2. Cross-solver coupling (turb reads NS mean flow, aero force, visualize,
-//      Euler domain state): keep literal names ("q", "dqdx", "bcdqdx", ...).
-//   3. Derived fields not in SolverInfo (q1/q2, limiter, visl, tempr, ...):
-//      stay literal until a dedicated registry exists.
-//   4. Update delta: use GetUpdateDeltaName/GetUpdateDeltaField for the database
-//      field named in implicitString[1]. MULTI_STAGE still rebinds *Com.dq to the
-//      residual pointer afterward; GetUpdateField (LUSGS) also uses implicitString.
-//      ULhs scales residual via GetResidualField (not the "dq" database field).
+//   1. Current-solver: FieldHome::Get*(grid) via SolverState.
+//   2. Cross-solver / dual-use: FieldHome::Get*(grid, solverType).
+//      UNsField::Init is also called from UTurbInvFlux under TURB - must use
+//      NS_SOLVER overloads so unsf.* stay on mean-flow fields.
+//   3. NsLimField (nslimiter under TURB): literal NS names only in Init/BcQlQrFix.
+//   4. limiter / bc_q / q1 / visl / tempr: literal names in *Com (no FieldHome API).
 // ---------------------------------------------------------------------------
 
 void SetField( FieldWrap * fieldWrap, Real value );

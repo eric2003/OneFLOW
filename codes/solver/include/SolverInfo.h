@@ -45,6 +45,10 @@ public:
     // BC face gradient storage: [0]=dx, [1]=dy, [2]=dz
     // (NS: bcdqdx/y/z, Turb: turbbcdqdx/y/z). Prefer FieldHome::GetBcGrad*.
     StringField bcGradString;
+    // Cell limiter: "limiter" (NS/INS) or "turblimiter" (Turb). Prefer GetLimiter*.
+    std::string limiterName;
+    // BC face solution (NS/INS: "bc_q"). Empty if unused. Prefer GetBcSolution*.
+    std::string bcSolutionName;
     std::string residualName;
     std::string resFileName;
     Real residual;

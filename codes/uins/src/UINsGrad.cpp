@@ -54,7 +54,7 @@ void UINsGrad::Init()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
-    // Current-solver solution/grad via SolverInfo::gradString.
+    // Current-solver solution/grad via SolverInfo::solutionGradNames.
     name  = FieldHome::GetGradName( 0 );
     namex = FieldHome::GetGradName( 1 );
     namey = FieldHome::GetGradName( 2 );

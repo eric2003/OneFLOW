@@ -40,7 +40,7 @@ NsLimField::NsLimField()
 
 void NsLimField::Init()
 {
-    // Bind zone field views and allocate face buffers.
+    // Literal NS names only (also used as UTurbInvFlux::nslimiter under TURB).
     UnsGrid * grid = Zone::GetUnsGrid();
     BindFieldsAndAllocFaces( grid, "q", "dqdx", "dqdy", "dqdz", "limiter" );
     this->ckfun = & NsCheckFunction;
@@ -66,12 +66,15 @@ void NsLimField::BcQlQrFix()
             ( * this->qf2 )[ iEqu ][ ug.fId ] = tmp;
         }
 
+        // Literal bc_q — do not use unsf.bc_q (may be stale under non-NS SolverState).
         if ( bcType == BC::SOLID_SURFACE )
         {
+            MRField * bcQ = GetFieldPointer< MRField >( Zone::GetUnsGrid(), "bc_q" );
+            if ( bcQ == nullptr ) continue;
             for ( int iEqu = 0; iEqu < this->nEqu; ++ iEqu )
             {
-                ( * this->qf1 )[ iEqu ][ ug.fId ] = ( * unsf.bc_q )[ iEqu ][ ug.fId ];
-                ( * this->qf2 )[ iEqu ][ ug.fId ] = ( * unsf.bc_q )[ iEqu ][ ug.fId ];
+                ( * this->qf1 )[ iEqu ][ ug.fId ] = ( * bcQ )[ iEqu ][ ug.fId ];
+                ( * this->qf2 )[ iEqu ][ ug.fId ] = ( * bcQ )[ iEqu ][ ug.fId ];
             }
         }
     }
