@@ -41,9 +41,8 @@ void UNsField::Init()
     q  = FieldHome::GetSolutionField( grid );  // NS -> "q"
     q1  = GetFieldPointer< MRField > ( grid, "q1" );
     q2  = GetFieldPointer< MRField > ( grid, "q2" );
-    // dq: literal "dq". MULTI_STAGE below rebinds dq = res (same storage as residual).
-    // Do not route via a FieldHome helper until implicitString sites are unified.
-    dq  = GetFieldPointer< MRField > ( grid, "dq" );
+    // Database field from implicitString[1]; MULTI_STAGE below may rebind dq = res.
+    dq  = FieldHome::GetUpdateDeltaField( grid );
     limiter  = GetFieldPointer< MRField > ( grid, "limiter" );
     gama  = GetFieldPointer< MRField > ( grid, "gama" );
     dqdx  = FieldHome::GetGradField( grid, 1 );

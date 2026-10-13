@@ -51,8 +51,8 @@ void UINsField::Init()
     q  = FieldHome::GetSolutionField( grid );  // INS -> "q"
     q1  = GetFieldPointer< MRField > ( grid, "q1" );
     q2  = GetFieldPointer< MRField > ( grid, "q2" );
-    // dq: literal "dq". MULTI_STAGE rebinds dq = res (see below).
-    dq  = GetFieldPointer< MRField > ( grid, "dq" );
+    // Database field from implicitString[1]; MULTI_STAGE may rebind dq = res (see below).
+    dq  = FieldHome::GetUpdateDeltaField( grid );
     limiter  = GetFieldPointer< MRField > ( grid, "limiter" );
     gama  = GetFieldPointer< MRField > ( grid, "gama" );
     dqdx  = FieldHome::GetGradField( grid, 1 );

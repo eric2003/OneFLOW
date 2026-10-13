@@ -49,8 +49,8 @@ void UTurbField::Init()
     q   = FieldHome::GetSolutionField( grid );  // TURB -> "turbq"
     q1  = GetFieldPointer< MRField > ( grid, "turbq1" );
     q2  = GetFieldPointer< MRField > ( grid, "turbq2" );
-    // dq: literal "turbdq". MULTI_STAGE rebinds dq = res (see below).
-    dq  = GetFieldPointer< MRField > ( grid, "turbdq" );
+    // Database field from implicitString[1] (TURB -> "turbdq"); MULTI_STAGE may rebind dq = res.
+    dq  = FieldHome::GetUpdateDeltaField( grid );
 
     dqdx = FieldHome::GetGradField( grid, 1 );
     dqdy = FieldHome::GetGradField( grid, 2 );

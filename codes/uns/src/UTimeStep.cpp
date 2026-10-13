@@ -53,8 +53,8 @@ void InitUnsField()
     unsf.q  = FieldHome::GetSolutionField( grid );
     //unsf.q1 = ONEFLOW::GetFieldPointer< MRField >( grid, "q1" );
     //unsf.q2 = ONEFLOW::GetFieldPointer< MRField >( grid, "q2" );
-    // dq stays literal (MULTI_STAGE alias in UNsCom); grad via SolverInfo.
-    unsf.dq = ONEFLOW::GetFieldPointer< MRField >( grid, "dq" );
+    // Database delta name via implicitString[1]; MULTI_STAGE alias remains in UNsCom.
+    unsf.dq = FieldHome::GetUpdateDeltaField( grid );
     unsf.dqdx = FieldHome::GetGradField( grid, 1 );
     unsf.dqdy = FieldHome::GetGradField( grid, 2 );
     unsf.dqdz = FieldHome::GetGradField( grid, 3 );

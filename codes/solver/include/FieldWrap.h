@@ -88,6 +88,11 @@ public:
     static const std::string & GetGradName( int index );
     static MRField * GetGradField( Grid * grid, int index );
     static const MRField * GetConstGradField( const Grid * grid, int index );
+    // Update-delta database name: SolverInfo::implicitString[1] (NS: "dq", Turb: "turbdq").
+    // Binds the named field only. MULTI_STAGE may later alias the *Com dq pointer to residual
+    // storage; that alias is independent of this name lookup.
+    static const std::string & GetUpdateDeltaName();
+    static MRField * GetUpdateDeltaField( Grid * grid );
     static void GetSourceTargetField( Grid * grid, int fieldId, const std::string & fieldName, MRField *& sField, MRField *& tField, int orderFlag );
 };
 
@@ -111,10 +116,10 @@ public:
 //      primitive NS components with IDX::*): keep literal names ("q", "dqdx", ...).
 //   3. Derived fields not in SolverInfo (q1/q2, limiter, visl, tempr, ...):
 //      stay literal until a dedicated registry exists.
-//   4. dq / implicitString: MULTI_STAGE aliases dq pointer to residual storage
-//      (UNsCom/UINsCom/UTurbCom). GetUpdateField already uses implicitString.
-//      ULhs scales residualName (local var historically named "dq"). Do not
-//      introduce GetUpdateDeltaField until those sites are audited together.
+//   4. Update delta: use GetUpdateDeltaName/GetUpdateDeltaField for the database
+//      field named in implicitString[1]. MULTI_STAGE still rebinds *Com.dq to the
+//      residual pointer afterward; GetUpdateField (LUSGS) also uses implicitString.
+//      ULhs scales residual via GetResidualField (not the "dq" database field).
 // ---------------------------------------------------------------------------
 
 void SetField( FieldWrap * fieldWrap, Real value );

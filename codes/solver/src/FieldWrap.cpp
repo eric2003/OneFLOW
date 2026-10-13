@@ -244,6 +244,22 @@ const MRField * FieldHome::GetConstGradField( const Grid * grid, int index )
     return FieldHome::GetConstUnsField( grid, name );
 }
 
+const std::string & FieldHome::GetUpdateDeltaName()
+{
+    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( SolverState::solverType );
+    if ( solverInfo->implicitString.size() >= 2 )
+    {
+        return solverInfo->implicitString[ 1 ];
+    }
+    static const std::string kDefaultDq = "dq";
+    return kDefaultDq;
+}
+
+MRField * FieldHome::GetUpdateDeltaField( Grid * grid )
+{
+    return FieldHome::GetUnsField( grid, FieldHome::GetUpdateDeltaName() );
+}
+
 MRField * FieldHome::GetUnsField( Grid * grid, const std::string & fieldName )
 {
     MRField * field = ONEFLOW::GetFieldPointer< MRField >( grid, fieldName );
