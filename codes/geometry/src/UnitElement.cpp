@@ -55,6 +55,14 @@ void CheckLocalNodeIndices( std::initializer_list< int > indices, std::size_t no
         CheckLocalNodeIndex( index, nodeCount, accessor );
     }
 }
+
+void ConvertToZeroBasedNodeIndices( IntField & nodeIndices )
+{
+    for ( int & nodeIndex : nodeIndices )
+    {
+        -- nodeIndex;
+    }
+}
 }
 
 int UnitElement::GetElementNodeNumbers( int elementType )
@@ -1337,10 +1345,7 @@ void UnitElement::PushElementFace( int faceType, int p1 )
 
     IntField face;
     face.push_back( p1 );
-    for ( int iPoint = 0; iPoint < face.size(); ++ iPoint )
-    {
-        face[ iPoint ] -= 1;
-    }
+    ConvertToZeroBasedNodeIndices( face );
     faceList.push_back( face );
 }
 
@@ -1352,10 +1357,7 @@ void UnitElement::PushElementFace( int faceType, int p1, int p2 )
     IntField face;
     face.push_back( p1 );
     face.push_back( p2 );
-    for ( int iPoint = 0; iPoint < face.size(); ++ iPoint )
-    {
-        face[ iPoint ] -= 1;
-    }
+    ConvertToZeroBasedNodeIndices( face );
     faceList.push_back( face );
 }
 
@@ -1368,10 +1370,7 @@ void UnitElement::PushElementFace( int faceType, int p1, int p2, int p3 )
     face.push_back( p1 );
     face.push_back( p2 );
     face.push_back( p3 );
-    for ( int iPoint = 0; iPoint < face.size(); ++ iPoint )
-    {
-        face[ iPoint ] -= 1;
-    }
+    ConvertToZeroBasedNodeIndices( face );
     faceList.push_back( face );
 }
 
@@ -1385,10 +1384,7 @@ void UnitElement::PushElementFace( int faceType, int p1, int p2, int p3, int p4 
     face.push_back( p2 );
     face.push_back( p3 );
     face.push_back( p4 );
-    for ( int iPoint = 0; iPoint < face.size(); ++ iPoint )
-    {
-        face[ iPoint ] -= 1;
-    }
+    ConvertToZeroBasedNodeIndices( face );
     faceList.push_back( face );
 }
 
@@ -1401,10 +1397,7 @@ void UnitElement::PushChildElement( int elementType, int p1, int p2 )
     element.push_back( p1 );
     element.push_back( p2 );
 
-    for ( int iPoint = 0; iPoint < element.size(); ++ iPoint )
-    {
-        element[ iPoint ] -= 1;
-    }
+    ConvertToZeroBasedNodeIndices( element );
 
     childElementIndex.push_back( element );
 }
@@ -1419,10 +1412,7 @@ void UnitElement::PushChildElement( int elementType, int p1, int p2, int p3 )
     element.push_back( p2 );
     element.push_back( p3 );
 
-    for ( int iPoint = 0; iPoint < element.size(); ++ iPoint )
-    {
-        element[ iPoint ] -= 1;
-    }
+    ConvertToZeroBasedNodeIndices( element );
 
     childElementIndex.push_back( element );
 }
@@ -1438,10 +1428,7 @@ void UnitElement::PushChildElement( int elementType, int p1, int p2, int p3, int
     element.push_back( p3 );
     element.push_back( p4 );
 
-    for ( int iPoint = 0; iPoint < element.size(); ++ iPoint )
-    {
-        element[ iPoint ] -= 1;
-    }
+    ConvertToZeroBasedNodeIndices( element );
 
     childElementIndex.push_back( element );
 }
@@ -1458,10 +1445,7 @@ void UnitElement::PushChildElement( int elementType, int p1, int p2, int p3, int
     element.push_back( p4 );
     element.push_back( p5 );
 
-    for ( int iPoint = 0; iPoint < element.size(); ++ iPoint )
-    {
-        element[ iPoint ] -= 1;
-    }
+    ConvertToZeroBasedNodeIndices( element );
 
     childElementIndex.push_back( element );
 }
@@ -1479,10 +1463,7 @@ void UnitElement::PushChildElement( int elementType, int p1, int p2, int p3, int
     element.push_back( p5 );
     element.push_back( p6 );
 
-    for ( int iPoint = 0; iPoint < element.size(); ++ iPoint )
-    {
-        element[ iPoint ] -= 1;
-    }
+    ConvertToZeroBasedNodeIndices( element );
 
     childElementIndex.push_back( element );
 }
@@ -1585,10 +1566,7 @@ void UnitElement::PushChildElement( int elementType, int p1, int p2, int p3, int
     element.push_back( p7 );
     element.push_back( p8 );
 
-    for ( int iPoint = 0; iPoint < element.size(); ++ iPoint )
-    {
-        element[ iPoint ] -= 1;
-    }
+    ConvertToZeroBasedNodeIndices( element );
 
     childElementIndex.push_back( element );
 }
@@ -1661,10 +1639,7 @@ void UnitElement::PushCompositeFace( int faceElementType, int p1, int p2, int p3
     face.push_back( p2 );
     face.push_back( p3 );
 
-    for ( int iPoint = 0; iPoint < face.size(); ++ iPoint )
-    {
-        face[ iPoint ] -= 1;
-    }
+    ConvertToZeroBasedNodeIndices( face );
 
     compositeFaceList.push_back( face );
 }
@@ -1682,10 +1657,7 @@ void UnitElement::PushCompositeFace( int faceElementType, int p1, int p2, int p3
     face.push_back( p5 );
     face.push_back( p6 );
 
-    for ( int iPoint = 0; iPoint < face.size(); ++ iPoint )
-    {
-        face[ iPoint ] -= 1;
-    }
+    ConvertToZeroBasedNodeIndices( face );
 
     compositeFaceList.push_back( face );
 }
@@ -1706,10 +1678,7 @@ void UnitElement::PushCompositeFace( int faceElementType, int p1, int p2, int p3
     face.push_back( p8 );
     face.push_back( p9 );
 
-    for ( int iPoint = 0; iPoint < face.size(); ++ iPoint )
-    {
-        face[ iPoint ] -= 1;
-    }
+    ConvertToZeroBasedNodeIndices( face );
 
     compositeFaceList.push_back( face );
 }
