@@ -154,7 +154,7 @@ void UnitElement::Initialize( int elementType )
     using std::swap;
     swap( this->elementType, replacement.elementType );
     swap( nodeId, replacement.nodeId );
-    swap( middlePointStruct, replacement.middlePointStruct );
+    swap( middlePointNodeIndices, replacement.middlePointNodeIndices );
     swap( childElementIndex, replacement.childElementIndex );
     swap( childElementType, replacement.childElementType );
     swap( faceTypeContainer, replacement.faceTypeContainer );
@@ -174,7 +174,7 @@ void UnitElement::BuildTopology( int elementType )
     // Initialization replaces the complete topology definition; it must not
     // append to data left by an earlier initialization.
     nodeId.clear();
-    middlePointStruct.clear();
+    middlePointNodeIndices.clear();
     childElementIndex.clear();
     childElementType.clear();
     faceTypeContainer.clear();
@@ -184,7 +184,7 @@ void UnitElement::BuildTopology( int elementType )
 
     this->elementType = elementType;
 
-    middlePointStruct.resize( elementNodeNumbers );
+    middlePointNodeIndices.resize( elementNodeNumbers );
 
     nodeId.resize( elementNodeNumbers );
 
@@ -1546,14 +1546,14 @@ int UnitElement::GetFaceType( int iFace ) const
 
 IntField & UnitElement::GetRelatedPointListForMiddlePointCalculation( int iMiddlePoint )
 {
-    CheckTopologyIndex( iMiddlePoint, middlePointStruct.size(), "UnitElement::GetRelatedPointListForMiddlePointCalculation: index out of range" );
-    return middlePointStruct[ iMiddlePoint ];
+    CheckTopologyIndex( iMiddlePoint, middlePointNodeIndices.size(), "UnitElement::GetRelatedPointListForMiddlePointCalculation: index out of range" );
+    return middlePointNodeIndices[ iMiddlePoint ];
 }
 
 const IntField & UnitElement::GetRelatedPointListForMiddlePointCalculation( int iMiddlePoint ) const
 {
-    CheckTopologyIndex( iMiddlePoint, middlePointStruct.size(), "UnitElement::GetRelatedPointListForMiddlePointCalculation: index out of range" );
-    return middlePointStruct[ iMiddlePoint ];
+    CheckTopologyIndex( iMiddlePoint, middlePointNodeIndices.size(), "UnitElement::GetRelatedPointListForMiddlePointCalculation: index out of range" );
+    return middlePointNodeIndices[ iMiddlePoint ];
 }
 
 IntField & UnitElement::GetRelatedPointListForMiddlePointCalcutation( int iMiddlePoint )
@@ -1619,8 +1619,8 @@ void UnitElement::PushMiddlePoint( int pm, int p1, int p2 )
     CheckLocalNodeIndex( pm, nodeId.size(), "UnitElement::PushMiddlePoint: midpoint index out of range" );
     CheckLocalNodeIndices( { p1, p2 }, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
 
-    middlePointStruct[ pm - 1 ].push_back( p1 - 1 );
-    middlePointStruct[ pm - 1 ].push_back( p2 - 1 );
+    middlePointNodeIndices[ pm - 1 ].push_back( p1 - 1 );
+    middlePointNodeIndices[ pm - 1 ].push_back( p2 - 1 );
 }
 
 void UnitElement::PushMiddlePoint( int pm, int p1, int p2, int p3 )
@@ -1628,9 +1628,9 @@ void UnitElement::PushMiddlePoint( int pm, int p1, int p2, int p3 )
     CheckLocalNodeIndex( pm, nodeId.size(), "UnitElement::PushMiddlePoint: midpoint index out of range" );
     CheckLocalNodeIndices( { p1, p2, p3 }, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
 
-    middlePointStruct[ pm - 1 ].push_back( p1 - 1 );
-    middlePointStruct[ pm - 1 ].push_back( p2 - 1 );
-    middlePointStruct[ pm - 1 ].push_back( p3 - 1 );
+    middlePointNodeIndices[ pm - 1 ].push_back( p1 - 1 );
+    middlePointNodeIndices[ pm - 1 ].push_back( p2 - 1 );
+    middlePointNodeIndices[ pm - 1 ].push_back( p3 - 1 );
 }
 
 void UnitElement::PushMiddlePoint( int pm, int p1, int p2, int p3, int p4 )
@@ -1638,10 +1638,10 @@ void UnitElement::PushMiddlePoint( int pm, int p1, int p2, int p3, int p4 )
     CheckLocalNodeIndex( pm, nodeId.size(), "UnitElement::PushMiddlePoint: midpoint index out of range" );
     CheckLocalNodeIndices( { p1, p2, p3, p4 }, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
 
-    middlePointStruct[ pm - 1 ].push_back( p1 - 1 );
-    middlePointStruct[ pm - 1 ].push_back( p2 - 1 );
-    middlePointStruct[ pm - 1 ].push_back( p3 - 1 );
-    middlePointStruct[ pm - 1 ].push_back( p4 - 1 );
+    middlePointNodeIndices[ pm - 1 ].push_back( p1 - 1 );
+    middlePointNodeIndices[ pm - 1 ].push_back( p2 - 1 );
+    middlePointNodeIndices[ pm - 1 ].push_back( p3 - 1 );
+    middlePointNodeIndices[ pm - 1 ].push_back( p4 - 1 );
 }
 
 void UnitElement::PushMiddlePoint( int pm, int p1, int p2, int p3, int p4, int p5, int p6, int p7, int p8 )
@@ -1649,14 +1649,14 @@ void UnitElement::PushMiddlePoint( int pm, int p1, int p2, int p3, int p4, int p
     CheckLocalNodeIndex( pm, nodeId.size(), "UnitElement::PushMiddlePoint: midpoint index out of range" );
     CheckLocalNodeIndices( { p1, p2, p3, p4, p5, p6, p7, p8 }, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
 
-    middlePointStruct[ pm - 1 ].push_back( p1 - 1 );
-    middlePointStruct[ pm - 1 ].push_back( p2 - 1 );
-    middlePointStruct[ pm - 1 ].push_back( p3 - 1 );
-    middlePointStruct[ pm - 1 ].push_back( p4 - 1 );
-    middlePointStruct[ pm - 1 ].push_back( p5 - 1 );
-    middlePointStruct[ pm - 1 ].push_back( p6 - 1 );
-    middlePointStruct[ pm - 1 ].push_back( p7 - 1 );
-    middlePointStruct[ pm - 1 ].push_back( p8 - 1 );
+    middlePointNodeIndices[ pm - 1 ].push_back( p1 - 1 );
+    middlePointNodeIndices[ pm - 1 ].push_back( p2 - 1 );
+    middlePointNodeIndices[ pm - 1 ].push_back( p3 - 1 );
+    middlePointNodeIndices[ pm - 1 ].push_back( p4 - 1 );
+    middlePointNodeIndices[ pm - 1 ].push_back( p5 - 1 );
+    middlePointNodeIndices[ pm - 1 ].push_back( p6 - 1 );
+    middlePointNodeIndices[ pm - 1 ].push_back( p7 - 1 );
+    middlePointNodeIndices[ pm - 1 ].push_back( p8 - 1 );
 }
 
 void UnitElement::PushCompositeFace( int faceElementType, int p1, int p2, int p3 )

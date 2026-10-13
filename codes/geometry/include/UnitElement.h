@@ -40,7 +40,7 @@ public:
 public:
     int elementType = -1;
     IntField nodeId;
-    LinkField middlePointStruct; //Midpoint data structure
+    LinkField middlePointNodeIndices; //Midpoint data structure
     LinkField childElementIndex;
     IntField childElementType;
     IntField faceTypeContainer;
