@@ -23,6 +23,7 @@ License
 #include "UnitElement.h"
 #include "HXCgns.h"
 #include "Dimension.h"
+#include <stdexcept>
 
 
 BeginNameSpace( ONEFLOW )
@@ -107,6 +108,14 @@ int UnitElement::GetElementNodeNumbers( int elementType ) const
 
 void UnitElement::Initialize( int elementType )
 {
+    const int elementNodeNumbers = this->GetElementNodeNumbers( elementType );
+    if ( elementNodeNumbers <= 0 )
+    {
+        throw std::invalid_argument( "UnitElement::Initialize: unsupported element type" );
+    }
+
+    // Validate before mutation so a failed initialization preserves the
+    // existing topology definition.
     // Initialization replaces the complete topology definition; it must not
     // append to data left by an earlier initialization.
     nodeId.clear();
@@ -120,7 +129,6 @@ void UnitElement::Initialize( int elementType )
 
     this->elementType = elementType;
 
-    int elementNodeNumbers = this->GetElementNodeNumbers( elementType );
     middlePointStruct.resize( elementNodeNumbers );
 
     nodeId.resize( elementNodeNumbers );
