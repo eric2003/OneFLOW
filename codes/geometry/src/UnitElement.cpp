@@ -30,6 +30,33 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+namespace
+{
+void CheckTopologyIndex( int index, std::size_t size, const char * accessor )
+{
+    if ( index < 0 || static_cast< std::size_t >( index ) >= size )
+    {
+        throw std::out_of_range( accessor );
+    }
+}
+
+void CheckLocalNodeIndex( int index, std::size_t nodeCount, const char * accessor )
+{
+    if ( index < 1 || static_cast< std::size_t >( index ) > nodeCount )
+    {
+        throw std::out_of_range( accessor );
+    }
+}
+
+void CheckLocalNodeIndices( std::initializer_list< int > indices, std::size_t nodeCount, const char * accessor )
+{
+    for ( int index : indices )
+    {
+        CheckLocalNodeIndex( index, nodeCount, accessor );
+    }
+}
+}
+
 int UnitElement::GetElementNodeNumbers( int elementType ) const
 {
     int nodeNumberOfElement = 0;
@@ -1460,33 +1487,6 @@ void UnitElement::PushChildElement( int elementType, int p1, int p2, int p3, int
     childElementIndex.push_back( element );
 }
 
-
-namespace
-{
-void CheckTopologyIndex( int index, std::size_t size, const char * accessor )
-{
-    if ( index < 0 || static_cast< std::size_t >( index ) >= size )
-    {
-        throw std::out_of_range( accessor );
-    }
-}
-
-void CheckLocalNodeIndex( int index, std::size_t nodeCount, const char * accessor )
-{
-    if ( index < 1 || static_cast< std::size_t >( index ) > nodeCount )
-    {
-        throw std::out_of_range( accessor );
-    }
-}
-
-void CheckLocalNodeIndices( std::initializer_list< int > indices, std::size_t nodeCount, const char * accessor )
-{
-    for ( int index : indices )
-    {
-        CheckLocalNodeIndex( index, nodeCount, accessor );
-    }
-}
-}
 
 IntField & UnitElement::GetElementPhysicsFace( int iFace )
 {
