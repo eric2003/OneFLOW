@@ -27,6 +27,21 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+namespace
+{
+std::unique_ptr< const UnitElement > BuildUnitElementDefinition( int elementType )
+{
+    if ( UnitElement::GetElementNodeNumbers( elementType ) <= 0 )
+    {
+        return nullptr;
+    }
+
+    auto unitElement = std::make_unique< UnitElement >();
+    unitElement->Initialize( elementType );
+    return unitElement;
+}
+}
+
 HXVector< std::unique_ptr< const UnitElement > > ElementHome::unitElements;
 
 int ElementHome::GetNumberOfUnitElements()
@@ -60,14 +75,11 @@ void ElementHome::Initialize()
 
     for ( HXSize_t iUnitElement = 0; iUnitElement < NofValidElementTypes; ++ iUnitElement )
     {
-        auto unit = std::make_unique< UnitElement >();
-        if ( UnitElement::GetElementNodeNumbers( iUnitElement ) <= 0 )
+        auto unitElement = BuildUnitElementDefinition( iUnitElement );
+        if ( unitElement )
         {
-            continue;
+            initializedElements[ iUnitElement ] = std::move( unitElement );
         }
-
-        unit->Initialize( iUnitElement );
-        initializedElements[ iUnitElement ] = std::move( unit );
     }
 
     unitElements.swap( initializedElements );
