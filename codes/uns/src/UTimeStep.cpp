@@ -45,7 +45,9 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-void InitUnsField()
+// Bind mean-flow (NS) pointers on global unsf for time-step kernels.
+// Always pins NS_SOLVER (same contract as UNsField::Init).
+void BindUNsFieldPointers()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     unsf.invsr = ONEFLOW::GetFieldPointer< MRField >( grid, "invsr" );
@@ -74,7 +76,7 @@ void InitTimeStepUns()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
-    InitUnsField();
+    BindUNsFieldPointers();
 
     FaceTopo & faceTopo = grid->GetFaceTopo();
     ug.lcf = & faceTopo.GetLeftCells();

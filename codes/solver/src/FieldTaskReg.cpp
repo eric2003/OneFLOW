@@ -75,6 +75,7 @@ void LoadResiduals( StringField & data )
 
     UnsGrid * grid = Zone::GetUnsGrid();
 
+    // Current solver residual (SolverState); task registry is multi-solver aware.
     MRField * resField = FieldHome::GetResidualField( grid );
     MRField * rhsField = FieldHome::GetUnsField( fieldId );
 
@@ -93,7 +94,7 @@ void LoadQ( StringField & data )
     int solverType = SolverState::solverType;
     int fieldId = ( * fieldIdMap )[ fName ];
 
-    // Current-solver solution name (solutionGradNames[0] / GetSolutionName).
+    // Current-solver solution (SolverState / solutionGradNames[0]).
     const std::string & fieldName = FieldHome::GetSolutionName();
 
     FieldHome::SetField( fieldId, fieldName, FLOW_RHS_ORDER );
