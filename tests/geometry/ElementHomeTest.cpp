@@ -1,8 +1,14 @@
 #include <gtest/gtest.h>
 #include <stdexcept>
+#include <type_traits>
 
 #include "ElementHome.h"
 #include "HXCgns.h"
+
+static_assert(
+    std::is_const_v<std::remove_reference_t<
+        decltype(ONEFLOW::ElementHome::GetUnitElementDefinition(ONEFLOW::HEXA_8))>>,
+    "ElementHome must expose unit element definitions as read-only");
 
 TEST(ElementHomeTest, InitializeBuildsRegistryWithStableEnumIndices)
 {
