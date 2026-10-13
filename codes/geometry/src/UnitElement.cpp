@@ -137,7 +137,7 @@ int UnitElement::GetElementNodeNumbers( int elementType ) const
 
 void UnitElement::Initialize( int elementType )
 {
-    const int elementNodeNumbers = this->GetElementNodeNumbers( elementType );
+    const int elementNodeNumbers = GetElementNodeNumbers( elementType );
     if ( elementNodeNumbers <= 0 )
     {
         throw std::invalid_argument( "UnitElement::Initialize: unsupported element type" );

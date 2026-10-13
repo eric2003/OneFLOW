@@ -61,7 +61,7 @@ void ElementHome::Initialize()
     for ( HXSize_t iUnitElement = 0; iUnitElement < NofValidElementTypes; ++ iUnitElement )
     {
         auto unit = std::make_unique< UnitElement >();
-        if ( unit->GetElementNodeNumbers( iUnitElement ) <= 0 )
+        if ( UnitElement::GetElementNodeNumbers( iUnitElement ) <= 0 )
         {
             continue;
         }
@@ -101,7 +101,7 @@ int GetElementNodeNumbers( int eType )
 
     if ( ! ElementHome::HasUnitElement( eType ) ) return 0;
 
-    return ElementHome::GetUnitElementDefinition( eType ).GetElementNodeNumbers( eType );
+    return UnitElement::GetElementNodeNumbers( eType );
 }
 
 int GetElementDimension( int eType )

@@ -57,7 +57,7 @@ public:
     int GetElementFaceNumber() const;
     int GetElementPhysicsFaceNumber() const;
     int GetElementType() const;
-    int GetElementNodeNumbers( int elementType ) const;
+    static int GetElementNodeNumbers( int elementType );
 
     int GetRefinedElementType( int elementType ) const;
     int GetSimpleElementType ( int elementType ) const;
