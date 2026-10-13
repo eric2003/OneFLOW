@@ -89,9 +89,15 @@ ElementHomeInit elementHomeInit;
 
 int GetElementNodeNumbers( int eType )
 {
-    UnitElement & unitElement = ElementHome::GetUnitElement( eType );
-    int nodeNumber = unitElement.GetElementNodeNumbers( eType );
-    return nodeNumber;
+    try
+    {
+        UnitElement & unitElement = ElementHome::GetUnitElement( eType );
+        return unitElement.GetElementNodeNumbers( eType );
+    }
+    catch ( const std::out_of_range & )
+    {
+        return 0;
+    }
 }
 
 int GetElementDimension( int eType )
