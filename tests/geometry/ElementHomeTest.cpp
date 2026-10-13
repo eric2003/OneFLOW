@@ -107,8 +107,12 @@ TEST(UnitElementTest, CorrectlySpelledMiddlePointAccessorIsAvailable)
         std::out_of_range);
 
     const ONEFLOW::UnitElement & constElement = element;
+    EXPECT_NO_THROW(
+        constElement.GetRelatedPointListForMiddlePointCalculation(0));
+    EXPECT_TRUE(
+        constElement.GetRelatedPointListForMiddlePointCalculation(0).empty());
     EXPECT_THROW(
-        constElement.GetRelatedPointListForMiddlePointCalculation(0),
+        constElement.GetRelatedPointListForMiddlePointCalculation(4),
         std::out_of_range);
 }
 
