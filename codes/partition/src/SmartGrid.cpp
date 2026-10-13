@@ -141,12 +141,12 @@ TopoSort::~TopoSort()
     ;
 }
 
-void TopoSort::GetElementFace( const UnitElement * elementDefinition, std::vector< int > & element, int facePos, std::vector< int > & face, int & faceType )
+void TopoSort::GetElementFace( const UnitElement & elementDefinition, std::vector< int > & element, int facePos, std::vector< int > & face, int & faceType )
 {
     //unit_face -> real_face mapping
     //for instance 0,1,2,3->1001,1002,1003,1004
-    const IntField & localFaceNodes = elementDefinition->GetElementFace( facePos );
-    faceType = elementDefinition->GetFaceType( facePos );
+    const IntField & localFaceNodes = elementDefinition.GetElementFace( facePos );
+    faceType = elementDefinition.GetFaceType( facePos );
     int numberOfFacePoints = static_cast< int >( localFaceNodes.size() );
     face.resize( 0 );
     for ( int iFacePoint = 0; iFacePoint < numberOfFacePoints; ++ iFacePoint )
@@ -155,7 +155,7 @@ void TopoSort::GetElementFace( const UnitElement * elementDefinition, std::vecto
     }
 }
 
-void TopoSort::AddSingleFace( const UnitElement * elementDefinition, std::vector< int > & element, int facePos, int iCell )
+void TopoSort::AddSingleFace( const UnitElement & elementDefinition, std::vector< int > & element, int facePos, int iCell )
 {
     int faceType;
     this->GetElementFace( elementDefinition, element, facePos, this->real_face, faceType );
@@ -198,7 +198,7 @@ void TopoSort::AddElementFaces( std::vector< int > & element, int eType, int iCe
 
     for ( int localFaceIndex = 0; localFaceIndex < numberOfFaces; ++ localFaceIndex )
     {
-        this->AddSingleFace( &elementDefinition, element, localFaceIndex, iCell );
+        this->AddSingleFace( elementDefinition, element, localFaceIndex, iCell );
     }
 }
 
