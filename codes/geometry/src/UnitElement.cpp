@@ -57,7 +57,7 @@ void CheckLocalNodeIndices( std::initializer_list< int > indices, std::size_t no
 }
 }
 
-int UnitElement::GetElementNodeNumbers( int elementType ) const
+int UnitElement::GetElementNodeNumbers( int elementType )
 {
     int nodeNumberOfElement = 0;
     if ( elementType == ONEFLOW::NODE )
