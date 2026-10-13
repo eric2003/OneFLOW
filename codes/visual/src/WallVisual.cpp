@@ -176,22 +176,22 @@ void WallVisual::ConstructTopology3D()
 
         int eType = elementType[ iCell ];
 
-        UnitElement & unitElement = ElementHome::GetUnitElement( eType );
+        const UnitElement & elementDefinition = ElementHome::GetUnitElementDefinition( eType );
 
-        int elem_nFace = unitElement.GetElementFaceNumber();
+        const int numberOfFaces = elementDefinition.GetElementFaceNumber();
 
-        for ( int loc_Face = 0; loc_Face < elem_nFace; ++ loc_Face )
+        for ( int localFaceIndex = 0; localFaceIndex < numberOfFaces; ++ localFaceIndex )
         {
-            IntField & local_fn = unitElement.GetElementFace( loc_Face );
-            int face_type = unitElement.GetFaceType( loc_Face );
-            int nNodes = local_fn.size();
-            IntField fn;
-            for ( int iFacePoint = 0; iFacePoint < nNodes; ++ iFacePoint )
+            const IntField & localFaceNodes = elementDefinition.GetElementFace( localFaceIndex );
+            const int faceType = elementDefinition.GetFaceType( localFaceIndex );
+            const int numberOfFaceNodes = static_cast< int >( localFaceNodes.size() );
+            IntField faceNodes;
+            for ( int iFacePoint = 0; iFacePoint < numberOfFaceNodes; ++ iFacePoint )
             {
-                fn.push_back( element[ local_fn[ iFacePoint ] ] );
+                faceNodes.push_back( element[ localFaceNodes[ iFacePoint ] ] );
             }
 
-            this->BuildFaceTopo( fn, loc_Face, iCell, face_type );
+            this->BuildFaceTopo( faceNodes, localFaceIndex, iCell, faceType );
         }
     }
 
