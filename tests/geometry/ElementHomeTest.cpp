@@ -97,6 +97,34 @@ TEST(UnitElementTest, DefaultConstructionStartsUninitialized)
     EXPECT_EQ(element.GetChildElementNumbers(), 0);
 }
 
+TEST(UnitElementTest, TopologyAccessorsRejectOutOfRangeIndices)
+{
+    ONEFLOW::UnitElement element;
+    element.Initialize(ONEFLOW::QUAD_4);
+
+    EXPECT_THROW(element.GetElementFace(-1), std::out_of_range);
+    EXPECT_THROW(element.GetElementFace(4), std::out_of_range);
+    EXPECT_THROW(element.GetFaceType(-1), std::out_of_range);
+    EXPECT_THROW(element.GetFaceType(4), std::out_of_range);
+
+    EXPECT_THROW(element.GetRelatedPointListForMiddlePointCalcutation(-1),
+                 std::out_of_range);
+    EXPECT_THROW(element.GetRelatedPointListForMiddlePointCalcutation(4),
+                 std::out_of_range);
+
+    EXPECT_THROW(element.GetElementPhysicsFace(-1), std::out_of_range);
+    EXPECT_THROW(element.GetElementPhysicsFace(0), std::out_of_range);
+    EXPECT_THROW(element.GetElementPhysicsFaceType(-1), std::out_of_range);
+    EXPECT_THROW(element.GetElementPhysicsFaceType(0), std::out_of_range);
+
+    EXPECT_THROW(element.GetChildElementRelativeNodeIndex(-1),
+                 std::out_of_range);
+    EXPECT_THROW(element.GetChildElementRelativeNodeIndex(0),
+                 std::out_of_range);
+    EXPECT_THROW(element.GetChildElementType(-1), std::out_of_range);
+    EXPECT_THROW(element.GetChildElementType(0), std::out_of_range);
+}
+
 TEST(UnitElementTest, FailedInitializePreservesExistingTopology)
 {
     ONEFLOW::UnitElement element;
