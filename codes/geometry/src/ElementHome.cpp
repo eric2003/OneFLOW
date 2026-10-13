@@ -41,16 +41,6 @@ bool ElementHome::HasUnitElement( int elementType )
         static_cast< bool >( unitElements[ static_cast< std::size_t >( elementType ) ] );
 }
 
-UnitElement & ElementHome::GetUnitElement( int elementType )
-{
-    if ( ! HasUnitElement( elementType ) )
-    {
-        throw std::out_of_range( "ElementHome::GetUnitElement: element type is out of range" );
-    }
-
-    return *unitElements[ static_cast< std::size_t >( elementType ) ];
-}
-
 const UnitElement & ElementHome::GetUnitElementDefinition( int elementType )
 {
     if ( ! HasUnitElement( elementType ) )

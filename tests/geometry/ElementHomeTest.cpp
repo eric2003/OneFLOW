@@ -56,7 +56,6 @@ TEST(ElementHomeTest, InvalidElementIndicesAreRejectedConsistently)
         ONEFLOW::ElementHome::HasUnitElement(
             ONEFLOW::ElementHome::GetNumberOfUnitElements()));
 
-    EXPECT_THROW(ONEFLOW::ElementHome::GetUnitElement(-1), std::out_of_range);
     EXPECT_THROW(
         ONEFLOW::ElementHome::GetUnitElementDefinition(-1),
         std::out_of_range);
@@ -75,8 +74,6 @@ TEST(ElementHomeTest, FreeClearsRegistryAndInitializeRestoresIt)
 
     EXPECT_EQ(ONEFLOW::ElementHome::GetNumberOfUnitElements(), 0);
     EXPECT_FALSE(ONEFLOW::ElementHome::HasUnitElement(ONEFLOW::HEXA_8));
-    EXPECT_THROW(ONEFLOW::ElementHome::GetUnitElement(ONEFLOW::HEXA_8),
-                 std::out_of_range);
     EXPECT_THROW(
         ONEFLOW::ElementHome::GetUnitElementDefinition(ONEFLOW::HEXA_8),
         std::out_of_range);

@@ -47,7 +47,6 @@ public:
 
     // Returned references are owned by the registry. Initialize() and Free()
     // invalidate all references previously returned by either accessor.
-    static UnitElement & GetUnitElement( int elementType );
     static const UnitElement & GetUnitElementDefinition( int elementType );
 public:
     // Initialize() builds a replacement registry before publishing it.
