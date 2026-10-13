@@ -240,8 +240,8 @@ void FaceSolver::ScanElementFace( CgIntField & eNodeId, int eType, int eId )
     const UnitElement & elementDefinition = ElementHome::GetUnitElementDefinition( eType );
 
     // Composite elements are not involved in this analysis.
-    const int numberOfElementFaces = elementDefinition.GetElementFaceNumber();
-    for ( int localFaceIndex = 0; localFaceIndex < numberOfElementFaces; ++ localFaceIndex )
+    const int elementFaceCount = elementDefinition.GetElementFaceCount();
+    for ( int localFaceIndex = 0; localFaceIndex < elementFaceCount; ++ localFaceIndex )
     {
         const IntField & localFaceNodeIndices =
             elementDefinition.GetElementFace( localFaceIndex );
