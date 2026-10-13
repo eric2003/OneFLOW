@@ -47,7 +47,7 @@ public:
 public:
     RealField *q, *dqdx, *dqdy, *dqdz;
     RealField *limiter;
-    // FIX: Use std::unique_ptr for automatic memory management
+    // Owned limiter workspace (RAII).
     std::unique_ptr<RealField> minvf;
     std::unique_ptr<RealField> maxvf;
     Real minv1, minv2, maxv1, maxv2;
@@ -85,7 +85,7 @@ public:
     MRField * dqdx, * dqdy, * dqdz;
     MRField * limiter;
 
-    // FIX: Moved qf1, qf2 to base class and managed by std::unique_ptr
+    // Face-side solution buffers owned here (qf1/qf2).
     std::unique_ptr<MRField> qf1;
     std::unique_ptr<MRField> qf2;
     CheckFun ckfun;

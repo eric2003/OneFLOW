@@ -35,9 +35,9 @@ public:
     UTurbInvFlux ();
     ~UTurbInvFlux();
 public:
-    std::unique_ptr<Limiter> limiter;     // FIX: Changed to unique_ptr
-    std::unique_ptr<Limiter> nslimiter;   // FIX: Changed to unique_ptr
-    std::unique_ptr<MRField> invflux; // owned temporary face flux
+    std::unique_ptr<Limiter> limiter;    // owns turb face limiter
+    std::unique_ptr<Limiter> nslimiter;  // owns NS mean-flow limiter (cross-solver)
+    std::unique_ptr<MRField> invflux;    // owns temporary face flux
 public:
     void CalcFlux();
     void CalcInvFlux();

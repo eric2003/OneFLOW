@@ -38,7 +38,7 @@ public:
     ~VisualTool() = default;
 public:
     StringField title;
-    // FIX: Use std::unique_ptr for automatic memory management
+    // Owned visualization workspace (RAII).
     HXVector< std::unique_ptr<MRField> > qNodeField;
 public:
     void Init();

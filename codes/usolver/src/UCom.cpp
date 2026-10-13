@@ -248,7 +248,7 @@ std::string HXDebug::GetFullFileName( const std::string & fileName, int startStr
 
 void HXDebug::DumpResField( const std::string & fileName )
 {
-    // Read-only dump of residual field.
+    // Read-only dump of current-solver residual (SolverState / residualName).
     const UnsGrid * grid = Zone::GetConstUnsGrid();
     const MRField * res = FieldHome::GetConstResidualField( grid );
     HXDebug::DumpField( fileName, res );
