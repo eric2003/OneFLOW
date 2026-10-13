@@ -1334,11 +1334,11 @@ void ScalarGrid::CalcTopology()
 	for ( int iCell = 0; iCell < cellCount; ++ iCell )
 	{
 		const std::vector< int > & element = this->elements[ iCell ];
-		UnitElement & unitElement = ElementHome::GetUnitElement( this->eTypes[ iCell ] );
-		const int localFaceCount = unitElement.GetElementFaceNumber();
+		const UnitElement & elementDefinition = ElementHome::GetUnitElementDefinition( this->eTypes[ iCell ] );
+		const int localFaceCount = elementDefinition.GetElementFaceNumber();
 		for ( int iLocalFace = 0; iLocalFace < localFaceCount; ++ iLocalFace )
 		{
-			const IntField & localFaceNodes = unitElement.GetElementFace( iLocalFace );
+			const IntField & localFaceNodes = elementDefinition.GetElementFace( iLocalFace );
 			IntField faceNodes;
 			faceNodes.reserve( localFaceNodes.size() );
 			for ( int localNodeId : localFaceNodes )
@@ -1414,8 +1414,8 @@ void ScalarGrid::CalcTopology()
 	for ( int iCell = 0; iCell < nCells; ++ iCell )
 	{
 		int eType = this->eTypes[ iCell ];
-		UnitElement& unitElement = ElementHome::GetUnitElement( eType );
-		estimatedFaces += unitElement.GetElementFaceNumber();
+		const UnitElement & elementDefinition = ElementHome::GetUnitElementDefinition( eType );
+		estimatedFaces += elementDefinition.GetElementFaceNumber();
 	}
 
 	this->lc.Reserve(estimatedFaces);
@@ -1430,13 +1430,13 @@ void ScalarGrid::CalcTopology()
 	{
 		const std::vector<int>& element = elements[iCell];
 		int eType = eTypes[iCell];
-		UnitElement& unitElement = ElementHome::GetUnitElement(eType);
-		int numberOfFaceInElement = unitElement.GetElementFaceNumber();
+		const UnitElement & elementDefinition = ElementHome::GetUnitElementDefinition(eType);
+		const int numberOfFaceInElement = elementDefinition.GetElementFaceNumber();
 
 		for ( int iLocalFace = 0; iLocalFace < numberOfFaceInElement; ++ iLocalFace )
 		{
-			const IntField& localFaceNodeIndexArray = unitElement.GetElementFace(iLocalFace);
-			int faceType = unitElement.GetFaceType(iLocalFace);
+			const IntField& localFaceNodeIndexArray = elementDefinition.GetElementFace(iLocalFace);
+			const int faceType = elementDefinition.GetFaceType(iLocalFace);
 
 			// Build the global node array for the current face
 			IntField faceNodeIndexArray;
