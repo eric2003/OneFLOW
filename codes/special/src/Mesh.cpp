@@ -369,7 +369,7 @@ void Mesh::ConstructTopology()
         int elementType = cellTopo->eTypes[iCell];
         const UnitElement & elementDefinition =
             ONEFLOW::ElementHome::GetUnitElementDefinition(elementType);
-        const int numberOfFaces = elementDefinition.GetElementFaceNumber();
+        const int numberOfFaces = elementDefinition.GetElementFaceCount();
 
         for (int localFaceIndex = 0; localFaceIndex < numberOfFaces; ++localFaceIndex)
         {

@@ -194,7 +194,7 @@ void TopoSort::AddElementFaces( std::vector< int > & element, int eType, int iCe
 {
     const UnitElement & elementDefinition = ElementHome::GetUnitElementDefinition( eType );
 
-    const int numberOfFaces = elementDefinition.GetElementFaceNumber();
+    const int numberOfFaces = elementDefinition.GetElementFaceCount();
 
     for ( int localFaceIndex = 0; localFaceIndex < numberOfFaces; ++ localFaceIndex )
     {

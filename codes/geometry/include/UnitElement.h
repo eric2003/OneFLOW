@@ -56,6 +56,10 @@ public:
     IntField & GetCompositeFace(int iFace);
     const IntField & GetCompositeFace(int iFace) const;
     int GetCompositeFaceType(int iFace) const;
+    int GetElementFaceCount() const;
+    int GetCompositeFaceCount() const;
+
+    // Compatibility wrappers; prefer the Count-suffixed APIs for new code.
     int GetElementFaceNumber() const;
     int GetCompositeFaceNumber() const;
     int GetElementType() const;

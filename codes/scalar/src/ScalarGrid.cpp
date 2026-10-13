@@ -1335,7 +1335,7 @@ void ScalarGrid::CalcTopology()
 	{
 		const std::vector< int > & element = this->elements[ iCell ];
 		const UnitElement & elementDefinition = ElementHome::GetUnitElementDefinition( this->eTypes[ iCell ] );
-		const int localFaceCount = elementDefinition.GetElementFaceNumber();
+		const int localFaceCount = elementDefinition.GetElementFaceCount();
 		for ( int iLocalFace = 0; iLocalFace < localFaceCount; ++ iLocalFace )
 		{
 			const IntField & localFaceNodes = elementDefinition.GetElementFace( iLocalFace );
@@ -1415,7 +1415,7 @@ void ScalarGrid::CalcTopology()
 	{
 		int eType = this->eTypes[ iCell ];
 		const UnitElement & elementDefinition = ElementHome::GetUnitElementDefinition( eType );
-		estimatedFaces += elementDefinition.GetElementFaceNumber();
+		estimatedFaces += elementDefinition.GetElementFaceCount();
 	}
 
 	this->lc.Reserve(estimatedFaces);
@@ -1431,7 +1431,7 @@ void ScalarGrid::CalcTopology()
 		const std::vector<int>& element = elements[iCell];
 		int eType = eTypes[iCell];
 		const UnitElement & elementDefinition = ElementHome::GetUnitElementDefinition(eType);
-		const int numberOfFaceInElement = elementDefinition.GetElementFaceNumber();
+		const int numberOfFaceInElement = elementDefinition.GetElementFaceCount();
 
 		for ( int iLocalFace = 0; iLocalFace < numberOfFaceInElement; ++ iLocalFace )
 		{

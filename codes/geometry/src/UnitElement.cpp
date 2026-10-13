@@ -1505,8 +1505,25 @@ int UnitElement::GetCompositeFaceType( int iFace ) const
     return compositeFaceElementType[ iFace ];
 }
 
-int UnitElement::GetElementFaceNumber() const { return faceList.size(); }
-int UnitElement::GetCompositeFaceNumber() const { return compositeFaceList.size(); }
+int UnitElement::GetElementFaceCount() const
+{
+    return static_cast< int >( faceList.size() );
+}
+
+int UnitElement::GetCompositeFaceCount() const
+{
+    return static_cast< int >( compositeFaceList.size() );
+}
+
+int UnitElement::GetElementFaceNumber() const
+{
+    return GetElementFaceCount();
+}
+
+int UnitElement::GetCompositeFaceNumber() const
+{
+    return GetCompositeFaceCount();
+}
 int UnitElement::GetElementType() const { return elementType; }
 
 IntField & UnitElement::GetElementFace( int iFace )
