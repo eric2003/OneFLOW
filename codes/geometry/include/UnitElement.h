@@ -40,7 +40,7 @@ public:
 public:
     int elementType = -1;
     IntField nodeId;
-    LinkField middlePointStruct; //Midpoint data structure
+    LinkField middlePointNodeIndices; //Midpoint data structure
     LinkField childElementIndex;
     IntField childElementType;
     IntField faceTypeContainer;
@@ -50,14 +50,20 @@ public:
     LinkField compositeFaceList;
 public:
     void Initialize( int elementType );
+private:
+    void BuildTopology( int elementType );
 public:
-    IntField & GetElementPhysicsFace(int iFace);
-    const IntField & GetElementPhysicsFace(int iFace) const;
-    int GetElementPhysicsFaceType(int iFace) const;
+    IntField & GetCompositeFace(int iFace);
+    const IntField & GetCompositeFace(int iFace) const;
+    int GetCompositeFaceType(int iFace) const;
+    int GetElementFaceCount() const;
+    int GetCompositeFaceCount() const;
+
+    // Compatibility wrappers; prefer the Count-suffixed APIs for new code.
     int GetElementFaceNumber() const;
-    int GetElementPhysicsFaceNumber() const;
+    int GetCompositeFaceNumber() const;
     int GetElementType() const;
-    int GetElementNodeNumbers( int elementType ) const;
+    static int GetElementNodeNumbers( int elementType );
 
     int GetRefinedElementType( int elementType ) const;
     int GetSimpleElementType ( int elementType ) const;
@@ -82,6 +88,8 @@ public:
     IntField & GetChildElementRelativeNodeIndex(int iChildElement);
     const IntField & GetChildElementRelativeNodeIndex(int iChildElement) const;
 
+    int GetChildElementCount() const;
+    // Compatibility wrapper; prefer GetChildElementCount() for new code.
     int GetChildElementNumbers() const;
     int GetChildElementType(int iChild) const;
 public:

@@ -71,29 +71,19 @@ void RegisterFieldTask()
 
 void LoadResiduals( StringField & data )
 {
-    int solverType = SolverState::solverType;
     int fieldId = ( * fieldIdMap )[ data[ 0 ] ];
 
     UnsGrid * grid = Zone::GetUnsGrid();
-
-    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
-    std::string & residualName = solverInfo->residualName;
 
     MRField * resField = FieldHome::GetResidualField( grid );
     MRField * rhsField = FieldHome::GetUnsField( fieldId );
 
     NegField( resField, rhsField );
-
 }
 
 void ZeroResiduals( StringField & data )
 {
-    int solverType = SolverState::solverType;
-
-    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
-    std::string & fieldName = solverInfo->residualName;
-
-    FieldHome::SetField( fieldName, zero );
+    FieldHome::SetField( FieldHome::GetResidualName(), zero );
 }
 
 void LoadQ( StringField & data )
@@ -103,9 +93,8 @@ void LoadQ( StringField & data )
     int solverType = SolverState::solverType;
     int fieldId = ( * fieldIdMap )[ fName ];
 
-    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
-
-    std::string & fieldName = solverInfo->gradString[ 0 ];
+    // Current-solver solution name (solutionGradNames[0] / GetSolutionName).
+    const std::string & fieldName = FieldHome::GetSolutionName();
 
     FieldHome::SetField( fieldId, fieldName, FLOW_RHS_ORDER );
 }
@@ -124,22 +113,15 @@ void SetField( StringField & data )
 
 void StoreRHS( StringField & data )
 {
-    std::string & fName = data[ 0 ];
-
-    int solverType = SolverState::solverType;
-    int fieldId = ( * fieldIdMap )[ fName ];
-
-    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
-    std::string & residualName = solverInfo->residualName;
-
-    FieldHome::SetField( fieldId, residualName, FLOW_RHS_ORDER );
+    int fieldId = ( * fieldIdMap )[ data[ 0 ] ];
+    FieldHome::SetField( fieldId, FieldHome::GetResidualName(), FLOW_RHS_ORDER );
 }
 
 
 void ConvertNodeFieldToCell( StringField & data )
 {
     // data[0]: source cell-centered field name on current zone grid.
-    // data[1]: optional target cell field name (default: same as source — in-place update).
+    // data[1]: optional target cell field name (default: same as source - in-place update).
     // Real coupling: cell -> node -> cell, then write back into the named target field.
     if ( data.empty() )
     {

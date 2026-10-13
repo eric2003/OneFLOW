@@ -26,6 +26,7 @@ License
 #include <cstddef>
 #include <stdexcept>
 #include <initializer_list>
+#include <utility>
 
 
 BeginNameSpace( ONEFLOW )
@@ -55,9 +56,17 @@ void CheckLocalNodeIndices( std::initializer_list< int > indices, std::size_t no
         CheckLocalNodeIndex( index, nodeCount, accessor );
     }
 }
+
+void ConvertToZeroBasedNodeIndices( IntField & nodeIndices )
+{
+    for ( int & nodeIndex : nodeIndices )
+    {
+        -- nodeIndex;
+    }
+}
 }
 
-int UnitElement::GetElementNodeNumbers( int elementType ) const
+int UnitElement::GetElementNodeNumbers( int elementType )
 {
     int nodeNumberOfElement = 0;
     if ( elementType == ONEFLOW::NODE )
@@ -137,18 +146,35 @@ int UnitElement::GetElementNodeNumbers( int elementType ) const
 
 void UnitElement::Initialize( int elementType )
 {
-    const int elementNodeNumbers = this->GetElementNodeNumbers( elementType );
+    // Build the replacement first so a failed initialization preserves the
+    // currently valid topology definition.
+    UnitElement replacement;
+    replacement.BuildTopology( elementType );
+
+    using std::swap;
+    swap( this->elementType, replacement.elementType );
+    swap( nodeId, replacement.nodeId );
+    swap( middlePointNodeIndices, replacement.middlePointNodeIndices );
+    swap( childElementIndex, replacement.childElementIndex );
+    swap( childElementType, replacement.childElementType );
+    swap( faceTypeContainer, replacement.faceTypeContainer );
+    swap( faceList, replacement.faceList );
+    swap( compositeFaceElementType, replacement.compositeFaceElementType );
+    swap( compositeFaceList, replacement.compositeFaceList );
+}
+
+void UnitElement::BuildTopology( int elementType )
+{
+    const int elementNodeNumbers = GetElementNodeNumbers( elementType );
     if ( elementNodeNumbers <= 0 )
     {
         throw std::invalid_argument( "UnitElement::Initialize: unsupported element type" );
     }
 
-    // Validate before mutation so a failed initialization preserves the
-    // existing topology definition.
     // Initialization replaces the complete topology definition; it must not
     // append to data left by an earlier initialization.
     nodeId.clear();
-    middlePointStruct.clear();
+    middlePointNodeIndices.clear();
     childElementIndex.clear();
     childElementType.clear();
     faceTypeContainer.clear();
@@ -158,7 +184,7 @@ void UnitElement::Initialize( int elementType )
 
     this->elementType = elementType;
 
-    middlePointStruct.resize( elementNodeNumbers );
+    middlePointNodeIndices.resize( elementNodeNumbers );
 
     nodeId.resize( elementNodeNumbers );
 
@@ -1337,10 +1363,7 @@ void UnitElement::PushElementFace( int faceType, int p1 )
 
     IntField face;
     face.push_back( p1 );
-    for ( int iPoint = 0; iPoint < face.size(); ++ iPoint )
-    {
-        face[ iPoint ] -= 1;
-    }
+    ConvertToZeroBasedNodeIndices( face );
     faceList.push_back( face );
 }
 
@@ -1352,10 +1375,7 @@ void UnitElement::PushElementFace( int faceType, int p1, int p2 )
     IntField face;
     face.push_back( p1 );
     face.push_back( p2 );
-    for ( int iPoint = 0; iPoint < face.size(); ++ iPoint )
-    {
-        face[ iPoint ] -= 1;
-    }
+    ConvertToZeroBasedNodeIndices( face );
     faceList.push_back( face );
 }
 
@@ -1368,10 +1388,7 @@ void UnitElement::PushElementFace( int faceType, int p1, int p2, int p3 )
     face.push_back( p1 );
     face.push_back( p2 );
     face.push_back( p3 );
-    for ( int iPoint = 0; iPoint < face.size(); ++ iPoint )
-    {
-        face[ iPoint ] -= 1;
-    }
+    ConvertToZeroBasedNodeIndices( face );
     faceList.push_back( face );
 }
 
@@ -1385,10 +1402,7 @@ void UnitElement::PushElementFace( int faceType, int p1, int p2, int p3, int p4 
     face.push_back( p2 );
     face.push_back( p3 );
     face.push_back( p4 );
-    for ( int iPoint = 0; iPoint < face.size(); ++ iPoint )
-    {
-        face[ iPoint ] -= 1;
-    }
+    ConvertToZeroBasedNodeIndices( face );
     faceList.push_back( face );
 }
 
@@ -1401,10 +1415,7 @@ void UnitElement::PushChildElement( int elementType, int p1, int p2 )
     element.push_back( p1 );
     element.push_back( p2 );
 
-    for ( int iPoint = 0; iPoint < element.size(); ++ iPoint )
-    {
-        element[ iPoint ] -= 1;
-    }
+    ConvertToZeroBasedNodeIndices( element );
 
     childElementIndex.push_back( element );
 }
@@ -1419,10 +1430,7 @@ void UnitElement::PushChildElement( int elementType, int p1, int p2, int p3 )
     element.push_back( p2 );
     element.push_back( p3 );
 
-    for ( int iPoint = 0; iPoint < element.size(); ++ iPoint )
-    {
-        element[ iPoint ] -= 1;
-    }
+    ConvertToZeroBasedNodeIndices( element );
 
     childElementIndex.push_back( element );
 }
@@ -1438,10 +1446,7 @@ void UnitElement::PushChildElement( int elementType, int p1, int p2, int p3, int
     element.push_back( p3 );
     element.push_back( p4 );
 
-    for ( int iPoint = 0; iPoint < element.size(); ++ iPoint )
-    {
-        element[ iPoint ] -= 1;
-    }
+    ConvertToZeroBasedNodeIndices( element );
 
     childElementIndex.push_back( element );
 }
@@ -1458,10 +1463,7 @@ void UnitElement::PushChildElement( int elementType, int p1, int p2, int p3, int
     element.push_back( p4 );
     element.push_back( p5 );
 
-    for ( int iPoint = 0; iPoint < element.size(); ++ iPoint )
-    {
-        element[ iPoint ] -= 1;
-    }
+    ConvertToZeroBasedNodeIndices( element );
 
     childElementIndex.push_back( element );
 }
@@ -1479,35 +1481,49 @@ void UnitElement::PushChildElement( int elementType, int p1, int p2, int p3, int
     element.push_back( p5 );
     element.push_back( p6 );
 
-    for ( int iPoint = 0; iPoint < element.size(); ++ iPoint )
-    {
-        element[ iPoint ] -= 1;
-    }
+    ConvertToZeroBasedNodeIndices( element );
 
     childElementIndex.push_back( element );
 }
 
 
-IntField & UnitElement::GetElementPhysicsFace( int iFace )
+IntField & UnitElement::GetCompositeFace( int iFace )
 {
-    CheckTopologyIndex( iFace, compositeFaceList.size(), "UnitElement::GetElementPhysicsFace: index out of range" );
+    CheckTopologyIndex( iFace, compositeFaceList.size(), "UnitElement::GetCompositeFace: index out of range" );
     return compositeFaceList[ iFace ];
 }
 
-const IntField & UnitElement::GetElementPhysicsFace( int iFace ) const
+const IntField & UnitElement::GetCompositeFace( int iFace ) const
 {
-    CheckTopologyIndex( iFace, compositeFaceList.size(), "UnitElement::GetElementPhysicsFace: index out of range" );
+    CheckTopologyIndex( iFace, compositeFaceList.size(), "UnitElement::GetCompositeFace: index out of range" );
     return compositeFaceList[ iFace ];
 }
 
-int UnitElement::GetElementPhysicsFaceType( int iFace ) const
+int UnitElement::GetCompositeFaceType( int iFace ) const
 {
-    CheckTopologyIndex( iFace, compositeFaceElementType.size(), "UnitElement::GetElementPhysicsFaceType: index out of range" );
+    CheckTopologyIndex( iFace, compositeFaceElementType.size(), "UnitElement::GetCompositeFaceType: index out of range" );
     return compositeFaceElementType[ iFace ];
 }
 
-int UnitElement::GetElementFaceNumber() const { return faceList.size(); }
-int UnitElement::GetElementPhysicsFaceNumber() const { return compositeFaceList.size(); }
+int UnitElement::GetElementFaceCount() const
+{
+    return static_cast< int >( faceList.size() );
+}
+
+int UnitElement::GetCompositeFaceCount() const
+{
+    return static_cast< int >( compositeFaceList.size() );
+}
+
+int UnitElement::GetElementFaceNumber() const
+{
+    return GetElementFaceCount();
+}
+
+int UnitElement::GetCompositeFaceNumber() const
+{
+    return GetCompositeFaceCount();
+}
 int UnitElement::GetElementType() const { return elementType; }
 
 IntField & UnitElement::GetElementFace( int iFace )
@@ -1530,14 +1546,14 @@ int UnitElement::GetFaceType( int iFace ) const
 
 IntField & UnitElement::GetRelatedPointListForMiddlePointCalculation( int iMiddlePoint )
 {
-    CheckTopologyIndex( iMiddlePoint, middlePointStruct.size(), "UnitElement::GetRelatedPointListForMiddlePointCalculation: index out of range" );
-    return middlePointStruct[ iMiddlePoint ];
+    CheckTopologyIndex( iMiddlePoint, middlePointNodeIndices.size(), "UnitElement::GetRelatedPointListForMiddlePointCalculation: index out of range" );
+    return middlePointNodeIndices[ iMiddlePoint ];
 }
 
 const IntField & UnitElement::GetRelatedPointListForMiddlePointCalculation( int iMiddlePoint ) const
 {
-    CheckTopologyIndex( iMiddlePoint, middlePointStruct.size(), "UnitElement::GetRelatedPointListForMiddlePointCalculation: index out of range" );
-    return middlePointStruct[ iMiddlePoint ];
+    CheckTopologyIndex( iMiddlePoint, middlePointNodeIndices.size(), "UnitElement::GetRelatedPointListForMiddlePointCalculation: index out of range" );
+    return middlePointNodeIndices[ iMiddlePoint ];
 }
 
 IntField & UnitElement::GetRelatedPointListForMiddlePointCalcutation( int iMiddlePoint )
@@ -1562,7 +1578,15 @@ const IntField & UnitElement::GetChildElementRelativeNodeIndex( int iChildElemen
     return childElementIndex[ iChildElement ];
 }
 
-int UnitElement::GetChildElementNumbers() const { return childElementType.size(); }
+int UnitElement::GetChildElementCount() const
+{
+    return static_cast< int >( childElementType.size() );
+}
+
+int UnitElement::GetChildElementNumbers() const
+{
+    return GetChildElementCount();
+}
 
 int UnitElement::GetChildElementType( int iChild ) const
 {
@@ -1585,10 +1609,7 @@ void UnitElement::PushChildElement( int elementType, int p1, int p2, int p3, int
     element.push_back( p7 );
     element.push_back( p8 );
 
-    for ( int iPoint = 0; iPoint < element.size(); ++ iPoint )
-    {
-        element[ iPoint ] -= 1;
-    }
+    ConvertToZeroBasedNodeIndices( element );
 
     childElementIndex.push_back( element );
 }
@@ -1596,59 +1617,46 @@ void UnitElement::PushChildElement( int elementType, int p1, int p2, int p3, int
 void UnitElement::PushMiddlePoint( int pm, int p1, int p2 )
 {
     CheckLocalNodeIndex( pm, nodeId.size(), "UnitElement::PushMiddlePoint: midpoint index out of range" );
-    CheckLocalNodeIndex( p1, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
-    CheckLocalNodeIndex( p2, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
+    CheckLocalNodeIndices( { p1, p2 }, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
 
-    middlePointStruct[ pm - 1 ].push_back( p1 - 1 );
-    middlePointStruct[ pm - 1 ].push_back( p2 - 1 );
+    middlePointNodeIndices[ pm - 1 ].push_back( p1 - 1 );
+    middlePointNodeIndices[ pm - 1 ].push_back( p2 - 1 );
 }
 
 void UnitElement::PushMiddlePoint( int pm, int p1, int p2, int p3 )
 {
     CheckLocalNodeIndex( pm, nodeId.size(), "UnitElement::PushMiddlePoint: midpoint index out of range" );
-    CheckLocalNodeIndex( p1, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
-    CheckLocalNodeIndex( p2, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
-    CheckLocalNodeIndex( p3, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
+    CheckLocalNodeIndices( { p1, p2, p3 }, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
 
-    middlePointStruct[ pm - 1 ].push_back( p1 - 1 );
-    middlePointStruct[ pm - 1 ].push_back( p2 - 1 );
-    middlePointStruct[ pm - 1 ].push_back( p3 - 1 );
+    middlePointNodeIndices[ pm - 1 ].push_back( p1 - 1 );
+    middlePointNodeIndices[ pm - 1 ].push_back( p2 - 1 );
+    middlePointNodeIndices[ pm - 1 ].push_back( p3 - 1 );
 }
 
 void UnitElement::PushMiddlePoint( int pm, int p1, int p2, int p3, int p4 )
 {
     CheckLocalNodeIndex( pm, nodeId.size(), "UnitElement::PushMiddlePoint: midpoint index out of range" );
-    CheckLocalNodeIndex( p1, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
-    CheckLocalNodeIndex( p2, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
-    CheckLocalNodeIndex( p3, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
-    CheckLocalNodeIndex( p4, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
+    CheckLocalNodeIndices( { p1, p2, p3, p4 }, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
 
-    middlePointStruct[ pm - 1 ].push_back( p1 - 1 );
-    middlePointStruct[ pm - 1 ].push_back( p2 - 1 );
-    middlePointStruct[ pm - 1 ].push_back( p3 - 1 );
-    middlePointStruct[ pm - 1 ].push_back( p4 - 1 );
+    middlePointNodeIndices[ pm - 1 ].push_back( p1 - 1 );
+    middlePointNodeIndices[ pm - 1 ].push_back( p2 - 1 );
+    middlePointNodeIndices[ pm - 1 ].push_back( p3 - 1 );
+    middlePointNodeIndices[ pm - 1 ].push_back( p4 - 1 );
 }
 
 void UnitElement::PushMiddlePoint( int pm, int p1, int p2, int p3, int p4, int p5, int p6, int p7, int p8 )
 {
     CheckLocalNodeIndex( pm, nodeId.size(), "UnitElement::PushMiddlePoint: midpoint index out of range" );
-    CheckLocalNodeIndex( p1, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
-    CheckLocalNodeIndex( p2, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
-    CheckLocalNodeIndex( p3, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
-    CheckLocalNodeIndex( p4, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
-    CheckLocalNodeIndex( p5, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
-    CheckLocalNodeIndex( p6, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
-    CheckLocalNodeIndex( p7, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
-    CheckLocalNodeIndex( p8, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
+    CheckLocalNodeIndices( { p1, p2, p3, p4, p5, p6, p7, p8 }, nodeId.size(), "UnitElement::PushMiddlePoint: related node index out of range" );
 
-    middlePointStruct[ pm - 1 ].push_back( p1 - 1 );
-    middlePointStruct[ pm - 1 ].push_back( p2 - 1 );
-    middlePointStruct[ pm - 1 ].push_back( p3 - 1 );
-    middlePointStruct[ pm - 1 ].push_back( p4 - 1 );
-    middlePointStruct[ pm - 1 ].push_back( p5 - 1 );
-    middlePointStruct[ pm - 1 ].push_back( p6 - 1 );
-    middlePointStruct[ pm - 1 ].push_back( p7 - 1 );
-    middlePointStruct[ pm - 1 ].push_back( p8 - 1 );
+    middlePointNodeIndices[ pm - 1 ].push_back( p1 - 1 );
+    middlePointNodeIndices[ pm - 1 ].push_back( p2 - 1 );
+    middlePointNodeIndices[ pm - 1 ].push_back( p3 - 1 );
+    middlePointNodeIndices[ pm - 1 ].push_back( p4 - 1 );
+    middlePointNodeIndices[ pm - 1 ].push_back( p5 - 1 );
+    middlePointNodeIndices[ pm - 1 ].push_back( p6 - 1 );
+    middlePointNodeIndices[ pm - 1 ].push_back( p7 - 1 );
+    middlePointNodeIndices[ pm - 1 ].push_back( p8 - 1 );
 }
 
 void UnitElement::PushCompositeFace( int faceElementType, int p1, int p2, int p3 )
@@ -1661,10 +1669,7 @@ void UnitElement::PushCompositeFace( int faceElementType, int p1, int p2, int p3
     face.push_back( p2 );
     face.push_back( p3 );
 
-    for ( int iPoint = 0; iPoint < face.size(); ++ iPoint )
-    {
-        face[ iPoint ] -= 1;
-    }
+    ConvertToZeroBasedNodeIndices( face );
 
     compositeFaceList.push_back( face );
 }
@@ -1682,10 +1687,7 @@ void UnitElement::PushCompositeFace( int faceElementType, int p1, int p2, int p3
     face.push_back( p5 );
     face.push_back( p6 );
 
-    for ( int iPoint = 0; iPoint < face.size(); ++ iPoint )
-    {
-        face[ iPoint ] -= 1;
-    }
+    ConvertToZeroBasedNodeIndices( face );
 
     compositeFaceList.push_back( face );
 }
@@ -1706,10 +1708,7 @@ void UnitElement::PushCompositeFace( int faceElementType, int p1, int p2, int p3
     face.push_back( p8 );
     face.push_back( p9 );
 
-    for ( int iPoint = 0; iPoint < face.size(); ++ iPoint )
-    {
-        face[ iPoint ] -= 1;
-    }
+    ConvertToZeroBasedNodeIndices( face );
 
     compositeFaceList.push_back( face );
 }

@@ -25,6 +25,7 @@ License
 #include "INsCom.h"
 #include "DataBase.h"
 #include "FieldWrap.h"
+#include "SolverDef.h"
 #include "FieldManager.h"
 #include "FaceTopo.h"
 #include "BcRecord.h"
@@ -54,19 +55,20 @@ void UINsGrad::Init()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
-    // Current-solver solution/grad via SolverInfo::gradString.
-    name  = FieldHome::GetGradName( 0 );
-    namex = FieldHome::GetGradName( 1 );
-    namey = FieldHome::GetGradName( 2 );
-    namez = FieldHome::GetGradName( 3 );
+    // Pin solver identity (do not rely on ambient SolverState).
+    const int sid = INC_NS_SOLVER;
+    name  = FieldHome::GetGradName( sid, 0 );
+    namex = FieldHome::GetGradName( sid, 1 );
+    namey = FieldHome::GetGradName( sid, 2 );
+    namez = FieldHome::GetGradName( sid, 3 );
 
-    q    = FieldHome::GetSolutionField( grid );
-    dqdx = FieldHome::GetGradField( grid, 1 );
-    dqdy = FieldHome::GetGradField( grid, 2 );
-    dqdz = FieldHome::GetGradField( grid, 3 );
-    bdqdx = GetFieldPointer< MRField > ( grid, "bcdqdx" );
-    bdqdy = GetFieldPointer< MRField > ( grid, "bcdqdy" );
-    bdqdz = GetFieldPointer< MRField > ( grid, "bcdqdz" );
+    q    = FieldHome::GetSolutionField( grid, sid );
+    dqdx = FieldHome::GetGradField( grid, sid, 1 );
+    dqdy = FieldHome::GetGradField( grid, sid, 2 );
+    dqdz = FieldHome::GetGradField( grid, sid, 3 );
+    bdqdx = FieldHome::GetBcGradField( grid, sid, 0 );
+    bdqdy = FieldHome::GetBcGradField( grid, sid, 1 );
+    bdqdz = FieldHome::GetBcGradField( grid, sid, 2 );
 
     this->nEqu = nscom.nTEqu;
 

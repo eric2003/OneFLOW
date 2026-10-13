@@ -27,6 +27,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+// Turbulence field view; q_ns/dq*_ns are mean-flow (NS_SOLVER) coupling pointers.
 class UTurbField
 {
 public:

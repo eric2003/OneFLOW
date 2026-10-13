@@ -966,7 +966,7 @@ void ScalarGrid::ReadFromCgnsZone( CgnsZone & cgnsZone )
 
 void ScalarGrid::PushElement( CgIntField & eNodeId, int eType )
 {
-	if ( eType < 0 || eType >= ElementHome::GetNumberOfUnitElements() ||
+	if ( eType < 0 || eType >= ElementHome::GetUnitElementSlotCount() ||
 		 ! ONEFLOW::IsBasicVolumeElementType( eType ) )
 	{
 		throw std::invalid_argument( "ScalarGrid::PushElement: invalid volume element type" );
@@ -1004,7 +1004,7 @@ void ScalarGrid::PushElement( CgIntField & eNodeId, int eType )
 
 void ScalarGrid::PushElement( int p1, int p2, int eType )
 {
-	if ( eType < 0 || eType >= ElementHome::GetNumberOfUnitElements() ||
+	if ( eType < 0 || eType >= ElementHome::GetUnitElementSlotCount() ||
 		 ONEFLOW::GetElementNodeNumbers( eType ) != 2 )
 	{
 		throw std::invalid_argument( "ScalarGrid::PushElement: element type must describe a two-node element" );
@@ -1294,7 +1294,7 @@ void ScalarGrid::CalcTopology()
 	for ( int iCell = 0; iCell < cellCount; ++ iCell )
 	{
 		const int elementType = this->eTypes[ iCell ];
-		if ( elementType < 0 || elementType >= ElementHome::GetNumberOfUnitElements() )
+		if ( elementType < 0 || elementType >= ElementHome::GetUnitElementSlotCount() )
 		{
 			throw std::runtime_error( "ScalarGrid::CalcTopology: invalid element type" );
 		}
@@ -1335,7 +1335,7 @@ void ScalarGrid::CalcTopology()
 	{
 		const std::vector< int > & element = this->elements[ iCell ];
 		const UnitElement & elementDefinition = ElementHome::GetUnitElementDefinition( this->eTypes[ iCell ] );
-		const int localFaceCount = elementDefinition.GetElementFaceNumber();
+		const int localFaceCount = elementDefinition.GetElementFaceCount();
 		for ( int iLocalFace = 0; iLocalFace < localFaceCount; ++ iLocalFace )
 		{
 			const IntField & localFaceNodes = elementDefinition.GetElementFace( iLocalFace );
@@ -1415,7 +1415,7 @@ void ScalarGrid::CalcTopology()
 	{
 		int eType = this->eTypes[ iCell ];
 		const UnitElement & elementDefinition = ElementHome::GetUnitElementDefinition( eType );
-		estimatedFaces += elementDefinition.GetElementFaceNumber();
+		estimatedFaces += elementDefinition.GetElementFaceCount();
 	}
 
 	this->lc.Reserve(estimatedFaces);
@@ -1431,7 +1431,7 @@ void ScalarGrid::CalcTopology()
 		const std::vector<int>& element = elements[iCell];
 		int eType = eTypes[iCell];
 		const UnitElement & elementDefinition = ElementHome::GetUnitElementDefinition(eType);
-		const int numberOfFaceInElement = elementDefinition.GetElementFaceNumber();
+		const int numberOfFaceInElement = elementDefinition.GetElementFaceCount();
 
 		for ( int iLocalFace = 0; iLocalFace < numberOfFaceInElement; ++ iLocalFace )
 		{

@@ -52,7 +52,7 @@ void UTurbRestart::InitRestart( int solverType )
 
     UnsGrid * grid = Zone::GetUnsGrid();
 
-    MRField * q  = GetFieldPointer< MRField > ( grid, "turbq" );
+    MRField * q  = FieldHome::GetSolutionField( grid, TURB_SOLVER );
 
     int nEqu = turbcom.inflow.size();
 

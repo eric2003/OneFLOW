@@ -107,8 +107,8 @@ public:
     std::vector< int > bcTypes;
     int nCells;
 public:
-    void GetElementFace( const UnitElement * elementDefinition, std::vector< int > & element, int facePos, std::vector< int > & face, int & faceType );
-    void AddSingleFace( const UnitElement * elementDefinition, std::vector< int > & element, int facePos, int  iCell );
+    void GetElementFace( const UnitElement & elementDefinition, std::vector< int > & element, int facePos, std::vector< int > & face, int & faceType );
+    void AddSingleFace( const UnitElement & elementDefinition, std::vector< int > & element, int facePos, int iCell );
     void ModifyFace( int face_id, int iCell, int face_pos );
     void AddNewFace( int iCell, int face_pos, int faceType );
     void AddElementFaces( std::vector< int > & element, int eType, int iCell );

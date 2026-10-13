@@ -40,8 +40,12 @@ private:
     ElementHome & operator=( ElementHome && ) = delete;
 
 private:
-    static HXVector< std::unique_ptr< UnitElement > > unitElements;
+    static HXVector< std::unique_ptr< const UnitElement > > unitElements;
 public:
+    // Number of registry slots; unsupported element types retain their enum-indexed slots.
+    static int GetUnitElementSlotCount();
+
+    // Compatibility wrapper. Prefer GetUnitElementSlotCount() for new code.
     static int GetNumberOfUnitElements();
     static bool HasUnitElement( int elementType );
 

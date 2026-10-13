@@ -52,7 +52,7 @@ void UNsRestart::InitRestart( int solverType )
 
     UnsGrid * grid = Zone::GetUnsGrid();
 
-    MRField * q  = FieldHome::GetSolutionField( grid );
+    MRField * q  = FieldHome::GetSolutionField( grid, NS_SOLVER );
 
     int nEqu = nscom.inflow.size();
 

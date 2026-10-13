@@ -27,11 +27,31 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-HXVector< std::unique_ptr< UnitElement > > ElementHome::unitElements;
+namespace
+{
+std::unique_ptr< const UnitElement > BuildUnitElementDefinition( int elementType )
+{
+    if ( UnitElement::GetElementNodeNumbers( elementType ) <= 0 )
+    {
+        return nullptr;
+    }
+
+    auto unitElement = std::make_unique< UnitElement >();
+    unitElement->Initialize( elementType );
+    return unitElement;
+}
+}
+
+HXVector< std::unique_ptr< const UnitElement > > ElementHome::unitElements;
+
+int ElementHome::GetUnitElementSlotCount()
+{
+    return static_cast< int >( unitElements.size() );
+}
 
 int ElementHome::GetNumberOfUnitElements()
 {
-    return static_cast< int >( unitElements.size() );
+    return GetUnitElementSlotCount();
 }
 
 bool ElementHome::HasUnitElement( int elementType )
@@ -55,19 +75,16 @@ void ElementHome::Initialize()
 {
     // Keep enum values as registry indices, including unsupported gaps.
     // A null slot means that the element type has no UnitElement definition.
-    HXVector< std::unique_ptr< UnitElement > > initializedElements;
+    HXVector< std::unique_ptr< const UnitElement > > initializedElements;
     initializedElements.resize( NofValidElementTypes );
 
     for ( HXSize_t iUnitElement = 0; iUnitElement < NofValidElementTypes; ++ iUnitElement )
     {
-        auto unit = std::make_unique< UnitElement >();
-        if ( unit->GetElementNodeNumbers( iUnitElement ) <= 0 )
+        auto unitElement = BuildUnitElementDefinition( iUnitElement );
+        if ( unitElement )
         {
-            continue;
+            initializedElements[ iUnitElement ] = std::move( unitElement );
         }
-
-        unit->Initialize( iUnitElement );
-        initializedElements[ iUnitElement ] = std::move( unit );
     }
 
     unitElements.swap( initializedElements );
@@ -94,14 +111,14 @@ ElementHomeInit elementHomeInit;
 
 int GetElementNodeNumbers( int eType )
 {
-    if ( eType < 0 || eType >= ElementHome::GetNumberOfUnitElements() )
+    if ( eType < 0 || eType >= ElementHome::GetUnitElementSlotCount() )
     {
         throw std::out_of_range( "GetElementNodeNumbers: element type is out of range" );
     }
 
     if ( ! ElementHome::HasUnitElement( eType ) ) return 0;
 
-    return ElementHome::GetUnitElementDefinition( eType ).GetElementNodeNumbers( eType );
+    return UnitElement::GetElementNodeNumbers( eType );
 }
 
 int GetElementDimension( int eType )

@@ -178,7 +178,7 @@ void WallVisual::ConstructTopology3D()
 
         const UnitElement & elementDefinition = ElementHome::GetUnitElementDefinition( eType );
 
-        const int numberOfFaces = elementDefinition.GetElementFaceNumber();
+        const int numberOfFaces = elementDefinition.GetElementFaceCount();
 
         for ( int localFaceIndex = 0; localFaceIndex < numberOfFaces; ++ localFaceIndex )
         {

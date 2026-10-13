@@ -176,13 +176,22 @@ const MRField * FieldHome::GetConstUnsField( const Grid * grid, const std::strin
 
 const std::string & FieldHome::GetResidualName()
 {
-    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( SolverState::solverType );
-    return solverInfo->residualName;
+    return FieldHome::GetResidualName( SolverState::solverType );
+}
+
+const std::string & FieldHome::GetResidualName( int solverType )
+{
+    return SolverInfoFactory::GetSolverInfo( solverType )->residualName;
 }
 
 MRField * FieldHome::GetResidualField( Grid * grid )
 {
-    return FieldHome::GetUnsField( grid, FieldHome::GetResidualName() );
+    return FieldHome::GetResidualField( grid, SolverState::solverType );
+}
+
+MRField * FieldHome::GetResidualField( Grid * grid, int solverType )
+{
+    return FieldHome::GetUnsField( grid, FieldHome::GetResidualName( solverType ) );
 }
 
 const MRField * FieldHome::GetConstResidualField( const Grid * grid )
@@ -190,22 +199,30 @@ const MRField * FieldHome::GetConstResidualField( const Grid * grid )
     return FieldHome::GetConstUnsField( grid, FieldHome::GetResidualName() );
 }
 
-
 const std::string & FieldHome::GetSolutionName()
 {
-    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( SolverState::solverType );
-    if ( ! solverInfo->gradString.empty() )
+    return FieldHome::GetSolutionName( SolverState::solverType );
+}
+
+const std::string & FieldHome::GetSolutionName( int solverType )
+{
+    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
+    if ( ! solverInfo->solutionGradNames.empty() )
     {
-        return solverInfo->gradString[ 0 ];
+        return solverInfo->solutionGradNames[ 0 ];
     }
-    // Fallback when gradString not configured.
     static const std::string kDefaultQ = "q";
     return kDefaultQ;
 }
 
 MRField * FieldHome::GetSolutionField( Grid * grid )
 {
-    return FieldHome::GetUnsField( grid, FieldHome::GetSolutionName() );
+    return FieldHome::GetSolutionField( grid, SolverState::solverType );
+}
+
+MRField * FieldHome::GetSolutionField( Grid * grid, int solverType )
+{
+    return FieldHome::GetUnsField( grid, FieldHome::GetSolutionName( solverType ) );
 }
 
 const MRField * FieldHome::GetConstSolutionField( const Grid * grid )
@@ -215,10 +232,15 @@ const MRField * FieldHome::GetConstSolutionField( const Grid * grid )
 
 const std::string & FieldHome::GetGradName( int index )
 {
-    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( SolverState::solverType );
-    if ( index >= 0 && index < static_cast< int >( solverInfo->gradString.size() ) )
+    return FieldHome::GetGradName( SolverState::solverType, index );
+}
+
+const std::string & FieldHome::GetGradName( int solverType, int index )
+{
+    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
+    if ( index >= 0 && index < static_cast< int >( solverInfo->solutionGradNames.size() ) )
     {
-        return solverInfo->gradString[ index ];
+        return solverInfo->solutionGradNames[ index ];
     }
     static const std::string kEmpty;
     return kEmpty;
@@ -226,22 +248,75 @@ const std::string & FieldHome::GetGradName( int index )
 
 MRField * FieldHome::GetGradField( Grid * grid, int index )
 {
-    const std::string & name = FieldHome::GetGradName( index );
-    if ( name.empty() )
-    {
-        return nullptr;
-    }
+    return FieldHome::GetGradField( grid, SolverState::solverType, index );
+}
+
+MRField * FieldHome::GetGradField( Grid * grid, int solverType, int index )
+{
+    const std::string & name = FieldHome::GetGradName( solverType, index );
+    if ( name.empty() ) return nullptr;
     return FieldHome::GetUnsField( grid, name );
 }
 
 const MRField * FieldHome::GetConstGradField( const Grid * grid, int index )
 {
     const std::string & name = FieldHome::GetGradName( index );
-    if ( name.empty() )
-    {
-        return nullptr;
-    }
+    if ( name.empty() ) return nullptr;
     return FieldHome::GetConstUnsField( grid, name );
+}
+
+const std::string & FieldHome::GetUpdateDeltaName()
+{
+    return FieldHome::GetUpdateDeltaName( SolverState::solverType );
+}
+
+const std::string & FieldHome::GetUpdateDeltaName( int solverType )
+{
+    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
+    if ( solverInfo->implicitFieldNames.size() >= 2 )
+    {
+        return solverInfo->implicitFieldNames[ 1 ];
+    }
+    static const std::string kDefaultDq = "dq";
+    return kDefaultDq;
+}
+
+MRField * FieldHome::GetUpdateDeltaField( Grid * grid )
+{
+    return FieldHome::GetUpdateDeltaField( grid, SolverState::solverType );
+}
+
+MRField * FieldHome::GetUpdateDeltaField( Grid * grid, int solverType )
+{
+    return FieldHome::GetUnsField( grid, FieldHome::GetUpdateDeltaName( solverType ) );
+}
+
+const std::string & FieldHome::GetBcGradName( int index )
+{
+    return FieldHome::GetBcGradName( SolverState::solverType, index );
+}
+
+const std::string & FieldHome::GetBcGradName( int solverType, int index )
+{
+    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
+    if ( index >= 0 && index < static_cast< int >( solverInfo->bcGradFieldNames.size() ) )
+    {
+        return solverInfo->bcGradFieldNames[ index ];
+    }
+    static const std::string kEmpty;
+    return kEmpty;
+}
+
+MRField * FieldHome::GetBcGradField( Grid * grid, int index )
+{
+    return FieldHome::GetBcGradField( grid, SolverState::solverType, index );
+}
+
+MRField * FieldHome::GetBcGradField( Grid * grid, int solverType, int index )
+{
+    const std::string & name = FieldHome::GetBcGradName( solverType, index );
+    if ( name.empty() ) return nullptr;
+    return FieldHome::GetUnsField( grid, name );
 }
 
 MRField * FieldHome::GetUnsField( Grid * grid, const std::string & fieldName )

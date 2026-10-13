@@ -28,6 +28,7 @@ License
 #include "UnsGrid.h"
 #include "DataBase.h"
 #include "FieldWrap.h"
+#include "SolverDef.h"
 #include "NsCtrl.h"
 #include "UCom.h"
 #include "UNsCom.h"
@@ -236,7 +237,7 @@ void UNsVisFlux::AddHeatFlux()
 void UNsVisFlux::AddVisFlux()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
-    MRField * res = FieldHome::GetResidualField( grid );
+    MRField * res = FieldHome::GetResidualField( grid, NS_SOLVER );
 
     ONEFLOW::AddF2CField( res, visflux.get() );
     if ( ctrl.debugFieldDump != 0 )

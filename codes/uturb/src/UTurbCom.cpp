@@ -28,6 +28,7 @@ License
 #include "TimeIntegral.h"
 #include "DataBase.h"
 #include "FieldWrap.h"
+#include "SolverDef.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -46,28 +47,31 @@ UTurbField::~UTurbField()
 void UTurbField::Init()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
-    q   = FieldHome::GetSolutionField( grid );  // TURB -> "turbq"
+    // Own turb fields: pin TURB_SOLVER (Init may be called with ambiguous ambient state).
+    const int turb = TURB_SOLVER;
+    const int ns   = NS_SOLVER;
+
+    q   = FieldHome::GetSolutionField( grid, turb );
     q1  = GetFieldPointer< MRField > ( grid, "turbq1" );
     q2  = GetFieldPointer< MRField > ( grid, "turbq2" );
-    // dq: literal "turbdq". MULTI_STAGE rebinds dq = res (see below).
-    dq  = GetFieldPointer< MRField > ( grid, "turbdq" );
+    dq  = FieldHome::GetUpdateDeltaField( grid, turb );
 
-    dqdx = FieldHome::GetGradField( grid, 1 );
-    dqdy = FieldHome::GetGradField( grid, 2 );
-    dqdz = FieldHome::GetGradField( grid, 3 );
+    dqdx = FieldHome::GetGradField( grid, turb, 1 );
+    dqdy = FieldHome::GetGradField( grid, turb, 2 );
+    dqdz = FieldHome::GetGradField( grid, turb, 3 );
 
-    // Cross-solver: turb always reads NS mean flow by literal name (see FieldWrap.h).
-    q_ns    = GetFieldPointer< MRField > ( grid, "q" );
-    dqdx_ns = GetFieldPointer< MRField > ( grid, "dqdx" );
-    dqdy_ns = GetFieldPointer< MRField > ( grid, "dqdy" );
-    dqdz_ns = GetFieldPointer< MRField > ( grid, "dqdz" );
+    // Mean-flow coupling: always NS_SOLVER (never SolverState, never bare "q" only).
+    q_ns    = FieldHome::GetSolutionField( grid, ns );
+    dqdx_ns = FieldHome::GetGradField( grid, ns, 1 );
+    dqdy_ns = FieldHome::GetGradField( grid, ns, 2 );
+    dqdz_ns = FieldHome::GetGradField( grid, ns, 3 );
 
     visl  = GetFieldPointer< MRField > ( grid, "visl" );
     vist  = GetFieldPointer< MRField > ( grid, "vist" );
 
     bld   = GetFieldPointer< MRField > ( grid, "bld" );
 
-    res   = FieldHome::GetResidualField( grid );
+    res   = FieldHome::GetResidualField( grid, turb );
     impsr = GetFieldPointer< MRField > ( grid, "turbimpsr" );
     cross = GetFieldPointer< MRField > ( grid, "cross" );
     len_scale = GetFieldPointer< MRField > ( grid, "len_scale" );
