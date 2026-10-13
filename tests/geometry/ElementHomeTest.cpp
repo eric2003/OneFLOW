@@ -14,7 +14,7 @@ static_assert(
 using ConstElementFaceResult = decltype(
     std::declval< const ONEFLOW::UnitElement & >().GetElementFace(0));
 using ConstPhysicsFaceResult = decltype(
-    std::declval< const ONEFLOW::UnitElement & >().GetElementPhysicsFace(0));
+    std::declval< const ONEFLOW::UnitElement & >().GetCompositeFace(0));
 using ConstMiddlePointResult = decltype(
     std::declval< const ONEFLOW::UnitElement & >()
         .GetRelatedPointListForMiddlePointCalculation(0));
@@ -121,7 +121,7 @@ TEST(UnitElementTest, DefaultConstructionStartsUninitialized)
 
     EXPECT_EQ(element.GetElementType(), -1);
     EXPECT_EQ(element.GetElementFaceNumber(), 0);
-    EXPECT_EQ(element.GetElementPhysicsFaceNumber(), 0);
+    EXPECT_EQ(element.GetCompositeFaceNumber(), 0);
     EXPECT_EQ(element.GetChildElementNumbers(), 0);
 }
 
@@ -137,14 +137,14 @@ TEST(UnitElementTest, ReinitializeReplacesThePreviousTopologyDefinition)
 
     ASSERT_EQ(element.GetElementFaceNumber(), 5);
     ASSERT_EQ(element.GetChildElementNumbers(), 1);
-    ASSERT_EQ(element.GetElementPhysicsFaceNumber(), 1);
+    ASSERT_EQ(element.GetCompositeFaceNumber(), 1);
 
     element.Initialize(ONEFLOW::BAR_2);
 
     EXPECT_EQ(element.GetElementType(), ONEFLOW::BAR_2);
     EXPECT_EQ(element.GetElementFaceNumber(), 2);
     EXPECT_EQ(element.GetChildElementNumbers(), 0);
-    EXPECT_EQ(element.GetElementPhysicsFaceNumber(), 0);
+    EXPECT_EQ(element.GetCompositeFaceNumber(), 0);
     EXPECT_EQ(
         element.GetRelatedPointListForMiddlePointCalculation(1).size(), 0);
 }
@@ -183,10 +183,10 @@ TEST(UnitElementTest, TopologyAccessorsRejectOutOfRangeIndices)
     EXPECT_THROW(element.GetRelatedPointListForMiddlePointCalculation(4),
                  std::out_of_range);
 
-    EXPECT_THROW(element.GetElementPhysicsFace(-1), std::out_of_range);
-    EXPECT_THROW(element.GetElementPhysicsFace(0), std::out_of_range);
-    EXPECT_THROW(element.GetElementPhysicsFaceType(-1), std::out_of_range);
-    EXPECT_THROW(element.GetElementPhysicsFaceType(0), std::out_of_range);
+    EXPECT_THROW(element.GetCompositeFace(-1), std::out_of_range);
+    EXPECT_THROW(element.GetCompositeFace(0), std::out_of_range);
+    EXPECT_THROW(element.GetCompositeFaceType(-1), std::out_of_range);
+    EXPECT_THROW(element.GetCompositeFaceType(0), std::out_of_range);
 
     EXPECT_THROW(element.GetChildElementRelativeNodeIndex(-1),
                  std::out_of_range);
@@ -217,7 +217,7 @@ TEST(UnitElementTest, TopologyBuildersConvertOneBasedDefinitionsToZeroBasedIndic
 
     element.PushCompositeFace(ONEFLOW::TRI_3, 3, 2, 1);
     const auto & physicsFace =
-        element.GetElementPhysicsFace(element.GetElementPhysicsFaceNumber() - 1);
+        element.GetCompositeFace(element.GetCompositeFaceNumber() - 1);
     ASSERT_EQ(physicsFace.size(), 3);
     EXPECT_EQ(physicsFace[0], 2);
     EXPECT_EQ(physicsFace[1], 1);
@@ -271,7 +271,7 @@ TEST(UnitElementTest, TopologyBuildersRejectInvalidLocalNodeIndicesWithoutMutati
 
     const int initialFaceCount = element.GetElementFaceNumber();
     const int initialChildCount = element.GetChildElementNumbers();
-    const int initialPhysicsFaceCount = element.GetElementPhysicsFaceNumber();
+    const int initialPhysicsFaceCount = element.GetCompositeFaceNumber();
 
     EXPECT_THROW(element.PushElementFace(ONEFLOW::BAR_2, 0, 2), std::out_of_range);
     EXPECT_THROW(element.PushChildElement(ONEFLOW::TRI_3, 1, 0, 3), std::out_of_range);
@@ -279,5 +279,5 @@ TEST(UnitElementTest, TopologyBuildersRejectInvalidLocalNodeIndicesWithoutMutati
 
     EXPECT_EQ(element.GetElementFaceNumber(), initialFaceCount);
     EXPECT_EQ(element.GetChildElementNumbers(), initialChildCount);
-    EXPECT_EQ(element.GetElementPhysicsFaceNumber(), initialPhysicsFaceCount);
+    EXPECT_EQ(element.GetCompositeFaceNumber(), initialPhysicsFaceCount);
 }

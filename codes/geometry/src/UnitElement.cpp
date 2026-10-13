@@ -1487,26 +1487,26 @@ void UnitElement::PushChildElement( int elementType, int p1, int p2, int p3, int
 }
 
 
-IntField & UnitElement::GetElementPhysicsFace( int iFace )
+IntField & UnitElement::GetCompositeFace( int iFace )
 {
-    CheckTopologyIndex( iFace, compositeFaceList.size(), "UnitElement::GetElementPhysicsFace: index out of range" );
+    CheckTopologyIndex( iFace, compositeFaceList.size(), "UnitElement::GetCompositeFace: index out of range" );
     return compositeFaceList[ iFace ];
 }
 
-const IntField & UnitElement::GetElementPhysicsFace( int iFace ) const
+const IntField & UnitElement::GetCompositeFace( int iFace ) const
 {
-    CheckTopologyIndex( iFace, compositeFaceList.size(), "UnitElement::GetElementPhysicsFace: index out of range" );
+    CheckTopologyIndex( iFace, compositeFaceList.size(), "UnitElement::GetCompositeFace: index out of range" );
     return compositeFaceList[ iFace ];
 }
 
-int UnitElement::GetElementPhysicsFaceType( int iFace ) const
+int UnitElement::GetCompositeFaceType( int iFace ) const
 {
-    CheckTopologyIndex( iFace, compositeFaceElementType.size(), "UnitElement::GetElementPhysicsFaceType: index out of range" );
+    CheckTopologyIndex( iFace, compositeFaceElementType.size(), "UnitElement::GetCompositeFaceType: index out of range" );
     return compositeFaceElementType[ iFace ];
 }
 
 int UnitElement::GetElementFaceNumber() const { return faceList.size(); }
-int UnitElement::GetElementPhysicsFaceNumber() const { return compositeFaceList.size(); }
+int UnitElement::GetCompositeFaceNumber() const { return compositeFaceList.size(); }
 int UnitElement::GetElementType() const { return elementType; }
 
 IntField & UnitElement::GetElementFace( int iFace )

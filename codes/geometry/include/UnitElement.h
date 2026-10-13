@@ -53,11 +53,11 @@ public:
 private:
     void BuildTopology( int elementType );
 public:
-    IntField & GetElementPhysicsFace(int iFace);
-    const IntField & GetElementPhysicsFace(int iFace) const;
-    int GetElementPhysicsFaceType(int iFace) const;
+    IntField & GetCompositeFace(int iFace);
+    const IntField & GetCompositeFace(int iFace) const;
+    int GetCompositeFaceType(int iFace) const;
     int GetElementFaceNumber() const;
-    int GetElementPhysicsFaceNumber() const;
+    int GetCompositeFaceNumber() const;
     int GetElementType() const;
     static int GetElementNodeNumbers( int elementType );
 
