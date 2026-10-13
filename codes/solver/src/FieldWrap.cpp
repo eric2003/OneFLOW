@@ -260,6 +260,27 @@ MRField * FieldHome::GetUpdateDeltaField( Grid * grid )
     return FieldHome::GetUnsField( grid, FieldHome::GetUpdateDeltaName() );
 }
 
+const std::string & FieldHome::GetBcGradName( int index )
+{
+    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( SolverState::solverType );
+    if ( index >= 0 && index < static_cast< int >( solverInfo->bcGradString.size() ) )
+    {
+        return solverInfo->bcGradString[ index ];
+    }
+    static const std::string kEmpty;
+    return kEmpty;
+}
+
+MRField * FieldHome::GetBcGradField( Grid * grid, int index )
+{
+    const std::string & name = FieldHome::GetBcGradName( index );
+    if ( name.empty() )
+    {
+        return nullptr;
+    }
+    return FieldHome::GetUnsField( grid, name );
+}
+
 MRField * FieldHome::GetUnsField( Grid * grid, const std::string & fieldName )
 {
     MRField * field = ONEFLOW::GetFieldPointer< MRField >( grid, fieldName );

@@ -37,8 +37,14 @@ public:
     int nEqu;
     int nTEqu;
     int numberOfImplicitSweeps;
+    // Historical name: [0]=solution, [1..3]=cell-center grad (dx,dy,dz).
+    // Prefer FieldHome::GetSolutionName / GetGradName; rename is a separate PR.
     StringField gradString;
+    // [0]=solution, [1]=update delta ("dq" / "turbdq"). Prefer FieldHome helpers.
     StringField implicitString;
+    // BC face gradient storage: [0]=dx, [1]=dy, [2]=dz
+    // (NS: bcdqdx/y/z, Turb: turbbcdqdx/y/z). Prefer FieldHome::GetBcGrad*.
+    StringField bcGradString;
     std::string residualName;
     std::string resFileName;
     Real residual;

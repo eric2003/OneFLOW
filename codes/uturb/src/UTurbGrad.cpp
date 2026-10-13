@@ -64,9 +64,9 @@ void UTurbGrad::Init()
     dqdy = FieldHome::GetGradField( grid, 2 );
     dqdz = FieldHome::GetGradField( grid, 3 );
 
-    bdqdx = GetFieldPointer< MRField > ( grid, "turbbcdqdx" );
-    bdqdy = GetFieldPointer< MRField > ( grid, "turbbcdqdy" );
-    bdqdz = GetFieldPointer< MRField > ( grid, "turbbcdqdz" );
+    bdqdx = FieldHome::GetBcGradField( grid, 0 );
+    bdqdy = FieldHome::GetBcGradField( grid, 1 );
+    bdqdz = FieldHome::GetBcGradField( grid, 2 );
 
     this->nEqu = turbcom.nEqu;
 

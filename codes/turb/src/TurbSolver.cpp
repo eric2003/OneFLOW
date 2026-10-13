@@ -71,6 +71,7 @@ void TurbSolver::StaticInit()
     solverInfo->resFileName = GetDataValue< std::string >( "turbresFile" );
     solverInfo->gradString.clear();
     solverInfo->implicitString.clear();
+    solverInfo->bcGradString.clear();
     solverInfo->gradString.push_back( "turbq"    );
     solverInfo->gradString.push_back( "turbdqdx" );
     solverInfo->gradString.push_back( "turbdqdy" );
@@ -78,6 +79,10 @@ void TurbSolver::StaticInit()
 
     solverInfo->implicitString.push_back( "turbq"  );
     solverInfo->implicitString.push_back( "turbdq" );
+
+    solverInfo->bcGradString.push_back( "turbbcdqdx" );
+    solverInfo->bcGradString.push_back( "turbbcdqdy" );
+    solverInfo->bcGradString.push_back( "turbbcdqdz" );
 }
 
 EndNameSpace

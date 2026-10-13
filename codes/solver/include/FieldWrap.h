@@ -93,6 +93,10 @@ public:
     // storage; that alias is independent of this name lookup.
     static const std::string & GetUpdateDeltaName();
     static MRField * GetUpdateDeltaField( Grid * grid );
+    // BC face gradient names from SolverInfo::bcGradString: [0]=dx, [1]=dy, [2]=dz.
+    // NS/INS: bcdqdx/y/z; Turb: turbbcdqdx/y/z. Out-of-range -> empty / null.
+    static const std::string & GetBcGradName( int index );
+    static MRField * GetBcGradField( Grid * grid, int index );
     static void GetSourceTargetField( Grid * grid, int fieldId, const std::string & fieldName, MRField *& sField, MRField *& tField, int orderFlag );
 };
 
@@ -111,9 +115,10 @@ public:
 //
 // Rules:
 //   1. Current-solver logistics (UNsCom, UTurbCom, U*Grad, residual tasks):
-//      use FieldHome::GetSolutionField / GetResidualField / GetGradField.
-//   2. Cross-solver coupling (turb reads NS mean flow, aero force, visualize
-//      primitive NS components with IDX::*): keep literal names ("q", "dqdx", ...).
+//      use FieldHome::GetSolutionField / GetResidualField / GetGradField /
+//      GetUpdateDeltaField / GetBcGradField.
+//   2. Cross-solver coupling (turb reads NS mean flow, aero force, visualize,
+//      Euler domain state): keep literal names ("q", "dqdx", "bcdqdx", ...).
 //   3. Derived fields not in SolverInfo (q1/q2, limiter, visl, tempr, ...):
 //      stay literal until a dedicated registry exists.
 //   4. Update delta: use GetUpdateDeltaName/GetUpdateDeltaField for the database

@@ -64,9 +64,9 @@ void UINsGrad::Init()
     dqdx = FieldHome::GetGradField( grid, 1 );
     dqdy = FieldHome::GetGradField( grid, 2 );
     dqdz = FieldHome::GetGradField( grid, 3 );
-    bdqdx = GetFieldPointer< MRField > ( grid, "bcdqdx" );
-    bdqdy = GetFieldPointer< MRField > ( grid, "bcdqdy" );
-    bdqdz = GetFieldPointer< MRField > ( grid, "bcdqdz" );
+    bdqdx = FieldHome::GetBcGradField( grid, 0 );
+    bdqdy = FieldHome::GetBcGradField( grid, 1 );
+    bdqdz = FieldHome::GetBcGradField( grid, 2 );
 
     this->nEqu = nscom.nTEqu;
 

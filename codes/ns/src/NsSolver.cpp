@@ -60,6 +60,7 @@ void NsSolver::StaticInit()
     solverInfo->residualName = "res";
     solverInfo->gradString.clear();
     solverInfo->implicitString.clear();
+    solverInfo->bcGradString.clear();
     solverInfo->resFileName = GetDataValue< std::string >( "resFile" );
     solverInfo->gradString.push_back( "q"    );
     solverInfo->gradString.push_back( "dqdx" );
@@ -68,6 +69,10 @@ void NsSolver::StaticInit()
 
     solverInfo->implicitString.push_back( "q"  );
     solverInfo->implicitString.push_back( "dq" );
+
+    solverInfo->bcGradString.push_back( "bcdqdx" );
+    solverInfo->bcGradString.push_back( "bcdqdy" );
+    solverInfo->bcGradString.push_back( "bcdqdz" );
 }
 
 EndNameSpace

@@ -53,9 +53,9 @@ void UNsField::Init()
     dtdy  = GetFieldPointer< MRField > ( grid, "dtdy" );
     dtdz  = GetFieldPointer< MRField > ( grid, "dtdz" );
     bc_q    = GetFieldPointer< MRField > ( grid, "bc_q" );
-    bcdqdx  = GetFieldPointer< MRField > ( grid, "bcdqdx" );
-    bcdqdy  = GetFieldPointer< MRField > ( grid, "bcdqdy" );
-    bcdqdz  = GetFieldPointer< MRField > ( grid, "bcdqdz" );
+    bcdqdx  = FieldHome::GetBcGradField( grid, 0 );
+    bcdqdy  = FieldHome::GetBcGradField( grid, 1 );
+    bcdqdz  = FieldHome::GetBcGradField( grid, 2 );
 
     visl  = GetFieldPointer< MRField > ( grid, "visl" );
     vist  = GetFieldPointer< MRField > ( grid, "vist" );
