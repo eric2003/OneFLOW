@@ -107,6 +107,17 @@ int UnitElement::GetElementNodeNumbers( int elementType ) const
 
 void UnitElement::Initialize( int elementType )
 {
+    // Initialization replaces the complete topology definition; it must not
+    // append to data left by an earlier initialization.
+    nodeId.clear();
+    middlePointStruct.clear();
+    childElementIndex.clear();
+    childElementType.clear();
+    faceTypeContainer.clear();
+    faceList.clear();
+    compositeFaceElementType.clear();
+    compositeFaceList.clear();
+
     this->elementType = elementType;
 
     int elementNodeNumbers = this->GetElementNodeNumbers( elementType );
