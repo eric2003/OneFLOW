@@ -13,7 +13,7 @@ static_assert(
 
 using ConstElementFaceResult = decltype(
     std::declval< const ONEFLOW::UnitElement & >().GetElementFace(0));
-using ConstPhysicsFaceResult = decltype(
+using ConstCompositeFaceResult = decltype(
     std::declval< const ONEFLOW::UnitElement & >().GetCompositeFace(0));
 using ConstMiddlePointResult = decltype(
     std::declval< const ONEFLOW::UnitElement & >()
@@ -26,8 +26,8 @@ static_assert(
     std::is_const_v<std::remove_reference_t<ConstElementFaceResult>>,
     "Reading a face from a const unit element must not expose mutable topology");
 static_assert(
-    std::is_const_v<std::remove_reference_t<ConstPhysicsFaceResult>>,
-    "Reading a physics face from a const unit element must not expose mutable topology");
+    std::is_const_v<std::remove_reference_t<ConstCompositeFaceResult>>,
+    "Reading a composite face from a const unit element must not expose mutable topology");
 static_assert(
     std::is_const_v<std::remove_reference_t<ConstMiddlePointResult>>,
     "Reading middle-point relations from a const unit element must be read-only");
@@ -216,12 +216,12 @@ TEST(UnitElementTest, TopologyBuildersConvertOneBasedDefinitionsToZeroBasedIndic
     EXPECT_EQ(childNodes[2], 0);
 
     element.PushCompositeFace(ONEFLOW::TRI_3, 3, 2, 1);
-    const auto & physicsFace =
+    const auto & compositeFace =
         element.GetCompositeFace(element.GetCompositeFaceNumber() - 1);
-    ASSERT_EQ(physicsFace.size(), 3);
-    EXPECT_EQ(physicsFace[0], 2);
-    EXPECT_EQ(physicsFace[1], 1);
-    EXPECT_EQ(physicsFace[2], 0);
+    ASSERT_EQ(compositeFace.size(), 3);
+    EXPECT_EQ(compositeFace[0], 2);
+    EXPECT_EQ(compositeFace[1], 1);
+    EXPECT_EQ(compositeFace[2], 0);
 
     element.PushMiddlePoint(4, 1, 2);
     const auto & relatedNodes =
@@ -271,7 +271,7 @@ TEST(UnitElementTest, TopologyBuildersRejectInvalidLocalNodeIndicesWithoutMutati
 
     const int initialFaceCount = element.GetElementFaceNumber();
     const int initialChildCount = element.GetChildElementNumbers();
-    const int initialPhysicsFaceCount = element.GetCompositeFaceNumber();
+    const int initialCompositeFaceCount = element.GetCompositeFaceNumber();
 
     EXPECT_THROW(element.PushElementFace(ONEFLOW::BAR_2, 0, 2), std::out_of_range);
     EXPECT_THROW(element.PushChildElement(ONEFLOW::TRI_3, 1, 0, 3), std::out_of_range);
@@ -279,5 +279,5 @@ TEST(UnitElementTest, TopologyBuildersRejectInvalidLocalNodeIndicesWithoutMutati
 
     EXPECT_EQ(element.GetElementFaceNumber(), initialFaceCount);
     EXPECT_EQ(element.GetChildElementNumbers(), initialChildCount);
-    EXPECT_EQ(element.GetCompositeFaceNumber(), initialPhysicsFaceCount);
+    EXPECT_EQ(element.GetCompositeFaceNumber(), initialCompositeFaceCount);
 }
