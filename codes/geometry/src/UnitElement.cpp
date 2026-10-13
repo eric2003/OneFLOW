@@ -1450,25 +1450,88 @@ void UnitElement::PushChildElement( int elementType, int p1, int p2, int p3, int
 }
 
 
-IntField & UnitElement::GetElementPhysicsFace(int iFace) { return compositeFaceList[iFace]; };
-const IntField & UnitElement::GetElementPhysicsFace(int iFace) const { return compositeFaceList[iFace]; };
-int UnitElement::GetElementPhysicsFaceType(int iFace) const { return compositeFaceElementType[iFace]; }
+namespace
+{
+void CheckTopologyIndex( int index, std::size_t size, const char * accessor )
+{
+    if ( index < 0 || static_cast< std::size_t >( index ) >= size )
+    {
+        throw std::out_of_range( accessor );
+    }
+}
+}
+
+IntField & UnitElement::GetElementPhysicsFace( int iFace )
+{
+    CheckTopologyIndex( iFace, compositeFaceList.size(), "UnitElement::GetElementPhysicsFace: index out of range" );
+    return compositeFaceList[ iFace ];
+}
+
+const IntField & UnitElement::GetElementPhysicsFace( int iFace ) const
+{
+    CheckTopologyIndex( iFace, compositeFaceList.size(), "UnitElement::GetElementPhysicsFace: index out of range" );
+    return compositeFaceList[ iFace ];
+}
+
+int UnitElement::GetElementPhysicsFaceType( int iFace ) const
+{
+    CheckTopologyIndex( iFace, compositeFaceElementType.size(), "UnitElement::GetElementPhysicsFaceType: index out of range" );
+    return compositeFaceElementType[ iFace ];
+}
+
 int UnitElement::GetElementFaceNumber() const { return faceList.size(); }
 int UnitElement::GetElementPhysicsFaceNumber() const { return compositeFaceList.size(); }
-int UnitElement::GetElementType() const { return elementType; };
+int UnitElement::GetElementType() const { return elementType; }
 
+IntField & UnitElement::GetElementFace( int iFace )
+{
+    CheckTopologyIndex( iFace, faceList.size(), "UnitElement::GetElementFace: index out of range" );
+    return faceList[ iFace ];
+}
 
-IntField & UnitElement::GetElementFace(int iFace) { return faceList[iFace]; };
-const IntField & UnitElement::GetElementFace(int iFace) const { return faceList[iFace]; };
-int UnitElement::GetFaceType(int iFace) const { return faceTypeContainer[iFace]; };
+const IntField & UnitElement::GetElementFace( int iFace ) const
+{
+    CheckTopologyIndex( iFace, faceList.size(), "UnitElement::GetElementFace: index out of range" );
+    return faceList[ iFace ];
+}
 
-IntField & UnitElement::GetRelatedPointListForMiddlePointCalcutation(int iMiddlePoint) { return middlePointStruct[iMiddlePoint]; }
-const IntField & UnitElement::GetRelatedPointListForMiddlePointCalcutation(int iMiddlePoint) const { return middlePointStruct[iMiddlePoint]; }
-IntField & UnitElement::GetChildElementRelativeNodeIndex(int iChildElement) { return childElementIndex[iChildElement]; };
-const IntField & UnitElement::GetChildElementRelativeNodeIndex(int iChildElement) const { return childElementIndex[iChildElement]; };
+int UnitElement::GetFaceType( int iFace ) const
+{
+    CheckTopologyIndex( iFace, faceTypeContainer.size(), "UnitElement::GetFaceType: index out of range" );
+    return faceTypeContainer[ iFace ];
+}
 
-int UnitElement::GetChildElementNumbers() const { return childElementType.size(); };
-int UnitElement::GetChildElementType(int iChild) const { return childElementType[iChild]; }
+IntField & UnitElement::GetRelatedPointListForMiddlePointCalcutation( int iMiddlePoint )
+{
+    CheckTopologyIndex( iMiddlePoint, middlePointStruct.size(), "UnitElement::GetRelatedPointListForMiddlePointCalcutation: index out of range" );
+    return middlePointStruct[ iMiddlePoint ];
+}
+
+const IntField & UnitElement::GetRelatedPointListForMiddlePointCalcutation( int iMiddlePoint ) const
+{
+    CheckTopologyIndex( iMiddlePoint, middlePointStruct.size(), "UnitElement::GetRelatedPointListForMiddlePointCalcutation: index out of range" );
+    return middlePointStruct[ iMiddlePoint ];
+}
+
+IntField & UnitElement::GetChildElementRelativeNodeIndex( int iChildElement )
+{
+    CheckTopologyIndex( iChildElement, childElementIndex.size(), "UnitElement::GetChildElementRelativeNodeIndex: index out of range" );
+    return childElementIndex[ iChildElement ];
+}
+
+const IntField & UnitElement::GetChildElementRelativeNodeIndex( int iChildElement ) const
+{
+    CheckTopologyIndex( iChildElement, childElementIndex.size(), "UnitElement::GetChildElementRelativeNodeIndex: index out of range" );
+    return childElementIndex[ iChildElement ];
+}
+
+int UnitElement::GetChildElementNumbers() const { return childElementType.size(); }
+
+int UnitElement::GetChildElementType( int iChild ) const
+{
+    CheckTopologyIndex( iChild, childElementType.size(), "UnitElement::GetChildElementType: index out of range" );
+    return childElementType[ iChild ];
+}
 
 void UnitElement::PushChildElement( int elementType, int p1, int p2, int p3, int p4, int p5, int p6, int p7, int p8 )
 {
