@@ -244,3 +244,4 @@ target_compile_definitions(GridLayoutParserTest PRIVATE ONEFLOW_SOURCE_DIR="${CM
 target_compile_definitions(GridLayoutGenerationTest PRIVATE ONEFLOW_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
 
 add_oneflow_gtest(CellTopoConnectivityTest CellTopoConnectivityTest.cpp)
+add_oneflow_gtest(ElementHomeTest ElementHomeTest.cpp)
