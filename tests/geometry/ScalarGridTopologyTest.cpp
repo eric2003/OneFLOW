@@ -1091,6 +1091,10 @@ TEST( ElementDimensionTest, RegistryRejectsOutOfRangeElementTypes )
     EXPECT_THROW(
         ONEFLOW::GetElementNodeNumbers( ONEFLOW::ElementHome::GetNumberOfUnitElements() ),
         std::out_of_range );
+
+    EXPECT_FALSE( ONEFLOW::IsBasicVolumeElementType( -1 ) );
+    EXPECT_FALSE( ONEFLOW::IsBasicVolumeElementType(
+        ONEFLOW::ElementHome::GetNumberOfUnitElements() ) );
 }
 
 TEST( ElementDimensionTest, RegistryDistinguishesUnsupportedSlotsFromOutOfRangeIndices )
@@ -1105,6 +1109,7 @@ TEST( ElementDimensionTest, RegistryDistinguishesUnsupportedSlotsFromOutOfRangeI
         foundUnsupportedSlot = true;
         EXPECT_EQ( ONEFLOW::GetElementNodeNumbers( elementType ), 0 );
         EXPECT_EQ( ONEFLOW::GetElementDimension( elementType ), -1 );
+        EXPECT_FALSE( ONEFLOW::IsBasicVolumeElementType( elementType ) );
         EXPECT_THROW(
             ONEFLOW::ElementHome::GetUnitElement( elementType ),
             std::out_of_range );
@@ -1123,6 +1128,7 @@ TEST( ElementDimensionTest, RegistryFreeClearsStorageAndCanBeReinitialized )
 
     EXPECT_EQ( ONEFLOW::ElementHome::GetNumberOfUnitElements(), 0 );
     EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::BAR_2 ), -1 );
+    EXPECT_FALSE( ONEFLOW::IsBasicVolumeElementType( ONEFLOW::BAR_2 ) );
     EXPECT_THROW(
         ONEFLOW::ElementHome::GetUnitElement( ONEFLOW::BAR_2 ),
         std::out_of_range );
