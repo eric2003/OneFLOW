@@ -299,9 +299,9 @@ const std::string & FieldHome::GetBcGradName( int index )
 const std::string & FieldHome::GetBcGradName( int solverType, int index )
 {
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
-    if ( index >= 0 && index < static_cast< int >( solverInfo->bcGradString.size() ) )
+    if ( index >= 0 && index < static_cast< int >( solverInfo->bcGradFieldNames.size() ) )
     {
-        return solverInfo->bcGradString[ index ];
+        return solverInfo->bcGradFieldNames[ index ];
     }
     static const std::string kEmpty;
     return kEmpty;

@@ -71,7 +71,7 @@ void TurbSolver::StaticInit()
     solverInfo->resFileName = GetDataValue< std::string >( "turbresFile" );
     solverInfo->solutionGradNames.clear();
     solverInfo->implicitFieldNames.clear();
-    solverInfo->bcGradString.clear();
+    solverInfo->bcGradFieldNames.clear();
     solverInfo->solutionGradNames.push_back( "turbq"    );
     solverInfo->solutionGradNames.push_back( "turbdqdx" );
     solverInfo->solutionGradNames.push_back( "turbdqdy" );
@@ -80,9 +80,9 @@ void TurbSolver::StaticInit()
     solverInfo->implicitFieldNames.push_back( "turbq"  );
     solverInfo->implicitFieldNames.push_back( "turbdq" );
 
-    solverInfo->bcGradString.push_back( "turbbcdqdx" );
-    solverInfo->bcGradString.push_back( "turbbcdqdy" );
-    solverInfo->bcGradString.push_back( "turbbcdqdz" );
+    solverInfo->bcGradFieldNames.push_back( "turbbcdqdx" );
+    solverInfo->bcGradFieldNames.push_back( "turbbcdqdy" );
+    solverInfo->bcGradFieldNames.push_back( "turbbcdqdz" );
     solverInfo->limiterName = "turblimiter";
     solverInfo->bcSolutionName.clear();
 }

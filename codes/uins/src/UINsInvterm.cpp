@@ -32,6 +32,7 @@ License
 #include "UnsGrid.h"
 #include "DataBase.h"
 #include "FieldWrap.h"
+#include "SolverDef.h"
 #include "UCom.h"
 #include "UINsCom.h"
 #include "INsCom.h"
@@ -732,7 +733,7 @@ void UINsInvterm::CalcINsMomRes()
 void UINsInvterm::AddFlux()
 {
 	UnsGrid* grid = Zone::GetUnsGrid();
-	MRField * res = FieldHome::GetResidualField( grid );
+	MRField * res = FieldHome::GetResidualField( grid, INC_NS_SOLVER );
 	int nEqu = res->GetNEqu();
 	for (int fId = 0; fId < ug.nBFaces; ++fId)
 	{

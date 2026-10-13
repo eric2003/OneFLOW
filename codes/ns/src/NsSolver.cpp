@@ -60,7 +60,7 @@ void NsSolver::StaticInit()
     solverInfo->residualName = "res";
     solverInfo->solutionGradNames.clear();
     solverInfo->implicitFieldNames.clear();
-    solverInfo->bcGradString.clear();
+    solverInfo->bcGradFieldNames.clear();
     solverInfo->resFileName = GetDataValue< std::string >( "resFile" );
     solverInfo->solutionGradNames.push_back( "q"    );
     solverInfo->solutionGradNames.push_back( "dqdx" );
@@ -70,9 +70,9 @@ void NsSolver::StaticInit()
     solverInfo->implicitFieldNames.push_back( "q"  );
     solverInfo->implicitFieldNames.push_back( "dq" );
 
-    solverInfo->bcGradString.push_back( "bcdqdx" );
-    solverInfo->bcGradString.push_back( "bcdqdy" );
-    solverInfo->bcGradString.push_back( "bcdqdz" );
+    solverInfo->bcGradFieldNames.push_back( "bcdqdx" );
+    solverInfo->bcGradFieldNames.push_back( "bcdqdy" );
+    solverInfo->bcGradFieldNames.push_back( "bcdqdz" );
     solverInfo->limiterName = "limiter";
     solverInfo->bcSolutionName = "bc_q";
 }

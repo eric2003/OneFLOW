@@ -32,6 +32,7 @@ License
 #include "UnsGrid.h"
 #include "DataBase.h"
 #include "FieldWrap.h"
+#include "SolverDef.h"
 #include "UCom.h"
 #include "UTurbCom.h"
 #include "UNsCom.h"
@@ -87,7 +88,7 @@ void UTurbInvFlux::BoundaryQlQrFixField()
 void UTurbInvFlux::AddInvFlux()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
-    MRField * res = FieldHome::GetResidualField( grid );
+    MRField * res = FieldHome::GetResidualField( grid, TURB_SOLVER );
 
     ONEFLOW::AddF2CField( res, invflux.get() );
 }
