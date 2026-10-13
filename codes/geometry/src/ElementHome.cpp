@@ -94,16 +94,18 @@ int GetElementNodeNumbers( int eType )
         throw std::out_of_range( "GetElementNodeNumbers: element type is out of range" );
     }
 
+    UnitElement * unitElement = nullptr;
     try
     {
-        UnitElement & unitElement = ElementHome::GetUnitElement( eType );
-        return unitElement.GetElementNodeNumbers( eType );
+        unitElement = &ElementHome::GetUnitElement( eType );
     }
     catch ( const std::out_of_range & )
     {
         // The enum value is in range, but this type has no registered definition.
         return 0;
     }
+
+    return unitElement->GetElementNodeNumbers( eType );
 }
 
 int GetElementDimension( int eType )
