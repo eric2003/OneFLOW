@@ -29,20 +29,34 @@ BeginNameSpace( ONEFLOW )
 
 class ElementHome
 {
+private:
+    ElementHome() = delete;
+    ~ElementHome() = delete;
+
+    ElementHome( const ElementHome & ) = delete;
+    ElementHome & operator=( const ElementHome & ) = delete;
+
+    ElementHome( ElementHome && ) = delete;
+    ElementHome & operator=( ElementHome && ) = delete;
+
+private:
+    static HXVector< std::unique_ptr< UnitElement > > unitElements;
 public:
-    ElementHome() = default;
-    ~ElementHome() = default;
+    static int GetNumberOfUnitElements();
+    static bool HasUnitElement( int elementType );
+
+    // Returned references are owned by the registry. Initialize() and Free()
+    // invalidate all references previously returned by either accessor.
+    static const UnitElement & GetUnitElementDefinition( int elementType );
 public:
-    static HXVector< std::unique_ptr< UnitElement > > unitElement;
-    static int numberOfUnitElement;
-public:
-    static UnitElement & GetUnitElement( int elementType );
-public:
+    // Initialize() builds a replacement registry before publishing it.
+    // Free() clears the registry and invalidates all references to its entries.
     static void Initialize();
     static void Free();
 };
 
 int GetElementNodeNumbers( int eType );
+int GetElementDimension( int eType );
 bool IsBasicVolumeElementType( int eType );
 
 EndNameSpace

@@ -38,7 +38,7 @@ public:
     UnitElement() = default;
     ~UnitElement() = default;
 public:
-    int elementType;
+    int elementType = -1;
     IntField nodeId;
     LinkField middlePointStruct; //Midpoint data structure
     LinkField childElementIndex;
@@ -72,8 +72,12 @@ public:
     const IntField & GetElementFace(int iFace) const;
     int GetFaceType(int iFace) const;
 
-    IntField & GetRelatedPointListForMiddlePointCalcutation(int iMiddlePoint);
-    const IntField & GetRelatedPointListForMiddlePointCalcutation(int iMiddlePoint) const;
+    IntField & GetRelatedPointListForMiddlePointCalculation( int iMiddlePoint );
+    const IntField & GetRelatedPointListForMiddlePointCalculation( int iMiddlePoint ) const;
+
+    // Compatibility wrappers; use the correctly spelled API for new code.
+    IntField & GetRelatedPointListForMiddlePointCalcutation( int iMiddlePoint );
+    const IntField & GetRelatedPointListForMiddlePointCalcutation( int iMiddlePoint ) const;
 
     IntField & GetChildElementRelativeNodeIndex(int iChildElement);
     const IntField & GetChildElementRelativeNodeIndex(int iChildElement) const;

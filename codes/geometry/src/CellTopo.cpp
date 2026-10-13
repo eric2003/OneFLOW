@@ -86,26 +86,57 @@ void CellTopo::CalcC2f( FaceTopo & faceTopo )
 {
     if ( c2f.size() != 0 ) return;
 
-    int nCells = this->GetNumberOfCells();
-    int nBFaces = faceTopo.GetNBFaces();
-    int nFaces = faceTopo.GetNFaces();
-    int nTCell = nCells + nBFaces;
-    //c2f.resize( nCells );
-    c2f.resize( nTCell ); //add boundary cell for incompressible ns
+    const HXSize_t nCells = this->GetNumberOfCells();
+    const HXSize_t nBFaces = faceTopo.GetNBFaces();
+    const HXSize_t nFaces = faceTopo.GetNFaces();
+    const IntField & leftCells = faceTopo.GetLeftCells();
+    const IntField & rightCells = faceTopo.GetRightCells();
 
-    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
+    if ( nBFaces > nFaces ||
+         leftCells.size() != nFaces ||
+         rightCells.size() != nFaces )
     {
-        int lc  = faceTopo.GetLeftCells()[iFace];
-        c2f[ lc  ].push_back( iFace );
+        throw std::logic_error(
+            "CellTopo::CalcC2f: inconsistent face-cell topology sizes" );
     }
 
-    for ( int iFace = nBFaces; iFace < nFaces; ++ iFace )
+    // Build derived adjacency separately so invalid input cannot leave a
+    // partially populated cache behind.
+    LinkField nextC2f;
+    nextC2f.resize( nCells + nBFaces );
+
+    for ( HXSize_t iFace = 0; iFace < nFaces; ++ iFace )
     {
-        int lc  = faceTopo.GetLeftCells()[ iFace ];
-        int rc  = faceTopo.GetRightCells()[iFace];
-        c2f[ lc ].push_back( iFace );
-        c2f[ rc ].push_back( iFace );
+        const int leftCell = leftCells[ iFace ];
+        if ( leftCell < 0 ||
+             static_cast< HXSize_t >( leftCell ) >= nCells )
+        {
+            throw std::out_of_range(
+                "CellTopo::CalcC2f: left cell ID is out of range" );
+        }
+
+        nextC2f[ leftCell ].push_back( static_cast< int >( iFace ) );
+
+        if ( iFace >= nBFaces )
+        {
+            const int rightCell = rightCells[ iFace ];
+            if ( rightCell < 0 ||
+                 static_cast< HXSize_t >( rightCell ) >= nCells )
+            {
+                throw std::out_of_range(
+                    "CellTopo::CalcC2f: internal-face right cell ID is out of range" );
+            }
+            if ( rightCell == leftCell )
+            {
+                throw std::logic_error(
+                    "CellTopo::CalcC2f: internal face must connect distinct cells" );
+            }
+
+            nextC2f[ rightCell ].push_back( static_cast< int >( iFace ) );
+        }
     }
+
+    c2f = nextC2f;
 }
 
 void CellTopo::CalcC2C( FaceTopo & faceTopo )

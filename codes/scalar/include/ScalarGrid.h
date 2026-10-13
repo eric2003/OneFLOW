@@ -43,6 +43,7 @@ public:
 public:
     size_t GetNElements() const;
     void AddData( Real value );
+    void Reserve( int new_capacity );
     Real operator [] ( int i ) const
     {
         return data[ i ];
@@ -217,6 +218,7 @@ private:
     void ResetMeshData();
     void ResetTopologyData();
     void ResetGeometryData();
+    void ValidateFaceTopology( const char * operation ) const;
     std::vector< IntSet > CollectBoundaryVertexSets( int nodeCount ) const;
     std::unique_ptr< DataBase > dataBase;
 public:

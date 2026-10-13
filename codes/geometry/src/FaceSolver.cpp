@@ -237,21 +237,21 @@ void FaceSolver::ScanPolyhedronElement( CgnsSection & cgnsSection )
 
 void FaceSolver::ScanElementFace( CgIntField & eNodeId, int eType, int eId )
 {
-    UnitElement & unitElement = ElementHome::GetUnitElement( eType );
+    const UnitElement & elementDefinition = ElementHome::GetUnitElementDefinition( eType );
 
-    //composite Element not to be involved in analysis !!!
-    int nElemFace = unitElement.faceList.size();
-    for ( int iFace = 0; iFace < nElemFace; ++ iFace )
+    // Composite elements are not involved in this analysis.
+    const int numberOfElementFaces = static_cast< int >( elementDefinition.faceList.size() );
+    for ( int localFaceIndex = 0; localFaceIndex < numberOfElementFaces; ++ localFaceIndex )
     {
-        IntField & rNodeId = unitElement.faceList[ iFace ];
-        int fType = unitElement.GetFaceType( iFace );
+        const IntField & localFaceNodeIndices = elementDefinition.faceList[ localFaceIndex ];
+        const int faceType = elementDefinition.GetFaceType( localFaceIndex );
          
-        int nNodes = rNodeId.size();
+        int nNodes = localFaceNodeIndices.size();
 
         IntField aNodeId;
         for ( int iNode = 0; iNode < nNodes; ++ iNode )
         {
-            aNodeId.push_back( eNodeId[ rNodeId[ iNode ] ] );
+            aNodeId.push_back( eNodeId[ localFaceNodeIndices[ iNode ] ] );
         }                                                              
 
         auto [gFid, isNew]  = this->faceLookup.FindOrAdd( aNodeId );
@@ -265,7 +265,7 @@ void FaceSolver::ScanElementFace( CgIntField & eNodeId, int eType, int eId )
 
             this->faceBcType.push_back( ONEFLOW::INVALID_INDEX );
             this->faceBcKey.push_back( ONEFLOW::INVALID_INDEX );
-            this->faceTopo->GetFaceTypes().push_back( fType );
+            this->faceTopo->GetFaceTypes().push_back( faceType );
 
             this->faceTopo->GetFaces().push_back( aNodeId );
             this->childFid.resize( totalfn );

@@ -141,24 +141,24 @@ TopoSort::~TopoSort()
     ;
 }
 
-void TopoSort::GetElementFace( UnitElement * unitElement, std::vector< int > & element, int facePos, std::vector< int > & face, int & faceType )
+void TopoSort::GetElementFace( const UnitElement * elementDefinition, std::vector< int > & element, int facePos, std::vector< int > & face, int & faceType )
 {
     //unit_face -> real_face mapping
     //for instance 0,1,2,3->1001,1002,1003,1004
-    IntField & unit_face = unitElement->GetElementFace( facePos );
-    faceType = unitElement->GetFaceType( facePos );
-    int numberOfFacePoints = unit_face.size();
+    const IntField & localFaceNodes = elementDefinition->GetElementFace( facePos );
+    faceType = elementDefinition->GetFaceType( facePos );
+    int numberOfFacePoints = static_cast< int >( localFaceNodes.size() );
     face.resize( 0 );
     for ( int iFacePoint = 0; iFacePoint < numberOfFacePoints; ++ iFacePoint )
     {
-        face.push_back( element[ unit_face[ iFacePoint ] ] );
+        face.push_back( element[ localFaceNodes[ iFacePoint ] ] );
     }
 }
 
-void TopoSort::AddSingleFace( UnitElement * unitElement, std::vector< int > & element, int facePos, int iCell )
+void TopoSort::AddSingleFace( const UnitElement * elementDefinition, std::vector< int > & element, int facePos, int iCell )
 {
     int faceType;
-    this->GetElementFace( unitElement, element, facePos, this->real_face, faceType );
+    this->GetElementFace( elementDefinition, element, facePos, this->real_face, faceType );
 
     IdTool::IDSMap::iterator iter = faceIdTool.FindIds( this->real_face, faceType );
     if ( faceIdTool.NotFind( iter ) )
@@ -192,16 +192,13 @@ void TopoSort::AddNewFace( int iCell, int face_pos, int faceType )
 
 void TopoSort::AddElementFaces( std::vector< int > & element, int eType, int iCell )
 {
-    UnitElement & unitElement = ElementHome::GetUnitElement( eType );
+    const UnitElement & elementDefinition = ElementHome::GetUnitElementDefinition( eType );
 
-    int numberOfFaceInElement = unitElement.GetElementFaceNumber();
+    const int numberOfFaces = elementDefinition.GetElementFaceNumber();
 
-    for ( int iLocalFace = 0; iLocalFace < numberOfFaceInElement; ++ iLocalFace )
+    for ( int localFaceIndex = 0; localFaceIndex < numberOfFaces; ++ localFaceIndex )
     {
-        IntField & face = unitElement.GetElementFace( iLocalFace );
-        int faceType = unitElement.GetFaceType( iLocalFace );
-
-        this->AddSingleFace( &unitElement, element, iLocalFace, iCell );
+        this->AddSingleFace( &elementDefinition, element, localFaceIndex, iCell );
     }
 }
 

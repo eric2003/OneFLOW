@@ -1,11 +1,15 @@
 #include <gtest/gtest.h>
 #include <stdexcept>
+#include <limits>
+#include <cmath>
 
 #include "ScalarGrid.h"
 #include "Boundary.h"
 #include "ScalarIFace.h"
 #include "DataBook.h"
 #include "DataBaseIO.h"
+#include "Constant.h"
+#include "ElementHome.h"
 
 TEST(ScalarGridTopologyTest, CalcC2CRejectsInvalidInternalCellReferences)
 {
@@ -320,6 +324,49 @@ TEST( ScalarGridTopologyTest, NormalizeBcRejectsConnectivitySizeMismatch )
     EXPECT_EQ( grid.rc[ 1 ], -1 );
 }
 
+TEST( ScalarGridTopologyTest, WriteGridFaceTopologyRejectsInconsistentParallelArrays )
+{
+    ONEFLOW::ScalarGrid grid;
+    grid.nNodes = 2;
+    grid.nCells = 1;
+    grid.nFaces = 1;
+    grid.xn.AddData( 0.0 );
+    grid.xn.AddData( 1.0 );
+    grid.yn.AddData( 0.0 );
+    grid.yn.AddData( 0.0 );
+    grid.zn.AddData( 0.0 );
+    grid.zn.AddData( 0.0 );
+    grid.faces.AddElem( std::vector< int >{ 0 } );
+    grid.lc.AddData( 0 );
+    grid.rc.AddData( -1 );
+    // fTypes intentionally remains empty to violate the face-record invariant.
+
+    ONEFLOW::DataBook databook;
+    EXPECT_THROW( grid.WriteGridFaceTopology( &databook ), std::logic_error );
+}
+
+TEST( ScalarGridTopologyTest, WriteGridFaceTopologyRejectsDuplicateNodeIndices )
+{
+    ONEFLOW::ScalarGrid grid;
+    grid.nNodes = 2;
+    grid.nCells = 1;
+    grid.nFaces = 1;
+    grid.xn.AddData( 0.0 );
+    grid.xn.AddData( 1.0 );
+    grid.yn.AddData( 0.0 );
+    grid.yn.AddData( 0.0 );
+    grid.zn.AddData( 0.0 );
+    grid.zn.AddData( 0.0 );
+    grid.eTypes.AddData( ONEFLOW::BAR_2 );
+    grid.faces.AddElem( std::vector< int >{ 0, 0 } );
+    grid.fTypes.AddData( ONEFLOW::NODE );
+    grid.lc.AddData( 0 );
+    grid.rc.AddData( -1 );
+
+    ONEFLOW::DataBook databook;
+    EXPECT_THROW( grid.WriteGridFaceTopology( &databook ), std::logic_error );
+}
+
 TEST( ScalarGridTopologyTest, ReadGridFaceTopologyRejectsEmptyFace )
 {
     ONEFLOW::ScalarGrid grid;
@@ -335,6 +382,97 @@ TEST( ScalarGridTopologyTest, ReadGridFaceTopologyRejectsEmptyFace )
     databook.MoveToBegin();
 
     EXPECT_THROW( grid.ReadGridFaceTopology( &databook ), std::runtime_error );
+}
+
+TEST( ScalarGridTopologyTest, WriteGridFaceTopologyRejectsSelfConnectedFace )
+{
+    ONEFLOW::ScalarGrid grid;
+    grid.nNodes = 1;
+    grid.nCells = 1;
+    grid.nFaces = 1;
+    grid.xn.AddData( 0.0 );
+    grid.yn.AddData( 0.0 );
+    grid.zn.AddData( 0.0 );
+    grid.eTypes.AddData( ONEFLOW::BAR_2 );
+    grid.faces.AddElem( std::vector< int >{ 0 } );
+    grid.fTypes.AddData( ONEFLOW::NODE );
+    grid.lc.AddData( 0 );
+    grid.rc.AddData( 0 );
+
+    ONEFLOW::DataBook databook;
+    EXPECT_THROW( grid.WriteGridFaceTopology( &databook ), std::logic_error );
+}
+
+TEST( ScalarGridTopologyTest, FaceTopologyRoundTripReconstructsBoundaryGhostCells )
+{
+    ONEFLOW::ScalarGrid source;
+    source.nNodes = 2;
+    source.nCells = 1;
+    source.nFaces = 2;
+    source.nBFaces = 2;
+    source.xn.AddData( 0.0 );
+    source.xn.AddData( 1.0 );
+    source.yn.AddData( 0.0 );
+    source.yn.AddData( 0.0 );
+    source.zn.AddData( 0.0 );
+    source.zn.AddData( 0.0 );
+    source.eTypes.AddData( ONEFLOW::BAR_2 );
+    source.faces.AddElem( std::vector< int >{ 0 } );
+    source.faces.AddElem( std::vector< int >{ 1 } );
+    source.fTypes.AddData( ONEFLOW::NODE );
+    source.fTypes.AddData( ONEFLOW::NODE );
+    source.lc.AddData( 0 );
+    source.lc.AddData( 0 );
+    // These right-cell IDs are derived by NormalizeBc, not persisted topology.
+    source.rc.AddData( 1 );
+    source.rc.AddData( 2 );
+    source.bcTypes.AddData( 0 );
+    source.bcTypes.AddData( 0 );
+
+    ONEFLOW::DataBook databook;
+    source.WriteGridFaceTopology( &databook );
+    databook.MoveToBegin();
+
+    ONEFLOW::ScalarGrid restored;
+    restored.nNodes = 2;
+    restored.nCells = 1;
+    restored.nFaces = 2;
+    restored.ReadGridFaceTopology( &databook );
+
+    ASSERT_EQ( restored.rc.GetNElements(), 2u );
+    EXPECT_EQ( restored.rc[ 0 ], -1 );
+    EXPECT_EQ( restored.rc[ 1 ], -1 );
+
+    restored.nBFaces = 2;
+    restored.NormalizeBc();
+    EXPECT_EQ( restored.rc[ 0 ], 1 );
+    EXPECT_EQ( restored.rc[ 1 ], 2 );
+}
+
+TEST( ScalarGridTopologyTest, ReadGridFaceTopologyRejectsSelfConnectedFace )
+{
+    ONEFLOW::ScalarGrid grid;
+    grid.nNodes = 1;
+    grid.nCells = 1;
+    grid.nFaces = 1;
+
+    ONEFLOW::DataBook databook;
+    const ONEFLOW::IntField faceTypes{ ONEFLOW::NODE };
+    const ONEFLOW::IntField faceNodeCounts{ 1 };
+    const ONEFLOW::IntField faceNodeIds{ 0 };
+    const ONEFLOW::IntField leftCells{ 0 };
+    const ONEFLOW::IntField rightCells{ 0 };
+    ONEFLOW::HXWrite( &databook, faceTypes );
+    ONEFLOW::HXWrite( &databook, faceNodeCounts );
+    ONEFLOW::HXWrite( &databook, faceNodeIds );
+    ONEFLOW::HXWrite( &databook, leftCells );
+    ONEFLOW::HXWrite( &databook, rightCells );
+    databook.MoveToBegin();
+
+    EXPECT_THROW( grid.ReadGridFaceTopology( &databook ), std::runtime_error );
+    EXPECT_EQ( grid.faces.GetNElements(), 0u );
+    EXPECT_EQ( grid.lc.GetNElements(), 0u );
+    EXPECT_EQ( grid.rc.GetNElements(), 0u );
 }
 
 TEST( ScalarGridTopologyTest, ReadGridFaceTopologyRejectsDuplicateNodeIndices )
@@ -488,4 +626,530 @@ TEST( ScalarGridTopologyTest, ReadBoundaryTopologyRejectsInterfaceCountMismatch 
     EXPECT_EQ( grid.bcNameIds[ 0 ], 88 );
     ASSERT_EQ( grid.scalarIFace->zones.size(), 1u );
     EXPECT_EQ( grid.scalarIFace->zones[ 0 ], 123 );
+}
+
+
+TEST( ScalarGridTopologyTest, CalcTopologyResetsInterfaceTopology )
+{
+    ONEFLOW::ScalarGrid grid;
+    grid.xn.AddData( 0.0 );
+    grid.xn.AddData( 1.0 );
+    grid.yn.AddData( 0.0 );
+    grid.yn.AddData( 0.0 );
+    grid.zn.AddData( 0.0 );
+    grid.zn.AddData( 0.0 );
+    grid.elements.AddElem( std::vector< int >{ 0, 1 } );
+    grid.eTypes.AddData( ONEFLOW::BAR_2 );
+
+    auto leftBoundary = std::make_unique< ONEFLOW::ScalarBcco >();
+    leftBoundary->bcType = ONEFLOW::BCOutflow;
+    leftBoundary->AddBcPoint( 0 );
+    grid.scalarBccos->AddBcco( std::move( leftBoundary ) );
+
+    auto rightBoundary = std::make_unique< ONEFLOW::ScalarBcco >();
+    rightBoundary->bcType = ONEFLOW::BCOutflow;
+    rightBoundary->AddBcPoint( 1 );
+    grid.scalarBccos->AddBcco( std::move( rightBoundary ) );
+
+    grid.scalarIFace->iglobalfaces = { 17 };
+    grid.scalarIFace->zones = { 2 };
+    grid.scalarIFace->cells = { 4 };
+    grid.scalarIFace->target_interfaces = { 6 };
+    grid.scalarIFace->global_to_local_interfaces.emplace( 17, 0 );
+    grid.scalarIFace->local_to_global_interfaces.emplace( 0, 17 );
+    grid.scalarIFace->interface_to_bcface = { 1 };
+    ONEFLOW::ScalarIFaceIJ neighbor;
+    neighbor.zonej = 2;
+    neighbor.ifaces = { 0 };
+    neighbor.recv_ifaces = { 1 };
+    grid.scalarIFace->data.push_back( neighbor );
+
+    // Geometry metrics are derived from the face/cell topology and must not
+    // survive a successful topology rebuild.
+    grid.xfc.AddData( 10.0 );
+    grid.yfc.AddData( 11.0 );
+    grid.zfc.AddData( 12.0 );
+    grid.xfn.AddData( 13.0 );
+    grid.yfn.AddData( 14.0 );
+    grid.zfn.AddData( 15.0 );
+    grid.area.AddData( 16.0 );
+    grid.xcc.AddData( 17.0 );
+    grid.ycc.AddData( 18.0 );
+    grid.zcc.AddData( 19.0 );
+    grid.vol.AddData( 20.0 );
+    grid.nTCells = 21;
+
+    grid.CalcTopology();
+
+    EXPECT_TRUE( grid.xfc.data.empty() );
+    EXPECT_TRUE( grid.yfc.data.empty() );
+    EXPECT_TRUE( grid.zfc.data.empty() );
+    EXPECT_TRUE( grid.xfn.data.empty() );
+    EXPECT_TRUE( grid.yfn.data.empty() );
+    EXPECT_TRUE( grid.zfn.data.empty() );
+    EXPECT_TRUE( grid.area.data.empty() );
+    EXPECT_TRUE( grid.xcc.data.empty() );
+    EXPECT_TRUE( grid.ycc.data.empty() );
+    EXPECT_TRUE( grid.zcc.data.empty() );
+    EXPECT_TRUE( grid.vol.data.empty() );
+    EXPECT_EQ( grid.nTCells, 0 );
+
+    EXPECT_TRUE( grid.scalarIFace->iglobalfaces.empty() );
+    EXPECT_TRUE( grid.scalarIFace->zones.empty() );
+    EXPECT_TRUE( grid.scalarIFace->cells.empty() );
+    EXPECT_TRUE( grid.scalarIFace->target_interfaces.empty() );
+    EXPECT_TRUE( grid.scalarIFace->global_to_local_interfaces.empty() );
+    EXPECT_TRUE( grid.scalarIFace->local_to_global_interfaces.empty() );
+    EXPECT_TRUE( grid.scalarIFace->interface_to_bcface.empty() );
+    EXPECT_TRUE( grid.scalarIFace->data.empty() );
+}
+
+
+TEST( ScalarGridTopologyTest, PushElementInvalidatesDerivedTopologyAndGeometry )
+{
+	ONEFLOW::ScalarGrid grid;
+	grid.xn.Resize( 2 );
+	grid.yn.Resize( 2 );
+	grid.zn.Resize( 2 );
+	grid.faces.AddElem( std::vector< int >{ 0 } );
+	grid.fTypes.AddData( ONEFLOW::NODE );
+	grid.lc.AddData( 0 );
+	grid.rc.AddData( -1 );
+	grid.bcTypes.AddData( ONEFLOW::BCOutflow );
+	grid.xfc.AddData( 10.0 );
+	grid.xcc.AddData( 20.0 );
+	grid.vol.AddData( 30.0 );
+	grid.nFaces = 1;
+	grid.nBFaces = 1;
+	grid.nTCells = 1;
+
+	grid.PushElement( 0, 1, ONEFLOW::BAR_2 );
+
+	ASSERT_EQ( grid.elements.GetNElements(), 1u );
+	ASSERT_EQ( grid.eTypes.GetNElements(), 1u );
+	EXPECT_TRUE( grid.faces.data.empty() );
+	EXPECT_TRUE( grid.fTypes.data.empty() );
+	EXPECT_TRUE( grid.lc.data.empty() );
+	EXPECT_TRUE( grid.rc.data.empty() );
+	EXPECT_TRUE( grid.bcTypes.data.empty() );
+	EXPECT_TRUE( grid.xfc.data.empty() );
+	EXPECT_TRUE( grid.xcc.data.empty() );
+	EXPECT_TRUE( grid.vol.data.empty() );
+	EXPECT_EQ( grid.nFaces, 0 );
+	EXPECT_EQ( grid.nBFaces, 0 );
+	EXPECT_EQ( grid.nTCells, 0 );
+}
+
+TEST( ScalarGridTopologyTest, PushBoundaryFaceInvalidatesDerivedTopologyAndGeometry )
+{
+	ONEFLOW::ScalarGrid grid;
+	grid.faces.AddElem( std::vector< int >{ 0 } );
+	grid.fTypes.AddData( ONEFLOW::NODE );
+	grid.lc.AddData( 0 );
+	grid.rc.AddData( -1 );
+	grid.bcTypes.AddData( ONEFLOW::BCOutflow );
+	grid.xfc.AddData( 10.0 );
+	grid.nFaces = 1;
+	grid.nBFaces = 1;
+
+	grid.PushBoundaryFace( 0, ONEFLOW::NODE );
+
+	ASSERT_EQ( grid.boundaryElements.GetNElements(), 1u );
+	ASSERT_EQ( grid.bcETypes.GetNElements(), 1u );
+	EXPECT_TRUE( grid.faces.data.empty() );
+	EXPECT_TRUE( grid.lc.data.empty() );
+	EXPECT_TRUE( grid.rc.data.empty() );
+	EXPECT_TRUE( grid.bcTypes.data.empty() );
+	EXPECT_TRUE( grid.xfc.data.empty() );
+	EXPECT_EQ( grid.nFaces, 0 );
+	EXPECT_EQ( grid.nBFaces, 0 );
+}
+
+TEST( ScalarGridTopologyTest, CreateNodesInvalidatesTopologyAndGeometry )
+{
+	ONEFLOW::ScalarGrid grid;
+	grid.xn.AddData( 0.0 );
+	grid.yn.AddData( 0.0 );
+	grid.zn.AddData( 0.0 );
+	grid.faces.AddElem( std::vector< int >{ 0 } );
+	grid.fTypes.AddData( ONEFLOW::NODE );
+	grid.lc.AddData( 0 );
+	grid.rc.AddData( -1 );
+	grid.bcTypes.AddData( ONEFLOW::BCOutflow );
+	grid.xfc.AddData( 10.0 );
+	grid.xcc.AddData( 20.0 );
+	grid.vol.AddData( 30.0 );
+	grid.nFaces = 1;
+	grid.nBFaces = 1;
+	grid.nTCells = 1;
+
+	grid.CreateNodes( 2 );
+
+	EXPECT_EQ( grid.xn.GetNElements(), 2u );
+	EXPECT_EQ( grid.yn.GetNElements(), 2u );
+	EXPECT_EQ( grid.zn.GetNElements(), 2u );
+	EXPECT_TRUE( grid.faces.data.empty() );
+	EXPECT_TRUE( grid.fTypes.data.empty() );
+	EXPECT_TRUE( grid.lc.data.empty() );
+	EXPECT_TRUE( grid.rc.data.empty() );
+	EXPECT_TRUE( grid.bcTypes.data.empty() );
+	EXPECT_TRUE( grid.xfc.data.empty() );
+	EXPECT_TRUE( grid.xcc.data.empty() );
+	EXPECT_TRUE( grid.vol.data.empty() );
+	EXPECT_EQ( grid.nFaces, 0 );
+	EXPECT_EQ( grid.nBFaces, 0 );
+	EXPECT_EQ( grid.nTCells, 0 );
+}
+
+TEST( ScalarGridTopologyTest, CreateNodesRejectsNegativeCountWithoutInvalidatingTopology )
+{
+	ONEFLOW::ScalarGrid grid;
+	grid.faces.AddElem( std::vector< int >{ 0 } );
+	grid.lc.AddData( 0 );
+	grid.xfc.AddData( 10.0 );
+	grid.nFaces = 1;
+
+	EXPECT_THROW( grid.CreateNodes( -1 ), std::invalid_argument );
+
+	ASSERT_EQ( grid.faces.GetNElements(), 1u );
+	ASSERT_EQ( grid.lc.GetNElements(), 1u );
+	ASSERT_EQ( grid.xfc.GetNElements(), 1u );
+	EXPECT_EQ( grid.nFaces, 1 );
+}
+
+TEST( ScalarGridTopologyTest, NormalizeRejectsOutOfRangeAdjacencyBeforeMutation )
+{
+	ONEFLOW::ScalarGrid grid;
+	grid.eTypes.AddData( ONEFLOW::BAR_2 );
+	grid.faces.AddElem( std::vector< int >{ 0, 1 } );
+	grid.lc.AddData( 0 );
+	grid.rc.AddData( 2 );
+
+	EXPECT_THROW( grid.Normalize(), std::runtime_error );
+	ASSERT_EQ( grid.faces.GetNElements(), 1u );
+	EXPECT_EQ( grid.faces[ 0 ], ( std::vector< int >{ 0, 1 } ) );
+	EXPECT_EQ( grid.lc[ 0 ], 0 );
+	EXPECT_EQ( grid.rc[ 0 ], 2 );
+}
+
+TEST( ScalarGridTopologyTest, NormalizeRejectsMissingFaceConnectivityBeforeMutation )
+{
+	ONEFLOW::ScalarGrid grid;
+	grid.eTypes.AddData( ONEFLOW::BAR_2 );
+	grid.bcTypes.AddData( 0 );
+	grid.lc.AddData( ONEFLOW::INVALID_INDEX );
+	grid.rc.AddData( 0 );
+
+	EXPECT_THROW( grid.Normalize(), std::runtime_error );
+	EXPECT_EQ( grid.lc[ 0 ], ONEFLOW::INVALID_INDEX );
+	EXPECT_EQ( grid.rc[ 0 ], 0 );
+}
+
+
+TEST( ScalarGridTopologyTest, PushElementRejectsOutOfRangeCgnsNodeWithoutInvalidatingDerivedState )
+{
+	ONEFLOW::ScalarGrid grid;
+	grid.xn.Resize( 2 );
+	grid.yn.Resize( 2 );
+	grid.zn.Resize( 2 );
+	grid.elements.AddElem( std::vector< int >{ 0, 1 } );
+	grid.eTypes.AddData( ONEFLOW::BAR_2 );
+	grid.faces.AddElem( std::vector< int >{ 0 } );
+	grid.fTypes.AddData( ONEFLOW::NODE );
+	grid.lc.AddData( 0 );
+	grid.rc.AddData( -1 );
+	grid.bcTypes.AddData( ONEFLOW::BCOutflow );
+	grid.xfc.AddData( 10.0 );
+	grid.nFaces = 1;
+	grid.nBFaces = 1;
+
+	ONEFLOW::CgIntField invalidConnectivity{ 1, 3 };
+	EXPECT_THROW( grid.PushElement( invalidConnectivity, ONEFLOW::BAR_2 ),
+		std::invalid_argument );
+
+	ASSERT_EQ( grid.elements.GetNElements(), 1u );
+	EXPECT_EQ( grid.elements[ 0 ], ( std::vector< int >{ 0, 1 } ) );
+	ASSERT_EQ( grid.eTypes.GetNElements(), 1u );
+	EXPECT_EQ( grid.eTypes[ 0 ], ONEFLOW::BAR_2 );
+	ASSERT_EQ( grid.faces.GetNElements(), 1u );
+	EXPECT_EQ( grid.faces[ 0 ], ( std::vector< int >{ 0 } ) );
+	ASSERT_EQ( grid.lc.GetNElements(), 1u );
+	EXPECT_EQ( grid.lc[ 0 ], 0 );
+	ASSERT_EQ( grid.rc.GetNElements(), 1u );
+	EXPECT_EQ( grid.rc[ 0 ], -1 );
+	ASSERT_EQ( grid.xfc.GetNElements(), 1u );
+	EXPECT_DOUBLE_EQ( grid.xfc[ 0 ], 10.0 );
+	EXPECT_EQ( grid.nFaces, 1 );
+	EXPECT_EQ( grid.nBFaces, 1 );
+}
+
+
+TEST( ScalarGridTopologyTest, PushElementRejectsInvalidNodeWithoutInvalidatingDerivedState )
+{
+	ONEFLOW::ScalarGrid grid;
+	grid.xn.Resize( 2 );
+	grid.yn.Resize( 2 );
+	grid.zn.Resize( 2 );
+	grid.elements.AddElem( std::vector< int >{ 0, 1 } );
+	grid.eTypes.AddData( ONEFLOW::BAR_2 );
+	grid.faces.AddElem( std::vector< int >{ 0 } );
+	grid.fTypes.AddData( ONEFLOW::NODE );
+	grid.lc.AddData( 0 );
+	grid.rc.AddData( -1 );
+	grid.bcTypes.AddData( ONEFLOW::BCOutflow );
+	grid.xfc.AddData( 10.0 );
+	grid.nFaces = 1;
+	grid.nBFaces = 1;
+
+	EXPECT_THROW( grid.PushElement( 0, 2, ONEFLOW::BAR_2 ), std::out_of_range );
+	EXPECT_THROW( grid.PushElement( 0, 0, ONEFLOW::BAR_2 ), std::invalid_argument );
+	EXPECT_THROW( grid.PushElement( 0, 1, -1 ), std::invalid_argument );
+
+	ASSERT_EQ( grid.elements.GetNElements(), 1u );
+	EXPECT_EQ( grid.elements[ 0 ], ( std::vector< int >{ 0, 1 } ) );
+	ASSERT_EQ( grid.eTypes.GetNElements(), 1u );
+	EXPECT_EQ( grid.eTypes[ 0 ], ONEFLOW::BAR_2 );
+	ASSERT_EQ( grid.faces.GetNElements(), 1u );
+	EXPECT_EQ( grid.faces[ 0 ], ( std::vector< int >{ 0 } ) );
+	ASSERT_EQ( grid.lc.GetNElements(), 1u );
+	EXPECT_EQ( grid.lc[ 0 ], 0 );
+	ASSERT_EQ( grid.xfc.GetNElements(), 1u );
+	EXPECT_DOUBLE_EQ( grid.xfc[ 0 ], 10.0 );
+	EXPECT_EQ( grid.nFaces, 1 );
+	EXPECT_EQ( grid.nBFaces, 1 );
+}
+
+TEST( ScalarGridTopologyTest, GenerateGridRejectsInvalidDomainWithoutClearingExistingMesh )
+{
+	ONEFLOW::ScalarGrid grid;
+	grid.xn.AddData( 12.0 );
+	grid.yn.AddData( 0.0 );
+	grid.zn.AddData( 0.0 );
+	grid.elements.AddElem( std::vector< int >{ 0, 0 } );
+	grid.eTypes.AddData( ONEFLOW::BAR_2 );
+	grid.faces.AddElem( std::vector< int >{ 0 } );
+	grid.fTypes.AddData( ONEFLOW::NODE );
+	grid.lc.AddData( 0 );
+	grid.rc.AddData( -1 );
+	grid.nFaces = 1;
+	grid.nBFaces = 1;
+
+	EXPECT_THROW( grid.GenerateGrid( 3, 2.0, 2.0 ), std::invalid_argument );
+	EXPECT_THROW( grid.GenerateGrid( 3, 3.0, 2.0 ), std::invalid_argument );
+
+	ASSERT_EQ( grid.xn.GetNElements(), 1u );
+	EXPECT_DOUBLE_EQ( grid.xn[ 0 ], 12.0 );
+	ASSERT_EQ( grid.elements.GetNElements(), 1u );
+	EXPECT_EQ( grid.elements[ 0 ], ( std::vector< int >{ 0, 0 } ) );
+	ASSERT_EQ( grid.faces.GetNElements(), 1u );
+	EXPECT_EQ( grid.faces[ 0 ], ( std::vector< int >{ 0 } ) );
+	EXPECT_EQ( grid.nFaces, 1 );
+	EXPECT_EQ( grid.nBFaces, 1 );
+}
+
+TEST( ScalarGridTopologyTest, GenerateGridRejectsNonFiniteDomainWithoutClearingExistingMesh )
+{
+	ONEFLOW::ScalarGrid grid;
+	grid.xn.AddData( 7.0 );
+	grid.yn.AddData( 0.0 );
+	grid.zn.AddData( 0.0 );
+
+	EXPECT_THROW( grid.GenerateGrid( 3, 0.0,
+		std::numeric_limits< ONEFLOW::Real >::infinity() ), std::invalid_argument );
+
+	ASSERT_EQ( grid.xn.GetNElements(), 1u );
+	EXPECT_DOUBLE_EQ( grid.xn[ 0 ], 7.0 );
+}
+
+TEST( ScalarGridTopologyTest, GenerateGridRejectsUnrepresentableSpacingWithoutClearingExistingMesh )
+{
+	ONEFLOW::ScalarGrid grid;
+	grid.xn.AddData( 42.0 );
+	grid.yn.AddData( 0.0 );
+	grid.zn.AddData( 0.0 );
+	grid.elements.AddElem( std::vector< int >{ 0, 0 } );
+	grid.eTypes.AddData( ONEFLOW::BAR_2 );
+
+	const ONEFLOW::Real xmin = 1.0;
+	const ONEFLOW::Real xmax = std::nextafter( xmin, 2.0 );
+	EXPECT_THROW( grid.GenerateGrid( 3, xmin, xmax ), std::invalid_argument );
+
+	ASSERT_EQ( grid.xn.GetNElements(), 1u );
+	EXPECT_DOUBLE_EQ( grid.xn[ 0 ], 42.0 );
+	ASSERT_EQ( grid.elements.GetNElements(), 1u );
+	EXPECT_EQ( grid.elements[ 0 ], ( std::vector< int >{ 0, 0 } ) );
+}
+ 
+TEST( ScalarGridTopologyTest, GenerateGridBuildsOneDimensionalUnstructuredMesh )
+{
+	ONEFLOW::ScalarGrid grid;
+	grid.GenerateGrid( 4, 0.0, 3.0 );
+
+	ASSERT_EQ( grid.GetNNodes(), 4 );
+	ASSERT_EQ( grid.GetNCells(), 3 );
+	EXPECT_EQ( grid.xn[ 0 ], 0.0 );
+	EXPECT_EQ( grid.xn[ 1 ], 1.0 );
+	EXPECT_EQ( grid.xn[ 2 ], 2.0 );
+	EXPECT_EQ( grid.xn[ 3 ], 3.0 );
+	EXPECT_EQ( grid.elements.GetNElements(), 3u );
+	EXPECT_EQ( grid.elements[ 0 ], ( std::vector< int >{ 0, 1 } ) );
+	EXPECT_EQ( grid.elements[ 1 ], ( std::vector< int >{ 1, 2 } ) );
+	EXPECT_EQ( grid.elements[ 2 ], ( std::vector< int >{ 2, 3 } ) );
+	EXPECT_EQ( grid.eTypes[ 0 ], ONEFLOW::BAR_2 );
+	EXPECT_EQ( grid.eTypes[ 1 ], ONEFLOW::BAR_2 );
+	EXPECT_EQ( grid.eTypes[ 2 ], ONEFLOW::BAR_2 );
+
+	// Source-mesh generation does not eagerly construct derived face topology.
+	EXPECT_EQ( grid.GetNFaces(), 0 );
+	EXPECT_EQ( grid.GetNBFaces(), 0 );
+	EXPECT_TRUE( grid.xfc.data.empty() );
+	ASSERT_EQ( grid.scalarBccos->bccos.size(), 2u );
+	EXPECT_EQ( grid.scalarBccos->bccos[ 0 ]->vertexList, ( std::vector< int >{ 0 } ) );
+	EXPECT_EQ( grid.scalarBccos->bccos[ 1 ]->vertexList, ( std::vector< int >{ 3 } ) );
+}
+
+
+TEST( UnitElementInitializationTest, ReinitializationReplacesPreviousTopology )
+{
+    ONEFLOW::UnitElement element;
+
+    element.Initialize( ONEFLOW::BAR_3 );
+    EXPECT_EQ( element.GetElementType(), ONEFLOW::BAR_3 );
+    EXPECT_EQ( element.GetElementFaceNumber(), 2 );
+    EXPECT_EQ( element.GetChildElementNumbers(), 2 );
+
+    element.Initialize( ONEFLOW::TRI_3 );
+    EXPECT_EQ( element.GetElementType(), ONEFLOW::TRI_3 );
+    EXPECT_EQ( element.GetElementFaceNumber(), 3 );
+    EXPECT_EQ( element.GetChildElementNumbers(), 0 );
+}
+
+TEST( UnitElementInitializationTest, UnsupportedTypePreservesExistingTopology )
+{
+    ONEFLOW::UnitElement element;
+    element.Initialize( ONEFLOW::BAR_3 );
+
+    EXPECT_THROW( element.Initialize( -1 ), std::invalid_argument );
+    EXPECT_EQ( element.GetElementType(), ONEFLOW::BAR_3 );
+    EXPECT_EQ( element.GetElementFaceNumber(), 2 );
+    EXPECT_EQ( element.GetChildElementNumbers(), 2 );
+
+    EXPECT_THROW( element.Initialize( 9999 ), std::invalid_argument );
+    EXPECT_EQ( element.GetElementType(), ONEFLOW::BAR_3 );
+    EXPECT_EQ( element.GetElementFaceNumber(), 2 );
+    EXPECT_EQ( element.GetChildElementNumbers(), 2 );
+}
+
+TEST( ElementDimensionTest, ReportsIntrinsicDimensionIndependentOfMeshDimension )
+{
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::NODE ), 0 );
+
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::BAR_2 ), 1 );
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::BAR_3 ), 1 );
+
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::TRI_3 ), 2 );
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::TRI_6 ), 2 );
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::QUAD_4 ), 2 );
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::QUAD_8 ), 2 );
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::QUAD_9 ), 2 );
+
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::TETRA_4 ), 3 );
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::TETRA_10 ), 3 );
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::PYRA_5 ), 3 );
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::PYRA_14 ), 3 );
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::PENTA_6 ), 3 );
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::PENTA_15 ), 3 );
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::PENTA_18 ), 3 );
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::HEXA_8 ), 3 );
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::HEXA_20 ), 3 );
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::HEXA_27 ), 3 );
+}
+
+TEST( ElementDimensionTest, RejectsInvalidOrUnsupportedElementTypes )
+{
+    EXPECT_EQ( ONEFLOW::GetElementDimension( -1 ), -1 );
+    // Use the geometry registry count instead of duplicating the CGNS element-count macro.
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::ElementHome::GetNumberOfUnitElements() ), -1 );
+}
+
+TEST( ElementDimensionTest, DimensionLookupUsesRegistryStorageAsSourceOfTruth )
+{
+    ONEFLOW::ElementHome::Free();
+
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::BAR_2 ), -1 );
+
+    ONEFLOW::ElementHome::Initialize();
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::BAR_2 ), 1 );
+}
+
+TEST( ElementDimensionTest, RegistryRejectsOutOfRangeElementTypes )
+{
+    EXPECT_THROW( ONEFLOW::ElementHome::GetUnitElementDefinition( -1 ), std::out_of_range );
+    EXPECT_THROW(
+        ONEFLOW::ElementHome::GetUnitElementDefinition( ONEFLOW::ElementHome::GetNumberOfUnitElements() ),
+        std::out_of_range );
+    EXPECT_THROW(
+        ONEFLOW::GetElementNodeNumbers( ONEFLOW::ElementHome::GetNumberOfUnitElements() ),
+        std::out_of_range );
+
+    EXPECT_FALSE( ONEFLOW::IsBasicVolumeElementType( -1 ) );
+    EXPECT_FALSE( ONEFLOW::IsBasicVolumeElementType(
+        ONEFLOW::ElementHome::GetNumberOfUnitElements() ) );
+}
+
+TEST( ElementDimensionTest, RegistryDistinguishesUnsupportedSlotsFromOutOfRangeIndices )
+{
+    bool foundUnsupportedSlot = false;
+    for ( int elementType = 0;
+          elementType < ONEFLOW::ElementHome::GetNumberOfUnitElements();
+          ++ elementType )
+    {
+        if ( ONEFLOW::ElementHome::HasUnitElement( elementType ) ) continue;
+
+        foundUnsupportedSlot = true;
+        EXPECT_EQ( ONEFLOW::GetElementNodeNumbers( elementType ), 0 );
+        EXPECT_EQ( ONEFLOW::GetElementDimension( elementType ), -1 );
+        EXPECT_FALSE( ONEFLOW::IsBasicVolumeElementType( elementType ) );
+        EXPECT_THROW(
+            ONEFLOW::ElementHome::GetUnitElementDefinition( elementType ),
+            std::out_of_range );
+        break;
+    }
+
+    EXPECT_TRUE( foundUnsupportedSlot );
+}
+
+TEST( ElementDimensionTest, RegistryFreeClearsStorageAndCanBeReinitialized )
+{
+    const int expectedCount = ONEFLOW::ElementHome::GetNumberOfUnitElements();
+    ASSERT_GT( expectedCount, 0 );
+
+    ONEFLOW::ElementHome::Free();
+
+    EXPECT_EQ( ONEFLOW::ElementHome::GetNumberOfUnitElements(), 0 );
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::BAR_2 ), -1 );
+    EXPECT_FALSE( ONEFLOW::IsBasicVolumeElementType( ONEFLOW::BAR_2 ) );
+    EXPECT_THROW(
+        ONEFLOW::ElementHome::GetUnitElementDefinition( ONEFLOW::BAR_2 ),
+        std::out_of_range );
+
+    ONEFLOW::ElementHome::Initialize();
+
+    EXPECT_EQ( ONEFLOW::ElementHome::GetNumberOfUnitElements(), expectedCount );
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::BAR_2 ), 1 );
+}
+
+TEST( ElementDimensionTest, RegistryInitializationCanBeRepeated )
+{
+    const int expectedCount = ONEFLOW::ElementHome::GetNumberOfUnitElements();
+    ASSERT_GT( expectedCount, 0 );
+
+    ONEFLOW::ElementHome::Initialize();
+    EXPECT_EQ( ONEFLOW::ElementHome::GetNumberOfUnitElements(), expectedCount );
+    EXPECT_EQ(
+        ONEFLOW::ElementHome::GetUnitElementDefinition( ONEFLOW::BAR_2 ).GetElementType(),
+        ONEFLOW::BAR_2 );
+
+    ONEFLOW::ElementHome::Initialize();
+    EXPECT_EQ( ONEFLOW::ElementHome::GetNumberOfUnitElements(), expectedCount );
 }

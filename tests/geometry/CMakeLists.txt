@@ -242,3 +242,6 @@ add_oneflow_gtest(GridLayoutGenerationTest GridLayoutGenerationTest.cpp)
 add_oneflow_gtest(DomainMachineTest DomainMachineTest.cpp)
 target_compile_definitions(GridLayoutParserTest PRIVATE ONEFLOW_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
 target_compile_definitions(GridLayoutGenerationTest PRIVATE ONEFLOW_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
+
+add_oneflow_gtest(CellTopoConnectivityTest CellTopoConnectivityTest.cpp)
+add_oneflow_gtest(ElementHomeTest ElementHomeTest.cpp)

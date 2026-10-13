@@ -55,6 +55,7 @@ License
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <cmath>
 #include <utility>
 #include <stdexcept>
 #include <limits>
@@ -62,6 +63,63 @@ License
 
 
 BeginNameSpace( ONEFLOW )
+
+namespace
+{
+void ValidateReorderMap( const IntList & orderMap, size_t elementCount, const char * operation )
+{
+	if ( orderMap.GetNElements() != elementCount )
+	{
+		throw std::invalid_argument( std::string( operation ) +
+			": order map size must match list size" );
+	}
+
+	std::vector< bool > seen( elementCount, false );
+	for ( size_t i = 0; i < elementCount; ++ i )
+	{
+		const int sourceIndex = orderMap[ i ];
+		if ( sourceIndex < 0 || static_cast< size_t >( sourceIndex ) >= elementCount ||
+			 seen[ static_cast< size_t >( sourceIndex ) ] )
+		{
+			throw std::invalid_argument( std::string( operation ) +
+				": order map must be a permutation" );
+		}
+		seen[ static_cast< size_t >( sourceIndex ) ] = true;
+	}
+}
+
+template< typename T >
+void ReserveForAppend( std::vector< T > & values )
+{
+	if ( values.size() < values.capacity() )
+	{
+		return;
+	}
+
+	const size_t requiredCapacity = values.size() + 1;
+	const size_t maxCapacity = values.max_size();
+	if ( requiredCapacity > maxCapacity )
+	{
+		throw std::length_error( "ScalarGrid: append exceeds vector maximum size" );
+	}
+
+	const size_t currentCapacity = values.capacity();
+	size_t newCapacity = currentCapacity == 0 ? 1 : currentCapacity;
+	if ( newCapacity <= maxCapacity / 2 )
+	{
+		newCapacity *= 2;
+	}
+	else
+	{
+		newCapacity = maxCapacity;
+	}
+	if ( newCapacity < requiredCapacity )
+	{
+		newCapacity = requiredCapacity;
+	}
+	values.reserve( newCapacity );
+}
+}
 
 size_t RealList::GetNElements() const
 {
@@ -71,6 +129,15 @@ size_t RealList::GetNElements() const
 void RealList::AddData( Real value )
 {
 	data.push_back( value );
+}
+
+void RealList::Reserve( int new_capacity )
+{
+	if ( new_capacity < 0 )
+	{
+		throw std::invalid_argument( "RealList::Reserve: capacity must be non-negative" );
+	}
+	data.reserve( static_cast< size_t >( new_capacity ) );
 }
 
 void RealList::Resize( int new_size )
@@ -118,22 +185,7 @@ void IntList::Reserve( int new_size )
 void IntList::ReOrder( const IntList & orderMap )
 {
 	const size_t nElems = this->GetNElements();
-	if ( orderMap.GetNElements() != nElems )
-	{
-		throw std::invalid_argument( "IntList::ReOrder: order map size must match list size" );
-	}
-
-	std::vector< bool > seen( nElems, false );
-	for ( size_t i = 0; i < nElems; ++ i )
-	{
-		const int sourceIndex = orderMap[ i ];
-		if ( sourceIndex < 0 || static_cast< size_t >( sourceIndex ) >= nElems ||
-			 seen[ static_cast< size_t >( sourceIndex ) ] )
-		{
-			throw std::invalid_argument( "IntList::ReOrder: order map must be a permutation" );
-		}
-		seen[ static_cast< size_t >( sourceIndex ) ] = true;
-	}
+	ValidateReorderMap( orderMap, nElems, "IntList::ReOrder" );
 
 	const std::vector< int > original = data;
 	for ( size_t i = 0; i < nElems; ++ i )
@@ -160,22 +212,7 @@ void EList::AddElem( const std::vector< int > &elem )
 void EList::ReOrder( const IntList & orderMap )
 {
 	const size_t nElems = this->GetNElements();
-	if ( orderMap.GetNElements() != nElems )
-	{
-		throw std::invalid_argument( "EList::ReOrder: order map size must match list size" );
-	}
-
-	std::vector< bool > seen( nElems, false );
-	for ( size_t i = 0; i < nElems; ++ i )
-	{
-		const int sourceIndex = orderMap[ i ];
-		if ( sourceIndex < 0 || static_cast< size_t >( sourceIndex ) >= nElems ||
-			 seen[ static_cast< size_t >( sourceIndex ) ] )
-		{
-			throw std::invalid_argument( "EList::ReOrder: order map must be a permutation" );
-		}
-		seen[ static_cast< size_t >( sourceIndex ) ] = true;
-	}
+	ValidateReorderMap( orderMap, nElems, "EList::ReOrder" );
 
 	const std::vector< std::vector< int > > original = data;
 	for ( size_t i = 0; i < nElems; ++ i )
@@ -338,11 +375,107 @@ void ScalarGrid::ResetTopologyData()
 	c2fpos.clear();
 	global_faceid.clear();
 
+	// Interface IDs, neighbor groups, and boundary-face links all refer to this topology.
+	if ( scalarIFace != nullptr )
+	{
+		scalarIFace->ResetTopology();
+	}
+
 	nFaces = 0;
 	nBFaces = 0;
 
 	// Geometry is derived from topology and must be invalidated with it.
 	this->ResetGeometryData();
+}
+
+void ScalarGrid::ValidateFaceTopology( const char * operation ) const
+{
+	if ( this->nFaces < 0 || this->nBFaces < 0 || this->nBFaces > this->nFaces ||
+		 this->nBFaces != this->GetNBFaces() )
+	{
+		throw std::logic_error( std::string( operation ) +
+			": face and boundary-face counts are inconsistent" );
+	}
+
+	const size_t faceCount = static_cast< size_t >( this->nFaces );
+	if ( this->faces.GetNElements() != faceCount ||
+		 this->fTypes.GetNElements() != faceCount ||
+		 this->lc.GetNElements() != faceCount ||
+		 this->rc.GetNElements() != faceCount )
+	{
+		throw std::logic_error( std::string( operation ) +
+			": face connectivity, types, and adjacency arrays must match nFaces" );
+	}
+
+	const int nodeCount = this->GetNNodes();
+	const int cellCount = this->GetNCells();
+	if ( this->nNodes != nodeCount || this->yn.GetNElements() != static_cast< size_t >( nodeCount ) ||
+		 this->zn.GetNElements() != static_cast< size_t >( nodeCount ) )
+	{
+		throw std::logic_error( std::string( operation ) +
+			": node count and coordinate arrays have inconsistent sizes" );
+	}
+	if ( this->nCells != cellCount )
+	{
+		throw std::logic_error( std::string( operation ) +
+			": cell count and element type array have inconsistent sizes" );
+	}
+
+	for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
+	{
+		const std::vector< int > & face = this->faces[ iFace ];
+		if ( face.empty() )
+		{
+			throw std::logic_error( std::string( operation ) +
+				": face connectivity must not be empty" );
+		}
+
+		std::unordered_set< int > uniqueNodeIds;
+		for ( const int nodeId : face )
+		{
+			if ( nodeId < 0 || nodeId >= nodeCount )
+			{
+				throw std::out_of_range( std::string( operation ) +
+					": face references an invalid node index" );
+			}
+			if ( ! uniqueNodeIds.insert( nodeId ).second )
+			{
+				throw std::logic_error( std::string( operation ) +
+					": face connectivity contains duplicate node indices" );
+			}
+		}
+
+		const int leftCell = this->lc[ iFace ];
+		const int rightCell = this->rc[ iFace ];
+		if ( iFace < this->nBFaces )
+		{
+			const int expectedGhostCell = cellCount + iFace;
+			const bool leftIsPhysical = leftCell >= 0 && leftCell < cellCount;
+			const bool rightIsBoundarySentinel = rightCell == -1;
+			const bool rightIsExpectedGhost = rightCell == expectedGhostCell;
+
+			if ( ! leftIsPhysical ||
+				 ( ! rightIsBoundarySentinel && ! rightIsExpectedGhost ) )
+			{
+				throw std::out_of_range( std::string( operation ) +
+					": boundary face must have exactly one physical adjacent cell" );
+			}
+		}
+		else
+		{
+			if ( leftCell < 0 || leftCell >= cellCount ||
+				 rightCell < 0 || rightCell >= cellCount )
+			{
+				throw std::out_of_range( std::string( operation ) +
+					": internal face references an invalid physical cell" );
+			}
+			if ( leftCell == rightCell )
+			{
+				throw std::logic_error( std::string( operation ) +
+					": internal face must connect distinct cells" );
+			}
+		}
+	}
 }
 
 void ScalarGrid::ResetGeometryData()
@@ -393,14 +526,50 @@ void ScalarGrid::GenerateGrid( int ni, Real xmin, Real xmax )
 	{
 		throw std::invalid_argument( "ScalarGrid::GenerateGrid: ni must be at least 2" );
 	}
+	const Real domainLength = xmax - xmin;
+	if ( ! std::isfinite( xmin ) || ! std::isfinite( xmax ) ||
+		 ! std::isfinite( domainLength ) || domainLength <= 0.0 )
+	{
+		throw std::invalid_argument(
+			"ScalarGrid::GenerateGrid: domain bounds must define a finite, positive interval" );
+	}
 
+	Real dx = domainLength / ( ni - 1 );
+	if ( ! std::isfinite( dx ) || dx <= 0.0 )
+	{
+		throw std::invalid_argument(
+			"ScalarGrid::GenerateGrid: spacing must be finite and positive" );
+	}
+
+	// A positive interval can still be too small to represent ni distinct
+	// floating-point coordinates. Check representability before replacing the
+	// current mesh, and keep the requested right endpoint exact.
+	Real previousX = xmin;
+	for ( int i = 1; i < ni; ++ i )
+	{
+		const Real x = i == ni - 1 ? xmax : xmin + i * dx;
+		if ( ! std::isfinite( x ) || x <= previousX )
+		{
+			throw std::invalid_argument(
+				"ScalarGrid::GenerateGrid: coordinates must be finite and strictly increasing" );
+		}
+		previousX = x;
+	}
+
+	// Validate scalar inputs and coordinate representability before clearing an existing mesh.
 	this->ResetMeshData();
 
-	Real dx = ( xmax - xmin ) / ( ni - 1 );
+	// Reserve source-mesh storage once when the final sizes are known.
+	// Topology is still built separately by CalcTopology().
+	xn.Reserve( ni );
+	yn.Reserve( ni );
+	zn.Reserve( ni );
+	elements.Reserve( ni - 1 );
+	eTypes.Reserve( ni - 1 );
 
 	for ( int i = 0; i < ni; ++ i )
 	{
-		Real xm = xmin + i * dx;
+		Real xm = i == ni - 1 ? xmax : xmin + i * dx;
 		Real ym = 0.0;
 		Real zm = 0.0;
 
@@ -417,9 +586,12 @@ void ScalarGrid::GenerateGrid( int ni, Real xmin, Real xmax )
 		int p1 = i;
 		int p2 = i + 1;
 
-		int eType = ONEFLOW::BAR_2;
+		const int eType = ONEFLOW::BAR_2;
 
-		this->PushElement( p1, p2, eType );
+		// This batch builder invalidated derived data once in ResetMeshData().
+		// Append source connectivity directly instead of resetting topology per cell.
+		this->elements.AddElem( std::vector< int >{ p1, p2 } );
+		this->eTypes.AddData( eType );
 	}
 
 	auto scalarBccoL = std::make_unique< ScalarBcco >();
@@ -700,6 +872,24 @@ void ScalarGrid::ReadFromCgnsZone( CgnsZone & cgnsZone )
 	// Stage the complete import so malformed input cannot destroy the current mesh.
 	ScalarGrid importedGrid;
 
+	// Load coordinates first because PushElement validates one-based CGNS node IDs
+	// against the imported mesh's current node count.
+	CgnsCoor & cgnsCoor = cgnsZone.RequireCgnsCoor();
+	NodeMesh & nodeMesh = cgnsCoor.RequireNodeMesh();
+	if ( nodeMesh.xN.size() != nodeMesh.yN.size() ||
+		 nodeMesh.xN.size() != nodeMesh.zN.size() )
+	{
+		throw std::invalid_argument( "ScalarGrid::ReadFromCgnsZone: coordinate arrays have inconsistent sizes" );
+	}
+
+	for ( size_t i = 0; i < nodeMesh.xN.size(); ++ i )
+	{
+		importedGrid.xn.AddData( nodeMesh.xN[ i ] );
+		importedGrid.yn.AddData( nodeMesh.yN[ i ] );
+		importedGrid.zn.AddData( nodeMesh.zN[ i ] );
+	}
+
+
 	std::cout << "   Convert Cgns Section Data to ScalarGrid......\n";
 	std::cout << "\n";
 	CgnsZsection & cgnsZsection = cgnsZone.RequireCgnsZsection();
@@ -748,20 +938,6 @@ void ScalarGrid::ReadFromCgnsZone( CgnsZone & cgnsZone )
 		}
 	}
 
-	CgnsCoor & cgnsCoor = cgnsZone.RequireCgnsCoor();
-	NodeMesh & nodeMesh = cgnsCoor.RequireNodeMesh();
-	if ( nodeMesh.xN.size() != nodeMesh.yN.size() ||
-		 nodeMesh.xN.size() != nodeMesh.zN.size() )
-	{
-		throw std::invalid_argument( "ScalarGrid::ReadFromCgnsZone: coordinate arrays have inconsistent sizes" );
-	}
-
-	for ( size_t i = 0; i < nodeMesh.xN.size(); ++ i )
-	{
-		importedGrid.xn.AddData( nodeMesh.xN[ i ] );
-		importedGrid.yn.AddData( nodeMesh.yN[ i ] );
-		importedGrid.zn.AddData( nodeMesh.zN[ i ] );
-	}
 
 	const size_t nodeCount = importedGrid.xn.GetNElements();
 	for ( const std::vector< int > & element : importedGrid.elements.data )
@@ -790,7 +966,7 @@ void ScalarGrid::ReadFromCgnsZone( CgnsZone & cgnsZone )
 
 void ScalarGrid::PushElement( CgIntField & eNodeId, int eType )
 {
-	if ( eType < 0 || eType >= NofValidElementTypes ||
+	if ( eType < 0 || eType >= ElementHome::GetNumberOfUnitElements() ||
 		 ! ONEFLOW::IsBasicVolumeElementType( eType ) )
 	{
 		throw std::invalid_argument( "ScalarGrid::PushElement: invalid volume element type" );
@@ -803,13 +979,18 @@ void ScalarGrid::PushElement( CgIntField & eNodeId, int eType )
 	}
 
 	// CGNS connectivity is one-based; validate it before converting to internal indices.
+	const int nodeCount = this->GetNNodes();
 	for ( int nodeId : eNodeId )
 	{
-		if ( nodeId <= 0 )
+		if ( nodeId <= 0 || nodeId > nodeCount )
 		{
-			throw std::invalid_argument( "ScalarGrid::PushElement: CGNS node indices must be positive" );
+			throw std::invalid_argument( "ScalarGrid::PushElement: CGNS node index is outside the node range" );
 		}
 	}
+
+	// Cell connectivity defines the topology's source data; discard derived state
+	// before appending a cell to an existing mesh.
+	this->ResetTopologyData();
 
 	IntList elem;
 	for ( int nodeId : eNodeId )
@@ -823,6 +1004,25 @@ void ScalarGrid::PushElement( CgIntField & eNodeId, int eType )
 
 void ScalarGrid::PushElement( int p1, int p2, int eType )
 {
+	if ( eType < 0 || eType >= ElementHome::GetNumberOfUnitElements() ||
+		 ONEFLOW::GetElementNodeNumbers( eType ) != 2 )
+	{
+		throw std::invalid_argument( "ScalarGrid::PushElement: element type must describe a two-node element" );
+	}
+
+	const int nodeCount = this->GetNNodes();
+	if ( p1 < 0 || p1 >= nodeCount || p2 < 0 || p2 >= nodeCount )
+	{
+		throw std::out_of_range( "ScalarGrid::PushElement: node index is outside the mesh node range" );
+	}
+	if ( p1 == p2 )
+	{
+		throw std::invalid_argument( "ScalarGrid::PushElement: cell connectivity must reference distinct nodes" );
+	}
+
+	// Validate the source connectivity before invalidating derived topology.
+	this->ResetTopologyData();
+
 	IntList elem;
 	elem.AddData( p1 );
 	elem.AddData( p2 );
@@ -833,6 +1033,8 @@ void ScalarGrid::PushElement( int p1, int p2, int eType )
 
 void ScalarGrid::PushBoundaryFace( int pt, int eType )
 {
+	this->ResetTopologyData();
+
 	IntList elem;
 	elem.AddData( pt );
 
@@ -1092,7 +1294,7 @@ void ScalarGrid::CalcTopology()
 	for ( int iCell = 0; iCell < cellCount; ++ iCell )
 	{
 		const int elementType = this->eTypes[ iCell ];
-		if ( elementType < 0 || elementType >= NofValidElementTypes )
+		if ( elementType < 0 || elementType >= ElementHome::GetNumberOfUnitElements() )
 		{
 			throw std::runtime_error( "ScalarGrid::CalcTopology: invalid element type" );
 		}
@@ -1132,11 +1334,11 @@ void ScalarGrid::CalcTopology()
 	for ( int iCell = 0; iCell < cellCount; ++ iCell )
 	{
 		const std::vector< int > & element = this->elements[ iCell ];
-		UnitElement & unitElement = ElementHome::GetUnitElement( this->eTypes[ iCell ] );
-		const int localFaceCount = unitElement.GetElementFaceNumber();
+		const UnitElement & elementDefinition = ElementHome::GetUnitElementDefinition( this->eTypes[ iCell ] );
+		const int localFaceCount = elementDefinition.GetElementFaceNumber();
 		for ( int iLocalFace = 0; iLocalFace < localFaceCount; ++ iLocalFace )
 		{
-			const IntField & localFaceNodes = unitElement.GetElementFace( iLocalFace );
+			const IntField & localFaceNodes = elementDefinition.GetElementFace( iLocalFace );
 			IntField faceNodes;
 			faceNodes.reserve( localFaceNodes.size() );
 			for ( int localNodeId : localFaceNodes )
@@ -1212,8 +1414,8 @@ void ScalarGrid::CalcTopology()
 	for ( int iCell = 0; iCell < nCells; ++ iCell )
 	{
 		int eType = this->eTypes[ iCell ];
-		UnitElement& unitElement = ElementHome::GetUnitElement( eType );
-		estimatedFaces += unitElement.GetElementFaceNumber();
+		const UnitElement & elementDefinition = ElementHome::GetUnitElementDefinition( eType );
+		estimatedFaces += elementDefinition.GetElementFaceNumber();
 	}
 
 	this->lc.Reserve(estimatedFaces);
@@ -1228,13 +1430,13 @@ void ScalarGrid::CalcTopology()
 	{
 		const std::vector<int>& element = elements[iCell];
 		int eType = eTypes[iCell];
-		UnitElement& unitElement = ElementHome::GetUnitElement(eType);
-		int numberOfFaceInElement = unitElement.GetElementFaceNumber();
+		const UnitElement & elementDefinition = ElementHome::GetUnitElementDefinition(eType);
+		const int numberOfFaceInElement = elementDefinition.GetElementFaceNumber();
 
 		for ( int iLocalFace = 0; iLocalFace < numberOfFaceInElement; ++ iLocalFace )
 		{
-			const IntField& localFaceNodeIndexArray = unitElement.GetElementFace(iLocalFace);
-			int faceType = unitElement.GetFaceType(iLocalFace);
+			const IntField& localFaceNodeIndexArray = elementDefinition.GetElementFace(iLocalFace);
+			const int faceType = elementDefinition.GetFaceType(iLocalFace);
 
 			// Build the global node array for the current face
 			IntField faceNodeIndexArray;
@@ -1521,30 +1723,50 @@ void ScalarGrid::Normalize()
 {
 	const int nFaces = this->GetNFaces();
 	const int nBFaces = this->GetNBFaces();
+	const int nCells = this->GetNCells();
 	if ( this->lc.GetNElements() != static_cast< size_t >( nFaces ) ||
-		 this->rc.GetNElements() != static_cast< size_t >( nFaces ) )
+		 this->rc.GetNElements() != static_cast< size_t >( nFaces ) ||
+		 this->faces.GetNElements() != static_cast< size_t >( nFaces ) )
 	{
-		throw std::runtime_error( "ScalarGrid::Normalize: face-cell arrays have inconsistent sizes" );
+		throw std::runtime_error( "ScalarGrid::Normalize: face topology arrays have inconsistent sizes" );
 	}
 	if ( nBFaces > nFaces )
 	{
 		throw std::runtime_error( "ScalarGrid::Normalize: boundary face count exceeds total face count" );
 	}
 
-	// Validate the complete face-cell structure before changing face orientation.
+	// Validate all physical adjacency before changing orientation or assigning ghost IDs.
 	for ( int iFace = 0; iFace < nFaces; ++ iFace )
 	{
-		if ( this->lc[ iFace ] < 0 && this->rc[ iFace ] < 0 )
+		const int leftCell = this->lc[ iFace ];
+		const int rightCell = this->rc[ iFace ];
+		const bool leftIsPhysical = leftCell >= 0 && leftCell < nCells;
+		const bool rightIsPhysical = rightCell >= 0 && rightCell < nCells;
+		const bool leftIsMissing = leftCell == ONEFLOW::INVALID_INDEX;
+		const bool rightIsMissing = rightCell == ONEFLOW::INVALID_INDEX;
+
+		if ( iFace < nBFaces )
 		{
-			throw std::runtime_error( "ScalarGrid::Normalize: face has no valid adjacent cell" );
+			if ( leftIsPhysical == rightIsPhysical ||
+				 ( ! leftIsPhysical && ! leftIsMissing ) ||
+				 ( ! rightIsPhysical && ! rightIsMissing ) )
+			{
+				throw std::runtime_error(
+					"ScalarGrid::Normalize: boundary face must have one physical cell and one missing neighbor" );
+			}
+		}
+		else if ( ! leftIsPhysical || ! rightIsPhysical || leftCell == rightCell )
+		{
+			throw std::runtime_error(
+				"ScalarGrid::Normalize: internal face must connect two distinct physical cells" );
 		}
 	}
 
 	for ( int iFace = 0; iFace < nFaces; ++ iFace )
 	{
-		if ( this->lc[ iFace ] < 0 )
+		if ( this->lc[ iFace ] == ONEFLOW::INVALID_INDEX )
 		{
-			// Reverse face orientation so the left cell is valid.
+			// Reverse face orientation so the physical cell is on the left.
 			std::vector< int > & face = this->faces[ iFace ];
 			std::reverse( face.begin(), face.end() );
 			ONEFLOW::SWAP( this->lc[ iFace ], this->rc[ iFace ] );
@@ -1681,6 +1903,9 @@ void ScalarGrid::ReadGrid( DataBook * databook )
 	// Parse and validate the replacement independently; a failed read must not
 	// leave the current grid with a mixture of old and partially loaded data.
 	ScalarGrid stagedGrid;
+	stagedGrid.CreateNodes( nodeCount );
+	// CreateNodes invalidates topology-derived counts, so publish the file header
+	// counts only after establishing the replacement node storage.
 	stagedGrid.nNodes = nodeCount;
 	stagedGrid.nFaces = faceCount;
 	stagedGrid.nCells = cellCount;
@@ -1688,8 +1913,6 @@ void ScalarGrid::ReadGrid( DataBook * databook )
 	std::cout << " number of nodes    : " << stagedGrid.nNodes << std::endl;
 	std::cout << " number of surfaces : " << stagedGrid.nFaces << std::endl;
 	std::cout << " number of elements : " << stagedGrid.nCells << std::endl;
-
-	stagedGrid.CreateNodes( stagedGrid.nNodes );
 	std::cout << " Reading xn,yn,zn\n";
 	ONEFLOW::HXRead( databook, stagedGrid.xn.data );
 	ONEFLOW::HXRead( databook, stagedGrid.yn.data );
@@ -1806,6 +2029,15 @@ void ScalarGrid::NormalizeBc()
 
 void ScalarGrid::CreateNodes( int numberOfNodes )
 {
+	if ( numberOfNodes < 0 )
+	{
+		throw std::invalid_argument( "ScalarGrid::CreateNodes: number of nodes must be non-negative" );
+	}
+
+	// Node storage defines the index space used by both topology and geometry.
+	// Invalidate derived data before changing that index space.
+	this->ResetTopologyData();
+
 	this->xn.Resize( numberOfNodes );
 	this->yn.Resize( numberOfNodes );
 	this->zn.Resize( numberOfNodes );
@@ -1813,6 +2045,9 @@ void ScalarGrid::CreateNodes( int numberOfNodes )
 
 void ScalarGrid::WriteGridFaceTopology( DataBook * databook )
 {
+	// Validate the complete topology before writing any part of the serialized record.
+	this->ValidateFaceTopology( "ScalarGrid::WriteGridFaceTopology" );
+
 	std::cout << " Dumping this->fTypes \n";
 	ONEFLOW::HXWrite( databook, this->fTypes.data );
 
@@ -1858,7 +2093,14 @@ void ScalarGrid::WriteGridFaceTopology( DataBook * databook )
 	ONEFLOW::HXWrite( databook, faceNodeMem );
 
 	ONEFLOW::HXWrite( databook, this->lc.data );
-	ONEFLOW::HXWrite( databook, this->rc.data );
+
+	// Ghost-cell IDs are reconstructed by NormalizeBc; persist boundary sentinels instead.
+	IntField serializedRightCells = this->rc.data;
+	for ( int iFace = 0; iFace < this->nBFaces; ++ iFace )
+	{
+		serializedRightCells[ iFace ] = -1;
+	}
+	ONEFLOW::HXWrite( databook, serializedRightCells );
 }
 
 void ScalarGrid::ReadGridFaceTopology( DataBook * databook )
@@ -1951,6 +2193,10 @@ void ScalarGrid::ReadGridFaceTopology( DataBook * databook )
 		{
 			throw std::runtime_error( "ScalarGrid::ReadGridFaceTopology: face references invalid adjacent cells" );
 		}
+		if ( leftCell >= 0 && leftCell == rightCell )
+		{
+			throw std::runtime_error( "ScalarGrid::ReadGridFaceTopology: face must not connect a cell to itself" );
+		}
 	}
 
 	for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
@@ -2038,12 +2284,12 @@ void ScalarGrid::ReadBoundaryTopology( DataBook * databook )
 void ScalarGrid::AddPhysicalBcFace( int global_face_id, int bctype, int lcell, int rcell, int ftype )
 {
 	// Reserve every destination before changing the logical face record.
-	this->global_faceid.reserve( this->global_faceid.size() + 1 );
-	this->bcTypes.data.reserve( this->bcTypes.data.size() + 1 );
-	this->fBcTypes.data.reserve( this->fBcTypes.data.size() + 1 );
-	this->lc.data.reserve( this->lc.data.size() + 1 );
-	this->rc.data.reserve( this->rc.data.size() + 1 );
-	this->fTypes.data.reserve( this->fTypes.data.size() + 1 );
+	ReserveForAppend( this->global_faceid );
+	ReserveForAppend( this->bcTypes.data );
+	ReserveForAppend( this->fBcTypes.data );
+	ReserveForAppend( this->lc.data );
+	ReserveForAppend( this->rc.data );
+	ReserveForAppend( this->fTypes.data );
 
 	this->global_faceid.push_back( global_face_id );
 	this->bcTypes.AddData( bctype );
@@ -2056,12 +2302,12 @@ void ScalarGrid::AddPhysicalBcFace( int global_face_id, int bctype, int lcell, i
 void ScalarGrid::AddInterfaceBcFace( int global_face_id, int bctype, int lcell, int rcell, int nei_zoneid, int nei_cellid, int ftype )
 {
 	// Reserve every destination before mutating interface or face topology.
-	this->global_faceid.reserve( this->global_faceid.size() + 1 );
-	this->bcTypes.data.reserve( this->bcTypes.data.size() + 1 );
-	this->fBcTypes.data.reserve( this->fBcTypes.data.size() + 1 );
-	this->lc.data.reserve( this->lc.data.size() + 1 );
-	this->rc.data.reserve( this->rc.data.size() + 1 );
-	this->fTypes.data.reserve( this->fTypes.data.size() + 1 );
+	ReserveForAppend( this->global_faceid );
+	ReserveForAppend( this->bcTypes.data );
+	ReserveForAppend( this->fBcTypes.data );
+	ReserveForAppend( this->lc.data );
+	ReserveForAppend( this->rc.data );
+	ReserveForAppend( this->fTypes.data );
 
 	this->AddInterface( global_face_id, nei_zoneid, nei_cellid );
 
@@ -2075,11 +2321,11 @@ void ScalarGrid::AddInterfaceBcFace( int global_face_id, int bctype, int lcell, 
 
 void ScalarGrid::AddInnerFace( int global_face_id, int bctype, int lcell, int rcell, int ftype )
 {
-	this->global_faceid.reserve( this->global_faceid.size() + 1 );
-	this->fBcTypes.data.reserve( this->fBcTypes.data.size() + 1 );
-	this->lc.data.reserve( this->lc.data.size() + 1 );
-	this->rc.data.reserve( this->rc.data.size() + 1 );
-	this->fTypes.data.reserve( this->fTypes.data.size() + 1 );
+	ReserveForAppend( this->global_faceid );
+	ReserveForAppend( this->fBcTypes.data );
+	ReserveForAppend( this->lc.data );
+	ReserveForAppend( this->rc.data );
+	ReserveForAppend( this->fTypes.data );
 
 	this->global_faceid.push_back( global_face_id );
 	this->fBcTypes.AddData( bctype );

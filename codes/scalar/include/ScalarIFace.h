@@ -94,6 +94,7 @@ public:
     void WriteInterfaceTopology( DataBook * databook ) const;
     void ReadInterfaceTopology( DataBook * databook );
     void ValidateInterfaceMappings() const;
+    void ResetTopology();
 };
 
 

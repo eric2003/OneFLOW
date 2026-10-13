@@ -367,18 +367,19 @@ void Mesh::ConstructTopology()
     {
         const IntField& element = cellTopo->elements[iCell];
         int elementType = cellTopo->eTypes[iCell];
-        UnitElement & unitElement = ONEFLOW::ElementHome::GetUnitElement(elementType);
-        int numberOfFaceInElement = unitElement.GetElementFaceNumber();
+        const UnitElement & elementDefinition =
+            ONEFLOW::ElementHome::GetUnitElementDefinition(elementType);
+        const int numberOfFaces = elementDefinition.GetElementFaceNumber();
 
-        for (int iLocalFace = 0; iLocalFace < numberOfFaceInElement; ++iLocalFace)
+        for (int localFaceIndex = 0; localFaceIndex < numberOfFaces; ++localFaceIndex)
         {
-            const IntField& localFaceNodeIndexArray = unitElement.GetElementFace(iLocalFace);
-            int faceType = unitElement.GetFaceType(iLocalFace);
+            const IntField & localFaceNodeIndices = elementDefinition.GetElementFace(localFaceIndex);
+            const int faceType = elementDefinition.GetFaceType(localFaceIndex);
 
             // Build the global node array for the current face
             IntField faceNodeIndexArray;
-            faceNodeIndexArray.reserve(localFaceNodeIndexArray.size());
-            for (int nodeIndex : localFaceNodeIndexArray)
+            faceNodeIndexArray.reserve(localFaceNodeIndices.size());
+            for (int nodeIndex : localFaceNodeIndices)
             {
                 faceNodeIndexArray.push_back(element[nodeIndex]);
             }
@@ -389,7 +390,7 @@ void Mesh::ConstructTopology()
                 // Add face data
                 faceTopo->GetLeftCells().push_back(iCell);
                 faceTopo->GetRightCells().push_back(ONEFLOW::INVALID_INDEX);
-                faceTopo->lPosition.push_back(iLocalFace);
+                faceTopo->lPosition.push_back(localFaceIndex);
                 faceTopo->rPosition.push_back(ONEFLOW::INVALID_INDEX);
                 faceTopo->GetFaceTypes().push_back(faceType);
                 faceTopo->GetFaces().push_back(std::move(faceNodeIndexArray));
@@ -397,7 +398,7 @@ void Mesh::ConstructTopology()
             else
             {
                 faceTopo->GetRightCells()[faceIndex] = iCell;
-                faceTopo->rPosition[faceIndex] = iLocalFace;
+                faceTopo->rPosition[faceIndex] = localFaceIndex;
             }
         }
     }
