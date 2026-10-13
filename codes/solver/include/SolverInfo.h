@@ -38,16 +38,16 @@ public:
     int nTEqu;
     int numberOfImplicitSweeps;
     // Historical name: [0]=solution, [1..3]=cell-center grad (dx,dy,dz).
-    // Prefer FieldHome::GetSolutionName / GetGradName; rename is a separate PR.
-    StringField gradString;
+    // [0]=solution, [1..3]=cell-center grad. Prefer FieldHome::GetSolutionName / GetGradName.
+    StringField solutionGradNames;
     // [0]=solution, [1]=update delta ("dq" / "turbdq"). Prefer FieldHome helpers.
     StringField implicitString;
     // BC face gradient storage: [0]=dx, [1]=dy, [2]=dz
     // (NS: bcdqdx/y/z, Turb: turbbcdqdx/y/z). Prefer FieldHome::GetBcGrad*.
     StringField bcGradString;
-    // Cell limiter: "limiter" (NS/INS) or "turblimiter" (Turb). Prefer GetLimiter*.
+    // Cell limiter: "limiter" (NS/INS) or "turblimiter" (Turb). Bind via literal in *Com / LimField.
     std::string limiterName;
-    // BC face solution (NS/INS: "bc_q"). Empty if unused. Prefer GetBcSolution*.
+    // BC face solution (NS/INS: "bc_q"). Empty if unused. Bind via literal "bc_q".
     std::string bcSolutionName;
     std::string residualName;
     std::string resFileName;

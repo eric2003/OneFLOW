@@ -207,9 +207,9 @@ const std::string & FieldHome::GetSolutionName()
 const std::string & FieldHome::GetSolutionName( int solverType )
 {
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
-    if ( ! solverInfo->gradString.empty() )
+    if ( ! solverInfo->solutionGradNames.empty() )
     {
-        return solverInfo->gradString[ 0 ];
+        return solverInfo->solutionGradNames[ 0 ];
     }
     static const std::string kDefaultQ = "q";
     return kDefaultQ;
@@ -238,9 +238,9 @@ const std::string & FieldHome::GetGradName( int index )
 const std::string & FieldHome::GetGradName( int solverType, int index )
 {
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
-    if ( index >= 0 && index < static_cast< int >( solverInfo->gradString.size() ) )
+    if ( index >= 0 && index < static_cast< int >( solverInfo->solutionGradNames.size() ) )
     {
-        return solverInfo->gradString[ index ];
+        return solverInfo->solutionGradNames[ index ];
     }
     static const std::string kEmpty;
     return kEmpty;

@@ -58,14 +58,14 @@ void NsSolver::StaticInit()
     solverInfo->nEqu  = nscom.nEqu;
     solverInfo->nTEqu = nscom.nTEqu;
     solverInfo->residualName = "res";
-    solverInfo->gradString.clear();
+    solverInfo->solutionGradNames.clear();
     solverInfo->implicitString.clear();
     solverInfo->bcGradString.clear();
     solverInfo->resFileName = GetDataValue< std::string >( "resFile" );
-    solverInfo->gradString.push_back( "q"    );
-    solverInfo->gradString.push_back( "dqdx" );
-    solverInfo->gradString.push_back( "dqdy" );
-    solverInfo->gradString.push_back( "dqdz" );
+    solverInfo->solutionGradNames.push_back( "q"    );
+    solverInfo->solutionGradNames.push_back( "dqdx" );
+    solverInfo->solutionGradNames.push_back( "dqdy" );
+    solverInfo->solutionGradNames.push_back( "dqdz" );
 
     solverInfo->implicitString.push_back( "q"  );
     solverInfo->implicitString.push_back( "dq" );

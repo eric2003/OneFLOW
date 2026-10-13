@@ -66,7 +66,7 @@ void NsLimField::BcQlQrFix()
             ( * this->qf2 )[ iEqu ][ ug.fId ] = tmp;
         }
 
-        // Literal bc_q — do not use unsf.bc_q (may be stale under non-NS SolverState).
+        // Literal bc_q - do not use unsf.bc_q (may be stale under non-NS SolverState).
         if ( bcType == BC::SOLID_SURFACE )
         {
             MRField * bcQ = GetFieldPointer< MRField >( Zone::GetUnsGrid(), "bc_q" );

@@ -31,6 +31,8 @@ class BcRecord;
 class UNsField
 {
 public:
+    // Mean-flow field view for a zone (NS solution/grad/bc/...).
+    // Init() always pins NS_SOLVER - safe when called from turb (UTurbInvFlux).
     UNsField() = default;
     ~UNsField() = default;
 public:

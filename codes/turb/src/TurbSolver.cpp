@@ -69,13 +69,13 @@ void TurbSolver::StaticInit()
 
     solverInfo->residualName = "turbres";
     solverInfo->resFileName = GetDataValue< std::string >( "turbresFile" );
-    solverInfo->gradString.clear();
+    solverInfo->solutionGradNames.clear();
     solverInfo->implicitString.clear();
     solverInfo->bcGradString.clear();
-    solverInfo->gradString.push_back( "turbq"    );
-    solverInfo->gradString.push_back( "turbdqdx" );
-    solverInfo->gradString.push_back( "turbdqdy" );
-    solverInfo->gradString.push_back( "turbdqdz" );
+    solverInfo->solutionGradNames.push_back( "turbq"    );
+    solverInfo->solutionGradNames.push_back( "turbdqdx" );
+    solverInfo->solutionGradNames.push_back( "turbdqdy" );
+    solverInfo->solutionGradNames.push_back( "turbdqdz" );
 
     solverInfo->implicitString.push_back( "turbq"  );
     solverInfo->implicitString.push_back( "turbdq" );
