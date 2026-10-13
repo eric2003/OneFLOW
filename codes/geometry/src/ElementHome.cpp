@@ -51,6 +51,16 @@ UnitElement & ElementHome::GetUnitElement( int elementType )
     return *unitElements[ static_cast< std::size_t >( elementType ) ];
 }
 
+const UnitElement & ElementHome::GetUnitElementDefinition( int elementType )
+{
+    if ( ! HasUnitElement( elementType ) )
+    {
+        throw std::out_of_range( "ElementHome::GetUnitElementDefinition: element type is out of range" );
+    }
+
+    return *unitElements[ static_cast< std::size_t >( elementType ) ];
+}
+
 void ElementHome::Initialize()
 {
     // Keep enum values as registry indices, including unsupported gaps.
@@ -101,7 +111,7 @@ int GetElementNodeNumbers( int eType )
 
     if ( ! ElementHome::HasUnitElement( eType ) ) return 0;
 
-    return ElementHome::GetUnitElement( eType ).GetElementNodeNumbers( eType );
+    return ElementHome::GetUnitElementDefinition( eType ).GetElementNodeNumbers( eType );
 }
 
 int GetElementDimension( int eType )
@@ -141,7 +151,7 @@ bool IsBasicVolumeElementType( int eType )
 {
     if ( ! ElementHome::HasUnitElement( eType ) ) return false;
 
-    return ElementHome::GetUnitElement( eType ).IsBasicVolumeElementType( eType );
+    return ElementHome::GetUnitElementDefinition( eType ).IsBasicVolumeElementType( eType );
 }
 
 EndNameSpace
