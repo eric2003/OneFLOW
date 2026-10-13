@@ -1009,6 +1009,21 @@ TEST( ScalarGridTopologyTest, GenerateGridBuildsOneDimensionalUnstructuredMesh )
 }
 
 
+TEST( UnitElementInitializationTest, ReinitializationReplacesPreviousTopology )
+{
+    ONEFLOW::UnitElement element;
+
+    element.Initialize( ONEFLOW::BAR_3 );
+    EXPECT_EQ( element.GetElementType(), ONEFLOW::BAR_3 );
+    EXPECT_EQ( element.GetElementFaceNumber(), 2 );
+    EXPECT_EQ( element.GetChildElementNumbers(), 2 );
+
+    element.Initialize( ONEFLOW::TRI_3 );
+    EXPECT_EQ( element.GetElementType(), ONEFLOW::TRI_3 );
+    EXPECT_EQ( element.GetElementFaceNumber(), 3 );
+    EXPECT_EQ( element.GetChildElementNumbers(), 0 );
+}
+
 TEST( ElementDimensionTest, ReportsIntrinsicDimensionIndependentOfMeshDimension )
 {
     EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::NODE ), 0 );
