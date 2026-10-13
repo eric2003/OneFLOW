@@ -126,9 +126,9 @@ TEST(UnitElementTest, TopologyAccessorsRejectOutOfRangeIndices)
     EXPECT_THROW(element.GetFaceType(-1), std::out_of_range);
     EXPECT_THROW(element.GetFaceType(4), std::out_of_range);
 
-    EXPECT_THROW(element.GetRelatedPointListForMiddlePointCalcutation(-1),
+    EXPECT_THROW(element.GetRelatedPointListForMiddlePointCalculation(-1),
                  std::out_of_range);
-    EXPECT_THROW(element.GetRelatedPointListForMiddlePointCalcutation(4),
+    EXPECT_THROW(element.GetRelatedPointListForMiddlePointCalculation(4),
                  std::out_of_range);
 
     EXPECT_THROW(element.GetElementPhysicsFace(-1), std::out_of_range);
@@ -154,8 +154,8 @@ TEST(UnitElementTest, PushMiddlePointRejectsInvalidLocalNodeIndicesWithoutMutati
     EXPECT_THROW(element.PushMiddlePoint(3, 0, 2), std::out_of_range);
     EXPECT_THROW(element.PushMiddlePoint(3, 1, 4), std::out_of_range);
 
-    EXPECT_EQ(element.GetRelatedPointListForMiddlePointCalcutation(2).size(), 2);
-    EXPECT_EQ(element.GetRelatedPointListForMiddlePointCalcutation(0).size(), 0);
+    EXPECT_EQ(element.GetRelatedPointListForMiddlePointCalculation(2).size(), 2);
+    EXPECT_EQ(element.GetRelatedPointListForMiddlePointCalculation(0).size(), 0);
 }
 
 TEST(UnitElementTest, FailedInitializePreservesExistingTopology)
