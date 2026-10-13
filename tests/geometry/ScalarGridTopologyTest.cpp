@@ -1093,6 +1093,27 @@ TEST( ElementDimensionTest, RegistryRejectsOutOfRangeElementTypes )
         std::out_of_range );
 }
 
+TEST( ElementDimensionTest, RegistryDistinguishesUnsupportedSlotsFromOutOfRangeIndices )
+{
+    bool foundUnsupportedSlot = false;
+    for ( int elementType = 0;
+          elementType < ONEFLOW::ElementHome::GetNumberOfUnitElements();
+          ++ elementType )
+    {
+        if ( ONEFLOW::ElementHome::HasUnitElement( elementType ) ) continue;
+
+        foundUnsupportedSlot = true;
+        EXPECT_EQ( ONEFLOW::GetElementNodeNumbers( elementType ), 0 );
+        EXPECT_EQ( ONEFLOW::GetElementDimension( elementType ), -1 );
+        EXPECT_THROW(
+            ONEFLOW::ElementHome::GetUnitElement( elementType ),
+            std::out_of_range );
+        break;
+    }
+
+    EXPECT_TRUE( foundUnsupportedSlot );
+}
+
 TEST( ElementDimensionTest, RegistryFreeClearsStorageAndCanBeReinitialized )
 {
     const int expectedCount = ONEFLOW::ElementHome::GetNumberOfUnitElements();

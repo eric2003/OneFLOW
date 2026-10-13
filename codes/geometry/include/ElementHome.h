@@ -43,6 +43,7 @@ private:
     static HXVector< std::unique_ptr< UnitElement > > unitElements;
 public:
     static int GetNumberOfUnitElements();
+    static bool HasUnitElement( int elementType );
     static UnitElement & GetUnitElement( int elementType );
 public:
     static void Initialize();

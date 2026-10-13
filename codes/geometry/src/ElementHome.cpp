@@ -34,11 +34,16 @@ int ElementHome::GetNumberOfUnitElements()
     return static_cast< int >( unitElements.size() );
 }
 
+bool ElementHome::HasUnitElement( int elementType )
+{
+    return elementType >= 0 &&
+        static_cast< std::size_t >( elementType ) < unitElements.size() &&
+        static_cast< bool >( unitElements[ static_cast< std::size_t >( elementType ) ] );
+}
+
 UnitElement & ElementHome::GetUnitElement( int elementType )
 {
-    if ( elementType < 0 ||
-         static_cast< std::size_t >( elementType ) >= unitElements.size() ||
-         ! unitElements[ static_cast< std::size_t >( elementType ) ] )
+    if ( ! HasUnitElement( elementType ) )
     {
         throw std::out_of_range( "ElementHome::GetUnitElement: element type is out of range" );
     }
@@ -94,23 +99,14 @@ int GetElementNodeNumbers( int eType )
         throw std::out_of_range( "GetElementNodeNumbers: element type is out of range" );
     }
 
-    UnitElement * unitElement = nullptr;
-    try
-    {
-        unitElement = &ElementHome::GetUnitElement( eType );
-    }
-    catch ( const std::out_of_range & )
-    {
-        // The enum value is in range, but this type has no registered definition.
-        return 0;
-    }
+    if ( ! ElementHome::HasUnitElement( eType ) ) return 0;
 
-    return unitElement->GetElementNodeNumbers( eType );
+    return ElementHome::GetUnitElement( eType ).GetElementNodeNumbers( eType );
 }
 
 int GetElementDimension( int eType )
 {
-    if ( eType < 0 || eType >= ElementHome::GetNumberOfUnitElements() ) return -1;
+    if ( ! ElementHome::HasUnitElement( eType ) ) return -1;
 
     switch ( eType )
     {
