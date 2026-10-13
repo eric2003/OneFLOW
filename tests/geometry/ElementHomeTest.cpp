@@ -125,6 +125,20 @@ TEST(UnitElementTest, TopologyAccessorsRejectOutOfRangeIndices)
     EXPECT_THROW(element.GetChildElementType(0), std::out_of_range);
 }
 
+TEST(UnitElementTest, PushMiddlePointRejectsInvalidLocalNodeIndicesWithoutMutation)
+{
+    ONEFLOW::UnitElement element;
+    element.Initialize(ONEFLOW::BAR_3);
+
+    EXPECT_THROW(element.PushMiddlePoint(0, 1, 2), std::out_of_range);
+    EXPECT_THROW(element.PushMiddlePoint(4, 1, 2), std::out_of_range);
+    EXPECT_THROW(element.PushMiddlePoint(3, 0, 2), std::out_of_range);
+    EXPECT_THROW(element.PushMiddlePoint(3, 1, 4), std::out_of_range);
+
+    EXPECT_EQ(element.GetRelatedPointListForMiddlePointCalcutation(2).size(), 2);
+    EXPECT_EQ(element.GetRelatedPointListForMiddlePointCalcutation(0).size(), 0);
+}
+
 TEST(UnitElementTest, FailedInitializePreservesExistingTopology)
 {
     ONEFLOW::UnitElement element;
