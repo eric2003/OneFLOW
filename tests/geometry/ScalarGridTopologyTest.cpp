@@ -1024,6 +1024,22 @@ TEST( UnitElementInitializationTest, ReinitializationReplacesPreviousTopology )
     EXPECT_EQ( element.GetChildElementNumbers(), 0 );
 }
 
+TEST( UnitElementInitializationTest, UnsupportedTypePreservesExistingTopology )
+{
+    ONEFLOW::UnitElement element;
+    element.Initialize( ONEFLOW::BAR_3 );
+
+    EXPECT_THROW( element.Initialize( -1 ), std::invalid_argument );
+    EXPECT_EQ( element.GetElementType(), ONEFLOW::BAR_3 );
+    EXPECT_EQ( element.GetElementFaceNumber(), 2 );
+    EXPECT_EQ( element.GetChildElementNumbers(), 2 );
+
+    EXPECT_THROW( element.Initialize( 9999 ), std::invalid_argument );
+    EXPECT_EQ( element.GetElementType(), ONEFLOW::BAR_3 );
+    EXPECT_EQ( element.GetElementFaceNumber(), 2 );
+    EXPECT_EQ( element.GetChildElementNumbers(), 2 );
+}
+
 TEST( ElementDimensionTest, ReportsIntrinsicDimensionIndependentOfMeshDimension )
 {
     EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::NODE ), 0 );
