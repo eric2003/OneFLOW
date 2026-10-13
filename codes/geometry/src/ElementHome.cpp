@@ -44,9 +44,14 @@ std::unique_ptr< const UnitElement > BuildUnitElementDefinition( int elementType
 
 HXVector< std::unique_ptr< const UnitElement > > ElementHome::unitElements;
 
-int ElementHome::GetNumberOfUnitElements()
+int ElementHome::GetUnitElementSlotCount()
 {
     return static_cast< int >( unitElements.size() );
+}
+
+int ElementHome::GetNumberOfUnitElements()
+{
+    return GetUnitElementSlotCount();
 }
 
 bool ElementHome::HasUnitElement( int elementType )
@@ -106,7 +111,7 @@ ElementHomeInit elementHomeInit;
 
 int GetElementNodeNumbers( int eType )
 {
-    if ( eType < 0 || eType >= ElementHome::GetNumberOfUnitElements() )
+    if ( eType < 0 || eType >= ElementHome::GetUnitElementSlotCount() )
     {
         throw std::out_of_range( "GetElementNodeNumbers: element type is out of range" );
     }

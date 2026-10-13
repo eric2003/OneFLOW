@@ -1069,7 +1069,7 @@ TEST( ElementDimensionTest, RejectsInvalidOrUnsupportedElementTypes )
 {
     EXPECT_EQ( ONEFLOW::GetElementDimension( -1 ), -1 );
     // Use the geometry registry count instead of duplicating the CGNS element-count macro.
-    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::ElementHome::GetNumberOfUnitElements() ), -1 );
+    EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::ElementHome::GetUnitElementSlotCount() ), -1 );
 }
 
 TEST( ElementDimensionTest, DimensionLookupUsesRegistryStorageAsSourceOfTruth )
@@ -1086,22 +1086,22 @@ TEST( ElementDimensionTest, RegistryRejectsOutOfRangeElementTypes )
 {
     EXPECT_THROW( ONEFLOW::ElementHome::GetUnitElementDefinition( -1 ), std::out_of_range );
     EXPECT_THROW(
-        ONEFLOW::ElementHome::GetUnitElementDefinition( ONEFLOW::ElementHome::GetNumberOfUnitElements() ),
+        ONEFLOW::ElementHome::GetUnitElementDefinition( ONEFLOW::ElementHome::GetUnitElementSlotCount() ),
         std::out_of_range );
     EXPECT_THROW(
-        ONEFLOW::GetElementNodeNumbers( ONEFLOW::ElementHome::GetNumberOfUnitElements() ),
+        ONEFLOW::GetElementNodeNumbers( ONEFLOW::ElementHome::GetUnitElementSlotCount() ),
         std::out_of_range );
 
     EXPECT_FALSE( ONEFLOW::IsBasicVolumeElementType( -1 ) );
     EXPECT_FALSE( ONEFLOW::IsBasicVolumeElementType(
-        ONEFLOW::ElementHome::GetNumberOfUnitElements() ) );
+        ONEFLOW::ElementHome::GetUnitElementSlotCount() ) );
 }
 
 TEST( ElementDimensionTest, RegistryDistinguishesUnsupportedSlotsFromOutOfRangeIndices )
 {
     bool foundUnsupportedSlot = false;
     for ( int elementType = 0;
-          elementType < ONEFLOW::ElementHome::GetNumberOfUnitElements();
+          elementType < ONEFLOW::ElementHome::GetUnitElementSlotCount();
           ++ elementType )
     {
         if ( ONEFLOW::ElementHome::HasUnitElement( elementType ) ) continue;
@@ -1121,12 +1121,12 @@ TEST( ElementDimensionTest, RegistryDistinguishesUnsupportedSlotsFromOutOfRangeI
 
 TEST( ElementDimensionTest, RegistryFreeClearsStorageAndCanBeReinitialized )
 {
-    const int expectedCount = ONEFLOW::ElementHome::GetNumberOfUnitElements();
-    ASSERT_GT( expectedCount, 0 );
+    const int expectedSlotCount = ONEFLOW::ElementHome::GetUnitElementSlotCount();
+    ASSERT_GT( expectedSlotCount, 0 );
 
     ONEFLOW::ElementHome::Free();
 
-    EXPECT_EQ( ONEFLOW::ElementHome::GetNumberOfUnitElements(), 0 );
+    EXPECT_EQ( ONEFLOW::ElementHome::GetUnitElementSlotCount(), 0 );
     EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::BAR_2 ), -1 );
     EXPECT_FALSE( ONEFLOW::IsBasicVolumeElementType( ONEFLOW::BAR_2 ) );
     EXPECT_THROW(
@@ -1135,21 +1135,21 @@ TEST( ElementDimensionTest, RegistryFreeClearsStorageAndCanBeReinitialized )
 
     ONEFLOW::ElementHome::Initialize();
 
-    EXPECT_EQ( ONEFLOW::ElementHome::GetNumberOfUnitElements(), expectedCount );
+    EXPECT_EQ( ONEFLOW::ElementHome::GetUnitElementSlotCount(), expectedSlotCount );
     EXPECT_EQ( ONEFLOW::GetElementDimension( ONEFLOW::BAR_2 ), 1 );
 }
 
 TEST( ElementDimensionTest, RegistryInitializationCanBeRepeated )
 {
-    const int expectedCount = ONEFLOW::ElementHome::GetNumberOfUnitElements();
-    ASSERT_GT( expectedCount, 0 );
+    const int expectedSlotCount = ONEFLOW::ElementHome::GetUnitElementSlotCount();
+    ASSERT_GT( expectedSlotCount, 0 );
 
     ONEFLOW::ElementHome::Initialize();
-    EXPECT_EQ( ONEFLOW::ElementHome::GetNumberOfUnitElements(), expectedCount );
+    EXPECT_EQ( ONEFLOW::ElementHome::GetUnitElementSlotCount(), expectedSlotCount );
     EXPECT_EQ(
         ONEFLOW::ElementHome::GetUnitElementDefinition( ONEFLOW::BAR_2 ).GetElementType(),
         ONEFLOW::BAR_2 );
 
     ONEFLOW::ElementHome::Initialize();
-    EXPECT_EQ( ONEFLOW::ElementHome::GetNumberOfUnitElements(), expectedCount );
+    EXPECT_EQ( ONEFLOW::ElementHome::GetUnitElementSlotCount(), expectedSlotCount );
 }

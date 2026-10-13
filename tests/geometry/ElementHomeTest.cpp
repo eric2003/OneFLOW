@@ -39,7 +39,10 @@ TEST(ElementHomeTest, InitializeBuildsRegistryWithStableEnumIndices)
 {
     ONEFLOW::ElementHome::Initialize();
 
-    EXPECT_GT(ONEFLOW::ElementHome::GetNumberOfUnitElements(), ONEFLOW::HEXA_8);
+    EXPECT_GT(ONEFLOW::ElementHome::GetUnitElementSlotCount(), ONEFLOW::HEXA_8);
+    EXPECT_EQ(
+        ONEFLOW::ElementHome::GetNumberOfUnitElements(),
+        ONEFLOW::ElementHome::GetUnitElementSlotCount());
     EXPECT_TRUE(ONEFLOW::ElementHome::HasUnitElement(ONEFLOW::NODE));
     EXPECT_TRUE(ONEFLOW::ElementHome::HasUnitElement(ONEFLOW::BAR_2));
     EXPECT_TRUE(ONEFLOW::ElementHome::HasUnitElement(ONEFLOW::HEXA_8));
@@ -68,14 +71,14 @@ TEST(ElementHomeTest, ReadOnlyDefinitionAccessorPreservesRegistryTopology)
 TEST(ElementHomeTest, RepeatedInitializeRebuildsEquivalentRegistry)
 {
     ONEFLOW::ElementHome::Initialize();
-    const int initialCount = ONEFLOW::ElementHome::GetNumberOfUnitElements();
+    const int initialSlotCount = ONEFLOW::ElementHome::GetUnitElementSlotCount();
     ASSERT_TRUE(ONEFLOW::ElementHome::HasUnitElement(ONEFLOW::HEXA_8));
     const int initialNodeCount =
         ONEFLOW::GetElementNodeNumbers(ONEFLOW::HEXA_8);
 
     ONEFLOW::ElementHome::Initialize();
 
-    EXPECT_EQ(ONEFLOW::ElementHome::GetNumberOfUnitElements(), initialCount);
+    EXPECT_EQ(ONEFLOW::ElementHome::GetUnitElementSlotCount(), initialSlotCount);
     ASSERT_TRUE(ONEFLOW::ElementHome::HasUnitElement(ONEFLOW::HEXA_8));
     EXPECT_EQ(ONEFLOW::GetElementNodeNumbers(ONEFLOW::HEXA_8), initialNodeCount);
 }
@@ -85,14 +88,14 @@ TEST(ElementHomeTest, InvalidElementIndicesAreRejectedConsistently)
     EXPECT_FALSE(ONEFLOW::ElementHome::HasUnitElement(-1));
     EXPECT_FALSE(
         ONEFLOW::ElementHome::HasUnitElement(
-            ONEFLOW::ElementHome::GetNumberOfUnitElements()));
+            ONEFLOW::ElementHome::GetUnitElementSlotCount()));
 
     EXPECT_THROW(
         ONEFLOW::ElementHome::GetUnitElementDefinition(-1),
         std::out_of_range);
     EXPECT_THROW(
         ONEFLOW::GetElementNodeNumbers(
-            ONEFLOW::ElementHome::GetNumberOfUnitElements()),
+            ONEFLOW::ElementHome::GetUnitElementSlotCount()),
         std::out_of_range);
 }
 
@@ -103,7 +106,7 @@ TEST(ElementHomeTest, FreeClearsRegistryAndInitializeRestoresIt)
 
     ONEFLOW::ElementHome::Free();
 
-    EXPECT_EQ(ONEFLOW::ElementHome::GetNumberOfUnitElements(), 0);
+    EXPECT_EQ(ONEFLOW::ElementHome::GetUnitElementSlotCount(), 0);
     EXPECT_FALSE(ONEFLOW::ElementHome::HasUnitElement(ONEFLOW::HEXA_8));
     EXPECT_THROW(
         ONEFLOW::ElementHome::GetUnitElementDefinition(ONEFLOW::HEXA_8),
