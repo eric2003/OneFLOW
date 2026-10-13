@@ -45,6 +45,7 @@ public:
     static int GetNumberOfUnitElements();
     static bool HasUnitElement( int elementType );
     static UnitElement & GetUnitElement( int elementType );
+    static const UnitElement & GetUnitElementDefinition( int elementType );
 public:
     static void Initialize();
     static void Free();
