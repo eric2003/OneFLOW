@@ -23,6 +23,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "UnsteadyFieldNames.h"
+#include "SolverInfo.h"
 #include <string>
 
 BeginNameSpace( ONEFLOW )
@@ -81,5 +82,12 @@ SolverLogisticsNames MakeSolverLogisticsNames(
 SolverLogisticsNames ExpectedNsSolverLogisticsNames();
 SolverLogisticsNames ExpectedINsSolverLogisticsNames();
 SolverLogisticsNames ExpectedTurbSolverLogisticsNames();
+
+// Fill SolverInfo field-name slots from pure contracts.
+// Does not modify resFileName (path comes from configuration).
+void ApplyFieldNameContract(
+    SolverInfo * solverInfo,
+    const SolverLogisticsNames & logistics,
+    const UnsteadyFieldNames & unsteady );
 
 EndNameSpace

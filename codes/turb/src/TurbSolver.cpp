@@ -68,22 +68,12 @@ void TurbSolver::StaticInit()
     solverInfo->nEqu  = turbcom.nEqu;
     solverInfo->nTEqu = turbcom.nTEqu;
 
-    // Field names from pure contract (FieldNameContract); single source of truth.
-    const SolverLogisticsNames logistics = ExpectedTurbSolverLogisticsNames();
-    const UnsteadyFieldNames unsteady = ExpectedTurbUnsteadyFieldNames();
-    solverInfo->residualName = logistics.residualName;
-    solverInfo->solutionGradNames = logistics.solutionGradNames;
-    solverInfo->implicitFieldNames = logistics.implicitFieldNames;
-    solverInfo->bcGradFieldNames = logistics.bcGradFieldNames;
-    solverInfo->limiterName = logistics.limiterName;
-    solverInfo->bcSolutionName = logistics.bcSolutionName;
+    // Field names: pure contract (unit-tested) -> SolverInfo.
+    ApplyFieldNameContract(
+        solverInfo,
+        ExpectedTurbSolverLogisticsNames(),
+        ExpectedTurbUnsteadyFieldNames() );
     solverInfo->resFileName = GetDataValue< std::string >( "turbresFile" );
-    solverInfo->stageSolutionNames.clear();
-    solverInfo->stageSolutionNames.push_back( unsteady.flow[ 1 ] );
-    solverInfo->stageSolutionNames.push_back( unsteady.flow[ 2 ] );
-    solverInfo->stageResidualNames.clear();
-    solverInfo->stageResidualNames.push_back( unsteady.residual[ 1 ] );
-    solverInfo->stageResidualNames.push_back( unsteady.residual[ 2 ] );
 }
 
 EndNameSpace

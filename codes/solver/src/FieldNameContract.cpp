@@ -123,4 +123,31 @@ SolverLogisticsNames ExpectedTurbSolverLogisticsNames()
         "turblimiter", "" );
 }
 
+void ApplyFieldNameContract(
+    SolverInfo * solverInfo,
+    const SolverLogisticsNames & logistics,
+    const UnsteadyFieldNames & unsteady )
+{
+    solverInfo->residualName = logistics.residualName;
+    solverInfo->solutionGradNames = logistics.solutionGradNames;
+    solverInfo->implicitFieldNames = logistics.implicitFieldNames;
+    solverInfo->bcGradFieldNames = logistics.bcGradFieldNames;
+    solverInfo->limiterName = logistics.limiterName;
+    solverInfo->bcSolutionName = logistics.bcSolutionName;
+
+    // unsteady.flow[0] / residual[0] are current; stages are Previous/Old.
+    solverInfo->stageSolutionNames.clear();
+    if ( unsteady.flow.size() >= 3 )
+    {
+        solverInfo->stageSolutionNames.push_back( unsteady.flow[ 1 ] );
+        solverInfo->stageSolutionNames.push_back( unsteady.flow[ 2 ] );
+    }
+    solverInfo->stageResidualNames.clear();
+    if ( unsteady.residual.size() >= 3 )
+    {
+        solverInfo->stageResidualNames.push_back( unsteady.residual[ 1 ] );
+        solverInfo->stageResidualNames.push_back( unsteady.residual[ 2 ] );
+    }
+}
+
 EndNameSpace

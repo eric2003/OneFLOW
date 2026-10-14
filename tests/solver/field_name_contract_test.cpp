@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include "FieldNameContract.h"
+#include "SolverInfo.h"
 #include <string>
 #include <vector>
 
@@ -146,4 +147,49 @@ TEST( FieldNameContract, TurbAndNsDoNotShareBareSolutionName )
     const auto turb = ExpectedTurbSolverLogisticsNames();
     EXPECT_NE( ns.solutionGradNames[ 0 ], turb.solutionGradNames[ 0 ] );
     EXPECT_NE( ns.residualName, turb.residualName );
+}
+
+TEST( FieldNameContract, Apply_NsFillsSolverInfoSlots )
+{
+    SolverInfo info;
+    ApplyFieldNameContract(
+        &info,
+        ExpectedNsSolverLogisticsNames(),
+        ExpectedNsUnsteadyFieldNames() );
+
+    EXPECT_EQ( info.residualName, "res" );
+    ASSERT_EQ( info.solutionGradNames.size(), 4u );
+    EXPECT_EQ( info.solutionGradNames[ 0 ], "q" );
+    EXPECT_EQ( info.implicitFieldNames[ 1 ], "dq" );
+    ASSERT_EQ( info.stageSolutionNames.size(), 2u );
+    EXPECT_EQ( info.stageSolutionNames[ 0 ], "q1" );
+    EXPECT_EQ( info.stageResidualNames[ 0 ], "res1" );
+    EXPECT_EQ( info.limiterName, "limiter" );
+    EXPECT_EQ( info.bcSolutionName, "bc_q" );
+}
+
+TEST( FieldNameContract, Apply_TurbUsesPrefixedNames )
+{
+    SolverInfo info;
+    ApplyFieldNameContract(
+        &info,
+        ExpectedTurbSolverLogisticsNames(),
+        ExpectedTurbUnsteadyFieldNames() );
+
+    EXPECT_EQ( info.residualName, "turbres" );
+    EXPECT_EQ( info.solutionGradNames[ 0 ], "turbq" );
+    EXPECT_EQ( info.stageSolutionNames[ 0 ], "turbq1" );
+    EXPECT_EQ( info.stageResidualNames[ 1 ], "turbres2" );
+    EXPECT_TRUE( info.bcSolutionName.empty() );
+}
+
+TEST( FieldNameContract, Apply_DoesNotTouchResFileName )
+{
+    SolverInfo info;
+    info.resFileName = "keep_me.dat";
+    ApplyFieldNameContract(
+        &info,
+        ExpectedNsSolverLogisticsNames(),
+        ExpectedNsUnsteadyFieldNames() );
+    EXPECT_EQ( info.resFileName, "keep_me.dat" );
 }

@@ -60,22 +60,12 @@ void INsSolver::StaticInit()
     solverInfo->nEqu  = nscom.nEqu;
     solverInfo->nTEqu = nscom.nTEqu;
 
-    // Field names from pure contract (FieldNameContract); single source of truth.
-    const SolverLogisticsNames logistics = ExpectedINsSolverLogisticsNames();
-    const UnsteadyFieldNames unsteady = ExpectedINsUnsteadyFieldNames();
-    solverInfo->residualName = logistics.residualName;
-    solverInfo->solutionGradNames = logistics.solutionGradNames;
-    solverInfo->implicitFieldNames = logistics.implicitFieldNames;
-    solverInfo->bcGradFieldNames = logistics.bcGradFieldNames;
-    solverInfo->limiterName = logistics.limiterName;
-    solverInfo->bcSolutionName = logistics.bcSolutionName;
+    // Field names: pure contract (unit-tested) -> SolverInfo.
+    ApplyFieldNameContract(
+        solverInfo,
+        ExpectedINsSolverLogisticsNames(),
+        ExpectedINsUnsteadyFieldNames() );
     solverInfo->resFileName = GetDataValue< std::string >( "resFile" );
-    solverInfo->stageSolutionNames.clear();
-    solverInfo->stageSolutionNames.push_back( unsteady.flow[ 1 ] );
-    solverInfo->stageSolutionNames.push_back( unsteady.flow[ 2 ] );
-    solverInfo->stageResidualNames.clear();
-    solverInfo->stageResidualNames.push_back( unsteady.residual[ 1 ] );
-    solverInfo->stageResidualNames.push_back( unsteady.residual[ 2 ] );
 }
 
 EndNameSpace
