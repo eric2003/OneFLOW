@@ -6,6 +6,8 @@
 #include <gtest/gtest.h>
 
 #include <array>
+#include <cstdlib>
+#include <iostream>
 #include <filesystem>
 #include <fstream>
 #include <string>
@@ -102,7 +104,15 @@ TEST( GridLayoutGenerationTest, GeneratesMinimalRectangle )
 
     Dim::SetDimension( oldDimension );
     Prj::prjBaseDir = oldProjectDir;
-    std::filesystem::remove_all( outputDir );
+    const char * keepCaseOutput = std::getenv( "ONEFLOW_KEEP_MESH_EXPORT_CASE" );
+    if ( keepCaseOutput != nullptr && std::string( keepCaseOutput ) == "1" )
+    {
+        std::cout << "Preserved mesh export case output: " << outputFile.string() << std::endl;
+    }
+    else
+    {
+        std::filesystem::remove_all( outputDir );
+    }
 }
 
 } // namespace
