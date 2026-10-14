@@ -50,8 +50,10 @@ conversion; it does not require the referenced layout file to exist unless the
 selected workflow actually opens it. If `sourceGridCaseDir` is set, the
 validator checks source grid and boundary paths relative to that source case,
 matching the grid reader's case-root selection. Source and target format names
-are also checked against OneFLOW's registered format tokens. This is a preflight
-check, not a replacement for OneFLOW's own parameter parser or runtime validation.
+are also checked against OneFLOW's registered format tokens and the currently
+implemented source-to-target conversion pairs: Plot3D to OneFLOW/CGNS, SU2 to
+OneFLOW, and CGNS to OneFLOW/CGNS. This is a preflight check, not a replacement
+for OneFLOW's own parameter parser or runtime validation.
 
 ## Parameter configuration and future tools
 
