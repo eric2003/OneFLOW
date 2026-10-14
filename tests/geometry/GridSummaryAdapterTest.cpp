@@ -35,3 +35,23 @@ TEST( GridSummaryAdapterTest, CopiesCurrentGridCountsWithoutOwningStorage )
     EXPECT_EQ( summary.boundaryFaceCount, 12 );
     EXPECT_TRUE( ONEFLOW::IsValidGridSummary( summary ) );
 }
+
+TEST( GridSummaryAdapterTest, FreeClearsCountsAlongWithOwnedStorage )
+{
+    ONEFLOW::UnsGrid grid;
+    grid.nNodes = 12;
+    grid.nFaces = 17;
+    grid.nCells = 6;
+    grid.nBFaces = 12;
+    grid.nIFaces = 2;
+
+    grid.Free();
+
+    const ONEFLOW::GridSummary summary = ONEFLOW::MakeGridSummary( grid );
+
+    EXPECT_EQ( summary.nodeCount, 0 );
+    EXPECT_EQ( summary.faceCount, 0 );
+    EXPECT_EQ( summary.cellCount, 0 );
+    EXPECT_EQ( summary.boundaryFaceCount, 0 );
+    EXPECT_TRUE( ONEFLOW::IsValidGridSummary( summary ) );
+}
