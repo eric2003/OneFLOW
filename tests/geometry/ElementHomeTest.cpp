@@ -94,6 +94,44 @@ TEST(ElementHomeTest, ReadOnlyDefinitionAccessorPreservesRegistryTopology)
     EXPECT_EQ(element.GetElementFaceNumber(), element.GetElementFaceCount());
 }
 
+TEST(UnitElementTest, StandardElementDefinitionsHaveExpectedTopologyCounts)
+{
+    struct ExpectedTopology
+    {
+        int elementType;
+        int faceCount;
+        int compositeFaceCount;
+        int childElementCount;
+    };
+
+    const ExpectedTopology expected[] = {
+        {ONEFLOW::NODE, 1, 0, 0},
+        {ONEFLOW::BAR_2, 2, 0, 0},
+        {ONEFLOW::BAR_3, 2, 0, 2},
+        {ONEFLOW::TRI_3, 3, 0, 0},
+        {ONEFLOW::TRI_6, 6, 3, 4},
+        {ONEFLOW::QUAD_4, 4, 0, 0},
+        {ONEFLOW::QUAD_8, 8, 4, 0},
+        {ONEFLOW::TETRA_4, 4, 0, 0},
+        {ONEFLOW::HEXA_8, 6, 0, 0},
+    };
+
+    ONEFLOW::ElementHome::Initialize();
+
+    for (const ExpectedTopology & item : expected)
+    {
+        SCOPED_TRACE(item.elementType);
+        ASSERT_TRUE(ONEFLOW::ElementHome::HasUnitElement(item.elementType));
+
+        const ONEFLOW::UnitElement & element =
+            ONEFLOW::ElementHome::GetUnitElementDefinition(item.elementType);
+
+        EXPECT_EQ(element.GetElementFaceCount(), item.faceCount);
+        EXPECT_EQ(element.GetCompositeFaceCount(), item.compositeFaceCount);
+        EXPECT_EQ(element.GetChildElementCount(), item.childElementCount);
+    }
+}
+
 TEST(ElementHomeTest, RegisteredTopologyIndicesMatchElementDefinitions)
 {
     ONEFLOW::ElementHome::Initialize();
