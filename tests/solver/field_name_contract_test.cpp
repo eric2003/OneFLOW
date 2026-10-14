@@ -96,3 +96,28 @@ TEST( FieldNameContract, Apply_TurbStyleTablesStayPrefixed )
     EXPECT_NE( info.solutionGradNames[ 0 ].find( "turb" ), std::string::npos );
     EXPECT_TRUE( info.bcSolutionName.empty() );
 }
+
+TEST( FieldNameContract, Register_SetsEquCountsAndNames )
+{
+    SolverInfo info;
+    const SolverLogisticsNames logistics = MakeSolverLogisticsNames(
+        "q", "dqdx", "dqdy", "dqdz", "dq", "res",
+        "bcdqdx", "bcdqdy", "bcdqdz",
+        "limiter", "bc_q" );
+    StringField stageQ;
+    stageQ.push_back( "q1" );
+    stageQ.push_back( "q2" );
+    StringField stageR;
+    stageR.push_back( "res1" );
+    stageR.push_back( "res2" );
+    const UnsteadyFieldNames unsteady =
+        MakeUnsteadyFieldNames( "q", stageQ, "res", stageR );
+
+    RegisterSolverFieldInfo( &info, 5, 5, logistics, unsteady, "out.res" );
+
+    EXPECT_EQ( info.nEqu, 5 );
+    EXPECT_EQ( info.nTEqu, 5 );
+    EXPECT_EQ( info.residualName, "res" );
+    EXPECT_EQ( info.resFileName, "out.res" );
+    EXPECT_EQ( info.stageSolutionNames[ 0 ], "q1" );
+}

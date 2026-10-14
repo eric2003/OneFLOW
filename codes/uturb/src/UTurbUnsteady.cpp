@@ -98,7 +98,7 @@ void UTurbUnstPrepareSrcData( UUnsteady * unsteady )
 
     if ( unsteady->GetEquationCount() >= 2 )
     {
-        coef  = ( * uturbf.q_ns )[ IDX::IR ][ ug.cId ];
+        coef  = ( * uturbf.meanFlow.q )[ IDX::IR ][ ug.cId ];
     }
 
     for ( int iEqu = 0; iEqu < unsteady->GetEquationCount(); ++ iEqu )
@@ -164,7 +164,7 @@ void UTurbUnstPrepareCriData( UUnsteady * unsteady )
 
     if ( unsteady->GetEquationCount() >= 2 )
     {
-        coef  = ( * uturbf.q_ns )[ IDX::IR ][ ug.cId ];
+        coef  = ( * uturbf.meanFlow.q )[ IDX::IR ][ ug.cId ];
     }
 
     for ( int iEqu = 0; iEqu < unsteady->GetEquationCount(); ++ iEqu )

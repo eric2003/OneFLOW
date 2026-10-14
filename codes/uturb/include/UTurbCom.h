@@ -24,10 +24,11 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "HXArray.h"
+#include "MeanFlowView.h"
 
 BeginNameSpace( ONEFLOW )
 
-// Turbulence field view. q_ns/dq*_ns: non-owning MeanFlowView (NS_SOLVER) coupling.
+// Turbulence field view. meanFlow: non-owning NS coupling (loose, explicit).
 class UTurbField
 {
 public:
@@ -40,7 +41,7 @@ public:
     MRField * rhs, * drhs;
     MRField * visl, * vist;
     MRField * dqdx, * dqdy, * dqdz;
-    MRField * q_ns, * dqdx_ns, * dqdy_ns, * dqdz_ns;
+    MeanFlowView meanFlow;
     MRField * bld;
     MRField * res;
     MRField * impsr;

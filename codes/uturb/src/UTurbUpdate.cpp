@@ -132,7 +132,7 @@ void UTurbUpdate::PrepareData1Equ()
         turbcom.dq[ iEqu ] = ( * uturbf.dq )[ iEqu ][ ug.cId ];
     }
 
-    turbcom.rho = ABS( ( * uturbf.q_ns )[ IDX::IR ][ ug.cId ] ) + SMALL;
+    turbcom.rho = ABS( ( * uturbf.meanFlow.q )[ IDX::IR ][ ug.cId ] ) + SMALL;
     turbcom.visl = ( * uturbf.visl )[ 0 ][ ug.cId ];
 }
 
@@ -149,7 +149,7 @@ void UTurbUpdate::PrepareData2Equ()
         turbcom.dq[ iEqu ] = ( * uturbf.dq )[ iEqu ][ ug.cId ];
     }
 
-    turbcom.rho = ABS( ( * uturbf.q_ns )[ IDX::IR ][ ug.cId ] ) + SMALL;
+    turbcom.rho = ABS( ( * uturbf.meanFlow.q )[ IDX::IR ][ ug.cId ] ) + SMALL;
     turbcom.visl = ( * uturbf.visl )[ 0 ][ ug.cId ];
 }
 

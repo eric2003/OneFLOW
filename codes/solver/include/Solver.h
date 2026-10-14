@@ -55,6 +55,8 @@ public:
     int solverIndex;  // Position of this solver instance in the solver list.
     int gridType;
 public:
+    // Called once per solver type after clone. Prefer: (1) load own resources,
+    // (2) RegisterSolverFieldInfo for name tables -- avoid touching other solvers.
     virtual void StaticInit(){};
 };
 

@@ -99,4 +99,18 @@ void ApplyFieldNameContract(
     }
 }
 
+void RegisterSolverFieldInfo(
+    SolverInfo * solverInfo,
+    int nEqu,
+    int nTEqu,
+    const SolverLogisticsNames & logistics,
+    const UnsteadyFieldNames & unsteady,
+    const std::string & resFileName )
+{
+    solverInfo->nEqu  = nEqu;
+    solverInfo->nTEqu = nTEqu;
+    ApplyFieldNameContract( solverInfo, logistics, unsteady );
+    solverInfo->resFileName = resFileName;
+}
+
 EndNameSpace

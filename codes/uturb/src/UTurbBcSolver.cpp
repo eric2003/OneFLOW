@@ -154,8 +154,8 @@ void UTurbBcSolver::PrepareData()
 
     for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
     {
-        turbcom.ns_prims1[ iEqu ] = ( * uturbf.q_ns )[ iEqu ][ ug.lc ];
-        turbcom.ns_prims2[ iEqu ] = ( * uturbf.q_ns )[ iEqu ][ ug.lc ];
+        turbcom.ns_prims1[ iEqu ] = ( * uturbf.meanFlow.q )[ iEqu ][ ug.lc ];
+        turbcom.ns_prims2[ iEqu ] = ( * uturbf.meanFlow.q )[ iEqu ][ ug.lc ];
     }
 }
 

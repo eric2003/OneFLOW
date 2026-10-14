@@ -61,12 +61,7 @@ void UTurbField::Init()
     dqdz = FieldHome::GetGradField( grid, turb, 3 );
 
     // Mean-flow coupling: explicit cross-solver view (NS only; non-owning).
-    MeanFlowView meanFlow;
-    meanFlow.Bind( grid );
-    q_ns    = meanFlow.q;
-    dqdx_ns = meanFlow.dqdx;
-    dqdy_ns = meanFlow.dqdy;
-    dqdz_ns = meanFlow.dqdz;
+    this->meanFlow.Bind( grid );
 
     visl  = GetFieldPointer< MRField > ( grid, "visl" );
     vist  = GetFieldPointer< MRField > ( grid, "vist" );

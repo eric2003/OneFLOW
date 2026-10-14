@@ -76,4 +76,15 @@ void ApplyFieldNameContract(
     const SolverLogisticsNames & logistics,
     const UnsteadyFieldNames & unsteady );
 
+// Register field-name tables + equation counts onto SolverInfo.
+// Pure w.r.t. Zone/DataBase: caller supplies nEqu and resFileName.
+// Separates "metadata registration" from StaticInit resource loading (BC files, etc.).
+void RegisterSolverFieldInfo(
+    SolverInfo * solverInfo,
+    int nEqu,
+    int nTEqu,
+    const SolverLogisticsNames & logistics,
+    const UnsteadyFieldNames & unsteady,
+    const std::string & resFileName );
+
 EndNameSpace

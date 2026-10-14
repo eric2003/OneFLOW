@@ -173,7 +173,7 @@ void UTurbSrcFlux::CalcVist1Equ()
             Fatal( "NotANumber( turbcom.rho )" );
             //cin.get();
         }
-        turbcom.rho  = ( * uturbf.q_ns  )[ IDX::IR  ][ ug.cId ];
+        turbcom.rho  = ( * uturbf.meanFlow.q  )[ IDX::IR  ][ ug.cId ];
         turbcom.nuet = ( * uturbf.q  )[ ISA ][ ug.cId ];
         turbcom.visl = ( * uturbf.visl )[ 0 ][ ug.cId ];
 
@@ -189,17 +189,17 @@ void UTurbSrcFlux::CalcVist2Equ()
     {
         ug.cId = cId;
 
-        turbcom.dudx = ( * uturbf.dqdx_ns )[ IDX::IU ][ ug.cId ];
-        turbcom.dudy = ( * uturbf.dqdy_ns )[ IDX::IU ][ ug.cId ];
-        turbcom.dudz = ( * uturbf.dqdz_ns )[ IDX::IU ][ ug.cId ];
-        turbcom.dvdx = ( * uturbf.dqdx_ns )[ IDX::IV ][ ug.cId ];
-        turbcom.dvdy = ( * uturbf.dqdy_ns )[ IDX::IV ][ ug.cId ];
-        turbcom.dvdz = ( * uturbf.dqdz_ns )[ IDX::IV ][ ug.cId ];
-        turbcom.dwdx = ( * uturbf.dqdx_ns )[ IDX::IW ][ ug.cId ];
-        turbcom.dwdy = ( * uturbf.dqdy_ns )[ IDX::IW ][ ug.cId ];
-        turbcom.dwdz = ( * uturbf.dqdz_ns )[ IDX::IW ][ ug.cId ];
+        turbcom.dudx = ( * uturbf.meanFlow.dqdx )[ IDX::IU ][ ug.cId ];
+        turbcom.dudy = ( * uturbf.meanFlow.dqdy )[ IDX::IU ][ ug.cId ];
+        turbcom.dudz = ( * uturbf.meanFlow.dqdz )[ IDX::IU ][ ug.cId ];
+        turbcom.dvdx = ( * uturbf.meanFlow.dqdx )[ IDX::IV ][ ug.cId ];
+        turbcom.dvdy = ( * uturbf.meanFlow.dqdy )[ IDX::IV ][ ug.cId ];
+        turbcom.dvdz = ( * uturbf.meanFlow.dqdz )[ IDX::IV ][ ug.cId ];
+        turbcom.dwdx = ( * uturbf.meanFlow.dqdx )[ IDX::IW ][ ug.cId ];
+        turbcom.dwdy = ( * uturbf.meanFlow.dqdy )[ IDX::IW ][ ug.cId ];
+        turbcom.dwdz = ( * uturbf.meanFlow.dqdz )[ IDX::IW ][ ug.cId ];
 
-        turbcom.rho  = ( * uturbf.q_ns  )[ IDX::IR  ][ ug.cId ];
+        turbcom.rho  = ( * uturbf.meanFlow.q  )[ IDX::IR  ][ ug.cId ];
         turbcom.ke   = ( * uturbf.q  )[ IKE ][ ug.cId ];
         turbcom.kw   = ( * uturbf.q  )[ IKW ][ ug.cId ];
         turbcom.visl = ( * uturbf.visl )[ 0 ][ ug.cId ];
@@ -281,17 +281,17 @@ void UTurbSrcFlux::CalcGrad()
 
 void UTurbSrcFlux::PrepareCellValue()
 {
-    turbcom.dudx = ( * uturbf.dqdx_ns )[ IDX::IU ][ ug.cId ];
-    turbcom.dudy = ( * uturbf.dqdy_ns )[ IDX::IU ][ ug.cId ];
-    turbcom.dudz = ( * uturbf.dqdz_ns )[ IDX::IU ][ ug.cId ];
-    turbcom.dvdx = ( * uturbf.dqdx_ns )[ IDX::IV ][ ug.cId ];
-    turbcom.dvdy = ( * uturbf.dqdy_ns )[ IDX::IV ][ ug.cId ];
-    turbcom.dvdz = ( * uturbf.dqdz_ns )[ IDX::IV ][ ug.cId ];
-    turbcom.dwdx = ( * uturbf.dqdx_ns )[ IDX::IW ][ ug.cId ];
-    turbcom.dwdy = ( * uturbf.dqdy_ns )[ IDX::IW ][ ug.cId ];
-    turbcom.dwdz = ( * uturbf.dqdz_ns )[ IDX::IW ][ ug.cId ];
+    turbcom.dudx = ( * uturbf.meanFlow.dqdx )[ IDX::IU ][ ug.cId ];
+    turbcom.dudy = ( * uturbf.meanFlow.dqdy )[ IDX::IU ][ ug.cId ];
+    turbcom.dudz = ( * uturbf.meanFlow.dqdz )[ IDX::IU ][ ug.cId ];
+    turbcom.dvdx = ( * uturbf.meanFlow.dqdx )[ IDX::IV ][ ug.cId ];
+    turbcom.dvdy = ( * uturbf.meanFlow.dqdy )[ IDX::IV ][ ug.cId ];
+    turbcom.dvdz = ( * uturbf.meanFlow.dqdz )[ IDX::IV ][ ug.cId ];
+    turbcom.dwdx = ( * uturbf.meanFlow.dqdx )[ IDX::IW ][ ug.cId ];
+    turbcom.dwdy = ( * uturbf.meanFlow.dqdy )[ IDX::IW ][ ug.cId ];
+    turbcom.dwdz = ( * uturbf.meanFlow.dqdz )[ IDX::IW ][ ug.cId ];
 
-    turbcom.rho  = ( * uturbf.q_ns  )[ IDX::IR  ][ ug.cId ];
+    turbcom.rho  = ( * uturbf.meanFlow.q  )[ IDX::IR  ][ ug.cId ];
     turbcom.ke   = ( * uturbf.q  )[ IKE ][ ug.cId ];
     turbcom.kw   = ( * uturbf.q  )[ IKW ][ ug.cId ];
     turbcom.visl = ( * uturbf.visl )[ 0 ][ ug.cId ];
@@ -312,17 +312,17 @@ void UTurbSrcFlux::PrepareCellValue()
 
 void UTurbSrcFlux::PrepareCellValue1Equ()
 {
-    turbcom.dudx = ( * uturbf.dqdx_ns )[ IDX::IU ][ ug.cId ];
-    turbcom.dudy = ( * uturbf.dqdy_ns )[ IDX::IU ][ ug.cId ];
-    turbcom.dudz = ( * uturbf.dqdz_ns )[ IDX::IU ][ ug.cId ];
-    turbcom.dvdx = ( * uturbf.dqdx_ns )[ IDX::IV ][ ug.cId ];
-    turbcom.dvdy = ( * uturbf.dqdy_ns )[ IDX::IV ][ ug.cId ];
-    turbcom.dvdz = ( * uturbf.dqdz_ns )[ IDX::IV ][ ug.cId ];
-    turbcom.dwdx = ( * uturbf.dqdx_ns )[ IDX::IW ][ ug.cId ];
-    turbcom.dwdy = ( * uturbf.dqdy_ns )[ IDX::IW ][ ug.cId ];
-    turbcom.dwdz = ( * uturbf.dqdz_ns )[ IDX::IW ][ ug.cId ];
+    turbcom.dudx = ( * uturbf.meanFlow.dqdx )[ IDX::IU ][ ug.cId ];
+    turbcom.dudy = ( * uturbf.meanFlow.dqdy )[ IDX::IU ][ ug.cId ];
+    turbcom.dudz = ( * uturbf.meanFlow.dqdz )[ IDX::IU ][ ug.cId ];
+    turbcom.dvdx = ( * uturbf.meanFlow.dqdx )[ IDX::IV ][ ug.cId ];
+    turbcom.dvdy = ( * uturbf.meanFlow.dqdy )[ IDX::IV ][ ug.cId ];
+    turbcom.dvdz = ( * uturbf.meanFlow.dqdz )[ IDX::IV ][ ug.cId ];
+    turbcom.dwdx = ( * uturbf.meanFlow.dqdx )[ IDX::IW ][ ug.cId ];
+    turbcom.dwdy = ( * uturbf.meanFlow.dqdy )[ IDX::IW ][ ug.cId ];
+    turbcom.dwdz = ( * uturbf.meanFlow.dqdz )[ IDX::IW ][ ug.cId ];
 
-    turbcom.rho  = ( * uturbf.q_ns  )[ IDX::IR  ][ ug.cId ];
+    turbcom.rho  = ( * uturbf.meanFlow.q  )[ IDX::IR  ][ ug.cId ];
     turbcom.nuet = ( * uturbf.q  )[ ISA ][ ug.cId ];
     turbcom.visl = ( * uturbf.visl )[ 0 ][ ug.cId ];
     turbcom.vist = ( * uturbf.vist )[ 0 ][ ug.cId ];
@@ -446,7 +446,7 @@ void UTurbSrcFlux::CalcLengthScaleOfSaDdes()
 
     for ( int cId = 0; cId < nCells; ++ cId ) 
     {
-        Real rho = ( * uturbf.q_ns  )[ IDX::IR ][ cId ];
+        Real rho = ( * uturbf.meanFlow.q  )[ IDX::IR ][ cId ];
         Real visl = ( * uturbf.visl  )[ 0 ][ cId ];
         Real vist = ( * uturbf.vist  )[ 0 ][ cId ];
 
@@ -455,15 +455,15 @@ void UTurbSrcFlux::CalcLengthScaleOfSaDdes()
         Real len_Rans = dist;
         Real len_Les  = lesLength[ cId ];
 
-        turbcom.dudx = ( * uturbf.dqdx_ns )[ IDX::IU ][ ug.cId ];
-        turbcom.dudy = ( * uturbf.dqdy_ns )[ IDX::IU ][ ug.cId ];
-        turbcom.dudz = ( * uturbf.dqdz_ns )[ IDX::IU ][ ug.cId ];
-        turbcom.dvdx = ( * uturbf.dqdx_ns )[ IDX::IV ][ ug.cId ];
-        turbcom.dvdy = ( * uturbf.dqdy_ns )[ IDX::IV ][ ug.cId ];
-        turbcom.dvdz = ( * uturbf.dqdz_ns )[ IDX::IV ][ ug.cId ];
-        turbcom.dwdx = ( * uturbf.dqdx_ns )[ IDX::IW ][ ug.cId ];
-        turbcom.dwdy = ( * uturbf.dqdy_ns )[ IDX::IW ][ ug.cId ];
-        turbcom.dwdz = ( * uturbf.dqdz_ns )[ IDX::IW ][ ug.cId ];
+        turbcom.dudx = ( * uturbf.meanFlow.dqdx )[ IDX::IU ][ ug.cId ];
+        turbcom.dudy = ( * uturbf.meanFlow.dqdy )[ IDX::IU ][ ug.cId ];
+        turbcom.dudz = ( * uturbf.meanFlow.dqdz )[ IDX::IU ][ ug.cId ];
+        turbcom.dvdx = ( * uturbf.meanFlow.dqdx )[ IDX::IV ][ ug.cId ];
+        turbcom.dvdy = ( * uturbf.meanFlow.dqdy )[ IDX::IV ][ ug.cId ];
+        turbcom.dvdz = ( * uturbf.meanFlow.dqdz )[ IDX::IV ][ ug.cId ];
+        turbcom.dwdx = ( * uturbf.meanFlow.dqdx )[ IDX::IW ][ ug.cId ];
+        turbcom.dwdy = ( * uturbf.meanFlow.dqdy )[ IDX::IW ][ ug.cId ];
+        turbcom.dwdz = ( * uturbf.meanFlow.dqdz )[ IDX::IW ][ ug.cId ];
 
         Real gradu2 = SQR( turbcom.dudx, turbcom.dudy, turbcom.dudz );
         Real gradv2 = SQR( turbcom.dvdx, turbcom.dvdy, turbcom.dvdz );
@@ -492,7 +492,7 @@ void UTurbSrcFlux::CalcLengthScaleOfSstDdes()
 
     for ( int cId = 0; cId < nCells; ++ cId ) 
     {
-        Real rho = ( * uturbf.q_ns  )[ IDX::IR ][ cId ];
+        Real rho = ( * uturbf.meanFlow.q  )[ IDX::IR ][ cId ];
         Real visl = ( * uturbf.visl  )[ 0 ][ cId ];
         Real vist = ( * uturbf.vist  )[ 0 ][ cId ];
 
@@ -505,15 +505,15 @@ void UTurbSrcFlux::CalcLengthScaleOfSstDdes()
         Real len_Rans = sqrt( ABS( ke ) ) / ( turbcom.betas * kw + SMALL );
         Real len_Les  = lesLength[ cId ];
 
-        turbcom.dudx = ( * uturbf.dqdx_ns )[ IDX::IU ][ ug.cId ];
-        turbcom.dudy = ( * uturbf.dqdy_ns )[ IDX::IU ][ ug.cId ];
-        turbcom.dudz = ( * uturbf.dqdz_ns )[ IDX::IU ][ ug.cId ];
-        turbcom.dvdx = ( * uturbf.dqdx_ns )[ IDX::IV ][ ug.cId ];
-        turbcom.dvdy = ( * uturbf.dqdy_ns )[ IDX::IV ][ ug.cId ];
-        turbcom.dvdz = ( * uturbf.dqdz_ns )[ IDX::IV ][ ug.cId ];
-        turbcom.dwdx = ( * uturbf.dqdx_ns )[ IDX::IW ][ ug.cId ];
-        turbcom.dwdy = ( * uturbf.dqdy_ns )[ IDX::IW ][ ug.cId ];
-        turbcom.dwdz = ( * uturbf.dqdz_ns )[ IDX::IW ][ ug.cId ];
+        turbcom.dudx = ( * uturbf.meanFlow.dqdx )[ IDX::IU ][ ug.cId ];
+        turbcom.dudy = ( * uturbf.meanFlow.dqdy )[ IDX::IU ][ ug.cId ];
+        turbcom.dudz = ( * uturbf.meanFlow.dqdz )[ IDX::IU ][ ug.cId ];
+        turbcom.dvdx = ( * uturbf.meanFlow.dqdx )[ IDX::IV ][ ug.cId ];
+        turbcom.dvdy = ( * uturbf.meanFlow.dqdy )[ IDX::IV ][ ug.cId ];
+        turbcom.dvdz = ( * uturbf.meanFlow.dqdz )[ IDX::IV ][ ug.cId ];
+        turbcom.dwdx = ( * uturbf.meanFlow.dqdx )[ IDX::IW ][ ug.cId ];
+        turbcom.dwdy = ( * uturbf.meanFlow.dqdy )[ IDX::IW ][ ug.cId ];
+        turbcom.dwdz = ( * uturbf.meanFlow.dqdz )[ IDX::IW ][ ug.cId ];
 
         Real s11 = turbcom.dudx;
         Real s22 = turbcom.dvdy;
@@ -559,7 +559,7 @@ void UTurbSrcFlux::CalcLengthScaleOfSaIddes()
 
     for ( int cId = 0; cId < nCells; ++ cId ) 
     {
-        Real rho = ( * uturbf.q_ns  )[ IDX::IR ][ cId ];
+        Real rho = ( * uturbf.meanFlow.q  )[ IDX::IR ][ cId ];
         Real visl = ( * uturbf.visl )[ 0 ][ cId ];
         Real vist = ( * uturbf.vist )[ 0 ][ cId ];
 
@@ -573,15 +573,15 @@ void UTurbSrcFlux::CalcLengthScaleOfSaIddes()
         Real alf  = 0.25 - dist / cell_span;
         Real fb   = MIN(  2.0 * exp( - 9.0 * alf * alf ),  1.0  );
 
-        turbcom.dudx = ( * uturbf.dqdx_ns )[ IDX::IU ][ ug.cId ];
-        turbcom.dudy = ( * uturbf.dqdy_ns )[ IDX::IU ][ ug.cId ];
-        turbcom.dudz = ( * uturbf.dqdz_ns )[ IDX::IU ][ ug.cId ];
-        turbcom.dvdx = ( * uturbf.dqdx_ns )[ IDX::IV ][ ug.cId ];
-        turbcom.dvdy = ( * uturbf.dqdy_ns )[ IDX::IV ][ ug.cId ];
-        turbcom.dvdz = ( * uturbf.dqdz_ns )[ IDX::IV ][ ug.cId ];
-        turbcom.dwdx = ( * uturbf.dqdx_ns )[ IDX::IW ][ ug.cId ];
-        turbcom.dwdy = ( * uturbf.dqdy_ns )[ IDX::IW ][ ug.cId ];
-        turbcom.dwdz = ( * uturbf.dqdz_ns )[ IDX::IW ][ ug.cId ];
+        turbcom.dudx = ( * uturbf.meanFlow.dqdx )[ IDX::IU ][ ug.cId ];
+        turbcom.dudy = ( * uturbf.meanFlow.dqdy )[ IDX::IU ][ ug.cId ];
+        turbcom.dudz = ( * uturbf.meanFlow.dqdz )[ IDX::IU ][ ug.cId ];
+        turbcom.dvdx = ( * uturbf.meanFlow.dqdx )[ IDX::IV ][ ug.cId ];
+        turbcom.dvdy = ( * uturbf.meanFlow.dqdy )[ IDX::IV ][ ug.cId ];
+        turbcom.dvdz = ( * uturbf.meanFlow.dqdz )[ IDX::IV ][ ug.cId ];
+        turbcom.dwdx = ( * uturbf.meanFlow.dqdx )[ IDX::IW ][ ug.cId ];
+        turbcom.dwdy = ( * uturbf.meanFlow.dqdy )[ IDX::IW ][ ug.cId ];
+        turbcom.dwdz = ( * uturbf.meanFlow.dqdz )[ IDX::IW ][ ug.cId ];
 
         Real gradu2 = SQR( turbcom.dudx, turbcom.dudy, turbcom.dudz );
         Real gradv2 = SQR( turbcom.dvdx, turbcom.dvdy, turbcom.dvdz );
@@ -647,7 +647,7 @@ void UTurbSrcFlux::CalcLengthScaleOfSstIddes()
 
     for ( int cId = 0; cId < nCells; ++ cId ) 
     {
-        Real rho = ( * uturbf.q_ns  )[ IDX::IR ][ cId ];
+        Real rho = ( * uturbf.meanFlow.q  )[ IDX::IR ][ cId ];
         Real visl = ( * uturbf.visl )[ 0 ][ cId ];
         Real vist = ( * uturbf.vist )[ 0 ][ cId ];
 
@@ -662,15 +662,15 @@ void UTurbSrcFlux::CalcLengthScaleOfSstIddes()
         Real len_Rans = sqrt( ABS( ke ) ) / ( turbcom.betas * kw + SMALL );
         Real len_Les  = lesLength[ cId ];
 
-        turbcom.dudx = ( * uturbf.dqdx_ns )[ IDX::IU ][ ug.cId ];
-        turbcom.dudy = ( * uturbf.dqdy_ns )[ IDX::IU ][ ug.cId ];
-        turbcom.dudz = ( * uturbf.dqdz_ns )[ IDX::IU ][ ug.cId ];
-        turbcom.dvdx = ( * uturbf.dqdx_ns )[ IDX::IV ][ ug.cId ];
-        turbcom.dvdy = ( * uturbf.dqdy_ns )[ IDX::IV ][ ug.cId ];
-        turbcom.dvdz = ( * uturbf.dqdz_ns )[ IDX::IV ][ ug.cId ];
-        turbcom.dwdx = ( * uturbf.dqdx_ns )[ IDX::IW ][ ug.cId ];
-        turbcom.dwdy = ( * uturbf.dqdy_ns )[ IDX::IW ][ ug.cId ];
-        turbcom.dwdz = ( * uturbf.dqdz_ns )[ IDX::IW ][ ug.cId ];
+        turbcom.dudx = ( * uturbf.meanFlow.dqdx )[ IDX::IU ][ ug.cId ];
+        turbcom.dudy = ( * uturbf.meanFlow.dqdy )[ IDX::IU ][ ug.cId ];
+        turbcom.dudz = ( * uturbf.meanFlow.dqdz )[ IDX::IU ][ ug.cId ];
+        turbcom.dvdx = ( * uturbf.meanFlow.dqdx )[ IDX::IV ][ ug.cId ];
+        turbcom.dvdy = ( * uturbf.meanFlow.dqdy )[ IDX::IV ][ ug.cId ];
+        turbcom.dvdz = ( * uturbf.meanFlow.dqdz )[ IDX::IV ][ ug.cId ];
+        turbcom.dwdx = ( * uturbf.meanFlow.dqdx )[ IDX::IW ][ ug.cId ];
+        turbcom.dwdy = ( * uturbf.meanFlow.dqdy )[ IDX::IW ][ ug.cId ];
+        turbcom.dwdz = ( * uturbf.meanFlow.dqdz )[ IDX::IW ][ ug.cId ];
 
         Real s11 = turbcom.dudx;
         Real s22 = turbcom.dvdy;
@@ -757,7 +757,7 @@ void UTurbSrcFlux::CalcCdkwmax()
     for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         ug.cId = cId;
-        turbcom.rho  = ( * uturbf.q_ns  )[ IDX::IR ][ ug.cId ];
+        turbcom.rho  = ( * uturbf.meanFlow.q  )[ IDX::IR ][ ug.cId ];
         turbcom.ke   = ( * uturbf.q  )[ IKE ][ ug.cId ];
         turbcom.kw   = ( * uturbf.q  )[ IKW ][ ug.cId ];
         turbcom.cross_term = ( * uturbf.cross )[ 0 ][ ug.cId ];
@@ -774,7 +774,7 @@ void UTurbSrcFlux::CalcBlendField()
     {
         ug.cId = cId;
 
-        turbcom.rho  = ( * uturbf.q_ns  )[ IDX::IR ][ ug.cId ];
+        turbcom.rho  = ( * uturbf.meanFlow.q  )[ IDX::IR ][ ug.cId ];
         turbcom.ke   = ( * uturbf.q  )[ IKE ][ ug.cId ];
         turbcom.kw   = ( * uturbf.q  )[ IKW ][ ug.cId ];
 
@@ -895,7 +895,7 @@ void CalcLowReynoldsCorrection( RealField & lowReynoldsCorr )
     for ( int cId = 0; cId < grid->nCells; ++ cId ) 
     {
         Real nuet = ( * uturbf.q )[ ISA ][ cId ];
-        Real rho = ( * uturbf.q_ns  )[ IDX::IR ][ cId ];
+        Real rho = ( * uturbf.meanFlow.q  )[ IDX::IR ][ cId ];
         Real visl = ( * uturbf.visl  )[ 0 ][ cId ];
         Real olam = rho / ( visl + SMALL );
         Real xsi  = nuet * olam + SMALL;

@@ -325,8 +325,8 @@ void UTurbVisFlux::PrepareFaceValue()
         turbcom.bld2 = ( * uturbf.bld )[ 0 ][ ug.rc ];
     }
 
-    turbcom.rho1 = ( * uturbf.q_ns )[ IDX::IR ][ ug.lc ];
-    turbcom.rho2 = ( * uturbf.q_ns )[ IDX::IR ][ ug.rc ];
+    turbcom.rho1 = ( * uturbf.meanFlow.q )[ IDX::IR ][ ug.lc ];
+    turbcom.rho2 = ( * uturbf.meanFlow.q )[ IDX::IR ][ ug.rc ];
 
     this->AverGrad();
     this->CalcFaceWeight();
