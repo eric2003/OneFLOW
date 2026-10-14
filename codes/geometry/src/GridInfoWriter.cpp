@@ -122,7 +122,7 @@ void WriteGridInfo( const Grids & grids, const GridConfig & config )
     if ( ! output )
     {
         throw std::runtime_error(
-            "CalcGrid::Dump: failed to write grid information file: " + outputPath );
+            "WriteGridInfo: failed to write grid information file: " + outputPath );
     }
 }
 } // namespace ONEFLOW
