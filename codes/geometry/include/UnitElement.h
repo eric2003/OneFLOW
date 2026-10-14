@@ -58,9 +58,9 @@ private:
     void BuildTopology( int elementType );
 
 public:
-    IntField & GetCompositeFace(int iFace);
-    const IntField & GetCompositeFace(int iFace) const;
-    int GetCompositeFaceType(int iFace) const;
+    IntField & GetCompositeFace( int iFace );
+    const IntField & GetCompositeFace( int iFace ) const;
+    int GetCompositeFaceType( int iFace ) const;
     int GetElementFaceCount() const;
     int GetCompositeFaceCount() const;
 
@@ -79,9 +79,9 @@ public:
     bool IsFaceElementTypeAtLeast( int elementType ) const;
     bool IsBasicVolumeElementType( int elementType ) const;
 
-    IntField & GetElementFace(int iFace);
-    const IntField & GetElementFace(int iFace) const;
-    int GetFaceType(int iFace) const;
+    IntField & GetElementFace( int iFace );
+    const IntField & GetElementFace( int iFace ) const;
+    int GetFaceType( int iFace ) const;
 
     IntField & GetRelatedPointListForMiddlePointCalculation( int iMiddlePoint );
     const IntField & GetRelatedPointListForMiddlePointCalculation( int iMiddlePoint ) const;
@@ -90,13 +90,13 @@ public:
     IntField & GetRelatedPointListForMiddlePointCalcutation( int iMiddlePoint );
     const IntField & GetRelatedPointListForMiddlePointCalcutation( int iMiddlePoint ) const;
 
-    IntField & GetChildElementRelativeNodeIndex(int iChildElement);
-    const IntField & GetChildElementRelativeNodeIndex(int iChildElement) const;
+    IntField & GetChildElementRelativeNodeIndex( int iChildElement );
+    const IntField & GetChildElementRelativeNodeIndex( int iChildElement ) const;
 
     int GetChildElementCount() const;
     // Compatibility wrapper; prefer GetChildElementCount() for new code.
     int GetChildElementNumbers() const;
-    int GetChildElementType(int iChild) const;
+    int GetChildElementType( int iChild ) const;
 
 public:
     void PushElementFace( int faceType, int p1 );
@@ -122,6 +122,6 @@ public:
     void PushCompositeFace( int faceElementType, int p1, int p2, int p3 );
     void PushCompositeFace( int faceElementType, int p1, int p2, int p3, int p4, int p5, int p6 );
     void PushCompositeFace( int faceElementType, int p1, int p2, int p3, int p4, int p5, int p6, int p7, int p8, int p9 );
-}
+};
 
 EndNameSpace
