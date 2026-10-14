@@ -9,7 +9,7 @@ TEST( GridSummaryAdapterTest, DefaultGridHasDeterministicEmptyMetadata )
 
     const ONEFLOW::GridSummary summary = ONEFLOW::MakeGridSummary( grid );
 
-    EXPECT_EQ( summary.dimension, 3 );
+    EXPECT_EQ( summary.dimension, ONEFLOW::THREE_D );
     EXPECT_EQ( summary.nodeCount, 0 );
     EXPECT_EQ( summary.faceCount, 0 );
     EXPECT_EQ( summary.cellCount, 0 );
