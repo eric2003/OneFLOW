@@ -20,9 +20,11 @@ TEST( GridSummaryAdapterTest, DefaultGridHasDeterministicEmptyMetadata )
     EXPECT_TRUE( ONEFLOW::IsValidGridSummary( summary ) );
 }
 
-TEST( GridSummaryAdapterTest, CopiesCurrentGridCountsWithoutOwningStorage )
+TEST( GridSummaryAdapterTest, CopiesMetadataWhenCoordinateStorageMatches )
 {
     ONEFLOW::UnsGrid grid;
+    grid.Init();
+    grid.nodeMesh->CreateNodes( 12 );
     grid.dimension = 2;
     grid.nNodes = 12;
     grid.nFaces = 17;
@@ -37,6 +39,16 @@ TEST( GridSummaryAdapterTest, CopiesCurrentGridCountsWithoutOwningStorage )
     EXPECT_EQ( summary.cellCount, 6 );
     EXPECT_EQ( summary.boundaryFaceCount, 12 );
     EXPECT_TRUE( ONEFLOW::IsValidGridSummary( summary ) );
+}
+
+TEST( GridSummaryAdapterTest, RejectsNodeCountThatDiffersFromCoordinateStorage )
+{
+    ONEFLOW::UnsGrid grid;
+    grid.Init();
+    grid.nodeMesh->CreateNodes( 3 );
+    grid.nNodes = 4;
+
+    EXPECT_THROW( ONEFLOW::MakeGridSummary( grid ), std::invalid_argument );
 }
 
 TEST( GridSummaryAdapterTest, RejectsInconsistentMetadata )
