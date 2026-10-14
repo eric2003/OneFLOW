@@ -44,34 +44,6 @@ UnsteadyFieldNames MakeUnsteadyFieldNames(
     return names;
 }
 
-UnsteadyFieldNames ExpectedNsUnsteadyFieldNames()
-{
-    StringField stageQ;
-    stageQ.push_back( "q1" );
-    stageQ.push_back( "q2" );
-    StringField stageR;
-    stageR.push_back( "res1" );
-    stageR.push_back( "res2" );
-    return MakeUnsteadyFieldNames( "q", stageQ, "res", stageR );
-}
-
-UnsteadyFieldNames ExpectedINsUnsteadyFieldNames()
-{
-    // INS shares NS dual-time names in system/ins/alloc/unsteady.txt.
-    return ExpectedNsUnsteadyFieldNames();
-}
-
-UnsteadyFieldNames ExpectedTurbUnsteadyFieldNames()
-{
-    StringField stageQ;
-    stageQ.push_back( "turbq1" );
-    stageQ.push_back( "turbq2" );
-    StringField stageR;
-    stageR.push_back( "turbres1" );
-    stageR.push_back( "turbres2" );
-    return MakeUnsteadyFieldNames( "turbq", stageQ, "turbres", stageR );
-}
-
 SolverLogisticsNames MakeSolverLogisticsNames(
     const std::string & solution,
     const std::string & dqdx,
@@ -101,28 +73,6 @@ SolverLogisticsNames MakeSolverLogisticsNames(
     return names;
 }
 
-SolverLogisticsNames ExpectedNsSolverLogisticsNames()
-{
-    return MakeSolverLogisticsNames(
-        "q", "dqdx", "dqdy", "dqdz", "dq", "res",
-        "bcdqdx", "bcdqdy", "bcdqdz",
-        "limiter", "bc_q" );
-}
-
-SolverLogisticsNames ExpectedINsSolverLogisticsNames()
-{
-    // INS logistics names match NS in INsSolver::StaticInit.
-    return ExpectedNsSolverLogisticsNames();
-}
-
-SolverLogisticsNames ExpectedTurbSolverLogisticsNames()
-{
-    return MakeSolverLogisticsNames(
-        "turbq", "turbdqdx", "turbdqdy", "turbdqdz", "turbdq", "turbres",
-        "turbbcdqdx", "turbbcdqdy", "turbbcdqdz",
-        "turblimiter", "" );
-}
-
 void ApplyFieldNameContract(
     SolverInfo * solverInfo,
     const SolverLogisticsNames & logistics,
@@ -135,7 +85,6 @@ void ApplyFieldNameContract(
     solverInfo->limiterName = logistics.limiterName;
     solverInfo->bcSolutionName = logistics.bcSolutionName;
 
-    // unsteady.flow[0] / residual[0] are current; stages are Previous/Old.
     solverInfo->stageSolutionNames.clear();
     if ( unsteady.flow.size() >= 3 )
     {

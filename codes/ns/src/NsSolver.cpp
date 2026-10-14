@@ -24,7 +24,7 @@ License
 #include "NsCom.h"
 #include "NsCtrl.h"
 #include "SolverInfo.h"
-#include "FieldNameContract.h"
+#include "NsFieldNames.h"
 #include "SolverDef.h"
 #include "UNsBcSolver.h"
 #include "HeatFlux.h"
@@ -61,8 +61,8 @@ void NsSolver::StaticInit()
     // Field names: pure contract (unit-tested) -> SolverInfo.
     ApplyFieldNameContract(
         solverInfo,
-        ExpectedNsSolverLogisticsNames(),
-        ExpectedNsUnsteadyFieldNames() );
+        NsSolverFieldLogisticsNames(),
+        NsSolverUnsteadyFieldNames() );
     solverInfo->resFileName = GetDataValue< std::string >( "resFile" );
 }
 

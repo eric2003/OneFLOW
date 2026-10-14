@@ -29,33 +29,24 @@ License
 BeginNameSpace( ONEFLOW )
 
 // ---------------------------------------------------------------------------
-// Pure field-name contracts (no Zone / SolverState / DataBase).
-// Intent is encoded here so unit tests can lock production naming without a
-// full simulation bootstrap. Keep SolverInfo::StaticInit and
-// system/*/alloc/unsteady.txt in sync with Expected* helpers.
+// Generic field-name machinery only (no NS / INS / Turb knowledge).
+//
+// Each solver owns its Expected* tables next to StaticInit so solvers stay
+// "happily ignorant" of each other. Cross-solver reads (e.g. turb -> mean-flow)
+// use explicit solverType pins on FieldHome, not shared name tables.
 // ---------------------------------------------------------------------------
 
 // Dual-time history order: Current, Previous, Old.
-//   flow[0]      = solution          (q / turbq)
-//   flow[1..2]   = stage solutions   (q1,q2 / turbq1,turbq2)
-//   residual[0]  = residual          (res / turbres)
-//   residual[1..2]= stage residuals  (res1,res2 / turbres1,turbres2)
 UnsteadyFieldNames MakeUnsteadyFieldNames(
     const std::string & solution,
     const StringField & stageSolutions,
     const std::string & residual,
     const StringField & stageResiduals );
 
-UnsteadyFieldNames ExpectedNsUnsteadyFieldNames();
-UnsteadyFieldNames ExpectedINsUnsteadyFieldNames();
-UnsteadyFieldNames ExpectedTurbUnsteadyFieldNames();
-
-// ---------------------------------------------------------------------------
-// Solver logistics name table (mirrors SolverInfo string slots).
-// solutionGradNames: [0]=solution, [1..3]=cell-center grad dx,dy,dz
+// Logistics name table (mirrors SolverInfo string slots).
+// solutionGradNames: [0]=solution, [1..3]=cell-center grad
 // implicitFieldNames: [0]=solution, [1]=update delta
-// bcGradFieldNames: [0..2]=BC face grad dx,dy,dz
-// ---------------------------------------------------------------------------
+// bcGradFieldNames: [0..2]=BC face grad
 struct SolverLogisticsNames
 {
     StringField solutionGradNames;
@@ -79,12 +70,7 @@ SolverLogisticsNames MakeSolverLogisticsNames(
     const std::string & limiter,
     const std::string & bcSolution );
 
-SolverLogisticsNames ExpectedNsSolverLogisticsNames();
-SolverLogisticsNames ExpectedINsSolverLogisticsNames();
-SolverLogisticsNames ExpectedTurbSolverLogisticsNames();
-
-// Fill SolverInfo field-name slots from pure contracts.
-// Does not modify resFileName (path comes from configuration).
+// Fill SolverInfo field-name slots. Does not modify resFileName.
 void ApplyFieldNameContract(
     SolverInfo * solverInfo,
     const SolverLogisticsNames & logistics,

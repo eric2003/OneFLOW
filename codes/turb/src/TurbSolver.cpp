@@ -24,7 +24,7 @@ License
 #include "TurbBcSolver.h"
 #include "BcData.h"
 #include "SolverInfo.h"
-#include "FieldNameContract.h"
+#include "TurbFieldNames.h"
 #include "SolverDef.h"
 #include "TurbCtrl.h"
 #include "TurbCom.h"
@@ -71,8 +71,8 @@ void TurbSolver::StaticInit()
     // Field names: pure contract (unit-tested) -> SolverInfo.
     ApplyFieldNameContract(
         solverInfo,
-        ExpectedTurbSolverLogisticsNames(),
-        ExpectedTurbUnsteadyFieldNames() );
+        TurbSolverFieldLogisticsNames(),
+        TurbSolverUnsteadyFieldNames() );
     solverInfo->resFileName = GetDataValue< std::string >( "turbresFile" );
 }
 

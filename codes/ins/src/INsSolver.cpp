@@ -26,7 +26,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include "INsCom.h"
 #include "INsCtrl.h"
 #include "SolverInfo.h"
-#include "FieldNameContract.h"
+#include "INsFieldNames.h"
 #include "SolverDef.h"
 #include "UINsBcSolver.h"
 #include "HeatFlux.h"
@@ -63,8 +63,8 @@ void INsSolver::StaticInit()
     // Field names: pure contract (unit-tested) -> SolverInfo.
     ApplyFieldNameContract(
         solverInfo,
-        ExpectedINsSolverLogisticsNames(),
-        ExpectedINsUnsteadyFieldNames() );
+        INsSolverFieldLogisticsNames(),
+        INsSolverUnsteadyFieldNames() );
     solverInfo->resFileName = GetDataValue< std::string >( "resFile" );
 }
 
