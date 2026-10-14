@@ -149,6 +149,7 @@ set ( SRC_DIRS
     ${CMAKE_SOURCE_DIR}/codes/cgns/src/CgnsBcConn.cpp
     ${CMAKE_SOURCE_DIR}/codes/cgns/src/CgnsPeriod.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/CalcGrid.cpp
+    ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridInfoWriter.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridElem.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/StrGrid.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/BcRecord.cpp
