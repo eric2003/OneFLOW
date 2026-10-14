@@ -36,7 +36,7 @@ TEST( GridSummaryAdapterTest, CopiesCurrentGridCountsWithoutOwningStorage )
     EXPECT_TRUE( ONEFLOW::IsValidGridSummary( summary ) );
 }
 
-TEST( GridSummaryAdapterTest, FreeClearsCountsAlongWithOwnedStorage )
+TEST( GridSummaryAdapterTest, FreeClearsGridCounts )
 {
     ONEFLOW::UnsGrid grid;
     grid.nNodes = 12;
