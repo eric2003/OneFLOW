@@ -17,7 +17,7 @@ int parallelStrategy = 1;
 
 string sourceGridType = "plot3d";
 string targetGridType = "oneflow";
-int iplot3d = 1;
+int iplot3d = 0;
 
 string sourceGridFileName = "results/minimalRectangle.generated.grd";
 string sourceGridBcName = "results/minimalRectangle.inp";
