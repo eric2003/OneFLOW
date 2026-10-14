@@ -102,6 +102,8 @@ namespace
     };
 }
 
+namespace
+{
 bool IsSupportedConversion( GridFileType sourceType, GridFileType targetType )
 {
     switch ( sourceType )
@@ -118,6 +120,7 @@ bool IsSupportedConversion( GridFileType sourceType, GridFileType targetType )
             return false;
     }
 }
+} // namespace
 
 void ConvertGrid(
     const GridConfig & config,
