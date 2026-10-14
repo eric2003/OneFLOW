@@ -18,8 +18,9 @@ inline void ValidateUnsGridStorageCounts( const UnsGrid & grid )
 {
     const bool hasNodeStorage = static_cast< bool >( grid.nodeMesh );
     const bool hasMeshStorage = grid.HasMeshStorage();
+    const bool hasAnyMeshStorage = grid.HasAnyMeshStorage();
 
-    if ( ! hasNodeStorage && ! hasMeshStorage )
+    if ( ! hasNodeStorage && ! hasAnyMeshStorage )
     {
         if ( grid.nNodes != 0 || grid.nFaces != 0 || grid.nCells != 0 ||
              grid.nBFaces != 0 || grid.nIFaces != 0 )

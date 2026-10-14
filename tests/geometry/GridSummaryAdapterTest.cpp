@@ -15,6 +15,7 @@ TEST( GridSummaryAdapterTest, DefaultGridHasDeterministicEmptyMetadata )
     const ONEFLOW::UnsGrid grid;
 
     EXPECT_FALSE( grid.HasMeshStorage() );
+    EXPECT_FALSE( grid.HasAnyMeshStorage() );
 
     const ONEFLOW::GridSummary summary = ONEFLOW::MakeGridSummary( grid );
 
@@ -176,6 +177,7 @@ TEST( GridSummaryAdapterTest, FreeClearsGridCountsAndAllowsReinitialization )
     ONEFLOW::UnsGrid grid;
     grid.Init();
     EXPECT_TRUE( grid.HasMeshStorage() );
+    EXPECT_TRUE( grid.HasAnyMeshStorage() );
     grid.nNodes = 12;
     grid.nFaces = 17;
     grid.nCells = 6;
@@ -185,6 +187,7 @@ TEST( GridSummaryAdapterTest, FreeClearsGridCountsAndAllowsReinitialization )
     ONEFLOW::Grid & baseGrid = grid;
     baseGrid.Free();
     EXPECT_FALSE( grid.HasMeshStorage() );
+    EXPECT_FALSE( grid.HasAnyMeshStorage() );
 
     const ONEFLOW::GridSummary releasedSummary = ONEFLOW::MakeGridSummary( grid );
     EXPECT_EQ( releasedSummary.nodeCount, 0 );

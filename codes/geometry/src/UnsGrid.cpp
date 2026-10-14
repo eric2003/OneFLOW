@@ -140,6 +140,11 @@ bool UnsGrid::HasMeshStorage() const
     return this->faceTopo && this->faceMesh && this->cellMesh;
 }
 
+bool UnsGrid::HasAnyMeshStorage() const
+{
+    return this->faceTopo || this->faceMesh || this->cellMesh;
+}
+
 void UnsGrid::SetFaceTopo( std::unique_ptr< FaceTopo > faceTopo )
 {
     if ( ! this->faceMesh )
