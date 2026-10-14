@@ -81,7 +81,7 @@ inline void ValidateUnsGridStorageCounts( const UnsGrid & grid )
             "ValidateUnsGridStorageCounts: boundary record count does not match boundary-face count" );
     }
 
-    if ( grid.nIFaces < 0 || ! grid.interFace ||
+    if ( grid.nIFaces < 0 || grid.nIFaces > grid.nBFaces || ! grid.interFace ||
          grid.interFace->nIFaces != grid.nIFaces ||
          grid.interFace->zoneId.size() != static_cast< HXSize_t >( grid.nIFaces ) ||
          grid.interFace->localInterfaceId.size() != static_cast< HXSize_t >( grid.nIFaces ) ||

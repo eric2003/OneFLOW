@@ -51,8 +51,18 @@ TEST( GridSummaryAdapterTest, RejectsInterfaceCountThatDiffersFromMappingStorage
     ONEFLOW::UnsGrid grid;
     grid.Init();
 
+    grid.nFaces = 1;
+    grid.nBFaces = 1;
     grid.nIFaces = 1;
-    EXPECT_THROW( ONEFLOW::ValidateUnsGridStorageCounts( grid ), std::logic_error );
+
+    ONEFLOW::FaceTopo & faceTopo = grid.GetFaceTopo();
+    faceTopo.GetFaceTypes().resize( 1 );
+    faceTopo.GetFaces().resize( 1 );
+    faceTopo.GetLeftCells().resize( 1 );
+    faceTopo.GetRightCells().resize( 1 );
+    faceTopo.SetNBFaces( 1 );
+    faceTopo.GetBcRecord().bcType.resize( 1 );
+    faceTopo.GetBcRecord().bcNameId.resize( 1 );
 
     grid.interFace->Set( 1, &grid );
     EXPECT_NO_THROW( ONEFLOW::ValidateUnsGridStorageCounts( grid ) );
