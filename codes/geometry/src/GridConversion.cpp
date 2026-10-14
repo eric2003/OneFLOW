@@ -102,10 +102,34 @@ namespace
     };
 }
 
+bool IsSupportedConversion( GridFileType sourceType, GridFileType targetType )
+{
+    switch ( sourceType )
+    {
+        case GridFileType::Plot3D:
+            return targetType == GridFileType::OneFLOW ||
+                   targetType == GridFileType::CGNS;
+        case GridFileType::SU2:
+            return targetType == GridFileType::OneFLOW;
+        case GridFileType::CGNS:
+            return targetType == GridFileType::OneFLOW ||
+                   targetType == GridFileType::CGNS;
+        default:
+            return false;
+    }
+}
+
 void ConvertGrid(
     const GridConfig & config,
     const std::string & caseDir )
 {
+    if ( ! IsSupportedConversion( config.sourceType, config.targetType ) )
+    {
+        throw std::invalid_argument(
+            std::string( "Unsupported grid conversion: " ) +
+            std::string( ToString( config.sourceType ) ) + " -> " +
+            std::string( ToString( config.targetType ) ) );
+    }
     for ( const auto & entry : kConverters )
     {
         if ( entry.sourceType == config.sourceType )
