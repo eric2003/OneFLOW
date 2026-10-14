@@ -22,6 +22,8 @@ def compile_rectangle(spec):
     if any(not isinstance(value, int) or isinstance(value, bool) or value < 2
            for value in point_counts):
         raise ValueError("each edge point count must be an integer >= 2")
+    if point_counts[0] != point_counts[2] or point_counts[1] != point_counts[3]:
+        raise ValueError("opposite edges must have matching point counts for a structured rectangle")
 
     spacing = spec.get("spacing", "d")
     if not isinstance(spacing, str) or not spacing:
