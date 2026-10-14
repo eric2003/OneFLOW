@@ -97,6 +97,43 @@ TEST( FieldNameContract, Apply_TurbStyleTablesStayPrefixed )
     EXPECT_TRUE( info.bcSolutionName.empty() );
 }
 
+TEST( FieldNameContract, Apply_PreservesEveryConfiguredStage )
+{
+    const SolverLogisticsNames logistics = MakeSolverLogisticsNames(
+        "q", "dqdx", "dqdy", "dqdz", "dq", "res",
+        "bcdqdx", "bcdqdy", "bcdqdz", "limiter", "bc_q" );
+
+    const StringField stageQ{ "q1", "q2", "q3" };
+    const StringField stageR{ "res1", "res2", "res3" };
+    const UnsteadyFieldNames unsteady =
+        MakeUnsteadyFieldNames( "q", stageQ, "res", stageR );
+
+    SolverInfo info;
+    ApplyFieldNameContract( &info, logistics, unsteady );
+
+    EXPECT_EQ( info.stageSolutionNames, stageQ );
+    EXPECT_EQ( info.stageResidualNames, stageR );
+}
+
+TEST( FieldNameContract, Apply_ClearsStagesWhenNoStageNamesAreProvided )
+{
+    const SolverLogisticsNames logistics = MakeSolverLogisticsNames(
+        "q", "dqdx", "dqdy", "dqdz", "dq", "res",
+        "bcdqdx", "bcdqdy", "bcdqdz", "limiter", "bc_q" );
+    const StringField noStages;
+    const UnsteadyFieldNames unsteady =
+        MakeUnsteadyFieldNames( "q", noStages, "res", noStages );
+
+    SolverInfo info;
+    info.stageSolutionNames = StringField{ "stale_q1", "stale_q2" };
+    info.stageResidualNames = StringField{ "stale_res1", "stale_res2" };
+
+    ApplyFieldNameContract( &info, logistics, unsteady );
+
+    EXPECT_TRUE( info.stageSolutionNames.empty() );
+    EXPECT_TRUE( info.stageResidualNames.empty() );
+}
+
 TEST( FieldNameContract, Register_SetsEquCountsAndNames )
 {
     SolverInfo info;
