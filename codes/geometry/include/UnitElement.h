@@ -58,7 +58,6 @@ private:
     void BuildTopology( int elementType );
 
 public:
-    IntField & GetCompositeFace( int iFace );
     const IntField & GetCompositeFace( int iFace ) const;
     int GetCompositeFaceType( int iFace ) const;
     int GetElementFaceCount() const;
@@ -79,18 +78,14 @@ public:
     bool IsFaceElementTypeAtLeast( int elementType ) const;
     bool IsBasicVolumeElementType( int elementType ) const;
 
-    IntField & GetElementFace( int iFace );
     const IntField & GetElementFace( int iFace ) const;
     int GetFaceType( int iFace ) const;
 
-    IntField & GetRelatedPointListForMiddlePointCalculation( int iMiddlePoint );
     const IntField & GetRelatedPointListForMiddlePointCalculation( int iMiddlePoint ) const;
 
     // Compatibility wrappers; use the correctly spelled API for new code.
-    IntField & GetRelatedPointListForMiddlePointCalcutation( int iMiddlePoint );
     const IntField & GetRelatedPointListForMiddlePointCalcutation( int iMiddlePoint ) const;
 
-    IntField & GetChildElementRelativeNodeIndex( int iChildElement );
     const IntField & GetChildElementRelativeNodeIndex( int iChildElement ) const;
 
     int GetChildElementCount() const;

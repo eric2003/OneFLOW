@@ -11,6 +11,17 @@ static_assert(
         decltype(ONEFLOW::ElementHome::GetUnitElementDefinition(ONEFLOW::HEXA_8))>>,
     "ElementHome must expose unit element definitions as read-only");
 
+using MutableElementFaceResult = decltype(
+    std::declval< ONEFLOW::UnitElement & >().GetElementFace(0));
+using MutableCompositeFaceResult = decltype(
+    std::declval< ONEFLOW::UnitElement & >().GetCompositeFace(0));
+using MutableMiddlePointResult = decltype(
+    std::declval< ONEFLOW::UnitElement & >()
+        .GetRelatedPointListForMiddlePointCalculation(0));
+using MutableChildNodeResult = decltype(
+    std::declval< ONEFLOW::UnitElement & >()
+        .GetChildElementRelativeNodeIndex(0));
+
 using ConstElementFaceResult = decltype(
     std::declval< const ONEFLOW::UnitElement & >().GetElementFace(0));
 using ConstCompositeFaceResult = decltype(
@@ -21,6 +32,19 @@ using ConstMiddlePointResult = decltype(
 using ConstChildNodeResult = decltype(
     std::declval< const ONEFLOW::UnitElement & >()
         .GetChildElementRelativeNodeIndex(0));
+
+static_assert(
+    std::is_const_v<std::remove_reference_t<MutableElementFaceResult>>,
+    "A mutable unit element must not expose mutable face topology");
+static_assert(
+    std::is_const_v<std::remove_reference_t<MutableCompositeFaceResult>>,
+    "A mutable unit element must not expose mutable composite-face topology");
+static_assert(
+    std::is_const_v<std::remove_reference_t<MutableMiddlePointResult>>,
+    "A mutable unit element must not expose mutable midpoint relations");
+static_assert(
+    std::is_const_v<std::remove_reference_t<MutableChildNodeResult>>,
+    "A mutable unit element must not expose mutable child mappings");
 
 static_assert(
     std::is_const_v<std::remove_reference_t<ConstElementFaceResult>>,
