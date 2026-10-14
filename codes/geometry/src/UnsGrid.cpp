@@ -318,6 +318,12 @@ void UnsGrid::ReadBoundaryTopology( DataBook * databook )
     BcRecord & bcRecord = this->GetFaceTopo().GetBcRecord();
     ONEFLOW::HXRead( databook, bcRecord.bcType );
     ONEFLOW::HXRead( databook, bcRecord.bcNameId );
+    if ( bcRecord.bcType.size() != static_cast< HXSize_t >( this->nBFaces ) ||
+         bcRecord.bcNameId.size() != static_cast< HXSize_t >( this->nBFaces ) )
+    {
+        throw std::runtime_error(
+            "UnsGrid::ReadBoundaryTopology: boundary record count does not match boundary-face count" );
+    }
     ONEFLOW::HXRead( databook, this->nIFaces );
     if ( this->nIFaces < 0 || this->nIFaces > this->nBFaces )
     {
@@ -596,10 +602,31 @@ void UnsGrid::UpdateOtherTopologyTerm( IFaceLink & iFaceLink )
 
     this->GetFaceTopo().UpdateOtherTopologyTerm();
 
-    int nIFaces = iFaceLink.l2g[ this->id ].size();
+    if ( this->id < 0 || static_cast< HXSize_t >( this->id ) >= iFaceLink.l2g.size() )
+    {
+        throw std::out_of_range(
+            "UnsGrid::UpdateOtherTopologyTerm: zone ID is out of range for interface mapping" );
+    }
+
+    const HXSize_t mappedInterfaceCount = iFaceLink.l2g[ this->id ].size();
+    if ( mappedInterfaceCount > static_cast< HXSize_t >( std::numeric_limits< int >::max() ) )
+    {
+        throw std::length_error(
+            "UnsGrid::UpdateOtherTopologyTerm: interface count exceeds supported range" );
+    }
+
+    const int nIFaces = static_cast< int >( mappedInterfaceCount );
+    const BcRecord & bcRecord = this->GetFaceTopo().GetBcRecord();
+    if ( bcRecord.bcNameId.size() != bcRecord.bcType.size() ||
+         bcRecord.CalcNIFace() != nIFaces )
+    {
+        throw std::logic_error(
+            "UnsGrid::UpdateOtherTopologyTerm: interface mapping count does not match boundary types" );
+    }
 
     this->interFace->Resize( nIFaces );
     this->GetFaceTopo().GenerateI2B( *this->interFace );
+    this->nIFaces = nIFaces;
 }
 
 void UnsGrid::GetMinMaxDistance( Real & dismin, Real & dismax ) const
