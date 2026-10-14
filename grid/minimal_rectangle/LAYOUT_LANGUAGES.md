@@ -32,9 +32,10 @@ python tools/mesh_layout/compile_rectangle.py \
 
 Use the generated file with the existing `GridMachine` workflow. For this
 rectangle, `edgePointCounts: [3, 3, 3, 3]` retains the current nine-node,
-four-cell structured grid. Each edge count can be changed independently; the
-current structured rectangle reader/generator determines how these counts
-interact at corners and interior cells.
+four-cell structured grid. Opposite edges must have matching point counts:
+edges 1 and 3 share one count, while edges 2 and 4 share the other. The
+compiler rejects mismatched pairs because a single structured rectangle must
+have compatible counts on opposite sides.
 
 ## Incremental direction
 
