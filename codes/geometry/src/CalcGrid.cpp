@@ -40,6 +40,7 @@ License
 
 #include "Fatal.h"
 #include "Prj.h"
+#include "Dimension.h"
 #include <iostream>
 #include <utility>
 #include <stdexcept>
@@ -194,6 +195,14 @@ void CalcGrid::Init( Grids grids, const GridConfig & config )
 {
     // Validate before taking ownership; Post() traverses this collection.
     ValidateGridCollection( grids );
+
+    // Runtime grids share the configured simulation dimension. Keep the grid
+    // metadata aligned with the dimension used by geometry and solver routines.
+    const int dimension = Dim::GetDimension();
+    for ( const auto & grid : grids )
+    {
+        grid->dimension = dimension;
+    }
 
     // IFaceLink stores a reference to the current grid collection. Destroy it
     // before replacing that collection, including when Init() is called again.
