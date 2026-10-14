@@ -4,6 +4,7 @@
 
 #include <ostream>
 #include <stdexcept>
+#include <utility>
 
 namespace ONEFLOW
 {
@@ -47,7 +48,7 @@ void WriteGridInfoJson( std::ostream & output, const GridInfoSnapshot & snapshot
     }
     document[ "zones" ] = std::move( zones );
 
-    output << document.dump( 2 ) << '\\n';
+    output << document.dump( 2 ) << '\n';
     if ( ! output )
     {
         throw std::runtime_error( "WriteGridInfoJson: failed to write JSON data" );
