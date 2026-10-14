@@ -67,6 +67,14 @@ TEST( GridSummaryAdapterTest, RejectsInterfaceCountThatDiffersFromMappingStorage
     grid.interFace->Set( 1, &grid );
     EXPECT_NO_THROW( ONEFLOW::ValidateUnsGridStorageCounts( grid ) );
 
+    grid.interFace->i2b[ 0 ] = 1;
+    EXPECT_THROW( ONEFLOW::ValidateUnsGridStorageCounts( grid ), std::logic_error );
+    grid.interFace->i2b[ 0 ] = 0;
+
+    grid.interFace->localCellId.clear();
+    EXPECT_THROW( ONEFLOW::ValidateUnsGridStorageCounts( grid ), std::logic_error );
+    grid.interFace->localCellId.resize( 1 );
+
     grid.interFace->i2b.clear();
     EXPECT_THROW( ONEFLOW::ValidateUnsGridStorageCounts( grid ), std::logic_error );
 }
