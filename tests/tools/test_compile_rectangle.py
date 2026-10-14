@@ -1,0 +1,49 @@
+import importlib.util
+import json
+import tempfile
+import unittest
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[2]
+MODULE_PATH = ROOT / "tools" / "mesh_layout" / "compile_rectangle.py"
+SPEC_PATH = ROOT / "grid" / "minimal_rectangle" / "rectangle.json"
+
+module_spec = importlib.util.spec_from_file_location("compile_rectangle", MODULE_PATH)
+compiler = importlib.util.module_from_spec(module_spec)
+module_spec.loader.exec_module(compiler)
+
+
+class CompileRectangleTest(unittest.TestCase):
+    def setUp(self):
+        self.spec = json.loads(SPEC_PATH.read_text(encoding="utf-8"))
+
+    def test_example_compiles_to_existing_atomic_language(self):
+        output = compiler.compile_rectangle(self.spec)
+        self.assertIn("Point(1)= {0,0,0}", output)
+        self.assertIn("Point(3)= {1,1,0}", output)
+        self.assertIn("Line(4)={4,1}", output)
+        self.assertIn("Dim(1)={3}", output)
+        self.assertIn("Ds(4)={d,-1,-1}", output)
+        self.assertIn("Add L2F 1 4 4", output)
+        self.assertTrue(output.endswith("Add F2B 1 1 1\n"))
+
+    def test_edge_divisions_are_independent(self):
+        self.spec["edgeDivisions"] = [2, 3, 4, 5]
+        output = compiler.compile_rectangle(self.spec)
+        for edge, count in enumerate((2, 3, 4, 5), start=1):
+            self.assertIn(f"Dim({edge})={{{count}}}", output)
+
+    def test_rejects_missing_edge_division(self):
+        self.spec["edgeDivisions"] = [3, 3, 3]
+        with self.assertRaisesRegex(ValueError, "four values"):
+            compiler.compile_rectangle(self.spec)
+
+    def test_rejects_invalid_division_count(self):
+        self.spec["edgeDivisions"] = [3, 1, 3, 3]
+        with self.assertRaisesRegex(ValueError, "integer >= 2"):
+            compiler.compile_rectangle(self.spec)
+
+
+if __name__ == "__main__":
+    unittest.main()
