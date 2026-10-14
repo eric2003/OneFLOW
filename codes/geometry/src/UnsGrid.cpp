@@ -83,31 +83,55 @@ void UnsGrid::Free()
 
 FaceTopo & UnsGrid::GetFaceTopo()
 {
+    if ( ! this->faceTopo )
+    {
+        throw std::logic_error( "UnsGrid::GetFaceTopo: storage is not initialized" );
+    }
     return *this->faceTopo;
 }
 
 const FaceTopo & UnsGrid::GetFaceTopo() const
 {
+    if ( ! this->faceTopo )
+    {
+        throw std::logic_error( "UnsGrid::GetFaceTopo: storage is not initialized" );
+    }
     return *this->faceTopo;
 }
 
 FaceMesh & UnsGrid::GetFaceMesh()
 {
+    if ( ! this->faceMesh )
+    {
+        throw std::logic_error( "UnsGrid::GetFaceMesh: storage is not initialized" );
+    }
     return *this->faceMesh;
 }
 
 const FaceMesh & UnsGrid::GetFaceMesh() const
 {
+    if ( ! this->faceMesh )
+    {
+        throw std::logic_error( "UnsGrid::GetFaceMesh: storage is not initialized" );
+    }
     return *this->faceMesh;
 }
 
 CellMesh & UnsGrid::GetCellMesh()
 {
+    if ( ! this->cellMesh )
+    {
+        throw std::logic_error( "UnsGrid::GetCellMesh: storage is not initialized" );
+    }
     return *this->cellMesh;
 }
 
 const CellMesh & UnsGrid::GetCellMesh() const
 {
+    if ( ! this->cellMesh )
+    {
+        throw std::logic_error( "UnsGrid::GetCellMesh: storage is not initialized" );
+    }
     return *this->cellMesh;
 }
 
@@ -118,6 +142,12 @@ bool UnsGrid::HasMeshStorage() const
 
 void UnsGrid::SetFaceTopo( std::unique_ptr< FaceTopo > faceTopo )
 {
+    if ( ! this->faceMesh )
+    {
+        throw std::logic_error(
+            "UnsGrid::SetFaceTopo: face mesh storage is not initialized" );
+    }
+
     if ( ! faceTopo )
     {
         throw std::invalid_argument( "UnsGrid cannot own a null FaceTopo" );

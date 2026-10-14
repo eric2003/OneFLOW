@@ -103,3 +103,28 @@ TEST(UnsGridTopologyTest, RejectsNullFaceTopologyWithoutReplacingOwnedTopology)
     EXPECT_THROW( grid.SetFaceTopo( nullptr ), std::invalid_argument );
     EXPECT_EQ( &grid.GetFaceTopo(), originalFaceTopo );
 }
+
+TEST(UnsGridTopologyTest, StorageAccessRequiresInitialization)
+{
+    ONEFLOW::UnsGrid grid;
+    const ONEFLOW::UnsGrid & constGrid = grid;
+
+    EXPECT_FALSE( grid.HasMeshStorage() );
+    EXPECT_THROW( grid.GetFaceTopo(), std::logic_error );
+    EXPECT_THROW( constGrid.GetFaceTopo(), std::logic_error );
+    EXPECT_THROW( grid.GetFaceMesh(), std::logic_error );
+    EXPECT_THROW( constGrid.GetFaceMesh(), std::logic_error );
+    EXPECT_THROW( grid.GetCellMesh(), std::logic_error );
+    EXPECT_THROW( constGrid.GetCellMesh(), std::logic_error );
+
+    grid.Init();
+    EXPECT_NO_THROW( grid.GetFaceTopo() );
+    EXPECT_NO_THROW( grid.GetFaceMesh() );
+    EXPECT_NO_THROW( grid.GetCellMesh() );
+
+    grid.Free();
+    EXPECT_FALSE( grid.HasMeshStorage() );
+    EXPECT_THROW( grid.GetFaceTopo(), std::logic_error );
+    EXPECT_THROW( grid.GetFaceMesh(), std::logic_error );
+    EXPECT_THROW( grid.GetCellMesh(), std::logic_error );
+}
