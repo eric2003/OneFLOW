@@ -67,14 +67,18 @@ UnsGrid::~UnsGrid() = default;
 
 void UnsGrid::Init()
 {
-    this->cellMesh.reset();
-    this->faceMesh.reset();
-    this->faceTopo.reset();
-
     this->BasicInit();
     this->faceMesh = std::make_unique< FaceMesh >();
     this->cellMesh = std::make_unique< CellMesh >();
     this->SetFaceTopo( std::make_unique< FaceTopo >() );
+}
+
+void UnsGrid::Free()
+{
+    this->cellMesh.reset();
+    this->faceMesh.reset();
+    this->faceTopo.reset();
+    Grid::Free();
 }
 
 FaceTopo & UnsGrid::GetFaceTopo()
