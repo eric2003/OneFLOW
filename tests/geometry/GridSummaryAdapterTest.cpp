@@ -46,6 +46,21 @@ TEST( GridSummaryAdapterTest, CopiesMetadataWhenCoordinateStorageMatches )
     EXPECT_THROW( ONEFLOW::ValidateUnsGridStorageCounts( grid ), std::logic_error );
 }
 
+TEST( GridSummaryAdapterTest, RejectsInterfaceCountThatDiffersFromMappingStorage )
+{
+    ONEFLOW::UnsGrid grid;
+    grid.Init();
+
+    grid.nIFaces = 1;
+    EXPECT_THROW( ONEFLOW::ValidateUnsGridStorageCounts( grid ), std::logic_error );
+
+    grid.interFace->Set( 1, &grid );
+    EXPECT_NO_THROW( ONEFLOW::ValidateUnsGridStorageCounts( grid ) );
+
+    grid.interFace->i2b.clear();
+    EXPECT_THROW( ONEFLOW::ValidateUnsGridStorageCounts( grid ), std::logic_error );
+}
+
 TEST( GridSummaryAdapterTest, RejectsNodeCountThatDiffersFromCoordinateStorage )
 {
     ONEFLOW::UnsGrid grid;

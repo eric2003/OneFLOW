@@ -5,6 +5,7 @@
 #include "CellMesh.h"
 #include "CellTopo.h"
 #include "BcRecord.h"
+#include "InterFace.h"
 
 #include <stdexcept>
 
@@ -78,6 +79,16 @@ inline void ValidateUnsGridStorageCounts( const UnsGrid & grid )
     {
         throw std::logic_error(
             "ValidateUnsGridStorageCounts: boundary record count does not match boundary-face count" );
+    }
+
+    if ( grid.nIFaces < 0 || ! grid.interFace ||
+         grid.interFace->nIFaces != grid.nIFaces ||
+         grid.interFace->zoneId.size() != static_cast< HXSize_t >( grid.nIFaces ) ||
+         grid.interFace->localInterfaceId.size() != static_cast< HXSize_t >( grid.nIFaces ) ||
+         grid.interFace->i2b.size() != static_cast< HXSize_t >( grid.nIFaces ) )
+    {
+        throw std::logic_error(
+            "ValidateUnsGridStorageCounts: interface count does not match interface mapping storage" );
     }
 }
 
