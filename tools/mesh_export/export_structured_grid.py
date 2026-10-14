@@ -97,6 +97,15 @@ def build_topology(ni, nj):
     return cells, faces, boundary_faces
 
 
+def coordinate_bounds(points):
+    if not points:
+        raise ValueError("Cannot compute coordinate bounds for an empty mesh")
+    return {
+        "min": [min(point[axis] for point in points) for axis in range(3)],
+        "max": [max(point[axis] for point in points) for axis in range(3)],
+    }
+
+
 def write_json(path, document):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(document, indent=2) + "\n", encoding="utf-8")
@@ -158,12 +167,37 @@ def write_svg(path, ni, nj, points):
             b = screen(points[(j + 1) * ni + i])
             lines.append(f'<line x1="{a[0]:.3f}" y1="{a[1]:.3f}" '
                          f'x2="{b[0]:.3f}" y2="{b[1]:.3f}"/>')
+    markers = []
+    for node_id, point in enumerate(points):
+        x, y = screen(point)
+        markers.append(
+            f'<circle cx="{x:.3f}" cy="{y:.3f}" r="3" fill="#d1495b" '
+            f'data-node-id="{node_id}"/>'
+        )
+
+    cell_labels = []
+    for j in range(nj - 1):
+        for i in range(ni - 1):
+            node_ids = (j * ni + i, j * ni + i + 1,
+                        (j + 1) * ni + i + 1, (j + 1) * ni + i)
+            center = [sum(points[node_id][axis] for node_id in node_ids) / 4
+                      for axis in range(3)]
+            x, y = screen(center)
+            cell_id = j * (ni - 1) + i
+            cell_labels.append(
+                f'<text x="{x:.3f}" y="{y:.3f}" text-anchor="middle" '
+                f'dominant-baseline="middle" font-size="12" fill="#202020" '
+                f'data-cell-id="{cell_id}">{cell_id}</text>'
+            )
+
     svg = (
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" '
         f'viewBox="0 0 {width} {height}">\n'
         '<rect width="100%" height="100%" fill="white"/>\n'
         '<g stroke="#245b8f" stroke-width="1.8" fill="none">\n'
         + "\n".join(lines) +
+        '\n</g>\n<g id="nodes">\n' + "\n".join(markers) +
+        '\n</g>\n<g id="cell-labels">\n' + "\n".join(cell_labels) +
         '\n</g>\n</svg>\n'
     )
     path.write_text(svg, encoding="utf-8")
@@ -187,8 +221,10 @@ def main():
 
     write_json(output / "summary.json", {
         "schema": "oneflow.mesh-summary", "version": 1, "dimension": 2,
+        "coordinateDimension": 3,
         "counts": {"nodes": node_count, "faces": len(faces), "cells": cell_count,
                    "boundaryFaces": boundary_count, "zones": 1},
+        "boundingBox": coordinate_bounds(points),
         "source": str(args.input),
         "reconstructionLevel": "L1+L2",
     })
