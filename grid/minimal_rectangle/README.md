@@ -1,17 +1,23 @@
 # Minimal Rectangle Mesh Case
 
 This case uses the standard OneFLOW runtime entry point to generate a small
-structured grid, convert it to OneFLOW format, write a grid-information
+layout-driven grid, convert it to OneFLOW format, write a grid-information
 summary, and export SVG/VTU visualization files for inspection.
+
+The layout describes a structured 2D rectangle, but the current OneFLOW runtime
+uses unstructured grid data structures for computation. The case therefore sets
+`topoType = "u"`. The structured-grid interface is reserved for future work
+and is not currently the computational representation.
 
 ## Case configuration
 
 - `script/control.txt` selects the parameter files.
 - `script/simu.txt` selects `simutask = "Grid"`.
 - `script/dimension.txt` selects 2D.
-- `script/grid.txt` selects `gridObj = 0` (classic generation) and
-  `igene = 4` (layout-driven grid generation), then configures conversion
-  from the generated structured grid to OneFLOW format.
+- `script/grid.txt` selects `gridObj = 0` (classic generation),
+  `igene = 4` (layout-driven grid generation), and unstructured topology
+  (`topoType = "u"`), then configures conversion from the generated grid
+  to OneFLOW format.
 - `grid/minimalRectangleLayout.txt` defines a unit square with three nodes
   along each edge.
 
@@ -37,7 +43,7 @@ cd D:\\github\\OneFLOW\\build\\bin\\Debug
 
 The configured outputs are written under the case directory:
 
-- `results/minimalRectangle.generated.grd`: generated structured-grid input
+- `results/minimalRectangle.generated.grd`: generated grid input
   for the conversion step.
 - `results/minimalRectangle.inp`: generated boundary input.
 - `results/minimalRectangle.ofl`: converted OneFLOW grid.
@@ -46,9 +52,9 @@ The configured outputs are written under the case directory:
 
 ## Export and check visualization
 
-After the OneFLOW run succeeds, export the generated structured grid and check
-its expected geometry and topology. Run this from a checkout of OneFLOW; the
-case directory can remain external:
+After the OneFLOW run succeeds, export the generated grid and check its expected
+geometry and topology. Run this from a checkout of OneFLOW; the case directory
+can remain external:
 
 ```powershell
 .\\grid\\minimal_rectangle\\run.ps1 -OneFlowExe .\\build\\bin\\Debug\\OneFLOW.exe -CaseDir D:\\OneFLOWWorkspace\\workdir2026\\grid\\minimal_rectangle -RepositoryRoot D:\\github\\OneFLOW
