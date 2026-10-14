@@ -93,6 +93,108 @@ TEST(ElementHomeTest, ReadOnlyDefinitionAccessorPreservesRegistryTopology)
     EXPECT_EQ(element.GetElementFaceNumber(), element.GetElementFaceCount());
 }
 
+TEST(ElementHomeTest, RegisteredTopologyIndicesMatchElementDefinitions)
+{
+    ONEFLOW::ElementHome::Initialize();
+
+    for (int elementType = 0;
+         elementType < ONEFLOW::ElementHome::GetUnitElementSlotCount();
+         ++elementType)
+    {
+        if (!ONEFLOW::ElementHome::HasUnitElement(elementType))
+        {
+            continue;
+        }
+
+        const ONEFLOW::UnitElement & element =
+            ONEFLOW::ElementHome::GetUnitElementDefinition(elementType);
+        const int nodeCount = ONEFLOW::GetElementNodeNumbers(elementType);
+
+        ASSERT_EQ(element.GetElementType(), elementType);
+        ASSERT_GT(nodeCount, 0);
+
+        for (int iFace = 0; iFace < element.GetElementFaceCount(); ++iFace)
+        {
+            const auto & face = element.GetElementFace(iFace);
+            const int faceType = element.GetFaceType(iFace);
+
+            ASSERT_EQ(
+                face.size(),
+                static_cast<std::size_t>(
+                    ONEFLOW::GetElementNodeNumbers(faceType)))
+                << "element type " << elementType << ", face " << iFace;
+
+            for (int nodeIndex : face)
+            {
+                EXPECT_GE(nodeIndex, 0)
+                    << "element type " << elementType << ", face " << iFace;
+                EXPECT_LT(nodeIndex, nodeCount)
+                    << "element type " << elementType << ", face " << iFace;
+            }
+        }
+
+        for (int iFace = 0; iFace < element.GetCompositeFaceCount(); ++iFace)
+        {
+            const auto & face = element.GetCompositeFace(iFace);
+            const int faceType = element.GetCompositeFaceType(iFace);
+
+            ASSERT_EQ(
+                face.size(),
+                static_cast<std::size_t>(
+                    ONEFLOW::GetElementNodeNumbers(faceType)))
+                << "element type " << elementType
+                << ", composite face " << iFace;
+
+            for (int nodeIndex : face)
+            {
+                EXPECT_GE(nodeIndex, 0)
+                    << "element type " << elementType
+                    << ", composite face " << iFace;
+                EXPECT_LT(nodeIndex, nodeCount)
+                    << "element type " << elementType
+                    << ", composite face " << iFace;
+            }
+        }
+
+        for (int iChild = 0; iChild < element.GetChildElementCount(); ++iChild)
+        {
+            const auto & childNodes =
+                element.GetChildElementRelativeNodeIndex(iChild);
+            const int childType = element.GetChildElementType(iChild);
+
+            ASSERT_EQ(
+                childNodes.size(),
+                static_cast<std::size_t>(
+                    ONEFLOW::GetElementNodeNumbers(childType)))
+                << "element type " << elementType << ", child " << iChild;
+
+            for (int nodeIndex : childNodes)
+            {
+                EXPECT_GE(nodeIndex, 0)
+                    << "element type " << elementType << ", child " << iChild;
+                EXPECT_LT(nodeIndex, nodeCount)
+                    << "element type " << elementType << ", child " << iChild;
+            }
+        }
+
+        for (int iNode = 0; iNode < nodeCount; ++iNode)
+        {
+            const auto & relatedNodes =
+                element.GetRelatedPointListForMiddlePointCalculation(iNode);
+
+            for (int nodeIndex : relatedNodes)
+            {
+                EXPECT_GE(nodeIndex, 0)
+                    << "element type " << elementType
+                    << ", midpoint node " << iNode;
+                EXPECT_LT(nodeIndex, nodeCount)
+                    << "element type " << elementType
+                    << ", midpoint node " << iNode;
+            }
+        }
+    }
+}
+
 TEST(ElementHomeTest, RepeatedInitializeRebuildsEquivalentRegistry)
 {
     ONEFLOW::ElementHome::Initialize();
