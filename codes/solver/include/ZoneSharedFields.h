@@ -23,20 +23,14 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "HXArray.h"
+#include "IFieldLookup.h"
 
 BeginNameSpace( ONEFLOW )
 
 class Grid;
 
-// ---------------------------------------------------------------------------
 // Zone-level shared physics fields (not owned by any single solver).
-//
-// Intent: visl/vist/timestep/gama live on the grid/zone and may be read by
-// NS, INS, or Turb without coupling those solvers to each other. Names are
-// zone contracts, not SolverInfo slots -- keep them out of per-solver tables.
-//
-// Pointers from Bind() are non-owning (database owns storage).
-// ---------------------------------------------------------------------------
+// Names are zone contracts, not SolverInfo slots.
 struct ZoneSharedFieldNames
 {
     static constexpr const char * ViscosityLaminar   = "visl";
@@ -52,7 +46,10 @@ struct ZoneSharedFieldView
     MRField * timestep = nullptr;
     MRField * gama     = nullptr;
 
-    // Bind the common shared set. gama may be null if absent on this grid.
+    // Injectable Bind -- unit-testable without DataBase.
+    void Bind( Grid * grid, IFieldLookup & lookup );
+
+    // Production: uses DataBaseFieldLookup (defined with DataBase adapter).
     void Bind( Grid * grid );
 };
 

@@ -131,6 +131,7 @@ gtest_discover_tests(mean_flow_view_test DISCOVERY_MODE PRE_TEST)
 # Zone-level shared field name contract (no Zone bootstrap required for names).
 add_executable(zone_shared_fields_test
   zone_shared_fields_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/solver/src/ZoneSharedFields.cpp
 )
 
 target_include_directories(zone_shared_fields_test

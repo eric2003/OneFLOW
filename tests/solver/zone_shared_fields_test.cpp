@@ -1,8 +1,34 @@
 #include <gtest/gtest.h>
 #include "ZoneSharedFields.h"
+#include "IFieldLookup.h"
 #include <cstring>
+#include <string>
+#include <vector>
 
 using namespace ONEFLOW;
+
+namespace
+{
+    class FakeFieldLookup : public IFieldLookup
+    {
+    public:
+        std::vector< std::string > requested;
+        MRField * vislStub     = reinterpret_cast< MRField * >( static_cast< std::uintptr_t >( 0x11 ) );
+        MRField * vistStub     = reinterpret_cast< MRField * >( static_cast< std::uintptr_t >( 0x22 ) );
+        MRField * timestepStub = reinterpret_cast< MRField * >( static_cast< std::uintptr_t >( 0x33 ) );
+        MRField * gamaStub     = reinterpret_cast< MRField * >( static_cast< std::uintptr_t >( 0x44 ) );
+
+        MRField * GetMRField( Grid * /*grid*/, const std::string & name ) override
+        {
+            requested.push_back( name );
+            if ( name == ZoneSharedFieldNames::ViscosityLaminar ) return vislStub;
+            if ( name == ZoneSharedFieldNames::ViscosityTurbulent ) return vistStub;
+            if ( name == ZoneSharedFieldNames::TimeStep ) return timestepStub;
+            if ( name == ZoneSharedFieldNames::Gamma ) return gamaStub;
+            return nullptr;
+        }
+    };
+}
 
 TEST( ZoneSharedFields, NameLiteralsAreStable )
 {
@@ -25,4 +51,22 @@ TEST( ZoneSharedFields, DefaultViewPointersAreNull )
     EXPECT_EQ( view.vist, nullptr );
     EXPECT_EQ( view.timestep, nullptr );
     EXPECT_EQ( view.gama, nullptr );
+}
+
+TEST( ZoneSharedFields, Bind_UsesLookupPortForAllSharedNames )
+{
+    FakeFieldLookup fake;
+    ZoneSharedFieldView view;
+    view.Bind( nullptr, fake );
+
+    ASSERT_EQ( fake.requested.size(), 4u );
+    EXPECT_EQ( fake.requested[ 0 ], "visl" );
+    EXPECT_EQ( fake.requested[ 1 ], "vist" );
+    EXPECT_EQ( fake.requested[ 2 ], "timestep" );
+    EXPECT_EQ( fake.requested[ 3 ], "gama" );
+
+    EXPECT_EQ( view.visl, fake.vislStub );
+    EXPECT_EQ( view.vist, fake.vistStub );
+    EXPECT_EQ( view.timestep, fake.timestepStub );
+    EXPECT_EQ( view.gama, fake.gamaStub );
 }

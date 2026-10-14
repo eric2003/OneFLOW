@@ -21,18 +21,15 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "ZoneSharedFields.h"
-#include "Grid.h"
-#include "DataBase.h"
 
 BeginNameSpace( ONEFLOW )
 
-void ZoneSharedFieldView::Bind( Grid * grid )
+void ZoneSharedFieldView::Bind( Grid * grid, IFieldLookup & lookup )
 {
-    // Grid must be complete type here (RequireDataBase inside GetFieldPointer).
-    this->visl     = GetFieldPointer< MRField >( grid, ZoneSharedFieldNames::ViscosityLaminar );
-    this->vist     = GetFieldPointer< MRField >( grid, ZoneSharedFieldNames::ViscosityTurbulent );
-    this->timestep = GetFieldPointer< MRField >( grid, ZoneSharedFieldNames::TimeStep );
-    this->gama     = GetFieldPointer< MRField >( grid, ZoneSharedFieldNames::Gamma );
+    this->visl     = lookup.GetMRField( grid, ZoneSharedFieldNames::ViscosityLaminar );
+    this->vist     = lookup.GetMRField( grid, ZoneSharedFieldNames::ViscosityTurbulent );
+    this->timestep = lookup.GetMRField( grid, ZoneSharedFieldNames::TimeStep );
+    this->gama     = lookup.GetMRField( grid, ZoneSharedFieldNames::Gamma );
 }
 
 EndNameSpace
