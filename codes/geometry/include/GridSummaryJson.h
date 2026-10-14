@@ -11,6 +11,12 @@ namespace ONEFLOW
 // Writes the versioned L0 metadata document. This does not serialize mesh topology.
 inline void WriteGridSummaryJson( std::ostream & output, const GridSummary & summary )
 {
+    const std::vector< std::string > errors = ValidateGridSummary( summary );
+    if ( ! errors.empty() )
+    {
+        throw std::invalid_argument( "WriteGridSummaryJson: invalid grid summary" );
+    }
+
     output << "{\n"
            << "  \"schema\": \"oneflow.grid-summary\",\n"
            << "  \"version\": 1,\n"
