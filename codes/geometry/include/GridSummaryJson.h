@@ -3,6 +3,7 @@
 #include "GridSummary.h"
 
 #include <ostream>
+#include <stdexcept>
 
 namespace ONEFLOW
 {
