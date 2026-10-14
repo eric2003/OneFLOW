@@ -120,6 +120,12 @@ void Grid::Free()
     interFace.reset();
     slipFace.reset();
     dataBase.reset();
+
+    nNodes = 0;
+    nFaces = 0;
+    nCells = 0;
+    nBFaces = 0;
+    nIFaces = 0;
 }
 
 void Grid::Init()
