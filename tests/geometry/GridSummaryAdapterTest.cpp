@@ -175,16 +175,31 @@ TEST( GridSummaryAdapterTest, StructuredGridCleanupCanBeCalledThroughBaseInterfa
 TEST( GridSummaryAdapterTest, GenerateI2BRequiresMatchingInterfaceStorage )
 {
     ONEFLOW::BcRecord boundaryRecord;
-    boundaryRecord.bcType = { ONEFLOW::BC::SOLID_SURFACE, ONEFLOW::BC::INTERFACE };
-    boundaryRecord.bcNameId.resize( 2 );
+    boundaryRecord.bcType = {
+        ONEFLOW::BC::INTERFACE,
+        ONEFLOW::BC::SOLID_SURFACE,
+        ONEFLOW::BC::INTERFACE,
+        ONEFLOW::BC::INTERFACE
+    };
+    boundaryRecord.bcNameId.resize( 4 );
 
     ONEFLOW::InterFace interFace;
-    interFace.Set( 0 );
+    interFace.Set( 2 );
 
     EXPECT_THROW( boundaryRecord.GenerateI2B( interFace ), std::logic_error );
 
-    interFace.Set( 1 );
+    interFace.Set( 3 );
     EXPECT_NO_THROW( boundaryRecord.GenerateI2B( interFace ) );
-    ASSERT_EQ( interFace.i2b.size(), 1 );
-    EXPECT_EQ( interFace.i2b[ 0 ], 1 );
+    ASSERT_EQ( interFace.i2b.size(), 3 );
+    EXPECT_EQ( interFace.i2b[ 0 ], 0 );
+    EXPECT_EQ( interFace.i2b[ 1 ], 2 );
+    EXPECT_EQ( interFace.i2b[ 2 ], 3 );
+    EXPECT_NO_THROW( boundaryRecord.ValidateI2B( interFace ) );
+
+    interFace.i2b[ 1 ] = 1;
+    EXPECT_THROW( boundaryRecord.ValidateI2B( interFace ), std::logic_error );
+    interFace.i2b[ 1 ] = 2;
+
+    interFace.Set( 2 );
+    EXPECT_THROW( boundaryRecord.ValidateI2B( interFace ), std::logic_error );
 }

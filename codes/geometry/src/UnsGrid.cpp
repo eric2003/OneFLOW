@@ -334,6 +334,14 @@ void UnsGrid::ReadBoundaryTopology( DataBook * databook )
         ONEFLOW::HXRead( databook, this->interFace->localInterfaceId  );
         ONEFLOW::HXRead( databook, this->interFace->i2b               );
     }
+
+    if ( this->interFace->zoneId.size() != static_cast< HXSize_t >( this->nIFaces ) ||
+         this->interFace->localInterfaceId.size() != static_cast< HXSize_t >( this->nIFaces ) )
+    {
+        throw std::runtime_error(
+            "UnsGrid::ReadBoundaryTopology: interface metadata count does not match interface-face count" );
+    }
+    bcRecord.ValidateI2B( *this->interFace );
 }
 
 void UnsGrid::WriteGrid( DataBook * databook )
@@ -470,10 +478,11 @@ void UnsGrid::WriteBoundaryTopology( DataBook * databook )
         throw std::logic_error(
             "UnsGrid::WriteBoundaryTopology: boundary record count does not match boundary-face count" );
     }
-    if ( interFace.nIFaces < 0 || interFace.nIFaces > nBFaces )
+    if ( interFace.nIFaces < 0 || interFace.nIFaces > nBFaces ||
+         this->nIFaces != interFace.nIFaces )
     {
         throw std::logic_error(
-            "UnsGrid::WriteBoundaryTopology: invalid interface-face count" );
+            "UnsGrid::WriteBoundaryTopology: invalid or inconsistent interface-face count" );
     }
     if ( interFace.zoneId.size() != static_cast< std::size_t >( interFace.nIFaces ) ||
          interFace.localInterfaceId.size() != static_cast< std::size_t >( interFace.nIFaces ) ||
@@ -482,6 +491,7 @@ void UnsGrid::WriteBoundaryTopology( DataBook * databook )
         throw std::logic_error(
             "UnsGrid::WriteBoundaryTopology: interface mapping count does not match interface-face count" );
     }
+    bcRecord.ValidateI2B( interFace );
 
     ONEFLOW::HXWrite( databook, nBFaces );
 

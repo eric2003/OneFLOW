@@ -63,6 +63,7 @@ public:
     int CalcNIFace() const;
     int CalcNumWallFace() const;
     void GenerateI2B( InterFace & interFace );
+    void ValidateI2B( const InterFace & interFace ) const;
 public:
     // Write path: builds bcInfo (unique_ptr) on first use.
     void CreateBcTypeRegion();

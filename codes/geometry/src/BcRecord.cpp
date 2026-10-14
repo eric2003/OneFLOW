@@ -146,7 +146,8 @@ void BcRecord::GenerateI2B( InterFace & interFace )
     const int nBFaces = this->GetNBFace();
     const int expectedInterfaceCount = this->CalcNIFace();
 
-    if ( interFace.nIFaces != expectedInterfaceCount ||
+    if ( this->bcNameId.size() != this->bcType.size() ||
+         interFace.nIFaces != expectedInterfaceCount ||
          interFace.i2b.size() != static_cast< HXSize_t >( expectedInterfaceCount ) )
     {
         throw std::logic_error(
@@ -162,6 +163,41 @@ void BcRecord::GenerateI2B( InterFace & interFace )
         }
 
         interFace.i2b[ interfaceFaceId ] = boundaryFaceId;
+        ++ interfaceFaceId;
+    }
+
+    this->ValidateI2B( interFace );
+}
+
+void BcRecord::ValidateI2B( const InterFace & interFace ) const
+{
+    if ( this->bcNameId.size() != this->bcType.size() )
+    {
+        throw std::logic_error(
+            "BcRecord::ValidateI2B: boundary type and name counts differ" );
+    }
+
+    const int expectedInterfaceCount = this->CalcNIFace();
+    if ( interFace.nIFaces != expectedInterfaceCount ||
+         interFace.i2b.size() != static_cast< HXSize_t >( expectedInterfaceCount ) )
+    {
+        throw std::logic_error(
+            "BcRecord::ValidateI2B: interface count does not match boundary conditions" );
+    }
+
+    int interfaceFaceId = 0;
+    for ( int boundaryFaceId = 0; boundaryFaceId < this->GetNBFace(); ++ boundaryFaceId )
+    {
+        if ( ! BC::IsInterfaceBc( this->bcType[ boundaryFaceId ] ) )
+        {
+            continue;
+        }
+
+        if ( interFace.i2b[ interfaceFaceId ] != boundaryFaceId )
+        {
+            throw std::logic_error(
+                "BcRecord::ValidateI2B: interface-to-boundary mapping does not match boundary types" );
+        }
         ++ interfaceFaceId;
     }
 }
