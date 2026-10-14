@@ -2,6 +2,7 @@
 #include <stdexcept>
 
 #include "GridSummaryAdapter.h"
+#include "UnsGridStorageValidation.h"
 #include "UnsGrid.h"
 #include "StrGrid.h"
 #include "Dimension.h"
