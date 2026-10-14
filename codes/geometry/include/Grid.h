@@ -33,10 +33,10 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-#define IMPLEMENT_GRID_CLONE( TYPE ) \\
+#define IMPLEMENT_GRID_CLONE( TYPE ) \
 std::unique_ptr< Grid > Clone() const override { return std::make_unique< TYPE >(); }
 
-#define REGISTER_GRID( TYPE ) \\
+#define REGISTER_GRID( TYPE ) \
     Grid * TYPE ## _myClass = \\
         Grid::Register( #TYPE, std::make_unique< TYPE >() );
 
