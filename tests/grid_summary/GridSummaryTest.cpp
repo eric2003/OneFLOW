@@ -4,6 +4,8 @@
 #include <stdexcept>
 #include <string>
 
+#include <nlohmann/json.hpp>
+
 #include "GridSummary.h"
 #include "GridSummaryJson.h"
 
@@ -68,19 +70,14 @@ TEST( GridSummaryJsonTest, WritesVersionedMachineReadableMetadata )
 
     ONEFLOW::WriteGridSummaryJson( output, summary );
 
-    EXPECT_EQ(
-        output.str(),
-        "{\n"
-        "  \"schema\": \"oneflow.grid-summary\",\n"
-        "  \"version\": 1,\n"
-        "  \"dimension\": 2,\n"
-        "  \"counts\": {\n"
-        "    \"nodes\": 12,\n"
-        "    \"faces\": 17,\n"
-        "    \"cells\": 6,\n"
-        "    \"boundaryFaces\": 12\n"
-        "  }\n"
-        "}\n" );
+    const nlohmann::json document = nlohmann::json::parse( output.str() );
+    EXPECT_EQ( document.at( "schema" ).get< std::string >(), "oneflow.grid-summary" );
+    EXPECT_EQ( document.at( "version" ).get< int >(), 1 );
+    EXPECT_EQ( document.at( "dimension" ).get< int >(), 2 );
+    EXPECT_EQ( document.at( "counts" ).at( "nodes" ).get< int >(), 12 );
+    EXPECT_EQ( document.at( "counts" ).at( "faces" ).get< int >(), 17 );
+    EXPECT_EQ( document.at( "counts" ).at( "cells" ).get< int >(), 6 );
+    EXPECT_EQ( document.at( "counts" ).at( "boundaryFaces" ).get< int >(), 12 );
 }
 
 TEST( GridSummaryJsonTest, SupportsWritingToAnExistingStream )
