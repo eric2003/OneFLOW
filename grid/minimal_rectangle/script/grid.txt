@@ -1,0 +1,26 @@
+int gridObj = 0;
+string topoType = "s";
+int multiBlock = 0;
+
+int fileFormat = 1;
+Real gridScale = 1.0;
+Real gridTrans[3] = 0, 0, 0;
+int axis_dir = 0;
+int ignoreNoBc = 0;
+
+string gridLayoutFileName = "grid/minimalRectangleLayout.txt";
+int igene = 4;
+
+int codeOfOversetGrid = 0;
+string oversetGridFileName = "grid/iBlank.ovs";
+int parallelStrategy = 1;
+
+string sourceGridType = "plot3d";
+string targetGridType = "oneflow";
+int iplot3d = 1;
+
+string sourceGridFileName = "results/minimalRectangle.generated.grd";
+string sourceGridBcName = "results/minimalRectangle.inp";
+string targetGridFileName = "results/minimalRectangle.ofl";
+string gridInfoFileName = "results/minimalRectangle.info.json";
+string patchFileName = "grid/minimalRectangle.patch";
