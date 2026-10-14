@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <stdexcept>
 
 #include "CellTopo.h"
 #include "FaceTopo.h"
