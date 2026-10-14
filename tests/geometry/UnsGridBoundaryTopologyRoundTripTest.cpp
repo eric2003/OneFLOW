@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <memory>
 
 #include "BcRecord.h"
 #include "Boundary.h"
@@ -6,6 +7,8 @@
 #include "DataBaseIO.h"
 #include "FaceTopo.h"
 #include "InterFace.h"
+#include "IFaceLink.h"
+#include "GridHandles.h"
 #include "UnsGrid.h"
 
 namespace
@@ -96,4 +99,67 @@ TEST( UnsGridBoundaryTopologyRoundTripTest, SplitInterfaceRecordsRegenerateBound
     EXPECT_EQ( bcRecord.bcNameId[ interFace.i2b[ 1 ] ], 10 );
     EXPECT_EQ( bcRecord.bcNameId[ interFace.i2b[ 2 ] ], 30 );
     EXPECT_EQ( bcRecord.bcNameId[ interFace.i2b[ 3 ] ], 30 );
+}
+
+TEST( UnsGridBoundaryTopologyRoundTripTest, InterfaceSplitKeepsLocalGlobalAndBoundaryMappingsAligned )
+{
+    ONEFLOW::Grids grids;
+    auto ownedGrid = std::make_unique< ONEFLOW::UnsGrid >();
+    ownedGrid->Init();
+    ownedGrid->id = 0;
+    ownedGrid->nCells = 1;
+    ownedGrid->nFaces = 3;
+    ownedGrid->GetFaceTopo().SetNBFaces( 3 );
+    ownedGrid->GetFaceTopo().GetBcRecord().bcType = {
+        ONEFLOW::BC::INTERFACE,
+        ONEFLOW::BC::SOLID_SURFACE,
+        ONEFLOW::BC::INTERFACE
+    };
+    ownedGrid->GetFaceTopo().GetBcRecord().bcNameId = { 10, 20, 30 };
+    ownedGrid->nIFaces = 2;
+    ownedGrid->interFace->Set( 2, ownedGrid.get() );
+    grids.push_back( std::move( ownedGrid ) );
+    ONEFLOW::UnsGrid & grid = static_cast< ONEFLOW::UnsGrid & >( * grids[ 0 ] );
+
+    ONEFLOW::IFaceLink link( grids );
+    link.l2g[ 0 ] = { 0, 1 };
+    link.gI2Zid = { { 0, 1 }, { 0, 1 } };
+    link.g2l = { { 0, 0 }, { 1, 1 } };
+    link.InitNewLgMapping();
+
+    link.face_search->cFaceId.resize( 4 );
+    link.face_search->cFaceId[ 0 ] = { 2, 3 };
+    link.face_search->rCNodeId.resize( 4 );
+    link.face_search->rCNodeFlag.resize( 4 );
+    link.face_search->rCNodeId[ 2 ] = { 0 };
+    link.face_search->rCNodeFlag[ 2 ] = { 1 };
+    link.face_search->rCNodeId[ 3 ] = { 0 };
+    link.face_search->rCNodeFlag[ 3 ] = { 1 };
+
+    grid.GetFaceTopo().ModifyBoundaryInformation( link );
+
+    ASSERT_EQ( link.l2gNew[ 0 ], ( ONEFLOW::IntField{ 2, 3, 1 } ) );
+    link.UpdateLgMapping();
+    grid.UpdateOtherTopologyTerm( link );
+
+    const auto & bcRecord = grid.GetFaceTopo().GetBcRecord();
+    ASSERT_EQ( bcRecord.bcType.size(), 4u );
+    EXPECT_EQ( bcRecord.bcType, ( ONEFLOW::IntField{
+        ONEFLOW::BC::INTERFACE,
+        ONEFLOW::BC::INTERFACE,
+        ONEFLOW::BC::SOLID_SURFACE,
+        ONEFLOW::BC::INTERFACE
+    } ) );
+    EXPECT_EQ( bcRecord.bcNameId, ( ONEFLOW::IntField{ 10, 10, 20, 30 } ) );
+    EXPECT_EQ( grid.nIFaces, 3 );
+    EXPECT_EQ( grid.interFace->i2b, ( ONEFLOW::IntField{ 0, 1, 3 } ) );
+    EXPECT_EQ( link.l2g[ 0 ], ( ONEFLOW::IntField{ 2, 3, 1 } ) );
+
+    for ( int interfaceId = 0; interfaceId < grid.nIFaces; ++ interfaceId )
+    {
+        const int boundaryId = grid.interFace->i2b[ interfaceId ];
+        ASSERT_GE( boundaryId, 0 );
+        ASSERT_LT( boundaryId, static_cast< int >( bcRecord.bcType.size() ) );
+        EXPECT_TRUE( ONEFLOW::BC::IsInterfaceBc( bcRecord.bcType[ boundaryId ] ) );
+    }
 }
