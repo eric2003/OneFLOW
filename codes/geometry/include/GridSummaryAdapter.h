@@ -2,6 +2,7 @@
 
 #include "Grid.h"
 #include "GridSummary.h"
+#include "NodeMesh.h"
 
 #include <stdexcept>
 
@@ -18,6 +19,14 @@ inline GridSummary MakeGridSummary( const Grid & grid )
         grid.nCells,
         grid.nBFaces
     };
+
+    if ( grid.nodeMesh &&
+         grid.nodeMesh->GetNumberOfNodes() !=
+             static_cast< HXSize_t >( grid.nNodes < 0 ? 0 : grid.nNodes ) )
+    {
+        throw std::invalid_argument(
+            "MakeGridSummary: node count does not match coordinate storage" );
+    }
 
     if ( ! IsValidGridSummary( summary ) )
     {
