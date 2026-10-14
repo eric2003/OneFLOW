@@ -15,36 +15,49 @@ so logs and generated files do not pollute the source checkout.
 The case configuration is in `script/grid.txt`. Input and output paths are
 relative to the active case directory.
 
-## Run on Windows
+## Run from Visual Studio or a terminal
 
-Use the actual case directory in your workspace, not this repository template:
-
-```powershell
-.\run.ps1 -OneFlowExe "D:\OneFLOWWorkspace\build\bin\Debug\OneFLOW.exe" -CaseDir "D:\OneFLOWWorkspace\workdir2026\mesh_workflow"
-```
-
-The launcher invokes the standard multi-case mode, equivalent to:
+Use the actual case directory in your workspace, not this repository template.
+The equivalent command-line invocation is:
 
 ```text
 OneFLOW.exe r D:\OneFLOWWorkspace\workdir2026\mesh_workflow\
 ```
 
-It runs the executable from its installation directory so OneFLOW can locate
-its `system` resources, while all case-relative input, logs, and output files
-remain under the external case directory. The case path is explicit and
-required; the script will not silently run the copy inside the source tree.
+In Visual Studio 2022, set the executable's command arguments to
+`r D:\OneFLOWWorkspace\workdir2026\mesh_workflow\`. Keep the working
+directory set to the OneFLOW executable's installation/build directory when
+the runtime needs to resolve shared `system` resources. Case-relative input,
+logs, and generated files should remain under the external case directory.
+
+The optional `run.ps1` launcher is only a convenience; it is not required.
+
+## Preflight validation
+
+Before launching OneFLOW, use the standard-library Python validator to check
+the control-file includes, required grid-conversion parameters, source grid
+and boundary input files, and output directory:
+
+```powershell
+python .\grid\mesh_workflow\tools\validate_case.py D:\OneFLOWWorkspace\workdir2026\mesh_workflow
+```
+
+Add `--create-output-dirs` if the configured output directory does not yet
+exist. The validator currently supports this case's `simutask = Grid`,
+`gridObj = 1` conversion workflow. It is a preflight check, not a replacement
+for OneFLOW's own parameter parser or runtime validation.
 
 ## Parameter configuration and future tools
 
-Keep `control.txt` as the authoritative list of required parameter files.
-Unused legacy parameters may remain for compatibility, but parameters required
-by the selected workflow must not be omitted.
+Keep `control.txt` as the authoritative list of parameter files. Some legacy
+parameters are accepted but may not be used by this particular workflow; do
+not remove them until their read paths and compatibility requirements have
+been traced.
 
-A useful next improvement is a small parameter generator/validator that reads
-a case profile, emits the existing text parameter files, and checks referenced
-input files and output directories before launching OneFLOW. A GUI can be added
-later as a front end to the same profile model; it should not introduce a
-second, independent parameter system.
+The next step is to classify parameters against their actual consumers, then
+introduce a small case-profile model that can generate the existing text
+parameter files and drive validation. A GUI can later edit the same profile;
+it should not introduce a second, independent parameter system.
 
 ## Next increments
 
