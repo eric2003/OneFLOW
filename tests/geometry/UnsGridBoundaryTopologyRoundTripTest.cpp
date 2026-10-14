@@ -10,6 +10,10 @@
 #include "IFaceLink.h"
 #include "GridHandles.h"
 #include "UnsGrid.h"
+#include "NodeMesh.h"
+#include "FaceSearch.h"
+
+
 
 namespace
 {
