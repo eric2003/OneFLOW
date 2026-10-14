@@ -8,6 +8,33 @@
 #include "CellMesh.h"
 #include "BcRecord.h"
 
+TEST(FaceTopoConnectivityTest, ReordersAllFaceIndexedDataTogether)
+{
+    ONEFLOW::FaceTopo faces;
+    faces.fTypes = ONEFLOW::IntField{10, 20, 30};
+    faces.faces = ONEFLOW::LinkField{{10, 11}, {20, 21}, {30, 31}};
+    faces.GetLeftCells() = ONEFLOW::IntField{1, 0, 2};
+    faces.GetRightCells() = ONEFLOW::IntField{2, ONEFLOW::INVALID_INDEX, 3};
+    faces.lPosition = ONEFLOW::IntField{11, 22, 33};
+    faces.rPosition = ONEFLOW::IntField{111, 222, 333};
+    faces.GetFaceFlags() = ONEFLOW::IntField{1, 2, 3};
+    faces.c2f = ONEFLOW::LinkField{{0}, {1}};
+
+    faces.ReorderLink();
+
+    EXPECT_EQ(faces.fTypes, (ONEFLOW::IntField{20, 10, 30}));
+    EXPECT_EQ(faces.faces,
+        (ONEFLOW::LinkField{{20, 21}, {10, 11}, {30, 31}}));
+    EXPECT_EQ(faces.GetLeftCells(), (ONEFLOW::IntField{0, 1, 2}));
+    EXPECT_EQ(
+        faces.GetRightCells(),
+        (ONEFLOW::IntField{ONEFLOW::INVALID_INDEX, 2, 3}));
+    EXPECT_EQ(faces.lPosition, (ONEFLOW::IntField{22, 11, 33}));
+    EXPECT_EQ(faces.rPosition, (ONEFLOW::IntField{222, 111, 333}));
+    EXPECT_EQ(faces.GetFaceFlags(), (ONEFLOW::IntField{2, 1, 3}));
+    EXPECT_TRUE(faces.c2f.empty());
+}
+
 TEST(CellTopoConnectivityTest, BuildsCellToFaceAdjacencyForBoundaryAndInternalFaces)
 {
     ONEFLOW::CellTopo cells;
