@@ -78,8 +78,8 @@ TEST( GridSummaryAdapterTest, StructuredGridCleanupCanBeCalledThroughBaseInterfa
     EXPECT_EQ( grid.nj, 0 );
     EXPECT_EQ( grid.nk, 0 );
     EXPECT_EQ( grid.nNodes, 0 );
-    EXPECT_EQ( grid.bcRegionGroup, nullptr );
+    EXPECT_FALSE( static_cast< bool >( grid.bcRegionGroup ) );
 
     EXPECT_NO_THROW( grid.Init() );
-    EXPECT_NE( grid.bcRegionGroup, nullptr );
+    EXPECT_TRUE( static_cast< bool >( grid.bcRegionGroup ) );
 }
