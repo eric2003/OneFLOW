@@ -20,8 +20,7 @@ namespace
 }
 
 // ---------------------------------------------------------------------------
-// Dual-time order contract: Current, Previous, Old for both flow and residual.
-// Mirrors system/ns|ins|turb/alloc/unsteady.txt and SolverInfo StaticInit.
+// Dual-time order: Current, Previous, Old (flow + residual).
 // ---------------------------------------------------------------------------
 
 TEST( FieldNameContract, MakeUnsteady_OrdersCurrentPreviousOld )
@@ -50,11 +49,8 @@ TEST( FieldNameContract, MakeUnsteady_OrdersCurrentPreviousOld )
 TEST( FieldNameContract, NsMatchesSystemAllocUnsteadyTxt )
 {
     const auto names = ExpectedNsUnsteadyFieldNames();
-    const auto flow = ToVector( names.flow );
-    const auto res = ToVector( names.residual );
-
-    EXPECT_EQ( flow, ( std::vector<std::string>{ "q", "q1", "q2" } ) );
-    EXPECT_EQ( res, ( std::vector<std::string>{ "res", "res1", "res2" } ) );
+    EXPECT_EQ( ToVector( names.flow ), ( std::vector<std::string>{ "q", "q1", "q2" } ) );
+    EXPECT_EQ( ToVector( names.residual ), ( std::vector<std::string>{ "res", "res1", "res2" } ) );
 }
 
 TEST( FieldNameContract, INsSharesNsDualTimeNames )
@@ -68,11 +64,8 @@ TEST( FieldNameContract, INsSharesNsDualTimeNames )
 TEST( FieldNameContract, TurbMatchesSystemAllocUnsteadyTxt )
 {
     const auto names = ExpectedTurbUnsteadyFieldNames();
-    const auto flow = ToVector( names.flow );
-    const auto res = ToVector( names.residual );
-
-    EXPECT_EQ( flow, ( std::vector<std::string>{ "turbq", "turbq1", "turbq2" } ) );
-    EXPECT_EQ( res, ( std::vector<std::string>{ "turbres", "turbres1", "turbres2" } ) );
+    EXPECT_EQ( ToVector( names.flow ), ( std::vector<std::string>{ "turbq", "turbq1", "turbq2" } ) );
+    EXPECT_EQ( ToVector( names.residual ), ( std::vector<std::string>{ "turbres", "turbres1", "turbres2" } ) );
 }
 
 TEST( FieldNameContract, TurbUsesPrefixStrategyNotBareQ )
@@ -86,4 +79,71 @@ TEST( FieldNameContract, TurbUsesPrefixStrategyNotBareQ )
     {
         EXPECT_NE( turb.residual[ i ].find( "turb" ), std::string::npos );
     }
+}
+
+// ---------------------------------------------------------------------------
+// Logistics name table (solutionGrad / implicit / bcGrad / residual / limiter).
+// Mirrors NsSolver / INsSolver / TurbSolver StaticInit.
+// ---------------------------------------------------------------------------
+
+TEST( FieldNameContract, NsLogistics_SolutionGradOrder )
+{
+    const auto n = ExpectedNsSolverLogisticsNames();
+    ASSERT_EQ( n.solutionGradNames.size(), 4u );
+    EXPECT_EQ( n.solutionGradNames[ 0 ], "q" );
+    EXPECT_EQ( n.solutionGradNames[ 1 ], "dqdx" );
+    EXPECT_EQ( n.solutionGradNames[ 2 ], "dqdy" );
+    EXPECT_EQ( n.solutionGradNames[ 3 ], "dqdz" );
+}
+
+TEST( FieldNameContract, NsLogistics_ImplicitIsSolutionAndDelta )
+{
+    const auto n = ExpectedNsSolverLogisticsNames();
+    ASSERT_EQ( n.implicitFieldNames.size(), 2u );
+    EXPECT_EQ( n.implicitFieldNames[ 0 ], "q" );
+    EXPECT_EQ( n.implicitFieldNames[ 1 ], "dq" );
+    EXPECT_EQ( n.residualName, "res" );
+    EXPECT_EQ( n.limiterName, "limiter" );
+    EXPECT_EQ( n.bcSolutionName, "bc_q" );
+}
+
+TEST( FieldNameContract, NsLogistics_BcGradNames )
+{
+    const auto n = ExpectedNsSolverLogisticsNames();
+    ASSERT_EQ( n.bcGradFieldNames.size(), 3u );
+    EXPECT_EQ( n.bcGradFieldNames[ 0 ], "bcdqdx" );
+    EXPECT_EQ( n.bcGradFieldNames[ 1 ], "bcdqdy" );
+    EXPECT_EQ( n.bcGradFieldNames[ 2 ], "bcdqdz" );
+}
+
+TEST( FieldNameContract, TurbLogistics_PrefixedAndEmptyBcSolution )
+{
+    const auto n = ExpectedTurbSolverLogisticsNames();
+    EXPECT_EQ( n.solutionGradNames[ 0 ], "turbq" );
+    EXPECT_EQ( n.solutionGradNames[ 1 ], "turbdqdx" );
+    EXPECT_EQ( n.implicitFieldNames[ 1 ], "turbdq" );
+    EXPECT_EQ( n.residualName, "turbres" );
+    EXPECT_EQ( n.limiterName, "turblimiter" );
+    EXPECT_TRUE( n.bcSolutionName.empty() );
+    EXPECT_EQ( n.bcGradFieldNames[ 0 ], "turbbcdqdx" );
+}
+
+TEST( FieldNameContract, INsLogisticsMatchesNs )
+{
+    const auto ns = ExpectedNsSolverLogisticsNames();
+    const auto ins = ExpectedINsSolverLogisticsNames();
+    EXPECT_EQ( ToVector( ns.solutionGradNames ), ToVector( ins.solutionGradNames ) );
+    EXPECT_EQ( ToVector( ns.implicitFieldNames ), ToVector( ins.implicitFieldNames ) );
+    EXPECT_EQ( ToVector( ns.bcGradFieldNames ), ToVector( ins.bcGradFieldNames ) );
+    EXPECT_EQ( ns.residualName, ins.residualName );
+    EXPECT_EQ( ns.limiterName, ins.limiterName );
+    EXPECT_EQ( ns.bcSolutionName, ins.bcSolutionName );
+}
+
+TEST( FieldNameContract, TurbAndNsDoNotShareBareSolutionName )
+{
+    const auto ns = ExpectedNsSolverLogisticsNames();
+    const auto turb = ExpectedTurbSolverLogisticsNames();
+    EXPECT_NE( ns.solutionGradNames[ 0 ], turb.solutionGradNames[ 0 ] );
+    EXPECT_NE( ns.residualName, turb.residualName );
 }

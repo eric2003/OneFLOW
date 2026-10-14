@@ -72,4 +72,55 @@ UnsteadyFieldNames ExpectedTurbUnsteadyFieldNames()
     return MakeUnsteadyFieldNames( "turbq", stageQ, "turbres", stageR );
 }
 
+SolverLogisticsNames MakeSolverLogisticsNames(
+    const std::string & solution,
+    const std::string & dqdx,
+    const std::string & dqdy,
+    const std::string & dqdz,
+    const std::string & updateDelta,
+    const std::string & residual,
+    const std::string & bcdqdx,
+    const std::string & bcdqdy,
+    const std::string & bcdqdz,
+    const std::string & limiter,
+    const std::string & bcSolution )
+{
+    SolverLogisticsNames names;
+    names.solutionGradNames.push_back( solution );
+    names.solutionGradNames.push_back( dqdx );
+    names.solutionGradNames.push_back( dqdy );
+    names.solutionGradNames.push_back( dqdz );
+    names.implicitFieldNames.push_back( solution );
+    names.implicitFieldNames.push_back( updateDelta );
+    names.bcGradFieldNames.push_back( bcdqdx );
+    names.bcGradFieldNames.push_back( bcdqdy );
+    names.bcGradFieldNames.push_back( bcdqdz );
+    names.residualName = residual;
+    names.limiterName = limiter;
+    names.bcSolutionName = bcSolution;
+    return names;
+}
+
+SolverLogisticsNames ExpectedNsSolverLogisticsNames()
+{
+    return MakeSolverLogisticsNames(
+        "q", "dqdx", "dqdy", "dqdz", "dq", "res",
+        "bcdqdx", "bcdqdy", "bcdqdz",
+        "limiter", "bc_q" );
+}
+
+SolverLogisticsNames ExpectedINsSolverLogisticsNames()
+{
+    // INS logistics names match NS in INsSolver::StaticInit.
+    return ExpectedNsSolverLogisticsNames();
+}
+
+SolverLogisticsNames ExpectedTurbSolverLogisticsNames()
+{
+    return MakeSolverLogisticsNames(
+        "turbq", "turbdqdx", "turbdqdy", "turbdqdz", "turbdq", "turbres",
+        "turbbcdqdx", "turbbcdqdy", "turbbcdqdz",
+        "turblimiter", "" );
+}
+
 EndNameSpace
