@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <stdexcept>
 
 #include "GridSummaryAdapter.h"
 #include "UnsGrid.h"
