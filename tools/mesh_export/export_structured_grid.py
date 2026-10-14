@@ -112,6 +112,7 @@ def write_json(path, document):
 
 
 def write_vtu(path, points, cells):
+    path.parent.mkdir(parents=True, exist_ok=True)
     connectivity = " ".join(str(node) for cell in cells for node in cell["nodes"])
     offsets = " ".join(str(4 * (i + 1)) for i in range(len(cells)))
     types = " ".join("9" for _ in cells)  # VTK_QUAD
@@ -138,6 +139,7 @@ def write_vtu(path, points, cells):
 
 
 def write_svg(path, ni, nj, points):
+    path.parent.mkdir(parents=True, exist_ok=True)
     xs = [point[0] for point in points]
     ys = [point[1] for point in points]
     xmin, xmax = min(xs), max(xs)
