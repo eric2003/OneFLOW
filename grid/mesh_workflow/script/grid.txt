@@ -25,4 +25,5 @@ string volumeBoundaryNameMapFileName = "grid/volumeBoundaryNameMapFileName.dat";
 string sourceGridFileName = "grid/rae2822_2d.grd";
 string sourceGridBcName = "grid/rae2822_2d.inp";
 string targetGridFileName = "results/rae2822_2d.ofl";
+string gridInfoFileName = "results/rae2822_2d.info.json";
 string patchFileName = "grid/rae2822_2d.patch";

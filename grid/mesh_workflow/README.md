@@ -11,6 +11,7 @@ so logs and generated files do not pollute the source checkout.
 1. Read the 2D RAE 2822 Plot3D grid and boundary-condition input.
 2. Run the regular OneFLOW grid-conversion entry point (`gridObj = 1`).
 3. Write the OneFLOW grid file to `results/rae2822_2d.ofl`.
+4. Write a JSON grid-information summary to `results/rae2822_2d.info.json` with dimension, node/face/cell counts, boundary-face count, and coordinate bounding box. The summary contains metadata only, not mesh connectivity or coordinates.
 
 The case configuration is in `script/grid.txt`. Input and output paths are
 relative to the active case directory.

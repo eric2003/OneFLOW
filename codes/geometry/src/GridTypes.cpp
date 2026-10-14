@@ -57,6 +57,15 @@ GridConfig GridConfig::FromDataBase()
     cfg.bcFile     = GetDataValue< std::string >( "sourceGridBcName" );
     cfg.targetFile = GetDataValue< std::string >( "targetGridFileName" );
 
+    try
+    {
+        cfg.gridInfoFile = GetDataValue< std::string >( "gridInfoFileName" );
+    }
+    catch ( const std::exception & )
+    {
+        // Grid information output is optional for existing cases.
+    }
+
     // These values belong to specific grid workflows. Keep their defaults when
     // a smaller workflow does not register the corresponding database entries.
     try

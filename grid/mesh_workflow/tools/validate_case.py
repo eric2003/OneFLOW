@@ -137,6 +137,7 @@ def main() -> int:
         "sourceGridFileName",
         "sourceGridBcName",
         "targetGridFileName",
+        "gridInfoFileName",
     )
     for name in required_grid_strings:
         if not strings.get(name):
@@ -189,17 +190,18 @@ def main() -> int:
             if not resolved.is_file():
                 errors.append(f"{name} points to a missing input file: {resolved}")
 
-    output_value = strings.get("targetGridFileName")
-    if output_value:
-        output_path = Path(output_value)
-        output_path = output_path if output_path.is_absolute() else case_dir / output_path
-        if args.create_output_dirs:
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-        if not output_path.parent.is_dir():
-            errors.append(
-                f"Output directory does not exist for targetGridFileName: {output_path.parent} "
-                "(use --create-output-dirs to create it)"
-            )
+    for name in ("targetGridFileName", "gridInfoFileName"):
+        output_value = strings.get(name)
+        if output_value:
+            output_path = Path(output_value)
+            output_path = output_path if output_path.is_absolute() else case_dir / output_path
+            if args.create_output_dirs:
+                output_path.parent.mkdir(parents=True, exist_ok=True)
+            if not output_path.parent.is_dir():
+                errors.append(
+                    f"Output directory does not exist for {name}: {output_path.parent} "
+                    "(use --create-output-dirs to create it)"
+                )
 
     if errors:
         print("OneFLOW case validation failed:")
@@ -215,6 +217,7 @@ def main() -> int:
     print(f"  Grid objective: {integers['gridObj']} (convert)")
     print(f"  Source: {strings['sourceGridType']} / {strings['sourceGridFileName']}")
     print(f"  Target: {strings['targetGridType']} / {strings['targetGridFileName']}")
+    print(f"  Grid info: {strings['gridInfoFileName']}")
     return 0
 
 
