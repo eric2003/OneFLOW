@@ -27,6 +27,7 @@ License
 #include "Zone.h"
 #include "DataBase.h"
 #include "FieldWrap.h"
+#include "ZoneSharedFields.h"
 #include "SolverDef.h"
 #include "Ctrl.h"
 #include "TimeIntegral.h"
@@ -56,7 +57,7 @@ void UINsField::Init()
     q2  = FieldHome::GetStageSolutionField( grid, ins, 1 );
     dq  = FieldHome::GetUpdateDeltaField( grid, ins );
     limiter  = GetFieldPointer< MRField > ( grid, "limiter" );
-    gama  = GetFieldPointer< MRField > ( grid, "gama" );
+    gama  = GetFieldPointer< MRField > ( grid, ZoneSharedFieldNames::Gamma );
     dqdx  = FieldHome::GetGradField( grid, ins, 1 );
     dqdy  = FieldHome::GetGradField( grid, ins, 2 );
     dqdz  = FieldHome::GetGradField( grid, ins, 3 );
@@ -69,12 +70,12 @@ void UINsField::Init()
     bcdqdy  = FieldHome::GetBcGradField( grid, ins, 1 );
     bcdqdz  = FieldHome::GetBcGradField( grid, ins, 2 );
 
-    visl  = GetFieldPointer< MRField > ( grid, "visl" );
-    vist  = GetFieldPointer< MRField > ( grid, "vist" );
+    visl  = GetFieldPointer< MRField > ( grid, ZoneSharedFieldNames::ViscosityLaminar );
+    vist  = GetFieldPointer< MRField > ( grid, ZoneSharedFieldNames::ViscosityTurbulent );
 
     tempr = GetFieldPointer< MRField >( grid, "tempr" );
 
-    timestep = GetFieldPointer< MRField >( grid, "timestep" );
+    timestep = GetFieldPointer< MRField >( grid, ZoneSharedFieldNames::TimeStep );
 
     invsr = ONEFLOW::GetFieldPointer< MRField >( grid, "invsr" );
     vissr = ONEFLOW::GetFieldPointer< MRField >( grid, "vissr" );

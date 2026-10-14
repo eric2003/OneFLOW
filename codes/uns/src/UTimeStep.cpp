@@ -37,6 +37,7 @@ License
 #include "Fatal.h"
 #include "DataBase.h"
 #include "FieldWrap.h"
+#include "ZoneSharedFields.h"
 #include "SolverDef.h"
 #include "FieldBase.h"
 #include "Iteration.h"
@@ -52,7 +53,7 @@ void BindUNsFieldPointers()
     UnsGrid * grid = Zone::GetUnsGrid();
     unsf.invsr = ONEFLOW::GetFieldPointer< MRField >( grid, "invsr" );
     unsf.vissr = ONEFLOW::GetFieldPointer< MRField >( grid, "vissr" );
-    unsf.gama  = ONEFLOW::GetFieldPointer< MRField >( grid, "gama" );
+    unsf.gama  = ONEFLOW::GetFieldPointer< MRField >( grid, ZoneSharedFieldNames::Gamma );
     unsf.q  = FieldHome::GetSolutionField( grid, NS_SOLVER );
     unsf.q1 = FieldHome::GetStageSolutionField( grid, NS_SOLVER, 0 );
     unsf.q2 = FieldHome::GetStageSolutionField( grid, NS_SOLVER, 1 );
@@ -63,8 +64,8 @@ void BindUNsFieldPointers()
     unsf.dqdz = FieldHome::GetGradField( grid, NS_SOLVER, 3 );
 
     // Shared zone physics fields (not solver-prefixed).
-    unsf.visl = ONEFLOW::GetFieldPointer< MRField >( grid, "visl" );
-    unsf.vist = ONEFLOW::GetFieldPointer< MRField >( grid, "vist" );
+    unsf.visl = ONEFLOW::GetFieldPointer< MRField >( grid, ZoneSharedFieldNames::ViscosityLaminar );
+    unsf.vist = ONEFLOW::GetFieldPointer< MRField >( grid, ZoneSharedFieldNames::ViscosityTurbulent );
     unsf.res = FieldHome::GetResidualField( grid, NS_SOLVER );
     unsf.res1 = FieldHome::GetStageResidualField( grid, NS_SOLVER, 0 );
     unsf.res2 = FieldHome::GetStageResidualField( grid, NS_SOLVER, 1 );
