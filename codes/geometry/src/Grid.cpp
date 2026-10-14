@@ -45,12 +45,7 @@ GridRegistry & GetGridRegistry()
 }
 }
 
-Grid::Grid()
-{
-    name = "grid";
-    this->dimension = THREE_D;
-    this->volBcType = -1;
-}
+Grid::Grid() = default;
 
 Grid::~Grid()
 {
