@@ -38,6 +38,22 @@ TEST( GridSummaryAdapterTest, CopiesCurrentGridCountsWithoutOwningStorage )
     EXPECT_TRUE( ONEFLOW::IsValidGridSummary( summary ) );
 }
 
+TEST( GridSummaryAdapterTest, RejectsInconsistentMetadata )
+{
+    ONEFLOW::UnsGrid grid;
+    grid.dimension = 2;
+    grid.nNodes = 4;
+    grid.nFaces = 3;
+    grid.nCells = 1;
+    grid.nBFaces = 4;
+
+    EXPECT_THROW( ONEFLOW::MakeGridSummary( grid ), std::invalid_argument );
+
+    grid.nBFaces = 2;
+    grid.nNodes = -1;
+    EXPECT_THROW( ONEFLOW::MakeGridSummary( grid ), std::invalid_argument );
+}
+
 TEST( GridSummaryAdapterTest, FreeClearsGridCountsAndAllowsReinitialization )
 {
     ONEFLOW::UnsGrid grid;
