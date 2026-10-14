@@ -1,0 +1,30 @@
+{
+  "schema": "oneflow.case",
+  "version": 1,
+  "name": "minimal_rectangle_mesh",
+  "kind": "mesh-generation-and-inspection",
+  "parameters": {
+    "generation": {
+      "testFilter": "GridLayoutGenerationTest.GeneratesMinimalRectangle",
+      "layout": "tests/geometry/data/minimalRectangleLayout.txt",
+      "dimension": 2
+    },
+    "inspection": {
+      "realBytes": 8,
+      "byteOrder": "little",
+      "packageDirectory": "minimalRectangle.mesh"
+    },
+    "expected": {
+      "zones": 1,
+      "nodes": 9,
+      "cells": 4,
+      "faces": 12,
+      "boundaryFaces": 8,
+      "internalFaces": 4,
+      "boundingBox": {
+        "min": [0.0, 0.0, 0.0],
+        "max": [1.0, 1.0, 0.0]
+      }
+    }
+  }
+}
