@@ -64,6 +64,20 @@ inline void ValidateUnsGridStorageCounts( const UnsGrid & grid )
             "ValidateUnsGridStorageCounts: face count does not match face topology storage" );
     }
 
+    for ( HXSize_t faceId = 0; faceId < faceCount; ++ faceId )
+    {
+        for ( int nodeId : faceTopo.GetFaces()[ faceId ] )
+        {
+            if ( nodeId < 0 ||
+                 static_cast< HXSize_t >( nodeId ) >=
+                     static_cast< HXSize_t >( grid.nNodes ) )
+            {
+                throw std::logic_error(
+                    "ValidateUnsGridStorageCounts: face references an invalid node ID" );
+            }
+        }
+    }
+
     if ( cellTopo.GetNumberOfCells() != cellCount ||
          cellTopo.elements.size() != cellCount ||
          cellTopo.blank.size() != cellCount )
