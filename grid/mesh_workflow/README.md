@@ -44,7 +44,10 @@ python .\grid\mesh_workflow\tools\validate_case.py D:\OneFLOWWorkspace\workdir20
 
 Add `--create-output-dirs` if the configured output directory does not yet
 exist. The validator currently supports this case's `simutask = Grid`,
-`gridObj = 1` conversion workflow. It is a preflight check, not a replacement
+`gridObj = 1` conversion workflow. It also checks that `gridLayoutFileName` is
+present because `GridConfig::FromDataBase()` reads that parameter even for a
+conversion; it does not require the referenced layout file to exist unless the
+selected workflow actually opens it. This is a preflight check, not a replacement
 for OneFLOW's own parameter parser or runtime validation.
 
 ## Parameter configuration and future tools
