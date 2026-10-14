@@ -56,8 +56,14 @@ TEST( GridSummaryAdapterTest, RejectsInterfaceCountThatDiffersFromMappingStorage
     grid.Init();
 
     grid.nFaces = 1;
+    grid.nCells = 1;
     grid.nBFaces = 1;
     grid.nIFaces = 1;
+
+    ONEFLOW::CellTopo & cellTopo = grid.GetCellMesh().GetCellTopo();
+    cellTopo.eTypes.resize( 1 );
+    cellTopo.blank.resize( 1 );
+    cellTopo.elements.resize( 1 );
 
     ONEFLOW::FaceTopo & faceTopo = grid.GetFaceTopo();
     faceTopo.GetFaceTypes().resize( 1 );
@@ -70,6 +76,10 @@ TEST( GridSummaryAdapterTest, RejectsInterfaceCountThatDiffersFromMappingStorage
 
     grid.interFace->Set( 1, &grid );
     EXPECT_NO_THROW( ONEFLOW::ValidateUnsGridStorageCounts( grid ) );
+
+    faceTopo.GetLeftCells()[ 0 ] = -1;
+    EXPECT_THROW( ONEFLOW::ValidateUnsGridStorageCounts( grid ), std::logic_error );
+    faceTopo.GetLeftCells()[ 0 ] = 0;
 
     grid.interFace->i2b[ 0 ] = 1;
     EXPECT_THROW( ONEFLOW::ValidateUnsGridStorageCounts( grid ), std::logic_error );
@@ -226,6 +236,40 @@ TEST( GridSummaryAdapterTest, StructuredGridCleanupCanBeCalledThroughBaseInterfa
     EXPECT_TRUE( static_cast< bool >( grid.bcRegionGroup ) );
 }
 
+
+
+TEST( GridSummaryAdapterTest, RejectsInvalidInternalFaceCellAdjacency )
+{
+    ONEFLOW::UnsGrid grid;
+    grid.Init();
+    grid.nodeMesh->CreateNodes( 1 );
+    grid.nNodes = 1;
+    grid.nFaces = 1;
+    grid.nCells = 2;
+    grid.nBFaces = 0;
+
+    ONEFLOW::FaceTopo & faceTopo = grid.GetFaceTopo();
+    faceTopo.GetFaceTypes().resize( 1 );
+    faceTopo.GetFaces().resize( 1 );
+    faceTopo.GetLeftCells() = { 0 };
+    faceTopo.GetRightCells() = { 0 };
+    faceTopo.SetNBFaces( 0 );
+
+    ONEFLOW::CellTopo & cellTopo = grid.GetCellMesh().GetCellTopo();
+    cellTopo.eTypes.resize( 2 );
+    cellTopo.blank.resize( 2 );
+    cellTopo.elements.resize( 2 );
+
+    grid.interFace->Set( 0, &grid );
+
+    EXPECT_THROW( ONEFLOW::ValidateUnsGridStorageCounts( grid ), std::logic_error );
+
+    faceTopo.GetRightCells()[ 0 ] = 2;
+    EXPECT_THROW( ONEFLOW::ValidateUnsGridStorageCounts( grid ), std::logic_error );
+
+    faceTopo.GetRightCells()[ 0 ] = 1;
+    EXPECT_NO_THROW( ONEFLOW::ValidateUnsGridStorageCounts( grid ) );
+}
 
 TEST( GridSummaryAdapterTest, GenerateI2BRequiresMatchingInterfaceStorage )
 {

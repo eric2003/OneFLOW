@@ -56,6 +56,40 @@ inline void ValidateUnsGridStorageCounts( const UnsGrid & grid )
     const HXSize_t cellCount = static_cast< HXSize_t >( grid.nCells );
     const HXSize_t boundaryFaceCount = faceTopo.GetNBFaces();
 
+    const auto & leftCells = faceTopo.GetLeftCells();
+    const auto & rightCells = faceTopo.GetRightCells();
+    if ( leftCells.size() != faceCount || rightCells.size() != faceCount )
+    {
+        throw std::logic_error(
+            "ValidateUnsGridStorageCounts: face-cell connectivity count does not match face count" );
+    }
+
+    for ( HXSize_t faceId = 0; faceId < faceCount; ++ faceId )
+    {
+        const int leftCell = leftCells[ faceId ];
+        if ( leftCell < 0 || static_cast< HXSize_t >( leftCell ) >= cellCount )
+        {
+            throw std::logic_error(
+                "ValidateUnsGridStorageCounts: face references an invalid left cell ID" );
+        }
+
+        if ( faceId >= boundaryFaceCount )
+        {
+            const int rightCell = rightCells[ faceId ];
+            if ( rightCell < 0 ||
+                 static_cast< HXSize_t >( rightCell ) >= cellCount )
+            {
+                throw std::logic_error(
+                    "ValidateUnsGridStorageCounts: internal face references an invalid right cell ID" );
+            }
+            if ( rightCell == leftCell )
+            {
+                throw std::logic_error(
+                    "ValidateUnsGridStorageCounts: internal face must connect distinct cells" );
+            }
+        }
+    }
+
     if ( faceTopo.GetNFaces() != faceCount ||
          faceTopo.GetFaces().size() != faceCount ||
          faceTopo.GetLeftCells().size() != faceCount ||
