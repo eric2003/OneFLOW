@@ -124,6 +124,12 @@ def main() -> int:
     elif integers["gridObj"] != 1:
         errors.append("This case validator currently supports gridObj = 1 (conversion) only")
 
+    if strings.get("sourceGridType", "").lower() == "plot3d":
+        if "fileFormat" not in integers:
+            errors.append("Missing required integer parameter for Plot3D input: fileFormat")
+        elif integers["fileFormat"] not in (0, 1):
+            errors.append("fileFormat must be 0 (ASCII) or 1 (binary) for Plot3D input")
+
     required_grid_strings = (
         "sourceGridType",
         "targetGridType",
