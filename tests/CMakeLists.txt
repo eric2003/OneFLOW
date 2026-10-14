@@ -7,6 +7,9 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 # 设置默认文件夹名称
 set(CMAKE_FOLDER "Tests")
 
+# L0 mesh metadata and validation tests with no solver or geometry-core dependency.
+add_subdirectory(grid_summary)
+
 # ============================================================================
 # 模块级测试路由 (使用 add_subdirectory 引入各个子目录的 CMakeLists.txt)
 # 这样顶层文件永远保持简洁，新增模块只需加一行 add_subdirectory
