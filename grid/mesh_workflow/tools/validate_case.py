@@ -151,6 +151,21 @@ def main() -> int:
                 + ", ".join(sorted(supported_grid_types))
             )
 
+    # Match the source-target pairs implemented by GridConversion.cpp.
+    supported_targets = {
+        "plot3d": {"oneflow", "cgns"},
+        "su2": {"oneflow"},
+        "cgns": {"oneflow", "cgns"},
+    }
+    source_type = strings.get("sourceGridType", "").lower()
+    target_type = strings.get("targetGridType", "").lower()
+    if source_type in supported_grid_types and target_type in supported_grid_types:
+        allowed_targets = supported_targets.get(source_type, set())
+        if target_type not in allowed_targets:
+            errors.append(
+                f"Unsupported grid conversion: {source_type} -> {target_type}"
+            )
+
     # GridConfig::FromDataBase reads gridLayoutFileName even for conversion;
     # the selected conversion workflow does not necessarily open that layout file.
     # Source grid and boundary paths share the source case root in the runtime reader.
