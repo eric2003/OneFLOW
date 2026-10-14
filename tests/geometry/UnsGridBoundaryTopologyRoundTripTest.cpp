@@ -109,6 +109,15 @@ TEST( UnsGridBoundaryTopologyRoundTripTest, InterfaceSplitKeepsLocalGlobalAndBou
     ownedGrid->id = 0;
     ownedGrid->nCells = 1;
     ownedGrid->nFaces = 3;
+    ownedGrid->nNodes = 2;
+    ownedGrid->nodeMesh->CreateNodes( 2 );
+    ownedGrid->nodeMesh->xN[ 0 ] = 0.0;
+    ownedGrid->nodeMesh->xN[ 1 ] = 1.0;
+    ownedGrid->nodeMesh->CalcMinMaxBox();
+    ownedGrid->GetFaceTopo().GetFaceTypes().resize( 3 );
+    ownedGrid->GetFaceTopo().GetFaces() = {
+        { 0, 1 }, { 0, 1 }, { 0, 1 }
+    };
     ownedGrid->GetFaceTopo().SetNBFaces( 3 );
     ownedGrid->GetFaceTopo().GetBcRecord().bcType = {
         ONEFLOW::BC::INTERFACE,
