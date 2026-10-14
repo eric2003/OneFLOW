@@ -39,8 +39,12 @@ public:
 public:
     StrGrid();
     ~StrGrid() override;
+    void Init() override;
+    void Free() override;
 public:
-    int  ni, nj, nk;
+    int ni = 0;
+    int nj = 0;
+    int nk = 0;
     std::unique_ptr< BcRegionGroup > bcRegionGroup;
     std::unique_ptr< Field3D > strx, stry, strz;
 public:
