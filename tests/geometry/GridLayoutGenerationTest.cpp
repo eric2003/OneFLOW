@@ -28,9 +28,12 @@ T ReadBinary( std::ifstream & file )
 
 TEST( GridLayoutGenerationTest, GeneratesMinimalRectangle )
 {
+    const char * configuredLayoutFile = std::getenv( "ONEFLOW_MESH_CASE_LAYOUT_FILE" );
     const std::filesystem::path layoutFile =
-        std::filesystem::path( ONEFLOW_SOURCE_DIR ) /
-        "tests/geometry/data/minimalRectangleLayout.txt";
+        configuredLayoutFile != nullptr && std::string( configuredLayoutFile ).size() > 0
+        ? std::filesystem::path( configuredLayoutFile )
+        : std::filesystem::path( ONEFLOW_SOURCE_DIR ) /
+          "tests/geometry/data/minimalRectangleLayout.txt";
 
     const char * configuredOutputDir = std::getenv( "ONEFLOW_MESH_CASE_OUTPUT_DIR" );
     const std::filesystem::path outputDir = configuredOutputDir != nullptr &&
