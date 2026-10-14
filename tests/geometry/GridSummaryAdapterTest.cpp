@@ -131,6 +131,29 @@ TEST( GridSummaryAdapterTest, RejectsFaceNodeIdsOutsideCoordinateStorage )
     EXPECT_THROW( ONEFLOW::ValidateUnsGridStorageCounts( grid ), std::logic_error );
 }
 
+TEST( GridSummaryAdapterTest, RejectsCellNodeIdsOutsideCoordinateStorage )
+{
+    ONEFLOW::UnsGrid grid;
+    grid.Init();
+    grid.nodeMesh->CreateNodes( 3 );
+    grid.nNodes = 3;
+    grid.nCells = 1;
+
+    ONEFLOW::CellTopo & cellTopo = grid.GetCellMesh().GetCellTopo();
+    cellTopo.eTypes.resize( 1 );
+    cellTopo.blank.resize( 1 );
+    cellTopo.elements.resize( 1 );
+    cellTopo.elements[ 0 ] = { 0, 1, 3 };
+
+    EXPECT_THROW( ONEFLOW::ValidateUnsGridStorageCounts( grid ), std::logic_error );
+
+    cellTopo.elements[ 0 ] = { 0, -1, 2 };
+    EXPECT_THROW( ONEFLOW::ValidateUnsGridStorageCounts( grid ), std::logic_error );
+
+    cellTopo.elements[ 0 ] = { 0, 1, 2 };
+    EXPECT_NO_THROW( ONEFLOW::ValidateUnsGridStorageCounts( grid ) );
+}
+
 TEST( GridSummaryAdapterTest, RejectsInconsistentMetadata )
 {
     ONEFLOW::UnsGrid grid;
