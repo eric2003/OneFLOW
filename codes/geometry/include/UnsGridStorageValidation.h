@@ -86,6 +86,20 @@ inline void ValidateUnsGridStorageCounts( const UnsGrid & grid )
             "ValidateUnsGridStorageCounts: cell count does not match cell topology storage" );
     }
 
+    for ( HXSize_t cellId = 0; cellId < cellCount; ++ cellId )
+    {
+        for ( int nodeId : cellTopo.elements[ cellId ] )
+        {
+            if ( nodeId < 0 ||
+                 static_cast< HXSize_t >( nodeId ) >=
+                     static_cast< HXSize_t >( grid.nNodes ) )
+            {
+                throw std::logic_error(
+                    "ValidateUnsGridStorageCounts: cell references an invalid node ID" );
+            }
+        }
+    }
+
     if ( boundaryFaceCount != static_cast< HXSize_t >( grid.nBFaces ) ||
          boundaryFaceCount > faceCount )
     {
