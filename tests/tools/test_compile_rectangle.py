@@ -33,6 +33,12 @@ class CompileRectangleTest(unittest.TestCase):
         for edge, count in enumerate((2, 3, 4, 5), start=1):
             self.assertIn(f"Dim({edge})={{{count}}}", output)
 
+    def test_svg_preview_tracks_point_counts_and_line_ids(self):
+        svg = compiler.render_rectangle_svg(self.spec)
+        self.assertIn('data-line-id="1"', svg)
+        self.assertIn("Line 1: 3 points", svg)
+        self.assertIn("Point 4", svg)
+
     def test_rejects_missing_edge_point_count(self):
         self.spec["edgePointCounts"] = [3, 3, 3]
         with self.assertRaisesRegex(ValueError, "four values"):
