@@ -46,7 +46,8 @@ TEST( GridSummaryAdapterTest, FreeClearsGridCountsAndAllowsReinitialization )
     grid.nBFaces = 12;
     grid.nIFaces = 2;
 
-    grid.Free();
+    ONEFLOW::Grid & baseGrid = grid;
+    baseGrid.Free();
 
     const ONEFLOW::GridSummary releasedSummary = ONEFLOW::MakeGridSummary( grid );
     EXPECT_EQ( releasedSummary.nodeCount, 0 );
