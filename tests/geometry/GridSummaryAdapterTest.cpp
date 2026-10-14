@@ -91,6 +91,14 @@ TEST( GridSummaryAdapterTest, RejectsNegativeMeshCountsBeforeSizeConversion )
     EXPECT_THROW( ONEFLOW::ValidateUnsGridStorageCounts( grid ), std::logic_error );
 }
 
+TEST( GridSummaryAdapterTest, RejectsPositiveNodeCountWithoutCoordinateStorage )
+{
+    ONEFLOW::UnsGrid grid;
+    grid.nNodes = 1;
+
+    EXPECT_THROW( ONEFLOW::MakeGridSummary( grid ), std::invalid_argument );
+}
+
 TEST( GridSummaryAdapterTest, RejectsNodeCountThatDiffersFromCoordinateStorage )
 {
     ONEFLOW::UnsGrid grid;
