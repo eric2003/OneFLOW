@@ -35,8 +35,6 @@ License
 
 namespace ONEFLOW
 {
-namespace
-{
 void WriteGridInfo( const Grids & grids, const GridConfig & config )
 {
     if ( config.gridInfoFile.empty() ) return;
@@ -127,6 +125,4 @@ void WriteGridInfo( const Grids & grids, const GridConfig & config )
             "CalcGrid::Dump: failed to write grid information file: " + outputPath );
     }
 }
-} // namespace
-
 } // namespace ONEFLOW
