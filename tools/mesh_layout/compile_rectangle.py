@@ -78,7 +78,6 @@ def render_rectangle_svg(spec):
     elements = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">',
         '<rect width="100%" height="100%" fill="white"/>',
-        '<g fill="none" stroke="#245b8f" stroke-width="3"/>',
     ]
     for index, point in enumerate(corners):
         next_point = corners[(index + 1) % 4]
