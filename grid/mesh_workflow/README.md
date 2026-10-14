@@ -47,8 +47,11 @@ exist. The validator currently supports this case's `simutask = Grid`,
 `gridObj = 1` conversion workflow. It also checks that `gridLayoutFileName` is
 present because `GridConfig::FromDataBase()` reads that parameter even for a
 conversion; it does not require the referenced layout file to exist unless the
-selected workflow actually opens it. This is a preflight check, not a replacement
-for OneFLOW's own parameter parser or runtime validation.
+selected workflow actually opens it. If `sourceGridCaseDir` is set, the
+validator checks source grid and boundary paths relative to that source case,
+matching the grid reader's case-root selection. Source and target format names
+are also checked against OneFLOW's registered format tokens. This is a preflight
+check, not a replacement for OneFLOW's own parameter parser or runtime validation.
 
 ## Parameter configuration and future tools
 
