@@ -22,9 +22,11 @@ $exporterPath = Join-Path $repositoryRoot "tools\mesh_export\export_structured_g
 New-Item -ItemType Directory -Force -Path $workspacePath | Out-Null
 
 $previousOutputDir = $env:ONEFLOW_MESH_CASE_OUTPUT_DIR
+$previousLayoutFile = $env:ONEFLOW_MESH_CASE_LAYOUT_FILE
 $previousKeepOutput = $env:ONEFLOW_KEEP_MESH_EXPORT_CASE
 try {
     $env:ONEFLOW_MESH_CASE_OUTPUT_DIR = $generatedDir
+    $env:ONEFLOW_MESH_CASE_LAYOUT_FILE = Join-Path $repositoryRoot $case.parameters.generation.layout
     $env:ONEFLOW_KEEP_MESH_EXPORT_CASE = "1"
 
     $filter = "--gtest_filter=$($case.parameters.generation.testFilter)"
@@ -82,5 +84,6 @@ try {
 }
 finally {
     $env:ONEFLOW_MESH_CASE_OUTPUT_DIR = $previousOutputDir
+    $env:ONEFLOW_MESH_CASE_LAYOUT_FILE = $previousLayoutFile
     $env:ONEFLOW_KEEP_MESH_EXPORT_CASE = $previousKeepOutput
 }
