@@ -127,6 +127,7 @@ def main() -> int:
     required_grid_strings = (
         "sourceGridType",
         "targetGridType",
+        "gridLayoutFileName",
         "sourceGridFileName",
         "sourceGridBcName",
         "targetGridFileName",
@@ -135,6 +136,8 @@ def main() -> int:
         if not strings.get(name):
             errors.append(f"Missing required grid parameter: {name}")
 
+    # GridConfig::FromDataBase reads gridLayoutFileName even for conversion;
+    # the selected conversion workflow does not necessarily open that layout file.
     input_names = ("sourceGridFileName", "sourceGridBcName")
     for name in input_names:
         value = strings.get(name)
