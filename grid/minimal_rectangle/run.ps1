@@ -19,6 +19,10 @@ $packageDir = Join-Path $workspacePath $case.parameters.inspection.packageDirect
 $gridPath = Join-Path $generatedDir "minimalRectangle.ofl"
 $exporterPath = Join-Path $repositoryRoot "tools\mesh_export\export_structured_grid.py"
 
+if ($case.parameters.generation.dimension -ne 2) {
+    throw "This case currently supports dimension 2 only."
+}
+
 New-Item -ItemType Directory -Force -Path $workspacePath | Out-Null
 
 $previousOutputDir = $env:ONEFLOW_MESH_CASE_OUTPUT_DIR
