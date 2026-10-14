@@ -1,0 +1,37 @@
+#include <gtest/gtest.h>
+
+#include "GridSummaryAdapter.h"
+#include "UnsGrid.h"
+
+TEST( GridSummaryAdapterTest, DefaultGridHasDeterministicEmptyMetadata )
+{
+    const ONEFLOW::UnsGrid grid;
+
+    const ONEFLOW::GridSummary summary = ONEFLOW::MakeGridSummary( grid );
+
+    EXPECT_EQ( summary.dimension, 3 );
+    EXPECT_EQ( summary.nodeCount, 0 );
+    EXPECT_EQ( summary.faceCount, 0 );
+    EXPECT_EQ( summary.cellCount, 0 );
+    EXPECT_EQ( summary.boundaryFaceCount, 0 );
+    EXPECT_TRUE( ONEFLOW::IsValidGridSummary( summary ) );
+}
+
+TEST( GridSummaryAdapterTest, CopiesCurrentGridCountsWithoutOwningStorage )
+{
+    ONEFLOW::UnsGrid grid;
+    grid.dimension = 2;
+    grid.nNodes = 12;
+    grid.nFaces = 17;
+    grid.nCells = 6;
+    grid.nBFaces = 12;
+
+    const ONEFLOW::GridSummary summary = ONEFLOW::MakeGridSummary( grid );
+
+    EXPECT_EQ( summary.dimension, 2 );
+    EXPECT_EQ( summary.nodeCount, 12 );
+    EXPECT_EQ( summary.faceCount, 17 );
+    EXPECT_EQ( summary.cellCount, 6 );
+    EXPECT_EQ( summary.boundaryFaceCount, 12 );
+    EXPECT_TRUE( ONEFLOW::IsValidGridSummary( summary ) );
+}
