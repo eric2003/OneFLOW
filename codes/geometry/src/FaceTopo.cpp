@@ -577,31 +577,61 @@ void FaceTopo::CalcC2C( LinkField & c2c )
 {
     if ( c2c.size() != 0 ) return;
 
-    int nCells = this->GetGrid().nCells;
-    int nBFaces = this->GetNBFaces();
-    int nFaces = this->GetNFaces();
+    const Grid & grid = this->GetGrid();
+    const int nCells = grid.nCells;
+    const HXSize_t nBFaces = this->GetNBFaces();
+    const HXSize_t nFaces = this->GetNFaces();
+    const IntField & leftCells = this->GetLeftCells();
+    const IntField & rightCells = this->GetRightCells();
+    const IntField & boundaryTypes = this->bcManager->bcRecord->bcType;
 
-    c2c.resize( nCells );
-
-    // If boundary is an INTERFACE, need to count ghost cell
-    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
+    if ( nCells < 0 || nBFaces > nFaces ||
+         leftCells.size() != nFaces || rightCells.size() != nFaces ||
+         boundaryTypes.size() != nBFaces )
     {
-        int bcType = this->bcManager->bcRecord->bcType[ iFace ];
-        if ( BC::IsInterfaceBc( bcType ) )
+        throw std::logic_error(
+            "FaceTopo::CalcC2C: inconsistent face-cell topology sizes" );
+    }
+
+    LinkField nextC2c( static_cast< HXSize_t >( nCells ) );
+
+    // Interface boundaries may reference ghost cells outside the local cell range.
+    for ( HXSize_t iFace = 0; iFace < nBFaces; ++ iFace )
+    {
+        const int leftCell = leftCells[ iFace ];
+        if ( leftCell < 0 || leftCell >= nCells )
         {
-            int lc  = this->lCells[ iFace ];
-            int rc  = this->rCells[ iFace ];
-            c2c[ lc  ].push_back( rc );
+            throw std::out_of_range(
+                "FaceTopo::CalcC2C: boundary face left cell ID is out of range" );
+        }
+
+        if ( BC::IsInterfaceBc( boundaryTypes[ iFace ] ) )
+        {
+            nextC2c[ leftCell ].push_back( rightCells[ iFace ] );
         }
     }
 
-    for ( int iFace = nBFaces; iFace < nFaces; ++ iFace )
+    for ( HXSize_t iFace = nBFaces; iFace < nFaces; ++ iFace )
     {
-        int lc  = this->lCells[ iFace ];
-        int rc  = this->rCells[ iFace ];
-        c2c[ lc ].push_back( rc );
-        c2c[ rc ].push_back( lc );
+        const int leftCell = leftCells[ iFace ];
+        const int rightCell = rightCells[ iFace ];
+        if ( leftCell < 0 || leftCell >= nCells ||
+             rightCell < 0 || rightCell >= nCells )
+        {
+            throw std::out_of_range(
+                "FaceTopo::CalcC2C: internal face cell ID is out of range" );
+        }
+        if ( leftCell == rightCell )
+        {
+            throw std::logic_error(
+                "FaceTopo::CalcC2C: internal face must connect distinct cells" );
+        }
+
+        nextC2c[ leftCell ].push_back( rightCell );
+        nextC2c[ rightCell ].push_back( leftCell );
     }
+
+    c2c = nextC2c;
 }
 
 void FaceTopo::ReorderLink()
