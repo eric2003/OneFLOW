@@ -87,3 +87,16 @@ The unit tests should use tiny hand-constructed meshes with known answers. File-
 The current `UnsGrid::NormalizeBc()` contract is tested directly: validate all real-cell references before mutating boundary neighbour IDs, then assign boundary ghost IDs as `nCells + boundaryFaceIndex`. The tests intentionally check that a failed validation does not partially normalize boundary faces.
 
 The next architecture step should audit the conventions at each importer/converter boundary and build a read-back topology validator before changing ownership or replacing storage containers.
+
+
+## 6. Mutation and derived-data audit
+
+The current call paths distinguish three cases:
+
+- Initial face reordering in `GridElem::ReorderLink()` updates the face-node and face-cell arrays through `FaceTopo::ReorderLink()`. This happens during grid construction; the function itself does not read `c2f` or `c2c`.
+- Interface splitting in `CalcGrid::ReGenerateLgMapping()` eventually calls `UpdateOtherTopologyTerm()`, which replaces the face connectivity arrays. The solver initialization paths inspected call `CalcC2f()` before using cell-to-face adjacency. This is a sequencing convention, not automatic invalidation.
+- The METIS partition graph path in `G2LMapping::GetXadjAdjncy()` explicitly calls `CalcC2C()` immediately before reading `c2c`.
+
+A concrete derived-cache issue existed in `CellMesh::CalcCellSpan()`: a non-empty `span` caused an early return, so a later call could preserve spans computed from older face connectivity. The function now rebuilds `c2f` and recalculates spans on every call; a small connectivity test covers a boundary face moving from one cell to another.
+
+A repository-wide invalidation mechanism is not yet justified. `FaceTopo` exposes mutable references to source arrays, so a revision counter updated only by named mutators would miss direct edits. Until source mutations are encapsulated, callers that consume `c2f`, `c2c`, or other derived values must explicitly rebuild them after topology changes. The next audit should focus on direct adjacency reads outside the known solver-initialization and partition paths before introducing a broader API change.
