@@ -28,18 +28,12 @@ T ReadBinary( std::ifstream & file )
 
 TEST( GridLayoutGenerationTest, GeneratesMinimalRectangle )
 {
-    const char * configuredLayoutFile = std::getenv( "ONEFLOW_MESH_CASE_LAYOUT_FILE" );
     const std::filesystem::path layoutFile =
-        configuredLayoutFile != nullptr && std::string( configuredLayoutFile ).size() > 0
-        ? std::filesystem::path( configuredLayoutFile )
-        : std::filesystem::path( ONEFLOW_SOURCE_DIR ) /
-          "tests/geometry/data/minimalRectangleLayout.txt";
+        std::filesystem::path( ONEFLOW_SOURCE_DIR ) /
+        "tests/geometry/data/minimalRectangleLayout.txt";
 
-    const char * configuredOutputDir = std::getenv( "ONEFLOW_MESH_CASE_OUTPUT_DIR" );
-    const std::filesystem::path outputDir = configuredOutputDir != nullptr &&
-        std::string( configuredOutputDir ).size() > 0
-        ? std::filesystem::path( configuredOutputDir )
-        : std::filesystem::temp_directory_path() / "oneflow-minimal-rectangle";
+    const std::filesystem::path outputDir =
+        std::filesystem::temp_directory_path() / "oneflow-minimal-rectangle";
     std::filesystem::remove_all( outputDir );
     std::filesystem::create_directories( outputDir );
 
@@ -110,16 +104,7 @@ TEST( GridLayoutGenerationTest, GeneratesMinimalRectangle )
 
     Dim::SetDimension( oldDimension );
     Prj::prjBaseDir = oldProjectDir;
-    const char * keepCaseOutput = std::getenv( "ONEFLOW_KEEP_MESH_EXPORT_CASE" );
-    if ( configuredOutputDir != nullptr ||
-         ( keepCaseOutput != nullptr && std::string( keepCaseOutput ) == "1" ) )
-    {
-        std::cout << "Preserved mesh export case output: " << outputFile.string() << std::endl;
-    }
-    else
-    {
-        std::filesystem::remove_all( outputDir );
-    }
+    std::filesystem::remove_all( outputDir );
 }
 
 } // namespace
