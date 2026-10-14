@@ -1,6 +1,5 @@
 import importlib.util
 import json
-import tempfile
 import unittest
 from pathlib import Path
 
@@ -28,19 +27,19 @@ class CompileRectangleTest(unittest.TestCase):
         self.assertIn("Add L2F 1 4 4", output)
         self.assertTrue(output.endswith("Add F2B 1 1 1\n"))
 
-    def test_edge_divisions_are_independent(self):
-        self.spec["edgeDivisions"] = [2, 3, 4, 5]
+    def test_edge_point_counts_are_independent(self):
+        self.spec["edgePointCounts"] = [2, 3, 4, 5]
         output = compiler.compile_rectangle(self.spec)
         for edge, count in enumerate((2, 3, 4, 5), start=1):
             self.assertIn(f"Dim({edge})={{{count}}}", output)
 
-    def test_rejects_missing_edge_division(self):
-        self.spec["edgeDivisions"] = [3, 3, 3]
+    def test_rejects_missing_edge_point_count(self):
+        self.spec["edgePointCounts"] = [3, 3, 3]
         with self.assertRaisesRegex(ValueError, "four values"):
             compiler.compile_rectangle(self.spec)
 
-    def test_rejects_invalid_division_count(self):
-        self.spec["edgeDivisions"] = [3, 1, 3, 3]
+    def test_rejects_invalid_edge_point_count(self):
+        self.spec["edgePointCounts"] = [3, 1, 3, 3]
         with self.assertRaisesRegex(ValueError, "integer >= 2"):
             compiler.compile_rectangle(self.spec)
 
