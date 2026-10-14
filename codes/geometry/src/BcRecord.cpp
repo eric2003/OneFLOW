@@ -28,6 +28,7 @@ License
 #include "HXMath.h"
 #include "HXStd.h"
 #include <iostream>
+#include <stdexcept>
 #include <utility>
 
 BeginNameSpace( ONEFLOW )
@@ -142,19 +143,26 @@ int BcRecord::CalcNumWallFace() const
 
 void BcRecord::GenerateI2B( InterFace & interFace )
 {
+    const int nBFaces = this->GetNBFace();
+    const int expectedInterfaceCount = this->CalcNIFace();
 
-    int nBFaces = this->GetNBFace();
-
-    int iFace  = 0;
-    for ( int iBFace = 0; iBFace < nBFaces; ++ iBFace )
+    if ( interFace.nIFaces != expectedInterfaceCount ||
+         interFace.i2b.size() != static_cast< HXSize_t >( expectedInterfaceCount ) )
     {
-        if ( ! BC::IsInterfaceBc( this->bcType[ iBFace ] ) )
+        throw std::logic_error(
+            "BcRecord::GenerateI2B: interface count does not match boundary conditions" );
+    }
+
+    int interfaceFaceId = 0;
+    for ( int boundaryFaceId = 0; boundaryFaceId < nBFaces; ++ boundaryFaceId )
+    {
+        if ( ! BC::IsInterfaceBc( this->bcType[ boundaryFaceId ] ) )
         {
             continue;
         }
 
-        interFace.i2b[ iFace ] = iBFace;
-        ++ iFace;
+        interFace.i2b[ interfaceFaceId ] = boundaryFaceId;
+        ++ interfaceFaceId;
     }
 }
 

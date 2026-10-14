@@ -6,6 +6,9 @@
 #include "UnsGrid.h"
 #include "StrGrid.h"
 #include "Dimension.h"
+#include "Boundary.h"
+#include "BcRecord.h"
+#include "InterFace.h"
 
 TEST( GridSummaryAdapterTest, DefaultGridHasDeterministicEmptyMetadata )
 {
@@ -166,4 +169,22 @@ TEST( GridSummaryAdapterTest, StructuredGridCleanupCanBeCalledThroughBaseInterfa
 
     EXPECT_NO_THROW( grid.Init() );
     EXPECT_TRUE( static_cast< bool >( grid.bcRegionGroup ) );
+}
+
+
+TEST( GridSummaryAdapterTest, GenerateI2BRequiresMatchingInterfaceStorage )
+{
+    ONEFLOW::BcRecord boundaryRecord;
+    boundaryRecord.bcType = { ONEFLOW::BC::SOLID_SURFACE, ONEFLOW::BC::INTERFACE };
+    boundaryRecord.bcNameId.resize( 2 );
+
+    ONEFLOW::InterFace interFace;
+    interFace.Set( 0 );
+
+    EXPECT_THROW( boundaryRecord.GenerateI2B( interFace ), std::logic_error );
+
+    interFace.Set( 1 );
+    EXPECT_NO_THROW( boundaryRecord.GenerateI2B( interFace ) );
+    ASSERT_EQ( interFace.i2b.size(), 1 );
+    EXPECT_EQ( interFace.i2b[ 0 ], 1 );
 }
