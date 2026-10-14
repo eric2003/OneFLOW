@@ -97,8 +97,9 @@ void WriteGridInfo( const Grids & grids, const GridConfig & config )
         const NodeMesh & nodes = *grid.nodeMesh;
         for ( HXSize_t iNode = 0; iNode < nodes.GetNumberOfNodes(); ++ iNode )
         {
+            const NodeMesh::Point3 nodePoint = nodes.GetPoint( iNode );
             const std::array< Real, 3 > point = {
-                nodes.xN[ iNode ], nodes.yN[ iNode ], nodes.zN[ iNode ]
+                nodePoint.x, nodePoint.y, nodePoint.z
             };
             for ( size_t axis = 0; axis < point.size(); ++ axis )
             {
