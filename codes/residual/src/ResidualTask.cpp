@@ -104,8 +104,8 @@ void ResidualTask::CalcRes( int solverType, ResData & data )
 
     int nEqu = solverInfo->nEqu;
 
-    // Named residual via SolverInfo::residualName ("res" or "turbres").
-    const MRField * res = FieldHome::GetConstResidualField( grid );
+    // Residual for the solverType passed into CalcRes (not ambient SolverState alone).
+    const MRField * res = FieldHome::GetConstResidualField( grid, solverType );
 
     data.resave.Zero();
     data.resave.nCells =  grid->nCells;

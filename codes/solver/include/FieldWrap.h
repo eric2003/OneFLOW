@@ -81,6 +81,7 @@ public:
     static MRField * GetResidualField( Grid * grid );
     static MRField * GetResidualField( Grid * grid, int solverType );
     static const MRField * GetConstResidualField( const Grid * grid );
+    static const MRField * GetConstResidualField( const Grid * grid, int solverType );
 
     static const std::string & GetSolutionName();
     static const std::string & GetSolutionName( int solverType );

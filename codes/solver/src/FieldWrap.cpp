@@ -196,7 +196,12 @@ MRField * FieldHome::GetResidualField( Grid * grid, int solverType )
 
 const MRField * FieldHome::GetConstResidualField( const Grid * grid )
 {
-    return FieldHome::GetConstUnsField( grid, FieldHome::GetResidualName() );
+    return FieldHome::GetConstResidualField( grid, SolverState::solverType );
+}
+
+const MRField * FieldHome::GetConstResidualField( const Grid * grid, int solverType )
+{
+    return FieldHome::GetConstUnsField( grid, FieldHome::GetResidualName( solverType ) );
 }
 
 const std::string & FieldHome::GetSolutionName()
