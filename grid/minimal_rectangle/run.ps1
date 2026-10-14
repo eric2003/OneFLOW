@@ -50,15 +50,15 @@ try {
         ConvertFrom-Json
     $expected = $case.parameters.expected
     $checks = @(
-        @("zones", $summary.counts.zones, $expected.zones),
-        @("nodes", $summary.counts.nodes, $expected.nodes),
-        @("cells", $summary.counts.cells, $expected.cells),
-        @("faces", $summary.counts.faces, $expected.faces),
-        @("boundaryFaces", $summary.counts.boundaryFaces, $expected.boundaryFaces)
+        [pscustomobject]@{ Name = "zones"; Actual = $summary.counts.zones; Expected = $expected.zones },
+        [pscustomobject]@{ Name = "nodes"; Actual = $summary.counts.nodes; Expected = $expected.nodes },
+        [pscustomobject]@{ Name = "cells"; Actual = $summary.counts.cells; Expected = $expected.cells },
+        [pscustomobject]@{ Name = "faces"; Actual = $summary.counts.faces; Expected = $expected.faces },
+        [pscustomobject]@{ Name = "boundaryFaces"; Actual = $summary.counts.boundaryFaces; Expected = $expected.boundaryFaces }
     )
     foreach ($check in $checks) {
-        if ($check[1] -ne $check[2]) {
-            throw "Case check failed for $($check[0]): expected $($check[2]), got $($check[1])"
+        if ($check.Actual -ne $check.Expected) {
+            throw "Case check failed for $($check.Name): expected $($check.Expected), got $($check.Actual)"
         }
     }
 
