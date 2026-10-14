@@ -72,6 +72,63 @@ TEST(CellTopoConnectivityTest, RejectsMismatchedFaceCellArrays)
     EXPECT_EQ(cells.c2f.size(), 0u);
 }
 
+
+TEST(CellTopoConnectivityTest, RebuildsAdjacencyAfterFaceConnectivityChanges)
+{
+    ONEFLOW::CellTopo cells;
+    cells.Alloc(3);
+
+    ONEFLOW::FaceTopo faces;
+    faces.SetNBFaces(0);
+    faces.fTypes.resize(2);
+    faces.GetLeftCells() = ONEFLOW::IntField{0, 1};
+    faces.GetRightCells() = ONEFLOW::IntField{1, 2};
+
+    ASSERT_NO_THROW(cells.CalcC2f(faces));
+    ASSERT_EQ(cells.c2f.size(), 3u);
+    ASSERT_EQ(cells.c2f[0], (ONEFLOW::IntField{0}));
+    ASSERT_EQ(cells.c2f[1], (ONEFLOW::IntField{0, 1}));
+    ASSERT_EQ(cells.c2f[2], (ONEFLOW::IntField{1}));
+
+    faces.GetLeftCells()[1] = 0;
+    faces.GetRightCells()[1] = 2;
+
+    ASSERT_NO_THROW(cells.CalcC2f(faces));
+    EXPECT_EQ(cells.c2f[0], (ONEFLOW::IntField{0, 1}));
+    EXPECT_EQ(cells.c2f[1], (ONEFLOW::IntField{0}));
+    EXPECT_EQ(cells.c2f[2], (ONEFLOW::IntField{1}));
+}
+
+TEST(FaceTopoConnectivityTest, RebuildsAdjacencyAfterFaceConnectivityChanges)
+{
+    ONEFLOW::UnsGrid grid;
+    grid.Init();
+    grid.nCells = 3;
+
+    ONEFLOW::CellTopo & cells = grid.GetCellMesh().GetCellTopo();
+    cells.Alloc(3);
+
+    ONEFLOW::FaceTopo & faces = grid.GetFaceTopo();
+    faces.SetNBFaces(0);
+    faces.fTypes.resize(2);
+    faces.GetLeftCells() = ONEFLOW::IntField{0, 1};
+    faces.GetRightCells() = ONEFLOW::IntField{1, 2};
+
+    ASSERT_NO_THROW(cells.CalcC2C(faces));
+    ASSERT_EQ(cells.c2c.size(), 3u);
+    EXPECT_EQ(cells.c2c[0], (ONEFLOW::IntField{1}));
+    EXPECT_EQ(cells.c2c[1], (ONEFLOW::IntField{0, 2}));
+    EXPECT_EQ(cells.c2c[2], (ONEFLOW::IntField{1}));
+
+    faces.GetLeftCells()[1] = 0;
+    faces.GetRightCells()[1] = 2;
+
+    ASSERT_NO_THROW(cells.CalcC2C(faces));
+    EXPECT_EQ(cells.c2c[0], (ONEFLOW::IntField{1, 2}));
+    EXPECT_EQ(cells.c2c[1], (ONEFLOW::IntField{0}));
+    EXPECT_EQ(cells.c2c[2], (ONEFLOW::IntField{0}));
+}
+
 TEST(FaceTopoConnectivityTest, BuildsReciprocalInternalNeighborsAndKeepsInterfaceGhostIds)
 {
     ONEFLOW::UnsGrid grid;
