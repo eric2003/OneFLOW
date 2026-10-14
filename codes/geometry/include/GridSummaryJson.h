@@ -2,6 +2,8 @@
 
 #include "GridSummary.h"
 
+#include <nlohmann/json.hpp>
+
 #include <ostream>
 #include <stdexcept>
 
@@ -17,17 +19,19 @@ inline void WriteGridSummaryJson( std::ostream & output, const GridSummary & sum
         throw std::invalid_argument( "WriteGridSummaryJson: invalid grid summary" );
     }
 
-    output << "{\n"
-           << "  \"schema\": \"oneflow.grid-summary\",\n"
-           << "  \"version\": 1,\n"
-           << "  \"dimension\": " << summary.dimension << ",\n"
-           << "  \"counts\": {\n"
-           << "    \"nodes\": " << summary.nodeCount << ",\n"
-           << "    \"faces\": " << summary.faceCount << ",\n"
-           << "    \"cells\": " << summary.cellCount << ",\n"
-           << "    \"boundaryFaces\": " << summary.boundaryFaceCount << "\n"
-           << "  }\n"
-           << "}\n";
+    nlohmann::ordered_json document;
+    document[ "schema" ] = "oneflow.grid-summary";
+    document[ "version" ] = 1;
+    document[ "dimension" ] = summary.dimension;
+
+    nlohmann::ordered_json counts;
+    counts[ "nodes" ] = summary.nodeCount;
+    counts[ "faces" ] = summary.faceCount;
+    counts[ "cells" ] = summary.cellCount;
+    counts[ "boundaryFaces" ] = summary.boundaryFaceCount;
+    document[ "counts" ] = counts;
+
+    output << document.dump( 2 ) << '\n';
 }
 
 } // namespace ONEFLOW
