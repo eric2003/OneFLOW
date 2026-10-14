@@ -23,6 +23,7 @@ License
 
 #pragma once
 #include "Constant.h"
+#include "Dimension.h"
 #include "HXDefine.h"
 #include <vector>
 #include <string>
