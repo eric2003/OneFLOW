@@ -12,17 +12,18 @@ This is a standalone grid-processing case, organized like the existing
 The case configuration is in `script/grid.txt`. Input and output paths are
 relative to this case directory, so the case can be copied and run independently.
 
-## Run
+## Run on Windows
 
-From the OneFLOW executable directory, where the runtime `system` configuration
-is available, invoke the executable with this case directory using the same
-argument convention as the existing case runner:
+From PowerShell, pass the full path to the built OneFLOW executable:
 
 ```powershell
-.\OneFLOW.exe 0 <absolute-path-to-repository>\grid\mesh_workflow
+.\run.ps1 -OneFlowExe "D:\path\to\OneFLOW\bin\OneFLOW.exe"
 ```
 
-Create the `results` directory before running if it does not exist.
+The launcher runs OneFLOW from the executable directory so its runtime
+configuration can be found, passes this case directory through the same
+`0 <case-directory>` arguments used by the existing case runner, and preserves
+the process exit code. The output directory is tracked in the repository.
 
 ## Next increments
 
