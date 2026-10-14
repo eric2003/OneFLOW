@@ -21,8 +21,9 @@ inline GridSummary MakeGridSummary( const Grid & grid )
     };
 
     if ( grid.nodeMesh &&
-         grid.nodeMesh->GetNumberOfNodes() !=
-             static_cast< HXSize_t >( grid.nNodes < 0 ? 0 : grid.nNodes ) )
+         ( grid.nNodes < 0 ||
+           grid.nodeMesh->GetNumberOfNodes() !=
+               static_cast< HXSize_t >( grid.nNodes ) ) )
     {
         throw std::invalid_argument(
             "MakeGridSummary: node count does not match coordinate storage" );
