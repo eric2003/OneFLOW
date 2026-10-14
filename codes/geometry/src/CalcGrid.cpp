@@ -47,6 +47,7 @@ License
 #include <algorithm>
 #include <array>
 #include <fstream>
+#include <filesystem>
 #include <nlohmann/json.hpp>
 
 
@@ -56,7 +57,6 @@ namespace
 {
 void WriteGridInfo( const Grids & grids, const GridConfig & config )
 {
-    if ( config.gridInfoFile.empty() ) return;
 
     std::array< Real, 3 > minimum = {
         std::numeric_limits< Real >::max(),
@@ -133,7 +133,16 @@ void WriteGridInfo( const Grids & grids, const GridConfig & config )
     }
     document[ "zones" ] = std::move( zones );
 
-    const std::string outputPath = Prj::GetPrjFileName( config.gridInfoFile );
+    const std::string infoFile = config.gridInfoFile.empty()
+        ? "mesh_workflow/results/grid_info.json"
+        : config.gridInfoFile;
+    const std::string outputPath = Prj::GetPrjFileName( infoFile );
+    const std::filesystem::path outputDirectory =
+        std::filesystem::path( outputPath ).parent_path();
+    if ( ! outputDirectory.empty() )
+    {
+        std::filesystem::create_directories( outputDirectory );
+    }
     std::ofstream output( outputPath, std::ios_base::out | std::ios_base::trunc );
     output << document.dump( 2 ) << '\n';
     if ( ! output )
