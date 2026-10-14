@@ -546,6 +546,9 @@ void FaceTopo::UpdateOtherTopologyTerm()
     this->lCells = this->lCellsNew;
     this->rCells = this->rCellsNew;
     this->faces = this->facesNew;
+
+    // The face IDs may have changed when interface faces were split.
+    this->c2f.clear();
 }
 
 void FaceTopo::GenerateI2B( InterFace & interFace )
