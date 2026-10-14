@@ -57,6 +57,13 @@ For a polyhedral finite-volume mesh, a face is an ordered loop of nodes; a cell 
 
 This is intentionally a hybrid recommendation. OpenFOAM uses ordered face points with owner/neighbour cell labels and boundary patches. MFEM provides element-to-vertex connectivity and tables for element/face/edge relations. VTK uses cell types plus connectivity and offsets for general mixed-cell representation. These are different designs serving different algorithms; OneFLOW should borrow their clear invariants, not copy one implementation wholesale.
 
+### Derived adjacency refresh contract
+
+- `UnsGrid::NormalizeBc()` owns the transition from imported boundary-face neighbour placeholders to local ghost-cell IDs. For boundary face index `iFace`, the normalized right-cell ID is `nCells + iFace`. It validates real-cell references before changing any boundary right-cell ID.
+- `FaceTopo` owns the face-to-node and face-to-cell source connectivity plus boundary classification. `CellTopo` stores cell-oriented source data and currently holds the derived `c2f` and `c2c` adjacency arrays.
+- `CellTopo::CalcC2f()` and `FaceTopo::CalcC2C()` are explicit rebuild operations: each call derives a fresh result from current source connectivity and replaces the previous result only after validation succeeds.
+- Source containers are still publicly mutable, so this does not provide automatic invalidation when callers edit connectivity and then continue reading adjacency without rebuilding it. The longer-term fix is to centralize topology mutation behind methods that invalidate dependent data, or introduce a topology revision that derived caches record and verify. Do not claim cache coherence until that boundary is enforced.
+
 ## 3. Dimension does not dictate storage layout
 
 - **1D:** node, interval-cell, and point-face semantics are enough for a simple line mesh. A specialized compact representation is valid if it can convert losslessly to the common face/owner/neighbour interface.
