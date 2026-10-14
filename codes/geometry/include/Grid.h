@@ -84,7 +84,7 @@ public:
     std::unique_ptr< SlipFace > slipFace;
 public:
     void BasicInit();
-    void Free();
+    virtual void Free();
     virtual void Init();
 public:
     bool IsOneD() const;
