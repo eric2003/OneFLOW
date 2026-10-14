@@ -152,7 +152,6 @@ set ( SRC_DIRS
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridInfoWriter.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridInfoSnapshotAdapter.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridInfoJsonWriter.cpp
-    ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridInfoWriter.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridElem.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/StrGrid.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/BcRecord.cpp
