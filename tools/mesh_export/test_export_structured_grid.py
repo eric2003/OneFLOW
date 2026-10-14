@@ -8,6 +8,7 @@ from export_structured_grid import (
     coordinate_bounds,
     read_structured_grid,
     write_svg,
+    write_vtu,
 )
 
 
@@ -44,7 +45,7 @@ class StructuredGridExportTest(unittest.TestCase):
             [0.0, 1.0, 0.0], [0.5, 1.0, 0.0], [1.0, 1.0, 0.0],
         ]
         with tempfile.TemporaryDirectory() as directory:
-            output = Path(directory) / "mesh.svg"
+            output = Path(directory) / "views" / "mesh.svg"
             write_svg(output, 3, 3, points)
             svg = output.read_text(encoding="utf-8")
 
@@ -52,6 +53,22 @@ class StructuredGridExportTest(unittest.TestCase):
         self.assertEqual(svg.count("<text "), 4)
         self.assertIn('data-node-id="8"', svg)
         self.assertIn('data-cell-id="3"', svg)
+
+
+    def test_vtu_export_creates_missing_parent_directory(self):
+        points = [
+            [0.0, 0.0, 0.0], [1.0, 0.0, 0.0],
+            [1.0, 1.0, 0.0], [0.0, 1.0, 0.0],
+        ]
+        cells = [{"id": 0, "type": "quad", "nodes": [0, 1, 2, 3]}]
+
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "views" / "mesh.vtu"
+            write_vtu(output, points, cells)
+
+            self.assertTrue(output.is_file())
+            self.assertIn('NumberOfPoints="4"', output.read_text(encoding="utf-8"))
+            self.assertIn("0 1 2 3", output.read_text(encoding="utf-8"))
 
     def test_reads_minimal_rectangle_binary_fixture(self):
         ni = nj = 3
