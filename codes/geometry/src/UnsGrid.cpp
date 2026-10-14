@@ -600,8 +600,6 @@ void UnsGrid::UpdateOtherTopologyTerm( IFaceLink & iFaceLink )
 {
     if ( ! IsValid( this->interFace.get() ) ) return;
 
-    this->GetFaceTopo().UpdateOtherTopologyTerm();
-
     if ( this->id < 0 || static_cast< HXSize_t >( this->id ) >= iFaceLink.l2g.size() )
     {
         throw std::out_of_range(
@@ -614,8 +612,10 @@ void UnsGrid::UpdateOtherTopologyTerm( IFaceLink & iFaceLink )
         throw std::length_error(
             "UnsGrid::UpdateOtherTopologyTerm: interface count exceeds supported range" );
     }
-
     const int nIFaces = static_cast< int >( mappedInterfaceCount );
+
+    this->GetFaceTopo().UpdateOtherTopologyTerm();
+
     const BcRecord & bcRecord = this->GetFaceTopo().GetBcRecord();
     if ( bcRecord.bcNameId.size() != bcRecord.bcType.size() ||
          bcRecord.CalcNIFace() != nIFaces )
