@@ -45,7 +45,10 @@ GridRegistry & GetGridRegistry()
 }
 }
 
-Grid::Grid() = default;
+Grid::Grid()
+    : dimension( THREE_D )
+{
+}
 
 Grid::~Grid()
 {
