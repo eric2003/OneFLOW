@@ -28,6 +28,7 @@ License
 #include "BcRecord.h"
 #include "GridTypes.h"
 #include "DataBase.h"
+#include <stdexcept>
 #include <utility>
 
 BeginNameSpace( ONEFLOW )
@@ -44,8 +45,8 @@ void GridMediator::ReadGrid()
             this->ReadPlot3D();
             break;
         default:
-            // Unsupported or empty type: no-op (historical behavior).
-            break;
+            throw std::invalid_argument(
+                "Unsupported grid reader type: " + this->gridType );
     }
 }
 
@@ -89,6 +90,8 @@ void GridMediator::ReadPlot3DCoor()
 
 void GridMediator::ReadGridgen()
 {
+    throw std::runtime_error(
+        "Gridgen input is not implemented by GridMediator" );
 }
 
 void ZgridMediator::add( std::unique_ptr< GridMediator > mediator )
