@@ -216,6 +216,8 @@ if ( WIN32 )
     target_compile_definitions(OneFLOW_GeometryCore PUBLIC USE_DLL)
 endif()
 
+target_link_libraries(OneFLOW_GeometryCore PUBLIC nlohmann_json::nlohmann_json)
+
 function(add_oneflow_gtest TEST_NAME TEST_SRC)
     add_executable(${TEST_NAME} ${TEST_SRC})
     target_link_libraries(${TEST_NAME} PRIVATE OneFLOW_GeometryCore GTest::gtest_main)
