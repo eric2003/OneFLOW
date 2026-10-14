@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <sstream>
+#include <stdexcept>
 #include <string>
 
 #include "GridSummary.h"
@@ -93,4 +94,16 @@ TEST( GridSummaryJsonTest, SupportsWritingToAnExistingStream )
     EXPECT_EQ( output.str().find( "prefix:" ), 0u );
     EXPECT_NE( output.str().find( "\"schema\": \"oneflow.grid-summary\"" ),
                std::string::npos );
+}
+
+TEST( GridSummaryJsonTest, RejectsInvalidSummaryBeforeWriting )
+{
+    const ONEFLOW::GridSummary summary{ 4, 1, 1, 1, 0 };
+    std::ostringstream output;
+    output << "prefix:";
+
+    EXPECT_THROW(
+        ONEFLOW::WriteGridSummaryJson( output, summary ),
+        std::invalid_argument );
+    EXPECT_EQ( output.str(), "prefix:" );
 }
