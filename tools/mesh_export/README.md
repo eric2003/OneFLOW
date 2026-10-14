@@ -12,7 +12,14 @@ Use the existing layout fixture:
 
 The current fixture describes a unit square with 3 nodes along each direction. The generated structured grid therefore has 9 nodes and 4 quadrilateral cells.
 
-The generated binary `.ofl` is currently written by the C++ regression test into a temporary directory and removed after the test. For a manual run, configure the OneFLOW grid-generation case to write the same `.ofl` file and keep it after generation. The exporter expects the structured binary header used by the current test: zone count, `ni`, `nj`, `nk`, then the x, y, and z coordinate arrays.
+The C++ case normally removes its temporary output. To preserve the actual OneFLOW-generated file for inspection, set the opt-in environment variable and run the existing test executable:
+
+```powershell
+$env:ONEFLOW_KEEP_MESH_EXPORT_CASE = "1"
+.\\path\\to\\GridLayoutGenerationTest.exe --gtest_filter=GridLayoutGenerationTest.GeneratesMinimalRectangle
+```
+
+The test prints the retained `.ofl` path, normally under the system temporary directory in `oneflow-minimal-rectangle/minimalRectangle.ofl`. Then pass that exact path to the exporter below. Without the environment variable, the test retains its original cleanup behavior. The exporter expects the structured binary header checked by this case: zone count, `ni`, `nj`, `nk`, then the x, y, and z coordinate arrays.
 
 ## 2. Export metadata and views
 
