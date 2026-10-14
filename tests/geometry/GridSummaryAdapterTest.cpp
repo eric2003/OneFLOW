@@ -36,9 +36,10 @@ TEST( GridSummaryAdapterTest, CopiesCurrentGridCountsWithoutOwningStorage )
     EXPECT_TRUE( ONEFLOW::IsValidGridSummary( summary ) );
 }
 
-TEST( GridSummaryAdapterTest, FreeClearsGridCounts )
+TEST( GridSummaryAdapterTest, FreeClearsGridCountsAndAllowsReinitialization )
 {
     ONEFLOW::UnsGrid grid;
+    grid.Init();
     grid.nNodes = 12;
     grid.nFaces = 17;
     grid.nCells = 6;
@@ -47,11 +48,14 @@ TEST( GridSummaryAdapterTest, FreeClearsGridCounts )
 
     grid.Free();
 
-    const ONEFLOW::GridSummary summary = ONEFLOW::MakeGridSummary( grid );
+    const ONEFLOW::GridSummary releasedSummary = ONEFLOW::MakeGridSummary( grid );
+    EXPECT_EQ( releasedSummary.nodeCount, 0 );
+    EXPECT_EQ( releasedSummary.faceCount, 0 );
+    EXPECT_EQ( releasedSummary.cellCount, 0 );
+    EXPECT_EQ( releasedSummary.boundaryFaceCount, 0 );
+    EXPECT_TRUE( ONEFLOW::IsValidGridSummary( releasedSummary ) );
 
-    EXPECT_EQ( summary.nodeCount, 0 );
-    EXPECT_EQ( summary.faceCount, 0 );
-    EXPECT_EQ( summary.cellCount, 0 );
-    EXPECT_EQ( summary.boundaryFaceCount, 0 );
-    EXPECT_TRUE( ONEFLOW::IsValidGridSummary( summary ) );
+    EXPECT_NO_THROW( grid.Init() );
+    const ONEFLOW::GridSummary reinitializedSummary = ONEFLOW::MakeGridSummary( grid );
+    EXPECT_TRUE( ONEFLOW::IsValidGridSummary( reinitializedSummary ) );
 }
