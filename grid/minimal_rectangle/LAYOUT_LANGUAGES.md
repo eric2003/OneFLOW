@@ -26,7 +26,7 @@ From the repository root:
 \`\`\`sh
 python tools/mesh_layout/compile_rectangle.py \\
     grid/minimal_rectangle/rectangle.json \\
-    --output /tmp/minimalRectangleLayout.txt
+    --output /tmp/minimalRectangleLayout.txt \\\n    --svg-output /tmp/minimalRectangleTopology.svg
 \`\`\`
 
 Use the generated file with the existing \`GridMachine\` workflow. For this
@@ -51,6 +51,6 @@ than from independent hand-maintained files:
 - later add an editor where changing a point count updates the model,
   generated atomic text, and preview together.
 
-The next generalization should extract the rectangle model from this example
+The SVG preview is generated from the same JSON model as the atomic layout, so changing a point count updates both outputs on the next compile. This first preview is intentionally read-only; a linked interactive editor can be added after the shared topology model is generalized.\n\nThe next generalization should extract the rectangle model from this example
 into a format-neutral topology representation. Geometry/topology extraction
 and JSON serialization should remain separate from this layout compiler.
