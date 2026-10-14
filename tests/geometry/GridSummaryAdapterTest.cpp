@@ -2,6 +2,7 @@
 
 #include "GridSummaryAdapter.h"
 #include "UnsGrid.h"
+#include "StrGrid.h"
 
 TEST( GridSummaryAdapterTest, DefaultGridHasDeterministicEmptyMetadata )
 {
@@ -59,4 +60,26 @@ TEST( GridSummaryAdapterTest, FreeClearsGridCountsAndAllowsReinitialization )
     EXPECT_NO_THROW( grid.Init() );
     const ONEFLOW::GridSummary reinitializedSummary = ONEFLOW::MakeGridSummary( grid );
     EXPECT_TRUE( ONEFLOW::IsValidGridSummary( reinitializedSummary ) );
+}
+
+TEST( GridSummaryAdapterTest, StructuredGridCleanupCanBeCalledThroughBaseInterface )
+{
+    ONEFLOW::StrGrid grid;
+    grid.Init();
+    grid.ni = 4;
+    grid.nj = 3;
+    grid.nk = 1;
+    grid.nNodes = 12;
+
+    ONEFLOW::Grid & baseGrid = grid;
+    baseGrid.Free();
+
+    EXPECT_EQ( grid.ni, 0 );
+    EXPECT_EQ( grid.nj, 0 );
+    EXPECT_EQ( grid.nk, 0 );
+    EXPECT_EQ( grid.nNodes, 0 );
+    EXPECT_EQ( grid.bcRegionGroup, nullptr );
+
+    EXPECT_NO_THROW( grid.Init() );
+    EXPECT_NE( grid.bcRegionGroup, nullptr );
 }
