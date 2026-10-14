@@ -27,8 +27,9 @@ def check_close(name, actual, expected, tolerance=1.0e-12):
 def validate_summary(summary, expected, prefix):
     check_equal(f"{prefix} dimension", summary["dimension"], expected["dimension"])
     counts = summary["counts"]
-    zone_count = len(summary["zones"]) if "zones" in summary else counts["zones"]
-    check_equal(f"{prefix} zones", zone_count, expected["zones"])
+    check_equal(f"{prefix} zones", counts["zones"], expected["zones"])
+    if "zones" in summary:
+        check_equal(f"{prefix} zone details", len(summary["zones"]), counts["zones"])
     for key in ("nodes", "cells", "faces", "boundaryFaces"):
         check_equal(f"{prefix} {key}", counts[key], expected[key])
 
