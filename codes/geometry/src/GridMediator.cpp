@@ -28,7 +28,6 @@ License
 #include "BcRecord.h"
 #include "GridTypes.h"
 #include "DataBase.h"
-#include "Prj.h"
 #include <utility>
 
 BeginNameSpace( ONEFLOW )
@@ -146,11 +145,9 @@ void ZgridMediator::ReadGrid( const GridConfig & config )
     gridMediator->bcFile   = config.bcFile;
     gridMediator->gridType = std::string( ToString( config.sourceType ) );
 
-    // Resolve relative source-case paths against the active case, consistently
-    // with the grid-conversion reader. Preserve the legacy empty-path behavior.
-    gridMediator->caseDir = config.sourceCaseDir.empty()
-        ? std::string()
-        : config.ResolveSourceCaseDir( Prj::prjBaseDir );
+    // OpenCaseFile resolves relative case directories against the active case.
+    // Keep the configured value here so all readers share that path policy.
+    gridMediator->caseDir = config.sourceCaseDir;
 
     gridMediator->ReadGrid();
     this->add( std::move( gridMediator ) );
