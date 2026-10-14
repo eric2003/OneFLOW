@@ -25,6 +25,8 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+// Current/Previous/Old flow and residual database names.
+// Prefer FieldHome::BuildUnsteadyFieldNames(solverType); keep alloc/unsteady.txt in sync.
 struct UnsteadyFieldNames
 {
     StringField flow;

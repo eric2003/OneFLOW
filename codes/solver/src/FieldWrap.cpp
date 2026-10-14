@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "FieldWrap.h"
+#include "FieldNameContract.h"
 #include <memory>
 #include "Fatal.h"
 #include "SolverMap.h"
@@ -196,7 +197,12 @@ MRField * FieldHome::GetResidualField( Grid * grid, int solverType )
 
 const MRField * FieldHome::GetConstResidualField( const Grid * grid )
 {
-    return FieldHome::GetConstUnsField( grid, FieldHome::GetResidualName() );
+    return FieldHome::GetConstResidualField( grid, SolverState::solverType );
+}
+
+const MRField * FieldHome::GetConstResidualField( const Grid * grid, int solverType )
+{
+    return FieldHome::GetConstUnsField( grid, FieldHome::GetResidualName( solverType ) );
 }
 
 const std::string & FieldHome::GetSolutionName()
@@ -317,6 +323,84 @@ MRField * FieldHome::GetBcGradField( Grid * grid, int solverType, int index )
     const std::string & name = FieldHome::GetBcGradName( solverType, index );
     if ( name.empty() ) return nullptr;
     return FieldHome::GetUnsField( grid, name );
+}
+
+const std::string & FieldHome::GetStageSolutionName( int index )
+{
+    return FieldHome::GetStageSolutionName( SolverState::solverType, index );
+}
+
+const std::string & FieldHome::GetStageSolutionName( int solverType, int index )
+{
+    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
+    if ( index >= 0 && index < static_cast< int >( solverInfo->stageSolutionNames.size() ) )
+    {
+        return solverInfo->stageSolutionNames[ index ];
+    }
+    static const std::string kEmpty;
+    return kEmpty;
+}
+
+MRField * FieldHome::GetStageSolutionField( Grid * grid, int index )
+{
+    return FieldHome::GetStageSolutionField( grid, SolverState::solverType, index );
+}
+
+MRField * FieldHome::GetStageSolutionField( Grid * grid, int solverType, int index )
+{
+    const std::string & name = FieldHome::GetStageSolutionName( solverType, index );
+    if ( name.empty() )
+    {
+        return nullptr;
+    }
+    return FieldHome::GetUnsField( grid, name );
+}
+
+const std::string & FieldHome::GetStageResidualName( int index )
+{
+    return FieldHome::GetStageResidualName( SolverState::solverType, index );
+}
+
+const std::string & FieldHome::GetStageResidualName( int solverType, int index )
+{
+    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
+    if ( index >= 0 && index < static_cast< int >( solverInfo->stageResidualNames.size() ) )
+    {
+        return solverInfo->stageResidualNames[ index ];
+    }
+    static const std::string kEmpty;
+    return kEmpty;
+}
+
+MRField * FieldHome::GetStageResidualField( Grid * grid, int index )
+{
+    return FieldHome::GetStageResidualField( grid, SolverState::solverType, index );
+}
+
+MRField * FieldHome::GetStageResidualField( Grid * grid, int solverType, int index )
+{
+    const std::string & name = FieldHome::GetStageResidualName( solverType, index );
+    if ( name.empty() )
+    {
+        return nullptr;
+    }
+    return FieldHome::GetUnsField( grid, name );
+}
+
+UnsteadyFieldNames FieldHome::BuildUnsteadyFieldNames( int solverType )
+{
+    // Delegate pure assembly; SolverInfo supplies the strings for this solver.
+    StringField stageQ;
+    stageQ.push_back( FieldHome::GetStageSolutionName( solverType, 0 ) );
+    stageQ.push_back( FieldHome::GetStageSolutionName( solverType, 1 ) );
+    StringField stageR;
+    stageR.push_back( FieldHome::GetStageResidualName( solverType, 0 ) );
+    stageR.push_back( FieldHome::GetStageResidualName( solverType, 1 ) );
+    return MakeUnsteadyFieldNames(
+        FieldHome::GetSolutionName( solverType ),
+        stageQ,
+        FieldHome::GetResidualName( solverType ),
+        stageR );
 }
 
 MRField * FieldHome::GetUnsField( Grid * grid, const std::string & fieldName )

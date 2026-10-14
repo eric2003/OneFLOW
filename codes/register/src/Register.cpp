@@ -178,7 +178,7 @@ void RegisterFactory::AddMRegister( int registerId )
 
 MRegister * RegisterFactory::GetMRegister( int registerId )
 {
-    // FIX: previously `return iter->second;` without checking for
+    // previously `return iter->second;` without checking for
     // end() - dereferencing end() on an unregistered registerId was
     // undefined behavior. Return nullptr instead; callers must check.
     auto & data = RegisterFactory::GetData();
@@ -202,7 +202,7 @@ void RegisterFactory::FreeMRegister()
 
 HXRegister * RegisterFactory::GetRegister( int mRegisterId, int registerId )
 {
-    // FIX: previously dereferenced GetMRegister's result unconditionally.
+    // previously dereferenced GetMRegister's result unconditionally.
     // Now short-circuits to nullptr if either lookup fails.
     MRegister * mRegister = RegisterFactory::GetMRegister( mRegisterId );
     if ( ! mRegister )

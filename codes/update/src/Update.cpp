@@ -66,15 +66,13 @@ void GetUpdateField(
 {
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
 
-    // LUSGS path: implicitFieldNames[0]=solution ("q"/"turbq"), [1]=delta ("dq"/"turbdq").
-    // Note: *Com MULTI_STAGE may have aliased the zone-local dq pointer to residual;
-    // this path still binds the database field named in implicitFieldNames.
+    // LUSGS: solution + update-delta database names for this solverType.
+    // *Com MULTI_STAGE may alias zone-local dq pointer to residual; this path
+    // still binds the named database fields (implicitFieldNames via FieldHome).
     if ( TaskState::task->taskName == kUpdateFlowFieldLusgsTaskName )
     {
-        std::string & qFieldString  = solverInfo->implicitFieldNames[ 0 ];
-        std::string & dQFieldString = solverInfo->implicitFieldNames[ 1 ];
-        q  = FieldHome::GetFieldWrap( qFieldString  );
-        dq = FieldHome::GetFieldWrap( dQFieldString );
+        q  = FieldHome::GetFieldWrap( FieldHome::GetSolutionName( solverType ) );
+        dq = FieldHome::GetFieldWrap( FieldHome::GetUpdateDeltaName( solverType ) );
     }
     else
     {
@@ -86,7 +84,7 @@ void GetUpdateField(
         q = std::move( flowWrap );
 
         // residualName path builds a fresh non-owning wrapper; Update owns it.
-        dq = FieldHome::GetFieldWrap( solverInfo->residualName );
+        dq = FieldHome::GetFieldWrap( FieldHome::GetResidualName( solverType ) );
     }
 }
 

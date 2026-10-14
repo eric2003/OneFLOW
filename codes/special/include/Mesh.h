@@ -101,7 +101,7 @@ public:
     Mesh& operator=(const Mesh&) = delete;
 
 public:
-    // FIX: Use std::unique_ptr for automatic memory management.
+    // Owned via std::unique_ptr (RAII).
     std::unique_ptr<NodeMesh> nodeMesh;
     std::unique_ptr<FaceTopo> faceTopo;
     std::unique_ptr<FaceMesh> faceMesh;

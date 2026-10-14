@@ -45,36 +45,36 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-void InitUnsField()
+// Bind mean-flow (NS) pointers on global unsf for time-step kernels.
+// Always pins NS_SOLVER (same contract as UNsField::Init).
+void BindUNsFieldPointers()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     unsf.invsr = ONEFLOW::GetFieldPointer< MRField >( grid, "invsr" );
     unsf.vissr = ONEFLOW::GetFieldPointer< MRField >( grid, "vissr" );
     unsf.gama  = ONEFLOW::GetFieldPointer< MRField >( grid, "gama" );
     unsf.q  = FieldHome::GetSolutionField( grid, NS_SOLVER );
-    //unsf.q1 = ONEFLOW::GetFieldPointer< MRField >( grid, "q1" );
-    //unsf.q2 = ONEFLOW::GetFieldPointer< MRField >( grid, "q2" );
-    // Database delta name via implicitFieldNames[1]; MULTI_STAGE alias remains in UNsCom.
+    unsf.q1 = FieldHome::GetStageSolutionField( grid, NS_SOLVER, 0 );
+    unsf.q2 = FieldHome::GetStageSolutionField( grid, NS_SOLVER, 1 );
+    // Update-delta database field; MULTI_STAGE may alias dq to residual in UNsCom::Init.
     unsf.dq = FieldHome::GetUpdateDeltaField( grid, NS_SOLVER );
     unsf.dqdx = FieldHome::GetGradField( grid, NS_SOLVER, 1 );
     unsf.dqdy = FieldHome::GetGradField( grid, NS_SOLVER, 2 );
     unsf.dqdz = FieldHome::GetGradField( grid, NS_SOLVER, 3 );
 
+    // Shared zone physics fields (not solver-prefixed).
     unsf.visl = ONEFLOW::GetFieldPointer< MRField >( grid, "visl" );
     unsf.vist = ONEFLOW::GetFieldPointer< MRField >( grid, "vist" );
-    //unsf.timestep = ONEFLOW::GetFieldPointer< MRField >( grid, "timestep" );
     unsf.res = FieldHome::GetResidualField( grid, NS_SOLVER );
-    unsf.res1 = ONEFLOW::GetFieldPointer< MRField >( grid, "res1" );
-    unsf.res2 = ONEFLOW::GetFieldPointer< MRField >( grid, "res2" );
-
-    //unsf.tempr = ONEFLOW::GetFieldPointer< MRField >( grid, "tempr" );
+    unsf.res1 = FieldHome::GetStageResidualField( grid, NS_SOLVER, 0 );
+    unsf.res2 = FieldHome::GetStageResidualField( grid, NS_SOLVER, 1 );
 }
 
 void InitTimeStepUns()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
-    InitUnsField();
+    BindUNsFieldPointers();
 
     FaceTopo & faceTopo = grid->GetFaceTopo();
     ug.lcf = & faceTopo.GetLeftCells();

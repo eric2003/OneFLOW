@@ -23,6 +23,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include "UnsteadyFieldNames.h"
 #include "HXArray.h"
 #include <memory>
 
@@ -81,6 +82,7 @@ public:
     static MRField * GetResidualField( Grid * grid );
     static MRField * GetResidualField( Grid * grid, int solverType );
     static const MRField * GetConstResidualField( const Grid * grid );
+    static const MRField * GetConstResidualField( const Grid * grid, int solverType );
 
     static const std::string & GetSolutionName();
     static const std::string & GetSolutionName( int solverType );
@@ -103,6 +105,22 @@ public:
     static const std::string & GetBcGradName( int solverType, int index );
     static MRField * GetBcGradField( Grid * grid, int index );
     static MRField * GetBcGradField( Grid * grid, int solverType, int index );
+
+    // Dual-time stage solution: stageSolutionNames[0]=q1, [1]=q2 (or turbq1/2).
+    static const std::string & GetStageSolutionName( int index );
+    static const std::string & GetStageSolutionName( int solverType, int index );
+    static MRField * GetStageSolutionField( Grid * grid, int index );
+    static MRField * GetStageSolutionField( Grid * grid, int solverType, int index );
+
+    // Dual-time stage residual: stageResidualNames[0]=res1, [1]=res2 (may be empty).
+    static const std::string & GetStageResidualName( int index );
+    static const std::string & GetStageResidualName( int solverType, int index );
+    static MRField * GetStageResidualField( Grid * grid, int index );
+    static MRField * GetStageResidualField( Grid * grid, int solverType, int index );
+
+    // Build Current/Previous/Old flow+residual name lists from SolverInfo
+    // (aligned with system/*/alloc/unsteady.txt).
+    static UnsteadyFieldNames BuildUnsteadyFieldNames( int solverType );
 
     static void GetSourceTargetField( Grid * grid, int fieldId, const std::string & fieldName, MRField *& sField, MRField *& tField, int orderFlag );
 };
@@ -133,7 +151,8 @@ public:
 //      UNsField::Init is also called from UTurbInvFlux under TURB - must use
 //      NS_SOLVER overloads so unsf.* stay on mean-flow fields.
 //   3. NsLimField (nslimiter under TURB): literal NS names only in Init/BcQlQrFix.
-//   4. limiter / bc_q / q1 / visl / tempr: literal names in *Com (no FieldHome API).
+//   4. Stage q1/q2/res1/res2: FieldHome::GetStageSolution* / GetStageResidual*.
+//   5. limiter / bc_q / visl / vist / timestep / tempr: literal names (shared or LimField).
 // ---------------------------------------------------------------------------
 
 void SetField( FieldWrap * fieldWrap, Real value );

@@ -52,8 +52,8 @@ void UTurbField::Init()
     const int ns   = NS_SOLVER;
 
     q   = FieldHome::GetSolutionField( grid, turb );
-    q1  = GetFieldPointer< MRField > ( grid, "turbq1" );
-    q2  = GetFieldPointer< MRField > ( grid, "turbq2" );
+    q1  = FieldHome::GetStageSolutionField( grid, turb, 0 );
+    q2  = FieldHome::GetStageSolutionField( grid, turb, 1 );
     dq  = FieldHome::GetUpdateDeltaField( grid, turb );
 
     dqdx = FieldHome::GetGradField( grid, turb, 1 );

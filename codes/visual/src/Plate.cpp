@@ -317,7 +317,7 @@ void CuttingClass::Init()
     sliceData.resize( nSlice );
     for ( int i = 0; i < nSlice; ++ i )
     {
-        // FIX: Use std::make_unique
+        // Use std::make_unique
         sliceData[ i ] = std::make_unique<LamData>();
     }
 }
@@ -326,7 +326,7 @@ void CuttingClass::Slice()
 {
     int nField = nameList.size();
 
-    // FIX: Use std::unique_ptr array to prevent memory leaks if an exception occurs
+    // Use std::unique_ptr array to prevent memory leaks if an exception occurs
     HXVector< std::unique_ptr<MRField> > fields( nField );
     for ( int i = 0; i < nField; ++ i )
     {

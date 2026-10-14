@@ -30,7 +30,7 @@ HeatFlux heat_flux;
 
 SurfaceValue::SurfaceValue()
 {
-    // FIX: Use std::make_unique for exception-safe allocation.
+    // Allocate with std::make_unique..
     var = std::make_unique<RealField>();
 }
 
@@ -54,7 +54,7 @@ void HeatFlux::Init()
     InitGlobal();
     Allocate();
 
-    // FIX: Use .get() to access the raw pointer from unique_ptr for short-term observation.
+    // Use .get() to access the raw pointer from unique_ptr for short-term observation.
     SurfaceValue * heat_sur = heat_flux.heatflux[ ZoneState::zid ].get();
     heat_sur->var->resize( 0 );
 
@@ -77,7 +77,7 @@ void HeatFlux::Allocate()
     if ( ! this->flag[ zId ] )
     {
         this->flag[ zId ] = 1;
-        // FIX: Use std::make_unique instead of new.
+        // Use std::make_unique instead of new.
         this->heatflux[ zId ] = std::make_unique<SurfaceValue>();
         this->fricflux[ zId ] = std::make_unique<SurfaceValue>();
     }
@@ -85,7 +85,7 @@ void HeatFlux::Allocate()
 
 void HeatFlux::DeAllocate()
 {
-    // FIX: clear() automatically invokes the destructor of std::unique_ptr,
+    // clear() automatically invokes the destructor of std::unique_ptr,
     // safely releasing all SurfaceValue and their internal RealField objects.
     // No manual delete loop is needed, preventing memory leaks on exceptions.
     this->heatflux.clear();

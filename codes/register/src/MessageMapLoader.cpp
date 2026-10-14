@@ -150,7 +150,7 @@ void GetMsgFileNameList( StringField & fileNameList )
     textFileParser.OpenFile( msgFileName, std::ios_base::in );
     textFileParser.SetDefaultSeparator( separator );
 
-    // FIX: same class of bug already fixed in MessageMapImp::ReadFile -
+    // same class of bug already fixed in MessageMapImp::ReadFile -
     // ReadNextNonEmptyLine() only skips blank lines, not comment lines,
     // so a "# comment" line in actionFileList.txt would have its first
     // token treated as a real file name and appended to fileNameList,

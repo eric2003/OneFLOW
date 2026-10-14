@@ -50,21 +50,11 @@ namespace
         UnsteadyFieldView & fieldView,
         int solverType )
     {
-        FieldManager * fieldManager =
-            FieldManagerRegistry::GetFieldManager(
-                solverType );
-
-        if ( fieldManager == nullptr )
-        {
-            Fatal(
-                "FieldManager is not registered for solverType" );
-        }
-
+        // Names from SolverInfo (must match system/*/alloc/unsteady.txt).
         UnsGrid * grid = Zone::GetUnsGrid();
-
         fieldView.BindFields(
             grid,
-            fieldManager->GetUnsteadyFieldNames() );
+            FieldHome::BuildUnsteadyFieldNames( solverType ) );
     }
 }
 

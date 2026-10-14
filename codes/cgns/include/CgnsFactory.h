@@ -53,7 +53,7 @@ public:
     CgnsFactory(const CgnsFactory&) = delete;
     CgnsFactory& operator=(const CgnsFactory&) = delete;
 
-    // FIX: Declare move semantics here, but DO NOT use = default.
+    // Declare move semantics here, but DO NOT use = default.
     // The implementation must be in the .cpp file where types are complete.
     CgnsFactory(CgnsFactory&&) noexcept;
     CgnsFactory& operator=(CgnsFactory&&) noexcept;

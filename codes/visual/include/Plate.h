@@ -78,7 +78,7 @@ public:
     LamData();
     ~LamData();
 public:
-    // FIX: Use std::unique_ptr for automatic memory management
+    // Owned via std::unique_ptr (RAII).
     HXVector< std::unique_ptr<PlaneData> > data;
 public:
     void Init();
@@ -100,7 +100,7 @@ public:
 public:
     StringField nameList;
     SliceInfo sliceInfo;
-    // FIX: Use std::unique_ptr for automatic memory management
+    // Owned via std::unique_ptr (RAII).
     HXVector< std::unique_ptr<LamData> > sliceData;
 public:
     void Init();

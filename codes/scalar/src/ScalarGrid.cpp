@@ -823,7 +823,7 @@ void ScalarGrid::SetCgnsZone( CgnsZone & cgnsZone )
 void ScalarGrid::DumpCgnsGrid()
 {
 	std::string prjFileName = Prj::GetPrjFileName( "scalar.cgns" );
-	// FIX: Use stack allocation instead of raw pointer
+	// Use stack allocation instead of raw pointer
 	CgnsZbase cgnsZbase;
 	cgnsZbase.nBases = 1;
 	cgnsZbase.InitCgnsBase();
@@ -850,7 +850,7 @@ void ScalarGrid::DumpCgnsGrid()
 
 void ScalarGrid::GenerateGridFromCgns( const std::string & prjFileName )
 {
-	// FIX: Use stack allocation instead of raw pointer
+	// Use stack allocation instead of raw pointer
 	CgnsZbase cgnsZbase;
 	cgnsZbase.OpenCgnsFile( prjFileName, CG_MODE_READ );
 	cgnsZbase.ReadCgnsMultiBase();

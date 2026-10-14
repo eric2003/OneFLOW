@@ -66,3 +66,45 @@ target_link_libraries(solver_map_index_test PRIVATE GTest::gtest_main)
 target_compile_features(solver_map_index_test PRIVATE cxx_std_20)
 gtest_discover_tests(solver_map_index_test DISCOVERY_MODE PRE_TEST)
 
+
+
+# Pure field-name contracts (no Zone / SolverState / DataBase).
+add_executable(field_name_contract_test
+  field_name_contract_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/solver/src/FieldNameContract.cpp
+)
+
+target_include_directories(field_name_contract_test
+  PRIVATE
+    ${CMAKE_SOURCE_DIR}/codes/solver/include
+    ${CMAKE_SOURCE_DIR}/codes/basic/include
+    ${CMAKE_SOURCE_DIR}/codes/global/include
+)
+
+target_link_libraries(field_name_contract_test PRIVATE GTest::gtest_main)
+target_compile_features(field_name_contract_test PRIVATE cxx_std_17)
+gtest_discover_tests(field_name_contract_test DISCOVERY_MODE PRE_TEST)
+
+
+# Per-solver field-name tables (ns/ins/turb modules; still no Zone/DataBase).
+add_executable(solver_field_names_test
+  solver_field_names_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/solver/src/FieldNameContract.cpp
+  ${CMAKE_SOURCE_DIR}/codes/ns/src/NsFieldNames.cpp
+  ${CMAKE_SOURCE_DIR}/codes/ins/src/INsFieldNames.cpp
+  ${CMAKE_SOURCE_DIR}/codes/turb/src/TurbFieldNames.cpp
+)
+
+target_include_directories(solver_field_names_test
+  PRIVATE
+    ${CMAKE_SOURCE_DIR}/codes/solver/include
+    ${CMAKE_SOURCE_DIR}/codes/ns/include
+    ${CMAKE_SOURCE_DIR}/codes/ins/include
+    ${CMAKE_SOURCE_DIR}/codes/turb/include
+    ${CMAKE_SOURCE_DIR}/codes/basic/include
+    ${CMAKE_SOURCE_DIR}/codes/global/include
+)
+
+target_link_libraries(solver_field_names_test PRIVATE GTest::gtest_main)
+target_compile_features(solver_field_names_test PRIVATE cxx_std_17)
+gtest_discover_tests(solver_field_names_test DISCOVERY_MODE PRE_TEST)

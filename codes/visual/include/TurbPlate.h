@@ -66,7 +66,7 @@ public:
     TurbFlatPlateTask();
     ~TurbFlatPlateTask() override;
 public:
-    // FIX: Use std::unique_ptr for automatic memory management
+    // Owned via std::unique_ptr (RAII).
     std::unique_ptr<TurbVelCut> velCut;
     std::unique_ptr<TurbFriCut> friCut;
 public:

@@ -39,10 +39,10 @@ void ULhs::CalcLHS( int solverType )
     UnsGrid * grid = Zone::GetUnsGrid();
 
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
-    // LHS scales the *residual* field (NS "res" / Turb "turbres"), not the
-    // database field named "dq". Local name is historical; under MULTI_STAGE
-    // UNsCom aliases dq pointer to this same residual storage.
-    MRField * residual = FieldHome::GetResidualField( grid );
+    // LHS scales the residual for the given solverType (NS "res" / Turb "turbres"),
+    // not the database update-delta field. Under MULTI_STAGE, *Com may alias dq
+    // to this same residual storage.
+    MRField * residual = FieldHome::GetResidualField( grid, solverType );
 
     for ( int iEqu = 0; iEqu < solverInfo->nTEqu; ++ iEqu )
     {

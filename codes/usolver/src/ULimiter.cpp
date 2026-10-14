@@ -356,7 +356,7 @@ void Limiter::CalcLimiter()
     ug.Init();
     limf->Init();
 
-    // FIX: Use std::make_unique instead of new
+    // Allocate limiter state (owned).
     lim->minvf = std::make_unique<RealField>( ug.nTCell );
     lim->maxvf = std::make_unique<RealField>( ug.nTCell );
 
@@ -370,7 +370,7 @@ void Limiter::CalcLimiter()
         this->SetInitValue();
         this->CalcLimiterScalar();
     }
-    // FIX: Use reset() instead of delete
+    // Release limiter state.
     lim->minvf.reset();
     lim->maxvf.reset();
 }

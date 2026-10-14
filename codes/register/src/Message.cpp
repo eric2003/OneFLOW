@@ -82,7 +82,7 @@ void MessageMapImp::ReadFile( const std::string & fileName )
     textFileParser.OpenFile( fileName, std::ios_base::in );
     textFileParser.SetDefaultSeparator( separator );
 
-    // FIX: was previously driven by ReachTheEndOfFile() + ReadNextNonEmptyLine(),
+    // was previously driven by ReachTheEndOfFile() + ReadNextNonEmptyLine(),
     // which had two bugs identical to the ones found and fixed in
     // ActionMapImp::ReadFile:
     //   1. eof() is only set AFTER a failed read, so the loop ran one

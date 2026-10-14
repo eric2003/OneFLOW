@@ -34,7 +34,7 @@ public:
     ~SurfaceValue();
 
 public:
-    // FIX: Replaced raw pointer with std::unique_ptr for automatic memory management.
+    // Owned via std::unique_ptr (RAII).
     std::unique_ptr<RealField> var;
 };
 
@@ -45,7 +45,7 @@ public:
     ~HeatFlux();
 
 public:
-    // FIX: Replaced raw pointer arrays with std::unique_ptr arrays.
+    // Owned arrays via std::unique_ptr (RAII).
     HXVector< std::unique_ptr<SurfaceValue> > heatflux;
     HXVector< std::unique_ptr<SurfaceValue> > fricflux;
     IntField flag;

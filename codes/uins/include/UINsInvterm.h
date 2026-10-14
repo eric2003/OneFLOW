@@ -70,7 +70,7 @@ public:
     void Init();
     void MomPre();
 public:
-    std::unique_ptr<Limiter> limiter; // FIX: Changed to unique_ptr
+    std::unique_ptr<Limiter> limiter; // owns
     MRField* iinvflux;
 public:
     Real Number;

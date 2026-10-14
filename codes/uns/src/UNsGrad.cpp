@@ -88,6 +88,7 @@ void UTGrad::Init()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
+    // Shared NS temperature field + gradient (not solver-prefixed; not in SolverInfo).
     name  = "tempr";
     namex = "dtdx";
     namey = "dtdy";

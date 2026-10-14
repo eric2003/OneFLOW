@@ -24,6 +24,7 @@ License
 #include "TurbBcSolver.h"
 #include "BcData.h"
 #include "SolverInfo.h"
+#include "TurbFieldNames.h"
 #include "SolverDef.h"
 #include "TurbCtrl.h"
 #include "TurbCom.h"
@@ -67,24 +68,12 @@ void TurbSolver::StaticInit()
     solverInfo->nEqu  = turbcom.nEqu;
     solverInfo->nTEqu = turbcom.nTEqu;
 
-    solverInfo->residualName = "turbres";
+    // Field names: pure contract (unit-tested) -> SolverInfo.
+    ApplyFieldNameContract(
+        solverInfo,
+        TurbSolverFieldLogisticsNames(),
+        TurbSolverUnsteadyFieldNames() );
     solverInfo->resFileName = GetDataValue< std::string >( "turbresFile" );
-    solverInfo->solutionGradNames.clear();
-    solverInfo->implicitFieldNames.clear();
-    solverInfo->bcGradFieldNames.clear();
-    solverInfo->solutionGradNames.push_back( "turbq"    );
-    solverInfo->solutionGradNames.push_back( "turbdqdx" );
-    solverInfo->solutionGradNames.push_back( "turbdqdy" );
-    solverInfo->solutionGradNames.push_back( "turbdqdz" );
-
-    solverInfo->implicitFieldNames.push_back( "turbq"  );
-    solverInfo->implicitFieldNames.push_back( "turbdq" );
-
-    solverInfo->bcGradFieldNames.push_back( "turbbcdqdx" );
-    solverInfo->bcGradFieldNames.push_back( "turbbcdqdy" );
-    solverInfo->bcGradFieldNames.push_back( "turbbcdqdz" );
-    solverInfo->limiterName = "turblimiter";
-    solverInfo->bcSolutionName.clear();
 }
 
 EndNameSpace

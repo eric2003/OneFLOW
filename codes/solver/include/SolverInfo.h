@@ -47,6 +47,10 @@ public:
     std::string limiterName;
     // BC face solution (NS/INS: "bc_q"). Empty if unused. Bind via literal "bc_q".
     std::string bcSolutionName;
+    // Dual-time / multi-level solution storage: [0]=q1/turbq1, [1]=q2/turbq2.
+    StringField stageSolutionNames;
+    // Dual-time residual storage: [0]=res1, [1]=res2 (NS/INS). May be empty for turb.
+    StringField stageResidualNames;
     std::string residualName;
     std::string resFileName;
     Real residual;

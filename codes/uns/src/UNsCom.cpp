@@ -42,8 +42,8 @@ void UNsField::Init()
     const int ns = NS_SOLVER;
 
     q  = FieldHome::GetSolutionField( grid, ns );
-    q1  = GetFieldPointer< MRField > ( grid, "q1" );
-    q2  = GetFieldPointer< MRField > ( grid, "q2" );
+    q1  = FieldHome::GetStageSolutionField( grid, ns, 0 );
+    q2  = FieldHome::GetStageSolutionField( grid, ns, 1 );
     dq  = FieldHome::GetUpdateDeltaField( grid, ns );
     // limiter / bc_q: always literal NS names (no FieldHome; not in dual-use API set).
     limiter  = GetFieldPointer< MRField > ( grid, "limiter" );
@@ -72,8 +72,8 @@ void UNsField::Init()
     impsr = ONEFLOW::GetFieldPointer< MRField >( grid, "impsr" );
 
     res  = FieldHome::GetResidualField( grid, ns );
-    res1  = GetFieldPointer< MRField > ( grid, "res1" );
-    res2  = GetFieldPointer< MRField > ( grid, "res2" );
+    res1  = FieldHome::GetStageResidualField( grid, ns, 0 );
+    res2  = FieldHome::GetStageResidualField( grid, ns, 1 );
 
     rhs = res;
 
