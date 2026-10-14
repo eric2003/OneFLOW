@@ -1,18 +1,22 @@
 param(
     [Parameter(Mandatory = $true)]
-    [string]$OneFlowExe
+    [string]$OneFlowExe,
+
+    [Parameter(Mandatory = $true)]
+    [string]$CaseDir
 )
 
 $resolvedExe = (Resolve-Path -LiteralPath $OneFlowExe).Path
-$caseDir = $PSScriptRoot
-$outputDir = Join-Path $caseDir "results"
-New-Item -ItemType Directory -Force -Path $outputDir | Out-Null
+$resolvedCaseDir = (Resolve-Path -LiteralPath $CaseDir).Path
+$caseDir = (Resolve-Path -LiteralPath $resolvedCaseDir).Path
+$outputFile = Join-Path $caseDir "results\rae2822_2d.ofl"
 
 $previousLocation = Get-Location
 $exitCode = 1
 try {
+    # Keep runtime resources relative to the executable installation.
     Set-Location (Split-Path -Parent $resolvedExe)
-    & $resolvedExe 0 $caseDir
+    & $resolvedExe "r" $caseDir
     $exitCode = $LASTEXITCODE
 }
 finally {
@@ -25,4 +29,4 @@ if ($exitCode -ne 0) {
 }
 
 Write-Host "Mesh workflow completed."
-Write-Host "OneFLOW grid output: $(Join-Path $outputDir 'rae2822_2d.ofl')"
+Write-Host "OneFLOW grid output: $outputFile"
