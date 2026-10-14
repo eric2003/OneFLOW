@@ -28,9 +28,9 @@ class CompileRectangleTest(unittest.TestCase):
         self.assertTrue(output.endswith("Add F2B 1 1 1\n"))
 
     def test_edge_point_counts_are_independent(self):
-        self.spec["edgePointCounts"] = [2, 3, 4, 5]
+        self.spec["edgePointCounts"] = [2, 3, 2, 3]
         output = compiler.compile_rectangle(self.spec)
-        for edge, count in enumerate((2, 3, 4, 5), start=1):
+        for edge, count in enumerate((2, 3, 2, 3), start=1):
             self.assertIn(f"Dim({edge})={{{count}}}", output)
 
     def test_svg_preview_tracks_point_counts_and_line_ids(self):
@@ -38,6 +38,11 @@ class CompileRectangleTest(unittest.TestCase):
         self.assertIn('data-line-id="1"', svg)
         self.assertIn("Line 1: 3 points", svg)
         self.assertIn("Point 4", svg)
+
+    def test_rejects_mismatched_opposite_edge_counts(self):
+        self.spec["edgePointCounts"] = [2, 3, 4, 3]
+        with self.assertRaisesRegex(ValueError, "opposite edges"):
+            compiler.compile_rectangle(self.spec)
 
     def test_rejects_missing_edge_point_count(self):
         self.spec["edgePointCounts"] = [3, 3, 3]
