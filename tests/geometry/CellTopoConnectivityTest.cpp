@@ -35,6 +35,16 @@ TEST(FaceTopoConnectivityTest, ReordersAllFaceIndexedDataTogether)
     EXPECT_TRUE(faces.c2f.empty());
 }
 
+TEST(FaceTopoConnectivityTest, InvalidatesCellToFaceAdjacencyAfterTopologyUpdate)
+{
+    ONEFLOW::FaceTopo faces;
+    faces.c2f = ONEFLOW::LinkField{{0, 2}, {1, 2}};
+
+    faces.UpdateOtherTopologyTerm();
+
+    EXPECT_TRUE(faces.c2f.empty());
+}
+
 TEST(CellTopoConnectivityTest, BuildsCellToFaceAdjacencyForBoundaryAndInternalFaces)
 {
     ONEFLOW::CellTopo cells;
