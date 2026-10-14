@@ -3,6 +3,7 @@
 #include "GridSummaryAdapter.h"
 #include "UnsGrid.h"
 #include "StrGrid.h"
+#include "Dimension.h"
 
 TEST( GridSummaryAdapterTest, DefaultGridHasDeterministicEmptyMetadata )
 {
