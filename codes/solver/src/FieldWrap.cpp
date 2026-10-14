@@ -386,6 +386,19 @@ MRField * FieldHome::GetStageResidualField( Grid * grid, int solverType, int ind
     return FieldHome::GetUnsField( grid, name );
 }
 
+UnsteadyFieldNames FieldHome::BuildUnsteadyFieldNames( int solverType )
+{
+    // Order matches Unsteady::HistoryLevel: Current, Previous, Old.
+    UnsteadyFieldNames names;
+    names.flow.push_back( FieldHome::GetSolutionName( solverType ) );
+    names.flow.push_back( FieldHome::GetStageSolutionName( solverType, 0 ) );
+    names.flow.push_back( FieldHome::GetStageSolutionName( solverType, 1 ) );
+    names.residual.push_back( FieldHome::GetResidualName( solverType ) );
+    names.residual.push_back( FieldHome::GetStageResidualName( solverType, 0 ) );
+    names.residual.push_back( FieldHome::GetStageResidualName( solverType, 1 ) );
+    return names;
+}
+
 MRField * FieldHome::GetUnsField( Grid * grid, const std::string & fieldName )
 {
     MRField * field = ONEFLOW::GetFieldPointer< MRField >( grid, fieldName );

@@ -23,6 +23,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include "UnsteadyFieldNames.h"
 #include "HXArray.h"
 #include <memory>
 
@@ -116,6 +117,10 @@ public:
     static const std::string & GetStageResidualName( int solverType, int index );
     static MRField * GetStageResidualField( Grid * grid, int index );
     static MRField * GetStageResidualField( Grid * grid, int solverType, int index );
+
+    // Build Current/Previous/Old flow+residual name lists from SolverInfo
+    // (aligned with system/*/alloc/unsteady.txt).
+    static UnsteadyFieldNames BuildUnsteadyFieldNames( int solverType );
 
     static void GetSourceTargetField( Grid * grid, int fieldId, const std::string & fieldName, MRField *& sField, MRField *& tField, int orderFlag );
 };

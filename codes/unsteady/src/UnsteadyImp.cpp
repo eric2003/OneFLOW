@@ -22,9 +22,10 @@ License
 #include "UnsteadyImp.h"
 #include <memory>
 #include "NsUnsteady.h"
+#include "INsUnsteady.h"
 #include "TurbUnsteady.h"
 #include "SolverDef.h"
-#include "FieldManager.h"
+#include "FieldWrap.h"
 #include "Fatal.h"
 #include "Zone.h"
 
@@ -39,6 +40,10 @@ std::unique_ptr<Unsteady> CreateUnsteady( int solverType )
     {
         unsteady = CreateNsUnsteady();
     }
+    else if ( solverType == INC_NS_SOLVER )
+    {
+        unsteady = CreateINsUnsteady();
+    }
     else if ( solverType == TURB_SOLVER )
     {
         unsteady = CreateTurbUnsteady();
@@ -46,21 +51,11 @@ std::unique_ptr<Unsteady> CreateUnsteady( int solverType )
 
     if ( unsteady != nullptr )
     {
-        FieldManager * fieldManager =
-            FieldManagerRegistry::GetFieldManager(
-                solverType );
-
-        if ( fieldManager == nullptr )
-        {
-            Fatal(
-                "FieldManager is not registered for solverType" );
-        }
-
+        // Names from SolverInfo (must match system/*/alloc/unsteady.txt).
         UnsGrid * grid = Zone::GetUnsGrid();
-
         unsteady->BindFields(
             grid,
-            fieldManager->GetUnsteadyFieldNames() );
+            FieldHome::BuildUnsteadyFieldNames( solverType ) );
     }
 
     return unsteady;

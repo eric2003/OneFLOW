@@ -89,6 +89,8 @@ void TurbSolver::StaticInit()
     solverInfo->stageSolutionNames.push_back( "turbq1" );
     solverInfo->stageSolutionNames.push_back( "turbq2" );
     solverInfo->stageResidualNames.clear();
+    solverInfo->stageResidualNames.push_back( "turbres1" );
+    solverInfo->stageResidualNames.push_back( "turbres2" );
 }
 
 EndNameSpace
