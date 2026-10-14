@@ -93,19 +93,17 @@ public:
     int GetChildElementNumbers() const;
     int GetChildElementType( int iChild ) const;
 
-public:
+private:
     void PushElementFace( int faceType, int p1 );
     void PushElementFace( int faceType, int p1, int p2 );
     void PushElementFace( int faceType, int p1, int p2, int p3 );
     void PushElementFace( int faceType, int p1, int p2, int p3, int p4 );
 
-public:
     void PushMiddlePoint( int pm, int p1, int p2 );
     void PushMiddlePoint( int pm, int p1, int p2, int p3 );
     void PushMiddlePoint( int pm, int p1, int p2, int p3, int p4 );
     void PushMiddlePoint( int pm, int p1, int p2, int p3, int p4, int p5, int p6, int p7, int p8 );
 
-public:
     void PushChildElement( int elementType, int p1, int p2 );
     void PushChildElement( int elementType, int p1, int p2, int p3 );
     void PushChildElement( int elementType, int p1, int p2, int p3, int p4 );
@@ -113,7 +111,6 @@ public:
     void PushChildElement( int elementType, int p1, int p2, int p3, int p4, int p5, int p6 );
     void PushChildElement( int elementType, int p1, int p2, int p3, int p4, int p5, int p6, int p7, int p8 );
 
-public:
     void PushCompositeFace( int faceElementType, int p1, int p2, int p3 );
     void PushCompositeFace( int faceElementType, int p1, int p2, int p3, int p4, int p5, int p6 );
     void PushCompositeFace( int faceElementType, int p1, int p2, int p3, int p4, int p5, int p6, int p7, int p8, int p9 );
