@@ -7,6 +7,6 @@
     [1, 1, 0],
     [0, 1, 0]
   ],
-  "edgeDivisions": [3, 3, 3, 3],
+  "edgePointCounts": [3, 3, 3, 3],
   "spacing": "d"
 }
