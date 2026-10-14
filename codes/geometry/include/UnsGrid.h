@@ -43,6 +43,7 @@ public:
     ~UnsGrid() override;
 public:
     void Init() override;
+    void Free() override;
     FaceTopo & GetFaceTopo();
     const FaceTopo & GetFaceTopo() const;
     FaceMesh & GetFaceMesh();
