@@ -20,6 +20,12 @@ inline GridSummary MakeGridSummary( const Grid & grid )
         grid.nBFaces
     };
 
+    if ( grid.nNodes > 0 && ! grid.nodeMesh )
+    {
+        throw std::invalid_argument(
+            "MakeGridSummary: node count requires coordinate storage" );
+    }
+
     if ( grid.nodeMesh &&
          ( grid.nNodes < 0 ||
            grid.nodeMesh->GetNumberOfNodes() !=
