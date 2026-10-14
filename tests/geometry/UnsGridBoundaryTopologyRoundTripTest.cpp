@@ -10,9 +10,32 @@
 #include "IFaceLink.h"
 #include "GridHandles.h"
 #include "UnsGrid.h"
+#include "Tolerance.h"
 
 namespace
 {
+class ScopedPointTolerance
+{
+public:
+    ScopedPointTolerance()
+        : previousTolerance( ONEFLOW::Tolerance::tol ),
+          previousFlag( ONEFLOW::Tolerance::flag )
+    {
+        ONEFLOW::Tolerance::tol = 1.0e-8;
+        ONEFLOW::Tolerance::flag = true;
+    }
+
+    ~ScopedPointTolerance()
+    {
+        ONEFLOW::Tolerance::tol = previousTolerance;
+        ONEFLOW::Tolerance::flag = previousFlag;
+    }
+
+private:
+    ONEFLOW::Real previousTolerance;
+    bool previousFlag;
+};
+
 void ConfigureBoundaryTopology( ONEFLOW::UnsGrid & grid )
 {
     auto & faceTopo = grid.GetFaceTopo();
@@ -39,6 +62,7 @@ TEST( UnsGridBoundaryTopologyRoundTripTest, DataBookPreservesBoundaryAndInterfac
 {
     ONEFLOW::UnsGrid source;
     source.Init();
+    source.nFaces = 4;
     ConfigureBoundaryTopology( source );
 
     ONEFLOW::DataBook dataBook( 16 );
@@ -48,6 +72,7 @@ TEST( UnsGridBoundaryTopologyRoundTripTest, DataBookPreservesBoundaryAndInterfac
 
     ONEFLOW::UnsGrid restored;
     restored.Init();
+    restored.nFaces = 4;
     ASSERT_NO_THROW( restored.ReadBoundaryTopology( &dataBook ) );
 
     const auto & sourceBc = source.GetFaceTopo().GetBcRecord();
@@ -103,6 +128,7 @@ TEST( UnsGridBoundaryTopologyRoundTripTest, SplitInterfaceRecordsRegenerateBound
 
 TEST( UnsGridBoundaryTopologyRoundTripTest, InterfaceSplitKeepsLocalGlobalAndBoundaryMappingsAligned )
 {
+    ScopedPointTolerance pointTolerance;
     ONEFLOW::Grids grids;
     auto ownedGrid = std::make_unique< ONEFLOW::UnsGrid >();
     ownedGrid->Init();
