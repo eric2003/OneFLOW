@@ -26,6 +26,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include "INsCom.h"
 #include "INsCtrl.h"
 #include "SolverInfo.h"
+#include "FieldNameContract.h"
 #include "SolverDef.h"
 #include "UINsBcSolver.h"
 #include "HeatFlux.h"
@@ -59,30 +60,22 @@ void INsSolver::StaticInit()
     solverInfo->nEqu  = nscom.nEqu;
     solverInfo->nTEqu = nscom.nTEqu;
 
-    solverInfo->residualName = "res";
+    // Field names from pure contract (FieldNameContract); single source of truth.
+    const SolverLogisticsNames logistics = ExpectedINsSolverLogisticsNames();
+    const UnsteadyFieldNames unsteady = ExpectedINsUnsteadyFieldNames();
+    solverInfo->residualName = logistics.residualName;
+    solverInfo->solutionGradNames = logistics.solutionGradNames;
+    solverInfo->implicitFieldNames = logistics.implicitFieldNames;
+    solverInfo->bcGradFieldNames = logistics.bcGradFieldNames;
+    solverInfo->limiterName = logistics.limiterName;
+    solverInfo->bcSolutionName = logistics.bcSolutionName;
     solverInfo->resFileName = GetDataValue< std::string >( "resFile" );
-    solverInfo->solutionGradNames.clear();
-    solverInfo->implicitFieldNames.clear();
-    solverInfo->bcGradFieldNames.clear();
-    solverInfo->solutionGradNames.push_back( "q"    );
-    solverInfo->solutionGradNames.push_back( "dqdx" );
-    solverInfo->solutionGradNames.push_back( "dqdy" );
-    solverInfo->solutionGradNames.push_back( "dqdz" );
-
-    solverInfo->implicitFieldNames.push_back( "q"  );
-    solverInfo->implicitFieldNames.push_back( "dq" );
-
-    solverInfo->bcGradFieldNames.push_back( "bcdqdx" );
-    solverInfo->bcGradFieldNames.push_back( "bcdqdy" );
-    solverInfo->bcGradFieldNames.push_back( "bcdqdz" );
-    solverInfo->limiterName = "limiter";
-    solverInfo->bcSolutionName = "bc_q";
     solverInfo->stageSolutionNames.clear();
-    solverInfo->stageSolutionNames.push_back( "q1" );
-    solverInfo->stageSolutionNames.push_back( "q2" );
+    solverInfo->stageSolutionNames.push_back( unsteady.flow[ 1 ] );
+    solverInfo->stageSolutionNames.push_back( unsteady.flow[ 2 ] );
     solverInfo->stageResidualNames.clear();
-    solverInfo->stageResidualNames.push_back( "res1" );
-    solverInfo->stageResidualNames.push_back( "res2" );
+    solverInfo->stageResidualNames.push_back( unsteady.residual[ 1 ] );
+    solverInfo->stageResidualNames.push_back( unsteady.residual[ 2 ] );
 }
 
 EndNameSpace

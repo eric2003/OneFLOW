@@ -24,6 +24,7 @@ License
 #include "TurbBcSolver.h"
 #include "BcData.h"
 #include "SolverInfo.h"
+#include "FieldNameContract.h"
 #include "SolverDef.h"
 #include "TurbCtrl.h"
 #include "TurbCom.h"
@@ -67,30 +68,22 @@ void TurbSolver::StaticInit()
     solverInfo->nEqu  = turbcom.nEqu;
     solverInfo->nTEqu = turbcom.nTEqu;
 
-    solverInfo->residualName = "turbres";
+    // Field names from pure contract (FieldNameContract); single source of truth.
+    const SolverLogisticsNames logistics = ExpectedTurbSolverLogisticsNames();
+    const UnsteadyFieldNames unsteady = ExpectedTurbUnsteadyFieldNames();
+    solverInfo->residualName = logistics.residualName;
+    solverInfo->solutionGradNames = logistics.solutionGradNames;
+    solverInfo->implicitFieldNames = logistics.implicitFieldNames;
+    solverInfo->bcGradFieldNames = logistics.bcGradFieldNames;
+    solverInfo->limiterName = logistics.limiterName;
+    solverInfo->bcSolutionName = logistics.bcSolutionName;
     solverInfo->resFileName = GetDataValue< std::string >( "turbresFile" );
-    solverInfo->solutionGradNames.clear();
-    solverInfo->implicitFieldNames.clear();
-    solverInfo->bcGradFieldNames.clear();
-    solverInfo->solutionGradNames.push_back( "turbq"    );
-    solverInfo->solutionGradNames.push_back( "turbdqdx" );
-    solverInfo->solutionGradNames.push_back( "turbdqdy" );
-    solverInfo->solutionGradNames.push_back( "turbdqdz" );
-
-    solverInfo->implicitFieldNames.push_back( "turbq"  );
-    solverInfo->implicitFieldNames.push_back( "turbdq" );
-
-    solverInfo->bcGradFieldNames.push_back( "turbbcdqdx" );
-    solverInfo->bcGradFieldNames.push_back( "turbbcdqdy" );
-    solverInfo->bcGradFieldNames.push_back( "turbbcdqdz" );
-    solverInfo->limiterName = "turblimiter";
-    solverInfo->bcSolutionName.clear();
     solverInfo->stageSolutionNames.clear();
-    solverInfo->stageSolutionNames.push_back( "turbq1" );
-    solverInfo->stageSolutionNames.push_back( "turbq2" );
+    solverInfo->stageSolutionNames.push_back( unsteady.flow[ 1 ] );
+    solverInfo->stageSolutionNames.push_back( unsteady.flow[ 2 ] );
     solverInfo->stageResidualNames.clear();
-    solverInfo->stageResidualNames.push_back( "turbres1" );
-    solverInfo->stageResidualNames.push_back( "turbres2" );
+    solverInfo->stageResidualNames.push_back( unsteady.residual[ 1 ] );
+    solverInfo->stageResidualNames.push_back( unsteady.residual[ 2 ] );
 }
 
 EndNameSpace
