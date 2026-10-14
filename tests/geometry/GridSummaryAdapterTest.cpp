@@ -79,6 +79,15 @@ TEST( GridSummaryAdapterTest, RejectsInterfaceCountThatDiffersFromMappingStorage
     EXPECT_THROW( ONEFLOW::ValidateUnsGridStorageCounts( grid ), std::logic_error );
 }
 
+TEST( GridSummaryAdapterTest, RejectsNegativeMeshCountsBeforeSizeConversion )
+{
+    ONEFLOW::UnsGrid grid;
+    grid.Init();
+    grid.nFaces = -1;
+
+    EXPECT_THROW( ONEFLOW::ValidateUnsGridStorageCounts( grid ), std::logic_error );
+}
+
 TEST( GridSummaryAdapterTest, RejectsNodeCountThatDiffersFromCoordinateStorage )
 {
     ONEFLOW::UnsGrid grid;

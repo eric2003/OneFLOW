@@ -22,7 +22,7 @@ inline void ValidateUnsGridStorageCounts( const UnsGrid & grid )
     if ( ! hasNodeStorage && ! hasMeshStorage )
     {
         if ( grid.nNodes != 0 || grid.nFaces != 0 || grid.nCells != 0 ||
-             grid.nBFaces != 0 )
+             grid.nBFaces != 0 || grid.nIFaces != 0 )
         {
             throw std::logic_error(
                 "ValidateUnsGridStorageCounts: counts are nonzero after storage release" );
