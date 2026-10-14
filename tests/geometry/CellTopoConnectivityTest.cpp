@@ -179,3 +179,36 @@ TEST(FaceTopoConnectivityTest, RejectsInvalidInternalCellIdsWithoutCachingPartia
     EXPECT_THROW(faces.CalcC2C(c2c), std::logic_error);
     EXPECT_TRUE(c2c.empty());
 }
+
+TEST(CellMeshConnectivityTest, RecalculatesCellSpanAfterBoundaryConnectivityChanges)
+{
+    ONEFLOW::UnsGrid grid;
+    grid.Init();
+    grid.nCells = 2;
+    grid.nFaces = 3;
+    grid.nBFaces = 2;
+
+    ONEFLOW::CellMesh & cellMesh = grid.GetCellMesh();
+    cellMesh.GetCellTopo().Alloc(2);
+
+    ONEFLOW::FaceTopo & faces = grid.GetFaceTopo();
+    faces.SetNBFaces(2);
+    faces.fTypes.resize(3);
+    faces.GetLeftCells() = ONEFLOW::IntField{0, 1, 0};
+    faces.GetRightCells() = ONEFLOW::IntField{2, 3, 1};
+
+    cellMesh.xcc = ONEFLOW::RealField{0.0, 1.0, 10.0, 4.0};
+    cellMesh.ycc = ONEFLOW::RealField(4, 0.0);
+    cellMesh.zcc = ONEFLOW::RealField(4, 0.0);
+
+    cellMesh.CalcCellSpan(grid);
+    ASSERT_EQ(cellMesh.span.size(), 2u);
+    EXPECT_DOUBLE_EQ(cellMesh.span[0], 10.0);
+    EXPECT_DOUBLE_EQ(cellMesh.span[1], 3.0);
+
+    faces.GetLeftCells()[0] = 1;
+    cellMesh.CalcCellSpan(grid);
+
+    EXPECT_DOUBLE_EQ(cellMesh.span[0], 1.0);
+    EXPECT_DOUBLE_EQ(cellMesh.span[1], 9.0);
+}
