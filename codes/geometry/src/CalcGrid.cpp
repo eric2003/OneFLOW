@@ -116,6 +116,7 @@ void WriteGridInfo( const Grids & grids, const GridConfig & config )
     document[ "version" ] = 1;
     document[ "dimension" ] = dimension;
     document[ "counts" ] = {
+        { "zones", static_cast< int >( grids.size() ) },
         { "nodes", nodeCount },
         { "faces", faceCount },
         { "cells", cellCount },
