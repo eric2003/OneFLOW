@@ -8,7 +8,7 @@ param(
 
 $resolvedExe = (Resolve-Path -LiteralPath $OneFlowExe).Path
 $resolvedCaseDir = (Resolve-Path -LiteralPath $CaseDir).Path
-$caseDir = (Resolve-Path -LiteralPath $resolvedCaseDir).Path
+$caseDir = $resolvedCaseDir
 $outputFile = Join-Path $caseDir "results\rae2822_2d.ofl"
 
 $previousLocation = Get-Location
