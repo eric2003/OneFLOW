@@ -12,7 +12,6 @@ import json
 import math
 import struct
 from pathlib import Path
-from xml.sax.saxutils import escape
 
 
 def read_int(data, offset, endian):
