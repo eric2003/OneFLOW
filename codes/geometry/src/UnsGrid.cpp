@@ -67,48 +67,92 @@ UnsGrid::~UnsGrid() = default;
 
 void UnsGrid::Init()
 {
-    this->cellMesh.reset();
-    this->faceMesh.reset();
-    this->faceTopo.reset();
-
     this->BasicInit();
     this->faceMesh = std::make_unique< FaceMesh >();
     this->cellMesh = std::make_unique< CellMesh >();
     this->SetFaceTopo( std::make_unique< FaceTopo >() );
 }
 
+void UnsGrid::Free()
+{
+    this->cellMesh.reset();
+    this->faceMesh.reset();
+    this->faceTopo.reset();
+    Grid::Free();
+}
+
 FaceTopo & UnsGrid::GetFaceTopo()
 {
+    if ( ! this->faceTopo )
+    {
+        throw std::logic_error( "UnsGrid::GetFaceTopo: storage is not initialized" );
+    }
     return *this->faceTopo;
 }
 
 const FaceTopo & UnsGrid::GetFaceTopo() const
 {
+    if ( ! this->faceTopo )
+    {
+        throw std::logic_error( "UnsGrid::GetFaceTopo: storage is not initialized" );
+    }
     return *this->faceTopo;
 }
 
 FaceMesh & UnsGrid::GetFaceMesh()
 {
+    if ( ! this->faceMesh )
+    {
+        throw std::logic_error( "UnsGrid::GetFaceMesh: storage is not initialized" );
+    }
     return *this->faceMesh;
 }
 
 const FaceMesh & UnsGrid::GetFaceMesh() const
 {
+    if ( ! this->faceMesh )
+    {
+        throw std::logic_error( "UnsGrid::GetFaceMesh: storage is not initialized" );
+    }
     return *this->faceMesh;
 }
 
 CellMesh & UnsGrid::GetCellMesh()
 {
+    if ( ! this->cellMesh )
+    {
+        throw std::logic_error( "UnsGrid::GetCellMesh: storage is not initialized" );
+    }
     return *this->cellMesh;
 }
 
 const CellMesh & UnsGrid::GetCellMesh() const
 {
+    if ( ! this->cellMesh )
+    {
+        throw std::logic_error( "UnsGrid::GetCellMesh: storage is not initialized" );
+    }
     return *this->cellMesh;
+}
+
+bool UnsGrid::HasMeshStorage() const
+{
+    return this->faceTopo && this->faceMesh && this->cellMesh;
+}
+
+bool UnsGrid::HasAnyMeshStorage() const
+{
+    return this->faceTopo || this->faceMesh || this->cellMesh;
 }
 
 void UnsGrid::SetFaceTopo( std::unique_ptr< FaceTopo > faceTopo )
 {
+    if ( ! this->faceMesh )
+    {
+        throw std::logic_error(
+            "UnsGrid::SetFaceTopo: face mesh storage is not initialized" );
+    }
+
     if ( ! faceTopo )
     {
         throw std::invalid_argument( "UnsGrid cannot own a null FaceTopo" );
@@ -309,6 +353,12 @@ void UnsGrid::ReadBoundaryTopology( DataBook * databook )
     BcRecord & bcRecord = this->GetFaceTopo().GetBcRecord();
     ONEFLOW::HXRead( databook, bcRecord.bcType );
     ONEFLOW::HXRead( databook, bcRecord.bcNameId );
+    if ( bcRecord.bcType.size() != static_cast< HXSize_t >( this->nBFaces ) ||
+         bcRecord.bcNameId.size() != static_cast< HXSize_t >( this->nBFaces ) )
+    {
+        throw std::runtime_error(
+            "UnsGrid::ReadBoundaryTopology: boundary record count does not match boundary-face count" );
+    }
     ONEFLOW::HXRead( databook, this->nIFaces );
     if ( this->nIFaces < 0 || this->nIFaces > this->nBFaces )
     {
@@ -325,6 +375,14 @@ void UnsGrid::ReadBoundaryTopology( DataBook * databook )
         ONEFLOW::HXRead( databook, this->interFace->localInterfaceId  );
         ONEFLOW::HXRead( databook, this->interFace->i2b               );
     }
+
+    if ( this->interFace->zoneId.size() != static_cast< HXSize_t >( this->nIFaces ) ||
+         this->interFace->localInterfaceId.size() != static_cast< HXSize_t >( this->nIFaces ) )
+    {
+        throw std::runtime_error(
+            "UnsGrid::ReadBoundaryTopology: interface metadata count does not match interface-face count" );
+    }
+    bcRecord.ValidateI2B( *this->interFace );
 }
 
 void UnsGrid::WriteGrid( DataBook * databook )
@@ -461,10 +519,11 @@ void UnsGrid::WriteBoundaryTopology( DataBook * databook )
         throw std::logic_error(
             "UnsGrid::WriteBoundaryTopology: boundary record count does not match boundary-face count" );
     }
-    if ( interFace.nIFaces < 0 || interFace.nIFaces > nBFaces )
+    if ( interFace.nIFaces < 0 || interFace.nIFaces > nBFaces ||
+         this->nIFaces != interFace.nIFaces )
     {
         throw std::logic_error(
-            "UnsGrid::WriteBoundaryTopology: invalid interface-face count" );
+            "UnsGrid::WriteBoundaryTopology: invalid or inconsistent interface-face count" );
     }
     if ( interFace.zoneId.size() != static_cast< std::size_t >( interFace.nIFaces ) ||
          interFace.localInterfaceId.size() != static_cast< std::size_t >( interFace.nIFaces ) ||
@@ -473,6 +532,7 @@ void UnsGrid::WriteBoundaryTopology( DataBook * databook )
         throw std::logic_error(
             "UnsGrid::WriteBoundaryTopology: interface mapping count does not match interface-face count" );
     }
+    bcRecord.ValidateI2B( interFace );
 
     ONEFLOW::HXWrite( databook, nBFaces );
 
@@ -575,12 +635,33 @@ void UnsGrid::UpdateOtherTopologyTerm( IFaceLink & iFaceLink )
 {
     if ( ! IsValid( this->interFace.get() ) ) return;
 
+    if ( this->id < 0 || static_cast< HXSize_t >( this->id ) >= iFaceLink.l2g.size() )
+    {
+        throw std::out_of_range(
+            "UnsGrid::UpdateOtherTopologyTerm: zone ID is out of range for interface mapping" );
+    }
+
+    const HXSize_t mappedInterfaceCount = iFaceLink.l2g[ this->id ].size();
+    if ( mappedInterfaceCount > static_cast< HXSize_t >( std::numeric_limits< int >::max() ) )
+    {
+        throw std::length_error(
+            "UnsGrid::UpdateOtherTopologyTerm: interface count exceeds supported range" );
+    }
+    const int nIFaces = static_cast< int >( mappedInterfaceCount );
+
     this->GetFaceTopo().UpdateOtherTopologyTerm();
 
-    int nIFaces = iFaceLink.l2g[ this->id ].size();
+    const BcRecord & bcRecord = this->GetFaceTopo().GetBcRecord();
+    if ( bcRecord.bcNameId.size() != bcRecord.bcType.size() ||
+         bcRecord.CalcNIFace() != nIFaces )
+    {
+        throw std::logic_error(
+            "UnsGrid::UpdateOtherTopologyTerm: interface mapping count does not match boundary types" );
+    }
 
     this->interFace->Resize( nIFaces );
     this->GetFaceTopo().GenerateI2B( *this->interFace );
+    this->nIFaces = nIFaces;
 }
 
 void UnsGrid::GetMinMaxDistance( Real & dismin, Real & dismax ) const

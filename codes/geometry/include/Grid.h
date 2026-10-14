@@ -63,15 +63,18 @@ public:
     static std::unique_ptr< Grid > SafeCloneUnique( const std::string & type );
     static Grid * Register( const std::string & type, std::unique_ptr< Grid > clone );
 public:
-    std::string name;
+    std::string name = "grid";
     int dimension;
-    int type, level;
-    int id, localId;
-    int nNodes;
-    int nFaces, nCells;
-    int nBFaces;
-    int nIFaces;
-    int volBcType;
+    int type = 0;
+    int level = 0;
+    int id = 0;
+    int localId = 0;
+    int nNodes = 0;
+    int nFaces = 0;
+    int nCells = 0;
+    int nBFaces = 0;
+    int nIFaces = 0;
+    int volBcType = -1;
 private:
     std::unique_ptr< DataBase > dataBase;
 public:
@@ -80,7 +83,7 @@ public:
     std::unique_ptr< SlipFace > slipFace;
 public:
     void BasicInit();
-    void Free();
+    virtual void Free();
     virtual void Init();
 public:
     bool IsOneD() const;

@@ -1,7 +1,7 @@
 set(CMAKE_FOLDER ${CMAKE_FOLDER}/geometry)
 
 # ==============================================================================
-# 1. 第三方库配置 (METIS & CGNS)
+# 1. Third-party library configuration (METIS and CGNS)
 # ==============================================================================
 option ( METIS_ENABLE "ON for using METIS partitioning library" ON )
 if ( METIS_ENABLE )
@@ -44,7 +44,7 @@ if ( CGNS_ENABLE )
 endif()
 
 # ==============================================================================
-# 2. 源码与头文件目录定义
+# 2. Source and header directory definitions
 # ==============================================================================
 set ( INCLUDE_DIRS
     ${CMAKE_SOURCE_DIR}/codes/geometry/include
@@ -195,7 +195,7 @@ set ( SRC_DIRS
 )
 
 # ==============================================================================
-# 3. 核心优化：构建共享静态库 (避免每个测试重复编译底层源码)
+# 3. Build a shared static library to avoid recompiling core sources for each test
 # ==============================================================================
 add_library(OneFLOW_GeometryCore STATIC ${SRC_DIRS})
 
@@ -216,6 +216,8 @@ if ( WIN32 )
     target_compile_definitions(OneFLOW_GeometryCore PUBLIC USE_DLL)
 endif()
 
+target_link_libraries(OneFLOW_GeometryCore PUBLIC nlohmann_json::nlohmann_json)
+
 function(add_oneflow_gtest TEST_NAME TEST_SRC)
     add_executable(${TEST_NAME} ${TEST_SRC})
     target_link_libraries(${TEST_NAME} PRIVATE OneFLOW_GeometryCore GTest::gtest_main)
@@ -233,6 +235,8 @@ add_oneflow_gtest(NodeMeshBoundsTest NodeMeshBoundsTest.cpp)
 add_oneflow_gtest(BcManagerLifecycleTest BcManagerLifecycleTest.cpp)
 add_oneflow_gtest(FaceTopoLifecycleTest FaceTopoLifecycleTest.cpp)
 add_oneflow_gtest(UnsGridTopologyTest UnsGridTopologyTest.cpp)
+add_oneflow_gtest(UnsGridBoundaryTopologyRoundTripTest UnsGridBoundaryTopologyRoundTripTest.cpp)
+add_oneflow_gtest(GridSummaryAdapterTest GridSummaryAdapterTest.cpp)
 add_oneflow_gtest(GridElemLifecycleTest GridElemLifecycleTest.cpp)
 add_oneflow_gtest(ScalarIFaceLifecycleTest ScalarIFaceLifecycleTest.cpp)
 add_oneflow_gtest(ScalarGridTopologyTest ScalarGridTopologyTest.cpp)

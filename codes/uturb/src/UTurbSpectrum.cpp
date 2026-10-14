@@ -177,8 +177,8 @@ void UTurbSpectrum::PrepareFaceValue1Equ()
 
     for ( int iEqu = 0; iEqu < nscom.nEqu; ++ iEqu )
     {
-        turbsp.q1_ns[ iEqu ] = ( * uturbf.q_ns )[ iEqu ][ ug.lc ];
-        turbsp.q2_ns[ iEqu ] = ( * uturbf.q_ns )[ iEqu ][ ug.rc ];
+        turbsp.q1_ns[ iEqu ] = ( * uturbf.meanFlow.q )[ iEqu ][ ug.lc ];
+        turbsp.q2_ns[ iEqu ] = ( * uturbf.meanFlow.q )[ iEqu ][ ug.rc ];
     }
 
     for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
@@ -204,8 +204,8 @@ void UTurbSpectrum::PrepareFaceValue2Equ()
 
     for ( int iEqu = 0; iEqu < nscom.nEqu; ++ iEqu )
     {
-        turbsp.q1_ns[ iEqu ] = ( * uturbf.q_ns )[ iEqu ][ ug.lc ];
-        turbsp.q2_ns[ iEqu ] = ( * uturbf.q_ns )[ iEqu ][ ug.rc ];
+        turbsp.q1_ns[ iEqu ] = ( * uturbf.meanFlow.q )[ iEqu ][ ug.lc ];
+        turbsp.q2_ns[ iEqu ] = ( * uturbf.meanFlow.q )[ iEqu ][ ug.rc ];
     }
 
     for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )

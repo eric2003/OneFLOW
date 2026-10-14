@@ -1,4 +1,4 @@
-cmake_minimum_required ( VERSION 3.15 )
+cmake_minimum_required ( VERSION 3.30 )
 
 message ( STATUS "The CMAKE_VERSION is ${CMAKE_VERSION}." )
 include ( "${CMAKE_CURRENT_SOURCE_DIR}/project-meta-info.in" )
@@ -16,6 +16,18 @@ project ( OneFLOW
 set ( CMAKE_CXX_STANDARD 20 )
 set ( CMAKE_CXX_STANDARD_REQUIRED ON )
 set ( CMAKE_CXX_EXTENSIONS OFF )
+
+## JSON serialization dependency used by machine-readable mesh export contracts.
+#find_package ( nlohmann_json 3.11.3 QUIET CONFIG )
+#if ( NOT TARGET nlohmann_json::nlohmann_json )
+#    include ( FetchContent )
+#    FetchContent_Declare ( nlohmann_json
+#        GIT_REPOSITORY https://github.com/nlohmann/json.git
+#        GIT_TAG v3.11.3
+#        GIT_SHALLOW TRUE
+#    )
+#    FetchContent_MakeAvailable ( nlohmann_json )
+#endif ()
 
 if ( MSVC )
     add_compile_options ( /MP )

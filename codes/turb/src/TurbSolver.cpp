@@ -65,15 +65,14 @@ void TurbSolver::StaticInit()
     this->solverType = ONEFLOW::TURB_SOLVER;
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( this->solverType );
 
-    solverInfo->nEqu  = turbcom.nEqu;
-    solverInfo->nTEqu = turbcom.nTEqu;
-
-    // Field names: pure contract (unit-tested) -> SolverInfo.
-    ApplyFieldNameContract(
+    // Metadata only: field names + equation counts (unit-testable registration).
+    RegisterSolverFieldInfo(
         solverInfo,
+        turbcom.nEqu,
+        turbcom.nTEqu,
         TurbSolverFieldLogisticsNames(),
-        TurbSolverUnsteadyFieldNames() );
-    solverInfo->resFileName = GetDataValue< std::string >( "turbresFile" );
+        TurbSolverUnsteadyFieldNames(),
+        GetDataValue< std::string >( "turbresFile" ) );
 }
 
 EndNameSpace

@@ -124,6 +124,7 @@ struct GridConfig
     std::string   layoutFile;
     std::string   bcFile;
     std::string   targetFile;
+    std::string   gridInfoFile;
     std::string   partitionFile;
     GridTopology  topology{ GridTopology::Unknown };
     GridAssemblyMode assemblyMode{ GridAssemblyMode::AggregateZones };

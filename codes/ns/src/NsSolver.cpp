@@ -56,14 +56,15 @@ void NsSolver::StaticInit()
 
     this->solverType = ONEFLOW::NS_SOLVER;
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( this->solverType );
-    solverInfo->nEqu  = nscom.nEqu;
-    solverInfo->nTEqu = nscom.nTEqu;
-    // Field names: pure contract (unit-tested) -> SolverInfo.
-    ApplyFieldNameContract(
+    // Metadata only: field names + equation counts (unit-testable registration).
+    // Resource init (ctrl/com/bc files) stays above -- not part of the name contract.
+    RegisterSolverFieldInfo(
         solverInfo,
+        nscom.nEqu,
+        nscom.nTEqu,
         NsSolverFieldLogisticsNames(),
-        NsSolverUnsteadyFieldNames() );
-    solverInfo->resFileName = GetDataValue< std::string >( "resFile" );
+        NsSolverUnsteadyFieldNames(),
+        GetDataValue< std::string >( "resFile" ) );
 }
 
 EndNameSpace

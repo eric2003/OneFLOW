@@ -84,9 +84,10 @@ void CellMesh::DumpDist()
 
 void CellMesh::CalcCellSpan( UnsGrid & grid )
 {
-    if ( this->span.size() ) return;
-    int nCells = this->GetNumberOfCells();
+    const int nCells = static_cast< int >( this->GetNumberOfCells() );
     this->span.resize( nCells );
+
+    // Rebuild adjacency because face-cell connectivity may have changed.
     CalcC2f( grid );
 
     FaceTopo & faceTopo = grid.GetFaceTopo();

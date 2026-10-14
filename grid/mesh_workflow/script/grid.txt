@@ -1,0 +1,29 @@
+int gridObj   =  1; // Convert an existing grid
+string topoType  =  "u";
+int multiBlock    =  0;
+
+int fileFormat       =  0;
+Real gridScale     =  1.0;
+Real gridTrans[3]  =  0, 0, 0;
+int axis_dir = 0;
+int ignoreNoBc = 0;
+
+string gridLayoutFileName = "grid/shocktube2d.txt";
+int igene = 4;
+
+int codeOfOversetGrid = 0;
+string oversetGridFileName = "grid/iBlank.ovs";
+int parallelStrategy = 1;
+
+string sourceGridType = "plot3d";
+string targetGridType = "oneflow";
+int iplot3d = 1;
+
+string boundaryRegionNameMapFileName = "grid/boundaryRegionNameMapFileName.dat";
+string volumeBoundaryNameMapFileName = "grid/volumeBoundaryNameMapFileName.dat";
+
+string sourceGridFileName = "grid/rae2822_2d.grd";
+string sourceGridBcName = "grid/rae2822_2d.inp";
+string targetGridFileName = "results/rae2822_2d.ofl";
+string gridInfoFileName = "results/rae2822_2d.info.json";
+string patchFileName = "grid/rae2822_2d.patch";

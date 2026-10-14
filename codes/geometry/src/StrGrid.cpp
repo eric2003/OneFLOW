@@ -45,6 +45,24 @@ StrGrid::StrGrid()
 
 StrGrid::~StrGrid() = default;
 
+void StrGrid::Init()
+{
+    this->BasicInit();
+    this->bcRegionGroup = std::make_unique< BcRegionGroup >();
+}
+
+void StrGrid::Free()
+{
+    this->bcRegionGroup.reset();
+    this->strx.reset();
+    this->stry.reset();
+    this->strz.reset();
+    this->ni = 0;
+    this->nj = 0;
+    this->nk = 0;
+    Grid::Free();
+}
+
 void StrGrid::Decode( DataBook * databook )
 {
     this->ReadGrid( databook );

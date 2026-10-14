@@ -28,6 +28,8 @@ License
 #include "TimeIntegral.h"
 #include "DataBase.h"
 #include "FieldWrap.h"
+#include "ZoneSharedFields.h"
+#include "MeanFlowView.h"
 #include "SolverDef.h"
 
 BeginNameSpace( ONEFLOW )
@@ -49,7 +51,6 @@ void UTurbField::Init()
     UnsGrid * grid = Zone::GetUnsGrid();
     // Own turb fields: pin TURB_SOLVER (Init may be called with ambiguous ambient state).
     const int turb = TURB_SOLVER;
-    const int ns   = NS_SOLVER;
 
     q   = FieldHome::GetSolutionField( grid, turb );
     q1  = FieldHome::GetStageSolutionField( grid, turb, 0 );
@@ -60,14 +61,16 @@ void UTurbField::Init()
     dqdy = FieldHome::GetGradField( grid, turb, 2 );
     dqdz = FieldHome::GetGradField( grid, turb, 3 );
 
-    // Mean-flow coupling: always NS_SOLVER (never SolverState, never bare "q" only).
-    q_ns    = FieldHome::GetSolutionField( grid, ns );
-    dqdx_ns = FieldHome::GetGradField( grid, ns, 1 );
-    dqdy_ns = FieldHome::GetGradField( grid, ns, 2 );
-    dqdz_ns = FieldHome::GetGradField( grid, ns, 3 );
+    // Mean-flow coupling: explicit cross-solver view (NS only; non-owning).
+    this->meanFlow.Bind( grid );
 
-    visl  = GetFieldPointer< MRField > ( grid, "visl" );
-    vist  = GetFieldPointer< MRField > ( grid, "vist" );
+    {
+        ZoneSharedFieldView shared;
+        shared.Bind( grid );
+        visl = shared.visl;
+        vist = shared.vist;
+        timestep = shared.timestep;
+    }
 
     bld   = GetFieldPointer< MRField > ( grid, "bld" );
 
@@ -77,7 +80,6 @@ void UTurbField::Init()
     len_scale = GetFieldPointer< MRField > ( grid, "len_scale" );
     matrix_l = GetFieldPointer< MRField > ( grid, "turb_matrix_l" );
     matrix_r = GetFieldPointer< MRField > ( grid, "turb_matrix_r" );
-    timestep = GetFieldPointer< MRField > ( grid, "timestep" );
 
     dist = & grid->GetCellMesh().dist;
 

@@ -56,6 +56,36 @@ TEST(ScalarGridTopologyTest, CalcC2CBuildsSymmetricInternalAdjacency)
     EXPECT_EQ(adjacency[1][0], 0);
 }
 
+TEST(ScalarGridTopologyTest, CalcC2CRefreshesAdjacencyAfterFaceConnectivityChanges)
+{
+    ONEFLOW::ScalarGrid grid;
+    grid.eTypes.AddData(1);
+    grid.eTypes.AddData(1);
+    grid.eTypes.AddData(1);
+    grid.faces.Resize(1);
+    grid.lc.AddData(0);
+    grid.rc.AddData(1);
+
+    ONEFLOW::EList adjacency;
+    grid.CalcC2C(adjacency);
+
+    ASSERT_EQ(adjacency.GetNElements(), 3u);
+    ASSERT_EQ(adjacency[0].size(), 1u);
+    EXPECT_EQ(adjacency[0][0], 1);
+    EXPECT_EQ(adjacency[2].size(), 0u);
+
+    grid.rc[0] = 2;
+    grid.CalcC2C(adjacency);
+
+    ASSERT_EQ(adjacency.GetNElements(), 3u);
+    ASSERT_EQ(adjacency[0].size(), 1u);
+    EXPECT_EQ(adjacency[0][0], 2);
+    EXPECT_EQ(adjacency[1].size(), 0u);
+    ASSERT_EQ(adjacency[2].size(), 1u);
+    EXPECT_EQ(adjacency[2][0], 0);
+}
+
+
 TEST(ScalarGridTopologyTest, CalcInterfaceToBcFaceRejectsInconsistentFaceArrays)
 {
     ONEFLOW::ScalarGrid grid;

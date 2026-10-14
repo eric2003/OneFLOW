@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <cstddef>
 #include <stdexcept>
 #include <type_traits>
 #include <utility>
@@ -11,6 +12,17 @@ static_assert(
         decltype(ONEFLOW::ElementHome::GetUnitElementDefinition(ONEFLOW::HEXA_8))>>,
     "ElementHome must expose unit element definitions as read-only");
 
+using MutableElementFaceResult = decltype(
+    std::declval< ONEFLOW::UnitElement & >().GetElementFace(0));
+using MutableCompositeFaceResult = decltype(
+    std::declval< ONEFLOW::UnitElement & >().GetCompositeFace(0));
+using MutableMiddlePointResult = decltype(
+    std::declval< ONEFLOW::UnitElement & >()
+        .GetRelatedPointListForMiddlePointCalculation(0));
+using MutableChildNodeResult = decltype(
+    std::declval< ONEFLOW::UnitElement & >()
+        .GetChildElementRelativeNodeIndex(0));
+
 using ConstElementFaceResult = decltype(
     std::declval< const ONEFLOW::UnitElement & >().GetElementFace(0));
 using ConstCompositeFaceResult = decltype(
@@ -21,6 +33,19 @@ using ConstMiddlePointResult = decltype(
 using ConstChildNodeResult = decltype(
     std::declval< const ONEFLOW::UnitElement & >()
         .GetChildElementRelativeNodeIndex(0));
+
+static_assert(
+    std::is_const_v<std::remove_reference_t<MutableElementFaceResult>>,
+    "A mutable unit element must not expose mutable face topology");
+static_assert(
+    std::is_const_v<std::remove_reference_t<MutableCompositeFaceResult>>,
+    "A mutable unit element must not expose mutable composite-face topology");
+static_assert(
+    std::is_const_v<std::remove_reference_t<MutableMiddlePointResult>>,
+    "A mutable unit element must not expose mutable midpoint relations");
+static_assert(
+    std::is_const_v<std::remove_reference_t<MutableChildNodeResult>>,
+    "A mutable unit element must not expose mutable child mappings");
 
 static_assert(
     std::is_const_v<std::remove_reference_t<ConstElementFaceResult>>,
@@ -67,6 +92,146 @@ TEST(ElementHomeTest, ReadOnlyDefinitionAccessorPreservesRegistryTopology)
     EXPECT_EQ(element.GetElementNodeNumbers(ONEFLOW::HEXA_8), 8);
     EXPECT_EQ(element.GetElementFaceCount(), 6);
     EXPECT_EQ(element.GetElementFaceNumber(), element.GetElementFaceCount());
+}
+
+TEST(UnitElementTest, StandardElementDefinitionsHaveExpectedTopologyCounts)
+{
+    struct ExpectedTopology
+    {
+        int elementType;
+        int faceCount;
+        int compositeFaceCount;
+        int childElementCount;
+    };
+
+    const ExpectedTopology expected[] = {
+        {ONEFLOW::NODE, 1, 0, 0},
+        {ONEFLOW::BAR_2, 2, 0, 0},
+        {ONEFLOW::BAR_3, 2, 0, 2},
+        {ONEFLOW::TRI_3, 3, 0, 0},
+        {ONEFLOW::TRI_6, 6, 3, 4},
+        {ONEFLOW::QUAD_4, 4, 0, 0},
+        {ONEFLOW::QUAD_8, 8, 4, 0},
+        {ONEFLOW::TETRA_4, 4, 0, 0},
+        {ONEFLOW::HEXA_8, 6, 0, 0},
+    };
+
+    ONEFLOW::ElementHome::Initialize();
+
+    for (const ExpectedTopology & item : expected)
+    {
+        SCOPED_TRACE(item.elementType);
+        ASSERT_TRUE(ONEFLOW::ElementHome::HasUnitElement(item.elementType));
+
+        const ONEFLOW::UnitElement & element =
+            ONEFLOW::ElementHome::GetUnitElementDefinition(item.elementType);
+
+        EXPECT_EQ(element.GetElementFaceCount(), item.faceCount);
+        EXPECT_EQ(element.GetCompositeFaceCount(), item.compositeFaceCount);
+        EXPECT_EQ(element.GetChildElementCount(), item.childElementCount);
+    }
+}
+
+TEST(ElementHomeTest, RegisteredTopologyIndicesMatchElementDefinitions)
+{
+    ONEFLOW::ElementHome::Initialize();
+
+    for (int elementType = 0;
+         elementType < ONEFLOW::ElementHome::GetUnitElementSlotCount();
+         ++elementType)
+    {
+        if (!ONEFLOW::ElementHome::HasUnitElement(elementType))
+        {
+            continue;
+        }
+
+        const ONEFLOW::UnitElement & element =
+            ONEFLOW::ElementHome::GetUnitElementDefinition(elementType);
+        const int nodeCount = ONEFLOW::GetElementNodeNumbers(elementType);
+
+        ASSERT_EQ(element.GetElementType(), elementType);
+        ASSERT_GT(nodeCount, 0);
+
+        for (int iFace = 0; iFace < element.GetElementFaceCount(); ++iFace)
+        {
+            const auto & face = element.GetElementFace(iFace);
+            const int faceType = element.GetFaceType(iFace);
+
+            ASSERT_EQ(
+                face.size(),
+                static_cast<std::size_t>(
+                    ONEFLOW::GetElementNodeNumbers(faceType)))
+                << "element type " << elementType << ", face " << iFace;
+
+            for (int nodeIndex : face)
+            {
+                EXPECT_GE(nodeIndex, 0)
+                    << "element type " << elementType << ", face " << iFace;
+                EXPECT_LT(nodeIndex, nodeCount)
+                    << "element type " << elementType << ", face " << iFace;
+            }
+        }
+
+        for (int iFace = 0; iFace < element.GetCompositeFaceCount(); ++iFace)
+        {
+            const auto & face = element.GetCompositeFace(iFace);
+            const int faceType = element.GetCompositeFaceType(iFace);
+
+            ASSERT_EQ(
+                face.size(),
+                static_cast<std::size_t>(
+                    ONEFLOW::GetElementNodeNumbers(faceType)))
+                << "element type " << elementType
+                << ", composite face " << iFace;
+
+            for (int nodeIndex : face)
+            {
+                EXPECT_GE(nodeIndex, 0)
+                    << "element type " << elementType
+                    << ", composite face " << iFace;
+                EXPECT_LT(nodeIndex, nodeCount)
+                    << "element type " << elementType
+                    << ", composite face " << iFace;
+            }
+        }
+
+        for (int iChild = 0; iChild < element.GetChildElementCount(); ++iChild)
+        {
+            const auto & childNodes =
+                element.GetChildElementRelativeNodeIndex(iChild);
+            const int childType = element.GetChildElementType(iChild);
+
+            ASSERT_EQ(
+                childNodes.size(),
+                static_cast<std::size_t>(
+                    ONEFLOW::GetElementNodeNumbers(childType)))
+                << "element type " << elementType << ", child " << iChild;
+
+            for (int nodeIndex : childNodes)
+            {
+                EXPECT_GE(nodeIndex, 0)
+                    << "element type " << elementType << ", child " << iChild;
+                EXPECT_LT(nodeIndex, nodeCount)
+                    << "element type " << elementType << ", child " << iChild;
+            }
+        }
+
+        for (int iNode = 0; iNode < nodeCount; ++iNode)
+        {
+            const auto & relatedNodes =
+                element.GetRelatedPointListForMiddlePointCalculation(iNode);
+
+            for (int nodeIndex : relatedNodes)
+            {
+                EXPECT_GE(nodeIndex, 0)
+                    << "element type " << elementType
+                    << ", midpoint node " << iNode;
+                EXPECT_LT(nodeIndex, nodeCount)
+                    << "element type " << elementType
+                    << ", midpoint node " << iNode;
+            }
+        }
+    }
 }
 
 TEST(ElementHomeTest, RepeatedInitializeRebuildsEquivalentRegistry)
@@ -134,15 +299,6 @@ TEST(UnitElementTest, ReinitializeReplacesThePreviousTopologyDefinition)
     ONEFLOW::UnitElement element;
     element.Initialize(ONEFLOW::QUAD_4);
 
-    element.PushElementFace(ONEFLOW::BAR_2, 1, 3);
-    element.PushChildElement(ONEFLOW::TRI_3, 1, 2, 3);
-    element.PushCompositeFace(ONEFLOW::TRI_3, 1, 2, 3);
-    element.PushMiddlePoint(4, 1, 2);
-
-    ASSERT_EQ(element.GetElementFaceCount(), 5);
-    ASSERT_EQ(element.GetChildElementCount(), 1);
-    ASSERT_EQ(element.GetCompositeFaceCount(), 1);
-
     element.Initialize(ONEFLOW::BAR_2);
 
     EXPECT_EQ(element.GetElementType(), ONEFLOW::BAR_2);
@@ -200,55 +356,6 @@ TEST(UnitElementTest, TopologyAccessorsRejectOutOfRangeIndices)
     EXPECT_THROW(element.GetChildElementType(0), std::out_of_range);
 }
 
-TEST(UnitElementTest, TopologyBuildersConvertOneBasedDefinitionsToZeroBasedIndices)
-{
-    ONEFLOW::UnitElement element;
-    element.Initialize(ONEFLOW::QUAD_4);
-
-    element.PushElementFace(ONEFLOW::BAR_2, 4, 1);
-    const auto & face = element.GetElementFace(element.GetElementFaceCount() - 1);
-    ASSERT_EQ(face.size(), 2);
-    EXPECT_EQ(face[0], 3);
-    EXPECT_EQ(face[1], 0);
-
-    element.PushChildElement(ONEFLOW::TRI_3, 4, 2, 1);
-    const auto & childNodes =
-        element.GetChildElementRelativeNodeIndex(element.GetChildElementCount() - 1);
-    ASSERT_EQ(childNodes.size(), 3);
-    EXPECT_EQ(childNodes[0], 3);
-    EXPECT_EQ(childNodes[1], 1);
-    EXPECT_EQ(childNodes[2], 0);
-
-    element.PushCompositeFace(ONEFLOW::TRI_3, 3, 2, 1);
-    const auto & compositeFace =
-        element.GetCompositeFace(element.GetCompositeFaceCount() - 1);
-    ASSERT_EQ(compositeFace.size(), 3);
-    EXPECT_EQ(compositeFace[0], 2);
-    EXPECT_EQ(compositeFace[1], 1);
-    EXPECT_EQ(compositeFace[2], 0);
-
-    element.PushMiddlePoint(4, 1, 2);
-    const auto & relatedNodes =
-        element.GetRelatedPointListForMiddlePointCalculation(3);
-    ASSERT_EQ(relatedNodes.size(), 2);
-    EXPECT_EQ(relatedNodes[0], 0);
-    EXPECT_EQ(relatedNodes[1], 1);
-}
-
-TEST(UnitElementTest, PushMiddlePointRejectsInvalidLocalNodeIndicesWithoutMutation)
-{
-    ONEFLOW::UnitElement element;
-    element.Initialize(ONEFLOW::BAR_3);
-
-    EXPECT_THROW(element.PushMiddlePoint(0, 1, 2), std::out_of_range);
-    EXPECT_THROW(element.PushMiddlePoint(4, 1, 2), std::out_of_range);
-    EXPECT_THROW(element.PushMiddlePoint(3, 0, 2), std::out_of_range);
-    EXPECT_THROW(element.PushMiddlePoint(3, 1, 4), std::out_of_range);
-
-    EXPECT_EQ(element.GetRelatedPointListForMiddlePointCalculation(2).size(), 2);
-    EXPECT_EQ(element.GetRelatedPointListForMiddlePointCalculation(0).size(), 0);
-}
-
 TEST(UnitElementTest, FailedInitializePreservesExistingTopology)
 {
     ONEFLOW::UnitElement element;
@@ -267,22 +374,3 @@ TEST(UnitElementTest, FailedInitializePreservesExistingTopology)
     EXPECT_EQ(element.GetElementFace(0).size(), 2);
 }
 
-
-TEST(UnitElementTest, TopologyBuildersRejectInvalidLocalNodeIndicesWithoutMutation)
-{
-    ONEFLOW::UnitElement element;
-    element.Initialize(ONEFLOW::QUAD_4);
-
-    const int initialFaceCount = element.GetElementFaceCount();
-    const int initialChildCount = element.GetChildElementCount();
-    const int initialCompositeFaceCount = element.GetCompositeFaceCount();
-
-    EXPECT_THROW(element.PushElementFace(ONEFLOW::BAR_2, 0, 2), std::out_of_range);
-    EXPECT_THROW(element.PushChildElement(ONEFLOW::TRI_3, 1, 0, 3), std::out_of_range);
-    EXPECT_THROW(element.PushCompositeFace(ONEFLOW::BAR_3, 1, 2, 5), std::out_of_range);
-
-    EXPECT_EQ(element.GetElementFaceCount(), initialFaceCount);
-    EXPECT_EQ(element.GetChildElementCount(), initialChildCount);
-    EXPECT_EQ(element.GetChildElementNumbers(), element.GetChildElementCount());
-    EXPECT_EQ(element.GetCompositeFaceCount(), initialCompositeFaceCount);
-}

@@ -108,3 +108,40 @@ target_include_directories(solver_field_names_test
 target_link_libraries(solver_field_names_test PRIVATE GTest::gtest_main)
 target_compile_features(solver_field_names_test PRIVATE cxx_std_17)
 gtest_discover_tests(solver_field_names_test DISCOVERY_MODE PRE_TEST)
+
+
+# Mean-flow cross-solver view contract (no Zone/DataBase bootstrap).
+add_executable(mean_flow_view_test
+  mean_flow_view_test.cpp
+)
+
+target_include_directories(mean_flow_view_test
+  PRIVATE
+    ${CMAKE_SOURCE_DIR}/codes/solver/include
+    ${CMAKE_SOURCE_DIR}/codes/basic/include
+    ${CMAKE_SOURCE_DIR}/codes/global/include
+    ${CMAKE_SOURCE_DIR}/codes/array/include
+)
+
+target_link_libraries(mean_flow_view_test PRIVATE GTest::gtest_main)
+target_compile_features(mean_flow_view_test PRIVATE cxx_std_17)
+gtest_discover_tests(mean_flow_view_test DISCOVERY_MODE PRE_TEST)
+
+
+# Zone-level shared field name contract (no Zone bootstrap required for names).
+add_executable(zone_shared_fields_test
+  zone_shared_fields_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/solver/src/ZoneSharedFields.cpp
+)
+
+target_include_directories(zone_shared_fields_test
+  PRIVATE
+    ${CMAKE_SOURCE_DIR}/codes/solver/include
+    ${CMAKE_SOURCE_DIR}/codes/basic/include
+    ${CMAKE_SOURCE_DIR}/codes/global/include
+    ${CMAKE_SOURCE_DIR}/codes/array/include
+)
+
+target_link_libraries(zone_shared_fields_test PRIVATE GTest::gtest_main)
+target_compile_features(zone_shared_fields_test PRIVATE cxx_std_17)
+gtest_discover_tests(zone_shared_fields_test DISCOVERY_MODE PRE_TEST)

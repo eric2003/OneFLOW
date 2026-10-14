@@ -43,12 +43,15 @@ public:
     ~UnsGrid() override;
 public:
     void Init() override;
+    void Free() override;
     FaceTopo & GetFaceTopo();
     const FaceTopo & GetFaceTopo() const;
     FaceMesh & GetFaceMesh();
     const FaceMesh & GetFaceMesh() const;
     CellMesh & GetCellMesh();
     const CellMesh & GetCellMesh() const;
+    bool HasMeshStorage() const;
+    bool HasAnyMeshStorage() const;
     void SetFaceTopo( std::unique_ptr< FaceTopo > faceTopo );
 private:
     std::unique_ptr< FaceTopo > faceTopo;

@@ -34,13 +34,12 @@ BeginNameSpace( ONEFLOW )
 
 class UnitElement
 {
-public:
-    UnitElement() = default;
-    ~UnitElement() = default;
-public:
+private:
+    // Local topology storage is maintained through the member API so related
+    // arrays cannot be edited independently by callers.
     int elementType = -1;
     IntField nodeId;
-    LinkField middlePointNodeIndices; //Midpoint data structure
+    LinkField middlePointNodeIndices;
     LinkField childElementIndex;
     IntField childElementType;
     IntField faceTypeContainer;
@@ -48,14 +47,19 @@ public:
 
     IntField compositeFaceElementType;
     LinkField compositeFaceList;
+
 public:
+    UnitElement() = default;
+    ~UnitElement() = default;
+
     void Initialize( int elementType );
+
 private:
     void BuildTopology( int elementType );
+
 public:
-    IntField & GetCompositeFace(int iFace);
-    const IntField & GetCompositeFace(int iFace) const;
-    int GetCompositeFaceType(int iFace) const;
+    const IntField & GetCompositeFace( int iFace ) const;
+    int GetCompositeFaceType( int iFace ) const;
     int GetElementFaceCount() const;
     int GetCompositeFaceCount() const;
 
@@ -74,42 +78,39 @@ public:
     bool IsFaceElementTypeAtLeast( int elementType ) const;
     bool IsBasicVolumeElementType( int elementType ) const;
 
-    IntField & GetElementFace(int iFace);
-    const IntField & GetElementFace(int iFace) const;
-    int GetFaceType(int iFace) const;
+    const IntField & GetElementFace( int iFace ) const;
+    int GetFaceType( int iFace ) const;
 
-    IntField & GetRelatedPointListForMiddlePointCalculation( int iMiddlePoint );
     const IntField & GetRelatedPointListForMiddlePointCalculation( int iMiddlePoint ) const;
 
     // Compatibility wrappers; use the correctly spelled API for new code.
-    IntField & GetRelatedPointListForMiddlePointCalcutation( int iMiddlePoint );
     const IntField & GetRelatedPointListForMiddlePointCalcutation( int iMiddlePoint ) const;
 
-    IntField & GetChildElementRelativeNodeIndex(int iChildElement);
-    const IntField & GetChildElementRelativeNodeIndex(int iChildElement) const;
+    const IntField & GetChildElementRelativeNodeIndex( int iChildElement ) const;
 
     int GetChildElementCount() const;
     // Compatibility wrapper; prefer GetChildElementCount() for new code.
     int GetChildElementNumbers() const;
-    int GetChildElementType(int iChild) const;
-public:
+    int GetChildElementType( int iChild ) const;
+
+private:
     void PushElementFace( int faceType, int p1 );
     void PushElementFace( int faceType, int p1, int p2 );
     void PushElementFace( int faceType, int p1, int p2, int p3 );
     void PushElementFace( int faceType, int p1, int p2, int p3, int p4 );
-public:
+
     void PushMiddlePoint( int pm, int p1, int p2 );
     void PushMiddlePoint( int pm, int p1, int p2, int p3 );
     void PushMiddlePoint( int pm, int p1, int p2, int p3, int p4 );
     void PushMiddlePoint( int pm, int p1, int p2, int p3, int p4, int p5, int p6, int p7, int p8 );
-public:
+
     void PushChildElement( int elementType, int p1, int p2 );
     void PushChildElement( int elementType, int p1, int p2, int p3 );
     void PushChildElement( int elementType, int p1, int p2, int p3, int p4 );
     void PushChildElement( int elementType, int p1, int p2, int p3, int p4, int p5 );
     void PushChildElement( int elementType, int p1, int p2, int p3, int p4, int p5, int p6 );
     void PushChildElement( int elementType, int p1, int p2, int p3, int p4, int p5, int p6, int p7, int p8 );
-public:
+
     void PushCompositeFace( int faceElementType, int p1, int p2, int p3 );
     void PushCompositeFace( int faceElementType, int p1, int p2, int p3, int p4, int p5, int p6 );
     void PushCompositeFace( int faceElementType, int p1, int p2, int p3, int p4, int p5, int p6, int p7, int p8, int p9 );

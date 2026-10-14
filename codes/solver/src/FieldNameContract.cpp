@@ -86,17 +86,30 @@ void ApplyFieldNameContract(
     solverInfo->bcSolutionName = logistics.bcSolutionName;
 
     solverInfo->stageSolutionNames.clear();
-    if ( unsteady.flow.size() >= 3 )
+    for ( std::size_t i = 1; i < unsteady.flow.size(); ++ i )
     {
-        solverInfo->stageSolutionNames.push_back( unsteady.flow[ 1 ] );
-        solverInfo->stageSolutionNames.push_back( unsteady.flow[ 2 ] );
+        solverInfo->stageSolutionNames.push_back( unsteady.flow[ i ] );
     }
+
     solverInfo->stageResidualNames.clear();
-    if ( unsteady.residual.size() >= 3 )
+    for ( std::size_t i = 1; i < unsteady.residual.size(); ++ i )
     {
-        solverInfo->stageResidualNames.push_back( unsteady.residual[ 1 ] );
-        solverInfo->stageResidualNames.push_back( unsteady.residual[ 2 ] );
+        solverInfo->stageResidualNames.push_back( unsteady.residual[ i ] );
     }
+}
+
+void RegisterSolverFieldInfo(
+    SolverInfo * solverInfo,
+    int nEqu,
+    int nTEqu,
+    const SolverLogisticsNames & logistics,
+    const UnsteadyFieldNames & unsteady,
+    const std::string & resFileName )
+{
+    solverInfo->nEqu  = nEqu;
+    solverInfo->nTEqu = nTEqu;
+    ApplyFieldNameContract( solverInfo, logistics, unsteady );
+    solverInfo->resFileName = resFileName;
 }
 
 EndNameSpace

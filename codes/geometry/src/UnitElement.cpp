@@ -1487,12 +1487,6 @@ void UnitElement::PushChildElement( int elementType, int p1, int p2, int p3, int
 }
 
 
-IntField & UnitElement::GetCompositeFace( int iFace )
-{
-    CheckTopologyIndex( iFace, compositeFaceList.size(), "UnitElement::GetCompositeFace: index out of range" );
-    return compositeFaceList[ iFace ];
-}
-
 const IntField & UnitElement::GetCompositeFace( int iFace ) const
 {
     CheckTopologyIndex( iFace, compositeFaceList.size(), "UnitElement::GetCompositeFace: index out of range" );
@@ -1526,12 +1520,6 @@ int UnitElement::GetCompositeFaceNumber() const
 }
 int UnitElement::GetElementType() const { return elementType; }
 
-IntField & UnitElement::GetElementFace( int iFace )
-{
-    CheckTopologyIndex( iFace, faceList.size(), "UnitElement::GetElementFace: index out of range" );
-    return faceList[ iFace ];
-}
-
 const IntField & UnitElement::GetElementFace( int iFace ) const
 {
     CheckTopologyIndex( iFace, faceList.size(), "UnitElement::GetElementFace: index out of range" );
@@ -1544,32 +1532,15 @@ int UnitElement::GetFaceType( int iFace ) const
     return faceTypeContainer[ iFace ];
 }
 
-IntField & UnitElement::GetRelatedPointListForMiddlePointCalculation( int iMiddlePoint )
-{
-    CheckTopologyIndex( iMiddlePoint, middlePointNodeIndices.size(), "UnitElement::GetRelatedPointListForMiddlePointCalculation: index out of range" );
-    return middlePointNodeIndices[ iMiddlePoint ];
-}
-
 const IntField & UnitElement::GetRelatedPointListForMiddlePointCalculation( int iMiddlePoint ) const
 {
     CheckTopologyIndex( iMiddlePoint, middlePointNodeIndices.size(), "UnitElement::GetRelatedPointListForMiddlePointCalculation: index out of range" );
     return middlePointNodeIndices[ iMiddlePoint ];
 }
 
-IntField & UnitElement::GetRelatedPointListForMiddlePointCalcutation( int iMiddlePoint )
-{
-    return GetRelatedPointListForMiddlePointCalculation( iMiddlePoint );
-}
-
 const IntField & UnitElement::GetRelatedPointListForMiddlePointCalcutation( int iMiddlePoint ) const
 {
     return GetRelatedPointListForMiddlePointCalculation( iMiddlePoint );
-}
-
-IntField & UnitElement::GetChildElementRelativeNodeIndex( int iChildElement )
-{
-    CheckTopologyIndex( iChildElement, childElementIndex.size(), "UnitElement::GetChildElementRelativeNodeIndex: index out of range" );
-    return childElementIndex[ iChildElement ];
 }
 
 const IntField & UnitElement::GetChildElementRelativeNodeIndex( int iChildElement ) const
