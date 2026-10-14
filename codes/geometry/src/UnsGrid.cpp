@@ -111,6 +111,11 @@ const CellMesh & UnsGrid::GetCellMesh() const
     return *this->cellMesh;
 }
 
+bool UnsGrid::HasMeshStorage() const
+{
+    return this->faceTopo && this->faceMesh && this->cellMesh;
+}
+
 void UnsGrid::SetFaceTopo( std::unique_ptr< FaceTopo > faceTopo )
 {
     if ( ! faceTopo )

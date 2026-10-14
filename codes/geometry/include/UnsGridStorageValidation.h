@@ -15,10 +15,9 @@ namespace ONEFLOW
 inline void ValidateUnsGridStorageCounts( const UnsGrid & grid )
 {
     const bool hasNodeStorage = static_cast< bool >( grid.nodeMesh );
-    const bool hasFaceStorage = static_cast< bool >( grid.faceMesh );
-    const bool hasCellStorage = static_cast< bool >( grid.cellMesh );
+    const bool hasMeshStorage = grid.HasMeshStorage();
 
-    if ( ! hasNodeStorage && ! hasFaceStorage && ! hasCellStorage )
+    if ( ! hasNodeStorage && ! hasMeshStorage )
     {
         if ( grid.nNodes != 0 || grid.nFaces != 0 || grid.nCells != 0 ||
              grid.nBFaces != 0 )
@@ -29,7 +28,7 @@ inline void ValidateUnsGridStorageCounts( const UnsGrid & grid )
         return;
     }
 
-    if ( ! hasNodeStorage || ! hasFaceStorage || ! hasCellStorage )
+    if ( ! hasNodeStorage || ! hasMeshStorage )
     {
         throw std::logic_error(
             "ValidateUnsGridStorageCounts: grid storage is only partially initialized" );
