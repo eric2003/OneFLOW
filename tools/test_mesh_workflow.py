@@ -24,6 +24,7 @@ class MeshWorkflowValidationTest(unittest.TestCase):
             "dimension": 2,
             "zones": [{"name": "zone0"}],
             "counts": {
+                "zones": 1,
                 "nodes": 9,
                 "cells": 4,
                 "faces": 12,
@@ -54,6 +55,26 @@ class MeshWorkflowValidationTest(unittest.TestCase):
         }
 
         validate_summary(summary, self.expected, "export")
+
+    def test_rejects_inconsistent_zone_details(self):
+        summary = {
+            "dimension": 2,
+            "zones": [{"name": "zone0"}, {"name": "zone1"}],
+            "counts": {
+                "zones": 1,
+                "nodes": 9,
+                "cells": 4,
+                "faces": 12,
+                "boundaryFaces": 8,
+            },
+            "boundingBox": {
+                "min": [0.0, 0.0, 0.0],
+                "max": [1.0, 1.0, 0.0],
+            },
+        }
+
+        with self.assertRaisesRegex(ValueError, "zone details"):
+            validate_summary(summary, self.expected, "runtime")
 
     def test_rejects_wrong_face_count(self):
         summary = {
