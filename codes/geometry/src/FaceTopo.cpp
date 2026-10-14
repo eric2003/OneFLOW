@@ -575,8 +575,6 @@ bool FaceTopo::GetTId( int iFace, int iPosition, int & tId )
 
 void FaceTopo::CalcC2C( LinkField & c2c )
 {
-    if ( c2c.size() != 0 ) return;
-
     const Grid & grid = this->GetGrid();
     const int nCells = grid.nCells;
     const HXSize_t nBFaces = this->GetNBFaces();
