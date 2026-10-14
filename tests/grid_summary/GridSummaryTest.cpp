@@ -1,6 +1,10 @@
 #include <gtest/gtest.h>
 
+#include <sstream>
+#include <string>
+
 #include "GridSummary.h"
+#include "GridSummaryJson.h"
 
 TEST( GridSummaryTest, AcceptsValidOneDimensionalSummary )
 {
@@ -54,4 +58,39 @@ TEST( GridSummaryTest, AllowsAnEmptyGridWithValidDimension )
     const ONEFLOW::GridSummary summary{ 3, 0, 0, 0, 0 };
 
     EXPECT_TRUE( ONEFLOW::IsValidGridSummary( summary ) );
+}
+
+TEST( GridSummaryJsonTest, WritesVersionedMachineReadableMetadata )
+{
+    const ONEFLOW::GridSummary summary{ 2, 12, 17, 6, 12 };
+    std::ostringstream output;
+
+    ONEFLOW::WriteGridSummaryJson( output, summary );
+
+    EXPECT_EQ(
+        output.str(),
+        "{\n"
+        "  \"schema\": \"oneflow.grid-summary\",\n"
+        "  \"version\": 1,\n"
+        "  \"dimension\": 2,\n"
+        "  \"counts\": {\n"
+        "    \"nodes\": 12,\n"
+        "    \"faces\": 17,\n"
+        "    \"cells\": 6,\n"
+        "    \"boundaryFaces\": 12\n"
+        "  }\n"
+        "}\n" );
+}
+
+TEST( GridSummaryJsonTest, SupportsWritingToAnExistingStream )
+{
+    const ONEFLOW::GridSummary summary{ 1, 4, 5, 3, 2 };
+    std::ostringstream output;
+    output << "prefix:";
+
+    ONEFLOW::WriteGridSummaryJson( output, summary );
+
+    EXPECT_EQ( output.str().find( "prefix:" ), 0u );
+    EXPECT_NE( output.str().find( "\"schema\": \"oneflow.grid-summary\"" ),
+               std::string::npos );
 }
