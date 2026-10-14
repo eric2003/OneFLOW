@@ -85,6 +85,10 @@ void TurbSolver::StaticInit()
     solverInfo->bcGradFieldNames.push_back( "turbbcdqdz" );
     solverInfo->limiterName = "turblimiter";
     solverInfo->bcSolutionName.clear();
+    solverInfo->stageSolutionNames.clear();
+    solverInfo->stageSolutionNames.push_back( "turbq1" );
+    solverInfo->stageSolutionNames.push_back( "turbq2" );
+    solverInfo->stageResidualNames.clear();
 }
 
 EndNameSpace

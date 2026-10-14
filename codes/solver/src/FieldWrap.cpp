@@ -319,6 +319,68 @@ MRField * FieldHome::GetBcGradField( Grid * grid, int solverType, int index )
     return FieldHome::GetUnsField( grid, name );
 }
 
+const std::string & FieldHome::GetStageSolutionName( int index )
+{
+    return FieldHome::GetStageSolutionName( SolverState::solverType, index );
+}
+
+const std::string & FieldHome::GetStageSolutionName( int solverType, int index )
+{
+    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
+    if ( index >= 0 && index < static_cast< int >( solverInfo->stageSolutionNames.size() ) )
+    {
+        return solverInfo->stageSolutionNames[ index ];
+    }
+    static const std::string kEmpty;
+    return kEmpty;
+}
+
+MRField * FieldHome::GetStageSolutionField( Grid * grid, int index )
+{
+    return FieldHome::GetStageSolutionField( grid, SolverState::solverType, index );
+}
+
+MRField * FieldHome::GetStageSolutionField( Grid * grid, int solverType, int index )
+{
+    const std::string & name = FieldHome::GetStageSolutionName( solverType, index );
+    if ( name.empty() )
+    {
+        return nullptr;
+    }
+    return FieldHome::GetUnsField( grid, name );
+}
+
+const std::string & FieldHome::GetStageResidualName( int index )
+{
+    return FieldHome::GetStageResidualName( SolverState::solverType, index );
+}
+
+const std::string & FieldHome::GetStageResidualName( int solverType, int index )
+{
+    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
+    if ( index >= 0 && index < static_cast< int >( solverInfo->stageResidualNames.size() ) )
+    {
+        return solverInfo->stageResidualNames[ index ];
+    }
+    static const std::string kEmpty;
+    return kEmpty;
+}
+
+MRField * FieldHome::GetStageResidualField( Grid * grid, int index )
+{
+    return FieldHome::GetStageResidualField( grid, SolverState::solverType, index );
+}
+
+MRField * FieldHome::GetStageResidualField( Grid * grid, int solverType, int index )
+{
+    const std::string & name = FieldHome::GetStageResidualName( solverType, index );
+    if ( name.empty() )
+    {
+        return nullptr;
+    }
+    return FieldHome::GetUnsField( grid, name );
+}
+
 MRField * FieldHome::GetUnsField( Grid * grid, const std::string & fieldName )
 {
     MRField * field = ONEFLOW::GetFieldPointer< MRField >( grid, fieldName );

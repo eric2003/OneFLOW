@@ -52,8 +52,8 @@ void UINsField::Init()
     // INS mean-flow view - pin INC_NS_SOLVER (do not depend on ambient SolverState).
     const int ins = INC_NS_SOLVER;
     q  = FieldHome::GetSolutionField( grid, ins );
-    q1  = GetFieldPointer< MRField > ( grid, "q1" );
-    q2  = GetFieldPointer< MRField > ( grid, "q2" );
+    q1  = FieldHome::GetStageSolutionField( grid, ins, 0 );
+    q2  = FieldHome::GetStageSolutionField( grid, ins, 1 );
     dq  = FieldHome::GetUpdateDeltaField( grid, ins );
     limiter  = GetFieldPointer< MRField > ( grid, "limiter" );
     gama  = GetFieldPointer< MRField > ( grid, "gama" );
@@ -81,8 +81,8 @@ void UINsField::Init()
     impsr = ONEFLOW::GetFieldPointer< MRField >( grid, "impsr" );
 
     res  = FieldHome::GetResidualField( grid, ins );
-    res1  = GetFieldPointer< MRField > ( grid, "res1" );
-    res2  = GetFieldPointer< MRField > ( grid, "res2" );
+    res1  = FieldHome::GetStageResidualField( grid, ins, 0 );
+    res2  = FieldHome::GetStageResidualField( grid, ins, 1 );
 
     rhs = res;
 

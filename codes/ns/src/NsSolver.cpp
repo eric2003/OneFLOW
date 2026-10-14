@@ -75,6 +75,12 @@ void NsSolver::StaticInit()
     solverInfo->bcGradFieldNames.push_back( "bcdqdz" );
     solverInfo->limiterName = "limiter";
     solverInfo->bcSolutionName = "bc_q";
+    solverInfo->stageSolutionNames.clear();
+    solverInfo->stageSolutionNames.push_back( "q1" );
+    solverInfo->stageSolutionNames.push_back( "q2" );
+    solverInfo->stageResidualNames.clear();
+    solverInfo->stageResidualNames.push_back( "res1" );
+    solverInfo->stageResidualNames.push_back( "res2" );
 }
 
 EndNameSpace

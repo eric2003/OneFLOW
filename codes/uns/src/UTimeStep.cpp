@@ -66,8 +66,8 @@ void BindUNsFieldPointers()
     unsf.vist = ONEFLOW::GetFieldPointer< MRField >( grid, "vist" );
     //unsf.timestep = ONEFLOW::GetFieldPointer< MRField >( grid, "timestep" );
     unsf.res = FieldHome::GetResidualField( grid, NS_SOLVER );
-    unsf.res1 = ONEFLOW::GetFieldPointer< MRField >( grid, "res1" );
-    unsf.res2 = ONEFLOW::GetFieldPointer< MRField >( grid, "res2" );
+    unsf.res1 = FieldHome::GetStageResidualField( grid, NS_SOLVER, 0 );
+    unsf.res2 = FieldHome::GetStageResidualField( grid, NS_SOLVER, 1 );
 
     //unsf.tempr = ONEFLOW::GetFieldPointer< MRField >( grid, "tempr" );
 }
