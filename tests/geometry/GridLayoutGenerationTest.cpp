@@ -6,8 +6,6 @@
 #include <gtest/gtest.h>
 
 #include <array>
-#include <cstdlib>
-#include <iostream>
 #include <filesystem>
 #include <fstream>
 #include <string>
