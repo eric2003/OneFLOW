@@ -18,6 +18,7 @@ TEST( GridSummaryAdapterTest, DefaultGridHasDeterministicEmptyMetadata )
     EXPECT_EQ( summary.cellCount, 0 );
     EXPECT_EQ( summary.boundaryFaceCount, 0 );
     EXPECT_TRUE( ONEFLOW::IsValidGridSummary( summary ) );
+    EXPECT_NO_THROW( ONEFLOW::ValidateUnsGridStorageCounts( grid ) );
 }
 
 TEST( GridSummaryAdapterTest, CopiesMetadataWhenCoordinateStorageMatches )
@@ -39,6 +40,7 @@ TEST( GridSummaryAdapterTest, CopiesMetadataWhenCoordinateStorageMatches )
     EXPECT_EQ( summary.cellCount, 6 );
     EXPECT_EQ( summary.boundaryFaceCount, 12 );
     EXPECT_TRUE( ONEFLOW::IsValidGridSummary( summary ) );
+    EXPECT_THROW( ONEFLOW::ValidateUnsGridStorageCounts( grid ), std::logic_error );
 }
 
 TEST( GridSummaryAdapterTest, RejectsNodeCountThatDiffersFromCoordinateStorage )
@@ -49,6 +51,7 @@ TEST( GridSummaryAdapterTest, RejectsNodeCountThatDiffersFromCoordinateStorage )
     grid.nNodes = 4;
 
     EXPECT_THROW( ONEFLOW::MakeGridSummary( grid ), std::invalid_argument );
+    EXPECT_THROW( ONEFLOW::ValidateUnsGridStorageCounts( grid ), std::logic_error );
 }
 
 TEST( GridSummaryAdapterTest, RejectsInconsistentMetadata )
@@ -61,6 +64,7 @@ TEST( GridSummaryAdapterTest, RejectsInconsistentMetadata )
     grid.nBFaces = 4;
 
     EXPECT_THROW( ONEFLOW::MakeGridSummary( grid ), std::invalid_argument );
+    EXPECT_THROW( ONEFLOW::ValidateUnsGridStorageCounts( grid ), std::logic_error );
 
     grid.nBFaces = 2;
     grid.nNodes = -1;
@@ -86,10 +90,12 @@ TEST( GridSummaryAdapterTest, FreeClearsGridCountsAndAllowsReinitialization )
     EXPECT_EQ( releasedSummary.cellCount, 0 );
     EXPECT_EQ( releasedSummary.boundaryFaceCount, 0 );
     EXPECT_TRUE( ONEFLOW::IsValidGridSummary( releasedSummary ) );
+    EXPECT_NO_THROW( ONEFLOW::ValidateUnsGridStorageCounts( grid ) );
 
     EXPECT_NO_THROW( grid.Init() );
     const ONEFLOW::GridSummary reinitializedSummary = ONEFLOW::MakeGridSummary( grid );
     EXPECT_TRUE( ONEFLOW::IsValidGridSummary( reinitializedSummary ) );
+    EXPECT_NO_THROW( ONEFLOW::ValidateUnsGridStorageCounts( grid ) );
 }
 
 TEST( GridSummaryAdapterTest, StructuredGridCleanupCanBeCalledThroughBaseInterface )
