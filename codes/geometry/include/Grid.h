@@ -23,7 +23,6 @@ License
 
 #pragma once
 #include "Constant.h"
-#include "Dimension.h"
 #include "HXDefine.h"
 #include <vector>
 #include <string>
@@ -65,7 +64,7 @@ public:
     static Grid * Register( const std::string & type, std::unique_ptr< Grid > clone );
 public:
     std::string name = "grid";
-    int dimension = THREE_D;
+    int dimension;
     int type = 0;
     int level = 0;
     int id = 0;
