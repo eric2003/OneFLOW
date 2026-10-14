@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*\
+/*---------------------------------------------------------------------------*\\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
@@ -18,7 +18,7 @@ License
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
-\*---------------------------------------------------------------------------*/
+\\*---------------------------------------------------------------------------*/
 
 
 #pragma once
@@ -32,11 +32,11 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-#define IMPLEMENT_GRID_CLONE( TYPE ) \
+#define IMPLEMENT_GRID_CLONE( TYPE ) \\
 std::unique_ptr< Grid > Clone() const override { return std::make_unique< TYPE >(); }
 
-#define REGISTER_GRID( TYPE ) \
-    Grid * TYPE ## _myClass = \
+#define REGISTER_GRID( TYPE ) \\
+    Grid * TYPE ## _myClass = \\
         Grid::Register( #TYPE, std::make_unique< TYPE >() );
 
 class DataBase;
@@ -63,15 +63,18 @@ public:
     static std::unique_ptr< Grid > SafeCloneUnique( const std::string & type );
     static Grid * Register( const std::string & type, std::unique_ptr< Grid > clone );
 public:
-    std::string name;
-    int dimension;
-    int type, level;
-    int id, localId;
-    int nNodes;
-    int nFaces, nCells;
-    int nBFaces;
-    int nIFaces;
-    int volBcType;
+    std::string name = "grid";
+    int dimension = THREE_D;
+    int type = 0;
+    int level = 0;
+    int id = 0;
+    int localId = 0;
+    int nNodes = 0;
+    int nFaces = 0;
+    int nCells = 0;
+    int nBFaces = 0;
+    int nIFaces = 0;
+    int volBcType = -1;
 private:
     std::unique_ptr< DataBase > dataBase;
 public:
