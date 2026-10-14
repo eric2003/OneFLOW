@@ -102,3 +102,30 @@ TEST( SolverFieldNames, Apply_NsModuleTablesOntoSolverInfo )
     EXPECT_EQ( info.bcSolutionName, "bc_q" );
     EXPECT_EQ( info.resFileName, "keep_me.dat" );
 }
+
+TEST( SolverFieldNames, RegisterFieldInfoSetsCountsNamesAndResultFile )
+{
+    SolverInfo info;
+    const auto logistics = NsSolverFieldLogisticsNames();
+    const auto unsteady = NsSolverUnsteadyFieldNames();
+
+    RegisterSolverFieldInfo(
+        &info,
+        5,
+        2,
+        logistics,
+        unsteady,
+        "ns_result.dat" );
+
+    EXPECT_EQ( info.nEqu, 5 );
+    EXPECT_EQ( info.nTEqu, 2 );
+    EXPECT_EQ( info.residualName, "res" );
+    EXPECT_EQ( info.solutionGradNames, ( StringField{ "q", "dqdx", "dqdy", "dqdz" } ) );
+    EXPECT_EQ( info.implicitFieldNames, ( StringField{ "q", "dq" } ) );
+    EXPECT_EQ( info.bcGradFieldNames, ( StringField{ "bcdqdx", "bcdqdy", "bcdqdz" } ) );
+    EXPECT_EQ( info.stageSolutionNames, ( StringField{ "q1", "q2" } ) );
+    EXPECT_EQ( info.stageResidualNames, ( StringField{ "res1", "res2" } ) );
+    EXPECT_EQ( info.limiterName, "limiter" );
+    EXPECT_EQ( info.bcSolutionName, "bc_q" );
+    EXPECT_EQ( info.resFileName, "ns_result.dat" );
+}
