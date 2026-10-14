@@ -93,3 +93,13 @@ TEST(UnsGridTopologyTest, RejectsConnectivityArrayLengthMismatch)
 
     EXPECT_THROW( grid.NormalizeBc(), std::logic_error );
 }
+
+TEST(UnsGridTopologyTest, RejectsNullFaceTopologyWithoutReplacingOwnedTopology)
+{
+    ONEFLOW::UnsGrid grid;
+    grid.Init();
+    const ONEFLOW::FaceTopo * const originalFaceTopo = &grid.GetFaceTopo();
+
+    EXPECT_THROW( grid.SetFaceTopo( nullptr ), std::invalid_argument );
+    EXPECT_EQ( &grid.GetFaceTopo(), originalFaceTopo );
+}
