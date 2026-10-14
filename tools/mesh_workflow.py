@@ -69,7 +69,7 @@ def run_case(case_file, workdir, executable, repository_root):
     if not executable.is_file():
         raise FileNotFoundError(f"OneFLOW executable not found: {executable}")
 
-    result = subprocess.run(["r", str(workdir)], cwd=executable.parent, check=False)
+    result = subprocess.run([str(executable), "r", str(workdir)], cwd=executable.parent, check=False)
     if result.returncode != 0:
         raise RuntimeError(f"OneFLOW mesh case failed with exit code {result.returncode}")
 
@@ -85,7 +85,7 @@ def run_case(case_file, workdir, executable, repository_root):
 
     export_result = subprocess.run(
         [sys.executable, str(exporter), str(generated_grid),
-         "--output", str(package_dir), "--real-bytes", "8", "--byte-order", "little"],
+         "--output", str(package_dir), "--real-bytes", str(inspection["realBytes"]),\n         "--byte-order", inspection["byteOrder"]],
         check=False,
     )
     if export_result.returncode != 0:
