@@ -54,6 +54,22 @@ foreach ($outputFile in @($generatedGrid, $oneFlowGrid, $gridInfo)) {
     }
 }
 
+$expected = $case.parameters.expected
+$runtimeSummary = Get-Content -LiteralPath $gridInfo -Raw | ConvertFrom-Json
+$runtimeChecks = @(
+    [pscustomobject]@{ Name = "runtime dimension"; Actual = $runtimeSummary.dimension; Expected = $expected.dimension },
+    [pscustomobject]@{ Name = "runtime zones"; Actual = $runtimeSummary.zones.Count; Expected = $expected.zones },
+    [pscustomobject]@{ Name = "runtime nodes"; Actual = $runtimeSummary.counts.nodes; Expected = $expected.nodes },
+    [pscustomobject]@{ Name = "runtime cells"; Actual = $runtimeSummary.counts.cells; Expected = $expected.cells },
+    [pscustomobject]@{ Name = "runtime faces"; Actual = $runtimeSummary.counts.faces; Expected = $expected.faces },
+    [pscustomobject]@{ Name = "runtime boundary faces"; Actual = $runtimeSummary.counts.boundaryFaces; Expected = $expected.boundaryFaces }
+)
+foreach ($check in $runtimeChecks) {
+    if ($check.Actual -ne $check.Expected) {
+        throw "Case check failed for $($check.Name): expected $($check.Expected), got $($check.Actual)"
+    }
+}
+
 & $PythonExecutable $exporter $generatedGrid --output $packageDir --real-bytes 8 --byte-order little
 if ($LASTEXITCODE -ne 0) {
     throw "Mesh visualization export failed with exit code $LASTEXITCODE"
