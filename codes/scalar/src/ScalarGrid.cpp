@@ -1616,8 +1616,7 @@ void ScalarGrid::SetBcTypes()
 
 void ScalarGrid::CalcC2C( EList & c2c ) const
 {
-	if ( c2c.GetNElements() != 0 ) return;
-
+	// Rebuild adjacency from the current face connectivity on every call.
 	const int nFaces = this->GetNFaces();
 	const int nCells = this->GetNCells();
 	const int nBFaces = this->GetNBFaces();
