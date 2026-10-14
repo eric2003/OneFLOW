@@ -634,46 +634,68 @@ void FaceTopo::CalcC2C( LinkField & c2c )
 
 void FaceTopo::ReorderLink()
 {
-    FaceTopo & faceTopo = *this;
+    const HXSize_t nFaces = this->GetNFaces();
+    const IntField & rightCells = this->GetRightCells();
 
-    int nFaces = faceTopo.fTypes.size();
-
-    IntField f1map( nFaces ), f2map( nFaces );
-    int iCount = 0;
-    for ( int iFace = 0; iFace < nFaces; ++ iFace )
+    if ( this->faces.size() != nFaces ||
+         this->GetLeftCells().size() != nFaces ||
+         rightCells.size() != nFaces )
     {
-        int rc = faceTopo.GetRightCells()[ iFace ];
-        if ( rc == INVALID_INDEX )
+        throw std::logic_error( "FaceTopo::ReorderLink: inconsistent face topology sizes" );
+    }
+
+    const auto validateOptionalFaceData = [ nFaces ]( const IntField & values, const char * name )
+    {
+        if ( ! values.empty() && values.size() != nFaces )
         {
-            f1map[ iFace ] = iCount;
-            f2map[ iCount ] = iFace;
-            ++ iCount;
+            throw std::logic_error(
+                std::string( "FaceTopo::ReorderLink: inconsistent " ) + name + " size" );
+        }
+    };
+    validateOptionalFaceData( this->lPosition, "left face-position" );
+    validateOptionalFaceData( this->rPosition, "right face-position" );
+    validateOptionalFaceData( this->faceFlags, "face-flag" );
+
+    IntField newToOld( nFaces );
+    HXSize_t nextFace = 0;
+    for ( HXSize_t iFace = 0; iFace < nFaces; ++ iFace )
+    {
+        if ( rightCells[ iFace ] == INVALID_INDEX )
+        {
+            newToOld[ nextFace ++ ] = static_cast< int >( iFace );
+        }
+    }
+    for ( HXSize_t iFace = 0; iFace < nFaces; ++ iFace )
+    {
+        if ( rightCells[ iFace ] != INVALID_INDEX )
+        {
+            newToOld[ nextFace ++ ] = static_cast< int >( iFace );
         }
     }
 
-    for ( int iFace = 0; iFace < nFaces; ++ iFace )
+    const auto reorderFaceData = [ &newToOld, nFaces ]( auto & values )
     {
-        int rc = faceTopo.GetRightCells()[ iFace ];
-        if ( rc != INVALID_INDEX )
+        if ( values.empty() )
         {
-            f1map[ iFace ] = iCount;
-            f2map[ iCount ] = iFace;
-            ++ iCount;
+            return;
         }
-    }
-    faceTopo.facesNew.resize( nFaces );
-    faceTopo.lCellsNew.resize( nFaces );
-    faceTopo.rCellsNew.resize( nFaces );
-    for ( int iFace = 0; iFace < nFaces; ++ iFace )
-    {
-        int jFace = f2map[ iFace ];
-        faceTopo.facesNew[ iFace ] = faceTopo.faces[ jFace ];
-        faceTopo.lCellsNew[ iFace ] = faceTopo.GetLeftCells()[ jFace ];
-        faceTopo.rCellsNew[ iFace ] = faceTopo.GetRightCells()[ jFace ];
-    }
-    faceTopo.faces = faceTopo.facesNew;
-    faceTopo.lCells = faceTopo.lCellsNew;
-    faceTopo.rCells = faceTopo.rCellsNew;
+        const auto original = values;
+        for ( HXSize_t iFace = 0; iFace < nFaces; ++ iFace )
+        {
+            values[ iFace ] = original[ newToOld[ iFace ] ];
+        }
+    };
+
+    reorderFaceData( this->faces );
+    reorderFaceData( this->fTypes );
+    reorderFaceData( this->lCells );
+    reorderFaceData( this->rCells );
+    reorderFaceData( this->lPosition );
+    reorderFaceData( this->rPosition );
+    reorderFaceData( this->faceFlags );
+
+    // Cell-to-face adjacency stores face indices and must be rebuilt after reordering.
+    this->c2f.clear();
 }
 
 EndNameSpace
