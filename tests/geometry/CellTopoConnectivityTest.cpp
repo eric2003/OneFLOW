@@ -5,6 +5,8 @@
 #include "FaceTopo.h"
 #include "UnsGrid.h"
 #include "Boundary.h"
+#include "CellMesh.h"
+#include "BcRecord.h"
 
 TEST(CellTopoConnectivityTest, BuildsCellToFaceAdjacencyForBoundaryAndInternalFaces)
 {
