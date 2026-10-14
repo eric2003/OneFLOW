@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "FieldWrap.h"
+#include "FieldNameContract.h"
 #include <memory>
 #include "Fatal.h"
 #include "SolverMap.h"
@@ -388,15 +389,18 @@ MRField * FieldHome::GetStageResidualField( Grid * grid, int solverType, int ind
 
 UnsteadyFieldNames FieldHome::BuildUnsteadyFieldNames( int solverType )
 {
-    // Order matches Unsteady::HistoryLevel: Current, Previous, Old.
-    UnsteadyFieldNames names;
-    names.flow.push_back( FieldHome::GetSolutionName( solverType ) );
-    names.flow.push_back( FieldHome::GetStageSolutionName( solverType, 0 ) );
-    names.flow.push_back( FieldHome::GetStageSolutionName( solverType, 1 ) );
-    names.residual.push_back( FieldHome::GetResidualName( solverType ) );
-    names.residual.push_back( FieldHome::GetStageResidualName( solverType, 0 ) );
-    names.residual.push_back( FieldHome::GetStageResidualName( solverType, 1 ) );
-    return names;
+    // Delegate pure assembly; SolverInfo supplies the strings for this solver.
+    StringField stageQ;
+    stageQ.push_back( FieldHome::GetStageSolutionName( solverType, 0 ) );
+    stageQ.push_back( FieldHome::GetStageSolutionName( solverType, 1 ) );
+    StringField stageR;
+    stageR.push_back( FieldHome::GetStageResidualName( solverType, 0 ) );
+    stageR.push_back( FieldHome::GetStageResidualName( solverType, 1 ) );
+    return MakeUnsteadyFieldNames(
+        FieldHome::GetSolutionName( solverType ),
+        stageQ,
+        FieldHome::GetResidualName( solverType ),
+        stageR );
 }
 
 MRField * FieldHome::GetUnsField( Grid * grid, const std::string & fieldName )
