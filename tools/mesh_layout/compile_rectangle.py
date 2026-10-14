@@ -16,12 +16,12 @@ def compile_rectangle(spec):
     if any(not isinstance(point, list) or len(point) != 3 for point in corners):
         raise ValueError("each corner must contain three coordinates")
 
-    divisions = spec.get("edgeDivisions")
-    if not isinstance(divisions, list) or len(divisions) != 4:
-        raise ValueError("edgeDivisions must contain four values")
+    point_counts = spec.get("edgePointCounts")
+    if not isinstance(point_counts, list) or len(point_counts) != 4:
+        raise ValueError("edgePointCounts must contain four values")
     if any(not isinstance(value, int) or isinstance(value, bool) or value < 2
-           for value in divisions):
-        raise ValueError("each edge division count must be an integer >= 2")
+           for value in point_counts):
+        raise ValueError("each edge point count must be an integer >= 2")
 
     spacing = spec.get("spacing", "d")
     if not isinstance(spacing, str) or not spacing:
@@ -38,7 +38,7 @@ def compile_rectangle(spec):
         lines.append(f"Line({index})={{{index},{next_index}}}")
 
     lines.append("")
-    for index, count in enumerate(divisions, start=1):
+    for index, count in enumerate(point_counts, start=1):
         lines.append(f"Dim({index})={{{count}}}")
 
     lines.append("")
