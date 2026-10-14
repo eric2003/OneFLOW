@@ -142,14 +142,35 @@ def main() -> int:
         if not strings.get(name):
             errors.append(f"Missing required grid parameter: {name}")
 
+    supported_grid_types = {"plot3d", "su2", "cgns", "oneflow", "gridgen"}
+    for name in ("sourceGridType", "targetGridType"):
+        value = strings.get(name, "").lower()
+        if value and value not in supported_grid_types:
+            errors.append(
+                f"Unsupported {name}: {value!r}; expected one of "
+                + ", ".join(sorted(supported_grid_types))
+            )
+
     # GridConfig::FromDataBase reads gridLayoutFileName even for conversion;
     # the selected conversion workflow does not necessarily open that layout file.
+    # Source grid and boundary paths share the source case root in the runtime reader.
+    source_case_value = strings.get("sourceGridCaseDir", "").strip()
+    if source_case_value:
+        source_case_path = Path(source_case_value).expanduser()
+        source_case_dir = (
+            source_case_path
+            if source_case_path.is_absolute()
+            else (case_dir / source_case_path)
+        ).resolve()
+    else:
+        source_case_dir = case_dir
+
     input_names = ("sourceGridFileName", "sourceGridBcName")
     for name in input_names:
         value = strings.get(name)
         if value:
             path = Path(value)
-            resolved = path if path.is_absolute() else case_dir / path
+            resolved = path if path.is_absolute() else source_case_dir / path
             if not resolved.is_file():
                 errors.append(f"{name} points to a missing input file: {resolved}")
 
