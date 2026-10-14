@@ -1,5 +1,5 @@
 int gridObj = 0;
-string topoType = "s";
+string topoType = "u";
 int multiBlock = 0;
 
 int fileFormat = 1;
