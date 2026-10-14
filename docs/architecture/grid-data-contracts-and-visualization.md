@@ -6,6 +6,8 @@ Keep mesh data independent from solver startup, global configuration, GUI code, 
 
 The first deliverable is the L0 summary contract and its JSON writer. A summary is descriptive metadata; it is not sufficient to reconstruct a mesh.
 
+New mesh-export JSON is serialized with `nlohmann/json` (`nlohmann::ordered_json`) so JSON escaping, value types, and formatting are handled by a JSON library rather than manual string concatenation. Keep JSON serialization inside the export adapter; do not add JSON-library types to `Grid`, `UnsGrid`, or the canonical mesh data model. Existing JsonCpp call sites remain until they are migrated deliberately, rather than being removed as part of this first export step.
+
 ## Proposed export layout
 
 Use a directory per exported mesh so related files can be moved together:
