@@ -68,7 +68,7 @@ class WorkflowRuntimeOverridesTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             parameter_file = Path(temporary) / "cfd.txt"
             comment = bytes.fromhex("cdf8b8f1c2b7beb6").decode("gbk")
-            original = f'string gridFileName = "grid/old.ofl"; // {comment}\\n'
+            original = f'string gridFileName = "grid/old.ofl"; // {comment}\n'
             parameter_file.write_bytes(original.encode("gbk"))
 
             apply_runtime_overrides(
