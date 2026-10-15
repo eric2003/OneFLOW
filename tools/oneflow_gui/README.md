@@ -30,6 +30,16 @@ execution. Generated files therefore do not overwrite the checked-in case
 inputs. The application invokes the same command shape used by the existing
 workflow runner: `OneFLOW.exe r <case-directory>`.
 
+Use **Workflows...** to create, edit, save, and delete named multi-directory
+workflows. Each directory is entered on a separate line; the saved order is
+preserved, and the workflow launches one OneFLOW process with the command shape
+`OneFLOW.exe r <directory-1> <directory-2> ...`. Directory paths are used as
+configured rather than copied into isolated case workspaces, so this mode is
+intended for existing directory-based workflows such as chained grid and solver
+runs. Workflow definitions and run history are stored under
+`~/.oneflow/workflow-data` (the user's home directory); deleting a definition
+does not delete its history. The GUI displays recent run status and messages.
+
 ## Architecture direction
 
 The long-term product direction is documented in both [Chinese](../../docs/ONEFLOW_WORKBENCH_ARCHITECTURE.zh-CN.md) and [English](../../docs/ONEFLOW_WORKBENCH_ARCHITECTURE.en.md). These memos describe the intended engineering-workbench boundaries and roadmap; they do not imply that all listed capabilities are implemented yet.
@@ -44,6 +54,7 @@ The long-term product direction is documented in both [Chinese](../../docs/ONEFL
 - `workflow_execution.py`: shell-free construction of one-process,
   multi-directory command arguments, preserving the user-specified order.
 - `main_window.py`: Qt widgets and the sequential queue worker.
+- `workflow_dialog.py`: workflow editor, single-process multi-directory execution, and persisted run-history presentation.
 - `test_services.py`: standard-library tests for the non-UI services.
 - `test_workflow_execution.py`: tests for argument order, spaces, and invalid input.
 - `workflow_repository.py`: versioned workflow-definition and run-history persistence, independent of Qt.

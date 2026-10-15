@@ -29,6 +29,7 @@ from .case_repository import load_cases
 from .executable_discovery import executable_candidates
 from .models import CaseDefinition, CaseRunResult, RunState
 from .runner import create_run_id, run_case
+from .workflow_dialog import WorkflowDialog
 
 
 class RunQueueWorker(QThread):
@@ -180,6 +181,8 @@ class MainWindow(QMainWindow):
         select_none.clicked.connect(lambda: self._set_all_checks(False))
         refresh = QPushButton("Refresh cases")
         refresh.clicked.connect(self._load_cases)
+        workflows = QPushButton("Workflows...")
+        workflows.clicked.connect(self._open_workflows)
         self.run_button = QPushButton("Run selected cases")
         self.run_button.setObjectName("primaryButton")
         self.run_button.clicked.connect(self._start_run)
@@ -189,6 +192,7 @@ class MainWindow(QMainWindow):
         action_layout.addWidget(select_all)
         action_layout.addWidget(select_none)
         action_layout.addWidget(refresh)
+        action_layout.addWidget(workflows)
         action_layout.addStretch(1)
         action_layout.addWidget(self.run_button)
         action_layout.addWidget(self.stop_button)
@@ -366,6 +370,14 @@ class MainWindow(QMainWindow):
         self._worker.finished.connect(self._queue_finished)
         self._worker.start()
         self.statusBar().showMessage(f"Running {len(selected)} case(s)...")
+
+    def _open_workflows(self) -> None:
+        dialog = WorkflowDialog(
+            self._repository_root,
+            self.executable_combo.currentText().strip(),
+            self,
+        )
+        dialog.exec()
 
     def _stop_run(self) -> None:
         if self._worker is not None:
