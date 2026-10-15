@@ -71,8 +71,10 @@ Use the actual path to your built executable.
 
 After generation, inspect `results/twoConnectedCubes.generated.grd`,
 `results/twoConnectedCubes.inp`, `results/twoConnectedCubes.ofl`, and
-`results/twoConnectedCubes.info.json`. The summary should report dimension
+`results/twoConnectedCubes.info.json`, and `results/twoConnectedCubes.tecplot.dat`. The summary should report dimension
 3 and the bounding box `[0, 0, 0]` to `[2, 1, 1]`.
+
+Open `results/twoConnectedCubes.tecplot.dat` in Tecplot to inspect the generated volume mesh. It contains one structured zone per block, each with its own `I`, `J`, and `K` dimensions. The output path is configured by `tecplotGridFileName` in `script/grid.txt`; omit that parameter in older cases to disable this optional export.
 
 The key geometry/topology invariants are:
 
