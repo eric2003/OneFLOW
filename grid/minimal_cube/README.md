@@ -21,6 +21,29 @@ group assigns four ordered edges to a face, and `Add F2B` assigns the six
 faces to the six local block-face positions. Each edge has three nodes, so the
 intended structured result is 3 x 3 x 3 nodes and 8 hexahedral cells.
 
+## Layout relation contract
+
+The layout file describes topology before it describes a mesh. Entity IDs in
+the text file are one-based; internal vector indices are zero-based.
+
+- `Point(id)` defines a geometric vertex.
+- `Line(id)` references its two endpoint point IDs.
+- `Add L2F faceId position lineId` means "add this line to this face at
+  this boundary position". The four lines of a face must be ordered around
+  the face boundary, with adjacent lines sharing endpoints. The position is
+  one-based and defines the boundary traversal order; it is not a line ID.
+- `Add F2B blockId position faceId` means "attach this face to this block's
+  local face position". For a 3D block, positions 1 through 6 map to the six
+  local sides. The position is one-based in the file and is converted to a
+  zero-based index internally. It is not the face ID.
+- `Dim`, `Ds`, and `Boundary` provide edge discretization and boundary
+  metadata; they do not replace the topology relations above.
+
+For this single-block cube, block 1 references faces 1-6 exactly once. The
+face-to-block association and the local face position are separate concepts:
+the former identifies which face entity is attached, while the latter tells
+the block which side it occupies.
+
 ## Run on Windows
 
 Copy the complete `grid/minimal_cube` directory to a writable workspace,
