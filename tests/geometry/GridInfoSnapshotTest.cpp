@@ -5,7 +5,10 @@
 
 #include <nlohmann/json.hpp>
 
+#include <limits>
+#include <memory>
 #include <sstream>
+#include "UnsGrid.h"
 
 TEST( GridInfoSnapshotTest, EmptyRuntimeCollectionProducesEmptySnapshot )
 {
@@ -46,4 +49,26 @@ TEST( GridInfoSnapshotTest, JsonWriterSerializesSnapshotWithoutRuntimeGridAccess
     EXPECT_EQ( document.at( "boundingBox" ).at( "min" ),
                nlohmann::json( { 0.0, -1.0, 0.0 } ) );
     EXPECT_EQ( document.at( "zones" ).at( 0 ).at( "name" ), "plate" );
+}
+
+TEST( GridInfoSnapshotTest, RejectsNullZoneInsteadOfDereferencingIt )
+{
+    ONEFLOW::Grids grids;
+    grids.push_back( nullptr );
+
+    EXPECT_THROW( ONEFLOW::MakeGridInfoSnapshot( grids ), std::invalid_argument );
+}
+
+TEST( GridInfoSnapshotTest, RejectsNonFiniteNodeCoordinates )
+{
+    ONEFLOW::Grids grids;
+    auto grid = std::make_unique< ONEFLOW::UnsGrid >();
+    grid->Init();
+    grid->dimension = 2;
+    grid->nodeMesh->CreateNodes( 1 );
+    grid->nodeMesh->SetPoint(
+        0, std::numeric_limits< ONEFLOW::Real >::quiet_NaN(), 0.0, 0.0 );
+    grids.push_back( std::move( grid ) );
+
+    EXPECT_THROW( ONEFLOW::MakeGridInfoSnapshot( grids ), std::domain_error );
 }
