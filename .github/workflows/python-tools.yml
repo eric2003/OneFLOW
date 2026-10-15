@@ -1,0 +1,62 @@
+name: Python Tooling
+
+on:
+  push:
+    branches: [hexin]
+    paths:
+      - "tools/mesh_cases.py"
+      - "tools/test_mesh_cases.py"
+      - "tools/oneflow_gui/**"
+      - "tools/requirements-gui.txt"
+      - ".github/workflows/python-tools.yml"
+      - "grid/case_catalog.json"
+      - "grid/**/case.json"
+      - "grid/**/script/**"
+  pull_request:
+    branches: [hexin]
+    paths:
+      - "tools/mesh_cases.py"
+      - "tools/test_mesh_cases.py"
+      - "tools/oneflow_gui/**"
+      - "tools/requirements-gui.txt"
+      - ".github/workflows/python-tools.yml"
+      - "grid/case_catalog.json"
+      - "grid/**/case.json"
+      - "grid/**/script/**"
+
+jobs:
+  python-tools:
+    name: Python services (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.11"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Compile Python tooling
+        run: python -m compileall -q tools/mesh_cases.py tools/oneflow_gui
+      - name: Test case catalog
+        run: python tools/test_mesh_cases.py
+      - name: Test desktop services
+        run: python -m unittest tools.oneflow_gui.test_services
+      - name: Test workflow persistence
+        run: python -m unittest tools.oneflow_gui.test_workflow_repository
+      - name: Test workflow command construction
+        run: python -m unittest tools.oneflow_gui.test_workflow_execution
+      - name: Test workflow dependencies
+        run: python -m unittest tools.oneflow_gui.test_workflow_dependencies
+      - name: Test workflow execution plans
+        run: python -m unittest tools.oneflow_gui.test_workflow_plan
+      - name: Test workflow graph runner
+        run: python -m unittest tools.oneflow_gui.test_workflow_graph_runner
+      - name: Test workflow process execution
+        run: python -m unittest tools.oneflow_gui.test_workflow_process
+      - name: Test runtime parameter overrides
+        run: python -m unittest tools.oneflow_gui.test_workflow_runtime_overrides
+      - name: Test isolated workflow case staging
+        run: python -m unittest tools.oneflow_gui.test_workflow_case_runtime

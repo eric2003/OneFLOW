@@ -13,11 +13,14 @@ from typing import Any
 
 INCLUDE_PATTERN = re.compile(r'"([^"]+)"\s*;')
 CATALOG_SCHEMA = "oneflow.case-catalog"
+CASE_SCHEMA = "oneflow.case"
 
 
 def load_catalog(catalog_path: Path) -> dict[str, Any]:
     with catalog_path.open("r", encoding="utf-8-sig") as stream:
         catalog = json.load(stream)
+    if not isinstance(catalog, dict):
+        raise ValueError("Catalog root must be an object")
     if catalog.get("schema") != CATALOG_SCHEMA:
         raise ValueError(f"Unsupported catalog schema: {catalog.get('schema')!r}")
     if catalog.get("version") != 1:
@@ -57,18 +60,71 @@ def resolve_case_path(case_dir: Path, relative_path: str, label: str) -> Path:
     return resolved
 
 
+def validate_profile(
+    case_dir: Path,
+    entry: dict[str, Any],
+    profile_data: Any,
+) -> list[str]:
+    case_id = entry["id"]
+    errors: list[str] = []
+    if not isinstance(profile_data, dict):
+        return [f"{case_id}: case profile root must be an object"]
+    if profile_data.get("schema") != CASE_SCHEMA:
+        errors.append(f"{case_id}: unsupported case profile schema")
+    if profile_data.get("version") != 1:
+        errors.append(f"{case_id}: unsupported case profile version")
+
+    parameters = profile_data.get("parameters")
+    if not isinstance(parameters, dict):
+        errors.append(f"{case_id}: profile field 'parameters' must be an object")
+        return errors
+    runtime = parameters.get("runtime")
+    if not isinstance(runtime, dict):
+        errors.append(f"{case_id}: profile field 'parameters.runtime' must be an object")
+        return errors
+
+    profile_layout = runtime.get("layout")
+    catalog_layout = entry.get("layout")
+    if profile_layout != catalog_layout:
+        errors.append(
+            f"{case_id}: profile layout {profile_layout!r} does not match "
+            f"catalog layout {catalog_layout!r}"
+        )
+    parameter_files = runtime.get("parameterFiles")
+    if not isinstance(parameter_files, list) or not parameter_files:
+        errors.append(f"{case_id}: runtime.parameterFiles must be a non-empty list")
+    else:
+        for parameter_file in parameter_files:
+            if not isinstance(parameter_file, str) or not parameter_file:
+                errors.append(f"{case_id}: runtime.parameterFiles entries must be non-empty strings")
+                continue
+            try:
+                path = resolve_case_path(
+                    case_dir, parameter_file, f"profile parameter file for {case_id}"
+                )
+                if not path.is_file():
+                    errors.append(f"{case_id}: profile parameter file not found: {path}")
+            except ValueError as error:
+                errors.append(f"{case_id}: {error}")
+
+    dimension = runtime.get("dimension")
+    if not isinstance(dimension, int) or isinstance(dimension, bool) or dimension not in (1, 2, 3):
+        errors.append(f"{case_id}: runtime.dimension must be 1, 2, or 3")
+    return errors
+
+
 def validate_case(repository_root: Path, entry: dict[str, Any]) -> list[str]:
     case_id = entry["id"]
     errors: list[str] = []
-    case_dir = resolve_case_path(
-        repository_root,
-        entry["directory"],
-        f"Case directory for {case_id}",
-    )
-    if not case_dir.is_dir():
-        return [f"{case_id}: case directory does not exist: {case_dir}"]
-
     try:
+        case_dir = resolve_case_path(
+            repository_root,
+            entry["directory"],
+            f"Case directory for {case_id}",
+        )
+        if not case_dir.is_dir():
+            return [f"{case_id}: case directory does not exist: {case_dir}"]
+
         control_path = resolve_case_path(
             case_dir, entry["runtimeConfig"], f"runtimeConfig for {case_id}"
         )
@@ -100,10 +156,7 @@ def validate_case(repository_root: Path, entry: dict[str, Any]) -> list[str]:
             else:
                 with profile_path.open("r", encoding="utf-8-sig") as stream:
                     profile_data = json.load(stream)
-                if profile_data.get("schema") != "oneflow.case":
-                    errors.append(f"{case_id}: unsupported case profile schema")
-                if profile_data.get("version") != 1:
-                    errors.append(f"{case_id}: unsupported case profile version")
+                errors.extend(validate_profile(case_dir, entry, profile_data))
     except (OSError, ValueError, json.JSONDecodeError) as error:
         errors.append(f"{case_id}: {error}")
     return errors
