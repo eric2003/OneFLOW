@@ -52,7 +52,9 @@ The long-term product direction is documented in both [Chinese](../../docs/ONEFL
 - `runner.py`: workspace isolation, process launch, output streaming, and
   cancellation; it has no Qt dependency.
 - `workflow_dependencies.py`: Qt-independent validation and topological ordering of case dependencies; derives independent, producer, consumer, and chained roles from graph edges.
+- `workflow_plan.py`: converts a case graph into a dependency-ordered plan and binds named producer artifacts to consumer settings. Artifact paths are relative to the producer case, so either `grid/...` or `results/...` is supported; this is planning only and does not yet inject settings into a running OneFLOW process.
 - `test_workflow_dependencies.py`: tests for dependency roles, ordering, missing references, and cycles.
+- `test_workflow_plan.py`: tests for producer-consumer artifact binding, both `grid` and `results` paths, and invalid dependency/path declarations.
 - `workflow_execution.py`: shell-free construction of one-process,
   multi-directory command arguments, preserving the user-specified order.
 - `main_window.py`: Qt widgets and the sequential queue worker.
@@ -74,6 +76,7 @@ python -m unittest tools.oneflow_gui.test_services
 python -m unittest tools.oneflow_gui.test_workflow_repository
 python -m unittest tools.oneflow_gui.test_workflow_execution
 python -m unittest tools.oneflow_gui.test_workflow_dependencies
+python -m unittest tools.oneflow_gui.test_workflow_plan
 python tools/test_mesh_cases.py
 ```
 
