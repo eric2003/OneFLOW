@@ -126,7 +126,7 @@ TEST( GridLayoutGenerationTest, GeneratesTwoConnectedThreeDimensionalCubes )
 {
     const std::filesystem::path layoutFile =
         std::filesystem::path( ONEFLOW_SOURCE_DIR ) /
-        "tests/geometry/data/twoConnectedCubes3dLayout.txt";
+        "grid/two_connected_cubes/grid/twoConnectedCubesLayout.txt";
 
     const std::filesystem::path outputDir =
         std::filesystem::temp_directory_path() / "oneflow-two-connected-cubes-3d";

@@ -40,7 +40,7 @@ TEST( GridLayoutParserTest, ParsesTwoConnectedThreeDimensionalCubes )
 {
     const std::string fileName =
         std::string( ONEFLOW_SOURCE_DIR ) +
-        "/tests/geometry/data/twoConnectedCubes3dLayout.txt";
+        "/grid/two_connected_cubes/grid/twoConnectedCubesLayout.txt";
 
     const GridLayout layout = GridLayoutParser().Parse( fileName );
 
