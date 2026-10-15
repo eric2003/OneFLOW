@@ -40,6 +40,44 @@ class WorkflowRepositoryTest(unittest.TestCase):
         self.assertEqual(self.repository.load_workflow("mesh-check"), updated)
         self.assertEqual(self.repository.list_workflows(), [updated])
 
+    def test_case_graph_round_trips_with_explicit_dependencies(self) -> None:
+        definition = WorkflowDefinition(
+            workflow_id="mesh-to-solver",
+            name="Mesh to solver",
+            steps=(
+                {
+                    "type": "case_graph",
+                    "cases": [
+                        {"id": "mesh", "directory": "grid/generated"},
+                        {
+                            "id": "solve",
+                            "directory": "test/cfd/solver",
+                            "depends_on": ["mesh"],
+                        },
+                    ],
+                },
+            ),
+        )
+        self.repository.save_workflow(definition)
+        self.assertEqual(self.repository.load_workflow("mesh-to-solver"), definition)
+
+    def test_invalid_case_graph_is_rejected_when_saving(self) -> None:
+        definition = WorkflowDefinition(
+            workflow_id="cyclic-workflow",
+            name="Cyclic workflow",
+            steps=(
+                {
+                    "type": "case_graph",
+                    "cases": [
+                        {"id": "mesh", "directory": "grid", "depends_on": ["solve"]},
+                        {"id": "solve", "directory": "solver", "depends_on": ["mesh"]},
+                    ],
+                },
+            ),
+        )
+        with self.assertRaisesRegex(ValueError, "contain a cycle"):
+            self.repository.save_workflow(definition)
+
     def test_unsupported_schema_version_is_rejected(self) -> None:
         path = Path(self._temporary_directory.name) / "definitions" / "future.json"
         path.parent.mkdir(parents=True)
