@@ -106,6 +106,15 @@ inline constexpr std::array< std::string_view, 7 > kGridOpTokens = {
     "ALLOCATE_WALL_DIST"
 };
 
+// Optional secondary exports. The primary conversion destination remains
+// GridConfig::targetFile because its format is selected by targetType.
+struct GridOutputConfig
+{
+    std::string summaryFile;
+    std::string tecplotFile;
+    std::string cgnsFile;
+};
+
 // ---------------------------------------------------------------------------
 // Case-scoped grid workflow configuration. Read legacy DataBase values at the
 // entry boundary, then pass this value through generation and conversion.
@@ -124,6 +133,8 @@ struct GridConfig
     std::string   layoutFile;
     std::string   bcFile;
     std::string   targetFile;
+    GridOutputConfig output;
+    // Legacy mirrors retained while existing callers migrate to output.
     std::string   gridInfoFile;
     std::string   tecplotGridFile;
     std::string   partitionFile;
