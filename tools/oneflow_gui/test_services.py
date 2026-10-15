@@ -7,6 +7,7 @@ import unittest
 from pathlib import Path
 
 from tools.oneflow_gui.case_repository import load_cases
+from tools.oneflow_gui.executable_discovery import executable_candidates
 from tools.oneflow_gui.models import CaseDefinition
 from tools.oneflow_gui.runner import _copy_case_to_workspace, build_command
 
@@ -22,6 +23,23 @@ class DesktopServiceTest(unittest.TestCase):
             {"minimal_rectangle", "minimal_cube", "two_connected_cubes"} <= case_ids
         )
         self.assertTrue(all(case.runtime_config.is_file() for case in cases))
+
+    def test_executable_discovery_prefers_debug_then_release_then_install(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            debug = root / "build" / "bin" / "Debug" / "OneFLOW.exe"
+            release = root / "build" / "bin" / "Release" / "OneFLOW.exe"
+            install_root = root / "ProgramFiles"
+            installed = install_root / "OneFLOW" / "bin" / "OneFLOW.exe"
+            for path in (debug, release, installed):
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(b"test")
+
+            candidates = executable_candidates(
+                root,
+                {"ProgramFiles": str(install_root)},
+            )
+            self.assertEqual(candidates, [debug.resolve(), release.resolve(), installed.resolve()])
 
     def test_run_command_uses_argument_list(self) -> None:
         with tempfile.TemporaryDirectory(prefix="oneflow path ") as directory:
