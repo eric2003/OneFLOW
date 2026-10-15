@@ -234,7 +234,7 @@ class WorkflowDialog(QDialog):
             self.log_view.appendPlainText(
                 f"Cannot load workflow '{workflow.workflow_id}': {error}"
             )
-        self.directory_edit.setPlainText("\\n".join(directories))
+        self.directory_edit.setPlainText("\n".join(directories))
         self.delete_button.setEnabled(True)
         self._reload_history(workflow.workflow_id)
 
