@@ -245,15 +245,15 @@ class WorkflowDialog(QDialog):
         self.history_list.clear()
         self.name_edit.setFocus()
 
-    def _save_workflow(self) -> None:
+    def _save_workflow(self) -> bool:
         name = self.name_edit.text().strip()
         directories = [line.strip() for line in self.directory_edit.toPlainText().splitlines() if line.strip()]
         if not name:
             QMessageBox.warning(self, "Name required", "Enter a workflow name.")
-            return
+            return False
         if not directories:
             QMessageBox.warning(self, "Directories required", "Enter at least one directory.")
-            return
+            return False
         workflow_id = self.id_edit.text().strip() or _new_id(name)
         definition = WorkflowDefinition(
             workflow_id=workflow_id,
@@ -265,11 +265,12 @@ class WorkflowDialog(QDialog):
             self._repository.save_workflow(definition)
         except (OSError, ValueError) as error:
             QMessageBox.critical(self, "Cannot save workflow", str(error))
-            return
+            return False
         self._selected_id = workflow_id
         self.id_edit.setText(workflow_id)
         self.id_edit.setReadOnly(True)
         self._reload_workflows(workflow_id)
+        return True
 
     def _delete_workflow(self) -> None:
         workflow_id = self._selected_id
@@ -302,7 +303,8 @@ class WorkflowDialog(QDialog):
     def _start_workflow(self) -> None:
         if self._worker is not None and self._worker.isRunning():
             return
-        self._save_workflow()
+        if not self._save_workflow():
+            return
         if not self._selected_id:
             return
         try:
