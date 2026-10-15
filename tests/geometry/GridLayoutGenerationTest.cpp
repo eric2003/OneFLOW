@@ -11,6 +11,7 @@
 #include <filesystem>
 #include <fstream>
 #include <string>
+#include <system_error>
 #include <vector>
 
 namespace ONEFLOW
@@ -26,6 +27,21 @@ T ReadBinary( std::ifstream & file )
     file.read( reinterpret_cast< char * >( & value ), sizeof( T ) );
     return value;
 }
+
+struct GridGenerationTestContext
+{
+    int dimension;
+    std::string projectDir;
+    std::filesystem::path outputDir;
+
+    ~GridGenerationTestContext()
+    {
+        Dim::SetDimension( dimension );
+        Prj::prjBaseDir = projectDir;
+        std::error_code error;
+        std::filesystem::remove_all( outputDir, error );
+    }
+};
 
 TEST( GridLayoutGenerationTest, GeneratesMinimalRectangle )
 {
@@ -43,6 +59,7 @@ TEST( GridLayoutGenerationTest, GeneratesMinimalRectangle )
 
     const int oldDimension = Dim::GetDimension();
     const std::string oldProjectDir = Prj::prjBaseDir;
+    const GridGenerationTestContext restore{ oldDimension, oldProjectDir, outputDir };
 
     Dim::SetDimension( TWO_D );
     Prj::SetPrjBaseDir( outputDir.string() );
@@ -102,10 +119,6 @@ TEST( GridLayoutGenerationTest, GeneratesMinimalRectangle )
     EXPECT_EQ( ( ni - 1 ) * ( nj - 1 ), 4 );
 
     file.close();
-
-    Dim::SetDimension( oldDimension );
-    Prj::prjBaseDir = oldProjectDir;
-    std::filesystem::remove_all( outputDir );
 }
 
 
@@ -125,6 +138,7 @@ TEST( GridLayoutGenerationTest, GeneratesTwoConnectedThreeDimensionalCubes )
 
     const int oldDimension = Dim::GetDimension();
     const std::string oldProjectDir = Prj::prjBaseDir;
+    const GridGenerationTestContext restore{ oldDimension, oldProjectDir, outputDir };
 
     Dim::SetDimension( THREE_D );
     Prj::SetPrjBaseDir( outputDir.string() );
@@ -229,9 +243,6 @@ TEST( GridLayoutGenerationTest, GeneratesTwoConnectedThreeDimensionalCubes )
     EXPECT_EQ( matchedInterfaceNodes, 4 );
 
     file.close();
-    Dim::SetDimension( oldDimension );
-    Prj::prjBaseDir = oldProjectDir;
-    std::filesystem::remove_all( outputDir );
 }
 
 } // namespace
