@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import queue
-import subprocess
 import threading
 from datetime import datetime, timezone
 from pathlib import Path
@@ -27,6 +25,7 @@ from PySide6.QtWidgets import (
 )
 
 from .workflow_execution import build_multi_directory_command
+from .workflow_process import run_process
 from .workflow_repository import (
     WorkflowDefinition,
     WorkflowRepository,
@@ -83,52 +82,15 @@ class WorkflowRunWorker(QThread):
             self.log_line.emit("Command arguments:")
             for index, argument in enumerate(command):
                 self.log_line.emit(f"  [{index}] {argument}")
-            process = subprocess.Popen(
+            result = run_process(
                 command,
-                cwd=str(self._executable.parent),
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-                text=True,
-                errors="replace",
-                bufsize=1,
+                cwd=self._executable.parent,
+                on_output=self.log_line.emit,
+                is_cancelled=self._cancel.is_set,
             )
-            output_queue: queue.Queue[str | None] = queue.Queue()
-
-            def read_output() -> None:
-                assert process.stdout is not None
-                try:
-                    for line in process.stdout:
-                        output_queue.put(line.rstrip("\r\n"))
-                finally:
-                    output_queue.put(None)
-
-            reader = threading.Thread(target=read_output, daemon=True)
-            reader.start()
-            reader_finished = False
-            while process.poll() is None or not reader_finished:
-                if self._cancel.is_set() and process.poll() is None:
-                    process.terminate()
-                    try:
-                        process.wait(timeout=3)
-                    except subprocess.TimeoutExpired:
-                        process.kill()
-                        process.wait()
-                try:
-                    line = output_queue.get(timeout=0.1)
-                    if line is None:
-                        reader_finished = True
-                    else:
-                        self.log_line.emit(line)
-                except queue.Empty:
-                    continue
-            reader.join(timeout=1)
-            return_code = process.returncode
-            if self._cancel.is_set():
-                status, message = "cancelled", "Workflow run cancelled."
-            elif return_code == 0:
-                status, message = "succeeded", "OneFLOW exited successfully."
-            else:
-                status, message = "failed", f"OneFLOW exited with code {return_code}."
+            return_code = result.return_code
+            status = result.status
+            message = result.message
         except (OSError, ValueError) as error:
             message = str(error)
         self.completed.emit(
