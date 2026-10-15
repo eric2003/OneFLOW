@@ -8,6 +8,8 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
 
+from .workflow_dependencies import validate_case_dependencies
+
 
 SCHEMA_VERSION = 1
 _WORKFLOW_ID_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
@@ -60,6 +62,15 @@ class WorkflowDefinition:
                 raise ValueError(
                     f"Workflow step {index} must have a non-empty type."
                 )
+            if step_type == "case_graph":
+                if index != 0 or len(steps) != 1:
+                    raise ValueError(
+                        "A case_graph workflow must contain exactly one case_graph step."
+                    )
+                cases = step.get("cases")
+                if not isinstance(cases, list):
+                    raise ValueError("A case_graph step must contain a cases list.")
+                validate_case_dependencies(cases)
         return cls(
             workflow_id=workflow_id,
             name=name.strip(),
