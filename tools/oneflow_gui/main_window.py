@@ -9,7 +9,6 @@ from PySide6.QtCore import QThread, Signal, Qt
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QApplication,
-    QCheckBox,
     QFileDialog,
     QHBoxLayout,
     QHeaderView,
@@ -36,7 +35,6 @@ class RunQueueWorker(QThread):
     log_line = Signal(str)
     case_state = Signal(str, str)
     case_result = Signal(object)
-    queue_finished = Signal()
 
     def __init__(
         self,
@@ -85,7 +83,6 @@ class RunQueueWorker(QThread):
             self.case_result.emit(result)
             self.case_state.emit(case.case_id, result.state.value)
 
-        self.queue_finished.emit()
 
 
 class MainWindow(QMainWindow):
@@ -319,7 +316,7 @@ class MainWindow(QMainWindow):
         self._worker.log_line.connect(self.log_view.appendPlainText)
         self._worker.case_state.connect(self._set_case_status)
         self._worker.case_result.connect(self._show_result)
-        self._worker.queue_finished.connect(self._queue_finished)
+        self._worker.finished.connect(self._queue_finished)
         self._worker.start()
         self.statusBar().showMessage(f"Running {len(selected)} case(s)...")
 
@@ -344,6 +341,15 @@ class MainWindow(QMainWindow):
         self.stop_button.setEnabled(False)
         self.statusBar().showMessage("Run queue finished")
         self._worker = None
+
+    def closeEvent(self, event) -> None:
+        """Avoid destroying a running QThread while its child process is active."""
+        if self._worker is not None and self._worker.isRunning():
+            self._worker.request_stop()
+            self.statusBar().showMessage("Stopping the active case before closing.")
+            event.ignore()
+            return
+        event.accept()
 
 
 def run_desktop_app() -> int:
