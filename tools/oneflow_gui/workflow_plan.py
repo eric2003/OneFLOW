@@ -23,6 +23,7 @@ class ArtifactBinding:
     relative_path: Path
     consumer_id: str
     consumer_setting: str
+    parameter_file: Path
 
     @property
     def source_case_directory(self) -> Path:
@@ -107,6 +108,10 @@ def build_case_graph_plan(
                 item.get("artifact"), "input artifact", case_id
             )
             setting = _non_empty_string(item.get("setting"), "input setting", case_id)
+            parameter_file = _relative_artifact_path(
+                item.get("parameter_file"),
+                f"parameter file for input '{artifact_id}' in case '{case_id}'",
+            )
             if artifact_id not in outputs:
                 raise ValueError(
                     f"Case '{case_id}' consumes unknown artifact '{artifact_id}'."
@@ -125,6 +130,7 @@ def build_case_graph_plan(
                     relative_path=relative_path,
                     consumer_id=case_id,
                     consumer_setting=setting,
+                    parameter_file=parameter_file,
                 )
             )
 
