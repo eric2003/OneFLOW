@@ -36,6 +36,33 @@ TEST( GridLayoutParserTest, ParsesLaminarPlateLayout )
     EXPECT_EQ( layout.faceToBlocks[ 1 ].blockId, 2 );
 }
 
+TEST( GridLayoutParserTest, ParsesTwoConnectedThreeDimensionalCubes )
+{
+    const std::string fileName =
+        std::string( ONEFLOW_SOURCE_DIR ) +
+        "/tests/geometry/data/twoConnectedCubes3dLayout.txt";
+
+    const GridLayout layout = GridLayoutParser().Parse( fileName );
+
+    EXPECT_EQ( layout.points.size(), 12u );
+    EXPECT_EQ( layout.lines.size(), 20u );
+    EXPECT_EQ( layout.dimensions.size(), 20u );
+    EXPECT_EQ( layout.distributions.size(), 20u );
+    EXPECT_EQ( layout.boundaries.size(), 20u );
+    EXPECT_EQ( layout.lineToFaces.size(), 44u );
+    EXPECT_EQ( layout.faceToBlocks.size(), 12u );
+
+    int sharedFaceRelations = 0;
+    for ( const auto & relation : layout.faceToBlocks )
+    {
+        if ( relation.faceId == 4 )
+        {
+            ++ sharedFaceRelations;
+        }
+    }
+    EXPECT_EQ( sharedFaceRelations, 2 );
+}
+
 TEST( GridLayoutParserTest, RejectsUnknownPointReference )
 {
     const std::string fileName =
