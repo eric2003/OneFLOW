@@ -63,3 +63,21 @@ duplicate parameter values in the catalog.
 - Keep case-specific parameters and expected results with the case.
 - Share code only after multiple concrete cases demonstrate the same need.
 - Preserve existing parameter-file compatibility during migration.
+
+## Desktop GUI
+
+The optional PySide6 desktop runner discovers cases from the same catalog,
+runs selected cases sequentially, streams process logs, and stores each run in
+an external workspace so source case files are not overwritten.
+
+From the repository root:
+
+```powershell
+python -m pip install -r tools/requirements-gui.txt
+python -m tools.oneflow_gui
+python -m unittest tools.oneflow_gui.test_services
+```
+
+See `tools/oneflow_gui/README.md` for module boundaries and run behavior.
+The GUI currently reports process status; geometry and topology validation
+remain a separate workflow step and are not inferred from exit code alone.
