@@ -24,6 +24,9 @@ on:
       - "grid/**/case.json"
       - "grid/**/script/**"
 
+permissions:
+  contents: read
+
 jobs:
   python-tools:
     name: Python services (${{ matrix.os }})
