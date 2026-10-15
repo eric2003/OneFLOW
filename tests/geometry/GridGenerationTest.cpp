@@ -94,6 +94,27 @@ TEST( GridTypesTest, GridConfigDefaultValues )
     EXPECT_TRUE( cfg.sourceFile.empty() );
 }
 
+TEST( GridOutputConfigTest, OptionalExportPathsDefaultToDisabled )
+{
+    GridOutputConfig output;
+
+    EXPECT_TRUE( output.summaryFile.empty() );
+    EXPECT_TRUE( output.tecplotFile.empty() );
+    EXPECT_TRUE( output.cgnsFile.empty() );
+}
+
+TEST( GridOutputConfigTest, ExportPathsAreIndependent )
+{
+    GridOutputConfig output;
+    output.summaryFile = "results/grid.info.json";
+    output.tecplotFile = "results/grid.dat";
+    output.cgnsFile = "results/grid.cgns";
+
+    EXPECT_EQ( output.summaryFile, "results/grid.info.json" );
+    EXPECT_EQ( output.tecplotFile, "results/grid.dat" );
+    EXPECT_EQ( output.cgnsFile, "results/grid.cgns" );
+}
+
 // ---------------------------------------------------------------------------
 // ZgridMediator RAII (no file I/O)
 // ---------------------------------------------------------------------------
