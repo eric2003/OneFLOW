@@ -19,7 +19,7 @@ class WorkflowPlanTest(unittest.TestCase):
                     "directory": "test/cfd/rae2822_roe_sa",
                     "depends_on": ["rae2822grid"],
                     "inputs": [
-                        {"artifact": "rae2822_grid", "setting": "gridFileName"}
+                        {"artifact": "rae2822_grid", "setting": "gridFileName", "parameter_file": "script/cfd.txt"}
                     ],
                 },
                 {
@@ -67,7 +67,7 @@ class WorkflowPlanTest(unittest.TestCase):
                     "id": "solver",
                     "directory": "cfd/rae2822",
                     "depends_on": ["mesh"],
-                    "inputs": [{"artifact": "grid", "setting": "gridFileName"}],
+                    "inputs": [{"artifact": "grid", "setting": "gridFileName", "parameter_file": "script/cfd.txt"}],
                 },
             ],
             ".",
@@ -89,7 +89,7 @@ class WorkflowPlanTest(unittest.TestCase):
                     {
                         "id": "solver",
                         "directory": "solver",
-                        "inputs": [{"artifact": "grid", "setting": "gridFileName"}],
+                        "inputs": [{"artifact": "grid", "setting": "gridFileName", "parameter_file": "script/cfd.txt"}],
                     },
                 ],
                 ".",
