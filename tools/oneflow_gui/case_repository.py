@@ -36,6 +36,6 @@ def load_cases(repository_root: Path) -> list[CaseDefinition]:
         )
 
     if errors:
-        details = "\\n".join(f"- {error}" for error in errors)
-        raise ValueError(f"Case catalog validation failed:\\n{details}")
+        details = "\n".join(f"- {error}" for error in errors)
+        raise ValueError(f"Case catalog validation failed:\n{details}")
     return cases
