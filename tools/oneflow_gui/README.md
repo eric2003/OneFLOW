@@ -36,7 +36,7 @@ preserved, and the workflow launches one OneFLOW process with the command shape
 `OneFLOW.exe r <directory-1> <directory-2> ...`. Directory paths are used as
 configured rather than copied into isolated case workspaces, so this mode is
 intended for existing directory-based workflows such as chained grid and solver
-runs. Workflow definitions and run history are stored under
+runs. The current multi-directory editor still models a list, not a dependency graph; explicit case dependencies are being introduced as a separate, testable model before execution and artifact handoff are wired in. Workflow definitions and run history are stored under
 `~/.oneflow/workflow-data` (the user's home directory); deleting a definition
 does not delete its history. The GUI displays recent run status and messages.
 
@@ -51,6 +51,8 @@ The long-term product direction is documented in both [Chinese](../../docs/ONEFL
 - `executable_discovery.py`: ordered lookup of conventional executable paths.
 - `runner.py`: workspace isolation, process launch, output streaming, and
   cancellation; it has no Qt dependency.
+- `workflow_dependencies.py`: Qt-independent validation and topological ordering of case dependencies; derives independent, producer, consumer, and chained roles from graph edges.
+- `test_workflow_dependencies.py`: tests for dependency roles, ordering, missing references, and cycles.
 - `workflow_execution.py`: shell-free construction of one-process,
   multi-directory command arguments, preserving the user-specified order.
 - `main_window.py`: Qt widgets and the sequential queue worker.
@@ -71,6 +73,7 @@ From the repository root:
 python -m unittest tools.oneflow_gui.test_services
 python -m unittest tools.oneflow_gui.test_workflow_repository
 python -m unittest tools.oneflow_gui.test_workflow_execution
+python -m unittest tools.oneflow_gui.test_workflow_dependencies
 python tools/test_mesh_cases.py
 ```
 
