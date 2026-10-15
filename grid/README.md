@@ -12,6 +12,16 @@ future GUI. It gives each case a stable ID and locates its runtime entry point,
 layout, and optional richer profile. A GUI should discover cases from this
 catalog instead of hard-coding case names or directory paths.
 
+Use the standard-library command-line tool to discover and validate cases:
+
+```sh
+python tools/mesh_cases.py list
+python tools/mesh_cases.py show minimal_cube
+python tools/mesh_cases.py validate
+python tools/mesh_cases.py validate two_connected_cubes
+python tools/test_mesh_cases.py
+```
+
 The catalog is deliberately not yet the authoritative store for every runtime
 parameter. Existing `script/*.txt` files remain authoritative for OneFLOW, so
 standalone execution and older workflows are unchanged. The next migration
