@@ -118,9 +118,10 @@ class WorkflowGraphRunnerTest(unittest.TestCase):
                 run_root=root / "run",
             )
             statuses = {item.case_id: item.status for item in result.cases}
-            self.assertEqual(statuses["mesh"], "succeeded")
-            self.assertEqual(statuses["solver"], "failed")
+            self.assertEqual(statuses["mesh"], "failed")
+            self.assertEqual(statuses["solver"], "skipped")
             self.assertNotIn("solver", invoked)
+            self.assertIn("Declared output artifacts were not produced", next(item.message for item in result.cases if item.case_id == "mesh"))
 
     def test_cancelled_case_stops_later_independent_cases(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
