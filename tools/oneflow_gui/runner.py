@@ -94,7 +94,7 @@ def run_case(
             assert process.stdout is not None
             try:
                 for line in process.stdout:
-                    output_queue.put(line.rstrip("\\r\\n"))
+                    output_queue.put(line.rstrip("\r\n"))
             finally:
                 output_queue.put(None)
 
