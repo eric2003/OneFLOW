@@ -44,3 +44,5 @@ jobs:
         run: python tools/test_mesh_cases.py
       - name: Test desktop services
         run: python -m unittest tools.oneflow_gui.test_services
+      - name: Test workflow persistence
+        run: python -m unittest tools.oneflow_gui.test_workflow_repository
