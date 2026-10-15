@@ -24,7 +24,10 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from .workflow_execution import build_multi_directory_command
+from .workflow_execution import (
+    build_multi_directory_command,
+    read_multi_directory_step,
+)
 from .workflow_process import run_process
 from .workflow_repository import (
     WorkflowDefinition,
@@ -224,12 +227,14 @@ class WorkflowDialog(QDialog):
         self.id_edit.setReadOnly(True)
         self.name_edit.setText(workflow.name)
         self.description_edit.setText(workflow.description)
-        step = next(
-            (item for item in workflow.steps if item.get("type") == "multi_directory"),
-            {},
-        )
-        directories = step.get("directories", [])
-        self.directory_edit.setPlainText("\n".join(str(item) for item in directories))
+        try:
+            directories = read_multi_directory_step(workflow.steps)
+        except ValueError as error:
+            directories = []
+            self.log_view.appendPlainText(
+                f"Cannot load workflow '{workflow.workflow_id}': {error}"
+            )
+        self.directory_edit.setPlainText("\\n".join(directories))
         self.delete_button.setEnabled(True)
         self._reload_history(workflow.workflow_id)
 
@@ -309,8 +314,10 @@ class WorkflowDialog(QDialog):
             return
         try:
             workflow = self._repository.load_workflow(self._selected_id)
-            step = next(item for item in workflow.steps if item.get("type") == "multi_directory")
-            directories = [Path(value).expanduser().resolve() for value in step["directories"]]
+            directories = [
+                Path(value).expanduser().resolve()
+                for value in read_multi_directory_step(workflow.steps)
+            ]
             executable_text = self.executable_edit.text().strip()
             if not executable_text:
                 raise ValueError("Select a OneFLOW executable.")

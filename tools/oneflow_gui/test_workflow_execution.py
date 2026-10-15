@@ -6,7 +6,10 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from tools.oneflow_gui.workflow_execution import build_multi_directory_command
+from tools.oneflow_gui.workflow_execution import (
+    build_multi_directory_command,
+    read_multi_directory_step,
+)
 
 
 class WorkflowExecutionTest(unittest.TestCase):
@@ -48,6 +51,40 @@ class WorkflowExecutionTest(unittest.TestCase):
         self.assertEqual(command[1], "r")
         self.assertEqual(len(command), 4)
         self.assertEqual(command[2], str(Path("folder with spaces").resolve()))
+
+    def test_read_multi_directory_step_preserves_order(self) -> None:
+        steps = (
+            {"type": "unsupported", "value": "ignored"},
+            {
+                "type": "multi_directory",
+                "directories": [" grid/first ", "grid/second", "plate"],
+            },
+        )
+        self.assertEqual(
+            read_multi_directory_step(steps),
+            ["grid/first", "grid/second", "plate"],
+        )
+
+    def test_read_multi_directory_step_rejects_missing_step(self) -> None:
+        with self.assertRaisesRegex(ValueError, "exactly one"):
+            read_multi_directory_step(({"type": "other"},))
+
+    def test_read_multi_directory_step_rejects_duplicate_steps(self) -> None:
+        step = {"type": "multi_directory", "directories": ["grid/cube"]}
+        with self.assertRaisesRegex(ValueError, "exactly one"):
+            read_multi_directory_step((step, step))
+
+    def test_read_multi_directory_step_rejects_empty_directories(self) -> None:
+        with self.assertRaisesRegex(ValueError, "at least one directory"):
+            read_multi_directory_step(
+                ({"type": "multi_directory", "directories": []},)
+            )
+
+    def test_read_multi_directory_step_rejects_invalid_directory_values(self) -> None:
+        with self.assertRaisesRegex(ValueError, "non-empty string"):
+            read_multi_directory_step(
+                ({"type": "multi_directory", "directories": ["grid/cube", 7]},)
+            )
 
 
 if __name__ == "__main__":
