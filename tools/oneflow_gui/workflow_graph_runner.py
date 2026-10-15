@@ -34,9 +34,10 @@ def run_case_graph(
     """
     results: list[CaseExecutionResult] = []
     status_by_id: dict[str, str] = {}
+    cancellation_requested = False
 
     for step in plan.steps:
-        if is_cancelled():
+        if cancellation_requested or is_cancelled():
             results.append(CaseExecutionResult(step.case_id, "cancelled", "Run cancelled."))
             status_by_id[step.case_id] = "cancelled"
             continue
@@ -66,6 +67,8 @@ def run_case_graph(
             raise ValueError(f"Unsupported case execution status: {status!r}")
         results.append(CaseExecutionResult(step.case_id, status, message))
         status_by_id[step.case_id] = status
+        if status == "cancelled":
+            cancellation_requested = True
 
     if any(item.status == "failed" for item in results):
         overall_status = "failed"
