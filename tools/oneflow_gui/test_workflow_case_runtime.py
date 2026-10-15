@@ -28,7 +28,8 @@ class WorkflowCaseRuntimeTest(unittest.TestCase):
             step = next(item for item in plan.steps if item.case_id == "solver")
             staged = prepare_case_directory(step, root / "run", {"mesh": producer_run})
             config = (staged / "script" / "cfd.txt").read_text(encoding="utf-8")
-            self.assertIn(f'string sourceGridCaseDir = "{producer_run.resolve()}";', config)
+            escaped_producer_path = str(producer_run.resolve()).replace("\\", "\\\\")
+            self.assertIn(f'string sourceGridCaseDir = "{escaped_producer_path}";', config)
             self.assertIn('string gridFileName = "results/grid.ofl";', config)
             self.assertEqual(original.read_text(encoding="utf-8"), 'string gridFileName = "grid/old.ofl";\nint maxSteps = 50;\n')
 
