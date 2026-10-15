@@ -53,7 +53,9 @@ The long-term product direction is documented in both [Chinese](../../docs/ONEFL
   cancellation; it has no Qt dependency.
 - `workflow_dependencies.py`: Qt-independent validation and topological ordering of case dependencies; derives independent, producer, consumer, and chained roles from graph edges.
 - `workflow_plan.py`: converts a case graph into a dependency-ordered plan and binds named producer artifacts to consumer settings. Artifact paths are relative to the producer case, so either `grid/...` or `results/...` is supported.
-- `workflow_graph_runner.py`: sequentially executes a plan through an injected process callback, verifies declared input artifacts before launching consumers, skips cases whose dependencies did not succeed, and lets independent cases continue. The callback still needs to apply each step's `runtime_overrides` to the OneFLOW invocation.
+- `workflow_graph_runner.py`: sequentially executes a plan through an injected process callback, verifies declared input artifacts before launching consumers, skips cases whose dependencies did not succeed, and lets independent cases continue. The runner is not yet wired to the GUI process launch.
+- `workflow_runtime_overrides.py`: applies string settings to a parameter file in a run-specific case copy, preserving existing declaration comments; it does not copy cases or launch OneFLOW by itself.
+- `test_workflow_runtime_overrides.py`: tests existing setting replacement, missing `sourceGridCaseDir` injection, quoting, and invalid setting names.
 - `test_workflow_graph_runner.py`: tests execution order, independent branches, failure propagation, cancellation, and missing output files.
 - `test_workflow_dependencies.py`: tests for dependency roles, ordering, missing references, and cycles.
 - `test_workflow_plan.py`: tests for producer-consumer artifact binding, both `grid` and `results` paths, and invalid dependency/path declarations.
@@ -80,6 +82,7 @@ python -m unittest tools.oneflow_gui.test_workflow_execution
 python -m unittest tools.oneflow_gui.test_workflow_dependencies
 python -m unittest tools.oneflow_gui.test_workflow_plan
 python -m unittest tools.oneflow_gui.test_workflow_graph_runner
+python -m unittest tools.oneflow_gui.test_workflow_runtime_overrides
 python tools/test_mesh_cases.py
 ```
 
