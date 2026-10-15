@@ -18,7 +18,7 @@ class WorkflowGraphRunnerTest(unittest.TestCase):
                     "id": "solver",
                     "directory": "solver",
                     "depends_on": ["mesh"],
-                    "inputs": [{"artifact": "grid", "setting": "gridFileName"}],
+                    "inputs": [{"artifact": "grid", "setting": "gridFileName", "parameter_file": "script/cfd.txt"}],
                 },
                 {"id": "independent", "directory": "independent"},
                 {
