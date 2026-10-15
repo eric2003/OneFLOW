@@ -11,7 +11,6 @@ from uuid import uuid4
 from PySide6.QtCore import QThread, Signal
 from PySide6.QtWidgets import (
     QComboBox,
-    QComboBox,
     QDialog,
     QFileDialog,
     QFormLayout,
@@ -367,11 +366,25 @@ class WorkflowDialog(QDialog):
         workflow_id = self.id_edit.text().strip() or _new_id(name)
         if self.mode_combo.currentData() == "case_graph":
             try:
-                cases = json.loads(self.graph_edit.toPlainText())
+                graph_data = json.loads(self.graph_edit.toPlainText())
+                imported_base = ""
+                if isinstance(graph_data, list):
+                    cases = graph_data
+                elif isinstance(graph_data, dict) and isinstance(graph_data.get("steps"), list):
+                    graph_steps = graph_data["steps"]
+                    if len(graph_steps) != 1 or graph_steps[0].get("type") != "case_graph":
+                        raise ValueError("Imported workflow JSON must contain exactly one case_graph step.")
+                    cases = graph_steps[0].get("cases")
+                    imported_base = str(graph_steps[0].get("base_directory", ""))
+                elif isinstance(graph_data, dict) and graph_data.get("type") == "case_graph":
+                    cases = graph_data.get("cases")
+                    imported_base = str(graph_data.get("base_directory", ""))
+                else:
+                    raise ValueError("Case graph JSON must be a case array or a case_graph workflow definition.")
                 if not isinstance(cases, list) or not cases:
-                    raise ValueError("Case graph JSON must be a non-empty array.")
+                    raise ValueError("Case graph JSON must contain a non-empty cases array.")
                 graph_step = {"type": "case_graph", "cases": cases}
-                base_directory = self.base_directory_edit.text().strip()
+                base_directory = self.base_directory_edit.text().strip() or imported_base
                 if base_directory:
                     graph_step["base_directory"] = base_directory
                 steps = (graph_step,)
