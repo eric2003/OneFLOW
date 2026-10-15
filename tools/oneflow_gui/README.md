@@ -36,7 +36,9 @@ preserved, and the workflow launches one OneFLOW process with the command shape
 `OneFLOW.exe r <directory-1> <directory-2> ...`. Directory paths are used as
 configured rather than copied into isolated case workspaces, so this mode is
 intended for existing directory-based workflows such as chained grid and solver
-runs. The current multi-directory editor still models a list, not a dependency graph; explicit case dependencies are being introduced as a separate, testable model before execution and artifact handoff are wired in. Workflow definitions and run history are stored under
+runs. The current multi-directory editor still models a list, not a dependency graph. The
+dependency-aware workflow service is being built separately from this legacy
+GUI mode. Workflow definitions and run history are stored under
 `~/.oneflow/workflow-data` (the user's home directory); deleting a definition
 does not delete its history. The GUI displays recent run status and messages.
 
@@ -53,12 +55,12 @@ The long-term product direction is documented in both [Chinese](../../docs/ONEFL
   cancellation; it has no Qt dependency.
 - `workflow_dependencies.py`: Qt-independent validation and topological ordering of case dependencies; derives independent, producer, consumer, and chained roles from graph edges.
 - `workflow_plan.py`: converts a case graph into a dependency-ordered plan and binds named producer artifacts to consumer settings. Artifact paths are relative to the producer case, so either `grid/...` or `results/...` is supported.
-- `workflow_graph_runner.py`: sequentially executes a plan through an injected process callback, verifies declared input artifacts before launching consumers, skips cases whose dependencies did not succeed, and lets independent cases continue. The runner is not yet wired to the GUI process launch.
+- `workflow_graph_runner.py`: stages every case under a run-specific workspace, executes cases in dependency order through an injected callback, resolves artifact inputs against staged producer outputs, blocks consumers with missing inputs or unsuccessful dependencies, and lets independent cases continue.
 - `workflow_runtime_overrides.py`: applies string settings to a parameter file in a run-specific case copy, preserving existing declaration comments.
-- `workflow_case_runtime.py`: copies one case into a workflow run directory and applies declared artifact bindings to the staged parameter file. The graph runner and GUI do not yet call this service automatically.
+- `workflow_case_runtime.py`: copies one case into the workflow run directory and applies declared artifact bindings to the staged parameter file. The graph runner uses this service; the legacy GUI workflow editor is not yet connected to the graph runner.
 - `test_workflow_case_runtime.py`: tests staged grid binding and preservation of source case files.
 - `test_workflow_runtime_overrides.py`: tests existing setting replacement, missing `sourceGridCaseDir` injection, quoting, and invalid setting names.
-- `test_workflow_graph_runner.py`: tests execution order, independent branches, failure propagation, cancellation, and missing output files.
+- `test_workflow_graph_runner.py`: tests isolated staging, staged producer-consumer artifact handoff, execution order, independent branches, failure propagation, cancellation, and missing output files.
 - `test_workflow_dependencies.py`: tests for dependency roles, ordering, missing references, and cycles.
 - `test_workflow_plan.py`: tests for producer-consumer artifact binding, both `grid` and `results` paths, and invalid dependency/path declarations.
 - `workflow_execution.py`: shell-free construction of one-process,

@@ -1,10 +1,12 @@
-"""Execute a workflow plan sequentially with dependency and artifact checks."""
+"""Execute a workflow plan in isolated case directories."""
 
 from __future__ import annotations
 
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
+from pathlib import Path
 
+from .workflow_case_runtime import prepare_case_directory
 from .workflow_plan import WorkflowExecutionPlan, WorkflowPlanStep
 
 
@@ -25,15 +27,17 @@ def run_case_graph(
     plan: WorkflowExecutionPlan,
     run_step: Callable[[WorkflowPlanStep], tuple[str, str]],
     *,
+    run_root: Path | str,
     is_cancelled: Callable[[], bool] = lambda: False,
 ) -> WorkflowGraphRunResult:
-    """Run planned cases in order and prevent consumers from using missing output.
+    """Stage and run cases in dependency order.
 
-    run_step returns (status, message). It is responsible for launching the
-    case with the step's runtime input overrides, without editing source files.
+    The callback receives a step whose directory and input producer directories
+    point into this run's isolated workspace. It returns (status, message).
     """
     results: list[CaseExecutionResult] = []
     status_by_id: dict[str, str] = {}
+    runtime_directories: dict[str, Path] = {}
     cancellation_requested = False
 
     for step in plan.steps:
@@ -52,17 +56,45 @@ def run_case_graph(
             status_by_id[step.case_id] = "skipped"
             continue
 
-        missing_inputs = [
-            str(binding.source_path) for binding in step.inputs
-            if not binding.source_path.is_file()
-        ]
+        missing_inputs: list[str] = []
+        for binding in step.inputs:
+            producer_directory = runtime_directories.get(binding.producer_id)
+            if producer_directory is None:
+                missing_inputs.append(str(binding.source_path))
+            else:
+                artifact_path = producer_directory / binding.relative_path
+                if not artifact_path.is_file():
+                    missing_inputs.append(str(artifact_path))
         if missing_inputs:
             message = "Required input artifacts are missing: " + ", ".join(missing_inputs)
             results.append(CaseExecutionResult(step.case_id, "failed", message))
             status_by_id[step.case_id] = "failed"
             continue
 
-        status, message = run_step(step)
+        try:
+            staged_directory = prepare_case_directory(
+                step, run_root, runtime_directories
+            )
+        except (OSError, ValueError) as error:
+            results.append(CaseExecutionResult(step.case_id, "failed", str(error)))
+            status_by_id[step.case_id] = "failed"
+            continue
+
+        runtime_directories[step.case_id] = staged_directory
+        staged_inputs = tuple(
+            replace(
+                binding,
+                producer_directory=runtime_directories[binding.producer_id],
+            )
+            for binding in step.inputs
+        )
+        staged_step = replace(
+            step,
+            directory=staged_directory,
+            inputs=staged_inputs,
+        )
+
+        status, message = run_step(staged_step)
         if status not in {"succeeded", "failed", "cancelled"}:
             raise ValueError(f"Unsupported case execution status: {status!r}")
         results.append(CaseExecutionResult(step.case_id, status, message))
