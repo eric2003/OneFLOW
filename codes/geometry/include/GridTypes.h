@@ -125,6 +125,7 @@ struct GridConfig
     std::string   bcFile;
     std::string   targetFile;
     std::string   gridInfoFile;
+    std::string   tecplotGridFile;
     std::string   partitionFile;
     GridTopology  topology{ GridTopology::Unknown };
     GridAssemblyMode assemblyMode{ GridAssemblyMode::AggregateZones };
