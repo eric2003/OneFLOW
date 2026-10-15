@@ -7,6 +7,7 @@
 namespace ONEFLOW
 {
 
+// Value-only per-zone metadata. It has no dependency on runtime grid ownership.
 struct GridInfoZoneSnapshot
 {
     std::string name;
@@ -17,6 +18,9 @@ struct GridInfoZoneSnapshot
     int boundaryFaceCount = 0;
 };
 
+// L0 mesh summary contract: aggregate counts and the bounding box of all stored
+// coordinates. Snapshot creation rejects null zones and non-finite coordinates.
+// Serialization is handled separately by GridInfoJsonWriter.
 struct GridInfoSnapshot
 {
     int dimension = 0;
