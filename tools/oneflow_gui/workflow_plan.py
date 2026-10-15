@@ -43,6 +43,16 @@ class ArtifactBinding:
 
 
 @dataclass(frozen=True, slots=True)
+class ArtifactOutput:
+    """Declare an artifact and optionally configure its producer setting."""
+
+    artifact_id: str
+    relative_path: Path
+    parameter_file: Path | None = None
+    producer_setting: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
 class WorkflowPlanStep:
     """One case in dependency-respecting execution order."""
 
@@ -50,6 +60,7 @@ class WorkflowPlanStep:
     directory: Path
     depends_on: tuple[str, ...]
     inputs: tuple[ArtifactBinding, ...]
+    outputs: tuple[ArtifactOutput, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -78,7 +89,8 @@ def build_case_graph_plan(
         for case_id, case in case_by_id.items()
     }
 
-    outputs: dict[str, tuple[str, Path]] = {}
+    outputs: dict[str, tuple[str, ArtifactOutput]] = {}
+    outputs_by_case: dict[str, list[ArtifactOutput]] = {case_id: [] for case_id in case_by_id}
     for case_id, case in case_by_id.items():
         raw_outputs = case.get("outputs", [])
         if not isinstance(raw_outputs, list):
@@ -90,9 +102,26 @@ def build_case_graph_plan(
             relative_path = _relative_artifact_path(
                 output.get("path"), f"output '{artifact_id}' in case '{case_id}'"
             )
+            parameter_file_value = output.get("parameter_file")
+            setting_value = output.get("setting")
+            if (parameter_file_value is None) != (setting_value is None):
+                raise ValueError(
+                    f"Output '{artifact_id}' in case '{case_id}' must declare both "
+                    "parameter_file and setting when configuring its producer path."
+                )
+            parameter_file = None
+            producer_setting = None
+            if parameter_file_value is not None:
+                parameter_file = _relative_artifact_path(
+                    parameter_file_value,
+                    f"parameter file for output '{artifact_id}' in case '{case_id}'",
+                )
+                producer_setting = _non_empty_string(setting_value, "output setting", case_id)
+            artifact_output = ArtifactOutput(artifact_id, relative_path, parameter_file, producer_setting)
             if artifact_id in outputs:
                 raise ValueError(f"Duplicate artifact id: {artifact_id}")
-            outputs[artifact_id] = (case_id, relative_path)
+            outputs[artifact_id] = (case_id, artifact_output)
+            outputs_by_case[case_id].append(artifact_output)
 
     inputs_by_case: dict[str, list[ArtifactBinding]] = {
         case_id: [] for case_id in case_by_id
@@ -116,7 +145,8 @@ def build_case_graph_plan(
                 raise ValueError(
                     f"Case '{case_id}' consumes unknown artifact '{artifact_id}'."
                 )
-            producer_id, relative_path = outputs[artifact_id]
+            producer_id, producer_output = outputs[artifact_id]
+            relative_path = producer_output.relative_path
             if producer_id not in graph.dependencies[case_id]:
                 raise ValueError(
                     f"Case '{case_id}' must depend directly on producer "
@@ -140,6 +170,7 @@ def build_case_graph_plan(
             directory=directories[case_id],
             depends_on=graph.dependencies[case_id],
             inputs=tuple(inputs_by_case[case_id]),
+            outputs=tuple(outputs_by_case[case_id]),
         )
         for case_id in graph.ordered_ids
     )
