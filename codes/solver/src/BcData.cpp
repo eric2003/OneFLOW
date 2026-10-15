@@ -5,7 +5,7 @@
 License
     This file is part of OneFLOW.
 
-    OneFLOW is free software: you can redistribute it and/or modify it
+    OneFLOW is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
@@ -17,14 +17,13 @@ License
 
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
-
 \*---------------------------------------------------------------------------*/
 
 #include "BcData.h"
 #include "TextFileParser.h"
 
 #include "Prj.h"
-#include "GridTypes.h"
+#include "MultiBlock.h"
 #include <filesystem>
 
 BeginNameSpace( ONEFLOW )
@@ -49,15 +48,9 @@ void BcData::Init( const std::string & fileName )
 
 void BcData::ReadRegion()
 {
-    const GridConfig config = GridConfig::FromDataBase();
-    const std::string sourceCaseDir =
-        config.ResolveSourceCaseDir( Prj::prjBaseDir );
-
-    const std::string sourceGridPath = sourceCaseDir.empty()
-        ? Prj::GetPrjFileName( config.sourceFile )
-        : Prj::GetCaseFileName( sourceCaseDir, config.sourceFile );
+    const std::string gridPath = Prj::GetPrjFileName( GetGridFileName() );
     const std::filesystem::path regionMapPath =
-        std::filesystem::path( sourceGridPath ).parent_path() / "bcRegionMap.txt";
+        std::filesystem::path( gridPath ).parent_path() / "bcRegionMap.txt";
 
     std::fstream file;
     Prj::OpenFile( file, regionMapPath.string(), std::ios_base::in );
@@ -67,8 +60,8 @@ void BcData::ReadRegion()
 
 void BcData::ReadList( const std::string & fileName )
 {
-    //\t is the tab key
-    std::string separator = " =\r\n\t#$,;\"";
+    //\\t is the tab key
+    std::string separator = " =\\r\\n\\t#$,;\\\"";
 
     TextFileParser textFileParser;
     textFileParser.OpenPrjFile( fileName, std::ios_base::in );
