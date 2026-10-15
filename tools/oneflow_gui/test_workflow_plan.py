@@ -40,6 +40,13 @@ class WorkflowPlanTest(unittest.TestCase):
             binding = solver.inputs[0]
             self.assertEqual(binding.consumer_setting, "gridFileName")
             self.assertEqual(
+                binding.runtime_overrides,
+                {
+                    "sourceGridCaseDir": str((root / "test/grid/rae2822convert").resolve()),
+                    "gridFileName": "results/rae2822_2d.ofl",
+                },
+            )
+            self.assertEqual(
                 binding.source_case_directory,
                 (root / "test/grid/rae2822convert").resolve(),
             )
