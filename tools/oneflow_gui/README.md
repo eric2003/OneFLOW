@@ -30,15 +30,15 @@ execution. Generated files therefore do not overwrite the checked-in case
 inputs. The application invokes the same command shape used by the existing
 workflow runner: `OneFLOW.exe r <case-directory>`.
 
-Use **Workflows...** to create, edit, save, and delete named multi-directory
-workflows. Each directory is entered on a separate line; the saved order is
-preserved, and the workflow launches one OneFLOW process with the command shape
-`OneFLOW.exe r <directory-1> <directory-2> ...`. Directory paths are used as
-configured rather than copied into isolated case workspaces, so this mode is
-intended for existing directory-based workflows such as chained grid and solver
-runs. The current multi-directory editor still models a list, not a dependency graph. The
-dependency-aware workflow service is being built separately from this legacy
-GUI mode. Workflow definitions and run history are stored under
+Use **Workflows...** to create, edit, save, and delete named workflows. The
+**Multi-directory** mode preserves the existing behavior: each directory is
+entered on a separate line, and one OneFLOW process receives
+`OneFLOW.exe r <directory-1> <directory-2> ...`. The **Dependency graph** mode
+accepts a JSON array of case objects or a complete saved workflow definition.
+It stages each case in an isolated run workspace, runs dependencies in order,
+checks declared output files, and passes artifact paths to consumer settings.
+The graph base directory contains the configured relative case directories.
+Workflow definitions and run history are stored under
 `~/.oneflow/workflow-data` (the user's home directory); deleting a definition
 does not delete its history. The GUI displays recent run status and messages.
 
@@ -58,7 +58,7 @@ The long-term product direction is documented in both [Chinese](../../docs/ONEFL
 - `workflow_graph_runner.py`: stages every case under a run-specific workspace, executes cases in dependency order through an injected callback, resolves artifact inputs against staged producer outputs, blocks consumers with missing inputs or unsuccessful dependencies, and lets independent cases continue.
 - `workflow_runtime_overrides.py`: applies string settings to a parameter file in a run-specific case copy, preserving existing declaration comments.
 - `workflow_case_runtime.py`: copies one case into the workflow run directory, creates configured output directories, applies producer output settings, and applies declared artifact bindings to staged consumer parameter files. The graph runner uses this service; the legacy GUI workflow editor is not yet connected to the graph runner.
-- `examples/rae2822_multicase.json`: example dependency contract for a workspace whose base directory contains `rae2822grid` and `rae2822_roe_sa`. It configures the producer to write `results/rae2822_2d.ofl` and binds the solver to that exact artifact. Select the workspace base directory when executing this definition; the existing legacy GUI editor does not yet run `case_graph` definitions.
+- `examples/rae2822_multicase.json`: example dependency contract for a workspace whose base directory contains `rae2822grid` and `rae2822_roe_sa`. It configures the producer to write `results/rae2822_2d.ofl` and binds the solver to that exact artifact. Select `D:\\OneFLOWWorkspace\\workdir2026\\multicases` as the base directory for the user's local workspace.
 - `test_workflow_case_runtime.py`: tests staged grid binding and preservation of source case files.
 - `test_workflow_runtime_overrides.py`: tests existing setting replacement, missing `sourceGridCaseDir` injection, quoting, and invalid setting names.
 - `test_workflow_graph_runner.py`: tests isolated staging, staged producer-consumer artifact handoff, execution order, independent branches, failure propagation, cancellation, and missing output files.
