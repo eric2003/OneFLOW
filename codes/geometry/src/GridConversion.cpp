@@ -25,6 +25,7 @@ License
 #include "GridMediator.h"
 #include "Su2Grid.h"
 #include "Plot3D.h"
+#include "Boundary.h"
 #include <stdexcept>
 #include <string>
 
@@ -133,6 +134,10 @@ void ConvertGrid(
             std::string( ToString( config.sourceType ) ) + " -> " +
             std::string( ToString( config.targetType ) ) );
     }
+    // Region IDs are local to one conversion and must not inherit names from
+    // a previous case executed in the same process.
+    RegionNameMap::Reset();
+
     for ( const auto & entry : kConverters )
     {
         if ( entry.sourceType == config.sourceType )
