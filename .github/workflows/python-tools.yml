@@ -56,3 +56,5 @@ jobs:
         run: python -m unittest tools.oneflow_gui.test_workflow_graph_runner
       - name: Test workflow process execution
         run: python -m unittest tools.oneflow_gui.test_workflow_process
+      - name: Test runtime parameter overrides
+        run: python -m unittest tools.oneflow_gui.test_workflow_runtime_overrides
