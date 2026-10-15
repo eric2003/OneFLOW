@@ -5,6 +5,7 @@
 
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <array>
 #include <filesystem>
 #include <fstream>
@@ -97,6 +98,86 @@ TEST( GridLayoutGenerationTest, GeneratesMinimalRectangle )
     }
 
     EXPECT_EQ( ( ni - 1 ) * ( nj - 1 ), 4 );
+
+    file.close();
+
+    Dim::SetDimension( oldDimension );
+    Prj::prjBaseDir = oldProjectDir;
+    std::filesystem::remove_all( outputDir );
+}
+
+
+TEST( GridLayoutGenerationTest, GeneratesMinimalCube )
+{
+    const std::filesystem::path layoutFile =
+        std::filesystem::path( ONEFLOW_SOURCE_DIR ) /
+        "tests/geometry/data/minimalCubeLayout.txt";
+
+    const std::filesystem::path outputDir =
+        std::filesystem::temp_directory_path() / "oneflow-minimal-cube";
+    std::filesystem::remove_all( outputDir );
+    std::filesystem::create_directories( outputDir );
+
+    const std::filesystem::path outputFile = outputDir / "minimalCube.ofl";
+    const std::filesystem::path bcFile = outputDir / "minimalCube.inp";
+
+    const int oldDimension = Dim::GetDimension();
+    const std::string oldProjectDir = Prj::prjBaseDir;
+
+    Dim::SetDimension( THREE_D );
+    Prj::SetPrjBaseDir( outputDir.string() );
+
+    SetDataString( "gridLayoutFileName", layoutFile.string() );
+    SetDataString( "sourceGridFileName", outputFile.string() );
+    SetDataString( "sourceGridBcName", bcFile.string() );
+    SetDataString( "targetGridFileName", outputFile.string() );
+    SetDataString( "part_uns_file", ( outputDir / "partition.uns" ).string() );
+
+    GridMachine().Run( layoutFile.string() );
+
+    ASSERT_TRUE( std::filesystem::is_regular_file( outputFile ) );
+
+    std::ifstream file( outputFile, std::ios::binary );
+    ASSERT_TRUE( file.is_open() );
+
+    const int nZone = ReadBinary< int >( file );
+    ASSERT_EQ( nZone, 1 );
+
+    const int ni = ReadBinary< int >( file );
+    const int nj = ReadBinary< int >( file );
+    const int nk = ReadBinary< int >( file );
+
+    EXPECT_EQ( ni, 3 );
+    EXPECT_EQ( nj, 3 );
+    EXPECT_EQ( nk, 3 );
+
+    constexpr int nodeCount = 27;
+    std::array< Real, nodeCount > x{};
+    std::array< Real, nodeCount > y{};
+    std::array< Real, nodeCount > z{};
+
+    for ( Real & value : x ) value = ReadBinary< Real >( file );
+    for ( Real & value : y ) value = ReadBinary< Real >( file );
+    for ( Real & value : z ) value = ReadBinary< Real >( file );
+
+    EXPECT_DOUBLE_EQ( *std::min_element( x.begin(), x.end() ), 0.0 );
+    EXPECT_DOUBLE_EQ( *std::max_element( x.begin(), x.end() ), 1.0 );
+    EXPECT_DOUBLE_EQ( *std::min_element( y.begin(), y.end() ), 0.0 );
+    EXPECT_DOUBLE_EQ( *std::max_element( y.begin(), y.end() ), 1.0 );
+    EXPECT_DOUBLE_EQ( *std::min_element( z.begin(), z.end() ), 0.0 );
+    EXPECT_DOUBLE_EQ( *std::max_element( z.begin(), z.end() ), 1.0 );
+
+    for ( int i = 0; i < nodeCount; ++i )
+    {
+        EXPECT_GE( x[i], 0.0 );
+        EXPECT_LE( x[i], 1.0 );
+        EXPECT_GE( y[i], 0.0 );
+        EXPECT_LE( y[i], 1.0 );
+        EXPECT_GE( z[i], 0.0 );
+        EXPECT_LE( z[i], 1.0 );
+    }
+
+    EXPECT_EQ( ( ni - 1 ) * ( nj - 1 ) * ( nk - 1 ), 8 );
 
     file.close();
 
