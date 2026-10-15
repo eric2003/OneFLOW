@@ -646,18 +646,19 @@ void BlkFaceSolver::DumpTecplotGrid( const Grids & strGridList, const std::strin
 {
     std::fstream file;
     Prj::OpenPrjFile( file, fileName, std::ios_base::out );
-    file << "TITLE = \\"OneFLOW Multi-Block Grid\\"\\n";
-    file << "VARIABLES = \\"X\\", \\"Y\\", \\"Z\\"\\n";
+    file << "TITLE = \"OneFLOW Multi-Block Grid\"\n";
+    file << "VARIABLES = \"X\", \"Y\", \"Z\"\n";
     file << std::setprecision( 17 );
 
     for ( std::size_t iZone = 0; iZone < strGridList.size(); ++iZone )
     {
-        const StrGrid * grid = ONEFLOW::StrGridCast( &GridAt( strGridList, iZone ) );
-        file << "ZONE T=\\"Block " << iZone + 1
-             << "\\", I=" << grid->ni
+        const StrGrid * grid = static_cast< const StrGrid * >(
+            &GridAt( strGridList, iZone ) );
+        file << "ZONE T=\"Block " << iZone + 1
+             << "\", I=" << grid->ni
              << ", J=" << grid->nj
              << ", K=" << grid->nk
-             << ", DATAPACKING=POINT\\n";
+             << ", DATAPACKING=POINT\n";
 
         const NodeMesh & nodes = *grid->nodeMesh;
         const std::size_t nNodes = nodes.GetNumberOfNodes();
@@ -665,7 +666,7 @@ void BlkFaceSolver::DumpTecplotGrid( const Grids & strGridList, const std::strin
         {
             file << nodes.xN[ iNode ] << " "
                  << nodes.yN[ iNode ] << " "
-                 << nodes.zN[ iNode ] << "\\n";
+                 << nodes.zN[ iNode ] << "\n";
         }
     }
 
