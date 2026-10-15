@@ -13,7 +13,6 @@ namespace ONEFLOW
 GridInfoSnapshot MakeGridInfoSnapshot( const Grids & grids )
 {
     GridInfoSnapshot snapshot;
-    snapshot.dimension = grids.empty() ? 0 : GridAt( grids, 0 ).dimension;
     snapshot.zones.reserve( grids.size() );
 
     std::array< double, 3 > minimum = {
@@ -36,6 +35,10 @@ GridInfoSnapshot MakeGridInfoSnapshot( const Grids & grids )
         }
 
         const Grid & grid = *gridPtr;
+        if ( snapshot.zones.empty() )
+        {
+            snapshot.dimension = grid.dimension;
+        }
         snapshot.nodeCount += grid.nNodes;
         snapshot.faceCount += grid.nFaces;
         snapshot.cellCount += grid.nCells;
