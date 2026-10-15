@@ -41,8 +41,11 @@ The long-term product direction is documented in both [Chinese](../../docs/ONEFL
 - `executable_discovery.py`: ordered lookup of conventional executable paths.
 - `runner.py`: workspace isolation, process launch, output streaming, and
   cancellation; it has no Qt dependency.
+- `workflow_execution.py`: shell-free construction of one-process,
+  multi-directory command arguments, preserving the user-specified order.
 - `main_window.py`: Qt widgets and the sequential queue worker.
 - `test_services.py`: standard-library tests for the non-UI services.
+- `test_workflow_execution.py`: tests for argument order, spaces, and invalid input.
 - `workflow_repository.py`: versioned workflow-definition and run-history persistence, independent of Qt.
 - `test_workflow_repository.py`: persistence tests for version checks, CRUD behavior, and history retention.
 
@@ -56,6 +59,7 @@ From the repository root:
 ```powershell
 python -m unittest tools.oneflow_gui.test_services
 python -m unittest tools.oneflow_gui.test_workflow_repository
+python -m unittest tools.oneflow_gui.test_workflow_execution
 python tools/test_mesh_cases.py
 ```
 

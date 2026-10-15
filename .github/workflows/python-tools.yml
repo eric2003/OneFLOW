@@ -46,3 +46,5 @@ jobs:
         run: python -m unittest tools.oneflow_gui.test_services
       - name: Test workflow persistence
         run: python -m unittest tools.oneflow_gui.test_workflow_repository
+      - name: Test workflow command construction
+        run: python -m unittest tools.oneflow_gui.test_workflow_execution
