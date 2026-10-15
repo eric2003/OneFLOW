@@ -24,6 +24,8 @@ License
 #include "TextFileParser.h"
 
 #include "Prj.h"
+#include "GridTypes.h"
+#include <filesystem>
 
 BeginNameSpace( ONEFLOW )
 
@@ -47,12 +49,19 @@ void BcData::Init( const std::string & fileName )
 
 void BcData::ReadRegion()
 {
+    const GridConfig config = GridConfig::FromDataBase();
+    const std::string sourceCaseDir =
+        config.ResolveSourceCaseDir( Prj::prjBaseDir );
+
+    const std::string sourceGridPath = sourceCaseDir.empty()
+        ? Prj::GetPrjFileName( config.sourceFile )
+        : Prj::GetCaseFileName( sourceCaseDir, config.sourceFile );
+    const std::filesystem::path regionMapPath =
+        std::filesystem::path( sourceGridPath ).parent_path() / "bcRegionMap.txt";
+
     std::fstream file;
-    std::string fileName = "grid/bcRegionMap.txt";
-    Prj::OpenPrjFile( file, fileName, std::ios_base::in );
-
+    Prj::OpenFile( file, regionMapPath.string(), std::ios_base::in );
     file >> nRegion;
-
     Prj::CloseFile( file );
 }
 
