@@ -15,7 +15,7 @@
       "title": "Minimal Cube",
       "directory": "grid/minimal_cube",
       "runtimeConfig": "script/control.txt",
-      "profile": null,
+      "profile": "case.json",
       "layout": "grid/minimalCubeLayout.txt"
     },
     {
@@ -23,7 +23,7 @@
       "title": "Two Connected Cubes",
       "directory": "grid/two_connected_cubes",
       "runtimeConfig": "script/control.txt",
-      "profile": null,
+      "profile": "case.json",
       "layout": "grid/twoConnectedCubesLayout.txt"
     },
     {
