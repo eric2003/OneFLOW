@@ -51,7 +51,8 @@ class WorkflowGraphRunnerTest(unittest.TestCase):
 
             def run_step(step):
                 invoked.append(step.case_id)
-                self.assertEqual(step.directory, run_root / "cases" / step.case_id)
+                expected_directory = (run_root / "cases" / step.case_id).resolve()
+                self.assertEqual(step.directory.resolve(), expected_directory)
                 if step.case_id == "mesh":
                     output = step.directory / "results" / "mesh.ofl"
                     output.parent.mkdir(parents=True, exist_ok=True)
@@ -59,7 +60,7 @@ class WorkflowGraphRunnerTest(unittest.TestCase):
                 if step.case_id == "solver":
                     binding = step.inputs[0]
                     producer_directory = (run_root / "cases" / "mesh").resolve()
-                    self.assertEqual(binding.source_case_directory, producer_directory)
+                    self.assertEqual(binding.source_case_directory.resolve(), producer_directory)
                     self.assertTrue(binding.source_path.is_file())
                     self.assertEqual(
                         binding.runtime_overrides["sourceGridCaseDir"],
