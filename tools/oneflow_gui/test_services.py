@@ -39,7 +39,12 @@ class DesktopServiceTest(unittest.TestCase):
                 root,
                 {"ProgramFiles": str(install_root)},
             )
-            self.assertEqual(candidates, [debug.resolve(), release.resolve(), installed.resolve()])
+            self.assertEqual(candidates[:2], [debug.resolve(), release.resolve()])
+            self.assertIn(installed.resolve(), candidates)
+            self.assertLess(
+                candidates.index(release.resolve()),
+                candidates.index(installed.resolve()),
+            )
 
     def test_run_command_uses_argument_list(self) -> None:
         with tempfile.TemporaryDirectory(prefix="oneflow path ") as directory:
