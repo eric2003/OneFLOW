@@ -23,4 +23,5 @@ string sourceGridFileName = "results/twoConnectedCubes.generated.grd";
 string sourceGridBcName = "results/twoConnectedCubes.inp";
 string targetGridFileName = "results/twoConnectedCubes.ofl";
 string gridInfoFileName = "results/twoConnectedCubes.info.json";
+string tecplotGridFileName = "results/twoConnectedCubes.tecplot.dat";
 string patchFileName = "grid/twoConnectedCubes.patch";
