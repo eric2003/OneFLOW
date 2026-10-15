@@ -53,14 +53,23 @@ TEST( GridLayoutParserTest, ParsesTwoConnectedThreeDimensionalCubes )
     EXPECT_EQ( layout.faceToBlocks.size(), 12u );
 
     int sharedFaceRelations = 0;
+    bool firstBlockUsesSharedFace = false;
+    bool secondBlockUsesSharedFace = false;
     for ( const auto & relation : layout.faceToBlocks )
     {
-        if ( relation.faceId == 4 )
-        {
-            ++ sharedFaceRelations;
-        }
+        if ( relation.faceId != 4 ) continue;
+
+        ++ sharedFaceRelations;
+        firstBlockUsesSharedFace =
+            firstBlockUsesSharedFace ||
+            ( relation.blockId == 1 && relation.position == 2 );
+        secondBlockUsesSharedFace =
+            secondBlockUsesSharedFace ||
+            ( relation.blockId == 2 && relation.position == 1 );
     }
     EXPECT_EQ( sharedFaceRelations, 2 );
+    EXPECT_TRUE( firstBlockUsesSharedFace );
+    EXPECT_TRUE( secondBlockUsesSharedFace );
 }
 
 TEST( GridLayoutParserTest, RejectsUnknownPointReference )
