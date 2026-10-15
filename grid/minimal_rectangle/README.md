@@ -23,49 +23,61 @@ and is not currently the computational representation.
 
 The case parameters are read by OneFLOW's normal control-file loader into the
 database. The generation and conversion code then reads the database through
-the existing grid configuration path. The unit test does not implement this
-workflow.
+the existing grid configuration path.
 
-## Run directly
+## Run and inspect on Windows or Linux
 
-Copy this case directory to a workspace outside the repository, for example
-`D:\\OneFLOWWorkspace\\workdir2026\\grid\\minimal_rectangle`. Ensure the copied
-directory contains `script/control.txt`, the parameter files, and the
-`grid/minimalRectangleLayout.txt` input.
+Copy this case directory to a writable workspace outside the repository. The
+workspace must contain `script/control.txt`, the parameter files, and
+`grid/minimalRectangleLayout.txt`. Keep the repository checkout separately;
+the runner reads `case.json` and the exporter from that checkout.
 
-Run the production executable from its build directory so it can locate the
-shared `system` resources:
+From the repository root, run the same Python command on either platform:
 
-```powershell
-cd D:\\github\\OneFLOW\\build\\bin\\Debug
-.\\OneFLOW.exe r D:\\OneFLOWWorkspace\\workdir2026\\grid\\minimal_rectangle\\
+```sh
+python tools/mesh_workflow.py run \
+    --case grid/minimal_rectangle/case.json \
+    --workdir /path/to/workspace/grid/minimal_rectangle \
+    --oneflow /path/to/build/bin/OneFLOW
 ```
 
-The configured outputs are written under the case directory:
+On Windows, for example:
 
-- `results/minimalRectangle.generated.grd`: generated grid input
-  for the conversion step.
-- `results/minimalRectangle.inp`: generated boundary input.
-- `results/minimalRectangle.ofl`: converted OneFLOW grid.
-- `results/minimalRectangle.info.json`: grid metadata emitted by the
-  production grid conversion path.
+```powershell
+python tools/mesh_workflow.py run `
+    --case grid/minimal_rectangle/case.json `
+    --workdir D:\\OneFLOWWorkspace\\workdir2026\\grid\\minimal_rectangle `
+    --oneflow build\\bin\\Debug\\OneFLOW.exe
+```
 
-## Export and check visualization
+Use the actual executable path produced by the local build. The runner launches
+OneFLOW from the executable's directory so shared runtime resources can be
+found, then checks the runtime summary, exports the generated structured grid,
+and validates the exported summary and expected package files.
 
-After the OneFLOW run succeeds, export the generated grid and check its expected
-geometry and topology. Run this from a checkout of OneFLOW; the case directory
-can remain external:
+The PowerShell script remains as a compatibility wrapper for existing Windows
+commands:
 
 ```powershell
 .\\grid\\minimal_rectangle\\run.ps1 -OneFlowExe .\\build\\bin\\Debug\\OneFLOW.exe -CaseDir D:\\OneFLOWWorkspace\\workdir2026\\grid\\minimal_rectangle -RepositoryRoot D:\\github\\OneFLOW
 ```
 
-The helper invokes the same `OneFLOW.exe r <case-directory>` command, then
-writes `results/minimalRectangle.mesh/summary.json`, `geometry.json`,
-`topology.json`, `boundary.json`, `manifest.json`, `views/mesh.svg`, and
-`views/mesh.vtu`. The expected counts are 9 nodes, 4 quadrilateral cells,
-12 unique edges, 8 boundary edges, and 4 internal edges; the bounding box is
-`[0,0,0]` to `[1,1,0]`.
+## Outputs and checks
 
-Open the SVG in a browser or the VTU in ParaView. All generated artifacts stay
-in the external case workspace, not in the checked-in case template.
+All generated artifacts stay in the external case workspace:
+
+- `results/minimalRectangle.generated.grd`: generated grid input for conversion.
+- `results/minimalRectangle.inp`: generated boundary input.
+- `results/minimalRectangle.ofl`: converted OneFLOW grid.
+- `results/minimalRectangle.info.json`: runtime grid summary.
+- `results/minimalRectangle.mesh/`: exported mesh package.
+
+The package contains `summary.json`, `geometry.json`, `topology.json`,
+`boundary.json`, `manifest.json`, `views/mesh.svg`, and `views/mesh.vtu`.
+The expected counts are 9 nodes, 4 quadrilateral cells, 12 unique edges,
+8 boundary edges, and 4 internal edges. The bounding box is `[0,0,0]` to
+`[1,1,0]`.
+
+Open the SVG in a browser or the VTU in ParaView. The current exporter
+reconstructs 2D topology from the structured binary dimensions; it does not
+yet preserve physical boundary names or general unstructured-grid semantics.

@@ -59,11 +59,31 @@ GridConfig GridConfig::FromDataBase()
 
     try
     {
-        cfg.gridInfoFile = GetDataValue< std::string >( "gridInfoFileName" );
+        cfg.output.summaryFile = GetDataValue< std::string >( "gridInfoFileName" );
+        cfg.gridInfoFile = cfg.output.summaryFile;
     }
     catch ( const std::exception & )
     {
         // Grid information output is optional for existing cases.
+    }
+
+    try
+    {
+        cfg.output.tecplotFile = GetDataValue< std::string >( "tecplotGridFileName" );
+        cfg.tecplotGridFile = cfg.output.tecplotFile;
+    }
+    catch ( const std::exception & )
+    {
+        // Tecplot output is optional for existing cases.
+    }
+
+    try
+    {
+        cfg.output.cgnsFile = GetDataValue< std::string >( "cgnsGridFileName" );
+    }
+    catch ( const std::exception & )
+    {
+        // CGNS output is optional for existing cases.
     }
 
     // These values belong to specific grid workflows. Keep their defaults when

@@ -122,4 +122,8 @@ A test that requires full application initialization to check a local topology i
 
 ## Current scope
 
-The current `GridSummary` is only L0. `WriteGridSummaryJson` serializes that summary with schema `oneflow.grid-summary`, version 1. Neither currently reads from `Grid`/`UnsGrid`, serializes topology, or promises mesh reconstruction. Those are explicit follow-up steps rather than implicit guarantees.
+The lightweight `GridSummary` contract and `WriteGridSummaryJson` remain a standalone L0 contract with schema `oneflow.grid-summary`, version 1. `GridSummaryAdapter` can capture per-grid counts without owning mesh storage.
+
+The runtime `CalcGrid` workflow writes a separate `oneflow.mesh-info` document through `GridInfoWriter`. That adapter reads counts and coordinates from the live runtime grid collection and writes the aggregate bounding box and per-zone count records. Keeping it outside `CalcGrid` removes JSON and filesystem concerns from grid post-processing and binary grid dumping.
+
+The runtime info document is still metadata, not an export model: it does not contain node coordinates, connectivity, or physical boundary identities. The next boundary should be a value snapshot built from the live grid collection, with independent geometry, topology, and boundary views. JSON/VTK/other writers should consume those views rather than each reinterpreting `Grid` or reconstructing topology from counts.

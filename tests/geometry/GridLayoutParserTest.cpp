@@ -36,6 +36,42 @@ TEST( GridLayoutParserTest, ParsesLaminarPlateLayout )
     EXPECT_EQ( layout.faceToBlocks[ 1 ].blockId, 2 );
 }
 
+TEST( GridLayoutParserTest, ParsesTwoConnectedThreeDimensionalCubes )
+{
+    const std::string fileName =
+        std::string( ONEFLOW_SOURCE_DIR ) +
+        "/grid/two_connected_cubes/grid/twoConnectedCubesLayout.txt";
+
+    const GridLayout layout = GridLayoutParser().Parse( fileName );
+
+    EXPECT_EQ( layout.points.size(), 12u );
+    EXPECT_EQ( layout.lines.size(), 20u );
+    EXPECT_EQ( layout.dimensions.size(), 20u );
+    EXPECT_EQ( layout.distributions.size(), 20u );
+    EXPECT_EQ( layout.boundaries.size(), 20u );
+    EXPECT_EQ( layout.lineToFaces.size(), 44u );
+    EXPECT_EQ( layout.faceToBlocks.size(), 12u );
+
+    int sharedFaceRelations = 0;
+    bool firstBlockUsesSharedFace = false;
+    bool secondBlockUsesSharedFace = false;
+    for ( const auto & relation : layout.faceToBlocks )
+    {
+        if ( relation.faceId != 4 ) continue;
+
+        ++ sharedFaceRelations;
+        firstBlockUsesSharedFace =
+            firstBlockUsesSharedFace ||
+            ( relation.blockId == 1 && relation.position == 2 );
+        secondBlockUsesSharedFace =
+            secondBlockUsesSharedFace ||
+            ( relation.blockId == 2 && relation.position == 1 );
+    }
+    EXPECT_EQ( sharedFaceRelations, 2 );
+    EXPECT_TRUE( firstBlockUsesSharedFace );
+    EXPECT_TRUE( secondBlockUsesSharedFace );
+}
+
 TEST( GridLayoutParserTest, RejectsUnknownPointReference )
 {
     const std::string fileName =

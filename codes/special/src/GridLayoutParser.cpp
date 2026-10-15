@@ -111,6 +111,7 @@ GridLayout GridLayoutParser::Parse( const std::string & fileName ) const
             const std::string relationType = parser.ReadNextWord();
             if ( relationType == "L2F" )
             {
+                // L2F: face ID, one-based boundary position, line ID.
                 GridLineToFaceDefinition relation;
                 relation.faceId = parser.ReadNextDigit< int >();
                 relation.position = parser.ReadNextDigit< int >();
@@ -119,6 +120,7 @@ GridLayout GridLayoutParser::Parse( const std::string & fileName ) const
             }
             else if ( relationType == "F2B" )
             {
+                // F2B: block ID, one-based local face position, face ID.
                 GridFaceToBlockDefinition relation;
                 relation.blockId = parser.ReadNextDigit< int >();
                 relation.position = parser.ReadNextDigit< int >();

@@ -149,6 +149,9 @@ set ( SRC_DIRS
     ${CMAKE_SOURCE_DIR}/codes/cgns/src/CgnsBcConn.cpp
     ${CMAKE_SOURCE_DIR}/codes/cgns/src/CgnsPeriod.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/CalcGrid.cpp
+    ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridInfoWriter.cpp
+    ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridInfoSnapshotAdapter.cpp
+    ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridInfoJsonWriter.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridElem.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/StrGrid.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/BcRecord.cpp
@@ -237,6 +240,7 @@ add_oneflow_gtest(FaceTopoLifecycleTest FaceTopoLifecycleTest.cpp)
 add_oneflow_gtest(UnsGridTopologyTest UnsGridTopologyTest.cpp)
 add_oneflow_gtest(UnsGridBoundaryTopologyRoundTripTest UnsGridBoundaryTopologyRoundTripTest.cpp)
 add_oneflow_gtest(GridSummaryAdapterTest GridSummaryAdapterTest.cpp)
+add_oneflow_gtest(GridInfoSnapshotTest GridInfoSnapshotTest.cpp)
 add_oneflow_gtest(GridElemLifecycleTest GridElemLifecycleTest.cpp)
 add_oneflow_gtest(ScalarIFaceLifecycleTest ScalarIFaceLifecycleTest.cpp)
 add_oneflow_gtest(ScalarGridTopologyTest ScalarGridTopologyTest.cpp)

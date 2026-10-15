@@ -1,0 +1,38 @@
+{
+  "schema": "oneflow.case-catalog",
+  "version": 1,
+  "cases": [
+    {
+      "id": "minimal_rectangle",
+      "title": "Minimal Rectangle",
+      "directory": "grid/minimal_rectangle",
+      "runtimeConfig": "script/control.txt",
+      "profile": "case.json",
+      "layout": "grid/minimalRectangleLayout.txt"
+    },
+    {
+      "id": "minimal_cube",
+      "title": "Minimal Cube",
+      "directory": "grid/minimal_cube",
+      "runtimeConfig": "script/control.txt",
+      "profile": null,
+      "layout": "grid/minimalCubeLayout.txt"
+    },
+    {
+      "id": "two_connected_cubes",
+      "title": "Two Connected Cubes",
+      "directory": "grid/two_connected_cubes",
+      "runtimeConfig": "script/control.txt",
+      "profile": null,
+      "layout": "grid/twoConnectedCubesLayout.txt"
+    },
+    {
+      "id": "mesh_workflow",
+      "title": "Mesh Conversion Workflow",
+      "directory": "grid/mesh_workflow",
+      "runtimeConfig": "script/control.txt",
+      "profile": null,
+      "layout": null
+    }
+  ]
+}

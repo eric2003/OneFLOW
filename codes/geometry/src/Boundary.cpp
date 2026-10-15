@@ -203,6 +203,11 @@ void DumpRegion( const std::string & fileName, CommonNameMap & nameMap )
 
 CommonNameMap RegionNameMap::nameMap;
 
+void RegionNameMap::Reset()
+{
+    RegionNameMap::nameMap.Clear();
+}
+
 void RegionNameMap::AddRegion( const std::string & regionName )
 {
     RegionNameMap::nameMap.AddName( regionName );
@@ -215,7 +220,11 @@ int RegionNameMap::FindRegionId( const std::string & regionName )
 
 void RegionNameMap::DumpRegion()
 {
-    std::string fileName = "grid/bcRegionMap.txt";
+    RegionNameMap::DumpRegion( "grid/bcRegionMap.txt" );
+}
+
+void RegionNameMap::DumpRegion( const std::string & fileName )
+{
     ONEFLOW::DumpRegion( fileName, RegionNameMap::nameMap );
 }
 

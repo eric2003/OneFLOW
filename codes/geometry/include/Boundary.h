@@ -85,6 +85,7 @@ public:
     ~CommonNameMap() = default;
 
     void AddName(const std::string& name);
+    void Clear() noexcept { stringMap.clear(); }
     int FindNameId(const std::string& name) const;
     const std::map<std::string, int>& GetNameMap() const { return stringMap; }
 
@@ -102,9 +103,11 @@ public:
 public:
     static CommonNameMap nameMap;
 public:
+    static void Reset();
     static void AddRegion( const std::string & regionName );
     static int  FindRegionId( const std::string & regionName );
     static void DumpRegion();
+    static void DumpRegion( const std::string & fileName );
 };
 
 class VolumeNameMap

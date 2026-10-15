@@ -45,6 +45,7 @@ License
 #include <algorithm>
 #include <iostream>
 #include <iomanip>
+#include <string>
 
 BeginNameSpace( ONEFLOW )
 
@@ -347,7 +348,7 @@ void BlkFaceSolver::BuildBlkFace()
         for ( int i = 0; i < n_neibor; ++ i )
         {
             int blk_id = face_struct.cellList[ i ] - 1;
-            int face_pos_in_blk = face_struct.posList[ i ];
+            int face_pos_in_blk = face_struct.posList[ i ] - 1;
 
             Block3D * blk3d = this->blkList[ blk_id ].get();
             blk3d->blk_id = blk_id;
@@ -635,6 +636,41 @@ void BlkFaceSolver::DumpStandardGrid( Grids & strGridList )
 
     Prj::CloseFile( file );
 
+    if ( ! config.tecplotGridFile.empty() )
+    {
+        this->DumpTecplotGrid( strGridList, config.tecplotGridFile );
+    }
+}
+
+void BlkFaceSolver::DumpTecplotGrid( const Grids & strGridList, const std::string & fileName )
+{
+    std::fstream file;
+    Prj::OpenPrjFile( file, fileName, std::ios_base::out );
+    file << "TITLE = \"OneFLOW Multi-Block Grid\"\n";
+    file << "VARIABLES = \"X\", \"Y\", \"Z\"\n";
+    file << std::setprecision( 17 );
+
+    for ( std::size_t iZone = 0; iZone < strGridList.size(); ++iZone )
+    {
+        const StrGrid * grid = static_cast< const StrGrid * >(
+            &GridAt( strGridList, iZone ) );
+        file << "ZONE T=\"Block " << iZone + 1
+             << "\", I=" << grid->ni
+             << ", J=" << grid->nj
+             << ", K=" << grid->nk
+             << ", DATAPACKING=POINT\n";
+
+        const NodeMesh & nodes = *grid->nodeMesh;
+        const std::size_t nNodes = nodes.GetNumberOfNodes();
+        for ( std::size_t iNode = 0; iNode < nNodes; ++iNode )
+        {
+            file << nodes.xN[ iNode ] << " "
+                 << nodes.yN[ iNode ] << " "
+                 << nodes.zN[ iNode ] << "\n";
+        }
+    }
+
+    Prj::CloseFile( file );
 }
 
 void BlkFaceSolver::GenerateGrid()

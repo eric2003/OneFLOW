@@ -32,6 +32,7 @@ License
 #include <map>
 #include <fstream>
 #include <memory>
+#include <string>
 
 BeginNameSpace( ONEFLOW )
 
@@ -112,6 +113,7 @@ private:
     void DumpStandardGrid();
     void DumpStandardGrid2D();
     void DumpStandardGrid( Grids & strGridList );
+    void DumpTecplotGrid( const Grids & strGridList, const std::string & fileName );
     void DumpBlkScript();
     void DumpBlkScript( std::fstream & file, BlkElem * blkHexa, IntField & ctrlpoints );
     void DumpBlkScript( std::fstream & file, IntField & localid, IntField & ctrlpoints );
