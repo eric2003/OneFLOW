@@ -6,8 +6,8 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
-#include <cmath>
 #include <array>
+#include <cmath>
 #include <filesystem>
 #include <fstream>
 #include <string>
@@ -170,9 +170,9 @@ TEST( GridLayoutGenerationTest, GeneratesTwoConnectedThreeDimensionalCubes )
         zone.ni = ReadBinary< int >( file );
         zone.nj = ReadBinary< int >( file );
         zone.nk = ReadBinary< int >( file );
-        EXPECT_EQ( zone.ni, 2 );
-        EXPECT_EQ( zone.nj, 2 );
-        EXPECT_EQ( zone.nk, 2 );
+        ASSERT_EQ( zone.ni, 2 );
+        ASSERT_EQ( zone.nj, 2 );
+        ASSERT_EQ( zone.nk, 2 );
         EXPECT_EQ( ( zone.ni - 1 ) * ( zone.nj - 1 ) * ( zone.nk - 1 ), 1 );
     }
 
