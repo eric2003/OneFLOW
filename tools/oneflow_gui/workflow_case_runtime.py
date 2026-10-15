@@ -30,6 +30,10 @@ def prepare_case_directory(
     overrides_by_file: dict[Path, dict[str, str]] = {}
     for output in step.outputs:
         output_path = target / output.relative_path
+        if output_path.is_file():
+            output_path.unlink()
+        elif output_path.exists():
+            raise ValueError(f"Declared output path is not a file: {output_path}")
         output_path.parent.mkdir(parents=True, exist_ok=True)
         if output.parameter_file is not None and output.producer_setting is not None:
             parameter_file = target / output.parameter_file
