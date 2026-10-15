@@ -8,6 +8,7 @@
 #include <limits>
 #include <memory>
 #include <sstream>
+#include <stdexcept>
 #include "UnsGrid.h"
 
 TEST( GridInfoSnapshotTest, EmptyRuntimeCollectionProducesEmptySnapshot )
