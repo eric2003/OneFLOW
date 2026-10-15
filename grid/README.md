@@ -12,6 +12,13 @@ future GUI. It gives each case a stable ID and locates its runtime entry point,
 layout, and optional richer profile. A GUI should discover cases from this
 catalog instead of hard-coding case names or directory paths.
 
+The `minimal_rectangle`, `minimal_cube`, and `two_connected_cubes` cases now
+have versioned `case.json` profiles. Each profile describes the generation
+dimension, layout, runtime parameter-file list, inspection outputs, and
+expected mesh counts and bounds. The catalog remains an index; profile
+validation checks that its layout agrees with the catalog and that its listed
+parameter files exist.
+
 Use the standard-library command-line tool to discover and validate cases:
 
 ```sh
@@ -22,21 +29,21 @@ python tools/mesh_cases.py validate two_connected_cubes
 python tools/test_mesh_cases.py
 ```
 
-The catalog is deliberately not yet the authoritative store for every runtime
+The catalog and profiles are not yet the authoritative store for every runtime
 parameter. Existing `script/*.txt` files remain authoritative for OneFLOW, so
 standalone execution and older workflows are unchanged. The next migration
-stage is to enrich the versioned case profile with typed generation and output
-settings, generate the legacy parameter files from that profile, and verify
-that generated files remain synchronized. Do not duplicate parameter values in
-the catalog.
+stage is to generate selected legacy parameter files from explicitly modeled
+profile settings and compare generated values with the existing inputs. Values
+not yet modeled must be preserved rather than silently discarded. Do not
+duplicate parameter values in the catalog.
 
 ## Cases
 
 | Case | Purpose | Configuration and execution |
 |---|---|---|
 | `minimal_rectangle` | Generate a small structured grid, inspect geometry and topology, and export SVG/VTU views | `case.json`, `run.ps1` |
-| `minimal_cube` | Generate one 3D block from a readable point-line-face-block layout | `script/control.txt`, parameter files |
-| `two_connected_cubes` | Generate two adjacent 3D blocks with one shared interface face | `script/control.txt`, parameter files |
+| `minimal_cube` | Generate one 3D block from a readable point-line-face-block layout | `case.json`, `script/control.txt` |
+| `two_connected_cubes` | Generate two adjacent 3D blocks with one shared interface face | `case.json`, `script/control.txt` |
 | `mesh_workflow` | Convert the RAE 2822 Plot3D grid to OneFLOW format and write a metadata summary | `script/control.txt`, parameter files, `tools/validate_case.py` |
 
 ## Target integration model
