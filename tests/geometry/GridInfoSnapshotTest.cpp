@@ -10,6 +10,7 @@
 #include <sstream>
 #include <stdexcept>
 #include "UnsGrid.h"
+#include "NodeMesh.h"
 
 TEST( GridInfoSnapshotTest, EmptyRuntimeCollectionProducesEmptySnapshot )
 {
