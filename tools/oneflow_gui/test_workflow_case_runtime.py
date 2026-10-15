@@ -37,14 +37,12 @@ class WorkflowCaseRuntimeTest(unittest.TestCase):
             root = Path(temporary)
             (root / "mesh").mkdir()
             (root / "solver").mkdir()
-            plan = build_case_graph_plan([
-                {"id": "mesh", "directory": "mesh", "outputs": [{"id": "grid", "path": "grid.ofl"}]},
-                {"id": "solver", "directory": "solver", "depends_on": ["mesh"],
-                 "inputs": [{"artifact": "grid", "setting": "gridFileName", "parameter_file": "../outside.txt"}]},
-            ], root)
-            step = next(item for item in plan.steps if item.case_id == "solver")
             with self.assertRaisesRegex(ValueError, "stay within its producer case"):
-                prepare_case_directory(step, root / "run", {"mesh": root / "run" / "cases" / "mesh"})
+                build_case_graph_plan([
+                    {"id": "mesh", "directory": "mesh", "outputs": [{"id": "grid", "path": "grid.ofl"}]},
+                    {"id": "solver", "directory": "solver", "depends_on": ["mesh"],
+                     "inputs": [{"artifact": "grid", "setting": "gridFileName", "parameter_file": "../outside.txt"}]},
+                ], root)
 
 
 if __name__ == "__main__":
