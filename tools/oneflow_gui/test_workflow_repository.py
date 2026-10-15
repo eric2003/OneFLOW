@@ -102,13 +102,21 @@ class WorkflowRepositoryTest(unittest.TestCase):
 
     def test_invalid_identifier_and_step_are_rejected(self) -> None:
         with self.assertRaisesRegex(ValueError, "workflow_id"):
-            WorkflowDefinition("../escape", "Bad", steps=()).to_dict()
             self.repository.save_workflow(
                 WorkflowDefinition("../escape", "Bad", steps=())
             )
         with self.assertRaisesRegex(ValueError, "non-empty type"):
             self.repository.save_workflow(
                 WorkflowDefinition("bad-step", "Bad step", steps=({},))
+            )
+        with self.assertRaisesRegex(ValueError, "run status"):
+            self.repository.save_run(
+                WorkflowRunRecord(
+                    run_id="bad-status",
+                    workflow_id="workflow",
+                    status="unknown",
+                    started_at="2026-10-15T10:00:00Z",
+                )
             )
 
 

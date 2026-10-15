@@ -98,7 +98,7 @@ class WorkflowRunRecord:
         run_id = _validate_id(data.get("run_id"), "run_id")
         workflow_id = _validate_id(data.get("workflow_id"), "workflow_id")
         status = data.get("status")
-        if status not in _RUN_STATES:
+        if not isinstance(status, str) or status not in _RUN_STATES:
             raise ValueError(f"Unsupported workflow run status: {status!r}.")
         started_at = data.get("started_at")
         if not isinstance(started_at, str) or not started_at.strip():

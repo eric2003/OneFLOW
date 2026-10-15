@@ -30,6 +30,10 @@ execution. Generated files therefore do not overwrite the checked-in case
 inputs. The application invokes the same command shape used by the existing
 workflow runner: `OneFLOW.exe r <case-directory>`.
 
+## Architecture direction
+
+The long-term product direction is documented in both [Chinese](../../docs/ONEFLOW_WORKBENCH_ARCHITECTURE.zh-CN.md) and [English](../../docs/ONEFLOW_WORKBENCH_ARCHITECTURE.en.md). These memos describe the intended engineering-workbench boundaries and roadmap; they do not imply that all listed capabilities are implemented yet.
+
 ## Structure
 
 - `models.py`: immutable case and result models plus the run-state enum.
@@ -39,6 +43,8 @@ workflow runner: `OneFLOW.exe r <case-directory>`.
   cancellation; it has no Qt dependency.
 - `main_window.py`: Qt widgets and the sequential queue worker.
 - `test_services.py`: standard-library tests for the non-UI services.
+- `workflow_repository.py`: versioned workflow-definition and run-history persistence, independent of Qt.
+- `test_workflow_repository.py`: persistence tests for version checks, CRUD behavior, and history retention.
 
 The GUI is an optional tool and is not a runtime dependency of OneFLOW. Core
 case discovery and process execution remain separable from the GUI framework.
@@ -49,6 +55,7 @@ From the repository root:
 
 ```powershell
 python -m unittest tools.oneflow_gui.test_services
+python -m unittest tools.oneflow_gui.test_workflow_repository
 python tools/test_mesh_cases.py
 ```
 
