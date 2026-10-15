@@ -50,5 +50,7 @@ jobs:
         run: python -m unittest tools.oneflow_gui.test_workflow_execution
       - name: Test workflow dependencies
         run: python -m unittest tools.oneflow_gui.test_workflow_dependencies
+      - name: Test workflow execution plans
+        run: python -m unittest tools.oneflow_gui.test_workflow_plan
       - name: Test workflow process execution
         run: python -m unittest tools.oneflow_gui.test_workflow_process
