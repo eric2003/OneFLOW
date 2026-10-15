@@ -6,6 +6,7 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
+#include <cmath>
 #include <array>
 #include <filesystem>
 #include <fstream>
@@ -158,6 +159,7 @@ TEST( GridLayoutGenerationTest, GeneratesTwoConnectedThreeDimensionalCubes )
         EXPECT_EQ( zone.ni, 2 );
         EXPECT_EQ( zone.nj, 2 );
         EXPECT_EQ( zone.nk, 2 );
+        EXPECT_EQ( ( zone.ni - 1 ) * ( zone.nj - 1 ) * ( zone.nk - 1 ), 1 );
     }
 
     struct ZoneCoordinates
@@ -184,6 +186,10 @@ TEST( GridLayoutGenerationTest, GeneratesTwoConnectedThreeDimensionalCubes )
     for ( std::size_t zoneIndex = 0; zoneIndex < zones.size(); ++ zoneIndex )
     {
         const auto & zone = zones[ zoneIndex ];
+        for ( const Real value : zone.x ) EXPECT_TRUE( std::isfinite( value ) );
+        for ( const Real value : zone.y ) EXPECT_TRUE( std::isfinite( value ) );
+        for ( const Real value : zone.z ) EXPECT_TRUE( std::isfinite( value ) );
+
         const Real expectedMinX = static_cast< Real >( zoneIndex );
         const Real expectedMaxX = expectedMinX + 1.0;
 
