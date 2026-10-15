@@ -46,6 +46,7 @@ License
 #include <utility>
 #include <stdexcept>
 #include <algorithm>
+#include <filesystem>
 
 
 BeginNameSpace( ONEFLOW )
@@ -411,9 +412,14 @@ void CalcGrid::GenerateMultiZoneCalcGrids(
     Grids grids,
     const GridConfig & config )
 {
-    RegionNameMap::DumpRegion();
-
     this->Init( std::move( grids ), config );
+
+    const std::filesystem::path targetGridPath =
+        Prj::GetPrjFileName( this->gridFileName );
+    const std::filesystem::path regionMapPath =
+        targetGridPath.parent_path() / "bcRegionMap.txt";
+    RegionNameMap::DumpRegion( regionMapPath.string() );
+
     this->Post();
     this->Dump();
 }
