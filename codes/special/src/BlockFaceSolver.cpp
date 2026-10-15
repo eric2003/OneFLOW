@@ -347,7 +347,7 @@ void BlkFaceSolver::BuildBlkFace()
         for ( int i = 0; i < n_neibor; ++ i )
         {
             int blk_id = face_struct.cellList[ i ] - 1;
-            int face_pos_in_blk = face_struct.posList[ i ];
+            int face_pos_in_blk = face_struct.posList[ i ] - 1;
 
             Block3D * blk3d = this->blkList[ blk_id ].get();
             blk3d->blk_id = blk_id;
