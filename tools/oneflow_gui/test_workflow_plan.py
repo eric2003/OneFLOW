@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -58,6 +59,24 @@ class WorkflowPlanTest(unittest.TestCase):
                 binding.source_path,
                 (root / "test/grid/rae2822convert/results/mesh/final/rae2822_2d.ofl").resolve(),
             )
+
+    def test_rae2822_multicase_example_declares_matching_producer_and_consumer_paths(self) -> None:
+        example_path = Path(__file__).parent / "examples" / "rae2822_multicase.json"
+        example = json.loads(example_path.read_text(encoding="utf-8"))
+        self.assertEqual(example["steps"][0]["type"], "case_graph")
+        plan = build_case_graph_plan(example["steps"][0]["cases"], Path.cwd())
+        self.assertEqual(
+            [step.case_id for step in plan.steps],
+            ["rae2822grid", "rae2822_roe_sa"],
+        )
+        producer, solver = plan.steps
+        self.assertEqual(producer.outputs[0].relative_path, Path("results/rae2822_2d.ofl"))
+        self.assertEqual(producer.outputs[0].parameter_file, Path("script/grid.txt"))
+        self.assertEqual(producer.outputs[0].producer_setting, "targetGridFileName")
+        self.assertEqual(solver.depends_on, ("rae2822grid",))
+        self.assertEqual(solver.inputs[0].relative_path, Path("results/rae2822_2d.ofl"))
+        self.assertEqual(solver.inputs[0].parameter_file, Path("script/cfd.txt"))
+        self.assertEqual(solver.inputs[0].consumer_setting, "gridFileName")
 
     def test_grid_subdirectory_is_also_a_valid_artifact_location(self) -> None:
         plan = build_case_graph_plan(
