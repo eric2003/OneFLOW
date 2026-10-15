@@ -9,11 +9,11 @@ from PySide6.QtCore import QThread, Signal, Qt
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QApplication,
+    QComboBox,
     QFileDialog,
     QHBoxLayout,
     QHeaderView,
     QLabel,
-    QLineEdit,
     QMainWindow,
     QMessageBox,
     QPlainTextEdit,
@@ -25,6 +25,7 @@ from PySide6.QtWidgets import (
 )
 
 from .case_repository import load_cases
+from .executable_discovery import executable_candidates
 from .models import CaseDefinition, CaseRunResult, RunState
 from .runner import create_run_id, run_case
 
@@ -84,7 +85,6 @@ class RunQueueWorker(QThread):
             self.case_state.emit(case.case_id, result.state.value)
 
 
-
 class MainWindow(QMainWindow):
     """Desktop shell; case loading and process execution live in services."""
 
@@ -103,7 +103,7 @@ class MainWindow(QMainWindow):
         self._load_cases()
 
     def _build_ui(self) -> None:
-        """Build a compact layout with distinct configuration, queue, and log areas."""
+        """Build a compact layout with configuration, queue, and log areas."""
         central = QWidget(self)
         root_layout = QVBoxLayout(central)
         root_layout.setContentsMargins(20, 18, 20, 18)
@@ -120,9 +120,23 @@ class MainWindow(QMainWindow):
 
         executable_layout = QHBoxLayout()
         executable_layout.addWidget(QLabel("OneFLOW executable"))
-        self.executable_edit = QLineEdit()
-        self.executable_edit.setPlaceholderText("Path to OneFLOW.exe")
-        executable_layout.addWidget(self.executable_edit, 1)
+        self.executable_combo = QComboBox()
+        self.executable_combo.setEditable(True)
+        self.executable_combo.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
+        self.executable_combo.setSizeAdjustPolicy(
+            QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon
+        )
+        self.executable_combo.setMinimumContentsLength(38)
+        self.executable_combo.setToolTip(
+            "Detected paths are ordered by preference: repository Debug, repository "
+            "Release, C:/dev, then conventional Windows installation folders. "
+            "You can also type or browse to another executable."
+        )
+        self.executable_combo.lineEdit().setPlaceholderText(
+            "Select or enter the path to OneFLOW.exe"
+        )
+        self._refresh_executable_candidates()
+        executable_layout.addWidget(self.executable_combo, 1)
         executable_browse = QPushButton("Browse...")
         executable_browse.clicked.connect(self._choose_executable)
         executable_layout.addWidget(executable_browse)
@@ -130,9 +144,7 @@ class MainWindow(QMainWindow):
 
         workspace_layout = QHBoxLayout()
         workspace_layout.addWidget(QLabel("Run workspace"))
-        self.workspace_edit = QLineEdit(
-            str(Path.home() / "OneFLOWRuns")
-        )
+        self.workspace_edit = QLineEdit(str(Path.home() / "OneFLOWRuns"))
         workspace_layout.addWidget(self.workspace_edit, 1)
         workspace_browse = QPushButton("Browse...")
         workspace_browse.clicked.connect(self._choose_workspace)
@@ -144,8 +156,12 @@ class MainWindow(QMainWindow):
             ["Run", "Case", "Configuration", "Status"]
         )
         self.case_table.verticalHeader().setVisible(False)
-        self.case_table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
-        self.case_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        self.case_table.setSelectionBehavior(
+            QAbstractItemView.SelectionBehavior.SelectRows
+        )
+        self.case_table.setEditTriggers(
+            QAbstractItemView.EditTrigger.NoEditTriggers
+        )
         self.case_table.horizontalHeader().setSectionResizeMode(
             1, QHeaderView.ResizeMode.Stretch
         )
@@ -191,7 +207,7 @@ class MainWindow(QMainWindow):
             QMainWindow, QWidget { background: #f5f7fa; color: #202938; }
             QLabel#pageTitle { font-size: 24px; font-weight: 650; color: #172b4d; }
             QLabel#subtitle { color: #5d6b82; padding-bottom: 4px; }
-            QLineEdit, QPlainTextEdit, QTableWidget {
+            QLineEdit, QComboBox, QPlainTextEdit, QTableWidget {
                 background: #ffffff; border: 1px solid #d5dce6; border-radius: 6px;
                 padding: 6px;
             }
@@ -215,6 +231,17 @@ class MainWindow(QMainWindow):
             """
         )
 
+    def _refresh_executable_candidates(self) -> None:
+        """Populate the path dropdown with existing conventional installations."""
+        current_text = self.executable_combo.currentText().strip()
+        candidates = executable_candidates(self._repository_root)
+        self.executable_combo.clear()
+        self.executable_combo.addItems([str(path) for path in candidates])
+        if current_text:
+            self.executable_combo.setEditText(current_text)
+        elif candidates:
+            self.executable_combo.setCurrentIndex(0)
+
     def _load_cases(self) -> None:
         """Refresh the table from the shared catalog validator."""
         try:
@@ -230,9 +257,7 @@ class MainWindow(QMainWindow):
             row = self.case_table.rowCount()
             self.case_table.insertRow(row)
             checkbox = QTableWidgetItem()
-            checkbox.setFlags(
-                checkbox.flags() | Qt.ItemFlag.ItemIsUserCheckable
-            )
+            checkbox.setFlags(checkbox.flags() | Qt.ItemFlag.ItemIsUserCheckable)
             checkbox.setCheckState(
                 Qt.CheckState.Checked
                 if case.profile is not None
@@ -244,7 +269,9 @@ class MainWindow(QMainWindow):
             self.case_table.setItem(row, 2, QTableWidgetItem(config_text))
             self.case_table.setItem(row, 3, QTableWidgetItem(RunState.PENDING.value))
             self._row_by_id[case.case_id] = row
-        self.statusBar().showMessage(f"Loaded {len(self._cases)} case(s) from case_catalog.json")
+        self.statusBar().showMessage(
+            f"Loaded {len(self._cases)} case(s) from case_catalog.json"
+        )
 
     def _set_all_checks(self, checked: bool) -> None:
         for row in range(self.case_table.rowCount()):
@@ -257,11 +284,22 @@ class MainWindow(QMainWindow):
                 )
 
     def _choose_executable(self) -> None:
+        """Open the file picker in the currently entered path's directory."""
+        current_text = self.executable_combo.currentText().strip()
+        current_path = Path(current_text).expanduser() if current_text else None
+        start_directory = (
+            str(current_path.parent)
+            if current_path is not None and current_path.parent.is_dir()
+            else str(self._repository_root)
+        )
         path, _ = QFileDialog.getOpenFileName(
-            self, "Select OneFLOW executable", "", "Executable (*.exe);;All files (*)"
+            self,
+            "Select OneFLOW executable",
+            start_directory,
+            "OneFLOW executable (OneFLOW.exe);;Executable (*.exe);;All files (*)",
         )
         if path:
-            self.executable_edit.setText(path)
+            self.executable_combo.setEditText(path)
 
     def _choose_workspace(self) -> None:
         path = QFileDialog.getExistingDirectory(
@@ -273,9 +311,13 @@ class MainWindow(QMainWindow):
     def _start_run(self) -> None:
         if self._worker is not None and self._worker.isRunning():
             return
-        executable_text = self.executable_edit.text().strip()
+        executable_text = self.executable_combo.currentText().strip()
         if not executable_text or not Path(executable_text).expanduser().is_file():
-            QMessageBox.warning(self, "Executable required", "Select a valid OneFLOW executable.")
+            QMessageBox.warning(
+                self,
+                "Executable required",
+                "Select a valid OneFLOW.exe from the path list or use Browse...",
+            )
             return
 
         selected: list[CaseDefinition] = []
@@ -285,12 +327,16 @@ class MainWindow(QMainWindow):
             if item is not None and item.checkState() == Qt.CheckState.Checked:
                 selected.append(case)
         if not selected:
-            QMessageBox.information(self, "No cases selected", "Select at least one case to run.")
+            QMessageBox.information(
+                self, "No cases selected", "Select at least one case to run."
+            )
             return
 
         workspace_text = self.workspace_edit.text().strip()
         if not workspace_text:
-            QMessageBox.warning(self, "Workspace required", "Choose a writable run workspace.")
+            QMessageBox.warning(
+                self, "Workspace required", "Choose a writable run workspace."
+            )
             return
 
         workspace_root = Path(workspace_text).expanduser().resolve()
@@ -324,7 +370,9 @@ class MainWindow(QMainWindow):
         if self._worker is not None:
             self._worker.request_stop()
             self.stop_button.setEnabled(False)
-            self.statusBar().showMessage("Stop requested; waiting for active process to exit.")
+            self.statusBar().showMessage(
+                "Stop requested; waiting for active process to exit."
+            )
 
     def _set_case_status(self, case_id: str, status: str) -> None:
         row = self._row_by_id.get(case_id)
