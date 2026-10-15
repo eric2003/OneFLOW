@@ -47,7 +47,7 @@ class WorkflowPlanTest(unittest.TestCase):
                 binding.runtime_overrides,
                 {
                     "sourceGridCaseDir": str((root / "test/grid/rae2822convert").resolve()),
-                    "gridFileName": "results/rae2822_2d.ofl",
+                    "gridFileName": "results/mesh/final/rae2822_2d.ofl",
                 },
             )
             self.assertEqual(
