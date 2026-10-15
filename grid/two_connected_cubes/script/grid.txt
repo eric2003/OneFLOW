@@ -1,0 +1,26 @@
+int gridObj = 0;
+string topoType = "u";
+int multiBlock = 1;
+
+int fileFormat = 1;
+Real gridScale = 1.0;
+Real gridTrans[3] = 0, 0, 0;
+int axis_dir = 0;
+int ignoreNoBc = 0;
+
+string gridLayoutFileName = "grid/twoConnectedCubesLayout.txt";
+int igene = 4;
+
+int codeOfOversetGrid = 0;
+string oversetGridFileName = "grid/iBlank.ovs";
+int parallelStrategy = 1;
+
+string sourceGridType = "plot3d";
+string targetGridType = "oneflow";
+int iplot3d = 0;
+
+string sourceGridFileName = "results/twoConnectedCubes.generated.grd";
+string sourceGridBcName = "results/twoConnectedCubes.inp";
+string targetGridFileName = "results/twoConnectedCubes.ofl";
+string gridInfoFileName = "results/twoConnectedCubes.info.json";
+string patchFileName = "grid/twoConnectedCubes.patch";
