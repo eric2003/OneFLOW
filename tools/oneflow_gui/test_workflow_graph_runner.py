@@ -84,6 +84,21 @@ class WorkflowGraphRunnerTest(unittest.TestCase):
             self.assertEqual(statuses["solver"], "failed")
             self.assertNotIn("solver", invoked[2:])
 
+    def test_cancelled_case_stops_later_independent_cases(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            invoked = []
+
+            def run_step(step):
+                invoked.append(step.case_id)
+                if step.case_id == "independent":
+                    return "cancelled", "user stopped"
+                return "succeeded", "ok"
+
+            result = run_case_graph(self._plan(Path(temporary)), run_step)
+            self.assertEqual(invoked, ["independent"])
+            self.assertTrue(all(item.status == "cancelled" for item in result.cases))
+            self.assertEqual(result.status, "cancelled")
+
     def test_cancelled_run_does_not_launch_pending_cases(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             invoked = []
