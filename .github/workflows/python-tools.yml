@@ -58,3 +58,5 @@ jobs:
         run: python -m unittest tools.oneflow_gui.test_workflow_process
       - name: Test runtime parameter overrides
         run: python -m unittest tools.oneflow_gui.test_workflow_runtime_overrides
+      - name: Test isolated workflow case staging
+        run: python -m unittest tools.oneflow_gui.test_workflow_case_runtime
