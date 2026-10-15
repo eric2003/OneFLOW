@@ -28,6 +28,14 @@ def prepare_case_directory(
     shutil.copytree(source, target)
 
     overrides_by_file: dict[Path, dict[str, str]] = {}
+    for output in step.outputs:
+        output_path = target / output.relative_path
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        if output.parameter_file is not None and output.producer_setting is not None:
+            parameter_file = target / output.parameter_file
+            overrides = overrides_by_file.setdefault(parameter_file, {})
+            overrides[output.producer_setting] = output.relative_path.as_posix()
+
     for binding in step.inputs:
         producer = runtime_directories.get(binding.producer_id)
         if producer is None:
@@ -41,6 +49,6 @@ def prepare_case_directory(
         try:
             parameter_file.resolve().relative_to(target)
         except ValueError as error:
-            raise ValueError("Input parameter file must stay within the staged case.") from error
+            raise ValueError("Runtime parameter file must stay within the staged case.") from error
         apply_runtime_overrides(parameter_file, overrides)
     return target
