@@ -1,0 +1,42 @@
+{
+  "schema": "oneflow.case",
+  "version": 1,
+  "name": "minimal_cube_mesh",
+  "kind": "structured-mesh-generation-and-inspection",
+  "parameters": {
+    "runtime": {
+      "task": "Grid",
+      "objective": 0,
+      "generationId": 4,
+      "dimension": 3,
+      "layout": "grid/minimalCubeLayout.txt",
+      "parameterFiles": [
+        "script/simu.txt",
+        "script/dimension.txt",
+        "script/tolerence.txt",
+        "script/grid.txt",
+        "script/part.txt"
+      ]
+    },
+    "inspection": {
+      "realBytes": 8,
+      "byteOrder": "little",
+      "sourceGrid": "results/minimalCube.generated.grd",
+      "oneFlowGrid": "results/minimalCube.ofl",
+      "gridInfo": "results/minimalCube.info.json"
+    },
+    "expected": {
+      "zones": 1,
+      "dimension": 3,
+      "nodes": 8,
+      "cells": 1,
+      "faces": 6,
+      "boundaryFaces": 6,
+      "internalFaces": 0,
+      "boundingBox": {
+        "min": [0.0, 0.0, 0.0],
+        "max": [1.0, 1.0, 1.0]
+      }
+    }
+  }
+}
