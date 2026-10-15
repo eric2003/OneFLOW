@@ -52,7 +52,9 @@ The long-term product direction is documented in both [Chinese](../../docs/ONEFL
 - `runner.py`: workspace isolation, process launch, output streaming, and
   cancellation; it has no Qt dependency.
 - `workflow_dependencies.py`: Qt-independent validation and topological ordering of case dependencies; derives independent, producer, consumer, and chained roles from graph edges.
-- `workflow_plan.py`: converts a case graph into a dependency-ordered plan and binds named producer artifacts to consumer settings. Artifact paths are relative to the producer case, so either `grid/...` or `results/...` is supported; this is planning only and does not yet inject settings into a running OneFLOW process.
+- `workflow_plan.py`: converts a case graph into a dependency-ordered plan and binds named producer artifacts to consumer settings. Artifact paths are relative to the producer case, so either `grid/...` or `results/...` is supported.
+- `workflow_graph_runner.py`: sequentially executes a plan through an injected process callback, verifies declared input artifacts before launching consumers, skips cases whose dependencies did not succeed, and lets independent cases continue. The callback still needs to apply each step's `runtime_overrides` to the OneFLOW invocation.
+- `test_workflow_graph_runner.py`: tests execution order, independent branches, failure propagation, cancellation, and missing output files.
 - `test_workflow_dependencies.py`: tests for dependency roles, ordering, missing references, and cycles.
 - `test_workflow_plan.py`: tests for producer-consumer artifact binding, both `grid` and `results` paths, and invalid dependency/path declarations.
 - `workflow_execution.py`: shell-free construction of one-process,
@@ -77,6 +79,7 @@ python -m unittest tools.oneflow_gui.test_workflow_repository
 python -m unittest tools.oneflow_gui.test_workflow_execution
 python -m unittest tools.oneflow_gui.test_workflow_dependencies
 python -m unittest tools.oneflow_gui.test_workflow_plan
+python -m unittest tools.oneflow_gui.test_workflow_graph_runner
 python tools/test_mesh_cases.py
 ```
 
