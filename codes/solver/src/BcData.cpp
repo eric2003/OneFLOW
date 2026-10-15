@@ -60,8 +60,8 @@ void BcData::ReadRegion()
 
 void BcData::ReadList( const std::string & fileName )
 {
-    //\\t is the tab key
-    std::string separator = " =\\r\\n\\t#$,;\\\"";
+    //\t is the tab key
+    std::string separator = " =\r\n\t#$,;\"";
 
     TextFileParser textFileParser;
     textFileParser.OpenPrjFile( fileName, std::ios_base::in );
