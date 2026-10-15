@@ -51,7 +51,7 @@ class WorkflowCaseRuntimeTest(unittest.TestCase):
             root = Path(temporary)
             (root / "mesh" / "script").mkdir(parents=True)
             config = root / "mesh" / "script" / "grid.txt"
-            config.write_text('string targetGridFileName = "grid/old.ofl";\\n', encoding="utf-8")
+            config.write_text('string targetGridFileName = "grid/old.ofl";\n', encoding="utf-8")
             plan = build_case_graph_plan([
                 {
                     "id": "mesh",
@@ -68,7 +68,7 @@ class WorkflowCaseRuntimeTest(unittest.TestCase):
             staged_config = (staged / "script" / "grid.txt").read_text(encoding="utf-8")
             self.assertIn('string targetGridFileName = "results/generated/final/mesh.ofl";', staged_config)
             self.assertTrue((staged / "results" / "generated" / "final").is_dir())
-            self.assertEqual(config.read_text(encoding="utf-8"), 'string targetGridFileName = "grid/old.ofl";\\n')
+            self.assertEqual(config.read_text(encoding="utf-8"), 'string targetGridFileName = "grid/old.ofl";\n')
 
 
 if __name__ == "__main__":
