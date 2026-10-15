@@ -32,6 +32,14 @@ class ArtifactBinding:
     def source_path(self) -> Path:
         return self.producer_directory / self.relative_path
 
+    @property
+    def runtime_overrides(self) -> dict[str, str]:
+        """Values needed to read this artifact from another case directory."""
+        return {
+            "sourceGridCaseDir": str(self.source_case_directory),
+            self.consumer_setting: self.relative_path.as_posix(),
+        }
+
 
 @dataclass(frozen=True, slots=True)
 class WorkflowPlanStep:
