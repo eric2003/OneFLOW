@@ -12,10 +12,13 @@ namespace ONEFLOW
 {
 void WriteGridInfo( const Grids & grids, const GridConfig & config )
 {
-    if ( config.gridInfoFile.empty() ) return;
+    const std::string & summaryFile = config.output.summaryFile.empty()
+        ? config.gridInfoFile
+        : config.output.summaryFile;
+    if ( summaryFile.empty() ) return;
 
     const GridInfoSnapshot snapshot = MakeGridInfoSnapshot( grids );
-    const std::string outputPath = Prj::GetPrjFileName( config.gridInfoFile );
+    const std::string outputPath = Prj::GetPrjFileName( summaryFile );
     std::ofstream output( outputPath, std::ios_base::out | std::ios_base::trunc );
     if ( ! output )
     {
