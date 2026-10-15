@@ -28,11 +28,11 @@
     "expected": {
       "zones": 1,
       "dimension": 3,
-      "nodes": 8,
-      "cells": 1,
-      "faces": 6,
-      "boundaryFaces": 6,
-      "internalFaces": 0,
+      "nodes": 27,
+      "cells": 8,
+      "faces": 36,
+      "boundaryFaces": 24,
+      "internalFaces": 12,
       "boundingBox": {
         "min": [0.0, 0.0, 0.0],
         "max": [1.0, 1.0, 1.0]
