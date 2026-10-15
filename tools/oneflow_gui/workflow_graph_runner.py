@@ -97,6 +97,15 @@ def run_case_graph(
         status, message = run_step(staged_step)
         if status not in {"succeeded", "failed", "cancelled"}:
             raise ValueError(f"Unsupported case execution status: {status!r}")
+        if status == "succeeded":
+            missing_outputs = [
+                str(staged_directory / output.relative_path)
+                for output in step.outputs
+                if not (staged_directory / output.relative_path).is_file()
+            ]
+            if missing_outputs:
+                status = "failed"
+                message = "Declared output artifacts were not produced: " + ", ".join(missing_outputs)
         results.append(CaseExecutionResult(step.case_id, status, message))
         status_by_id[step.case_id] = status
         if status == "cancelled":
