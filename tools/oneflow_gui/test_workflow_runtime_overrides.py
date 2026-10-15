@@ -67,7 +67,8 @@ class WorkflowRuntimeOverridesTest(unittest.TestCase):
     def test_preserves_gbk_parameter_file_encoding_and_comments(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             parameter_file = Path(temporary) / "cfd.txt"
-            original = 'string gridFileName = "grid/old.ofl"; // 网格路径\n'
+            comment = bytes.fromhex("cdf8b8f1c2b7beb6").decode("gbk")
+            original = f'string gridFileName = "grid/old.ofl"; // {comment}\\n'
             parameter_file.write_bytes(original.encode("gbk"))
 
             apply_runtime_overrides(
@@ -77,10 +78,10 @@ class WorkflowRuntimeOverridesTest(unittest.TestCase):
 
             content = parameter_file.read_bytes().decode("gbk")
             self.assertIn(
-                'string gridFileName = "results/rae2822_2d.ofl"; // 网格路径',
+                f'string gridFileName = "results/rae2822_2d.ofl"; // {comment}',
                 content,
             )
-            self.assertIn("网格路径", content)
+            self.assertIn(comment, content)
 
     def test_rejects_invalid_setting_name_without_writing(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
