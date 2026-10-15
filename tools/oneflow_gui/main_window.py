@@ -5,7 +5,7 @@ from __future__ import annotations
 import threading
 from pathlib import Path
 
-from PySide6.QtCore import QThread, Signal
+from PySide6.QtCore import QThread, Signal, Qt
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QApplication,
@@ -234,12 +234,12 @@ class MainWindow(QMainWindow):
             self.case_table.insertRow(row)
             checkbox = QTableWidgetItem()
             checkbox.setFlags(
-                checkbox.flags() | checkbox.flags().__class__.ItemIsUserCheckable
+                checkbox.flags() | Qt.ItemFlag.ItemIsUserCheckable
             )
             checkbox.setCheckState(
-                checkbox.checkState().__class__.Checked
+                Qt.CheckState.Checked
                 if case.profile is not None
-                else checkbox.checkState().__class__.Unchecked
+                else Qt.CheckState.Unchecked
             )
             self.case_table.setItem(row, 0, checkbox)
             self.case_table.setItem(row, 1, QTableWidgetItem(case.title))
@@ -254,9 +254,9 @@ class MainWindow(QMainWindow):
             item = self.case_table.item(row, 0)
             if item is not None:
                 item.setCheckState(
-                    item.checkState().__class__.Checked
+                    Qt.CheckState.Checked
                     if checked
-                    else item.checkState().__class__.Unchecked
+                    else Qt.CheckState.Unchecked
                 )
 
     def _choose_executable(self) -> None:
@@ -285,7 +285,7 @@ class MainWindow(QMainWindow):
         for case in self._cases:
             row = self._row_by_id[case.case_id]
             item = self.case_table.item(row, 0)
-            if item is not None and item.checkState().value == 2:
+            if item is not None and item.checkState() == Qt.CheckState.Checked:
                 selected.append(case)
         if not selected:
             QMessageBox.information(self, "No cases selected", "Select at least one case to run.")
