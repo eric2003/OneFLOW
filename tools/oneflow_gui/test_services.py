@@ -36,9 +36,9 @@ class DesktopServiceTest(unittest.TestCase):
             source = root / "source_case"
             (source / "script").mkdir(parents=True)
             source_config = source / "script" / "control.txt"
-            source_config.write_text('"simu.txt";\\n', encoding="utf-8")
+            source_config.write_text('"simu.txt";\n', encoding="utf-8")
             (source / "script" / "simu.txt").write_text(
-                'string simutask = "Grid";\\n', encoding="utf-8"
+                'string simutask = "Grid";\n', encoding="utf-8"
             )
             case = CaseDefinition(
                 case_id="sample",
@@ -51,7 +51,7 @@ class DesktopServiceTest(unittest.TestCase):
 
             copied = _copy_case_to_workspace(case, root / "runs", "run-001")
             self.assertTrue((copied / "script" / "control.txt").is_file())
-            self.assertEqual(source_config.read_text(encoding="utf-8"), '"simu.txt";\\n')
+            self.assertEqual(source_config.read_text(encoding="utf-8"), '"simu.txt";\n')
             self.assertNotEqual(copied, source)
 
     def test_workspace_copy_refuses_to_overwrite_existing_run(self) -> None:
