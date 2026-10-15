@@ -4,7 +4,9 @@
 #include "NodeMesh.h"
 
 #include <algorithm>
+#include <cmath>
 #include <limits>
+#include <stdexcept>
 
 namespace ONEFLOW
 {
@@ -27,6 +29,12 @@ GridInfoSnapshot MakeGridInfoSnapshot( const Grids & grids )
 
     for ( const auto & gridPtr : grids )
     {
+        if ( ! gridPtr )
+        {
+            throw std::invalid_argument(
+                "MakeGridInfoSnapshot: grid collection contains a null zone" );
+        }
+
         const Grid & grid = *gridPtr;
         snapshot.nodeCount += grid.nNodes;
         snapshot.faceCount += grid.nFaces;
@@ -52,6 +60,14 @@ GridInfoSnapshot MakeGridInfoSnapshot( const Grids & grids )
                 static_cast< double >( point.y ),
                 static_cast< double >( point.z )
             };
+            for ( double coordinate : coordinates )
+            {
+                if ( ! std::isfinite( coordinate ) )
+                {
+                    throw std::domain_error(
+                        "MakeGridInfoSnapshot: node coordinates must be finite" );
+                }
+            }
             for ( size_t axis = 0; axis < coordinates.size(); ++ axis )
             {
                 minimum[ axis ] = std::min( minimum[ axis ], coordinates[ axis ] );
