@@ -24,6 +24,7 @@ License
 
 #include "Prj.h"
 #include "MultiBlock.h"
+#include "GridTypes.h"
 #include <filesystem>
 
 BeginNameSpace( ONEFLOW )
@@ -48,7 +49,10 @@ void BcData::Init( const std::string & fileName )
 
 void BcData::ReadRegion()
 {
-    const std::string gridPath = Prj::GetPrjFileName( GetGridFileName() );
+    const std::string sourceCaseDir = GridConfig::GetSourceCaseDir();
+    const std::string gridPath = sourceCaseDir.empty()
+        ? Prj::GetPrjFileName( GetGridFileName() )
+        : Prj::GetCaseFileName( sourceCaseDir, GetGridFileName() );
     const std::filesystem::path regionMapPath =
         std::filesystem::path( gridPath ).parent_path() / "bcRegionMap.txt";
 
