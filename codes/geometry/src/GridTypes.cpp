@@ -66,6 +66,15 @@ GridConfig GridConfig::FromDataBase()
         // Grid information output is optional for existing cases.
     }
 
+    try
+    {
+        cfg.tecplotGridFile = GetDataValue< std::string >( "tecplotGridFileName" );
+    }
+    catch ( const std::exception & )
+    {
+        // Tecplot output is optional for existing cases.
+    }
+
     // These values belong to specific grid workflows. Keep their defaults when
     // a smaller workflow does not register the corresponding database entries.
     try
