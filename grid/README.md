@@ -10,6 +10,8 @@ workspace, not in the checked-in case definition.
 | Case | Purpose | Configuration and execution |
 |---|---|---|
 | `minimal_rectangle` | Generate a small structured grid, inspect geometry and topology, and export SVG/VTU views | `case.json`, `run.ps1` |
+| `minimal_cube` | Generate one 3D block from a readable point-line-face-block layout | `script/control.txt`, parameter files |
+| `two_connected_cubes` | Generate two adjacent 3D blocks with one shared interface face | `script/control.txt`, parameter files |
 | `mesh_workflow` | Convert the RAE 2822 Plot3D grid to OneFLOW format and write a metadata summary | `script/control.txt`, parameter files, `tools/validate_case.py` |
 
 ## Organization rules
