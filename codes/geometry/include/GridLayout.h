@@ -16,6 +16,15 @@ enum class GridDistributionType
     Exponential
 };
 
+enum class GridBoundaryKind
+{
+    None,
+    Interface,
+    Interior,
+    Overset,
+    Physical
+};
+
 struct GridPointDefinition
 {
     int id = 0;
@@ -87,6 +96,8 @@ public:
     std::vector< GridFaceToBlockDefinition > faceToBlocks;
 
     void Validate() const;
+
+    static GridBoundaryKind ClassifyBoundaryType( int boundaryType );
 };
 
 EndNameSpace
