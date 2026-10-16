@@ -31,6 +31,10 @@ void WriteGridInfoJson( std::ostream & output, const GridInfoSnapshot & snapshot
         { "projectRoot", snapshot.projectRoot },
         { "inputRoot", snapshot.inputRoot },
         { "outputRoot", snapshot.outputRoot },
+        { "meshInputRoot", snapshot.meshInputRoot },
+        { "flowInputRoot", snapshot.flowInputRoot },
+        { "meshOutputRoot", snapshot.meshOutputRoot },
+        { "flowOutputRoot", snapshot.flowOutputRoot },
         { "sourceGrid", snapshot.sourceGridPath },
         { "outputGrid", snapshot.outputGridPath }
     };
