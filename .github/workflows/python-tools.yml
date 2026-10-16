@@ -7,8 +7,6 @@ on:
       - "tools/mesh_cases.py"
       - "tools/mesh_layout/**"
       - "tests/tools/**"
-      - "tools/mesh_layout/**"
-      - "tests/tools/**"
       - "tools/test_mesh_cases.py"
       - "tools/oneflow_gui/**"
       - "tools/requirements-gui.txt"
@@ -20,6 +18,8 @@ on:
     branches: [hexin]
     paths:
       - "tools/mesh_cases.py"
+      - "tools/mesh_layout/**"
+      - "tests/tools/**"
       - "tools/test_mesh_cases.py"
       - "tools/oneflow_gui/**"
       - "tools/requirements-gui.txt"
@@ -46,7 +46,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Compile Python tooling
-        run: python -m compileall -q tools/mesh_cases.py tools/oneflow_gui
+        run: python -m compileall -q tools/mesh_cases.py tools/mesh_layout tools/oneflow_gui
       - name: Test case catalog
         run: python tools/test_mesh_cases.py
       - name: Test flat plate layout compiler
