@@ -56,11 +56,16 @@ public:
     static std::string current_dir;
     static std::string execute_dir;
     static std::string prjBaseDir;
+    static std::string inputBaseDir;
+    static std::string outputBaseDir;
+    static std::string projectBaseDir;
 
 public:
     static void Init();
     static void SetPrjBaseDir( const std::string & prjName );
     static void ClearPrjBaseDir();
+    static void SetProjectBaseDir( const std::string & rootDir );
+    static void SetIOBaseDirs( const std::string & inputRoot, const std::string & outputRoot );
     static std::string ResolveCaseDir( const std::string & caseDir );
     static CmdLineOptions ParseCmdLineArgs( const std::vector<std::string> & args );
     static void ProcessCmdLineArgs( std::vector<std::string> &args );
@@ -73,6 +78,10 @@ public:
     static void CloseOutputFile( std::fstream & file, const std::string & operation );
     static void CreateDirIfNeeded( const std::string & prjFileName );
     static std::string GetPrjFileName( const std::string & fileName );
+    static std::string GetInputFileName( const std::string & fileName );
+    static std::string GetOutputFileName( const std::string & fileName );
+    static std::string GetInputBaseDir();
+    static std::string GetOutputBaseDir();
     static std::string GetCaseFileName( const std::string & caseDir, const std::string & fileName );
     static std::string GetSystemFileName( const std::string & fileName );
     static std::string GetDirName( const std::string & fileName );
