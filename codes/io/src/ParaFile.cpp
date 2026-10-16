@@ -270,7 +270,7 @@ void ReadScriptFileNameList( std::vector< std::string > & scriptFileNameList )
             textFileParser.ReadNextWord();
 
         std::string fullScriptFileName =
-            Prj::GetPrjFileName(
+            Prj::GetInputFileName(
                 "script/" + scriptFileName );
 
         scriptFileNameList.push_back( fullScriptFileName );
