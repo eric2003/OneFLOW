@@ -70,7 +70,8 @@ Mesh and flow data can then override them independently with
 A missing domain-specific setting inherits its corresponding general root.
 An empty setting or `default` selects that inherited value; `case` selects
 the active case; `project` selects `projectRoot`; absolute paths are used
-directly; other relative roots are resolved from the active case.
+directly; other relative IO roots are resolved from the active case. A relative
+`projectRoot` is resolved from the process working directory.
 
 For example, a conversion case can read an initial grid from a shared mesh
 directory and write the converted grid to its own output directory, while a
@@ -87,9 +88,11 @@ flowOutputRoot = results/flow
 The root settings do not replace existing file-name settings such as
 `sourceGridFileName` or `targetGridFileName`. Relative file names are resolved
 against the applicable root, while absolute file paths remain absolute.
-Each run writes `results/io_paths.txt` beneath the configured mesh output
-root and flow output root (only once when they resolve to the same path), so
-the effective roots can be inspected without inferring them from parameters.
+Each run writes an `io_paths.txt` diagnostic beneath each configured output
+root (only once when both roots resolve to the same path). When both output
+roots are the case root, the legacy-friendly location `results/io_paths.txt` is
+used. The report records the effective roots, so they can be inspected without
+inferring them from parameters.
 
 ## Organization rules
 
