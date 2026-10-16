@@ -20,15 +20,19 @@ void WriteGridInfo( const Grids & grids, const GridConfig & config )
     GridInfoSnapshot snapshot = MakeGridInfoSnapshot( grids );
     snapshot.caseRoot = Prj::prjBaseDir;
     snapshot.projectRoot = Prj::projectBaseDir;
-    snapshot.inputRoot = Prj::GetMeshInputBaseDir();
-    snapshot.outputRoot = Prj::GetMeshOutputBaseDir();
+    snapshot.inputRoot = Prj::GetInputBaseDir();
+    snapshot.meshInputRoot = Prj::GetMeshInputBaseDir();
+    snapshot.flowInputRoot = Prj::GetFlowInputBaseDir();
+    snapshot.outputRoot = Prj::GetOutputBaseDir();
+    snapshot.meshOutputRoot = Prj::GetMeshOutputBaseDir();
+    snapshot.flowOutputRoot = Prj::GetFlowOutputBaseDir();
 
     if ( ! config.sourceFile.empty() )
     {
         const std::string sourceCaseDir =
             config.ResolveSourceCaseDir( Prj::prjBaseDir );
         snapshot.sourceGridPath =
-            Prj::GetCaseFileName( sourceCaseDir, config.sourceFile );
+            Prj::GetMeshInputFileName( config.sourceFile );
     }
 
     const std::string outputGridFile = config.targetFile.empty()
@@ -39,7 +43,7 @@ void WriteGridInfo( const Grids & grids, const GridConfig & config )
         snapshot.outputGridPath = Prj::GetMeshOutputFileName( outputGridFile );
     }
 
-    const std::string outputPath = Prj::GetOutputFileName( summaryFile );
+    const std::string outputPath = Prj::GetMeshOutputFileName( summaryFile );
     std::ofstream output( outputPath, std::ios_base::out | std::ios_base::trunc );
     if ( ! output )
     {
