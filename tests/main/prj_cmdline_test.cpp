@@ -595,3 +595,88 @@ TEST( FileUtilsCreateDirectory, ExistingFileIsFailure )
     std::filesystem::remove_all( root );
 }
 
+
+
+TEST( PrjIOPaths, InputAndOutputDefaultToCurrentCase )
+{
+    const std::filesystem::path caseDir =
+        std::filesystem::temp_directory_path()
+        / "OneFLOW_PrjIOPathsDefaultTest"
+        / "consumer";
+
+    Prj::current_dir = std::filesystem::current_path().string();
+    Prj::SetPrjBaseDir( caseDir.string() );
+    Prj::SetIOBaseDirs( "", "" );
+
+    EXPECT_EQ(
+        std::filesystem::path( Prj::GetInputFileName( "grid/input.ofl" ) ).lexically_normal(),
+        ( caseDir / "grid" / "input.ofl" ).lexically_normal() );
+    EXPECT_EQ(
+        std::filesystem::path( Prj::GetOutputFileName( "results/flow.dat" ) ).lexically_normal(),
+        ( caseDir / "results" / "flow.dat" ).lexically_normal() );
+}
+
+TEST( PrjIOPaths, InputAndOutputCanUseDifferentRoots )
+{
+    const std::filesystem::path caseDir =
+        std::filesystem::temp_directory_path()
+        / "OneFLOW_PrjIOPathsDifferentRootsTest"
+        / "consumer";
+    const std::filesystem::path producerDir = caseDir.parent_path() / "producer";
+
+    Prj::current_dir = std::filesystem::current_path().string();
+    Prj::SetPrjBaseDir( caseDir.string() );
+    Prj::SetIOBaseDirs( "../producer", "case" );
+
+    EXPECT_EQ(
+        std::filesystem::path( Prj::GetInputFileName( "results/grid.ofl" ) ).lexically_normal(),
+        ( producerDir / "results" / "grid.ofl" ).lexically_normal() );
+    EXPECT_EQ(
+        std::filesystem::path( Prj::GetOutputFileName( "results/flow.dat" ) ).lexically_normal(),
+        ( caseDir / "results" / "flow.dat" ).lexically_normal() );
+}
+
+TEST( PrjIOPaths, AbsoluteFilesBypassConfiguredRoots )
+{
+    const std::filesystem::path caseDir =
+        std::filesystem::temp_directory_path()
+        / "OneFLOW_PrjIOPathsAbsoluteTest"
+        / "consumer";
+    const std::filesystem::path externalFile =
+        std::filesystem::temp_directory_path()
+        / "OneFLOW_PrjIOPathsAbsoluteTest"
+        / "shared"
+        / "grid.ofl";
+
+    Prj::current_dir = std::filesystem::current_path().string();
+    Prj::SetPrjBaseDir( caseDir.string() );
+    Prj::SetIOBaseDirs( "case", "case" );
+
+    EXPECT_EQ(
+        std::filesystem::path( Prj::GetInputFileName( externalFile.string() ) ).lexically_normal(),
+        externalFile.lexically_normal() );
+    EXPECT_EQ(
+        std::filesystem::path( Prj::GetOutputFileName( externalFile.string() ) ).lexically_normal(),
+        externalFile.lexically_normal() );
+}
+
+TEST( PrjIOPaths, ProjectRootMustBeExplicitlyConfigured )
+{
+    const std::filesystem::path projectDir =
+        std::filesystem::temp_directory_path()
+        / "OneFLOW_PrjIOPathsProjectTest"
+        / "project";
+    const std::filesystem::path caseDir = projectDir / "cases" / "consumer";
+
+    Prj::current_dir = std::filesystem::current_path().string();
+    Prj::SetPrjBaseDir( caseDir.string() );
+    Prj::SetProjectBaseDir( projectDir.string() );
+    Prj::SetIOBaseDirs( "project", "project" );
+
+    EXPECT_EQ(
+        std::filesystem::path( Prj::GetInputFileName( "shared/grid.ofl" ) ).lexically_normal(),
+        ( projectDir / "shared" / "grid.ofl" ).lexically_normal() );
+    EXPECT_EQ(
+        std::filesystem::path( Prj::GetOutputFileName( "results/flow.dat" ) ).lexically_normal(),
+        ( projectDir / "results" / "flow.dat" ).lexically_normal() );
+}
