@@ -91,6 +91,43 @@ void SimuContext::SetupCaseEnvironment()
 
     logFile.SetCaseDir( caseDir_ );
     ONEFLOW::ReadControlInfo( caseDir_ );
+
+    // File roots are shared by mesh generation, conversion, and CFD. Missing
+    // settings preserve the historical current-case behavior.
+    std::string projectRoot;
+    std::string inputRoot;
+    std::string outputRoot;
+
+    try
+    {
+        projectRoot = GetDataValue< std::string >( "projectRoot" );
+    }
+    catch ( const std::exception & )
+    {
+    }
+
+    if ( ! projectRoot.empty() )
+    {
+        Prj::SetProjectBaseDir( projectRoot );
+    }
+
+    try
+    {
+        inputRoot = GetDataValue< std::string >( "inputRoot" );
+    }
+    catch ( const std::exception & )
+    {
+    }
+
+    try
+    {
+        outputRoot = GetDataValue< std::string >( "outputRoot" );
+    }
+    catch ( const std::exception & )
+    {
+    }
+
+    Prj::SetIOBaseDirs( inputRoot, outputRoot );
 }
 
 void SimuContext::SetupEnvironment()
