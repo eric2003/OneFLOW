@@ -126,6 +126,13 @@ void SegmentCtrl::Read( TextFileParser * textFileParser )
         this->cA2 = 1.0e-4;
         this->cA3 = 0.5;
     }
+    else if ( distributionString == "bl" ||
+              distributionString == "boundary_layer" )
+    {
+        this->distribution = DistributionType::BoundaryLayer;
+        this->nearWallPointCount = textFileParser->ReadNextDigit< int >();
+        this->nearWallDistance = textFileParser->ReadNextDigit< Real >();
+    }
 }
 
 
