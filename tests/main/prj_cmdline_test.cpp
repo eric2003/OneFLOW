@@ -720,6 +720,90 @@ TEST( PrjIOPaths, OpenPrjFileUsesModeSpecificRoots )
 }
 
 
+TEST( PrjIOPaths, DomainRootsInheritGenericRoots )
+{
+    const std::filesystem::path root =
+        std::filesystem::temp_directory_path()
+        / "OneFLOW_PrjIODomainInheritanceTest";
+    const std::filesystem::path caseDir = root / "consumer";
+    const std::filesystem::path genericInput = root / "shared-input";
+    const std::filesystem::path genericOutput = root / "shared-output";
+
+    Prj::current_dir = std::filesystem::current_path().string();
+    Prj::SetPrjBaseDir( caseDir.string() );
+    Prj::SetIOBaseDirs( genericInput.string(), genericOutput.string() );
+    Prj::SetDomainIOBaseDirs( "", "", "", "" );
+
+    EXPECT_EQ(
+        std::filesystem::path( Prj::GetMeshInputFileName( "grid.ofl" ) ).lexically_normal(),
+        ( genericInput / "grid.ofl" ).lexically_normal() );
+    EXPECT_EQ(
+        std::filesystem::path( Prj::GetFlowInputFileName( "restart.dat" ) ).lexically_normal(),
+        ( genericInput / "restart.dat" ).lexically_normal() );
+    EXPECT_EQ(
+        std::filesystem::path( Prj::GetMeshOutputFileName( "grid.ofl" ) ).lexically_normal(),
+        ( genericOutput / "grid.ofl" ).lexically_normal() );
+    EXPECT_EQ(
+        std::filesystem::path( Prj::GetFlowOutputFileName( "flow.dat" ) ).lexically_normal(),
+        ( genericOutput / "flow.dat" ).lexically_normal() );
+}
+
+TEST( PrjIOPaths, DomainRootsCanBeConfiguredIndependently )
+{
+    const std::filesystem::path root =
+        std::filesystem::temp_directory_path()
+        / "OneFLOW_PrjIODomainRootsTest";
+    const std::filesystem::path caseDir = root / "cases" / "consumer";
+    const std::filesystem::path projectDir = root / "project";
+    const std::filesystem::path meshInput = root / "mesh-source";
+    const std::filesystem::path flowInput = root / "flow-source";
+    const std::filesystem::path meshOutput = root / "mesh-output";
+    const std::filesystem::path flowOutput = root / "flow-output";
+
+    Prj::current_dir = std::filesystem::current_path().string();
+    Prj::SetPrjBaseDir( caseDir.string() );
+    Prj::SetProjectBaseDir( projectDir.string() );
+    Prj::SetIOBaseDirs( "case", "case" );
+    Prj::SetDomainIOBaseDirs(
+        meshInput.string(), flowInput.string(),
+        meshOutput.string(), flowOutput.string() );
+
+    EXPECT_EQ(
+        std::filesystem::path( Prj::GetMeshInputFileName( "grid.ofl" ) ).lexically_normal(),
+        ( meshInput / "grid.ofl" ).lexically_normal() );
+    EXPECT_EQ(
+        std::filesystem::path( Prj::GetFlowInputFileName( "restart.dat" ) ).lexically_normal(),
+        ( flowInput / "restart.dat" ).lexically_normal() );
+    EXPECT_EQ(
+        std::filesystem::path( Prj::GetMeshOutputFileName( "grid.ofl" ) ).lexically_normal(),
+        ( meshOutput / "grid.ofl" ).lexically_normal() );
+    EXPECT_EQ(
+        std::filesystem::path( Prj::GetFlowOutputFileName( "flow.dat" ) ).lexically_normal(),
+        ( flowOutput / "flow.dat" ).lexically_normal() );
+}
+
+TEST( PrjIOPaths, DomainRootCanInheritProjectRoot )
+{
+    const std::filesystem::path root =
+        std::filesystem::temp_directory_path()
+        / "OneFLOW_PrjIODomainProjectTest";
+    const std::filesystem::path caseDir = root / "cases" / "consumer";
+    const std::filesystem::path projectDir = root / "project";
+
+    Prj::current_dir = std::filesystem::current_path().string();
+    Prj::SetPrjBaseDir( caseDir.string() );
+    Prj::SetProjectBaseDir( projectDir.string() );
+    Prj::SetIOBaseDirs( "case", "case" );
+    Prj::SetDomainIOBaseDirs( "project", "", "", "" );
+
+    EXPECT_EQ(
+        std::filesystem::path( Prj::GetMeshInputFileName( "grid.ofl" ) ).lexically_normal(),
+        ( projectDir / "grid.ofl" ).lexically_normal() );
+    EXPECT_EQ(
+        std::filesystem::path( Prj::GetFlowInputFileName( "restart.dat" ) ).lexically_normal(),
+        ( caseDir / "restart.dat" ).lexically_normal() );
+}
+
 TEST( PrjIOPaths, ProjectRootMustBeDeclared )
 {
     const std::filesystem::path caseDir =
