@@ -195,7 +195,7 @@ void Prj::SetPrjBaseDir( const std::string & prjName )
     Prj::prjBaseDir = Prj::ResolveCaseDir( prjName );
     Prj::inputBaseDir = Prj::prjBaseDir;
     Prj::outputBaseDir = Prj::prjBaseDir;
-    Prj::projectBaseDir = Prj::current_dir;
+    Prj::projectBaseDir.clear();
 
     std::cout << " Prj::prjBaseDir = "
         << Prj::prjBaseDir << "\n";
