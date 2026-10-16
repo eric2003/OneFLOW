@@ -284,6 +284,23 @@ std::string Prj::GetOutputFileName( const std::string & fileName )
     return ResolvePathUnderRoot( Prj::GetOutputBaseDir(), fileName );
 }
 
+void Prj::WriteIOPathInfo( const std::string & fileName )
+{
+    std::fstream file;
+    Prj::OpenPrjFile(
+        file,
+        fileName,
+        std::ios_base::out | std::ios_base::trunc );
+
+    file << "case_root=" << Prj::prjBaseDir << "\n";
+    file << "project_root=" << Prj::projectBaseDir << "\n";
+    file << "input_root=" << Prj::GetInputBaseDir() << "\n";
+    file << "output_root=" << Prj::GetOutputBaseDir() << "\n";
+    file << "path_rule=absolute file paths bypass input_root and output_root\n";
+
+    Prj::CloseOutputFile( file, "WriteIOPathInfo" );
+}
+
 void Prj::OpenCaseFile(
     std::fstream & file,
     const std::string & caseDir,
