@@ -82,6 +82,7 @@ public:
     static std::string GetOutputFileName( const std::string & fileName );
     static std::string GetInputBaseDir();
     static std::string GetOutputBaseDir();
+    static void WriteIOPathInfo( const std::string & fileName );
     static std::string GetCaseFileName( const std::string & caseDir, const std::string & fileName );
     static std::string GetSystemFileName( const std::string & fileName );
     static std::string GetDirName( const std::string & fileName );
