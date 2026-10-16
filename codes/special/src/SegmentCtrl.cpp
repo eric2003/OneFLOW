@@ -26,9 +26,61 @@ License
 #include "TextFileParser.h"
 #include "HXMath.h"
 #include <iostream>
+#include <stdexcept>
 
 
 BeginNameSpace( ONEFLOW )
+
+namespace
+{
+
+Real GeometricSeriesSum( Real firstStep, Real ratio, int intervalCount )
+{
+    Real sum = 0.0;
+    Real step = firstStep;
+    for ( int i = 0; i < intervalCount; ++ i )
+    {
+        sum += step;
+        step *= ratio;
+    }
+    return sum;
+}
+
+Real SolveGeometricRatio( Real firstStep, Real targetDistance, int intervalCount )
+{
+    if ( intervalCount <= 0 ) return 1.0;
+
+    const Real uniformDistance =
+        firstStep * static_cast< Real >( intervalCount );
+    if ( targetDistance <= uniformDistance ) return 1.0;
+
+    Real ratioMin = 1.0;
+    Real ratioMax = 2.0;
+    while ( GeometricSeriesSum( firstStep, ratioMax, intervalCount ) <
+            targetDistance )
+    {
+        ratioMax *= 2.0;
+    }
+
+    for ( int iteration = 0; iteration < 100; ++ iteration )
+    {
+        const Real ratio = half * ( ratioMin + ratioMax );
+        const Real distance =
+            GeometricSeriesSum( firstStep, ratio, intervalCount );
+        if ( distance < targetDistance )
+        {
+            ratioMin = ratio;
+        }
+        else
+        {
+            ratioMax = ratio;
+        }
+    }
+
+    return half * ( ratioMin + ratioMax );
+}
+
+}
 
 SegmentCtrl::SegmentCtrl()
 {
@@ -83,9 +135,57 @@ void SegmentCtrl::CalcFactor()
     {
         this->CopyFactor();
     }
+    else if ( this->distribution == DistributionType::BoundaryLayer )
+    {
+        this->CalcBoundaryLayerFactor();
+    }
     else
     {
         this->CalcEffectiveFactor();
+    }
+}
+
+void SegmentCtrl::CalcBoundaryLayerFactor()
+{
+    if ( this->nearWallPointCount < 2 ||
+         this->nearWallPointCount > this->nPoint ||
+         this->nearWallDistance <= 0.0 ||
+         this->nearWallDistance >= this->lenth )
+    {
+        throw std::runtime_error( "Invalid boundary-layer segment definition" );
+    }
+
+    const int outerIntervalCount = this->nPoint - this->nearWallPointCount;
+    const Real nearWallFraction = this->nearWallDistance / this->lenth;
+    const Real nearWallStep =
+        nearWallFraction /
+        static_cast< Real >( this->nearWallPointCount - 1 );
+
+    this->factorList.resize( this->nPoint );
+    this->pidxList.resize( this->nPoint );
+
+    for ( int iPoint = 0; iPoint < this->nearWallPointCount; ++ iPoint )
+    {
+        this->factorList[ iPoint ] =
+            static_cast< Real >( iPoint ) * nearWallStep;
+        this->pidxList[ iPoint ] = iPoint;
+    }
+
+    const Real outerDistance = 1.0 - nearWallFraction;
+    const Real ratio = SolveGeometricRatio(
+        nearWallStep, outerDistance, outerIntervalCount );
+
+    Real factor = nearWallFraction;
+    Real step = nearWallStep;
+    for ( int iPoint = this->nearWallPointCount;
+          iPoint < this->nPoint;
+          ++ iPoint )
+    {
+        factor += step;
+        this->factorList[ iPoint ] =
+            iPoint == this->nPoint - 1 ? 1.0 : factor;
+        this->pidxList[ iPoint ] = iPoint;
+        step *= ratio;
     }
 }
 
