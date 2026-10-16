@@ -201,7 +201,8 @@ void SimuContext::SetupCaseEnvironment()
 
     const std::string flowInfoPath =
         Prj::GetFlowOutputFileName( ioPathInfoFile );
-    if ( flowInfoPath != meshInfoPath )
+    if ( std::filesystem::path( flowInfoPath ).lexically_normal()
+        != std::filesystem::path( meshInfoPath ).lexically_normal() )
     {
         Prj::WriteIOPathInfo( flowInfoPath );
     }
