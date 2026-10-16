@@ -29,10 +29,16 @@ void WriteGridInfo( const Grids & grids, const GridConfig & config )
 
     if ( ! config.sourceFile.empty() )
     {
-        const std::string sourceCaseDir =
-            config.ResolveSourceCaseDir( Prj::prjBaseDir );
-        snapshot.sourceGridPath =
-            Prj::GetMeshInputFileName( config.sourceFile );
+        if ( ! config.sourceCaseDir.empty() )
+        {
+            snapshot.sourceGridPath =
+                Prj::GetCaseFileName( config.sourceCaseDir, config.sourceFile );
+        }
+        else
+        {
+            snapshot.sourceGridPath =
+                Prj::GetMeshInputFileName( config.sourceFile );
+        }
     }
 
     const std::string outputGridFile = config.targetFile.empty()
