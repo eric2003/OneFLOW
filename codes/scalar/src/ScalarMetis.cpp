@@ -124,7 +124,7 @@ void ScalarMetis::Create1DMeshFromCgns()
     std::string scalar_grid_filename = ONEFLOW::GetDataValue< std::string >( "scalar_grid_filename" );
     std::string scalar_cgns_filename = ONEFLOW::GetDataValue< std::string >( "scalar_cgns_filename" );
 
-    std::string cgnsprjFileName = Prj::GetPrjFileName( scalar_cgns_filename );
+    std::string cgnsprjFileName = Prj::GetInputFileName( scalar_cgns_filename );
 
     grid->GenerateGridFromCgns( cgnsprjFileName );
     grid->CalcTopology();
