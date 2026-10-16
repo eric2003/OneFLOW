@@ -81,6 +81,15 @@ void GridLayout::Validate() const
                 }
             }
         }
+        else if ( distribution.type == GridDistributionType::BoundaryLayer )
+        {
+            if ( distribution.nearWallPointCount < 2 ||
+                 distribution.nearWallDistance <= 0.0 )
+            {
+                throw std::runtime_error(
+                    "Invalid boundary-layer distribution parameters" );
+            }
+        }
     }
 
     for ( const auto & boundary : boundaries )
