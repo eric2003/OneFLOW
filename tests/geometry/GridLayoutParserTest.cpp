@@ -135,6 +135,25 @@ TEST( GridLayoutParserTest, ParsesLaminarFlatPlateLayout )
         GridBoundaryKind::Interface );
 }
 
+TEST( GridLayoutParserTest, ParsesBoundaryLayerDistribution )
+{
+    const std::string fileName =
+        std::string( ONEFLOW_SOURCE_DIR ) +
+        "/grid/laminar_flat_plate/grid/laminarFlatPlateLayout.txt";
+
+    const GridLayout layout = GridLayoutParser().Parse( fileName );
+
+    EXPECT_EQ(
+        layout.distributions[ 2 ].type,
+        GridDistributionType::BoundaryLayer );
+    EXPECT_EQ( layout.distributions[ 2 ].nearWallPointCount, 41 );
+    EXPECT_DOUBLE_EQ( layout.distributions[ 2 ].nearWallDistance, 0.02 );
+    EXPECT_EQ(
+        layout.distributions[ 3 ].type,
+        GridDistributionType::BoundaryLayer );
+    EXPECT_EQ( layout.distributions[ 4 ].type, GridDistributionType::BoundaryLayer );
+}
+
 TEST( GridLayoutParserTest, RejectsUnknownPointReference )
 {
     const std::string fileName =
