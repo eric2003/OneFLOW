@@ -680,3 +680,41 @@ TEST( PrjIOPaths, ProjectRootMustBeExplicitlyConfigured )
         std::filesystem::path( Prj::GetOutputFileName( "results/flow.dat" ) ).lexically_normal(),
         ( projectDir / "results" / "flow.dat" ).lexically_normal() );
 }
+
+
+TEST( PrjIOPaths, OpenPrjFileUsesModeSpecificRoots )
+{
+    const std::filesystem::path root =
+        std::filesystem::temp_directory_path()
+        / "OneFLOW_PrjIOPathsOpenModeTest";
+    const std::filesystem::path caseDir = root / "consumer";
+    const std::filesystem::path producerDir = root / "producer";
+    std::filesystem::remove_all( root );
+    std::filesystem::create_directories( producerDir / "results" );
+
+    {
+        std::ofstream source( producerDir / "results" / "grid.ofl" );
+        source << "source-grid";
+    }
+
+    Prj::current_dir = std::filesystem::current_path().string();
+    Prj::SetPrjBaseDir( caseDir.string() );
+    Prj::SetIOBaseDirs( "../producer", "case" );
+
+    std::fstream input;
+    Prj::OpenPrjFile( input, "results/grid.ofl", std::ios_base::in );
+    std::string value;
+    input >> value;
+    Prj::CloseFile( input );
+    EXPECT_EQ( value, "source-grid" );
+
+    std::fstream output;
+    Prj::OpenPrjFile( output, "results/flow.dat", std::ios_base::out );
+    output << "flow-result";
+    Prj::CloseFile( output );
+
+    EXPECT_TRUE( std::filesystem::is_regular_file( caseDir / "results" / "flow.dat" ) );
+    EXPECT_FALSE( std::filesystem::exists( producerDir / "results" / "flow.dat" ) );
+
+    std::filesystem::remove_all( root );
+}
