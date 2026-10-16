@@ -18,6 +18,10 @@ GridDistributionType ParseDistributionType( const std::string & type )
     if ( type == "tanh" ) return GridDistributionType::Tanh;
     if ( ! type.empty() && type.front() == 'c' ) return GridDistributionType::Copy;
     if ( ! type.empty() && type.front() == 'e' ) return GridDistributionType::Exponential;
+    if ( type == "bl" || type == "boundary_layer" )
+    {
+        return GridDistributionType::BoundaryLayer;
+    }
 
     throw std::runtime_error( "Unsupported grid distribution: " + type );
 }
@@ -95,6 +99,11 @@ GridLayout GridLayoutParser::Parse( const std::string & fileName ) const
             {
                 distribution.startValue = parser.ReadNextDigit< Real >();
                 distribution.endValue = parser.ReadNextDigit< Real >();
+            }
+            else if ( distribution.type == GridDistributionType::BoundaryLayer )
+            {
+                distribution.nearWallPointCount = parser.ReadNextDigit< int >();
+                distribution.nearWallDistance = parser.ReadNextDigit< Real >();
             }
 
             layout.distributions.push_back( distribution );
