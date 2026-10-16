@@ -179,6 +179,11 @@ void LineMachine::SetDistribution( const GridDistributionDefinition & definition
         segmentCtrl->cA2 = 1.0e-4;
         segmentCtrl->cA3 = 0.5;
         break;
+    case GridDistributionType::BoundaryLayer:
+        segmentCtrl->distribution = SegmentCtrl::DistributionType::BoundaryLayer;
+        segmentCtrl->nearWallPointCount = definition.nearWallPointCount;
+        segmentCtrl->nearWallDistance = definition.nearWallDistance;
+        break;
     }
 }
 
