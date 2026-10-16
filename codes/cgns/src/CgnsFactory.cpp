@@ -234,6 +234,7 @@ void CgnsFactory::DumpUnsCgnsGrid(
 
     const std::string targetFile =
         Prj::GetMeshOutputFileName( targetGridFile );
+    Prj::CreateDirIfNeeded( targetFile );
 
     cgnsZbase->OpenCgnsFile( targetFile, CG_MODE_WRITE );
     cgnsZbase->DumpCgnsMultiBase();
