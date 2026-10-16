@@ -232,15 +232,8 @@ void CgnsFactory::DumpUnsCgnsGrid(
 {
     const std::string & targetGridFile = config.targetFile;
 
-    std::string targetFile;
-    if ( caseDir.empty() )
-    {
-        targetFile = Prj::GetOutputFileName( targetGridFile );
-    }
-    else
-    {
-        targetFile = Prj::GetCaseFileName( caseDir, targetGridFile );
-    }
+    const std::string targetFile =
+        Prj::GetOutputFileName( targetGridFile );
 
     cgnsZbase->OpenCgnsFile( targetFile, CG_MODE_WRITE );
     cgnsZbase->DumpCgnsMultiBase();
