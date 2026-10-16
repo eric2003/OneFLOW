@@ -61,6 +61,10 @@ std::string Prj::prjBaseDir = "";
 std::string Prj::inputBaseDir = "";
 std::string Prj::outputBaseDir = "";
 std::string Prj::projectBaseDir = "";
+std::string Prj::meshInputBaseDir = "";
+std::string Prj::flowInputBaseDir = "";
+std::string Prj::meshOutputBaseDir = "";
+std::string Prj::flowOutputBaseDir = "";
 
 void Prj::ProcessCmdLineArgs( std::vector<std::string> & args )
 {
@@ -196,6 +200,10 @@ void Prj::SetPrjBaseDir( const std::string & prjName )
     Prj::inputBaseDir = Prj::prjBaseDir;
     Prj::outputBaseDir = Prj::prjBaseDir;
     Prj::projectBaseDir.clear();
+    Prj::meshInputBaseDir.clear();
+    Prj::flowInputBaseDir.clear();
+    Prj::meshOutputBaseDir.clear();
+    Prj::flowOutputBaseDir.clear();
 
     std::cout << " Prj::prjBaseDir = "
         << Prj::prjBaseDir << "\n";
@@ -208,13 +216,17 @@ void Prj::ClearPrjBaseDir()
     Prj::inputBaseDir.clear();
     Prj::outputBaseDir.clear();
     Prj::projectBaseDir.clear();
+    Prj::meshInputBaseDir.clear();
+    Prj::flowInputBaseDir.clear();
+    Prj::meshOutputBaseDir.clear();
+    Prj::flowOutputBaseDir.clear();
 }
 
 namespace
 {
 std::string ResolveBaseDirectory( const std::string & rootSpec )
 {
-    if ( rootSpec.empty() || rootSpec == "case" )
+    if ( rootSpec.empty() || rootSpec == "default" || rootSpec == "case" )
     {
         return Prj::prjBaseDir;
     }
@@ -263,6 +275,26 @@ void Prj::SetIOBaseDirs( const std::string & inputRoot, const std::string & outp
 {
     Prj::inputBaseDir = ResolveBaseDirectory( inputRoot );
     Prj::outputBaseDir = ResolveBaseDirectory( outputRoot );
+    Prj::meshInputBaseDir = Prj::inputBaseDir;
+    Prj::flowInputBaseDir = Prj::inputBaseDir;
+    Prj::meshOutputBaseDir = Prj::outputBaseDir;
+    Prj::flowOutputBaseDir = Prj::outputBaseDir;
+}
+
+void Prj::SetDomainIOBaseDirs(
+    const std::string & meshInputRoot,
+    const std::string & flowInputRoot,
+    const std::string & meshOutputRoot,
+    const std::string & flowOutputRoot )
+{
+    Prj::meshInputBaseDir = meshInputRoot.empty() || meshInputRoot == "default"
+        ? Prj::GetInputBaseDir() : ResolveBaseDirectory( meshInputRoot );
+    Prj::flowInputBaseDir = flowInputRoot.empty() || flowInputRoot == "default"
+        ? Prj::GetInputBaseDir() : ResolveBaseDirectory( flowInputRoot );
+    Prj::meshOutputBaseDir = meshOutputRoot.empty() || meshOutputRoot == "default"
+        ? Prj::GetOutputBaseDir() : ResolveBaseDirectory( meshOutputRoot );
+    Prj::flowOutputBaseDir = flowOutputRoot.empty() || flowOutputRoot == "default"
+        ? Prj::GetOutputBaseDir() : ResolveBaseDirectory( flowOutputRoot );
 }
 
 std::string Prj::GetInputBaseDir()
@@ -275,6 +307,26 @@ std::string Prj::GetOutputBaseDir()
     return Prj::outputBaseDir.empty() ? Prj::prjBaseDir : Prj::outputBaseDir;
 }
 
+std::string Prj::GetMeshInputBaseDir()
+{
+    return Prj::meshInputBaseDir.empty() ? Prj::GetInputBaseDir() : Prj::meshInputBaseDir;
+}
+
+std::string Prj::GetFlowInputBaseDir()
+{
+    return Prj::flowInputBaseDir.empty() ? Prj::GetInputBaseDir() : Prj::flowInputBaseDir;
+}
+
+std::string Prj::GetMeshOutputBaseDir()
+{
+    return Prj::meshOutputBaseDir.empty() ? Prj::GetOutputBaseDir() : Prj::meshOutputBaseDir;
+}
+
+std::string Prj::GetFlowOutputBaseDir()
+{
+    return Prj::flowOutputBaseDir.empty() ? Prj::GetOutputBaseDir() : Prj::flowOutputBaseDir;
+}
+
 std::string Prj::GetInputFileName( const std::string & fileName )
 {
     return ResolvePathUnderRoot( Prj::GetInputBaseDir(), fileName );
@@ -283,6 +335,26 @@ std::string Prj::GetInputFileName( const std::string & fileName )
 std::string Prj::GetOutputFileName( const std::string & fileName )
 {
     return ResolvePathUnderRoot( Prj::GetOutputBaseDir(), fileName );
+}
+
+std::string Prj::GetMeshInputFileName( const std::string & fileName )
+{
+    return ResolvePathUnderRoot( Prj::GetMeshInputBaseDir(), fileName );
+}
+
+std::string Prj::GetFlowInputFileName( const std::string & fileName )
+{
+    return ResolvePathUnderRoot( Prj::GetFlowInputBaseDir(), fileName );
+}
+
+std::string Prj::GetMeshOutputFileName( const std::string & fileName )
+{
+    return ResolvePathUnderRoot( Prj::GetMeshOutputBaseDir(), fileName );
+}
+
+std::string Prj::GetFlowOutputFileName( const std::string & fileName )
+{
+    return ResolvePathUnderRoot( Prj::GetFlowOutputBaseDir(), fileName );
 }
 
 void Prj::WriteIOPathInfo( const std::string & fileName )
