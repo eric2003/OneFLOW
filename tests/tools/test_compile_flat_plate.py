@@ -30,6 +30,7 @@ class CompileFlatPlateTest(unittest.TestCase):
         self.assertIn("Dim(1)={33}", output)
         self.assertIn("Dim(2)={41}", output)
         self.assertIn("Dim(3)={85}", output)
+        self.assertIn("Ds(3)={bl,41,0.02}", output)
         self.assertIn("Boundary(1)={3}", output)
         self.assertIn("Boundary(2)={2}", output)
         self.assertIn("Boundary(4)={-1}", output)
@@ -61,6 +62,16 @@ class CompileFlatPlateTest(unittest.TestCase):
         self.assertIn("farfield", svg)
         self.assertIn("outflow", svg)
         self.assertIn("wall", svg)
+
+    def test_boundary_layer_distribution_matches_reference(self):
+        vertical = self.spec["distributions"]["vertical"]
+        self.assertEqual(vertical["type"], "boundary_layer")
+        self.assertEqual(vertical["nearWallPointCount"], 41)
+        self.assertEqual(vertical["nearWallDistance"], 0.02)
+        output = compiler.compile_flat_plate(self.spec)
+        self.assertIn("Ds(3)={bl,41,0.02}", output)
+        self.assertIn("Ds(4)={bl,41,0.02}", output)
+        self.assertIn("Ds(5)={bl,41,0.02}", output)
 
     def test_rejects_invalid_normal_point_count(self):
         self.spec["normalPointCount"] = 1
