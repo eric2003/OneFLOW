@@ -110,6 +110,47 @@ def validate_profile(
     dimension = runtime.get("dimension")
     if not isinstance(dimension, int) or isinstance(dimension, bool) or dimension not in (1, 2, 3):
         errors.append(f"{case_id}: runtime.dimension must be 1, 2, or 3")
+
+    grid_options = runtime.get("gridOptions")
+    if grid_options is not None:
+        if not isinstance(grid_options, dict):
+            errors.append(f"{case_id}: runtime.gridOptions must be an object")
+        else:
+            if grid_options.get("topology") not in ("structured", "unstructured"):
+                errors.append(
+                    f"{case_id}: gridOptions.topology must be structured or unstructured"
+                )
+            if not isinstance(grid_options.get("multiBlock"), bool):
+                errors.append(f"{case_id}: gridOptions.multiBlock must be a boolean")
+            file_format = grid_options.get("fileFormat")
+            if not isinstance(file_format, int) or isinstance(file_format, bool):
+                errors.append(f"{case_id}: gridOptions.fileFormat must be an integer")
+            scale = grid_options.get("scale")
+            if not isinstance(scale, (int, float)) or isinstance(scale, bool):
+                errors.append(f"{case_id}: gridOptions.scale must be numeric")
+            translation = grid_options.get("translation")
+            if (
+                not isinstance(translation, list)
+                or len(translation) != 3
+                or any(not isinstance(value, (int, float)) or isinstance(value, bool)
+                       for value in translation)
+            ):
+                errors.append(
+                    f"{case_id}: gridOptions.translation must contain three numbers"
+                )
+            io_roots = grid_options.get("ioRoots")
+            root_names = {
+                "project", "input", "output", "meshInput", "flowInput",
+                "meshOutput", "flowOutput",
+            }
+            if not isinstance(io_roots, dict):
+                errors.append(f"{case_id}: gridOptions.ioRoots must be an object")
+            else:
+                for root_name in root_names:
+                    if not isinstance(io_roots.get(root_name), str) or not io_roots[root_name]:
+                        errors.append(
+                            f"{case_id}: gridOptions.ioRoots.{root_name} must be a non-empty string"
+                        )
     return errors
 
 
