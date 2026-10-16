@@ -58,6 +58,9 @@ std::string Prj::system_root = "";
 std::string Prj::execute_dir = "";
 std::string Prj::current_dir = "";
 std::string Prj::prjBaseDir = "";
+std::string Prj::inputBaseDir = "";
+std::string Prj::outputBaseDir = "";
+std::string Prj::projectBaseDir = "";
 
 void Prj::ProcessCmdLineArgs( std::vector<std::string> & args )
 {
@@ -190,6 +193,12 @@ std::string Prj::ResolveCaseDir( const std::string & caseDir )
 void Prj::SetPrjBaseDir( const std::string & prjName )
 {
     Prj::prjBaseDir = Prj::ResolveCaseDir( prjName );
+    Prj::inputBaseDir = Prj::prjBaseDir;
+    Prj::outputBaseDir = Prj::prjBaseDir;
+    if ( Prj::projectBaseDir.empty() )
+    {
+        Prj::projectBaseDir = Prj::current_dir;
+    }
 
     std::cout << " Prj::prjBaseDir = "
         << Prj::prjBaseDir << "\n";
@@ -199,6 +208,83 @@ void Prj::ClearPrjBaseDir()
 {
     // A completed case must not leave its directory bound to the process.
     Prj::prjBaseDir.clear();
+    Prj::inputBaseDir.clear();
+    Prj::outputBaseDir.clear();
+}
+
+namespace
+{
+std::string ResolveBaseDirectory( const std::string & rootSpec )
+{
+    if ( rootSpec.empty() || rootSpec == "case" )
+    {
+        return Prj::prjBaseDir;
+    }
+
+    if ( rootSpec == "project" )
+    {
+        if ( Prj::projectBaseDir.empty() )
+        {
+            throw std::logic_error( "Project input/output root has not been configured" );
+        }
+        return Prj::projectBaseDir;
+    }
+
+    const std::filesystem::path rootPath( rootSpec );
+    if ( rootPath.is_absolute() )
+    {
+        return rootPath.lexically_normal().string();
+    }
+
+    return ( std::filesystem::path( Prj::prjBaseDir ) / rootPath )
+        .lexically_normal().string();
+}
+}
+
+void Prj::SetProjectBaseDir( const std::string & rootDir )
+{
+    if ( rootDir.empty() )
+    {
+        throw std::invalid_argument( "Project root cannot be empty" );
+    }
+
+    std::filesystem::path path( rootDir );
+    if ( path.is_relative() )
+    {
+        if ( Prj::current_dir.empty() )
+        {
+            throw std::logic_error( "Current directory is not initialized; cannot resolve project root" );
+        }
+        path = std::filesystem::path( Prj::current_dir ) / path;
+    }
+
+    Prj::projectBaseDir = path.lexically_normal().string();
+}
+
+void Prj::SetIOBaseDirs( const std::string & inputRoot, const std::string & outputRoot )
+{
+    Prj::inputBaseDir = ResolveBaseDirectory( inputRoot );
+    Prj::outputBaseDir = ResolveBaseDirectory( outputRoot );
+}
+
+std::string Prj::GetInputBaseDir()
+{
+    return Prj::inputBaseDir.empty() ? Prj::prjBaseDir : Prj::inputBaseDir;
+}
+
+std::string Prj::GetOutputBaseDir()
+{
+    return Prj::outputBaseDir.empty() ? Prj::prjBaseDir : Prj::outputBaseDir;
+}
+
+std::string Prj::GetInputFileName( const std::string & fileName )
+{
+    return ResolvePathUnderRoot( Prj::GetInputBaseDir(), fileName );
+}
+
+std::string Prj::GetOutputFileName( const std::string & fileName )
+{
+    return ResolvePathUnderRoot( Prj::GetOutputBaseDir(), fileName );
 }
 
 void Prj::OpenCaseFile(
