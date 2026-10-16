@@ -20,8 +20,8 @@ void WriteGridInfo( const Grids & grids, const GridConfig & config )
     GridInfoSnapshot snapshot = MakeGridInfoSnapshot( grids );
     snapshot.caseRoot = Prj::prjBaseDir;
     snapshot.projectRoot = Prj::projectBaseDir;
-    snapshot.inputRoot = Prj::GetInputBaseDir();
-    snapshot.outputRoot = Prj::GetOutputBaseDir();
+    snapshot.inputRoot = Prj::GetMeshInputBaseDir();
+    snapshot.outputRoot = Prj::GetMeshOutputBaseDir();
 
     if ( ! config.sourceFile.empty() )
     {
@@ -36,7 +36,7 @@ void WriteGridInfo( const Grids & grids, const GridConfig & config )
         : config.targetFile;
     if ( ! outputGridFile.empty() )
     {
-        snapshot.outputGridPath = Prj::GetOutputFileName( outputGridFile );
+        snapshot.outputGridPath = Prj::GetMeshOutputFileName( outputGridFile );
     }
 
     const std::string outputPath = Prj::GetOutputFileName( summaryFile );
