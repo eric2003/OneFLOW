@@ -1,0 +1,25 @@
+{
+  "type": "flat_plate",
+  "description": "2D laminar flat-plate boundary-layer reference layout.",
+  "plateLength": 2.0,
+  "upstreamDistance": 2.0,
+  "domainHeight": 4.0,
+  "upstreamPointCount": 33,
+  "platePointCount": 41,
+  "normalPointCount": 85,
+  "distributions": {
+    "upstream": [-1, 0.01],
+    "plate": [0.01, -1],
+    "vertical": [0.001, -1],
+    "top": [-1, 0.01]
+  },
+  "boundaries": {
+    "upstreamBottom": "symmetry",
+    "plate": "wall",
+    "left": "farfield",
+    "interface": "interface",
+    "right": "outflow",
+    "topUpstream": "farfield",
+    "topPlate": "farfield"
+  }
+}
