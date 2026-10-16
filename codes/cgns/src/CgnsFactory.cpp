@@ -180,7 +180,7 @@ void CgnsFactory::ReadCgnsGrid(
     std::string gridFileName;
     if ( caseDir.empty() )
     {
-        gridFileName = Prj::GetPrjFileName( sourceGridFile );
+        gridFileName = Prj::GetInputFileName( sourceGridFile );
     }
     else
     {
@@ -235,7 +235,7 @@ void CgnsFactory::DumpUnsCgnsGrid(
     std::string targetFile;
     if ( caseDir.empty() )
     {
-        targetFile = Prj::GetPrjFileName( targetGridFile );
+        targetFile = Prj::GetOutputFileName( targetGridFile );
     }
     else
     {
