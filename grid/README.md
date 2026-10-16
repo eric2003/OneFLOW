@@ -78,16 +78,20 @@ directory and write the converted grid to its own output directory, while a
 CFD case can read that converted grid and write flow results elsewhere:
 
 ```text
-projectRoot = ../
-meshInputRoot = ../shared-mesh
-meshOutputRoot = results/mesh
-flowInputRoot = results/mesh
-flowOutputRoot = results/flow
+projectRoot = ../OneFLOWProject
+meshInputRoot = ../shared-mesh-case
+meshOutputRoot = ../mesh-output-case
+flowInputRoot = ../mesh-output-case
+flowOutputRoot = ../flow-output-case
 ```
 
 The root settings do not replace existing file-name settings such as
-`sourceGridFileName` or `targetGridFileName`. Relative file names are resolved
-against the applicable root, while absolute file paths remain absolute.
+`sourceGridFileName` or `targetGridFileName`. A root is a base directory, not
+a replacement for the `grid/` or `results/` subdirectory already present in a
+file-name value. Relative file names are appended to the applicable root,
+while absolute file paths remain absolute. Keep existing file-name values
+unchanged for compatibility; when moving a case to a different artifact root,
+check that the configured relative file names still match the producer output.
 Each run writes an `io_paths.txt` diagnostic beneath each configured output
 root (only once when both roots resolve to the same path). When both output
 roots are the case root, the legacy-friendly location `results/io_paths.txt` is
