@@ -169,7 +169,11 @@ void CalcGrid::Dump()
     }
 
     std::fstream file;
-    Prj::OpenPrjFile( file, gridFileName, std::ios_base::out|std::ios_base::binary|std::ios_base::trunc );
+    const std::string outputPath = Prj::GetMeshOutputFileName( gridFileName );
+    Prj::CreateDirIfNeeded( outputPath );
+    Prj::OpenFile(
+        file, outputPath,
+        std::ios_base::out | std::ios_base::binary | std::ios_base::trunc );
 
     ONEFLOW::HXWrite( & file, nZone );
     ONEFLOW::HXWrite( & file, zonePids );
@@ -418,6 +422,7 @@ void CalcGrid::GenerateMultiZoneCalcGrids(
         Prj::GetMeshOutputFileName( this->gridFileName );
     const std::filesystem::path regionMapPath =
         targetGridPath.parent_path() / "bcRegionMap.txt";
+    Prj::CreateDirIfNeeded( targetGridPath.string() );
     RegionNameMap::DumpRegion( regionMapPath.string() );
 
     this->Post();
