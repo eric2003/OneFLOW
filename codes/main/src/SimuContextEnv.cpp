@@ -171,6 +171,26 @@ void SimuContext::SetupCaseEnvironment()
     {
     }
 
+    // Preserve the legacy sourceGridCaseDir setting as the default mesh
+    // input root. This keeps linked cases such as rae2822_roe_sa reading grid
+    // artifacts (including wall-distance data) from rae2822grid, while an
+    // explicit meshInputRoot can override that behavior.
+    if ( meshInputRoot.empty() || meshInputRoot == "default" )
+    {
+        try
+        {
+            const std::string sourceGridCaseDir =
+                GetDataValue< std::string >( "sourceGridCaseDir" );
+            if ( ! sourceGridCaseDir.empty() && sourceGridCaseDir != "default" )
+            {
+                meshInputRoot = sourceGridCaseDir;
+            }
+        }
+        catch ( const std::exception & )
+        {
+        }
+    }
+
     Prj::SetDomainIOBaseDirs(
         meshInputRoot, flowInputRoot, meshOutputRoot, flowOutputRoot );
 
