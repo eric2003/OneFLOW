@@ -51,7 +51,7 @@ void BcData::ReadRegion()
 {
     const std::string sourceCaseDir = GridConfig::GetSourceCaseDir();
     const std::string gridPath = sourceCaseDir.empty()
-        ? Prj::GetPrjFileName( GetGridFileName() )
+        ? Prj::GetInputFileName( GetGridFileName() )
         : Prj::GetCaseFileName( sourceCaseDir, GetGridFileName() );
     const std::filesystem::path regionMapPath =
         std::filesystem::path( gridPath ).parent_path() / "bcRegionMap.txt";
