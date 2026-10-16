@@ -27,6 +27,14 @@
       "layout": "grid/twoConnectedCubesLayout.txt"
     },
     {
+      "id": "two_connected_squares",
+      "title": "Two Connected Squares",
+      "directory": "grid/two_connected_squares",
+      "runtimeConfig": "script/control.txt",
+      "profile": "case.json",
+      "layout": "grid/twoConnectedSquaresLayout.txt"
+    },
+    {
       "id": "mesh_workflow",
       "title": "Mesh Conversion Workflow",
       "directory": "grid/mesh_workflow",
