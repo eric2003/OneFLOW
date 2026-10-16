@@ -5,6 +5,15 @@
 
 BeginNameSpace( ONEFLOW )
 
+GridBoundaryKind GridLayout::ClassifyBoundaryType( int boundaryType )
+{
+    if ( boundaryType == 0 ) return GridBoundaryKind::None;
+    if ( boundaryType == -1 ) return GridBoundaryKind::Interface;
+    if ( boundaryType == 100 ) return GridBoundaryKind::Interior;
+    if ( boundaryType == 1000 ) return GridBoundaryKind::Overset;
+    return GridBoundaryKind::Physical;
+}
+
 void GridLayout::Validate() const
 {
     std::unordered_set< int > pointIds;
