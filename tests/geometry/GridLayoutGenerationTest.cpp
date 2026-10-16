@@ -79,69 +79,105 @@ TEST( GridLayoutGenerationTest, GeneratesFlatPlateBoundaryLayerDistribution )
     std::ifstream file( outputFile, std::ios::binary );
     ASSERT_TRUE( file.is_open() );
 
-    ASSERT_EQ( ReadBinary< int >( file ), 1 );
-    const int ni = ReadBinary< int >( file );
-    const int nj = ReadBinary< int >( file );
-    const int nk = ReadBinary< int >( file );
+    ASSERT_EQ( ReadBinary< int >( file ), 2 );
 
-    EXPECT_EQ( ni, 73 );
-    EXPECT_EQ( nj, 85 );
-    EXPECT_EQ( nk, 1 );
+    struct ZoneDimensions
+    {
+        int ni;
+        int nj;
+        int nk;
+    };
+    const std::array< ZoneDimensions, 2 > expectedDimensions = {{
+        { 33, 85, 1 },
+        { 41, 85, 1 }
+    }};
+    std::array< ZoneDimensions, 2 > dimensions{};
+    for ( std::size_t zoneIndex = 0; zoneIndex < dimensions.size(); ++ zoneIndex )
+    {
+        auto & zone = dimensions[ zoneIndex ];
+        zone.ni = ReadBinary< int >( file );
+        zone.nj = ReadBinary< int >( file );
+        zone.nk = ReadBinary< int >( file );
 
-    constexpr int interfaceI = 32;
+        EXPECT_EQ( zone.ni, expectedDimensions[ zoneIndex ].ni );
+        EXPECT_EQ( zone.nj, expectedDimensions[ zoneIndex ].nj );
+        EXPECT_EQ( zone.nk, expectedDimensions[ zoneIndex ].nk );
+    }
+
     constexpr int nearWallPointCount = 41;
     constexpr Real nearWallDistance = 0.02;
     constexpr Real domainHeight = 4.0;
-    constexpr int nodeCount = 73 * 85;
 
-    std::vector< Real > x( nodeCount );
-    std::vector< Real > y( nodeCount );
-    std::vector< Real > z( nodeCount );
-
-    for ( Real & value : x ) value = ReadBinary< Real >( file );
-    for ( Real & value : y ) value = ReadBinary< Real >( file );
-    for ( Real & value : z ) value = ReadBinary< Real >( file );
-
-    const Real uniformStep = nearWallDistance / ( nearWallPointCount - 1 );
-    for ( int j = 0; j < nearWallPointCount; ++ j )
+    struct ZoneCoordinates
     {
-        const Real expectedY =
-            uniformStep * static_cast< Real >( j );
-        EXPECT_NEAR( y[ j * ni + interfaceI ], expectedY, 1.0e-12 );
+        std::vector< Real > x;
+        std::vector< Real > y;
+        std::vector< Real > z;
+    };
+    std::array< ZoneCoordinates, 2 > zones;
+    for ( std::size_t zoneIndex = 0; zoneIndex < zones.size(); ++ zoneIndex )
+    {
+        const std::size_t nodeCount = static_cast< std::size_t >(
+            dimensions[ zoneIndex ].ni * dimensions[ zoneIndex ].nj );
+        zones[ zoneIndex ].x.resize( nodeCount );
+        zones[ zoneIndex ].y.resize( nodeCount );
+        zones[ zoneIndex ].z.resize( nodeCount );
+
+        for ( Real & value : zones[ zoneIndex ].x ) value = ReadBinary< Real >( file );
+        for ( Real & value : zones[ zoneIndex ].y ) value = ReadBinary< Real >( file );
+        for ( Real & value : zones[ zoneIndex ].z ) value = ReadBinary< Real >( file );
     }
 
-    EXPECT_NEAR(
-        y[ ( nearWallPointCount - 1 ) * ni + interfaceI ],
-        nearWallDistance,
-        1.0e-12 );
-    EXPECT_NEAR(
-        y[ ( nj - 1 ) * ni + interfaceI ],
-        domainHeight,
-        1.0e-12 );
-
-    Real previousStep =
-        y[ nearWallPointCount * ni + interfaceI ] -
-        y[ ( nearWallPointCount - 1 ) * ni + interfaceI ];
-    ASSERT_GT( previousStep, 0.0 );
-    EXPECT_NEAR( previousStep, uniformStep, 1.0e-12 );
-
-    const Real outerRatio =
-        ( y[ ( nearWallPointCount + 1 ) * ni + interfaceI ] -
-          y[ nearWallPointCount * ni + interfaceI ] ) /
-        previousStep;
-    EXPECT_GT( outerRatio, 1.0 );
-
-    for ( int j = nearWallPointCount + 1; j < nj; ++ j )
+    const Real uniformStep =
+        nearWallDistance / static_cast< Real >( nearWallPointCount - 1 );
+    for ( std::size_t zoneIndex = 0; zoneIndex < zones.size(); ++ zoneIndex )
     {
-        const Real step =
-            y[ j * ni + interfaceI ] -
-            y[ ( j - 1 ) * ni + interfaceI ];
-        EXPECT_GT( step, previousStep );
-        EXPECT_NEAR(
-            step / previousStep,
-            outerRatio,
-            1.0e-10 );
-        previousStep = step;
+        const auto & zone = zones[ zoneIndex ];
+        const int ni = dimensions[ zoneIndex ].ni;
+        const int nj = dimensions[ zoneIndex ].nj;
+
+        for ( int i = 0; i < ni; ++ i )
+        {
+            for ( int j = 0; j < nearWallPointCount; ++ j )
+            {
+                const Real expectedY = uniformStep * static_cast< Real >( j );
+                EXPECT_NEAR(
+                    zone.y[ static_cast< std::size_t >( j * ni + i ) ],
+                    expectedY,
+                    1.0e-12 );
+            }
+
+            Real previousStep =
+                zone.y[ static_cast< std::size_t >( nearWallPointCount * ni + i ) ] -
+                zone.y[ static_cast< std::size_t >( ( nearWallPointCount - 1 ) * ni + i ) ];
+            ASSERT_GT( previousStep, 0.0 );
+            EXPECT_NEAR( previousStep, uniformStep, 1.0e-12 );
+
+            const Real outerRatio =
+                ( zone.y[ static_cast< std::size_t >( ( nearWallPointCount + 1 ) * ni + i ) ] -
+                  zone.y[ static_cast< std::size_t >( nearWallPointCount * ni + i ) ] ) /
+                previousStep;
+            EXPECT_GT( outerRatio, 1.0 );
+
+            for ( int j = nearWallPointCount + 1; j < nj; ++ j )
+            {
+                const Real step =
+                    zone.y[ static_cast< std::size_t >( j * ni + i ) ] -
+                    zone.y[ static_cast< std::size_t >( ( j - 1 ) * ni + i ) ];
+                EXPECT_GT( step, previousStep );
+                EXPECT_NEAR( step / previousStep, outerRatio, 1.0e-10 );
+                previousStep = step;
+            }
+
+            EXPECT_NEAR(
+                zone.y[ static_cast< std::size_t >( ( nearWallPointCount - 1 ) * ni + i ) ],
+                nearWallDistance,
+                1.0e-12 );
+            EXPECT_NEAR(
+                zone.y[ static_cast< std::size_t >( ( nj - 1 ) * ni + i ) ],
+                domainHeight,
+                1.0e-12 );
+        }
     }
 
     file.close();
