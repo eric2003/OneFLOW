@@ -809,6 +809,7 @@ TEST( PrjIOPaths, DiagnosticsReportEffectiveDomainRoots )
     std::ostringstream contents;
     contents << file.rdbuf();
     const std::string text = contents.str();
+    file.close();
 
     const auto formattedDirectory = []( std::filesystem::path path )
     {
