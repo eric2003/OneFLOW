@@ -33,6 +33,40 @@ BeginNameSpace( ONEFLOW )
 namespace
 {
 
+std::string NormalizePathString( std::filesystem::path path )
+{
+    path = path.lexically_normal();
+    path.make_preferred();
+    return path.string();
+}
+
+std::string FormatDirectoryPath( const std::string & directory )
+{
+    if ( directory.empty() )
+    {
+        return "";
+    }
+
+    std::filesystem::path path( directory );
+    path = path.lexically_normal();
+    path.make_preferred();
+
+    std::string value = path.string();
+    std::filesystem::path rootPath = path.root_path();
+    rootPath.make_preferred();
+    const std::string root = rootPath.string();
+
+    // Remove redundant trailing separators, but preserve filesystem roots.
+    while ( value.size() > root.size()
+        && ! value.empty()
+        && ( value.back() == '/' || value.back() == '\\' ) )
+    {
+        value.pop_back();
+    }
+
+    return value;
+}
+
 std::string ResolvePathUnderRoot(
     const std::string & rootName,
     const std::string & fileName )
@@ -42,11 +76,10 @@ std::string ResolvePathUnderRoot(
     // Only fully absolute paths bypass the configured root.
     if ( path.is_absolute() )
     {
-        return path.lexically_normal().string();
+        return NormalizePathString( path );
     }
 
-    return ( std::filesystem::path( rootName ) / path )
-        .lexically_normal().string();
+    return NormalizePathString( std::filesystem::path( rootName ) / path );
 }
 
 }
@@ -365,14 +398,14 @@ void Prj::WriteIOPathInfo( const std::string & fileName )
         fileName,
         std::ios_base::out | std::ios_base::trunc );
 
-    file << "case_root=" << Prj::prjBaseDir << "\n";
-    file << "project_root=" << Prj::projectBaseDir << "\n";
-    file << "input_root=" << Prj::GetInputBaseDir() << "\n";
-    file << "output_root=" << Prj::GetOutputBaseDir() << "\n";
-    file << "mesh_input_root=" << Prj::GetMeshInputBaseDir() << "\n";
-    file << "flow_input_root=" << Prj::GetFlowInputBaseDir() << "\n";
-    file << "mesh_output_root=" << Prj::GetMeshOutputBaseDir() << "\n";
-    file << "flow_output_root=" << Prj::GetFlowOutputBaseDir() << "\n";
+    file << "case_root=" << FormatDirectoryPath( Prj::prjBaseDir ) << "\n";
+    file << "project_root=" << FormatDirectoryPath( Prj::projectBaseDir ) << "\n";
+    file << "input_root=" << FormatDirectoryPath( Prj::GetInputBaseDir() ) << "\n";
+    file << "output_root=" << FormatDirectoryPath( Prj::GetOutputBaseDir() ) << "\n";
+    file << "mesh_input_root=" << FormatDirectoryPath( Prj::GetMeshInputBaseDir() ) << "\n";
+    file << "flow_input_root=" << FormatDirectoryPath( Prj::GetFlowInputBaseDir() ) << "\n";
+    file << "mesh_output_root=" << FormatDirectoryPath( Prj::GetMeshOutputBaseDir() ) << "\n";
+    file << "flow_output_root=" << FormatDirectoryPath( Prj::GetFlowOutputBaseDir() ) << "\n";
     file << "path_rule=absolute file paths bypass configured roots\n";
 
     Prj::CloseOutputFile( file, "WriteIOPathInfo" );
