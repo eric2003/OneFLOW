@@ -82,6 +82,7 @@ void ConfigureTaskFile( Task * task, StringField & data )
     }
 
     const bool writesOutput = ( openMode & std::ios_base::out ) != 0;
+    // Wall distance is a grid-derived artifact, not a flow restart or result.
     const bool isMeshArtifact = fileNameVar == "walldist_file";
     if ( isMeshArtifact )
     {
