@@ -29,7 +29,6 @@ class MeshCaseCatalogTest(unittest.TestCase):
         ]
         self.assertEqual(errors, [])
 
-
     def test_two_connected_squares_profile_carries_grid_options(self) -> None:
         case_dir = REPOSITORY_ROOT / "grid" / "two_connected_squares"
         with (case_dir / "case.json").open("r", encoding="utf-8") as stream:
@@ -55,14 +54,14 @@ class MeshCaseCatalogTest(unittest.TestCase):
 
         grid_parameters = (case_dir / "script" / "grid.txt").read_text(encoding="utf-8")
         self.assertIn('string topoType = "u";', grid_parameters)
-        self.assertIn('int multiBlock = 1;', grid_parameters)
-        self.assertIn('int fileFormat = 1;', grid_parameters)
-        self.assertIn('Real gridScale = 1.0;', grid_parameters)
-        self.assertIn('Real gridTrans[3] = 0, 0, 0;', grid_parameters)
+        self.assertIn("int multiBlock = 1;", grid_parameters)
+        self.assertIn("int fileFormat = 1;", grid_parameters)
+        self.assertIn("Real gridScale = 1.0;", grid_parameters)
+        self.assertIn("Real gridTrans[3] = 0, 0, 0;", grid_parameters)
         self.assertIn('string gridLayoutFileName = "grid/twoConnectedSquaresLayout.txt";', grid_parameters)
         self.assertIn('string sourceGridType = "plot3d";', grid_parameters)
         self.assertIn('string targetGridType = "oneflow";', grid_parameters)
-        self.assertIn('int parallelStrategy = 1;', grid_parameters)
+        self.assertIn("int parallelStrategy = 1;", grid_parameters)
         self.assertIn('string projectRoot = ".";', grid_parameters)
         self.assertIn('string inputRoot = "case";', grid_parameters)
         self.assertIn('string outputRoot = "case";', grid_parameters)
@@ -73,9 +72,12 @@ class MeshCaseCatalogTest(unittest.TestCase):
 
         layout = (case_dir / runtime["layout"]).read_text(encoding="utf-8")
         self.assertIn("Boundary(2) = {-1}", layout)
-        self.assertIn("Add F2B 1 2 2", layout)
-        self.assertIn("Add F2B 2 4 2", layout)
-
+        self.assertIn("Add L2F 1 2 2", layout)
+        self.assertIn("Add L2F 2 4 2", layout)
+        self.assertIn("Add F2B 1 1 1", layout)
+        self.assertIn("Add F2B 2 1 2", layout)
+        self.assertNotIn("Add F2B 1 2 2", layout)
+        self.assertNotIn("Add F2B 2 4 2", layout)
 
     def test_invalid_grid_options_are_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
