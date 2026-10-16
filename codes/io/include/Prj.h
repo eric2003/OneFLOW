@@ -59,6 +59,10 @@ public:
     static std::string inputBaseDir;
     static std::string outputBaseDir;
     static std::string projectBaseDir;
+    static std::string meshInputBaseDir;
+    static std::string flowInputBaseDir;
+    static std::string meshOutputBaseDir;
+    static std::string flowOutputBaseDir;
 
 public:
     static void Init();
@@ -66,6 +70,11 @@ public:
     static void ClearPrjBaseDir();
     static void SetProjectBaseDir( const std::string & rootDir );
     static void SetIOBaseDirs( const std::string & inputRoot, const std::string & outputRoot );
+    static void SetDomainIOBaseDirs(
+        const std::string & meshInputRoot,
+        const std::string & flowInputRoot,
+        const std::string & meshOutputRoot,
+        const std::string & flowOutputRoot );
     static std::string ResolveCaseDir( const std::string & caseDir );
     static CmdLineOptions ParseCmdLineArgs( const std::vector<std::string> & args );
     static void ProcessCmdLineArgs( std::vector<std::string> &args );
@@ -80,6 +89,14 @@ public:
     static std::string GetPrjFileName( const std::string & fileName );
     static std::string GetInputFileName( const std::string & fileName );
     static std::string GetOutputFileName( const std::string & fileName );
+    static std::string GetMeshInputFileName( const std::string & fileName );
+    static std::string GetFlowInputFileName( const std::string & fileName );
+    static std::string GetMeshOutputFileName( const std::string & fileName );
+    static std::string GetFlowOutputFileName( const std::string & fileName );
+    static std::string GetMeshInputBaseDir();
+    static std::string GetFlowInputBaseDir();
+    static std::string GetMeshOutputBaseDir();
+    static std::string GetFlowOutputBaseDir();
     static std::string GetInputBaseDir();
     static std::string GetOutputBaseDir();
     static void WriteIOPathInfo( const std::string & fileName );
