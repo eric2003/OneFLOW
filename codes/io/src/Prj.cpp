@@ -369,7 +369,11 @@ void Prj::WriteIOPathInfo( const std::string & fileName )
     file << "project_root=" << Prj::projectBaseDir << "\n";
     file << "input_root=" << Prj::GetInputBaseDir() << "\n";
     file << "output_root=" << Prj::GetOutputBaseDir() << "\n";
-    file << "path_rule=absolute file paths bypass input_root and output_root\n";
+    file << "mesh_input_root=" << Prj::GetMeshInputBaseDir() << "\n";
+    file << "flow_input_root=" << Prj::GetFlowInputBaseDir() << "\n";
+    file << "mesh_output_root=" << Prj::GetMeshOutputBaseDir() << "\n";
+    file << "flow_output_root=" << Prj::GetFlowOutputBaseDir() << "\n";
+    file << "path_rule=absolute file paths bypass configured roots\n";
 
     Prj::CloseOutputFile( file, "WriteIOPathInfo" );
 }
