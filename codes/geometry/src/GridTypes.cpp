@@ -34,7 +34,7 @@ std::string GridConfig::ResolveSourceCaseDir( const std::string & currentCaseDir
         return sourceCaseDir;
     }
 
-    const std::string inputRoot = Prj::GetInputBaseDir();
+    const std::string inputRoot = Prj::GetMeshInputBaseDir();
     return inputRoot.empty() ? currentCaseDir : inputRoot;
 }
 
