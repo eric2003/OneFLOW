@@ -302,8 +302,11 @@ void Prj::OpenPrjFile(
     const std::string & fileName,
     const std::ios_base::openmode & openMode )
 {
-    std::string prjFileName = Prj::GetPrjFileName( fileName );
-    Prj::OpenFileWithParentDirectory( file, prjFileName, openMode );
+    const bool writesOutput = ( openMode & std::ios_base::out ) != 0;
+    const std::string resolvedFileName = writesOutput
+        ? Prj::GetOutputFileName( fileName )
+        : Prj::GetInputFileName( fileName );
+    Prj::OpenFileWithParentDirectory( file, resolvedFileName, openMode );
 }
 
 void Prj::OpenFileWithParentDirectory(
