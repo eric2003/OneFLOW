@@ -45,6 +45,7 @@ License
 #include "Iteration.h"
 #include <iostream>
 #include <exception>
+#include <filesystem>
 
 BeginNameSpace( ONEFLOW )
 
@@ -173,7 +174,14 @@ void SimuContext::SetupCaseEnvironment()
     Prj::SetDomainIOBaseDirs(
         meshInputRoot, flowInputRoot, meshOutputRoot, flowOutputRoot );
 
-    std::string ioPathInfoFile = "results/io_paths.txt";
+    const bool outputsUseCaseRoot =
+        std::filesystem::path( Prj::GetMeshOutputBaseDir() ).lexically_normal()
+            == std::filesystem::path( Prj::prjBaseDir ).lexically_normal()
+        && std::filesystem::path( Prj::GetFlowOutputBaseDir() ).lexically_normal()
+            == std::filesystem::path( Prj::prjBaseDir ).lexically_normal();
+    std::string ioPathInfoFile = outputsUseCaseRoot
+        ? "results/io_paths.txt"
+        : "io_paths.txt";
     try
     {
         const std::string configuredInfoFile =
