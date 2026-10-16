@@ -50,6 +50,7 @@ void WriteGridInfo( const Grids & grids, const GridConfig & config )
     }
 
     const std::string outputPath = Prj::GetMeshOutputFileName( summaryFile );
+    Prj::CreateDirIfNeeded( outputPath );
     std::ofstream output( outputPath, std::ios_base::out | std::ios_base::trunc );
     if ( ! output )
     {
