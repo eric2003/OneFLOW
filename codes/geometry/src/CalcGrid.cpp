@@ -415,7 +415,7 @@ void CalcGrid::GenerateMultiZoneCalcGrids(
     this->Init( std::move( grids ), config );
 
     const std::filesystem::path targetGridPath =
-        Prj::GetPrjFileName( this->gridFileName );
+        Prj::GetOutputFileName( this->gridFileName );
     const std::filesystem::path regionMapPath =
         targetGridPath.parent_path() / "bcRegionMap.txt";
     RegionNameMap::DumpRegion( regionMapPath.string() );
