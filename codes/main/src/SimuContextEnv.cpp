@@ -132,6 +132,46 @@ void SimuContext::SetupCaseEnvironment()
 
     Prj::SetIOBaseDirs( inputRoot, outputRoot );
 
+    std::string meshInputRoot;
+    std::string flowInputRoot;
+    std::string meshOutputRoot;
+    std::string flowOutputRoot;
+
+    try
+    {
+        meshInputRoot = GetDataValue< std::string >( "meshInputRoot" );
+    }
+    catch ( const std::exception & )
+    {
+    }
+
+    try
+    {
+        flowInputRoot = GetDataValue< std::string >( "flowInputRoot" );
+    }
+    catch ( const std::exception & )
+    {
+    }
+
+    try
+    {
+        meshOutputRoot = GetDataValue< std::string >( "meshOutputRoot" );
+    }
+    catch ( const std::exception & )
+    {
+    }
+
+    try
+    {
+        flowOutputRoot = GetDataValue< std::string >( "flowOutputRoot" );
+    }
+    catch ( const std::exception & )
+    {
+    }
+
+    Prj::SetDomainIOBaseDirs(
+        meshInputRoot, flowInputRoot, meshOutputRoot, flowOutputRoot );
+
     std::string ioPathInfoFile = "results/io_paths.txt";
     try
     {
@@ -146,7 +186,16 @@ void SimuContext::SetupCaseEnvironment()
     {
     }
 
-    Prj::WriteIOPathInfo( ioPathInfoFile );
+    const std::string meshInfoPath =
+        Prj::GetMeshOutputFileName( ioPathInfoFile );
+    Prj::WriteIOPathInfo( meshInfoPath );
+
+    const std::string flowInfoPath =
+        Prj::GetFlowOutputFileName( ioPathInfoFile );
+    if ( flowInfoPath != meshInfoPath )
+    {
+        Prj::WriteIOPathInfo( flowInfoPath );
+    }
 }
 
 void SimuContext::SetupEnvironment()
