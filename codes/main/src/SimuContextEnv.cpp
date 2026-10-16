@@ -94,9 +94,10 @@ void SimuContext::SetupCaseEnvironment()
     ONEFLOW::ReadControlInfo( caseDir_ );
 
     // File roots are shared by mesh generation, conversion, and CFD. Missing
-    // settings preserve the historical current-case behavior. "case" selects
-    // the active case, "project" requires projectRoot, absolute roots are used
-    // directly, and other relative roots are resolved from the active case.
+    // settings preserve the historical current-case behavior. Domain roots
+    // inherit their generic input/output root unless explicitly configured.
+    // "case" selects the active case, "project" requires projectRoot, absolute
+    // roots are used directly, and other relative roots resolve from the case.
     std::string projectRoot;
     std::string inputRoot;
     std::string outputRoot;
