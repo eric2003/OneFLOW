@@ -207,6 +207,7 @@ void Prj::ClearPrjBaseDir()
     Prj::prjBaseDir.clear();
     Prj::inputBaseDir.clear();
     Prj::outputBaseDir.clear();
+    Prj::projectBaseDir.clear();
 }
 
 namespace
