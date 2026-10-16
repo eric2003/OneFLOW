@@ -21,13 +21,41 @@ class MeshCaseCatalogTest(unittest.TestCase):
         profile_ids = {
             entry["id"] for entry in catalog["cases"] if entry.get("profile")
         }
-        self.assertTrue({"minimal_rectangle", "minimal_cube", "two_connected_cubes"} <= profile_ids)
+        self.assertTrue({"minimal_rectangle", "minimal_cube", "two_connected_cubes", "two_connected_squares"} <= profile_ids)
         errors = [
             error
             for entry in catalog["cases"]
             for error in validate_case(REPOSITORY_ROOT, entry)
         ]
         self.assertEqual(errors, [])
+
+
+    def test_two_connected_squares_profile_carries_grid_options(self) -> None:
+        case_dir = REPOSITORY_ROOT / "grid" / "two_connected_squares"
+        with (case_dir / "case.json").open("r", encoding="utf-8") as stream:
+            profile = json.load(stream)
+
+        runtime = profile["parameters"]["runtime"]
+        options = runtime["gridOptions"]
+        self.assertEqual(runtime["dimension"], 2)
+        self.assertEqual(runtime["objective"], 0)
+        self.assertEqual(runtime["generationId"], 4)
+        self.assertEqual(options["topology"], "unstructured")
+        self.assertTrue(options["multiBlock"])
+        self.assertEqual(options["fileFormat"], 1)
+        self.assertEqual(options["ioRoots"]["meshOutput"], "case")
+        self.assertEqual(profile["parameters"]["expected"]["cells"], 8)
+        self.assertEqual(profile["parameters"]["expected"]["internalFaces"], 9)
+
+        grid_parameters = (case_dir / "script" / "grid.txt").read_text(encoding="utf-8")
+        self.assertIn('int multiBlock = 1;', grid_parameters)
+        self.assertIn('string gridLayoutFileName = "grid/twoConnectedSquaresLayout.txt";', grid_parameters)
+        self.assertIn('string meshOutputRoot = "case";', grid_parameters)
+
+        layout = (case_dir / runtime["layout"]).read_text(encoding="utf-8")
+        self.assertIn("Boundary(2) = {-1}", layout)
+        self.assertIn("Add F2B 1 2 2", layout)
+        self.assertIn("Add F2B 2 4 2", layout)
 
     def test_duplicate_case_ids_are_rejected(self) -> None:
         catalog = {
