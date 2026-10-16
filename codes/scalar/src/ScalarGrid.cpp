@@ -822,7 +822,7 @@ void ScalarGrid::SetCgnsZone( CgnsZone & cgnsZone )
 
 void ScalarGrid::DumpCgnsGrid()
 {
-	std::string prjFileName = Prj::GetPrjFileName( "scalar.cgns" );
+	std::string prjFileName = Prj::GetOutputFileName( "scalar.cgns" );
 	// Use stack allocation instead of raw pointer
 	CgnsZbase cgnsZbase;
 	cgnsZbase.nBases = 1;
