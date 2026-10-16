@@ -18,7 +18,7 @@ void WriteGridInfo( const Grids & grids, const GridConfig & config )
     if ( summaryFile.empty() ) return;
 
     const GridInfoSnapshot snapshot = MakeGridInfoSnapshot( grids );
-    const std::string outputPath = Prj::GetPrjFileName( summaryFile );
+    const std::string outputPath = Prj::GetOutputFileName( summaryFile );
     std::ofstream output( outputPath, std::ios_base::out | std::ios_base::trunc );
     if ( ! output )
     {
