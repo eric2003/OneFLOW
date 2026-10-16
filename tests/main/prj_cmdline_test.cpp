@@ -718,3 +718,19 @@ TEST( PrjIOPaths, OpenPrjFileUsesModeSpecificRoots )
 
     std::filesystem::remove_all( root );
 }
+
+
+TEST( PrjIOPaths, ProjectRootMustBeDeclared )
+{
+    const std::filesystem::path caseDir =
+        std::filesystem::temp_directory_path()
+        / "OneFLOW_PrjIOPathsUndeclaredProjectTest"
+        / "consumer";
+
+    Prj::current_dir = std::filesystem::current_path().string();
+    Prj::SetPrjBaseDir( caseDir.string() );
+
+    EXPECT_THROW(
+        Prj::SetIOBaseDirs( "project", "case" ),
+        std::logic_error );
+}
