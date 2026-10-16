@@ -123,6 +123,13 @@ TEST( GridLayoutGenerationTest, GeneratesFlatPlateBoundaryLayerDistribution )
         y[ nearWallPointCount * ni + interfaceI ] -
         y[ ( nearWallPointCount - 1 ) * ni + interfaceI ];
     ASSERT_GT( previousStep, 0.0 );
+    EXPECT_NEAR( previousStep, uniformStep, 1.0e-12 );
+
+    const Real outerRatio =
+        ( y[ ( nearWallPointCount + 1 ) * ni + interfaceI ] -
+          y[ nearWallPointCount * ni + interfaceI ] ) /
+        previousStep;
+    EXPECT_GT( outerRatio, 1.0 );
 
     for ( int j = nearWallPointCount + 1; j < nj; ++ j )
     {
@@ -130,6 +137,10 @@ TEST( GridLayoutGenerationTest, GeneratesFlatPlateBoundaryLayerDistribution )
             y[ j * ni + interfaceI ] -
             y[ ( j - 1 ) * ni + interfaceI ];
         EXPECT_GT( step, previousStep );
+        EXPECT_NEAR(
+            step / previousStep,
+            outerRatio,
+            1.0e-10 );
         previousStep = step;
     }
 
