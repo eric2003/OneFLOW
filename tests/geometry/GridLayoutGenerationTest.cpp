@@ -43,6 +43,99 @@ struct GridGenerationTestContext
     }
 };
 
+TEST( GridLayoutGenerationTest, GeneratesFlatPlateBoundaryLayerDistribution )
+{
+    const std::filesystem::path layoutFile =
+        std::filesystem::path( ONEFLOW_SOURCE_DIR ) /
+        "grid/laminar_flat_plate/grid/laminarFlatPlateLayout.txt";
+
+    const std::filesystem::path outputDir =
+        std::filesystem::temp_directory_path() / "oneflow-flat-plate-boundary-layer";
+    std::filesystem::remove_all( outputDir );
+    std::filesystem::create_directories( outputDir );
+
+    const std::filesystem::path outputFile =
+        outputDir / "laminarFlatPlate.generated.grd";
+    const std::filesystem::path bcFile =
+        outputDir / "laminarFlatPlate.inp";
+
+    const int oldDimension = Dim::GetDimension();
+    const std::string oldProjectDir = Prj::prjBaseDir;
+    const GridGenerationTestContext restore{ oldDimension, oldProjectDir, outputDir };
+
+    Dim::SetDimension( TWO_D );
+    Prj::SetPrjBaseDir( outputDir.string() );
+
+    SetDataString( "gridLayoutFileName", layoutFile.string() );
+    SetDataString( "sourceGridFileName", outputFile.string() );
+    SetDataString( "sourceGridBcName", bcFile.string() );
+    SetDataString( "targetGridFileName", outputFile.string() );
+    SetDataString( "part_uns_file", ( outputDir / "partition.uns" ).string() );
+
+    GridMachine().Run( layoutFile.string() );
+
+    ASSERT_TRUE( std::filesystem::is_regular_file( outputFile ) );
+
+    std::ifstream file( outputFile, std::ios::binary );
+    ASSERT_TRUE( file.is_open() );
+
+    ASSERT_EQ( ReadBinary< int >( file ), 1 );
+    const int ni = ReadBinary< int >( file );
+    const int nj = ReadBinary< int >( file );
+    const int nk = ReadBinary< int >( file );
+
+    EXPECT_EQ( ni, 73 );
+    EXPECT_EQ( nj, 85 );
+    EXPECT_EQ( nk, 1 );
+
+    constexpr int interfaceI = 32;
+    constexpr int nearWallPointCount = 41;
+    constexpr Real nearWallDistance = 0.02;
+    constexpr Real domainHeight = 4.0;
+    constexpr int nodeCount = 73 * 85;
+
+    std::vector< Real > x( nodeCount );
+    std::vector< Real > y( nodeCount );
+    std::vector< Real > z( nodeCount );
+
+    for ( Real & value : x ) value = ReadBinary< Real >( file );
+    for ( Real & value : y ) value = ReadBinary< Real >( file );
+    for ( Real & value : z ) value = ReadBinary< Real >( file );
+
+    const Real uniformStep = nearWallDistance / ( nearWallPointCount - 1 );
+    for ( int j = 0; j < nearWallPointCount; ++ j )
+    {
+        const Real expectedY =
+            uniformStep * static_cast< Real >( j );
+        EXPECT_NEAR( y[ j * ni + interfaceI ], expectedY, 1.0e-12 );
+    }
+
+    EXPECT_NEAR(
+        y[ ( nearWallPointCount - 1 ) * ni + interfaceI ],
+        nearWallDistance,
+        1.0e-12 );
+    EXPECT_NEAR(
+        y[ ( nj - 1 ) * ni + interfaceI ],
+        domainHeight,
+        1.0e-12 );
+
+    Real previousStep =
+        y[ nearWallPointCount * ni + interfaceI ] -
+        y[ ( nearWallPointCount - 1 ) * ni + interfaceI ];
+    ASSERT_GT( previousStep, 0.0 );
+
+    for ( int j = nearWallPointCount + 1; j < nj; ++ j )
+    {
+        const Real step =
+            y[ j * ni + interfaceI ] -
+            y[ ( j - 1 ) * ni + interfaceI ];
+        EXPECT_GT( step, previousStep );
+        previousStep = step;
+    }
+
+    file.close();
+}
+
 TEST( GridLayoutGenerationTest, GeneratesMinimalRectangle )
 {
     const std::filesystem::path layoutFile =
