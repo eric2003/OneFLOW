@@ -782,6 +782,42 @@ TEST( PrjIOPaths, DomainRootsCanBeConfiguredIndependently )
         ( flowOutput / "flow.dat" ).lexically_normal() );
 }
 
+TEST( PrjIOPaths, DiagnosticsReportEffectiveDomainRoots )
+{
+    const std::filesystem::path root =
+        std::filesystem::temp_directory_path()
+        / "OneFLOW_PrjIODiagnosticsTest";
+    const std::filesystem::path caseDir = root / "case";
+    const std::filesystem::path meshInput = root / "mesh-input";
+    const std::filesystem::path flowInput = root / "flow-input";
+    const std::filesystem::path meshOutput = root / "mesh-output";
+    const std::filesystem::path flowOutput = root / "flow-output";
+    const std::filesystem::path report = root / "reports" / "io_paths.txt";
+
+    std::filesystem::remove_all( root );
+    Prj::current_dir = std::filesystem::current_path().string();
+    Prj::SetPrjBaseDir( caseDir.string() );
+    Prj::SetIOBaseDirs( "case", "case" );
+    Prj::SetDomainIOBaseDirs(
+        meshInput.string(), flowInput.string(),
+        meshOutput.string(), flowOutput.string() );
+
+    Prj::WriteIOPathInfo( report.string() );
+
+    std::ifstream file( report );
+    ASSERT_TRUE( file.is_open() );
+    std::ostringstream contents;
+    contents << file.rdbuf();
+    const std::string text = contents.str();
+
+    EXPECT_NE( text.find( "mesh_input_root=" + meshInput.string() ), std::string::npos );
+    EXPECT_NE( text.find( "flow_input_root=" + flowInput.string() ), std::string::npos );
+    EXPECT_NE( text.find( "mesh_output_root=" + meshOutput.string() ), std::string::npos );
+    EXPECT_NE( text.find( "flow_output_root=" + flowOutput.string() ), std::string::npos );
+
+    std::filesystem::remove_all( root );
+}
+
 TEST( PrjIOPaths, DomainRootsResetWhenBindingNextCase )
 {
     const std::filesystem::path root =
