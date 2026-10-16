@@ -66,8 +66,30 @@ def validate_flat_plate_spec(spec):
         raise ValueError("distributions must be an object")
     for name in ("upstream", "plate", "vertical", "top"):
         value = distributions.get(name)
-        if not isinstance(value, list) or len(value) != 2:
-            raise ValueError(f"distribution {name} must contain two values")
+        if isinstance(value, list):
+            if len(value) != 2:
+                raise ValueError(f"distribution {name} must contain two values")
+        elif isinstance(value, dict):
+            if value.get("type") != "boundary_layer":
+                raise ValueError(f"distribution {name} has unsupported object type")
+            count = value.get("nearWallPointCount")
+            distance = value.get("nearWallDistance")
+            if not isinstance(count, int) or isinstance(count, bool) or count < 2:
+                raise ValueError(
+                    f"distribution {name} nearWallPointCount must be an integer >= 2"
+                )
+            if (
+                not isinstance(distance, (int, float))
+                or isinstance(distance, bool)
+                or distance <= 0
+            ):
+                raise ValueError(
+                    f"distribution {name} nearWallDistance must be positive"
+                )
+        else:
+            raise ValueError(
+                f"distribution {name} must contain two values or a boundary-layer object"
+            )
 
     boundaries = spec.get("boundaries")
     if not isinstance(boundaries, dict):
@@ -159,8 +181,14 @@ def compile_flat_plate(spec):
 
     lines_out.append("")
     for line_id, values in enumerate(distribution_values, start=1):
-        start_value, end_value = values
-        lines_out.append(f"Ds({line_id})={{d,{start_value},{end_value}}}")
+        if isinstance(values, list):
+            start_value, end_value = values
+            lines_out.append(f"Ds({line_id})={{d,{start_value},{end_value}}}")
+        else:
+            lines_out.append(
+                f"Ds({line_id})={{bl,{values['nearWallPointCount']},"
+                f"{values['nearWallDistance']}}}"
+            )
 
     lines_out.append("")
     for line_id, boundary in enumerate(boundary_values, start=1):
