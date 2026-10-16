@@ -41,6 +41,14 @@
       "runtimeConfig": "script/control.txt",
       "profile": null,
       "layout": null
+    },
+    {
+      "id": "laminar_flat_plate",
+      "title": "Laminar Flat Plate",
+      "directory": "grid/laminar_flat_plate",
+      "runtimeConfig": "script/control.txt",
+      "profile": "case.json",
+      "layout": "grid/laminarFlatPlateLayout.txt"
     }
   ]
 }
