@@ -44,6 +44,7 @@ License
 #include "ActionState.h"
 #include "Iteration.h"
 #include <iostream>
+#include <exception>
 
 BeginNameSpace( ONEFLOW )
 
@@ -128,6 +129,22 @@ void SimuContext::SetupCaseEnvironment()
     }
 
     Prj::SetIOBaseDirs( inputRoot, outputRoot );
+
+    std::string ioPathInfoFile = "results/io_paths.txt";
+    try
+    {
+        const std::string configuredInfoFile =
+            GetDataValue< std::string >( "ioPathInfoFileName" );
+        if ( ! configuredInfoFile.empty() )
+        {
+            ioPathInfoFile = configuredInfoFile;
+        }
+    }
+    catch ( const std::exception & )
+    {
+    }
+
+    Prj::WriteIOPathInfo( ioPathInfoFile );
 }
 
 void SimuContext::SetupEnvironment()
