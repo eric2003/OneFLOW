@@ -82,9 +82,19 @@ void ConfigureTaskFile( Task * task, StringField & data )
     }
 
     const bool writesOutput = ( openMode & std::ios_base::out ) != 0;
-    task->fileInfo->fileName = writesOutput
-        ? Prj::GetFlowOutputFileName( fileName )
-        : Prj::GetFlowInputFileName( fileName );
+    const bool isMeshArtifact = fileNameVar == "walldist_file";
+    if ( isMeshArtifact )
+    {
+        task->fileInfo->fileName = writesOutput
+            ? Prj::GetMeshOutputFileName( fileName )
+            : Prj::GetMeshInputFileName( fileName );
+    }
+    else
+    {
+        task->fileInfo->fileName = writesOutput
+            ? Prj::GetFlowOutputFileName( fileName )
+            : Prj::GetFlowInputFileName( fileName );
+    }
     task->fileInfo->openMode = openMode;
 }
 
