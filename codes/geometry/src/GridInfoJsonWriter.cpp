@@ -26,6 +26,14 @@ void WriteGridInfoJson( std::ostream & output, const GridInfoSnapshot & snapshot
     nlohmann::ordered_json document;
     document[ "schema" ] = "oneflow.mesh-info";
     document[ "version" ] = 1;
+    document[ "paths" ] = {
+        { "caseRoot", snapshot.caseRoot },
+        { "projectRoot", snapshot.projectRoot },
+        { "inputRoot", snapshot.inputRoot },
+        { "outputRoot", snapshot.outputRoot },
+        { "sourceGrid", snapshot.sourceGridPath },
+        { "outputGrid", snapshot.outputGridPath }
+    };
     document[ "dimension" ] = snapshot.dimension;
     document[ "counts" ] = {
         { "zones", snapshot.zones.size() },
