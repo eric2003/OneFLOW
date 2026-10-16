@@ -29,7 +29,7 @@
         "targetFormat": "oneflow",
         "parallelStrategy": 1,
         "ioRoots": {
-          "project": "case",
+          "project": ".",
           "input": "case",
           "output": "case",
           "meshInput": "case",
