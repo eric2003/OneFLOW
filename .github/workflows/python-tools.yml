@@ -5,6 +5,10 @@ on:
     branches: [hexin]
     paths:
       - "tools/mesh_cases.py"
+      - "tools/mesh_layout/**"
+      - "tests/tools/**"
+      - "tools/mesh_layout/**"
+      - "tests/tools/**"
       - "tools/test_mesh_cases.py"
       - "tools/oneflow_gui/**"
       - "tools/requirements-gui.txt"
@@ -45,6 +49,8 @@ jobs:
         run: python -m compileall -q tools/mesh_cases.py tools/oneflow_gui
       - name: Test case catalog
         run: python tools/test_mesh_cases.py
+      - name: Test flat plate layout compiler
+        run: python -m unittest tests.tools.test_compile_flat_plate
       - name: Test desktop services
         run: python -m unittest tools.oneflow_gui.test_services
       - name: Test workflow persistence
