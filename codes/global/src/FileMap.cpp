@@ -28,6 +28,7 @@ License
 #include "TaskRegister.h"
 #include "Iteration.h"
 #include "FileUtils.h"
+#include "Prj.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -80,7 +81,10 @@ void ConfigureTaskFile( Task * task, StringField & data )
         openMode |= GetOpenMode( data[ i ] );
     }
 
-    task->fileInfo->fileName = fileName;
+    const bool writesOutput = ( openMode & std::ios_base::out ) != 0;
+    task->fileInfo->fileName = writesOutput
+        ? Prj::GetFlowOutputFileName( fileName )
+        : Prj::GetFlowInputFileName( fileName );
     task->fileInfo->openMode = openMode;
 }
 
