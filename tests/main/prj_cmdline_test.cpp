@@ -810,10 +810,41 @@ TEST( PrjIOPaths, DiagnosticsReportEffectiveDomainRoots )
     contents << file.rdbuf();
     const std::string text = contents.str();
 
-    EXPECT_NE( text.find( "mesh_input_root=" + meshInput.string() ), std::string::npos );
-    EXPECT_NE( text.find( "flow_input_root=" + flowInput.string() ), std::string::npos );
-    EXPECT_NE( text.find( "mesh_output_root=" + meshOutput.string() ), std::string::npos );
-    EXPECT_NE( text.find( "flow_output_root=" + flowOutput.string() ), std::string::npos );
+    const auto formattedDirectory = []( std::filesystem::path path )
+    {
+        path = path.lexically_normal();
+        path.make_preferred();
+        std::string value = path.string();
+        std::filesystem::path rootPath = path.root_path();
+        rootPath.make_preferred();
+        const std::string rootName = rootPath.string();
+        while ( value.size() > rootName.size()
+            && ! value.empty()
+            && ( value.back() == '/' || value.back() == '\\' ) )
+        {
+            value.pop_back();
+        }
+        return value;
+    };
+
+    EXPECT_NE(
+        text.find( "case_root=" + formattedDirectory( caseDir ) ),
+        std::string::npos );
+    EXPECT_NE(
+        text.find( "mesh_input_root=" + formattedDirectory( meshInput ) ),
+        std::string::npos );
+    EXPECT_NE(
+        text.find( "flow_input_root=" + formattedDirectory( flowInput ) ),
+        std::string::npos );
+    EXPECT_NE(
+        text.find( "mesh_output_root=" + formattedDirectory( meshOutput ) ),
+        std::string::npos );
+    EXPECT_NE(
+        text.find( "flow_output_root=" + formattedDirectory( flowOutput ) ),
+        std::string::npos );
+
+    EXPECT_EQ( text.find( "mesh_input_root=" + formattedDirectory( meshInput ) + "\\" ),
+        std::string::npos );
 
     std::filesystem::remove_all( root );
 }
