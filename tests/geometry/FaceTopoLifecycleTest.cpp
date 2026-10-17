@@ -3,14 +3,14 @@
 #include <stdexcept>
 
 #include "FaceTopo.h"
+#include "BcRecord.h"
 #include "Grid.h"
 #include "InterFace.h"
 #include "IFaceLink.h"
 #include "GridHandles.h"
 #include "Boundary.h"
-#include "BcRecord.h"
 #include "FaceSearch.h"
-
+#include "NodeMesh.h"
 
 namespace
 {
@@ -22,6 +22,55 @@ public:
         return std::make_unique< TestGrid >();
     }
 };
+
+struct MinimalZoneFixture
+{
+    ONEFLOW::Grids grids;
+
+    MinimalZoneFixture()
+    {
+        grids.push_back(std::make_unique<TestGrid>());
+        grids[0]->id = 0;
+        grids[0]->nCells = 1;
+        // IFaceLink constructs PointLocator and calls Initialize(grids), which
+        // reads nodeMesh bounding boxes. A bare TestGrid has null nodeMesh and
+        // would SEH (0xc0000005) on Windows.
+        grids[0]->nodeMesh = std::make_unique<ONEFLOW::NodeMesh>();
+        grids[0]->nodeMesh->AddPoint(0.0, 0.0, 0.0);
+        grids[0]->nodeMesh->AddPoint(1.0, 0.0, 0.0);
+        grids[0]->nodeMesh->AddPoint(1.0, 1.0, 0.0);
+        grids[0]->nodeMesh->AddPoint(0.0, 1.0, 0.0);
+        grids[0]->nodeMesh->CalcMinMaxBox();
+    }
+
+    ONEFLOW::Grid & grid() { return *grids[0]; }
+};
+
+// Boundary BC type values match Boundary.cpp assignments.
+// Any negative type is treated as interface by BC::IsInterfaceBc.
+constexpr int kSolidSurfaceBc = 2;
+constexpr int kInterfaceBc = -1;
+
+void SeedTwoFaceTopology(ONEFLOW::FaceTopo & faceTopo, int boundaryBcType)
+{
+    faceTopo.GetFaceTypes().clear();
+    faceTopo.GetFaces().clear();
+    faceTopo.GetLeftCells().clear();
+    faceTopo.GetRightCells().clear();
+
+    faceTopo.GetFaceTypes().push_back(2);
+    faceTopo.GetFaceTypes().push_back(2);
+    faceTopo.GetFaces().push_back(ONEFLOW::IntField{0, 1});
+    faceTopo.GetFaces().push_back(ONEFLOW::IntField{1, 2});
+    faceTopo.GetLeftCells().push_back(0);
+    faceTopo.GetRightCells().push_back(-1);
+    faceTopo.GetLeftCells().push_back(0);
+    faceTopo.GetRightCells().push_back(1);
+
+    faceTopo.SetBoundaryFaceCount(1);
+    faceTopo.GetBcRecord().bcType[0] = boundaryBcType;
+    faceTopo.GetBcRecord().bcNameId[0] = 0;
+}
 }
 
 TEST(FaceTopoLifecycleTest, GetGridRejectsUnboundGrid)
@@ -153,78 +202,42 @@ TEST(FaceTopoLifecycleTest, UpdateOtherTopologyTermClearsRebuildBuffers)
     EXPECT_TRUE(faceTopo.GetRightCells().empty());
 }
 
-
-namespace
-{
-// Minimal single-zone grids collection required by IFaceLink's constructor.
-struct MinimalZoneFixture
-{
-    ONEFLOW::Grids grids;
-
-    MinimalZoneFixture()
-    {
-        grids.push_back(std::make_unique<TestGrid>());
-        grids[0]->id = 0;
-        grids[0]->nCells = 1;
-    }
-
-    ONEFLOW::Grid & grid() { return *grids[0]; }
-};
-
-void SeedTwoFaceTopology(ONEFLOW::FaceTopo & faceTopo, int boundaryBcType)
-{
-    // Face 0: boundary, Face 1: internal.
-    faceTopo.GetFaceTypes().push_back(2);
-    faceTopo.GetFaceTypes().push_back(2);
-    faceTopo.GetFaces().push_back(ONEFLOW::IntField{0, 1});
-    faceTopo.GetFaces().push_back(ONEFLOW::IntField{1, 2});
-    faceTopo.GetLeftCells().push_back(0);
-    faceTopo.GetRightCells().push_back(-1);
-    faceTopo.GetLeftCells().push_back(0);
-    faceTopo.GetRightCells().push_back(1);
-
-    faceTopo.SetBoundaryFaceCount(1);
-    faceTopo.GetBcRecord().bcType[0] = boundaryBcType;
-    faceTopo.GetBcRecord().bcNameId[0] = 0;
-}
-}
-
 TEST(FaceTopoLifecycleTest, NonInterfaceRebuildPipelineCommitsAndClearsStaging)
 {
     // Intent: for non-interface boundary faces, SetNewFace2Node/SetNewFace2Cell
-    // stage a 1:1 copy of live topology; ModifyFaceNodeId is the combined entry;
-    // UpdateOtherTopologyTerm commits staging and leaves no pending rebuild.
+    // stage a 1:1 copy of live topology; UpdateOtherTopologyTerm commits staging
+    // and leaves no pending rebuild. Boundary right cells become iFace + nCells.
     MinimalZoneFixture fixture;
     ONEFLOW::IFaceLink iFaceLink(fixture.grids);
     ONEFLOW::FaceTopo faceTopo;
     faceTopo.BindGrid(fixture.grid());
-    SeedTwoFaceTopology(faceTopo, ONEFLOW::BC::SOLID_SURFACE);
+    SeedTwoFaceTopology(faceTopo, kSolidSurfaceBc);
 
-    EXPECT_FALSE(faceTopo.HasPendingTopologyRebuild());
+    ASSERT_EQ(faceTopo.GetFaceCount(), static_cast<ONEFLOW::HXSize_t>(2));
+    ASSERT_EQ(faceTopo.GetBoundaryFaceCount(), static_cast<ONEFLOW::HXSize_t>(1));
+    ASSERT_FALSE(faceTopo.HasPendingTopologyRebuild());
 
-    faceTopo.ModifyFaceNodeId(iFaceLink);
+    ASSERT_NO_THROW(faceTopo.SetNewFace2Node(iFaceLink));
+    ASSERT_NO_THROW(faceTopo.SetNewFace2Cell(iFaceLink));
     EXPECT_TRUE(faceTopo.HasPendingTopologyRebuild());
 
-    // Before commit, live topology is still the seeded content.
-    EXPECT_EQ(faceTopo.GetFaceCount(), static_cast<ONEFLOW::HXSize_t>(2));
-    EXPECT_EQ(faceTopo.GetFaces()[0].size(), static_cast<std::size_t>(2));
+    EXPECT_EQ(faceTopo.GetFaces().size(), static_cast<std::size_t>(2));
     EXPECT_EQ(faceTopo.GetLeftCells()[0], 0);
+    EXPECT_EQ(faceTopo.GetRightCells()[0], -1);
 
-    faceTopo.UpdateOtherTopologyTerm();
+    ASSERT_NO_THROW(faceTopo.UpdateOtherTopologyTerm());
     EXPECT_FALSE(faceTopo.HasPendingTopologyRebuild());
 
-    // After commit: faces/cells come from staging (1:1 copy).
-    EXPECT_EQ(faceTopo.GetFaces().size(), static_cast<std::size_t>(2));
+    ASSERT_EQ(faceTopo.GetFaces().size(), static_cast<std::size_t>(2));
     EXPECT_EQ(faceTopo.GetFaces()[0][0], 0);
     EXPECT_EQ(faceTopo.GetFaces()[0][1], 1);
     EXPECT_EQ(faceTopo.GetFaces()[1][0], 1);
     EXPECT_EQ(faceTopo.GetFaces()[1][1], 2);
 
-    // Boundary face right cell is rewritten as iFace + nCells.
-    EXPECT_EQ(faceTopo.GetLeftCells().size(), static_cast<std::size_t>(2));
-    EXPECT_EQ(faceTopo.GetRightCells().size(), static_cast<std::size_t>(2));
+    ASSERT_EQ(faceTopo.GetLeftCells().size(), static_cast<std::size_t>(2));
+    ASSERT_EQ(faceTopo.GetRightCells().size(), static_cast<std::size_t>(2));
     EXPECT_EQ(faceTopo.GetLeftCells()[0], 0);
-    EXPECT_EQ(faceTopo.GetRightCells()[0], 0 + fixture.grid().nCells);
+    EXPECT_EQ(faceTopo.GetRightCells()[0], fixture.grid().nCells);
     EXPECT_EQ(faceTopo.GetLeftCells()[1], 0);
     EXPECT_EQ(faceTopo.GetRightCells()[1], 1);
 }
@@ -232,42 +245,41 @@ TEST(FaceTopoLifecycleTest, NonInterfaceRebuildPipelineCommitsAndClearsStaging)
 TEST(FaceTopoLifecycleTest, InterfaceFaceWithEmptyChildrenStillRebuildsOneToOne)
 {
     // Intent: interface BC with zero child faces still goes through the
-    // IFaceLink lookup path, then stages a 1:1 copy. The minimal IFaceLink
-    // fixture only needs l2g and an empty cFaceId slot.
+    // IFaceLink lookup path, then stages a 1:1 copy.
     MinimalZoneFixture fixture;
     ONEFLOW::IFaceLink iFaceLink(fixture.grids);
 
-    // local interface face 0 -> global face 0; no children.
+    ASSERT_EQ(static_cast<int>(iFaceLink.l2g.size()), 1);
     iFaceLink.l2g[0].push_back(0);
-    iFaceLink.face_search->cFaceId.resize(1); // cFaceId[0] empty
+    iFaceLink.face_search->cFaceId.resize(1);
 
     ONEFLOW::FaceTopo faceTopo;
     faceTopo.BindGrid(fixture.grid());
-    SeedTwoFaceTopology(faceTopo, ONEFLOW::BC::INTERFACE);
+    SeedTwoFaceTopology(faceTopo, kInterfaceBc);
 
-    faceTopo.ModifyFaceNodeId(iFaceLink);
+    ASSERT_NO_THROW(faceTopo.ModifyFaceNodeId(iFaceLink));
     EXPECT_TRUE(faceTopo.HasPendingTopologyRebuild());
 
-    faceTopo.UpdateOtherTopologyTerm();
+    ASSERT_NO_THROW(faceTopo.UpdateOtherTopologyTerm());
     EXPECT_FALSE(faceTopo.HasPendingTopologyRebuild());
 
-    EXPECT_EQ(faceTopo.GetFaces().size(), static_cast<std::size_t>(2));
+    ASSERT_EQ(faceTopo.GetFaces().size(), static_cast<std::size_t>(2));
     EXPECT_EQ(faceTopo.GetFaces()[0][0], 0);
     EXPECT_EQ(faceTopo.GetFaces()[0][1], 1);
     EXPECT_EQ(faceTopo.GetLeftCells()[0], 0);
-    EXPECT_EQ(faceTopo.GetRightCells()[0], 0 + fixture.grid().nCells);
+    EXPECT_EQ(faceTopo.GetRightCells()[0], fixture.grid().nCells);
 }
 
 TEST(FaceTopoLifecycleTest, InterfaceRebuildRejectsMissingFaceSearchMapping)
 {
     // Intent: interface BC requires a valid IFaceLink mapping; a default
-    // IFaceLink without l2g entries must fail before mutating live topology.
+    // IFaceLink without l2g entries must fail before leaving a pending rebuild.
     MinimalZoneFixture fixture;
     ONEFLOW::IFaceLink iFaceLink(fixture.grids);
 
     ONEFLOW::FaceTopo faceTopo;
     faceTopo.BindGrid(fixture.grid());
-    SeedTwoFaceTopology(faceTopo, ONEFLOW::BC::INTERFACE);
+    SeedTwoFaceTopology(faceTopo, kInterfaceBc);
 
     EXPECT_THROW(faceTopo.SetNewFace2Node(iFaceLink), std::out_of_range);
     EXPECT_FALSE(faceTopo.HasPendingTopologyRebuild());
