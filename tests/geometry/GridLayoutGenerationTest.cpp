@@ -143,7 +143,7 @@ TEST( GridLayoutGenerationTest, GeneratesFlatPlateBoundaryLayerDistribution )
             {
                 const int j = wallStart + offset;
                 const Real expectedY =
-                    uniformStep * static_cast< Real >( nearWallPointCount - 1 - offset );
+                    nearWallDistance - uniformStep * static_cast< Real >( offset );
                 EXPECT_NEAR(
                     zone.y[ static_cast< std::size_t >( j * ni + i ) ],
                     expectedY,
@@ -151,8 +151,8 @@ TEST( GridLayoutGenerationTest, GeneratesFlatPlateBoundaryLayerDistribution )
             }
 
             Real previousStep =
-                zone.y[ static_cast< std::size_t >( ( wallStart + 1 ) * ni + i ) ] -
-                zone.y[ static_cast< std::size_t >( wallStart * ni + i ) ];
+                zone.y[ static_cast< std::size_t >( wallStart * ni + i ) ] -
+                zone.y[ static_cast< std::size_t >( ( wallStart + 1 ) * ni + i ) ];
             ASSERT_GT( previousStep, 0.0 );
             EXPECT_NEAR( previousStep, uniformStep, 1.0e-12 );
 
