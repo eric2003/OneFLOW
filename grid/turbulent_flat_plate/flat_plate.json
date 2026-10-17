@@ -1,6 +1,13 @@
 {
   "type": "flat_plate",
-  "description": "Turbulent flat-plate mesh layout using the explicitly requested tanh distributions.",
+  "description": "Two-block flat-plate mesh with x in [-0.35, 2], y in [0, 1], and the explicitly requested tanh distributions.",
+  "bounds": {
+    "left": -0.35,
+    "right": 2.0,
+    "bottom": 0.0,
+    "top": 1.0,
+    "interfaceX": 0.0
+  },
   "upstreamPointCount": 33,
   "platePointCount": 41,
   "normalPointCount": 81,
