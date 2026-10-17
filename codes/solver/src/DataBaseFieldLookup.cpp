@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "DataBaseFieldLookup.h"
+#include "IFieldLookup.h"
 #include "ZoneSharedFields.h"
 #include "Grid.h"
 #include "DataBase.h"

@@ -29,12 +29,19 @@ BeginNameSpace( ONEFLOW )
 
 class Grid;
 
-// Field lookup port. Production and test adapters implement this interface.
+// Injection seam for field lookup (ports-and-adapters).
+// Production: DataBaseFieldLookup. Tests: FakeFieldLookup.
 class IFieldLookup
 {
 public:
     virtual ~IFieldLookup() = default;
     virtual MRField * GetMRField( Grid * grid, const std::string & name ) = 0;
+};
+
+class DataBaseFieldLookup : public IFieldLookup
+{
+public:
+    MRField * GetMRField( Grid * grid, const std::string & name ) override;
 };
 
 EndNameSpace
