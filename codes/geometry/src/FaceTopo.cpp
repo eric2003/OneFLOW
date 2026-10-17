@@ -225,7 +225,7 @@ HXSize_t FaceTopo::CalcTotalFaceNodes() const
 
 HXSize_t FaceTopo::GetBoundaryFaceCount() const
 {
-    return this->bcManager->bcRecord->GetNBFace();
+    return this->bcManager->bcRecord->GetBoundaryFaceCount();
 }
 
 HXSize_t FaceTopo::GetNBFaces() const
@@ -261,7 +261,7 @@ void FaceTopo::ModifyFaceNodeId( IFaceLink & iFaceLink )
 void FaceTopo::SetNewFace2Node( IFaceLink & iFaceLink )
 {
     const HXSize_t nFaces = this->GetFaceCount();
-    const HXSize_t nBoundaryFaces = this->bcManager->bcRecord->GetNBFace();
+    const HXSize_t nBoundaryFaces = this->bcManager->bcRecord->GetBoundaryFaceCount();
 
     // A face has one node list and one face type; boundary faces must be a subset.
     if ( this->faces.size() != nFaces || nBoundaryFaces > nFaces )
@@ -271,7 +271,7 @@ void FaceTopo::SetNewFace2Node( IFaceLink & iFaceLink )
     }
 
     int nBFaces = static_cast< int >( nBoundaryFaces );
-    this->facesNew.resize( 0 );
+    this->rebuildFaces.resize( 0 );
 
     int localFid = 0;
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
@@ -330,7 +330,7 @@ void FaceTopo::SetNewFace2Node( IFaceLink & iFaceLink )
                         }
                         tmpVector.push_back( nodeIndex );
                     }
-                    this->facesNew.push_back( tmpVector );
+                    this->rebuildFaces.push_back( tmpVector );
                 }
             }
             else
@@ -340,7 +340,7 @@ void FaceTopo::SetNewFace2Node( IFaceLink & iFaceLink )
                     int nodeIndex = this->faces[ iFace ][ iNode ];
                     tmpVector.push_back( nodeIndex );
                 }
-                this->facesNew.push_back( tmpVector );
+                this->rebuildFaces.push_back( tmpVector );
             }
             ++ localFid;
         }
@@ -351,7 +351,7 @@ void FaceTopo::SetNewFace2Node( IFaceLink & iFaceLink )
                 int nodeIndex = this->faces[ iFace ][ iNode ];
                 tmpVector.push_back( nodeIndex );
             }
-            this->facesNew.push_back( tmpVector );
+            this->rebuildFaces.push_back( tmpVector );
         }
     }
 
@@ -365,18 +365,18 @@ void FaceTopo::SetNewFace2Node( IFaceLink & iFaceLink )
             int nId = this->faces[ iFace ][ iNode ];
             tmpVector.push_back( nId );
         }
-        this->facesNew.push_back( tmpVector );
+        this->rebuildFaces.push_back( tmpVector );
     }
 }
 
 void FaceTopo::SetNewFace2Cell( IFaceLink & iFaceLink )
 {
-    int nBFaces = this->bcManager->bcRecord->GetNBFace();
+    int nBFaces = this->bcManager->bcRecord->GetBoundaryFaceCount();
 
     int localFid = 0;
 
-    this->lCellsNew.resize( 0 );
-    this->rCellsNew.resize( 0 );
+    this->rebuildLeftCells.resize( 0 );
+    this->rebuildRightCells.resize( 0 );
 
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
@@ -392,36 +392,36 @@ void FaceTopo::SetNewFace2Cell( IFaceLink & iFaceLink )
             {
                 for ( int iChildFace = 0; iChildFace < nCFace; ++ iChildFace )
                 {
-                    this->lCellsNew.push_back( this->lCells[ iFace ] );
+                    this->rebuildLeftCells.push_back( this->lCells[ iFace ] );
                 }
             }
             else
             {
-                this->lCellsNew.push_back( this->lCells[ iFace ] );
+                this->rebuildLeftCells.push_back( this->lCells[ iFace ] );
             }
             ++ localFid;
         }
         else
         {
-            this->lCellsNew.push_back( this->lCells[ iFace ] );
+            this->rebuildLeftCells.push_back( this->lCells[ iFace ] );
         }
     }
 
-    int nBFaceNew = this->lCellsNew.size();
+    int nBFaceNew = this->rebuildLeftCells.size();
 
     int nCells = this->GetGrid().nCells;
 
     for ( int iFace = 0; iFace < nBFaceNew; ++ iFace )
     {
-        this->rCellsNew.push_back( iFace + nCells );
+        this->rebuildRightCells.push_back( iFace + nCells );
     }
 
     int nFaces = this->GetFaceCount();
 
     for ( int iFace = nBFaces; iFace < nFaces; ++ iFace )
     {
-        this->lCellsNew.push_back( this->lCells[ iFace ] );
-        this->rCellsNew.push_back( this->rCells[ iFace ] );
+        this->rebuildLeftCells.push_back( this->lCells[ iFace ] );
+        this->rebuildRightCells.push_back( this->rCells[ iFace ] );
     }
 }
 
@@ -429,7 +429,7 @@ void FaceTopo::SetNewFace2Cell( IFaceLink & iFaceLink )
 void FaceTopo::ModifyBoundaryInformation( IFaceLink & iFaceLink )
 {
     //find the new number of boundary faces
-    int nBFaces = this->bcManager->bcRecord->GetNBFace();
+    int nBFaces = this->bcManager->bcRecord->GetBoundaryFaceCount();
 
     int localIid = 0;
 
@@ -485,7 +485,7 @@ void FaceTopo::ModifyBoundaryInformation( IFaceLink & iFaceLink )
 
 void FaceTopo::ResetNumberOfBoundaryCondition( IFaceLink & iFaceLink )
 {
-    int nBFaces = this->bcManager->bcRecord->GetNBFace();
+    int nBFaces = this->bcManager->bcRecord->GetBoundaryFaceCount();
 
     this->bcManager->bcRecordNew->bcType.resize( 0 );
     this->bcManager->bcRecordNew->bcNameId.resize( 0 );
@@ -553,12 +553,29 @@ void FaceTopo::ConstructNewInterfaceMap( IFaceLink & iFaceLink )
 void FaceTopo::UpdateOtherTopologyTerm()
 {
     this->bcManager->Update();
-    this->lCells = this->lCellsNew;
-    this->rCells = this->rCellsNew;
-    this->faces = this->facesNew;
+    this->lCells = this->rebuildLeftCells;
+    this->rCells = this->rebuildRightCells;
+    this->faces = this->rebuildFaces;
+
+    // Drop staging storage so a completed rebuild cannot leak stale buffers.
+    this->ClearRebuildBuffers();
 
     // The face IDs may have changed when interface faces were split.
     this->c2f.clear();
+}
+
+void FaceTopo::ClearRebuildBuffers()
+{
+    this->rebuildFaces.clear();
+    this->rebuildLeftCells.clear();
+    this->rebuildRightCells.clear();
+}
+
+bool FaceTopo::HasPendingTopologyRebuild() const
+{
+    return ! this->rebuildFaces.empty() ||
+           ! this->rebuildLeftCells.empty() ||
+           ! this->rebuildRightCells.empty();
 }
 
 void FaceTopo::GenerateI2B( InterFace & interFace )

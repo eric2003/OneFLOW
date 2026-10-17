@@ -59,6 +59,9 @@ public:
     std::unique_ptr< BcInfo > bcInfo;
 public:
     void Init( HXSize_t nBFaces );
+    // Preferred name for the boundary face count stored in this record.
+    int GetBoundaryFaceCount() const;
+    // Compatibility wrapper; prefer GetBoundaryFaceCount() for new code.
     int GetNBFace() const;
     int CalcNIFace() const;
     int CalcNumWallFace() const;

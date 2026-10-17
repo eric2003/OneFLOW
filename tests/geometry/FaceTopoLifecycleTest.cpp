@@ -113,3 +113,36 @@ TEST(FaceTopoLifecycleTest, FaceCountApisMatchCompatibilityWrappers)
     EXPECT_EQ(faceTopo.GetBoundaryFaceCount(), static_cast<ONEFLOW::HXSize_t>(3));
     EXPECT_EQ(faceTopo.GetNBFaces(), faceTopo.GetBoundaryFaceCount());
 }
+
+TEST(FaceTopoLifecycleTest, FreshFaceTopoHasNoPendingRebuild)
+{
+    // Intent: rebuild staging buffers start empty.
+    ONEFLOW::FaceTopo faceTopo;
+    EXPECT_FALSE(faceTopo.HasPendingTopologyRebuild());
+}
+
+TEST(FaceTopoLifecycleTest, UpdateOtherTopologyTermClearsRebuildBuffers)
+{
+    // Intent: UpdateOtherTopologyTerm always leaves staging buffers empty after
+    // commit. Callers must fill rebuildFaces / rebuildLeftCells /
+    // rebuildRightCells (via SetNewFace2Node / SetNewFace2Cell) before commit;
+    // committing with empty staging replaces live topology with empty containers.
+    TestGrid grid;
+    ONEFLOW::FaceTopo faceTopo;
+    faceTopo.BindGrid(grid);
+
+    faceTopo.GetFaceTypes().push_back(2);
+    faceTopo.GetFaces().push_back(ONEFLOW::IntField{0, 1});
+    faceTopo.GetLeftCells().push_back(0);
+    faceTopo.GetRightCells().push_back(1);
+
+    EXPECT_FALSE(faceTopo.HasPendingTopologyRebuild());
+
+    // Commit with empty staging (no prior SetNewFace2* call).
+    faceTopo.UpdateOtherTopologyTerm();
+
+    EXPECT_FALSE(faceTopo.HasPendingTopologyRebuild());
+    EXPECT_TRUE(faceTopo.GetFaces().empty());
+    EXPECT_TRUE(faceTopo.GetLeftCells().empty());
+    EXPECT_TRUE(faceTopo.GetRightCells().empty());
+}

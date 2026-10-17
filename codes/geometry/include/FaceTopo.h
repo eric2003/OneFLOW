@@ -60,9 +60,13 @@ private:
     std::unique_ptr< BcManager > bcManager;
     Grid * grid = nullptr;
 
-    // Temporary topology buffers used internally while rebuilding face data.
-    LinkField facesNew;
-    IntField lCellsNew, rCellsNew;
+    // Staging buffers for topology rebuild. Empty after a successful commit
+    // via UpdateOtherTopologyTerm(); non-empty only while a rebuild is pending.
+    LinkField rebuildFaces;
+    IntField rebuildLeftCells;
+    IntField rebuildRightCells;
+
+    void ClearRebuildBuffers();
 
 public:
     // Preferred name for the total face count.
@@ -104,6 +108,9 @@ public:
     void ResetNumberOfBoundaryCondition( IFaceLink & iFaceLink );
     void ConstructNewInterfaceMap( IFaceLink & iFaceLink );
     void UpdateOtherTopologyTerm();
+    // True while rebuildFaces / rebuildLeftCells / rebuildRightCells hold
+    // staged data that has not yet been committed (or was not cleared).
+    bool HasPendingTopologyRebuild() const;
     void GenerateI2B( InterFace & interFace );
 public:
     bool GetSId( int iFace, int iPosition, int & sId );
