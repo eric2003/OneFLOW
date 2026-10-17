@@ -135,51 +135,49 @@ TEST( GridLayoutGenerationTest, GeneratesFlatPlateBoundaryLayerDistribution )
         const auto & zone = zones[ zoneIndex ];
         const int ni = dimensions[ zoneIndex ].ni;
         const int nj = dimensions[ zoneIndex ].nj;
-        const int wallEnd = nearWallPointCount - 1;
 
         for ( int i = 0; i < ni; ++ i )
         {
-            for ( int j = 0; j < nearWallPointCount; ++ j )
+            const auto yAt = [ &zone, nj, i ]( int j ) -> Real
             {
-                const Real expectedY = uniformStep * static_cast< Real >( j );
-                EXPECT_NEAR(
-                    zone.y[ static_cast< std::size_t >( j * ni + i ) ],
-                    expectedY,
-                    1.0e-12 );
+                return zone.y[ static_cast< std::size_t >( i * nj + j ) ];
+            };
+
+            const int wallIndex =
+                std::abs( yAt( 0 ) ) <= std::abs( yAt( nj - 1 ) ) ? 0 : nj - 1;
+            const int outwardDirection = wallIndex == 0 ? 1 : -1;
+            const auto yFromWall = [ &yAt, wallIndex, outwardDirection ]( int layer ) -> Real
+            {
+                return yAt( wallIndex + outwardDirection * layer );
+            };
+
+            for ( int layer = 0; layer < nearWallPointCount; ++ layer )
+            {
+                const Real expectedY = uniformStep * static_cast< Real >( layer );
+                EXPECT_NEAR( yFromWall( layer ), expectedY, 1.0e-12 );
             }
 
-            Real previousStep =
-                zone.y[ static_cast< std::size_t >( ni + i ) ] -
-                zone.y[ static_cast< std::size_t >( i ) ];
+            Real previousStep = yFromWall( 1 ) - yFromWall( 0 );
             ASSERT_GT( previousStep, 0.0 );
             EXPECT_NEAR( previousStep, uniformStep, 1.0e-12 );
 
             const Real firstOuterStep =
-                zone.y[ static_cast< std::size_t >( ( wallEnd + 1 ) * ni + i ) ] -
-                zone.y[ static_cast< std::size_t >( wallEnd * ni + i ) ];
+                yFromWall( nearWallPointCount ) - yFromWall( nearWallPointCount - 1 );
             EXPECT_GT( firstOuterStep, previousStep );
             const Real outerRatio = firstOuterStep / previousStep;
             EXPECT_GT( outerRatio, 1.0 );
             previousStep = firstOuterStep;
 
-            for ( int j = wallEnd + 2; j < nj; ++ j )
+            for ( int layer = nearWallPointCount + 1; layer < nj; ++ layer )
             {
-                const Real step =
-                    zone.y[ static_cast< std::size_t >( j * ni + i ) ] -
-                    zone.y[ static_cast< std::size_t >( ( j - 1 ) * ni + i ) ];
+                const Real step = yFromWall( layer ) - yFromWall( layer - 1 );
                 EXPECT_GT( step, previousStep );
                 EXPECT_NEAR( step / previousStep, outerRatio, 1.0e-10 );
                 previousStep = step;
             }
 
-            EXPECT_NEAR(
-                zone.y[ static_cast< std::size_t >( ( nj - 1 ) * ni + i ) ],
-                domainHeight,
-                1.0e-12 );
-            EXPECT_NEAR(
-                zone.y[ static_cast< std::size_t >( i ) ],
-                0.0,
-                1.0e-12 );
+            EXPECT_NEAR( yFromWall( nj - 1 ), domainHeight, 1.0e-12 );
+            EXPECT_NEAR( yFromWall( 0 ), 0.0, 1.0e-12 );
         }
     }
 
