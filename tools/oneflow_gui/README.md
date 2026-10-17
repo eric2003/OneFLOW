@@ -39,8 +39,12 @@ It stages each case in an isolated run workspace, runs dependencies in order,
 checks declared output files, and passes artifact paths to consumer settings.
 The graph base directory contains the configured relative case directories.
 Workflow definitions and run history are stored under
-`~/.oneflow/workflow-data` (the user's home directory); deleting a definition
-does not delete its history. The GUI displays recent run status and messages.
+`~/.oneflow/workflow-data` (the user's home directory); on Windows this resolves
+under the user's profile directory. Set `ONEFLOW_HOME` to use a different data
+root. The existing `workflow-data` location is retained, so current definitions
+and history remain available. Settings, logs, and execution workspaces have
+separate paths under this root. Deleting a definition does not delete its
+history. The GUI displays recent run status and messages.
 
 ## Architecture direction
 
@@ -71,6 +75,8 @@ The long-term product direction is documented in both [Chinese](../../docs/ONEFL
 - `test_services.py`: standard-library tests for the non-UI services.
 - `test_workflow_execution.py`: tests for argument order, spaces, and invalid input.
 - `workflow_repository.py`: versioned workflow-definition and run-history persistence, independent of Qt.
+- `user_data_paths.py`: centralized cross-platform user data paths with the optional `ONEFLOW_HOME` override.
+- `test_user_data_paths.py`: tests default paths, overrides, and side-effect-free path resolution.
 - `test_workflow_repository.py`: persistence tests for version checks, CRUD behavior, and history retention.
 
 The GUI is an optional tool and is not a runtime dependency of OneFLOW. Core
@@ -82,6 +88,7 @@ From the repository root:
 
 ```powershell
 python -m unittest tools.oneflow_gui.test_services
+python -m unittest tools.oneflow_gui.test_user_data_paths
 python -m unittest tools.oneflow_gui.test_workflow_repository
 python -m unittest tools.oneflow_gui.test_workflow_execution
 python -m unittest tools.oneflow_gui.test_workflow_dependencies
