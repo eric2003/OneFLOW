@@ -85,8 +85,19 @@ jobs:
 
           cd "${{ github.workspace }}/build"
           ctest --output-on-failure -C Release
+          if ($LASTEXITCODE -ne 0) {
+              throw "ctest failed with exit code $LASTEXITCODE."
+          }
+
           python -m unittest discover -s ../tools -p "test_mesh_workflow.py"
+          if ($LASTEXITCODE -ne 0) {
+              throw "Mesh workflow tests failed with exit code $LASTEXITCODE."
+          }
+
           python -m unittest discover -s ../tools/mesh_export -p "test_*.py"
+          if ($LASTEXITCODE -ne 0) {
+              throw "Mesh export tests failed with exit code $LASTEXITCODE."
+          }
         shell: pwsh 
 
       - name: Run OneFLOW Regression Tests
