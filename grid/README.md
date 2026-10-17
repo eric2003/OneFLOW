@@ -15,9 +15,11 @@ catalog instead of hard-coding case names or directory paths.
 The `minimal_rectangle`, `minimal_cube`, `two_connected_cubes`, and
 `two_connected_squares` cases have versioned `case.json` profiles. Each profile describes the generation
 dimension, layout, runtime parameter-file list, inspection outputs, and
-expected mesh counts and bounds. The catalog remains an index; profile
-validation checks that its layout agrees with the catalog and that its listed
-parameter files exist.
+expected mesh counts and bounds. The flat-plate cases also provide profiles
+with mesh expectations; `turbulent_flat_plate` follows the laminar reference
+layout but uses 81 points in the wall-normal direction. The catalog remains an
+index; profile validation checks that its layout agrees with the catalog and
+that its listed parameter files exist.
 
 Use the standard-library command-line tool to discover and validate cases:
 
@@ -27,6 +29,7 @@ python tools/mesh_cases.py show minimal_cube
 python tools/mesh_cases.py validate
 python tools/mesh_cases.py validate two_connected_cubes
 python tools/mesh_cases.py validate two_connected_squares
+python tools/mesh_cases.py validate turbulent_flat_plate
 python tools/test_mesh_cases.py
 ```
 
@@ -47,6 +50,8 @@ duplicate parameter values in the catalog.
 | `two_connected_cubes` | Generate two adjacent 3D blocks with one shared interface face | `case.json`, `script/control.txt` |
 | `two_connected_squares` | Generate two adjacent 2D blocks with one shared interface edge; carries the current grid options in the versioned profile | `case.json`, `script/control.txt` |
 | `mesh_workflow` | Convert the RAE 2822 Plot3D grid to OneFLOW format and write a metadata summary | `script/control.txt`, parameter files, `tools/validate_case.py` |
+| `laminar_flat_plate` | Reference two-block flat-plate mesh with 85 wall-normal points | `case.json`, `grid/laminarFlatPlateLayout.txt` |
+| `turbulent_flat_plate` | Flat-plate mesh variant with 81 wall-normal points and updated expected topology counts | `case.json`, `grid/turbulentFlatPlateLayout.txt` |
 
 ## Target integration model
 
