@@ -362,7 +362,7 @@ class OneFlowWorkbench:
 
 def main() -> None:
     root = tk.Tk()
-    OneFLOWWorkbench(root)
+    OneFlowWorkbench(root)
     root.mainloop()
 
 
