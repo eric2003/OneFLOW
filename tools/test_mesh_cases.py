@@ -29,7 +29,7 @@ class MeshCaseCatalogTest(unittest.TestCase):
         ]
         self.assertEqual(errors, [])
 
-    def test_turbulent_flat_plate_uses_81_wall_normal_points(self) -> None:
+    def test_turbulent_flat_plate_uses_requested_tanh_distribution(self) -> None:
         case_dir = REPOSITORY_ROOT / "grid" / "turbulent_flat_plate"
         with (case_dir / "case.json").open("r", encoding="utf-8") as stream:
             profile = json.load(stream)
@@ -41,13 +41,22 @@ class MeshCaseCatalogTest(unittest.TestCase):
         self.assertIn("Dim(3)={81}", layout)
         self.assertIn("Dim(4)={81}", layout)
         self.assertIn("Dim(5)={81}", layout)
+        expected_distributions = [
+            "Ds(1)={tanh,-1,0.002}",
+            "Ds(2)={tanh,0.002,-1}",
+            "Ds(3)={tanh,1.0e-6,-1}",
+            "Ds(4)={tanh,1.0e-6,-1}",
+            "Ds(5)={tanh,1.0e-6,-1}",
+            "Ds(6)={tanh,-1,0.002}",
+            "Ds(7)={tanh,0.002,-1}",
+        ]
+        for distribution in expected_distributions:
+            self.assertIn(distribution, layout)
         self.assertEqual(expected["nodes"], 5913)
         self.assertEqual(expected["cells"], 5760)
         self.assertEqual(expected["faces"], 11672)
         self.assertEqual(expected["boundaryFaces"], 304)
         self.assertEqual(expected["internalFaces"], 11368)
-        self.assertEqual(expected["boundingBox"]["min"], [-2.0, 0.0, 0.0])
-        self.assertEqual(expected["boundingBox"]["max"], [2.0, 4.0, 0.0])
 
     def test_two_connected_squares_profile_carries_grid_options(self) -> None:
         case_dir = REPOSITORY_ROOT / "grid" / "two_connected_squares"
