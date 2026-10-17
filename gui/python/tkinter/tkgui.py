@@ -10,10 +10,18 @@ from __future__ import annotations
 from pathlib import Path
 from queue import Empty, Queue
 import subprocess
+import sys
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
 from oneflow_runner import OneFlowRunner, RunPlan, load_run_plan, save_run_plan
+
+
+REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
+if str(REPOSITORY_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPOSITORY_ROOT))
+
+from tools.oneflow_gui.executable_discovery import executable_candidates
 
 
 class OneFlowWorkbench:
@@ -30,7 +38,9 @@ class OneFlowWorkbench:
         self.case_directories: list[Path] = []
         self.active = False
 
-        self.executable_var = tk.StringVar()
+        candidates = executable_candidates(REPOSITORY_ROOT)
+        default_executable = str(candidates[0]) if candidates else ""
+        self.executable_var = tk.StringVar(value=default_executable)
         self.mode_var = tk.StringVar(value="r")
         self.stop_on_error_var = tk.BooleanVar(value=True)
         self.status_var = tk.StringVar(value="Ready")
