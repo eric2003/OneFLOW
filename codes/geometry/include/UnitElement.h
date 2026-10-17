@@ -63,7 +63,8 @@ public:
     int GetElementFaceCount() const;
     int GetCompositeFaceCount() const;
 
-    // Compatibility wrappers; prefer the Count-suffixed APIs for new code.
+    // Compatibility wrappers kept for existing call sites.
+    // Prefer GetElementFaceCount / GetCompositeFaceCount for new code.
     int GetElementFaceNumber() const;
     int GetCompositeFaceNumber() const;
     int GetElementType() const;
@@ -87,7 +88,8 @@ public:
 
     const IntField & GetRelatedPointListForMiddlePointCalculation( int iMiddlePoint ) const;
 
-    // Compatibility wrappers; use the correctly spelled API for new code.
+    // Compatibility wrapper for the historical misspelling "Calcutation".
+    // Prefer GetRelatedPointListForMiddlePointCalculation for new code.
     const IntField & GetRelatedPointListForMiddlePointCalcutation( int iMiddlePoint ) const;
 
     const IntField & GetChildElementRelativeNodeIndex( int iChildElement ) const;

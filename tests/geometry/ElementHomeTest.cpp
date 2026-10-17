@@ -434,3 +434,83 @@ TEST(ElementHomeTest, OutOfRangeElementTypeThrowsFromNodeCountApi)
     EXPECT_THROW(ONEFLOW::GetElementNodeNumbers(-1), std::out_of_range);
 }
 
+TEST(ElementHomeTest, CompatibilityWrappersMatchPreferredApis)
+{
+    // Intent: every historical *Number(s)/misspelled* accessor is a pure alias
+    // of the preferred *Count / correctly spelled* API. New code should use the
+    // preferred names; these tests lock the alias contract so renames stay safe.
+    ONEFLOW::ElementHome::Initialize();
+
+    EXPECT_EQ(
+        ONEFLOW::ElementHome::GetNumberOfUnitElements(),
+        ONEFLOW::ElementHome::GetUnitElementSlotCount());
+
+    const int types[] = {
+        ONEFLOW::NODE, ONEFLOW::BAR_2, ONEFLOW::BAR_3,
+        ONEFLOW::TRI_3, ONEFLOW::TRI_6,
+        ONEFLOW::QUAD_4, ONEFLOW::QUAD_8, ONEFLOW::QUAD_9,
+        ONEFLOW::TETRA_4, ONEFLOW::TETRA_10,
+        ONEFLOW::PYRA_5, ONEFLOW::PYRA_14,
+        ONEFLOW::PENTA_6, ONEFLOW::PENTA_15, ONEFLOW::PENTA_18,
+        ONEFLOW::HEXA_8, ONEFLOW::HEXA_20, ONEFLOW::HEXA_27,
+    };
+
+    for (int elementType : types)
+    {
+        SCOPED_TRACE(elementType);
+        ASSERT_TRUE(ONEFLOW::ElementHome::HasUnitElement(elementType));
+
+        const ONEFLOW::UnitElement & element =
+            ONEFLOW::ElementHome::GetUnitElementDefinition(elementType);
+
+        EXPECT_EQ(element.GetElementFaceNumber(), element.GetElementFaceCount());
+        EXPECT_EQ(
+            element.GetCompositeFaceNumber(), element.GetCompositeFaceCount());
+        EXPECT_EQ(
+            element.GetChildElementNumbers(), element.GetChildElementCount());
+
+        const int nodeCount = element.GetElementNodeCount(elementType);
+        EXPECT_EQ(element.GetElementNodeNumbers(elementType), nodeCount);
+
+        // Midpoint relations: misspelled alias must equal preferred spelling.
+        for (int i = 0; i < nodeCount; ++i)
+        {
+            const auto & preferred =
+                element.GetRelatedPointListForMiddlePointCalculation(i);
+            const auto & compatibility =
+                element.GetRelatedPointListForMiddlePointCalcutation(i);
+            ASSERT_EQ(preferred.size(), compatibility.size());
+            for (std::size_t k = 0; k < preferred.size(); ++k)
+            {
+                EXPECT_EQ(preferred[k], compatibility[k]);
+            }
+        }
+    }
+}
+
+TEST(ElementHomeTest, SlotCountIncludesEmptyRegistrySlots)
+{
+    // Intent: GetUnitElementSlotCount is the enum-indexed registry size, which
+    // may exceed the number of defined unit elements. HasUnitElement is the
+    // predicate for "definition present"; callers must not treat slot count as
+    // "number of defined elements".
+    ONEFLOW::ElementHome::Initialize();
+
+    const int slotCount = ONEFLOW::ElementHome::GetUnitElementSlotCount();
+    EXPECT_GT(slotCount, 0);
+
+    int definedCount = 0;
+    for (int i = 0; i < slotCount; ++i)
+    {
+        if (ONEFLOW::ElementHome::HasUnitElement(i))
+        {
+            ++definedCount;
+        }
+    }
+
+    EXPECT_GT(definedCount, 0);
+    EXPECT_LE(definedCount, slotCount);
+    // Compatibility name reports the same slot count, not definedCount.
+    EXPECT_EQ(ONEFLOW::ElementHome::GetNumberOfUnitElements(), slotCount);
+}
+
