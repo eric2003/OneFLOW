@@ -84,9 +84,9 @@ void CellTopo::PushElement( int p1, int p2, int p3, int p4, int elementType )
 
 void CellTopo::CalcC2f( FaceTopo & faceTopo )
 {
-    const HXSize_t nCells = this->GetNumberOfCells();
-    const HXSize_t nBFaces = faceTopo.GetNBFaces();
-    const HXSize_t nFaces = faceTopo.GetNFaces();
+    const HXSize_t nCells = this->GetCellCount();
+    const HXSize_t nBFaces = faceTopo.GetBoundaryFaceCount();
+    const HXSize_t nFaces = faceTopo.GetFaceCount();
     const IntField & leftCells = faceTopo.GetLeftCells();
     const IntField & rightCells = faceTopo.GetRightCells();
 

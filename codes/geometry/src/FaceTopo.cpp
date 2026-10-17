@@ -215,7 +215,7 @@ FaceTopo::~FaceTopo() = default;
 HXSize_t FaceTopo::CalcTotalFaceNodes() const
 {
     HXSize_t totalNumFaceNodes = 0;
-    HXSize_t nFaces = this->GetNFaces();
+    HXSize_t nFaces = this->GetFaceCount();
     for ( HXSize_t iFace = 0; iFace < nFaces; ++ iFace )
     {
         totalNumFaceNodes += faces[ iFace ].size();
@@ -223,14 +223,24 @@ HXSize_t FaceTopo::CalcTotalFaceNodes() const
     return totalNumFaceNodes;
 }
 
-HXSize_t FaceTopo::GetNBFaces() const
+HXSize_t FaceTopo::GetBoundaryFaceCount() const
 {
     return this->bcManager->bcRecord->GetNBFace();
 }
 
+HXSize_t FaceTopo::GetNBFaces() const
+{
+    return GetBoundaryFaceCount();
+}
+
+void FaceTopo::SetBoundaryFaceCount( HXSize_t boundaryFaceCount )
+{
+    this->bcManager->bcRecord->Init( boundaryFaceCount );
+}
+
 void FaceTopo::SetNBFaces( HXSize_t nBFaces )
 {
-    this->bcManager->bcRecord->Init( nBFaces );
+    SetBoundaryFaceCount( nBFaces );
 }
 
 void FaceTopo::ResizeAll()
@@ -250,7 +260,7 @@ void FaceTopo::ModifyFaceNodeId( IFaceLink & iFaceLink )
 
 void FaceTopo::SetNewFace2Node( IFaceLink & iFaceLink )
 {
-    const HXSize_t nFaces = this->GetNFaces();
+    const HXSize_t nFaces = this->GetFaceCount();
     const HXSize_t nBoundaryFaces = this->bcManager->bcRecord->GetNBFace();
 
     // A face has one node list and one face type; boundary faces must be a subset.
@@ -406,7 +416,7 @@ void FaceTopo::SetNewFace2Cell( IFaceLink & iFaceLink )
         this->rCellsNew.push_back( iFace + nCells );
     }
 
-    int nFaces = this->GetNFaces();
+    int nFaces = this->GetFaceCount();
 
     for ( int iFace = nBFaces; iFace < nFaces; ++ iFace )
     {
@@ -580,8 +590,8 @@ void FaceTopo::CalcC2C( LinkField & c2c )
 {
     const Grid & grid = this->GetGrid();
     const int nCells = grid.nCells;
-    const HXSize_t nBFaces = this->GetNBFaces();
-    const HXSize_t nFaces = this->GetNFaces();
+    const HXSize_t nBFaces = this->GetBoundaryFaceCount();
+    const HXSize_t nFaces = this->GetFaceCount();
     const IntField & leftCells = this->GetLeftCells();
     const IntField & rightCells = this->GetRightCells();
     const IntField & boundaryTypes = this->bcManager->bcRecord->bcType;
@@ -637,7 +647,7 @@ void FaceTopo::CalcC2C( LinkField & c2c )
 
 void FaceTopo::ReorderLink()
 {
-    const HXSize_t nFaces = this->GetNFaces();
+    const HXSize_t nFaces = this->GetFaceCount();
     const IntField & rightCells = this->GetRightCells();
 
     if ( this->faces.size() != nFaces ||

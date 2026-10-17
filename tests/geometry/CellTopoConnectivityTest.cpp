@@ -249,3 +249,16 @@ TEST(CellMeshConnectivityTest, RecalculatesCellSpanAfterBoundaryConnectivityChan
     EXPECT_DOUBLE_EQ(cellMesh.span[0], 1.0);
     EXPECT_DOUBLE_EQ(cellMesh.span[1], 9.0);
 }
+
+TEST(CellTopoConnectivityTest, CellCountApiMatchesCompatibilityWrapper)
+{
+    // Intent: GetCellCount is preferred; GetNumberOfCells is a compatibility
+    // alias that must report the same value after Alloc and after PushElement.
+    ONEFLOW::CellTopo cellTopo;
+    EXPECT_EQ(cellTopo.GetCellCount(), static_cast<ONEFLOW::HXSize_t>(0));
+    EXPECT_EQ(cellTopo.GetNumberOfCells(), cellTopo.GetCellCount());
+
+    cellTopo.Alloc(4);
+    EXPECT_EQ(cellTopo.GetCellCount(), static_cast<ONEFLOW::HXSize_t>(4));
+    EXPECT_EQ(cellTopo.GetNumberOfCells(), cellTopo.GetCellCount());
+}

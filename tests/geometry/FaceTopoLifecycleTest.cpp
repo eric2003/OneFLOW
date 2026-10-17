@@ -92,3 +92,24 @@ TEST(FaceTopoLifecycleTest, SideAccessRejectsInvalidBoundaryFaceMapping)
     EXPECT_THROW(faceTopo.GetSId(0, 0, value), std::out_of_range);
     EXPECT_THROW(faceTopo.GetTId(0, 0, value), std::out_of_range);
 }
+
+TEST(FaceTopoLifecycleTest, FaceCountApisMatchCompatibilityWrappers)
+{
+    // Intent: GetFaceCount / GetBoundaryFaceCount are preferred; GetNFaces /
+    // GetNBFaces / SetNBFaces remain pure aliases so existing call sites stay
+    // valid while new code can use clearer names.
+    ONEFLOW::FaceTopo faceTopo;
+
+    faceTopo.GetFaceTypes().resize(5);
+    EXPECT_EQ(faceTopo.GetFaceCount(), static_cast<ONEFLOW::HXSize_t>(5));
+    EXPECT_EQ(faceTopo.GetNFaces(), faceTopo.GetFaceCount());
+
+    // Boundary face count is owned by BcRecord; setting either API must agree.
+    faceTopo.SetBoundaryFaceCount(2);
+    EXPECT_EQ(faceTopo.GetBoundaryFaceCount(), static_cast<ONEFLOW::HXSize_t>(2));
+    EXPECT_EQ(faceTopo.GetNBFaces(), faceTopo.GetBoundaryFaceCount());
+
+    faceTopo.SetNBFaces(3);
+    EXPECT_EQ(faceTopo.GetBoundaryFaceCount(), static_cast<ONEFLOW::HXSize_t>(3));
+    EXPECT_EQ(faceTopo.GetNBFaces(), faceTopo.GetBoundaryFaceCount());
+}

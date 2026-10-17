@@ -65,9 +65,18 @@ private:
     IntField lCellsNew, rCellsNew;
 
 public:
-    HXSize_t GetNFaces() const { return fTypes.size(); }
+    // Preferred name for the total face count.
+    HXSize_t GetFaceCount() const { return fTypes.size(); }
+    // Compatibility wrapper; prefer GetFaceCount() for new code.
+    HXSize_t GetNFaces() const { return GetFaceCount(); }
     HXSize_t CalcTotalFaceNodes() const;
+    // Preferred name for the boundary face count.
+    HXSize_t GetBoundaryFaceCount() const;
+    // Compatibility wrapper; prefer GetBoundaryFaceCount() for new code.
     HXSize_t GetNBFaces() const;
+    // Preferred name for setting the boundary face count.
+    void SetBoundaryFaceCount( HXSize_t boundaryFaceCount );
+    // Compatibility wrapper; prefer SetBoundaryFaceCount() for new code.
     void SetNBFaces( HXSize_t nBFaces );
     void BindGrid( Grid & grid );
     Grid & GetGrid();
