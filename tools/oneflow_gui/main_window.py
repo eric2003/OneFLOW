@@ -29,6 +29,7 @@ from .case_repository import load_cases
 from .executable_discovery import executable_candidates
 from .models import CaseDefinition, CaseRunResult, RunState
 from .runner import create_run_id, run_case
+from .user_data_paths import UserDataPaths
 from .workflow_dialog import WorkflowDialog
 
 
@@ -146,7 +147,7 @@ class MainWindow(QMainWindow):
 
         workspace_layout = QHBoxLayout()
         workspace_layout.addWidget(QLabel("Run workspace"))
-        self.workspace_edit = QLineEdit(str(Path.home() / "OneFLOWRuns"))
+        self.workspace_edit = QLineEdit(str(UserDataPaths.discover().executions))
         workspace_layout.addWidget(self.workspace_edit, 1)
         workspace_browse = QPushButton("Browse...")
         workspace_browse.clicked.connect(self._choose_workspace)
