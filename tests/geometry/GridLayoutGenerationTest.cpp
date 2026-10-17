@@ -140,7 +140,7 @@ TEST( GridLayoutGenerationTest, GeneratesFlatPlateBoundaryLayerDistribution )
         {
             const auto yAt = [ &zone, nj, i ]( int j ) -> Real
             {
-                return zone.y[ static_cast< std::size_t >( i * nj + j ) ];
+                return zone.y[ static_cast< std::size_t >( j * ni + i ) ];
             };
 
             const int wallIndex =
