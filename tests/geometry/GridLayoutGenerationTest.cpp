@@ -163,12 +163,16 @@ TEST( GridLayoutGenerationTest, GeneratesFlatPlateBoundaryLayerDistribution )
 
             const Real firstOuterStep =
                 yFromWall( nearWallPointCount ) - yFromWall( nearWallPointCount - 1 );
-            EXPECT_GT( firstOuterStep, previousStep );
-            const Real outerRatio = firstOuterStep / previousStep;
-            EXPECT_GT( outerRatio, 1.0 );
-            previousStep = firstOuterStep;
+            EXPECT_NEAR( firstOuterStep, previousStep, 1.0e-12 );
 
-            for ( int layer = nearWallPointCount + 1; layer < nj; ++ layer )
+            const Real secondOuterStep =
+                yFromWall( nearWallPointCount + 1 ) - yFromWall( nearWallPointCount );
+            EXPECT_GT( secondOuterStep, firstOuterStep );
+            const Real outerRatio = secondOuterStep / firstOuterStep;
+            EXPECT_GT( outerRatio, 1.0 );
+            previousStep = secondOuterStep;
+
+            for ( int layer = nearWallPointCount + 2; layer < nj; ++ layer )
             {
                 const Real step = yFromWall( layer ) - yFromWall( layer - 1 );
                 EXPECT_GT( step, previousStep );
