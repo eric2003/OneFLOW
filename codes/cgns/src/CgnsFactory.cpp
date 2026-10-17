@@ -180,7 +180,7 @@ void CgnsFactory::ReadCgnsGrid(
     std::string gridFileName;
     if ( caseDir.empty() )
     {
-        gridFileName = Prj::GetPrjFileName( sourceGridFile );
+        gridFileName = Prj::GetMeshInputFileName( sourceGridFile );
     }
     else
     {
@@ -232,15 +232,9 @@ void CgnsFactory::DumpUnsCgnsGrid(
 {
     const std::string & targetGridFile = config.targetFile;
 
-    std::string targetFile;
-    if ( caseDir.empty() )
-    {
-        targetFile = Prj::GetPrjFileName( targetGridFile );
-    }
-    else
-    {
-        targetFile = Prj::GetCaseFileName( caseDir, targetGridFile );
-    }
+    const std::string targetFile =
+        Prj::GetMeshOutputFileName( targetGridFile );
+    Prj::CreateDirIfNeeded( targetFile );
 
     cgnsZbase->OpenCgnsFile( targetFile, CG_MODE_WRITE );
     cgnsZbase->DumpCgnsMultiBase();

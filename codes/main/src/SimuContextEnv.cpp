@@ -44,6 +44,8 @@ License
 #include "ActionState.h"
 #include "Iteration.h"
 #include <iostream>
+#include <exception>
+#include <filesystem>
 
 BeginNameSpace( ONEFLOW )
 
@@ -91,6 +93,139 @@ void SimuContext::SetupCaseEnvironment()
 
     logFile.SetCaseDir( caseDir_ );
     ONEFLOW::ReadControlInfo( caseDir_ );
+
+    // File roots are shared by mesh generation, conversion, and CFD. Missing
+    // settings preserve the historical current-case behavior. Domain roots
+    // inherit their generic input/output root unless explicitly configured.
+    // "case" selects the active case, "project" requires projectRoot, absolute
+    // roots are used directly, and other relative roots resolve from the case.
+    std::string projectRoot;
+    std::string inputRoot;
+    std::string outputRoot;
+
+    try
+    {
+        projectRoot = GetDataValue< std::string >( "projectRoot" );
+    }
+    catch ( const std::exception & )
+    {
+    }
+
+    if ( ! projectRoot.empty() )
+    {
+        Prj::SetProjectBaseDir( projectRoot );
+    }
+
+    try
+    {
+        inputRoot = GetDataValue< std::string >( "inputRoot" );
+    }
+    catch ( const std::exception & )
+    {
+    }
+
+    try
+    {
+        outputRoot = GetDataValue< std::string >( "outputRoot" );
+    }
+    catch ( const std::exception & )
+    {
+    }
+
+    Prj::SetIOBaseDirs( inputRoot, outputRoot );
+
+    std::string meshInputRoot;
+    std::string flowInputRoot;
+    std::string meshOutputRoot;
+    std::string flowOutputRoot;
+
+    try
+    {
+        meshInputRoot = GetDataValue< std::string >( "meshInputRoot" );
+    }
+    catch ( const std::exception & )
+    {
+    }
+
+    try
+    {
+        flowInputRoot = GetDataValue< std::string >( "flowInputRoot" );
+    }
+    catch ( const std::exception & )
+    {
+    }
+
+    try
+    {
+        meshOutputRoot = GetDataValue< std::string >( "meshOutputRoot" );
+    }
+    catch ( const std::exception & )
+    {
+    }
+
+    try
+    {
+        flowOutputRoot = GetDataValue< std::string >( "flowOutputRoot" );
+    }
+    catch ( const std::exception & )
+    {
+    }
+
+    // Preserve the legacy sourceGridCaseDir setting as the default mesh
+    // input root. This keeps linked cases such as rae2822_roe_sa reading grid
+    // artifacts (including wall-distance data) from rae2822grid, while an
+    // explicit meshInputRoot can override that behavior.
+    if ( meshInputRoot.empty() || meshInputRoot == "default" )
+    {
+        try
+        {
+            const std::string sourceGridCaseDir =
+                GetDataValue< std::string >( "sourceGridCaseDir" );
+            if ( ! sourceGridCaseDir.empty() && sourceGridCaseDir != "default" )
+            {
+                meshInputRoot = sourceGridCaseDir;
+            }
+        }
+        catch ( const std::exception & )
+        {
+        }
+    }
+
+    Prj::SetDomainIOBaseDirs(
+        meshInputRoot, flowInputRoot, meshOutputRoot, flowOutputRoot );
+
+    const bool outputsUseCaseRoot =
+        std::filesystem::path( Prj::GetMeshOutputBaseDir() ).lexically_normal()
+            == std::filesystem::path( Prj::prjBaseDir ).lexically_normal()
+        && std::filesystem::path( Prj::GetFlowOutputBaseDir() ).lexically_normal()
+            == std::filesystem::path( Prj::prjBaseDir ).lexically_normal();
+    std::string ioPathInfoFile = outputsUseCaseRoot
+        ? "results/io_paths.txt"
+        : "io_paths.txt";
+    try
+    {
+        const std::string configuredInfoFile =
+            GetDataValue< std::string >( "ioPathInfoFileName" );
+        if ( ! configuredInfoFile.empty() )
+        {
+            ioPathInfoFile = configuredInfoFile;
+        }
+    }
+    catch ( const std::exception & )
+    {
+    }
+
+    const std::string meshInfoPath =
+        Prj::GetMeshOutputFileName( ioPathInfoFile );
+    Prj::WriteIOPathInfo( meshInfoPath );
+
+    const std::string flowInfoPath =
+        Prj::GetFlowOutputFileName( ioPathInfoFile );
+    if ( std::filesystem::path( flowInfoPath ).lexically_normal()
+        != std::filesystem::path( meshInfoPath ).lexically_normal() )
+    {
+        Prj::WriteIOPathInfo( flowInfoPath );
+    }
 }
 
 void SimuContext::SetupEnvironment()

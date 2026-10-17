@@ -822,7 +822,8 @@ void ScalarGrid::SetCgnsZone( CgnsZone & cgnsZone )
 
 void ScalarGrid::DumpCgnsGrid()
 {
-	std::string prjFileName = Prj::GetPrjFileName( "scalar.cgns" );
+	std::string prjFileName = Prj::GetMeshOutputFileName( "scalar.cgns" );
+	Prj::CreateDirIfNeeded( prjFileName );
 	// Use stack allocation instead of raw pointer
 	CgnsZbase cgnsZbase;
 	cgnsZbase.nBases = 1;
@@ -1811,8 +1812,9 @@ void ScalarGrid::DumpCalcGrid()
 {
 	std::cout << "Dumping unstructured grid data files......\n";
 	std::fstream file;
-	std::string fileName = "scalar.ofl";
-	Prj::OpenPrjFile( file, fileName, std::ios_base::out | std::ios_base::binary );
+	const std::string fileName = Prj::GetMeshOutputFileName( "scalar.ofl" );
+	Prj::CreateDirIfNeeded( fileName );
+	Prj::OpenFile( file, fileName, std::ios_base::out | std::ios_base::binary );
 	DataBook databook;
 	this->WriteGrid( &databook );
 	databook.WriteFile( file );
@@ -1862,8 +1864,8 @@ void ScalarGrid::WriteGrid( DataBook * databook )
 void ScalarGrid::ReadCalcGrid()
 {
 	std::fstream file;
-	std::string fileName = "scalar.ofl";
-	Prj::OpenPrjFile( file, fileName, std::ios_base::in | std::ios_base::binary );
+	const std::string fileName = Prj::GetMeshInputFileName( "scalar.ofl" );
+	Prj::OpenFile( file, fileName, std::ios_base::in | std::ios_base::binary );
 	DataBook databook;
 	databook.ReadFile( file );
 	this->ReadGrid( &databook );

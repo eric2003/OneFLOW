@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import threading
 from datetime import datetime, timezone
 from pathlib import Path
@@ -28,6 +29,8 @@ from .workflow_execution import (
     build_multi_directory_command,
     read_multi_directory_step,
 )
+from .workflow_graph_runner import run_case_graph
+from .workflow_plan import build_case_graph_plan
 from .workflow_process import run_process
 from .workflow_repository import (
     WorkflowDefinition,
@@ -58,12 +61,19 @@ class WorkflowRunWorker(QThread):
         directories: list[Path],
         workflow_id: str,
         run_id: str,
+        *,
+        case_graph: list[dict] | None = None,
+        base_directory: Path | None = None,
+        run_root: Path | None = None,
     ) -> None:
         super().__init__()
         self._executable = executable
         self._directories = directories
         self._workflow_id = workflow_id
         self._run_id = run_id
+        self._case_graph = case_graph
+        self._base_directory = base_directory
+        self._run_root = run_root
         self._cancel = threading.Event()
 
     def request_stop(self) -> None:
@@ -75,26 +85,87 @@ class WorkflowRunWorker(QThread):
         return_code: int | None = None
         message = ""
         status = "failed"
+        step_records: list[dict] = []
+        artifacts: list[str] = []
         try:
             if not self._executable.is_file():
                 raise FileNotFoundError(f"OneFLOW executable not found: {self._executable}")
-            for index, directory in enumerate(self._directories, start=1):
-                if not directory.is_dir():
-                    raise NotADirectoryError(f"Directory {index} does not exist: {directory}")
-            command = build_multi_directory_command(self._executable, self._directories)
-            self.log_line.emit("Command arguments:")
-            for index, argument in enumerate(command):
-                self.log_line.emit(f"  [{index}] {argument}")
-            result = run_process(
-                command,
-                cwd=self._executable.parent,
-                on_output=self.log_line.emit,
-                is_cancelled=self._cancel.is_set,
-            )
-            return_code = result.return_code
-            status = result.status
-            message = result.message
-        except (OSError, ValueError) as error:
+            if self._case_graph is not None:
+                if self._base_directory is None or self._run_root is None:
+                    raise ValueError("Case graph execution requires a base directory and run directory.")
+                plan = build_case_graph_plan(self._case_graph, self._base_directory)
+                process_records: dict[str, dict] = {}
+
+                def run_case(step):
+                    case_command = [str(self._executable), "r", str(step.directory)]
+                    self.log_line.emit(f"Running case '{step.case_id}'")
+                    self.log_line.emit("Command arguments:")
+                    for index, argument in enumerate(case_command):
+                        self.log_line.emit(f"  [{index}] {argument}")
+                    result = run_process(
+                        case_command,
+                        cwd=self._executable.parent,
+                        on_output=self.log_line.emit,
+                        is_cancelled=self._cancel.is_set,
+                    )
+                    process_records[step.case_id] = {
+                        "command": case_command,
+                        "return_code": result.return_code,
+                    }
+                    return result.status, result.message
+
+                graph_result = run_case_graph(
+                    plan,
+                    run_case,
+                    run_root=self._run_root,
+                    is_cancelled=self._cancel.is_set,
+                )
+                status = graph_result.status
+                for case_result in graph_result.cases:
+                    record = {
+                        "type": "case",
+                        "case_id": case_result.case_id,
+                        "status": case_result.status,
+                        "message": case_result.message,
+                    }
+                    record.update(process_records.get(case_result.case_id, {}))
+                    step_records.append(record)
+                    self.log_line.emit(
+                        f"Case '{case_result.case_id}': {case_result.status} - {case_result.message}"
+                    )
+                for plan_step in plan.steps:
+                    staged_directory = self._run_root / "cases" / plan_step.case_id
+                    for output in plan_step.outputs:
+                        output_path = staged_directory / output.relative_path
+                        if output_path.is_file():
+                            artifacts.append(str(output_path))
+                message = f"Case graph finished with status '{status}'."
+            else:
+                for index, directory in enumerate(self._directories, start=1):
+                    if not directory.is_dir():
+                        raise NotADirectoryError(f"Directory {index} does not exist: {directory}")
+                command = build_multi_directory_command(self._executable, self._directories)
+                self.log_line.emit("Command arguments:")
+                for index, argument in enumerate(command):
+                    self.log_line.emit(f"  [{index}] {argument}")
+                result = run_process(
+                    command,
+                    cwd=self._executable.parent,
+                    on_output=self.log_line.emit,
+                    is_cancelled=self._cancel.is_set,
+                )
+                return_code = result.return_code
+                status = result.status
+                message = result.message
+                step_records = [
+                    {
+                        "type": "multi_directory",
+                        "directories": [str(path) for path in self._directories],
+                        "command": command,
+                        "return_code": return_code,
+                    }
+                ]
+        except (OSError, ValueError, KeyError, TypeError) as error:
             message = str(error)
         self.completed.emit(
             {
@@ -104,15 +175,8 @@ class WorkflowRunWorker(QThread):
                 "started_at": started_at,
                 "finished_at": _timestamp(),
                 "executable": str(self._executable),
-                "steps": [
-                    {
-                        "type": "multi_directory",
-                        "directories": [str(path) for path in self._directories],
-                        "command": command,
-                        "return_code": return_code,
-                    }
-                ],
-                "artifacts": [],
+                "steps": step_records,
+                "artifacts": artifacts,
                 "message": message,
             }
         )
@@ -151,6 +215,10 @@ class WorkflowDialog(QDialog):
         self.id_edit.setPlaceholderText("Generated for new workflows; stable after save")
         self.name_edit = QLineEdit()
         self.description_edit = QLineEdit()
+        self.mode_combo = QComboBox()
+        self.mode_combo.addItem("Multi-directory", "multi_directory")
+        self.mode_combo.addItem("Dependency graph", "case_graph")
+        self.mode_combo.currentIndexChanged.connect(self._workflow_mode_changed)
         self.directory_edit = QPlainTextEdit()
         self.directory_edit.setPlaceholderText(
             "One directory per line. Order is preserved in the OneFLOW command."
@@ -158,9 +226,19 @@ class WorkflowDialog(QDialog):
         self.directory_edit.setMinimumHeight(120)
         form.addRow("Workflow ID", self.id_edit)
         form.addRow("Name", self.name_edit)
+        self.form_layout = form
+        self.graph_edit = QPlainTextEdit()
+        self.graph_edit.setPlaceholderText("JSON array of case objects, including dependencies, outputs, and inputs.")
+        self.graph_edit.setMinimumHeight(160)
+        self.base_directory_edit = QLineEdit()
+        self.base_directory_edit.setPlaceholderText("Base directory containing the configured case directories")
         form.addRow("Description", self.description_edit)
+        form.addRow("Workflow type", self.mode_combo)
         form.addRow("Directories", self.directory_edit)
+        form.addRow("Case graph JSON", self.graph_edit)
+        form.addRow("Graph base directory", self.base_directory_edit)
         root.addLayout(form)
+        self._workflow_mode_changed()
 
         executable_row = QHBoxLayout()
         executable_row.addWidget(QLabel("OneFLOW executable"))
@@ -200,6 +278,21 @@ class WorkflowDialog(QDialog):
         self.log_view.setMaximumBlockCount(10000)
         root.addWidget(self.log_view, 2)
 
+    def _workflow_mode_changed(self, *_args) -> None:
+        graph_mode = self.mode_combo.currentData() == "case_graph"
+        self.directory_edit.setVisible(not graph_mode)
+        self.graph_edit.setVisible(graph_mode)
+        self.base_directory_edit.setVisible(graph_mode)
+        directory_label = self.form_layout.labelForField(self.directory_edit)
+        graph_label = self.form_layout.labelForField(self.graph_edit)
+        base_label = self.form_layout.labelForField(self.base_directory_edit)
+        if directory_label is not None:
+            directory_label.setVisible(not graph_mode)
+        if graph_label is not None:
+            graph_label.setVisible(graph_mode)
+        if base_label is not None:
+            base_label.setVisible(graph_mode)
+
     def _reload_workflows(self, select_id: str | None = None) -> None:
         workflows = self._repository.list_workflows()
         self.workflow_list.blockSignals(True)
@@ -228,13 +321,25 @@ class WorkflowDialog(QDialog):
         self.name_edit.setText(workflow.name)
         self.description_edit.setText(workflow.description)
         try:
-            directories = read_multi_directory_step(workflow.steps)
-        except ValueError as error:
-            directories = []
+            step_types = [step.get("type") for step in workflow.steps]
+            if step_types == ["case_graph"]:
+                graph_step = workflow.steps[0]
+                self.mode_combo.setCurrentIndex(self.mode_combo.findData("case_graph"))
+                self.graph_edit.setPlainText(json.dumps(graph_step.get("cases", []), indent=2))
+                self.base_directory_edit.setText(str(graph_step.get("base_directory", "")))
+                self.directory_edit.clear()
+            else:
+                directories = read_multi_directory_step(workflow.steps)
+                self.mode_combo.setCurrentIndex(self.mode_combo.findData("multi_directory"))
+                self.directory_edit.setPlainText("\n".join(directories))
+                self.graph_edit.clear()
+                self.base_directory_edit.clear()
+        except (ValueError, TypeError) as error:
+            self.directory_edit.clear()
+            self.graph_edit.clear()
             self.log_view.appendPlainText(
                 f"Cannot load workflow '{workflow.workflow_id}': {error}"
             )
-        self.directory_edit.setPlainText("\n".join(directories))
         self.delete_button.setEnabled(True)
         self._reload_history(workflow.workflow_id)
 
@@ -245,26 +350,58 @@ class WorkflowDialog(QDialog):
         self.id_edit.setReadOnly(False)
         self.name_edit.clear()
         self.description_edit.clear()
+        self.mode_combo.setCurrentIndex(self.mode_combo.findData("multi_directory"))
         self.directory_edit.clear()
+        self.graph_edit.clear()
+        self.base_directory_edit.clear()
         self.delete_button.setEnabled(False)
         self.history_list.clear()
         self.name_edit.setFocus()
 
     def _save_workflow(self) -> bool:
         name = self.name_edit.text().strip()
-        directories = [line.strip() for line in self.directory_edit.toPlainText().splitlines() if line.strip()]
         if not name:
             QMessageBox.warning(self, "Name required", "Enter a workflow name.")
             return False
-        if not directories:
-            QMessageBox.warning(self, "Directories required", "Enter at least one directory.")
-            return False
         workflow_id = self.id_edit.text().strip() or _new_id(name)
+        if self.mode_combo.currentData() == "case_graph":
+            try:
+                graph_data = json.loads(self.graph_edit.toPlainText())
+                imported_base = ""
+                if isinstance(graph_data, list):
+                    cases = graph_data
+                elif isinstance(graph_data, dict) and isinstance(graph_data.get("steps"), list):
+                    graph_steps = graph_data["steps"]
+                    if len(graph_steps) != 1 or graph_steps[0].get("type") != "case_graph":
+                        raise ValueError("Imported workflow JSON must contain exactly one case_graph step.")
+                    cases = graph_steps[0].get("cases")
+                    imported_base = str(graph_steps[0].get("base_directory", ""))
+                elif isinstance(graph_data, dict) and graph_data.get("type") == "case_graph":
+                    cases = graph_data.get("cases")
+                    imported_base = str(graph_data.get("base_directory", ""))
+                else:
+                    raise ValueError("Case graph JSON must be a case array or a case_graph workflow definition.")
+                if not isinstance(cases, list) or not cases:
+                    raise ValueError("Case graph JSON must contain a non-empty cases array.")
+                graph_step = {"type": "case_graph", "cases": cases}
+                base_directory = self.base_directory_edit.text().strip() or imported_base
+                if base_directory:
+                    graph_step["base_directory"] = base_directory
+                steps = (graph_step,)
+            except (json.JSONDecodeError, ValueError, TypeError) as error:
+                QMessageBox.warning(self, "Invalid case graph", str(error))
+                return False
+        else:
+            directories = [line.strip() for line in self.directory_edit.toPlainText().splitlines() if line.strip()]
+            if not directories:
+                QMessageBox.warning(self, "Directories required", "Enter at least one directory.")
+                return False
+            steps = ({"type": "multi_directory", "directories": directories},)
         definition = WorkflowDefinition(
             workflow_id=workflow_id,
             name=name,
             description=self.description_edit.text().strip(),
-            steps=({"type": "multi_directory", "directories": directories},),
+            steps=steps,
         )
         try:
             self._repository.save_workflow(definition)
@@ -312,31 +449,70 @@ class WorkflowDialog(QDialog):
             return
         if not self._selected_id:
             return
+        case_graph = None
+        base_directory = None
+        run_root = None
+        directories: list[Path] = []
         try:
             workflow = self._repository.load_workflow(self._selected_id)
-            directories = [
-                Path(value).expanduser().resolve()
-                for value in read_multi_directory_step(workflow.steps)
-            ]
             executable_text = self.executable_edit.text().strip()
             if not executable_text:
                 raise ValueError("Select a OneFLOW executable.")
             executable = Path(executable_text).expanduser().resolve()
             if not executable.is_file():
                 raise FileNotFoundError(f"OneFLOW executable not found: {executable}")
-            command = build_multi_directory_command(executable, directories)
+            if workflow.steps[0].get("type") == "case_graph":
+                graph_step = workflow.steps[0]
+                case_graph = graph_step["cases"]
+                base_text = str(graph_step.get("base_directory", "")).strip()
+                if not base_text:
+                    base_text = self.base_directory_edit.text().strip()
+                if not base_text:
+                    raise ValueError("Select a base directory for the case graph.")
+                base_directory = Path(base_text).expanduser().resolve()
+                if not base_directory.is_dir():
+                    raise NotADirectoryError(f"Workflow base directory not found: {base_directory}")
+                plan = build_case_graph_plan(case_graph, base_directory)
+                missing = [step.directory for step in plan.steps if not step.directory.is_dir()]
+                if missing:
+                    raise NotADirectoryError(
+                        "These workflow case directories do not exist:\n" +
+                        "\n".join(str(path) for path in missing)
+                    )
+                command = [str(executable), "r", "<each staged case directory>"]
+            else:
+                directories = [
+                    Path(value).expanduser().resolve()
+                    for value in read_multi_directory_step(workflow.steps)
+                ]
+                missing = [path for path in directories if not path.is_dir()]
+                if missing:
+                    raise NotADirectoryError(
+                        "These workflow directories do not exist:\n" +
+                        "\n".join(str(path) for path in missing)
+                    )
+                command = build_multi_directory_command(executable, directories)
         except (OSError, ValueError, KeyError, StopIteration, TypeError) as error:
             QMessageBox.warning(self, "Invalid workflow", str(error))
             return
-        missing = [path for path in directories if not path.is_dir()]
-        if missing:
-            QMessageBox.warning(
-                self, "Directory not found",
-                "These workflow directories do not exist:\n" + "\n".join(str(path) for path in missing),
-            )
-            return
         run_id = datetime.now().strftime("%Y%m%d-%H%M%S") + "-" + uuid4().hex[:8]
         started_at = _timestamp()
+        if case_graph is not None:
+            run_root = (
+                Path.home() / ".oneflow" / "workflow-data" / "executions" / run_id
+            ).resolve()
+            initial_steps = ({
+                "type": "case_graph",
+                "base_directory": str(base_directory),
+                "cases": case_graph,
+                "command_template": command,
+            },)
+        else:
+            initial_steps = ({
+                "type": "multi_directory",
+                "directories": [str(path) for path in directories],
+                "command": command,
+            },)
         self._repository.save_run(
             WorkflowRunRecord(
                 run_id=run_id,
@@ -344,14 +520,22 @@ class WorkflowDialog(QDialog):
                 status="running",
                 started_at=started_at,
                 executable=str(executable),
-                steps=({"type": "multi_directory", "directories": [str(path) for path in directories], "command": command},),
+                steps=initial_steps,
                 message="Workflow process started.",
             )
         )
         self.log_view.appendPlainText(f"\nRun {run_id}: {workflow.name}")
         self.run_button.setEnabled(False)
         self.stop_button.setEnabled(True)
-        self._worker = WorkflowRunWorker(executable, directories, workflow.workflow_id, run_id)
+        self._worker = WorkflowRunWorker(
+            executable,
+            directories,
+            workflow.workflow_id,
+            run_id,
+            case_graph=case_graph,
+            base_directory=base_directory,
+            run_root=run_root,
+        )
         self._worker.log_line.connect(self.log_view.appendPlainText)
         self._worker.completed.connect(self._workflow_completed)
         self._worker.finished.connect(self._worker_finished)

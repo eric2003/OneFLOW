@@ -253,8 +253,8 @@ void ReadScriptFileNameList( std::vector< std::string > & scriptFileNameList )
 {
     TextFileParser textFileParser;
 
-    textFileParser.OpenPrjFile(
-        "script/control.txt",
+    textFileParser.OpenFile(
+        Prj::GetPrjFileName( "script/control.txt" ),
         std::ios_base::in );
 
     // Tab is a separator.

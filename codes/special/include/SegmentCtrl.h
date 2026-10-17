@@ -43,7 +43,8 @@ public:
         Distance,
         Copy,
         Exponential,
-        Tanh
+        Tanh,
+        BoundaryLayer
     };
 
     int id;
@@ -74,6 +75,10 @@ public:
     void CalcEffectiveRatio();
     void CalcEffectiveFactor();
     void CopyFactor();
+    void CalcBoundaryLayerFactor();
+public:
+    int nearWallPointCount = 0;
+    Real nearWallDistance = 0.0;
 };
 
 class SegmentCopy

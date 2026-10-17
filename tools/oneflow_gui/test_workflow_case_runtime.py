@@ -46,5 +46,34 @@ class WorkflowCaseRuntimeTest(unittest.TestCase):
                 ], root)
 
 
+    def test_configures_producer_output_in_arbitrary_nested_directory(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / "mesh" / "script").mkdir(parents=True)
+            config = root / "mesh" / "script" / "grid.txt"
+            config.write_text('string targetGridFileName = "grid/old.ofl";\n', encoding="utf-8")
+            stale_output = root / "mesh" / "results" / "generated" / "final" / "mesh.ofl"
+            stale_output.parent.mkdir(parents=True)
+            stale_output.write_bytes(b"stale")
+            plan = build_case_graph_plan([
+                {
+                    "id": "mesh",
+                    "directory": "mesh",
+                    "outputs": [{
+                        "id": "grid",
+                        "path": "results/generated/final/mesh.ofl",
+                        "parameter_file": "script/grid.txt",
+                        "setting": "targetGridFileName",
+                    }],
+                },
+            ], root)
+            staged = prepare_case_directory(plan.steps[0], root / "run", {})
+            staged_config = (staged / "script" / "grid.txt").read_text(encoding="utf-8")
+            self.assertIn('string targetGridFileName = "results/generated/final/mesh.ofl";', staged_config)
+            self.assertTrue((staged / "results" / "generated" / "final").is_dir())
+            self.assertFalse((staged / "results" / "generated" / "final" / "mesh.ofl").exists())
+            self.assertEqual(config.read_text(encoding="utf-8"), 'string targetGridFileName = "grid/old.ofl";\n')
+
+
 if __name__ == "__main__":
     unittest.main()

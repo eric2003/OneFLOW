@@ -32,8 +32,16 @@ def apply_runtime_overrides(
     if not overrides:
         return ()
 
-    with path.open("r", encoding="utf-8", newline="") as stream:
-        content = stream.read()
+    raw_content = path.read_bytes()
+    if raw_content.startswith(b"\xef\xbb\xbf"):
+        encoding = "utf-8-sig"
+    else:
+        try:
+            raw_content.decode("utf-8")
+            encoding = "utf-8"
+        except UnicodeDecodeError:
+            encoding = "gbk"
+    content = raw_content.decode(encoding)
 
     newline = "\r\n" if "\r\n" in content else "\n"
     updated: set[str] = set()
@@ -53,8 +61,7 @@ def apply_runtime_overrides(
         content += ("" if not content or content.endswith(("\n", "\r")) else newline)
         content += f'string {name} = "{_quote(overrides[name])}";{newline}'
 
-    with path.open("w", encoding="utf-8", newline="") as stream:
-        stream.write(content)
+    path.write_bytes(content.encode(encoding))
     return tuple(overrides)
 
 

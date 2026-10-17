@@ -1,3 +1,6 @@
+string meshInputRoot = "default";
+string meshOutputRoot = "default";
+
 int gridObj   =  1; // Convert an existing grid
 string topoType  =  "u";
 int multiBlock    =  0;

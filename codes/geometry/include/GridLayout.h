@@ -13,7 +13,17 @@ enum class GridDistributionType
     Distance,
     Tanh,
     Copy,
-    Exponential
+    Exponential,
+    BoundaryLayer
+};
+
+enum class GridBoundaryKind
+{
+    None,
+    Interface,
+    Interior,
+    Overset,
+    Physical
 };
 
 struct GridPointDefinition
@@ -51,6 +61,8 @@ struct GridDistributionDefinition
     GridDistributionType type = GridDistributionType::Distance;
     Real startValue = 0.0;
     Real endValue = 0.0;
+    int nearWallPointCount = 0;
+    Real nearWallDistance = 0.0;
     std::vector< int > copyLineIds;
 };
 
@@ -87,6 +99,8 @@ public:
     std::vector< GridFaceToBlockDefinition > faceToBlocks;
 
     void Validate() const;
+
+    static GridBoundaryKind ClassifyBoundaryType( int boundaryType );
 };
 
 EndNameSpace

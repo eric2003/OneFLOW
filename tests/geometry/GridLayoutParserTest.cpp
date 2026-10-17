@@ -32,8 +32,39 @@ TEST( GridLayoutParserTest, ParsesLaminarPlateLayout )
     EXPECT_EQ( layout.distributions[ 0 ].type, GridDistributionType::Distance );
     EXPECT_DOUBLE_EQ( layout.distributions[ 0 ].endValue, 0.01 );
     EXPECT_EQ( layout.boundaries[ 0 ].boundaryType, 3 );
+    EXPECT_EQ(
+        GridLayout::ClassifyBoundaryType( layout.boundaries[ 0 ].boundaryType ),
+        GridBoundaryKind::Physical );
+    EXPECT_EQ(
+        GridLayout::ClassifyBoundaryType( layout.boundaries[ 3 ].boundaryType ),
+        GridBoundaryKind::Interface );
     EXPECT_EQ( layout.lineToFaces[ 0 ].lineId, 1 );
     EXPECT_EQ( layout.faceToBlocks[ 1 ].blockId, 2 );
+}
+
+TEST( GridLayoutParserTest, ClassifiesBoundaryTypes )
+{
+    EXPECT_EQ(
+        GridLayout::ClassifyBoundaryType( 0 ),
+        GridBoundaryKind::None );
+    EXPECT_EQ(
+        GridLayout::ClassifyBoundaryType( -1 ),
+        GridBoundaryKind::Interface );
+    EXPECT_EQ(
+        GridLayout::ClassifyBoundaryType( 100 ),
+        GridBoundaryKind::Interior );
+    EXPECT_EQ(
+        GridLayout::ClassifyBoundaryType( 1000 ),
+        GridBoundaryKind::Overset );
+    EXPECT_EQ(
+        GridLayout::ClassifyBoundaryType( 2 ),
+        GridBoundaryKind::Physical );
+    EXPECT_EQ(
+        GridLayout::ClassifyBoundaryType( 61 ),
+        GridBoundaryKind::Physical );
+    EXPECT_EQ(
+        GridLayout::ClassifyBoundaryType( -2 ),
+        GridBoundaryKind::Physical );
 }
 
 TEST( GridLayoutParserTest, ParsesTwoConnectedThreeDimensionalCubes )
@@ -70,6 +101,57 @@ TEST( GridLayoutParserTest, ParsesTwoConnectedThreeDimensionalCubes )
     EXPECT_EQ( sharedFaceRelations, 2 );
     EXPECT_TRUE( firstBlockUsesSharedFace );
     EXPECT_TRUE( secondBlockUsesSharedFace );
+}
+
+TEST( GridLayoutParserTest, ParsesLaminarFlatPlateLayout )
+{
+    const std::string fileName =
+        std::string( ONEFLOW_SOURCE_DIR ) +
+        "/grid/laminar_flat_plate/grid/laminarFlatPlateLayout.txt";
+
+    const GridLayout layout = GridLayoutParser().Parse( fileName );
+
+    EXPECT_EQ( layout.points.size(), 6u );
+    EXPECT_EQ( layout.lines.size(), 7u );
+    EXPECT_EQ( layout.dimensions.size(), 7u );
+    EXPECT_EQ( layout.distributions.size(), 7u );
+    EXPECT_EQ( layout.boundaries.size(), 7u );
+    EXPECT_EQ( layout.lineToFaces.size(), 8u );
+    EXPECT_EQ( layout.faceToBlocks.size(), 2u );
+
+    EXPECT_EQ( layout.dimensions[ 0 ].pointCount, 33 );
+    EXPECT_EQ( layout.dimensions[ 1 ].pointCount, 41 );
+    EXPECT_EQ( layout.dimensions[ 2 ].pointCount, 85 );
+    EXPECT_EQ( layout.boundaries[ 0 ].boundaryType, 3 );
+    EXPECT_EQ( layout.boundaries[ 1 ].boundaryType, 2 );
+    EXPECT_EQ( layout.boundaries[ 3 ].boundaryType, -1 );
+    EXPECT_EQ( layout.boundaries[ 4 ].boundaryType, 6 );
+
+    EXPECT_EQ(
+        GridLayout::ClassifyBoundaryType( layout.boundaries[ 1 ].boundaryType ),
+        GridBoundaryKind::Physical );
+    EXPECT_EQ(
+        GridLayout::ClassifyBoundaryType( layout.boundaries[ 3 ].boundaryType ),
+        GridBoundaryKind::Interface );
+}
+
+TEST( GridLayoutParserTest, ParsesBoundaryLayerDistribution )
+{
+    const std::string fileName =
+        std::string( ONEFLOW_SOURCE_DIR ) +
+        "/grid/laminar_flat_plate/grid/laminarFlatPlateLayout.txt";
+
+    const GridLayout layout = GridLayoutParser().Parse( fileName );
+
+    EXPECT_EQ(
+        layout.distributions[ 2 ].type,
+        GridDistributionType::BoundaryLayer );
+    EXPECT_EQ( layout.distributions[ 2 ].nearWallPointCount, 41 );
+    EXPECT_DOUBLE_EQ( layout.distributions[ 2 ].nearWallDistance, 0.02 );
+    EXPECT_EQ(
+        layout.distributions[ 3 ].type,
+        GridDistributionType::BoundaryLayer );
+    EXPECT_EQ( layout.distributions[ 4 ].type, GridDistributionType::BoundaryLayer );
 }
 
 TEST( GridLayoutParserTest, RejectsUnknownPointReference )

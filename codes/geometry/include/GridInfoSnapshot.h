@@ -23,6 +23,16 @@ struct GridInfoZoneSnapshot
 // Serialization is handled separately by GridInfoJsonWriter.
 struct GridInfoSnapshot
 {
+    std::string caseRoot;
+    std::string projectRoot;
+    std::string inputRoot;
+    std::string outputRoot;
+    std::string meshInputRoot;
+    std::string flowInputRoot;
+    std::string meshOutputRoot;
+    std::string flowOutputRoot;
+    std::string sourceGridPath;
+    std::string outputGridPath;
     int dimension = 0;
     int nodeCount = 0;
     int faceCount = 0;

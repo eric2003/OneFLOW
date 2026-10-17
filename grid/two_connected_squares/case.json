@@ -1,0 +1,63 @@
+{
+  "schema": "oneflow.case",
+  "version": 1,
+  "name": "two_connected_squares_mesh",
+  "kind": "structured-mesh-generation-and-inspection",
+  "parameters": {
+    "runtime": {
+      "task": "Grid",
+      "objective": 0,
+      "generationId": 4,
+      "dimension": 2,
+      "layout": "grid/twoConnectedSquaresLayout.txt",
+      "parameterFiles": [
+        "script/simu.txt",
+        "script/dimension.txt",
+        "script/tolerence.txt",
+        "script/grid.txt",
+        "script/part.txt"
+      ],
+      "gridOptions": {
+        "topology": "unstructured",
+        "multiBlock": true,
+        "fileFormat": 1,
+        "scale": 1.0,
+        "translation": [0.0, 0.0, 0.0],
+        "axisDirection": 0,
+        "ignoreMissingBoundary": false,
+        "sourceFormat": "plot3d",
+        "targetFormat": "oneflow",
+        "parallelStrategy": 1,
+        "ioRoots": {
+          "project": ".",
+          "input": "case",
+          "output": "case",
+          "meshInput": "case",
+          "flowInput": "case",
+          "meshOutput": "case",
+          "flowOutput": "case"
+        }
+      }
+    },
+    "inspection": {
+      "realBytes": 8,
+      "byteOrder": "little",
+      "sourceGrid": "results/twoConnectedSquares.generated.grd",
+      "oneFlowGrid": "results/twoConnectedSquares.ofl",
+      "gridInfo": "results/twoConnectedSquares.info.json"
+    },
+    "expected": {
+      "zones": 2,
+      "dimension": 2,
+      "nodes": 15,
+      "cells": 8,
+      "faces": 21,
+      "boundaryFaces": 12,
+      "internalFaces": 9,
+      "boundingBox": {
+        "min": [0.0, 0.0, 0.0],
+        "max": [2.0, 1.0, 0.0]
+      }
+    }
+  }
+}

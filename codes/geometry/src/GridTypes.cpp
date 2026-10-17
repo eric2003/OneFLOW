@@ -22,13 +22,20 @@ License
 
 #include "GridTypes.h"
 #include "DataBase.h"
+#include "Prj.h"
 #include <exception>
 
 BeginNameSpace( ONEFLOW )
 
 std::string GridConfig::ResolveSourceCaseDir( const std::string & currentCaseDir ) const
 {
-    return sourceCaseDir.empty() ? currentCaseDir : sourceCaseDir;
+    if ( ! sourceCaseDir.empty() )
+    {
+        return sourceCaseDir;
+    }
+
+    const std::string inputRoot = Prj::GetMeshInputBaseDir();
+    return inputRoot.empty() ? currentCaseDir : inputRoot;
 }
 
 std::string GridConfig::GetSourceCaseDir()

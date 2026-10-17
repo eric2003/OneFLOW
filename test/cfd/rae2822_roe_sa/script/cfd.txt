@@ -1,16 +1,19 @@
+string flowInputRoot = "default";
+string flowOutputRoot = "default";
+
 int    startStrategy  = 0;
 int    iexitflag  = 0; //0 maxstep 1 maxtime;
-int    maxSteps   =  50; //×ÜÄ£Äâ²½Êı
-Real   maxTime    =  0.2;    //×ÜÄ£ÄâÊ±¼ä
-//ÄÚµü´ú										       
-int    numberOfMinimumSubIterationSteps    =  1;    //ÄÚµü´ú×îĞ¡²½Êı
-int    numberOfMaximumSubIterationSteps    =  1;    //ÄÚµü´ú×î´ó²½Êı
-//Êä³öÏà¹Ø										      
-int    nFieldSave       =  50;   //Á÷³¡±£´æ
+int    maxSteps   =  50; //æ€»æ¨¡æ‹Ÿæ­¥æ•°
+Real   maxTime    =  0.2;    //æ€»æ¨¡æ‹Ÿæ—¶é—´
+//å†…è¿­ä»£										       
+int    numberOfMinimumSubIterationSteps    =  1;    //å†…è¿­ä»£æœ€å°æ­¥æ•°
+int    numberOfMaximumSubIterationSteps    =  1;    //å†…è¿­ä»£æœ€å¤§æ­¥æ•°
+//è¾“å‡ºç›¸å…³										      
+int    nFieldSave       =  50;   //æµåœºä¿å­˜
 int    nForceSave      =  1;
-int    nResSave          =  1;    //²Ğ²î¼°Æø¶¯Á¦Êä³ö
-int    nVisualSave      =  50;    //Á÷³¡ÏÔÊ¾
-int    addVisualizationSteps               =  0;     //1: ÎÄ¼şÃû+Íâµü´ú²½£¬0²»¼Ó
+int    nResSave          =  1;    //æ®‹å·®åŠæ°”åŠ¨åŠ›è¾“å‡º
+int    nVisualSave      =  50;    //æµåœºæ˜¾ç¤º
+int    addVisualizationSteps               =  0;     //1: æ–‡ä»¶å+å¤–è¿­ä»£æ­¥ï¼Œ0ä¸åŠ 
 
 string gridFileName = "grid/rae2822_2d.ofl";
 string aeroFile   =  "results/aero.dat";

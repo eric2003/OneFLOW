@@ -29,6 +29,16 @@ TEST( GridInfoSnapshotTest, EmptyRuntimeCollectionProducesEmptySnapshot )
 TEST( GridInfoSnapshotTest, JsonWriterSerializesSnapshotWithoutRuntimeGridAccess )
 {
     ONEFLOW::GridInfoSnapshot snapshot;
+    snapshot.caseRoot = "/project/cases/mesh";
+    snapshot.projectRoot = "/project";
+    snapshot.inputRoot = "/project/cases/source";
+    snapshot.outputRoot = "/project/results";
+    snapshot.meshInputRoot = "/project/mesh-source";
+    snapshot.flowInputRoot = "/project/flow-source";
+    snapshot.meshOutputRoot = "/project/mesh-output";
+    snapshot.flowOutputRoot = "/project/flow-output";
+    snapshot.sourceGridPath = "/project/cases/source/grid.grd";
+    snapshot.outputGridPath = "/project/results/grid.ofl";
     snapshot.dimension = 2;
     snapshot.nodeCount = 4;
     snapshot.faceCount = 4;
@@ -46,6 +56,14 @@ TEST( GridInfoSnapshotTest, JsonWriterSerializesSnapshotWithoutRuntimeGridAccess
     EXPECT_EQ( document.at( "schema" ), "oneflow.mesh-info" );
     EXPECT_EQ( document.at( "version" ), 1 );
     EXPECT_EQ( document.at( "dimension" ), 2 );
+    EXPECT_EQ( document.at( "paths" ).at( "inputRoot" ), "/project/cases/source" );
+    EXPECT_EQ( document.at( "paths" ).at( "outputRoot" ), "/project/results" );
+    EXPECT_EQ( document.at( "paths" ).at( "meshInputRoot" ), "/project/mesh-source" );
+    EXPECT_EQ( document.at( "paths" ).at( "flowInputRoot" ), "/project/flow-source" );
+    EXPECT_EQ( document.at( "paths" ).at( "meshOutputRoot" ), "/project/mesh-output" );
+    EXPECT_EQ( document.at( "paths" ).at( "flowOutputRoot" ), "/project/flow-output" );
+    EXPECT_EQ( document.at( "paths" ).at( "sourceGrid" ), "/project/cases/source/grid.grd" );
+    EXPECT_EQ( document.at( "paths" ).at( "outputGrid" ), "/project/results/grid.ofl" );
     EXPECT_EQ( document.at( "counts" ).at( "zones" ), 1 );
     EXPECT_EQ( document.at( "counts" ).at( "nodes" ), 4 );
     EXPECT_EQ( document.at( "boundingBox" ).at( "min" ),
