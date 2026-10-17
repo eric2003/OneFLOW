@@ -154,6 +154,10 @@ void SegmentCtrl::CalcFactor()
 
 void SegmentCtrl::CalcBoundaryLayerFactor()
 {
+    // Boundary-layer factors are ordered from the segment's first endpoint.
+    this->c1 = 1;
+    this->c2 = 0;
+
     if ( this->nearWallPointCount < 2 ||
          this->nearWallPointCount > this->nPoint ||
          this->nearWallDistance <= 0.0 ||
