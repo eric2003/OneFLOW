@@ -38,6 +38,7 @@ License
 #include <algorithm>
 #include <iomanip>
 #include <numeric>
+#include <stdexcept>
 
 
 BeginNameSpace( ONEFLOW )
@@ -337,12 +338,29 @@ void CuttingClass::Slice()
     for ( int iSlice = 0; iSlice < nSlice; ++ iSlice )
     {
         LamData * lam = sliceData[ iSlice ].get();
+
+        // Keep one output dataset per field across all zones. Only the source
+        // field changes for each zone; the slice coordinates and values append.
+        if ( lam->data.empty() )
+        {
+            for ( int j = 0; j < nField; ++ j )
+            {
+                lam->data.push_back( std::make_unique< PlaneData >() );
+            }
+        }
+        else if ( static_cast< int >( lam->data.size() ) != nField )
+        {
+            throw std::runtime_error(
+                "CuttingClass field count changed between zones" );
+        }
+
         for ( int j = 0; j < nField; ++ j )
         {
-            auto pd = std::make_unique<PlaneData>();
-            pd->nodedata = fields[ j ].get(); // Non-owning observer pointer
-            lam->data.push_back( std::move(pd) );
+            // The pointer is non-owning and remains valid until this Slice()
+            // call finishes, because fields owns the interpolated node data.
+            lam->data[ j ]->nodedata = fields[ j ].get();
         }
+
         lam->Init();
     }
 
