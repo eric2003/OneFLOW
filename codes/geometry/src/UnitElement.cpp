@@ -66,82 +66,87 @@ void ConvertToZeroBasedNodeIndices( IntField & nodeIndices )
 }
 }
 
-int UnitElement::GetElementNodeNumbers( int elementType )
+int UnitElement::GetElementNodeCount( int elementType )
 {
-    int nodeNumberOfElement = 0;
+    int nodeCount = 0;
     if ( elementType == ONEFLOW::NODE )
     {
-        nodeNumberOfElement = 1;
+        nodeCount = 1;
     }
     else if ( elementType == ONEFLOW::BAR_2 )
     {
-        nodeNumberOfElement = 2;
+        nodeCount = 2;
     }
     else if ( elementType == ONEFLOW::BAR_3 )
     {
-        nodeNumberOfElement = 3;
+        nodeCount = 3;
     }
     else if ( elementType == ONEFLOW::TRI_3 )
     {
-        nodeNumberOfElement = 3;
+        nodeCount = 3;
     }
     else if ( elementType == ONEFLOW::TRI_6 )
     {
-        nodeNumberOfElement = 6;
+        nodeCount = 6;
     }
     else if ( elementType == ONEFLOW::QUAD_4 )
     {
-        nodeNumberOfElement = 4;
+        nodeCount = 4;
     }
     else if ( elementType == ONEFLOW::QUAD_8 )
     {
-        nodeNumberOfElement = 8;
+        nodeCount = 8;
     }
     else if ( elementType == ONEFLOW::QUAD_9 )
     {
-        nodeNumberOfElement = 9;
+        nodeCount = 9;
     }
     else if ( elementType == ONEFLOW::TETRA_4 )
     {
-        nodeNumberOfElement = 4;
+        nodeCount = 4;
     }
     else if ( elementType == ONEFLOW::TETRA_10 )
     {
-        nodeNumberOfElement = 10;
+        nodeCount = 10;
     }
     else if ( elementType == ONEFLOW::PYRA_5 )
     {
-        nodeNumberOfElement = 5;
+        nodeCount = 5;
     }
     else if ( elementType == ONEFLOW::PYRA_14 )
     {
-        nodeNumberOfElement = 14;
+        nodeCount = 14;
     }
     else if ( elementType == ONEFLOW::PENTA_6 )
     {
-        nodeNumberOfElement = 6;
+        nodeCount = 6;
     }
     else if ( elementType == ONEFLOW::PENTA_15 )
     {
-        nodeNumberOfElement = 15;
+        nodeCount = 15;
     }
     else if ( elementType == ONEFLOW::PENTA_18 )
     {
-        nodeNumberOfElement = 18;
+        nodeCount = 18;
     }
     else if ( elementType == ONEFLOW::HEXA_8 )
     {
-        nodeNumberOfElement = 8;
+        nodeCount = 8;
     }
     else if ( elementType == ONEFLOW::HEXA_20 )
     {
-        nodeNumberOfElement = 20;
+        nodeCount = 20;
     }
     else if ( elementType == ONEFLOW::HEXA_27 )
     {
-        nodeNumberOfElement = 27;
+        nodeCount = 27;
     }
-    return nodeNumberOfElement;
+    return nodeCount;
+}
+
+int UnitElement::GetElementNodeNumbers( int elementType )
+{
+    return GetElementNodeCount( elementType );
 }
 
 void UnitElement::Initialize( int elementType )
@@ -165,8 +170,8 @@ void UnitElement::Initialize( int elementType )
 
 void UnitElement::BuildTopology( int elementType )
 {
-    const int elementNodeNumbers = GetElementNodeNumbers( elementType );
-    if ( elementNodeNumbers <= 0 )
+    const int elementNodeCount = GetElementNodeCount( elementType );
+    if ( elementNodeCount <= 0 )
     {
         throw std::invalid_argument( "UnitElement::Initialize: unsupported element type" );
     }
@@ -184,11 +189,11 @@ void UnitElement::BuildTopology( int elementType )
 
     this->elementType = elementType;
 
-    middlePointNodeIndices.resize( elementNodeNumbers );
+    middlePointNodeIndices.resize( elementNodeCount );
 
-    nodeId.resize( elementNodeNumbers );
+    nodeId.resize( elementNodeCount );
 
-    for ( int iNode = 0; iNode < elementNodeNumbers; ++ iNode )
+    for ( int iNode = 0; iNode < elementNodeCount; ++ iNode )
     {
         nodeId[ iNode ] = iNode;
     }

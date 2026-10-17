@@ -59,6 +59,9 @@ public:
     static void Free();
 };
 
+// Preferred free-function name for the node count of an element type.
+int GetElementNodeCount( int eType );
+// Compatibility wrapper; prefer GetElementNodeCount() for new code.
 int GetElementNodeNumbers( int eType );
 int GetElementDimension( int eType );
 bool IsBasicVolumeElementType( int eType );

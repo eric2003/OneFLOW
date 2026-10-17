@@ -67,6 +67,10 @@ public:
     int GetElementFaceNumber() const;
     int GetCompositeFaceNumber() const;
     int GetElementType() const;
+
+    // Preferred name for the node count of an element type.
+    static int GetElementNodeCount( int elementType );
+    // Compatibility wrapper; prefer GetElementNodeCount() for new code.
     static int GetElementNodeNumbers( int elementType );
 
     int GetRefinedElementType( int elementType ) const;
