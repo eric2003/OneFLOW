@@ -135,15 +135,13 @@ TEST( GridLayoutGenerationTest, GeneratesFlatPlateBoundaryLayerDistribution )
         const auto & zone = zones[ zoneIndex ];
         const int ni = dimensions[ zoneIndex ].ni;
         const int nj = dimensions[ zoneIndex ].nj;
-        const int wallStart = nj - nearWallPointCount;
+        const int wallEnd = nearWallPointCount - 1;
 
         for ( int i = 0; i < ni; ++ i )
         {
-            for ( int offset = 0; offset < nearWallPointCount; ++ offset )
+            for ( int j = 0; j < nearWallPointCount; ++ j )
             {
-                const int j = wallStart + offset;
-                const Real expectedY =
-                    nearWallDistance - uniformStep * static_cast< Real >( offset );
+                const Real expectedY = uniformStep * static_cast< Real >( j );
                 EXPECT_NEAR(
                     zone.y[ static_cast< std::size_t >( j * ni + i ) ],
                     expectedY,
@@ -151,22 +149,22 @@ TEST( GridLayoutGenerationTest, GeneratesFlatPlateBoundaryLayerDistribution )
             }
 
             Real previousStep =
-                zone.y[ static_cast< std::size_t >( wallStart * ni + i ) ] -
-                zone.y[ static_cast< std::size_t >( ( wallStart + 1 ) * ni + i ) ];
+                zone.y[ static_cast< std::size_t >( ni + i ) ] -
+                zone.y[ static_cast< std::size_t >( i ) ];
             ASSERT_GT( previousStep, 0.0 );
             EXPECT_NEAR( previousStep, uniformStep, 1.0e-12 );
 
             const Real outerRatio =
-                ( zone.y[ static_cast< std::size_t >( ( wallStart - 1 ) * ni + i ) ] -
-                  zone.y[ static_cast< std::size_t >( wallStart * ni + i ) ] ) /
+                ( zone.y[ static_cast< std::size_t >( ( wallEnd + 1 ) * ni + i ) ] -
+                  zone.y[ static_cast< std::size_t >( wallEnd * ni + i ) ] ) /
                 previousStep;
             EXPECT_GT( outerRatio, 1.0 );
 
-            for ( int j = wallStart - 2; j >= 0; -- j )
+            for ( int j = wallEnd + 2; j < nj; ++ j )
             {
                 const Real step =
                     zone.y[ static_cast< std::size_t >( j * ni + i ) ] -
-                    zone.y[ static_cast< std::size_t >( ( j + 1 ) * ni + i ) ];
+                    zone.y[ static_cast< std::size_t >( ( j - 1 ) * ni + i ) ];
                 EXPECT_GT( step, previousStep );
                 EXPECT_NEAR( step / previousStep, outerRatio, 1.0e-10 );
                 previousStep = step;
@@ -174,11 +172,11 @@ TEST( GridLayoutGenerationTest, GeneratesFlatPlateBoundaryLayerDistribution )
 
             EXPECT_NEAR(
                 zone.y[ static_cast< std::size_t >( ( nj - 1 ) * ni + i ) ],
-                0.0,
+                domainHeight,
                 1.0e-12 );
             EXPECT_NEAR(
                 zone.y[ static_cast< std::size_t >( i ) ],
-                domainHeight,
+                0.0,
                 1.0e-12 );
         }
     }
