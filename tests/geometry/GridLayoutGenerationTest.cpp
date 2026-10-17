@@ -154,11 +154,13 @@ TEST( GridLayoutGenerationTest, GeneratesFlatPlateBoundaryLayerDistribution )
             ASSERT_GT( previousStep, 0.0 );
             EXPECT_NEAR( previousStep, uniformStep, 1.0e-12 );
 
-            const Real outerRatio =
-                ( zone.y[ static_cast< std::size_t >( ( wallEnd + 1 ) * ni + i ) ] -
-                  zone.y[ static_cast< std::size_t >( wallEnd * ni + i ) ] ) /
-                previousStep;
+            const Real firstOuterStep =
+                zone.y[ static_cast< std::size_t >( ( wallEnd + 1 ) * ni + i ) ] -
+                zone.y[ static_cast< std::size_t >( wallEnd * ni + i ) ];
+            EXPECT_GT( firstOuterStep, previousStep );
+            const Real outerRatio = firstOuterStep / previousStep;
             EXPECT_GT( outerRatio, 1.0 );
+            previousStep = firstOuterStep;
 
             for ( int j = wallEnd + 2; j < nj; ++ j )
             {
