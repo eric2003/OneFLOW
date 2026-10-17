@@ -32,6 +32,7 @@ from .workflow_execution import (
 from .workflow_graph_runner import run_case_graph
 from .workflow_plan import build_case_graph_plan
 from .workflow_process import run_process
+from .user_data_paths import UserDataPaths
 from .workflow_repository import (
     WorkflowDefinition,
     WorkflowRepository,
@@ -195,8 +196,9 @@ class WorkflowDialog(QDialog):
         self.setWindowTitle("OneFLOW Workflows")
         self.resize(900, 720)
         self._repository_root = repository_root
+        self._user_data_paths = UserDataPaths.discover()
         self._repository = WorkflowRepository(
-            Path.home() / ".oneflow" / "workflow-data"
+            self._user_data_paths.workflow_data
         )
         self._worker: WorkflowRunWorker | None = None
         self._selected_id: str | None = None
@@ -498,9 +500,7 @@ class WorkflowDialog(QDialog):
         run_id = datetime.now().strftime("%Y%m%d-%H%M%S") + "-" + uuid4().hex[:8]
         started_at = _timestamp()
         if case_graph is not None:
-            run_root = (
-                Path.home() / ".oneflow" / "workflow-data" / "executions" / run_id
-            ).resolve()
+            run_root = (self._user_data_paths.executions / run_id).resolve()
             initial_steps = ({
                 "type": "case_graph",
                 "base_directory": str(base_directory),
