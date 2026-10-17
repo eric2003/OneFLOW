@@ -9,7 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 from threading import Event, Lock, Thread
-from typing import Callable, Iterable
+from typing import Callable
 import json
 import subprocess
 
@@ -175,6 +175,12 @@ class OneFlowRunner:
 
                 with self._process_lock:
                     self._process = process
+                    stop_after_start = self._stop_requested.is_set()
+
+                # Close the small race where Stop is pressed just after Popen
+                # returns but before the process is published to the UI thread.
+                if stop_after_start:
+                    process.terminate()
 
                 assert process.stdout is not None
                 for line in process.stdout:
