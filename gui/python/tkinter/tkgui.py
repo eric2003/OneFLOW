@@ -39,8 +39,16 @@ class OneFlowWorkbench:
         self.active = False
 
         candidates = executable_candidates(REPOSITORY_ROOT)
+        build_candidates = [
+            REPOSITORY_ROOT / "build" / "bin" / "Debug" / "OneFLOW.exe",
+            REPOSITORY_ROOT / "build" / "bin" / "Release" / "OneFLOW.exe",
+        ]
+        executable_options = list(dict.fromkeys(
+            str(path) for path in [*candidates, *build_candidates]
+        ))
         default_executable = str(candidates[0]) if candidates else ""
         self.executable_var = tk.StringVar(value=default_executable)
+        self.executable_options = executable_options
         self.mode_var = tk.StringVar(value="r")
         self.stop_on_error_var = tk.BooleanVar(value=True)
         self.status_var = tk.StringVar(value="Ready")
@@ -63,9 +71,13 @@ class OneFlowWorkbench:
         ttk.Label(executable_frame, text="OneFLOW executable").grid(
             row=0, column=0, sticky="w", padx=(0, 8), pady=4
         )
-        ttk.Entry(executable_frame, textvariable=self.executable_var).grid(
-            row=0, column=1, sticky="ew", pady=4
+        self.executable_combo = ttk.Combobox(
+            executable_frame,
+            textvariable=self.executable_var,
+            values=self.executable_options,
+            state="normal",
         )
+        self.executable_combo.grid(row=0, column=1, sticky="ew", pady=4)
         ttk.Button(
             executable_frame, text="Browse...", command=self._choose_executable
         ).grid(row=0, column=2, padx=(8, 0), pady=4)
