@@ -64,13 +64,13 @@ void MDomain::CalcSubDomainCtrlCoor()
                 resolvedDomains[ iDomain ] = true;
                 anyDomainAdvanced = true;
             }
-            else if ( resolution == ControlPointResolution::Progress )
-            {
-                anyDomainAdvanced = true;
-            }
             else
             {
                 allDomainsResolved = false;
+                if ( resolution == ControlPointResolution::Progress )
+                {
+                    anyDomainAdvanced = true;
+                }
             }
         }
 
