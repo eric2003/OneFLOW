@@ -52,6 +52,36 @@ private:
 
 class IFaceLink;
 
+// Tables produced when interface faces are split (e.g. quad->tri, line->children).
+// Kept separate from FaceSearchBasic (unique face registry) so topology clients
+// can reason about split state without the registry algorithm surface.
+struct InterfaceFaceSplitTable
+{
+    // parent global face id -> list of child face ids
+    LinkField childFaceIdsOfParent;
+    // child face id -> node ids (relative parent-local or absolute mesh ids)
+    LinkField childFaceNodeIds;
+    // child face id -> flags aligned with childFaceNodeIds (1 = relative)
+    LinkField childFaceNodeFlags;
+
+    void Clear()
+    {
+        childFaceIdsOfParent.clear();
+        childFaceNodeIds.clear();
+        childFaceNodeFlags.clear();
+    }
+
+    // Prepare empty parent slots for nParentFaces; child node tables start empty.
+    void ResetForParentFaceCount( std::size_t nParentFaces )
+    {
+        childFaceIdsOfParent.assign( nParentFaces, IntField{} );
+        childFaceNodeIds.clear();
+        childFaceNodeFlags.clear();
+        childFaceNodeIds.assign( nParentFaces, IntField{} );
+        childFaceNodeFlags.assign( nParentFaces, IntField{} );
+    }
+};
+
 class FaceSearch : public FaceSearchBasic
 {
 public:
@@ -59,14 +89,9 @@ public:
     ~FaceSearch() = default;
 public:
     IntField status;
-    // parent global face id -> list of child face ids produced by splitting
-    LinkField childFaceIdsOfParent;
-    // child face id -> node ids (relative parent-local or absolute mesh ids)
-    LinkField childFaceNodeIds;
-    // child face id -> flags aligned with childFaceNodeIds (1 = relative)
-    LinkField childFaceNodeFlags;
-    IFaceLink * iFaceLink;
-    int gFid;
+    InterfaceFaceSplitTable interfaceSplit;
+    IFaceLink * iFaceLink = nullptr;
+    int gFid = 0;
 public:
     void CalcNewFaceId( IFaceLink & iFaceLink );
     void SplitQuad2Tri( int faceId );
