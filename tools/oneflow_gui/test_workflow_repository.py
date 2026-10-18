@@ -194,6 +194,11 @@ class WorkflowRepositoryTest(unittest.TestCase):
             {"old-passed", "new-failed", "other-failed"},
         )
 
+    def test_run_log_path_round_trips(self) -> None:
+        record = WorkflowRunRecord(\n            run_id="run-log",\n            workflow_id="workflow-log",\n            status="succeeded",\n            started_at="2026-10-17T10:00:00Z",\n            log_path="/tmp/oneflow-run.log",\n        )
+        self.repository.save_run(record)
+        self.assertEqual(self.repository.list_runs()[0].log_path, "/tmp/oneflow-run.log")
+
     def test_history_filters_reject_unknown_status(self) -> None:
         with self.assertRaisesRegex(ValueError, "Unsupported workflow run status"):
             self.repository.list_runs(status="unknown")
