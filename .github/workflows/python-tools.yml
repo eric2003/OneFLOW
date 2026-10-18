@@ -49,8 +49,12 @@ jobs:
         run: python -m compileall -q tools/mesh_cases.py tools/mesh_layout tools/oneflow_gui
       - name: Test case catalog
         run: python tools/test_mesh_cases.py
+      - name: Test rectangle layout compiler
+        run: python -m unittest tests.tools.test_compile_rectangle
       - name: Test flat plate layout compiler
         run: python -m unittest tests.tools.test_compile_flat_plate
+      - name: Test mesh layout editor document
+        run: python -m unittest tests.tools.test_editor_document
       - name: Test explicit layout topology
         run: python -m unittest tests.tools.test_layout_topology
       - name: Test desktop services
