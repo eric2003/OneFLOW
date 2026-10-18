@@ -31,21 +31,22 @@ workflow runner: `OneFLOW.exe r <case-directory>`.
 
 Use **Tests...** to run the existing CTest and Python unit-test commands by default, or enable the optional CFD/grid regression suite. Regression runs invoke `test/test.py` and an existing manifest from `test/suites/`; the GUI does not implement a second test engine. Use **Run History...** to inspect Case Workbench and workflow run records and logs, edit notes, delete individual records, or clean matching history by workflow, status, and timestamp. These history operations never delete run artifacts.
 
-Use **Mesh Layout...** to open the first template-based layout editor. It
-loads the checked-in templates as read-only starting points; by default, edited
-specifications are saved under `~/.oneflow/mesh-layout-workspace/specifications`
-and compiled layouts under `~/.oneflow/mesh-layout-workspace/layouts`.
-Set `ONEFLOW_HOME` to move this workspace to another data root. This keeps
-normal editing and compilation away from checked-in source files. The editor
-supports the single-rectangle and two-block flat-plate templates, edits point
-coordinates, line point counts, spacing parameters, and boundary types, and
-previews the layout as SVG. Boundary selectors show concise names by default;
-hover over an option for details, or enable **Show boundary codes** to display
-legacy numeric codes. **Reset flat-plate boundaries** restores the standard
-two-block defaults. **Save specification as...** writes a validated JSON
-copy; **Compile layout** writes the legacy OneFLOW layout text. The editor
-currently edits these two templates rather than offering arbitrary point-and-click
-topology construction.
+Use **Mesh Layout...** to open the mesh layout project editor. Choosing
+**Single rectangle** or **Two-block flat plate** copies the complete template
+project once into `~/.oneflow/mesh-layout-workspace/projects`; later openings
+reuse that project without overwriting edits. Each project keeps its JSON,
+scripts, and generated layout together, so **Save specification** updates the
+project JSON and **Compile layout** writes the layout under that project's
+`grid` directory. Set `ONEFLOW_HOME` to move the workspace. Use **Load JSON...**
+to open a user project at another location; that project remains in place and
+is writable as long as it is outside the OneFLOW source tree. Checked-in source
+files are never writable through the editor. The editor supports the
+single-rectangle and two-block flat-plate templates, edits geometry, line point
+counts, spacing, and boundary types, and previews the layout as SVG. Boundary
+selectors show concise names by default; hover for details or enable
+**Show boundary codes** to show legacy numeric codes. The flat-plate preview
+labels every edge with its edge name, boundary condition, and point count.
+**Reset flat-plate boundaries** restores the standard two-block defaults.
 
 Use **Workflows...** to create, edit, save, and delete named workflows. The
 **Multi-directory** mode preserves the existing behavior: each directory is

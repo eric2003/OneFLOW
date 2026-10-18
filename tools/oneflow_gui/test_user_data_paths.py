@@ -30,6 +30,10 @@ class UserDataPathsTest(unittest.TestCase):
                 paths.root / "mesh-layout-workspace",
             )
             self.assertEqual(
+                paths.mesh_layout_projects,
+                paths.mesh_layout_workspace / "projects",
+            )
+            self.assertEqual(
                 paths.mesh_layout_specifications,
                 paths.mesh_layout_workspace / "specifications",
             )

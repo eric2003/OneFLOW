@@ -31,6 +31,7 @@ from tools.mesh_layout.editor_document import (
 )
 
 from .user_data_paths import UserDataPaths
+from .mesh_layout_projects import ensure_template_project
 
 
 BOUNDARY_OPTIONS = (
@@ -55,6 +56,7 @@ class MeshLayoutDialog(QDialog):
         super().__init__(parent)
         self._repository_root = repository_root.resolve()
         self._spec: dict[str, Any] = {}
+        self._project_root: Path | None = None
         self._field_widgets: dict[tuple[str | int, ...], QLineEdit | QComboBox] = {}
 
         self.setWindowTitle("Mesh Layout Editor")
@@ -128,9 +130,12 @@ class MeshLayoutDialog(QDialog):
         root.addLayout(output_row)
 
         actions = QHBoxLayout()
-        save_button = QPushButton("Save specification as...")
-        save_button.clicked.connect(self._save_specification_as)
+        save_button = QPushButton("Save specification")
+        save_button.clicked.connect(self._save_specification)
         actions.addWidget(save_button)
+        save_as_button = QPushButton("Save specification as...")
+        save_as_button.clicked.connect(self._save_specification_as)
+        actions.addWidget(save_as_button)
         actions.addStretch(1)
         preview_button = QPushButton("Update preview")
         preview_button.clicked.connect(self._update_preview_from_fields)
@@ -147,29 +152,37 @@ class MeshLayoutDialog(QDialog):
         self.template_combo.setCurrentIndex(0)
         self._load_selected_template()
 
-    def _template_path(self, kind: str) -> Path:
-        if kind == "rectangle":
-            return self._repository_root / "grid" / "minimal_rectangle" / "rectangle.json"
-        return self._repository_root / "grid" / "turbulent_flat_plate" / "flat_plate.json"
+    def _template_project_source(self, kind: str) -> Path:
+        folder = "minimal_rectangle" if kind == "rectangle" else "turbulent_flat_plate"
+        return self._repository_root / "grid" / folder
 
-    def _workspace_paths(self) -> UserDataPaths:
-        return UserDataPaths.discover()
+    def _template_specification_name(self, kind: str) -> str:
+        return "rectangle.json" if kind == "rectangle" else "flat_plate.json"
 
-    def _default_output_path(self, kind: str) -> Path:
-        filename = (
+    def _layout_output_name(self, kind: str) -> str:
+        return (
             "minimalRectangleLayout.txt"
             if kind == "rectangle"
             else "turbulentFlatPlateLayout.txt"
         )
-        return self._workspace_paths().mesh_layout_outputs / filename
+
+    def _workspace_paths(self) -> UserDataPaths:
+        return UserDataPaths.discover()
 
     def _default_specification_path(self, kind: str) -> Path:
-        filename = (
-            "rectangle.edited.json"
-            if kind == "rectangle"
-            else "flat_plate.edited.json"
-        )
-        return self._workspace_paths().mesh_layout_specifications / filename
+        if self._project_root is not None:
+            return self._project_root / self._template_specification_name(kind)
+        return self._workspace_paths().mesh_layout_projects / (
+            "minimal_rectangle" if kind == "rectangle" else "turbulent_flat_plate"
+        ) / self._template_specification_name(kind)
+
+    def _default_output_path(self, kind: str, project_root: Path | None = None) -> Path:
+        root = project_root or self._project_root
+        if root is None:
+            root = self._workspace_paths().mesh_layout_projects / (
+                "minimal_rectangle" if kind == "rectangle" else "turbulent_flat_plate"
+            )
+        return root / "grid" / self._layout_output_name(kind)
 
     def _require_outside_repository(self, path: Path) -> Path:
         resolved_path = path.expanduser().resolve()
@@ -179,16 +192,21 @@ class MeshLayoutDialog(QDialog):
             return resolved_path
         raise ValueError(
             "Mesh Layout Editor will not write into the OneFLOW source tree. "
-            "Choose a path in the user workspace or another external directory."
+            "Open a copied template project or choose a project outside the repository."
         )
 
     def _load_selected_template(self) -> None:
         kind = self.template_combo.currentData()
-        path = self._template_path(kind)
         try:
+            self._project_root = ensure_template_project(
+                self._repository_root,
+                self._workspace_paths().mesh_layout_projects,
+                kind,
+            )
+            path = self._project_root / self._template_specification_name(kind)
             spec = load_specification(path)
         except (OSError, ValueError, json.JSONDecodeError) as error:
-            QMessageBox.warning(self, "Cannot load template", str(error))
+            QMessageBox.warning(self, "Cannot load template project", str(error))
             return
         self._spec = spec
         self.spec_path_edit.setText(str(path))
@@ -199,28 +217,53 @@ class MeshLayoutDialog(QDialog):
     def _choose_specification(self) -> None:
         path, _ = QFileDialog.getOpenFileName(
             self,
-            "Load mesh layout specification",
-            str(self._repository_root / "grid"),
+            "Open project specification",
+            str(self._workspace_paths().mesh_layout_projects),
             "JSON files (*.json);;All files (*)",
         )
         if not path:
             return
+        source_path = Path(path).expanduser().resolve()
         try:
-            spec = load_specification(Path(path))
+            spec = load_specification(source_path)
         except (OSError, ValueError, json.JSONDecodeError) as error:
             QMessageBox.warning(self, "Invalid specification", str(error))
             return
         kind = spec["type"]
         index = self.template_combo.findData(kind)
         if index < 0:
-            QMessageBox.warning(self, "Unsupported template", f"Unsupported type: {kind}")
+            QMessageBox.warning(self, "Unsupported project", f"Unsupported type: {kind}")
             return
+        try:
+            source_path.relative_to(self._repository_root)
+            is_in_repository = True
+        except ValueError:
+            is_in_repository = False
+        if is_in_repository:
+            canonical_template = self._template_project_source(kind) / self._template_specification_name(kind)
+            if source_path != canonical_template.resolve():
+                QMessageBox.warning(
+                    self,
+                    "Source tree is read-only",
+                    "Copy this project outside the OneFLOW source tree before editing it.",
+                )
+                return
+            project_root = ensure_template_project(
+                self._repository_root,
+                self._workspace_paths().mesh_layout_projects,
+                kind,
+            )
+            source_path = project_root / self._template_specification_name(kind)
+            spec = load_specification(source_path)
+        else:
+            project_root = source_path.parent
         self.template_combo.blockSignals(True)
         self.template_combo.setCurrentIndex(index)
         self.template_combo.blockSignals(False)
+        self._project_root = project_root
         self._spec = spec
-        self.spec_path_edit.setText(str(Path(path).resolve()))
-        self.output_path_edit.setText(str(self._default_output_path(kind)))
+        self.spec_path_edit.setText(str(source_path))
+        self.output_path_edit.setText(str(self._default_output_path(kind, project_root)))
         self._rebuild_fields()
         self._render_preview()
 
@@ -408,12 +451,39 @@ class MeshLayoutDialog(QDialog):
         except (ValueError, TypeError, KeyError) as error:
             QMessageBox.warning(self, "Invalid layout parameters", str(error))
 
-    def _save_specification_as(self) -> None:
+    def _validated_fields(self) -> dict[str, Any] | None:
         try:
             spec = self._read_fields()
             compile_specification(spec)
+            return spec
         except (ValueError, TypeError, KeyError) as error:
             QMessageBox.warning(self, "Invalid layout parameters", str(error))
+            return None
+
+    def _save_specification(self) -> None:
+        spec = self._validated_fields()
+        if spec is None:
+            return
+        current_text = self.spec_path_edit.text().strip()
+        if not current_text:
+            QMessageBox.warning(self, "Specification path required", "Choose a project JSON path.")
+            return
+        try:
+            output_path = self._require_outside_repository(Path(current_text))
+            save_specification(output_path, spec)
+        except (OSError, ValueError, TypeError) as error:
+            QMessageBox.critical(self, "Cannot save specification", str(error))
+            return
+        self._spec = spec
+        self._project_root = output_path.parent
+        self.spec_path_edit.setText(str(output_path))
+        self._rebuild_fields()
+        self._render_preview()
+        QMessageBox.information(self, "Specification saved", f"Saved project JSON to:\n{output_path}")
+
+    def _save_specification_as(self) -> None:
+        spec = self._validated_fields()
+        if spec is None:
             return
         path, _ = QFileDialog.getSaveFileName(
             self,
@@ -430,7 +500,11 @@ class MeshLayoutDialog(QDialog):
             QMessageBox.critical(self, "Cannot save specification", str(error))
             return
         self._spec = spec
-        self.spec_path_edit.setText(str(Path(path).resolve()))
+        self._project_root = output_path.parent
+        self.spec_path_edit.setText(str(output_path))
+        self.output_path_edit.setText(
+            str(self._default_output_path(spec["type"], self._project_root))
+        )
         self._rebuild_fields()
         self._render_preview()
 

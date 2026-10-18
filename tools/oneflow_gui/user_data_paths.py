@@ -39,6 +39,10 @@ class UserDataPaths:
         return self.root / "mesh-layout-workspace"
 
     @property
+    def mesh_layout_projects(self) -> Path:
+        return self.mesh_layout_workspace / "projects"
+
+    @property
     def mesh_layout_specifications(self) -> Path:
         return self.mesh_layout_workspace / "specifications"
 

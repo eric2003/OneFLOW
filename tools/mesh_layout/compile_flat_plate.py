@@ -312,6 +312,30 @@ def render_flat_plate_svg(spec):
     p5 = screen(0.0, height)
     p6 = screen(length, height)
 
+    boundaries = spec["boundaries"]
+    boundary_names = {
+        "none": "None", "interface": "Interface", "extrapolation": "Extrapolation",
+        "wall": "Wall", "symmetry": "Symmetry", "farfield": "Farfield",
+        "inflow": "Inflow", "outflow": "Outflow", "interior": "Interior",
+        "overset": "Overset", 0: "None", -1: "Interface", 1: "Extrapolation",
+        2: "Wall", 3: "Symmetry", 4: "Farfield", 5: "Inflow", 6: "Outflow",
+        100: "Interior", 1000: "Overset",
+    }
+
+    def boundary_label(name):
+        value = boundaries[name]
+        return boundary_names.get(value.lower(), value) if isinstance(value, str) else boundary_names.get(value, str(value))
+
+    edge_labels = [
+        ("upstreamBottom", boundary_label("upstreamBottom"), spec["upstreamPointCount"], (p1, p2), "bottom"),
+        ("plate", boundary_label("plate"), spec["platePointCount"], (p2, p3), "bottom"),
+        ("left", boundary_label("left"), spec["normalPointCount"], (p1, p4), "left"),
+        ("interface", boundary_label("interface"), spec["normalPointCount"], (p2, p5), "right"),
+        ("right", boundary_label("right"), spec["normalPointCount"], (p3, p6), "right"),
+        ("topUpstream", boundary_label("topUpstream"), spec["upstreamPointCount"], (p4, p5), "top"),
+        ("topPlate", boundary_label("topPlate"), spec["platePointCount"], (p5, p6), "top"),
+    ]
+
     elements = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" '
         f'height="{canvas_height}" viewBox="0 0 {width} {canvas_height}">',
@@ -324,22 +348,31 @@ def render_flat_plate_svg(spec):
         f'y2="{p3[1]:.3f}" stroke="#b23a48" stroke-width="5"/>',
         f'<text x="{width/2:.1f}" y="34" text-anchor="middle" '
         f'font-size="21" fill="#202020">Flat plate boundary-layer layout</text>',
-        f'<text x="{(p1[0]+p2[0])/2:.1f}" y="{p1[1]+34:.1f}" '
-        f'text-anchor="middle" font-size="15">upstream: {spec["upstreamPointCount"]} points</text>',
-        f'<text x="{(p2[0]+p3[0])/2:.1f}" y="{p2[1]+34:.1f}" '
-        f'text-anchor="middle" font-size="15">plate: {spec["platePointCount"]} points</text>',
-        f'<text x="{p2[0]+8:.1f}" y="{(p2[1]+p5[1])/2:.1f}" '
-        f'font-size="14">block interface</text>',
-        f'<text x="{p1[0]-8:.1f}" y="{(p1[1]+p4[1])/2:.1f}" '
-        f'text-anchor="end" font-size="14">farfield</text>',
-        f'<text x="{p6[0]+8:.1f}" y="{(p3[1]+p6[1])/2:.1f}" '
-        f'font-size="14">outflow</text>',
-        f'<text x="{(p1[0]+p6[0])/2:.1f}" y="{p4[1]-14:.1f}" '
-        f'text-anchor="middle" font-size="14">farfield</text>',
-        f'<text x="{(p2[0]+p3[0])/2:.1f}" y="{p2[1]+55:.1f}" '
-        f'text-anchor="middle" font-size="14" fill="#b23a48">wall</text>',
-        '</svg>',
     ]
+    for edge_name, boundary_name, point_count, endpoints, side in edge_labels:
+        (x1, y1), (x2, y2) = endpoints
+        if side == "bottom":
+            x = (x1 + x2) / 2
+            y = y1 + (55 if edge_name == "plate" else 34)
+            anchor = "middle"
+        elif side == "top":
+            x = (x1 + x2) / 2
+            y = y1 - 14
+            anchor = "middle"
+        elif side == "left":
+            x = x1 - 8
+            y = (y1 + y2) / 2
+            anchor = "end"
+        else:
+            x = x1 + 8
+            y = (y1 + y2) / 2
+            anchor = "start"
+        elements.append(
+            f'<text x="{x:.1f}" y="{y:.1f}" text-anchor="{anchor}" '
+            f'font-size="12" fill="#202020">{edge_name}: {boundary_name} '
+            f'({point_count} points)</text>'
+        )
+    elements.append("</svg>")
     return "\n".join(elements) + "\n"
 
 
