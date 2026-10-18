@@ -360,9 +360,9 @@ def render_flat_plate_svg(spec):
             y = y1 - 14
             anchor = "middle"
         elif side == "left":
-            x = x1 - 8
+            x = x1 + 8
             y = (y1 + y2) / 2
-            anchor = "end"
+            anchor = "start"
         elif edge_name == "right":
             x = x1 - 8
             y = (y1 + y2) / 2
