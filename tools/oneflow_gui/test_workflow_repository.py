@@ -138,6 +138,68 @@ class WorkflowRepositoryTest(unittest.TestCase):
             ["run-other", "run-new", "run-old"],
         )
 
+    def test_run_notes_and_record_deletion_do_not_touch_artifacts(self) -> None:
+        self.repository.save_run(
+            WorkflowRunRecord(
+                run_id="run-note",
+                workflow_id="removed-workflow",
+                status="succeeded",
+                started_at="2026-10-15T10:00:00Z",
+                artifacts=("executions/run-note/results/mesh.ofl",),
+            )
+        )
+        note_path = Path(self._temporary_directory.name) / "executions" / "run-note" / "results" / "mesh.ofl"
+        note_path.parent.mkdir(parents=True)
+        note_path.write_text("artifact", encoding="utf-8")
+
+        updated = self.repository.update_run_note("run-note", "Reviewed mesh output.")
+        self.assertEqual(updated.note, "Reviewed mesh output.")
+        self.assertEqual(self.repository.list_runs()[0].note, "Reviewed mesh output.")
+        self.assertTrue(self.repository.delete_run("run-note"))
+        self.assertFalse(self.repository.delete_run("run-note"))
+        self.assertTrue(note_path.is_file())
+        self.assertEqual(note_path.read_text(encoding="utf-8"), "artifact")
+
+    def test_history_cleanup_filters_by_status_workflow_and_age(self) -> None:
+        records = (
+            ("old-failed", "workflow-a", "failed", "2026-10-10T10:00:00Z"),
+            ("old-passed", "workflow-a", "succeeded", "2026-10-11T10:00:00Z"),
+            ("new-failed", "workflow-a", "failed", "2026-10-16T10:00:00Z"),
+            ("other-failed", "workflow-b", "failed", "2026-10-09T10:00:00Z"),
+        )
+        for run_id, workflow_id, status, started_at in records:
+            self.repository.save_run(
+                WorkflowRunRecord(
+                    run_id=run_id,
+                    workflow_id=workflow_id,
+                    status=status,
+                    started_at=started_at,
+                )
+            )
+
+        self.assertEqual(
+            [record.run_id for record in self.repository.list_runs(
+                "workflow-a", status="failed", started_before="2026-10-15T00:00:00Z"
+            )],
+            ["old-failed"],
+        )
+        removed = self.repository.clear_runs(
+            workflow_id="workflow-a",
+            statuses={"failed"},
+            started_before="2026-10-15T00:00:00Z",
+        )
+        self.assertEqual(removed, 1)
+        self.assertEqual(
+            {record.run_id for record in self.repository.list_runs()},
+            {"old-passed", "new-failed", "other-failed"},
+        )
+
+    def test_history_filters_reject_unknown_status(self) -> None:
+        with self.assertRaisesRegex(ValueError, "Unsupported workflow run status"):
+            self.repository.list_runs(status="unknown")
+        with self.assertRaisesRegex(ValueError, "Unsupported workflow run status"):
+            self.repository.clear_runs(statuses={"unknown"})
+
     def test_invalid_identifier_and_step_are_rejected(self) -> None:
         with self.assertRaisesRegex(ValueError, "workflow_id"):
             self.repository.save_workflow(
