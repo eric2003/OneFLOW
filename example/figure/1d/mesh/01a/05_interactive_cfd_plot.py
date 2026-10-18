@@ -81,3 +81,4 @@ def create_interactive_plot():
             showlegend=True
         ),
         row=1
+    )

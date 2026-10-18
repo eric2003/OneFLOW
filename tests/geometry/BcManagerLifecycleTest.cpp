@@ -1,6 +1,7 @@
 // tests/BcManagerLifecycleTest.cpp
 #include <gtest/gtest.h>
 #include "BcRecord.h"
+#include "FaceTopo.h"
 
 // Verify that BcManager correctly initializes its internal BcRecord unique_ptrs
 // and that basic operations (like Update) work without memory leaks.
@@ -34,4 +35,34 @@ TEST(BcManagerLifecycleTest, StackAllocationIsSafe)
         ONEFLOW::BcManager manager;
         manager.PreProcess();
     });
+}
+
+TEST(BcManagerLifecycleTest, BoundaryFaceCountApiMatchesCompatibilityWrapper)
+{
+    // Intent: GetBoundaryFaceCount is preferred; GetNBFace is a compatibility
+    // alias that must report the same value after Init and after direct edits.
+    ONEFLOW::BcRecord record;
+    EXPECT_EQ(record.GetBoundaryFaceCount(), 0);
+    EXPECT_EQ(record.GetNBFace(), record.GetBoundaryFaceCount());
+
+    record.Init(4);
+    EXPECT_EQ(record.GetBoundaryFaceCount(), 4);
+    EXPECT_EQ(record.GetNBFace(), record.GetBoundaryFaceCount());
+
+    record.bcType.push_back(2);
+    record.bcNameId.push_back(0);
+    EXPECT_EQ(record.GetBoundaryFaceCount(), 5);
+    EXPECT_EQ(record.GetNBFace(), record.GetBoundaryFaceCount());
+}
+
+TEST(BcManagerLifecycleTest, FaceTopoBoundaryCountDelegatesToBcRecord)
+{
+    // Intent: FaceTopo boundary-face count is owned by the active BcRecord.
+    ONEFLOW::FaceTopo faceTopo;
+    faceTopo.SetBoundaryFaceCount(3);
+    EXPECT_EQ(faceTopo.GetBoundaryFaceCount(), static_cast<ONEFLOW::HXSize_t>(3));
+    EXPECT_EQ(faceTopo.GetNBFaces(), faceTopo.GetBoundaryFaceCount());
+    EXPECT_EQ(
+        faceTopo.GetBcRecord().GetBoundaryFaceCount(),
+        static_cast<int>(faceTopo.GetBoundaryFaceCount()));
 }

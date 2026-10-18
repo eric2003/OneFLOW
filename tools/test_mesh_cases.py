@@ -29,6 +29,43 @@ class MeshCaseCatalogTest(unittest.TestCase):
         ]
         self.assertEqual(errors, [])
 
+    def test_turbulent_flat_plate_uses_requested_bounds_and_tanh_distribution(self) -> None:
+        case_dir = REPOSITORY_ROOT / "grid" / "turbulent_flat_plate"
+        with (case_dir / "case.json").open("r", encoding="utf-8") as stream:
+            profile = json.load(stream)
+
+        runtime = profile["parameters"]["runtime"]
+        expected = profile["parameters"]["expected"]
+        layout = (case_dir / runtime["layout"]).read_text(encoding="utf-8")
+        self.assertEqual(runtime["dimension"], 2)
+        self.assertIn("Point(1)= {-0.35,0,0}", layout)
+        self.assertIn("Point(2)= {0,0,0}", layout)
+        self.assertIn("Point(3)= {2,0,0}", layout)
+        self.assertIn("Point(4)= {-0.35,1,0}", layout)
+        self.assertIn("Point(5)= {0,1,0}", layout)
+        self.assertIn("Point(6)= {2,1,0}", layout)
+        self.assertIn("Dim(3)={81}", layout)
+        self.assertIn("Dim(4)={81}", layout)
+        self.assertIn("Dim(5)={81}", layout)
+        expected_distributions = [
+            "Ds(1)={tanh,-1,0.002}",
+            "Ds(2)={tanh,0.002,-1}",
+            "Ds(3)={tanh,1.0e-6,-1}",
+            "Ds(4)={tanh,1.0e-6,-1}",
+            "Ds(5)={tanh,1.0e-6,-1}",
+            "Ds(6)={tanh,-1,0.002}",
+            "Ds(7)={tanh,0.002,-1}",
+        ]
+        for distribution in expected_distributions:
+            self.assertIn(distribution, layout)
+        self.assertEqual(expected["nodes"], 5913)
+        self.assertEqual(expected["cells"], 5760)
+        self.assertEqual(expected["faces"], 11672)
+        self.assertEqual(expected["boundaryFaces"], 304)
+        self.assertEqual(expected["internalFaces"], 11368)
+        self.assertEqual(expected["boundingBox"]["min"], [-0.35, 0.0, 0.0])
+        self.assertEqual(expected["boundingBox"]["max"], [2.0, 1.0, 0.0])
+
     def test_two_connected_squares_profile_carries_grid_options(self) -> None:
         case_dir = REPOSITORY_ROOT / "grid" / "two_connected_squares"
         with (case_dir / "case.json").open("r", encoding="utf-8") as stream:

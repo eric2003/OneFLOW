@@ -46,6 +46,8 @@ public:
     static int GetUnitElementSlotCount();
 
     // Compatibility wrapper. Prefer GetUnitElementSlotCount() for new code.
+    // Note: the name is historical; the value is the registry slot count
+    // (including empty slots), not the number of defined unit elements.
     static int GetNumberOfUnitElements();
     static bool HasUnitElement( int elementType );
 
@@ -59,6 +61,9 @@ public:
     static void Free();
 };
 
+// Preferred free-function name for the node count of an element type.
+int GetElementNodeCount( int eType );
+// Compatibility wrapper; prefer GetElementNodeCount() for new code.
 int GetElementNodeNumbers( int eType );
 int GetElementDimension( int eType );
 bool IsBasicVolumeElementType( int eType );

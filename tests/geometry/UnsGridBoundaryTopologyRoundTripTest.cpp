@@ -165,14 +165,14 @@ TEST( UnsGridBoundaryTopologyRoundTripTest, InterfaceSplitKeepsLocalGlobalAndBou
     link.g2l = { { 0, 0 }, { 1, 1 } };
     link.InitNewLgMapping();
 
-    link.face_search->cFaceId.resize( 4 );
-    link.face_search->cFaceId[ 0 ] = { 2, 3 };
-    link.face_search->rCNodeId.resize( 4 );
-    link.face_search->rCNodeFlag.resize( 4 );
-    link.face_search->rCNodeId[ 2 ] = { 0 };
-    link.face_search->rCNodeFlag[ 2 ] = { 1 };
-    link.face_search->rCNodeId[ 3 ] = { 0 };
-    link.face_search->rCNodeFlag[ 3 ] = { 1 };
+    link.face_search->interfaceSplit.childFaceIdsOfParent.resize( 4 );
+    link.face_search->interfaceSplit.childFaceIdsOfParent[ 0 ] = { 2, 3 };
+    link.face_search->interfaceSplit.childFaceNodeIds.resize( 4 );
+    link.face_search->interfaceSplit.childFaceNodeFlags.resize( 4 );
+    link.face_search->interfaceSplit.childFaceNodeIds[ 2 ] = { 0 };
+    link.face_search->interfaceSplit.childFaceNodeFlags[ 2 ] = { 1 };
+    link.face_search->interfaceSplit.childFaceNodeIds[ 3 ] = { 0 };
+    link.face_search->interfaceSplit.childFaceNodeFlags[ 3 ] = { 1 };
 
     grid.GetFaceTopo().ModifyBoundaryInformation( link );
 

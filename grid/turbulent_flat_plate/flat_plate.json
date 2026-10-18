@@ -1,0 +1,32 @@
+{
+  "type": "flat_plate",
+  "description": "Two-block flat-plate mesh with x in [-0.35, 2], y in [0, 1], and the explicitly requested tanh distributions.",
+  "bounds": {
+    "left": -0.35,
+    "right": 2.0,
+    "bottom": 0.0,
+    "top": 1.0,
+    "interfaceX": 0.0
+  },
+  "upstreamPointCount": 33,
+  "platePointCount": 41,
+  "normalPointCount": 81,
+  "distributions": {
+    "line1": ["tanh", -1, 0.002],
+    "line2": ["tanh", 0.002, -1],
+    "line3": ["tanh", 1.0e-6, -1],
+    "line4": ["tanh", 1.0e-6, -1],
+    "line5": ["tanh", 1.0e-6, -1],
+    "line6": ["tanh", -1, 0.002],
+    "line7": ["tanh", 0.002, -1]
+  },
+  "boundaries": {
+    "upstreamBottom": "symmetry",
+    "plate": "wall",
+    "left": "farfield",
+    "interface": "interface",
+    "right": "outflow",
+    "topUpstream": "farfield",
+    "topPlate": "farfield"
+  }
+}

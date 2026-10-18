@@ -59,7 +59,7 @@ void BcRecord::CreateBcTypeRegion()
     IntSet bcUserTypeSet;
     IntSet bcRegionNameSet;
 
-    int nBFaces = this->GetNBFace();
+    int nBFaces = this->GetBoundaryFaceCount();
 
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
@@ -97,9 +97,14 @@ void BcRecord::CreateBcTypeRegion()
     }
 }
 
+int BcRecord::GetBoundaryFaceCount() const
+{
+    return static_cast< int >( bcType.size() );
+}
+
 int BcRecord::GetNBFace() const
 {
-    return bcType.size();
+    return GetBoundaryFaceCount();
 }
 
 void BcRecord::Init( HXSize_t nBFaces )
@@ -111,7 +116,7 @@ void BcRecord::Init( HXSize_t nBFaces )
 
 int BcRecord::CalcNIFace() const
 {
-    int nBFaces = this->GetNBFace();
+    int nBFaces = this->GetBoundaryFaceCount();
 
     int nIFaces = 0;
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
@@ -127,7 +132,7 @@ int BcRecord::CalcNIFace() const
 
 int BcRecord::CalcNumWallFace() const
 {
-    int nBFaces = this->GetNBFace();
+    int nBFaces = this->GetBoundaryFaceCount();
 
     int nWFace = 0;
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
@@ -143,7 +148,7 @@ int BcRecord::CalcNumWallFace() const
 
 void BcRecord::GenerateI2B( InterFace & interFace )
 {
-    const int nBFaces = this->GetNBFace();
+    const int nBFaces = this->GetBoundaryFaceCount();
     const int expectedInterfaceCount = this->CalcNIFace();
 
     if ( this->bcNameId.size() != this->bcType.size() ||
@@ -186,7 +191,7 @@ void BcRecord::ValidateI2B( const InterFace & interFace ) const
     }
 
     int interfaceFaceId = 0;
-    for ( int boundaryFaceId = 0; boundaryFaceId < this->GetNBFace(); ++ boundaryFaceId )
+    for ( int boundaryFaceId = 0; boundaryFaceId < this->GetBoundaryFaceCount(); ++ boundaryFaceId )
     {
         if ( ! BC::IsInterfaceBc( this->bcType[ boundaryFaceId ] ) )
         {
@@ -206,7 +211,7 @@ void BcRecord::CalcBcType( IntField & bcTypeList ) const
 {
     IntSet bcTypeSet;
 
-    int nBFaces = this->GetNBFace();
+    int nBFaces = this->GetBoundaryFaceCount();
 
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
@@ -222,13 +227,13 @@ void BcRecord::CalcBcType( IntField & bcTypeList ) const
 
 void BcManager::PreProcess()
 {
-    int nBFaces = this->bcRecord->GetNBFace();
+    int nBFaces = this->bcRecord->GetBoundaryFaceCount();
     bcFlag.resize( nBFaces, 1 );
 }
 
 bool BcManager::ExistInterface() const
 {
-    int nBFaces = this->bcRecord->GetNBFace();
+    int nBFaces = this->bcRecord->GetBoundaryFaceCount();
 
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {

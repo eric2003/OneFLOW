@@ -1,0 +1,38 @@
+int gridObj = 0;
+string topoType = "u";
+int multiBlock = 1;
+
+int fileFormat = 1;
+Real gridScale = 1.0;
+Real gridTrans[3] = 0, 0, 0;
+int axis_dir = 0;
+int ignoreNoBc = 0;
+
+string gridLayoutFileName = "grid/turbulentFlatPlateLayout.txt";
+int igene = 4;
+
+int codeOfOversetGrid = 0;
+string oversetGridFileName = "grid/iBlank.ovs";
+int parallelStrategy = 1;
+
+string sourceGridType = "plot3d";
+string targetGridType = "oneflow";
+int iplot3d = 0;
+
+string boundaryRegionNameMapFileName = "results/boundaryRegionMap.txt";
+string volumeBoundaryNameMapFileName = "results/volumeBoundaryMap.txt";
+
+string sourceGridFileName = "results/turbulentFlatPlate.generated.grd";
+string sourceGridBcName = "results/turbulentFlatPlate.inp";
+string targetGridFileName = "results/turbulentFlatPlate.ofl";
+string gridInfoFileName = "results/turbulentFlatPlate.info.json";
+string tecplotGridFileName = "results/turbulentFlatPlate.tecplot.dat";
+string patchFileName = "grid/turbulentFlatPlate.patch";
+
+string projectRoot = ".";
+string inputRoot = "case";
+string outputRoot = "case";
+string meshInputRoot = "case";
+string flowInputRoot = "case";
+string meshOutputRoot = "case";
+string flowOutputRoot = "case";

@@ -52,6 +52,29 @@ private:
 
 class IFaceLink;
 
+// Tables produced when interface faces are split (e.g. quad->tri).
+// Separate from FaceSearchBasic (unique face registry).
+struct InterfaceFaceSplitTable
+{
+    LinkField childFaceIdsOfParent;
+    LinkField childFaceNodeIds;
+    LinkField childFaceNodeFlags;
+
+    void Clear()
+    {
+        childFaceIdsOfParent.clear();
+        childFaceNodeIds.clear();
+        childFaceNodeFlags.clear();
+    }
+
+    void ResetForParentFaceCount( std::size_t nParentFaces )
+    {
+        childFaceIdsOfParent.assign( nParentFaces, IntField{} );
+        childFaceNodeIds.assign( nParentFaces, IntField{} );
+        childFaceNodeFlags.assign( nParentFaces, IntField{} );
+    }
+};
+
 class FaceSearch : public FaceSearchBasic
 {
 public:
@@ -59,11 +82,9 @@ public:
     ~FaceSearch() = default;
 public:
     IntField status;
-    LinkField cFaceId;
-    LinkField rCNodeId;
-    LinkField rCNodeFlag;
-    IFaceLink * iFaceLink;
-    int gFid;
+    InterfaceFaceSplitTable interfaceSplit;
+    IFaceLink * iFaceLink = nullptr;
+    int gFid = 0;
 public:
     void CalcNewFaceId( IFaceLink & iFaceLink );
     void SplitQuad2Tri( int faceId );

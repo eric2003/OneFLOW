@@ -1,5 +1,9 @@
 // tests/GridElemLifecycleTest.cpp
 #include <gtest/gtest.h>
+#include "GridElem.h"
+#include "ElemFeature.h"
+#include "PointManager.h"
+#include "FaceSolver.h"
 #include "ElemFeature.h"
 #include "PointManager.h"
 #include "FaceSolver.h"
@@ -29,4 +33,16 @@ TEST(GridElemLifecycleTest, ValueSemanticsForInternalComponents)
         // When these objects go out of scope, their destructors run safely.
         // This proves that GridElem's internal components can use value semantics.
     });
+}
+
+TEST(GridElemLifecycleTest, MemberNamesUseCamelCaseAccessors)
+{
+    using GE = ONEFLOW::GridElem;
+    ONEFLOW::ElemFeature GE::* ef = &GE::elemFeature;
+    ONEFLOW::MeshPointManager GE::* pf = &GE::pointFactory;
+    ONEFLOW::FaceSolver GE::* fs = &GE::faceSolver;
+    EXPECT_TRUE(ef != nullptr);
+    EXPECT_TRUE(pf != nullptr);
+    EXPECT_TRUE(fs != nullptr);
+    static_assert(sizeof(ONEFLOW::GridElemGroup) > 0, "GridElemGroup");
 }

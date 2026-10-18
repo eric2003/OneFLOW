@@ -45,7 +45,10 @@ public:
     void PushElement( int p1, int p2, int p3, int p4, int elementType );
 public:
     void Alloc( int nCells );
-    HXSize_t GetNumberOfCells() const { return eTypes.size(); }
+    // Preferred name for the cell count.
+    HXSize_t GetCellCount() const { return eTypes.size(); }
+    // Compatibility wrapper; prefer GetCellCount() for new code.
+    HXSize_t GetNumberOfCells() const { return GetCellCount(); }
     void CalcC2f( FaceTopo & faceTopo );
     void CalcC2C( FaceTopo & faceTopo );
 };

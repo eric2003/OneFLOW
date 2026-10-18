@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*\\
+/*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
@@ -18,7 +18,7 @@ License
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
-\\*---------------------------------------------------------------------------*/
+\*---------------------------------------------------------------------------*/
 
 #pragma once
 #include "HXDefine.h"
@@ -56,9 +56,16 @@ public:
 
 private:
     Grids & grids;
+    // PointLocator ADT build needs valid nodeMesh bounding boxes. Defer until a
+    // code path actually searches/adds points so topology-only clients (and
+    // unit tests) can construct IFaceLink without a full mesh.
+    bool pointLocatorReady = false;
     void ValidateGridIndex( const Grid & grid, const char * operation ) const;
 
 public:
+    // Builds the PointLocator ADT on first use (requires valid nodeMesh boxes).
+    void EnsurePointLocatorReady();
+    [[nodiscard]] bool IsPointLocatorReady() const { return pointLocatorReady; }
     [[nodiscard]] Grid & GetGrid( int zoneIndex );
     void Init( Grid & grid );
 public:

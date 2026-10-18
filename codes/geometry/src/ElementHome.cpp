@@ -31,7 +31,7 @@ namespace
 {
 std::unique_ptr< const UnitElement > BuildUnitElementDefinition( int elementType )
 {
-    if ( UnitElement::GetElementNodeNumbers( elementType ) <= 0 )
+    if ( UnitElement::GetElementNodeCount( elementType ) <= 0 )
     {
         return nullptr;
     }
@@ -109,16 +109,21 @@ public:
 };
 ElementHomeInit elementHomeInit;
 
-int GetElementNodeNumbers( int eType )
+int GetElementNodeCount( int eType )
 {
     if ( eType < 0 || eType >= ElementHome::GetUnitElementSlotCount() )
     {
-        throw std::out_of_range( "GetElementNodeNumbers: element type is out of range" );
+        throw std::out_of_range( "GetElementNodeCount: element type is out of range" );
     }
 
     if ( ! ElementHome::HasUnitElement( eType ) ) return 0;
 
-    return UnitElement::GetElementNodeNumbers( eType );
+    return UnitElement::GetElementNodeCount( eType );
+}
+
+int GetElementNodeNumbers( int eType )
+{
+    return GetElementNodeCount( eType );
 }
 
 int GetElementDimension( int eType )

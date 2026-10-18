@@ -63,9 +63,7 @@ void FaceSearch::CalcNewFaceId( IFaceLink & iFaceLink )
     this->iFaceLink = &iFaceLink;
     int nFaces = this->faceArray.size();
     this->status.assign( nFaces, -1 );
-    this->cFaceId.assign( nFaces, IntField{} );
-    this->rCNodeId.assign( nFaces, IntField{} );
-    this->rCNodeFlag.assign( nFaces, IntField{} );
+    this->interfaceSplit.ResetForParentFaceCount( static_cast< std::size_t >( nFaces ) );
 
     if ( Dim::dimension == ONEFLOW::THREE_D )
     {
@@ -111,9 +109,9 @@ void FaceSearch::SplitQuad2Tri( int faceId )
         int fId = this->FindFace( tri );
         if ( fId != ONEFLOW::INVALID_INDEX )
         {
-            this->cFaceId[ faceId ].push_back( fId );
-            this->rCNodeId  [ fId ] = localTriId  [ iTri ];
-            this->rCNodeFlag[ fId ] = localTriFlag[ iTri ];
+            this->interfaceSplit.childFaceIdsOfParent[ faceId ].push_back( fId );
+            this->interfaceSplit.childFaceNodeIds  [ fId ] = localTriId  [ iTri ];
+            this->interfaceSplit.childFaceNodeFlags[ fId ] = localTriFlag[ iTri ];
         }
     }
 }
@@ -139,9 +137,9 @@ void FaceSearch::SplitLine( int faceId )
         int fId = this->FindFace( lId );
         if ( fId != ONEFLOW::INVALID_INDEX )
         {
-            this->cFaceId[ faceId ].push_back( fId );
-            this->rCNodeId  [ fId ] = localLineId  [ iLi ];
-            this->rCNodeFlag[ fId ] = localLineFlag[ iLi ];
+            this->interfaceSplit.childFaceIdsOfParent[ faceId ].push_back( fId );
+            this->interfaceSplit.childFaceNodeIds  [ fId ] = localLineId  [ iLi ];
+            this->interfaceSplit.childFaceNodeFlags[ fId ] = localLineFlag[ iLi ];
         }
     }
 }

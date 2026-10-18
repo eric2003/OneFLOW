@@ -72,9 +72,9 @@ TEST(ElementHomeTest, InitializeBuildsRegistryWithStableEnumIndices)
     EXPECT_TRUE(ONEFLOW::ElementHome::HasUnitElement(ONEFLOW::BAR_2));
     EXPECT_TRUE(ONEFLOW::ElementHome::HasUnitElement(ONEFLOW::HEXA_8));
 
-    EXPECT_EQ(ONEFLOW::GetElementNodeNumbers(ONEFLOW::NODE), 1);
-    EXPECT_EQ(ONEFLOW::GetElementNodeNumbers(ONEFLOW::BAR_2), 2);
-    EXPECT_EQ(ONEFLOW::GetElementNodeNumbers(ONEFLOW::HEXA_8), 8);
+    EXPECT_EQ(ONEFLOW::GetElementNodeCount(ONEFLOW::NODE), 1);
+    EXPECT_EQ(ONEFLOW::GetElementNodeCount(ONEFLOW::BAR_2), 2);
+    EXPECT_EQ(ONEFLOW::GetElementNodeCount(ONEFLOW::HEXA_8), 8);
 
     EXPECT_EQ(ONEFLOW::GetElementDimension(ONEFLOW::NODE), 0);
     EXPECT_EQ(ONEFLOW::GetElementDimension(ONEFLOW::BAR_2), 1);
@@ -89,7 +89,7 @@ TEST(ElementHomeTest, ReadOnlyDefinitionAccessorPreservesRegistryTopology)
         ONEFLOW::ElementHome::GetUnitElementDefinition(ONEFLOW::HEXA_8);
 
     EXPECT_EQ(element.GetElementType(), ONEFLOW::HEXA_8);
-    EXPECT_EQ(element.GetElementNodeNumbers(ONEFLOW::HEXA_8), 8);
+    EXPECT_EQ(element.GetElementNodeCount(ONEFLOW::HEXA_8), 8);
     EXPECT_EQ(element.GetElementFaceCount(), 6);
     EXPECT_EQ(element.GetElementFaceNumber(), element.GetElementFaceCount());
 }
@@ -147,7 +147,7 @@ TEST(ElementHomeTest, RegisteredTopologyIndicesMatchElementDefinitions)
 
         const ONEFLOW::UnitElement & element =
             ONEFLOW::ElementHome::GetUnitElementDefinition(elementType);
-        const int nodeCount = ONEFLOW::GetElementNodeNumbers(elementType);
+        const int nodeCount = ONEFLOW::GetElementNodeCount(elementType);
 
         ASSERT_EQ(element.GetElementType(), elementType);
         ASSERT_GT(nodeCount, 0);
@@ -160,7 +160,7 @@ TEST(ElementHomeTest, RegisteredTopologyIndicesMatchElementDefinitions)
             ASSERT_EQ(
                 face.size(),
                 static_cast<std::size_t>(
-                    ONEFLOW::GetElementNodeNumbers(faceType)))
+                    ONEFLOW::GetElementNodeCount(faceType)))
                 << "element type " << elementType << ", face " << iFace;
 
             for (int nodeIndex : face)
@@ -180,7 +180,7 @@ TEST(ElementHomeTest, RegisteredTopologyIndicesMatchElementDefinitions)
             ASSERT_EQ(
                 face.size(),
                 static_cast<std::size_t>(
-                    ONEFLOW::GetElementNodeNumbers(faceType)))
+                    ONEFLOW::GetElementNodeCount(faceType)))
                 << "element type " << elementType
                 << ", composite face " << iFace;
 
@@ -204,7 +204,7 @@ TEST(ElementHomeTest, RegisteredTopologyIndicesMatchElementDefinitions)
             ASSERT_EQ(
                 childNodes.size(),
                 static_cast<std::size_t>(
-                    ONEFLOW::GetElementNodeNumbers(childType)))
+                    ONEFLOW::GetElementNodeCount(childType)))
                 << "element type " << elementType << ", child " << iChild;
 
             for (int nodeIndex : childNodes)
@@ -240,13 +240,13 @@ TEST(ElementHomeTest, RepeatedInitializeRebuildsEquivalentRegistry)
     const int initialSlotCount = ONEFLOW::ElementHome::GetUnitElementSlotCount();
     ASSERT_TRUE(ONEFLOW::ElementHome::HasUnitElement(ONEFLOW::HEXA_8));
     const int initialNodeCount =
-        ONEFLOW::GetElementNodeNumbers(ONEFLOW::HEXA_8);
+        ONEFLOW::GetElementNodeCount(ONEFLOW::HEXA_8);
 
     ONEFLOW::ElementHome::Initialize();
 
     EXPECT_EQ(ONEFLOW::ElementHome::GetUnitElementSlotCount(), initialSlotCount);
     ASSERT_TRUE(ONEFLOW::ElementHome::HasUnitElement(ONEFLOW::HEXA_8));
-    EXPECT_EQ(ONEFLOW::GetElementNodeNumbers(ONEFLOW::HEXA_8), initialNodeCount);
+    EXPECT_EQ(ONEFLOW::GetElementNodeCount(ONEFLOW::HEXA_8), initialNodeCount);
 }
 
 TEST(ElementHomeTest, InvalidElementIndicesAreRejectedConsistently)
@@ -363,14 +363,154 @@ TEST(UnitElementTest, FailedInitializePreservesExistingTopology)
 
     const int initialElementType = element.GetElementType();
     const int initialFaceCount = element.GetElementFaceCount();
-    const int initialNodeCount = element.GetElementNodeNumbers(ONEFLOW::QUAD_4);
+    const int initialNodeCount = element.GetElementNodeCount(ONEFLOW::QUAD_4);
 
     EXPECT_THROW(element.Initialize(-1), std::invalid_argument);
 
     EXPECT_EQ(element.GetElementType(), initialElementType);
     EXPECT_EQ(element.GetElementFaceCount(), initialFaceCount);
-    EXPECT_EQ(element.GetElementNodeNumbers(ONEFLOW::QUAD_4), initialNodeCount);
+    EXPECT_EQ(element.GetElementNodeCount(ONEFLOW::QUAD_4), initialNodeCount);
     ASSERT_EQ(element.GetElementFaceCount(), 4);
     EXPECT_EQ(element.GetElementFace(0).size(), 2);
+}
+
+TEST(ElementHomeTest, PreferredNodeCountApiMatchesCompatibilityWrapper)
+{
+    // Intent: GetElementNodeCount is the preferred name; GetElementNodeNumbers
+    // remains only as a compatibility alias and must return identical values.
+    ONEFLOW::ElementHome::Initialize();
+
+    const int types[] = {
+        ONEFLOW::NODE,
+        ONEFLOW::BAR_2,
+        ONEFLOW::BAR_3,
+        ONEFLOW::TRI_3,
+        ONEFLOW::TRI_6,
+        ONEFLOW::QUAD_4,
+        ONEFLOW::QUAD_8,
+        ONEFLOW::QUAD_9,
+        ONEFLOW::TETRA_4,
+        ONEFLOW::TETRA_10,
+        ONEFLOW::PYRA_5,
+        ONEFLOW::PYRA_14,
+        ONEFLOW::PENTA_6,
+        ONEFLOW::PENTA_15,
+        ONEFLOW::PENTA_18,
+        ONEFLOW::HEXA_8,
+        ONEFLOW::HEXA_20,
+        ONEFLOW::HEXA_27,
+    };
+
+    for (int elementType : types)
+    {
+        SCOPED_TRACE(elementType);
+        ASSERT_TRUE(ONEFLOW::ElementHome::HasUnitElement(elementType));
+
+        const int preferred = ONEFLOW::GetElementNodeCount(elementType);
+        const int compatibility = ONEFLOW::GetElementNodeNumbers(elementType);
+        EXPECT_EQ(preferred, compatibility);
+
+        const ONEFLOW::UnitElement & element =
+            ONEFLOW::ElementHome::GetUnitElementDefinition(elementType);
+        EXPECT_EQ(element.GetElementNodeCount(elementType), preferred);
+        EXPECT_EQ(element.GetElementNodeNumbers(elementType), preferred);
+        EXPECT_GT(preferred, 0);
+    }
+}
+
+TEST(ElementHomeTest, OutOfRangeElementTypeThrowsFromNodeCountApi)
+{
+    // Intent: indices outside the registry throw; empty registry slots
+    // (unsupported enum values inside the range) report zero nodes.
+    ONEFLOW::ElementHome::Initialize();
+
+    EXPECT_THROW(ONEFLOW::GetElementNodeCount(-1), std::out_of_range);
+    EXPECT_THROW(
+        ONEFLOW::GetElementNodeCount(
+            ONEFLOW::ElementHome::GetUnitElementSlotCount()),
+        std::out_of_range);
+
+    // Compatibility wrapper must preserve the same contract.
+    EXPECT_THROW(ONEFLOW::GetElementNodeNumbers(-1), std::out_of_range);
+}
+
+TEST(ElementHomeTest, CompatibilityWrappersMatchPreferredApis)
+{
+    // Intent: every historical *Number(s)/misspelled* accessor is a pure alias
+    // of the preferred *Count / correctly spelled* API. New code should use the
+    // preferred names; these tests lock the alias contract so renames stay safe.
+    ONEFLOW::ElementHome::Initialize();
+
+    EXPECT_EQ(
+        ONEFLOW::ElementHome::GetNumberOfUnitElements(),
+        ONEFLOW::ElementHome::GetUnitElementSlotCount());
+
+    const int types[] = {
+        ONEFLOW::NODE, ONEFLOW::BAR_2, ONEFLOW::BAR_3,
+        ONEFLOW::TRI_3, ONEFLOW::TRI_6,
+        ONEFLOW::QUAD_4, ONEFLOW::QUAD_8, ONEFLOW::QUAD_9,
+        ONEFLOW::TETRA_4, ONEFLOW::TETRA_10,
+        ONEFLOW::PYRA_5, ONEFLOW::PYRA_14,
+        ONEFLOW::PENTA_6, ONEFLOW::PENTA_15, ONEFLOW::PENTA_18,
+        ONEFLOW::HEXA_8, ONEFLOW::HEXA_20, ONEFLOW::HEXA_27,
+    };
+
+    for (int elementType : types)
+    {
+        SCOPED_TRACE(elementType);
+        ASSERT_TRUE(ONEFLOW::ElementHome::HasUnitElement(elementType));
+
+        const ONEFLOW::UnitElement & element =
+            ONEFLOW::ElementHome::GetUnitElementDefinition(elementType);
+
+        EXPECT_EQ(element.GetElementFaceNumber(), element.GetElementFaceCount());
+        EXPECT_EQ(
+            element.GetCompositeFaceNumber(), element.GetCompositeFaceCount());
+        EXPECT_EQ(
+            element.GetChildElementNumbers(), element.GetChildElementCount());
+
+        const int nodeCount = element.GetElementNodeCount(elementType);
+        EXPECT_EQ(element.GetElementNodeNumbers(elementType), nodeCount);
+
+        // Midpoint relations: misspelled alias must equal preferred spelling.
+        for (int i = 0; i < nodeCount; ++i)
+        {
+            const auto & preferred =
+                element.GetRelatedPointListForMiddlePointCalculation(i);
+            const auto & compatibility =
+                element.GetRelatedPointListForMiddlePointCalcutation(i);
+            ASSERT_EQ(preferred.size(), compatibility.size());
+            for (std::size_t k = 0; k < preferred.size(); ++k)
+            {
+                EXPECT_EQ(preferred[k], compatibility[k]);
+            }
+        }
+    }
+}
+
+TEST(ElementHomeTest, SlotCountIncludesEmptyRegistrySlots)
+{
+    // Intent: GetUnitElementSlotCount is the enum-indexed registry size, which
+    // may exceed the number of defined unit elements. HasUnitElement is the
+    // predicate for "definition present"; callers must not treat slot count as
+    // "number of defined elements".
+    ONEFLOW::ElementHome::Initialize();
+
+    const int slotCount = ONEFLOW::ElementHome::GetUnitElementSlotCount();
+    EXPECT_GT(slotCount, 0);
+
+    int definedCount = 0;
+    for (int i = 0; i < slotCount; ++i)
+    {
+        if (ONEFLOW::ElementHome::HasUnitElement(i))
+        {
+            ++definedCount;
+        }
+    }
+
+    EXPECT_GT(definedCount, 0);
+    EXPECT_LE(definedCount, slotCount);
+    // Compatibility name reports the same slot count, not definedCount.
+    EXPECT_EQ(ONEFLOW::ElementHome::GetNumberOfUnitElements(), slotCount);
 }
 

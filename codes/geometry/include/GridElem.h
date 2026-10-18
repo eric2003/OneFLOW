@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*\\
+/*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
@@ -18,7 +18,7 @@ License
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
-\\*---------------------------------------------------------------------------*/
+\*---------------------------------------------------------------------------*/
 
 #pragma once
 #include "HXDefine.h"
@@ -51,12 +51,13 @@ public:
     GridElem( HXVector< std::reference_wrapper< CgnsZone > > zoneViews );
     ~GridElem();
 public:
-    ElemFeature elem_feature;
-    MeshPointManager point_factory;
-    FaceSolver face_solver;
+    ElemFeature elemFeature;
+    MeshPointManager pointFactory;
+    FaceSolver faceSolver;
     Real minLen, maxLen;
 public:
-public:
+    // Pipeline (normal path): InitCgnsElements -> ScanElements(faceSolver) ->
+    // ScanBcFace -> GenerateCalcElement -> GenerateCalcGrid.
     void PrepareUnsCalcGrid();
     void PrepareUnsCalcGridNormal();
     void InitCgnsElements();
@@ -79,11 +80,12 @@ private:
     HXVector< std::reference_wrapper< CgnsZone > > zoneViews;
 };
 
-class ZgridElem
+// Multi-zone orchestrator: builds UnsGrids from a CgnsZbase via GridElem stages.
+class GridElemGroup
 {
 public:
-    explicit ZgridElem( CgnsZbase & cgnsZbase );
-    ~ZgridElem();
+    explicit GridElemGroup( CgnsZbase & cgnsZbase );
+    ~GridElemGroup();
 private:
     CgnsZbase & cgnsZbase;
 public:

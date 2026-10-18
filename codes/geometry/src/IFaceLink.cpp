@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*\\
+/*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
@@ -18,7 +18,7 @@ License
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
-\\*---------------------------------------------------------------------------*/
+\*---------------------------------------------------------------------------*/
 
 #include "IFaceLink.h"
 #include "Constant.h"
@@ -77,8 +77,24 @@ IFaceLink::IFaceLink( Grids & gridsIn ) : grids( gridsIn )
     this->l2g.resize( nZone );
 
     this->face_search = std::make_unique< FaceSearch >();
+    // Create the locator object but do not build its ADT yet. Callers that only
+    // need face topology (l2g / face_search) must not require nodeMesh bounds.
     this->point_search = std::make_unique< PointLocator >();
-    this->point_search->Initialize( gridsIn );
+    this->pointLocatorReady = false;
+}
+
+void IFaceLink::EnsurePointLocatorReady()
+{
+    if ( this->pointLocatorReady )
+    {
+        return;
+    }
+    if ( ! this->point_search )
+    {
+        this->point_search = std::make_unique< PointLocator >();
+    }
+    this->point_search->Initialize( this->grids );
+    this->pointLocatorReady = true;
 }
 
 IFaceLink::~IFaceLink() = default;
@@ -256,6 +272,8 @@ void IFaceLink::MatchPeriodicInterface( Grid & grid )
     InterFace * interFace = grid.interFace.get();
     if ( ! interFace ) return;
 
+    this->EnsurePointLocatorReady();
+
     int nIFaces = this->l2g[ grid.id ].size();
 
     for ( int iIFace = 0; iIFace < nIFaces; ++ iIFace )
@@ -372,6 +390,7 @@ void GetCoorIdList( IFaceLink & iFaceLink, RealField & xList, RealField & yList,
     {
         throw std::logic_error( "GetCoorIdList: point locator is not initialized" );
     }
+    iFaceLink.EnsurePointLocatorReady();
 
     for ( size_t iNode = 0; iNode < count; ++ iNode )
     {

@@ -27,16 +27,16 @@ License
 BeginNameSpace( ONEFLOW )
 
 class CgnsZbase;
-class ZgridMediator;
+class GridMediatorGroup;
 
 #ifdef ENABLE_CGNS
 
 void ReadNumCgnsBase( CgnsZbase * myCgnsZbase, CgnsZbase * strCgnsMultiBase );
 void ReadCgnsMultiBase( CgnsZbase * myCgnsZbase, CgnsZbase * strCgnsMultiBase );
-void CreateDefaultCgnsZones( CgnsZbase * myCgnsZbase, ZgridMediator * zgridMediator );
-void DumpCgnsMultiBase( CgnsZbase * myCgnsZbase, ZgridMediator * zgridMediator );
-void DumpCgnsGrid( CgnsZbase * myCgnsZbase, ZgridMediator * zgridMediator );
-void PrepareCgnsZone( CgnsZbase * myCgnsZbase, ZgridMediator * zgridMediator );
+void CreateDefaultCgnsZones( CgnsZbase * myCgnsZbase, GridMediatorGroup * gridMediatorGroup );
+void DumpCgnsMultiBase( CgnsZbase * myCgnsZbase, GridMediatorGroup * gridMediatorGroup );
+void DumpCgnsGrid( CgnsZbase * myCgnsZbase, GridMediatorGroup * gridMediatorGroup );
+void PrepareCgnsZone( CgnsZbase * myCgnsZbase, GridMediatorGroup * gridMediatorGroup );
 
 #endif
 

@@ -36,9 +36,9 @@ class Su2Grid;
 class CgnsZbase;
 class CgnsZone;
 class GridElem;
-class ZgridElem;
+class GridElemGroup;
 class GridMediator;
-class ZgridMediator;
+class GridMediatorGroup;
 struct GridConfig;
 
 #ifdef ENABLE_CGNS
@@ -60,14 +60,14 @@ public:
 
 public:
     std::unique_ptr<CgnsZbase> cgnsZbase;
-    std::unique_ptr<ZgridElem> zgridElem;
+    std::unique_ptr<GridElemGroup> gridElemGroup;
 
 public:
     void GenerateGrid( const std::string & caseDir );
     void GenerateGrid( const GridConfig & config, const std::string & caseDir );
     void ReadCgnsGrid( const std::string & caseDir );
     void ReadCgnsGrid( const GridConfig & config, const std::string & caseDir );
-    void DumpCgnsGrid( ZgridMediator & zgridMediator );
+    void DumpCgnsGrid( GridMediatorGroup & gridMediatorGroup );
     void DumpUnsCgnsGrid( const std::string & caseDir );
     void DumpUnsCgnsGrid( const GridConfig & config, const std::string & caseDir );
 public:
@@ -80,8 +80,8 @@ public:
     void ReadGridAndConvertToUnsCgnsZone( const GridConfig & config );
     void ProcessCgnsBases();
 public:
-    void CreateCgnsZone( ZgridMediator & zgridMediator );
-    void PrepareCgnsZone( ZgridMediator & zgridMediator );
+    void CreateCgnsZone( GridMediatorGroup & gridMediatorGroup );
+    void PrepareCgnsZone( GridMediatorGroup & gridMediatorGroup );
     CgnsZone * CreateSu2CgnsZone( Su2Grid & su2Grid );
     void Su2ToOneFlowGrid( Su2Grid & su2Grid );
 public:

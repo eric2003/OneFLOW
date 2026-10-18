@@ -34,6 +34,7 @@ BeginNameSpace( ONEFLOW )
 
 class BcRecord;
 class IFaceLink;
+struct InterfaceFaceSplitTable;
 class InterFace;
 class BcManager;
 class Grid;
@@ -60,14 +61,27 @@ private:
     std::unique_ptr< BcManager > bcManager;
     Grid * grid = nullptr;
 
-    // Temporary topology buffers used internally while rebuilding face data.
-    LinkField facesNew;
-    IntField lCellsNew, rCellsNew;
+    // Staging buffers for topology rebuild. Empty after a successful commit
+    // via UpdateOtherTopologyTerm(); non-empty only while a rebuild is pending.
+    LinkField rebuildFaces;
+    IntField rebuildLeftCells;
+    IntField rebuildRightCells;
+
+    void ClearRebuildBuffers();
 
 public:
-    HXSize_t GetNFaces() const { return fTypes.size(); }
+    // Preferred name for the total face count.
+    HXSize_t GetFaceCount() const { return fTypes.size(); }
+    // Compatibility wrapper; prefer GetFaceCount() for new code.
+    HXSize_t GetNFaces() const { return GetFaceCount(); }
     HXSize_t CalcTotalFaceNodes() const;
+    // Preferred name for the boundary face count.
+    HXSize_t GetBoundaryFaceCount() const;
+    // Compatibility wrapper; prefer GetBoundaryFaceCount() for new code.
     HXSize_t GetNBFaces() const;
+    // Preferred name for setting the boundary face count.
+    void SetBoundaryFaceCount( HXSize_t boundaryFaceCount );
+    // Compatibility wrapper; prefer SetBoundaryFaceCount() for new code.
     void SetNBFaces( HXSize_t nBFaces );
     void BindGrid( Grid & grid );
     Grid & GetGrid();
@@ -95,6 +109,9 @@ public:
     void ResetNumberOfBoundaryCondition( IFaceLink & iFaceLink );
     void ConstructNewInterfaceMap( IFaceLink & iFaceLink );
     void UpdateOtherTopologyTerm();
+    // True while rebuildFaces / rebuildLeftCells / rebuildRightCells hold
+    // staged data that has not yet been committed (or was not cleared).
+    bool HasPendingTopologyRebuild() const;
     void GenerateI2B( InterFace & interFace );
 public:
     bool GetSId( int iFace, int iPosition, int & sId );
@@ -102,5 +119,30 @@ public:
     void CalcC2C( LinkField & c2c );
     void ReorderLink();
 };
+
+// Look up child face IDs for a local interface face and validate their node tables.
+// Returns a reference into interfaceLink.face_search->cFaceId[globalFaceId].
+// Preferred: depends only on l2g mapping + split tables (not full IFaceLink/FaceSearch).
+const IntField & GetInterfaceChildFaceIds(
+    const LinkField & zoneToLocalToGlobal,
+    const InterfaceFaceSplitTable & splitTable,
+    int zoneId,
+    int localInterfaceFaceId );
+
+// Convenience wrapper for existing IFaceLink call sites.
+const IntField & GetInterfaceChildFaceIds(
+    const IFaceLink & interfaceLink,
+    int zoneId,
+    int localInterfaceFaceId );
+
+// Resolve one child face's node indices from parent-face relative and absolute IDs.
+// flag == 1: childNodeIds[i] is an index into parentFaceNodes.
+// otherwise: childNodeIds[i] is an absolute mesh node ID (requires hasNodeMesh).
+IntField ResolveChildFaceNodeIds(
+    const IntField & parentFaceNodes,
+    const IntField & childNodeIds,
+    const IntField & childNodeFlags,
+    bool hasNodeMesh,
+    HXSize_t nodeMeshCount );
 
 EndNameSpace

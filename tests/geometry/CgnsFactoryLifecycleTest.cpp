@@ -13,7 +13,7 @@ TEST(CgnsFactoryLifecycleTest, StackAllocationIsSafe)
         ONEFLOW::CgnsFactory factory;
         // Verify internal pointers are correctly initialized
         EXPECT_NE(factory.cgnsZbase, nullptr);
-        EXPECT_NE(factory.zgridElem, nullptr);
+        EXPECT_NE(factory.gridElemGroup, nullptr);
     });
 }
 
@@ -26,14 +26,14 @@ TEST(CgnsFactoryLifecycleTest, MoveSemanticsWork)
         
         // factory1 should be empty after move
         EXPECT_EQ(factory1.cgnsZbase, nullptr); 
-        EXPECT_EQ(factory1.zgridElem, nullptr);
+        EXPECT_EQ(factory1.gridElemGroup, nullptr);
         
         // factory2 should own the resources
         EXPECT_NE(factory2.cgnsZbase, nullptr);
-        EXPECT_NE(factory2.zgridElem, nullptr);
+        EXPECT_NE(factory2.gridElemGroup, nullptr);
 
-        // ZgridElem is lifetime-bound to the factory-owned CgnsZbase.
-        EXPECT_EQ( &factory2.zgridElem->GetCgnsZbase(), factory2.cgnsZbase.get() );
+        // GridElemGroup is lifetime-bound to the factory-owned CgnsZbase.
+        EXPECT_EQ( &factory2.gridElemGroup->GetCgnsZbase(), factory2.cgnsZbase.get() );
     });
 }
 
@@ -48,11 +48,11 @@ TEST(CgnsFactoryLifecycleTest, MoveAssignmentKeepsBaseBinding)
         factory2 = std::move( factory1 );
 
         EXPECT_EQ( factory1.cgnsZbase, nullptr );
-        EXPECT_EQ( factory1.zgridElem, nullptr );
+        EXPECT_EQ( factory1.gridElemGroup, nullptr );
         EXPECT_NE( factory2.cgnsZbase, nullptr );
-        EXPECT_NE( factory2.zgridElem, nullptr );
+        EXPECT_NE( factory2.gridElemGroup, nullptr );
         EXPECT_EQ(
-            &factory2.zgridElem->GetCgnsZbase(),
+            &factory2.gridElemGroup->GetCgnsZbase(),
             factory2.cgnsZbase.get() );
     });
 }
