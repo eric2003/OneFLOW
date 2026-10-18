@@ -171,6 +171,17 @@ class MeshLayoutDialog(QDialog):
         )
         return self._workspace_paths().mesh_layout_specifications / filename
 
+    def _require_outside_repository(self, path: Path) -> Path:
+        resolved_path = path.expanduser().resolve()
+        try:
+            resolved_path.relative_to(self._repository_root)
+        except ValueError:
+            return resolved_path
+        raise ValueError(
+            "Mesh Layout Editor will not write into the OneFLOW source tree. "
+            "Choose a path in the user workspace or another external directory."
+        )
+
     def _load_selected_template(self) -> None:
         kind = self.template_combo.currentData()
         path = self._template_path(kind)
@@ -413,7 +424,8 @@ class MeshLayoutDialog(QDialog):
         if not path:
             return
         try:
-            save_specification(Path(path), spec)
+            output_path = self._require_outside_repository(Path(path))
+            save_specification(output_path, spec)
         except (OSError, ValueError, TypeError) as error:
             QMessageBox.critical(self, "Cannot save specification", str(error))
             return
@@ -426,9 +438,11 @@ class MeshLayoutDialog(QDialog):
         try:
             spec = self._read_fields()
             layout, svg = compile_specification(spec)
-            output_path = Path(self.output_path_edit.text().strip()).expanduser()
             if not str(self.output_path_edit.text()).strip():
                 raise ValueError("Choose a layout output path.")
+            output_path = self._require_outside_repository(
+                Path(self.output_path_edit.text().strip())
+            )
             output_path.parent.mkdir(parents=True, exist_ok=True)
             output_path.write_text(layout, encoding="utf-8", newline="\n")
         except (OSError, ValueError, TypeError, KeyError) as error:
