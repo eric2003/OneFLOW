@@ -108,10 +108,10 @@ def validate_flat_plate_spec(spec):
         elif isinstance(value, dict):
             distribution_type = value.get("type")
             if distribution_type == "boundary_layer":
-                count = value.get("nearWallPointCount")
+                interval_count = value.get("nearWallIntervalCount")
                 distance = value.get("nearWallDistance")
-                if not isinstance(count, int) or isinstance(count, bool) or count < 2:
-                    raise ValueError(f"distribution {name} nearWallPointCount must be an integer >= 2")
+                if not isinstance(interval_count, int) or isinstance(interval_count, bool) or interval_count < 1:
+                    raise ValueError(f"distribution {name} nearWallIntervalCount must be an integer >= 1")
                 if not isinstance(distance, (int, float)) or isinstance(distance, bool) or distance <= 0:
                     raise ValueError(f"distribution {name} nearWallDistance must be positive")
             elif distribution_type == "tanh":
@@ -258,7 +258,7 @@ def compile_flat_plate(spec):
             lines_out.append(f"Ds({line_id})={{d,{start_value},{end_value}}}")
         elif values["type"] == "boundary_layer":
             lines_out.append(
-                f"Ds({line_id})={{bl,{values['nearWallPointCount']},"
+                f"Ds({line_id})={{bl,{values['nearWallIntervalCount'] + 1},"
                 f"{values['nearWallDistance']}}}"
             )
         else:
