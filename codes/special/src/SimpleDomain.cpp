@@ -461,6 +461,7 @@ void DomData::CalcBcCoor( CoorMap * coorMap, int closedCurve )
 
     int nCtrlPoint = this->ctrlpoints.size();
     int iCtrl = 0;
+    int segmentOffset = 0;
     for ( int i = 0; i < nSegLoop; ++ i )
     {
         int i1 = i;
@@ -485,9 +486,10 @@ void DomData::CalcBcCoor( CoorMap * coorMap, int closedCurve )
         Normalize( dj );
         Normalize( dk );
 
-        int mi = iter1->second.i + di * ( dim - 1 );
-        int mj = iter1->second.j + dj * ( dim - 1 );
-        int mk = iter1->second.k + dk * ( dim - 1 );
+        segmentOffset += dim - 1;
+        int mi = iter1->second.i + di * segmentOffset;
+        int mj = iter1->second.j + dj * segmentOffset;
+        int mk = iter1->second.k + dk * segmentOffset;
 
         CalcCoor coor;
         coor.SetCoor( mi, mj, mk );
@@ -496,6 +498,7 @@ void DomData::CalcBcCoor( CoorMap * coorMap, int closedCurve )
         if ( IsCtrlPoint( p2 ) )
         {
             iCtrl ++;
+            segmentOffset = 0;
         }
     }
 
