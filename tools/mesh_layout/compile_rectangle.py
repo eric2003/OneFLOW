@@ -31,6 +31,10 @@ def _boundary_value(value, line_id):
     )
 
 
+def _same_coordinate(left, right):
+    return math.isclose(left, right, rel_tol=0.0, abs_tol=1.0e-12)
+
+
 def compile_rectangle(spec):
     if spec.get("type") != "rectangle":
         raise ValueError("type must be 'rectangle'")
@@ -54,12 +58,12 @@ def compile_rectangle(spec):
     x2, y2, z2 = corners[2]
     x3, y3, z3 = corners[3]
     aligned = (
-        math.isclose(x0, x3) and math.isclose(x1, x2)
-        and math.isclose(y0, y1) and math.isclose(y2, y3)
-        and math.isclose(z0, z1) and math.isclose(z0, z2)
-        and math.isclose(z0, z3)
+        _same_coordinate(x0, x3) and _same_coordinate(x1, x2)
+        and _same_coordinate(y0, y1) and _same_coordinate(y2, y3)
+        and _same_coordinate(z0, z1) and _same_coordinate(z0, z2)
+        and _same_coordinate(z0, z3)
     )
-    non_degenerate = not math.isclose(x0, x1) and not math.isclose(y0, y2)
+    non_degenerate = not _same_coordinate(x0, x1) and not _same_coordinate(y0, y2)
     if not aligned or not non_degenerate:
         raise ValueError(
             "corners must describe a non-degenerate axis-aligned rectangle "
