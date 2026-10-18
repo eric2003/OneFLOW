@@ -47,6 +47,19 @@ def _format_coordinate(value):
     return format(value, ".15g")
 
 
+def _format_spacing(value):
+    if value == "auto":
+        return "-1"
+    formatted = format(float(value), ".15g")
+    if "e" in formatted.lower():
+        mantissa, exponent = formatted.lower().split("e", 1)
+        if "." not in mantissa:
+            mantissa += ".0"
+        formatted = f"{mantissa}e{int(exponent)}"
+    return formatted
+
+
+
 def validate_flat_plate_spec(spec):
     if spec.get("type") != "flat_plate":
         raise ValueError("type must be 'flat_plate'")
@@ -64,32 +77,37 @@ def validate_flat_plate_spec(spec):
     distributions = spec.get("distributions", {})
     if not isinstance(distributions, dict):
         raise ValueError("distributions must be an object")
-    for name in ("upstream", "plate", "vertical", "top"):
+    names = ["upstream", "plate", "vertical"]
+    has_top_upstream = "topUpstream" in distributions
+    has_top_plate = "topPlate" in distributions
+    if has_top_upstream != has_top_plate:
+        raise ValueError("topUpstream and topPlate distributions must be specified together")
+    names.extend(["topUpstream", "topPlate"] if has_top_upstream else ["top"])
+    for name in names:
         value = distributions.get(name)
         if isinstance(value, list):
             if len(value) != 2:
                 raise ValueError(f"distribution {name} must contain two values")
         elif isinstance(value, dict):
-            if value.get("type") != "boundary_layer":
+            distribution_type = value.get("type")
+            if distribution_type == "boundary_layer":
+                count = value.get("nearWallPointCount")
+                distance = value.get("nearWallDistance")
+                if not isinstance(count, int) or isinstance(count, bool) or count < 2:
+                    raise ValueError(f"distribution {name} nearWallPointCount must be an integer >= 2")
+                if not isinstance(distance, (int, float)) or isinstance(distance, bool) or distance <= 0:
+                    raise ValueError(f"distribution {name} nearWallDistance must be positive")
+            elif distribution_type == "tanh":
+                for endpoint in ("startSpacing", "endSpacing"):
+                    spacing = value.get(endpoint)
+                    if spacing == "auto":
+                        continue
+                    if not isinstance(spacing, (int, float)) or isinstance(spacing, bool) or spacing <= 0:
+                        raise ValueError(f"distribution {name} {endpoint} must be positive or auto")
+            else:
                 raise ValueError(f"distribution {name} has unsupported object type")
-            count = value.get("nearWallPointCount")
-            distance = value.get("nearWallDistance")
-            if not isinstance(count, int) or isinstance(count, bool) or count < 2:
-                raise ValueError(
-                    f"distribution {name} nearWallPointCount must be an integer >= 2"
-                )
-            if (
-                not isinstance(distance, (int, float))
-                or isinstance(distance, bool)
-                or distance <= 0
-            ):
-                raise ValueError(
-                    f"distribution {name} nearWallDistance must be positive"
-                )
         else:
-            raise ValueError(
-                f"distribution {name} must contain two values or a boundary-layer object"
-            )
+            raise ValueError(f"distribution {name} must contain two values or a supported distribution object")
 
     boundaries = spec.get("boundaries")
     if not isinstance(boundaries, dict):
@@ -144,14 +162,28 @@ def compile_flat_plate(spec):
     ]
 
     distributions = spec["distributions"]
+    top_upstream = distributions.get("topUpstream", distributions.get("top"))
+    top_plate = distributions.get("topPlate")
+    if top_plate is None:
+        if isinstance(top_upstream, list):
+            top_plate = list(reversed(top_upstream))
+        elif isinstance(top_upstream, dict) and top_upstream.get("type") == "tanh":
+            top_plate = {
+                "type": "tanh",
+                "startSpacing": top_upstream["endSpacing"],
+                "endSpacing": top_upstream["startSpacing"],
+            }
+        else:
+            top_plate = top_upstream
+
     distribution_values = [
         distributions["upstream"],
         distributions["plate"],
         distributions["vertical"],
         distributions["vertical"],
         distributions["vertical"],
-        distributions["top"],
-        distributions["top"],
+        top_upstream,
+        top_plate,
     ]
 
     boundary_values = [
@@ -184,11 +216,15 @@ def compile_flat_plate(spec):
         if isinstance(values, list):
             start_value, end_value = values
             lines_out.append(f"Ds({line_id})={{d,{start_value},{end_value}}}")
-        else:
+        elif values["type"] == "boundary_layer":
             lines_out.append(
                 f"Ds({line_id})={{bl,{values['nearWallPointCount']},"
                 f"{values['nearWallDistance']}}}"
             )
+        else:
+            start_value = _format_spacing(values["startSpacing"])
+            end_value = _format_spacing(values["endSpacing"])
+            lines_out.append(f"Ds({line_id})={{tanh,{start_value},{end_value}}}")
 
     lines_out.append("")
     for line_id, boundary in enumerate(boundary_values, start=1):
