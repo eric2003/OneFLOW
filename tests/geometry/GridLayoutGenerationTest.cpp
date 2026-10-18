@@ -323,6 +323,25 @@ TEST( SDomainTest, RejectsAdjacentEdgesWithoutSharedEndpointCandidates )
         std::runtime_error );
 }
 
+TEST( MDomainTest, RebuildsAggregateIncidenceMapsWithoutStaleEntries )
+{
+    MDomain domain;
+    domain.lineToDomainMap[ 10 ].insert( 7 );
+    domain.pointToDomainMap[ 101 ].insert( 7 );
+    domain.pointToPointMap[ 101 ].insert( 205 );
+    domain.pointToLineMap[ 101 ].insert( 10 );
+
+    domain.ConstructMultiLineToDomainMap();
+    domain.ConstructMultiPointToDomainMap();
+    domain.ConstructMultiPointToPointMap();
+    domain.ConstructPointToLineMap();
+
+    EXPECT_TRUE( domain.lineToDomainMap.empty() );
+    EXPECT_TRUE( domain.pointToDomainMap.empty() );
+    EXPECT_TRUE( domain.pointToPointMap.empty() );
+    EXPECT_TRUE( domain.pointToLineMap.empty() );
+}
+
 TEST( MDomainTest, ReportsStalledControlPointResolution )
 {
     CoorMap coordinates;
