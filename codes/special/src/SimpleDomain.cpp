@@ -73,6 +73,8 @@ void Face2D::Set1DRegion( IntField & ctrlpoints )
 
 void DomData::ConstructCtrlPoint()
 {
+    this->candidate_ctrlpoints.clear();
+
     std::map< int, IntSet >::iterator iter;
     for ( iter = this->pointToDomainMap.begin(); iter != this->pointToDomainMap.end(); ++ iter )
     {
