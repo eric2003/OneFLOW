@@ -5,6 +5,23 @@ import argparse
 import json
 from pathlib import Path
 
+try:
+    from tools.mesh_layout.layout_topology import (
+        LayoutBlock,
+        LayoutFace,
+        LayoutLine,
+        LayoutPoint,
+        LayoutTopology,
+    )
+except ModuleNotFoundError:
+    from layout_topology import (
+        LayoutBlock,
+        LayoutFace,
+        LayoutLine,
+        LayoutPoint,
+        LayoutTopology,
+    )
+
 
 BC_TYPES = {
     "none": 0,
@@ -47,6 +64,19 @@ def _format_coordinate(value):
     return format(value, ".15g")
 
 
+def _format_spacing(value):
+    if value == "auto":
+        return "-1"
+    formatted = format(float(value), ".15g")
+    if "e" in formatted.lower():
+        mantissa, exponent = formatted.lower().split("e", 1)
+        if "." not in mantissa:
+            mantissa += ".0"
+        formatted = f"{mantissa}e{int(exponent)}"
+    return formatted
+
+
+
 def validate_flat_plate_spec(spec):
     if spec.get("type") != "flat_plate":
         raise ValueError("type must be 'flat_plate'")
@@ -64,32 +94,37 @@ def validate_flat_plate_spec(spec):
     distributions = spec.get("distributions", {})
     if not isinstance(distributions, dict):
         raise ValueError("distributions must be an object")
-    for name in ("upstream", "plate", "vertical", "top"):
+    names = ["upstream", "plate", "vertical"]
+    has_top_upstream = "topUpstream" in distributions
+    has_top_plate = "topPlate" in distributions
+    if has_top_upstream != has_top_plate:
+        raise ValueError("topUpstream and topPlate distributions must be specified together")
+    names.extend(["topUpstream", "topPlate"] if has_top_upstream else ["top"])
+    for name in names:
         value = distributions.get(name)
         if isinstance(value, list):
             if len(value) != 2:
                 raise ValueError(f"distribution {name} must contain two values")
         elif isinstance(value, dict):
-            if value.get("type") != "boundary_layer":
+            distribution_type = value.get("type")
+            if distribution_type == "boundary_layer":
+                interval_count = value.get("nearWallIntervalCount")
+                distance = value.get("nearWallDistance")
+                if not isinstance(interval_count, int) or isinstance(interval_count, bool) or interval_count < 1:
+                    raise ValueError(f"distribution {name} nearWallIntervalCount must be an integer >= 1")
+                if not isinstance(distance, (int, float)) or isinstance(distance, bool) or distance <= 0:
+                    raise ValueError(f"distribution {name} nearWallDistance must be positive")
+            elif distribution_type == "tanh":
+                for endpoint in ("startSpacing", "endSpacing"):
+                    spacing = value.get(endpoint)
+                    if spacing == "auto":
+                        continue
+                    if not isinstance(spacing, (int, float)) or isinstance(spacing, bool) or spacing <= 0:
+                        raise ValueError(f"distribution {name} {endpoint} must be positive or auto")
+            else:
                 raise ValueError(f"distribution {name} has unsupported object type")
-            count = value.get("nearWallPointCount")
-            distance = value.get("nearWallDistance")
-            if not isinstance(count, int) or isinstance(count, bool) or count < 2:
-                raise ValueError(
-                    f"distribution {name} nearWallPointCount must be an integer >= 2"
-                )
-            if (
-                not isinstance(distance, (int, float))
-                or isinstance(distance, bool)
-                or distance <= 0
-            ):
-                raise ValueError(
-                    f"distribution {name} nearWallDistance must be positive"
-                )
         else:
-            raise ValueError(
-                f"distribution {name} must contain two values or a boundary-layer object"
-            )
+            raise ValueError(f"distribution {name} must contain two values or a supported distribution object")
 
     boundaries = spec.get("boundaries")
     if not isinstance(boundaries, dict):
@@ -144,14 +179,28 @@ def compile_flat_plate(spec):
     ]
 
     distributions = spec["distributions"]
+    top_upstream = distributions.get("topUpstream", distributions.get("top"))
+    top_plate = distributions.get("topPlate")
+    if top_plate is None:
+        if isinstance(top_upstream, list):
+            top_plate = list(reversed(top_upstream))
+        elif isinstance(top_upstream, dict) and top_upstream.get("type") == "tanh":
+            top_plate = {
+                "type": "tanh",
+                "startSpacing": top_upstream["endSpacing"],
+                "endSpacing": top_upstream["startSpacing"],
+            }
+        else:
+            top_plate = top_upstream
+
     distribution_values = [
         distributions["upstream"],
         distributions["plate"],
         distributions["vertical"],
         distributions["vertical"],
         distributions["vertical"],
-        distributions["top"],
-        distributions["top"],
+        top_upstream,
+        top_plate,
     ]
 
     boundary_values = [
@@ -164,52 +213,73 @@ def compile_flat_plate(spec):
         _boundary_type(spec["boundaries"], "topPlate"),
     ]
 
+    topology = LayoutTopology(
+        points=tuple(LayoutPoint(point_id, x, y, z) for point_id, x, y, z in points),
+        lines=tuple(
+            LayoutLine(
+                line_id, p1, p2, counts[line_id - 1],
+                distribution_values[line_id - 1], boundary_values[line_id - 1],
+            )
+            for line_id, p1, p2 in lines
+        ),
+        faces=(
+            LayoutFace(1, ((1, 1), (2, 4), (3, 6), (4, 3))),
+            LayoutFace(2, ((1, 2), (2, 5), (3, 7), (4, 4))),
+        ),
+        blocks=(
+            LayoutBlock(1, ((1, 1),)),
+            LayoutBlock(2, ((1, 2),)),
+        ),
+    )
+    topology.validate()
     lines_out = []
-    for point_id, x, y, z in points:
+    for point in topology.points:
         lines_out.append(
-            f"Point({point_id})= {{{_format_coordinate(x)},"
-            f"{_format_coordinate(y)},{_format_coordinate(z)}}}"
+            f"Point({point.id})= {{{_format_coordinate(point.x)},"
+            f"{_format_coordinate(point.y)},{_format_coordinate(point.z)}}}"
         )
 
     lines_out.append("")
-    for line_id, p1, p2 in lines:
-        lines_out.append(f"Line({line_id})={{{p1},{p2}}}")
+    for line in topology.lines:
+        lines_out.append(
+            f"Line({line.id})={{{line.start_point},{line.end_point}}}"
+        )
 
     lines_out.append("")
-    for line_id, count in enumerate(counts, start=1):
-        lines_out.append(f"Dim({line_id})={{{count}}}")
+    for line in topology.lines:
+        lines_out.append(f"Dim({line.id})={{{line.point_count}}}")
 
     lines_out.append("")
-    for line_id, values in enumerate(distribution_values, start=1):
+    for line in topology.lines:
+        line_id = line.id
+        values = line.distribution
         if isinstance(values, list):
             start_value, end_value = values
             lines_out.append(f"Ds({line_id})={{d,{start_value},{end_value}}}")
-        else:
+        elif values["type"] == "boundary_layer":
             lines_out.append(
-                f"Ds({line_id})={{bl,{values['nearWallPointCount']},"
+                f"Ds({line_id})={{bl,{values['nearWallIntervalCount'] + 1},"
                 f"{values['nearWallDistance']}}}"
             )
+        else:
+            start_value = _format_spacing(values["startSpacing"])
+            end_value = _format_spacing(values["endSpacing"])
+            lines_out.append(f"Ds({line_id})={{tanh,{start_value},{end_value}}}")
 
     lines_out.append("")
-    for line_id, boundary in enumerate(boundary_values, start=1):
-        lines_out.append(f"Boundary({line_id})={{{boundary}}}")
+    for line in topology.lines:
+        lines_out.append(f"Boundary({line.id})={{{line.boundary_type}}}")
 
-    lines_out.extend([
-        "",
-        "Add L2F 1 1 1",
-        "Add L2F 1 2 4",
-        "Add L2F 1 3 6",
-        "Add L2F 1 4 3",
-        "",
-        "Add L2F 2 1 2",
-        "Add L2F 2 2 5",
-        "Add L2F 2 3 7",
-        "Add L2F 2 4 4",
-        "",
-        "Add F2B 1 1 1",
-        "Add F2B 2 1 2",
-        "",
-    ])
+    for face in topology.faces:
+        lines_out.append("")
+        for position, line_id in face.line_by_side:
+            lines_out.append(f"Add L2F {face.id} {position} {line_id}")
+
+    lines_out.append("")
+    for block in topology.blocks:
+        for position, face_id in block.face_by_position:
+            lines_out.append(f"Add F2B {block.id} {position} {face_id}")
+    lines_out.append("")
     return "\n".join(lines_out)
 
 
@@ -221,19 +291,27 @@ def render_flat_plate_svg(spec):
     height = float(spec["domainHeight"])
     x_min, x_max = -upstream, length
 
-    width, canvas_height, margin = 900, 560, 80
+    width, canvas_height = 1000, 640
+    left_gutter, right_gutter, top_gutter, bottom_gutter = 210, 170, 95, 110
     x_span = max(x_max - x_min, 1.0e-12)
     y_span = max(height, 1.0e-12)
-    scale = min((width - 2 * margin) / x_span,
-                (canvas_height - 2 * margin) / y_span)
+    scale = min(
+        (width - left_gutter - right_gutter) / x_span,
+        (canvas_height - top_gutter - bottom_gutter) / y_span,
+    )
 
     draw_width = x_span * scale
     draw_height = y_span * scale
-    left = (width - draw_width) / 2
-    bottom = canvas_height - (canvas_height - draw_height) / 2
+    geometry_left = left_gutter + (
+        width - left_gutter - right_gutter - draw_width
+    ) / 2
+    geometry_top = top_gutter + (
+        canvas_height - top_gutter - bottom_gutter - draw_height
+    ) / 2
+    geometry_bottom = geometry_top + draw_height
 
     def screen(x, y):
-        return left + (x - x_min) * scale, bottom - y * scale
+        return geometry_left + (x - x_min) * scale, geometry_bottom - y * scale
 
     p1 = screen(-upstream, 0.0)
     p2 = screen(0.0, 0.0)
@@ -242,34 +320,71 @@ def render_flat_plate_svg(spec):
     p5 = screen(0.0, height)
     p6 = screen(length, height)
 
+    boundaries = spec["boundaries"]
+    boundary_names = {
+        "none": "None", "interface": "Interface", "extrapolation": "Extrapolation",
+        "wall": "Wall", "symmetry": "Symmetry", "farfield": "Farfield",
+        "inflow": "Inflow", "outflow": "Outflow", "interior": "Interior",
+        "overset": "Overset", 0: "None", -1: "Interface", 1: "Extrapolation",
+        2: "Wall", 3: "Symmetry", 4: "Farfield", 5: "Inflow", 6: "Outflow",
+        100: "Interior", 1000: "Overset",
+    }
+
+    def boundary_label(name):
+        value = boundaries[name]
+        if isinstance(value, str):
+            return boundary_names.get(value.lower(), value)
+        return boundary_names.get(value, str(value))
+
+    def label(x, y, edge_name, condition, count, anchor="middle", count_below=False):
+        count_text = f"({count} points)"
+        if count_below:
+            return (
+                f'<text x="{x:.1f}" y="{y:.1f}" text-anchor="{anchor}" '
+                f'font-size="13" fill="#202020">'
+                f'<tspan x="{x:.1f}" dy="0">{edge_name}: {condition}</tspan>'
+                f'<tspan x="{x:.1f}" dy="17">{count_text}</tspan></text>'
+            )
+        return (
+            f'<text x="{x:.1f}" y="{y:.1f}" text-anchor="{anchor}" '
+            f'font-size="13" fill="#202020">'
+            f'{edge_name}: {condition} {count_text}</text>'
+        )
+
     elements = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" '
         f'height="{canvas_height}" viewBox="0 0 {width} {canvas_height}">',
-        '<rect width="100%" height="100%" fill="white"/>',
+        '<rect x="0" y="0" width="100%" height="100%" fill="#f5f7fa"/>',
         f'<rect x="{p1[0]:.3f}" y="{p4[1]:.3f}" width="{p6[0]-p1[0]:.3f}" '
         f'height="{p1[1]-p4[1]:.3f}" fill="#eef5ff" stroke="#202020"/>',
         f'<line x1="{p2[0]:.3f}" y1="{p2[1]:.3f}" x2="{p5[0]:.3f}" '
         f'y2="{p5[1]:.3f}" stroke="#888" stroke-dasharray="6,5"/>',
         f'<line x1="{p2[0]:.3f}" y1="{p2[1]:.3f}" x2="{p3[0]:.3f}" '
         f'y2="{p3[1]:.3f}" stroke="#b23a48" stroke-width="5"/>',
-        f'<text x="{width/2:.1f}" y="34" text-anchor="middle" '
-        f'font-size="21" fill="#202020">Flat plate boundary-layer layout</text>',
-        f'<text x="{(p1[0]+p2[0])/2:.1f}" y="{p1[1]+34:.1f}" '
-        f'text-anchor="middle" font-size="15">upstream: {spec["upstreamPointCount"]} points</text>',
-        f'<text x="{(p2[0]+p3[0])/2:.1f}" y="{p2[1]+34:.1f}" '
-        f'text-anchor="middle" font-size="15">plate: {spec["platePointCount"]} points</text>',
-        f'<text x="{p2[0]+8:.1f}" y="{(p2[1]+p5[1])/2:.1f}" '
-        f'font-size="14">block interface</text>',
-        f'<text x="{p1[0]-8:.1f}" y="{(p1[1]+p4[1])/2:.1f}" '
-        f'text-anchor="end" font-size="14">farfield</text>',
-        f'<text x="{p6[0]+8:.1f}" y="{(p3[1]+p6[1])/2:.1f}" '
-        f'font-size="14">outflow</text>',
-        f'<text x="{(p1[0]+p6[0])/2:.1f}" y="{p4[1]-14:.1f}" '
-        f'text-anchor="middle" font-size="14">farfield</text>',
-        f'<text x="{(p2[0]+p3[0])/2:.1f}" y="{p2[1]+55:.1f}" '
-        f'text-anchor="middle" font-size="14" fill="#b23a48">wall</text>',
-        '</svg>',
+        f'<text x="{width/2:.1f}" y="40" text-anchor="middle" '
+        f'font-size="23" fill="#202020">Flat plate boundary-layer layout</text>',
     ]
+
+    upstream_count = spec["upstreamPointCount"]
+    plate_count = spec["platePointCount"]
+    normal_count = spec["normalPointCount"]
+    elements.extend([
+        label((p1[0] + p2[0]) / 2, p1[1] + 34, "upstreamBottom",
+              boundary_label("upstreamBottom"), upstream_count),
+        label((p2[0] + p3[0]) / 2, p2[1] + 49, "plate",
+              boundary_label("plate"), plate_count),
+        label(p1[0] - 14, (p1[1] + p4[1]) / 2 - 9, "left",
+              boundary_label("left"), normal_count, anchor="end", count_below=True),
+        label(p2[0] - 14, (p2[1] + p5[1]) / 2 - 30, "interface",
+              boundary_label("interface"), normal_count, anchor="end", count_below=True),
+        label(p3[0] + 14, (p3[1] + p6[1]) / 2 + 12, "right",
+              boundary_label("right"), normal_count, anchor="start", count_below=True),
+        label((p4[0] + p5[0]) / 2, p4[1] - 24, "topUpstream",
+              boundary_label("topUpstream"), upstream_count),
+        label((p5[0] + p6[0]) / 2, p5[1] - 24, "topPlate",
+              boundary_label("topPlate"), plate_count),
+        "</svg>",
+    ])
     return "\n".join(elements) + "\n"
 
 

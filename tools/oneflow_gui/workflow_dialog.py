@@ -66,6 +66,7 @@ class WorkflowRunWorker(QThread):
         case_graph: list[dict] | None = None,
         base_directory: Path | None = None,
         run_root: Path | None = None,
+        log_path: Path | None = None,
     ) -> None:
         super().__init__()
         self._executable = executable
@@ -75,6 +76,7 @@ class WorkflowRunWorker(QThread):
         self._case_graph = case_graph
         self._base_directory = base_directory
         self._run_root = run_root
+        self._log_path = log_path
         self._cancel = threading.Event()
 
     def request_stop(self) -> None:
@@ -179,6 +181,7 @@ class WorkflowRunWorker(QThread):
                 "steps": step_records,
                 "artifacts": artifacts,
                 "message": message,
+                "log_path": str(self._log_path) if self._log_path is not None else None,
             }
         )
 
@@ -201,6 +204,7 @@ class WorkflowDialog(QDialog):
             self._user_data_paths.workflow_data
         )
         self._worker: WorkflowRunWorker | None = None
+        self._active_log_path: Path | None = None
         self._selected_id: str | None = None
         self._build_ui(executable)
         self._reload_workflows()
@@ -499,6 +503,10 @@ class WorkflowDialog(QDialog):
             return
         run_id = datetime.now().strftime("%Y%m%d-%H%M%S") + "-" + uuid4().hex[:8]
         started_at = _timestamp()
+        log_path = (self._user_data_paths.logs / f"{run_id}.log").resolve()
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        log_path.write_text(f"Run {run_id}: {workflow.name}\n", encoding="utf-8")
+        self._active_log_path = log_path
         if case_graph is not None:
             run_root = (self._user_data_paths.executions / run_id).resolve()
             initial_steps = ({
@@ -522,6 +530,7 @@ class WorkflowDialog(QDialog):
                 executable=str(executable),
                 steps=initial_steps,
                 message="Workflow process started.",
+                log_path=str(log_path),
             )
         )
         self.log_view.appendPlainText(f"\nRun {run_id}: {workflow.name}")
@@ -535,8 +544,9 @@ class WorkflowDialog(QDialog):
             case_graph=case_graph,
             base_directory=base_directory,
             run_root=run_root,
+            log_path=log_path,
         )
-        self._worker.log_line.connect(self.log_view.appendPlainText)
+        self._worker.log_line.connect(self._append_run_log)
         self._worker.completed.connect(self._workflow_completed)
         self._worker.finished.connect(self._worker_finished)
         self._worker.start()
@@ -560,6 +570,16 @@ class WorkflowDialog(QDialog):
         self.run_button.setEnabled(True)
         self.stop_button.setEnabled(False)
         self._worker = None
+
+    def _append_run_log(self, line: str) -> None:
+        self.log_view.appendPlainText(line)
+        if self._active_log_path is None:
+            return
+        try:
+            with self._active_log_path.open("a", encoding="utf-8", newline="\n") as stream:
+                stream.write(line + "\n")
+        except OSError as error:
+            self.log_view.appendPlainText(f"Could not write run log: {error}")
 
     def _reload_history(self, workflow_id: str) -> None:
         self.history_list.clear()

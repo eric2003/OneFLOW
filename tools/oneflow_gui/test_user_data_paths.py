@@ -25,6 +25,22 @@ class UserDataPathsTest(unittest.TestCase):
             self.assertEqual(paths.executions, paths.workflow_data / "executions")
             self.assertEqual(paths.settings_file, paths.root / "settings.json")
             self.assertEqual(paths.logs, paths.root / "logs")
+            self.assertEqual(
+                paths.mesh_layout_workspace,
+                paths.root / "mesh-layout-workspace",
+            )
+            self.assertEqual(
+                paths.mesh_layout_projects,
+                paths.mesh_layout_workspace / "projects",
+            )
+            self.assertEqual(
+                paths.mesh_layout_specifications,
+                paths.mesh_layout_workspace / "specifications",
+            )
+            self.assertEqual(
+                paths.mesh_layout_outputs,
+                paths.mesh_layout_workspace / "layouts",
+            )
             self.assertFalse(paths.root.exists())
 
     def test_oneflow_home_overrides_default_home(self) -> None:

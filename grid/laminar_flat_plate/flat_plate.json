@@ -1,6 +1,8 @@
 {
   "type": "flat_plate",
-  "description": "2D laminar flat-plate boundary-layer reference layout.",
+  "templateId": "two_block_laminar_flat_plate",
+  "templateName": "Two-block Laminar Flat Plate",
+  "description": "Two-block laminar flat-plate template with 40 uniform near-wall intervals spanning 0.02 (41 points).",
   "plateLength": 2,
   "upstreamDistance": 2,
   "domainHeight": 4,
@@ -18,7 +20,7 @@
     ],
     "vertical": {
       "type": "boundary_layer",
-      "nearWallPointCount": 41,
+      "nearWallIntervalCount": 40,
       "nearWallDistance": 0.02
     },
     "top": [

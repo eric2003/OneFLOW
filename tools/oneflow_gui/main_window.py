@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import threading
+from datetime import datetime, timezone
 from pathlib import Path
 
 from PySide6.QtCore import QThread, Signal, Qt
@@ -31,6 +32,10 @@ from .models import CaseDefinition, CaseRunResult, RunState
 from .runner import create_run_id, run_case
 from .user_data_paths import UserDataPaths
 from .workflow_dialog import WorkflowDialog
+from .test_dialog import TestRunnerDialog
+from .run_history_dialog import RunHistoryDialog
+from .workflow_repository import WorkflowRepository, WorkflowRunRecord
+from .mesh_layout_dialog import MeshLayoutDialog
 
 
 class RunQueueWorker(QThread):
@@ -99,8 +104,12 @@ class MainWindow(QMainWindow):
         self._cases: list[CaseDefinition] = []
         self._worker: RunQueueWorker | None = None
         self._row_by_id: dict[str, int] = {}
+        self._history_repository = WorkflowRepository(UserDataPaths.discover().workflow_data)
+        self._active_case_run_record: WorkflowRunRecord | None = None
+        self._active_case_run_steps: list[dict] = []
+        self._active_case_run_log_path: Path | None = None
 
-        self.setWindowTitle("OneFLOW Case Runner")
+        self.setWindowTitle("OneFLOW Workbench")
         self.resize(1100, 760)
         self._build_ui()
         self._load_cases()
@@ -112,7 +121,7 @@ class MainWindow(QMainWindow):
         root_layout.setContentsMargins(20, 18, 20, 18)
         root_layout.setSpacing(12)
 
-        heading = QLabel("OneFLOW Case Runner")
+        heading = QLabel("Case Workbench")
         heading.setObjectName("pageTitle")
         subtitle = QLabel(
             "Select cases, run them in isolated workspaces, and review process logs."
@@ -184,6 +193,12 @@ class MainWindow(QMainWindow):
         refresh.clicked.connect(self._load_cases)
         workflows = QPushButton("Workflows...")
         workflows.clicked.connect(self._open_workflows)
+        mesh_layout_button = QPushButton("Mesh Layout...")
+        mesh_layout_button.clicked.connect(self._open_mesh_layout)
+        tests_button = QPushButton("Tests...")
+        tests_button.clicked.connect(self._open_tests)
+        history_button = QPushButton("Run History...")
+        history_button.clicked.connect(self._open_run_history)
         self.run_button = QPushButton("Run selected cases")
         self.run_button.setObjectName("primaryButton")
         self.run_button.clicked.connect(self._start_run)
@@ -194,6 +209,9 @@ class MainWindow(QMainWindow):
         action_layout.addWidget(select_none)
         action_layout.addWidget(refresh)
         action_layout.addWidget(workflows)
+        action_layout.addWidget(mesh_layout_button)
+        action_layout.addWidget(tests_button)
+        action_layout.addWidget(history_button)
         action_layout.addStretch(1)
         action_layout.addWidget(self.run_button)
         action_layout.addWidget(self.stop_button)
@@ -353,6 +371,35 @@ class MainWindow(QMainWindow):
             return
 
         run_id = create_run_id()
+        started_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
+        log_path = (UserDataPaths.discover().logs / f"{run_id}.log").resolve()
+        try:
+            log_path.parent.mkdir(parents=True, exist_ok=True)
+            log_path.write_text(
+                f"Case Workbench run {run_id}\nExecutable: {Path(executable_text).resolve()}\n",
+                encoding="utf-8",
+            )
+            initial_record = WorkflowRunRecord(
+                run_id=run_id,
+                workflow_id="case-workbench",
+                status="running",
+                started_at=started_at,
+                executable=str(Path(executable_text).resolve()),
+                steps=({
+                    "type": "case_queue",
+                    "case_ids": [case.case_id for case in selected],
+                    "workspace": str(workspace_root / run_id),
+                },),
+                message="Case queue started.",
+                log_path=str(log_path),
+            )
+            self._history_repository.save_run(initial_record)
+        except (OSError, ValueError) as error:
+            QMessageBox.critical(self, "Cannot record run", str(error))
+            return
+        self._active_case_run_record = initial_record
+        self._active_case_run_steps = []
+        self._active_case_run_log_path = log_path
         self.log_view.appendPlainText(
             f"\nRun {run_id}\nExecutable: {Path(executable_text).resolve()}\n"
             f"Workspace: {workspace_root / run_id}"
@@ -365,12 +412,24 @@ class MainWindow(QMainWindow):
         self._worker = RunQueueWorker(
             selected, Path(executable_text), workspace_root, run_id
         )
-        self._worker.log_line.connect(self.log_view.appendPlainText)
+        self._worker.log_line.connect(self._append_case_run_log)
         self._worker.case_state.connect(self._set_case_status)
         self._worker.case_result.connect(self._show_result)
         self._worker.finished.connect(self._queue_finished)
         self._worker.start()
         self.statusBar().showMessage(f"Running {len(selected)} case(s)...")
+
+    def _open_mesh_layout(self) -> None:
+        dialog = MeshLayoutDialog(self._repository_root, self)
+        dialog.exec()
+
+    def _open_run_history(self) -> None:
+        dialog = RunHistoryDialog(UserDataPaths.discover().workflow_data, self)
+        dialog.exec()
+
+    def _open_tests(self) -> None:
+        dialog = TestRunnerDialog(self._repository_root, self)
+        dialog.exec()
 
     def _open_workflows(self) -> None:
         dialog = WorkflowDialog(
@@ -393,12 +452,57 @@ class MainWindow(QMainWindow):
         if row is not None:
             self.case_table.item(row, 3).setText(status)
 
+    def _append_case_run_log(self, line: str) -> None:
+        self.log_view.appendPlainText(line)
+        if self._active_case_run_log_path is None:
+            return
+        try:
+            with self._active_case_run_log_path.open("a", encoding="utf-8") as stream:
+                stream.write(line + "\n")
+        except OSError as error:
+            self.statusBar().showMessage(f"Could not write run log: {error}")
+
     def _show_result(self, result: CaseRunResult) -> None:
         self.log_view.appendPlainText(
             f"[{result.case_id}] {result.message}\nWorkspace: {result.workspace}"
         )
+        self._active_case_run_steps.append({
+            "type": "case",
+            "case_id": result.case_id,
+            "status": result.state.value.lower(),
+            "return_code": result.return_code,
+            "workspace": str(result.workspace),
+            "message": result.message,
+        })
 
     def _queue_finished(self) -> None:
+        record = self._active_case_run_record
+        if record is not None:
+            statuses = {step["status"] for step in self._active_case_run_steps}
+            if "failed" in statuses:
+                status = "failed"
+            elif "cancelled" in statuses:
+                status = "cancelled"
+            else:
+                status = "succeeded"
+            updated_record = WorkflowRunRecord(
+                run_id=record.run_id,
+                workflow_id=record.workflow_id,
+                status=status,
+                started_at=record.started_at,
+                finished_at=datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                executable=record.executable,
+                steps=tuple(self._active_case_run_steps),
+                artifacts=record.artifacts,
+                message=f"Case queue finished with status '{status}'.",
+                note=record.note,
+                log_path=record.log_path,
+            )
+            try:
+                self._history_repository.save_run(updated_record)
+            except (OSError, ValueError) as error:
+                self.log_view.appendPlainText(f"Could not save run history: {error}")
+            self._active_case_run_record = None
         self.run_button.setEnabled(True)
         self.stop_button.setEnabled(False)
         self.statusBar().showMessage("Run queue finished")
@@ -417,7 +521,7 @@ class MainWindow(QMainWindow):
 def run_desktop_app() -> int:
     """Create the application and enter Qt's event loop."""
     application = QApplication.instance() or QApplication([])
-    application.setApplicationName("OneFLOW Case Runner")
+    application.setApplicationName("OneFLOW Workbench")
     window = MainWindow()
     window.show()
     return application.exec()

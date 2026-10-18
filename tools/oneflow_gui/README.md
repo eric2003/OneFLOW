@@ -1,7 +1,6 @@
 # OneFLOW Desktop Case Runner
 
-The desktop application provides a small, extensible GUI for selecting cases
-from the shared catalog and running them through the normal OneFLOW executable.
+The desktop application provides a shared entry point for the Case Workbench, tests, saved workflows, and run history. It selects cases from the shared catalog and runs them through the normal OneFLOW executable.
 
 ## Launch
 
@@ -29,6 +28,25 @@ Each case is copied to a unique directory under the selected workspace before
 execution. Generated files therefore do not overwrite the checked-in case
 inputs. The application invokes the same command shape used by the existing
 workflow runner: `OneFLOW.exe r <case-directory>`.
+
+Use **Tests...** to run the existing CTest and Python unit-test commands by default, or enable the optional CFD/grid regression suite. Regression runs invoke `test/test.py` and an existing manifest from `test/suites/`; the GUI does not implement a second test engine. Use **Run History...** to inspect Case Workbench and workflow run records and logs, edit notes, delete individual records, or clean matching history by workflow, status, and timestamp. These history operations never delete run artifacts.
+
+Use **Mesh Layout...** to open the mesh layout project editor. Choosing
+**Single rectangle** or **Two-block flat plate** copies the complete template
+project once into `~/.oneflow/mesh-layout-workspace/projects`; later openings
+reuse that project without overwriting edits. Each project keeps its JSON,
+scripts, and generated layout together, so **Save specification** updates the
+project JSON and **Compile layout** writes the layout under that project's
+`grid` directory. Set `ONEFLOW_HOME` to move the workspace. Use **Load JSON...**
+to open a user project at another location; that project remains in place and
+is writable as long as it is outside the OneFLOW source tree. Checked-in source
+files are never writable through the editor. The editor supports the
+single-rectangle and two-block flat-plate templates, edits geometry, line point
+counts, spacing, and boundary types, and previews the layout as SVG. Boundary
+selectors show concise names by default; hover for details or enable
+**Show boundary codes** to show legacy numeric codes. The flat-plate preview
+labels every edge with its edge name, boundary condition, and point count.
+**Reset flat-plate boundaries** restores the standard two-block defaults.
 
 Use **Workflows...** to create, edit, save, and delete named workflows. The
 **Multi-directory** mode preserves the existing behavior: each directory is
@@ -71,6 +89,8 @@ The long-term product direction is documented in both [Chinese](../../docs/ONEFL
 - `workflow_execution.py`: shell-free construction of one-process,
   multi-directory command arguments, preserving the user-specified order.
 - `main_window.py`: Qt widgets and the sequential queue worker.
+- `mesh_layout_dialog.py`: template-based geometry, mesh-count, spacing, and boundary editor with SVG preview.
+- `tools/mesh_layout/editor_document.py`: Qt-independent JSON loading, validation, compilation, and saving shared by the editor.
 - `workflow_dialog.py`: workflow editor, single-process multi-directory execution, and persisted run-history presentation.
 - `test_services.py`: standard-library tests for the non-UI services.
 - `test_workflow_execution.py`: tests for argument order, spaces, and invalid input.

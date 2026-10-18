@@ -1,24 +1,18 @@
 {
   "type": "flat_plate",
-  "description": "Two-block flat-plate mesh with x in [-0.35, 2], y in [0, 1], and the explicitly requested tanh distributions.",
-  "bounds": {
-    "left": -0.35,
-    "right": 2.0,
-    "bottom": 0.0,
-    "top": 1.0,
-    "interfaceX": 0.0
-  },
+  "description": "Two-block turbulent flat-plate layout expressed with endpoint-spacing intent.",
+  "plateLength": 2.0,
+  "upstreamDistance": 0.35,
+  "domainHeight": 1.0,
   "upstreamPointCount": 33,
   "platePointCount": 41,
   "normalPointCount": 81,
   "distributions": {
-    "line1": ["tanh", -1, 0.002],
-    "line2": ["tanh", 0.002, -1],
-    "line3": ["tanh", 1.0e-6, -1],
-    "line4": ["tanh", 1.0e-6, -1],
-    "line5": ["tanh", 1.0e-6, -1],
-    "line6": ["tanh", -1, 0.002],
-    "line7": ["tanh", 0.002, -1]
+    "upstream": { "type": "tanh", "startSpacing": "auto", "endSpacing": 0.002 },
+    "plate": { "type": "tanh", "startSpacing": 0.002, "endSpacing": "auto" },
+    "vertical": { "type": "tanh", "startSpacing": 1.0e-6, "endSpacing": "auto" },
+    "topUpstream": { "type": "tanh", "startSpacing": "auto", "endSpacing": 0.002 },
+    "topPlate": { "type": "tanh", "startSpacing": 0.002, "endSpacing": "auto" }
   },
   "boundaries": {
     "upstreamBottom": "symmetry",

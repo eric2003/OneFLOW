@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import re
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 from typing import Any
 
@@ -93,6 +93,8 @@ class WorkflowRunRecord:
     steps: tuple[dict[str, Any], ...] = ()
     artifacts: tuple[str, ...] = ()
     message: str = ""
+    note: str = ""
+    log_path: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         """Return the JSON-compatible representation."""
@@ -117,6 +119,8 @@ class WorkflowRunRecord:
         finished_at = data.get("finished_at")
         executable = data.get("executable")
         message = data.get("message", "")
+        note = data.get("note", "")
+        log_path = data.get("log_path")
         steps = data.get("steps", [])
         artifacts = data.get("artifacts", [])
         if finished_at is not None and not isinstance(finished_at, str):
@@ -125,6 +129,10 @@ class WorkflowRunRecord:
             raise ValueError("Run executable must be a string or null.")
         if not isinstance(message, str):
             raise ValueError("Run message must be a string.")
+        if not isinstance(note, str):
+            raise ValueError("Run note must be a string.")
+        if log_path is not None and not isinstance(log_path, str):
+            raise ValueError("Run log_path must be a string or null.")
         if not isinstance(steps, list) or not all(
             isinstance(step, dict) for step in steps
         ):
@@ -143,6 +151,8 @@ class WorkflowRunRecord:
             steps=tuple(steps),
             artifacts=tuple(artifacts),
             message=message,
+            note=note,
+            log_path=log_path,
         )
 
 
@@ -194,10 +204,20 @@ class WorkflowRepository:
         validated = WorkflowRunRecord.from_dict(run.to_dict())
         self._write_json(self._run_path(validated.run_id), validated.to_dict())
 
-    def list_runs(self, workflow_id: str | None = None) -> list[WorkflowRunRecord]:
-        """Return run history newest-first, optionally filtered by workflow."""
+    def list_runs(
+        self,
+        workflow_id: str | None = None,
+        *,
+        status: str | None = None,
+        started_before: str | None = None,
+    ) -> list[WorkflowRunRecord]:
+        """Return newest-first history with optional workflow, status, and age filters."""
         if workflow_id is not None:
             _validate_id(workflow_id, "workflow_id")
+        if status is not None and status not in _RUN_STATES:
+            raise ValueError(f"Unsupported workflow run status: {status!r}.")
+        if started_before is not None and not isinstance(started_before, str):
+            raise ValueError("started_before must be an ISO timestamp string.")
         records: list[WorkflowRunRecord] = []
         if not self._runs.is_dir():
             return records
@@ -206,9 +226,54 @@ class WorkflowRepository:
                 record = WorkflowRunRecord.from_dict(json.load(stream))
             if record.run_id != path.stem:
                 raise ValueError("Run ID does not match its filename.")
-            if workflow_id is None or record.workflow_id == workflow_id:
-                records.append(record)
+            if workflow_id is not None and record.workflow_id != workflow_id:
+                continue
+            if status is not None and record.status != status:
+                continue
+            if started_before is not None and record.started_at >= started_before:
+                continue
+            records.append(record)
         return sorted(records, key=lambda item: (item.started_at, item.run_id), reverse=True)
+
+    def update_run_note(self, run_id: str, note: str) -> WorkflowRunRecord:
+        """Update the user note without changing artifacts or execution metadata."""
+        if not isinstance(note, str):
+            raise ValueError("Run note must be a string.")
+        path = self._run_path(run_id)
+        with path.open("r", encoding="utf-8") as stream:
+            record = WorkflowRunRecord.from_dict(json.load(stream))
+        updated = replace(record, note=note)
+        self.save_run(updated)
+        return updated
+
+    def delete_run(self, run_id: str) -> bool:
+        """Delete only the history record; never remove the run directory or artifacts."""
+        path = self._run_path(run_id)
+        if not path.exists():
+            return False
+        path.unlink()
+        return True
+
+    def clear_runs(
+        self,
+        *,
+        workflow_id: str | None = None,
+        statuses: set[str] | None = None,
+        started_before: str | None = None,
+    ) -> int:
+        """Delete matching history records only and return the number removed."""
+        if statuses is not None:
+            invalid = statuses - _RUN_STATES
+            if invalid:
+                raise ValueError(f"Unsupported workflow run status: {sorted(invalid)!r}.")
+        records = self.list_runs(workflow_id, started_before=started_before)
+        selected = [
+            record for record in records
+            if statuses is None or record.status in statuses
+        ]
+        for record in selected:
+            self.delete_run(record.run_id)
+        return len(selected)
 
     def _definition_path(self, workflow_id: str) -> Path:
         return self._definitions / f"{_validate_id(workflow_id, 'workflow_id')}.json"

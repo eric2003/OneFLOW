@@ -1,6 +1,7 @@
 import importlib.util
 import json
 import unittest
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 
@@ -22,6 +23,8 @@ class CompileFlatPlateTest(unittest.TestCase):
         self.assertEqual(self.spec["upstreamPointCount"], 33)
         self.assertEqual(self.spec["platePointCount"], 41)
         self.assertEqual(self.spec["normalPointCount"], 85)
+        self.assertEqual(self.spec["templateId"], "two_block_laminar_flat_plate")
+        self.assertEqual(self.spec["templateName"], "Two-block Laminar Flat Plate")
 
     def test_compiles_two_block_layout(self):
         output = compiler.compile_flat_plate(self.spec)
@@ -36,6 +39,10 @@ class CompileFlatPlateTest(unittest.TestCase):
         self.assertIn("Boundary(4)={-1}", output)
         self.assertIn("Boundary(5)={6}", output)
         self.assertIn("Add F2B 2 1 2", output)
+        checked_in_layout = (
+            ROOT / "grid" / "laminar_flat_plate" / "grid" / "laminarFlatPlateLayout.txt"
+        ).read_text(encoding="utf-8")
+        self.assertEqual(output, checked_in_layout)
 
     def test_compiled_layout_has_expected_mesh_size(self):
         self.assertEqual(
@@ -56,22 +63,89 @@ class CompileFlatPlateTest(unittest.TestCase):
         self.assertEqual(compiler._boundary_type(boundaries, "right"), 6)
         self.assertEqual(compiler._boundary_type(boundaries, "interface"), -1)
 
-    def test_svg_contains_two_blocks_and_boundary_roles(self):
+    def test_svg_labels_every_edge_and_uses_two_lines_for_side_counts(self):
         svg = compiler.render_flat_plate_svg(self.spec)
-        self.assertIn("block interface", svg)
-        self.assertIn("farfield", svg)
-        self.assertIn("outflow", svg)
-        self.assertIn("wall", svg)
+        expected_labels = [
+            "upstreamBottom: Symmetry (33 points)",
+            "plate: Wall (41 points)",
+            "left: Farfield",
+            "interface: Interface",
+            "right: Outflow",
+            "topUpstream: Farfield (33 points)",
+            "topPlate: Farfield (41 points)",
+        ]
+        for label in expected_labels:
+            self.assertIn(label, svg)
+        self.assertIn('<tspan x=', svg)
+        self.assertIn('<rect x="0" y="0" width="100%" height="100%" fill="#f5f7fa"/>', svg)
+        self.assertIn('left: Farfield</tspan><tspan', svg)
+        self.assertIn('interface: Interface</tspan><tspan', svg)
 
-    def test_boundary_layer_distribution_matches_reference(self):
+        root = ET.fromstring(svg)
+        labels = {
+            node.text: node
+            for node in root.iter("{http://www.w3.org/2000/svg}tspan")
+            if node.text in {"interface: Interface", "right: Outflow"}
+        }
+        self.assertEqual(set(labels), {"interface: Interface", "right: Outflow"})
+        text_elements = [
+            node for node in root.iter("{http://www.w3.org/2000/svg}text")
+            if any(child.text in {"interface: Interface", "right: Outflow"} for child in node)
+        ]
+        positions = {
+            next(child.text for child in node if child.text in {"interface: Interface", "right: Outflow"}):
+            (
+                float(node.attrib["x"]),
+                float(node.attrib["y"]),
+                node.attrib["text-anchor"],
+            )
+            for node in text_elements
+        }
+        self.assertEqual(positions["interface: Interface"][2], "end")
+        self.assertEqual(positions["right: Outflow"][2], "start")
+        self.assertLess(positions["interface: Interface"][0], positions["right: Outflow"][0])
+        self.assertLess(
+            positions["interface: Interface"][1],
+            positions["right: Outflow"][1],
+        )
+
+    def test_boundary_layer_distribution_uses_interval_count_semantics(self):
         vertical = self.spec["distributions"]["vertical"]
         self.assertEqual(vertical["type"], "boundary_layer")
-        self.assertEqual(vertical["nearWallPointCount"], 41)
+        self.assertEqual(vertical["nearWallIntervalCount"], 40)
         self.assertEqual(vertical["nearWallDistance"], 0.02)
         output = compiler.compile_flat_plate(self.spec)
         self.assertIn("Ds(3)={bl,41,0.02}", output)
         self.assertIn("Ds(4)={bl,41,0.02}", output)
         self.assertIn("Ds(5)={bl,41,0.02}", output)
+
+    def test_semantic_tanh_spacing_compiles_to_legacy_ds_syntax(self):
+        spec = json.loads(
+            (ROOT / "grid" / "turbulent_flat_plate" / "flat_plate.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        output = compiler.compile_flat_plate(spec)
+        expected = [
+            "Ds(1)={tanh,-1,0.002}",
+            "Ds(2)={tanh,0.002,-1}",
+            "Ds(3)={tanh,1.0e-6,-1}",
+            "Ds(4)={tanh,1.0e-6,-1}",
+            "Ds(5)={tanh,1.0e-6,-1}",
+            "Ds(6)={tanh,-1,0.002}",
+            "Ds(7)={tanh,0.002,-1}",
+        ]
+        for line in expected:
+            self.assertIn(line, output)
+        checked_in_layout = (
+            ROOT / "grid" / "turbulent_flat_plate" / "grid" / "turbulentFlatPlateLayout.txt"
+        ).read_text(encoding="utf-8")
+        self.assertEqual(output, checked_in_layout)
+
+    def test_legacy_top_distribution_reverses_for_second_block(self):
+        output = compiler.compile_flat_plate(self.spec)
+        self.assertIn("Ds(6)={d,-1,0.01}", output)
+        self.assertIn("Ds(7)={d,0.01,-1}", output)
 
     def test_rejects_invalid_normal_point_count(self):
         self.spec["normalPointCount"] = 1

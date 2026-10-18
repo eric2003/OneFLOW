@@ -3,7 +3,36 @@
 
 import argparse
 import json
+import math
 from pathlib import Path
+
+
+BOUNDARY_TYPES = {
+    "none": 0,
+    "interface": -1,
+    "extrapolation": 1,
+    "wall": 2,
+    "symmetry": 3,
+    "farfield": 4,
+    "inflow": 5,
+    "outflow": 6,
+    "interior": 100,
+    "overset": 1000,
+}
+
+
+def _boundary_value(value, line_id):
+    if isinstance(value, int) and not isinstance(value, bool):
+        return value
+    if isinstance(value, str) and value.lower() in BOUNDARY_TYPES:
+        return BOUNDARY_TYPES[value.lower()]
+    raise ValueError(
+        f"boundary for line {line_id} must be an integer or known boundary name"
+    )
+
+
+def _same_coordinate(left, right):
+    return math.isclose(left, right, rel_tol=0.0, abs_tol=1.0e-12)
 
 
 def compile_rectangle(spec):
@@ -15,6 +44,31 @@ def compile_rectangle(spec):
         raise ValueError("rectangle requires exactly four corners")
     if any(not isinstance(point, list) or len(point) != 3 for point in corners):
         raise ValueError("each corner must contain three coordinates")
+    for point in corners:
+        if any(
+            not isinstance(value, (int, float))
+            or isinstance(value, bool)
+            or not math.isfinite(value)
+            for value in point
+        ):
+            raise ValueError("coordinates must be finite numbers")
+
+    x0, y0, z0 = corners[0]
+    x1, y1, z1 = corners[1]
+    x2, y2, z2 = corners[2]
+    x3, y3, z3 = corners[3]
+    aligned = (
+        _same_coordinate(x0, x3) and _same_coordinate(x1, x2)
+        and _same_coordinate(y0, y1) and _same_coordinate(y2, y3)
+        and _same_coordinate(z0, z1) and _same_coordinate(z0, z2)
+        and _same_coordinate(z0, z3)
+    )
+    non_degenerate = not _same_coordinate(x0, x1) and not _same_coordinate(y0, y2)
+    if not aligned or not non_degenerate:
+        raise ValueError(
+            "corners must describe a non-degenerate axis-aligned rectangle "
+            "in perimeter order"
+        )
 
     point_counts = spec.get("edgePointCounts")
     if not isinstance(point_counts, list) or len(point_counts) != 4:
@@ -28,6 +82,17 @@ def compile_rectangle(spec):
     spacing = spec.get("spacing", "d")
     if not isinstance(spacing, str) or not spacing:
         raise ValueError("spacing must be a non-empty string")
+
+    boundaries = spec.get("boundaries")
+    if boundaries is None:
+        boundary_values = [1, 2, 3, 4]
+    else:
+        if not isinstance(boundaries, dict):
+            raise ValueError("boundaries must be an object")
+        boundary_values = [
+            _boundary_value(boundaries.get(f"line{line_id}", line_id), line_id)
+            for line_id in range(1, 5)
+        ]
 
     lines = []
     for index, point in enumerate(corners, start=1):
@@ -48,8 +113,8 @@ def compile_rectangle(spec):
         lines.append(f"Ds({index})={{{spacing},-1,-1}}")
 
     lines.append("")
-    for index in range(1, 5):
-        lines.append(f"Boundary({index})={{{index}}}")
+    for index, boundary_value in enumerate(boundary_values, start=1):
+        lines.append(f"Boundary({index})={{{boundary_value}}}")
 
     lines.append("")
     for index in range(1, 5):
