@@ -237,6 +237,7 @@ void MLine::ConstructEndpointCandidates()
 
 void MLine::ConstructPointToPointMap()
 {
+    this->pointToPointMap.clear();
     this->ConstructPointToPointMap( this->pointToPointMap );
 }
 
@@ -287,6 +288,7 @@ void MLine::ConstructPointToDomainMap( int domain_id, std::map< int, IntSet > & 
 
 void MLine::ConstructLineToDomainMap()
 {
+    this->lineToDomainMap.clear();
     for ( int iLine = 0; iLine < lineList.size(); ++ iLine )
     {
         int line_id = lineList[ iLine ];
