@@ -353,6 +353,24 @@ TEST( GridLayoutGenerationTest, GeneratesRectangleWithCompositeBoundaryEdge )
         EXPECT_TRUE( std::isfinite( z[ i ] ) );
     }
 
+    const std::array< Real, nodeCount > expectedX = {
+        0.0, 0.5, 1.0,
+        0.0, 0.5, 1.0,
+        0.0, 0.5, 1.0
+    };
+    const std::array< Real, nodeCount > expectedY = {
+        0.0, 0.0, 0.0,
+        0.5, 0.5, 0.5,
+        1.0, 1.0, 1.0
+    };
+    const std::array< Real, nodeCount > expectedZ = {};
+    for ( int i = 0; i < nodeCount; ++ i )
+    {
+        EXPECT_DOUBLE_EQ( x[ i ], expectedX[ i ] );
+        EXPECT_DOUBLE_EQ( y[ i ], expectedY[ i ] );
+        EXPECT_DOUBLE_EQ( z[ i ], expectedZ[ i ] );
+    }
+
     bool foundCompositeVertex = false;
     for ( int i = 0; i < nodeCount; ++ i )
     {
