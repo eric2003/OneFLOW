@@ -680,6 +680,35 @@ TEST( GridLayoutGenerationTest, GeneratesRectangleWithCompositeBoundaryEdge )
         }
     }
     EXPECT_TRUE( foundCompositeVertex );
+
+    Real totalCellArea = 0.0;
+    for ( int j = 0; j < 2; ++ j )
+    {
+        for ( int i = 0; i < 2; ++ i )
+        {
+            const int lowerLeft = j * 3 + i;
+            const int lowerRight = lowerLeft + 1;
+            const int upperLeft = lowerLeft + 3;
+            const int upperRight = upperLeft + 1;
+
+            const Real cellArea =
+                0.5 * (
+                    x[ lowerLeft ] * y[ lowerRight ] -
+                    y[ lowerLeft ] * x[ lowerRight ] +
+                    x[ lowerRight ] * y[ upperRight ] -
+                    y[ lowerRight ] * x[ upperRight ] +
+                    x[ upperRight ] * y[ upperLeft ] -
+                    y[ upperRight ] * x[ upperLeft ] +
+                    x[ upperLeft ] * y[ lowerLeft ] -
+                    y[ upperLeft ] * x[ lowerLeft ] );
+
+            EXPECT_GT( cellArea, 0.0 );
+            EXPECT_DOUBLE_EQ( cellArea, 0.25 );
+            totalCellArea += cellArea;
+        }
+    }
+
+    EXPECT_DOUBLE_EQ( totalCellArea, 1.0 );
     file.close();
 }
 
