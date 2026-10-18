@@ -5,6 +5,23 @@ import argparse
 import json
 from pathlib import Path
 
+try:
+    from tools.mesh_layout.layout_topology import (
+        LayoutBlock,
+        LayoutFace,
+        LayoutLine,
+        LayoutPoint,
+        LayoutTopology,
+    )
+except ModuleNotFoundError:
+    from layout_topology import (
+        LayoutBlock,
+        LayoutFace,
+        LayoutLine,
+        LayoutPoint,
+        LayoutTopology,
+    )
+
 
 BC_TYPES = {
     "none": 0,
@@ -196,23 +213,46 @@ def compile_flat_plate(spec):
         _boundary_type(spec["boundaries"], "topPlate"),
     ]
 
+    topology = LayoutTopology(
+        points=tuple(LayoutPoint(point_id, x, y, z) for point_id, x, y, z in points),
+        lines=tuple(
+            LayoutLine(
+                line_id, p1, p2, counts[line_id - 1],
+                distribution_values[line_id - 1], boundary_values[line_id - 1],
+            )
+            for line_id, p1, p2 in lines
+        ),
+        faces=(
+            LayoutFace(1, ((1, 1), (2, 4), (3, 6), (4, 3))),
+            LayoutFace(2, ((1, 2), (2, 5), (3, 7), (4, 4))),
+        ),
+        blocks=(
+            LayoutBlock(1, ((1, 1),)),
+            LayoutBlock(2, ((1, 2),)),
+        ),
+    )
+    topology.validate()
     lines_out = []
-    for point_id, x, y, z in points:
+    for point in topology.points:
         lines_out.append(
-            f"Point({point_id})= {{{_format_coordinate(x)},"
-            f"{_format_coordinate(y)},{_format_coordinate(z)}}}"
+            f"Point({point.id})= {{{_format_coordinate(point.x)},"
+            f"{_format_coordinate(point.y)},{_format_coordinate(point.z)}}}"
         )
 
     lines_out.append("")
-    for line_id, p1, p2 in lines:
-        lines_out.append(f"Line({line_id})={{{p1},{p2}}}")
+    for line in topology.lines:
+        lines_out.append(
+            f"Line({line.id})={{{line.start_point},{line.end_point}}}"
+        )
 
     lines_out.append("")
-    for line_id, count in enumerate(counts, start=1):
-        lines_out.append(f"Dim({line_id})={{{count}}}")
+    for line in topology.lines:
+        lines_out.append(f"Dim({line.id})={{{line.point_count}}}")
 
     lines_out.append("")
-    for line_id, values in enumerate(distribution_values, start=1):
+    for line in topology.lines:
+        line_id = line.id
+        values = line.distribution
         if isinstance(values, list):
             start_value, end_value = values
             lines_out.append(f"Ds({line_id})={{d,{start_value},{end_value}}}")
@@ -227,25 +267,19 @@ def compile_flat_plate(spec):
             lines_out.append(f"Ds({line_id})={{tanh,{start_value},{end_value}}}")
 
     lines_out.append("")
-    for line_id, boundary in enumerate(boundary_values, start=1):
-        lines_out.append(f"Boundary({line_id})={{{boundary}}}")
+    for line in topology.lines:
+        lines_out.append(f"Boundary({line.id})={{{line.boundary_type}}}")
 
-    lines_out.extend([
-        "",
-        "Add L2F 1 1 1",
-        "Add L2F 1 2 4",
-        "Add L2F 1 3 6",
-        "Add L2F 1 4 3",
-        "",
-        "Add L2F 2 1 2",
-        "Add L2F 2 2 5",
-        "Add L2F 2 3 7",
-        "Add L2F 2 4 4",
-        "",
-        "Add F2B 1 1 1",
-        "Add F2B 2 1 2",
-        "",
-    ])
+    for face in topology.faces:
+        lines_out.append("")
+        for position, line_id in face.line_by_side:
+            lines_out.append(f"Add L2F {face.id} {position} {line_id}")
+
+    for block in topology.blocks:
+        lines_out.append("")
+        for position, face_id in block.face_by_position:
+            lines_out.append(f"Add F2B {block.id} {position} {face_id}")
+    lines_out.append("")
     return "\n".join(lines_out)
 
 
