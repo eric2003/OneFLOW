@@ -91,7 +91,7 @@ int MDomain::GetNsubDomain()
     return this->sDomainList.size();
 }
 
-void MDomain::ConstructCtrlPoint()
+void MDomain::ConstructCandidateControlPoints()
 {
     IntSet cornerPoints;
     for ( int iDomain = 0; iDomain < this->sDomainList.size(); ++ iDomain )
@@ -126,7 +126,7 @@ void MDomain::ConstructMultiDomainTopo()
     this->ConstructMultiPointToPointMap();
     this->ConstructPointToLineMap();
     this->ConstructBcPoint();
-    this->ConstructCtrlPoint();
+    this->ConstructCandidateControlPoints();
 }
 
 void MDomain::ConstructMultiLineToDomainMap()
