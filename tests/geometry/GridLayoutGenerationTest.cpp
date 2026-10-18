@@ -193,6 +193,51 @@ TEST( GridLayoutGenerationTest, GeneratesFlatPlateBoundaryLayerDistribution )
     file.close();
 }
 
+TEST( SDomainTest, FindsUniqueSharedEndpointBetweenAdjacentEdges )
+{
+    CoorMap coordinates;
+    SDomain domain( &coordinates );
+    MLine firstEdge( &coordinates );
+    MLine secondEdge( &coordinates );
+    firstEdge.candidate_ctrlpoints = { 101, 205 };
+    secondEdge.candidate_ctrlpoints = { 205, 309 };
+
+    int commonPoint = -1;
+    domain.GetCommonPoint( &firstEdge, &secondEdge, commonPoint );
+
+    EXPECT_EQ( commonPoint, 205 );
+}
+
+TEST( SDomainTest, RejectsAdjacentEdgesWithMultipleSharedEndpointCandidates )
+{
+    CoorMap coordinates;
+    SDomain domain( &coordinates );
+    MLine firstEdge( &coordinates );
+    MLine secondEdge( &coordinates );
+    firstEdge.candidate_ctrlpoints = { 101, 205 };
+    secondEdge.candidate_ctrlpoints = { 101, 205 };
+
+    int commonPoint = -1;
+    EXPECT_THROW(
+        domain.GetCommonPoint( &firstEdge, &secondEdge, commonPoint ),
+        std::runtime_error );
+}
+
+TEST( SDomainTest, RejectsAdjacentEdgesWithoutSharedEndpointCandidates )
+{
+    CoorMap coordinates;
+    SDomain domain( &coordinates );
+    MLine firstEdge( &coordinates );
+    MLine secondEdge( &coordinates );
+    firstEdge.candidate_ctrlpoints = { 101, 205 };
+    secondEdge.candidate_ctrlpoints = { 309, 407 };
+
+    int commonPoint = -1;
+    EXPECT_THROW(
+        domain.GetCommonPoint( &firstEdge, &secondEdge, commonPoint ),
+        std::runtime_error );
+}
+
 TEST( MDomainTest, ReportsStalledControlPointResolution )
 {
     CoorMap coordinates;
