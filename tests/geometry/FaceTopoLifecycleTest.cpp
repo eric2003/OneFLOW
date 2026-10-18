@@ -32,15 +32,8 @@ struct MinimalZoneFixture
         grids.push_back(std::make_unique<TestGrid>());
         grids[0]->id = 0;
         grids[0]->nCells = 1;
-        // IFaceLink constructs PointLocator and calls Initialize(grids), which
-        // reads nodeMesh bounding boxes. A bare TestGrid has null nodeMesh and
-        // would SEH (0xc0000005) on Windows.
-        grids[0]->nodeMesh = std::make_unique<ONEFLOW::NodeMesh>();
-        grids[0]->nodeMesh->AddPoint(0.0, 0.0, 0.0);
-        grids[0]->nodeMesh->AddPoint(1.0, 0.0, 0.0);
-        grids[0]->nodeMesh->AddPoint(1.0, 1.0, 0.0);
-        grids[0]->nodeMesh->AddPoint(0.0, 1.0, 0.0);
-        grids[0]->nodeMesh->CalcMinMaxBox();
+        // Intentionally no nodeMesh: IFaceLink must construct without building
+        // the PointLocator ADT so topology-only rebuild tests stay lightweight.
     }
 
     ONEFLOW::Grid & grid() { return *grids[0]; }
@@ -283,4 +276,18 @@ TEST(FaceTopoLifecycleTest, InterfaceRebuildRejectsMissingFaceSearchMapping)
 
     EXPECT_THROW(faceTopo.SetNewFace2Node(iFaceLink), std::out_of_range);
     EXPECT_FALSE(faceTopo.HasPendingTopologyRebuild());
+}
+
+TEST(FaceTopoLifecycleTest, IFaceLinkConstructsWithoutNodeMesh)
+{
+    // Intent: constructing IFaceLink must not require nodeMesh / PointLocator ADT.
+    // Topology rebuild paths only need face_search and l2g.
+    MinimalZoneFixture fixture;
+    ASSERT_EQ(fixture.grid().nodeMesh, nullptr);
+
+    ONEFLOW::IFaceLink iFaceLink(fixture.grids);
+    EXPECT_NE(iFaceLink.face_search, nullptr);
+    EXPECT_NE(iFaceLink.point_search, nullptr);
+    EXPECT_FALSE(iFaceLink.IsPointLocatorReady());
+    EXPECT_EQ(static_cast<int>(iFaceLink.l2g.size()), 1);
 }
