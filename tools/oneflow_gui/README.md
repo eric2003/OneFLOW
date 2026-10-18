@@ -32,13 +32,20 @@ workflow runner: `OneFLOW.exe r <case-directory>`.
 Use **Tests...** to run the existing CTest and Python unit-test commands by default, or enable the optional CFD/grid regression suite. Regression runs invoke `test/test.py` and an existing manifest from `test/suites/`; the GUI does not implement a second test engine. Use **Run History...** to inspect Case Workbench and workflow run records and logs, edit notes, delete individual records, or clean matching history by workflow, status, and timestamp. These history operations never delete run artifacts.
 
 Use **Mesh Layout...** to open the first template-based layout editor. It
+loads the checked-in templates as read-only starting points; by default, edited
+specifications are saved under `~/.oneflow/mesh-layout-workspace/specifications`
+and compiled layouts under `~/.oneflow/mesh-layout-workspace/layouts`.
+Set `ONEFLOW_HOME` to move this workspace to another data root. This keeps
+normal editing and compilation away from checked-in source files. The editor
 supports the single-rectangle and two-block flat-plate templates, edits point
 coordinates, line point counts, spacing parameters, and boundary types, and
-previews the layout as SVG. **Save specification as...** writes a validated JSON
-copy; **Compile layout** writes the legacy OneFLOW layout text. The editor uses
-the same command-line compilers and does not replace the existing runtime
-layout format. It currently edits these two templates rather than offering
-arbitrary point-and-click topology construction.
+previews the layout as SVG. Boundary selectors show concise names by default;
+hover over an option for details, or enable **Show boundary codes** to display
+legacy numeric codes. **Reset flat-plate boundaries** restores the standard
+two-block defaults. **Save specification as...** writes a validated JSON
+copy; **Compile layout** writes the legacy OneFLOW layout text. The editor
+currently edits these two templates rather than offering arbitrary point-and-click
+topology construction.
 
 Use **Workflows...** to create, edit, save, and delete named workflows. The
 **Multi-directory** mode preserves the existing behavior: each directory is
