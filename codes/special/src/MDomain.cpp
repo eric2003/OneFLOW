@@ -36,6 +36,7 @@ License
 #include <algorithm>
 #include <iostream>
 #include <stdexcept>
+#include <vector>
 
 
 BeginNameSpace( ONEFLOW )
@@ -45,24 +46,37 @@ MDomain::~MDomain() = default;
 
 void MDomain::CalcSubDomainCtrlCoor()
 {
+    std::vector< bool > resolvedDomains( sDomainList.size(), false );
+
     while ( true )
     {
         bool allDomainsResolved = true;
-        bool anyDomainProgressed = false;
+        bool anyDomainAdvanced = false;
         int nDomain = sDomainList.size();
         for ( int iDomain = 0; iDomain < nDomain; ++ iDomain )
         {
+            if ( resolvedDomains[ iDomain ] ) continue;
+
             SDomain * sDomain = sDomainList[ iDomain ].get();
             const ControlPointResolution resolution = sDomain->CalcSingleDomainCoor();
-            allDomainsResolved =
-                ( resolution == ControlPointResolution::Resolved ) && allDomainsResolved;
-            anyDomainProgressed =
-                ( resolution == ControlPointResolution::Progress ) || anyDomainProgressed;
+            if ( resolution == ControlPointResolution::Resolved )
+            {
+                resolvedDomains[ iDomain ] = true;
+                anyDomainAdvanced = true;
+            }
+            else if ( resolution == ControlPointResolution::Progress )
+            {
+                anyDomainAdvanced = true;
+            }
+            else
+            {
+                allDomainsResolved = false;
+            }
         }
 
         if ( allDomainsResolved ) return;
 
-        if ( ! anyDomainProgressed )
+        if ( ! anyDomainAdvanced )
         {
             throw std::runtime_error(
                 "Unable to resolve subdomain control-point coordinates: no progress" );
