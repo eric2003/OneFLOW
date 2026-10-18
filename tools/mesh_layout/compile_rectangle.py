@@ -3,6 +3,7 @@
 
 import argparse
 import json
+import math
 from pathlib import Path
 
 
@@ -39,6 +40,31 @@ def compile_rectangle(spec):
         raise ValueError("rectangle requires exactly four corners")
     if any(not isinstance(point, list) or len(point) != 3 for point in corners):
         raise ValueError("each corner must contain three coordinates")
+    for point in corners:
+        if any(
+            not isinstance(value, (int, float))
+            or isinstance(value, bool)
+            or not math.isfinite(value)
+            for value in point
+        ):
+            raise ValueError("coordinates must be finite numbers")
+
+    x0, y0, z0 = corners[0]
+    x1, y1, z1 = corners[1]
+    x2, y2, z2 = corners[2]
+    x3, y3, z3 = corners[3]
+    aligned = (
+        math.isclose(x0, x3) and math.isclose(x1, x2)
+        and math.isclose(y0, y1) and math.isclose(y2, y3)
+        and math.isclose(z0, z1) and math.isclose(z0, z2)
+        and math.isclose(z0, z3)
+    )
+    non_degenerate = not math.isclose(x0, x1) and not math.isclose(y0, y2)
+    if not aligned or not non_degenerate:
+        raise ValueError(
+            "corners must describe a non-degenerate axis-aligned rectangle "
+            "in perimeter order"
+        )
 
     point_counts = spec.get("edgePointCounts")
     if not isinstance(point_counts, list) or len(point_counts) != 4:
