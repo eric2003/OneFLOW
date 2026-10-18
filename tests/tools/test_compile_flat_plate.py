@@ -38,6 +38,10 @@ class CompileFlatPlateTest(unittest.TestCase):
         self.assertIn("Boundary(4)={-1}", output)
         self.assertIn("Boundary(5)={6}", output)
         self.assertIn("Add F2B 2 1 2", output)
+        checked_in_layout = (
+            ROOT / "grid" / "laminar_flat_plate" / "grid" / "laminarFlatPlateLayout.txt"
+        ).read_text(encoding="utf-8")
+        self.assertEqual(output, checked_in_layout)
 
     def test_compiled_layout_has_expected_mesh_size(self):
         self.assertEqual(
