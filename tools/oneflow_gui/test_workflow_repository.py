@@ -195,7 +195,13 @@ class WorkflowRepositoryTest(unittest.TestCase):
         )
 
     def test_run_log_path_round_trips(self) -> None:
-        record = WorkflowRunRecord(\n            run_id="run-log",\n            workflow_id="workflow-log",\n            status="succeeded",\n            started_at="2026-10-17T10:00:00Z",\n            log_path="/tmp/oneflow-run.log",\n        )
+        record = WorkflowRunRecord(
+            run_id="run-log",
+            workflow_id="workflow-log",
+            status="succeeded",
+            started_at="2026-10-17T10:00:00Z",
+            log_path="/tmp/oneflow-run.log",
+        )
         self.repository.save_run(record)
         self.assertEqual(self.repository.list_runs()[0].log_path, "/tmp/oneflow-run.log")
 
