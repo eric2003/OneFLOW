@@ -72,6 +72,21 @@ class CompileRectangleTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "known boundary name"):
             compiler.compile_rectangle(self.spec)
 
+    def test_rejects_degenerate_rectangle(self):
+        self.spec["corners"][1][0] = self.spec["corners"][0][0]
+        with self.assertRaisesRegex(ValueError, "non-degenerate"):
+            compiler.compile_rectangle(self.spec)
+
+    def test_rejects_non_rectangular_corner_layout(self):
+        self.spec["corners"][2][0] = 0.75
+        with self.assertRaisesRegex(ValueError, "axis-aligned rectangle"):
+            compiler.compile_rectangle(self.spec)
+
+    def test_rejects_non_finite_coordinates(self):
+        self.spec["corners"][0][0] = float("inf")
+        with self.assertRaisesRegex(ValueError, "finite numbers"):
+            compiler.compile_rectangle(self.spec)
+
 
 if __name__ == "__main__":
     unittest.main()
