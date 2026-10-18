@@ -96,7 +96,7 @@ void SDomain::ConstructSDomainCtrlPoint()
         MLine * mLine = mLineList[ iMLine ].get();
         LinkField pointIdLink;
         this->GetPointIdLink( mLine->lineList, pointIdLink );
-        mLine->ConstructPointToDomainMap( pointIdLink );
+        mLine->ConstructPointToLineMap( pointIdLink );
         mLine->ConstructCtrlPoint();
         mLine->ConstructSLineCtrlPoint();
     }
