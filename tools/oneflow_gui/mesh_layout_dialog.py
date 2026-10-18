@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from PySide6.QtCore import QByteArray
+from PySide6.QtCore import QByteArray, Qt
 from PySide6.QtSvgWidgets import QSvgWidget
 from PySide6.QtWidgets import (
     QComboBox,
@@ -235,7 +235,7 @@ class MeshLayoutDialog(QDialog):
                 for name, code, description in BOUNDARY_OPTIONS:
                     widget.addItem(f"{name.title()} ({code}) - {description}", name)
                     widget.setItemData(
-                        widget.count() - 1, description, 3
+                        widget.count() - 1, description, Qt.ItemDataRole.ToolTipRole
                     )
                 if isinstance(value, int) and not isinstance(value, bool):
                     selected_name = BOUNDARY_NAMES_BY_CODE.get(value)
