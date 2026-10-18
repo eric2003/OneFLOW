@@ -537,3 +537,27 @@ TEST(FaceTopoLifecycleTest, InterfaceChildAbsoluteIdsRejectMissingNodeMesh)
     EXPECT_THROW(faceTopo.SetNewFace2Node(iFaceLink), std::out_of_range);
     EXPECT_FALSE(faceTopo.HasPendingTopologyRebuild());
 }
+
+TEST(FaceTopoLifecycleTest, GetInterfaceChildFaceIds_PureSplitTableOverload)
+{
+    // Intent: the preferred overload needs only l2g + InterfaceFaceSplitTable,
+    // not a full IFaceLink or FaceSearch. This locks the reduced dependency.
+    ONEFLOW::LinkField l2g(1);
+    l2g[0] = ONEFLOW::IntField{0};
+
+    ONEFLOW::InterfaceFaceSplitTable split;
+    split.childFaceIdsOfParent.resize(1);
+    split.childFaceIdsOfParent[0] = ONEFLOW::IntField{0, 1};
+    split.childFaceNodeIds.resize(2);
+    split.childFaceNodeFlags.resize(2);
+    split.childFaceNodeIds[0] = ONEFLOW::IntField{0, 1};
+    split.childFaceNodeFlags[0] = ONEFLOW::IntField{1, 1};
+    split.childFaceNodeIds[1] = ONEFLOW::IntField{2, 3};
+    split.childFaceNodeFlags[1] = ONEFLOW::IntField{1, 1};
+
+    const ONEFLOW::IntField & children =
+        ONEFLOW::GetInterfaceChildFaceIds(l2g, split, 0, 0);
+    ASSERT_EQ(children.size(), static_cast<std::size_t>(2));
+    EXPECT_EQ(children[0], 0);
+    EXPECT_EQ(children[1], 1);
+}

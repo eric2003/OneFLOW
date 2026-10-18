@@ -52,16 +52,12 @@ private:
 
 class IFaceLink;
 
-// Tables produced when interface faces are split (e.g. quad->tri, line->children).
-// Kept separate from FaceSearchBasic (unique face registry) so topology clients
-// can reason about split state without the registry algorithm surface.
+// Tables produced when interface faces are split (e.g. quad->tri).
+// Separate from FaceSearchBasic (unique face registry).
 struct InterfaceFaceSplitTable
 {
-    // parent global face id -> list of child face ids
     LinkField childFaceIdsOfParent;
-    // child face id -> node ids (relative parent-local or absolute mesh ids)
     LinkField childFaceNodeIds;
-    // child face id -> flags aligned with childFaceNodeIds (1 = relative)
     LinkField childFaceNodeFlags;
 
     void Clear()
@@ -71,12 +67,9 @@ struct InterfaceFaceSplitTable
         childFaceNodeFlags.clear();
     }
 
-    // Prepare empty parent slots for nParentFaces; child node tables start empty.
     void ResetForParentFaceCount( std::size_t nParentFaces )
     {
         childFaceIdsOfParent.assign( nParentFaces, IntField{} );
-        childFaceNodeIds.clear();
-        childFaceNodeFlags.clear();
         childFaceNodeIds.assign( nParentFaces, IntField{} );
         childFaceNodeFlags.assign( nParentFaces, IntField{} );
     }

@@ -34,6 +34,7 @@ BeginNameSpace( ONEFLOW )
 
 class BcRecord;
 class IFaceLink;
+struct InterfaceFaceSplitTable;
 class InterFace;
 class BcManager;
 class Grid;
@@ -121,6 +122,14 @@ public:
 
 // Look up child face IDs for a local interface face and validate their node tables.
 // Returns a reference into interfaceLink.face_search->cFaceId[globalFaceId].
+// Preferred: depends only on l2g mapping + split tables (not full IFaceLink/FaceSearch).
+const IntField & GetInterfaceChildFaceIds(
+    const LinkField & zoneToLocalToGlobal,
+    const InterfaceFaceSplitTable & splitTable,
+    int zoneId,
+    int localInterfaceFaceId );
+
+// Convenience wrapper for existing IFaceLink call sites.
 const IntField & GetInterfaceChildFaceIds(
     const IFaceLink & interfaceLink,
     int zoneId,

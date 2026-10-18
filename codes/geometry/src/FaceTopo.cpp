@@ -66,25 +66,23 @@ int GetBoundaryFaceId(
 } // namespace
 
 const IntField & GetInterfaceChildFaceIds(
-    const IFaceLink & interfaceLink, int zoneId, int localInterfaceFaceId )
+    const LinkField & zoneToLocalToGlobal,
+    const InterfaceFaceSplitTable & splitTable,
+    int zoneId,
+    int localInterfaceFaceId )
 {
-    if ( ! interfaceLink.face_search )
-    {
-        throw std::logic_error(
-            "GetInterfaceChildFaceIds: face search is not initialized" );
-    }
     if ( zoneId < 0 ||
-         static_cast< size_t >( zoneId ) >= interfaceLink.l2g.size() ||
+         static_cast< size_t >( zoneId ) >= zoneToLocalToGlobal.size() ||
          localInterfaceFaceId < 0 ||
          static_cast< size_t >( localInterfaceFaceId ) >=
-             interfaceLink.l2g[ zoneId ].size() )
+             zoneToLocalToGlobal[ zoneId ].size() )
     {
         throw std::out_of_range(
             "GetInterfaceChildFaceIds: local interface face is out of range" );
     }
 
-    const int globalFaceId = interfaceLink.l2g[ zoneId ][ localInterfaceFaceId ];
-    const LinkField & childFaces = interfaceLink.face_search->interfaceSplit.childFaceIdsOfParent;
+    const int globalFaceId = zoneToLocalToGlobal[ zoneId ][ localInterfaceFaceId ];
+    const LinkField & childFaces = splitTable.childFaceIdsOfParent;
     if ( globalFaceId < 0 ||
          static_cast< size_t >( globalFaceId ) >= childFaces.size() )
     {
@@ -93,8 +91,8 @@ const IntField & GetInterfaceChildFaceIds(
     }
 
     const IntField & childFaceIds = childFaces[ globalFaceId ];
-    const LinkField & childNodeIds = interfaceLink.face_search->interfaceSplit.childFaceNodeIds;
-    const LinkField & childNodeFlags = interfaceLink.face_search->interfaceSplit.childFaceNodeFlags;
+    const LinkField & childNodeIds = splitTable.childFaceNodeIds;
+    const LinkField & childNodeFlags = splitTable.childFaceNodeFlags;
 
     for ( int childIndex = 0; childIndex < childFaceIds.size(); ++ childIndex )
     {
@@ -115,6 +113,21 @@ const IntField & GetInterfaceChildFaceIds(
     }
 
     return childFaceIds;
+}
+
+const IntField & GetInterfaceChildFaceIds(
+    const IFaceLink & interfaceLink, int zoneId, int localInterfaceFaceId )
+{
+    if ( ! interfaceLink.face_search )
+    {
+        throw std::logic_error(
+            "GetInterfaceChildFaceIds: face search is not initialized" );
+    }
+    return GetInterfaceChildFaceIds(
+        interfaceLink.l2g,
+        interfaceLink.face_search->interfaceSplit,
+        zoneId,
+        localInterfaceFaceId );
 }
 
 FaceTopo::FaceTopo()
