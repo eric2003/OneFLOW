@@ -156,9 +156,13 @@ void SDomain::SetRemainingCtrlPoint( IntField & idxList )
     int ip2 = ( ip + 2 ) % nCtrlPoint;
     int ip3 = ( ip + 3 ) % nCtrlPoint;
 
-    CoorMap::iterator it1 = this->coorMap->find( ip1 );
-    CoorMap::iterator it2 = this->coorMap->find( ip2 );
-    CoorMap::iterator it3 = this->coorMap->find( ip3 );
+    const int point1 = this->ctrlpoints[ ip1 ];
+    const int point2 = this->ctrlpoints[ ip2 ];
+    const int point3 = this->ctrlpoints[ ip3 ];
+
+    CoorMap::iterator it1 = this->coorMap->find( point1 );
+    CoorMap::iterator it2 = this->coorMap->find( point2 );
+    CoorMap::iterator it3 = this->coorMap->find( point3 );
 
     int mi = it1->second.i + it3->second.i - it2->second.i;
     int mj = it1->second.j + it3->second.j - it2->second.j;
