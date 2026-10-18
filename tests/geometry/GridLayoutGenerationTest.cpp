@@ -231,7 +231,9 @@ TEST( MLineTest, BuildsPointToLineIncidenceForCompositeLine )
     pointIdLink.push_back( IntField{ 205, 309 } );
 
     line.ConstructPointToLineMap( pointIdLink );
+    line.ConstructEndpointCandidates();
 
+    EXPECT_EQ( line.candidate_ctrlpoints, ( IntField{ 101, 309 } ) );
     ASSERT_EQ( line.pointToLine.size(), 3u );
     ASSERT_EQ( line.pointToLine.at( 101 ).size(), 1u );
     EXPECT_TRUE( line.pointToLine.at( 101 ).count( 10 ) );
