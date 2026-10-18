@@ -267,6 +267,106 @@ TEST( GridLayoutGenerationTest, GeneratesMinimalRectangle )
 }
 
 
+
+TEST( GridLayoutGenerationTest, GeneratesRectangleWithCompositeBoundaryEdge )
+{
+    const std::filesystem::path outputDir =
+        std::filesystem::temp_directory_path() / "oneflow-composite-boundary-edge";
+    std::filesystem::remove_all( outputDir );
+    std::filesystem::create_directories( outputDir );
+
+    const std::filesystem::path layoutFile = outputDir / "compositeRectangleLayout.txt";
+    const std::filesystem::path outputFile = outputDir / "compositeRectangle.ofl";
+    const std::filesystem::path bcFile = outputDir / "compositeRectangle.inp";
+
+    std::ofstream layout( layoutFile );
+    ASSERT_TRUE( layout.is_open() );
+    layout <<
+        "Point(1)={0,0,0}\n"
+        "Point(2)={1,0,0}\n"
+        "Point(3)={1,1,0}\n"
+        "Point(4)={0.5,1,0}\n"
+        "Point(5)={0,1,0}\n"
+        "Line(1)={1,2}\n"
+        "Line(2)={2,3}\n"
+        "Line(3)={3,4}\n"
+        "Line(4)={4,5}\n"
+        "Line(5)={5,1}\n"
+        "Dim(1)={3}\n"
+        "Dim(2)={3}\n"
+        "Dim(3)={2}\n"
+        "Dim(4)={2}\n"
+        "Dim(5)={3}\n"
+        "Ds(1)={d,-1,-1}\n"
+        "Ds(2)={d,-1,-1}\n"
+        "Ds(3)={d,-1,-1}\n"
+        "Ds(4)={d,-1,-1}\n"
+        "Ds(5)={d,-1,-1}\n"
+        "Boundary(1)={1}\n"
+        "Boundary(2)={2}\n"
+        "Boundary(3)={3}\n"
+        "Boundary(4)={3}\n"
+        "Boundary(5)={4}\n"
+        "Add L2F 1 1 1\n"
+        "Add L2F 1 2 2\n"
+        "Add L2F 1 3 3\n"
+        "Add L2F 1 3 4\n"
+        "Add L2F 1 4 5\n"
+        "Add F2B 1 1 1\n";
+    layout.close();
+
+    const int oldDimension = Dim::GetDimension();
+    const std::string oldProjectDir = Prj::prjBaseDir;
+    const GridGenerationTestContext restore{ oldDimension, oldProjectDir, outputDir };
+
+    Dim::SetDimension( TWO_D );
+    Prj::SetPrjBaseDir( outputDir.string() );
+
+    SetDataString( "gridLayoutFileName", layoutFile.string() );
+    SetDataString( "sourceGridFileName", outputFile.string() );
+    SetDataString( "sourceGridBcName", bcFile.string() );
+    SetDataString( "targetGridFileName", outputFile.string() );
+    SetDataString( "part_uns_file", ( outputDir / "partition.uns" ).string() );
+
+    GridMachine().Run( layoutFile.string() );
+
+    ASSERT_TRUE( std::filesystem::is_regular_file( outputFile ) );
+    std::ifstream file( outputFile, std::ios::binary );
+    ASSERT_TRUE( file.is_open() );
+    ASSERT_EQ( ReadBinary< int >( file ), 1 );
+    EXPECT_EQ( ReadBinary< int >( file ), 3 );
+    EXPECT_EQ( ReadBinary< int >( file ), 3 );
+    EXPECT_EQ( ReadBinary< int >( file ), 1 );
+
+    constexpr int nodeCount = 9;
+    std::array< Real, nodeCount > x{};
+    std::array< Real, nodeCount > y{};
+    std::array< Real, nodeCount > z{};
+    for ( Real & value : x ) value = ReadBinary< Real >( file );
+    for ( Real & value : y ) value = ReadBinary< Real >( file );
+    for ( Real & value : z ) value = ReadBinary< Real >( file );
+
+    for ( int i = 0; i < nodeCount; ++ i )
+    {
+        EXPECT_TRUE( std::isfinite( x[ i ] ) );
+        EXPECT_TRUE( std::isfinite( y[ i ] ) );
+        EXPECT_TRUE( std::isfinite( z[ i ] ) );
+    }
+
+    bool foundCompositeVertex = false;
+    for ( int i = 0; i < nodeCount; ++ i )
+    {
+        if ( std::abs( x[ i ] - 0.5 ) < 1.0e-12 &&
+             std::abs( y[ i ] - 1.0 ) < 1.0e-12 )
+        {
+            foundCompositeVertex = true;
+            break;
+        }
+    }
+    EXPECT_TRUE( foundCompositeVertex );
+    file.close();
+}
+
 TEST( GridLayoutGenerationTest, GeneratesTwoConnectedThreeDimensionalCubes )
 {
     const std::filesystem::path layoutFile =
