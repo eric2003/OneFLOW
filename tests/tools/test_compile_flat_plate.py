@@ -91,11 +91,16 @@ class CompileFlatPlateTest(unittest.TestCase):
         ]
         for line in expected:
             self.assertIn(line, output)
+        checked_in_layout = (
+            ROOT / "grid" / "turbulent_flat_plate" / "grid" / "turbulentFlatPlateLayout.txt"
+        ).read_text(encoding="utf-8")
+        self.assertEqual(output, checked_in_layout)
 
     def test_legacy_top_distribution_reverses_for_second_block(self):
         output = compiler.compile_flat_plate(self.spec)
         self.assertIn("Ds(6)={d,-1,0.01}", output)
         self.assertIn("Ds(7)={d,0.01,-1}", output)
+
     def test_rejects_invalid_normal_point_count(self):
         self.spec["normalPointCount"] = 1
         with self.assertRaisesRegex(ValueError, "normalPointCount"):
