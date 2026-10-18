@@ -41,6 +41,13 @@ class CalcCoor;
 class Face2D;
 class MLine;
 
+enum class ControlPointResolution
+{
+    Resolved,
+    Progress,
+    Blocked
+};
+
 class SDomain : public DomData
 {
 public:
@@ -58,7 +65,7 @@ public:
     void SetDomain( int fid, IntField & lineList, IntField & posList );
     void ConstructSDomainCtrlPoint();
     void GetCommonPoint( const MLine * mLine1, const MLine * mLine2, int & pt ) const;
-    bool CalcSingleDomainCoor();
+    ControlPointResolution CalcSingleDomainCoor();
     void SetRemainingCtrlPoint( IntField & idxList );
 public:
     void ConstructLineToDomainMap();
