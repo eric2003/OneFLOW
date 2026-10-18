@@ -135,6 +135,8 @@ void DomData::ConstructBcPoint()
 
 void DomData::CalcDimBasic( int closedCurve )
 {
+    bcpointList.clear();
+    bcdimList.clear();
     FindBcPointList2D( bcpointList );
     int nSeg = bcpointList.size();
     int nSegLoop = nSeg - 1;
