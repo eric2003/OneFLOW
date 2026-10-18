@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import os
+import shlex
+import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -84,7 +86,13 @@ def build_regression_command(
         raise FileNotFoundError(f"OneFLOW executable not found: {executable_path}")
 
     platform_value = (platform_name or os.name).lower()
-    mpi_command = "mpiexec -n 1" if platform_value in {"nt", "windows"} else "mpirun -np 1"
+    is_windows = platform_value in {"nt", "windows"}
+    mpi_command = "mpiexec -n 1" if is_windows else "mpirun -np 1"
+    executable_argument = (
+        subprocess.list2cmdline([str(executable_path)])
+        if is_windows
+        else shlex.quote(str(executable_path))
+    )
     test_directory = root / "test"
     return TestCommand(
         f"CFD regression suite: {suite_name}",
@@ -92,7 +100,7 @@ def build_regression_command(
             python or sys.executable,
             "test.py",
             mpi_command,
-            str(executable_path),
+            executable_argument,
             f"suites/{suite_name}",
         ),
         test_directory,
