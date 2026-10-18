@@ -428,3 +428,112 @@ TEST(FaceTopoLifecycleTest, InterfaceParentFaceSplitsIntoTwoRelativeChildren)
     EXPECT_EQ(faceTopo.GetRightCells()[0], 0 + fixture.grid().nCells);
     EXPECT_EQ(faceTopo.GetRightCells()[1], 1 + fixture.grid().nCells);
 }
+
+TEST(FaceTopoLifecycleTest, GetInterfaceChildFaceIds_ReturnsEmptyChildren)
+{
+    // Intent: valid l2g + empty cFaceId slot returns an empty child list.
+    MinimalZoneFixture fixture;
+    ONEFLOW::IFaceLink iFaceLink(fixture.grids);
+    iFaceLink.l2g[0].push_back(0);
+    iFaceLink.face_search->cFaceId.resize(1);
+
+    const ONEFLOW::IntField & children =
+        ONEFLOW::GetInterfaceChildFaceIds(iFaceLink, 0, 0);
+    EXPECT_TRUE(children.empty());
+}
+
+TEST(FaceTopoLifecycleTest, GetInterfaceChildFaceIds_RejectsMissingLocalMapping)
+{
+    MinimalZoneFixture fixture;
+    ONEFLOW::IFaceLink iFaceLink(fixture.grids);
+
+    EXPECT_THROW(
+        ONEFLOW::GetInterfaceChildFaceIds(iFaceLink, 0, 0),
+        std::out_of_range);
+}
+
+TEST(FaceTopoLifecycleTest, GetInterfaceChildFaceIds_RejectsMismatchedChildNodeTables)
+{
+    MinimalZoneFixture fixture;
+    ONEFLOW::IFaceLink iFaceLink(fixture.grids);
+    iFaceLink.l2g[0].push_back(0);
+    iFaceLink.face_search->cFaceId.resize(1);
+    iFaceLink.face_search->cFaceId[0] = ONEFLOW::IntField{0};
+    iFaceLink.face_search->rCNodeId.resize(1);
+    iFaceLink.face_search->rCNodeFlag.resize(1);
+    iFaceLink.face_search->rCNodeId[0] = ONEFLOW::IntField{0, 1};
+    iFaceLink.face_search->rCNodeFlag[0] = ONEFLOW::IntField{1}; // size mismatch
+
+    EXPECT_THROW(
+        ONEFLOW::GetInterfaceChildFaceIds(iFaceLink, 0, 0),
+        std::logic_error);
+}
+
+TEST(FaceTopoLifecycleTest, InterfaceChildWithAbsoluteNodeIdsNeedsNodeMesh)
+{
+    // Intent: absolute child node IDs (flag != 1) require a nodeMesh; without
+    // it SetNewFace2Node fails before commit. With a mesh, absolute IDs pass
+    // through unchanged.
+    MinimalZoneFixture fixture;
+    fixture.grid().nodeMesh = std::make_unique<ONEFLOW::NodeMesh>();
+    fixture.grid().nodeMesh->AddPoint(0.0, 0.0, 0.0); // id 0
+    fixture.grid().nodeMesh->AddPoint(1.0, 0.0, 0.0); // id 1
+    fixture.grid().nodeMesh->AddPoint(1.0, 1.0, 0.0); // id 2
+    fixture.grid().nodeMesh->CalcMinMaxBox();
+
+    ONEFLOW::IFaceLink iFaceLink(fixture.grids);
+    iFaceLink.l2g[0].push_back(0);
+    iFaceLink.face_search->cFaceId.resize(1);
+    iFaceLink.face_search->cFaceId[0] = ONEFLOW::IntField{0};
+    iFaceLink.face_search->rCNodeId.resize(1);
+    iFaceLink.face_search->rCNodeFlag.resize(1);
+    // Absolute mesh node IDs 1 and 2 (not relative to parent).
+    iFaceLink.face_search->rCNodeId[0] = ONEFLOW::IntField{1, 2};
+    iFaceLink.face_search->rCNodeFlag[0] = ONEFLOW::IntField{0, 0};
+
+    ONEFLOW::FaceTopo faceTopo;
+    faceTopo.BindGrid(fixture.grid());
+    faceTopo.GetFaceTypes().push_back(2);
+    faceTopo.GetFaces().push_back(ONEFLOW::IntField{10, 20});
+    faceTopo.GetLeftCells().push_back(3);
+    faceTopo.GetRightCells().push_back(-1);
+    faceTopo.SetBoundaryFaceCount(1);
+    faceTopo.GetBcRecord().bcType[0] = kInterfaceBc;
+    faceTopo.GetBcRecord().bcNameId[0] = 0;
+
+    ASSERT_NO_THROW(faceTopo.ModifyFaceNodeId(iFaceLink));
+    ASSERT_NO_THROW(faceTopo.UpdateOtherTopologyTerm());
+
+    ASSERT_EQ(faceTopo.GetFaces().size(), static_cast<std::size_t>(1));
+    EXPECT_EQ(faceTopo.GetFaces()[0][0], 1);
+    EXPECT_EQ(faceTopo.GetFaces()[0][1], 2);
+    EXPECT_EQ(faceTopo.GetLeftCells()[0], 3);
+}
+
+TEST(FaceTopoLifecycleTest, InterfaceChildAbsoluteIdsRejectMissingNodeMesh)
+{
+    MinimalZoneFixture fixture;
+    ASSERT_EQ(fixture.grid().nodeMesh, nullptr);
+
+    ONEFLOW::IFaceLink iFaceLink(fixture.grids);
+    iFaceLink.l2g[0].push_back(0);
+    iFaceLink.face_search->cFaceId.resize(1);
+    iFaceLink.face_search->cFaceId[0] = ONEFLOW::IntField{0};
+    iFaceLink.face_search->rCNodeId.resize(1);
+    iFaceLink.face_search->rCNodeFlag.resize(1);
+    iFaceLink.face_search->rCNodeId[0] = ONEFLOW::IntField{1};
+    iFaceLink.face_search->rCNodeFlag[0] = ONEFLOW::IntField{0};
+
+    ONEFLOW::FaceTopo faceTopo;
+    faceTopo.BindGrid(fixture.grid());
+    faceTopo.GetFaceTypes().push_back(2);
+    faceTopo.GetFaces().push_back(ONEFLOW::IntField{10, 20});
+    faceTopo.GetLeftCells().push_back(0);
+    faceTopo.GetRightCells().push_back(-1);
+    faceTopo.SetBoundaryFaceCount(1);
+    faceTopo.GetBcRecord().bcType[0] = kInterfaceBc;
+    faceTopo.GetBcRecord().bcNameId[0] = 0;
+
+    EXPECT_THROW(faceTopo.SetNewFace2Node(iFaceLink), std::out_of_range);
+    EXPECT_FALSE(faceTopo.HasPendingTopologyRebuild());
+}

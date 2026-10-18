@@ -119,6 +119,13 @@ public:
     void ReorderLink();
 };
 
+// Look up child face IDs for a local interface face and validate their node tables.
+// Returns a reference into interfaceLink.face_search->cFaceId[globalFaceId].
+const IntField & GetInterfaceChildFaceIds(
+    const IFaceLink & interfaceLink,
+    int zoneId,
+    int localInterfaceFaceId );
+
 // Resolve one child face's node indices from parent-face relative and absolute IDs.
 // flag == 1: childNodeIds[i] is an index into parentFaceNodes.
 // otherwise: childNodeIds[i] is an absolute mesh node ID (requires hasNodeMesh).
