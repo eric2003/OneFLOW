@@ -2,7 +2,7 @@
   "type": "flat_plate",
   "templateId": "two_block_laminar_flat_plate",
   "templateName": "Two-block Laminar Flat Plate",
-  "description": "2D laminar flat-plate layout with 41 near-wall points spanning 0.02.",
+  "description": "Two-block laminar flat-plate template with 40 uniform near-wall intervals spanning 0.02 (41 points).",
   "plateLength": 2,
   "upstreamDistance": 2,
   "domainHeight": 4,
