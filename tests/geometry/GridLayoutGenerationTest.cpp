@@ -211,6 +211,17 @@ TEST( DomDataTest, RebuildsControlPointCandidatesFromCurrentDomainIncidence )
     EXPECT_EQ( domainData.candidate_ctrlpoints, ( IntField{ 309 } ) );
 }
 
+TEST( DomDataTest, RebuildsBoundaryPointCandidatesFromCurrentBoundaryLines )
+{
+    DomData domainData;
+    domainData.candidate_bcpoints = { 101, 205 };
+    domainData.lineToDomainMap.clear();
+
+    domainData.ConstructBcPoint();
+
+    EXPECT_TRUE( domainData.candidate_bcpoints.empty() );
+}
+
 TEST( MLineTest, RebuildsEndpointCandidatesAfterTopologyChanges )
 {
     CoorMap coordinates;
