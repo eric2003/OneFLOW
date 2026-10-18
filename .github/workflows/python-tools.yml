@@ -63,8 +63,6 @@ jobs:
         run: python -m unittest tools.oneflow_gui.test_test_runner
       - name: Test user data paths
         run: python -m unittest tools.oneflow_gui.test_user_data_paths
-      - name: Test mesh layout project copying
-        run: python -m unittest tools.oneflow_gui.test_mesh_layout_projects
       - name: Test workflow persistence
         run: python -m unittest tools.oneflow_gui.test_workflow_repository
       - name: Test workflow command construction

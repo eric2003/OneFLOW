@@ -25,8 +25,12 @@ def ensure_template_project(
 
     source = (repository_root / "grid" / folder_name).resolve()
     destination = (projects_root / folder_name).expanduser().resolve()
-    if destination == source:
-        raise ValueError("The editable project must not be the source template.")
+    try:
+        destination.relative_to((repository_root).resolve())
+    except ValueError:
+        pass
+    else:
+        raise ValueError("Editable mesh layout projects must be outside the OneFLOW source tree.")
 
     if destination.exists():
         if not destination.is_dir():

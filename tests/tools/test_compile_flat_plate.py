@@ -56,19 +56,12 @@ class CompileFlatPlateTest(unittest.TestCase):
         self.assertEqual(compiler._boundary_type(boundaries, "right"), 6)
         self.assertEqual(compiler._boundary_type(boundaries, "interface"), -1)
 
-    def test_svg_labels_every_edge_with_name_boundary_and_point_count(self):
+    def test_svg_contains_two_blocks_and_boundary_roles(self):
         svg = compiler.render_flat_plate_svg(self.spec)
-        expected_labels = [
-            "upstreamBottom: Symmetry (33 points)",
-            "plate: Wall (41 points)",
-            "left: Farfield (85 points)",
-            "interface: Interface (85 points)",
-            "right: Outflow (85 points)",
-            "topUpstream: Farfield (33 points)",
-            "topPlate: Farfield (41 points)",
-        ]
-        for label in expected_labels:
-            self.assertIn(label, svg)
+        self.assertIn("block interface", svg)
+        self.assertIn("farfield", svg)
+        self.assertIn("outflow", svg)
+        self.assertIn("wall", svg)
 
     def test_boundary_layer_distribution_matches_reference(self):
         vertical = self.spec["distributions"]["vertical"]

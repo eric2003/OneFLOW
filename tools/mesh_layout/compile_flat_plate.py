@@ -363,6 +363,10 @@ def render_flat_plate_svg(spec):
             x = x1 - 8
             y = (y1 + y2) / 2
             anchor = "end"
+        elif edge_name == "right":
+            x = x1 - 8
+            y = (y1 + y2) / 2
+            anchor = "end"
         else:
             x = x1 + 8
             y = (y1 + y2) / 2

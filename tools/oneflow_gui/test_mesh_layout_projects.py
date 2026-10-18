@@ -51,6 +51,15 @@ class MeshLayoutProjectsTest(unittest.TestCase):
             )
             self.assertFalse((project / "script").exists())
 
+    def test_project_destination_inside_repository_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            with self.assertRaisesRegex(ValueError, "outside the OneFLOW source tree"):
+                ensure_template_project(
+                    REPOSITORY_ROOT,
+                    REPOSITORY_ROOT / "temporary-test-workspace",
+                    "rectangle",
+                )
+
     def test_unknown_template_type_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             with self.assertRaises(ValueError):
