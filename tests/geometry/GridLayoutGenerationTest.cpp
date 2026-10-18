@@ -199,8 +199,8 @@ TEST( SDomainTest, FindsUniqueSharedEndpointBetweenAdjacentEdges )
     SDomain domain( &coordinates );
     MLine firstEdge( &coordinates );
     MLine secondEdge( &coordinates );
-    firstEdge.candidate_ctrlpoints = { 101, 205 };
-    secondEdge.candidate_ctrlpoints = { 205, 309 };
+    firstEdge.endpointCandidates = { 101, 205 };
+    secondEdge.endpointCandidates = { 205, 309 };
 
     int commonPoint = -1;
     domain.GetCommonPoint( &firstEdge, &secondEdge, commonPoint );
@@ -214,8 +214,8 @@ TEST( SDomainTest, RejectsAdjacentEdgesWithMultipleSharedEndpointCandidates )
     SDomain domain( &coordinates );
     MLine firstEdge( &coordinates );
     MLine secondEdge( &coordinates );
-    firstEdge.candidate_ctrlpoints = { 101, 205 };
-    secondEdge.candidate_ctrlpoints = { 101, 205 };
+    firstEdge.endpointCandidates = { 101, 205 };
+    secondEdge.endpointCandidates = { 101, 205 };
 
     int commonPoint = -1;
     EXPECT_THROW(
@@ -229,8 +229,8 @@ TEST( SDomainTest, RejectsAdjacentEdgesWithoutSharedEndpointCandidates )
     SDomain domain( &coordinates );
     MLine firstEdge( &coordinates );
     MLine secondEdge( &coordinates );
-    firstEdge.candidate_ctrlpoints = { 101, 205 };
-    secondEdge.candidate_ctrlpoints = { 309, 407 };
+    firstEdge.endpointCandidates = { 101, 205 };
+    secondEdge.endpointCandidates = { 309, 407 };
 
     int commonPoint = -1;
     EXPECT_THROW(
@@ -278,7 +278,7 @@ TEST( MLineTest, BuildsPointToLineIncidenceForCompositeLine )
     line.ConstructPointToLineMap( pointIdLink );
     line.ConstructEndpointCandidates();
 
-    EXPECT_EQ( line.candidate_ctrlpoints, ( IntField{ 101, 309 } ) );
+    EXPECT_EQ( line.endpointCandidates, ( IntField{ 101, 309 } ) );
     ASSERT_EQ( line.pointToLine.size(), 3u );
     ASSERT_EQ( line.pointToLine.at( 101 ).size(), 1u );
     EXPECT_TRUE( line.pointToLine.at( 101 ).count( 10 ) );
