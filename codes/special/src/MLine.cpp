@@ -225,12 +225,11 @@ void MLine::ConstructSLineCtrlPoint()
 
 void MLine::ConstructCtrlPoint()
 {
-    std::map< int, IntSet >::iterator iter;
-    for ( iter = this->pointToDomainMap.begin(); iter != this->pointToDomainMap.end(); ++ iter )
+    for ( const auto & pointLines : this->pointToLine )
     {
-        if ( iter->second.size() == 1 )
+        if ( pointLines.second.size() == 1 )
         {
-            this->candidate_ctrlpoints.push_back( iter->first );
+            this->candidate_ctrlpoints.push_back( pointLines.first );
         }
     }
 }
@@ -259,19 +258,19 @@ void MLine::ConstructPointToLineMap( const LinkField & pointIdLink, std::map< in
     }
 }
 
-void MLine::ConstructPointToDomainMap()
+void MLine::ConstructPointToLineMap()
 {
     LinkField pointIdLink;
     GetPointIdLink( this->lineList, pointIdLink );
-    this->ConstructPointToDomainMap( pointIdLink );
+    this->ConstructPointToLineMap( pointIdLink );
 }
 
-void MLine::ConstructPointToDomainMap( const LinkField & pointIdLink )
+void MLine::ConstructPointToLineMap( const LinkField & pointIdLink )
 {
     for ( int iLine = 0; iLine < lineList.size(); ++ iLine )
     {
-        int line_id = lineList[ iLine ];
-        ConstructIntList2Map( line_id, pointIdLink[ iLine ], pointToDomainMap );
+        const int lineId = lineList[ iLine ];
+        ConstructIntList2Map( lineId, pointIdLink[ iLine ], this->pointToLine );
     }
 }
 
@@ -309,7 +308,7 @@ void MLine::CalcCoor()
 void MLine::ConstructDomainTopo()
 {
     this->ConstructLineToDomainMap();
-    this->ConstructPointToDomainMap();
+    this->ConstructPointToLineMap();
     this->ConstructPointToPointMap();
     this->ConstructBcPoint();
     this->ConstructCtrlPoint();
