@@ -13,20 +13,30 @@ TEST(FaceSolverLifecycleTest, InternalFieldsInitializationAndCleanup)
     EXPECT_NE(&solver->GetFaceTopo(), nullptr);
     
     // 2. Verify value-type fields are accessible and empty initially
-    EXPECT_EQ(solver->faceBcKey.size(), 0);
-    EXPECT_EQ(solver->faceBcType.size(), 0);
+    EXPECT_EQ(solver->faceBcNameIds.size(), 0);
+    EXPECT_EQ(solver->faceBcTypes.size(), 0);
     EXPECT_EQ(solver->childFid.size(), 0);
     
     // 3. Simulate internal resizing (mimicking ScanPolygonFace behavior)
-    solver->faceBcType.resize(10);
-    solver->faceBcKey.resize(10);
+    solver->faceBcTypes.resize(10);
+    solver->faceBcNameIds.resize(10);
     solver->childFid.resize(10);
     
-    EXPECT_EQ(solver->faceBcType.size(), 10);
+    EXPECT_EQ(solver->faceBcTypes.size(), 10);
     
     // 4. Safe deletion: value types are automatically cleaned up, 
     // faceTopo is explicitly deleted in destructor.
     delete solver; 
     
     SUCCEED() << "FaceSolver lifecycle is safe and leak-free.";
+}
+
+TEST(FaceSolverLifecycleTest, FaceBcAttributesTrackFaceCount)
+{
+    // Intent: faceBcNameIds and faceBcTypes are parallel arrays staged with
+    // faces; empty solver starts with empty BC attribute lists.
+    ONEFLOW::FaceSolver solver;
+    EXPECT_TRUE(solver.faceBcNameIds.empty());
+    EXPECT_TRUE(solver.faceBcTypes.empty());
+    EXPECT_EQ(solver.GetFaceTopo().GetFaceCount(), static_cast<ONEFLOW::HXSize_t>(0));
 }

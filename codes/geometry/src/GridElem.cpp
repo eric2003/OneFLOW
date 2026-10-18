@@ -256,8 +256,8 @@ void GridElem::GenerateCalcElement()
 
         if ( rc == INVALID_INDEX )
         {
-            faceTopo.GetBcRecord().bcType.push_back( this->faceSolver.faceBcType[ iFace ] );
-            faceTopo.GetBcRecord().bcNameId.push_back( this->faceSolver.faceBcKey[ iFace ] );
+            faceTopo.GetBcRecord().bcType.push_back( this->faceSolver.faceBcTypes[ iFace ] );
+            faceTopo.GetBcRecord().bcNameId.push_back( this->faceSolver.faceBcNameIds[ iFace ] );
             ++ nBFaces;
         }
     }

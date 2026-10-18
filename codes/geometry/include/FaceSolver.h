@@ -46,8 +46,10 @@ public:
     HXLookup<int> faceLookup;
     // [Refactored] Changed from raw pointers to value types.
     // They are now automatically managed by the compiler (stack allocation).
-    IntField faceBcKey;
-    IntField faceBcType;
+    // Staged BC attributes per face (aligned with FaceTopo faces).
+    // Copied into BcRecord as bcNameId / bcType in GridElem::GenerateCalcElement.
+    IntField faceBcNameIds;
+    IntField faceBcTypes;
     LinkField childFid;
 public:
     FaceTopo & GetFaceTopo();
