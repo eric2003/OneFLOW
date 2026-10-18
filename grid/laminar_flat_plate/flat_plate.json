@@ -1,5 +1,7 @@
 {
   "type": "flat_plate",
+  "templateId": "two_block_laminar_flat_plate",
+  "templateName": "Two-block Laminar Flat Plate",
   "description": "2D laminar flat-plate layout with 41 near-wall points spanning 0.02.",
   "plateLength": 2,
   "upstreamDistance": 2,
@@ -18,7 +20,7 @@
     ],
     "vertical": {
       "type": "boundary_layer",
-      "nearWallPointCount": 41,
+      "nearWallIntervalCount": 40,
       "nearWallDistance": 0.02
     },
     "top": [
