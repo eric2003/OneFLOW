@@ -22,6 +22,8 @@ class CompileFlatPlateTest(unittest.TestCase):
         self.assertEqual(self.spec["upstreamPointCount"], 33)
         self.assertEqual(self.spec["platePointCount"], 41)
         self.assertEqual(self.spec["normalPointCount"], 85)
+        self.assertEqual(self.spec["templateId"], "two_block_laminar_flat_plate")
+        self.assertEqual(self.spec["templateName"], "Two-block Laminar Flat Plate")
 
     def test_compiles_two_block_layout(self):
         output = compiler.compile_flat_plate(self.spec)
@@ -74,10 +76,10 @@ class CompileFlatPlateTest(unittest.TestCase):
         self.assertIn('left: Farfield</tspan><tspan', svg)
         self.assertIn('interface: Interface</tspan><tspan', svg)
 
-    def test_boundary_layer_distribution_matches_reference(self):
+    def test_boundary_layer_distribution_uses_interval_count_semantics(self):
         vertical = self.spec["distributions"]["vertical"]
         self.assertEqual(vertical["type"], "boundary_layer")
-        self.assertEqual(vertical["nearWallPointCount"], 41)
+        self.assertEqual(vertical["nearWallIntervalCount"], 40)
         self.assertEqual(vertical["nearWallDistance"], 0.02)
         output = compiler.compile_flat_plate(self.spec)
         self.assertIn("Ds(3)={bl,41,0.02}", output)
