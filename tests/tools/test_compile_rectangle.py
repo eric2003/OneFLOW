@@ -54,6 +54,24 @@ class CompileRectangleTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "integer >= 2"):
             compiler.compile_rectangle(self.spec)
 
+    def test_named_boundary_types_compile_to_legacy_codes(self):
+        self.spec["boundaries"] = {
+            "line1": "wall",
+            "line2": "outflow",
+            "line3": "symmetry",
+            "line4": "farfield",
+        }
+        output = compiler.compile_rectangle(self.spec)
+        self.assertIn("Boundary(1)={2}", output)
+        self.assertIn("Boundary(2)={6}", output)
+        self.assertIn("Boundary(3)={3}", output)
+        self.assertIn("Boundary(4)={4}", output)
+
+    def test_rejects_unknown_boundary_type(self):
+        self.spec["boundaries"] = {"line1": "made_up"}
+        with self.assertRaisesRegex(ValueError, "known boundary name"):
+            compiler.compile_rectangle(self.spec)
+
 
 if __name__ == "__main__":
     unittest.main()
