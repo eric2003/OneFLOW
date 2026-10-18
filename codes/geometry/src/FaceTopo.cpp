@@ -328,7 +328,7 @@ void FaceTopo::SetNewFace2Node( IFaceLink & iFaceLink )
         int bcType = this->bcManager->bcRecord->bcType[ iFace ];
 
         int nFNode = this->faces[ iFace ].size();
-        IntField tmpVector;
+        IntField resolvedFaceNodes;
 
         if ( BC::IsInterfaceBc( bcType ) )
         {
@@ -347,13 +347,13 @@ void FaceTopo::SetNewFace2Node( IFaceLink & iFaceLink )
                     const HXSize_t nodeMeshCount = hasNodeMesh
                         ? this->GetGrid().nodeMesh->GetNumberOfNodes()
                         : 0;
-                    tmpVector = ResolveChildFaceNodeIds(
+                    resolvedFaceNodes = ResolveChildFaceNodeIds(
                         this->faces[ iFace ],
                         iFaceLink.face_search->rCNodeId[ cFid ],
                         iFaceLink.face_search->rCNodeFlag[ cFid ],
                         hasNodeMesh,
                         nodeMeshCount );
-                    this->rebuildFaces.push_back( tmpVector );
+                    this->rebuildFaces.push_back( resolvedFaceNodes );
                 }
             }
             else
@@ -361,9 +361,9 @@ void FaceTopo::SetNewFace2Node( IFaceLink & iFaceLink )
                 for ( int iNode = 0; iNode < nFNode; ++ iNode )
                 {
                     int nodeIndex = this->faces[ iFace ][ iNode ];
-                    tmpVector.push_back( nodeIndex );
+                    resolvedFaceNodes.push_back( nodeIndex );
                 }
-                this->rebuildFaces.push_back( tmpVector );
+                this->rebuildFaces.push_back( resolvedFaceNodes );
             }
             ++ localFid;
         }
@@ -372,9 +372,9 @@ void FaceTopo::SetNewFace2Node( IFaceLink & iFaceLink )
             for ( int iNode = 0; iNode < nFNode; ++ iNode )
             {
                 int nodeIndex = this->faces[ iFace ][ iNode ];
-                tmpVector.push_back( nodeIndex );
+                resolvedFaceNodes.push_back( nodeIndex );
             }
-            this->rebuildFaces.push_back( tmpVector );
+            this->rebuildFaces.push_back( resolvedFaceNodes );
         }
     }
 
@@ -382,13 +382,13 @@ void FaceTopo::SetNewFace2Node( IFaceLink & iFaceLink )
     for ( int iFace = nBFaces; iFace < nFaces; ++ iFace )
     {
         int nFNode = this->faces[ iFace ].size();
-        IntField tmpVector;
+        IntField resolvedFaceNodes;
         for ( int iNode = 0; iNode < nFNode; ++ iNode )
         {
             int nId = this->faces[ iFace ][ iNode ];
-            tmpVector.push_back( nId );
+            resolvedFaceNodes.push_back( nId );
         }
-        this->rebuildFaces.push_back( tmpVector );
+        this->rebuildFaces.push_back( resolvedFaceNodes );
     }
 }
 

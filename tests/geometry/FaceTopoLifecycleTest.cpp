@@ -370,3 +370,61 @@ TEST(FaceTopoLifecycleTest, ResolveChildFaceNodeIds_RejectsAbsoluteWithoutMesh)
         ONEFLOW::ResolveChildFaceNodeIds(parent, childIds, flags, false, 0),
         std::out_of_range);
 }
+
+TEST(FaceTopoLifecycleTest, InterfaceParentFaceSplitsIntoTwoRelativeChildren)
+{
+    // Intent: one interface parent face with two relative children becomes two
+    // staged faces whose nodes are resolved through the parent face node list.
+    // This is the minimal multi-child rebuild path enabled by ResolveChildFaceNodeIds.
+    MinimalZoneFixture fixture;
+    ONEFLOW::IFaceLink iFaceLink(fixture.grids);
+
+    // local interface face 0 -> global face 0; two children 0 and 1.
+    iFaceLink.l2g[0].push_back(0);
+    iFaceLink.face_search->cFaceId.resize(1);
+    iFaceLink.face_search->cFaceId[0] = ONEFLOW::IntField{0, 1};
+    iFaceLink.face_search->rCNodeId.resize(2);
+    iFaceLink.face_search->rCNodeFlag.resize(2);
+    // child 0: parent local corners 0 and 1
+    iFaceLink.face_search->rCNodeId[0] = ONEFLOW::IntField{0, 1};
+    iFaceLink.face_search->rCNodeFlag[0] = ONEFLOW::IntField{1, 1};
+    // child 1: parent local corners 2 and 3
+    iFaceLink.face_search->rCNodeId[1] = ONEFLOW::IntField{2, 3};
+    iFaceLink.face_search->rCNodeFlag[1] = ONEFLOW::IntField{1, 1};
+
+    ONEFLOW::FaceTopo faceTopo;
+    faceTopo.BindGrid(fixture.grid());
+
+    // Single interface boundary face; parent nodes 10,20,30,40.
+    faceTopo.GetFaceTypes().push_back(2);
+    faceTopo.GetFaces().push_back(ONEFLOW::IntField{10, 20, 30, 40});
+    faceTopo.GetLeftCells().push_back(7);
+    faceTopo.GetRightCells().push_back(-1);
+    faceTopo.SetBoundaryFaceCount(1);
+    faceTopo.GetBcRecord().bcType[0] = kInterfaceBc;
+    faceTopo.GetBcRecord().bcNameId[0] = 0;
+
+    ASSERT_NO_THROW(faceTopo.ModifyFaceNodeId(iFaceLink));
+    EXPECT_TRUE(faceTopo.HasPendingTopologyRebuild());
+
+    ASSERT_NO_THROW(faceTopo.UpdateOtherTopologyTerm());
+    EXPECT_FALSE(faceTopo.HasPendingTopologyRebuild());
+
+    // Two faces after split; no internal faces were present.
+    ASSERT_EQ(faceTopo.GetFaces().size(), static_cast<std::size_t>(2));
+    ASSERT_EQ(faceTopo.GetFaces()[0].size(), static_cast<std::size_t>(2));
+    ASSERT_EQ(faceTopo.GetFaces()[1].size(), static_cast<std::size_t>(2));
+    EXPECT_EQ(faceTopo.GetFaces()[0][0], 10);
+    EXPECT_EQ(faceTopo.GetFaces()[0][1], 20);
+    EXPECT_EQ(faceTopo.GetFaces()[1][0], 30);
+    EXPECT_EQ(faceTopo.GetFaces()[1][1], 40);
+
+    // Left cell of the parent is duplicated onto each child; right cells are
+    // iFace + nCells for the new boundary faces.
+    ASSERT_EQ(faceTopo.GetLeftCells().size(), static_cast<std::size_t>(2));
+    ASSERT_EQ(faceTopo.GetRightCells().size(), static_cast<std::size_t>(2));
+    EXPECT_EQ(faceTopo.GetLeftCells()[0], 7);
+    EXPECT_EQ(faceTopo.GetLeftCells()[1], 7);
+    EXPECT_EQ(faceTopo.GetRightCells()[0], 0 + fixture.grid().nCells);
+    EXPECT_EQ(faceTopo.GetRightCells()[1], 1 + fixture.grid().nCells);
+}
