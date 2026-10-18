@@ -219,6 +219,62 @@ TEST( MDomainTest, ReportsStalledControlPointResolution )
         std::runtime_error );
 }
 
+TEST( SDomainTest, ReportsBlockedWhenFewerThanThreeControlPointsAreKnown )
+{
+    CoorMap coordinates;
+
+    CalcCoor lowerLeft;
+    lowerLeft.SetCoor( 10, 20, 0 );
+    coordinates.emplace( 101, lowerLeft );
+
+    CalcCoor lowerRight;
+    lowerRight.SetCoor( 20, 20, 0 );
+    coordinates.emplace( 205, lowerRight );
+
+    SDomain domain( &coordinates );
+    domain.ctrlpoints.push_back( 101 );
+    domain.ctrlpoints.push_back( 205 );
+    domain.ctrlpoints.push_back( 309 );
+    domain.ctrlpoints.push_back( 407 );
+
+    EXPECT_EQ(
+        domain.CalcSingleDomainCoor(),
+        ControlPointResolution::Blocked );
+}
+
+TEST( SDomainTest, ReportsProgressWhenInferringMissingControlPoint )
+{
+    CoorMap coordinates;
+
+    CalcCoor lowerLeft;
+    lowerLeft.SetCoor( 10, 20, 0 );
+    coordinates.emplace( 101, lowerLeft );
+
+    CalcCoor lowerRight;
+    lowerRight.SetCoor( 20, 20, 0 );
+    coordinates.emplace( 205, lowerRight );
+
+    CalcCoor upperLeft;
+    upperLeft.SetCoor( 10, 30, 0 );
+    coordinates.emplace( 407, upperLeft );
+
+    SDomain domain( &coordinates );
+    domain.ctrlpoints.push_back( 101 );
+    domain.ctrlpoints.push_back( 205 );
+    domain.ctrlpoints.push_back( 309 );
+    domain.ctrlpoints.push_back( 407 );
+
+    EXPECT_EQ(
+        domain.CalcSingleDomainCoor(),
+        ControlPointResolution::Progress );
+
+    const auto inferredCorner = coordinates.find( 309 );
+    ASSERT_NE( inferredCorner, coordinates.end() );
+    EXPECT_EQ( inferredCorner->second.i, 20 );
+    EXPECT_EQ( inferredCorner->second.j, 30 );
+    EXPECT_EQ( inferredCorner->second.k, 0 );
+}
+
 TEST( SDomainTest, CompletesMissingControlPointUsingGlobalPointIds )
 {
     CoorMap coordinates;
