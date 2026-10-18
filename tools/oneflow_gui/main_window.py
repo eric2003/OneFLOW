@@ -102,7 +102,7 @@ class MainWindow(QMainWindow):
         self._worker: RunQueueWorker | None = None
         self._row_by_id: dict[str, int] = {}
 
-        self.setWindowTitle("OneFLOW Case Runner")
+        self.setWindowTitle("OneFLOW Workbench")
         self.resize(1100, 760)
         self._build_ui()
         self._load_cases()
@@ -114,7 +114,7 @@ class MainWindow(QMainWindow):
         root_layout.setContentsMargins(20, 18, 20, 18)
         root_layout.setSpacing(12)
 
-        heading = QLabel("OneFLOW Case Runner")
+        heading = QLabel("Case Workbench")
         heading.setObjectName("pageTitle")
         subtitle = QLabel(
             "Select cases, run them in isolated workspaces, and review process logs."
@@ -433,7 +433,7 @@ class MainWindow(QMainWindow):
 def run_desktop_app() -> int:
     """Create the application and enter Qt's event loop."""
     application = QApplication.instance() or QApplication([])
-    application.setApplicationName("OneFLOW Case Runner")
+    application.setApplicationName("OneFLOW Workbench")
     window = MainWindow()
     window.show()
     return application.exec()
