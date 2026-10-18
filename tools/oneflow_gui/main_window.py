@@ -31,6 +31,7 @@ from .models import CaseDefinition, CaseRunResult, RunState
 from .runner import create_run_id, run_case
 from .user_data_paths import UserDataPaths
 from .workflow_dialog import WorkflowDialog
+from .test_dialog import TestRunnerDialog
 
 
 class RunQueueWorker(QThread):
@@ -184,6 +185,8 @@ class MainWindow(QMainWindow):
         refresh.clicked.connect(self._load_cases)
         workflows = QPushButton("Workflows...")
         workflows.clicked.connect(self._open_workflows)
+        tests_button = QPushButton("Tests...")
+        tests_button.clicked.connect(self._open_tests)
         self.run_button = QPushButton("Run selected cases")
         self.run_button.setObjectName("primaryButton")
         self.run_button.clicked.connect(self._start_run)
@@ -194,6 +197,7 @@ class MainWindow(QMainWindow):
         action_layout.addWidget(select_none)
         action_layout.addWidget(refresh)
         action_layout.addWidget(workflows)
+        action_layout.addWidget(tests_button)
         action_layout.addStretch(1)
         action_layout.addWidget(self.run_button)
         action_layout.addWidget(self.stop_button)
@@ -371,6 +375,10 @@ class MainWindow(QMainWindow):
         self._worker.finished.connect(self._queue_finished)
         self._worker.start()
         self.statusBar().showMessage(f"Running {len(selected)} case(s)...")
+
+    def _open_tests(self) -> None:
+        dialog = TestRunnerDialog(self._repository_root, self)
+        dialog.exec()
 
     def _open_workflows(self) -> None:
         dialog = WorkflowDialog(
