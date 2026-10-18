@@ -35,6 +35,7 @@ from .workflow_dialog import WorkflowDialog
 from .test_dialog import TestRunnerDialog
 from .run_history_dialog import RunHistoryDialog
 from .workflow_repository import WorkflowRepository, WorkflowRunRecord
+from .mesh_layout_dialog import MeshLayoutDialog
 
 
 class RunQueueWorker(QThread):
@@ -192,6 +193,8 @@ class MainWindow(QMainWindow):
         refresh.clicked.connect(self._load_cases)
         workflows = QPushButton("Workflows...")
         workflows.clicked.connect(self._open_workflows)
+        mesh_layout_button = QPushButton("Mesh Layout...")
+        mesh_layout_button.clicked.connect(self._open_mesh_layout)
         tests_button = QPushButton("Tests...")
         tests_button.clicked.connect(self._open_tests)
         history_button = QPushButton("Run History...")
@@ -206,6 +209,7 @@ class MainWindow(QMainWindow):
         action_layout.addWidget(select_none)
         action_layout.addWidget(refresh)
         action_layout.addWidget(workflows)
+        action_layout.addWidget(mesh_layout_button)
         action_layout.addWidget(tests_button)
         action_layout.addWidget(history_button)
         action_layout.addStretch(1)
@@ -414,6 +418,10 @@ class MainWindow(QMainWindow):
         self._worker.finished.connect(self._queue_finished)
         self._worker.start()
         self.statusBar().showMessage(f"Running {len(selected)} case(s)...")
+
+    def _open_mesh_layout(self) -> None:
+        dialog = MeshLayoutDialog(self._repository_root, self)
+        dialog.exec()
 
     def _open_run_history(self) -> None:
         dialog = RunHistoryDialog(UserDataPaths.discover().workflow_data, self)
