@@ -505,7 +505,7 @@ class WorkflowDialog(QDialog):
         started_at = _timestamp()
         log_path = (self._user_data_paths.logs / f"{run_id}.log").resolve()
         log_path.parent.mkdir(parents=True, exist_ok=True)
-        log_path.write_text(f"Run {run_id}: {workflow.name}\\n", encoding="utf-8")
+        log_path.write_text(f"Run {run_id}: {workflow.name}\n", encoding="utf-8")
         self._active_log_path = log_path
         if case_graph is not None:
             run_root = (self._user_data_paths.executions / run_id).resolve()
@@ -576,8 +576,8 @@ class WorkflowDialog(QDialog):
         if self._active_log_path is None:
             return
         try:
-            with self._active_log_path.open("a", encoding="utf-8", newline="\\n") as stream:
-                stream.write(line + "\\n")
+            with self._active_log_path.open("a", encoding="utf-8", newline="\n") as stream:
+                stream.write(line + "\n")
         except OSError as error:
             self.log_view.appendPlainText(f"Could not write run log: {error}")
 
