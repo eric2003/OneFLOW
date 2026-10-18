@@ -91,6 +91,26 @@ int MDomain::GetNsubDomain()
     return this->sDomainList.size();
 }
 
+void MDomain::ConstructCtrlPoint()
+{
+    IntSet cornerPoints;
+    for ( int iDomain = 0; iDomain < this->sDomainList.size(); ++ iDomain )
+    {
+        const SDomain * sDomain = this->sDomainList[ iDomain ].get();
+        for ( int iPoint = 0; iPoint < sDomain->ctrlpoints.size(); ++ iPoint )
+        {
+            cornerPoints.insert( sDomain->ctrlpoints[ iPoint ] );
+        }
+    }
+
+    this->candidate_ctrlpoints.clear();
+    for ( IntSet::const_iterator iter = cornerPoints.begin();
+          iter != cornerPoints.end(); ++ iter )
+    {
+        this->candidate_ctrlpoints.push_back( *iter );
+    }
+}
+
 void MDomain::ConstructMultiDomainTopo()
 {
     int nSDomain = sDomainList.size();
