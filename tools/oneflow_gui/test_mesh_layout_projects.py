@@ -69,7 +69,10 @@ class MeshLayoutProjectsTest(unittest.TestCase):
             )
             self.assertTrue((project / "flat_plate.json").is_file())
             spec = json.loads((project / "flat_plate.json").read_text(encoding="utf-8"))
-            self.assertEqual(spec["distributions"]["vertical"]["nearWallPointCount"], 41)
+            vertical = spec["distributions"]["vertical"]
+            self.assertEqual(vertical["type"], "boundary_layer")
+            self.assertEqual(vertical["nearWallIntervalCount"], 40)
+            self.assertEqual(vertical["nearWallDistance"], 0.02)
 
     def test_unknown_template_type_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
