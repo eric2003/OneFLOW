@@ -66,6 +66,7 @@ public:
     CoorMap * coorMap;
 public:
     std::map< int, IntSet > pointToLine;
+    IntField endpointCandidates;
 public:
     void ConstructLineToDomainMap();
     void ConstructLineToDomainMap( int domain_id, std::map< int, IntSet > & lineToDomainMap );
