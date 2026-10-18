@@ -864,6 +864,137 @@ TEST( GridLayoutGenerationTest, GeneratesRectangleWithTwoCompositeBoundaryEdges 
     file.close();
 }
 
+TEST( GridLayoutGenerationTest, ReordersThreeCompositeBoundarySegmentsRegardlessOfDirection )
+{
+    const std::filesystem::path outputDir =
+        std::filesystem::temp_directory_path() / "oneflow-three-composite-boundary-segments";
+    std::filesystem::remove_all( outputDir );
+    std::filesystem::create_directories( outputDir );
+
+    const std::filesystem::path layoutFile = outputDir / "threeSegmentRectangleLayout.txt";
+    const std::filesystem::path outputFile = outputDir / "threeSegmentRectangle.ofl";
+    const std::filesystem::path bcFile = outputDir / "threeSegmentRectangle.inp";
+
+    std::ofstream layout( layoutFile );
+    ASSERT_TRUE( layout.is_open() );
+    layout <<
+        "Point(1)={0,0,0}\n"
+        "Point(2)={1,0,0}\n"
+        "Point(3)={1,1,0}\n"
+        "Point(4)={0,1,0}\n"
+        "Point(5)={0.3333333333333333,0,0}\n"
+        "Point(6)={0.6666666666666666,0,0}\n"
+        "Line(1)={1,5}\n"
+        "Line(2)={2,3}\n"
+        "Line(3)={3,4}\n"
+        "Line(4)={6,2}\n"
+        "Line(5)={4,1}\n"
+        "Line(6)={6,5}\n"
+        "Dim(1)={2}\n"
+        "Dim(2)={4}\n"
+        "Dim(3)={4}\n"
+        "Dim(4)={2}\n"
+        "Dim(5)={4}\n"
+        "Dim(6)={2}\n"
+        "Ds(1)={d,-1,-1}\n"
+        "Ds(2)={d,-1,-1}\n"
+        "Ds(3)={d,-1,-1}\n"
+        "Ds(4)={d,-1,-1}\n"
+        "Ds(5)={d,-1,-1}\n"
+        "Ds(6)={d,-1,-1}\n"
+        "Boundary(1)={1}\n"
+        "Boundary(2)={2}\n"
+        "Boundary(3)={3}\n"
+        "Boundary(4)={1}\n"
+        "Boundary(5)={4}\n"
+        "Boundary(6)={1}\n"
+        "Add L2F 1 1 1\n"
+        "Add L2F 1 2 2\n"
+        "Add L2F 1 3 3\n"
+        "Add L2F 1 1 4\n"
+        "Add L2F 1 4 5\n"
+        "Add L2F 1 1 6\n"
+        "Add F2B 1 1 1\n";
+    layout.close();
+
+    const int oldDimension = Dim::GetDimension();
+    const std::string oldProjectDir = Prj::prjBaseDir;
+    const GridGenerationTestContext restore{ oldDimension, oldProjectDir, outputDir };
+
+    Dim::SetDimension( TWO_D );
+    Prj::SetPrjBaseDir( outputDir.string() );
+
+    SetDataString( "gridLayoutFileName", layoutFile.string() );
+    SetDataString( "sourceGridFileName", outputFile.string() );
+    SetDataString( "sourceGridBcName", bcFile.string() );
+    SetDataString( "targetGridFileName", outputFile.string() );
+    SetDataString( "part_uns_file", ( outputDir / "partition.uns" ).string() );
+
+    GridMachine().Run( layoutFile.string() );
+
+    ASSERT_TRUE( std::filesystem::is_regular_file( outputFile ) );
+    std::ifstream file( outputFile, std::ios::binary );
+    ASSERT_TRUE( file.is_open() );
+    ASSERT_EQ( ReadBinary< int >( file ), 1 );
+    EXPECT_EQ( ReadBinary< int >( file ), 4 );
+    EXPECT_EQ( ReadBinary< int >( file ), 4 );
+    EXPECT_EQ( ReadBinary< int >( file ), 1 );
+
+    constexpr int nodeCount = 16;
+    std::array< Real, nodeCount > x{};
+    std::array< Real, nodeCount > y{};
+    std::array< Real, nodeCount > z{};
+    for ( Real & value : x ) value = ReadBinary< Real >( file );
+    for ( Real & value : y ) value = ReadBinary< Real >( file );
+    for ( Real & value : z ) value = ReadBinary< Real >( file );
+
+    for ( int i = 0; i < nodeCount; ++ i )
+    {
+        EXPECT_TRUE( std::isfinite( x[ i ] ) );
+        EXPECT_TRUE( std::isfinite( y[ i ] ) );
+        EXPECT_DOUBLE_EQ( z[ i ], 0.0 );
+    }
+
+    for ( int j = 0; j < 4; ++ j )
+    {
+        for ( int i = 0; i < 4; ++ i )
+        {
+            const int node = j * 4 + i;
+            EXPECT_NEAR( x[ node ], static_cast< Real >( i ) / 3.0, 1.0e-12 );
+            EXPECT_NEAR( y[ node ], static_cast< Real >( j ) / 3.0, 1.0e-12 );
+        }
+    }
+
+    Real totalCellArea = 0.0;
+    for ( int j = 0; j < 3; ++ j )
+    {
+        for ( int i = 0; i < 3; ++ i )
+        {
+            const int lowerLeft = j * 4 + i;
+            const int lowerRight = lowerLeft + 1;
+            const int upperLeft = lowerLeft + 4;
+            const int upperRight = upperLeft + 1;
+            const Real cellArea =
+                0.5 * (
+                    x[ lowerLeft ] * y[ lowerRight ] -
+                    y[ lowerLeft ] * x[ lowerRight ] +
+                    x[ lowerRight ] * y[ upperRight ] -
+                    y[ lowerRight ] * x[ upperRight ] +
+                    x[ upperRight ] * y[ upperLeft ] -
+                    y[ upperRight ] * x[ upperLeft ] +
+                    x[ upperLeft ] * y[ lowerLeft ] -
+                    y[ upperLeft ] * x[ lowerLeft ] );
+
+            EXPECT_GT( cellArea, 0.0 );
+            EXPECT_NEAR( cellArea, 1.0 / 9.0, 1.0e-12 );
+            totalCellArea += cellArea;
+        }
+    }
+
+    EXPECT_NEAR( totalCellArea, 1.0, 1.0e-12 );
+    file.close();
+}
+
 TEST( GridLayoutGenerationTest, GeneratesTwoConnectedThreeDimensionalCubes )
 {
     const std::filesystem::path layoutFile =
