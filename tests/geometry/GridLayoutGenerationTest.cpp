@@ -2,6 +2,7 @@
 #include "Dimension.h"
 #include "GridMachine.h"
 #include "Prj.h"
+#include "SDomain.h"
 
 #include <gtest/gtest.h>
 
@@ -186,6 +187,43 @@ TEST( GridLayoutGenerationTest, GeneratesFlatPlateBoundaryLayerDistribution )
     }
 
     file.close();
+}
+
+TEST( SDomainTest, CompletesMissingControlPointUsingGlobalPointIds )
+{
+    CoorMap coordinates;
+
+    CalcCoor lowerLeft;
+    lowerLeft.SetCoor( 10, 20, 0 );
+    coordinates.emplace( 101, lowerLeft );
+
+    CalcCoor lowerRight;
+    lowerRight.SetCoor( 20, 20, 0 );
+    coordinates.emplace( 205, lowerRight );
+
+    CalcCoor upperLeft;
+    upperLeft.SetCoor( 10, 30, 0 );
+    coordinates.emplace( 407, upperLeft );
+
+    SDomain domain( &coordinates );
+    domain.ctrlpoints.push_back( 101 );
+    domain.ctrlpoints.push_back( 205 );
+    domain.ctrlpoints.push_back( 309 );
+    domain.ctrlpoints.push_back( 407 );
+
+    IntField knownCorners;
+    knownCorners.push_back( 1 );
+    knownCorners.push_back( 1 );
+    knownCorners.push_back( 0 );
+    knownCorners.push_back( 1 );
+
+    domain.SetRemainingCtrlPoint( knownCorners );
+
+    const auto missingCorner = coordinates.find( 309 );
+    ASSERT_NE( missingCorner, coordinates.end() );
+    EXPECT_EQ( missingCorner->second.i, 20 );
+    EXPECT_EQ( missingCorner->second.j, 30 );
+    EXPECT_EQ( missingCorner->second.k, 0 );
 }
 
 TEST( GridLayoutGenerationTest, GeneratesMinimalRectangle )
