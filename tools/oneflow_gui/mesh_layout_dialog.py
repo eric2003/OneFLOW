@@ -179,16 +179,22 @@ class MeshLayoutDialog(QDialog):
         self._field_widgets.clear()
 
         if self._spec["type"] == "rectangle":
+            self._spec.setdefault(
+                "boundaries",
+                {f"line{line_id}": line_id for line_id in range(1, 5)},
+            )
             fields = []
             for point_index in range(4):
                 for axis, axis_name in enumerate(("X", "Y", "Z")):
                     fields.append((
-                        ( "corners", point_index, axis),
+                        ("corners", point_index, axis),
                         f"Point {point_index + 1} {axis_name}",
                     ))
             for edge_index in range(4):
                 fields.append((("edgePointCounts", edge_index), f"Line {edge_index + 1} point count"))
             fields.append((("spacing",), "Spacing type"))
+            for line_id in range(1, 5):
+                fields.append((("boundaries", f"line{line_id}"), f"Boundary: Line {line_id}"))
         else:
             fields = [
                 (("upstreamDistance",), "Upstream distance"),
