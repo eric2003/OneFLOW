@@ -62,6 +62,15 @@ public:
     void ScanBcFaceDetail( IntSet & bcVertex, int bcType, int bcNameId );
     void ScanInterfaceBc();
     int GetNSimpleFace();
+
+    // Stage a newly discovered unique face: topology + default BC slots together.
+    // Keeps faceBcTypes / faceBcNameIds length equal to FaceTopo face count.
+    void StageNewFace( const IntField & faceNodes, int faceType, int leftCellId );
+
+    // Assign BC on an already staged face (bounds-checked).
+    void SetStagedFaceBc( int faceId, int bcType, int bcNameId );
+
+    [[nodiscard]] bool StagedBcMatchesFaceCount() const;
 public:
     void ResizeAll();
     void ScanPolygonFace( CgnsSection & cgnsSection );
