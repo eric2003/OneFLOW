@@ -275,8 +275,8 @@ def compile_flat_plate(spec):
         for position, line_id in face.line_by_side:
             lines_out.append(f"Add L2F {face.id} {position} {line_id}")
 
+    lines_out.append("")
     for block in topology.blocks:
-        lines_out.append("")
         for position, face_id in block.face_by_position:
             lines_out.append(f"Add F2B {block.id} {position} {face_id}")
     lines_out.append("")
