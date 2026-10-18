@@ -193,6 +193,24 @@ TEST( GridLayoutGenerationTest, GeneratesFlatPlateBoundaryLayerDistribution )
     file.close();
 }
 
+TEST( DomDataTest, RebuildsControlPointCandidatesFromCurrentDomainIncidence )
+{
+    DomData domainData;
+    domainData.pointToDomainMap[ 101 ].insert( 1 );
+    domainData.pointToDomainMap[ 205 ].insert( 1 );
+    domainData.pointToDomainMap[ 205 ].insert( 2 );
+
+    domainData.ConstructCtrlPoint();
+
+    EXPECT_EQ( domainData.candidate_ctrlpoints, ( IntField{ 101 } ) );
+
+    domainData.pointToDomainMap.clear();
+    domainData.pointToDomainMap[ 309 ].insert( 3 );
+    domainData.ConstructCtrlPoint();
+
+    EXPECT_EQ( domainData.candidate_ctrlpoints, ( IntField{ 309 } ) );
+}
+
 TEST( MLineTest, RebuildsEndpointCandidatesAfterTopologyChanges )
 {
     CoorMap coordinates;
