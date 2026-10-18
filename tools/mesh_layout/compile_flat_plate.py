@@ -291,19 +291,27 @@ def render_flat_plate_svg(spec):
     height = float(spec["domainHeight"])
     x_min, x_max = -upstream, length
 
-    width, canvas_height, margin = 900, 560, 80
+    width, canvas_height = 1000, 640
+    left_gutter, right_gutter, top_gutter, bottom_gutter = 210, 170, 95, 110
     x_span = max(x_max - x_min, 1.0e-12)
     y_span = max(height, 1.0e-12)
-    scale = min((width - 2 * margin) / x_span,
-                (canvas_height - 2 * margin) / y_span)
+    scale = min(
+        (width - left_gutter - right_gutter) / x_span,
+        (canvas_height - top_gutter - bottom_gutter) / y_span,
+    )
 
     draw_width = x_span * scale
     draw_height = y_span * scale
-    left = (width - draw_width) / 2
-    bottom = canvas_height - (canvas_height - draw_height) / 2
+    geometry_left = left_gutter + (
+        width - left_gutter - right_gutter - draw_width
+    ) / 2
+    geometry_top = top_gutter + (
+        canvas_height - top_gutter - bottom_gutter - draw_height
+    ) / 2
+    geometry_bottom = geometry_top + draw_height
 
     def screen(x, y):
-        return left + (x - x_min) * scale, bottom - y * scale
+        return geometry_left + (x - x_min) * scale, geometry_bottom - y * scale
 
     p1 = screen(-upstream, 0.0)
     p2 = screen(0.0, 0.0)
@@ -324,59 +332,59 @@ def render_flat_plate_svg(spec):
 
     def boundary_label(name):
         value = boundaries[name]
-        return boundary_names.get(value.lower(), value) if isinstance(value, str) else boundary_names.get(value, str(value))
+        if isinstance(value, str):
+            return boundary_names.get(value.lower(), value)
+        return boundary_names.get(value, str(value))
 
-    edge_labels = [
-        ("upstreamBottom", boundary_label("upstreamBottom"), spec["upstreamPointCount"], (p1, p2), "bottom"),
-        ("plate", boundary_label("plate"), spec["platePointCount"], (p2, p3), "bottom"),
-        ("left", boundary_label("left"), spec["normalPointCount"], (p1, p4), "left"),
-        ("interface", boundary_label("interface"), spec["normalPointCount"], (p2, p5), "right"),
-        ("right", boundary_label("right"), spec["normalPointCount"], (p3, p6), "right"),
-        ("topUpstream", boundary_label("topUpstream"), spec["upstreamPointCount"], (p4, p5), "top"),
-        ("topPlate", boundary_label("topPlate"), spec["platePointCount"], (p5, p6), "top"),
-    ]
+    def label(x, y, edge_name, condition, count, anchor="middle", count_below=False):
+        count_text = f"({count} points)"
+        if count_below:
+            return (
+                f'<text x="{x:.1f}" y="{y:.1f}" text-anchor="{anchor}" '
+                f'font-size="13" fill="#202020">'
+                f'<tspan x="{x:.1f}" dy="0">{edge_name}: {condition}</tspan>'
+                f'<tspan x="{x:.1f}" dy="17">{count_text}</tspan></text>'
+            )
+        return (
+            f'<text x="{x:.1f}" y="{y:.1f}" text-anchor="{anchor}" '
+            f'font-size="13" fill="#202020">'
+            f'{edge_name}: {condition} {count_text}</text>'
+        )
 
     elements = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" '
         f'height="{canvas_height}" viewBox="0 0 {width} {canvas_height}">',
-        '<rect width="100%" height="100%" fill="white"/>',
+        '<rect x="0" y="0" width="100%" height="100%" fill="#f5f7fa"/>',
         f'<rect x="{p1[0]:.3f}" y="{p4[1]:.3f}" width="{p6[0]-p1[0]:.3f}" '
         f'height="{p1[1]-p4[1]:.3f}" fill="#eef5ff" stroke="#202020"/>',
         f'<line x1="{p2[0]:.3f}" y1="{p2[1]:.3f}" x2="{p5[0]:.3f}" '
         f'y2="{p5[1]:.3f}" stroke="#888" stroke-dasharray="6,5"/>',
         f'<line x1="{p2[0]:.3f}" y1="{p2[1]:.3f}" x2="{p3[0]:.3f}" '
         f'y2="{p3[1]:.3f}" stroke="#b23a48" stroke-width="5"/>',
-        f'<text x="{width/2:.1f}" y="34" text-anchor="middle" '
-        f'font-size="21" fill="#202020">Flat plate boundary-layer layout</text>',
+        f'<text x="{width/2:.1f}" y="40" text-anchor="middle" '
+        f'font-size="23" fill="#202020">Flat plate boundary-layer layout</text>',
     ]
-    for edge_name, boundary_name, point_count, endpoints, side in edge_labels:
-        (x1, y1), (x2, y2) = endpoints
-        if side == "bottom":
-            x = (x1 + x2) / 2
-            y = y1 + (55 if edge_name == "plate" else 34)
-            anchor = "middle"
-        elif side == "top":
-            x = (x1 + x2) / 2
-            y = y1 - 14
-            anchor = "middle"
-        elif side == "left":
-            x = x1 + 8
-            y = (y1 + y2) / 2
-            anchor = "start"
-        elif edge_name == "right":
-            x = x1 - 8
-            y = (y1 + y2) / 2
-            anchor = "end"
-        else:
-            x = x1 + 8
-            y = (y1 + y2) / 2
-            anchor = "start"
-        elements.append(
-            f'<text x="{x:.1f}" y="{y:.1f}" text-anchor="{anchor}" '
-            f'font-size="12" fill="#202020">{edge_name}: {boundary_name} '
-            f'({point_count} points)</text>'
-        )
-    elements.append("</svg>")
+
+    upstream_count = spec["upstreamPointCount"]
+    plate_count = spec["platePointCount"]
+    normal_count = spec["normalPointCount"]
+    elements.extend([
+        label((p1[0] + p2[0]) / 2, p1[1] + 34, "upstreamBottom",
+              boundary_label("upstreamBottom"), upstream_count),
+        label((p2[0] + p3[0]) / 2, p2[1] + 49, "plate",
+              boundary_label("plate"), plate_count),
+        label(p1[0] - 14, (p1[1] + p4[1]) / 2 - 9, "left",
+              boundary_label("left"), normal_count, anchor="end", count_below=True),
+        label(p2[0] + 14, (p2[1] + p5[1]) / 2 - 9, "interface",
+              boundary_label("interface"), normal_count, anchor="start", count_below=True),
+        label(p3[0] - 14, (p3[1] + p6[1]) / 2 - 9, "right",
+              boundary_label("right"), normal_count, anchor="end", count_below=True),
+        label((p4[0] + p5[0]) / 2, p4[1] - 24, "topUpstream",
+              boundary_label("topUpstream"), upstream_count),
+        label((p5[0] + p6[0]) / 2, p5[1] - 24, "topPlate",
+              boundary_label("topPlate"), plate_count),
+        "</svg>",
+    ])
     return "\n".join(elements) + "\n"
 
 
