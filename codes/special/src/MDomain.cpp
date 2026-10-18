@@ -47,19 +47,22 @@ void MDomain::CalcSubDomainCtrlCoor()
 {
     while ( true )
     {
-        const std::size_t previousCoordinateCount = this->coorMap->size();
         bool allDomainsResolved = true;
+        bool anyDomainProgressed = false;
         int nDomain = sDomainList.size();
         for ( int iDomain = 0; iDomain < nDomain; ++ iDomain )
         {
             SDomain * sDomain = sDomainList[ iDomain ].get();
-            const bool domainResolved = sDomain->CalcSingleDomainCoor();
-            allDomainsResolved = domainResolved && allDomainsResolved;
+            const ControlPointResolution resolution = sDomain->CalcSingleDomainCoor();
+            allDomainsResolved =
+                ( resolution == ControlPointResolution::Resolved ) && allDomainsResolved;
+            anyDomainProgressed =
+                ( resolution == ControlPointResolution::Progress ) || anyDomainProgressed;
         }
 
         if ( allDomainsResolved ) return;
 
-        if ( this->coorMap->size() == previousCoordinateCount )
+        if ( ! anyDomainProgressed )
         {
             throw std::runtime_error(
                 "Unable to resolve subdomain control-point coordinates: no progress" );
