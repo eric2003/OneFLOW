@@ -30,6 +30,21 @@ from tools.mesh_layout.editor_document import (
 )
 
 
+BOUNDARY_OPTIONS = (
+    ("none", 0, "No physical boundary condition is applied."),
+    ("interface", -1, "Connects neighboring mesh blocks; not an external boundary."),
+    ("extrapolation", 1, "Extrapolates the boundary state from nearby interior cells."),
+    ("wall", 2, "Solid wall; use for the plate or another solid surface."),
+    ("symmetry", 3, "Symmetry plane; normal flow is zero."),
+    ("farfield", 4, "External boundary representing the far-field flow."),
+    ("inflow", 5, "Inlet where the incoming flow state is prescribed."),
+    ("outflow", 6, "Outlet where flow leaves the computational domain."),
+    ("interior", 100, "Internal region marker; normally not an outer boundary."),
+    ("overset", 1000, "Boundary used for overlapping or overset grid connectivity."),
+)
+BOUNDARY_NAMES_BY_CODE = {code: name for name, code, _ in BOUNDARY_OPTIONS}
+
+
 class MeshLayoutDialog(QDialog):
     """Edit template geometry and spacing parameters, preview, and compile layouts."""
 
@@ -37,7 +52,7 @@ class MeshLayoutDialog(QDialog):
         super().__init__(parent)
         self._repository_root = repository_root.resolve()
         self._spec: dict[str, Any] = {}
-        self._field_widgets: dict[tuple[str | int, ...], QLineEdit] = {}
+        self._field_widgets: dict[tuple[str | int, ...], QLineEdit | QComboBox] = {}
 
         self.setWindowTitle("Mesh Layout Editor")
         self.resize(1100, 760)
@@ -215,8 +230,39 @@ class MeshLayoutDialog(QDialog):
 
         for path, label in fields:
             value = self._get_path(self._spec, path)
-            widget = QLineEdit(str(value))
-            widget.setToolTip("Use 'auto' for an automatically selected endpoint spacing.")
+            if path[0] == "boundaries":
+                widget = QComboBox()
+                for name, code, description in BOUNDARY_OPTIONS:
+                    widget.addItem(f"{name.title()} ({code}) - {description}", name)
+                    widget.setItemData(
+                        widget.count() - 1, description, 3
+                    )
+                if isinstance(value, int) and not isinstance(value, bool):
+                    selected_name = BOUNDARY_NAMES_BY_CODE.get(value)
+                    if selected_name is None:
+                        widget.addItem(
+                            f"Custom code ({value}) - non-standard boundary code",
+                            value,
+                        )
+                        selected_value = value
+                    else:
+                        selected_value = selected_name
+                else:
+                    selected_value = str(value).lower()
+                selected_index = widget.findData(selected_value)
+                if selected_index < 0:
+                    widget.addItem(
+                        f"Unknown value ({value}) - choose a supported boundary",
+                        str(value),
+                    )
+                    selected_index = widget.count() - 1
+                widget.setCurrentIndex(selected_index)
+                widget.setToolTip(
+                    "Choose a boundary type. The description is shown in each option."
+                )
+            else:
+                widget = QLineEdit(str(value))
+                widget.setToolTip("Use 'auto' for an automatically selected endpoint spacing.")
             self._field_widgets[path] = widget
             self.fields_form.addRow(label, widget)
 
@@ -237,8 +283,12 @@ class MeshLayoutDialog(QDialog):
     def _read_fields(self) -> dict[str, Any]:
         spec = json.loads(json.dumps(self._spec))
         for path, widget in self._field_widgets.items():
-            raw = widget.text().strip()
             original = self._get_path(spec, path)
+            if isinstance(widget, QComboBox):
+                value = widget.currentData()
+                self._set_path(spec, path, value)
+                continue
+            raw = widget.text().strip()
             if path[0] == "corners":
                 value = float(raw)
             elif path[0] == "edgePointCounts" or path[-1].endswith("PointCount"):
