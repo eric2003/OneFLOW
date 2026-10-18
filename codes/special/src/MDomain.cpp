@@ -157,6 +157,7 @@ void MDomain::ConstructMultiDomainTopo()
 
 void MDomain::ConstructMultiLineToDomainMap()
 {
+    this->lineToDomainMap.clear();
     for ( int iDomain = 0; iDomain < this->sDomainList.size(); ++ iDomain )
     {
         SDomain * sdomain = this->sDomainList[ iDomain ].get();
@@ -168,6 +169,7 @@ void MDomain::ConstructMultiLineToDomainMap()
 
 void MDomain::ConstructPointToLineMap()
 {
+    this->pointToLineMap.clear();
     for ( int iDomain = 0; iDomain < this->sDomainList.size(); ++ iDomain )
     {
         SDomain * sdomain = this->sDomainList[ iDomain ].get();
@@ -179,6 +181,7 @@ void MDomain::ConstructPointToLineMap()
 
 void MDomain::ConstructMultiPointToDomainMap()
 {
+    this->pointToDomainMap.clear();
     for ( int iDomain = 0; iDomain < this->sDomainList.size(); ++ iDomain )
     {
         SDomain * sdomain = this->sDomainList[ iDomain ].get();
@@ -188,6 +191,7 @@ void MDomain::ConstructMultiPointToDomainMap()
 
 void MDomain::ConstructMultiPointToPointMap()
 {
+    this->pointToPointMap.clear();
     for ( int iDomain = 0; iDomain < this->sDomainList.size(); ++ iDomain )
     {
         SDomain * sdomain = this->sDomainList[ iDomain ].get();
