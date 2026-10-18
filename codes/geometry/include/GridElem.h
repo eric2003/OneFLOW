@@ -58,7 +58,6 @@ public:
 public:
     // Pipeline (normal path): InitCgnsElements -> ScanElements(faceSolver) ->
     // ScanBcFace -> GenerateCalcElement -> GenerateCalcGrid.
-    // Polyhedron path swaps ScanElements for ScanPolygonFace.
     void PrepareUnsCalcGrid();
     void PrepareUnsCalcGridNormal();
     void InitCgnsElements();

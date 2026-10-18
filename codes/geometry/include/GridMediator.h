@@ -62,18 +62,18 @@ public:
 };
 
 // Owns a list of GridMediator instances (RAII).
-// Name kept as ZgridMediator for compatibility; preferred mental model:
+// Name kept as ZGridMediator for compatibility; preferred mental model:
 // "ZoneGridMediators" - a container of per-zone-group mediators.
-class ZgridMediator
+class ZGridMediator
 {
 public:
-    ZgridMediator() = default;
-    ~ZgridMediator() = default;
+    ZGridMediator() = default;
+    ~ZGridMediator() = default;
 
-    ZgridMediator( const ZgridMediator & ) = delete;
-    ZgridMediator & operator=( const ZgridMediator & ) = delete;
-    ZgridMediator( ZgridMediator && ) noexcept = default;
-    ZgridMediator & operator=( ZgridMediator && ) noexcept = default;
+    ZGridMediator( const ZGridMediator & ) = delete;
+    ZGridMediator & operator=( const ZGridMediator & ) = delete;
+    ZGridMediator( ZGridMediator && ) noexcept = default;
+    ZGridMediator & operator=( ZGridMediator && ) noexcept = default;
 
 public:
     // --- modern container-style API (prefer these in new code) ---

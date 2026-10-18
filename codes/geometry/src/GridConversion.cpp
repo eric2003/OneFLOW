@@ -56,9 +56,9 @@ namespace
         const std::string & caseDir )
     {
         CgnsFactory cgnsFactory;
-        ZgridMediator zgridMediator;
-        Plot3D::Plot3DToCgns( &zgridMediator, config, caseDir );
-        cgnsFactory.DumpCgnsGrid( zgridMediator );
+        ZGridMediator zGridMediator;
+        Plot3D::Plot3DToCgns( &zGridMediator, config, caseDir );
+        cgnsFactory.DumpCgnsGrid( zGridMediator );
     }
 
     void ConvertPlot3D(

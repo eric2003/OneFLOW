@@ -37,7 +37,6 @@ TEST(GridElemLifecycleTest, ValueSemanticsForInternalComponents)
 
 TEST(GridElemLifecycleTest, MemberNamesUseCamelCaseAccessors)
 {
-    // Intent: GridElem pipeline stages use camelCase public names.
     using GE = ONEFLOW::GridElem;
     ONEFLOW::ElemFeature GE::* ef = &GE::elemFeature;
     ONEFLOW::MeshPointManager GE::* pf = &GE::pointFactory;
@@ -45,5 +44,5 @@ TEST(GridElemLifecycleTest, MemberNamesUseCamelCaseAccessors)
     EXPECT_TRUE(ef != nullptr);
     EXPECT_TRUE(pf != nullptr);
     EXPECT_TRUE(fs != nullptr);
-    static_assert(sizeof(ONEFLOW::ZGridElem) > 0, "ZGridElem is the multi-zone orchestrator");
+    static_assert(sizeof(ONEFLOW::ZGridElem) > 0, "ZGridElem");
 }
