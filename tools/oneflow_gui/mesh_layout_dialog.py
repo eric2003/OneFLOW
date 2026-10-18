@@ -9,6 +9,7 @@ from typing import Any
 from PySide6.QtCore import QByteArray, Qt
 from PySide6.QtSvgWidgets import QSvgWidget
 from PySide6.QtWidgets import (
+    QCheckBox,
     QComboBox,
     QDialog,
     QFileDialog,
@@ -28,6 +29,8 @@ from tools.mesh_layout.editor_document import (
     load_specification,
     save_specification,
 )
+
+from .user_data_paths import UserDataPaths
 
 
 BOUNDARY_OPTIONS = (
@@ -74,6 +77,19 @@ class MeshLayoutDialog(QDialog):
         template_row.addWidget(self.template_combo, 1)
         root.addLayout(template_row)
 
+        boundary_display_row = QHBoxLayout()
+        self.show_boundary_codes = QCheckBox("Show boundary codes")
+        self.show_boundary_codes.setToolTip(
+            "Off: show concise names such as Wall. On: show names and legacy codes."
+        )
+        self.show_boundary_codes.toggled.connect(self._refresh_boundary_labels)
+        boundary_display_row.addWidget(self.show_boundary_codes)
+        boundary_display_row.addWidget(
+            QLabel("Hover over a boundary option to read its explanation.")
+        )
+        boundary_display_row.addStretch(1)
+        root.addLayout(boundary_display_row)
+
         spec_row = QHBoxLayout()
         spec_row.addWidget(QLabel("Specification"))
         self.spec_path_edit = QLineEdit()
@@ -110,6 +126,12 @@ class MeshLayoutDialog(QDialog):
         save_button = QPushButton("Save specification as...")
         save_button.clicked.connect(self._save_specification_as)
         actions.addWidget(save_button)
+        if self._spec.get("type") == "flat_plate":
+            reset_boundaries_button = QPushButton("Reset boundary defaults")
+            reset_boundaries_button.clicked.connect(
+                self._reset_flat_plate_boundary_defaults
+            )
+            actions.addWidget(reset_boundaries_button)
         actions.addStretch(1)
         preview_button = QPushButton("Update preview")
         preview_button.clicked.connect(self._update_preview_from_fields)
@@ -131,10 +153,24 @@ class MeshLayoutDialog(QDialog):
             return self._repository_root / "grid" / "minimal_rectangle" / "rectangle.json"
         return self._repository_root / "grid" / "turbulent_flat_plate" / "flat_plate.json"
 
+    def _workspace_paths(self) -> UserDataPaths:
+        return UserDataPaths.discover()
+
     def _default_output_path(self, kind: str) -> Path:
-        if kind == "rectangle":
-            return self._repository_root / "grid" / "minimal_rectangle" / "grid" / "editor-output" / "minimalRectangleLayout.txt"
-        return self._repository_root / "grid" / "turbulent_flat_plate" / "grid" / "editor-output" / "turbulentFlatPlateLayout.txt"
+        filename = (
+            "minimalRectangleLayout.txt"
+            if kind == "rectangle"
+            else "turbulentFlatPlateLayout.txt"
+        )
+        return self._workspace_paths().mesh_layout_outputs / filename
+
+    def _default_specification_path(self, kind: str) -> Path:
+        filename = (
+            "rectangle.edited.json"
+            if kind == "rectangle"
+            else "flat_plate.edited.json"
+        )
+        return self._workspace_paths().mesh_layout_specifications / filename
 
     def _load_selected_template(self) -> None:
         kind = self.template_combo.currentData()
@@ -174,7 +210,7 @@ class MeshLayoutDialog(QDialog):
         self.template_combo.blockSignals(False)
         self._spec = spec
         self.spec_path_edit.setText(str(Path(path).resolve()))
-        self.output_path_edit.setText(str(Path(path).with_suffix(".layout.txt")))
+        self.output_path_edit.setText(str(self._default_output_path(kind)))
         self._rebuild_fields()
         self._render_preview()
 
@@ -233,9 +269,12 @@ class MeshLayoutDialog(QDialog):
             if path[0] == "boundaries":
                 widget = QComboBox()
                 for name, code, description in BOUNDARY_OPTIONS:
-                    widget.addItem(f"{name.title()} ({code}) - {description}", name)
+                    widget.addItem(name.title(), name)
                     widget.setItemData(
                         widget.count() - 1, description, Qt.ItemDataRole.ToolTipRole
+                    )
+                    widget.setItemData(
+                        widget.count() - 1, code, Qt.ItemDataRole.UserRole + 1
                     )
                 if isinstance(value, int) and not isinstance(value, bool):
                     selected_name = BOUNDARY_NAMES_BY_CODE.get(value)
@@ -258,13 +297,49 @@ class MeshLayoutDialog(QDialog):
                     selected_index = widget.count() - 1
                 widget.setCurrentIndex(selected_index)
                 widget.setToolTip(
-                    "Choose a boundary type. The description is shown in each option."
+                    "Choose a boundary type. Hover over an option for its explanation."
                 )
             else:
                 widget = QLineEdit(str(value))
                 widget.setToolTip("Use 'auto' for an automatically selected endpoint spacing.")
             self._field_widgets[path] = widget
             self.fields_form.addRow(label, widget)
+
+        self._refresh_boundary_labels(self.show_boundary_codes.isChecked())
+
+    def _refresh_boundary_labels(self, show_codes: bool) -> None:
+        for path, widget in self._field_widgets.items():
+            if path[0] != "boundaries" or not isinstance(widget, QComboBox):
+                continue
+            for index, (name, code, _) in enumerate(BOUNDARY_OPTIONS):
+                if widget.itemData(index) == name:
+                    label = name.title()
+                    if show_codes:
+                        label = f"{label} ({code})"
+                    widget.setItemText(index, label)
+            current_data = widget.currentData()
+            if isinstance(current_data, int) and current_data not in BOUNDARY_NAMES_BY_CODE:
+                widget.setItemText(
+                    widget.findData(current_data),
+                    f"Custom code ({current_data})" if show_codes else str(current_data),
+                )
+
+    def _reset_flat_plate_boundary_defaults(self) -> None:
+        defaults = {
+            "upstreamBottom": "symmetry",
+            "plate": "wall",
+            "left": "farfield",
+            "interface": "interface",
+            "right": "outflow",
+            "topUpstream": "farfield",
+            "topPlate": "farfield",
+        }
+        for name, value in defaults.items():
+            widget = self._field_widgets.get(("boundaries", name))
+            if isinstance(widget, QComboBox):
+                index = widget.findData(value)
+                if index >= 0:
+                    widget.setCurrentIndex(index)
 
     @staticmethod
     def _get_path(data: dict[str, Any], path: tuple[str | int, ...]) -> Any:
@@ -332,9 +407,7 @@ class MeshLayoutDialog(QDialog):
         path, _ = QFileDialog.getSaveFileName(
             self,
             "Save specification as",
-            str(Path(self.spec_path_edit.text()).with_name(
-                Path(self.spec_path_edit.text()).stem + ".edited.json"
-            )),
+            str(self._default_specification_path(self._spec["type"])),
             "JSON files (*.json);;All files (*)",
         )
         if not path:
