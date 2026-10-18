@@ -258,6 +258,55 @@ void FaceTopo::ModifyFaceNodeId( IFaceLink & iFaceLink )
     this->SetNewFace2Cell( iFaceLink );
 }
 
+
+IntField ResolveChildFaceNodeIds(
+    const IntField & parentFaceNodes,
+    const IntField & childNodeIds,
+    const IntField & childNodeFlags,
+    bool hasNodeMesh,
+    HXSize_t nodeMeshCount )
+{
+    if ( childNodeIds.size() != childNodeFlags.size() )
+    {
+        throw std::logic_error(
+            "ResolveChildFaceNodeIds: child node IDs and flags have different sizes" );
+    }
+
+    IntField resolved;
+    resolved.reserve( childNodeIds.size() );
+
+    for ( size_t iNode = 0; iNode < childNodeIds.size(); ++ iNode )
+    {
+        const int flag = childNodeFlags[ iNode ];
+        const int mappedNodeId = childNodeIds[ iNode ];
+        int nodeIndex = 0;
+
+        if ( flag == 1 )
+        {
+            if ( mappedNodeId < 0 ||
+                 static_cast< size_t >( mappedNodeId ) >= parentFaceNodes.size() )
+            {
+                throw std::out_of_range(
+                    "ResolveChildFaceNodeIds: local child node ID is out of range" );
+            }
+            nodeIndex = parentFaceNodes[ mappedNodeId ];
+        }
+        else
+        {
+            if ( ! hasNodeMesh ||
+                 mappedNodeId < 0 ||
+                 static_cast< size_t >( mappedNodeId ) >= nodeMeshCount )
+            {
+                throw std::out_of_range(
+                    "ResolveChildFaceNodeIds: absolute child node ID is out of range" );
+            }
+            nodeIndex = mappedNodeId;
+        }
+        resolved.push_back( nodeIndex );
+    }
+    return resolved;
+}
+
 void FaceTopo::SetNewFace2Node( IFaceLink & iFaceLink )
 {
     const HXSize_t nFaces = this->GetFaceCount();
@@ -293,43 +342,17 @@ void FaceTopo::SetNewFace2Node( IFaceLink & iFaceLink )
                 {
                     //this->lCellNew.push_back( this->lCell[ iFace ] );
 
-                    int cFid = childFaceIds[ iCFace ];
-
-                    int nCNode = iFaceLink.face_search->rCNodeId[ cFid ].size();
-
-                    tmpVector.resize( 0 );
-
-                    for ( int iNode = 0; iNode < nCNode; ++ iNode )
-                    {
-                        int flag = iFaceLink.face_search->rCNodeFlag[ cFid ][ iNode ];
-                        int nodeIndex;
-                        const int mappedNodeId =
-                            iFaceLink.face_search->rCNodeId[ cFid ][ iNode ];
-                        if ( flag == 1 )
-                        {
-                            if ( mappedNodeId < 0 ||
-                                 static_cast< size_t >( mappedNodeId ) >= this->faces[ iFace ].size() )
-                            {
-                                throw std::out_of_range(
-                                    "FaceTopo::SetNewFace2Node: local child node ID is out of range" );
-                            }
-                            nodeIndex = this->faces[ iFace ][ mappedNodeId ];
-                        }
-                        else
-                        {
-                            // Non-relative entries are absolute node IDs created during interface splitting.
-                            if ( ! this->GetGrid().nodeMesh ||
-                                 mappedNodeId < 0 ||
-                                 static_cast< size_t >( mappedNodeId ) >=
-                                     this->GetGrid().nodeMesh->GetNumberOfNodes() )
-                            {
-                                throw std::out_of_range(
-                                    "FaceTopo::SetNewFace2Node: absolute child node ID is out of range" );
-                            }
-                            nodeIndex = mappedNodeId;
-                        }
-                        tmpVector.push_back( nodeIndex );
-                    }
+                    const int cFid = childFaceIds[ iCFace ];
+                    const bool hasNodeMesh = static_cast< bool >( this->GetGrid().nodeMesh );
+                    const HXSize_t nodeMeshCount = hasNodeMesh
+                        ? this->GetGrid().nodeMesh->GetNumberOfNodes()
+                        : 0;
+                    tmpVector = ResolveChildFaceNodeIds(
+                        this->faces[ iFace ],
+                        iFaceLink.face_search->rCNodeId[ cFid ],
+                        iFaceLink.face_search->rCNodeFlag[ cFid ],
+                        hasNodeMesh,
+                        nodeMeshCount );
                     this->rebuildFaces.push_back( tmpVector );
                 }
             }
@@ -346,7 +369,7 @@ void FaceTopo::SetNewFace2Node( IFaceLink & iFaceLink )
         }
         else
         {
-              for ( int iNode = 0; iNode < nFNode; ++ iNode )
+            for ( int iNode = 0; iNode < nFNode; ++ iNode )
             {
                 int nodeIndex = this->faces[ iFace ][ iNode ];
                 tmpVector.push_back( nodeIndex );

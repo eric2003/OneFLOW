@@ -291,3 +291,82 @@ TEST(FaceTopoLifecycleTest, IFaceLinkConstructsWithoutNodeMesh)
     EXPECT_FALSE(iFaceLink.IsPointLocatorReady());
     EXPECT_EQ(static_cast<int>(iFaceLink.l2g.size()), 1);
 }
+
+TEST(FaceTopoLifecycleTest, ResolveChildFaceNodeIds_RelativeFlagsMapThroughParent)
+{
+    // Intent: flag==1 means childNodeIds[i] indexes into the parent face node list.
+    const ONEFLOW::IntField parent{10, 20, 30, 40};
+    const ONEFLOW::IntField childIds{0, 2, 3};
+    const ONEFLOW::IntField flags{1, 1, 1};
+
+    const ONEFLOW::IntField resolved = ONEFLOW::ResolveChildFaceNodeIds(
+        parent, childIds, flags, false, 0);
+
+    ASSERT_EQ(resolved.size(), static_cast<std::size_t>(3));
+    EXPECT_EQ(resolved[0], 10);
+    EXPECT_EQ(resolved[1], 30);
+    EXPECT_EQ(resolved[2], 40);
+}
+
+TEST(FaceTopoLifecycleTest, ResolveChildFaceNodeIds_AbsoluteFlagsUseMeshIds)
+{
+    // Intent: non-relative flags pass absolute mesh node IDs through unchanged.
+    const ONEFLOW::IntField parent{10, 20};
+    const ONEFLOW::IntField childIds{5, 7};
+    const ONEFLOW::IntField flags{0, 0};
+
+    const ONEFLOW::IntField resolved = ONEFLOW::ResolveChildFaceNodeIds(
+        parent, childIds, flags, true, 10);
+
+    ASSERT_EQ(resolved.size(), static_cast<std::size_t>(2));
+    EXPECT_EQ(resolved[0], 5);
+    EXPECT_EQ(resolved[1], 7);
+}
+
+TEST(FaceTopoLifecycleTest, ResolveChildFaceNodeIds_MixedFlags)
+{
+    const ONEFLOW::IntField parent{100, 200, 300};
+    const ONEFLOW::IntField childIds{1, 9, 0};
+    const ONEFLOW::IntField flags{1, 0, 1};
+
+    const ONEFLOW::IntField resolved = ONEFLOW::ResolveChildFaceNodeIds(
+        parent, childIds, flags, true, 20);
+
+    ASSERT_EQ(resolved.size(), static_cast<std::size_t>(3));
+    EXPECT_EQ(resolved[0], 200);
+    EXPECT_EQ(resolved[1], 9);
+    EXPECT_EQ(resolved[2], 100);
+}
+
+TEST(FaceTopoLifecycleTest, ResolveChildFaceNodeIds_RejectsMismatchedSizes)
+{
+    const ONEFLOW::IntField parent{1, 2};
+    const ONEFLOW::IntField childIds{0, 1};
+    const ONEFLOW::IntField flags{1};
+
+    EXPECT_THROW(
+        ONEFLOW::ResolveChildFaceNodeIds(parent, childIds, flags, false, 0),
+        std::logic_error);
+}
+
+TEST(FaceTopoLifecycleTest, ResolveChildFaceNodeIds_RejectsOutOfRangeRelative)
+{
+    const ONEFLOW::IntField parent{1, 2};
+    const ONEFLOW::IntField childIds{2};
+    const ONEFLOW::IntField flags{1};
+
+    EXPECT_THROW(
+        ONEFLOW::ResolveChildFaceNodeIds(parent, childIds, flags, false, 0),
+        std::out_of_range);
+}
+
+TEST(FaceTopoLifecycleTest, ResolveChildFaceNodeIds_RejectsAbsoluteWithoutMesh)
+{
+    const ONEFLOW::IntField parent{1, 2};
+    const ONEFLOW::IntField childIds{0};
+    const ONEFLOW::IntField flags{0};
+
+    EXPECT_THROW(
+        ONEFLOW::ResolveChildFaceNodeIds(parent, childIds, flags, false, 0),
+        std::out_of_range);
+}

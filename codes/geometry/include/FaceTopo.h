@@ -119,4 +119,14 @@ public:
     void ReorderLink();
 };
 
+// Resolve one child face's node indices from parent-face relative and absolute IDs.
+// flag == 1: childNodeIds[i] is an index into parentFaceNodes.
+// otherwise: childNodeIds[i] is an absolute mesh node ID (requires hasNodeMesh).
+IntField ResolveChildFaceNodeIds(
+    const IntField & parentFaceNodes,
+    const IntField & childNodeIds,
+    const IntField & childNodeFlags,
+    bool hasNodeMesh,
+    HXSize_t nodeMeshCount );
+
 EndNameSpace
