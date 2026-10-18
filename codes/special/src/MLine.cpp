@@ -223,8 +223,9 @@ void MLine::ConstructSLineCtrlPoint()
     }
 }
 
-void MLine::ConstructCtrlPoint()
+void MLine::ConstructEndpointCandidates()
 {
+    this->candidate_ctrlpoints.clear();
     for ( const auto & pointLines : this->pointToLine )
     {
         if ( pointLines.second.size() == 1 )
