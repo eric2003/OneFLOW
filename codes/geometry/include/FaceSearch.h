@@ -59,9 +59,12 @@ public:
     ~FaceSearch() = default;
 public:
     IntField status;
-    LinkField cFaceId;
-    LinkField rCNodeId;
-    LinkField rCNodeFlag;
+    // parent global face id -> list of child face ids produced by splitting
+    LinkField childFaceIdsOfParent;
+    // child face id -> node ids (relative parent-local or absolute mesh ids)
+    LinkField childFaceNodeIds;
+    // child face id -> flags aligned with childFaceNodeIds (1 = relative)
+    LinkField childFaceNodeFlags;
     IFaceLink * iFaceLink;
     int gFid;
 public:

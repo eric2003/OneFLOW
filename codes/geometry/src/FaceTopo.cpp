@@ -84,7 +84,7 @@ const IntField & GetInterfaceChildFaceIds(
     }
 
     const int globalFaceId = interfaceLink.l2g[ zoneId ][ localInterfaceFaceId ];
-    const LinkField & childFaces = interfaceLink.face_search->cFaceId;
+    const LinkField & childFaces = interfaceLink.face_search->childFaceIdsOfParent;
     if ( globalFaceId < 0 ||
          static_cast< size_t >( globalFaceId ) >= childFaces.size() )
     {
@@ -93,8 +93,8 @@ const IntField & GetInterfaceChildFaceIds(
     }
 
     const IntField & childFaceIds = childFaces[ globalFaceId ];
-    const LinkField & childNodeIds = interfaceLink.face_search->rCNodeId;
-    const LinkField & childNodeFlags = interfaceLink.face_search->rCNodeFlag;
+    const LinkField & childNodeIds = interfaceLink.face_search->childFaceNodeIds;
+    const LinkField & childNodeFlags = interfaceLink.face_search->childFaceNodeFlags;
 
     for ( int childIndex = 0; childIndex < childFaceIds.size(); ++ childIndex )
     {
@@ -353,8 +353,8 @@ void FaceTopo::SetNewFace2Node( IFaceLink & iFaceLink )
                         : 0;
                     resolvedFaceNodes = ResolveChildFaceNodeIds(
                         this->faces[ iFace ],
-                        iFaceLink.face_search->rCNodeId[ cFid ],
-                        iFaceLink.face_search->rCNodeFlag[ cFid ],
+                        iFaceLink.face_search->childFaceNodeIds[ cFid ],
+                        iFaceLink.face_search->childFaceNodeFlags[ cFid ],
                         hasNodeMesh,
                         nodeMeshCount );
                     this->rebuildFaces.push_back( resolvedFaceNodes );
