@@ -311,9 +311,35 @@ class MeshLayoutDialog(QDialog):
                 (("platePointCount",), "Plate line point count"),
                 (("normalPointCount",), "Normal line point count"),
             ]
-            for distribution in ("upstream", "plate", "vertical", "topUpstream", "topPlate"):
-                for endpoint, title in (("startSpacing", "start spacing"), ("endSpacing", "end spacing")):
-                    fields.append((("distributions", distribution, endpoint), f"{distribution} {title}"))
+            distributions = self._spec.get("distributions", {})
+            for distribution in ("upstream", "plate", "vertical", "topUpstream", "topPlate", "top"):
+                if distribution not in distributions:
+                    continue
+                definition = distributions[distribution]
+                if isinstance(definition, list):
+                    for index, title in enumerate(("start spacing", "end spacing")):
+                        fields.append((
+                            ("distributions", distribution, index),
+                            f"{distribution} {title}",
+                        ))
+                elif isinstance(definition, dict):
+                    distribution_type = definition.get("type")
+                    if distribution_type == "boundary_layer":
+                        fields.extend([
+                            (("distributions", distribution, "nearWallIntervalCount"),
+                             f"{distribution} near-wall interval count"),
+                            (("distributions", distribution, "nearWallDistance"),
+                             f"{distribution} near-wall distance"),
+                        ])
+                    else:
+                        for endpoint, title in (
+                            ("startSpacing", "start spacing"),
+                            ("endSpacing", "end spacing"),
+                        ):
+                            fields.append((
+                                ("distributions", distribution, endpoint),
+                                f"{distribution} {title}",
+                            ))
             for boundary in (
                 "upstreamBottom", "plate", "left", "interface", "right",
                 "topUpstream", "topPlate",
@@ -426,7 +452,10 @@ class MeshLayoutDialog(QDialog):
             elif path[0] == "edgePointCounts" or path[-1].endswith("PointCount"):
                 value = int(raw)
             elif path[0] == "distributions":
-                value = "auto" if raw.lower() == "auto" else float(raw)
+                if path[-1] == "nearWallIntervalCount":
+                    value = int(raw)
+                else:
+                    value = "auto" if raw.lower() == "auto" else float(raw)
             elif path[0] in ("plateLength", "upstreamDistance", "domainHeight"):
                 value = float(raw)
             elif path == ("spacing",):
