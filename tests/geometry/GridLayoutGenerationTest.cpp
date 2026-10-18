@@ -264,6 +264,20 @@ TEST( SDomainTest, RebuildsOwnedIncidenceMapsWithoutStaleEntries )
     EXPECT_TRUE( domain.lineToDomainMap.empty() );
 }
 
+TEST( MLineTest, RebuildsOwnedIncidenceMapsWithoutStaleEntries )
+{
+    CoorMap coordinates;
+    MLine line( &coordinates );
+    line.pointToPointMap[ 101 ].insert( 205 );
+    line.lineToDomainMap[ 10 ].insert( 7 );
+
+    line.ConstructPointToPointMap();
+    line.ConstructLineToDomainMap();
+
+    EXPECT_TRUE( line.pointToPointMap.empty() );
+    EXPECT_TRUE( line.lineToDomainMap.empty() );
+}
+
 TEST( SDomainTest, FindsUniqueSharedEndpointBetweenAdjacentEdges )
 {
     CoorMap coordinates;
