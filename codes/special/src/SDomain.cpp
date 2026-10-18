@@ -91,6 +91,8 @@ void SDomain::SetDomain( int fid, IntField & lineList, IntField & posList )
 void SDomain::ConstructSDomainCtrlPoint()
 {
     int nMLine = mLineList.size();
+    IntField domainControlPoints;
+    domainControlPoints.reserve( nMLine );
     for ( int iMLine = 0; iMLine < nMLine; ++ iMLine )
     {
         MLine * mLine = mLineList[ iMLine ].get();
@@ -109,14 +111,17 @@ void SDomain::ConstructSDomainCtrlPoint()
         MLine * mLine2 = mLineList[ iMLine  ].get();
         int pt;
         GetCommonPoint( mLine1, mLine2, pt );
-        this->ctrlpoints.push_back( pt );
+        domainControlPoints.push_back( pt );
     }
+
+    this->ctrlpoints = domainControlPoints;
 
     for ( int iMLine = 0; iMLine < nMLine; ++ iMLine )
     {
-        MLine * mLine = mLineList[ iMLine  ].get();
-        int p1 = this->ctrlpoints[ iMLine ];
-        int p2 = this->ctrlpoints[ ( iMLine + 1 ) % nMLine ];
+        MLine * mLine = mLineList[ iMLine ].get();
+        const int p1 = domainControlPoints[ iMLine ];
+        const int p2 = domainControlPoints[ ( iMLine + 1 ) % nMLine ];
+        mLine->ctrlpoints.clear();
         mLine->ctrlpoints.push_back( p1 );
         mLine->ctrlpoints.push_back( p2 );
     }
