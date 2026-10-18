@@ -124,20 +124,36 @@ void SDomain::ConstructSDomainCtrlPoint()
 
 void SDomain::GetCommonPoint( const MLine * mLine1, const MLine * mLine2, int & pt ) const
 {
+    bool foundCommonPoint = false;
+    int commonPoint = -1;
+
     for ( int iPoint = 0; iPoint < mLine1->candidate_ctrlpoints.size(); ++ iPoint )
     {
         const int candidatePoint = mLine1->candidate_ctrlpoints[ iPoint ];
         for ( int jPoint = 0; jPoint < mLine2->candidate_ctrlpoints.size(); ++ jPoint )
         {
-            if ( candidatePoint == mLine2->candidate_ctrlpoints[ jPoint ] )
+            if ( candidatePoint != mLine2->candidate_ctrlpoints[ jPoint ] )
             {
-                pt = candidatePoint;
-                return;
+                continue;
             }
+
+            if ( foundCommonPoint && candidatePoint != commonPoint )
+            {
+                throw std::runtime_error(
+                    "Adjacent domain edges share multiple endpoint candidates" );
+            }
+
+            commonPoint = candidatePoint;
+            foundCommonPoint = true;
         }
     }
 
-    throw std::runtime_error( "Adjacent domain edges do not share a control point" );
+    if ( ! foundCommonPoint )
+    {
+        throw std::runtime_error( "Adjacent domain edges do not share a control point" );
+    }
+
+    pt = commonPoint;
 }
 
 void SDomain::SetRemainingCtrlPoint( IntField & idxList )
