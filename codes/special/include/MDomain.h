@@ -62,7 +62,7 @@ public:
     void CalcCoor();
     int GetNsubDomain();
     void ConstructMultiDomainTopo();
-    void ConstructCtrlPoint();
+    void ConstructCandidateControlPoints();
     void ConstructMultiLineToDomainMap();
     void ConstructMultiPointToDomainMap();
     void ConstructMultiPointToPointMap();
