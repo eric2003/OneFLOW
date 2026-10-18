@@ -449,7 +449,7 @@ class MeshLayoutDialog(QDialog):
             raw = widget.text().strip()
             if path[0] == "corners":
                 value = float(raw)
-            elif path[0] == "edgePointCounts" or path[-1].endswith("PointCount"):
+            elif path[0] == "edgePointCounts" or (isinstance(path[-1], str) and path[-1].endswith("PointCount")):
                 value = int(raw)
             elif path[0] == "distributions":
                 if path[-1] == "nearWallIntervalCount":
