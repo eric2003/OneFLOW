@@ -9,6 +9,7 @@ from pathlib import Path
 TEMPLATE_PROJECTS = {
     "rectangle": "minimal_rectangle",
     "flat_plate": "turbulent_flat_plate",
+    "laminar_flat_plate": "laminar_flat_plate",
 }
 
 

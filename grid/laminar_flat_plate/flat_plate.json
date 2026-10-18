@@ -1,6 +1,6 @@
 {
   "type": "flat_plate",
-  "description": "2D laminar flat-plate layout with 40 uniformly distributed near-wall points within 0.02.",
+  "description": "2D laminar flat-plate layout with 41 near-wall points spanning 0.02.",
   "plateLength": 2,
   "upstreamDistance": 2,
   "domainHeight": 4,
@@ -18,7 +18,7 @@
     ],
     "vertical": {
       "type": "boundary_layer",
-      "nearWallPointCount": 40,
+      "nearWallPointCount": 41,
       "nearWallDistance": 0.02
     },
     "top": [

@@ -74,7 +74,8 @@ class MeshLayoutDialog(QDialog):
         template_row.addWidget(QLabel("Template"))
         self.template_combo = QComboBox()
         self.template_combo.addItem("Single rectangle", "rectangle")
-        self.template_combo.addItem("Two-block flat plate", "flat_plate")
+        self.template_combo.addItem("Two-block turbulent flat plate", "flat_plate")
+        self.template_combo.addItem("Two-block laminar flat plate", "laminar_flat_plate")
         self.template_combo.currentIndexChanged.connect(self._load_selected_template)
         template_row.addWidget(self.template_combo, 1)
         root.addLayout(template_row)
@@ -153,7 +154,7 @@ class MeshLayoutDialog(QDialog):
         self._load_selected_template()
 
     def _template_project_source(self, kind: str) -> Path:
-        folder = "minimal_rectangle" if kind == "rectangle" else "turbulent_flat_plate"
+        folder = {"rectangle": "minimal_rectangle", "flat_plate": "turbulent_flat_plate", "laminar_flat_plate": "laminar_flat_plate"}[kind]
         return self._repository_root / "grid" / folder
 
     def _template_specification_name(self, kind: str) -> str:
@@ -163,7 +164,7 @@ class MeshLayoutDialog(QDialog):
         return (
             "minimalRectangleLayout.txt"
             if kind == "rectangle"
-            else "turbulentFlatPlateLayout.txt"
+            else ("laminarFlatPlateLayout.txt" if kind == "laminar_flat_plate" else "turbulentFlatPlateLayout.txt")
         )
 
     def _workspace_paths(self) -> UserDataPaths:
@@ -173,7 +174,7 @@ class MeshLayoutDialog(QDialog):
         if self._project_root is not None:
             return self._project_root / self._template_specification_name(kind)
         return self._workspace_paths().mesh_layout_projects / (
-            "minimal_rectangle" if kind == "rectangle" else "turbulent_flat_plate"
+            {"rectangle": "minimal_rectangle", "flat_plate": "turbulent_flat_plate", "laminar_flat_plate": "laminar_flat_plate"}[kind]
         ) / self._template_specification_name(kind)
 
     def _default_output_path(self, kind: str, project_root: Path | None = None) -> Path:
@@ -230,7 +231,8 @@ class MeshLayoutDialog(QDialog):
             QMessageBox.warning(self, "Invalid specification", str(error))
             return
         kind = spec["type"]
-        index = self.template_combo.findData(kind)
+        template_kind = "laminar_flat_plate" if source_path.parent.name == "laminar_flat_plate" else kind
+        index = self.template_combo.findData(template_kind)
         if index < 0:
             QMessageBox.warning(self, "Unsupported project", f"Unsupported type: {kind}")
             return
@@ -240,7 +242,7 @@ class MeshLayoutDialog(QDialog):
         except ValueError:
             is_in_repository = False
         if is_in_repository:
-            canonical_template = self._template_project_source(kind) / self._template_specification_name(kind)
+            canonical_template = self._template_project_source(template_kind) / self._template_specification_name(template_kind)
             if source_path != canonical_template.resolve():
                 QMessageBox.warning(
                     self,
@@ -251,9 +253,9 @@ class MeshLayoutDialog(QDialog):
             project_root = ensure_template_project(
                 self._repository_root,
                 self._workspace_paths().mesh_layout_projects,
-                kind,
+                template_kind,
             )
-            source_path = project_root / self._template_specification_name(kind)
+            source_path = project_root / self._template_specification_name(template_kind)
             spec = load_specification(source_path)
         else:
             project_root = source_path.parent

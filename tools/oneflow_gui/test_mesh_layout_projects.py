@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -59,6 +60,17 @@ class MeshLayoutProjectsTest(unittest.TestCase):
                     REPOSITORY_ROOT / "temporary-test-workspace",
                     "rectangle",
                 )
+
+    def test_laminar_flat_plate_template_is_available(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            project = ensure_template_project(
+                REPOSITORY_ROOT,
+                Path(directory),
+                "laminar_flat_plate",
+            )
+            self.assertTrue((project / "flat_plate.json").is_file())
+            spec = json.loads((project / "flat_plate.json").read_text(encoding="utf-8"))
+            self.assertEqual(spec["distributions"]["vertical"]["nearWallPointCount"], 41)
 
     def test_unknown_template_type_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
