@@ -60,7 +60,7 @@ BeginNameSpace( ONEFLOW )
 // Constructor uses member initializer list and std::make_unique
 CgnsFactory::CgnsFactory()
     : cgnsZbase(std::make_unique<CgnsZbase>()),
-      zgridElem(std::make_unique<ZgridElem>( *cgnsZbase ))
+      zgridElem(std::make_unique<ZGridElem>( *cgnsZbase ))
 {}
 
 // Define destructor and move operations here.
@@ -75,7 +75,7 @@ CgnsFactory::CgnsFactory( CgnsFactory && other ) noexcept
     const bool globalBoundToOther = cgns_global.IsBoundTo( other.cgnsZbase.get() );
 
     cgnsZbase = std::move( other.cgnsZbase );
-    zgridElem = std::make_unique<ZgridElem>( *cgnsZbase );
+    zgridElem = std::make_unique<ZGridElem>( *cgnsZbase );
     other.zgridElem.reset();
 
     if ( globalBoundToOther )
@@ -93,7 +93,7 @@ CgnsFactory& CgnsFactory::operator=( CgnsFactory && other ) noexcept
         cgns_global.ClearIfBoundTo( cgnsZbase.get() );
 
         cgnsZbase = std::move( other.cgnsZbase );
-        zgridElem = std::make_unique<ZgridElem>( *cgnsZbase );
+        zgridElem = std::make_unique<ZGridElem>( *cgnsZbase );
         other.zgridElem.reset();
 
         if ( globalBoundToEitherFactory )
@@ -117,7 +117,7 @@ void CgnsFactory::ConvertStrCgns2UnsCgnsGrid()
     this->cgnsZbase = std::move(unsCgnsZbase);
 
     // Recreate the view because its referenced CgnsZbase has changed.
-    this->zgridElem = std::make_unique<ZgridElem>( *this->cgnsZbase );
+    this->zgridElem = std::make_unique<ZGridElem>( *this->cgnsZbase );
     cgns_global.Bind( this->cgnsZbase.get() );
 }
 

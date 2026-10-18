@@ -36,7 +36,7 @@ class Su2Grid;
 class CgnsZbase;
 class CgnsZone;
 class GridElem;
-class ZgridElem;
+class ZGridElem;
 class GridMediator;
 class ZgridMediator;
 struct GridConfig;
@@ -60,7 +60,7 @@ public:
 
 public:
     std::unique_ptr<CgnsZbase> cgnsZbase;
-    std::unique_ptr<ZgridElem> zgridElem;
+    std::unique_ptr<ZGridElem> zgridElem;
 
 public:
     void GenerateGrid( const std::string & caseDir );

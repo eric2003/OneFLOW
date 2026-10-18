@@ -160,17 +160,17 @@ void CgnsZone::SetPeriodicBc()
     this->RequireCgnsZbc().SetPeriodicBc();
 }
 
-void CgnsZone::SetElementTypeAndNode( ElemFeature & elem_feature )
+void CgnsZone::SetElementTypeAndNode( ElemFeature & elemFeature )
 {
     const int nSection = this->RequireCgnsZsection().GetNSections();
     for ( int iSection = 0; iSection < nSection; ++ iSection )
     {
         CgnsSection & cgnsSection = this->RequireCgnsZsection().GetCgnsSection( iSection );
-        cgnsSection.SetElementTypeAndNode( elem_feature );
+        cgnsSection.SetElementTypeAndNode( elemFeature );
     }
     std::cout << "\n";
     std::cout << " iZone = " << this->zId << " nCells = " << this->RequireCgnsCoor().GetNCell() << "\n";
-    std::cout << " elem_feature.eTypes.size() = " << elem_feature.eTypes.size() << std::endl;
+    std::cout << " elemFeature.eTypes.size() = " << elemFeature.eTypes.size() << std::endl;
 }
 
 bool CgnsZone::ExistSection( const std::string & sectionName ) const
@@ -202,7 +202,7 @@ void CgnsZone::ConvertToInnerDataStandard()
 
 }
 
-void CgnsZone::ConstructCgnsGridPoints( MeshPointManager * point_factory )
+void CgnsZone::ConstructCgnsGridPoints( MeshPointManager * pointFactory )
 {
     NodeMesh & nodeMesh = this->RequireCgnsCoor().RequireNodeMesh();
     RealField & x = nodeMesh.xN;
@@ -215,7 +215,7 @@ void CgnsZone::ConstructCgnsGridPoints( MeshPointManager * point_factory )
 
     for ( int iNode = 0; iNode < nNodes; ++ iNode )
     {
-        int pid = point_factory->AddPoint( x[ iNode ], y[ iNode ], z[ iNode ] );
+        int pid = pointFactory->AddPoint( x[ iNode ], y[ iNode ], z[ iNode ] );
         
         this->l2g[ iNode ] = pid; //For the merging of partitioned multiple blocks with single block
     }

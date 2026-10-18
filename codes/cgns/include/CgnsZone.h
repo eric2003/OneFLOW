@@ -77,8 +77,8 @@ public:
 public:
     void Create();
     void SetPeriodicBc();
-    void ConstructCgnsGridPoints( MeshPointManager * point_factory );
-    void SetElementTypeAndNode( ElemFeature & elem_feature );
+    void ConstructCgnsGridPoints( MeshPointManager * pointFactory );
+    void SetElementTypeAndNode( ElemFeature & elemFeature );
     void InitLgMapping();
     void ConvertToInnerDataStandard();
 public:

@@ -350,7 +350,7 @@ void FaceTopo::SetNewFace2Node( IFaceLink & iFaceLink )
 
         if ( BC::IsInterfaceBc( bcType ) )
         {
-            const IntField & childFaceIds = GetInterfaceChildFaceIds( iFaceLink, this->GetGrid().id, localInterfaceFaceId );
+            const IntField & childFaceIds = GetInterfaceChildFaceIds( iFaceLink.l2g, iFaceLink.face_search->interfaceSplit, this->GetGrid().id, localInterfaceFaceId );
             int nCFace = childFaceIds.size();
 
             if ( nCFace > 0 )
@@ -424,7 +424,7 @@ void FaceTopo::SetNewFace2Cell( IFaceLink & iFaceLink )
 
         if ( BC::IsInterfaceBc( bcType ) )
         {
-            const IntField & childFaceIds = GetInterfaceChildFaceIds( iFaceLink, this->GetGrid().id, localInterfaceFaceId );
+            const IntField & childFaceIds = GetInterfaceChildFaceIds( iFaceLink.l2g, iFaceLink.face_search->interfaceSplit, this->GetGrid().id, localInterfaceFaceId );
             int nCFace = childFaceIds.size();
 
             if ( nCFace > 0 )
@@ -495,7 +495,7 @@ void FaceTopo::ModifyBoundaryInformation( IFaceLink & iFaceLink )
 
     for ( int iFid = 0; iFid < nIFaces; ++ iFid )
     {
-        const IntField & childFaceIds = GetInterfaceChildFaceIds( iFaceLink, this->GetGrid().id, iFid );
+        const IntField & childFaceIds = GetInterfaceChildFaceIds( iFaceLink.l2g, iFaceLink.face_search->interfaceSplit, this->GetGrid().id, iFid );
         const int gFid = iFaceLink.l2g[ this->GetGrid().id ][ iFid ];
         int nCFace = childFaceIds.size();
 
@@ -535,7 +535,7 @@ void FaceTopo::ResetNumberOfBoundaryCondition( IFaceLink & iFaceLink )
         int bcType = this->bcManager->bcRecord->bcType[ iFace ];
         if ( BC::IsInterfaceBc( bcType ) )
         {
-            const IntField & childFaceIds = GetInterfaceChildFaceIds( iFaceLink, this->GetGrid().id, localIid );
+            const IntField & childFaceIds = GetInterfaceChildFaceIds( iFaceLink.l2g, iFaceLink.face_search->interfaceSplit, this->GetGrid().id, localIid );
             int nCFace = childFaceIds.size();
 
             if ( nCFace > 0 )
