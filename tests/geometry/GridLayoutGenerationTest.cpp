@@ -247,6 +247,23 @@ TEST( MLineTest, RebuildsEndpointCandidatesAfterTopologyChanges )
     EXPECT_EQ( line.pointToLine.at( 407 ).size(), 1u );
 }
 
+TEST( SDomainTest, RebuildsOwnedIncidenceMapsWithoutStaleEntries )
+{
+    CoorMap coordinates;
+    SDomain domain( &coordinates );
+    domain.pointToPointMap[ 101 ].insert( 205 );
+    domain.pointToDomainMap[ 101 ].insert( 7 );
+    domain.lineToDomainMap[ 10 ].insert( 7 );
+
+    domain.ConstructPointToPointMap();
+    domain.ConstructPointToDomainMap();
+    domain.ConstructLineToDomainMap();
+
+    EXPECT_TRUE( domain.pointToPointMap.empty() );
+    EXPECT_TRUE( domain.pointToDomainMap.empty() );
+    EXPECT_TRUE( domain.lineToDomainMap.empty() );
+}
+
 TEST( SDomainTest, FindsUniqueSharedEndpointBetweenAdjacentEdges )
 {
     CoorMap coordinates;
