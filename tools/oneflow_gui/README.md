@@ -1,7 +1,6 @@
 # OneFLOW Desktop Case Runner
 
-The desktop application provides a small, extensible GUI for selecting cases
-from the shared catalog and running them through the normal OneFLOW executable.
+The desktop application provides a shared entry point for the Case Workbench, tests, saved workflows, and run history. It selects cases from the shared catalog and runs them through the normal OneFLOW executable.
 
 ## Launch
 
@@ -29,6 +28,8 @@ Each case is copied to a unique directory under the selected workspace before
 execution. Generated files therefore do not overwrite the checked-in case
 inputs. The application invokes the same command shape used by the existing
 workflow runner: `OneFLOW.exe r <case-directory>`.
+
+Use **Tests...** to run the existing CTest and Python unit-test commands by default, or enable the optional CFD/grid regression suite. Regression runs invoke `test/test.py` and an existing manifest from `test/suites/`; the GUI does not implement a second test engine. Use **Run History...** to inspect workflow run records and logs, edit notes, delete individual records, or clean matching history by workflow, status, and timestamp. These history operations never delete run artifacts.
 
 Use **Workflows...** to create, edit, save, and delete named workflows. The
 **Multi-directory** mode preserves the existing behavior: each directory is
