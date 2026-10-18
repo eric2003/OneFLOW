@@ -384,19 +384,19 @@ void GridElem::ReorderLink( UnsGrid & grid )
     faceTopo.ReorderLink();
 }
 
-ZGridElem::ZGridElem( CgnsZbase & cgnsZbase )
+GridElemGroup::GridElemGroup( CgnsZbase & cgnsZbase )
     : cgnsZbase( cgnsZbase )
 {
 }
 
-ZGridElem::~ZGridElem() = default;
+GridElemGroup::~GridElemGroup() = default;
 
-CgnsZbase & ZGridElem::GetCgnsZbase() const
+CgnsZbase & GridElemGroup::GetCgnsZbase() const
 {
     return this->cgnsZbase;
 }
 
-HXVector< std::unique_ptr< GridElem > > ZGridElem::CreateGridElements(
+HXVector< std::unique_ptr< GridElem > > GridElemGroup::CreateGridElements(
     GridAssemblyMode assemblyMode ) const
 {
     HXVector< std::unique_ptr< GridElem > > data;
@@ -435,7 +435,7 @@ HXVector< std::unique_ptr< GridElem > > ZGridElem::CreateGridElements(
     return data;
 }
 
-void ZGridElem::PrepareUnsCalcGrid( const HXVector< std::unique_ptr< GridElem > > & data ) const
+void GridElemGroup::PrepareUnsCalcGrid( const HXVector< std::unique_ptr< GridElem > > & data ) const
 {
     const int nGridElems = data.size();
     for ( int iGridElem = 0; iGridElem < nGridElems; ++ iGridElem )
@@ -444,12 +444,12 @@ void ZGridElem::PrepareUnsCalcGrid( const HXVector< std::unique_ptr< GridElem > 
     }
 }
 
-Grids ZGridElem::GenerateLocalOneFlowGrids()
+Grids GridElemGroup::GenerateLocalOneFlowGrids()
 {
     return this->GenerateLocalOneFlowGrids( GridConfig::FromDataBase() );
 }
 
-Grids ZGridElem::GenerateLocalOneFlowGrids( const GridConfig & config )
+Grids GridElemGroup::GenerateLocalOneFlowGrids( const GridConfig & config )
 {
     HXVector< std::unique_ptr< GridElem > > data =
         this->CreateGridElements( config.assemblyMode );

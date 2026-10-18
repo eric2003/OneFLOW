@@ -60,7 +60,7 @@ BeginNameSpace( ONEFLOW )
 // Constructor uses member initializer list and std::make_unique
 CgnsFactory::CgnsFactory()
     : cgnsZbase(std::make_unique<CgnsZbase>()),
-      zGridElem(std::make_unique<ZGridElem>( *cgnsZbase ))
+      gridElemGroup(std::make_unique<GridElemGroup>( *cgnsZbase ))
 {}
 
 // Define destructor and move operations here.
@@ -75,8 +75,8 @@ CgnsFactory::CgnsFactory( CgnsFactory && other ) noexcept
     const bool globalBoundToOther = cgns_global.IsBoundTo( other.cgnsZbase.get() );
 
     cgnsZbase = std::move( other.cgnsZbase );
-    zGridElem = std::make_unique<ZGridElem>( *cgnsZbase );
-    other.zGridElem.reset();
+    gridElemGroup = std::make_unique<GridElemGroup>( *cgnsZbase );
+    other.gridElemGroup.reset();
 
     if ( globalBoundToOther )
     {
@@ -93,8 +93,8 @@ CgnsFactory& CgnsFactory::operator=( CgnsFactory && other ) noexcept
         cgns_global.ClearIfBoundTo( cgnsZbase.get() );
 
         cgnsZbase = std::move( other.cgnsZbase );
-        zGridElem = std::make_unique<ZGridElem>( *cgnsZbase );
-        other.zGridElem.reset();
+        gridElemGroup = std::make_unique<GridElemGroup>( *cgnsZbase );
+        other.gridElemGroup.reset();
 
         if ( globalBoundToEitherFactory )
         {
@@ -117,7 +117,7 @@ void CgnsFactory::ConvertStrCgns2UnsCgnsGrid()
     this->cgnsZbase = std::move(unsCgnsZbase);
 
     // Recreate the view because its referenced CgnsZbase has changed.
-    this->zGridElem = std::make_unique<ZGridElem>( *this->cgnsZbase );
+    this->gridElemGroup = std::make_unique<GridElemGroup>( *this->cgnsZbase );
     cgns_global.Bind( this->cgnsZbase.get() );
 }
 
@@ -127,7 +127,7 @@ void GenerateLocalOneFlowGridFromSu2Grid( Su2Grid & su2Grid, Grids & grids )
     CgnsFactory cgnsFactory;
     cgnsFactory.CreateSu2CgnsZone( su2Grid );
 
-    Grids local_grids = cgnsFactory.zGridElem->GenerateLocalOneFlowGrids();
+    Grids local_grids = cgnsFactory.gridElemGroup->GenerateLocalOneFlowGrids();
     ONEFLOW::AddOneFlowGrid( grids, std::move( local_grids[ 0 ] ) );
 }
 
@@ -190,10 +190,10 @@ void CgnsFactory::ReadCgnsGrid(
     this->cgnsZbase->ReadCgnsGrid( gridFileName );
 }
 
-void CgnsFactory::DumpCgnsGrid( ZGridMediator & zGridMediator )
+void CgnsFactory::DumpCgnsGrid( GridMediatorGroup & gridMediatorGroup )
 {
     cgns_global.Bind( cgnsZbase.get() );
-    ONEFLOW::DumpCgnsGrid( cgnsZbase.get(), & zGridMediator );
+    ONEFLOW::DumpCgnsGrid( cgnsZbase.get(), & gridMediatorGroup );
 }
 
 
@@ -241,14 +241,14 @@ void CgnsFactory::DumpUnsCgnsGrid(
     cgnsZbase->CloseCgnsFile();
 }
 
-void CgnsFactory::CreateCgnsZone( ZGridMediator & zGridMediator )
+void CgnsFactory::CreateCgnsZone( GridMediatorGroup & gridMediatorGroup )
 {
-    ONEFLOW::CreateDefaultCgnsZones( cgnsZbase.get(), & zGridMediator );
+    ONEFLOW::CreateDefaultCgnsZones( cgnsZbase.get(), & gridMediatorGroup );
 }
 
-void CgnsFactory::PrepareCgnsZone( ZGridMediator & zGridMediator )
+void CgnsFactory::PrepareCgnsZone( GridMediatorGroup & gridMediatorGroup )
 {
-    ONEFLOW::PrepareCgnsZone( cgnsZbase.get(), & zGridMediator );
+    ONEFLOW::PrepareCgnsZone( cgnsZbase.get(), & gridMediatorGroup );
 }
 
 void CgnsFactory::ReadGridAndConvertToUnsCgnsZone()
@@ -258,12 +258,12 @@ void CgnsFactory::ReadGridAndConvertToUnsCgnsZone()
 
 void CgnsFactory::ReadGridAndConvertToUnsCgnsZone( const GridConfig & config )
 {
-    ZGridMediator zGridMediator;
-    zGridMediator.ReadGrid( config );
+    GridMediatorGroup gridMediatorGroup;
+    gridMediatorGroup.ReadGrid( config );
 
     //create multi cgns zone
-    this->CreateCgnsZone( zGridMediator );
-    this->PrepareCgnsZone( zGridMediator );
+    this->CreateCgnsZone( gridMediatorGroup );
+    this->PrepareCgnsZone( gridMediatorGroup );
 }
 
 void CgnsFactory::CommonToUnsGridTEST()
@@ -309,7 +309,7 @@ void CgnsFactory::CgnsToOneFlowGrid( const GridConfig & config )
 {
     if ( config.topology != GridTopology::Unstructured ) return;
 
-    Grids grids = this->zGridElem->GenerateLocalOneFlowGrids( config );
+    Grids grids = this->gridElemGroup->GenerateLocalOneFlowGrids( config );
 
     // Keep the explicit grid configuration through the calculation-grid stage.
     ONEFLOW::GenerateMultiZoneCalcGrids( std::move( grids ), config );

@@ -116,12 +116,12 @@ TEST( GridOutputConfigTest, ExportPathsAreIndependent )
 }
 
 // ---------------------------------------------------------------------------
-// ZGridMediator RAII (no file I/O)
+// GridMediatorGroup RAII (no file I/O)
 // ---------------------------------------------------------------------------
 
-TEST( ZGridMediatorTest, CreateSimpleOwnsMediator )
+TEST( GridMediatorGroupTest, CreateSimpleOwnsMediator )
 {
-    ZGridMediator zgm;
+    GridMediatorGroup zgm;
     EXPECT_EQ( zgm.GetSize(), 0 );
 
     zgm.CreateSimple( 3 );
@@ -133,9 +133,9 @@ TEST( ZGridMediatorTest, CreateSimpleOwnsMediator )
     // Destructor of zgm must free the unique_ptr without leak/crash.
 }
 
-TEST( ZGridMediatorTest, AddUniquePtrTakesOwnership )
+TEST( GridMediatorGroupTest, AddUniquePtrTakesOwnership )
 {
-    ZGridMediator zgm;
+    GridMediatorGroup zgm;
     auto owned = std::make_unique< GridMediator >();
     owned->numberOfZones = 7;
     owned->gridType = "plot3d";
@@ -147,9 +147,9 @@ TEST( ZGridMediatorTest, AddUniquePtrTakesOwnership )
     EXPECT_EQ( zgm.GetGridMediator( 0 ).gridType, "plot3d" );
 }
 
-TEST( ZGridMediatorTest, AddUniquePtrTakesOwnershipWithTwoZones )
+TEST( GridMediatorGroupTest, AddUniquePtrTakesOwnershipWithTwoZones )
 {
-    ZGridMediator zgm;
+    GridMediatorGroup zgm;
     auto owned = std::make_unique< GridMediator >();
     owned->numberOfZones = 2;
     zgm.AddGridMediator( std::move( owned ) );

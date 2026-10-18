@@ -171,10 +171,10 @@ namespace
 {
     CgnsFactory cgnsFactory;
 
-    ZGridMediator zGridMediator;
-    zGridMediator.AddGridMediator( std::move( gridMediator ) );
+    GridMediatorGroup gridMediatorGroup;
+    gridMediatorGroup.AddGridMediator( std::move( gridMediator ) );
 
-    cgnsFactory.DumpCgnsGrid( zGridMediator );
+    cgnsFactory.DumpCgnsGrid( gridMediatorGroup );
 }
 
 }

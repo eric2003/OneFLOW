@@ -738,14 +738,14 @@ void Plot3D::ReadCoor( TextFileParser * textFileParser, RealField & coor, int to
 }
 
 void Plot3D::Plot3DToCgns(
-    ZGridMediator * zGridMediator,
+    GridMediatorGroup * gridMediatorGroup,
     const std::string & caseDir )
 {
-    Plot3DToCgns( zGridMediator, GridConfig::FromDataBase(), caseDir );
+    Plot3DToCgns( gridMediatorGroup, GridConfig::FromDataBase(), caseDir );
 }
 
 void Plot3D::Plot3DToCgns(
-    ZGridMediator * zGridMediator,
+    GridMediatorGroup * gridMediatorGroup,
     const GridConfig & config,
     const std::string & caseDir )
 {
@@ -761,8 +761,8 @@ void Plot3D::Plot3DToCgns(
     gridMediator->ReadGrid();
     gridMediator->AddDefaultName();
 
-    // Ownership transfers into ZGridMediator (unique_ptr storage).
-    zGridMediator->AddGridMediator( std::move( gridMediator ) );
+    // Ownership transfers into GridMediatorGroup (unique_ptr storage).
+    gridMediatorGroup->AddGridMediator( std::move( gridMediator ) );
 }
 
 

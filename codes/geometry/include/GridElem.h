@@ -80,11 +80,12 @@ private:
     HXVector< std::reference_wrapper< CgnsZone > > zoneViews;
 };
 
-class ZGridElem
+// Multi-zone orchestrator: builds UnsGrids from a CgnsZbase via GridElem stages.
+class GridElemGroup
 {
 public:
-    explicit ZGridElem( CgnsZbase & cgnsZbase );
-    ~ZGridElem();
+    explicit GridElemGroup( CgnsZbase & cgnsZbase );
+    ~GridElemGroup();
 private:
     CgnsZbase & cgnsZbase;
 public:

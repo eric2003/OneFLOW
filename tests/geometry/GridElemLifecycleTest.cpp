@@ -44,5 +44,5 @@ TEST(GridElemLifecycleTest, MemberNamesUseCamelCaseAccessors)
     EXPECT_TRUE(ef != nullptr);
     EXPECT_TRUE(pf != nullptr);
     EXPECT_TRUE(fs != nullptr);
-    static_assert(sizeof(ONEFLOW::ZGridElem) > 0, "ZGridElem");
+    static_assert(sizeof(ONEFLOW::GridElemGroup) > 0, "GridElemGroup");
 }
