@@ -94,12 +94,20 @@ class CompileFlatPlateTest(unittest.TestCase):
         ]
         positions = {
             next(child.text for child in node if child.text in {"interface: Interface", "right: Outflow"}):
-            (float(node.attrib["x"]), node.attrib["text-anchor"])
+            (
+                float(node.attrib["x"]),
+                float(node.attrib["y"]),
+                node.attrib["text-anchor"],
+            )
             for node in text_elements
         }
-        self.assertEqual(positions["interface: Interface"][1], "end")
-        self.assertEqual(positions["right: Outflow"][1], "start")
+        self.assertEqual(positions["interface: Interface"][2], "end")
+        self.assertEqual(positions["right: Outflow"][2], "start")
         self.assertLess(positions["interface: Interface"][0], positions["right: Outflow"][0])
+        self.assertLess(
+            positions["interface: Interface"][1],
+            positions["right: Outflow"][1],
+        )
 
     def test_boundary_layer_distribution_uses_interval_count_semantics(self):
         vertical = self.spec["distributions"]["vertical"]
