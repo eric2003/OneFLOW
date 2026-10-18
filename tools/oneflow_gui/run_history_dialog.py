@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 from PySide6.QtWidgets import (
+    QAbstractItemView,
     QComboBox,
     QDialog,
     QFormLayout,
@@ -59,8 +60,8 @@ class RunHistoryDialog(QDialog):
 
         self.table = QTableWidget(0, 5)
         self.table.setHorizontalHeaderLabels(["Started", "Status", "Workflow", "Run ID", "Note"])
-        self.table.setSelectionBehavior(self.table.SelectionBehavior.SelectRows)
-        self.table.setEditTriggers(self.table.EditTrigger.NoEditTriggers)
+        self.table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.table.setColumnWidth(0, 190)
         self.table.setColumnWidth(1, 100)
         self.table.setColumnWidth(2, 170)
@@ -132,7 +133,7 @@ class RunHistoryDialog(QDialog):
                 details.append(log_path.read_text(encoding="utf-8", errors="replace"))
             except OSError as error:
                 details.append(f"Log unavailable: {error}")
-        self.details.setPlainText("\\n".join(details))
+        self.details.setPlainText("\n".join(details))
         self.note_edit.setText(record.note)
 
     def _save_note(self) -> None:
