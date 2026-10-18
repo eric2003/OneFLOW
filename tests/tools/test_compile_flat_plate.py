@@ -73,6 +73,29 @@ class CompileFlatPlateTest(unittest.TestCase):
         self.assertIn("Ds(4)={bl,41,0.02}", output)
         self.assertIn("Ds(5)={bl,41,0.02}", output)
 
+    def test_semantic_tanh_spacing_compiles_to_legacy_ds_syntax(self):
+        spec = json.loads(
+            (ROOT / "grid" / "turbulent_flat_plate" / "flat_plate.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        output = compiler.compile_flat_plate(spec)
+        expected = [
+            "Ds(1)={tanh,-1,0.002}",
+            "Ds(2)={tanh,0.002,-1}",
+            "Ds(3)={tanh,1.0e-6,-1}",
+            "Ds(4)={tanh,1.0e-6,-1}",
+            "Ds(5)={tanh,1.0e-6,-1}",
+            "Ds(6)={tanh,-1,0.002}",
+            "Ds(7)={tanh,0.002,-1}",
+        ]
+        for line in expected:
+            self.assertIn(line, output)
+
+    def test_legacy_top_distribution_reverses_for_second_block(self):
+        output = compiler.compile_flat_plate(self.spec)
+        self.assertIn("Ds(6)={d,-1,0.01}", output)
+        self.assertIn("Ds(7)={d,0.01,-1}", output)
     def test_rejects_invalid_normal_point_count(self):
         self.spec["normalPointCount"] = 1
         with self.assertRaisesRegex(ValueError, "normalPointCount"):
