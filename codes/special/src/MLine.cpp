@@ -225,12 +225,12 @@ void MLine::ConstructSLineCtrlPoint()
 
 void MLine::ConstructEndpointCandidates()
 {
-    this->candidate_ctrlpoints.clear();
+    this->endpointCandidates.clear();
     for ( const auto & pointLines : this->pointToLine )
     {
         if ( pointLines.second.size() == 1 )
         {
-            this->candidate_ctrlpoints.push_back( pointLines.first );
+            this->endpointCandidates.push_back( pointLines.first );
         }
     }
 }
@@ -268,6 +268,7 @@ void MLine::ConstructPointToLineMap()
 
 void MLine::ConstructPointToLineMap( const LinkField & pointIdLink )
 {
+    this->pointToLine.clear();
     for ( int iLine = 0; iLine < lineList.size(); ++ iLine )
     {
         const int lineId = lineList[ iLine ];
