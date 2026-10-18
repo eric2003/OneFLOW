@@ -118,8 +118,8 @@ class MeshLayoutDialog(QDialog):
 
     def _default_output_path(self, kind: str) -> Path:
         if kind == "rectangle":
-            return self._repository_root / "grid" / "minimal_rectangle" / "grid" / "minimalRectangleLayout.txt"
-        return self._repository_root / "grid" / "turbulent_flat_plate" / "grid" / "turbulentFlatPlateLayout.txt"
+            return self._repository_root / "grid" / "minimal_rectangle" / "grid" / "editor-output" / "minimalRectangleLayout.txt"
+        return self._repository_root / "grid" / "turbulent_flat_plate" / "grid" / "editor-output" / "turbulentFlatPlateLayout.txt"
 
     def _load_selected_template(self) -> None:
         kind = self.template_combo.currentData()
@@ -282,7 +282,9 @@ class MeshLayoutDialog(QDialog):
         path, _ = QFileDialog.getSaveFileName(
             self,
             "Save specification as",
-            self.spec_path_edit.text(),
+            str(Path(self.spec_path_edit.text()).with_name(
+                Path(self.spec_path_edit.text()).stem + ".edited.json"
+            )),
             "JSON files (*.json);;All files (*)",
         )
         if not path:
