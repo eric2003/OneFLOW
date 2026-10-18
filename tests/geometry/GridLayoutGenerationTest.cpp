@@ -2,6 +2,7 @@
 #include "Dimension.h"
 #include "GridMachine.h"
 #include "MDomain.h"
+#include "MLine.h"
 #include "Prj.h"
 #include "SDomain.h"
 
@@ -217,6 +218,28 @@ TEST( MDomainTest, ReportsStalledControlPointResolution )
     EXPECT_THROW(
         domain.CalcSubDomainCtrlCoor(),
         std::runtime_error );
+}
+
+TEST( MLineTest, BuildsPointToLineIncidenceForCompositeLine )
+{
+    CoorMap coordinates;
+    MLine line( &coordinates );
+    line.lineList = { 10, 20 };
+
+    LinkField pointIdLink;
+    pointIdLink.push_back( IntField{ 101, 205 } );
+    pointIdLink.push_back( IntField{ 205, 309 } );
+
+    line.ConstructPointToLineMap( pointIdLink );
+
+    ASSERT_EQ( line.pointToLine.size(), 3u );
+    ASSERT_EQ( line.pointToLine.at( 101 ).size(), 1u );
+    EXPECT_TRUE( line.pointToLine.at( 101 ).count( 10 ) );
+    ASSERT_EQ( line.pointToLine.at( 205 ).size(), 2u );
+    EXPECT_TRUE( line.pointToLine.at( 205 ).count( 10 ) );
+    EXPECT_TRUE( line.pointToLine.at( 205 ).count( 20 ) );
+    ASSERT_EQ( line.pointToLine.at( 309 ).size(), 1u );
+    EXPECT_TRUE( line.pointToLine.at( 309 ).count( 20 ) );
 }
 
 TEST( SDomainTest, ReportsBlockedWhenFewerThanThreeControlPointsAreKnown )
