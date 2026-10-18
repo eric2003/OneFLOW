@@ -31,6 +31,7 @@ License
 #include "Dimension.h"
 #include <algorithm>
 #include <iostream>
+#include <stdexcept>
 
 
 BeginNameSpace( ONEFLOW )
@@ -293,6 +294,10 @@ void DomData::FindNextPoint2D( const IntField & ptList, int prev, int me, int & 
 {
     std::map< int, IntSet >::const_iterator iter;
     iter = this->pointToPointMap.find( me );
+    if ( iter == this->pointToPointMap.end() )
+    {
+        throw std::runtime_error( "Boundary traversal point is missing from point-to-point map" );
+    }
     const IntSet & me_set = iter->second;
     flag = 0;
     for ( IntSet::const_iterator it = me_set.begin(); it != me_set.end(); ++ it )
@@ -332,6 +337,10 @@ bool DomData::IsBcLine( int line_id ) const
 {
     std::map< int, IntSet >::const_iterator iter;
     iter = lineToDomainMap.find( line_id );
+    if ( iter == lineToDomainMap.end() )
+    {
+        throw std::runtime_error( "Boundary line is missing from line-to-domain map" );
+    }
     return iter->second.size() == 1;
 }
 
@@ -363,6 +372,10 @@ bool DomData::FindNextBcPoint( int ps, int pt, int & pnext, IntSet &bclines )
 {
     std::map< int, IntSet >::iterator iter;
     iter = this->pointToLineMap.find( pt );
+    if ( iter == this->pointToLineMap.end() )
+    {
+        throw std::runtime_error( "Boundary traversal point is missing from point-to-line map" );
+    }
     IntField lines;
     ONEFLOW::Set2Array( iter->second, lines );
 
@@ -461,6 +474,10 @@ void DomData::CalcBcCoor( CoorMap * coorMap, int closedCurve )
 
         CoorMap::iterator iter1 = coorMap->find( cp1 );
         CoorMap::iterator iter2 = coorMap->find( cp2 );
+        if ( iter1 == coorMap->end() || iter2 == coorMap->end() )
+        {
+            throw std::runtime_error( "Boundary control point is missing from coordinate map" );
+        }
         int di = iter2->second.i - iter1->second.i;
         int dj = iter2->second.j - iter1->second.j;
         int dk = iter2->second.k - iter1->second.k;
