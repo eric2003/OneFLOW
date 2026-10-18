@@ -50,7 +50,8 @@ class TestRunnerCommandTest(unittest.TestCase):
             test_dir = root / "test"
             (test_dir / "suites").mkdir(parents=True)
             (test_dir / "suites" / "ci-serial.txt").write_text("cfd/example\n", encoding="utf-8")
-            executable = root / "OneFLOW.exe"
+            executable = root / "Program Files" / "OneFLOW.exe"
+            executable.parent.mkdir(parents=True)
             executable.write_bytes(b"test")
             command = build_regression_command(
                 root, executable, "ci-serial.txt", python="python-test", platform_name="nt"
@@ -58,6 +59,7 @@ class TestRunnerCommandTest(unittest.TestCase):
             self.assertEqual(command.working_directory, test_dir.resolve())
             self.assertEqual(command.arguments[0:2], ("python-test", "test.py"))
             self.assertEqual(command.arguments[2], "mpiexec -n 1")
+            self.assertEqual(command.arguments[3], '"' + str(executable.resolve()) + '"')
             self.assertEqual(command.arguments[4], "suites/ci-serial.txt")
 
     def test_regression_rejects_unknown_suite_and_missing_executable(self) -> None:
