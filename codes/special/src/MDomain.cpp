@@ -35,6 +35,7 @@ License
 #include "Dimension.h"
 #include <algorithm>
 #include <iostream>
+#include <stdexcept>
 
 
 BeginNameSpace( ONEFLOW )
@@ -46,16 +47,24 @@ void MDomain::CalcSubDomainCtrlCoor()
 {
     while ( true )
     {
-        bool local_flag = true;
+        const std::size_t previousCoordinateCount = this->coorMap->size();
+        bool allDomainsResolved = true;
         int nDomain = sDomainList.size();
         for ( int iDomain = 0; iDomain < nDomain; ++ iDomain )
         {
             SDomain * sDomain = sDomainList[ iDomain ].get();
-            bool flag = sDomain->CalcSingleDomainCoor();
-            local_flag = ( flag && local_flag );
+            const bool domainResolved = sDomain->CalcSingleDomainCoor();
+            allDomainsResolved = domainResolved && allDomainsResolved;
         }
-        if ( local_flag ) break;
-    };
+
+        if ( allDomainsResolved ) return;
+
+        if ( this->coorMap->size() == previousCoordinateCount )
+        {
+            throw std::runtime_error(
+                "Unable to resolve subdomain control-point coordinates: no progress" );
+        }
+    }
 }
 
 void MDomain::AddSubDomain( int fid, IntField & lineList, IntField & posList )
