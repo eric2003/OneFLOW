@@ -78,7 +78,7 @@ public:
 public:
     void AddSubLine( int line_id );
     void ConstructDomainTopo();
-    void ConstructCtrlPoint();
+    void ConstructEndpointCandidates();
     void ConstructSLineCtrlPoint();
     //void CalcCoor( CoorMap * localCoorMap );
     void CalcCoor();
