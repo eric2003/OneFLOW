@@ -193,6 +193,31 @@ TEST( GridLayoutGenerationTest, GeneratesFlatPlateBoundaryLayerDistribution )
     file.close();
 }
 
+TEST( MLineTest, RebuildsEndpointCandidatesAfterTopologyChanges )
+{
+    CoorMap coordinates;
+    MLine line( &coordinates );
+    line.lineList = { 10, 20 };
+
+    LinkField initialPointIds;
+    initialPointIds.push_back( IntField{ 101, 205 } );
+    initialPointIds.push_back( IntField{ 205, 309 } );
+    line.ConstructPointToLineMap( initialPointIds );
+    line.ConstructEndpointCandidates();
+
+    EXPECT_EQ( line.endpointCandidates, ( IntField{ 101, 309 } ) );
+
+    LinkField updatedPointIds;
+    updatedPointIds.push_back( IntField{ 101, 205 } );
+    updatedPointIds.push_back( IntField{ 205, 407 } );
+    line.ConstructPointToLineMap( updatedPointIds );
+    line.ConstructEndpointCandidates();
+
+    EXPECT_EQ( line.endpointCandidates, ( IntField{ 101, 407 } ) );
+    EXPECT_EQ( line.pointToLine.count( 309 ), 0u );
+    EXPECT_EQ( line.pointToLine.at( 407 ).size(), 1u );
+}
+
 TEST( SDomainTest, FindsUniqueSharedEndpointBetweenAdjacentEdges )
 {
     CoorMap coordinates;
