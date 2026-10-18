@@ -100,6 +100,8 @@ const IntField & DomData::GetLinePoints( int line_id ) const
 
 void DomData::ConstructBcPoint()
 {
+    this->candidate_bcpoints.clear();
+
     IntField lineList;
     std::map< int, IntSet >::iterator iter;
     for ( iter = this->lineToDomainMap.begin(); iter != this->lineToDomainMap.end(); ++ iter )
