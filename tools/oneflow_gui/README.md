@@ -31,6 +31,15 @@ workflow runner: `OneFLOW.exe r <case-directory>`.
 
 Use **Tests...** to run the existing CTest and Python unit-test commands by default, or enable the optional CFD/grid regression suite. Regression runs invoke `test/test.py` and an existing manifest from `test/suites/`; the GUI does not implement a second test engine. Use **Run History...** to inspect Case Workbench and workflow run records and logs, edit notes, delete individual records, or clean matching history by workflow, status, and timestamp. These history operations never delete run artifacts.
 
+Use **Mesh Layout...** to open the first template-based layout editor. It
+supports the single-rectangle and two-block flat-plate templates, edits point
+coordinates, line point counts, spacing parameters, and boundary types, and
+previews the layout as SVG. **Save specification as...** writes a validated JSON
+copy; **Compile layout** writes the legacy OneFLOW layout text. The editor uses
+the same command-line compilers and does not replace the existing runtime
+layout format. It currently edits these two templates rather than offering
+arbitrary point-and-click topology construction.
+
 Use **Workflows...** to create, edit, save, and delete named workflows. The
 **Multi-directory** mode preserves the existing behavior: each directory is
 entered on a separate line, and one OneFLOW process receives
@@ -72,6 +81,8 @@ The long-term product direction is documented in both [Chinese](../../docs/ONEFL
 - `workflow_execution.py`: shell-free construction of one-process,
   multi-directory command arguments, preserving the user-specified order.
 - `main_window.py`: Qt widgets and the sequential queue worker.
+- `mesh_layout_dialog.py`: template-based geometry, mesh-count, spacing, and boundary editor with SVG preview.
+- `tools/mesh_layout/editor_document.py`: Qt-independent JSON loading, validation, compilation, and saving shared by the editor.
 - `workflow_dialog.py`: workflow editor, single-process multi-directory execution, and persisted run-history presentation.
 - `test_services.py`: standard-library tests for the non-UI services.
 - `test_workflow_execution.py`: tests for argument order, spaces, and invalid input.
