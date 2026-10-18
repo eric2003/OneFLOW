@@ -233,6 +233,7 @@ ControlPointResolution SDomain::CalcSingleDomainCoor()
 
 void SDomain::ConstructPointToPointMap()
 {
+    this->pointToPointMap.clear();
     this->ConstructPointToPointMap( this->pointToPointMap );
 }
 
@@ -261,6 +262,7 @@ void SDomain::ConstructPointToLineMap( std::map< int, IntSet > & pointToLineMap 
 
 void SDomain::ConstructPointToDomainMap()
 {
+    this->pointToDomainMap.clear();
     this->ConstructPointToDomainMap( this->pointToDomainMap );
 }
 
@@ -288,6 +290,7 @@ void SDomain::ConstructPointToDomainMap( std::map< int, IntSet > & pointToDomain
 
 void SDomain::ConstructLineToDomainMap()
 {
+    this->lineToDomainMap.clear();
     this->ConstructLineToDomainMap( this->lineToDomainMap );
 }
 
