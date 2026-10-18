@@ -176,7 +176,7 @@ void SDomain::SetRemainingCtrlPoint( IntField & idxList )
 }
 
 
-bool SDomain::CalcSingleDomainCoor()
+ControlPointResolution SDomain::CalcSingleDomainCoor()
 {
     int nCtrlPoint = this->ctrlpoints.size();
     int nCount = 0;
@@ -193,21 +193,21 @@ bool SDomain::CalcSingleDomainCoor()
         }
     }
 
-    if ( nCount < 3 ) return false;
+    if ( nCount < 3 ) return ControlPointResolution::Blocked;
 
     if ( nCount == 3 )
     {
         this->SetRemainingCtrlPoint( idx );
-        return false;
+        return ControlPointResolution::Progress;
     }
     else if ( nCount == 4 )
     {
         this->CalcDim2D();
         int closedLine = 1;
         this->CalcBcCoor( this->coorMap, closedLine );
-        return true;
+        return ControlPointResolution::Resolved;
     }
-    return true;
+    return ControlPointResolution::Blocked;
 }
 
 void SDomain::ConstructPointToPointMap()
