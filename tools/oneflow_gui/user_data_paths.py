@@ -34,6 +34,19 @@ class UserDataPaths:
         return self.root / "settings.json"
 
     @property
+    def mesh_layout_workspace(self) -> Path:
+        """Keep editable mesh specifications and generated layouts outside the repository."""
+        return self.root / "mesh-layout-workspace"
+
+    @property
+    def mesh_layout_specifications(self) -> Path:
+        return self.mesh_layout_workspace / "specifications"
+
+    @property
+    def mesh_layout_outputs(self) -> Path:
+        return self.mesh_layout_workspace / "layouts"
+
+    @property
     def workflow_data(self) -> Path:
         """Keep the existing data location so saved workflows and history survive."""
         return self.root / "workflow-data"
