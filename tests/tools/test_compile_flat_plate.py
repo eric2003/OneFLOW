@@ -1,6 +1,7 @@
 import importlib.util
 import json
 import unittest
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 
@@ -79,6 +80,26 @@ class CompileFlatPlateTest(unittest.TestCase):
         self.assertIn('<rect x="0" y="0" width="100%" height="100%" fill="#f5f7fa"/>', svg)
         self.assertIn('left: Farfield</tspan><tspan', svg)
         self.assertIn('interface: Interface</tspan><tspan', svg)
+
+        root = ET.fromstring(svg)
+        labels = {
+            node.text: node
+            for node in root.iter("{http://www.w3.org/2000/svg}tspan")
+            if node.text in {"interface: Interface", "right: Outflow"}
+        }
+        self.assertEqual(set(labels), {"interface: Interface", "right: Outflow"})
+        text_elements = [
+            node for node in root.iter("{http://www.w3.org/2000/svg}text")
+            if any(child.text in {"interface: Interface", "right: Outflow"} for child in node)
+        ]
+        positions = {
+            next(child.text for child in node if child.text in {"interface: Interface", "right: Outflow"}):
+            (float(node.attrib["x"]), node.attrib["text-anchor"])
+            for node in text_elements
+        }
+        self.assertEqual(positions["interface: Interface"][1], "end")
+        self.assertEqual(positions["right: Outflow"][1], "start")
+        self.assertLess(positions["interface: Interface"][0], positions["right: Outflow"][0])
 
     def test_boundary_layer_distribution_uses_interval_count_semantics(self):
         vertical = self.spec["distributions"]["vertical"]
