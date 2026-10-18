@@ -1,6 +1,7 @@
 #include "DataBase.h"
 #include "Dimension.h"
 #include "GridMachine.h"
+#include "MDomain.h"
 #include "Prj.h"
 #include "SDomain.h"
 
@@ -11,6 +12,8 @@
 #include <cmath>
 #include <filesystem>
 #include <fstream>
+#include <memory>
+#include <stdexcept>
 #include <string>
 #include <system_error>
 #include <vector>
@@ -187,6 +190,33 @@ TEST( GridLayoutGenerationTest, GeneratesFlatPlateBoundaryLayerDistribution )
     }
 
     file.close();
+}
+
+TEST( MDomainTest, ReportsStalledControlPointResolution )
+{
+    CoorMap coordinates;
+
+    CalcCoor lowerLeft;
+    lowerLeft.SetCoor( 10, 20, 0 );
+    coordinates.emplace( 101, lowerLeft );
+
+    CalcCoor lowerRight;
+    lowerRight.SetCoor( 20, 20, 0 );
+    coordinates.emplace( 205, lowerRight );
+
+    MDomain domain;
+    domain.coorMap = &coordinates;
+
+    auto subdomain = std::make_unique< SDomain >( &coordinates );
+    subdomain->ctrlpoints.push_back( 101 );
+    subdomain->ctrlpoints.push_back( 205 );
+    subdomain->ctrlpoints.push_back( 309 );
+    subdomain->ctrlpoints.push_back( 407 );
+    domain.sDomainList.push_back( std::move( subdomain ) );
+
+    EXPECT_THROW(
+        domain.CalcSubDomainCtrlCoor(),
+        std::runtime_error );
 }
 
 TEST( SDomainTest, CompletesMissingControlPointUsingGlobalPointIds )
