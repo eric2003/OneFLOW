@@ -87,6 +87,11 @@ class MeshLayoutDialog(QDialog):
         boundary_display_row.addWidget(
             QLabel("Hover over a boundary option to read its explanation.")
         )
+        self.reset_boundary_button = QPushButton("Reset flat-plate boundaries")
+        self.reset_boundary_button.clicked.connect(
+            self._reset_flat_plate_boundary_defaults
+        )
+        boundary_display_row.addWidget(self.reset_boundary_button)
         boundary_display_row.addStretch(1)
         root.addLayout(boundary_display_row)
 
@@ -126,12 +131,6 @@ class MeshLayoutDialog(QDialog):
         save_button = QPushButton("Save specification as...")
         save_button.clicked.connect(self._save_specification_as)
         actions.addWidget(save_button)
-        if self._spec.get("type") == "flat_plate":
-            reset_boundaries_button = QPushButton("Reset boundary defaults")
-            reset_boundaries_button.clicked.connect(
-                self._reset_flat_plate_boundary_defaults
-            )
-            actions.addWidget(reset_boundaries_button)
         actions.addStretch(1)
         preview_button = QPushButton("Update preview")
         preview_button.clicked.connect(self._update_preview_from_fields)
@@ -305,6 +304,7 @@ class MeshLayoutDialog(QDialog):
             self._field_widgets[path] = widget
             self.fields_form.addRow(label, widget)
 
+        self.reset_boundary_button.setEnabled(self._spec["type"] == "flat_plate")
         self._refresh_boundary_labels(self.show_boundary_codes.isChecked())
 
     def _refresh_boundary_labels(self, show_codes: bool) -> None:
