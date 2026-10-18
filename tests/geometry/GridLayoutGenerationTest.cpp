@@ -133,6 +133,65 @@ TEST( GridLayoutGenerationTest, GeneratesFlatPlateBoundaryLayerDistribution )
         for ( Real & value : zones[ zoneIndex ].z ) value = ReadBinary< Real >( file );
     }
 
+    for ( const auto & zone : zones )
+    {
+        for ( const Real value : zone.x ) EXPECT_TRUE( std::isfinite( value ) );
+        for ( const Real value : zone.y ) EXPECT_TRUE( std::isfinite( value ) );
+        for ( const Real value : zone.z ) EXPECT_TRUE( std::isfinite( value ) );
+    }
+
+    const auto nodeIndex = []( int i, int j, int ni )
+    {
+        return static_cast< std::size_t >( j * ni + i );
+    };
+    for ( int j = 0; j < dimensions[ 0 ].nj; ++ j )
+    {
+        const std::size_t leftInterfaceNode =
+            nodeIndex( dimensions[ 0 ].ni - 1, j, dimensions[ 0 ].ni );
+        const std::size_t rightInterfaceNode =
+            nodeIndex( 0, j, dimensions[ 1 ].ni );
+        EXPECT_NEAR( zones[ 0 ].x[ leftInterfaceNode ], 0.0, 1.0e-12 );
+        EXPECT_NEAR( zones[ 1 ].x[ rightInterfaceNode ], 0.0, 1.0e-12 );
+        EXPECT_NEAR(
+            zones[ 0 ].y[ leftInterfaceNode ],
+            zones[ 1 ].y[ rightInterfaceNode ],
+            1.0e-12 );
+        EXPECT_NEAR(
+            zones[ 0 ].z[ leftInterfaceNode ],
+            zones[ 1 ].z[ rightInterfaceNode ],
+            1.0e-12 );
+    }
+
+    for ( std::size_t zoneIndex = 0; zoneIndex < zones.size(); ++ zoneIndex )
+    {
+        const auto & zone = zones[ zoneIndex ];
+        const int ni = dimensions[ zoneIndex ].ni;
+        const int nj = dimensions[ zoneIndex ].nj;
+        Real totalCellArea = 0.0;
+        for ( int j = 0; j < nj - 1; ++ j )
+        {
+            for ( int i = 0; i < ni - 1; ++ i )
+            {
+                const std::size_t lowerLeft = nodeIndex( i, j, ni );
+                const std::size_t lowerRight = nodeIndex( i + 1, j, ni );
+                const std::size_t upperRight = nodeIndex( i + 1, j + 1, ni );
+                const std::size_t upperLeft = nodeIndex( i, j + 1, ni );
+                const Real cellArea = 0.5 * (
+                    zone.x[ lowerLeft ] * zone.y[ lowerRight ] -
+                    zone.y[ lowerLeft ] * zone.x[ lowerRight ] +
+                    zone.x[ lowerRight ] * zone.y[ upperRight ] -
+                    zone.y[ lowerRight ] * zone.x[ upperRight ] +
+                    zone.x[ upperRight ] * zone.y[ upperLeft ] -
+                    zone.y[ upperRight ] * zone.x[ upperLeft ] +
+                    zone.x[ upperLeft ] * zone.y[ lowerLeft ] -
+                    zone.y[ upperLeft ] * zone.x[ lowerLeft ] );
+                EXPECT_GT( cellArea, 0.0 );
+                totalCellArea += cellArea;
+            }
+        }
+        EXPECT_NEAR( totalCellArea, 8.0, 1.0e-10 );
+    }
+
     const Real uniformStep =
         nearWallDistance / static_cast< Real >( nearWallPointCount - 1 );
     for ( std::size_t zoneIndex = 0; zoneIndex < zones.size(); ++ zoneIndex )
