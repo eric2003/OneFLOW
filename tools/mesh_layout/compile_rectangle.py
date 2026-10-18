@@ -6,6 +6,30 @@ import json
 from pathlib import Path
 
 
+BOUNDARY_TYPES = {
+    "none": 0,
+    "interface": -1,
+    "extrapolation": 1,
+    "wall": 2,
+    "symmetry": 3,
+    "farfield": 4,
+    "inflow": 5,
+    "outflow": 6,
+    "interior": 100,
+    "overset": 1000,
+}
+
+
+def _boundary_value(value, line_id):
+    if isinstance(value, int) and not isinstance(value, bool):
+        return value
+    if isinstance(value, str) and value.lower() in BOUNDARY_TYPES:
+        return BOUNDARY_TYPES[value.lower()]
+    raise ValueError(
+        f"boundary for line {line_id} must be an integer or known boundary name"
+    )
+
+
 def compile_rectangle(spec):
     if spec.get("type") != "rectangle":
         raise ValueError("type must be 'rectangle'")
@@ -29,6 +53,17 @@ def compile_rectangle(spec):
     if not isinstance(spacing, str) or not spacing:
         raise ValueError("spacing must be a non-empty string")
 
+    boundaries = spec.get("boundaries")
+    if boundaries is None:
+        boundary_values = [1, 2, 3, 4]
+    else:
+        if not isinstance(boundaries, dict):
+            raise ValueError("boundaries must be an object")
+        boundary_values = [
+            _boundary_value(boundaries.get(f"line{line_id}", line_id), line_id)
+            for line_id in range(1, 5)
+        ]
+
     lines = []
     for index, point in enumerate(corners, start=1):
         coords = ",".join(format_coordinate(value) for value in point)
@@ -48,8 +83,8 @@ def compile_rectangle(spec):
         lines.append(f"Ds({index})={{{spacing},-1,-1}}")
 
     lines.append("")
-    for index in range(1, 5):
-        lines.append(f"Boundary({index})={{{index}}}")
+    for index, boundary_value in enumerate(boundary_values, start=1):
+        lines.append(f"Boundary({index})={{{boundary_value}}}")
 
     lines.append("")
     for index in range(1, 5):
