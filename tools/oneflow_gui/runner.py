@@ -58,12 +58,9 @@ def prepare_case_directory(
 ) -> Path:
     """Resolve the execution copy according to the user's selected location."""
     if execution_mode == "source":
-        source_directory = case.case_directory.resolve()
-        if not source_directory.is_dir():
-            raise NotADirectoryError(
-                f"Source case directory does not exist: {source_directory}"
-            )
-        return source_directory
+        raise ValueError(
+            "In-place execution is disabled. Run catalog cases from a workspace copy."
+        )
     if execution_mode in {"default_workspace", "custom_workspace"}:
         return _copy_case_to_workspace(case, workspace_root, run_id)
     raise ValueError(f"Unsupported case execution mode: {execution_mode!r}")
