@@ -35,6 +35,8 @@ License
 #include "Dimension.h"
 #include <algorithm>
 #include <iostream>
+#include <stdexcept>
+#include <vector>
 
 
 BeginNameSpace( ONEFLOW )
@@ -44,18 +46,42 @@ MDomain::~MDomain() = default;
 
 void MDomain::CalcSubDomainCtrlCoor()
 {
+    std::vector< bool > resolvedDomains( sDomainList.size(), false );
+
     while ( true )
     {
-        bool local_flag = true;
+        bool allDomainsResolved = true;
+        bool anyDomainAdvanced = false;
         int nDomain = sDomainList.size();
         for ( int iDomain = 0; iDomain < nDomain; ++ iDomain )
         {
+            if ( resolvedDomains[ iDomain ] ) continue;
+
             SDomain * sDomain = sDomainList[ iDomain ].get();
-            bool flag = sDomain->CalcSingleDomainCoor();
-            local_flag = ( flag && local_flag );
+            const ControlPointResolution resolution = sDomain->CalcSingleDomainCoor();
+            if ( resolution == ControlPointResolution::Resolved )
+            {
+                resolvedDomains[ iDomain ] = true;
+                anyDomainAdvanced = true;
+            }
+            else
+            {
+                allDomainsResolved = false;
+                if ( resolution == ControlPointResolution::Progress )
+                {
+                    anyDomainAdvanced = true;
+                }
+            }
         }
-        if ( local_flag ) break;
-    };
+
+        if ( allDomainsResolved ) return;
+
+        if ( ! anyDomainAdvanced )
+        {
+            throw std::runtime_error(
+                "Unable to resolve subdomain control-point coordinates: no progress" );
+        }
+    }
 }
 
 void MDomain::AddSubDomain( int fid, IntField & lineList, IntField & posList )
@@ -91,6 +117,26 @@ int MDomain::GetNsubDomain()
     return this->sDomainList.size();
 }
 
+void MDomain::ConstructCandidateControlPoints()
+{
+    IntSet cornerPoints;
+    for ( int iDomain = 0; iDomain < this->sDomainList.size(); ++ iDomain )
+    {
+        const SDomain * sDomain = this->sDomainList[ iDomain ].get();
+        for ( int iPoint = 0; iPoint < sDomain->ctrlpoints.size(); ++ iPoint )
+        {
+            cornerPoints.insert( sDomain->ctrlpoints[ iPoint ] );
+        }
+    }
+
+    this->candidate_ctrlpoints.clear();
+    for ( IntSet::const_iterator iter = cornerPoints.begin();
+          iter != cornerPoints.end(); ++ iter )
+    {
+        this->candidate_ctrlpoints.push_back( *iter );
+    }
+}
+
 void MDomain::ConstructMultiDomainTopo()
 {
     int nSDomain = sDomainList.size();
@@ -106,11 +152,12 @@ void MDomain::ConstructMultiDomainTopo()
     this->ConstructMultiPointToPointMap();
     this->ConstructPointToLineMap();
     this->ConstructBcPoint();
-    this->ConstructCtrlPoint();
+    this->ConstructCandidateControlPoints();
 }
 
 void MDomain::ConstructMultiLineToDomainMap()
 {
+    this->lineToDomainMap.clear();
     for ( int iDomain = 0; iDomain < this->sDomainList.size(); ++ iDomain )
     {
         SDomain * sdomain = this->sDomainList[ iDomain ].get();
@@ -122,6 +169,7 @@ void MDomain::ConstructMultiLineToDomainMap()
 
 void MDomain::ConstructPointToLineMap()
 {
+    this->pointToLineMap.clear();
     for ( int iDomain = 0; iDomain < this->sDomainList.size(); ++ iDomain )
     {
         SDomain * sdomain = this->sDomainList[ iDomain ].get();
@@ -133,6 +181,7 @@ void MDomain::ConstructPointToLineMap()
 
 void MDomain::ConstructMultiPointToDomainMap()
 {
+    this->pointToDomainMap.clear();
     for ( int iDomain = 0; iDomain < this->sDomainList.size(); ++ iDomain )
     {
         SDomain * sdomain = this->sDomainList[ iDomain ].get();
@@ -142,6 +191,7 @@ void MDomain::ConstructMultiPointToDomainMap()
 
 void MDomain::ConstructMultiPointToPointMap()
 {
+    this->pointToPointMap.clear();
     for ( int iDomain = 0; iDomain < this->sDomainList.size(); ++ iDomain )
     {
         SDomain * sdomain = this->sDomainList[ iDomain ].get();

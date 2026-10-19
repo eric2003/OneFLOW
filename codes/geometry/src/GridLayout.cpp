@@ -1,6 +1,9 @@
 #include "GridLayout.h"
 
+#include <set>
 #include <stdexcept>
+#include <tuple>
+#include <utility>
 #include <unordered_set>
 
 BeginNameSpace( ONEFLOW )
@@ -20,6 +23,9 @@ void GridLayout::Validate() const
     std::unordered_set< int > lineIds;
     std::unordered_set< int > faceIds;
     std::unordered_set< int > boundaryIds;
+    std::unordered_set< int > dimensionIds;
+    std::set< std::tuple< int, int, int > > lineToFaceRelations;
+    std::set< std::pair< int, int > > blockFaceSlots;
 
     for ( const auto & point : points )
     {
@@ -58,7 +64,8 @@ void GridLayout::Validate() const
     for ( const auto & dimension : dimensions )
     {
         if ( dimension.id <= 0 || ! lineIds.contains( dimension.id ) ||
-             dimension.pointCount < 2 )
+             dimension.pointCount < 2 ||
+             ! dimensionIds.insert( dimension.id ).second )
         {
             throw std::runtime_error( "Invalid grid dimension definition" );
         }
@@ -110,6 +117,11 @@ void GridLayout::Validate() const
         {
             throw std::runtime_error( "Invalid line-to-face relation" );
         }
+        if ( ! lineToFaceRelations.insert(
+                  { relation.faceId, relation.position, relation.lineId } ).second )
+        {
+            throw std::runtime_error( "Duplicate line-to-face relation" );
+        }
         faceIds.insert( relation.faceId );
     }
 
@@ -120,6 +132,11 @@ void GridLayout::Validate() const
              ! faceIds.contains( relation.faceId ) )
         {
             throw std::runtime_error( "Invalid face-to-block relation" );
+        }
+        if ( ! blockFaceSlots.insert(
+                  { relation.blockId, relation.position } ).second )
+        {
+            throw std::runtime_error( "Duplicate face-to-block position" );
         }
     }
 }

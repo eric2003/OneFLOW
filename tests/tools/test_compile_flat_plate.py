@@ -147,6 +147,47 @@ class CompileFlatPlateTest(unittest.TestCase):
         self.assertIn("Ds(6)={d,-1,0.01}", output)
         self.assertIn("Ds(7)={d,0.01,-1}", output)
 
+    def test_layout_face_accepts_reordered_lines_and_reversed_directions(self):
+        points = tuple(
+            compiler.LayoutPoint(point_id, float(point_id), 0.0, 0.0)
+            for point_id in range(1, 5)
+        )
+        lines = (
+            compiler.LayoutLine(3, 3, 4, 5, [-1, -1], 0),
+            compiler.LayoutLine(1, 1, 2, 5, [-1, -1], 0),
+            compiler.LayoutLine(4, 1, 4, 5, [-1, -1], 0),
+            compiler.LayoutLine(2, 3, 2, 5, [-1, -1], 0),
+        )
+        topology = compiler.LayoutTopology(
+            points=points,
+            lines=lines,
+            faces=(compiler.LayoutFace(1, ((1, 1), (2, 2), (3, 3), (4, 4))),),
+            blocks=(compiler.LayoutBlock(1, ((1, 1),)),),
+        )
+
+        topology.validate()
+
+    def test_layout_face_rejects_disconnected_sides(self):
+        points = tuple(
+            compiler.LayoutPoint(point_id, float(point_id), 0.0, 0.0)
+            for point_id in range(1, 6)
+        )
+        lines = (
+            compiler.LayoutLine(1, 1, 2, 5, [-1, -1], 0),
+            compiler.LayoutLine(2, 3, 4, 5, [-1, -1], 0),
+            compiler.LayoutLine(3, 4, 5, 5, [-1, -1], 0),
+            compiler.LayoutLine(4, 5, 1, 5, [-1, -1], 0),
+        )
+        topology = compiler.LayoutTopology(
+            points=points,
+            lines=lines,
+            faces=(compiler.LayoutFace(1, ((1, 1), (2, 2), (3, 3), (4, 4))),),
+            blocks=(compiler.LayoutBlock(1, ((1, 1),)),),
+        )
+
+        with self.assertRaisesRegex(ValueError, "must share exactly one endpoint"):
+            topology.validate()
+
     def test_rejects_invalid_normal_point_count(self):
         self.spec["normalPointCount"] = 1
         with self.assertRaisesRegex(ValueError, "normalPointCount"):

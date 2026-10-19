@@ -39,6 +39,7 @@ License
 #include "Dimension.h"
 #include <algorithm>
 #include <iostream>
+#include <stdexcept>
 
 
 BeginNameSpace( ONEFLOW )
@@ -90,13 +91,15 @@ void SDomain::SetDomain( int fid, IntField & lineList, IntField & posList )
 void SDomain::ConstructSDomainCtrlPoint()
 {
     int nMLine = mLineList.size();
+    IntField domainControlPoints;
+    domainControlPoints.reserve( nMLine );
     for ( int iMLine = 0; iMLine < nMLine; ++ iMLine )
     {
         MLine * mLine = mLineList[ iMLine ].get();
         LinkField pointIdLink;
         this->GetPointIdLink( mLine->lineList, pointIdLink );
-        mLine->ConstructPointToDomainMap( pointIdLink );
-        mLine->ConstructCtrlPoint();
+        mLine->ConstructPointToLineMap( pointIdLink );
+        mLine->ConstructEndpointCandidates();
         mLine->ConstructSLineCtrlPoint();
     }
 
@@ -108,14 +111,17 @@ void SDomain::ConstructSDomainCtrlPoint()
         MLine * mLine2 = mLineList[ iMLine  ].get();
         int pt;
         GetCommonPoint( mLine1, mLine2, pt );
-        this->ctrlpoints.push_back( pt );
+        domainControlPoints.push_back( pt );
     }
+
+    this->ctrlpoints = domainControlPoints;
 
     for ( int iMLine = 0; iMLine < nMLine; ++ iMLine )
     {
-        MLine * mLine = mLineList[ iMLine  ].get();
-        int p1 = this->ctrlpoints[ iMLine ];
-        int p2 = this->ctrlpoints[ ( iMLine + 1 ) % nMLine ];
+        MLine * mLine = mLineList[ iMLine ].get();
+        const int p1 = domainControlPoints[ iMLine ];
+        const int p2 = domainControlPoints[ ( iMLine + 1 ) % nMLine ];
+        mLine->ctrlpoints.clear();
         mLine->ctrlpoints.push_back( p1 );
         mLine->ctrlpoints.push_back( p2 );
     }
@@ -123,24 +129,36 @@ void SDomain::ConstructSDomainCtrlPoint()
 
 void SDomain::GetCommonPoint( const MLine * mLine1, const MLine * mLine2, int & pt ) const
 {
-    int p1 = mLine1->candidate_ctrlpoints[ 0 ];
-    int p2 = mLine1->candidate_ctrlpoints[ 1 ];
+    bool foundCommonPoint = false;
+    int commonPoint = -1;
 
-    int q1 = mLine2->candidate_ctrlpoints[ 0 ];
-    int q2 = mLine2->candidate_ctrlpoints[ 1 ];
+    for ( int iPoint = 0; iPoint < mLine1->endpointCandidates.size(); ++ iPoint )
+    {
+        const int candidatePoint = mLine1->endpointCandidates[ iPoint ];
+        for ( int jPoint = 0; jPoint < mLine2->endpointCandidates.size(); ++ jPoint )
+        {
+            if ( candidatePoint != mLine2->endpointCandidates[ jPoint ] )
+            {
+                continue;
+            }
 
-    if ( p1 == q1 )
-    {
-        pt = p1;
+            if ( foundCommonPoint && candidatePoint != commonPoint )
+            {
+                throw std::runtime_error(
+                    "Adjacent domain edges share multiple endpoint candidates" );
+            }
+
+            commonPoint = candidatePoint;
+            foundCommonPoint = true;
+        }
     }
-    else if ( p1 == q2 )
+
+    if ( ! foundCommonPoint )
     {
-        pt = p1;
+        throw std::runtime_error( "Adjacent domain edges do not share a control point" );
     }
-    else
-    {
-        pt = p2;
-    }
+
+    pt = commonPoint;
 }
 
 void SDomain::SetRemainingCtrlPoint( IntField & idxList )
@@ -159,9 +177,13 @@ void SDomain::SetRemainingCtrlPoint( IntField & idxList )
     int ip2 = ( ip + 2 ) % nCtrlPoint;
     int ip3 = ( ip + 3 ) % nCtrlPoint;
 
-    CoorMap::iterator it1 = this->coorMap->find( ip1 );
-    CoorMap::iterator it2 = this->coorMap->find( ip2 );
-    CoorMap::iterator it3 = this->coorMap->find( ip3 );
+    const int point1 = this->ctrlpoints[ ip1 ];
+    const int point2 = this->ctrlpoints[ ip2 ];
+    const int point3 = this->ctrlpoints[ ip3 ];
+
+    CoorMap::iterator it1 = this->coorMap->find( point1 );
+    CoorMap::iterator it2 = this->coorMap->find( point2 );
+    CoorMap::iterator it3 = this->coorMap->find( point3 );
 
     int mi = it1->second.i + it3->second.i - it2->second.i;
     int mj = it1->second.j + it3->second.j - it2->second.j;
@@ -175,7 +197,7 @@ void SDomain::SetRemainingCtrlPoint( IntField & idxList )
 }
 
 
-bool SDomain::CalcSingleDomainCoor()
+ControlPointResolution SDomain::CalcSingleDomainCoor()
 {
     int nCtrlPoint = this->ctrlpoints.size();
     int nCount = 0;
@@ -192,25 +214,26 @@ bool SDomain::CalcSingleDomainCoor()
         }
     }
 
-    if ( nCount < 3 ) return false;
+    if ( nCount < 3 ) return ControlPointResolution::Blocked;
 
     if ( nCount == 3 )
     {
         this->SetRemainingCtrlPoint( idx );
-        return false;
+        return ControlPointResolution::Progress;
     }
     else if ( nCount == 4 )
     {
         this->CalcDim2D();
         int closedLine = 1;
         this->CalcBcCoor( this->coorMap, closedLine );
-        return true;
+        return ControlPointResolution::Resolved;
     }
-    return true;
+    return ControlPointResolution::Blocked;
 }
 
 void SDomain::ConstructPointToPointMap()
 {
+    this->pointToPointMap.clear();
     this->ConstructPointToPointMap( this->pointToPointMap );
 }
 
@@ -239,6 +262,7 @@ void SDomain::ConstructPointToLineMap( std::map< int, IntSet > & pointToLineMap 
 
 void SDomain::ConstructPointToDomainMap()
 {
+    this->pointToDomainMap.clear();
     this->ConstructPointToDomainMap( this->pointToDomainMap );
 }
 
@@ -266,6 +290,7 @@ void SDomain::ConstructPointToDomainMap( std::map< int, IntSet > & pointToDomain
 
 void SDomain::ConstructLineToDomainMap()
 {
+    this->lineToDomainMap.clear();
     this->ConstructLineToDomainMap( this->lineToDomainMap );
 }
 

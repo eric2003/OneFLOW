@@ -31,6 +31,7 @@ License
 #include "Dimension.h"
 #include <algorithm>
 #include <iostream>
+#include <stdexcept>
 
 
 BeginNameSpace( ONEFLOW )
@@ -72,6 +73,8 @@ void Face2D::Set1DRegion( IntField & ctrlpoints )
 
 void DomData::ConstructCtrlPoint()
 {
+    this->candidate_ctrlpoints.clear();
+
     std::map< int, IntSet >::iterator iter;
     for ( iter = this->pointToDomainMap.begin(); iter != this->pointToDomainMap.end(); ++ iter )
     {
@@ -97,6 +100,8 @@ const IntField & DomData::GetLinePoints( int line_id ) const
 
 void DomData::ConstructBcPoint()
 {
+    this->candidate_bcpoints.clear();
+
     IntField lineList;
     std::map< int, IntSet >::iterator iter;
     for ( iter = this->lineToDomainMap.begin(); iter != this->lineToDomainMap.end(); ++ iter )
@@ -130,6 +135,8 @@ void DomData::ConstructBcPoint()
 
 void DomData::CalcDimBasic( int closedCurve )
 {
+    bcpointList.clear();
+    bcdimList.clear();
     FindBcPointList2D( bcpointList );
     int nSeg = bcpointList.size();
     int nSegLoop = nSeg - 1;
@@ -293,6 +300,10 @@ void DomData::FindNextPoint2D( const IntField & ptList, int prev, int me, int & 
 {
     std::map< int, IntSet >::const_iterator iter;
     iter = this->pointToPointMap.find( me );
+    if ( iter == this->pointToPointMap.end() )
+    {
+        throw std::runtime_error( "Boundary traversal point is missing from point-to-point map" );
+    }
     const IntSet & me_set = iter->second;
     flag = 0;
     for ( IntSet::const_iterator it = me_set.begin(); it != me_set.end(); ++ it )
@@ -332,6 +343,10 @@ bool DomData::IsBcLine( int line_id ) const
 {
     std::map< int, IntSet >::const_iterator iter;
     iter = lineToDomainMap.find( line_id );
+    if ( iter == lineToDomainMap.end() )
+    {
+        throw std::runtime_error( "Boundary line is missing from line-to-domain map" );
+    }
     return iter->second.size() == 1;
 }
 
@@ -363,6 +378,10 @@ bool DomData::FindNextBcPoint( int ps, int pt, int & pnext, IntSet &bclines )
 {
     std::map< int, IntSet >::iterator iter;
     iter = this->pointToLineMap.find( pt );
+    if ( iter == this->pointToLineMap.end() )
+    {
+        throw std::runtime_error( "Boundary traversal point is missing from point-to-line map" );
+    }
     IntField lines;
     ONEFLOW::Set2Array( iter->second, lines );
 
@@ -448,6 +467,7 @@ void DomData::CalcBcCoor( CoorMap * coorMap, int closedCurve )
 
     int nCtrlPoint = this->ctrlpoints.size();
     int iCtrl = 0;
+    int segmentOffset = 0;
     for ( int i = 0; i < nSegLoop; ++ i )
     {
         int i1 = i;
@@ -461,6 +481,10 @@ void DomData::CalcBcCoor( CoorMap * coorMap, int closedCurve )
 
         CoorMap::iterator iter1 = coorMap->find( cp1 );
         CoorMap::iterator iter2 = coorMap->find( cp2 );
+        if ( iter1 == coorMap->end() || iter2 == coorMap->end() )
+        {
+            throw std::runtime_error( "Boundary control point is missing from coordinate map" );
+        }
         int di = iter2->second.i - iter1->second.i;
         int dj = iter2->second.j - iter1->second.j;
         int dk = iter2->second.k - iter1->second.k;
@@ -468,9 +492,10 @@ void DomData::CalcBcCoor( CoorMap * coorMap, int closedCurve )
         Normalize( dj );
         Normalize( dk );
 
-        int mi = iter1->second.i + di * ( dim - 1 );
-        int mj = iter1->second.j + dj * ( dim - 1 );
-        int mk = iter1->second.k + dk * ( dim - 1 );
+        segmentOffset += dim - 1;
+        int mi = iter1->second.i + di * segmentOffset;
+        int mj = iter1->second.j + dj * segmentOffset;
+        int mk = iter1->second.k + dk * segmentOffset;
 
         CalcCoor coor;
         coor.SetCoor( mi, mj, mk );
@@ -479,6 +504,7 @@ void DomData::CalcBcCoor( CoorMap * coorMap, int closedCurve )
         if ( IsCtrlPoint( p2 ) )
         {
             iCtrl ++;
+            segmentOffset = 0;
         }
     }
 

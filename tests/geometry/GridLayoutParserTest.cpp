@@ -165,4 +165,53 @@ TEST( GridLayoutParserTest, RejectsUnknownPointReference )
         std::runtime_error );
 }
 
+
+TEST( GridLayoutParserTest, RejectsDuplicateDimensionDefinitions )
+{
+    const std::string fileName =
+        std::string( ONEFLOW_SOURCE_DIR ) +
+        "/tests/geometry/data/laminarPlate2dLayout2.txt";
+    GridLayout layout = GridLayoutParser().Parse( fileName );
+    layout.dimensions.push_back( layout.dimensions.front() );
+
+    EXPECT_THROW( layout.Validate(), std::runtime_error );
+}
+
+TEST( GridLayoutParserTest, RejectsDuplicateLineToFaceRelations )
+{
+    const std::string fileName =
+        std::string( ONEFLOW_SOURCE_DIR ) +
+        "/tests/geometry/data/laminarPlate2dLayout2.txt";
+    GridLayout layout = GridLayoutParser().Parse( fileName );
+    layout.lineToFaces.push_back( layout.lineToFaces.front() );
+
+    EXPECT_THROW( layout.Validate(), std::runtime_error );
+}
+
+TEST( GridLayoutParserTest, RejectsDuplicateBlockFacePositions )
+{
+    const std::string fileName =
+        std::string( ONEFLOW_SOURCE_DIR ) +
+        "/tests/geometry/data/laminarPlate2dLayout2.txt";
+    GridLayout layout = GridLayoutParser().Parse( fileName );
+    layout.faceToBlocks.push_back( layout.faceToBlocks.front() );
+
+    EXPECT_THROW( layout.Validate(), std::runtime_error );
+}
+
+
+TEST( GridLayoutParserTest, AllowsMultipleLinesForOneFacePosition )
+{
+    const std::string fileName =
+        std::string( ONEFLOW_SOURCE_DIR ) +
+        "/tests/geometry/data/laminarPlate2dLayout2.txt";
+    GridLayout layout = GridLayoutParser().Parse( fileName );
+    GridLineToFaceDefinition compositeSegment = layout.lineToFaces.front();
+    compositeSegment.lineId = layout.lines[ 1 ].id;
+    layout.lineToFaces.push_back( compositeSegment );
+
+    EXPECT_NO_THROW( layout.Validate() );
+}
+
+
 } // namespace ONEFLOW

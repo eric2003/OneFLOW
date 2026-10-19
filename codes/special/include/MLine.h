@@ -66,11 +66,12 @@ public:
     CoorMap * coorMap;
 public:
     std::map< int, IntSet > pointToLine;
+    IntField endpointCandidates;
 public:
     void ConstructLineToDomainMap();
     void ConstructLineToDomainMap( int domain_id, std::map< int, IntSet > & lineToDomainMap );
-    void ConstructPointToDomainMap();
-    void ConstructPointToDomainMap( const LinkField & pointIdLink );
+    void ConstructPointToLineMap();
+    void ConstructPointToLineMap( const LinkField & pointIdLink );
     void ConstructPointToDomainMap( int domain_id, std::map< int, IntSet > & pointToDomainMap ) const;
     void ConstructPointToPointMap();
     void ConstructPointToPointMap( std::map< int, IntSet > & pointToPointMap ) const;
@@ -78,7 +79,7 @@ public:
 public:
     void AddSubLine( int line_id );
     void ConstructDomainTopo();
-    void ConstructCtrlPoint();
+    void ConstructEndpointCandidates();
     void ConstructSLineCtrlPoint();
     //void CalcCoor( CoorMap * localCoorMap );
     void CalcCoor();

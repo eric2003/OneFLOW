@@ -55,13 +55,38 @@ class LayoutTopology:
             if line.point_count < 2:
                 raise ValueError(f"Line {line.id} must contain at least two points.")
 
+        lines_by_id = {line.id: line for line in self.lines}
         for face in self.faces:
             positions = [position for position, _ in face.line_by_side]
             if any(position < 1 for position in positions) or len(set(positions)) != len(positions):
                 raise ValueError(f"Face {face.id} has invalid or duplicate side positions.")
+            if sorted(positions) != list(range(1, len(positions) + 1)):
+                raise ValueError(f"Face {face.id} side positions must be consecutive.")
+            if len(positions) < 3:
+                raise ValueError(f"Face {face.id} must have at least three sides.")
             for _, line_id in face.line_by_side:
                 if line_id not in line_ids:
                     raise ValueError(f"Face {face.id} references unknown line {line_id}.")
+
+            ordered_lines = [
+                lines_by_id[line_id]
+                for _, line_id in sorted(face.line_by_side)
+            ]
+            for index, line in enumerate(ordered_lines):
+                next_line = ordered_lines[(index + 1) % len(ordered_lines)]
+                shared_points = {
+                    line.start_point,
+                    line.end_point,
+                } & {
+                    next_line.start_point,
+                    next_line.end_point,
+                }
+                if len(shared_points) != 1:
+                    raise ValueError(
+                        f"Face {face.id} sides {index + 1} and "
+                        f"{(index + 1) % len(ordered_lines) + 1} "
+                        "must share exactly one endpoint."
+                    )
 
         for block in self.blocks:
             positions = [position for position, _ in block.face_by_position]
