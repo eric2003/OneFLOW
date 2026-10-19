@@ -1,0 +1,38 @@
+int gridObj = 0;
+string topoType = "u";
+int multiBlock = 1;
+
+int fileFormat = 1;
+Real gridScale = 1.0;
+Real gridTrans[3] = 0, 0, 0;
+int axis_dir = 0;
+int ignoreNoBc = 0;
+
+string gridLayoutFileName = "grid/laminarFlatPlate10Edge10EdgeLayout.txt";
+int igene = 4;
+
+int codeOfOversetGrid = 0;
+string oversetGridFileName = "grid/iBlank.ovs";
+int parallelStrategy = 1;
+
+string sourceGridType = "plot3d";
+string targetGridType = "oneflow";
+int iplot3d = 0;
+
+string boundaryRegionNameMapFileName = "results/boundaryRegionMap.txt";
+string volumeBoundaryNameMapFileName = "results/volumeBoundaryMap.txt";
+
+string sourceGridFileName = "results/laminarFlatPlate10Edge.generated.grd";
+string sourceGridBcName = "results/laminarFlatPlate10Edge.inp";
+string targetGridFileName = "results/laminarFlatPlate10Edge.ofl";
+string gridInfoFileName = "results/laminarFlatPlate10Edge.info.json";
+string tecplotGridFileName = "results/laminarFlatPlate10Edge.tecplot.dat";
+string patchFileName = "grid/laminarFlatPlate10Edge.patch";
+
+string projectRoot = ".";
+string inputRoot = "case";
+string outputRoot = "case";
+string meshInputRoot = "case";
+string flowInputRoot = "case";
+string meshOutputRoot = "case";
+string flowOutputRoot = "case";
