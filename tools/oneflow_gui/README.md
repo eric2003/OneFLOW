@@ -1,6 +1,6 @@
 # OneFLOW Desktop Case Runner
 
-The desktop application provides a shared entry point for the Case Workbench, tests, saved workflows, and run history. It selects cases from the shared catalog and runs them through the normal OneFLOW executable.
+The desktop application starts with an activity selector rather than opening Case Workbench immediately. Choose an existing case, a multi-case run with no declared dependencies, a dependency workflow, tests, run history, or Mesh Layout Editor. Case definitions, workflow definitions, run workspaces, and run history have distinct responsibilities.
 
 ## Launch
 
@@ -19,8 +19,7 @@ The first detected path is selected automatically; use the dropdown to switch
 between detected copies, type a path directly, or use **Browse...** for an
 unlisted location. No full-disk search is performed.
 
-Choose an external run workspace, select one or more cases, and click
-**Run selected cases**. The queue runs cases sequentially
+From **Run an existing case**, open Case Workbench, choose the executable, select one or more cases, and click **Run selected cases**. The queue runs cases sequentially
 and displays process output and per-case status. **Stop queue** terminates the
 active process and prevents pending cases from launching.
 
@@ -46,7 +45,7 @@ selectors show concise names by default; hover for details or enable
 labels every edge with its edge name, boundary condition, and point count.
 **Reset flat-plate boundaries** restores the standard two-block defaults.
 
-Use **Workflows...** to create, edit, save, and delete named workflows. The
+From the activity selector, **Run independent cases** opens the multi-directory workflow editor, while **Run a dependency workflow** opens its dependency-graph mode. These are intentionally different execution semantics. Use the workflow editor to create, edit, save, and delete named workflow definitions. The
 **Multi-directory** mode preserves the existing behavior: each directory is
 entered on a separate line, and one OneFLOW process receives
 `OneFLOW.exe r <directory-1> <directory-2> ...`. The **Dependency graph** mode
@@ -86,7 +85,8 @@ The long-term product direction is documented in both [Chinese](../../docs/ONEFL
 - `test_workflow_plan.py`: tests for producer-consumer artifact binding, both `grid` and `results` paths, and invalid dependency/path declarations.
 - `workflow_execution.py`: shell-free construction of one-process,
   multi-directory command arguments, preserving the user-specified order.
-- `main_window.py`: Qt widgets and the sequential queue worker.
+- `home_window.py`: activity selector that routes to case runs, independent multi-case runs, dependency workflows, tests, run history, and mesh layout tools.
+- `main_window.py`: Case Workbench widgets and the sequential case queue worker.
 - `mesh_layout_dialog.py`: template-based geometry, mesh-count, spacing, and boundary editor with SVG preview.
 - `tools/mesh_layout/editor_document.py`: Qt-independent JSON loading, validation, compilation, and saving shared by the editor.
 - `workflow_dialog.py`: workflow editor, single-process multi-directory execution, and persisted run-history presentation.
