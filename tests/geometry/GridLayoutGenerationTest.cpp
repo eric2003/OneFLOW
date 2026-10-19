@@ -306,9 +306,7 @@ TEST( GridLayoutGenerationTest, BuildsCompositeBoundaryFromLocallyGeneratedBlock
         EXPECT_EQ( zone.ni, expectedDimensions[ zoneIndex ][ 0 ] );
         EXPECT_EQ( zone.nj, expectedDimensions[ zoneIndex ][ 1 ] );
         EXPECT_EQ( zone.nk, expectedDimensions[ zoneIndex ][ 2 ] );
-    }
-    for ( Zone & zone : zones )
-    {
+
         const std::size_t nodeCount =
             static_cast< std::size_t >( zone.ni * zone.nj );
         zone.x.resize( nodeCount );
