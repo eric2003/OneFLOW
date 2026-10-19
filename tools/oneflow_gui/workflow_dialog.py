@@ -355,6 +355,7 @@ class WorkflowDialog(QDialog):
 
     def _new_workflow(self) -> None:
         self.workflow_list.clearSelection()
+        self.workflow_list.setCurrentRow(-1)
         self._selected_id = None
         self.id_edit.clear()
         self.id_edit.setReadOnly(False)
