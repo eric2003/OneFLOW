@@ -454,7 +454,7 @@ class MainWindow(QMainWindow):
         self._active_case_run_log_path = log_path
         self.log_view.appendPlainText(
             f"\nRun {run_id}\nExecutable: {Path(executable_text).resolve()}\n"
-            (
+            + (
                 "Execution location: original case directories"
                 if execution_mode == "source"
                 else f"Workspace: {workspace_root / run_id}"
