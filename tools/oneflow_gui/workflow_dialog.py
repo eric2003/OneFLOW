@@ -234,6 +234,13 @@ class WorkflowDialog(QDialog):
             "One directory per line. Order is preserved in the OneFLOW command."
         )
         self.directory_edit.setMinimumHeight(120)
+        directory_row = QHBoxLayout()
+        directory_row.addWidget(self.directory_edit, 1)
+        self.directory_browse = QPushButton("Add directory...")
+        self.directory_browse.clicked.connect(self._add_workflow_directory)
+        directory_row.addWidget(self.directory_browse)
+        directory_widget = QWidget()
+        directory_widget.setLayout(directory_row)
         form.addRow("Workflow ID", self.id_edit)
         form.addRow("Name", self.name_edit)
         self.form_layout = form
@@ -244,7 +251,7 @@ class WorkflowDialog(QDialog):
         self.base_directory_edit.setPlaceholderText("Base directory containing the configured case directories")
         form.addRow("Description", self.description_edit)
         form.addRow("Workflow type", self.mode_combo)
-        form.addRow("Directories", self.directory_edit)
+        form.addRow("Directories", directory_widget)
         form.addRow("Case graph JSON", self.graph_edit)
         form.addRow("Graph base directory", self.base_directory_edit)
         root.addLayout(form)
@@ -287,6 +294,22 @@ class WorkflowDialog(QDialog):
         self.log_view.setReadOnly(True)
         self.log_view.setMaximumBlockCount(10000)
         root.addWidget(self.log_view, 2)
+
+
+    def _add_workflow_directory(self) -> None:
+        """Append a directory selected from the filesystem to the workflow."""
+        lines = self.directory_edit.toPlainText().splitlines()
+        start = Path(lines[-1]).expanduser() if lines and lines[-1].strip() else self._repository_root
+        if start.is_file():
+            start = start.parent
+        if not start.is_dir():
+            start = self._repository_root
+        directory = QFileDialog.getExistingDirectory(
+            self, "Add workflow directory", str(start)
+        )
+        if directory:
+            current = self.directory_edit.toPlainText().rstrip()
+            self.directory_edit.setPlainText(f"{current}\n{directory}" if current else directory)
 
     def _workflow_mode_changed(self, *_args) -> None:
         graph_mode = self.mode_combo.currentData() == "case_graph"
