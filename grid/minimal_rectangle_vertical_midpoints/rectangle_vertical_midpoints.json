@@ -1,0 +1,18 @@
+{
+  "type": "rectangle_vertical_midpoints",
+  "description": "Rectangle with one midpoint on each vertical side and six atomic line segments.",
+  "corners": [
+    [0, 0, 0],
+    [1, 0, 0],
+    [1, 1, 0],
+    [0, 1, 0]
+  ],
+  "segmentPointCounts": [3, 2, 2, 3, 2, 2],
+  "spacing": "d",
+  "boundaries": {
+    "bottom": "extrapolation",
+    "right": "wall",
+    "top": "symmetry",
+    "left": "farfield"
+  }
+}
