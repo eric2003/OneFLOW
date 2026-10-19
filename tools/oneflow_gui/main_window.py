@@ -99,8 +99,14 @@ class RunQueueWorker(QThread):
 class MainWindow(QMainWindow):
     """Desktop shell; case loading and process execution live in services."""
 
-    def __init__(self, repository_root: Path | None = None) -> None:
+    def __init__(
+        self,
+        repository_root: Path | None = None,
+        *,
+        single_case_mode: bool = False,
+    ) -> None:
         super().__init__()
+        self._single_case_mode = single_case_mode
         self._repository_root = (
             repository_root or Path(__file__).resolve().parents[2]
         ).resolve()
@@ -112,10 +118,14 @@ class MainWindow(QMainWindow):
         self._active_case_run_steps: list[dict] = []
         self._active_case_run_log_path: Path | None = None
 
-        self.setWindowTitle("OneFLOW Workbench")
+        self.setWindowTitle(
+            "Single Case Run" if self._single_case_mode else "Case Workbench"
+        )
         self.resize(1100, 760)
         self._build_ui()
         self._load_cases()
+        if self._single_case_mode:
+            self.case_table.itemChanged.connect(self._case_selection_changed)
 
     def _build_ui(self) -> None:
         """Build a compact layout with configuration, queue, and log areas."""
@@ -212,6 +222,9 @@ class MainWindow(QMainWindow):
         select_all.clicked.connect(lambda: self._set_all_checks(True))
         select_none = QPushButton("Select none")
         select_none.clicked.connect(lambda: self._set_all_checks(False))
+        if self._single_case_mode:
+            select_all.hide()
+            select_none.hide()
         refresh = QPushButton("Refresh cases")
         refresh.clicked.connect(self._load_cases)
         workflows = QPushButton("Workflows...")
@@ -222,7 +235,9 @@ class MainWindow(QMainWindow):
         tests_button.clicked.connect(self._open_tests)
         history_button = QPushButton("Run History...")
         history_button.clicked.connect(self._open_run_history)
-        self.run_button = QPushButton("Run selected cases")
+        self.run_button = QPushButton(
+            "Run selected case" if self._single_case_mode else "Run selected cases"
+        )
         self.run_button.setObjectName("primaryButton")
         self.run_button.clicked.connect(self._start_run)
         self.stop_button = QPushButton("Stop queue")
@@ -298,27 +313,47 @@ class MainWindow(QMainWindow):
             self.statusBar().showMessage("Case catalog validation failed")
             return
 
+        self.case_table.blockSignals(True)
         self.case_table.setRowCount(0)
         self._row_by_id.clear()
+        default_case_selected = False
         for case in self._cases:
             row = self.case_table.rowCount()
             self.case_table.insertRow(row)
             checkbox = QTableWidgetItem()
             checkbox.setFlags(checkbox.flags() | Qt.ItemFlag.ItemIsUserCheckable)
-            checkbox.setCheckState(
-                Qt.CheckState.Checked
-                if case.profile is not None
-                else Qt.CheckState.Unchecked
+            is_default_case = case.profile is not None
+            is_selected = is_default_case and (
+                not self._single_case_mode or not default_case_selected
             )
+            checkbox.setCheckState(
+                Qt.CheckState.Checked if is_selected else Qt.CheckState.Unchecked
+            )
+            default_case_selected = default_case_selected or is_selected
             self.case_table.setItem(row, 0, checkbox)
             self.case_table.setItem(row, 1, QTableWidgetItem(case.title))
             config_text = "Typed profile" if case.profile else "Legacy config"
             self.case_table.setItem(row, 2, QTableWidgetItem(config_text))
             self.case_table.setItem(row, 3, QTableWidgetItem(RunState.PENDING.value))
             self._row_by_id[case.case_id] = row
+        self.case_table.blockSignals(False)
         self.statusBar().showMessage(
             f"Loaded {len(self._cases)} case(s) from case_catalog.json"
         )
+
+    def _case_selection_changed(self, changed_item: QTableWidgetItem) -> None:
+        if (
+            not self._single_case_mode
+            or changed_item.column() != 0
+            or changed_item.checkState() != Qt.CheckState.Checked
+        ):
+            return
+        self.case_table.blockSignals(True)
+        for row in range(self.case_table.rowCount()):
+            item = self.case_table.item(row, 0)
+            if item is not None and item is not changed_item:
+                item.setCheckState(Qt.CheckState.Unchecked)
+        self.case_table.blockSignals(False)
 
     def _set_all_checks(self, checked: bool) -> None:
         for row in range(self.case_table.rowCount()):
