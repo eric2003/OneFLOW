@@ -631,6 +631,20 @@ class WorkflowDialog(QDialog):
                         "These workflow directories do not exist:\n" +
                         "\n".join(str(path) for path in missing)
                     )
+                repository_root = self._repository_root.resolve()
+                source_directories = []
+                for path in directories:
+                    try:
+                        path.relative_to(repository_root)
+                    except ValueError:
+                        continue
+                    source_directories.append(path)
+                if source_directories:
+                    raise ValueError(
+                        "Workflow multi-directory runs cannot execute cases in the source "
+                        "repository. Copy them to a workspace first:\n" +
+                        "\n".join(str(path) for path in source_directories)
+                    )
                 command = build_multi_directory_command(executable, directories)
         except (OSError, ValueError, KeyError, StopIteration, TypeError) as error:
             QMessageBox.warning(self, "Invalid workflow", str(error))
