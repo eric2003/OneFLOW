@@ -42,6 +42,20 @@ class MeshLayoutEditorDocumentTest(unittest.TestCase):
         self.assertEqual(layout, layout_path.read_text(encoding="utf-8"))
         self.assertIn("Flat plate boundary-layer layout", svg)
 
+    def test_ten_edge_laminar_flat_plate_compiles_to_checked_in_layout(self):
+        spec_path = ROOT / "grid" / "laminar_flat_plate_10_edges" / "flat_plate.json"
+        layout_path = ROOT / "grid" / "laminar_flat_plate_10_edges" / "grid" / "laminarFlatPlate10EdgeLayout.txt"
+        spec = load_specification(spec_path)
+        layout, svg = compile_specification(spec)
+        self.assertEqual(layout, layout_path.read_text(encoding="utf-8"))
+        self.assertIn("Flat plate boundary-layer layout", svg)
+        self.assertEqual(layout.count("Line("), 10)
+        self.assertIn("Dim(3)={41}", layout)
+        self.assertIn("Dim(4)={45}", layout)
+        self.assertIn("Ds(3)={d,-1,-1}", layout)
+        self.assertIn("Ds(4)={tanh,0.0005,-1}", layout)
+        self.assertEqual(layout.count("Add L2F"), 12)
+
     def test_save_specification_writes_valid_ascii_json(self):
         source = ROOT / "grid" / "minimal_rectangle" / "rectangle.json"
         spec = load_specification(source)
