@@ -8,8 +8,10 @@ from pathlib import Path
 
 TEMPLATE_PROJECTS = {
     "rectangle": "minimal_rectangle",
+    "rectangle_vertical_midpoints": "minimal_rectangle_vertical_midpoints",
     "flat_plate": "turbulent_flat_plate",
     "laminar_flat_plate": "laminar_flat_plate",
+    "laminar_flat_plate_10_edges": "laminar_flat_plate_10_edges",
 }
 
 
@@ -36,7 +38,13 @@ def ensure_template_project(
     if destination.exists():
         if not destination.is_dir():
             raise FileExistsError(f"Project path exists and is not a directory: {destination}")
-        expected_spec = "rectangle.json" if kind == "rectangle" else "flat_plate.json"
+        expected_spec = {
+            "rectangle": "rectangle.json",
+            "rectangle_vertical_midpoints": "rectangle_vertical_midpoints.json",
+            "flat_plate": "flat_plate.json",
+            "laminar_flat_plate": "flat_plate.json",
+            "laminar_flat_plate_10_edges": "flat_plate.json",
+        }[kind]
         if not (destination / expected_spec).is_file():
             raise FileExistsError(
                 f"Project directory already exists but is not a complete template project: {destination}"

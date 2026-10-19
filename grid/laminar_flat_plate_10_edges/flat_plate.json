@@ -1,0 +1,40 @@
+{
+  "type": "flat_plate_layered",
+  "templateId": "two_block_laminar_flat_plate_10_edges",
+  "templateName": "Two-block Laminar Flat Plate (10 Edges)",
+  "description": "Two-block laminar flat-plate layout with ten geometric line segments; the first 40 intervals are uniform across y=0.02 (41 points), and the remaining vertical points expand toward the far field.",
+  "plateLength": 2,
+  "upstreamDistance": 2,
+  "domainHeight": 4,
+  "upstreamPointCount": 33,
+  "platePointCount": 41,
+  "normalPointCount": 85,
+  "distributions": {
+    "upstream": [
+      -1,
+      0.01
+    ],
+    "plate": [
+      0.01,
+      -1
+    ],
+    "vertical": {
+      "type": "boundary_layer",
+      "nearWallIntervalCount": 40,
+      "nearWallDistance": 0.02
+    },
+    "top": [
+      -1,
+      0.01
+    ]
+  },
+  "boundaries": {
+    "upstreamBottom": "symmetry",
+    "plate": "wall",
+    "left": "farfield",
+    "interface": "interface",
+    "right": "outflow",
+    "topUpstream": "farfield",
+    "topPlate": "farfield"
+  }
+}

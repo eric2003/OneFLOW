@@ -6,6 +6,25 @@ import json
 import math
 from pathlib import Path
 
+try:
+    from tools.mesh_layout.layout_topology import (
+        LayoutBlock,
+        LayoutFace,
+        LayoutLine,
+        LayoutPoint,
+        LayoutTopology,
+    )
+    from tools.mesh_layout.layout_serializer import serialize_topology
+except ModuleNotFoundError:
+    from layout_topology import (
+        LayoutBlock,
+        LayoutFace,
+        LayoutLine,
+        LayoutPoint,
+        LayoutTopology,
+    )
+    from layout_serializer import serialize_topology
+
 
 BOUNDARY_TYPES = {
     "none": 0,
@@ -33,6 +52,45 @@ def _boundary_value(value, line_id):
 
 def _same_coordinate(left, right):
     return math.isclose(left, right, rel_tol=0.0, abs_tol=1.0e-12)
+
+
+def _build_rectangle_topology(corners, point_counts, spacing, boundary_values):
+    points = tuple(
+        LayoutPoint(point_id, *coordinates)
+        for point_id, coordinates in enumerate(corners, start=1)
+    )
+    lines = tuple(
+        LayoutLine(
+            line_id,
+            line_id,
+            line_id % 4 + 1,
+            point_counts[line_id - 1],
+            (spacing, -1, -1),
+            boundary_values[line_id - 1],
+        )
+        for line_id in range(1, 5)
+    )
+    topology = LayoutTopology(
+        points=points,
+        lines=lines,
+        faces=(LayoutFace(1, tuple((side, side) for side in range(1, 5))),),
+        blocks=(LayoutBlock(1, ((1, 1),)),),
+    )
+    topology.validate()
+    return topology
+
+
+def _format_distribution(line):
+    spacing, start_spacing, end_spacing = line.distribution
+    return f"Ds({line.id})={{{spacing},{start_spacing},{end_spacing}}}"
+
+
+def _serialize_topology(topology):
+    return serialize_topology(
+        topology,
+        format_coordinate,
+        _format_distribution,
+    )
 
 
 def compile_rectangle(spec):
@@ -94,86 +152,104 @@ def compile_rectangle(spec):
             for line_id in range(1, 5)
         ]
 
-    lines = []
-    for index, point in enumerate(corners, start=1):
-        coords = ",".join(format_coordinate(value) for value in point)
-        lines.append(f"Point({index})= {{{coords}}}")
-
-    lines.append("")
-    for index in range(1, 5):
-        next_index = index % 4 + 1
-        lines.append(f"Line({index})={{{index},{next_index}}}")
-
-    lines.append("")
-    for index, count in enumerate(point_counts, start=1):
-        lines.append(f"Dim({index})={{{count}}}")
-
-    lines.append("")
-    for index in range(1, 5):
-        lines.append(f"Ds({index})={{{spacing},-1,-1}}")
-
-    lines.append("")
-    for index, boundary_value in enumerate(boundary_values, start=1):
-        lines.append(f"Boundary({index})={{{boundary_value}}}")
-
-    lines.append("")
-    for index in range(1, 5):
-        lines.append(f"Add L2F 1 {index} {index}")
-
-    lines.extend(["", "Add F2B 1 1 1", ""])
-    return "\n".join(lines)
+    topology = _build_rectangle_topology(
+        corners, point_counts, spacing, boundary_values
+    )
+    return _serialize_topology(topology)
 
 
 def render_rectangle_svg(spec):
     corners = spec["corners"]
     point_counts = spec["edgePointCounts"]
-    width, height, margin = 720, 520, 80
+    boundaries = spec.get("boundaries", {})
+    boundary_names = {
+        "none": "None", "interface": "Interface", "extrapolation": "Extrapolation",
+        "wall": "Wall", "symmetry": "Symmetry", "farfield": "Farfield",
+        "inflow": "Inflow", "outflow": "Outflow", "interior": "Interior",
+        "overset": "Overset", 0: "None", -1: "Interface", 1: "Extrapolation",
+        2: "Wall", 3: "Symmetry", 4: "Farfield", 5: "Inflow", 6: "Outflow",
+        100: "Interior", 1000: "Overset",
+    }
+
+    def boundary_label(line_id):
+        value = boundaries.get(f"line{line_id}", line_id)
+        if isinstance(value, str):
+            return boundary_names.get(value.lower(), value)
+        return boundary_names.get(value, str(value))
+
+    width, height = 1000, 640
+    left_gutter, right_gutter, top_gutter, bottom_gutter = 190, 190, 105, 115
     xs = [point[0] for point in corners]
     ys = [point[1] for point in corners]
     x_span = max(max(xs) - min(xs), 1.0e-12)
     y_span = max(max(ys) - min(ys), 1.0e-12)
-    scale = min((width - 2 * margin) / x_span,
-                (height - 2 * margin) / y_span)
+    scale = min(
+        (width - left_gutter - right_gutter) / x_span,
+        (height - top_gutter - bottom_gutter) / y_span,
+    )
     draw_width, draw_height = x_span * scale, y_span * scale
-    left = (width - draw_width) / 2
-    top = (height - draw_height) / 2
+    geometry_left = left_gutter + (
+        width - left_gutter - right_gutter - draw_width
+    ) / 2
+    geometry_top = top_gutter + (
+        height - top_gutter - bottom_gutter - draw_height
+    ) / 2
+    geometry_bottom = geometry_top + draw_height
 
     def screen(point):
-        return (left + (point[0] - min(xs)) * scale,
-                height - top - (point[1] - min(ys)) * scale)
+        return (
+            geometry_left + (point[0] - min(xs)) * scale,
+            geometry_bottom - (point[1] - min(ys)) * scale,
+        )
 
+    screen_points = [screen(point) for point in corners]
+    center_x = sum(point[0] for point in screen_points) / len(screen_points)
+    center_y = sum(point[1] for point in screen_points) / len(screen_points)
     elements = [
-        f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">',
-        '<rect width="100%" height="100%" fill="white"/>',
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" '
+        f'height="{height}" viewBox="0 0 {width} {height}">',
+        '<rect x="0" y="0" width="100%" height="100%" fill="#f5f7fa"/>',
+        f'<polygon points="{" ".join(f"{x:.3f},{y:.3f}" for x, y in screen_points)}" '
+        'fill="#eef5ff" stroke="#202020" stroke-width="2"/>',
+        f'<text x="{width / 2:.1f}" y="40" text-anchor="middle" '
+        'font-size="23" fill="#202020">Rectangle layout</text>',
     ]
-    for index, point in enumerate(corners):
-        next_point = corners[(index + 1) % 4]
-        x1, y1 = screen(point)
-        x2, y2 = screen(next_point)
-        mx, my = (x1 + x2) / 2, (y1 + y2) / 2
-        dx, dy = x2 - x1, y2 - y1
-        length = (dx * dx + dy * dy) ** 0.5 or 1.0
-        nx, ny = -dy / length, dx / length
+
+    for index, point in enumerate(screen_points):
+        next_point = screen_points[(index + 1) % len(screen_points)]
+        midpoint_x = (point[0] + next_point[0]) / 2
+        midpoint_y = (point[1] + next_point[1]) / 2
+        outward_x = midpoint_x - center_x
+        outward_y = midpoint_y - center_y
+        outward_length = (outward_x * outward_x + outward_y * outward_y) ** 0.5 or 1.0
+        outward_x /= outward_length
+        outward_y /= outward_length
+        label_x = midpoint_x + outward_x * 34
+        label_y = midpoint_y + outward_y * 34
+        anchor = "middle"
+        if abs(outward_x) > 0.65:
+            anchor = "start" if outward_x > 0 else "end"
         elements.append(
-            f'<line x1="{x1:.3f}" y1="{y1:.3f}" x2="{x2:.3f}" y2="{y2:.3f}" '
-            f'data-line-id="{index + 1}"/>'
+            f'<text x="{label_x:.1f}" y="{label_y:.1f}" text-anchor="{anchor}" '
+            'font-size="13" fill="#202020">'
+            f'<tspan>{boundary_label(index + 1)} (Line {index + 1})</tspan>'
+            f'<tspan x="{label_x:.1f}" dy="17">({point_counts[index]} points)</tspan>'
+            '</text>'
         )
         elements.append(
-            f'<text x="{mx + nx * 24:.3f}" y="{my + ny * 24:.3f}" '
-            f'text-anchor="middle" font-size="16" fill="#202020">'
-            f'Line {index + 1}: {point_counts[index]} points</text>'
+            f'<circle cx="{point[0]:.3f}" cy="{point[1]:.3f}" r="5" fill="#d1495b"/>'
         )
+        point_out_x = point[0] - center_x
+        point_out_y = point[1] - center_y
+        point_out_length = (point_out_x * point_out_x + point_out_y * point_out_y) ** 0.5 or 1.0
+        point_label_x = point[0] + point_out_x / point_out_length * 13
+        point_label_y = point[1] + point_out_y / point_out_length * 13
         elements.append(
-            f'<circle cx="{x1:.3f}" cy="{y1:.3f}" r="5" fill="#d1495b"/>'
+            f'<text x="{point_label_x:.1f}" y="{point_label_y:.1f}" '
+            'font-size="14" fill="#202020">'
+            f'Point {index + 1}</text>'
         )
-        elements.append(
-            f'<text x="{x1 + 10:.3f}" y="{y1 - 10:.3f}" font-size="15" '
-            f'fill="#202020">Point {index + 1}</text>'
-        )
-    elements.append(
-        f'<text x="{width / 2}" y="32" text-anchor="middle" font-size="20" '
-        f'fill="#202020">Rectangle topology preview</text>'
-    )
+
     elements.append("</svg>")
     return "\n".join(elements) + "\n"
 

@@ -74,8 +74,10 @@ class MeshLayoutDialog(QDialog):
         template_row.addWidget(QLabel("Template"))
         self.template_combo = QComboBox()
         self.template_combo.addItem("Single rectangle", "rectangle")
+        self.template_combo.addItem("Single rectangle with vertical midpoints", "rectangle_vertical_midpoints")
         self.template_combo.addItem("Two-block turbulent flat plate", "flat_plate")
         self.template_combo.addItem("Two-block laminar flat plate", "laminar_flat_plate")
+        self.template_combo.addItem("Two-block laminar flat plate (10 edges)", "laminar_flat_plate_10_edges")
         self.template_combo.currentIndexChanged.connect(self._load_selected_template)
         template_row.addWidget(self.template_combo, 1)
         root.addLayout(template_row)
@@ -154,18 +156,20 @@ class MeshLayoutDialog(QDialog):
         self._load_selected_template()
 
     def _template_project_source(self, kind: str) -> Path:
-        folder = {"rectangle": "minimal_rectangle", "flat_plate": "turbulent_flat_plate", "laminar_flat_plate": "laminar_flat_plate"}[kind]
+        folder = {"rectangle": "minimal_rectangle", "rectangle_vertical_midpoints": "minimal_rectangle_vertical_midpoints", "flat_plate": "turbulent_flat_plate", "laminar_flat_plate": "laminar_flat_plate", "laminar_flat_plate_10_edges": "laminar_flat_plate_10_edges"}[kind]
         return self._repository_root / "grid" / folder
 
     def _template_specification_name(self, kind: str) -> str:
-        return "rectangle.json" if kind == "rectangle" else "flat_plate.json"
+        return {"rectangle": "rectangle.json", "rectangle_vertical_midpoints": "rectangle_vertical_midpoints.json", "flat_plate": "flat_plate.json", "laminar_flat_plate": "flat_plate.json", "laminar_flat_plate_10_edges": "flat_plate.json"}[kind]
 
     def _layout_output_name(self, kind: str) -> str:
-        return (
-            "minimalRectangleLayout.txt"
-            if kind == "rectangle"
-            else ("laminarFlatPlateLayout.txt" if kind == "laminar_flat_plate" else "turbulentFlatPlateLayout.txt")
-        )
+        return {
+            "rectangle": "minimalRectangleLayout.txt",
+            "rectangle_vertical_midpoints": "minimalRectangleVerticalMidpointsLayout.txt",
+            "laminar_flat_plate": "laminarFlatPlateLayout.txt",
+            "laminar_flat_plate_10_edges": "laminarFlatPlate10EdgeLayout.txt",
+            "flat_plate": "turbulentFlatPlateLayout.txt",
+        }[kind]
 
     def _workspace_paths(self) -> UserDataPaths:
         return UserDataPaths.discover()
@@ -174,15 +178,15 @@ class MeshLayoutDialog(QDialog):
         if self._project_root is not None:
             return self._project_root / self._template_specification_name(kind)
         return self._workspace_paths().mesh_layout_projects / (
-            {"rectangle": "minimal_rectangle", "flat_plate": "turbulent_flat_plate", "laminar_flat_plate": "laminar_flat_plate"}[kind]
+            {"rectangle": "minimal_rectangle", "rectangle_vertical_midpoints": "minimal_rectangle_vertical_midpoints", "flat_plate": "turbulent_flat_plate", "laminar_flat_plate": "laminar_flat_plate", "laminar_flat_plate_10_edges": "laminar_flat_plate_10_edges"}[kind]
         ) / self._template_specification_name(kind)
 
     def _default_output_path(self, kind: str, project_root: Path | None = None) -> Path:
         root = project_root or self._project_root
         if root is None:
             root = self._workspace_paths().mesh_layout_projects / (
-                {"rectangle": "minimal_rectangle", "flat_plate": "turbulent_flat_plate",
-                 "laminar_flat_plate": "laminar_flat_plate"}[kind]
+                {"rectangle": "minimal_rectangle", "rectangle_vertical_midpoints": "minimal_rectangle_vertical_midpoints", "flat_plate": "turbulent_flat_plate",
+                 "laminar_flat_plate": "laminar_flat_plate", "laminar_flat_plate_10_edges": "laminar_flat_plate_10_edges"}[kind]
             )
         return root / "grid" / self._layout_output_name(kind)
 
@@ -232,7 +236,17 @@ class MeshLayoutDialog(QDialog):
             QMessageBox.warning(self, "Invalid specification", str(error))
             return
         kind = spec["type"]
-        template_kind = "laminar_flat_plate" if source_path.parent.name == "laminar_flat_plate" else kind
+        template_kind_by_type = {
+            "rectangle": "rectangle",
+            "rectangle_vertical_midpoints": "rectangle_vertical_midpoints",
+            "flat_plate": "flat_plate",
+            "flat_plate_layered": "laminar_flat_plate_10_edges",
+        }
+        template_kind = template_kind_by_type.get(kind, kind)
+        if source_path.parent.name == "laminar_flat_plate":
+            template_kind = "laminar_flat_plate"
+        elif source_path.parent.name == "laminar_flat_plate_10_edges":
+            template_kind = "laminar_flat_plate_10_edges"
         index = self.template_combo.findData(template_kind)
         if index < 0:
             QMessageBox.warning(self, "Unsupported project", f"Unsupported type: {kind}")
@@ -266,7 +280,7 @@ class MeshLayoutDialog(QDialog):
         self._project_root = project_root
         self._spec = spec
         self.spec_path_edit.setText(str(source_path))
-        self.output_path_edit.setText(str(self._default_output_path(kind, project_root)))
+        self.output_path_edit.setText(str(self._default_output_path(template_kind, project_root)))
         self._rebuild_fields()
         self._render_preview()
 
@@ -285,11 +299,12 @@ class MeshLayoutDialog(QDialog):
             self.fields_form.removeRow(0)
         self._field_widgets.clear()
 
-        if self._spec["type"] == "rectangle":
-            self._spec.setdefault(
-                "boundaries",
-                {f"line{line_id}": line_id for line_id in range(1, 5)},
-            )
+        if self._spec["type"] in ("rectangle", "rectangle_vertical_midpoints"):
+            if self._spec["type"] == "rectangle":
+                self._spec.setdefault(
+                    "boundaries",
+                    {f"line{line_id}": line_id for line_id in range(1, 5)},
+                )
             fields = []
             for point_index in range(4):
                 for axis, axis_name in enumerate(("X", "Y", "Z")):
@@ -297,11 +312,18 @@ class MeshLayoutDialog(QDialog):
                         ("corners", point_index, axis),
                         f"Point {point_index + 1} {axis_name}",
                     ))
-            for edge_index in range(4):
-                fields.append((("edgePointCounts", edge_index), f"Line {edge_index + 1} point count"))
+            if self._spec["type"] == "rectangle":
+                for edge_index in range(4):
+                    fields.append((("edgePointCounts", edge_index), f"Line {edge_index + 1} point count"))
+                for line_id in range(1, 5):
+                    fields.append((("boundaries", f"line{line_id}"), f"Boundary: Line {line_id}"))
+            else:
+                segment_names = ("bottom", "right lower", "right upper", "top", "left upper", "left lower")
+                for segment_index, segment_name in enumerate(segment_names):
+                    fields.append((("segmentPointCounts", segment_index), f"{segment_name.title()} segment point count"))
+                for side in ("bottom", "right", "top", "left"):
+                    fields.append((("boundaries", side), f"Boundary: {side.title()} side"))
             fields.append((("spacing",), "Spacing type"))
-            for line_id in range(1, 5):
-                fields.append((("boundaries", f"line{line_id}"), f"Boundary: Line {line_id}"))
         else:
             fields = [
                 (("upstreamDistance",), "Upstream distance"),
@@ -387,7 +409,7 @@ class MeshLayoutDialog(QDialog):
             self._field_widgets[path] = widget
             self.fields_form.addRow(label, widget)
 
-        self.reset_boundary_button.setEnabled(self._spec["type"] == "flat_plate")
+        self.reset_boundary_button.setEnabled(self._spec["type"] in ("flat_plate", "flat_plate_layered"))
         self._refresh_boundary_labels(self.show_boundary_codes.isChecked())
 
     def _refresh_boundary_labels(self, show_codes: bool) -> None:
@@ -449,7 +471,7 @@ class MeshLayoutDialog(QDialog):
             raw = widget.text().strip()
             if path[0] == "corners":
                 value = float(raw)
-            elif path[0] == "edgePointCounts" or (isinstance(path[-1], str) and path[-1].endswith("PointCount")):
+            elif path[0] in ("edgePointCounts", "segmentPointCounts") or (isinstance(path[-1], str) and path[-1].endswith("PointCount")):
                 value = int(raw)
             elif path[0] == "distributions":
                 if path[-1] == "nearWallIntervalCount":
@@ -520,7 +542,7 @@ class MeshLayoutDialog(QDialog):
         path, _ = QFileDialog.getSaveFileName(
             self,
             "Save specification as",
-            str(self._default_specification_path(self._spec["type"])),
+            str(self._default_specification_path(self.template_combo.currentData())),
             "JSON files (*.json);;All files (*)",
         )
         if not path:
@@ -535,7 +557,7 @@ class MeshLayoutDialog(QDialog):
         self._project_root = output_path.parent
         self.spec_path_edit.setText(str(output_path))
         self.output_path_edit.setText(
-            str(self._default_output_path(spec["type"], self._project_root))
+            str(self._default_output_path(self.template_combo.currentData(), self._project_root))
         )
         self._rebuild_fields()
         self._render_preview()

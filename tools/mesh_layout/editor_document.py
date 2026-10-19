@@ -24,6 +24,23 @@ def compile_specification(spec: dict[str, Any]) -> tuple[str, str]:
         )
 
         return compile_rectangle(spec), render_rectangle_svg(spec)
+    if kind == "rectangle_vertical_midpoints":
+        from tools.mesh_layout.compile_rectangle_vertical_midpoints import (
+            compile_rectangle_vertical_midpoints,
+            render_rectangle_vertical_midpoints_svg,
+        )
+
+        return (
+            compile_rectangle_vertical_midpoints(spec),
+            render_rectangle_vertical_midpoints_svg(spec),
+        )
+    if kind == "flat_plate_layered":
+        from tools.mesh_layout.compile_flat_plate_layered import (
+            compile_flat_plate_layered,
+            render_flat_plate_layered_svg,
+        )
+
+        return compile_flat_plate_layered(spec), render_flat_plate_layered_svg(spec)
     if kind == "flat_plate":
         from tools.mesh_layout.compile_flat_plate import (
             compile_flat_plate,
