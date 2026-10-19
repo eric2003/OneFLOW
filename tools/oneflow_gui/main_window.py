@@ -171,9 +171,6 @@ class MainWindow(QMainWindow):
         location_layout.addWidget(QLabel("Execution location"))
         self.execution_location_combo = QComboBox()
         self.execution_location_combo.addItem(
-            "Run in original case directory", "source"
-        )
-        self.execution_location_combo.addItem(
             "Copy to OneFLOW default run workspace", "default_workspace"
         )
         self.execution_location_combo.addItem(
@@ -420,18 +417,6 @@ class MainWindow(QMainWindow):
             return
 
         execution_mode = self.execution_location_combo.currentData()
-        if execution_mode == "source":
-            answer = QMessageBox.question(
-                self,
-                "Run in original case directory",
-                "OneFLOW may create or overwrite files inside the selected source "
-                "case directories. Continue?",
-                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                QMessageBox.StandardButton.No,
-            )
-            if answer != QMessageBox.StandardButton.Yes:
-                return
-
         if execution_mode == "custom_workspace":
             workspace_text = self.workspace_edit.text().strip()
             if not workspace_text:
@@ -443,14 +428,18 @@ class MainWindow(QMainWindow):
         elif execution_mode == "default_workspace":
             workspace_root = UserDataPaths.discover().executions
         else:
-            workspace_root = self._repository_root
+            QMessageBox.warning(
+                self,
+                "Invalid execution location",
+                "Cases from the case catalog must run from a workspace copy.",
+            )
+            return
 
-        if execution_mode != "source":
-            try:
-                workspace_root.mkdir(parents=True, exist_ok=True)
-            except OSError as error:
-                QMessageBox.critical(self, "Workspace unavailable", str(error))
-                return
+        try:
+            workspace_root.mkdir(parents=True, exist_ok=True)
+        except OSError as error:
+            QMessageBox.critical(self, "Workspace unavailable", str(error))
+            return
 
         run_id = create_run_id()
         started_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
@@ -471,11 +460,7 @@ class MainWindow(QMainWindow):
                     "type": "case_queue",
                     "case_ids": [case.case_id for case in selected],
                     "execution_mode": execution_mode,
-                    "workspace": (
-                        "source case directories"
-                        if execution_mode == "source"
-                        else str(workspace_root / run_id)
-                    ),
+                    "workspace": str(workspace_root / run_id),
                 },),
                 message="Case queue started.",
                 log_path=str(log_path),
@@ -489,11 +474,7 @@ class MainWindow(QMainWindow):
         self._active_case_run_log_path = log_path
         self.log_view.appendPlainText(
             f"\nRun {run_id}\nExecutable: {Path(executable_text).resolve()}\n"
-            + (
-                "Execution location: original case directories"
-                if execution_mode == "source"
-                else f"Workspace: {workspace_root / run_id}"
-            )
+            + f"Workspace: {workspace_root / run_id}"
         )
         self.run_button.setEnabled(False)
         self.stop_button.setEnabled(True)
