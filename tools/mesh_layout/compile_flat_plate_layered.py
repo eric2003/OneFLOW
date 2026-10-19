@@ -152,7 +152,7 @@ def render_flat_plate_layered_svg(spec):
         f'x2="{geometry_left + draw_width:.3f}" y2="{layer_y:.3f}" '
         'stroke="#1769aa" stroke-width="2" stroke-dasharray="5,3"/>'
         f'<text x="{geometry_left + draw_width + 8:.3f}" y="{layer_y + 4:.3f}" '
-        'font-size="12" fill="#1769aa">y = near-wall distance ({near_wall_points} points)</text>'
+        f'font-size="12" fill="#1769aa">y = near-wall distance ({near_wall_points} points)</text>'
     )
     return svg.replace("</svg>", layer + "</svg>")
 
