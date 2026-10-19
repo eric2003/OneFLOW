@@ -11,6 +11,14 @@
       "layout": "grid/minimalRectangleLayout.txt"
     },
     {
+      "id": "minimal_rectangle_vertical_midpoints",
+      "title": "Minimal Rectangle with Vertical Midpoints",
+      "directory": "grid/minimal_rectangle_vertical_midpoints",
+      "runtimeConfig": "script/control.txt",
+      "profile": "case.json",
+      "layout": "grid/minimalRectangleVerticalMidpointsLayout.txt"
+    },
+    {
       "id": "minimal_cube",
       "title": "Minimal Cube",
       "directory": "grid/minimal_cube",
