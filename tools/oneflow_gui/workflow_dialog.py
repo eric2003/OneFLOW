@@ -340,6 +340,43 @@ class WorkflowDialog(QDialog):
         if directory:
             self.base_directory_edit.setText(directory)
 
+
+    def _add_graph_case_directory(self) -> None:
+        """Append a directory chosen from the filesystem as a case graph node."""
+        try:
+            cases = json.loads(self.graph_edit.toPlainText() or "[]")
+            if not isinstance(cases, list):
+                raise ValueError("Case graph JSON must be a list of case objects.")
+        except (json.JSONDecodeError, ValueError, TypeError) as error:
+            QMessageBox.warning(self, "Invalid case graph", str(error))
+            return
+        directory = QFileDialog.getExistingDirectory(
+            self, "Add case directory", str(self._repository_root)
+        )
+        if not directory:
+            return
+        selected = Path(directory).resolve()
+        base_text = self.base_directory_edit.text().strip()
+        base = Path(base_text).expanduser().resolve() if base_text else selected.parent
+        try:
+            relative = selected.relative_to(base).as_posix()
+        except ValueError:
+            base = selected.parent
+            relative = selected.name
+        stem = "".join(
+            char.lower() if char.isascii() and char.isalnum() else "-"
+            for char in selected.name
+        ).strip("-") or "case"
+        existing_ids = {item.get("id") for item in cases if isinstance(item, dict)}
+        case_id = stem
+        suffix = 2
+        while case_id in existing_ids:
+            case_id = f"{stem}-{suffix}"
+            suffix += 1
+        cases.append({"id": case_id, "directory": relative, "depends_on": []})
+        self.base_directory_edit.setText(str(base))
+        self.graph_edit.setPlainText(json.dumps(cases, indent=2))
+
     def _workflow_mode_changed(self, *_args) -> None:
         graph_mode = self.mode_combo.currentData() == "case_graph"
         self.directory_edit.setVisible(not graph_mode)
