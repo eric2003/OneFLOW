@@ -32,6 +32,16 @@ from .workflow_repository import WorkflowRepository, WorkflowRunRecord
 from .runner import create_run_id
 
 
+def _project_workflow_id(name: str) -> str:
+    """Return a history identifier that satisfies the workflow ID schema."""
+    slug = "".join(
+        character.lower() if character.isascii() and character.isalnum() else "-"
+        for character in name
+    )
+    slug = "-".join(part for part in slug.split("-") if part) or "project"
+    return f"project-{slug[:48]}"
+
+
 @dataclass(frozen=True, slots=True)
 class ProjectRunOutcome:
     """Serializable outcome of one project run."""
@@ -287,7 +297,7 @@ class ProjectWindow(QMainWindow):
             )
             record = WorkflowRunRecord(
                 run_id=run_id,
-                workflow_id=f"project-{self._project.name}",
+                workflow_id=_project_workflow_id(self._project.name),
                 status="running",
                 started_at=datetime.now(timezone.utc).isoformat(timespec="seconds"),
                 executable=str(executable.resolve()),
