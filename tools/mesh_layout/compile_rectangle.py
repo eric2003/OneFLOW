@@ -14,6 +14,7 @@ try:
         LayoutPoint,
         LayoutTopology,
     )
+    from tools.mesh_layout.layout_serializer import serialize_topology
 except ModuleNotFoundError:
     from layout_topology import (
         LayoutBlock,
@@ -22,6 +23,7 @@ except ModuleNotFoundError:
         LayoutPoint,
         LayoutTopology,
     )
+    from layout_serializer import serialize_topology
 
 
 BOUNDARY_TYPES = {
@@ -78,42 +80,17 @@ def _build_rectangle_topology(corners, point_counts, spacing, boundary_values):
     return topology
 
 
+def _format_distribution(line):
+    spacing, start_spacing, end_spacing = line.distribution
+    return f"Ds({line.id})={{{spacing},{start_spacing},{end_spacing}}}"
+
+
 def _serialize_topology(topology):
-    output = []
-    for point in topology.points:
-        coordinates = ",".join(format_coordinate(value) for value in (point.x, point.y, point.z))
-        output.append(f"Point({point.id})= {{{coordinates}}}")
-
-    output.append("")
-    for line in topology.lines:
-        output.append(f"Line({line.id})={{{line.start_point},{line.end_point}}}")
-
-    output.append("")
-    for line in topology.lines:
-        output.append(f"Dim({line.id})={{{line.point_count}}}")
-
-    output.append("")
-    for line in topology.lines:
-        spacing, start_spacing, end_spacing = line.distribution
-        output.append(
-            f"Ds({line.id})={{{spacing},{start_spacing},{end_spacing}}}"
-        )
-
-    output.append("")
-    for line in topology.lines:
-        output.append(f"Boundary({line.id})={{{line.boundary_type}}}")
-
-    for face in topology.faces:
-        output.append("")
-        for position, line_id in face.line_by_side:
-            output.append(f"Add L2F {face.id} {position} {line_id}")
-
-    output.append("")
-    for block in topology.blocks:
-        for position, face_id in block.face_by_position:
-            output.append(f"Add F2B {block.id} {position} {face_id}")
-    output.append("")
-    return "\n".join(output)
+    return serialize_topology(
+        topology,
+        format_coordinate,
+        _format_distribution,
+    )
 
 
 def compile_rectangle(spec):
