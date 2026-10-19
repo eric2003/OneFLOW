@@ -68,6 +68,22 @@ class MeshLayoutProjectsTest(unittest.TestCase):
             self.assertEqual(spec["type"], "rectangle_vertical_midpoints")
             self.assertEqual(spec["segmentPointCounts"], [3, 2, 2, 3, 2, 2])
 
+    def test_ten_edge_laminar_flat_plate_template_is_available(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            project = ensure_template_project(
+                REPOSITORY_ROOT,
+                Path(directory),
+                "laminar_flat_plate_10_edges",
+            )
+            self.assertTrue((project / "flat_plate.json").is_file())
+            self.assertTrue(
+                (project / "grid" / "laminarFlatPlate10EdgeLayout.txt").is_file()
+            )
+            spec = json.loads((project / "flat_plate.json").read_text(encoding="utf-8"))
+            self.assertEqual(spec["type"], "flat_plate_layered")
+            self.assertEqual(spec["distributions"]["vertical"]["nearWallIntervalCount"], 40)
+            self.assertEqual(spec["distributions"]["vertical"]["nearWallDistance"], 0.02)
+
     def test_project_destination_inside_repository_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             with self.assertRaisesRegex(ValueError, "outside the OneFLOW source tree"):
