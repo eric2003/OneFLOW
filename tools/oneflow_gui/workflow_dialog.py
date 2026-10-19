@@ -241,6 +241,7 @@ class WorkflowDialog(QDialog):
         directory_row.addWidget(self.directory_browse)
         directory_widget = QWidget()
         directory_widget.setLayout(directory_row)
+        self.directory_widget = directory_widget
         form.addRow("Workflow ID", self.id_edit)
         form.addRow("Name", self.name_edit)
         self.form_layout = form
@@ -254,6 +255,7 @@ class WorkflowDialog(QDialog):
         graph_row.addWidget(self.graph_directory_browse)
         graph_widget = QWidget()
         graph_widget.setLayout(graph_row)
+        self.graph_widget = graph_widget
         self.base_directory_edit = QLineEdit()
         self.base_directory_edit.setPlaceholderText("Base directory containing the configured case directories")
         base_directory_row = QHBoxLayout()
@@ -263,6 +265,7 @@ class WorkflowDialog(QDialog):
         base_directory_row.addWidget(self.base_directory_browse)
         base_directory_widget = QWidget()
         base_directory_widget.setLayout(base_directory_row)
+        self.base_directory_widget = base_directory_widget
         form.addRow("Description", self.description_edit)
         form.addRow("Workflow type", self.mode_combo)
         form.addRow("Directories", directory_widget)
@@ -379,18 +382,17 @@ class WorkflowDialog(QDialog):
 
     def _workflow_mode_changed(self, *_args) -> None:
         graph_mode = self.mode_combo.currentData() == "case_graph"
-        self.directory_edit.setVisible(not graph_mode)
-        self.graph_edit.setVisible(graph_mode)
-        self.base_directory_edit.setVisible(graph_mode)
-        directory_label = self.form_layout.labelForField(self.directory_edit)
-        graph_label = self.form_layout.labelForField(self.graph_edit)
-        base_label = self.form_layout.labelForField(self.base_directory_edit)
-        if directory_label is not None:
-            directory_label.setVisible(not graph_mode)
-        if graph_label is not None:
-            graph_label.setVisible(graph_mode)
-        if base_label is not None:
-            base_label.setVisible(graph_mode)
+        self.directory_widget.setVisible(not graph_mode)
+        self.graph_widget.setVisible(graph_mode)
+        self.base_directory_widget.setVisible(graph_mode)
+        for field, visible in (
+            (self.directory_widget, not graph_mode),
+            (self.graph_widget, graph_mode),
+            (self.base_directory_widget, graph_mode),
+        ):
+            label = self.form_layout.labelForField(field)
+            if label is not None:
+                label.setVisible(visible)
 
     def _reload_workflows(self, select_id: str | None = None) -> None:
         workflows = self._repository.list_workflows()
