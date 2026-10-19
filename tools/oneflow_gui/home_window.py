@@ -82,7 +82,7 @@ class WorkbenchHomeWindow(QMainWindow):
             self._open_case_workbench,
         )
         self._add_activity(
-            grid, 0, 1, "Run independent cases",
+            grid, 0, 1, "Configure multi-case run",
             "Configure an ordered multi-directory run. Cases do not declare dependencies.",
             self._open_multi_case_workflow,
         )
@@ -189,6 +189,7 @@ class WorkbenchHomeWindow(QMainWindow):
         dialog = WorkflowDialog(
             self._repository_root, self._executable(), self
         )
+        dialog._new_workflow()
         dialog.mode_combo.setCurrentIndex(
             dialog.mode_combo.findData("multi_directory")
         )
@@ -198,6 +199,7 @@ class WorkbenchHomeWindow(QMainWindow):
         dialog = WorkflowDialog(
             self._repository_root, self._executable(), self
         )
+        dialog._new_workflow()
         dialog.mode_combo.setCurrentIndex(
             dialog.mode_combo.findData("case_graph")
         )
