@@ -186,7 +186,7 @@ class MeshLayoutDialog(QDialog):
         if root is None:
             root = self._workspace_paths().mesh_layout_projects / (
                 {"rectangle": "minimal_rectangle", "rectangle_vertical_midpoints": "minimal_rectangle_vertical_midpoints", "flat_plate": "turbulent_flat_plate",
-                 "laminar_flat_plate": "laminar_flat_plate"}[kind]
+                 "laminar_flat_plate": "laminar_flat_plate", "laminar_flat_plate_10_edges": "laminar_flat_plate_10_edges"}[kind]
             )
         return root / "grid" / self._layout_output_name(kind)
 
