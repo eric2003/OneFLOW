@@ -404,9 +404,9 @@ class MeshLayoutDialog(QDialog):
                     "Choose a boundary type. Hover over an option for its explanation."
                 )
             else:
-                display_value = "Auto" if value == -1 else str(value)
+                display_value = "auto" if value == -1 else str(value)
                 widget = QLineEdit(display_value)
-                widget.setToolTip("Use Auto for automatically selected spacing; legacy -1 is preserved when saving.")
+                widget.setToolTip("Use 'auto' for automatically selected spacing; legacy -1 is preserved when saving.")
             self._field_widgets[path] = widget
             self.fields_form.addRow(label, widget)
 
