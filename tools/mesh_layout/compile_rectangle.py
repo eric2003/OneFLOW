@@ -251,7 +251,7 @@ def render_rectangle_svg(spec):
         )
 
     elements.append("</svg>")
-    return "\\n".join(elements) + "\\n"
+    return "\n".join(elements) + "\n"
 
 
 def format_coordinate(value):
