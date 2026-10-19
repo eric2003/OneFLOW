@@ -106,6 +106,11 @@ class WorkbenchHomeWindow(QMainWindow):
             "Create or edit mesh layouts and their case templates.",
             self._open_mesh_layout,
         )
+        self._add_activity(
+            grid, 3, 0, "Saved workflows",
+            "Open existing multi-case or dependency workflow definitions and their run history.",
+            self._open_saved_workflows,
+        )
         root.addLayout(grid, 1)
 
         footer = QLabel(
@@ -204,6 +209,11 @@ class WorkbenchHomeWindow(QMainWindow):
             initial_mode="case_graph",
         )
         dialog.exec()
+
+    def _open_saved_workflows(self) -> None:
+        WorkflowDialog(
+            self._repository_root, self._executable(), self
+        ).exec()
 
     def _open_tests(self) -> None:
         TestRunnerDialog(self._repository_root, self).exec()
