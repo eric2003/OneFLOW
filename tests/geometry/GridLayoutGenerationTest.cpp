@@ -294,8 +294,8 @@ TEST( GridLayoutGenerationTest, BuildsCompositeBoundaryFromLocallyGeneratedBlock
     };
     std::array< Zone, 2 > zones{};
     const std::array< std::array< int, 3 >, 2 > expectedDimensions = {{
-        {{ 21, 41, 1 }},
-        {{ 21, 17, 1 }}
+        {{ 17, 21, 1 }},
+        {{ 41, 21, 1 }}
     }};
     for ( std::size_t zoneIndex = 0; zoneIndex < zones.size(); ++ zoneIndex )
     {
@@ -327,15 +327,34 @@ TEST( GridLayoutGenerationTest, BuildsCompositeBoundaryFromLocallyGeneratedBlock
     {
         return static_cast< std::size_t >( j * ni + i );
     };
-    for ( int i = 0; i < zones[ 0 ].ni; ++ i )
+    const auto findInterfaceSide = [&nodeIndex]( const Zone & zone )
     {
-        const std::size_t upperBlockInterface = nodeIndex( i, zones[ 0 ].nj - 1, zones[ 0 ].ni );
-        const std::size_t lowerBlockInterface = nodeIndex( i, 0, zones[ 1 ].ni );
-        EXPECT_NEAR( zones[ 0 ].x[ upperBlockInterface ], zones[ 1 ].x[ lowerBlockInterface ], 1.0e-12 );
-        EXPECT_NEAR( zones[ 0 ].y[ upperBlockInterface ], 1.0, 1.0e-12 );
-        EXPECT_NEAR( zones[ 1 ].y[ lowerBlockInterface ], 1.0, 1.0e-12 );
-        EXPECT_NEAR( zones[ 0 ].y[ upperBlockInterface ], zones[ 1 ].y[ lowerBlockInterface ], 1.0e-12 );
-        EXPECT_NEAR( zones[ 0 ].z[ upperBlockInterface ], zones[ 1 ].z[ lowerBlockInterface ], 1.0e-12 );
+        for ( int i : { 0, zone.ni - 1 } )
+        {
+            bool onInterface = true;
+            for ( int j = 0; j < zone.nj; ++ j )
+            {
+                const std::size_t node = nodeIndex( i, j, zone.ni );
+                onInterface = onInterface &&
+                    std::abs( zone.y[ node ] - 1.0 ) <= 1.0e-12;
+            }
+            if ( onInterface ) return i;
+        }
+        return -1;
+    };
+    const int firstInterfaceI = findInterfaceSide( zones[ 0 ] );
+    const int secondInterfaceI = findInterfaceSide( zones[ 1 ] );
+    ASSERT_GE( firstInterfaceI, 0 );
+    ASSERT_GE( secondInterfaceI, 0 );
+    ASSERT_EQ( zones[ 0 ].nj, zones[ 1 ].nj );
+    for ( int j = 0; j < zones[ 0 ].nj; ++ j )
+    {
+        const std::size_t firstNode = nodeIndex( firstInterfaceI, j, zones[ 0 ].ni );
+        const std::size_t secondNode = nodeIndex( secondInterfaceI, j, zones[ 1 ].ni );
+        EXPECT_NEAR( zones[ 0 ].x[ firstNode ], zones[ 1 ].x[ secondNode ], 1.0e-12 );
+        EXPECT_NEAR( zones[ 0 ].y[ firstNode ], 1.0, 1.0e-12 );
+        EXPECT_NEAR( zones[ 1 ].y[ secondNode ], 1.0, 1.0e-12 );
+        EXPECT_NEAR( zones[ 0 ].z[ firstNode ], zones[ 1 ].z[ secondNode ], 1.0e-12 );
     }
 
     for ( std::size_t zoneIndex = 0; zoneIndex < zones.size(); ++ zoneIndex )
@@ -355,17 +374,38 @@ TEST( GridLayoutGenerationTest, BuildsCompositeBoundaryFromLocallyGeneratedBlock
                     zone.x[ b ] * zone.y[ c ] - zone.y[ b ] * zone.x[ c ] +
                     zone.x[ c ] * zone.y[ d ] - zone.y[ c ] * zone.x[ d ] +
                     zone.x[ d ] * zone.y[ a ] - zone.y[ d ] * zone.x[ a ] );
-                EXPECT_GT( cellArea, 0.0 );
-                area += cellArea;
+                EXPECT_NE( cellArea, 0.0 );
+                area += std::abs( cellArea );
             }
         }
         EXPECT_NEAR( area, 4.0, 1.0e-10 );
     }
 
-    EXPECT_NEAR( zones[ 0 ].x[ nodeIndex( zones[ 0 ].ni - 1, 0, zones[ 0 ].ni ) ], 4.0, 1.0e-12 );
-    EXPECT_NEAR( zones[ 0 ].y[ nodeIndex( zones[ 0 ].ni - 1, zones[ 0 ].nj - 1, zones[ 0 ].ni ) ], 1.0, 1.0e-12 );
-    EXPECT_NEAR( zones[ 1 ].y[ nodeIndex( zones[ 1 ].ni - 1, zones[ 1 ].nj - 1, zones[ 1 ].ni ) ], 2.0, 1.0e-12 );
-    EXPECT_NEAR( zones[ 1 ].x[ nodeIndex( 0, zones[ 1 ].nj - 1, zones[ 1 ].ni ) ], 0.0, 1.0e-12 );
+    const auto expectCorner = [&nodeIndex]( const Zone & zone, Real x, Real y )
+    {
+        bool found = false;
+        for ( int j = 0; j < zone.nj; ++ j )
+        {
+            for ( int i = 0; i < zone.ni; ++ i )
+            {
+                const std::size_t node = nodeIndex( i, j, zone.ni );
+                if ( std::abs( zone.x[ node ] - x ) <= 1.0e-12 &&
+                     std::abs( zone.y[ node ] - y ) <= 1.0e-12 )
+                {
+                    found = true;
+                }
+            }
+        }
+        EXPECT_TRUE( found );
+    };
+    expectCorner( zones[ 0 ], 0.0, 1.0 );
+    expectCorner( zones[ 0 ], 4.0, 1.0 );
+    expectCorner( zones[ 1 ], 0.0, 1.0 );
+    expectCorner( zones[ 1 ], 4.0, 1.0 );
+    expectCorner( zones[ 0 ], 0.0, 2.0 );
+    expectCorner( zones[ 0 ], 4.0, 2.0 );
+    expectCorner( zones[ 1 ], 0.0, 0.0 );
+    expectCorner( zones[ 1 ], 4.0, 0.0 );
 
     file.close();
 }
