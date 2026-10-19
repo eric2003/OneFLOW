@@ -62,7 +62,7 @@ def _detect_type(runtime_file: Path | None) -> ProjectType:
         return ProjectType.UNKNOWN
 
     task_match = re.search(
-        r"""\\bsimutask\\s*=\\s*["']([^"']+)["']""",
+        r"""\bsimutask\s*=\s*["']([^"']+)["']""",
         content,
         flags=re.IGNORECASE,
     )
