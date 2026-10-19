@@ -385,6 +385,19 @@ class MainWindow(QMainWindow):
             return
 
         execution_mode = self.execution_location_combo.currentData()
+        if execution_mode == "source":
+            answer = QMessageBox.question(
+                self,
+                "Run in original case directory",
+                "OneFLOW may create or overwrite files inside the selected source "
+                "case directories. Continue?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if answer != QMessageBox.StandardButton.Yes:
+                return
+
+        execution_mode = self.execution_location_combo.currentData()
         if execution_mode == "custom_workspace":
             workspace_text = self.workspace_edit.text().strip()
             if not workspace_text:
