@@ -252,7 +252,7 @@ TEST( GridLayoutGenerationTest, GeneratesFlatPlateBoundaryLayerDistribution )
     file.close();
 }
 
-TEST( GridLayoutGenerationTest, GeneratesRectangleWithTwoAndThreePointEdges )
+TEST( GridLayoutGenerationTest, AssemblesRectangleFromTwoLocallyGeneratedBlocks )
 {
     const std::filesystem::path layoutFile =
         std::filesystem::path( ONEFLOW_SOURCE_DIR ) /
@@ -281,62 +281,112 @@ TEST( GridLayoutGenerationTest, GeneratesRectangleWithTwoAndThreePointEdges )
 
     std::ifstream file( outputFile, std::ios::binary );
     ASSERT_TRUE( file.is_open() );
-    ASSERT_EQ( ReadBinary< int >( file ), 1 );
+    ASSERT_EQ( ReadBinary< int >( file ), 2 );
 
-    const int ni = ReadBinary< int >( file );
-    const int nj = ReadBinary< int >( file );
-    const int nk = ReadBinary< int >( file );
-    ASSERT_EQ( ni * nj, 6 );
-    EXPECT_TRUE( ( ni == 2 && nj == 3 ) || ( ni == 3 && nj == 2 ) );
-    EXPECT_EQ( nk, 1 );
-
-    const std::size_t nodeCount = static_cast< std::size_t >( ni * nj );
-    std::vector< Real > x( nodeCount );
-    std::vector< Real > y( nodeCount );
-    std::vector< Real > z( nodeCount );
-    for ( Real & value : x ) value = ReadBinary< Real >( file );
-    for ( Real & value : y ) value = ReadBinary< Real >( file );
-    for ( Real & value : z ) value = ReadBinary< Real >( file );
-
-    for ( std::size_t node = 0; node < nodeCount; ++ node )
+    struct Zone
     {
-        EXPECT_TRUE( std::isfinite( x[ node ] ) );
-        EXPECT_TRUE( std::isfinite( y[ node ] ) );
-        EXPECT_DOUBLE_EQ( z[ node ], 0.0 );
-        EXPECT_GE( x[ node ], 0.0 );
-        EXPECT_LE( x[ node ], 4.0 );
-        EXPECT_GE( y[ node ], 0.0 );
-        EXPECT_LE( y[ node ], 2.0 );
+        int ni = 0;
+        int nj = 0;
+        int nk = 0;
+        std::vector< Real > x;
+        std::vector< Real > y;
+        std::vector< Real > z;
+    };
+    std::array< Zone, 2 > zones{};
+    for ( Zone & zone : zones )
+    {
+        zone.ni = ReadBinary< int >( file );
+        zone.nj = ReadBinary< int >( file );
+        zone.nk = ReadBinary< int >( file );
+        ASSERT_EQ( zone.ni * zone.nj, 4 );
+        EXPECT_EQ( zone.nk, 1 );
     }
 
-    EXPECT_DOUBLE_EQ( *std::min_element( x.begin(), x.end() ), 0.0 );
-    EXPECT_DOUBLE_EQ( *std::max_element( x.begin(), x.end() ), 4.0 );
-    EXPECT_DOUBLE_EQ( *std::min_element( y.begin(), y.end() ), 0.0 );
-    EXPECT_DOUBLE_EQ( *std::max_element( y.begin(), y.end() ), 2.0 );
+    for ( Zone & zone : zones )
+    {
+        const std::size_t nodeCount =
+            static_cast< std::size_t >( zone.ni * zone.nj );
+        zone.x.resize( nodeCount );
+        zone.y.resize( nodeCount );
+        zone.z.resize( nodeCount );
+        for ( Real & value : zone.x ) value = ReadBinary< Real >( file );
+        for ( Real & value : zone.y ) value = ReadBinary< Real >( file );
+        for ( Real & value : zone.z ) value = ReadBinary< Real >( file );
+    }
 
-    const auto nodeIndex = [ni]( int i, int j )
+    struct Point2D
     {
-        return static_cast< std::size_t >( j * ni + i );
+        Real x;
+        Real y;
     };
-    Real totalArea = 0.0;
-    for ( int j = 0; j < nj - 1; ++ j )
+    const auto containsPoint = []( const Zone & zone, Real x, Real y )
     {
-        for ( int i = 0; i < ni - 1; ++ i )
+        for ( std::size_t node = 0; node < zone.x.size(); ++ node )
         {
-            const std::size_t a = nodeIndex( i, j );
-            const std::size_t b = nodeIndex( i + 1, j );
-            const std::size_t c = nodeIndex( i + 1, j + 1 );
-            const std::size_t d = nodeIndex( i, j + 1 );
-            const Real cellArea = 0.5 * (
-                x[ a ] * y[ b ] - y[ a ] * x[ b ] +
-                x[ b ] * y[ c ] - y[ b ] * x[ c ] +
-                x[ c ] * y[ d ] - y[ c ] * x[ d ] +
-                x[ d ] * y[ a ] - y[ d ] * x[ a ] );
-            EXPECT_GT( cellArea, 0.0 );
-            totalArea += cellArea;
+            if ( std::abs( zone.x[ node ] - x ) <= 1.0e-12 &&
+                 std::abs( zone.y[ node ] - y ) <= 1.0e-12 )
+            {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    const std::array< std::array< Point2D, 4 >, 2 > expectedCorners = {{
+        {{{ 0.0, 0.0 }, { 4.0, 0.0 }, { 4.0, 1.0 }, { 0.0, 1.0 }}},
+        {{{ 0.0, 1.0 }, { 4.0, 1.0 }, { 4.0, 2.0 }, { 0.0, 2.0 }}}
+    }};
+    Real totalArea = 0.0;
+    for ( std::size_t zoneIndex = 0; zoneIndex < zones.size(); ++ zoneIndex )
+    {
+        const Zone & zone = zones[ zoneIndex ];
+        for ( std::size_t node = 0; node < zone.x.size(); ++ node )
+        {
+            EXPECT_TRUE( std::isfinite( zone.x[ node ] ) );
+            EXPECT_TRUE( std::isfinite( zone.y[ node ] ) );
+            EXPECT_DOUBLE_EQ( zone.z[ node ], 0.0 );
+            EXPECT_GE( zone.x[ node ], 0.0 );
+            EXPECT_LE( zone.x[ node ], 4.0 );
+            EXPECT_GE( zone.y[ node ], 0.0 );
+            EXPECT_LE( zone.y[ node ], 2.0 );
+        }
+
+        for ( const Point2D & corner : expectedCorners[ zoneIndex ] )
+        {
+            EXPECT_TRUE( containsPoint( zone, corner.x, corner.y ) );
+        }
+
+        Real twiceSignedArea = 0.0;
+        for ( std::size_t node = 0; node < zone.x.size(); ++ node )
+        {
+            const std::size_t next = ( node + 1 ) % zone.x.size();
+            twiceSignedArea +=
+                zone.x[ node ] * zone.y[ next ] -
+                zone.y[ node ] * zone.x[ next ];
+        }
+        const Real area = 0.5 * std::abs( twiceSignedArea );
+        EXPECT_NEAR( area, 4.0, 1.0e-12 );
+        totalArea += area;
+    }
+    EXPECT_NEAR( totalArea, 8.0, 1.0e-12 );
+
+    int sharedInterfaceNodeCount = 0;
+    for ( std::size_t firstNode = 0; firstNode < zones[ 0 ].x.size(); ++ firstNode )
+    {
+        for ( std::size_t secondNode = 0; secondNode < zones[ 1 ].x.size(); ++ secondNode )
+        {
+            if ( std::abs( zones[ 0 ].x[ firstNode ] - zones[ 1 ].x[ secondNode ] ) <= 1.0e-12 &&
+                 std::abs( zones[ 0 ].y[ firstNode ] - 1.0 ) <= 1.0e-12 &&
+                 std::abs( zones[ 1 ].y[ secondNode ] - 1.0 ) <= 1.0e-12 )
+            {
+                EXPECT_NEAR( zones[ 0 ].x[ firstNode ], zones[ 1 ].x[ secondNode ], 1.0e-12 );
+                EXPECT_NEAR( zones[ 0 ].z[ firstNode ], zones[ 1 ].z[ secondNode ], 1.0e-12 );
+                ++ sharedInterfaceNodeCount;
+            }
         }
     }
-    EXPECT_DOUBLE_EQ( totalArea, 8.0 );
+    EXPECT_EQ( sharedInterfaceNodeCount, 2 );
+
     file.close();
 }
 
