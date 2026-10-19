@@ -35,12 +35,12 @@ def compile_specification(spec: dict[str, Any]) -> tuple[str, str]:
             render_rectangle_vertical_midpoints_svg(spec),
         )
     if kind == "flat_plate_layered":
-        from tools.mesh_layout.compile_flat_plate_layered import compile_flat_plate_layered
-        from tools.mesh_layout.compile_flat_plate import render_flat_plate_svg
+        from tools.mesh_layout.compile_flat_plate_layered import (
+            compile_flat_plate_layered,
+            render_flat_plate_layered_svg,
+        )
 
-        preview_spec = dict(spec)
-        preview_spec["type"] = "flat_plate"
-        return compile_flat_plate_layered(spec), render_flat_plate_svg(preview_spec)
+        return compile_flat_plate_layered(spec), render_flat_plate_layered_svg(spec)
     if kind == "flat_plate":
         from tools.mesh_layout.compile_flat_plate import (
             compile_flat_plate,
