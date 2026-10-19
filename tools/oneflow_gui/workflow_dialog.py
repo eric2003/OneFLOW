@@ -231,14 +231,23 @@ class WorkflowDialog(QDialog):
         self.mode_combo.currentIndexChanged.connect(self._workflow_mode_changed)
         self.directory_edit = QPlainTextEdit()
         self.directory_edit.setPlaceholderText(
-            "One directory per line. Order is preserved in the OneFLOW command."
+            "One editable directory entry per line. Select a line to browse or remove it."
         )
         self.directory_edit.setMinimumHeight(120)
         directory_row = QHBoxLayout()
         directory_row.addWidget(self.directory_edit, 1)
-        self.directory_browse = QPushButton("Add directory...")
-        self.directory_browse.clicked.connect(self._add_workflow_directory)
-        directory_row.addWidget(self.directory_browse)
+        directory_actions = QVBoxLayout()
+        self.directory_browse = QPushButton("Browse...")
+        self.directory_browse.clicked.connect(self._browse_workflow_directory)
+        self.directory_add = QPushButton("+ Entry")
+        self.directory_add.clicked.connect(self._add_workflow_entry)
+        self.directory_remove = QPushButton("- Entry")
+        self.directory_remove.clicked.connect(self._remove_workflow_entry)
+        directory_actions.addWidget(self.directory_browse)
+        directory_actions.addWidget(self.directory_add)
+        directory_actions.addWidget(self.directory_remove)
+        directory_actions.addStretch(1)
+        directory_row.addLayout(directory_actions)
         directory_widget = QWidget()
         directory_widget.setLayout(directory_row)
         self.directory_widget = directory_widget
@@ -313,21 +322,50 @@ class WorkflowDialog(QDialog):
         root.addWidget(self.log_view, 2)
 
 
-    def _add_workflow_directory(self) -> None:
-        """Append a directory selected from the filesystem to the workflow."""
+    def _browse_workflow_directory(self) -> None:
+        """Replace the selected path entry with a browsed directory."""
+        cursor = self.directory_edit.textCursor()
         lines = self.directory_edit.toPlainText().splitlines()
-        start = Path(lines[-1]).expanduser() if lines and lines[-1].strip() else self._repository_root
+        line_index = cursor.blockNumber()
+        current = lines[line_index].strip() if line_index < len(lines) else ""
+        start = Path(current).expanduser() if current else self._repository_root
         if start.is_file():
             start = start.parent
         if not start.is_dir():
             start = self._repository_root
         directory = QFileDialog.getExistingDirectory(
-            self, "Add workflow directory", str(start)
+            self, "Select directory entry", str(start)
         )
-        if directory:
-            current = self.directory_edit.toPlainText().rstrip()
-            self.directory_edit.setPlainText(f"{current}\n{directory}" if current else directory)
+        if not directory:
+            return
+        while len(lines) <= line_index:
+            lines.append("")
+        lines[line_index] = directory
+        self.directory_edit.setPlainText("\\n".join(lines))
+        cursor = self.directory_edit.textCursor()
+        cursor.movePosition(cursor.MoveOperation.Start)
+        for _ in range(line_index):
+            cursor.movePosition(cursor.MoveOperation.Down)
+        self.directory_edit.setTextCursor(cursor)
 
+    def _add_workflow_entry(self) -> None:
+        """Insert an editable path entry at the current cursor position."""
+        cursor = self.directory_edit.textCursor()
+        cursor.insertText("\\n")
+        cursor.movePosition(cursor.MoveOperation.PreviousBlock)
+        self.directory_edit.setTextCursor(cursor)
+        self.directory_edit.setFocus()
+
+    def _remove_workflow_entry(self) -> None:
+        """Remove the currently selected path entry."""
+        cursor = self.directory_edit.textCursor()
+        if not cursor.block().isValid():
+            return
+        cursor.select(cursor.SelectionType.LineUnderCursor)
+        cursor.removeSelectedText()
+        if cursor.atBlockStart() and not cursor.atEnd():
+            cursor.deleteChar()
+        self.directory_edit.setTextCursor(cursor)
 
     def _choose_base_directory(self) -> None:
         """Choose the root directory used to resolve case graph paths."""
