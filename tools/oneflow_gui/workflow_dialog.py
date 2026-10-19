@@ -194,6 +194,7 @@ class WorkflowDialog(QDialog):
         repository_root: Path,
         executable: str = "",
         parent: QWidget | None = None,
+        initial_mode: str | None = None,
     ) -> None:
         super().__init__(parent)
         self.setWindowTitle("OneFLOW Workflows")
@@ -208,6 +209,9 @@ class WorkflowDialog(QDialog):
         self._selected_id: str | None = None
         self._build_ui(executable)
         self._reload_workflows()
+        if initial_mode in {"multi_directory", "case_graph"}:
+            self._new_workflow()
+            self.mode_combo.setCurrentIndex(self.mode_combo.findData(initial_mode))
 
     def _build_ui(self, executable: str) -> None:
         root = QVBoxLayout(self)
