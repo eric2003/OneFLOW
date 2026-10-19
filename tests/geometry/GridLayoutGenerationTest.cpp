@@ -303,10 +303,16 @@ TEST( GridLayoutGenerationTest, BuildsCompositeBoundaryFromLocallyGeneratedBlock
         zone.ni = ReadBinary< int >( file );
         zone.nj = ReadBinary< int >( file );
         zone.nk = ReadBinary< int >( file );
-        EXPECT_EQ( zone.ni, expectedDimensions[ zoneIndex ][ 0 ] );
-        EXPECT_EQ( zone.nj, expectedDimensions[ zoneIndex ][ 1 ] );
-        EXPECT_EQ( zone.nk, expectedDimensions[ zoneIndex ][ 2 ] );
+        ASSERT_EQ( zone.ni, expectedDimensions[ zoneIndex ][ 0 ] );
+        ASSERT_EQ( zone.nj, expectedDimensions[ zoneIndex ][ 1 ] );
+        ASSERT_EQ( zone.nk, expectedDimensions[ zoneIndex ][ 2 ] );
+        ASSERT_GT( zone.ni, 1 );
+        ASSERT_GT( zone.nj, 1 );
+        ASSERT_GT( zone.nk, 0 );
+    }
 
+    for ( Zone & zone : zones )
+    {
         const std::size_t nodeCount =
             static_cast< std::size_t >( zone.ni * zone.nj );
         zone.x.resize( nodeCount );
