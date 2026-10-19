@@ -8,7 +8,7 @@ Real gridTrans[3] = 0, 0, 0;
 int axis_dir = 0;
 int ignoreNoBc = 0;
 
-string gridLayoutFileName = "grid/laminarFlatPlate10Edge10EdgeLayout.txt";
+string gridLayoutFileName = "grid/laminarFlatPlate10EdgeLayout.txt";
 int igene = 4;
 
 int codeOfOversetGrid = 0;
