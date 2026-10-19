@@ -19,6 +19,8 @@ from PySide6.QtWidgets import (
 
 from .executable_discovery import executable_candidates
 from .mesh_layout_dialog import MeshLayoutDialog
+from .project_repository import open_project
+from .project_window import ProjectWindow
 from .run_history_dialog import RunHistoryDialog
 from .test_dialog import TestRunnerDialog
 from .user_data_paths import UserDataPaths
@@ -34,6 +36,7 @@ class WorkbenchHomeWindow(QMainWindow):
             repository_root or Path(__file__).resolve().parents[2]
         ).resolve()
         self._case_window = None
+        self._project_windows = []
         self.setWindowTitle("OneFLOW Workbench")
         self.resize(900, 650)
         self._build_ui()
@@ -77,37 +80,42 @@ class WorkbenchHomeWindow(QMainWindow):
         grid = QGridLayout()
         grid.setSpacing(12)
         self._add_activity(
-            grid, 0, 0, "Run a single case",
+            grid, 0, 0, "Open Project",
+            "Open any existing project directory, whether or not it belongs to a built-in catalog.",
+            self._open_project,
+        )
+        self._add_activity(
+            grid, 0, 1, "Run a single case",
             "Select a case from the shared catalog and run it through the Case Workbench.",
             self._open_case_workbench,
         )
         self._add_activity(
-            grid, 0, 1, "Configure multi-case run",
+            grid, 1, 0, "Configure multi-case run",
             "Configure an ordered multi-directory run. Cases do not declare dependencies.",
             self._open_multi_case_workflow,
         )
         self._add_activity(
-            grid, 1, 0, "Run a dependency workflow",
+            grid, 1, 1, "Run a dependency workflow",
             "Define producer/consumer relationships, declared outputs, and execution order.",
             self._open_dependency_workflow,
         )
         self._add_activity(
-            grid, 1, 1, "Run tests",
+            grid, 2, 0, "Run tests",
             "Run unit tests and optionally selected CFD or mesh regression suites.",
             self._open_tests,
         )
         self._add_activity(
-            grid, 2, 0, "Run history",
+            grid, 2, 1, "Run history",
             "Review previous runs, logs, status, and recorded artifacts.",
             self._open_history,
         )
         self._add_activity(
-            grid, 2, 1, "Mesh Layout Editor",
+            grid, 3, 0, "Mesh Layout Editor",
             "Create or edit mesh layouts and their case templates.",
             self._open_mesh_layout,
         )
         self._add_activity(
-            grid, 3, 0, "Saved workflows",
+            grid, 3, 1, "Saved workflows",
             "Open existing multi-case or dependency workflow definitions and their run history.",
             self._open_saved_workflows,
         )
@@ -178,6 +186,25 @@ class WorkbenchHomeWindow(QMainWindow):
 
     def _executable(self) -> str:
         return self.executable_combo.currentText().strip()
+
+    def _open_project(self) -> None:
+        directory = QFileDialog.getExistingDirectory(
+            self,
+            "Open OneFLOW project directory",
+            str(Path.home()),
+        )
+        if not directory:
+            return
+        try:
+            project = open_project(directory)
+        except (OSError, ValueError) as error:
+            QMessageBox.critical(self, "Cannot open project", str(error))
+            return
+        window = ProjectWindow(project, self._repository_root, self)
+        self._project_windows.append(window)
+        window.show()
+        window.raise_()
+        window.activateWindow()
 
     def _open_case_workbench(self) -> None:
         from .main_window import MainWindow
