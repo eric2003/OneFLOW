@@ -117,5 +117,42 @@ def compile_flat_plate_layered(spec):
     ])
     return "\n".join(output)
 
+def render_flat_plate_layered_svg(spec):
+    from tools.mesh_layout.compile_flat_plate import render_flat_plate_svg
 
-__all__ = ["compile_flat_plate_layered"]
+    preview_spec = dict(spec)
+    preview_spec["type"] = "flat_plate"
+    svg = render_flat_plate_svg(preview_spec)
+    length = float(spec["plateLength"])
+    upstream = float(spec["upstreamDistance"])
+    height = float(spec["domainHeight"])
+    distance = float(spec["distributions"]["vertical"]["nearWallDistance"])
+    width, canvas_height = 1000, 640
+    left_gutter, right_gutter, top_gutter, bottom_gutter = 210, 170, 95, 110
+    x_min, x_max = -upstream, length
+    x_span = max(x_max - x_min, 1.0e-12)
+    y_span = max(height, 1.0e-12)
+    scale = min(
+        (width - left_gutter - right_gutter) / x_span,
+        (canvas_height - top_gutter - bottom_gutter) / y_span,
+    )
+    draw_width = x_span * scale
+    draw_height = y_span * scale
+    geometry_left = left_gutter + (
+        width - left_gutter - right_gutter - draw_width
+    ) / 2
+    geometry_top = top_gutter + (
+        canvas_height - top_gutter - bottom_gutter - draw_height
+    ) / 2
+    layer_y = geometry_top + draw_height - distance * scale
+    layer = (
+        f'<line x1="{geometry_left:.3f}" y1="{layer_y:.3f}" '
+        f'x2="{geometry_left + draw_width:.3f}" y2="{layer_y:.3f}" '
+        'stroke="#1769aa" stroke-width="2" stroke-dasharray="5,3"/>'
+        f'<text x="{geometry_left + draw_width + 8:.3f}" y="{layer_y + 4:.3f}" '
+        'font-size="12" fill="#1769aa">y = near-wall distance (41 points)</text>'
+    )
+    return svg.replace("</svg>", layer + "</svg>")
+
+
+__all__ = ["compile_flat_plate_layered", "render_flat_plate_layered_svg"]
