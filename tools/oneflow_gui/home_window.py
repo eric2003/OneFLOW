@@ -77,7 +77,7 @@ class WorkbenchHomeWindow(QMainWindow):
         grid = QGridLayout()
         grid.setSpacing(12)
         self._add_activity(
-            grid, 0, 0, "Run an existing case",
+            grid, 0, 0, "Run a single case",
             "Select a case from the shared catalog and run it through the Case Workbench.",
             self._open_case_workbench,
         )
@@ -177,7 +177,9 @@ class WorkbenchHomeWindow(QMainWindow):
     def _open_case_workbench(self) -> None:
         from .main_window import MainWindow
 
-        self._case_window = MainWindow(self._repository_root)
+        self._case_window = MainWindow(
+            self._repository_root, single_case_mode=True
+        )
         executable = self._executable()
         if executable:
             self._case_window.executable_combo.setEditText(executable)
