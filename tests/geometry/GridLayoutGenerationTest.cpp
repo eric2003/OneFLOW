@@ -252,6 +252,118 @@ TEST( GridLayoutGenerationTest, GeneratesFlatPlateBoundaryLayerDistribution )
     file.close();
 }
 
+TEST( GridLayoutGenerationTest, BuildsCompositeBoundaryFromLocallyGeneratedBlocks )
+{
+    const std::filesystem::path layoutFile =
+        std::filesystem::path( ONEFLOW_SOURCE_DIR ) /
+        "grid/composite_boundary/grid.txt";
+    const std::filesystem::path outputDir =
+        std::filesystem::temp_directory_path() / "oneflow-composite-boundary";
+    std::filesystem::remove_all( outputDir );
+    std::filesystem::create_directories( outputDir );
+
+    const std::filesystem::path outputFile = outputDir / "compositeBoundary.grd";
+    const std::filesystem::path bcFile = outputDir / "compositeBoundary.inp";
+    const int oldDimension = Dim::GetDimension();
+    const std::string oldProjectDir = Prj::prjBaseDir;
+    const GridGenerationTestContext restore{ oldDimension, oldProjectDir, outputDir };
+
+    Dim::SetDimension( TWO_D );
+    Prj::SetPrjBaseDir( outputDir.string() );
+    SetDataString( "gridLayoutFileName", layoutFile.string() );
+    SetDataString( "sourceGridFileName", outputFile.string() );
+    SetDataString( "sourceGridBcName", bcFile.string() );
+    SetDataString( "targetGridFileName", outputFile.string() );
+    SetDataString( "part_uns_file", ( outputDir / "partition.uns" ).string() );
+
+    GridMachine().Run( layoutFile.string() );
+    ASSERT_TRUE( std::filesystem::is_regular_file( outputFile ) );
+
+    std::ifstream file( outputFile, std::ios::binary );
+    ASSERT_TRUE( file.is_open() );
+    ASSERT_EQ( ReadBinary< int >( file ), 2 );
+
+    struct Zone
+    {
+        int ni;
+        int nj;
+        int nk;
+        std::vector< Real > x;
+        std::vector< Real > y;
+        std::vector< Real > z;
+    };
+    std::array< Zone, 2 > zones{};
+    const std::array< std::array< int, 3 >, 2 > expectedDimensions = {{
+        {{ 21, 41, 1 }},
+        {{ 21, 17, 1 }}
+    }};
+    for ( std::size_t zoneIndex = 0; zoneIndex < zones.size(); ++ zoneIndex )
+    {
+        Zone & zone = zones[ zoneIndex ];
+        zone.ni = ReadBinary< int >( file );
+        zone.nj = ReadBinary< int >( file );
+        zone.nk = ReadBinary< int >( file );
+        EXPECT_EQ( zone.ni, expectedDimensions[ zoneIndex ][ 0 ] );
+        EXPECT_EQ( zone.nj, expectedDimensions[ zoneIndex ][ 1 ] );
+        EXPECT_EQ( zone.nk, expectedDimensions[ zoneIndex ][ 2 ] );
+
+        const std::size_t nodeCount =
+            static_cast< std::size_t >( zone.ni * zone.nj );
+        zone.x.resize( nodeCount );
+        zone.y.resize( nodeCount );
+        zone.z.resize( nodeCount );
+        for ( Real & value : zone.x ) value = ReadBinary< Real >( file );
+        for ( Real & value : zone.y ) value = ReadBinary< Real >( file );
+        for ( Real & value : zone.z ) value = ReadBinary< Real >( file );
+    }
+
+    const auto nodeIndex = []( int i, int j, int ni )
+    {
+        return static_cast< std::size_t >( j * ni + i );
+    };
+    for ( int i = 0; i < zones[ 0 ].ni; ++ i )
+    {
+        const std::size_t upperBlockInterface = nodeIndex( i, zones[ 0 ].nj - 1, zones[ 0 ].ni );
+        const std::size_t lowerBlockInterface = nodeIndex( i, 0, zones[ 1 ].ni );
+        EXPECT_NEAR( zones[ 0 ].x[ upperBlockInterface ], zones[ 1 ].x[ lowerBlockInterface ], 1.0e-12 );
+        EXPECT_NEAR( zones[ 0 ].y[ upperBlockInterface ], 1.0, 1.0e-12 );
+        EXPECT_NEAR( zones[ 1 ].y[ lowerBlockInterface ], 1.0, 1.0e-12 );
+        EXPECT_NEAR( zones[ 0 ].y[ upperBlockInterface ], zones[ 1 ].y[ lowerBlockInterface ], 1.0e-12 );
+        EXPECT_NEAR( zones[ 0 ].z[ upperBlockInterface ], zones[ 1 ].z[ lowerBlockInterface ], 1.0e-12 );
+    }
+
+    for ( std::size_t zoneIndex = 0; zoneIndex < zones.size(); ++ zoneIndex )
+    {
+        const Zone & zone = zones[ zoneIndex ];
+        Real area = 0.0;
+        for ( int j = 0; j < zone.nj - 1; ++ j )
+        {
+            for ( int i = 0; i < zone.ni - 1; ++ i )
+            {
+                const std::size_t a = nodeIndex( i, j, zone.ni );
+                const std::size_t b = nodeIndex( i + 1, j, zone.ni );
+                const std::size_t c = nodeIndex( i + 1, j + 1, zone.ni );
+                const std::size_t d = nodeIndex( i, j + 1, zone.ni );
+                const Real cellArea = 0.5 * (
+                    zone.x[ a ] * zone.y[ b ] - zone.y[ a ] * zone.x[ b ] +
+                    zone.x[ b ] * zone.y[ c ] - zone.y[ b ] * zone.x[ c ] +
+                    zone.x[ c ] * zone.y[ d ] - zone.y[ c ] * zone.x[ d ] +
+                    zone.x[ d ] * zone.y[ a ] - zone.y[ d ] * zone.x[ a ] );
+                EXPECT_GT( cellArea, 0.0 );
+                area += cellArea;
+            }
+        }
+        EXPECT_NEAR( area, 4.0, 1.0e-10 );
+    }
+
+    EXPECT_NEAR( zones[ 0 ].x[ nodeIndex( zones[ 0 ].ni - 1, 0, zones[ 0 ].ni ) ], 4.0, 1.0e-12 );
+    EXPECT_NEAR( zones[ 0 ].y[ nodeIndex( zones[ 0 ].ni - 1, zones[ 0 ].nj - 1, zones[ 0 ].ni ) ], 1.0, 1.0e-12 );
+    EXPECT_NEAR( zones[ 1 ].y[ nodeIndex( zones[ 1 ].ni - 1, zones[ 1 ].nj - 1, zones[ 1 ].ni ) ], 2.0, 1.0e-12 );
+    EXPECT_NEAR( zones[ 1 ].x[ nodeIndex( 0, zones[ 1 ].nj - 1, zones[ 1 ].ni ) ], 0.0, 1.0e-12 );
+
+    file.close();
+}
+
 TEST( DomDataTest, RebuildsControlPointCandidatesFromCurrentDomainIncidence )
 {
     DomData domainData;
