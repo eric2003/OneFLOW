@@ -187,21 +187,19 @@ class WorkbenchHomeWindow(QMainWindow):
 
     def _open_multi_case_workflow(self) -> None:
         dialog = WorkflowDialog(
-            self._repository_root, self._executable(), self
-        )
-        dialog._new_workflow()
-        dialog.mode_combo.setCurrentIndex(
-            dialog.mode_combo.findData("multi_directory")
+            self._repository_root,
+            self._executable(),
+            self,
+            initial_mode="multi_directory",
         )
         dialog.exec()
 
     def _open_dependency_workflow(self) -> None:
         dialog = WorkflowDialog(
-            self._repository_root, self._executable(), self
-        )
-        dialog._new_workflow()
-        dialog.mode_combo.setCurrentIndex(
-            dialog.mode_combo.findData("case_graph")
+            self._repository_root,
+            self._executable(),
+            self,
+            initial_mode="case_graph",
         )
         dialog.exec()
 
