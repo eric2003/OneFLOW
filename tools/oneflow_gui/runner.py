@@ -57,6 +57,8 @@ def run_case(
     run_id: str,
     cancel_event: threading.Event,
     log: LogCallback,
+    *,
+    execution_mode: str = "default_workspace",
 ) -> CaseRunResult:
     """Run one case, forward combined output, and support cooperative stopping."""
 
@@ -73,7 +75,14 @@ def run_case(
         )
 
     try:
-        case_workspace = _copy_case_to_workspace(case, workspace_root, run_id)
+        if execution_mode == "source":
+            case_workspace = case.case_directory.resolve()
+            if not case_workspace.is_dir():
+                raise NotADirectoryError(f"Source case directory does not exist: {case_workspace}")
+        elif execution_mode in {"default_workspace", "custom_workspace"}:
+            case_workspace = _copy_case_to_workspace(case, workspace_root, run_id)
+        else:
+            raise ValueError(f"Unsupported case execution mode: {execution_mode!r}")
         command = build_command(executable, case_workspace)
         log(f"[{case.case_id}] Command: {' '.join(command)}")
         log(f"[{case.case_id}] Working directory: {executable.parent}")
