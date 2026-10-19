@@ -23,10 +23,16 @@ From **Run an existing case**, open Case Workbench, choose the executable, selec
 and displays process output and per-case status. **Stop queue** terminates the
 active process and prevents pending cases from launching.
 
-Each case is copied to a unique directory under the selected workspace before
-execution. Generated files therefore do not overwrite the checked-in case
-inputs. The application invokes the same command shape used by the existing
-workflow runner: `OneFLOW.exe r <case-directory>`.
+The case execution location is explicit:
+- **Copy to OneFLOW default run workspace** stages each case under
+  `~/.oneflow/executions/<run-id>/<case-id>`.
+- **Run in original case directory** passes the catalog case directory directly
+  to OneFLOW. The GUI asks for confirmation because generated files may overwrite
+  or add files beside the source inputs.
+- **Copy to specified run directory** stages each case under the chosen directory.
+
+The application invokes the standard command shape:
+`OneFLOW.exe r <case-directory>`.
 
 Use **Tests...** to run the existing CTest and Python unit-test commands by default, or enable the optional CFD/grid regression suite. Regression runs invoke `test/test.py` and an existing manifest from `test/suites/`; the GUI does not implement a second test engine. Use **Run History...** to inspect Case Workbench and workflow run records and logs, edit notes, delete individual records, or clean matching history by workflow, status, and timestamp. These history operations never delete run artifacts.
 
@@ -86,7 +92,7 @@ The long-term product direction is documented in both [Chinese](../../docs/ONEFL
 - `workflow_execution.py`: shell-free construction of one-process,
   multi-directory command arguments, preserving the user-specified order.
 - `home_window.py`: activity selector that routes to case runs, independent multi-case runs, dependency workflows, tests, run history, and mesh layout tools.
-- `main_window.py`: Case Workbench widgets and the sequential case queue worker.
+- `main_window.py`: Case Workbench widgets, execution-location selection, and the sequential case queue worker.
 - `mesh_layout_dialog.py`: template-based geometry, mesh-count, spacing, and boundary editor with SVG preview.
 - `tools/mesh_layout/editor_document.py`: Qt-independent JSON loading, validation, compilation, and saving shared by the editor.
 - `workflow_dialog.py`: workflow editor, single-process multi-directory execution, and persisted run-history presentation.
