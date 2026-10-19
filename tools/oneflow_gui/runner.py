@@ -50,6 +50,25 @@ def _copy_case_to_workspace(
     return destination
 
 
+def prepare_case_directory(
+    case: CaseDefinition,
+    workspace_root: Path,
+    run_id: str,
+    execution_mode: str,
+) -> Path:
+    """Resolve the execution copy according to the user's selected location."""
+    if execution_mode == "source":
+        source_directory = case.case_directory.resolve()
+        if not source_directory.is_dir():
+            raise NotADirectoryError(
+                f"Source case directory does not exist: {source_directory}"
+            )
+        return source_directory
+    if execution_mode in {"default_workspace", "custom_workspace"}:
+        return _copy_case_to_workspace(case, workspace_root, run_id)
+    raise ValueError(f"Unsupported case execution mode: {execution_mode!r}")
+
+
 def run_case(
     case: CaseDefinition,
     executable: Path,
@@ -75,14 +94,9 @@ def run_case(
         )
 
     try:
-        if execution_mode == "source":
-            case_workspace = case.case_directory.resolve()
-            if not case_workspace.is_dir():
-                raise NotADirectoryError(f"Source case directory does not exist: {case_workspace}")
-        elif execution_mode in {"default_workspace", "custom_workspace"}:
-            case_workspace = _copy_case_to_workspace(case, workspace_root, run_id)
-        else:
-            raise ValueError(f"Unsupported case execution mode: {execution_mode!r}")
+        case_workspace = prepare_case_directory(
+            case, workspace_root, run_id, execution_mode
+        )
         command = build_command(executable, case_workspace)
         log(f"[{case.case_id}] Command: {' '.join(command)}")
         log(f"[{case.case_id}] Working directory: {executable.parent}")
