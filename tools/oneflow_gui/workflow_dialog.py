@@ -249,11 +249,18 @@ class WorkflowDialog(QDialog):
         self.graph_edit.setMinimumHeight(160)
         self.base_directory_edit = QLineEdit()
         self.base_directory_edit.setPlaceholderText("Base directory containing the configured case directories")
+        base_directory_row = QHBoxLayout()
+        base_directory_row.addWidget(self.base_directory_edit, 1)
+        self.base_directory_browse = QPushButton("Browse...")
+        self.base_directory_browse.clicked.connect(self._choose_base_directory)
+        base_directory_row.addWidget(self.base_directory_browse)
+        base_directory_widget = QWidget()
+        base_directory_widget.setLayout(base_directory_row)
         form.addRow("Description", self.description_edit)
         form.addRow("Workflow type", self.mode_combo)
         form.addRow("Directories", directory_widget)
         form.addRow("Case graph JSON", self.graph_edit)
-        form.addRow("Graph base directory", self.base_directory_edit)
+        form.addRow("Graph base directory", base_directory_widget)
         root.addLayout(form)
         self._workflow_mode_changed()
 
@@ -310,6 +317,21 @@ class WorkflowDialog(QDialog):
         if directory:
             current = self.directory_edit.toPlainText().rstrip()
             self.directory_edit.setPlainText(f"{current}\n{directory}" if current else directory)
+
+
+    def _choose_base_directory(self) -> None:
+        """Choose the root directory used to resolve case graph paths."""
+        current = self.base_directory_edit.text().strip()
+        start = Path(current).expanduser() if current else self._repository_root
+        if start.is_file():
+            start = start.parent
+        if not start.is_dir():
+            start = self._repository_root
+        directory = QFileDialog.getExistingDirectory(
+            self, "Select workflow base directory", str(start)
+        )
+        if directory:
+            self.base_directory_edit.setText(directory)
 
     def _workflow_mode_changed(self, *_args) -> None:
         graph_mode = self.mode_combo.currentData() == "case_graph"
