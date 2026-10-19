@@ -74,7 +74,7 @@ class MeshLayoutDialog(QDialog):
         template_row.addWidget(QLabel("Template"))
         self.template_combo = QComboBox()
         self.template_combo.addItem("Single rectangle", "rectangle")
-        self.template_combo.addItem("Rectangle with vertical midpoints", "rectangle_vertical_midpoints")
+        self.template_combo.addItem("Single rectangle with vertical midpoints", "rectangle_vertical_midpoints")
         self.template_combo.addItem("Two-block turbulent flat plate", "flat_plate")
         self.template_combo.addItem("Two-block laminar flat plate", "laminar_flat_plate")
         self.template_combo.currentIndexChanged.connect(self._load_selected_template)
