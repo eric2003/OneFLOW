@@ -397,7 +397,6 @@ class MainWindow(QMainWindow):
             if answer != QMessageBox.StandardButton.Yes:
                 return
 
-        execution_mode = self.execution_location_combo.currentData()
         if execution_mode == "custom_workspace":
             workspace_text = self.workspace_edit.text().strip()
             if not workspace_text:
@@ -436,7 +435,12 @@ class MainWindow(QMainWindow):
                 steps=({
                     "type": "case_queue",
                     "case_ids": [case.case_id for case in selected],
-                    "workspace": str(workspace_root / run_id),
+                    "execution_mode": execution_mode,
+                    "workspace": (
+                        "source case directories"
+                        if execution_mode == "source"
+                        else str(workspace_root / run_id)
+                    ),
                 },),
                 message="Case queue started.",
                 log_path=str(log_path),
@@ -450,7 +454,11 @@ class MainWindow(QMainWindow):
         self._active_case_run_log_path = log_path
         self.log_view.appendPlainText(
             f"\nRun {run_id}\nExecutable: {Path(executable_text).resolve()}\n"
-            f"Workspace: {workspace_root / run_id}"
+            (
+                "Execution location: original case directories"
+                if execution_mode == "source"
+                else f"Workspace: {workspace_root / run_id}"
+            )
         )
         self.run_button.setEnabled(False)
         self.stop_button.setEnabled(True)
