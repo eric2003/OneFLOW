@@ -51,6 +51,23 @@ class MeshLayoutProjectsTest(unittest.TestCase):
             )
             self.assertFalse((project / "script").exists())
 
+    def test_vertical_midpoint_rectangle_template_is_available(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            project = ensure_template_project(
+                REPOSITORY_ROOT,
+                Path(directory),
+                "rectangle_vertical_midpoints",
+            )
+            self.assertTrue((project / "rectangle_vertical_midpoints.json").is_file())
+            self.assertTrue(
+                (project / "grid" / "minimalRectangleVerticalMidpointsLayout.txt").is_file()
+            )
+            spec = json.loads(
+                (project / "rectangle_vertical_midpoints.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(spec["type"], "rectangle_vertical_midpoints")
+            self.assertEqual(spec["segmentPointCounts"], [3, 2, 2, 3, 2, 2])
+
     def test_project_destination_inside_repository_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             with self.assertRaisesRegex(ValueError, "outside the OneFLOW source tree"):
