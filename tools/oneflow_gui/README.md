@@ -1,6 +1,6 @@
-# OneFLOW Desktop Case Runner
+# OneFLOW Workbench
 
-The desktop application starts with an activity selector rather than opening Case Workbench immediately. Choose a single case, configure a multi-case run with no declared dependencies, open a dependency workflow, run tests, review run history, or open Mesh Layout Editor. Case definitions, workflow definitions, run workspaces, and run history have distinct responsibilities.
+The desktop application starts with a Workbench activity selector. **Open Project** accepts any existing directory, including projects outside the repository and projects not registered in a built-in catalog. The project window makes a best-effort attempt to identify Grid or CFD/flow projects from `script/control.txt` or `control.txt`; unknown projects can still be opened, and classification does not replace runtime validation. A selected project can run in place (the default), be copied to the default workspace, or be copied to a specified directory. Built-in case catalogs remain an optional source of ready-made examples. Other activities configure multi-case or dependency workflows, run tests, review run history, or open Mesh Layout Editor. Project discovery, catalog definitions, workflow definitions, run workspaces, and run history have distinct responsibilities.
 
 ## Launch
 
@@ -19,7 +19,7 @@ The first detected path is selected automatically; use the dropdown to switch
 between detected copies, type a path directly, or use **Browse...** for an
 unlisted location. No full-disk search is performed.
 
-From **Run a single case**, choose the executable and one catalog case. The selection is restricted to one case in this entry point. Use the execution-location selector to run in the source directory, copy to the default run workspace, or copy to a specified directory. The queue runs cases sequentially
+From **Open Project**, choose any existing project directory and then choose the executable and execution location. This path does not require catalog registration. From **Run a single case**, choose the executable and one catalog case. The selection is restricted to one case in this entry point. Use the execution-location selector to run in the source directory, copy to the default run workspace, or copy to a specified directory. The queue runs cases sequentially
 and displays process output and per-case status. **Stop queue** terminates the
 active process and prevents pending cases from launching.
 
