@@ -51,12 +51,14 @@ class RunQueueWorker(QThread):
         executable: Path,
         workspace_root: Path,
         run_id: str,
+        execution_mode: str = "default_workspace",
     ) -> None:
         super().__init__()
         self._cases = cases
         self._executable = executable
         self._workspace_root = workspace_root
         self._run_id = run_id
+        self._execution_mode = execution_mode
         self._cancel_event = threading.Event()
 
     def request_stop(self) -> None:
@@ -88,6 +90,7 @@ class RunQueueWorker(QThread):
                 self._run_id,
                 self._cancel_event,
                 self.log_line.emit,
+                execution_mode=self._execution_mode,
             )
             self.case_result.emit(result)
             self.case_state.emit(case.case_id, result.state.value)
@@ -154,14 +157,34 @@ class MainWindow(QMainWindow):
         executable_layout.addWidget(executable_browse)
         root_layout.addLayout(executable_layout)
 
+        location_layout = QHBoxLayout()
+        location_layout.addWidget(QLabel("Execution location"))
+        self.execution_location_combo = QComboBox()
+        self.execution_location_combo.addItem(
+            "Copy to OneFLOW default run workspace", "default_workspace"
+        )
+        self.execution_location_combo.addItem(
+            "Run in original case directory", "source"
+        )
+        self.execution_location_combo.addItem(
+            "Copy to specified run directory", "custom_workspace"
+        )
+        self.execution_location_combo.currentIndexChanged.connect(
+            self._execution_location_changed
+        )
+        location_layout.addWidget(self.execution_location_combo, 1)
+        root_layout.addLayout(location_layout)
+
         workspace_layout = QHBoxLayout()
-        workspace_layout.addWidget(QLabel("Run workspace"))
+        workspace_layout.addWidget(QLabel("Run directory"))
         self.workspace_edit = QLineEdit(str(UserDataPaths.discover().executions))
         workspace_layout.addWidget(self.workspace_edit, 1)
         workspace_browse = QPushButton("Browse...")
         workspace_browse.clicked.connect(self._choose_workspace)
         workspace_layout.addWidget(workspace_browse)
         root_layout.addLayout(workspace_layout)
+        self.workspace_browse_button = workspace_browse
+        self._execution_location_changed()
 
         self.case_table = QTableWidget(0, 4)
         self.case_table.setHorizontalHeaderLabels(
@@ -325,9 +348,14 @@ class MainWindow(QMainWindow):
         if path:
             self.executable_combo.setEditText(path)
 
+    def _execution_location_changed(self, *_args) -> None:
+        custom = self.execution_location_combo.currentData() == "custom_workspace"
+        self.workspace_edit.setEnabled(custom)
+        self.workspace_browse_button.setEnabled(custom)
+
     def _choose_workspace(self) -> None:
         path = QFileDialog.getExistingDirectory(
-            self, "Select run workspace", self.workspace_edit.text()
+            self, "Select run directory", self.workspace_edit.text()
         )
         if path:
             self.workspace_edit.setText(path)
@@ -356,19 +384,26 @@ class MainWindow(QMainWindow):
             )
             return
 
-        workspace_text = self.workspace_edit.text().strip()
-        if not workspace_text:
-            QMessageBox.warning(
-                self, "Workspace required", "Choose a writable run workspace."
-            )
-            return
+        execution_mode = self.execution_location_combo.currentData()
+        if execution_mode == "custom_workspace":
+            workspace_text = self.workspace_edit.text().strip()
+            if not workspace_text:
+                QMessageBox.warning(
+                    self, "Run directory required", "Choose a writable run directory."
+                )
+                return
+            workspace_root = Path(workspace_text).expanduser().resolve()
+        elif execution_mode == "default_workspace":
+            workspace_root = UserDataPaths.discover().executions
+        else:
+            workspace_root = self._repository_root
 
-        workspace_root = Path(workspace_text).expanduser().resolve()
-        try:
-            workspace_root.mkdir(parents=True, exist_ok=True)
-        except OSError as error:
-            QMessageBox.critical(self, "Workspace unavailable", str(error))
-            return
+        if execution_mode != "source":
+            try:
+                workspace_root.mkdir(parents=True, exist_ok=True)
+            except OSError as error:
+                QMessageBox.critical(self, "Workspace unavailable", str(error))
+                return
 
         run_id = create_run_id()
         started_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
@@ -410,7 +445,8 @@ class MainWindow(QMainWindow):
             self._set_case_status(case.case_id, RunState.PENDING.value)
 
         self._worker = RunQueueWorker(
-            selected, Path(executable_text), workspace_root, run_id
+            selected, Path(executable_text), workspace_root, run_id,
+            execution_mode=execution_mode,
         )
         self._worker.log_line.connect(self._append_case_run_log)
         self._worker.case_state.connect(self._set_case_status)
