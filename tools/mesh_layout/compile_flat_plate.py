@@ -13,6 +13,7 @@ try:
         LayoutPoint,
         LayoutTopology,
     )
+    from tools.mesh_layout.layout_serializer import serialize_topology
 except ModuleNotFoundError:
     from layout_topology import (
         LayoutBlock,
@@ -21,6 +22,7 @@ except ModuleNotFoundError:
         LayoutPoint,
         LayoutTopology,
     )
+    from layout_serializer import serialize_topology
 
 
 BC_TYPES = {
@@ -232,55 +234,27 @@ def compile_flat_plate(spec):
         ),
     )
     topology.validate()
-    lines_out = []
-    for point in topology.points:
-        lines_out.append(
-            f"Point({point.id})= {{{_format_coordinate(point.x)},"
-            f"{_format_coordinate(point.y)},{_format_coordinate(point.z)}}}"
+    return serialize_topology(
+        topology,
+        _format_coordinate,
+        _format_distribution,
+    )
+
+
+def _format_distribution(line):
+    values = line.distribution
+    if isinstance(values, list):
+        start_value, end_value = values
+        return f"Ds({line.id})={{d,{start_value},{end_value}}}"
+    if values["type"] == "boundary_layer":
+        return (
+            f"Ds({line.id})={{bl,{values['nearWallIntervalCount'] + 1},"
+            f"{values['nearWallDistance']}}}"
         )
+    start_value = _format_spacing(values["startSpacing"])
+    end_value = _format_spacing(values["endSpacing"])
+    return f"Ds({line.id})={{tanh,{start_value},{end_value}}}"
 
-    lines_out.append("")
-    for line in topology.lines:
-        lines_out.append(
-            f"Line({line.id})={{{line.start_point},{line.end_point}}}"
-        )
-
-    lines_out.append("")
-    for line in topology.lines:
-        lines_out.append(f"Dim({line.id})={{{line.point_count}}}")
-
-    lines_out.append("")
-    for line in topology.lines:
-        line_id = line.id
-        values = line.distribution
-        if isinstance(values, list):
-            start_value, end_value = values
-            lines_out.append(f"Ds({line_id})={{d,{start_value},{end_value}}}")
-        elif values["type"] == "boundary_layer":
-            lines_out.append(
-                f"Ds({line_id})={{bl,{values['nearWallIntervalCount'] + 1},"
-                f"{values['nearWallDistance']}}}"
-            )
-        else:
-            start_value = _format_spacing(values["startSpacing"])
-            end_value = _format_spacing(values["endSpacing"])
-            lines_out.append(f"Ds({line_id})={{tanh,{start_value},{end_value}}}")
-
-    lines_out.append("")
-    for line in topology.lines:
-        lines_out.append(f"Boundary({line.id})={{{line.boundary_type}}}")
-
-    for face in topology.faces:
-        lines_out.append("")
-        for position, line_id in face.line_by_side:
-            lines_out.append(f"Add L2F {face.id} {position} {line_id}")
-
-    lines_out.append("")
-    for block in topology.blocks:
-        for position, face_id in block.face_by_position:
-            lines_out.append(f"Add F2B {block.id} {position} {face_id}")
-    lines_out.append("")
-    return "\n".join(lines_out)
 
 
 def render_flat_plate_svg(spec):
