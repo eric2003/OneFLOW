@@ -236,7 +236,17 @@ class MeshLayoutDialog(QDialog):
             QMessageBox.warning(self, "Invalid specification", str(error))
             return
         kind = spec["type"]
-        template_kind = "laminar_flat_plate" if source_path.parent.name == "laminar_flat_plate" else kind
+        template_kind_by_type = {
+            "rectangle": "rectangle",
+            "rectangle_vertical_midpoints": "rectangle_vertical_midpoints",
+            "flat_plate": "flat_plate",
+            "flat_plate_layered": "laminar_flat_plate_10_edges",
+        }
+        template_kind = template_kind_by_type.get(kind, kind)
+        if source_path.parent.name == "laminar_flat_plate":
+            template_kind = "laminar_flat_plate"
+        elif source_path.parent.name == "laminar_flat_plate_10_edges":
+            template_kind = "laminar_flat_plate_10_edges"
         index = self.template_combo.findData(template_kind)
         if index < 0:
             QMessageBox.warning(self, "Unsupported project", f"Unsupported type: {kind}")
@@ -270,7 +280,7 @@ class MeshLayoutDialog(QDialog):
         self._project_root = project_root
         self._spec = spec
         self.spec_path_edit.setText(str(source_path))
-        self.output_path_edit.setText(str(self._default_output_path(kind, project_root)))
+        self.output_path_edit.setText(str(self._default_output_path(template_kind, project_root)))
         self._rebuild_fields()
         self._render_preview()
 
@@ -532,7 +542,7 @@ class MeshLayoutDialog(QDialog):
         path, _ = QFileDialog.getSaveFileName(
             self,
             "Save specification as",
-            str(self._default_specification_path(self._spec["type"])),
+            str(self._default_specification_path(self.template_combo.currentData())),
             "JSON files (*.json);;All files (*)",
         )
         if not path:
@@ -547,7 +557,7 @@ class MeshLayoutDialog(QDialog):
         self._project_root = output_path.parent
         self.spec_path_edit.setText(str(output_path))
         self.output_path_edit.setText(
-            str(self._default_output_path(spec["type"], self._project_root))
+            str(self._default_output_path(self.template_combo.currentData(), self._project_root))
         )
         self._rebuild_fields()
         self._render_preview()
