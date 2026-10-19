@@ -1,6 +1,6 @@
 # OneFLOW Desktop Case Runner
 
-The desktop application starts with an activity selector rather than opening Case Workbench immediately. Choose an existing case, a multi-case run with no declared dependencies, a dependency workflow, tests, run history, or Mesh Layout Editor. Case definitions, workflow definitions, run workspaces, and run history have distinct responsibilities.
+The desktop application starts with an activity selector rather than opening Case Workbench immediately. Choose a single case, configure a multi-case run with no declared dependencies, open a dependency workflow, run tests, review run history, or open Mesh Layout Editor. Case definitions, workflow definitions, run workspaces, and run history have distinct responsibilities.
 
 ## Launch
 
@@ -19,7 +19,7 @@ The first detected path is selected automatically; use the dropdown to switch
 between detected copies, type a path directly, or use **Browse...** for an
 unlisted location. No full-disk search is performed.
 
-From **Run an existing case**, open Case Workbench, choose the executable, select one or more cases, and click **Run selected cases**. The queue runs cases sequentially
+From **Run a single case**, choose the executable and one catalog case. The selection is restricted to one case in this entry point. Use the execution-location selector to run in the source directory, copy to the default run workspace, or copy to a specified directory. The queue runs cases sequentially
 and displays process output and per-case status. **Stop queue** terminates the
 active process and prevents pending cases from launching.
 
@@ -51,7 +51,7 @@ selectors show concise names by default; hover for details or enable
 labels every edge with its edge name, boundary condition, and point count.
 **Reset flat-plate boundaries** restores the standard two-block defaults.
 
-From the activity selector, **Run independent cases** opens the multi-directory workflow editor, while **Run a dependency workflow** opens its dependency-graph mode. These are intentionally different execution semantics. Use the workflow editor to create, edit, save, and delete named workflow definitions. The
+From the activity selector, **Configure multi-case run** opens a new multi-directory workflow draft, while **Run a dependency workflow** opens a new dependency-graph draft. Existing saved workflows remain available in the editor. These are intentionally different execution semantics. Use the workflow editor to create, edit, save, and delete named workflow definitions. The
 **Multi-directory** mode preserves the existing behavior: each directory is
 entered on a separate line, and one OneFLOW process receives
 `OneFLOW.exe r <directory-1> <directory-2> ...`. The **Dependency graph** mode
