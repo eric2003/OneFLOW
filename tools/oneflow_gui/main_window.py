@@ -171,10 +171,10 @@ class MainWindow(QMainWindow):
         location_layout.addWidget(QLabel("Execution location"))
         self.execution_location_combo = QComboBox()
         self.execution_location_combo.addItem(
-            "Copy to OneFLOW default run workspace", "default_workspace"
+            "Run in original case directory", "source"
         )
         self.execution_location_combo.addItem(
-            "Run in original case directory", "source"
+            "Copy to OneFLOW default run workspace", "default_workspace"
         )
         self.execution_location_combo.addItem(
             "Copy to specified run directory", "custom_workspace"
