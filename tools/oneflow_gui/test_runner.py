@@ -26,6 +26,7 @@ _PYTHON_UNIT_TESTS = (
     ("Flat-plate layout compiler tests", ("-m", "unittest", "tests.tools.test_compile_flat_plate")),
     ("Explicit layout topology tests", ("-m", "unittest", "tests.tools.test_layout_topology")),
     ("Desktop service tests", ("-m", "unittest", "tools.oneflow_gui.test_services")),
+    ("Project repository tests", ("-m", "unittest", "tools.oneflow_gui.test_project_repository")),
     ("User data path tests", ("-m", "unittest", "tools.oneflow_gui.test_user_data_paths")),
     ("Workflow persistence tests", ("-m", "unittest", "tools.oneflow_gui.test_workflow_repository")),
     ("Workflow command tests", ("-m", "unittest", "tools.oneflow_gui.test_workflow_execution")),
