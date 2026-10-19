@@ -356,13 +356,15 @@ TEST( GridLayoutGenerationTest, AssemblesRectangleFromTwoLocallyGeneratedBlocks 
             EXPECT_TRUE( containsPoint( zone, corner.x, corner.y ) );
         }
 
+        const std::array< std::size_t, 4 > cellNodes = {{ 0, 1, 3, 2 }};
         Real twiceSignedArea = 0.0;
-        for ( std::size_t node = 0; node < zone.x.size(); ++ node )
+        for ( std::size_t node = 0; node < cellNodes.size(); ++ node )
         {
-            const std::size_t next = ( node + 1 ) % zone.x.size();
+            const std::size_t current = cellNodes[ node ];
+            const std::size_t next = cellNodes[ ( node + 1 ) % cellNodes.size() ];
             twiceSignedArea +=
-                zone.x[ node ] * zone.y[ next ] -
-                zone.y[ node ] * zone.x[ next ];
+                zone.x[ current ] * zone.y[ next ] -
+                zone.y[ current ] * zone.x[ next ];
         }
         const Real area = 0.5 * std::abs( twiceSignedArea );
         EXPECT_NEAR( area, 4.0, 1.0e-12 );
