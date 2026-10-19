@@ -77,6 +77,7 @@ class MeshLayoutDialog(QDialog):
         self.template_combo.addItem("Single rectangle with vertical midpoints", "rectangle_vertical_midpoints")
         self.template_combo.addItem("Two-block turbulent flat plate", "flat_plate")
         self.template_combo.addItem("Two-block laminar flat plate", "laminar_flat_plate")
+        self.template_combo.addItem("Two-block laminar flat plate (10 edges)", "laminar_flat_plate_10_edges")
         self.template_combo.currentIndexChanged.connect(self._load_selected_template)
         template_row.addWidget(self.template_combo, 1)
         root.addLayout(template_row)
@@ -155,17 +156,18 @@ class MeshLayoutDialog(QDialog):
         self._load_selected_template()
 
     def _template_project_source(self, kind: str) -> Path:
-        folder = {"rectangle": "minimal_rectangle", "rectangle_vertical_midpoints": "minimal_rectangle_vertical_midpoints", "flat_plate": "turbulent_flat_plate", "laminar_flat_plate": "laminar_flat_plate"}[kind]
+        folder = {"rectangle": "minimal_rectangle", "rectangle_vertical_midpoints": "minimal_rectangle_vertical_midpoints", "flat_plate": "turbulent_flat_plate", "laminar_flat_plate": "laminar_flat_plate", "laminar_flat_plate_10_edges": "laminar_flat_plate_10_edges"}[kind]
         return self._repository_root / "grid" / folder
 
     def _template_specification_name(self, kind: str) -> str:
-        return {"rectangle": "rectangle.json", "rectangle_vertical_midpoints": "rectangle_vertical_midpoints.json", "flat_plate": "flat_plate.json", "laminar_flat_plate": "flat_plate.json"}[kind]
+        return {"rectangle": "rectangle.json", "rectangle_vertical_midpoints": "rectangle_vertical_midpoints.json", "flat_plate": "flat_plate.json", "laminar_flat_plate": "flat_plate.json", "laminar_flat_plate_10_edges": "flat_plate.json"}[kind]
 
     def _layout_output_name(self, kind: str) -> str:
         return {
             "rectangle": "minimalRectangleLayout.txt",
             "rectangle_vertical_midpoints": "minimalRectangleVerticalMidpointsLayout.txt",
             "laminar_flat_plate": "laminarFlatPlateLayout.txt",
+            "laminar_flat_plate_10_edges": "laminarFlatPlate10EdgeLayout.txt",
             "flat_plate": "turbulentFlatPlateLayout.txt",
         }[kind]
 
@@ -176,7 +178,7 @@ class MeshLayoutDialog(QDialog):
         if self._project_root is not None:
             return self._project_root / self._template_specification_name(kind)
         return self._workspace_paths().mesh_layout_projects / (
-            {"rectangle": "minimal_rectangle", "rectangle_vertical_midpoints": "minimal_rectangle_vertical_midpoints", "flat_plate": "turbulent_flat_plate", "laminar_flat_plate": "laminar_flat_plate"}[kind]
+            {"rectangle": "minimal_rectangle", "rectangle_vertical_midpoints": "minimal_rectangle_vertical_midpoints", "flat_plate": "turbulent_flat_plate", "laminar_flat_plate": "laminar_flat_plate", "laminar_flat_plate_10_edges": "laminar_flat_plate_10_edges"}[kind]
         ) / self._template_specification_name(kind)
 
     def _default_output_path(self, kind: str, project_root: Path | None = None) -> Path:
@@ -397,7 +399,7 @@ class MeshLayoutDialog(QDialog):
             self._field_widgets[path] = widget
             self.fields_form.addRow(label, widget)
 
-        self.reset_boundary_button.setEnabled(self._spec["type"] == "flat_plate")
+        self.reset_boundary_button.setEnabled(self._spec["type"] in ("flat_plate", "flat_plate_layered"))
         self._refresh_boundary_labels(self.show_boundary_codes.isChecked())
 
     def _refresh_boundary_labels(self, show_codes: bool) -> None:
