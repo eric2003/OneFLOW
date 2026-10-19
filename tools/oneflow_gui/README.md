@@ -32,7 +32,7 @@ workflow runner: `OneFLOW.exe r <case-directory>`.
 Use **Tests...** to run the existing CTest and Python unit-test commands by default, or enable the optional CFD/grid regression suite. Regression runs invoke `test/test.py` and an existing manifest from `test/suites/`; the GUI does not implement a second test engine. Use **Run History...** to inspect Case Workbench and workflow run records and logs, edit notes, delete individual records, or clean matching history by workflow, status, and timestamp. These history operations never delete run artifacts.
 
 Use **Mesh Layout...** to open the mesh layout project editor. Choosing
-**Single rectangle**, **Single rectangle with vertical midpoints**, or either **Two-block flat plate** template copies the complete template
+**Single rectangle**, **Single rectangle with vertical midpoints**, **Two-block turbulent flat plate**, or **Two-block laminar flat plate** copies the complete template
 project once into `~/.oneflow/mesh-layout-workspace/projects`; later openings
 reuse that project without overwriting edits. Each project keeps its JSON,
 scripts, and generated layout together, so **Save specification** updates the
