@@ -9,7 +9,11 @@ from pathlib import Path
 from tools.oneflow_gui.case_repository import load_cases
 from tools.oneflow_gui.executable_discovery import executable_candidates
 from tools.oneflow_gui.models import CaseDefinition
-from tools.oneflow_gui.runner import _copy_case_to_workspace, build_command
+from tools.oneflow_gui.runner import (
+    _copy_case_to_workspace,
+    build_command,
+    prepare_case_directory,
+)
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
@@ -76,6 +80,48 @@ class DesktopServiceTest(unittest.TestCase):
             self.assertTrue((copied / "script" / "control.txt").is_file())
             self.assertEqual(source_config.read_text(encoding="utf-8"), '"simu.txt";\n')
             self.assertNotEqual(copied, source)
+
+    def test_source_execution_uses_original_case_directory(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "source_case"
+            source.mkdir()
+            case = CaseDefinition(
+                case_id="sample",
+                title="Sample",
+                case_directory=source,
+                runtime_config=source / "control.txt",
+                profile=None,
+                layout=None,
+            )
+
+            actual = prepare_case_directory(
+                case, root / "runs", "run-001", "source"
+            )
+            self.assertEqual(actual, source.resolve())
+            self.assertFalse((root / "runs").exists())
+
+    def test_custom_execution_copies_case_under_selected_directory(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "source_case"
+            source.mkdir()
+            (source / "control.txt").write_text("config", encoding="utf-8")
+            case = CaseDefinition(
+                case_id="sample",
+                title="Sample",
+                case_directory=source,
+                runtime_config=source / "control.txt",
+                profile=None,
+                layout=None,
+            )
+
+            actual = prepare_case_directory(
+                case, root / "custom_runs", "run-002", "custom_workspace"
+            )
+            self.assertEqual(actual, (root / "custom_runs" / "run-002" / "sample").resolve())
+            self.assertTrue((actual / "control.txt").is_file())
+            self.assertTrue((source / "control.txt").is_file())
 
     def test_workspace_copy_refuses_to_overwrite_existing_run(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
