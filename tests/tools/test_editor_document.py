@@ -24,6 +24,16 @@ class MeshLayoutEditorDocumentTest(unittest.TestCase):
         self.assertEqual(layout, layout_path.read_text(encoding="utf-8"))
         self.assertIn("Rectangle topology preview", svg)
 
+    def test_vertical_midpoint_rectangle_template_compiles_to_checked_in_layout(self):
+        spec_path = ROOT / "grid" / "minimal_rectangle_vertical_midpoints" / "rectangle_vertical_midpoints.json"
+        layout_path = ROOT / "grid" / "minimal_rectangle_vertical_midpoints" / "grid" / "minimalRectangleVerticalMidpointsLayout.txt"
+        spec = load_specification(spec_path)
+        layout, svg = compile_specification(spec)
+        self.assertEqual(layout, layout_path.read_text(encoding="utf-8"))
+        self.assertIn("Rectangle with vertical midpoints", svg)
+        self.assertEqual(layout.count("Line("), 6)
+        self.assertEqual(layout.count("Add L2F"), 6)
+
     def test_flat_plate_template_compiles_to_checked_in_layout(self):
         spec_path = ROOT / "grid" / "turbulent_flat_plate" / "flat_plate.json"
         layout_path = ROOT / "grid" / "turbulent_flat_plate" / "grid" / "turbulentFlatPlateLayout.txt"
