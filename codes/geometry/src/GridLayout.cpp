@@ -2,6 +2,7 @@
 
 #include <set>
 #include <stdexcept>
+#include <tuple>
 #include <utility>
 #include <unordered_set>
 
@@ -23,7 +24,7 @@ void GridLayout::Validate() const
     std::unordered_set< int > faceIds;
     std::unordered_set< int > boundaryIds;
     std::unordered_set< int > dimensionIds;
-    std::set< std::pair< int, int > > lineToFaceSlots;
+    std::set< std::tuple< int, int, int > > lineToFaceRelations;
     std::set< std::pair< int, int > > blockFaceSlots;
 
     for ( const auto & point : points )
@@ -116,10 +117,10 @@ void GridLayout::Validate() const
         {
             throw std::runtime_error( "Invalid line-to-face relation" );
         }
-        if ( ! lineToFaceSlots.insert(
-                  { relation.faceId, relation.position } ).second )
+        if ( ! lineToFaceRelations.insert(
+                  { relation.faceId, relation.position, relation.lineId } ).second )
         {
-            throw std::runtime_error( "Duplicate line-to-face position" );
+            throw std::runtime_error( "Duplicate line-to-face relation" );
         }
         faceIds.insert( relation.faceId );
     }
