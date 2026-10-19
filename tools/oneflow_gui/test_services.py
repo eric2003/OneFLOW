@@ -81,7 +81,7 @@ class DesktopServiceTest(unittest.TestCase):
             self.assertEqual(source_config.read_text(encoding="utf-8"), '"simu.txt";\n')
             self.assertNotEqual(copied, source)
 
-    def test_source_execution_uses_original_case_directory(self) -> None:
+    def test_source_execution_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             source = root / "source_case"
@@ -95,10 +95,10 @@ class DesktopServiceTest(unittest.TestCase):
                 layout=None,
             )
 
-            actual = prepare_case_directory(
-                case, root / "runs", "run-001", "source"
-            )
-            self.assertEqual(actual, source.resolve())
+            with self.assertRaisesRegex(ValueError, "In-place execution is disabled"):
+                prepare_case_directory(
+                    case, root / "runs", "run-001", "source"
+                )
             self.assertFalse((root / "runs").exists())
 
     def test_custom_execution_copies_case_under_selected_directory(self) -> None:
