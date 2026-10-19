@@ -33,7 +33,8 @@ class CompileRectangleTest(unittest.TestCase):
         for edge, count in enumerate((2, 3, 2, 3), start=1):
             self.assertIn(f"Dim({edge})={{{count}}}", output)
 
-    def test_svg_preview_tracks_point_counts_and_line_ids(self):
+    def test_svg_preview_matches_flat_plate_style_and_shows_boundaries(self):
+        self.spec["boundaries"] = {"line1": "wall"}
         svg = compiler.render_rectangle_svg(self.spec)
         self.assertIn("fill=\"#f5f7fa\"", svg)
         self.assertIn("Wall (Line 1)", svg)
