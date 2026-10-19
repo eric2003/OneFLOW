@@ -2,19 +2,14 @@
 
 from __future__ import annotations
 
+from types import SimpleNamespace
+
 from tools.mesh_layout.compile_flat_plate import (
+    _boundary_type,
     _format_coordinate,
     _format_distribution,
     validate_flat_plate_spec,
 )
-from tools.mesh_layout.layout_topology import (
-    LayoutBlock,
-    LayoutFace,
-    LayoutLine,
-    LayoutPoint,
-    LayoutTopology,
-)
-from tools.mesh_layout.layout_serializer import serialize_topology
 
 
 def compile_flat_plate_layered(spec):
@@ -41,58 +36,86 @@ def compile_flat_plate_layered(spec):
     height = float(base_spec["domainHeight"])
     x0, x1, x2 = -upstream, 0.0, length
     y_layer = near_wall_distance
+    points = [
+        (1, x0, 0.0, 0.0),
+        (2, x1, 0.0, 0.0),
+        (3, x2, 0.0, 0.0),
+        (4, x0, height, 0.0),
+        (5, x1, height, 0.0),
+        (6, x2, height, 0.0),
+        (7, x0, y_layer, 0.0),
+        (8, x1, y_layer, 0.0),
+        (9, x2, y_layer, 0.0),
+    ]
+    upper_distribution = {
+        "type": "tanh",
+        "startSpacing": near_wall_distance / near_wall_intervals,
+        "endSpacing": "auto",
+    }
+    distributions = base_spec["distributions"]
+    top_upstream = distributions.get("topUpstream", distributions.get("top"))
+    top_plate = distributions.get("topPlate")
+    if top_plate is None:
+        if isinstance(top_upstream, list):
+            top_plate = list(reversed(top_upstream))
+        elif isinstance(top_upstream, dict) and top_upstream.get("type") == "tanh":
+            top_plate = {
+                "type": "tanh",
+                "startSpacing": top_upstream["endSpacing"],
+                "endSpacing": top_upstream["startSpacing"],
+            }
+        else:
+            top_plate = top_upstream
 
-    points = (
-        LayoutPoint(1, x0, 0.0, 0.0),
-        LayoutPoint(2, x1, 0.0, 0.0),
-        LayoutPoint(3, x2, 0.0, 0.0),
-        LayoutPoint(4, x0, height, 0.0),
-        LayoutPoint(5, x1, height, 0.0),
-        LayoutPoint(6, x2, height, 0.0),
-        LayoutPoint(7, x0, y_layer, 0.0),
-        LayoutPoint(8, x1, y_layer, 0.0),
-        LayoutPoint(9, x2, y_layer, 0.0),
-    )
-    lines = (
-        (1, 1, 2, base_spec["upstreamPointCount"], base_spec["distributions"]["upstream"], "upstreamBottom"),
-        (2, 2, 3, base_spec["platePointCount"], base_spec["distributions"]["plate"], "plate"),
+    line_definitions = [
+        (1, 1, 2, base_spec["upstreamPointCount"], distributions["upstream"], "upstreamBottom"),
+        (2, 2, 3, base_spec["platePointCount"], distributions["plate"], "plate"),
         (3, 1, 7, near_wall_points, [-1, -1], "left"),
-        (4, 7, 4, upper_point_count, {"type": "tanh", "startSpacing": near_wall_distance / near_wall_intervals, "endSpacing": "auto"}, "left"),
+        (4, 7, 4, upper_point_count, upper_distribution, "left"),
         (5, 2, 8, near_wall_points, [-1, -1], "interface"),
-        (6, 8, 5, upper_point_count, {"type": "tanh", "startSpacing": near_wall_distance / near_wall_intervals, "endSpacing": "auto"}, "interface"),
+        (6, 8, 5, upper_point_count, upper_distribution, "interface"),
         (7, 3, 9, near_wall_points, [-1, -1], "right"),
-        (8, 9, 6, upper_point_count, {"type": "tanh", "startSpacing": near_wall_distance / near_wall_intervals, "endSpacing": "auto"}, "right"),
-        (9, 4, 5, base_spec["upstreamPointCount"], base_spec["distributions"].get("topUpstream", base_spec["distributions"].get("top")), "topUpstream"),
-        (10, 5, 6, base_spec["platePointCount"], base_spec["distributions"].get("topPlate", base_spec["distributions"].get("top")), "topPlate"),
-    )
-
-    boundaries = base_spec["boundaries"]
-    from tools.mesh_layout.compile_flat_plate import _boundary_type
-
-    topology = LayoutTopology(
-        points=points,
-        lines=tuple(
-            LayoutLine(
-                line_id,
-                start,
-                end,
-                count,
-                distribution,
-                _boundary_type(boundaries, boundary_name),
-            )
-            for line_id, start, end, count, distribution, boundary_name in lines
-        ),
-        faces=(
-            LayoutFace(1, ((1, 1), (2, 5), (2, 6), (3, 9), (4, 3), (4, 4))),
-            LayoutFace(2, ((1, 2), (2, 7), (2, 8), (3, 10), (4, 5), (4, 6))),
-        ),
-        blocks=(
-            LayoutBlock(1, ((1, 1),)),
-            LayoutBlock(2, ((1, 2),)),
-        ),
-    )
-    topology.validate()
-    return serialize_topology(topology, _format_coordinate, _format_distribution)
+        (8, 9, 6, upper_point_count, upper_distribution, "right"),
+        (9, 4, 5, base_spec["upstreamPointCount"], top_upstream, "topUpstream"),
+        (10, 5, 6, base_spec["platePointCount"], top_plate, "topPlate"),
+    ]
+    output = []
+    for point_id, x, y, z in points:
+        coordinates = ",".join(_format_coordinate(value) for value in (x, y, z))
+        output.append(f"Point({point_id})= {{{coordinates}}}")
+    output.append("")
+    for line_id, start, end, _, _, _ in line_definitions:
+        output.append(f"Line({line_id})={{{start},{end}}}")
+    output.append("")
+    for line_id, _, _, count, _, _ in line_definitions:
+        output.append(f"Dim({line_id})={{{count}}}")
+    output.append("")
+    for line_id, _, _, _, distribution, _ in line_definitions:
+        output.append(_format_distribution(SimpleNamespace(id=line_id, distribution=distribution)))
+    output.append("")
+    for line_id, _, _, _, _, boundary_name in line_definitions:
+        output.append(f"Boundary({line_id})={{{_boundary_type(base_spec['boundaries'], boundary_name)}}}")
+    output.extend([
+        "",
+        "Add L2F 1 1 1",
+        "Add L2F 1 2 5",
+        "Add L2F 1 2 6",
+        "Add L2F 1 3 9",
+        "Add L2F 1 4 3",
+        "Add L2F 1 4 4",
+        "",
+        "Add L2F 2 1 2",
+        "Add L2F 2 2 7",
+        "Add L2F 2 2 8",
+        "Add L2F 2 3 10",
+        "Add L2F 2 4 5",
+        "Add L2F 2 4 6",
+        "",
+        "Add F2B 1 1 1",
+        "Add F2B 2 1 2",
+        "",
+    ])
+    return "\n".join(output)
 
 
 __all__ = ["compile_flat_plate_layered"]
