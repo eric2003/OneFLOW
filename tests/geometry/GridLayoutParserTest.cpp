@@ -177,7 +177,7 @@ TEST( GridLayoutParserTest, RejectsDuplicateDimensionDefinitions )
     EXPECT_THROW( layout.Validate(), std::runtime_error );
 }
 
-TEST( GridLayoutParserTest, RejectsDuplicateLineToFacePositions )
+TEST( GridLayoutParserTest, RejectsDuplicateLineToFaceRelations )
 {
     const std::string fileName =
         std::string( ONEFLOW_SOURCE_DIR ) +
