@@ -49,6 +49,7 @@ class MeshLayoutEditorDocumentTest(unittest.TestCase):
         layout, svg = compile_specification(spec)
         self.assertEqual(layout, layout_path.read_text(encoding="utf-8"))
         self.assertIn("Flat plate boundary-layer layout", svg)
+        self.assertIn("41 points", svg)
         self.assertEqual(layout.count("Line("), 10)
         self.assertIn("Dim(3)={41}", layout)
         self.assertIn("Dim(4)={45}", layout)
