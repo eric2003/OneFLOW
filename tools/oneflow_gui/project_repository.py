@@ -44,7 +44,7 @@ def _runtime_file(control_file: Path | None) -> Path | None:
     except (OSError, UnicodeError):
         return None
 
-    match = re.search(r'["\\']([^"\\']+)["\\']', content)
+    match = re.search(r"""["']([^"']+)["']""", content)
     if match is None:
         return None
 
@@ -62,7 +62,7 @@ def _detect_type(runtime_file: Path | None) -> ProjectType:
         return ProjectType.UNKNOWN
 
     task_match = re.search(
-        r'\\bsimutask\\s*=\\s*["\\']([^"\\']+)["\\']',
+        r"""\\bsimutask\\s*=\\s*["']([^"']+)["']""",
         content,
         flags=re.IGNORECASE,
     )
