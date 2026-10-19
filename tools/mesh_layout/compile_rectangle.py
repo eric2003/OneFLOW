@@ -6,6 +6,23 @@ import json
 import math
 from pathlib import Path
 
+try:
+    from tools.mesh_layout.layout_topology import (
+        LayoutBlock,
+        LayoutFace,
+        LayoutLine,
+        LayoutPoint,
+        LayoutTopology,
+    )
+except ModuleNotFoundError:
+    from layout_topology import (
+        LayoutBlock,
+        LayoutFace,
+        LayoutLine,
+        LayoutPoint,
+        LayoutTopology,
+    )
+
 
 BOUNDARY_TYPES = {
     "none": 0,
@@ -33,6 +50,70 @@ def _boundary_value(value, line_id):
 
 def _same_coordinate(left, right):
     return math.isclose(left, right, rel_tol=0.0, abs_tol=1.0e-12)
+
+
+def _build_rectangle_topology(corners, point_counts, spacing, boundary_values):
+    points = tuple(
+        LayoutPoint(point_id, *coordinates)
+        for point_id, coordinates in enumerate(corners, start=1)
+    )
+    lines = tuple(
+        LayoutLine(
+            line_id,
+            line_id,
+            line_id % 4 + 1,
+            point_counts[line_id - 1],
+            (spacing, -1, -1),
+            boundary_values[line_id - 1],
+        )
+        for line_id in range(1, 5)
+    )
+    topology = LayoutTopology(
+        points=points,
+        lines=lines,
+        faces=(LayoutFace(1, tuple((side, side) for side in range(1, 5))),),
+        blocks=(LayoutBlock(1, ((1, 1),)),),
+    )
+    topology.validate()
+    return topology
+
+
+def _serialize_topology(topology):
+    output = []
+    for point in topology.points:
+        coordinates = ",".join(format_coordinate(value) for value in (point.x, point.y, point.z))
+        output.append(f"Point({point.id})= {{{coordinates}}}")
+
+    output.append("")
+    for line in topology.lines:
+        output.append(f"Line({line.id})={{{line.start_point},{line.end_point}}}")
+
+    output.append("")
+    for line in topology.lines:
+        output.append(f"Dim({line.id})={{{line.point_count}}}")
+
+    output.append("")
+    for line in topology.lines:
+        spacing, start_spacing, end_spacing = line.distribution
+        output.append(
+            f"Ds({line.id})={{{spacing},{start_spacing},{end_spacing}}}"
+        )
+
+    output.append("")
+    for line in topology.lines:
+        output.append(f"Boundary({line.id})={{{line.boundary_type}}}")
+
+    for face in topology.faces:
+        output.append("")
+        for position, line_id in face.line_by_side:
+            output.append(f"Add L2F {face.id} {position} {line_id}")
+
+    output.append("")
+    for block in topology.blocks:
+        for position, face_id in block.face_by_position:
+            output.append(f"Add F2B {block.id} {position} {face_id}")
+    output.append("")
+    return "\\n".join(output)
 
 
 def compile_rectangle(spec):
@@ -94,34 +175,10 @@ def compile_rectangle(spec):
             for line_id in range(1, 5)
         ]
 
-    lines = []
-    for index, point in enumerate(corners, start=1):
-        coords = ",".join(format_coordinate(value) for value in point)
-        lines.append(f"Point({index})= {{{coords}}}")
-
-    lines.append("")
-    for index in range(1, 5):
-        next_index = index % 4 + 1
-        lines.append(f"Line({index})={{{index},{next_index}}}")
-
-    lines.append("")
-    for index, count in enumerate(point_counts, start=1):
-        lines.append(f"Dim({index})={{{count}}}")
-
-    lines.append("")
-    for index in range(1, 5):
-        lines.append(f"Ds({index})={{{spacing},-1,-1}}")
-
-    lines.append("")
-    for index, boundary_value in enumerate(boundary_values, start=1):
-        lines.append(f"Boundary({index})={{{boundary_value}}}")
-
-    lines.append("")
-    for index in range(1, 5):
-        lines.append(f"Add L2F 1 {index} {index}")
-
-    lines.extend(["", "Add F2B 1 1 1", ""])
-    return "\n".join(lines)
+    topology = _build_rectangle_topology(
+        corners, point_counts, spacing, boundary_values
+    )
+    return _serialize_topology(topology)
 
 
 def render_rectangle_svg(spec):
@@ -175,7 +232,7 @@ def render_rectangle_svg(spec):
         f'fill="#202020">Rectangle topology preview</text>'
     )
     elements.append("</svg>")
-    return "\n".join(elements) + "\n"
+    return "\\n".join(elements) + "\\n"
 
 
 def format_coordinate(value):
@@ -195,14 +252,14 @@ def main():
     result = compile_rectangle(spec)
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
-        args.output.write_text(result, encoding="utf-8", newline="\n")
+        args.output.write_text(result, encoding="utf-8", newline="\\n")
     else:
         print(result, end="")
 
     if args.svg_output:
         args.svg_output.parent.mkdir(parents=True, exist_ok=True)
         args.svg_output.write_text(
-            render_rectangle_svg(spec), encoding="utf-8", newline="\n"
+            render_rectangle_svg(spec), encoding="utf-8", newline="\\n"
         )
 
 
