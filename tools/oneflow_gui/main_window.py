@@ -519,9 +519,11 @@ class MainWindow(QMainWindow):
 
 
 def run_desktop_app() -> int:
-    """Create the application and enter Qt's event loop."""
+    """Create the application and show the activity selector first."""
+    from .home_window import WorkbenchHomeWindow
+
     application = QApplication.instance() or QApplication([])
     application.setApplicationName("OneFLOW Workbench")
-    window = MainWindow()
+    window = WorkbenchHomeWindow()
     window.show()
     return application.exec()
