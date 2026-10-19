@@ -32,7 +32,7 @@ workflow runner: `OneFLOW.exe r <case-directory>`.
 Use **Tests...** to run the existing CTest and Python unit-test commands by default, or enable the optional CFD/grid regression suite. Regression runs invoke `test/test.py` and an existing manifest from `test/suites/`; the GUI does not implement a second test engine. Use **Run History...** to inspect Case Workbench and workflow run records and logs, edit notes, delete individual records, or clean matching history by workflow, status, and timestamp. These history operations never delete run artifacts.
 
 Use **Mesh Layout...** to open the mesh layout project editor. Choosing
-**Single rectangle**, **Rectangle with vertical midpoints**, or **Two-block flat plate** copies the complete template
+**Single rectangle**, **Single rectangle with vertical midpoints**, or either **Two-block flat plate** template copies the complete template
 project once into `~/.oneflow/mesh-layout-workspace/projects`; later openings
 reuse that project without overwriting edits. Each project keeps its JSON,
 scripts, and generated layout together, so **Save specification** updates the
@@ -40,7 +40,7 @@ project JSON and **Compile layout** writes the layout under that project's
 `grid` directory. Set `ONEFLOW_HOME` to move the workspace. Use **Load JSON...**
 to open a user project at another location; that project remains in place and
 is writable as long as it is outside the OneFLOW source tree. Checked-in source
-files are never writable through the editor. The editor supports the single-rectangle, vertical-midpoint rectangle, and two-block flat-plate templates. The vertical-midpoint rectangle preserves four topological side positions while compiling six atomic line segments; the midpoint nodes are part of the template topology. The editor exposes geometry, segment point counts, spacing, and boundary types, and previews the layout as SVG. Boundary
+files are never writable through the editor. The editor supports the single-rectangle, single-rectangle-with-vertical-midpoints, and two-block flat-plate templates. The vertical-midpoint rectangle preserves four topological side positions while compiling six atomic line segments; the midpoint nodes are part of the template topology. The editor exposes geometry, segment point counts, spacing, and boundary types, and previews the layout as SVG. Boundary
 selectors show concise names by default; hover for details or enable
 **Show boundary codes** to show legacy numeric codes. The flat-plate preview
 labels every edge with its edge name, boundary condition, and point count.
