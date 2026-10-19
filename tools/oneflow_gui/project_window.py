@@ -88,8 +88,16 @@ class ProjectRunWorker(QThread):
                     if self._custom_root is None:
                         raise ValueError("Choose a target directory for the project copy.")
                     destination_root = self._custom_root
+                project_directory = (destination_root / self._project.name).resolve()
+                source_directory = self._project.root.resolve()
+                if (
+                    project_directory == source_directory
+                    or source_directory in project_directory.parents
+                ):
+                    raise ValueError(
+                        "The project copy destination must be outside the source project."
+                    )
                 destination_root.mkdir(parents=True, exist_ok=True)
-                project_directory = destination_root / self._project.name
                 if project_directory.exists():
                     raise FileExistsError(
                         f"Project copy already exists: {project_directory}"
