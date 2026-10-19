@@ -113,7 +113,7 @@ def _serialize_topology(topology):
         for position, face_id in block.face_by_position:
             output.append(f"Add F2B {block.id} {position} {face_id}")
     output.append("")
-    return "\\n".join(output)
+    return "\n".join(output)
 
 
 def compile_rectangle(spec):
@@ -232,7 +232,7 @@ def render_rectangle_svg(spec):
         f'fill="#202020">Rectangle topology preview</text>'
     )
     elements.append("</svg>")
-    return "\\n".join(elements) + "\\n"
+    return "\n".join(elements) + "\n"
 
 
 def format_coordinate(value):
@@ -252,14 +252,14 @@ def main():
     result = compile_rectangle(spec)
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
-        args.output.write_text(result, encoding="utf-8", newline="\\n")
+        args.output.write_text(result, encoding="utf-8", newline="\n")
     else:
         print(result, end="")
 
     if args.svg_output:
         args.svg_output.parent.mkdir(parents=True, exist_ok=True)
         args.svg_output.write_text(
-            render_rectangle_svg(spec), encoding="utf-8", newline="\\n"
+            render_rectangle_svg(spec), encoding="utf-8", newline="\n"
         )
 
 
