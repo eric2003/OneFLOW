@@ -101,6 +101,14 @@ class ProjectRunWorker(QThread):
                     if self._custom_root is None:
                         raise ValueError("Choose a target directory for the project copy.")
                     destination_root = self._custom_root
+                destination_root = destination_root.resolve()
+                if (
+                    destination_root == self._repository_root
+                    or self._repository_root in destination_root.parents
+                ):
+                    raise ValueError(
+                        "Project copies must be placed outside the OneFLOW source repository."
+                    )
                 project_directory = (destination_root / self._project.name).resolve()
                 source_directory = self._project.root.resolve()
                 if (
