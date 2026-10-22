@@ -84,21 +84,20 @@ class WorkbenchHomeWindow(QMainWindow):
             "Open any existing project directory, whether or not it belongs to a built-in catalog.",
             self._open_project,
         )
-        self._add_activity(
-            grid, 0, 1, "Run a single case",
-            "Select a case from the shared catalog and run it through the Case Workbench.",
-            self._open_case_workbench,
-        )
-        self._add_activity(
-            grid, 1, 0, "Configure multi-case run",
-            "Configure an ordered multi-directory run. Cases do not declare dependencies.",
-            self._open_multi_case_workflow,
-        )
-        self._add_activity(
-            grid, 1, 1, "Run a dependency workflow",
-            "Define producer/consumer relationships, declared outputs, and execution order.",
-            self._open_dependency_workflow,
-        )
+        run_mode_row = QHBoxLayout()
+        run_mode_row.addWidget(QLabel("Run mode"))
+        self.run_mode_combo = QComboBox()
+        self.run_mode_combo.addItem("Case database (single case)", "case_catalog")
+        self.run_mode_combo.addItem("Multi-case run", "multi_case")
+        self.run_mode_combo.addItem("Dependency workflow", "dependency_workflow")
+        self.run_mode_combo.setMinimumHeight(38)
+        run_mode_row.addWidget(self.run_mode_combo, 1)
+        open_run_mode = QPushButton("Continue...")
+        open_run_mode.setMinimumHeight(38)
+        open_run_mode.clicked.connect(self._open_selected_run_mode)
+        run_mode_row.addWidget(open_run_mode)
+        root.addLayout(run_mode_row)
+
         self._add_activity(
             grid, 2, 0, "Run tests",
             "Run unit tests and optionally selected CFD or mesh regression suites.",
@@ -122,8 +121,8 @@ class WorkbenchHomeWindow(QMainWindow):
         root.addLayout(grid, 1)
 
         footer = QLabel(
-            "Execution modes are intentionally distinct: one case, multiple independent "
-            "cases, or a dependency-aware workflow."
+            "Choose a run mode above: select one case from the case database, run multiple "
+            "independent cases, or configure a dependency-aware workflow."
         )
         footer.setObjectName("footer")
         footer.setWordWrap(True)
@@ -206,36 +205,34 @@ class WorkbenchHomeWindow(QMainWindow):
         window.raise_()
         window.activateWindow()
 
-    def _open_case_workbench(self) -> None:
-        from .main_window import MainWindow
+    def _open_selected_run_mode(self) -> None:
+        mode = self.run_mode_combo.currentData()
+        if mode == "case_catalog":
+            from .main_window import MainWindow
 
-        self._case_window = MainWindow(
-            self._repository_root, single_case_mode=True
-        )
-        executable = self._executable()
-        if executable:
-            self._case_window.executable_combo.setEditText(executable)
-        self._case_window.show()
-        self._case_window.raise_()
-        self._case_window.activateWindow()
-
-    def _open_multi_case_workflow(self) -> None:
-        dialog = WorkflowDialog(
-            self._repository_root,
-            self._executable(),
-            self,
-            initial_mode="multi_directory",
-        )
-        dialog.exec()
-
-    def _open_dependency_workflow(self) -> None:
-        dialog = WorkflowDialog(
-            self._repository_root,
-            self._executable(),
-            self,
-            initial_mode="case_graph",
-        )
-        dialog.exec()
+            self._case_window = MainWindow(
+                self._repository_root, single_case_mode=True
+            )
+            executable = self._executable()
+            if executable:
+                self._case_window.executable_combo.setEditText(executable)
+            self._case_window.show()
+            self._case_window.raise_()
+            self._case_window.activateWindow()
+        elif mode == "multi_case":
+            WorkflowDialog(
+                self._repository_root,
+                self._executable(),
+                self,
+                initial_mode="multi_directory",
+            ).exec()
+        elif mode == "dependency_workflow":
+            WorkflowDialog(
+                self._repository_root,
+                self._executable(),
+                self,
+                initial_mode="case_graph",
+            ).exec()
 
     def _open_saved_workflows(self) -> None:
         WorkflowDialog(
