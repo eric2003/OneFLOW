@@ -1,6 +1,6 @@
 # OneFLOW Workbench
 
-The desktop application starts with a Workbench activity selector. **Open Project** accepts any existing directory, including projects outside the repository and projects not registered in a built-in catalog. The project window makes a best-effort attempt to identify Grid or CFD/flow projects from `script/control.txt` or `control.txt`; unknown projects can still be opened, and classification does not replace runtime validation. A selected project can run in place (the default), be copied to the default workspace, or be copied to a specified directory. Built-in case catalogs remain an optional source of ready-made examples. Other activities configure multi-case or dependency workflows, run tests, review run history, or open Mesh Layout Editor. Project discovery, catalog definitions, workflow definitions, run workspaces, and run history have distinct responsibilities.
+The desktop application starts with a Workbench activity selector. **Open Project** accepts any existing directory, including projects outside the repository and projects not registered in the built-in case catalog. The project window identifies Grid or CFD/flow projects where possible; unknown projects can still be opened. Projects inside the OneFLOW source repository must be copied to a workspace before running, and copy destinations must remain outside the source repository. User projects outside the repository can still be run in place or copied to a workspace. Case-database runs, multi-case runs, and dependency workflows are selected together from one **Run mode** control. Project discovery, catalog definitions, workflow definitions, run workspaces, and run history have distinct responsibilities.
 
 ## Launch
 
@@ -19,17 +19,13 @@ The first detected path is selected automatically; use the dropdown to switch
 between detected copies, type a path directly, or use **Browse...** for an
 unlisted location. No full-disk search is performed.
 
-From **Open Project**, choose any existing project directory and then choose the executable and execution location. This path does not require catalog registration. From **Run a single case**, choose the executable and one catalog case. The selection is restricted to one case in this entry point. Use the execution-location selector to run in the source directory, copy to the default run workspace, or copy to a specified directory. The queue runs cases sequentially
-and displays process output and per-case status. **Stop queue** terminates the
-active process and prevents pending cases from launching.
+From **Open Project**, choose any existing project directory and then choose the executable and execution location. This path does not require catalog registration. To run an example from the built-in case database, choose **Case database (single case)** in **Run mode**; the case selector is restricted to one catalog entry. Choose **Multi-case run** for an ordered run of independent directories, or **Dependency workflow** for cases with declared producer/consumer relationships. Catalog cases are always copied to a run workspace before execution. The queue displays process output and per-case status. **Stop queue** terminates the active process and prevents pending cases from launching.
 
-The case execution location is explicit:
+Catalog case execution always uses a workspace copy:
 - **Copy to OneFLOW default run workspace** stages each case under
   `~/.oneflow/executions/<run-id>/<case-id>`.
-- **Run in original case directory** passes the catalog case directory directly
-  to OneFLOW. The GUI asks for confirmation because generated files may overwrite
-  or add files beside the source inputs.
 - **Copy to specified run directory** stages each case under the chosen directory.
+Both the source repository and its built-in case data are protected from in-place execution; workspace destinations inside the source repository are rejected.
 
 The application invokes the standard command shape:
 `OneFLOW.exe r <case-directory>`.
@@ -51,7 +47,7 @@ selectors show concise names by default; hover for details or enable
 labels every edge with its edge name, boundary condition, and point count.
 **Reset flat-plate boundaries** restores the standard two-block defaults.
 
-From the activity selector, **Configure multi-case run** opens a new multi-directory workflow draft, while **Run a dependency workflow** opens a new dependency-graph draft. Existing saved workflows remain available in the editor. These are intentionally different execution semantics. Use the workflow editor to create, edit, save, and delete named workflow definitions. The
+The **Run mode** selector brings the three run choices together: **Case database (single case)** opens the catalog case selector, **Multi-case run** opens a multi-directory workflow draft, and **Dependency workflow** opens a dependency-graph draft. Existing saved workflows remain available in the workflow editor. These are intentionally different execution semantics. Use the workflow editor to create, edit, save, and delete named workflow definitions. The
 **Multi-directory** mode preserves the existing behavior: each directory is
 entered on a separate line, and one OneFLOW process receives
 `OneFLOW.exe r <directory-1> <directory-2> ...`. The **Dependency graph** mode
