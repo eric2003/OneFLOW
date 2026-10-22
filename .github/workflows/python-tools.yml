@@ -45,6 +45,8 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Install GUI test dependency
+        run: python -m pip install -r tools/requirements-gui.txt
       - name: Compile Python tooling
         run: python -m compileall -q tools/mesh_cases.py tools/mesh_layout tools/oneflow_gui
       - name: Test case catalog
@@ -81,3 +83,5 @@ jobs:
         run: python -m unittest tools.oneflow_gui.test_workflow_runtime_overrides
       - name: Test isolated workflow case staging
         run: python -m unittest tools.oneflow_gui.test_workflow_case_runtime
+      - name: Test workspace persistence and editor paths
+        run: python -m unittest tools.oneflow_gui.test_workspace_repository tools.oneflow_gui.test_workspace_dialog
