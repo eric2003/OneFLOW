@@ -66,10 +66,12 @@ class ProjectRunWorker(QThread):
         run_id: str,
         execution_mode: str,
         custom_root: Path | None,
+        repository_root: Path,
     ) -> None:
         super().__init__()
         self._project = project
         self._executable = executable
+        self._repository_root = repository_root.resolve()
         self._run_id = run_id
         self._execution_mode = execution_mode
         self._custom_root = custom_root
@@ -346,7 +348,8 @@ class ProjectWindow(QMainWindow):
         self.run_button.setEnabled(False)
         self.stop_button.setEnabled(True)
         self._worker = ProjectRunWorker(
-            self._project, executable, run_id, mode, custom_root
+            self._project, executable, run_id, mode, custom_root,
+            self._repository_root,
         )
         self._worker.log_line.connect(self._append_log)
         self._worker.completed.connect(self._run_completed)
