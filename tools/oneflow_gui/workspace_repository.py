@@ -75,7 +75,7 @@ class WorkspaceDefinition:
             raise ValueError("Workspace name must be a non-empty string.")
         if not isinstance(description, str):
             raise ValueError("Workspace description must be a string.")
-        if mode not in _EXECUTION_MODES:
+        if not isinstance(mode, str) or mode not in _EXECUTION_MODES:
             raise ValueError(f"Unsupported execution mode: {mode!r}.")
         if not isinstance(raw_cases, list) or not raw_cases:
             raise ValueError("Workspace must contain at least one case.")
