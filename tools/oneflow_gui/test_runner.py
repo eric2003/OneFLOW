@@ -64,6 +64,25 @@ def build_unit_test_commands(
     return commands
 
 
+
+def build_cmake_command(
+    repository_root: Path,
+    build_config: str = "Debug",
+    *,
+    rebuild: bool = False,
+) -> TestCommand:
+    """Build the selected single- or multi-configuration CMake build tree."""
+    if build_config not in {"Debug", "Release"}:
+        raise ValueError(f"Unsupported CMake build configuration: {build_config!r}")
+    root = Path(repository_root).resolve()
+    build_directory = root / "build"
+    arguments = ["cmake", "--build", str(build_directory), "--config", build_config]
+    if rebuild:
+        arguments.append("--clean-first")
+    label = f"CMake {'rebuild' if rebuild else 'build'} ({build_config})"
+    return TestCommand(label, tuple(arguments), root)
+
+
 def available_suites(repository_root: Path) -> list[str]:
     """List existing suite manifests without introducing a second suite format."""
     suite_directory = Path(repository_root).resolve() / "test" / "suites"
