@@ -34,7 +34,28 @@ class TestRunnerCommandTest(unittest.TestCase):
             commands = build_unit_test_commands(root)
             ctest = next(command for command in commands if command.label.startswith("C++"))
             self.assertEqual(ctest.working_directory, build.resolve())
-            self.assertEqual(ctest.arguments[:2], ("ctest", "--output-on-failure"))
+            self.assertEqual(
+                ctest.arguments,
+                ("ctest", "--output-on-failure", "-C", "Debug"),
+            )
+
+            release_commands = build_unit_test_commands(
+                root, build_config="Release"
+            )
+            release_ctest = next(
+                command for command in release_commands
+                if command.label.startswith("C++")
+            )
+            self.assertEqual(
+                release_ctest.arguments,
+                ("ctest", "--output-on-failure", "-C", "Release"),
+            )
+            self.assertEqual(release_ctest.working_directory, build.resolve())
+
+    def test_ctest_rejects_unknown_build_configuration(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            with self.assertRaisesRegex(ValueError, "Unsupported CMake build configuration"):
+                build_unit_test_commands(Path(directory), build_config="RelWithDebInfo")
 
     def test_available_suites_comes_from_existing_manifests(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
