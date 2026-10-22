@@ -295,7 +295,7 @@ class MainWindow(QMainWindow):
         )
 
     def _refresh_executable_candidates(self) -> None:
-        """Populate the path dropdown with existing conventional installations."""
+        """Populate Debug and Release build slots plus existing installations."""
         current_text = self.executable_combo.currentText().strip()
         candidates = executable_candidates(self._repository_root)
         self.executable_combo.clear()
