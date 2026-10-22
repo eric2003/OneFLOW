@@ -50,8 +50,8 @@ class WorkbenchHomeWindow(QMainWindow):
         title = QLabel("OneFLOW Workbench")
         title.setObjectName("pageTitle")
         subtitle = QLabel(
-            "Choose what you want to run. Cases, workflow definitions, and run history "
-            "are separate parts of the workbench."
+            "Open or create a project workspace, choose how its cases execute, or run "
+            "tests and regression suites independently."
         )
         subtitle.setObjectName("subtitle")
         subtitle.setWordWrap(True)
@@ -59,9 +59,12 @@ class WorkbenchHomeWindow(QMainWindow):
         root.addWidget(subtitle)
 
         executable_row = QHBoxLayout()
-        executable_row.addWidget(QLabel("OneFLOW executable"))
+        executable_row.addWidget(QLabel("OneFLOW executable (Debug / Release)"))
         self.executable_combo = QComboBox()
         self.executable_combo.setEditable(True)
+        self.executable_combo.setToolTip(
+            "Choose the Debug or Release build for development, or browse to another executable."
+        )
         self.executable_combo.setMinimumContentsLength(42)
         self.executable_combo.setSizeAdjustPolicy(
             QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon
@@ -127,8 +130,8 @@ class WorkbenchHomeWindow(QMainWindow):
         root.addLayout(grid, 1)
 
         footer = QLabel(
-            "Run mode groups single-case execution, multi-case execution, and dependency workflows. "
-            "The built-in Case Database and test runners are separate activities."
+            "A workspace can represent one case or a collection of cases. Execution policy belongs "
+            "to the workspace; Case Database, unit tests, and CFD regression remain separate activities."
         )
         footer.setObjectName("footer")
         footer.setWordWrap(True)
