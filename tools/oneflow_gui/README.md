@@ -1,6 +1,12 @@
 # OneFLOW Workbench
 
-The desktop application starts with a Workbench activity selector. **Open Project** accepts any existing directory, including projects outside the repository and projects not registered in the built-in case catalog. The project window identifies Grid or CFD/flow projects where possible; unknown projects can still be opened. Projects inside the OneFLOW source repository must be copied to a workspace before running, and copy destinations must remain outside the source repository. User projects outside the repository can still be run in place or copied to a workspace. The **Case Database** is a separate Workbench activity, like **Run tests**. The **Run mode** control groups **Run single case**, **Multi-case run**, and **Dependency workflow**. Project discovery, catalog definitions, workflow definitions, run workspaces, and run history have distinct responsibilities.
+The desktop application starts with a Workbench activity selector. **Open Project** accepts any existing directory, including projects outside the repository and projects not registered in the built-in case catalog. The project window identifies Grid or CFD/flow projects where possible; unknown projects can still be opened. Projects inside the OneFLOW source repository must be copied to a workspace before running, and copy destinations must remain outside the source repository. User projects outside the repository can still be run in place or copied to a workspace. The **Case Database** is a separate Workbench activity, like **Run tests**. The **Run mode** control groups **Run single case**, **Multi-case run**, and **Dependency workflow**. A versioned `.ofw` workspace file records case directories, execution mode, and dependency edges; use **Open Workspace** or **Create Workspace** to edit it. Project discovery, catalog definitions, workflow definitions, run workspaces, and run history have distinct responsibilities.
+
+## Workspace files
+
+A workspace is stored as a readable JSON document with the `.ofw` extension. Its schema records a workspace ID and name, an execution mode (`single_case`, `sequential_cases`, `independent_cases`, or `dependency_workflow`), and an ordered list of case IDs and paths. Paths are stored relative to the workspace file when possible. Dependency workflows record `depends_on` case IDs; validation rejects unknown dependencies and cycles. The independent mode rejects declared dependencies, while sequential mode uses the case list order.
+
+The current workspace editor creates and edits these definitions. Execution is still routed through the existing project and workflow runners; the next integration step is to make a saved workspace the single entry point for launching all four execution modes.
 
 ## Launch
 
