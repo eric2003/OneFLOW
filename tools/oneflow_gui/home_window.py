@@ -84,10 +84,16 @@ class WorkbenchHomeWindow(QMainWindow):
             "Open any existing project directory, whether or not it belongs to a built-in catalog.",
             self._open_project,
         )
+        self._add_activity(
+            grid, 0, 1, "Case Database",
+            "Browse the built-in case catalog and run a selected case from a protected workspace copy.",
+            self._open_case_database,
+        )
+
         run_mode_row = QHBoxLayout()
         run_mode_row.addWidget(QLabel("Run mode"))
         self.run_mode_combo = QComboBox()
-        self.run_mode_combo.addItem("Case database (single case)", "case_catalog")
+        self.run_mode_combo.addItem("Run single case", "single_case")
         self.run_mode_combo.addItem("Multi-case run", "multi_case")
         self.run_mode_combo.addItem("Dependency workflow", "dependency_workflow")
         self.run_mode_combo.setMinimumHeight(38)
@@ -121,8 +127,8 @@ class WorkbenchHomeWindow(QMainWindow):
         root.addLayout(grid, 1)
 
         footer = QLabel(
-            "Choose a run mode above: select one case from the case database, run multiple "
-            "independent cases, or configure a dependency-aware workflow."
+            "Run mode groups single-case execution, multi-case execution, and dependency workflows. "
+            "The built-in Case Database and test runners are separate activities."
         )
         footer.setObjectName("footer")
         footer.setWordWrap(True)
@@ -205,20 +211,45 @@ class WorkbenchHomeWindow(QMainWindow):
         window.raise_()
         window.activateWindow()
 
+    def _open_case_database(self) -> None:
+        from .main_window import MainWindow
+
+        self._case_window = MainWindow(
+            self._repository_root, single_case_mode=True
+        )
+        executable = self._executable()
+        if executable:
+            self._case_window.executable_combo.setEditText(executable)
+        self._case_window.show()
+        self._case_window.raise_()
+        self._case_window.activateWindow()
+
+    def _open_single_case(self) -> None:
+        directory = QFileDialog.getExistingDirectory(
+            self,
+            "Select project for single-case run",
+            str(Path.home()),
+        )
+        if not directory:
+            return
+        try:
+            project = open_project(directory)
+        except (OSError, ValueError) as error:
+            QMessageBox.critical(self, "Cannot open project", str(error))
+            return
+        window = ProjectWindow(project, self._repository_root, self)
+        self._project_windows.append(window)
+        executable = self._executable()
+        if executable and hasattr(window, "executable_combo"):
+            window.executable_combo.setEditText(executable)
+        window.show()
+        window.raise_()
+        window.activateWindow()
+
     def _open_selected_run_mode(self) -> None:
         mode = self.run_mode_combo.currentData()
-        if mode == "case_catalog":
-            from .main_window import MainWindow
-
-            self._case_window = MainWindow(
-                self._repository_root, single_case_mode=True
-            )
-            executable = self._executable()
-            if executable:
-                self._case_window.executable_combo.setEditText(executable)
-            self._case_window.show()
-            self._case_window.raise_()
-            self._case_window.activateWindow()
+        if mode == "single_case":
+            self._open_single_case()
         elif mode == "multi_case":
             WorkflowDialog(
                 self._repository_root,
