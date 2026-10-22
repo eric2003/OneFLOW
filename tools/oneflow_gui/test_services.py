@@ -50,6 +50,18 @@ class DesktopServiceTest(unittest.TestCase):
                 candidates.index(installed.resolve()),
             )
 
+    def test_debug_and_release_choices_exist_before_building(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            candidates = executable_candidates(root, {})
+            self.assertEqual(
+                candidates[:2],
+                [
+                    (root / "build" / "bin" / "Debug" / "OneFLOW.exe").resolve(),
+                    (root / "build" / "bin" / "Release" / "OneFLOW.exe").resolve(),
+                ],
+            )
+
     def test_run_command_uses_argument_list(self) -> None:
         with tempfile.TemporaryDirectory(prefix="oneflow path ") as directory:
             executable = Path(directory) / "OneFLOW.exe"
