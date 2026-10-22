@@ -119,7 +119,8 @@ class DesktopServiceTest(unittest.TestCase):
             actual = prepare_case_directory(
                 case, root / "custom_runs", "run-002", "custom_workspace"
             )
-            self.assertEqual(actual, (root / "custom_runs" / "run-002" / "sample").resolve())
+            expected = root / "custom_runs" / "run-002" / "sample"
+            self.assertTrue(actual.samefile(expected))
             self.assertTrue((actual / "control.txt").is_file())
             self.assertTrue((source / "control.txt").is_file())
 
