@@ -436,6 +436,19 @@ class MainWindow(QMainWindow):
             return
 
         try:
+            workspace_root.relative_to(self._repository_root)
+        except ValueError:
+            pass
+        else:
+            QMessageBox.warning(
+                self,
+                "Workspace must be outside the source repository",
+                "Run copies and generated files must stay outside the OneFLOW source "
+                "repository. Choose a directory elsewhere.",
+            )
+            return
+
+        try:
             workspace_root.mkdir(parents=True, exist_ok=True)
         except OSError as error:
             QMessageBox.critical(self, "Workspace unavailable", str(error))
