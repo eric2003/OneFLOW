@@ -25,6 +25,7 @@ from .run_history_dialog import RunHistoryDialog
 from .test_dialog import TestRunnerDialog
 from .user_data_paths import UserDataPaths
 from .workflow_dialog import WorkflowDialog
+from .workspace_dialog import WorkspaceDialog
 
 
 class WorkbenchHomeWindow(QMainWindow):
@@ -126,6 +127,16 @@ class WorkbenchHomeWindow(QMainWindow):
             grid, 2, 1, "Saved workflows",
             "Open existing multi-case or dependency workflow definitions and their run history.",
             self._open_saved_workflows,
+        )
+        self._add_activity(
+            grid, 3, 0, "Open Workspace",
+            "Open a saved .ofw definition containing one or more cases and an execution policy.",
+            self._open_workspace,
+        )
+        self._add_activity(
+            grid, 3, 1, "Create Workspace",
+            "Create a workspace and register case directories for single, sequential, independent, or dependency-based execution.",
+            self._create_workspace,
         )
         root.addLayout(grid, 1)
 
@@ -267,6 +278,17 @@ class WorkbenchHomeWindow(QMainWindow):
                 self,
                 initial_mode="case_graph",
             ).exec()
+
+    def _open_workspace(self) -> None:
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Open OneFLOW workspace", str(Path.home()),
+            "OneFLOW workspace (*.ofw)",
+        )
+        if path:
+            WorkspaceDialog(self, Path(path)).exec()
+
+    def _create_workspace(self) -> None:
+        WorkspaceDialog(self).exec()
 
     def _open_saved_workflows(self) -> None:
         WorkflowDialog(
