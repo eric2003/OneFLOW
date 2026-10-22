@@ -119,7 +119,7 @@ class MainWindow(QMainWindow):
         self._active_case_run_log_path: Path | None = None
 
         self.setWindowTitle(
-            "Single Case Run" if self._single_case_mode else "Case Workbench"
+            "Case Database" if self._single_case_mode else "Case Workbench"
         )
         self.resize(1100, 760)
         self._build_ui()
@@ -134,10 +134,14 @@ class MainWindow(QMainWindow):
         root_layout.setContentsMargins(20, 18, 20, 18)
         root_layout.setSpacing(12)
 
-        heading = QLabel("Case Workbench")
+        heading = QLabel(
+            "Case Database" if self._single_case_mode else "Case Workbench"
+        )
         heading.setObjectName("pageTitle")
         subtitle = QLabel(
-            "Select cases, run them in isolated workspaces, and review process logs."
+            "Choose one catalog case and run it from a protected workspace copy."
+            if self._single_case_mode
+            else "Select cases, run them in isolated workspaces, and review process logs."
         )
         subtitle.setObjectName("subtitle")
         root_layout.addWidget(heading)
