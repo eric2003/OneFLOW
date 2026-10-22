@@ -81,6 +81,17 @@ class ProjectRunWorker(QThread):
     def run(self) -> None:
         project_directory = self._project.root
         try:
+            source_directory = self._project.root.resolve()
+            repository_root = self._repository_root.resolve()
+            is_repository_content = (
+                source_directory == repository_root
+                or repository_root in source_directory.parents
+            )
+            if self._execution_mode == "source" and is_repository_content:
+                raise ValueError(
+                    "Projects inside the OneFLOW source repository cannot run in place. "
+                    "Copy the project to a workspace first."
+                )
             if self._execution_mode != "source":
                 if self._execution_mode == "default_workspace":
                     destination_root = UserDataPaths.discover().executions / self._run_id
@@ -205,7 +216,12 @@ class ProjectWindow(QMainWindow):
         location_row = QHBoxLayout()
         location_row.addWidget(QLabel("Execution location"))
         self.location_combo = QComboBox()
-        self.location_combo.addItem("Run in original project directory", "source")
+        source_is_repository_content = (
+            self._project.root.resolve() == self._repository_root
+            or self._repository_root in self._project.root.resolve().parents
+        )
+        if not source_is_repository_content:
+            self.location_combo.addItem("Run in original project directory", "source")
         self.location_combo.addItem("Copy to OneFLOW default workspace", "default_workspace")
         self.location_combo.addItem("Copy to specified directory", "custom_workspace")
         self.location_combo.currentIndexChanged.connect(self._location_changed)
