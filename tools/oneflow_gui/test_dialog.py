@@ -14,7 +14,6 @@ from PySide6.QtWidgets import (
     QFormLayout,
     QHBoxLayout,
     QLabel,
-    QLineEdit,
     QMessageBox,
     QPlainTextEdit,
     QPushButton,
@@ -119,16 +118,23 @@ class TestRunnerDialog(QDialog):
         layout.addWidget(self.regression_check)
 
         form = QFormLayout()
-        self.executable_edit = QLineEdit()
-        candidates = executable_candidates(self._repository_root)
-        if candidates:
-            self.executable_edit.setText(str(candidates[0]))
+        self.executable_combo = QComboBox()
+        self.executable_combo.setEditable(True)
+        self.executable_combo.setMinimumContentsLength(42)
+        self.executable_combo.addItems(
+            [str(path) for path in executable_candidates(self._repository_root)]
+        )
+        if self.executable_combo.count():
+            self.executable_combo.setCurrentIndex(0)
+        self.build_config_combo = QComboBox()
+        self.build_config_combo.addItems(["Debug", "Release"])
         self.suite_combo = QComboBox()
         self.suite_combo.addItems(available_suites(self._repository_root))
         default_index = self.suite_combo.findText("ci-serial.txt")
         if default_index >= 0:
             self.suite_combo.setCurrentIndex(default_index)
-        form.addRow("OneFLOW executable", self.executable_edit)
+        form.addRow("OneFLOW executable", self.executable_combo)
+        form.addRow("CMake build configuration", self.build_config_combo)
         form.addRow("Existing suite", self.suite_combo)
         layout.addLayout(form)
 
@@ -157,9 +163,14 @@ class TestRunnerDialog(QDialog):
             return
         commands: list[TestCommand] = []
         if self.unit_tests_check.isChecked():
-            commands.extend(build_unit_test_commands(self._repository_root))
+            commands.extend(
+                build_unit_test_commands(
+                    self._repository_root,
+                    build_config=self.build_config_combo.currentText(),
+                )
+            )
         if self.regression_check.isChecked():
-            executable = self.executable_edit.text().strip()
+            executable = self.executable_combo.currentText().strip()
             suite_name = self.suite_combo.currentText().strip()
             try:
                 if not suite_name:

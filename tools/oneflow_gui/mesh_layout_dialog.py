@@ -404,8 +404,9 @@ class MeshLayoutDialog(QDialog):
                     "Choose a boundary type. Hover over an option for its explanation."
                 )
             else:
-                widget = QLineEdit(str(value))
-                widget.setToolTip("Use 'auto' for an automatically selected endpoint spacing.")
+                display_value = "auto" if value == -1 else str(value)
+                widget = QLineEdit(display_value)
+                widget.setToolTip("Use 'auto' for automatically selected spacing; legacy -1 is preserved when saving.")
             self._field_widgets[path] = widget
             self.fields_form.addRow(label, widget)
 
@@ -476,10 +477,12 @@ class MeshLayoutDialog(QDialog):
             elif path[0] == "distributions":
                 if path[-1] == "nearWallIntervalCount":
                     value = int(raw)
+                elif raw.lower() == "auto":
+                    value = -1 if original == -1 else "auto"
                 else:
-                    value = "auto" if raw.lower() == "auto" else float(raw)
+                    value = float(raw)
             elif path[0] in ("plateLength", "upstreamDistance", "domainHeight"):
-                value = float(raw)
+                value = -1 if raw.lower() == "auto" and original == -1 else float(raw)
             elif path == ("spacing",):
                 value = raw
             elif path[0] == "boundaries":

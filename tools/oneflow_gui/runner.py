@@ -50,6 +50,22 @@ def _copy_case_to_workspace(
     return destination
 
 
+def prepare_case_directory(
+    case: CaseDefinition,
+    workspace_root: Path,
+    run_id: str,
+    execution_mode: str,
+) -> Path:
+    """Resolve the execution copy according to the user's selected location."""
+    if execution_mode == "source":
+        raise ValueError(
+            "In-place execution is disabled. Run catalog cases from a workspace copy."
+        )
+    if execution_mode in {"default_workspace", "custom_workspace"}:
+        return _copy_case_to_workspace(case, workspace_root, run_id)
+    raise ValueError(f"Unsupported case execution mode: {execution_mode!r}")
+
+
 def run_case(
     case: CaseDefinition,
     executable: Path,
@@ -57,6 +73,8 @@ def run_case(
     run_id: str,
     cancel_event: threading.Event,
     log: LogCallback,
+    *,
+    execution_mode: str = "default_workspace",
 ) -> CaseRunResult:
     """Run one case, forward combined output, and support cooperative stopping."""
 
@@ -73,7 +91,9 @@ def run_case(
         )
 
     try:
-        case_workspace = _copy_case_to_workspace(case, workspace_root, run_id)
+        case_workspace = prepare_case_directory(
+            case, workspace_root, run_id, execution_mode
+        )
         command = build_command(executable, case_workspace)
         log(f"[{case.case_id}] Command: {' '.join(command)}")
         log(f"[{case.case_id}] Working directory: {executable.parent}")

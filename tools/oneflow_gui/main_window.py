@@ -51,12 +51,14 @@ class RunQueueWorker(QThread):
         executable: Path,
         workspace_root: Path,
         run_id: str,
+        execution_mode: str = "default_workspace",
     ) -> None:
         super().__init__()
         self._cases = cases
         self._executable = executable
         self._workspace_root = workspace_root
         self._run_id = run_id
+        self._execution_mode = execution_mode
         self._cancel_event = threading.Event()
 
     def request_stop(self) -> None:
@@ -88,6 +90,7 @@ class RunQueueWorker(QThread):
                 self._run_id,
                 self._cancel_event,
                 self.log_line.emit,
+                execution_mode=self._execution_mode,
             )
             self.case_result.emit(result)
             self.case_state.emit(case.case_id, result.state.value)
@@ -96,8 +99,14 @@ class RunQueueWorker(QThread):
 class MainWindow(QMainWindow):
     """Desktop shell; case loading and process execution live in services."""
 
-    def __init__(self, repository_root: Path | None = None) -> None:
+    def __init__(
+        self,
+        repository_root: Path | None = None,
+        *,
+        single_case_mode: bool = False,
+    ) -> None:
         super().__init__()
+        self._single_case_mode = single_case_mode
         self._repository_root = (
             repository_root or Path(__file__).resolve().parents[2]
         ).resolve()
@@ -109,10 +118,14 @@ class MainWindow(QMainWindow):
         self._active_case_run_steps: list[dict] = []
         self._active_case_run_log_path: Path | None = None
 
-        self.setWindowTitle("OneFLOW Workbench")
+        self.setWindowTitle(
+            "Case Database" if self._single_case_mode else "Case Workbench"
+        )
         self.resize(1100, 760)
         self._build_ui()
         self._load_cases()
+        if self._single_case_mode:
+            self.case_table.itemChanged.connect(self._case_selection_changed)
 
     def _build_ui(self) -> None:
         """Build a compact layout with configuration, queue, and log areas."""
@@ -121,10 +134,14 @@ class MainWindow(QMainWindow):
         root_layout.setContentsMargins(20, 18, 20, 18)
         root_layout.setSpacing(12)
 
-        heading = QLabel("Case Workbench")
+        heading = QLabel(
+            "Case Database" if self._single_case_mode else "Case Workbench"
+        )
         heading.setObjectName("pageTitle")
         subtitle = QLabel(
-            "Select cases, run them in isolated workspaces, and review process logs."
+            "Choose one catalog case and run it from a protected workspace copy."
+            if self._single_case_mode
+            else "Select cases, run them in isolated workspaces, and review process logs."
         )
         subtitle.setObjectName("subtitle")
         root_layout.addWidget(heading)
@@ -154,14 +171,31 @@ class MainWindow(QMainWindow):
         executable_layout.addWidget(executable_browse)
         root_layout.addLayout(executable_layout)
 
+        location_layout = QHBoxLayout()
+        location_layout.addWidget(QLabel("Execution location"))
+        self.execution_location_combo = QComboBox()
+        self.execution_location_combo.addItem(
+            "Copy to OneFLOW default run workspace", "default_workspace"
+        )
+        self.execution_location_combo.addItem(
+            "Copy to specified run directory", "custom_workspace"
+        )
+        self.execution_location_combo.currentIndexChanged.connect(
+            self._execution_location_changed
+        )
+        location_layout.addWidget(self.execution_location_combo, 1)
+        root_layout.addLayout(location_layout)
+
         workspace_layout = QHBoxLayout()
-        workspace_layout.addWidget(QLabel("Run workspace"))
+        workspace_layout.addWidget(QLabel("Run directory"))
         self.workspace_edit = QLineEdit(str(UserDataPaths.discover().executions))
         workspace_layout.addWidget(self.workspace_edit, 1)
         workspace_browse = QPushButton("Browse...")
         workspace_browse.clicked.connect(self._choose_workspace)
         workspace_layout.addWidget(workspace_browse)
         root_layout.addLayout(workspace_layout)
+        self.workspace_browse_button = workspace_browse
+        self._execution_location_changed()
 
         self.case_table = QTableWidget(0, 4)
         self.case_table.setHorizontalHeaderLabels(
@@ -189,6 +223,9 @@ class MainWindow(QMainWindow):
         select_all.clicked.connect(lambda: self._set_all_checks(True))
         select_none = QPushButton("Select none")
         select_none.clicked.connect(lambda: self._set_all_checks(False))
+        if self._single_case_mode:
+            select_all.hide()
+            select_none.hide()
         refresh = QPushButton("Refresh cases")
         refresh.clicked.connect(self._load_cases)
         workflows = QPushButton("Workflows...")
@@ -199,7 +236,9 @@ class MainWindow(QMainWindow):
         tests_button.clicked.connect(self._open_tests)
         history_button = QPushButton("Run History...")
         history_button.clicked.connect(self._open_run_history)
-        self.run_button = QPushButton("Run selected cases")
+        self.run_button = QPushButton(
+            "Run selected case" if self._single_case_mode else "Run selected cases"
+        )
         self.run_button.setObjectName("primaryButton")
         self.run_button.clicked.connect(self._start_run)
         self.stop_button = QPushButton("Stop queue")
@@ -256,7 +295,7 @@ class MainWindow(QMainWindow):
         )
 
     def _refresh_executable_candidates(self) -> None:
-        """Populate the path dropdown with existing conventional installations."""
+        """Populate Debug and Release build slots plus existing installations."""
         current_text = self.executable_combo.currentText().strip()
         candidates = executable_candidates(self._repository_root)
         self.executable_combo.clear()
@@ -275,27 +314,47 @@ class MainWindow(QMainWindow):
             self.statusBar().showMessage("Case catalog validation failed")
             return
 
+        self.case_table.blockSignals(True)
         self.case_table.setRowCount(0)
         self._row_by_id.clear()
+        default_case_selected = False
         for case in self._cases:
             row = self.case_table.rowCount()
             self.case_table.insertRow(row)
             checkbox = QTableWidgetItem()
             checkbox.setFlags(checkbox.flags() | Qt.ItemFlag.ItemIsUserCheckable)
-            checkbox.setCheckState(
-                Qt.CheckState.Checked
-                if case.profile is not None
-                else Qt.CheckState.Unchecked
+            is_default_case = case.profile is not None
+            is_selected = is_default_case and (
+                not self._single_case_mode or not default_case_selected
             )
+            checkbox.setCheckState(
+                Qt.CheckState.Checked if is_selected else Qt.CheckState.Unchecked
+            )
+            default_case_selected = default_case_selected or is_selected
             self.case_table.setItem(row, 0, checkbox)
             self.case_table.setItem(row, 1, QTableWidgetItem(case.title))
             config_text = "Typed profile" if case.profile else "Legacy config"
             self.case_table.setItem(row, 2, QTableWidgetItem(config_text))
             self.case_table.setItem(row, 3, QTableWidgetItem(RunState.PENDING.value))
             self._row_by_id[case.case_id] = row
+        self.case_table.blockSignals(False)
         self.statusBar().showMessage(
             f"Loaded {len(self._cases)} case(s) from case_catalog.json"
         )
+
+    def _case_selection_changed(self, changed_item: QTableWidgetItem) -> None:
+        if (
+            not self._single_case_mode
+            or changed_item.column() != 0
+            or changed_item.checkState() != Qt.CheckState.Checked
+        ):
+            return
+        self.case_table.blockSignals(True)
+        for row in range(self.case_table.rowCount()):
+            item = self.case_table.item(row, 0)
+            if item is not None and item is not changed_item:
+                item.setCheckState(Qt.CheckState.Unchecked)
+        self.case_table.blockSignals(False)
 
     def _set_all_checks(self, checked: bool) -> None:
         for row in range(self.case_table.rowCount()):
@@ -325,9 +384,14 @@ class MainWindow(QMainWindow):
         if path:
             self.executable_combo.setEditText(path)
 
+    def _execution_location_changed(self, *_args) -> None:
+        custom = self.execution_location_combo.currentData() == "custom_workspace"
+        self.workspace_edit.setEnabled(custom)
+        self.workspace_browse_button.setEnabled(custom)
+
     def _choose_workspace(self) -> None:
         path = QFileDialog.getExistingDirectory(
-            self, "Select run workspace", self.workspace_edit.text()
+            self, "Select run directory", self.workspace_edit.text()
         )
         if path:
             self.workspace_edit.setText(path)
@@ -356,14 +420,38 @@ class MainWindow(QMainWindow):
             )
             return
 
-        workspace_text = self.workspace_edit.text().strip()
-        if not workspace_text:
+        execution_mode = self.execution_location_combo.currentData()
+        if execution_mode == "custom_workspace":
+            workspace_text = self.workspace_edit.text().strip()
+            if not workspace_text:
+                QMessageBox.warning(
+                    self, "Run directory required", "Choose a writable run directory."
+                )
+                return
+            workspace_root = Path(workspace_text).expanduser().resolve()
+        elif execution_mode == "default_workspace":
+            workspace_root = UserDataPaths.discover().executions
+        else:
             QMessageBox.warning(
-                self, "Workspace required", "Choose a writable run workspace."
+                self,
+                "Invalid execution location",
+                "Cases from the case catalog must run from a workspace copy.",
             )
             return
 
-        workspace_root = Path(workspace_text).expanduser().resolve()
+        try:
+            workspace_root.relative_to(self._repository_root)
+        except ValueError:
+            pass
+        else:
+            QMessageBox.warning(
+                self,
+                "Workspace must be outside the source repository",
+                "Run copies and generated files must stay outside the OneFLOW source "
+                "repository. Choose a directory elsewhere.",
+            )
+            return
+
         try:
             workspace_root.mkdir(parents=True, exist_ok=True)
         except OSError as error:
@@ -388,6 +476,7 @@ class MainWindow(QMainWindow):
                 steps=({
                     "type": "case_queue",
                     "case_ids": [case.case_id for case in selected],
+                    "execution_mode": execution_mode,
                     "workspace": str(workspace_root / run_id),
                 },),
                 message="Case queue started.",
@@ -402,7 +491,7 @@ class MainWindow(QMainWindow):
         self._active_case_run_log_path = log_path
         self.log_view.appendPlainText(
             f"\nRun {run_id}\nExecutable: {Path(executable_text).resolve()}\n"
-            f"Workspace: {workspace_root / run_id}"
+            + f"Workspace: {workspace_root / run_id}"
         )
         self.run_button.setEnabled(False)
         self.stop_button.setEnabled(True)
@@ -410,7 +499,8 @@ class MainWindow(QMainWindow):
             self._set_case_status(case.case_id, RunState.PENDING.value)
 
         self._worker = RunQueueWorker(
-            selected, Path(executable_text), workspace_root, run_id
+            selected, Path(executable_text), workspace_root, run_id,
+            execution_mode=execution_mode,
         )
         self._worker.log_line.connect(self._append_case_run_log)
         self._worker.case_state.connect(self._set_case_status)
@@ -519,9 +609,11 @@ class MainWindow(QMainWindow):
 
 
 def run_desktop_app() -> int:
-    """Create the application and enter Qt's event loop."""
+    """Create the application and show the activity selector first."""
+    from .home_window import WorkbenchHomeWindow
+
     application = QApplication.instance() or QApplication([])
     application.setApplicationName("OneFLOW Workbench")
-    window = MainWindow()
+    window = WorkbenchHomeWindow()
     window.show()
     return application.exec()

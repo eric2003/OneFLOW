@@ -42,9 +42,18 @@ def executable_candidates(
             Path(local_app_data) / "Programs" / "OneFLOW" / "bin" / "OneFLOW.exe"
         )
 
+    # Always expose the repository's Debug and Release slots in the UI, even
+    # before either configuration has been built. Installed fallbacks must exist.
+    build_candidates = candidates[:2]
+    fallback_candidates = candidates[2:]
     unique_candidates: list[Path] = []
     seen: set[str] = set()
-    for candidate in candidates:
+    for candidate in build_candidates:
+        normalized = str(candidate).casefold()
+        if normalized not in seen:
+            seen.add(normalized)
+            unique_candidates.append(candidate.resolve())
+    for candidate in fallback_candidates:
         normalized = str(candidate).casefold()
         if normalized in seen:
             continue

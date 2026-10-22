@@ -194,6 +194,7 @@ class WorkflowDialog(QDialog):
         repository_root: Path,
         executable: str = "",
         parent: QWidget | None = None,
+        initial_mode: str | None = None,
     ) -> None:
         super().__init__(parent)
         self.setWindowTitle("OneFLOW Workflows")
@@ -208,6 +209,9 @@ class WorkflowDialog(QDialog):
         self._selected_id: str | None = None
         self._build_ui(executable)
         self._reload_workflows()
+        if initial_mode in {"multi_directory", "case_graph"}:
+            self._new_workflow()
+            self.mode_combo.setCurrentIndex(self.mode_combo.findData(initial_mode))
 
     def _build_ui(self, executable: str) -> None:
         root = QVBoxLayout(self)
@@ -227,22 +231,55 @@ class WorkflowDialog(QDialog):
         self.mode_combo.currentIndexChanged.connect(self._workflow_mode_changed)
         self.directory_edit = QPlainTextEdit()
         self.directory_edit.setPlaceholderText(
-            "One directory per line. Order is preserved in the OneFLOW command."
+            "One editable directory entry per line. Select a line to browse or remove it."
         )
         self.directory_edit.setMinimumHeight(120)
+        directory_row = QHBoxLayout()
+        directory_row.addWidget(self.directory_edit, 1)
+        directory_actions = QVBoxLayout()
+        self.directory_browse = QPushButton("Browse...")
+        self.directory_browse.clicked.connect(self._browse_workflow_directory)
+        self.directory_add = QPushButton("+ Entry")
+        self.directory_add.clicked.connect(self._add_workflow_entry)
+        self.directory_remove = QPushButton("- Entry")
+        self.directory_remove.clicked.connect(self._remove_workflow_entry)
+        directory_actions.addWidget(self.directory_browse)
+        directory_actions.addWidget(self.directory_add)
+        directory_actions.addWidget(self.directory_remove)
+        directory_actions.addStretch(1)
+        directory_row.addLayout(directory_actions)
+        directory_widget = QWidget()
+        directory_widget.setLayout(directory_row)
+        self.directory_widget = directory_widget
         form.addRow("Workflow ID", self.id_edit)
         form.addRow("Name", self.name_edit)
         self.form_layout = form
         self.graph_edit = QPlainTextEdit()
         self.graph_edit.setPlaceholderText("JSON array of case objects, including dependencies, outputs, and inputs.")
         self.graph_edit.setMinimumHeight(160)
+        graph_row = QHBoxLayout()
+        graph_row.addWidget(self.graph_edit, 1)
+        self.graph_directory_browse = QPushButton("Add case directory...")
+        self.graph_directory_browse.clicked.connect(self._add_graph_case_directory)
+        graph_row.addWidget(self.graph_directory_browse)
+        graph_widget = QWidget()
+        graph_widget.setLayout(graph_row)
+        self.graph_widget = graph_widget
         self.base_directory_edit = QLineEdit()
         self.base_directory_edit.setPlaceholderText("Base directory containing the configured case directories")
+        base_directory_row = QHBoxLayout()
+        base_directory_row.addWidget(self.base_directory_edit, 1)
+        self.base_directory_browse = QPushButton("Browse...")
+        self.base_directory_browse.clicked.connect(self._choose_base_directory)
+        base_directory_row.addWidget(self.base_directory_browse)
+        base_directory_widget = QWidget()
+        base_directory_widget.setLayout(base_directory_row)
+        self.base_directory_widget = base_directory_widget
         form.addRow("Description", self.description_edit)
         form.addRow("Workflow type", self.mode_combo)
-        form.addRow("Directories", self.directory_edit)
-        form.addRow("Case graph JSON", self.graph_edit)
-        form.addRow("Graph base directory", self.base_directory_edit)
+        form.addRow("Directories", directory_widget)
+        form.addRow("Case graph JSON", graph_widget)
+        form.addRow("Graph base directory", base_directory_widget)
         root.addLayout(form)
         self._workflow_mode_changed()
 
@@ -284,20 +321,116 @@ class WorkflowDialog(QDialog):
         self.log_view.setMaximumBlockCount(10000)
         root.addWidget(self.log_view, 2)
 
+
+    def _browse_workflow_directory(self) -> None:
+        """Replace the selected path entry with a browsed directory."""
+        cursor = self.directory_edit.textCursor()
+        lines = self.directory_edit.toPlainText().splitlines()
+        line_index = cursor.blockNumber()
+        current = lines[line_index].strip() if line_index < len(lines) else ""
+        start = Path(current).expanduser() if current else self._repository_root
+        if start.is_file():
+            start = start.parent
+        if not start.is_dir():
+            start = self._repository_root
+        directory = QFileDialog.getExistingDirectory(
+            self, "Select directory entry", str(start)
+        )
+        if not directory:
+            return
+        while len(lines) <= line_index:
+            lines.append("")
+        lines[line_index] = directory
+        self.directory_edit.setPlainText("\\n".join(lines))
+        cursor = self.directory_edit.textCursor()
+        cursor.movePosition(cursor.MoveOperation.Start)
+        for _ in range(line_index):
+            cursor.movePosition(cursor.MoveOperation.Down)
+        self.directory_edit.setTextCursor(cursor)
+
+    def _add_workflow_entry(self) -> None:
+        """Insert an editable path entry at the current cursor position."""
+        cursor = self.directory_edit.textCursor()
+        cursor.insertText("\\n")
+        cursor.movePosition(cursor.MoveOperation.PreviousBlock)
+        self.directory_edit.setTextCursor(cursor)
+        self.directory_edit.setFocus()
+
+    def _remove_workflow_entry(self) -> None:
+        """Remove the currently selected path entry."""
+        cursor = self.directory_edit.textCursor()
+        if not cursor.block().isValid():
+            return
+        cursor.select(cursor.SelectionType.LineUnderCursor)
+        cursor.removeSelectedText()
+        if cursor.atBlockStart() and not cursor.atEnd():
+            cursor.deleteChar()
+        self.directory_edit.setTextCursor(cursor)
+
+    def _choose_base_directory(self) -> None:
+        """Choose the root directory used to resolve case graph paths."""
+        current = self.base_directory_edit.text().strip()
+        start = Path(current).expanduser() if current else self._repository_root
+        if start.is_file():
+            start = start.parent
+        if not start.is_dir():
+            start = self._repository_root
+        directory = QFileDialog.getExistingDirectory(
+            self, "Select workflow base directory", str(start)
+        )
+        if directory:
+            self.base_directory_edit.setText(directory)
+
+
+    def _add_graph_case_directory(self) -> None:
+        """Append a directory chosen from the filesystem as a case graph node."""
+        try:
+            cases = json.loads(self.graph_edit.toPlainText() or "[]")
+            if not isinstance(cases, list):
+                raise ValueError("Case graph JSON must be a list of case objects.")
+        except (json.JSONDecodeError, ValueError, TypeError) as error:
+            QMessageBox.warning(self, "Invalid case graph", str(error))
+            return
+        directory = QFileDialog.getExistingDirectory(
+            self, "Add case directory", str(self._repository_root)
+        )
+        if not directory:
+            return
+        selected = Path(directory).resolve()
+        base_text = self.base_directory_edit.text().strip()
+        base = Path(base_text).expanduser().resolve() if base_text else selected.parent
+        try:
+            relative = selected.relative_to(base).as_posix()
+        except ValueError:
+            base = selected.parent
+            relative = selected.name
+        stem = "".join(
+            char.lower() if char.isascii() and char.isalnum() else "-"
+            for char in selected.name
+        ).strip("-") or "case"
+        existing_ids = {item.get("id") for item in cases if isinstance(item, dict)}
+        case_id = stem
+        suffix = 2
+        while case_id in existing_ids:
+            case_id = f"{stem}-{suffix}"
+            suffix += 1
+        cases.append({"id": case_id, "directory": relative, "depends_on": []})
+        self.base_directory_edit.setText(str(base))
+        self.graph_edit.setPlainText(json.dumps(cases, indent=2))
+
     def _workflow_mode_changed(self, *_args) -> None:
         graph_mode = self.mode_combo.currentData() == "case_graph"
-        self.directory_edit.setVisible(not graph_mode)
-        self.graph_edit.setVisible(graph_mode)
-        self.base_directory_edit.setVisible(graph_mode)
-        directory_label = self.form_layout.labelForField(self.directory_edit)
-        graph_label = self.form_layout.labelForField(self.graph_edit)
-        base_label = self.form_layout.labelForField(self.base_directory_edit)
-        if directory_label is not None:
-            directory_label.setVisible(not graph_mode)
-        if graph_label is not None:
-            graph_label.setVisible(graph_mode)
-        if base_label is not None:
-            base_label.setVisible(graph_mode)
+        self.directory_widget.setVisible(not graph_mode)
+        self.graph_widget.setVisible(graph_mode)
+        self.base_directory_widget.setVisible(graph_mode)
+        for field, visible in (
+            (self.directory_widget, not graph_mode),
+            (self.graph_widget, graph_mode),
+            (self.base_directory_widget, graph_mode),
+        ):
+            label = self.form_layout.labelForField(field)
+            if label is not None:
+                label.setVisible(visible)
 
     def _reload_workflows(self, select_id: str | None = None) -> None:
         workflows = self._repository.list_workflows()
@@ -351,6 +484,7 @@ class WorkflowDialog(QDialog):
 
     def _new_workflow(self) -> None:
         self.workflow_list.clearSelection()
+        self.workflow_list.setCurrentRow(-1)
         self._selected_id = None
         self.id_edit.clear()
         self.id_edit.setReadOnly(False)
@@ -496,6 +630,20 @@ class WorkflowDialog(QDialog):
                     raise NotADirectoryError(
                         "These workflow directories do not exist:\n" +
                         "\n".join(str(path) for path in missing)
+                    )
+                repository_root = self._repository_root.resolve()
+                source_directories = []
+                for path in directories:
+                    try:
+                        path.relative_to(repository_root)
+                    except ValueError:
+                        continue
+                    source_directories.append(path)
+                if source_directories:
+                    raise ValueError(
+                        "Workflow multi-directory runs cannot execute cases in the source "
+                        "repository. Copy them to a workspace first:\n" +
+                        "\n".join(str(path) for path in source_directories)
                     )
                 command = build_multi_directory_command(executable, directories)
         except (OSError, ValueError, KeyError, StopIteration, TypeError) as error:

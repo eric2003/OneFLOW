@@ -26,6 +26,7 @@ _PYTHON_UNIT_TESTS = (
     ("Flat-plate layout compiler tests", ("-m", "unittest", "tests.tools.test_compile_flat_plate")),
     ("Explicit layout topology tests", ("-m", "unittest", "tests.tools.test_layout_topology")),
     ("Desktop service tests", ("-m", "unittest", "tools.oneflow_gui.test_services")),
+    ("Project repository tests", ("-m", "unittest", "tools.oneflow_gui.test_project_repository")),
     ("User data path tests", ("-m", "unittest", "tools.oneflow_gui.test_user_data_paths")),
     ("Workflow persistence tests", ("-m", "unittest", "tools.oneflow_gui.test_workflow_repository")),
     ("Workflow command tests", ("-m", "unittest", "tools.oneflow_gui.test_workflow_execution")),
@@ -39,16 +40,21 @@ _PYTHON_UNIT_TESTS = (
 )
 
 
-def build_unit_test_commands(repository_root: Path, python: str | None = None) -> list[TestCommand]:
+def build_unit_test_commands(
+    repository_root: Path,
+    python: str | None = None,
+    *,
+    build_config: str = "Debug",
+) -> list[TestCommand]:
     """Return the same CTest and Python test commands used by repository CI."""
+    if build_config not in {"Debug", "Release"}:
+        raise ValueError(f"Unsupported CMake build configuration: {build_config!r}")
     root = Path(repository_root).resolve()
     python_executable = python or sys.executable
     commands: list[TestCommand] = []
     build_directory = root / "build"
     if (build_directory / "CTestTestfile.cmake").is_file():
-        arguments = ["ctest", "--output-on-failure"]
-        if os.name == "nt":
-            arguments.extend(["-C", "Release"])
+        arguments = ["ctest", "--output-on-failure", "-C", build_config]
         commands.append(TestCommand("C++ unit tests (CTest)", tuple(arguments), build_directory))
 
     for label, arguments in _PYTHON_UNIT_TESTS:

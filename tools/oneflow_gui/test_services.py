@@ -9,7 +9,11 @@ from pathlib import Path
 from tools.oneflow_gui.case_repository import load_cases
 from tools.oneflow_gui.executable_discovery import executable_candidates
 from tools.oneflow_gui.models import CaseDefinition
-from tools.oneflow_gui.runner import _copy_case_to_workspace, build_command
+from tools.oneflow_gui.runner import (
+    _copy_case_to_workspace,
+    build_command,
+    prepare_case_directory,
+)
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
@@ -46,6 +50,18 @@ class DesktopServiceTest(unittest.TestCase):
                 candidates.index(installed.resolve()),
             )
 
+    def test_debug_and_release_choices_exist_before_building(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            candidates = executable_candidates(root, {})
+            self.assertEqual(
+                candidates[:2],
+                [
+                    (root / "build" / "bin" / "Debug" / "OneFLOW.exe").resolve(),
+                    (root / "build" / "bin" / "Release" / "OneFLOW.exe").resolve(),
+                ],
+            )
+
     def test_run_command_uses_argument_list(self) -> None:
         with tempfile.TemporaryDirectory(prefix="oneflow path ") as directory:
             executable = Path(directory) / "OneFLOW.exe"
@@ -76,6 +92,49 @@ class DesktopServiceTest(unittest.TestCase):
             self.assertTrue((copied / "script" / "control.txt").is_file())
             self.assertEqual(source_config.read_text(encoding="utf-8"), '"simu.txt";\n')
             self.assertNotEqual(copied, source)
+
+    def test_source_execution_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "source_case"
+            source.mkdir()
+            case = CaseDefinition(
+                case_id="sample",
+                title="Sample",
+                case_directory=source,
+                runtime_config=source / "control.txt",
+                profile=None,
+                layout=None,
+            )
+
+            with self.assertRaisesRegex(ValueError, "In-place execution is disabled"):
+                prepare_case_directory(
+                    case, root / "runs", "run-001", "source"
+                )
+            self.assertFalse((root / "runs").exists())
+
+    def test_custom_execution_copies_case_under_selected_directory(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "source_case"
+            source.mkdir()
+            (source / "control.txt").write_text("config", encoding="utf-8")
+            case = CaseDefinition(
+                case_id="sample",
+                title="Sample",
+                case_directory=source,
+                runtime_config=source / "control.txt",
+                profile=None,
+                layout=None,
+            )
+
+            actual = prepare_case_directory(
+                case, root / "custom_runs", "run-002", "custom_workspace"
+            )
+            expected = root / "custom_runs" / "run-002" / "sample"
+            self.assertTrue(actual.samefile(expected))
+            self.assertTrue((actual / "control.txt").is_file())
+            self.assertTrue((source / "control.txt").is_file())
 
     def test_workspace_copy_refuses_to_overwrite_existing_run(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
