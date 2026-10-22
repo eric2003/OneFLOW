@@ -55,8 +55,8 @@ class WorkspaceDialog(QDialog):
         mode_row.addWidget(self.mode_combo, 1)
         layout.addLayout(mode_row)
 
-        self.case_table = QTableWidget(0, 2)
-        self.case_table.setHorizontalHeaderLabels(["Case ID", "Case directory"])
+        self.case_table = QTableWidget(0, 3)
+        self.case_table.setHorizontalHeaderLabels(["Case ID", "Case directory", "Depends on (comma-separated IDs)"])
         self.case_table.horizontalHeader().setStretchLastSection(True)
         layout.addWidget(self.case_table, 1)
 
@@ -95,13 +95,14 @@ class WorkspaceDialog(QDialog):
         if index >= 0:
             self.mode_combo.setCurrentIndex(index)
         for case in workspace.cases:
-            self._append_case(case.case_id, case.path)
+            self._append_case(case.case_id, case.path, ", ".join(case.depends_on))
 
-    def _append_case(self, case_id: str, path: str) -> None:
+    def _append_case(self, case_id: str, path: str, dependencies: str = "") -> None:
         row = self.case_table.rowCount()
         self.case_table.insertRow(row)
         self.case_table.setItem(row, 0, QTableWidgetItem(case_id))
         self.case_table.setItem(row, 1, QTableWidgetItem(path))
+        self.case_table.setItem(row, 2, QTableWidgetItem(dependencies))
 
     def _add_case(self) -> None:
         directory = QFileDialog.getExistingDirectory(
@@ -110,7 +111,10 @@ class WorkspaceDialog(QDialog):
         if not directory:
             return
         root = Path(directory).resolve()
-        case_id = root.name.replace(" ", "-")
+        case_id = "".join(
+            character.lower() if character.isascii() and character.isalnum() else "-"
+            for character in root.name
+        ).strip("-") or "case"
         existing = {
             self.case_table.item(row, 0).text()
             for row in range(self.case_table.rowCount())
@@ -137,6 +141,7 @@ class WorkspaceDialog(QDialog):
         for row in range(self.case_table.rowCount()):
             case_id_item = self.case_table.item(row, 0)
             path_item = self.case_table.item(row, 1)
+            dependency_item = self.case_table.item(row, 2)
             if case_id_item is None or path_item is None:
                 continue
             case_id = case_id_item.text().strip()
@@ -144,7 +149,17 @@ class WorkspaceDialog(QDialog):
             if not case_id or not case_path:
                 QMessageBox.warning(self, "Incomplete case", f"Complete the fields in row {row + 1}.")
                 return
-            cases.append(WorkspaceCase(case_id, case_path))
+            dependency_text = dependency_item.text().strip() if dependency_item else ""
+            dependencies = tuple(
+                dependency.strip() for dependency in dependency_text.split(",")
+                if dependency.strip()
+            )
+            if self._workspace_path is not None:
+                try:
+                    case_path = str(Path(case_path).expanduser().resolve().relative_to(self._workspace_path.parent.resolve()))
+                except ValueError:
+                    case_path = str(Path(case_path).expanduser().resolve())
+            cases.append(WorkspaceCase(case_id, case_path, dependencies))
 
         if not cases:
             QMessageBox.warning(self, "No cases", "Add at least one case directory.")
@@ -162,7 +177,10 @@ class WorkspaceDialog(QDialog):
             if self._workspace_path.suffix.lower() != ".ofw":
                 self._workspace_path = self._workspace_path.with_suffix(".ofw")
 
-        workspace_id = self._workspace_path.stem
+        workspace_id = "".join(
+            character.lower() if character.isascii() and character.isalnum() else "-"
+            for character in self._workspace_path.stem
+        ).strip("-._") or "workspace"
         try:
             workspace = WorkspaceDefinition(
                 workspace_id=workspace_id,
