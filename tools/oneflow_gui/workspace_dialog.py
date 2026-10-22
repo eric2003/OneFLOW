@@ -55,8 +55,8 @@ class WorkspaceDialog(QDialog):
         mode_row.addWidget(self.mode_combo, 1)
         layout.addLayout(mode_row)
 
-        self.case_table = QTableWidget(0, 3)
-        self.case_table.setHorizontalHeaderLabels(["Case ID", "Case directory", "Depends on (comma-separated IDs)"])
+        self.case_table = QTableWidget(0, 4)
+        self.case_table.setHorizontalHeaderLabels(["Case ID", "Case directory (editable)", "Depends on (comma-separated IDs)", "Browse"])
         self.case_table.horizontalHeader().setStretchLastSection(True)
         layout.addWidget(self.case_table, 1)
 
@@ -103,6 +103,31 @@ class WorkspaceDialog(QDialog):
         self.case_table.setItem(row, 0, QTableWidgetItem(case_id))
         self.case_table.setItem(row, 1, QTableWidgetItem(path))
         self.case_table.setItem(row, 2, QTableWidgetItem(dependencies))
+        self._set_browse_button(row)
+
+    def _set_browse_button(self, row: int) -> None:
+        """Attach a directory picker to the row without making paths read-only."""
+        button = QPushButton("Browse...")
+        button.clicked.connect(lambda _checked=False, index=row: self._browse_case_directory(index))
+        self.case_table.setCellWidget(row, 3, button)
+
+    def _browse_case_directory(self, row: int) -> None:
+        """Replace one case path using a native directory picker."""
+        path_item = self.case_table.item(row, 1)
+        current_path = path_item.text().strip() if path_item is not None else ""
+        start = Path(current_path).expanduser() if current_path else Path.home()
+        if start.is_file():
+            start = start.parent
+        if not start.is_dir():
+            start = Path.home()
+        directory = QFileDialog.getExistingDirectory(
+            self, "Select case directory", str(start)
+        )
+        if directory:
+            if path_item is None:
+                path_item = QTableWidgetItem()
+                self.case_table.setItem(row, 1, path_item)
+            path_item.setText(directory)
 
     def _add_case(self) -> None:
         directory = QFileDialog.getExistingDirectory(
@@ -131,6 +156,9 @@ class WorkspaceDialog(QDialog):
         rows = sorted({index.row() for index in self.case_table.selectedIndexes()}, reverse=True)
         for row in rows:
             self.case_table.removeRow(row)
+        # Row indexes change after removal, so reconnect the remaining buttons.
+        for row in range(self.case_table.rowCount()):
+            self._set_browse_button(row)
 
     def _save(self) -> None:
         name = self.name_edit.text().strip()
