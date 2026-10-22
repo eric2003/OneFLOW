@@ -40,16 +40,21 @@ _PYTHON_UNIT_TESTS = (
 )
 
 
-def build_unit_test_commands(repository_root: Path, python: str | None = None) -> list[TestCommand]:
+def build_unit_test_commands(
+    repository_root: Path,
+    python: str | None = None,
+    *,
+    build_config: str = "Debug",
+) -> list[TestCommand]:
     """Return the same CTest and Python test commands used by repository CI."""
+    if build_config not in {"Debug", "Release"}:
+        raise ValueError(f"Unsupported CMake build configuration: {build_config!r}")
     root = Path(repository_root).resolve()
     python_executable = python or sys.executable
     commands: list[TestCommand] = []
     build_directory = root / "build"
     if (build_directory / "CTestTestfile.cmake").is_file():
-        arguments = ["ctest", "--output-on-failure"]
-        if os.name == "nt":
-            arguments.extend(["-C", "Release"])
+        arguments = ["ctest", "--output-on-failure", "-C", build_config]
         commands.append(TestCommand("C++ unit tests (CTest)", tuple(arguments), build_directory))
 
     for label, arguments in _PYTHON_UNIT_TESTS:
