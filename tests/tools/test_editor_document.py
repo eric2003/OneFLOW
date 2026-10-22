@@ -22,7 +22,7 @@ class MeshLayoutEditorDocumentTest(unittest.TestCase):
         spec = load_specification(spec_path)
         layout, svg = compile_specification(spec)
         self.assertEqual(layout, layout_path.read_text(encoding="utf-8"))
-        self.assertIn("Rectangle topology preview", svg)
+        self.assertIn("Rectangle layout", svg)
 
     def test_vertical_midpoint_rectangle_template_compiles_to_checked_in_layout(self):
         spec_path = ROOT / "grid" / "minimal_rectangle_vertical_midpoints" / "rectangle_vertical_midpoints.json"
