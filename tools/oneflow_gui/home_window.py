@@ -99,22 +99,22 @@ class WorkbenchHomeWindow(QMainWindow):
         root.addLayout(run_mode_row)
 
         self._add_activity(
-            grid, 2, 0, "Run tests",
+            grid, 1, 0, "Run tests",
             "Run unit tests and optionally selected CFD or mesh regression suites.",
             self._open_tests,
         )
         self._add_activity(
-            grid, 2, 1, "Run history",
+            grid, 1, 1, "Run history",
             "Review previous runs, logs, status, and recorded artifacts.",
             self._open_history,
         )
         self._add_activity(
-            grid, 3, 0, "Mesh Layout Editor",
+            grid, 2, 0, "Mesh Layout Editor",
             "Create or edit mesh layouts and their case templates.",
             self._open_mesh_layout,
         )
         self._add_activity(
-            grid, 3, 1, "Saved workflows",
+            grid, 2, 1, "Saved workflows",
             "Open existing multi-case or dependency workflow definitions and their run history.",
             self._open_saved_workflows,
         )
