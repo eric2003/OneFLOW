@@ -104,6 +104,16 @@ class TaskRunResult:
     execution_directory: Path
     message: str
 
+    def to_dict(self) -> dict[str, str | int | None]:
+        """Return a JSON-compatible representation for run history."""
+        return {
+            "task_type": self.task_type.value,
+            "status": self.status.value,
+            "return_code": self.return_code,
+            "execution_directory": str(self.execution_directory),
+            "message": self.message,
+        }
+
     def __post_init__(self) -> None:
         """Keep result values canonical at the boundary between runners and UI."""
         object.__setattr__(self, "task_type", TaskType(self.task_type))
