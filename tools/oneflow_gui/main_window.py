@@ -650,11 +650,15 @@ class MainWindow(QMainWindow):
         })
 
     def _show_task_result(self, result: TaskRunResult) -> None:
-        """Log the common task result without replacing case-specific history."""
+        """Persist the shared result beside the detailed case outcome."""
+        if self._active_case_run_steps:
+            last_step = self._active_case_run_steps[-1]
+            if last_step.get("type") == "case":
+                last_step["task_result"] = result.to_dict()
         self._append_case_run_log(
             f"TASK RESULT: {result.task_type.value} / {result.status.value} "
-            f"/ exit={result.return_code} / cwd={result.execution_directory} "
-            f"/ {result.message}"
+            f"/ exit={result.return_code} "
+            f"/ execution_dir={result.execution_directory} / {result.message}"
         )
 
     def _queue_finished(self) -> None:
