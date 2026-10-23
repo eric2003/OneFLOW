@@ -20,7 +20,6 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
-from .executable_discovery import executable_candidates
 from .user_data_paths import UserDataPaths
 from .test_runner import (
     TestCommand,
@@ -104,9 +103,19 @@ class TestCommandWorker(QThread):
 class TestRunnerDialog(QDialog):
     """Offer unit tests by default and an optional existing CFD regression suite."""
 
-    def __init__(self, repository_root: Path, parent=None) -> None:
+    def __init__(
+        self,
+        repository_root: Path,
+        parent=None,
+        *,
+        build_config: str = "Debug",
+        executable: str | None = None,
+    ) -> None:
         super().__init__(parent)
+        if build_config not in {"Debug", "Release"}:
+            raise ValueError(f"Unsupported build configuration: {build_config!r}")
         self._repository_root = Path(repository_root).resolve()
+        self._build_config = build_config
         self._worker: TestCommandWorker | None = None
         self.setWindowTitle("OneFLOW Tests")
         self.resize(900, 650)
@@ -126,27 +135,14 @@ class TestRunnerDialog(QDialog):
         self.executable_combo = QComboBox()
         self.executable_combo.setEditable(True)
         self.executable_combo.setMinimumContentsLength(42)
-        self.executable_combo.addItems(
-            [str(path) for path in executable_candidates(self._repository_root)]
-        )
-        if self.executable_combo.count():
-            self.executable_combo.setCurrentIndex(0)
-        self.build_config_combo = QComboBox()
-        self.build_config_combo.addItems(["Debug", "Release"])
-        self.build_config_combo.currentTextChanged.connect(self._build_configuration_changed)
-        self._build_executable_paths = {
-            configuration: str(
-                (self._repository_root / "build" / "bin" / configuration / "OneFLOW.exe").resolve()
-            )
-            for configuration in ("Debug", "Release")
-        }
+        if executable:
+            self.executable_combo.setEditText(executable)
         self.suite_combo = QComboBox()
         self.suite_combo.addItems(available_suites(self._repository_root))
         default_index = self.suite_combo.findText("ci-serial.txt")
         if default_index >= 0:
             self.suite_combo.setCurrentIndex(default_index)
         form.addRow("OneFLOW executable", self.executable_combo)
-        form.addRow("CMake build configuration", self.build_config_combo)
         form.addRow("Existing suite", self.suite_combo)
         layout.addLayout(form)
 
@@ -186,7 +182,7 @@ class TestRunnerDialog(QDialog):
             commands.extend(
                 build_default_test_commands(
                     self._repository_root,
-                    build_config=self.build_config_combo.currentText(),
+                    build_config=self._build_config,
                 )
             )
         if self.regression_check.isChecked():
@@ -204,7 +200,7 @@ class TestRunnerDialog(QDialog):
                     self._repository_root
                     / "build"
                     / "bin"
-                    / self.build_config_combo.currentText()
+                    / self._build_config
                     / "OneFLOW.exe"
                 ).resolve()
                 executable_will_be_built = (
@@ -229,17 +225,12 @@ class TestRunnerDialog(QDialog):
 
         self._launch_commands(commands)
 
-    def _build_configuration_changed(self, configuration: str) -> None:
-        current = self.executable_combo.currentText().strip()
-        if current.casefold() in {path.casefold() for path in self._build_executable_paths.values()}:
-            self.executable_combo.setEditText(self._build_executable_paths[configuration])
-
     def _start_build(self, *, rebuild: bool) -> None:
         if self._worker is not None and self._worker.isRunning():
             return
         command = build_cmake_command(
             self._repository_root,
-            self.build_config_combo.currentText(),
+            self._build_config,
             rebuild=rebuild,
         )
         self._launch_commands([command])
