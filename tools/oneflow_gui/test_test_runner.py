@@ -43,6 +43,12 @@ class TestRunnerCommandTest(unittest.TestCase):
             )
             self.assertEqual(command.label, "CMake configure (Debug)")
 
+    def test_release_configuration_is_used_for_cmake_configure(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            command = build_cmake_configure_command(Path(directory), "Release")
+            self.assertEqual(command.label, "CMake configure (Release)")
+            self.assertEqual(command.arguments[-1], "CMAKE_BUILD_TYPE=Release")
+
     def test_build_tree_requires_cache_and_generated_build_file(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             build = Path(directory) / "build"
