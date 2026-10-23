@@ -57,7 +57,7 @@ class WorkbenchHomeWindow(QMainWindow):
         title.setObjectName("pageTitle")
         subtitle = QLabel(
             "Open or create a project workspace, choose how its cases execute, or run "
-            "tests and regression suites independently."
+            "Workbench tasks such as catalog cases, unit tests, and CFD/grid regression."
         )
         subtitle.setObjectName("subtitle")
         subtitle.setWordWrap(True)
@@ -133,8 +133,8 @@ class WorkbenchHomeWindow(QMainWindow):
         root.addLayout(run_mode_row)
 
         self._add_activity(
-            grid, 1, 0, "Run tests",
-            "Run unit tests and optionally selected CFD or mesh regression suites.",
+            grid, 1, 0, "Task Runner",
+            "Run unit tests or CFD/grid regression; catalog cases are another task type.",
             self._open_tests,
         )
         self._add_activity(
@@ -171,7 +171,8 @@ class WorkbenchHomeWindow(QMainWindow):
 
         footer = QLabel(
             "A workspace can represent one case or a collection of cases. Execution policy belongs "
-            "to the workspace; Case Database, unit tests, and CFD regression remain separate activities."
+            "to the workspace. Catalog cases, unit tests, and CFD/grid regression are task types "
+            "with different execution locations; their controls are being unified incrementally."
         )
         footer.setObjectName("footer")
         footer.setWordWrap(True)
