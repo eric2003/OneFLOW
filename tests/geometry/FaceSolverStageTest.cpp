@@ -11,7 +11,7 @@
 
 using namespace ONEFLOW;
 
-TEST( FaceSolverStageTest, StageNewFaceGrowsFaceFlagsWithTopology )
+TEST( FaceSolverStageTest, StageNewFaceGrowsAllParallelArrays )
 {
     FaceSolver solver;
     solver.StageNewFace( IntField{ 1, 2, 3 }, /*faceType=*/5, /*leftCellId=*/0 );
@@ -24,6 +24,8 @@ TEST( FaceSolverStageTest, StageNewFaceGrowsFaceFlagsWithTopology )
     EXPECT_EQ( topo.GetFaceFlags().size(), static_cast< std::size_t >( 2 ) );
     EXPECT_EQ( topo.GetLeftCells().size(), static_cast< std::size_t >( 2 ) );
     EXPECT_EQ( topo.GetRightCells().size(), static_cast< std::size_t >( 2 ) );
+    EXPECT_EQ( topo.lPosition.size(), static_cast< std::size_t >( 2 ) );
+    EXPECT_EQ( topo.rPosition.size(), static_cast< std::size_t >( 2 ) );
     EXPECT_EQ( solver.faceBcTypes.size(), static_cast< std::size_t >( 2 ) );
     EXPECT_EQ( solver.faceBcNameIds.size(), static_cast< std::size_t >( 2 ) );
 
@@ -49,6 +51,17 @@ TEST( FaceSolverStageTest, ClaimStagedFaceAsLeftAssignsOwnership )
     EXPECT_EQ( solver.faceBcTypes[ 0 ], INVALID_INDEX );
     EXPECT_EQ( solver.faceBcNameIds[ 0 ], INVALID_INDEX );
     EXPECT_TRUE( solver.StagedBcMatchesFaceCount() );
+}
+
+// Claim must not depend on EnsureParallelFaceArraysSized: StageNewFace alone
+// is enough for a consistent claim.
+TEST( FaceSolverStageTest, ClaimDoesNotRequireEnsureParallelFaceArraysSized )
+{
+    FaceSolver solver;
+    solver.StageNewFace( IntField{ 10, 11, 12 }, /*faceType=*/5, INVALID_INDEX );
+    EXPECT_TRUE( solver.StagedBcMatchesFaceCount() );
+    EXPECT_NO_THROW( solver.ClaimStagedFaceAsLeft( 0, 4 ) );
+    EXPECT_EQ( solver.GetFaceTopo().GetLeftCells()[ 0 ], 4 );
 }
 
 TEST( FaceSolverStageTest, AttachStagedFaceAsRightSetsNeighbor )
@@ -83,4 +96,47 @@ TEST( FaceSolverStageTest, SetStagedFaceBcRejectsOutOfRange )
 {
     FaceSolver solver;
     EXPECT_THROW( solver.SetStagedFaceBc( 0, 1, 1 ), std::out_of_range );
+}
+
+// CSR polygon staging without CgnsSection: two faces, one duplicated.
+TEST( FaceSolverStageTest, StagePolygonFacesFromConnectivityDedupsAndAligns )
+{
+    FaceSolver solver;
+    // face0: nodes 1,2,3  face1: nodes 4,5,6  face2: same as face0
+    CgIntField offsets{ 0, 3, 6, 9 };
+    CgIntField connectivity{ 1, 2, 3, 4, 5, 6, 1, 2, 3 };
+    const int faceType = 7;
+
+    solver.StagePolygonFacesFromConnectivity( 3, offsets, connectivity, faceType );
+
+    EXPECT_TRUE( solver.StagedBcMatchesFaceCount() );
+    EXPECT_EQ( solver.GetFaceTopo().GetFaces().size(), static_cast< std::size_t >( 2 ) );
+    EXPECT_EQ( solver.GetFaceTopo().GetFaceTypes()[ 0 ], faceType );
+    EXPECT_EQ( solver.GetFaceTopo().GetLeftCells()[ 0 ], INVALID_INDEX );
+    EXPECT_EQ( solver.GetFaceTopo().GetFaceFlags()[ 0 ], FaceSolver::kFaceUnclaimed );
+
+    solver.ClaimStagedFaceAsLeft( 0, /*cellId=*/10 );
+    solver.ClaimStagedFaceAsLeft( 1, /*cellId=*/11 );
+    EXPECT_EQ( solver.GetFaceTopo().GetLeftCells()[ 0 ], 10 );
+    EXPECT_EQ( solver.GetFaceTopo().GetLeftCells()[ 1 ], 11 );
+}
+
+TEST( FaceSolverStageTest, StagePolygonFacesFromConnectivityRejectsBadOffsets )
+{
+    FaceSolver solver;
+    CgIntField offsets{ 0, 2 }; // claims 1 element but end index 2 past connectivity
+    CgIntField connectivity{ 1 };
+    EXPECT_THROW(
+        solver.StagePolygonFacesFromConnectivity( 1, offsets, connectivity, 7 ),
+        std::runtime_error );
+}
+
+TEST( FaceSolverStageTest, StagePolygonFacesFromConnectivityRejectsIncompleteOffsetTable )
+{
+    FaceSolver solver;
+    CgIntField offsets{ 0 }; // need nElement+1 entries
+    CgIntField connectivity{};
+    EXPECT_THROW(
+        solver.StagePolygonFacesFromConnectivity( 1, offsets, connectivity, 7 ),
+        std::runtime_error );
 }

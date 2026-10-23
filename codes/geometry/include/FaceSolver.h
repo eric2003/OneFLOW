@@ -82,13 +82,29 @@ public:
     // Throws if faceId is out of range or the face is still unclaimed.
     void AttachStagedFaceAsRight( int faceId, int cellId );
 
+    // True when BC slots, face flags, left/right cells, and face-local
+    // positions all match the FaceTopo face count.
     [[nodiscard]] bool StagedBcMatchesFaceCount() const;
 
     // Face flag values used by the polygon ownership path.
     static constexpr int kFaceUnclaimed = 0;
     static constexpr int kFaceClaimed = 1;
 public:
-    void ResizeAll();
+    // Safety net: resize FaceTopo cell/position arrays and FaceSolver BC/child
+    // slots to the current face count. Prefer StageNewFace, which grows all
+    // parallel arrays together; this remains for paths that only grew faces.
+    void EnsureParallelFaceArraysSized();
+
+    // Stage unique polygon faces from CSR-style offsets/connectivity without
+    // requiring a CgnsSection. Invalid spans throw before any mutation.
+    // Each new unique face is staged with INVALID left cell (owner assigned
+    // later via ClaimStagedFaceAsLeft).
+    void StagePolygonFacesFromConnectivity(
+        int nElement,
+        const CgIntField & offsets,
+        const CgIntField & connectivity,
+        int faceType );
+
     void ScanPolygonFace( CgnsSection & cgnsSection );
     void ScanPolyhedronElement( CgnsSection & cgnsSection );
 private:
