@@ -291,5 +291,61 @@ class WorkflowRepositoryTest(unittest.TestCase):
             )
 
 
+    def test_case_queue_metadata_survives_finalization_and_note_updates(self) -> None:
+        steps = (
+            {
+                "type": "case_queue",
+                "case_ids": ["mesh", "solver"],
+                "execution_mode": "custom_workspace",
+                "workspace": "D:/OneFLOWWorkspace/runs/run-queue",
+            },
+            {
+                "type": "case",
+                "case_id": "mesh",
+                "status": "succeeded",
+                "task_result": {
+                    "task_type": "case_database",
+                    "status": "succeeded",
+                    "return_code": 0,
+                    "execution_directory": "D:/OneFLOWWorkspace/runs/run-queue/cases/mesh",
+                    "message": "mesh: completed",
+                },
+            },
+            {
+                "type": "case",
+                "case_id": "solver",
+                "status": "failed",
+                "task_result": {
+                    "task_type": "case_database",
+                    "status": "failed",
+                    "return_code": 2,
+                    "execution_directory": "D:/OneFLOWWorkspace/runs/run-queue/cases/solver",
+                    "message": "solver: exited with code 2",
+                },
+            },
+        )
+        self.repository.save_run(
+            WorkflowRunRecord(
+                run_id="run-queue",
+                workflow_id="case-workbench",
+                status="failed",
+                started_at="2026-10-23T10:00:00Z",
+                finished_at="2026-10-23T10:01:00Z",
+                task_type="case_database",
+                steps=steps,
+            )
+        )
+
+        updated = self.repository.update_run_note("run-queue", "Inspect solver failure.")
+        loaded = self.repository.list_runs("case-workbench")[0]
+        self.assertEqual(updated.steps, steps)
+        self.assertEqual(loaded.steps, steps)
+        self.assertEqual(loaded.steps[0]["case_ids"], ["mesh", "solver"])
+        self.assertEqual(loaded.steps[0]["execution_mode"], "custom_workspace")
+        self.assertEqual(loaded.steps[1]["task_result"]["status"], "succeeded")
+        self.assertEqual(loaded.steps[2]["task_result"]["status"], "failed")
+        self.assertEqual(loaded.note, "Inspect solver failure.")
+
+
 if __name__ == "__main__":
     unittest.main()
