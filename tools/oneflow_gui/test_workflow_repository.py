@@ -235,6 +235,15 @@ class WorkflowRepositoryTest(unittest.TestCase):
         self.repository.save_run(record)
         self.assertEqual(self.repository.list_runs()[0].log_path, "/tmp/oneflow-run.log")
 
+    def test_legacy_display_status_is_normalized_when_loaded(self) -> None:
+        record = WorkflowRunRecord.from_dict({
+            "run_id": "legacy-passed",
+            "workflow_id": "old-task",
+            "status": "Passed",
+            "started_at": "2026-10-23T10:00:00Z",
+        })
+        self.assertEqual(record.status, "succeeded")
+
     def test_history_filters_reject_unknown_status(self) -> None:
         with self.assertRaisesRegex(ValueError, "Unsupported workflow run status"):
             self.repository.list_runs(status="unknown")
