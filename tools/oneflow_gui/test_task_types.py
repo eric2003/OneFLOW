@@ -10,6 +10,7 @@ from tools.oneflow_gui.task_types import (
     TaskRunResult,
     TaskRunStatus,
     TaskType,
+    aggregate_run_status,
     normalize_run_status,
     task_definition,
     task_definitions,
@@ -63,6 +64,27 @@ class TaskTypesTest(unittest.TestCase):
             {status.value for status in TaskRunStatus},
             {"pending", "running", "succeeded", "failed", "cancelled"},
         )
+
+    def test_queue_status_aggregates_success_failure_and_cancellation(self) -> None:
+        self.assertEqual(
+            aggregate_run_status(["succeeded", "succeeded"]),
+            TaskRunStatus.SUCCEEDED,
+        )
+        self.assertEqual(
+            aggregate_run_status(["succeeded", "cancelled"]),
+            TaskRunStatus.CANCELLED,
+        )
+        self.assertEqual(
+            aggregate_run_status(["cancelled", "failed", "succeeded"]),
+            TaskRunStatus.FAILED,
+        )
+        self.assertEqual(
+            aggregate_run_status(["failed", "cancelled"]),
+            TaskRunStatus.FAILED,
+        )
+
+    def test_empty_queue_status_preserves_success_default(self) -> None:
+        self.assertEqual(aggregate_run_status([]), TaskRunStatus.SUCCEEDED)
 
     def test_unknown_run_status_is_rejected(self) -> None:
         with self.assertRaisesRegex(ValueError, "Unsupported task run status"):
