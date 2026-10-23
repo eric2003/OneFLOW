@@ -123,19 +123,15 @@ void CgnsZbcBoco::ConvertToInnerDataStandard()
 
 void CgnsZbcBoco::ScanBcFace( FaceSolver & faceSolver )
 {
-    std::cout << " Now ScanBcFace......\n\n";
-    std::cout << " nBoco = " << this->GetNBoco() << std::endl;
-
+    // Register region names, then match faces by vertex set via
+    // FaceSolver::ScanBcFaceDetail (not boundary-only ScanBcFace): CGNS BOCO
+    // regions may mark faces before right-cell ownership is finalized.
     for ( int iBoco = 0; iBoco < this->GetNBoco(); ++ iBoco )
     {
-        std::cout << " iBoco = " << iBoco << " ";
         CgnsBcBoco & cgnsBcBoco = this->GetCgnsBc( iBoco );
-        std::cout << " BCTypeName = " << ONEFLOW::GetCgnsBcName( cgnsBcBoco.bcType ) << std::endl;
-        std::cout << " BCRegion Name = " << cgnsBcBoco.name << std::endl;
 
         RegionNameMap::AddRegion( cgnsBcBoco.name );
-        int bcNameId = RegionNameMap::FindRegionId( cgnsBcBoco.name );
-        cgnsBcBoco.nameId = bcNameId;
+        cgnsBcBoco.nameId = RegionNameMap::FindRegionId( cgnsBcBoco.name );
         cgnsBcBoco.ScanBcFace( faceSolver );
     }
 }

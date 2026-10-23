@@ -69,7 +69,9 @@ public:
         int bcNameId,
         bool boundaryFacesOnly );
 
+    // Boundary faces only (right cell INVALID). Prefer for post-ownership BC.
     void ScanBcFace( IntSet & bcVertex, int bcType, int bcNameId );
+    // Match by vertex set only (CGNS BOCO path may run before ownership is final).
     void ScanBcFaceDetail( IntSet & bcVertex, int bcType, int bcNameId );
     void ScanInterfaceBc();
 

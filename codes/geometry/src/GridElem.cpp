@@ -259,7 +259,6 @@ void GridElem::GenerateCalcGrid( UnsGrid & grid )
 {
     grid.nCells = this->elemFeature.eTypes.size();
     grid.GetCellMesh().GetCellTopo().eTypes = this->elemFeature.eTypes;
-    std::cout << "   nCells = " << grid.nCells << std::endl;
 
     int nNodes = this->pointFactory.localToGlobal.size();
     grid.nodeMesh->CreateNodes(nNodes);
@@ -277,22 +276,16 @@ void GridElem::GenerateCalcGrid( UnsGrid & grid )
 
     this->CalcBoundaryType( grid );
     this->ReorderLink( grid );
-    std::cout << "\n-->All the computing information is ready\n";
 }
 
 void GridElem::CalcBoundaryType( UnsGrid & grid )
 {
-    std::cout << "\n-->Set boundary condition......\n";
     grid.SetFaceTopo( this->faceSolver.ReleaseFaceTopo() );
-    int nFaces = grid.GetFaceTopo().GetFaces().size();
-    std::cout << " nFaces = " << nFaces << "\n";
-     
+
     BcRecord & bcRecord = grid.GetFaceTopo().GetBcRecord();
     int nBFaces = bcRecord.bcType.size();
 
     grid.nBFaces = nBFaces;
-
-    std::cout << " nBFaces = " << nBFaces << "\n";
 
     BcTypeMap bcTypeMap;
     bcTypeMap.Init();
