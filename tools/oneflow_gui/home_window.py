@@ -441,6 +441,8 @@ class WorkbenchHomeWindow(QMainWindow):
             event.ignore()
             return
         if clicked is continue_button:
+            for window in self._project_windows:
+                window.set_application_shutdown_decision("continue")
             event.accept()
             return
         if clicked is not stop_button:
@@ -450,6 +452,8 @@ class WorkbenchHomeWindow(QMainWindow):
         try:
             for task in active_tasks:
                 request_background_stop(registry.root, task.task_id)
+            for window in self._project_windows:
+                window.set_application_shutdown_decision("stop")
         except (OSError, ValueError) as error:
             QMessageBox.critical(
                 self,
