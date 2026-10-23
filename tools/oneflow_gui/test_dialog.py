@@ -22,7 +22,7 @@ from PySide6.QtWidgets import (
 
 from .executable_discovery import executable_candidates
 from .user_data_paths import UserDataPaths
-from .task_types import TaskType, task_definition
+from .task_types import TaskRunResult, TaskRunStatus, TaskType, task_definition
 from .test_runner import (
     TestCommand,
     available_suites,
@@ -38,6 +38,7 @@ class TestCommandWorker(QThread):
 
     output_line = Signal(str)
     completed = Signal(bool, str)
+    command_completed = Signal(object)
 
     def __init__(self, commands: list[TestCommand]) -> None:
         super().__init__()
@@ -57,6 +58,15 @@ class TestCommandWorker(QThread):
         failed_labels: list[str] = []
         for command in self._commands:
             if self._cancel.is_set():
+                self.command_completed.emit(
+                    TaskRunResult(
+                        task_type=command.task_type,
+                        status=TaskRunStatus.CANCELLED,
+                        return_code=None,
+                        execution_directory=command.working_directory,
+                        message="Test run cancelled before command start.",
+                    )
+                )
                 self.completed.emit(False, "Test run cancelled.")
                 return
             self.output_line.emit(f"\n=== {command.label} ===")
@@ -86,15 +96,51 @@ class TestCommandWorker(QThread):
                         self._process = None
             except OSError as error:
                 self.output_line.emit(f"ERROR: {error}")
+                self.command_completed.emit(
+                    TaskRunResult(
+                        task_type=command.task_type,
+                        status=TaskRunStatus.FAILED,
+                        return_code=None,
+                        execution_directory=command.working_directory,
+                        message=str(error),
+                    )
+                )
                 failed_labels.append(command.label)
                 break
             if self._cancel.is_set():
+                self.command_completed.emit(
+                    TaskRunResult(
+                        task_type=command.task_type,
+                        status=TaskRunStatus.CANCELLED,
+                        return_code=return_code,
+                        execution_directory=command.working_directory,
+                        message="Test run cancelled.",
+                    )
+                )
                 self.completed.emit(False, "Test run cancelled.")
                 return
             if return_code != 0:
+                self.command_completed.emit(
+                    TaskRunResult(
+                        task_type=command.task_type,
+                        status=TaskRunStatus.FAILED,
+                        return_code=return_code,
+                        execution_directory=command.working_directory,
+                        message=f"{command.label} failed with exit code {return_code}.",
+                    )
+                )
                 failed_labels.append(command.label)
                 self.output_line.emit(f"FAILED: exit code {return_code}")
                 break
+            self.command_completed.emit(
+                TaskRunResult(
+                    task_type=command.task_type,
+                    status=TaskRunStatus.SUCCEEDED,
+                    return_code=return_code,
+                    execution_directory=command.working_directory,
+                    message=f"{command.label} passed.",
+                )
+            )
             self.output_line.emit("PASSED")
         if failed_labels:
             self.completed.emit(False, "Failed: " + ", ".join(failed_labels))
