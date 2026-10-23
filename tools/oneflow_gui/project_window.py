@@ -254,6 +254,7 @@ class ProjectWindow(QMainWindow):
         self._repository_root = repository_root.resolve()
         self._worker: ProjectRunWorker | None = None
         self._background_task_id: str | None = None
+        self._shutdown_decision: str | None = None
         self._background_log_offset = 0
         self._execution_directory: Path | None = None
         self._background_timer = QTimer(self)
@@ -953,7 +954,18 @@ class ProjectWindow(QMainWindow):
             self.stop_button.setEnabled(False)
             self.statusBar().showMessage("Stop requested; waiting for the active process to exit.")
 
+    def set_application_shutdown_decision(self, decision: str) -> None:
+        """Apply the home window's decision without prompting a second time."""
+        if decision not in {"stop", "continue"}:
+            raise ValueError(f"Unsupported shutdown decision: {decision!r}")
+        self._shutdown_decision = decision
+        self._background_timer.stop()
+
     def closeEvent(self, event) -> None:
+        if self._shutdown_decision is not None:
+            self.run_window.close()
+            event.accept()
+            return
         if self._background_task_id is not None:
             prompt = QMessageBox(self)
             prompt.setWindowTitle("Project is running")
