@@ -45,17 +45,18 @@ public:
     ~FaceSolver();
 public:
     HXLookup<int> faceLookup;
-    // [Refactored] Changed from raw pointers to value types.
-    // They are now automatically managed by the compiler (stack allocation).
-    // Staged BC attributes per face (aligned with FaceTopo faces).
-    // Copied into BcRecord as bcNameId / bcType in GridElem::GenerateCalcElement.
-    IntField faceBcNameIds;
-    IntField faceBcTypes;
+    // Child-face index lists (split/interface path). Prefer StageNewFace growth.
     LinkField childFid;
 public:
     FaceTopo & GetFaceTopo();
     const FaceTopo & GetFaceTopo() const;
     [[nodiscard]] std::unique_ptr< FaceTopo > ReleaseFaceTopo() noexcept;
+
+    // Read staged BC (bounds-checked). Writes go through SetStagedFaceBc only.
+    int GetStagedBcType( int faceId ) const;
+    int GetStagedBcNameId( int faceId ) const;
+    std::size_t GetStagedBcSlotCount() const { return faceBcTypes.size(); }
+
 public:
     bool CheckBcFace( const IntSet & bcVertex, const IntField & nodeId ) const;
     void ScanElementFace( CgIntField & eNodeId, int eType, int eId );
@@ -140,6 +141,11 @@ public:
     void ScanPolygonFace( CgnsSection & cgnsSection );
     void ScanPolyhedronElement( CgnsSection & cgnsSection );
 private:
+    // Staged BC attributes per face (aligned with FaceTopo faces).
+    // Sole write path after construction: SetStagedFaceBc / StageNewFace.
+    IntField faceBcNameIds;
+    IntField faceBcTypes;
+
     std::unique_ptr< FaceTopo > faceTopo;
 };
 

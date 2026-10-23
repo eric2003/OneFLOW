@@ -27,16 +27,16 @@ TEST( FaceSolverStageTest, StageNewFaceGrowsAllParallelArrays )
     EXPECT_EQ( topo.GetRightCells().size(), static_cast< std::size_t >( 2 ) );
     EXPECT_EQ( topo.lPosition.size(), static_cast< std::size_t >( 2 ) );
     EXPECT_EQ( topo.rPosition.size(), static_cast< std::size_t >( 2 ) );
-    EXPECT_EQ( solver.faceBcTypes.size(), static_cast< std::size_t >( 2 ) );
-    EXPECT_EQ( solver.faceBcNameIds.size(), static_cast< std::size_t >( 2 ) );
+    EXPECT_EQ( solver.GetStagedBcSlotCount(), static_cast< std::size_t >( 2 ) );
+    EXPECT_EQ( solver.GetStagedBcSlotCount(), static_cast< std::size_t >( 2 ) );
     EXPECT_EQ( solver.childFid.size(), static_cast< std::size_t >( 2 ) );
     EXPECT_EQ( topo.GetFaceTypes().size(), static_cast< std::size_t >( 2 ) );
 
     EXPECT_EQ( topo.GetFaceFlags()[ 0 ], FaceSolver::kFaceUnclaimed );
     EXPECT_EQ( topo.GetFaceFlags()[ 1 ], FaceSolver::kFaceUnclaimed );
     EXPECT_EQ( topo.GetLeftCells()[ 1 ], INVALID_INDEX );
-    EXPECT_EQ( solver.faceBcTypes[ 0 ], INVALID_INDEX );
-    EXPECT_EQ( solver.faceBcNameIds[ 1 ], INVALID_INDEX );
+    EXPECT_EQ( solver.GetStagedBcType( 0 ), INVALID_INDEX );
+    EXPECT_EQ( solver.GetStagedBcNameId( 1 ), INVALID_INDEX );
 }
 
 TEST( FaceSolverStageTest, ClaimStagedFaceAsLeftAssignsOwnership )
@@ -51,8 +51,8 @@ TEST( FaceSolverStageTest, ClaimStagedFaceAsLeftAssignsOwnership )
     EXPECT_EQ( topo.GetFaceFlags()[ 0 ], FaceSolver::kFaceClaimed );
     EXPECT_EQ( topo.GetLeftCells()[ 0 ], 9 );
     EXPECT_EQ( topo.GetRightCells()[ 0 ], INVALID_INDEX );
-    EXPECT_EQ( solver.faceBcTypes[ 0 ], INVALID_INDEX );
-    EXPECT_EQ( solver.faceBcNameIds[ 0 ], INVALID_INDEX );
+    EXPECT_EQ( solver.GetStagedBcType( 0 ), INVALID_INDEX );
+    EXPECT_EQ( solver.GetStagedBcNameId( 0 ), INVALID_INDEX );
     EXPECT_TRUE( solver.StagedBcMatchesFaceCount() );
 }
 
@@ -224,9 +224,9 @@ TEST( FaceSolverStageTest, AssignBcToMatchingFacesBoundaryOnly )
         bcVertex, /*bcType=*/10, /*bcNameId=*/3, /*boundaryFacesOnly=*/true );
 
     EXPECT_EQ( assigned, 1 );
-    EXPECT_EQ( solver.faceBcTypes[ 0 ], 10 );
-    EXPECT_EQ( solver.faceBcNameIds[ 0 ], 3 );
-    EXPECT_EQ( solver.faceBcTypes[ 1 ], INVALID_INDEX );
+    EXPECT_EQ( solver.GetStagedBcType( 0 ), 10 );
+    EXPECT_EQ( solver.GetStagedBcNameId( 0 ), 3 );
+    EXPECT_EQ( solver.GetStagedBcType( 1 ), INVALID_INDEX );
 }
 
 TEST( FaceSolverStageTest, AssignBcToMatchingFacesIgnoresAlreadySetBc )
@@ -240,7 +240,7 @@ TEST( FaceSolverStageTest, AssignBcToMatchingFacesIgnoresAlreadySetBc )
         bcVertex, /*bcType=*/10, /*bcNameId=*/2, /*boundaryFacesOnly=*/true );
 
     EXPECT_EQ( assigned, 0 );
-    EXPECT_EQ( solver.faceBcTypes[ 0 ], 99 );
+    EXPECT_EQ( solver.GetStagedBcType( 0 ), 99 );
 }
 
 TEST( FaceSolverStageTest, AssignBcToMatchingFacesDetailModeMatchesInterior )
@@ -254,7 +254,7 @@ TEST( FaceSolverStageTest, AssignBcToMatchingFacesDetailModeMatchesInterior )
         bcVertex, /*bcType=*/7, /*bcNameId=*/4, /*boundaryFacesOnly=*/false );
 
     EXPECT_EQ( assigned, 1 );
-    EXPECT_EQ( solver.faceBcTypes[ 0 ], 7 );
+    EXPECT_EQ( solver.GetStagedBcType( 0 ), 7 );
 }
 
 TEST( FaceSolverStageTest, BindCellToExistingFaceFillsLeftThenRight )
@@ -323,4 +323,15 @@ TEST( FaceSolverStageTest, AppendBoundaryBcToRecordRequiresAlignment )
 
     BcRecord record;
     EXPECT_THROW( solver.AppendBoundaryBcToRecord( record ), std::logic_error );
+}
+
+TEST( FaceSolverStageTest, GetStagedBcRejectsOutOfRange )
+{
+    FaceSolver solver;
+    EXPECT_THROW( solver.GetStagedBcType( 0 ), std::out_of_range );
+    EXPECT_THROW( solver.GetStagedBcNameId( 0 ), std::out_of_range );
+
+    solver.StageNewFace( IntField{ 1, 2, 3 }, 5, 0 );
+    EXPECT_EQ( solver.GetStagedBcType( 0 ), INVALID_INDEX );
+    EXPECT_THROW( solver.GetStagedBcType( 1 ), std::out_of_range );
 }

@@ -273,6 +273,25 @@ void FaceSolver::SetStagedFaceBc( int faceId, int bcType, int bcNameId )
     this->faceBcNameIds[ faceId ] = bcNameId;
 }
 
+
+int FaceSolver::GetStagedBcType( int faceId ) const
+{
+    if ( faceId < 0 || static_cast< size_t >( faceId ) >= this->faceBcTypes.size() )
+    {
+        throw std::out_of_range( "FaceSolver::GetStagedBcType: face ID is out of range" );
+    }
+    return this->faceBcTypes[ faceId ];
+}
+
+int FaceSolver::GetStagedBcNameId( int faceId ) const
+{
+    if ( faceId < 0 || static_cast< size_t >( faceId ) >= this->faceBcNameIds.size() )
+    {
+        throw std::out_of_range( "FaceSolver::GetStagedBcNameId: face ID is out of range" );
+    }
+    return this->faceBcNameIds[ faceId ];
+}
+
 void FaceSolver::ClaimStagedFaceAsLeft( int faceId, int cellId )
 {
     if ( faceId < 0 ||
