@@ -97,7 +97,7 @@ def build_cmake_configure_command(repository_root: Path) -> TestCommand:
         "cmake",
         "..",
         "-D",
-        "CMAKE_PREFIX_PATH=C:/dev/OneFLOW",
+        "CMAKE_INSTALL_PREFIX=C:/dev/OneFLOW",
         "-D",
         "CMAKE_BUILD_TYPE=Debug",
     )
