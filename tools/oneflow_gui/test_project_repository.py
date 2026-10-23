@@ -56,29 +56,29 @@ class ProjectRepositoryTest(unittest.TestCase):
             flow_script = root / "rae2822_roe_sa" / "script"
             grid_script.mkdir(parents=True)
             flow_script.mkdir(parents=True)
-            (root / "workflow.json").write_text("{}\\n", encoding="utf-8")
+            (root / "workflow.json").write_text("{}\n", encoding="utf-8")
             (grid_script / "control.txt").write_text(
-                '"simu.txt";\\n"dimension.txt";\\n"grid.txt";\\n',
+                '"simu.txt";\n"dimension.txt";\n"grid.txt";\n',
                 encoding="utf-8",
             )
             (grid_script / "simu.txt").write_text(
-                'string simutask = "Grid";\\n', encoding="utf-8"
+                'string simutask = "Grid";\n', encoding="utf-8"
             )
             (grid_script / "dimension.txt").write_text(
-                "int dimension = 2;\\n", encoding="utf-8"
+                "int dimension = 2;\n", encoding="utf-8"
             )
             (grid_script / "grid.txt").write_text(
-                'string targetGridFileName = "results/grid.ofl";\\n',
+                'string targetGridFileName = "results/grid.ofl";\n',
                 encoding="utf-8",
             )
             (flow_script / "control.txt").write_text(
-                '"simu.txt";\\n"cfd.txt";\\n', encoding="utf-8"
+                '"simu.txt";\n"cfd.txt";\n', encoding="utf-8"
             )
             (flow_script / "simu.txt").write_text(
-                'string simutask = "Solve";\\n', encoding="utf-8"
+                'string simutask = "Solve";\n', encoding="utf-8"
             )
             (flow_script / "cfd.txt").write_text(
-                'string gridFileName = "grid/grid.ofl";\\n', encoding="utf-8"
+                'string gridFileName = "grid/grid.ofl";\n', encoding="utf-8"
             )
 
             project = open_project(root)
