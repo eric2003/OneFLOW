@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
-from PySide6.QtCore import QThread, Signal
+from PySide6.QtCore import QThread, Signal, Qt
 from PySide6.QtWidgets import (
     QComboBox,
     QFileDialog,
@@ -376,9 +376,28 @@ class ProjectWindow(QMainWindow):
     def _refresh_project_inventory(self) -> None:
         self.project_tree.clear()
         entries = scan_project(self._project.root)
-        for entry in entries.values():
-            self._add_inventory_item(self.project_tree, entry, "Original")
-        self.project_tree.sortItems(0, 0)
+        items: dict[str, QTreeWidgetItem] = {}
+        ordered = sorted(
+            entries.values(),
+            key=lambda entry: (len(Path(entry.relative_path).parts), entry.relative_path.casefold()),
+        )
+        for entry in ordered:
+            relative = Path(entry.relative_path)
+            size = "" if entry.kind == "directory" else f"{entry.size_bytes:,} B"
+            item = QTreeWidgetItem([
+                relative.name, entry.kind, entry.category, size, entry.purpose
+            ])
+            item.setData(0, Qt.ItemDataRole.UserRole, entry)
+            item.setToolTip(0, entry.relative_path)
+            parent_path = relative.parent.as_posix()
+            parent_item = items.get(parent_path)
+            if parent_item is None or parent_path == ".":
+                self.project_tree.addTopLevelItem(item)
+            else:
+                parent_item.addChild(item)
+            items[entry.relative_path] = item
+        self.project_tree.sortItems(0, Qt.SortOrder.AscendingOrder)
+        self.project_tree.expandToDepth(1)
 
     @staticmethod
     def _add_inventory_item(tree: QTreeWidget, entry: ProjectFileEntry, status: str) -> None:
@@ -386,7 +405,7 @@ class ProjectWindow(QMainWindow):
         item = QTreeWidgetItem([
             entry.relative_path, entry.kind, entry.category, size, entry.purpose
         ])
-        item.setData(0, 32, entry)
+        item.setData(0, Qt.ItemDataRole.UserRole, entry)
         item.setToolTip(0, entry.relative_path)
         tree.addTopLevelItem(item)
 
@@ -394,7 +413,7 @@ class ProjectWindow(QMainWindow):
         selected = self.project_tree.selectedItems()
         if not selected:
             return
-        entry = selected[0].data(0, 32)
+        entry = selected[0].data(0, Qt.ItemDataRole.UserRole)
         if not isinstance(entry, ProjectFileEntry):
             return
         self.file_details.setPlainText(
@@ -424,7 +443,7 @@ class ProjectWindow(QMainWindow):
             item = QTreeWidgetItem([
                 entry.relative_path, change.status, entry.category, size, entry.purpose
             ])
-            item.setData(0, 32, entry)
+            item.setData(0, Qt.ItemDataRole.UserRole, entry)
             self.changes_tree.addTopLevelItem(item)
         self.changes_tree.sortItems(0, 0)
         self.changes_summary.setText(
