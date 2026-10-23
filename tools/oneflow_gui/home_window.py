@@ -458,7 +458,7 @@ class WorkbenchHomeWindow(QMainWindow):
             QMessageBox.critical(
                 self,
                 "Could not stop all calculations",
-                f"Workbench will remain open so you can manage the tasks.\\n{error}",
+                f"Workbench will remain open so you can manage the tasks.\n{error}",
             )
             event.ignore()
             return
