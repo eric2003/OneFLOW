@@ -26,8 +26,8 @@ from .test_runner import (
     TestCommand,
     available_suites,
     build_cmake_command,
+    build_default_test_commands,
     build_regression_command,
-    build_unit_test_commands,
     stage_regression_tests,
 )
 
@@ -61,7 +61,9 @@ class TestCommandWorker(QThread):
             self.output_line.emit(f"\n=== {command.label} ===")
             self.output_line.emit("$ " + subprocess.list2cmdline(list(command.arguments)))
             try:
-                with subprocess.Popen(
+                if command.label.startswith("CMake configure"):
+                command.working_directory.mkdir(parents=True, exist_ok=True)
+            with subprocess.Popen(
                     list(command.arguments),
                     cwd=command.working_directory,
                     stdout=subprocess.PIPE,
@@ -182,7 +184,7 @@ class TestRunnerDialog(QDialog):
         commands: list[TestCommand] = []
         if self.unit_tests_check.isChecked():
             commands.extend(
-                build_unit_test_commands(
+                build_default_test_commands(
                     self._repository_root,
                     build_config=self.build_config_combo.currentText(),
                 )
