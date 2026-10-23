@@ -8,6 +8,8 @@ import unittest
 from pathlib import Path
 
 from tools.oneflow_gui.project_templates import create_project
+from tools.oneflow_gui.workflow_plan import build_case_graph_plan
+from tools.oneflow_gui.workflow_repository import WorkflowDefinition
 
 
 class Rae2822ProjectTemplateTest(unittest.TestCase):
@@ -71,10 +73,31 @@ class Rae2822ProjectTemplateTest(unittest.TestCase):
             self.assertTrue((project.root / ".oneflow-project.json").is_file())
             self.assertTrue((project.root / "README.md").is_file())
             copied = json.loads((project.root / "workflow.json").read_text(encoding="utf-8"))
-            cases = copied["steps"][0]["cases"]
+            definition = WorkflowDefinition.from_dict(copied)
+            cases = definition.steps[0]["cases"]
             self.assertEqual(cases[1]["depends_on"], ["rae2822grid"])
             self.assertEqual(cases[0]["outputs"][0]["path"], "results/rae2822_2d.ofl")
             self.assertEqual(cases[1]["inputs"][0]["artifact"], "rae2822_grid")
+
+            plan = build_case_graph_plan(cases, project.root)
+            self.assertEqual(
+                [step.case_id for step in plan.steps],
+                ["rae2822grid", "rae2822_roe_sa"],
+            )
+            self.assertEqual(
+                plan.steps[0].outputs[0].relative_path.as_posix(),
+                "results/rae2822_2d.ofl",
+            )
+            flow_step = plan.steps[1]
+            self.assertEqual(flow_step.inputs[0].producer_id, "rae2822grid")
+            self.assertEqual(
+                flow_step.inputs[0].source_path,
+                (project.root / "rae2822grid" / "results" / "rae2822_2d.ofl").resolve(),
+            )
+            self.assertEqual(
+                flow_step.inputs[0].parameter_file.as_posix(),
+                "script/cfd.txt",
+            )
             self.assertTrue((grid_case / "script" / "grid.txt").is_file())
 
 
