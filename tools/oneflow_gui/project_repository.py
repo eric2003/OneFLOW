@@ -1,4 +1,4 @@
-""""Discover OneFLOW projects independently of the built-in case catalogs."""
+"""Discover OneFLOW projects independently of the built-in case catalogs."""
 
 from __future__ import annotations
 
