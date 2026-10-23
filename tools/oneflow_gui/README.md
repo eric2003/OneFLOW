@@ -94,8 +94,9 @@ The long-term product direction is documented in both [Chinese](../../docs/ONEFL
 - `workflow_execution.py`: shell-free construction of one-process,
   multi-directory command arguments, preserving the user-specified order.
 - `home_window.py`: Workbench activity selector with Case Database and Task Runner entries, plus a Run mode selector for single-case, multi-case, and dependency-workflow execution.
-- `task_types.py`: shared task categories and explicit execution-location policy for Case Database, Unit Tests, and CFD/Grid Regression.
-- `test_task_types.py`: tests task classification uniqueness and execution-location policy.
+- `task_types.py`: shared task categories, explicit execution-location policy, and canonical run statuses for Case Database, Unit Tests, and CFD/Grid Regression.
+- `test_task_types.py`: tests task classification, execution-location policy, and normalization of GUI-facing status labels to persisted states.
+- `workflow_repository.py`: normalizes legacy run-status labels when loading history while continuing to persist canonical lowercase states.
 - `main_window.py`: Case Workbench widgets, execution-location selection, and the sequential case queue worker.
 - `mesh_layout_dialog.py`: template-based geometry, mesh-count, spacing, and boundary editor with SVG preview.
 - `tools/mesh_layout/editor_document.py`: Qt-independent JSON loading, validation, compilation, and saving shared by the editor.
