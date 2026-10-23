@@ -95,6 +95,7 @@ class WorkflowRunRecord:
     message: str = ""
     note: str = ""
     log_path: str | None = None
+    task_type: str = "workflow"
 
     def to_dict(self) -> dict[str, Any]:
         """Return the JSON-compatible representation."""
@@ -121,6 +122,7 @@ class WorkflowRunRecord:
         message = data.get("message", "")
         note = data.get("note", "")
         log_path = data.get("log_path")
+        task_type = data.get("task_type", "workflow")
         steps = data.get("steps", [])
         artifacts = data.get("artifacts", [])
         if finished_at is not None and not isinstance(finished_at, str):
@@ -133,6 +135,8 @@ class WorkflowRunRecord:
             raise ValueError("Run note must be a string.")
         if log_path is not None and not isinstance(log_path, str):
             raise ValueError("Run log_path must be a string or null.")
+        if not isinstance(task_type, str) or not task_type.strip():
+            raise ValueError("Run task_type must be a non-empty string.")
         if not isinstance(steps, list) or not all(
             isinstance(step, dict) for step in steps
         ):
@@ -153,6 +157,7 @@ class WorkflowRunRecord:
             message=message,
             note=note,
             log_path=log_path,
+            task_type=task_type,
         )
 
 
