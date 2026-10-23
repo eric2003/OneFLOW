@@ -101,7 +101,8 @@ The long-term product direction is documented in both [Chinese](../../docs/ONEFL
 - `test_services.py`: standard-library tests for the non-UI services.
 - `test_workflow_execution.py`: tests for argument order, spaces, and invalid input.
 - `workflow_repository.py`: versioned workflow-definition and run-history persistence, independent of Qt.
-- `user_data_paths.py`: centralized cross-platform user data paths with the optional `ONEFLOW_HOME` override.
+- `user_data_paths.py`: centralized cross-platform user data paths with the optional `ONEFLOW_HOME` override; the default is derived from the current user home directory.
+- `application_settings.py` and `settings_dialog.py`: persist the OneFLOW source checkout in the per-user `settings.json`; the default is `D:/github/OneFLOW`, and users can select another existing checkout on any drive through Basic Configuration.
 - `test_user_data_paths.py`: tests default paths, overrides, and side-effect-free path resolution.
 - `test_workflow_repository.py`: persistence tests for version checks, CRUD behavior, and history retention.
 
@@ -115,6 +116,7 @@ From the repository root:
 ```powershell
 python -m unittest tools.oneflow_gui.test_services
 python -m unittest tools.oneflow_gui.test_user_data_paths
+python -m unittest tools.oneflow_gui.test_application_settings
 python -m unittest tools.oneflow_gui.test_workflow_repository
 python -m unittest tools.oneflow_gui.test_workflow_execution
 python -m unittest tools.oneflow_gui.test_workflow_dependencies
