@@ -97,8 +97,8 @@ public:
     // cell is not already the left owner. No-op if both sides are set.
     void BindCellToExistingFace( int faceId, int cellId );
 
-    // True when BC slots, face flags, left/right cells, and face-local
-    // positions all match the FaceTopo face count.
+    // True when BC slots, childFid, face types/flags, left/right cells, and
+    // face-local positions all match the FaceTopo face count.
     [[nodiscard]] bool StagedBcMatchesFaceCount() const;
 
     // Face flag values used by the polygon ownership path.

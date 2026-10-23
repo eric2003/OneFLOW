@@ -28,6 +28,8 @@ TEST( FaceSolverStageTest, StageNewFaceGrowsAllParallelArrays )
     EXPECT_EQ( topo.rPosition.size(), static_cast< std::size_t >( 2 ) );
     EXPECT_EQ( solver.faceBcTypes.size(), static_cast< std::size_t >( 2 ) );
     EXPECT_EQ( solver.faceBcNameIds.size(), static_cast< std::size_t >( 2 ) );
+    EXPECT_EQ( solver.childFid.size(), static_cast< std::size_t >( 2 ) );
+    EXPECT_EQ( topo.GetFaceTypes().size(), static_cast< std::size_t >( 2 ) );
 
     EXPECT_EQ( topo.GetFaceFlags()[ 0 ], FaceSolver::kFaceUnclaimed );
     EXPECT_EQ( topo.GetFaceFlags()[ 1 ], FaceSolver::kFaceUnclaimed );
@@ -282,4 +284,14 @@ TEST( FaceSolverStageTest, BindCellToExistingFaceRejectsOutOfRange )
 {
     FaceSolver solver;
     EXPECT_THROW( solver.BindCellToExistingFace( 0, 1 ), std::out_of_range );
+}
+
+TEST( FaceSolverStageTest, StagedBcMatchesFaceCountRequiresChildFid )
+{
+    FaceSolver solver;
+    solver.StageNewFace( IntField{ 1, 2, 3 }, 5, 0 );
+    ASSERT_TRUE( solver.StagedBcMatchesFaceCount() );
+
+    solver.childFid.pop_back();
+    EXPECT_FALSE( solver.StagedBcMatchesFaceCount() );
 }

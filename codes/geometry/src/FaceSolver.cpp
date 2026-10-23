@@ -342,9 +342,13 @@ void FaceSolver::BindCellToExistingFace( int faceId, int cellId )
 
 bool FaceSolver::StagedBcMatchesFaceCount() const
 {
+    // Full parallel-array contract after StageNewFace: topology, ownership
+    // slots, face-local positions, BC attributes, and child-face lists.
     const std::size_t nFaces = this->faceTopo->GetFaces().size();
     return this->faceBcTypes.size() == nFaces &&
            this->faceBcNameIds.size() == nFaces &&
+           this->childFid.size() == nFaces &&
+           this->faceTopo->GetFaceTypes().size() == nFaces &&
            this->faceTopo->GetFaceFlags().size() == nFaces &&
            this->faceTopo->GetLeftCells().size() == nFaces &&
            this->faceTopo->GetRightCells().size() == nFaces &&
