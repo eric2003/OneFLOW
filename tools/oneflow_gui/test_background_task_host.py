@@ -5,6 +5,8 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
+import threading
+import time
 import tempfile
 import unittest
 from pathlib import Path
@@ -45,6 +47,38 @@ class BackgroundTaskHostTest(unittest.TestCase):
         self.assertIsNotNone(task.host_pid)
         self.assertIsNotNone(task.process_pid)
         self.assertIn("host-output", self.log_file.read_text(encoding="utf-8"))
+
+    def test_host_stops_active_process_when_stop_file_appears(self) -> None:
+        stop_file = self.registry.records_directory / "task-001.stop"
+
+        def request_stop() -> None:
+            deadline = time.monotonic() + 5
+            while time.monotonic() < deadline:
+                try:
+                    task = self.registry.load("task-001")
+                except (OSError, ValueError):
+                    time.sleep(0.01)
+                    continue
+                if task.process_pid is not None:
+                    stop_file.write_text("stop\\n", encoding="utf-8")
+                    return
+                time.sleep(0.01)
+
+        stopper = threading.Thread(target=request_stop, daemon=True)
+        stopper.start()
+        result = run_host(
+            root=self.root,
+            task_id="task-001",
+            command=[sys.executable, "-c", "import time; time.sleep(30)"],
+            cwd=self.root,
+            poll_interval=0.01,
+        )
+        stopper.join(timeout=1)
+
+        task = self.registry.load("task-001")
+        self.assertNotEqual(result, 0)
+        self.assertEqual(task.status, "stopped")
+        self.assertIn("stopped by request", task.message.lower())
 
     def test_host_records_nonzero_exit(self) -> None:
         result = run_host(
