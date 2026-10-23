@@ -493,7 +493,27 @@ class MainWindow(QMainWindow):
         dialog.exec()
 
     def _open_tests(self) -> None:
-        dialog = TestRunnerDialog(self._repository_root, self)
+        executable = self.executable_combo.currentText().strip()
+        build_paths = {
+            configuration: str(
+                (self._repository_root / "build" / "bin" / configuration / "OneFLOW.exe").resolve()
+            )
+            for configuration in ("Debug", "Release")
+        }
+        build_config = next(
+            (
+                configuration
+                for configuration, path in build_paths.items()
+                if executable.casefold() == path.casefold()
+            ),
+            "Debug",
+        )
+        dialog = TestRunnerDialog(
+            self._repository_root,
+            self,
+            build_config=build_config,
+            executable=executable,
+        )
         dialog.exec()
 
     def _open_workflows(self) -> None:
