@@ -128,11 +128,17 @@ class ProjectRunWorker(QThread):
             self.log_line.emit(f"Case {step.case_id}: {result.status} - {result.message}")
             return result.status, result.message
 
+        in_place = self._execution_mode == "source"
+        if in_place:
+            self.log_line.emit("Execution mode: run workflow cases in their project directories")
+        else:
+            self.log_line.emit("Execution mode: run isolated workflow case copies")
         graph_result = run_case_graph(
             plan,
             run_step,
             run_root=run_root,
             is_cancelled=self._cancel.is_set,
+            in_place=in_place,
         )
         summary = "; ".join(
             f"{case.case_id}={case.status}" for case in graph_result.cases
