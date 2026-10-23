@@ -25,6 +25,7 @@ class ProjectDefinition:
     project_type: ProjectType
     control_file: Path | None
     runtime_file: Path | None
+    parameter_files: tuple[Path, ...] = ()
 
 
 def _control_file(root: Path) -> Path | None:
@@ -33,6 +34,23 @@ def _control_file(root: Path) -> Path | None:
         if candidate.is_file():
             return candidate.resolve()
     return None
+
+
+def _parameter_files(control_file: Path | None) -> tuple[Path, ...]:
+    if control_file is None:
+        return ()
+
+    try:
+        content = control_file.read_text(encoding="utf-8")
+    except (OSError, UnicodeError):
+        return ()
+
+    files = []
+    for value in re.findall(r"""["']([^"']+)["']""", content):
+        candidate = (control_file.parent / value).resolve()
+        if candidate.is_file():
+            files.append(candidate)
+    return tuple(files)
 
 
 def _runtime_file(control_file: Path | None) -> Path | None:
@@ -85,11 +103,25 @@ def open_project(directory: str | Path) -> ProjectDefinition:
         raise NotADirectoryError(f"Project directory does not exist: {root}")
 
     control_file = _control_file(root)
+    if control_file is None and (root / "workflow.json").is_file():
+        case_control_files = sorted(root.glob("*/script/control.txt"))
+        if case_control_files:
+            control_file = case_control_files[0].resolve()
     runtime_file = _runtime_file(control_file)
+    parameter_files = tuple(
+        path
+        for case_control in (
+            [control_file]
+            if control_file is not None and not (root / "workflow.json").is_file()
+            else sorted(root.glob("*/script/control.txt"))
+        )
+        for path in _parameter_files(case_control)
+    )
     return ProjectDefinition(
         name=root.name or str(root),
         root=root,
         project_type=_detect_type(runtime_file),
         control_file=control_file,
         runtime_file=runtime_file,
+        parameter_files=parameter_files,
     )
