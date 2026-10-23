@@ -23,6 +23,7 @@ from .executable_discovery import executable_candidates
 from .mesh_layout_dialog import MeshLayoutDialog
 from .project_repository import open_project
 from .project_window import ProjectWindow
+from .new_project_dialog import NewProjectDialog
 from .run_history_dialog import RunHistoryDialog
 from .test_dialog import TestRunnerDialog
 from .settings_dialog import SettingsDialog
@@ -63,6 +64,14 @@ class WorkbenchHomeWindow(QMainWindow):
         subtitle.setWordWrap(True)
         root.addWidget(title)
         root.addWidget(subtitle)
+
+        project_actions = QHBoxLayout()
+        new_project_button = QPushButton("New Project...")
+        new_project_button.setMinimumHeight(38)
+        new_project_button.clicked.connect(self._new_project)
+        project_actions.addWidget(new_project_button)
+        project_actions.addStretch(1)
+        root.addLayout(project_actions)
 
         configuration_row = QHBoxLayout()
         configuration_row.addWidget(QLabel("Build configuration"))
@@ -270,6 +279,16 @@ class WorkbenchHomeWindow(QMainWindow):
             "Basic Configuration",
             f"OneFLOW source root set to:\n{self._repository_root}",
         )
+
+    def _new_project(self) -> None:
+        dialog = NewProjectDialog(self._repository_root, self)
+        if dialog.exec() != QDialog.DialogCode.Accepted or dialog.project is None:
+            return
+        window = ProjectWindow(dialog.project, self._repository_root, self)
+        self._project_windows.append(window)
+        window.show()
+        window.raise_()
+        window.activateWindow()
 
     def _open_project(self) -> None:
         directory = QFileDialog.getExistingDirectory(
