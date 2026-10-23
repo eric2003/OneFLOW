@@ -55,8 +55,6 @@ public:
 private:
     IntField lCells, rCells;
     IntField faceFlags;
-
-    HXSize_t nBFaces;
 private:
     std::unique_ptr< BcManager > bcManager;
     Grid * grid = nullptr;
@@ -100,7 +98,11 @@ public:
     const IntField & GetFaceTypes() const;
     void PrepareBoundaryConditions();
     bool HasInterfaceBoundary() const;
-    void ResizeAll();
+    // Grow left/right cells, face-local positions, and faceFlags to match faces.size().
+    // Prefer StageNewFace on FaceSolver for full parallel growth (BC slots too).
+    void EnsureFaceSideArraysSized();
+    // Compatibility wrapper; prefer EnsureFaceSideArraysSized().
+    void ResizeAll() { EnsureFaceSideArraysSized(); }
 public:
     void ModifyFaceNodeId( IFaceLink & iFaceLink );
     void SetNewFace2Node( IFaceLink & iFaceLink );
@@ -119,6 +121,19 @@ public:
     void CalcC2C( LinkField & c2c );
     void ReorderLink();
 };
+
+// Build newToOld permutation: faces with right cell INVALID (boundary) first,
+// then interior faces. Relative order within each group is preserved.
+// newToOld[newIndex] == oldIndex.
+IntField BuildBoundaryFirstPermutation( const IntField & rightCells );
+
+// Count faces whose right cell is INVALID_INDEX.
+HXSize_t CountBoundaryFaces( const IntField & rightCells );
+
+// After ReorderLink + AppendBoundaryBcToRecord: first nBFaces faces must be
+// boundary, the rest interior, and BcRecord length must equal nBFaces.
+// Throws std::logic_error when the layout is inconsistent.
+void ValidateBoundaryBcLayout( const FaceTopo & faceTopo );
 
 // Look up child face IDs for a local interface face and validate their node tables.
 // Returns a reference into interfaceLink.face_search->cFaceId[globalFaceId].

@@ -24,6 +24,7 @@ from .executable_discovery import executable_candidates
 from .test_runner import (
     TestCommand,
     available_suites,
+    build_cmake_command,
     build_regression_command,
     build_unit_test_commands,
 )
@@ -128,6 +129,13 @@ class TestRunnerDialog(QDialog):
             self.executable_combo.setCurrentIndex(0)
         self.build_config_combo = QComboBox()
         self.build_config_combo.addItems(["Debug", "Release"])
+        self.build_config_combo.currentTextChanged.connect(self._build_configuration_changed)
+        self._build_executable_paths = {
+            configuration: str(
+                (self._repository_root / "build" / "bin" / configuration / "OneFLOW.exe").resolve()
+            )
+            for configuration in ("Debug", "Release")
+        }
         self.suite_combo = QComboBox()
         self.suite_combo.addItems(available_suites(self._repository_root))
         default_index = self.suite_combo.findText("ci-serial.txt")
@@ -146,6 +154,12 @@ class TestRunnerDialog(QDialog):
 
         buttons = QHBoxLayout()
         buttons.addStretch(1)
+        self.build_button = QPushButton("Build")
+        self.build_button.setToolTip("Build the selected CMake configuration.")
+        self.build_button.clicked.connect(lambda: self._start_build(rebuild=False))
+        self.rebuild_button = QPushButton("Rebuild")
+        self.rebuild_button.setToolTip("Clean and rebuild the selected CMake configuration.")
+        self.rebuild_button.clicked.connect(lambda: self._start_build(rebuild=True))
         self.run_button = QPushButton("Run tests")
         self.run_button.clicked.connect(self._start)
         self.stop_button = QPushButton("Stop")
@@ -153,6 +167,8 @@ class TestRunnerDialog(QDialog):
         self.stop_button.clicked.connect(self._stop)
         close_button = QPushButton("Close")
         close_button.clicked.connect(self.close)
+        buttons.addWidget(self.build_button)
+        buttons.addWidget(self.rebuild_button)
         buttons.addWidget(self.run_button)
         buttons.addWidget(self.stop_button)
         buttons.addWidget(close_button)
@@ -187,8 +203,28 @@ class TestRunnerDialog(QDialog):
             QMessageBox.information(self, "No tests selected", "Select unit tests or CFD regression.")
             return
 
+        self._launch_commands(commands)
+
+    def _build_configuration_changed(self, configuration: str) -> None:
+        current = self.executable_combo.currentText().strip()
+        if current.casefold() in {path.casefold() for path in self._build_executable_paths.values()}:
+            self.executable_combo.setEditText(self._build_executable_paths[configuration])
+
+    def _start_build(self, *, rebuild: bool) -> None:
+        if self._worker is not None and self._worker.isRunning():
+            return
+        command = build_cmake_command(
+            self._repository_root,
+            self.build_config_combo.currentText(),
+            rebuild=rebuild,
+        )
+        self._launch_commands([command])
+
+    def _launch_commands(self, commands: list[TestCommand]) -> None:
         self.log_view.clear()
         self.run_button.setEnabled(False)
+        self.build_button.setEnabled(False)
+        self.rebuild_button.setEnabled(False)
         self.stop_button.setEnabled(True)
         self._worker = TestCommandWorker(commands)
         self._worker.output_line.connect(self.log_view.appendPlainText)
@@ -207,6 +243,8 @@ class TestRunnerDialog(QDialog):
 
     def _worker_finished(self) -> None:
         self.run_button.setEnabled(True)
+        self.build_button.setEnabled(True)
+        self.rebuild_button.setEnabled(True)
         self.stop_button.setEnabled(False)
         self._worker = None
 

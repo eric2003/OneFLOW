@@ -8,6 +8,7 @@ from pathlib import Path
 
 from tools.oneflow_gui.test_runner import (
     available_suites,
+    build_cmake_command,
     build_regression_command,
     build_unit_test_commands,
 )
@@ -56,6 +57,32 @@ class TestRunnerCommandTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             with self.assertRaisesRegex(ValueError, "Unsupported CMake build configuration"):
                 build_unit_test_commands(Path(directory), build_config="RelWithDebInfo")
+
+    def test_cmake_build_and_rebuild_use_selected_configuration(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            build = build_cmake_command(root, "Debug")
+            self.assertEqual(
+                build.arguments,
+                ("cmake", "--build", str((root / "build").resolve()), "--config", "Debug"),
+            )
+            self.assertEqual(build.working_directory, root.resolve())
+            self.assertEqual(build.label, "CMake build (Debug)")
+
+            rebuild = build_cmake_command(root, "Release", rebuild=True)
+            self.assertEqual(
+                rebuild.arguments,
+                (
+                    "cmake", "--build", str((root / "build").resolve()),
+                    "--config", "Release", "--clean-first",
+                ),
+            )
+            self.assertEqual(rebuild.label, "CMake rebuild (Release)")
+
+    def test_cmake_build_rejects_unknown_configuration(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            with self.assertRaisesRegex(ValueError, "Unsupported CMake build configuration"):
+                build_cmake_command(Path(directory), "RelWithDebInfo")
 
     def test_available_suites_comes_from_existing_manifests(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

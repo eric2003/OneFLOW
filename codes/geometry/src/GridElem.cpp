@@ -236,34 +236,10 @@ void GridElem::ScanBcFace()
 
 void GridElem::GenerateCalcElement()
 {
-    int nElement =  this->elemFeature.eTypes.size();
-
     FaceTopo & faceTopo = this->faceSolver.GetFaceTopo();
-
-    int nFaces = this->faceSolver.GetFaceTopo().GetFaces().size();
-    int nBFaces = 0;
-
-    //std::cout << " nFaces = " << nFaces << "\n";
-
-    for ( int iFace = 0; iFace < nFaces; ++ iFace )
-    {
-        if ( iFace % 200000 == 0 ) 
-        {
-            std::cout << " iFace = " << iFace << " numberOfTotalFaces = " << nFaces << std::endl;
-        }
-
-        int rc = faceTopo.GetRightCells()[ iFace ];
-
-        if ( rc == INVALID_INDEX )
-        {
-            faceTopo.GetBcRecord().bcType.push_back( this->faceSolver.faceBcTypes[ iFace ] );
-            faceTopo.GetBcRecord().bcNameId.push_back( this->faceSolver.faceBcNameIds[ iFace ] );
-            ++ nBFaces;
-        }
-    }
+    this->faceSolver.AppendBoundaryBcToRecord( faceTopo.GetBcRecord() );
 
     this->pointFactory.InitLocalToGlobal();
-
 }
 
 std::unique_ptr< UnsGrid > GridElem::GenerateCalcGrid( int gridId )
@@ -283,7 +259,6 @@ void GridElem::GenerateCalcGrid( UnsGrid & grid )
 {
     grid.nCells = this->elemFeature.eTypes.size();
     grid.GetCellMesh().GetCellTopo().eTypes = this->elemFeature.eTypes;
-    std::cout << "   nCells = " << grid.nCells << std::endl;
 
     int nNodes = this->pointFactory.localToGlobal.size();
     grid.nodeMesh->CreateNodes(nNodes);
@@ -301,77 +276,20 @@ void GridElem::GenerateCalcGrid( UnsGrid & grid )
 
     this->CalcBoundaryType( grid );
     this->ReorderLink( grid );
-    std::cout << "\n-->All the computing information is ready\n";
 }
 
 void GridElem::CalcBoundaryType( UnsGrid & grid )
 {
-    std::cout << "\n-->Set boundary condition......\n";
     grid.SetFaceTopo( this->faceSolver.ReleaseFaceTopo() );
-    int nFaces = grid.GetFaceTopo().GetFaces().size();
-    std::cout << " nFaces = " << nFaces << "\n";
-     
+
     BcRecord & bcRecord = grid.GetFaceTopo().GetBcRecord();
-    int nBFaces = bcRecord.bcType.size();
+    grid.nBFaces = static_cast< int >( bcRecord.bcType.size() );
 
-    grid.nBFaces = nBFaces;
-
-    std::cout << " nBFaces = " << nBFaces << "\n";
-
+    // Map staged CGNS BC type ids to OneFLOW ids. Logging/summary used to live
+    // here and mixed observation with mutation; mapping is now a pure step.
     BcTypeMap bcTypeMap;
     bcTypeMap.Init();
-
-    IntField cgnsBcArray = bcRecord.bcType;
-
-    IntSet originalBcSet, finalBcSet;
-    int iCount = 0;
-    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
-    {
-        int cgnsBcType = bcRecord.bcType[ iFace ];
-        int bcNameId = bcRecord.bcNameId[ iFace ];
-        int bcType = bcTypeMap.Cgns2OneFlow( cgnsBcType );
-
-        bcRecord.bcType[ iCount ] = bcType;
-
-        originalBcSet.insert( cgnsBcType );
-        finalBcSet.insert( bcType );
-        ++ iCount;
-    }
-
-    IntField nBFaceSub;
-
-    for ( IntSet::iterator iter = originalBcSet.begin(); iter != originalBcSet.end(); ++ iter )
-    {
-        int iCount = 0;
-        for ( int iFace = 0; iFace < nBFaces; ++ iFace )
-        {
-            int cgnsBcType = cgnsBcArray[ iFace ];
-            if ( cgnsBcType == * iter )
-            {
-                ++ iCount;
-            }
-        }
-        nBFaceSub.push_back( iCount );
-    }
-
-    std::cout << " Original Boundary Condition Number is " << originalBcSet.size() << std::endl;
-    iCount = 0;
-    for ( IntSet::iterator iter = originalBcSet.begin(); iter != originalBcSet.end(); ++ iter )
-    {
-        int oriBcType = * iter;
-        std::cout << " Boundary Type = " << std::setiosflags( std::ios::right ) << std::setw( 3 ) << oriBcType;
-        std::cout << "  Name = " << std::setw( 23 ) << GetCgnsBcName( oriBcType );
-        std::cout << " Face = " << std::setw( 6 ) << nBFaceSub[ iCount ] << std::endl;
-        ++ iCount;
-    }
-    std::cout << std::endl;
-    std::cout << " Final Boundary Condition Number is " << finalBcSet.size() << std::endl;
-    std::cout << " Boundary Type : ";
-    for ( IntSet::iterator iter = finalBcSet.begin(); iter != finalBcSet.end(); ++ iter )
-    {
-        std::cout << * iter << " ";
-    }
-    std::cout << std::endl;
+    bcTypeMap.MapFromCgnsInPlace( bcRecord.bcType );
 }
 
 void GridElem::ReorderLink( UnsGrid & grid )
@@ -382,6 +300,9 @@ void GridElem::ReorderLink( UnsGrid & grid )
     grid.nFaces = nFaces;
 
     faceTopo.ReorderLink();
+    // BcRecord was filled in original face order of boundary faces; ReorderLink
+    // preserves that relative order in the boundary prefix. Verify the contract.
+    ValidateBoundaryBcLayout( faceTopo );
 }
 
 GridElemGroup::GridElemGroup( CgnsZbase & cgnsZbase )

@@ -261,13 +261,15 @@ void FaceTopo::SetNBFaces( HXSize_t nBFaces )
     SetBoundaryFaceCount( nBFaces );
 }
 
-void FaceTopo::ResizeAll()
+void FaceTopo::EnsureFaceSideArraysSized()
 {
-    int nFaces = this->faces.size();
+    const std::size_t nFaces = this->faces.size();
     this->lCells.resize( nFaces );
     this->rCells.resize( nFaces );
     this->lPosition.resize( nFaces );
     this->rPosition.resize( nFaces );
+    // Keep claim flags aligned with faces when present or when growing from empty.
+    this->faceFlags.resize( nFaces );
 }
 
 void FaceTopo::ModifyFaceNodeId( IFaceLink & iFaceLink )
@@ -516,7 +518,6 @@ void FaceTopo::ModifyBoundaryInformation( IFaceLink & iFaceLink )
             iFaceLink.l2gNew[ this->GetGrid().id ].push_back( gFid );
         }
     }
-    std::cout << "original number of interfaces = " << nIFaces << " new number of interfaces = " << nIFaceNew << std::endl;
 
     this->ResetNumberOfBoundaryCondition( iFaceLink );
 }
@@ -699,6 +700,75 @@ void FaceTopo::CalcC2C( LinkField & c2c )
     c2c = nextC2c;
 }
 
+IntField BuildBoundaryFirstPermutation( const IntField & rightCells )
+{
+    const HXSize_t nFaces = rightCells.size();
+    IntField newToOld( nFaces );
+    HXSize_t nextFace = 0;
+
+    for ( HXSize_t iFace = 0; iFace < nFaces; ++ iFace )
+    {
+        if ( rightCells[ iFace ] == INVALID_INDEX )
+        {
+            newToOld[ nextFace ++ ] = static_cast< int >( iFace );
+        }
+    }
+    for ( HXSize_t iFace = 0; iFace < nFaces; ++ iFace )
+    {
+        if ( rightCells[ iFace ] != INVALID_INDEX )
+        {
+            newToOld[ nextFace ++ ] = static_cast< int >( iFace );
+        }
+    }
+    return newToOld;
+}
+
+
+HXSize_t CountBoundaryFaces( const IntField & rightCells )
+{
+    HXSize_t nBoundary = 0;
+    for ( const int rightCell : rightCells )
+    {
+        if ( rightCell == INVALID_INDEX )
+        {
+            ++ nBoundary;
+        }
+    }
+    return nBoundary;
+}
+
+void ValidateBoundaryBcLayout( const FaceTopo & faceTopo )
+{
+    const IntField & rightCells = faceTopo.GetRightCells();
+    const HXSize_t nFaces = rightCells.size();
+    const HXSize_t nBoundary = CountBoundaryFaces( rightCells );
+    const HXSize_t nBcRecord = static_cast< HXSize_t >(
+        faceTopo.GetBcRecord().GetBoundaryFaceCount() );
+
+    if ( nBcRecord != nBoundary )
+    {
+        throw std::logic_error(
+            "ValidateBoundaryBcLayout: BcRecord size does not match boundary face count" );
+    }
+
+    for ( HXSize_t iFace = 0; iFace < nBoundary; ++ iFace )
+    {
+        if ( rightCells[ iFace ] != INVALID_INDEX )
+        {
+            throw std::logic_error(
+                "ValidateBoundaryBcLayout: face in boundary prefix has an interior right cell" );
+        }
+    }
+    for ( HXSize_t iFace = nBoundary; iFace < nFaces; ++ iFace )
+    {
+        if ( rightCells[ iFace ] == INVALID_INDEX )
+        {
+            throw std::logic_error(
+                "ValidateBoundaryBcLayout: boundary face found after boundary prefix" );
+        }
+    }
+}
+
 void FaceTopo::ReorderLink()
 {
     const HXSize_t nFaces = this->GetFaceCount();
@@ -723,22 +793,7 @@ void FaceTopo::ReorderLink()
     validateOptionalFaceData( this->rPosition, "right face-position" );
     validateOptionalFaceData( this->faceFlags, "face-flag" );
 
-    IntField newToOld( nFaces );
-    HXSize_t nextFace = 0;
-    for ( HXSize_t iFace = 0; iFace < nFaces; ++ iFace )
-    {
-        if ( rightCells[ iFace ] == INVALID_INDEX )
-        {
-            newToOld[ nextFace ++ ] = static_cast< int >( iFace );
-        }
-    }
-    for ( HXSize_t iFace = 0; iFace < nFaces; ++ iFace )
-    {
-        if ( rightCells[ iFace ] != INVALID_INDEX )
-        {
-            newToOld[ nextFace ++ ] = static_cast< int >( iFace );
-        }
-    }
+    const IntField newToOld = BuildBoundaryFirstPermutation( rightCells );
 
     const auto reorderFaceData = [ &newToOld, nFaces ]( auto & values )
     {

@@ -24,8 +24,8 @@ License
 #include "ElementHome.h"
 #include "Fatal.h"
 #include "FaceTopo.h"
+#include "BcRecord.h"
 #include "CgnsSection.h"
-#include <iostream>
 #include <algorithm>
 #include <limits>
 #include <stdexcept>
@@ -59,13 +59,12 @@ std::unique_ptr< FaceTopo > FaceSolver::ReleaseFaceTopo() noexcept
     return std::move( this->faceTopo );
 }
 
-bool FaceSolver::CheckBcFace( IntSet & bcVertex, IntField & nodeId )
+bool FaceSolver::CheckBcFace( const IntSet & bcVertex, const IntField & nodeId ) const
 {
-    int size = nodeId.size();
+    const int size = static_cast< int >( nodeId.size() );
     for ( int iNode = 0; iNode < size; ++ iNode )
     {
-        IntSet::iterator iter = bcVertex.find( nodeId[ iNode ] );
-        if ( iter == bcVertex.end() )
+        if ( bcVertex.find( nodeId[ iNode ] ) == bcVertex.end() )
         {
             return false;
         }
@@ -73,69 +72,84 @@ bool FaceSolver::CheckBcFace( IntSet & bcVertex, IntField & nodeId )
     return true;
 }
 
-void FaceSolver::ScanPolygonFace( CgnsSection & cgnsSection )
+void FaceSolver::StagePolygonFacesFromConnectivity(
+    int nElement,
+    const CgIntField & offsets,
+    const CgIntField & connectivity,
+    int faceType )
 {
-    const auto & offsets = cgnsSection.ePosList;
-    const auto & connectivity = cgnsSection.connList;
-
-    if ( cgnsSection.nElement < 0 ||
-         static_cast< std::size_t >( cgnsSection.nElement ) + 1 > offsets.size() )
+    if ( nElement < 0 ||
+         static_cast< std::size_t >( nElement ) + 1 > offsets.size() )
     {
-        throw std::runtime_error( "FaceSolver::ScanPolygonFace: polygon offsets are incomplete" );
+        throw std::runtime_error(
+            "FaceSolver::StagePolygonFacesFromConnectivity: polygon offsets are incomplete" );
     }
 
     // Validate every span before mutating the face lookup or topology.
-    for ( int iElem = 0; iElem < cgnsSection.nElement; ++ iElem )
+    for ( int iElem = 0; iElem < nElement; ++ iElem )
     {
         const CgInt start = offsets[ iElem ];
         const CgInt end = offsets[ iElem + 1 ];
         if ( start < 0 || end < start ||
              static_cast< std::size_t >( end ) > connectivity.size() )
         {
-            throw std::runtime_error( "FaceSolver::ScanPolygonFace: polygon connectivity span is invalid" );
+            throw std::runtime_error(
+                "FaceSolver::StagePolygonFacesFromConnectivity: polygon connectivity span is invalid" );
         }
     }
 
+    // Polygon faces are staged without an owning cell yet. Ownership is
+    // assigned later via ClaimStagedFaceAsLeft. StageNewFace keeps topology
+    // and BC slots aligned so StagedBcMatchesFaceCount() holds after scan.
     IntField faceNodes;
-    for ( int iElem = 0; iElem < cgnsSection.nElement; ++ iElem )
+    for ( int iElem = 0; iElem < nElement; ++ iElem )
     {
         const CgInt start = offsets[ iElem ];
         const CgInt end = offsets[ iElem + 1 ];
         faceNodes.resize( 0 );
         for ( CgInt i = start; i < end; ++ i )
         {
-            faceNodes.push_back( connectivity[ static_cast< std::size_t >( i ) ] );
+            faceNodes.push_back( static_cast< int >( connectivity[ static_cast< std::size_t >( i ) ] ) );
         }
 
         auto [faceIndex, isNew] = faceLookup.FindOrAdd( faceNodes );
         if ( isNew )
         {
-            this->faceTopo->GetFaces().push_back( faceNodes );
-            this->faceTopo->GetFaceTypes().push_back( cgnsSection.eType );
-            this->faceTopo->GetFaceFlags().push_back( 0 );
+            this->StageNewFace( faceNodes, faceType, ONEFLOW::INVALID_INDEX );
         }
     }
 }
 
-void FaceSolver::ResizeAll()
+void FaceSolver::ScanPolygonFace( CgnsSection & cgnsSection )
 {
-    this->faceTopo->ResizeAll();
-    int nFaces = this->faceTopo->GetFaces().size();
+    this->StagePolygonFacesFromConnectivity(
+        cgnsSection.nElement,
+        cgnsSection.ePosList,
+        cgnsSection.connList,
+        cgnsSection.eType );
+}
+
+void FaceSolver::EnsureParallelFaceArraysSized()
+{
+    this->faceTopo->EnsureFaceSideArraysSized();
+    const int nFaces = static_cast< int >( this->faceTopo->GetFaces().size() );
     this->faceBcTypes.resize( nFaces );
     this->faceBcNameIds.resize( nFaces );
     this->childFid.resize( nFaces );
 }
 
-void FaceSolver::ScanPolyhedronElement( CgnsSection & cgnsSection )
+void FaceSolver::ClaimPolyhedronCellsFromConnectivity(
+    int nElement,
+    const CgIntField & offsets,
+    const CgIntField & connectivity )
 {
-    const auto & offsets = cgnsSection.ePosList;
-    const auto & connectivity = cgnsSection.connList;
     const auto & faces = this->faceTopo->GetFaces();
 
-    if ( cgnsSection.nElement < 0 ||
-         static_cast< std::size_t >( cgnsSection.nElement ) + 1 > offsets.size() )
+    if ( nElement < 0 ||
+         static_cast< std::size_t >( nElement ) + 1 > offsets.size() )
     {
-        throw std::runtime_error( "FaceSolver::ScanPolyhedronElement: element offsets are incomplete" );
+        throw std::runtime_error(
+            "FaceSolver::ClaimPolyhedronCellsFromConnectivity: element offsets are incomplete" );
     }
 
     // Count existing cell incidences so a third cell cannot overwrite the right cell.
@@ -144,7 +158,7 @@ void FaceSolver::ScanPolyhedronElement( CgnsSection & cgnsSection )
     std::vector< int > faceUseCount( faces.size(), 0 );
     for ( std::size_t iFace = 0; iFace < faces.size(); ++ iFace )
     {
-        if ( iFace < faceFlags.size() && faceFlags[ iFace ] != 0 )
+        if ( iFace < faceFlags.size() && faceFlags[ iFace ] != kFaceUnclaimed )
         {
             faceUseCount[ iFace ] =
                 iFace < rightCells.size() && rightCells[ iFace ] != ONEFLOW::INVALID_INDEX ? 2 : 1;
@@ -152,14 +166,15 @@ void FaceSolver::ScanPolyhedronElement( CgnsSection & cgnsSection )
     }
 
     // Validate the complete section before changing cell adjacency.
-    for ( int iElem = 0; iElem < cgnsSection.nElement; ++ iElem )
+    for ( int iElem = 0; iElem < nElement; ++ iElem )
     {
         const CgInt start = offsets[ iElem ];
         const CgInt end = offsets[ iElem + 1 ];
         if ( start < 0 || end < start ||
              static_cast< std::size_t >( end ) > connectivity.size() )
         {
-            throw std::runtime_error( "FaceSolver::ScanPolyhedronElement: connectivity span is invalid" );
+            throw std::runtime_error(
+                "FaceSolver::ClaimPolyhedronCellsFromConnectivity: connectivity span is invalid" );
         }
 
         std::unordered_set< std::size_t > referencedFaces;
@@ -168,83 +183,82 @@ void FaceSolver::ScanPolyhedronElement( CgnsSection & cgnsSection )
             const CgInt signedFaceId = connectivity[ static_cast< std::size_t >( i ) ];
             if ( signedFaceId == std::numeric_limits< CgInt >::min() )
             {
-                throw std::runtime_error( "FaceSolver::ScanPolyhedronElement: face reference is out of range" );
+                throw std::runtime_error(
+                    "FaceSolver::ClaimPolyhedronCellsFromConnectivity: face reference is out of range" );
             }
 
             const CgInt faceId = signedFaceId < 0 ? -signedFaceId : signedFaceId;
             if ( faceId < 0 || static_cast< std::size_t >( faceId ) >= faces.size() )
             {
-                throw std::runtime_error( "FaceSolver::ScanPolyhedronElement: face reference is out of range" );
+                throw std::runtime_error(
+                    "FaceSolver::ClaimPolyhedronCellsFromConnectivity: face reference is out of range" );
             }
 
             if ( ! referencedFaces.insert( static_cast< std::size_t >( faceId ) ).second )
             {
-                throw std::runtime_error( "FaceSolver::ScanPolyhedronElement: polyhedron references the same face more than once" );
+                throw std::runtime_error(
+                    "FaceSolver::ClaimPolyhedronCellsFromConnectivity: polyhedron references the same face more than once" );
             }
 
             const std::size_t polygonFaceId = static_cast< std::size_t >( faceId );
             if ( ++ faceUseCount[ polygonFaceId ] > 2 )
             {
-                throw std::runtime_error( "FaceSolver::ScanPolyhedronElement: face is referenced by more than two cells" );
+                throw std::runtime_error(
+                    "FaceSolver::ClaimPolyhedronCellsFromConnectivity: face is referenced by more than two cells" );
             }
         }
     }
 
-    for ( int iElem = 0; iElem < cgnsSection.nElement; ++ iElem )
+    for ( int iElem = 0; iElem < nElement; ++ iElem )
     {
         const CgInt start = offsets[ iElem ];
         const CgInt end = offsets[ iElem + 1 ];
-        if ( start < 0 || end < start ||
-             static_cast< std::size_t >( end ) > connectivity.size() )
-        {
-            throw std::runtime_error( "FaceSolver::ScanPolyhedronElement: connectivity span is invalid" );
-        }
 
         for ( CgInt i = start; i < end; ++ i )
         {
             const CgInt signedFaceId = connectivity[ static_cast< std::size_t >( i ) ];
-            if ( signedFaceId == std::numeric_limits< CgInt >::min() )
-            {
-                throw std::runtime_error( "FaceSolver::ScanPolyhedronElement: face reference is out of range" );
-            }
-
             const CgInt faceId = signedFaceId < 0 ? -signedFaceId : signedFaceId;
-            if ( faceId < 0 || static_cast< std::size_t >( faceId ) >= faces.size() )
+            const int polygonFaceId = static_cast< int >( faceId );
+            const int faceFlag =
+                this->faceTopo->GetFaceFlags()[ static_cast< std::size_t >( polygonFaceId ) ];
+
+            if ( faceFlag == kFaceUnclaimed )
             {
-                throw std::runtime_error( "FaceSolver::ScanPolyhedronElement: face reference is out of range" );
-            }
-
-            const std::size_t polygonFaceId = static_cast< std::size_t >( faceId );
-            const int faceFlags = this->faceTopo->GetFaceFlags()[ polygonFaceId ];
-
-            if ( faceFlags == 0 )
-            {
-                this->ResizeAll();
-                this->faceTopo->GetFaceFlags()[ polygonFaceId ] = 1;
-                this->faceTopo->GetLeftCells()[ polygonFaceId ] = iElem;
-                this->faceTopo->GetRightCells()[ polygonFaceId ] = ONEFLOW::INVALID_INDEX;
-
-                this->faceBcTypes[ polygonFaceId ] = ONEFLOW::INVALID_INDEX;
-                this->faceBcNameIds[ polygonFaceId ] = ONEFLOW::INVALID_INDEX;
+                this->ClaimStagedFaceAsLeft( polygonFaceId, iElem );
             }
             else
             {
-                this->faceTopo->GetRightCells()[ polygonFaceId ] = iElem;
+                this->AttachStagedFaceAsRight( polygonFaceId, iElem );
             }
         }
     }
 }
 
+void FaceSolver::ScanPolyhedronElement( CgnsSection & cgnsSection )
+{
+    this->ClaimPolyhedronCellsFromConnectivity(
+        cgnsSection.nElement,
+        cgnsSection.ePosList,
+        cgnsSection.connList );
+}
+
 
 void FaceSolver::StageNewFace( const IntField & faceNodes, int faceType, int leftCellId )
 {
+    // Single write path for a newly discovered unique face. All parallel
+    // arrays (topology, flags, cell sides, face-local positions, BC slots)
+    // grow together so callers never need ad-hoc push_back or EnsureFaceSideArraysSized.
     this->faceTopo->GetFaces().push_back( faceNodes );
     this->faceTopo->GetFaceTypes().push_back( faceType );
+    this->faceTopo->GetFaceFlags().push_back( kFaceUnclaimed );
     this->faceTopo->GetLeftCells().push_back( leftCellId );
     this->faceTopo->GetRightCells().push_back( ONEFLOW::INVALID_INDEX );
+    this->faceTopo->lPosition.push_back( 0 );
+    this->faceTopo->rPosition.push_back( 0 );
 
     this->faceBcTypes.push_back( ONEFLOW::INVALID_INDEX );
     this->faceBcNameIds.push_back( ONEFLOW::INVALID_INDEX );
+    this->childFid.push_back( IntField{} );
 }
 
 void FaceSolver::SetStagedFaceBc( int faceId, int bcType, int bcNameId )
@@ -259,11 +273,125 @@ void FaceSolver::SetStagedFaceBc( int faceId, int bcType, int bcNameId )
     this->faceBcNameIds[ faceId ] = bcNameId;
 }
 
+
+
+const IntField & FaceSolver::GetChildFaceIds( int faceId ) const
+{
+    if ( faceId < 0 || static_cast< size_t >( faceId ) >= this->childFid.size() )
+    {
+        throw std::out_of_range( "FaceSolver::GetChildFaceIds: face ID is out of range" );
+    }
+    return this->childFid[ static_cast< size_t >( faceId ) ];
+}
+
+void FaceSolver::DropLastChildFidEntryForTest()
+{
+    if ( ! this->childFid.empty() )
+    {
+        this->childFid.pop_back();
+    }
+}
+
+int FaceSolver::GetStagedBcType( int faceId ) const
+{
+    if ( faceId < 0 || static_cast< size_t >( faceId ) >= this->faceBcTypes.size() )
+    {
+        throw std::out_of_range( "FaceSolver::GetStagedBcType: face ID is out of range" );
+    }
+    return this->faceBcTypes[ faceId ];
+}
+
+int FaceSolver::GetStagedBcNameId( int faceId ) const
+{
+    if ( faceId < 0 || static_cast< size_t >( faceId ) >= this->faceBcNameIds.size() )
+    {
+        throw std::out_of_range( "FaceSolver::GetStagedBcNameId: face ID is out of range" );
+    }
+    return this->faceBcNameIds[ faceId ];
+}
+
+void FaceSolver::ClaimStagedFaceAsLeft( int faceId, int cellId )
+{
+    if ( faceId < 0 ||
+         static_cast< size_t >( faceId ) >= this->faceTopo->GetFaces().size() ||
+         static_cast< size_t >( faceId ) >= this->faceTopo->GetFaceFlags().size() )
+    {
+        throw std::out_of_range( "FaceSolver::ClaimStagedFaceAsLeft: face ID is out of range" );
+    }
+    if ( this->faceTopo->GetFaceFlags()[ static_cast< size_t >( faceId ) ] != kFaceUnclaimed )
+    {
+        throw std::logic_error( "FaceSolver::ClaimStagedFaceAsLeft: face is already claimed" );
+    }
+    if ( ! this->StagedBcMatchesFaceCount() )
+    {
+        throw std::logic_error(
+            "FaceSolver::ClaimStagedFaceAsLeft: staged face arrays are not aligned" );
+    }
+
+    // StageNewFace already sized topology, positions, and BC slots. Claim only
+    // updates ownership; it must not resize.
+    this->faceTopo->GetFaceFlags()[ static_cast< size_t >( faceId ) ] = kFaceClaimed;
+    this->faceTopo->GetLeftCells()[ static_cast< size_t >( faceId ) ] = cellId;
+    this->faceTopo->GetRightCells()[ static_cast< size_t >( faceId ) ] = ONEFLOW::INVALID_INDEX;
+    this->SetStagedFaceBc( faceId, ONEFLOW::INVALID_INDEX, ONEFLOW::INVALID_INDEX );
+}
+
+void FaceSolver::AttachStagedFaceAsRight( int faceId, int cellId )
+{
+    if ( faceId < 0 ||
+         static_cast< size_t >( faceId ) >= this->faceTopo->GetFaces().size() ||
+         static_cast< size_t >( faceId ) >= this->faceTopo->GetFaceFlags().size() )
+    {
+        throw std::out_of_range( "FaceSolver::AttachStagedFaceAsRight: face ID is out of range" );
+    }
+    if ( this->faceTopo->GetFaceFlags()[ static_cast< size_t >( faceId ) ] == kFaceUnclaimed )
+    {
+        throw std::logic_error( "FaceSolver::AttachStagedFaceAsRight: face is not claimed yet" );
+    }
+
+    this->faceTopo->GetRightCells()[ static_cast< size_t >( faceId ) ] = cellId;
+}
+
+void FaceSolver::BindCellToExistingFace( int faceId, int cellId )
+{
+    if ( faceId < 0 ||
+         static_cast< size_t >( faceId ) >= this->faceTopo->GetFaces().size() ||
+         static_cast< size_t >( faceId ) >= this->faceTopo->GetLeftCells().size() ||
+         static_cast< size_t >( faceId ) >= this->faceTopo->GetRightCells().size() )
+    {
+        throw std::out_of_range( "FaceSolver::BindCellToExistingFace: face ID is out of range" );
+    }
+
+    auto & leftCells = this->faceTopo->GetLeftCells();
+    auto & rightCells = this->faceTopo->GetRightCells();
+    const std::size_t id = static_cast< std::size_t >( faceId );
+
+    if ( leftCells[ id ] == ONEFLOW::INVALID_INDEX )
+    {
+        // Face was staged without an owner (or left cleared during split).
+        leftCells[ id ] = cellId;
+        return;
+    }
+    if ( rightCells[ id ] == ONEFLOW::INVALID_INDEX && leftCells[ id ] != cellId )
+    {
+        rightCells[ id ] = cellId;
+    }
+}
+
 bool FaceSolver::StagedBcMatchesFaceCount() const
 {
+    // Full parallel-array contract after StageNewFace: topology, ownership
+    // slots, face-local positions, BC attributes, and child-face lists.
     const std::size_t nFaces = this->faceTopo->GetFaces().size();
     return this->faceBcTypes.size() == nFaces &&
-           this->faceBcNameIds.size() == nFaces;
+           this->faceBcNameIds.size() == nFaces &&
+           this->childFid.size() == nFaces &&
+           this->faceTopo->GetFaceTypes().size() == nFaces &&
+           this->faceTopo->GetFaceFlags().size() == nFaces &&
+           this->faceTopo->GetLeftCells().size() == nFaces &&
+           this->faceTopo->GetRightCells().size() == nFaces &&
+           this->faceTopo->lPosition.size() == nFaces &&
+           this->faceTopo->rPosition.size() == nFaces;
 }
 
 void FaceSolver::ScanElementFace( CgIntField & eNodeId, int eType, int eId )
@@ -286,139 +414,97 @@ void FaceSolver::ScanElementFace( CgIntField & eNodeId, int eType, int eId )
             aNodeId.push_back( eNodeId[ localFaceNodeIndices[ iNode ] ] );
         }                                                              
 
-        auto [gFid, isNew]  = this->faceLookup.FindOrAdd( aNodeId );
+        auto [gFid, isNew] = this->faceLookup.FindOrAdd( aNodeId );
 
         if ( isNew )
         {
             this->StageNewFace( aNodeId, faceType, eId );
-            this->childFid.resize( this->faceLookup.Size() );
         }
         else
         {
-            if ((this->faceTopo->GetLeftCells())[gFid] == ONEFLOW::INVALID_INDEX)
-            {
-                //This shows that although this aspect exists, it has not been dealt with due to various reasons
-                (this->faceTopo->GetLeftCells())[gFid] = eId; //For example, a new volume element surface is added during the splitting process
-            }
-            else
-            {
-                if ( (this->faceTopo->GetRightCells())[gFid] == ONEFLOW::INVALID_INDEX )
-                {
-                    if ((this->faceTopo->GetLeftCells())[gFid] != eId)
-                    {
-                        (this->faceTopo->GetRightCells())[gFid] = eId;
-                    }
-                }
-            }
+            this->BindCellToExistingFace( gFid, eId );
         }
     }
 }
 
-void FaceSolver::ScanBcFace( IntSet& bcVertex, int bcType, int bcNameId )
+int FaceSolver::AssignBcToMatchingFaces(
+    const IntSet & bcVertex,
+    int bcType,
+    int bcNameId,
+    bool boundaryFacesOnly )
 {
-    int nBFaces = 0;
-
-    //std::cout << " this->faceTopo = " << this->faceTopo << "\n";
-    int nFaces = this->faceTopo->GetLeftCells().size();
-
-    std::cout << " nFaces = " << nFaces << "\n";
-    int nTraditionalBc = 0;
-    for ( int iFace = 0; iFace < nFaces; ++ iFace )
-    {
-        int rCell = ( this->faceTopo->GetRightCells() )[ iFace ];
-
-        if ( rCell == ONEFLOW::INVALID_INDEX )
-        {
-            ++ nTraditionalBc;
-        }
-    }
-    std::cout << " nTraditionalBc = " << nTraditionalBc << "\n";
-
+    const int nFaces = static_cast< int >( this->faceTopo->GetLeftCells().size() );
+    int nAssigned = 0;
 
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
-        if ( iFace % 200000 == 0 ) 
+        if ( this->faceBcTypes[ iFace ] != ONEFLOW::INVALID_INDEX )
         {
-            //std::cout << " iFace = " << iFace << " numberOfTotalFaces = " << nFaces << std::endl;
+            continue;
         }
-        int originalBcType = this->faceBcTypes[ iFace ];
-        int rCell     = ( this->faceTopo->GetRightCells() )[ iFace ];
-
-        if ( ( rCell          == ONEFLOW::INVALID_INDEX ) && 
-             ( originalBcType == ONEFLOW::INVALID_INDEX ) )
+        if ( boundaryFacesOnly &&
+             this->faceTopo->GetRightCells()[ iFace ] != ONEFLOW::INVALID_INDEX )
         {
-            if ( this->CheckBcFace( bcVertex, ( this->faceTopo->GetFaces() )[ iFace ] ) )
-            {
-                ++ nBFaces;
-
-                this->SetStagedFaceBc( iFace, bcType, bcNameId );
-            }
+            continue;
+        }
+        if ( this->CheckBcFace( bcVertex, this->faceTopo->GetFaces()[ iFace ] ) )
+        {
+            this->SetStagedFaceBc( iFace, bcType, bcNameId );
+            ++ nAssigned;
         }
     }
-
-    //std::cout << " nBFaces = " << nBFaces << std::endl;
-
+    return nAssigned;
 }
 
-void FaceSolver::ScanBcFaceDetail( IntSet& bcVertex, int bcType, int bcNameId )
+void FaceSolver::ScanBcFace( IntSet & bcVertex, int bcType, int bcNameId )
 {
-    int nFaces = this->faceTopo->GetLeftCells().size();
-    std::cout << " nFaces = " << nFaces << "\n";
+    // Boundary faces only: open right cell and no BC yet.
+    this->AssignBcToMatchingFaces( bcVertex, bcType, bcNameId, /*boundaryFacesOnly=*/true );
+}
 
-    int nTraditionalBc = 0;
-    for ( int iFace = 0; iFace < nFaces; ++ iFace )
-    {
-        int rCell = ( this->faceTopo->GetRightCells() )[ iFace ];
-
-        if ( rCell == ONEFLOW::INVALID_INDEX )
-        {
-            ++ nTraditionalBc;
-        }
-    }
-    std::cout << " nTraditionalBc = " << nTraditionalBc << "\n";
-
-    int nBFaces = 0;
-    for ( int iFace = 0; iFace < nFaces; ++ iFace )
-    {
-        if ( iFace % 200000 == 0 ) 
-        {
-            //std::cout << " iFace = " << iFace << " numberOfTotalFaces = " << nFaces << std::endl;
-        }
-        int originalBcType = this->faceBcTypes[ iFace ];
-
-        if ( originalBcType == ONEFLOW::INVALID_INDEX )
-        {
-            if ( this->CheckBcFace( bcVertex, ( this->faceTopo->GetFaces() )[ iFace ] ) )
-            {
-                ++ nBFaces;
-
-                this->SetStagedFaceBc( iFace, bcType, bcNameId );
-            }
-        }
-    }
-
-    std::cout << " nFinalBcFace = " << nBFaces << " bcType = " << bcType << std::endl;
-
+void FaceSolver::ScanBcFaceDetail( IntSet & bcVertex, int bcType, int bcNameId )
+{
+    // Match by vertex set only; do not require an open right cell.
+    this->AssignBcToMatchingFaces( bcVertex, bcType, bcNameId, /*boundaryFacesOnly=*/false );
 }
 
 void FaceSolver::ScanInterfaceBc()
 {
-    int nFaces = this->faceTopo->GetLeftCells().size();
+    const int nFaces = static_cast< int >( this->faceTopo->GetLeftCells().size() );
+    const int bcNameId = -1;
 
-    int bcNameId = -1;
-    int nInterFace = 0;
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
-        int originalBcType = this->faceBcTypes[ iFace ];
-
-        if ( originalBcType == ONEFLOW::INVALID_INDEX )
+        if ( this->faceBcTypes[ iFace ] == ONEFLOW::INVALID_INDEX )
         {
-            nInterFace ++;
             this->SetStagedFaceBc( iFace, BCTypeNull, bcNameId );
         }
     }
+}
 
-    std::cout << " nInterFace = " << nInterFace << std::endl;
+
+int FaceSolver::AppendBoundaryBcToRecord( BcRecord & bcRecord ) const
+{
+    if ( ! this->StagedBcMatchesFaceCount() )
+    {
+        throw std::logic_error(
+            "FaceSolver::AppendBoundaryBcToRecord: staged face arrays are not aligned" );
+    }
+
+    const auto & rightCells = this->faceTopo->GetRightCells();
+    const int nFaces = static_cast< int >( rightCells.size() );
+    int nBFaces = 0;
+
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
+    {
+        if ( rightCells[ iFace ] == ONEFLOW::INVALID_INDEX )
+        {
+            bcRecord.bcType.push_back( this->faceBcTypes[ iFace ] );
+            bcRecord.bcNameId.push_back( this->faceBcNameIds[ iFace ] );
+            ++ nBFaces;
+        }
+    }
+    return nBFaces;
 }
 
 int FaceSolver::GetNSimpleFace()

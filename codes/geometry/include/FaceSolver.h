@@ -36,6 +36,7 @@ class MeshPointManager;
 class ElemFeature;
 class FaceTopo;
 class CgnsSection;
+class BcRecord;
 
 class FaceSolver
 {
@@ -44,38 +45,114 @@ public:
     ~FaceSolver();
 public:
     HXLookup<int> faceLookup;
-    // [Refactored] Changed from raw pointers to value types.
-    // They are now automatically managed by the compiler (stack allocation).
-    // Staged BC attributes per face (aligned with FaceTopo faces).
-    // Copied into BcRecord as bcNameId / bcType in GridElem::GenerateCalcElement.
-    IntField faceBcNameIds;
-    IntField faceBcTypes;
-    LinkField childFid;
 public:
     FaceTopo & GetFaceTopo();
     const FaceTopo & GetFaceTopo() const;
     [[nodiscard]] std::unique_ptr< FaceTopo > ReleaseFaceTopo() noexcept;
+
+    // Read staged BC (bounds-checked). Writes go through SetStagedFaceBc only.
+    int GetStagedBcType( int faceId ) const;
+    int GetStagedBcNameId( int faceId ) const;
+    std::size_t GetStagedBcSlotCount() const { return faceBcTypes.size(); }
+
+    // Child-face lists (split/interface path). Grown by StageNewFace.
+    const IntField & GetChildFaceIds( int faceId ) const;
+    std::size_t GetChildFidSlotCount() const { return childFid.size(); }
+
+    // Test support only: drop last childFid entry to exercise alignment checks.
+    void DropLastChildFidEntryForTest();
+
 public:
-    bool CheckBcFace( IntSet & bcVertex, IntField & nodeId );
+    bool CheckBcFace( const IntSet & bcVertex, const IntField & nodeId ) const;
     void ScanElementFace( CgIntField & eNodeId, int eType, int eId );
+
+    // Assign BC to faces whose nodes are all in bcVertex and that still have
+    // INVALID BC type. If boundaryFacesOnly is true, also require right cell
+    // INVALID (classic boundary face). Returns how many faces were assigned.
+    int AssignBcToMatchingFaces(
+        const IntSet & bcVertex,
+        int bcType,
+        int bcNameId,
+        bool boundaryFacesOnly );
+
+    // Boundary faces only (right cell INVALID). Prefer for post-ownership BC.
     void ScanBcFace( IntSet & bcVertex, int bcType, int bcNameId );
+    // Match by vertex set only (CGNS BOCO path may run before ownership is final).
     void ScanBcFaceDetail( IntSet & bcVertex, int bcType, int bcNameId );
     void ScanInterfaceBc();
+
+    // Append staged BC of boundary faces (right cell INVALID) into bcRecord.
+    // Requires StagedBcMatchesFaceCount(). Returns number of boundary faces.
+    int AppendBoundaryBcToRecord( BcRecord & bcRecord ) const;
+
     int GetNSimpleFace();
 
-    // Stage a newly discovered unique face: topology + default BC slots together.
-    // Keeps faceBcTypes / faceBcNameIds length equal to FaceTopo face count.
+    // Stage a newly discovered unique face: topology, face flag, and default
+    // BC slots together. Keeps faceBcTypes / faceBcNameIds / faceFlags length
+    // equal to FaceTopo face count. leftCellId may be INVALID_INDEX when the
+    // owning cell is assigned later (polygon path).
     void StageNewFace( const IntField & faceNodes, int faceType, int leftCellId );
 
-    // Assign BC on an already staged face (bounds-checked).
+    // Assign BC on an already staged face (bounds-checked). Sole write path
+    // for faceBcTypes / faceBcNameIds after staging.
     void SetStagedFaceBc( int faceId, int bcType, int bcNameId );
 
+    // First cell to claim an unclaimed staged face (polygon path). Sets the
+    // claimed flag, left cell, clears right cell, and resets BC defaults via
+    // SetStagedFaceBc. Throws if faceId is out of range or already claimed.
+    void ClaimStagedFaceAsLeft( int faceId, int cellId );
+
+    // Second cell sharing a claimed face. Sets right cell only.
+    // Throws if faceId is out of range or the face is still unclaimed.
+    void AttachStagedFaceAsRight( int faceId, int cellId );
+
+    // Bind a volume element to an already staged face (traditional element
+    // path). Fills left if empty; otherwise fills right if empty and the
+    // cell is not already the left owner. No-op if both sides are set.
+    void BindCellToExistingFace( int faceId, int cellId );
+
+    // True when BC slots, childFid, face types/flags, left/right cells, and
+    // face-local positions all match the FaceTopo face count.
     [[nodiscard]] bool StagedBcMatchesFaceCount() const;
+
+    // Face flag values used by the polygon ownership path.
+    static constexpr int kFaceUnclaimed = 0;
+    static constexpr int kFaceClaimed = 1;
 public:
-    void ResizeAll();
+    // Safety net: resize FaceTopo cell/position arrays and FaceSolver BC/child
+    // slots to the current face count. Prefer StageNewFace, which grows all
+    // parallel arrays together; this remains for paths that only grew faces.
+    void EnsureParallelFaceArraysSized();
+
+    // Stage unique polygon faces from CSR-style offsets/connectivity without
+    // requiring a CgnsSection. Invalid spans throw before any mutation.
+    // Each new unique face is staged with INVALID left cell (owner assigned
+    // later via ClaimStagedFaceAsLeft).
+    void StagePolygonFacesFromConnectivity(
+        int nElement,
+        const CgIntField & offsets,
+        const CgIntField & connectivity,
+        int faceType );
+
+    // Assign polyhedron cells to already staged faces from CSR face references.
+    // Validates spans, face id range, no duplicate face per cell, and at most
+    // two cells per face before any mutation. Uses ClaimStagedFaceAsLeft /
+    // AttachStagedFaceAsRight only.
+    void ClaimPolyhedronCellsFromConnectivity(
+        int nElement,
+        const CgIntField & offsets,
+        const CgIntField & connectivity );
+
     void ScanPolygonFace( CgnsSection & cgnsSection );
     void ScanPolyhedronElement( CgnsSection & cgnsSection );
 private:
+    // Staged BC attributes per face (aligned with FaceTopo faces).
+    // Sole write path after construction: SetStagedFaceBc / StageNewFace.
+    IntField faceBcNameIds;
+    IntField faceBcTypes;
+    // Child-face index lists (split/interface path). Prefer StageNewFace growth.
+    LinkField childFid;
+
     std::unique_ptr< FaceTopo > faceTopo;
 };
 

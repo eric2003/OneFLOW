@@ -23,8 +23,10 @@ License
 
 #pragma once
 #include "NamespaceMacros.h"
+#include "HXDefine.h"
 #include <string>
 #include <map>
+#include <vector>
 #include <set>
 
 BeginNameSpace( ONEFLOW )
@@ -74,8 +76,11 @@ private:
     std::map< int, int > oneFlow2Cgns;
 public:
     void Init();
-    int OneFlow2Cgns( int oneflow_bctype );
-    int Cgns2OneFlow( int cgns_bctype );
+    int OneFlow2Cgns( int oneflow_bctype ) const;
+    int Cgns2OneFlow( int cgns_bctype ) const;
+
+    // Convert each entry from CGNS BC type ids to OneFLOW BC ids in place.
+    void MapFromCgnsInPlace( IntField & bcTypes ) const;
 };
 
 class CommonNameMap
@@ -95,14 +100,34 @@ private:
 
 void DumpRegion( const std::string & fileName, CommonNameMap & nameMap );
 
+// Instance-owned region-name table. Prefer this in new code and tests so
+// callers are not coupled to process-wide state.
+class RegionNameRegistry
+{
+public:
+    RegionNameRegistry() = default;
+    ~RegionNameRegistry() = default;
+
+    void Reset();
+    void AddRegion( const std::string & regionName );
+    int FindRegionId( const std::string & regionName ) const;
+    void DumpRegion( const std::string & fileName );
+    const CommonNameMap & GetNameMap() const { return nameMap; }
+
+private:
+    CommonNameMap nameMap;
+};
+
+// Process-wide default registry. Static methods forward to Default().
+// Prefer injecting RegionNameRegistry& into APIs that need isolation.
 class RegionNameMap
 {
 public:
     RegionNameMap() = default;
     ~RegionNameMap() = default;
-public:
-    static CommonNameMap nameMap;
-public:
+
+    static RegionNameRegistry & Default();
+
     static void Reset();
     static void AddRegion( const std::string & regionName );
     static int  FindRegionId( const std::string & regionName );
@@ -110,17 +135,27 @@ public:
     static void DumpRegion( const std::string & fileName );
 };
 
+// Process-wide default for volume-region names. Same registry type as BC
+// regions; kept as a separate Default() instance so the two namespaces
+// cannot collide. Prefer injecting RegionNameRegistry& when isolation matters.
 class VolumeNameMap
 {
 public:
     VolumeNameMap() = default;
     ~VolumeNameMap() = default;
-public:
-    static CommonNameMap nameMap;
-public:
+
+    static RegionNameRegistry & Default();
+
+    static void Reset();
     static void AddRegion( const std::string & regionName );
     static int  FindRegionId( const std::string & regionName );
     static void DumpRegion();
+    static void DumpRegion( const std::string & fileName );
 };
+
+
+// Register each name in order; returns parallel name ids (same length as names).
+// Mirrors the CgnsZbcBoco region-registration loop without CGNS types.
+IntField RegisterRegionNames( RegionNameRegistry & registry, const std::vector< std::string > & names );
 
 EndNameSpace
