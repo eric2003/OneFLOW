@@ -55,11 +55,11 @@ class BackgroundTaskLogDialog(QDialog):
         except (OSError, ValueError, TypeError, KeyError):
             pass
         self.details.setText(
-            f"Status: {self._task.status}    Message: {self._task.message}\\n"
-            f"Project: {self._task.project_directory}\\n"
-            f"Executable: {self._task.executable}\\n"
-            f"Execution mode: {self._task.execution_mode}\\n"
-            f"Started: {self._task.started_at}\\n"
+            f"Status: {self._task.status}    Message: {self._task.message}\n"
+            f"Project: {self._task.project_directory}\n"
+            f"Executable: {self._task.executable}\n"
+            f"Execution mode: {self._task.execution_mode}\n"
+            f"Started: {self._task.started_at}\n"
             f"Log: {self._task.log_file}"
         )
         try:
