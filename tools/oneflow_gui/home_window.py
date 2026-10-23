@@ -263,6 +263,7 @@ class WorkbenchHomeWindow(QMainWindow):
         )
         if self.executable_combo.count():
             self.executable_combo.setCurrentIndex(0)
+        self._build_configuration_changed(self.build_config_combo.currentText())
         QMessageBox.information(
             self,
             "Basic Configuration",
