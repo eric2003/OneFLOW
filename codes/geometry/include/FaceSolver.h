@@ -63,11 +63,14 @@ public:
     void ScanInterfaceBc();
     int GetNSimpleFace();
 
-    // Stage a newly discovered unique face: topology + default BC slots together.
-    // Keeps faceBcTypes / faceBcNameIds length equal to FaceTopo face count.
+    // Stage a newly discovered unique face: topology, face flag, and default
+    // BC slots together. Keeps faceBcTypes / faceBcNameIds / faceFlags length
+    // equal to FaceTopo face count. leftCellId may be INVALID_INDEX when the
+    // owning cell is assigned later (polygon path).
     void StageNewFace( const IntField & faceNodes, int faceType, int leftCellId );
 
-    // Assign BC on an already staged face (bounds-checked).
+    // Assign BC on an already staged face (bounds-checked). Sole write path
+    // for faceBcTypes / faceBcNameIds after staging.
     void SetStagedFaceBc( int faceId, int bcType, int bcNameId );
 
     [[nodiscard]] bool StagedBcMatchesFaceCount() const;

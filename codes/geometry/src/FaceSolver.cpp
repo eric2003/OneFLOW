@@ -96,6 +96,9 @@ void FaceSolver::ScanPolygonFace( CgnsSection & cgnsSection )
         }
     }
 
+    // Polygon faces are staged without an owning cell yet. Ownership is
+    // assigned later in ScanPolyhedronElement. StageNewFace keeps topology
+    // and BC slots aligned so StagedBcMatchesFaceCount() holds after scan.
     IntField faceNodes;
     for ( int iElem = 0; iElem < cgnsSection.nElement; ++ iElem )
     {
@@ -110,9 +113,7 @@ void FaceSolver::ScanPolygonFace( CgnsSection & cgnsSection )
         auto [faceIndex, isNew] = faceLookup.FindOrAdd( faceNodes );
         if ( isNew )
         {
-            this->faceTopo->GetFaces().push_back( faceNodes );
-            this->faceTopo->GetFaceTypes().push_back( cgnsSection.eType );
-            this->faceTopo->GetFaceFlags().push_back( 0 );
+            this->StageNewFace( faceNodes, cgnsSection.eType, ONEFLOW::INVALID_INDEX );
         }
     }
 }
@@ -219,13 +220,18 @@ void FaceSolver::ScanPolyhedronElement( CgnsSection & cgnsSection )
 
             if ( faceFlags == 0 )
             {
+                // First claiming cell: StageNewFace already sized left/right
+                // cells and BC slots. Only ownership and the claimed flag change
+                // here; BC defaults stay INVALID via SetStagedFaceBc.
                 this->ResizeAll();
                 this->faceTopo->GetFaceFlags()[ polygonFaceId ] = 1;
                 this->faceTopo->GetLeftCells()[ polygonFaceId ] = iElem;
                 this->faceTopo->GetRightCells()[ polygonFaceId ] = ONEFLOW::INVALID_INDEX;
 
-                this->faceBcTypes[ polygonFaceId ] = ONEFLOW::INVALID_INDEX;
-                this->faceBcNameIds[ polygonFaceId ] = ONEFLOW::INVALID_INDEX;
+                this->SetStagedFaceBc(
+                    static_cast< int >( polygonFaceId ),
+                    ONEFLOW::INVALID_INDEX,
+                    ONEFLOW::INVALID_INDEX );
             }
             else
             {
@@ -238,8 +244,12 @@ void FaceSolver::ScanPolyhedronElement( CgnsSection & cgnsSection )
 
 void FaceSolver::StageNewFace( const IntField & faceNodes, int faceType, int leftCellId )
 {
+    // Single write path for a newly discovered unique face. All parallel
+    // arrays (topology, flags, BC slots) grow together so callers never need
+    // ad-hoc push_back sequences that drift out of sync.
     this->faceTopo->GetFaces().push_back( faceNodes );
     this->faceTopo->GetFaceTypes().push_back( faceType );
+    this->faceTopo->GetFaceFlags().push_back( 0 );
     this->faceTopo->GetLeftCells().push_back( leftCellId );
     this->faceTopo->GetRightCells().push_back( ONEFLOW::INVALID_INDEX );
 
