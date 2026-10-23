@@ -211,7 +211,7 @@ class ProjectWindow(QMainWindow):
         parameter_files.setMaximumHeight(110)
         parameter_files.setPlaceholderText("No parameter files detected.")
         parameter_files.setPlainText(
-            "\\n".join(str(path) for path in self._project.parameter_files)
+            "\n".join(str(path) for path in self._project.parameter_files)
         )
         root.addWidget(QLabel("Parameter files"))
         root.addWidget(parameter_files)
