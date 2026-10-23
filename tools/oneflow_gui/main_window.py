@@ -37,7 +37,13 @@ from .test_runner import build_cmake_command
 from .run_history_dialog import RunHistoryDialog
 from .workflow_repository import WorkflowRepository, WorkflowRunRecord
 from .mesh_layout_dialog import MeshLayoutDialog
-from .task_types import ExecutionLocation, TaskType, task_definition
+from .task_types import (
+    ExecutionLocation,
+    TaskRunResult,
+    TaskRunStatus,
+    TaskType,
+    task_definition,
+)
 
 
 class RunQueueWorker(QThread):
@@ -46,6 +52,7 @@ class RunQueueWorker(QThread):
     log_line = Signal(str)
     case_state = Signal(str, str)
     case_result = Signal(object)
+    task_result = Signal(object)
 
     def __init__(
         self,
@@ -77,7 +84,7 @@ class RunQueueWorker(QThread):
                     self._workspace_root,
                     "Cancelled before launch.",
                 )
-                self.case_result.emit(result)
+                self._emit_result(result)
                 self.case_state.emit(case.case_id, RunState.CANCELLED.value)
                 continue
 
@@ -94,8 +101,21 @@ class RunQueueWorker(QThread):
                 self.log_line.emit,
                 execution_mode=self._execution_mode,
             )
-            self.case_result.emit(result)
+            self._emit_result(result)
             self.case_state.emit(case.case_id, result.state.value)
+
+    def _emit_result(self, result: CaseRunResult) -> None:
+        """Publish both the case-specific and shared task outcome contracts."""
+        self.case_result.emit(result)
+        self.task_result.emit(
+            TaskRunResult(
+                task_type=TaskType.CASE_DATABASE,
+                status=TaskRunStatus(result.state.value.lower()),
+                return_code=result.return_code,
+                execution_directory=result.workspace,
+                message=f"{result.case_id}: {result.message}",
+            )
+        )
 
 
 class MainWindow(QMainWindow):
@@ -523,6 +543,7 @@ class MainWindow(QMainWindow):
         self._worker.log_line.connect(self._append_case_run_log)
         self._worker.case_state.connect(self._set_case_status)
         self._worker.case_result.connect(self._show_result)
+        self._worker.task_result.connect(self._show_task_result)
         self._worker.finished.connect(self._queue_finished)
         self._worker.start()
         self.statusBar().showMessage(f"Running {len(selected)} case(s)...")
@@ -627,6 +648,14 @@ class MainWindow(QMainWindow):
             "workspace": str(result.workspace),
             "message": result.message,
         })
+
+    def _show_task_result(self, result: TaskRunResult) -> None:
+        """Log the common task result without replacing case-specific history."""
+        self._append_case_run_log(
+            f"TASK RESULT: {result.task_type.value} / {result.status.value} "
+            f"/ exit={result.return_code} / cwd={result.execution_directory} "
+            f"/ {result.message}"
+        )
 
     def _queue_finished(self) -> None:
         record = self._active_case_run_record
