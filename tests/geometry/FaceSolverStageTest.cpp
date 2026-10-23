@@ -207,3 +207,49 @@ TEST( FaceSolverStageTest, ClaimPolyhedronCellsRejectsOutOfRangeFaceId )
         solver.ClaimPolyhedronCellsFromConnectivity( 1, cellOffsets, cellFaceRefs ),
         std::runtime_error );
 }
+
+TEST( FaceSolverStageTest, AssignBcToMatchingFacesBoundaryOnly )
+{
+    FaceSolver solver;
+    // Face 0: boundary (right INVALID). Face 1: interior (right set).
+    solver.StageNewFace( IntField{ 1, 2, 3 }, /*faceType=*/5, /*leftCellId=*/0 );
+    solver.StageNewFace( IntField{ 2, 3, 4 }, /*faceType=*/5, /*leftCellId=*/0 );
+    solver.GetFaceTopo().GetRightCells()[ 1 ] = 1;
+
+    IntSet bcVertex{ 1, 2, 3, 4 };
+    const int assigned = solver.AssignBcToMatchingFaces(
+        bcVertex, /*bcType=*/10, /*bcNameId=*/3, /*boundaryFacesOnly=*/true );
+
+    EXPECT_EQ( assigned, 1 );
+    EXPECT_EQ( solver.faceBcTypes[ 0 ], 10 );
+    EXPECT_EQ( solver.faceBcNameIds[ 0 ], 3 );
+    EXPECT_EQ( solver.faceBcTypes[ 1 ], INVALID_INDEX );
+}
+
+TEST( FaceSolverStageTest, AssignBcToMatchingFacesIgnoresAlreadySetBc )
+{
+    FaceSolver solver;
+    solver.StageNewFace( IntField{ 1, 2, 3 }, 5, 0 );
+    solver.SetStagedFaceBc( 0, 99, 1 );
+
+    IntSet bcVertex{ 1, 2, 3 };
+    const int assigned = solver.AssignBcToMatchingFaces(
+        bcVertex, /*bcType=*/10, /*bcNameId=*/2, /*boundaryFacesOnly=*/true );
+
+    EXPECT_EQ( assigned, 0 );
+    EXPECT_EQ( solver.faceBcTypes[ 0 ], 99 );
+}
+
+TEST( FaceSolverStageTest, AssignBcToMatchingFacesDetailModeMatchesInterior )
+{
+    FaceSolver solver;
+    solver.StageNewFace( IntField{ 1, 2, 3 }, 5, 0 );
+    solver.GetFaceTopo().GetRightCells()[ 0 ] = 1; // interior
+
+    IntSet bcVertex{ 1, 2, 3 };
+    const int assigned = solver.AssignBcToMatchingFaces(
+        bcVertex, /*bcType=*/7, /*bcNameId=*/4, /*boundaryFacesOnly=*/false );
+
+    EXPECT_EQ( assigned, 1 );
+    EXPECT_EQ( solver.faceBcTypes[ 0 ], 7 );
+}

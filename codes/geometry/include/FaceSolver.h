@@ -56,8 +56,18 @@ public:
     const FaceTopo & GetFaceTopo() const;
     [[nodiscard]] std::unique_ptr< FaceTopo > ReleaseFaceTopo() noexcept;
 public:
-    bool CheckBcFace( IntSet & bcVertex, IntField & nodeId );
+    bool CheckBcFace( const IntSet & bcVertex, const IntField & nodeId ) const;
     void ScanElementFace( CgIntField & eNodeId, int eType, int eId );
+
+    // Assign BC to faces whose nodes are all in bcVertex and that still have
+    // INVALID BC type. If boundaryFacesOnly is true, also require right cell
+    // INVALID (classic boundary face). Returns how many faces were assigned.
+    int AssignBcToMatchingFaces(
+        const IntSet & bcVertex,
+        int bcType,
+        int bcNameId,
+        bool boundaryFacesOnly );
+
     void ScanBcFace( IntSet & bcVertex, int bcType, int bcNameId );
     void ScanBcFaceDetail( IntSet & bcVertex, int bcType, int bcNameId );
     void ScanInterfaceBc();

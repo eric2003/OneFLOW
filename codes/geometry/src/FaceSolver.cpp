@@ -25,7 +25,6 @@ License
 #include "Fatal.h"
 #include "FaceTopo.h"
 #include "CgnsSection.h"
-#include <iostream>
 #include <algorithm>
 #include <limits>
 #include <stdexcept>
@@ -59,13 +58,12 @@ std::unique_ptr< FaceTopo > FaceSolver::ReleaseFaceTopo() noexcept
     return std::move( this->faceTopo );
 }
 
-bool FaceSolver::CheckBcFace( IntSet & bcVertex, IntField & nodeId )
+bool FaceSolver::CheckBcFace( const IntSet & bcVertex, const IntField & nodeId ) const
 {
-    int size = nodeId.size();
+    const int size = static_cast< int >( nodeId.size() );
     for ( int iNode = 0; iNode < size; ++ iNode )
     {
-        IntSet::iterator iter = bcVertex.find( nodeId[ iNode ] );
-        if ( iter == bcVertex.end() )
+        if ( bcVertex.find( nodeId[ iNode ] ) == bcVertex.end() )
         {
             return false;
         }
@@ -259,6 +257,7 @@ void FaceSolver::StageNewFace( const IntField & faceNodes, int faceType, int lef
 
     this->faceBcTypes.push_back( ONEFLOW::INVALID_INDEX );
     this->faceBcNameIds.push_back( ONEFLOW::INVALID_INDEX );
+    this->childFid.push_back( IntField{} );
 }
 
 void FaceSolver::SetStagedFaceBc( int faceId, int bcType, int bcNameId )
@@ -375,111 +374,59 @@ void FaceSolver::ScanElementFace( CgIntField & eNodeId, int eType, int eId )
     }
 }
 
-void FaceSolver::ScanBcFace( IntSet& bcVertex, int bcType, int bcNameId )
+int FaceSolver::AssignBcToMatchingFaces(
+    const IntSet & bcVertex,
+    int bcType,
+    int bcNameId,
+    bool boundaryFacesOnly )
 {
-    int nBFaces = 0;
-
-    //std::cout << " this->faceTopo = " << this->faceTopo << "\n";
-    int nFaces = this->faceTopo->GetLeftCells().size();
-
-    std::cout << " nFaces = " << nFaces << "\n";
-    int nTraditionalBc = 0;
-    for ( int iFace = 0; iFace < nFaces; ++ iFace )
-    {
-        int rCell = ( this->faceTopo->GetRightCells() )[ iFace ];
-
-        if ( rCell == ONEFLOW::INVALID_INDEX )
-        {
-            ++ nTraditionalBc;
-        }
-    }
-    std::cout << " nTraditionalBc = " << nTraditionalBc << "\n";
-
+    const int nFaces = static_cast< int >( this->faceTopo->GetLeftCells().size() );
+    int nAssigned = 0;
 
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
-        if ( iFace % 200000 == 0 ) 
+        if ( this->faceBcTypes[ iFace ] != ONEFLOW::INVALID_INDEX )
         {
-            //std::cout << " iFace = " << iFace << " numberOfTotalFaces = " << nFaces << std::endl;
+            continue;
         }
-        int originalBcType = this->faceBcTypes[ iFace ];
-        int rCell     = ( this->faceTopo->GetRightCells() )[ iFace ];
-
-        if ( ( rCell          == ONEFLOW::INVALID_INDEX ) && 
-             ( originalBcType == ONEFLOW::INVALID_INDEX ) )
+        if ( boundaryFacesOnly &&
+             this->faceTopo->GetRightCells()[ iFace ] != ONEFLOW::INVALID_INDEX )
         {
-            if ( this->CheckBcFace( bcVertex, ( this->faceTopo->GetFaces() )[ iFace ] ) )
-            {
-                ++ nBFaces;
-
-                this->SetStagedFaceBc( iFace, bcType, bcNameId );
-            }
+            continue;
+        }
+        if ( this->CheckBcFace( bcVertex, this->faceTopo->GetFaces()[ iFace ] ) )
+        {
+            this->SetStagedFaceBc( iFace, bcType, bcNameId );
+            ++ nAssigned;
         }
     }
-
-    //std::cout << " nBFaces = " << nBFaces << std::endl;
-
+    return nAssigned;
 }
 
-void FaceSolver::ScanBcFaceDetail( IntSet& bcVertex, int bcType, int bcNameId )
+void FaceSolver::ScanBcFace( IntSet & bcVertex, int bcType, int bcNameId )
 {
-    int nFaces = this->faceTopo->GetLeftCells().size();
-    std::cout << " nFaces = " << nFaces << "\n";
+    // Boundary faces only: open right cell and no BC yet.
+    this->AssignBcToMatchingFaces( bcVertex, bcType, bcNameId, /*boundaryFacesOnly=*/true );
+}
 
-    int nTraditionalBc = 0;
-    for ( int iFace = 0; iFace < nFaces; ++ iFace )
-    {
-        int rCell = ( this->faceTopo->GetRightCells() )[ iFace ];
-
-        if ( rCell == ONEFLOW::INVALID_INDEX )
-        {
-            ++ nTraditionalBc;
-        }
-    }
-    std::cout << " nTraditionalBc = " << nTraditionalBc << "\n";
-
-    int nBFaces = 0;
-    for ( int iFace = 0; iFace < nFaces; ++ iFace )
-    {
-        if ( iFace % 200000 == 0 ) 
-        {
-            //std::cout << " iFace = " << iFace << " numberOfTotalFaces = " << nFaces << std::endl;
-        }
-        int originalBcType = this->faceBcTypes[ iFace ];
-
-        if ( originalBcType == ONEFLOW::INVALID_INDEX )
-        {
-            if ( this->CheckBcFace( bcVertex, ( this->faceTopo->GetFaces() )[ iFace ] ) )
-            {
-                ++ nBFaces;
-
-                this->SetStagedFaceBc( iFace, bcType, bcNameId );
-            }
-        }
-    }
-
-    std::cout << " nFinalBcFace = " << nBFaces << " bcType = " << bcType << std::endl;
-
+void FaceSolver::ScanBcFaceDetail( IntSet & bcVertex, int bcType, int bcNameId )
+{
+    // Match by vertex set only; do not require an open right cell.
+    this->AssignBcToMatchingFaces( bcVertex, bcType, bcNameId, /*boundaryFacesOnly=*/false );
 }
 
 void FaceSolver::ScanInterfaceBc()
 {
-    int nFaces = this->faceTopo->GetLeftCells().size();
+    const int nFaces = static_cast< int >( this->faceTopo->GetLeftCells().size() );
+    const int bcNameId = -1;
 
-    int bcNameId = -1;
-    int nInterFace = 0;
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
-        int originalBcType = this->faceBcTypes[ iFace ];
-
-        if ( originalBcType == ONEFLOW::INVALID_INDEX )
+        if ( this->faceBcTypes[ iFace ] == ONEFLOW::INVALID_INDEX )
         {
-            nInterFace ++;
             this->SetStagedFaceBc( iFace, BCTypeNull, bcNameId );
         }
     }
-
-    std::cout << " nInterFace = " << nInterFace << std::endl;
 }
 
 int FaceSolver::GetNSimpleFace()
