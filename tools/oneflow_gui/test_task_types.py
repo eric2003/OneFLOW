@@ -83,6 +83,20 @@ class TaskTypesTest(unittest.TestCase):
             TaskRunStatus.FAILED,
         )
 
+    def test_queue_status_does_not_report_unfinished_work_as_success(self) -> None:
+        self.assertEqual(
+            aggregate_run_status(["succeeded", "running"]),
+            TaskRunStatus.RUNNING,
+        )
+        self.assertEqual(
+            aggregate_run_status(["succeeded", "pending"]),
+            TaskRunStatus.PENDING,
+        )
+        self.assertEqual(
+            aggregate_run_status(["pending", "running"]),
+            TaskRunStatus.RUNNING,
+        )
+
     def test_empty_queue_status_preserves_success_default(self) -> None:
         self.assertEqual(aggregate_run_status([]), TaskRunStatus.SUCCEEDED)
 
