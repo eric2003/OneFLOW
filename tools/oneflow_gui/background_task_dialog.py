@@ -25,8 +25,9 @@ from .background_task_registry import ACTIVE_STATUSES, BackgroundTask, Backgroun
 class BackgroundTaskLogDialog(QDialog):
     """Display persisted task metadata and its live or completed output log."""
 
-    def __init__(self, task: BackgroundTask, parent=None) -> None:
+    def __init__(self, registry: BackgroundTaskRegistry, task: BackgroundTask, parent=None) -> None:
         super().__init__(parent)
+        self._registry = registry
         self._task = task
         self.setWindowTitle(f"Run Result - {task.task_id}")
         self.resize(900, 650)
@@ -49,6 +50,10 @@ class BackgroundTaskLogDialog(QDialog):
             self._timer.start()
 
     def refresh(self) -> None:
+        try:
+            self._task = self._registry.load(self._task.task_id)
+        except (OSError, ValueError, TypeError, KeyError):
+            pass
         self.details.setText(
             f"Status: {self._task.status}    Message: {self._task.message}\\n"
             f"Project: {self._task.project_directory}\\n"
@@ -161,7 +166,7 @@ class BackgroundTaskDialog(QDialog):
         task = self._selected_task()
         if task is None:
             return
-        dialog = BackgroundTaskLogDialog(task, self)
+        dialog = BackgroundTaskLogDialog(self._registry, task, self)
         dialog.exec()
 
     def _stop_selected(self) -> None:
