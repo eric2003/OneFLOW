@@ -45,8 +45,6 @@ public:
     ~FaceSolver();
 public:
     HXLookup<int> faceLookup;
-    // Child-face index lists (split/interface path). Prefer StageNewFace growth.
-    LinkField childFid;
 public:
     FaceTopo & GetFaceTopo();
     const FaceTopo & GetFaceTopo() const;
@@ -56,6 +54,13 @@ public:
     int GetStagedBcType( int faceId ) const;
     int GetStagedBcNameId( int faceId ) const;
     std::size_t GetStagedBcSlotCount() const { return faceBcTypes.size(); }
+
+    // Child-face lists (split/interface path). Grown by StageNewFace.
+    const IntField & GetChildFaceIds( int faceId ) const;
+    std::size_t GetChildFidSlotCount() const { return childFid.size(); }
+
+    // Test support only: drop last childFid entry to exercise alignment checks.
+    void DropLastChildFidEntryForTest();
 
 public:
     bool CheckBcFace( const IntSet & bcVertex, const IntField & nodeId ) const;
@@ -145,6 +150,8 @@ private:
     // Sole write path after construction: SetStagedFaceBc / StageNewFace.
     IntField faceBcNameIds;
     IntField faceBcTypes;
+    // Child-face index lists (split/interface path). Prefer StageNewFace growth.
+    LinkField childFid;
 
     std::unique_ptr< FaceTopo > faceTopo;
 };

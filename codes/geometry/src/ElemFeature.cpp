@@ -76,8 +76,6 @@ void ElemFeature::ScanElements( FaceSolver & faceSolver )
 
         faceSolver.ScanElementFace( this->eNodeId[ eId ], eType, eId );
     }
-
-    std::cout << " ScanElements Face number = " << faceSolver.GetNSimpleFace() << std::endl;
 }
 
 

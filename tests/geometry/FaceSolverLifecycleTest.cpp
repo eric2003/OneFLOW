@@ -13,7 +13,7 @@ TEST( FaceSolverLifecycleTest, InternalFieldsInitializationAndCleanup )
 
     EXPECT_NE( &solver->GetFaceTopo(), nullptr );
     EXPECT_EQ( solver->GetStagedBcSlotCount(), static_cast< std::size_t >( 0 ) );
-    EXPECT_EQ( solver->childFid.size(), static_cast< std::size_t >( 0 ) );
+    EXPECT_EQ( solver->GetChildFidSlotCount(), static_cast< std::size_t >( 0 ) );
 
     // Growth goes through StageNewFace (sole write path for BC slots).
     for ( int i = 0; i < 10; ++ i )
@@ -21,7 +21,7 @@ TEST( FaceSolverLifecycleTest, InternalFieldsInitializationAndCleanup )
         solver->StageNewFace( ONEFLOW::IntField{ i, i + 1 }, 5, i );
     }
     EXPECT_EQ( solver->GetStagedBcSlotCount(), static_cast< std::size_t >( 10 ) );
-    EXPECT_EQ( solver->childFid.size(), static_cast< std::size_t >( 10 ) );
+    EXPECT_EQ( solver->GetChildFidSlotCount(), static_cast< std::size_t >( 10 ) );
 
     delete solver;
     SUCCEED() << "FaceSolver lifecycle is safe and leak-free.";

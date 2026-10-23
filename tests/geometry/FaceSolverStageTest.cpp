@@ -29,7 +29,7 @@ TEST( FaceSolverStageTest, StageNewFaceGrowsAllParallelArrays )
     EXPECT_EQ( topo.rPosition.size(), static_cast< std::size_t >( 2 ) );
     EXPECT_EQ( solver.GetStagedBcSlotCount(), static_cast< std::size_t >( 2 ) );
     EXPECT_EQ( solver.GetStagedBcSlotCount(), static_cast< std::size_t >( 2 ) );
-    EXPECT_EQ( solver.childFid.size(), static_cast< std::size_t >( 2 ) );
+    EXPECT_EQ( solver.GetChildFidSlotCount(), static_cast< std::size_t >( 2 ) );
     EXPECT_EQ( topo.GetFaceTypes().size(), static_cast< std::size_t >( 2 ) );
 
     EXPECT_EQ( topo.GetFaceFlags()[ 0 ], FaceSolver::kFaceUnclaimed );
@@ -293,7 +293,7 @@ TEST( FaceSolverStageTest, StagedBcMatchesFaceCountRequiresChildFid )
     solver.StageNewFace( IntField{ 1, 2, 3 }, 5, 0 );
     ASSERT_TRUE( solver.StagedBcMatchesFaceCount() );
 
-    solver.childFid.pop_back();
+    solver.DropLastChildFidEntryForTest();
     EXPECT_FALSE( solver.StagedBcMatchesFaceCount() );
 }
 
@@ -319,7 +319,7 @@ TEST( FaceSolverStageTest, AppendBoundaryBcToRecordRequiresAlignment )
 {
     FaceSolver solver;
     solver.StageNewFace( IntField{ 1, 2, 3 }, 5, 0 );
-    solver.childFid.pop_back();
+    solver.DropLastChildFidEntryForTest();
 
     BcRecord record;
     EXPECT_THROW( solver.AppendBoundaryBcToRecord( record ), std::logic_error );
@@ -334,4 +334,14 @@ TEST( FaceSolverStageTest, GetStagedBcRejectsOutOfRange )
     solver.StageNewFace( IntField{ 1, 2, 3 }, 5, 0 );
     EXPECT_EQ( solver.GetStagedBcType( 0 ), INVALID_INDEX );
     EXPECT_THROW( solver.GetStagedBcType( 1 ), std::out_of_range );
+}
+
+TEST( FaceSolverStageTest, GetChildFaceIdsStartsEmptyAndRejectsOutOfRange )
+{
+    FaceSolver solver;
+    EXPECT_THROW( solver.GetChildFaceIds( 0 ), std::out_of_range );
+
+    solver.StageNewFace( IntField{ 1, 2, 3 }, 5, 0 );
+    EXPECT_EQ( solver.GetChildFidSlotCount(), static_cast< std::size_t >( 1 ) );
+    EXPECT_TRUE( solver.GetChildFaceIds( 0 ).empty() );
 }

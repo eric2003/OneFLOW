@@ -274,6 +274,24 @@ void FaceSolver::SetStagedFaceBc( int faceId, int bcType, int bcNameId )
 }
 
 
+
+const IntField & FaceSolver::GetChildFaceIds( int faceId ) const
+{
+    if ( faceId < 0 || static_cast< size_t >( faceId ) >= this->childFid.size() )
+    {
+        throw std::out_of_range( "FaceSolver::GetChildFaceIds: face ID is out of range" );
+    }
+    return this->childFid[ static_cast< size_t >( faceId ) ];
+}
+
+void FaceSolver::DropLastChildFidEntryForTest()
+{
+    if ( ! this->childFid.empty() )
+    {
+        this->childFid.pop_back();
+    }
+}
+
 int FaceSolver::GetStagedBcType( int faceId ) const
 {
     if ( faceId < 0 || static_cast< size_t >( faceId ) >= this->faceBcTypes.size() )
