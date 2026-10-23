@@ -206,6 +206,15 @@ class ProjectWindow(QMainWindow):
             QLabel(str(self._project.runtime_file) if self._project.runtime_file else "Not detected"),
         )
         root.addLayout(details)
+        parameter_files = QPlainTextEdit()
+        parameter_files.setReadOnly(True)
+        parameter_files.setMaximumHeight(110)
+        parameter_files.setPlaceholderText("No parameter files detected.")
+        parameter_files.setPlainText(
+            "\\n".join(str(path) for path in self._project.parameter_files)
+        )
+        root.addWidget(QLabel("Parameter files"))
+        root.addWidget(parameter_files)
 
         executable_row = QHBoxLayout()
         executable_row.addWidget(QLabel("OneFLOW executable"))
