@@ -37,6 +37,7 @@ from .test_runner import build_cmake_command
 from .run_history_dialog import RunHistoryDialog
 from .workflow_repository import WorkflowRepository, WorkflowRunRecord
 from .mesh_layout_dialog import MeshLayoutDialog
+from .task_types import ExecutionLocation, TaskType, task_definition
 
 
 class RunQueueWorker(QThread):
@@ -112,6 +113,9 @@ class MainWindow(QMainWindow):
             raise ValueError(f"Unsupported build configuration: {build_config!r}")
         self._single_case_mode = single_case_mode
         self._build_config = build_config
+        self._task_definition = (
+            task_definition(TaskType.CASE_DATABASE) if single_case_mode else None
+        )
         self._repository_root = (
             repository_root or Path(__file__).resolve().parents[2]
         ).resolve()
@@ -125,7 +129,9 @@ class MainWindow(QMainWindow):
         self._active_case_run_log_path: Path | None = None
 
         self.setWindowTitle(
-            "Case Database" if self._single_case_mode else "Case Workbench"
+            self._task_definition.title
+            if self._task_definition is not None
+            else "Case Workbench"
         )
         self.resize(1100, 760)
         self._build_ui()
@@ -139,7 +145,9 @@ class MainWindow(QMainWindow):
         root_layout.setSpacing(12)
 
         heading = QLabel(
-            "Case Database" if self._single_case_mode else "Case Workbench"
+            self._task_definition.title
+            if self._task_definition is not None
+            else "Case Workbench"
         )
         heading.setObjectName("pageTitle")
         subtitle = QLabel(
@@ -391,6 +399,17 @@ class MainWindow(QMainWindow):
             self.workspace_edit.setText(path)
 
     def _start_run(self) -> None:
+        if (
+            self._task_definition is not None
+            and self._task_definition.execution_location
+            is not ExecutionLocation.USER_WORKSPACE
+        ):
+            QMessageBox.warning(
+                self,
+                "Invalid task policy",
+                "Case Database tasks must run from a user workspace.",
+            )
+            return
         if self._task_worker is not None and self._task_worker.isRunning():
             return
         if self._worker is not None and self._worker.isRunning():
