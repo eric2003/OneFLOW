@@ -1,6 +1,6 @@
 # OneFLOW Workbench
 
-The desktop application starts with a Workbench activity selector. **Open Project** accepts any existing directory, including projects outside the repository and projects not registered in the built-in case catalog. The project window identifies Grid or CFD/flow projects where possible; unknown projects can still be opened. Projects inside the OneFLOW source repository must be copied to a workspace before running, and copy destinations must remain outside the source repository. User projects outside the repository can still be run in place or copied to a workspace. The **Case Database** is a separate Workbench activity, like **Run tests**. The **Run mode** control groups **Run single case**, **Multi-case run**, and **Dependency workflow**. A versioned `.ofw` workspace file records case directories, execution mode, and dependency edges; use **Open Workspace** or **Create Workspace** to edit it. Project discovery, catalog definitions, workflow definitions, run workspaces, and run history have distinct responsibilities.
+The desktop application starts with a Workbench activity selector. **Open Project** accepts any existing directory, including projects outside the repository and projects not registered in the built-in case catalog. The project window identifies Grid or CFD/flow projects where possible; unknown projects can still be opened. Projects inside the OneFLOW source repository must be copied to a workspace before running, and copy destinations must remain outside the source repository. User projects outside the repository can still be run in place or copied to a workspace. **Case Database**, **Unit Tests**, and **CFD/Grid Regression** are task types with different execution strategies. The Case Database and Task Runner currently have their own windows, but share the same **Build**, **Rebuild**, **Run**, **Stop**, and **Close** action names. The **Run mode** control groups **Run single case**, **Multi-case run**, and **Dependency workflow**. A versioned `.ofw` workspace file records case directories, execution mode, and dependency edges; use **Open Workspace** or **Create Workspace** to edit it. Project discovery, catalog definitions, workflow definitions, run workspaces, and run history have distinct responsibilities.
 
 ## Workspace files
 
@@ -17,7 +17,7 @@ python -m pip install -r tools/requirements-gui.txt
 python -m tools.oneflow_gui
 ```
 
-Choose **Debug** or **Release** once at the Workbench home; build and unit-test tasks use that configuration. The executable field stays as a single compact line. Existing executables are
+Choose **Debug** or **Release** once at the Workbench home; build and unit-test tasks, including Case Database build actions, use that configuration. The executable field stays as a single compact line. Existing executables are
 detected in this order: repository Debug build, repository Release build,
 `C:/dev/OneFLOW/bin/OneFLOW.exe`, then conventional Windows installation
 folders under `ProgramFiles`, `ProgramFiles(x86)`, and `LOCALAPPDATA`.
@@ -36,7 +36,7 @@ Both the source repository and its built-in case data are protected from in-plac
 The application invokes the standard command shape:
 `OneFLOW.exe r <case-directory>`.
 
-Use **Run tests** to run the existing CTest and Python unit-test commands by default, or enable the optional CFD/grid regression suite. The Debug/Release selection is made at the Workbench home and passed into the test runner. Regression runs invoke `test/test.py` and an existing manifest from `test/suites/`; the GUI does not implement a second test engine. Use **Run History...** to inspect Case Workbench and workflow run records and logs, edit notes, delete individual records, or clean matching history by workflow, status, and timestamp. These history operations never delete run artifacts.
+Use **Task Runner** to run the existing CTest and Python unit-test commands by default, or enable the optional CFD/grid regression suite. The shared action bar uses **Build**, **Rebuild**, **Run**, **Stop**, and **Close**. The Debug/Release selection is made at the Workbench home and passed into the task runner. Regression runs invoke `test/test.py` and an existing manifest from `test/suites/`; the GUI does not implement a second test engine. Use **Run History...** to inspect Case Workbench and workflow run records and logs, edit notes, delete individual records, or clean matching history by workflow, status, and timestamp. These history operations never delete run artifacts.
 
 Use **Mesh Layout...** to open the mesh layout project editor. Choosing
 **Single rectangle**, **Single rectangle with vertical midpoints**, **Two-block turbulent flat plate**, **Two-block laminar flat plate**, or **Two-block laminar flat plate (10 edges)** copies the complete template
