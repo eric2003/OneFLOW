@@ -17,7 +17,7 @@ python -m pip install -r tools/requirements-gui.txt
 python -m tools.oneflow_gui
 ```
 
-The executable field stays as a single compact line. Existing executables are
+Choose **Debug** or **Release** once at the Workbench home; build and unit-test tasks use that configuration. The executable field stays as a single compact line. Existing executables are
 detected in this order: repository Debug build, repository Release build,
 `C:/dev/OneFLOW/bin/OneFLOW.exe`, then conventional Windows installation
 folders under `ProgramFiles`, `ProgramFiles(x86)`, and `LOCALAPPDATA`.
@@ -25,7 +25,7 @@ The first detected path is selected automatically; use the dropdown to switch
 between detected copies, type a path directly, or use **Browse...** for an
 unlisted location. No full-disk search is performed.
 
-From **Open Project**, choose any existing project directory and then choose the executable and execution location. This path does not require catalog registration. To run an example from the built-in case database, open the separate **Case Database** activity; the case selector is restricted to one catalog entry. In **Run mode**, choose **Run single case** to select a user project directory, **Multi-case run** for an ordered run of independent directories, or **Dependency workflow** for cases with declared producer/consumer relationships. Catalog cases are always copied to a run workspace before execution. The queue displays process output and per-case status. **Stop queue** terminates the active process and prevents pending cases from launching.
+From **Open Project**, choose any existing project directory and then choose the executable and execution location. This path does not require catalog registration. To run examples from the built-in case database, open the **Case Database** activity; all catalog cases are selected by default, and you can select or clear cases for a batch run. In **Run mode**, choose **Run single case** to select a user project directory, **Multi-case run** for an ordered run of independent directories, or **Dependency workflow** for cases with declared producer/consumer relationships. Catalog cases are always copied to a run workspace before execution. The queue displays process output and per-case status. **Stop queue** terminates the active process and prevents pending cases from launching.
 
 Catalog case execution always uses a workspace copy:
 - **Copy to OneFLOW default run workspace** stages each case under
@@ -36,7 +36,7 @@ Both the source repository and its built-in case data are protected from in-plac
 The application invokes the standard command shape:
 `OneFLOW.exe r <case-directory>`.
 
-Use **Tests...** to run the existing CTest and Python unit-test commands by default, or enable the optional CFD/grid regression suite. Regression runs invoke `test/test.py` and an existing manifest from `test/suites/`; the GUI does not implement a second test engine. Use **Run History...** to inspect Case Workbench and workflow run records and logs, edit notes, delete individual records, or clean matching history by workflow, status, and timestamp. These history operations never delete run artifacts.
+Use **Run tests** to run the existing CTest and Python unit-test commands by default, or enable the optional CFD/grid regression suite. The Debug/Release selection is made at the Workbench home and passed into the test runner. Regression runs invoke `test/test.py` and an existing manifest from `test/suites/`; the GUI does not implement a second test engine. Use **Run History...** to inspect Case Workbench and workflow run records and logs, edit notes, delete individual records, or clean matching history by workflow, status, and timestamp. These history operations never delete run artifacts.
 
 Use **Mesh Layout...** to open the mesh layout project editor. Choosing
 **Single rectangle**, **Single rectangle with vertical midpoints**, **Two-block turbulent flat plate**, **Two-block laminar flat plate**, or **Two-block laminar flat plate (10 edges)** copies the complete template
