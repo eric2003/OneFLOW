@@ -368,6 +368,7 @@ class ProjectWindow(QMainWindow):
         changes_layout.addWidget(self.show_unchanged)
         changes_layout.addWidget(self.changes_tree, 1)
         self.inventory_tabs.addTab(changes_page, "Run changes")
+        self._run_changes_page = changes_page
 
         self.log_view = QPlainTextEdit()
         self.log_view.setReadOnly(True)
@@ -376,6 +377,7 @@ class ProjectWindow(QMainWindow):
         log_layout.setContentsMargins(10, 10, 10, 10)
         log_layout.addWidget(self.log_view)
         self.inventory_tabs.addTab(log_page, "Run log")
+        self._run_information_page = log_page
 
         self.file_details = QPlainTextEdit()
         self.file_details.setReadOnly(True)
@@ -758,7 +760,7 @@ class ProjectWindow(QMainWindow):
         self._log_path = log_path
         self.log_view.appendPlainText(f"Run {run_id}\nProject: {self._project.root}")
         self.project_status.setText(f"Running: {self._project.name}  |  Run ID: {run_id}")
-        self.inventory_tabs.setCurrentWidget(self.log_view)
+        self.inventory_tabs.setCurrentWidget(self._run_information_page)
         self.run_button.setEnabled(False)
         self.stop_button.setEnabled(True)
         self._worker = ProjectRunWorker(
@@ -784,7 +786,7 @@ class ProjectWindow(QMainWindow):
         self._append_log(f"{outcome.message}\nExecution directory: {outcome.project_directory}")
         self._refresh_project_inventory()
         self._refresh_run_changes(outcome.project_directory, outcome.run_id)
-        self.inventory_tabs.setCurrentWidget(self.changes_tree)
+        self.inventory_tabs.setCurrentWidget(self._run_changes_page)
         record = self._active_record
         if record is not None:
             updated = WorkflowRunRecord(
