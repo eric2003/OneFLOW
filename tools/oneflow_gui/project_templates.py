@@ -13,7 +13,7 @@ from .project_repository import ProjectDefinition, open_project
 
 @dataclass(frozen=True, slots=True)
 class ProjectTemplate:
-    """A user-facing project template backed by a repository directory."""
+    """A user-facing project template backed by repository content."""
 
     template_id: str
     title: str
@@ -42,6 +42,57 @@ def available_project_templates() -> tuple[ProjectTemplate, ...]:
             "Start from the minimal rectangle mesh generation case.",
             "grid/minimal_rectangle",
         ),
+        ProjectTemplate(
+            "rae2822_multicase",
+            "RAE2822 grid and CFD workflow",
+            "Create a grid conversion case and a dependent Roe-SA flow case.",
+            None,
+        ),
+    )
+
+
+def _copy_tree(source: Path, destination: Path) -> None:
+    if not source.is_dir():
+        raise FileNotFoundError(f"Project template directory not found: {source}")
+    shutil.copytree(
+        source,
+        destination,
+        ignore=shutil.ignore_patterns(".git", "__pycache__"),
+    )
+
+
+def _create_rae2822_workflow(repository: Path, destination: Path, name: str) -> None:
+    """Create a workspace for the existing grid-to-flow dependency graph."""
+    _copy_tree(repository / "grid" / "mesh_workflow", destination / "rae2822grid")
+    _copy_tree(repository / "test" / "cfd" / "rae2822_roe_sa", destination / "rae2822_roe_sa")
+
+    example = repository / "tools" / "oneflow_gui" / "examples" / "rae2822_multicase.json"
+    if not example.is_file():
+        raise FileNotFoundError(f"Workflow template file not found: {example}")
+    shutil.copy2(example, destination / "workflow.json")
+    (destination / ".oneflow-project.json").write_text(
+        json.dumps(
+            {
+                "format": "oneflow.project",
+                "version": 1,
+                "name": name,
+                "template": "rae2822_multicase",
+            },
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (destination / "README.md").write_text(
+        f"# {name}\n\n"
+        "This workspace contains two linked OneFLOW cases:\n\n"
+        "1. rae2822grid converts the RAE2822 PLOT3D mesh into "
+        "results/rae2822_2d.ofl.\n"
+        "2. rae2822_roe_sa consumes that generated grid and runs the Roe-SA "
+        "flow case.\n\n"
+        "The dependency and artifact paths are defined in workflow.json. "
+        "Run the workflow from this workspace so generated results stay here.\n",
+        encoding="utf-8",
     )
 
 
@@ -79,7 +130,7 @@ def create_project(
     if destination.exists():
         raise FileExistsError(f"Project directory already exists: {destination}")
 
-    if template.source_relative_path is None:
+    if template.template_id == "blank":
         destination.mkdir()
         metadata = {
             "format": "oneflow.project",
@@ -94,14 +145,11 @@ def create_project(
             f"# {name}\n\nOneFLOW project created from the Blank project template.\n",
             encoding="utf-8",
         )
+    elif template.template_id == "rae2822_multicase":
+        destination.mkdir()
+        _create_rae2822_workflow(repository, destination, name)
     else:
-        source = (repository / template.source_relative_path).resolve()
-        if not source.is_dir():
-            raise FileNotFoundError(f"Project template directory not found: {source}")
-        shutil.copytree(
-            source,
-            destination,
-            ignore=shutil.ignore_patterns(".git", "__pycache__"),
-        )
+        source = (repository / str(template.source_relative_path)).resolve()
+        _copy_tree(source, destination)
 
     return open_project(destination)
