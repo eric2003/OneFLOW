@@ -124,8 +124,6 @@ class MainWindow(QMainWindow):
         self.resize(1100, 760)
         self._build_ui()
         self._load_cases()
-        if self._single_case_mode:
-            self.case_table.itemChanged.connect(self._case_selection_changed)
 
     def _build_ui(self) -> None:
         """Build a compact layout with configuration, queue, and log areas."""
@@ -332,10 +330,6 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage(
             f"Loaded {len(self._cases)} case(s) from case_catalog.json"
         )
-
-    def _case_selection_changed(self, changed_item: QTableWidgetItem) -> None:
-        """Allow multiple database cases to be selected at the same time."""
-        return
 
     def _set_all_checks(self, checked: bool) -> None:
         for row in range(self.case_table.rowCount()):
