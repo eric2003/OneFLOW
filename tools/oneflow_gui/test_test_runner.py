@@ -9,6 +9,9 @@ from pathlib import Path
 from tools.oneflow_gui.test_runner import (
     available_suites,
     build_cmake_command,
+    build_cmake_configure_command,
+    build_default_test_commands,
+    cmake_build_tree_is_configured,
     build_regression_command,
     build_unit_test_commands,
     stage_regression_tests,
@@ -25,6 +28,69 @@ class TestRunnerCommandTest(unittest.TestCase):
         self.assertIn("Workflow persistence tests", labels)
         self.assertIn("GUI test command builder tests", labels)
         self.assertFalse(any("OneFLOW.exe" in " ".join(command.arguments) for command in commands))
+
+    def test_configure_command_uses_build_directory_and_repository_root(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            command = build_cmake_configure_command(root)
+            self.assertEqual(command.working_directory, root / "build")
+            self.assertEqual(
+                command.arguments,
+                (
+                    "cmake", "..", "-D", "CMAKE_PREFIX_PATH=C:/dev/OneFLOW",
+                    "-D", "CMAKE_BUILD_TYPE=Debug",
+                ),
+            )
+            self.assertEqual(command.label, "CMake configure (Debug)")
+
+    def test_build_tree_requires_cache_and_generated_build_file(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            build = Path(directory) / "build"
+            build.mkdir()
+            self.assertFalse(cmake_build_tree_is_configured(build))
+            (build / "CMakeCache.txt").write_text("", encoding="utf-8")
+            self.assertFalse(cmake_build_tree_is_configured(build))
+            (build / "build.ninja").write_text("", encoding="utf-8")
+            self.assertTrue(cmake_build_tree_is_configured(build))
+
+    def test_default_tests_configure_build_and_run_ctest_when_executable_is_missing(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            commands = build_default_test_commands(root, python="python-test")
+            labels = [command.label for command in commands]
+            self.assertEqual(labels[0:3], [
+                "CMake configure (Debug)",
+                "CMake build (Debug)",
+                "C++ unit tests (CTest)",
+            ])
+            self.assertIn("GUI test command builder tests", labels)
+            self.assertEqual(commands[0].working_directory, root / "build")
+            self.assertEqual(commands[1].working_directory, root)
+            self.assertEqual(commands[2].working_directory, root / "build")
+            self.assertEqual(commands[2].arguments, (
+                "ctest", "--output-on-failure", "-C", "Debug"
+            ))
+
+    def test_default_tests_skip_configure_but_build_when_build_tree_exists(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            build = root / "build"
+            build.mkdir()
+            (build / "CMakeCache.txt").write_text("", encoding="utf-8")
+            (build / "build.ninja").write_text("", encoding="utf-8")
+            commands = build_default_test_commands(root, python="python-test")
+            self.assertEqual(commands[0].label, "CMake build (Debug)")
+            self.assertEqual(commands[1].label, "C++ unit tests (CTest)")
+
+    def test_default_tests_do_not_rebuild_when_selected_executable_exists(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            executable = root / "build" / "bin" / "Debug" / "OneFLOW.exe"
+            executable.parent.mkdir(parents=True)
+            executable.write_bytes(b"test")
+            commands = build_default_test_commands(root, python="python-test")
+            self.assertFalse(any(command.label.startswith("CMake ") for command in commands))
+            self.assertFalse(any(command.label.startswith("C++") for command in commands))
 
     def test_ctest_is_included_only_when_build_is_configured(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
