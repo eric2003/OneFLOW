@@ -258,6 +258,7 @@ class ProjectWindow(QMainWindow):
         self._run_change_counts = {"unchanged": 0, "added": 0, "modified": 0, "deleted": 0}
         self._view_windows: dict[str, QMainWindow] = {}
         self._detached_log: QPlainTextEdit | None = None
+        self._detached_project_tree: QTreeWidget | None = None
         self._detached_changes_tree: QTreeWidget | None = None
         self._detached_changes_summary: QLabel | None = None
         self._detached_show_unchanged: QCheckBox | None = None
@@ -430,7 +431,9 @@ class ProjectWindow(QMainWindow):
 
     def _forget_view(self, key: str) -> None:
         self._view_windows.pop(key, None)
-        if key == "changes":
+        if key == "files":
+            self._detached_project_tree = None
+        elif key == "changes":
             self._detached_changes_tree = None
             self._detached_changes_summary = None
             self._detached_show_unchanged = None
@@ -487,6 +490,7 @@ class ProjectWindow(QMainWindow):
         tree.setColumnWidth(0, 420)
         tree.setColumnWidth(4, 420)
         self._clone_tree(self.project_tree, tree)
+        self._detached_project_tree = tree
         details = QPlainTextEdit(splitter)
         details.setReadOnly(True)
         details.setMinimumHeight(150)
@@ -581,6 +585,9 @@ class ProjectWindow(QMainWindow):
             items[entry.relative_path] = item
         self.project_tree.sortItems(0, Qt.SortOrder.AscendingOrder)
         self.project_tree.expandToDepth(1)
+        if self._detached_project_tree is not None:
+            self._detached_project_tree.clear()
+            self._clone_tree(self.project_tree, self._detached_project_tree)
 
     @staticmethod
     def _add_inventory_item(tree: QTreeWidget, entry: ProjectFileEntry, status: str) -> None:
