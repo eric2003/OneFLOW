@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import shutil
 import threading
 from dataclasses import dataclass
@@ -27,6 +28,8 @@ from PySide6.QtWidgets import (
 from .executable_discovery import executable_candidates
 from .project_repository import ProjectDefinition, ProjectType
 from .user_data_paths import UserDataPaths
+from .workflow_graph_runner import run_case_graph
+from .workflow_plan import build_case_graph_plan
 from .workflow_process import run_process
 from .workflow_repository import WorkflowRepository, WorkflowRunRecord
 from .runner import create_run_id
@@ -80,6 +83,60 @@ class ProjectRunWorker(QThread):
     def request_stop(self) -> None:
         self._cancel.set()
 
+    def _run_case_graph(self, project_directory: Path):
+        workflow_file = project_directory / "workflow.json"
+        try:
+            workflow = json.loads(workflow_file.read_text(encoding="utf-8"))
+        except (OSError, UnicodeError, json.JSONDecodeError) as error:
+            raise ValueError(f"Cannot read workflow definition {workflow_file}: {error}") from error
+
+        steps = workflow.get("steps")
+        if not isinstance(steps, list):
+            raise ValueError("Workflow definition must contain a steps list.")
+        graph_steps = [step for step in steps if isinstance(step, dict) and step.get("type") == "case_graph"]
+        if len(graph_steps) != 1 or len(steps) != 1:
+            raise ValueError("Project workflows must contain exactly one case_graph step.")
+
+        plan = build_case_graph_plan(graph_steps[0].get("cases", []), project_directory)
+        run_root = project_directory / ".oneflow-runs" / self._run_id
+        self.log_line.emit(f"Workflow definition: {workflow_file}")
+        self.log_line.emit(f"Workflow run directory: {run_root}")
+
+        def run_step(step):
+            command = [str(self._executable.resolve()), "r", str(step.directory)]
+            self.log_line.emit(f"Workflow case: {step.case_id}")
+            self.log_line.emit("Command arguments:")
+            for index, argument in enumerate(command):
+                self.log_line.emit(f"  [{index}] {argument}")
+            result = run_process(
+                command,
+                cwd=self._executable.resolve().parent,
+                on_output=self.log_line.emit,
+                is_cancelled=self._cancel.is_set,
+            )
+            self.log_line.emit(f"Case {step.case_id}: {result.status} - {result.message}")
+            return result.status, result.message
+
+        graph_result = run_case_graph(
+            plan,
+            run_step,
+            run_root=run_root,
+            is_cancelled=self._cancel.is_set,
+        )
+        summary = "; ".join(
+            f"{case.case_id}={case.status}" for case in graph_result.cases
+        )
+        self.log_line.emit(f"Workflow result: {summary}")
+        return ProjectRunOutcome(
+            self._run_id,
+            graph_result.status,
+            f"Workflow {graph_result.status}: {summary}",
+            project_directory,
+            0 if graph_result.status == "succeeded" else (
+                None if graph_result.status == "cancelled" else 1
+            ),
+        )
+
     def run(self) -> None:
         project_directory = self._project.root
         try:
@@ -130,16 +187,20 @@ class ProjectRunWorker(QThread):
                 )
                 self.log_line.emit(f"Project copied to: {project_directory}")
 
-            command = [str(self._executable.resolve()), "r", str(project_directory)]
-            self.log_line.emit("Command arguments:")
-            for index, argument in enumerate(command):
-                self.log_line.emit(f"  [{index}] {argument}")
-            result = run_process(
-                command,
-                cwd=self._executable.resolve().parent,
-                on_output=self.log_line.emit,
-                is_cancelled=self._cancel.is_set,
-            )
+            workflow_file = project_directory / "workflow.json"
+            if workflow_file.is_file():
+                result = self._run_case_graph(project_directory)
+            else:
+                command = [str(self._executable.resolve()), "r", str(project_directory)]
+                self.log_line.emit("Command arguments:")
+                for index, argument in enumerate(command):
+                    self.log_line.emit(f"  [{index}] {argument}")
+                result = run_process(
+                    command,
+                    cwd=self._executable.resolve().parent,
+                    on_output=self.log_line.emit,
+                    is_cancelled=self._cancel.is_set,
+                )
             self.completed.emit(
                 ProjectRunOutcome(
                     self._run_id,
