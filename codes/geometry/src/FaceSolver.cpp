@@ -507,14 +507,19 @@ int FaceSolver::AppendBoundaryBcToRecord( BcRecord & bcRecord ) const
     return nBFaces;
 }
 
-int FaceSolver::GetNSimpleFace()
+int FaceSolver::CountFacesWithoutChildren() const
 {
-    int nSimpleFace = 0;
-
-    for ( int iFace = 0; iFace < this->faceTopo->GetFaces().size(); ++ iFace )
+    const std::size_t nFaces = this->faceTopo->GetFaces().size();
+    if ( this->childFid.size() != nFaces )
     {
-        int nCFace = this->childFid[ iFace ].size();
-        if ( nCFace == 0 )
+        throw std::logic_error(
+            "FaceSolver::CountFacesWithoutChildren: childFid is not aligned with faces" );
+    }
+
+    int nSimpleFace = 0;
+    for ( std::size_t iFace = 0; iFace < nFaces; ++ iFace )
+    {
+        if ( this->childFid[ iFace ].empty() )
         {
             ++ nSimpleFace;
         }

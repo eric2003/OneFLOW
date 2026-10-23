@@ -345,3 +345,20 @@ TEST( FaceSolverStageTest, GetChildFaceIdsStartsEmptyAndRejectsOutOfRange )
     EXPECT_EQ( solver.GetChildFidSlotCount(), static_cast< std::size_t >( 1 ) );
     EXPECT_TRUE( solver.GetChildFaceIds( 0 ).empty() );
 }
+
+TEST( FaceSolverStageTest, CountFacesWithoutChildrenAllUnsplitAfterStage )
+{
+    FaceSolver solver;
+    solver.StageNewFace( IntField{ 1, 2, 3 }, 5, 0 );
+    solver.StageNewFace( IntField{ 2, 3, 4 }, 5, 1 );
+    EXPECT_EQ( solver.CountFacesWithoutChildren(), 2 );
+    EXPECT_EQ( solver.GetNSimpleFace(), 2 );
+}
+
+TEST( FaceSolverStageTest, CountFacesWithoutChildrenRejectsMisalignedChildFid )
+{
+    FaceSolver solver;
+    solver.StageNewFace( IntField{ 1, 2, 3 }, 5, 0 );
+    solver.DropLastChildFidEntryForTest();
+    EXPECT_THROW( solver.CountFacesWithoutChildren(), std::logic_error );
+}
