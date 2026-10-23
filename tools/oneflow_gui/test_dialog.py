@@ -21,12 +21,14 @@ from PySide6.QtWidgets import (
 )
 
 from .executable_discovery import executable_candidates
+from .user_data_paths import UserDataPaths
 from .test_runner import (
     TestCommand,
     available_suites,
     build_cmake_command,
     build_regression_command,
     build_unit_test_commands,
+    stage_regression_tests,
 )
 
 
@@ -191,9 +193,16 @@ class TestRunnerDialog(QDialog):
             try:
                 if not suite_name:
                     raise ValueError("No regression suite is available.")
+                staged_test_directory = stage_regression_tests(
+                    self._repository_root,
+                    UserDataPaths.discover().cfd_regression_workspace,
+                )
                 commands.append(
                     build_regression_command(
-                        self._repository_root, executable, suite_name
+                        self._repository_root,
+                        executable,
+                        suite_name,
+                        test_directory=staged_test_directory,
                     )
                 )
             except (OSError, ValueError) as error:
