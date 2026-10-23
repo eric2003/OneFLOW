@@ -36,13 +36,22 @@ class ApplicationSettingsTest(unittest.TestCase):
                 {"repository_root": str(repository_root.resolve())},
             )
 
-    def test_default_missing_checkout_falls_back_to_launch_checkout(self) -> None:
+    def test_missing_configured_checkout_falls_back_to_launch_checkout(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             launch_root = Path(directory)
             resolved = resolve_repository_root(
                 ApplicationSettings(DEFAULT_REPOSITORY_ROOT),
                 launch_root,
             )
+            self.assertEqual(resolved, launch_root.resolve())
+
+    def test_missing_custom_checkout_falls_back_to_launch_checkout(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            missing = root / "missing-checkout"
+            launch_root = root / "launch"
+            launch_root.mkdir()
+            resolved = resolve_repository_root(ApplicationSettings(missing), launch_root)
             self.assertEqual(resolved, launch_root.resolve())
 
     def test_existing_configured_checkout_takes_precedence(self) -> None:
