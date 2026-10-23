@@ -11,6 +11,7 @@ from tools.oneflow_gui.test_runner import (
     build_cmake_command,
     build_regression_command,
     build_unit_test_commands,
+    stage_regression_tests,
 )
 
 
@@ -109,6 +110,53 @@ class TestRunnerCommandTest(unittest.TestCase):
             self.assertEqual(command.arguments[2], "mpiexec -n 1")
             self.assertEqual(command.arguments[3], '"' + str(executable.resolve()) + '"')
             self.assertEqual(command.arguments[4], "suites/ci-serial.txt")
+
+            staged_test_directory = root / "user-data" / "cfd-regression"
+            staged_test_directory.mkdir(parents=True)
+            (staged_test_directory / "suites").mkdir()
+            (staged_test_directory / "suites" / "ci-serial.txt").write_text(
+                "cfd/example\\n", encoding="utf-8"
+            )
+            staged_command = build_regression_command(
+                root,
+                executable,
+                "ci-serial.txt",
+                python="python-test",
+                platform_name="nt",
+                test_directory=staged_test_directory,
+            )
+            self.assertEqual(staged_command.working_directory, staged_test_directory.resolve())
+            self.assertEqual(staged_command.arguments[4], "suites/ci-serial.txt")
+
+    def test_regression_tests_are_copied_and_previous_workspace_is_replaced(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "repo"
+            (root / "test" / "suites").mkdir(parents=True)
+            (root / "test" / "suites" / "cpu-serial.txt").write_text(
+                "cfd/example\\n", encoding="utf-8"
+            )
+            (root / "test" / "cfd" / "example").mkdir(parents=True)
+            (root / "test" / "cfd" / "example" / "config.json").write_text(
+                "{}", encoding="utf-8"
+            )
+            workspace = Path(directory) / "user-data" / "cfd-regression"
+            workspace.mkdir(parents=True)
+            (workspace / "stale-output.dat").write_text("stale", encoding="utf-8")
+
+            staged = stage_regression_tests(root, workspace)
+
+            self.assertEqual(staged, workspace.resolve())
+            self.assertFalse((staged / "stale-output.dat").exists())
+            self.assertTrue((staged / "suites" / "cpu-serial.txt").is_file())
+            self.assertTrue((staged / "cfd" / "example" / "config.json").is_file())
+            self.assertFalse((root / "test" / "stale-output.dat").exists())
+
+    def test_regression_workspace_must_be_outside_source_repository(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "repo"
+            (root / "test").mkdir(parents=True)
+            with self.assertRaisesRegex(ValueError, "outside the source repository"):
+                stage_regression_tests(root, root / "test" / "run-copy")
 
     def test_regression_rejects_unknown_suite_and_missing_executable(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
