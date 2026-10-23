@@ -98,8 +98,8 @@ public:
     const IntField & GetFaceTypes() const;
     void PrepareBoundaryConditions();
     bool HasInterfaceBoundary() const;
-    // Grow left/right cell and face-local position arrays to match faces.size().
-    // Prefer StageNewFace on FaceSolver for full parallel growth.
+    // Grow left/right cells, face-local positions, and faceFlags to match faces.size().
+    // Prefer StageNewFace on FaceSolver for full parallel growth (BC slots too).
     void EnsureFaceSideArraysSized();
     // Compatibility wrapper; prefer EnsureFaceSideArraysSized().
     void ResizeAll() { EnsureFaceSideArraysSized(); }

@@ -263,11 +263,13 @@ void FaceTopo::SetNBFaces( HXSize_t nBFaces )
 
 void FaceTopo::EnsureFaceSideArraysSized()
 {
-    const int nFaces = static_cast< int >( this->faces.size() );
+    const std::size_t nFaces = this->faces.size();
     this->lCells.resize( nFaces );
     this->rCells.resize( nFaces );
     this->lPosition.resize( nFaces );
     this->rPosition.resize( nFaces );
+    // Keep claim flags aligned with faces when present or when growing from empty.
+    this->faceFlags.resize( nFaces );
 }
 
 void FaceTopo::ModifyFaceNodeId( IFaceLink & iFaceLink )
@@ -516,7 +518,6 @@ void FaceTopo::ModifyBoundaryInformation( IFaceLink & iFaceLink )
             iFaceLink.l2gNew[ this->GetGrid().id ].push_back( gFid );
         }
     }
-    std::cout << "original number of interfaces = " << nIFaces << " new number of interfaces = " << nIFaceNew << std::endl;
 
     this->ResetNumberOfBoundaryCondition( iFaceLink );
 }

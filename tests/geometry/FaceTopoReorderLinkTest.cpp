@@ -168,6 +168,7 @@ TEST( FaceTopoEnsureFaceSideArraysTest, GrowsCellAndPositionArraysToFaceCount )
     EXPECT_EQ( topo.GetRightCells().size(), static_cast< std::size_t >( 2 ) );
     EXPECT_EQ( topo.lPosition.size(), static_cast< std::size_t >( 2 ) );
     EXPECT_EQ( topo.rPosition.size(), static_cast< std::size_t >( 2 ) );
+    EXPECT_EQ( topo.GetFaceFlags().size(), static_cast< std::size_t >( 2 ) );
 }
 
 TEST( FaceTopoEnsureFaceSideArraysTest, ResizeAllIsAlias )
