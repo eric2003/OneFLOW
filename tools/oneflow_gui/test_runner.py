@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import shlex
+import shutil
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -93,6 +94,38 @@ def available_suites(repository_root: Path) -> list[str]:
     )
 
 
+
+def stage_regression_tests(
+    repository_root: Path,
+    destination: Path,
+) -> Path:
+    """Replace the dedicated user workspace with a fresh copy of the test tree."""
+    root = Path(repository_root).resolve()
+    source_test_directory = root / "test"
+    if not source_test_directory.is_dir():
+        raise FileNotFoundError(f"Test directory not found: {source_test_directory}")
+
+    target = Path(destination).expanduser().resolve()
+    try:
+        target.relative_to(root)
+    except ValueError:
+        pass
+    else:
+        raise ValueError("CFD regression workspace must be outside the source repository")
+
+    if target == root or target in root.parents:
+        raise ValueError("CFD regression workspace cannot contain the source repository")
+
+    if target.exists():
+        if target.is_dir() and not target.is_symlink():
+            shutil.rmtree(target)
+        else:
+            target.unlink()
+    target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copytree(source_test_directory, target)
+    return target
+
+
 def build_regression_command(
     repository_root: Path,
     executable: str | Path,
@@ -100,10 +133,12 @@ def build_regression_command(
     *,
     python: str | None = None,
     platform_name: str | None = None,
+    test_directory: Path | None = None,
 ) -> TestCommand:
     """Invoke test/test.py with an existing suite manifest and the platform MPI command."""
     root = Path(repository_root).resolve()
-    suite_directory = (root / "test" / "suites").resolve()
+    regression_directory = (test_directory or (root / "test")).expanduser().resolve()
+    suite_directory = (regression_directory / "suites").resolve()
     suite_path = (suite_directory / suite_name).resolve()
     if suite_path.parent != suite_directory or not suite_path.is_file():
         raise ValueError(f"Unknown regression suite: {suite_name!r}")
@@ -119,7 +154,6 @@ def build_regression_command(
         if is_windows
         else shlex.quote(str(executable_path))
     )
-    test_directory = root / "test"
     return TestCommand(
         f"CFD regression suite: {suite_name}",
         (
@@ -129,5 +163,5 @@ def build_regression_command(
             executable_argument,
             f"suites/{suite_name}",
         ),
-        test_directory,
+        regression_directory,
     )
