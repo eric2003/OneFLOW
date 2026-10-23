@@ -26,6 +26,8 @@ from .project_window import ProjectWindow
 from .new_project_dialog import NewProjectDialog
 from .run_history_dialog import RunHistoryDialog
 from .background_task_dialog import BackgroundTaskDialog
+from .background_task_registry import ACTIVE_STATUSES, BackgroundTaskRegistry
+from .background_task_manager import request_background_stop
 from .test_dialog import TestRunnerDialog
 from .settings_dialog import SettingsDialog
 from .user_data_paths import UserDataPaths
@@ -403,3 +405,57 @@ class WorkbenchHomeWindow(QMainWindow):
 
     def _open_mesh_layout(self) -> None:
         MeshLayoutDialog(self._repository_root, self).exec()
+
+    def closeEvent(self, event) -> None:
+        registry = BackgroundTaskRegistry(UserDataPaths.discover().root)
+        active_tasks = [
+            task for task in registry.list_tasks()
+            if task.status in ACTIVE_STATUSES
+        ]
+        if not active_tasks:
+            event.accept()
+            return
+
+        prompt = QMessageBox(self)
+        prompt.setWindowTitle("OneFLOW calculations are running")
+        prompt.setText(f"{len(active_tasks)} background task(s) are still running.")
+        prompt.setInformativeText(
+            "Choose whether to stop these calculations or leave them running after OneFLOW Workbench closes."
+        )
+        stop_button = prompt.addButton(
+            "Stop calculations and close",
+            QMessageBox.ButtonRole.DestructiveRole,
+        )
+        continue_button = prompt.addButton(
+            "Continue in background",
+            QMessageBox.ButtonRole.AcceptRole,
+        )
+        cancel_button = prompt.addButton(
+            "Keep Workbench open",
+            QMessageBox.ButtonRole.RejectRole,
+        )
+        prompt.setDefaultButton(stop_button)
+        prompt.exec()
+        clicked = prompt.clickedButton()
+        if clicked is cancel_button:
+            event.ignore()
+            return
+        if clicked is continue_button:
+            event.accept()
+            return
+        if clicked is not stop_button:
+            event.ignore()
+            return
+
+        try:
+            for task in active_tasks:
+                request_background_stop(registry.root, task.task_id)
+        except (OSError, ValueError) as error:
+            QMessageBox.critical(
+                self,
+                "Could not stop all calculations",
+                f"Workbench will remain open so you can manage the tasks.\\n{error}",
+            )
+            event.ignore()
+            return
+        event.accept()
