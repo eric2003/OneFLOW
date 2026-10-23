@@ -916,11 +916,9 @@ class ProjectWindow(QMainWindow):
                     text = stream.read()
                     self._background_log_offset = stream.tell()
                 if text:
-                    self.log_view.moveCursor(self.log_view.textCursor().MoveOperation.End)
-                    self.log_view.insertPlainText(text)
+                    self.log_view.appendPlainText(text.rstrip("\\n"))
                     if self._detached_log is not None:
-                        self._detached_log.moveCursor(self._detached_log.textCursor().MoveOperation.End)
-                        self._detached_log.insertPlainText(text)
+                        self._detached_log.appendPlainText(text.rstrip("\\n"))
             if task.status not in TERMINAL_STATUSES:
                 return
         except (OSError, ValueError) as error:
