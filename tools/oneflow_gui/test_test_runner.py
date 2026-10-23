@@ -236,6 +236,13 @@ class TestRunnerCommandTest(unittest.TestCase):
             executable.write_bytes(b"test")
             with self.assertRaisesRegex(ValueError, "Unknown regression suite"):
                 build_regression_command(root, executable, "../outside.txt")
+            deferred = build_regression_command(
+                root,
+                root / "build" / "bin" / "Debug" / "OneFLOW.exe",
+                "ci-serial.txt",
+                validate_executable=False,
+            )
+            self.assertEqual(deferred.arguments[1], "test.py")
 
 
 if __name__ == "__main__":
