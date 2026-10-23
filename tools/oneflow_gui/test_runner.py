@@ -110,7 +110,8 @@ def cmake_build_tree_is_configured(build_directory: Path) -> bool:
     has_cache = (build / "CMakeCache.txt").is_file()
     generated_files = ("build.ninja", "Makefile", "OneFLOW.sln")
     has_build_system = any((build / name).is_file() for name in generated_files)
-    return has_cache and has_build_system
+    has_ctest_configuration = (build / "CTestTestfile.cmake").is_file()
+    return has_cache and has_build_system and has_ctest_configuration
 
 
 def build_default_test_commands(
