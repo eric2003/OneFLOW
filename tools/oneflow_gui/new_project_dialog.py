@@ -16,6 +16,7 @@ from PySide6.QtWidgets import (
     QPushButton,
     QVBoxLayout,
 )
+from PySide6.QtCore import Qt
 
 from .project_templates import available_project_templates, create_project
 
@@ -45,6 +46,7 @@ class NewProjectDialog(QDialog):
             self.template_combo.setItemData(
                 self.template_combo.count() - 1,
                 template.description,
+                Qt.ItemDataRole.ToolTipRole,
             )
         form.addRow("Project template", self.template_combo)
 
