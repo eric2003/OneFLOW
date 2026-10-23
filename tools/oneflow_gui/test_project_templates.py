@@ -19,6 +19,7 @@ class ProjectTemplatesTest(unittest.TestCase):
         self.assertIn("blank", template_ids)
         self.assertIn("mesh_workflow", template_ids)
         self.assertIn("minimal_rectangle", template_ids)
+        self.assertIn("rae2822_multicase", template_ids)
 
     def test_creates_blank_project_with_metadata(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
