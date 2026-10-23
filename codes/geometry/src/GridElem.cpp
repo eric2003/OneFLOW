@@ -300,6 +300,9 @@ void GridElem::ReorderLink( UnsGrid & grid )
     grid.nFaces = nFaces;
 
     faceTopo.ReorderLink();
+    // BcRecord was filled in original face order of boundary faces; ReorderLink
+    // preserves that relative order in the boundary prefix. Verify the contract.
+    ValidateBoundaryBcLayout( faceTopo );
 }
 
 GridElemGroup::GridElemGroup( CgnsZbase & cgnsZbase )

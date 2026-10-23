@@ -3,9 +3,11 @@
 // faces while preserving relative order within each group.
 
 #include <gtest/gtest.h>
+#include <stdexcept>
 
 #include "Constant.h"
 #include "FaceTopo.h"
+#include "BcRecord.h"
 #include "HXDefine.h"
 
 using namespace ONEFLOW;
@@ -105,4 +107,48 @@ TEST( BuildBoundaryFirstPermutationTest, AllInteriorPreservesOrder )
     EXPECT_EQ( perm[ 0 ], 0 );
     EXPECT_EQ( perm[ 1 ], 1 );
     EXPECT_EQ( perm[ 2 ], 2 );
+}
+
+TEST( CountBoundaryFacesTest, CountsInvalidRightCells )
+{
+    IntField rightCells{ 1, INVALID_INDEX, 2, INVALID_INDEX, INVALID_INDEX };
+    EXPECT_EQ( CountBoundaryFaces( rightCells ), static_cast< HXSize_t >( 3 ) );
+    EXPECT_EQ( CountBoundaryFaces( IntField{} ), static_cast< HXSize_t >( 0 ) );
+}
+
+TEST( ValidateBoundaryBcLayoutTest, AcceptsConsistentPostReorderLayout )
+{
+    FaceTopo topo;
+    PushFace( topo, IntField{ 0, 1 }, 0, 1 );
+    PushFace( topo, IntField{ 1, 2 }, 0, INVALID_INDEX );
+    PushFace( topo, IntField{ 2, 3 }, 1, INVALID_INDEX );
+    topo.ReorderLink();
+
+    // Two boundary faces: match BcRecord length.
+    topo.GetBcRecord().bcType = IntField{ 10, 20 };
+    topo.GetBcRecord().bcNameId = IntField{ 0, 1 };
+
+    EXPECT_NO_THROW( ValidateBoundaryBcLayout( topo ) );
+}
+
+TEST( ValidateBoundaryBcLayoutTest, RejectsBcRecordSizeMismatch )
+{
+    FaceTopo topo;
+    PushFace( topo, IntField{ 0, 1 }, 0, INVALID_INDEX );
+    topo.GetBcRecord().bcType = IntField{ 10, 20 }; // too many
+    topo.GetBcRecord().bcNameId = IntField{ 0, 1 };
+
+    EXPECT_THROW( ValidateBoundaryBcLayout( topo ), std::logic_error );
+}
+
+TEST( ValidateBoundaryBcLayoutTest, RejectsBoundaryFaceAfterPrefix )
+{
+    FaceTopo topo;
+    // Interior then boundary without reordering
+    PushFace( topo, IntField{ 0, 1 }, 0, 1 );
+    PushFace( topo, IntField{ 1, 2 }, 0, INVALID_INDEX );
+    topo.GetBcRecord().bcType = IntField{ 10 };
+    topo.GetBcRecord().bcNameId = IntField{ 0 };
+
+    EXPECT_THROW( ValidateBoundaryBcLayout( topo ), std::logic_error );
 }

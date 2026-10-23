@@ -125,6 +125,14 @@ public:
 // newToOld[newIndex] == oldIndex.
 IntField BuildBoundaryFirstPermutation( const IntField & rightCells );
 
+// Count faces whose right cell is INVALID_INDEX.
+HXSize_t CountBoundaryFaces( const IntField & rightCells );
+
+// After ReorderLink + AppendBoundaryBcToRecord: first nBFaces faces must be
+// boundary, the rest interior, and BcRecord length must equal nBFaces.
+// Throws std::logic_error when the layout is inconsistent.
+void ValidateBoundaryBcLayout( const FaceTopo & faceTopo );
+
 // Look up child face IDs for a local interface face and validate their node tables.
 // Returns a reference into interfaceLink.face_search->cFaceId[globalFaceId].
 // Preferred: depends only on l2g mapping + split tables (not full IFaceLink/FaceSearch).

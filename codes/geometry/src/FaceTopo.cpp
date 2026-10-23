@@ -722,6 +722,52 @@ IntField BuildBoundaryFirstPermutation( const IntField & rightCells )
     return newToOld;
 }
 
+
+HXSize_t CountBoundaryFaces( const IntField & rightCells )
+{
+    HXSize_t nBoundary = 0;
+    for ( const int rightCell : rightCells )
+    {
+        if ( rightCell == INVALID_INDEX )
+        {
+            ++ nBoundary;
+        }
+    }
+    return nBoundary;
+}
+
+void ValidateBoundaryBcLayout( const FaceTopo & faceTopo )
+{
+    const IntField & rightCells = faceTopo.GetRightCells();
+    const HXSize_t nFaces = rightCells.size();
+    const HXSize_t nBoundary = CountBoundaryFaces( rightCells );
+    const HXSize_t nBcRecord = static_cast< HXSize_t >(
+        faceTopo.GetBcRecord().GetBoundaryFaceCount() );
+
+    if ( nBcRecord != nBoundary )
+    {
+        throw std::logic_error(
+            "ValidateBoundaryBcLayout: BcRecord size does not match boundary face count" );
+    }
+
+    for ( HXSize_t iFace = 0; iFace < nBoundary; ++ iFace )
+    {
+        if ( rightCells[ iFace ] != INVALID_INDEX )
+        {
+            throw std::logic_error(
+                "ValidateBoundaryBcLayout: face in boundary prefix has an interior right cell" );
+        }
+    }
+    for ( HXSize_t iFace = nBoundary; iFace < nFaces; ++ iFace )
+    {
+        if ( rightCells[ iFace ] == INVALID_INDEX )
+        {
+            throw std::logic_error(
+                "ValidateBoundaryBcLayout: boundary face found after boundary prefix" );
+        }
+    }
+}
+
 void FaceTopo::ReorderLink()
 {
     const HXSize_t nFaces = this->GetFaceCount();
