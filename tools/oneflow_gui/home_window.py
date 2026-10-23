@@ -64,8 +64,18 @@ class WorkbenchHomeWindow(QMainWindow):
         root.addWidget(title)
         root.addWidget(subtitle)
 
+        configuration_row = QHBoxLayout()
+        configuration_row.addWidget(QLabel("Build configuration"))
+        self.build_config_combo = QComboBox()
+        self.build_config_combo.addItems(["Debug", "Release"])
+        self.build_config_combo.setToolTip(
+            "Choose the build configuration used by build and unit-test tasks."
+        )
+        configuration_row.addWidget(self.build_config_combo, 1)
+        root.addLayout(configuration_row)
+
         executable_row = QHBoxLayout()
-        executable_row.addWidget(QLabel("OneFLOW executable (Debug / Release)"))
+        executable_row.addWidget(QLabel("OneFLOW executable"))
         self.executable_combo = QComboBox()
         self.executable_combo.setEditable(True)
         self.executable_combo.setToolTip(
@@ -80,6 +90,15 @@ class WorkbenchHomeWindow(QMainWindow):
         )
         if self.executable_combo.count():
             self.executable_combo.setCurrentIndex(0)
+        self._build_executable_paths = {
+            configuration: str(
+                (self._repository_root / "build" / "bin" / configuration / "OneFLOW.exe").resolve()
+            )
+            for configuration in ("Debug", "Release")
+        }
+        self.build_config_combo.currentTextChanged.connect(
+            self._build_configuration_changed
+        )
         executable_row.addWidget(self.executable_combo, 1)
         browse = QPushButton("Browse...")
         browse.clicked.connect(self._choose_executable)
@@ -95,7 +114,7 @@ class WorkbenchHomeWindow(QMainWindow):
         )
         self._add_activity(
             grid, 0, 1, "Case Database",
-            "Browse the built-in case catalog and run a selected case from a protected workspace copy.",
+            "Run all selected catalog cases from protected workspace copies; all cases are selected by default.",
             self._open_case_database,
         )
 
@@ -216,6 +235,13 @@ class WorkbenchHomeWindow(QMainWindow):
     def _executable(self) -> str:
         return self.executable_combo.currentText().strip()
 
+    def _build_configuration_changed(self, configuration: str) -> None:
+        current = self.executable_combo.currentText().strip()
+        if current.casefold() in {
+            path.casefold() for path in self._build_executable_paths.values()
+        }:
+            self.executable_combo.setEditText(self._build_executable_paths[configuration])
+
     def _open_settings(self) -> None:
         dialog = SettingsDialog(self._settings, self)
         if dialog.exec() != QDialog.DialogCode.Accepted:
@@ -333,7 +359,12 @@ class WorkbenchHomeWindow(QMainWindow):
         ).exec()
 
     def _open_tests(self) -> None:
-        TestRunnerDialog(self._repository_root, self).exec()
+        TestRunnerDialog(
+            self._repository_root,
+            self,
+            build_config=self.build_config_combo.currentText(),
+            executable=self._executable(),
+        ).exec()
 
     def _open_history(self) -> None:
         RunHistoryDialog(UserDataPaths.discover().workflow_data, self).exec()
