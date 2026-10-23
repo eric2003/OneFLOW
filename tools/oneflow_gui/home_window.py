@@ -231,13 +231,12 @@ class WorkbenchHomeWindow(QMainWindow):
             return
         self._settings = settings
         self._repository_root = repository_root
-        current_executable = self._executable()
         self.executable_combo.clear()
         self.executable_combo.addItems(
             [str(path) for path in executable_candidates(self._repository_root)]
         )
-        if current_executable:
-            self.executable_combo.setEditText(current_executable)
+        if self.executable_combo.count():
+            self.executable_combo.setCurrentIndex(0)
         QMessageBox.information(
             self,
             "Basic Configuration",
