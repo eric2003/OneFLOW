@@ -294,7 +294,9 @@ class WorkbenchHomeWindow(QMainWindow):
         from .main_window import MainWindow
 
         self._case_window = MainWindow(
-            self._repository_root, single_case_mode=True
+            self._repository_root,
+            single_case_mode=True,
+            build_config=self.build_config_combo.currentText(),
         )
         executable = self._executable()
         if executable:
