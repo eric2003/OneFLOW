@@ -6,6 +6,7 @@ from pathlib import Path
 
 from PySide6.QtWidgets import (
     QComboBox,
+    QDialog,
     QFileDialog,
     QGridLayout,
     QHBoxLayout,
@@ -17,12 +18,14 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from .application_settings import ApplicationSettings, resolve_repository_root
 from .executable_discovery import executable_candidates
 from .mesh_layout_dialog import MeshLayoutDialog
 from .project_repository import open_project
 from .project_window import ProjectWindow
 from .run_history_dialog import RunHistoryDialog
 from .test_dialog import TestRunnerDialog
+from .settings_dialog import SettingsDialog
 from .user_data_paths import UserDataPaths
 from .workflow_dialog import WorkflowDialog
 from .workspace_dialog import WorkspaceDialog
@@ -33,9 +36,11 @@ class WorkbenchHomeWindow(QMainWindow):
 
     def __init__(self, repository_root: Path | None = None) -> None:
         super().__init__()
-        self._repository_root = (
-            repository_root or Path(__file__).resolve().parents[2]
-        ).resolve()
+        discovered_root = repository_root or Path(__file__).resolve().parents[2]
+        self._settings = ApplicationSettings.load()
+        self._repository_root = resolve_repository_root(
+            self._settings, discovered_root
+        )
         self._case_window = None
         self._project_windows = []
         self.setWindowTitle("OneFLOW Workbench")
@@ -138,6 +143,11 @@ class WorkbenchHomeWindow(QMainWindow):
             "Create a workspace and register case directories for single, sequential, independent, or dependency-based execution.",
             self._create_workspace,
         )
+        self._add_activity(
+            grid, 4, 0, "Basic Configuration",
+            "Configure the OneFLOW source checkout used by build, test, and case tools.",
+            self._open_settings,
+        )
         root.addLayout(grid, 1)
 
         footer = QLabel(
@@ -205,6 +215,34 @@ class WorkbenchHomeWindow(QMainWindow):
 
     def _executable(self) -> str:
         return self.executable_combo.currentText().strip()
+
+    def _open_settings(self) -> None:
+        dialog = SettingsDialog(self._settings, self)
+        if dialog.exec() != QDialog.DialogCode.Accepted:
+            return
+        repository_root = dialog.repository_root
+        if repository_root is None:
+            return
+        settings = ApplicationSettings(repository_root)
+        try:
+            settings.save()
+        except OSError as error:
+            QMessageBox.critical(self, "Cannot save settings", str(error))
+            return
+        self._settings = settings
+        self._repository_root = repository_root
+        current_executable = self._executable()
+        self.executable_combo.clear()
+        self.executable_combo.addItems(
+            [str(path) for path in executable_candidates(self._repository_root)]
+        )
+        if current_executable:
+            self.executable_combo.setEditText(current_executable)
+        QMessageBox.information(
+            self,
+            "Basic Configuration",
+            f"OneFLOW source root set to:\n{self._repository_root}",
+        )
 
     def _open_project(self) -> None:
         directory = QFileDialog.getExistingDirectory(
