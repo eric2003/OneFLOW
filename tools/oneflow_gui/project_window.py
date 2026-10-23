@@ -4,12 +4,13 @@ from __future__ import annotations
 
 import json
 import shutil
+import sys
 import threading
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
-from PySide6.QtCore import QThread, Signal, Qt
+from PySide6.QtCore import QThread, Signal, Qt, QTimer
 from PySide6.QtWidgets import (
     QCheckBox,
     QDialog,
@@ -32,6 +33,8 @@ from PySide6.QtWidgets import (
 )
 
 from .executable_discovery import executable_candidates
+from .background_task_manager import start_background_task, request_background_stop
+from .background_task_registry import BackgroundTask, BackgroundTaskRegistry, TERMINAL_STATUSES
 from .project_inventory import (
     FileChange,
     ProjectFileEntry,
@@ -250,6 +253,12 @@ class ProjectWindow(QMainWindow):
         self._project = project
         self._repository_root = repository_root.resolve()
         self._worker: ProjectRunWorker | None = None
+        self._background_task_id: str | None = None
+        self._background_log_offset = 0
+        self._execution_directory: Path | None = None
+        self._background_timer = QTimer(self)
+        self._background_timer.setInterval(500)
+        self._background_timer.timeout.connect(self._poll_background_task)
         self._active_record: WorkflowRunRecord | None = None
         self._log_path: Path | None = None
         self._inventory_baseline = scan_project(project.root)
@@ -783,13 +792,57 @@ class ProjectWindow(QMainWindow):
         self.run_button.setEnabled(False)
         self.run_window_run_button.setEnabled(False)
         self.stop_button.setEnabled(True)
-        self._worker = ProjectRunWorker(
-            self._project, executable, run_id, mode, custom_root,
-            self._repository_root,
+        self._background_task_id = run_id
+        self._background_log_offset = 0
+        self._execution_directory = (
+            self._project.root
+            if mode == "source"
+            else (
+                (paths.executions / run_id / self._project.name)
+                if mode == "default_workspace"
+                else (custom_root / self._project.name)
+            )
+        ).resolve()
+        registry = BackgroundTaskRegistry(paths.root)
+        registry.save(
+            BackgroundTask.create(
+                task_id=run_id,
+                project_directory=self._project.root,
+                executable=executable,
+                execution_mode=mode,
+                log_file=log_path,
+            )
         )
-        self._worker.log_line.connect(self._append_log)
-        self._worker.completed.connect(self._run_completed)
-        self._worker.start()
+        command = [
+            sys.executable,
+            "-m",
+            "tools.oneflow_gui.background_project_runner",
+            "--project", str(self._project.root.resolve()),
+            "--executable", str(executable.resolve()),
+            "--run-id", run_id,
+            "--execution-mode", mode,
+            "--repository-root", str(self._repository_root),
+        ]
+        if custom_root is not None:
+            command.extend(["--custom-root", str(custom_root)])
+        try:
+            start_background_task(
+                root=paths.root,
+                task_id=run_id,
+                command=command,
+                cwd=self._project.root,
+                repository_root=self._repository_root,
+            )
+        except (OSError, RuntimeError, ValueError) as error:
+            registry.remove(run_id)
+            self._background_task_id = None
+            self._active_record = None
+            self.run_button.setEnabled(True)
+            self.run_window_run_button.setEnabled(True)
+            self.stop_button.setEnabled(False)
+            QMessageBox.critical(self, "Cannot start background task", str(error))
+            return
+        self._background_timer.start()
 
     def _append_log(self, line: str) -> None:
         self.log_view.appendPlainText(line)
@@ -847,14 +900,94 @@ class ProjectWindow(QMainWindow):
         self.run_window.raise_()
         self.run_window.activateWindow()
 
+    def _poll_background_task(self) -> None:
+        task_id = self._background_task_id
+        if task_id is None:
+            self._background_timer.stop()
+            return
+        paths = UserDataPaths.discover()
+        registry = BackgroundTaskRegistry(paths.root)
+        try:
+            task = registry.load(task_id)
+            log_path = Path(task.log_file)
+            if log_path.is_file():
+                with log_path.open("r", encoding="utf-8", errors="replace") as stream:
+                    stream.seek(self._background_log_offset)
+                    text = stream.read()
+                    self._background_log_offset = stream.tell()
+                if text:
+                    self.log_view.moveCursor(self.log_view.textCursor().MoveOperation.End)
+                    self.log_view.insertPlainText(text)
+                    if self._detached_log is not None:
+                        self._detached_log.moveCursor(self._detached_log.textCursor().MoveOperation.End)
+                        self._detached_log.insertPlainText(text)
+            if task.status not in TERMINAL_STATUSES:
+                return
+        except (OSError, ValueError) as error:
+            self.statusBar().showMessage(f"Could not refresh background task: {error}")
+            return
+
+        self._background_timer.stop()
+        status = "cancelled" if task.status in {"stopped", "lost"} else task.status
+        outcome = ProjectRunOutcome(
+            task_id,
+            status,
+            task.message or f"Background task {status}.",
+            self._execution_directory or self._project.root,
+            0 if status == "succeeded" else (None if status == "cancelled" else 1),
+        )
+        self._background_task_id = None
+        self._run_completed(outcome)
+
     def _stop_run(self) -> None:
-        if self._worker is not None:
+        if self._background_task_id is not None:
+            try:
+                request_background_stop(
+                    UserDataPaths.discover().root,
+                    self._background_task_id,
+                )
+                self.stop_button.setEnabled(False)
+                self.statusBar().showMessage("Stop requested; stopping the process tree.")
+            except (OSError, ValueError) as error:
+                QMessageBox.warning(self, "Cannot stop task", str(error))
+        elif self._worker is not None:
             self._worker.request_stop()
             self.stop_button.setEnabled(False)
             self.statusBar().showMessage("Stop requested; waiting for the active process to exit.")
 
     def closeEvent(self, event) -> None:
-        if self._worker is not None and self._worker.isRunning():
+        if self._background_task_id is not None:
+            prompt = QMessageBox(self)
+            prompt.setWindowTitle("Project is running")
+            prompt.setText("OneFLOW is still running. What would you like to do?")
+            prompt.setInformativeText(
+                "Continuing in the background keeps the calculation running after this window closes."
+            )
+            stop_button = prompt.addButton("Stop and close", QMessageBox.ButtonRole.DestructiveRole)
+            background_button = prompt.addButton(
+                "Continue in background", QMessageBox.ButtonRole.AcceptRole
+            )
+            cancel_button = prompt.addButton("Keep window open", QMessageBox.ButtonRole.RejectRole)
+            prompt.setDefaultButton(stop_button)
+            prompt.exec()
+            clicked = prompt.clickedButton()
+            if clicked is cancel_button:
+                event.ignore()
+                return
+            if clicked is stop_button:
+                try:
+                    request_background_stop(
+                        UserDataPaths.discover().root,
+                        self._background_task_id,
+                    )
+                except (OSError, ValueError):
+                    event.ignore()
+                    return
+            elif clicked is not background_button:
+                event.ignore()
+                return
+            self._background_timer.stop()
+        elif self._worker is not None and self._worker.isRunning():
             self._worker.request_stop()
             event.ignore()
             return
