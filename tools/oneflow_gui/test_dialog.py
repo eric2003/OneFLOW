@@ -1,4 +1,4 @@
-"""Qt dialog that launches the repository's existing test commands."""
+"""Qt task dialog that launches the repository's existing test commands."""
 
 from __future__ import annotations
 
@@ -118,11 +118,11 @@ class TestRunnerDialog(QDialog):
         self._repository_root = Path(repository_root).resolve()
         self._build_config = build_config
         self._worker: TestCommandWorker | None = None
-        self.setWindowTitle("OneFLOW Tests")
+        self.setWindowTitle("OneFLOW Task Runner")
         self.resize(900, 650)
 
         layout = QVBoxLayout(self)
-        layout.addWidget(QLabel("Run the existing unit-test commands; CFD regression is optional."))
+        layout.addWidget(QLabel("Choose unit tests and/or an existing CFD/grid regression suite."))
 
         self.unit_tests_check = QCheckBox("Unit tests (CTest and Python tests)")
         self.unit_tests_check.setChecked(True)
@@ -166,7 +166,7 @@ class TestRunnerDialog(QDialog):
         self.rebuild_button = QPushButton("Rebuild")
         self.rebuild_button.setToolTip("Clean and rebuild the selected CMake configuration.")
         self.rebuild_button.clicked.connect(lambda: self._start_build(rebuild=True))
-        self.run_button = QPushButton("Run tests")
+        self.run_button = QPushButton("Run")
         self.run_button.clicked.connect(self._start)
         self.stop_button = QPushButton("Stop")
         self.stop_button.setEnabled(False)
