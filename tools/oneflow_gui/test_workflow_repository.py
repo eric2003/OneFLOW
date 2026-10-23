@@ -115,6 +115,27 @@ class WorkflowRepositoryTest(unittest.TestCase):
         self.assertEqual(history[0].run_id, "run-001")
         self.assertEqual(history[0].artifacts, ("results/mesh-summary.json",))
 
+    def test_run_history_preserves_shared_task_result_payload(self) -> None:
+        task_result = {
+            "task_type": "case_database",
+            "status": "failed",
+            "return_code": 2,
+            "execution_directory": "executions/run-002/cases/mesh",
+            "message": "mesh: OneFLOW exited with code 2.",
+        }
+        self.repository.save_run(
+            WorkflowRunRecord(
+                run_id="run-task-result",
+                workflow_id="case-workbench",
+                status="failed",
+                started_at="2026-10-23T10:00:00Z",
+                task_type="case_database",
+                steps=({"type": "case", "case_id": "mesh", "task_result": task_result},),
+            )
+        )
+
+        loaded = self.repository.list_runs("case-workbench")[0]
+        self.assertEqual(loaded.steps[0]["task_result"], task_result)
     def test_run_history_is_filtered_and_sorted_newest_first(self) -> None:
         for run_id, workflow_id, started_at in (
             ("run-old", "workflow-a", "2026-10-14T10:00:00Z"),
