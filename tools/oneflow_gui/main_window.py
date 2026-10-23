@@ -672,13 +672,16 @@ class MainWindow(QMainWindow):
     def _queue_finished(self) -> None:
         record = self._active_case_run_record
         if record is not None:
-            status = aggregate_run_status(
-                tuple(
-                    step["status"]
-                    for step in self._active_case_run_steps
-                    if step.get("type") == "case"
-                )
-            ).value
+            case_statuses = tuple(
+                step["status"]
+                for step in self._active_case_run_steps
+                if step.get("type") == "case"
+            )
+            status = (
+                aggregate_run_status(case_statuses).value
+                if case_statuses
+                else TaskRunStatus.FAILED.value
+            )
             updated_record = WorkflowRunRecord(
                 run_id=record.run_id,
                 workflow_id=record.workflow_id,
