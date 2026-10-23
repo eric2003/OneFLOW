@@ -1,4 +1,4 @@
-""""Tests for catalog-independent OneFLOW project discovery."""
+"""Tests for catalog-independent OneFLOW project discovery."""
 
 from __future__ import annotations
 
@@ -28,9 +28,9 @@ class ProjectRepositoryTest(unittest.TestCase):
             root = Path(temporary_directory)
             script = root / "script"
             script.mkdir()
-            (script / "control.txt").write_text('"simu.txt";\\n', encoding="utf-8")
+            (script / "control.txt").write_text('"simu.txt";\n', encoding="utf-8")
             (script / "simu.txt").write_text(
-                'string simutask = "Grid";\\n', encoding="utf-8"
+                'string simutask = "Grid";\n', encoding="utf-8"
             )
 
             project = open_project(root)
@@ -42,9 +42,9 @@ class ProjectRepositoryTest(unittest.TestCase):
     def test_detects_flow_project_case_insensitively(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
-            (root / "control.txt").write_text('"flow.txt";\\n', encoding="utf-8")
+            (root / "control.txt").write_text('"flow.txt";\n', encoding="utf-8")
             (root / "flow.txt").write_text(
-                'string simuTask = "Flow";\\n', encoding="utf-8"
+                'string simuTask = "Flow";\n', encoding="utf-8"
             )
 
             self.assertEqual(open_project(root).project_type, ProjectType.FLOW)
@@ -59,31 +59,31 @@ class ProjectRepositoryTest(unittest.TestCase):
             (root / "workflow.json").write_text(
                 '{"steps":[{"type":"case_graph","cases":['
                 '{"id":"rae2822grid","directory":"rae2822grid"},'
-                '{"id":"rae2822_roe_sa","directory":"rae2822_roe_sa"}]}]}\\n',
+                '{"id":"rae2822_roe_sa","directory":"rae2822_roe_sa"}]}]}\n',
                 encoding="utf-8",
             )
             (grid_script / "control.txt").write_text(
-                '"simu.txt";\\n"dimension.txt";\\n"grid.txt";\\n',
+                '"simu.txt";\n"dimension.txt";\n"grid.txt";\n',
                 encoding="utf-8",
             )
             (grid_script / "simu.txt").write_text(
-                'string simutask = "Grid";\\n', encoding="utf-8"
+                'string simutask = "Grid";\n', encoding="utf-8"
             )
             (grid_script / "dimension.txt").write_text(
-                "int dimension = 2;\\n", encoding="utf-8"
+                "int dimension = 2;\n", encoding="utf-8"
             )
             (grid_script / "grid.txt").write_text(
-                'string targetGridFileName = "results/grid.ofl";\\n',
+                'string targetGridFileName = "results/grid.ofl";\n',
                 encoding="utf-8",
             )
             (flow_script / "control.txt").write_text(
-                '"simu.txt";\\n"cfd.txt";\\n', encoding="utf-8"
+                '"simu.txt";\n"cfd.txt";\n', encoding="utf-8"
             )
             (flow_script / "simu.txt").write_text(
-                'string simutask = "Solve";\\n', encoding="utf-8"
+                'string simutask = "Solve";\n', encoding="utf-8"
             )
             (flow_script / "cfd.txt").write_text(
-                'string gridFileName = "grid/grid.ofl";\\n', encoding="utf-8"
+                'string gridFileName = "grid/grid.ofl";\n', encoding="utf-8"
             )
 
             project = open_project(root)
