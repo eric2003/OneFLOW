@@ -62,8 +62,8 @@ class TestCommandWorker(QThread):
             self.output_line.emit("$ " + subprocess.list2cmdline(list(command.arguments)))
             try:
                 if command.label.startswith("CMake configure"):
-                command.working_directory.mkdir(parents=True, exist_ok=True)
-            with subprocess.Popen(
+                    command.working_directory.mkdir(parents=True, exist_ok=True)
+                with subprocess.Popen(
                     list(command.arguments),
                     cwd=command.working_directory,
                     stdout=subprocess.PIPE,
