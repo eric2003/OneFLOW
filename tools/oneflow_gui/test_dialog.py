@@ -20,6 +20,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
+from .executable_discovery import executable_candidates
 from .user_data_paths import UserDataPaths
 from .test_runner import (
     TestCommand,
@@ -135,8 +136,13 @@ class TestRunnerDialog(QDialog):
         self.executable_combo = QComboBox()
         self.executable_combo.setEditable(True)
         self.executable_combo.setMinimumContentsLength(42)
+        self.executable_combo.addItems(
+            [str(path) for path in executable_candidates(self._repository_root)]
+        )
         if executable:
             self.executable_combo.setEditText(executable)
+        elif self.executable_combo.count():
+            self.executable_combo.setCurrentIndex(0)
         self.suite_combo = QComboBox()
         self.suite_combo.addItems(available_suites(self._repository_root))
         default_index = self.suite_combo.findText("ci-serial.txt")
