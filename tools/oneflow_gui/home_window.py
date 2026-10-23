@@ -25,6 +25,7 @@ from .project_repository import open_project
 from .project_window import ProjectWindow
 from .new_project_dialog import NewProjectDialog
 from .run_history_dialog import RunHistoryDialog
+from .background_task_dialog import BackgroundTaskDialog
 from .test_dialog import TestRunnerDialog
 from .settings_dialog import SettingsDialog
 from .user_data_paths import UserDataPaths
@@ -170,6 +171,11 @@ class WorkbenchHomeWindow(QMainWindow):
             grid, 3, 1, "Create Workspace",
             "Create a workspace and register case directories for single, sequential, independent, or dependency-based execution.",
             self._create_workspace,
+        )
+        self._add_activity(
+            grid, 4, 1, "Background Tasks",
+            "Review detached task status, stop active tasks, and unregister finished task records.",
+            self._open_background_tasks,
         )
         self._add_activity(
             grid, 4, 0, "Basic Configuration",
@@ -391,6 +397,9 @@ class WorkbenchHomeWindow(QMainWindow):
 
     def _open_history(self) -> None:
         RunHistoryDialog(UserDataPaths.discover().workflow_data, self).exec()
+
+    def _open_background_tasks(self) -> None:
+        BackgroundTaskDialog(UserDataPaths.discover().root, self).exec()
 
     def _open_mesh_layout(self) -> None:
         MeshLayoutDialog(self._repository_root, self).exec()
