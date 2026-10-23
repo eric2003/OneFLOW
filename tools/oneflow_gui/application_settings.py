@@ -47,6 +47,4 @@ def resolve_repository_root(
     configured = settings.repository_root.expanduser()
     if configured.is_dir():
         return configured.resolve()
-    if configured == DEFAULT_REPOSITORY_ROOT:
-        return discovered_root.resolve()
-    return configured.resolve()
+    return discovered_root.resolve()
