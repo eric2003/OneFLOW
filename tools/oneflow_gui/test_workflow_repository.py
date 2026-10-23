@@ -194,6 +194,36 @@ class WorkflowRepositoryTest(unittest.TestCase):
             {"old-passed", "new-failed", "other-failed"},
         )
 
+    def test_task_type_round_trips_and_legacy_records_default_to_workflow(self) -> None:
+        record = WorkflowRunRecord(
+            run_id="run-case-db",
+            workflow_id="case-workbench",
+            status="running",
+            started_at="2026-10-23T10:00:00Z",
+            task_type="case_database",
+        )
+        self.repository.save_run(record)
+        loaded = self.repository.list_runs()[0]
+        self.assertEqual(loaded.task_type, "case_database")
+
+        legacy = WorkflowRunRecord.from_dict({
+            "run_id": "legacy-run",
+            "workflow_id": "old-workflow",
+            "status": "succeeded",
+            "started_at": "2026-10-22T10:00:00Z",
+        })
+        self.assertEqual(legacy.task_type, "workflow")
+
+    def test_empty_task_type_is_rejected(self) -> None:
+        with self.assertRaisesRegex(ValueError, "task_type"):
+            WorkflowRunRecord.from_dict({
+                "run_id": "bad-task",
+                "workflow_id": "workflow",
+                "status": "running",
+                "started_at": "2026-10-23T10:00:00Z",
+                "task_type": "",
+            })
+
     def test_run_log_path_round_trips(self) -> None:
         record = WorkflowRunRecord(
             run_id="run-log",
