@@ -58,3 +58,37 @@ def task_definition(task_type: TaskType) -> TaskDefinition:
 def task_definitions() -> tuple[TaskDefinition, ...]:
     """Return task definitions in stable user-facing order."""
     return tuple(_TASK_DEFINITIONS.values())
+
+
+
+class TaskRunStatus(str, Enum):
+    """Canonical persisted states shared by all Workbench task runners."""
+
+    PENDING = "pending"
+    RUNNING = "running"
+    SUCCEEDED = "succeeded"
+    FAILED = "failed"
+    CANCELLED = "cancelled"
+
+
+_DISPLAY_STATUS_MAP = {
+    "pending": TaskRunStatus.PENDING,
+    "running": TaskRunStatus.RUNNING,
+    "succeeded": TaskRunStatus.SUCCEEDED,
+    "passed": TaskRunStatus.SUCCEEDED,
+    "failed": TaskRunStatus.FAILED,
+    "cancelled": TaskRunStatus.CANCELLED,
+    "canceled": TaskRunStatus.CANCELLED,
+}
+
+
+def normalize_run_status(value: str | TaskRunStatus) -> TaskRunStatus:
+    """Normalize persisted and GUI-facing status labels to one canonical state."""
+    if isinstance(value, TaskRunStatus):
+        return value
+    if not isinstance(value, str):
+        raise ValueError(f"Unsupported task run status: {value!r}.")
+    status = _DISPLAY_STATUS_MAP.get(value.strip().lower())
+    if status is None:
+        raise ValueError(f"Unsupported task run status: {value!r}.")
+    return status
