@@ -139,7 +139,7 @@ class MainWindow(QMainWindow):
         )
         heading.setObjectName("pageTitle")
         subtitle = QLabel(
-            "Choose one catalog case and run it from a protected workspace copy."
+            "Select database cases and run them from protected workspace copies."
             if self._single_case_mode
             else "Select cases, run them in isolated workspaces, and review process logs."
         )
@@ -223,9 +223,6 @@ class MainWindow(QMainWindow):
         select_all.clicked.connect(lambda: self._set_all_checks(True))
         select_none = QPushButton("Select none")
         select_none.clicked.connect(lambda: self._set_all_checks(False))
-        if self._single_case_mode:
-            select_all.hide()
-            select_none.hide()
         refresh = QPushButton("Refresh cases")
         refresh.clicked.connect(self._load_cases)
         workflows = QPushButton("Workflows...")
@@ -236,9 +233,7 @@ class MainWindow(QMainWindow):
         tests_button.clicked.connect(self._open_tests)
         history_button = QPushButton("Run History...")
         history_button.clicked.connect(self._open_run_history)
-        self.run_button = QPushButton(
-            "Run selected case" if self._single_case_mode else "Run selected cases"
-        )
+        self.run_button = QPushButton("Run selected cases")
         self.run_button.setObjectName("primaryButton")
         self.run_button.clicked.connect(self._start_run)
         self.stop_button = QPushButton("Stop queue")
@@ -317,20 +312,16 @@ class MainWindow(QMainWindow):
         self.case_table.blockSignals(True)
         self.case_table.setRowCount(0)
         self._row_by_id.clear()
-        default_case_selected = False
         for case in self._cases:
             row = self.case_table.rowCount()
             self.case_table.insertRow(row)
             checkbox = QTableWidgetItem()
             checkbox.setFlags(checkbox.flags() | Qt.ItemFlag.ItemIsUserCheckable)
             is_default_case = case.profile is not None
-            is_selected = is_default_case and (
-                not self._single_case_mode or not default_case_selected
-            )
+            is_selected = self._single_case_mode or is_default_case
             checkbox.setCheckState(
                 Qt.CheckState.Checked if is_selected else Qt.CheckState.Unchecked
             )
-            default_case_selected = default_case_selected or is_selected
             self.case_table.setItem(row, 0, checkbox)
             self.case_table.setItem(row, 1, QTableWidgetItem(case.title))
             config_text = "Typed profile" if case.profile else "Legacy config"
@@ -343,18 +334,8 @@ class MainWindow(QMainWindow):
         )
 
     def _case_selection_changed(self, changed_item: QTableWidgetItem) -> None:
-        if (
-            not self._single_case_mode
-            or changed_item.column() != 0
-            or changed_item.checkState() != Qt.CheckState.Checked
-        ):
-            return
-        self.case_table.blockSignals(True)
-        for row in range(self.case_table.rowCount()):
-            item = self.case_table.item(row, 0)
-            if item is not None and item is not changed_item:
-                item.setCheckState(Qt.CheckState.Unchecked)
-        self.case_table.blockSignals(False)
+        """Allow multiple database cases to be selected at the same time."""
+        return
 
     def _set_all_checks(self, checked: bool) -> None:
         for row in range(self.case_table.rowCount()):
