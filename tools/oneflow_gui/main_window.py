@@ -32,7 +32,8 @@ from .models import CaseDefinition, CaseRunResult, RunState
 from .runner import create_run_id, run_case
 from .user_data_paths import UserDataPaths
 from .workflow_dialog import WorkflowDialog
-from .test_dialog import TestRunnerDialog
+from .test_dialog import TestCommandWorker, TestRunnerDialog
+from .test_runner import build_cmake_command
 from .run_history_dialog import RunHistoryDialog
 from .workflow_repository import WorkflowRepository, WorkflowRunRecord
 from .mesh_layout_dialog import MeshLayoutDialog
@@ -112,6 +113,7 @@ class MainWindow(QMainWindow):
         ).resolve()
         self._cases: list[CaseDefinition] = []
         self._worker: RunQueueWorker | None = None
+        self._task_worker: TestCommandWorker | None = None
         self._row_by_id: dict[str, int] = {}
         self._history_repository = WorkflowRepository(UserDataPaths.discover().workflow_data)
         self._active_case_run_record: WorkflowRunRecord | None = None
@@ -227,26 +229,35 @@ class MainWindow(QMainWindow):
         workflows.clicked.connect(self._open_workflows)
         mesh_layout_button = QPushButton("Mesh Layout...")
         mesh_layout_button.clicked.connect(self._open_mesh_layout)
-        tests_button = QPushButton("Tests...")
+        tests_button = QPushButton("Unit / Regression Tests...")
         tests_button.clicked.connect(self._open_tests)
+        self.build_button = QPushButton("Build")
+        self.build_button.clicked.connect(lambda: self._start_build(rebuild=False))
+        self.rebuild_button = QPushButton("Rebuild")
+        self.rebuild_button.clicked.connect(lambda: self._start_build(rebuild=True))
         history_button = QPushButton("Run History...")
         history_button.clicked.connect(self._open_run_history)
         self.run_button = QPushButton("Run selected cases")
         self.run_button.setObjectName("primaryButton")
         self.run_button.clicked.connect(self._start_run)
-        self.stop_button = QPushButton("Stop queue")
+        self.stop_button = QPushButton("Stop")
         self.stop_button.setEnabled(False)
         self.stop_button.clicked.connect(self._stop_run)
+        close_button = QPushButton("Close")
+        close_button.clicked.connect(self.close)
         action_layout.addWidget(select_all)
         action_layout.addWidget(select_none)
         action_layout.addWidget(refresh)
         action_layout.addWidget(workflows)
         action_layout.addWidget(mesh_layout_button)
+        action_layout.addWidget(self.build_button)
+        action_layout.addWidget(self.rebuild_button)
         action_layout.addWidget(tests_button)
         action_layout.addWidget(history_button)
         action_layout.addStretch(1)
         action_layout.addWidget(self.run_button)
         action_layout.addWidget(self.stop_button)
+        action_layout.addWidget(close_button)
         root_layout.addLayout(action_layout)
 
         root_layout.addWidget(QLabel("Execution log"))
@@ -372,6 +383,8 @@ class MainWindow(QMainWindow):
             self.workspace_edit.setText(path)
 
     def _start_run(self) -> None:
+        if self._task_worker is not None and self._task_worker.isRunning():
+            return
         if self._worker is not None and self._worker.isRunning():
             return
         executable_text = self.executable_combo.currentText().strip()
@@ -469,6 +482,8 @@ class MainWindow(QMainWindow):
             + f"Workspace: {workspace_root / run_id}"
         )
         self.run_button.setEnabled(False)
+        self.build_button.setEnabled(False)
+        self.rebuild_button.setEnabled(False)
         self.stop_button.setEnabled(True)
         for case in selected:
             self._set_case_status(case.case_id, RunState.PENDING.value)
@@ -483,6 +498,53 @@ class MainWindow(QMainWindow):
         self._worker.finished.connect(self._queue_finished)
         self._worker.start()
         self.statusBar().showMessage(f"Running {len(selected)} case(s)...")
+
+    def _start_build(self, *, rebuild: bool) -> None:
+        """Build the selected Debug or Release configuration from the case window."""
+        if self._worker is not None and self._worker.isRunning():
+            return
+        if self._task_worker is not None and self._task_worker.isRunning():
+            return
+        executable = self.executable_combo.currentText().strip()
+        build_paths = {
+            configuration: str(
+                (self._repository_root / "build" / "bin" / configuration / "OneFLOW.exe").resolve()
+            )
+            for configuration in ("Debug", "Release")
+        }
+        build_config = next(
+            (
+                configuration
+                for configuration, path in build_paths.items()
+                if executable.casefold() == path.casefold()
+            ),
+            "Debug",
+        )
+        command = build_cmake_command(
+            self._repository_root, build_config, rebuild=rebuild
+        )
+        self.log_view.clear()
+        self.run_button.setEnabled(False)
+        self.build_button.setEnabled(False)
+        self.rebuild_button.setEnabled(False)
+        self.stop_button.setEnabled(True)
+        self._task_worker = TestCommandWorker([command])
+        self._task_worker.output_line.connect(self.log_view.appendPlainText)
+        self._task_worker.completed.connect(self._build_completed)
+        self._task_worker.finished.connect(self._build_worker_finished)
+        self._task_worker.start()
+        self.statusBar().showMessage(f"{'Rebuilding' if rebuild else 'Building'} {build_config}...")
+
+    def _build_completed(self, succeeded: bool, message: str) -> None:
+        self.log_view.appendPlainText(message)
+        self.statusBar().showMessage(message)
+
+    def _build_worker_finished(self) -> None:
+        self._task_worker = None
+        self.run_button.setEnabled(True)
+        self.build_button.setEnabled(True)
+        self.rebuild_button.setEnabled(True)
+        self.stop_button.setEnabled(False)
 
     def _open_mesh_layout(self) -> None:
         dialog = MeshLayoutDialog(self._repository_root, self)
@@ -525,11 +587,17 @@ class MainWindow(QMainWindow):
         dialog.exec()
 
     def _stop_run(self) -> None:
+        stopping = False
         if self._worker is not None:
             self._worker.request_stop()
+            stopping = True
+        if self._task_worker is not None:
+            self._task_worker.request_stop()
+            stopping = True
+        if stopping:
             self.stop_button.setEnabled(False)
             self.statusBar().showMessage(
-                "Stop requested; waiting for active process to exit."
+                "Stop requested; waiting for the active process to exit."
             )
 
     def _set_case_status(self, case_id: str, status: str) -> None:
@@ -589,15 +657,19 @@ class MainWindow(QMainWindow):
                 self.log_view.appendPlainText(f"Could not save run history: {error}")
             self._active_case_run_record = None
         self.run_button.setEnabled(True)
+        self.build_button.setEnabled(True)
+        self.rebuild_button.setEnabled(True)
         self.stop_button.setEnabled(False)
         self.statusBar().showMessage("Run queue finished")
         self._worker = None
 
     def closeEvent(self, event) -> None:
         """Avoid destroying a running QThread while its child process is active."""
-        if self._worker is not None and self._worker.isRunning():
-            self._worker.request_stop()
-            self.statusBar().showMessage("Stopping the active case before closing.")
+        queue_running = self._worker is not None and self._worker.isRunning()
+        task_running = self._task_worker is not None and self._task_worker.isRunning()
+        if queue_running or task_running:
+            self._stop_run()
+            self.statusBar().showMessage("Stopping the active task before closing.")
             event.ignore()
             return
         event.accept()
