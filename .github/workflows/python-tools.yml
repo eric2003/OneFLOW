@@ -75,7 +75,7 @@ jobs:
       - name: Test application settings
         run: python -m unittest tools.oneflow_gui.test_application_settings
       - name: Test project discovery and creation
-        run: python -m unittest tools.oneflow_gui.test_project_repository tools.oneflow_gui.test_project_templates
+        run: python -m unittest tools.oneflow_gui.test_project_repository tools.oneflow_gui.test_project_templates tools.oneflow_gui.test_rae2822_project_template
       - name: Test mesh layout project copying
         run: python -m unittest tools.oneflow_gui.test_mesh_layout_projects
       - name: Test workflow persistence
