@@ -199,12 +199,25 @@ class TestRunnerDialog(QDialog):
                     self._repository_root,
                     UserDataPaths.discover().cfd_regression_workspace,
                 )
+                executable_path = Path(executable).expanduser().resolve()
+                expected_build_executable = (
+                    self._repository_root
+                    / "build"
+                    / "bin"
+                    / self.build_config_combo.currentText()
+                    / "OneFLOW.exe"
+                ).resolve()
+                executable_will_be_built = (
+                    executable_path == expected_build_executable
+                    and any(command.label.startswith("CMake build") for command in commands)
+                )
                 commands.append(
                     build_regression_command(
                         self._repository_root,
                         executable,
                         suite_name,
                         test_directory=staged_test_directory,
+                        validate_executable=not executable_will_be_built,
                     )
                 )
             except (OSError, ValueError) as error:
