@@ -7,6 +7,7 @@ import os
 import subprocess
 import sys
 import time
+from dataclasses import replace
 from pathlib import Path
 from typing import Sequence
 
@@ -99,15 +100,10 @@ def request_background_stop(root: Path, task_id: str) -> None:
     stop_file = registry.records_directory / f"{task_id}.stop"
     stop_file.write_text(utc_now() + "\n", encoding="utf-8")
     registry.save(
-        type(task)(
-            **{
-                **{
-                    field: getattr(task, field)
-                    for field in task.__dataclass_fields__
-                },
-                "status": "stopping",
-                "updated_at": utc_now(),
-                "message": "Stop requested by the user.",
-            }
+        replace(
+            task,
+            status="stopping",
+            updated_at=utc_now(),
+            message="Stop requested by the user.",
         )
     )
