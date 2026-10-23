@@ -103,7 +103,8 @@ class TaskTypesTest(unittest.TestCase):
                 message="Failed.",
             )
 
-    def test_string_task_type_resolves_to_definition(self) -> None        definition = task_definition(TaskType("unit_tests"))
+    def test_string_task_type_resolves_to_definition(self) -> None:
+        definition = task_definition(TaskType("unit_tests"))
         self.assertEqual(definition.title, "Unit Tests")
         self.assertTrue(definition.supports_build_actions)
 
