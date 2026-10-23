@@ -314,6 +314,32 @@ void FaceSolver::AttachStagedFaceAsRight( int faceId, int cellId )
     this->faceTopo->GetRightCells()[ static_cast< size_t >( faceId ) ] = cellId;
 }
 
+void FaceSolver::BindCellToExistingFace( int faceId, int cellId )
+{
+    if ( faceId < 0 ||
+         static_cast< size_t >( faceId ) >= this->faceTopo->GetFaces().size() ||
+         static_cast< size_t >( faceId ) >= this->faceTopo->GetLeftCells().size() ||
+         static_cast< size_t >( faceId ) >= this->faceTopo->GetRightCells().size() )
+    {
+        throw std::out_of_range( "FaceSolver::BindCellToExistingFace: face ID is out of range" );
+    }
+
+    auto & leftCells = this->faceTopo->GetLeftCells();
+    auto & rightCells = this->faceTopo->GetRightCells();
+    const std::size_t id = static_cast< std::size_t >( faceId );
+
+    if ( leftCells[ id ] == ONEFLOW::INVALID_INDEX )
+    {
+        // Face was staged without an owner (or left cleared during split).
+        leftCells[ id ] = cellId;
+        return;
+    }
+    if ( rightCells[ id ] == ONEFLOW::INVALID_INDEX && leftCells[ id ] != cellId )
+    {
+        rightCells[ id ] = cellId;
+    }
+}
+
 bool FaceSolver::StagedBcMatchesFaceCount() const
 {
     const std::size_t nFaces = this->faceTopo->GetFaces().size();
@@ -346,30 +372,15 @@ void FaceSolver::ScanElementFace( CgIntField & eNodeId, int eType, int eId )
             aNodeId.push_back( eNodeId[ localFaceNodeIndices[ iNode ] ] );
         }                                                              
 
-        auto [gFid, isNew]  = this->faceLookup.FindOrAdd( aNodeId );
+        auto [gFid, isNew] = this->faceLookup.FindOrAdd( aNodeId );
 
         if ( isNew )
         {
             this->StageNewFace( aNodeId, faceType, eId );
-            this->childFid.resize( this->faceLookup.Size() );
         }
         else
         {
-            if ((this->faceTopo->GetLeftCells())[gFid] == ONEFLOW::INVALID_INDEX)
-            {
-                //This shows that although this aspect exists, it has not been dealt with due to various reasons
-                (this->faceTopo->GetLeftCells())[gFid] = eId; //For example, a new volume element surface is added during the splitting process
-            }
-            else
-            {
-                if ( (this->faceTopo->GetRightCells())[gFid] == ONEFLOW::INVALID_INDEX )
-                {
-                    if ((this->faceTopo->GetLeftCells())[gFid] != eId)
-                    {
-                        (this->faceTopo->GetRightCells())[gFid] = eId;
-                    }
-                }
-            }
+            this->BindCellToExistingFace( gFid, eId );
         }
     }
 }

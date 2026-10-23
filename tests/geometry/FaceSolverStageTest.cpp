@@ -253,3 +253,33 @@ TEST( FaceSolverStageTest, AssignBcToMatchingFacesDetailModeMatchesInterior )
     EXPECT_EQ( assigned, 1 );
     EXPECT_EQ( solver.faceBcTypes[ 0 ], 7 );
 }
+
+TEST( FaceSolverStageTest, BindCellToExistingFaceFillsLeftThenRight )
+{
+    FaceSolver solver;
+    solver.StageNewFace( IntField{ 1, 2, 3 }, 5, INVALID_INDEX );
+
+    solver.BindCellToExistingFace( 0, /*cellId=*/3 );
+    EXPECT_EQ( solver.GetFaceTopo().GetLeftCells()[ 0 ], 3 );
+    EXPECT_EQ( solver.GetFaceTopo().GetRightCells()[ 0 ], INVALID_INDEX );
+
+    solver.BindCellToExistingFace( 0, /*cellId=*/8 );
+    EXPECT_EQ( solver.GetFaceTopo().GetLeftCells()[ 0 ], 3 );
+    EXPECT_EQ( solver.GetFaceTopo().GetRightCells()[ 0 ], 8 );
+}
+
+TEST( FaceSolverStageTest, BindCellToExistingFaceIgnoresSameLeftCell )
+{
+    FaceSolver solver;
+    solver.StageNewFace( IntField{ 1, 2, 3 }, 5, /*leftCellId=*/3 );
+
+    solver.BindCellToExistingFace( 0, /*cellId=*/3 );
+    EXPECT_EQ( solver.GetFaceTopo().GetLeftCells()[ 0 ], 3 );
+    EXPECT_EQ( solver.GetFaceTopo().GetRightCells()[ 0 ], INVALID_INDEX );
+}
+
+TEST( FaceSolverStageTest, BindCellToExistingFaceRejectsOutOfRange )
+{
+    FaceSolver solver;
+    EXPECT_THROW( solver.BindCellToExistingFace( 0, 1 ), std::out_of_range );
+}

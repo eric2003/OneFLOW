@@ -92,6 +92,11 @@ public:
     // Throws if faceId is out of range or the face is still unclaimed.
     void AttachStagedFaceAsRight( int faceId, int cellId );
 
+    // Bind a volume element to an already staged face (traditional element
+    // path). Fills left if empty; otherwise fills right if empty and the
+    // cell is not already the left owner. No-op if both sides are set.
+    void BindCellToExistingFace( int faceId, int cellId );
+
     // True when BC slots, face flags, left/right cells, and face-local
     // positions all match the FaceTopo face count.
     [[nodiscard]] bool StagedBcMatchesFaceCount() const;
