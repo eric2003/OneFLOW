@@ -442,21 +442,18 @@ class ProjectWindow(QMainWindow):
         changes = list(compare_inventory(self._inventory_baseline, current))
         run_root = execution_directory / ".oneflow-runs" / run_id
         run_outputs = scan_workflow_run_outputs(execution_directory, run_root)
-        changes.extend(
-            type("RunOutputChange", (), {"entry": entry, "status": "generated in run"})()
-            for entry in run_outputs
-        )
         counts = {"unchanged": 0, "added": 0, "modified": 0, "deleted": 0}
+        changes = [
+            change for change in changes
+            if change.entry.kind != "directory"
+        ]
         for change in changes:
             if change.status in counts:
                 counts[change.status] += 1
-            entry = change.entry
-            size = "" if entry.kind == "directory" else f"{entry.size_bytes:,} B"
-            item = QTreeWidgetItem([
-                entry.relative_path, change.status, entry.category, size, entry.purpose
-            ])
-            item.setData(0, Qt.ItemDataRole.UserRole, entry)
-            self.changes_tree.addTopLevelItem(item)
+        changes.extend(
+            FileChange(entry, "generated in run")
+            for entry in run_outputs
+        )
         self._run_changes = changes
         self._run_output_count = len(run_outputs)
         self._run_change_counts = counts
