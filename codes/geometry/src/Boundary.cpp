@@ -201,21 +201,45 @@ void DumpRegion( const std::string & fileName, CommonNameMap & nameMap )
     Prj::CloseFile(file);
 }
 
-CommonNameMap RegionNameMap::nameMap;
+void RegionNameRegistry::Reset()
+{
+    this->nameMap.Clear();
+}
+
+void RegionNameRegistry::AddRegion( const std::string & regionName )
+{
+    this->nameMap.AddName( regionName );
+}
+
+int RegionNameRegistry::FindRegionId( const std::string & regionName ) const
+{
+    return this->nameMap.FindNameId( regionName );
+}
+
+void RegionNameRegistry::DumpRegion( const std::string & fileName )
+{
+    ONEFLOW::DumpRegion( fileName, this->nameMap );
+}
+
+RegionNameRegistry & RegionNameMap::Default()
+{
+    static RegionNameRegistry defaultRegistry;
+    return defaultRegistry;
+}
 
 void RegionNameMap::Reset()
 {
-    RegionNameMap::nameMap.Clear();
+    RegionNameMap::Default().Reset();
 }
 
 void RegionNameMap::AddRegion( const std::string & regionName )
 {
-    RegionNameMap::nameMap.AddName( regionName );
+    RegionNameMap::Default().AddRegion( regionName );
 }
 
 int RegionNameMap::FindRegionId( const std::string & regionName )
 {
-    return RegionNameMap::nameMap.FindNameId( regionName );
+    return RegionNameMap::Default().FindRegionId( regionName );
 }
 
 void RegionNameMap::DumpRegion()
@@ -225,7 +249,7 @@ void RegionNameMap::DumpRegion()
 
 void RegionNameMap::DumpRegion( const std::string & fileName )
 {
-    ONEFLOW::DumpRegion( fileName, RegionNameMap::nameMap );
+    RegionNameMap::Default().DumpRegion( fileName );
 }
 
 CommonNameMap VolumeNameMap::nameMap;

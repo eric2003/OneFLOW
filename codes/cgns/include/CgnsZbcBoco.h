@@ -34,8 +34,10 @@ BeginNameSpace( ONEFLOW )
 class CgnsZone;
 class CgnsBase;
 class FaceSolver;
+class RegionNameRegistry;
 
 class FaceSolver;
+class RegionNameRegistry;
 class CgnsBcBoco;
 class Grid;
 class BcRegion;
@@ -62,6 +64,7 @@ public:
     void ShiftBcRegion();
     void ConvertToInnerDataStandard();
     void ScanBcFace( FaceSolver & faceSolver );
+    void ScanBcFace( FaceSolver & faceSolver, RegionNameRegistry & regionNames );
     void PrintZnboco();
     void ReadZnboco();
     void ReadZnboco( int nBoco );

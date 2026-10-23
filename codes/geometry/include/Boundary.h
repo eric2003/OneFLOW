@@ -95,14 +95,34 @@ private:
 
 void DumpRegion( const std::string & fileName, CommonNameMap & nameMap );
 
+// Instance-owned region-name table. Prefer this in new code and tests so
+// callers are not coupled to process-wide state.
+class RegionNameRegistry
+{
+public:
+    RegionNameRegistry() = default;
+    ~RegionNameRegistry() = default;
+
+    void Reset();
+    void AddRegion( const std::string & regionName );
+    int FindRegionId( const std::string & regionName ) const;
+    void DumpRegion( const std::string & fileName );
+    const CommonNameMap & GetNameMap() const { return nameMap; }
+
+private:
+    CommonNameMap nameMap;
+};
+
+// Process-wide default registry. Static methods forward to Default().
+// Prefer injecting RegionNameRegistry& into APIs that need isolation.
 class RegionNameMap
 {
 public:
     RegionNameMap() = default;
     ~RegionNameMap() = default;
-public:
-    static CommonNameMap nameMap;
-public:
+
+    static RegionNameRegistry & Default();
+
     static void Reset();
     static void AddRegion( const std::string & regionName );
     static int  FindRegionId( const std::string & regionName );

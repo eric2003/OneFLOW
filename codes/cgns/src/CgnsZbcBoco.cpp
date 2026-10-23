@@ -123,6 +123,11 @@ void CgnsZbcBoco::ConvertToInnerDataStandard()
 
 void CgnsZbcBoco::ScanBcFace( FaceSolver & faceSolver )
 {
+    this->ScanBcFace( faceSolver, RegionNameMap::Default() );
+}
+
+void CgnsZbcBoco::ScanBcFace( FaceSolver & faceSolver, RegionNameRegistry & regionNames )
+{
     // Register region names, then match faces by vertex set via
     // FaceSolver::ScanBcFaceDetail (not boundary-only ScanBcFace): CGNS BOCO
     // regions may mark faces before right-cell ownership is finalized.
@@ -130,8 +135,8 @@ void CgnsZbcBoco::ScanBcFace( FaceSolver & faceSolver )
     {
         CgnsBcBoco & cgnsBcBoco = this->GetCgnsBc( iBoco );
 
-        RegionNameMap::AddRegion( cgnsBcBoco.name );
-        cgnsBcBoco.nameId = RegionNameMap::FindRegionId( cgnsBcBoco.name );
+        regionNames.AddRegion( cgnsBcBoco.name );
+        cgnsBcBoco.nameId = regionNames.FindRegionId( cgnsBcBoco.name );
         cgnsBcBoco.ScanBcFace( faceSolver );
     }
 }
