@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
+from pathlib import Path
 
 
 class TaskType(str, Enum):
@@ -60,7 +61,6 @@ def task_definitions() -> tuple[TaskDefinition, ...]:
     return tuple(_TASK_DEFINITIONS.values())
 
 
-
 class TaskRunStatus(str, Enum):
     """Canonical persisted states shared by all Workbench task runners."""
 
@@ -92,3 +92,26 @@ def normalize_run_status(value: str | TaskRunStatus) -> TaskRunStatus:
     if status is None:
         raise ValueError(f"Unsupported task run status: {value!r}.")
     return status
+
+
+@dataclass(frozen=True, slots=True)
+class TaskRunResult:
+    """Toolkit-independent outcome shared by Workbench task execution services."""
+
+    task_type: TaskType
+    status: TaskRunStatus
+    return_code: int | None
+    execution_directory: Path
+    message: str
+
+    def __post_init__(self) -> None:
+        """Keep result values canonical at the boundary between runners and UI."""
+        object.__setattr__(self, "task_type", TaskType(self.task_type))
+        object.__setattr__(self, "status", normalize_run_status(self.status))
+        object.__setattr__(
+            self, "execution_directory", Path(self.execution_directory)
+        )
+        if self.return_code is not None and not isinstance(self.return_code, int):
+            raise ValueError("Task result return_code must be an integer or null.")
+        if not isinstance(self.message, str):
+            raise ValueError("Task result message must be a string.")
