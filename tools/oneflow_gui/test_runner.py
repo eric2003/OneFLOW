@@ -192,6 +192,7 @@ def build_regression_command(
     python: str | None = None,
     platform_name: str | None = None,
     test_directory: Path | None = None,
+    validate_executable: bool = True,
 ) -> TestCommand:
     """Invoke test/test.py with an existing suite manifest and the platform MPI command."""
     root = Path(repository_root).resolve()
@@ -201,7 +202,7 @@ def build_regression_command(
     if suite_path.parent != suite_directory or not suite_path.is_file():
         raise ValueError(f"Unknown regression suite: {suite_name!r}")
     executable_path = Path(executable).expanduser().resolve()
-    if not executable_path.is_file():
+    if validate_executable and not executable_path.is_file():
         raise FileNotFoundError(f"OneFLOW executable not found: {executable_path}")
 
     platform_value = (platform_name or os.name).lower()
