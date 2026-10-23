@@ -76,8 +76,11 @@ private:
     std::map< int, int > oneFlow2Cgns;
 public:
     void Init();
-    int OneFlow2Cgns( int oneflow_bctype );
-    int Cgns2OneFlow( int cgns_bctype );
+    int OneFlow2Cgns( int oneflow_bctype ) const;
+    int Cgns2OneFlow( int cgns_bctype ) const;
+
+    // Convert each entry from CGNS BC type ids to OneFLOW BC ids in place.
+    void MapFromCgnsInPlace( IntField & bcTypes ) const;
 };
 
 class CommonNameMap

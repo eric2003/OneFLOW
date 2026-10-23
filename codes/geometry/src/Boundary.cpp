@@ -139,10 +139,9 @@ void BcTypeMap::Init()
     oneFlow2Cgns.insert( IntPair( BC::GENERIC_3    , CGNS_ENUMV( BCTypeUserDefined ) ) );
 }
 
-int BcTypeMap::OneFlow2Cgns( int oneflow_bctype )
+int BcTypeMap::OneFlow2Cgns( int oneflow_bctype ) const
 {
-    std::map< int, int >::iterator iter;
-    iter = oneFlow2Cgns.find( oneflow_bctype );
+    auto iter = oneFlow2Cgns.find( oneflow_bctype );
     int cgns_bctype = BCTypeUserDefined;
     if ( iter != oneFlow2Cgns.end() )
     {
@@ -151,16 +150,23 @@ int BcTypeMap::OneFlow2Cgns( int oneflow_bctype )
     return cgns_bctype;
 }
 
-int BcTypeMap::Cgns2OneFlow( int cgns_bctype )
+int BcTypeMap::Cgns2OneFlow( int cgns_bctype ) const
 {
-    std::map< int, int >::iterator iter;
-    iter = cgns2OneFlow.find( cgns_bctype );
+    auto iter = cgns2OneFlow.find( cgns_bctype );
     int oneflow_bctype = BC::GENERIC_2;
     if ( iter != cgns2OneFlow.end() )
     {
         oneflow_bctype = iter->second;
     }
     return oneflow_bctype;
+}
+
+void BcTypeMap::MapFromCgnsInPlace( IntField & bcTypes ) const
+{
+    for ( int & bcType : bcTypes )
+    {
+        bcType = this->Cgns2OneFlow( bcType );
+    }
 }
 
 void CommonNameMap::AddName(const std::string& name)
