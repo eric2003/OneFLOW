@@ -486,6 +486,7 @@ class MainWindow(QMainWindow):
                 run_id=run_id,
                 workflow_id="case-workbench",
                 status="running",
+                task_type=TaskType.CASE_DATABASE.value,
                 started_at=started_at,
                 executable=str(Path(executable_text).resolve()),
                 steps=({
@@ -649,6 +650,7 @@ class MainWindow(QMainWindow):
                 message=f"Case queue finished with status '{status}'.",
                 note=record.note,
                 log_path=record.log_path,
+                task_type=record.task_type,
             )
             try:
                 self._history_repository.save_run(updated_record)
