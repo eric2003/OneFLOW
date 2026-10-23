@@ -24,6 +24,7 @@ License
 #include "ElementHome.h"
 #include "Fatal.h"
 #include "FaceTopo.h"
+#include "BcRecord.h"
 #include "CgnsSection.h"
 #include <algorithm>
 #include <limits>
@@ -442,6 +443,31 @@ void FaceSolver::ScanInterfaceBc()
             this->SetStagedFaceBc( iFace, BCTypeNull, bcNameId );
         }
     }
+}
+
+
+int FaceSolver::AppendBoundaryBcToRecord( BcRecord & bcRecord ) const
+{
+    if ( ! this->StagedBcMatchesFaceCount() )
+    {
+        throw std::logic_error(
+            "FaceSolver::AppendBoundaryBcToRecord: staged face arrays are not aligned" );
+    }
+
+    const auto & rightCells = this->faceTopo->GetRightCells();
+    const int nFaces = static_cast< int >( rightCells.size() );
+    int nBFaces = 0;
+
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
+    {
+        if ( rightCells[ iFace ] == ONEFLOW::INVALID_INDEX )
+        {
+            bcRecord.bcType.push_back( this->faceBcTypes[ iFace ] );
+            bcRecord.bcNameId.push_back( this->faceBcNameIds[ iFace ] );
+            ++ nBFaces;
+        }
+    }
+    return nBFaces;
 }
 
 int FaceSolver::GetNSimpleFace()

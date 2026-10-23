@@ -236,34 +236,10 @@ void GridElem::ScanBcFace()
 
 void GridElem::GenerateCalcElement()
 {
-    int nElement =  this->elemFeature.eTypes.size();
-
     FaceTopo & faceTopo = this->faceSolver.GetFaceTopo();
-
-    int nFaces = this->faceSolver.GetFaceTopo().GetFaces().size();
-    int nBFaces = 0;
-
-    //std::cout << " nFaces = " << nFaces << "\n";
-
-    for ( int iFace = 0; iFace < nFaces; ++ iFace )
-    {
-        if ( iFace % 200000 == 0 ) 
-        {
-            std::cout << " iFace = " << iFace << " numberOfTotalFaces = " << nFaces << std::endl;
-        }
-
-        int rc = faceTopo.GetRightCells()[ iFace ];
-
-        if ( rc == INVALID_INDEX )
-        {
-            faceTopo.GetBcRecord().bcType.push_back( this->faceSolver.faceBcTypes[ iFace ] );
-            faceTopo.GetBcRecord().bcNameId.push_back( this->faceSolver.faceBcNameIds[ iFace ] );
-            ++ nBFaces;
-        }
-    }
+    this->faceSolver.AppendBoundaryBcToRecord( faceTopo.GetBcRecord() );
 
     this->pointFactory.InitLocalToGlobal();
-
 }
 
 std::unique_ptr< UnsGrid > GridElem::GenerateCalcGrid( int gridId )

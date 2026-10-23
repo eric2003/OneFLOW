@@ -8,6 +8,7 @@
 #include "Constant.h"
 #include "FaceSolver.h"
 #include "FaceTopo.h"
+#include "BcRecord.h"
 
 using namespace ONEFLOW;
 
@@ -294,4 +295,32 @@ TEST( FaceSolverStageTest, StagedBcMatchesFaceCountRequiresChildFid )
 
     solver.childFid.pop_back();
     EXPECT_FALSE( solver.StagedBcMatchesFaceCount() );
+}
+
+TEST( FaceSolverStageTest, AppendBoundaryBcToRecordCopiesBoundaryOnly )
+{
+    FaceSolver solver;
+    solver.StageNewFace( IntField{ 1, 2, 3 }, 5, 0 ); // boundary: right INVALID
+    solver.StageNewFace( IntField{ 2, 3, 4 }, 5, 0 );
+    solver.GetFaceTopo().GetRightCells()[ 1 ] = 1; // interior
+    solver.SetStagedFaceBc( 0, 20, 5 );
+    solver.SetStagedFaceBc( 1, 30, 6 );
+
+    BcRecord record;
+    const int nBFaces = solver.AppendBoundaryBcToRecord( record );
+
+    EXPECT_EQ( nBFaces, 1 );
+    ASSERT_EQ( record.bcType.size(), static_cast< std::size_t >( 1 ) );
+    EXPECT_EQ( record.bcType[ 0 ], 20 );
+    EXPECT_EQ( record.bcNameId[ 0 ], 5 );
+}
+
+TEST( FaceSolverStageTest, AppendBoundaryBcToRecordRequiresAlignment )
+{
+    FaceSolver solver;
+    solver.StageNewFace( IntField{ 1, 2, 3 }, 5, 0 );
+    solver.childFid.pop_back();
+
+    BcRecord record;
+    EXPECT_THROW( solver.AppendBoundaryBcToRecord( record ), std::logic_error );
 }

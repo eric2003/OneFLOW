@@ -36,6 +36,7 @@ class MeshPointManager;
 class ElemFeature;
 class FaceTopo;
 class CgnsSection;
+class BcRecord;
 
 class FaceSolver
 {
@@ -71,6 +72,11 @@ public:
     void ScanBcFace( IntSet & bcVertex, int bcType, int bcNameId );
     void ScanBcFaceDetail( IntSet & bcVertex, int bcType, int bcNameId );
     void ScanInterfaceBc();
+
+    // Append staged BC of boundary faces (right cell INVALID) into bcRecord.
+    // Requires StagedBcMatchesFaceCount(). Returns number of boundary faces.
+    int AppendBoundaryBcToRecord( BcRecord & bcRecord ) const;
+
     int GetNSimpleFace();
 
     // Stage a newly discovered unique face: topology, face flag, and default
