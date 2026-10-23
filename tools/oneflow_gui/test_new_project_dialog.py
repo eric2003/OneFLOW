@@ -7,6 +7,7 @@ import unittest
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication
 
 from tools.oneflow_gui.new_project_dialog import NewProjectDialog
@@ -31,7 +32,7 @@ class NewProjectDialogTest(unittest.TestCase):
                     template.template_id,
                 )
                 self.assertEqual(
-                    dialog.template_combo.itemData(index, 3),
+                    dialog.template_combo.itemData(index, Qt.ItemDataRole.ToolTipRole),
                     template.description,
                 )
         finally:
