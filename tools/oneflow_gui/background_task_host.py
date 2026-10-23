@@ -93,14 +93,15 @@ def run_host(
                     break
                 time.sleep(poll_interval)
             return_code = process.wait()
+        stop_requested = stop_path.exists() or task.status == "stopping"
         if stop_path.exists():
             stop_path.unlink()
-        if return_code == 0:
-            final_status = "succeeded"
-            final_message = "Process completed successfully."
-        elif task.status == "stopping":
+        if stop_requested:
             final_status = "stopped"
             final_message = "Process stopped by request."
+        elif return_code == 0:
+            final_status = "succeeded"
+            final_message = "Process completed successfully."
         else:
             final_status = "failed"
             final_message = f"Process exited with code {return_code}."
