@@ -12,6 +12,7 @@ from pathlib import Path
 from PySide6.QtCore import QThread, Signal, Qt
 from PySide6.QtWidgets import (
     QCheckBox,
+    QDialog,
     QComboBox,
     QFileDialog,
     QFormLayout,
@@ -19,6 +20,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QLineEdit,
     QMainWindow,
+    QSplitter,
     QMessageBox,
     QPlainTextEdit,
     QPushButton,
@@ -254,6 +256,11 @@ class ProjectWindow(QMainWindow):
         self._run_changes: list[FileChange] = []
         self._run_output_count = 0
         self._run_change_counts = {"unchanged": 0, "added": 0, "modified": 0, "deleted": 0}
+        self._view_windows: dict[str, QMainWindow] = {}
+        self._detached_log: QPlainTextEdit | None = None
+        self._detached_changes_tree: QTreeWidget | None = None
+        self._detached_changes_summary: QLabel | None = None
+        self._detached_show_unchanged: QCheckBox | None = None
         paths = UserDataPaths.discover()
         self._history = WorkflowRepository(paths.workflow_data)
         self.setWindowTitle(f"OneFLOW Project - {project.name}")
@@ -373,9 +380,25 @@ class ProjectWindow(QMainWindow):
         self.file_details.setReadOnly(True)
         self.file_details.setMaximumHeight(85)
         self.file_details.setPlaceholderText("Select a file to see its classification and purpose.")
-        root.addWidget(self.inventory_tabs, 2)
-        root.addWidget(QLabel("Selected file details"))
-        root.addWidget(self.file_details)
+        # Detailed data views open in dedicated windows so they have enough space.
+        self.inventory_tabs.hide()
+        views_row = QHBoxLayout()
+        self.open_files_button = QPushButton("Open Project files")
+        self.open_files_button.clicked.connect(self._open_project_files)
+        self.open_changes_button = QPushButton("Open Run changes")
+        self.open_changes_button.clicked.connect(self._open_run_changes)
+        self.open_log_button = QPushButton("Open Run log")
+        self.open_log_button.clicked.connect(self._open_run_log)
+        for button in (self.open_files_button, self.open_changes_button, self.open_log_button):
+            button.setMinimumHeight(42)
+            views_row.addWidget(button)
+        root.addLayout(views_row)
+        self.project_status = QLabel(
+            "Project inventory is ready. Open a dedicated view to inspect files, changes, or logs."
+        )
+        self.project_status.setWordWrap(True)
+        root.addWidget(self.project_status)
+        root.addStretch(1)
 
         self._refresh_project_inventory()
 
@@ -390,6 +413,124 @@ class ProjectWindow(QMainWindow):
         actions.addStretch(1)
         root.addLayout(actions)
         self.setCentralWidget(central)
+
+    def _remember_view(self, key: str, window: QMainWindow) -> None:
+        existing = self._view_windows.get(key)
+        if existing is not None:
+            existing.show()
+            existing.raise_()
+            existing.activateWindow()
+            return
+        self._view_windows[key] = window
+        window.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
+        window.destroyed.connect(lambda *_args, view_key=key: self._view_windows.pop(view_key, None))
+        window.show()
+        window.raise_()
+        window.activateWindow()
+
+    @staticmethod
+    def _copy_tree_item(source: QTreeWidgetItem, target_parent) -> QTreeWidgetItem:
+        item = QTreeWidgetItem([source.text(column) for column in range(source.columnCount())])
+        item.setData(0, Qt.ItemDataRole.UserRole, source.data(0, Qt.ItemDataRole.UserRole))
+        for column in range(source.columnCount()):
+            item.setToolTip(column, source.toolTip(column))
+        if target_parent is None:
+            return item
+        target_parent.addChild(item)
+        return item
+
+    def _clone_tree(self, source: QTreeWidget, target: QTreeWidget) -> None:
+        def clone_children(source_parent, target_parent):
+            for index in range(source_parent.childCount()):
+                source_item = source_parent.child(index)
+                target_item = self._copy_tree_item(source_item, target_parent)
+                clone_children(source_item, target_item)
+
+        for index in range(source.topLevelItemCount()):
+            source_item = source.topLevelItem(index)
+            target_item = self._copy_tree_item(source_item, None)
+            target.addTopLevelItem(target_item)
+            clone_children(source_item, target_item)
+        target.setSortingEnabled(True)
+        target.sortItems(0, Qt.SortOrder.AscendingOrder)
+        target.expandToDepth(1)
+
+    def _open_project_files(self) -> None:
+        window = QMainWindow(self)
+        window.setWindowTitle(f"Project files - {self._project.name}")
+        window.resize(1450, 900)
+        central = QWidget(window)
+        layout = QVBoxLayout(central)
+        splitter = QSplitter(Qt.Orientation.Vertical, central)
+        tree = QTreeWidget(splitter)
+        tree.setHeaderLabels(["Path", "Kind", "Category", "Size", "Purpose"])
+        tree.setColumnWidth(0, 420)
+        tree.setColumnWidth(4, 420)
+        self._clone_tree(self.project_tree, tree)
+        details = QPlainTextEdit(splitter)
+        details.setReadOnly(True)
+        details.setMinimumHeight(150)
+        details.setPlaceholderText("Select a file to inspect its classification and purpose.")
+        tree.itemSelectionChanged.connect(
+            lambda: self._show_entry_in_view(tree, details)
+        )
+        splitter.addWidget(tree)
+        splitter.addWidget(details)
+        splitter.setSizes([650, 220])
+        layout.addWidget(splitter)
+        window.setCentralWidget(central)
+        self._remember_view("files", window)
+
+    @staticmethod
+    def _show_entry_in_view(tree: QTreeWidget, details: QPlainTextEdit) -> None:
+        selected = tree.selectedItems()
+        if not selected:
+            return
+        entry = selected[0].data(0, Qt.ItemDataRole.UserRole)
+        if not isinstance(entry, ProjectFileEntry):
+            return
+        details.setPlainText(
+            f"Path: {entry.relative_path}\nKind: {entry.kind}\n"
+            f"Category: {entry.category}\nSize: {entry.size_bytes:,} bytes\n"
+            f"Purpose: {entry.purpose}"
+        )
+
+    def _open_run_changes(self) -> None:
+        window = QMainWindow(self)
+        window.setWindowTitle(f"Run changes - {self._project.name}")
+        window.resize(1450, 900)
+        central = QWidget(window)
+        layout = QVBoxLayout(central)
+        summary = QLabel(self.changes_summary.text())
+        summary.setWordWrap(True)
+        unchanged = QCheckBox("Show unchanged files")
+        unchanged.setChecked(self.show_unchanged.isChecked())
+        tree = QTreeWidget()
+        tree.setHeaderLabels(["Path", "Change", "Category", "Size", "Purpose"])
+        tree.setColumnWidth(0, 420)
+        tree.setColumnWidth(4, 420)
+        layout.addWidget(summary)
+        layout.addWidget(unchanged)
+        layout.addWidget(tree, 1)
+        self._detached_changes_tree = tree
+        self._detached_changes_summary = summary
+        self._detached_show_unchanged = unchanged
+        unchanged.toggled.connect(self._render_run_changes)
+        self._render_run_changes()
+        window.setCentralWidget(central)
+        self._remember_view("changes", window)
+
+    def _open_run_log(self) -> None:
+        window = QMainWindow(self)
+        window.setWindowTitle(f"Run log - {self._project.name}")
+        window.resize(1200, 850)
+        log = QPlainTextEdit()
+        log.setReadOnly(True)
+        log.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)
+        log.setPlainText(self.log_view.toPlainText())
+        window.setCentralWidget(log)
+        self._detached_log = log
+        self._remember_view("log", window)
 
     def _refresh_project_inventory(self) -> None:
         self.project_tree.clear()
@@ -485,6 +626,27 @@ class ProjectWindow(QMainWindow):
             item.setToolTip(0, entry.relative_path)
             self.changes_tree.addTopLevelItem(item)
         self.changes_tree.sortItems(0, Qt.SortOrder.AscendingOrder)
+        if self._detached_changes_tree is not None:
+            self._detached_changes_tree.clear()
+            for change in self._run_changes:
+                show_unchanged = (
+                    self._detached_show_unchanged.isChecked()
+                    if self._detached_show_unchanged is not None
+                    else self.show_unchanged.isChecked()
+                )
+                if change.status == "unchanged" and not show_unchanged:
+                    continue
+                entry = change.entry
+                size = "" if entry.kind == "directory" else f"{entry.size_bytes:,} B"
+                item = QTreeWidgetItem([
+                    entry.relative_path, change.status, entry.category, size, entry.purpose
+                ])
+                item.setData(0, Qt.ItemDataRole.UserRole, entry)
+                item.setToolTip(0, entry.relative_path)
+                self._detached_changes_tree.addTopLevelItem(item)
+            self._detached_changes_tree.sortItems(0, Qt.SortOrder.AscendingOrder)
+        if self._detached_changes_summary is not None:
+            self._detached_changes_summary.setText(self.changes_summary.text())
 
     def _choose_executable(self) -> None:
         current = self.executable_combo.currentText().strip()
@@ -586,6 +748,8 @@ class ProjectWindow(QMainWindow):
 
     def _append_log(self, line: str) -> None:
         self.log_view.appendPlainText(line)
+        if self._detached_log is not None:
+            self._detached_log.appendPlainText(line)
         if self._log_path is not None:
             try:
                 with self._log_path.open("a", encoding="utf-8") as stream:
@@ -626,6 +790,9 @@ class ProjectWindow(QMainWindow):
         self.run_button.setEnabled(True)
         self.stop_button.setEnabled(False)
         self.statusBar().showMessage(f"Project run {outcome.status}")
+        self.project_status.setText(
+            f"Last run: {outcome.status}. Execution directory: {outcome.project_directory}"
+        )
         self._worker = None
 
     def _stop_run(self) -> None:
