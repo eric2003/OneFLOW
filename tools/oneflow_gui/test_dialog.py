@@ -22,6 +22,7 @@ from PySide6.QtWidgets import (
 
 from .executable_discovery import executable_candidates
 from .user_data_paths import UserDataPaths
+from .task_types import TaskType, task_definition
 from .test_runner import (
     TestCommand,
     available_suites,
@@ -124,11 +125,17 @@ class TestRunnerDialog(QDialog):
         layout = QVBoxLayout(self)
         layout.addWidget(QLabel("Choose unit tests and/or an existing CFD/grid regression suite."))
 
-        self.unit_tests_check = QCheckBox("Unit tests (CTest and Python tests)")
+        unit_test_task = task_definition(TaskType.UNIT_TESTS)
+        regression_task = task_definition(TaskType.CFD_GRID_REGRESSION)
+        self.unit_tests_check = QCheckBox(
+            f"{unit_test_task.title} (CTest and Python tests)"
+        )
         self.unit_tests_check.setChecked(True)
         layout.addWidget(self.unit_tests_check)
 
-        self.regression_check = QCheckBox("Optional CFD / grid regression")
+        self.regression_check = QCheckBox(
+            f"Optional {regression_task.title}"
+        )
         self.regression_check.setChecked(False)
         layout.addWidget(self.regression_check)
 
