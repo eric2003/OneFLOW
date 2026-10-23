@@ -11,6 +11,7 @@ from pathlib import Path
 
 from PySide6.QtCore import QThread, Signal, Qt
 from PySide6.QtWidgets import (
+    QCheckBox,
     QComboBox,
     QFileDialog,
     QFormLayout,
@@ -30,6 +31,7 @@ from PySide6.QtWidgets import (
 
 from .executable_discovery import executable_candidates
 from .project_inventory import (
+    FileChange,
     ProjectFileEntry,
     compare_inventory,
     scan_project,
@@ -243,10 +245,14 @@ class ProjectWindow(QMainWindow):
         self._active_record: WorkflowRunRecord | None = None
         self._log_path: Path | None = None
         self._inventory_baseline = scan_project(project.root)
+        self._run_changes: list[FileChange] = []
+        self._run_output_count = 0
+        self._run_change_counts = {"unchanged": 0, "added": 0, "modified": 0, "deleted": 0}
         paths = UserDataPaths.discover()
         self._history = WorkflowRepository(paths.workflow_data)
         self.setWindowTitle(f"OneFLOW Project - {project.name}")
-        self.resize(900, 650)
+        self.resize(1180, 820)
+        self.setMinimumSize(900, 650)
         self._build_ui()
 
     def _build_ui(self) -> None:
@@ -277,15 +283,11 @@ class ProjectWindow(QMainWindow):
             QLabel(str(self._project.runtime_file) if self._project.runtime_file else "Not detected"),
         )
         root.addLayout(details)
-        parameter_files = QPlainTextEdit()
-        parameter_files.setReadOnly(True)
-        parameter_files.setMaximumHeight(110)
-        parameter_files.setPlaceholderText("No parameter files detected.")
-        parameter_files.setPlainText(
-            "\n".join(str(path) for path in self._project.parameter_files)
+        parameter_text = "\n".join(str(path) for path in self._project.parameter_files)
+        details.addRow(
+            "Parameter files",
+            QLabel(parameter_text or "None detected"),
         )
-        root.addWidget(QLabel("Parameter files"))
-        root.addWidget(parameter_files)
 
         executable_row = QHBoxLayout()
         executable_row.addWidget(QLabel("OneFLOW executable"))
@@ -341,11 +343,25 @@ class ProjectWindow(QMainWindow):
         self.changes_tree.setHeaderLabels(["Path", "Change", "Category", "Size", "Purpose"])
         self.changes_tree.setColumnWidth(0, 300)
         self.changes_summary = QLabel("Run the project to compare files.")
+        self.show_unchanged = QCheckBox("Show unchanged files")
+        self.show_unchanged.setChecked(False)
+        self.show_unchanged.toggled.connect(self._render_run_changes)
         changes_page = QWidget()
         changes_layout = QVBoxLayout(changes_page)
+        changes_layout.setContentsMargins(10, 10, 10, 10)
+        changes_layout.setSpacing(8)
         changes_layout.addWidget(self.changes_summary)
+        changes_layout.addWidget(self.show_unchanged)
         changes_layout.addWidget(self.changes_tree, 1)
         self.inventory_tabs.addTab(changes_page, "Run changes")
+
+        self.log_view = QPlainTextEdit()
+        self.log_view.setReadOnly(True)
+        log_page = QWidget()
+        log_layout = QVBoxLayout(log_page)
+        log_layout.setContentsMargins(10, 10, 10, 10)
+        log_layout.addWidget(self.log_view)
+        self.inventory_tabs.addTab(log_page, "Run log")
 
         self.file_details = QPlainTextEdit()
         self.file_details.setReadOnly(True)
@@ -355,10 +371,6 @@ class ProjectWindow(QMainWindow):
         root.addWidget(QLabel("Selected file details"))
         root.addWidget(self.file_details)
 
-        self.log_view = QPlainTextEdit()
-        self.log_view.setReadOnly(True)
-        root.addWidget(QLabel("Run log"))
-        root.addWidget(self.log_view, 1)
         self._refresh_project_inventory()
 
         actions = QHBoxLayout()
@@ -445,13 +457,31 @@ class ProjectWindow(QMainWindow):
             ])
             item.setData(0, Qt.ItemDataRole.UserRole, entry)
             self.changes_tree.addTopLevelItem(item)
-        self.changes_tree.sortItems(0, 0)
+        self._run_changes = changes
+        self._run_output_count = len(run_outputs)
+        self._run_change_counts = counts
         self.changes_summary.setText(
-            f"Unchanged: {counts['unchanged']}    Added: {counts['added']}    "
-            f"Modified: {counts['modified']}    Deleted: {counts['deleted']}    "
+            f"Added: {counts['added']}    Modified: {counts['modified']}    "
+            f"Deleted: {counts['deleted']}    Unchanged: {counts['unchanged']}    "
             f"Workflow run outputs: {len(run_outputs)}"
         )
+        self._render_run_changes()
         self.inventory_tabs.setCurrentIndex(1)
+
+    def _render_run_changes(self) -> None:
+        self.changes_tree.clear()
+        for change in self._run_changes:
+            if change.status == "unchanged" and not self.show_unchanged.isChecked():
+                continue
+            entry = change.entry
+            size = "" if entry.kind == "directory" else f"{entry.size_bytes:,} B"
+            item = QTreeWidgetItem([
+                entry.relative_path, change.status, entry.category, size, entry.purpose
+            ])
+            item.setData(0, Qt.ItemDataRole.UserRole, entry)
+            item.setToolTip(0, entry.relative_path)
+            self.changes_tree.addTopLevelItem(item)
+        self.changes_tree.sortItems(0, Qt.SortOrder.AscendingOrder)
 
     def _choose_executable(self) -> None:
         current = self.executable_combo.currentText().strip()
