@@ -6,7 +6,9 @@ import unittest
 
 from tools.oneflow_gui.task_types import (
     ExecutionLocation,
+    TaskRunStatus,
     TaskType,
+    normalize_run_status,
     task_definition,
     task_definitions,
 )
@@ -41,6 +43,28 @@ class TaskTypesTest(unittest.TestCase):
             {definition.task_type for definition in definitions},
             set(TaskType),
         )
+
+    def test_run_statuses_normalize_to_canonical_values(self) -> None:
+        self.assertEqual(
+            normalize_run_status("Pending"), TaskRunStatus.PENDING
+        )
+        self.assertEqual(
+            normalize_run_status("Passed"), TaskRunStatus.SUCCEEDED
+        )
+        self.assertEqual(
+            normalize_run_status("Succeeded"), TaskRunStatus.SUCCEEDED
+        )
+        self.assertEqual(
+            normalize_run_status("Cancelled"), TaskRunStatus.CANCELLED
+        )
+        self.assertEqual(
+            {status.value for status in TaskRunStatus},
+            {"pending", "running", "succeeded", "failed", "cancelled"},
+        )
+
+    def test_unknown_run_status_is_rejected(self) -> None:
+        with self.assertRaisesRegex(ValueError, "Unsupported task run status"):
+            normalize_run_status("skipped")
 
     def test_string_task_type_resolves_to_definition(self) -> None:
         definition = task_definition(TaskType("unit_tests"))
