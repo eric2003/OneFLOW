@@ -20,6 +20,7 @@ class TestCommand:
     label: str
     arguments: tuple[str, ...]
     working_directory: Path
+    task_type: TaskType = TaskType.UNIT_TESTS
 
 
 _PYTHON_UNIT_TESTS = (
@@ -237,4 +238,5 @@ def build_regression_command(
             f"suites/{suite_name}",
         ),
         regression_directory,
+        task_type=TaskType.CFD_GRID_REGRESSION,
     )
