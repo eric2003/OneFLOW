@@ -53,7 +53,7 @@ class RunQueueWorker(QThread):
     log_line = Signal(str)
     case_state = Signal(str, str)
     case_result = Signal(object)
-    task_result = Signal(object)
+    task_result = Signal(str, object)
 
     def __init__(
         self,
@@ -109,6 +109,7 @@ class RunQueueWorker(QThread):
         """Publish both the case-specific and shared task outcome contracts."""
         self.case_result.emit(result)
         self.task_result.emit(
+            result.case_id,
             TaskRunResult(
                 task_type=TaskType.CASE_DATABASE,
                 status=TaskRunStatus(result.state.value.lower()),
@@ -650,12 +651,18 @@ class MainWindow(QMainWindow):
             "message": result.message,
         })
 
-    def _show_task_result(self, result: TaskRunResult) -> None:
-        """Persist the shared result beside the detailed case outcome."""
-        if self._active_case_run_steps:
-            last_step = self._active_case_run_steps[-1]
-            if last_step.get("type") == "case":
-                last_step["task_result"] = result.to_dict()
+    def _show_task_result(self, case_id: str, result: TaskRunResult) -> None:
+        """Persist the shared result beside its matching case outcome."""
+        case_step = next(
+            (
+                step
+                for step in reversed(self._active_case_run_steps)
+                if step.get("type") == "case" and step.get("case_id") == case_id
+            ),
+            None,
+        )
+        if case_step is not None:
+            case_step["task_result"] = result.to_dict()
         self._append_case_run_log(
             f"TASK RESULT: {result.task_type.value} / {result.status.value} "
             f"/ exit={result.return_code} "
