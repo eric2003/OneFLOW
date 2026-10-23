@@ -230,6 +230,9 @@ class TestRunnerCommandTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             (root / "test" / "suites").mkdir(parents=True)
+            (root / "test" / "suites" / "ci-serial.txt").write_text(
+                "cfd/example\n", encoding="utf-8"
+            )
             with self.assertRaisesRegex(ValueError, "Unknown regression suite"):
                 build_regression_command(root, root / "missing.exe", "missing.txt")
             executable = root / "OneFLOW.exe"
