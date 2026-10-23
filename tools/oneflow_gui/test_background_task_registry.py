@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import tempfile
 import unittest
+from dataclasses import replace
 from pathlib import Path
 
 from tools.oneflow_gui.background_task_registry import (
@@ -40,14 +41,12 @@ class BackgroundTaskRegistryTest(unittest.TestCase):
     def test_save_replaces_record_without_leaving_temporary_files(self) -> None:
         task = self.make_task()
         self.registry.save(task)
-        updated = BackgroundTask(
-            **{
-                **task.__dict__,
-                "host_pid": 1234,
-                "process_pid": 5678,
-                "status": "running",
-                "updated_at": "2026-10-24T12:00:00+00:00",
-            }
+        updated = replace(
+            task,
+            host_pid=1234,
+            process_pid=5678,
+            status="running",
+            updated_at="2026-10-24T12:00:00+00:00",
         )
         self.registry.save(updated)
 
