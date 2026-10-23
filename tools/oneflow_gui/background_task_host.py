@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import signal
 import subprocess
 import sys
 import time
@@ -85,10 +86,25 @@ def run_host(
                     )
                     registry.save(task)
                     try:
-                        process.terminate()
+                        if os.name == "nt":
+                            subprocess.run(
+                                ["taskkill", "/PID", str(process.pid), "/T", "/F"],
+                                stdin=subprocess.DEVNULL,
+                                stdout=subprocess.DEVNULL,
+                                stderr=subprocess.DEVNULL,
+                                check=False,
+                            )
+                        else:
+                            os.killpg(process.pid, signal.SIGTERM)
                         process.wait(timeout=5)
-                    except subprocess.TimeoutExpired:
-                        process.kill()
+                    except (OSError, subprocess.TimeoutExpired):
+                        try:
+                            if os.name == "nt":
+                                process.kill()
+                            else:
+                                os.killpg(process.pid, signal.SIGKILL)
+                        except OSError:
+                            pass
                         process.wait()
                     break
                 time.sleep(poll_interval)
