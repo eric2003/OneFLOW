@@ -80,6 +80,7 @@ class TestRunnerCommandTest(unittest.TestCase):
             build.mkdir()
             (build / "CMakeCache.txt").write_text("", encoding="utf-8")
             (build / "build.ninja").write_text("", encoding="utf-8")
+            (build / "CTestTestfile.cmake").write_text("", encoding="utf-8")
             commands = build_default_test_commands(root, python="python-test")
             self.assertEqual(commands[0].label, "CMake build (Debug)")
             self.assertEqual(commands[1].label, "C++ unit tests (CTest)")
