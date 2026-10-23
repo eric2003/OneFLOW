@@ -86,7 +86,7 @@ def run_project(
                 command = [str(executable), "r", str(step.directory)]
                 _log(f"Workflow case: {step.case_id}")
                 _log("Command: " + json.dumps(command, ensure_ascii=True))
-                result = run_process(command, cwd=executable.parent, on_output=_log)
+                result = run_process(command, cwd=executable.parent, on_output=_log, is_cancelled=lambda: False)
                 _log(f"Case {step.case_id}: {result.status} - {result.message}")
                 return result.status, result.message
 
@@ -104,7 +104,7 @@ def run_project(
 
         command = [str(executable), "r", str(execution_directory)]
         _log("Command: " + json.dumps(command, ensure_ascii=True))
-        result = run_process(command, cwd=executable.parent, on_output=_log)
+        result = run_process(command, cwd=executable.parent, on_output=_log, is_cancelled=lambda: False)
         _log(result.message)
         return result.return_code if result.return_code is not None else 1
     except (OSError, ValueError, shutil.Error, json.JSONDecodeError) as error:
