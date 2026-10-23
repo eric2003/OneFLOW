@@ -93,15 +93,26 @@ class RunQueueWorker(QThread):
             self.log_line.emit(
                 f"\n=== Case {index + 1}/{len(self._cases)}: {case.title} ==="
             )
-            result = run_case(
-                case,
-                self._executable,
-                self._workspace_root,
-                self._run_id,
-                self._cancel_event,
-                self.log_line.emit,
-                execution_mode=self._execution_mode,
-            )
+            try:
+                result = run_case(
+                    case,
+                    self._executable,
+                    self._workspace_root,
+                    self._run_id,
+                    self._cancel_event,
+                    self.log_line.emit,
+                    execution_mode=self._execution_mode,
+                )
+            except Exception as error:
+                message = f"Case runner raised an unexpected error: {error}"
+                self.log_line.emit(f"[{case.case_id}] {message}")
+                result = CaseRunResult(
+                    case.case_id,
+                    RunState.FAILED,
+                    None,
+                    self._workspace_root / self._run_id / case.case_id,
+                    message,
+                )
             self._emit_result(result)
             self.case_state.emit(case.case_id, result.state.value)
 
