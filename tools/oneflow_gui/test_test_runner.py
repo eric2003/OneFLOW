@@ -6,6 +6,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from tools.oneflow_gui.task_types import TaskType
 from tools.oneflow_gui.test_runner import (
     available_suites,
     build_cmake_command,
@@ -27,6 +28,7 @@ class TestRunnerCommandTest(unittest.TestCase):
         self.assertIn("Mesh workflow tests", labels)
         self.assertIn("Workflow persistence tests", labels)
         self.assertIn("GUI test command builder tests", labels)
+        self.assertTrue(all(command.task_type is TaskType.UNIT_TESTS for command in commands))
         self.assertFalse(any("OneFLOW.exe" in " ".join(command.arguments) for command in commands))
 
     def test_configure_command_uses_build_directory_and_repository_root(self) -> None:
@@ -185,6 +187,7 @@ class TestRunnerCommandTest(unittest.TestCase):
             self.assertEqual(command.arguments[2], "mpiexec -n 1")
             self.assertEqual(command.arguments[3], '"' + str(executable.resolve()) + '"')
             self.assertEqual(command.arguments[4], "suites/ci-serial.txt")
+            self.assertIs(command.task_type, TaskType.CFD_GRID_REGRESSION)
 
             staged_test_directory = root / "user-data" / "cfd-regression"
             staged_test_directory.mkdir(parents=True)
