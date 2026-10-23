@@ -525,7 +525,7 @@ class MainWindow(QMainWindow):
             QMessageBox.critical(self, "Cannot record run", str(error))
             return
         self._active_case_run_record = initial_record
-        self._active_case_run_steps = []
+        self._active_case_run_steps = list(initial_record.steps)
         self._active_case_run_log_path = log_path
         self.log_view.appendPlainText(
             f"\nRun {run_id}\nExecutable: {Path(executable_text).resolve()}\n"
@@ -673,7 +673,11 @@ class MainWindow(QMainWindow):
         record = self._active_case_run_record
         if record is not None:
             status = aggregate_run_status(
-                tuple(step["status"] for step in self._active_case_run_steps)
+                tuple(
+                    step["status"]
+                    for step in self._active_case_run_steps
+                    if step.get("type") == "case"
+                )
             ).value
             updated_record = WorkflowRunRecord(
                 run_id=record.run_id,
