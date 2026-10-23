@@ -423,10 +423,28 @@ class ProjectWindow(QMainWindow):
             return
         self._view_windows[key] = window
         window.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
-        window.destroyed.connect(lambda *_args, view_key=key: self._view_windows.pop(view_key, None))
+        window.destroyed.connect(lambda *_args, view_key=key: self._forget_view(view_key))
         window.show()
         window.raise_()
         window.activateWindow()
+
+    def _forget_view(self, key: str) -> None:
+        self._view_windows.pop(key, None)
+        if key == "changes":
+            self._detached_changes_tree = None
+            self._detached_changes_summary = None
+            self._detached_show_unchanged = None
+        elif key == "log":
+            self._detached_log = None
+
+    def _activate_existing_view(self, key: str) -> bool:
+        window = self._view_windows.get(key)
+        if window is None:
+            return False
+        window.show()
+        window.raise_()
+        window.activateWindow()
+        return True
 
     @staticmethod
     def _copy_tree_item(source: QTreeWidgetItem, target_parent) -> QTreeWidgetItem:
@@ -456,6 +474,8 @@ class ProjectWindow(QMainWindow):
         target.expandToDepth(1)
 
     def _open_project_files(self) -> None:
+        if self._activate_existing_view("files"):
+            return
         window = QMainWindow(self)
         window.setWindowTitle(f"Project files - {self._project.name}")
         window.resize(1450, 900)
@@ -496,6 +516,8 @@ class ProjectWindow(QMainWindow):
         )
 
     def _open_run_changes(self) -> None:
+        if self._activate_existing_view("changes"):
+            return
         window = QMainWindow(self)
         window.setWindowTitle(f"Run changes - {self._project.name}")
         window.resize(1450, 900)
@@ -521,6 +543,8 @@ class ProjectWindow(QMainWindow):
         self._remember_view("changes", window)
 
     def _open_run_log(self) -> None:
+        if self._activate_existing_view("log"):
+            return
         window = QMainWindow(self)
         window.setWindowTitle(f"Run log - {self._project.name}")
         window.resize(1200, 850)
