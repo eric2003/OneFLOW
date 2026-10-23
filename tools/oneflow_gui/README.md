@@ -94,7 +94,7 @@ The long-term product direction is documented in both [Chinese](../../docs/ONEFL
 - `workflow_execution.py`: shell-free construction of one-process,
   multi-directory command arguments, preserving the user-specified order.
 - `home_window.py`: Workbench activity selector with Case Database and Task Runner entries, plus a Run mode selector for single-case, multi-case, and dependency-workflow execution.
-- `task_types.py`: shared task categories, explicit execution-location policy, and canonical run statuses for Case Database, Unit Tests, and CFD/Grid Regression.
+- `task_types.py`: shared task categories, explicit execution-location policy, canonical run statuses, and the immutable Qt-independent `TaskRunResult` contract (task type, final status, return code, execution directory, and message).
 - `test_task_types.py`: tests task classification, execution-location policy, and normalization of GUI-facing status labels to persisted states.
 - `workflow_repository.py`: normalizes legacy run-status labels when loading history while continuing to persist canonical lowercase states.
 - `main_window.py`: Case Workbench widgets, execution-location selection, and the sequential case queue worker.
@@ -111,6 +111,9 @@ The long-term product direction is documented in both [Chinese](../../docs/ONEFL
 
 The GUI is an optional tool and is not a runtime dependency of OneFLOW. Core
 case discovery and process execution remain separable from the GUI framework.
+The shared `TaskRunResult` model establishes a common outcome contract without
+merging the case queue and test-command workers; each runner retains its own
+execution and cancellation semantics.
 
 ## Service tests
 
