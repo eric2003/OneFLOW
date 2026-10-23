@@ -13,11 +13,62 @@ from PySide6.QtWidgets import (
     QPushButton,
     QTableWidget,
     QTableWidgetItem,
+    QTextEdit,
+    QLabel,
     QVBoxLayout,
 )
 
 from .background_task_manager import request_background_stop
 from .background_task_registry import ACTIVE_STATUSES, BackgroundTask, BackgroundTaskRegistry
+
+
+class BackgroundTaskLogDialog(QDialog):
+    """Display persisted task metadata and its live or completed output log."""
+
+    def __init__(self, task: BackgroundTask, parent=None) -> None:
+        super().__init__(parent)
+        self._task = task
+        self.setWindowTitle(f"Run Result - {task.task_id}")
+        self.resize(900, 650)
+        layout = QVBoxLayout(self)
+        self.details = QLabel(self)
+        self.details.setWordWrap(True)
+        layout.addWidget(self.details)
+        self.output = QTextEdit(self)
+        self.output.setReadOnly(True)
+        self.output.setLineWrapMode(QTextEdit.LineWrapMode.NoWrap)
+        layout.addWidget(self.output, 1)
+        close_button = QPushButton("Close")
+        close_button.clicked.connect(self.accept)
+        layout.addWidget(close_button)
+        self._timer = QTimer(self)
+        self._timer.setInterval(1000)
+        self._timer.timeout.connect(self.refresh)
+        self.refresh()
+        if task.status in ACTIVE_STATUSES:
+            self._timer.start()
+
+    def refresh(self) -> None:
+        self.details.setText(
+            f"Status: {self._task.status}    Message: {self._task.message}\\n"
+            f"Project: {self._task.project_directory}\\n"
+            f"Executable: {self._task.executable}\\n"
+            f"Execution mode: {self._task.execution_mode}\\n"
+            f"Started: {self._task.started_at}\\n"
+            f"Log: {self._task.log_file}"
+        )
+        try:
+            content = Path(self._task.log_file).read_text(encoding="utf-8", errors="replace")
+        except OSError as error:
+            content = f"Unable to read task log: {error}"
+        if self.output.toPlainText() != content:
+            scrollbar = self.output.verticalScrollBar()
+            follow_tail = scrollbar.value() >= scrollbar.maximum() - 2
+            self.output.setPlainText(content)
+            if follow_tail:
+                scrollbar.setValue(scrollbar.maximum())
+        if self._task.status not in ACTIVE_STATUSES:
+            self._timer.stop()
 
 
 class BackgroundTaskDialog(QDialog):
@@ -38,6 +89,7 @@ class BackgroundTaskDialog(QDialog):
         self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.table.setSelectionMode(QTableWidget.SelectionMode.SingleSelection)
         self.table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        self.table.cellDoubleClicked.connect(lambda _row, _column: self._view_selected())
         self.table.horizontalHeader().setStretchLastSection(True)
         self.table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
         layout.addWidget(self.table, 1)
@@ -46,6 +98,9 @@ class BackgroundTaskDialog(QDialog):
         self.refresh_button = QPushButton("Refresh")
         self.refresh_button.clicked.connect(self.refresh)
         actions.addWidget(self.refresh_button)
+        self.view_button = QPushButton("View Result / Log")
+        self.view_button.clicked.connect(self._view_selected)
+        actions.addWidget(self.view_button)
         self.stop_button = QPushButton("Stop Task")
         self.stop_button.clicked.connect(self._stop_selected)
         actions.addWidget(self.stop_button)
@@ -98,8 +153,16 @@ class BackgroundTaskDialog(QDialog):
 
     def _update_actions(self) -> None:
         task = self._selected_task()
+        self.view_button.setEnabled(task is not None)
         self.stop_button.setEnabled(task is not None and task.status in ACTIVE_STATUSES)
         self.unregister_button.setEnabled(task is not None and task.status not in ACTIVE_STATUSES)
+
+    def _view_selected(self) -> None:
+        task = self._selected_task()
+        if task is None:
+            return
+        dialog = BackgroundTaskLogDialog(task, self)
+        dialog.exec()
 
     def _stop_selected(self) -> None:
         task = self._selected_task()
