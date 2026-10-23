@@ -303,6 +303,7 @@ class TestRunnerDialog(QDialog):
         self._worker = TestCommandWorker(commands)
         self._worker.output_line.connect(self.log_view.appendPlainText)
         self._worker.completed.connect(self._completed)
+        self._worker.command_completed.connect(self._command_completed)
         self._worker.finished.connect(self._worker_finished)
         self._worker.start()
 
@@ -310,6 +311,12 @@ class TestRunnerDialog(QDialog):
         if self._worker is not None:
             self._worker.request_stop()
             self.stop_button.setEnabled(False)
+
+    def _command_completed(self, result: TaskRunResult) -> None:
+        self.log_view.appendPlainText(
+            f"RESULT: {result.task_type.value} / {result.status.value} "
+            f"/ exit={result.return_code} / cwd={result.execution_directory}"
+        )
 
     def _completed(self, passed: bool, message: str) -> None:
         self.log_view.appendPlainText(f"\n{message}")
