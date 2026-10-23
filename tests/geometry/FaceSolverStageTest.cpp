@@ -1,6 +1,6 @@
 // tests/geometry/FaceSolverStageTest.cpp
-// Locks StageNewFace / SetStagedFaceBc invariants for the polygon-style path
-// without a full CGNS scan. Product sources under codes/ are unchanged.
+// Locks StageNewFace / ClaimStagedFaceAsLeft / AttachStagedFaceAsRight
+// invariants for the polygon-style path without a full CGNS scan.
 
 #include <gtest/gtest.h>
 #include <stdexcept>
@@ -27,32 +27,56 @@ TEST( FaceSolverStageTest, StageNewFaceGrowsFaceFlagsWithTopology )
     EXPECT_EQ( solver.faceBcTypes.size(), static_cast< std::size_t >( 2 ) );
     EXPECT_EQ( solver.faceBcNameIds.size(), static_cast< std::size_t >( 2 ) );
 
-    EXPECT_EQ( topo.GetFaceFlags()[ 0 ], 0 );
-    EXPECT_EQ( topo.GetFaceFlags()[ 1 ], 0 );
+    EXPECT_EQ( topo.GetFaceFlags()[ 0 ], FaceSolver::kFaceUnclaimed );
+    EXPECT_EQ( topo.GetFaceFlags()[ 1 ], FaceSolver::kFaceUnclaimed );
     EXPECT_EQ( topo.GetLeftCells()[ 1 ], INVALID_INDEX );
     EXPECT_EQ( solver.faceBcTypes[ 0 ], INVALID_INDEX );
     EXPECT_EQ( solver.faceBcNameIds[ 1 ], INVALID_INDEX );
 }
 
-// Polygon path: stage with INVALID left cell, then claim ownership and set BC
-// defaults only through SetStagedFaceBc (no direct faceBcTypes[id] writes).
-TEST( FaceSolverStageTest, PolygonStyleClaimUsesSetStagedFaceBc )
+TEST( FaceSolverStageTest, ClaimStagedFaceAsLeftAssignsOwnership )
 {
     FaceSolver solver;
     solver.StageNewFace( IntField{ 1, 2, 3, 4 }, /*faceType=*/7, INVALID_INDEX );
     ASSERT_TRUE( solver.StagedBcMatchesFaceCount() );
 
-    const int faceId = 0;
-    FaceTopo & topo = solver.GetFaceTopo();
-    topo.GetFaceFlags()[ faceId ] = 1;
-    topo.GetLeftCells()[ faceId ] = /*polyhedron cell*/ 9;
-    topo.GetRightCells()[ faceId ] = INVALID_INDEX;
-    solver.SetStagedFaceBc( faceId, INVALID_INDEX, INVALID_INDEX );
+    solver.ClaimStagedFaceAsLeft( /*faceId=*/0, /*cellId=*/9 );
 
-    EXPECT_EQ( topo.GetLeftCells()[ faceId ], 9 );
-    EXPECT_EQ( solver.faceBcTypes[ faceId ], INVALID_INDEX );
-    EXPECT_EQ( solver.faceBcNameIds[ faceId ], INVALID_INDEX );
+    const FaceTopo & topo = solver.GetFaceTopo();
+    EXPECT_EQ( topo.GetFaceFlags()[ 0 ], FaceSolver::kFaceClaimed );
+    EXPECT_EQ( topo.GetLeftCells()[ 0 ], 9 );
+    EXPECT_EQ( topo.GetRightCells()[ 0 ], INVALID_INDEX );
+    EXPECT_EQ( solver.faceBcTypes[ 0 ], INVALID_INDEX );
+    EXPECT_EQ( solver.faceBcNameIds[ 0 ], INVALID_INDEX );
     EXPECT_TRUE( solver.StagedBcMatchesFaceCount() );
+}
+
+TEST( FaceSolverStageTest, AttachStagedFaceAsRightSetsNeighbor )
+{
+    FaceSolver solver;
+    solver.StageNewFace( IntField{ 1, 2, 3 }, /*faceType=*/5, INVALID_INDEX );
+    solver.ClaimStagedFaceAsLeft( 0, /*cellId=*/3 );
+    solver.AttachStagedFaceAsRight( 0, /*cellId=*/8 );
+
+    const FaceTopo & topo = solver.GetFaceTopo();
+    EXPECT_EQ( topo.GetLeftCells()[ 0 ], 3 );
+    EXPECT_EQ( topo.GetRightCells()[ 0 ], 8 );
+    EXPECT_EQ( topo.GetFaceFlags()[ 0 ], FaceSolver::kFaceClaimed );
+}
+
+TEST( FaceSolverStageTest, ClaimStagedFaceAsLeftRejectsDoubleClaim )
+{
+    FaceSolver solver;
+    solver.StageNewFace( IntField{ 1, 2, 3 }, /*faceType=*/5, INVALID_INDEX );
+    solver.ClaimStagedFaceAsLeft( 0, 1 );
+    EXPECT_THROW( solver.ClaimStagedFaceAsLeft( 0, 2 ), std::logic_error );
+}
+
+TEST( FaceSolverStageTest, AttachStagedFaceAsRightRejectsUnclaimed )
+{
+    FaceSolver solver;
+    solver.StageNewFace( IntField{ 1, 2, 3 }, /*faceType=*/5, INVALID_INDEX );
+    EXPECT_THROW( solver.AttachStagedFaceAsRight( 0, 1 ), std::logic_error );
 }
 
 TEST( FaceSolverStageTest, SetStagedFaceBcRejectsOutOfRange )

@@ -215,27 +215,16 @@ void FaceSolver::ScanPolyhedronElement( CgnsSection & cgnsSection )
                 throw std::runtime_error( "FaceSolver::ScanPolyhedronElement: face reference is out of range" );
             }
 
-            const std::size_t polygonFaceId = static_cast< std::size_t >( faceId );
-            const int faceFlags = this->faceTopo->GetFaceFlags()[ polygonFaceId ];
+            const int polygonFaceId = static_cast< int >( faceId );
+            const int faceFlag = this->faceTopo->GetFaceFlags()[ static_cast< std::size_t >( polygonFaceId ) ];
 
-            if ( faceFlags == 0 )
+            if ( faceFlag == kFaceUnclaimed )
             {
-                // First claiming cell: StageNewFace already sized left/right
-                // cells and BC slots. Only ownership and the claimed flag change
-                // here; BC defaults stay INVALID via SetStagedFaceBc.
-                this->ResizeAll();
-                this->faceTopo->GetFaceFlags()[ polygonFaceId ] = 1;
-                this->faceTopo->GetLeftCells()[ polygonFaceId ] = iElem;
-                this->faceTopo->GetRightCells()[ polygonFaceId ] = ONEFLOW::INVALID_INDEX;
-
-                this->SetStagedFaceBc(
-                    static_cast< int >( polygonFaceId ),
-                    ONEFLOW::INVALID_INDEX,
-                    ONEFLOW::INVALID_INDEX );
+                this->ClaimStagedFaceAsLeft( polygonFaceId, iElem );
             }
             else
             {
-                this->faceTopo->GetRightCells()[ polygonFaceId ] = iElem;
+                this->AttachStagedFaceAsRight( polygonFaceId, iElem );
             }
         }
     }
@@ -267,6 +256,43 @@ void FaceSolver::SetStagedFaceBc( int faceId, int bcType, int bcNameId )
     }
     this->faceBcTypes[ faceId ] = bcType;
     this->faceBcNameIds[ faceId ] = bcNameId;
+}
+
+void FaceSolver::ClaimStagedFaceAsLeft( int faceId, int cellId )
+{
+    if ( faceId < 0 ||
+         static_cast< size_t >( faceId ) >= this->faceTopo->GetFaces().size() ||
+         static_cast< size_t >( faceId ) >= this->faceTopo->GetFaceFlags().size() )
+    {
+        throw std::out_of_range( "FaceSolver::ClaimStagedFaceAsLeft: face ID is out of range" );
+    }
+    if ( this->faceTopo->GetFaceFlags()[ static_cast< size_t >( faceId ) ] != kFaceUnclaimed )
+    {
+        throw std::logic_error( "FaceSolver::ClaimStagedFaceAsLeft: face is already claimed" );
+    }
+
+    // Keep parallel topology arrays sized (positions, etc.) before ownership write.
+    this->ResizeAll();
+    this->faceTopo->GetFaceFlags()[ static_cast< size_t >( faceId ) ] = kFaceClaimed;
+    this->faceTopo->GetLeftCells()[ static_cast< size_t >( faceId ) ] = cellId;
+    this->faceTopo->GetRightCells()[ static_cast< size_t >( faceId ) ] = ONEFLOW::INVALID_INDEX;
+    this->SetStagedFaceBc( faceId, ONEFLOW::INVALID_INDEX, ONEFLOW::INVALID_INDEX );
+}
+
+void FaceSolver::AttachStagedFaceAsRight( int faceId, int cellId )
+{
+    if ( faceId < 0 ||
+         static_cast< size_t >( faceId ) >= this->faceTopo->GetFaces().size() ||
+         static_cast< size_t >( faceId ) >= this->faceTopo->GetFaceFlags().size() )
+    {
+        throw std::out_of_range( "FaceSolver::AttachStagedFaceAsRight: face ID is out of range" );
+    }
+    if ( this->faceTopo->GetFaceFlags()[ static_cast< size_t >( faceId ) ] == kFaceUnclaimed )
+    {
+        throw std::logic_error( "FaceSolver::AttachStagedFaceAsRight: face is not claimed yet" );
+    }
+
+    this->faceTopo->GetRightCells()[ static_cast< size_t >( faceId ) ] = cellId;
 }
 
 bool FaceSolver::StagedBcMatchesFaceCount() const

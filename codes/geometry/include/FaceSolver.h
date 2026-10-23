@@ -73,7 +73,20 @@ public:
     // for faceBcTypes / faceBcNameIds after staging.
     void SetStagedFaceBc( int faceId, int bcType, int bcNameId );
 
+    // First cell to claim an unclaimed staged face (polygon path). Sets the
+    // claimed flag, left cell, clears right cell, and resets BC defaults via
+    // SetStagedFaceBc. Throws if faceId is out of range or already claimed.
+    void ClaimStagedFaceAsLeft( int faceId, int cellId );
+
+    // Second cell sharing a claimed face. Sets right cell only.
+    // Throws if faceId is out of range or the face is still unclaimed.
+    void AttachStagedFaceAsRight( int faceId, int cellId );
+
     [[nodiscard]] bool StagedBcMatchesFaceCount() const;
+
+    // Face flag values used by the polygon ownership path.
+    static constexpr int kFaceUnclaimed = 0;
+    static constexpr int kFaceClaimed = 1;
 public:
     void ResizeAll();
     void ScanPolygonFace( CgnsSection & cgnsSection );
