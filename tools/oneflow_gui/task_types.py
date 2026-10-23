@@ -82,6 +82,16 @@ _DISPLAY_STATUS_MAP = {
 }
 
 
+def aggregate_run_status(statuses: list[str | TaskRunStatus] | tuple[str | TaskRunStatus, ...]) -> TaskRunStatus:
+    """Summarize completed task outcomes; failure takes precedence over cancellation."""
+    normalized = {normalize_run_status(status) for status in statuses}
+    if TaskRunStatus.FAILED in normalized:
+        return TaskRunStatus.FAILED
+    if TaskRunStatus.CANCELLED in normalized:
+        return TaskRunStatus.CANCELLED
+    return TaskRunStatus.SUCCEEDED
+
+
 def normalize_run_status(value: str | TaskRunStatus) -> TaskRunStatus:
     """Normalize persisted and GUI-facing status labels to one canonical state."""
     if isinstance(value, TaskRunStatus):
