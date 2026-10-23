@@ -78,3 +78,31 @@ TEST( FaceTopoReorderLinkTest, ClearsCellToFaceAfterReorder )
 
     EXPECT_TRUE( topo.c2f.empty() );
 }
+
+TEST( BuildBoundaryFirstPermutationTest, OrdersBoundaryThenInterior )
+{
+    IntField rightCells{ 1, INVALID_INDEX, 2, INVALID_INDEX };
+    const IntField perm = BuildBoundaryFirstPermutation( rightCells );
+
+    ASSERT_EQ( perm.size(), static_cast< std::size_t >( 4 ) );
+    EXPECT_EQ( perm[ 0 ], 1 );
+    EXPECT_EQ( perm[ 1 ], 3 );
+    EXPECT_EQ( perm[ 2 ], 0 );
+    EXPECT_EQ( perm[ 3 ], 2 );
+}
+
+TEST( BuildBoundaryFirstPermutationTest, EmptyInput )
+{
+    IntField empty;
+    const IntField perm = BuildBoundaryFirstPermutation( empty );
+    EXPECT_TRUE( perm.empty() );
+}
+
+TEST( BuildBoundaryFirstPermutationTest, AllInteriorPreservesOrder )
+{
+    IntField rightCells{ 1, 2, 3 };
+    const IntField perm = BuildBoundaryFirstPermutation( rightCells );
+    EXPECT_EQ( perm[ 0 ], 0 );
+    EXPECT_EQ( perm[ 1 ], 1 );
+    EXPECT_EQ( perm[ 2 ], 2 );
+}

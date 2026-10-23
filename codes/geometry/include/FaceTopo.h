@@ -120,6 +120,11 @@ public:
     void ReorderLink();
 };
 
+// Build newToOld permutation: faces with right cell INVALID (boundary) first,
+// then interior faces. Relative order within each group is preserved.
+// newToOld[newIndex] == oldIndex.
+IntField BuildBoundaryFirstPermutation( const IntField & rightCells );
+
 // Look up child face IDs for a local interface face and validate their node tables.
 // Returns a reference into interfaceLink.face_search->cFaceId[globalFaceId].
 // Preferred: depends only on l2g mapping + split tables (not full IFaceLink/FaceSearch).

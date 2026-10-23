@@ -699,6 +699,29 @@ void FaceTopo::CalcC2C( LinkField & c2c )
     c2c = nextC2c;
 }
 
+IntField BuildBoundaryFirstPermutation( const IntField & rightCells )
+{
+    const HXSize_t nFaces = rightCells.size();
+    IntField newToOld( nFaces );
+    HXSize_t nextFace = 0;
+
+    for ( HXSize_t iFace = 0; iFace < nFaces; ++ iFace )
+    {
+        if ( rightCells[ iFace ] == INVALID_INDEX )
+        {
+            newToOld[ nextFace ++ ] = static_cast< int >( iFace );
+        }
+    }
+    for ( HXSize_t iFace = 0; iFace < nFaces; ++ iFace )
+    {
+        if ( rightCells[ iFace ] != INVALID_INDEX )
+        {
+            newToOld[ nextFace ++ ] = static_cast< int >( iFace );
+        }
+    }
+    return newToOld;
+}
+
 void FaceTopo::ReorderLink()
 {
     const HXSize_t nFaces = this->GetFaceCount();
@@ -723,22 +746,7 @@ void FaceTopo::ReorderLink()
     validateOptionalFaceData( this->rPosition, "right face-position" );
     validateOptionalFaceData( this->faceFlags, "face-flag" );
 
-    IntField newToOld( nFaces );
-    HXSize_t nextFace = 0;
-    for ( HXSize_t iFace = 0; iFace < nFaces; ++ iFace )
-    {
-        if ( rightCells[ iFace ] == INVALID_INDEX )
-        {
-            newToOld[ nextFace ++ ] = static_cast< int >( iFace );
-        }
-    }
-    for ( HXSize_t iFace = 0; iFace < nFaces; ++ iFace )
-    {
-        if ( rightCells[ iFace ] != INVALID_INDEX )
-        {
-            newToOld[ nextFace ++ ] = static_cast< int >( iFace );
-        }
-    }
+    const IntField newToOld = BuildBoundaryFirstPermutation( rightCells );
 
     const auto reorderFaceData = [ &newToOld, nFaces ]( auto & values )
     {
