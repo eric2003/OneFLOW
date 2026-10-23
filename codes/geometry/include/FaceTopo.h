@@ -55,8 +55,6 @@ public:
 private:
     IntField lCells, rCells;
     IntField faceFlags;
-
-    HXSize_t nBFaces;
 private:
     std::unique_ptr< BcManager > bcManager;
     Grid * grid = nullptr;
@@ -100,7 +98,11 @@ public:
     const IntField & GetFaceTypes() const;
     void PrepareBoundaryConditions();
     bool HasInterfaceBoundary() const;
-    void ResizeAll();
+    // Grow left/right cell and face-local position arrays to match faces.size().
+    // Prefer StageNewFace on FaceSolver for full parallel growth.
+    void EnsureFaceSideArraysSized();
+    // Compatibility wrapper; prefer EnsureFaceSideArraysSized().
+    void ResizeAll() { EnsureFaceSideArraysSized(); }
 public:
     void ModifyFaceNodeId( IFaceLink & iFaceLink );
     void SetNewFace2Node( IFaceLink & iFaceLink );

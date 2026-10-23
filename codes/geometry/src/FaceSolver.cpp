@@ -131,7 +131,7 @@ void FaceSolver::ScanPolygonFace( CgnsSection & cgnsSection )
 
 void FaceSolver::EnsureParallelFaceArraysSized()
 {
-    this->faceTopo->ResizeAll();
+    this->faceTopo->EnsureFaceSideArraysSized();
     const int nFaces = static_cast< int >( this->faceTopo->GetFaces().size() );
     this->faceBcTypes.resize( nFaces );
     this->faceBcNameIds.resize( nFaces );
@@ -247,7 +247,7 @@ void FaceSolver::StageNewFace( const IntField & faceNodes, int faceType, int lef
 {
     // Single write path for a newly discovered unique face. All parallel
     // arrays (topology, flags, cell sides, face-local positions, BC slots)
-    // grow together so callers never need ad-hoc push_back or ResizeAll.
+    // grow together so callers never need ad-hoc push_back or EnsureFaceSideArraysSized.
     this->faceTopo->GetFaces().push_back( faceNodes );
     this->faceTopo->GetFaceTypes().push_back( faceType );
     this->faceTopo->GetFaceFlags().push_back( kFaceUnclaimed );

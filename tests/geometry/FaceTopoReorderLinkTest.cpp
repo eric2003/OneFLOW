@@ -152,3 +152,29 @@ TEST( ValidateBoundaryBcLayoutTest, RejectsBoundaryFaceAfterPrefix )
 
     EXPECT_THROW( ValidateBoundaryBcLayout( topo ), std::logic_error );
 }
+
+TEST( FaceTopoEnsureFaceSideArraysTest, GrowsCellAndPositionArraysToFaceCount )
+{
+    FaceTopo topo;
+    topo.GetFaces().push_back( IntField{ 0, 1 } );
+    topo.GetFaces().push_back( IntField{ 1, 2 } );
+    topo.GetFaceTypes().push_back( 5 );
+    topo.GetFaceTypes().push_back( 5 );
+
+    EXPECT_TRUE( topo.GetLeftCells().empty() );
+    topo.EnsureFaceSideArraysSized();
+
+    EXPECT_EQ( topo.GetLeftCells().size(), static_cast< std::size_t >( 2 ) );
+    EXPECT_EQ( topo.GetRightCells().size(), static_cast< std::size_t >( 2 ) );
+    EXPECT_EQ( topo.lPosition.size(), static_cast< std::size_t >( 2 ) );
+    EXPECT_EQ( topo.rPosition.size(), static_cast< std::size_t >( 2 ) );
+}
+
+TEST( FaceTopoEnsureFaceSideArraysTest, ResizeAllIsAlias )
+{
+    FaceTopo topo;
+    topo.GetFaces().push_back( IntField{ 0, 1 } );
+    topo.GetFaceTypes().push_back( 5 );
+    topo.ResizeAll();
+    EXPECT_EQ( topo.GetLeftCells().size(), static_cast< std::size_t >( 1 ) );
+}

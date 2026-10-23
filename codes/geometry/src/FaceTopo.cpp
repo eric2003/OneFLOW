@@ -261,9 +261,9 @@ void FaceTopo::SetNBFaces( HXSize_t nBFaces )
     SetBoundaryFaceCount( nBFaces );
 }
 
-void FaceTopo::ResizeAll()
+void FaceTopo::EnsureFaceSideArraysSized()
 {
-    int nFaces = this->faces.size();
+    const int nFaces = static_cast< int >( this->faces.size() );
     this->lCells.resize( nFaces );
     this->rCells.resize( nFaces );
     this->lPosition.resize( nFaces );
