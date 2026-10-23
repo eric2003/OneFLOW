@@ -105,9 +105,13 @@ class MainWindow(QMainWindow):
         repository_root: Path | None = None,
         *,
         single_case_mode: bool = False,
+        build_config: str = "Debug",
     ) -> None:
         super().__init__()
+        if build_config not in {"Debug", "Release"}:
+            raise ValueError(f"Unsupported build configuration: {build_config!r}")
         self._single_case_mode = single_case_mode
+        self._build_config = build_config
         self._repository_root = (
             repository_root or Path(__file__).resolve().parents[2]
         ).resolve()
@@ -509,21 +513,7 @@ class MainWindow(QMainWindow):
             return
         if self._task_worker is not None and self._task_worker.isRunning():
             return
-        executable = self.executable_combo.currentText().strip()
-        build_paths = {
-            configuration: str(
-                (self._repository_root / "build" / "bin" / configuration / "OneFLOW.exe").resolve()
-            )
-            for configuration in ("Debug", "Release")
-        }
-        build_config = next(
-            (
-                configuration
-                for configuration, path in build_paths.items()
-                if executable.casefold() == path.casefold()
-            ),
-            "Debug",
-        )
+        build_config = self._build_config
         command = build_cmake_command(
             self._repository_root, build_config, rebuild=rebuild
         )
@@ -560,24 +550,10 @@ class MainWindow(QMainWindow):
 
     def _open_tests(self) -> None:
         executable = self.executable_combo.currentText().strip()
-        build_paths = {
-            configuration: str(
-                (self._repository_root / "build" / "bin" / configuration / "OneFLOW.exe").resolve()
-            )
-            for configuration in ("Debug", "Release")
-        }
-        build_config = next(
-            (
-                configuration
-                for configuration, path in build_paths.items()
-                if executable.casefold() == path.casefold()
-            ),
-            "Debug",
-        )
         dialog = TestRunnerDialog(
             self._repository_root,
             self,
-            build_config=build_config,
+            build_config=self._build_config,
             executable=executable,
         )
         dialog.exec()
