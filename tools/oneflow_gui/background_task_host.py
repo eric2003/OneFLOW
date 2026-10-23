@@ -13,7 +13,6 @@ from pathlib import Path
 from typing import Callable
 
 from .background_task_registry import (
-    ACTIVE_STATUSES,
     BackgroundTaskRegistry,
     utc_now,
 )
@@ -56,8 +55,6 @@ def run_host(
     final_message = "Background host failed."
     return_code = 1
     try:
-        if stop_path.exists():
-            stop_path.unlink()
         with log_file.open("a", encoding="utf-8", newline="\n") as stream:
             stream.write("Command: " + json.dumps(command, ensure_ascii=True) + "\n")
             stream.flush()
