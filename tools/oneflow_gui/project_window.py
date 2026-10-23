@@ -381,25 +381,15 @@ class ProjectWindow(QMainWindow):
         self.file_details.setReadOnly(True)
         self.file_details.setMaximumHeight(85)
         self.file_details.setPlaceholderText("Select a file to see its classification and purpose.")
-        # Detailed data views open in dedicated windows so they have enough space.
-        self.inventory_tabs.hide()
-        views_row = QHBoxLayout()
-        self.open_files_button = QPushButton("Open Project files")
-        self.open_files_button.clicked.connect(self._open_project_files)
-        self.open_changes_button = QPushButton("Open Run changes")
-        self.open_changes_button.clicked.connect(self._open_run_changes)
-        self.open_log_button = QPushButton("Open Run log")
-        self.open_log_button.clicked.connect(self._open_run_log)
-        for button in (self.open_files_button, self.open_changes_button, self.open_log_button):
-            button.setMinimumHeight(42)
-            views_row.addWidget(button)
-        root.addLayout(views_row)
-        self.project_status = QLabel(
-            "Project inventory is ready. Open a dedicated view to inspect files, changes, or logs."
-        )
+        self.inventory_tabs.setDocumentMode(True)
+        self.inventory_tabs.setMovable(True)
+        self.inventory_tabs.setMinimumHeight(280)
+        self.inventory_tabs.setTabPosition(QTabWidget.TabPosition.North)
+        self.inventory_tabs.setTabText(2, "Run information")
+        root.addWidget(self.inventory_tabs, 1)
+        self.project_status = QLabel("Ready")
         self.project_status.setWordWrap(True)
         root.addWidget(self.project_status)
-        root.addStretch(1)
 
         self._refresh_project_inventory()
 
@@ -767,6 +757,8 @@ class ProjectWindow(QMainWindow):
         self._active_record = record
         self._log_path = log_path
         self.log_view.appendPlainText(f"Run {run_id}\nProject: {self._project.root}")
+        self.project_status.setText(f"Running: {self._project.name}  |  Run ID: {run_id}")
+        self.inventory_tabs.setCurrentWidget(self.log_view)
         self.run_button.setEnabled(False)
         self.stop_button.setEnabled(True)
         self._worker = ProjectRunWorker(
@@ -792,6 +784,7 @@ class ProjectWindow(QMainWindow):
         self._append_log(f"{outcome.message}\nExecution directory: {outcome.project_directory}")
         self._refresh_project_inventory()
         self._refresh_run_changes(outcome.project_directory, outcome.run_id)
+        self.inventory_tabs.setCurrentWidget(self.changes_tree)
         record = self._active_record
         if record is not None:
             updated = WorkflowRunRecord(
