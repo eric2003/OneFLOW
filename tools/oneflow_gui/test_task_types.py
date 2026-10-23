@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import unittest
+from pathlib import Path
 
 from tools.oneflow_gui.task_types import (
     ExecutionLocation,
+    TaskRunResult,
     TaskRunStatus,
     TaskType,
     normalize_run_status,
@@ -66,8 +68,42 @@ class TaskTypesTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Unsupported task run status"):
             normalize_run_status("skipped")
 
-    def test_string_task_type_resolves_to_definition(self) -> None:
-        definition = task_definition(TaskType("unit_tests"))
+    def test_task_run_result_normalizes_shared_values(self) -> None:
+        result = TaskRunResult(
+            task_type="unit_tests",
+            status="Passed",
+            return_code=0,
+            execution_directory="build",
+            message="All tests passed.",
+        )
+        self.assertEqual(result.task_type, TaskType.UNIT_TESTS)
+        self.assertEqual(result.status, TaskRunStatus.SUCCEEDED)
+        self.assertEqual(result.return_code, 0)
+        self.assertEqual(result.execution_directory, Path("build"))
+        self.assertEqual(result.message, "All tests passed.")
+
+    def test_task_run_result_allows_missing_return_code(self) -> None:
+        result = TaskRunResult(
+            task_type=TaskType.CFD_GRID_REGRESSION,
+            status=TaskRunStatus.CANCELLED,
+            return_code=None,
+            execution_directory=Path("workspace"),
+            message="Stopped by user.",
+        )
+        self.assertIsNone(result.return_code)
+        self.assertEqual(result.status, TaskRunStatus.CANCELLED)
+
+    def test_task_run_result_rejects_invalid_return_code(self) -> None:
+        with self.assertRaisesRegex(ValueError, "return_code"):
+            TaskRunResult(
+                task_type=TaskType.UNIT_TESTS,
+                status=TaskRunStatus.FAILED,
+                return_code="1",
+                execution_directory=Path("build"),
+                message="Failed.",
+            )
+
+    def test_string_task_type_resolves_to_definition(self) -> None        definition = task_definition(TaskType("unit_tests"))
         self.assertEqual(definition.title, "Unit Tests")
         self.assertTrue(definition.supports_build_actions)
 
