@@ -37,7 +37,7 @@ class TestRunnerCommandTest(unittest.TestCase):
             self.assertEqual(
                 command.arguments,
                 (
-                    "cmake", "..", "-D", "CMAKE_PREFIX_PATH=C:/dev/OneFLOW",
+                    "cmake", "..", "-D", "CMAKE_INSTALL_PREFIX=C:/dev/OneFLOW",
                     "-D", "CMAKE_BUILD_TYPE=Debug",
                 ),
             )
