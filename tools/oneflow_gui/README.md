@@ -53,7 +53,7 @@ selectors show concise names by default; hover for details or enable
 labels every edge with its edge name, boundary condition, and point count.
 **Reset flat-plate boundaries** restores the standard two-block defaults.
 
-The Workbench presents **Case Database** as a standalone activity alongside **Run tests**. The **Run mode** selector groups three execution choices: **Run single case** opens a user-selected project, **Multi-case run** opens a multi-directory workflow draft, and **Dependency workflow** opens a dependency-graph draft. Existing saved workflows remain available in the workflow editor. These are intentionally different execution semantics. Use the workflow editor to create, edit, save, and delete named workflow definitions. The
+The Workbench presents **Case Database** and **Task Runner** as separate windows over a shared task classification. The task definitions in `task_types.py` identify Case Database and CFD/Grid Regression as user-workspace tasks, while Unit Tests run from the source build tree. This metadata does not replace their existing execution services; it makes their policy explicit and testable. The **Run mode** selector groups three execution choices: **Run single case** opens a user-selected project, **Multi-case run** opens a multi-directory workflow draft, and **Dependency workflow** opens a dependency-graph draft. Existing saved workflows remain available in the workflow editor. These are intentionally different execution semantics. Use the workflow editor to create, edit, save, and delete named workflow definitions. The
 **Multi-directory** mode preserves the existing behavior: each directory is
 entered on a separate line, and one OneFLOW process receives
 `OneFLOW.exe r <directory-1> <directory-2> ...`. The **Dependency graph** mode
@@ -93,7 +93,9 @@ The long-term product direction is documented in both [Chinese](../../docs/ONEFL
 - `test_workflow_plan.py`: tests for producer-consumer artifact binding, both `grid` and `results` paths, and invalid dependency/path declarations.
 - `workflow_execution.py`: shell-free construction of one-process,
   multi-directory command arguments, preserving the user-specified order.
-- `home_window.py`: Workbench activity selector with standalone Case Database and Run tests entries, plus a Run mode selector for single-case, multi-case, and dependency-workflow execution.
+- `home_window.py`: Workbench activity selector with Case Database and Task Runner entries, plus a Run mode selector for single-case, multi-case, and dependency-workflow execution.
+- `task_types.py`: shared task categories and explicit execution-location policy for Case Database, Unit Tests, and CFD/Grid Regression.
+- `test_task_types.py`: tests task classification uniqueness and execution-location policy.
 - `main_window.py`: Case Workbench widgets, execution-location selection, and the sequential case queue worker.
 - `mesh_layout_dialog.py`: template-based geometry, mesh-count, spacing, and boundary editor with SVG preview.
 - `tools/mesh_layout/editor_document.py`: Qt-independent JSON loading, validation, compilation, and saving shared by the editor.
@@ -114,6 +116,7 @@ case discovery and process execution remain separable from the GUI framework.
 From the repository root:
 
 ```powershell
+python -m unittest tools.oneflow_gui.test_task_types
 python -m unittest tools.oneflow_gui.test_services
 python -m unittest tools.oneflow_gui.test_user_data_paths
 python -m unittest tools.oneflow_gui.test_application_settings
