@@ -10,6 +10,8 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
+from .task_types import ExecutionLocation, TaskType, task_definition
+
 
 @dataclass(frozen=True, slots=True)
 class TestCommand:
@@ -21,6 +23,7 @@ class TestCommand:
 
 
 _PYTHON_UNIT_TESTS = (
+    ("Workbench task type tests", ("-m", "unittest", "tools.oneflow_gui.test_task_types")),
     ("Mesh workflow tests", ("-m", "unittest", "discover", "-s", "tools", "-p", "test_mesh_workflow.py")),
     ("Mesh export tests", ("-m", "unittest", "discover", "-s", "tools/mesh_export", "-p", "test_*.py")),
     ("Mesh case catalog tests", ("tools/test_mesh_cases.py",)),
@@ -51,6 +54,9 @@ def build_unit_test_commands(
     """Return the same CTest and Python test commands used by repository CI."""
     if build_config not in {"Debug", "Release"}:
         raise ValueError(f"Unsupported CMake build configuration: {build_config!r}")
+    task = task_definition(TaskType.UNIT_TESTS)
+    if task.execution_location is not ExecutionLocation.SOURCE_BUILD:
+        raise RuntimeError("Unit tests must execute from the source build tree.")
     root = Path(repository_root).resolve()
     python_executable = python or sys.executable
     commands: list[TestCommand] = []
@@ -163,6 +169,9 @@ def stage_regression_tests(
     destination: Path,
 ) -> Path:
     """Replace the dedicated user workspace with a fresh copy of the test tree."""
+    task = task_definition(TaskType.CFD_GRID_REGRESSION)
+    if task.execution_location is not ExecutionLocation.USER_WORKSPACE:
+        raise RuntimeError("CFD/grid regression must execute from a user workspace.")
     root = Path(repository_root).resolve()
     source_test_directory = root / "test"
     if not source_test_directory.is_dir():
