@@ -23,8 +23,10 @@ License
 
 #pragma once
 #include "NamespaceMacros.h"
+#include "HXDefine.h"
 #include <string>
 #include <map>
+#include <vector>
 #include <set>
 
 BeginNameSpace( ONEFLOW )
@@ -130,17 +132,27 @@ public:
     static void DumpRegion( const std::string & fileName );
 };
 
+// Process-wide default for volume-region names. Same registry type as BC
+// regions; kept as a separate Default() instance so the two namespaces
+// cannot collide. Prefer injecting RegionNameRegistry& when isolation matters.
 class VolumeNameMap
 {
 public:
     VolumeNameMap() = default;
     ~VolumeNameMap() = default;
-public:
-    static CommonNameMap nameMap;
-public:
+
+    static RegionNameRegistry & Default();
+
+    static void Reset();
     static void AddRegion( const std::string & regionName );
     static int  FindRegionId( const std::string & regionName );
     static void DumpRegion();
+    static void DumpRegion( const std::string & fileName );
 };
+
+
+// Register each name in order; returns parallel name ids (same length as names).
+// Mirrors the CgnsZbcBoco region-registration loop without CGNS types.
+IntField RegisterRegionNames( RegionNameRegistry & registry, const std::vector< std::string > & names );
 
 EndNameSpace

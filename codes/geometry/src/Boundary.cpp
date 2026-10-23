@@ -29,6 +29,7 @@ License
 #include "BcRecord.h"
 
 #include <iostream>
+#include <vector>
 
 
 BeginNameSpace( ONEFLOW )
@@ -252,23 +253,49 @@ void RegionNameMap::DumpRegion( const std::string & fileName )
     RegionNameMap::Default().DumpRegion( fileName );
 }
 
-CommonNameMap VolumeNameMap::nameMap;
+RegionNameRegistry & VolumeNameMap::Default()
+{
+    static RegionNameRegistry defaultRegistry;
+    return defaultRegistry;
+}
+
+void VolumeNameMap::Reset()
+{
+    VolumeNameMap::Default().Reset();
+}
 
 void VolumeNameMap::AddRegion( const std::string & regionName )
 {
-    VolumeNameMap::nameMap.AddName( regionName );
+    VolumeNameMap::Default().AddRegion( regionName );
 }
 
 int VolumeNameMap::FindRegionId( const std::string & regionName )
 {
-    return VolumeNameMap::nameMap.FindNameId( regionName );
+    return VolumeNameMap::Default().FindRegionId( regionName );
 }
 
 void VolumeNameMap::DumpRegion()
 {
-    std::string fileName = "grid/volumeRegionMap.txt";
-    ONEFLOW::DumpRegion( fileName, VolumeNameMap::nameMap );
+    VolumeNameMap::DumpRegion( "grid/volumeRegionMap.txt" );
 }
 
+void VolumeNameMap::DumpRegion( const std::string & fileName )
+{
+    VolumeNameMap::Default().DumpRegion( fileName );
+}
+
+
+
+IntField RegisterRegionNames( RegionNameRegistry & registry, const std::vector< std::string > & names )
+{
+    IntField ids;
+    ids.reserve( names.size() );
+    for ( const std::string & name : names )
+    {
+        registry.AddRegion( name );
+        ids.push_back( registry.FindRegionId( name ) );
+    }
+    return ids;
+}
 
 EndNameSpace

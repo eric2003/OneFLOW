@@ -3,6 +3,8 @@
 // RegionNameMap::Default() state (except when explicitly testing the facade).
 
 #include <gtest/gtest.h>
+#include <vector>
+#include <string>
 
 #include "Boundary.h"
 #include "Constant.h"
@@ -61,4 +63,47 @@ TEST( RegionNameRegistryTest, DefaultFacadeForwardsToSharedRegistry )
     EXPECT_EQ( RegionNameMap::Default().FindRegionId( "default_region" ), 0 );
     RegionNameMap::Reset();
     EXPECT_EQ( RegionNameMap::FindRegionId( "default_region" ), INVALID_INDEX );
+}
+
+TEST( VolumeNameMapTest, DefaultFacadeIsIsolatedFromRegionNameMap )
+{
+    RegionNameMap::Reset();
+    VolumeNameMap::Reset();
+
+    RegionNameMap::AddRegion( "shared_spelling" );
+    VolumeNameMap::AddRegion( "shared_spelling" );
+
+    EXPECT_EQ( RegionNameMap::FindRegionId( "shared_spelling" ), 0 );
+    EXPECT_EQ( VolumeNameMap::FindRegionId( "shared_spelling" ), 0 );
+
+    RegionNameMap::AddRegion( "bc_only" );
+    EXPECT_EQ( RegionNameMap::FindRegionId( "bc_only" ), 1 );
+    EXPECT_EQ( VolumeNameMap::FindRegionId( "bc_only" ), INVALID_INDEX );
+
+    VolumeNameMap::Reset();
+    RegionNameMap::Reset();
+}
+
+TEST( VolumeNameMapTest, ResetClearsDefaultRegistry )
+{
+    VolumeNameMap::Reset();
+    VolumeNameMap::AddRegion( "fluid" );
+    EXPECT_EQ( VolumeNameMap::FindRegionId( "fluid" ), 0 );
+    VolumeNameMap::Reset();
+    EXPECT_EQ( VolumeNameMap::FindRegionId( "fluid" ), INVALID_INDEX );
+}
+
+TEST( RegisterRegionNamesTest, AssignsIdsInOrderAndDedups )
+{
+    RegionNameRegistry registry;
+    const std::vector< std::string > names{ "inlet", "outlet", "inlet", "wall" };
+
+    const IntField ids = RegisterRegionNames( registry, names );
+
+    ASSERT_EQ( ids.size(), static_cast< std::size_t >( 4 ) );
+    EXPECT_EQ( ids[ 0 ], 0 );
+    EXPECT_EQ( ids[ 1 ], 1 );
+    EXPECT_EQ( ids[ 2 ], 0 ); // duplicate name keeps first id
+    EXPECT_EQ( ids[ 3 ], 2 );
+    EXPECT_EQ( registry.GetNameMap().GetNameMap().size(), static_cast< std::size_t >( 3 ) );
 }
