@@ -56,7 +56,10 @@ def build_unit_test_commands(
     commands: list[TestCommand] = []
     build_directory = root / "build"
     ctest_is_available = (build_directory / "CTestTestfile.cmake").is_file()
-    if ctest_is_available if include_ctest is None else include_ctest:
+    should_include_ctest = (
+        ctest_is_available if include_ctest is None else include_ctest
+    )
+    if should_include_ctest:
         arguments = ["ctest", "--output-on-failure", "-C", build_config]
         commands.append(TestCommand("C++ unit tests (CTest)", tuple(arguments), build_directory))
 
