@@ -82,6 +82,25 @@ class TaskTypesTest(unittest.TestCase):
         self.assertEqual(result.execution_directory, Path("build"))
         self.assertEqual(result.message, "All tests passed.")
 
+    def test_task_run_result_serializes_for_history(self) -> None:
+        result = TaskRunResult(
+            task_type=TaskType.CASE_DATABASE,
+            status=TaskRunStatus.FAILED,
+            return_code=2,
+            execution_directory=Path("workspace/case-a"),
+            message="case-a: Process failed.",
+        )
+        self.assertEqual(
+            result.to_dict(),
+            {
+                "task_type": "case_database",
+                "status": "failed",
+                "return_code": 2,
+                "execution_directory": "workspace/case-a",
+                "message": "case-a: Process failed.",
+            },
+        )
+
     def test_task_run_result_allows_missing_return_code(self) -> None:
         result = TaskRunResult(
             task_type=TaskType.CFD_GRID_REGRESSION,
