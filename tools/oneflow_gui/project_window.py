@@ -21,11 +21,20 @@ from PySide6.QtWidgets import (
     QMessageBox,
     QPlainTextEdit,
     QPushButton,
+    QTabWidget,
+    QTreeWidget,
+    QTreeWidgetItem,
     QVBoxLayout,
     QWidget,
 )
 
 from .executable_discovery import executable_candidates
+from .project_inventory import (
+    ProjectFileEntry,
+    compare_inventory,
+    scan_project,
+    scan_workflow_run_outputs,
+)
 from .project_repository import ProjectDefinition, ProjectType
 from .user_data_paths import UserDataPaths
 from .workflow_graph_runner import run_case_graph
@@ -233,6 +242,7 @@ class ProjectWindow(QMainWindow):
         self._worker: ProjectRunWorker | None = None
         self._active_record: WorkflowRunRecord | None = None
         self._log_path: Path | None = None
+        self._inventory_baseline = scan_project(project.root)
         paths = UserDataPaths.discover()
         self._history = WorkflowRepository(paths.workflow_data)
         self.setWindowTitle(f"OneFLOW Project - {project.name}")
@@ -320,9 +330,36 @@ class ProjectWindow(QMainWindow):
         self._browse_target_button = browse_target
         self._location_changed()
 
+        self.inventory_tabs = QTabWidget()
+        self.project_tree = QTreeWidget()
+        self.project_tree.setHeaderLabels(["Path", "Kind", "Category", "Size", "Purpose"])
+        self.project_tree.setColumnWidth(0, 300)
+        self.project_tree.itemSelectionChanged.connect(self._show_selected_file)
+        self.inventory_tabs.addTab(self.project_tree, "Project files")
+
+        self.changes_tree = QTreeWidget()
+        self.changes_tree.setHeaderLabels(["Path", "Change", "Category", "Size", "Purpose"])
+        self.changes_tree.setColumnWidth(0, 300)
+        self.changes_summary = QLabel("Run the project to compare files.")
+        changes_page = QWidget()
+        changes_layout = QVBoxLayout(changes_page)
+        changes_layout.addWidget(self.changes_summary)
+        changes_layout.addWidget(self.changes_tree, 1)
+        self.inventory_tabs.addTab(changes_page, "Run changes")
+
+        self.file_details = QPlainTextEdit()
+        self.file_details.setReadOnly(True)
+        self.file_details.setMaximumHeight(85)
+        self.file_details.setPlaceholderText("Select a file to see its classification and purpose.")
+        root.addWidget(self.inventory_tabs, 2)
+        root.addWidget(QLabel("Selected file details"))
+        root.addWidget(self.file_details)
+
         self.log_view = QPlainTextEdit()
         self.log_view.setReadOnly(True)
+        root.addWidget(QLabel("Run log"))
         root.addWidget(self.log_view, 1)
+        self._refresh_project_inventory()
 
         actions = QHBoxLayout()
         self.run_button = QPushButton("Run Project")
@@ -335,6 +372,67 @@ class ProjectWindow(QMainWindow):
         actions.addStretch(1)
         root.addLayout(actions)
         self.setCentralWidget(central)
+
+    def _refresh_project_inventory(self) -> None:
+        self.project_tree.clear()
+        entries = scan_project(self._project.root)
+        for entry in entries.values():
+            self._add_inventory_item(self.project_tree, entry, "Original")
+        self.project_tree.sortItems(0, 0)
+
+    @staticmethod
+    def _add_inventory_item(tree: QTreeWidget, entry: ProjectFileEntry, status: str) -> None:
+        size = "" if entry.kind == "directory" else f"{entry.size_bytes:,} B"
+        item = QTreeWidgetItem([
+            entry.relative_path, entry.kind, entry.category, size, entry.purpose
+        ])
+        item.setData(0, 32, entry)
+        item.setToolTip(0, entry.relative_path)
+        tree.addTopLevelItem(item)
+
+    def _show_selected_file(self) -> None:
+        selected = self.project_tree.selectedItems()
+        if not selected:
+            return
+        entry = selected[0].data(0, 32)
+        if not isinstance(entry, ProjectFileEntry):
+            return
+        self.file_details.setPlainText(
+            f"Path: {entry.relative_path}\n"
+            f"Kind: {entry.kind}\n"
+            f"Category: {entry.category}\n"
+            f"Size: {entry.size_bytes:,} bytes\n"
+            f"Purpose: {entry.purpose}"
+        )
+
+    def _refresh_run_changes(self, execution_directory: Path, run_id: str) -> None:
+        self.changes_tree.clear()
+        current = scan_project(execution_directory)
+        changes = list(compare_inventory(self._inventory_baseline, current))
+        run_root = execution_directory / ".oneflow-runs" / run_id
+        run_outputs = scan_workflow_run_outputs(execution_directory, run_root)
+        changes.extend(
+            type("RunOutputChange", (), {"entry": entry, "status": "generated in run"})()
+            for entry in run_outputs
+        )
+        counts = {"unchanged": 0, "added": 0, "modified": 0, "deleted": 0}
+        for change in changes:
+            if change.status in counts:
+                counts[change.status] += 1
+            entry = change.entry
+            size = "" if entry.kind == "directory" else f"{entry.size_bytes:,} B"
+            item = QTreeWidgetItem([
+                entry.relative_path, change.status, entry.category, size, entry.purpose
+            ])
+            item.setData(0, 32, entry)
+            self.changes_tree.addTopLevelItem(item)
+        self.changes_tree.sortItems(0, 0)
+        self.changes_summary.setText(
+            f"Unchanged: {counts['unchanged']}    Added: {counts['added']}    "
+            f"Modified: {counts['modified']}    Deleted: {counts['deleted']}    "
+            f"Workflow run outputs: {len(run_outputs)}"
+        )
+        self.inventory_tabs.setCurrentIndex(1)
 
     def _choose_executable(self) -> None:
         current = self.executable_combo.currentText().strip()
@@ -391,6 +489,7 @@ class ProjectWindow(QMainWindow):
             custom_root = Path(target).expanduser().resolve()
 
         run_id = create_run_id()
+        self._inventory_baseline = scan_project(self._project.root)
         paths = UserDataPaths.discover()
         log_path = (paths.logs / f"{run_id}.log").resolve()
         try:
@@ -444,6 +543,8 @@ class ProjectWindow(QMainWindow):
 
     def _run_completed(self, outcome: ProjectRunOutcome) -> None:
         self._append_log(f"{outcome.message}\nExecution directory: {outcome.project_directory}")
+        self._refresh_project_inventory()
+        self._refresh_run_changes(outcome.project_directory, outcome.run_id)
         record = self._active_record
         if record is not None:
             updated = WorkflowRunRecord(
