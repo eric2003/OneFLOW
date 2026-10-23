@@ -388,24 +388,42 @@ class ProjectWindow(QMainWindow):
         self.inventory_tabs.setMinimumHeight(280)
         self.inventory_tabs.setTabPosition(QTabWidget.TabPosition.North)
         self.inventory_tabs.setTabText(2, "Run information")
-        root.addWidget(self.inventory_tabs, 1)
         self.project_status = QLabel("Ready")
         self.project_status.setWordWrap(True)
         root.addWidget(self.project_status)
 
-        self._refresh_project_inventory()
-
         actions = QHBoxLayout()
         self.run_button = QPushButton("Run Project")
         self.run_button.clicked.connect(self._start_run)
-        self.stop_button = QPushButton("Stop")
-        self.stop_button.setEnabled(False)
-        self.stop_button.clicked.connect(self._stop_run)
+        self.run_details_button = QPushButton("Run details")
+        self.run_details_button.clicked.connect(self._show_run_window)
         actions.addWidget(self.run_button)
-        actions.addWidget(self.stop_button)
+        actions.addWidget(self.run_details_button)
         actions.addStretch(1)
         root.addLayout(actions)
         self.setCentralWidget(central)
+
+        self.run_window = QMainWindow(None, Qt.WindowType.Window)
+        self.run_window.setWindowTitle(f"Run details - {self._project.name}")
+        self.run_window.resize(1500, 950)
+        self.run_window.setMinimumSize(1050, 700)
+        run_central = QWidget(self.run_window)
+        run_layout = QVBoxLayout(run_central)
+        run_layout.setContentsMargins(12, 12, 12, 12)
+        run_layout.addWidget(self.inventory_tabs, 1)
+        run_actions = QHBoxLayout()
+        self.run_window_run_button = QPushButton("Run")
+        self.run_window_run_button.clicked.connect(self._start_run)
+        self.stop_button = QPushButton("Stop")
+        self.stop_button.setEnabled(False)
+        self.stop_button.clicked.connect(self._stop_run)
+        run_actions.addWidget(self.run_window_run_button)
+        run_actions.addWidget(self.stop_button)
+        run_actions.addStretch(1)
+        run_layout.addLayout(run_actions)
+        self.run_window.setCentralWidget(run_central)
+        self.run_window.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, False)
+        self._refresh_project_inventory()
 
     def _remember_view(self, key: str, window: QMainWindow) -> None:
         existing = self._view_windows.get(key)
@@ -760,8 +778,10 @@ class ProjectWindow(QMainWindow):
         self._log_path = log_path
         self.log_view.appendPlainText(f"Run {run_id}\nProject: {self._project.root}")
         self.project_status.setText(f"Running: {self._project.name}  |  Run ID: {run_id}")
+        self._show_run_window()
         self.inventory_tabs.setCurrentWidget(self._run_information_page)
         self.run_button.setEnabled(False)
+        self.run_window_run_button.setEnabled(False)
         self.stop_button.setEnabled(True)
         self._worker = ProjectRunWorker(
             self._project, executable, run_id, mode, custom_root,
@@ -814,12 +834,18 @@ class ProjectWindow(QMainWindow):
                 self._append_log(f"Could not save run history: {error}")
         self._active_record = None
         self.run_button.setEnabled(True)
+        self.run_window_run_button.setEnabled(True)
         self.stop_button.setEnabled(False)
         self.statusBar().showMessage(f"Project run {outcome.status}")
         self.project_status.setText(
             f"Last run: {outcome.status}. Execution directory: {outcome.project_directory}"
         )
         self._worker = None
+
+    def _show_run_window(self) -> None:
+        self.run_window.show()
+        self.run_window.raise_()
+        self.run_window.activateWindow()
 
     def _stop_run(self) -> None:
         if self._worker is not None:
@@ -832,4 +858,5 @@ class ProjectWindow(QMainWindow):
             self._worker.request_stop()
             event.ignore()
             return
+        self.run_window.close()
         event.accept()
