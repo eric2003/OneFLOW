@@ -132,7 +132,7 @@ class TaskTypesTest(unittest.TestCase):
                 "task_type": "case_database",
                 "status": "failed",
                 "return_code": 2,
-                "execution_directory": "workspace/case-a",
+                "execution_directory": str(Path("workspace/case-a")),
                 "message": "case-a: Process failed.",
             },
         )
