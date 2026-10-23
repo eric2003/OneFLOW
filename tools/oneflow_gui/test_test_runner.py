@@ -51,6 +51,8 @@ class TestRunnerCommandTest(unittest.TestCase):
             (build / "CMakeCache.txt").write_text("", encoding="utf-8")
             self.assertFalse(cmake_build_tree_is_configured(build))
             (build / "build.ninja").write_text("", encoding="utf-8")
+            self.assertFalse(cmake_build_tree_is_configured(build))
+            (build / "CTestTestfile.cmake").write_text("", encoding="utf-8")
             self.assertTrue(cmake_build_tree_is_configured(build))
 
     def test_default_tests_configure_build_and_run_ctest_when_executable_is_missing(self) -> None:
