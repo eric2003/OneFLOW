@@ -58,14 +58,15 @@ class RunHistoryDialog(QDialog):
         filter_actions.addStretch(1)
         root.addLayout(filter_actions)
 
-        self.table = QTableWidget(0, 5)
-        self.table.setHorizontalHeaderLabels(["Started", "Status", "Workflow", "Run ID", "Note"])
+        self.table = QTableWidget(0, 6)
+        self.table.setHorizontalHeaderLabels(["Started", "Status", "Task Type", "Workflow", "Run ID", "Note"])
         self.table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.table.setColumnWidth(0, 190)
         self.table.setColumnWidth(1, 100)
-        self.table.setColumnWidth(2, 170)
-        self.table.setColumnWidth(3, 210)
+        self.table.setColumnWidth(2, 150)
+        self.table.setColumnWidth(3, 170)
+        self.table.setColumnWidth(4, 210)
         self.table.itemSelectionChanged.connect(self._show_selected)
         root.addWidget(self.table, 2)
 
@@ -111,7 +112,8 @@ class RunHistoryDialog(QDialog):
             row = self.table.rowCount()
             self.table.insertRow(row)
             for column, value in enumerate((
-                record.started_at, record.status, record.workflow_id, record.run_id, record.note
+                record.started_at, record.status, record.task_type,
+                record.workflow_id, record.run_id, record.note
             )):
                 self.table.setItem(row, column, QTableWidgetItem(value))
         if self._records:
