@@ -52,28 +52,24 @@ ElemFeature::~ElemFeature()
 
 void ElemFeature::ScanElements( FaceSolver & faceSolver )
 {
-    int nElement = this->eTypes.size();
+    const int nElement = static_cast< int >( this->eTypes.size() );
+    // Progress cadence for large meshes; keep scanning logic free of other side effects.
+    const int progressStride = 200000;
 
     std::cout << " nElement = " << nElement << std::endl;
 
-    int nIo = 200000;
-
-    int iCount = 0;
     for ( int eId = 0; eId < nElement; ++ eId )
     {
-        int eType = this->eTypes[ eId ];
-        ++ iCount;
-        if ( ! ONEFLOW::IsBasicVolumeElementType( eType ) )
-        {
-            continue;
-        }
-        //std::cout << "eId = " << eId << "\n";
-
-        if ( eId % nIo == 0 ) 
+        if ( eId % progressStride == 0 )
         {
             std::cout << " eId = " << eId << " Total Element Number = " << nElement << std::endl;
         }
 
+        const int eType = this->eTypes[ eId ];
+        if ( ! ONEFLOW::IsBasicVolumeElementType( eType ) )
+        {
+            continue;
+        }
         faceSolver.ScanElementFace( this->eNodeId[ eId ], eType, eId );
     }
 }

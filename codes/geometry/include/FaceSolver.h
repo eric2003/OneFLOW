@@ -44,8 +44,6 @@ public:
     FaceSolver();
     ~FaceSolver();
 public:
-    HXLookup<int> faceLookup;
-public:
     FaceTopo & GetFaceTopo();
     const FaceTopo & GetFaceTopo() const;
     [[nodiscard]] std::unique_ptr< FaceTopo > ReleaseFaceTopo() noexcept;
@@ -152,6 +150,8 @@ private:
     IntField faceBcTypes;
     // Child-face index lists (split/interface path). Prefer StageNewFace growth.
     LinkField childFid;
+    // Dedup table for face node signatures (traditional + polygon stage paths).
+    HXLookup<int> faceLookup;
 
     std::unique_ptr< FaceTopo > faceTopo;
 };
