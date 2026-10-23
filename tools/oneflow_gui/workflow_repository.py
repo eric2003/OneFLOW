@@ -8,12 +8,13 @@ from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 from typing import Any
 
+from .task_types import TaskRunStatus, normalize_run_status
 from .workflow_dependencies import validate_case_dependencies
 
 
 SCHEMA_VERSION = 1
 _WORKFLOW_ID_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
-_RUN_STATES = {"pending", "running", "succeeded", "failed", "cancelled"}
+_RUN_STATES = {status.value for status in TaskRunStatus}
 
 
 @dataclass(frozen=True, slots=True)
@@ -111,9 +112,7 @@ class WorkflowRunRecord:
             raise ValueError("Workflow run record must be a JSON object.")
         run_id = _validate_id(data.get("run_id"), "run_id")
         workflow_id = _validate_id(data.get("workflow_id"), "workflow_id")
-        status = data.get("status")
-        if not isinstance(status, str) or status not in _RUN_STATES:
-            raise ValueError(f"Unsupported workflow run status: {status!r}.")
+        status = normalize_run_status(data.get("status")).value
         started_at = data.get("started_at")
         if not isinstance(started_at, str) or not started_at.strip():
             raise ValueError("Run started_at must be a non-empty string.")
