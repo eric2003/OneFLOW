@@ -49,6 +49,48 @@ class ProjectRepositoryTest(unittest.TestCase):
 
             self.assertEqual(open_project(root).project_type, ProjectType.FLOW)
 
+    def test_discovers_parameter_files_in_workflow_case_directories(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory) / "workflow"
+            grid_script = root / "rae2822grid" / "script"
+            flow_script = root / "rae2822_roe_sa" / "script"
+            grid_script.mkdir(parents=True)
+            flow_script.mkdir(parents=True)
+            (root / "workflow.json").write_text("{}\\n", encoding="utf-8")
+            (grid_script / "control.txt").write_text(
+                '"simu.txt";\\n"dimension.txt";\\n"grid.txt";\\n',
+                encoding="utf-8",
+            )
+            (grid_script / "simu.txt").write_text(
+                'string simutask = "Grid";\\n', encoding="utf-8"
+            )
+            (grid_script / "dimension.txt").write_text(
+                "int dimension = 2;\\n", encoding="utf-8"
+            )
+            (grid_script / "grid.txt").write_text(
+                'string targetGridFileName = "results/grid.ofl";\\n',
+                encoding="utf-8",
+            )
+            (flow_script / "control.txt").write_text(
+                '"simu.txt";\\n"cfd.txt";\\n', encoding="utf-8"
+            )
+            (flow_script / "simu.txt").write_text(
+                'string simutask = "Solve";\\n', encoding="utf-8"
+            )
+            (flow_script / "cfd.txt").write_text(
+                'string gridFileName = "grid/grid.ofl";\\n', encoding="utf-8"
+            )
+
+            project = open_project(root)
+
+            self.assertEqual(project.control_file, (grid_script / "control.txt").resolve())
+            self.assertEqual(project.runtime_file, (grid_script / "simu.txt").resolve())
+            self.assertEqual(
+                {path.name for path in project.parameter_files},
+                {"simu.txt", "dimension.txt", "grid.txt", "cfd.txt"},
+            )
+            self.assertTrue(all(path.is_file() and path.stat().st_size for path in project.parameter_files))
+
     def test_rejects_a_missing_project_directory(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             missing = Path(temporary_directory) / "missing"
