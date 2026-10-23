@@ -41,6 +41,7 @@ from .task_types import (
     ExecutionLocation,
     TaskRunResult,
     TaskRunStatus,
+    aggregate_run_status,
     TaskType,
     task_definition,
 )
@@ -664,13 +665,9 @@ class MainWindow(QMainWindow):
     def _queue_finished(self) -> None:
         record = self._active_case_run_record
         if record is not None:
-            statuses = {step["status"] for step in self._active_case_run_steps}
-            if "failed" in statuses:
-                status = "failed"
-            elif "cancelled" in statuses:
-                status = "cancelled"
-            else:
-                status = "succeeded"
+            status = aggregate_run_status(
+                tuple(step["status"] for step in self._active_case_run_steps)
+            ).value
             updated_record = WorkflowRunRecord(
                 run_id=record.run_id,
                 workflow_id=record.workflow_id,
