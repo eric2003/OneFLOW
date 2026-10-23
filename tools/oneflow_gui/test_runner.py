@@ -46,6 +46,7 @@ def build_unit_test_commands(
     python: str | None = None,
     *,
     build_config: str = "Debug",
+    include_ctest: bool | None = None,
 ) -> list[TestCommand]:
     """Return the same CTest and Python test commands used by repository CI."""
     if build_config not in {"Debug", "Release"}:
@@ -54,7 +55,8 @@ def build_unit_test_commands(
     python_executable = python or sys.executable
     commands: list[TestCommand] = []
     build_directory = root / "build"
-    if (build_directory / "CTestTestfile.cmake").is_file():
+    ctest_is_available = (build_directory / "CTestTestfile.cmake").is_file()
+    if ctest_is_available if include_ctest is None else include_ctest:
         arguments = ["ctest", "--output-on-failure", "-C", build_config]
         commands.append(TestCommand("C++ unit tests (CTest)", tuple(arguments), build_directory))
 
@@ -82,6 +84,58 @@ def build_cmake_command(
         arguments.append("--clean-first")
     label = f"CMake {'rebuild' if rebuild else 'build'} ({build_config})"
     return TestCommand(label, tuple(arguments), root)
+
+
+def build_cmake_configure_command(repository_root: Path) -> TestCommand:
+    """Configure the repository build tree using the development dependency prefix."""
+    root = Path(repository_root).resolve()
+    build_directory = root / "build"
+    arguments = (
+        "cmake",
+        "..",
+        "-D",
+        "CMAKE_PREFIX_PATH=C:/dev/OneFLOW",
+        "-D",
+        "CMAKE_BUILD_TYPE=Debug",
+    )
+    return TestCommand("CMake configure (Debug)", arguments, build_directory)
+
+
+def cmake_build_tree_is_configured(build_directory: Path) -> bool:
+    """Check for both CMake cache metadata and a generated build-system file."""
+    build = Path(build_directory)
+    has_cache = (build / "CMakeCache.txt").is_file()
+    generated_files = ("build.ninja", "Makefile", "OneFLOW.sln")
+    has_build_system = any((build / name).is_file() for name in generated_files)
+    return has_cache and has_build_system
+
+
+def build_default_test_commands(
+    repository_root: Path,
+    python: str | None = None,
+    *,
+    build_config: str = "Debug",
+) -> list[TestCommand]:
+    """Build the selected executable when needed, then run CTest and Python tests."""
+    if build_config not in {"Debug", "Release"}:
+        raise ValueError(f"Unsupported CMake build configuration: {build_config!r}")
+    root = Path(repository_root).resolve()
+    executable = root / "build" / "bin" / build_config / "OneFLOW.exe"
+    commands: list[TestCommand] = []
+    if not executable.is_file():
+        if not cmake_build_tree_is_configured(root / "build"):
+            commands.append(build_cmake_configure_command(root))
+        commands.append(build_cmake_command(root, build_config))
+        commands.extend(
+            build_unit_test_commands(
+                root,
+                python,
+                build_config=build_config,
+                include_ctest=True,
+            )
+        )
+        return commands
+    return build_unit_test_commands(root, python, build_config=build_config)
 
 
 def available_suites(repository_root: Path) -> list[str]:
