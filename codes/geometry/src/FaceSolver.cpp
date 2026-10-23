@@ -139,16 +139,18 @@ void FaceSolver::EnsureParallelFaceArraysSized()
     this->childFid.resize( nFaces );
 }
 
-void FaceSolver::ScanPolyhedronElement( CgnsSection & cgnsSection )
+void FaceSolver::ClaimPolyhedronCellsFromConnectivity(
+    int nElement,
+    const CgIntField & offsets,
+    const CgIntField & connectivity )
 {
-    const auto & offsets = cgnsSection.ePosList;
-    const auto & connectivity = cgnsSection.connList;
     const auto & faces = this->faceTopo->GetFaces();
 
-    if ( cgnsSection.nElement < 0 ||
-         static_cast< std::size_t >( cgnsSection.nElement ) + 1 > offsets.size() )
+    if ( nElement < 0 ||
+         static_cast< std::size_t >( nElement ) + 1 > offsets.size() )
     {
-        throw std::runtime_error( "FaceSolver::ScanPolyhedronElement: element offsets are incomplete" );
+        throw std::runtime_error(
+            "FaceSolver::ClaimPolyhedronCellsFromConnectivity: element offsets are incomplete" );
     }
 
     // Count existing cell incidences so a third cell cannot overwrite the right cell.
@@ -157,7 +159,7 @@ void FaceSolver::ScanPolyhedronElement( CgnsSection & cgnsSection )
     std::vector< int > faceUseCount( faces.size(), 0 );
     for ( std::size_t iFace = 0; iFace < faces.size(); ++ iFace )
     {
-        if ( iFace < faceFlags.size() && faceFlags[ iFace ] != 0 )
+        if ( iFace < faceFlags.size() && faceFlags[ iFace ] != kFaceUnclaimed )
         {
             faceUseCount[ iFace ] =
                 iFace < rightCells.size() && rightCells[ iFace ] != ONEFLOW::INVALID_INDEX ? 2 : 1;
@@ -165,14 +167,15 @@ void FaceSolver::ScanPolyhedronElement( CgnsSection & cgnsSection )
     }
 
     // Validate the complete section before changing cell adjacency.
-    for ( int iElem = 0; iElem < cgnsSection.nElement; ++ iElem )
+    for ( int iElem = 0; iElem < nElement; ++ iElem )
     {
         const CgInt start = offsets[ iElem ];
         const CgInt end = offsets[ iElem + 1 ];
         if ( start < 0 || end < start ||
              static_cast< std::size_t >( end ) > connectivity.size() )
         {
-            throw std::runtime_error( "FaceSolver::ScanPolyhedronElement: connectivity span is invalid" );
+            throw std::runtime_error(
+                "FaceSolver::ClaimPolyhedronCellsFromConnectivity: connectivity span is invalid" );
         }
 
         std::unordered_set< std::size_t > referencedFaces;
@@ -181,54 +184,44 @@ void FaceSolver::ScanPolyhedronElement( CgnsSection & cgnsSection )
             const CgInt signedFaceId = connectivity[ static_cast< std::size_t >( i ) ];
             if ( signedFaceId == std::numeric_limits< CgInt >::min() )
             {
-                throw std::runtime_error( "FaceSolver::ScanPolyhedronElement: face reference is out of range" );
+                throw std::runtime_error(
+                    "FaceSolver::ClaimPolyhedronCellsFromConnectivity: face reference is out of range" );
             }
 
             const CgInt faceId = signedFaceId < 0 ? -signedFaceId : signedFaceId;
             if ( faceId < 0 || static_cast< std::size_t >( faceId ) >= faces.size() )
             {
-                throw std::runtime_error( "FaceSolver::ScanPolyhedronElement: face reference is out of range" );
+                throw std::runtime_error(
+                    "FaceSolver::ClaimPolyhedronCellsFromConnectivity: face reference is out of range" );
             }
 
             if ( ! referencedFaces.insert( static_cast< std::size_t >( faceId ) ).second )
             {
-                throw std::runtime_error( "FaceSolver::ScanPolyhedronElement: polyhedron references the same face more than once" );
+                throw std::runtime_error(
+                    "FaceSolver::ClaimPolyhedronCellsFromConnectivity: polyhedron references the same face more than once" );
             }
 
             const std::size_t polygonFaceId = static_cast< std::size_t >( faceId );
             if ( ++ faceUseCount[ polygonFaceId ] > 2 )
             {
-                throw std::runtime_error( "FaceSolver::ScanPolyhedronElement: face is referenced by more than two cells" );
+                throw std::runtime_error(
+                    "FaceSolver::ClaimPolyhedronCellsFromConnectivity: face is referenced by more than two cells" );
             }
         }
     }
 
-    for ( int iElem = 0; iElem < cgnsSection.nElement; ++ iElem )
+    for ( int iElem = 0; iElem < nElement; ++ iElem )
     {
         const CgInt start = offsets[ iElem ];
         const CgInt end = offsets[ iElem + 1 ];
-        if ( start < 0 || end < start ||
-             static_cast< std::size_t >( end ) > connectivity.size() )
-        {
-            throw std::runtime_error( "FaceSolver::ScanPolyhedronElement: connectivity span is invalid" );
-        }
 
         for ( CgInt i = start; i < end; ++ i )
         {
             const CgInt signedFaceId = connectivity[ static_cast< std::size_t >( i ) ];
-            if ( signedFaceId == std::numeric_limits< CgInt >::min() )
-            {
-                throw std::runtime_error( "FaceSolver::ScanPolyhedronElement: face reference is out of range" );
-            }
-
             const CgInt faceId = signedFaceId < 0 ? -signedFaceId : signedFaceId;
-            if ( faceId < 0 || static_cast< std::size_t >( faceId ) >= faces.size() )
-            {
-                throw std::runtime_error( "FaceSolver::ScanPolyhedronElement: face reference is out of range" );
-            }
-
             const int polygonFaceId = static_cast< int >( faceId );
-            const int faceFlag = this->faceTopo->GetFaceFlags()[ static_cast< std::size_t >( polygonFaceId ) ];
+            const int faceFlag =
+                this->faceTopo->GetFaceFlags()[ static_cast< std::size_t >( polygonFaceId ) ];
 
             if ( faceFlag == kFaceUnclaimed )
             {
@@ -240,6 +233,14 @@ void FaceSolver::ScanPolyhedronElement( CgnsSection & cgnsSection )
             }
         }
     }
+}
+
+void FaceSolver::ScanPolyhedronElement( CgnsSection & cgnsSection )
+{
+    this->ClaimPolyhedronCellsFromConnectivity(
+        cgnsSection.nElement,
+        cgnsSection.ePosList,
+        cgnsSection.connList );
 }
 
 

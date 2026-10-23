@@ -105,6 +105,15 @@ public:
         const CgIntField & connectivity,
         int faceType );
 
+    // Assign polyhedron cells to already staged faces from CSR face references.
+    // Validates spans, face id range, no duplicate face per cell, and at most
+    // two cells per face before any mutation. Uses ClaimStagedFaceAsLeft /
+    // AttachStagedFaceAsRight only.
+    void ClaimPolyhedronCellsFromConnectivity(
+        int nElement,
+        const CgIntField & offsets,
+        const CgIntField & connectivity );
+
     void ScanPolygonFace( CgnsSection & cgnsSection );
     void ScanPolyhedronElement( CgnsSection & cgnsSection );
 private:

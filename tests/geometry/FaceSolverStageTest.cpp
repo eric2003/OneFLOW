@@ -140,3 +140,70 @@ TEST( FaceSolverStageTest, StagePolygonFacesFromConnectivityRejectsIncompleteOff
         solver.StagePolygonFacesFromConnectivity( 1, offsets, connectivity, 7 ),
         std::runtime_error );
 }
+
+// Two polyhedra share one face: first claims left, second attaches right.
+TEST( FaceSolverStageTest, ClaimPolyhedronCellsAssignsLeftThenRight )
+{
+    FaceSolver solver;
+    // Three faces staged as unclaimed.
+    CgIntField faceOffsets{ 0, 3, 6, 9 };
+    CgIntField faceConn{ 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+    solver.StagePolygonFacesFromConnectivity( 3, faceOffsets, faceConn, /*faceType=*/7 );
+
+    // Cell 0 uses faces 0,1; cell 1 uses faces 1,2 (shared face 1).
+    CgIntField cellOffsets{ 0, 2, 4 };
+    CgIntField cellFaceRefs{ 0, 1, 1, 2 };
+    solver.ClaimPolyhedronCellsFromConnectivity( 2, cellOffsets, cellFaceRefs );
+
+    const FaceTopo & topo = solver.GetFaceTopo();
+    EXPECT_EQ( topo.GetLeftCells()[ 0 ], 0 );
+    EXPECT_EQ( topo.GetRightCells()[ 0 ], INVALID_INDEX );
+    EXPECT_EQ( topo.GetLeftCells()[ 1 ], 0 );
+    EXPECT_EQ( topo.GetRightCells()[ 1 ], 1 );
+    EXPECT_EQ( topo.GetLeftCells()[ 2 ], 1 );
+    EXPECT_EQ( topo.GetRightCells()[ 2 ], INVALID_INDEX );
+    EXPECT_EQ( topo.GetFaceFlags()[ 1 ], FaceSolver::kFaceClaimed );
+}
+
+TEST( FaceSolverStageTest, ClaimPolyhedronCellsRejectsThirdCellOnSameFace )
+{
+    FaceSolver solver;
+    CgIntField faceOffsets{ 0, 3 };
+    CgIntField faceConn{ 1, 2, 3 };
+    solver.StagePolygonFacesFromConnectivity( 1, faceOffsets, faceConn, 7 );
+
+    // Three cells all reference face 0.
+    CgIntField cellOffsets{ 0, 1, 2, 3 };
+    CgIntField cellFaceRefs{ 0, 0, 0 };
+    EXPECT_THROW(
+        solver.ClaimPolyhedronCellsFromConnectivity( 3, cellOffsets, cellFaceRefs ),
+        std::runtime_error );
+}
+
+TEST( FaceSolverStageTest, ClaimPolyhedronCellsRejectsDuplicateFaceInOneCell )
+{
+    FaceSolver solver;
+    CgIntField faceOffsets{ 0, 3, 6 };
+    CgIntField faceConn{ 1, 2, 3, 4, 5, 6 };
+    solver.StagePolygonFacesFromConnectivity( 2, faceOffsets, faceConn, 7 );
+
+    CgIntField cellOffsets{ 0, 2 };
+    CgIntField cellFaceRefs{ 0, 0 }; // same face twice in one polyhedron
+    EXPECT_THROW(
+        solver.ClaimPolyhedronCellsFromConnectivity( 1, cellOffsets, cellFaceRefs ),
+        std::runtime_error );
+}
+
+TEST( FaceSolverStageTest, ClaimPolyhedronCellsRejectsOutOfRangeFaceId )
+{
+    FaceSolver solver;
+    CgIntField faceOffsets{ 0, 3 };
+    CgIntField faceConn{ 1, 2, 3 };
+    solver.StagePolygonFacesFromConnectivity( 1, faceOffsets, faceConn, 7 );
+
+    CgIntField cellOffsets{ 0, 1 };
+    CgIntField cellFaceRefs{ 5 }; // only face 0 exists
+    EXPECT_THROW(
+        solver.ClaimPolyhedronCellsFromConnectivity( 1, cellOffsets, cellFaceRefs ),
+        std::runtime_error );
+}
