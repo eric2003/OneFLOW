@@ -7,6 +7,7 @@ from pathlib import Path
 from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import (
     QDialog,
+    QHeaderView,
     QHBoxLayout,
     QMessageBox,
     QPushButton,
@@ -38,7 +39,7 @@ class BackgroundTaskDialog(QDialog):
         self.table.setSelectionMode(QTableWidget.SelectionMode.SingleSelection)
         self.table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.table.horizontalHeader().setStretchLastSection(True)
-        self.table.horizontalHeader().setSectionResizeMode(2, self.table.horizontalHeader().ResizeMode.Stretch)
+        self.table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
         layout.addWidget(self.table, 1)
 
         actions = QHBoxLayout()
