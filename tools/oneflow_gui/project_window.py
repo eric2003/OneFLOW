@@ -830,7 +830,7 @@ class ProjectWindow(QMainWindow):
                 root=paths.root,
                 task_id=run_id,
                 command=command,
-                cwd=self._project.root,
+                cwd=self._repository_root,
                 repository_root=self._repository_root,
             )
         except (OSError, RuntimeError, ValueError) as error:
