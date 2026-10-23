@@ -89,8 +89,13 @@ def build_cmake_command(
     return TestCommand(label, tuple(arguments), root)
 
 
-def build_cmake_configure_command(repository_root: Path) -> TestCommand:
-    """Configure the repository build tree using the development dependency prefix."""
+def build_cmake_configure_command(
+    repository_root: Path,
+    build_config: str = "Debug",
+) -> TestCommand:
+    """Configure the repository build tree using the selected build configuration."""
+    if build_config not in {"Debug", "Release"}:
+        raise ValueError(f"Unsupported CMake build configuration: {build_config!r}")
     root = Path(repository_root).resolve()
     build_directory = root / "build"
     arguments = (
@@ -99,9 +104,9 @@ def build_cmake_configure_command(repository_root: Path) -> TestCommand:
         "-D",
         "CMAKE_INSTALL_PREFIX=C:/dev/OneFLOW",
         "-D",
-        "CMAKE_BUILD_TYPE=Debug",
+        "CMAKE_BUILD_TYPE=" + build_config,
     )
-    return TestCommand("CMake configure (Debug)", arguments, build_directory)
+    return TestCommand(f"CMake configure ({build_config})", arguments, build_directory)
 
 
 def cmake_build_tree_is_configured(build_directory: Path) -> bool:
@@ -128,7 +133,7 @@ def build_default_test_commands(
     commands: list[TestCommand] = []
     if not executable.is_file():
         if not cmake_build_tree_is_configured(root / "build"):
-            commands.append(build_cmake_configure_command(root))
+            commands.append(build_cmake_configure_command(root, build_config))
         commands.append(build_cmake_command(root, build_config))
         commands.extend(
             build_unit_test_commands(
