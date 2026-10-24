@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import (
     QComboBox,
     QDialog,
@@ -50,6 +51,7 @@ class WorkbenchHomeWindow(QMainWindow):
         self.setWindowTitle("OneFLOW Workbench")
         self.resize(900, 650)
         self._build_ui()
+        QTimer.singleShot(0, self._review_active_background_tasks)
 
     def _build_ui(self) -> None:
         central = QWidget(self)
@@ -70,9 +72,25 @@ class WorkbenchHomeWindow(QMainWindow):
 
         project_actions = QHBoxLayout()
         new_project_button = QPushButton("New Project...")
-        new_project_button.setMinimumHeight(38)
+        new_project_button.setMinimumHeight(48)
+        new_project_button.setMinimumWidth(180)
         new_project_button.clicked.connect(self._new_project)
         project_actions.addWidget(new_project_button)
+
+        open_project_button = QPushButton("Open Project...")
+        open_project_button.setMinimumHeight(48)
+        open_project_button.setMinimumWidth(180)
+        open_project_button.clicked.connect(self._open_project)
+        project_actions.addWidget(open_project_button)
+
+        self.background_tasks_button = QPushButton("Background Tasks")
+        self.background_tasks_button.setMinimumHeight(48)
+        self.background_tasks_button.setMinimumWidth(180)
+        self.background_tasks_button.setToolTip(
+            "Review running calculations, inspect results, and manage previous tasks."
+        )
+        self.background_tasks_button.clicked.connect(self._open_background_tasks)
+        project_actions.addWidget(self.background_tasks_button)
         project_actions.addStretch(1)
         root.addLayout(project_actions)
 
@@ -119,11 +137,6 @@ class WorkbenchHomeWindow(QMainWindow):
 
         grid = QGridLayout()
         grid.setSpacing(12)
-        self._add_activity(
-            grid, 0, 0, "Open Project",
-            "Open any existing project directory, whether or not it belongs to a built-in catalog.",
-            self._open_project,
-        )
         self._add_activity(
             grid, 0, 1, "Case Database",
             "Run all selected catalog cases from protected workspace copies; all cases are selected by default.",
@@ -173,11 +186,6 @@ class WorkbenchHomeWindow(QMainWindow):
             grid, 3, 1, "Create Workspace",
             "Create a workspace and register case directories for single, sequential, independent, or dependency-based execution.",
             self._create_workspace,
-        )
-        self._add_activity(
-            grid, 4, 1, "Background Tasks",
-            "Review detached task status, stop active tasks, and unregister finished task records.",
-            self._open_background_tasks,
         )
         self._add_activity(
             grid, 4, 0, "Basic Configuration",
@@ -399,6 +407,22 @@ class WorkbenchHomeWindow(QMainWindow):
 
     def _open_history(self) -> None:
         RunHistoryDialog(UserDataPaths.discover().workflow_data, self).exec()
+
+    def _review_active_background_tasks(self) -> None:
+        registry = BackgroundTaskRegistry(UserDataPaths.discover().root)
+        active_tasks = [
+            task for task in registry.list_tasks()
+            if task.status in ACTIVE_STATUSES
+        ]
+        if not active_tasks:
+            return
+        QMessageBox.information(
+            self,
+            "Background calculations detected",
+            f"Found {len(active_tasks)} active background task(s). "
+            "Review their status and results in the Background Tasks dialog.",
+        )
+        self._open_background_tasks()
 
     def _open_background_tasks(self) -> None:
         BackgroundTaskDialog(UserDataPaths.discover().root, self).exec()
