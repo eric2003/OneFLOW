@@ -33,6 +33,22 @@ public:
     ~UNsGrad();
 public:
     void Init() override;
+    // downloadToHost / mirrorBoundaryGradient are capability decisions, not
+    // environment guesses.  A device reconstruction reads the resident
+    // gradient, so the host mirror is only needed where the host interface
+    // exchange touches it: the boundary-adjacent owned cells (interface send
+    // values) and the ghost cells that Grad::SwapBcGrad fills from the receive
+    // buffer.  The one-round exchange lag of the CPU oracle is preserved
+    // because the swap still runs on the host.
+    // packedExchange: run the device pack/unpack interface exchange that fills
+    //                 the resident ghost gradient (the CPU lag contract is kept
+    //                 because the send/recv storages are exchanged by the
+    //                 post-process interface round trip).
+    // mirrorToHost:   also copy the boundary-adjacent owned gradient into the
+    //                 host fields; only aero forces, the optional boundary
+    //                 store and field dumps read it.
+    void CalcGradHip( bool downloadToHost, bool packedExchange,
+                      bool mirrorToHost );
 };
 
 class UTGrad : public Grad

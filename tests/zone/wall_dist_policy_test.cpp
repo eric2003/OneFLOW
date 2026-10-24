@@ -39,3 +39,10 @@ TEST( WallDistPolicy, RestartPrefersLoad )
         DecideFlowWallDistAction( 3, 1, 0 ),
         FlowWallDistAction::Load );
 }
+
+TEST( WallDistPolicy, MissingFileFallsBackToCreate )
+{
+    EXPECT_EQ(
+        DecideFlowWallDistAction( 3, 1, 1, false ),
+        FlowWallDistAction::Create );
+}

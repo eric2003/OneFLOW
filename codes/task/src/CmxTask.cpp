@@ -37,16 +37,39 @@ License
 #include "Zone.h"
 #include "Grid.h"
 #include "LogFile.h"
+#include "StageProfiler.h"
 #include "FileMap.h"
 #include <memory>
 #include <utility>
 #include <map>
 #include <cstdint>
+#include <chrono>
 
 BeginNameSpace( ONEFLOW )
 
 namespace {
 
+// Times one plan+execute dispatch.  When the stage breakdown file is unset the
+// object is inert, so the production path keeps paying only the Enabled()
+// environment lookup that the coarse-stage timers already perform.
+struct TaskDispatchTimer
+{
+    bool active = false;
+    std::chrono::steady_clock::time_point start;
+
+    TaskDispatchTimer() : active( StageProfiler::Enabled() )
+    {
+        if ( active ) start = std::chrono::steady_clock::now();
+    }
+
+    void Finish( int operationId, const char * taskName ) const
+    {
+        if ( ! active ) return;
+        const auto end = std::chrono::steady_clock::now();
+        const std::chrono::duration< double, std::milli > elapsed = end - start;
+        StageProfiler::RecordTask( operationId, taskName, elapsed.count() );
+    }
+};
 // Cache HXClone* by (operationId, solverType, funcType). Invalidated when
 // MessageMap::Epoch() changes (Init/Free). Hot path: CmdAction / GenerateCmdList.
 struct GetClassCache
@@ -184,14 +207,10 @@ void GenerateCmdList( int operationId )
 {
     const int solverType = SolverState::solverType;
 
-    HXRegister * hxRegister =
-        RegisterFactory::GetRegister( solverType, MESG_FUNC );
-
-    const std::string & operationName =
-        MessageMap::GetMsgName( operationId );
-
-    HXClone * cloneClass =
-        hxRegister->GetClass( operationName );
+    // The register/class lookup is epoch-cached by GetClass().  The old path
+    // repeated the MessageMap name lookup and HXRegister::GetClass string map
+    // on every RK task (thousands of calls per run); reuse the cache.
+    HXClone * cloneClass = GetClass( operationId, solverType, MESG_FUNC );
 
     if ( cloneClass )
     {
@@ -201,7 +220,7 @@ void GenerateCmdList( int operationId )
     else
     {
         // Treat the operation as a single runtime command.
-        ONEFLOW::AddCmdToList( operationName );
+        ONEFLOW::AddCmdToList( MessageMap::GetMsgName( operationId ) );
     }
 }
 
@@ -441,12 +460,50 @@ void DumpTaskDispatch(
 
 void SingleSolverSingleGridTask( int operationId )
 {
+    TaskDispatchTimer dispatchTimer;
+    const std::string & taskName = MessageMap::GetMsgName( operationId );
+
     // Runtime form: plan + execute by id (no string lookup here).
-    GenerateCmdList( operationId );
+    {
+        ScopedStageTimer planTimer( "task_plan" );
+        GenerateCmdList( operationId );
+    }
+    const char * category = StageProfiler::CategoryForTask( taskName );
+    if ( category[ 0 ] != '\0' )
+    {
+        ScopedStageTimer timer( category );
+        CMD::ExecuteCmd();
+    }
+    else
+    {
+        CMD::ExecuteCmd();
+    }
+    dispatchTimer.Finish( operationId, taskName.c_str() );
+}
 
-    //CMD::DumpCommandQueue( std::cout );
+void SingleSolverSingleGridTask(
+    int operationId,
+    SimuContext & context )
+{
+    TaskDispatchTimer dispatchTimer;
+    const std::string & taskName = MessageMap::GetMsgName( operationId );
 
-    CMD::ExecuteCmd();
+    {
+        ScopedStageTimer planTimer( "task_plan" );
+        GenerateCmdList( operationId );
+    }
+    const char * category =
+        StageProfiler::CategoryForTask( taskName );
+    if ( category[ 0 ] != '\0' )
+    {
+        ScopedStageTimer timer( category );
+        CMD::ExecuteCmd( & context );
+    }
+    else
+    {
+        CMD::ExecuteCmd( & context );
+    }
+    dispatchTimer.Finish( operationId, taskName.c_str() );
 }
 
 void SingleSolverSingleGridTask( const std::string & taskName )
@@ -454,6 +511,14 @@ void SingleSolverSingleGridTask( const std::string & taskName )
     // Source form: resolve name once, then use id path.
     const int operationId = MessageMap::GetMsgId( taskName );
     SingleSolverSingleGridTask( operationId );
+}
+
+void SingleSolverSingleGridTask(
+    const std::string & taskName,
+    SimuContext & context )
+{
+    const int operationId = MessageMap::GetMsgId( taskName );
+    SingleSolverSingleGridTask( operationId, context );
 }
 
 
@@ -481,6 +546,23 @@ void MultiSolverMultiGridTask( int operationId )
     }
 }
 
+void MultiSolverMultiGridTask(
+    int operationId,
+    SimuContext & context )
+{
+    for ( int solverIndex = 0;
+        solverIndex < SolverState::nSolver;
+        ++ solverIndex )
+    {
+        SolverState::SetSolverTypeBySolverIndex( solverIndex );
+        for ( int gl = 0; gl < GridState::nGrids; ++ gl )
+        {
+            GridState::SetGridLevel( gl );
+            SingleSolverSingleGridTask( operationId, context );
+        }
+    }
+}
+
 void MultiSolverMultiGridTask( const std::string & taskName )
 {
     // Resolve once outside solver x grid loops.
@@ -488,6 +570,13 @@ void MultiSolverMultiGridTask( const std::string & taskName )
     MultiSolverMultiGridTask( operationId );
 }
 
+void MultiSolverMultiGridTask(
+    const std::string & taskName,
+    SimuContext & context )
+{
+    const int operationId = MessageMap::GetMsgId( taskName );
+    MultiSolverMultiGridTask( operationId, context );
+}
 
 
 EndNameSpace

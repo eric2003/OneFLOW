@@ -1,11 +1,16 @@
 #include "EulerDomainStateSync.h"
 
+#include "AccelRuntime.h"
 #include "CpuEulerDomainBackend.h"
 #include "EulerDomainMrFieldAdapter.h"
 #include "EulerDomainStateLifecycle.h"
+#ifdef ONEFLOW_ENABLE_HIP
+#include "HipFluxBackend.h"
+#endif
 #include "SimuContext.h"
 #include "Ctrl.h"
 #include "DataBase.h"
+#include "UnsGrid.h"
 #include "FieldManager.h"
 #include "Grid.h"
 #include "GridState.h"
@@ -95,7 +100,36 @@ void SyncCurrentEulerDomainState(
     {
         context.InitializeAccelState( backend, problem, key, field );
     }
+
+    AccelRuntime & runtime = AccelRuntime::Instance();
+    if ( runtime.IsInitialized()
+         && runtime.Backend().Kind() == AccelBackendKind::HIP )
+    {
+        EulerDomainStateKey hipKey = key;
+        hipKey.backend = AccelBackendKind::HIP;
+        hipKey.deviceId = runtime.Context().selectedDevice;
+#ifdef ONEFLOW_ENABLE_HIP
+        Grid * grid = Zone::GetGrid();
+        HipFluxBackend::Shared().UnbindState( grid );
+#endif
+        context.AccelStates().Invalidate( hipKey );
+        auto hipState = std::make_unique< Ns3DDeviceState >( problem, hipKey );
+        UnsGrid * unsGrid = Zone::GetUnsGrid();
+        if ( unsGrid != nullptr ) hipState->ReserveFaces( unsGrid->nFaces );
+        hipState->Upload( field );
+#ifdef ONEFLOW_ENABLE_HIP
+        hipState->AttachBackendState(
+            CreateHipNs3DBackendState( hipKey.deviceId ) );
+#endif
+        context.AccelStates().Insert( hipKey, std::move( hipState ) );
+#ifdef ONEFLOW_ENABLE_HIP
+        auto & registered = dynamic_cast< Ns3DDeviceState & >(
+            context.AccelStates().Get( hipKey ) );
+        HipFluxBackend::Shared().BindState( grid, registered );
+#endif
+    }
 }
+
 
 void UploadCurrentEulerDomainState(
     SimuContext & context,
@@ -121,15 +155,22 @@ void SyncAllEulerDomainStates( SimuContext & context )
 {
     CpuEulerDomainBackend backend;
     const bool restart = ctrl.startStrategy == 1 || ctrl.startStrategy == 3;
-    for ( int solverIndex = 0;
-        solverIndex < SolverState::nSolver; ++ solverIndex )
+    // Grid ownership is rank-local in MPI runs.  Iterating the global zone
+    // state here makes non-owner ranks dereference a null globalGrids entry.
+    for ( int localZoneIndex = 0;
+        localZoneIndex < ZoneState::nLocal; ++ localZoneIndex )
     {
-        SolverState::SetSolverTypeBySolverIndex( solverIndex );
-        for ( int gridLevel = 0;
-            gridLevel < GridState::nGrids; ++ gridLevel )
+        ZoneState::zid = ZoneState::localZid[ localZoneIndex ];
+        for ( int solverIndex = 0;
+            solverIndex < SolverState::nSolver; ++ solverIndex )
         {
-            GridState::SetGridLevel( gridLevel );
-            SyncCurrentEulerDomainState( context, backend, restart );
+            SolverState::SetSolverTypeBySolverIndex( solverIndex );
+            for ( int gridLevel = 0;
+                gridLevel < GridState::nGrids; ++ gridLevel )
+            {
+                GridState::SetGridLevel( gridLevel );
+                SyncCurrentEulerDomainState( context, backend, restart );
+            }
         }
     }
 }

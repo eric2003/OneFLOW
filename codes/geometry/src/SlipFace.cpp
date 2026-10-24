@@ -35,6 +35,7 @@ License
 #include "LogFile.h"
 #include "HXMath.h"
 #include <algorithm>
+#include <stdexcept>
 #include <utility>
 
 
@@ -190,9 +191,46 @@ void SlipFace::CalcSendId( int iNei, IntField & idsend )
 
 void SlipFace::SetSendId( int zid, IntField & idsend )
 {
-    int iNei = this->z2n[ zid ];
+    int iNei = this->GetNeighborIndex( zid );
     SlipfacePair * slipfacePair = slipfacePairs[ iNei ].get();
     slipfacePair->idsend = idsend;
+}
+
+bool SlipFace::TryGetNeighborIndex(
+    int zoneId,
+    int & neighborIndex ) const
+{
+    const auto iter = this->z2n.find( zoneId );
+    if ( iter == this->z2n.end() )
+    {
+        return false;
+    }
+
+    neighborIndex = iter->second;
+    if ( neighborIndex < 0 ||
+         neighborIndex >= static_cast< int >( this->slipfacePairs.size() ) ||
+         ! this->slipfacePairs[ neighborIndex ] )
+    {
+        throw std::logic_error(
+            "SlipFace::TryGetNeighborIndex: neighbor index is invalid" );
+    }
+    if ( this->slipfacePairs[ neighborIndex ]->nzid != zoneId )
+    {
+        throw std::logic_error(
+            "SlipFace::TryGetNeighborIndex: neighbor mapping is inconsistent" );
+    }
+    return true;
+}
+
+int SlipFace::GetNeighborIndex( int zoneId ) const
+{
+    int neighborIndex = -1;
+    if ( ! this->TryGetNeighborIndex( zoneId, neighborIndex ) )
+    {
+        throw std::out_of_range(
+            "SlipFace::GetNeighborIndex: neighbor zone was not found" );
+    }
+    return neighborIndex;
 }
 
 void LocalSlipFace::AddSlipFace( SlipFace * slipFace )
@@ -486,11 +524,14 @@ void SlipFaceTopo::SwapNeighborsSendContent()
             if ( Parallel::pid == spid )
             {
                 Grid & grid = Zone::GetGridReference( iZone );
-                SlipfacePair * slipfacePair = grid.slipFace->GetSlipfacePair( iNei );
-
-                grid.slipFace->CalcSendId( iNei, idsend );
-
-                nSend = idsend.size();
+                int pairIndex = -1;
+                if ( grid.slipFace->TryGetNeighborIndex(
+                         nZid,
+                         pairIndex ) )
+                {
+                    grid.slipFace->CalcSendId( pairIndex, idsend );
+                    nSend = idsend.size();
+                }
             }
 
             ONEFLOW::HXSwapData( & nSend, 1, spid, rpid, iZone + gl * ZoneState::nZones );
@@ -501,12 +542,27 @@ void SlipFaceTopo::SwapNeighborsSendContent()
                 idsend.resize( nSend );
             }
 
-            ONEFLOW::HXSwapData( & idsend[ 0 ], nSend, spid, rpid, iZone + gl * ZoneState::nZones );
+            if ( nSend > 0 )
+            {
+                ONEFLOW::HXSwapData(
+                    idsend.data(),
+                    nSend,
+                    spid,
+                    rpid,
+                    iZone + gl * ZoneState::nZones );
+            }
 
             if ( Parallel::pid == rpid )
             {
                 Grid & gridN = Zone::GetGridReference( nZid );
-                gridN.slipFace->SetSendId( iZone, idsend );
+                int pairIndex = -1;
+                if ( gridN.slipFace->TryGetNeighborIndex(
+                         iZone,
+                         pairIndex ) )
+                {
+                    gridN.slipFace->GetSlipfacePair(
+                        pairIndex )->idsend = idsend;
+                }
             }
         }
     }

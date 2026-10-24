@@ -33,10 +33,27 @@ License
 #include "Iteration.h"
 #include <iostream>
 
-
 BeginNameSpace( ONEFLOW )
 
 BcData ns_bc_data;
+
+namespace
+{
+
+inline Real FarFieldPower( Real value, Real exponent )
+{
+    // For the common perfect-gas case gamma=1.4, 1/(gamma-1)=2.5.
+    // Keep the viscous path bitwise-compatible with the CPU oracle.
+    if ( vis_model.vismodel == INVISCID
+         && exponent > 2.499999999999
+         && exponent < 2.500000000001 )
+    {
+        return value * value * sqrt( value );
+    }
+    return pow( value, exponent );
+}
+
+}
 
 void NsBcSolver::SetBc()
 {
@@ -172,7 +189,16 @@ void NsBcSolver::FarFieldBc()
     Real vnref = gcom.xfn * uref + gcom.yfn * vref + gcom.zfn * wref - gcom.vfn;
     Real vnin  = gcom.xfn * uin  + gcom.yfn * vin  + gcom.zfn * win  - gcom.vfn;
 
-    Real cref = sqrt( ABS( nscom.gama_ref * pref / rref ) );
+    if ( ! farfieldCacheValid || farfieldCachedGamma != nscom.gama )
+    {
+        farfieldCachedGamma = nscom.gama;
+        farfieldCachedSoundSpeed =
+            sqrt( ABS( nscom.gama_ref * pref / rref ) );
+        farfieldCachedEntropy = pref / pow( rref, nscom.gama );
+        farfieldCacheValid = true;
+    }
+
+    Real cref = farfieldCachedSoundSpeed;
     Real cin  = sqrt( ABS( nscom.gama     * pin  / rin  ) );
 
     Real gamm1 = nscom.gama - one;
@@ -232,13 +258,14 @@ void NsBcSolver::FarFieldBc()
         else
         {
             //inlet
-            entr = pref / pow( rref, nscom.gama );
+            entr = farfieldCachedEntropy;
             vtx = uref - gcom.xfn * vnref;
             vty = vref - gcom.yfn * vnref;
             vtz = wref - gcom.zfn * vnref;
         }
 
-        Real rb = pow( ( cb * cb / ( entr * nscom.gama ) ), one / gamm1 );
+        Real rb = FarFieldPower(
+            cb * cb / ( entr * nscom.gama ), one / gamm1 );
         Real ub = vtx + gcom.xfn * vnb;
         Real vb = vty + gcom.yfn * vnb;
         Real wb = vtz + gcom.zfn * vnb;

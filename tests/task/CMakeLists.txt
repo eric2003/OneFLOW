@@ -38,6 +38,7 @@ set(DATABASE_TEST_SOURCES
 	${TASK_SRC_DIR}/Task.cpp
 	${TASK_SRC_DIR}/TaskState.cpp
 	${TASK_SRC_DIR}/SimpleTask.cpp
+	${CMAKE_SOURCE_DIR}/codes/accel/src/StageProfiler.cpp
 	${TASK_SRC_DIR}/CmxTask.cpp	
 	${TASK_SRC_DIR}/FileInfo.cpp
 	${TASK_SRC_DIR}/ActionState.cpp
@@ -87,6 +88,7 @@ target_include_directories(task_test
 	${GLOBAL_INCLUDE_DIR}
 	${GEOMETRY_INCLUDE_DIR}
 	${PARALLEL_INCLUDE_DIR}
+	${CMAKE_SOURCE_DIR}/codes/accel/include
 	${ARRAY_INCLUDE_DIR}
 	${CMAKE_SOURCE_DIR}/codes/implicit/include
 	
@@ -99,4 +101,70 @@ target_link_libraries(task_test
 
 gtest_discover_tests(task_test
   DISCOVERY_MODE PRE_TEST          # 关键！
+)
+
+add_executable(distributed_domain_plan_test
+  DistributedDomainPlanTest.cpp
+  ${PARALLEL_SRC_DIR}/DistributedDomainPlan.cpp
+)
+
+target_include_directories(distributed_domain_plan_test
+  PRIVATE
+    ${PARALLEL_INCLUDE_DIR}
+)
+
+target_link_libraries(distributed_domain_plan_test
+  PRIVATE
+    GTest::gtest_main
+)
+
+target_compile_features(distributed_domain_plan_test PRIVATE cxx_std_20)
+
+gtest_discover_tests(distributed_domain_plan_test
+  DISCOVERY_MODE PRE_TEST
+)
+
+add_executable(boundary_exchange_contract_test
+  BoundaryExchangeContractTest.cpp
+  ${PARALLEL_SRC_DIR}/BoundaryExchangeContract.cpp
+)
+
+target_include_directories(boundary_exchange_contract_test
+  PRIVATE
+    ${PARALLEL_INCLUDE_DIR}
+    ${BASIC_INCLUDE_DIR}
+)
+
+target_link_libraries(boundary_exchange_contract_test
+  PRIVATE
+    GTest::gtest_main
+)
+
+target_compile_features(boundary_exchange_contract_test PRIVATE cxx_std_20)
+
+gtest_discover_tests(boundary_exchange_contract_test
+  DISCOVERY_MODE PRE_TEST
+)
+
+add_executable(cpu_ownership_synchronization_contract_test
+  CpuOwnershipSynchronizationContractTest.cpp
+  ${PARALLEL_SRC_DIR}/BoundaryExchangeContract.cpp
+  ${PARALLEL_SRC_DIR}/DistributedDomainPlan.cpp
+)
+
+target_include_directories(cpu_ownership_synchronization_contract_test
+  PRIVATE
+    ${PARALLEL_INCLUDE_DIR}
+    ${BASIC_INCLUDE_DIR}
+)
+
+target_link_libraries(cpu_ownership_synchronization_contract_test
+  PRIVATE
+    GTest::gtest_main
+)
+
+target_compile_features(cpu_ownership_synchronization_contract_test PRIVATE cxx_std_20)
+
+gtest_discover_tests(cpu_ownership_synchronization_contract_test
+  DISCOVERY_MODE PRE_TEST
 )

@@ -1,4 +1,5 @@
 #include "EulerCpuAdapter.h"
+#include "FluxBackend.h"
 
 #include <gtest/gtest.h>
 
@@ -10,6 +11,39 @@ namespace
 {
 
 using namespace ONEFLOW;
+
+class RecordingFluxBackend final : public FluxBackend
+{
+public:
+    void CalcInvFlux(
+        const FaceStateView & state,
+        FaceFluxView & flux,
+        int scheme ) override
+    {
+        called = true;
+        receivedScheme = scheme;
+        receivedLeft.assign(
+            state.qLeft, state.qLeft + state.nFaces * state.nEquations );
+        receivedRight.assign(
+            state.qRight, state.qRight + state.nFaces * state.nEquations );
+        for ( int i = 0; i < state.nFaces * state.nEquations; ++ i )
+        {
+            flux.values[ i ] = state.qLeft[ i ];
+        }
+    }
+
+    void AddFaceFlux(
+        const FaceFluxView &,
+        const FaceConnectivityView &,
+        ResidualView & ) override
+    {
+    }
+
+    bool called = false;
+    int receivedScheme = -1;
+    std::vector< Real > receivedLeft;
+    std::vector< Real > receivedRight;
+};
 
 TEST( EulerCpuAdapter, ConvertsThreeEquationPrimitiveState )
 {
@@ -113,6 +147,41 @@ TEST( EulerCpuAdapter, ComputesBatchFluxAfterConversion )
     for ( Real value : values ) EXPECT_TRUE( std::isfinite( value ) );
     EXPECT_GT( values[ 0 ], 0.0 );
     EXPECT_GT( values[ 1 ], values[ 0 ] );
+}
+
+
+TEST( EulerCpuAdapter, DelegatesOnePackedContractToInjectedBackend )
+{
+    constexpr int nFaces = 1;
+    const Real primitiveLeft[] = { 2.0, 3.0, 4.0 };
+    const Real primitiveRight[] = { 1.0, -1.0, 2.0 };
+    const Real normal[] = { 1.0 };
+    const Real area[] = { 1.0 };
+    Real values[ 3 ] = {};
+
+    PrimitiveFaceStateView state;
+    state.nFaces = nFaces;
+    state.nEquations = 3;
+    state.primitiveLeft = primitiveLeft;
+    state.primitiveRight = primitiveRight;
+    state.xNormal = normal;
+    state.faceArea = area;
+
+    FaceFluxView flux{ nFaces, 3, values };
+    RecordingFluxBackend backend;
+    EulerCpuAdapter adapter;
+    ASSERT_NO_THROW( adapter.CalcInvFlux( state, flux, backend, 17 ) );
+    ASSERT_TRUE( backend.called );
+    EXPECT_EQ( backend.receivedScheme, 17 );
+    ASSERT_EQ( backend.receivedLeft.size(), 3U );
+    ASSERT_EQ( backend.receivedRight.size(), 3U );
+    EXPECT_DOUBLE_EQ( backend.receivedLeft[ 0 ], 2.0 );
+    EXPECT_DOUBLE_EQ( backend.receivedLeft[ 1 ], 6.0 );
+    EXPECT_DOUBLE_EQ( backend.receivedLeft[ 2 ], 19.0 );
+    EXPECT_DOUBLE_EQ( backend.receivedRight[ 0 ], 1.0 );
+    EXPECT_DOUBLE_EQ( backend.receivedRight[ 1 ], -1.0 );
+    EXPECT_DOUBLE_EQ( backend.receivedRight[ 2 ], 5.5 );
+    EXPECT_EQ( values[ 1 ], 6.0 );
 }
 
 

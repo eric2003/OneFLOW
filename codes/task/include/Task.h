@@ -32,6 +32,7 @@ using TaskFunction = void ( * )( void );
 
 class DataBook;
 class FileInfo;
+class SimuContext;
 
 class Task
 {
@@ -49,6 +50,13 @@ public:
 public:
     virtual void Run() {}
 
+    void SetContext( SimuContext * contextValue ) noexcept
+    {
+        context = contextValue;
+    }
+
+    SimuContext * Context() const noexcept { return context; }
+
 public:
     int taskId = -1;
     std::string taskName;
@@ -56,6 +64,7 @@ public:
     TaskFunction action = nullptr;
     TaskFunction sendAction = nullptr;
     TaskFunction recvAction = nullptr;
+    SimuContext * context = nullptr;
 
     // Owned resources (constructed in Task::Task via make_unique).
     std::unique_ptr< DataBook > dataBook;

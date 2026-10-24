@@ -29,6 +29,7 @@ License
 BeginNameSpace( ONEFLOW )
 
 class Task;
+class SimuContext;
 
 // Command owns its Tasks via unique_ptr. Execution order is the order of
 // AddTask() calls (index order in the owner vector).
@@ -48,6 +49,11 @@ public:
 
 public:
     virtual void Execute() = 0;
+    virtual void ExecuteWithContext( SimuContext * context )
+    {
+        (void) context;
+        Execute();
+    }
 
 public:
     // Non-owning accessors (order == ownership vector order).
@@ -83,6 +89,7 @@ public:
     ~SimpleCmd() override = default;
 
     void Execute() override;
+    void ExecuteWithContext( SimuContext * context ) override;
 };
 
 // Process-wide command queue. Owns every queued Command via unique_ptr.
@@ -106,13 +113,13 @@ public:
     static void AddCmd( std::unique_ptr< Command > cmd );
 
     // Execute without transferring ownership.
-    static void RunCmd( Command * cmd );
+    static void RunCmd( Command * cmd, SimuContext * context = nullptr );
 
     // Destroy all queued commands.
     static void Clear();
 
     // Execute the current command batch and then destroy it.
-    static void ExecuteCmd();
+    static void ExecuteCmd( SimuContext * context = nullptr );
 
     static void ShowCmdInfo( Command * cmd, int iCmd );
 

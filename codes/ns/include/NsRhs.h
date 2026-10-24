@@ -38,6 +38,15 @@ public:
 void NsCalcBc();
 void NsCalcBcDebug( const std::string & title );
 void NsCalcGamaT(int flag);
+
+// Device-authoritative host mirror for the HIP resident primitive state.
+// NsRefreshHostStateMirror pulls the complete field (owned + ghost) back and
+// rebuilds the host-only gamma/temperature fields; it is a no-op on the CPU
+// path and whenever the mirror is already current.  NsMirrorHostBoundaryState
+// pulls only the boundary-adjacent owned cells, which is all the per-step
+// aerodynamic-force and pressure-coefficient readers touch.
+void NsRefreshHostStateMirror();
+void NsMirrorHostBoundaryState();
 void NsCalcRHS();
 void NsCalcInvFlux();
 void NsCalcVisFlux();

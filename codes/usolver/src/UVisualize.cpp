@@ -34,6 +34,7 @@ License
 #include "ActionState.h"
 #include "Dimension.h"
 #include "NsIdx.h"
+#include "NsCom.h"
 #include "Zone.h"
 #include "ZoneState.h"
 #include "StringUtils.h"
@@ -583,8 +584,15 @@ void UVisualize::CalcNodeField( VisualTool * visualTool )
         (void)cellBack;
     }
 
-    const MRField * tempr = ONEFLOW::GetFieldPointer< MRField >( grid, "tempr" );
-    visualTool->AddField( (*tempr)[IDX::ITT], "tempr" );
+    const MRField * tempr =
+        ONEFLOW::GetFieldPointer< MRField >( grid, "tempr" );
+    // Three-equation inviscid cases intentionally have nTModel=0, so the
+    // temperature field has zero components and must not be indexed.
+    if ( nscom.nTModel > IDX::ITT && tempr != nullptr
+         && tempr->GetNEqu() > IDX::ITT )
+    {
+        visualTool->AddField( (*tempr)[IDX::ITT], "tempr" );
+    }
 
     if ( vis_model.vismodel > 0 )
     {

@@ -39,6 +39,7 @@ void DumpFieldEnvironments();
 void DumpCommunicationEnvironments();
 void CheckCommunicationInterfaceConsistency();
 void FieldSimuRun();
+void FieldSimuRun( SimuContext & context );
 
 // Explicit pipeline: one place documents stage order and runs them.
 // Free functions FieldSimuRunPipeline / FieldSimu remain as thin wrappers
@@ -65,7 +66,8 @@ struct FieldPipeline
     // Production entry (no SimuContext injection).
     static void Run();
 
-    // Context-aware entry: CreateSolvers uses expanded solver names when set.
+    // Context-aware entry: CreateSolvers uses expanded solver names when set,
+    // and accelerator domain states are synced before the solve stage.
     static void Run( SimuContext & ctx );
 };
 
@@ -75,6 +77,7 @@ void FieldSimuRunPipeline( SimuContext & ctx );
 
 // Convenience: RunPipeline only (legacy / non-registry callers).
 void FieldSimu();
+void FieldSimu( SimuContext & context );
 
 void InitFlowSimuGlobal();
 void InitializeSolver();

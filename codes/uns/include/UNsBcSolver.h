@@ -25,6 +25,7 @@ License
 #include "BcSolver.h"
 #include "UBcSolver.h"
 #include "NsBcSolver.h"
+#include <vector>
 
 BeginNameSpace( ONEFLOW )
 
@@ -40,6 +41,30 @@ public:
     void SetId( int bcfId );
     void PrepareData();
     void UpdateBc();
+private:
+    void CacheFieldPointers();
+
+    std::vector< Real * > qData;
+    std::vector< Real * > temprData;
+    std::vector< Real * > bcQData;
+    Real * gamaData = nullptr;
+
+    const int * leftCellData = nullptr;
+    const int * rightCellData = nullptr;
+    const Real * xfnData = nullptr;
+    const Real * yfnData = nullptr;
+    const Real * zfnData = nullptr;
+    const Real * vfxData = nullptr;
+    const Real * vfyData = nullptr;
+    const Real * vfzData = nullptr;
+    const Real * vfnData = nullptr;
+    const Real * faceAreaData = nullptr;
+    const Real * faceCenterXData = nullptr;
+    const Real * faceCenterYData = nullptr;
+    const Real * faceCenterZData = nullptr;
+    const Real * cellCenterXData = nullptr;
+    const Real * cellCenterYData = nullptr;
+    const Real * cellCenterZData = nullptr;
 };
 
 EndNameSpace

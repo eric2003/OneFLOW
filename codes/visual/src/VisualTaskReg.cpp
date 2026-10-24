@@ -48,6 +48,7 @@ License
 #include "UVisualize.h"
 #include "UResidual.h"
 #include "UNsCom.h"
+#include "NsRhs.h"
 #include "TaskRegister.h"
 #include <map>
 #include <iostream>
@@ -64,6 +65,9 @@ void RegisterVisualTask()
 
 void Visualization( StringField & data )
 {
+    // Visualization reads the host flow fields; refresh the mirror when the
+    // HIP resident state owns the newest q (no-op on the CPU path).
+    NsRefreshHostStateMirror();
     UVisualize visualize;
 
     visualize.Visual();

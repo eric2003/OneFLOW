@@ -45,6 +45,7 @@ llvm_root="${LLVM_ROOT:-$(dirname "$(dirname "$clang_bin")")}"
 dtk_root="${DTK_ROOT:-$(dirname "$llvm_root")}"
 amd_comgr_dir="${AMD_COMGR_DIR:-$dtk_root/dcc/comgr/lib64/cmake/amd_comgr}"
 amd_device_libs_dir="${AMD_DEVICE_LIBS_DIR:-$dtk_root/dcc/lib64/cmake/AMDDeviceLibs}"
+export AMD_COMGR_DIR="$amd_comgr_dir"
 export PATH="$dtk_root/bin:$llvm_root/bin:$PATH"
 export CMAKE_PREFIX_PATH="$dtk_root/dcc/lib64/cmake/AMDDeviceLibs:$dtk_root/dcc/comgr/lib64/cmake:$dtk_root:$dtk_root/.hyhal:${CMAKE_PREFIX_PATH:-}"
 export LD_LIBRARY_PATH="$dtk_root/hip/lib:$llvm_root/lib:$dtk_root/lib:$dtk_root/lib64:$dtk_root/dcc/lib64:$dtk_root/dcc/comgr/lib64:${LD_LIBRARY_PATH:-}"
@@ -80,8 +81,16 @@ fi
 rc_config=1
 rc_build=1
 rc_test=1
+rc_preflight=1
 
-"$cmake_bin" -S "$source_dir" -B "$build_dir" \
+if "$project/ci/kunshan/dcu-preflight.sh" \
+    "$artifact_dir/dcu-preflight.txt"
+then
+  rc_preflight=0
+fi
+
+if [ "$rc_preflight" -eq 0 ]; then
+  "$cmake_bin" -S "$source_dir" -B "$build_dir" \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_C_COMPILER="$CC" \
   -DCMAKE_CXX_COMPILER="$CXX" \
@@ -99,7 +108,8 @@ rc_test=1
   -DONEFLOW_1D_ENABLE_HIP=ON \
   -DONEFLOW_1D_ENABLE_GTEST=ON \
   > "$artifact_dir/configure.log" 2>&1
-rc_config=$?
+  rc_config=$?
+fi
 
 if [ "$rc_config" -eq 0 ]; then
   "$cmake_bin" --build "$build_dir" \
@@ -121,12 +131,12 @@ if [ "$rc_build" -eq 0 ]; then
     rc_test=1
   fi
   if [ "$rc_test" -eq 0 ]; then
-    "$ctest_bin" --test-dir "$build_dir" \
+    "$project/ci/kunshan/ctest-nonempty.sh" "$build_dir" \
       -L 'hardware' \
       -R 'HIP' \
       --output-on-failure > "$artifact_dir/ctest.log" 2>&1
     rc_ctest=$?
-    if [ "$rc_ctest" -ne 0 ] || ! grep -Eq "100% tests passed, 0 tests failed out of [1-9][0-9]*" "$artifact_dir/ctest.log"; then
+    if [ "$rc_ctest" -ne 0 ]; then
       echo "HIP CTest did not report a fully passing test suite" >&2
       rc_test=1
     fi
@@ -134,12 +144,14 @@ if [ "$rc_build" -eq 0 ]; then
 fi
 
 {
+  echo "preflight=$rc_preflight"
   echo "config=$rc_config"
   echo "build=$rc_build"
   echo "test=$rc_test"
 } | tee "$artifact_dir/result.txt"
 
-if [ "$rc_config" -eq 0 ] && [ "$rc_build" -eq 0 ] && [ "$rc_test" -eq 0 ]; then
+if [ "$rc_preflight" -eq 0 ] && [ "$rc_config" -eq 0 ] \
+   && [ "$rc_build" -eq 0 ] && [ "$rc_test" -eq 0 ]; then
   exit 0
 fi
 exit 1

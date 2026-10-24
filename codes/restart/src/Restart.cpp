@@ -41,6 +41,7 @@ License
 #include "Fatal.h"
 #include "RegisterUtils.h"
 #include "INsRestart.h"
+#include "NsRhs.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -186,6 +187,13 @@ void Restart::Read( int solverType )
 
 void Restart::Dump( int solverType )
 {
+    // The restart stream reads the host flow fields.  When the HIP resident
+    // state owns the newest q, pull the complete field back (owned + ghost)
+    // and rebuild the host-only derived fields before writing.
+    if ( solverType == NS_SOLVER )
+    {
+        NsRefreshHostStateMirror();
+    }
     ActionState::dataBook->MoveToBegin();
 
     DumpRestartHeader();

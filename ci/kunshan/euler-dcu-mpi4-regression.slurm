@@ -96,6 +96,7 @@ if [ "$rc_build" -eq 0 ]; then
   cat "$regression_out"
   if [ "$regression_rc" -ne 0 ] \
      || ! grep -q '^result=PASS$' "$regression_out" \
+     || ! grep -q '^decomposition=PASS$' "$regression_out" \
      || ! grep -q 'visible_devices=4' "$regression_out"; then
     echo "DCU_MPI4_REGRESSION=FAIL"
     rc_run=1
@@ -113,6 +114,7 @@ if [ "$rc_build" -eq 0 ]; then
       benchmark_rc=$?
       cat "$benchmark_out"
       if [ "$benchmark_rc" -ne 0 ] \
+         || ! grep -q '^decomposition=PASS$' "$benchmark_out" \
          || ! grep -q 'visible_devices=4' "$benchmark_out"; then
         echo "DCU_MPI4_BENCHMARK=FAIL nx=$nx"
         rc_run=1

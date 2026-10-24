@@ -31,11 +31,20 @@ License
 #include "EulerDomainStateSync.h"
 #include "EulerRungeKuttaCapability.h"
 #include "EulerDomainStateRegistry.h"
+#include "StageProfiler.h"
 #include "SimuContext.h"
 #include "SolverDef.h"
 #include "SolverState.h"
 #include "ZoneState.h"
 #include "NsCom.h"
+#include "FieldWrap.h"
+#include "DataBase.h"
+#include "Grid.h"
+#include "Zone.h"
+#include "Parallel.h"
+#include <cmath>
+#include <cstdlib>
+#include <iostream>
 #include <stdexcept>
 
 BeginNameSpace( ONEFLOW )
@@ -50,10 +59,72 @@ namespace
 struct EulerRungeKuttaStageContext
 {
     int stageCount = 0;
+    SimuContext * context = nullptr;
 };
+
+void EmitEulerStageDiagnostic( int stage, const char * taskName )
+{
+    const char * enabled =
+        std::getenv( "ONEFLOW_UNS_STAGE_DIAGNOSTIC" );
+    if ( enabled == nullptr || enabled[ 0 ] != '1' ) return;
+
+    Grid * grid = Zone::GetGrid();
+    const MRField * q =
+        grid == nullptr ? nullptr
+                        : GetFieldPointer< MRField >( grid, "q" );
+    const MRField * res =
+        grid == nullptr ? nullptr
+                        : GetFieldPointer< MRField >( grid, "res" );
+
+    auto countNonFinite = []( const MRField * field,
+                              int & equation,
+                              int & item ) -> std::size_t
+    {
+        equation = -1;
+        item = -1;
+        if ( field == nullptr ) return 0;
+        std::size_t count = 0;
+        for ( int iEqu = 0; iEqu < field->GetNEqu(); ++ iEqu )
+        {
+            const auto & values = ( * field )[ iEqu ];
+            for ( std::size_t i = 0; i < values.size(); ++ i )
+            {
+                if ( ! std::isfinite( values[ i ] ) )
+                {
+                    if ( equation < 0 )
+                    {
+                        equation = iEqu;
+                        item = static_cast< int >( i );
+                    }
+                    ++ count;
+                }
+            }
+        }
+        return count;
+    };
+
+    int qEquation = -1;
+    int qItem = -1;
+    int resEquation = -1;
+    int resItem = -1;
+    const std::size_t qBad = countNonFinite( q, qEquation, qItem );
+    const std::size_t resBad =
+        countNonFinite( res, resEquation, resItem );
+
+    std::cout << "STAGE_DIAG rank=" << Parallel::GetPid()
+              << " zone=" << ZoneState::zid
+              << " stage=" << stage
+              << " task=" << taskName
+              << " q_bad=" << qBad
+              << " q_first=" << qEquation << ":" << qItem
+              << " res_bad=" << resBad
+              << " res_first=" << resEquation << ":" << resItem
+              << std::endl;
+}
 
 void RunEulerRungeKuttaStage( int, int stage, void * userData )
 {
+    ScopedStageTimer timer( "rk_update" );
     auto * context =
         static_cast< EulerRungeKuttaStageContext * >( userData );
     if ( context == nullptr || stage < 0 || stage >= context->stageCount )
@@ -62,11 +133,55 @@ void RunEulerRungeKuttaStage( int, int stage, void * userData )
     }
 
     ctrl.lhscoef = ctrl.rk_coef[ stage ];
-    ONEFLOW::SingleSolverSingleGridTask( "LOAD_RESIDUALS"   );
-    ONEFLOW::SingleSolverSingleGridTask( "UPDATE_RESIDUALS" );
-    ONEFLOW::SingleSolverSingleGridTask( "CALC_LHS"          );
-    ONEFLOW::SingleSolverSingleGridTask( "UPDATE_FLOWFIELD" );
-    ONEFLOW::SingleSolverSingleGridTask( "CALC_BOUNDARY"    );
+    EmitEulerStageDiagnostic( stage, "BEGIN" );
+    if ( context->context != nullptr )
+    {
+        ONEFLOW::SingleSolverSingleGridTask(
+            "LOAD_RESIDUALS", *context->context );
+        EmitEulerStageDiagnostic( stage, "LOAD_RESIDUALS" );
+        ONEFLOW::SingleSolverSingleGridTask(
+            "UPDATE_RESIDUALS", *context->context );
+        EmitEulerStageDiagnostic( stage, "UPDATE_RESIDUALS" );
+        ONEFLOW::SingleSolverSingleGridTask(
+            "CALC_LHS", *context->context );
+        EmitEulerStageDiagnostic( stage, "CALC_LHS" );
+        ONEFLOW::SingleSolverSingleGridTask(
+            "UPDATE_FLOWFIELD", *context->context );
+        EmitEulerStageDiagnostic( stage, "UPDATE_FLOWFIELD" );
+        ONEFLOW::SingleSolverSingleGridTask(
+            "CALC_BOUNDARY", *context->context );
+        EmitEulerStageDiagnostic( stage, "CALC_BOUNDARY" );
+    }
+    else
+    {
+        ONEFLOW::SingleSolverSingleGridTask( "LOAD_RESIDUALS" );
+        EmitEulerStageDiagnostic( stage, "LOAD_RESIDUALS" );
+        ONEFLOW::SingleSolverSingleGridTask( "UPDATE_RESIDUALS" );
+        EmitEulerStageDiagnostic( stage, "UPDATE_RESIDUALS" );
+        ONEFLOW::SingleSolverSingleGridTask( "CALC_LHS" );
+        EmitEulerStageDiagnostic( stage, "CALC_LHS" );
+        ONEFLOW::SingleSolverSingleGridTask( "UPDATE_FLOWFIELD" );
+        EmitEulerStageDiagnostic( stage, "UPDATE_FLOWFIELD" );
+        ONEFLOW::SingleSolverSingleGridTask( "CALC_BOUNDARY" );
+        EmitEulerStageDiagnostic( stage, "CALC_BOUNDARY" );
+    }
+    // A multi-zone explicit stage must publish updated boundary values before
+    // the next stage consumes ghost cells.  The legacy outer-iteration
+    // exchange is too late for RK stage semantics.
+    if ( ZoneState::nZones > 1 )
+    {
+        if ( context->context != nullptr )
+        {
+            ONEFLOW::SingleSolverSingleGridTask(
+                "UPDATE_INTERFACE_DATA", *context->context );
+        }
+        else
+        {
+            ONEFLOW::SingleSolverSingleGridTask(
+                "UPDATE_INTERFACE_DATA" );
+        }
+        EmitEulerStageDiagnostic( stage, "UPDATE_INTERFACE_DATA" );
+    }
 }
 
 EulerRungeKuttaCapabilityRequest CurrentEulerRungeKuttaCapabilityRequest(
@@ -81,10 +196,14 @@ EulerRungeKuttaCapabilityRequest CurrentEulerRungeKuttaCapabilityRequest(
     request.inviscidScheme = nscom.ischeme;
     request.timeIntegral =
         static_cast< EulerRungeKuttaTimeIntegral >( ctrl.time_integral );
-    request.hasViscousTerms = nscom.nTModel != 0;
+    request.hasViscousTerms = vis_model.vismodel != 0;
     request.hasSourceTerms = nscom.chemModel != 0;
     request.hasLimiter = ctrl.ilim != 0;
-    request.hasInterfaceExchange = ZoneState::nLocal > 1;
+    // A partitioned multi-zone run may assign exactly one zone to each rank.
+    // Use the global zone count as well as the local count; localZoneCount
+    // alone would incorrectly enable the resident path for cross-rank halos.
+    request.hasInterfaceExchange =
+        ZoneState::nZones > 1 || ZoneState::nLocal > 1;
     const EulerDomainStateKey key{
         SolverState::solverIndex,
         ZoneState::zid,
@@ -165,10 +284,22 @@ void TimeIntegral::RungeKutta()
             ctrl.lhscoef = ctrl.rk_coef[ iStage ];
 
             ONEFLOW::SingleSolverSingleGridTask( idLoadResiduals );
+            EmitEulerStageDiagnostic( iStage, "LOAD_RESIDUALS" );
             ONEFLOW::SingleSolverSingleGridTask( idUpdateResiduals );
+            EmitEulerStageDiagnostic( iStage, "UPDATE_RESIDUALS" );
             ONEFLOW::SingleSolverSingleGridTask( idCalcLhs );
+            EmitEulerStageDiagnostic( iStage, "CALC_LHS" );
             ONEFLOW::SingleSolverSingleGridTask( idUpdateFlow );
+            EmitEulerStageDiagnostic( iStage, "UPDATE_FLOWFIELD" );
             ONEFLOW::SingleSolverSingleGridTask( idCalcBoundary );
+            EmitEulerStageDiagnostic( iStage, "CALC_BOUNDARY" );
+            if ( ZoneState::nZones > 1 )
+            {
+                ONEFLOW::SingleSolverSingleGridTask(
+                    kUpdateInterfaceDataTaskName );
+                EmitEulerStageDiagnostic(
+                    iStage, "UPDATE_INTERFACE_DATA" );
+            }
         }
     }
     else
@@ -177,10 +308,15 @@ void TimeIntegral::RungeKutta()
         ONEFLOW::SingleSolverSingleGridTask( idLoadQ );
         ONEFLOW::SingleSolverSingleGridTask( idCalcTimeStep );
         ONEFLOW::SingleSolverSingleGridTask( idLoadResiduals );
+        EmitEulerStageDiagnostic( 0, "LOAD_RESIDUALS" );
         ONEFLOW::SingleSolverSingleGridTask( idUpdateResiduals );
+        EmitEulerStageDiagnostic( 0, "UPDATE_RESIDUALS" );
         ONEFLOW::SingleSolverSingleGridTask( idCalcLhs );
+        EmitEulerStageDiagnostic( 0, "CALC_LHS" );
         ONEFLOW::SingleSolverSingleGridTask( idUpdateFlow );
+        EmitEulerStageDiagnostic( 0, "UPDATE_FLOWFIELD" );
         ONEFLOW::SingleSolverSingleGridTask( idCalcBoundary );
+        EmitEulerStageDiagnostic( 0, "CALC_BOUNDARY" );
     }
 }
 
@@ -217,11 +353,12 @@ void TimeIntegral::RungeKutta( SimuContext & context )
     CpuEulerDomainBackend backend;
     EulerDomainState & state = context.AccelStates().Get( key );
 
-    ONEFLOW::SingleSolverSingleGridTask( "LOAD_Q"        );
-    ONEFLOW::SingleSolverSingleGridTask( "CALC_TIME_STEP" );
+    ONEFLOW::SingleSolverSingleGridTask( "LOAD_Q", context );
+    ONEFLOW::SingleSolverSingleGridTask( "CALC_TIME_STEP", context );
 
     EulerRungeKuttaStageContext stageContext;
     stageContext.stageCount = static_cast< int >( ctrl.rk_coef.size() );
+    stageContext.context = &context;
 
     EulerDomainRunOptions options;
     options.stageCount = stageContext.stageCount;

@@ -24,6 +24,7 @@ License
 
 #include "BasicParallel.h"
 #include "DataBaseIO.h"
+#include <cstddef>
 #include <string>
 #include <vector>
 
@@ -120,5 +121,16 @@ void HXSwapData( T * field, int nElement, int spid, int rpid, int tag = 0 )
 class DataBook;
 
 void HXSwapData( DataBook * dataBook, int spid, int rpid, int tag = 0 );
+
+// Exchange a device-resident byte buffer without routing it through the
+// host-oriented DataBook/HXSmartSend path.  The selected MPI implementation
+// must have been validated for device pointers before callers enable this
+// entry point.
+void HXSwapDeviceData(
+    void * field,
+    std::size_t nBytes,
+    int spid,
+    int rpid,
+    int tag = 0 );
 
 EndNameSpace

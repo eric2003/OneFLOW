@@ -74,4 +74,3 @@ protected:
         g_callLog.clear();
     }
 };
-

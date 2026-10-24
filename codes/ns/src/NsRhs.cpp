@@ -29,12 +29,16 @@ License
 #include "UCom.h"
 #include "UNsCom.h"
 #include "UnsGrid.h"
-#include "NsCom.h"
 #include "NsIdx.h"
 #include "UNsInvFlux.h"
 #include "UNsVisFlux.h"
 #include "UNsUnsteady.h"
 #include "Ctrl.h"
+#include "FieldWrap.h"
+#include "HipProductionPolicy.h"
+#ifdef ONEFLOW_ENABLE_HIP
+#include "HipFluxBackend.h"
+#endif
 
 #include <iostream>
 #include <memory>
@@ -65,8 +69,6 @@ void NsCalcBcDebug( const std::string & title )
 
 void NsCalcGamaT( int flag )
 {
-	UnsGrid * grid = Zone::GetUnsGrid();
-
 	ug.Init();
 	unsf.Init();
 	ug.SetStEd(flag);
@@ -77,14 +79,87 @@ void NsCalcGamaT( int flag )
 	else
 	{
 		Real oamw = one;
+		Real * density = ( * unsf.q )[ IDX::IR ].data();
+		Real * pressure = ( * unsf.q )[ IDX::IP ].data();
+		Real * gama = ( * unsf.gama )[ 0 ].data();
+		// Inviscid three-equation configurations set nTModel=0 and
+		// consequently allocate no temperature components.  Gamma is still
+		// required by the flux path, but there is no temperature field to
+		// populate in that case.
+		Real * temperature = nullptr;
+		if ( nscom.nTModel > IDX::ITT && unsf.tempr != nullptr
+		     && unsf.tempr->GetNEqu() > IDX::ITT )
+		{
+			temperature = ( * unsf.tempr )[ IDX::ITT ].data();
+		}
 		for ( int cId = ug.ist; cId < ug.ied; ++ cId )
 		{
-			Real & density  = (*unsf.q)[ IDX::IR ][ cId ];
-			Real & pressure = (*unsf.q)[ IDX::IP ][ cId ];
-			(*unsf.gama)[ 0 ][ cId ] = nscom.gama_ref;
-			(*unsf.tempr)[ IDX::ITT ][ cId ] = pressure / ( nscom.statecoef * density * oamw );
+			gama[ cId ] = nscom.gama_ref;
+			if ( temperature != nullptr )
+			{
+				temperature[ cId ] =
+					pressure[ cId ] /
+					( nscom.statecoef * density[ cId ] * oamw );
+			}
 		}
 	}
+}
+
+void NsRefreshHostStateMirror()
+{
+#ifdef ONEFLOW_ENABLE_HIP
+    if ( ! HipProductionBackendSelected() ) return;
+    UnsGrid * grid = Zone::GetUnsGrid();
+    if ( grid == nullptr ) return;
+    MRField * q = GetFieldPointer< MRField >( grid, "q" );
+    if ( q == nullptr ) return;
+    const int nEquations = static_cast< int >( q->GetNEqu() );
+    if ( nEquations <= 0 || nEquations > 5 ) return;
+    ug.Init();
+    const int nCells = ug.nCells;
+    const int nGhostCells = ug.nTCell - nCells;
+    Real * components[ 5 ] = {};
+    for ( int equation = 0; equation < nEquations; ++ equation )
+        components[ equation ] = ( * q )[ equation ].data();
+    if ( ! HipFluxBackend::Shared().RefreshHostPrimitiveState(
+             grid, nCells, nGhostCells, nEquations, components ) )
+    {
+        return;
+    }
+    // The host-only derived fields (constant gamma, temperature) were skipped
+    // while the device owned q; rebuild them from the refreshed mirror so the
+    // restart/visualization output is self-consistent.
+    NsCalcGamaT( F_INNER );
+    if ( nGhostCells > 0 ) NsCalcGamaT( F_GHOST );
+#else
+    return;
+#endif
+}
+
+void NsMirrorHostBoundaryState()
+{
+#ifdef ONEFLOW_ENABLE_HIP
+    if ( ! HipDeviceAuthoritativeStateEnabled() ) return;
+    if ( ! HipBoundaryStateMirrorEnabled() ) return;
+    UnsGrid * grid = Zone::GetUnsGrid();
+    if ( grid == nullptr || grid->nBFaces <= 0 ) return;
+    MRField * q = GetFieldPointer< MRField >( grid, "q" );
+    if ( q == nullptr ) return;
+    const int nEquations = static_cast< int >( q->GetNEqu() );
+    if ( nEquations <= 0 || nEquations > 5 ) return;
+    ug.Init();
+    if ( ug.lcf == nullptr ) return;
+    Real * components[ 5 ] = {};
+    for ( int equation = 0; equation < nEquations; ++ equation )
+        components[ equation ] = ( * q )[ equation ].data();
+    // Every boundary face's owner cell is a superset of the wall-adjacent cells
+    // the force/coefficient readers use.  Duplicate ids are harmless (the
+    // same value is written twice) and avoid a sort on the per-step path.
+    HipFluxBackend::Shared().MirrorPrimitiveCellsToHost(
+        grid, nEquations, ug.lcf->data(), grid->nBFaces, components );
+#else
+    return;
+#endif
 }
 
 void NsCalcRHS()
@@ -99,8 +174,11 @@ void NsCalcRHS()
 
 void NsCalcInvFlux()
 {
-	auto uNsInvFlux = std::make_unique<UNsInvFlux>();
-	uNsInvFlux->CalcFlux();
+    // Reuse the host-side limiter/face work buffers across RK stages.  The
+    // fields are rebound in Init() for the active zone/grid, while qf1/qf2
+    // and invflux retain their capacity when the topology is unchanged.
+    static UNsInvFlux uNsInvFlux;
+    uNsInvFlux.CalcFlux();
 }
 
 void NsCalcVisFlux()

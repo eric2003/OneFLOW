@@ -1,5 +1,6 @@
 #include "EulerCpuAdapter.h"
 #include "CpuFluxBackend.h"
+#include "FluxBackend.h"
 
 #include <cmath>
 #include <stdexcept>
@@ -106,6 +107,7 @@ void PackPrimitiveFaceStates(
 void EulerCpuAdapter::CalcInvFlux(
     const PrimitiveFaceStateView & primitiveState,
     FaceFluxView & flux,
+    FluxBackend & backend,
     int scheme ) const
 {
     if ( primitiveState.nFaces <= 0
@@ -138,8 +140,16 @@ void EulerCpuAdapter::CalcInvFlux(
     conservedState.faceArea = primitiveState.faceArea;
     conservedState.gamma = primitiveState.gamma;
 
-    CpuFluxBackend backend;
     backend.CalcInvFlux( conservedState, flux, scheme );
+}
+
+void EulerCpuAdapter::CalcInvFlux(
+    const PrimitiveFaceStateView & primitiveState,
+    FaceFluxView & flux,
+    int scheme ) const
+{
+    CpuFluxBackend backend;
+    this->CalcInvFlux( primitiveState, flux, backend, scheme );
 }
 
 void EulerCpuAdapter::AddFaceFlux(

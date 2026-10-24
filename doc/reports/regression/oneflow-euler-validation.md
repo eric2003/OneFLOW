@@ -2,7 +2,7 @@
 
 > 记录日期：2026-08-28
 > 本文是当前一维主线的结果记录，不代表完整 Navier–Stokes GPU 化，也不替代
-> `doc/reports/architecture/oneflow-gpu-backend-delivery.md` 中较早的 GPU backend 框架交付报告。
+> `doc/reports/delivery/oneflow-gpu-backend-delivery.md` 中较早的 GPU backend 框架交付报告。
 
 ## 1. 当前结论
 
@@ -251,7 +251,7 @@ workload（50 steps，2 repeats，1 warmup）完成四个规模测试。benchmar
 6. 根据新 profile 再做 Euler kernel/dataflow 优化。
 
 完整阶段、接口建议和验收指标见
-`doc/reports/architecture/oneflow-euler-optimization-plan.md`。Euler 达到验收
+`doc/plans/oneflow-euler-optimization-plan.md`。Euler 达到验收
 条件后再恢复 WENO5；二维、三维继续后移。
 
 
