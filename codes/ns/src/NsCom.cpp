@@ -4,6 +4,8 @@
 #include "HXMath.h"
 #include "Ctrl.h"
 #include "Chemical.h"
+#include "NsIdx.h"
+#include <stdexcept>
 
 BeginNameSpace( ONEFLOW )
 
@@ -30,7 +32,6 @@ void NsCom::Reset()
 void NsCom::Init()
 {
     if ( init_flag ) return;
-    init_flag = true;
     icmpInv = 1;
     ischeme = GetDataValue< int >( "ischeme" );
     ivischeme = GetDataValue< int >( "ivischeme" );
@@ -72,6 +73,34 @@ void NsCom::Init()
 
     nEqu = GetDataValue< int >( "nEqu" );
     nTEqu = GetDataValue< int >( "nTEqu" );
+
+    // The current compressible NS kernels use one fixed five-component state
+    // (rho,u,v,w,p) in both 2-D and 3-D; 2-D only makes w degenerate. Reject
+    // malformed configurations before allocation can turn them into an
+    // opaque allocator failure.
+    if ( nEqu < IDX::IP + 1 )
+    {
+        throw std::invalid_argument(
+            "NsCom: the compressible NS state contract requires five "
+            "components (rho,u,v,w,p); dimension=2 still stores w" );
+    }
+    if ( nTEqu < nEqu )
+    {
+        throw std::invalid_argument(
+            "NsCom: nTEqu must be greater than or equal to nEqu" );
+    }
+    if ( nTModel < 0 )
+    {
+        throw std::invalid_argument(
+            "NsCom: nTModel must be non-negative" );
+    }
+    if ( vis_model.vismodel > 0 && nTModel == 0 )
+    {
+        throw std::invalid_argument(
+            "NsCom: viscous or turbulent NS configurations require "
+            "nTModel > 0" );
+    }
+
     chem.Init();
 
     oprl = 1.0 / prl;
@@ -105,6 +134,8 @@ void NsCom::Init()
 
     tt1.resize( nTModel );
     tt2.resize( nTModel );
+
+    init_flag = true;
 }
 
 void Extract( RealField & prim, Real & rm, Real & um, Real & vm, Real & wm, Real & pm )

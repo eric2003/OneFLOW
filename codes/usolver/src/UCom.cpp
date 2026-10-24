@@ -56,12 +56,23 @@ void UGeom::Init()
     this->EnsureBcTypeRegion();
 
     FaceTopo & faceTopo = grid->GetFaceTopo();
-    ug.lcf = & faceTopo.GetLeftCells();
-    ug.rcf = & faceTopo.GetRightCells();
-
     FaceMesh & faceMesh = grid->GetFaceMesh();
     CellMesh & cellMesh = grid->GetCellMesh();
     CellTopo & cellTopo = cellMesh.GetCellTopo();
+
+    const bool topologyUnchanged =
+        boundGrid_ == grid && boundFaceTopo_ == &faceTopo
+        && boundCellTopo_ == &cellTopo && boundFaces_ == ug.nFaces
+        && boundCells_ == ug.nCells
+        && boundBoundaryFaces_ == ug.nBFaces && lcf != nullptr
+        && rcf != nullptr && c2f != nullptr;
+    if ( topologyUnchanged )
+    {
+        return;
+    }
+
+    ug.lcf = & faceTopo.GetLeftCells();
+    ug.rcf = & faceTopo.GetRightCells();
 
     ug.xfn = & faceMesh.xfn;
     ug.yfn = & faceMesh.yfn;
@@ -93,6 +104,13 @@ void UGeom::Init()
 
     //ug.ireconface = 0;
     ug.ireconface = 1;
+
+    boundGrid_ = grid;
+    boundFaceTopo_ = &faceTopo;
+    boundCellTopo_ = &cellTopo;
+    boundFaces_ = ug.nFaces;
+    boundCells_ = ug.nCells;
+    boundBoundaryFaces_ = ug.nBFaces;
 }
 
 void UGeom::EnsureBcTypeRegion()

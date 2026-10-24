@@ -36,6 +36,7 @@ std::size_t EulerDomainStateKeyHash::operator()(
     result = Mix( result, std::hash< int >{}( key.gridLevel ) );
     result = Mix( result, std::hash< int >{}(
         static_cast< int >( key.backend ) ) );
+    result = Mix( result, std::hash< int >{}( key.deviceId ) );
     return result;
 }
 

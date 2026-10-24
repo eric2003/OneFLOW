@@ -22,6 +22,22 @@ TEST( SolverNamePolicy, ExpandPreservesOrder )
     EXPECT_EQ( uns[ 1 ], "UTurbSolver" );
 }
 
+TEST( SolverNamePolicy, InviscidAndLaminarDropTurbulenceSolver )
+{
+    const StringField names = { "UNsSolver", "UTurbSolver" };
+
+    const StringField inviscid =
+        FilterSolverNamesForViscosity( names, 0 );
+    const StringField laminar =
+        FilterSolverNamesForViscosity( names, 1 );
+    const StringField turbulent =
+        FilterSolverNamesForViscosity( names, 3 );
+
+    ASSERT_EQ( inviscid, StringField( { "UNsSolver" } ) );
+    ASSERT_EQ( laminar, StringField( { "UNsSolver" } ) );
+    EXPECT_EQ( turbulent, names );
+}
+
 // ---------------------------------------------------------------------------
 // Production-path contract (same steps as SolverNameClass::ReadSolverNames
 // after parsing script/solver.txt). No file I/O; mirrors expand + dual lists.

@@ -60,7 +60,7 @@ TEST( CpuEulerDomainBackend, UploadsAndDownloadsEquationMajorState )
 TEST( CpuEulerDomainBackend, RejectsNonCpuKey )
 {
     CpuEulerDomainBackend backend;
-    EulerDomainStateKey hipKey{ 0, 0, 0, AccelBackendKind::HIP };
+    EulerDomainStateKey hipKey{ 0, 0, 0, AccelBackendKind::HIP, 0 };
 
     EXPECT_THROW(
         backend.CreateState( Problem(), hipKey ), std::invalid_argument );

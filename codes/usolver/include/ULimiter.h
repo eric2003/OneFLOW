@@ -116,6 +116,10 @@ public:
 public:
     void SetInitValue();
     void CalcLimiter();
+    // No-limiter mode fills the limiter field with one.  That fill is only
+    // skippable when the field is no longer carried by the interface exchange;
+    // otherwise the exchanged neighbours overwrite the ghosts every step.
+    bool noLimiterFieldFilled = false;
     void CalcLimiterScalar();
 
     void CalcZeroLimiter();

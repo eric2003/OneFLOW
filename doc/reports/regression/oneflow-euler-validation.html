@@ -18,7 +18,7 @@
 <blockquote>
 <p>记录日期：2026-08-28
 本文是当前一维主线的结果记录，不代表完整 Navier–Stokes GPU 化，也不替代
-<code>doc/reports/architecture/oneflow-gpu-backend-delivery.md</code> 中较早的 GPU backend 框架交付报告。</p>
+<code>doc/reports/delivery/oneflow-gpu-backend-delivery.md</code> 中较早的 GPU backend 框架交付报告。</p>
 </blockquote>
 <h2 id="section-1">1. 当前结论</h2>
 <ul>
@@ -414,7 +414,7 @@ workload（50 steps，2 repeats，1 warmup）完成四个规模测试。benchmar
 <li>根据新 profile 再做 Euler kernel/dataflow 优化。</li>
 </ol>
 <p>完整阶段、接口建议和验收指标见
-<code>doc/reports/architecture/oneflow-euler-optimization-plan.md</code>。Euler 达到验收
+<code>doc/plans/oneflow-euler-optimization-plan.md</code>。Euler 达到验收
 条件后再恢复 WENO5；二维、三维继续后移。</p>
 <h2 id="section-12-32-cpu-8-rank-mpi">12. 历史：32 核 CPU 与 8 rank 共享一张卡的 MPI 对比</h2>
 <p>本节保留早期共享单卡实验，作为历史性能对照；当前生产式多卡验收见第 13 节。</p>

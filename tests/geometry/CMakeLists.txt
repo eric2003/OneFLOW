@@ -253,6 +253,7 @@ target_compile_definitions(GridLayoutGenerationTest PRIVATE ONEFLOW_SOURCE_DIR="
 
 add_oneflow_gtest(CellTopoConnectivityTest CellTopoConnectivityTest.cpp)
 add_oneflow_gtest(ElementHomeTest ElementHomeTest.cpp)
+add_oneflow_gtest(InterfaceNeighborMappingTest InterfaceNeighborMappingTest.cpp)
 add_oneflow_gtest(FaceSearchBasicTest FaceSearchBasicTest.cpp)
 add_oneflow_gtest(FaceSolverStageTest FaceSolverStageTest.cpp)
 add_oneflow_gtest(RegionNameRegistryTest RegionNameRegistryTest.cpp)

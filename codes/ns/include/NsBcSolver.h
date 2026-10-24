@@ -23,6 +23,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include "Constant.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -39,6 +40,10 @@ public:
     virtual void Solve(){};
     BcPointer bcPointer;
     bool updateFlag;
+    bool farfieldCacheValid = false;
+    Real farfieldCachedGamma = zero;
+    Real farfieldCachedSoundSpeed = zero;
+    Real farfieldCachedEntropy = zero;
 public:
     void InFlowBc           ();
     void OutFlowBc          ();

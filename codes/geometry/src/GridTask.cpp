@@ -101,7 +101,7 @@ void SwapCellCenter( StringField & data )
     InterFace * interFace = grid->interFace.get();
     if ( ! ONEFLOW::IsValid( interFace ) ) return;
 
-    int iNei = interFace->z2n[ ZoneState::rzid ];
+    int iNei = interFace->GetNeighborIndex( ZoneState::rzid );
     int nIFaces  = interFace->GetInterfacePair( iNei ).nIFaces;
 
     IntField & interfaceId = interFace->GetInterfaceId( iNei, GREAT_SEND );
@@ -135,7 +135,7 @@ void DecodeCellCenter( StringField & data )
     InterFace * interFace = grid->interFace.get();
     if ( ! ONEFLOW::IsValid( interFace ) ) return;
 
-    int iNei = interFace->z2n[ ZoneState::szid ];
+    int iNei = interFace->GetNeighborIndex( ZoneState::szid );
     int nIFaces  = interFace->GetInterfacePair( iNei ).nIFaces;
     IntField & interfaceId = interFace->GetInterfaceId( iNei, GREAT_RECV );
 

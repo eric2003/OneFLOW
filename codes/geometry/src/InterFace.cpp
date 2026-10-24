@@ -33,6 +33,7 @@ License
 #include "SolverDef.h"
 #include "LogFile.h"
 #include <algorithm>
+#include <stdexcept>
 
 
 BeginNameSpace( ONEFLOW )
@@ -231,9 +232,46 @@ void InterFace::CalcSendId( int iNei, IntField & idsend )
 
 void InterFace::SetSendId( int zid, IntField & idsend )
 {
-    int iNei = this->z2n[ zid ];
+    int iNei = this->GetNeighborIndex( zid );
     InterfacePair & interfacePair = this->GetInterfacePair( iNei );
     interfacePair.idsend = idsend;
+}
+
+bool InterFace::TryGetNeighborIndex(
+    int zoneId,
+    int & neighborIndex ) const
+{
+    const auto iter = this->z2n.find( zoneId );
+    if ( iter == this->z2n.end() )
+    {
+        return false;
+    }
+
+    neighborIndex = iter->second;
+    if ( neighborIndex < 0 ||
+         neighborIndex >= static_cast< int >( this->interFacePairs.size() ) ||
+         ! this->interFacePairs[ neighborIndex ] )
+    {
+        throw std::logic_error(
+            "InterFace::TryGetNeighborIndex: neighbor index is invalid" );
+    }
+    if ( this->interFacePairs[ neighborIndex ]->nzid != zoneId )
+    {
+        throw std::logic_error(
+            "InterFace::TryGetNeighborIndex: neighbor mapping is inconsistent" );
+    }
+    return true;
+}
+
+int InterFace::GetNeighborIndex( int zoneId ) const
+{
+    int neighborIndex = -1;
+    if ( ! this->TryGetNeighborIndex( zoneId, neighborIndex ) )
+    {
+        throw std::out_of_range(
+            "InterFace::GetNeighborIndex: neighbor zone was not found" );
+    }
+    return neighborIndex;
 }
 
 IntField & InterFace::GetInterfaceId( int neiId, int iSr )
@@ -410,11 +448,16 @@ void InterFaceTopo::SwapNeighborsSendContent()
             if ( Parallel::pid == spid )
             {
                 Grid & grid = Zone::GetGridReference( iZone );
-                InterfacePair & interfacePair = grid.interFace->GetInterfacePair( iNei );
-
-                nIFaces = interfacePair.nIFaces;
-                
-                grid.interFace->CalcSendId( iNei, idsend );
+                int pairIndex = -1;
+                if ( grid.interFace->TryGetNeighborIndex(
+                         nZid,
+                         pairIndex ) )
+                {
+                    InterfacePair & interfacePair =
+                        grid.interFace->GetInterfacePair( pairIndex );
+                    nIFaces = interfacePair.nIFaces;
+                    grid.interFace->CalcSendId( pairIndex, idsend );
+                }
             }
 
             ONEFLOW::HXSwapData( & nIFaces, 1, spid, rpid, iZone + gl * ZoneState::nZones );
@@ -425,12 +468,31 @@ void InterFaceTopo::SwapNeighborsSendContent()
                 idsend.resize( nIFaces );
             }
 
-            ONEFLOW::HXSwapData( & idsend[ 0 ], nIFaces, spid, rpid, iZone + gl * ZoneState::nZones );
+            // A neighbor may legitimately have no matching interface faces
+            // after partition filtering.  Do not form &idsend[0] for an
+            // empty vector; HXSwapData already treats zero-length messages
+            // as a no-op.
+            if ( nIFaces > 0 )
+            {
+                ONEFLOW::HXSwapData(
+                    idsend.data(),
+                    nIFaces,
+                    spid,
+                    rpid,
+                    iZone + gl * ZoneState::nZones );
+            }
 
             if ( Parallel::pid == rpid )
             {
                 Grid & gridN = Zone::GetGridReference( nZid );
-                gridN.interFace->SetSendId( iZone, idsend );
+                int pairIndex = -1;
+                if ( gridN.interFace->TryGetNeighborIndex(
+                         iZone,
+                         pairIndex ) )
+                {
+                    gridN.interFace->GetInterfacePair(
+                        pairIndex ).idsend = idsend;
+                }
             }
         }
     }
