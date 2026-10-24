@@ -6,6 +6,7 @@ from pathlib import Path
 
 from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import (
+    QCheckBox,
     QDialog,
     QHeaderView,
     QHBoxLayout,
@@ -87,6 +88,16 @@ class BackgroundTaskDialog(QDialog):
         self.resize(1100, 520)
 
         layout = QVBoxLayout(self)
+        self.show_finished_checkbox = QCheckBox("Show finished tasks")
+        self.show_finished_checkbox.setToolTip(
+            "Include completed, failed, stopped, and lost task records."
+        )
+        self.show_finished_checkbox.toggled.connect(self.refresh)
+        layout.addWidget(self.show_finished_checkbox)
+
+        self.status_label = QLabel(self)
+        layout.addWidget(self.status_label)
+
         self.table = QTableWidget(0, 6, self)
         self.table.setHorizontalHeaderLabels(
             ["Task ID", "Status", "Project", "Started", "Host PID", "Message"]
@@ -126,7 +137,24 @@ class BackgroundTaskDialog(QDialog):
 
     def refresh(self) -> None:
         selected_id = self._selected_task_id()
-        self._tasks = self._registry.list_tasks()
+        all_tasks = self._registry.list_tasks()
+        if self.show_finished_checkbox.isChecked():
+            self._tasks = all_tasks
+        else:
+            self._tasks = [
+                task for task in all_tasks if task.status in ACTIVE_STATUSES
+            ]
+        active_count = sum(
+            task.status in ACTIVE_STATUSES for task in all_tasks
+        )
+        if self.show_finished_checkbox.isChecked():
+            self.status_label.setText(
+                f"{active_count} active task(s); {len(all_tasks) - active_count} finished task record(s)."
+            )
+        else:
+            self.status_label.setText(
+                f"{active_count} active task(s). Finished task records are hidden."
+            )
         self.table.setRowCount(len(self._tasks))
         selected_row = -1
         for row, task in enumerate(self._tasks):
@@ -144,6 +172,8 @@ class BackgroundTaskDialog(QDialog):
                 selected_row = row
         if selected_row >= 0:
             self.table.selectRow(selected_row)
+        elif self._tasks:
+            self.table.selectRow(0)
         self._update_actions()
 
     def _selected_task_id(self) -> str | None:
