@@ -71,6 +71,19 @@ class BackgroundTaskRegistryTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Unsupported background task schema"):
             self.registry.load(task.task_id)
 
+    def test_list_active_tasks_excludes_finished_records(self) -> None:
+        starting = self.make_task("run-starting")
+        running = replace(starting, task_id="run-running", status="running")
+        finished = replace(starting, task_id="run-finished", status="succeeded")
+        stopped = replace(starting, task_id="run-stopped", status="stopped")
+        for task in (starting, running, finished, stopped):
+            self.registry.save(task)
+
+        self.assertEqual(
+            {task.task_id for task in self.registry.list_active_tasks()},
+            {"run-starting", "run-running"},
+        )
+
     def test_remove_is_idempotent(self) -> None:
         self.registry.remove("run-001")
         self.registry.save(self.make_task())
