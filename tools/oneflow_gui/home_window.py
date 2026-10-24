@@ -87,7 +87,7 @@ class WorkbenchHomeWindow(QMainWindow):
         self.background_tasks_button.setMinimumHeight(48)
         self.background_tasks_button.setMinimumWidth(180)
         self.background_tasks_button.setToolTip(
-            "Review running calculations, inspect results, and manage previous tasks."
+            "Manage active calculations. Finished task records can be shown from the manager."
         )
         self.background_tasks_button.clicked.connect(self._open_background_tasks)
         project_actions.addWidget(self.background_tasks_button)
@@ -410,10 +410,7 @@ class WorkbenchHomeWindow(QMainWindow):
 
     def _review_active_background_tasks(self) -> None:
         registry = BackgroundTaskRegistry(UserDataPaths.discover().root)
-        active_tasks = [
-            task for task in registry.list_tasks()
-            if task.status in ACTIVE_STATUSES
-        ]
+        active_tasks = registry.list_active_tasks()
         if not active_tasks:
             return
         self._open_background_tasks()
@@ -426,10 +423,7 @@ class WorkbenchHomeWindow(QMainWindow):
 
     def closeEvent(self, event) -> None:
         registry = BackgroundTaskRegistry(UserDataPaths.discover().root)
-        active_tasks = [
-            task for task in registry.list_tasks()
-            if task.status in ACTIVE_STATUSES
-        ]
+        active_tasks = registry.list_active_tasks()
         if not active_tasks:
             event.accept()
             return
