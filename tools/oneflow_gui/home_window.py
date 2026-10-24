@@ -27,7 +27,7 @@ from .project_window import ProjectWindow
 from .new_project_dialog import NewProjectDialog
 from .run_history_dialog import RunHistoryDialog
 from .background_task_dialog import BackgroundTaskDialog
-from .background_task_registry import ACTIVE_STATUSES, BackgroundTaskRegistry
+from .background_task_registry import BackgroundTaskRegistry
 from .background_task_manager import request_background_stop
 from .test_dialog import TestRunnerDialog
 from .settings_dialog import SettingsDialog
