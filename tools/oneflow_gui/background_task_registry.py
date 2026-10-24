@@ -119,6 +119,10 @@ class BackgroundTaskRegistry:
                 continue
         return sorted(tasks, key=lambda task: (task.started_at, task.task_id))
 
+    def list_active_tasks(self) -> list[BackgroundTask]:
+        """Return only tasks that still require active management."""
+        return [task for task in self.list_tasks() if task.status in ACTIVE_STATUSES]
+
     def remove(self, task_id: str) -> None:
         """Remove a record after its task has been deliberately forgotten."""
         try:
