@@ -138,7 +138,7 @@ class WorkbenchHomeWindow(QMainWindow):
         grid = QGridLayout()
         grid.setSpacing(12)
         self._add_activity(
-            grid, 0, 1, "Case Database",
+            grid, 0, 0, "Case Database",
             "Run all selected catalog cases from protected workspace copies; all cases are selected by default.",
             self._open_case_database,
         )
@@ -416,12 +416,6 @@ class WorkbenchHomeWindow(QMainWindow):
         ]
         if not active_tasks:
             return
-        QMessageBox.information(
-            self,
-            "Background calculations detected",
-            f"Found {len(active_tasks)} active background task(s). "
-            "Review their status and results in the Background Tasks dialog.",
-        )
         self._open_background_tasks()
 
     def _open_background_tasks(self) -> None:
