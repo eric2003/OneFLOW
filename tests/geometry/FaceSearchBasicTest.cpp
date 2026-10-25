@@ -70,6 +70,26 @@ TEST( FaceSearchBasicTest, ClearResetsDerivedSplitMappings )
     EXPECT_EQ( search.AddFace( IntField{ 1, 2 } ), 0 );
 }
 
+TEST( FaceSearchBasicTest, RepeatedQuadSplitReplacesParentChildMapping )
+{
+    // Intent: rebuilding one parent's split mapping must not append duplicate child IDs.
+    FaceSearch search;
+    ASSERT_EQ( search.AddFace( IntField{ 10, 20, 30, 40 } ), 0 );
+    EXPECT_EQ( search.AddFace( IntField{ 10, 20, 30 } ), 1 );
+    EXPECT_EQ( search.AddFace( IntField{ 30, 40, 10 } ), 2 );
+    EXPECT_EQ( search.AddFace( IntField{ 40, 10, 20 } ), 3 );
+    EXPECT_EQ( search.AddFace( IntField{ 20, 30, 40 } ), 4 );
+    search.interfaceSplit.ResetForParentFaceCount( search.Size() );
+
+    search.SplitQuad2Tri( 0 );
+    search.SplitQuad2Tri( 0 );
+
+    ASSERT_EQ( search.interfaceSplit.childFaceIdsOfParent[ 0 ].size(),
+               static_cast< std::size_t >( 4 ) );
+    EXPECT_EQ( search.interfaceSplit.childFaceIdsOfParent[ 0 ],
+               ( IntField{ 1, 2, 3, 4 } ) );
+}
+
 TEST( FaceSearchBasicTest, LineSplitMappingPreservesEdgeDirectionAndEndpointFlags )
 {
     // Intent: splitting A->B produces A->M and M->B in both local and global IDs.
