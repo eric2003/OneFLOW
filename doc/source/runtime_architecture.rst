@@ -153,8 +153,14 @@ Case runtime configuration
    `ioPathInfoFileName`. If `meshInputRoot` is empty or `default`, a non-empty
    `sourceGridCaseDir` is used as the legacy mesh-input fallback. Generic input/output
    roots are applied before the mesh/flow-specific roots. Missing optional root settings
-   retain the existing case-relative defaults. The exact meaning and precedence of these
-   keys must stay aligned with `SimuContextEnv.cpp` and the path-resolution tests.
+   retain the existing case-relative defaults. The current setup uses broad exception
+   handlers around optional lookups. A missing key throws from `GetDataValue`, but the
+   underlying typed `DataObject` lookup uses a static cast and does not safely validate
+   a mismatched stored type. Do not assume these handlers make malformed values safe.
+   Existing `Prj` tests cover many root-resolution rules, but the full
+   `SetupCaseEnvironment()` precedence and `sourceGridCaseDir` fallback need a direct
+   test seam. The exact meaning and precedence of these keys must stay aligned with
+   `SimuContextEnv.cpp` and the path-resolution tests.
 
 Workbench project and workflow configuration
    Project definitions describe an engineering workspace; workflow definitions describe
