@@ -7,6 +7,7 @@ import tempfile
 import time
 import unittest
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 from tools.oneflow_gui.workflow_process import run_process
 
@@ -47,6 +48,33 @@ class WorkflowProcessTest(unittest.TestCase):
         )
         self.assertEqual(result.status, "cancelled")
         self.assertNotEqual(result.return_code, 0)
+
+    def test_windows_process_suppresses_console_window(self) -> None:
+        process = MagicMock()
+        process.stdout = iter([])
+        process.poll.return_value = 0
+        process.returncode = 0
+        with (
+            patch("tools.oneflow_gui.workflow_process.os.name", "nt"),
+            patch(
+                "tools.oneflow_gui.workflow_process.subprocess.CREATE_NO_WINDOW",
+                0x08000000,
+                create=True,
+            ),
+            patch(
+                "tools.oneflow_gui.workflow_process.subprocess.Popen",
+                return_value=process,
+            ) as popen,
+        ):
+            result = run_process(
+                ["OneFLOW.exe", "r", "case"],
+                cwd=self._cwd,
+                on_output=lambda line: None,
+                is_cancelled=lambda: False,
+            )
+
+        self.assertEqual(result.status, "succeeded")
+        self.assertEqual(popen.call_args.kwargs["creationflags"], 0x08000000)
 
     def test_empty_command_is_rejected(self) -> None:
         with self.assertRaisesRegex(ValueError, "non-empty string arguments"):
