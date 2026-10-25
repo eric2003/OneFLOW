@@ -122,6 +122,10 @@ class ConfigurationDialog(QDialog):
             (repository_root / "build" / "bin" / configuration / "OneFLOW.exe").resolve()
         )
 
+    @property
+    def settings(self) -> ApplicationSettings:
+        return self._settings
+
     def _current_values(self) -> tuple[str, str, str, str]:
         return (
             self.repository_root_edit.text().strip(),
