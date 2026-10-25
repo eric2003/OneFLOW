@@ -208,3 +208,12 @@ Commit: `d8568fe91722af5d78d8083d6bae23d9446d952d`
 - Linked the template from this roadmap and `doc/AI_CONTEXT.md`; the handoff page remains a concise overall state index rather than a duplicate of every stage.
 - Added an explicit `<stdexcept>` include in `codes/main/src/SimuContextEnv.cpp` for the existing `std::invalid_argument` use (commit `ec9575216e9b6db14a400446c1373e22405c7169`).
 - Validation: this was a source/include correctness cleanup and documentation change. No local build or tests were run in this step; the invalid-type behavior still lacks a focused automated test. Continue R1 test-seam investigation and verify CI for the exact current branch revision.
+
+
+### 2026-10-26 - Whole-system architecture review mechanism
+
+- Added `doc/source/architecture_review.rst` as a handbook chapter and navigation entry.
+- The chapter provides a reusable CFD/CAE concern map, calls out OneFLOW cross-cutting risks (global runtime state, configuration validation, mesh derived-data invalidation, workflow artifact provenance, lifecycle cleanup, and evidence discipline), and includes a repeatable prompt for AI-assisted engineering.
+- Linked the chapter from `doc/AI_CONTEXT.md` and `doc/README.md`. The intended workflow is to zoom into a concrete call path, implement and test a small change, then zoom back out at meaningful milestones and update priorities.
+- This documentation change does not resolve the R1 runtime parameter test gap. R1 remains partial / implemented but unverified until the relevant contract has focused test and exact-revision validation evidence.
+- Validation: no Sphinx build, C++ build, unit test, or CI result is claimed by this documentation update.
