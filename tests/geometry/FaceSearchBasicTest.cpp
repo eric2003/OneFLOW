@@ -128,3 +128,25 @@ TEST( FaceSearchBasicTest, GetFaceNodeRingRejectsOutOfRange )
     EXPECT_NO_THROW( search.GetFaceNodeRing( 0 ) );
     EXPECT_THROW( search.GetFaceNodeRing( 1 ), std::out_of_range );
 }
+
+TEST( FaceSearchBasicTest, ClearParentMappingOnlyClearsRequestedParent )
+{
+    InterfaceFaceSplitTable split;
+    split.ResetForParentFaceCount( 2 );
+    split.childFaceIdsOfParent[ 0 ] = IntField{ 4, 5 };
+    split.childFaceIdsOfParent[ 1 ] = IntField{ 7, 8 };
+
+    split.ClearParentMapping( 0 );
+
+    EXPECT_TRUE( split.childFaceIdsOfParent[ 0 ].empty() );
+    EXPECT_EQ( split.childFaceIdsOfParent[ 1 ], ( IntField{ 7, 8 } ) );
+}
+
+TEST( FaceSearchBasicTest, ClearParentMappingRejectsInvalidParentId )
+{
+    InterfaceFaceSplitTable split;
+    split.ResetForParentFaceCount( 1 );
+
+    EXPECT_THROW( split.ClearParentMapping( -1 ), std::out_of_range );
+    EXPECT_THROW( split.ClearParentMapping( 1 ), std::out_of_range );
+}
