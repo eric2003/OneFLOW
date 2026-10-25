@@ -228,13 +228,14 @@ The project is actively refactoring its mesh, geometry, test, and workbench boun
 
 ## Developer and contact
 
-**Primary developer:** He Xin ([GitHub profile: @eric2003](https://github.com/eric2003)).
+**Primary developer:** Dr. He Xin ([GitHub profile: @eric2003](https://github.com/eric2003)).
 
+- **Email:** [fantasy_2003_@hotmail.com](mailto:fantasy_2003_@hotmail.com)
 - **Source code:** [github.com/eric2003/OneFLOW](https://github.com/eric2003/OneFLOW)
 - **Bug reports and feature requests:** [GitHub Issues](https://github.com/eric2003/OneFLOW/issues)
 - **Design and implementation discussion:** open an issue with the relevant case, expected behavior, observed behavior, and reproducible logs or test results. This helps keep technical decisions and follow-up work visible to other contributors.
 
-GitHub Issues is the public contact route listed here; no personal email address is published in this README.
+Email is also available for direct contact. The address above was already published in an earlier version of the project README.
 
 ## Project and license
 
