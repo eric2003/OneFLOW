@@ -117,10 +117,12 @@ class WorkspaceDialog(QDialog):
         path_item = self.case_table.item(row, 1)
         current_path = path_item.text().strip() if path_item is not None else ""
         start = Path(current_path).expanduser() if current_path else UserDataPaths.discover().projects
+        if not start.is_dir():
+            start = Path.home()
         if start.is_file():
             start = start.parent
         if not start.is_dir():
-            start = UserDataPaths.discover().projects
+            start = Path.home()
         directory = QFileDialog.getExistingDirectory(
             self, "Select case directory", str(start)
         )
@@ -196,8 +198,10 @@ class WorkspaceDialog(QDialog):
 
         if self._workspace_path is None:
             suggested = (name.lower().replace(" ", "-") or "workspace") + ".ofw"
+            workspace_directory = UserDataPaths.discover().workspaces
+            workspace_directory.mkdir(parents=True, exist_ok=True)
             filename, _ = QFileDialog.getSaveFileName(
-                self, "Save OneFLOW workspace", str(UserDataPaths.discover().workspaces / suggested),
+                self, "Save OneFLOW workspace", str(workspace_directory / suggested),
                 "OneFLOW workspace (*.ofw)",
             )
             if not filename:
