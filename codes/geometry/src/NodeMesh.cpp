@@ -56,6 +56,29 @@ NodeMesh::Point3 NodeMesh::GetPoint( HXSize_t nodeIndex ) const
     return { this->xN[ nodeIndex ], this->yN[ nodeIndex ], this->zN[ nodeIndex ] };
 }
 
+int NodeMesh::FindPoint( Real xp, Real yp, Real zp, Real tolerance ) const
+{
+    ValidateCoordinateArrays( *this );
+    if ( tolerance < 0 )
+    {
+        throw std::invalid_argument( "NodeMesh point tolerance must not be negative" );
+    }
+
+    const Real toleranceSquared = tolerance * tolerance;
+    for ( HXSize_t nodeIndex = 0; nodeIndex < this->xN.size(); ++ nodeIndex )
+    {
+        const Real dx = this->xN[ nodeIndex ] - xp;
+        const Real dy = this->yN[ nodeIndex ] - yp;
+        const Real dz = this->zN[ nodeIndex ] - zp;
+        const Real distanceSquared = dx * dx + dy * dy + dz * dz;
+        if ( distanceSquared < toleranceSquared )
+        {
+            return static_cast< int >( nodeIndex );
+        }
+    }
+    return -1;
+}
+
 void NodeMesh::SetPoint( HXSize_t nodeIndex, Real xp, Real yp, Real zp )
 {
     ValidateCoordinateArrays( *this );

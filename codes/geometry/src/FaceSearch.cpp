@@ -17,7 +17,6 @@ License
 
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
-
 \*---------------------------------------------------------------------------*/
 
 #include "FaceSearch.h"
@@ -68,6 +67,18 @@ const IntField & FaceSearchBasic::GetFaceNodeRing( int faceId ) const
 }
 
 
+void InterfaceFaceSplitTable::ClearParentMapping( int parentFaceId )
+{
+    if ( parentFaceId < 0 ||
+         static_cast< std::size_t >( parentFaceId ) >= this->childFaceIdsOfParent.size() )
+    {
+        throw std::out_of_range(
+            "InterfaceFaceSplitTable::ClearParentMapping: parent face ID is out of range" );
+    }
+
+    this->childFaceIdsOfParent[ parentFaceId ].clear();
+}
+
 void FaceSearch::Clear()
 {
     FaceSearchBasic::Clear();
@@ -101,6 +112,9 @@ void FaceSearch::SplitQuad2Tri( int faceId )
     int nNodes = nodeId.size();
     if ( nNodes != 4 ) return;
 
+    // Rebuild one parent's mapping; do not retain entries from a previous call.
+    this->interfaceSplit.ClearParentMapping( faceId );
+
     LinkField localTriId, localTriFlag;
     this->GetLocalTri( localTriId, localTriFlag );
 
@@ -123,6 +137,10 @@ void FaceSearch::SplitQuad2Tri( int faceId )
 void FaceSearch::SplitLine( IFaceLink & iFaceLink, int globalFaceId )
 {
     const IntField & nodeId = this->GetFaceNodeRing( globalFaceId );
+
+    // Rebuild one parent's mapping instead of accumulating stale child IDs.
+    this->interfaceSplit.ClearParentMapping( globalFaceId );
+
     if ( nodeId.size() != 2 ) return;
 
     LinkField localLineId, localLineFlag;
@@ -262,9 +280,13 @@ bool FaceSearch::TrySplitLineAtMidpoint(
 
     const int zoneIndex = zoneIds[ 0 ];
     Grid & grid = iFaceLink.GetGrid( zoneIndex );
-    const int nNodes = grid.nodeMesh->GetNumberOfNodes();
-    const int pId = nNodes;
-    grid.nodeMesh->AddPoint( coor2[ 0 ], coor2[ 1 ], coor2[ 2 ] );
+    int pId = grid.nodeMesh->FindPoint(
+        coor2[ 0 ], coor2[ 1 ], coor2[ 2 ], point_search->GetTol() );
+    if ( pId == ONEFLOW::INVALID_INDEX )
+    {
+        pId = static_cast< int >( grid.nodeMesh->GetNumberOfNodes() );
+        grid.nodeMesh->AddPoint( coor2[ 0 ], coor2[ 1 ], coor2[ 2 ] );
+    }
     const int p2 = point_search->AddPoint( coor2[ 0 ], coor2[ 1 ], coor2[ 2 ] );
 
     BuildLineSplitMapping(

@@ -36,6 +36,7 @@ License
 #include "Zone.h"
 #include "FieldManager.h"
 #include "DataBase.h"
+#include "DataBaseType.h"
 #include "HeatFlux.h"
 #include "NsCom.h"
 #include "NsSolver.h"
@@ -49,8 +50,33 @@ License
 #include <iostream>
 #include <exception>
 #include <filesystem>
+#include <stdexcept>
 
 BeginNameSpace( ONEFLOW )
+
+namespace
+{
+
+std::string ReadOptionalStringParameter( const std::string & name )
+{
+    DataBase & dataBase = RequireGlobalDataBase();
+    DataEntry * entry = dataBase.RequireDataPara().FindDataEntry( name );
+
+    if ( entry == nullptr )
+    {
+        return "";
+    }
+
+    if ( entry->GetType() != HX_STRING )
+    {
+        throw std::invalid_argument(
+            "Control parameter \"" + name + "\" must be a string" );
+    }
+
+    return GetDataValue< std::string >( &entry->GetDataObject() );
+}
+
+}
 
 SimuContext::SimuContext( const std::string& caseDir, bool debug )
     : caseDir_( Prj::ResolveCaseDir( caseDir ) )
@@ -106,34 +132,16 @@ void SimuContext::SetupCaseEnvironment()
     std::string inputRoot;
     std::string outputRoot;
 
-    try
-    {
-        projectRoot = GetDataValue< std::string >( "projectRoot" );
-    }
-    catch ( const std::exception & )
-    {
-    }
+    projectRoot = ReadOptionalStringParameter( "projectRoot" );
 
     if ( ! projectRoot.empty() )
     {
         Prj::SetProjectBaseDir( projectRoot );
     }
 
-    try
-    {
-        inputRoot = GetDataValue< std::string >( "inputRoot" );
-    }
-    catch ( const std::exception & )
-    {
-    }
+    inputRoot = ReadOptionalStringParameter( "inputRoot" );
 
-    try
-    {
-        outputRoot = GetDataValue< std::string >( "outputRoot" );
-    }
-    catch ( const std::exception & )
-    {
-    }
+    outputRoot = ReadOptionalStringParameter( "outputRoot" );
 
     Prj::SetIOBaseDirs( inputRoot, outputRoot );
 
@@ -142,37 +150,13 @@ void SimuContext::SetupCaseEnvironment()
     std::string meshOutputRoot;
     std::string flowOutputRoot;
 
-    try
-    {
-        meshInputRoot = GetDataValue< std::string >( "meshInputRoot" );
-    }
-    catch ( const std::exception & )
-    {
-    }
+    meshInputRoot = ReadOptionalStringParameter( "meshInputRoot" );
 
-    try
-    {
-        flowInputRoot = GetDataValue< std::string >( "flowInputRoot" );
-    }
-    catch ( const std::exception & )
-    {
-    }
+    flowInputRoot = ReadOptionalStringParameter( "flowInputRoot" );
 
-    try
-    {
-        meshOutputRoot = GetDataValue< std::string >( "meshOutputRoot" );
-    }
-    catch ( const std::exception & )
-    {
-    }
+    meshOutputRoot = ReadOptionalStringParameter( "meshOutputRoot" );
 
-    try
-    {
-        flowOutputRoot = GetDataValue< std::string >( "flowOutputRoot" );
-    }
-    catch ( const std::exception & )
-    {
-    }
+    flowOutputRoot = ReadOptionalStringParameter( "flowOutputRoot" );
 
     // Preserve the legacy sourceGridCaseDir setting as the default mesh
     // input root. This keeps linked cases such as rae2822_roe_sa reading grid
@@ -180,17 +164,11 @@ void SimuContext::SetupCaseEnvironment()
     // explicit meshInputRoot can override that behavior.
     if ( meshInputRoot.empty() || meshInputRoot == "default" )
     {
-        try
+        const std::string sourceGridCaseDir =
+            ReadOptionalStringParameter( "sourceGridCaseDir" );
+        if ( ! sourceGridCaseDir.empty() && sourceGridCaseDir != "default" )
         {
-            const std::string sourceGridCaseDir =
-                GetDataValue< std::string >( "sourceGridCaseDir" );
-            if ( ! sourceGridCaseDir.empty() && sourceGridCaseDir != "default" )
-            {
-                meshInputRoot = sourceGridCaseDir;
-            }
-        }
-        catch ( const std::exception & )
-        {
+            meshInputRoot = sourceGridCaseDir;
         }
     }
 
@@ -205,17 +183,11 @@ void SimuContext::SetupCaseEnvironment()
     std::string ioPathInfoFile = outputsUseCaseRoot
         ? "results/io_paths.txt"
         : "io_paths.txt";
-    try
+    const std::string configuredInfoFile =
+        ReadOptionalStringParameter( "ioPathInfoFileName" );
+    if ( ! configuredInfoFile.empty() )
     {
-        const std::string configuredInfoFile =
-            GetDataValue< std::string >( "ioPathInfoFileName" );
-        if ( ! configuredInfoFile.empty() )
-        {
-            ioPathInfoFile = configuredInfoFile;
-        }
-    }
-    catch ( const std::exception & )
-    {
+        ioPathInfoFile = configuredInfoFile;
     }
 
     const std::string meshInfoPath =

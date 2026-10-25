@@ -79,6 +79,8 @@ struct InterfaceFaceSplitTable
         childFaceNodeIds.assign( nParentFaces, IntField{} );
         childFaceNodeFlags.assign( nParentFaces, IntField{} );
     }
+
+    void ClearParentMapping( int parentFaceId );
 };
 
 class FaceSearch : public FaceSearchBasic

@@ -47,6 +47,7 @@ public:
     // Keep SoA as the owning storage while offering a value-type point interface.
     Point3 GetPoint( HXSize_t nodeIndex ) const;
     void SetPoint( HXSize_t nodeIndex, Real xp, Real yp, Real zp );
+    int FindPoint( Real xp, Real yp, Real zp, Real tolerance ) const;
 
     void CreateNodes( int numberOfNodes );
     void SetCoordinates( RealField x, RealField y, RealField z );

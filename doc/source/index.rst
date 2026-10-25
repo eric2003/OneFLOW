@@ -41,9 +41,11 @@ Mesh and engineering workflows
 Developer resources
 -------------------
 
+* :doc:`runtime_architecture` — runtime entry points, configuration boundaries, execution flow, and refactoring rules.
+* `AI project context and refactoring handoff <https://github.com/eric2003/OneFLOW/blob/hexin/doc/AI_CONTEXT.md>`_ — current focus, verified findings, open gaps, and next actions for continuing work.
 * :doc:`workbench_architecture` — Workbench concepts, service boundaries, and run lifecycle.
 * `Regression test guide <https://github.com/eric2003/OneFLOW/blob/hexin/test/README.md>`_ — CFD and grid regression checks.
-* `Documentation organization plan <https://github.com/eric2003/OneFLOW/blob/hexin/doc/plans/oneflow-documentation-consolidation-plan.md>`_ — document ownership and consolidation status.
+* `Documentation organization plan <https://github.com/eric2003/OneFLOW/blob/hexin/doc/plans/oneflow-documentation-consolidation-plan.md>`_ — document ownership and consolidation status.\n* `Runtime refactoring roadmap <https://github.com/eric2003/OneFLOW/blob/hexin/doc/plans/runtime-refactoring-roadmap.md>`_ — staged goals, acceptance criteria, and implementation evidence.
 
 Reference library
 ----------------
@@ -119,6 +121,7 @@ The existing reference library covers programming languages, build systems, para
    :maxdepth: 2
    :caption: OneFLOW Design and Development
 
+   runtime_architecture
    mesh_architecture
    grid_topology
    workbench_architecture

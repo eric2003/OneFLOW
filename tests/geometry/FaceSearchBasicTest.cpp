@@ -70,6 +70,26 @@ TEST( FaceSearchBasicTest, ClearResetsDerivedSplitMappings )
     EXPECT_EQ( search.AddFace( IntField{ 1, 2 } ), 0 );
 }
 
+TEST( FaceSearchBasicTest, RepeatedQuadSplitReplacesParentChildMapping )
+{
+    // Intent: rebuilding one parent's split mapping must not append duplicate child IDs.
+    FaceSearch search;
+    ASSERT_EQ( search.AddFace( IntField{ 10, 20, 30, 40 } ), 0 );
+    EXPECT_EQ( search.AddFace( IntField{ 10, 20, 30 } ), 1 );
+    EXPECT_EQ( search.AddFace( IntField{ 30, 40, 10 } ), 2 );
+    EXPECT_EQ( search.AddFace( IntField{ 40, 10, 20 } ), 3 );
+    EXPECT_EQ( search.AddFace( IntField{ 20, 30, 40 } ), 4 );
+    search.interfaceSplit.ResetForParentFaceCount( search.Size() );
+
+    search.SplitQuad2Tri( 0 );
+    search.SplitQuad2Tri( 0 );
+
+    ASSERT_EQ( search.interfaceSplit.childFaceIdsOfParent[ 0 ].size(),
+               static_cast< std::size_t >( 4 ) );
+    EXPECT_EQ( search.interfaceSplit.childFaceIdsOfParent[ 0 ],
+               ( IntField{ 1, 2, 3, 4 } ) );
+}
+
 TEST( FaceSearchBasicTest, LineSplitMappingPreservesEdgeDirectionAndEndpointFlags )
 {
     // Intent: splitting A->B produces A->M and M->B in both local and global IDs.
@@ -107,4 +127,26 @@ TEST( FaceSearchBasicTest, GetFaceNodeRingRejectsOutOfRange )
     search.AddFace( IntField{ 1, 2, 3 } );
     EXPECT_NO_THROW( search.GetFaceNodeRing( 0 ) );
     EXPECT_THROW( search.GetFaceNodeRing( 1 ), std::out_of_range );
+}
+
+TEST( FaceSearchBasicTest, ClearParentMappingOnlyClearsRequestedParent )
+{
+    InterfaceFaceSplitTable split;
+    split.ResetForParentFaceCount( 2 );
+    split.childFaceIdsOfParent[ 0 ] = IntField{ 4, 5 };
+    split.childFaceIdsOfParent[ 1 ] = IntField{ 7, 8 };
+
+    split.ClearParentMapping( 0 );
+
+    EXPECT_TRUE( split.childFaceIdsOfParent[ 0 ].empty() );
+    EXPECT_EQ( split.childFaceIdsOfParent[ 1 ], ( IntField{ 7, 8 } ) );
+}
+
+TEST( FaceSearchBasicTest, ClearParentMappingRejectsInvalidParentId )
+{
+    InterfaceFaceSplitTable split;
+    split.ResetForParentFaceCount( 1 );
+
+    EXPECT_THROW( split.ClearParentMapping( -1 ), std::out_of_range );
+    EXPECT_THROW( split.ClearParentMapping( 1 ), std::out_of_range );
 }
