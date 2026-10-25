@@ -62,8 +62,9 @@ class WorkbenchHomeWindow(QMainWindow):
         title = QLabel("OneFLOW Workbench")
         title.setObjectName("pageTitle")
         subtitle = QLabel(
-            "Open or create a project workspace, choose how its cases execute, or run "
-            "Workbench tasks such as catalog cases, unit tests, and CFD/grid regression."
+            "Create or open a project folder to edit and run calculations. Multi-Case Workspace "
+            "files (.ofw) remain available for existing case collections; other Workbench tasks "
+            "include catalog cases, unit tests, and CFD/grid regression."
         )
         subtitle.setObjectName("subtitle")
         subtitle.setWordWrap(True)
