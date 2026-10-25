@@ -77,3 +77,21 @@ TEST( SimuContextParameterTest, RejectsNonStringAndNamesParameter )
             std::string::npos );
     }
 }
+
+TEST( SimuContextParameterTest, EmptyMeshInputAllowsLegacyFallback )
+{
+    EXPECT_TRUE(
+        SimuContextDetail::ShouldReadSourceGridCaseDir( "" ) );
+}
+
+TEST( SimuContextParameterTest, DefaultMeshInputAllowsLegacyFallback )
+{
+    EXPECT_TRUE(
+        SimuContextDetail::ShouldReadSourceGridCaseDir( "default" ) );
+}
+
+TEST( SimuContextParameterTest, ExplicitMeshInputTakesPrecedence )
+{
+    EXPECT_FALSE(
+        SimuContextDetail::ShouldReadSourceGridCaseDir( "grid-input" ) );
+}
