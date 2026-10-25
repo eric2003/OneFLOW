@@ -80,3 +80,4 @@ OneFLOW is an evolving open-source codebase for computational fluid dynamics (CF
 
    mesh_architecture
    grid_topology
+   workbench_architecture
