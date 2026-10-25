@@ -6,7 +6,7 @@ import subprocess
 import threading
 from pathlib import Path
 
-from PySide6.QtCore import QThread, Signal
+from PySide6.QtCore import QThread, Signal, Qt
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -17,10 +17,17 @@ from PySide6.QtWidgets import (
     QMessageBox,
     QPlainTextEdit,
     QPushButton,
+    QTableWidget,
+    QTableWidgetItem,
+    QAbstractItemView,
+    QHeaderView,
     QVBoxLayout,
 )
 
 from .executable_discovery import executable_candidates
+from .case_repository import load_cases
+from .models import CaseDefinition
+from .runner import create_run_id
 from .user_data_paths import UserDataPaths
 from .task_types import TaskRunResult, TaskRunStatus, TaskType, task_definition
 from .test_runner import (
@@ -165,7 +172,8 @@ class TestRunnerDialog(QDialog):
         self._repository_root = Path(repository_root).resolve()
         self._build_config = build_config
         self._worker: TestCommandWorker | None = None
-        self._database_window = None
+        self._case_worker = None
+        self._database_cases: list[CaseDefinition] = []
         self.setWindowTitle("OneFLOW Tests")
         self.resize(900, 650)
 
@@ -217,9 +225,12 @@ class TestRunnerDialog(QDialog):
         )
         database_description.setWordWrap(True)
         database_layout.addWidget(database_description, 1)
-        self.case_database_button = QPushButton("Case Database Tests...")
+        self.case_database_check = QCheckBox("Run Case Database tests")
+        self.case_database_check.setChecked(False)
+        database_layout.insertWidget(0, self.case_database_check)
+        self.case_database_button = QPushButton("Configure...")
         self.case_database_button.setToolTip(
-            "Open the catalog case selector and run selected cases as tests."
+            "Choose catalog cases and run-workspace settings. This does not start a run."
         )
         self.case_database_button.clicked.connect(self._open_case_database_tests)
         database_layout.addWidget(self.case_database_button)
@@ -254,31 +265,22 @@ class TestRunnerDialog(QDialog):
         layout.addLayout(buttons)
 
     def _open_case_database_tests(self) -> None:
-        if self._database_window is not None and self._database_window.isVisible():
-            self._database_window.raise_()
-            self._database_window.activateWindow()
-            return
-
-        from .main_window import MainWindow
-
-        window = MainWindow(
-            self._repository_root,
-            single_case_mode=True,
-            build_config=self._build_config,
+        dialog = CaseDatabaseSelectionDialog(
+            self._repository_root, self._database_cases, self
         )
-        executable = self.executable_combo.currentText().strip()
-        if executable:
-            window.executable_combo.setEditText(executable)
-        self._database_window = window
-        owner = self.parent()
-        if owner is not None:
-            owner._case_database_test_window = window
-        window.show()
-        window.raise_()
-        window.activateWindow()
+        if dialog.exec() != QDialog.DialogCode.Accepted:
+            return
+        self._database_cases = dialog.selected_cases()
+        self.case_database_check.setChecked(bool(self._database_cases))
+        count = len(self._database_cases)
+        self.case_database_button.setText(
+            f"Configure... ({count} selected)" if count else "Configure..."
+        )
 
     def _start(self) -> None:
         if self._worker is not None and self._worker.isRunning():
+            return
+        if self._case_worker is not None and self._case_worker.isRunning():
             return
         commands: list[TestCommand] = []
         if self.unit_tests_check.isChecked():
@@ -322,11 +324,24 @@ class TestRunnerDialog(QDialog):
             except (OSError, ValueError) as error:
                 QMessageBox.warning(self, "Cannot start regression", str(error))
                 return
-        if not commands:
-            QMessageBox.information(self, "No tests selected", "Select unit tests or CFD regression.")
+        run_database = self.case_database_check.isChecked()
+        if run_database and not self._database_cases:
+            QMessageBox.information(
+                self, "No cases configured",
+                "Use Configure... to select Case Database cases before running.",
+            )
+            return
+        if not commands and not run_database:
+            QMessageBox.information(
+                self, "No tests selected",
+                "Select unit tests, CFD regression, or Case Database tests.",
+            )
             return
 
-        self._launch_commands(commands)
+        if commands:
+            self._launch_commands(commands)
+        if run_database:
+            self._launch_database_cases()
 
     def _start_build(self, *, rebuild: bool) -> None:
         if self._worker is not None and self._worker.isRunning():
@@ -337,6 +352,53 @@ class TestRunnerDialog(QDialog):
             rebuild=rebuild,
         )
         self._launch_commands([command])
+
+    def _launch_database_cases(self) -> None:
+        executable = self.executable_combo.currentText().strip()
+        if not executable or not Path(executable).expanduser().is_file():
+            QMessageBox.warning(
+                self, "Executable required",
+                "Select a valid OneFLOW.exe before running Case Database tests.",
+            )
+            return
+        from .main_window import RunQueueWorker
+
+        workspace_root = UserDataPaths.discover().executions
+        run_id = create_run_id()
+        self.log_view.appendPlainText(
+            f"\\n=== Case Database tests ===\\n"
+            f"Executable: {Path(executable).resolve()}\\n"
+            f"Workspace: {workspace_root / run_id}"
+        )
+        self.run_button.setEnabled(False)
+        self.build_button.setEnabled(False)
+        self.rebuild_button.setEnabled(False)
+        self.stop_button.setEnabled(True)
+        self._case_worker = RunQueueWorker(
+            self._database_cases,
+            Path(executable).expanduser().resolve(),
+            workspace_root,
+            run_id,
+            execution_mode="default_workspace",
+        )
+        self._case_worker.log_line.connect(self.log_view.appendPlainText)
+        self._case_worker.case_result.connect(self._database_case_result)
+        self._case_worker.finished.connect(self._database_worker_finished)
+        self._case_worker.start()
+
+    def _database_case_result(self, result) -> None:
+        self.log_view.appendPlainText(
+            f"[{result.case_id}] {result.state.value}: {result.message}\\n"
+            f"Workspace: {result.workspace}"
+        )
+
+    def _database_worker_finished(self) -> None:
+        self._case_worker = None
+        self.run_button.setEnabled(True)
+        self.build_button.setEnabled(True)
+        self.rebuild_button.setEnabled(True)
+        self.stop_button.setEnabled(False)
+        self.log_view.appendPlainText("Case Database tests finished.")
 
     def _launch_commands(self, commands: list[TestCommand]) -> None:
         self.log_view.clear()
@@ -352,8 +414,14 @@ class TestRunnerDialog(QDialog):
         self._worker.start()
 
     def _stop(self) -> None:
+        stopping = False
         if self._worker is not None:
             self._worker.request_stop()
+            stopping = True
+        if self._case_worker is not None:
+            self._case_worker.request_stop()
+            stopping = True
+        if stopping:
             self.stop_button.setEnabled(False)
 
     def _command_completed(self, result: TaskRunResult) -> None:
@@ -374,8 +442,80 @@ class TestRunnerDialog(QDialog):
         self._worker = None
 
     def closeEvent(self, event) -> None:
-        if self._worker is not None and self._worker.isRunning():
-            self._worker.request_stop()
+        command_running = self._worker is not None and self._worker.isRunning()
+        cases_running = self._case_worker is not None and self._case_worker.isRunning()
+        if command_running or cases_running:
+            self._stop()
             event.ignore()
             return
         event.accept()
+
+
+class CaseDatabaseSelectionDialog(QDialog):
+    """Configure which catalog cases the parent Test page should run."""
+
+    def __init__(
+        self,
+        repository_root: Path,
+        selected_cases: list[CaseDefinition],
+        parent=None,
+    ) -> None:
+        super().__init__(parent)
+        self._repository_root = repository_root
+        self._cases = load_cases(repository_root)
+        selected_ids = {case.case_id for case in selected_cases}
+        self.setWindowTitle("Configure Case Database Tests")
+        self.resize(760, 560)
+        layout = QVBoxLayout(self)
+        layout.addWidget(QLabel(
+            "Select catalog cases to include when you press Run on the Tests page. "
+            "This dialog only saves the selection; it does not start calculations."
+        ))
+        self.case_table = QTableWidget(0, 3)
+        self.case_table.setHorizontalHeaderLabels(["Run", "Case", "Configuration"])
+        self.case_table.verticalHeader().setVisible(False)
+        self.case_table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.case_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        self.case_table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        for case in self._cases:
+            row = self.case_table.rowCount()
+            self.case_table.insertRow(row)
+            check = QTableWidgetItem()
+            check.setFlags(check.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+            check.setCheckState(
+                Qt.CheckState.Checked if case.case_id in selected_ids else Qt.CheckState.Unchecked
+            )
+            self.case_table.setItem(row, 0, check)
+            self.case_table.setItem(row, 1, QTableWidgetItem(case.title))
+            self.case_table.setItem(
+                row, 2, QTableWidgetItem("Typed profile" if case.profile else "Legacy config")
+            )
+        layout.addWidget(self.case_table, 1)
+        actions = QHBoxLayout()
+        select_all = QPushButton("Select all")
+        select_all.clicked.connect(lambda: self._set_all(True))
+        select_none = QPushButton("Select none")
+        select_none.clicked.connect(lambda: self._set_all(False))
+        actions.addWidget(select_all)
+        actions.addWidget(select_none)
+        actions.addStretch(1)
+        ok_button = QPushButton("OK")
+        ok_button.clicked.connect(self.accept)
+        cancel_button = QPushButton("Cancel")
+        cancel_button.clicked.connect(self.reject)
+        actions.addWidget(ok_button)
+        actions.addWidget(cancel_button)
+        layout.addLayout(actions)
+
+    def _set_all(self, checked: bool) -> None:
+        state = Qt.CheckState.Checked if checked else Qt.CheckState.Unchecked
+        for row in range(self.case_table.rowCount()):
+            self.case_table.item(row, 0).setCheckState(state)
+
+    def selected_cases(self) -> list[CaseDefinition]:
+        selected_ids = {
+            case.case_id
+            for row, case in enumerate(self._cases)
+            if self.case_table.item(row, 0).checkState() == Qt.CheckState.Checked
+        }
+        return [case for case in self._cases if case.case_id in selected_ids]
