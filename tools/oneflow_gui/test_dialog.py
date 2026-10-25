@@ -182,7 +182,7 @@ class TestRunnerDialog(QDialog):
         layout.addWidget(
             QLabel(
                 "Run unit tests, CFD/grid regression, or catalog case tests. "
-                "Case Database tests use the existing case selector and isolated run workspaces."
+                "Case Database tests use the existing case selector and a fixed mesh-layout test workspace."
             )
         )
 
@@ -222,7 +222,7 @@ class TestRunnerDialog(QDialog):
 
         database_layout = QHBoxLayout()
         database_description = QLabel(
-            "Run selected catalog cases in isolated workspace copies."
+            "Run selected catalog cases from copies staged under the fixed mesh-layout test workspace."
         )
         database_description.setWordWrap(True)
         database_layout.addWidget(database_description, 1)
@@ -365,12 +365,12 @@ class TestRunnerDialog(QDialog):
             return
         from .main_window import RunQueueWorker
 
-        workspace_root = UserDataPaths.discover().executions
+        workspace_root = UserDataPaths.discover().grid_layout_test
         run_id = create_run_id()
         self.log_view.appendPlainText(
             f"\n=== Case Database tests ===\n"
             f"Executable: {Path(executable).resolve()}\n"
-            f"Workspace: {workspace_root / run_id}"
+            f"Workspace: {workspace_root}"
         )
         self.run_button.setEnabled(False)
         self.build_button.setEnabled(False)
@@ -381,7 +381,7 @@ class TestRunnerDialog(QDialog):
             Path(executable).expanduser().resolve(),
             workspace_root,
             run_id,
-            execution_mode="default_workspace",
+            execution_mode="case_database",
         )
         self._case_worker.log_line.connect(self.log_view.appendPlainText)
         self._case_worker.case_result.connect(self._database_case_result)
