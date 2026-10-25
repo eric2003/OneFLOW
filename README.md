@@ -71,7 +71,7 @@ These are architectural boundaries and an ongoing direction, not a claim that ev
 | docs/ | Existing supporting notes; new project documentation belongs under `doc/` |
 | cmake/ | CMake helper functions |
 
-Start with the [online documentation](https://oneflow-cfd.readthedocs.io/en/latest/). For repository-specific details, see the [grid case guide](./grid/README.md), [regression test guide](./test/README.md), [OneFLOW Workbench guide](./tools/oneflow_gui/README.md), and [documentation organization plan](./doc/plans/oneflow-documentation-consolidation-plan.md).
+Start with the [online documentation](https://oneflow-cfd.readthedocs.io/en/latest/). For repository-specific details, see the [grid case guide](./grid/README.md), [regression test guide](./test/README.md), [OneFLOW Workbench guide](./tools/oneflow_gui/README.md), and [documentation organization plan](./doc/plans/oneflow-documentation-consolidation-plan.md). For AI-assisted development or a fast handoff between sessions, start with the [AI project context and current refactoring state](./doc/AI_CONTEXT.md), then follow its links to architecture notes, acceptance criteria, tests, and CI evidence.
 
 ## Build from source
 
