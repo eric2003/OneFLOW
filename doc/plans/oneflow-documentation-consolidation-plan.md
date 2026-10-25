@@ -1,6 +1,6 @@
 # OneFLOW Documentation Consolidation Plan
 
-Status: Proposed
+Status: In progress
 Last updated: 2026-10-26
 Scope: Documentation assets on the `hexin` branch. This plan does not authorize deleting or moving files until each content group has been reviewed.
 
@@ -63,7 +63,18 @@ Organize pages by reader intent, while retaining useful existing topic reference
 
 Avoid duplicate copies between engineering records and the published site. A detailed engineering note can remain in its working location while a curated design page summarizes the stable conclusions and links to the note.
 
-## 4. Recommended review order
+## 4. Mesh documentation comparison: first consolidation pass
+
+The first content review found three overlapping mesh design notes with distinct value:
+
+- `docs/MESH_DATA_AND_VISUALIZATION.md` provides the broad reconstruction and visualization goals and an information-level model.
+- `docs/architecture/grid-data-contracts-and-visualization.md` records concrete L0 summary and JSON-adapter boundaries, including the distinction between `GridSummary` and runtime mesh-info output.
+- Root-level `GRID_TOPOLOGY.md` contains topology-specific invariants, boundary ghost-cell normalization, derived-adjacency rebuild behavior, and mutation/cache limitations.
+- Root-level `MESH_DATA_AND_VISUALIZATION.md` overlaps the broad design note and remains to be compared for unique implementation details before it can be retired.
+
+A curated Sphinx overview now provides a consistent information vocabulary and points readers toward the architecture goals, snapshot/adapter boundary, topology invariants, and validation strategy. This does not delete or relocate the source notes. In particular, the different level numbering in earlier drafts must not be treated as an established serialized schema; the schema remains versioned design work until implemented and tested.
+
+## 5. Recommended review order
 
 1. Finish the inventory and check internal links and Sphinx toctrees.
 2. Compare the three mesh-related documents semantically and identify one canonical design page plus any separate topology/reference pages.
@@ -73,7 +84,7 @@ Avoid duplicate copies between engineering records and the published site. A det
 6. Evaluate a minimal MyST proof of concept in a separate page; adopt it only if cross-references, navigation, and Read the Docs builds work cleanly.
 7. Add lightweight documentation checks (broken links and Sphinx build) to CI when the current build path is understood and stable.
 
-## 5. Rules for ongoing development
+## 6. Rules for ongoing development
 
 - A code change that changes a module boundary, data contract, user-visible workflow, or developer procedure should update the relevant document or explain why no document change is needed.
 - Important architectural decisions should record context, decision, alternatives, consequences, and verification evidence. Keep these records concise.
