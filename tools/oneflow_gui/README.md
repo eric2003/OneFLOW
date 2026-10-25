@@ -140,8 +140,8 @@ will be integrated as a separate workflow stage.
 
 ## User data directory
 
-The Workbench keeps user-managed data under `%USERPROFILE%\\.oneflow` by default
-(for example, `C:\\Users\\eric\\.oneflow`). Set `ONEFLOW_HOME` to use another
+The Workbench keeps user-managed data under `%USERPROFILE%\.oneflow` by default
+(for example, `C:\Users\eric\.oneflow`). Set `ONEFLOW_HOME` to use another
 root. The source checkout remains separate from this directory.
 
 - `settings.json`: Workbench preferences.
