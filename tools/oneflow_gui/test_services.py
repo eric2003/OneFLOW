@@ -94,7 +94,7 @@ class DesktopServiceTest(unittest.TestCase):
             self.assertEqual(source_config.read_text(encoding="utf-8"), '"simu.txt";\n')
             self.assertNotEqual(copied, source)
 
-    def test_case_database_mode_refreshes_the_workspace -> None:
+    def test_case_database_mode_refreshes_the_workspace(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             source = root / "source_case"
