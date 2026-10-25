@@ -115,7 +115,7 @@ class DesktopServiceTest(unittest.TestCase):
 
             actual = prepare_case_directory(case, workspace, "ignored-run-id", "case_database")
 
-            self.assertEqual(actual, destination)
+            self.assertTrue(actual.samefile(destination))
             self.assertEqual((actual / "control.txt").read_text(encoding="utf-8"), "fresh")
             self.assertFalse((actual / "stale-result.dat").exists())
             self.assertTrue((source / "control.txt").is_file())
@@ -144,7 +144,7 @@ class DesktopServiceTest(unittest.TestCase):
 
             staged = prepare_case_database_workspace([case], workspace)
 
-            self.assertEqual(staged["sample"], destination)
+            self.assertTrue(staged["sample"].samefile(destination))
             self.assertEqual((destination / "control.txt").read_text(encoding="utf-8"), "fresh")
             self.assertFalse((destination / "stale-result.dat").exists())
             self.assertFalse(stale.exists())
