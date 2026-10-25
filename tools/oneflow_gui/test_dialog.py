@@ -149,7 +149,7 @@ class TestCommandWorker(QThread):
 
 
 class TestRunnerDialog(QDialog):
-    """Offer unit tests by default and an optional existing CFD regression suite."""
+    """Run unit tests, CFD regression, or catalog cases from one test entry point."""
 
     def __init__(
         self,
@@ -170,7 +170,12 @@ class TestRunnerDialog(QDialog):
         self.resize(900, 650)
 
         layout = QVBoxLayout(self)
-        layout.addWidget(QLabel("Choose unit tests and/or an existing CFD/grid regression suite."))
+        layout.addWidget(
+            QLabel(
+                "Run unit tests, CFD/grid regression, or catalog case tests. "
+                "Case Database tests use the existing case selector and isolated run workspaces."
+            )
+        )
 
         unit_test_task = task_definition(TaskType.UNIT_TESTS)
         regression_task = task_definition(TaskType.CFD_GRID_REGRESSION)
