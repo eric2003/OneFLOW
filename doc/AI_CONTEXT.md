@@ -2,7 +2,7 @@
 
 Last updated: 2026-10-26
 Working branch: `hexin`
-Latest R1 implementation slice: [`8299d15e`](https://github.com/eric2003/OneFLOW/commit/8299d15eb1241f60f949dc1b081ef78cf32f905f) adds tests for the effective `sourceGridCaseDir` fallback value, while preserving lazy lookup for explicit mesh roots. The user reported `100% tests passed out of 700` before these latest changes; the newly added fallback-value tests have not been independently built or run in this session.
+Latest inspected `hexin` HEAD: [`a1f74ea8`](https://github.com/eric2003/OneFLOW/commit/a1f74ea8e2b3486cc6d1087b1953212bec5fda29), documenting the concrete dependencies blocking a real `SetupCaseEnvironment()` integration test. The fallback-value tests from [`8299d15e`](https://github.com/eric2003/OneFLOW/commit/8299d15eb1241f60f949dc1b081ef78cf32f905f) still have not been independently built or run in this session.
 
 This is the fast handoff page for an AI assistant or developer continuing work on OneFLOW. It is a curated status snapshot, not a replacement for source code, tests, design pages, or CI. Recheck the branch HEAD before editing: this page can lag behind the current repository revision.
 
@@ -84,7 +84,7 @@ The helper preserves the optional-parameter contract:
 ## 5. Next actions, in priority order
 
 1. Recheck current `hexin` HEAD and its Linux, Windows, and documentation CI runs.
-2. Design the smallest integration test that exercises `SetupCaseEnvironment()` with a real temporary control file; first inspect `ReadControlInfo()` and global database initialization so the test does not accidentally duplicate runtime setup.
+2. Continue from [the integration-test investigation](plans/setup-case-environment-integration-test.md): inspect the global database initialization API and test target link dependencies, then try a serial temporary-case fixture that invokes `SetupCaseEnvironment()` without initializing MPI/accelerator runtime unless required.
 3. Assert explicit `meshInputRoot` overrides `sourceGridCaseDir`, and the legacy fallback is used only when mesh input is empty or `default`.
 4. Verify the path reset between sequential cases and confirm output-path diagnostics remain compatible.
 5. Re-run the full suite and record exact local/CI evidence after the integration test change.
