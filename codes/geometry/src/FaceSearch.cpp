@@ -58,10 +58,20 @@ void FaceSearchBasic::Clear()
     lookup_.Clear();
 }
 
+const IntField & FaceSearchBasic::GetFaceNodeRing( int faceId ) const
+{
+    if ( faceId < 0 || static_cast< size_t >( faceId ) >= this->faceArray.size() )
+    {
+        throw std::out_of_range( "FaceSearchBasic::GetFaceNodeRing: face ID is out of range" );
+    }
+    return this->faceArray[ static_cast< size_t >( faceId ) ];
+}
+
+
 void FaceSearch::CalcNewFaceId( IFaceLink & iFaceLink )
 {
     this->iFaceLink = &iFaceLink;
-    int nFaces = this->faceArray.size();
+    int nFaces = static_cast< int >( this->Size() );
     this->status.assign( nFaces, -1 );
     this->interfaceSplit.ResetForParentFaceCount( static_cast< std::size_t >( nFaces ) );
 
@@ -88,12 +98,7 @@ void FaceSearch::CalcNewFaceId( IFaceLink & iFaceLink )
 
 void FaceSearch::SplitQuad2Tri( int faceId )
 {
-    if ( faceId < 0 || static_cast< size_t >( faceId ) >= this->faceArray.size() )
-    {
-        throw std::out_of_range( "FaceSearch::SplitQuad2Tri: face ID is out of range" );
-    }
-
-    const IntField & nodeId = this->faceArray[ faceId ];
+    const IntField & nodeId = this->GetFaceNodeRing( faceId );
     int nNodes = nodeId.size();
     if ( nNodes != 4 ) return;
 
@@ -118,12 +123,7 @@ void FaceSearch::SplitQuad2Tri( int faceId )
 
 void FaceSearch::SplitLine( int faceId )
 {
-    if ( faceId < 0 || static_cast< size_t >( faceId ) >= this->faceArray.size() )
-    {
-        throw std::out_of_range( "FaceSearch::SplitLine: face ID is out of range" );
-    }
-
-    const IntField & nodeId = this->faceArray[ faceId ];
+    const IntField & nodeId = this->GetFaceNodeRing( faceId );
     int nNodes = nodeId.size();
     if ( nNodes != 2 ) return;
 

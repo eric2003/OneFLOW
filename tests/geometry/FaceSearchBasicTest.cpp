@@ -3,6 +3,7 @@
 // (faceArray keeps the node order of the first AddFace).
 
 #include <gtest/gtest.h>
+#include <stdexcept>
 
 #include "FaceSearch.h"
 #include "Constant.h"
@@ -16,7 +17,7 @@ TEST( FaceSearchBasicTest, AddFaceAssignsSequentialIds )
     EXPECT_EQ( search.AddFace( IntField{ 1, 2, 3 } ), 0 );
     EXPECT_EQ( search.AddFace( IntField{ 4, 5, 6 } ), 1 );
     EXPECT_EQ( search.Size(), static_cast< std::size_t >( 2 ) );
-    ASSERT_EQ( search.faceArray.size(), static_cast< std::size_t >( 2 ) );
+    ASSERT_EQ( search.Size(), static_cast< std::size_t >( 2 ) );
 }
 
 TEST( FaceSearchBasicTest, DuplicateNodesSameIdKeepsFirstOrder )
@@ -28,8 +29,8 @@ TEST( FaceSearchBasicTest, DuplicateNodesSameIdKeepsFirstOrder )
 
     EXPECT_EQ( id0, id1 );
     EXPECT_EQ( search.Size(), static_cast< std::size_t >( 1 ) );
-    ASSERT_EQ( search.faceArray.size(), static_cast< std::size_t >( 1 ) );
-    EXPECT_EQ( search.faceArray[ 0 ], ( IntField{ 1, 2, 3 } ) );
+    ASSERT_EQ( search.Size(), static_cast< std::size_t >( 1 ) );
+    EXPECT_EQ( search.GetFaceNodeRing( 0 ), ( IntField{ 1, 2, 3 } ) );
 }
 
 TEST( FaceSearchBasicTest, FindFaceIsOrderInvariant )
@@ -46,6 +47,15 @@ TEST( FaceSearchBasicTest, ClearResetsLookupAndFaceArray )
     search.AddFace( IntField{ 1, 2 } );
     search.Clear();
     EXPECT_EQ( search.Size(), static_cast< std::size_t >( 0 ) );
-    EXPECT_TRUE( search.faceArray.empty() );
+    EXPECT_EQ( search.Size(), static_cast< std::size_t >( 0 ) );
     EXPECT_EQ( search.AddFace( IntField{ 1, 2 } ), 0 );
+}
+
+TEST( FaceSearchBasicTest, GetFaceNodeRingRejectsOutOfRange )
+{
+    FaceSearchBasic search;
+    EXPECT_THROW( search.GetFaceNodeRing( 0 ), std::out_of_range );
+    search.AddFace( IntField{ 1, 2, 3 } );
+    EXPECT_NO_THROW( search.GetFaceNodeRing( 0 ) );
+    EXPECT_THROW( search.GetFaceNodeRing( 1 ), std::out_of_range );
 }

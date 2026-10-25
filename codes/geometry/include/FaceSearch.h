@@ -29,17 +29,13 @@ License
 BeginNameSpace( ONEFLOW )
 
 // Unique face registry: identity via HXLookup (sorted nodes); first-seen
-// node ring kept in faceArray for orientation-sensitive consumers.
+// node ring kept privately for orientation-sensitive consumers.
 class FaceSearchBasic
 {
 public:
     FaceSearchBasic() = default;
     ~FaceSearchBasic() = default;
-public:
-    // Original node order of each face (index == faceId). Only written on
-    // first AddFace for that identity; later order variants do not overwrite.
-    HXVector< IntField > faceArray;
-public:
+
     // Add a face. Returns the unique face ID (always >= 0).
     // Same node set in any order yields the same id.
     int AddFace( const IntField & faceNode );
@@ -47,11 +43,17 @@ public:
     // Only find. Returns INVALID_INDEX if not found (order-invariant).
     int FindFace( const IntField & faceNode ) const;
 
+    // First-seen node ring for faceId (bounds-checked). Not overwritten on
+    // later AddFace of the same identity.
+    const IntField & GetFaceNodeRing( int faceId ) const;
+
     std::size_t Size() const { return lookup_.Size(); }
     void Clear();
 
 private:
     HXLookup<int> lookup_;   // responsible for uniqueness and ID assignment
+    // Original node order of each face (index == faceId).
+    HXVector< IntField > faceArray;
 };
 
 class IFaceLink;
