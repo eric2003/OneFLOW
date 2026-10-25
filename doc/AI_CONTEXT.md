@@ -11,10 +11,11 @@ This is the fast handoff page for an AI assistant or developer continuing work o
 For a quick restart, follow this order:
 
 1. **This page** — repository constraints, current focus, known gaps, and the next useful action.
-2. [Runtime architecture and development guide](source/runtime_architecture.rst) — source-backed entry points, runtime lifecycle, configuration, and current boundaries.
-3. [Runtime refactoring roadmap](plans/runtime-refactoring-roadmap.md) — staged plan, acceptance criteria, and per-slice findings.
-4. [Documentation consolidation plan](plans/oneflow-documentation-consolidation-plan.md) — canonical documentation locations and maintenance rules.
-5. The relevant focused tests and source files named below; then check CI for the exact commit being assessed.
+2. [Whole-system architecture review](source/architecture_review.rst) — common CFD/CAE concerns, OneFLOW's cross-system risks, and the required zoom-out review at milestones.
+3. [Runtime architecture and development guide](source/runtime_architecture.rst) — source-backed entry points, runtime lifecycle, configuration, and current boundaries.
+4. [Runtime refactoring roadmap](plans/runtime-refactoring-roadmap.md) — staged plan, acceptance criteria, and per-slice findings.
+5. [Documentation consolidation plan](plans/oneflow-documentation-consolidation-plan.md) — canonical documentation locations and maintenance rules.
+6. The relevant focused tests and source files named below; then check CI for the exact commit being assessed.
 
 Do not start by reading the whole repository. Use the architecture map to identify a concrete path, then inspect its callers, implementation, tests, and evidence.
 
@@ -31,7 +32,11 @@ Do not start by reading the whole repository. Use the architecture map to identi
 - Keep public documentation aligned with current behavior. Distinguish implemented behavior, partial work, planned work, and unverified assumptions.
 - The user values architecture discussion, meaningful tests, concise reasoning, and exact commit links.
 
-## 3. Current focus: runtime case configuration and I/O roots
+## 3. Whole-system review checkpoint
+
+The published [architecture review](source/architecture_review.rst) is now the common checklist for substantial AI-assisted changes. It deliberately separates general CFD/CAE concerns from verified OneFLOW behavior. Keep these cross-system risks visible while working locally: implicit global runtime state, configuration parsing versus validation/application, mutable mesh data and derived connectivity, workflow artifact provenance and execution locations, repeated/failed-run cleanup, and the gap between documented plans and actual test/CI evidence. At each meaningful milestone, state which system-level concern improved, what remains untouched, and whether the priority order should change.
+
+## 4. Current focus: runtime case configuration and I/O roots
 
 The active refactoring stage is **R1: case configuration and I/O root resolution**. The goal is to clarify and test the existing contract before extracting a resolver or broadening the design.
 
@@ -69,7 +74,7 @@ Commit [`d8568fe91722af5d78d8083d6bae23d9446d952d`](https://github.com/eric2003/
 
 **This slice is not a completed R1 stage.** A focused automated test for the invalid-type setup path has not yet been added, and the prior record did not claim a local build or test run. Recheck the exact branch head and CI before relying on compilation or regression status.
 
-## 4. Next actions, in priority order
+## 5. Next actions, in priority order
 
 1. Recheck current `hexin` HEAD and its Linux, Windows, and documentation CI runs.
 2. Inspect the includes and type declarations used by `ReadOptionalStringParameter()`; add direct includes where required rather than relying on transitive headers.
@@ -80,7 +85,7 @@ Commit [`d8568fe91722af5d78d8083d6bae23d9446d952d`](https://github.com/eric2003/
 
 Do not mark an item complete because a code change was committed. Completion requires acceptance evidence.
 
-## 5. Status vocabulary
+## 6. Status vocabulary
 
 Use these labels consistently in this page and related records:
 
@@ -93,11 +98,11 @@ Use these labels consistently in this page and related records:
 
 A green unrelated test suite is not evidence that a changed contract is correct. A queued or in-progress workflow is not a pass.
 
-## 6. Reusable stage records
+## 7. Reusable stage records
 
 For a substantial refactoring stage, use the [refactoring stage record template](plans/templates/refactoring-stage-record.md). Put detailed stage-specific problem statements, acceptance criteria, source paths, tests, decisions, and evidence in that record. Keep this page as a concise index of the overall current state and highest-priority next actions; link to detailed records rather than duplicating them.
 
-## 7. How to maintain this handoff
+## 8. How to maintain this handoff
 
 Update this page when a milestone materially changes the state of the project, not after every command or minor edit.
 
