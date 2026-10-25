@@ -34,6 +34,16 @@ class UserDataPaths:
         return self.root / "settings.json"
 
     @property
+    def projects(self) -> Path:
+        """Default parent for user-created projects and workspace definitions."""
+        return self.root / "projects"
+
+    @property
+    def workspaces(self) -> Path:
+        """Parent for user-managed multi-case workspaces."""
+        return self.root / "workspaces"
+
+    @property
     def mesh_layout_workspace(self) -> Path:
         """Keep editable mesh specifications and generated layouts outside the repository."""
         return self.root / "mesh-layout-workspace"
