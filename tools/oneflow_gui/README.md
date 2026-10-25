@@ -149,7 +149,8 @@ root. The source checkout remains separate from this directory.
 - `workspaces/`: saved multi-case `.ofw` workspace definitions.
 - `workflow-data/definitions/`: saved workflow definitions.
 - `workflow-data/runs/`: workflow run history.
-- `workflow-data/executions/`: isolated run copies and generated results.
+- `workflow-data/executions/`: isolated project/workflow run copies and generated results.
+- `grid-layout-test/`: disposable Case Database copies, rebuilt per case on each run; stale generated files are removed and source cases remain untouched.
 - `mesh-layout-workspace/`: mesh layout projects, specifications, and outputs.
 - `cfd-regression/`: staged CFD regression inputs.
 - `background-tasks/`: persistent background task records.
