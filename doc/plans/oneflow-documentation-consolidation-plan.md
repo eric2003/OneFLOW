@@ -28,12 +28,11 @@ Scope: Documentation assets on the `hexin` branch. This plan does not authorize 
 | `doc/evidence/*` | Build and runtime evidence | Fits existing evidence category | Keep; link from relevant reports/design pages where useful |
 | `doc/reports/*` | Performance, regression, delivery, and project reports | Mostly fits report taxonomy; some architecture and handoff records are nested under reports/architecture | Review directory semantics later; avoid bulk moves in the first pass |
 | `doc/runbooks/*` | Repeatable operational procedures | Fits runbooks | Keep; link stable procedures from the developer guide |
-| `docs/MESH_DATA_AND_VISUALIZATION.md` | Mesh data, reconstruction, and visualization target architecture | Rich design note with status and test strategy | Candidate source for a consolidated mesh architecture page; compare against similarly named root file before choosing canonical content |
-| `docs/architecture/grid-data-contracts-and-visualization.md` | Mesh summary/schema and adapter contracts | Related to the mesh architecture note, but may contain more concrete schema decisions | Compare and merge unique details into one canonical mesh design; avoid parallel authoritative descriptions |
-| `MESH_DATA_AND_VISUALIZATION.md` (root) | Earlier/alternate mesh architecture note | Overlaps with `docs/MESH_DATA_AND_VISUALIZATION.md`; headings and information levels differ | Compare claims and history; then keep one canonical document and replace other copies with links or remove only after links are checked |
-| `GRID_TOPOLOGY.md` (root) | Mesh topology semantics, invariants, cache refresh contract | More specific than the general mesh interchange document | Incorporate into the mesh design family as a distinct topology chapter/page; do not merge away unique invariants |
-| `docs/ONEFLOW_WORKBENCH_ARCHITECTURE.zh-CN.md` | Workbench architecture memo in Chinese | Useful architecture memo, currently outside canonical root | Review against implementation; move/copy into the curated design documentation only after source and link strategy is settled |
-| `docs/ONEFLOW_WORKBENCH_ARCHITECTURE.en.md` | Workbench architecture memo in English | Corresponding translation, but section detail is not perfectly symmetric with Chinese | Establish one conceptually authoritative version and keep translations aligned; don't silently assume the two files are identical |
+| `docs/MESH_DATA_AND_VISUALIZATION.md` and root `MESH_DATA_AND_VISUALIZATION.md` | Earlier mesh reconstruction/visualization design notes | Compared; overlapping goals and incompatible draft information-level numbering | Both now point to the curated Sphinx pages; retain as legacy entry points, not parallel authorities |
+| `docs/architecture/grid-data-contracts-and-visualization.md` | Mesh summary/schema and adapter contracts | Contains implementation-specific detail absent from broad design notes | Retain as the detailed engineering record and link from the curated mesh overview |
+| `GRID_TOPOLOGY.md` (root) | Mesh topology semantics, invariants, cache refresh contract | More specific than the general mesh interchange document | Keep as source material until remaining unique content and inbound links are checked |
+| `docs/ONEFLOW_WORKBENCH_ARCHITECTURE.zh-CN.md` | Workbench architecture memo in Chinese | Useful architecture memo, currently outside canonical root | Review against implementation; keep as source material during alignment |
+| `docs/ONEFLOW_WORKBENCH_ARCHITECTURE.en.md` | Workbench architecture memo in English | Corresponding translation, but section detail is not perfectly symmetric with Chinese | Keep as source material during alignment; do not assume the translations are identical |
 | `AGENTS.md`, `CLAUDE.md` | Repository/agent instructions | Operational instructions, not user documentation | Keep at root; link to relevant developer conventions where appropriate without duplicating their full contents |
 
 ## 3. Target information architecture
@@ -63,21 +62,22 @@ Organize pages by reader intent, while retaining useful existing topic reference
 
 Avoid duplicate copies between engineering records and the published site. A detailed engineering note can remain in its working location while a curated design page summarizes the stable conclusions and links to the note.
 
-## 4. Mesh documentation comparison: first consolidation pass
+## 4. Mesh documentation comparison and consolidation
 
-The first content review found three overlapping mesh design notes with distinct value:
+The comparison identified distinct content that should remain accessible without competing as canonical design:
 
-- `docs/MESH_DATA_AND_VISUALIZATION.md` provides the broad reconstruction and visualization goals and an information-level model.
-- `docs/architecture/grid-data-contracts-and-visualization.md` records concrete L0 summary and JSON-adapter boundaries, including the distinction between `GridSummary` and runtime mesh-info output.
-- Root-level `GRID_TOPOLOGY.md` contains topology-specific invariants, boundary ghost-cell normalization, derived-adjacency rebuild behavior, and mutation/cache limitations.
-- Root-level `MESH_DATA_AND_VISUALIZATION.md` overlaps the broad design note and remains to be compared for unique implementation details before it can be retired.
+- `doc/source/mesh_architecture.rst` is the curated overview: information levels, canonical versus derived data, snapshot/adapter boundary, and validation strategy.
+- `doc/source/grid_topology.rst` preserves topology-specific invariants: 1D/2D/3D meaning, `UnsGrid::NormalizeBc()` ghost-ID convention, explicit `c2f`/`c2c` rebuild responsibilities, face-array reorder alignment, and the limitation caused by publicly mutable source arrays.
+- `docs/architecture/grid-data-contracts-and-visualization.md` retains concrete implementation details for `GridSummary`, `oneflow.grid-summary`, the separate runtime `oneflow.mesh-info` output, and the proposed package layout.
+- The root and `docs/` copies of `MESH_DATA_AND_VISUALIZATION.md` have been changed into legacy entry points linking to those authoritative pages. Their earlier taxonomies are explicitly described as drafts, not established serialized schemas.
+- Root `GRID_TOPOLOGY.md` remains untouched until its remaining unique content and inbound links are checked.
 
-A curated Sphinx overview now provides a consistent information vocabulary and points readers toward the architecture goals, snapshot/adapter boundary, topology invariants, and validation strategy. This does not delete or relocate the source notes. In particular, the different level numbering in earlier drafts must not be treated as an established serialized schema; the schema remains versioned design work until implemented and tested.
+Do not infer a serialized package schema from the historic L0-L4/L0-L5 labels. Any future interchange schema must be explicitly versioned and tested. A summary is metadata, not a reconstructable mesh package.
 
 ## 5. Recommended review order
 
 1. Finish the inventory and check internal links and Sphinx toctrees.
-2. Compare the three mesh-related documents semantically and identify one canonical design page plus any separate topology/reference pages.
+2. Check inbound links to root `GRID_TOPOLOGY.md` and compare any remaining unique material before replacing or retiring it.
 3. Review the Chinese and English Workbench architecture memos for translation parity and implementation status.
 4. Review the two legacy Word manuals and decide whether they are current, archival, or sources for extracted material.
 5. Improve `doc/source/index.rst` navigation so new users, users, and developers have clear entry points without hiding the existing reference library.
@@ -93,28 +93,18 @@ A curated Sphinx overview now provides a consistent information vocabulary and p
 - Keep code and documentation changes on `hexin`; do not target `master`.
 - Do not claim a documentation build or test passed unless it was run against the changed revision.
 
-
 ## 7. Project-description style
 
 For repository-authored README files, manuals, architecture notes, and new documentation, describe OneFLOW through its technical purpose, implemented capabilities, architecture, numerical methods, workflows, reproducibility, and verified limitations. Do not frame the project as "国产", "domestic", or by national origin. Existing external article links may retain their original titles verbatim; do not rewrite those titles solely to remove wording from the linked article. Distinguish implemented and tested behavior from roadmap or long-term vision.
 
+## 8. Workbench documentation alignment
 
-## 8. Mesh documentation: topology page published in source tree
-
-The first mesh-documentation pass now has two curated Sphinx pages:
-
-- `doc/source/mesh_architecture.rst` provides the information-level model, canonical-versus-derived data rules, snapshot/adapter boundary, and validation strategy.
-- `doc/source/grid_topology.rst` preserves the unique topology contracts from the root engineering note: 1D/2D/3D meaning, `UnsGrid::NormalizeBc()` ghost-ID convention, explicit `c2f`/`c2c` rebuild responsibilities, face-array reorder alignment, and the known limitation caused by publicly mutable source arrays.
-
-The root `GRID_TOPOLOGY.md` remains in place as engineering source material. It should only be retired or replaced with a pointer after its remaining unique content and inbound links have been checked. The two mesh overview notes still need a final line-by-line comparison before any duplicate is removed.
-
-The Sphinx home page description was also rewritten to emphasize the current repository shape and long-term workflow direction rather than making broad capability claims without revision-specific evidence. External article titles in existing link lists are not changed.
-
-
-## 9. Workbench documentation alignment
-
-A curated page, `doc/source/workbench_architecture.rst`, now consolidates the stable concepts from the Chinese and English Workbench memos: project, case, workspace/run directory, workflow definition, workflow run, artifact, execution modes, persistence, and process lifecycle.
+A curated page, `doc/source/workbench_architecture.rst`, consolidates stable concepts from the Chinese and English Workbench memos: project, case, workspace/run directory, workflow definition, workflow run, artifact, execution modes, persistence, and process lifecycle.
 
 The source memos are not identical. The Chinese memo distinguishes cases and run modes more explicitly; the English memo gives more detail on the versioned workflow model and incremental implementation. The curated page combines these ideas and adds a clear status rule: planned background-task recovery, visualization, diagnostics, and related features are not claims of implementation until code and tests demonstrate them. The source memos remain available as engineering records during review.
 
-The Sphinx `info.rst` page was shortened to an accurate documentation entry point instead of repeating broad solver capability claims without revision-specific evidence. Existing external article titles in `doc/source/user.rst` remain unchanged as requested.
+The Sphinx `info.rst` page is a concise documentation entry point. Existing external article titles in `doc/source/user.rst` remain unchanged as requested.
+
+## 9. Verification status
+
+The documentation edits in this pass were committed to `hexin`. A Sphinx build, broken-link check, and CI run have not been performed in this session; do not treat the documentation as build-verified until those checks run against the resulting branch head.
