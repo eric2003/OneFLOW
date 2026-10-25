@@ -78,9 +78,14 @@ class UserDataPaths:
         return self.workflow_data / "executions"
 
     @property
+    def mesh_layout_test(self) -> Path:
+        """Reusable mesh layout test workspace, refreshed for each test batch."""
+        return self.root / "mesh-layout-test"
+
+    @property
     def grid_layout_test(self) -> Path:
-        """Disposable case-database execution copies, refreshed on each run."""
-        return self.root / "grid-layout-test"
+        """Fixed grid-case directory inside the mesh layout test workspace."""
+        return self.mesh_layout_test / "grid"
 
     @property
     def cfd_regression_workspace(self) -> Path:
