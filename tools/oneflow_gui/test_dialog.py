@@ -368,8 +368,8 @@ class TestRunnerDialog(QDialog):
         workspace_root = UserDataPaths.discover().executions
         run_id = create_run_id()
         self.log_view.appendPlainText(
-            f"\\n=== Case Database tests ===\\n"
-            f"Executable: {Path(executable).resolve()}\\n"
+            f"\n=== Case Database tests ===\n"
+            f"Executable: {Path(executable).resolve()}\n"
             f"Workspace: {workspace_root / run_id}"
         )
         self.run_button.setEnabled(False)
@@ -390,7 +390,7 @@ class TestRunnerDialog(QDialog):
 
     def _database_case_result(self, result) -> None:
         self.log_view.appendPlainText(
-            f"[{result.case_id}] {result.state.value}: {result.message}\\n"
+            f"[{result.case_id}] {result.state.value}: {result.message}\n"
             f"Workspace: {result.workspace}"
         )
 
@@ -434,6 +434,9 @@ class TestRunnerDialog(QDialog):
 
     def _completed(self, passed: bool, message: str) -> None:
         self.log_view.appendPlainText(f"\n{message}")
+        if self._run_database_after_commands and passed:
+            self.log_view.appendPlainText("Unit/regression commands passed; starting Case Database tests.")
+            return
         self.log_view.appendPlainText("FINAL STATUS: PASS" if passed else "FINAL STATUS: FAIL")
 
     def _worker_finished(self) -> None:
