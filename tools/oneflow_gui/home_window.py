@@ -48,17 +48,11 @@ class WorkbenchHomeWindow(QMainWindow):
         self._repository_root = resolve_repository_root(
             self._settings, discovered_root
         )
-        self._saved_repository_root = self._repository_root
-        self._saved_build_configuration = self._settings.build_configuration
-        self._saved_executable_path = self._settings.executable_path
         self._case_window = None
         self._project_windows = []
         self.setWindowTitle("OneFLOW Workbench")
         self.resize(900, 650)
         self._build_ui()
-        self._saved_repository_root = self._pending_repository_root() or self._repository_root
-        self._saved_build_configuration = self.build_config_combo.currentText()
-        self._saved_executable_path = self.executable_combo.currentText().strip()
         QTimer.singleShot(0, self._review_active_background_tasks)
 
     def _build_ui(self) -> None:
@@ -237,7 +231,7 @@ class WorkbenchHomeWindow(QMainWindow):
     def _open_configuration(self) -> None:
         dialog = ConfigurationDialog(
             ApplicationSettings(
-                self._pending_repository_root() or self._repository_root,
+                self._repository_root,
                 self.build_config_combo.currentText(),
                 self.executable_combo.currentText().strip(),
                 self.run_mode_combo.currentData(),
@@ -249,7 +243,6 @@ class WorkbenchHomeWindow(QMainWindow):
             return
         self._settings = dialog._settings
         self._repository_root = self._settings.repository_root.resolve()
-        self.repository_root_edit_value = str(self._repository_root)
         self.build_config_combo.setCurrentText(self._settings.build_configuration)
         self.run_mode_combo.setCurrentIndex(
             max(0, self.run_mode_combo.findData(self._settings.run_mode))
@@ -291,83 +284,6 @@ class WorkbenchHomeWindow(QMainWindow):
             path.casefold() for path in self._build_executable_paths.values()
         }:
             self.executable_combo.setEditText(self._build_executable_paths[configuration])
-
-    def _choose_repository_root(self) -> None:
-        current = self.repository_root_edit.text().strip()
-        start = current if current and Path(current).is_dir() else str(self._default_repository_root)
-        directory = QFileDialog.getExistingDirectory(
-            self, "Select OneFLOW source root", start
-        )
-        if directory:
-            self.repository_root_edit.setText(directory)
-
-    def _reset_basic_configuration(self) -> None:
-        self.repository_root_edit.setText(str(self._default_repository_root))
-        self.build_config_combo.setCurrentText("Debug")
-        self.executable_combo.setEditText(
-            str((self._default_repository_root / "build" / "bin" / "Debug" / "OneFLOW.exe").resolve())
-        )
-
-    @staticmethod
-    def _valid_repository_root(value: str) -> bool:
-        if not value:
-            return False
-        root = Path(value).expanduser()
-        return root.is_dir() and (root / "CMakeLists.txt").is_file()
-
-    def _pending_repository_root(self) -> Path | None:
-        value = self.repository_root_edit.text().strip()
-        if not self._valid_repository_root(value):
-            return None
-        return Path(value).expanduser().resolve()
-
-    def _save_basic_configuration(self, show_error: bool = True) -> bool:
-        repository_root = self._pending_repository_root()
-        if repository_root is None:
-            if show_error:
-                QMessageBox.warning(
-                    self, "Invalid source root",
-                    "Select an existing OneFLOW source directory containing CMakeLists.txt.",
-                )
-            return False
-
-        previous_executable = self.executable_combo.currentText().strip()
-        follows_build_configuration = previous_executable.casefold() in {
-            path.casefold() for path in self._build_executable_paths.values()
-        }
-        build_configuration = self.build_config_combo.currentText()
-        executable_path = previous_executable
-        if follows_build_configuration:
-            executable_path = str(
-                (repository_root / "build" / "bin" / build_configuration / "OneFLOW.exe").resolve()
-            )
-        settings = ApplicationSettings(repository_root, build_configuration, executable_path)
-        try:
-            settings.save()
-        except OSError as error:
-            if show_error:
-                QMessageBox.critical(self, "Cannot save settings", str(error))
-            return False
-
-        self._settings = settings
-        self._repository_root = repository_root
-        self._saved_repository_root = repository_root
-        self._saved_build_configuration = build_configuration
-        self._saved_executable_path = executable_path
-        self._build_executable_paths = {
-            configuration: str(
-                (repository_root / "build" / "bin" / configuration / "OneFLOW.exe").resolve()
-            )
-            for configuration in ("Debug", "Release")
-        }
-        self.executable_combo.clear()
-        self.executable_combo.addItems(
-            [str(path) for path in executable_candidates(repository_root)]
-        )
-        self.executable_combo.setEditText(executable_path)
-        self.repository_root_edit.setText(str(repository_root))
-        self.statusBar().showMessage("Configuration saved.", 4000)
-        return True
 
     def _new_project(self) -> None:
         dialog = NewProjectDialog(self._repository_root, self)
