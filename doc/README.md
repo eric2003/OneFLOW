@@ -23,7 +23,9 @@
 
 当前仓库仍有少量技术文档位于根目录和顶层 `docs/`。在完成内容比较和链接检查之前，不要批量移动、删除或重命名这些文件。按主题确定唯一权威版本，再将稳定内容纳入 Sphinx 手册。
 
-开发者需要从整体理解代码时，先阅读 [运行时架构与开发指南](source/runtime_architecture.rst)，再进入 [网格架构](source/mesh_architecture.rst)、[网格拓扑](source/grid_topology.rst) 或 [工作台架构](source/workbench_architecture.rst)。该指南记录当前代码入口、配置边界、运行流程和重构约定，并会随真实代码变更持续修订。\n\n请先阅读 [文档资产盘点与整合计划](plans/oneflow-documentation-consolidation-plan.md)。该计划记录现有文档的初步归属、建议的目标结构和分阶段整理顺序。它是持续更新的计划，不表示其中提到的迁移已经完成。
+开发者需要从整体理解代码时，先阅读 [运行时架构与开发指南](source/runtime_architecture.rst)，再进入 [网格架构](source/mesh_architecture.rst)、[网格拓扑](source/grid_topology.rst) 或 [工作台架构](source/workbench_architecture.rst)。该指南记录当前代码入口、配置边界、运行流程和重构约定，并会随真实代码变更持续修订。
+
+AI 助手或新加入的开发者需要快速恢复持续重构的上下文时，先读 [AI 项目状态与交接页](AI_CONTEXT.md)。它汇总当前工作分支约束、最近检查的实现基线、已确认的行为、尚未验证的缺口和下一步建议；随后再进入对应架构页、路线图、源码、测试和 CI。该状态页是快速入口，不替代源码和针对具体提交的验证。\n\n请先阅读 [文档资产盘点与整合计划](plans/oneflow-documentation-consolidation-plan.md)。该计划记录现有文档的初步归属、建议的目标结构和分阶段整理顺序。它是持续更新的计划，不表示其中提到的迁移已经完成。
 
 新增工程文档统一放在 `doc/` 下，不再扩展顶层 `docs/` 作为第二套体系。新建工程文档遵循[文档命名规范](DOCUMENT_NAMING.md)，该规范适用于 `architecture/`、`plans/`、`handoff/`、`runbooks/`、`evidence/`、`reports/` 与 `_drafts/`。现有文件不批量改名，以免破坏历史链接。
 
