@@ -174,6 +174,7 @@ class TestRunnerDialog(QDialog):
         self._worker: TestCommandWorker | None = None
         self._case_worker = None
         self._database_cases: list[CaseDefinition] = []
+        self._run_database_after_commands = False
         self.setWindowTitle("OneFLOW Tests")
         self.resize(900, 650)
 
@@ -338,9 +339,10 @@ class TestRunnerDialog(QDialog):
             )
             return
 
+        self._run_database_after_commands = bool(commands and run_database)
         if commands:
             self._launch_commands(commands)
-        if run_database:
+        elif run_database:
             self._launch_database_cases()
 
     def _start_build(self, *, rebuild: bool) -> None:
@@ -440,6 +442,9 @@ class TestRunnerDialog(QDialog):
         self.rebuild_button.setEnabled(True)
         self.stop_button.setEnabled(False)
         self._worker = None
+        if self._run_database_after_commands:
+            self._run_database_after_commands = False
+            self._launch_database_cases()
 
     def closeEvent(self, event) -> None:
         command_running = self._worker is not None and self._worker.isRunning()
