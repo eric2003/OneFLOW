@@ -97,3 +97,15 @@ A curated Sphinx overview now provides a consistent information vocabulary and p
 ## 7. Project-description style
 
 For repository-authored README files, manuals, architecture notes, and new documentation, describe OneFLOW through its technical purpose, implemented capabilities, architecture, numerical methods, workflows, reproducibility, and verified limitations. Do not frame the project as "国产", "domestic", or by national origin. Existing external article links may retain their original titles verbatim; do not rewrite those titles solely to remove wording from the linked article. Distinguish implemented and tested behavior from roadmap or long-term vision.
+
+
+## 8. Mesh documentation: topology page published in source tree
+
+The first mesh-documentation pass now has two curated Sphinx pages:
+
+- `doc/source/mesh_architecture.rst` provides the information-level model, canonical-versus-derived data rules, snapshot/adapter boundary, and validation strategy.
+- `doc/source/grid_topology.rst` preserves the unique topology contracts from the root engineering note: 1D/2D/3D meaning, `UnsGrid::NormalizeBc()` ghost-ID convention, explicit `c2f`/`c2c` rebuild responsibilities, face-array reorder alignment, and the known limitation caused by publicly mutable source arrays.
+
+The root `GRID_TOPOLOGY.md` remains in place as engineering source material. It should only be retired or replaced with a pointer after its remaining unique content and inbound links have been checked. The two mesh overview notes still need a final line-by-line comparison before any duplicate is removed.
+
+The Sphinx home page description was also rewritten to emphasize the current repository shape and long-term workflow direction rather than making broad capability claims without revision-specific evidence. External article titles in existing link lists are not changed.
