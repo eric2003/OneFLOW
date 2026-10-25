@@ -101,10 +101,10 @@ For repository-authored README files, manuals, architecture notes, and new docum
 
 A curated page, `doc/source/workbench_architecture.rst`, consolidates stable concepts from the Chinese and English Workbench memos: project, case, workspace/run directory, workflow definition, workflow run, artifact, execution modes, persistence, and process lifecycle.
 
-The source memos are not identical. The Chinese memo distinguishes cases and run modes more explicitly; the English memo gives more detail on the versioned workflow model and incremental implementation. The curated page combines these ideas and adds a clear status rule: planned background-task recovery, visualization, diagnostics, and related features are not claims of implementation until code and tests demonstrate them. The source memos remain available as engineering records during review.
+The Chinese and English source memos were reviewed and aligned around the same core concepts: Project, Case, Workspace, Run location, Run mode, Workflow, WorkflowRun, and Artifact. The Chinese memo's duplicate Workspace/运行空间 entry was corrected to distinguish the actual run location. Both language versions now distinguish independent multi-case execution from a dependency workflow and clarify that a multi-case run may mean separate process launches or one process receiving multiple directory arguments. The curated page remains the stable navigation target and explicitly states that planned background-task recovery, visualization, diagnostics, and related features are not claims of implementation until code and tests demonstrate them.
 
 The Sphinx `info.rst` page is a concise documentation entry point. Existing external article titles in `doc/source/user.rst` remain unchanged as requested.
 
 ## 9. Verification status
 
-The documentation edits in this pass were committed to `hexin`. A Sphinx build, broken-link check, and CI run have not been performed in this session; do not treat the documentation as build-verified until those checks run against the resulting branch head.
+The mesh-note comparison, legacy-pointer updates, and Chinese/English Workbench memo alignment were committed to `hexin`. A Sphinx build, broken-link check, and CI run have not been performed in this session; do not treat the documentation as build-verified until those checks run against the resulting branch head.
