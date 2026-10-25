@@ -140,6 +140,29 @@ void FaceSearch::SplitLine( IFaceLink & iFaceLink, int globalFaceId )
     }
 }
 
+void BuildLineSplitMapping(
+    int firstNode,
+    int secondNode,
+    int midpointLocalNode,
+    int midpointGlobalNode,
+    LinkField & localLineId,
+    LinkField & localLineFlag,
+    LinkField & lineId )
+{
+    localLineId.clear();
+    localLineFlag.clear();
+    lineId.clear();
+
+    localLineId.push_back( IntField{ 0, midpointLocalNode } );
+    localLineId.push_back( IntField{ midpointLocalNode, 1 } );
+
+    localLineFlag.push_back( IntField{ 1, -1 } );
+    localLineFlag.push_back( IntField{ -1, 1 } );
+
+    lineId.push_back( IntField{ firstNode, midpointGlobalNode } );
+    lineId.push_back( IntField{ midpointGlobalNode, secondNode } );
+}
+
 void BuildQuadDiagonalLocalTris( LinkField & localTriId, LinkField & localTriFlag )
 {
     localTriId.clear();
@@ -238,18 +261,8 @@ bool FaceSearch::TrySplitLineAtMidpoint(
     grid.nodeMesh->AddPoint( coor2[ 0 ], coor2[ 1 ], coor2[ 2 ] );
     const int p2 = point_search->AddPoint( coor2[ 0 ], coor2[ 1 ], coor2[ 2 ] );
 
-    localLineId.clear();
-    localLineFlag.clear();
-    lineId.clear();
-
-    localLineId.push_back( IntField{ 0, pId } );
-    localLineId.push_back( IntField{ pId, 1 } );
-
-    localLineFlag.push_back( IntField{ 1, -1 } );
-    localLineFlag.push_back( IntField{ -1, 1 } );
-
-    lineId.push_back( IntField{ p0, p2 } );
-    lineId.push_back( IntField{ p2, p1 } );
+    BuildLineSplitMapping(
+        p0, p1, pId, p2, localLineId, localLineFlag, lineId );
 
     return true;
 }
