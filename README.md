@@ -55,7 +55,7 @@ OneFLOW is best understood as a layered engineering codebase rather than a solve
 - **Tooling and presentation:** CLI utilities, Python services, and the optional PySide6 workbench discover and orchestrate work, inspect outputs, and present results. They should reuse shared case/workflow contracts where practical, not duplicate solver behavior or make the runtime depend on GUI code.
 - **Testable evolution:** unit tests, mesh invariants, and numerical regression tests cover different contracts. Refactoring should follow real call paths, make ownership and interface boundaries clearer, and preserve compatibility where required; tests are evidence for behavior, not a reason to rewrite code without a concrete need.
 
-These are architectural boundaries and an ongoing direction, not a claim that every workflow or mesh interface has already reached its final form. The case catalog and profiles, for example, are not yet the authoritative source for every legacy runtime parameter; see the [grid guide](./grid/README.md) for current migration boundaries.
+These are architectural boundaries and an ongoing direction, not a claim that every workflow or mesh interface has already reached its final form. The case catalog and profiles, for example, are not yet the authoritative source for every legacy runtime parameter; see the [grid guide](./grid/README.md) for current migration boundaries. For a code-backed map of runtime entry points, configuration layers, task dispatch, and refactoring rules, see the [runtime architecture and development guide](./doc/source/runtime_architecture.rst).
 
 ## Repository map
 
