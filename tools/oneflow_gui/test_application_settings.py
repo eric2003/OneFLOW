@@ -37,6 +37,7 @@ class ApplicationSettingsTest(unittest.TestCase):
                     "repository_root": str(repository_root.resolve()),
                     "build_configuration": "Debug",
                     "executable_path": "",
+                    "run_mode": "single_case",
                 },
             )
 
@@ -48,12 +49,13 @@ class ApplicationSettingsTest(unittest.TestCase):
             settings_file = root / "settings.json"
 
             ApplicationSettings(
-                repository_root, "Release", str(repository_root / "custom.exe")
+                repository_root, "Release", str(repository_root / "custom.exe"), "dependency_workflow"
             ).save(settings_file)
             settings = ApplicationSettings.load(settings_file)
 
             self.assertEqual(settings.build_configuration, "Release")
             self.assertEqual(settings.executable_path, str(repository_root / "custom.exe"))
+            self.assertEqual(settings.run_mode, "dependency_workflow")
 
     def test_load_old_settings_defaults_new_preferences(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -67,6 +69,7 @@ class ApplicationSettingsTest(unittest.TestCase):
 
             self.assertEqual(settings.build_configuration, "Debug")
             self.assertEqual(settings.executable_path, "")
+            self.assertEqual(settings.run_mode, "single_case")
 
     def test_missing_configured_checkout_falls_back_to_launch_checkout(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

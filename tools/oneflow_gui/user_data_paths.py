@@ -34,6 +34,16 @@ class UserDataPaths:
         return self.root / "settings.json"
 
     @property
+    def projects(self) -> Path:
+        """Default parent for user-created projects and workspace definitions."""
+        return self.root / "projects"
+
+    @property
+    def workspaces(self) -> Path:
+        """Parent for user-managed multi-case workspaces."""
+        return self.root / "workspaces"
+
+    @property
     def mesh_layout_workspace(self) -> Path:
         """Keep editable mesh specifications and generated layouts outside the repository."""
         return self.root / "mesh-layout-workspace"
@@ -66,6 +76,16 @@ class UserDataPaths:
     @property
     def executions(self) -> Path:
         return self.workflow_data / "executions"
+
+    @property
+    def mesh_layout_test(self) -> Path:
+        """Reusable mesh layout test workspace, refreshed for each test batch."""
+        return self.root / "mesh-layout-test"
+
+    @property
+    def grid_layout_test(self) -> Path:
+        """Fixed grid-case directory inside the mesh layout test workspace."""
+        return self.mesh_layout_test / "grid"
 
     @property
     def cfd_regression_workspace(self) -> Path:

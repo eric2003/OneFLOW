@@ -50,6 +50,46 @@ def _copy_case_to_workspace(
     return destination
 
 
+def prepare_case_database_workspace(
+    cases: list[CaseDefinition],
+    workspace_root: Path,
+) -> dict[str, Path]:
+    """Refresh the whole fixed grid workspace, then stage selected cases."""
+    root = workspace_root.expanduser().resolve()
+    destinations: dict[str, Path] = {}
+    for case in cases:
+        source = case.case_directory.expanduser().resolve()
+        destination = (root / case.case_id).resolve()
+        if destination.parent != root:
+            raise ValueError(
+                "Case Database destination must be a direct child of its workspace root."
+            )
+        if source == root or root in source.parents:
+            raise ValueError(
+                f"Case source must be outside the disposable grid workspace: {source}"
+            )
+        if case.case_id in destinations:
+            raise ValueError(f"Duplicate Case Database id: {case.case_id}")
+        destinations[case.case_id] = destination
+
+    root.mkdir(parents=True, exist_ok=True)
+    for child in root.iterdir():
+        if child.is_dir() and not child.is_symlink():
+            shutil.rmtree(child)
+        else:
+            child.unlink()
+
+    for case in cases:
+        destination = destinations[case.case_id]
+        shutil.copytree(
+            case.case_directory,
+            destination,
+            ignore=shutil.ignore_patterns("__pycache__", ".git"),
+        )
+        destinations[case.case_id] = destination
+    return destinations
+
+
 def prepare_case_directory(
     case: CaseDefinition,
     workspace_root: Path,
@@ -61,6 +101,14 @@ def prepare_case_directory(
         raise ValueError(
             "In-place execution is disabled. Run catalog cases from a workspace copy."
         )
+    if execution_mode == "case_database":
+        return prepare_case_database_workspace([case], workspace_root)[case.case_id]
+    if execution_mode == "case_database_prepared":
+        root = workspace_root.expanduser().resolve()
+        destination = (root / case.case_id).resolve()
+        if destination.parent != root or not destination.is_dir():
+            raise ValueError(f"Prepared Case Database directory is missing: {destination}")
+        return destination
     if execution_mode in {"default_workspace", "custom_workspace"}:
         return _copy_case_to_workspace(case, workspace_root, run_id)
     raise ValueError(f"Unsupported case execution mode: {execution_mode!r}")

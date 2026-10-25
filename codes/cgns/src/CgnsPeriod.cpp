@@ -106,8 +106,8 @@ void F2FMap::FindFace(RealField &xList, RealField &yList, RealField &zList,
     int face_id = this->faceSearchBasic->FindFace(face);
     int face_period = this->FindPeriodFace(face_id);
 
-    // faceArray now stores IntField directly
-    const IntField & node_period = this->faceSearchBasic->faceArray[face_period];
+    // First-seen node ring (orientation) for the periodic partner face.
+    const IntField & node_period = this->faceSearchBasic->GetFaceNodeRing( face_period );
 
     xxList.clear();
     yyList.clear();

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import shutil
 import threading
 from datetime import datetime, timezone
 from pathlib import Path
@@ -29,7 +30,7 @@ from PySide6.QtWidgets import (
 from .case_repository import load_cases
 from .executable_discovery import executable_candidates
 from .models import CaseDefinition, CaseRunResult, RunState
-from .runner import create_run_id, run_case
+from .runner import create_run_id, prepare_case_database_workspace, run_case
 from .user_data_paths import UserDataPaths
 from .workflow_dialog import WorkflowDialog
 from .test_dialog import TestCommandWorker, TestRunnerDialog
@@ -76,6 +77,32 @@ class RunQueueWorker(QThread):
         self._cancel_event.set()
 
     def run(self) -> None:
+        execution_mode = self._execution_mode
+        if execution_mode == "case_database":
+            try:
+                staged = prepare_case_database_workspace(
+                    self._cases, self._workspace_root
+                )
+                self.log_line.emit(
+                    f"Refreshed grid test workspace: {self._workspace_root}"
+                )
+                for case_id, directory in staged.items():
+                    self.log_line.emit(f"Staged {case_id}: {directory}")
+                execution_mode = "case_database_prepared"
+            except (OSError, shutil.Error, ValueError) as error:
+                self.log_line.emit(f"Could not refresh grid test workspace: {error}")
+                for case in self._cases:
+                    result = CaseRunResult(
+                        case.case_id,
+                        RunState.FAILED,
+                        None,
+                        self._workspace_root,
+                        f"Could not refresh grid test workspace: {error}",
+                    )
+                    self._emit_result(result)
+                    self.case_state.emit(case.case_id, RunState.FAILED.value)
+                return
+
         for index, case in enumerate(self._cases):
             if self._cancel_event.is_set():
                 result = CaseRunResult(
@@ -101,7 +128,7 @@ class RunQueueWorker(QThread):
                     self._run_id,
                     self._cancel_event,
                     self.log_line.emit,
-                    execution_mode=self._execution_mode,
+                    execution_mode=execution_mode,
                 )
             except Exception as error:
                 message = f"Case runner raised an unexpected error: {error}"
@@ -155,6 +182,7 @@ class MainWindow(QMainWindow):
         self._cases: list[CaseDefinition] = []
         self._worker: RunQueueWorker | None = None
         self._task_worker: TestCommandWorker | None = None
+        self._test_runner_dialog: TestRunnerDialog | None = None
         self._row_by_id: dict[str, int] = {}
         self._history_repository = WorkflowRepository(UserDataPaths.discover().workflow_data)
         self._active_case_run_record: WorkflowRunRecord | None = None
@@ -219,12 +247,17 @@ class MainWindow(QMainWindow):
         location_layout = QHBoxLayout()
         location_layout.addWidget(QLabel("Execution location"))
         self.execution_location_combo = QComboBox()
-        self.execution_location_combo.addItem(
-            "Copy to OneFLOW default run workspace", "default_workspace"
-        )
-        self.execution_location_combo.addItem(
-            "Copy to specified run directory", "custom_workspace"
-        )
+        if self._single_case_mode:
+            self.execution_location_combo.addItem(
+                "Refresh Case Database workspace", "case_database"
+            )
+        else:
+            self.execution_location_combo.addItem(
+                "Copy to OneFLOW default run workspace", "default_workspace"
+            )
+            self.execution_location_combo.addItem(
+                "Copy to specified run directory", "custom_workspace"
+            )
         self.execution_location_combo.currentIndexChanged.connect(
             self._execution_location_changed
         )
@@ -233,7 +266,12 @@ class MainWindow(QMainWindow):
 
         workspace_layout = QHBoxLayout()
         workspace_layout.addWidget(QLabel("Run directory"))
-        self.workspace_edit = QLineEdit(str(UserDataPaths.discover().executions))
+        default_workspace = (
+            UserDataPaths.discover().grid_layout_test
+            if self._single_case_mode
+            else UserDataPaths.discover().executions
+        )
+        self.workspace_edit = QLineEdit(str(default_workspace))
         workspace_layout.addWidget(self.workspace_edit, 1)
         workspace_browse = QPushButton("Browse...")
         workspace_browse.clicked.connect(self._choose_workspace)
@@ -276,6 +314,7 @@ class MainWindow(QMainWindow):
         mesh_layout_button.clicked.connect(self._open_mesh_layout)
         tests_button = QPushButton("Unit / Regression Tests...")
         tests_button.clicked.connect(self._open_tests)
+        tests_button.setVisible(not self._single_case_mode)
         self.build_button = QPushButton("Build")
         self.build_button.clicked.connect(lambda: self._start_build(rebuild=False))
         self.rebuild_button = QPushButton("Rebuild")
@@ -479,6 +518,8 @@ class MainWindow(QMainWindow):
             workspace_root = Path(workspace_text).expanduser().resolve()
         elif execution_mode == "default_workspace":
             workspace_root = UserDataPaths.discover().executions
+        elif execution_mode == "case_database" and self._single_case_mode:
+            workspace_root = UserDataPaths.discover().grid_layout_test
         else:
             QMessageBox.warning(
                 self,
@@ -486,6 +527,10 @@ class MainWindow(QMainWindow):
                 "Cases from the case catalog must run from a workspace copy.",
             )
             return
+
+        if self._single_case_mode:
+            execution_mode = "case_database"
+            workspace_root = UserDataPaths.discover().grid_layout_test
 
         try:
             workspace_root.relative_to(self._repository_root)
@@ -507,41 +552,50 @@ class MainWindow(QMainWindow):
             return
 
         run_id = create_run_id()
-        started_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
-        log_path = (UserDataPaths.discover().logs / f"{run_id}.log").resolve()
-        try:
-            log_path.parent.mkdir(parents=True, exist_ok=True)
-            log_path.write_text(
-                f"Case Workbench run {run_id}\nExecutable: {Path(executable_text).resolve()}\n",
-                encoding="utf-8",
+        self._active_case_run_record = None
+        self._active_case_run_steps = []
+        self._active_case_run_log_path = None
+        if self._single_case_mode:
+            self.log_view.appendPlainText(
+                f"\nCase Database run\nExecutable: {Path(executable_text).resolve()}\n"
+                + f"Workspace: {workspace_root}"
             )
-            initial_record = WorkflowRunRecord(
-                run_id=run_id,
-                workflow_id="case-workbench",
-                status="running",
-                task_type=TaskType.CASE_DATABASE.value,
-                started_at=started_at,
-                executable=str(Path(executable_text).resolve()),
-                steps=({
-                    "type": "case_queue",
-                    "case_ids": [case.case_id for case in selected],
-                    "execution_mode": execution_mode,
-                    "workspace": str(workspace_root / run_id),
-                },),
-                message="Case queue started.",
-                log_path=str(log_path),
+        else:
+            started_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
+            log_path = (UserDataPaths.discover().logs / f"{run_id}.log").resolve()
+            try:
+                log_path.parent.mkdir(parents=True, exist_ok=True)
+                log_path.write_text(
+                    f"Case Workbench run {run_id}\nExecutable: {Path(executable_text).resolve()}\n",
+                    encoding="utf-8",
+                )
+                initial_record = WorkflowRunRecord(
+                    run_id=run_id,
+                    workflow_id="case-workbench",
+                    status="running",
+                    task_type=TaskType.CASE_DATABASE.value,
+                    started_at=started_at,
+                    executable=str(Path(executable_text).resolve()),
+                    steps=({
+                        "type": "case_queue",
+                        "case_ids": [case.case_id for case in selected],
+                        "execution_mode": execution_mode,
+                        "workspace": str(workspace_root / run_id),
+                    },),
+                    message="Case queue started.",
+                    log_path=str(log_path),
+                )
+                self._history_repository.save_run(initial_record)
+            except (OSError, ValueError) as error:
+                QMessageBox.critical(self, "Cannot record run", str(error))
+                return
+            self._active_case_run_record = initial_record
+            self._active_case_run_steps = list(initial_record.steps)
+            self._active_case_run_log_path = log_path
+            self.log_view.appendPlainText(
+                f"\nRun {run_id}\nExecutable: {Path(executable_text).resolve()}\n"
+                + f"Workspace: {workspace_root / run_id}"
             )
-            self._history_repository.save_run(initial_record)
-        except (OSError, ValueError) as error:
-            QMessageBox.critical(self, "Cannot record run", str(error))
-            return
-        self._active_case_run_record = initial_record
-        self._active_case_run_steps = list(initial_record.steps)
-        self._active_case_run_log_path = log_path
-        self.log_view.appendPlainText(
-            f"\nRun {run_id}\nExecutable: {Path(executable_text).resolve()}\n"
-            + f"Workspace: {workspace_root / run_id}"
-        )
         self.run_button.setEnabled(False)
         self.build_button.setEnabled(False)
         self.rebuild_button.setEnabled(False)
@@ -603,6 +657,11 @@ class MainWindow(QMainWindow):
         dialog.exec()
 
     def _open_tests(self) -> None:
+        if self._test_runner_dialog is not None:
+            self._test_runner_dialog.raise_()
+            self._test_runner_dialog.activateWindow()
+            return
+
         executable = self.executable_combo.currentText().strip()
         dialog = TestRunnerDialog(
             self._repository_root,
@@ -610,7 +669,14 @@ class MainWindow(QMainWindow):
             build_config=self._build_config,
             executable=executable,
         )
-        dialog.exec()
+        self._test_runner_dialog = dialog
+        dialog.finished.connect(self._test_runner_closed)
+        dialog.show()
+        dialog.raise_()
+        dialog.activateWindow()
+
+    def _test_runner_closed(self, _result: int) -> None:
+        self._test_runner_dialog = None
 
     def _open_workflows(self) -> None:
         dialog = WorkflowDialog(

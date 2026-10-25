@@ -19,6 +19,7 @@ class ApplicationSettings:
     repository_root: Path = DEFAULT_REPOSITORY_ROOT
     build_configuration: str = "Debug"
     executable_path: str = ""
+    run_mode: str = "single_case"
 
     @classmethod
     def load(cls, settings_file: Path | None = None) -> "ApplicationSettings":
@@ -36,7 +37,10 @@ class ApplicationSettings:
         executable = data.get("executable_path", "")
         if not isinstance(executable, str):
             executable = ""
-        return cls(Path(repository).expanduser(), configuration, executable)
+        run_mode = data.get("run_mode", "single_case")
+        if run_mode not in {"single_case", "multi_case", "dependency_workflow"}:
+            run_mode = "single_case"
+        return cls(Path(repository).expanduser(), configuration, executable, run_mode)
 
     def save(self, settings_file: Path | None = None) -> None:
         path = settings_file or UserDataPaths.discover().settings_file
@@ -45,6 +49,7 @@ class ApplicationSettings:
             "repository_root": str(self.repository_root.expanduser().resolve()),
             "build_configuration": self.build_configuration,
             "executable_path": self.executable_path,
+            "run_mode": self.run_mode,
         }
         with path.open("w", encoding="utf-8", newline="\n") as stream:
             json.dump(payload, stream, indent=2)

@@ -1,0 +1,40 @@
+name: documentation check
+
+on:
+  push:
+    branches: [hexin]
+    paths:
+      - "doc/**"
+      - ".github/workflows/docs-check.yml"
+  pull_request:
+    branches: [hexin]
+    paths:
+      - "doc/**"
+      - ".github/workflows/docs-check.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sphinx-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install documentation dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install sphinx sphinx-rtd-theme
+
+      - name: Build Sphinx HTML
+        run: sphinx-build --keep-going -b html doc/source doc/build/html

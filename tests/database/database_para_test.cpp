@@ -30,8 +30,12 @@ protected:
 
     void TearDown() override
     {
-        // The global database is currently reused between tests.
-        // Test keys should therefore be unique to avoid accidental collisions.
+        // Tests share the global database, so remove only the entries owned by
+        // this fixture. This also makes rerunning a test in Test Explorer safe.
+        auto * dataPara = db_->GetDataPara();
+        dataPara->RemoveDataEntry( "same_size_value" );
+        dataPara->RemoveDataEntry( "different_type_value" );
+        dataPara->RemoveDataEntry( "different_size_value" );
     }
 
     DataBase* db_ = nullptr;
@@ -45,24 +49,24 @@ protected:
 TEST_F(DataParaTest, UpdateExistingKeyWithSameTypeAndSize)
 {
     // Create the initial integer value.
-    SetDataInt( "test_value", 10 );
+    SetDataInt( "same_size_value", 10 );
 
     ASSERT_NE(
-        GetDataPointer< int >( "test_value" ),
+        GetDataPointer< int >( "same_size_value" ),
         nullptr
     );
 
     EXPECT_EQ(
-        GetDataValue< int >( "test_value" ),
+        GetDataValue< int >( "same_size_value" ),
         10
     );
 
     // Update the existing entry with the same type and size.
-    SetDataInt( "test_value", 20 );
+    SetDataInt( "same_size_value", 20 );
 
     // The existing value should be replaced successfully.
     EXPECT_EQ(
-        GetDataValue< int >( "test_value" ),
+        GetDataValue< int >( "same_size_value" ),
         20
     );
 }
@@ -75,15 +79,15 @@ TEST_F(DataParaTest, UpdateExistingKeyWithSameTypeAndSize)
 TEST_F(DataParaTest, RejectUpdateWithDifferentType)
 {
     // Create the original integer entry.
-    SetDataInt( "test_value", 10 );
+    SetDataInt( "different_type_value", 10 );
 
     ASSERT_NE(
-        GetDataPointer< int >( "test_value" ),
+        GetDataPointer< int >( "different_type_value" ),
         nullptr
     );
 
     EXPECT_EQ(
-        GetDataValue< int >( "test_value" ),
+        GetDataValue< int >( "different_type_value" ),
         10
     );
 
@@ -92,7 +96,7 @@ TEST_F(DataParaTest, RejectUpdateWithDifferentType)
     auto dataObject = std::make_unique<TDataObject<Real>>( 1 );
     dataObject->CopyValue( &value, 1 );
     auto dataEntry = std::make_unique<DataEntry>(
-        "test_value", HX_REAL, 1, std::move( dataObject ) );
+        "different_type_value", HX_REAL, 1, std::move( dataObject ) );
 
     // Updating an existing entry with a different type must fail.
     EXPECT_THROW(
@@ -102,7 +106,7 @@ TEST_F(DataParaTest, RejectUpdateWithDifferentType)
 
     // The original value must remain unchanged.
     EXPECT_EQ(
-        GetDataValue< int >( "test_value" ),
+        GetDataValue< int >( "different_type_value" ),
         10
     );
 }
@@ -118,14 +122,14 @@ TEST_F(DataParaTest, RejectUpdateWithDifferentSize)
     int initialValues[2] = { 10, 20 };
 
     SetData(
-        "test_value",
+        "different_size_value",
         initialValues,
         HX_INT,
         2
     );
 
     DataEntry* existing =
-        db_->GetDataPara()->FindDataEntry( "test_value" );
+        db_->GetDataPara()->FindDataEntry( "different_size_value" );
 
     ASSERT_NE( existing, nullptr );
 
@@ -137,7 +141,7 @@ TEST_F(DataParaTest, RejectUpdateWithDifferentSize)
     auto dataObject = std::make_unique<TDataObject< int >>( 3 );
     dataObject->CopyValue( newValues, 3 );
     auto dataEntry = std::make_unique<DataEntry>(
-        "test_value", HX_INT, 3, std::move( dataObject ) );
+        "different_size_value", HX_INT, 3, std::move( dataObject ) );
 
     // Updating an existing entry with a different size must fail.
     EXPECT_THROW(
@@ -147,7 +151,7 @@ TEST_F(DataParaTest, RejectUpdateWithDifferentSize)
 
     // Verify that the original entry was not modified.
     existing =
-        db_->GetDataPara()->FindDataEntry( "test_value" );
+        db_->GetDataPara()->FindDataEntry( "different_size_value" );
 
     ASSERT_NE( existing, nullptr );
 
@@ -156,7 +160,7 @@ TEST_F(DataParaTest, RejectUpdateWithDifferentSize)
 
     // Verify that the original data is still intact.
     int* values =
-        GetDataPointer< int >( "test_value" );
+        GetDataPointer< int >( "different_size_value" );
 
     ASSERT_NE( values, nullptr );
 

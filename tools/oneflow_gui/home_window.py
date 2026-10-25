@@ -6,13 +6,9 @@ from pathlib import Path
 
 from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import (
-    QComboBox,
     QDialog,
     QFileDialog,
-    QGridLayout,
-    QHBoxLayout,
     QLabel,
-    QLineEdit,
     QMainWindow,
     QMessageBox,
     QPushButton,
@@ -21,7 +17,7 @@ from PySide6.QtWidgets import (
 )
 
 from .application_settings import ApplicationSettings, resolve_repository_root
-from .executable_discovery import executable_candidates
+from .configuration_dialog import ConfigurationDialog
 from .mesh_layout_dialog import MeshLayoutDialog
 from .project_repository import open_project
 from .project_window import ProjectWindow
@@ -47,323 +43,128 @@ class WorkbenchHomeWindow(QMainWindow):
         self._repository_root = resolve_repository_root(
             self._settings, discovered_root
         )
-        self._saved_repository_root = self._repository_root
-        self._saved_build_configuration = self._settings.build_configuration
-        self._saved_executable_path = self._settings.executable_path
+        if not self._settings.executable_path:
+            self._settings = ApplicationSettings(
+                self._repository_root,
+                self._settings.build_configuration,
+                str(
+                    (self._repository_root / "build" / "bin" / self._settings.build_configuration / "OneFLOW.exe").resolve()
+                ),
+                self._settings.run_mode,
+            )
         self._case_window = None
+        self._test_runner_dialog = None
         self._project_windows = []
         self.setWindowTitle("OneFLOW Workbench")
         self.resize(900, 650)
         self._build_ui()
-        self._saved_repository_root = self._pending_repository_root() or self._repository_root
-        self._saved_build_configuration = self.build_config_combo.currentText()
-        self._saved_executable_path = self.executable_combo.currentText().strip()
         QTimer.singleShot(0, self._review_active_background_tasks)
 
     def _build_ui(self) -> None:
         central = QWidget(self)
         root = QVBoxLayout(central)
-        root.setContentsMargins(28, 24, 28, 24)
-        root.setSpacing(16)
+        root.setContentsMargins(36, 32, 36, 32)
+        root.setSpacing(20)
 
         title = QLabel("OneFLOW Workbench")
         title.setObjectName("pageTitle")
-        subtitle = QLabel(
-            "Create or open a project folder to edit and run calculations. Multi-Case Workspace "
-            "files (.ofw) remain available for existing case collections; other Workbench tasks "
-            "include catalog cases, unit tests, and CFD/grid regression."
-        )
-        subtitle.setObjectName("subtitle")
-        subtitle.setWordWrap(True)
         root.addWidget(title)
-        root.addWidget(subtitle)
 
-        project_actions = QHBoxLayout()
-        new_project_button = QPushButton("New Project...")
-        new_project_button.setMinimumHeight(48)
-        new_project_button.setMinimumWidth(180)
-        new_project_button.clicked.connect(self._new_project)
-        project_actions.addWidget(new_project_button)
+        project_button = QPushButton("Project")
+        project_button.setMinimumHeight(58)
+        project_button.setMinimumWidth(240)
+        project_button.setMaximumWidth(360)
+        project_button.clicked.connect(self._open_project_menu)
+        root.addWidget(project_button)
 
-        open_project_button = QPushButton("Open Project...")
-        open_project_button.setMinimumHeight(48)
-        open_project_button.setMinimumWidth(180)
-        open_project_button.clicked.connect(self._open_project)
-        project_actions.addWidget(open_project_button)
+        for label, callback in (
+            ("Tests...", self._open_tests),
+            ("Mesh Layout Editor...", self._open_mesh_layout),
+            ("Background Tasks...", self._open_background_tasks),
+            ("Configuration...", self._open_configuration),
+        ):
+            button = QPushButton(label)
+            button.setMinimumHeight(44)
+            button.setMaximumWidth(360)
+            button.clicked.connect(callback)
+            root.addWidget(button)
 
-        self.background_tasks_button = QPushButton("Background Tasks")
-        self.background_tasks_button.setMinimumHeight(48)
-        self.background_tasks_button.setMinimumWidth(180)
-        self.background_tasks_button.setToolTip(
-            "Manage active calculations. Finished task records can be shown from the manager."
-        )
-        self.background_tasks_button.clicked.connect(self._open_background_tasks)
-        project_actions.addWidget(self.background_tasks_button)
-        project_actions.addStretch(1)
-        root.addLayout(project_actions)
+        root.addStretch(1)
 
-        configuration_row = QHBoxLayout()
-        configuration_row.addWidget(QLabel("Build configuration"))
-        self.build_config_combo = QComboBox()
-        self.build_config_combo.addItems(["Debug", "Release"])
-        self.build_config_combo.setCurrentText(self._settings.build_configuration)
-        self.build_config_combo.setToolTip(
-            "Choose the build configuration used by build and unit-test tasks."
-        )
-        configuration_row.addWidget(self.build_config_combo, 1)
-        root.addLayout(configuration_row)
-
-        source_root_row = QHBoxLayout()
-        source_root_row.addWidget(QLabel("OneFLOW source root"))
-        self.repository_root_edit = QLineEdit(str(self._repository_root))
-        self.repository_root_edit.setToolTip(
-            "Default checkout containing CMakeLists.txt, used by build, test, and case tools."
-        )
-        source_root_row.addWidget(self.repository_root_edit, 1)
-        browse_root = QPushButton("Browse...")
-        browse_root.clicked.connect(self._choose_repository_root)
-        source_root_row.addWidget(browse_root)
-        reset_root = QPushButton("Reset")
-        reset_root.setToolTip("Restore the default OneFLOW source directory.")
-        reset_root.clicked.connect(self._reset_basic_configuration)
-        source_root_row.addWidget(reset_root)
-        root.addLayout(source_root_row)
-
-        executable_row = QHBoxLayout()
-        executable_row.addWidget(QLabel("OneFLOW executable"))
-        self.executable_combo = QComboBox()
-        self.executable_combo.setEditable(True)
-        self.executable_combo.setToolTip(
-            "Choose the Debug or Release build for development, or browse to another executable."
-        )
-        self.executable_combo.setMinimumContentsLength(42)
-        self.executable_combo.setSizeAdjustPolicy(
-            QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon
-        )
-        self.executable_combo.addItems(
-            [str(path) for path in executable_candidates(self._repository_root)]
-        )
-        if self.executable_combo.count():
-            self.executable_combo.setCurrentIndex(0)
-        if self._settings.executable_path:
-            self.executable_combo.setEditText(self._settings.executable_path)
-        self._build_executable_paths = {
-            configuration: str(
-                (self._repository_root / "build" / "bin" / configuration / "OneFLOW.exe").resolve()
-            )
-            for configuration in ("Debug", "Release")
-        }
-        self.build_config_combo.currentTextChanged.connect(
-            self._build_configuration_changed
-        )
-        executable_row.addWidget(self.executable_combo, 1)
-        browse = QPushButton("Browse...")
-        browse.clicked.connect(self._choose_executable)
-        executable_row.addWidget(browse)
-        root.addLayout(executable_row)
-
-        grid = QGridLayout()
-        grid.setSpacing(12)
-        self._add_activity(
-            grid, 0, 0, "Case Database",
-            "Run all selected catalog cases from protected workspace copies; all cases are selected by default.",
-            self._open_case_database,
-        )
-
-        run_mode_row = QHBoxLayout()
-        run_mode_row.addWidget(QLabel("Run mode"))
-        self.run_mode_combo = QComboBox()
-        self.run_mode_combo.addItem("Run single case", "single_case")
-        self.run_mode_combo.addItem("Multi-case run", "multi_case")
-        self.run_mode_combo.addItem("Dependency workflow", "dependency_workflow")
-        self.run_mode_combo.setMinimumHeight(38)
-        run_mode_row.addWidget(self.run_mode_combo, 1)
-        open_run_mode = QPushButton("Continue...")
-        open_run_mode.setMinimumHeight(38)
-        open_run_mode.clicked.connect(self._open_selected_run_mode)
-        run_mode_row.addWidget(open_run_mode)
-        root.addLayout(run_mode_row)
-
-        self._add_activity(
-            grid, 1, 0, "Task Runner",
-            "Run unit tests or CFD/grid regression; catalog cases are another task type.",
-            self._open_tests,
-        )
-        self._add_activity(
-            grid, 1, 1, "Run history",
-            "Review previous runs, logs, status, and recorded artifacts.",
-            self._open_history,
-        )
-        self._add_activity(
-            grid, 2, 0, "Mesh Layout Editor",
-            "Create or edit mesh layouts and their case templates.",
-            self._open_mesh_layout,
-        )
-        self._add_activity(
-            grid, 2, 1, "Saved workflows",
-            "Open existing multi-case or dependency workflow definitions and their run history.",
-            self._open_saved_workflows,
-        )
-        self._add_activity(
-            grid, 3, 0, "Open Multi-Case Workspace...",
-            "Open a saved .ofw case collection and its execution policy. Project folders use Open Project.",
-            self._open_workspace,
-        )
-        self._add_activity(
-            grid, 3, 1, "Create Multi-Case Workspace...",
-            "Create a .ofw case collection for existing case directories. For a new templated calculation project, use New Project above.",
-            self._create_workspace,
-        )
-        root.addLayout(grid, 1)
-
-        footer = QLabel(
-            "A Project is a calculation directory that can be created from a template or opened directly. A Multi-Case Workspace is a saved .ofw definition for grouping existing cases and selecting an execution policy. These are distinct legacy paths; new project workflows are the preferred path for new work."
-        )
-        footer.setObjectName("footer")
-        footer.setWordWrap(True)
-        root.addWidget(footer)
         self.setCentralWidget(central)
         self.setStyleSheet(
             """
             QMainWindow, QWidget { background: #f5f7fa; color: #202938; }
             QLabel#pageTitle { font-size: 26px; font-weight: 650; color: #172b4d; }
-            QLabel#subtitle, QLabel#footer { color: #5d6b82; }
-            QComboBox { background: white; border: 1px solid #d5dce6;
-                border-radius: 6px; padding: 7px; }
             QPushButton {
                 background: white; border: 1px solid #cbd4e1; border-radius: 8px;
                 padding: 12px; text-align: left; font-weight: 600; min-height: 28px;
             }
             QPushButton:hover { background: #eaf0f8; border-color: #8fa9cf; }
-            QLabel.activityDescription { color: #5d6b82; padding: 0 4px 4px 4px; }
             """
         )
 
-    def _add_activity(
-        self,
-        grid: QGridLayout,
-        row: int,
-        column: int,
-        title: str,
-        description: str,
-        callback,
-    ) -> None:
-        card = QWidget(self)
-        layout = QVBoxLayout(card)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(5)
-        button = QPushButton(title)
-        button.setMinimumHeight(48)
-        button.clicked.connect(callback)
-        detail = QLabel(description)
-        detail.setObjectName("activityDescription")
-        detail.setProperty("class", "activityDescription")
-        detail.setWordWrap(True)
-        layout.addWidget(button)
-        layout.addWidget(detail)
-        grid.addWidget(card, row, column)
+    def _open_project_menu(self) -> None:
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Project")
+        dialog.setMinimumWidth(420)
+        layout = QVBoxLayout(dialog)
+        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setSpacing(8)
 
-    def _choose_executable(self) -> None:
-        current = self.executable_combo.currentText().strip()
-        current_path = Path(current).expanduser() if current else None
-        start = (
-            str(current_path.parent)
-            if current_path is not None and current_path.parent.is_dir()
-            else str(self._repository_root)
+        primary_actions = (
+            ("New Project...", self._new_project),
+            ("Open Project...", self._open_project),
+            ("Open Multi-Case Workspace...", self._open_workspace),
+            ("Create Multi-Case Workspace...", self._create_workspace),
+            ("Run History...", self._open_history),
+            ("Saved Workflows...", self._open_saved_workflows),
         )
-        path, _ = QFileDialog.getOpenFileName(
-            self, "Select OneFLOW executable", start,
-            "OneFLOW executable (OneFLOW.exe);;Executable (*.exe);;All files (*)",
+        for label, callback in primary_actions:
+            button = QPushButton(label)
+            button.setMinimumHeight(42)
+            button.clicked.connect(
+                lambda checked=False, action=callback: self._run_project_action(
+                    dialog, action
+                )
+            )
+            layout.addWidget(button)
+
+        dialog.setStyleSheet(
+            """
+            QDialog, QWidget { background: #f5f7fa; color: #202938; }
+            QPushButton {
+                background: white; border: 1px solid #cbd4e1; border-radius: 7px;
+                padding: 10px; text-align: left; font-weight: 600;
+            }
+            QPushButton:hover { background: #eaf0f8; border-color: #8fa9cf; }
+            """
         )
-        if path:
-            self.executable_combo.setEditText(path)
+        dialog.exec()
+
+    def _run_project_action(self, dialog: QDialog, callback) -> None:
+        dialog.accept()
+        QTimer.singleShot(0, callback)
+
+    def _open_configuration(self) -> None:
+        dialog = ConfigurationDialog(
+            ApplicationSettings(
+                self._repository_root,
+                self._settings.build_configuration,
+                self._settings.executable_path,
+                self._settings.run_mode,
+            ),
+            self._default_repository_root,
+            self,
+        )
+        if dialog.exec() != QDialog.DialogCode.Accepted:
+            return
+        self._settings = dialog.settings
+        self._repository_root = self._settings.repository_root.resolve()
+        self.statusBar().showMessage("Configuration saved.", 4000)
 
     def _executable(self) -> str:
-        return self.executable_combo.currentText().strip()
-
-    def _build_configuration_changed(self, configuration: str) -> None:
-        current = self.executable_combo.currentText().strip()
-        if current.casefold() in {
-            path.casefold() for path in self._build_executable_paths.values()
-        }:
-            self.executable_combo.setEditText(self._build_executable_paths[configuration])
-
-    def _choose_repository_root(self) -> None:
-        current = self.repository_root_edit.text().strip()
-        start = current if current and Path(current).is_dir() else str(self._default_repository_root)
-        directory = QFileDialog.getExistingDirectory(
-            self, "Select OneFLOW source root", start
-        )
-        if directory:
-            self.repository_root_edit.setText(directory)
-
-    def _reset_basic_configuration(self) -> None:
-        self.repository_root_edit.setText(str(self._default_repository_root))
-        self.build_config_combo.setCurrentText("Debug")
-        self.executable_combo.setEditText(
-            str((self._default_repository_root / "build" / "bin" / "Debug" / "OneFLOW.exe").resolve())
-        )
-
-    @staticmethod
-    def _valid_repository_root(value: str) -> bool:
-        if not value:
-            return False
-        root = Path(value).expanduser()
-        return root.is_dir() and (root / "CMakeLists.txt").is_file()
-
-    def _pending_repository_root(self) -> Path | None:
-        value = self.repository_root_edit.text().strip()
-        if not self._valid_repository_root(value):
-            return None
-        return Path(value).expanduser().resolve()
-
-    def _save_basic_configuration(self, show_error: bool = True) -> bool:
-        repository_root = self._pending_repository_root()
-        if repository_root is None:
-            if show_error:
-                QMessageBox.warning(
-                    self, "Invalid source root",
-                    "Select an existing OneFLOW source directory containing CMakeLists.txt.",
-                )
-            return False
-
-        previous_executable = self.executable_combo.currentText().strip()
-        follows_build_configuration = previous_executable.casefold() in {
-            path.casefold() for path in self._build_executable_paths.values()
-        }
-        build_configuration = self.build_config_combo.currentText()
-        executable_path = previous_executable
-        if follows_build_configuration:
-            executable_path = str(
-                (repository_root / "build" / "bin" / build_configuration / "OneFLOW.exe").resolve()
-            )
-        settings = ApplicationSettings(repository_root, build_configuration, executable_path)
-        try:
-            settings.save()
-        except OSError as error:
-            if show_error:
-                QMessageBox.critical(self, "Cannot save settings", str(error))
-            return False
-
-        self._settings = settings
-        self._repository_root = repository_root
-        self._saved_repository_root = repository_root
-        self._saved_build_configuration = build_configuration
-        self._saved_executable_path = executable_path
-        self._build_executable_paths = {
-            configuration: str(
-                (repository_root / "build" / "bin" / configuration / "OneFLOW.exe").resolve()
-            )
-            for configuration in ("Debug", "Release")
-        }
-        self.executable_combo.clear()
-        self.executable_combo.addItems(
-            [str(path) for path in executable_candidates(repository_root)]
-        )
-        self.executable_combo.setEditText(executable_path)
-        self.repository_root_edit.setText(str(repository_root))
-        self.statusBar().showMessage("Configuration saved.", 4000)
-        return True
+        return self._settings.executable_path.strip()
 
     def _new_project(self) -> None:
         dialog = NewProjectDialog(self._repository_root, self)
@@ -376,10 +177,12 @@ class WorkbenchHomeWindow(QMainWindow):
         window.activateWindow()
 
     def _open_project(self) -> None:
+        paths = UserDataPaths.discover()
+        start_directory = paths.projects if paths.projects.is_dir() else Path.home()
         directory = QFileDialog.getExistingDirectory(
             self,
             "Open OneFLOW project directory",
-            str(Path.home()),
+            str(start_directory),
         )
         if not directory:
             return
@@ -393,66 +196,12 @@ class WorkbenchHomeWindow(QMainWindow):
         window.show()
         window.raise_()
         window.activateWindow()
-
-    def _open_case_database(self) -> None:
-        from .main_window import MainWindow
-
-        self._case_window = MainWindow(
-            self._repository_root,
-            single_case_mode=True,
-            build_config=self.build_config_combo.currentText(),
-        )
-        executable = self._executable()
-        if executable:
-            self._case_window.executable_combo.setEditText(executable)
-        self._case_window.show()
-        self._case_window.raise_()
-        self._case_window.activateWindow()
-
-    def _open_single_case(self) -> None:
-        directory = QFileDialog.getExistingDirectory(
-            self,
-            "Select project for single-case run",
-            str(Path.home()),
-        )
-        if not directory:
-            return
-        try:
-            project = open_project(directory)
-        except (OSError, ValueError) as error:
-            QMessageBox.critical(self, "Cannot open project", str(error))
-            return
-        window = ProjectWindow(project, self._repository_root, self)
-        self._project_windows.append(window)
-        executable = self._executable()
-        if executable and hasattr(window, "executable_combo"):
-            window.executable_combo.setEditText(executable)
-        window.show()
-        window.raise_()
-        window.activateWindow()
-
-    def _open_selected_run_mode(self) -> None:
-        mode = self.run_mode_combo.currentData()
-        if mode == "single_case":
-            self._open_single_case()
-        elif mode == "multi_case":
-            WorkflowDialog(
-                self._repository_root,
-                self._executable(),
-                self,
-                initial_mode="multi_directory",
-            ).exec()
-        elif mode == "dependency_workflow":
-            WorkflowDialog(
-                self._repository_root,
-                self._executable(),
-                self,
-                initial_mode="case_graph",
-            ).exec()
 
     def _open_workspace(self) -> None:
+        paths = UserDataPaths.discover()
+        start_directory = paths.workspaces if paths.workspaces.is_dir() else Path.home()
         path, _ = QFileDialog.getOpenFileName(
-            self, "Open OneFLOW workspace", str(Path.home()),
+            self, "Open OneFLOW workspace", str(start_directory),
             "OneFLOW workspace (*.ofw)",
         )
         if path:
@@ -467,12 +216,27 @@ class WorkbenchHomeWindow(QMainWindow):
         ).exec()
 
     def _open_tests(self) -> None:
-        TestRunnerDialog(
+        if self._test_runner_dialog is not None:
+            if self._test_runner_dialog.isVisible():
+                self._test_runner_dialog.raise_()
+                self._test_runner_dialog.activateWindow()
+                return
+            self._test_runner_dialog = None
+
+        dialog = TestRunnerDialog(
             self._repository_root,
             self,
-            build_config=self.build_config_combo.currentText(),
+            build_config=self._settings.build_configuration,
             executable=self._executable(),
-        ).exec()
+        )
+        self._test_runner_dialog = dialog
+        dialog.finished.connect(self._test_runner_closed)
+        dialog.show()
+        dialog.raise_()
+        dialog.activateWindow()
+
+    def _test_runner_closed(self, _result: int) -> None:
+        self._test_runner_dialog = None
 
     def _open_history(self) -> None:
         RunHistoryDialog(UserDataPaths.discover().workflow_data, self).exec()
@@ -491,37 +255,6 @@ class WorkbenchHomeWindow(QMainWindow):
         MeshLayoutDialog(self._repository_root, self).exec()
 
     def closeEvent(self, event) -> None:
-        pending_root = self._pending_repository_root()
-        settings_changed = (
-            pending_root is None
-            or pending_root != self._saved_repository_root
-            or self.build_config_combo.currentText() != self._saved_build_configuration
-            or self.executable_combo.currentText().strip() != self._saved_executable_path
-        )
-        if settings_changed:
-            prompt = QMessageBox(self)
-            prompt.setWindowTitle("Save configuration changes?")
-            prompt.setText("Workbench configuration has been changed.")
-            prompt.setInformativeText(
-                "Save the source directory, build configuration, and executable selection before closing?"
-            )
-            save_button = prompt.addButton("Save", QMessageBox.ButtonRole.AcceptRole)
-            discard_button = prompt.addButton("Discard", QMessageBox.ButtonRole.DestructiveRole)
-            cancel_button = prompt.addButton("Cancel", QMessageBox.ButtonRole.RejectRole)
-            prompt.setDefaultButton(save_button)
-            prompt.exec()
-            clicked = prompt.clickedButton()
-            if clicked is cancel_button:
-                event.ignore()
-                return
-            if clicked is save_button:
-                if not self._save_basic_configuration():
-                    event.ignore()
-                    return
-            elif clicked is not discard_button:
-                event.ignore()
-                return
-
         registry = BackgroundTaskRegistry(UserDataPaths.discover().root)
         active_tasks = registry.list_active_tasks()
         if not active_tasks:

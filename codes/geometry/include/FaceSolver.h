@@ -86,8 +86,6 @@ public:
     // Faces whose childFid list is empty (not split). Requires childFid aligned
     // with face count (StagedBcMatchesFaceCount / StageNewFace growth).
     int CountFacesWithoutChildren() const;
-    // Compatibility wrapper; prefer CountFacesWithoutChildren().
-    int GetNSimpleFace() const { return CountFacesWithoutChildren(); }
 
     // Stage a newly discovered unique face: topology, face flag, and default
     // BC slots together. Keeps faceBcTypes / faceBcNameIds / faceFlags length

@@ -83,4 +83,18 @@ public:
 void GetFaceCoorList( const IntField & faceNode, RealField & xList, RealField & yList, RealField & zList, const NodeMesh & nodeMesh );
 void GetCoorIdList( IFaceLink & iFaceLink, RealField & xList, RealField & yList, RealField & zList, int nPoint, IntField & pointId );
 
+// Validate one global interface face: id in range, and zoneIds[id] aligns
+// with localFaceIds[id] (same length). operation is included in error text.
+void ValidateGlobalFaceMapping(
+    int globalFaceId,
+    const LinkField & zoneIds,
+    const LinkField & localFaceIds,
+    const char * operation );
+
+// Validate table sizes match, then each entry via ValidateGlobalFaceMapping.
+void ValidateGlobalFaceMappings(
+    const LinkField & zoneIds,
+    const LinkField & localFaceIds,
+    const char * operation );
+
 EndNameSpace

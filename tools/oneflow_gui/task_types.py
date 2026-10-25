@@ -35,7 +35,7 @@ class TaskDefinition:
 _TASK_DEFINITIONS = {
     TaskType.CASE_DATABASE: TaskDefinition(
         TaskType.CASE_DATABASE,
-        "Case Database",
+        "Development Tests",
         ExecutionLocation.USER_WORKSPACE,
     ),
     TaskType.UNIT_TESTS: TaskDefinition(

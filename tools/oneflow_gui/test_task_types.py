@@ -24,6 +24,10 @@ class TaskTypesTest(unittest.TestCase):
             ExecutionLocation.USER_WORKSPACE,
         )
         self.assertEqual(
+            task_definition(TaskType.CASE_DATABASE).title,
+            "Development Tests",
+        )
+        self.assertEqual(
             task_definition(TaskType.UNIT_TESTS).execution_location,
             ExecutionLocation.SOURCE_BUILD,
         )

@@ -12,6 +12,7 @@ from tools.oneflow_gui.models import CaseDefinition
 from tools.oneflow_gui.runner import (
     _copy_case_to_workspace,
     build_command,
+    prepare_case_database_workspace,
     prepare_case_directory,
 )
 
@@ -92,6 +93,62 @@ class DesktopServiceTest(unittest.TestCase):
             self.assertTrue((copied / "script" / "control.txt").is_file())
             self.assertEqual(source_config.read_text(encoding="utf-8"), '"simu.txt";\n')
             self.assertNotEqual(copied, source)
+
+    def test_case_database_mode_refreshes_the_workspace(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "source_case"
+            source.mkdir()
+            (source / "control.txt").write_text("fresh", encoding="utf-8")
+            workspace = root / "grid-layout-test"
+            destination = workspace / "sample"
+            destination.mkdir(parents=True)
+            (destination / "stale-result.dat").write_text("stale", encoding="utf-8")
+            case = CaseDefinition(
+                case_id="sample",
+                title="Sample",
+                case_directory=source,
+                runtime_config=source / "control.txt",
+                profile=None,
+                layout=None,
+            )
+
+            actual = prepare_case_directory(case, workspace, "ignored-run-id", "case_database")
+
+            self.assertTrue(actual.samefile(destination))
+            self.assertEqual((actual / "control.txt").read_text(encoding="utf-8"), "fresh")
+            self.assertFalse((actual / "stale-result.dat").exists())
+            self.assertTrue((source / "control.txt").is_file())
+
+    def test_case_database_refreshes_entire_grid_and_stages_selected_cases(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "source_case"
+            source.mkdir()
+            (source / "control.txt").write_text("fresh", encoding="utf-8")
+            workspace = root / "mesh-layout-test" / "grid"
+            stale = workspace / "old_case"
+            stale.mkdir(parents=True)
+            (stale / "stale.dat").write_text("stale", encoding="utf-8")
+            destination = workspace / "sample"
+            destination.mkdir()
+            (destination / "stale-result.dat").write_text("stale", encoding="utf-8")
+            case = CaseDefinition(
+                case_id="sample",
+                title="Sample",
+                case_directory=source,
+                runtime_config=source / "control.txt",
+                profile=None,
+                layout=None,
+            )
+
+            staged = prepare_case_database_workspace([case], workspace)
+
+            self.assertTrue(staged["sample"].samefile(destination))
+            self.assertEqual((destination / "control.txt").read_text(encoding="utf-8"), "fresh")
+            self.assertFalse((destination / "stale-result.dat").exists())
+            self.assertFalse(stale.exists())
+            self.assertTrue((source / "control.txt").is_file())
 
     def test_source_execution_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

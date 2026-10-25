@@ -35,8 +35,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-namespace
-{
 void ValidateGlobalFaceMapping(
     int globalFaceId, const LinkField & zoneIds, const LinkField & localFaceIds,
     const char * operation )
@@ -68,7 +66,6 @@ void ValidateGlobalFaceMappings(
         ValidateGlobalFaceMapping(
             static_cast< int >( globalFaceId ), zoneIds, localFaceIds, operation );
     }
-}
 }
 
 IFaceLink::IFaceLink( Grids & gridsIn ) : grids( gridsIn )
@@ -281,15 +278,12 @@ void IFaceLink::MatchPeriodicInterface( Grid & grid )
         int gIFace = this->l2g[ grid.id ][ iIFace ];
         ValidateGlobalFaceMapping(
             gIFace, this->gI2Zid, this->g2l, "IFaceLink::MatchPeriodicInterface" );
-        if ( static_cast< size_t >( gIFace ) >= this->face_search->faceArray.size() )
-        {
-            throw std::logic_error( "IFaceLink::MatchPeriodicInterface: global face ID is out of range" );
-        }
         int nIZone = static_cast< int >( this->gI2Zid[ gIFace ].size() );
 
         if ( nIZone == 2 ) continue;
 
-        const IntField & nodeId = this->face_search->faceArray[ gIFace ];
+        // GetFaceNodeRing bounds-checks against stored face count.
+        const IntField & nodeId = this->face_search->GetFaceNodeRing( gIFace );
 
         RealField xList, yList, zList;
         this->point_search->GetFaceCoorList( nodeId, xList, yList, zList );
@@ -322,11 +316,8 @@ void IFaceLink::MatchPeriodicInterface( Grid & grid )
             faceId_period, this->gI2Zid, this->g2l,
             "IFaceLink::MatchPeriodicInterface periodic partner" );
 
-        if ( static_cast< size_t >( faceId_period ) >= this->face_search->faceArray.size() )
-        {
-            throw std::logic_error(
-                "IFaceLink::MatchPeriodicInterface: periodic face ID is out of range" );
-        }
+        // Ensure periodic partner is a known stored face before zone lookup.
+        (void) this->face_search->GetFaceNodeRing( faceId_period );
 
         const IntField & periodicZones = this->gI2Zid[ faceId_period ];
         const IntField & periodicLocalIds = this->g2l[ faceId_period ];

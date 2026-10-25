@@ -57,6 +57,8 @@ int BC::OVERSET          =   1000;
 
 bool BC::IsInterfaceBc( int bcType )
 {
+    // Interface faces use BC::INTERFACE (-1). Any other negative code is also
+    // treated as interface (historical convention in this codebase).
     if ( bcType == BC::INTERFACE || bcType < 0 )
     {
         return true;

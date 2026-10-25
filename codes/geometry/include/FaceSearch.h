@@ -28,26 +28,32 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+// Unique face registry: identity via HXLookup (sorted nodes); first-seen
+// node ring kept privately for orientation-sensitive consumers.
 class FaceSearchBasic
 {
 public:
     FaceSearchBasic() = default;
     ~FaceSearchBasic() = default;
-public:
-    // Store original node order of each face (index == faceId)
-    HXVector< IntField > faceArray;
-public:
+
     // Add a face. Returns the unique face ID (always >= 0).
+    // Same node set in any order yields the same id.
     int AddFace( const IntField & faceNode );
 
-    // Only find. Returns INVALID_INDEX if not found.
+    // Only find. Returns INVALID_INDEX if not found (order-invariant).
     int FindFace( const IntField & faceNode ) const;
+
+    // First-seen node ring for faceId (bounds-checked). Not overwritten on
+    // later AddFace of the same identity.
+    const IntField & GetFaceNodeRing( int faceId ) const;
 
     std::size_t Size() const { return lookup_.Size(); }
     void Clear();
 
 private:
     HXLookup<int> lookup_;   // responsible for uniqueness and ID assignment
+    // Original node order of each face (index == faceId).
+    HXVector< IntField > faceArray;
 };
 
 class IFaceLink;
@@ -80,18 +86,50 @@ class FaceSearch : public FaceSearchBasic
 public:
     FaceSearch() = default;
     ~FaceSearch() = default;
-public:
-    IntField status;
+
     InterfaceFaceSplitTable interfaceSplit;
-    IFaceLink * iFaceLink = nullptr;
-    int gFid = 0;
-public:
+
+    // Clear both the unique-face registry and its derived split mappings.
+    void Clear();
     void CalcNewFaceId( IFaceLink & iFaceLink );
     void SplitQuad2Tri( int faceId );
-    void SplitLine( int faceId );
+    // Split a 2-node edge face using mid-point insertion (needs IFaceLink geometry).
+    void SplitLine( IFaceLink & iFaceLink, int globalFaceId );
     void GetLocalTri( LinkField & localTriId, LinkField & localTriFlag );
     void GetTriId( const IntField & nodeId, LinkField & localTriId, LinkField & triId );
-    bool GetLine( const IntField & nodeId, LinkField & localLineId, LinkField & localLineFlag, LinkField & lineId );
+
+private:
+    // Try to split edge (nodeId size 2) at midpoint if the midpoint already
+    // exists in the point locator. globalFaceId indexes iFaceLink.gI2Zid.
+    bool TrySplitLineAtMidpoint(
+        IFaceLink & iFaceLink,
+        int globalFaceId,
+        const IntField & nodeId,
+        LinkField & localLineId,
+        LinkField & localLineFlag,
+        LinkField & lineId );
 };
+
+// Build the two directed child edges and their local endpoint flags after a midpoint is found.
+// Outputs are replaced, and child order follows the original edge direction.
+void BuildLineSplitMapping(
+    int firstNode,
+    int secondNode,
+    int midpointLocalNode,
+    int midpointGlobalNode,
+    LinkField & localLineId,
+    LinkField & localLineFlag,
+    LinkField & lineId );
+
+// Pure helpers for quad diagonal split (testable without IFaceLink).
+// BuildQuadDiagonalLocalTris clears outputs then fills four candidate tris:
+// diagonal 0-2 (tris 0-1-2 and 2-3-0) and diagonal 1-3 (tris 3-0-1 and 1-2-3).
+void BuildQuadDiagonalLocalTris( LinkField & localTriId, LinkField & localTriFlag );
+
+// Map local corner indices in localTriId through nodeId into global node ids.
+void MapLocalTrisToGlobalNodes(
+    const IntField & nodeId,
+    const LinkField & localTriId,
+    LinkField & triId );
 
 EndNameSpace

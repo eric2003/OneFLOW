@@ -11,6 +11,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication
 
 from tools.oneflow_gui.new_project_dialog import NewProjectDialog
+from tools.oneflow_gui.user_data_paths import UserDataPaths
 from tools.oneflow_gui.project_templates import available_project_templates
 
 
@@ -18,6 +19,18 @@ class NewProjectDialogTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.application = QApplication.instance() or QApplication([])
+
+    def test_default_destination_is_managed_under_oneflow_home(self) -> None:
+        from pathlib import Path
+
+        dialog = NewProjectDialog(Path.cwd())
+        try:
+            self.assertEqual(
+                Path(dialog.destination_edit.text()),
+                UserDataPaths.discover().projects,
+            )
+        finally:
+            dialog.close()
 
     def test_template_descriptions_do_not_replace_template_ids(self) -> None:
         from pathlib import Path

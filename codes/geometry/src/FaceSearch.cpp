@@ -58,19 +58,31 @@ void FaceSearchBasic::Clear()
     lookup_.Clear();
 }
 
+const IntField & FaceSearchBasic::GetFaceNodeRing( int faceId ) const
+{
+    if ( faceId < 0 || static_cast< size_t >( faceId ) >= this->faceArray.size() )
+    {
+        throw std::out_of_range( "FaceSearchBasic::GetFaceNodeRing: face ID is out of range" );
+    }
+    return this->faceArray[ static_cast< size_t >( faceId ) ];
+}
+
+
+void FaceSearch::Clear()
+{
+    FaceSearchBasic::Clear();
+    this->interfaceSplit.Clear();
+}
+
 void FaceSearch::CalcNewFaceId( IFaceLink & iFaceLink )
 {
-    this->iFaceLink = &iFaceLink;
-    int nFaces = this->faceArray.size();
-    this->status.assign( nFaces, -1 );
+    const int nFaces = static_cast< int >( this->Size() );
     this->interfaceSplit.ResetForParentFaceCount( static_cast< std::size_t >( nFaces ) );
 
     if ( Dim::dimension == ONEFLOW::THREE_D )
     {
         for ( int iFace = 0; iFace < nFaces; ++ iFace )
         {
-            this->gFid = iFace;
-            //FaceSort * faceSort = this->faceArray[ iFace ];
             this->SplitQuad2Tri( iFace );
         }
     }
@@ -78,22 +90,14 @@ void FaceSearch::CalcNewFaceId( IFaceLink & iFaceLink )
     {
         for ( int iFace = 0; iFace < nFaces; ++ iFace )
         {
-            this->gFid = iFace;
-           // FaceSort * faceSort = this->faceArray[ iFace ];
-            //this->SplitLine( faceSort );
-            this->SplitLine( iFace );
+            this->SplitLine( iFaceLink, iFace );
         }
     }
 }
 
 void FaceSearch::SplitQuad2Tri( int faceId )
 {
-    if ( faceId < 0 || static_cast< size_t >( faceId ) >= this->faceArray.size() )
-    {
-        throw std::out_of_range( "FaceSearch::SplitQuad2Tri: face ID is out of range" );
-    }
-
-    const IntField & nodeId = this->faceArray[ faceId ];
+    const IntField & nodeId = this->GetFaceNodeRing( faceId );
     int nNodes = nodeId.size();
     if ( nNodes != 4 ) return;
 
@@ -116,103 +120,122 @@ void FaceSearch::SplitQuad2Tri( int faceId )
     }
 }
 
-void FaceSearch::SplitLine( int faceId )
+void FaceSearch::SplitLine( IFaceLink & iFaceLink, int globalFaceId )
 {
-    if ( faceId < 0 || static_cast< size_t >( faceId ) >= this->faceArray.size() )
-    {
-        throw std::out_of_range( "FaceSearch::SplitLine: face ID is out of range" );
-    }
-
-    const IntField & nodeId = this->faceArray[ faceId ];
-    int nNodes = nodeId.size();
-    if ( nNodes != 2 ) return;
+    const IntField & nodeId = this->GetFaceNodeRing( globalFaceId );
+    if ( nodeId.size() != 2 ) return;
 
     LinkField localLineId, localLineFlag;
     LinkField lineId;
-    if ( ! this->GetLine( nodeId, localLineId, localLineFlag, lineId ) ) return;
+    if ( ! this->TrySplitLineAtMidpoint(
+             iFaceLink, globalFaceId, nodeId, localLineId, localLineFlag, lineId ) )
+    {
+        return;
+    }
 
-    for ( int iLi = 0; iLi < lineId.size(); ++ iLi )
+    for ( int iLi = 0; iLi < static_cast< int >( lineId.size() ); ++ iLi )
     {
         IntField & lId = lineId[ iLi ];
         int fId = this->FindFace( lId );
         if ( fId != ONEFLOW::INVALID_INDEX )
         {
-            this->interfaceSplit.childFaceIdsOfParent[ faceId ].push_back( fId );
+            this->interfaceSplit.childFaceIdsOfParent[ globalFaceId ].push_back( fId );
             this->interfaceSplit.childFaceNodeIds  [ fId ] = localLineId  [ iLi ];
             this->interfaceSplit.childFaceNodeFlags[ fId ] = localLineFlag[ iLi ];
         }
     }
 }
 
-void FaceSearch::GetLocalTri( LinkField & localTriId, LinkField & localTriFlag )
+void BuildLineSplitMapping(
+    int firstNode,
+    int secondNode,
+    int midpointLocalNode,
+    int midpointGlobalNode,
+    LinkField & localLineId,
+    LinkField & localLineFlag,
+    LinkField & lineId )
 {
-    IntField localId1( 3 ), localId2( 3 );
-    localId1[ 0 ] = 0;
-    localId1[ 1 ] = 1;
-    localId1[ 2 ] = 2;
+    localLineId.clear();
+    localLineFlag.clear();
+    lineId.clear();
 
-    localId2[ 0 ] = 2;
-    localId2[ 1 ] = 3;
-    localId2[ 2 ] = 0;
+    localLineId.push_back( IntField{ 0, midpointLocalNode } );
+    localLineId.push_back( IntField{ midpointLocalNode, 1 } );
 
-    IntField localFlag1( 3 ), localFlag2( 3 );
+    localLineFlag.push_back( IntField{ 1, -1 } );
+    localLineFlag.push_back( IntField{ -1, 1 } );
 
-    localFlag1[ 0 ] = 1;
-    localFlag1[ 1 ] = 1;
-    localFlag1[ 2 ] = 1;
-
-    localFlag2[ 0 ] = 1;
-    localFlag2[ 1 ] = 1;
-    localFlag2[ 2 ] = 1;
-
-    localTriId.push_back( localId1 );
-    localTriId.push_back( localId2 );
-
-    localTriFlag.push_back( localFlag1 );
-    localTriFlag.push_back( localFlag2 );
-
-    //The second splitting method
-    localId1[ 0 ] = 3;
-    localId1[ 1 ] = 0;
-    localId1[ 2 ] = 1;
-
-    localId2[ 0 ] = 1;
-    localId2[ 1 ] = 2;
-    localId2[ 2 ] = 3;
-
-    localFlag1[ 0 ] = 1;
-    localFlag1[ 1 ] = 1;
-    localFlag1[ 2 ] = 1;
-
-    localFlag2[ 0 ] = 1;
-    localFlag2[ 1 ] = 1;
-    localFlag2[ 2 ] = 1;
-
-    localTriId.push_back( localId1 );
-    localTriId.push_back( localId2 );
-
-    localTriFlag.push_back( localFlag1 );
-    localTriFlag.push_back( localFlag2 );
-
+    lineId.push_back( IntField{ firstNode, midpointGlobalNode } );
+    lineId.push_back( IntField{ midpointGlobalNode, secondNode } );
 }
 
-void FaceSearch::GetTriId( const IntField & nodeId, LinkField & localTriId, LinkField & triId )
+void BuildQuadDiagonalLocalTris( LinkField & localTriId, LinkField & localTriFlag )
 {
+    localTriId.clear();
+    localTriFlag.clear();
+
+    // Diagonal 0-2
+    localTriId.push_back( IntField{ 0, 1, 2 } );
+    localTriId.push_back( IntField{ 2, 3, 0 } );
+    localTriFlag.push_back( IntField{ 1, 1, 1 } );
+    localTriFlag.push_back( IntField{ 1, 1, 1 } );
+
+    // Diagonal 1-3
+    localTriId.push_back( IntField{ 3, 0, 1 } );
+    localTriId.push_back( IntField{ 1, 2, 3 } );
+    localTriFlag.push_back( IntField{ 1, 1, 1 } );
+    localTriFlag.push_back( IntField{ 1, 1, 1 } );
+}
+
+void MapLocalTrisToGlobalNodes(
+    const IntField & nodeId,
+    const LinkField & localTriId,
+    LinkField & triId )
+{
+    triId.clear();
     triId.resize( localTriId.size() );
-    for ( int iTri = 0; iTri < localTriId.size(); ++ iTri )
+    for ( std::size_t iTri = 0; iTri < localTriId.size(); ++ iTri )
     {
         for ( int iNode = 0; iNode < 3; ++ iNode )
         {
-            triId[ iTri ].push_back( nodeId[ localTriId[ iTri ][ iNode ] ] );
+            const int localCorner = localTriId[ iTri ][ iNode ];
+            if ( localCorner < 0 ||
+                 static_cast< std::size_t >( localCorner ) >= nodeId.size() )
+            {
+                throw std::out_of_range(
+                    "MapLocalTrisToGlobalNodes: local corner index is out of range" );
+            }
+            triId[ iTri ].push_back( nodeId[ localCorner ] );
         }
     }
 }
 
-bool FaceSearch::GetLine( const IntField & nodeId, LinkField & localLineId, LinkField & localLineFlag, LinkField & lineId )
+void FaceSearch::GetLocalTri( LinkField & localTriId, LinkField & localTriFlag )
 {
-    PointLocator * point_search = this->iFaceLink->point_search.get();
-    int p0 = nodeId[ 0 ];
-    int p1 = nodeId[ 1 ];
+    BuildQuadDiagonalLocalTris( localTriId, localTriFlag );
+}
+
+void FaceSearch::GetTriId( const IntField & nodeId, LinkField & localTriId, LinkField & triId )
+{
+    MapLocalTrisToGlobalNodes( nodeId, localTriId, triId );
+}
+
+bool FaceSearch::TrySplitLineAtMidpoint(
+    IFaceLink & iFaceLink,
+    int globalFaceId,
+    const IntField & nodeId,
+    LinkField & localLineId,
+    LinkField & localLineFlag,
+    LinkField & lineId )
+{
+    if ( ! iFaceLink.point_search )
+    {
+        throw std::logic_error(
+            "FaceSearch::TrySplitLineAtMidpoint: point locator is not initialized" );
+    }
+    PointLocator * point_search = iFaceLink.point_search.get();
+    const int p0 = nodeId[ 0 ];
+    const int p1 = nodeId[ 1 ];
     RealField coor0( 3 ), coor1( 3 ), coor2( 3 );
     point_search->GetPoint( p0, coor0[ 0 ], coor0[ 1 ], coor0[ 2 ] );
     point_search->GetPoint( p1, coor1[ 0 ], coor1[ 1 ], coor1[ 2 ] );
@@ -222,54 +245,30 @@ bool FaceSearch::GetLine( const IntField & nodeId, LinkField & localLineId, Link
     }
     if ( point_search->FindPoint( coor2[ 0 ], coor2[ 1 ], coor2[ 2 ] ) == -1 ) return false;
 
-    const LinkField & globalFaceZones = this->iFaceLink->gI2Zid;
-    if ( this->gFid < 0 ||
-         static_cast< size_t >( this->gFid ) >= globalFaceZones.size() )
+    const LinkField & globalFaceZones = iFaceLink.gI2Zid;
+    if ( globalFaceId < 0 ||
+         static_cast< size_t >( globalFaceId ) >= globalFaceZones.size() )
     {
-        throw std::out_of_range( "FaceSearch::GetLine: global face ID is out of range" );
+        throw std::out_of_range(
+            "FaceSearch::TrySplitLineAtMidpoint: global face ID is out of range" );
     }
 
-    const IntField & zoneIds = globalFaceZones[ this->gFid ];
+    const IntField & zoneIds = globalFaceZones[ globalFaceId ];
     if ( zoneIds.size() != 1 )
     {
         throw std::logic_error(
-            "FaceSearch::GetLine: a split line must reference exactly one zone" );
+            "FaceSearch::TrySplitLineAtMidpoint: a split line must reference exactly one zone" );
     }
 
-    int zoneIndex = zoneIds[ 0 ];
-    Grid & grid = this->iFaceLink->GetGrid( zoneIndex );
-    int nNodes = grid.nodeMesh->GetNumberOfNodes();
-    int pId = nNodes;
+    const int zoneIndex = zoneIds[ 0 ];
+    Grid & grid = iFaceLink.GetGrid( zoneIndex );
+    const int nNodes = grid.nodeMesh->GetNumberOfNodes();
+    const int pId = nNodes;
     grid.nodeMesh->AddPoint( coor2[ 0 ], coor2[ 1 ], coor2[ 2 ] );
-    int p2 = point_search->AddPoint( coor2[ 0 ], coor2[ 1 ], coor2[ 2 ] );
+    const int p2 = point_search->AddPoint( coor2[ 0 ], coor2[ 1 ], coor2[ 2 ] );
 
-    IntField id1( 2 ), id2( 2 );
-    IntField localId1( 2 ), localId2( 2 );
-    IntField localFlag1( 2 ), localFlag2( 2 );
-
-    localId1[ 0 ] = 0;
-    localId1[ 1 ] = pId;
-    localId2[ 0 ] = pId;
-    localId2[ 1 ] = 1;
-
-    localLineId.push_back( localId1 );
-    localLineId.push_back( localId2 );
-
-    localFlag1[ 0 ] =   1;
-    localFlag1[ 1 ] = - 1;
-    localFlag2[ 0 ] = - 1;
-    localFlag2[ 1 ] =   1;
-
-    localLineFlag.push_back( localFlag1 );
-    localLineFlag.push_back( localFlag2 );
-
-    id1[ 0 ] = p0;
-    id1[ 1 ] = p2;
-    id2[ 0 ] = p2;
-    id2[ 1 ] = p1;
-
-    lineId.push_back( id1 );
-    lineId.push_back( id2 );
+    BuildLineSplitMapping(
+        p0, p1, pId, p2, localLineId, localLineFlag, lineId );
 
     return true;
 }

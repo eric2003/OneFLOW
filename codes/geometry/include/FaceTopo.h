@@ -136,8 +136,9 @@ HXSize_t CountBoundaryFaces( const IntField & rightCells );
 void ValidateBoundaryBcLayout( const FaceTopo & faceTopo );
 
 // Look up child face IDs for a local interface face and validate their node tables.
-// Returns a reference into interfaceLink.face_search->cFaceId[globalFaceId].
-// Preferred: depends only on l2g mapping + split tables (not full IFaceLink/FaceSearch).
+// Preferred overload: depends only on l2g + InterfaceFaceSplitTable (no IFaceLink).
+// local interface face -> global parent id -> childFaceIdsOfParent[parent].
+// Throws if indices are out of range or child node id/flag lengths differ.
 const IntField & GetInterfaceChildFaceIds(
     const LinkField & zoneToLocalToGlobal,
     const InterfaceFaceSplitTable & splitTable,
