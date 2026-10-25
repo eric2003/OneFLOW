@@ -38,6 +38,23 @@ inline bool ShouldUseLegacySourceGridCaseDir( const std::string & meshInputRoot 
     return meshInputRoot.empty() || meshInputRoot == "default";
 }
 
+inline std::string ApplyLegacySourceGridCaseDir(
+    const std::string & meshInputRoot,
+    const std::string & sourceGridCaseDir )
+{
+    if ( ! ShouldUseLegacySourceGridCaseDir( meshInputRoot ) )
+    {
+        return meshInputRoot;
+    }
+
+    if ( sourceGridCaseDir.empty() || sourceGridCaseDir == "default" )
+    {
+        return meshInputRoot;
+    }
+
+    return sourceGridCaseDir;
+}
+
 inline std::string ReadOptionalStringParameter(
     const DataPara & parameters, const std::string & name )
 {
