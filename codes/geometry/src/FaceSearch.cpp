@@ -68,6 +68,12 @@ const IntField & FaceSearchBasic::GetFaceNodeRing( int faceId ) const
 }
 
 
+void FaceSearch::Clear()
+{
+    FaceSearchBasic::Clear();
+    this->interfaceSplit.Clear();
+}
+
 void FaceSearch::CalcNewFaceId( IFaceLink & iFaceLink )
 {
     const int nFaces = static_cast< int >( this->Size() );
