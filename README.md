@@ -38,6 +38,19 @@ Some cases are independent; others consume a grid or artifact produced by an ear
 
 CTest, unit tests, mesh expectations, and CFD regression baselines provide different kinds of evidence. They are not interchangeable. Hardware-dependent accelerator validation is separate from the normal CPU build and should be reported as such.
 
+## Architecture at a glance
+
+OneFLOW is best understood as a layered engineering codebase rather than a solver executable surrounded by unrelated scripts.
+
+- **Numerical runtime:** C++ owns the actual case execution and numerical work. Command-line use remains possible without starting the desktop workbench.
+- **Mesh data pipeline:** distinguish the live runtime mesh from a stable, independently testable snapshot and from output formats such as JSON. A summary describes metadata such as dimension, entity counts, and bounds; it is not the mesh itself. Geometry, topology, connectivity, and boundary information should be inspectable through focused interfaces rather than one all-purpose exporter.
+- **Case and artifact boundary:** case definitions and reference inputs are versioned; generated meshes, flow results, logs, and reports belong to a run workspace. Explicit input/output roots allow a producer case and a consumer case to exchange artifacts without relying on accidental working-directory state.
+- **Workflow orchestration:** a case may run alone, in a sequence, independently alongside other cases, or as part of a dependency graph. Dependencies should name the artifact-producing relationship and be validated before execution, rather than being hidden in manual steps.
+- **Tooling and presentation:** CLI utilities, Python services, and the optional PySide6 workbench discover and orchestrate work, inspect outputs, and present results. They should reuse shared case/workflow contracts where practical, not duplicate solver behavior or make the runtime depend on GUI code.
+- **Testable evolution:** unit tests, mesh invariants, and numerical regression tests cover different contracts. Refactoring should follow real call paths, make ownership and interface boundaries clearer, and preserve compatibility where required; tests are evidence for behavior, not a reason to rewrite code without a concrete need.
+
+These are architectural boundaries and an ongoing direction, not a claim that every workflow or mesh interface has already reached its final form. The case catalog and profiles, for example, are not yet the authoritative source for every legacy runtime parameter; see the [grid guide](./grid/README.md) for current migration boundaries.
+
 ## Repository map
 
 | Path | Purpose |
@@ -48,7 +61,8 @@ CTest, unit tests, mesh expectations, and CFD regression baselines provide diffe
 | grid/ | Mesh-generation and mesh-conversion cases, profiles, and case catalog |
 | test/ | CFD/grid regression runners, suite manifests, and numerical baselines |
 | tools/ | Case validation, mesh utilities, and the optional desktop workbench |
-| docs/, doc/ | Architecture notes and supporting documentation |
+| doc/ | Official documentation root: architecture, plans, runbooks, evidence, reports, and Sphinx sources |
+| docs/ | Existing supporting notes; new project documentation belongs under `doc/` |
 | cmake/ | CMake helper functions |
 
 See the [grid case guide](./grid/README.md), [regression test guide](./test/README.md), and [OneFLOW Workbench guide](./tools/oneflow_gui/README.md).
@@ -212,9 +226,19 @@ Contributions are welcome, especially focused changes with tests and reproducibl
 
 The project is actively refactoring its mesh, geometry, test, and workbench boundaries. Prefer incremental changes that improve a real call path or make behavior easier to verify over broad rewrites without a concrete use case.
 
+## Developer and contact
+
+**Primary developer:** He Xin ([GitHub profile: @eric2003](https://github.com/eric2003)).
+
+- **Source code:** [github.com/eric2003/OneFLOW](https://github.com/eric2003/OneFLOW)
+- **Bug reports and feature requests:** [GitHub Issues](https://github.com/eric2003/OneFLOW/issues)
+- **Design and implementation discussion:** open an issue with the relevant case, expected behavior, observed behavior, and reproducible logs or test results. This helps keep technical decisions and follow-up work visible to other contributors.
+
+GitHub Issues is the public contact route listed here; no personal email address is published in this README.
+
 ## Project and license
 
-OneFLOW is maintained by He Xin and contributors. The repository is hosted at [github.com/eric2003/OneFLOW](https://github.com/eric2003/OneFLOW). Please check the repository's license file and contribution history for the terms and process that apply to your intended use.
+OneFLOW is maintained by He Xin and contributors. Please check the repository's license file and contribution history for the terms and process that apply to your intended use.
 
 ---
 
