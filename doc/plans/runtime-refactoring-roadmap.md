@@ -200,3 +200,11 @@ Commit: `d8568fe91722af5d78d8083d6bae23d9446d952d`
 - Linked the handoff from the repository README, documentation README, and Sphinx developer resources so it is discoverable without reading the full repository.
 - The page summarizes branch constraints, the current R1 focus, source-backed path behavior, the last implementation slice, explicit verification gaps, and prioritized next actions. It requires rechecking the current `hexin` HEAD and CI before relying on the snapshot.
 - This is a documentation/process improvement only; it does not claim any new code behavior or test result.
+
+
+### 2026-10-26 - Reusable stage record and include cleanup
+
+- Added `doc/plans/templates/refactoring-stage-record.md` so substantial refactoring stages use a consistent record for problem, call path, intended contract, minimal boundary, changes, evidence, open gaps, and next action.
+- Linked the template from this roadmap and `doc/AI_CONTEXT.md`; the handoff page remains a concise overall state index rather than a duplicate of every stage.
+- Added an explicit `<stdexcept>` include in `codes/main/src/SimuContextEnv.cpp` for the existing `std::invalid_argument` use (commit `ec9575216e9b6db14a400446c1373e22405c7169`).
+- Validation: this was a source/include correctness cleanup and documentation change. No local build or tests were run in this step; the invalid-type behavior still lacks a focused automated test. Continue R1 test-seam investigation and verify CI for the exact current branch revision.
