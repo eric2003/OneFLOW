@@ -92,3 +92,8 @@ A curated Sphinx overview now provides a consistent information vocabulary and p
 - Tests and evidence should support claims, not be replaced by prose.
 - Keep code and documentation changes on `hexin`; do not target `master`.
 - Do not claim a documentation build or test passed unless it was run against the changed revision.
+
+
+## 7. Project-description style
+
+For repository-authored README files, manuals, architecture notes, and new documentation, describe OneFLOW through its technical purpose, implemented capabilities, architecture, numerical methods, workflows, reproducibility, and verified limitations. Do not frame the project as "国产", "domestic", or by national origin. Existing external article links may retain their original titles verbatim; do not rewrite those titles solely to remove wording from the linked article. Distinguish implemented and tested behavior from roadmap or long-term vision.
