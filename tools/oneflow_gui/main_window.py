@@ -29,7 +29,7 @@ from PySide6.QtWidgets import (
 from .case_repository import load_cases
 from .executable_discovery import executable_candidates
 from .models import CaseDefinition, CaseRunResult, RunState
-from .runner import create_run_id, run_case
+from .runner import create_run_id, prepare_case_database_workspace, run_case
 from .user_data_paths import UserDataPaths
 from .workflow_dialog import WorkflowDialog
 from .test_dialog import TestCommandWorker, TestRunnerDialog
@@ -76,6 +76,32 @@ class RunQueueWorker(QThread):
         self._cancel_event.set()
 
     def run(self) -> None:
+        execution_mode = self._execution_mode
+        if execution_mode == "case_database":
+            try:
+                staged = prepare_case_database_workspace(
+                    self._cases, self._workspace_root
+                )
+                self.log_line.emit(
+                    f"Refreshed grid test workspace: {self._workspace_root}"
+                )
+                for case_id, directory in staged.items():
+                    self.log_line.emit(f"Staged {case_id}: {directory}")
+                execution_mode = "case_database_prepared"
+            except (OSError, shutil.Error, ValueError) as error:
+                self.log_line.emit(f"Could not refresh grid test workspace: {error}")
+                for case in self._cases:
+                    result = CaseRunResult(
+                        case.case_id,
+                        RunState.FAILED,
+                        None,
+                        self._workspace_root,
+                        f"Could not refresh grid test workspace: {error}",
+                    )
+                    self._emit_result(result)
+                    self.case_state.emit(case.case_id, RunState.FAILED.value)
+                return
+
         for index, case in enumerate(self._cases):
             if self._cancel_event.is_set():
                 result = CaseRunResult(
@@ -101,7 +127,7 @@ class RunQueueWorker(QThread):
                     self._run_id,
                     self._cancel_event,
                     self.log_line.emit,
-                    execution_mode=self._execution_mode,
+                    execution_mode=execution_mode,
                 )
             except Exception as error:
                 message = f"Case runner raised an unexpected error: {error}"
