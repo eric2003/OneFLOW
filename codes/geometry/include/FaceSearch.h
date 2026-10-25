@@ -89,6 +89,8 @@ public:
 
     InterfaceFaceSplitTable interfaceSplit;
 
+    // Clear both the unique-face registry and its derived split mappings.
+    void Clear();
     void CalcNewFaceId( IFaceLink & iFaceLink );
     void SplitQuad2Tri( int faceId );
     // Split a 2-node edge face using mid-point insertion (needs IFaceLink geometry).
