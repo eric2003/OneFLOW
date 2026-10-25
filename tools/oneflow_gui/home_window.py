@@ -75,6 +75,19 @@ class WorkbenchHomeWindow(QMainWindow):
         project_button.setMaximumWidth(360)
         project_button.clicked.connect(self._open_project_menu)
         root.addWidget(project_button)
+
+        for label, callback in (
+            ("Tests...", self._open_tests),
+            ("Mesh Layout Editor...", self._open_mesh_layout),
+            ("Background Tasks...", self._open_background_tasks),
+            ("Configuration...", self._open_configuration),
+        ):
+            button = QPushButton(label)
+            button.setMinimumHeight(44)
+            button.setMaximumWidth(360)
+            button.clicked.connect(callback)
+            root.addWidget(button)
+
         root.addStretch(1)
 
         self.setCentralWidget(central)
@@ -116,26 +129,6 @@ class WorkbenchHomeWindow(QMainWindow):
             )
             layout.addWidget(button)
 
-        separator = QLabel("Other Workbench tools")
-        separator.setObjectName("sectionLabel")
-        layout.addWidget(separator)
-
-        secondary_actions = (
-            ("Tests...", self._open_tests),
-            ("Mesh Layout Editor...", self._open_mesh_layout),
-            ("Background Tasks...", self._open_background_tasks),
-            ("Configuration...", self._open_configuration),
-        )
-        for label, callback in secondary_actions:
-            button = QPushButton(label)
-            button.setMinimumHeight(38)
-            button.clicked.connect(
-                lambda checked=False, action=callback: self._run_project_action(
-                    dialog, action
-                )
-            )
-            layout.addWidget(button)
-
         dialog.setStyleSheet(
             """
             QDialog, QWidget { background: #f5f7fa; color: #202938; }
@@ -144,9 +137,6 @@ class WorkbenchHomeWindow(QMainWindow):
                 padding: 10px; text-align: left; font-weight: 600;
             }
             QPushButton:hover { background: #eaf0f8; border-color: #8fa9cf; }
-            QLabel#sectionLabel {
-                color: #5d6b82; font-weight: 600; padding-top: 10px;
-            }
             """
         )
         dialog.exec()
