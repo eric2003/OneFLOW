@@ -105,7 +105,7 @@ The long-term product direction is documented in both [Chinese](../../docs/ONEFL
 - `test_workflow_execution.py`: tests for argument order, spaces, and invalid input.
 - `workflow_repository.py`: versioned workflow-definition and run-history persistence, independent of Qt.
 - `user_data_paths.py`: centralized cross-platform user data paths with the optional `ONEFLOW_HOME` override; the default is derived from the current user home directory.
-- `application_settings.py` and `settings_dialog.py`: persist the OneFLOW source checkout in the per-user `settings.json`; the default is `D:/github/OneFLOW`, and users can select another existing checkout on any drive through Basic Configuration.
+- `application_settings.py` and `configuration_dialog.py`: persist the source root, executable, run mode, and build configuration in the per-user `settings.json`. These settings are grouped in the Workbench Configuration dialog and include reset-to-defaults support. `settings_dialog.py` is a legacy source-root-only dialog and is no longer used by the Workbench home screen.
 - `test_user_data_paths.py`: tests default paths, overrides, and side-effect-free path resolution.
 - `test_workflow_repository.py`: persistence tests for version checks, CRUD behavior, and history retention.
 
