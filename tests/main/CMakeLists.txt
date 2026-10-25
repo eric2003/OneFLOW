@@ -181,3 +181,27 @@ target_compile_features(simu_context_parameter_test PRIVATE cxx_std_20)
 gtest_discover_tests(simu_context_parameter_test
   DISCOVERY_MODE PRE_TEST
 )
+
+# ---------------------------------------------------------------------------
+# Case execution cleanup contract (header-only lifecycle boundary)
+# ---------------------------------------------------------------------------
+add_executable(simu_case_lifecycle_test
+  simu_case_lifecycle_test.cpp
+)
+
+target_include_directories(simu_case_lifecycle_test
+  PRIVATE
+    ${CMAKE_SOURCE_DIR}/codes/main/include
+)
+
+target_link_libraries(simu_case_lifecycle_test
+  PRIVATE
+    GTest::gtest_main
+)
+
+target_compile_features(simu_case_lifecycle_test PRIVATE cxx_std_17)
+
+gtest_discover_tests(simu_case_lifecycle_test
+  DISCOVERY_MODE PRE_TEST
+)
+
