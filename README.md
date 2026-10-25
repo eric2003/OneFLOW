@@ -4,9 +4,15 @@
 
 OneFLOW is an actively developed computational fluid dynamics (CFD) project. Its goal is not only to run flow cases, but also to make the surrounding engineering work clearer and more reproducible: define a mesh or case, run it in a controlled workspace, inspect generated artifacts, validate results, and connect cases when one calculation depends on another.
 
-This repository is evolving. This README describes the code and tools that exist today, distinguishes working features from longer-term direction, and provides build and test instructions for the current CMake project.
+This repository is evolving. This README describes the code and tools that exist today, distinguishes working features from longer-term direction, and provides build and test instructions for the current CMake project. OneFLOW is the open-source CFD and scientific-computing project in this repository; it is unrelated to similarly named commercial contract-lifecycle-management products.
 
-[简体中文](./README_zh_CN.md) · [Source code](https://github.com/eric2003/OneFLOW) · [Issues](https://github.com/eric2003/OneFLOW/issues)
+[简体中文](./README_zh_CN.md) · [Online documentation](https://oneflow-cfd.readthedocs.io/en/latest/) · [Source code](https://github.com/eric2003/OneFLOW) · [Issues](https://github.com/eric2003/OneFLOW/issues)
+
+## Project vision
+
+OneFLOW is developed as a general-purpose, unstructured-mesh CFD code and a foundation for broader scientific-computing research. Its scope includes learning and validating numerical methods, solving engineering flow cases, and providing a modular codebase that researchers can inspect and extend. The longer-term vision is to make the scientific-computing workflow more programmable and automated: from defining a problem and running a case to checking results, recording evidence, and composing dependent tasks. The phrase *scientific-computing operating system* describes this long-term direction, not a claim that a complete operating-system-like platform already exists.
+
+The repository contains capabilities at different maturity levels. Build options or names for MPI, CUDA, HIP, or other backends do not by themselves establish production readiness, scalability to a particular core count, or validated performance on a given device. Check the implementation, configuration output, and matching test evidence before relying on such capabilities.
 
 ## What is in the project?
 
@@ -65,7 +71,7 @@ These are architectural boundaries and an ongoing direction, not a claim that ev
 | docs/ | Existing supporting notes; new project documentation belongs under `doc/` |
 | cmake/ | CMake helper functions |
 
-See the [grid case guide](./grid/README.md), [regression test guide](./test/README.md), and [OneFLOW Workbench guide](./tools/oneflow_gui/README.md).
+Start with the [online documentation](https://oneflow-cfd.readthedocs.io/en/latest/). For repository-specific details, see the [grid case guide](./grid/README.md), [regression test guide](./test/README.md), [OneFLOW Workbench guide](./tools/oneflow_gui/README.md), and [documentation organization plan](./doc/plans/oneflow-documentation-consolidation-plan.md).
 
 ## Build from source
 
