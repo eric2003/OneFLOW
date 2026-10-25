@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import queue
 import subprocess
 import threading
@@ -38,6 +39,11 @@ def run_process(
         text=True,
         errors="replace",
         bufsize=1,
+        **(
+            {"creationflags": subprocess.CREATE_NO_WINDOW}
+            if os.name == "nt"
+            else {}
+        ),
     )
     output_queue: queue.Queue[str | None] = queue.Queue()
 
