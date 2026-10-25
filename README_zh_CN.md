@@ -234,13 +234,14 @@ OneFLOW 正在持续整理网格、几何、测试和工作台的架构。我们
 
 ## 开发者与联系方式
 
-**主要开发者：** He Xin（GitHub：[@eric2003](https://github.com/eric2003)）。
+**主要开发者：** Dr. He Xin（GitHub：[@eric2003](https://github.com/eric2003)）。
 
+- **电子邮箱：** [fantasy_2003_@hotmail.com](mailto:fantasy_2003_@hotmail.com)
 - **源代码仓库：** [github.com/eric2003/OneFLOW](https://github.com/eric2003/OneFLOW)
 - **问题反馈与功能建议：** [GitHub Issues](https://github.com/eric2003/OneFLOW/issues)
 - **架构与实现讨论：** 建议提交 issue，并附上相关算例、预期行为、实际行为，以及可复现的日志或测试结果，方便其他贡献者了解背景并持续跟进。
 
-目前 README 使用 GitHub Issues 作为公开联系渠道，不公开个人电子邮箱。
+该邮箱已在 OneFLOW 早期版本的 README 中公开列出；也可以通过 GitHub Issues 反馈问题和讨论设计。
 
 ## 项目与许可
 
