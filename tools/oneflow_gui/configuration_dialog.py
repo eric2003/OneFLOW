@@ -47,6 +47,7 @@ class ConfigurationDialog(QDialog):
 
         form = QFormLayout()
         self.repository_root_edit = QLineEdit(str(settings.repository_root))
+        self._last_repository_root_text = self.repository_root_edit.text().strip()
         self.repository_root_edit.setToolTip(
             "Source checkout containing CMakeLists.txt."
         )
@@ -96,6 +97,7 @@ class ConfigurationDialog(QDialog):
         self.build_config_combo.currentTextChanged.connect(
             self._build_configuration_changed
         )
+        self.repository_root_edit.textChanged.connect(self._source_root_changed)
 
         actions = QHBoxLayout()
         self.reset_button = QPushButton("Reset to defaults")
@@ -135,20 +137,26 @@ class ConfigurationDialog(QDialog):
         directory = QFileDialog.getExistingDirectory(
             self, "Select OneFLOW source root", start
         )
-        if not directory:
-            return
-        previous_root = self.repository_root_edit.text().strip()
+        if directory:
+            self.repository_root_edit.setText(directory)
+
+    def _source_root_changed(self, value: str) -> None:
+        previous_root = self._last_repository_root_text
         previous_executable = self.executable_combo.currentText().strip()
-        old_automatic_paths = {
-            self._default_executable(Path(previous_root), configuration).casefold()
-            for configuration in ("Debug", "Release")
-        } if previous_root else set()
-        self.repository_root_edit.setText(directory)
-        if previous_executable.casefold() in old_automatic_paths:
-            self.executable_combo.setEditText(
-                self._default_executable(Path(directory), self.build_config_combo.currentText())
-            )
-        self._refresh_executable_candidates(Path(directory))
+        if previous_root:
+            automatic_paths = {
+                self._default_executable(Path(previous_root), configuration).casefold()
+                for configuration in ("Debug", "Release")
+            }
+            if previous_executable.casefold() in automatic_paths and value.strip():
+                self.executable_combo.setEditText(
+                    self._default_executable(
+                        Path(value.strip()), self.build_config_combo.currentText()
+                    )
+                )
+        self._last_repository_root_text = value.strip()
+        if value.strip() and Path(value.strip()).is_dir():
+            self._refresh_executable_candidates(Path(value.strip()))
 
     def _refresh_executable_candidates(self, repository_root: Path) -> None:
         current = self.executable_combo.currentText().strip()
@@ -199,7 +207,7 @@ class ConfigurationDialog(QDialog):
         )
         self._refresh_executable_candidates(root)
 
-    def _save(self) -> None:
+    def _save(self, close_dialog: bool = True) -> bool:
         root_text = self.repository_root_edit.text().strip()
         root = Path(root_text).expanduser() if root_text else None
         if root is None or not root.is_dir() or not (root / "CMakeLists.txt").is_file():
@@ -208,7 +216,7 @@ class ConfigurationDialog(QDialog):
                 "Invalid source root",
                 "Select an existing OneFLOW source directory containing CMakeLists.txt.",
             )
-            return
+            return False
         root = root.resolve()
         executable = self.executable_combo.currentText().strip()
         if not executable:
@@ -225,10 +233,12 @@ class ConfigurationDialog(QDialog):
             settings.save()
         except OSError as error:
             QMessageBox.critical(self, "Cannot save configuration", str(error))
-            return
+            return False
         self._settings = settings
         self._saved_values = self._current_values()
-        self.accept()
+        if close_dialog:
+            self.accept()
+        return True
 
     def closeEvent(self, event) -> None:
         if self._current_values() == self._saved_values:
@@ -246,8 +256,10 @@ class ConfigurationDialog(QDialog):
         prompt.exec()
         clicked = prompt.clickedButton()
         if clicked is save_button:
-            self._save()
-            event.ignore()
+            if self._save(close_dialog=False):
+                event.accept()
+            else:
+                event.ignore()
         elif clicked is discard_button:
             event.accept()
         elif clicked is cancel_button:
