@@ -144,68 +144,55 @@ void FaceSearch::SplitLine( int faceId )
     }
 }
 
+void BuildQuadDiagonalLocalTris( LinkField & localTriId, LinkField & localTriFlag )
+{
+    localTriId.clear();
+    localTriFlag.clear();
+
+    // Diagonal 0-2
+    localTriId.push_back( IntField{ 0, 1, 2 } );
+    localTriId.push_back( IntField{ 2, 3, 0 } );
+    localTriFlag.push_back( IntField{ 1, 1, 1 } );
+    localTriFlag.push_back( IntField{ 1, 1, 1 } );
+
+    // Diagonal 1-3
+    localTriId.push_back( IntField{ 3, 0, 1 } );
+    localTriId.push_back( IntField{ 1, 2, 3 } );
+    localTriFlag.push_back( IntField{ 1, 1, 1 } );
+    localTriFlag.push_back( IntField{ 1, 1, 1 } );
+}
+
+void MapLocalTrisToGlobalNodes(
+    const IntField & nodeId,
+    const LinkField & localTriId,
+    LinkField & triId )
+{
+    triId.clear();
+    triId.resize( localTriId.size() );
+    for ( std::size_t iTri = 0; iTri < localTriId.size(); ++ iTri )
+    {
+        for ( int iNode = 0; iNode < 3; ++ iNode )
+        {
+            const int localCorner = localTriId[ iTri ][ iNode ];
+            if ( localCorner < 0 ||
+                 static_cast< std::size_t >( localCorner ) >= nodeId.size() )
+            {
+                throw std::out_of_range(
+                    "MapLocalTrisToGlobalNodes: local corner index is out of range" );
+            }
+            triId[ iTri ].push_back( nodeId[ localCorner ] );
+        }
+    }
+}
+
 void FaceSearch::GetLocalTri( LinkField & localTriId, LinkField & localTriFlag )
 {
-    IntField localId1( 3 ), localId2( 3 );
-    localId1[ 0 ] = 0;
-    localId1[ 1 ] = 1;
-    localId1[ 2 ] = 2;
-
-    localId2[ 0 ] = 2;
-    localId2[ 1 ] = 3;
-    localId2[ 2 ] = 0;
-
-    IntField localFlag1( 3 ), localFlag2( 3 );
-
-    localFlag1[ 0 ] = 1;
-    localFlag1[ 1 ] = 1;
-    localFlag1[ 2 ] = 1;
-
-    localFlag2[ 0 ] = 1;
-    localFlag2[ 1 ] = 1;
-    localFlag2[ 2 ] = 1;
-
-    localTriId.push_back( localId1 );
-    localTriId.push_back( localId2 );
-
-    localTriFlag.push_back( localFlag1 );
-    localTriFlag.push_back( localFlag2 );
-
-    //The second splitting method
-    localId1[ 0 ] = 3;
-    localId1[ 1 ] = 0;
-    localId1[ 2 ] = 1;
-
-    localId2[ 0 ] = 1;
-    localId2[ 1 ] = 2;
-    localId2[ 2 ] = 3;
-
-    localFlag1[ 0 ] = 1;
-    localFlag1[ 1 ] = 1;
-    localFlag1[ 2 ] = 1;
-
-    localFlag2[ 0 ] = 1;
-    localFlag2[ 1 ] = 1;
-    localFlag2[ 2 ] = 1;
-
-    localTriId.push_back( localId1 );
-    localTriId.push_back( localId2 );
-
-    localTriFlag.push_back( localFlag1 );
-    localTriFlag.push_back( localFlag2 );
-
+    BuildQuadDiagonalLocalTris( localTriId, localTriFlag );
 }
 
 void FaceSearch::GetTriId( const IntField & nodeId, LinkField & localTriId, LinkField & triId )
 {
-    triId.resize( localTriId.size() );
-    for ( int iTri = 0; iTri < localTriId.size(); ++ iTri )
-    {
-        for ( int iNode = 0; iNode < 3; ++ iNode )
-        {
-            triId[ iTri ].push_back( nodeId[ localTriId[ iTri ][ iNode ] ] );
-        }
-    }
+    MapLocalTrisToGlobalNodes( nodeId, localTriId, triId );
 }
 
 bool FaceSearch::GetLine( const IntField & nodeId, LinkField & localLineId, LinkField & localLineFlag, LinkField & lineId )

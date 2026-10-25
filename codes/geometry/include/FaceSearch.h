@@ -100,4 +100,15 @@ public:
     bool GetLine( const IntField & nodeId, LinkField & localLineId, LinkField & localLineFlag, LinkField & lineId );
 };
 
+// Pure helpers for quad diagonal split (testable without IFaceLink).
+// BuildQuadDiagonalLocalTris clears outputs then fills four candidate tris:
+// diagonal 0-2 (tris 0-1-2 and 2-3-0) and diagonal 1-3 (tris 3-0-1 and 1-2-3).
+void BuildQuadDiagonalLocalTris( LinkField & localTriId, LinkField & localTriFlag );
+
+// Map local corner indices in localTriId through nodeId into global node ids.
+void MapLocalTrisToGlobalNodes(
+    const IntField & nodeId,
+    const LinkField & localTriId,
+    LinkField & triId );
+
 EndNameSpace
