@@ -2,7 +2,7 @@
 
 Last updated: 2026-10-26
 Working branch: `hexin`
-Latest R1 code/test slice: [`f861c031cfc7073a87b44c5d61748fdc5b0fd077`](https://github.com/eric2003/OneFLOW/commit/f861c031cfc7073a87b44c5d61748fdc5b0fd077). The user reports `100% tests passed out of 697` on the latest `hexin` code baseline. This is user-reported local evidence; this assistant session has not independently run the build or tests. The runtime architecture guide was subsequently aligned with the checked helper in [`da467a9c`](https://github.com/eric2003/OneFLOW/commit/da467a9c18cf5df0cc533410fd022d8dacc13afb).
+Latest R1 implementation slice: [`897112bd`](https://github.com/eric2003/OneFLOW/commit/897112bde18f9f7ab77b063605bd56f3b0e0f749) adds tests for the source-grid fallback policy. The user reported `100% tests passed out of 697` before this latest policy/test change; the new tests and subsequent documentation-only commits have not been independently built or run in this session. The runtime guide was aligned with checked optional-string lookup in [`da467a9c`](https://github.com/eric2003/OneFLOW/commit/da467a9c18cf5df0cc533410fd022d8dacc13afb), and its related-links line break was fixed in [`1cc6575d`](https://github.com/eric2003/OneFLOW/commit/1cc6575dc7baad91889b08a8339afc5230873802).
 
 This is the fast handoff page for an AI assistant or developer continuing work on OneFLOW. It is a curated status snapshot, not a replacement for source code, tests, design pages, or CI. Recheck the branch HEAD before editing: this page can lag behind the current repository revision.
 
@@ -79,7 +79,7 @@ The helper preserves the optional-parameter contract:
 - The same rule is applied to `projectRoot`, `inputRoot`, `outputRoot`, `meshInputRoot`, `flowInputRoot`, `meshOutputRoot`, `flowOutputRoot`, `sourceGridCaseDir`, and `ioPathInfoFileName`.
 - The follow-up documentation record is in [`3c987064e4d547de4e10a07f261a3cebf2837407`](https://github.com/eric2003/OneFLOW/commit/3c987064e4d547de4e10a07f261a3cebf2837407).
 
-**Status: Partial, with user-reported test pass.** The user reports all 697 local tests pass on the latest `hexin` code baseline. The focused helper test covers missing, valid string, and invalid-type values. It uses a `DataPara` instance rather than the full `SetupCaseEnvironment()` lifecycle, so global-database binding, control-file loading, and the explicit `meshInputRoot` versus `sourceGridCaseDir` fallback remain integration-level acceptance criteria. No GitHub CI pass has been confirmed for the latest revision.
+**Status: Partial.** The user reported all 697 local tests passed on the code baseline before the latest fallback-policy change. The focused helper test covers missing, valid string, and invalid-type values; it now also tests whether empty/default mesh roots permit reading the legacy fallback and whether an explicit mesh root suppresses that fallback lookup. These latest additions still need the user's next local test run. The helper tests use a `DataPara` instance rather than the full `SetupCaseEnvironment()` lifecycle, so global-database binding and control-file loading remain integration-level acceptance criteria. No GitHub CI pass has been confirmed for the latest revision.
 
 ## 5. Next actions, in priority order
 
