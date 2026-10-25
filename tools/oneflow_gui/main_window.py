@@ -276,6 +276,7 @@ class MainWindow(QMainWindow):
         mesh_layout_button.clicked.connect(self._open_mesh_layout)
         tests_button = QPushButton("Unit / Regression Tests...")
         tests_button.clicked.connect(self._open_tests)
+        tests_button.setVisible(not self._single_case_mode)
         self.build_button = QPushButton("Build")
         self.build_button.clicked.connect(lambda: self._start_build(rebuild=False))
         self.rebuild_button = QPushButton("Rebuild")
