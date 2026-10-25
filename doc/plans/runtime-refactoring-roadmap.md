@@ -178,3 +178,14 @@ Verified from the current source:
 **Updated next action:** do not extract a resolver yet. First add or identify a test seam that can verify root precedence and `sourceGridCaseDir` fallback without booting the complete runtime. In parallel, inspect how parameter entries are constructed and typed so the test uses valid database values. Only after this contract is covered should the code boundary be changed.
 
 Validation note: this entry records source/test inspection only. No C++ source or test was changed and no local test suite was run for this entry.
+
+
+### 2026-10-26 - R1 first implementation slice
+
+Commit: `d8568fe91722af5d78d8083d6bae23d9446d952d`
+
+- Replaced broad exception swallowing for the optional path-related string parameters with a small local reader that distinguishes a missing entry from a present entry whose declared database type is not `HX_STRING`.
+- Missing optional entries still resolve to an empty string, preserving the current fallback path. Present non-string entries now raise `std::invalid_argument` instead of being reinterpreted through an unchecked `static_cast`.
+- Applied the same rule to `sourceGridCaseDir` and `ioPathInfoFileName`; the explicit `meshInputRoot` precedence and legacy source-grid fallback condition are unchanged.
+- The helper remains local to environment bootstrap. No general database API or new public abstraction was introduced.
+- Validation: source is ASCII-only by inspection. CI for this commit must still confirm compilation and regressions. A focused automated test for this specific invalid-type setup path has not yet been added, so this is a first implementation slice, not a completed R1 stage.
