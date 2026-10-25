@@ -51,6 +51,27 @@ void ExecuteWithCleanup( Execute && execute, Cleanup && cleanup )
     std::forward< Cleanup >( cleanup )();
 }
 
+template< typename Setup, typename Rollback >
+void ExecuteWithRollback( Setup && setup, Rollback && rollback )
+{
+    try
+    {
+        std::forward< Setup >( setup )();
+    }
+    catch ( ... )
+    {
+        try
+        {
+            std::forward< Rollback >( rollback )();
+        }
+        catch ( ... )
+        {
+            // Keep the original setup failure.
+        }
+        throw;
+    }
+}
+
 template< typename Setup, typename Execute, typename Finalize >
 void ExecuteWithProcessLifecycle(
     Setup && setup,

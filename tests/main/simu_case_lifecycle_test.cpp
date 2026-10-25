@@ -71,6 +71,46 @@ TEST( SimuCaseLifecycleTest, SuccessfulExecutionPropagatesCleanupFailure )
             []() { throw std::logic_error( "cleanup failure" ); } ),
         std::logic_error );
 }
+TEST( SimuCaseLifecycleTest, SetupRollbackDoesNotRunAfterSuccess )
+{
+    std::vector< std::string > events;
+
+    SimuCaseLifecycleDetail::ExecuteWithRollback(
+        [&]() { events.emplace_back( "setup" ); },
+        [&]() { events.emplace_back( "rollback" ); } );
+
+    const std::vector< std::string > expected = { "setup" };
+    EXPECT_EQ( events, expected );
+}
+
+TEST( SimuCaseLifecycleTest, SetupFailureRunsRollbackAndPreservesFailure )
+{
+    std::vector< std::string > events;
+
+    try
+    {
+        SimuCaseLifecycleDetail::ExecuteWithRollback(
+            [&]()
+            {
+                events.emplace_back( "setup" );
+                throw std::runtime_error( "setup failed" );
+            },
+            [&]()
+            {
+                events.emplace_back( "rollback" );
+                throw std::logic_error( "rollback failed" );
+            } );
+        FAIL() << "Expected the setup exception";
+    }
+    catch ( const std::runtime_error & error )
+    {
+        EXPECT_EQ( std::string( error.what() ), "setup failed" );
+    }
+
+    const std::vector< std::string > expected = { "setup", "rollback" };
+    EXPECT_EQ( events, expected );
+}
+
 TEST( SimuCaseLifecycleTest, FinalizesSingleCaseProcessAfterExecutionFailure )
 {
     std::vector< std::string > events;

@@ -2,7 +2,7 @@
 
 Last updated: 2026-10-26
 Working branch: `hexin`
-Latest inspected `hexin` HEAD: [`c7e4242e`](https://github.com/eric2003/OneFLOW/commit/c7e4242ed07022725b2342b4d5db100dba0283f8). The user reports 714/714 tests passed on this baseline. This slice closes a process-finalization gap in standalone `SimuImp::Run()`, guards process initialization against a second start, and preserves duplicate case paths as repeated executions. Eleven focused lifecycle/state tests pass after direct MSVC compilation. The full suite and executable link have not been rerun for the current changes.
+Latest inspected `hexin` HEAD: [`23e11c91`](https://github.com/eric2003/OneFLOW/commit/23e11c91ba8e748804905eb95df21d3adc84a49a). The user reports 719/719 tests passed on this baseline. This slice makes combined process/case setup rollback partial initialization and guarantees process finalization is attempted even when case teardown fails. Thirteen focused lifecycle/state tests pass after direct MSVC compilation; `SimuContextEnv.cpp` also compiles separately. The full suite and executable link have not been rerun for the current changes.
 
 This is the fast handoff page for an AI assistant or developer continuing work on OneFLOW. It is a curated status snapshot, not a replacement for source code, tests, design pages, or CI. Recheck the branch HEAD before editing: this page can lag behind the current repository revision.
 
@@ -36,9 +36,9 @@ Do not start by reading the whole repository. Use the architecture map to identi
 
 The published [architecture review](source/architecture_review.rst) is now the common checklist for substantial AI-assisted changes. It deliberately separates general CFD/CAE concerns from verified OneFLOW behavior. Keep these cross-system risks visible while working locally: implicit global runtime state, configuration parsing versus validation/application, mutable mesh data and derived connectivity, workflow artifact provenance and execution locations, repeated/failed-run cleanup, and the gap between documented plans and actual test/CI evidence. At each meaningful milestone, state which system-level concern improved, what remains untouched, and whether the priority order should change.
 
-## 4. Current focus: single-case and multi-case process lifecycle
+## 4. Current focus: failure-safe process and case setup
 
-The multi-case path initializes process runtime once, runs every case-list entry in command-line order (including repeated identical paths), tears down each case, then finalizes process runtime. The standalone `SimuImp::Run()` compatibility path owns one process lifecycle around one case execution. `SimuImp::RunCase()` retains its narrower, repeatable case teardown boundary and does not initialize or finalize MPI. MPI process runtime is one-shot; case execution can be repeated within that runtime. Eleven focused lifecycle/state tests pass after direct MSVC compilation; the full suite and executable link remain unverified. R1 case configuration and I/O root resolution remains partial.
+The multi-case path initializes process runtime once, runs every case-list entry in command-line order (including repeated identical paths), tears down each case, then finalizes process runtime. `SimuContext::SetupEnvironment()` now rolls back process/case resources if case setup fails; `TeardownEnvironment()` attempts process finalization even if case teardown throws. `SimuImp::RunCase()` retains its narrower, repeatable case boundary and does not initialize or finalize MPI. MPI process runtime is one-shot; case execution can be repeated within that runtime. Thirteen focused lifecycle/state tests pass after direct MSVC compilation; the full suite and executable link remain unverified. R1 case configuration and I/O root resolution remains partial.
 
 ### Source-backed execution path
 

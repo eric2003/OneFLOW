@@ -23,6 +23,7 @@ License
 // Delegates to existing globals (compatibility layer for phase 2).
 
 #include "SimuContext.h"
+#include "SimuCaseLifecycle.h"
 #include "SimuContextParameter.h"
 #include "SimuTask.h"
 #include "Prj.h"
@@ -91,13 +92,18 @@ void SimuContext::ProcessCommandLine()
 void SimuContext::SetupProcessEnvironment()
 {
     processLifecycle_.Start();
-    std::cout << " OneFLOW is running\n";
-    ONEFLOW::SetUpParallelEnvironment();
+    SimuCaseLifecycleDetail::ExecuteWithRollback(
+        [&]()
+        {
+            std::cout << " OneFLOW is running\n";
+            ONEFLOW::SetUpParallelEnvironment();
 
-    rank_ = Parallel::GetPid();
-    size_ = Parallel::GetNProc();
+            rank_ = Parallel::GetPid();
+            size_ = Parallel::GetNProc();
 
-    ONEFLOW::InitializeAccelRuntime( rank_, size_ );
+            ONEFLOW::InitializeAccelRuntime( rank_, size_ );
+        },
+        [&]() { FinalizeEnvironment(); } );
 }
 
 void SimuContext::SetupCaseEnvironment()
@@ -193,7 +199,9 @@ void SimuContext::SetupCaseEnvironment()
 void SimuContext::SetupEnvironment()
 {
     SetupProcessEnvironment();
-    SetupCaseEnvironment();
+    SimuCaseLifecycleDetail::ExecuteWithRollback(
+        [&]() { SetupCaseEnvironment(); },
+        [&]() { TeardownEnvironment(); } );
 }
 
 void SimuContext::TeardownCase()
@@ -270,8 +278,9 @@ void SimuContext::FinalizeEnvironment()
 
 void SimuContext::TeardownEnvironment()
 {
-    TeardownCase();
-    FinalizeEnvironment();
+    SimuCaseLifecycleDetail::ExecuteWithCleanup(
+        [&]() { TeardownCase(); },
+        [&]() { FinalizeEnvironment(); } );
 }
 
 void SimuContext::ResolveTaskFromControl()
