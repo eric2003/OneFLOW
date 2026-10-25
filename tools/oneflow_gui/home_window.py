@@ -21,6 +21,7 @@ from PySide6.QtWidgets import (
 )
 
 from .application_settings import ApplicationSettings, resolve_repository_root
+from .configuration_dialog import ConfigurationDialog
 from .executable_discovery import executable_candidates
 from .mesh_layout_dialog import MeshLayoutDialog
 from .project_repository import open_project
@@ -99,43 +100,23 @@ class WorkbenchHomeWindow(QMainWindow):
         )
         self.background_tasks_button.clicked.connect(self._open_background_tasks)
         project_actions.addWidget(self.background_tasks_button)
+
+        configuration_button = QPushButton("Configuration...")
+        configuration_button.setMinimumHeight(48)
+        configuration_button.setMinimumWidth(160)
+        configuration_button.setToolTip(
+            "Configure the source root, executable, run mode, and build configuration."
+        )
+        configuration_button.clicked.connect(self._open_configuration)
+        project_actions.addWidget(configuration_button)
         project_actions.addStretch(1)
         root.addLayout(project_actions)
 
-        configuration_row = QHBoxLayout()
-        configuration_row.addWidget(QLabel("Build configuration"))
-        self.build_config_combo = QComboBox()
+        self.build_config_combo = QComboBox(central)
         self.build_config_combo.addItems(["Debug", "Release"])
         self.build_config_combo.setCurrentText(self._settings.build_configuration)
-        self.build_config_combo.setToolTip(
-            "Choose the build configuration used by build and unit-test tasks."
-        )
-        configuration_row.addWidget(self.build_config_combo, 1)
-        root.addLayout(configuration_row)
-
-        source_root_row = QHBoxLayout()
-        source_root_row.addWidget(QLabel("OneFLOW source root"))
-        self.repository_root_edit = QLineEdit(str(self._repository_root))
-        self.repository_root_edit.setToolTip(
-            "Default checkout containing CMakeLists.txt, used by build, test, and case tools."
-        )
-        source_root_row.addWidget(self.repository_root_edit, 1)
-        browse_root = QPushButton("Browse...")
-        browse_root.clicked.connect(self._choose_repository_root)
-        source_root_row.addWidget(browse_root)
-        reset_root = QPushButton("Reset")
-        reset_root.setToolTip("Restore the default OneFLOW source directory.")
-        reset_root.clicked.connect(self._reset_basic_configuration)
-        source_root_row.addWidget(reset_root)
-        root.addLayout(source_root_row)
-
-        executable_row = QHBoxLayout()
-        executable_row.addWidget(QLabel("OneFLOW executable"))
-        self.executable_combo = QComboBox()
+        self.executable_combo = QComboBox(central)
         self.executable_combo.setEditable(True)
-        self.executable_combo.setToolTip(
-            "Choose the Debug or Release build for development, or browse to another executable."
-        )
         self.executable_combo.setMinimumContentsLength(42)
         self.executable_combo.setSizeAdjustPolicy(
             QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon
@@ -143,10 +124,10 @@ class WorkbenchHomeWindow(QMainWindow):
         self.executable_combo.addItems(
             [str(path) for path in executable_candidates(self._repository_root)]
         )
-        if self.executable_combo.count():
-            self.executable_combo.setCurrentIndex(0)
         if self._settings.executable_path:
             self.executable_combo.setEditText(self._settings.executable_path)
+        elif self.executable_combo.count():
+            self.executable_combo.setCurrentIndex(0)
         self._build_executable_paths = {
             configuration: str(
                 (self._repository_root / "build" / "bin" / configuration / "OneFLOW.exe").resolve()
@@ -156,11 +137,14 @@ class WorkbenchHomeWindow(QMainWindow):
         self.build_config_combo.currentTextChanged.connect(
             self._build_configuration_changed
         )
-        executable_row.addWidget(self.executable_combo, 1)
-        browse = QPushButton("Browse...")
-        browse.clicked.connect(self._choose_executable)
-        executable_row.addWidget(browse)
-        root.addLayout(executable_row)
+        self.run_mode_combo = QComboBox(central)
+        self.run_mode_combo.addItem("Run single case", "single_case")
+        self.run_mode_combo.addItem("Multi-case run", "multi_case")
+        self.run_mode_combo.addItem("Dependency workflow", "dependency_workflow")
+        self.run_mode_combo.setCurrentIndex(
+            max(0, self.run_mode_combo.findData(self._settings.run_mode))
+        )
+
 
         grid = QGridLayout()
         grid.setSpacing(12)
@@ -170,19 +154,6 @@ class WorkbenchHomeWindow(QMainWindow):
             self._open_case_database,
         )
 
-        run_mode_row = QHBoxLayout()
-        run_mode_row.addWidget(QLabel("Run mode"))
-        self.run_mode_combo = QComboBox()
-        self.run_mode_combo.addItem("Run single case", "single_case")
-        self.run_mode_combo.addItem("Multi-case run", "multi_case")
-        self.run_mode_combo.addItem("Dependency workflow", "dependency_workflow")
-        self.run_mode_combo.setMinimumHeight(38)
-        run_mode_row.addWidget(self.run_mode_combo, 1)
-        open_run_mode = QPushButton("Continue...")
-        open_run_mode.setMinimumHeight(38)
-        open_run_mode.clicked.connect(self._open_selected_run_mode)
-        run_mode_row.addWidget(open_run_mode)
-        root.addLayout(run_mode_row)
 
         self._add_activity(
             grid, 1, 0, "Task Runner",
@@ -262,6 +233,39 @@ class WorkbenchHomeWindow(QMainWindow):
         layout.addWidget(button)
         layout.addWidget(detail)
         grid.addWidget(card, row, column)
+
+    def _open_configuration(self) -> None:
+        dialog = ConfigurationDialog(
+            ApplicationSettings(
+                self._pending_repository_root() or self._repository_root,
+                self.build_config_combo.currentText(),
+                self.executable_combo.currentText().strip(),
+                self.run_mode_combo.currentData(),
+            ),
+            self._default_repository_root,
+            self,
+        )
+        if dialog.exec() != QDialog.DialogCode.Accepted:
+            return
+        self._settings = dialog._settings
+        self._repository_root = self._settings.repository_root.resolve()
+        self.repository_root_edit_value = str(self._repository_root)
+        self.build_config_combo.setCurrentText(self._settings.build_configuration)
+        self.run_mode_combo.setCurrentIndex(
+            max(0, self.run_mode_combo.findData(self._settings.run_mode))
+        )
+        self._build_executable_paths = {
+            configuration: str(
+                (self._repository_root / "build" / "bin" / configuration / "OneFLOW.exe").resolve()
+            )
+            for configuration in ("Debug", "Release")
+        }
+        self.executable_combo.clear()
+        self.executable_combo.addItems(
+            [str(path) for path in executable_candidates(self._repository_root)]
+        )
+        self.executable_combo.setEditText(self._settings.executable_path)
+        self.statusBar().showMessage("Configuration saved.", 4000)
 
     def _choose_executable(self) -> None:
         current = self.executable_combo.currentText().strip()
@@ -491,37 +495,6 @@ class WorkbenchHomeWindow(QMainWindow):
         MeshLayoutDialog(self._repository_root, self).exec()
 
     def closeEvent(self, event) -> None:
-        pending_root = self._pending_repository_root()
-        settings_changed = (
-            pending_root is None
-            or pending_root != self._saved_repository_root
-            or self.build_config_combo.currentText() != self._saved_build_configuration
-            or self.executable_combo.currentText().strip() != self._saved_executable_path
-        )
-        if settings_changed:
-            prompt = QMessageBox(self)
-            prompt.setWindowTitle("Save configuration changes?")
-            prompt.setText("Workbench configuration has been changed.")
-            prompt.setInformativeText(
-                "Save the source directory, build configuration, and executable selection before closing?"
-            )
-            save_button = prompt.addButton("Save", QMessageBox.ButtonRole.AcceptRole)
-            discard_button = prompt.addButton("Discard", QMessageBox.ButtonRole.DestructiveRole)
-            cancel_button = prompt.addButton("Cancel", QMessageBox.ButtonRole.RejectRole)
-            prompt.setDefaultButton(save_button)
-            prompt.exec()
-            clicked = prompt.clickedButton()
-            if clicked is cancel_button:
-                event.ignore()
-                return
-            if clicked is save_button:
-                if not self._save_basic_configuration():
-                    event.ignore()
-                    return
-            elif clicked is not discard_button:
-                event.ignore()
-                return
-
         registry = BackgroundTaskRegistry(UserDataPaths.discover().root)
         active_tasks = registry.list_active_tasks()
         if not active_tasks:
