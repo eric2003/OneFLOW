@@ -33,8 +33,40 @@ class ApplicationSettingsTest(unittest.TestCase):
             self.assertEqual(settings.repository_root, repository_root.resolve())
             self.assertEqual(
                 json.loads(settings_file.read_text(encoding="utf-8")),
-                {"repository_root": str(repository_root.resolve())},
+                {
+                    "repository_root": str(repository_root.resolve()),
+                    "build_configuration": "Debug",
+                    "executable_path": "",
+                },
             )
+
+    def test_save_and_load_build_and_executable_preferences(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            repository_root = root / "checkout"
+            repository_root.mkdir()
+            settings_file = root / "settings.json"
+
+            ApplicationSettings(
+                repository_root, "Release", str(repository_root / "custom.exe")
+            ).save(settings_file)
+            settings = ApplicationSettings.load(settings_file)
+
+            self.assertEqual(settings.build_configuration, "Release")
+            self.assertEqual(settings.executable_path, str(repository_root / "custom.exe"))
+
+    def test_load_old_settings_defaults_new_preferences(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            settings_file = root / "settings.json"
+            settings_file.write_text(
+                json.dumps({"repository_root": str(root)}), encoding="utf-8"
+            )
+
+            settings = ApplicationSettings.load(settings_file)
+
+            self.assertEqual(settings.build_configuration, "Debug")
+            self.assertEqual(settings.executable_path, "")
 
     def test_missing_configured_checkout_falls_back_to_launch_checkout(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
