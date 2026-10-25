@@ -86,18 +86,26 @@ class FaceSearch : public FaceSearchBasic
 public:
     FaceSearch() = default;
     ~FaceSearch() = default;
-public:
-    IntField status;
+
     InterfaceFaceSplitTable interfaceSplit;
-    IFaceLink * iFaceLink = nullptr;
-    int gFid = 0;
-public:
+
     void CalcNewFaceId( IFaceLink & iFaceLink );
     void SplitQuad2Tri( int faceId );
-    void SplitLine( int faceId );
+    // Split a 2-node edge face using mid-point insertion (needs IFaceLink geometry).
+    void SplitLine( IFaceLink & iFaceLink, int globalFaceId );
     void GetLocalTri( LinkField & localTriId, LinkField & localTriFlag );
     void GetTriId( const IntField & nodeId, LinkField & localTriId, LinkField & triId );
-    bool GetLine( const IntField & nodeId, LinkField & localLineId, LinkField & localLineFlag, LinkField & lineId );
+
+private:
+    // Try to split edge (nodeId size 2) at midpoint if the midpoint already
+    // exists in the point locator. globalFaceId indexes iFaceLink.gI2Zid.
+    bool TrySplitLineAtMidpoint(
+        IFaceLink & iFaceLink,
+        int globalFaceId,
+        const IntField & nodeId,
+        LinkField & localLineId,
+        LinkField & localLineFlag,
+        LinkField & lineId );
 };
 
 // Pure helpers for quad diagonal split (testable without IFaceLink).
