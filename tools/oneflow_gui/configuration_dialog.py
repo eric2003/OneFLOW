@@ -98,6 +98,7 @@ class ConfigurationDialog(QDialog):
             self._build_configuration_changed
         )
         self.repository_root_edit.textChanged.connect(self._source_root_changed)
+        self.repository_root_edit.editingFinished.connect(self._refresh_candidates_from_edit)
 
         actions = QHBoxLayout()
         self.reset_button = QPushButton("Reset to defaults")
@@ -155,8 +156,11 @@ class ConfigurationDialog(QDialog):
                     )
                 )
         self._last_repository_root_text = value.strip()
-        if value.strip() and Path(value.strip()).is_dir():
-            self._refresh_executable_candidates(Path(value.strip()))
+
+    def _refresh_candidates_from_edit(self) -> None:
+        value = self.repository_root_edit.text().strip()
+        if value and Path(value).is_dir():
+            self._refresh_executable_candidates(Path(value))
 
     def _refresh_executable_candidates(self, repository_root: Path) -> None:
         current = self.executable_combo.currentText().strip()
