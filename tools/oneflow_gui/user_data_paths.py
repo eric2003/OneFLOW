@@ -78,6 +78,11 @@ class UserDataPaths:
         return self.workflow_data / "executions"
 
     @property
+    def grid_layout_test(self) -> Path:
+        """Disposable case-database execution copies, refreshed on each run."""
+        return self.root / "grid-layout-test"
+
+    @property
     def cfd_regression_workspace(self) -> Path:
         """Keep disposable CFD regression copies outside the source repository."""
         return self.root / "cfd-regression"
