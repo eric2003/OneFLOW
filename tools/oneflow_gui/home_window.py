@@ -324,11 +324,17 @@ class WorkbenchHomeWindow(QMainWindow):
                 )
             return False
 
-        settings = ApplicationSettings(
-            repository_root,
-            self.build_config_combo.currentText(),
-            self.executable_combo.currentText().strip(),
-        )
+        previous_executable = self.executable_combo.currentText().strip()
+        follows_build_configuration = previous_executable.casefold() in {
+            path.casefold() for path in self._build_executable_paths.values()
+        }
+        build_configuration = self.build_config_combo.currentText()
+        executable_path = previous_executable
+        if follows_build_configuration:
+            executable_path = str(
+                (repository_root / "build" / "bin" / build_configuration / "OneFLOW.exe").resolve()
+            )
+        settings = ApplicationSettings(repository_root, build_configuration, executable_path)
         try:
             settings.save()
         except OSError as error:
@@ -336,15 +342,11 @@ class WorkbenchHomeWindow(QMainWindow):
                 QMessageBox.critical(self, "Cannot save settings", str(error))
             return False
 
-        previous_executable = self.executable_combo.currentText().strip()
-        follows_build_configuration = previous_executable.casefold() in {
-            path.casefold() for path in self._build_executable_paths.values()
-        }
         self._settings = settings
         self._repository_root = repository_root
         self._saved_repository_root = repository_root
-        self._saved_build_configuration = self.build_config_combo.currentText()
-        self._saved_executable_path = self.executable_combo.currentText().strip()
+        self._saved_build_configuration = build_configuration
+        self._saved_executable_path = executable_path
         self._build_executable_paths = {
             configuration: str(
                 (repository_root / "build" / "bin" / configuration / "OneFLOW.exe").resolve()
@@ -355,14 +357,9 @@ class WorkbenchHomeWindow(QMainWindow):
         self.executable_combo.addItems(
             [str(path) for path in executable_candidates(repository_root)]
         )
-        if follows_build_configuration:
-            self.executable_combo.setEditText(
-                self._build_executable_paths[self.build_config_combo.currentText()]
-            )
-        elif previous_executable:
-            self.executable_combo.setEditText(previous_executable)
+        self.executable_combo.setEditText(executable_path)
         self.repository_root_edit.setText(str(repository_root))
-        self.statusBar().showMessage("Basic configuration saved.", 4000)
+        self.statusBar().showMessage("Configuration saved.", 4000)
         return True
 
     def _new_project(self) -> None:
@@ -501,9 +498,9 @@ class WorkbenchHomeWindow(QMainWindow):
         if settings_changed:
             prompt = QMessageBox(self)
             prompt.setWindowTitle("Save configuration changes?")
-            prompt.setText("The Basic Configuration has been changed.")
+            prompt.setText("Workbench configuration has been changed.")
             prompt.setInformativeText(
-                "Save the new OneFLOW source directory before closing?"
+                "Save the source directory, build configuration, and executable selection before closing?"
             )
             save_button = prompt.addButton("Save", QMessageBox.ButtonRole.AcceptRole)
             discard_button = prompt.addButton("Discard", QMessageBox.ButtonRole.DestructiveRole)
