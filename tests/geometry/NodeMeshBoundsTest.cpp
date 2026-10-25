@@ -267,3 +267,23 @@ TEST(NodeMeshBoundsTest, AddPointRejectsInconsistentCoordinateArraysWithoutMutat
     EXPECT_DOUBLE_EQ( mesh.xN[ 0 ], 1.0 );
     EXPECT_DOUBLE_EQ( mesh.zN[ 0 ], 3.0 );
 }
+
+
+TEST(NodeMeshBoundsTest, FindPointReturnsExistingLocalNodeWithinTolerance)
+{
+    ONEFLOW::NodeMesh mesh;
+    mesh.AddPoint( 1.0, 2.0, 3.0 );
+    mesh.AddPoint( 4.0, 5.0, 6.0 );
+
+    EXPECT_EQ( mesh.FindPoint( 1.0 + 1.0e-7, 2.0, 3.0, 1.0e-6 ), 0 );
+    EXPECT_EQ( mesh.FindPoint( 4.0, 5.0, 6.0, 1.0e-6 ), 1 );
+    EXPECT_EQ( mesh.FindPoint( 7.0, 8.0, 9.0, 1.0e-6 ), -1 );
+}
+
+TEST(NodeMeshBoundsTest, FindPointRejectsNegativeTolerance)
+{
+    ONEFLOW::NodeMesh mesh;
+    mesh.AddPoint( 1.0, 2.0, 3.0 );
+
+    EXPECT_THROW( mesh.FindPoint( 1.0, 2.0, 3.0, -1.0e-6 ), std::invalid_argument );
+}
