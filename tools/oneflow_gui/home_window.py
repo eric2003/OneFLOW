@@ -12,6 +12,7 @@ from PySide6.QtWidgets import (
     QGridLayout,
     QHBoxLayout,
     QLabel,
+    QLineEdit,
     QMainWindow,
     QMessageBox,
     QPushButton,
@@ -30,7 +31,6 @@ from .background_task_dialog import BackgroundTaskDialog
 from .background_task_registry import BackgroundTaskRegistry
 from .background_task_manager import request_background_stop
 from .test_dialog import TestRunnerDialog
-from .settings_dialog import SettingsDialog
 from .user_data_paths import UserDataPaths
 from .workflow_dialog import WorkflowDialog
 from .workspace_dialog import WorkspaceDialog
@@ -188,12 +188,31 @@ class WorkbenchHomeWindow(QMainWindow):
             "Create a .ofw case collection for existing case directories. For a new templated calculation project, use New Project above.",
             self._create_workspace,
         )
-        self._add_activity(
-            grid, 4, 0, "Basic Configuration",
-            "Configure the OneFLOW source checkout used by build, test, and case tools.",
-            self._open_settings,
-        )
         root.addLayout(grid, 1)
+
+        configuration_title = QLabel("Basic Configuration")
+        configuration_title.setObjectName("sectionTitle")
+        root.addWidget(configuration_title)
+        source_root_row = QHBoxLayout()
+        source_root_row.addWidget(QLabel("OneFLOW source root"))
+        self.repository_root_edit = QLineEdit(str(self._repository_root))
+        self.repository_root_edit.setToolTip(
+            "Source checkout containing CMakeLists.txt, used by build, test, and case tools."
+        )
+        self.repository_root_edit.textChanged.connect(
+            self._basic_configuration_changed
+        )
+        source_root_row.addWidget(self.repository_root_edit, 1)
+        browse_root = QPushButton("Browse...")
+        browse_root.clicked.connect(self._choose_repository_root)
+        source_root_row.addWidget(browse_root)
+        self.save_basic_configuration_button = QPushButton("Save")
+        self.save_basic_configuration_button.setEnabled(False)
+        self.save_basic_configuration_button.clicked.connect(
+            self._save_basic_configuration
+        )
+        source_root_row.addWidget(self.save_basic_configuration_button)
+        root.addLayout(source_root_row)
 
         footer = QLabel(
             "A Project is a calculation directory that can be created from a template or opened directly. A Multi-Case Workspace is a saved .ofw definition for grouping existing cases and selecting an execution policy. These are distinct legacy paths; new project workflows are the preferred path for new work."
@@ -267,33 +286,66 @@ class WorkbenchHomeWindow(QMainWindow):
         }:
             self.executable_combo.setEditText(self._build_executable_paths[configuration])
 
-    def _open_settings(self) -> None:
-        dialog = SettingsDialog(self._settings, self)
-        if dialog.exec() != QDialog.DialogCode.Accepted:
+    def _basic_configuration_changed(self, _value: str = "") -> None:
+        configured = self.repository_root_edit.text().strip()
+        current = str(self._repository_root)
+        self.save_basic_configuration_button.setEnabled(
+            bool(configured) and configured != current
+        )
+
+    def _choose_repository_root(self) -> None:
+        current = self.repository_root_edit.text().strip()
+        start = current if current and Path(current).is_dir() else str(Path.home())
+        directory = QFileDialog.getExistingDirectory(
+            self, "Select OneFLOW source root", start
+        )
+        if directory:
+            self.repository_root_edit.setText(directory)
+
+    def _save_basic_configuration(self) -> None:
+        value = self.repository_root_edit.text().strip()
+        if not value:
+            QMessageBox.warning(
+                self, "Invalid source root", "Select a source directory."
+            )
             return
-        repository_root = dialog.repository_root
-        if repository_root is None:
+        repository_root = Path(value).expanduser()
+        if not repository_root.is_dir() or not (
+            repository_root / "CMakeLists.txt"
+        ).is_file():
+            QMessageBox.warning(
+                self,
+                "Invalid source root",
+                "The selected directory must exist and contain CMakeLists.txt.",
+            )
             return
+        repository_root = repository_root.resolve()
         settings = ApplicationSettings(repository_root)
         try:
             settings.save()
         except OSError as error:
             QMessageBox.critical(self, "Cannot save settings", str(error))
             return
+
+        previous_executable = self.executable_combo.currentText().strip()
         self._settings = settings
         self._repository_root = repository_root
+        self._build_executable_paths = {
+            configuration: str(
+                (repository_root / "build" / "bin" / configuration / "OneFLOW.exe").resolve()
+            )
+            for configuration in ("Debug", "Release")
+        }
         self.executable_combo.clear()
         self.executable_combo.addItems(
-            [str(path) for path in executable_candidates(self._repository_root)]
+            [str(path) for path in executable_candidates(repository_root)]
         )
-        if self.executable_combo.count():
-            self.executable_combo.setCurrentIndex(0)
+        if previous_executable:
+            self.executable_combo.setEditText(previous_executable)
         self._build_configuration_changed(self.build_config_combo.currentText())
-        QMessageBox.information(
-            self,
-            "Basic Configuration",
-            f"OneFLOW source root set to:\n{self._repository_root}",
-        )
+        self.repository_root_edit.setText(str(repository_root))
+        self.save_basic_configuration_button.setEnabled(False)
+        self.statusBar().showMessage("Basic configuration saved.", 4000)
 
     def _new_project(self) -> None:
         dialog = NewProjectDialog(self._repository_root, self)
