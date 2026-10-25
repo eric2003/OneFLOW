@@ -217,9 +217,11 @@ class WorkbenchHomeWindow(QMainWindow):
 
     def _open_tests(self) -> None:
         if self._test_runner_dialog is not None:
-            self._test_runner_dialog.raise_()
-            self._test_runner_dialog.activateWindow()
-            return
+            if self._test_runner_dialog.isVisible():
+                self._test_runner_dialog.raise_()
+                self._test_runner_dialog.activateWindow()
+                return
+            self._test_runner_dialog = None
 
         dialog = TestRunnerDialog(
             self._repository_root,
