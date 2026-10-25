@@ -234,7 +234,12 @@ class MainWindow(QMainWindow):
 
         workspace_layout = QHBoxLayout()
         workspace_layout.addWidget(QLabel("Run directory"))
-        self.workspace_edit = QLineEdit(str(UserDataPaths.discover().executions))
+        default_workspace = (
+            UserDataPaths.discover().grid_layout_test
+            if self._single_case_mode
+            else UserDataPaths.discover().executions
+        )
+        self.workspace_edit = QLineEdit(str(default_workspace))
         workspace_layout.addWidget(self.workspace_edit, 1)
         workspace_browse = QPushButton("Browse...")
         workspace_browse.clicked.connect(self._choose_workspace)
@@ -489,6 +494,10 @@ class MainWindow(QMainWindow):
             )
             return
 
+        if self._single_case_mode:
+            execution_mode = "case_database"
+            workspace_root = UserDataPaths.discover().grid_layout_test
+
         try:
             workspace_root.relative_to(self._repository_root)
         except ValueError:
@@ -509,41 +518,50 @@ class MainWindow(QMainWindow):
             return
 
         run_id = create_run_id()
-        started_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
-        log_path = (UserDataPaths.discover().logs / f"{run_id}.log").resolve()
-        try:
-            log_path.parent.mkdir(parents=True, exist_ok=True)
-            log_path.write_text(
-                f"Case Workbench run {run_id}\nExecutable: {Path(executable_text).resolve()}\n",
-                encoding="utf-8",
+        self._active_case_run_record = None
+        self._active_case_run_steps = []
+        self._active_case_run_log_path = None
+        if self._single_case_mode:
+            self.log_view.appendPlainText(
+                f"\nCase Database run\nExecutable: {Path(executable_text).resolve()}\n"
+                + f"Workspace: {workspace_root}"
             )
-            initial_record = WorkflowRunRecord(
-                run_id=run_id,
-                workflow_id="case-workbench",
-                status="running",
-                task_type=TaskType.CASE_DATABASE.value,
-                started_at=started_at,
-                executable=str(Path(executable_text).resolve()),
-                steps=({
-                    "type": "case_queue",
-                    "case_ids": [case.case_id for case in selected],
-                    "execution_mode": execution_mode,
-                    "workspace": str(workspace_root / run_id),
-                },),
-                message="Case queue started.",
-                log_path=str(log_path),
+        else:
+            started_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
+            log_path = (UserDataPaths.discover().logs / f"{run_id}.log").resolve()
+            try:
+                log_path.parent.mkdir(parents=True, exist_ok=True)
+                log_path.write_text(
+                    f"Case Workbench run {run_id}\nExecutable: {Path(executable_text).resolve()}\n",
+                    encoding="utf-8",
+                )
+                initial_record = WorkflowRunRecord(
+                    run_id=run_id,
+                    workflow_id="case-workbench",
+                    status="running",
+                    task_type=TaskType.CASE_DATABASE.value,
+                    started_at=started_at,
+                    executable=str(Path(executable_text).resolve()),
+                    steps=({
+                        "type": "case_queue",
+                        "case_ids": [case.case_id for case in selected],
+                        "execution_mode": execution_mode,
+                        "workspace": str(workspace_root / run_id),
+                    },),
+                    message="Case queue started.",
+                    log_path=str(log_path),
+                )
+                self._history_repository.save_run(initial_record)
+            except (OSError, ValueError) as error:
+                QMessageBox.critical(self, "Cannot record run", str(error))
+                return
+            self._active_case_run_record = initial_record
+            self._active_case_run_steps = list(initial_record.steps)
+            self._active_case_run_log_path = log_path
+            self.log_view.appendPlainText(
+                f"\nRun {run_id}\nExecutable: {Path(executable_text).resolve()}\n"
+                + f"Workspace: {workspace_root / run_id}"
             )
-            self._history_repository.save_run(initial_record)
-        except (OSError, ValueError) as error:
-            QMessageBox.critical(self, "Cannot record run", str(error))
-            return
-        self._active_case_run_record = initial_record
-        self._active_case_run_steps = list(initial_record.steps)
-        self._active_case_run_log_path = log_path
-        self.log_view.appendPlainText(
-            f"\nRun {run_id}\nExecutable: {Path(executable_text).resolve()}\n"
-            + f"Workspace: {workspace_root / run_id}"
-        )
         self.run_button.setEnabled(False)
         self.build_button.setEnabled(False)
         self.rebuild_button.setEnabled(False)
