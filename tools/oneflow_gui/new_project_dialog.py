@@ -33,8 +33,9 @@ class NewProjectDialog(QDialog):
 
         layout = QVBoxLayout(self)
         intro = QLabel(
-            "Create a project in your workspace. Repository templates are copied; "
-            "the source tree is never used as the new project's destination."
+            "Create one project folder from a template under the selected parent folder. "
+            "This does not create a separate .ofw multi-case workspace. Repository templates "
+            "are copied; the source tree is never used as the new project's destination."
         )
         intro.setWordWrap(True)
         layout.addWidget(intro)
@@ -60,7 +61,7 @@ class NewProjectDialog(QDialog):
         browse = QPushButton("Browse...")
         browse.clicked.connect(self._choose_destination)
         destination_row.addWidget(browse)
-        form.addRow("Parent directory", destination_row)
+        form.addRow("Project parent folder", destination_row)
         layout.addLayout(form)
 
         actions = QHBoxLayout()
