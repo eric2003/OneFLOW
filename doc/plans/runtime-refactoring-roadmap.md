@@ -217,3 +217,13 @@ Commit: `d8568fe91722af5d78d8083d6bae23d9446d952d`
 - Linked the chapter from `doc/AI_CONTEXT.md` and `doc/README.md`. The intended workflow is to zoom into a concrete call path, implement and test a small change, then zoom back out at meaningful milestones and update priorities.
 - This documentation change does not resolve the R1 runtime parameter test gap. R1 remains partial / implemented but unverified until the relevant contract has focused test and exact-revision validation evidence.
 - Validation: no Sphinx build, C++ build, unit test, or CI result is claimed by this documentation update.
+
+
+### 2026-10-26 - Extract and test optional string parameter lookup
+
+- Added `codes/main/include/SimuContextParameter.h` with a small helper that accepts `const DataPara&`. This keeps the parameter type contract directly testable without initializing the full simulation runtime or adding a public database API.
+- Updated `codes/main/src/SimuContextEnv.cpp` to use the helper while retaining the existing global-database lookup and call-site behavior.
+- Added `tests/main/simu_context_parameter_test.cpp` and registered `simu_context_parameter_test` in `tests/main/CMakeLists.txt`. The tests cover a missing optional entry returning an empty string, reading a valid string, and rejecting a non-string entry with the parameter name and expected type in the message.
+- Implementation commits: [helper](https://github.com/eric2003/OneFLOW/commit/fd3889362408586e379d45d08a170abf2077efb9), [production integration](https://github.com/eric2003/OneFLOW/commit/6d72e31f93f55b00b622e122fa75eb689832694f), [tests](https://github.com/eric2003/OneFLOW/commit/1e438f84f600c689666f831ff0837ce3d5936e13), [CMake registration](https://github.com/eric2003/OneFLOW/commit/a13a890bb31e2d84434fbe4297cf76aebc24c865).
+- Validation: source and CMake files were inspected after the changes. The exact-revision GitHub combined status query returned no checks, and no local C++ build or test execution was available in this step. Do not interpret the new tests as passing until `simu_context_parameter_test` is built and run.
+- Remaining R1 work: exercise path precedence, `sourceGridCaseDir` fallback, and per-case path reset through a realistic setup-level test. The helper-level contract is implemented but unverified; R1 remains partial.
