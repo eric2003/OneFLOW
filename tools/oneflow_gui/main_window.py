@@ -156,7 +156,7 @@ class MainWindow(QMainWindow):
         self._worker: RunQueueWorker | None = None
         self._task_worker: TestCommandWorker | None = None
         self._test_runner_dialog: TestRunnerDialog | None = None
-        self._row_by_id: dict[str, int] = {};
+        self._row_by_id: dict[str, int] = {}
         self._history_repository = WorkflowRepository(UserDataPaths.discover().workflow_data)
         self._active_case_run_record: WorkflowRunRecord | None = None
         self._active_case_run_steps: list[dict] = []
