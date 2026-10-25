@@ -123,6 +123,7 @@ The existing reference library covers programming languages, build systems, para
    :maxdepth: 2
    :caption: OneFLOW Design and Development
 
+   architecture_review
    runtime_architecture
    mesh_architecture
    grid_topology
