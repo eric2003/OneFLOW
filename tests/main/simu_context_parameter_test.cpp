@@ -107,3 +107,49 @@ TEST( SimuContextParameterTest, RelativeMeshRootDoesNotUseLegacyFallback )
     EXPECT_FALSE(
         SimuContextDetail::ShouldUseLegacySourceGridCaseDir( "mesh/input" ) );
 }
+
+TEST( SimuContextParameterTest, LegacySourceGridReplacesEmptyMeshRoot )
+{
+    EXPECT_EQ(
+        SimuContextDetail::ApplyLegacySourceGridCaseDir( "", "../grid-case" ),
+        "../grid-case" );
+}
+
+TEST( SimuContextParameterTest, LegacySourceGridReplacesDefaultMeshRoot )
+{
+    EXPECT_EQ(
+        SimuContextDetail::ApplyLegacySourceGridCaseDir(
+            "default", "../grid-case" ),
+        "../grid-case" );
+}
+
+TEST( SimuContextParameterTest, EmptyLegacySourceGridPreservesMeshRoot )
+{
+    EXPECT_EQ(
+        SimuContextDetail::ApplyLegacySourceGridCaseDir( "", "" ),
+        "" );
+}
+
+TEST( SimuContextParameterTest, DefaultLegacySourceGridPreservesMeshRoot )
+{
+    EXPECT_EQ(
+        SimuContextDetail::ApplyLegacySourceGridCaseDir(
+            "default", "default" ),
+        "default" );
+}
+
+TEST( SimuContextParameterTest, ExplicitMeshRootWinsOverLegacySourceGrid )
+{
+    EXPECT_EQ(
+        SimuContextDetail::ApplyLegacySourceGridCaseDir(
+            "mesh/input", "../grid-case" ),
+        "mesh/input" );
+}
+
+TEST( SimuContextParameterTest, CaseMeshRootWinsOverLegacySourceGrid )
+{
+    EXPECT_EQ(
+        SimuContextDetail::ApplyLegacySourceGridCaseDir(
+            "case", "../grid-case" ),
+        "case" );
+}
