@@ -51,6 +51,36 @@ TEST( FaceSearchBasicTest, ClearResetsLookupAndFaceArray )
     EXPECT_EQ( search.AddFace( IntField{ 1, 2 } ), 0 );
 }
 
+TEST( FaceSearchBasicTest, LineSplitMappingPreservesEdgeDirectionAndEndpointFlags )
+{
+    // Intent: splitting A->B produces A->M and M->B in both local and global IDs.
+    LinkField localLineId{ IntField{ 9, 9 } };
+    LinkField localLineFlag{ IntField{ 9, 9 } };
+    LinkField lineId{ IntField{ 9, 9 } };
+
+    BuildLineSplitMapping( 12, 18, 7, 25, localLineId, localLineFlag, lineId );
+
+    EXPECT_EQ( localLineId, ( LinkField{ IntField{ 0, 7 }, IntField{ 7, 1 } } ) );
+    EXPECT_EQ( localLineFlag, ( LinkField{ IntField{ 1, -1 }, IntField{ -1, 1 } } ) );
+    EXPECT_EQ( lineId, ( LinkField{ IntField{ 12, 25 }, IntField{ 25, 18 } } ) );
+}
+
+TEST( FaceSearchBasicTest, LineSplitMappingReplacesPreviousOutput )
+{
+    // Intent: callers may reuse output buffers; stale edges must not survive.
+    LinkField localLineId{ IntField{ 99, 98 } };
+    LinkField localLineFlag{ IntField{ 97, 96 } };
+    LinkField lineId{ IntField{ 95, 94 } };
+
+    BuildLineSplitMapping( 3, 4, 2, 8, localLineId, localLineFlag, lineId );
+
+    ASSERT_EQ( localLineId.size(), static_cast< std::size_t >( 2 ) );
+    ASSERT_EQ( localLineFlag.size(), static_cast< std::size_t >( 2 ) );
+    ASSERT_EQ( lineId.size(), static_cast< std::size_t >( 2 ) );
+    EXPECT_EQ( lineId[ 0 ], ( IntField{ 3, 8 } ) );
+    EXPECT_EQ( lineId[ 1 ], ( IntField{ 8, 4 } ) );
+}
+
 TEST( FaceSearchBasicTest, GetFaceNodeRingRejectsOutOfRange )
 {
     FaceSearchBasic search;
