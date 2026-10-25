@@ -2,7 +2,7 @@
 
 Last updated: 2026-10-26
 Working branch: `hexin`
-Latest inspected code change: [`ec9575216e9b6db14a400446c1373e22405c7169`](https://github.com/eric2003/OneFLOW/commit/ec9575216e9b6db14a400446c1373e22405c7169). This adds the direct `<stdexcept>` include for the existing `std::invalid_argument` use; it does not validate the implementation or replace the need for focused tests.
+Latest R1 implementation slice: [`a13a890bb31e2d84434fbe4297cf76aebc24c865`](https://github.com/eric2003/OneFLOW/commit/a13a890bb31e2d84434fbe4297cf76aebc24c865) registers focused tests for the extracted optional-string lookup contract. The implementation and test seam are committed, but no local build/test or exact-revision CI pass has been confirmed.
 
 This is the fast handoff page for an AI assistant or developer continuing work on OneFLOW. It is a curated status snapshot, not a replacement for source code, tests, design pages, or CI. Recheck the branch HEAD before editing: this page can lag behind the current repository revision.
 
@@ -62,9 +62,16 @@ The setup path binds the active case, reads control parameters, applies project 
 
 See the runtime architecture guide and roadmap for the detailed evidence and limitations.
 
-### Latest implementation slice recorded
+### Implementation and test seam
 
-Commit [`d8568fe91722af5d78d8083d6bae23d9446d952d`](https://github.com/eric2003/OneFLOW/commit/d8568fe91722af5d78d8083d6bae23d9446d952d) changes optional path-related string parameter reads in `SimuContextEnv.cpp`:
+The current R1 implementation is split across these `hexin` commits:
+
+- [`fd3889362408586e379d45d08a170abf2077efb9`](https://github.com/eric2003/OneFLOW/commit/fd3889362408586e379d45d08a170abf2077efb9) adds `SimuContextParameter.h`, a narrow lookup helper taking `const DataPara&`.
+- [`6d72e31f93f55b00b622e122fa75eb689832694f`](https://github.com/eric2003/OneFLOW/commit/6d72e31f93f55b00b622e122fa75eb689832694f) routes production `SimuContextEnv.cpp` reads through that helper.
+- [`1e438f84f600c689666f831ff0837ce3d5936e13`](https://github.com/eric2003/OneFLOW/commit/1e438f84f600c689666f831ff0837ce3d5936e13) adds focused tests for missing, valid string, and invalid-type parameters.
+- [`a13a890bb31e2d84434fbe4297cf76aebc24c865`](https://github.com/eric2003/OneFLOW/commit/a13a890bb31e2d84434fbe4297cf76aebc24c865) registers the test target in CMake.
+
+The helper preserves the optional-parameter contract:
 
 - Missing entries still return an empty string, preserving the existing fallback path.
 - Present entries whose declared database type is not `HX_STRING` now raise `std::invalid_argument` rather than being read through an unchecked cast.
@@ -72,16 +79,16 @@ Commit [`d8568fe91722af5d78d8083d6bae23d9446d952d`](https://github.com/eric2003/
 - The same rule is applied to `projectRoot`, `inputRoot`, `outputRoot`, `meshInputRoot`, `flowInputRoot`, `meshOutputRoot`, `flowOutputRoot`, `sourceGridCaseDir`, and `ioPathInfoFileName`.
 - The follow-up documentation record is in [`3c987064e4d547de4e10a07f261a3cebf2837407`](https://github.com/eric2003/OneFLOW/commit/3c987064e4d547de4e10a07f261a3cebf2837407).
 
-**This slice is not a completed R1 stage.** A focused automated test for the invalid-type setup path has not yet been added, and the prior record did not claim a local build or test run. Recheck the exact branch head and CI before relying on compilation or regression status.
+**Status: Implemented, unverified; R1 remains partial.** The new test source covers the extracted lookup helper, but the target has not yet been built or run in this environment. The helper is tested against a `DataPara` instance rather than through the full `SetupCaseEnvironment()` lifecycle, so global-database binding, control-file loading, path precedence, and `sourceGridCaseDir` fallback remain open integration checks. The latest queried commit status had no reported checks; that is not a pass.
 
 ## 5. Next actions, in priority order
 
 1. Recheck current `hexin` HEAD and its Linux, Windows, and documentation CI runs.
-2. Inspect the includes and type declarations used by `ReadOptionalStringParameter()`; add direct includes where required rather than relying on transitive headers.
-3. Find a narrow, realistic test seam for the optional string parameter contract. Prefer a test of the actual helper or environment setup behavior over a test that only proves database type metadata.
-4. Verify the path precedence and `sourceGridCaseDir` fallback contract with tests before extracting a resolver.
-5. Update the roadmap and architecture guide with exact outcomes, test commands/results, CI links, and any remaining gap.
-6. Only then decide whether R1 is complete and whether R2 (task selection and parameter semantics) should begin.
+2. Build and run `simu_context_parameter_test` on the current `hexin` revision; resolve any compile/link issues without broadening the test seam.
+3. Add integration coverage for generic/domain root precedence and the `sourceGridCaseDir` fallback using the lightest existing control-file fixture that exercises the real setup path.
+4. Verify the path reset between sequential cases and confirm output-path diagnostics remain compatible.
+5. Record exact local test and CI evidence, then reassess R1 acceptance criteria.
+6. Only after R1 is verified, decide whether R2 (task selection and parameter semantics) should begin.
 
 Do not mark an item complete because a code change was committed. Completion requires acceptance evidence.
 
