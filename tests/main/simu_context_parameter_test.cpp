@@ -81,17 +81,29 @@ TEST( SimuContextParameterTest, RejectsNonStringAndNamesParameter )
 TEST( SimuContextParameterTest, EmptyMeshInputAllowsLegacyFallback )
 {
     EXPECT_TRUE(
-        SimuContextDetail::ShouldReadSourceGridCaseDir( "" ) );
+        SimuContextDetail::ShouldUseLegacySourceGridCaseDir( "" ) );
 }
 
 TEST( SimuContextParameterTest, DefaultMeshInputAllowsLegacyFallback )
 {
     EXPECT_TRUE(
-        SimuContextDetail::ShouldReadSourceGridCaseDir( "default" ) );
+        SimuContextDetail::ShouldUseLegacySourceGridCaseDir( "default" ) );
 }
 
 TEST( SimuContextParameterTest, ExplicitMeshInputTakesPrecedence )
 {
     EXPECT_FALSE(
-        SimuContextDetail::ShouldReadSourceGridCaseDir( "grid-input" ) );
+        SimuContextDetail::ShouldUseLegacySourceGridCaseDir( "grid-input" ) );
+}
+
+TEST( SimuContextParameterTest, CaseRootDoesNotUseLegacyFallback )
+{
+    EXPECT_FALSE(
+        SimuContextDetail::ShouldUseLegacySourceGridCaseDir( "case" ) );
+}
+
+TEST( SimuContextParameterTest, RelativeMeshRootDoesNotUseLegacyFallback )
+{
+    EXPECT_FALSE(
+        SimuContextDetail::ShouldUseLegacySourceGridCaseDir( "mesh/input" ) );
 }
