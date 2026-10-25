@@ -78,3 +78,15 @@ Do not introduce a test-only parser. If an injectable seam becomes necessary, it
 ## Current outcome
 
 **R1 remains Partial.** The global database is statically constructed, making a serial integration fixture plausible, but parallel-runtime validity and test-target linkage still need verification. No tests were run in this session. The reported 700/700 local pass predates the latest fallback-value test commit and is not evidence for the current HEAD.
+
+## Follow-up: executable source graph and cleanup boundary
+
+The root `codes/CMakeLists.txt` constructs `PRJ_SRC_LIST` by calling `ConstructSolutionDirTree(...)` and compiles that source set directly into the `OneFLOW` executable. It does not expose the production runtime as a reusable library target. A test that links the full source list would therefore need to recreate the executable's compile definitions, include paths, third-party libraries, and platform options, while excluding the production entry point to avoid competing with GoogleTest's main. That is a poor first R1 test target and would duplicate build configuration.
+
+The real exception boundary is in `SimuImp::RunCase()`: it calls `PreProcess()` and `MainProcess()` inside a `try`; on any exception it calls `PostProcess()` in a nested `try/catch`, then rethrows the original exception. `PostProcess()` calls `SimuContext::TeardownCase()`. Therefore a correct failure-cleanup assertion should exercise this boundary (or the smallest extracted production boundary preserving it), not only call `SetupCaseEnvironment()` directly and inspect its exception.
+
+### Updated implementation decision
+
+Do not create a test executable by copying the complete solver source list into `tests/main/CMakeLists.txt`. First extract a narrow, production-owned case-setup operation with explicit dependencies for the control-load step and path binding; keep the default production implementation wired to `ReadControlInfo(caseDir)`. Then test the real control reader separately with a small multi-file fixture, and test the case orchestration's success/failure cleanup without initializing the entire solver stack. This is a deliberate boundary extraction, not a parser replacement or a generic dependency-injection framework.
+
+This follow-up is still investigation, not completion of R1. No source code was changed and no tests were run in this step.
