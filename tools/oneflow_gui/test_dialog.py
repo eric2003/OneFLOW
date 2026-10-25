@@ -173,7 +173,7 @@ class TestRunnerDialog(QDialog):
         self._build_config = build_config
         self._worker: TestCommandWorker | None = None
         self._case_worker = None
-        self._database_cases: list[CaseDefinition] = []
+        self._database_cases: list[CaseDefinition] = load_cases(self._repository_root)
         self._run_database_after_commands = False
         self.setWindowTitle("OneFLOW Tests")
         self.resize(900, 650)
@@ -182,7 +182,7 @@ class TestRunnerDialog(QDialog):
         layout.addWidget(
             QLabel(
                 "Run unit tests, CFD/grid regression, or catalog case tests. "
-                "Case Database tests use the existing case selector and a fixed mesh-layout test workspace."
+                "Development Tests run selected catalog cases from a refreshed, isolated test workspace."
             )
         )
 
@@ -222,16 +222,16 @@ class TestRunnerDialog(QDialog):
 
         database_layout = QHBoxLayout()
         database_description = QLabel(
-            "Run selected catalog cases from copies staged under the fixed mesh-layout test workspace."
+            "Run all selected development cases from copies staged under the fixed test workspace."
         )
         database_description.setWordWrap(True)
         database_layout.addWidget(database_description, 1)
-        self.case_database_check = QCheckBox("Run Case Database tests")
-        self.case_database_check.setChecked(False)
+        self.case_database_check = QCheckBox("Run Development Tests")
+        self.case_database_check.setChecked(True)
         database_layout.insertWidget(0, self.case_database_check)
-        self.case_database_button = QPushButton("Configure...")
+        self.case_database_button = QPushButton("Select cases...")
         self.case_database_button.setToolTip(
-            "Choose catalog cases and run-workspace settings. This does not start a run."
+            "Choose which development cases to run. This does not start a run."
         )
         self.case_database_button.clicked.connect(self._open_case_database_tests)
         database_layout.addWidget(self.case_database_button)
@@ -275,7 +275,7 @@ class TestRunnerDialog(QDialog):
         self.case_database_check.setChecked(bool(self._database_cases))
         count = len(self._database_cases)
         self.case_database_button.setText(
-            f"Configure... ({count} selected)" if count else "Configure..."
+            f"Select cases... ({count} selected)" if count else "Select cases..."
         )
 
     def _start(self) -> None:
@@ -329,13 +329,13 @@ class TestRunnerDialog(QDialog):
         if run_database and not self._database_cases:
             QMessageBox.information(
                 self, "No cases configured",
-                "Use Configure... to select Case Database cases before running.",
+                "Use Select cases... to change the Development Tests selection.",
             )
             return
         if not commands and not run_database:
             QMessageBox.information(
                 self, "No tests selected",
-                "Select unit tests, CFD regression, or Case Database tests.",
+                "Select unit tests, CFD regression, or Development Tests.",
             )
             return
 
@@ -360,7 +360,7 @@ class TestRunnerDialog(QDialog):
         if not executable or not Path(executable).expanduser().is_file():
             QMessageBox.warning(
                 self, "Executable required",
-                "Select a valid OneFLOW.exe before running Case Database tests.",
+                "Select a valid OneFLOW.exe before running Development Tests.",
             )
             return
         from .main_window import RunQueueWorker
@@ -368,7 +368,7 @@ class TestRunnerDialog(QDialog):
         workspace_root = UserDataPaths.discover().grid_layout_test
         run_id = create_run_id()
         self.log_view.appendPlainText(
-            f"\n=== Case Database tests ===\n"
+            f"\n=== Development Tests ===\n"
             f"Executable: {Path(executable).resolve()}\n"
             f"Workspace: {workspace_root}"
         )
@@ -400,7 +400,7 @@ class TestRunnerDialog(QDialog):
         self.build_button.setEnabled(True)
         self.rebuild_button.setEnabled(True)
         self.stop_button.setEnabled(False)
-        self.log_view.appendPlainText("Case Database tests finished.")
+        self.log_view.appendPlainText("Development Tests finished.")
 
     def _launch_commands(self, commands: list[TestCommand]) -> None:
         self.log_view.clear()
@@ -435,7 +435,7 @@ class TestRunnerDialog(QDialog):
     def _completed(self, passed: bool, message: str) -> None:
         self.log_view.appendPlainText(f"\n{message}")
         if self._run_database_after_commands and passed:
-            self.log_view.appendPlainText("Unit/regression commands passed; starting Case Database tests.")
+            self.log_view.appendPlainText("Unit/regression commands passed; starting Development Tests.")
             return
         self.log_view.appendPlainText("FINAL STATUS: PASS" if passed else "FINAL STATUS: FAIL")
 
@@ -460,7 +460,7 @@ class TestRunnerDialog(QDialog):
 
 
 class CaseDatabaseSelectionDialog(QDialog):
-    """Configure which catalog cases the parent Test page should run."""
+    """Configure which development cases the parent Tests page should run."""
 
     def __init__(
         self,
@@ -476,11 +476,11 @@ class CaseDatabaseSelectionDialog(QDialog):
             if selected_cases
             else {case.case_id for case in self._cases}
         )
-        self.setWindowTitle("Configure Case Database Tests")
+        self.setWindowTitle("Select Development Test Cases")
         self.resize(760, 560)
         layout = QVBoxLayout(self)
         layout.addWidget(QLabel(
-            "Select catalog cases to include when you press Run on the Tests page. "
+            "Select development cases to include when you press Run. "
             "This dialog only saves the selection; it does not start calculations."
         ))
         self.case_table = QTableWidget(0, 3)
