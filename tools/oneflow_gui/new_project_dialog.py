@@ -19,6 +19,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt
 
 from .project_templates import available_project_templates, create_project
+from .user_data_paths import UserDataPaths
 
 
 class NewProjectDialog(QDialog):
@@ -56,7 +57,7 @@ class NewProjectDialog(QDialog):
         form.addRow("Project name", self.name_edit)
 
         destination_row = QHBoxLayout()
-        self.destination_edit = QLineEdit(str(Path.home() / "OneFLOWWorkspace"))
+        self.destination_edit = QLineEdit(str(UserDataPaths.discover().projects))
         destination_row.addWidget(self.destination_edit, 1)
         browse = QPushButton("Browse...")
         browse.clicked.connect(self._choose_destination)
