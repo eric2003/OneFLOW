@@ -140,9 +140,21 @@ Build configuration
 
 Case runtime configuration
    Case control files and legacy parameter files select runtime tasks and numerical,
-   geometry, or mesh-generation parameters. `ConfigLoader` parses legacy syntax into a
-   document representation; it is not itself the owner of all runtime meaning. The code
-   that resolves a parameter must define its type, default, valid range, and effect.
+   geometry, or mesh-generation parameters. The task name is resolved from the control
+   database by `SimuContext::ResolveTaskFromControl()`; current task names include
+   `Solve`, `Grid`, `WallDist`, `Partition`, `FunctionTest`, `Theory`,
+   `ToyModel`, and `PostTask`. `ConfigLoader` parses legacy text syntax into a
+   `ConfigDocument`; it is not itself the owner of all runtime meaning. The code that
+   resolves a parameter must define its type, default, valid range, and effect.
+
+   Case I/O roots are applied during `SimuContext::SetupCaseEnvironment()`. The current
+   configuration keys include `projectRoot`, `inputRoot`, `outputRoot`,
+   `meshInputRoot`, `flowInputRoot`, `meshOutputRoot`, `flowOutputRoot`, and
+   `ioPathInfoFileName`. If `meshInputRoot` is empty or `default`, a non-empty
+   `sourceGridCaseDir` is used as the legacy mesh-input fallback. Generic input/output
+   roots are applied before the mesh/flow-specific roots. Missing optional root settings
+   retain the existing case-relative defaults. The exact meaning and precedence of these
+   keys must stay aligned with `SimuContextEnv.cpp` and the path-resolution tests.
 
 Workbench project and workflow configuration
    Project definitions describe an engineering workspace; workflow definitions describe
