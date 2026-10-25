@@ -106,3 +106,28 @@ The Sphinx landing page `doc/source/index.rst` now presents task-oriented entry 
 ## 9. Verification status
 
 The mesh-note comparison, legacy-pointer updates, bilingual Workbench memo alignment, Sphinx landing-page improvements, Workbench README formatting fix, and `hexin` documentation-check workflow were committed to `hexin`. Source files and relevant repository paths were inspected through GitHub. A local Sphinx build and automated broken-link check have not been performed in this session, and the newly added workflow has not yet run; do not treat the documentation as build-verified until the check succeeds against the resulting branch head.
+
+
+## 10. System architecture and code-alignment pass
+
+The next documentation pass broadens from asset consolidation to a code-backed system map.
+The new curated page `doc/source/runtime_architecture.rst` documents:
+
+- design intent and the boundary between the C++ runtime, case inputs, orchestration, and presentation;
+- the current application entry point and the `Simulation -> SimuImp -> SimuContext -> TaskRegistry -> ISimuTask` execution path;
+- the distinction between build configuration, case runtime parameters, and Workbench project/workflow/run data;
+- patterns visible in current code, including task commands, registry/factory construction, context objects, parsing adapters, and explicit lifecycle management;
+- the limits that remain in place, including legacy free-function task bodies and shared runtime state;
+- a development loop that ties behavior contracts, focused tests, implementation changes, documentation updates, and validation evidence together.
+
+This page is an initial source-backed map, not a substitute for module-specific contracts. It should evolve alongside real refactors. Keep the detailed mesh and Workbench pages authoritative for their respective domains rather than duplicating their content here.
+
+### Next code-alignment order
+
+1. Trace the control-file path from case setup through task selection and parameter lookup; document which component parses syntax, validates values, and applies runtime meaning.
+2. Trace one representative grid-generation task and one solve task end to end, identifying global state, lifecycle ownership, and seams that can be tested without booting the full runtime.
+3. Compare the documented Workbench run-location and workflow contracts with the actual execution services and tests.
+4. Use those findings to choose one small code refactor with a behavior test, then update the architecture page only where the implementation contract changes.
+5. Record gaps as explicit current limitations or proposed boundaries; do not document planned behavior as implemented.
+
+The first architecture page has been added to the Sphinx navigation. The documentation-check workflow and the full Windows/Linux CI runs must still be checked for the resulting branch head; do not claim the page or build is validated until those checks complete.
