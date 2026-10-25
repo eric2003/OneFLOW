@@ -220,12 +220,17 @@ class MainWindow(QMainWindow):
         location_layout = QHBoxLayout()
         location_layout.addWidget(QLabel("Execution location"))
         self.execution_location_combo = QComboBox()
-        self.execution_location_combo.addItem(
-            "Copy to OneFLOW default run workspace", "default_workspace"
-        )
-        self.execution_location_combo.addItem(
-            "Copy to specified run directory", "custom_workspace"
-        )
+        if self._single_case_mode:
+            self.execution_location_combo.addItem(
+                "Refresh Case Database workspace", "case_database"
+            )
+        else:
+            self.execution_location_combo.addItem(
+                "Copy to OneFLOW default run workspace", "default_workspace"
+            )
+            self.execution_location_combo.addItem(
+                "Copy to specified run directory", "custom_workspace"
+            )
         self.execution_location_combo.currentIndexChanged.connect(
             self._execution_location_changed
         )
