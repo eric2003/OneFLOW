@@ -137,3 +137,24 @@ python tools/test_mesh_cases.py
 The first version reports process exit status and logs. It does not yet claim
 that a successful process exit proves mesh geometry is valid; result validators
 will be integrated as a separate workflow stage.
+
+## User data directory
+
+The Workbench keeps user-managed data under `%USERPROFILE%\\.oneflow` by default
+(for example, `C:\\Users\\eric\\.oneflow`). Set `ONEFLOW_HOME` to use another
+root. The source checkout remains separate from this directory.
+
+- `settings.json`: Workbench preferences.
+- `projects/`: default destination for newly created projects.
+- `workspaces/`: saved multi-case `.ofw` workspace definitions.
+- `workflow-data/definitions/`: saved workflow definitions.
+- `workflow-data/runs/`: workflow run history.
+- `workflow-data/executions/`: isolated run copies and generated results.
+- `mesh-layout-workspace/`: mesh layout projects, specifications, and outputs.
+- `cfd-regression/`: staged CFD regression inputs.
+- `background-tasks/`: persistent background task records.
+- `logs/`: application logs.
+
+The Workbench does not move or overwrite existing source projects automatically;
+choose an existing project directory to open it, or create a new project under
+`.oneflow/projects`.
