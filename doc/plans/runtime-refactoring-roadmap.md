@@ -255,3 +255,12 @@ Commit: `d8568fe91722af5d78d8083d6bae23d9446d952d`
 - Commits: [policy name](https://github.com/eric2003/OneFLOW/commit/d4e858abe3aa1a37fa8b6a11b8c6cd50ebf13624), [production call site](https://github.com/eric2003/OneFLOW/commit/fa73d7dbb04e99537a82cfd2aaf330837815607f), [contract tests](https://github.com/eric2003/OneFLOW/commit/8cf20d872d844b0fa68d99c5a59661be95ef0192).
 - Validation: source and test files were re-fetched from GitHub and checked for ASCII-only content. No build, test execution, or successful CI status is available for this revision. The user-reported 700/700 pass predates these changes.
 - Architecture assessment: the helper-level test is cheap because it isolates a deterministic policy; it still does not prove the complete `SetupCaseEnvironment()` flow. Keep R1 partial until an integration seam is found and verified.
+
+### 2026-10-26 - Test the effective legacy mesh input fallback value
+
+- The previous tests covered whether fallback lookup is allowed, but did not test the effective value chosen when the legacy parameter is empty, `default`, or a valid source case. This left the main compatibility outcome implicit in the production `if` block.
+- Added `ApplyLegacySourceGridCaseDir()` as a small deterministic policy function and used it at the production call site. Parameter lookup remains lazy: `sourceGridCaseDir` is still read only when `meshInputRoot` is empty or `default`.
+- Added tests for empty/default mesh roots, empty/default legacy values, explicit relative roots, and the `case` token. These tests describe the value contract without requiring the MPI/control-file bootstrap.
+- Commits: [policy helper](https://github.com/eric2003/OneFLOW/commit/d643aed3f964d9e9ea48947a259dd6e0820bd732), [production call site](https://github.com/eric2003/OneFLOW/commit/e38adea4fa70e51299cb14da3164209fcd89fd4c), [contract tests](https://github.com/eric2003/OneFLOW/commit/8299d15eb1241f60f949dc1b081ef78cf32f905f).
+- Validation: source and tests are committed, but no local build/test run or successful exact-revision CI result is available in this session. Do not count these tests as passed until they run.
+- Architecture assessment: the first helper tested only a branch predicate; adding the effective-value test exposed a better contract boundary. The setup integration gap remains because `ReadControlInfo(caseDir)` performs script loading, process coordination, parameter broadcast, and database dump. Keep R1 partial.
