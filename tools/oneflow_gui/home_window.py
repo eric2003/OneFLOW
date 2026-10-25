@@ -42,10 +42,12 @@ class WorkbenchHomeWindow(QMainWindow):
     def __init__(self, repository_root: Path | None = None) -> None:
         super().__init__()
         discovered_root = repository_root or Path(__file__).resolve().parents[2]
+        self._default_repository_root = discovered_root.resolve()
         self._settings = ApplicationSettings.load()
         self._repository_root = resolve_repository_root(
             self._settings, discovered_root
         )
+        self._saved_repository_root = self._repository_root
         self._case_window = None
         self._project_windows = []
         self.setWindowTitle("OneFLOW Workbench")
@@ -104,6 +106,22 @@ class WorkbenchHomeWindow(QMainWindow):
         )
         configuration_row.addWidget(self.build_config_combo, 1)
         root.addLayout(configuration_row)
+
+        source_root_row = QHBoxLayout()
+        source_root_row.addWidget(QLabel("OneFLOW source root"))
+        self.repository_root_edit = QLineEdit(str(self._repository_root))
+        self.repository_root_edit.setToolTip(
+            "Default checkout containing CMakeLists.txt, used by build, test, and case tools."
+        )
+        source_root_row.addWidget(self.repository_root_edit, 1)
+        browse_root = QPushButton("Browse...")
+        browse_root.clicked.connect(self._choose_repository_root)
+        source_root_row.addWidget(browse_root)
+        reset_root = QPushButton("Reset")
+        reset_root.setToolTip("Restore the default OneFLOW source directory.")
+        reset_root.clicked.connect(self._reset_basic_configuration)
+        source_root_row.addWidget(reset_root)
+        root.addLayout(source_root_row)
 
         executable_row = QHBoxLayout()
         executable_row.addWidget(QLabel("OneFLOW executable"))
@@ -190,30 +208,6 @@ class WorkbenchHomeWindow(QMainWindow):
         )
         root.addLayout(grid, 1)
 
-        configuration_title = QLabel("Basic Configuration")
-        configuration_title.setObjectName("sectionTitle")
-        root.addWidget(configuration_title)
-        source_root_row = QHBoxLayout()
-        source_root_row.addWidget(QLabel("OneFLOW source root"))
-        self.repository_root_edit = QLineEdit(str(self._repository_root))
-        self.repository_root_edit.setToolTip(
-            "Source checkout containing CMakeLists.txt, used by build, test, and case tools."
-        )
-        self.repository_root_edit.textChanged.connect(
-            self._basic_configuration_changed
-        )
-        source_root_row.addWidget(self.repository_root_edit, 1)
-        browse_root = QPushButton("Browse...")
-        browse_root.clicked.connect(self._choose_repository_root)
-        source_root_row.addWidget(browse_root)
-        self.save_basic_configuration_button = QPushButton("Save")
-        self.save_basic_configuration_button.setEnabled(False)
-        self.save_basic_configuration_button.clicked.connect(
-            self._save_basic_configuration
-        )
-        source_root_row.addWidget(self.save_basic_configuration_button)
-        root.addLayout(source_root_row)
-
         footer = QLabel(
             "A Project is a calculation directory that can be created from a template or opened directly. A Multi-Case Workspace is a saved .ofw definition for grouping existing cases and selecting an execution policy. These are distinct legacy paths; new project workflows are the preferred path for new work."
         )
@@ -286,46 +280,48 @@ class WorkbenchHomeWindow(QMainWindow):
         }:
             self.executable_combo.setEditText(self._build_executable_paths[configuration])
 
-    def _basic_configuration_changed(self, _value: str = "") -> None:
-        configured = self.repository_root_edit.text().strip()
-        current = str(self._repository_root)
-        self.save_basic_configuration_button.setEnabled(
-            bool(configured) and configured != current
-        )
-
     def _choose_repository_root(self) -> None:
         current = self.repository_root_edit.text().strip()
-        start = current if current and Path(current).is_dir() else str(Path.home())
+        start = current if current and Path(current).is_dir() else str(self._default_repository_root)
         directory = QFileDialog.getExistingDirectory(
             self, "Select OneFLOW source root", start
         )
         if directory:
             self.repository_root_edit.setText(directory)
 
-    def _save_basic_configuration(self) -> None:
-        value = self.repository_root_edit.text().strip()
+    def _reset_basic_configuration(self) -> None:
+        self.repository_root_edit.setText(str(self._default_repository_root))
+
+    @staticmethod
+    def _valid_repository_root(value: str) -> bool:
         if not value:
-            QMessageBox.warning(
-                self, "Invalid source root", "Select a source directory."
-            )
-            return
-        repository_root = Path(value).expanduser()
-        if not repository_root.is_dir() or not (
-            repository_root / "CMakeLists.txt"
-        ).is_file():
-            QMessageBox.warning(
-                self,
-                "Invalid source root",
-                "The selected directory must exist and contain CMakeLists.txt.",
-            )
-            return
-        repository_root = repository_root.resolve()
+            return False
+        root = Path(value).expanduser()
+        return root.is_dir() and (root / "CMakeLists.txt").is_file()
+
+    def _pending_repository_root(self) -> Path | None:
+        value = self.repository_root_edit.text().strip()
+        if not self._valid_repository_root(value):
+            return None
+        return Path(value).expanduser().resolve()
+
+    def _save_basic_configuration(self, show_error: bool = True) -> bool:
+        repository_root = self._pending_repository_root()
+        if repository_root is None:
+            if show_error:
+                QMessageBox.warning(
+                    self, "Invalid source root",
+                    "Select an existing OneFLOW source directory containing CMakeLists.txt.",
+                )
+            return False
+
         settings = ApplicationSettings(repository_root)
         try:
             settings.save()
         except OSError as error:
-            QMessageBox.critical(self, "Cannot save settings", str(error))
-            return
+            if show_error:
+                QMessageBox.critical(self, "Cannot save settings", str(error))
+            return False
 
         previous_executable = self.executable_combo.currentText().strip()
         follows_build_configuration = previous_executable.casefold() in {
@@ -333,6 +329,7 @@ class WorkbenchHomeWindow(QMainWindow):
         }
         self._settings = settings
         self._repository_root = repository_root
+        self._saved_repository_root = repository_root
         self._build_executable_paths = {
             configuration: str(
                 (repository_root / "build" / "bin" / configuration / "OneFLOW.exe").resolve()
@@ -350,8 +347,8 @@ class WorkbenchHomeWindow(QMainWindow):
         elif previous_executable:
             self.executable_combo.setEditText(previous_executable)
         self.repository_root_edit.setText(str(repository_root))
-        self.save_basic_configuration_button.setEnabled(False)
         self.statusBar().showMessage("Basic configuration saved.", 4000)
+        return True
 
     def _new_project(self) -> None:
         dialog = NewProjectDialog(self._repository_root, self)
@@ -479,6 +476,32 @@ class WorkbenchHomeWindow(QMainWindow):
         MeshLayoutDialog(self._repository_root, self).exec()
 
     def closeEvent(self, event) -> None:
+        pending_root = self._pending_repository_root()
+        settings_changed = pending_root is None or pending_root != self._saved_repository_root
+        if settings_changed:
+            prompt = QMessageBox(self)
+            prompt.setWindowTitle("Save configuration changes?")
+            prompt.setText("The Basic Configuration has been changed.")
+            prompt.setInformativeText(
+                "Save the new OneFLOW source directory before closing?"
+            )
+            save_button = prompt.addButton("Save", QMessageBox.ButtonRole.AcceptRole)
+            discard_button = prompt.addButton("Discard", QMessageBox.ButtonRole.DestructiveRole)
+            cancel_button = prompt.addButton("Cancel", QMessageBox.ButtonRole.RejectRole)
+            prompt.setDefaultButton(save_button)
+            prompt.exec()
+            clicked = prompt.clickedButton()
+            if clicked is cancel_button:
+                event.ignore()
+                return
+            if clicked is save_button:
+                if not self._save_basic_configuration():
+                    event.ignore()
+                    return
+            elif clicked is not discard_button:
+                event.ignore()
+                return
+
         registry = BackgroundTaskRegistry(UserDataPaths.discover().root)
         active_tasks = registry.list_active_tasks()
         if not active_tasks:
@@ -491,18 +514,9 @@ class WorkbenchHomeWindow(QMainWindow):
         prompt.setInformativeText(
             "Choose whether to stop these calculations or leave them running after OneFLOW Workbench closes."
         )
-        stop_button = prompt.addButton(
-            "Stop calculations and close",
-            QMessageBox.ButtonRole.DestructiveRole,
-        )
-        continue_button = prompt.addButton(
-            "Continue in background",
-            QMessageBox.ButtonRole.AcceptRole,
-        )
-        cancel_button = prompt.addButton(
-            "Keep Workbench open",
-            QMessageBox.ButtonRole.RejectRole,
-        )
+        stop_button = prompt.addButton("Stop calculations and close", QMessageBox.ButtonRole.DestructiveRole)
+        continue_button = prompt.addButton("Continue in background", QMessageBox.ButtonRole.AcceptRole)
+        cancel_button = prompt.addButton("Keep Workbench open", QMessageBox.ButtonRole.RejectRole)
         prompt.setDefaultButton(stop_button)
         prompt.exec()
         clicked = prompt.clickedButton()
@@ -525,9 +539,8 @@ class WorkbenchHomeWindow(QMainWindow):
                 window.set_application_shutdown_decision("stop")
         except (OSError, ValueError) as error:
             QMessageBox.critical(
-                self,
-                "Could not stop all calculations",
-                f"Workbench will remain open so you can manage the tasks.\n{error}",
+                self, "Could not stop all calculations",
+                f"Workbench will remain open so you can manage the tasks.\\n{error}",
             )
             event.ignore()
             return
