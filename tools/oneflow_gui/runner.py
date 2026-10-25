@@ -56,6 +56,22 @@ def prepare_case_database_workspace(
 ) -> dict[str, Path]:
     """Refresh the whole fixed grid workspace, then stage selected cases."""
     root = workspace_root.expanduser().resolve()
+    destinations: dict[str, Path] = {}
+    for case in cases:
+        source = case.case_directory.expanduser().resolve()
+        destination = (root / case.case_id).resolve()
+        if destination.parent != root:
+            raise ValueError(
+                "Case Database destination must be a direct child of its workspace root."
+            )
+        if source == root or root in source.parents:
+            raise ValueError(
+                f"Case source must be outside the disposable grid workspace: {source}"
+            )
+        if case.case_id in destinations:
+            raise ValueError(f"Duplicate Case Database id: {case.case_id}")
+        destinations[case.case_id] = destination
+
     root.mkdir(parents=True, exist_ok=True)
     for child in root.iterdir():
         if child.is_dir() and not child.is_symlink():
@@ -63,13 +79,8 @@ def prepare_case_database_workspace(
         else:
             child.unlink()
 
-    destinations: dict[str, Path] = {}
     for case in cases:
-        destination = (root / case.case_id).resolve()
-        if destination.parent != root:
-            raise ValueError(
-                "Case Database destination must be a direct child of its workspace root."
-            )
+        destination = destinations[case.case_id]
         shutil.copytree(
             case.case_directory,
             destination,
