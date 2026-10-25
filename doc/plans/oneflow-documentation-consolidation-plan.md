@@ -76,13 +76,11 @@ Do not infer a serialized package schema from the historic L0-L4/L0-L5 labels. A
 
 ## 5. Recommended review order
 
-1. Finish the inventory and check internal links and Sphinx toctrees.
+1. Continue the inventory by checking internal links and Sphinx toctrees against an actual build; the landing page now has task-oriented entry points and retains the existing reference library.
 2. Check inbound links to root `GRID_TOPOLOGY.md` and compare any remaining unique material before replacing or retiring it.
-3. Review the Chinese and English Workbench architecture memos for translation parity and implementation status.
-4. Review the two legacy Word manuals and decide whether they are current, archival, or sources for extracted material.
-5. Improve `doc/source/index.rst` navigation so new users, users, and developers have clear entry points without hiding the existing reference library.
-6. Evaluate a minimal MyST proof of concept in a separate page; adopt it only if cross-references, navigation, and Read the Docs builds work cleanly.
-7. Add lightweight documentation checks (broken links and Sphinx build) to CI when the current build path is understood and stable.
+3. Review the two legacy Word manuals and decide whether they are current, archival, or sources for extracted material.
+4. Evaluate a minimal MyST proof of concept in a separate page; adopt it only if cross-references, navigation, and Read the Docs builds work cleanly.
+5. After the new `hexin` Sphinx workflow runs, address real build errors first; add a separate broken-link checker only after defining how external-link failures and legacy reference pages should be handled.
 
 ## 6. Rules for ongoing development
 
@@ -103,8 +101,8 @@ A curated page, `doc/source/workbench_architecture.rst`, consolidates stable con
 
 The Chinese and English source memos were reviewed and aligned around the same core concepts: Project, Case, Workspace, Run location, Run mode, Workflow, WorkflowRun, and Artifact. The Chinese memo's duplicate Workspace/运行空间 entry was corrected to distinguish the actual run location. Both language versions now distinguish independent multi-case execution from a dependency workflow and clarify that a multi-case run may mean separate process launches or one process receiving multiple directory arguments. The curated page remains the stable navigation target and explicitly states that planned background-task recovery, visualization, diagnostics, and related features are not claims of implementation until code and tests demonstrate them.
 
-The Sphinx landing page `doc/source/index.rst` now presents task-oriented entry points for getting started, using OneFLOW, mesh/workbench workflows, and developer resources while retaining the existing reference library in hidden toctrees. `doc/source/info.rst` now links readers directly to the current `hexin` README, installation pages, grid and regression guides, and Workbench guide. Existing external article titles in `doc/source/user.rst` remain unchanged as requested.
+The Sphinx landing page `doc/source/index.rst` now presents task-oriented entry points for getting started, using OneFLOW, mesh/workbench workflows, and developer resources while retaining the existing reference library in hidden toctrees. `doc/source/info.rst` now links readers directly to the current `hexin` README, installation pages, grid and regression guides, and Workbench guide. Existing external article titles in `doc/source/user.rst` remain unchanged as requested. A dedicated `.github/workflows/docs-check.yml` now requests a Sphinx HTML build on `hexin` pushes and pull requests when documentation paths change; this is a build check, not a deployment workflow.
 
 ## 9. Verification status
 
-The mesh-note comparison, legacy-pointer updates, bilingual Workbench memo alignment, and Sphinx landing-page improvements were committed to `hexin`. Source files and the relevant repository paths were inspected through GitHub. A local Sphinx build, automated broken-link check, and CI run have not been performed in this session; do not treat the documentation as build-verified until those checks run against the resulting branch head.
+The mesh-note comparison, legacy-pointer updates, bilingual Workbench memo alignment, Sphinx landing-page improvements, Workbench README formatting fix, and `hexin` documentation-check workflow were committed to `hexin`. Source files and relevant repository paths were inspected through GitHub. A local Sphinx build and automated broken-link check have not been performed in this session, and the newly added workflow has not yet run; do not treat the documentation as build-verified until the check succeeds against the resulting branch head.
