@@ -6,7 +6,6 @@ from pathlib import Path
 
 from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import (
-    QComboBox,
     QDialog,
     QFileDialog,
     QGridLayout,
@@ -21,7 +20,6 @@ from PySide6.QtWidgets import (
 
 from .application_settings import ApplicationSettings, resolve_repository_root
 from .configuration_dialog import ConfigurationDialog
-from .executable_discovery import executable_candidates
 from .mesh_layout_dialog import MeshLayoutDialog
 from .project_repository import open_project
 from .project_window import ProjectWindow
@@ -111,40 +109,6 @@ class WorkbenchHomeWindow(QMainWindow):
         project_actions.addWidget(run_button)
         project_actions.addStretch(1)
         root.addLayout(project_actions)
-
-        self.build_config_combo = QComboBox(central)
-        self.build_config_combo.addItems(["Debug", "Release"])
-        self.build_config_combo.setCurrentText(self._settings.build_configuration)
-        self.executable_combo = QComboBox(central)
-        self.executable_combo.setEditable(True)
-        self.executable_combo.setMinimumContentsLength(42)
-        self.executable_combo.setSizeAdjustPolicy(
-            QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon
-        )
-        self.executable_combo.addItems(
-            [str(path) for path in executable_candidates(self._repository_root)]
-        )
-        if self._settings.executable_path:
-            self.executable_combo.setEditText(self._settings.executable_path)
-        elif self.executable_combo.count():
-            self.executable_combo.setCurrentIndex(0)
-        self._build_executable_paths = {
-            configuration: str(
-                (self._repository_root / "build" / "bin" / configuration / "OneFLOW.exe").resolve()
-            )
-            for configuration in ("Debug", "Release")
-        }
-        self.build_config_combo.currentTextChanged.connect(
-            self._build_configuration_changed
-        )
-        self.run_mode_combo = QComboBox(central)
-        self.run_mode_combo.addItem("Run single case", "single_case")
-        self.run_mode_combo.addItem("Multi-case run", "multi_case")
-        self.run_mode_combo.addItem("Dependency workflow", "dependency_workflow")
-        self.run_mode_combo.setCurrentIndex(
-            max(0, self.run_mode_combo.findData(self._settings.run_mode))
-        )
-
 
         grid = QGridLayout()
         grid.setSpacing(12)
@@ -236,60 +200,18 @@ class WorkbenchHomeWindow(QMainWindow):
 
     def _open_configuration(self) -> None:
         dialog = ConfigurationDialog(
-            ApplicationSettings(
-                self._repository_root,
-                self.build_config_combo.currentText(),
-                self.executable_combo.currentText().strip(),
-                self.run_mode_combo.currentData(),
-            ),
+            self._settings,
             self._default_repository_root,
             self,
         )
         if dialog.exec() != QDialog.DialogCode.Accepted:
             return
-        self._settings = dialog._settings
+        self._settings = dialog.settings
         self._repository_root = self._settings.repository_root.resolve()
-        self.build_config_combo.setCurrentText(self._settings.build_configuration)
-        self.run_mode_combo.setCurrentIndex(
-            max(0, self.run_mode_combo.findData(self._settings.run_mode))
-        )
-        self._build_executable_paths = {
-            configuration: str(
-                (self._repository_root / "build" / "bin" / configuration / "OneFLOW.exe").resolve()
-            )
-            for configuration in ("Debug", "Release")
-        }
-        self.executable_combo.clear()
-        self.executable_combo.addItems(
-            [str(path) for path in executable_candidates(self._repository_root)]
-        )
-        self.executable_combo.setEditText(self._settings.executable_path)
         self.statusBar().showMessage("Configuration saved.", 4000)
 
-    def _choose_executable(self) -> None:
-        current = self.executable_combo.currentText().strip()
-        current_path = Path(current).expanduser() if current else None
-        start = (
-            str(current_path.parent)
-            if current_path is not None and current_path.parent.is_dir()
-            else str(self._repository_root)
-        )
-        path, _ = QFileDialog.getOpenFileName(
-            self, "Select OneFLOW executable", start,
-            "OneFLOW executable (OneFLOW.exe);;Executable (*.exe);;All files (*)",
-        )
-        if path:
-            self.executable_combo.setEditText(path)
-
     def _executable(self) -> str:
-        return self.executable_combo.currentText().strip()
-
-    def _build_configuration_changed(self, configuration: str) -> None:
-        current = self.executable_combo.currentText().strip()
-        if current.casefold() in {
-            path.casefold() for path in self._build_executable_paths.values()
-        }:
-            self.executable_combo.setEditText(self._build_executable_paths[configuration])
+        return self._settings.executable_path.strip()
 
     def _new_project(self) -> None:
         dialog = NewProjectDialog(self._repository_root, self)
@@ -326,7 +248,7 @@ class WorkbenchHomeWindow(QMainWindow):
         self._case_window = MainWindow(
             self._repository_root,
             single_case_mode=True,
-            build_config=self.build_config_combo.currentText(),
+            build_config=self._settings.build_configuration,
         )
         executable = self._executable()
         if executable:
@@ -358,7 +280,7 @@ class WorkbenchHomeWindow(QMainWindow):
         window.activateWindow()
 
     def _open_selected_run_mode(self) -> None:
-        mode = self.run_mode_combo.currentData()
+        mode = self._settings.run_mode
         if mode == "single_case":
             self._open_single_case()
         elif mode == "multi_case":
