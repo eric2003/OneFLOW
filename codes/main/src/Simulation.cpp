@@ -23,6 +23,7 @@ License
 #include "Prj.h"
 #include "SimuImp.h"
 #include "SimuContext.h"
+#include "SimuCaseLifecycle.h"
 #include <iostream>
 #include <algorithm>
 #include <cstdlib>
@@ -149,27 +150,22 @@ void Simulation::RunImpl()
         SimuContext processContext( args );
         Prj::hx_debug = options.debug;
         Prj::run_from_ide = options.debug;
-        processContext.SetupProcessEnvironment();
-
-        try
-        {
-            // Every case now follows the same Case lifecycle. The dedicated
-            // process context only owns process-level initialization.
-            for ( const std::string& caseDir : options.caseDirs )
+        SimuCaseLifecycleDetail::ExecuteWithCleanup(
+            [&]()
             {
-                SimuImp caseSimu( caseDir, options.debug );
-                caseSimu.RunCase();
-            }
-        }
-        catch ( ... )
-        {
-            // RunCase() owns case teardown, including exceptional exits.
-            // Only process-level runtime remains to be finalized here.
-            processContext.FinalizeEnvironment();
-            throw;
-        }
+                processContext.SetupProcessEnvironment();
 
-        processContext.FinalizeEnvironment();
+                // Every case follows the same lifecycle, in command-line
+                // order. The process context owns shared initialization only.
+                SimuCaseLifecycleDetail::RunCasesSequentially(
+                    options.caseDirs,
+                    [&]( const std::string & caseDir )
+                    {
+                        SimuImp caseSimu( caseDir, options.debug );
+                        caseSimu.RunCase();
+                    } );
+            },
+            [&]() { processContext.FinalizeEnvironment(); } );
     }
 }
 

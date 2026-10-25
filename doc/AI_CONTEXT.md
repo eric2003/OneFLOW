@@ -2,7 +2,7 @@
 
 Last updated: 2026-10-26
 Working branch: `hexin`
-Latest inspected `hexin` HEAD: [`b30a86ed`](https://github.com/eric2003/OneFLOW/commit/b30a86ed3ec4cf8b0d887620d5824bc25e26cd27). This commit registers the case lifecycle cleanup contract tests after extracting the production cleanup boundary. The focused lifecycle target has not yet been built or run in this session. The existing Windows build directory reports 618 registered CTest cases (including several `NOT_BUILT` placeholders); this is not evidence of a 700/700 pass on this revision.
+Latest inspected `hexin` HEAD: [`b30a86ed`](https://github.com/eric2003/OneFLOW/commit/b30a86ed3ec4cf8b0d887620d5824bc25e26cd27). This commit registers the case lifecycle cleanup contract tests after extracting the production cleanup boundary. The user reports 712/712 local tests passed before the current uncommitted multi-case change. The existing Windows build directory lists 618 CTest entries, including `NOT_BUILT` placeholders, so it is stale or configured differently from that reported suite. The six-test lifecycle target was compiled with the installed MSVC toolchain and all six tests passed. The generated CMake/MSBuild target still stalls during its `Checking File Globs` step, so the complete CTest target integration and production executable build remain unverified.
 
 This is the fast handoff page for an AI assistant or developer continuing work on OneFLOW. It is a curated status snapshot, not a replacement for source code, tests, design pages, or CI. Recheck the branch HEAD before editing: this page can lag behind the current repository revision.
 
@@ -36,9 +36,9 @@ Do not start by reading the whole repository. Use the architecture map to identi
 
 The published [architecture review](source/architecture_review.rst) is now the common checklist for substantial AI-assisted changes. It deliberately separates general CFD/CAE concerns from verified OneFLOW behavior. Keep these cross-system risks visible while working locally: implicit global runtime state, configuration parsing versus validation/application, mutable mesh data and derived connectivity, workflow artifact provenance and execution locations, repeated/failed-run cleanup, and the gap between documented plans and actual test/CI evidence. At each meaningful milestone, state which system-level concern improved, what remains untouched, and whether the priority order should change.
 
-## 4. Current focus: case lifecycle cleanup, then runtime case configuration
+## 4. Current focus: multi-case process and case lifecycle
 
-The latest implementation slice is case execution cleanup. `SimuImp::RunCase()` uses `SimuCaseLifecycleDetail::ExecuteWithCleanup()` to invoke teardown on success and failure, preserve the original execution exception if cleanup also fails, and propagate cleanup errors after successful execution. Four focused contract tests are registered in `tests/main/simu_case_lifecycle_test.cpp`; they are implemented but unverified until the target builds and runs. R1 case configuration and I/O root resolution remains partial and is the next substantive runtime integration boundary.
+The multi-case path initializes process runtime once, executes each case in command-line order, tears down each case, then finalizes process runtime. `SimuImp::RunCase()` uses `ExecuteWithCleanup()` for case teardown. `Simulation::RunImpl()` now applies the same cleanup boundary around process initialization and the entire case sequence, so a failure during accelerator setup or a case run still attempts process finalization. The lifecycle tests cover the six-case order, stopping after a failed case, and finalization after failure. The six focused lifecycle tests were compiled and passed with MSVC in this session. The standard generated target and production executable build are still unverified. R1 case configuration and I/O root resolution remains partial.
 
 ### Source-backed execution path
 
@@ -83,7 +83,7 @@ The helper preserves the optional-parameter contract:
 
 ## 5. Next actions, in priority order
 
-1. Build and run `simu_case_lifecycle_test` on the current `hexin` HEAD; resolve why the existing Windows CMake regeneration does not finish before attempting a full suite.
+1. Resolve the generated MSBuild `Checking File Globs` stall and validate the normal CMake target plus production `Simulation.cpp` build. Compare the configured CTest inventory with the user-reported 712-test suite.
 2. Continue from [the integration-test investigation](plans/setup-case-environment-integration-test.md): inspect the global database initialization API and test target link dependencies, then try a serial temporary-case fixture that invokes `SetupCaseEnvironment()` without initializing MPI/accelerator runtime unless required.
 3. Assert explicit `meshInputRoot` overrides `sourceGridCaseDir`, and the legacy fallback is used only when mesh input is empty or `default`.
 4. Verify the path reset between sequential cases and confirm output-path diagnostics remain compatible.

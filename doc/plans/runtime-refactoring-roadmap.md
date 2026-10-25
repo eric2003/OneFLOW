@@ -272,3 +272,11 @@ Commit: `d8568fe91722af5d78d8083d6bae23d9446d952d`
 - Validation: the existing Windows build directory lists 618 CTest entries, with some stale or unavailable targets represented as `NOT_BUILT`. CMake began regeneration for `simu_case_lifecycle_test` but did not produce a completed build or executable in this session. No test pass or 700/700 result is claimed for `b30a86ed`.
 - Architecture assessment: the cleanup policy can be tested without linking the solver runtime, which confirms a small lifecycle seam is useful. It does not validate full `SimuContext::TeardownCase()` behavior or the real control-file setup failure path. R1 remains partial.
 - Next: complete focused Windows target validation, then revisit a production-linked temporary-case integration boundary for `SetupCaseEnvironment()` without duplicating executable source configuration.
+
+### 2026-10-26 - Make multi-case process cleanup exception-safe
+
+- In `Simulation::RunImpl()`, process setup previously happened before the `try` block. An exception from accelerator initialization therefore bypassed `FinalizeEnvironment()`. The case loop did finalize on success and failure, but duplicated cleanup handling.
+- Added `RunCasesSequentially()` as the production policy boundary and wrapped process setup plus the ordered case loop with `ExecuteWithCleanup()`. The cleanup callback now runs after success, case failure, or process setup failure; the existing helper preserves the original execution exception if finalization also throws.
+- Added tests using the user's six case paths to assert exact ordering, plus a failure test proving later cases are skipped and process finalization runs.
+- Validation: the user reports 712/712 local tests passed on the prior baseline. The current Windows build folder lists 618 tests and includes `NOT_BUILT` entries. The six lifecycle tests were manually compiled with the installed MSVC toolchain and passed. The generated CMake/MSBuild target stalls at `Checking File Globs`, and the production executable build remains unverified.
+- Architecture assessment: process and case lifetimes are now both represented at the orchestration boundary. The tests exercise ordering and cleanup policy without booting MPI or accelerator runtime; a full six-case solver run remains separate integration evidence.

@@ -70,3 +70,59 @@ TEST( SimuCaseLifecycleTest, SuccessfulExecutionPropagatesCleanupFailure )
             []() { throw std::logic_error( "cleanup failure" ); } ),
         std::logic_error );
 }
+TEST( SimuCaseLifecycleTest, RunsMultipleCasesInCommandLineOrder )
+{
+    const std::vector< std::string > caseDirs = {
+        "d:\\OneFLOWWorkspace\\workdir2026\\grid\\minimal_cube\\",
+        "d:\\OneFLOWWorkspace\\workdir2026\\grid\\mesh_workflow\\",
+        "d:\\OneFLOWWorkspace\\workdir2026\\grid\\minimal_rectangle\\",
+        "d:\\OneFLOWWorkspace\\workdir2026\\rae2822grid\\",
+        "d:\\OneFLOWWorkspace\\workdir2026\\rae2822_roe_sa\\",
+        "d:\\OneFLOWWorkspace\\workdir2026\\platescript\\"
+    };
+    std::vector< std::string > executedCases;
+
+    SimuCaseLifecycleDetail::RunCasesSequentially(
+        caseDirs,
+        [&]( const std::string & caseDir )
+        {
+            executedCases.push_back( caseDir );
+        } );
+
+    EXPECT_EQ( executedCases, caseDirs );
+}
+
+TEST( SimuCaseLifecycleTest, FinalizesProcessAfterCaseFailure )
+{
+    const std::vector< std::string > caseDirs = { "first", "failing", "last" };
+    std::vector< std::string > events;
+
+    try
+    {
+        SimuCaseLifecycleDetail::ExecuteWithCleanup(
+            [&]()
+            {
+                SimuCaseLifecycleDetail::RunCasesSequentially(
+                    caseDirs,
+                    [&]( const std::string & caseDir )
+                    {
+                        events.push_back( caseDir );
+                        if ( caseDir == "failing" )
+                        {
+                            throw std::runtime_error( "case failed" );
+                        }
+                    } );
+            },
+            [&]() { events.emplace_back( "finalize" ); } );
+        FAIL() << "Expected the case execution exception";
+    }
+    catch ( const std::runtime_error & error )
+    {
+        EXPECT_EQ( std::string( error.what() ), "case failed" );
+    }
+
+    const std::vector< std::string > expected = {
+        "first", "failing", "finalize"
+    };
+    EXPECT_EQ( events, expected );
+}
