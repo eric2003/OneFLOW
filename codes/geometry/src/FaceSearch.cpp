@@ -125,10 +125,11 @@ void FaceSearch::SplitQuad2Tri( int faceId )
 
 void FaceSearch::SplitLine( IFaceLink & iFaceLink, int globalFaceId )
 {
+    const IntField & nodeId = this->GetFaceNodeRing( globalFaceId );
+
     // Rebuild one parent's mapping instead of accumulating stale child IDs.
     this->interfaceSplit.childFaceIdsOfParent[ globalFaceId ].clear();
 
-    const IntField & nodeId = this->GetFaceNodeRing( globalFaceId );
     if ( nodeId.size() != 2 ) return;
 
     LinkField localLineId, localLineFlag;
