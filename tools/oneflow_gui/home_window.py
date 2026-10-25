@@ -12,7 +12,6 @@ from PySide6.QtWidgets import (
     QGridLayout,
     QHBoxLayout,
     QLabel,
-    QLineEdit,
     QMainWindow,
     QMessageBox,
     QPushButton,
@@ -103,6 +102,13 @@ class WorkbenchHomeWindow(QMainWindow):
         )
         configuration_button.clicked.connect(self._open_configuration)
         project_actions.addWidget(configuration_button)
+
+        run_button = QPushButton("Run...")
+        run_button.setMinimumHeight(48)
+        run_button.setMinimumWidth(100)
+        run_button.setToolTip("Start the run mode selected in Configuration.")
+        run_button.clicked.connect(self._open_selected_run_mode)
+        project_actions.addWidget(run_button)
         project_actions.addStretch(1)
         root.addLayout(project_actions)
 
