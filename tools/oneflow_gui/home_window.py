@@ -53,6 +53,7 @@ class WorkbenchHomeWindow(QMainWindow):
                 self._settings.run_mode,
             )
         self._case_window = None
+        self._test_runner_dialog = None
         self._project_windows = []
         self.setWindowTitle("OneFLOW Workbench")
         self.resize(900, 650)
@@ -211,12 +212,25 @@ class WorkbenchHomeWindow(QMainWindow):
         ).exec()
 
     def _open_tests(self) -> None:
-        TestRunnerDialog(
+        if self._test_runner_dialog is not None:
+            self._test_runner_dialog.raise_()
+            self._test_runner_dialog.activateWindow()
+            return
+
+        dialog = TestRunnerDialog(
             self._repository_root,
             self,
             build_config=self._settings.build_configuration,
             executable=self._executable(),
-        ).exec()
+        )
+        self._test_runner_dialog = dialog
+        dialog.finished.connect(self._test_runner_closed)
+        dialog.show()
+        dialog.raise_()
+        dialog.activateWindow()
+
+    def _test_runner_closed(self, _result: int) -> None:
+        self._test_runner_dialog = None
 
     def _open_history(self) -> None:
         RunHistoryDialog(UserDataPaths.discover().workflow_data, self).exec()
