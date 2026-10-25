@@ -236,3 +236,13 @@ Commit: `d8568fe91722af5d78d8083d6bae23d9446d952d`
 - Updated `doc/AI_CONTEXT.md` with the reported test count and the remaining acceptance gap.
 - System-level assessment: the type contract for optional path strings has a narrow unit seam, and existing `Prj` tests already cover generic/domain root behavior, inheritance, diagnostics, and root reset. The remaining concrete gap is testing how `SetupCaseEnvironment()` applies the control database values, especially the explicit `meshInputRoot` versus `sourceGridCaseDir` fallback. Do not create another path resolver until that behavior is exercised.
 - Status: R1 remains partial. Next step is to inspect `ReadControlInfo()` and global database initialization to determine whether a realistic temporary-control-file integration test can be added without reproducing the whole solver bootstrap.
+
+
+### 2026-10-26 - Isolate and test the source-grid fallback decision
+
+- Extracted the condition that decides whether `sourceGridCaseDir` should be read into `SimuContextDetail::ShouldReadSourceGridCaseDir()` in `SimuContextParameter.h`. Production setup now calls this helper, while the source-grid value remains lazily read only when the mesh input root is empty or `default`; this preserves the existing behavior that an explicit mesh root does not trigger a read of the legacy fallback parameter.
+- Added three focused tests: empty mesh root permits fallback, `default` permits fallback, and an explicit mesh root suppresses fallback lookup.
+- Implementation commits: [fallback policy](https://github.com/eric2003/OneFLOW/commit/f4731c5b273cc9774e02b40a97ba49e66411c6f3), [production call site](https://github.com/eric2003/OneFLOW/commit/afd6cd2d3eaa1fed8b35f1705f36f2287fd62ce5), [tests](https://github.com/eric2003/OneFLOW/commit/897112bde18f9f7ab77b063605bd56f3b0e0f749).
+- Validation status: the user-reported 697/697 pass predates this newest code/test change. The added tests and latest documentation commits have not yet been run in a fresh local suite in this session; do not claim they passed.
+- Updated the runtime architecture guide to document the checked optional-string helper and corrected a malformed literal line break in its related-links list.
+- Remaining gap: the new test validates the branch policy, not the complete control-file-to-`SetupCaseEnvironment()` path. `ReadControlInfo(caseDir)` performs parallel coordination, control-parameter broadcast, and database dump, so any integration test should reuse existing runtime bootstrap rather than mock only the branch or reproduce the entire solver initialization.
