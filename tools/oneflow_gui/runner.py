@@ -61,6 +61,23 @@ def prepare_case_directory(
         raise ValueError(
             "In-place execution is disabled. Run catalog cases from a workspace copy."
         )
+    if execution_mode == "case_database":
+        root = workspace_root.expanduser().resolve()
+        destination = (root / case.case_id).resolve()
+        if destination.parent != root:
+            raise ValueError("Case Database destination must be a direct child of its workspace root.")
+        if destination.exists():
+            if destination.is_dir() and not destination.is_symlink():
+                shutil.rmtree(destination)
+            else:
+                destination.unlink()
+        root.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(
+            case.case_directory,
+            destination,
+            ignore=shutil.ignore_patterns("__pycache__", ".git"),
+        )
+        return destination
     if execution_mode in {"default_workspace", "custom_workspace"}:
         return _copy_case_to_workspace(case, workspace_root, run_id)
     raise ValueError(f"Unsupported case execution mode: {execution_mode!r}")
