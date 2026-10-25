@@ -2,7 +2,7 @@
 
 Last updated: 2026-10-26
 Working branch: `hexin`
-Last inspected implementation commit: [`3c987064e4d547de4e10a07f261a3cebf2837407`](https://github.com/eric2003/OneFLOW/commit/3c987064e4d547de4e10a07f261a3cebf2837407)
+Latest inspected code change: [`ec9575216e9b6db14a400446c1373e22405c7169`](https://github.com/eric2003/OneFLOW/commit/ec9575216e9b6db14a400446c1373e22405c7169). This adds the direct `<stdexcept>` include for the existing `std::invalid_argument` use; it does not validate the implementation or replace the need for focused tests.
 
 This is the fast handoff page for an AI assistant or developer continuing work on OneFLOW. It is a curated status snapshot, not a replacement for source code, tests, design pages, or CI. Recheck the branch HEAD before editing: this page can lag behind the current repository revision.
 
