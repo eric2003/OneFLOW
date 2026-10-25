@@ -109,3 +109,12 @@ The first mesh-documentation pass now has two curated Sphinx pages:
 The root `GRID_TOPOLOGY.md` remains in place as engineering source material. It should only be retired or replaced with a pointer after its remaining unique content and inbound links have been checked. The two mesh overview notes still need a final line-by-line comparison before any duplicate is removed.
 
 The Sphinx home page description was also rewritten to emphasize the current repository shape and long-term workflow direction rather than making broad capability claims without revision-specific evidence. External article titles in existing link lists are not changed.
+
+
+## 9. Workbench documentation alignment
+
+A curated page, `doc/source/workbench_architecture.rst`, now consolidates the stable concepts from the Chinese and English Workbench memos: project, case, workspace/run directory, workflow definition, workflow run, artifact, execution modes, persistence, and process lifecycle.
+
+The source memos are not identical. The Chinese memo distinguishes cases and run modes more explicitly; the English memo gives more detail on the versioned workflow model and incremental implementation. The curated page combines these ideas and adds a clear status rule: planned background-task recovery, visualization, diagnostics, and related features are not claims of implementation until code and tests demonstrate them. The source memos remain available as engineering records during review.
+
+The Sphinx `info.rst` page was shortened to an accurate documentation entry point instead of repeating broad solver capability claims without revision-specific evidence. Existing external article titles in `doc/source/user.rst` remain unchanged as requested.
