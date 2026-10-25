@@ -11,6 +11,8 @@ implementation status.
 
 ## 1. Working method
 
+For substantial stages, start from the reusable [refactoring stage record template](templates/refactoring-stage-record.md). Keep the record focused on durable engineering knowledge; the [AI project context](../AI_CONTEXT.md) is the short current-state index, not a duplicate of every stage record.
+
 For each refactoring slice, keep a short record of:
 
 1. **Observed problem** - a concrete behavior, maintenance cost, dependency, or unclear contract.
