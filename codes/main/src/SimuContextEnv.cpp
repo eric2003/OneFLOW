@@ -155,10 +155,8 @@ void SimuContext::SetupCaseEnvironment()
     {
         const std::string sourceGridCaseDir =
             ReadOptionalStringParameter( "sourceGridCaseDir" );
-        if ( ! sourceGridCaseDir.empty() && sourceGridCaseDir != "default" )
-        {
-            meshInputRoot = sourceGridCaseDir;
-        }
+        meshInputRoot = SimuContextDetail::ApplyLegacySourceGridCaseDir(
+            meshInputRoot, sourceGridCaseDir );
     }
 
     Prj::SetDomainIOBaseDirs(
