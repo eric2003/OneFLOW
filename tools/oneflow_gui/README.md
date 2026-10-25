@@ -17,7 +17,7 @@ python -m pip install -r tools/requirements-gui.txt
 python -m tools.oneflow_gui
 ```
 
-Choose **Debug** or **Release** in **the **Configuration...** button below **Project****; build and unit-test tasks, including Development Tests build actions, use that configuration. The executable field stays as a single compact line. Existing executables are
+Choose **Debug** or **Release** in the **Configuration...** dialog, opened from the button below **Project**; build and unit-test tasks, including Development Tests build actions, use that configuration. The executable field stays as a single compact line. Existing executables are
 detected in this order: repository Debug build, repository Release build,
 `C:/dev/OneFLOW/bin/OneFLOW.exe`, then conventional Windows installation
 folders under `ProgramFiles`, `ProgramFiles(x86)`, and `LOCALAPPDATA`.
@@ -36,9 +36,9 @@ Both the source repository and its built-in case data are protected from in-plac
 The application invokes the standard command shape:
 `OneFLOW.exe r <case-directory>`.
 
-Use **the **Tests...** button below **Project**** to run the existing CTest and Python unit-test commands by default, enable the optional CFD/grid regression suite, or run the selected Development Tests cases. The shared action bar uses **Build**, **Rebuild**, **Run**, **Stop**, and **Close**. The Debug/Release selection is made in Configuration and passed into the Tests dialog. Regression runs invoke `test/test.py` and an existing manifest from `test/suites/`; the GUI does not implement a second test engine. Use **Project > Run History...** to inspect Case Workbench and workflow run records and logs, edit notes, delete individual records, or clean matching history by workflow, status, and timestamp. These history operations never delete run artifacts.
+Use the **Tests...** button below **Project** to run the existing CTest and Python unit-test commands by default, enable the optional CFD/grid regression suite, or run the selected Development Tests cases. The shared action bar uses **Build**, **Rebuild**, **Run**, **Stop**, and **Close**. The Debug/Release selection is made in Configuration and passed into the Tests dialog. Regression runs invoke `test/test.py` and an existing manifest from `test/suites/`; the GUI does not implement a second test engine. Use **Project > Run History...** to inspect Case Workbench and workflow run records and logs, edit notes, delete individual records, or clean matching history by workflow, status, and timestamp. These history operations never delete run artifacts.
 
-Use **the **Mesh Layout Editor...** button below **Project**** to open the mesh layout project editor. Choosing
+Use the **Mesh Layout Editor...** button below **Project** to open the mesh layout project editor. Choosing
 **Single rectangle**, **Single rectangle with vertical midpoints**, **Two-block turbulent flat plate**, **Two-block laminar flat plate**, or **Two-block laminar flat plate (10 edges)** copies the complete template
 project once into `~/.oneflow/mesh-layout-workspace/projects`; later openings
 reuse that project without overwriting edits. Each project keeps its JSON,
