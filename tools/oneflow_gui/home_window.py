@@ -332,7 +332,7 @@ class WorkbenchHomeWindow(QMainWindow):
         TestRunnerDialog(
             self._repository_root,
             self,
-            build_config=self.build_config_combo.currentText(),
+            build_config=self._settings.build_configuration,
             executable=self._executable(),
         ).exec()
 
