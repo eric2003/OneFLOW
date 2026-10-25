@@ -47,7 +47,6 @@ class ConfigurationDialog(QDialog):
 
         form = QFormLayout()
         self.repository_root_edit = QLineEdit(str(settings.repository_root))
-        self._last_repository_root_text = self.repository_root_edit.text().strip()
         self.repository_root_edit.setToolTip(
             "Source checkout containing CMakeLists.txt."
         )
@@ -71,6 +70,12 @@ class ConfigurationDialog(QDialog):
             settings.executable_path or self._default_executable(
                 settings.repository_root, settings.build_configuration
             )
+        )
+        self._uses_automatic_executable = self._is_automatic_executable(
+            settings.repository_root, self.executable_combo.currentText()
+        )
+        self.executable_combo.currentTextChanged.connect(
+            self._executable_selection_changed
         )
         executable_row = QHBoxLayout()
         executable_row.addWidget(self.executable_combo, 1)
@@ -146,20 +151,25 @@ class ConfigurationDialog(QDialog):
             self.repository_root_edit.setText(directory)
 
     def _source_root_changed(self, value: str) -> None:
-        previous_root = self._last_repository_root_text
-        previous_executable = self.executable_combo.currentText().strip()
-        if previous_root:
-            automatic_paths = {
-                self._default_executable(Path(previous_root), configuration).casefold()
-                for configuration in ("Debug", "Release")
-            }
-            if previous_executable.casefold() in automatic_paths and value.strip():
-                self.executable_combo.setEditText(
-                    self._default_executable(
-                        Path(value.strip()), self.build_config_combo.currentText()
-                    )
+        if self._uses_automatic_executable and value.strip():
+            self.executable_combo.setEditText(
+                self._default_executable(
+                    Path(value.strip()), self.build_config_combo.currentText()
                 )
-        self._last_repository_root_text = value.strip()
+            )
+
+    def _is_automatic_executable(self, repository_root: Path, value: str) -> bool:
+        return value.strip().casefold() in {
+            self._default_executable(repository_root, configuration).casefold()
+            for configuration in ("Debug", "Release")
+        }
+
+    def _executable_selection_changed(self, value: str) -> None:
+        root_text = self.repository_root_edit.text().strip()
+        if root_text:
+            self._uses_automatic_executable = self._is_automatic_executable(
+                Path(root_text), value
+            )
 
     def _refresh_candidates_from_edit(self) -> None:
         value = self.repository_root_edit.text().strip()
@@ -192,15 +202,8 @@ class ConfigurationDialog(QDialog):
             self.executable_combo.setEditText(path)
 
     def _build_configuration_changed(self, configuration: str) -> None:
-        current = self.executable_combo.currentText().strip()
         root_text = self.repository_root_edit.text().strip()
-        if not root_text:
-            return
-        automatic_paths = {
-            self._default_executable(Path(root_text), value).casefold()
-            for value in ("Debug", "Release")
-        }
-        if current.casefold() in automatic_paths:
+        if root_text and self._uses_automatic_executable:
             self.executable_combo.setEditText(
                 self._default_executable(Path(root_text), configuration)
             )
