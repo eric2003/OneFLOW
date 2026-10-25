@@ -155,7 +155,8 @@ class MainWindow(QMainWindow):
         self._cases: list[CaseDefinition] = []
         self._worker: RunQueueWorker | None = None
         self._task_worker: TestCommandWorker | None = None
-        self._row_by_id: dict[str, int] = {}
+        self._test_runner_dialog: TestRunnerDialog | None = None
+        self._row_by_id: dict[str, int] = {};
         self._history_repository = WorkflowRepository(UserDataPaths.discover().workflow_data)
         self._active_case_run_record: WorkflowRunRecord | None = None
         self._active_case_run_steps: list[dict] = []
@@ -604,6 +605,11 @@ class MainWindow(QMainWindow):
         dialog.exec()
 
     def _open_tests(self) -> None:
+        if self._test_runner_dialog is not None:
+            self._test_runner_dialog.raise_()
+            self._test_runner_dialog.activateWindow()
+            return
+
         executable = self.executable_combo.currentText().strip()
         dialog = TestRunnerDialog(
             self._repository_root,
@@ -611,7 +617,14 @@ class MainWindow(QMainWindow):
             build_config=self._build_config,
             executable=executable,
         )
-        dialog.exec()
+        self._test_runner_dialog = dialog
+        dialog.finished.connect(self._test_runner_closed)
+        dialog.show()
+        dialog.raise_()
+        dialog.activateWindow()
+
+    def _test_runner_closed(self, _result: int) -> None:
+        self._test_runner_dialog = None
 
     def _open_workflows(self) -> None:
         dialog = WorkflowDialog(
