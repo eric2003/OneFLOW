@@ -108,6 +108,17 @@ private:
         LinkField & lineId );
 };
 
+// Build the two directed child edges and their local endpoint flags after a midpoint is found.
+// Outputs are replaced, and child order follows the original edge direction.
+void BuildLineSplitMapping(
+    int firstNode,
+    int secondNode,
+    int midpointLocalNode,
+    int midpointGlobalNode,
+    LinkField & localLineId,
+    LinkField & localLineFlag,
+    LinkField & lineId );
+
 // Pure helpers for quad diagonal split (testable without IFaceLink).
 // BuildQuadDiagonalLocalTris clears outputs then fills four candidate tris:
 // diagonal 0-2 (tris 0-1-2 and 2-3-0) and diagonal 1-3 (tris 3-0-1 and 1-2-3).
