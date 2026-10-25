@@ -50,6 +50,35 @@ def _copy_case_to_workspace(
     return destination
 
 
+def prepare_case_database_workspace(
+    cases: list[CaseDefinition],
+    workspace_root: Path,
+) -> dict[str, Path]:
+    """Refresh the whole fixed grid workspace, then stage selected cases."""
+    root = workspace_root.expanduser().resolve()
+    root.mkdir(parents=True, exist_ok=True)
+    for child in root.iterdir():
+        if child.is_dir() and not child.is_symlink():
+            shutil.rmtree(child)
+        else:
+            child.unlink()
+
+    destinations: dict[str, Path] = {}
+    for case in cases:
+        destination = (root / case.case_id).resolve()
+        if destination.parent != root:
+            raise ValueError(
+                "Case Database destination must be a direct child of its workspace root."
+            )
+        shutil.copytree(
+            case.case_directory,
+            destination,
+            ignore=shutil.ignore_patterns("__pycache__", ".git"),
+        )
+        destinations[case.case_id] = destination
+    return destinations
+
+
 def prepare_case_directory(
     case: CaseDefinition,
     workspace_root: Path,
@@ -62,21 +91,12 @@ def prepare_case_directory(
             "In-place execution is disabled. Run catalog cases from a workspace copy."
         )
     if execution_mode == "case_database":
+        return prepare_case_database_workspace([case], workspace_root)[case.case_id]
+    if execution_mode == "case_database_prepared":
         root = workspace_root.expanduser().resolve()
         destination = (root / case.case_id).resolve()
-        if destination.parent != root:
-            raise ValueError("Case Database destination must be a direct child of its workspace root.")
-        if destination.exists():
-            if destination.is_dir() and not destination.is_symlink():
-                shutil.rmtree(destination)
-            else:
-                destination.unlink()
-        root.mkdir(parents=True, exist_ok=True)
-        shutil.copytree(
-            case.case_directory,
-            destination,
-            ignore=shutil.ignore_patterns("__pycache__", ".git"),
-        )
+        if destination.parent != root or not destination.is_dir():
+            raise ValueError(f"Prepared Case Database directory is missing: {destination}")
         return destination
     if execution_mode in {"default_workspace", "custom_workspace"}:
         return _copy_case_to_workspace(case, workspace_root, run_id)
