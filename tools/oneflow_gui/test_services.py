@@ -12,6 +12,7 @@ from tools.oneflow_gui.models import CaseDefinition
 from tools.oneflow_gui.runner import (
     _copy_case_to_workspace,
     build_command,
+    prepare_case_database_workspace,
     prepare_case_directory,
 )
 
@@ -121,6 +122,36 @@ class DesktopServiceTest(unittest.TestCase):
             self.assertEqual((actual / "control.txt").read_text(encoding="utf-8"), "fresh")
             self.assertFalse((actual / "stale-result.dat").exists())
             self.assertEqual((unrelated / "keep.txt").read_text(encoding="utf-8"), "keep")
+            self.assertTrue((source / "control.txt").is_file())
+
+    def test_case_database_refreshes_entire_grid_and_stages_selected_cases(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "source_case"
+            source.mkdir()
+            (source / "control.txt").write_text("fresh", encoding="utf-8")
+            workspace = root / "mesh-layout-test" / "grid"
+            stale = workspace / "old_case"
+            stale.mkdir(parents=True)
+            (stale / "stale.dat").write_text("stale", encoding="utf-8")
+            destination = workspace / "sample"
+            destination.mkdir()
+            (destination / "stale-result.dat").write_text("stale", encoding="utf-8")
+            case = CaseDefinition(
+                case_id="sample",
+                title="Sample",
+                case_directory=source,
+                runtime_config=source / "control.txt",
+                profile=None,
+                layout=None,
+            )
+
+            staged = prepare_case_database_workspace([case], workspace)
+
+            self.assertEqual(staged["sample"], destination)
+            self.assertEqual((destination / "control.txt").read_text(encoding="utf-8"), "fresh")
+            self.assertFalse((destination / "stale-result.dat").exists())
+            self.assertFalse(stale.exists())
             self.assertTrue((source / "control.txt").is_file())
 
     def test_source_execution_is_rejected(self) -> None:
