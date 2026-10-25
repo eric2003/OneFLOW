@@ -150,7 +150,7 @@ root. The source checkout remains separate from this directory.
 - `workflow-data/definitions/`: saved workflow definitions.
 - `workflow-data/runs/`: workflow run history.
 - `workflow-data/executions/`: isolated project/workflow run copies and generated results.
-- `grid-layout-test/`: disposable Case Database copies, rebuilt per case on each run; stale generated files are removed and source cases remain untouched.
+- `mesh-layout-test/grid/`: fixed Case Database execution directory, cleared as a whole and restaged with selected source cases at the start of each run batch; no per-run directory is created and source cases remain untouched.
 - `mesh-layout-workspace/`: mesh layout projects, specifications, and outputs.
 - `cfd-regression/`: staged CFD regression inputs.
 - `background-tasks/`: persistent background task records.
