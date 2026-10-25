@@ -35,8 +35,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-namespace
-{
 void ValidateGlobalFaceMapping(
     int globalFaceId, const LinkField & zoneIds, const LinkField & localFaceIds,
     const char * operation )
@@ -68,7 +66,6 @@ void ValidateGlobalFaceMappings(
         ValidateGlobalFaceMapping(
             static_cast< int >( globalFaceId ), zoneIds, localFaceIds, operation );
     }
-}
 }
 
 IFaceLink::IFaceLink( Grids & gridsIn ) : grids( gridsIn )
