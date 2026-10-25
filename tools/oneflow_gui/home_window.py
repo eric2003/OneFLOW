@@ -110,51 +110,38 @@ class WorkbenchHomeWindow(QMainWindow):
         configuration_button.clicked.connect(self._open_configuration)
         project_actions.addWidget(configuration_button)
 
-        run_button = QPushButton("Run...")
-        run_button.setMinimumHeight(48)
-        run_button.setMinimumWidth(100)
-        run_button.setToolTip("Start the run mode selected in Configuration.")
-        run_button.clicked.connect(self._open_selected_run_mode)
-        project_actions.addWidget(run_button)
         project_actions.addStretch(1)
         root.addLayout(project_actions)
 
         grid = QGridLayout()
         grid.setSpacing(12)
         self._add_activity(
-            grid, 0, 0, "Case Database",
-            "Run all selected catalog cases from protected workspace copies; all cases are selected by default.",
-            self._open_case_database,
-        )
-
-
-        self._add_activity(
-            grid, 1, 0, "Task Runner",
-            "Run unit tests or CFD/grid regression; catalog cases are another task type.",
+            grid, 0, 0, "Tests",
+            "Run unit tests, CFD/grid regression, or selected cases from the Case Database.",
             self._open_tests,
         )
         self._add_activity(
-            grid, 1, 1, "Run history",
+            grid, 0, 1, "Run history",
             "Review previous runs, logs, status, and recorded artifacts.",
             self._open_history,
         )
         self._add_activity(
-            grid, 2, 0, "Mesh Layout Editor",
+            grid, 1, 0, "Mesh Layout Editor",
             "Create or edit mesh layouts and their case templates.",
             self._open_mesh_layout,
         )
         self._add_activity(
-            grid, 2, 1, "Saved workflows",
+            grid, 1, 1, "Saved workflows",
             "Open existing multi-case or dependency workflow definitions and their run history.",
             self._open_saved_workflows,
         )
         self._add_activity(
-            grid, 3, 0, "Open Multi-Case Workspace...",
+            grid, 2, 0, "Open Multi-Case Workspace...",
             "Open a saved .ofw case collection and its execution policy. Project folders use Open Project.",
             self._open_workspace,
         )
         self._add_activity(
-            grid, 3, 1, "Create Multi-Case Workspace...",
+            grid, 2, 1, "Create Multi-Case Workspace...",
             "Create a .ofw case collection for existing case directories. For a new templated calculation project, use New Project above.",
             self._create_workspace,
         )
@@ -255,62 +242,6 @@ class WorkbenchHomeWindow(QMainWindow):
         window.show()
         window.raise_()
         window.activateWindow()
-
-    def _open_case_database(self) -> None:
-        from .main_window import MainWindow
-
-        self._case_window = MainWindow(
-            self._repository_root,
-            single_case_mode=True,
-            build_config=self._settings.build_configuration,
-        )
-        executable = self._executable()
-        if executable:
-            self._case_window.executable_combo.setEditText(executable)
-        self._case_window.show()
-        self._case_window.raise_()
-        self._case_window.activateWindow()
-
-    def _open_single_case(self) -> None:
-        directory = QFileDialog.getExistingDirectory(
-            self,
-            "Select project for single-case run",
-            str(Path.home()),
-        )
-        if not directory:
-            return
-        try:
-            project = open_project(directory)
-        except (OSError, ValueError) as error:
-            QMessageBox.critical(self, "Cannot open project", str(error))
-            return
-        window = ProjectWindow(project, self._repository_root, self)
-        self._project_windows.append(window)
-        executable = self._executable()
-        if executable and hasattr(window, "executable_combo"):
-            window.executable_combo.setEditText(executable)
-        window.show()
-        window.raise_()
-        window.activateWindow()
-
-    def _open_selected_run_mode(self) -> None:
-        mode = self._settings.run_mode
-        if mode == "single_case":
-            self._open_single_case()
-        elif mode == "multi_case":
-            WorkflowDialog(
-                self._repository_root,
-                self._executable(),
-                self,
-                initial_mode="multi_directory",
-            ).exec()
-        elif mode == "dependency_workflow":
-            WorkflowDialog(
-                self._repository_root,
-                self._executable(),
-                self,
-                initial_mode="case_graph",
-            ).exec()
 
     def _open_workspace(self) -> None:
         path, _ = QFileDialog.getOpenFileName(
