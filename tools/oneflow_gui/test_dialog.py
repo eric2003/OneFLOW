@@ -165,7 +165,8 @@ class TestRunnerDialog(QDialog):
         self._repository_root = Path(repository_root).resolve()
         self._build_config = build_config
         self._worker: TestCommandWorker | None = None
-        self.setWindowTitle("OneFLOW Task Runner")
+        self._database_window = None
+        self.setWindowTitle("OneFLOW Tests")
         self.resize(900, 650)
 
         layout = QVBoxLayout(self)
@@ -205,6 +206,20 @@ class TestRunnerDialog(QDialog):
         form.addRow("Existing suite", self.suite_combo)
         layout.addLayout(form)
 
+        database_layout = QHBoxLayout()
+        database_description = QLabel(
+            "Run selected catalog cases in isolated workspace copies."
+        )
+        database_description.setWordWrap(True)
+        database_layout.addWidget(database_description, 1)
+        self.case_database_button = QPushButton("Case Database Tests...")
+        self.case_database_button.setToolTip(
+            "Open the catalog case selector and run selected cases as tests."
+        )
+        self.case_database_button.clicked.connect(self._open_case_database_tests)
+        database_layout.addWidget(self.case_database_button)
+        layout.addLayout(database_layout)
+
         self.log_view = QPlainTextEdit()
         self.log_view.setReadOnly(True)
         self.log_view.setMaximumBlockCount(20000)
@@ -232,6 +247,30 @@ class TestRunnerDialog(QDialog):
         buttons.addWidget(self.stop_button)
         buttons.addWidget(close_button)
         layout.addLayout(buttons)
+
+    def _open_case_database_tests(self) -> None:
+        if self._database_window is not None and self._database_window.isVisible():
+            self._database_window.raise_()
+            self._database_window.activateWindow()
+            return
+
+        from .main_window import MainWindow
+
+        window = MainWindow(
+            self._repository_root,
+            single_case_mode=True,
+            build_config=self._build_config,
+        )
+        executable = self.executable_combo.currentText().strip()
+        if executable:
+            window.executable_combo.setEditText(executable)
+        self._database_window = window
+        owner = self.parent()
+        if owner is not None:
+            owner._case_database_test_window = window
+        window.show()
+        window.raise_()
+        window.activateWindow()
 
     def _start(self) -> None:
         if self._worker is not None and self._worker.isRunning():
