@@ -491,6 +491,8 @@ class MainWindow(QMainWindow):
             workspace_root = Path(workspace_text).expanduser().resolve()
         elif execution_mode == "default_workspace":
             workspace_root = UserDataPaths.discover().executions
+        elif execution_mode == "case_database" and self._single_case_mode:
+            workspace_root = UserDataPaths.discover().grid_layout_test
         else:
             QMessageBox.warning(
                 self,
