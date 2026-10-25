@@ -298,3 +298,11 @@ Commit: `d8568fe91722af5d78d8083d6bae23d9446d952d`
 - Added tests proving rollback does not run on success and runs on failure without replacing the setup exception.
 - Validation: all 13 focused lifecycle/state tests pass after direct MSVC compilation. ``SimuContextEnv.cpp`` compiles separately with MSVC, C++20, project includes, and MPI headers. The user reports 719/719 tests on baseline ``23e11c91``; the complete suite and executable link were not rerun for this slice.
 - Architecture assessment: this improves partial-initialization and cleanup behavior at an existing compatibility boundary without adding a new runtime abstraction. Next priority remains a production-linked setup fixture and then separating process ownership from the case-oriented ``SimuContext`` type, guided by actual dependencies rather than a broad rewrite.
+
+### 2026-10-26 - Add a minimal reusable CLI parsing core
+
+- The existing parser lived behind ``Prj::ParseCmdLineArgs()`` and exposed no reusable argument-schema contract. OneFLOW currently needs a positional mode and one-or-more case directories, including repeated identical paths.
+- Added header-only ``CliParser`` with declarative positional cardinality, named parsed values, schema validation, readable validation errors, and generated usage. The legacy ``Prj`` parser now adapts its existing argv vector to that schema; its public result type and mode semantics remain unchanged.
+- Scope is deliberately limited to current use: no named switches, subcommands, config-file merge, callbacks, or automatic typed conversions. Add those only when a concrete OneFLOW command requires them.
+- Added six parser-core tests and two adapter regressions for usage on missing values and preservation of duplicate case paths. The existing ``prj_cmdline_test`` target passed 46/46 when built directly with MSVC. The user reports 721/721 on baseline ``cdc51377``; the complete suite has not been rerun. No CMakeLists file changed, but the root source-tree glob will detect the new header and may trigger one CMake regeneration/reload in Visual Studio.
+- Migration plan: retain ``Prj::ParseCmdLineArgs()`` while call sites move to a dedicated immutable run-options API; then assess mode validation and named options separately. Keep parsing independent of global ``Prj`` path state.

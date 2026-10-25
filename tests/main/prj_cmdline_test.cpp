@@ -1,11 +1,86 @@
 #include "Prj.h"
+#include "CliParser.h"
 #include "FileUtils.h"
 #include <gtest/gtest.h>
 #include <stdexcept>
+#include <string>
+#include <vector>
 
 using ONEFLOW::Prj;
 using ONEFLOW::CmdLineOptions;
 
+TEST( CliParserTest, ParsesRequiredAndRepeatedPositionals )
+{
+    ONEFLOW::CliParser parser( "OneFLOW" );
+    parser.AddPositional( "mode", "Run mode" );
+    parser.AddPositional(
+        "caseDir", "Case directory", 1, ONEFLOW::CliParser::Unlimited );
+
+    const ONEFLOW::ParsedCommandLine parsed = parser.Parse(
+        { "r", "caseA", "caseA", "caseB" } );
+
+    EXPECT_EQ( parsed.GetOne( "mode" ), "r" );
+    const std::vector<std::string> & caseDirs = parsed.GetAll( "caseDir" );
+    ASSERT_EQ( caseDirs.size(), 3u );
+    EXPECT_EQ( caseDirs[ 0 ], "caseA" );
+    EXPECT_EQ( caseDirs[ 1 ], "caseA" );
+    EXPECT_EQ( caseDirs[ 2 ], "caseB" );
+}
+
+TEST( CliParserTest, OptionalPositionalCanBeAbsentOrPresent )
+{
+    ONEFLOW::CliParser parser( "OneFLOW" );
+    parser.AddPositional( "mode", "Run mode", 0, 1 );
+
+    const ONEFLOW::ParsedCommandLine absent = parser.Parse( {} );
+    EXPECT_FALSE( absent.Has( "mode" ) );
+
+    const ONEFLOW::ParsedCommandLine present = parser.Parse( { "d" } );
+    EXPECT_TRUE( present.Has( "mode" ) );
+    EXPECT_EQ( present.GetOne( "mode" ), "d" );
+}
+
+TEST( CliParserTest, RejectsMissingRequiredPositional )
+{
+    ONEFLOW::CliParser parser( "OneFLOW" );
+    parser.AddPositional( "mode", "Run mode" );
+    parser.AddPositional( "caseDir", "Case directory" );
+
+    EXPECT_THROW( parser.Parse( { "r" } ), std::invalid_argument );
+}
+
+TEST( CliParserTest, RejectsUnexpectedExtraPositional )
+{
+    ONEFLOW::CliParser parser( "OneFLOW" );
+    parser.AddPositional( "mode", "Run mode" );
+
+    EXPECT_THROW(
+        parser.Parse( { "r", "unexpected" } ), std::invalid_argument );
+}
+
+TEST( CliParserTest, RepeatablePositionalMustBeLast )
+{
+    ONEFLOW::CliParser parser( "OneFLOW" );
+    parser.AddPositional(
+        "caseDir", "Case directory", 1, ONEFLOW::CliParser::Unlimited );
+
+    EXPECT_THROW(
+        parser.AddPositional( "mode", "Run mode" ),
+        std::invalid_argument );
+}
+
+TEST( CliParserTest, BuildsUsageFromArgumentDefinitions )
+{
+    ONEFLOW::CliParser parser( "OneFLOW" );
+    parser.AddPositional( "mode", "Run mode" );
+    parser.AddPositional(
+        "caseDir", "Case directory", 1, ONEFLOW::CliParser::Unlimited );
+
+    const std::string usage = parser.Usage();
+    EXPECT_NE( usage.find( "Usage: OneFLOW <mode> <caseDir>..." ),
+        std::string::npos );
+    EXPECT_NE( usage.find( "Case directory" ), std::string::npos );
+}
 TEST( PrjParseCmdLineArgs, NormalRun )
 {
     CmdLineOptions opt = Prj::ParseCmdLineArgs(
@@ -80,6 +155,32 @@ namespace
         return std::filesystem::path( value );
     }
 
+}
+
+TEST( PrjParseCmdLineArgs, MissingPositionalsIncludeUsage )
+{
+    try
+    {
+        Prj::ParseCmdLineArgs( { "OneFlow.exe", "d" } );
+        FAIL() << "Expected missing positional error";
+    }
+    catch ( const std::invalid_argument & error )
+    {
+        EXPECT_NE(
+            std::string( error.what() ).find( "Usage: OneFLOW <mode> <caseDir>..." ),
+            std::string::npos );
+    }
+}
+
+TEST( PrjParseCmdLineArgs, RepeatedCaseDirectoriesArePreserved )
+{
+    const std::string caseDir = "test/case/";
+    const CmdLineOptions options = Prj::ParseCmdLineArgs(
+        { "OneFlow.exe", "r", caseDir, caseDir } );
+
+    ASSERT_EQ( options.caseDirs.size(), 2u );
+    EXPECT_EQ( options.caseDirs[ 0 ], caseDir );
+    EXPECT_EQ( options.caseDirs[ 1 ], caseDir );
 }
 
 TEST( PrjSetPrjBaseDir, RelativePath )

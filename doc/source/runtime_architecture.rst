@@ -106,6 +106,18 @@ summary and relevant tests as evidence.
 Command-line execution modes
 ----------------------------
 
+The parser core is ``ONEFLOW::CliParser`` in ``codes/basic/include/CliParser.h``. It uses a declared positional schema with minimum/maximum counts, returns named parsed values, preserves repeated values, and generates usage text for validation errors. The current OneFLOW adapter declares one required mode followed by one-or-more case directories. ``Prj::ParseCmdLineArgs()`` remains as a compatibility boundary; migration is incremental. Named switches, subcommands, and type conversion are intentionally outside this first scope because the current executable does not use them.
+
+.. code-block:: cpp
+
+   CliParser parser( "OneFLOW" );
+   parser.AddPositional( "mode", "Run mode" );
+   parser.AddPositional(
+       "caseDir", "Case directory", 1, CliParser::Unlimited );
+   const ParsedCommandLine parsed = parser.Parse( { "r", "caseA", "caseB" } );
+
+``Parse()`` receives arguments after the executable name. The adapter preserves the existing mode rule (``d`` enables debug; other values retain run mode) and the existing ``Prj::ParseCmdLineArgs()`` result shape while migration proceeds. The small parser intentionally does not yet provide named options or subcommands.
+
 The current `Simulation::RunImpl()` has three argument-count paths:
 
 * With only the executable argument, it enters the lightweight test selector and chooses
