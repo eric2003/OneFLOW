@@ -269,4 +269,4 @@ Related design pages
 * :doc:`grid_topology` — topology invariants, boundary normalization, and derived connectivity.
 * :doc:`workbench_architecture` — projects, workflows, run locations, artifacts, and process lifecycle.
 * :doc:`info` — project scope and documentation entry points.
-* `Documentation consolidation plan <https://github.com/eric2003/OneFLOW/blob/hexin/doc/plans/oneflow-documentation-consolidation-plan.md>`_ — document ownership and migration status.
+* `Documentation consolidation plan <https://github.com/eric2003/OneFLOW/blob/hexin/doc/plans/oneflow-documentation-consolidation-plan.md>`_ — document ownership and migration status.\n* `Runtime refactoring roadmap <https://github.com/eric2003/OneFLOW/blob/hexin/doc/plans/runtime-refactoring-roadmap.md>`_ — staged refactoring goals and acceptance criteria.
