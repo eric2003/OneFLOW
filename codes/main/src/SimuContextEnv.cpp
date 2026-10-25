@@ -23,6 +23,7 @@ License
 // Delegates to existing globals (compatibility layer for phase 2).
 
 #include "SimuContext.h"
+#include "SimuContextParameter.h"
 #include "SimuTask.h"
 #include "Prj.h"
 #include "ParaFile.h"
@@ -60,20 +61,8 @@ namespace
 std::string ReadOptionalStringParameter( const std::string & name )
 {
     DataBase & dataBase = RequireGlobalDataBase();
-    DataEntry * entry = dataBase.RequireDataPara().FindDataEntry( name );
-
-    if ( entry == nullptr )
-    {
-        return "";
-    }
-
-    if ( entry->GetType() != HX_STRING )
-    {
-        throw std::invalid_argument(
-            "Control parameter \"" + name + "\" must be a string" );
-    }
-
-    return GetDataValue< std::string >( &entry->GetDataObject() );
+    return SimuContextDetail::ReadOptionalStringParameter(
+        dataBase.RequireDataPara(), name );
 }
 
 }
