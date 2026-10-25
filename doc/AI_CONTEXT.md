@@ -2,7 +2,7 @@
 
 Last updated: 2026-10-26
 Working branch: `hexin`
-Latest R1 implementation slice: [`a13a890bb31e2d84434fbe4297cf76aebc24c865`](https://github.com/eric2003/OneFLOW/commit/a13a890bb31e2d84434fbe4297cf76aebc24c865) registers focused tests for the extracted optional-string lookup contract. The implementation and test seam are committed, but no local build/test or exact-revision CI pass has been confirmed.
+Latest R1 implementation slice: [`f861c031cfc7073a87b44c5d61748fdc5b0fd077`](https://github.com/eric2003/OneFLOW/commit/f861c031cfc7073a87b44c5d61748fdc5b0fd077) completes the focused test target setup and makes the test's `std::move` dependency explicit. The implementation and test seam are committed, but no local build/test or exact-revision CI pass has been confirmed.
 
 This is the fast handoff page for an AI assistant or developer continuing work on OneFLOW. It is a curated status snapshot, not a replacement for source code, tests, design pages, or CI. Recheck the branch HEAD before editing: this page can lag behind the current repository revision.
 
