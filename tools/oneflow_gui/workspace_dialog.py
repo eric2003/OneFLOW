@@ -133,8 +133,10 @@ class WorkspaceDialog(QDialog):
             path_item.setText(directory)
 
     def _add_case(self) -> None:
+        projects_directory = UserDataPaths.discover().projects
+        start_directory = projects_directory if projects_directory.is_dir() else Path.home()
         directory = QFileDialog.getExistingDirectory(
-            self, "Add case directory", str(UserDataPaths.discover().projects)
+            self, "Add case directory", str(start_directory)
         )
         if not directory:
             return
