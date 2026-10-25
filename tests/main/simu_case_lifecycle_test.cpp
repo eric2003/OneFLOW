@@ -4,20 +4,21 @@
 
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 using namespace ONEFLOW;
 
 TEST( SimuCaseLifecycleTest, RunsCleanupAfterSuccessfulExecution )
 {
-    int executions = 0;
-    int cleanups = 0;
+    std::vector< std::string > events;
 
     SimuCaseLifecycleDetail::ExecuteWithCleanup(
-        [&]() { ++executions; },
-        [&]() { ++cleanups; } );
+        [&]() { events.emplace_back( "execute" ); },
+        [&]() { events.emplace_back( "cleanup" ); } );
 
-    EXPECT_EQ( executions, 1 );
-    EXPECT_EQ( cleanups, 1 );
+    ASSERT_EQ( events.size(), 2 );
+    EXPECT_EQ( events[ 0 ], "execute" );
+    EXPECT_EQ( events[ 1 ], "cleanup" );
 }
 
 TEST( SimuCaseLifecycleTest, RunsCleanupAndPreservesExecutionFailure )

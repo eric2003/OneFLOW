@@ -264,3 +264,11 @@ Commit: `d8568fe91722af5d78d8083d6bae23d9446d952d`
 - Commits: [policy helper](https://github.com/eric2003/OneFLOW/commit/d643aed3f964d9e9ea48947a259dd6e0820bd732), [production call site](https://github.com/eric2003/OneFLOW/commit/e38adea4fa70e51299cb14da3164209fcd89fd4c), [contract tests](https://github.com/eric2003/OneFLOW/commit/8299d15eb1241f60f949dc1b081ef78cf32f905f).
 - Validation: source and tests are committed, but no local build/test run or successful exact-revision CI result is available in this session. Do not count these tests as passed until they run.
 - Architecture assessment: the first helper tested only a branch predicate; adding the effective-value test exposed a better contract boundary. The setup integration gap remains because `ReadControlInfo(caseDir)` performs script loading, process coordination, parameter broadcast, and database dump. Keep R1 partial.
+### 2026-10-26 - Extract and register case cleanup contract
+
+- Inspected `hexin` HEAD `b30a86ed`. `SimuImp::RunCase()` now delegates the execute/cleanup exception policy to the production-owned `SimuCaseLifecycleDetail::ExecuteWithCleanup()` boundary.
+- The contract is: cleanup runs once after successful execution; cleanup also runs after execution failure; an execution failure is preserved if cleanup also throws; a cleanup failure is propagated when execution succeeds.
+- The focused test target is registered in `tests/main/CMakeLists.txt`. This session strengthened the success-path assertion to verify ordering, not only callback counts.
+- Validation: the existing Windows build directory lists 618 CTest entries, with some stale or unavailable targets represented as `NOT_BUILT`. CMake began regeneration for `simu_case_lifecycle_test` but did not produce a completed build or executable in this session. No test pass or 700/700 result is claimed for `b30a86ed`.
+- Architecture assessment: the cleanup policy can be tested without linking the solver runtime, which confirms a small lifecycle seam is useful. It does not validate full `SimuContext::TeardownCase()` behavior or the real control-file setup failure path. R1 remains partial.
+- Next: complete focused Windows target validation, then revisit a production-linked temporary-case integration boundary for `SetupCaseEnvironment()` without duplicating executable source configuration.

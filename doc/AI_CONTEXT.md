@@ -2,7 +2,7 @@
 
 Last updated: 2026-10-26
 Working branch: `hexin`
-Latest inspected `hexin` HEAD: [`a1f74ea8`](https://github.com/eric2003/OneFLOW/commit/a1f74ea8e2b3486cc6d1087b1953212bec5fda29), documenting the concrete dependencies blocking a real `SetupCaseEnvironment()` integration test. The fallback-value tests from [`8299d15e`](https://github.com/eric2003/OneFLOW/commit/8299d15eb1241f60f949dc1b081ef78cf32f905f) still have not been independently built or run in this session.
+Latest inspected `hexin` HEAD: [`b30a86ed`](https://github.com/eric2003/OneFLOW/commit/b30a86ed3ec4cf8b0d887620d5824bc25e26cd27). This commit registers the case lifecycle cleanup contract tests after extracting the production cleanup boundary. The focused lifecycle target has not yet been built or run in this session. The existing Windows build directory reports 618 registered CTest cases (including several `NOT_BUILT` placeholders); this is not evidence of a 700/700 pass on this revision.
 
 This is the fast handoff page for an AI assistant or developer continuing work on OneFLOW. It is a curated status snapshot, not a replacement for source code, tests, design pages, or CI. Recheck the branch HEAD before editing: this page can lag behind the current repository revision.
 
@@ -36,9 +36,9 @@ Do not start by reading the whole repository. Use the architecture map to identi
 
 The published [architecture review](source/architecture_review.rst) is now the common checklist for substantial AI-assisted changes. It deliberately separates general CFD/CAE concerns from verified OneFLOW behavior. Keep these cross-system risks visible while working locally: implicit global runtime state, configuration parsing versus validation/application, mutable mesh data and derived connectivity, workflow artifact provenance and execution locations, repeated/failed-run cleanup, and the gap between documented plans and actual test/CI evidence. At each meaningful milestone, state which system-level concern improved, what remains untouched, and whether the priority order should change.
 
-## 4. Current focus: runtime case configuration and I/O roots
+## 4. Current focus: case lifecycle cleanup, then runtime case configuration
 
-The active refactoring stage is **R1: case configuration and I/O root resolution**. The goal is to clarify and test the existing contract before extracting a resolver or broadening the design.
+The latest implementation slice is case execution cleanup. `SimuImp::RunCase()` uses `SimuCaseLifecycleDetail::ExecuteWithCleanup()` to invoke teardown on success and failure, preserve the original execution exception if cleanup also fails, and propagate cleanup errors after successful execution. Four focused contract tests are registered in `tests/main/simu_case_lifecycle_test.cpp`; they are implemented but unverified until the target builds and runs. R1 case configuration and I/O root resolution remains partial and is the next substantive runtime integration boundary.
 
 ### Source-backed execution path
 
@@ -83,7 +83,7 @@ The helper preserves the optional-parameter contract:
 
 ## 5. Next actions, in priority order
 
-1. Recheck current `hexin` HEAD and its Linux, Windows, and documentation CI runs.
+1. Build and run `simu_case_lifecycle_test` on the current `hexin` HEAD; resolve why the existing Windows CMake regeneration does not finish before attempting a full suite.
 2. Continue from [the integration-test investigation](plans/setup-case-environment-integration-test.md): inspect the global database initialization API and test target link dependencies, then try a serial temporary-case fixture that invokes `SetupCaseEnvironment()` without initializing MPI/accelerator runtime unless required.
 3. Assert explicit `meshInputRoot` overrides `sourceGridCaseDir`, and the legacy fallback is used only when mesh input is empty or `default`.
 4. Verify the path reset between sequential cases and confirm output-path diagnostics remain compatible.
