@@ -328,6 +328,9 @@ class WorkbenchHomeWindow(QMainWindow):
             return
 
         previous_executable = self.executable_combo.currentText().strip()
+        follows_build_configuration = previous_executable.casefold() in {
+            path.casefold() for path in self._build_executable_paths.values()
+        }
         self._settings = settings
         self._repository_root = repository_root
         self._build_executable_paths = {
@@ -340,9 +343,12 @@ class WorkbenchHomeWindow(QMainWindow):
         self.executable_combo.addItems(
             [str(path) for path in executable_candidates(repository_root)]
         )
-        if previous_executable:
+        if follows_build_configuration:
+            self.executable_combo.setEditText(
+                self._build_executable_paths[self.build_config_combo.currentText()]
+            )
+        elif previous_executable:
             self.executable_combo.setEditText(previous_executable)
-        self._build_configuration_changed(self.build_config_combo.currentText())
         self.repository_root_edit.setText(str(repository_root))
         self.save_basic_configuration_button.setEnabled(False)
         self.statusBar().showMessage("Basic configuration saved.", 4000)
