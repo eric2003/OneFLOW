@@ -34,6 +34,7 @@ class or all tests unrelated to the changed contract passed.
 - Keep C++ source files ASCII-only.
 - Update the curated design page when a contract or responsibility changes. Add an ADR only for decisions with durable consequences or meaningful alternatives.
 - Never describe a planned feature or unrun test as implemented or verified.
+- Keep `doc/AI_CONTEXT.md` as the fast handoff entry for AI-assisted work; update it at material milestones with a verified base commit, current focus, known gaps, evidence, and next actions.
 
 ## 3. Runtime refactoring sequence
 
@@ -189,3 +190,11 @@ Commit: `d8568fe91722af5d78d8083d6bae23d9446d952d`
 - Applied the same rule to `sourceGridCaseDir` and `ioPathInfoFileName`; the explicit `meshInputRoot` precedence and legacy source-grid fallback condition are unchanged.
 - The helper remains local to environment bootstrap. No general database API or new public abstraction was introduced.
 - Validation: source is ASCII-only by inspection. CI for this commit must still confirm compilation and regressions. A focused automated test for this specific invalid-type setup path has not yet been added, so this is a first implementation slice, not a completed R1 stage.
+
+
+### 2026-10-26 - AI-assisted development handoff
+
+- Added `doc/AI_CONTEXT.md` as the fast entry point for restoring project state across AI sessions and developer handoffs.
+- Linked the handoff from the repository README, documentation README, and Sphinx developer resources so it is discoverable without reading the full repository.
+- The page summarizes branch constraints, the current R1 focus, source-backed path behavior, the last implementation slice, explicit verification gaps, and prioritized next actions. It requires rechecking the current `hexin` HEAD and CI before relying on the snapshot.
+- This is a documentation/process improvement only; it does not claim any new code behavior or test result.
