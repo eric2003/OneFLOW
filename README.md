@@ -1,68 +1,221 @@
-[Toc]
-[English](./README.md) [简体中文 ](./README_zh_CN.md)
 # OneFLOW
 
-| Branch  | Linux Build | Windows Build |
-|---      |---    |---    |
-| Master  | [![Build Status](https://github.com/eric2003/OneFLOW/actions/workflows/linux-build.yml/badge.svg?branch=master)](https://github.com/eric2003/OneFLOW/actions/workflows/linux-build.yml) | [![Build status](https://ci.appveyor.com/api/projects/status/o7fc231lp9jxlsib/branch/master?svg=true)](https://ci.appveyor.com/project/eric2003/OneFLOW/branch/master)  |
------------------------------------------------------------
-The Open-Source CFD Code
------------------------------------------------------------
-LargeScale Multiphysics Scientific Simulation Environment
------------------------------------------------------------
+**An open-source CFD codebase for mesh generation, flow simulation, and reproducible engineering workflows.**
 
-## Build
-Firstly, make sure that C++ compiler has been installed. For Windows platform, the [Visual Studio IDE](https://visualstudio.microsoft.com/ "Visual Studio IDE") is recommended. Then download and install [Git](https://git-scm.com/ "Git") and [CMake](https://cmake.org/download/ "CMake") on your system.
+OneFLOW is an actively developed computational fluid dynamics (CFD) project. Its goal is not only to run flow cases, but also to make the surrounding engineering work clearer and more reproducible: define a mesh or case, run it in a controlled workspace, inspect generated artifacts, validate results, and connect cases when one calculation depends on another.
 
-### Dependencies
+This repository is evolving. This README describes the code and tools that exist today, distinguishes working features from longer-term direction, and provides build and test instructions for the current CMake project.
 
-* [CGNS](https://github.com/CGNS/CGNS "CGNS"): a general, portable, and extensible standard for the storage and retrieval of CFD analysis data.
-* [HDF5](https://www.hdfgroup.org/downloads/hdf5/ "hdf5"): a set of file formats (HDF4, HDF5) designed to store and organize large amounts of data, needed by CGNS.
-* [Metis](http://glaros.dtc.umn.edu/gkhome/metis/metis/download "Metis"): a set of serial programs for partitioning graphs, partitioning finite element meshes.
-* [MPI](https://computing.llnl.gov/tutorials/mpi/ "MPI"): Massage Passing Interface.A standardized and portable message-passing standard for parallel computing. Some well-known open source implementations are [MS-MPI](https://github.com/Microsoft/Microsoft-MPI "MS-MPI")(recommended in Windows platform), [MPICH](https://github.com/pmodels/mpich "MPICH") and [OpenMPI](https://github.com/open-mpi/ompi "OpenMPI").
+[简体中文](./README_zh_CN.md) · [Source code](https://github.com/eric2003/OneFLOW) · [Issues](https://github.com/eric2003/OneFLOW/issues)
 
-### Windows
+## What is in the project?
 
-1. Download source code from github:
-```
-git clone https://github.com/eric2003/OneFLOW
-```
-2. Download prebuilt thirdparty libraries for windows 10 
-```
-git clone https://github.com/eric2003/OneFLOW_ThirdPartyLib
-```
-3. Copy ThirdPartyLib to OneFLOW directory.
+- **CFD runtime:** a C++20 application with solver, task, data, geometry, and I/O code organized into modules.
+- **Mesh and grid workflows:** mesh conversion and grid-generation cases, structured and unstructured mesh work, boundary and connectivity handling, and tools for inspecting mesh metadata.
+- **Case-based verification:** GoogleTest/CTest unit tests, existing CFD regression cases, and grid-conversion checks. A successful process exit alone is not sufficient evidence for every regression case.
+- **Engineering workbench:** an optional Python/PySide6 desktop application for opening projects, running cases, editing mesh layouts, managing multi-case workflows, and reviewing logs and run history.
+- **Incremental backend work:** a configurable compute-backend boundary, with CPU as the practical baseline. Accelerator integrations have different levels of readiness; do not assume every backend is production-ready.
 
-The above operation will download the source code together with prebuilt thirdparty libraries. You can also build them by yourself.
+## Design principles
 
-4. Use CMake to configure and generate project files.
-   
-5. Compile and generate executable file.
-   
-### Linux
+### Keep the solver independent of the workbench
 
-1. Download source code from github:
-```
-git clone https://github.com/eric2003/OneFLOW
-```
-The above operation will download the source code only(prebuilt thirdparty libraries are not provided)
+The C++ runtime is the authority for executing OneFLOW cases. Python tools and the desktop workbench orchestrate that runtime; they should not become hidden prerequisites for the solver or duplicate its numerical implementation.
 
-2. Use CMake to configure and generate appropriate project files, for example: Makefile.
-   
-3. Compile and generate executable file.
-   
-## OneFLOW DEVELOPERS
------------------------------------------------------------
-OneFLOW is being developed by individuals and organized teams all around the world.
+### Treat cases as projects and runs as artifacts
 
-The current OneFLOW release has been coordinated by the OneFLOW International Developers Society with selected contributions from the open-source community.
+Inputs and case definitions belong in the source repository. Generated grids, reports, logs, and flow results should live in a run workspace. The workbench stages built-in cases away from the source tree to avoid accidentally overwriting checked-in inputs.
 
-The main research teams contributing to the current release are:
+### Separate data extraction, representation, and presentation
 
-Dr He Xin, at Transition technology
+Mesh and geometry work is moving toward small, independently testable interfaces: extract a summary from a runtime mesh, represent the snapshot without depending on a GUI, then serialize or visualize it. A mesh summary is metadata (for example, dimensions, counts, and bounds), not a replacement for the mesh itself.
 
-Email:<fantasy_2003_@hotmail.com>
+### Make dependencies explicit
 
-If you have any problem in building or running the code, please do not hesitate to contact.
+Some cases are independent; others consume a grid or artifact produced by an earlier case. The workflow model records execution mode and dependency edges so orchestration can validate and order work instead of relying on undocumented manual steps. Some workbench paths are still being integrated; consult its dedicated guide for current behavior.
 
-Copyright 2017-2026, He Xin, and the OneFLOW contributors.
+### Prefer evidence over assumptions
+
+CTest, unit tests, mesh expectations, and CFD regression baselines provide different kinds of evidence. They are not interchangeable. Hardware-dependent accelerator validation is separate from the normal CPU build and should be reported as such.
+
+## Repository map
+
+| Path | Purpose |
+| --- | --- |
+| codes/ | C++ runtime, solver, geometry, mesh, and I/O implementation |
+| ThirdParty/ | Vendored dependencies used by the build, including GoogleTest and JSON libraries |
+| tests/ | C++ unit tests registered with CTest |
+| grid/ | Mesh-generation and mesh-conversion cases, profiles, and case catalog |
+| test/ | CFD/grid regression runners, suite manifests, and numerical baselines |
+| tools/ | Case validation, mesh utilities, and the optional desktop workbench |
+| docs/, doc/ | Architecture notes and supporting documentation |
+| cmake/ | CMake helper functions |
+
+See the [grid case guide](./grid/README.md), [regression test guide](./test/README.md), and [OneFLOW Workbench guide](./tools/oneflow_gui/README.md).
+
+## Build from source
+
+### Requirements
+
+- CMake **3.30 or newer**.
+- A C++20-capable compiler.
+- Git.
+- MPI, METIS, and CGNS development libraries for the default build configuration.
+- HDF5 is normally required by CGNS packages.
+- Python 3 is useful for case tools, regression tests, and the optional desktop workbench.
+
+Dependency discovery differs by platform. The current build does not use a single universal package-manager configuration, so verify the include and library paths that CMake reports when configuring.
+
+### Windows: Visual Studio 2022
+
+Install Visual Studio 2022 with the **Desktop development with C++** workload, CMake, and Git. Install compatible MPI, METIS, and CGNS libraries. The current CMake defaults expect MS-MPI under its standard SDK location, METIS under C:/dev/METIS/METIS-VS2022-STATIC, and CGNS under C:/dev/cgns/4.4.0. Override these paths for your installation.
+
+From PowerShell at the repository root:
+
+~~~powershell
+cmake -S . -B build `
+  -G "Visual Studio 17 2022" -A x64 `
+  -D CMAKE_INSTALL_PREFIX="C:/dev/OneFLOW" `
+  -D METIS_ROOT="C:/dev/METIS/METIS-VS2022-STATIC" `
+  -D CGNS_ROOT="C:/dev/cgns/4.4.0"
+
+cmake --build build --config Debug --parallel
+ctest --test-dir build -C Debug --output-on-failure
+~~~
+
+For Release, use --config Release for both build and test commands. Visual Studio is a multi-configuration generator; select Debug or Release at build/test time rather than relying on CMAKE_BUILD_TYPE.
+
+The executable is typically under build/bin/Debug/ or build/bin/Release/, depending on the selected configuration.
+
+### Windows: Ninja / single-configuration build
+
+If Ninja and the MSVC developer environment are available, a single-configuration build can be convenient:
+
+~~~powershell
+cmake -S . -B build-ninja -G Ninja `
+  -D CMAKE_BUILD_TYPE=Debug `
+  -D CMAKE_INSTALL_PREFIX="C:/dev/OneFLOW" `
+  -D METIS_ROOT="C:/dev/METIS/METIS-VS2022-STATIC" `
+  -D CGNS_ROOT="C:/dev/cgns/4.4.0"
+
+cmake --build build-ninja --parallel
+ctest --test-dir build-ninja --output-on-failure
+~~~
+
+Use a separate build directory when changing generators or compilers. CMake does not support switching the generator in an existing build tree.
+
+### Linux: GCC and system libraries
+
+On Debian/Ubuntu, install the compiler and common development packages:
+
+~~~bash
+sudo apt update
+sudo apt install build-essential cmake git \
+  libhdf5-dev libcgns-dev libmetis-dev libmpich-dev
+~~~
+
+The current CMake configuration accepts explicit library paths through environment variables. The following paths match a common Ubuntu/MPICH layout; adjust them for your distribution:
+
+~~~bash
+export MPI_HOME_INC=/usr/include/x86_64-linux-gnu/mpich
+export MPI_HOME_LIB=/usr/lib/x86_64-linux-gnu/libmpich.so
+export CGNS_HOME_INC=/usr/include
+export CGNS_HOME_LIB=/usr/lib/x86_64-linux-gnu/libcgns.so
+export METIS_HOME_INC=/usr/include
+export METIS_HOME_LIB=/usr/lib/x86_64-linux-gnu/libmetis.so
+
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug \
+  -DCMAKE_INSTALL_PREFIX="$PWD/Run"
+cmake --build build --parallel 4
+ctest --test-dir build --output-on-failure
+~~~
+
+If your distribution installs HDF5 or MPI headers in a different directory, update the corresponding paths. If CMake configuration or linking fails, inspect the detected include directories and libraries before changing source code.
+
+### Run a case
+
+The command-line entry point uses this case-directory form:
+
+~~~text
+OneFLOW.exe r <case-directory>
+~~~
+
+For example, after building on Windows:
+
+~~~powershell
+.\build\bin\Debug\OneFLOW.exe r .\grid\minimal_rectangle
+~~~
+
+Run cases in a writable workspace rather than directly in the checked-in source case when they generate files. The workbench can create isolated run copies for supported task types. Case inputs and outputs are described in the relevant case directory and the [grid guide](./grid/README.md).
+
+## Tests and verification
+
+### C++ unit tests
+
+CTest discovers the GoogleTest-based C++ tests configured by CMake:
+
+~~~powershell
+# Visual Studio generator
+ctest --test-dir build -C Debug --output-on-failure
+~~~
+
+For a single-configuration generator, omit -C Debug and use the build directory configured above. When investigating a test failure, run the relevant test executable or filtered GoogleTest case as well as the complete CTest suite.
+
+### CFD and grid regression
+
+The separate test/ tree contains regression manifests, case inputs, and accepted numerical baselines. See [test/README.md](./test/README.md) for supported commands, suite names, expected outputs, and tolerance policy. Grid case discovery and profile validation are documented in [grid/README.md](./grid/README.md).
+
+Do not treat these checks as equivalent:
+
+- **Unit tests** check individual contracts and components.
+- **Grid checks** validate generated mesh properties and expected topology.
+- **CFD regression** compares solver outputs with accepted numerical references.
+- **Accelerator tests** require the appropriate compiler, runtime, and hardware; they are not implied by a CPU-only pass.
+
+## Optional desktop workbench
+
+The desktop application is a Python/PySide6 tool layered over the C++ executable. It is not required to build or run the command-line solver.
+
+~~~powershell
+python -m pip install -r tools/requirements-gui.txt
+python -m tools.oneflow_gui
+~~~
+
+The workbench supports project discovery, run configuration, mesh layout editing, test entry points, multi-case/workflow definitions, logs, and run history. Its feature set is evolving; the detailed [workbench README](./tools/oneflow_gui/README.md) documents current behavior and known integration boundaries.
+
+## Compute backends: current status
+
+The CMake cache exposes ONEFLOW_ACCEL_BACKEND with AUTO, CPU, HIP, CUDA, and KOKKOS values, but these names do **not** mean that all implementations are equally complete.
+
+- **CPU** is the baseline for ordinary development and regression.
+- **HIP** can be enabled explicitly when the HIP package, compiler, and target architecture are available. Hardware-dependent validation must be performed on a matching system.
+- **CUDA** follows a legacy opt-in source path and requires ONEFLOW_ENABLE_CUDA=ON; it should not be assumed to be enabled by default.
+- **Kokkos** is currently a reserved extension point, not an enabled port.
+
+Example CPU configuration:
+
+~~~bash
+cmake -S . -B build-cpu -D ONEFLOW_ACCEL_BACKEND=CPU
+~~~
+
+For HIP, consult the CMake output and set the compiler and architecture explicitly when cross-compiling. Do not enable an accelerator option unless the required toolchain and libraries are installed.
+
+## Contributing
+
+Contributions are welcome, especially focused changes with tests and reproducible evidence. A useful contribution usually:
+
+1. Identifies the runtime or tool boundary it changes.
+2. Adds or updates a test for the intended contract.
+3. Keeps generated artifacts out of source case directories.
+4. Runs the relevant unit or regression checks and reports any hardware or platform limitations.
+5. Updates documentation when commands, parameters, or observable behavior change.
+
+The project is actively refactoring its mesh, geometry, test, and workbench boundaries. Prefer incremental changes that improve a real call path or make behavior easier to verify over broad rewrites without a concrete use case.
+
+## Project and license
+
+OneFLOW is maintained by He Xin and contributors. The repository is hosted at [github.com/eric2003/OneFLOW](https://github.com/eric2003/OneFLOW). Please check the repository's license file and contribution history for the terms and process that apply to your intended use.
+
+---
+
+*OneFLOW is an evolving open-source CFD project. Documentation describes the checked-in implementation and its current limitations; it is not a claim that every planned capability is complete.*
