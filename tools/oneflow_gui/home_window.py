@@ -180,7 +180,7 @@ class WorkbenchHomeWindow(QMainWindow):
         directory = QFileDialog.getExistingDirectory(
             self,
             "Open OneFLOW project directory",
-            str(Path.home()),
+            str(UserDataPaths.discover().projects),
         )
         if not directory:
             return
@@ -197,7 +197,7 @@ class WorkbenchHomeWindow(QMainWindow):
 
     def _open_workspace(self) -> None:
         path, _ = QFileDialog.getOpenFileName(
-            self, "Open OneFLOW workspace", str(Path.home()),
+            self, "Open OneFLOW workspace", str(UserDataPaths.discover().workspaces),
             "OneFLOW workspace (*.ofw)",
         )
         if path:
