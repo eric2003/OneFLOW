@@ -45,6 +45,15 @@ class WorkbenchHomeWindow(QMainWindow):
         self._repository_root = resolve_repository_root(
             self._settings, discovered_root
         )
+        if not self._settings.executable_path:
+            self._settings = ApplicationSettings(
+                self._repository_root,
+                self._settings.build_configuration,
+                str(
+                    (self._repository_root / "build" / "bin" / self._settings.build_configuration / "OneFLOW.exe").resolve()
+                ),
+                self._settings.run_mode,
+            )
         self._case_window = None
         self._project_windows = []
         self.setWindowTitle("OneFLOW Workbench")
@@ -200,7 +209,12 @@ class WorkbenchHomeWindow(QMainWindow):
 
     def _open_configuration(self) -> None:
         dialog = ConfigurationDialog(
-            self._settings,
+            ApplicationSettings(
+                self._repository_root,
+                self._settings.build_configuration,
+                self._settings.executable_path,
+                self._settings.run_mode,
+            ),
             self._default_repository_root,
             self,
         )
