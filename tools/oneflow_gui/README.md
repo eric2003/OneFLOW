@@ -17,7 +17,7 @@ python -m pip install -r tools/requirements-gui.txt
 python -m tools.oneflow_gui
 ```
 
-Choose **Debug** or **Release** in **the **Configuration...** button below **Project****; build and unit-test tasks, including Case Database build actions, use that configuration. The executable field stays as a single compact line. Existing executables are
+Choose **Debug** or **Release** in **the **Configuration...** button below **Project****; build and unit-test tasks, including Development Tests build actions, use that configuration. The executable field stays as a single compact line. Existing executables are
 detected in this order: repository Debug build, repository Release build,
 `C:/dev/OneFLOW/bin/OneFLOW.exe`, then conventional Windows installation
 folders under `ProgramFiles`, `ProgramFiles(x86)`, and `LOCALAPPDATA`.
