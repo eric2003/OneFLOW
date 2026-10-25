@@ -153,14 +153,24 @@ Case runtime configuration
    `ioPathInfoFileName`. If `meshInputRoot` is empty or `default`, a non-empty
    `sourceGridCaseDir` is used as the legacy mesh-input fallback. Generic input/output
    roots are applied before the mesh/flow-specific roots. Missing optional root settings
-   retain the existing case-relative defaults. The current setup uses broad exception
-   handlers around optional lookups. A missing key throws from `GetDataValue`, but the
-   underlying typed `DataObject` lookup uses a static cast and does not safely validate
-   a mismatched stored type. Do not assume these handlers make malformed values safe.
-   Existing `Prj` tests cover many root-resolution rules, but the full
-   `SetupCaseEnvironment()` precedence and `sourceGridCaseDir` fallback need a direct
-   test seam. The exact meaning and precedence of these keys must stay aligned with
-   `SimuContextEnv.cpp` and the path-resolution tests.
+   retain the existing case-relative defaults.
+
+   Optional path strings are read through
+   `SimuContextDetail::ReadOptionalStringParameter()` in
+   `codes/main/include/SimuContextParameter.h`. The helper returns an empty string for a
+   missing entry, verifies that a present entry is `HX_STRING`, and throws
+   `std::invalid_argument` naming the parameter when its declared type is wrong. This
+   narrows the earlier unchecked typed-read behavior for these optional path settings;
+   it does not make every control parameter type-safe, nor does the helper test validate
+   global database binding or the complete case-setup lifecycle.
+
+   Existing `Prj` tests cover generic/domain root resolution, inheritance, diagnostics,
+   and resetting roots when binding another case. The helper-level
+   `simu_context_parameter_test` covers missing, valid-string, and invalid-type lookup.
+   A direct `SetupCaseEnvironment()` integration test is still needed to prove the
+   precedence between explicit `meshInputRoot` and `sourceGridCaseDir`, as well as the
+   interaction with control-file loading and sequential case setup. Keep the documented
+   contract aligned with `SimuContextEnv.cpp` and the path-resolution tests.
 
 Workbench project and workflow configuration
    Project definitions describe an engineering workspace; workflow definitions describe
