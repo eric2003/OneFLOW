@@ -51,6 +51,25 @@ TEST( FaceSearchBasicTest, ClearResetsLookupAndFaceArray )
     EXPECT_EQ( search.AddFace( IntField{ 1, 2 } ), 0 );
 }
 
+TEST( FaceSearchBasicTest, ClearResetsDerivedSplitMappings )
+{
+    // Intent: clearing a FaceSearch invalidates mappings derived from its face IDs.
+    FaceSearch search;
+    ASSERT_EQ( search.AddFace( IntField{ 1, 2, 3, 4 } ), 0 );
+
+    search.interfaceSplit.childFaceIdsOfParent = LinkField{ IntField{ 4, 5 } };
+    search.interfaceSplit.childFaceNodeIds = LinkField{ IntField{ 0, 1, 2 } };
+    search.interfaceSplit.childFaceNodeFlags = LinkField{ IntField{ 1, -1, 1 } };
+
+    search.Clear();
+
+    EXPECT_EQ( search.Size(), static_cast< std::size_t >( 0 ) );
+    EXPECT_TRUE( search.interfaceSplit.childFaceIdsOfParent.empty() );
+    EXPECT_TRUE( search.interfaceSplit.childFaceNodeIds.empty() );
+    EXPECT_TRUE( search.interfaceSplit.childFaceNodeFlags.empty() );
+    EXPECT_EQ( search.AddFace( IntField{ 1, 2 } ), 0 );
+}
+
 TEST( FaceSearchBasicTest, LineSplitMappingPreservesEdgeDirectionAndEndpointFlags )
 {
     // Intent: splitting A->B produces A->M and M->B in both local and global IDs.
