@@ -64,135 +64,98 @@ class WorkbenchHomeWindow(QMainWindow):
     def _build_ui(self) -> None:
         central = QWidget(self)
         root = QVBoxLayout(central)
-        root.setContentsMargins(28, 24, 28, 24)
-        root.setSpacing(16)
+        root.setContentsMargins(36, 32, 36, 32)
+        root.setSpacing(20)
 
         title = QLabel("OneFLOW Workbench")
         title.setObjectName("pageTitle")
-        subtitle = QLabel(
-            "Create or open a project folder to edit and run calculations. Multi-Case Workspace "
-            "files (.ofw) remain available for existing case collections; other Workbench tasks "
-            "include catalog cases, unit tests, and CFD/grid regression."
-        )
-        subtitle.setObjectName("subtitle")
-        subtitle.setWordWrap(True)
         root.addWidget(title)
-        root.addWidget(subtitle)
 
-        project_actions = QHBoxLayout()
-        new_project_button = QPushButton("New Project...")
-        new_project_button.setMinimumHeight(48)
-        new_project_button.setMinimumWidth(180)
-        new_project_button.clicked.connect(self._new_project)
-        project_actions.addWidget(new_project_button)
+        project_button = QPushButton("Project")
+        project_button.setMinimumHeight(58)
+        project_button.setMinimumWidth(240)
+        project_button.setMaximumWidth(360)
+        project_button.clicked.connect(self._open_project_menu)
+        root.addWidget(project_button)
+        root.addStretch(1)
 
-        open_project_button = QPushButton("Open Project...")
-        open_project_button.setMinimumHeight(48)
-        open_project_button.setMinimumWidth(180)
-        open_project_button.clicked.connect(self._open_project)
-        project_actions.addWidget(open_project_button)
-
-        self.background_tasks_button = QPushButton("Background Tasks")
-        self.background_tasks_button.setMinimumHeight(48)
-        self.background_tasks_button.setMinimumWidth(180)
-        self.background_tasks_button.setToolTip(
-            "Manage active calculations. Finished task records can be shown from the manager."
-        )
-        self.background_tasks_button.clicked.connect(self._open_background_tasks)
-        project_actions.addWidget(self.background_tasks_button)
-
-        configuration_button = QPushButton("Configuration...")
-        configuration_button.setMinimumHeight(48)
-        configuration_button.setMinimumWidth(160)
-        configuration_button.setToolTip(
-            "Configure the source root, executable, run mode, and build configuration."
-        )
-        configuration_button.clicked.connect(self._open_configuration)
-        project_actions.addWidget(configuration_button)
-
-        project_actions.addStretch(1)
-        root.addLayout(project_actions)
-
-        grid = QGridLayout()
-        grid.setSpacing(12)
-        self._add_activity(
-            grid, 0, 0, "Tests",
-            "Run unit tests, CFD/grid regression, or selected cases from the Case Database.",
-            self._open_tests,
-        )
-        self._add_activity(
-            grid, 0, 1, "Run history",
-            "Review previous runs, logs, status, and recorded artifacts.",
-            self._open_history,
-        )
-        self._add_activity(
-            grid, 1, 0, "Mesh Layout Editor",
-            "Create or edit mesh layouts and their case templates.",
-            self._open_mesh_layout,
-        )
-        self._add_activity(
-            grid, 1, 1, "Saved workflows",
-            "Open existing multi-case or dependency workflow definitions and their run history.",
-            self._open_saved_workflows,
-        )
-        self._add_activity(
-            grid, 2, 0, "Open Multi-Case Workspace...",
-            "Open a saved .ofw case collection and its execution policy. Project folders use Open Project.",
-            self._open_workspace,
-        )
-        self._add_activity(
-            grid, 2, 1, "Create Multi-Case Workspace...",
-            "Create a .ofw case collection for existing case directories. For a new templated calculation project, use New Project above.",
-            self._create_workspace,
-        )
-        root.addLayout(grid, 1)
-
-        footer = QLabel(
-            "A Project is a calculation directory that can be created from a template or opened directly. A Multi-Case Workspace is a saved .ofw definition for grouping existing cases and selecting an execution policy. These are distinct legacy paths; new project workflows are the preferred path for new work."
-        )
-        footer.setObjectName("footer")
-        footer.setWordWrap(True)
-        root.addWidget(footer)
         self.setCentralWidget(central)
         self.setStyleSheet(
             """
             QMainWindow, QWidget { background: #f5f7fa; color: #202938; }
             QLabel#pageTitle { font-size: 26px; font-weight: 650; color: #172b4d; }
-            QLabel#subtitle, QLabel#footer { color: #5d6b82; }
-            QComboBox { background: white; border: 1px solid #d5dce6;
-                border-radius: 6px; padding: 7px; }
             QPushButton {
                 background: white; border: 1px solid #cbd4e1; border-radius: 8px;
                 padding: 12px; text-align: left; font-weight: 600; min-height: 28px;
             }
             QPushButton:hover { background: #eaf0f8; border-color: #8fa9cf; }
-            QLabel.activityDescription { color: #5d6b82; padding: 0 4px 4px 4px; }
             """
         )
 
-    def _add_activity(
-        self,
-        grid: QGridLayout,
-        row: int,
-        column: int,
-        title: str,
-        description: str,
-        callback,
-    ) -> None:
-        card = QWidget(self)
-        layout = QVBoxLayout(card)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(5)
-        button = QPushButton(title)
-        button.setMinimumHeight(48)
-        button.clicked.connect(callback)
-        detail = QLabel(description)
-        detail.setObjectName("activityDescription")
-        detail.setProperty("class", "activityDescription")
-        detail.setWordWrap(True)
-        layout.addWidget(button)
-        layout.addWidget(detail)
-        grid.addWidget(card, row, column)
+    def _open_project_menu(self) -> None:
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Project")
+        dialog.setMinimumWidth(420)
+        layout = QVBoxLayout(dialog)
+        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setSpacing(8)
+
+        primary_actions = (
+            ("New Project...", self._new_project),
+            ("Open Project...", self._open_project),
+            ("Open Multi-Case Workspace...", self._open_workspace),
+            ("Create Multi-Case Workspace...", self._create_workspace),
+            ("Run History...", self._open_history),
+            ("Saved Workflows...", self._open_saved_workflows),
+        )
+        for label, callback in primary_actions:
+            button = QPushButton(label)
+            button.setMinimumHeight(42)
+            button.clicked.connect(
+                lambda checked=False, action=callback: self._run_project_action(
+                    dialog, action
+                )
+            )
+            layout.addWidget(button)
+
+        separator = QLabel("Other Workbench tools")
+        separator.setObjectName("sectionLabel")
+        layout.addWidget(separator)
+
+        secondary_actions = (
+            ("Tests...", self._open_tests),
+            ("Mesh Layout Editor...", self._open_mesh_layout),
+            ("Background Tasks...", self._open_background_tasks),
+            ("Configuration...", self._open_configuration),
+        )
+        for label, callback in secondary_actions:
+            button = QPushButton(label)
+            button.setMinimumHeight(38)
+            button.clicked.connect(
+                lambda checked=False, action=callback: self._run_project_action(
+                    dialog, action
+                )
+            )
+            layout.addWidget(button)
+
+        dialog.setStyleSheet(
+            """
+            QDialog, QWidget { background: #f5f7fa; color: #202938; }
+            QPushButton {
+                background: white; border: 1px solid #cbd4e1; border-radius: 7px;
+                padding: 10px; text-align: left; font-weight: 600;
+            }
+            QPushButton:hover { background: #eaf0f8; border-color: #8fa9cf; }
+            QLabel#sectionLabel {
+                color: #5d6b82; font-weight: 600; padding-top: 10px;
+            }
+            """
+        )
+        dialog.exec()
+
+    def _run_project_action(self, dialog: QDialog, callback) -> None:
+        dialog.accept()
+        QTimer.singleShot(0, callback)
 
     def _open_configuration(self) -> None:
         dialog = ConfigurationDialog(
