@@ -66,8 +66,12 @@ def run_host(
                 stdout=stream,
                 stderr=subprocess.STDOUT,
                 shell=False,
-                **({"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP}
-                   if os.name == "nt" else {"start_new_session": True}),
+                **({
+                    "creationflags": (
+                        subprocess.CREATE_NO_WINDOW
+                        | subprocess.CREATE_NEW_PROCESS_GROUP
+                    )
+                } if os.name == "nt" else {"start_new_session": True}),
             )
             task = replace(
                 task,
