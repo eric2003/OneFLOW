@@ -7,7 +7,7 @@ The repository includes C++ runtime components, mesh and case-processing workflo
 
 Start here:
 
-* :doc:`../index` — project overview and documentation navigation.
+* :doc:`index` — project overview and documentation navigation.
 * :doc:`mesh_architecture` — mesh information model, snapshots, and format adapters.
 * :doc:`grid_topology` — topology contracts, boundary normalization, and derived connectivity.
 * :doc:`workbench_architecture` — project, case, workflow, and run-lifecycle design.
