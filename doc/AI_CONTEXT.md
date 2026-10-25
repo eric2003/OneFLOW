@@ -2,7 +2,7 @@
 
 Last updated: 2026-10-26
 Working branch: `hexin`
-Latest R1 implementation slice: [`f861c031cfc7073a87b44c5d61748fdc5b0fd077`](https://github.com/eric2003/OneFLOW/commit/f861c031cfc7073a87b44c5d61748fdc5b0fd077) completes the focused test target setup and makes the test's `std::move` dependency explicit. The implementation and test seam are committed, but no local build/test or exact-revision CI pass has been confirmed.
+Latest R1 code/test slice: [`f861c031cfc7073a87b44c5d61748fdc5b0fd077`](https://github.com/eric2003/OneFLOW/commit/f861c031cfc7073a87b44c5d61748fdc5b0fd077). The user reports `100% tests passed out of 697` on the latest `hexin` code baseline. This is user-reported local evidence; this assistant session has not independently run the build or tests. The runtime architecture guide was subsequently aligned with the checked helper in [`da467a9c`](https://github.com/eric2003/OneFLOW/commit/da467a9c18cf5df0cc533410fd022d8dacc13afb).
 
 This is the fast handoff page for an AI assistant or developer continuing work on OneFLOW. It is a curated status snapshot, not a replacement for source code, tests, design pages, or CI. Recheck the branch HEAD before editing: this page can lag behind the current repository revision.
 
@@ -79,15 +79,15 @@ The helper preserves the optional-parameter contract:
 - The same rule is applied to `projectRoot`, `inputRoot`, `outputRoot`, `meshInputRoot`, `flowInputRoot`, `meshOutputRoot`, `flowOutputRoot`, `sourceGridCaseDir`, and `ioPathInfoFileName`.
 - The follow-up documentation record is in [`3c987064e4d547de4e10a07f261a3cebf2837407`](https://github.com/eric2003/OneFLOW/commit/3c987064e4d547de4e10a07f261a3cebf2837407).
 
-**Status: Implemented, unverified; R1 remains partial.** The new test source covers the extracted lookup helper, but the target has not yet been built or run in this environment. The helper is tested against a `DataPara` instance rather than through the full `SetupCaseEnvironment()` lifecycle, so global-database binding, control-file loading, path precedence, and `sourceGridCaseDir` fallback remain open integration checks. The latest queried commit status had no reported checks; that is not a pass.
+**Status: Partial, with user-reported test pass.** The user reports all 697 local tests pass on the latest `hexin` code baseline. The focused helper test covers missing, valid string, and invalid-type values. It uses a `DataPara` instance rather than the full `SetupCaseEnvironment()` lifecycle, so global-database binding, control-file loading, and the explicit `meshInputRoot` versus `sourceGridCaseDir` fallback remain integration-level acceptance criteria. No GitHub CI pass has been confirmed for the latest revision.
 
 ## 5. Next actions, in priority order
 
 1. Recheck current `hexin` HEAD and its Linux, Windows, and documentation CI runs.
-2. Build and run `simu_context_parameter_test` on the current `hexin` revision; resolve any compile/link issues without broadening the test seam.
-3. Add integration coverage for generic/domain root precedence and the `sourceGridCaseDir` fallback using the lightest existing control-file fixture that exercises the real setup path.
+2. Design the smallest integration test that exercises `SetupCaseEnvironment()` with a real temporary control file; first inspect `ReadControlInfo()` and global database initialization so the test does not accidentally duplicate runtime setup.
+3. Assert explicit `meshInputRoot` overrides `sourceGridCaseDir`, and the legacy fallback is used only when mesh input is empty or `default`.
 4. Verify the path reset between sequential cases and confirm output-path diagnostics remain compatible.
-5. Record exact local test and CI evidence, then reassess R1 acceptance criteria.
+5. Re-run the full suite and record exact local/CI evidence after the integration test change.
 6. Only after R1 is verified, decide whether R2 (task selection and parameter semantics) should begin.
 
 Do not mark an item complete because a code change was committed. Completion requires acceptance evidence.
