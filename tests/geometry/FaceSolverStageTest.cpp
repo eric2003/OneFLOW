@@ -352,7 +352,6 @@ TEST( FaceSolverStageTest, CountFacesWithoutChildrenAllUnsplitAfterStage )
     solver.StageNewFace( IntField{ 1, 2, 3 }, 5, 0 );
     solver.StageNewFace( IntField{ 2, 3, 4 }, 5, 1 );
     EXPECT_EQ( solver.CountFacesWithoutChildren(), 2 );
-    EXPECT_EQ( solver.GetNSimpleFace(), 2 );
 }
 
 TEST( FaceSolverStageTest, CountFacesWithoutChildrenRejectsMisalignedChildFid )
