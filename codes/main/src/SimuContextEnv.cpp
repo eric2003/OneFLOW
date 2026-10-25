@@ -151,7 +151,7 @@ void SimuContext::SetupCaseEnvironment()
     // input root. This keeps linked cases such as rae2822_roe_sa reading grid
     // artifacts (including wall-distance data) from rae2822grid, while an
     // explicit meshInputRoot can override that behavior.
-    if ( meshInputRoot.empty() || meshInputRoot == "default" )
+    if ( SimuContextDetail::ShouldReadSourceGridCaseDir( meshInputRoot ) )
     {
         const std::string sourceGridCaseDir =
             ReadOptionalStringParameter( "sourceGridCaseDir" );
