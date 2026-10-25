@@ -164,6 +164,16 @@ Case runtime configuration
    it does not make every control parameter type-safe, nor does the helper test validate
    global database binding or the complete case-setup lifecycle.
 
+   The legacy mesh input fallback is split into two explicit decisions.
+   `ShouldUseLegacySourceGridCaseDir()` decides whether the configured
+   `meshInputRoot` permits fallback lookup (only empty or `default`). The
+   `sourceGridCaseDir` parameter is read lazily only in that case, then
+   `ApplyLegacySourceGridCaseDir()` chooses the effective value: a non-empty,
+   non-`default` legacy value replaces the fallback token; otherwise the original
+   mesh input value is preserved. Explicit roots, including `case` and ordinary
+   relative paths, therefore do not consult or get overridden by the legacy setting.
+   Focused tests cover both the lookup decision and the effective-value contract.
+
    Existing `Prj` tests cover generic/domain root resolution, inheritance, diagnostics,
    and resetting roots when binding another case. The helper-level
    `simu_context_parameter_test` covers missing, valid-string, and invalid-type lookup.
