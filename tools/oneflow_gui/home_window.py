@@ -178,13 +178,13 @@ class WorkbenchHomeWindow(QMainWindow):
             self._open_saved_workflows,
         )
         self._add_activity(
-            grid, 3, 0, "Open Workspace",
-            "Open a saved .ofw definition containing one or more cases and an execution policy.",
+            grid, 3, 0, "Open Multi-Case Workspace...",
+            "Open a saved .ofw case collection and its execution policy. Project folders use Open Project.",
             self._open_workspace,
         )
         self._add_activity(
-            grid, 3, 1, "Create Workspace",
-            "Create a workspace and register case directories for single, sequential, independent, or dependency-based execution.",
+            grid, 3, 1, "Create Multi-Case Workspace...",
+            "Create a .ofw case collection for existing case directories. For a new templated calculation project, use New Project above.",
             self._create_workspace,
         )
         self._add_activity(
@@ -195,9 +195,7 @@ class WorkbenchHomeWindow(QMainWindow):
         root.addLayout(grid, 1)
 
         footer = QLabel(
-            "A workspace can represent one case or a collection of cases. Execution policy belongs "
-            "to the workspace. Catalog cases, unit tests, and CFD/grid regression are task types "
-            "with different execution locations; their controls are being unified incrementally."
+            "A Project is a calculation directory that can be created from a template or opened directly. A Multi-Case Workspace is a saved .ofw definition for grouping existing cases and selecting an execution policy. These are distinct legacy paths; new project workflows are the preferred path for new work."
         )
         footer.setObjectName("footer")
         footer.setWordWrap(True)
