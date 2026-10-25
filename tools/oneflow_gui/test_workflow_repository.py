@@ -115,6 +115,27 @@ class WorkflowRepositoryTest(unittest.TestCase):
         self.assertEqual(history[0].run_id, "run-001")
         self.assertEqual(history[0].artifacts, ("results/mesh-summary.json",))
 
+    def test_run_history_preserves_shared_task_result_payload(self) -> None:
+        task_result = {
+            "task_type": "case_database",
+            "status": "failed",
+            "return_code": 2,
+            "execution_directory": "executions/run-002/cases/mesh",
+            "message": "mesh: OneFLOW exited with code 2.",
+        }
+        self.repository.save_run(
+            WorkflowRunRecord(
+                run_id="run-task-result",
+                workflow_id="case-workbench",
+                status="failed",
+                started_at="2026-10-23T10:00:00Z",
+                task_type="case_database",
+                steps=({"type": "case", "case_id": "mesh", "task_result": task_result},),
+            )
+        )
+
+        loaded = self.repository.list_runs("case-workbench")[0]
+        self.assertEqual(loaded.steps[0]["task_result"], task_result)
     def test_run_history_is_filtered_and_sorted_newest_first(self) -> None:
         for run_id, workflow_id, started_at in (
             ("run-old", "workflow-a", "2026-10-14T10:00:00Z"),
@@ -194,6 +215,36 @@ class WorkflowRepositoryTest(unittest.TestCase):
             {"old-passed", "new-failed", "other-failed"},
         )
 
+    def test_task_type_round_trips_and_legacy_records_default_to_workflow(self) -> None:
+        record = WorkflowRunRecord(
+            run_id="run-case-db",
+            workflow_id="case-workbench",
+            status="running",
+            started_at="2026-10-23T10:00:00Z",
+            task_type="case_database",
+        )
+        self.repository.save_run(record)
+        loaded = self.repository.list_runs()[0]
+        self.assertEqual(loaded.task_type, "case_database")
+
+        legacy = WorkflowRunRecord.from_dict({
+            "run_id": "legacy-run",
+            "workflow_id": "old-workflow",
+            "status": "succeeded",
+            "started_at": "2026-10-22T10:00:00Z",
+        })
+        self.assertEqual(legacy.task_type, "workflow")
+
+    def test_empty_task_type_is_rejected(self) -> None:
+        with self.assertRaisesRegex(ValueError, "task_type"):
+            WorkflowRunRecord.from_dict({
+                "run_id": "bad-task",
+                "workflow_id": "workflow",
+                "status": "running",
+                "started_at": "2026-10-23T10:00:00Z",
+                "task_type": "",
+            })
+
     def test_run_log_path_round_trips(self) -> None:
         record = WorkflowRunRecord(
             run_id="run-log",
@@ -204,6 +255,15 @@ class WorkflowRepositoryTest(unittest.TestCase):
         )
         self.repository.save_run(record)
         self.assertEqual(self.repository.list_runs()[0].log_path, "/tmp/oneflow-run.log")
+
+    def test_legacy_display_status_is_normalized_when_loaded(self) -> None:
+        record = WorkflowRunRecord.from_dict({
+            "run_id": "legacy-passed",
+            "workflow_id": "old-task",
+            "status": "Passed",
+            "started_at": "2026-10-23T10:00:00Z",
+        })
+        self.assertEqual(record.status, "succeeded")
 
     def test_history_filters_reject_unknown_status(self) -> None:
         with self.assertRaisesRegex(ValueError, "Unsupported workflow run status"):
@@ -229,6 +289,62 @@ class WorkflowRepositoryTest(unittest.TestCase):
                     started_at="2026-10-15T10:00:00Z",
                 )
             )
+
+
+    def test_case_queue_metadata_survives_finalization_and_note_updates(self) -> None:
+        steps = (
+            {
+                "type": "case_queue",
+                "case_ids": ["mesh", "solver"],
+                "execution_mode": "custom_workspace",
+                "workspace": "D:/OneFLOWWorkspace/runs/run-queue",
+            },
+            {
+                "type": "case",
+                "case_id": "mesh",
+                "status": "succeeded",
+                "task_result": {
+                    "task_type": "case_database",
+                    "status": "succeeded",
+                    "return_code": 0,
+                    "execution_directory": "D:/OneFLOWWorkspace/runs/run-queue/cases/mesh",
+                    "message": "mesh: completed",
+                },
+            },
+            {
+                "type": "case",
+                "case_id": "solver",
+                "status": "failed",
+                "task_result": {
+                    "task_type": "case_database",
+                    "status": "failed",
+                    "return_code": 2,
+                    "execution_directory": "D:/OneFLOWWorkspace/runs/run-queue/cases/solver",
+                    "message": "solver: exited with code 2",
+                },
+            },
+        )
+        self.repository.save_run(
+            WorkflowRunRecord(
+                run_id="run-queue",
+                workflow_id="case-workbench",
+                status="failed",
+                started_at="2026-10-23T10:00:00Z",
+                finished_at="2026-10-23T10:01:00Z",
+                task_type="case_database",
+                steps=steps,
+            )
+        )
+
+        updated = self.repository.update_run_note("run-queue", "Inspect solver failure.")
+        loaded = self.repository.list_runs("case-workbench")[0]
+        self.assertEqual(updated.steps, steps)
+        self.assertEqual(loaded.steps, steps)
+        self.assertEqual(loaded.steps[0]["case_ids"], ["mesh", "solver"])
+        self.assertEqual(loaded.steps[0]["execution_mode"], "custom_workspace")
+        self.assertEqual(loaded.steps[1]["task_result"]["status"], "succeeded")
+        self.assertEqual(loaded.steps[2]["task_result"]["status"], "failed")
+        self.assertEqual(loaded.note, "Inspect solver failure.")
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 # OneFLOW Workbench
 
-The desktop application starts with a Workbench activity selector. **Open Project** accepts any existing directory, including projects outside the repository and projects not registered in the built-in case catalog. The project window identifies Grid or CFD/flow projects where possible; unknown projects can still be opened. Projects inside the OneFLOW source repository must be copied to a workspace before running, and copy destinations must remain outside the source repository. User projects outside the repository can still be run in place or copied to a workspace. The **Case Database** is a separate Workbench activity, like **Run tests**. The **Run mode** control groups **Run single case**, **Multi-case run**, and **Dependency workflow**. A versioned `.ofw` workspace file records case directories, execution mode, and dependency edges; use **Open Workspace** or **Create Workspace** to edit it. Project discovery, catalog definitions, workflow definitions, run workspaces, and run history have distinct responsibilities.
+The desktop application starts with a Workbench activity selector. **New Project...** creates a project from a template in a user-selected workspace directory; the initial templates are Blank project, Mesh conversion (`grid/mesh_workflow`), Mesh generation (`grid/minimal_rectangle`), and RAE2822 grid and CFD workflow. The RAE2822 template copies the mesh-conversion case and Roe-SA solver case into one workspace and includes `workflow.json`, which declares the generated-grid artifact and the solver dependency. Existing templates are copied and never edited in the source tree. The Blank project includes `.oneflow-project.json` metadata and a README. **Open Project** accepts any existing directory, including projects outside the repository and projects not registered in the built-in case catalog. The project window identifies Grid or CFD/flow projects where possible; unknown projects can still be opened. Projects inside the OneFLOW source repository must be copied to a workspace before running, and copy destinations must remain outside the source repository. User projects outside the repository can still be run in place or copied to a workspace. **Case Database**, **Unit Tests**, and **CFD/Grid Regression** are task types with different execution strategies. The Case Database and Task Runner currently have their own windows, but share the same **Build**, **Rebuild**, **Run**, **Stop**, and **Close** action names. The **Run mode** control groups **Run single case**, **Multi-case run**, and **Dependency workflow**. A versioned `.ofw` workspace file records case directories, execution mode, and dependency edges; use **Open Workspace** or **Create Workspace** to edit it. Project discovery, catalog definitions, workflow definitions, run workspaces, and run history have distinct responsibilities.
 
 ## Workspace files
 
@@ -17,7 +17,7 @@ python -m pip install -r tools/requirements-gui.txt
 python -m tools.oneflow_gui
 ```
 
-The executable field stays as a single compact line. Existing executables are
+Choose **Debug** or **Release** once at the Workbench home; build and unit-test tasks, including Case Database build actions, use that configuration. The executable field stays as a single compact line. Existing executables are
 detected in this order: repository Debug build, repository Release build,
 `C:/dev/OneFLOW/bin/OneFLOW.exe`, then conventional Windows installation
 folders under `ProgramFiles`, `ProgramFiles(x86)`, and `LOCALAPPDATA`.
@@ -25,7 +25,7 @@ The first detected path is selected automatically; use the dropdown to switch
 between detected copies, type a path directly, or use **Browse...** for an
 unlisted location. No full-disk search is performed.
 
-From **Open Project**, choose any existing project directory and then choose the executable and execution location. This path does not require catalog registration. To run an example from the built-in case database, open the separate **Case Database** activity; the case selector is restricted to one catalog entry. In **Run mode**, choose **Run single case** to select a user project directory, **Multi-case run** for an ordered run of independent directories, or **Dependency workflow** for cases with declared producer/consumer relationships. Catalog cases are always copied to a run workspace before execution. The queue displays process output and per-case status. **Stop queue** terminates the active process and prevents pending cases from launching.
+From **Open Project**, choose any existing project directory and then choose the executable and execution location. This path does not require catalog registration. To run examples from the built-in case database, open the **Case Database** activity; all catalog cases are selected by default, and you can select or clear cases for a batch run. In **Run mode**, choose **Run single case** to select a user project directory, **Multi-case run** for an ordered run of independent directories, or **Dependency workflow** for cases with declared producer/consumer relationships. Catalog cases are always copied to a run workspace before execution. The queue displays process output and per-case status. **Stop queue** terminates the active process and prevents pending cases from launching.
 
 Catalog case execution always uses a workspace copy:
 - **Copy to OneFLOW default run workspace** stages each case under
@@ -36,7 +36,7 @@ Both the source repository and its built-in case data are protected from in-plac
 The application invokes the standard command shape:
 `OneFLOW.exe r <case-directory>`.
 
-Use **Tests...** to run the existing CTest and Python unit-test commands by default, or enable the optional CFD/grid regression suite. Regression runs invoke `test/test.py` and an existing manifest from `test/suites/`; the GUI does not implement a second test engine. Use **Run History...** to inspect Case Workbench and workflow run records and logs, edit notes, delete individual records, or clean matching history by workflow, status, and timestamp. These history operations never delete run artifacts.
+Use **Task Runner** to run the existing CTest and Python unit-test commands by default, or enable the optional CFD/grid regression suite. The shared action bar uses **Build**, **Rebuild**, **Run**, **Stop**, and **Close**. The Debug/Release selection is made at the Workbench home and passed into the task runner. Regression runs invoke `test/test.py` and an existing manifest from `test/suites/`; the GUI does not implement a second test engine. Use **Run History...** to inspect Case Workbench and workflow run records and logs, edit notes, delete individual records, or clean matching history by workflow, status, and timestamp. These history operations never delete run artifacts.
 
 Use **Mesh Layout...** to open the mesh layout project editor. Choosing
 **Single rectangle**, **Single rectangle with vertical midpoints**, **Two-block turbulent flat plate**, **Two-block laminar flat plate**, or **Two-block laminar flat plate (10 edges)** copies the complete template
@@ -53,7 +53,7 @@ selectors show concise names by default; hover for details or enable
 labels every edge with its edge name, boundary condition, and point count.
 **Reset flat-plate boundaries** restores the standard two-block defaults.
 
-The Workbench presents **Case Database** as a standalone activity alongside **Run tests**. The **Run mode** selector groups three execution choices: **Run single case** opens a user-selected project, **Multi-case run** opens a multi-directory workflow draft, and **Dependency workflow** opens a dependency-graph draft. Existing saved workflows remain available in the workflow editor. These are intentionally different execution semantics. Use the workflow editor to create, edit, save, and delete named workflow definitions. The
+The Workbench presents **Case Database** and **Task Runner** as separate windows over a shared task classification. The task definitions in `task_types.py` identify Case Database and CFD/Grid Regression as user-workspace tasks, while Unit Tests run from the source build tree. This metadata does not replace their existing execution services; it makes their policy explicit and testable. Each generated test command carries its task type, and the command worker emits a Qt-independent `TaskRunResult` with canonical status, process exit code when available, execution directory, and a concise message. The Case Database queue now publishes the same result contract alongside its existing case-specific result signal. The canonical task result is serialized into each case's run-history step, while the detailed case outcome and existing status updates remain available. The existing final pass/fail signal remains in place for the test dialog. The **Run mode** selector groups three execution choices: **Run single case** opens a user-selected project, **Multi-case run** opens a multi-directory workflow draft, and **Dependency workflow** opens a dependency-graph draft. Existing saved workflows remain available in the workflow editor. These are intentionally different execution semantics. Use the workflow editor to create, edit, save, and delete named workflow definitions. The
 **Multi-directory** mode preserves the existing behavior: each directory is
 entered on a separate line, and one OneFLOW process receives
 `OneFLOW.exe r <directory-1> <directory-2> ...`. The **Dependency graph** mode
@@ -93,7 +93,10 @@ The long-term product direction is documented in both [Chinese](../../docs/ONEFL
 - `test_workflow_plan.py`: tests for producer-consumer artifact binding, both `grid` and `results` paths, and invalid dependency/path declarations.
 - `workflow_execution.py`: shell-free construction of one-process,
   multi-directory command arguments, preserving the user-specified order.
-- `home_window.py`: Workbench activity selector with standalone Case Database and Run tests entries, plus a Run mode selector for single-case, multi-case, and dependency-workflow execution.
+- `home_window.py`: Workbench activity selector with Case Database and Task Runner entries, plus a Run mode selector for single-case, multi-case, and dependency-workflow execution.
+- `task_types.py`: shared task categories, explicit execution-location policy, canonical run statuses, and the immutable Qt-independent `TaskRunResult` contract (task type, final status, return code, execution directory, and message).
+- `test_task_types.py`: tests task classification, execution-location policy, and normalization of GUI-facing status labels to persisted states.
+- `workflow_repository.py`: normalizes legacy run-status labels when loading history while continuing to persist canonical lowercase states.
 - `main_window.py`: Case Workbench widgets, execution-location selection, and the sequential case queue worker.
 - `mesh_layout_dialog.py`: template-based geometry, mesh-count, spacing, and boundary editor with SVG preview.
 - `tools/mesh_layout/editor_document.py`: Qt-independent JSON loading, validation, compilation, and saving shared by the editor.
@@ -101,20 +104,26 @@ The long-term product direction is documented in both [Chinese](../../docs/ONEFL
 - `test_services.py`: standard-library tests for the non-UI services.
 - `test_workflow_execution.py`: tests for argument order, spaces, and invalid input.
 - `workflow_repository.py`: versioned workflow-definition and run-history persistence, independent of Qt.
-- `user_data_paths.py`: centralized cross-platform user data paths with the optional `ONEFLOW_HOME` override.
+- `user_data_paths.py`: centralized cross-platform user data paths with the optional `ONEFLOW_HOME` override; the default is derived from the current user home directory.
+- `application_settings.py` and `settings_dialog.py`: persist the OneFLOW source checkout in the per-user `settings.json`; the default is `D:/github/OneFLOW`, and users can select another existing checkout on any drive through Basic Configuration.
 - `test_user_data_paths.py`: tests default paths, overrides, and side-effect-free path resolution.
 - `test_workflow_repository.py`: persistence tests for version checks, CRUD behavior, and history retention.
 
 The GUI is an optional tool and is not a runtime dependency of OneFLOW. Core
 case discovery and process execution remain separable from the GUI framework.
+The shared `TaskRunResult` model establishes a common outcome contract without
+merging the case queue and test-command workers; each runner retains its own
+execution and cancellation semantics.
 
 ## Service tests
 
 From the repository root:
 
 ```powershell
+python -m unittest tools.oneflow_gui.test_task_types
 python -m unittest tools.oneflow_gui.test_services
 python -m unittest tools.oneflow_gui.test_user_data_paths
+python -m unittest tools.oneflow_gui.test_application_settings
 python -m unittest tools.oneflow_gui.test_workflow_repository
 python -m unittest tools.oneflow_gui.test_workflow_execution
 python -m unittest tools.oneflow_gui.test_workflow_dependencies

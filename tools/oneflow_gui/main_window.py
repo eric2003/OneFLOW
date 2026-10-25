@@ -32,10 +32,19 @@ from .models import CaseDefinition, CaseRunResult, RunState
 from .runner import create_run_id, run_case
 from .user_data_paths import UserDataPaths
 from .workflow_dialog import WorkflowDialog
-from .test_dialog import TestRunnerDialog
+from .test_dialog import TestCommandWorker, TestRunnerDialog
+from .test_runner import build_cmake_command
 from .run_history_dialog import RunHistoryDialog
 from .workflow_repository import WorkflowRepository, WorkflowRunRecord
 from .mesh_layout_dialog import MeshLayoutDialog
+from .task_types import (
+    ExecutionLocation,
+    TaskRunResult,
+    TaskRunStatus,
+    aggregate_run_status,
+    TaskType,
+    task_definition,
+)
 
 
 class RunQueueWorker(QThread):
@@ -44,6 +53,7 @@ class RunQueueWorker(QThread):
     log_line = Signal(str)
     case_state = Signal(str, str)
     case_result = Signal(object)
+    task_result = Signal(str, object)
 
     def __init__(
         self,
@@ -75,7 +85,7 @@ class RunQueueWorker(QThread):
                     self._workspace_root,
                     "Cancelled before launch.",
                 )
-                self.case_result.emit(result)
+                self._emit_result(result)
                 self.case_state.emit(case.case_id, RunState.CANCELLED.value)
                 continue
 
@@ -83,17 +93,42 @@ class RunQueueWorker(QThread):
             self.log_line.emit(
                 f"\n=== Case {index + 1}/{len(self._cases)}: {case.title} ==="
             )
-            result = run_case(
-                case,
-                self._executable,
-                self._workspace_root,
-                self._run_id,
-                self._cancel_event,
-                self.log_line.emit,
-                execution_mode=self._execution_mode,
-            )
-            self.case_result.emit(result)
+            try:
+                result = run_case(
+                    case,
+                    self._executable,
+                    self._workspace_root,
+                    self._run_id,
+                    self._cancel_event,
+                    self.log_line.emit,
+                    execution_mode=self._execution_mode,
+                )
+            except Exception as error:
+                message = f"Case runner raised an unexpected error: {error}"
+                self.log_line.emit(f"[{case.case_id}] {message}")
+                result = CaseRunResult(
+                    case.case_id,
+                    RunState.FAILED,
+                    None,
+                    self._workspace_root / self._run_id / case.case_id,
+                    message,
+                )
+            self._emit_result(result)
             self.case_state.emit(case.case_id, result.state.value)
+
+    def _emit_result(self, result: CaseRunResult) -> None:
+        """Publish both the case-specific and shared task outcome contracts."""
+        self.case_result.emit(result)
+        self.task_result.emit(
+            result.case_id,
+            TaskRunResult(
+                task_type=TaskType.CASE_DATABASE,
+                status=TaskRunStatus(result.state.value.lower()),
+                return_code=result.return_code,
+                execution_directory=result.workspace,
+                message=f"{result.case_id}: {result.message}",
+            )
+        )
 
 
 class MainWindow(QMainWindow):
@@ -104,14 +139,22 @@ class MainWindow(QMainWindow):
         repository_root: Path | None = None,
         *,
         single_case_mode: bool = False,
+        build_config: str = "Debug",
     ) -> None:
         super().__init__()
+        if build_config not in {"Debug", "Release"}:
+            raise ValueError(f"Unsupported build configuration: {build_config!r}")
         self._single_case_mode = single_case_mode
+        self._build_config = build_config
+        self._task_definition = (
+            task_definition(TaskType.CASE_DATABASE) if single_case_mode else None
+        )
         self._repository_root = (
             repository_root or Path(__file__).resolve().parents[2]
         ).resolve()
         self._cases: list[CaseDefinition] = []
         self._worker: RunQueueWorker | None = None
+        self._task_worker: TestCommandWorker | None = None
         self._row_by_id: dict[str, int] = {}
         self._history_repository = WorkflowRepository(UserDataPaths.discover().workflow_data)
         self._active_case_run_record: WorkflowRunRecord | None = None
@@ -119,13 +162,13 @@ class MainWindow(QMainWindow):
         self._active_case_run_log_path: Path | None = None
 
         self.setWindowTitle(
-            "Case Database" if self._single_case_mode else "Case Workbench"
+            self._task_definition.title
+            if self._task_definition is not None
+            else "Case Workbench"
         )
         self.resize(1100, 760)
         self._build_ui()
         self._load_cases()
-        if self._single_case_mode:
-            self.case_table.itemChanged.connect(self._case_selection_changed)
 
     def _build_ui(self) -> None:
         """Build a compact layout with configuration, queue, and log areas."""
@@ -135,11 +178,13 @@ class MainWindow(QMainWindow):
         root_layout.setSpacing(12)
 
         heading = QLabel(
-            "Case Database" if self._single_case_mode else "Case Workbench"
+            self._task_definition.title
+            if self._task_definition is not None
+            else "Case Workbench"
         )
         heading.setObjectName("pageTitle")
         subtitle = QLabel(
-            "Choose one catalog case and run it from a protected workspace copy."
+            "Select database cases and run them from protected workspace copies."
             if self._single_case_mode
             else "Select cases, run them in isolated workspaces, and review process logs."
         )
@@ -223,27 +268,29 @@ class MainWindow(QMainWindow):
         select_all.clicked.connect(lambda: self._set_all_checks(True))
         select_none = QPushButton("Select none")
         select_none.clicked.connect(lambda: self._set_all_checks(False))
-        if self._single_case_mode:
-            select_all.hide()
-            select_none.hide()
         refresh = QPushButton("Refresh cases")
         refresh.clicked.connect(self._load_cases)
         workflows = QPushButton("Workflows...")
         workflows.clicked.connect(self._open_workflows)
         mesh_layout_button = QPushButton("Mesh Layout...")
         mesh_layout_button.clicked.connect(self._open_mesh_layout)
-        tests_button = QPushButton("Tests...")
+        tests_button = QPushButton("Unit / Regression Tests...")
         tests_button.clicked.connect(self._open_tests)
+        self.build_button = QPushButton("Build")
+        self.build_button.clicked.connect(lambda: self._start_build(rebuild=False))
+        self.rebuild_button = QPushButton("Rebuild")
+        self.rebuild_button.clicked.connect(lambda: self._start_build(rebuild=True))
         history_button = QPushButton("Run History...")
         history_button.clicked.connect(self._open_run_history)
-        self.run_button = QPushButton(
-            "Run selected case" if self._single_case_mode else "Run selected cases"
-        )
+        self.run_button = QPushButton("Run")
+        self.run_button.setToolTip("Run the selected catalog cases in isolated workspace copies.")
         self.run_button.setObjectName("primaryButton")
         self.run_button.clicked.connect(self._start_run)
-        self.stop_button = QPushButton("Stop queue")
+        self.stop_button = QPushButton("Stop")
         self.stop_button.setEnabled(False)
         self.stop_button.clicked.connect(self._stop_run)
+        close_button = QPushButton("Close")
+        close_button.clicked.connect(self.close)
         action_layout.addWidget(select_all)
         action_layout.addWidget(select_none)
         action_layout.addWidget(refresh)
@@ -251,10 +298,16 @@ class MainWindow(QMainWindow):
         action_layout.addWidget(mesh_layout_button)
         action_layout.addWidget(tests_button)
         action_layout.addWidget(history_button)
-        action_layout.addStretch(1)
-        action_layout.addWidget(self.run_button)
-        action_layout.addWidget(self.stop_button)
         root_layout.addLayout(action_layout)
+
+        task_action_layout = QHBoxLayout()
+        task_action_layout.addWidget(self.build_button)
+        task_action_layout.addWidget(self.rebuild_button)
+        task_action_layout.addStretch(1)
+        task_action_layout.addWidget(self.run_button)
+        task_action_layout.addWidget(self.stop_button)
+        task_action_layout.addWidget(close_button)
+        root_layout.addLayout(task_action_layout)
 
         root_layout.addWidget(QLabel("Execution log"))
         self.log_view = QPlainTextEdit()
@@ -317,20 +370,16 @@ class MainWindow(QMainWindow):
         self.case_table.blockSignals(True)
         self.case_table.setRowCount(0)
         self._row_by_id.clear()
-        default_case_selected = False
         for case in self._cases:
             row = self.case_table.rowCount()
             self.case_table.insertRow(row)
             checkbox = QTableWidgetItem()
             checkbox.setFlags(checkbox.flags() | Qt.ItemFlag.ItemIsUserCheckable)
             is_default_case = case.profile is not None
-            is_selected = is_default_case and (
-                not self._single_case_mode or not default_case_selected
-            )
+            is_selected = self._single_case_mode or is_default_case
             checkbox.setCheckState(
                 Qt.CheckState.Checked if is_selected else Qt.CheckState.Unchecked
             )
-            default_case_selected = default_case_selected or is_selected
             self.case_table.setItem(row, 0, checkbox)
             self.case_table.setItem(row, 1, QTableWidgetItem(case.title))
             config_text = "Typed profile" if case.profile else "Legacy config"
@@ -341,20 +390,6 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage(
             f"Loaded {len(self._cases)} case(s) from case_catalog.json"
         )
-
-    def _case_selection_changed(self, changed_item: QTableWidgetItem) -> None:
-        if (
-            not self._single_case_mode
-            or changed_item.column() != 0
-            or changed_item.checkState() != Qt.CheckState.Checked
-        ):
-            return
-        self.case_table.blockSignals(True)
-        for row in range(self.case_table.rowCount()):
-            item = self.case_table.item(row, 0)
-            if item is not None and item is not changed_item:
-                item.setCheckState(Qt.CheckState.Unchecked)
-        self.case_table.blockSignals(False)
 
     def _set_all_checks(self, checked: bool) -> None:
         for row in range(self.case_table.rowCount()):
@@ -397,6 +432,19 @@ class MainWindow(QMainWindow):
             self.workspace_edit.setText(path)
 
     def _start_run(self) -> None:
+        if (
+            self._task_definition is not None
+            and self._task_definition.execution_location
+            is not ExecutionLocation.USER_WORKSPACE
+        ):
+            QMessageBox.warning(
+                self,
+                "Invalid task policy",
+                "Case Database tasks must run from a user workspace.",
+            )
+            return
+        if self._task_worker is not None and self._task_worker.isRunning():
+            return
         if self._worker is not None and self._worker.isRunning():
             return
         executable_text = self.executable_combo.currentText().strip()
@@ -471,6 +519,7 @@ class MainWindow(QMainWindow):
                 run_id=run_id,
                 workflow_id="case-workbench",
                 status="running",
+                task_type=TaskType.CASE_DATABASE.value,
                 started_at=started_at,
                 executable=str(Path(executable_text).resolve()),
                 steps=({
@@ -487,13 +536,15 @@ class MainWindow(QMainWindow):
             QMessageBox.critical(self, "Cannot record run", str(error))
             return
         self._active_case_run_record = initial_record
-        self._active_case_run_steps = []
+        self._active_case_run_steps = list(initial_record.steps)
         self._active_case_run_log_path = log_path
         self.log_view.appendPlainText(
             f"\nRun {run_id}\nExecutable: {Path(executable_text).resolve()}\n"
             + f"Workspace: {workspace_root / run_id}"
         )
         self.run_button.setEnabled(False)
+        self.build_button.setEnabled(False)
+        self.rebuild_button.setEnabled(False)
         self.stop_button.setEnabled(True)
         for case in selected:
             self._set_case_status(case.case_id, RunState.PENDING.value)
@@ -505,9 +556,43 @@ class MainWindow(QMainWindow):
         self._worker.log_line.connect(self._append_case_run_log)
         self._worker.case_state.connect(self._set_case_status)
         self._worker.case_result.connect(self._show_result)
+        self._worker.task_result.connect(self._show_task_result)
         self._worker.finished.connect(self._queue_finished)
         self._worker.start()
         self.statusBar().showMessage(f"Running {len(selected)} case(s)...")
+
+    def _start_build(self, *, rebuild: bool) -> None:
+        """Build the selected Debug or Release configuration from the case window."""
+        if self._worker is not None and self._worker.isRunning():
+            return
+        if self._task_worker is not None and self._task_worker.isRunning():
+            return
+        build_config = self._build_config
+        command = build_cmake_command(
+            self._repository_root, build_config, rebuild=rebuild
+        )
+        self.log_view.clear()
+        self.run_button.setEnabled(False)
+        self.build_button.setEnabled(False)
+        self.rebuild_button.setEnabled(False)
+        self.stop_button.setEnabled(True)
+        self._task_worker = TestCommandWorker([command])
+        self._task_worker.output_line.connect(self.log_view.appendPlainText)
+        self._task_worker.completed.connect(self._build_completed)
+        self._task_worker.finished.connect(self._build_worker_finished)
+        self._task_worker.start()
+        self.statusBar().showMessage(f"{'Rebuilding' if rebuild else 'Building'} {build_config}...")
+
+    def _build_completed(self, succeeded: bool, message: str) -> None:
+        self.log_view.appendPlainText(message)
+        self.statusBar().showMessage(message)
+
+    def _build_worker_finished(self) -> None:
+        self._task_worker = None
+        self.run_button.setEnabled(True)
+        self.build_button.setEnabled(True)
+        self.rebuild_button.setEnabled(True)
+        self.stop_button.setEnabled(False)
 
     def _open_mesh_layout(self) -> None:
         dialog = MeshLayoutDialog(self._repository_root, self)
@@ -518,7 +603,13 @@ class MainWindow(QMainWindow):
         dialog.exec()
 
     def _open_tests(self) -> None:
-        dialog = TestRunnerDialog(self._repository_root, self)
+        executable = self.executable_combo.currentText().strip()
+        dialog = TestRunnerDialog(
+            self._repository_root,
+            self,
+            build_config=self._build_config,
+            executable=executable,
+        )
         dialog.exec()
 
     def _open_workflows(self) -> None:
@@ -530,11 +621,17 @@ class MainWindow(QMainWindow):
         dialog.exec()
 
     def _stop_run(self) -> None:
+        stopping = False
         if self._worker is not None:
             self._worker.request_stop()
+            stopping = True
+        if self._task_worker is not None:
+            self._task_worker.request_stop()
+            stopping = True
+        if stopping:
             self.stop_button.setEnabled(False)
             self.statusBar().showMessage(
-                "Stop requested; waiting for active process to exit."
+                "Stop requested; waiting for the active process to exit."
             )
 
     def _set_case_status(self, case_id: str, status: str) -> None:
@@ -565,16 +662,37 @@ class MainWindow(QMainWindow):
             "message": result.message,
         })
 
+    def _show_task_result(self, case_id: str, result: TaskRunResult) -> None:
+        """Persist the shared result beside its matching case outcome."""
+        case_step = next(
+            (
+                step
+                for step in reversed(self._active_case_run_steps)
+                if step.get("type") == "case" and step.get("case_id") == case_id
+            ),
+            None,
+        )
+        if case_step is not None:
+            case_step["task_result"] = result.to_dict()
+        self._append_case_run_log(
+            f"TASK RESULT: {result.task_type.value} / {result.status.value} "
+            f"/ exit={result.return_code} "
+            f"/ execution_dir={result.execution_directory} / {result.message}"
+        )
+
     def _queue_finished(self) -> None:
         record = self._active_case_run_record
         if record is not None:
-            statuses = {step["status"] for step in self._active_case_run_steps}
-            if "failed" in statuses:
-                status = "failed"
-            elif "cancelled" in statuses:
-                status = "cancelled"
-            else:
-                status = "succeeded"
+            case_statuses = tuple(
+                step["status"]
+                for step in self._active_case_run_steps
+                if step.get("type") == "case"
+            )
+            status = (
+                aggregate_run_status(case_statuses).value
+                if case_statuses
+                else TaskRunStatus.FAILED.value
+            )
             updated_record = WorkflowRunRecord(
                 run_id=record.run_id,
                 workflow_id=record.workflow_id,
@@ -587,6 +705,7 @@ class MainWindow(QMainWindow):
                 message=f"Case queue finished with status '{status}'.",
                 note=record.note,
                 log_path=record.log_path,
+                task_type=record.task_type,
             )
             try:
                 self._history_repository.save_run(updated_record)
@@ -594,15 +713,19 @@ class MainWindow(QMainWindow):
                 self.log_view.appendPlainText(f"Could not save run history: {error}")
             self._active_case_run_record = None
         self.run_button.setEnabled(True)
+        self.build_button.setEnabled(True)
+        self.rebuild_button.setEnabled(True)
         self.stop_button.setEnabled(False)
         self.statusBar().showMessage("Run queue finished")
         self._worker = None
 
     def closeEvent(self, event) -> None:
         """Avoid destroying a running QThread while its child process is active."""
-        if self._worker is not None and self._worker.isRunning():
-            self._worker.request_stop()
-            self.statusBar().showMessage("Stopping the active case before closing.")
+        queue_running = self._worker is not None and self._worker.isRunning()
+        task_running = self._task_worker is not None and self._task_worker.isRunning()
+        if queue_running or task_running:
+            self._stop_run()
+            self.statusBar().showMessage("Stopping the active task before closing.")
             event.ignore()
             return
         event.accept()

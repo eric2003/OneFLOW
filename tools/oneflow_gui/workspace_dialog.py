@@ -32,11 +32,11 @@ class WorkspaceDialog(QDialog):
     def __init__(self, parent=None, workspace_path: Path | None = None) -> None:
         super().__init__(parent)
         self._workspace_path = workspace_path
-        self.setWindowTitle("OneFLOW Workspace")
+        self.setWindowTitle("OneFLOW Multi-Case Workspace (.ofw)")
         self.resize(820, 540)
 
         layout = QVBoxLayout(self)
-        layout.addWidget(QLabel("A workspace records case paths and how its cases should execute."))
+        layout.addWidget(QLabel("This .ofw file groups existing case directories and records their execution policy. It is separate from a project folder created or opened through New Project / Open Project."))
 
         name_row = QHBoxLayout()
         name_row.addWidget(QLabel("Workspace name"))

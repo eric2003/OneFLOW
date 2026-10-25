@@ -56,3 +56,47 @@ def prepare_case_directory(
             raise ValueError("Runtime parameter file must stay within the staged case.") from error
         apply_runtime_overrides(parameter_file, overrides)
     return target
+
+
+def prepare_case_directory_in_place(
+    step: WorkflowPlanStep,
+    runtime_directories: Mapping[str, Path | str],
+) -> Path:
+    """Prepare a case in its project directory instead of creating a staged copy."""
+    target = step.directory.resolve()
+    if not target.is_dir():
+        raise FileNotFoundError(f"Case directory not found: {target}")
+
+    overrides_by_file: dict[Path, dict[str, str]] = {}
+    for output in step.outputs:
+        output_path = (target / output.relative_path).resolve()
+        try:
+            output_path.relative_to(target)
+        except ValueError as error:
+            raise ValueError("Declared output path must stay within the case.") from error
+        if output_path.is_file():
+            output_path.unlink()
+        elif output_path.exists():
+            raise ValueError(f"Declared output path is not a file: {output_path}")
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        if output.parameter_file is not None and output.producer_setting is not None:
+            parameter_file = (target / output.parameter_file).resolve()
+            overrides = overrides_by_file.setdefault(parameter_file, {})
+            overrides[output.producer_setting] = output.relative_path.as_posix()
+
+    for binding in step.inputs:
+        producer = runtime_directories.get(binding.producer_id)
+        if producer is None:
+            raise ValueError(f"Missing runtime directory for producer '{binding.producer_id}'.")
+        parameter_file = (target / binding.parameter_file).resolve()
+        overrides = overrides_by_file.setdefault(parameter_file, {})
+        overrides["sourceGridCaseDir"] = str(Path(producer).resolve())
+        overrides[binding.consumer_setting] = binding.relative_path.as_posix()
+
+    for parameter_file, overrides in overrides_by_file.items():
+        try:
+            parameter_file.relative_to(target)
+        except ValueError as error:
+            raise ValueError("Runtime parameter file must stay within the case.") from error
+        apply_runtime_overrides(parameter_file, overrides)
+    return target

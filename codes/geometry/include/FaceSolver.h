@@ -44,8 +44,6 @@ public:
     FaceSolver();
     ~FaceSolver();
 public:
-    HXLookup<int> faceLookup;
-public:
     FaceTopo & GetFaceTopo();
     const FaceTopo & GetFaceTopo() const;
     [[nodiscard]] std::unique_ptr< FaceTopo > ReleaseFaceTopo() noexcept;
@@ -85,7 +83,11 @@ public:
     // Requires StagedBcMatchesFaceCount(). Returns number of boundary faces.
     int AppendBoundaryBcToRecord( BcRecord & bcRecord ) const;
 
-    int GetNSimpleFace();
+    // Faces whose childFid list is empty (not split). Requires childFid aligned
+    // with face count (StagedBcMatchesFaceCount / StageNewFace growth).
+    int CountFacesWithoutChildren() const;
+    // Compatibility wrapper; prefer CountFacesWithoutChildren().
+    int GetNSimpleFace() const { return CountFacesWithoutChildren(); }
 
     // Stage a newly discovered unique face: topology, face flag, and default
     // BC slots together. Keeps faceBcTypes / faceBcNameIds / faceFlags length
@@ -152,6 +154,8 @@ private:
     IntField faceBcTypes;
     // Child-face index lists (split/interface path). Prefer StageNewFace growth.
     LinkField childFid;
+    // Dedup table for face node signatures (traditional + polygon stage paths).
+    HXLookup<int> faceLookup;
 
     std::unique_ptr< FaceTopo > faceTopo;
 };

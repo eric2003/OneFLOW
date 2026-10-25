@@ -8,12 +8,13 @@ from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 from typing import Any
 
+from .task_types import TaskRunStatus, normalize_run_status
 from .workflow_dependencies import validate_case_dependencies
 
 
 SCHEMA_VERSION = 1
 _WORKFLOW_ID_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
-_RUN_STATES = {"pending", "running", "succeeded", "failed", "cancelled"}
+_RUN_STATES = {status.value for status in TaskRunStatus}
 
 
 @dataclass(frozen=True, slots=True)
@@ -95,6 +96,7 @@ class WorkflowRunRecord:
     message: str = ""
     note: str = ""
     log_path: str | None = None
+    task_type: str = "workflow"
 
     def to_dict(self) -> dict[str, Any]:
         """Return the JSON-compatible representation."""
@@ -110,9 +112,7 @@ class WorkflowRunRecord:
             raise ValueError("Workflow run record must be a JSON object.")
         run_id = _validate_id(data.get("run_id"), "run_id")
         workflow_id = _validate_id(data.get("workflow_id"), "workflow_id")
-        status = data.get("status")
-        if not isinstance(status, str) or status not in _RUN_STATES:
-            raise ValueError(f"Unsupported workflow run status: {status!r}.")
+        status = normalize_run_status(data.get("status")).value
         started_at = data.get("started_at")
         if not isinstance(started_at, str) or not started_at.strip():
             raise ValueError("Run started_at must be a non-empty string.")
@@ -121,6 +121,7 @@ class WorkflowRunRecord:
         message = data.get("message", "")
         note = data.get("note", "")
         log_path = data.get("log_path")
+        task_type = data.get("task_type", "workflow")
         steps = data.get("steps", [])
         artifacts = data.get("artifacts", [])
         if finished_at is not None and not isinstance(finished_at, str):
@@ -133,6 +134,8 @@ class WorkflowRunRecord:
             raise ValueError("Run note must be a string.")
         if log_path is not None and not isinstance(log_path, str):
             raise ValueError("Run log_path must be a string or null.")
+        if not isinstance(task_type, str) or not task_type.strip():
+            raise ValueError("Run task_type must be a non-empty string.")
         if not isinstance(steps, list) or not all(
             isinstance(step, dict) for step in steps
         ):
@@ -153,6 +156,7 @@ class WorkflowRunRecord:
             message=message,
             note=note,
             log_path=log_path,
+            task_type=task_type,
         )
 
 

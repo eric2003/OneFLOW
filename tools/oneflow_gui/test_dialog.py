@@ -1,4 +1,4 @@
-"""Qt dialog that launches the repository's existing test commands."""
+"""Qt task dialog that launches the repository's existing test commands."""
 
 from __future__ import annotations
 
@@ -21,12 +21,15 @@ from PySide6.QtWidgets import (
 )
 
 from .executable_discovery import executable_candidates
+from .user_data_paths import UserDataPaths
+from .task_types import TaskRunResult, TaskRunStatus, TaskType, task_definition
 from .test_runner import (
     TestCommand,
     available_suites,
     build_cmake_command,
+    build_default_test_commands,
     build_regression_command,
-    build_unit_test_commands,
+    stage_regression_tests,
 )
 
 
@@ -35,6 +38,7 @@ class TestCommandWorker(QThread):
 
     output_line = Signal(str)
     completed = Signal(bool, str)
+    command_completed = Signal(object)
 
     def __init__(self, commands: list[TestCommand]) -> None:
         super().__init__()
@@ -54,11 +58,22 @@ class TestCommandWorker(QThread):
         failed_labels: list[str] = []
         for command in self._commands:
             if self._cancel.is_set():
+                self.command_completed.emit(
+                    TaskRunResult(
+                        task_type=command.task_type,
+                        status=TaskRunStatus.CANCELLED,
+                        return_code=None,
+                        execution_directory=command.working_directory,
+                        message="Test run cancelled before command start.",
+                    )
+                )
                 self.completed.emit(False, "Test run cancelled.")
                 return
             self.output_line.emit(f"\n=== {command.label} ===")
             self.output_line.emit("$ " + subprocess.list2cmdline(list(command.arguments)))
             try:
+                if command.label.startswith("CMake configure"):
+                    command.working_directory.mkdir(parents=True, exist_ok=True)
                 with subprocess.Popen(
                     list(command.arguments),
                     cwd=command.working_directory,
@@ -81,15 +96,51 @@ class TestCommandWorker(QThread):
                         self._process = None
             except OSError as error:
                 self.output_line.emit(f"ERROR: {error}")
+                self.command_completed.emit(
+                    TaskRunResult(
+                        task_type=command.task_type,
+                        status=TaskRunStatus.FAILED,
+                        return_code=None,
+                        execution_directory=command.working_directory,
+                        message=str(error),
+                    )
+                )
                 failed_labels.append(command.label)
                 break
             if self._cancel.is_set():
+                self.command_completed.emit(
+                    TaskRunResult(
+                        task_type=command.task_type,
+                        status=TaskRunStatus.CANCELLED,
+                        return_code=return_code,
+                        execution_directory=command.working_directory,
+                        message="Test run cancelled.",
+                    )
+                )
                 self.completed.emit(False, "Test run cancelled.")
                 return
             if return_code != 0:
+                self.command_completed.emit(
+                    TaskRunResult(
+                        task_type=command.task_type,
+                        status=TaskRunStatus.FAILED,
+                        return_code=return_code,
+                        execution_directory=command.working_directory,
+                        message=f"{command.label} failed with exit code {return_code}.",
+                    )
+                )
                 failed_labels.append(command.label)
                 self.output_line.emit(f"FAILED: exit code {return_code}")
                 break
+            self.command_completed.emit(
+                TaskRunResult(
+                    task_type=command.task_type,
+                    status=TaskRunStatus.SUCCEEDED,
+                    return_code=return_code,
+                    execution_directory=command.working_directory,
+                    message=f"{command.label} passed.",
+                )
+            )
             self.output_line.emit("PASSED")
         if failed_labels:
             self.completed.emit(False, "Failed: " + ", ".join(failed_labels))
@@ -100,21 +151,37 @@ class TestCommandWorker(QThread):
 class TestRunnerDialog(QDialog):
     """Offer unit tests by default and an optional existing CFD regression suite."""
 
-    def __init__(self, repository_root: Path, parent=None) -> None:
+    def __init__(
+        self,
+        repository_root: Path,
+        parent=None,
+        *,
+        build_config: str = "Debug",
+        executable: str | None = None,
+    ) -> None:
         super().__init__(parent)
+        if build_config not in {"Debug", "Release"}:
+            raise ValueError(f"Unsupported build configuration: {build_config!r}")
         self._repository_root = Path(repository_root).resolve()
+        self._build_config = build_config
         self._worker: TestCommandWorker | None = None
-        self.setWindowTitle("OneFLOW Tests")
+        self.setWindowTitle("OneFLOW Task Runner")
         self.resize(900, 650)
 
         layout = QVBoxLayout(self)
-        layout.addWidget(QLabel("Run the existing unit-test commands; CFD regression is optional."))
+        layout.addWidget(QLabel("Choose unit tests and/or an existing CFD/grid regression suite."))
 
-        self.unit_tests_check = QCheckBox("Unit tests (CTest and Python tests)")
+        unit_test_task = task_definition(TaskType.UNIT_TESTS)
+        regression_task = task_definition(TaskType.CFD_GRID_REGRESSION)
+        self.unit_tests_check = QCheckBox(
+            f"{unit_test_task.title} (CTest and Python tests)"
+        )
         self.unit_tests_check.setChecked(True)
         layout.addWidget(self.unit_tests_check)
 
-        self.regression_check = QCheckBox("Optional CFD / grid regression")
+        self.regression_check = QCheckBox(
+            f"Optional {regression_task.title}"
+        )
         self.regression_check.setChecked(False)
         layout.addWidget(self.regression_check)
 
@@ -125,24 +192,16 @@ class TestRunnerDialog(QDialog):
         self.executable_combo.addItems(
             [str(path) for path in executable_candidates(self._repository_root)]
         )
-        if self.executable_combo.count():
+        if executable:
+            self.executable_combo.setEditText(executable)
+        elif self.executable_combo.count():
             self.executable_combo.setCurrentIndex(0)
-        self.build_config_combo = QComboBox()
-        self.build_config_combo.addItems(["Debug", "Release"])
-        self.build_config_combo.currentTextChanged.connect(self._build_configuration_changed)
-        self._build_executable_paths = {
-            configuration: str(
-                (self._repository_root / "build" / "bin" / configuration / "OneFLOW.exe").resolve()
-            )
-            for configuration in ("Debug", "Release")
-        }
         self.suite_combo = QComboBox()
         self.suite_combo.addItems(available_suites(self._repository_root))
         default_index = self.suite_combo.findText("ci-serial.txt")
         if default_index >= 0:
             self.suite_combo.setCurrentIndex(default_index)
         form.addRow("OneFLOW executable", self.executable_combo)
-        form.addRow("CMake build configuration", self.build_config_combo)
         form.addRow("Existing suite", self.suite_combo)
         layout.addLayout(form)
 
@@ -160,7 +219,7 @@ class TestRunnerDialog(QDialog):
         self.rebuild_button = QPushButton("Rebuild")
         self.rebuild_button.setToolTip("Clean and rebuild the selected CMake configuration.")
         self.rebuild_button.clicked.connect(lambda: self._start_build(rebuild=True))
-        self.run_button = QPushButton("Run tests")
+        self.run_button = QPushButton("Run")
         self.run_button.clicked.connect(self._start)
         self.stop_button = QPushButton("Stop")
         self.stop_button.setEnabled(False)
@@ -180,9 +239,9 @@ class TestRunnerDialog(QDialog):
         commands: list[TestCommand] = []
         if self.unit_tests_check.isChecked():
             commands.extend(
-                build_unit_test_commands(
+                build_default_test_commands(
                     self._repository_root,
-                    build_config=self.build_config_combo.currentText(),
+                    build_config=self._build_config,
                 )
             )
         if self.regression_check.isChecked():
@@ -191,9 +250,29 @@ class TestRunnerDialog(QDialog):
             try:
                 if not suite_name:
                     raise ValueError("No regression suite is available.")
+                staged_test_directory = stage_regression_tests(
+                    self._repository_root,
+                    UserDataPaths.discover().cfd_regression_workspace,
+                )
+                executable_path = Path(executable).expanduser().resolve()
+                expected_build_executable = (
+                    self._repository_root
+                    / "build"
+                    / "bin"
+                    / self._build_config
+                    / "OneFLOW.exe"
+                ).resolve()
+                executable_will_be_built = (
+                    executable_path == expected_build_executable
+                    and any(command.label.startswith("CMake build") for command in commands)
+                )
                 commands.append(
                     build_regression_command(
-                        self._repository_root, executable, suite_name
+                        self._repository_root,
+                        executable,
+                        suite_name,
+                        test_directory=staged_test_directory,
+                        validate_executable=not executable_will_be_built,
                     )
                 )
             except (OSError, ValueError) as error:
@@ -205,17 +284,12 @@ class TestRunnerDialog(QDialog):
 
         self._launch_commands(commands)
 
-    def _build_configuration_changed(self, configuration: str) -> None:
-        current = self.executable_combo.currentText().strip()
-        if current.casefold() in {path.casefold() for path in self._build_executable_paths.values()}:
-            self.executable_combo.setEditText(self._build_executable_paths[configuration])
-
     def _start_build(self, *, rebuild: bool) -> None:
         if self._worker is not None and self._worker.isRunning():
             return
         command = build_cmake_command(
             self._repository_root,
-            self.build_config_combo.currentText(),
+            self._build_config,
             rebuild=rebuild,
         )
         self._launch_commands([command])
@@ -229,6 +303,7 @@ class TestRunnerDialog(QDialog):
         self._worker = TestCommandWorker(commands)
         self._worker.output_line.connect(self.log_view.appendPlainText)
         self._worker.completed.connect(self._completed)
+        self._worker.command_completed.connect(self._command_completed)
         self._worker.finished.connect(self._worker_finished)
         self._worker.start()
 
@@ -236,6 +311,12 @@ class TestRunnerDialog(QDialog):
         if self._worker is not None:
             self._worker.request_stop()
             self.stop_button.setEnabled(False)
+
+    def _command_completed(self, result: TaskRunResult) -> None:
+        self.log_view.appendPlainText(
+            f"RESULT: {result.task_type.value} / {result.status.value} "
+            f"/ exit={result.return_code} / cwd={result.execution_directory}"
+        )
 
     def _completed(self, passed: bool, message: str) -> None:
         self.log_view.appendPlainText(f"\n{message}")

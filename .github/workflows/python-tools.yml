@@ -66,10 +66,16 @@ jobs:
         run: python -m unittest tests.tools.test_layout_topology
       - name: Test desktop services
         run: python -m unittest tools.oneflow_gui.test_services
+      - name: Test case queue worker
+        run: python -m unittest tools.oneflow_gui.test_main_window
       - name: Test GUI test command builder
         run: python -m unittest tools.oneflow_gui.test_test_runner
       - name: Test user data paths
         run: python -m unittest tools.oneflow_gui.test_user_data_paths
+      - name: Test application settings
+        run: python -m unittest tools.oneflow_gui.test_application_settings
+      - name: Test project discovery and creation
+        run: python -m unittest tools.oneflow_gui.test_project_repository tools.oneflow_gui.test_project_templates tools.oneflow_gui.test_rae2822_project_template tools.oneflow_gui.test_new_project_dialog
       - name: Test mesh layout project copying
         run: python -m unittest tools.oneflow_gui.test_mesh_layout_projects
       - name: Test workflow persistence

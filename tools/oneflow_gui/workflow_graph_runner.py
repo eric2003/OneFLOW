@@ -6,7 +6,10 @@ from collections.abc import Callable
 from dataclasses import dataclass, replace
 from pathlib import Path
 
-from .workflow_case_runtime import prepare_case_directory
+from .workflow_case_runtime import (
+    prepare_case_directory,
+    prepare_case_directory_in_place,
+)
 from .workflow_plan import WorkflowExecutionPlan, WorkflowPlanStep
 
 
@@ -29,11 +32,12 @@ def run_case_graph(
     *,
     run_root: Path | str,
     is_cancelled: Callable[[], bool] = lambda: False,
+    in_place: bool = False,
 ) -> WorkflowGraphRunResult:
-    """Stage and run cases in dependency order.
+    """Run cases in dependency order, either in place or in an isolated workspace.
 
-    The callback receives a step whose directory and input producer directories
-    point into this run's isolated workspace. It returns (status, message).
+    The callback receives case directories and input producer directories that
+    match the selected execution mode. It returns (status, message).
     """
     results: list[CaseExecutionResult] = []
     status_by_id: dict[str, str] = {}
@@ -72,8 +76,10 @@ def run_case_graph(
             continue
 
         try:
-            staged_directory = prepare_case_directory(
-                step, run_root, runtime_directories
+            staged_directory = (
+                prepare_case_directory_in_place(step, runtime_directories)
+                if in_place
+                else prepare_case_directory(step, run_root, runtime_directories)
             )
         except (OSError, ValueError) as error:
             results.append(CaseExecutionResult(step.case_id, "failed", str(error)))

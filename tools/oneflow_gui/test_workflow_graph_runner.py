@@ -87,6 +87,38 @@ class WorkflowGraphRunnerTest(unittest.TestCase):
                 'string gridFileName = "grid/old.ofl";\n',
             )
 
+    def test_in_place_mode_runs_cases_in_project_directories(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            plan = self._plan(root)
+            invoked = []
+
+            def run_step(step):
+                invoked.append(step.case_id)
+                self.assertEqual(step.directory.resolve(), (root / step.case_id).resolve())
+                if step.case_id == "mesh":
+                    output = step.directory / "results" / "mesh.ofl"
+                    output.parent.mkdir(parents=True, exist_ok=True)
+                    output.write_bytes(b"mesh")
+                if step.case_id == "solver":
+                    config = (step.directory / "script" / "cfd.txt").read_text(encoding="utf-8")
+                    escaped_mesh_path = str((root / "mesh").resolve()).replace(chr(92), chr(92) * 2)
+                    self.assertIn(f'string sourceGridCaseDir = "{escaped_mesh_path}";', config)
+                    self.assertIn('string gridFileName = "results/mesh.ofl";', config)
+                return "succeeded", "ok"
+
+            result = run_case_graph(
+                plan,
+                run_step,
+                run_root=root / ".oneflow-runs" / "run-1",
+                in_place=True,
+            )
+
+            self.assertEqual(result.status, "succeeded")
+            self.assertEqual(invoked, ["independent", "mesh", "solver"])
+            self.assertTrue((root / "mesh" / "results" / "mesh.ofl").is_file())
+            self.assertFalse((root / ".oneflow-runs" / "run-1").exists())
+
     def test_failed_mesh_blocks_solver_but_independent_case_runs(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

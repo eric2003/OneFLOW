@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import re
 from dataclasses import dataclass
 from enum import Enum
@@ -25,6 +26,7 @@ class ProjectDefinition:
     project_type: ProjectType
     control_file: Path | None
     runtime_file: Path | None
+    parameter_files: tuple[Path, ...] = ()
 
 
 def _control_file(root: Path) -> Path | None:
@@ -33,6 +35,47 @@ def _control_file(root: Path) -> Path | None:
         if candidate.is_file():
             return candidate.resolve()
     return None
+
+
+def _workflow_control_files(root: Path) -> list[Path]:
+    """Return case control files in the order declared by workflow.json."""
+
+    workflow_file = root / "workflow.json"
+    try:
+        workflow = json.loads(workflow_file.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        workflow = {}
+
+    control_files = []
+    for step in workflow.get("steps", []):
+        for case in step.get("cases", []):
+            directory = case.get("directory")
+            if not isinstance(directory, str):
+                continue
+            candidate = root / directory / "script" / "control.txt"
+            if candidate.is_file():
+                control_files.append(candidate.resolve())
+
+    if control_files:
+        return control_files
+    return sorted(path.resolve() for path in root.glob("*/script/control.txt"))
+
+
+def _parameter_files(control_file: Path | None) -> tuple[Path, ...]:
+    if control_file is None:
+        return ()
+
+    try:
+        content = control_file.read_text(encoding="utf-8")
+    except (OSError, UnicodeError):
+        return ()
+
+    files = []
+    for value in re.findall(r"""["']([^"']+)["']""", content):
+        candidate = (control_file.parent / value).resolve()
+        if candidate.is_file():
+            files.append(candidate)
+    return tuple(files)
 
 
 def _runtime_file(control_file: Path | None) -> Path | None:
@@ -84,12 +127,23 @@ def open_project(directory: str | Path) -> ProjectDefinition:
     if not root.is_dir():
         raise NotADirectoryError(f"Project directory does not exist: {root}")
 
+    is_workflow = (root / "workflow.json").is_file()
+    workflow_controls = _workflow_control_files(root) if is_workflow else []
     control_file = _control_file(root)
+    if control_file is None and workflow_controls:
+        control_file = workflow_controls[0]
     runtime_file = _runtime_file(control_file)
+    controls_for_parameters = workflow_controls if is_workflow else [control_file]
+    parameter_files = tuple(
+        path
+        for case_control in controls_for_parameters
+        for path in _parameter_files(case_control)
+    )
     return ProjectDefinition(
         name=root.name or str(root),
         root=root,
         project_type=_detect_type(runtime_file),
         control_file=control_file,
         runtime_file=runtime_file,
+        parameter_files=parameter_files,
     )

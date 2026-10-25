@@ -68,5 +68,10 @@ class UserDataPaths:
         return self.workflow_data / "executions"
 
     @property
+    def cfd_regression_workspace(self) -> Path:
+        """Keep disposable CFD regression copies outside the source repository."""
+        return self.root / "cfd-regression"
+
+    @property
     def logs(self) -> Path:
         return self.root / "logs"
