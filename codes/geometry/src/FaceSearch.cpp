@@ -67,6 +67,18 @@ const IntField & FaceSearchBasic::GetFaceNodeRing( int faceId ) const
 }
 
 
+void InterfaceFaceSplitTable::ClearParentMapping( int parentFaceId )
+{
+    if ( parentFaceId < 0 ||
+         static_cast< std::size_t >( parentFaceId ) >= this->childFaceIdsOfParent.size() )
+    {
+        throw std::out_of_range(
+            "InterfaceFaceSplitTable::ClearParentMapping: parent face ID is out of range" );
+    }
+
+    this->childFaceIdsOfParent[ parentFaceId ].clear();
+}
+
 void FaceSearch::Clear()
 {
     FaceSearchBasic::Clear();
@@ -100,9 +112,8 @@ void FaceSearch::SplitQuad2Tri( int faceId )
     int nNodes = nodeId.size();
     if ( nNodes != 4 ) return;
 
-    // This operation rebuilds one parent's mapping; do not retain entries
-    // from a previous call.
-    this->interfaceSplit.childFaceIdsOfParent[ faceId ].clear();
+    // Rebuild one parent's mapping; do not retain entries from a previous call.
+    this->interfaceSplit.ClearParentMapping( faceId );
 
     LinkField localTriId, localTriFlag;
     this->GetLocalTri( localTriId, localTriFlag );
@@ -128,7 +139,7 @@ void FaceSearch::SplitLine( IFaceLink & iFaceLink, int globalFaceId )
     const IntField & nodeId = this->GetFaceNodeRing( globalFaceId );
 
     // Rebuild one parent's mapping instead of accumulating stale child IDs.
-    this->interfaceSplit.childFaceIdsOfParent[ globalFaceId ].clear();
+    this->interfaceSplit.ClearParentMapping( globalFaceId );
 
     if ( nodeId.size() != 2 ) return;
 
