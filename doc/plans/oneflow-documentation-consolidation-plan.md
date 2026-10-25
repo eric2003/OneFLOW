@@ -105,7 +105,7 @@ The Sphinx landing page `doc/source/index.rst` now presents task-oriented entry 
 
 ## 9. Verification status
 
-The mesh-note comparison, legacy-pointer updates, bilingual Workbench memo alignment, Sphinx landing-page improvements, Workbench README formatting fix, and `hexin` documentation-check workflow were committed to `hexin`. Source files and relevant repository paths were inspected through GitHub. A local Sphinx build and automated broken-link check have not been performed in this session, and the newly added workflow has not yet run; do not treat the documentation as build-verified until the check succeeds against the resulting branch head.
+The mesh-note comparison, legacy-pointer updates, bilingual Workbench memo alignment, Sphinx landing-page improvements, Workbench README formatting fix, and `hexin` documentation-check workflow were committed to `hexin`. The runtime architecture page and README navigation links have now been added. The documentation-check workflow completed successfully for commit `f3219d9a6024e8f8e70700f4e499363b728f3162`, which included the new page and its configuration details. The later README link-only updates are covered by the normal Windows/Linux CI, which is still running at the current branch head. A separate automated broken-link check has not been run.
 
 
 ## 10. System architecture and code-alignment pass
