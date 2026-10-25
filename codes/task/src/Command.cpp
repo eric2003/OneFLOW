@@ -131,6 +131,11 @@ void Command::AddTask( std::unique_ptr< Task > task )
 
 void SimpleCmd::Execute()
 {
+    ExecuteWithContext( nullptr );
+}
+
+void SimpleCmd::ExecuteWithContext( SimuContext * context )
+{
     const HXSize_t nTask = GetTaskCount();
 
     for ( HXSize_t iTask = 0; iTask < nTask; ++ iTask )
@@ -143,6 +148,7 @@ void SimpleCmd::Execute()
         }
 
         TaskState::task = task;
+        task->SetContext( context );
         task->Run();
     }
 }
@@ -208,14 +214,14 @@ Command * CMD::GetCmd( HXSize_t index )
     return ( * CMD::commandOwners )[ index ].get();
 }
 
-void CMD::RunCmd( Command * cmd )
+void CMD::RunCmd( Command * cmd, SimuContext * context )
 {
     if ( cmd == nullptr )
     {
         return;
     }
 
-    cmd->Execute();
+    cmd->ExecuteWithContext( context );
 }
 
 void CMD::Clear()
@@ -230,7 +236,7 @@ void CMD::Clear()
     TaskState::task = nullptr;
 }
 
-void CMD::ExecuteCmd()
+void CMD::ExecuteCmd( SimuContext * context )
 {
     if ( CMD::commandOwners == nullptr )
     {
@@ -250,7 +256,7 @@ void CMD::ExecuteCmd()
             continue;
         }
 
-        cmd->Execute();
+        cmd->ExecuteWithContext( context );
     }
 
     CMD::Clear();

@@ -32,6 +32,8 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include "CmxTaskNames.h"
 #include "InterFace.h"
 #include "SlipFace.h"
+#include "Prj.h"
+#include <filesystem>
 #include <iostream>
 
 
@@ -76,10 +78,21 @@ void MultiBlock::ProcessFlowWallDist()
 {
     AllocWallDist();
 
+    std::string wallDistanceFile;
+    bool wallDistanceFileAvailable = true;
+    if ( vis_model.vismodel > 1 )
+    {
+        wallDistanceFile =
+            GetDataValue< std::string >( "walldist_file" );
+        wallDistanceFileAvailable =
+            std::filesystem::is_regular_file(
+                Prj::GetPrjFileName( wallDistanceFile ) );
+    }
     const FlowWallDistAction action = DecideFlowWallDistAction(
         vis_model.vismodel,
         ctrl.startStrategy,
-        ctrl.ireadwdst );
+        ctrl.ireadwdst,
+        wallDistanceFileAvailable );
 
     switch ( action )
     {
@@ -89,6 +102,14 @@ void MultiBlock::ProcessFlowWallDist()
         LoadWallDist();
         break;
     case FlowWallDistAction::Create:
+        if ( vis_model.vismodel > 1 && ! wallDistanceFileAvailable )
+        {
+            std::cout
+                << "wall-distance file \""
+                << wallDistanceFile
+                << "\" is missing; computing wall distance before the "
+                   "turbulence solver starts\n";
+        }
         CreateWallDist();
         break;
     }

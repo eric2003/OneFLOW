@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "ULimiter.h"
+#include "HipProductionPolicy.h"
 #include "UnsGrid.h"
 #include "DataBase.h"
 #include "Zone.h"
@@ -32,6 +33,8 @@ License
 #include "Boundary.h"
 #include "BcRecord.h"
 #include "Iteration.h"
+
+#include <algorithm>
 
 BeginNameSpace( ONEFLOW )
 
@@ -50,8 +53,22 @@ void LimField::BindFieldsAndAllocFaces(
     limiter = GetFieldPointer< MRField >( grid, limiterName );
 
     this->nEqu = q->GetNEqu();
-    qf1 = std::make_unique< MRField >( this->nEqu, grid->nFaces );
-    qf2 = std::make_unique< MRField >( this->nEqu, grid->nFaces );
+    // Init() runs once per RK stage.  qf1/qf2 are fully overwritten by
+    // GetQlQr()/CalcFaceValue() before every read, so reuse them whenever the
+    // extent still matches instead of reallocating ~9 MB per stage.
+    const HXSize_t nFaces = grid->nFaces;
+    const bool needsAllocation =
+        qf1 == nullptr || qf2 == nullptr
+        || qf1->GetNEqu() != this->nEqu
+        || qf2->GetNEqu() != this->nEqu
+        || this->nEqu <= 0
+        || ( * qf1 )[ 0 ].size() != nFaces
+        || ( * qf2 )[ 0 ].size() != nFaces;
+    if ( needsAllocation )
+    {
+        qf1 = std::make_unique< MRField >( this->nEqu, nFaces );
+        qf2 = std::make_unique< MRField >( this->nEqu, nFaces );
+    }
 }
 
 
@@ -356,6 +373,27 @@ void Limiter::CalcLimiter()
     ug.Init();
     limf->Init();
 
+    if ( limflag == ILMT_NO )
+    {
+        // No-limiter mode must leave phi == 1 for every cell and equation, and
+        // CalcLimiterScalar() performs no face traversal in that mode anyway.
+        // Fill the field directly instead of allocating and releasing the
+        // min/max scratch pair once per equation; the values are identical
+        // (exactly one, no arithmetic), so the CPU oracle is unchanged.
+        // Repeating the fill every stage was the only per-step host loop left in
+        // the residual chain, but it also repaired the ghosts that the interface
+        // exchange overwrites.  Skip the repeat only when that exchange no
+        // longer carries the field.
+        if ( noLimiterFieldFilled ) return;
+        for ( int iEqu = 0; iEqu < limf->nEqu; ++ iEqu )
+        {
+            RealField & limiterField = ( * limf->limiter )[ iEqu ];
+            std::fill( limiterField.begin(), limiterField.end(), one );
+        }
+        noLimiterFieldFilled = HipUnusedInterfaceFieldsSkipped();
+        return;
+    }
+
     // Allocate limiter state (owned).
     lim->minvf = std::make_unique<RealField>( ug.nTCell );
     lim->maxvf = std::make_unique<RealField>( ug.nTCell );
@@ -385,6 +423,10 @@ void Limiter::SetInitValue()
 
 void Limiter::CalcLimiterScalar()
 {
+    // SetInitValue() has already filled the complete cell field with one.
+    // The no-limiter mode therefore needs no face traversal at all.
+    if ( limflag == ILMT_NO ) return;
+
     if ( limflag == ILMT_ZERO )
     {
         this->CalcZeroLimiter();

@@ -85,4 +85,28 @@ inline void FillExpandedSolverNames(
     }
 }
 
+// Turbulence is a separate solver chain.  It must only be registered for
+// turbulence models (vismodel >= 2); inviscid and laminar cases still use the
+// same Navier-Stokes mean-flow solver but must not schedule turbres tasks.
+inline StringField FilterSolverNamesForViscosity(
+    const StringField& expandedNames,
+    int vismodel )
+{
+    if ( vismodel >= 2 )
+    {
+        return expandedNames;
+    }
+
+    StringField filtered;
+    filtered.reserve( expandedNames.size() );
+    for ( const std::string& name : expandedNames )
+    {
+        if ( name != "UTurbSolver" && name != "STurbSolver" )
+        {
+            filtered.push_back( name );
+        }
+    }
+    return filtered;
+}
+
 EndNameSpace

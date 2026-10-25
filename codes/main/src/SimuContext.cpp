@@ -75,25 +75,6 @@ void SimuContext::MarkEnvironmentReady( bool ready )
     envReady_ = ready;
 }
 
-void SimuContext::SetExpandedSolverNames( const StringField& names )
-{
-    expandedSolverNames_ = names;
-}
-
-void SimuContext::ClearExpandedSolverNames()
-{
-    expandedSolverNames_.clear();
-}
-
-void SimuContext::EnsureExpandedSolverNames( const StringField& names )
-{
-    if ( !expandedSolverNames_.empty() )
-    {
-        return;
-    }
-    expandedSolverNames_ = names;
-}
-
 EulerDomainState& SimuContext::InitializeAccelState(
     const EulerDomainBackend& backend,
     const EulerDomainProblem& problem,
@@ -113,5 +94,25 @@ EulerDomainState& SimuContext::RestartAccelState(
     return EulerDomainStateLifecycle::Restart(
         accelStates_, backend, problem, key, field );
 }
+
+void SimuContext::SetExpandedSolverNames( const StringField& names )
+{
+    expandedSolverNames_ = names;
+}
+
+void SimuContext::ClearExpandedSolverNames()
+{
+    expandedSolverNames_.clear();
+}
+
+void SimuContext::EnsureExpandedSolverNames( const StringField& names )
+{
+    if ( !expandedSolverNames_.empty() )
+    {
+        return;
+    }
+    expandedSolverNames_ = names;
+}
+
 
 EndNameSpace

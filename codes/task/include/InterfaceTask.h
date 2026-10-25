@@ -22,6 +22,7 @@ License
 
 
 #pragma once
+#include "DistributedDomainPlan.h"
 #include "Task.h"
 BeginNameSpace( ONEFLOW )
 
@@ -33,7 +34,9 @@ public:
 public:
     void Run() override;
 protected:
-    void SwapInterfaceData( int iZone, int jZone );
+    void SwapInterfaceData(
+        const DistributedDomainPlan & plan,
+        const BoundaryExchange & exchange );
 };
 
 

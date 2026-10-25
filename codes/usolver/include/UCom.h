@@ -35,6 +35,8 @@ const int F_GHOST = 1;
 const int F_TOTAL = 2;
 
 class UnsGrid;
+class FaceTopo;
+class CellTopo;
 class UGeom
 {
 public:
@@ -88,6 +90,16 @@ public:
     RealField * ycc;
     RealField * zcc;
     BcRecord * bcRecord;
+
+private:
+    // Reinitialization replaces these topology objects. When their identity
+    // is unchanged, repeated stage setup only needs to refresh the range.
+    const UnsGrid * boundGrid_ = nullptr;
+    const FaceTopo * boundFaceTopo_ = nullptr;
+    const CellTopo * boundCellTopo_ = nullptr;
+    int boundFaces_ = -1;
+    int boundCells_ = -1;
+    int boundBoundaryFaces_ = -1;
 };
 
 extern UGeom ug;

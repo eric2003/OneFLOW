@@ -23,6 +23,8 @@ License
 
 #pragma once
 #include "NsInvFlux.h"
+#include "AccelViews.h"
+#include <vector>
 #include <memory>
 
 BeginNameSpace( ONEFLOW )
@@ -30,6 +32,9 @@ BeginNameSpace( ONEFLOW )
 class UNsFField;
 class Limiter;
 class LimField;
+class FluxBackend;
+class UnsGrid;
+class BcRecord;
 
 class UNsInvFlux : public NsInvFlux
 {
@@ -38,22 +43,45 @@ public:
     ~UNsInvFlux();
 public:
     void CalcFlux();
+    void Alloc();
+    void DeAlloc();
     void CalcInvFlux();
     void CalcInvFluxCpuBatch();
+    void CalcInvFluxHipBatch();
+    void CalcAndAddInvFluxHipBatch();
+    void CalcInvFluxBatch( FluxBackend & backend );
     bool UseCpuBatchAdapter() const;
+    bool UseHipBatchAdapter() const;
+    bool UseHipGradient() const;
+    bool UseHipDeviceReconstruction() const;
+    bool UseHipDeviceStateUpdate() const;
     void CalcInvFace();
     void CalcLimiter();
     void AddInvFlux();
     void PrepareFaceValue();
     void UpdateFaceInvFlux();
     void DumpInvFluxTrace();
+    void DumpInvFluxStageTrace();
 public:
     void GetQlQrField();
     void ReconstructFaceValueField();
     void BoundaryQlQrFixField();
 public:
-    std::unique_ptr<Limiter> limiter; // owns face limiter
-    std::unique_ptr<MRField> invflux; // owns temporary face flux
+    std::unique_ptr<Limiter> limiter;
+    LimField * limf;
+    std::unique_ptr<MRField> invflux;
+    // Boundary reconstruction metadata is topology-owned and remains valid
+    // across RK stages.  Keep the host containers stable so the HIP backend
+    // can detect and skip redundant operation metadata uploads.
+    std::vector< ReconstructionBoundaryOperation > hipBoundaryOperation;
+    std::vector< BoundaryGhostUpdatePolicy > hipBoundaryGhostPolicy;
+    std::vector< Real > hipBoundaryQ;
+    const UnsGrid * hipBoundaryGrid = nullptr;
+    const BcRecord * hipBoundaryRecord = nullptr;
+    int hipBoundaryFaces = -1;
+    int hipBoundaryBoundaryFaces = -1;
+    int hipBoundaryEquations = -1;
+    bool hipBoundaryHasSolid = false;
 };
 
 EndNameSpace

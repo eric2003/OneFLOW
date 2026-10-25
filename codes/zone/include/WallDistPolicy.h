@@ -37,17 +37,18 @@ enum class FlowWallDistAction
 inline FlowWallDistAction DecideFlowWallDistAction(
     int vismodel,
     int startStrategy,
-    int ireadwdst )
+    int ireadwdst,
+    bool wallDistanceFileAvailable = true )
 {
     if ( vismodel <= 1 )
     {
         return FlowWallDistAction::SkipAfterAlloc;
     }
-    if ( startStrategy > 0 )
+    if ( startStrategy > 0 && wallDistanceFileAvailable )
     {
         return FlowWallDistAction::Load;
     }
-    if ( ireadwdst == 0 )
+    if ( ireadwdst == 0 || ! wallDistanceFileAvailable )
     {
         return FlowWallDistAction::Create;
     }

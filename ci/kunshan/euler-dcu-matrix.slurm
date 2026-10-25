@@ -24,8 +24,12 @@ fi
 build_dir="${ONEFLOW_BUILD_DIR:-$project/.oneflow-build/${SLURM_JOB_NAME:-oneflow-euler}}"
 cmake_bin="${CMAKE_BIN:-cmake}"
 dtk_module="${DTK_MODULE:-compiler/dtk/26.04}"
+gcc_module="${GCC_MODULE:-compiler/gcc/9.3.0}"
+cmake_module="${CMAKE_MODULE:-compiler/cmake/3.25.0}"
 
 module purge
+module load "$cmake_module"
+module load "$gcc_module"
 module load "$dtk_module"
 clang_bin="$(command -v clang)"
 llvm_root="${LLVM_ROOT:-$(dirname "$(dirname "$clang_bin")")}"
@@ -52,7 +56,13 @@ rc_stateful=1
   -DCMAKE_C_COMPILER="$CC" \
   -DCMAKE_CXX_COMPILER="$CXX" \
   -DCMAKE_HIP_COMPILER="$CXX" \
-  -DCMAKE_PREFIX_PATH="$dtk_root;$dtk_root/.hyhal" \
+  -DCMAKE_PREFIX_PATH="$dtk_root/dcc/lib64/cmake/AMDDeviceLibs;$dtk_root/dcc/comgr/lib64/cmake;$dtk_root;$dtk_root/.hyhal" \
+  -DCMAKE_FIND_PACKAGE_PREFER_CONFIG=ON \
+  -DCMAKE_TRY_COMPILE_PLATFORM_VARIABLES="CMAKE_PREFIX_PATH;amd_comgr_DIR;AMDDeviceLibs_DIR" \
+  -Damd_comgr_DIR="$dtk_root/dcc/comgr/lib64/cmake/amd_comgr" \
+  -DAMDDeviceLibs_DIR="$dtk_root/dcc/lib64/cmake/AMDDeviceLibs" \
+  -Dhsa-runtime64_DIR="$dtk_root/.hyhal/lib/cmake/hsa-runtime64" \
+  -DHSA_HEADER="$dtk_root/.hyhal/include" \
   -Dhsa-runtime64_DIR="$dtk_root/.hyhal/lib/cmake/hsa-runtime64" \
   -DHSA_HEADER="$dtk_root/.hyhal/include" \
   -DCMAKE_HIP_ARCHITECTURES=gfx906 \

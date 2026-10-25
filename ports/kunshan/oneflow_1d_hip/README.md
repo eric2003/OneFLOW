@@ -44,7 +44,11 @@ The isolated directory is the current one-dimensional validation path. CPU remai
 the default reference and execution path; the HIP targets are validation adapters
 and reserved integration points, not a claim that the full Navier–Stokes solver is
 GPU-ported. CUDA and Kokkos remain extension interfaces only, and Kokkos is not introduced here.
-The current multi-GPU evidence is limited to the single-node 4-rank/4-DCU HIP MPI path.
+The Kunshan multi-GPU evidence includes a single-node 4-rank/4-DCU path and a
+two-node 4-rank/4-DCU path. The two-node result validates the standalone Euler
+MPI decomposition, CPU/HIP hash agreement, halo counts, and GPU-aware
+`MPI_Sendrecv` on `gfx906`; it is not evidence that the full 3D Navier--Stokes
+solver is multi-node ready.
 
 HIP architecture selection is intentionally not hard-coded:
 
@@ -82,7 +86,7 @@ state and fewer validation/trace copies, with correctness rechecked after each c
 
 The current implementation priority is the Euler stateful backend and persistent
 device execution described in
-`doc/reports/architecture/oneflow-euler-optimization-plan.md`. WENO5 and
+`doc/plans/oneflow-euler-optimization-plan.md`. WENO5 and
 dimensional expansion remain deferred until the Euler correctness and performance
 acceptance gates pass.
 
@@ -93,3 +97,13 @@ final state error 0. Kernel events account for 99.56--99.99% of `Advance` wall t
 and only one upload, one final download, and one synchronization occur per repeat.
 This is the execution-structure result; the current multi-core/multi-card comparison is
 recorded in the current performance report, while the full Navier-Stokes solver remains outside.
+
+`oneflow_1d_euler_domain_adapter_benchmark` runs the same persistent
+`HipEulerBackend` through both its direct lifecycle and the shared
+`ONEFLOW::EulerDomainBackend` adapter. The adapter owns no second numerical or
+device state. On Kunshan DTK 26.04 / `gfx906`, an interleaved paired run with
+`nx=1048576`, 100 steps, 5 repeats, and 2 warmups produced identical final
+state/checksum, identical kernel-launch and synchronization counts, and a
+shared/direct `Advance` ratio of `0.999913`. This benchmark validates the thin
+lifecycle seam; it does not replace the CPU oracle or establish application-level
+3D Navier--Stokes performance.

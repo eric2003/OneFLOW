@@ -39,6 +39,7 @@ struct EulerMpiResult
 {
     std::vector< double > state;
     EulerMpiTiming timing;
+    bool gpuAwareMpi = false;
     std::string deviceName;
     std::string architecture;
     int localRank = -1;

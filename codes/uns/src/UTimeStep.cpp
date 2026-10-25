@@ -41,10 +41,105 @@ License
 #include "SolverDef.h"
 #include "FieldBase.h"
 #include "Iteration.h"
+#include "Ctrl.h"
+#include "GridState.h"
+#include "ZoneState.h"
+#include "SolverState.h"
+#include "TimeIntegral.h"
+#include "AccelRuntime.h"
+#include "HipProductionPolicy.h"
+#ifdef ONEFLOW_ENABLE_HIP
+#include "HipFluxBackend.h"
+#endif
+#include <cstdlib>
 #include <iostream>
+#include <stdexcept>
 
 
 BeginNameSpace( ONEFLOW )
+
+namespace
+{
+
+bool HipTimeStepRequested()
+{
+    return HipProductionFeatureEnabled( "ONEFLOW_ENABLE_UNS_HIP_TIME_STEP" );
+}
+
+bool EnvironmentEnabled( const char * name )
+{
+    const char * value = std::getenv( name );
+    return value != nullptr && value[ 0 ] == '1';
+}
+
+bool HipTimeStepSupported()
+{
+#ifndef ONEFLOW_ENABLE_HIP
+    return false;
+#else
+    AccelRuntime & runtime = AccelRuntime::Instance();
+    return runtime.IsInitialized()
+        && runtime.Backend().Kind() == AccelBackendKind::HIP
+        && SolverState::solverType == NS_SOLVER
+        // Multi-zone is supported: the spectral radius reads the resident q
+        // ghost, which the resident-state contract keeps equal to the host
+        // mirror, and the timestep stays device-resident for the following
+        // residual scaling.
+        && GridState::gridLevel == 0
+        && GridState::nGrids == 1
+        && nscom.nEqu == 5
+        && nscom.chemModel == 0
+        && nscom.nTModel == 1
+        && vis_model.vismodel == 0
+        && nscom.timestepModel == 0
+        && ctrl.time_integral == MULTI_STAGE
+        && ctrl.idualtime == 0
+        && ug.nCells > 0
+        && ug.nFaces > 0
+        && ug.nTCell - ug.nCells == ug.nBFaces
+        && HipProductionFeatureEnabled(
+            "ONEFLOW_ENABLE_UNS_HIP_STATE_UPDATE" )
+        && HipProductionFeatureEnabled(
+            "ONEFLOW_ENABLE_UNS_HIP_BOUNDARY" );
+#endif
+}
+
+void CalcHipLocalInviscidTimeStep()
+{
+#ifdef ONEFLOW_ENABLE_HIP
+    UnsGrid * grid = Zone::GetUnsGrid();
+    CellTimeStepView view;
+    view.nCells = ug.nCells;
+    view.nGhostCells = ug.nTCell - ug.nCells;
+    view.nFaces = ug.nFaces;
+    view.nBoundaryFaces = ug.nBFaces;
+    view.nEquations = nscom.nEqu;
+    view.xNormal = ug.xfn->data();
+    view.yNormal = ug.yfn->data();
+    view.zNormal = ug.zfn->data();
+    view.meshVelocityNormal = ug.vfn->data();
+    view.faceArea = ug.farea->data();
+    view.cellVolume = ug.cvol->data();
+    view.leftCell = ug.lcf->data();
+    view.rightCell = ug.rcf->data();
+    view.inviscidSpectrum = ( * unsf.invsr )[ 0 ].data();
+    view.timeStep = ( * unsf.timestep )[ 0 ].data();
+    view.gamma = nscom.gama_ref;
+    view.cfl = Iteration::cfl;
+    view.maxTimeRatio = nscom.max_time_ratio;
+    view.cacheKey = grid;
+    view.preferResidentState = true;
+    view.downloadToHost = false;
+    for ( int equation = 0; equation < view.nEquations; ++ equation )
+        view.q[ equation ] = ( * unsf.q )[ equation ].data();
+    HipFluxBackend::Shared().CalcLocalInviscidTimeStep( view );
+#else
+    throw std::runtime_error(
+        "HIP local timestep was requested without HIP support" );
+#endif
+}
+
+}
 
 // Bind mean-flow (NS) pointers on global unsf for time-step kernels.
 // Always pins NS_SOLVER (same contract as UNsField::Init).
@@ -129,6 +224,26 @@ void UTimeStep::CalcTimeStep()
     this->Init();
 
     this->CalcCfl();
+
+    const bool explicitRequest =
+        HipProductionFeatureExplicitlyEnabled(
+            "ONEFLOW_ENABLE_UNS_HIP_TIME_STEP" );
+    bool useHipTimeStep = HipTimeStepRequested();
+    if ( useHipTimeStep && ! HipTimeStepSupported() )
+    {
+        if ( explicitRequest )
+        {
+            throw std::runtime_error(
+                "ONEFLOW_ENABLE_UNS_HIP_TIME_STEP=1 is unsupported for the "
+                "current solver, timestep model, or accelerator chain" );
+        }
+        useHipTimeStep = false;
+    }
+    if ( useHipTimeStep )
+    {
+        CalcHipLocalInviscidTimeStep();
+        return;
+    }
 
     this->CalcSpectrumField();
 

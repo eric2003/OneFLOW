@@ -9,8 +9,11 @@ add_executable ( OneFLOWHipSmoke
     src/AccelRuntime.cpp
     src/CpuBackend.cpp
     src/CpuFluxBackend.cpp
+    src/EulerCpuAdapter.cpp
     src/HipBackend.cpp
     src/HipFluxBackend.hip
+    src/StageProfiler.cpp
+    ${CMAKE_SOURCE_DIR}/codes/parallel/src/BoundaryExchangeContract.cpp
 )
 
 target_include_directories ( OneFLOWHipSmoke
@@ -18,6 +21,7 @@ target_include_directories ( OneFLOWHipSmoke
         include
         ${CMAKE_SOURCE_DIR}/codes/project/include
         ${CMAKE_SOURCE_DIR}/codes/basic/include
+        ${CMAKE_SOURCE_DIR}/codes/parallel/include
         ${hip_INCLUDE_DIRS}
 )
 

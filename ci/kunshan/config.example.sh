@@ -26,14 +26,21 @@ KUNSHAN_MPI_TIMEOUT_SECONDS=180
 # four-rank CPU baseline. It must be a complete OneFLOW test case directory.
 KUNSHAN_MPI4_CASE_ROOT="/dedicated/oneflow-ci/fixtures/m6wingroe_sa_np4"
 KUNSHAN_MPI4_CASE_NAME="m6wingroe_sa_np4"
+# Optional topology manifest for the root 3D multi-zone runners. When set,
+# f2-main-solver-multizone-{trace,timing}.sh validates it before launching MPI.
+# KUNSHAN_MZ_FIXTURE_METADATA="/dedicated/oneflow-ci/fixtures/m6wingroe_sa_np4/fixture-metadata.json"
 
 kunshan_load_environment()
 {
     module purge
-    module load replace-with-compiler-module
-    module load replace-with-mpi-module
-    module load replace-with-cmake-module
+    module load gcc/16.2.0
+    module load openmpi/5.0.11
+    module load cmake/4.4.3
     module load replace-with-python-module
+
+    # Standard CPU MPI regression environment. Keep HCOLL out of collective
+    # selection unless a test explicitly documents a separate HCOLL study.
+    export OMPI_MCA_coll="^hcoll"
 
     # Export dependency library paths here when they are not supplied by
     # modules. Do not print credentials or private paths in this function.

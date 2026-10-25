@@ -68,6 +68,24 @@ target_include_directories(oneflow_euler_domain_contract_test PRIVATE
 target_link_libraries(oneflow_euler_domain_contract_test PRIVATE GTest::gtest_main)
 gtest_discover_tests(oneflow_euler_domain_contract_test DISCOVERY_MODE PRE_TEST)
 
+add_executable(oneflow_euler_domain_backend_adapter_test
+  euler_domain_backend_adapter_test.cpp
+  ${ONEFLOW_EULER_BACKEND_DIR}/OneDEuler.cpp
+  ${ONEFLOW_EULER_BACKEND_DIR}/OneDEulerBackend.cpp
+  ${ONEFLOW_EULER_BACKEND_DIR}/OneDEulerDomainAdapter.cpp
+  ${ONEFLOW_EULER_BACKEND_DIR}/OneDWeno5.cpp)
+target_include_directories(oneflow_euler_domain_backend_adapter_test PRIVATE
+  ${ONEFLOW_EULER_BACKEND_DIR}
+  ${CMAKE_SOURCE_DIR}/codes/accel/include
+  ${CMAKE_SOURCE_DIR}/codes/basic/include
+  ${CMAKE_SOURCE_DIR}/codes/project/include)
+target_compile_options(oneflow_euler_domain_backend_adapter_test PRIVATE
+  -ffp-contract=off)
+target_link_libraries(oneflow_euler_domain_backend_adapter_test PRIVATE
+  GTest::gtest_main)
+gtest_discover_tests(oneflow_euler_domain_backend_adapter_test
+  DISCOVERY_MODE PRE_TEST)
+
 add_executable(oneflow_euler_domain_state_registry_test
   ${CMAKE_SOURCE_DIR}/tests/euler_domain_state_registry_test.cpp
   ${CMAKE_SOURCE_DIR}/codes/accel/src/EulerDomainStateRegistry.cpp)
@@ -124,6 +142,16 @@ target_include_directories(oneflow_euler_cpu_adapter_test PRIVATE
 target_link_libraries(oneflow_euler_cpu_adapter_test PRIVATE GTest::gtest_main)
 gtest_discover_tests(oneflow_euler_cpu_adapter_test DISCOVERY_MODE PRE_TEST)
 
+add_executable(oneflow_euler_inv_flux_capability_test
+  ${CMAKE_SOURCE_DIR}/tests/euler_inv_flux_capability_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/accel/src/EulerInvFluxCapability.cpp)
+target_include_directories(oneflow_euler_inv_flux_capability_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/codes/accel/include
+  ${CMAKE_SOURCE_DIR}/codes/basic/include
+  ${CMAKE_SOURCE_DIR}/codes/project/include)
+target_link_libraries(oneflow_euler_inv_flux_capability_test PRIVATE GTest::gtest_main)
+gtest_discover_tests(oneflow_euler_inv_flux_capability_test DISCOVERY_MODE PRE_TEST)
+
 add_executable(oneflow_euler_runge_kutta_capability_test
   ${CMAKE_SOURCE_DIR}/tests/euler_runge_kutta_capability_test.cpp
   ${CMAKE_SOURCE_DIR}/codes/solver/src/EulerRungeKuttaCapability.cpp)
@@ -140,6 +168,20 @@ gtest_discover_tests(oneflow_euler_runge_kutta_capability_test DISCOVERY_MODE PR
 # node, configure with CMAKE_HIP_COMPILER and CMAKE_HIP_ARCHITECTURES, then the
 # same target is discovered by the root CTest tree with the `HIP.` prefix and
 # `hip`/`dcu` labels.
+# The resident-state generation/ownership contract is backend-neutral and
+# runs without a DCU.  It gates the HIP production path's device/host ghost
+# epoch bookkeeping, so it stays in the CPU test set.
+add_executable(oneflow_hip_resident_state_contract_test
+  ${CMAKE_SOURCE_DIR}/tests/hip_resident_state_contract_test.cpp)
+target_include_directories(oneflow_hip_resident_state_contract_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/codes/accel/include
+  ${CMAKE_SOURCE_DIR}/codes/basic/include
+  ${CMAKE_SOURCE_DIR}/codes/project/include)
+target_link_libraries(oneflow_hip_resident_state_contract_test PRIVATE
+  GTest::gtest_main)
+gtest_discover_tests(oneflow_hip_resident_state_contract_test
+  DISCOVERY_MODE PRE_TEST)
+
 if (ONEFLOW_ENABLE_HIP_TESTS)
   if (NOT CMAKE_HIP_ARCHITECTURES)
     if (ONEFLOW_HIP_ARCHITECTURES)
@@ -161,7 +203,9 @@ if (ONEFLOW_ENABLE_HIP_TESTS)
     ACCEL_DIR ${CMAKE_SOURCE_DIR}/codes/accel
     PROJECT_INC ${CMAKE_SOURCE_DIR}/codes/project/include
     BASIC_INC ${CMAKE_SOURCE_DIR}/codes/basic/include
-    TEST_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/euler_backend_contract_test.cpp)
+    TEST_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/euler_backend_contract_test.cpp
+    ADAPTER_TEST_SOURCE
+      ${CMAKE_CURRENT_SOURCE_DIR}/euler_domain_backend_adapter_test.cpp)
 
   add_test(
     NAME HIP.MainSolverFluxOneCall

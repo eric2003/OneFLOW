@@ -22,6 +22,7 @@ License
 #pragma once
 #include "NamespaceMacros.h"
 #include "SimuDef.h"
+#include "EulerDomainStateRegistry.h"
 #include "HXDefine.h"
 #include "EulerDomainStateRegistry.h"
 #include <string>
@@ -130,8 +131,8 @@ private:
     bool envReady_ = false;
     bool processReady_ = false;
     bool taskResolved_ = false;
-    StringField expandedSolverNames_;
     EulerDomainStateRegistry accelStates_;
+    StringField expandedSolverNames_;
 };
 
 EndNameSpace

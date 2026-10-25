@@ -27,6 +27,8 @@ License
 #include "OStream.h"
 #include "ZoneState.h"
 #include <iostream>
+#include <limits>
+#include <stdexcept>
 
 
 BeginNameSpace( ONEFLOW )
@@ -208,6 +210,34 @@ void HXSwapData( DataBook * dataBook, int spid, int rpid, int tag )
     else if ( Parallel::pid == rpid )
     {
         dataBook->Recv( spid, tag );
+    }
+}
+
+void HXSwapDeviceData(
+    void * field,
+    std::size_t nBytes,
+    int spid,
+    int rpid,
+    int tag )
+{
+    if ( field == nullptr || nBytes == 0 || spid == rpid ) return;
+    if ( nBytes > static_cast< std::size_t >(
+                     std::numeric_limits< int >::max() ) )
+    {
+        throw std::length_error(
+            "HXSwapDeviceData byte count exceeds MPI int count limit" );
+    }
+
+    // BasicParallel keeps the MPI call deliberately byte-oriented, matching
+    // the existing HXSmartSend/HXSmartRecv contract while making the pointer
+    // residency explicit at this boundary.
+    if ( Parallel::pid == spid )
+    {
+        HXSendChar( field, static_cast< int >( nBytes ), rpid, tag );
+    }
+    else if ( Parallel::pid == rpid )
+    {
+        HXRecvChar( field, static_cast< int >( nBytes ), spid, tag );
     }
 }
 

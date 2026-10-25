@@ -63,7 +63,14 @@ void SimuImp::RunCase()
     {
         // Case setup may fail after partially binding global case state.
         // Always release that state before propagating the failure.
-        this->PostProcess();
+        try
+        {
+            this->PostProcess();
+        }
+        catch ( ... )
+        {
+            // Preserve the original setup or solver failure.
+        }
         throw;
     }
 

@@ -30,12 +30,33 @@ void Check( hipError_t error, const char * operation )
     }
 }
 
+bool EnvironmentFlag( const char * name )
+{
+    const char * value = std::getenv( name );
+    return value != nullptr && std::string( value ) == "1";
+}
+
+void CheckMpi( int error, const char * operation )
+{
+    if ( error == MPI_SUCCESS ) return;
+
+    char errorString[ MPI_MAX_ERROR_STRING ] = {};
+    int errorLength = 0;
+    MPI_Error_string( error, errorString, &errorLength );
+    throw std::runtime_error(
+        std::string( operation ) + ": "
+        + std::string(
+            errorString, static_cast< std::size_t >( errorLength ) ) );
+}
+
 void CheckProblem(
     const EulerMpiProblem & problem,
     const std::vector< double > & initialState )
 {
     if ( problem.communicator == MPI_COMM_NULL || problem.globalNx <= 0
-         || problem.localNx <= 0 || problem.steps <= 0
+         || problem.localNx <= 0 || problem.globalOffset < 0
+         || problem.globalOffset + problem.localNx > problem.globalNx
+         || problem.steps <= 0
          || problem.gamma <= 1.0 || problem.dt <= 0.0 || problem.dx <= 0.0 )
     {
         throw std::invalid_argument( "invalid HIP MPI Euler problem" );
@@ -261,6 +282,16 @@ EulerMpiResult RunHipEulerMpi(
     result.localRanks = localRanks;
     result.deviceIndex = deviceIndex;
     result.visibleDeviceCount = visibleDeviceCount;
+    const bool gpuAwareMpiRequested =
+        EnvironmentFlag( "ONEFLOW_MPI_GPU_AWARE" );
+    if ( gpuAwareMpiRequested
+         && ! EnvironmentFlag( "ONEFLOW_MPI_GPU_AWARE_CONFIRMED" ) )
+    {
+        throw std::runtime_error(
+            "ONEFLOW_MPI_GPU_AWARE=1 requires "
+            "ONEFLOW_MPI_GPU_AWARE_CONFIRMED=1 after a target-node probe" );
+    }
+    result.gpuAwareMpi = gpuAwareMpiRequested;
 
     DeviceState device;
     try
@@ -319,36 +350,65 @@ EulerMpiResult RunHipEulerMpi(
                 current, nx, device.boundary );
             Check( hipGetLastError(), "PackBoundaryKernel launch" );
             ++ result.timing.kernelLaunches;
-            const auto boundaryBegin = Clock::now();
-            Check(
-                hipMemcpyAsync(
-                    boundaryHost, device.boundary, haloBytes,
-                    hipMemcpyDeviceToHost, device.stream ),
-                "boundary D2H" );
-            Check(
-                hipStreamSynchronize( device.stream ), "boundary D2H sync" );
-            ++ result.timing.deviceSynchronizations;
-            result.timing.computeMilliseconds +=
-                Milliseconds( boundaryBegin, Clock::now() );
-
             const auto mpiBegin = Clock::now();
-            MPI_Sendrecv(
-                boundaryHost, 3, MPI_DOUBLE, leftRank, 100,
-                haloHost + 3, 3, MPI_DOUBLE, rightRank, 100,
-                problem.communicator, MPI_STATUS_IGNORE );
-            MPI_Sendrecv(
-                boundaryHost + 3, 3, MPI_DOUBLE, rightRank, 101,
-                haloHost, 3, MPI_DOUBLE, leftRank, 101,
-                problem.communicator, MPI_STATUS_IGNORE );
+            if ( gpuAwareMpiRequested )
+            {
+                Check(
+                    hipStreamSynchronize( device.stream ),
+                    "GPU-aware boundary pack sync" );
+                ++ result.timing.deviceSynchronizations;
+                CheckMpi(
+                    MPI_Sendrecv(
+                        device.boundary, 3, MPI_DOUBLE, leftRank, 100,
+                        device.halos + 3, 3, MPI_DOUBLE, rightRank, 100,
+                        problem.communicator, MPI_STATUS_IGNORE ),
+                    "GPU-aware left/right halo exchange" );
+                CheckMpi(
+                    MPI_Sendrecv(
+                        device.boundary + 3, 3, MPI_DOUBLE, rightRank, 101,
+                        device.halos, 3, MPI_DOUBLE, leftRank, 101,
+                        problem.communicator, MPI_STATUS_IGNORE ),
+                    "GPU-aware right/left halo exchange" );
+            }
+            else
+            {
+                const auto boundaryBegin = Clock::now();
+                Check(
+                    hipMemcpyAsync(
+                        boundaryHost, device.boundary, haloBytes,
+                        hipMemcpyDeviceToHost, device.stream ),
+                    "boundary D2H" );
+                Check(
+                    hipStreamSynchronize( device.stream ),
+                    "boundary D2H sync" );
+                ++ result.timing.deviceSynchronizations;
+                result.timing.computeMilliseconds +=
+                    Milliseconds( boundaryBegin, Clock::now() );
+                CheckMpi(
+                    MPI_Sendrecv(
+                        boundaryHost, 3, MPI_DOUBLE, leftRank, 100,
+                        haloHost + 3, 3, MPI_DOUBLE, rightRank, 100,
+                        problem.communicator, MPI_STATUS_IGNORE ),
+                    "host-staged left/right halo exchange" );
+                CheckMpi(
+                    MPI_Sendrecv(
+                        boundaryHost + 3, 3, MPI_DOUBLE, rightRank, 101,
+                        haloHost, 3, MPI_DOUBLE, leftRank, 101,
+                        problem.communicator, MPI_STATUS_IGNORE ),
+                    "host-staged right/left halo exchange" );
+            }
             result.timing.mpiMilliseconds +=
                 Milliseconds( mpiBegin, Clock::now() );
             ++ result.timing.haloExchanges;
 
-            Check(
-                hipMemcpyAsync(
-                    device.halos, haloHost, haloBytes,
-                    hipMemcpyHostToDevice, device.stream ),
-                "halo H2D" );
+            if ( ! gpuAwareMpiRequested )
+            {
+                Check(
+                    hipMemcpyAsync(
+                        device.halos, haloHost, haloBytes,
+                        hipMemcpyHostToDevice, device.stream ),
+                    "halo H2D" );
+            }
             Check(
                 hipEventRecord( device.kernelBegin, device.stream ),
                 "kernel begin event" );
