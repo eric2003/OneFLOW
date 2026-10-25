@@ -162,3 +162,19 @@ Before calling a slice complete, ask:
 - Are compatibility behavior and intentional changes explicit?
 - Are test commands, results, commit SHA, and CI links accurate?
 - Do the design page, roadmap status, and user-facing instructions agree with the code?
+
+
+### 2026-10-26 - R1 call-path inspection
+
+Verified from the current source:
+
+- `SimuImp::InitSimu()` calls `SimuContext::SetupCaseEnvironment()`; the latter currently binds case state, reads optional root settings, applies the generic roots, applies domain-specific roots, and writes path diagnostics.
+- `Prj::SetPrjBaseDir()` resets project and domain-specific roots to prevent settings leaking between cases.
+- Generic and domain roots are applied in two steps. Empty or `default` domain roots inherit generic roots; empty, `default`, or `case` generic roots resolve to the active case. The special `project` root requires a configured project root. Relative roots other than these tokens are resolved relative to the active case; absolute roots are used directly.
+- The mesh input fallback from `sourceGridCaseDir` is applied only when `meshInputRoot` is empty or `default`. An explicit mesh input root takes precedence.
+- `GetDataValue(name)` throws when a parameter name is absent. However, the `DataObject` typed lookup uses a static cast to the requested element type; it does not provide a safe runtime type check. Therefore, broad `catch (const std::exception&)` blocks reliably treat a missing key as optional, but they must not be described as robustly handling wrong-typed values. A wrong type is not guaranteed to throw and may be unsafe.
+- Existing `tests/main/prj_cmdline_test.cpp` covers many `Prj` root and file-resolution rules, while `tests/main/simu_context_test.cpp` primarily tests context state and task plumbing. The inspected tests do not directly exercise the full `SetupCaseEnvironment()` parameter precedence and legacy fallback path.
+
+**Updated next action:** do not extract a resolver yet. First add or identify a test seam that can verify root precedence and `sourceGridCaseDir` fallback without booting the complete runtime. In parallel, inspect how parameter entries are constructed and typed so the test uses valid database values. Only after this contract is covered should the code boundary be changed.
+
+Validation note: this entry records source/test inspection only. No C++ source or test was changed and no local test suite was run for this entry.
