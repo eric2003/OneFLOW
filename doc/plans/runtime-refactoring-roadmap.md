@@ -227,3 +227,12 @@ Commit: `d8568fe91722af5d78d8083d6bae23d9446d952d`
 - Implementation commits: [helper](https://github.com/eric2003/OneFLOW/commit/fd3889362408586e379d45d08a170abf2077efb9), [production integration](https://github.com/eric2003/OneFLOW/commit/6d72e31f93f55b00b622e122fa75eb689832694f), [tests](https://github.com/eric2003/OneFLOW/commit/1e438f84f600c689666f831ff0837ce3d5936e13), [CMake registration](https://github.com/eric2003/OneFLOW/commit/a13a890bb31e2d84434fbe4297cf76aebc24c865).
 - Validation: source and CMake files were inspected after the changes. The exact-revision GitHub combined status query returned no checks, and no local C++ build or test execution was available in this step. Do not interpret the new tests as passing until `simu_context_parameter_test` is built and run.
 - Remaining R1 work: exercise path precedence, `sourceGridCaseDir` fallback, and per-case path reset through a realistic setup-level test. The helper-level contract is implemented but unverified; R1 remains partial.
+
+
+### 2026-10-26 - R1 evidence update and runtime guide correction
+
+- The user reports `100% tests passed out of 697` on the latest `hexin` code baseline. This is user-reported local evidence; no independent build/test was run in this assistant session, and no exact-revision GitHub CI pass is claimed.
+- Updated `doc/source/runtime_architecture.rst` to remove the stale statement that optional path lookups still use broad exception handlers. It now documents the actual `SimuContextDetail::ReadOptionalStringParameter()` type check and distinguishes helper-level coverage from full setup integration.
+- Updated `doc/AI_CONTEXT.md` with the reported test count and the remaining acceptance gap.
+- System-level assessment: the type contract for optional path strings has a narrow unit seam, and existing `Prj` tests already cover generic/domain root behavior, inheritance, diagnostics, and root reset. The remaining concrete gap is testing how `SetupCaseEnvironment()` applies the control database values, especially the explicit `meshInputRoot` versus `sourceGridCaseDir` fallback. Do not create another path resolver until that behavior is exercised.
+- Status: R1 remains partial. Next step is to inspect `ReadControlInfo()` and global database initialization to determine whether a realistic temporary-control-file integration test can be added without reproducing the whole solver bootstrap.
