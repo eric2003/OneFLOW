@@ -48,6 +48,8 @@ class WorkbenchHomeWindow(QMainWindow):
             self._settings, discovered_root
         )
         self._saved_repository_root = self._repository_root
+        self._saved_build_configuration = self._settings.build_configuration
+        self._saved_executable_path = self._settings.executable_path
         self._case_window = None
         self._project_windows = []
         self.setWindowTitle("OneFLOW Workbench")
@@ -101,6 +103,7 @@ class WorkbenchHomeWindow(QMainWindow):
         configuration_row.addWidget(QLabel("Build configuration"))
         self.build_config_combo = QComboBox()
         self.build_config_combo.addItems(["Debug", "Release"])
+        self.build_config_combo.setCurrentText(self._settings.build_configuration)
         self.build_config_combo.setToolTip(
             "Choose the build configuration used by build and unit-test tasks."
         )
@@ -139,6 +142,8 @@ class WorkbenchHomeWindow(QMainWindow):
         )
         if self.executable_combo.count():
             self.executable_combo.setCurrentIndex(0)
+        if self._settings.executable_path:
+            self.executable_combo.setEditText(self._settings.executable_path)
         self._build_executable_paths = {
             configuration: str(
                 (self._repository_root / "build" / "bin" / configuration / "OneFLOW.exe").resolve()
@@ -291,6 +296,10 @@ class WorkbenchHomeWindow(QMainWindow):
 
     def _reset_basic_configuration(self) -> None:
         self.repository_root_edit.setText(str(self._default_repository_root))
+        self.build_config_combo.setCurrentText("Debug")
+        self.executable_combo.setEditText(
+            str((self._default_repository_root / "build" / "bin" / "Debug" / "OneFLOW.exe").resolve())
+        )
 
     @staticmethod
     def _valid_repository_root(value: str) -> bool:
@@ -315,7 +324,11 @@ class WorkbenchHomeWindow(QMainWindow):
                 )
             return False
 
-        settings = ApplicationSettings(repository_root)
+        settings = ApplicationSettings(
+            repository_root,
+            self.build_config_combo.currentText(),
+            self.executable_combo.currentText().strip(),
+        )
         try:
             settings.save()
         except OSError as error:
@@ -330,6 +343,8 @@ class WorkbenchHomeWindow(QMainWindow):
         self._settings = settings
         self._repository_root = repository_root
         self._saved_repository_root = repository_root
+        self._saved_build_configuration = self.build_config_combo.currentText()
+        self._saved_executable_path = self.executable_combo.currentText().strip()
         self._build_executable_paths = {
             configuration: str(
                 (repository_root / "build" / "bin" / configuration / "OneFLOW.exe").resolve()
@@ -477,7 +492,12 @@ class WorkbenchHomeWindow(QMainWindow):
 
     def closeEvent(self, event) -> None:
         pending_root = self._pending_repository_root()
-        settings_changed = pending_root is None or pending_root != self._saved_repository_root
+        settings_changed = (
+            pending_root is None
+            or pending_root != self._saved_repository_root
+            or self.build_config_combo.currentText() != self._saved_build_configuration
+            or self.executable_combo.currentText().strip() != self._saved_executable_path
+        )
         if settings_changed:
             prompt = QMessageBox(self)
             prompt.setWindowTitle("Save configuration changes?")
