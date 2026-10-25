@@ -53,15 +53,27 @@ Use this as a source of representative contracts, not as a 119-entry golden dump
 
 After setup, query the real database and assert representative values with their actual types: `simutask == "Solve"`, `dimension == 2`, `global_dt == 0.001`, and the selected mesh input root. Also verify the generated `log/database.log` exists. Do not run the Solve task; the test is for configuration only.
 
+## Test-target and serial-runtime evidence
+
+The `tests/main/CMakeLists.txt` target split is deliberate:
+
+- `simu_context_test` compiles `SimuContext.cpp`, `SimuTask.cpp`, and accelerator-state registry/lifecycle files. It does not compile `SimuContextEnv.cpp`, so it cannot call the production case setup method.
+- `simu_context_parameter_test` compiles the database implementation, `BasicParallel.cpp`, `Parallel.cpp`, and zone state, but does not compile `ParaFile.cpp` or `SimuContextEnv.cpp`. It tests the parameter helper contracts only.
+- `tests/io/CMakeLists.txt` currently has a narrow `TextFileParser_test`; there is no existing test target that links the complete control-reader path.
+
+This means a direct test cannot be added safely by simply placing a new assertion in either existing executable. The production environment translation unit references many solver/runtime components (`SolverMap`, `SolverNameClass`, `Zone`, field managers, solver reset APIs, accelerator runtime, logging, project path handling), while `ReadControlInfo` itself pulls in script parsing, configuration commit, database serialization, logging, and parallel facilities. A new target would need a coherent production link set, not an improvised subset of source files.
+
+In `Parallel.cpp`, `Parallel::IsServer()` compares `GetPid()` and `GetServerid()`. The serial implementation in `BasicParallel.cpp` makes `HXRank()` return 0 and `HXSize()` return 1, but those functions are only applied to the `Parallel` fields by `SetUpParallelEnvironment()`. `HXBcast(callbacks, root)` returns early when `Parallel::GetNProc() <= 1`; `TestSayHelloFromEveryProcess()` still calls `CollectString()`, which consults the stored process count. Static-zero defaults make a serial path appear likely, but relying on implicit initialization is not a sound test contract. The test should establish a valid serial parallel state through the existing setup function or a narrow, explicit serial test fixture before invoking the production reader.
+
 ## Smallest next experiment
 
-1. Inspect the test target's CMake sources/link dependencies and how `Parallel::IsServer()`, `TestSayHelloFromEveryProcess()`, and `HXBcast()` behave before process initialization.
-2. If a serial invocation is valid, add a non-parallel temporary-case integration test that calls `SetupCaseEnvironment()` directly and reads the values from `RequireGlobalDataBase()`. Mark it non-parallel / serialize it if the test framework supports that.
-3. Run two contexts sequentially. The first case defines explicit roots and a legacy source-grid fallback; the second omits them. Assert the second case does not inherit the first case's roots.
-4. Ensure teardown after both success and an intentionally missing control file, while preserving the original setup exception.
-5. Only if the process-global parallel boundary makes this impossible, introduce a narrow injectable control-loading boundary whose production implementation still calls `ReadControlInfo(caseDir)`. Do not copy parsing, broadcast, or database commit logic into the test.
+1. Build a focused integration target with the real `SimuContextEnv.cpp` and `ParaFile.cpp` production sources plus their actual target dependencies, or identify an existing library target that already supplies that complete path. Do not duplicate the parser, broadcast, or database commit logic.
+2. Establish serial runtime state explicitly before calling `SetupCaseEnvironment()`. Avoid accelerator initialization unless the selected link/test path genuinely requires it; if the environment class's full translation unit makes that unavoidable, consider extracting the case-configuration operation behind a narrow production dependency boundary rather than linking the whole solver stack into a unit test.
+3. Use a temporary multi-file case fixture and assert real database values and `log/database.log` creation.
+4. Run two contexts sequentially. The first case defines explicit roots and a legacy source-grid fallback; the second omits them. Assert the second case does not inherit the first case's roots.
+5. Ensure teardown after success and an intentionally missing control file, preserving the original setup exception.
 
-Do not call `SetupProcessEnvironment()` unless the test is explicitly designed to exercise MPI/accelerator initialization. The intended first integration target is case configuration, not the whole solver or device runtime.
+Do not introduce a test-only parser. If an injectable seam becomes necessary, it should represent the control-loading operation, and the production implementation must continue to call `ReadControlInfo(caseDir)`. The seam should not spread across all of `SimuContext` or become a generic dependency-injection framework.
 
 ## Current outcome
 
