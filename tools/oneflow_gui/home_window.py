@@ -55,6 +55,9 @@ class WorkbenchHomeWindow(QMainWindow):
         self.setWindowTitle("OneFLOW Workbench")
         self.resize(900, 650)
         self._build_ui()
+        self._saved_repository_root = self._pending_repository_root() or self._repository_root
+        self._saved_build_configuration = self.build_config_combo.currentText()
+        self._saved_executable_path = self.executable_combo.currentText().strip()
         QTimer.singleShot(0, self._review_active_background_tasks)
 
     def _build_ui(self) -> None:
@@ -557,7 +560,7 @@ class WorkbenchHomeWindow(QMainWindow):
         except (OSError, ValueError) as error:
             QMessageBox.critical(
                 self, "Could not stop all calculations",
-                f"Workbench will remain open so you can manage the tasks.\\n{error}",
+                f"Workbench will remain open so you can manage the tasks.\n{error}",
             )
             event.ignore()
             return
