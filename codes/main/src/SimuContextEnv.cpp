@@ -90,6 +90,7 @@ void SimuContext::ProcessCommandLine()
 
 void SimuContext::SetupProcessEnvironment()
 {
+    processLifecycle_.Start();
     std::cout << " OneFLOW is running\n";
     ONEFLOW::SetUpParallelEnvironment();
 
@@ -97,7 +98,6 @@ void SimuContext::SetupProcessEnvironment()
     size_ = Parallel::GetNProc();
 
     ONEFLOW::InitializeAccelRuntime( rank_, size_ );
-    processReady_ = true;
 }
 
 void SimuContext::SetupCaseEnvironment()
@@ -234,9 +234,38 @@ void SimuContext::TeardownCase()
 
 void SimuContext::FinalizeEnvironment()
 {
-    ONEFLOW::FinalizeAccelRuntime();
-    HXFinalize();
-    processReady_ = false;
+    if ( ! processLifecycle_.IsActive() )
+    {
+        return;
+    }
+
+    std::exception_ptr finalizeFailure;
+    try
+    {
+        ONEFLOW::FinalizeAccelRuntime();
+    }
+    catch ( ... )
+    {
+        finalizeFailure = std::current_exception();
+    }
+
+    try
+    {
+        HXFinalize();
+    }
+    catch ( ... )
+    {
+        if ( ! finalizeFailure )
+        {
+            finalizeFailure = std::current_exception();
+        }
+    }
+
+    processLifecycle_.MarkFinalized();
+    if ( finalizeFailure )
+    {
+        std::rethrow_exception( finalizeFailure );
+    }
 }
 
 void SimuContext::TeardownEnvironment()

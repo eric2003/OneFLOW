@@ -49,8 +49,10 @@ SimuImp::~SimuImp()
 
 void SimuImp::Run()
 {
-    ctx_->SetupProcessEnvironment();
-    RunCase();
+    SimuCaseLifecycleDetail::ExecuteWithProcessLifecycle(
+        [&]() { ctx_->SetupProcessEnvironment(); },
+        [&]() { RunCase(); },
+        [&]() { FinalizeEnvironment(); } );
 }
 
 void SimuImp::RunCase()

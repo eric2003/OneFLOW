@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "SimuCaseLifecycle.h"
+#include "SimuProcessLifecycle.h"
 
 #include <stdexcept>
 #include <string>
@@ -70,6 +71,32 @@ TEST( SimuCaseLifecycleTest, SuccessfulExecutionPropagatesCleanupFailure )
             []() { throw std::logic_error( "cleanup failure" ); } ),
         std::logic_error );
 }
+TEST( SimuCaseLifecycleTest, FinalizesSingleCaseProcessAfterExecutionFailure )
+{
+    std::vector< std::string > events;
+
+    try
+    {
+        SimuCaseLifecycleDetail::ExecuteWithProcessLifecycle(
+            [&]() { events.emplace_back( "setup" ); },
+            [&]()
+            {
+                events.emplace_back( "case" );
+                throw std::runtime_error( "case failed" );
+            },
+            [&]() { events.emplace_back( "finalize" ); } );
+        FAIL() << "Expected the case execution exception";
+    }
+    catch ( const std::runtime_error & error )
+    {
+        EXPECT_EQ( std::string( error.what() ), "case failed" );
+    }
+
+    const std::vector< std::string > expected = {
+        "setup", "case", "finalize"
+    };
+    EXPECT_EQ( events, expected );
+}
 TEST( SimuCaseLifecycleTest, RunsMultipleCasesInCommandLineOrder )
 {
     const std::vector< std::string > caseDirs = {
@@ -91,6 +118,24 @@ TEST( SimuCaseLifecycleTest, RunsMultipleCasesInCommandLineOrder )
     std::vector< std::string > expected = { "setup" };
     expected.insert( expected.end(), caseDirs.begin(), caseDirs.end() );
     expected.emplace_back( "finalize" );
+    EXPECT_EQ( events, expected );
+}
+
+TEST( SimuCaseLifecycleTest, RunsRepeatedCasePathsMoreThanOnce )
+{
+    const std::string caseDir = "d:\\OneFLOWWorkspace\\workdir2026\\rae2822grid\\";
+    const std::vector< std::string > caseDirs = { caseDir, caseDir };
+    std::vector< std::string > events;
+
+    SimuCaseLifecycleDetail::RunCasesWithProcessLifecycle(
+        [&]() { events.emplace_back( "setup" ); },
+        caseDirs,
+        [&]( const std::string & caseDir ) { events.push_back( caseDir ); },
+        [&]() { events.emplace_back( "finalize" ); } );
+
+    const std::vector< std::string > expected = {
+        "setup", caseDir, caseDir, "finalize"
+    };
     EXPECT_EQ( events, expected );
 }
 
@@ -144,4 +189,29 @@ TEST( SimuCaseLifecycleTest, FinalizesProcessAfterSetupFailure )
 
     const std::vector< std::string > expected = { "setup", "finalize" };
     EXPECT_EQ( events, expected );
+}
+
+TEST( SimuProcessLifecycleTest, RejectsRepeatedInitialization )
+{
+    SimuProcessLifecycleDetail::ProcessRuntimeState state;
+
+    state.Start();
+    EXPECT_TRUE( state.IsActive() );
+    EXPECT_THROW( state.Start(), std::logic_error );
+}
+
+TEST( SimuProcessLifecycleTest, FinalizationIsIdempotent )
+{
+    SimuProcessLifecycleDetail::ProcessRuntimeState state;
+
+    EXPECT_FALSE( state.IsActive() );
+    EXPECT_FALSE( state.IsFinalized() );
+
+    state.Start();
+    state.MarkFinalized();
+    state.MarkFinalized();
+
+    EXPECT_FALSE( state.IsActive() );
+    EXPECT_TRUE( state.IsFinalized() );
+    EXPECT_THROW( state.Start(), std::logic_error );
 }

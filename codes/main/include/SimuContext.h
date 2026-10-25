@@ -22,6 +22,7 @@ License
 #pragma once
 #include "NamespaceMacros.h"
 #include "SimuDef.h"
+#include "SimuProcessLifecycle.h"
 #include "EulerDomainStateRegistry.h"
 #include "HXDefine.h"
 #include "EulerDomainStateRegistry.h"
@@ -129,7 +130,7 @@ private:
     TaskEnum task_ = TaskEnum::SOLVE_FIELD;
     std::string taskName_ = "Solve";
     bool envReady_ = false;
-    bool processReady_ = false;
+    SimuProcessLifecycleDetail::ProcessRuntimeState processLifecycle_;
     bool taskResolved_ = false;
     EulerDomainStateRegistry accelStates_;
     StringField expandedSolverNames_;

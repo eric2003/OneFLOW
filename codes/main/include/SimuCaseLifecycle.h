@@ -51,6 +51,21 @@ void ExecuteWithCleanup( Execute && execute, Cleanup && cleanup )
     std::forward< Cleanup >( cleanup )();
 }
 
+template< typename Setup, typename Execute, typename Finalize >
+void ExecuteWithProcessLifecycle(
+    Setup && setup,
+    Execute && execute,
+    Finalize && finalize )
+{
+    ExecuteWithCleanup(
+        [&]()
+        {
+            std::forward< Setup >( setup )();
+            std::forward< Execute >( execute )();
+        },
+        [&]() { std::forward< Finalize >( finalize )(); } );
+}
+
 template< typename CaseDirs, typename RunCase >
 void RunCasesSequentially( const CaseDirs & caseDirs, RunCase && runCase )
 {
@@ -67,14 +82,14 @@ void RunCasesWithProcessLifecycle(
     RunCase && runCase,
     Finalize && finalize )
 {
-    ExecuteWithCleanup(
+    ExecuteWithProcessLifecycle(
+        std::forward< Setup >( setup ),
         [&]()
         {
-            std::forward< Setup >( setup )();
             RunCasesSequentially(
                 caseDirs, std::forward< RunCase >( runCase ) );
         },
-        [&]() { std::forward< Finalize >( finalize )(); } );
+        std::forward< Finalize >( finalize ) );
 }
 
 }
