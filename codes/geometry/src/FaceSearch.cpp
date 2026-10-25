@@ -265,9 +265,13 @@ bool FaceSearch::TrySplitLineAtMidpoint(
 
     const int zoneIndex = zoneIds[ 0 ];
     Grid & grid = iFaceLink.GetGrid( zoneIndex );
-    const int nNodes = grid.nodeMesh->GetNumberOfNodes();
-    const int pId = nNodes;
-    grid.nodeMesh->AddPoint( coor2[ 0 ], coor2[ 1 ], coor2[ 2 ] );
+    int pId = grid.nodeMesh->FindPoint(
+        coor2[ 0 ], coor2[ 1 ], coor2[ 2 ], point_search->GetTol() );
+    if ( pId == ONEFLOW::INVALID_INDEX )
+    {
+        pId = static_cast< int >( grid.nodeMesh->GetNumberOfNodes() );
+        grid.nodeMesh->AddPoint( coor2[ 0 ], coor2[ 1 ], coor2[ 2 ] );
+    }
     const int p2 = point_search->AddPoint( coor2[ 0 ], coor2[ 1 ], coor2[ 2 ] );
 
     BuildLineSplitMapping(
