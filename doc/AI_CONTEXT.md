@@ -93,7 +93,11 @@ Use these labels consistently in this page and related records:
 
 A green unrelated test suite is not evidence that a changed contract is correct. A queued or in-progress workflow is not a pass.
 
-## 6. How to maintain this handoff
+## 6. Reusable stage records
+
+For a substantial refactoring stage, use the [refactoring stage record template](plans/templates/refactoring-stage-record.md). Put detailed stage-specific problem statements, acceptance criteria, source paths, tests, decisions, and evidence in that record. Keep this page as a concise index of the overall current state and highest-priority next actions; link to detailed records rather than duplicating them.
+
+## 7. How to maintain this handoff
 
 Update this page when a milestone materially changes the state of the project, not after every command or minor edit.
 
