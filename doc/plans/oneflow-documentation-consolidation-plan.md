@@ -56,7 +56,7 @@ Organize pages by reader intent, while retaining useful existing topic reference
 - Getting started: install, configure, build, and run a first case.
 - User guide: cases, project/workspace concepts, mesh workflows, and result inspection.
 - Developer guide: code layout, build configurations, tests, debugging, and contribution workflow.
-- Design: runtime architecture, mesh geometry/topology/boundaries, workflow execution, and workbench boundaries.
+- Design: whole-system architecture review and development principles, runtime architecture, mesh geometry/topology/boundaries, workflow execution, and Workbench boundaries.
 - Reference: parameter files, data schemas, command-line arguments, file formats, and stable interface contracts.
 - Existing scientific-computing reference: preserve useful CFD, numerical, language, and tool pages; reorganize only when navigation benefits are clear.
 
