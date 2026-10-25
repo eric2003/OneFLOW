@@ -240,9 +240,18 @@ Commit: `d8568fe91722af5d78d8083d6bae23d9446d952d`
 
 ### 2026-10-26 - Isolate and test the source-grid fallback decision
 
-- Extracted the condition that decides whether `sourceGridCaseDir` should be read into `SimuContextDetail::ShouldReadSourceGridCaseDir()` in `SimuContextParameter.h`. Production setup now calls this helper, while the source-grid value remains lazily read only when the mesh input root is empty or `default`; this preserves the existing behavior that an explicit mesh root does not trigger a read of the legacy fallback parameter.
-- Added three focused tests: empty mesh root permits fallback, `default` permits fallback, and an explicit mesh root suppresses fallback lookup.
+- Extracted the condition that decides whether `sourceGridCaseDir` should be read into `SimuContextDetail::ShouldUseLegacySourceGridCaseDir()` in `SimuContextParameter.h`. Production setup now calls this helper, while the source-grid value remains lazily read only when the mesh input root is empty or `default`; this preserves the existing behavior that an explicit mesh root does not trigger a read of the legacy fallback parameter.
+- Added focused tests: empty and `default` mesh roots permit fallback; explicit, `case`, and ordinary relative mesh roots do not select the legacy fallback. Renamed the predicate to `ShouldUseLegacySourceGridCaseDir()` because it expresses the policy decision rather than the mechanics of reading a parameter.
 - Implementation commits: [fallback policy](https://github.com/eric2003/OneFLOW/commit/f4731c5b273cc9774e02b40a97ba49e66411c6f3), [production call site](https://github.com/eric2003/OneFLOW/commit/afd6cd2d3eaa1fed8b35f1705f36f2287fd62ce5), [tests](https://github.com/eric2003/OneFLOW/commit/897112bde18f9f7ab77b063605bd56f3b0e0f749).
 - Validation status: the user-reported 697/697 pass predates this newest code/test change. The added tests and latest documentation commits have not yet been run in a fresh local suite in this session; do not claim they passed.
 - Updated the runtime architecture guide to document the checked optional-string helper and corrected a malformed literal line break in its related-links list.
 - Remaining gap: the new test validates the branch policy, not the complete control-file-to-`SetupCaseEnvironment()` path. `ReadControlInfo(caseDir)` performs parallel coordination, control-parameter broadcast, and database dump, so any integration test should reuse existing runtime bootstrap rather than mock only the branch or reproduce the entire solver initialization.
+
+
+### 2026-10-26 - Clarify legacy mesh fallback policy naming
+
+- Based on the latest inspected `hexin` baseline, renamed the predicate to `ShouldUseLegacySourceGridCaseDir()`. The old name described an I/O operation (read) rather than the policy (use fallback).
+- Added negative contract tests for the special `case` token and a normal relative mesh root. The existing positive tests for empty and `default`, plus the explicit-root test, remain.
+- Commits: [policy name](https://github.com/eric2003/OneFLOW/commit/d4e858abe3aa1a37fa8b6a11b8c6cd50ebf13624), [production call site](https://github.com/eric2003/OneFLOW/commit/fa73d7dbb04e99537a82cfd2aaf330837815607f), [contract tests](https://github.com/eric2003/OneFLOW/commit/8cf20d872d844b0fa68d99c5a59661be95ef0192).
+- Validation: source and test files were re-fetched from GitHub and checked for ASCII-only content. No build, test execution, or successful CI status is available for this revision. The user-reported 700/700 pass predates these changes.
+- Architecture assessment: the helper-level test is cheap because it isolates a deterministic policy; it still does not prove the complete `SetupCaseEnvironment()` flow. Keep R1 partial until an integration seam is found and verified.
