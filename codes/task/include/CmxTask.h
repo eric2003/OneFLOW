@@ -71,6 +71,7 @@ void AddCmdToList( int operationId, int solverType );
 // Task construction
 // ============================================================
 class Task;
+class SimuContext;
 std::unique_ptr<Task> CreateTask( int operationId, int solverType );
 
 // ============================================================
@@ -102,9 +103,21 @@ void DumpTaskDispatch(
 // loops (TimeIntegral, MultiSolver x Grid) never re-parse strings.
 
 void SingleSolverSingleGridTask( int operationId );
+void SingleSolverSingleGridTask(
+    int operationId,
+    SimuContext & context );
 void SingleSolverSingleGridTask( const std::string & taskName );
+void SingleSolverSingleGridTask(
+    const std::string & taskName,
+    SimuContext & context );
 
 void MultiSolverMultiGridTask( int operationId );
+void MultiSolverMultiGridTask(
+    int operationId,
+    SimuContext & context );
 void MultiSolverMultiGridTask( const std::string & taskName );
+void MultiSolverMultiGridTask(
+    const std::string & taskName,
+    SimuContext & context );
 
 EndNameSpace

@@ -36,6 +36,7 @@ public:
     void SolutionFix() override;
     void PrepareData();
     void UpdateFlowFieldValue();
+    void DumpUpdatedStateTrace();
 };
 
 EndNameSpace

@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="OneFLOW DCU 移植经验与科学计算迁移方法">
+<title>OneFLOW DCU 移植经验与科学计算迁移方法</title>
+<style>
+:root{--ink:#172033;--muted:#667085;--line:#d9e0ea;--soft:#f5f7fa;--accent:#b42318;--accent-soft:#fff1f0;--code:#111827}
+*{box-sizing:border-box}body{margin:0;color:var(--ink);background:#eef2f6;font:16px/1.75 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}.layout{display:grid;grid-template-columns:250px minmax(0,1040px);gap:24px;justify-content:center;padding:24px}.toc{position:sticky;top:20px;align-self:start;max-height:calc(100vh - 40px);overflow:auto;padding:16px;background:#fff;border:1px solid var(--line);border-radius:12px}.toc strong{display:block;margin-bottom:8px}.toc a{display:block;color:var(--muted);text-decoration:none;font-size:13px;line-height:1.5;padding:3px 0}.toc a:hover{color:var(--accent)}article{min-width:0;padding:44px 52px 60px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 8px 28px #10182812}h1{margin:0 0 10px;font-size:34px;line-height:1.3}h2{margin:44px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--accent);font-size:24px;scroll-margin-top:16px}h3{margin:28px 0 10px;font-size:19px;scroll-margin-top:16px}p,ul,ol{margin:10px 0}li+li{margin-top:4px}.table-wrap{width:100%;margin:16px 0 22px;overflow-x:auto;border:1px solid var(--line);border-radius:8px}table{width:100%;min-width:650px;border-collapse:collapse;font-size:13px}th,td{padding:8px 10px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th:last-child,td:last-child{border-right:0}tr:last-child td{border-bottom:0}th{background:var(--soft)}tr:nth-child(even) td{background:#fafbfc}code{padding:.12em .32em;color:#9f1239;background:var(--accent-soft);border-radius:4px;font:.9em ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}pre{overflow:auto;margin:16px 0 22px;padding:14px 16px;color:#e5e7eb;background:var(--code);border-radius:8px;line-height:1.55}pre code{padding:0;color:inherit;background:none}blockquote{margin:18px 0 26px;padding:10px 16px;color:var(--muted);background:var(--soft);border-left:4px solid var(--accent)}.ok{color:#087443;font-weight:650}.warn{color:#9a3412;font-weight:650}.report-footer{margin-top:46px;padding-top:14px;color:var(--muted);border-top:1px solid var(--line);font-size:13px}@media(max-width:900px){.layout{display:block;padding:10px}.toc{position:static;max-height:none;margin-bottom:10px}article{padding:28px 20px 42px}h1{font-size:28px}}@media print{@page{margin:15mm 12mm}body{background:#fff;font-size:10.5pt}.layout{display:block;padding:0}.toc{display:none}article{padding:0;border:0;box-shadow:none}h1{font-size:23pt}h2{break-after:avoid}.table-wrap,pre,blockquote{break-inside:avoid}.table-wrap{overflow:visible;border:0}table{min-width:0;font-size:8.5pt}}
+</style>
+</head>
+<body>
+<main class="layout">
+<nav class="toc" aria-label="报告目录"><strong>目录</strong><a href="#section-1">1. 本次实机验证结论</a><a href="#section-2">2. 这次验证暴露的工程问题</a><a href="#section-3">3. 推荐的科学计算移植路线</a><a href="#section-4-cfd-pde">4. 面向 CFD/PDE 代码的设计原则</a><a href="#section-5-dcu-dtk">5. DCU/DTK 特有的验证注意事项</a><a href="#section-6">6. 证据与报告模板</a><a href="#section-7-oneflow">7. 当前 OneFLOW 的后续边界</a><a href="#section-8-2026-09-03-ctest">8. 2026-09-03 CTest 修复实测记录</a></nav>
+<article>
+<h1 id="section-oneflow-dcu">OneFLOW 到海光 DCU 的移植经验与科学计算迁移方法</h1>
+<p><strong>日期：</strong> 2026-09-03
+<strong>适用范围：</strong> CFD、PDE、有限体积/有限差分/有限元以及其他以 C/C++/Fortran 数值内核为主的科学计算代码。
+<strong>目标平台：</strong> Kunshan Hygon DCU / DTK / HIP；本文不把 Kunshan 结论外推到 CUDA、Kokkos 或其他 DCU 集群。</p>
+<h2 id="section-1">1. 本次实机验证结论</h2>
+<p>当前 OneFLOW 一维 Euler HIP backend contract test 已在 Kunshan <code>kshdnormal</code>
+分区的真实 DCU 计算节点完成验证：</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>项目</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>资源</td>
+<td>1 节点、1 task、8 CPU、<code>dcu:1</code>、27G</td>
+</tr>
+<tr>
+<td>软件环境</td>
+<td>DTK 26.04、Clang 17、CMake 3.22.0-rc1</td>
+</tr>
+<tr>
+<td>目标架构</td>
+<td>Hygon HCU <code>gfx906</code></td>
+</tr>
+<tr>
+<td>配置/编译</td>
+<td>PASS</td>
+</tr>
+<tr>
+<td>HIP contract test</td>
+<td>PASS，6/6</td>
+</tr>
+<tr>
+<td>Slurm</td>
+<td><code>COMPLETED</code>，退出码 <code>0:0</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>6 个测试覆盖 backend identity、可见设备、FullTrace、NoTrace、state reuse
+和非法请求处理。CPU reference 与 HIP 结果在测试向量上逐项通过严格比较，
+并检查密度、压力和有限值等物理不变量。</p>
+<h2 id="section-2">2. 这次验证暴露的工程问题</h2>
+<h3>2.1 <code>module purge</code> 可能把工具链降级</h3>
+<p>第一次作业在配置阶段失败。脚本在 <code>module purge</code> 后调用无绝对路径的
+<code>cmake</code>，计算节点最终解析到系统 CMake 2.8.12；它不支持现代 <code>cmake -S/-B</code>
+调用形式，于是把 build 目录误当成 source 目录。</p>
+<p>处理方式是：</p>
+<ul>
+<li>在 <code>module purge</code> 前把 <code>cmake</code> 和 <code>ctest</code> 解析为绝对路径；或显式加载经过
+  profile 认可的 CMake module；</li>
+<li>作业日志记录实际的 CMake/编译器版本；</li>
+<li>配置失败时不得继续构建或运行。</li>
+</ul>
+<h3 id="section-2-2-ctest">2.2 CTest 空测试不能视为成功</h3>
+<p>早期作业中 HIP 测试二进制实际通过了 6/6，但 CTest 过滤器使用可执行文件名，
+而 <code>gtest_discover_tests</code> 生成的是 suite/test 名称，因此输出 <code>No tests were found!</code>
+且退出码为 0。这不是测试通过的证据。</p>
+<p>修复包括：</p>
+<ul>
+<li>CPU 和 HIP discovery 分别使用 <code>TEST_PREFIX "CPU."</code> 与 <code>TEST_PREFIX "HIP."</code>；</li>
+<li>作业构建 CPU/HIP 两个测试目标，删除陈旧的 <code>*_tests.cmake</code> 后再做 PRE_TEST discovery；</li>
+<li>CTest 使用 <code>-R '^HIP\.'</code>，并校验 <code>100% tests passed, 0 tests failed out of 6</code>；</li>
+<li>同时保留完整 GoogleTest 二进制汇总 <code>[  PASSED  ] 6 tests.</code>。</li>
+</ul>
+<p>当前 Kunshan 实机结果已经证明修复有效：CTest 正确发现 6 个 <code>HIP.*</code> 测试并全部通过。
+一般规则仍是“发现了预期数量的测试 + 进程退出码为 0 + 关键汇总可解析”；空测试结果
+不能上报为 PASS。</p>
+<h3 id="section-2-3-cpu-hip">2.3 CPU 和 HIP 的测试数量可能不同</h3>
+<p>CPU contract test 有 5 个测试；HIP 编译宏额外启用 device-visibility test，因此是
+6 个。测试脚本不能把一个固定数量硬编码成所有 backend 的验收标准，应按 backend
+定义预期数量，或解析 suite summary。当前 CPU 为 5 项、HIP 为 6 项；CTest 前缀
+同时避免两个 backend 的同名测试互相覆盖。</p>
+<h2 id="section-3">3. 推荐的科学计算移植路线</h2>
+<p>不要从“把所有循环改成 HIP kernel”开始。对于 CFD 或数值求解器，推荐按以下门槛
+递进，每一层都能独立证明或否定一个假设：</p>
+<ol>
+<li><strong>建立 CPU oracle</strong>：固定算例、初值、边界、时间步和迭代数；保存最终状态、
+   residual、守恒量和必要的中间量。</li>
+<li><strong>抽出 backend-neutral seam</strong>：把 problem、state、upload、advance、download、
+   trace 等生命周期从算法调用方中分离；CPU 仍是默认 reference。</li>
+<li><strong>先做最小设备探针</strong>：在目标计算节点验证 driver/runtime、编译器、目标架构、
+   设备数量、显存分配和最小 kernel。登录节点的 import 或 package visibility 不算证据。</li>
+<li><strong>移植单步数值内核</strong>：优先一个时间步或一个 stage，保持数据布局和边界语义，
+   逐 stage 比较 flux、residual、state，而不是只比较最终 checksum。</li>
+<li><strong>加入物理不变量</strong>：有限值、正密度、正压力、守恒量、边界条件和 CFL/稳定性条件。
+   数值误差通过绝对误差 + 缩放相对误差表达，不能只写“保留 15 位小数”。</li>
+<li><strong>验证 NoTrace 和 FullTrace 两条路径</strong>：诊断路径可以回传中间数组；生产路径应
+   尽量保持 state resident，减少 H2D/D2H 和同步。</li>
+<li><strong>验证生命周期复用</strong>：一次分配、多步 advance、一次最终回传；确认第二次运行不会
+   依赖残留 device state，也不会产生隐式 host fallback。</li>
+<li><strong>再做多卡/MPI</strong>：先验证 local-rank 到 device 的映射、visible device count、halo
+   交换和单卡对照，再测 4-rank/4-DCU 或跨节点。</li>
+<li><strong>最后做性能优化</strong>：先用端到端 wall-clock 定义主指标，再用 kernel、copy、allocation、
+   synchronization 分项定位瓶颈。每个优化块都重跑 correctness 和 MPI regression。</li>
+</ol>
+<h2 id="section-4-cfd-pde">4. 面向 CFD/PDE 代码的设计原则</h2>
+<h3 id="section-4-1-cpu">4.1 保留一个可验证的 CPU 参考实现</h3>
+<p>CPU reference 不只是 fallback，也是迁移期间的数值 oracle。生产代码可以共享
+方程、边界和初值定义，但 backend 负责执行策略。不要为了迁移先删除成熟 CPU 路径。</p>
+<h3 id="section-4-2">4.2 优先迁移数据流，再迁移算术</h3>
+<p>双精度 CFD 通常受访存、临时数组和同步影响。先确定 conserved/primitive/flux 的
+布局、每个 stage 的读写缓冲、可在 device 常驻的数组，以及哪些输出只在诊断或最终
+结果阶段需要回传。每个小 kernel 都拷回 host 时，kernel speedup 不能代表应用 speedup。</p>
+<h3 id="section-4-3-trace">4.3 把 trace 设计成可选能力</h3>
+<p>FullTrace 适合回归和调试，NoTrace 适合生产推进。接口应显式区分两种模式，避免
+为了记录诊断量而在生产路径中保留大量 device-to-host copy。</p>
+<h3 id="section-4-4">4.4 让错误在边界处失败</h3>
+<p>CreateState、Upload、Advance、Download 应检查尺寸、空指针、步数、trace 选项和设备
+状态。GPU kernel 错误、设备缺失和 runtime 初始化失败必须传播成非零退出码；不能只在
+日志中打印 warning。</p>
+<h2 id="section-5-dcu-dtk">5. DCU/DTK 特有的验证注意事项</h2>
+<ul>
+<li>目标架构必须来自目标节点探针或显式 profile；当前 Kunshan Z100 证据是 <code>gfx906</code>。</li>
+<li>不把上游 ROCm/CUDA 的 kernel、Triton、FP8、通信或架构能力直接推断到 DTK。</li>
+<li>module 环境是作业的一部分；记录 module、compiler、CMake、HIP runtime 和
+  <code>rocminfo</code> 的关键结果。</li>
+<li>Slurm 的 partition、memory 和 GRES 必须遵循 profile 固定配比；不能临时发明资源元组。</li>
+<li>作业脚本必须捕获 workload rc，并以该 rc 结束；同时检查 Slurm State 和 ExitCode。</li>
+<li>共享存储上的临时文件使用 <code>$HOME/.scnet-hpc/tmp/$SLURM_JOB_ID</code> 等隔离目录，
+  不依赖节点本地 <code>/tmp</code> 在多卡/多节点间共享。</li>
+</ul>
+<h2 id="section-6">6. 证据与报告模板</h2>
+<p>每个新 backend 至少记录 ABI/构建、Runtime、Kernel、Functional、Numerical、Integration
+和 Performance 七层证据：版本与架构明确、设备可见且初始化成功、最小 kernel 确认在设备
+上执行、生命周期和错误处理通过、CPU oracle/物理不变量通过、NoTrace/MPI/residual 通过，
+并分别给出端到端与分项时间。</p>
+<p>公开报告只保留脱敏后的资源元组、软件版本、架构、验证层级和结论；原始日志、账号、
+节点名、作业号、私有路径和凭据留在 CI artifact 或隔离运行目录。</p>
+<h2 id="section-7-oneflow">7. 当前 OneFLOW 的后续边界</h2>
+<p>这次验证证明的是一维 Euler HIP backend contract 和 DTK/HIP 运行链路，不等于完整
+OneFLOW Navier–Stokes GPU 移植完成。后续应按同一方法扩展到更大的算例、真实 residual
+runner、MPI halo 和性能回归；CUDA、Kokkos、跨节点扩展以及未在目标节点实测的库仍应
+保持“未验证”状态。</p>
+<h2 id="section-8-2026-09-03-ctest">8. 2026-09-03 CTest 修复实测记录</h2>
+<p>修复后的单卡 DCU 作业在 Kunshan <code>kshdnormal</code> 完成：</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>项目</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>资源</td>
+<td>1 节点、1 task、8 CPU、<code>dcu:1</code>、27G</td>
+</tr>
+<tr>
+<td>工具链</td>
+<td>DTK 26.04、Clang 17、CMake 3.22.0-rc1</td>
+</tr>
+<tr>
+<td>架构</td>
+<td>Hygon HCU <code>gfx906</code></td>
+</tr>
+<tr>
+<td>配置/编译</td>
+<td>PASS</td>
+</tr>
+<tr>
+<td>直接 GoogleTest</td>
+<td>6/6 PASS</td>
+</tr>
+<tr>
+<td>CTest</td>
+<td><code>HIP.*</code> 6/6 PASS，100%</td>
+</tr>
+<tr>
+<td>Slurm</td>
+<td><code>COMPLETED</code>，退出码 <code>0:0</code></td>
+</tr>
+<tr>
+<td>CTest 总耗时</td>
+<td>约 1.05 秒（作业总耗时约 22 秒）</td>
+</tr>
+</tbody>
+</table></div>
+<p>这次结果把“HIP 二进制通过”和“测试框架正确发现并执行”两个层面都闭合了。</p>
+<div class="report-footer">HTML 由对应 Markdown 报告生成；Markdown 是本报告的源文件。报告仅记录已获得的证据，未验证边界保持不变。</div>
+</article>
+</main>
+</body>
+</html>

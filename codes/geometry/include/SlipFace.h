@@ -69,6 +69,8 @@ public:
     void FillRecvId( int iNei );
     void CalcSendId( int iNei, IntField & idsend );
     void SetSendId( int zid, IntField & idsend );
+    bool TryGetNeighborIndex( int zoneId, int & neighborIndex ) const;
+    int GetNeighborIndex( int zoneId ) const;
 };
 
 class LocalSlipFace

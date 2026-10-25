@@ -117,6 +117,29 @@ std::uint64_t ReduceHash( std::uint64_t local, MPI_Comm communicator )
     return static_cast< std::uint64_t >( globalValue );
 }
 
+long long ReduceSum( int local, MPI_Comm communicator )
+{
+    const long long value = local;
+    long long total = 0;
+    MPI_Allreduce(
+        &value, &total, 1, MPI_LONG_LONG, MPI_SUM, communicator );
+    return total;
+}
+
+int ReduceMinimum( int local, MPI_Comm communicator )
+{
+    int minimum = 0;
+    MPI_Allreduce( &local, &minimum, 1, MPI_INT, MPI_MIN, communicator );
+    return minimum;
+}
+
+int ReduceMaximum( int local, MPI_Comm communicator )
+{
+    int maximum = 0;
+    MPI_Allreduce( &local, &maximum, 1, MPI_INT, MPI_MAX, communicator );
+    return maximum;
+}
+
 } // namespace
 
 int main( int argc, char ** argv )
@@ -141,6 +164,14 @@ int main( int argc, char ** argv )
         const oneflow_1d::EulerMpiProblem problem{
             globalNx, localNx, globalOffset, steps, Gamma,
             DtScale / globalNx, 1.0 / globalNx, MPI_COMM_WORLD };
+        const long long activeRanks =
+            ReduceSum( localNx > 0 ? 1 : 0, MPI_COMM_WORLD );
+        const long long globalCellSum =
+            ReduceSum( localNx, MPI_COMM_WORLD );
+        const int minimumLocalNx =
+            ReduceMinimum( localNx, MPI_COMM_WORLD );
+        const int maximumLocalNx =
+            ReduceMaximum( localNx, MPI_COMM_WORLD );
 
         MPI_Barrier( MPI_COMM_WORLD );
         const auto cpu = oneflow_1d::RunCpuEulerMpi( problem, initial );
@@ -175,6 +206,19 @@ int main( int argc, char ** argv )
             oneflow_1d::EulerMpiStateHash(
                 hip.state, globalNx, localNx, globalOffset ),
             MPI_COMM_WORLD );
+        const long long cpuHaloExchanges =
+            ReduceSum( cpu.timing.haloExchanges, MPI_COMM_WORLD );
+        const long long hipHaloExchanges =
+            ReduceSum( hip.timing.haloExchanges, MPI_COMM_WORLD );
+        const long long expectedHaloExchanges =
+            static_cast< long long >( ranks ) * steps * 3;
+        const bool decompositionValid =
+            activeRanks == ranks
+            && globalCellSum == globalNx
+            && minimumLocalNx > 0
+            && maximumLocalNx > 0
+            && cpuHaloExchanges == expectedHaloExchanges
+            && hipHaloExchanges == expectedHaloExchanges;
 
         if ( rank == 0 )
         {
@@ -183,12 +227,22 @@ int main( int argc, char ** argv )
             std::cout << "ranks=" << ranks
                       << " global_nx=" << globalNx
                       << " steps=" << steps << "\n";
+            std::cout << "decomposition_active_ranks=" << activeRanks
+                      << " global_cells_sum=" << globalCellSum
+                      << " local_nx_min=" << minimumLocalNx
+                      << " local_nx_max=" << maximumLocalNx << "\n";
+            std::cout << "cpu_halo_exchanges=" << cpuHaloExchanges
+                      << " hip_halo_exchanges=" << hipHaloExchanges
+                      << " expected_halo_exchanges="
+                      << expectedHaloExchanges << "\n";
             std::cout << "hip_device=" << hip.deviceName
                       << " arch=" << hip.architecture
                       << " local_rank=" << hip.localRank
                       << " local_ranks=" << hip.localRanks
                       << " device_index=" << hip.deviceIndex
-                      << " visible_devices=" << hip.visibleDeviceCount << "\n";
+                      << " visible_devices=" << hip.visibleDeviceCount
+                      << " gpu_aware_mpi="
+                      << ( hip.gpuAwareMpi ? "1" : "0" ) << "\n";
             std::cout << "max_scaled_error=" << globalScaledError
                       << " violations=" << globalViolations
                       << " physical=" << globalPhysical << "\n";
@@ -197,7 +251,9 @@ int main( int argc, char ** argv )
                       << " hip_hash=0x" << hipHash
                       << std::dec << "\n";
             const bool pass = globalViolations == 0 && globalPhysical != 0
-                && cpuHash == hipHash;
+                && cpuHash == hipHash && decompositionValid;
+            std::cout << "decomposition="
+                      << ( decompositionValid ? "PASS" : "FAIL" ) << "\n";
             std::cout << "result=" << ( pass ? "PASS" : "FAIL" ) << "\n";
             MPI_Finalize();
             return pass ? 0 : 1;

@@ -73,6 +73,8 @@ public:
     void CalcSendId( int iNei, IntField & idsend );
     void FillRecvId( int iNei );
     void SetSendId( int zid, IntField & idsend );
+    bool TryGetNeighborIndex( int zoneId, int & neighborIndex ) const;
+    int GetNeighborIndex( int zoneId ) const;
     void AllocateNeighbor();
     int CalcNIFace( int iNei ) const;
     InterfacePair & GetInterfacePair( int iNei );

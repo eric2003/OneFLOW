@@ -74,4 +74,7 @@ public:
     static int GetNeighborZoneId( int zoneId, int iNeighbor );
 };
 
+// Fail fast when the grid zones and the MPI ranks cannot be matched.
+void VerifyZoneRankContract();
+
 EndNameSpace

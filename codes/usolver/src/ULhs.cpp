@@ -29,14 +29,95 @@ License
 #include "UCom.h"
 #include "FieldWrap.h"
 #include "SolverInfo.h"
+#include "SolverDef.h"
+#include "NsCom.h"
+#include "AccelRuntime.h"
+#include "AccelViews.h"
+#include "HipProductionPolicy.h"
+#ifdef ONEFLOW_ENABLE_HIP
+#include "HipFluxBackend.h"
+#endif
+#include <cstdlib>
+#include <stdexcept>
 #include <iostream>
 
 
 BeginNameSpace( ONEFLOW )
 
+namespace
+{
+
+bool UseHipDeviceStateUpdate( int solverType )
+{
+    const char * feature = "ONEFLOW_ENABLE_UNS_HIP_STATE_UPDATE";
+    const bool explicitRequest =
+        HipProductionFeatureExplicitlyEnabled( feature );
+    if ( ! HipProductionFeatureEnabled( feature ) )
+        return false;
+    if ( solverType != NS_SOLVER )
+    {
+        if ( ! explicitRequest ) return false;
+        throw std::runtime_error(
+            "HIP state update is only supported for the NS solver" );
+    }
+    if ( ! HipProductionFeatureEnabled(
+             "ONEFLOW_ENABLE_UNS_HIP_RECONSTRUCTION" ) )
+    {
+        if ( ! explicitRequest ) return false;
+        throw std::runtime_error(
+            "HIP state update requires HIP device reconstruction" );
+    }
+    if ( nscom.chemModel != 0 || nscom.nTModel != 1 )
+    {
+        if ( ! explicitRequest ) return false;
+        throw std::runtime_error(
+            "HIP state update requires a single ideal-gas temperature field" );
+    }
+#ifndef ONEFLOW_ENABLE_HIP
+    throw std::runtime_error(
+        "HIP state update was requested without HIP support" );
+#else
+    return true;
+#endif
+}
+
+bool UseResidentHipTimeStep()
+{
+    // Follow the backend policy: the device timestep is not mirrored back to
+    // the host, so CALC_LHS must consume the resident one whenever the
+    // resident timestep stage is active.
+    return HipProductionFeatureEnabled( "ONEFLOW_ENABLE_UNS_HIP_TIME_STEP" );
+}
+
+}
+
 void ULhs::CalcLHS( int solverType )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
+
+    if ( UseHipDeviceStateUpdate( solverType ) )
+    {
+#ifdef ONEFLOW_ENABLE_HIP
+        ug.Init();
+        unsf.Init();
+        CellStateUpdateView view;
+        view.nCells = ug.nCells;
+        view.nGhostCells = ug.nTCell - ug.nCells;
+        view.nEquations = nscom.nEqu;
+        view.timeStep = ( * unsf.timestep )[ 0 ].data();
+        view.cellVolume = ug.cvol->data();
+        view.gamma = nscom.gama_ref;
+        view.rkCoefficient = ctrl.lhscoef;
+        view.cacheKey = grid;
+        view.preferResidentTimeStep = UseResidentHipTimeStep();
+        for ( int equation = 0; equation < view.nEquations; ++ equation )
+        {
+            view.primitive[ equation ] = ( * unsf.q )[ equation ].data();
+        }
+        HipFluxBackend::Shared().ScaleCurrentResidual( view );
+        return;
+#endif
+    }
 
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
     // LHS scales the residual for the given solverType (NS "res" / Turb "turbres"),

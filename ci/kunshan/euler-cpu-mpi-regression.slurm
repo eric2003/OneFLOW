@@ -37,12 +37,17 @@ cmake_bin="${CMAKE_BIN:-cmake}"
 job_tmp="${ONEFLOW_JOB_TMP_ROOT:-${HOME:-$project/.tmp}}/.scnet-hpc/tmp/${SLURM_JOB_ID:-manual-$$}"
 
 module purge
-module load compiler/cmake/3.25.0
-module load compiler/devtoolset/7.3.1
-module load mpi/hpcx/2.4.1-gcc-7.3.1
+module load gcc/16.2.0
+module load openmpi/5.0.11
+module load cmake/4.4.3
+export OMPI_MCA_coll="^hcoll"
 
 export CC="$(command -v gcc)"
 export CXX="$(command -v g++)"
+echo "GCC_VERSION=$(gcc --version | head -1)"
+echo "CMAKE_VERSION=$(cmake --version | head -1)"
+echo "MPI_VERSION=$(mpirun --version | head -1)"
+echo "OMPI_MCA_coll=$OMPI_MCA_coll"
 mkdir -p "$build_dir" "$job_tmp"
 export TMPDIR="$job_tmp"
 
@@ -84,7 +89,9 @@ if [ "$rc_build" -eq 0 ]; then
     many_hash="$(sed -n 's/^final_hash=\(0x[0-9a-fA-F]*\).*/\1/p' "$many_rank")"
     echo "hash_1_rank=$one_hash hash_32_rank=$many_hash"
     if [ "$one_rc" -ne 0 ] || [ "$many_rc" -ne 0 ] \
-       || [ -z "$one_hash" ] || [ "$one_hash" != "$many_hash" ]; then
+       || [ -z "$one_hash" ] || [ "$one_hash" != "$many_hash" ] \
+       || ! grep -q '^decomposition=PASS$' "$one_rank" \
+       || ! grep -q '^decomposition=PASS$' "$many_rank"; then
       echo "CPU_MPI_REGRESSION=FAIL nx=$nx"
       rc_run=1
       break

@@ -81,6 +81,29 @@ long long ReduceSum( int local, MPI_Comm communicator )
     return total;
 }
 
+long long AllreduceSum( int local, MPI_Comm communicator )
+{
+    const long long value = local;
+    long long total = 0;
+    MPI_Allreduce(
+        &value, &total, 1, MPI_LONG_LONG, MPI_SUM, communicator );
+    return total;
+}
+
+int ReduceMinimum( int local, MPI_Comm communicator )
+{
+    int minimum = 0;
+    MPI_Allreduce( &local, &minimum, 1, MPI_INT, MPI_MIN, communicator );
+    return minimum;
+}
+
+int ReduceMaximum( int local, MPI_Comm communicator )
+{
+    int maximum = 0;
+    MPI_Allreduce( &local, &maximum, 1, MPI_INT, MPI_MAX, communicator );
+    return maximum;
+}
+
 std::uint64_t ReduceHash( std::uint64_t local, MPI_Comm communicator )
 {
     unsigned long long value = local;
@@ -158,6 +181,14 @@ int main( int argc, char ** argv )
         const oneflow_1d::EulerMpiProblem problem{
             globalNx, localNx, globalOffset, steps, Gamma,
             DtScale / globalNx, 1.0 / globalNx, MPI_COMM_WORLD };
+        const long long activeRanks =
+            AllreduceSum( localNx > 0 ? 1 : 0, MPI_COMM_WORLD );
+        const long long globalCellSum =
+            AllreduceSum( localNx, MPI_COMM_WORLD );
+        const int minimumLocalNx =
+            ReduceMinimum( localNx, MPI_COMM_WORLD );
+        const int maximumLocalNx =
+            ReduceMaximum( localNx, MPI_COMM_WORLD );
 
         MPI_Comm localCommunicator = MPI_COMM_NULL;
         MPI_Comm_split_type(
@@ -238,6 +269,21 @@ int main( int argc, char ** argv )
         MPI_Reduce(
             &localMinimumPressure, &globalMinimumPressure, 1, MPI_DOUBLE,
             MPI_MIN, 0, MPI_COMM_WORLD );
+        const long long expectedHaloExchanges =
+            static_cast< long long >( ranks ) * repeats * steps * 3;
+        int decompositionStatus = 0;
+        if ( rank == 0 )
+        {
+            decompositionStatus =
+                activeRanks == ranks
+                && globalCellSum == globalNx
+                && minimumLocalNx > 0
+                && maximumLocalNx > 0
+                && haloExchanges == expectedHaloExchanges;
+        }
+        MPI_Bcast(
+            &decompositionStatus, 1, MPI_INT, 0, MPI_COMM_WORLD );
+        const bool decompositionValid = decompositionStatus != 0;
 
         if ( rank == 0 )
         {
@@ -256,6 +302,10 @@ int main( int argc, char ** argv )
                       << " steps=" << steps
                       << " repeats=" << repeats
                       << " warmup=" << warmup << "\n";
+            std::cout << "decomposition_active_ranks=" << activeRanks
+                      << " global_cells_sum=" << globalCellSum
+                      << " local_nx_min=" << minimumLocalNx
+                      << " local_nx_max=" << maximumLocalNx << "\n";
             if ( ! finalResult.deviceName.empty() )
             {
                 std::cout << "device=" << finalResult.deviceName
@@ -278,16 +328,20 @@ int main( int argc, char ** argv )
                       << " kernel_max_ms=" << kernelMilliseconds << "\n";
             std::cout << "kernel_launches_sum=" << kernelLaunches
                       << " halo_exchanges_sum=" << haloExchanges
+                      << " expected_halo_exchanges="
+                      << expectedHaloExchanges
                       << " device_syncs_sum=" << deviceSynchronizations
                       << "\n";
             std::cout << "final_hash=0x" << std::hex << globalHash
                       << std::dec
                       << " min_rho=" << globalMinimumRho
                       << " min_pressure=" << globalMinimumPressure << "\n";
+            std::cout << "decomposition="
+                      << ( decompositionValid ? "PASS" : "FAIL" ) << "\n";
         }
 
         MPI_Finalize();
-        return 0;
+        return decompositionValid ? 0 : 1;
     }
     catch ( const std::exception & error )
     {

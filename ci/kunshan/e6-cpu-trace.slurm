@@ -16,17 +16,25 @@ set -euo pipefail
 : "${ONEFLOW_E6_TRACE_BINARY:?Set ONEFLOW_E6_TRACE_BINARY}"
 
 module purge
-module load compiler/gcc/9.3.0
-module load mpi/openmpi/gcc-9.3.0/4.1.5
+module load gcc/16.2.0
+module load openmpi/5.0.11
+module load cmake/4.4.3
 module load python/3.8.10
+export OMPI_MCA_coll="^hcoll"
 
-source_case="$ONEFLOW_E6_TRACE_SOURCE_DIR/test/m6wingroe_sa"
+source_case="$ONEFLOW_E6_TRACE_SOURCE_DIR/test/cfd/m6wingroe_sa"
 trace_root="${ONEFLOW_E6_TRACE_RUN_DIR:-$PWD/e6-cpu-trace-${SLURM_JOB_ID:-manual}}"
 legacy_case="$trace_root/legacy"
 batch_case="$trace_root/batch"
 
 rm -rf "$trace_root"
 mkdir -p "$trace_root"
+{
+    echo "gcc=$(gcc --version | head -1)"
+    echo "cmake=$(cmake --version | head -1)"
+    echo "mpi=$(mpirun --version | head -1)"
+    echo "OMPI_MCA_coll=$OMPI_MCA_coll"
+} > "$trace_root/environment.txt"
 cp -a "$source_case" "$legacy_case"
 cp -a "$source_case" "$batch_case"
 

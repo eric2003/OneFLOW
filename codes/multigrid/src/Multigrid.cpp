@@ -168,7 +168,15 @@ void MG::Run()
 
 void MG::InnerProcess()
 {
-    ONEFLOW::MultiSolverMultiGridTask( kPostProcessTaskName );
+    if ( this->context_ != nullptr )
+    {
+        ONEFLOW::MultiSolverMultiGridTask(
+            kPostProcessTaskName, *this->context_ );
+    }
+    else
+    {
+        ONEFLOW::MultiSolverMultiGridTask( kPostProcessTaskName );
+    }
 }
 
 void MG::OuterProcess( TimeSpan * timeSpan )

@@ -2,6 +2,13 @@
 # 包含 GoogleTest 模块 (只需在顶层包含一次，子目录即可直接使用)
 include(GoogleTest)
 
+if ( NOT COMMAND gtest_discover_tests )
+  message(FATAL_ERROR
+    "GoogleTest.cmake did not define gtest_discover_tests. "
+    "Check the CMake installation and ensure include(GoogleTest) "
+    "is loaded before adding tests.")
+endif()
+
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # 设置默认文件夹名称

@@ -54,6 +54,28 @@ void DownloadInterfaceValue(
     const std::string & name,
     int nEqu );
 
+// Fill/read one ghost-level interface storage from/to a packed
+// [field][equation][face] buffer.  No endpoint-cell lookup is performed here;
+// the caller owns the endpoint packing (which lets the HIP gradient pack run
+// on the device).
+void UploadInterfaceValuePacked(
+    UnsGrid * grid,
+    MRField * const * fields,
+    const std::string * names,
+    int fieldCount,
+    int nEqu,
+    int ghostId,
+    const Real * packed );
+
+void DownloadInterfaceValuePacked(
+    UnsGrid * grid,
+    MRField * const * fields,
+    const std::string * names,
+    int fieldCount,
+    int nEqu,
+    int ghostId,
+    Real * packed );
+
 void UploadOversetValue(
     UnsGrid * grid,
     MRField * field2D,

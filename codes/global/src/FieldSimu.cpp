@@ -30,10 +30,13 @@ License
 #include "MultiBlock.h"
 #include "SolverMap.h"
 #include "SolverCatalog.h"
+#include "SolverNameList.h"
+#include "SolverNamePolicy.h"
 #include "CmxTask.h"
 #include "Multigrid.h"
 #include "BcData.h"
 #include "GridState.h"
+#include "StageProfiler.h"
 #include "FieldManager.h"
 #include "SolverState.h"
 #include "SolverDef.h"
@@ -63,20 +66,26 @@ void FieldSimuPrepareWallDist()
 void FieldSimuCreateSolvers()
 {
     // Prefer SolverCatalog name at the pipeline boundary (owns via SolverMap today).
-    SolverCatalog::CreateDefault();
+    const StringField names = FilterSolverNamesForViscosity(
+        SolverNameClass::GetSolverNames( ONEFLOW::UMESH ),
+        vis_model.vismodel );
+    SolverCatalog::CreateDefault( ONEFLOW::UMESH, &names );
 }
 
 void FieldSimuCreateSolvers( const SimuContext & ctx )
 {
     if ( ctx.HasExpandedSolverNames() )
     {
+        const StringField names = FilterSolverNamesForViscosity(
+            ctx.ExpandedSolverNames(),
+            vis_model.vismodel );
         SolverCatalog::CreateDefault(
             ONEFLOW::UMESH,
-            &ctx.ExpandedSolverNames() );
+            &names );
     }
     else
     {
-        SolverCatalog::CreateDefault();
+        FieldSimuCreateSolvers();
     }
 }
 
@@ -378,16 +387,17 @@ void FieldPipeline::Run()
 
 void FieldPipeline::Run( SimuContext & ctx )
 {
-    FieldSimuSetupGlobals();
-    FieldSimuLoadGrid();
-    FieldSimuPrepareWallDist();
-    FieldSimuCreateSolvers( ctx );
-    FieldSimuInitFlowField();
+    { ScopedStageTimer timer( "initialization" ); FieldSimuSetupGlobals(); }
+    { ScopedStageTimer timer( "initialization" ); FieldSimuLoadGrid(); }
+    { ScopedStageTimer timer( "initialization" ); FieldSimuPrepareWallDist(); }
+    { ScopedStageTimer timer( "initialization" ); FieldSimuCreateSolvers( ctx ); }
+    { ScopedStageTimer timer( "initialization" ); FieldSimuInitFlowField(); }
+    { ScopedStageTimer timer( "initialization" ); SyncAllEulerDomainStates( ctx ); }
     //DumpFieldEnvironments();
     //DumpCommunicationEnvironments();
     //CheckCommunicationInterfaceConsistency();
-    SyncAllEulerDomainStates( ctx );
     FieldSimuRun( ctx );
+    StageProfiler::Flush();
 }
 
 void FieldSimuRunPipeline()

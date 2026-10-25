@@ -90,8 +90,12 @@ enable_testing()
 
 option(
     ONEFLOW_ENABLE_HIP_TESTS
-    "Register hardware-dependent HIP/DCU tests in the root CTest tree"
+    "Build the root HIP backend and register hardware-dependent HIP/DCU tests"
     OFF )
+if ( ONEFLOW_ENABLE_HIP_TESTS )
+    set ( ONEFLOW_ENABLE_HIP ON CACHE BOOL
+          "Explicitly build the native HIP backend" FORCE )
+endif()
 
 add_subdirectory ( ThirdParty ${THIRD_PARTY_DIR} )
 add_subdirectory ( codes      ${CMAKE_PROJECT_NAME} )

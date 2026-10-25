@@ -5,7 +5,13 @@ include_guard( GLOBAL )
 # architecture selection, and the GTest target.
 function( oneflow_add_euler_hip_contract_test target )
     set( options )
-    set( one_value_args PORT_DIR ACCEL_DIR PROJECT_INC BASIC_INC TEST_SOURCE )
+    set( one_value_args
+        PORT_DIR
+        ACCEL_DIR
+        PROJECT_INC
+        BASIC_INC
+        TEST_SOURCE
+        ADAPTER_TEST_SOURCE )
     cmake_parse_arguments(
         ONEFLOW_EULER_HIP
         "${options}"
@@ -13,7 +19,14 @@ function( oneflow_add_euler_hip_contract_test target )
         ""
         ${ARGN} )
 
-    foreach( required PORT_DIR ACCEL_DIR PROJECT_INC BASIC_INC TEST_SOURCE )
+    foreach(
+        required
+        PORT_DIR
+        ACCEL_DIR
+        PROJECT_INC
+        BASIC_INC
+        TEST_SOURCE
+        ADAPTER_TEST_SOURCE )
         if( NOT ONEFLOW_EULER_HIP_${required} )
             message( FATAL_ERROR
                 "oneflow_add_euler_hip_contract_test requires ${required}" )
@@ -29,8 +42,10 @@ function( oneflow_add_euler_hip_contract_test target )
     add_executable(
         ${target}
         ${ONEFLOW_EULER_HIP_TEST_SOURCE}
+        ${ONEFLOW_EULER_HIP_ADAPTER_TEST_SOURCE}
         ${ONEFLOW_EULER_HIP_PORT_DIR}/OneDEuler.cpp
         ${ONEFLOW_EULER_HIP_PORT_DIR}/OneDEulerBackend.cpp
+        ${ONEFLOW_EULER_HIP_PORT_DIR}/OneDEulerDomainAdapter.cpp
         ${ONEFLOW_EULER_HIP_PORT_DIR}/OneDWeno5.cpp
         ${ONEFLOW_EULER_HIP_PORT_DIR}/OneDWeno5.hip
         ${ONEFLOW_EULER_HIP_PORT_DIR}/OneDEulerPersistent.hip

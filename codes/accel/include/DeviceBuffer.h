@@ -53,15 +53,31 @@ public:
         return *this;
     }
 
+    // Grow-only.  Several call sites request slightly different "total cell"
+    // counts for the same resident buffer (the boundary model uses
+    // nCells + nGhostCells, the interface upload uses nCells + nBoundaryFaces).
+    // A shrink-and-reallocate made hipMalloc/hipFree run four times per step;
+    // that cost 11-14 ms/step on the 8-zone DCU case, independent of the grid
+    // size.  Keeping the larger allocation removes the churn and every caller
+    // already guards with "Size() < needed".
     void Resize( std::size_t count )
     {
-        if ( count == count_ ) return;
-        Reset();
-        if ( count == 0 ) return;
+        if ( count <= count_ ) return;
 
-        pointer_ = static_cast< T * >(
+        T * grown = static_cast< T * >(
             AccelRuntime::Instance().Backend().Allocate(
                 count * sizeof( T ) ) );
+        if ( pointer_ != nullptr )
+        {
+            AccelRuntime::Instance().Backend().Copy(
+                grown, pointer_, count_ * sizeof( T ),
+                AccelCopyKind::DeviceToDevice );
+            if ( AccelRuntime::Instance().IsInitialized() )
+            {
+                AccelRuntime::Instance().Backend().Deallocate( pointer_ );
+            }
+        }
+        pointer_ = grown;
         count_ = count;
     }
 
@@ -69,7 +85,12 @@ public:
     {
         if ( pointer_ != nullptr )
         {
-            AccelRuntime::Instance().Backend().Deallocate( pointer_ );
+            // A failure path may reach static destruction after the
+            // accelerator runtime has already been finalized.
+            if ( AccelRuntime::Instance().IsInitialized() )
+            {
+                AccelRuntime::Instance().Backend().Deallocate( pointer_ );
+            }
         }
         pointer_ = nullptr;
         count_ = 0;

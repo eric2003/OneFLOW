@@ -59,10 +59,32 @@ GridConfig GridConfig::FromDataBase()
     // Keep the default empty so existing cases continue to read their own grid.
     // The explicit source case is consumed later by the runtime grid reader.
     cfg.sourceCaseDir = GridConfig::GetSourceCaseDir();
-    cfg.layoutFile = GetDataValue< std::string >( "gridLayoutFileName" );
 
-    cfg.bcFile     = GetDataValue< std::string >( "sourceGridBcName" );
-    cfg.targetFile = GetDataValue< std::string >( "targetGridFileName" );
+    // Only the source grid is mandatory.  A partition-only case has neither a
+    // layout file, a boundary file nor a target file, and requiring them here
+    // made the partition workflow impossible to configure without inventing
+    // unused entries.
+    try
+    {
+        cfg.layoutFile = GetDataValue< std::string >( "gridLayoutFileName" );
+    }
+    catch ( const std::exception & )
+    {
+    }
+    try
+    {
+        cfg.bcFile = GetDataValue< std::string >( "sourceGridBcName" );
+    }
+    catch ( const std::exception & )
+    {
+    }
+    try
+    {
+        cfg.targetFile = GetDataValue< std::string >( "targetGridFileName" );
+    }
+    catch ( const std::exception & )
+    {
+    }
 
     try
     {
