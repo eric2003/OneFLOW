@@ -150,20 +150,13 @@ void Simulation::RunImpl()
         SimuContext processContext( args );
         Prj::hx_debug = options.debug;
         Prj::run_from_ide = options.debug;
-        SimuCaseLifecycleDetail::ExecuteWithCleanup(
-            [&]()
+        SimuCaseLifecycleDetail::RunCasesWithProcessLifecycle(
+            [&]() { processContext.SetupProcessEnvironment(); },
+            options.caseDirs,
+            [&]( const std::string & caseDir )
             {
-                processContext.SetupProcessEnvironment();
-
-                // Every case follows the same lifecycle, in command-line
-                // order. The process context owns shared initialization only.
-                SimuCaseLifecycleDetail::RunCasesSequentially(
-                    options.caseDirs,
-                    [&]( const std::string & caseDir )
-                    {
-                        SimuImp caseSimu( caseDir, options.debug );
-                        caseSimu.RunCase();
-                    } );
+                SimuImp caseSimu( caseDir, options.debug );
+                caseSimu.RunCase();
             },
             [&]() { processContext.FinalizeEnvironment(); } );
     }

@@ -28,15 +28,6 @@ namespace ONEFLOW
 namespace SimuCaseLifecycleDetail
 {
 
-template< typename CaseDirs, typename RunCase >
-void RunCasesSequentially( const CaseDirs & caseDirs, RunCase && runCase )
-{
-    for ( const auto & caseDir : caseDirs )
-    {
-        runCase( caseDir );
-    }
-}
-
 template< typename Execute, typename Cleanup >
 void ExecuteWithCleanup( Execute && execute, Cleanup && cleanup )
 {
@@ -58,6 +49,32 @@ void ExecuteWithCleanup( Execute && execute, Cleanup && cleanup )
     }
 
     std::forward< Cleanup >( cleanup )();
+}
+
+template< typename CaseDirs, typename RunCase >
+void RunCasesSequentially( const CaseDirs & caseDirs, RunCase && runCase )
+{
+    for ( const auto & caseDir : caseDirs )
+    {
+        runCase( caseDir );
+    }
+}
+
+template< typename Setup, typename CaseDirs, typename RunCase, typename Finalize >
+void RunCasesWithProcessLifecycle(
+    Setup && setup,
+    const CaseDirs & caseDirs,
+    RunCase && runCase,
+    Finalize && finalize )
+{
+    ExecuteWithCleanup(
+        [&]()
+        {
+            std::forward< Setup >( setup )();
+            RunCasesSequentially(
+                caseDirs, std::forward< RunCase >( runCase ) );
+        },
+        [&]() { std::forward< Finalize >( finalize )(); } );
 }
 
 }

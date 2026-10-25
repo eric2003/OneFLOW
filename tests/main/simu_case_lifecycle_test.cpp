@@ -80,16 +80,18 @@ TEST( SimuCaseLifecycleTest, RunsMultipleCasesInCommandLineOrder )
         "d:\\OneFLOWWorkspace\\workdir2026\\rae2822_roe_sa\\",
         "d:\\OneFLOWWorkspace\\workdir2026\\platescript\\"
     };
-    std::vector< std::string > executedCases;
+    std::vector< std::string > events;
 
-    SimuCaseLifecycleDetail::RunCasesSequentially(
+    SimuCaseLifecycleDetail::RunCasesWithProcessLifecycle(
+        [&]() { events.emplace_back( "setup" ); },
         caseDirs,
-        [&]( const std::string & caseDir )
-        {
-            executedCases.push_back( caseDir );
-        } );
+        [&]( const std::string & caseDir ) { events.push_back( caseDir ); },
+        [&]() { events.emplace_back( "finalize" ); } );
 
-    EXPECT_EQ( executedCases, caseDirs );
+    std::vector< std::string > expected = { "setup" };
+    expected.insert( expected.end(), caseDirs.begin(), caseDirs.end() );
+    expected.emplace_back( "finalize" );
+    EXPECT_EQ( events, expected );
 }
 
 TEST( SimuCaseLifecycleTest, FinalizesProcessAfterCaseFailure )
@@ -99,19 +101,16 @@ TEST( SimuCaseLifecycleTest, FinalizesProcessAfterCaseFailure )
 
     try
     {
-        SimuCaseLifecycleDetail::ExecuteWithCleanup(
-            [&]()
+        SimuCaseLifecycleDetail::RunCasesWithProcessLifecycle(
+            [&]() { events.emplace_back( "setup" ); },
+            caseDirs,
+            [&]( const std::string & caseDir )
             {
-                SimuCaseLifecycleDetail::RunCasesSequentially(
-                    caseDirs,
-                    [&]( const std::string & caseDir )
-                    {
-                        events.push_back( caseDir );
-                        if ( caseDir == "failing" )
-                        {
-                            throw std::runtime_error( "case failed" );
-                        }
-                    } );
+                events.push_back( caseDir );
+                if ( caseDir == "failing" )
+                {
+                    throw std::runtime_error( "case failed" );
+                }
             },
             [&]() { events.emplace_back( "finalize" ); } );
         FAIL() << "Expected the case execution exception";
@@ -122,7 +121,27 @@ TEST( SimuCaseLifecycleTest, FinalizesProcessAfterCaseFailure )
     }
 
     const std::vector< std::string > expected = {
-        "first", "failing", "finalize"
+        "setup", "first", "failing", "finalize"
     };
+    EXPECT_EQ( events, expected );
+}
+
+TEST( SimuCaseLifecycleTest, FinalizesProcessAfterSetupFailure )
+{
+    std::vector< std::string > events;
+
+    EXPECT_THROW(
+        SimuCaseLifecycleDetail::RunCasesWithProcessLifecycle(
+            [&]()
+            {
+                events.emplace_back( "setup" );
+                throw std::runtime_error( "process setup failed" );
+            },
+            std::vector< std::string >{ "first" },
+            [&]( const std::string & caseDir ) { events.push_back( caseDir ); },
+            [&]() { events.emplace_back( "finalize" ); } ),
+        std::runtime_error );
+
+    const std::vector< std::string > expected = { "setup", "finalize" };
     EXPECT_EQ( events, expected );
 }
