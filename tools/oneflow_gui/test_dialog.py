@@ -227,7 +227,7 @@ class TestRunnerDialog(QDialog):
         database_description.setWordWrap(True)
         database_layout.addWidget(database_description, 1)
         self.case_database_check = QCheckBox("Run Development Tests")
-        self.case_database_check.setChecked(True)
+        self.case_database_check.setChecked(False)
         database_layout.insertWidget(0, self.case_database_check)
         self.case_database_button = QPushButton("Select cases...")
         self.case_database_button.setToolTip(
@@ -272,7 +272,6 @@ class TestRunnerDialog(QDialog):
         if dialog.exec() != QDialog.DialogCode.Accepted:
             return
         self._database_cases = dialog.selected_cases()
-        self.case_database_check.setChecked(bool(self._database_cases))
         count = len(self._database_cases)
         self.case_database_button.setText(
             f"Select cases... ({count} selected)" if count else "Select cases..."
@@ -471,11 +470,7 @@ class CaseDatabaseSelectionDialog(QDialog):
         super().__init__(parent)
         self._repository_root = repository_root
         self._cases = load_cases(repository_root)
-        selected_ids = (
-            {case.case_id for case in selected_cases}
-            if selected_cases
-            else {case.case_id for case in self._cases}
-        )
+        selected_ids = {case.case_id for case in selected_cases}
         self.setWindowTitle("Select Development Test Cases")
         self.resize(760, 560)
         layout = QVBoxLayout(self)
