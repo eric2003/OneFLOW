@@ -3,7 +3,7 @@ OneFLOW Scientific Computation
 
 LargeScale Multiphysics Scientific Simulation Environment
 
-OneFLOW is a general-purpose, unstructured Computational Fluid Dynamics (CFD) software with a software architecture that encompasses multidisciplinary computations. It covers low-speed, transonic, and hypersonic ranges. The software employs second-order accurate finite volume method for numerical solution of Reynolds-averaged Navier-Stokes (RANS) equations. It integrates calculation schemes such as Roe, Van-Leer, AUSM, Steger-Warming, and provides SA and SST turbulence models. OneFLOW uses large-scale parallel computing technology and explicit/implicit time formats to efficiently solve the model equations. The software provides commonly used front-end and back-end software interfaces such as Gridgen, Tecplot, and others. OneFLOW is cross-platform, capable of running on both Windows and Linux, enabling large-scale parallel computing on local Windows workstations and remote high-performance computing clusters.
+OneFLOW is an evolving open-source codebase for computational fluid dynamics (CFD) and scientific computing. The repository brings together C++ runtime components, mesh and case workflows, numerical methods, tests, and optional developer tools. Its longer-term direction is to make mesh processing, solver execution, validation, and dependent computational tasks easier to compose and reproduce. Specific solver models, numerical schemes, platforms, and acceleration paths should be assessed against the implementation and validation evidence for the revision in use; a design goal or build option alone does not establish that a capability is complete.
 
 #. `OneFLOW CFD : Github <https://github.com/eric2003/OneFLOW/>`_
 #. `OneFLOW Scientific Computation Document <https://oneflow-cfd.readthedocs.io/en/latest/>`_
@@ -79,3 +79,4 @@ OneFLOW is a general-purpose, unstructured Computational Fluid Dynamics (CFD) so
    :caption: OneFLOW Design and Development
 
    mesh_architecture
+   grid_topology
