@@ -471,7 +471,11 @@ class CaseDatabaseSelectionDialog(QDialog):
         super().__init__(parent)
         self._repository_root = repository_root
         self._cases = load_cases(repository_root)
-        selected_ids = {case.case_id for case in selected_cases}
+        selected_ids = (
+            {case.case_id for case in selected_cases}
+            if selected_cases
+            else {case.case_id for case in self._cases}
+        )
         self.setWindowTitle("Configure Case Database Tests")
         self.resize(760, 560)
         layout = QVBoxLayout(self)
