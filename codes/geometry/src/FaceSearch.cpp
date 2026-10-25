@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*\
+/*---------------------------------------------------------------------------*\\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
@@ -17,8 +17,7 @@ License
 
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
-
-\*---------------------------------------------------------------------------*/
+\\*---------------------------------------------------------------------------*/
 
 #include "FaceSearch.h"
 #include "PointLocator.h"
@@ -100,6 +99,10 @@ void FaceSearch::SplitQuad2Tri( int faceId )
     const IntField & nodeId = this->GetFaceNodeRing( faceId );
     int nNodes = nodeId.size();
     if ( nNodes != 4 ) return;
+
+    // This operation rebuilds one parent's mapping; do not retain entries
+    // from a previous call.
+    this->interfaceSplit.childFaceIdsOfParent[ faceId ].clear();
 
     LinkField localTriId, localTriFlag;
     this->GetLocalTri( localTriId, localTriFlag );
