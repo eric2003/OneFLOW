@@ -106,7 +106,7 @@ summary and relevant tests as evidence.
 Command-line execution modes
 ----------------------------
 
-The parser core is ``ONEFLOW::CliParser`` in ``codes/basic/include/CliParser.h``. It uses a declared positional schema with minimum/maximum counts, returns named parsed values, preserves repeated values, and generates usage text for validation errors. The current OneFLOW adapter declares one required mode followed by one-or-more case directories. ``Prj::ParseCmdLineArgs()`` remains as a compatibility boundary; migration is incremental. Named switches, subcommands, and type conversion are intentionally outside this first scope because the current executable does not use them.
+The parser core is ``ONEFLOW::CliParser`` in ``codes/basic/include/CliParser.h``. It uses a declared positional schema with minimum/maximum counts, returns named parsed values, preserves repeated values, and generates usage text for validation errors. ``ParseSimulationCommandLineOptions()`` converts the parsed values into a ``SimulationCommandLineOptions`` value object with a single canonical case-directory list. ``Simulation`` and ``SimuContext`` now use this API. ``Prj::ParseCmdLineArgs()`` remains a compatibility adapter that fills the older ``CmdLineOptions`` shape. Named switches, subcommands, and type conversion remain out of scope until an actual command needs them.
 
 .. code-block:: cpp
 
@@ -116,7 +116,7 @@ The parser core is ``ONEFLOW::CliParser`` in ``codes/basic/include/CliParser.h``
        "caseDir", "Case directory", 1, CliParser::Unlimited );
    const ParsedCommandLine parsed = parser.Parse( { "r", "caseA", "caseB" } );
 
-``Parse()`` receives arguments after the executable name. The adapter preserves the existing mode rule (``d`` enables debug; other values retain run mode) and the existing ``Prj::ParseCmdLineArgs()`` result shape while migration proceeds. The small parser intentionally does not yet provide named options or subcommands.
+``Parse()`` receives arguments after the executable name. The parser preserves the existing mode rule (``d`` enables debug; other values retain run mode). The compatibility adapter still fills the old ``Prj::ParseCmdLineArgs()`` result shape. The small parser intentionally does not yet provide named options or subcommands.
 
 The current `Simulation::RunImpl()` has three argument-count paths:
 

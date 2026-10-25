@@ -1,5 +1,6 @@
 #include "Prj.h"
 #include "CliParser.h"
+#include "SimulationCommandLine.h"
 #include "FileUtils.h"
 #include <gtest/gtest.h>
 #include <stdexcept>
@@ -81,6 +82,31 @@ TEST( CliParserTest, BuildsUsageFromArgumentDefinitions )
         std::string::npos );
     EXPECT_NE( usage.find( "Case directory" ), std::string::npos );
 }
+
+TEST( SimulationCommandLineOptionsTest, ParsesDebugModeAndRepeatedCases )
+{
+    const ONEFLOW::SimulationCommandLineOptions options =
+        ONEFLOW::ParseSimulationCommandLineOptions(
+            { "OneFlow.exe", "d", "caseA", "caseA", "caseB" } );
+
+    EXPECT_TRUE( options.debug );
+    ASSERT_EQ( options.caseDirectories.size(), 3u );
+    EXPECT_EQ( options.caseDirectories[ 0 ], "caseA" );
+    EXPECT_EQ( options.caseDirectories[ 1 ], "caseA" );
+    EXPECT_EQ( options.caseDirectories[ 2 ], "caseB" );
+}
+
+TEST( SimulationCommandLineOptionsTest, RunModeRemainsNonDebug )
+{
+    const ONEFLOW::SimulationCommandLineOptions options =
+        ONEFLOW::ParseSimulationCommandLineOptions(
+            { "OneFlow.exe", "r", "caseA" } );
+
+    EXPECT_FALSE( options.debug );
+    ASSERT_EQ( options.caseDirectories.size(), 1u );
+    EXPECT_EQ( options.caseDirectories.front(), "caseA" );
+}
+
 TEST( PrjParseCmdLineArgs, NormalRun )
 {
     CmdLineOptions opt = Prj::ParseCmdLineArgs(

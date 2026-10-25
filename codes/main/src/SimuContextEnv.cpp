@@ -23,6 +23,7 @@ License
 // Delegates to existing globals (compatibility layer for phase 2).
 
 #include "SimuContext.h"
+#include "SimulationCommandLine.h"
 #include "SimuCaseLifecycle.h"
 #include "SimuContextParameter.h"
 #include "SimuTask.h"
@@ -78,15 +79,16 @@ SimuContext::SimuContext( const std::string& caseDir, bool debug )
 void SimuContext::ProcessCommandLine()
 {
     // Keep the selected case directory as explicit case input.
-    const CmdLineOptions opt = Prj::ParseCmdLineArgs( args_ );
+    const SimulationCommandLineOptions options =
+        ParseSimulationCommandLineOptions( args_ );
     // Store the resolved path in the case context so it remains valid even
     // when a later case updates the legacy Prj static state.
-    caseDir_ = Prj::ResolveCaseDir( opt.caseDir );
+    caseDir_ = Prj::ResolveCaseDir( options.caseDirectories.front() );
 
     // Command-line mode is process-wide; case directory binding belongs to
     // SetupCaseEnvironment() so each case owns its legacy IO binding.
-    Prj::hx_debug = opt.debug;
-    Prj::run_from_ide = opt.debug;
+    Prj::hx_debug = options.debug;
+    Prj::run_from_ide = options.debug;
 }
 
 void SimuContext::SetupProcessEnvironment()

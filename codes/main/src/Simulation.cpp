@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 #include "Simulation.h"
 #include "Prj.h"
+#include "SimulationCommandLine.h"
 #include "SimuImp.h"
 #include "SimuContext.h"
 #include "SimuCaseLifecycle.h"
@@ -140,7 +141,8 @@ void Simulation::RunImpl()
         std::cout << "\n===== ONEFLOW Full Simulation Mode =====\n";
         // Parse the case list once so execution does not depend on
         // positional argument offsets.
-        const CmdLineOptions options = Prj::ParseCmdLineArgs( args );
+        const SimulationCommandLineOptions options =
+            ParseSimulationCommandLineOptions( args );
 
         // Initialize process-level path state once before creating any case.
         Prj::Init();
@@ -152,7 +154,7 @@ void Simulation::RunImpl()
         Prj::run_from_ide = options.debug;
         SimuCaseLifecycleDetail::RunCasesWithProcessLifecycle(
             [&]() { processContext.SetupProcessEnvironment(); },
-            options.caseDirs,
+            options.caseDirectories,
             [&]( const std::string & caseDir )
             {
                 SimuImp caseSimu( caseDir, options.debug );
