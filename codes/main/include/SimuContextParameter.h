@@ -33,7 +33,7 @@ BeginNameSpace( ONEFLOW )
 namespace SimuContextDetail
 {
 
-inline bool ShouldReadSourceGridCaseDir( const std::string & meshInputRoot )
+inline bool ShouldUseLegacySourceGridCaseDir( const std::string & meshInputRoot )
 {
     return meshInputRoot.empty() || meshInputRoot == "default";
 }
