@@ -171,8 +171,10 @@ Interface split helpers
 * ``ExpandBcRecordForSplitInterfaces`` repeats BC slots when an interface face
   splits into children (**test:** ``ExpandBcRecordSplitTest``).
 * ``BuildInverseInterfaceMapForZone`` fills ``gI2ZidNew`` / ``g2lNew`` from a
-  zone's ``l2gNew`` row (at most two zone slots); rejects negative zone and
-  global-face IDs (**tests:** ``BuildInverseInterfaceMapTest``).
+  zone's ``l2gNew`` row (at most two zone slots). It validates all global-face
+  IDs and existing referenced rows before mutating either inverse table, so an
+  invalid later ID cannot leave a partial update (**tests:**
+  ``BuildInverseInterfaceMapTest``).
 * ``RebuildZoneL2gNewAfterInterfaceSplit`` rebuilds one zone's ``l2gNew`` /
   ``nChild`` when parents split (**test:** ``RebuildZoneL2gNewTest``).
 * ``RebuildFaceCellSidesAfterInterfaceSplit`` expands left cells and assigns
@@ -295,8 +297,9 @@ Rebuild runs on ``New`` buffers:
 #. Per zone: ``RebuildZoneL2gNewAfterInterfaceSplit`` -- parents become children
    in ``l2gNew`` / ``nChild``
 #. ``ExpandBcRecordForSplitInterfaces`` / face-node and cell-side rebuilds
-#. ``BuildInverseInterfaceMapForZone`` -- fill ``gI2ZidNew`` / ``g2lNew`` from
-   each zone's ``l2gNew`` (at most two zone slots per global face)
+#. ``BuildInverseInterfaceMapForZone`` -- validate the complete zone row and
+   existing inverse rows, then fill ``gI2ZidNew`` / ``g2lNew`` (at most two zone
+   slots per global face)
 #. ``CommitInterfaceMappingBuffers`` -- validate then swap ``New`` into live tables
 
 The dual-table invariant after commit is the same as after registration:
