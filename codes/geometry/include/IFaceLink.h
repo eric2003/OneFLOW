@@ -121,6 +121,17 @@ void RegisterLocalInterfaceFace(
     LinkField & gI2Zid,
     LinkField & g2l );
 
+// Select the first participant on a periodic partner face that is not the
+// current local face. A periodic lookup can return a face whose mapping row
+// contains the current face; never create a self-link in that case.
+bool FindPeriodicInterfacePartner(
+    int selfZoneId,
+    int selfLocalFaceId,
+    const IntField & zoneIds,
+    const IntField & localFaceIds,
+    int & outRemoteZoneId,
+    int & outRemoteLocalFaceId );
+
 // Find the first non-self participant on globalFaceId, but only when the
 // exact (selfZoneId, selfLocalFaceId) pair is registered. Returns false when
 // self is absent or no other participant exists; output arguments stay unchanged.
