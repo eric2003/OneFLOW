@@ -113,6 +113,16 @@ void RegisterLocalInterfaceFace(
             throw std::logic_error( "RegisterLocalInterfaceFace: global face references are inconsistent" );
         }
 
+        for ( std::size_t slot = 0; slot < gI2Zid[ gIid ].size(); ++ slot )
+        {
+            if ( gI2Zid[ gIid ][ slot ] == zid &&
+                 g2l[ gIid ][ slot ] == localFaceId )
+            {
+                throw std::logic_error(
+                    "RegisterLocalInterfaceFace: local interface face is already registered" );
+            }
+        }
+
         l2g[ zid ][ localFaceId ] = gIid;
         gI2Zid[ gIid ].push_back( zid );
         g2l[ gIid ].push_back( localFaceId );
