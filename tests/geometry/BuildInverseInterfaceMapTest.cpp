@@ -66,13 +66,22 @@ TEST( BuildInverseInterfaceMapTest, RejectsNegativeZoneIdWithoutChangingMaps )
     EXPECT_EQ( g2lNew, ( LinkField{ IntField{ 7 } } ) );
 }
 
-TEST( BuildInverseInterfaceMapTest, RejectsNegativeGlobalId )
+TEST( BuildInverseInterfaceMapTest, RejectsNegativeGlobalIdWithoutPartialMutation )
 {
-    LinkField gI2ZidNew;
-    LinkField g2lNew;
+    LinkField gI2ZidNew{ IntField{ 8 } };
+    LinkField g2lNew{ IntField{ 9 } };
+    const LinkField originalZoneIds = gI2ZidNew;
+    const LinkField originalLocalIds = g2lNew;
+
+    // A valid, out-of-range ID comes first: a single-pass implementation would
+    // resize and append before discovering the invalid second ID.
     EXPECT_THROW(
-        BuildInverseInterfaceMapForZone( 0, IntField{ -1 }, gI2ZidNew, g2lNew ),
+        BuildInverseInterfaceMapForZone(
+            0, IntField{ 2, -1 }, gI2ZidNew, g2lNew ),
         std::out_of_range );
+
+    EXPECT_EQ( gI2ZidNew, originalZoneIds );
+    EXPECT_EQ( g2lNew, originalLocalIds );
 }
 
 TEST( BuildInverseInterfaceMapTest, RejectsMismatchedTopLevelTables )
