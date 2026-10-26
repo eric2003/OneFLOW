@@ -146,6 +146,103 @@ These remain harder to unit-test and mark follow-up work:
 When those paths are split into pure helpers or ports, update this page in the
 same change and add tests.
 
+PR checklist (executable norm)
+------------------------------
+
+Use this list when a change touches staged faces, BC export, or boundary-first
+reorder. The goal is one pull request that keeps **code**, **tests**, and
+**this page** aligned.
+
+Always
+^^^^^^
+
+* Prefer pure helpers or named APIs over new ad-hoc writes to parallel arrays.
+* Do not introduce non-ASCII characters in source or in this page.
+* If behavior is intentional, name the unit test that locks it; if no test
+  exists yet, add one in the same change when the logic can be isolated.
+* If a path stays hard to test, add or extend an item under `Open design
+  pressures` instead of only describing it in the PR text.
+
+Change type matrix
+^^^^^^^^^^^^^^^^^^
+
+.. list-table::
+   :header-rows: 1
+   :widths: 28 36 36
+
+   * - If you change...
+     - Update tests (minimum)
+     - Update docs (minimum)
+   * - ``StageNewFace`` / parallel growth /
+       ``StagedBcMatchesFaceCount``
+     - ``FaceSolverStageTest``,
+       ``FaceSolverLifecycleTest``
+     - `Staged face invariant` on this page
+   * - ``SetStagedFaceBc`` /
+       ``AssignBcToMatchingFaces`` /
+       BC slot privacy or accessors
+     - ``FaceSolverStageTest`` (BC write/read)
+     - write-path table on this page
+   * - ``ClaimStagedFaceAsLeft`` /
+       ``AttachStagedFaceAsRight`` /
+       ``BindCellToExistingFace``
+     - ``FaceSolverStageTest`` (ownership)
+     - post-stage writes table on this page
+   * - ``AppendBoundaryBcToRecord``
+     - stage/export tests that cover boundary
+       faces and alignment failures
+     - `Boundary BC export and reorder`
+   * - ``BuildBoundaryFirstPermutation`` /
+       ``ReorderLink`` /
+       ``ValidateBoundaryBcLayout``
+     - ``FaceTopoReorderLinkTest``
+     - `Boundary BC export and reorder`
+   * - ``HXKey`` / ``HXLookup`` /
+       ``FaceSearchBasic`` identity rules
+     - ``HXLookupTest``,
+       ``FaceSearchBasicTest``
+     - `Face identity versus orientation`
+   * - ``BcTypeMap`` or ``BC::Is*`` predicates
+     - ``BcTypeMapTest``,
+       ``BcClassificationTest``
+     - `BC classification and CGNS mapping`
+   * - ``RegionNameRegistry`` /
+       ``RegisterRegionNames``
+     - ``RegionNameRegistryTest``
+     - region-name paragraph on this page
+   * - ``GetInterfaceChildFaceIds`` (table
+       overload) or split tables
+     - ``InterfaceChildFaceIdsTest``
+     - `Interface split helpers`
+   * - ``ValidateGlobalFaceMapping(s)``
+     - ``GlobalFaceMappingTest``
+     - `Interface split helpers`
+   * - quad diagonal local tris / node map
+     - ``QuadDiagonalSplitTest``
+     - `Interface split helpers`
+   * - ``GridElem`` scan/export/reorder
+       orchestration only
+     - tests for any moved pure step; full
+       CGNS path only if behavior changes
+     - `Pipeline overview` if steps change
+
+Suggested PR description lines
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Copy and tick what applies::
+
+    [ ] Staged-face or BC write path covered by FaceSolver* tests
+    [ ] Reorder / boundary layout covered by FaceTopoReorderLinkTest
+    [ ] Identity/orientation or interface helpers covered by named tests
+    [ ] doc/source/face_stage_pipeline.rst updated (or explicitly N/A)
+    [ ] Open design pressures updated if testability did not improve
+
+Related pages
+^^^^^^^^^^^^^
+
+* :doc:`grid_topology` -- runtime topology contracts and derived connectivity
+* :doc:`mesh_architecture` -- mesh information levels and adapters
+
 Source anchors
 --------------
 
