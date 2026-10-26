@@ -137,6 +137,8 @@ Interface split helpers
 * ``CountInterfaceFacesMissingPartner`` counts locals whose global face has
   fewer than two zone slots (**test:**
   ``CountInterfaceFacesMissingPartnerTest``).
+* ``InitNewInterfaceMappingBuffers`` copies inverse maps into *New buffers and
+  resizes empty ``l2gNew`` (**test:** ``InitNewInterfaceMappingBuffersTest``).
 * ``ExpandBcRecordForSplitInterfaces`` repeats BC slots when an interface face
   splits into children (**test:** ``ExpandBcRecordSplitTest``).
 * ``BuildInverseInterfaceMapForZone`` fills ``gI2ZidNew`` / ``g2lNew`` from a
@@ -251,6 +253,9 @@ Change type matrix
      - `Interface split helpers`
    * - ``CountInterfaceFacesMissingPartner``
      - ``CountInterfaceFacesMissingPartnerTest``
+     - `Interface split helpers`
+   * - ``InitNewInterfaceMappingBuffers`` / InitNewLgMapping
+     - ``InitNewInterfaceMappingBuffersTest``
      - `Interface split helpers`
    * - ``ExpandBcRecordForSplitInterfaces`` / BC reset on split
      - ``ExpandBcRecordSplitTest``

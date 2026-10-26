@@ -133,6 +133,28 @@ IFaceLink::IFaceLink( Grids & gridsIn ) : grids( gridsIn )
 
 
 
+
+void InitNewInterfaceMappingBuffers(
+    const LinkField & gI2Zid,
+    const LinkField & g2l,
+    const LinkField & l2g,
+    LinkField & gI2ZidNew,
+    LinkField & g2lNew,
+    LinkField & l2gNew )
+{
+    if ( gI2Zid.size() != g2l.size() )
+    {
+        throw std::logic_error(
+            "InitNewInterfaceMappingBuffers: gI2Zid and g2l size mismatch" );
+    }
+
+    gI2ZidNew = gI2Zid;
+    g2lNew = g2l;
+
+    l2gNew.clear();
+    l2gNew.resize( l2g.size() );
+}
+
 int CountInterfaceFacesMissingPartner(
     const IntField & localToGlobal,
     const LinkField & zoneIdsPerGlobalFace,
@@ -267,11 +289,13 @@ void IFaceLink::ReconstructInterFace()
 
 void IFaceLink::InitNewLgMapping()
 {
-    this->gI2ZidNew = this->gI2Zid;
-    this->g2lNew = this->g2l;
-
-    this->l2gNew.clear();
-    this->l2gNew.resize( this->l2g.size() );
+    InitNewInterfaceMappingBuffers(
+        this->gI2Zid,
+        this->g2l,
+        this->l2g,
+        this->gI2ZidNew,
+        this->g2lNew,
+        this->l2gNew );
 }
 
 void IFaceLink::UpdateLgMapping()

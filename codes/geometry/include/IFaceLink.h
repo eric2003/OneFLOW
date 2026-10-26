@@ -129,5 +129,16 @@ int CountInterfaceFacesMissingPartner(
     const LinkField & zoneIdsPerGlobalFace,
     const LinkField & localFaceIdsPerGlobalFace );
 
+// Copy current inverse maps into *New buffers and clear/resize l2gNew to
+// match the number of zones in l2g (empty rows ready for rebuild).
+void InitNewInterfaceMappingBuffers(
+    const LinkField & gI2Zid,
+    const LinkField & g2l,
+    const LinkField & l2g,
+    LinkField & gI2ZidNew,
+    LinkField & g2lNew,
+    LinkField & l2gNew );
+
 EndNameSpace
+
 
