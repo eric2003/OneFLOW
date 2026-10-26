@@ -300,6 +300,46 @@ a clear error may be safer than silent truncation. Until that contract is
 confirmed, preserve the current behavior and treat it as an explicit design
 question rather than assuming the test proves the policy is correct.
 
+Line midpoint split algorithm
+-----------------------------
+
+The 2D interface split path separates geometry discovery from mapping assembly.
+``FaceSearch::SplitLine`` first clears the selected parent's old child list and
+ignores faces that are not two-node edges. ``TrySplitLineAtMidpoint`` then
+checks whether the geometric midpoint is already present in ``PointLocator``;
+this path does not independently decide to split every edge.
+
+When a midpoint is available, the algorithm resolves it in two index spaces:
+
+#. The zone's ``nodeMesh`` is queried first. If the coordinate is absent there,
+   it is appended and the returned index becomes the **zone-local** midpoint ID.
+#. ``PointLocator::AddPoint`` supplies the **global search** midpoint ID used
+   when constructing child edge identities.
+
+``BuildLineSplitMapping`` is the pure mapping step. For a parent edge directed
+from ``A`` to ``B`` and midpoint ``M``, it emits local edges ``(0, M_local)``
+and ``(M_local, 1)``, and global edges ``(A, M_global)`` and
+``(M_global, B)``. The local endpoint flags are ``(1, -1)`` and ``(-1, 1)``;
+they encode which original endpoint each child retains. Reversing the parent
+ring must reverse the global child-edge direction while leaving the local
+index pattern and flags unchanged.
+
+The distinction matters because global face identity is order-independent, but
+the stored face ring and local endpoint metadata are directional. The helper
+replaces its output buffers, so reusing a buffer cannot retain child edges from
+an earlier split.
+
+**Tests:** ``FaceSearchBasicTest.LineSplitMappingPreservesEdgeDirectionAndEndpointFlags``,
+``FaceSearchBasicTest.LineSplitMappingPreservesReversedEdgeDirection``, and
+``FaceSearchBasicTest.LineSplitMappingReplacesPreviousOutput``.
+
+**Current boundary:** midpoint discovery still depends on the concrete
+``PointLocator`` and ``IFaceLink``/``nodeMesh`` services. The mapping step is
+already pure and can be tested without constructing a multi-zone grid. A
+future extraction should introduce a geometry-query seam only if it enables a
+real integration regression or simplifies ownership; this change does not
+add an abstraction solely to mock existing calls.
+
 Interface mapping algorithm
 ---------------------------
 
