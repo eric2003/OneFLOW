@@ -231,6 +231,13 @@ The dual-table invariant after commit is the same as after registration:
 ``ValidateGlobalFaceMappings`` requires equal top-level sizes and equal per-face
 list lengths for ``gI2Zid`` and ``g2l``.
 
+Commit is transactional with respect to the live tables: validation runs
+against the ``New`` inverse maps before any swap. If validation throws, the
+current ``gI2Zid``, ``g2l``, and ``l2g`` remain unchanged and the candidate
+buffers remain available for diagnosis or correction. The regression test
+``CommitInterfaceMappingBuffersTest.FailedValidationLeavesLiveTablesUnchanged``
+locks this failure behavior.
+
 
 Boundary-condition assignment algorithm
 ---------------------------------------
