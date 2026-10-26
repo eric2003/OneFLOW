@@ -170,6 +170,10 @@ Interface split helpers
   ``FindRemoteInterfacePartnerTest``). ``MatchInterfaceTopology`` resets
   the stored remote zone and local-face slots to ``-1`` before each lookup, so
   a rematch cannot retain a partner from an earlier mapping state.
+  ``MatchPeriodicInterface`` preserves the existing topological partner for
+  faces with exactly two zone participants. For other faces, it clears both
+  partner fields before geometric matching; a failed point/face lookup therefore
+  leaves the face explicitly unmatched instead of retaining a stale partner.
 * ``CountInterfaceFacesMissingPartner`` counts local interface faces whose
   global face has fewer than two zone slots (**test:**
   ``CountInterfaceFacesMissingPartnerTest``). The runtime diagnostic is
