@@ -280,6 +280,35 @@ boundary face as interior by mistake when orientation/duplication appears).
 
 **Tests:** ``BindCellToFaceSidesTest``, ``FaceSolverStageTest``.
 
+
+Staged parallel-array growth
+----------------------------
+
+``StageNewFace`` is the only growth path for a newly discovered unique face.
+One call appends **one** entry to each of:
+
+* topology: ``faces``, ``faceTypes``, ``faceFlags``
+* ownership: ``leftCells``, ``rightCells`` (right starts as ``INVALID_INDEX``)
+* local indices: ``lPosition``, ``rPosition`` (seeded to 0)
+* BC: ``faceBcTypes``, ``faceBcNameIds`` (both ``INVALID_INDEX``)
+* split: ``childFid`` (empty list)
+
+After growth, ``StagedBcMatchesFaceCount`` requires all of these lengths to be
+equal. That invariant is what makes later pure helpers safe: BC export,
+ownership bind, and child counting never re-size topology.
+
+**Residual interface BC.** After BOCO vertex matching, any face still at
+``INVALID_INDEX`` is treated as an interface (or unset) face.
+``FillUnsetStagedBcSlots`` (used by ``ScanInterfaceBc``) writes
+``BCTypeNull`` and name id ``-1`` into those slots only. Already assigned BC
+types are left unchanged.
+
+**Simple faces.** ``CountEmptyChildFaceLists`` counts ``childFid`` rows with
+no children; ``CountFacesWithoutChildren`` checks alignment with ``faces``
+then delegates.
+
+**Tests:** ``FillUnsetStagedBcSlotsTest``, ``FaceSolverStageTest``.
+
 Open design pressures
 ---------------------
 
@@ -327,6 +356,10 @@ Change type matrix
      - ``FaceSolverStageTest``,
        ``FaceSolverLifecycleTest``
      - `Staged face invariant` on this page
+   * - ``FillUnsetStagedBcSlots`` / ScanInterfaceBc /
+       ``CountEmptyChildFaceLists``
+     - ``FillUnsetStagedBcSlotsTest``
+     - `Staged parallel-array growth`
    * - ``SetStagedFaceBc`` /
        ``AssignBcToMatchingFaces`` /
        BC slot privacy or accessors

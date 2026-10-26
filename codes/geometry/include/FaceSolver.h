@@ -187,4 +187,18 @@ int CollectBoundaryBcEntries(
 // 3. Else leave both unchanged (return -1).
 int BindCellToFaceSides( int cellId, int & leftCell, int & rightCell );
 
+
+// Replace each INVALID_INDEX entry in faceBcTypes with fillBcType / fillNameId.
+// faceBcTypes and faceBcNameIds must have the same length. Returns how many
+// slots were filled.
+int FillUnsetStagedBcSlots(
+    IntField & faceBcTypes,
+    IntField & faceBcNameIds,
+    int fillBcType,
+    int fillNameId );
+
+// Count entries of childFid that are empty lists. Length need not match faces;
+// this is a pure list statistic.
+int CountEmptyChildFaceLists( const LinkField & childFid );
+
 EndNameSpace

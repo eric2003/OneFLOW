@@ -467,16 +467,13 @@ void FaceSolver::ScanBcFaceDetail( IntSet & bcVertex, int bcType, int bcNameId )
 
 void FaceSolver::ScanInterfaceBc()
 {
-    const int nFaces = static_cast< int >( this->faceTopo->GetLeftCells().size() );
-    const int bcNameId = -1;
-
-    for ( int iFace = 0; iFace < nFaces; ++ iFace )
-    {
-        if ( this->faceBcTypes[ iFace ] == ONEFLOW::INVALID_INDEX )
-        {
-            this->SetStagedFaceBc( iFace, BCTypeNull, bcNameId );
-        }
-    }
+    // Residual faces still at INVALID_INDEX after BOCO scans become interface
+    // (BCTypeNull) with name id -1. Length is governed by staged BC arrays.
+    FillUnsetStagedBcSlots(
+        this->faceBcTypes,
+        this->faceBcNameIds,
+        BCTypeNull,
+        /*fillNameId=*/-1 );
 }
 
 
@@ -505,15 +502,7 @@ int FaceSolver::CountFacesWithoutChildren() const
             "FaceSolver::CountFacesWithoutChildren: childFid is not aligned with faces" );
     }
 
-    int nSimpleFace = 0;
-    for ( std::size_t iFace = 0; iFace < nFaces; ++ iFace )
-    {
-        if ( this->childFid[ iFace ].empty() )
-        {
-            ++ nSimpleFace;
-        }
-    }
-    return nSimpleFace;
+    return CountEmptyChildFaceLists( this->childFid );
 }
 
 
@@ -559,6 +548,45 @@ int BindCellToFaceSides( int cellId, int & leftCell, int & rightCell )
         return 1;
     }
     return -1;
+}
+
+
+int FillUnsetStagedBcSlots(
+    IntField & faceBcTypes,
+    IntField & faceBcNameIds,
+    int fillBcType,
+    int fillNameId )
+{
+    if ( faceBcTypes.size() != faceBcNameIds.size() )
+    {
+        throw std::logic_error(
+            "FillUnsetStagedBcSlots: faceBcTypes and faceBcNameIds differ in size" );
+    }
+
+    int nFilled = 0;
+    for ( std::size_t iFace = 0; iFace < faceBcTypes.size(); ++ iFace )
+    {
+        if ( faceBcTypes[ iFace ] == ONEFLOW::INVALID_INDEX )
+        {
+            faceBcTypes[ iFace ] = fillBcType;
+            faceBcNameIds[ iFace ] = fillNameId;
+            ++ nFilled;
+        }
+    }
+    return nFilled;
+}
+
+int CountEmptyChildFaceLists( const LinkField & childFid )
+{
+    int nEmpty = 0;
+    for ( std::size_t iFace = 0; iFace < childFid.size(); ++ iFace )
+    {
+        if ( childFid[ iFace ].empty() )
+        {
+            ++ nEmpty;
+        }
+    }
+    return nEmpty;
 }
 
 EndNameSpace
