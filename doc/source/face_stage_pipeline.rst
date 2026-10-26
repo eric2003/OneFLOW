@@ -145,6 +145,8 @@ Interface split helpers
 * ``CollectBoundaryInterfaceChildCounts`` walks boundary BC types and records
   per-interface child counts (**test:**
   ``CollectBoundaryInterfaceChildCountsTest``).
+* ``RebuildFaceNodeListsAfterInterfaceSplit`` rebuilds face-to-node lists after
+  interface splits (**test:** ``RebuildFaceNodeListsTest``).
 * Quad diagonal candidates:
   ``BuildQuadDiagonalLocalTris`` / ``MapLocalTrisToGlobalNodes``
   (**test:** ``QuadDiagonalSplitTest``).
@@ -252,6 +254,9 @@ Change type matrix
      - `Interface split helpers`
    * - ``CollectBoundaryInterfaceChildCounts``
      - ``CollectBoundaryInterfaceChildCountsTest``
+     - `Interface split helpers`
+   * - ``RebuildFaceNodeListsAfterInterfaceSplit`` / SetNewFace2Node
+     - ``RebuildFaceNodeListsTest``
      - `Interface split helpers`
    * - quad diagonal local tris / node map
      - ``QuadDiagonalSplitTest``

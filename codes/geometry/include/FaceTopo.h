@@ -192,6 +192,23 @@ void CollectBoundaryInterfaceChildCounts(
     int zoneId,
     IntField & outChildCountPerInterfaceLocal );
 
+// Rebuild face-to-node lists after interface boundary faces may split.
+// childGlobalIdsPerInterfaceLocal is parallel to interface faces in boundary
+// order; empty means keep the parent node list, non-empty means emit one
+// resolved list per child (via ResolveChildFaceNodeIds). Interior faces are
+// copied unchanged.
+void RebuildFaceNodeListsAfterInterfaceSplit(
+    const LinkField & faces,
+    const IntField & bcType,
+    int nBFaces,
+    int nFaces,
+    const LinkField & childGlobalIdsPerInterfaceLocal,
+    const LinkField & childFaceNodeIds,
+    const LinkField & childFaceNodeFlags,
+    bool hasNodeMesh,
+    HXSize_t nodeMeshCount,
+    LinkField & outFaces );
+
 
 // Look up child face IDs for a local interface face and validate their node tables.
 // Preferred overload: depends only on l2g + InterfaceFaceSplitTable (no IFaceLink).

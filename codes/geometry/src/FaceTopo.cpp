@@ -339,76 +339,43 @@ void FaceTopo::SetNewFace2Node( IFaceLink & iFaceLink )
             "FaceTopo::SetNewFace2Node: face, face-type, and boundary-face counts are inconsistent" );
     }
 
-    int nBFaces = static_cast< int >( nBoundaryFaces );
-    this->rebuildFaces.resize( 0 );
+    const int nBFaces = static_cast< int >( nBoundaryFaces );
+    const int nFacesInt = static_cast< int >( nFaces );
+    const IntField & bcType = this->bcManager->bcRecord->bcType;
 
+    LinkField childGlobalIdsPerInterfaceLocal;
     int localInterfaceFaceId = 0;
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        int bcType = this->bcManager->bcRecord->bcType[ iFace ];
-
-        int nFNode = this->faces[ iFace ].size();
-        IntField resolvedFaceNodes;
-
-        if ( BC::IsInterfaceBc( bcType ) )
+        if ( ! BC::IsInterfaceBc( bcType[ iFace ] ) )
         {
-            const IntField & childFaceIds = GetInterfaceChildFaceIds( iFaceLink.l2g, iFaceLink.face_search->interfaceSplit, this->GetGrid().id, localInterfaceFaceId );
-            int nCFace = childFaceIds.size();
-
-            if ( nCFace > 0 )
-            {
-                for ( int iCFace = 0; iCFace < nCFace; ++ iCFace )
-                {
-                    //this->lCellNew.push_back( this->lCell[ iFace ] );
-
-                    const int cFid = childFaceIds[ iCFace ];
-                    const bool hasNodeMesh = static_cast< bool >( this->GetGrid().nodeMesh );
-                    const HXSize_t nodeMeshCount = hasNodeMesh
-                        ? this->GetGrid().nodeMesh->GetNumberOfNodes()
-                        : 0;
-                    resolvedFaceNodes = ResolveChildFaceNodeIds(
-                        this->faces[ iFace ],
-                        iFaceLink.face_search->interfaceSplit.childFaceNodeIds[ cFid ],
-                        iFaceLink.face_search->interfaceSplit.childFaceNodeFlags[ cFid ],
-                        hasNodeMesh,
-                        nodeMeshCount );
-                    this->rebuildFaces.push_back( resolvedFaceNodes );
-                }
-            }
-            else
-            {
-                for ( int iNode = 0; iNode < nFNode; ++ iNode )
-                {
-                    int nodeIndex = this->faces[ iFace ][ iNode ];
-                    resolvedFaceNodes.push_back( nodeIndex );
-                }
-                this->rebuildFaces.push_back( resolvedFaceNodes );
-            }
-            ++ localInterfaceFaceId;
+            continue;
         }
-        else
-        {
-            for ( int iNode = 0; iNode < nFNode; ++ iNode )
-            {
-                int nodeIndex = this->faces[ iFace ][ iNode ];
-                resolvedFaceNodes.push_back( nodeIndex );
-            }
-            this->rebuildFaces.push_back( resolvedFaceNodes );
-        }
+        childGlobalIdsPerInterfaceLocal.push_back(
+            GetInterfaceChildFaceIds(
+                iFaceLink.l2g,
+                iFaceLink.face_search->interfaceSplit,
+                this->GetGrid().id,
+                localInterfaceFaceId ) );
+        ++ localInterfaceFaceId;
     }
 
-    //Inner Face
-    for ( int iFace = nBFaces; iFace < nFaces; ++ iFace )
-    {
-        int nFNode = this->faces[ iFace ].size();
-        IntField resolvedFaceNodes;
-        for ( int iNode = 0; iNode < nFNode; ++ iNode )
-        {
-            int nId = this->faces[ iFace ][ iNode ];
-            resolvedFaceNodes.push_back( nId );
-        }
-        this->rebuildFaces.push_back( resolvedFaceNodes );
-    }
+    const bool hasNodeMesh = static_cast< bool >( this->GetGrid().nodeMesh );
+    const HXSize_t nodeMeshCount = hasNodeMesh
+        ? this->GetGrid().nodeMesh->GetNumberOfNodes()
+        : 0;
+
+    RebuildFaceNodeListsAfterInterfaceSplit(
+        this->faces,
+        bcType,
+        nBFaces,
+        nFacesInt,
+        childGlobalIdsPerInterfaceLocal,
+        iFaceLink.face_search->interfaceSplit.childFaceNodeIds,
+        iFaceLink.face_search->interfaceSplit.childFaceNodeFlags,
+        hasNodeMesh,
+        nodeMeshCount,
+        this->rebuildFaces );
 }
 
 void FaceTopo::SetNewFace2Cell( IFaceLink & iFaceLink )
@@ -979,6 +946,87 @@ void CollectBoundaryInterfaceChildCounts(
         outChildCountPerInterfaceLocal.push_back(
             static_cast< int >( childFaceIds.size() ) );
         ++ interfaceLocal;
+    }
+}
+
+
+void RebuildFaceNodeListsAfterInterfaceSplit(
+    const LinkField & faces,
+    const IntField & bcType,
+    int nBFaces,
+    int nFaces,
+    const LinkField & childGlobalIdsPerInterfaceLocal,
+    const LinkField & childFaceNodeIds,
+    const LinkField & childFaceNodeFlags,
+    bool hasNodeMesh,
+    HXSize_t nodeMeshCount,
+    LinkField & outFaces )
+{
+    if ( nBFaces < 0 || nFaces < 0 || nBFaces > nFaces )
+    {
+        throw std::logic_error(
+            "RebuildFaceNodeListsAfterInterfaceSplit: invalid face counts" );
+    }
+    if ( static_cast< std::size_t >( nFaces ) > faces.size() ||
+         static_cast< std::size_t >( nBFaces ) > bcType.size() )
+    {
+        throw std::logic_error(
+            "RebuildFaceNodeListsAfterInterfaceSplit: arrays shorter than face counts" );
+    }
+
+    outFaces.clear();
+
+    int interfaceLocal = 0;
+    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
+    {
+        if ( BC::IsInterfaceBc( bcType[ iFace ] ) )
+        {
+            if ( interfaceLocal < 0 ||
+                 static_cast< std::size_t >( interfaceLocal ) >=
+                     childGlobalIdsPerInterfaceLocal.size() )
+            {
+                throw std::out_of_range(
+                    "RebuildFaceNodeListsAfterInterfaceSplit: interface child list index out of range" );
+            }
+            const IntField & childFaceIds =
+                childGlobalIdsPerInterfaceLocal[ interfaceLocal ];
+            ++ interfaceLocal;
+
+            if ( ! childFaceIds.empty() )
+            {
+                for ( int iCFace = 0; iCFace < static_cast< int >( childFaceIds.size() ); ++ iCFace )
+                {
+                    const int cFid = childFaceIds[ iCFace ];
+                    if ( cFid < 0 ||
+                         static_cast< std::size_t >( cFid ) >= childFaceNodeIds.size() ||
+                         static_cast< std::size_t >( cFid ) >= childFaceNodeFlags.size() )
+                    {
+                        throw std::out_of_range(
+                            "RebuildFaceNodeListsAfterInterfaceSplit: child face id out of range" );
+                    }
+                    outFaces.push_back(
+                        ResolveChildFaceNodeIds(
+                            faces[ iFace ],
+                            childFaceNodeIds[ cFid ],
+                            childFaceNodeFlags[ cFid ],
+                            hasNodeMesh,
+                            nodeMeshCount ) );
+                }
+            }
+            else
+            {
+                outFaces.push_back( faces[ iFace ] );
+            }
+        }
+        else
+        {
+            outFaces.push_back( faces[ iFace ] );
+        }
+    }
+
+    for ( int iFace = nBFaces; iFace < nFaces; ++ iFace )
+    {
+        outFaces.push_back( faces[ iFace ] );
     }
 }
 
