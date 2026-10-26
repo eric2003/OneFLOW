@@ -201,4 +201,13 @@ int FillUnsetStagedBcSlots(
 // this is a pure list statistic.
 int CountEmptyChildFaceLists( const LinkField & childFid );
 
+
+// True when a staged face may receive a new BC from AssignBcToMatchingFaces:
+// current type is still INVALID_INDEX, and if boundaryFacesOnly then right
+// cell must be INVALID_INDEX (open boundary).
+bool IsEligibleForStagedBcAssignment(
+    int currentBcType,
+    int rightCell,
+    bool boundaryFacesOnly );
+
 EndNameSpace

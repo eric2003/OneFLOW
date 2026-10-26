@@ -213,6 +213,14 @@ faces and writes BC only through ``SetStagedFaceBc``.
 ``CheckBcFace``) is true when every node of a face appears in the BOCO vertex
 set. The BOCO set may contain extra nodes; face node order does not matter.
 
+**Eligibility filter.** Before the vertex-set match,
+``IsEligibleForStagedBcAssignment`` decides whether a face may be written:
+
+#. ``currentBcType`` must still be ``INVALID_INDEX`` (first writer wins; later
+   BOCO regions do not overwrite).
+#. If ``boundaryFacesOnly`` is true, ``rightCell`` must be ``INVALID_INDEX``
+   (open boundary). Detail mode drops this restriction.
+
 **Two scan modes.**
 
 .. list-table::
@@ -222,13 +230,11 @@ set. The BOCO set may contain extra nodes; face node order does not matter.
    * - API
      - Filter
    * - ``ScanBcFace``
-     - ``boundaryFacesOnly``: only faces with ``right == INVALID_INDEX`` and
-       no BC yet
+     - ``boundaryFacesOnly=true``: open right cell and no BC yet
    * - ``ScanBcFaceDetail``
-     - vertex match only; may label interior faces if nodes lie in the set
+     - no BC yet only; may label interior faces if nodes lie in the set
 
-Both call ``AssignBcToMatchingFaces``, which skips faces that already have a
-BC type.
+Both call ``AssignBcToMatchingFaces`` then ``FaceNodesContainedInVertexSet``.
 
 **Interface fill.** ``ScanInterfaceBc`` assigns ``BCTypeNull`` (and name id
 ``-1``) to any remaining face still at ``INVALID_INDEX``. That closes the
@@ -309,6 +315,28 @@ then delegates.
 
 **Tests:** ``FillUnsetStagedBcSlotsTest``, ``FaceSolverStageTest``.
 
+
+Boundary-first reorder algorithm
+--------------------------------
+
+After staging and BC export, faces may still be in discovery order (volume
+sweep). Solvers expect **all boundary faces in a contiguous prefix**.
+
+``BuildBoundaryFirstPermutation(rightCells)`` builds ``newToOld``:
+
+#. First pass: append indices with ``right == INVALID_INDEX`` (boundary).
+#. Second pass: append the remaining indices (interior), preserving relative
+   order within each class (stable partition).
+
+``ReorderLink`` applies that permutation to every face-indexed array
+(faces, types, flags, left/right cells, positions, and related metadata) and
+clears derived ``c2f``. ``BcRecord`` is **not** reordered separately: it was
+filled in discovery order of boundary faces, and the partition preserves the
+relative order of those boundary faces, so the prefix of reordered faces still
+matches ``BcRecord`` (``ValidateBoundaryBcLayout``).
+
+**Tests:** ``FaceTopoReorderLinkTest``.
+
 Open design pressures
 ---------------------
 
@@ -367,6 +395,9 @@ Change type matrix
      - write-path table on this page
    * - ``FaceNodesContainedInVertexSet`` / CheckBcFace
      - ``FaceNodesContainedInVertexSetTest``
+     - `Boundary-condition assignment algorithm`
+   * - ``IsEligibleForStagedBcAssignment``
+     - ``IsEligibleForStagedBcAssignmentTest``
      - `Boundary-condition assignment algorithm`
    * - ``CollectBoundaryBcEntries`` / AppendBoundaryBcToRecord
      - ``CollectBoundaryBcEntriesTest``

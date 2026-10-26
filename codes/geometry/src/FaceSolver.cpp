@@ -433,14 +433,13 @@ int FaceSolver::AssignBcToMatchingFaces(
     const int nFaces = static_cast< int >( this->faceTopo->GetLeftCells().size() );
     int nAssigned = 0;
 
+    const auto & rightCells = this->faceTopo->GetRightCells();
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
-        if ( this->faceBcTypes[ iFace ] != ONEFLOW::INVALID_INDEX )
-        {
-            continue;
-        }
-        if ( boundaryFacesOnly &&
-             this->faceTopo->GetRightCells()[ iFace ] != ONEFLOW::INVALID_INDEX )
+        if ( ! IsEligibleForStagedBcAssignment(
+                   this->faceBcTypes[ iFace ],
+                   rightCells[ iFace ],
+                   boundaryFacesOnly ) )
         {
             continue;
         }
@@ -587,6 +586,23 @@ int CountEmptyChildFaceLists( const LinkField & childFid )
         }
     }
     return nEmpty;
+}
+
+
+bool IsEligibleForStagedBcAssignment(
+    int currentBcType,
+    int rightCell,
+    bool boundaryFacesOnly )
+{
+    if ( currentBcType != ONEFLOW::INVALID_INDEX )
+    {
+        return false;
+    }
+    if ( boundaryFacesOnly && rightCell != ONEFLOW::INVALID_INDEX )
+    {
+        return false;
+    }
+    return true;
 }
 
 EndNameSpace
