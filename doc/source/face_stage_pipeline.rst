@@ -132,6 +132,8 @@ Interface split helpers
 * ``RegisterLocalInterfaceFace`` records ``l2g`` / ``gI2Zid`` / ``g2l`` when a
   local interface face joins a global id (**test:**
   ``RegisterLocalInterfaceFaceTest``).
+* ``FindRemoteInterfacePartner`` selects the non-self zone/local pair on a
+  global interface face (**test:** ``FindRemoteInterfacePartnerTest``).
 * ``ExpandBcRecordForSplitInterfaces`` repeats BC slots when an interface face
   splits into children (**test:** ``ExpandBcRecordSplitTest``).
 * ``BuildInverseInterfaceMapForZone`` fills ``gI2ZidNew`` / ``g2lNew`` from a
@@ -240,6 +242,9 @@ Change type matrix
      - `Interface split helpers`
    * - ``RegisterLocalInterfaceFace`` / CreateLink mapping
      - ``RegisterLocalInterfaceFaceTest``
+     - `Interface split helpers`
+   * - ``FindRemoteInterfacePartner`` / MatchInterfaceTopology
+     - ``FindRemoteInterfacePartnerTest``
      - `Interface split helpers`
    * - ``ExpandBcRecordForSplitInterfaces`` / BC reset on split
      - ``ExpandBcRecordSplitTest``

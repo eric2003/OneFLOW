@@ -131,6 +131,38 @@ IFaceLink::IFaceLink( Grids & gridsIn ) : grids( gridsIn )
     this->pointLocatorReady = false;
 }
 
+
+bool FindRemoteInterfacePartner(
+    int globalFaceId,
+    int selfZoneId,
+    int selfLocalFaceId,
+    const LinkField & zoneIdsPerGlobalFace,
+    const LinkField & localFaceIdsPerGlobalFace,
+    int & outRemoteZoneId,
+    int & outRemoteLocalFaceId )
+{
+    ValidateGlobalFaceMapping(
+        globalFaceId,
+        zoneIdsPerGlobalFace,
+        localFaceIdsPerGlobalFace,
+        "FindRemoteInterfacePartner" );
+
+    const IntField & zoneIds = zoneIdsPerGlobalFace[ globalFaceId ];
+    const IntField & localIds = localFaceIdsPerGlobalFace[ globalFaceId ];
+    for ( std::size_t i = 0; i < zoneIds.size(); ++ i )
+    {
+        const int zid = zoneIds[ i ];
+        const int lid = localIds[ i ];
+        if ( zid != selfZoneId || lid != selfLocalFaceId )
+        {
+            outRemoteZoneId = zid;
+            outRemoteLocalFaceId = lid;
+            return true;
+        }
+    }
+    return false;
+}
+
 void IFaceLink::EnsurePointLocatorReady()
 {
     if ( this->pointLocatorReady )
@@ -254,17 +286,19 @@ void IFaceLink::MatchInterfaceTopology( Grid & grid )
             }
         }
 
-        for ( int iIZone = 0; iIZone < nIZone; ++ iIZone )
+        int remoteZone = -1;
+        int remoteLocal = -1;
+        if ( FindRemoteInterfacePartner(
+                 gIFace,
+                 grid.id,
+                 iIFace,
+                 this->gI2Zid,
+                 this->g2l,
+                 remoteZone,
+                 remoteLocal ) )
         {
-            int nZid = this->gI2Zid[ gIFace ][ iIZone ];
-            int lId  = this->g2l[ gIFace ][ iIZone ];
-            if ( ( nZid != grid.id ) ||
-                 ( lId  != iIFace   ) )
-            {
-                interFace->zoneId[ iIFace ] = nZid;
-                interFace->localInterfaceId[ iIFace ] = lId;
-                break;
-            }
+            interFace->zoneId[ iIFace ] = remoteZone;
+            interFace->localInterfaceId[ iIFace ] = remoteLocal;
         }
     }
     std::cout << " Periodic boundary faces missing a partner = "

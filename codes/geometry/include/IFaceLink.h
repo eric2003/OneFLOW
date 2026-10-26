@@ -110,4 +110,15 @@ void RegisterLocalInterfaceFace(
     LinkField & gI2Zid,
     LinkField & g2l );
 
+// Among zone/local pairs on globalFaceId, find the first entry that is not
+// (selfZoneId, selfLocalFaceId). Returns false if none.
+bool FindRemoteInterfacePartner(
+    int globalFaceId,
+    int selfZoneId,
+    int selfLocalFaceId,
+    const LinkField & zoneIdsPerGlobalFace,
+    const LinkField & localFaceIdsPerGlobalFace,
+    int & outRemoteZoneId,
+    int & outRemoteLocalFaceId );
+
 EndNameSpace
