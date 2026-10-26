@@ -40,6 +40,31 @@ TEST( BuildInverseInterfaceMapTest, SecondZoneFillsPairSlot )
     EXPECT_EQ( g2lNew[ 0 ][ 1 ], 0 );
 }
 
+TEST( BuildInverseInterfaceMapTest, RefreshesExistingZoneSlotDuringRebuild )
+{
+    LinkField gI2ZidNew{ IntField{ 0, 1 } };
+    LinkField g2lNew{ IntField{ 4, 8 } };
+
+    // Global face 0 moved to local slot 1 in zone 0 after rebuilding.
+    BuildInverseInterfaceMapForZone( 0, IntField{ 5, 0 }, gI2ZidNew, g2lNew );
+
+    EXPECT_EQ( gI2ZidNew[ 0 ], ( IntField{ 0, 1 } ) );
+    EXPECT_EQ( g2lNew[ 0 ], ( IntField{ 1, 8 } ) );
+    EXPECT_EQ( gI2ZidNew[ 5 ], ( IntField{ 0 } ) );
+    EXPECT_EQ( g2lNew[ 5 ], ( IntField{ 0 } ) );
+}
+
+TEST( BuildInverseInterfaceMapTest, DoesNotDuplicateExistingZoneParticipant )
+{
+    LinkField gI2ZidNew{ IntField{ 0 } };
+    LinkField g2lNew{ IntField{ 6 } };
+
+    BuildInverseInterfaceMapForZone( 0, IntField{ 0 }, gI2ZidNew, g2lNew );
+
+    EXPECT_EQ( gI2ZidNew[ 0 ], ( IntField{ 0 } ) );
+    EXPECT_EQ( g2lNew[ 0 ], ( IntField{ 0 } ) );
+}
+
 TEST( BuildInverseInterfaceMapTest, LegacyPolicyIgnoresThirdZoneParticipant )
 {
     LinkField gI2ZidNew;

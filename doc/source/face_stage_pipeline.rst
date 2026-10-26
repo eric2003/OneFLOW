@@ -192,14 +192,18 @@ Interface split helpers
   rows. A global face supports at most two zone participants; attempting to
   register a third participant now throws before changing ``l2g``, ``gI2Zid``,
   or ``g2l`` (**test:** ``RegisterLocalInterfaceFaceTest``).
-* ``BuildInverseInterfaceMapForZone`` fills ``gI2ZidNew`` / ``g2lNew`` from a
-  zone's ``l2gNew`` row (at most two zone slots). Its legacy rebuild policy
-  still silently ignores a third or later participant rather than expanding the
-  data model. This differs intentionally from initial registration, which now
-  rejects unsupported topology early. The routine validates all global-face
-  IDs, per-zone uniqueness, and existing referenced rows before mutating either
-  inverse table, so invalid input cannot leave a partial update (**tests:**
-  ``BuildInverseInterfaceMapTest``).
+* ``BuildInverseInterfaceMapForZone`` refreshes the inverse references for
+  one zone from its rebuilt ``l2gNew`` row. Since ``InitNewInterfaceMappingBuffers``
+  starts from copies of the live inverse maps, a rebuild must update the
+  existing zone slot's local-face index rather than append that zone a second
+  time. If the zone is absent, it is appended only when the global face has
+  fewer than two participants. The legacy policy still silently ignores a
+  third distinct participant rather than expanding the data model. This differs
+  from initial registration, which rejects unsupported topology early. The
+  routine validates all global-face IDs, per-zone uniqueness, and existing
+  referenced rows before mutation (**tests:**
+  ``BuildInverseInterfaceMapTest.RefreshesExistingZoneSlotDuringRebuild``,
+  ``BuildInverseInterfaceMapTest.DoesNotDuplicateExistingZoneParticipant``).
 * ``RebuildZoneL2gNewAfterInterfaceSplit`` rebuilds one zone's ``l2gNew`` /
   ``nChild`` when parents split (**test:** ``RebuildZoneL2gNewTest``).
 * ``RebuildFaceCellSidesAfterInterfaceSplit`` expands left cells and assigns

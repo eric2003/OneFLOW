@@ -819,12 +819,28 @@ void BuildInverseInterfaceMapForZone(
             g2lNew.resize( need );
         }
 
-        // Legacy topology stores one zone pair per global interface face.
-        // Keep this compatibility policy explicit: extra participants are ignored.
-        if ( gI2ZidNew[ gIFid ].size() < 2 )
+        // Rebuild buffers start with the live inverse maps. Refresh this
+        // zone's slot when the global face already exists; otherwise a stale
+        // local index or duplicate self-participant would survive the rebuild.
+        IntField & zoneIds = gI2ZidNew[ gIFid ];
+        IntField & localFaceIds = g2lNew[ gIFid ];
+        bool foundZone = false;
+        for ( std::size_t slot = 0; slot < zoneIds.size(); ++ slot )
         {
-            gI2ZidNew[ gIFid ].push_back( zoneId );
-            g2lNew[ gIFid ].push_back( localIFid );
+            if ( zoneIds[ slot ] == zoneId )
+            {
+                localFaceIds[ slot ] = localIFid;
+                foundZone = true;
+                break;
+            }
+        }
+
+        // Keep the legacy two-participant capacity. A third distinct zone is
+        // ignored, but a zone already in the row must be refreshed above.
+        if ( ! foundZone && zoneIds.size() < 2 )
+        {
+            zoneIds.push_back( zoneId );
+            localFaceIds.push_back( localIFid );
         }
     }
 }
