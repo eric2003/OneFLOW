@@ -46,6 +46,8 @@ def build_workflow_definition_from_workspace(
                 "id": case.case_id,
                 "directory": case.path,
                 "depends_on": list(case.depends_on),
+                "inputs": [item.to_dict() for item in case.inputs],
+                "outputs": [item.to_dict() for item in case.outputs],
             }
             for case in workspace.cases
         ]

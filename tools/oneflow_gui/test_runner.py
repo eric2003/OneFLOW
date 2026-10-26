@@ -35,6 +35,7 @@ _PYTHON_UNIT_TESTS = (
     ("User data path tests", ("-m", "unittest", "tools.oneflow_gui.test_user_data_paths")),
     ("Application settings tests", ("-m", "unittest", "tools.oneflow_gui.test_application_settings")),
     ("Workflow persistence tests", ("-m", "unittest", "tools.oneflow_gui.test_workflow_repository")),
+    ("Workspace persistence tests", ("-m", "unittest", "tools.oneflow_gui.test_workspace_repository")),
     ("Workspace execution adapter tests", ("-m", "unittest", "tools.oneflow_gui.test_workspace_workflow_adapter")),
     ("Workflow command tests", ("-m", "unittest", "tools.oneflow_gui.test_workflow_execution")),
     ("Workflow dependency tests", ("-m", "unittest", "tools.oneflow_gui.test_workflow_dependencies")),

@@ -13,6 +13,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 from PySide6.QtWidgets import QApplication
 
 from tools.oneflow_gui.workspace_dialog import WorkspaceDialog
+from tools.oneflow_gui.workspace_repository import load_workspace
 
 
 class WorkspaceDialogTest(unittest.TestCase):
@@ -39,6 +40,47 @@ class WorkspaceDialogTest(unittest.TestCase):
             self.assertEqual(dialog.case_table.item(0, 1).text(), str(selected))
             self.assertEqual(choose_directory.call_args.args[2], str(current))
             dialog.close()
+
+    def test_save_persists_dependency_artifact_bindings(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            workspace_path = Path(temporary) / "workspace.ofw"
+            dialog = WorkspaceDialog()
+            dialog.name_edit.setText("Artifact workspace")
+            dialog.mode_combo.setCurrentIndex(
+                dialog.mode_combo.findData("dependency_workflow")
+            )
+            dialog._append_case(
+                "grid",
+                "cases/grid",
+                inputs="[]",
+                outputs=(
+                    '[{"id":"mesh","path":"results/mesh.ofl",'
+                    '"parameter_file":"script/grid.txt",'
+                    '"setting":"targetGridFileName"}]'
+                ),
+            )
+            dialog._append_case(
+                "solver",
+                "cases/solver",
+                "grid",
+                inputs=(
+                    '[{"artifact":"mesh","setting":"gridFileName",'
+                    '"parameter_file":"script/cfd.txt"}]'
+                ),
+                outputs="[]",
+            )
+            with patch(
+                "tools.oneflow_gui.workspace_dialog.QFileDialog.getSaveFileName",
+                return_value=(str(workspace_path), "OneFLOW workspace (*.ofw)"),
+            ), patch("tools.oneflow_gui.workspace_dialog.QMessageBox.information"), patch.dict(
+                os.environ, {"ONEFLOW_HOME": str(Path(temporary) / "user-data")}
+            ):
+                dialog._save()
+            loaded = load_workspace(workspace_path)
+
+        self.assertEqual(loaded.cases[0].outputs[0].artifact_id, "mesh")
+        self.assertEqual(loaded.cases[1].inputs[0].artifact, "mesh")
+        self.assertEqual(loaded.cases[1].depends_on, ("grid",))
 
     def test_cancelled_browse_preserves_typed_case_path(self) -> None:
         dialog = WorkspaceDialog()

@@ -357,3 +357,11 @@ Commit: `d8568fe91722af5d78d8083d6bae23d9446d952d`
 - Centralized `.ofw`-relative path resolution and serialization. Editing an existing file now preserves portable relative paths rather than resolving them against the process working directory.
 - Added mode conversion and path round-trip tests. Validation: Python syntax compilation succeeded; the focused GUI/workflow suite passed 61 tests. The full repository suite and Sphinx build were not run.
 - Suggested commit: `feat(gui): run saved workspaces through workflow runner`.
+
+### 2026-10-26 - Add artifact bindings to .ofw dependency cases
+
+- Bumped the `.ofw` schema to version 2 for optional `inputs` and `outputs`. Version-1 files without artifact fields migrate; version-1 files that contain those fields are rejected rather than silently reinterpreted.
+- Added editable JSON binding columns to each case row. The workspace adapter forwards these values to the existing graph planner, which configures producer output settings, validates direct producer dependencies, stages outputs, and applies consumer settings.
+- Reused `build_case_graph_plan()` as the canonical semantic validator for artifact IDs, input/output references, dependency edges, setting identifiers, and case-relative paths.
+- Validation: Python syntax compilation succeeded; schema, conversion, persistence, GUI dialog, workflow plan, graph runner, staging, and process tests passed 83/83. The full repository suite and Sphinx build were not run.
+- Suggested commit: `feat(gui): support artifact bindings in saved workspaces`.

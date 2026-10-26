@@ -6,9 +6,9 @@ The desktop application starts with a minimal Workbench home containing a single
 
 ## Workspace files
 
-A workspace is stored as a readable JSON document with the `.ofw` extension. Its schema records a workspace ID and name, an execution mode (`single_case`, `sequential_cases`, `independent_cases`, or `dependency_workflow`), and an ordered list of case IDs and paths. Paths are stored relative to the workspace file when possible. Dependency workflows record `depends_on` case IDs; validation rejects unknown dependencies and cycles. The independent mode rejects declared dependencies, while sequential mode uses the case list order.
+A workspace is stored as a readable JSON document with the `.ofw` extension (schema version 2). Version-1 files without artifact fields load and migrate on save. Its schema records a workspace ID and name, an execution mode (`single_case`, `sequential_cases`, `independent_cases`, or `dependency_workflow`), and an ordered list of case IDs and paths. Paths are stored relative to the workspace file when possible. Dependency workflows record `depends_on` case IDs; validation rejects unknown dependencies and cycles. The independent mode rejects declared dependencies, while sequential mode uses the case list order.
 
-The workspace editor creates, loads, validates, edits, and runs these definitions. **Save and Run...** saves the ``.ofw`` file and opens an unsaved draft in Saved Workflows; execution uses the existing runner and run-history repository. Single-case, sequential, and independent modes map to one OneFLOW multi-directory process with the declared case order. Dependency mode maps IDs, directories, and edges to the existing graph runner, which stages cases and blocks dependents after failures. The `.ofw` schema does not define artifact inputs or outputs, so this mode does not bind generated meshes to downstream parameter files. Use Saved Workflows graph JSON when artifact handoff is required.
+The workspace editor creates, loads, validates, edits, and runs these definitions. **Save and Run...** saves the `.ofw` file and opens an unsaved draft in Saved Workflows; execution uses the existing runner and run-history repository. Single-case, sequential, and independent modes map to one OneFLOW multi-directory process with the declared case order. Dependency mode maps IDs, directories, and edges to the existing graph runner, which stages cases and blocks dependents after failures. Dependency case rows accept `outputs` and `inputs` JSON bindings using the same fields as Saved Workflows graph definitions. Output IDs must be unique; an input must reference an output from a direct dependency. Artifact and parameter-file paths are relative to their case directory. The adapter preserves these bindings so the graph planner configures producer output settings, stages generated files, and overrides consumer settings. Version-1 definitions without `inputs` or `outputs` migrate on save; artifact fields require schema version 2.
 
 ## Launch
 
@@ -130,6 +130,7 @@ python -m unittest tools.oneflow_gui.test_services
 python -m unittest tools.oneflow_gui.test_user_data_paths
 python -m unittest tools.oneflow_gui.test_application_settings
 python -m unittest tools.oneflow_gui.test_workspace_workflow_adapter
+python -m unittest tools.oneflow_gui.test_workspace_repository
 python -m unittest tools.oneflow_gui.test_workspace_dialog
 python -m unittest tools.oneflow_gui.test_workflow_repository
 python -m unittest tools.oneflow_gui.test_workflow_execution

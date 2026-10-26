@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import json
 import tempfile
 import unittest
 from pathlib import Path
 
 from tools.oneflow_gui.workspace_repository import (
+    SCHEMA_VERSION,
     WorkspaceDefinition,
     load_workspace,
     save_workspace,
@@ -15,7 +17,7 @@ from tools.oneflow_gui.workspace_repository import (
 
 def workspace_data(mode: str = "single_case", cases=None) -> dict:
     return {
-        "schema_version": 1,
+        "schema_version": SCHEMA_VERSION,
         "workspace_id": "sample-workspace",
         "name": "Sample workspace",
         "description": "",
@@ -33,6 +35,69 @@ class WorkspaceRepositoryTest(unittest.TestCase):
             path = save_workspace(Path(temporary_directory) / "sample.ofw", workspace)
             loaded = load_workspace(path)
         self.assertEqual(loaded, workspace)
+
+    def test_version_one_workspace_migrates_without_losing_cases(self) -> None:
+        data = workspace_data()
+        data["schema_version"] = 1
+        workspace = WorkspaceDefinition.from_dict(data)
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            path = save_workspace(
+                Path(temporary_directory) / "migrated.ofw", workspace
+            )
+            persisted = json.loads(path.read_text(encoding="utf-8"))
+
+        self.assertEqual(workspace.schema_version, SCHEMA_VERSION)
+        self.assertEqual(persisted["schema_version"], SCHEMA_VERSION)
+        self.assertEqual(workspace.cases[0].inputs, ())
+        self.assertEqual(workspace.cases[0].outputs, ())
+
+    def test_unknown_workspace_schema_version_is_rejected(self) -> None:
+        data = workspace_data()
+        data["schema_version"] = 99
+
+        with self.assertRaisesRegex(ValueError, "Unsupported workspace schema version"):
+            WorkspaceDefinition.from_dict(data)
+
+    def test_version_one_cannot_contain_version_two_artifact_fields(self) -> None:
+        data = workspace_data("dependency_workflow", [
+            {"case_id": "grid", "path": "grid", "outputs": [{"id": "mesh", "path": "mesh.ofl"}]},
+        ])
+        data["schema_version"] = 1
+
+        with self.assertRaisesRegex(ValueError, "require workspace schema version 2"):
+            WorkspaceDefinition.from_dict(data)
+
+    def test_dependency_artifact_bindings_round_trip(self) -> None:
+        data = workspace_data("dependency_workflow", [
+            {
+                "case_id": "producer",
+                "path": "producer",
+                "outputs": [{
+                    "id": "mesh",
+                    "path": "results/mesh.ofl",
+                    "parameter_file": "script/grid.txt",
+                    "setting": "targetGridFileName",
+                }],
+            },
+            {
+                "case_id": "consumer",
+                "path": "consumer",
+                "depends_on": ["producer"],
+                "inputs": [{
+                    "artifact": "mesh",
+                    "setting": "gridFileName",
+                    "parameter_file": "script/cfd.txt",
+                }],
+            },
+        ])
+        workspace = WorkspaceDefinition.from_dict(data)
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            path = save_workspace(Path(temporary_directory) / "artifacts.ofw", workspace)
+            loaded = load_workspace(path)
+
+        self.assertEqual(loaded, workspace)
+        self.assertEqual(loaded.cases[0].outputs[0].artifact_id, "mesh")
+        self.assertEqual(loaded.cases[1].inputs[0].artifact, "mesh")
 
     def test_sequential_cases_preserve_declared_order(self) -> None:
         data = workspace_data("sequential_cases", [

@@ -2,7 +2,7 @@
 
 Last updated: 2026-10-26
 Working branch: `hexin`
-Latest inspected `hexin` HEAD: [`c1c66b41`](https://github.com/eric2003/OneFLOW/commit/c1c66b41), also shown as `origin/hexin`. That commit contains the CLI parser split and initial Workbench documentation. The user-reported 723/723 result was on its earlier `d5b96e99` base and has not been revalidated at `c1c66b41`. The current local slice connects `ApplicationSettings.run_mode` to Saved Workflows initial draft selection, adds three Qt-independent mapping tests, and includes the application-settings suite in the GUI test runner. `.ofw` now converts into an unsaved Saved Workflows draft and uses the existing execution/history services; dependency mode has no artifact binding contract yet. Relative case paths now resolve against the .ofw file and round-trip portably. The full suite has not been rerun.
+Latest inspected `hexin` HEAD: [`14e9282e`](https://github.com/eric2003/OneFLOW/commit/14e9282e), also shown as `origin/hexin`. It includes the CLI parser split, Workbench documentation, and run-mode draft selection. The user-reported 723/723 result was on its earlier `d5b96e99` base and has not been revalidated at `c1c66b41`. The current local slice connects `ApplicationSettings.run_mode` to Saved Workflows initial draft selection, adds three Qt-independent mapping tests, and includes the application-settings suite in the GUI test runner. `.ofw` now converts into an unsaved Saved Workflows draft and uses the existing execution/history services; dependency mode now carries artifact inputs/outputs through the shared workflow-plan contract. The `.ofw` schema is version 2 and migrates version-1 files without bindings. Relative case paths resolve against the .ofw file and round-trip portably. The full suite has not been rerun.
 
 This is the fast handoff page for an AI assistant or developer continuing work on OneFLOW. It is a curated status snapshot, not a replacement for source code, tests, design pages, or CI. Recheck the branch HEAD before editing: this page can lag behind the current repository revision.
 
@@ -83,11 +83,11 @@ The helper preserves the optional-parameter contract:
 
 ## 5. Next actions, in priority order
 
-1. Extend the `.ofw` schema with explicit artifact output and consumer input bindings, then add tests that verify producer settings, staged paths, and run-history records.
-2. Inspect the invocation mode contract for `d`/`r` and determine whether any named CLI option can be introduced without breaking scripts.
+1. Add an acceptance test that executes a converted `.ofw` producer/consumer graph and verifies staged output paths, parameter overrides, and the persisted run record.
+2. Run the full repository suite and check current `hexin` CI; update this handoff with exact results.
 3. Continue from [the integration-test investigation](plans/setup-case-environment-integration-test.md): inspect global database initialization and test link dependencies, then try a temporary-case fixture for `SetupCaseEnvironment()` without duplicating the full solver bootstrap.
-4. Verify the path reset between sequential cases and confirm output-path diagnostics remain compatible.
-5. Re-run the full suite and record exact local/CI evidence after the runtime integration change.
+4. Verify path reset between sequential cases and confirm output-path diagnostics remain compatible.
+5. Inspect the invocation mode contract for `d`/`r` before considering any CLI syntax change.
 
 Do not mark an item complete because a code change was committed. Completion requires acceptance evidence.
 ## 6. Status vocabulary

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from PySide6.QtWidgets import (
@@ -21,6 +22,8 @@ from PySide6.QtWidgets import (
 from .user_data_paths import UserDataPaths
 from .workspace_workflow_adapter import store_workspace_case_path
 from .workspace_repository import (
+    WorkspaceArtifactInput,
+    WorkspaceArtifactOutput,
     WorkspaceCase,
     WorkspaceDefinition,
     load_workspace,
@@ -41,7 +44,7 @@ class WorkspaceDialog(QDialog):
 
         layout = QVBoxLayout(self)
         layout.addWidget(QLabel("This .ofw file groups existing case directories and records their execution policy. It is separate from a project folder created or opened through New Project / Open Project."))
-        layout.addWidget(QLabel("Dependency mode controls order and failure blocking only; .ofw does not define artifact input/output bindings."))
+        layout.addWidget(QLabel("In dependency mode, declare artifact inputs and outputs as JSON on each case row."))
 
         name_row = QHBoxLayout()
         name_row.addWidget(QLabel("Workspace name"))
@@ -60,8 +63,8 @@ class WorkspaceDialog(QDialog):
         mode_row.addWidget(self.mode_combo, 1)
         layout.addLayout(mode_row)
 
-        self.case_table = QTableWidget(0, 4)
-        self.case_table.setHorizontalHeaderLabels(["Case ID", "Case directory (editable)", "Depends on (comma-separated IDs)", "Browse"])
+        self.case_table = QTableWidget(0, 6)
+        self.case_table.setHorizontalHeaderLabels(["Case ID", "Case directory (editable)", "Depends on (comma-separated IDs)", "Inputs (JSON)", "Outputs (JSON)", "Browse"])
         self.case_table.horizontalHeader().setStretchLastSection(True)
         layout.addWidget(self.case_table, 1)
 
@@ -103,21 +106,32 @@ class WorkspaceDialog(QDialog):
         if index >= 0:
             self.mode_combo.setCurrentIndex(index)
         for case in workspace.cases:
-            self._append_case(case.case_id, case.path, ", ".join(case.depends_on))
+            self._append_case(
+                case.case_id,
+                case.path,
+                ", ".join(case.depends_on),
+                json.dumps([item.to_dict() for item in case.inputs]),
+                json.dumps([item.to_dict() for item in case.outputs]),
+            )
 
-    def _append_case(self, case_id: str, path: str, dependencies: str = "") -> None:
+    def _append_case(
+        self, case_id: str, path: str, dependencies: str = "",
+        inputs: str = "[]", outputs: str = "[]",
+    ) -> None:
         row = self.case_table.rowCount()
         self.case_table.insertRow(row)
         self.case_table.setItem(row, 0, QTableWidgetItem(case_id))
         self.case_table.setItem(row, 1, QTableWidgetItem(path))
         self.case_table.setItem(row, 2, QTableWidgetItem(dependencies))
+        self.case_table.setItem(row, 3, QTableWidgetItem(inputs))
+        self.case_table.setItem(row, 4, QTableWidgetItem(outputs))
         self._set_browse_button(row)
 
     def _set_browse_button(self, row: int) -> None:
         """Attach a directory picker to the row without making paths read-only."""
         button = QPushButton("Browse...")
         button.clicked.connect(lambda _checked=False, index=row: self._browse_case_directory(index))
-        self.case_table.setCellWidget(row, 3, button)
+        self.case_table.setCellWidget(row, 5, button)
 
     def _browse_case_directory(self, row: int) -> None:
         """Replace one case path using a native directory picker."""
@@ -204,7 +218,38 @@ class WorkspaceDialog(QDialog):
                 dependency.strip() for dependency in dependency_text.split(",")
                 if dependency.strip()
             )
-            cases.append(WorkspaceCase(case_id, case_path, dependencies))
+            try:
+                raw_inputs = json.loads(self.case_table.item(row, 3).text() or "[]")
+                raw_outputs = json.loads(self.case_table.item(row, 4).text() or "[]")
+                if not isinstance(raw_inputs, list) or not isinstance(raw_outputs, list):
+                    raise ValueError("Inputs and outputs must each be JSON arrays.")
+                if any(not isinstance(item, dict) for item in raw_inputs + raw_outputs):
+                    raise ValueError("Each input and output binding must be a JSON object.")
+            except (json.JSONDecodeError, ValueError) as error:
+                QMessageBox.warning(
+                    self, "Invalid artifact bindings",
+                    f"Check the inputs/outputs JSON in row {row + 1}: {error}",
+                )
+                return
+            cases.append(
+                WorkspaceCase(
+                    case_id, case_path, dependencies,
+                    tuple(
+                        WorkspaceArtifactInput(
+                            item.get("artifact"), item.get("setting"),
+                            item.get("parameter_file"),
+                        )
+                        for item in raw_inputs
+                    ),
+                    tuple(
+                        WorkspaceArtifactOutput(
+                            item.get("id"), item.get("path"),
+                            item.get("parameter_file"), item.get("setting"),
+                        )
+                        for item in raw_outputs
+                    ),
+                )
+            )
 
         if not cases:
             QMessageBox.warning(self, "No cases", "Add at least one case directory.")
@@ -229,6 +274,8 @@ class WorkspaceDialog(QDialog):
                 case.case_id,
                 store_workspace_case_path(case.path, self._workspace_path),
                 case.depends_on,
+                case.inputs,
+                case.outputs,
             )
             for case in cases
         ]

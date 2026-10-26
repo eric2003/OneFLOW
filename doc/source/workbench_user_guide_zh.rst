@@ -40,7 +40,16 @@ https://github.com/eric2003/OneFLOW/blob/hexin/tools/oneflow_gui/README.md
 * **Multi-directory** 把目录按界面顺序传给同一个 OneFLOW 进程，例如 OneFLOW.exe r <dir-1> <dir-2>。进程内逐个运行 case；重复目录也会再次执行。
 * **Dependency graph** 根据 case 依赖顺序运行，先将 case 准备到本次运行目录，再把声明的输出作为后续 case 的输入。前置 case 失败或缺少所需产物时，依赖 case 不会继续；无依赖的 case 可按图执行策略独立完成。
 
-**Open/Create Multi-Case Workspace...** 编辑版本化的 .ofw 定义。点击 **Save and Run...** 会保存定义并打开对应的 Saved Workflows 草稿；确认可执行文件和路径后，点击 **Run workflow** 启动。单算例、顺序和独立模式使用一个 OneFLOW 进程并保留目录顺序。依赖模式会暂存各 case，并按依赖顺序执行；前置步骤失败会阻止依赖 case。当前 .ofw 格式不包含 artifact 输入/输出绑定，因此不会自动把生成的网格路径写入下游参数文件；需要产物绑定时请使用 Saved Workflows 的完整依赖图定义。运行定义和历史记录由现有工作流仓库保存。
+**Open/Create Multi-Case Workspace...** 编辑版本 2 的 .ofw 定义。旧版不含 artifact 绑定的工作区会在保存时迁移；点击 **Save and Run...** 会保存定义并打开对应的 Saved Workflows 草稿；确认可执行文件和路径后，点击 **Run workflow** 启动。单算例、顺序和独立模式使用一个 OneFLOW 进程并保留目录顺序。依赖模式会暂存各 case，并按依赖顺序执行；前置步骤失败会阻止依赖 case。依赖模式的每个 case 可用 JSON `outputs` 声明产物，用 `inputs` 将产物绑定到直接依赖 case 的参数文件和设置。产物和参数文件路径均相对其所属 case，例如：
+
+.. code-block:: json
+
+   [
+     {"case_id": "grid", "path": "grid", "outputs": [{"id": "mesh", "path": "results/mesh.ofl", "parameter_file": "script/grid.txt", "setting": "targetGridFileName"}]},
+     {"case_id": "solver", "path": "solver", "depends_on": ["grid"], "inputs": [{"artifact": "mesh", "setting": "gridFileName", "parameter_file": "script/cfd.txt"}]}
+   ]
+
+运行定义和历史记录由现有工作流仓库保存。
 
 测试
 ----
@@ -70,4 +79,4 @@ Development Tests 使用固定的用户数据测试工作目录，并在每批�
 
 Workbench 是 OneFLOW 的可选 Python/Qt 客户端，通过参数数组启动求解器进程。case、工作流、运行记录和任务结果等服务尽量保持 Qt 无关并有独立测试。项目发现、case catalog、工作流定义、运行副本和运行历史各自有不同职责。
 
-当前需继续完善的集成点是：为 .ofw 依赖模式增加明确的 artifact 输入/输出绑定，并纳入同一执行计划。详细架构约束见 doc/source/workbench_architecture.rst；GUI 模块、服务和测试索引见 tools/oneflow_gui/README.md。
+后续可完善项是：让工作流定义与 .ofw 定义共享一个持久化模型，减少两种格式之间的重复。详细架构约束见 doc/source/workbench_architecture.rst；GUI 模块、服务和测试索引见 tools/oneflow_gui/README.md。
