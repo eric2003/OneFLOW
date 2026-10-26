@@ -116,6 +116,20 @@ TEST( FaceSearchBasicTest, LineSplitMappingPreservesEdgeDirectionAndEndpointFlag
     EXPECT_EQ( lineId, ( LinkField{ IntField{ 12, 25 }, IntField{ 25, 18 } } ) );
 }
 
+TEST( FaceSearchBasicTest, LineSplitMappingPreservesReversedEdgeDirection )
+{
+    // Intent: a reversed parent ring reverses the global child edge direction.
+    LinkField localLineId;
+    LinkField localLineFlag;
+    LinkField lineId;
+
+    BuildLineSplitMapping( 18, 12, 7, 25, localLineId, localLineFlag, lineId );
+
+    EXPECT_EQ( localLineId, ( LinkField{ IntField{ 0, 7 }, IntField{ 7, 1 } } ) );
+    EXPECT_EQ( localLineFlag, ( LinkField{ IntField{ 1, -1 }, IntField{ -1, 1 } } ) );
+    EXPECT_EQ( lineId, ( LinkField{ IntField{ 18, 25 }, IntField{ 25, 12 } } ) );
+}
+
 TEST( FaceSearchBasicTest, LineSplitMappingReplacesPreviousOutput )
 {
     // Intent: callers may reuse output buffers; stale edges must not survive.
