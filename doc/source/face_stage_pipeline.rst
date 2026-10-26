@@ -167,7 +167,9 @@ Interface split helpers
   when the exact caller (zone and local face) is registered on that global
   face. If the caller is absent, it returns ``false`` without changing output
   arguments, rather than returning an unrelated participant (**test:**
-  ``FindRemoteInterfacePartnerTest``).
+  ``FindRemoteInterfacePartnerTest``). ``MatchInterfaceTopology`` resets
+  the stored remote zone and local-face slots to ``-1`` before each lookup, so
+  a rematch cannot retain a partner from an earlier mapping state.
 * ``CountInterfaceFacesMissingPartner`` counts locals whose global face has
   fewer than two zone slots (**test:**
   ``CountInterfaceFacesMissingPartnerTest``).
