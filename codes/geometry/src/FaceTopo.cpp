@@ -819,7 +819,8 @@ void BuildInverseInterfaceMapForZone(
             g2lNew.resize( need );
         }
 
-        // Keep at most two zone references (one interface pair).
+        // Legacy topology stores one zone pair per global interface face.
+        // Keep this compatibility policy explicit: extra participants are ignored.
         if ( gI2ZidNew[ gIFid ].size() < 2 )
         {
             gI2ZidNew[ gIFid ].push_back( zoneId );
