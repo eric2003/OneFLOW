@@ -195,6 +195,7 @@ class WorkflowDialog(QDialog):
         executable: str = "",
         parent: QWidget | None = None,
         initial_mode: str | None = None,
+        initial_workflow: WorkflowDefinition | None = None,
     ) -> None:
         super().__init__(parent)
         self.setWindowTitle("OneFLOW Workflows")
@@ -209,9 +210,25 @@ class WorkflowDialog(QDialog):
         self._selected_id: str | None = None
         self._build_ui(executable)
         self._reload_workflows()
-        if initial_mode in {"multi_directory", "case_graph"}:
+        if initial_workflow is not None:
+            self._new_workflow()
+            self._load_initial_workflow(initial_workflow)
+        elif initial_mode in {"multi_directory", "case_graph"}:
             self._new_workflow()
             self.mode_combo.setCurrentIndex(self.mode_combo.findData(initial_mode))
+
+    def _load_initial_workflow(self, workflow: WorkflowDefinition) -> None:
+        """Populate a new, unsaved draft from an imported definition."""
+        step = workflow.steps[0]
+        self.name_edit.setText(workflow.name)
+        self.description_edit.setText(workflow.description)
+        if step.get("type") == "case_graph":
+            self.mode_combo.setCurrentIndex(self.mode_combo.findData("case_graph"))
+            self.graph_edit.setPlainText(json.dumps(step.get("cases", []), indent=2))
+            self.base_directory_edit.setText(str(step.get("base_directory", "")))
+        else:
+            self.mode_combo.setCurrentIndex(self.mode_combo.findData("multi_directory"))
+            self.directory_edit.setPlainText("\n".join(step.get("directories", [])))
 
     def _build_ui(self, executable: str) -> None:
         root = QVBoxLayout(self)

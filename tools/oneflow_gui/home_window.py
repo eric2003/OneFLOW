@@ -33,6 +33,8 @@ from .background_task_manager import request_background_stop
 from .test_dialog import TestRunnerDialog
 from .user_data_paths import UserDataPaths
 from .workflow_dialog import WorkflowDialog
+from .workspace_repository import load_workspace
+from .workspace_workflow_adapter import build_workflow_definition_from_workspace
 from .workspace_dialog import WorkspaceDialog
 
 
@@ -209,10 +211,28 @@ class WorkbenchHomeWindow(QMainWindow):
             "OneFLOW workspace (*.ofw)",
         )
         if path:
-            WorkspaceDialog(self, Path(path)).exec()
+            self._edit_workspace(Path(path))
 
     def _create_workspace(self) -> None:
-        WorkspaceDialog(self).exec()
+        self._edit_workspace()
+
+    def _edit_workspace(self, workspace_path: Path | None = None) -> None:
+        dialog = WorkspaceDialog(self, workspace_path)
+        if dialog.exec() != QDialog.DialogCode.Accepted or not dialog.run_requested:
+            return
+        if dialog.workspace_path is None:
+            return
+        try:
+            workspace = load_workspace(dialog.workspace_path)
+            workflow = build_workflow_definition_from_workspace(
+                workspace, dialog.workspace_path
+            )
+        except (OSError, ValueError) as error:
+            QMessageBox.critical(self, "Cannot prepare workspace run", str(error))
+            return
+        WorkflowDialog(
+            self._repository_root, self._executable(), self, initial_workflow=workflow
+        ).exec()
 
     def _open_saved_workflows(self) -> None:
         WorkflowDialog(

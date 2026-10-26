@@ -19,6 +19,7 @@ from PySide6.QtWidgets import (
 )
 
 from .user_data_paths import UserDataPaths
+from .workspace_workflow_adapter import store_workspace_case_path
 from .workspace_repository import (
     WorkspaceCase,
     WorkspaceDefinition,
@@ -33,11 +34,14 @@ class WorkspaceDialog(QDialog):
     def __init__(self, parent=None, workspace_path: Path | None = None) -> None:
         super().__init__(parent)
         self._workspace_path = workspace_path
+        self.run_requested = False
+        self._run_after_save = False
         self.setWindowTitle("OneFLOW Multi-Case Workspace (.ofw)")
         self.resize(820, 540)
 
         layout = QVBoxLayout(self)
         layout.addWidget(QLabel("This .ofw file groups existing case directories and records their execution policy. It is separate from a project folder created or opened through New Project / Open Project."))
+        layout.addWidget(QLabel("Dependency mode controls order and failure blocking only; .ofw does not define artifact input/output bindings."))
 
         name_row = QHBoxLayout()
         name_row.addWidget(QLabel("Workspace name"))
@@ -51,7 +55,7 @@ class WorkspaceDialog(QDialog):
         self.mode_combo = QComboBox()
         self.mode_combo.addItem("Single case", "single_case")
         self.mode_combo.addItem("Sequential cases", "sequential_cases")
-        self.mode_combo.addItem("Independent cases (parallel-ready)", "independent_cases")
+        self.mode_combo.addItem("Independent cases (one process)", "independent_cases")
         self.mode_combo.addItem("Dependency workflow", "dependency_workflow")
         mode_row.addWidget(self.mode_combo, 1)
         layout.addLayout(mode_row)
@@ -75,9 +79,12 @@ class WorkspaceDialog(QDialog):
         footer.addStretch(1)
         save_button = QPushButton("Save workspace...")
         save_button.clicked.connect(self._save)
+        run_button = QPushButton("Save and Run...")
+        run_button.clicked.connect(self._save_and_run)
         close_button = QPushButton("Close")
         close_button.clicked.connect(self.reject)
         footer.addWidget(save_button)
+        footer.addWidget(run_button)
         footer.addWidget(close_button)
         layout.addLayout(footer)
 
@@ -165,7 +172,17 @@ class WorkspaceDialog(QDialog):
         for row in range(self.case_table.rowCount()):
             self._set_browse_button(row)
 
+    @property
+    def workspace_path(self) -> Path | None:
+        return self._workspace_path
+
+    def _save_and_run(self) -> None:
+        self._run_after_save = True
+        self._save()
+
     def _save(self) -> None:
+        run_after_save = self._run_after_save
+        self._run_after_save = False
         name = self.name_edit.text().strip()
         if not name:
             QMessageBox.warning(self, "Workspace name required", "Enter a workspace name.")
@@ -187,11 +204,6 @@ class WorkspaceDialog(QDialog):
                 dependency.strip() for dependency in dependency_text.split(",")
                 if dependency.strip()
             )
-            if self._workspace_path is not None:
-                try:
-                    case_path = str(Path(case_path).expanduser().resolve().relative_to(self._workspace_path.parent.resolve()))
-                except ValueError:
-                    case_path = str(Path(case_path).expanduser().resolve())
             cases.append(WorkspaceCase(case_id, case_path, dependencies))
 
         if not cases:
@@ -212,6 +224,15 @@ class WorkspaceDialog(QDialog):
             if self._workspace_path.suffix.lower() != ".ofw":
                 self._workspace_path = self._workspace_path.with_suffix(".ofw")
 
+        cases = [
+            WorkspaceCase(
+                case.case_id,
+                store_workspace_case_path(case.path, self._workspace_path),
+                case.depends_on,
+            )
+            for case in cases
+        ]
+
         workspace_id = "".join(
             character.lower() if character.isascii() and character.isalnum() else "-"
             for character in self._workspace_path.stem
@@ -230,4 +251,5 @@ class WorkspaceDialog(QDialog):
         QMessageBox.information(
             self, "Workspace saved", f"Saved workspace to:\n{self._workspace_path}"
         )
+        self.run_requested = run_after_save
         self.accept()

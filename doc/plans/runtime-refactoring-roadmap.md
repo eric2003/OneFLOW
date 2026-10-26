@@ -348,3 +348,12 @@ Commit: `d8568fe91722af5d78d8083d6bae23d9446d952d`
 - Updated the GUI user guide, module README, architecture page, and AI handoff. The `.ofw` editor remains definition-only: integrating it with execution still needs a contract for artifact bindings and run-history records.
 - Validation: Python syntax compilation succeeded; application-settings and workspace-persistence tests passed 17/17. The full C++/Python suite and Sphinx build were not run in this slice.
 - Suggested commit: `refactor(gui): apply run mode to workflow draft selection`.
+
+### 2026-10-26 - Run .ofw workspaces through the existing workflow runner
+
+- Added `workspace_workflow_adapter.py`, a Qt-independent conversion boundary. Single, sequential, and independent workspace modes map to the existing one-process multi-directory workflow; dependency mode maps case IDs and edges to the existing graph runner.
+- Added **Save and Run...** to the workspace editor. It saves the `.ofw` definition, opens a prefilled unsaved Saved Workflows draft, and lets the user confirm executable and paths before starting. Starting the run persists the workflow and run history through the existing repository.
+- Dependency workspaces currently carry only ordering and failure-blocking edges. The `.ofw` format has no artifact input/output bindings, so it cannot hand generated files to consumers. The editor now states this limitation.
+- Centralized `.ofw`-relative path resolution and serialization. Editing an existing file now preserves portable relative paths rather than resolving them against the process working directory.
+- Added mode conversion and path round-trip tests. Validation: Python syntax compilation succeeded; the focused GUI/workflow suite passed 61 tests. The full repository suite and Sphinx build were not run.
+- Suggested commit: `feat(gui): run saved workspaces through workflow runner`.
