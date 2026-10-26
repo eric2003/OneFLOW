@@ -365,6 +365,11 @@ void IFaceLink::MatchInterfaceTopology( Grid & grid )
     for ( int iIFace = 0; iIFace < nIFaces; ++ iIFace )
     {
         const int gIFace = localToGlobal[ iIFace ];
+        // Recompute both fields on every pass. A face that was previously
+        // paired may become unpaired after interface-map rebuilding.
+        interFace->zoneId[ iIFace ] = -1;
+        interFace->localInterfaceId[ iIFace ] = -1;
+
         int remoteZone = -1;
         int remoteLocal = -1;
         if ( FindRemoteInterfacePartner(
