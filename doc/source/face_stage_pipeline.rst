@@ -188,6 +188,65 @@ Interface split helpers
   (**test:** ``QuadDiagonalSplitTest``).
 
 
+Interface mapping names and design rules
+-----------------------------------------
+
+The current names are historical abbreviations, not self-explanatory concepts.
+Use the following interpretation when reading or changing this code:
+
+.. list-table:: Interface mapping vocabulary
+   :header-rows: 1
+   :widths: 24 36 40
+
+   * - Existing name
+     - Concept
+     - Index meaning
+   * - ``l2g``
+     - local-to-global map
+     - ``l2g[zone][localFace]`` is a global interface-face ID
+   * - ``gI2Zid``
+     - global-face participants' zone IDs
+     - ``gI2Zid[globalFace][slot]`` is a zone ID
+   * - ``g2l``
+     - global-to-local map
+     - ``g2l[globalFace][slot]`` is a local interface-face ID
+   * - ``*New``
+     - candidate rebuild state
+     - buffers not yet committed to the live mapping
+   * - ``nChild``
+     - legacy split bookkeeping
+     - per-zone counts/slots used by interface-face split rebuilding
+
+The important invariant is more precise than the abbreviations suggest:
+``gI2Zid[globalFace][slot]`` and ``g2l[globalFace][slot]`` form one
+paired reference, so their row lengths and slot order must agree. A local
+entry in ``l2g`` points back to the global face, but the current validator
+checks the paired inverse tables' shape; it does not prove every semantic
+round-trip across all three tables.
+
+Naming is a design tool, not a contest to make every identifier longer.
+Prefer names that communicate the *role at the current abstraction level*:
+`globalFaceId`, `zoneId`, and `localFaceId` are useful scalar names, while
+the table names should describe their mapping direction or relation. Avoid
+mechanical expansions that repeat context already clear from the type or
+function name.
+
+Do not rename these public ``IFaceLink`` fields in one broad sweep. They are
+used across topology construction and rebuild paths, and a mass rename would
+create churn without simplifying the algorithm. The incremental migration
+policy is:
+
+#. Use descriptive local names in new code and pure helpers.
+#. Keep the mapping contract documented beside the declarations and tests.
+#. When a stable owner for the mapping state is introduced, add semantic
+   accessors or a small mapping type and migrate call sites in focused steps.
+#. Remove legacy field names only after all production and test call sites have
+   moved and the public compatibility impact is understood.
+
+This policy is part of the mesh development handbook: a rename is justified
+when it reduces the mental model or prevents a real class of mistakes, not
+merely because an abbreviation looks old.
+
 Interface mapping algorithm
 ---------------------------
 
