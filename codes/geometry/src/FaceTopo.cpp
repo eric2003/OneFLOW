@@ -782,26 +782,32 @@ void BuildInverseInterfaceMapForZone(
             "BuildInverseInterfaceMapForZone: gI2ZidNew and g2lNew size mismatch" );
     }
 
-    for ( int localIFid = 0; localIFid < static_cast< int >( l2gNewForZone.size() ); ++ localIFid )
+    // Validate all input IDs and existing rows before changing either table.
+    // This prevents a malformed later entry from leaving a partial rebuild.
+    for ( const int gIFid : l2gNewForZone )
     {
-        const int gIFid = l2gNewForZone[ localIFid ];
         if ( gIFid < 0 )
         {
             throw std::out_of_range(
                 "BuildInverseInterfaceMapForZone: global face id is negative" );
         }
 
+        if ( static_cast< std::size_t >( gIFid ) < gI2ZidNew.size() &&
+             gI2ZidNew[ gIFid ].size() != g2lNew[ gIFid ].size() )
+        {
+            throw std::logic_error(
+                "BuildInverseInterfaceMapForZone: per-face zone/local lists differ in size" );
+        }
+    }
+
+    for ( int localIFid = 0; localIFid < static_cast< int >( l2gNewForZone.size() ); ++ localIFid )
+    {
+        const int gIFid = l2gNewForZone[ localIFid ];
         const std::size_t need = static_cast< std::size_t >( gIFid ) + 1;
         if ( gI2ZidNew.size() < need )
         {
             gI2ZidNew.resize( need );
             g2lNew.resize( need );
-        }
-
-        if ( gI2ZidNew[ gIFid ].size() != g2lNew[ gIFid ].size() )
-        {
-            throw std::logic_error(
-                "BuildInverseInterfaceMapForZone: per-face zone/local lists differ in size" );
         }
 
         // Keep at most two zone references (one interface pair).
