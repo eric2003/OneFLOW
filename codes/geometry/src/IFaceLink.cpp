@@ -206,6 +206,33 @@ int CountInterfaceFacesMissingPartner(
     return missing;
 }
 
+bool FindPeriodicInterfacePartner(
+    int selfZoneId,
+    int selfLocalFaceId,
+    const IntField & zoneIds,
+    const IntField & localFaceIds,
+    int & outRemoteZoneId,
+    int & outRemoteLocalFaceId )
+{
+    if ( zoneIds.size() != localFaceIds.size() )
+    {
+        throw std::logic_error(
+            "FindPeriodicInterfacePartner: zone and local-face rows are inconsistent" );
+    }
+
+    for ( std::size_t i = 0; i < zoneIds.size(); ++ i )
+    {
+        if ( zoneIds[ i ] == selfZoneId && localFaceIds[ i ] == selfLocalFaceId )
+        {
+            continue;
+        }
+        outRemoteZoneId = zoneIds[ i ];
+        outRemoteLocalFaceId = localFaceIds[ i ];
+        return true;
+    }
+    return false;
+}
+
 bool FindRemoteInterfacePartner(
     int globalFaceId,
     int selfZoneId,
@@ -460,8 +487,14 @@ void IFaceLink::MatchPeriodicInterface( Grid & grid )
         }
         if ( periodicZones.empty() ) continue;
 
-        int nZid_period = periodicZones[ 0 ];
-        int lId_period  = periodicLocalIds[ 0 ];
+        int nZid_period = -1;
+        int lId_period = -1;
+        if ( ! FindPeriodicInterfacePartner(
+                 grid.id, iIFace, periodicZones, periodicLocalIds,
+                 nZid_period, lId_period ) )
+        {
+            continue;
+        }
 
         interFace->zoneId[ iIFace ] = nZid_period;
         interFace->localInterfaceId[ iIFace ] = lId_period;
