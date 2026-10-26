@@ -63,7 +63,7 @@ const IntField & FaceSearchBasic::GetFaceNodeRing( int faceId ) const
     {
         throw std::out_of_range( "FaceSearchBasic::GetFaceNodeRing: face ID is out of range" );
     }
-    return this->faceArray[ faceId ];
+    return this->faceArray[ static_cast< size_t >( faceId ) ];
 }
 
 
