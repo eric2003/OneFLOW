@@ -407,7 +407,12 @@ void IFaceLink::MatchPeriodicInterface( Grid & grid )
             gIFace, this->gI2Zid, this->g2l, "IFaceLink::MatchPeriodicInterface" );
         int nIZone = static_cast< int >( this->gI2Zid[ gIFace ].size() );
 
+        // A two-zone face already has a topological partner. Other faces
+        // must be rematched geometrically, so clear any result from an
+        // earlier pass before any lookup that may fail.
         if ( nIZone == 2 ) continue;
+        interFace->zoneId[ iIFace ] = -1;
+        interFace->localInterfaceId[ iIFace ] = -1;
 
         // GetFaceNodeRing bounds-checks against stored face count.
         const IntField & nodeId = this->face_search->GetFaceNodeRing( gIFace );
