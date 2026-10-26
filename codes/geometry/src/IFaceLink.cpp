@@ -220,6 +220,9 @@ bool FindPeriodicInterfacePartner(
             "FindPeriodicInterfacePartner: zone and local-face rows are inconsistent" );
     }
 
+    // Periodic matching searches the geometrically transformed face, whose
+    // participant row may not contain the current face. Skip self when present,
+    // but do not require self membership as FindRemoteInterfacePartner does.
     for ( std::size_t i = 0; i < zoneIds.size(); ++ i )
     {
         if ( zoneIds[ i ] == selfZoneId && localFaceIds[ i ] == selfLocalFaceId )
