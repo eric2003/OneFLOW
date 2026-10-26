@@ -36,7 +36,8 @@ Mesh and engineering workflows
 * :doc:`mesh_architecture` — mesh information levels, snapshots, and format adapters.
 * :doc:`grid_topology` — topology contracts, boundary normalization, and derived connectivity.
 * `Grid case guide <https://github.com/eric2003/OneFLOW/blob/hexin/grid/README.md>`_ — mesh cases and conversion workflows.
-* `Workbench guide <https://github.com/eric2003/OneFLOW/blob/hexin/tools/oneflow_gui/README.md>`_ — project, case, run, and workflow tooling.
+* :doc:`workbench_user_guide_zh` — Chinese user guide for the optional Workbench GUI.
+* `Workbench module reference <https://github.com/eric2003/OneFLOW/blob/hexin/tools/oneflow_gui/README.md>`_ — detailed current behavior, paths, and service tests.
 
 Developer resources
 -------------------
@@ -70,6 +71,7 @@ The existing reference library covers programming languages, build systems, para
    /user
    /cmd
    /test
+   /workbench_user_guide_zh
 
 .. toctree::
    :hidden:

@@ -86,6 +86,16 @@ Python and C++/Qt
 
 Use languages according to responsibility and evidence, not a predetermined rewrite plan. Python can support workflow persistence, orchestration, tests, diagnostics, and reports. Qt provides desktop interaction; C++ may be appropriate for measured visualization or native-integration needs. Both sides should share stable, versioned data contracts rather than maintaining competing project state.
 
+Current implementation and known gaps
+--------------------------------------
+
+The implementation under ``tools/oneflow_gui`` is an optional Python/PySide6 client. ``python -m tools.oneflow_gui`` starts the home window; the C++ solver remains a separate process. The current repository contains project opening and templates, project execution in a selected source or copied location, a test command dialog, a mesh layout editor, run history, background task records, saved workflow definitions, and a separate ``.ofw`` workspace editor.
+
+The Saved Workflows dialog currently supports multi-directory execution through one OneFLOW process and dependency-graph execution through ``workflow_graph_runner.py``. The graph runner uses ``workflow_case_runtime.py`` for staging and settings/artifact bindings. Project runs with a ``workflow.json`` definition also use the graph runner. These paths are distinct from ``.ofw`` workspace definitions: ``workspace_dialog.py`` currently loads, edits, validates, and saves those definitions but does not dispatch them to an execution service.
+
+``ApplicationSettings`` persists a ``run_mode`` value and ``ConfigurationDialog`` lets the user select it, but current launch paths do not read that value to choose or prefill a run action. Treat this as an implementation gap. The next design decision is to connect the setting to an explicit run dispatcher or remove it from user settings; do not describe it as an active default until covered by a test.
+
+The Chinese user entry point is ``workbench_user_guide_zh.rst``. ``tools/oneflow_gui/README.md`` remains the detailed module reference for button behavior, data paths, service modules, and test commands. Update the user guide when visible behavior changes, the README when detailed operations or module ownership change, and this architecture page when a service boundary, persistence contract, or lifecycle changes.
 Incremental implementation strategy
 -----------------------------------
 

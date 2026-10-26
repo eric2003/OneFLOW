@@ -20,53 +20,12 @@ License
 ----------------------------------------------------------------------------*/
 
 #include "Prj.h"
-#include "CliParser.h"
 #include "SimulationCommandLine.h"
 
 #include <stdexcept>
 #include <vector>
 
 BeginNameSpace( ONEFLOW )
-
-SimulationInvocationKind ClassifySimulationInvocation(
-    const std::vector<std::string> & args ) noexcept
-{
-    if ( args.size() == 1 )
-    {
-        return SimulationInvocationKind::LightweightTest;
-    }
-    if ( args.size() == 2 )
-    {
-        return SimulationInvocationKind::InvalidArgumentCount;
-    }
-    return SimulationInvocationKind::FullSimulation;
-}
-
-SimulationCommandLineOptions ParseSimulationCommandLineOptions(
-    const std::vector<std::string> & args )
-{
-    CliParser parser( "OneFLOW" );
-    parser.AddPositional(
-        "mode", "Run mode (d selects debug)", 1, 1 );
-    parser.AddPositional(
-        "caseDir", "Case directory; repeated values run repeatedly",
-        1, CliParser::Unlimited );
-
-    if ( args.empty() )
-    {
-        throw std::invalid_argument(
-            "Missing executable name\n" + parser.Usage() );
-    }
-
-    const std::vector<std::string> positionalArgs(
-        args.begin() + 1, args.end() );
-    const ParsedCommandLine parsed = parser.Parse( positionalArgs );
-
-    SimulationCommandLineOptions options;
-    options.debug = ( parsed.GetOne( "mode" ) == "d" );
-    options.caseDirectories = parsed.GetAll( "caseDir" );
-    return options;
-}
 
 CmdLineOptions Prj::ParseCmdLineArgs(
     const std::vector<std::string> & args )

@@ -87,10 +87,36 @@ gtest_discover_tests(simu_context_test
 
 
 # ---------------------------------------------------------------------------
-# Prj::ParseCmdLineArgs pure-parsing unit test (phase 3, no Fatal/OStream/FileUtils deps)
+# Simulation command-line parser unit tests (independent of Prj and solver runtime)
+# ---------------------------------------------------------------------------
+add_executable(simulation_command_line_test
+  simulation_command_line_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/io/src/SimulationCommandLine.cpp
+)
+
+target_include_directories(simulation_command_line_test
+  PRIVATE
+    ${CMAKE_SOURCE_DIR}/codes/io/include
+    ${CMAKE_SOURCE_DIR}/codes/basic/include
+)
+
+target_link_libraries(simulation_command_line_test
+  PRIVATE
+    GTest::gtest_main
+)
+
+target_compile_features(simulation_command_line_test PRIVATE cxx_std_20)
+
+gtest_discover_tests(simulation_command_line_test
+  DISCOVERY_MODE PRE_TEST
+)
+
+# ---------------------------------------------------------------------------
+# Prj compatibility adapter and path tests
 # ---------------------------------------------------------------------------
 add_executable(prj_cmdline_test
   prj_cmdline_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/io/src/SimulationCommandLine.cpp
   ${CMAKE_SOURCE_DIR}/codes/io/src/PrjCmdLineArgs.cpp
   ${CMAKE_SOURCE_DIR}/codes/io/src/Prj.cpp
   ${CMAKE_SOURCE_DIR}/codes/io/src/FileUtils.cpp

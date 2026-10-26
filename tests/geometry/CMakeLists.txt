@@ -80,6 +80,7 @@ set ( SRC_DIRS
     ${CMAKE_SOURCE_DIR}/codes/partition/src/Partition.cpp
     ${CMAKE_SOURCE_DIR}/codes/basic/src/Word.cpp
     ${CMAKE_SOURCE_DIR}/codes/io/src/Prj.cpp
+    ${CMAKE_SOURCE_DIR}/codes/io/src/SimulationCommandLine.cpp
     ${CMAKE_SOURCE_DIR}/codes/io/src/PrjCmdLineArgs.cpp
     ${CMAKE_SOURCE_DIR}/codes/io/src/CommentLine.cpp
     ${CMAKE_SOURCE_DIR}/codes/io/src/TextFileParser.cpp

@@ -2,7 +2,7 @@
 
 Last updated: 2026-10-26
 Working branch: `hexin`
-Latest inspected `hexin` HEAD: [`9af8dc3a`](https://github.com/eric2003/OneFLOW/commit/9af8dc3a343fb6fa1192b4a04710b847d1d17be0). The user reported 721/721 on the pre-parser baseline `cdc51377`; the focused CLI/path target passed 48/48 on `9af8dc3a`. The current uncommitted slice extracts invocation-mode classification from `Simulation::RunImpl()` and adds three contract tests; the focused target passes 51/51 after direct MSVC compilation. The full suite has not been rerun.
+Latest inspected `hexin` HEAD: [`d5b96e99`](https://github.com/eric2003/OneFLOW/commit/d5b96e999b35e3ae327affdbb62716d68f0889aa), confirmed by `origin/hexin` and GitHub. The user reports 723/723 on this baseline. The current uncommitted CLI slice passes 11/11 in the isolated parser target and 41/41 in the compatibility/path target by direct MSVC builds; CMake configure generated both targets, but the subsequent CMake/MSBuild build was canceled at `Checking Build System`, so CMake-driven compilation remains unverified. This turn adds a Chinese Sphinx Workbench user guide, corrects the module README against current graph-runner wiring, and records two GUI integration gaps: saved `run_mode` is not consumed by a dispatcher, and `.ofw` workspace definitions cannot launch runs. The full suite has not been rerun.
 
 This is the fast handoff page for an AI assistant or developer continuing work on OneFLOW. It is a curated status snapshot, not a replacement for source code, tests, design pages, or CI. Recheck the branch HEAD before editing: this page can lag behind the current repository revision.
 
@@ -36,9 +36,9 @@ Do not start by reading the whole repository. Use the architecture map to identi
 
 The published [architecture review](source/architecture_review.rst) is now the common checklist for substantial AI-assisted changes. It deliberately separates general CFD/CAE concerns from verified OneFLOW behavior. Keep these cross-system risks visible while working locally: implicit global runtime state, configuration parsing versus validation/application, mutable mesh data and derived connectivity, workflow artifact provenance and execution locations, repeated/failed-run cleanup, and the gap between documented plans and actual test/CI evidence. At each meaningful milestone, state which system-level concern improved, what remains untouched, and whether the priority order should change.
 
-## 4. Current focus: failure-safe runtime and gradual CLI migration
+## 4. Current focus: runtime lifecycle, CLI boundaries, and Workbench integration
 
-The multi-case path initializes process runtime once, runs every case-list entry in command-line order (including repeated identical paths), tears down each case, then finalizes process runtime. `SimuContext::SetupEnvironment()` now rolls back process/case resources if case setup fails; `TeardownEnvironment()` attempts process finalization even if case teardown throws. `SimuImp::RunCase()` retains its narrower, repeatable case boundary and does not initialize or finalize MPI. MPI process runtime is one-shot; case execution can be repeated within that runtime. Thirteen lifecycle tests and 51 CLI/path tests pass after direct MSVC compilation; the full suite and executable link remain unverified. The new command-line header is discovered by the source-tree glob, so the next normal CMake build will reconfigure. R1 case configuration and I/O root resolution remains partial.
+The multi-case path initializes process runtime once, runs every case-list entry in command-line order (including repeated identical paths), tears down each case, then finalizes process runtime. `SimuContext::SetupEnvironment()` now rolls back process/case resources if case setup fails; `TeardownEnvironment()` attempts process finalization even if case teardown throws. `SimuImp::RunCase()` retains its narrower, repeatable case boundary and does not initialize or finalize MPI. MPI process runtime is one-shot; case execution can be repeated within that runtime. Thirteen lifecycle tests were previously verified; the current CLI tests pass 11/11 in the parser-only target and 41/41 in the compatibility/path target on direct MSVC builds; the full suite and executable link remain unverified. The command-line source and header are discovered by the source-tree glob; the explicit test targets also list their sources in CMake, so this split causes a CMake regeneration/reload in Visual Studio. R1 case configuration and I/O root resolution remains partial. The Workbench user guide now distinguishes implemented behavior from saved settings and workspace modes that are not yet wired into execution.
 
 ### Source-backed execution path
 
@@ -83,15 +83,13 @@ The helper preserves the optional-parameter contract:
 
 ## 5. Next actions, in priority order
 
-1. Continue CLI migration by gradually moving remaining legacy entry points to the canonical parser. Invocation mode classification is now a pure function with explicit tests; preserve current argument-count behavior until any change has a documented contract and regression tests.
-2. Continue from [the integration-test investigation](plans/setup-case-environment-integration-test.md): inspect global database initialization and test link dependencies, then try a temporary-case fixture for `SetupCaseEnvironment()` without duplicating the full solver bootstrap.
-3. Assert explicit `meshInputRoot` overrides `sourceGridCaseDir`, and the legacy fallback is used only when mesh input is empty or `default`.
+1. Resolve the Workbench run-mode gap: either connect `ApplicationSettings.run_mode` to an explicit dispatcher/default in `home_window.py`, or remove the unused preference. Add a test for the selected route before claiming it is active; update the user guide and module README with the result.
+2. Connect versioned `.ofw` workspace definitions to the existing execution-plan/run-history services, or keep their editor explicitly definition-only until that integration has a tested contract.
+3. Continue from [the integration-test investigation](plans/setup-case-environment-integration-test.md): inspect global database initialization and test link dependencies, then try a temporary-case fixture for `SetupCaseEnvironment()` without duplicating the full solver bootstrap.
 4. Verify the path reset between sequential cases and confirm output-path diagnostics remain compatible.
-5. Re-run the full suite and record exact local/CI evidence after the integration test change.
-6. Only after R1 is verified, decide whether R2 (task selection and parameter semantics) should begin.
+5. Re-run the full suite and record exact local/CI evidence after the runtime integration change.
 
 Do not mark an item complete because a code change was committed. Completion requires acceptance evidence.
-
 ## 6. Status vocabulary
 
 Use these labels consistently in this page and related records:

@@ -6,6 +6,7 @@ add_executable(TextFileParser_test
   ${CMAKE_SOURCE_DIR}/codes/io/src/CommentLine.cpp
   ${CMAKE_SOURCE_DIR}/codes/io/src/TextFileParser.cpp
   ${CMAKE_SOURCE_DIR}/codes/io/src/Prj.cpp
+  ${CMAKE_SOURCE_DIR}/codes/io/src/SimulationCommandLine.cpp
   ${CMAKE_SOURCE_DIR}/codes/io/src/PrjCmdLineArgs.cpp
   ${CMAKE_SOURCE_DIR}/codes/io/src/FileUtils.cpp
   
