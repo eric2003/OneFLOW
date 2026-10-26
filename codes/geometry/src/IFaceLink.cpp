@@ -122,6 +122,11 @@ void RegisterLocalInterfaceFace(
                     "RegisterLocalInterfaceFace: local interface face is already registered" );
             }
         }
+        if ( gI2Zid[ gIid ].size() >= 2 )
+        {
+            throw std::logic_error(
+                "RegisterLocalInterfaceFace: global face already has two zone participants" );
+        }
 
         l2g[ zid ][ localFaceId ] = gIid;
         gI2Zid[ gIid ].push_back( zid );
