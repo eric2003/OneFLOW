@@ -50,6 +50,23 @@ TEST( FindRemoteInterfacePartnerTest, ReturnsFalseWhenOnlySelfPresent )
         FindRemoteInterfacePartner( 0, 0, 5, zoneIds, localIds, rz, rl ) );
 }
 
+TEST( FindRemoteInterfacePartnerTest, DoesNotReturnUnrelatedParticipant )
+{
+    LinkField zoneIds;
+    LinkField localIds;
+    zoneIds.push_back( IntField{ 2, 4 } );
+    localIds.push_back( IntField{ 1, 9 } );
+
+    int remoteZone = 77;
+    int remoteLocal = 88;
+    EXPECT_FALSE(
+        FindRemoteInterfacePartner(
+            0, /*selfZone=*/0, /*selfLocal=*/3,
+            zoneIds, localIds, remoteZone, remoteLocal ) );
+    EXPECT_EQ( remoteZone, 77 );
+    EXPECT_EQ( remoteLocal, 88 );
+}
+
 TEST( FindRemoteInterfacePartnerTest, RejectsBadGlobalId )
 {
     LinkField zoneIds;
