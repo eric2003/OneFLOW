@@ -68,6 +68,57 @@ void ValidateGlobalFaceMappings(
     }
 }
 
+
+void RegisterLocalInterfaceFace(
+    int gIid,
+    bool isNew,
+    int zid,
+    int localFaceId,
+    LinkField & l2g,
+    LinkField & gI2Zid,
+    LinkField & g2l )
+{
+    if ( zid < 0 || static_cast< size_t >( zid ) >= l2g.size() )
+    {
+        throw std::out_of_range( "RegisterLocalInterfaceFace: zone index is out of range" );
+    }
+    if ( localFaceId < 0 || static_cast< size_t >( localFaceId ) >= l2g[ zid ].size() )
+    {
+        throw std::out_of_range( "RegisterLocalInterfaceFace: local face index is out of range" );
+    }
+    if ( gI2Zid.size() != g2l.size() )
+    {
+        throw std::logic_error( "RegisterLocalInterfaceFace: global face mappings are inconsistent" );
+    }
+
+    if ( isNew )
+    {
+        if ( gIid < 0 || static_cast< size_t >( gIid ) != gI2Zid.size() )
+        {
+            throw std::logic_error( "RegisterLocalInterfaceFace: new global face ID is inconsistent" );
+        }
+
+        l2g[ zid ][ localFaceId ] = gIid;
+        gI2Zid.push_back( IntField{ zid } );
+        g2l.push_back( IntField{ localFaceId } );
+    }
+    else
+    {
+        if ( gIid < 0 || static_cast< size_t >( gIid ) >= gI2Zid.size() )
+        {
+            throw std::out_of_range( "RegisterLocalInterfaceFace: global face ID is out of range" );
+        }
+        if ( gI2Zid[ gIid ].size() != g2l[ gIid ].size() )
+        {
+            throw std::logic_error( "RegisterLocalInterfaceFace: global face references are inconsistent" );
+        }
+
+        l2g[ zid ][ localFaceId ] = gIid;
+        gI2Zid[ gIid ].push_back( zid );
+        g2l[ gIid ].push_back( localFaceId );
+    }
+}
+
 IFaceLink::IFaceLink( Grids & gridsIn ) : grids( gridsIn )
 {
     const int nZone = GridsSize( gridsIn );
@@ -78,6 +129,102 @@ IFaceLink::IFaceLink( Grids & gridsIn ) : grids( gridsIn )
     // need face topology (l2g / face_search) must not require nodeMesh bounds.
     this->point_search = std::make_unique< PointLocator >();
     this->pointLocatorReady = false;
+}
+
+
+
+
+void InitNewInterfaceMappingBuffers(
+    const LinkField & gI2Zid,
+    const LinkField & g2l,
+    const LinkField & l2g,
+    LinkField & gI2ZidNew,
+    LinkField & g2lNew,
+    LinkField & l2gNew )
+{
+    if ( gI2Zid.size() != g2l.size() )
+    {
+        throw std::logic_error(
+            "InitNewInterfaceMappingBuffers: gI2Zid and g2l size mismatch" );
+    }
+
+    gI2ZidNew = gI2Zid;
+    g2lNew = g2l;
+
+    l2gNew.clear();
+    l2gNew.resize( l2g.size() );
+}
+
+void CommitInterfaceMappingBuffers(
+    LinkField & gI2Zid,
+    LinkField & g2l,
+    LinkField & l2g,
+    LinkField & gI2ZidNew,
+    LinkField & g2lNew,
+    LinkField & l2gNew,
+    const char * operation )
+{
+    ValidateGlobalFaceMappings( gI2ZidNew, g2lNew, operation );
+
+    gI2Zid.swap( gI2ZidNew );
+    g2l.swap( g2lNew );
+    l2g.swap( l2gNew );
+}
+
+int CountInterfaceFacesMissingPartner(
+    const IntField & localToGlobal,
+    const LinkField & zoneIdsPerGlobalFace,
+    const LinkField & localFaceIdsPerGlobalFace )
+{
+    int missing = 0;
+    for ( std::size_t i = 0; i < localToGlobal.size(); ++ i )
+    {
+        const int gIFace = localToGlobal[ i ];
+        ValidateGlobalFaceMapping(
+            gIFace,
+            zoneIdsPerGlobalFace,
+            localFaceIdsPerGlobalFace,
+            "CountInterfaceFacesMissingPartner" );
+        const int nIZone = static_cast< int >( zoneIdsPerGlobalFace[ gIFace ].size() );
+        // Legacy: only count faces with 0 or 1 zone slots as "missing".
+        // Over-subscribed faces (nIZone > 2) are ignored in the counter.
+        if ( nIZone < 2 )
+        {
+            ++ missing;
+        }
+    }
+    return missing;
+}
+
+bool FindRemoteInterfacePartner(
+    int globalFaceId,
+    int selfZoneId,
+    int selfLocalFaceId,
+    const LinkField & zoneIdsPerGlobalFace,
+    const LinkField & localFaceIdsPerGlobalFace,
+    int & outRemoteZoneId,
+    int & outRemoteLocalFaceId )
+{
+    ValidateGlobalFaceMapping(
+        globalFaceId,
+        zoneIdsPerGlobalFace,
+        localFaceIdsPerGlobalFace,
+        "FindRemoteInterfacePartner" );
+
+    const IntField & zoneIds = zoneIdsPerGlobalFace[ globalFaceId ];
+    const IntField & localIds = localFaceIdsPerGlobalFace[ globalFaceId ];
+    for ( std::size_t i = 0; i < zoneIds.size(); ++ i )
+    {
+        const int zid = zoneIds[ i ];
+        const int lid = localIds[ i ];
+        if ( zid != selfZoneId || lid != selfLocalFaceId )
+        {
+            outRemoteZoneId = zid;
+            outRemoteLocalFaceId = lid;
+            return true;
+        }
+    }
+    return false;
 }
 
 void IFaceLink::EnsurePointLocatorReady()
@@ -144,54 +291,11 @@ void IFaceLink::AddFace( const IntField & facePointIndexes )
 
 void IFaceLink::CreateLink( IntField & faceNode, int zid, int lCount )
 {
-    if ( zid < 0 || static_cast< size_t >( zid ) >= this->l2g.size() )
-    {
-        throw std::out_of_range( "IFaceLink::CreateLink: zone index is out of range" );
-    }
-    if ( lCount < 0 || static_cast< size_t >( lCount ) >= this->l2g[ zid ].size() )
-    {
-        throw std::out_of_range( "IFaceLink::CreateLink: local face index is out of range" );
-    }
-    if ( this->gI2Zid.size() != this->g2l.size() )
-    {
-        throw std::logic_error( "IFaceLink::CreateLink: global face mappings are inconsistent" );
-    }
-
     this->AddFace( faceNode );
 
     auto [gIid, isNew] = this->faceLookup.FindOrAdd( faceNode );
-
-    if ( isNew )
-    {
-        if ( gIid < 0 || static_cast< size_t >( gIid ) != this->gI2Zid.size() )
-        {
-            throw std::logic_error( "IFaceLink::CreateLink: new global face ID is inconsistent" );
-        }
-
-        this->l2g[ zid ][ lCount ] = gIid;
-
-        IntField zids;
-        IntField lIid;
-        zids.push_back( zid );
-        lIid.push_back( lCount );
-        this->gI2Zid.push_back( std::move( zids ) );
-        this->g2l.push_back( std::move( lIid ) );
-    }
-    else
-    {
-        if ( gIid < 0 || static_cast< size_t >( gIid ) >= this->gI2Zid.size() )
-        {
-            throw std::logic_error( "IFaceLink::CreateLink: global face ID is out of range" );
-        }
-        if ( this->gI2Zid[ gIid ].size() != this->g2l[ gIid ].size() )
-        {
-            throw std::logic_error( "IFaceLink::CreateLink: global face references are inconsistent" );
-        }
-
-        this->l2g[ zid ][ lCount ] = gIid;
-        this->gI2Zid[ gIid ].push_back( zid );
-        this->g2l[ gIid ].push_back( lCount );
-    }
+    RegisterLocalInterfaceFace(
+        gIid, isNew, zid, lCount, this->l2g, this->gI2Zid, this->g2l );
 }
 
 void IFaceLink::ReconstructInterFace()
@@ -201,21 +305,25 @@ void IFaceLink::ReconstructInterFace()
 
 void IFaceLink::InitNewLgMapping()
 {
-    this->gI2ZidNew = this->gI2Zid;
-    this->g2lNew = this->g2l;
-
-    this->l2gNew.clear();
-    this->l2gNew.resize( this->l2g.size() );
+    InitNewInterfaceMappingBuffers(
+        this->gI2Zid,
+        this->g2l,
+        this->l2g,
+        this->gI2ZidNew,
+        this->g2lNew,
+        this->l2gNew );
 }
 
 void IFaceLink::UpdateLgMapping()
 {
-    ValidateGlobalFaceMappings(
-        this->gI2ZidNew, this->g2lNew, "IFaceLink::UpdateLgMapping" );
-
-    this->gI2Zid.swap( this->gI2ZidNew );
-    this->g2l.swap( this->g2lNew );
-    this->l2g.swap( this->l2gNew );
+    CommitInterfaceMappingBuffers(
+        this->gI2Zid,
+        this->g2l,
+        this->l2g,
+        this->gI2ZidNew,
+        this->g2lNew,
+        this->l2gNew,
+        "IFaceLink::UpdateLgMapping" );
 }
 
 void IFaceLink::MatchInterfaceTopology( Grid & grid )
@@ -224,44 +332,33 @@ void IFaceLink::MatchInterfaceTopology( Grid & grid )
     InterFace * interFace = grid.interFace.get();
     if ( ! interFace ) return;
 
-    int missingPeriodicPartnerCount = 0;
+    const IntField & localToGlobal = this->l2g[ grid.id ];
+    const int missingPeriodicPartnerCount = CountInterfaceFacesMissingPartner(
+        localToGlobal, this->gI2Zid, this->g2l );
 
-    int nIFaces = this->l2g[ grid.id ].size();
-
+    const int nIFaces = static_cast< int >( localToGlobal.size() );
     for ( int iIFace = 0; iIFace < nIFaces; ++ iIFace )
     {
-        int gIFace = this->l2g[ grid.id ][ iIFace ];
-        ValidateGlobalFaceMapping(
-            gIFace, this->gI2Zid, this->g2l, "IFaceLink::MatchInterfaceTopology" );
-        int nIZone = static_cast< int >( this->gI2Zid[ gIFace ].size() );
-
-        if ( nIZone != 2 )
+        const int gIFace = localToGlobal[ iIFace ];
+        int remoteZone = -1;
+        int remoteLocal = -1;
+        if ( FindRemoteInterfacePartner(
+                 gIFace,
+                 grid.id,
+                 iIFace,
+                 this->gI2Zid,
+                 this->g2l,
+                 remoteZone,
+                 remoteLocal ) )
         {
-            if ( nIZone > 2 )
-            {
-            }
-            else
-            {
-                ++ missingPeriodicPartnerCount;
-            }
-        }
-
-        for ( int iIZone = 0; iIZone < nIZone; ++ iIZone )
-        {
-            int nZid = this->gI2Zid[ gIFace ][ iIZone ];
-            int lId  = this->g2l[ gIFace ][ iIZone ];
-            if ( ( nZid != grid.id ) ||
-                 ( lId  != iIFace   ) )
-            {
-                interFace->zoneId[ iIFace ] = nZid;
-                interFace->localInterfaceId[ iIFace ] = lId;
-                break;
-            }
+            interFace->zoneId[ iIFace ] = remoteZone;
+            interFace->localInterfaceId[ iIFace ] = remoteLocal;
         }
     }
     std::cout << " Periodic boundary faces missing a partner = "
               << missingPeriodicPartnerCount << "\n";
 }
+
 
 void IFaceLink::MatchPeriodicInterface( Grid & grid )
 {

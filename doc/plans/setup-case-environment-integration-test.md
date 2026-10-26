@@ -1,0 +1,92 @@
+# SetupCaseEnvironment integration-test investigation
+
+Date: 2026-10-26
+Branch: `hexin`
+Inspected source: [`SimuContextEnv.cpp`](https://github.com/eric2003/OneFLOW/blob/hexin/codes/main/src/SimuContextEnv.cpp), [`ParaFile.cpp`](https://github.com/eric2003/OneFLOW/blob/hexin/codes/io/src/ParaFile.cpp), [`DataBase.cpp`](https://github.com/eric2003/OneFLOW/blob/hexin/codes/database/src/DataBase.cpp)
+
+## Question
+
+Can a test exercise the real `SimuContext::SetupCaseEnvironment()` configuration path with a temporary case and a real control file, without reimplementing solver startup?
+
+## Verified call path
+
+`SimuImp::Run() -> SetupProcessEnvironment() -> RunCase() -> PreProcess() -> InitSimu() -> SimuContext::SetupCaseEnvironment()`
+
+The case setup implementation in `codes/main/src/SimuContextEnv.cpp`:
+
+1. Marks case setup active so the existing exception path attempts cleanup after partial initialization.
+2. Binds the explicit case directory through `Prj::SetPrjBaseDir(caseDir_)` and binds `logFile`.
+3. Calls `ReadControlInfo(caseDir_)`.
+4. Reads optional root settings from `RequireGlobalDataBase().RequireDataPara()`.
+5. Applies project, generic, and mesh/flow-specific roots; conditionally reads `sourceGridCaseDir`.
+6. Writes one or two `io_paths.txt` diagnostics, depending on output-root resolution.
+
+## Database initialization finding
+
+`codes/database/src/DataBase.cpp` defines the global `std::unique_ptr<DataBase> globalDataBase` and a static `HXInitGlobalDataBase` object that constructs a `DataBase` during static initialization. Therefore, the database is not obviously dependent on `SetupProcessEnvironment()` merely to exist. This is a promising path toward a focused test, but it does not prove that all static initialization order, parallel calls, or linked test-target dependencies are safe.
+
+The database exposes `RequireGlobalDataBase()`; its `DataPara` store can be cleared between cases. `SimuContext::TeardownCase()` also clears parameter and field stores, resets solver-related global state, clears the log case binding, and calls `Prj::ClearPrjBaseDir()`. The test fixture must respect that this cleanup is broader than a path-only reset and must not run concurrently with other tests that use these process-global objects.
+
+## Why the real control reader needs care
+
+The case-specific overload `ReadControlInfo(caseDir)` in `codes/io/src/ParaFile.cpp` is not a pure file reader. It:
+
+- Reads the script list and parameter files only on `Parallel::IsServer()`.
+- Calls `Parallel::TestSayHelloFromEveryProcess()`.
+- Broadcasts the control database with `HXBcast(CompressData, DecompressData, ...)`.
+- Dumps the resulting parameter database to `log/database.log` under the case directory.
+
+The broadcast callbacks resolve the process-global database through `RequireGlobalDataBase()`. Thus, the test must determine whether the existing serial test runtime leaves `Parallel` in a valid single-process state. It must not call the production reader with an uninitialized MPI state just because the database singleton exists.
+
+The current `tests/main/simu_context_test.cpp` tests context/task plumbing without control-file I/O. The production setup uses the explicit `ReadControlInfo(caseDir)` overload; keep that as the path under test rather than replacing it with a test-only parser.
+
+## Concrete control-file fixture from rae2822_roe_sa
+
+The supplied `rae2822_roe_sa` database dump is evidence that ten script files are merged into one parameter database. Its `script/control.txt` lists `simu.txt`, `dimension.txt`, `tolerence.txt`, `cfd.txt`, `grid.txt`, `vismodel.txt`, `multigrid.txt`, `inflow.txt`, `turb.txt`, and `walldist.txt`.
+
+Use this as a source of representative contracts, not as a 119-entry golden dump. A small synthetic fixture is preferable for the first integration test because it isolates behavior and avoids requiring actual RAE2822 mesh and gas-model assets. Keep the fixture's real multi-file loading shape:
+
+- `script/control.txt` includes at least a simulation task file, dimension file, and path/control file.
+- One file defines `string simutask = "Solve";`.
+- One file defines `int dimension = 2;` and `Real global_dt = 0.001;`.
+- The path file defines `string sourceGridCaseDir = "../producer";` or an explicit `meshInputRoot`.
+
+After setup, query the real database and assert representative values with their actual types: `simutask == "Solve"`, `dimension == 2`, `global_dt == 0.001`, and the selected mesh input root. Also verify the generated `log/database.log` exists. Do not run the Solve task; the test is for configuration only.
+
+## Test-target and serial-runtime evidence
+
+The `tests/main/CMakeLists.txt` target split is deliberate:
+
+- `simu_context_test` compiles `SimuContext.cpp`, `SimuTask.cpp`, and accelerator-state registry/lifecycle files. It does not compile `SimuContextEnv.cpp`, so it cannot call the production case setup method.
+- `simu_context_parameter_test` compiles the database implementation, `BasicParallel.cpp`, `Parallel.cpp`, and zone state, but does not compile `ParaFile.cpp` or `SimuContextEnv.cpp`. It tests the parameter helper contracts only.
+- `tests/io/CMakeLists.txt` currently has a narrow `TextFileParser_test`; there is no existing test target that links the complete control-reader path.
+
+This means a direct test cannot be added safely by simply placing a new assertion in either existing executable. The production environment translation unit references many solver/runtime components (`SolverMap`, `SolverNameClass`, `Zone`, field managers, solver reset APIs, accelerator runtime, logging, project path handling), while `ReadControlInfo` itself pulls in script parsing, configuration commit, database serialization, logging, and parallel facilities. A new target would need a coherent production link set, not an improvised subset of source files.
+
+In `Parallel.cpp`, `Parallel::IsServer()` compares `GetPid()` and `GetServerid()`. The serial implementation in `BasicParallel.cpp` makes `HXRank()` return 0 and `HXSize()` return 1, but those functions are only applied to the `Parallel` fields by `SetUpParallelEnvironment()`. `HXBcast(callbacks, root)` returns early when `Parallel::GetNProc() <= 1`; `TestSayHelloFromEveryProcess()` still calls `CollectString()`, which consults the stored process count. Static-zero defaults make a serial path appear likely, but relying on implicit initialization is not a sound test contract. The test should establish a valid serial parallel state through the existing setup function or a narrow, explicit serial test fixture before invoking the production reader.
+
+## Smallest next experiment
+
+1. Build a focused integration target with the real `SimuContextEnv.cpp` and `ParaFile.cpp` production sources plus their actual target dependencies, or identify an existing library target that already supplies that complete path. Do not duplicate the parser, broadcast, or database commit logic.
+2. Establish serial runtime state explicitly before calling `SetupCaseEnvironment()`. Avoid accelerator initialization unless the selected link/test path genuinely requires it; if the environment class's full translation unit makes that unavoidable, consider extracting the case-configuration operation behind a narrow production dependency boundary rather than linking the whole solver stack into a unit test.
+3. Use a temporary multi-file case fixture and assert real database values and `log/database.log` creation.
+4. Run two contexts sequentially. The first case defines explicit roots and a legacy source-grid fallback; the second omits them. Assert the second case does not inherit the first case's roots.
+5. Ensure teardown after success and an intentionally missing control file, preserving the original setup exception.
+
+Do not introduce a test-only parser. If an injectable seam becomes necessary, it should represent the control-loading operation, and the production implementation must continue to call `ReadControlInfo(caseDir)`. The seam should not spread across all of `SimuContext` or become a generic dependency-injection framework.
+
+## Current outcome
+
+**R1 remains Partial.** The global database is statically constructed, making a serial integration fixture plausible, but parallel-runtime validity and test-target linkage still need verification. No tests were run in this session. The reported 700/700 local pass predates the latest fallback-value test commit and is not evidence for the current HEAD.
+
+## Follow-up: executable source graph and cleanup boundary
+
+The root `codes/CMakeLists.txt` constructs `PRJ_SRC_LIST` by calling `ConstructSolutionDirTree(...)` and compiles that source set directly into the `OneFLOW` executable. It does not expose the production runtime as a reusable library target. A test that links the full source list would therefore need to recreate the executable's compile definitions, include paths, third-party libraries, and platform options, while excluding the production entry point to avoid competing with GoogleTest's main. That is a poor first R1 test target and would duplicate build configuration.
+
+The real exception boundary is in `SimuImp::RunCase()`: it calls `PreProcess()` and `MainProcess()` inside a `try`; on any exception it calls `PostProcess()` in a nested `try/catch`, then rethrows the original exception. `PostProcess()` calls `SimuContext::TeardownCase()`. Therefore a correct failure-cleanup assertion should exercise this boundary (or the smallest extracted production boundary preserving it), not only call `SetupCaseEnvironment()` directly and inspect its exception.
+
+### Updated implementation decision
+
+Do not create a test executable by copying the complete solver source list into `tests/main/CMakeLists.txt`. First extract a narrow, production-owned case-setup operation with explicit dependencies for the control-load step and path binding; keep the default production implementation wired to `ReadControlInfo(caseDir)`. Then test the real control reader separately with a small multi-file fixture, and test the case orchestration's success/failure cleanup without initializing the entire solver stack. This is a deliberate boundary extraction, not a parser replacement or a generic dependency-injection framework.
+
+This follow-up is still investigation, not completion of R1. No source code was changed and no tests were run in this step.

@@ -97,4 +97,57 @@ void ValidateGlobalFaceMappings(
     const LinkField & localFaceIds,
     const char * operation );
 
+// Register local interface face (zid, localFaceId) on global face gIid.
+// isNew: append a new parallel row to gI2Zid/g2l; otherwise push onto the
+// existing row. Always writes l2g[zid][localFaceId] = gIid.
+// Throws on inconsistent table sizes or out-of-range indices.
+void RegisterLocalInterfaceFace(
+    int gIid,
+    bool isNew,
+    int zid,
+    int localFaceId,
+    LinkField & l2g,
+    LinkField & gI2Zid,
+    LinkField & g2l );
+
+// Among zone/local pairs on globalFaceId, find the first entry that is not
+// (selfZoneId, selfLocalFaceId). Returns false if none.
+bool FindRemoteInterfacePartner(
+    int globalFaceId,
+    int selfZoneId,
+    int selfLocalFaceId,
+    const LinkField & zoneIdsPerGlobalFace,
+    const LinkField & localFaceIdsPerGlobalFace,
+    int & outRemoteZoneId,
+    int & outRemoteLocalFaceId );
+
+// Count local interface faces whose global face has fewer than two zone
+// references (unpaired). Faces with more than two zones are not counted here
+// (legacy MatchInterfaceTopology behavior).
+int CountInterfaceFacesMissingPartner(
+    const IntField & localToGlobal,
+    const LinkField & zoneIdsPerGlobalFace,
+    const LinkField & localFaceIdsPerGlobalFace );
+
+// Copy current inverse maps into *New buffers and clear/resize l2gNew to
+// match the number of zones in l2g (empty rows ready for rebuild).
+void InitNewInterfaceMappingBuffers(
+    const LinkField & gI2Zid,
+    const LinkField & g2l,
+    const LinkField & l2g,
+    LinkField & gI2ZidNew,
+    LinkField & g2lNew,
+    LinkField & l2gNew );
+
+// Validate *New inverse maps then swap them into the live tables (including l2g).
+void CommitInterfaceMappingBuffers(
+    LinkField & gI2Zid,
+    LinkField & g2l,
+    LinkField & l2g,
+    LinkField & gI2ZidNew,
+    LinkField & g2lNew,
+    LinkField & l2gNew,
+    const char * operation );
+
 EndNameSpace
+

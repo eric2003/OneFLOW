@@ -135,6 +135,90 @@ HXSize_t CountBoundaryFaces( const IntField & rightCells );
 // Throws std::logic_error when the layout is inconsistent.
 void ValidateBoundaryBcLayout( const FaceTopo & faceTopo );
 
+// Expand boundary BC arrays when interface faces may split into children.
+// childCountPerInterfaceLocal is parallel to interface faces in boundary-face
+// order (same order as walking bcType with IsInterfaceBc). For each interface
+// entry, emit max(childCount, 1) copies of that BC; non-interface entries emit once.
+void ExpandBcRecordForSplitInterfaces(
+    const IntField & bcType,
+    const IntField & bcNameId,
+    const IntField & childCountPerInterfaceLocal,
+    IntField & outBcType,
+    IntField & outBcNameId );
+
+// For each local interface face in l2gNewForZone, ensure gI2ZidNew/g2lNew are
+// large enough and record (zoneId, localIndex) on that global face if it still
+// has fewer than two zone references (interface pairing capacity).
+void BuildInverseInterfaceMapForZone(
+    int zoneId,
+    const IntField & l2gNewForZone,
+    LinkField & gI2ZidNew,
+    LinkField & g2lNew );
+
+// Rebuild one zone's l2gNew and nChild after interface face splits.
+// parentGlobalFaceIds[i] is the global id of parent interface local i;
+// childGlobalIdsPerParent[i] is empty (keep parent) or the replacement child
+// global ids. nChildForZone starts as one slot per parent (child count or 0)
+// and appends a 0 for each emitted child entry (legacy layout).
+void RebuildZoneL2gNewAfterInterfaceSplit(
+    const IntField & parentGlobalFaceIds,
+    const LinkField & childGlobalIdsPerParent,
+    IntField & l2gNewForZone,
+    IntField & nChildForZone );
+
+// Rebuild left/right cell arrays after interface boundary faces may split.
+// For boundary faces (0..nBFaces-1): interface faces emit max(childCount,1)
+// copies of the original left cell; other boundary faces emit once. New
+// boundary right cells are ghost indices iFace + nCells. Interior faces
+// (nBFaces..nFaces-1) copy left/right unchanged.
+void RebuildFaceCellSidesAfterInterfaceSplit(
+    const IntField & bcType,
+    const IntField & leftCells,
+    const IntField & rightCells,
+    int nBFaces,
+    int nFaces,
+    const IntField & childCountPerInterfaceLocal,
+    int nCells,
+    IntField & outLeftCells,
+    IntField & outRightCells );
+
+// Walk boundary bcType[0..nBFaces) and, for each interface entry, append the
+// child global-id list from GetInterfaceChildFaceIds (interface-local order).
+void CollectBoundaryInterfaceChildFaceIds(
+    const IntField & bcType,
+    int nBFaces,
+    const LinkField & zoneToLocalToGlobal,
+    const InterfaceFaceSplitTable & splitTable,
+    int zoneId,
+    LinkField & outChildGlobalIdsPerInterfaceLocal );
+
+// Derived from CollectBoundaryInterfaceChildFaceIds (sizes only).
+void CollectBoundaryInterfaceChildCounts(
+    const IntField & bcType,
+    int nBFaces,
+    const LinkField & zoneToLocalToGlobal,
+    const InterfaceFaceSplitTable & splitTable,
+    int zoneId,
+    IntField & outChildCountPerInterfaceLocal );
+
+// Rebuild face-to-node lists after interface boundary faces may split.
+// childGlobalIdsPerInterfaceLocal is parallel to interface faces in boundary
+// order; empty means keep the parent node list, non-empty means emit one
+// resolved list per child (via ResolveChildFaceNodeIds). Interior faces are
+// copied unchanged.
+void RebuildFaceNodeListsAfterInterfaceSplit(
+    const LinkField & faces,
+    const IntField & bcType,
+    int nBFaces,
+    int nFaces,
+    const LinkField & childGlobalIdsPerInterfaceLocal,
+    const LinkField & childFaceNodeIds,
+    const LinkField & childFaceNodeFlags,
+    bool hasNodeMesh,
+    HXSize_t nodeMeshCount,
+    LinkField & outFaces );
+
+
 // Look up child face IDs for a local interface face and validate their node tables.
 // Preferred overload: depends only on l2g + InterfaceFaceSplitTable (no IFaceLink).
 // local interface face -> global parent id -> childFaceIdsOfParent[parent].

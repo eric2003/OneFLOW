@@ -56,7 +56,7 @@ Organize pages by reader intent, while retaining useful existing topic reference
 - Getting started: install, configure, build, and run a first case.
 - User guide: cases, project/workspace concepts, mesh workflows, and result inspection.
 - Developer guide: code layout, build configurations, tests, debugging, and contribution workflow.
-- Design: runtime architecture, mesh geometry/topology/boundaries, workflow execution, and workbench boundaries.
+- Design: whole-system architecture review and development principles, runtime architecture, mesh geometry/topology/boundaries, workflow execution, and Workbench boundaries.
 - Reference: parameter files, data schemas, command-line arguments, file formats, and stable interface contracts.
 - Existing scientific-computing reference: preserve useful CFD, numerical, language, and tool pages; reorganize only when navigation benefits are clear.
 
@@ -101,7 +101,7 @@ A curated page, `doc/source/workbench_architecture.rst`, consolidates stable con
 
 The Chinese and English source memos were reviewed and aligned around the same core concepts: Project, Case, Workspace, Run location, Run mode, Workflow, WorkflowRun, and Artifact. The Chinese memo's duplicate Workspace/运行空间 entry was corrected to distinguish the actual run location. Both language versions now distinguish independent multi-case execution from a dependency workflow and clarify that a multi-case run may mean separate process launches or one process receiving multiple directory arguments. The curated page remains the stable navigation target and explicitly states that planned background-task recovery, visualization, diagnostics, and related features are not claims of implementation until code and tests demonstrate them.
 
-The Sphinx landing page `doc/source/index.rst` now presents task-oriented entry points for getting started, using OneFLOW, mesh/workbench workflows, and developer resources while retaining the existing reference library in hidden toctrees. `doc/source/info.rst` now links readers directly to the current `hexin` README, installation pages, grid and regression guides, and Workbench guide. Existing external article titles in `doc/source/user.rst` remain unchanged as requested. A dedicated `.github/workflows/docs-check.yml` now requests a Sphinx HTML build on `hexin` pushes and pull requests when documentation paths change; this is a build check, not a deployment workflow.
+The new `doc/source/workbench_user_guide_zh.rst` is the Chinese user-manual entry for the optional GUI and is included in the Sphinx User Guides navigation. `tools/oneflow_gui/README.md` remains the detailed module-level operational reference; `doc/source/workbench_architecture.rst` records current implementation boundaries and gaps. Changes to visible GUI behavior should update the user guide and README, while service ownership or execution-lifecycle changes also update the architecture page.The Sphinx landing page `doc/source/index.rst` now presents task-oriented entry points for getting started, using OneFLOW, mesh/workbench workflows, and developer resources while retaining the existing reference library in hidden toctrees. `doc/source/info.rst` now links readers directly to the current `hexin` README, installation pages, grid and regression guides, and Workbench guide. Existing external article titles in `doc/source/user.rst` remain unchanged as requested. A dedicated `.github/workflows/docs-check.yml` now requests a Sphinx HTML build on `hexin` pushes and pull requests when documentation paths change; this is a build check, not a deployment workflow.
 
 ## 9. Verification status
 
@@ -121,6 +121,8 @@ The new curated page `doc/source/runtime_architecture.rst` documents:
 - a development loop that ties behavior contracts, focused tests, implementation changes, documentation updates, and validation evidence together.
 
 This page is an initial source-backed map, not a substitute for module-specific contracts. It should evolve alongside real refactors. Keep the detailed mesh and Workbench pages authoritative for their respective domains rather than duplicating their content here.
+
+For the optional Python GUI, `doc/source/workbench_user_guide_zh.rst` is the user-facing Sphinx guide, `tools/oneflow_gui/README.md` is the detailed module and operations reference, and `doc/source/workbench_architecture.rst` records service boundaries and implementation gaps. Update the user guide when visible behavior changes, the README when module workflows or commands change, and the architecture page when ownership or execution lifecycle changes.
 
 ### Next code-alignment order
 

@@ -2,7 +2,7 @@
 
 Last updated: 2026-10-26
 Working branch: `hexin`
-Latest inspected code change: [`ec9575216e9b6db14a400446c1373e22405c7169`](https://github.com/eric2003/OneFLOW/commit/ec9575216e9b6db14a400446c1373e22405c7169). This adds the direct `<stdexcept>` include for the existing `std::invalid_argument` use; it does not validate the implementation or replace the need for focused tests.
+Latest inspected `hexin` HEAD: [`de266a3b`](https://github.com/eric2003/OneFLOW/commit/de266a3b), also shown as `origin/hexin`. It includes the case-parameter design page and the strict-build Sphinx heading fixes. The current local working slice adds isolated `ConfigLoader` contract tests in `tests/io/ConfigLoader_test.cpp` and a dedicated CMake test target. The generated executable ran 5/5 tests successfully, and `ctest --test-dir build -C Debug -R ConfigLoader --output-on-failure` passed all five after invoking the generated GTest discovery script. CMake/MSBuild did not return success: compilation reported MSVC `C1902` PDB-manager mismatch errors, so a clean target build remains unverified. The user-reported 723/723 result was on its earlier `d5b96e99` base and has not been revalidated at `c1c66b41`. The current local slice connects `ApplicationSettings.run_mode` to Saved Workflows initial draft selection, adds three Qt-independent mapping tests, and includes the application-settings suite in the GUI test runner. `.ofw` now converts into an unsaved Saved Workflows draft and uses the existing execution/history services; dependency mode now carries artifact inputs/outputs through the shared workflow-plan contract. The `.ofw` schema is version 2 and migrates version-1 files without bindings. Relative case paths resolve against the .ofw file and round-trip portably. The full suite has not been rerun.
 
 This is the fast handoff page for an AI assistant or developer continuing work on OneFLOW. It is a curated status snapshot, not a replacement for source code, tests, design pages, or CI. Recheck the branch HEAD before editing: this page can lag behind the current repository revision.
 
@@ -11,10 +11,11 @@ This is the fast handoff page for an AI assistant or developer continuing work o
 For a quick restart, follow this order:
 
 1. **This page** — repository constraints, current focus, known gaps, and the next useful action.
-2. [Runtime architecture and development guide](source/runtime_architecture.rst) — source-backed entry points, runtime lifecycle, configuration, and current boundaries.
-3. [Runtime refactoring roadmap](plans/runtime-refactoring-roadmap.md) — staged plan, acceptance criteria, and per-slice findings.
-4. [Documentation consolidation plan](plans/oneflow-documentation-consolidation-plan.md) — canonical documentation locations and maintenance rules.
-5. The relevant focused tests and source files named below; then check CI for the exact commit being assessed.
+2. [Whole-system architecture review](source/architecture_review.rst) — common CFD/CAE concerns, OneFLOW's cross-system risks, and the required zoom-out review at milestones.
+3. [Runtime architecture and development guide](source/runtime_architecture.rst) — source-backed entry points, runtime lifecycle, configuration, and current boundaries.
+4. [Runtime refactoring roadmap](plans/runtime-refactoring-roadmap.md) — staged plan, acceptance criteria, and per-slice findings.
+5. [Documentation consolidation plan](plans/oneflow-documentation-consolidation-plan.md) — canonical documentation locations and maintenance rules.
+6. The relevant focused tests and source files named below; then check CI for the exact commit being assessed.
 
 Do not start by reading the whole repository. Use the architecture map to identify a concrete path, then inspect its callers, implementation, tests, and evidence.
 
@@ -31,9 +32,13 @@ Do not start by reading the whole repository. Use the architecture map to identi
 - Keep public documentation aligned with current behavior. Distinguish implemented behavior, partial work, planned work, and unverified assumptions.
 - The user values architecture discussion, meaningful tests, concise reasoning, and exact commit links.
 
-## 3. Current focus: runtime case configuration and I/O roots
+## 3. Whole-system review checkpoint
 
-The active refactoring stage is **R1: case configuration and I/O root resolution**. The goal is to clarify and test the existing contract before extracting a resolver or broadening the design.
+The published [architecture review](source/architecture_review.rst) is now the common checklist for substantial AI-assisted changes. It deliberately separates general CFD/CAE concerns from verified OneFLOW behavior. Keep these cross-system risks visible while working locally: implicit global runtime state, configuration parsing versus validation/application, mutable mesh data and derived connectivity, workflow artifact provenance and execution locations, repeated/failed-run cleanup, and the gap between documented plans and actual test/CI evidence. At each meaningful milestone, state which system-level concern improved, what remains untouched, and whether the priority order should change.
+
+## 4. Current focus: parameter semantics, runtime lifecycle, and Workbench integration
+
+The multi-case path initializes process runtime once, runs every case-list entry in command-line order (including repeated identical paths), tears down each case, then finalizes process runtime. `SimuContext::SetupEnvironment()` now rolls back process/case resources if case setup fails; `TeardownEnvironment()` attempts process finalization even if case teardown throws. `SimuImp::RunCase()` retains its narrower, repeatable case boundary and does not initialize or finalize MPI. MPI process runtime is one-shot; case execution can be repeated within that runtime. Thirteen lifecycle tests were previously verified; the current CLI tests pass 11/11 in the parser-only target and 41/41 in the compatibility/path target on direct MSVC builds; the full suite and executable link remain unverified. The command-line source and header are discovered by the source-tree glob; the explicit test targets also list their sources in CMake, so this split causes a CMake regeneration/reload in Visual Studio. R1 case configuration and I/O root resolution remains partial. The Workbench user guide now distinguishes implemented behavior from saved settings and workspace modes that are not yet wired into execution.
 
 ### Source-backed execution path
 
@@ -57,9 +62,16 @@ The setup path binds the active case, reads control parameters, applies project 
 
 See the runtime architecture guide and roadmap for the detailed evidence and limitations.
 
-### Latest implementation slice recorded
+### Implementation and test seam
 
-Commit [`d8568fe91722af5d78d8083d6bae23d9446d952d`](https://github.com/eric2003/OneFLOW/commit/d8568fe91722af5d78d8083d6bae23d9446d952d) changes optional path-related string parameter reads in `SimuContextEnv.cpp`:
+The current R1 implementation is split across these `hexin` commits:
+
+- [`fd3889362408586e379d45d08a170abf2077efb9`](https://github.com/eric2003/OneFLOW/commit/fd3889362408586e379d45d08a170abf2077efb9) adds `SimuContextParameter.h`, a narrow lookup helper taking `const DataPara&`.
+- [`6d72e31f93f55b00b622e122fa75eb689832694f`](https://github.com/eric2003/OneFLOW/commit/6d72e31f93f55b00b622e122fa75eb689832694f) routes production `SimuContextEnv.cpp` reads through that helper.
+- [`1e438f84f600c689666f831ff0837ce3d5936e13`](https://github.com/eric2003/OneFLOW/commit/1e438f84f600c689666f831ff0837ce3d5936e13) adds focused tests for missing, valid string, and invalid-type parameters.
+- [`a13a890bb31e2d84434fbe4297cf76aebc24c865`](https://github.com/eric2003/OneFLOW/commit/a13a890bb31e2d84434fbe4297cf76aebc24c865) registers the test target in CMake.
+
+The helper preserves the optional-parameter contract:
 
 - Missing entries still return an empty string, preserving the existing fallback path.
 - Present entries whose declared database type is not `HX_STRING` now raise `std::invalid_argument` rather than being read through an unchecked cast.
@@ -67,20 +79,19 @@ Commit [`d8568fe91722af5d78d8083d6bae23d9446d952d`](https://github.com/eric2003/
 - The same rule is applied to `projectRoot`, `inputRoot`, `outputRoot`, `meshInputRoot`, `flowInputRoot`, `meshOutputRoot`, `flowOutputRoot`, `sourceGridCaseDir`, and `ioPathInfoFileName`.
 - The follow-up documentation record is in [`3c987064e4d547de4e10a07f261a3cebf2837407`](https://github.com/eric2003/OneFLOW/commit/3c987064e4d547de4e10a07f261a3cebf2837407).
 
-**This slice is not a completed R1 stage.** A focused automated test for the invalid-type setup path has not yet been added, and the prior record did not claim a local build or test run. Recheck the exact branch head and CI before relying on compilation or regression status.
+**Status: Partial.** The user reported all 697 local tests passed on the code baseline before the latest fallback-policy change. The focused helper test covers missing, valid string, and invalid-type values; it now also tests whether empty/default mesh roots permit reading the legacy fallback and whether an explicit mesh root suppresses that fallback lookup. These latest additions still need the user's next local test run. The helper tests use a `DataPara` instance rather than the full `SetupCaseEnvironment()` lifecycle, so global-database binding and control-file loading remain integration-level acceptance criteria. The fallback predicate has negative tests for `case` and an ordinary relative root; `ApplyLegacySourceGridCaseDir()` now has value-contract tests for valid, empty, and `default` legacy values as well as explicit-root precedence. No GitHub CI pass has been confirmed for the latest revision.
 
-## 4. Next actions, in priority order
+## 5. Next actions, in priority order
 
-1. Recheck current `hexin` HEAD and its Linux, Windows, and documentation CI runs.
-2. Inspect the includes and type declarations used by `ReadOptionalStringParameter()`; add direct includes where required rather than relying on transitive headers.
-3. Find a narrow, realistic test seam for the optional string parameter contract. Prefer a test of the actual helper or environment setup behavior over a test that only proves database type metadata.
-4. Verify the path precedence and `sourceGridCaseDir` fallback contract with tests before extracting a resolver.
-5. Update the roadmap and architecture guide with exact outcomes, test commands/results, CI links, and any remaining gap.
-6. Only then decide whether R1 is complete and whether R2 (task selection and parameter semantics) should begin.
+1. Extend R2 from parser syntax into the `ConfigDatabaseAdapter` and task-selection boundary, with focused tests for type conversion and representative control parameters.
+2. Add an acceptance test that executes a converted `.ofw` producer/consumer graph and verifies staged output paths, parameter overrides, and the persisted run record.
+2. Run the full repository suite and check current `hexin` CI; update this handoff with exact results.
+3. Continue from [the integration-test investigation](plans/setup-case-environment-integration-test.md): inspect global database initialization and test link dependencies, then try a temporary-case fixture for `SetupCaseEnvironment()` without duplicating the full solver bootstrap.
+4. Verify path reset between sequential cases and confirm output-path diagnostics remain compatible.
+5. Inspect the invocation mode contract for `d`/`r` before considering any CLI syntax change.
 
 Do not mark an item complete because a code change was committed. Completion requires acceptance evidence.
-
-## 5. Status vocabulary
+## 6. Status vocabulary
 
 Use these labels consistently in this page and related records:
 
@@ -93,11 +104,11 @@ Use these labels consistently in this page and related records:
 
 A green unrelated test suite is not evidence that a changed contract is correct. A queued or in-progress workflow is not a pass.
 
-## 6. Reusable stage records
+## 7. Reusable stage records
 
 For a substantial refactoring stage, use the [refactoring stage record template](plans/templates/refactoring-stage-record.md). Put detailed stage-specific problem statements, acceptance criteria, source paths, tests, decisions, and evidence in that record. Keep this page as a concise index of the overall current state and highest-priority next actions; link to detailed records rather than duplicating them.
 
-## 7. How to maintain this handoff
+## 8. How to maintain this handoff
 
 Update this page when a milestone materially changes the state of the project, not after every command or minor edit.
 

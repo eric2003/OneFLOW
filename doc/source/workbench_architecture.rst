@@ -86,6 +86,16 @@ Python and C++/Qt
 
 Use languages according to responsibility and evidence, not a predetermined rewrite plan. Python can support workflow persistence, orchestration, tests, diagnostics, and reports. Qt provides desktop interaction; C++ may be appropriate for measured visualization or native-integration needs. Both sides should share stable, versioned data contracts rather than maintaining competing project state.
 
+Current implementation and known gaps
+--------------------------------------
+
+The implementation under ``tools/oneflow_gui`` is an optional Python/PySide6 client. ``python -m tools.oneflow_gui`` starts the home window; the C++ solver remains a separate process. The current repository contains project opening and templates, project execution in a selected source or copied location, a test command dialog, a mesh layout editor, run history, background task records, saved workflow definitions, and a separate ``.ofw`` workspace editor.
+
+The Saved Workflows dialog supports multi-directory execution through one OneFLOW process and dependency-graph execution through ``workflow_graph_runner.py``. Project runs with a ``workflow.json`` definition also use the graph runner. The ``.ofw`` editor now offers Save and Run: ``workspace_workflow_adapter.py`` converts single, sequential, and independent modes to the existing multi-directory workflow, and converts dependency cases to the graph runner format. The dependency conversion preserves ordering, failure blocking, and artifact input/output bindings. The version-2 ``.ofw`` schema migrates version-1 definitions that do not contain artifact fields. The editor exposes per-case JSON binding columns and validates artifact IDs, direct dependencies, case-relative paths, and producer parameter settings through the canonical workflow-plan builder. It opens an unsaved Saved Workflows draft; the existing workflow dialog persists its definition and run history when the user starts execution.
+
+``ApplicationSettings`` persists a ``run_mode`` value and ``ConfigurationDialog`` lets the user select it. When the user opens Saved Workflows, the home window maps ``multi_case`` to a new multi-directory draft and ``dependency_workflow`` to a new case-graph draft; ``single_case`` leaves the saved-workflow list unchanged. The mapping is kept in a Qt-independent helper and covered by unit tests. The preference does not yet execute a run automatically.
+
+The Chinese user entry point is ``workbench_user_guide_zh.rst``. ``tools/oneflow_gui/README.md`` remains the detailed module reference for button behavior, data paths, service modules, and test commands. Update the user guide when visible behavior changes, the README when detailed operations or module ownership change, and this architecture page when a service boundary, persistence contract, or lifecycle changes.
 Incremental implementation strategy
 -----------------------------------
 
@@ -97,3 +107,9 @@ Incremental implementation strategy
 6. Add visualization, comparison, reports, background-task recovery, and assisted diagnostics only through staged implementations with explicit tests.
 
 This roadmap describes intended direction, not a blanket claim that all listed capabilities exist today.
+
+Parameter editing
+-----------------
+
+See :doc:`case_parameter_design` for the proposed schema-backed GUI direction and
+its migration stages. Current workflow artifact overrides remain a narrower adapter.

@@ -106,6 +106,20 @@ summary and relevant tests as evidence.
 Command-line execution modes
 ----------------------------
 
+The simulation-specific schema and invocation policy are implemented in ``codes/io/src/SimulationCommandLine.cpp`` and declared in ``codes/io/include/SimulationCommandLine.h``. The generic parser has no dependency on ``Prj`` or solver runtime types. ``PrjCmdLineArgs.cpp`` is limited to converting canonical options to the legacy ``CmdLineOptions`` shape. The parser core is ``ONEFLOW::CliParser`` in ``codes/basic/include/CliParser.h``. It uses a declared positional schema with minimum/maximum counts, returns named parsed values, preserves repeated values, and generates usage text for validation errors. ``ParseSimulationCommandLineOptions()`` converts the parsed values into a ``SimulationCommandLineOptions`` value object with a single canonical case-directory list. ``Simulation`` and ``SimuContext`` now use this API. ``Prj::ParseCmdLineArgs()`` remains a compatibility adapter that fills the older ``CmdLineOptions`` shape. Named switches, subcommands, and type conversion remain out of scope until an actual command needs them.
+
+.. code-block:: cpp
+
+   CliParser parser( "OneFLOW" );
+   parser.AddPositional( "mode", "Run mode" );
+   parser.AddPositional(
+       "caseDir", "Case directory", 1, CliParser::Unlimited );
+   const ParsedCommandLine parsed = parser.Parse( { "r", "caseA", "caseB" } );
+
+``Parse()`` receives arguments after the executable name. The parser preserves the existing mode rule (``d`` enables debug; other values retain run mode). The compatibility adapter still fills the old ``Prj::ParseCmdLineArgs()`` result shape. The small parser intentionally does not yet provide named options or subcommands.
+
+`Simulation::RunImpl()` selects its top-level path through the pure `ClassifySimulationInvocation()` function. One argv entry selects the lightweight test path, two entries preserve the existing argument-count error, and three or more select full simulation. The classifier does not inspect argument text; parsing and validation of the full-simulation arguments remain in `ParseSimulationCommandLineOptions()`. Tests in `tests/main/prj_cmdline_test.cpp` pin these three behaviors so future CLI syntax work can change them deliberately.
+
 The current `Simulation::RunImpl()` has three argument-count paths:
 
 * With only the executable argument, it enters the lightweight test selector and chooses
@@ -116,10 +130,7 @@ The current `Simulation::RunImpl()` has three argument-count paths:
   `SimuImp` instance.
 
 For example, `OneFLOW.exe r <caseDir>` has three process arguments and follows the full
-simulation path. Multiple case directories passed to one process are executed in order;
-this is not parallel multi-case execution and does not itself express artifact dependencies.
-Use the Workbench architecture page for the distinction between sequential multi-case runs
-and dependency workflows.
+simulation path. Case directories passed to one process are executed in command-line order; every argument entry is executed, so repeating the same path runs that case again. Each entry gets a separate ``SimuImp`` / ``SimuContext`` and case teardown, while process runtime (including MPI initialization) is initialized once and finalized after the sequence. ``SimuImp::RunCase()`` can be called repeatedly inside that process lifetime; it owns case teardown, not MPI lifecycle. ``SimuImp::Run()`` is the single-case compatibility entry point that owns one process lifecycle. If process initialization or case setup/run throws, the owning boundary attempts rollback/finalization before propagating the original failure. The compatibility ``SimuContext::SetupEnvironment()`` path rolls back a failed case setup, and ``TeardownEnvironment()`` finalizes process runtime even if case teardown throws. A failed case stops the sequence; later entries are not run. This is not parallel multi-case execution and does not itself express artifact dependencies. Thirteen focused lifecycle tests cover ordering, repeated paths, rollback only on setup failure, exception preservation, and stop-on-failure behavior. ``SimuContextEnv.cpp`` compiled separately with MSVC. The full suite and executable link remain unverified. Use the Workbench architecture page for the distinction between sequential multi-case runs and dependency workflows.
 
 The process environment and each case environment have different lifetimes. The
 `Simulation` path initializes process-level state once, then constructs a case runner per
@@ -153,14 +164,34 @@ Case runtime configuration
    `ioPathInfoFileName`. If `meshInputRoot` is empty or `default`, a non-empty
    `sourceGridCaseDir` is used as the legacy mesh-input fallback. Generic input/output
    roots are applied before the mesh/flow-specific roots. Missing optional root settings
-   retain the existing case-relative defaults. The current setup uses broad exception
-   handlers around optional lookups. A missing key throws from `GetDataValue`, but the
-   underlying typed `DataObject` lookup uses a static cast and does not safely validate
-   a mismatched stored type. Do not assume these handlers make malformed values safe.
-   Existing `Prj` tests cover many root-resolution rules, but the full
-   `SetupCaseEnvironment()` precedence and `sourceGridCaseDir` fallback need a direct
-   test seam. The exact meaning and precedence of these keys must stay aligned with
-   `SimuContextEnv.cpp` and the path-resolution tests.
+   retain the existing case-relative defaults.
+
+   Optional path strings are read through
+   `SimuContextDetail::ReadOptionalStringParameter()` in
+   `codes/main/include/SimuContextParameter.h`. The helper returns an empty string for a
+   missing entry, verifies that a present entry is `HX_STRING`, and throws
+   `std::invalid_argument` naming the parameter when its declared type is wrong. This
+   narrows the earlier unchecked typed-read behavior for these optional path settings;
+   it does not make every control parameter type-safe, nor does the helper test validate
+   global database binding or the complete case-setup lifecycle.
+
+   The legacy mesh input fallback is split into two explicit decisions.
+   `ShouldUseLegacySourceGridCaseDir()` decides whether the configured
+   `meshInputRoot` permits fallback lookup (only empty or `default`). The
+   `sourceGridCaseDir` parameter is read lazily only in that case, then
+   `ApplyLegacySourceGridCaseDir()` chooses the effective value: a non-empty,
+   non-`default` legacy value replaces the fallback token; otherwise the original
+   mesh input value is preserved. Explicit roots, including `case` and ordinary
+   relative paths, therefore do not consult or get overridden by the legacy setting.
+   Focused tests cover both the lookup decision and the effective-value contract.
+
+   Existing `Prj` tests cover generic/domain root resolution, inheritance, diagnostics,
+   and resetting roots when binding another case. The helper-level
+   `simu_context_parameter_test` covers missing, valid-string, and invalid-type lookup.
+   A direct `SetupCaseEnvironment()` integration test is still needed to prove the
+   precedence between explicit `meshInputRoot` and `sourceGridCaseDir`, as well as the
+   interaction with control-file loading and sequential case setup. Keep the documented
+   contract aligned with `SimuContextEnv.cpp` and the path-resolution tests.
 
 Workbench project and workflow configuration
    Project definitions describe an engineering workspace; workflow definitions describe
@@ -176,7 +207,7 @@ Path and artifact semantics
    not depend on an accidental current working directory.
 
 Patterns already present
------------------------
+------------------------
 
 Use pattern names only where they describe real code, not as a goal to apply everywhere.
 
@@ -275,4 +306,11 @@ Related design pages
 * :doc:`grid_topology` — topology invariants, boundary normalization, and derived connectivity.
 * :doc:`workbench_architecture` — projects, workflows, run locations, artifacts, and process lifecycle.
 * :doc:`info` — project scope and documentation entry points.
-* `Documentation consolidation plan <https://github.com/eric2003/OneFLOW/blob/hexin/doc/plans/oneflow-documentation-consolidation-plan.md>`_ — document ownership and migration status.\n* `Runtime refactoring roadmap <https://github.com/eric2003/OneFLOW/blob/hexin/doc/plans/runtime-refactoring-roadmap.md>`_ — staged refactoring goals and acceptance criteria.
+* `Documentation consolidation plan <https://github.com/eric2003/OneFLOW/blob/hexin/doc/plans/oneflow-documentation-consolidation-plan.md>`_ — document ownership and migration status.
+* `Runtime refactoring roadmap <https://github.com/eric2003/OneFLOW/blob/hexin/doc/plans/runtime-refactoring-roadmap.md>`_ — staged refactoring goals and acceptance criteria.
+
+Parameter schema and GUI editing
+--------------------------------
+
+See :doc:`case_parameter_design` for the sample-backed parameter classification and
+for why a runtime database dump is not sufficient as an authoring model.

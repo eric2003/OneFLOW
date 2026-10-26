@@ -23,6 +23,7 @@ add_executable(solver_name_list_test
   ${CMAKE_SOURCE_DIR}/codes/io/src/TextFileParser.cpp
   ${CMAKE_SOURCE_DIR}/codes/io/src/CommentLine.cpp
   ${CMAKE_SOURCE_DIR}/codes/io/src/Prj.cpp
+  ${CMAKE_SOURCE_DIR}/codes/io/src/SimulationCommandLine.cpp
   ${CMAKE_SOURCE_DIR}/codes/io/src/PrjCmdLineArgs.cpp
   ${CMAKE_SOURCE_DIR}/codes/io/src/FileUtils.cpp
   ${CMAKE_SOURCE_DIR}/codes/basic/src/Word.cpp
@@ -49,6 +50,7 @@ add_executable(solver_map_index_test
   ${CMAKE_SOURCE_DIR}/codes/io/src/TextFileParser.cpp
   ${CMAKE_SOURCE_DIR}/codes/io/src/CommentLine.cpp
   ${CMAKE_SOURCE_DIR}/codes/io/src/Prj.cpp
+  ${CMAKE_SOURCE_DIR}/codes/io/src/SimulationCommandLine.cpp
   ${CMAKE_SOURCE_DIR}/codes/io/src/PrjCmdLineArgs.cpp
   ${CMAKE_SOURCE_DIR}/codes/io/src/FileUtils.cpp
   ${CMAKE_SOURCE_DIR}/codes/basic/src/Word.cpp

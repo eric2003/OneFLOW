@@ -12,6 +12,14 @@ from .user_data_paths import UserDataPaths
 DEFAULT_REPOSITORY_ROOT = Path("D:/github/OneFLOW")
 
 
+def workflow_editor_mode_for_run_mode(run_mode: str) -> str | None:
+    """Map a saved run preference to the matching workflow editor draft mode."""
+    return {
+        "multi_case": "multi_directory",
+        "dependency_workflow": "case_graph",
+    }.get(run_mode)
+
+
 @dataclass(frozen=True, slots=True)
 class ApplicationSettings:
     """User-specific settings that are independent of run workspaces."""

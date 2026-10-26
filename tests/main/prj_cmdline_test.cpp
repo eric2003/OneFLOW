@@ -1,7 +1,10 @@
 #include "Prj.h"
+#include "SimulationCommandLine.h"
 #include "FileUtils.h"
 #include <gtest/gtest.h>
 #include <stdexcept>
+#include <string>
+#include <vector>
 
 using ONEFLOW::Prj;
 using ONEFLOW::CmdLineOptions;
@@ -15,6 +18,19 @@ TEST( PrjParseCmdLineArgs, NormalRun )
     EXPECT_EQ( opt.caseDir, "test/cfd/plateuns2dslau2/" );
 }
 
+TEST( PrjParseCmdLineArgs, CompatibilityAdapterMatchesCanonicalOptions )
+{
+    const std::vector<std::string> args = {
+        "OneFlow.exe", "d", "caseA", "caseA", "caseB" };
+    const ONEFLOW::SimulationCommandLineOptions canonical =
+        ONEFLOW::ParseSimulationCommandLineOptions( args );
+    const CmdLineOptions legacy = Prj::ParseCmdLineArgs( args );
+
+    EXPECT_EQ( legacy.debug, canonical.debug );
+    ASSERT_EQ( legacy.caseDirs, canonical.caseDirectories );
+    ASSERT_FALSE( legacy.caseDir.empty() );
+    EXPECT_EQ( legacy.caseDir, canonical.caseDirectories.front() );
+}
 TEST( PrjParseCmdLineArgs, DebugFlagRecognized )
 {
     CmdLineOptions opt = Prj::ParseCmdLineArgs(
@@ -80,6 +96,32 @@ namespace
         return std::filesystem::path( value );
     }
 
+}
+
+TEST( PrjParseCmdLineArgs, MissingPositionalsIncludeUsage )
+{
+    try
+    {
+        Prj::ParseCmdLineArgs( { "OneFlow.exe", "d" } );
+        FAIL() << "Expected missing positional error";
+    }
+    catch ( const std::invalid_argument & error )
+    {
+        EXPECT_NE(
+            std::string( error.what() ).find( "Usage: OneFLOW <mode> <caseDir>..." ),
+            std::string::npos );
+    }
+}
+
+TEST( PrjParseCmdLineArgs, RepeatedCaseDirectoriesArePreserved )
+{
+    const std::string caseDir = "test/case/";
+    const CmdLineOptions options = Prj::ParseCmdLineArgs(
+        { "OneFlow.exe", "r", caseDir, caseDir } );
+
+    ASSERT_EQ( options.caseDirs.size(), 2u );
+    EXPECT_EQ( options.caseDirs[ 0 ], caseDir );
+    EXPECT_EQ( options.caseDirs[ 1 ], caseDir );
 }
 
 TEST( PrjSetPrjBaseDir, RelativePath )

@@ -81,6 +81,7 @@ set ( SRC_DIRS
     ${CMAKE_SOURCE_DIR}/codes/basic/src/Word.cpp
     ${CMAKE_SOURCE_DIR}/codes/io/src/Prj.cpp
     ${CMAKE_SOURCE_DIR}/codes/io/src/PrjCmdLineArgs.cpp
+    ${CMAKE_SOURCE_DIR}/codes/io/src/SimulationCommandLine.cpp
     ${CMAKE_SOURCE_DIR}/codes/io/src/CommentLine.cpp
     ${CMAKE_SOURCE_DIR}/codes/io/src/TextFileParser.cpp
     ${CMAKE_SOURCE_DIR}/codes/io/src/FileO.cpp
@@ -263,3 +264,13 @@ add_oneflow_gtest(BcClassificationTest BcClassificationTest.cpp)
 add_oneflow_gtest(InterfaceChildFaceIdsTest InterfaceChildFaceIdsTest.cpp)
 add_oneflow_gtest(QuadDiagonalSplitTest QuadDiagonalSplitTest.cpp)
 add_oneflow_gtest(GlobalFaceMappingTest GlobalFaceMappingTest.cpp)
+add_oneflow_gtest(RegisterLocalInterfaceFaceTest RegisterLocalInterfaceFaceTest.cpp)
+add_oneflow_gtest(ExpandBcRecordSplitTest ExpandBcRecordSplitTest.cpp)
+add_oneflow_gtest(BuildInverseInterfaceMapTest BuildInverseInterfaceMapTest.cpp)
+add_oneflow_gtest(RebuildZoneL2gNewTest RebuildZoneL2gNewTest.cpp)
+add_oneflow_gtest(RebuildFaceCellSidesTest RebuildFaceCellSidesTest.cpp)
+add_oneflow_gtest(CollectBoundaryInterfaceChildCountsTest CollectBoundaryInterfaceChildCountsTest.cpp)
+add_oneflow_gtest(RebuildFaceNodeListsTest RebuildFaceNodeListsTest.cpp)
+add_oneflow_gtest(FindRemoteInterfacePartnerTest FindRemoteInterfacePartnerTest.cpp)
+add_oneflow_gtest(CountInterfaceFacesMissingPartnerTest CountInterfaceFacesMissingPartnerTest.cpp)
+add_oneflow_gtest(InitNewInterfaceMappingBuffersTest InitNewInterfaceMappingBuffersTest.cpp)

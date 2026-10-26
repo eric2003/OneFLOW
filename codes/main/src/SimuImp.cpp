@@ -20,6 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "SimuImp.h"
+#include "SimuCaseLifecycle.h"
 #include "SimuTask.h"
 #include "System.h"
 #include "Fatal.h"
@@ -48,33 +49,24 @@ SimuImp::~SimuImp()
 
 void SimuImp::Run()
 {
-    ctx_->SetupProcessEnvironment();
-    RunCase();
+    SimuCaseLifecycleDetail::ExecuteWithProcessLifecycle(
+        [&]() { ctx_->SetupProcessEnvironment(); },
+        [&]() { RunCase(); },
+        [&]() { FinalizeEnvironment(); } );
 }
 
 void SimuImp::RunCase()
 {
-    try
-    {
-        this->PreProcess();
-        this->MainProcess();
-    }
-    catch ( ... )
-    {
-        // Case setup may fail after partially binding global case state.
-        // Always release that state before propagating the failure.
-        try
+    SimuCaseLifecycleDetail::ExecuteWithCleanup(
+        [this]()
+        {
+            this->PreProcess();
+            this->MainProcess();
+        },
+        [this]()
         {
             this->PostProcess();
-        }
-        catch ( ... )
-        {
-            // Preserve the original setup or solver failure.
-        }
-        throw;
-    }
-
-    this->PostProcess();
+        } );
 }
 
 void SimuImp::PreProcess()

@@ -35,20 +35,25 @@ Mesh and engineering workflows
 
 * :doc:`mesh_architecture` — mesh information levels, snapshots, and format adapters.
 * :doc:`grid_topology` — topology contracts, boundary normalization, and derived connectivity.
+* :doc:`face_stage_pipeline` — staged face write path, BC export, reorder contract, identity vs orientation.
 * `Grid case guide <https://github.com/eric2003/OneFLOW/blob/hexin/grid/README.md>`_ — mesh cases and conversion workflows.
-* `Workbench guide <https://github.com/eric2003/OneFLOW/blob/hexin/tools/oneflow_gui/README.md>`_ — project, case, run, and workflow tooling.
+* :doc:`workbench_user_guide_zh` — Chinese user guide for the optional Workbench GUI.
+* :doc:`case_parameter_design` — case parameter files and GUI editing design.
+* `Workbench module reference <https://github.com/eric2003/OneFLOW/blob/hexin/tools/oneflow_gui/README.md>`_ — detailed current behavior, paths, and service tests.
 
 Developer resources
 -------------------
 
 * :doc:`runtime_architecture` — runtime entry points, configuration boundaries, execution flow, and refactoring rules.
+* :doc:`architecture_review` — whole-system CFD/CAE architecture checklist, major cross-cutting risks, and AI-assisted development review prompts.
 * `AI project context and refactoring handoff <https://github.com/eric2003/OneFLOW/blob/hexin/doc/AI_CONTEXT.md>`_ — current focus, verified findings, open gaps, and next actions for continuing work.
 * :doc:`workbench_architecture` — Workbench concepts, service boundaries, and run lifecycle.
 * `Regression test guide <https://github.com/eric2003/OneFLOW/blob/hexin/test/README.md>`_ — CFD and grid regression checks.
-* `Documentation organization plan <https://github.com/eric2003/OneFLOW/blob/hexin/doc/plans/oneflow-documentation-consolidation-plan.md>`_ — document ownership and consolidation status.\n* `Runtime refactoring roadmap <https://github.com/eric2003/OneFLOW/blob/hexin/doc/plans/runtime-refactoring-roadmap.md>`_ — staged goals, acceptance criteria, and implementation evidence.
+* `Documentation organization plan <https://github.com/eric2003/OneFLOW/blob/hexin/doc/plans/oneflow-documentation-consolidation-plan.md>`_ — document ownership and consolidation status.
+* `Runtime refactoring roadmap <https://github.com/eric2003/OneFLOW/blob/hexin/doc/plans/runtime-refactoring-roadmap.md>`_ — staged goals, acceptance criteria, and implementation evidence.
 
 Reference library
-----------------
+-----------------
 
 The existing reference library covers programming languages, build systems, parallel computing, numerical methods, visualization, and related tools. It remains available below; the curated entry points above are intended to help readers find a starting point without replacing that material.
 
@@ -68,6 +73,7 @@ The existing reference library covers programming languages, build systems, para
    /user
    /cmd
    /test
+   /workbench_user_guide_zh
 
 .. toctree::
    :hidden:
@@ -121,7 +127,15 @@ The existing reference library covers programming languages, build systems, para
    :maxdepth: 2
    :caption: OneFLOW Design and Development
 
+   architecture_review
    runtime_architecture
    mesh_architecture
    grid_topology
+   face_stage_pipeline
    workbench_architecture
+
+.. toctree::
+   :hidden:
+   :maxdepth: 1
+
+   case_parameter_design

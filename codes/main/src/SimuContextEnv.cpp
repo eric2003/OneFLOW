@@ -23,6 +23,9 @@ License
 // Delegates to existing globals (compatibility layer for phase 2).
 
 #include "SimuContext.h"
+#include "SimulationCommandLine.h"
+#include "SimuCaseLifecycle.h"
+#include "SimuContextParameter.h"
 #include "SimuTask.h"
 #include "Prj.h"
 #include "ParaFile.h"
@@ -60,20 +63,8 @@ namespace
 std::string ReadOptionalStringParameter( const std::string & name )
 {
     DataBase & dataBase = RequireGlobalDataBase();
-    DataEntry * entry = dataBase.RequireDataPara().FindDataEntry( name );
-
-    if ( entry == nullptr )
-    {
-        return "";
-    }
-
-    if ( entry->GetType() != HX_STRING )
-    {
-        throw std::invalid_argument(
-            "Control parameter \"" + name + "\" must be a string" );
-    }
-
-    return GetDataValue< std::string >( &entry->GetDataObject() );
+    return SimuContextDetail::ReadOptionalStringParameter(
+        dataBase.RequireDataPara(), name );
 }
 
 }
@@ -88,27 +79,33 @@ SimuContext::SimuContext( const std::string& caseDir, bool debug )
 void SimuContext::ProcessCommandLine()
 {
     // Keep the selected case directory as explicit case input.
-    const CmdLineOptions opt = Prj::ParseCmdLineArgs( args_ );
+    const SimulationCommandLineOptions options =
+        ParseSimulationCommandLineOptions( args_ );
     // Store the resolved path in the case context so it remains valid even
     // when a later case updates the legacy Prj static state.
-    caseDir_ = Prj::ResolveCaseDir( opt.caseDir );
+    caseDir_ = Prj::ResolveCaseDir( options.caseDirectories.front() );
 
     // Command-line mode is process-wide; case directory binding belongs to
     // SetupCaseEnvironment() so each case owns its legacy IO binding.
-    Prj::hx_debug = opt.debug;
-    Prj::run_from_ide = opt.debug;
+    Prj::hx_debug = options.debug;
+    Prj::run_from_ide = options.debug;
 }
 
 void SimuContext::SetupProcessEnvironment()
 {
-    std::cout << " OneFLOW is running\n";
-    ONEFLOW::SetUpParallelEnvironment();
+    processLifecycle_.Start();
+    SimuCaseLifecycleDetail::ExecuteWithRollback(
+        [&]()
+        {
+            std::cout << " OneFLOW is running\n";
+            ONEFLOW::SetUpParallelEnvironment();
 
-    rank_ = Parallel::GetPid();
-    size_ = Parallel::GetNProc();
+            rank_ = Parallel::GetPid();
+            size_ = Parallel::GetNProc();
 
-    ONEFLOW::InitializeAccelRuntime( rank_, size_ );
-    processReady_ = true;
+            ONEFLOW::InitializeAccelRuntime( rank_, size_ );
+        },
+        [&]() { FinalizeEnvironment(); } );
 }
 
 void SimuContext::SetupCaseEnvironment()
@@ -162,14 +159,12 @@ void SimuContext::SetupCaseEnvironment()
     // input root. This keeps linked cases such as rae2822_roe_sa reading grid
     // artifacts (including wall-distance data) from rae2822grid, while an
     // explicit meshInputRoot can override that behavior.
-    if ( meshInputRoot.empty() || meshInputRoot == "default" )
+    if ( SimuContextDetail::ShouldUseLegacySourceGridCaseDir( meshInputRoot ) )
     {
         const std::string sourceGridCaseDir =
             ReadOptionalStringParameter( "sourceGridCaseDir" );
-        if ( ! sourceGridCaseDir.empty() && sourceGridCaseDir != "default" )
-        {
-            meshInputRoot = sourceGridCaseDir;
-        }
+        meshInputRoot = SimuContextDetail::ApplyLegacySourceGridCaseDir(
+            meshInputRoot, sourceGridCaseDir );
     }
 
     Prj::SetDomainIOBaseDirs(
@@ -206,7 +201,9 @@ void SimuContext::SetupCaseEnvironment()
 void SimuContext::SetupEnvironment()
 {
     SetupProcessEnvironment();
-    SetupCaseEnvironment();
+    SimuCaseLifecycleDetail::ExecuteWithRollback(
+        [&]() { SetupCaseEnvironment(); },
+        [&]() { TeardownEnvironment(); } );
 }
 
 void SimuContext::TeardownCase()
@@ -247,15 +244,45 @@ void SimuContext::TeardownCase()
 
 void SimuContext::FinalizeEnvironment()
 {
-    ONEFLOW::FinalizeAccelRuntime();
-    HXFinalize();
-    processReady_ = false;
+    if ( ! processLifecycle_.IsActive() )
+    {
+        return;
+    }
+
+    std::exception_ptr finalizeFailure;
+    try
+    {
+        ONEFLOW::FinalizeAccelRuntime();
+    }
+    catch ( ... )
+    {
+        finalizeFailure = std::current_exception();
+    }
+
+    try
+    {
+        HXFinalize();
+    }
+    catch ( ... )
+    {
+        if ( ! finalizeFailure )
+        {
+            finalizeFailure = std::current_exception();
+        }
+    }
+
+    processLifecycle_.MarkFinalized();
+    if ( finalizeFailure )
+    {
+        std::rethrow_exception( finalizeFailure );
+    }
 }
 
 void SimuContext::TeardownEnvironment()
 {
-    TeardownCase();
-    FinalizeEnvironment();
+    SimuCaseLifecycleDetail::ExecuteWithCleanup(
+        [&]() { TeardownCase(); },
+        [&]() { FinalizeEnvironment(); } );
 }
 
 void SimuContext::ResolveTaskFromControl()

@@ -21,8 +21,10 @@ License
 \*---------------------------------------------------------------------------*/
 #include "Simulation.h"
 #include "Prj.h"
+#include "SimulationCommandLine.h"
 #include "SimuImp.h"
 #include "SimuContext.h"
+#include "SimuCaseLifecycle.h"
 #include <iostream>
 #include <algorithm>
 #include <cstdlib>
@@ -116,9 +118,10 @@ std::unique_ptr<SimuBase> Simulation::MakeDefaultSimulation()
 
 void Simulation::RunImpl()
 {
-    int nPara = static_cast<int>( args.size() );
+    const SimulationInvocationKind invocationKind =
+        ClassifySimulationInvocation( args );
 
-    if ( nPara == 1 )
+    if ( invocationKind == SimulationInvocationKind::LightweightTest )
     {
         std::cout << "\n===== ONEFLOW Light-weight Test Mode =====\n";
         auto simu = MakeDefaultSimulation();
@@ -129,17 +132,18 @@ void Simulation::RunImpl()
         }
         simu->Run();
     }
-    else if ( nPara == 2 )
+    else if ( invocationKind == SimulationInvocationKind::InvalidArgumentCount )
     {
         // Unified error handling
         throw std::runtime_error( "wrong argument number !" );
     }
-    else // nPara >= 3
+    else // FullSimulation
     {
         std::cout << "\n===== ONEFLOW Full Simulation Mode =====\n";
         // Parse the case list once so execution does not depend on
         // positional argument offsets.
-        const CmdLineOptions options = Prj::ParseCmdLineArgs( args );
+        const SimulationCommandLineOptions options =
+            ParseSimulationCommandLineOptions( args );
 
         // Initialize process-level path state once before creating any case.
         Prj::Init();
@@ -149,27 +153,15 @@ void Simulation::RunImpl()
         SimuContext processContext( args );
         Prj::hx_debug = options.debug;
         Prj::run_from_ide = options.debug;
-        processContext.SetupProcessEnvironment();
-
-        try
-        {
-            // Every case now follows the same Case lifecycle. The dedicated
-            // process context only owns process-level initialization.
-            for ( const std::string& caseDir : options.caseDirs )
+        SimuCaseLifecycleDetail::RunCasesWithProcessLifecycle(
+            [&]() { processContext.SetupProcessEnvironment(); },
+            options.caseDirectories,
+            [&]( const std::string & caseDir )
             {
                 SimuImp caseSimu( caseDir, options.debug );
                 caseSimu.RunCase();
-            }
-        }
-        catch ( ... )
-        {
-            // RunCase() owns case teardown, including exceptional exits.
-            // Only process-level runtime remains to be finalized here.
-            processContext.FinalizeEnvironment();
-            throw;
-        }
-
-        processContext.FinalizeEnvironment();
+            },
+            [&]() { processContext.FinalizeEnvironment(); } );
     }
 }
 

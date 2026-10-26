@@ -1,0 +1,155 @@
+#include <gtest/gtest.h>
+
+#include "DataBaseType.h"
+#include "DataObject.h"
+#include "DataPara.h"
+#include "SimuContextParameter.h"
+
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <utility>
+
+using namespace ONEFLOW;
+
+namespace
+{
+
+void AddStringParameter(
+    DataPara & parameters, const std::string & name, const std::string & value )
+{
+    auto dataObject = std::make_unique< TDataObject< std::string > >( 1 );
+    dataObject->CopyValue( &value, 1 );
+    parameters.SetDataEntry( std::make_unique< DataEntry >(
+        name, HX_STRING, 1, std::move( dataObject ) ) );
+}
+
+void AddIntegerParameter(
+    DataPara & parameters, const std::string & name, int value )
+{
+    auto dataObject = std::make_unique< TDataObject< int > >( 1 );
+    dataObject->CopyValue( &value, 1 );
+    parameters.SetDataEntry( std::make_unique< DataEntry >(
+        name, HX_INT, 1, std::move( dataObject ) ) );
+}
+
+}
+
+TEST( SimuContextParameterTest, MissingOptionalStringReturnsEmpty )
+{
+    DataPara parameters;
+
+    EXPECT_EQ(
+        SimuContextDetail::ReadOptionalStringParameter(
+            parameters, "inputRoot" ),
+        "" );
+}
+
+TEST( SimuContextParameterTest, ReadsStringParameter )
+{
+    DataPara parameters;
+    AddStringParameter( parameters, "inputRoot", "mesh/input" );
+
+    EXPECT_EQ(
+        SimuContextDetail::ReadOptionalStringParameter(
+            parameters, "inputRoot" ),
+        "mesh/input" );
+}
+
+TEST( SimuContextParameterTest, RejectsNonStringAndNamesParameter )
+{
+    DataPara parameters;
+    AddIntegerParameter( parameters, "inputRoot", 12 );
+
+    try
+    {
+        SimuContextDetail::ReadOptionalStringParameter(
+            parameters, "inputRoot" );
+        FAIL() << "Expected a type validation exception";
+    }
+    catch ( const std::invalid_argument & error )
+    {
+        EXPECT_NE(
+            std::string( error.what() ).find( "inputRoot" ),
+            std::string::npos );
+        EXPECT_NE(
+            std::string( error.what() ).find( "must be a string" ),
+            std::string::npos );
+    }
+}
+
+TEST( SimuContextParameterTest, EmptyMeshInputAllowsLegacyFallback )
+{
+    EXPECT_TRUE(
+        SimuContextDetail::ShouldUseLegacySourceGridCaseDir( "" ) );
+}
+
+TEST( SimuContextParameterTest, DefaultMeshInputAllowsLegacyFallback )
+{
+    EXPECT_TRUE(
+        SimuContextDetail::ShouldUseLegacySourceGridCaseDir( "default" ) );
+}
+
+TEST( SimuContextParameterTest, ExplicitMeshInputTakesPrecedence )
+{
+    EXPECT_FALSE(
+        SimuContextDetail::ShouldUseLegacySourceGridCaseDir( "grid-input" ) );
+}
+
+TEST( SimuContextParameterTest, CaseRootDoesNotUseLegacyFallback )
+{
+    EXPECT_FALSE(
+        SimuContextDetail::ShouldUseLegacySourceGridCaseDir( "case" ) );
+}
+
+TEST( SimuContextParameterTest, RelativeMeshRootDoesNotUseLegacyFallback )
+{
+    EXPECT_FALSE(
+        SimuContextDetail::ShouldUseLegacySourceGridCaseDir( "mesh/input" ) );
+}
+
+TEST( SimuContextParameterTest, LegacySourceGridReplacesEmptyMeshRoot )
+{
+    EXPECT_EQ(
+        SimuContextDetail::ApplyLegacySourceGridCaseDir( "", "../grid-case" ),
+        "../grid-case" );
+}
+
+TEST( SimuContextParameterTest, LegacySourceGridReplacesDefaultMeshRoot )
+{
+    EXPECT_EQ(
+        SimuContextDetail::ApplyLegacySourceGridCaseDir(
+            "default", "../grid-case" ),
+        "../grid-case" );
+}
+
+TEST( SimuContextParameterTest, EmptyLegacySourceGridPreservesMeshRoot )
+{
+    EXPECT_EQ(
+        SimuContextDetail::ApplyLegacySourceGridCaseDir( "", "" ),
+        "" );
+}
+
+TEST( SimuContextParameterTest, DefaultLegacySourceGridPreservesMeshRoot )
+{
+    EXPECT_EQ(
+        SimuContextDetail::ApplyLegacySourceGridCaseDir(
+            "default", "default" ),
+        "default" );
+}
+
+TEST( SimuContextParameterTest, ExplicitMeshRootWinsOverLegacySourceGrid )
+{
+    EXPECT_EQ(
+        SimuContextDetail::ApplyLegacySourceGridCaseDir(
+            "mesh/input", "../grid-case" ),
+        "mesh/input" );
+}
+
+TEST( SimuContextParameterTest, CaseMeshRootWinsOverLegacySourceGrid )
+{
+    EXPECT_EQ(
+        SimuContextDetail::ApplyLegacySourceGridCaseDir(
+            "case", "../grid-case" ),
+        "case" );
+}
