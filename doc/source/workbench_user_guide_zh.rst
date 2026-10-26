@@ -19,7 +19,7 @@ https://github.com/eric2003/OneFLOW/blob/hexin/tools/oneflow_gui/README.md
 
 首次使用时打开 **Configuration...**，设置 OneFLOW 仓库根目录、可执行文件和 Debug/Release 配置。程序会按约定位置搜索可执行文件；也可以直接输入路径或使用 **Browse...**。完整搜索顺序见 GUI README。
 
-**Run mode** 设置目前会保存到用户设置文件，但还没有接入启动分发逻辑。当前应在 **Saved Workflows...** 中显式选择工作流类型；单算例从 **Project > Open Project...** 进入。这是待完成的实现项，设置该选项本身不会改变运行入口。
+**Run mode** 设置保存在用户设置文件中。选择 **Multi-case run** 或 **Dependency workflow** 后打开 **Saved Workflows...**，会自动创建对应模式的新工作流草稿；**Run single case** 不会创建工作流草稿，单算例从 **Project > Open Project...** 进入。
 
 项目和单算例
 ------------
@@ -70,4 +70,4 @@ Development Tests 使用固定的用户数据测试工作目录，并在每批�
 
 Workbench 是 OneFLOW 的可选 Python/Qt 客户端，通过参数数组启动求解器进程。case、工作流、运行记录和任务结果等服务尽量保持 Qt 无关并有独立测试。项目发现、case catalog、工作流定义、运行副本和运行历史各自有不同职责。
 
-当前需继续完善的两个集成点是：让 Configuration 的 run_mode 真正选择或预填运行入口；让 .ofw 工作区定义接入统一的执行计划和运行记录。详细架构约束见 doc/source/workbench_architecture.rst；GUI 模块、服务和测试索引见 tools/oneflow_gui/README.md。
+当前需继续完善的集成点是：让 .ofw 工作区定义接入统一的执行计划和运行记录。详细架构约束见 doc/source/workbench_architecture.rst；GUI 模块、服务和测试索引见 tools/oneflow_gui/README.md。

@@ -2,7 +2,7 @@
 
 Last updated: 2026-10-26
 Working branch: `hexin`
-Latest inspected `hexin` HEAD: [`d5b96e99`](https://github.com/eric2003/OneFLOW/commit/d5b96e999b35e3ae327affdbb62716d68f0889aa), confirmed by `origin/hexin` and GitHub. The user reports 723/723 on this baseline. The current uncommitted CLI slice passes 11/11 in the isolated parser target and 41/41 in the compatibility/path target by direct MSVC builds; CMake configure generated both targets, but the subsequent CMake/MSBuild build was canceled at `Checking Build System`, so CMake-driven compilation remains unverified. This turn adds a Chinese Sphinx Workbench user guide, corrects the module README against current graph-runner wiring, and records two GUI integration gaps: saved `run_mode` is not consumed by a dispatcher, and `.ofw` workspace definitions cannot launch runs. The full suite has not been rerun.
+Latest inspected `hexin` HEAD: [`c1c66b41`](https://github.com/eric2003/OneFLOW/commit/c1c66b41), also shown as `origin/hexin`. That commit contains the CLI parser split and initial Workbench documentation. The user-reported 723/723 result was on its earlier `d5b96e99` base and has not been revalidated at `c1c66b41`. The current local slice connects `ApplicationSettings.run_mode` to Saved Workflows initial draft selection, adds three Qt-independent mapping tests, and includes the application-settings suite in the GUI test runner. `.ofw` remains definition-only. The full suite has not been rerun.
 
 This is the fast handoff page for an AI assistant or developer continuing work on OneFLOW. It is a curated status snapshot, not a replacement for source code, tests, design pages, or CI. Recheck the branch HEAD before editing: this page can lag behind the current repository revision.
 
@@ -83,7 +83,7 @@ The helper preserves the optional-parameter contract:
 
 ## 5. Next actions, in priority order
 
-1. Resolve the Workbench run-mode gap: either connect `ApplicationSettings.run_mode` to an explicit dispatcher/default in `home_window.py`, or remove the unused preference. Add a test for the selected route before claiming it is active; update the user guide and module README with the result.
+1. Connect `.ofw` definitions to execution deliberately. First define how each format mode maps to existing multi-directory or graph execution and how run history should record those runs; the current format has no artifact input/output bindings.
 2. Connect versioned `.ofw` workspace definitions to the existing execution-plan/run-history services, or keep their editor explicitly definition-only until that integration has a tested contract.
 3. Continue from [the integration-test investigation](plans/setup-case-environment-integration-test.md): inspect global database initialization and test link dependencies, then try a temporary-case fixture for `SetupCaseEnvironment()` without duplicating the full solver bootstrap.
 4. Verify the path reset between sequential cases and confirm output-path diagnostics remain compatible.

@@ -11,10 +11,24 @@ from tools.oneflow_gui.application_settings import (
     ApplicationSettings,
     DEFAULT_REPOSITORY_ROOT,
     resolve_repository_root,
+    workflow_editor_mode_for_run_mode,
 )
 
 
 class ApplicationSettingsTest(unittest.TestCase):
+    def test_single_case_preference_does_not_create_a_workflow_draft(self) -> None:
+        self.assertIsNone(workflow_editor_mode_for_run_mode("single_case"))
+
+    def test_multi_case_preference_opens_multi_directory_draft(self) -> None:
+        self.assertEqual(
+            workflow_editor_mode_for_run_mode("multi_case"), "multi_directory"
+        )
+
+    def test_dependency_preference_opens_case_graph_draft(self) -> None:
+        self.assertEqual(
+            workflow_editor_mode_for_run_mode("dependency_workflow"), "case_graph"
+        )
+
     def test_missing_settings_use_default_repository_root(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             settings = ApplicationSettings.load(Path(directory) / "settings.json")
@@ -75,7 +89,7 @@ class ApplicationSettingsTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             launch_root = Path(directory)
             resolved = resolve_repository_root(
-                ApplicationSettings(DEFAULT_REPOSITORY_ROOT),
+                ApplicationSettings(launch_root / "missing-configured-checkout"),
                 launch_root,
             )
             self.assertEqual(resolved, launch_root.resolve())

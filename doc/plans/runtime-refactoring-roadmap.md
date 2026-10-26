@@ -339,3 +339,12 @@ Commit: `d8568fe91722af5d78d8083d6bae23d9446d952d`
 - Recorded both gaps in the user guide and architecture page. The immediate architecture choice is to wire the run-mode preference into an explicit dispatcher or remove the unused setting, then test that contract; later connect `.ofw` workspace modes to execution plans and run history.
 - Validation: source inspection and documentation cross-link review. No GUI test suite or Sphinx build has been run in this slice; no full-suite result is claimed. The user's 723/723 result is for the starting revision.
 - Suggested commit: `docs(workbench): add GUI user guide and current-state map`.
+
+### 2026-10-26 - Connect the saved run mode to workflow draft selection
+
+- Source inspection found that `WorkflowDialog` already accepts an `initial_mode` and creates a draft, but `WorkbenchHomeWindow` did not pass the persisted Configuration preference.
+- Added a Qt-independent mapping from `multi_case` to `multi_directory` and from `dependency_workflow` to `case_graph`. Opening Saved Workflows now creates the matching draft; `single_case` keeps the saved-workflow list unchanged. This selects an editor draft only; it does not launch a run.
+- Added three mapping tests and registered the application-settings test module in the GUI test runner. Stabilized an existing fallback test by using a guaranteed missing path rather than assuming the developer's default checkout path does not exist.
+- Updated the GUI user guide, module README, architecture page, and AI handoff. The `.ofw` editor remains definition-only: integrating it with execution still needs a contract for artifact bindings and run-history records.
+- Validation: Python syntax compilation succeeded; application-settings and workspace-persistence tests passed 17/17. The full C++/Python suite and Sphinx build were not run in this slice.
+- Suggested commit: `refactor(gui): apply run mode to workflow draft selection`.

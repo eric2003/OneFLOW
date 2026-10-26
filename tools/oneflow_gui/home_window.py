@@ -16,7 +16,11 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from .application_settings import ApplicationSettings, resolve_repository_root
+from .application_settings import (
+    ApplicationSettings,
+    resolve_repository_root,
+    workflow_editor_mode_for_run_mode,
+)
 from .configuration_dialog import ConfigurationDialog
 from .mesh_layout_dialog import MeshLayoutDialog
 from .project_repository import open_project
@@ -212,7 +216,10 @@ class WorkbenchHomeWindow(QMainWindow):
 
     def _open_saved_workflows(self) -> None:
         WorkflowDialog(
-            self._repository_root, self._executable(), self
+            self._repository_root,
+            self._executable(),
+            self,
+            initial_mode=workflow_editor_mode_for_run_mode(self._settings.run_mode),
         ).exec()
 
     def _open_tests(self) -> None:
