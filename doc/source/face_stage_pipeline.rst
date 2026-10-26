@@ -129,6 +129,9 @@ Interface split helpers
   overload (**test:** ``InterfaceChildFaceIdsTest``).
 * ``ValidateGlobalFaceMapping`` / ``ValidateGlobalFaceMappings`` check
   ``gI2Zid`` / ``g2l`` alignment (**test:** ``GlobalFaceMappingTest``).
+* ``RegisterLocalInterfaceFace`` records ``l2g`` / ``gI2Zid`` / ``g2l`` when a
+  local interface face joins a global id (**test:**
+  ``RegisterLocalInterfaceFaceTest``).
 * Quad diagonal candidates:
   ``BuildQuadDiagonalLocalTris`` / ``MapLocalTrisToGlobalNodes``
   (**test:** ``QuadDiagonalSplitTest``).
@@ -138,7 +141,9 @@ Open design pressures
 
 These remain harder to unit-test and mark follow-up work:
 
-#. ``IFaceLink`` still exposes large public tables (``l2g``, ``gI2Zid``, ...).
+#. ``IFaceLink`` still exposes large public tables (``l2g``, ``gI2Zid``, ...);
+   registration is covered by ``RegisterLocalInterfaceFace``, but mutation
+   still happens through public fields.
 #. Line mid-point split still needs ``PointLocator`` and ``nodeMesh`` (geometry
    services are not yet injectable).
 #. End-to-end CGNS zone scan still requires heavyweight zone setup.
@@ -216,6 +221,9 @@ Change type matrix
      - `Interface split helpers`
    * - ``ValidateGlobalFaceMapping(s)``
      - ``GlobalFaceMappingTest``
+     - `Interface split helpers`
+   * - ``RegisterLocalInterfaceFace`` / CreateLink mapping
+     - ``RegisterLocalInterfaceFaceTest``
      - `Interface split helpers`
    * - quad diagonal local tris / node map
      - ``QuadDiagonalSplitTest``

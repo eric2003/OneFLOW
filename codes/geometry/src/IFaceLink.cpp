@@ -68,6 +68,57 @@ void ValidateGlobalFaceMappings(
     }
 }
 
+
+void RegisterLocalInterfaceFace(
+    int gIid,
+    bool isNew,
+    int zid,
+    int localFaceId,
+    LinkField & l2g,
+    LinkField & gI2Zid,
+    LinkField & g2l )
+{
+    if ( zid < 0 || static_cast< size_t >( zid ) >= l2g.size() )
+    {
+        throw std::out_of_range( "RegisterLocalInterfaceFace: zone index is out of range" );
+    }
+    if ( localFaceId < 0 || static_cast< size_t >( localFaceId ) >= l2g[ zid ].size() )
+    {
+        throw std::out_of_range( "RegisterLocalInterfaceFace: local face index is out of range" );
+    }
+    if ( gI2Zid.size() != g2l.size() )
+    {
+        throw std::logic_error( "RegisterLocalInterfaceFace: global face mappings are inconsistent" );
+    }
+
+    if ( isNew )
+    {
+        if ( gIid < 0 || static_cast< size_t >( gIid ) != gI2Zid.size() )
+        {
+            throw std::logic_error( "RegisterLocalInterfaceFace: new global face ID is inconsistent" );
+        }
+
+        l2g[ zid ][ localFaceId ] = gIid;
+        gI2Zid.push_back( IntField{ zid } );
+        g2l.push_back( IntField{ localFaceId } );
+    }
+    else
+    {
+        if ( gIid < 0 || static_cast< size_t >( gIid ) >= gI2Zid.size() )
+        {
+            throw std::out_of_range( "RegisterLocalInterfaceFace: global face ID is out of range" );
+        }
+        if ( gI2Zid[ gIid ].size() != g2l[ gIid ].size() )
+        {
+            throw std::logic_error( "RegisterLocalInterfaceFace: global face references are inconsistent" );
+        }
+
+        l2g[ zid ][ localFaceId ] = gIid;
+        gI2Zid[ gIid ].push_back( zid );
+        g2l[ gIid ].push_back( localFaceId );
+    }
+}
+
 IFaceLink::IFaceLink( Grids & gridsIn ) : grids( gridsIn )
 {
     const int nZone = GridsSize( gridsIn );
@@ -144,54 +195,11 @@ void IFaceLink::AddFace( const IntField & facePointIndexes )
 
 void IFaceLink::CreateLink( IntField & faceNode, int zid, int lCount )
 {
-    if ( zid < 0 || static_cast< size_t >( zid ) >= this->l2g.size() )
-    {
-        throw std::out_of_range( "IFaceLink::CreateLink: zone index is out of range" );
-    }
-    if ( lCount < 0 || static_cast< size_t >( lCount ) >= this->l2g[ zid ].size() )
-    {
-        throw std::out_of_range( "IFaceLink::CreateLink: local face index is out of range" );
-    }
-    if ( this->gI2Zid.size() != this->g2l.size() )
-    {
-        throw std::logic_error( "IFaceLink::CreateLink: global face mappings are inconsistent" );
-    }
-
     this->AddFace( faceNode );
 
     auto [gIid, isNew] = this->faceLookup.FindOrAdd( faceNode );
-
-    if ( isNew )
-    {
-        if ( gIid < 0 || static_cast< size_t >( gIid ) != this->gI2Zid.size() )
-        {
-            throw std::logic_error( "IFaceLink::CreateLink: new global face ID is inconsistent" );
-        }
-
-        this->l2g[ zid ][ lCount ] = gIid;
-
-        IntField zids;
-        IntField lIid;
-        zids.push_back( zid );
-        lIid.push_back( lCount );
-        this->gI2Zid.push_back( std::move( zids ) );
-        this->g2l.push_back( std::move( lIid ) );
-    }
-    else
-    {
-        if ( gIid < 0 || static_cast< size_t >( gIid ) >= this->gI2Zid.size() )
-        {
-            throw std::logic_error( "IFaceLink::CreateLink: global face ID is out of range" );
-        }
-        if ( this->gI2Zid[ gIid ].size() != this->g2l[ gIid ].size() )
-        {
-            throw std::logic_error( "IFaceLink::CreateLink: global face references are inconsistent" );
-        }
-
-        this->l2g[ zid ][ lCount ] = gIid;
-        this->gI2Zid[ gIid ].push_back( zid );
-        this->g2l[ gIid ].push_back( lCount );
-    }
+    RegisterLocalInterfaceFace(
+        gIid, isNew, zid, lCount, this->l2g, this->gI2Zid, this->g2l );
 }
 
 void IFaceLink::ReconstructInterFace()

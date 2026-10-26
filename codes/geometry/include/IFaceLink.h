@@ -97,4 +97,17 @@ void ValidateGlobalFaceMappings(
     const LinkField & localFaceIds,
     const char * operation );
 
+// Register local interface face (zid, localFaceId) on global face gIid.
+// isNew: append a new parallel row to gI2Zid/g2l; otherwise push onto the
+// existing row. Always writes l2g[zid][localFaceId] = gIid.
+// Throws on inconsistent table sizes or out-of-range indices.
+void RegisterLocalInterfaceFace(
+    int gIid,
+    bool isNew,
+    int zid,
+    int localFaceId,
+    LinkField & l2g,
+    LinkField & gI2Zid,
+    LinkField & g2l );
+
 EndNameSpace
