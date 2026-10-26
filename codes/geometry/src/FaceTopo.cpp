@@ -559,25 +559,19 @@ void FaceTopo::ResetNumberOfBoundaryCondition( IFaceLink & iFaceLink )
 
 void FaceTopo::ConstructNewInterfaceMap( IFaceLink & iFaceLink )
 {
-    int nIFaceNew = iFaceLink.l2gNew[ this->GetGrid().id ].size();
-
-    for ( int localIFid = 0; localIFid < nIFaceNew; ++ localIFid )
+    const int zoneId = this->GetGrid().id;
+    if ( zoneId < 0 ||
+         static_cast< size_t >( zoneId ) >= iFaceLink.l2gNew.size() )
     {
-        int gIFid = iFaceLink.l2gNew[ this->GetGrid().id ][ localIFid ];
-        int oldSize = iFaceLink.gI2ZidNew.size();
-        int newSize = ONEFLOW::MAX( gIFid + 1, oldSize );
-
-        iFaceLink.gI2ZidNew.resize( newSize );
-        iFaceLink.g2lNew.resize( newSize );
-
-        int nFZone = iFaceLink.gI2ZidNew[ gIFid ].size();
-
-        if ( nFZone < 2 )
-        {
-            iFaceLink.gI2ZidNew[ gIFid ].push_back( this->GetGrid().id );
-            iFaceLink.g2lNew   [ gIFid ].push_back( localIFid );
-        }
+        throw std::out_of_range(
+            "FaceTopo::ConstructNewInterfaceMap: zone id is out of range for l2gNew" );
     }
+
+    BuildInverseInterfaceMapForZone(
+        zoneId,
+        iFaceLink.l2gNew[ zoneId ],
+        iFaceLink.gI2ZidNew,
+        iFaceLink.g2lNew );
 }
 
 void FaceTopo::UpdateOtherTopologyTerm()
@@ -856,6 +850,50 @@ void ExpandBcRecordForSplitInterfaces(
         {
             outBcType.push_back( bc );
             outBcNameId.push_back( nameId );
+        }
+    }
+}
+
+
+void BuildInverseInterfaceMapForZone(
+    int zoneId,
+    const IntField & l2gNewForZone,
+    LinkField & gI2ZidNew,
+    LinkField & g2lNew )
+{
+    if ( gI2ZidNew.size() != g2lNew.size() )
+    {
+        throw std::logic_error(
+            "BuildInverseInterfaceMapForZone: gI2ZidNew and g2lNew size mismatch" );
+    }
+
+    for ( int localIFid = 0; localIFid < static_cast< int >( l2gNewForZone.size() ); ++ localIFid )
+    {
+        const int gIFid = l2gNewForZone[ localIFid ];
+        if ( gIFid < 0 )
+        {
+            throw std::out_of_range(
+                "BuildInverseInterfaceMapForZone: global face id is negative" );
+        }
+
+        const std::size_t need = static_cast< std::size_t >( gIFid ) + 1;
+        if ( gI2ZidNew.size() < need )
+        {
+            gI2ZidNew.resize( need );
+            g2lNew.resize( need );
+        }
+
+        if ( gI2ZidNew[ gIFid ].size() != g2lNew[ gIFid ].size() )
+        {
+            throw std::logic_error(
+                "BuildInverseInterfaceMapForZone: per-face zone/local lists differ in size" );
+        }
+
+        // Keep at most two zone references (one interface pair).
+        if ( gI2ZidNew[ gIFid ].size() < 2 )
+        {
+            gI2ZidNew[ gIFid ].push_back( zoneId );
+            g2lNew[ gIFid ].push_back( localIFid );
         }
     }
 }

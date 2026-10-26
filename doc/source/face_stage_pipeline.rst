@@ -134,6 +134,9 @@ Interface split helpers
   ``RegisterLocalInterfaceFaceTest``).
 * ``ExpandBcRecordForSplitInterfaces`` repeats BC slots when an interface face
   splits into children (**test:** ``ExpandBcRecordSplitTest``).
+* ``BuildInverseInterfaceMapForZone`` fills ``gI2ZidNew`` / ``g2lNew`` from a
+  zone's ``l2gNew`` row (at most two zone slots) (**test:**
+  ``BuildInverseInterfaceMapTest``).
 * Quad diagonal candidates:
   ``BuildQuadDiagonalLocalTris`` / ``MapLocalTrisToGlobalNodes``
   (**test:** ``QuadDiagonalSplitTest``).
@@ -229,6 +232,9 @@ Change type matrix
      - `Interface split helpers`
    * - ``ExpandBcRecordForSplitInterfaces`` / BC reset on split
      - ``ExpandBcRecordSplitTest``
+     - `Interface split helpers`
+   * - ``BuildInverseInterfaceMapForZone`` / ConstructNewInterfaceMap
+     - ``BuildInverseInterfaceMapTest``
      - `Interface split helpers`
    * - quad diagonal local tris / node map
      - ``QuadDiagonalSplitTest``

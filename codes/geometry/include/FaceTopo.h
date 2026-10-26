@@ -146,6 +146,15 @@ void ExpandBcRecordForSplitInterfaces(
     IntField & outBcType,
     IntField & outBcNameId );
 
+// For each local interface face in l2gNewForZone, ensure gI2ZidNew/g2lNew are
+// large enough and record (zoneId, localIndex) on that global face if it still
+// has fewer than two zone references (interface pairing capacity).
+void BuildInverseInterfaceMapForZone(
+    int zoneId,
+    const IntField & l2gNewForZone,
+    LinkField & gI2ZidNew,
+    LinkField & g2lNew );
+
 
 // Look up child face IDs for a local interface face and validate their node tables.
 // Preferred overload: depends only on l2g + InterfaceFaceSplitTable (no IFaceLink).
