@@ -117,3 +117,18 @@ TEST( FindPeriodicInterfacePartnerTest, RejectsMisalignedRows )
     EXPECT_EQ( remoteZone, 77 );
     EXPECT_EQ( remoteLocal, 88 );
 }
+
+TEST( FindPeriodicInterfacePartnerTest, UsesFirstParticipantWhenCallerIsNotInPartnerRow )
+{
+    // Unlike topological lookup, geometric periodic matching searches a
+    // different face row, so the caller may not be a participant in that row.
+    const IntField zoneIds = { 5, 7 };
+    const IntField localIds = { 12, 14 };
+    int remoteZone = 77;
+    int remoteLocal = 88;
+
+    EXPECT_TRUE( FindPeriodicInterfacePartner(
+        0, 4, zoneIds, localIds, remoteZone, remoteLocal ) );
+    EXPECT_EQ( remoteZone, 5 );
+    EXPECT_EQ( remoteLocal, 12 );
+}
