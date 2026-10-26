@@ -226,7 +226,7 @@ Interface split helpers
   partial mapping (**test:** ``QuadDiagonalSplitTest``).
 * ``SplitQuad2Tri`` clears the selected parent's previous child list before
   checking its shape; a direct call on a non-quad face therefore cannot preserve
-  a stale split result (**test:``FaceSearchBasicTest.NonQuadSplitClearsStaleParentMapping``).
+  a stale split result (**test:** ``FaceSearchBasicTest.NonQuadSplitClearsStaleParentMapping``).
 
 
 Interface mapping names and design rules
