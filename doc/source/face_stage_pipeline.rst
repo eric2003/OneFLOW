@@ -160,7 +160,8 @@ Interface split helpers
 * ``ValidateGlobalFaceMapping`` / ``ValidateGlobalFaceMappings`` check
   ``gI2Zid`` / ``g2l`` alignment (**test:** ``GlobalFaceMappingTest``).
 * ``RegisterLocalInterfaceFace`` records ``l2g`` / ``gI2Zid`` / ``g2l`` when a
-  local interface face joins a global id (**test:**
+  local interface face joins a global id, and rejects duplicate registration
+  of the same zone/local-face pair (**test:**
   ``RegisterLocalInterfaceFaceTest``).
 * ``FindRemoteInterfacePartner`` selects the non-self zone/local pair on a
   global interface face (**test:** ``FindRemoteInterfacePartnerTest``).
