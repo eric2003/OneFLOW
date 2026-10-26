@@ -41,14 +41,24 @@ public:
     ~IFaceLink();
 public:
     HXLookup<int> faceLookup;
+
+    // Interface-face relation, stored in two directions:
+    // l2g[zone][localFace] -> global interface-face ID.
+    // gI2Zid[globalFace][slot] -> participating zone ID.
+    // g2l[globalFace][slot] -> that zone's local interface-face ID.
+    // The slot index is shared by gI2Zid and g2l; their row lengths must match.
     LinkField gI2Zid;
     LinkField g2l;
     LinkField l2g;
 
+    // Candidate tables used while interface faces are split and remapped.
+    // They replace the live tables only after CommitInterfaceMappingBuffers
+    // validates the paired inverse-map rows.
     LinkField gI2ZidNew;
     LinkField g2lNew;
     LinkField l2gNew;
 
+    // Legacy per-zone child-count bookkeeping for interface-face rebuilding.
     LinkField nChild;
 
     std::unique_ptr< FaceSearch > face_search;
