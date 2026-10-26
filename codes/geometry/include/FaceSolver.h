@@ -168,4 +168,15 @@ bool FaceNodesContainedInVertexSet(
     const IntSet & bcVertex,
     const IntField & faceNodes );
 
+
+// Append BC type/name for faces with open right cell (boundary faces in
+// current face order). Returns number of boundary faces appended.
+// Requires parallel lengths of rightCells, faceBcTypes, and faceBcNameIds.
+int CollectBoundaryBcEntries(
+    const IntField & rightCells,
+    const IntField & faceBcTypes,
+    const IntField & faceBcNameIds,
+    IntField & outBcType,
+    IntField & outBcNameId );
+
 EndNameSpace

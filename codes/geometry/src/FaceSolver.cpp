@@ -497,20 +497,12 @@ int FaceSolver::AppendBoundaryBcToRecord( BcRecord & bcRecord ) const
             "FaceSolver::AppendBoundaryBcToRecord: staged face arrays are not aligned" );
     }
 
-    const auto & rightCells = this->faceTopo->GetRightCells();
-    const int nFaces = static_cast< int >( rightCells.size() );
-    int nBFaces = 0;
-
-    for ( int iFace = 0; iFace < nFaces; ++ iFace )
-    {
-        if ( rightCells[ iFace ] == ONEFLOW::INVALID_INDEX )
-        {
-            bcRecord.bcType.push_back( this->faceBcTypes[ iFace ] );
-            bcRecord.bcNameId.push_back( this->faceBcNameIds[ iFace ] );
-            ++ nBFaces;
-        }
-    }
-    return nBFaces;
+    return CollectBoundaryBcEntries(
+        this->faceTopo->GetRightCells(),
+        this->faceBcTypes,
+        this->faceBcNameIds,
+        bcRecord.bcType,
+        bcRecord.bcNameId );
 }
 
 int FaceSolver::CountFacesWithoutChildren() const
@@ -533,5 +525,33 @@ int FaceSolver::CountFacesWithoutChildren() const
     return nSimpleFace;
 }
 
+
+
+int CollectBoundaryBcEntries(
+    const IntField & rightCells,
+    const IntField & faceBcTypes,
+    const IntField & faceBcNameIds,
+    IntField & outBcType,
+    IntField & outBcNameId )
+{
+    if ( rightCells.size() != faceBcTypes.size() ||
+         rightCells.size() != faceBcNameIds.size() )
+    {
+        throw std::logic_error(
+            "CollectBoundaryBcEntries: rightCells and staged BC arrays differ in size" );
+    }
+
+    int nBFaces = 0;
+    for ( std::size_t iFace = 0; iFace < rightCells.size(); ++ iFace )
+    {
+        if ( rightCells[ iFace ] == ONEFLOW::INVALID_INDEX )
+        {
+            outBcType.push_back( faceBcTypes[ iFace ] );
+            outBcNameId.push_back( faceBcNameIds[ iFace ] );
+            ++ nBFaces;
+        }
+    }
+    return nBFaces;
+}
 
 EndNameSpace

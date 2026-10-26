@@ -234,13 +234,18 @@ BC type.
 ``-1``) to any remaining face still at ``INVALID_INDEX``. That closes the
 staged BC vector before export.
 
-**Export.** ``AppendBoundaryBcToRecord`` copies staged BC for faces with open
-right cells into ``BcRecord`` in **current face order**. After
-``ReorderLink``, boundary faces form a prefix and relative boundary order is
-preserved, so ``BcRecord`` stays aligned without a second permutation
-(``ValidateBoundaryBcLayout``).
+**Export.** ``CollectBoundaryBcEntries`` (used by
+``AppendBoundaryBcToRecord``) walks faces in **current order** and appends
+staged BC type/name for every face with ``right == INVALID_INDEX``. Interior
+faces are skipped. The helper **appends** (does not clear) the output arrays,
+matching historical ``BcRecord`` accumulation.
 
-**Tests:** ``FaceNodesContainedInVertexSetTest``, ``FaceSolverStageTest``,
+After ``ReorderLink``, boundary faces form a prefix and relative boundary
+order is preserved, so ``BcRecord`` stays aligned without a second
+permutation (``ValidateBoundaryBcLayout``).
+
+**Tests:** ``FaceNodesContainedInVertexSetTest``,
+``CollectBoundaryBcEntriesTest``, ``FaceSolverStageTest``,
 ``FaceTopoReorderLinkTest``.
 
 Open design pressures
@@ -297,6 +302,9 @@ Change type matrix
      - write-path table on this page
    * - ``FaceNodesContainedInVertexSet`` / CheckBcFace
      - ``FaceNodesContainedInVertexSetTest``
+     - `Boundary-condition assignment algorithm`
+   * - ``CollectBoundaryBcEntries`` / AppendBoundaryBcToRecord
+     - ``CollectBoundaryBcEntriesTest``
      - `Boundary-condition assignment algorithm`
    * - ``ClaimStagedFaceAsLeft`` /
        ``AttachStagedFaceAsRight`` /
