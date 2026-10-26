@@ -132,6 +132,32 @@ IFaceLink::IFaceLink( Grids & gridsIn ) : grids( gridsIn )
 }
 
 
+
+int CountInterfaceFacesMissingPartner(
+    const IntField & localToGlobal,
+    const LinkField & zoneIdsPerGlobalFace,
+    const LinkField & localFaceIdsPerGlobalFace )
+{
+    int missing = 0;
+    for ( std::size_t i = 0; i < localToGlobal.size(); ++ i )
+    {
+        const int gIFace = localToGlobal[ i ];
+        ValidateGlobalFaceMapping(
+            gIFace,
+            zoneIdsPerGlobalFace,
+            localFaceIdsPerGlobalFace,
+            "CountInterfaceFacesMissingPartner" );
+        const int nIZone = static_cast< int >( zoneIdsPerGlobalFace[ gIFace ].size() );
+        // Legacy: only count faces with 0 or 1 zone slots as "missing".
+        // Over-subscribed faces (nIZone > 2) are ignored in the counter.
+        if ( nIZone < 2 )
+        {
+            ++ missing;
+        }
+    }
+    return missing;
+}
+
 bool FindRemoteInterfacePartner(
     int globalFaceId,
     int selfZoneId,
@@ -264,28 +290,14 @@ void IFaceLink::MatchInterfaceTopology( Grid & grid )
     InterFace * interFace = grid.interFace.get();
     if ( ! interFace ) return;
 
-    int missingPeriodicPartnerCount = 0;
+    const IntField & localToGlobal = this->l2g[ grid.id ];
+    const int missingPeriodicPartnerCount = CountInterfaceFacesMissingPartner(
+        localToGlobal, this->gI2Zid, this->g2l );
 
-    int nIFaces = this->l2g[ grid.id ].size();
-
+    const int nIFaces = static_cast< int >( localToGlobal.size() );
     for ( int iIFace = 0; iIFace < nIFaces; ++ iIFace )
     {
-        int gIFace = this->l2g[ grid.id ][ iIFace ];
-        ValidateGlobalFaceMapping(
-            gIFace, this->gI2Zid, this->g2l, "IFaceLink::MatchInterfaceTopology" );
-        int nIZone = static_cast< int >( this->gI2Zid[ gIFace ].size() );
-
-        if ( nIZone != 2 )
-        {
-            if ( nIZone > 2 )
-            {
-            }
-            else
-            {
-                ++ missingPeriodicPartnerCount;
-            }
-        }
-
+        const int gIFace = localToGlobal[ iIFace ];
         int remoteZone = -1;
         int remoteLocal = -1;
         if ( FindRemoteInterfacePartner(
@@ -304,6 +316,7 @@ void IFaceLink::MatchInterfaceTopology( Grid & grid )
     std::cout << " Periodic boundary faces missing a partner = "
               << missingPeriodicPartnerCount << "\n";
 }
+
 
 void IFaceLink::MatchPeriodicInterface( Grid & grid )
 {

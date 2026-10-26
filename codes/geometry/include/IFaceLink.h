@@ -121,4 +121,13 @@ bool FindRemoteInterfacePartner(
     int & outRemoteZoneId,
     int & outRemoteLocalFaceId );
 
+// Count local interface faces whose global face has fewer than two zone
+// references (unpaired). Faces with more than two zones are not counted here
+// (legacy MatchInterfaceTopology behavior).
+int CountInterfaceFacesMissingPartner(
+    const IntField & localToGlobal,
+    const LinkField & zoneIdsPerGlobalFace,
+    const LinkField & localFaceIdsPerGlobalFace );
+
 EndNameSpace
+

@@ -134,6 +134,9 @@ Interface split helpers
   ``RegisterLocalInterfaceFaceTest``).
 * ``FindRemoteInterfacePartner`` selects the non-self zone/local pair on a
   global interface face (**test:** ``FindRemoteInterfacePartnerTest``).
+* ``CountInterfaceFacesMissingPartner`` counts locals whose global face has
+  fewer than two zone slots (**test:**
+  ``CountInterfaceFacesMissingPartnerTest``).
 * ``ExpandBcRecordForSplitInterfaces`` repeats BC slots when an interface face
   splits into children (**test:** ``ExpandBcRecordSplitTest``).
 * ``BuildInverseInterfaceMapForZone`` fills ``gI2ZidNew`` / ``g2lNew`` from a
@@ -245,6 +248,9 @@ Change type matrix
      - `Interface split helpers`
    * - ``FindRemoteInterfacePartner`` / MatchInterfaceTopology
      - ``FindRemoteInterfacePartnerTest``
+     - `Interface split helpers`
+   * - ``CountInterfaceFacesMissingPartner``
+     - ``CountInterfaceFacesMissingPartnerTest``
      - `Interface split helpers`
    * - ``ExpandBcRecordForSplitInterfaces`` / BC reset on split
      - ``ExpandBcRecordSplitTest``
