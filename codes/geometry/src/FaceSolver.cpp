@@ -34,6 +34,12 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+namespace
+{
+constexpr CgInt kMinimumPolygonNodeCount = 3;
+}
+
+
 FaceSolver::FaceSolver()
 {
     // [Refactored] faceBcNameIds, faceBcTypes, childFid are now value types, 
@@ -101,6 +107,12 @@ void FaceSolver::StagePolygonFacesFromConnectivity(
         {
             throw std::runtime_error(
                 "FaceSolver::StagePolygonFacesFromConnectivity: polygon connectivity span is invalid" );
+        }
+        // NGON_n polygon faces require at least three node references.
+        if ( end - start < kMinimumPolygonNodeCount )
+        {
+            throw std::runtime_error(
+                "FaceSolver::StagePolygonFacesFromConnectivity: polygon has fewer than three nodes" );
         }
     }
 

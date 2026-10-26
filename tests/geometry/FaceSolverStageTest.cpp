@@ -144,6 +144,40 @@ TEST( FaceSolverStageTest, StagePolygonFacesFromConnectivityRejectsIncompleteOff
         std::runtime_error );
 }
 
+TEST( FaceSolverStageTest, StagePolygonFacesRejectsFewerThanThreeNodes )
+{
+    for ( int nodeCount = 0; nodeCount < 3; ++ nodeCount )
+    {
+        FaceSolver solver;
+        CgIntField offsets{ 0, nodeCount };
+        CgIntField connectivity;
+        for ( int nodeId = 1; nodeId <= nodeCount; ++ nodeId )
+        {
+            connectivity.push_back( nodeId );
+        }
+
+        EXPECT_THROW(
+            solver.StagePolygonFacesFromConnectivity(
+                1, offsets, connectivity, /*faceType=*/7 ),
+            std::runtime_error ) << "nodeCount=" << nodeCount;
+        EXPECT_TRUE( solver.GetFaceTopo().GetFaces().empty() );
+        EXPECT_TRUE( solver.StagedBcMatchesFaceCount() );
+    }
+}
+
+TEST( FaceSolverStageTest, StagePolygonFacesValidatesAllSpansBeforeStaging )
+{
+    FaceSolver solver;
+    CgIntField offsets{ 0, 3, 5 };
+    CgIntField connectivity{ 1, 2, 3, 4, 5 };
+
+    EXPECT_THROW(
+        solver.StagePolygonFacesFromConnectivity(
+            2, offsets, connectivity, /*faceType=*/7 ),
+        std::runtime_error );
+    EXPECT_TRUE( solver.GetFaceTopo().GetFaces().empty() );
+    EXPECT_TRUE( solver.StagedBcMatchesFaceCount() );
+}
 // Two polyhedra share one face: first claims left, second attaches right.
 TEST( FaceSolverStageTest, ClaimPolyhedronCellsAssignsLeftThenRight )
 {

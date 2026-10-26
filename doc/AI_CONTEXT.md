@@ -2,10 +2,13 @@
 
 Last updated: 2026-10-26
 Working branch: `hexin`
-Latest inspected `hexin` HEAD: [`de266a3b`](https://github.com/eric2003/OneFLOW/commit/de266a3b), also shown as `origin/hexin`. It includes the case-parameter design page and the strict-build Sphinx heading fixes. The current local working slice adds isolated `ConfigLoader` contract tests in `tests/io/ConfigLoader_test.cpp` and a dedicated CMake test target. The generated executable ran 5/5 tests successfully, and `ctest --test-dir build -C Debug -R ConfigLoader --output-on-failure` passed all five after invoking the generated GTest discovery script. CMake/MSBuild did not return success: compilation reported MSVC `C1902` PDB-manager mismatch errors, so a clean target build remains unverified. The user-reported 723/723 result was on its earlier `d5b96e99` base and has not been revalidated at `c1c66b41`. The current local slice connects `ApplicationSettings.run_mode` to Saved Workflows initial draft selection, adds three Qt-independent mapping tests, and includes the application-settings suite in the GUI test runner. `.ofw` now converts into an unsaved Saved Workflows draft and uses the existing execution/history services; dependency mode now carries artifact inputs/outputs through the shared workflow-plan contract. The `.ofw` schema is version 2 and migrates version-1 files without bindings. Relative case paths resolve against the .ofw file and round-trip portably. The full suite has not been rerun.
+Latest inspected local HEAD: `ea79bb66` (`origin/hexin` at inspection time).
 
-This is the fast handoff page for an AI assistant or developer continuing work on OneFLOW. It is a curated status snapshot, not a replacement for source code, tests, design pages, or CI. Recheck the branch HEAD before editing: this page can lag behind the current repository revision.
+The user reported 803/803 tests passing at the starting baseline. This working slice validates polygon-face connectivity before topology mutation and adds regression tests for undersized polygons and all-spans-before-staging behavior. The focused C++ target has **not** been rebuilt: MSVC reports C1902 PDB-manager errors across multiple geometry sources even after cleaning only the `OneFLOW_GeometryCore` target. A direct Clang override is incompatible with the generated project's `/scanDependencies` option. The geometry core outputs in this build tree therefore need a successful rebuild before treating the new tests as executed. Strict Sphinx HTML build passed for all 109 source documents with `-W --keep-going` after correcting two pre-existing unclosed emphasis markers on this page.
 
+The goal of this slice is to make the input contract explicit: a polygon needs at least three node references, and the entire offset/connectivity span set must validate before any face lookup or staged topology mutation. Face identity is undirected/set-based, while the first-seen ring order remains the representative used by orientation and ownership processing. Repeated node IDs inside a ring remain outside this slice's validation contract.
+
+This is a curated handoff snapshot, not a replacement for source code, tests, design pages, or CI. Recheck the branch HEAD and working tree before continuing.
 ## 1. Read this first
 
 For a quick restart, follow this order:
@@ -36,61 +39,32 @@ Do not start by reading the whole repository. Use the architecture map to identi
 
 The published [architecture review](source/architecture_review.rst) is now the common checklist for substantial AI-assisted changes. It deliberately separates general CFD/CAE concerns from verified OneFLOW behavior. Keep these cross-system risks visible while working locally: implicit global runtime state, configuration parsing versus validation/application, mutable mesh data and derived connectivity, workflow artifact provenance and execution locations, repeated/failed-run cleanup, and the gap between documented plans and actual test/CI evidence. At each meaningful milestone, state which system-level concern improved, what remains untouched, and whether the priority order should change.
 
-## 4. Current focus: parameter semantics, runtime lifecycle, and Workbench integration
+## 4. Current focus: staged polygon-face validation
 
-The multi-case path initializes process runtime once, runs every case-list entry in command-line order (including repeated identical paths), tears down each case, then finalizes process runtime. `SimuContext::SetupEnvironment()` now rolls back process/case resources if case setup fails; `TeardownEnvironment()` attempts process finalization even if case teardown throws. `SimuImp::RunCase()` retains its narrower, repeatable case boundary and does not initialize or finalize MPI. MPI process runtime is one-shot; case execution can be repeated within that runtime. Thirteen lifecycle tests were previously verified; the current CLI tests pass 11/11 in the parser-only target and 41/41 in the compatibility/path target on direct MSVC builds; the full suite and executable link remain unverified. The command-line source and header are discovered by the source-tree glob; the explicit test targets also list their sources in CMake, so this split causes a CMake regeneration/reload in Visual Studio. R1 case configuration and I/O root resolution remains partial. The Workbench user guide now distinguishes implemented behavior from saved settings and workspace modes that are not yet wired into execution.
+Current implementation files:
 
-### Source-backed execution path
+- `codes/geometry/src/FaceSolver.cpp`
+- `tests/geometry/FaceSolverStageTest.cpp`
+- `doc/source/face_stage_pipeline.rst`
 
-`OneFlow.cpp -> Simulation::Run() -> SimuImp::InitSimu() -> SimuContext::SetupCaseEnvironment()`
+The geometry path first validates the offset table size and every span; it now also rejects spans shorter than three references. Only after all spans pass does it construct rings, query the face lookup, and stage unique faces. The regression tests assert that malformed spans throw without leaving partial staged topology or desynchronized boundary-condition slots. The algorithm contract and rationale are recorded alongside the staged-face pipeline, including the distinction between undirected face identity and first-seen ring orientation.
 
-Relevant implementation: `codes/main/src/SimuContextEnv.cpp`.
+System-level concern improved: malformed later input cannot leave earlier polygons partially staged. Unchanged: repeated node IDs within a polygon, MPI lifecycle, multi-case runtime, CLI parsing, and solver numerical kernels.
 
-The setup path binds the active case, reads control parameters, applies project and generic I/O roots, applies mesh/flow-specific roots, handles the legacy `sourceGridCaseDir` mesh-input fallback, and writes path diagnostics.
+Validation evidence for this working slice:
 
-### Established behavior from source inspection
-
-- `Prj::SetPrjBaseDir()` resets project and domain-specific roots to prevent settings leaking between cases.
-- Generic roots are applied before mesh/flow-specific roots.
-- Empty or `default` domain roots inherit generic roots.
-- Empty, `default`, or `case` generic roots resolve to the active case.
-- The special `project` root requires a configured project root.
-- Other relative roots resolve relative to the active case; absolute roots are used directly.
-- `sourceGridCaseDir` is only a fallback when `meshInputRoot` is empty or `default`; an explicit mesh input root takes precedence.
-- Missing `GetDataValue(name)` parameters throw. The underlying typed `DataObject` lookup uses a static cast, so it is not a safe runtime type check.
-- Existing tests in `tests/main/prj_cmdline_test.cpp` cover many path/root rules. `tests/main/simu_context_test.cpp` primarily covers context state and task plumbing; the inspected tests did not directly exercise full `SetupCaseEnvironment()` precedence and legacy fallback.
-
-See the runtime architecture guide and roadmap for the detailed evidence and limitations.
-
-### Implementation and test seam
-
-The current R1 implementation is split across these `hexin` commits:
-
-- [`fd3889362408586e379d45d08a170abf2077efb9`](https://github.com/eric2003/OneFLOW/commit/fd3889362408586e379d45d08a170abf2077efb9) adds `SimuContextParameter.h`, a narrow lookup helper taking `const DataPara&`.
-- [`6d72e31f93f55b00b622e122fa75eb689832694f`](https://github.com/eric2003/OneFLOW/commit/6d72e31f93f55b00b622e122fa75eb689832694f) routes production `SimuContextEnv.cpp` reads through that helper.
-- [`1e438f84f600c689666f831ff0837ce3d5936e13`](https://github.com/eric2003/OneFLOW/commit/1e438f84f600c689666f831ff0837ce3d5936e13) adds focused tests for missing, valid string, and invalid-type parameters.
-- [`a13a890bb31e2d84434fbe4297cf76aebc24c865`](https://github.com/eric2003/OneFLOW/commit/a13a890bb31e2d84434fbe4297cf76aebc24c865) registers the test target in CMake.
-
-The helper preserves the optional-parameter contract:
-
-- Missing entries still return an empty string, preserving the existing fallback path.
-- Present entries whose declared database type is not `HX_STRING` now raise `std::invalid_argument` rather than being read through an unchecked cast.
-- The local helper is limited to environment setup; no public database API or generic path-resolver abstraction was added.
-- The same rule is applied to `projectRoot`, `inputRoot`, `outputRoot`, `meshInputRoot`, `flowInputRoot`, `meshOutputRoot`, `flowOutputRoot`, `sourceGridCaseDir`, and `ioPathInfoFileName`.
-- The follow-up documentation record is in [`3c987064e4d547de4e10a07f261a3cebf2837407`](https://github.com/eric2003/OneFLOW/commit/3c987064e4d547de4e10a07f261a3cebf2837407).
-
-**Status: Partial.** The user reported all 697 local tests passed on the code baseline before the latest fallback-policy change. The focused helper test covers missing, valid string, and invalid-type values; it now also tests whether empty/default mesh roots permit reading the legacy fallback and whether an explicit mesh root suppresses that fallback lookup. These latest additions still need the user's next local test run. The helper tests use a `DataPara` instance rather than the full `SetupCaseEnvironment()` lifecycle, so global-database binding and control-file loading remain integration-level acceptance criteria. The fallback predicate has negative tests for `case` and an ordinary relative root; `ApplyLegacySourceGridCaseDir()` now has value-contract tests for valid, empty, and `default` legacy values as well as explicit-root precedence. No GitHub CI pass has been confirmed for the latest revision.
-
+- User-reported starting baseline: 803/803 tests passed; not rerun here.
+- `git diff --check`: passed.
+- C++ source ASCII check: passed for the changed implementation and test file.
+- Strict Sphinx: passed for all 109 source documents with `-W --keep-going` after fixing two malformed emphasis markers.
+- Focused C++ build/test: unverified due the C1902 errors above.
 ## 5. Next actions, in priority order
 
-1. Extend R2 from parser syntax into the `ConfigDatabaseAdapter` and task-selection boundary, with focused tests for type conversion and representative control parameters.
-2. Add an acceptance test that executes a converted `.ofw` producer/consumer graph and verifies staged output paths, parameter overrides, and the persisted run record.
-2. Run the full repository suite and check current `hexin` CI; update this handoff with exact results.
-3. Continue from [the integration-test investigation](plans/setup-case-environment-integration-test.md): inspect global database initialization and test link dependencies, then try a temporary-case fixture for `SetupCaseEnvironment()` without duplicating the full solver bootstrap.
-4. Verify path reset between sequential cases and confirm output-path diagnostics remain compatible.
-5. Inspect the invocation mode contract for `d`/`r` before considering any CLI syntax change.
+1. Restore a valid `OneFLOW_GeometryCore` build in the current build tree, then run the focused staging tests and full suite; do not cite the 803 baseline as verification of this change.
+2. Inspect span arithmetic and malformed-connectivity behavior at the section reader boundary; keep any expanded validation contract paired with tests and docs.
+3. At the next stable milestone, recheck the whole-system architecture risks in `source/architecture_review.rst` and update this handoff to the exact verified HEAD/results.
 
-Do not mark an item complete because a code change was committed. Completion requires acceptance evidence.
+Suggested commit message: `fix(geometry): reject undersized polygon faces`.
 ## 6. Status vocabulary
 
 Use these labels consistently in this page and related records:

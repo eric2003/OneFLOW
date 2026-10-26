@@ -42,6 +42,29 @@ Orchestration is in ``GridElem``; mutation rules live in ``FaceSolver`` and
         -> FaceTopo::ReorderLink
         -> ValidateBoundaryBcLayout
 
+Polygon-face staging and deduplication
+--------------------------------------
+
+``GridElem::ScanPolygonFace`` forwards only ``NGON_n`` sections to
+``FaceSolver::StagePolygonFacesFromConnectivity``. The staging algorithm has a
+validation phase followed by a mutation phase:
+
+#. Validate the offset table has one boundary offset per polygon plus one.
+#. Validate every span is ordered and lies within the connectivity array.
+#. Reject any polygon span with fewer than three node references.
+#. Only after all spans pass, build each node ring and query ``faceLookup``.
+#. Call ``StageNewFace`` only for a new undirected identity; duplicate rings
+   reuse the existing staged face.
+
+Validating the full section before lookup or topology mutation gives malformed
+later polygons a strong no-partial-staging guarantee. Deduplication identifies a
+face by its node set; the stored ring remains the first-seen ordering used by
+later orientation/ownership logic. The current staging contract checks the
+number of node references but does not reject repeated node IDs within a ring.
+
+**Tests:** ``FaceSolverStageTest.StagePolygonFacesRejectsFewerThanThreeNodes``
+and ``FaceSolverStageTest.StagePolygonFacesValidatesAllSpansBeforeStaging``.
+
 Staged face invariant
 ---------------------
 
@@ -187,7 +210,7 @@ with fewer than two zone slots are counted by
 counted as "missing").
 
 **Split rebuild.** Interface parents may split (for example quad to triangles).
-Rebuild runs on *New buffers:
+Rebuild runs on ``New`` buffers:
 
 #. ``InitNewInterfaceMappingBuffers`` -- copy inverse maps, empty ``l2gNew``
 #. Per zone: ``RebuildZoneL2gNewAfterInterfaceSplit`` -- parents become children
@@ -195,7 +218,7 @@ Rebuild runs on *New buffers:
 #. ``ExpandBcRecordForSplitInterfaces`` / face-node and cell-side rebuilds
 #. ``BuildInverseInterfaceMapForZone`` -- fill ``gI2ZidNew`` / ``g2lNew`` from
    each zone's ``l2gNew`` (at most two zone slots per global face)
-#. ``CommitInterfaceMappingBuffers`` -- validate then swap *New into live tables
+#. ``CommitInterfaceMappingBuffers`` -- validate then swap ``New`` into live tables
 
 The dual-table invariant after commit is the same as after registration:
 ``ValidateGlobalFaceMappings`` requires equal top-level sizes and equal per-face
@@ -384,6 +407,10 @@ Change type matrix
      - ``FaceSolverStageTest``,
        ``FaceSolverLifecycleTest``
      - `Staged face invariant` on this page
+   * - ``StagePolygonFacesFromConnectivity``
+     - ``FaceSolverStageTest.StagePolygonFacesRejectsFewerThanThreeNodes``,
+       ``FaceSolverStageTest.StagePolygonFacesValidatesAllSpansBeforeStaging``
+     - `Polygon-face staging and deduplication`
    * - ``FillUnsetStagedBcSlots`` / ScanInterfaceBc /
        ``CountEmptyChildFaceLists``
      - ``FillUnsetStagedBcSlotsTest``
