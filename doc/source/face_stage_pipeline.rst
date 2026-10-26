@@ -142,8 +142,9 @@ Interface split helpers
 * ``RebuildFaceCellSidesAfterInterfaceSplit`` expands left cells and assigns
   ghost right cells after interface splits (**test:**
   ``RebuildFaceCellSidesTest``).
-* ``CollectBoundaryInterfaceChildCounts`` walks boundary BC types and records
-  per-interface child counts (**test:**
+* ``CollectBoundaryInterfaceChildFaceIds`` walks boundary BC types and records
+  per-interface child global-id lists; ``CollectBoundaryInterfaceChildCounts``
+  is the size-only view (**test:**
   ``CollectBoundaryInterfaceChildCountsTest``).
 * ``RebuildFaceNodeListsAfterInterfaceSplit`` rebuilds face-to-node lists after
   interface splits (**test:** ``RebuildFaceNodeListsTest``).
@@ -252,7 +253,7 @@ Change type matrix
    * - ``RebuildFaceCellSidesAfterInterfaceSplit`` / SetNewFace2Cell
      - ``RebuildFaceCellSidesTest``
      - `Interface split helpers`
-   * - ``CollectBoundaryInterfaceChildCounts``
+   * - ``CollectBoundaryInterfaceChildFaceIds`` / Counts
      - ``CollectBoundaryInterfaceChildCountsTest``
      - `Interface split helpers`
    * - ``RebuildFaceNodeListsAfterInterfaceSplit`` / SetNewFace2Node

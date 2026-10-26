@@ -71,3 +71,37 @@ TEST( CollectBoundaryInterfaceChildCountsTest, RejectsInvalidBoundaryCount )
         CollectBoundaryInterfaceChildCounts( bcType, 5, l2g, split, 0, counts ),
         std::logic_error );
 }
+
+
+TEST( CollectBoundaryInterfaceChildFaceIdsTest, ReturnsChildIdListsInOrder )
+{
+    LinkField l2g;
+    InterfaceFaceSplitTable split;
+    Seed( l2g, split );
+
+    const IntField bcType{ BC::SOLID_SURFACE, BC::INTERFACE, BC::INTERFACE };
+    LinkField lists;
+    CollectBoundaryInterfaceChildFaceIds(
+        bcType, 3, l2g, split, 0, lists );
+
+    ASSERT_EQ( lists.size(), static_cast< std::size_t >( 2 ) );
+    EXPECT_EQ( lists[ 0 ], ( IntField{ 0, 1 } ) );
+    EXPECT_TRUE( lists[ 1 ].empty() );
+}
+
+TEST( CollectBoundaryInterfaceChildCountsTest, CountsMatchFaceIdListSizes )
+{
+    LinkField l2g;
+    InterfaceFaceSplitTable split;
+    Seed( l2g, split );
+
+    const IntField bcType{ BC::INTERFACE, BC::INTERFACE };
+    LinkField lists;
+    IntField counts;
+    CollectBoundaryInterfaceChildFaceIds( bcType, 2, l2g, split, 0, lists );
+    CollectBoundaryInterfaceChildCounts( bcType, 2, l2g, split, 0, counts );
+
+    ASSERT_EQ( counts.size(), lists.size() );
+    EXPECT_EQ( counts[ 0 ], static_cast< int >( lists[ 0 ].size() ) );
+    EXPECT_EQ( counts[ 1 ], static_cast< int >( lists[ 1 ].size() ) );
+}

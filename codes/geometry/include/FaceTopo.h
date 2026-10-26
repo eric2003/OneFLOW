@@ -182,8 +182,17 @@ void RebuildFaceCellSidesAfterInterfaceSplit(
     IntField & outLeftCells,
     IntField & outRightCells );
 
-// Walk boundary bcType[0..nBFaces) and, for each interface entry, append
-// childFaceIds.size() from GetInterfaceChildFaceIds (interface-local order).
+// Walk boundary bcType[0..nBFaces) and, for each interface entry, append the
+// child global-id list from GetInterfaceChildFaceIds (interface-local order).
+void CollectBoundaryInterfaceChildFaceIds(
+    const IntField & bcType,
+    int nBFaces,
+    const LinkField & zoneToLocalToGlobal,
+    const InterfaceFaceSplitTable & splitTable,
+    int zoneId,
+    LinkField & outChildGlobalIdsPerInterfaceLocal );
+
+// Derived from CollectBoundaryInterfaceChildFaceIds (sizes only).
 void CollectBoundaryInterfaceChildCounts(
     const IntField & bcType,
     int nBFaces,

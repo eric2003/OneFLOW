@@ -344,21 +344,13 @@ void FaceTopo::SetNewFace2Node( IFaceLink & iFaceLink )
     const IntField & bcType = this->bcManager->bcRecord->bcType;
 
     LinkField childGlobalIdsPerInterfaceLocal;
-    int localInterfaceFaceId = 0;
-    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
-    {
-        if ( ! BC::IsInterfaceBc( bcType[ iFace ] ) )
-        {
-            continue;
-        }
-        childGlobalIdsPerInterfaceLocal.push_back(
-            GetInterfaceChildFaceIds(
-                iFaceLink.l2g,
-                iFaceLink.face_search->interfaceSplit,
-                this->GetGrid().id,
-                localInterfaceFaceId ) );
-        ++ localInterfaceFaceId;
-    }
+    CollectBoundaryInterfaceChildFaceIds(
+        bcType,
+        nBFaces,
+        iFaceLink.l2g,
+        iFaceLink.face_search->interfaceSplit,
+        this->GetGrid().id,
+        childGlobalIdsPerInterfaceLocal );
 
     const bool hasNodeMesh = static_cast< bool >( this->GetGrid().nodeMesh );
     const HXSize_t nodeMeshCount = hasNodeMesh
@@ -919,6 +911,35 @@ void RebuildFaceCellSidesAfterInterfaceSplit(
 }
 
 
+void CollectBoundaryInterfaceChildFaceIds(
+    const IntField & bcType,
+    int nBFaces,
+    const LinkField & zoneToLocalToGlobal,
+    const InterfaceFaceSplitTable & splitTable,
+    int zoneId,
+    LinkField & outChildGlobalIdsPerInterfaceLocal )
+{
+    if ( nBFaces < 0 || static_cast< std::size_t >( nBFaces ) > bcType.size() )
+    {
+        throw std::logic_error(
+            "CollectBoundaryInterfaceChildFaceIds: invalid boundary face count" );
+    }
+
+    outChildGlobalIdsPerInterfaceLocal.clear();
+    int interfaceLocal = 0;
+    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
+    {
+        if ( ! BC::IsInterfaceBc( bcType[ iFace ] ) )
+        {
+            continue;
+        }
+        outChildGlobalIdsPerInterfaceLocal.push_back(
+            GetInterfaceChildFaceIds(
+                zoneToLocalToGlobal, splitTable, zoneId, interfaceLocal ) );
+        ++ interfaceLocal;
+    }
+}
+
 void CollectBoundaryInterfaceChildCounts(
     const IntField & bcType,
     int nBFaces,
@@ -927,25 +948,21 @@ void CollectBoundaryInterfaceChildCounts(
     int zoneId,
     IntField & outChildCountPerInterfaceLocal )
 {
-    if ( nBFaces < 0 || static_cast< std::size_t >( nBFaces ) > bcType.size() )
-    {
-        throw std::logic_error(
-            "CollectBoundaryInterfaceChildCounts: invalid boundary face count" );
-    }
+    LinkField childGlobalIdsPerInterfaceLocal;
+    CollectBoundaryInterfaceChildFaceIds(
+        bcType,
+        nBFaces,
+        zoneToLocalToGlobal,
+        splitTable,
+        zoneId,
+        childGlobalIdsPerInterfaceLocal );
 
     outChildCountPerInterfaceLocal.clear();
-    int interfaceLocal = 0;
-    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
+    outChildCountPerInterfaceLocal.reserve( childGlobalIdsPerInterfaceLocal.size() );
+    for ( std::size_t i = 0; i < childGlobalIdsPerInterfaceLocal.size(); ++ i )
     {
-        if ( ! BC::IsInterfaceBc( bcType[ iFace ] ) )
-        {
-            continue;
-        }
-        const IntField & childFaceIds = GetInterfaceChildFaceIds(
-            zoneToLocalToGlobal, splitTable, zoneId, interfaceLocal );
         outChildCountPerInterfaceLocal.push_back(
-            static_cast< int >( childFaceIds.size() ) );
-        ++ interfaceLocal;
+            static_cast< int >( childGlobalIdsPerInterfaceLocal[ i ].size() ) );
     }
 }
 
