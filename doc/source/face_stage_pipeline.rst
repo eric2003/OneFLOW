@@ -303,8 +303,21 @@ the same relation:
 to ``gI2Zid`` and ``g2l``; a shared face pushes a second (zone, local) pair.
 
 **Partner selection.** After all zones register, ``FindRemoteInterfacePartner``
-picks the (zone, local) entry on a global face that is not the caller. Faces
-with fewer than two zone slots are counted by
+first verifies that the caller's exact (zone, local-face) pair is present in
+the global-face row, then selects the first other participant. If the caller
+is absent, it returns false without modifying the output values; this prevents
+an unrelated participant from being reported as a topological neighbour.
+
+Periodic matching has a different lookup contract. It geometrically transforms
+the current face and searches for the corresponding face in the transformed
+location. That partner face's row normally belongs to another zone, so the
+current (zone, local-face) pair may be absent. ``FindPeriodicInterfacePartner``
+therefore selects the first participant unless it is the exact current pair;
+a self-only row returns false. Both helpers require aligned zone/local rows and
+preserve output values when no partner is found (tests:
+``FindRemoteInterfacePartnerTest``, ``FindPeriodicInterfacePartnerTest``).
+
+Faces with fewer than two zone slots are counted by
 ``CountInterfaceFacesMissingPartner`` (legacy: more than two slots are not
 counted as "missing").
 
