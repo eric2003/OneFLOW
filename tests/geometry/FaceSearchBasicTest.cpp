@@ -70,6 +70,18 @@ TEST( FaceSearchBasicTest, ClearResetsDerivedSplitMappings )
     EXPECT_EQ( search.AddFace( IntField{ 1, 2 } ), 0 );
 }
 
+TEST( FaceSearchBasicTest, NonQuadSplitClearsStaleParentMapping )
+{
+    FaceSearch search;
+    ASSERT_EQ( search.AddFace( IntField{ 1, 2, 3 } ), 0 );
+    search.interfaceSplit.ResetForParentFaceCount( search.Size() );
+    search.interfaceSplit.childFaceIdsOfParent[ 0 ] = IntField{ 7, 8 };
+
+    search.SplitQuad2Tri( 0 );
+
+    EXPECT_TRUE( search.interfaceSplit.childFaceIdsOfParent[ 0 ].empty() );
+}
+
 TEST( FaceSearchBasicTest, RepeatedQuadSplitReplacesParentChildMapping )
 {
     // Intent: rebuilding one parent's split mapping must not append duplicate child IDs.

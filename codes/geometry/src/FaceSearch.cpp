@@ -63,7 +63,7 @@ const IntField & FaceSearchBasic::GetFaceNodeRing( int faceId ) const
     {
         throw std::out_of_range( "FaceSearchBasic::GetFaceNodeRing: face ID is out of range" );
     }
-    return this->faceArray[ static_cast< size_t >( faceId ) ];
+    return this->faceArray[ faceId ];
 }
 
 
@@ -109,11 +109,11 @@ void FaceSearch::CalcNewFaceId( IFaceLink & iFaceLink )
 void FaceSearch::SplitQuad2Tri( int faceId )
 {
     const IntField & nodeId = this->GetFaceNodeRing( faceId );
-    int nNodes = nodeId.size();
-    if ( nNodes != 4 ) return;
 
-    // Rebuild one parent's mapping; do not retain entries from a previous call.
+    // A direct call also invalidates stale results when this face is not a quad.
     this->interfaceSplit.ClearParentMapping( faceId );
+
+    if ( nodeId.size() != 4 ) return;
 
     LinkField localTriId, localTriFlag;
     this->GetLocalTri( localTriId, localTriFlag );
