@@ -44,6 +44,7 @@ public:
 
     // Interface-face relation, stored in two directions:
     // l2g[zone][localFace] -> global interface-face ID.
+    // gI2Zid means global Interface-face to zone IDs:
     // gI2Zid[globalFace][slot] -> participating zone ID.
     // g2l[globalFace][slot] -> that zone's local interface-face ID.
     // The slot index is shared by gI2Zid and g2l; their row lengths must match.
