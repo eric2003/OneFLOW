@@ -524,43 +524,35 @@ void FaceTopo::ModifyBoundaryInformation( IFaceLink & iFaceLink )
 
 void FaceTopo::ResetNumberOfBoundaryCondition( IFaceLink & iFaceLink )
 {
-    int nBFaces = this->bcManager->bcRecord->GetBoundaryFaceCount();
+    const int nBFaces = this->bcManager->bcRecord->GetBoundaryFaceCount();
+    const IntField & bcType = this->bcManager->bcRecord->bcType;
+    const IntField & bcNameId = this->bcManager->bcRecord->bcNameId;
 
-    this->bcManager->bcRecordNew->bcType.resize( 0 );
-    this->bcManager->bcRecordNew->bcNameId.resize( 0 );
-
+    // Child counts in boundary-interface order (same walk as ExpandBcRecord...).
+    IntField childCountPerInterfaceLocal;
     int localIid = 0;
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        int bcRegion = this->bcManager->bcRecord->bcNameId[ iFace ];
-        int bcType = this->bcManager->bcRecord->bcType[ iFace ];
-        if ( BC::IsInterfaceBc( bcType ) )
+        if ( ! BC::IsInterfaceBc( bcType[ iFace ] ) )
         {
-            const IntField & childFaceIds = GetInterfaceChildFaceIds( iFaceLink.l2g, iFaceLink.face_search->interfaceSplit, this->GetGrid().id, localIid );
-            int nCFace = childFaceIds.size();
-
-            if ( nCFace > 0 )
-            {
-                for ( int iCFace = 0; iCFace < nCFace; ++ iCFace )
-                {
-                    this->bcManager->bcRecordNew->bcType.push_back( bcType );
-                    this->bcManager->bcRecordNew->bcNameId.push_back( bcRegion );
-                }
-            }
-            else
-            {
-                this->bcManager->bcRecordNew->bcType.push_back( bcType );
-                this->bcManager->bcRecordNew->bcNameId.push_back( bcRegion );
-            }
-
-            ++ localIid;
+            continue;
         }
-        else
-        {
-            this->bcManager->bcRecordNew->bcType.push_back( bcType );
-            this->bcManager->bcRecordNew->bcNameId.push_back( bcRegion );
-        }
+        const IntField & childFaceIds = GetInterfaceChildFaceIds(
+            iFaceLink.l2g,
+            iFaceLink.face_search->interfaceSplit,
+            this->GetGrid().id,
+            localIid );
+        childCountPerInterfaceLocal.push_back(
+            static_cast< int >( childFaceIds.size() ) );
+        ++ localIid;
     }
+
+    ExpandBcRecordForSplitInterfaces(
+        bcType,
+        bcNameId,
+        childCountPerInterfaceLocal,
+        this->bcManager->bcRecordNew->bcType,
+        this->bcManager->bcRecordNew->bcNameId );
 
     this->ConstructNewInterfaceMap( iFaceLink );
 }
@@ -818,6 +810,54 @@ void FaceTopo::ReorderLink()
 
     // Cell-to-face adjacency stores face indices and must be rebuilt after reordering.
     this->c2f.clear();
+}
+
+
+void ExpandBcRecordForSplitInterfaces(
+    const IntField & bcType,
+    const IntField & bcNameId,
+    const IntField & childCountPerInterfaceLocal,
+    IntField & outBcType,
+    IntField & outBcNameId )
+{
+    if ( bcType.size() != bcNameId.size() )
+    {
+        throw std::logic_error(
+            "ExpandBcRecordForSplitInterfaces: bcType and bcNameId size mismatch" );
+    }
+
+    outBcType.clear();
+    outBcNameId.clear();
+
+    int interfaceLocal = 0;
+    for ( std::size_t iFace = 0; iFace < bcType.size(); ++ iFace )
+    {
+        const int bc = bcType[ iFace ];
+        const int nameId = bcNameId[ iFace ];
+        if ( BC::IsInterfaceBc( bc ) )
+        {
+            if ( interfaceLocal < 0 ||
+                 static_cast< std::size_t >( interfaceLocal ) >=
+                     childCountPerInterfaceLocal.size() )
+            {
+                throw std::out_of_range(
+                    "ExpandBcRecordForSplitInterfaces: interface child-count index out of range" );
+            }
+            const int nCFace = childCountPerInterfaceLocal[ interfaceLocal ];
+            ++ interfaceLocal;
+            const int nEmit = ( nCFace > 0 ) ? nCFace : 1;
+            for ( int i = 0; i < nEmit; ++ i )
+            {
+                outBcType.push_back( bc );
+                outBcNameId.push_back( nameId );
+            }
+        }
+        else
+        {
+            outBcType.push_back( bc );
+            outBcNameId.push_back( nameId );
+        }
+    }
 }
 
 EndNameSpace

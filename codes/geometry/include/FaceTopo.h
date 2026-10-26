@@ -135,6 +135,18 @@ HXSize_t CountBoundaryFaces( const IntField & rightCells );
 // Throws std::logic_error when the layout is inconsistent.
 void ValidateBoundaryBcLayout( const FaceTopo & faceTopo );
 
+// Expand boundary BC arrays when interface faces may split into children.
+// childCountPerInterfaceLocal is parallel to interface faces in boundary-face
+// order (same order as walking bcType with IsInterfaceBc). For each interface
+// entry, emit max(childCount, 1) copies of that BC; non-interface entries emit once.
+void ExpandBcRecordForSplitInterfaces(
+    const IntField & bcType,
+    const IntField & bcNameId,
+    const IntField & childCountPerInterfaceLocal,
+    IntField & outBcType,
+    IntField & outBcNameId );
+
+
 // Look up child face IDs for a local interface face and validate their node tables.
 // Preferred overload: depends only on l2g + InterfaceFaceSplitTable (no IFaceLink).
 // local interface face -> global parent id -> childFaceIdsOfParent[parent].

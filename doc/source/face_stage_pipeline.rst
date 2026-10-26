@@ -132,6 +132,8 @@ Interface split helpers
 * ``RegisterLocalInterfaceFace`` records ``l2g`` / ``gI2Zid`` / ``g2l`` when a
   local interface face joins a global id (**test:**
   ``RegisterLocalInterfaceFaceTest``).
+* ``ExpandBcRecordForSplitInterfaces`` repeats BC slots when an interface face
+  splits into children (**test:** ``ExpandBcRecordSplitTest``).
 * Quad diagonal candidates:
   ``BuildQuadDiagonalLocalTris`` / ``MapLocalTrisToGlobalNodes``
   (**test:** ``QuadDiagonalSplitTest``).
@@ -224,6 +226,9 @@ Change type matrix
      - `Interface split helpers`
    * - ``RegisterLocalInterfaceFace`` / CreateLink mapping
      - ``RegisterLocalInterfaceFaceTest``
+     - `Interface split helpers`
+   * - ``ExpandBcRecordForSplitInterfaces`` / BC reset on split
+     - ``ExpandBcRecordSplitTest``
      - `Interface split helpers`
    * - quad diagonal local tris / node map
      - ``QuadDiagonalSplitTest``
