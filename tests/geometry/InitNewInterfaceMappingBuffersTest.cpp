@@ -1,5 +1,5 @@
 // tests/geometry/InitNewInterfaceMappingBuffersTest.cpp
-// Locks InitNewLgMapping buffer setup without IFaceLink.
+// Locks InitNewLgMapping / UpdateLgMapping buffer helpers without IFaceLink.
 
 #include <gtest/gtest.h>
 #include <stdexcept>
@@ -19,10 +19,9 @@ TEST( InitNewInterfaceMappingBuffersTest, CopiesInverseMapsAndResizesL2gNew )
     LinkField l2g;
     l2g.push_back( IntField{ 0 } );
     l2g.push_back( IntField{ 0 } );
-    l2g.push_back( IntField{ 0 } ); // three zones
+    l2g.push_back( IntField{ 0 } );
 
     LinkField gI2ZidNew, g2lNew, l2gNew;
-    // Pre-fill to ensure clear/resize
     l2gNew.push_back( IntField{ 99 } );
 
     InitNewInterfaceMappingBuffers(
@@ -42,10 +41,47 @@ TEST( InitNewInterfaceMappingBuffersTest, RejectsMismatchedInverseMaps )
     LinkField gI2Zid;
     LinkField g2l;
     gI2Zid.push_back( IntField{ 0 } );
-    // g2l empty
     LinkField l2g;
     LinkField a, b, c;
     EXPECT_THROW(
         InitNewInterfaceMappingBuffers( gI2Zid, g2l, l2g, a, b, c ),
+        std::logic_error );
+}
+
+TEST( CommitInterfaceMappingBuffersTest, SwapsValidatedNewTablesIntoLive )
+{
+    LinkField gI2Zid;
+    LinkField g2l;
+    LinkField l2g;
+    gI2Zid.push_back( IntField{ 0 } );
+    g2l.push_back( IntField{ 0 } );
+    l2g.push_back( IntField{ 0 } );
+
+    LinkField gI2ZidNew;
+    LinkField g2lNew;
+    LinkField l2gNew;
+    gI2ZidNew.push_back( IntField{ 0, 1 } );
+    g2lNew.push_back( IntField{ 0, 1 } );
+    l2gNew.push_back( IntField{ 0 } );
+    l2gNew.push_back( IntField{ 0 } );
+
+    CommitInterfaceMappingBuffers(
+        gI2Zid, g2l, l2g, gI2ZidNew, g2lNew, l2gNew, "test" );
+
+    ASSERT_EQ( gI2Zid.size(), static_cast< std::size_t >( 1 ) );
+    EXPECT_EQ( gI2Zid[ 0 ], ( IntField{ 0, 1 } ) );
+    EXPECT_EQ( g2l[ 0 ], ( IntField{ 0, 1 } ) );
+    ASSERT_EQ( l2g.size(), static_cast< std::size_t >( 2 ) );
+}
+
+TEST( CommitInterfaceMappingBuffersTest, RejectsInconsistentNewInverseMaps )
+{
+    LinkField gI2Zid, g2l, l2g;
+    LinkField gI2ZidNew, g2lNew, l2gNew;
+    gI2ZidNew.push_back( IntField{ 0, 1 } );
+    g2lNew.push_back( IntField{ 0 } ); // length mismatch
+    EXPECT_THROW(
+        CommitInterfaceMappingBuffers(
+            gI2Zid, g2l, l2g, gI2ZidNew, g2lNew, l2gNew, "test" ),
         std::logic_error );
 }

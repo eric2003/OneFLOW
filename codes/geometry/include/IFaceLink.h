@@ -139,6 +139,15 @@ void InitNewInterfaceMappingBuffers(
     LinkField & g2lNew,
     LinkField & l2gNew );
 
-EndNameSpace
+// Validate *New inverse maps then swap them into the live tables (including l2g).
+void CommitInterfaceMappingBuffers(
+    LinkField & gI2Zid,
+    LinkField & g2l,
+    LinkField & l2g,
+    LinkField & gI2ZidNew,
+    LinkField & g2lNew,
+    LinkField & l2gNew,
+    const char * operation );
 
+EndNameSpace
 

@@ -137,8 +137,6 @@ Interface split helpers
 * ``CountInterfaceFacesMissingPartner`` counts locals whose global face has
   fewer than two zone slots (**test:**
   ``CountInterfaceFacesMissingPartnerTest``).
-* ``InitNewInterfaceMappingBuffers`` copies inverse maps into *New buffers and
-  resizes empty ``l2gNew`` (**test:** ``InitNewInterfaceMappingBuffersTest``).
 * ``ExpandBcRecordForSplitInterfaces`` repeats BC slots when an interface face
   splits into children (**test:** ``ExpandBcRecordSplitTest``).
 * ``BuildInverseInterfaceMapForZone`` fills ``gI2ZidNew`` / ``g2lNew`` from a
@@ -158,6 +156,50 @@ Interface split helpers
 * Quad diagonal candidates:
   ``BuildQuadDiagonalLocalTris`` / ``MapLocalTrisToGlobalNodes``
   (**test:** ``QuadDiagonalSplitTest``).
+
+
+Interface mapping algorithm
+---------------------------
+
+Multi-zone meshes share interface faces. OneFLOW keeps **two dual views** of
+the same relation:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 28 72
+
+   * - Table
+     - Meaning
+   * - ``l2g[zone][localIface]``
+     - Local interface face index to global interface face id
+   * - ``gI2Zid[global]`` / ``g2l[global]``
+     - Global face to the list of (zone, local) participants (usually two)
+
+**Registration (scan time).** Each zone registers its interface faces with
+``RegisterLocalInterfaceFace`` after a geometry identity lookup
+(``faceLookup`` / ``FaceSearchBasic``). A new global id appends parallel rows
+to ``gI2Zid`` and ``g2l``; a shared face pushes a second (zone, local) pair.
+
+**Partner selection.** After all zones register, ``FindRemoteInterfacePartner``
+picks the (zone, local) entry on a global face that is not the caller. Faces
+with fewer than two zone slots are counted by
+``CountInterfaceFacesMissingPartner`` (legacy: more than two slots are not
+counted as "missing").
+
+**Split rebuild.** Interface parents may split (for example quad to triangles).
+Rebuild runs on *New buffers:
+
+#. ``InitNewInterfaceMappingBuffers`` -- copy inverse maps, empty ``l2gNew``
+#. Per zone: ``RebuildZoneL2gNewAfterInterfaceSplit`` -- parents become children
+   in ``l2gNew`` / ``nChild``
+#. ``ExpandBcRecordForSplitInterfaces`` / face-node and cell-side rebuilds
+#. ``BuildInverseInterfaceMapForZone`` -- fill ``gI2ZidNew`` / ``g2lNew`` from
+   each zone's ``l2gNew`` (at most two zone slots per global face)
+#. ``CommitInterfaceMappingBuffers`` -- validate then swap *New into live tables
+
+The dual-table invariant after commit is the same as after registration:
+``ValidateGlobalFaceMappings`` requires equal top-level sizes and equal per-face
+list lengths for ``gI2Zid`` and ``g2l``.
 
 Open design pressures
 ---------------------
@@ -254,9 +296,9 @@ Change type matrix
    * - ``CountInterfaceFacesMissingPartner``
      - ``CountInterfaceFacesMissingPartnerTest``
      - `Interface split helpers`
-   * - ``InitNewInterfaceMappingBuffers`` / InitNewLgMapping
+   * - ``InitNewInterfaceMappingBuffers`` / Commit / InitNewLgMapping
      - ``InitNewInterfaceMappingBuffersTest``
-     - `Interface split helpers`
+     - `Interface mapping algorithm`
    * - ``ExpandBcRecordForSplitInterfaces`` / BC reset on split
      - ``ExpandBcRecordSplitTest``
      - `Interface split helpers`

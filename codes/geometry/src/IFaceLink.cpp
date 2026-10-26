@@ -155,6 +155,22 @@ void InitNewInterfaceMappingBuffers(
     l2gNew.resize( l2g.size() );
 }
 
+void CommitInterfaceMappingBuffers(
+    LinkField & gI2Zid,
+    LinkField & g2l,
+    LinkField & l2g,
+    LinkField & gI2ZidNew,
+    LinkField & g2lNew,
+    LinkField & l2gNew,
+    const char * operation )
+{
+    ValidateGlobalFaceMappings( gI2ZidNew, g2lNew, operation );
+
+    gI2Zid.swap( gI2ZidNew );
+    g2l.swap( g2lNew );
+    l2g.swap( l2gNew );
+}
+
 int CountInterfaceFacesMissingPartner(
     const IntField & localToGlobal,
     const LinkField & zoneIdsPerGlobalFace,
@@ -300,12 +316,14 @@ void IFaceLink::InitNewLgMapping()
 
 void IFaceLink::UpdateLgMapping()
 {
-    ValidateGlobalFaceMappings(
-        this->gI2ZidNew, this->g2lNew, "IFaceLink::UpdateLgMapping" );
-
-    this->gI2Zid.swap( this->gI2ZidNew );
-    this->g2l.swap( this->g2lNew );
-    this->l2g.swap( this->l2gNew );
+    CommitInterfaceMappingBuffers(
+        this->gI2Zid,
+        this->g2l,
+        this->l2g,
+        this->gI2ZidNew,
+        this->g2lNew,
+        this->l2gNew,
+        "IFaceLink::UpdateLgMapping" );
 }
 
 void IFaceLink::MatchInterfaceTopology( Grid & grid )
