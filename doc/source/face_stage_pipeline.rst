@@ -205,7 +205,7 @@ Use the following interpretation when reading or changing this code:
      - local-to-global map
      - ``l2g[zone][localFace]`` is a global interface-face ID
    * - ``gI2Zid``
-     - global-face participants' zone IDs
+     - global Interface-face to zone IDs (the ``I`` means Interface)
      - ``gI2Zid[globalFace][slot]`` is a zone ID
    * - ``g2l``
      - global-to-local map
@@ -246,6 +246,18 @@ policy is:
 This policy is part of the mesh development handbook: a rename is justified
 when it reduces the mental model or prevents a real class of mistakes, not
 merely because an abbreviation looks old.
+
+**Current capacity caveat:** ``BuildInverseInterfaceMapForZone`` stores at most
+two zone/local references for a global interface face. The current implementation
+silently ignores a third reference, and
+``BuildInverseInterfaceMapTest.DoesNotExceedTwoZoneSlots`` records that
+behavior. This is not equivalent to validating that the input topology is valid.
+The two-slot rule appears to model one interface pair; before changing the
+behavior to reject a third participant, confirm whether multi-zone junctions
+are excluded by the mesh model and by real input cases. If they are excluded,
+a clear error may be safer than silent truncation. Until that contract is
+confirmed, preserve the current behavior and treat it as an explicit design
+question rather than assuming the test proves the policy is correct.
 
 Interface mapping algorithm
 ---------------------------
