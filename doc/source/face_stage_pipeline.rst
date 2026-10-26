@@ -42,29 +42,36 @@ Orchestration is in ``GridElem``; mutation rules live in ``FaceSolver`` and
         -> FaceTopo::ReorderLink
         -> ValidateBoundaryBcLayout
 
-Polygon-face staging and deduplication
---------------------------------------
+Polyhedral-face staging and deduplication
+-----------------------------------------
 
-``GridElem::ScanPolygonFace`` forwards only ``NGON_n`` sections to
-``FaceSolver::StagePolygonFacesFromConnectivity``. The staging algorithm has a
+``GridElem::ScanPolyhedralFaces`` forwards only ``NGON_n`` sections to
+``FaceSolver::StagePolyhedralFacesFromConnectivity``. The staging algorithm has a
 validation phase followed by a mutation phase:
 
-#. Validate the offset table has one boundary offset per polygon plus one.
-#. Validate every span is ordered and lies within the connectivity array.
-#. Reject any polygon span with fewer than three node references.
+#. Validate the offset table has one boundary offset per polyhedral face plus one.
+#. Validate every face span is ordered and lies within the connectivity array.
+#. Reject any 3D polyhedral face with fewer than three node references.
 #. Only after all spans pass, build each node ring and query ``faceLookup``.
 #. Call ``StageNewFace`` only for a new undirected identity; duplicate rings
    reuse the existing staged face.
 
 Validating the full section before lookup or topology mutation gives malformed
-later polygons a strong no-partial-staging guarantee. Deduplication identifies a
+later faces a strong no-partial-staging guarantee. Deduplication identifies a
 face by its node set; the stored ring remains the first-seen ordering used by
 later orientation/ownership logic. The current staging contract checks the
-number of node references but does not reject repeated node IDs within a ring.
+number of node references for a 3D polyhedral face but does not reject repeated
+node IDs within a ring. This minimum does not apply to 2D edge faces.
 
-**Tests:** ``FaceSolverStageTest.StagePolygonFacesRejectsFewerThanThreeNodes``
-and ``FaceSolverStageTest.StagePolygonFacesValidatesAllSpansBeforeStaging``.
+This routine is valid only for 3D polyhedral face connectivity. The current
+``GridElem::HasPolygonSection`` dispatch still treats either ``NGON_n`` or
+``NFACE_n`` as a signal to enter this path; dimension-aware classification of
+NGON-only sections is a documented adapter gap in :doc:`grid_topology`.
 
+**Tests:** ``FaceSolverStageTest.StagePolyhedralFacesRejectsFewerThanThreeNodes``
+and ``FaceSolverStageTest.StagePolyhedralFacesValidatesAllSpansBeforeStaging``.
+``FaceSolverStageTest.TwoDimensionalTriangleCreatesTwoNodeEdgeFaces`` locks the
+separate 2D cell-to-edge path.
 Staged face invariant
 ---------------------
 
@@ -407,10 +414,10 @@ Change type matrix
      - ``FaceSolverStageTest``,
        ``FaceSolverLifecycleTest``
      - `Staged face invariant` on this page
-   * - ``StagePolygonFacesFromConnectivity``
-     - ``FaceSolverStageTest.StagePolygonFacesRejectsFewerThanThreeNodes``,
-       ``FaceSolverStageTest.StagePolygonFacesValidatesAllSpansBeforeStaging``
-     - `Polygon-face staging and deduplication`
+   * - ``StagePolyhedralFacesFromConnectivity``
+     - ``FaceSolverStageTest.StagePolyhedralFacesRejectsFewerThanThreeNodes``,
+       ``FaceSolverStageTest.StagePolyhedralFacesValidatesAllSpansBeforeStaging``
+     - `Polyhedral-face staging and deduplication`
    * - ``FillUnsetStagedBcSlots`` / ScanInterfaceBc /
        ``CountEmptyChildFaceLists``
      - ``FillUnsetStagedBcSlotsTest``

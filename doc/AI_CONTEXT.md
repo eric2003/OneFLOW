@@ -2,11 +2,11 @@
 
 Last updated: 2026-10-26
 Working branch: `hexin`
-Latest inspected local HEAD: `ea79bb66` (`origin/hexin` at inspection time).
+Latest inspected local HEAD: `299beb6f` (`origin/hexin` at inspection time).
 
-The user reported 803/803 tests passing at the starting baseline. This working slice validates polygon-face connectivity before topology mutation and adds regression tests for undersized polygons and all-spans-before-staging behavior. The focused C++ target has **not** been rebuilt: MSVC reports C1902 PDB-manager errors across multiple geometry sources even after cleaning only the `OneFLOW_GeometryCore` target. A direct Clang override is incompatible with the generated project's `/scanDependencies` option. The geometry core outputs in this build tree therefore need a successful rebuild before treating the new tests as executed. Strict Sphinx HTML build passed for all 109 source documents with `-W --keep-going` after correcting two pre-existing unclosed emphasis markers on this page.
+The user reported 803/803 tests passing before commit `299beb6f`, which added a minimum-three-node check to polygon-face staging. This follow-up examines the topological meaning of that rule. OneFLOW's standard 2D fixed-node cell path derives two-node edges; the minimum-three rule is therefore specific to 3D polyhedral face loops. The CGNS adapter currently conflates NGON-only sections with polyhedral volume input, and does not import a 2D polygonal NGON section as cells. This is a documented adapter gap; do not generalize or remove the 3D face invariant to hide it.
 
-The goal of this slice is to make the input contract explicit: a polygon needs at least three node references, and the entire offset/connectivity span set must validate before any face lookup or staged topology mutation. Face identity is undirected/set-based, while the first-seen ring order remains the representative used by orientation and ownership processing. Repeated node IDs inside a ring remain outside this slice's validation contract.
+This working slice narrows the staging API names to polyhedral faces, renames the dimension-aware ``IsBasicVolumeElementType`` predicate to ``IsBasicCellElementType``, adds a regression test for 2D triangle-to-edge cardinality, and documents cell/face dimension plus CGNS section roles. The full C++ target remains unverified: earlier MSVC attempts reported C1902 PDB-manager errors after cleaning only `OneFLOW_GeometryCore`, and the generated VS project rejected a Clang override because of `/scanDependencies`. The user's 803-test baseline is not verification of this slice. Strict Sphinx passed for all 109 source documents after these edits.
 
 This is a curated handoff snapshot, not a replacement for source code, tests, design pages, or CI. Recheck the branch HEAD and working tree before continuing.
 ## 1. Read this first
@@ -39,32 +39,32 @@ Do not start by reading the whole repository. Use the architecture map to identi
 
 The published [architecture review](source/architecture_review.rst) is now the common checklist for substantial AI-assisted changes. It deliberately separates general CFD/CAE concerns from verified OneFLOW behavior. Keep these cross-system risks visible while working locally: implicit global runtime state, configuration parsing versus validation/application, mutable mesh data and derived connectivity, workflow artifact provenance and execution locations, repeated/failed-run cleanup, and the gap between documented plans and actual test/CI evidence. At each meaningful milestone, state which system-level concern improved, what remains untouched, and whether the priority order should change.
 
-## 4. Current focus: staged polygon-face validation
+## 4. Current focus: dimension-aware mesh topology
 
-Current implementation files:
+Current implementation and design files:
 
 - `codes/geometry/src/FaceSolver.cpp`
+- `codes/geometry/src/GridElem.cpp`
+- `codes/cgns/src/CgnsZsection.cpp`
+- `codes/cgns/src/CgnsSection.cpp`
 - `tests/geometry/FaceSolverStageTest.cpp`
+- `doc/source/grid_topology.rst`
 - `doc/source/face_stage_pipeline.rst`
 
-The geometry path first validates the offset table size and every span; it now also rejects spans shorter than three references. Only after all spans pass does it construct rings, query the face lookup, and stage unique faces. The regression tests assert that malformed spans throw without leaving partial staged topology or desynchronized boundary-condition slots. The algorithm contract and rationale are recorded alongside the staged-face pipeline, including the distinction between undirected face identity and first-seen ring orientation.
+Topology contract: a D-dimensional cell has codimension-one faces of dimension D-1. In 2D a linear edge face has two endpoint nodes; in 3D a polyhedral face is an ordered loop with at least three nodes. This is based on cell dimension, even for a surface mesh embedded in 3D coordinates.
 
-System-level concern improved: malformed later input cannot leave earlier polygons partially staged. Unchanged: repeated node IDs within a polygon, MPI lifecycle, multi-case runtime, CLI parsing, and solver numerical kernels.
+Implemented slice: the generic-sounding polygon staging API is renamed to make its 3D polyhedral-face role explicit. Existing two-phase validation and minimum-three guard apply only to that role. A test records that TRI_3 creates three two-node faces. Current limitation: `HasPolygonSection` treats either `NGON_n` or `NFACE_n` as polyhedral routing evidence, while `SetElementTypeAndNode` accepts supported fixed-node cell types and does not convert 2D polygonal NGON cells into cells and edges. The classifier also reads global ``Dim::dimension`` rather than receiving cell dimension explicitly. Dimension-aware CGNS classification and 2D NGON import require a separate adapter design and acceptance tests.
 
-Validation evidence for this working slice:
+System-level concern improved: cell dimension, face dimension, and connectivity role are now explicit in APIs/tests/docs. Unchanged: CGNS dispatch behavior, 2D NGON cell import, MPI lifecycle, CLI parsing, and solver numerical kernels.
 
-- User-reported starting baseline: 803/803 tests passed; not rerun here.
-- `git diff --check`: passed.
-- C++ source ASCII check: passed for the changed implementation and test file.
-- Strict Sphinx: passed for all 109 source documents with `-W --keep-going` after fixing two malformed emphasis markers.
-- Focused C++ build/test: unverified due the C1902 errors above.
+Validation for this working slice: the user-reported baseline is 803/803 and was not rerun; `git diff --check` and strict Sphinx passed; C++ build/test is unverified due the known MSVC C1902 failure. C++ ASCII-only remains required.
 ## 5. Next actions, in priority order
 
-1. Restore a valid `OneFLOW_GeometryCore` build in the current build tree, then run the focused staging tests and full suite; do not cite the 803 baseline as verification of this change.
-2. Inspect span arithmetic and malformed-connectivity behavior at the section reader boundary; keep any expanded validation contract paired with tests and docs.
-3. At the next stable milestone, recheck the whole-system architecture risks in `source/architecture_review.rst` and update this handoff to the exact verified HEAD/results.
+1. Verify the renamed API and new 2D edge test with a working focused geometry build, then run the full test suite.
+2. Design CGNS dispatch using base cell dimension and element-section roles; test NGON-only 2D polygon cells, 3D NGON plus NFACE polyhedra, and regular fixed-node meshes before changing routing.
+3. At the next stable milestone, review the whole-system architecture risks and update this handoff with exact HEAD and validation evidence.
 
-Suggested commit message: `fix(geometry): reject undersized polygon faces`.
+Suggested commit message: `refactor(geometry): clarify dimension-specific face staging`.
 ## 6. Status vocabulary
 
 Use these labels consistently in this page and related records:

@@ -159,11 +159,11 @@ int GetElementDimension( int eType )
     }
 }
 
-bool IsBasicVolumeElementType( int eType )
+bool IsBasicCellElementType( int eType )
 {
     if ( ! ElementHome::HasUnitElement( eType ) ) return false;
 
-    return ElementHome::GetUnitElementDefinition( eType ).IsBasicVolumeElementType( eType );
+    return ElementHome::GetUnitElementDefinition( eType ).IsBasicCellElementType( eType );
 }
 
 EndNameSpace

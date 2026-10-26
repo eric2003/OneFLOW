@@ -36,7 +36,7 @@ BeginNameSpace( ONEFLOW )
 
 namespace
 {
-constexpr CgInt kMinimumPolygonNodeCount = 3;
+constexpr CgInt kMinimumPolyhedralFaceNodeCount = 3;
 }
 
 
@@ -84,7 +84,7 @@ bool FaceSolver::CheckBcFace( const IntSet & bcVertex, const IntField & nodeId )
     return FaceNodesContainedInVertexSet( bcVertex, nodeId );
 }
 
-void FaceSolver::StagePolygonFacesFromConnectivity(
+void FaceSolver::StagePolyhedralFacesFromConnectivity(
     int nElement,
     const CgIntField & offsets,
     const CgIntField & connectivity,
@@ -94,7 +94,7 @@ void FaceSolver::StagePolygonFacesFromConnectivity(
          static_cast< std::size_t >( nElement ) + 1 > offsets.size() )
     {
         throw std::runtime_error(
-            "FaceSolver::StagePolygonFacesFromConnectivity: polygon offsets are incomplete" );
+            "FaceSolver::StagePolyhedralFacesFromConnectivity: polyhedral face offsets are incomplete" );
     }
 
     // Validate every span before mutating the face lookup or topology.
@@ -106,17 +106,17 @@ void FaceSolver::StagePolygonFacesFromConnectivity(
              static_cast< std::size_t >( end ) > connectivity.size() )
         {
             throw std::runtime_error(
-                "FaceSolver::StagePolygonFacesFromConnectivity: polygon connectivity span is invalid" );
+                "FaceSolver::StagePolyhedralFacesFromConnectivity: polyhedral face connectivity span is invalid" );
         }
-        // NGON_n polygon faces require at least three node references.
-        if ( end - start < kMinimumPolygonNodeCount )
+        // Three-dimensional polyhedral faces require at least three node references.
+        if ( end - start < kMinimumPolyhedralFaceNodeCount )
         {
             throw std::runtime_error(
-                "FaceSolver::StagePolygonFacesFromConnectivity: polygon has fewer than three nodes" );
+                "FaceSolver::StagePolyhedralFacesFromConnectivity: polyhedral face has fewer than three nodes" );
         }
     }
 
-    // Polygon faces are staged without an owning cell yet. Ownership is
+    // Polyhedral faces are staged without an owning cell yet. Ownership is
     // assigned later via ClaimStagedFaceAsLeft. StageNewFace keeps topology
     // and BC slots aligned so StagedBcMatchesFaceCount() holds after scan.
     IntField faceNodes;
@@ -138,9 +138,9 @@ void FaceSolver::StagePolygonFacesFromConnectivity(
     }
 }
 
-void FaceSolver::ScanPolygonFace( CgnsSection & cgnsSection )
+void FaceSolver::ScanPolyhedralFace( CgnsSection & cgnsSection )
 {
-    this->StagePolygonFacesFromConnectivity(
+    this->StagePolyhedralFacesFromConnectivity(
         cgnsSection.nElement,
         cgnsSection.ePosList,
         cgnsSection.connList,

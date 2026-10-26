@@ -66,6 +66,6 @@ int GetElementNodeCount( int eType );
 // Compatibility wrapper; prefer GetElementNodeCount() for new code.
 int GetElementNodeNumbers( int eType );
 int GetElementDimension( int eType );
-bool IsBasicVolumeElementType( int eType );
+bool IsBasicCellElementType( int eType );
 
 EndNameSpace

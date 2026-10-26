@@ -1,6 +1,6 @@
 // tests/geometry/FaceSolverStageTest.cpp
 // Locks StageNewFace / ClaimStagedFaceAsLeft / AttachStagedFaceAsRight
-// invariants for the polygon-style path without a full CGNS scan.
+// invariants for face staging without a full CGNS scan.
 
 #include <gtest/gtest.h>
 #include <stdexcept>
@@ -8,10 +8,25 @@
 #include "Constant.h"
 #include "FaceSolver.h"
 #include "FaceTopo.h"
+#include "HXCgns.h"
 #include "BcRecord.h"
 
 using namespace ONEFLOW;
 
+TEST( FaceSolverStageTest, TwoDimensionalTriangleCreatesTwoNodeEdgeFaces )
+{
+    FaceSolver solver;
+    CgIntField triangleNodes{ 10, 20, 30 };
+
+    solver.ScanElementFace( triangleNodes, TRI_3, /*cellId=*/0 );
+
+    const auto & faces = solver.GetFaceTopo().GetFaces();
+    ASSERT_EQ( faces.size(), static_cast< std::size_t >( 3 ) );
+    for ( const auto & edgeNodes : faces )
+    {
+        EXPECT_EQ( edgeNodes.size(), static_cast< std::size_t >( 2 ) );
+    }
+}
 TEST( FaceSolverStageTest, StageNewFaceGrowsAllParallelArrays )
 {
     FaceSolver solver;
@@ -27,7 +42,6 @@ TEST( FaceSolverStageTest, StageNewFaceGrowsAllParallelArrays )
     EXPECT_EQ( topo.GetRightCells().size(), static_cast< std::size_t >( 2 ) );
     EXPECT_EQ( topo.lPosition.size(), static_cast< std::size_t >( 2 ) );
     EXPECT_EQ( topo.rPosition.size(), static_cast< std::size_t >( 2 ) );
-    EXPECT_EQ( solver.GetStagedBcSlotCount(), static_cast< std::size_t >( 2 ) );
     EXPECT_EQ( solver.GetStagedBcSlotCount(), static_cast< std::size_t >( 2 ) );
     EXPECT_EQ( solver.GetChildFidSlotCount(), static_cast< std::size_t >( 2 ) );
     EXPECT_EQ( topo.GetFaceTypes().size(), static_cast< std::size_t >( 2 ) );
@@ -101,8 +115,8 @@ TEST( FaceSolverStageTest, SetStagedFaceBcRejectsOutOfRange )
     EXPECT_THROW( solver.SetStagedFaceBc( 0, 1, 1 ), std::out_of_range );
 }
 
-// CSR polygon staging without CgnsSection: two faces, one duplicated.
-TEST( FaceSolverStageTest, StagePolygonFacesFromConnectivityDedupsAndAligns )
+// CSR polyhedral face staging without CgnsSection: two faces, one duplicated.
+TEST( FaceSolverStageTest, StagePolyhedralFacesFromConnectivityDedupsAndAligns )
 {
     FaceSolver solver;
     // face0: nodes 1,2,3  face1: nodes 4,5,6  face2: same as face0
@@ -110,7 +124,7 @@ TEST( FaceSolverStageTest, StagePolygonFacesFromConnectivityDedupsAndAligns )
     CgIntField connectivity{ 1, 2, 3, 4, 5, 6, 1, 2, 3 };
     const int faceType = 7;
 
-    solver.StagePolygonFacesFromConnectivity( 3, offsets, connectivity, faceType );
+    solver.StagePolyhedralFacesFromConnectivity( 3, offsets, connectivity, faceType );
 
     EXPECT_TRUE( solver.StagedBcMatchesFaceCount() );
     EXPECT_EQ( solver.GetFaceTopo().GetFaces().size(), static_cast< std::size_t >( 2 ) );
@@ -124,27 +138,27 @@ TEST( FaceSolverStageTest, StagePolygonFacesFromConnectivityDedupsAndAligns )
     EXPECT_EQ( solver.GetFaceTopo().GetLeftCells()[ 1 ], 11 );
 }
 
-TEST( FaceSolverStageTest, StagePolygonFacesFromConnectivityRejectsBadOffsets )
+TEST( FaceSolverStageTest, StagePolyhedralFacesFromConnectivityRejectsBadOffsets )
 {
     FaceSolver solver;
     CgIntField offsets{ 0, 2 }; // claims 1 element but end index 2 past connectivity
     CgIntField connectivity{ 1 };
     EXPECT_THROW(
-        solver.StagePolygonFacesFromConnectivity( 1, offsets, connectivity, 7 ),
+        solver.StagePolyhedralFacesFromConnectivity( 1, offsets, connectivity, 7 ),
         std::runtime_error );
 }
 
-TEST( FaceSolverStageTest, StagePolygonFacesFromConnectivityRejectsIncompleteOffsetTable )
+TEST( FaceSolverStageTest, StagePolyhedralFacesFromConnectivityRejectsIncompleteOffsetTable )
 {
     FaceSolver solver;
     CgIntField offsets{ 0 }; // need nElement+1 entries
     CgIntField connectivity{};
     EXPECT_THROW(
-        solver.StagePolygonFacesFromConnectivity( 1, offsets, connectivity, 7 ),
+        solver.StagePolyhedralFacesFromConnectivity( 1, offsets, connectivity, 7 ),
         std::runtime_error );
 }
 
-TEST( FaceSolverStageTest, StagePolygonFacesRejectsFewerThanThreeNodes )
+TEST( FaceSolverStageTest, StagePolyhedralFacesRejectsFewerThanThreeNodes )
 {
     for ( int nodeCount = 0; nodeCount < 3; ++ nodeCount )
     {
@@ -157,7 +171,7 @@ TEST( FaceSolverStageTest, StagePolygonFacesRejectsFewerThanThreeNodes )
         }
 
         EXPECT_THROW(
-            solver.StagePolygonFacesFromConnectivity(
+            solver.StagePolyhedralFacesFromConnectivity(
                 1, offsets, connectivity, /*faceType=*/7 ),
             std::runtime_error ) << "nodeCount=" << nodeCount;
         EXPECT_TRUE( solver.GetFaceTopo().GetFaces().empty() );
@@ -165,14 +179,14 @@ TEST( FaceSolverStageTest, StagePolygonFacesRejectsFewerThanThreeNodes )
     }
 }
 
-TEST( FaceSolverStageTest, StagePolygonFacesValidatesAllSpansBeforeStaging )
+TEST( FaceSolverStageTest, StagePolyhedralFacesValidatesAllSpansBeforeStaging )
 {
     FaceSolver solver;
     CgIntField offsets{ 0, 3, 5 };
     CgIntField connectivity{ 1, 2, 3, 4, 5 };
 
     EXPECT_THROW(
-        solver.StagePolygonFacesFromConnectivity(
+        solver.StagePolyhedralFacesFromConnectivity(
             2, offsets, connectivity, /*faceType=*/7 ),
         std::runtime_error );
     EXPECT_TRUE( solver.GetFaceTopo().GetFaces().empty() );
@@ -185,7 +199,7 @@ TEST( FaceSolverStageTest, ClaimPolyhedronCellsAssignsLeftThenRight )
     // Three faces staged as unclaimed.
     CgIntField faceOffsets{ 0, 3, 6, 9 };
     CgIntField faceConn{ 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-    solver.StagePolygonFacesFromConnectivity( 3, faceOffsets, faceConn, /*faceType=*/7 );
+    solver.StagePolyhedralFacesFromConnectivity( 3, faceOffsets, faceConn, /*faceType=*/7 );
 
     // Cell 0 uses faces 0,1; cell 1 uses faces 1,2 (shared face 1).
     CgIntField cellOffsets{ 0, 2, 4 };
@@ -207,7 +221,7 @@ TEST( FaceSolverStageTest, ClaimPolyhedronCellsRejectsThirdCellOnSameFace )
     FaceSolver solver;
     CgIntField faceOffsets{ 0, 3 };
     CgIntField faceConn{ 1, 2, 3 };
-    solver.StagePolygonFacesFromConnectivity( 1, faceOffsets, faceConn, 7 );
+    solver.StagePolyhedralFacesFromConnectivity( 1, faceOffsets, faceConn, 7 );
 
     // Three cells all reference face 0.
     CgIntField cellOffsets{ 0, 1, 2, 3 };
@@ -222,7 +236,7 @@ TEST( FaceSolverStageTest, ClaimPolyhedronCellsRejectsDuplicateFaceInOneCell )
     FaceSolver solver;
     CgIntField faceOffsets{ 0, 3, 6 };
     CgIntField faceConn{ 1, 2, 3, 4, 5, 6 };
-    solver.StagePolygonFacesFromConnectivity( 2, faceOffsets, faceConn, 7 );
+    solver.StagePolyhedralFacesFromConnectivity( 2, faceOffsets, faceConn, 7 );
 
     CgIntField cellOffsets{ 0, 2 };
     CgIntField cellFaceRefs{ 0, 0 }; // same face twice in one polyhedron
@@ -236,7 +250,7 @@ TEST( FaceSolverStageTest, ClaimPolyhedronCellsRejectsOutOfRangeFaceId )
     FaceSolver solver;
     CgIntField faceOffsets{ 0, 3 };
     CgIntField faceConn{ 1, 2, 3 };
-    solver.StagePolygonFacesFromConnectivity( 1, faceOffsets, faceConn, 7 );
+    solver.StagePolyhedralFacesFromConnectivity( 1, faceOffsets, faceConn, 7 );
 
     CgIntField cellOffsets{ 0, 1 };
     CgIntField cellFaceRefs{ 5 }; // only face 0 exists

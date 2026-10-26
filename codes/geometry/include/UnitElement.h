@@ -81,7 +81,7 @@ public:
     bool IsFaceElementType   ( int elementType ) const;
 
     bool IsFaceElementTypeAtLeast( int elementType ) const;
-    bool IsBasicVolumeElementType( int elementType ) const;
+    bool IsBasicCellElementType( int elementType ) const;
 
     const IntField & GetElementFace( int iFace ) const;
     int GetFaceType( int iFace ) const;

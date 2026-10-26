@@ -66,7 +66,7 @@ void ElemFeature::ScanElements( FaceSolver & faceSolver )
         }
 
         const int eType = this->eTypes[ eId ];
-        if ( ! ONEFLOW::IsBasicVolumeElementType( eType ) )
+        if ( ! ONEFLOW::IsBasicCellElementType( eType ) )
         {
             continue;
         }

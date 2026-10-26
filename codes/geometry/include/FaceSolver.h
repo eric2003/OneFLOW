@@ -127,11 +127,11 @@ public:
     // parallel arrays together; this remains for paths that only grew faces.
     void EnsureParallelFaceArraysSized();
 
-    // Stage unique polygon faces from CSR-style offsets/connectivity without
+    // Stage unique 3D polyhedral faces from CSR-style offsets/connectivity without
     // requiring a CgnsSection. Invalid spans throw before any mutation.
     // Each new unique face is staged with INVALID left cell (owner assigned
     // later via ClaimStagedFaceAsLeft).
-    void StagePolygonFacesFromConnectivity(
+    void StagePolyhedralFacesFromConnectivity(
         int nElement,
         const CgIntField & offsets,
         const CgIntField & connectivity,
@@ -146,7 +146,7 @@ public:
         const CgIntField & offsets,
         const CgIntField & connectivity );
 
-    void ScanPolygonFace( CgnsSection & cgnsSection );
+    void ScanPolyhedralFace( CgnsSection & cgnsSection );
     void ScanPolyhedronElement( CgnsSection & cgnsSection );
 private:
     // Staged BC attributes per face (aligned with FaceTopo faces).
