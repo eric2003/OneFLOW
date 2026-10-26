@@ -205,7 +205,9 @@ Interface split helpers
   ``BuildInverseInterfaceMapTest.RefreshesExistingZoneSlotDuringRebuild``,
   ``BuildInverseInterfaceMapTest.DoesNotDuplicateExistingZoneParticipant``).
 * ``RebuildZoneL2gNewAfterInterfaceSplit`` rebuilds one zone's ``l2gNew`` /
-  ``nChild`` when parents split (**test:** ``RebuildZoneL2gNewTest``).
+  ``nChild`` when parents split. It validates all parent and child global IDs
+  before clearing either output, so a negative ID cannot leave a partial
+  candidate map (**tests:** ``RebuildZoneL2gNewTest``).
 * ``RebuildFaceCellSidesAfterInterfaceSplit`` expands left cells and assigns
   ghost right cells after interface splits (**test:**
   ``RebuildFaceCellSidesTest``).

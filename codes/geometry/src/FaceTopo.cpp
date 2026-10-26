@@ -858,6 +858,26 @@ void RebuildZoneL2gNewAfterInterfaceSplit(
             "RebuildZoneL2gNewAfterInterfaceSplit: parent and child tables differ in size" );
     }
 
+    // Validate the complete replacement map before changing either output.
+    // Negative global IDs cannot identify a valid face and must not leak into
+    // the candidate mapping for later inverse-map construction.
+    for ( std::size_t iFid = 0; iFid < parentGlobalFaceIds.size(); ++ iFid )
+    {
+        if ( parentGlobalFaceIds[ iFid ] < 0 )
+        {
+            throw std::out_of_range(
+                "RebuildZoneL2gNewAfterInterfaceSplit: parent global face ID is negative" );
+        }
+        for ( const int childGlobalFaceId : childGlobalIdsPerParent[ iFid ] )
+        {
+            if ( childGlobalFaceId < 0 )
+            {
+                throw std::out_of_range(
+                    "RebuildZoneL2gNewAfterInterfaceSplit: child global face ID is negative" );
+            }
+        }
+    }
+
     l2gNewForZone.clear();
     nChildForZone.assign( parentGlobalFaceIds.size(), 0 );
 
