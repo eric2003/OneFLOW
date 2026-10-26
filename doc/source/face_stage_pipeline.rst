@@ -163,8 +163,11 @@ Interface split helpers
   local interface face joins a global id, and rejects duplicate registration
   of the same zone/local-face pair (**test:**
   ``RegisterLocalInterfaceFaceTest``).
-* ``FindRemoteInterfacePartner`` selects the non-self zone/local pair on a
-  global interface face (**test:** ``FindRemoteInterfacePartnerTest``).
+* ``FindRemoteInterfacePartner`` selects a non-self zone/local pair only
+  when the exact caller (zone and local face) is registered on that global
+  face. If the caller is absent, it returns ``false`` without changing output
+  arguments, rather than returning an unrelated participant (**test:**
+  ``FindRemoteInterfacePartnerTest``).
 * ``CountInterfaceFacesMissingPartner`` counts locals whose global face has
   fewer than two zone slots (**test:**
   ``CountInterfaceFacesMissingPartnerTest``).
