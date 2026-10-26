@@ -207,7 +207,7 @@ Path and artifact semantics
    not depend on an accidental current working directory.
 
 Patterns already present
------------------------
+------------------------
 
 Use pattern names only where they describe real code, not as a goal to apply everywhere.
 

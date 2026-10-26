@@ -52,7 +52,7 @@ Developer resources
 * `Runtime refactoring roadmap <https://github.com/eric2003/OneFLOW/blob/hexin/doc/plans/runtime-refactoring-roadmap.md>`_ — staged goals, acceptance criteria, and implementation evidence.
 
 Reference library
-----------------
+-----------------
 
 The existing reference library covers programming languages, build systems, parallel computing, numerical methods, visualization, and related tools. It remains available below; the curated entry points above are intended to help readers find a starting point without replacing that material.
 

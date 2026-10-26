@@ -12,7 +12,7 @@ Topological meaning by dimension
 --------------------------------
 
 One dimension
-~~~~~~~~~~~~
+~~~~~~~~~~~~~
 
 For a simple chain of two interval cells, there are three nodes, three point-faces, and two cells:
 
