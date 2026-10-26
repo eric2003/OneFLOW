@@ -182,6 +182,16 @@ void RebuildFaceCellSidesAfterInterfaceSplit(
     IntField & outLeftCells,
     IntField & outRightCells );
 
+// Walk boundary bcType[0..nBFaces) and, for each interface entry, append
+// childFaceIds.size() from GetInterfaceChildFaceIds (interface-local order).
+void CollectBoundaryInterfaceChildCounts(
+    const IntField & bcType,
+    int nBFaces,
+    const LinkField & zoneToLocalToGlobal,
+    const InterfaceFaceSplitTable & splitTable,
+    int zoneId,
+    IntField & outChildCountPerInterfaceLocal );
+
 
 // Look up child face IDs for a local interface face and validate their node tables.
 // Preferred overload: depends only on l2g + InterfaceFaceSplitTable (no IFaceLink).

@@ -142,6 +142,9 @@ Interface split helpers
 * ``RebuildFaceCellSidesAfterInterfaceSplit`` expands left cells and assigns
   ghost right cells after interface splits (**test:**
   ``RebuildFaceCellSidesTest``).
+* ``CollectBoundaryInterfaceChildCounts`` walks boundary BC types and records
+  per-interface child counts (**test:**
+  ``CollectBoundaryInterfaceChildCountsTest``).
 * Quad diagonal candidates:
   ``BuildQuadDiagonalLocalTris`` / ``MapLocalTrisToGlobalNodes``
   (**test:** ``QuadDiagonalSplitTest``).
@@ -246,6 +249,9 @@ Change type matrix
      - `Interface split helpers`
    * - ``RebuildFaceCellSidesAfterInterfaceSplit`` / SetNewFace2Cell
      - ``RebuildFaceCellSidesTest``
+     - `Interface split helpers`
+   * - ``CollectBoundaryInterfaceChildCounts``
+     - ``CollectBoundaryInterfaceChildCountsTest``
      - `Interface split helpers`
    * - quad diagonal local tris / node map
      - ``QuadDiagonalSplitTest``

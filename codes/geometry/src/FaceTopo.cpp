@@ -418,22 +418,13 @@ void FaceTopo::SetNewFace2Cell( IFaceLink & iFaceLink )
     const IntField & bcType = this->bcManager->bcRecord->bcType;
 
     IntField childCountPerInterfaceLocal;
-    int localInterfaceFaceId = 0;
-    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
-    {
-        if ( ! BC::IsInterfaceBc( bcType[ iFace ] ) )
-        {
-            continue;
-        }
-        const IntField & childFaceIds = GetInterfaceChildFaceIds(
-            iFaceLink.l2g,
-            iFaceLink.face_search->interfaceSplit,
-            this->GetGrid().id,
-            localInterfaceFaceId );
-        childCountPerInterfaceLocal.push_back(
-            static_cast< int >( childFaceIds.size() ) );
-        ++ localInterfaceFaceId;
-    }
+    CollectBoundaryInterfaceChildCounts(
+        bcType,
+        nBFaces,
+        iFaceLink.l2g,
+        iFaceLink.face_search->interfaceSplit,
+        this->GetGrid().id,
+        childCountPerInterfaceLocal );
 
     RebuildFaceCellSidesAfterInterfaceSplit(
         bcType,
@@ -499,22 +490,13 @@ void FaceTopo::ResetNumberOfBoundaryCondition( IFaceLink & iFaceLink )
 
     // Child counts in boundary-interface order (same walk as ExpandBcRecord...).
     IntField childCountPerInterfaceLocal;
-    int localIid = 0;
-    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
-    {
-        if ( ! BC::IsInterfaceBc( bcType[ iFace ] ) )
-        {
-            continue;
-        }
-        const IntField & childFaceIds = GetInterfaceChildFaceIds(
-            iFaceLink.l2g,
-            iFaceLink.face_search->interfaceSplit,
-            this->GetGrid().id,
-            localIid );
-        childCountPerInterfaceLocal.push_back(
-            static_cast< int >( childFaceIds.size() ) );
-        ++ localIid;
-    }
+    CollectBoundaryInterfaceChildCounts(
+        bcType,
+        nBFaces,
+        iFaceLink.l2g,
+        iFaceLink.face_search->interfaceSplit,
+        this->GetGrid().id,
+        childCountPerInterfaceLocal );
 
     ExpandBcRecordForSplitInterfaces(
         bcType,
@@ -966,6 +948,37 @@ void RebuildFaceCellSidesAfterInterfaceSplit(
     {
         outLeftCells.push_back( leftCells[ iFace ] );
         outRightCells.push_back( rightCells[ iFace ] );
+    }
+}
+
+
+void CollectBoundaryInterfaceChildCounts(
+    const IntField & bcType,
+    int nBFaces,
+    const LinkField & zoneToLocalToGlobal,
+    const InterfaceFaceSplitTable & splitTable,
+    int zoneId,
+    IntField & outChildCountPerInterfaceLocal )
+{
+    if ( nBFaces < 0 || static_cast< std::size_t >( nBFaces ) > bcType.size() )
+    {
+        throw std::logic_error(
+            "CollectBoundaryInterfaceChildCounts: invalid boundary face count" );
+    }
+
+    outChildCountPerInterfaceLocal.clear();
+    int interfaceLocal = 0;
+    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
+    {
+        if ( ! BC::IsInterfaceBc( bcType[ iFace ] ) )
+        {
+            continue;
+        }
+        const IntField & childFaceIds = GetInterfaceChildFaceIds(
+            zoneToLocalToGlobal, splitTable, zoneId, interfaceLocal );
+        outChildCountPerInterfaceLocal.push_back(
+            static_cast< int >( childFaceIds.size() ) );
+        ++ interfaceLocal;
     }
 }
 
