@@ -248,6 +248,38 @@ permutation (``ValidateBoundaryBcLayout``).
 ``CollectBoundaryBcEntriesTest``, ``FaceSolverStageTest``,
 ``FaceTopoReorderLinkTest``.
 
+
+Face ownership algorithm
+------------------------
+
+Each staged face has left/right cell slots and a claim flag used by the polygon
+path.
+
+**First touch (new face).** ``StageNewFace`` records the creating cell as left
+owner when provided; the face flag starts as ``kFaceUnclaimed`` for polygon
+staging, or is claimed when volume elements stage with a known left cell.
+
+**Polygon claim path.**
+
+* ``ClaimStagedFaceAsLeft`` -- requires ``kFaceUnclaimed``; sets flag to
+  ``kFaceClaimed``, left = cell, right = ``INVALID_INDEX``, clears staged BC.
+* ``AttachStagedFaceAsRight`` -- requires already claimed; sets right = cell.
+
+**Volume element path.** ``ScanElementFace`` uses geometry identity
+(``faceLookup``). New faces go through ``StageNewFace``. Existing faces call
+``BindCellToExistingFace``, which applies ``BindCellToFaceSides``:
+
+#. If left is open (``INVALID_INDEX``), assign left = cell.
+#. Else if right is open and left is a different cell, assign right = cell.
+#. Else no change (already bound, or the same cell is already on left).
+
+This implements the usual unstructured-mesh rule: the first incident cell owns
+the left side; a second distinct cell becomes the right (interior) neighbour.
+A second visit by the same cell does not fill the right slot (avoids marking a
+boundary face as interior by mistake when orientation/duplication appears).
+
+**Tests:** ``BindCellToFaceSidesTest``, ``FaceSolverStageTest``.
+
 Open design pressures
 ---------------------
 
@@ -311,6 +343,9 @@ Change type matrix
        ``BindCellToExistingFace``
      - ``FaceSolverStageTest`` (ownership)
      - post-stage writes table on this page
+   * - ``BindCellToFaceSides``
+     - ``BindCellToFaceSidesTest``
+     - `Face ownership algorithm`
    * - ``AppendBoundaryBcToRecord``
      - stage/export tests that cover boundary
        faces and alignment failures

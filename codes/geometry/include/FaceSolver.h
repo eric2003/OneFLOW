@@ -179,4 +179,12 @@ int CollectBoundaryBcEntries(
     IntField & outBcType,
     IntField & outBcNameId );
 
+
+// Bind one cell to left/right slots of an existing face.
+// Rules (in order):
+// 1. If left is INVALID_INDEX, set left = cellId (return 0).
+// 2. Else if right is INVALID_INDEX and left != cellId, set right = cellId (return 1).
+// 3. Else leave both unchanged (return -1).
+int BindCellToFaceSides( int cellId, int & leftCell, int & rightCell );
+
 EndNameSpace

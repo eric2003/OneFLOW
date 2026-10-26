@@ -372,16 +372,7 @@ void FaceSolver::BindCellToExistingFace( int faceId, int cellId )
     auto & rightCells = this->faceTopo->GetRightCells();
     const std::size_t id = static_cast< std::size_t >( faceId );
 
-    if ( leftCells[ id ] == ONEFLOW::INVALID_INDEX )
-    {
-        // Face was staged without an owner (or left cleared during split).
-        leftCells[ id ] = cellId;
-        return;
-    }
-    if ( rightCells[ id ] == ONEFLOW::INVALID_INDEX && leftCells[ id ] != cellId )
-    {
-        rightCells[ id ] = cellId;
-    }
+    BindCellToFaceSides( cellId, leftCells[ id ], rightCells[ id ] );
 }
 
 bool FaceSolver::StagedBcMatchesFaceCount() const
@@ -552,6 +543,22 @@ int CollectBoundaryBcEntries(
         }
     }
     return nBFaces;
+}
+
+
+int BindCellToFaceSides( int cellId, int & leftCell, int & rightCell )
+{
+    if ( leftCell == ONEFLOW::INVALID_INDEX )
+    {
+        leftCell = cellId;
+        return 0;
+    }
+    if ( rightCell == ONEFLOW::INVALID_INDEX && leftCell != cellId )
+    {
+        rightCell = cellId;
+        return 1;
+    }
+    return -1;
 }
 
 EndNameSpace
