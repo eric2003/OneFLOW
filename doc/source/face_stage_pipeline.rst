@@ -218,8 +218,12 @@ Interface split helpers
 * ``RebuildFaceNodeListsAfterInterfaceSplit`` rebuilds face-to-node lists after
   interface splits (**test:** ``RebuildFaceNodeListsTest``).
 * Quad diagonal candidates:
-  ``BuildQuadDiagonalLocalTris`` / ``MapLocalTrisToGlobalNodes``
-  (**test:** ``QuadDiagonalSplitTest``).
+  ``BuildQuadDiagonalLocalTris`` creates the four local triangle candidates
+  for both diagonals; ``MapLocalTrisToGlobalNodes`` maps their three local
+  corners through the parent face's node ring. The mapping helper validates
+  every candidate row has exactly three corners and every corner index is in
+  range before replacing the output, so malformed later rows cannot leave a
+  partial mapping (**test:** ``QuadDiagonalSplitTest``).
 
 
 Interface mapping names and design rules

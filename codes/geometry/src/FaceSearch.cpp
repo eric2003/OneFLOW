@@ -210,22 +210,36 @@ void MapLocalTrisToGlobalNodes(
     const LinkField & localTriId,
     LinkField & triId )
 {
-    triId.clear();
-    triId.resize( localTriId.size() );
+    // Validate the complete candidate topology before replacing the output.
     for ( std::size_t iTri = 0; iTri < localTriId.size(); ++ iTri )
     {
-        for ( int iNode = 0; iNode < 3; ++ iNode )
+        if ( localTriId[ iTri ].size() != 3 )
         {
-            const int localCorner = localTriId[ iTri ][ iNode ];
+            throw std::logic_error(
+                "MapLocalTrisToGlobalNodes: each local triangle must have three corners" );
+        }
+
+        for ( int localCorner : localTriId[ iTri ] )
+        {
             if ( localCorner < 0 ||
                  static_cast< std::size_t >( localCorner ) >= nodeId.size() )
             {
                 throw std::out_of_range(
                     "MapLocalTrisToGlobalNodes: local corner index is out of range" );
             }
-            triId[ iTri ].push_back( nodeId[ localCorner ] );
         }
     }
+
+    LinkField mappedTriIds( localTriId.size() );
+    for ( std::size_t iTri = 0; iTri < localTriId.size(); ++ iTri )
+    {
+        for ( int localCorner : localTriId[ iTri ] )
+        {
+            mappedTriIds[ iTri ].push_back( nodeId[ localCorner ] );
+        }
+    }
+
+    triId.swap( mappedTriIds );
 }
 
 void FaceSearch::GetLocalTri( LinkField & localTriId, LinkField & localTriFlag )

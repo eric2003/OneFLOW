@@ -61,3 +61,29 @@ TEST( QuadDiagonalSplitTest, MapRejectsBadLocalCorner )
         MapLocalTrisToGlobalNodes( nodeId, localTriId, triId ),
         std::out_of_range );
 }
+
+TEST( QuadDiagonalSplitTest, MapRejectsShortTriangleWithoutChangingOutput )
+{
+    LinkField localTriId{ IntField{ 0, 1, 2 }, IntField{ 0, 1 } };
+    const IntField nodeId{ 10, 20, 30, 40 };
+    LinkField triId{ IntField{ 90, 91, 92 } };
+
+    EXPECT_THROW(
+        MapLocalTrisToGlobalNodes( nodeId, localTriId, triId ),
+        std::logic_error );
+
+    EXPECT_EQ( triId, ( LinkField{ IntField{ 90, 91, 92 } } ) );
+}
+
+TEST( QuadDiagonalSplitTest, ValidatesAllTrianglesBeforeReplacingOutput )
+{
+    LinkField localTriId{ IntField{ 0, 1, 2 }, IntField{ 1, 2, 9 } };
+    const IntField nodeId{ 10, 20, 30, 40 };
+    LinkField triId{ IntField{ 90, 91, 92 } };
+
+    EXPECT_THROW(
+        MapLocalTrisToGlobalNodes( nodeId, localTriId, triId ),
+        std::out_of_range );
+
+    EXPECT_EQ( triId, ( LinkField{ IntField{ 90, 91, 92 } } ) );
+}
