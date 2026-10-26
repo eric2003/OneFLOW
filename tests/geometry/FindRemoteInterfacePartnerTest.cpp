@@ -78,3 +78,42 @@ TEST( FindRemoteInterfacePartnerTest, RejectsBadGlobalId )
         FindRemoteInterfacePartner( 1, 0, 0, zoneIds, localIds, rz, rl ),
         std::logic_error );
 }
+
+TEST( FindPeriodicInterfacePartnerTest, SkipsSelfAndSelectsFirstOtherParticipant )
+{
+    const IntField zoneIds = { 0, 2, 3 };
+    const IntField localIds = { 4, 8, 9 };
+    int remoteZone = -1;
+    int remoteLocal = -1;
+
+    EXPECT_TRUE( FindPeriodicInterfacePartner(
+        0, 4, zoneIds, localIds, remoteZone, remoteLocal ) );
+    EXPECT_EQ( remoteZone, 2 );
+    EXPECT_EQ( remoteLocal, 8 );
+}
+
+TEST( FindPeriodicInterfacePartnerTest, ReturnsFalseForSelfOnlyAndPreservesOutputs )
+{
+    const IntField zoneIds = { 0 };
+    const IntField localIds = { 4 };
+    int remoteZone = 77;
+    int remoteLocal = 88;
+
+    EXPECT_FALSE( FindPeriodicInterfacePartner(
+        0, 4, zoneIds, localIds, remoteZone, remoteLocal ) );
+    EXPECT_EQ( remoteZone, 77 );
+    EXPECT_EQ( remoteLocal, 88 );
+}
+
+TEST( FindPeriodicInterfacePartnerTest, RejectsMisalignedRows )
+{
+    const IntField zoneIds = { 0, 2 };
+    const IntField localIds = { 4 };
+    int remoteZone = 77;
+    int remoteLocal = 88;
+
+    EXPECT_THROW( FindPeriodicInterfacePartner(
+        0, 4, zoneIds, localIds, remoteZone, remoteLocal ), std::logic_error );
+    EXPECT_EQ( remoteZone, 77 );
+    EXPECT_EQ( remoteLocal, 88 );
+}
