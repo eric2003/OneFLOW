@@ -223,14 +223,29 @@ bool FindRemoteInterfacePartner(
 
     const IntField & zoneIds = zoneIdsPerGlobalFace[ globalFaceId ];
     const IntField & localIds = localFaceIdsPerGlobalFace[ globalFaceId ];
+
+    // A remote participant is meaningful only if the caller is registered
+    // on this global face. Otherwise the tables do not describe this lookup.
+    bool foundSelf = false;
     for ( std::size_t i = 0; i < zoneIds.size(); ++ i )
     {
-        const int zid = zoneIds[ i ];
-        const int lid = localIds[ i ];
-        if ( zid != selfZoneId || lid != selfLocalFaceId )
+        if ( zoneIds[ i ] == selfZoneId && localIds[ i ] == selfLocalFaceId )
         {
-            outRemoteZoneId = zid;
-            outRemoteLocalFaceId = lid;
+            foundSelf = true;
+            break;
+        }
+    }
+    if ( ! foundSelf )
+    {
+        return false;
+    }
+
+    for ( std::size_t i = 0; i < zoneIds.size(); ++ i )
+    {
+        if ( zoneIds[ i ] != selfZoneId || localIds[ i ] != selfLocalFaceId )
+        {
+            outRemoteZoneId = zoneIds[ i ];
+            outRemoteLocalFaceId = localIds[ i ];
             return true;
         }
     }
