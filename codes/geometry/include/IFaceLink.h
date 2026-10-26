@@ -109,9 +109,10 @@ void ValidateGlobalFaceMappings(
     const char * operation );
 
 // Register local interface face (zid, localFaceId) on global face gIid.
-// isNew: append a new parallel row to gI2Zid/g2l; otherwise push onto the
-// existing row. Always writes l2g[zid][localFaceId] = gIid.
-// Throws on inconsistent table sizes or out-of-range indices.
+// isNew: append a new parallel row to gI2Zid/g2l; otherwise append to the
+// existing row, which supports at most two zone participants. The existing-row
+// path rejects duplicate participants and a third zone before mutating any map.
+// Always writes l2g[zid][localFaceId] = gIid on success.
 void RegisterLocalInterfaceFace(
     int gIid,
     bool isNew,
