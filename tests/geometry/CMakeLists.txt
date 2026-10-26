@@ -268,3 +268,4 @@ add_oneflow_gtest(RegisterLocalInterfaceFaceTest RegisterLocalInterfaceFaceTest.
 add_oneflow_gtest(ExpandBcRecordSplitTest ExpandBcRecordSplitTest.cpp)
 add_oneflow_gtest(BuildInverseInterfaceMapTest BuildInverseInterfaceMapTest.cpp)
 add_oneflow_gtest(RebuildZoneL2gNewTest RebuildZoneL2gNewTest.cpp)
+add_oneflow_gtest(RebuildFaceCellSidesTest RebuildFaceCellSidesTest.cpp)

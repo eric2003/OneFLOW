@@ -166,6 +166,22 @@ void RebuildZoneL2gNewAfterInterfaceSplit(
     IntField & l2gNewForZone,
     IntField & nChildForZone );
 
+// Rebuild left/right cell arrays after interface boundary faces may split.
+// For boundary faces (0..nBFaces-1): interface faces emit max(childCount,1)
+// copies of the original left cell; other boundary faces emit once. New
+// boundary right cells are ghost indices iFace + nCells. Interior faces
+// (nBFaces..nFaces-1) copy left/right unchanged.
+void RebuildFaceCellSidesAfterInterfaceSplit(
+    const IntField & bcType,
+    const IntField & leftCells,
+    const IntField & rightCells,
+    int nBFaces,
+    int nFaces,
+    const IntField & childCountPerInterfaceLocal,
+    int nCells,
+    IntField & outLeftCells,
+    IntField & outRightCells );
+
 
 // Look up child face IDs for a local interface face and validate their node tables.
 // Preferred overload: depends only on l2g + InterfaceFaceSplitTable (no IFaceLink).

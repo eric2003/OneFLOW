@@ -139,6 +139,9 @@ Interface split helpers
   ``BuildInverseInterfaceMapTest``).
 * ``RebuildZoneL2gNewAfterInterfaceSplit`` rebuilds one zone's ``l2gNew`` /
   ``nChild`` when parents split (**test:** ``RebuildZoneL2gNewTest``).
+* ``RebuildFaceCellSidesAfterInterfaceSplit`` expands left cells and assigns
+  ghost right cells after interface splits (**test:**
+  ``RebuildFaceCellSidesTest``).
 * Quad diagonal candidates:
   ``BuildQuadDiagonalLocalTris`` / ``MapLocalTrisToGlobalNodes``
   (**test:** ``QuadDiagonalSplitTest``).
@@ -240,6 +243,9 @@ Change type matrix
      - `Interface split helpers`
    * - ``RebuildZoneL2gNewAfterInterfaceSplit`` / ModifyBoundaryInformation
      - ``RebuildZoneL2gNewTest``
+     - `Interface split helpers`
+   * - ``RebuildFaceCellSidesAfterInterfaceSplit`` / SetNewFace2Cell
+     - ``RebuildFaceCellSidesTest``
      - `Interface split helpers`
    * - quad diagonal local tris / node map
      - ``QuadDiagonalSplitTest``
