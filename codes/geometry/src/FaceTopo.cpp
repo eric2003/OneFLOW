@@ -33,6 +33,7 @@ License
 #include <algorithm>
 #include <stdexcept>
 #include <string>
+#include <unordered_set>
 
 
 BeginNameSpace( ONEFLOW )
@@ -783,13 +784,21 @@ void BuildInverseInterfaceMapForZone(
     }
 
     // Validate all input IDs and existing rows before changing either table.
-    // This prevents a malformed later entry from leaving a partial rebuild.
+    // One zone must not register the same global face more than once: otherwise
+    // the duplicate could be mistaken for a remote participant during lookup.
+    std::unordered_set< int > seenGlobalFaceIds;
+    seenGlobalFaceIds.reserve( l2gNewForZone.size() );
     for ( const int gIFid : l2gNewForZone )
     {
         if ( gIFid < 0 )
         {
             throw std::out_of_range(
                 "BuildInverseInterfaceMapForZone: global face id is negative" );
+        }
+        if ( ! seenGlobalFaceIds.insert( gIFid ).second )
+        {
+            throw std::logic_error(
+                "BuildInverseInterfaceMapForZone: duplicate global face ID in zone mapping" );
         }
 
         if ( static_cast< std::size_t >( gIFid ) < gI2ZidNew.size() &&
