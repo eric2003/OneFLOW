@@ -40,17 +40,19 @@ TEST( BuildInverseInterfaceMapTest, SecondZoneFillsPairSlot )
     EXPECT_EQ( g2lNew[ 0 ][ 1 ], 0 );
 }
 
-TEST( BuildInverseInterfaceMapTest, DoesNotExceedTwoZoneSlots )
+TEST( BuildInverseInterfaceMapTest, LegacyPolicyIgnoresThirdZoneParticipant )
 {
     LinkField gI2ZidNew;
     LinkField g2lNew;
     BuildInverseInterfaceMapForZone( 0, IntField{ 0 }, gI2ZidNew, g2lNew );
     BuildInverseInterfaceMapForZone( 1, IntField{ 0 }, gI2ZidNew, g2lNew );
+
+    const LinkField zoneIdsBeforeThirdZone = gI2ZidNew;
+    const LinkField localIdsBeforeThirdZone = g2lNew;
     BuildInverseInterfaceMapForZone( 2, IntField{ 0 }, gI2ZidNew, g2lNew );
 
-    EXPECT_EQ( gI2ZidNew[ 0 ].size(), static_cast< std::size_t >( 2 ) );
-    EXPECT_EQ( gI2ZidNew[ 0 ][ 0 ], 0 );
-    EXPECT_EQ( gI2ZidNew[ 0 ][ 1 ], 1 );
+    EXPECT_EQ( gI2ZidNew, zoneIdsBeforeThirdZone );
+    EXPECT_EQ( g2lNew, localIdsBeforeThirdZone );
 }
 
 TEST( BuildInverseInterfaceMapTest, RejectsNegativeZoneIdWithoutChangingMaps )
