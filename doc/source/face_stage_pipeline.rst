@@ -170,8 +170,8 @@ Interface split helpers
 * ``ExpandBcRecordForSplitInterfaces`` repeats BC slots when an interface face
   splits into children (**test:** ``ExpandBcRecordSplitTest``).
 * ``BuildInverseInterfaceMapForZone`` fills ``gI2ZidNew`` / ``g2lNew`` from a
-  zone's ``l2gNew`` row (at most two zone slots) (**test:**
-  ``BuildInverseInterfaceMapTest``).
+  zone's ``l2gNew`` row (at most two zone slots); rejects negative zone and
+  global-face IDs (**tests:** ``BuildInverseInterfaceMapTest``).
 * ``RebuildZoneL2gNewAfterInterfaceSplit`` rebuilds one zone's ``l2gNew`` /
   ``nChild`` when parents split (**test:** ``RebuildZoneL2gNewTest``).
 * ``RebuildFaceCellSidesAfterInterfaceSplit`` expands left cells and assigns
