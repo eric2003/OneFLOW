@@ -118,9 +118,10 @@ std::unique_ptr<SimuBase> Simulation::MakeDefaultSimulation()
 
 void Simulation::RunImpl()
 {
-    int nPara = static_cast<int>( args.size() );
+    const SimulationInvocationKind invocationKind =
+        ClassifySimulationInvocation( args );
 
-    if ( nPara == 1 )
+    if ( invocationKind == SimulationInvocationKind::LightweightTest )
     {
         std::cout << "\n===== ONEFLOW Light-weight Test Mode =====\n";
         auto simu = MakeDefaultSimulation();
@@ -131,12 +132,12 @@ void Simulation::RunImpl()
         }
         simu->Run();
     }
-    else if ( nPara == 2 )
+    else if ( invocationKind == SimulationInvocationKind::InvalidArgumentCount )
     {
         // Unified error handling
         throw std::runtime_error( "wrong argument number !" );
     }
-    else // nPara >= 3
+    else // FullSimulation
     {
         std::cout << "\n===== ONEFLOW Full Simulation Mode =====\n";
         // Parse the case list once so execution does not depend on

@@ -26,11 +26,21 @@ License
 namespace ONEFLOW
 {
 
+enum class SimulationInvocationKind
+{
+    LightweightTest,
+    InvalidArgumentCount,
+    FullSimulation
+};
+
 struct SimulationCommandLineOptions
 {
     bool debug = false;
     std::vector<std::string> caseDirectories;
 };
+
+SimulationInvocationKind ClassifySimulationInvocation(
+    const std::vector<std::string> & args ) noexcept;
 
 SimulationCommandLineOptions ParseSimulationCommandLineOptions(
     const std::vector<std::string> & args );

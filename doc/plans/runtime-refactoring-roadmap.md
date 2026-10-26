@@ -314,3 +314,11 @@ Commit: `d8568fe91722af5d78d8083d6bae23d9446d952d`
 - Existing argument count, mode interpretation, case order, and duplicate path behavior are unchanged. Top-level selector/run mode classification remains in ``Simulation::RunImpl()`` for a separate future contract change.
 - Validation: the expanded ``prj_cmdline_test`` target passed 48/48 with direct MSVC compilation; ``Simulation.cpp`` and ``SimuContextEnv.cpp`` also compiled separately. The user-reported 721/721 preceded the original CLI parser addition; no full-suite result is claimed for this revision.
 - Architecture assessment: this removes the duplicated case-directory state from production consumers while preserving the compatibility boundary. Next inspect invocation-mode branching and define a testable application command model before adding flags or changing syntax.
+
+### 2026-10-26 - Make top-level invocation selection testable
+
+- Starting from ``hexin`` HEAD ``9af8dc3a343fb6fa1192b4a04710b847d1d17be0``. Extracted the existing ``Simulation::RunImpl()`` argv-count branches into ``ClassifySimulationInvocation()`` and a named ``SimulationInvocationKind`` enum. The caller still owns execution; parsing full-run values remains a separate responsibility.
+- Preserved existing behavior: one argv entry selects lightweight test mode, two select the current wrong-argument-count error, and three or more enter full simulation. Added one focused test for each path.
+- Validation: direct MSVC compilation and execution of ``prj_cmdline_test`` passed 51/51; ``Simulation.cpp`` compiled separately with project include paths and MPI headers. No full-suite result is claimed for this slice; the user-reported 721/721 predates CLI parser changes.
+- Architecture assessment: mode policy is now testable without constructing solver or MPI runtime. This gives a clean seam to make future CLI migration deliberate. Next inspect whether the legacy ``d``/``r`` positional mode should become a named option, but first trace all invocations and preserve existing scripts.
+- Suggested commit: ``refactor(cli): classify simulation invocation modes``.

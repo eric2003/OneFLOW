@@ -2,7 +2,7 @@
 
 Last updated: 2026-10-26
 Working branch: `hexin`
-Latest inspected `hexin` HEAD: [`d72f5628`](https://github.com/eric2003/OneFLOW/commit/d72f5628d5f70a5777d025337b94017ff8616d8c). The user reported 721/721 on the pre-parser baseline `cdc51377`; the focused CLI/path target passed 46/46 on `d72f5628`. This slice migrates production call sites to `SimulationCommandLineOptions` while retaining the `Prj::ParseCmdLineArgs()` compatibility adapter. The expanded focused target passes 48/48 after direct MSVC compilation; the full suite has not been rerun.
+Latest inspected `hexin` HEAD: [`9af8dc3a`](https://github.com/eric2003/OneFLOW/commit/9af8dc3a343fb6fa1192b4a04710b847d1d17be0). The user reported 721/721 on the pre-parser baseline `cdc51377`; the focused CLI/path target passed 48/48 on `9af8dc3a`. The current uncommitted slice extracts invocation-mode classification from `Simulation::RunImpl()` and adds three contract tests; the focused target passes 51/51 after direct MSVC compilation. The full suite has not been rerun.
 
 This is the fast handoff page for an AI assistant or developer continuing work on OneFLOW. It is a curated status snapshot, not a replacement for source code, tests, design pages, or CI. Recheck the branch HEAD before editing: this page can lag behind the current repository revision.
 
@@ -38,7 +38,7 @@ The published [architecture review](source/architecture_review.rst) is now the c
 
 ## 4. Current focus: failure-safe runtime and gradual CLI migration
 
-The multi-case path initializes process runtime once, runs every case-list entry in command-line order (including repeated identical paths), tears down each case, then finalizes process runtime. `SimuContext::SetupEnvironment()` now rolls back process/case resources if case setup fails; `TeardownEnvironment()` attempts process finalization even if case teardown throws. `SimuImp::RunCase()` retains its narrower, repeatable case boundary and does not initialize or finalize MPI. MPI process runtime is one-shot; case execution can be repeated within that runtime. Thirteen lifecycle tests and 48 CLI/path tests pass after direct MSVC compilation; the full suite and executable link remain unverified. The new command-line header is discovered by the source-tree glob, so the next normal CMake build will reconfigure. R1 case configuration and I/O root resolution remains partial.
+The multi-case path initializes process runtime once, runs every case-list entry in command-line order (including repeated identical paths), tears down each case, then finalizes process runtime. `SimuContext::SetupEnvironment()` now rolls back process/case resources if case setup fails; `TeardownEnvironment()` attempts process finalization even if case teardown throws. `SimuImp::RunCase()` retains its narrower, repeatable case boundary and does not initialize or finalize MPI. MPI process runtime is one-shot; case execution can be repeated within that runtime. Thirteen lifecycle tests and 51 CLI/path tests pass after direct MSVC compilation; the full suite and executable link remain unverified. The new command-line header is discovered by the source-tree glob, so the next normal CMake build will reconfigure. R1 case configuration and I/O root resolution remains partial.
 
 ### Source-backed execution path
 
@@ -83,7 +83,7 @@ The helper preserves the optional-parameter contract:
 
 ## 5. Next actions, in priority order
 
-1. Continue the CLI migration by separating top-level invocation mode selection from the positional run parser. Preserve existing behavior first; only change mode validation or add named options with explicit contracts and regression tests.
+1. Continue CLI migration by gradually moving remaining legacy entry points to the canonical parser. Invocation mode classification is now a pure function with explicit tests; preserve current argument-count behavior until any change has a documented contract and regression tests.
 2. Continue from [the integration-test investigation](plans/setup-case-environment-integration-test.md): inspect global database initialization and test link dependencies, then try a temporary-case fixture for `SetupCaseEnvironment()` without duplicating the full solver bootstrap.
 3. Assert explicit `meshInputRoot` overrides `sourceGridCaseDir`, and the legacy fallback is used only when mesh input is empty or `default`.
 4. Verify the path reset between sequential cases and confirm output-path diagnostics remain compatible.

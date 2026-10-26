@@ -118,6 +118,8 @@ The parser core is ``ONEFLOW::CliParser`` in ``codes/basic/include/CliParser.h``
 
 ``Parse()`` receives arguments after the executable name. The parser preserves the existing mode rule (``d`` enables debug; other values retain run mode). The compatibility adapter still fills the old ``Prj::ParseCmdLineArgs()`` result shape. The small parser intentionally does not yet provide named options or subcommands.
 
+`Simulation::RunImpl()` selects its top-level path through the pure `ClassifySimulationInvocation()` function. One argv entry selects the lightweight test path, two entries preserve the existing argument-count error, and three or more select full simulation. The classifier does not inspect argument text; parsing and validation of the full-simulation arguments remain in `ParseSimulationCommandLineOptions()`. Tests in `tests/main/prj_cmdline_test.cpp` pin these three behaviors so future CLI syntax work can change them deliberately.
+
 The current `Simulation::RunImpl()` has three argument-count paths:
 
 * With only the executable argument, it enters the lightweight test selector and chooses

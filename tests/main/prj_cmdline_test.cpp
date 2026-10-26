@@ -83,6 +83,28 @@ TEST( CliParserTest, BuildsUsageFromArgumentDefinitions )
     EXPECT_NE( usage.find( "Case directory" ), std::string::npos );
 }
 
+TEST( SimulationInvocationTest, OneArgumentSelectsLightweightTest )
+{
+    EXPECT_EQ(
+        ONEFLOW::ClassifySimulationInvocation( { "OneFlow.exe" } ),
+        ONEFLOW::SimulationInvocationKind::LightweightTest );
+}
+
+TEST( SimulationInvocationTest, OneAdditionalArgumentIsRejected )
+{
+    EXPECT_EQ(
+        ONEFLOW::ClassifySimulationInvocation( { "OneFlow.exe", "d" } ),
+        ONEFLOW::SimulationInvocationKind::InvalidArgumentCount );
+}
+
+TEST( SimulationInvocationTest, MultipleCaseArgumentsSelectFullSimulation )
+{
+    EXPECT_EQ(
+        ONEFLOW::ClassifySimulationInvocation(
+            { "OneFlow.exe", "r", "caseA", "caseB" } ),
+        ONEFLOW::SimulationInvocationKind::FullSimulation );
+}
+
 TEST( SimulationCommandLineOptionsTest, ParsesDebugModeAndRepeatedCases )
 {
     const ONEFLOW::SimulationCommandLineOptions options =

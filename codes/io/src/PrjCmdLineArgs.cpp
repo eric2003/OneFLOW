@@ -28,6 +28,20 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+SimulationInvocationKind ClassifySimulationInvocation(
+    const std::vector<std::string> & args ) noexcept
+{
+    if ( args.size() == 1 )
+    {
+        return SimulationInvocationKind::LightweightTest;
+    }
+    if ( args.size() == 2 )
+    {
+        return SimulationInvocationKind::InvalidArgumentCount;
+    }
+    return SimulationInvocationKind::FullSimulation;
+}
+
 SimulationCommandLineOptions ParseSimulationCommandLineOptions(
     const std::vector<std::string> & args )
 {
