@@ -201,6 +201,48 @@ The dual-table invariant after commit is the same as after registration:
 ``ValidateGlobalFaceMappings`` requires equal top-level sizes and equal per-face
 list lengths for ``gI2Zid`` and ``g2l``.
 
+
+Boundary-condition assignment algorithm
+---------------------------------------
+
+Staged faces start with BC slots set to ``INVALID_INDEX``. CGNS BOCO regions
+supply a **vertex set** (nodes on the boundary patch). Assignment walks staged
+faces and writes BC only through ``SetStagedFaceBc``.
+
+**Match predicate.** ``FaceNodesContainedInVertexSet`` (used by
+``CheckBcFace``) is true when every node of a face appears in the BOCO vertex
+set. The BOCO set may contain extra nodes; face node order does not matter.
+
+**Two scan modes.**
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 70
+
+   * - API
+     - Filter
+   * - ``ScanBcFace``
+     - ``boundaryFacesOnly``: only faces with ``right == INVALID_INDEX`` and
+       no BC yet
+   * - ``ScanBcFaceDetail``
+     - vertex match only; may label interior faces if nodes lie in the set
+
+Both call ``AssignBcToMatchingFaces``, which skips faces that already have a
+BC type.
+
+**Interface fill.** ``ScanInterfaceBc`` assigns ``BCTypeNull`` (and name id
+``-1``) to any remaining face still at ``INVALID_INDEX``. That closes the
+staged BC vector before export.
+
+**Export.** ``AppendBoundaryBcToRecord`` copies staged BC for faces with open
+right cells into ``BcRecord`` in **current face order**. After
+``ReorderLink``, boundary faces form a prefix and relative boundary order is
+preserved, so ``BcRecord`` stays aligned without a second permutation
+(``ValidateBoundaryBcLayout``).
+
+**Tests:** ``FaceNodesContainedInVertexSetTest``, ``FaceSolverStageTest``,
+``FaceTopoReorderLinkTest``.
+
 Open design pressures
 ---------------------
 
@@ -253,6 +295,9 @@ Change type matrix
        BC slot privacy or accessors
      - ``FaceSolverStageTest`` (BC write/read)
      - write-path table on this page
+   * - ``FaceNodesContainedInVertexSet`` / CheckBcFace
+     - ``FaceNodesContainedInVertexSetTest``
+     - `Boundary-condition assignment algorithm`
    * - ``ClaimStagedFaceAsLeft`` /
        ``AttachStagedFaceAsRight`` /
        ``BindCellToExistingFace``

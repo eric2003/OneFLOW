@@ -59,17 +59,23 @@ std::unique_ptr< FaceTopo > FaceSolver::ReleaseFaceTopo() noexcept
     return std::move( this->faceTopo );
 }
 
-bool FaceSolver::CheckBcFace( const IntSet & bcVertex, const IntField & nodeId ) const
+bool FaceNodesContainedInVertexSet(
+    const IntSet & bcVertex,
+    const IntField & faceNodes )
 {
-    const int size = static_cast< int >( nodeId.size() );
-    for ( int iNode = 0; iNode < size; ++ iNode )
+    for ( std::size_t iNode = 0; iNode < faceNodes.size(); ++ iNode )
     {
-        if ( bcVertex.find( nodeId[ iNode ] ) == bcVertex.end() )
+        if ( bcVertex.find( faceNodes[ iNode ] ) == bcVertex.end() )
         {
             return false;
         }
     }
     return true;
+}
+
+bool FaceSolver::CheckBcFace( const IntSet & bcVertex, const IntField & nodeId ) const
+{
+    return FaceNodesContainedInVertexSet( bcVertex, nodeId );
 }
 
 void FaceSolver::StagePolygonFacesFromConnectivity(

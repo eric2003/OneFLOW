@@ -161,4 +161,11 @@ private:
     std::unique_ptr< FaceTopo > faceTopo;
 };
 
+
+// True when every node of faceNodes appears in bcVertex (BC patch vertex set).
+// Order and extras in bcVertex do not matter; empty face is vacuously true.
+bool FaceNodesContainedInVertexSet(
+    const IntSet & bcVertex,
+    const IntField & faceNodes );
+
 EndNameSpace
