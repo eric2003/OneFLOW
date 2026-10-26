@@ -321,6 +321,15 @@ Faces with fewer than two zone slots are counted by
 ``CountInterfaceFacesMissingPartner`` (legacy: more than two slots are not
 counted as "missing").
 
+**Inverse-map construction.** ``BuildInverseInterfaceMapForZone`` derives
+the per-global-face participant rows from one zone's ``l2gNew`` list. A
+zone-local list must contain each global face ID at most once: otherwise the
+same zone could be inserted twice into one participant row and later be
+mistaken for its own remote neighbour. The helper checks all IDs, duplicate
+global IDs, and existing row alignment before mutating either inverse table,
+so a rejected zone leaves both tables unchanged
+(**test:** ``BuildInverseInterfaceMapTest.RejectsDuplicateGlobalFaceWithinZoneWithoutMutation``).
+
 **Split rebuild.** Interface parents may split (for example quad to triangles).
 Rebuild runs on ``New`` buffers:
 
