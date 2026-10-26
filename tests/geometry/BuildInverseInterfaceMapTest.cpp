@@ -53,6 +53,15 @@ TEST( BuildInverseInterfaceMapTest, DoesNotExceedTwoZoneSlots )
     EXPECT_EQ( gI2ZidNew[ 0 ][ 1 ], 1 );
 }
 
+TEST( BuildInverseInterfaceMapTest, RejectsNegativeZoneId )
+{
+    LinkField gI2ZidNew;
+    LinkField g2lNew;
+    EXPECT_THROW(
+        BuildInverseInterfaceMapForZone( -1, IntField{ 0 }, gI2ZidNew, g2lNew ),
+        std::out_of_range );
+}
+
 TEST( BuildInverseInterfaceMapTest, RejectsNegativeGlobalId )
 {
     LinkField gI2ZidNew;
