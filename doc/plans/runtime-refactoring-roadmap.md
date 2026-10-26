@@ -102,7 +102,7 @@ and which layer applies task-specific meaning.
 - Parsing changes do not silently change task semantics.
 - Any extracted adapter has a concrete consumer and focused tests.
 
-**Status:** Planned; begin after R1 findings are recorded.
+**Status:** Partial. `ConfigLoader_test` covers syntax-to-document behavior; runtime parameter validation and task-specific meaning remain open.
 
 ### R3. Trace one grid task and one solve task
 
@@ -365,3 +365,11 @@ Commit: `d8568fe91722af5d78d8083d6bae23d9446d952d`
 - Reused `build_case_graph_plan()` as the canonical semantic validator for artifact IDs, input/output references, dependency edges, setting identifiers, and case-relative paths.
 - Validation: Python syntax compilation succeeded; schema, conversion, persistence, GUI dialog, workflow plan, graph runner, staging, and process tests passed 83/83. The full repository suite and Sphinx build were not run.
 - Suggested commit: `feat(gui): support artifact bindings in saved workspaces`.
+### 2026-10-26 - Specify the ConfigLoader parser contract
+
+- Based on `hexin` HEAD `de266a3b`; no runtime parameter or solver behavior was changed.
+- Added `tests/io/ConfigLoader_test.cpp` and a focused test target covering scalar type/name/value parsing, declaration order, quoted values, multiline literal arrays, injected named-array length resolution, missing-resolver failure, and document replacement on repeated parse.
+- Updated `doc/source/case_parameter_design.rst` to distinguish parser syntax guarantees from schema validation, runtime database application, and serialization guarantees.
+- Validation: `ConfigLoader_test.exe` ran 5/5 tests, and `ctest --test-dir build -C Debug -R ConfigLoader --output-on-failure` passed all five after invoking the generated GTest discovery script. The CMake/MSBuild target returned failure with MSVC `C1902` PDB-manager mismatch errors; a clean target build is therefore unverified. A full Sphinx build of 109 sources passed using the installed Sphinx 9.2.0 with the built-in Alabaster theme override. The full C++ suite was not run.
+- Remaining: resolve/verify the compiler toolchain path and ensure post-build GTest discovery runs automatically, then test type conversion at `ConfigDatabaseAdapter` and representative task resolution.
+- Suggested commit: `test(config): specify legacy parameter parser contract`.

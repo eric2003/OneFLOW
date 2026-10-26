@@ -96,14 +96,24 @@ follow declared applicability rules rather than guesses from parameter names. A 
 entry with unknown units, range, or consumer should say so instead of inventing a
 constraint.
 
+Current parser tests
+--------------------
+
+``tests/io/ConfigLoader_test.cpp`` specifies scalar type/name/value parsing, declaration
+order, quoted scalar values, literal arrays spanning lines, callback-based named array
+lengths, rejection when a named length has no resolver, and replacement of the document
+when the loader parses another file. These tests exercise syntax translation only. They
+do not assert runtime parameter validity, units, defaults, solver behavior, or editor
+serialization.
 Recommended migration sequence
 ------------------------------
 
 #. Keep the existing parser and runtime database adapter stable while collecting
    source-backed parameter metadata for one task at a time.
-#. Add parser/schema tests for type, array shape, round-trip preservation, unknown keys,
-   and conditional validation. Test intended behavior explicitly; do not encode
-   numerical recommendations as parser rules.
+#. Keep parser-contract tests for scalar metadata, declaration order, multiline arrays,
+   named-length resolution, and repeated-parse replacement. Add schema-specific validation
+   after a schema exists. Test serialization round trips at the file-writing boundary; do
+   not encode numerical recommendations as parser rules.
 #. Build a read-only categorized view in Workbench before enabling edits. Compare it
    with the originating files and report unsupported or unclassified entries.
 #. Enable writing only for fields with a known source file, type, serialization rule,

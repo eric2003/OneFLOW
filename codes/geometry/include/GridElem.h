@@ -45,6 +45,7 @@ enum class GridAssemblyMode;
 int OneFlow2CgnsZoneType( int zoneType );
 int Cgns2OneFlowZoneType( int zoneType );
 
+// Face scan/export/reorder contract: doc/source/face_stage_pipeline.rst
 class GridElem
 {
 public:
