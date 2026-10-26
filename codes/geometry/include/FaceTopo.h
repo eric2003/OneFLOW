@@ -155,6 +155,17 @@ void BuildInverseInterfaceMapForZone(
     LinkField & gI2ZidNew,
     LinkField & g2lNew );
 
+// Rebuild one zone's l2gNew and nChild after interface face splits.
+// parentGlobalFaceIds[i] is the global id of parent interface local i;
+// childGlobalIdsPerParent[i] is empty (keep parent) or the replacement child
+// global ids. nChildForZone starts as one slot per parent (child count or 0)
+// and appends a 0 for each emitted child entry (legacy layout).
+void RebuildZoneL2gNewAfterInterfaceSplit(
+    const IntField & parentGlobalFaceIds,
+    const LinkField & childGlobalIdsPerParent,
+    IntField & l2gNewForZone,
+    IntField & nChildForZone );
+
 
 // Look up child face IDs for a local interface face and validate their node tables.
 // Preferred overload: depends only on l2g + InterfaceFaceSplitTable (no IFaceLink).

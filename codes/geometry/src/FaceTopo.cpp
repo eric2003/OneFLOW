@@ -469,55 +469,43 @@ void FaceTopo::SetNewFace2Cell( IFaceLink & iFaceLink )
 
 void FaceTopo::ModifyBoundaryInformation( IFaceLink & iFaceLink )
 {
-    //find the new number of boundary faces
-    int nBFaces = this->bcManager->bcRecord->GetBoundaryFaceCount();
-
-    int localIid = 0;
-
-    IntField localI2B;
-
-    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
+    const int zoneId = this->GetGrid().id;
+    if ( zoneId < 0 ||
+         static_cast< size_t >( zoneId ) >= iFaceLink.l2g.size() )
     {
-        int bcType = this->bcManager->bcRecord->bcType[ iFace ];
-        if ( BC::IsInterfaceBc( bcType ) )
-        {
-            localI2B.push_back( iFace );
-            ++ localIid;
-        }
+        throw std::out_of_range(
+            "FaceTopo::ModifyBoundaryInformation: zone id is out of range for l2g" );
+    }
+    if ( static_cast< size_t >( zoneId ) >= iFaceLink.l2gNew.size() )
+    {
+        throw std::out_of_range(
+            "FaceTopo::ModifyBoundaryInformation: zone id is out of range for l2gNew" );
     }
 
-    int nBFaceNew = 0;
+    const IntField & parentGlobalFaceIds = iFaceLink.l2g[ zoneId ];
+    const int nIFaces = static_cast< int >( parentGlobalFaceIds.size() );
 
-    int nIFaces = localI2B.size();
-
-    int nIFaceNew = nIFaces;
-
-    iFaceLink.nChild.resize( iFaceLink.l2g.size() );
-    iFaceLink.nChild[ this->GetGrid().id ].assign( nIFaces, 0 );
-
+    LinkField childGlobalIdsPerParent;
+    childGlobalIdsPerParent.resize( static_cast< size_t >( nIFaces ) );
     for ( int iFid = 0; iFid < nIFaces; ++ iFid )
     {
-        const IntField & childFaceIds = GetInterfaceChildFaceIds( iFaceLink.l2g, iFaceLink.face_search->interfaceSplit, this->GetGrid().id, iFid );
-        const int gFid = iFaceLink.l2g[ this->GetGrid().id ][ iFid ];
-        int nCFace = childFaceIds.size();
-
-        if ( nCFace > 0 )
-        {
-            iFaceLink.nChild[ this->GetGrid().id ][ iFid ] = nCFace;
-            for ( int iCFace = 0; iCFace < nCFace; ++ iCFace )
-            {
-                int cFid = childFaceIds[ iCFace ];
-                iFaceLink.l2gNew[ this->GetGrid().id ].push_back( cFid );
-
-                iFaceLink.nChild[ this->GetGrid().id ].push_back( 0 );
-            }
-            ++ nIFaceNew;
-        }
-        else
-        {
-            iFaceLink.l2gNew[ this->GetGrid().id ].push_back( gFid );
-        }
+        childGlobalIdsPerParent[ iFid ] = GetInterfaceChildFaceIds(
+            iFaceLink.l2g,
+            iFaceLink.face_search->interfaceSplit,
+            zoneId,
+            iFid );
     }
+
+    if ( iFaceLink.nChild.size() < iFaceLink.l2g.size() )
+    {
+        iFaceLink.nChild.resize( iFaceLink.l2g.size() );
+    }
+
+    RebuildZoneL2gNewAfterInterfaceSplit(
+        parentGlobalFaceIds,
+        childGlobalIdsPerParent,
+        iFaceLink.l2gNew[ zoneId ],
+        iFaceLink.nChild[ zoneId ] );
 
     this->ResetNumberOfBoundaryCondition( iFaceLink );
 }
@@ -894,6 +882,44 @@ void BuildInverseInterfaceMapForZone(
         {
             gI2ZidNew[ gIFid ].push_back( zoneId );
             g2lNew[ gIFid ].push_back( localIFid );
+        }
+    }
+}
+
+
+void RebuildZoneL2gNewAfterInterfaceSplit(
+    const IntField & parentGlobalFaceIds,
+    const LinkField & childGlobalIdsPerParent,
+    IntField & l2gNewForZone,
+    IntField & nChildForZone )
+{
+    if ( parentGlobalFaceIds.size() != childGlobalIdsPerParent.size() )
+    {
+        throw std::logic_error(
+            "RebuildZoneL2gNewAfterInterfaceSplit: parent and child tables differ in size" );
+    }
+
+    l2gNewForZone.clear();
+    nChildForZone.assign( parentGlobalFaceIds.size(), 0 );
+
+    for ( std::size_t iFid = 0; iFid < parentGlobalFaceIds.size(); ++ iFid )
+    {
+        const IntField & childFaceIds = childGlobalIdsPerParent[ iFid ];
+        const int gFid = parentGlobalFaceIds[ iFid ];
+        const int nCFace = static_cast< int >( childFaceIds.size() );
+
+        if ( nCFace > 0 )
+        {
+            nChildForZone[ iFid ] = nCFace;
+            for ( int iCFace = 0; iCFace < nCFace; ++ iCFace )
+            {
+                l2gNewForZone.push_back( childFaceIds[ iCFace ] );
+                nChildForZone.push_back( 0 );
+            }
+        }
+        else
+        {
+            l2gNewForZone.push_back( gFid );
         }
     }
 }

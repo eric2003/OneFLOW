@@ -137,6 +137,8 @@ Interface split helpers
 * ``BuildInverseInterfaceMapForZone`` fills ``gI2ZidNew`` / ``g2lNew`` from a
   zone's ``l2gNew`` row (at most two zone slots) (**test:**
   ``BuildInverseInterfaceMapTest``).
+* ``RebuildZoneL2gNewAfterInterfaceSplit`` rebuilds one zone's ``l2gNew`` /
+  ``nChild`` when parents split (**test:** ``RebuildZoneL2gNewTest``).
 * Quad diagonal candidates:
   ``BuildQuadDiagonalLocalTris`` / ``MapLocalTrisToGlobalNodes``
   (**test:** ``QuadDiagonalSplitTest``).
@@ -235,6 +237,9 @@ Change type matrix
      - `Interface split helpers`
    * - ``BuildInverseInterfaceMapForZone`` / ConstructNewInterfaceMap
      - ``BuildInverseInterfaceMapTest``
+     - `Interface split helpers`
+   * - ``RebuildZoneL2gNewAfterInterfaceSplit`` / ModifyBoundaryInformation
+     - ``RebuildZoneL2gNewTest``
      - `Interface split helpers`
    * - quad diagonal local tris / node map
      - ``QuadDiagonalSplitTest``
