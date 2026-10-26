@@ -121,8 +121,9 @@ void RegisterLocalInterfaceFace(
     LinkField & gI2Zid,
     LinkField & g2l );
 
-// Among zone/local pairs on globalFaceId, find the first entry that is not
-// (selfZoneId, selfLocalFaceId). Returns false if none.
+// Find the first non-self participant on globalFaceId, but only when the
+// exact (selfZoneId, selfLocalFaceId) pair is registered. Returns false when
+// self is absent or no other participant exists; output arguments stay unchanged.
 bool FindRemoteInterfacePartner(
     int globalFaceId,
     int selfZoneId,
