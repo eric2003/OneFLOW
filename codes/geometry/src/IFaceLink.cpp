@@ -358,7 +358,7 @@ void IFaceLink::MatchInterfaceTopology( Grid & grid )
     if ( ! interFace ) return;
 
     const IntField & localToGlobal = this->l2g[ grid.id ];
-    const int missingPeriodicPartnerCount = CountInterfaceFacesMissingPartner(
+    const int missingPartnerCount = CountInterfaceFacesMissingPartner(
         localToGlobal, this->gI2Zid, this->g2l );
 
     const int nIFaces = static_cast< int >( localToGlobal.size() );
@@ -385,8 +385,8 @@ void IFaceLink::MatchInterfaceTopology( Grid & grid )
             interFace->localInterfaceId[ iIFace ] = remoteLocal;
         }
     }
-    std::cout << " Periodic boundary faces missing a partner = "
-              << missingPeriodicPartnerCount << "\n";
+    std::cout << " Interface faces missing a partner = "
+              << missingPartnerCount << "\n";
 }
 
 
