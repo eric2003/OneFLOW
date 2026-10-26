@@ -308,3 +308,9 @@ Related design pages
 * :doc:`info` — project scope and documentation entry points.
 * `Documentation consolidation plan <https://github.com/eric2003/OneFLOW/blob/hexin/doc/plans/oneflow-documentation-consolidation-plan.md>`_ — document ownership and migration status.
 * `Runtime refactoring roadmap <https://github.com/eric2003/OneFLOW/blob/hexin/doc/plans/runtime-refactoring-roadmap.md>`_ — staged refactoring goals and acceptance criteria.
+
+Parameter schema and GUI editing
+--------------------------------
+
+See :doc:`case_parameter_design` for the sample-backed parameter classification and
+for why a runtime database dump is not sufficient as an authoring model.

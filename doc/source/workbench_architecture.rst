@@ -107,3 +107,9 @@ Incremental implementation strategy
 6. Add visualization, comparison, reports, background-task recovery, and assisted diagnostics only through staged implementations with explicit tests.
 
 This roadmap describes intended direction, not a blanket claim that all listed capabilities exist today.
+
+Parameter editing
+-----------------
+
+See :doc:`case_parameter_design` for the proposed schema-backed GUI direction and
+its migration stages. Current workflow artifact overrides remain a narrower adapter.
