@@ -170,9 +170,14 @@ Interface split helpers
   ``FindRemoteInterfacePartnerTest``). ``MatchInterfaceTopology`` resets
   the stored remote zone and local-face slots to ``-1`` before each lookup, so
   a rematch cannot retain a partner from an earlier mapping state.
-* ``CountInterfaceFacesMissingPartner`` counts locals whose global face has
-  fewer than two zone slots (**test:**
-  ``CountInterfaceFacesMissingPartnerTest``).
+* ``CountInterfaceFacesMissingPartner`` counts local interface faces whose
+  global face has fewer than two zone slots (**test:**
+  ``CountInterfaceFacesMissingPartnerTest``). The runtime diagnostic is
+  therefore labeled "Interface faces missing a partner", not "Periodic boundary
+  faces": this counter examines the interface mapping tables and does not
+  independently classify periodic boundaries. Faces with more than two zone
+  slots remain excluded for legacy compatibility; that policy is not changed
+  by the diagnostic wording correction.
 * ``ExpandBcRecordForSplitInterfaces`` repeats BC slots when an interface face
   splits into children (**test:** ``ExpandBcRecordSplitTest``).
 * ``BuildInverseInterfaceMapForZone`` fills ``gI2ZidNew`` / ``g2lNew`` from a
