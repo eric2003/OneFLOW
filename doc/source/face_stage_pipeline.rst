@@ -189,10 +189,13 @@ Interface split helpers
 * ``ExpandBcRecordForSplitInterfaces`` repeats BC slots when an interface face
   splits into children (**test:** ``ExpandBcRecordSplitTest``).
 * ``BuildInverseInterfaceMapForZone`` fills ``gI2ZidNew`` / ``g2lNew`` from a
-  zone's ``l2gNew`` row (at most two zone slots). It validates all global-face
-  IDs and existing referenced rows before mutating either inverse table, so an
-  invalid later ID cannot leave a partial update (**tests:**
-  ``BuildInverseInterfaceMapTest``).
+  zone's ``l2gNew`` row (at most two zone slots). The current compatibility
+  policy silently ignores a third or later zone participant for the same global
+  face; it does not expand the data model or report a topology error. This is a
+  known limitation, not evidence that multi-zone junctions are supported. The
+  routine validates all global-face IDs, per-zone uniqueness, and existing
+  referenced rows before mutating either inverse table, so invalid input cannot
+  leave a partial update (**tests:** ``BuildInverseInterfaceMapTest``).
 * ``RebuildZoneL2gNewAfterInterfaceSplit`` rebuilds one zone's ``l2gNew`` /
   ``nChild`` when parents split (**test:** ``RebuildZoneL2gNewTest``).
 * ``RebuildFaceCellSidesAfterInterfaceSplit`` expands left cells and assigns
