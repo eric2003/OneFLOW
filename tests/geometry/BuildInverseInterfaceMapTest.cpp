@@ -94,3 +94,19 @@ TEST( BuildInverseInterfaceMapTest, RejectsMismatchedTopLevelTables )
         BuildInverseInterfaceMapForZone( 0, IntField{ 0 }, gI2ZidNew, g2lNew ),
         std::logic_error );
 }
+
+TEST( BuildInverseInterfaceMapTest, RejectsDuplicateGlobalFaceWithinZoneWithoutMutation )
+{
+    LinkField gI2ZidNew{ IntField{ 4 } };
+    LinkField g2lNew{ IntField{ 7 } };
+    const LinkField originalZoneIds = gI2ZidNew;
+    const LinkField originalLocalIds = g2lNew;
+
+    EXPECT_THROW(
+        BuildInverseInterfaceMapForZone(
+            2, IntField{ 1, 1 }, gI2ZidNew, g2lNew ),
+        std::logic_error );
+
+    EXPECT_EQ( gI2ZidNew, originalZoneIds );
+    EXPECT_EQ( g2lNew, originalLocalIds );
+}
