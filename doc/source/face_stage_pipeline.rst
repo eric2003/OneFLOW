@@ -173,7 +173,7 @@ Interface split helpers
   ``MatchPeriodicInterface`` preserves the existing topological partner for
   faces with exactly two zone participants. For other faces, it clears both
   partner fields before geometric matching; a failed point/face lookup therefore
-  leaves the face explicitly unmatched instead of retaining a stale partner.
+  leaves the face explicitly unmatched instead of retaining a stale partner.\n  The periodic partner row is scanned for the first participant other than the\n  current zone/local-face pair. A self-only row leaves the face unmatched, and\n  mismatched zone/local row lengths are rejected (**tests:**\n  ``FindPeriodicInterfacePartnerTest``).
 * ``CountInterfaceFacesMissingPartner`` counts local interface faces whose
   global face has fewer than two zone slots (**test:**
   ``CountInterfaceFacesMissingPartnerTest``). The runtime diagnostic is
