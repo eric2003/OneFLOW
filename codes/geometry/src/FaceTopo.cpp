@@ -771,6 +771,11 @@ void BuildInverseInterfaceMapForZone(
     LinkField & gI2ZidNew,
     LinkField & g2lNew )
 {
+    if ( zoneId < 0 )
+    {
+        throw std::out_of_range(
+            "BuildInverseInterfaceMapForZone: zone ID is negative" );
+    }
     if ( gI2ZidNew.size() != g2lNew.size() )
     {
         throw std::logic_error(
