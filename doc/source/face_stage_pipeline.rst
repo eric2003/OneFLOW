@@ -596,14 +596,19 @@ Open design pressures
 ---------------------
 
 * Quad/child-node metadata is indexed by global child face ID, but a flag of
-  ``1`` means the stored node index is relative to a parent face ring. This
-  representation can encode only one parent-relative mapping per global child.
-  The current split path overwrites that slot when a child ID is encountered
-  again. Before changing the representation, establish whether valid mesh
-  inputs can make one global child face belong to distinct parent faces with
-  different local rings. If that topology is valid, move node mapping metadata
-  onto the parent-child relation; if it is invalid, validate and report the
-  violated topology contract rather than silently relying on traversal order.
+  ``1`` means the stored node index is relative to a parent face ring. The
+  consumer path is ``FaceSearch::SplitQuad2Tri`` ->
+  ``FaceTopo::SetNewFace2Node`` ->
+  ``RebuildFaceNodeListsAfterInterfaceSplit`` ->
+  ``ResolveChildFaceNodeIds``. The final resolver receives the current parent
+  ring, while its mapping row is selected by global child ID. A second parent
+  that shares that child can overwrite the row with different parent-local
+  indices. This is a concrete representation mismatch; whether it is reachable
+  in supported inputs still needs a regression fixture. Add a test with two
+  distinct parent rings sharing one registered child face and verify each
+  rebuilt child node list. If supported, move node mapping metadata onto the
+  parent-child relation. If unsupported, validate and report the violated
+  topology contract rather than relying on traversal order.
 
 
 These remain harder to unit-test and mark follow-up work:
