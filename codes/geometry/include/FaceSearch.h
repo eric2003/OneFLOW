@@ -65,12 +65,16 @@ struct InterfaceFaceSplitTable
     LinkField childFaceIdsOfParent;
     LinkField childFaceNodeIds;
     LinkField childFaceNodeFlags;
+    std::vector< LinkField > childFaceNodeIdsByParent;
+    std::vector< LinkField > childFaceNodeFlagsByParent;
 
     void Clear()
     {
         childFaceIdsOfParent.clear();
         childFaceNodeIds.clear();
         childFaceNodeFlags.clear();
+        childFaceNodeIdsByParent.clear();
+        childFaceNodeFlagsByParent.clear();
     }
 
     // All three tables are indexed by global face ID, not by a compact parent-only index.
@@ -79,6 +83,8 @@ struct InterfaceFaceSplitTable
         childFaceIdsOfParent.assign( faceCount, IntField{} );
         childFaceNodeIds.assign( faceCount, IntField{} );
         childFaceNodeFlags.assign( faceCount, IntField{} );
+        childFaceNodeIdsByParent.assign( faceCount, LinkField{} );
+        childFaceNodeFlagsByParent.assign( faceCount, LinkField{} );
     }
 
     void ClearParentMapping( int parentFaceId );
