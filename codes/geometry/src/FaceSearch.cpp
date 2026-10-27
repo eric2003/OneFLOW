@@ -116,10 +116,10 @@ void FaceSearch::SplitQuad2Tri( int faceId )
     if ( nodeId.size() != 4 ) return;
 
     LinkField localTriId, localTriFlag;
-    this->GetLocalTri( localTriId, localTriFlag );
+    BuildQuadDiagonalLocalTris( localTriId, localTriFlag );
 
     LinkField triId;
-    this->GetTriId( nodeId, localTriId, triId );
+    MapLocalTrisToGlobalNodes( nodeId, localTriId, triId );
 
     for ( int iTri = 0; iTri < triId.size(); ++ iTri )
     {
@@ -240,16 +240,6 @@ void MapLocalTrisToGlobalNodes(
     }
 
     triId.swap( mappedTriIds );
-}
-
-void FaceSearch::GetLocalTri( LinkField & localTriId, LinkField & localTriFlag )
-{
-    BuildQuadDiagonalLocalTris( localTriId, localTriFlag );
-}
-
-void FaceSearch::GetTriId( const IntField & nodeId, LinkField & localTriId, LinkField & triId )
-{
-    MapLocalTrisToGlobalNodes( nodeId, localTriId, triId );
 }
 
 bool FaceSearch::TrySplitLineAtMidpoint(
