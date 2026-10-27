@@ -102,6 +102,24 @@ TEST( FaceSearchBasicTest, RepeatedQuadSplitReplacesParentChildMapping )
                ( IntField{ 1, 2, 3, 4 } ) );
 }
 
+TEST( FaceSearchBasicTest, QuadSplitUsesOnlyRegisteredTrianglesForOneDiagonal )
+{
+    FaceSearch search;
+    ASSERT_EQ( search.AddFace( IntField{ 10, 20, 30, 40 } ), 0 );
+
+    // Register only the two triangles using diagonal 10-30.
+    EXPECT_EQ( search.AddFace( IntField{ 10, 20, 30 } ), 1 );
+    EXPECT_EQ( search.AddFace( IntField{ 30, 40, 10 } ), 2 );
+
+    search.interfaceSplit.ResetForFaceCount( search.Size() );
+    search.SplitQuad2Tri( 0 );
+
+    ASSERT_EQ( search.interfaceSplit.childFaceIdsOfParent[ 0 ].size(),
+               static_cast< std::size_t >( 2 ) );
+    EXPECT_EQ( search.interfaceSplit.childFaceIdsOfParent[ 0 ],
+               ( IntField{ 1, 2 } ) );
+}
+
 TEST( FaceSearchBasicTest, LineSplitMappingPreservesEdgeDirectionAndEndpointFlags )
 {
     // Intent: splitting A->B produces A->M and M->B in both local and global IDs.
