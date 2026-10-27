@@ -603,12 +603,23 @@ Open design pressures
   ``ResolveChildFaceNodeIds``. The final resolver receives the current parent
   ring, while its mapping row is selected by global child ID. A second parent
   that shares that child can overwrite the row with different parent-local
-  indices. This is a concrete representation mismatch; whether it is reachable
-  in supported inputs still needs a regression fixture. Add a test with two
-  distinct parent rings sharing one registered child face and verify each
-  rebuilt child node list. If supported, move node mapping metadata onto the
-  parent-child relation. If unsupported, validate and report the violated
-  topology contract rather than relying on traversal order.
+  indices.
+
+  A minimal regression fixture can use parent rings ``[A, B, C, D]`` and
+  ``[B, C, A, E]`` with one globally registered child face whose node set is
+  ``{A, B, C}``. The same child has local-corner mapping ``[0, 1, 2]`` in
+  the first parent and ``[2, 0, 1]`` in the second. The expected rebuilt
+  global node set is the same for both parents, but the local mapping rows are
+  not interchangeable. The test must assert each ordered child node list, not
+  only the global child ID or unordered face identity.
+
+  This is a representation mismatch, not evidence that every current input
+  reaches it. Before changing storage, make the fixture pass through the real
+  split-table and rebuild helpers. If shared-child parent-local mappings are
+  supported, store node IDs and flags on the parent-child relation while
+  retaining the global child ID for deduplication. If the topology contract
+  forbids this case, reject it explicitly instead of relying on traversal
+  order.
 
 
 These remain harder to unit-test and mark follow-up work:
