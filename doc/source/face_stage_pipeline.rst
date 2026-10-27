@@ -228,6 +228,34 @@ separate compact parent index.
 * ``RebuildFaceNodeListsAfterInterfaceSplit`` rebuilds face-to-node lists after
   interface splits (**test:** ``RebuildFaceNodeListsTest``).
 * Quad diagonal candidates:
+  ``BuildQuadDiagonalLocalTris`` enumerates four candidates, not one selected
+  triangulation: rows 0-1 use diagonal 0-2 and rows 2-3 use diagonal 1-3.
+  For local corners ``0, 1, 2, 3``, the expected pairs are
+  ``(0,1,2) + (2,3,0)`` and ``(3,0,1) + (1,2,3)``. Each pair must
+  preserve the four boundary edges and share its diagonal exactly once per
+  triangle. ``FaceSearch::SplitQuad2Tri`` then maps all four candidates to
+  global node IDs and keeps only triangles already found by ``FindFace`` in
+  the global face registry. Thus the runtime result depends on the registry:
+  exactly two matching triangle faces should be recorded for a triangulated
+  quad; zero or one points to missing/inconsistent face registration, while
+  more than two means both candidate diagonals may be represented and needs
+  topology-level investigation. The candidate builder itself does not choose a
+  diagonal or compare triangle quality.
+
+  Diagnostic order for a failed quad split:
+  
+  #. Check the parent ring has exactly four nodes and inspect its stored order.
+  #. Check the four local candidate rows and confirm each pair shares one
+     diagonal while retaining the boundary edges.
+  #. Check local-to-global mapping against the parent ring.
+  #. Query the face registry for each mapped candidate; distinguish a missing
+     triangle from a mapping mismatch.
+  #. Only after these checks pass, inspect child registration and the later
+     interface-map / boundary / cell-side rebuilds.
+
+  **Tests:** ``QuadDiagonalSplitTest.BuildsFourCandidateTrisForBothDiagonals``,
+  ``QuadDiagonalSplitTest.EachDiagonalCandidatePairPreservesBoundaryAndSharesOneDiagonal``,
+  and ``QuadDiagonalSplitTest.MapsLocalCornersThroughQuadNodes``.
   ``BuildQuadDiagonalLocalTris`` creates the four local triangle candidates
   for both diagonals; ``MapLocalTrisToGlobalNodes`` maps their three local
   corners through the parent face's node ring. The mapping helper validates
