@@ -1038,24 +1038,58 @@ void CollectBoundaryInterfaceChildNodeMappings(
         const IntField & childIds = GetInterfaceChildFaceIds(
             zoneToLocalToGlobal, splitTable, zoneId, interfaceLocal );
         const int globalParentId = zoneToLocalToGlobal[ zoneId ][ interfaceLocal ];
-        if ( globalParentId < 0 ||
-             static_cast< std::size_t >( globalParentId ) >= splitTable.childFaceNodeIdsByParent.size() ||
-             static_cast< std::size_t >( globalParentId ) >= splitTable.childFaceNodeFlagsByParent.size() )
+        if ( childIds.empty() )
         {
-            throw std::out_of_range(
-                "CollectBoundaryInterfaceChildNodeMappings: parent ID is out of range" );
+            // An unsplit interface face needs no node mapping. Keep the empty
+            // row so the rebuild stage can preserve its parent face unchanged.
+            outNodeIdsPerInterfaceLocal.emplace_back();
+            outNodeFlagsPerInterfaceLocal.emplace_back();
+            ++ interfaceLocal;
+            continue;
         }
 
-        const LinkField & nodeIds = splitTable.childFaceNodeIdsByParent[ globalParentId ];
-        const LinkField & nodeFlags = splitTable.childFaceNodeFlagsByParent[ globalParentId ];
-        if ( ! childIds.empty() &&
-             ( nodeIds.size() != childIds.size() || nodeFlags.size() != childIds.size() ) )
+        if ( globalParentId >= 0 &&
+             static_cast< std::size_t >( globalParentId ) < splitTable.childFaceNodeIdsByParent.size() &&
+             static_cast< std::size_t >( globalParentId ) < splitTable.childFaceNodeFlagsByParent.size() )
         {
-            throw std::logic_error(
-                "CollectBoundaryInterfaceChildNodeMappings: parent mapping rows do not match child IDs" );
+            const LinkField & nodeIds = splitTable.childFaceNodeIdsByParent[ globalParentId ];
+            const LinkField & nodeFlags = splitTable.childFaceNodeFlagsByParent[ globalParentId ];
+            if ( nodeIds.size() == childIds.size() &&
+                 nodeFlags.size() == childIds.size() )
+            {
+                outNodeIdsPerInterfaceLocal.push_back( nodeIds );
+                outNodeFlagsPerInterfaceLocal.push_back( nodeFlags );
+                ++ interfaceLocal;
+                continue;
+            }
         }
-        outNodeIdsPerInterfaceLocal.push_back( nodeIds );
-        outNodeFlagsPerInterfaceLocal.push_back( nodeFlags );
+
+        // Older callers and serialized test fixtures only populate the
+        // child-global mapping tables. Preserve that contract as a fallback;
+        // production splits prefer the parent-specific rows above.
+        LinkField nodeIdsByChild;
+        LinkField nodeFlagsByChild;
+        for ( const int childFaceId : childIds )
+        {
+            if ( childFaceId < 0 ||
+                 static_cast< std::size_t >( childFaceId ) >= splitTable.childFaceNodeIds.size() ||
+                 static_cast< std::size_t >( childFaceId ) >= splitTable.childFaceNodeFlags.size() )
+            {
+                throw std::out_of_range(
+                    "CollectBoundaryInterfaceChildNodeMappings: child face ID is out of range" );
+            }
+            const IntField & nodeIds = splitTable.childFaceNodeIds[ childFaceId ];
+            const IntField & nodeFlags = splitTable.childFaceNodeFlags[ childFaceId ];
+            if ( nodeIds.size() != nodeFlags.size() )
+            {
+                throw std::logic_error(
+                    "CollectBoundaryInterfaceChildNodeMappings: child node IDs and flags have different sizes" );
+            }
+            nodeIdsByChild.push_back( nodeIds );
+            nodeFlagsByChild.push_back( nodeFlags );
+        }
+        outNodeIdsPerInterfaceLocal.push_back( nodeIdsByChild );
+        outNodeFlagsPerInterfaceLocal.push_back( nodeFlagsByChild );
         ++ interfaceLocal;
     }
 }
