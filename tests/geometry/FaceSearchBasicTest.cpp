@@ -212,6 +212,20 @@ TEST( FaceSearchBasicTest, GetFaceNodeRingRejectsOutOfRange )
     EXPECT_THROW( search.GetFaceNodeRing( 1 ), std::out_of_range );
 }
 
+TEST( FaceSearchBasicTest, SharedChildRejectsConflictingMappingRows )
+{
+    // Intent: do not silently replace one parent's mapping with another row.
+    InterfaceFaceSplitTable split;
+    split.ResetForFaceCount( 3 );
+
+    split.SetChildMapping( 0, 2, IntField{ 0, 1, 2 }, IntField{ 1, 1, 1 } );
+    EXPECT_THROW(
+        split.SetChildMapping(
+            1, 2, IntField{ 2, 0, 1 }, IntField{ 1, 1, 1 } ),
+        std::logic_error );
+    EXPECT_EQ( split.childFaceNodeIds[ 2 ], ( IntField{ 0, 1, 2 } ) );
+}
+
 TEST( FaceSearchBasicTest, ResetForFaceCountClearsAllSplitTables )
 {
     // Intent: every table uses the global face ID domain and reset removes stale rows.
