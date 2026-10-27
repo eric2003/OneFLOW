@@ -625,6 +625,15 @@ Open design pressures
   not interchangeable. The test must assert each ordered child node list, not
   only the global child ID or unordered face identity.
 
+  The split-table writer now routes writes through
+  ``InterfaceFaceSplitTable::SetChildMapping``. It rejects a conflicting
+  second row instead of silently overwriting the first; the focused contract
+  is covered by ``FaceSearchBasicTest.SharedChildRejectsConflictingMappingRows``.
+  This is an interim fail-fast guard, not the final representation fix: equal
+  integer rows can still mean different global nodes when interpreted against
+  different parent rings. The durable solution remains parent-child-specific
+  mapping storage, followed by a rebuild test through the production consumer.
+
   This is a representation mismatch, not evidence that every current input
   reaches it. Before changing storage, make the fixture pass through the real
   split-table and rebuild helpers. If shared-child parent-local mappings are
