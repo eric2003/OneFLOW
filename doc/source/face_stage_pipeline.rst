@@ -293,6 +293,11 @@ preserves that face without requiring node mapping metadata.
 * ``SplitQuad2Tri`` clears the selected parent's previous child list before
   checking its shape; a direct call on a non-quad face therefore cannot preserve
   a stale split result (**test:** ``FaceSearchBasicTest.NonQuadSplitClearsStaleParentMapping``).
+* ``InterfaceFaceSplitTable::ClearParentMapping`` and
+  ``SetChildMapping`` reject misaligned parent-specific ID/flag table
+  capacities before mutating the parent's child list (**tests:**
+  ``FaceSearchBasicTest.ClearParentMappingRejectsMisalignedParentTables``
+  and ``FaceSearchBasicTest.SetChildMappingRejectsMissingParentSpecificRow``).
 
 
 Interface mapping names and design rules
@@ -647,11 +652,18 @@ Open design pressures
   list despite different parent-local indices. The older global-indexed rows
   remain temporarily for compatibility with existing helper callers.
 
-  The mapping-table and rebuild-helper unit tests now cover the two halves
-  of this contract independently. The remaining integration test should drive
-  the real ``SplitQuad2Tri`` producer through mapping collection and the
-  parent-aware rebuild consumer. This is needed to verify child ordering and
-  interface-local alignment across the full pipeline.
+  The end-to-end regression
+  ``RebuildFaceNodeListsTest.SplitProducerCollectorAndRebuildPreserveSharedChildMapping``
+  now drives the real ``SplitQuad2Tri`` producer through
+  ``CollectBoundaryInterfaceChildFaceIds``,
+  ``CollectBoundaryInterfaceChildNodeMappings``, and the parent-aware rebuild
+  consumer. Two quad parents share one registered triangle. The first parent
+  ring is ``[100, 101, 102, 103]``; the second is
+  ``[101, 102, 103, 100]``. The same child ``[100, 101, 102]`` therefore uses
+  parent-local rows ``[0, 1, 2]`` and ``[3, 0, 1]``. Both reconstructed outputs
+  must preserve the registered child ring ``[100, 101, 102]``. This locks child
+  identity, parent-local mapping, interface-local collection order, and final
+  node reconstruction together rather than testing only isolated helpers.
 
 
 These remain harder to unit-test and mark follow-up work:
