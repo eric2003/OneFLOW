@@ -236,11 +236,12 @@ separate compact parent index.
   triangle. ``FaceSearch::SplitQuad2Tri`` then maps all four candidates to
   global node IDs and keeps only triangles already found by ``FindFace`` in
   the global face registry. Thus the runtime result depends on the registry:
-  exactly two matching triangle faces should be recorded for a triangulated
-  quad; zero or one points to missing/inconsistent face registration, while
-  more than two means both candidate diagonals may be represented and needs
-  topology-level investigation. The candidate builder itself does not choose a
-  diagonal or compare triangle quality.
+  when only one diagonal is registered, exactly its two triangle faces should
+  be recorded (test: ``FaceSearchBasicTest.QuadSplitUsesOnlyRegisteredTrianglesForOneDiagonal``).
+  Zero or one points to missing/inconsistent face registration, while more than
+  two means both candidate diagonals may be represented and needs topology-level
+  investigation. The candidate builder itself does not choose a diagonal or
+  compare triangle quality.
 
   Diagnostic order for a failed quad split:
   
