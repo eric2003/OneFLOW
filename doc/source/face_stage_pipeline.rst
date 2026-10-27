@@ -182,9 +182,11 @@ at least one consumer.
 
 The production path therefore prefers parent-specific rows when collecting
 node mappings for interface rebuild. Legacy global-child rows are a fallback
-for older helper callers and fixtures that do not provide parent-specific
-rows. An empty child list is not an error: it means the parent was not split,
-so the rebuild preserves that face without requiring node mapping metadata.
+only when both parent-specific rows are absent or empty. If either new row is
+present but the pair does not align with the parent's child count, collection
+throws instead of silently masking malformed new-format metadata. An empty
+child list is not an error: it means the parent was not split, so the rebuild
+preserves that face without requiring node mapping metadata.
 
 * ``GetInterfaceChildFaceIds(l2g, splitTable, zone, local)`` is the pure
   overload (**test:** ``InterfaceChildFaceIdsTest``).
