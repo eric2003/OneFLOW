@@ -76,8 +76,19 @@ void InterfaceFaceSplitTable::ClearParentMapping( int parentFaceId )
             "InterfaceFaceSplitTable::ClearParentMapping: parent face ID is out of range" );
     }
 
+    const bool hasParentSpecificTables =
+        ! this->childFaceNodeIdsByParent.empty() ||
+        ! this->childFaceNodeFlagsByParent.empty();
+    if ( hasParentSpecificTables &&
+         ( static_cast< std::size_t >( parentFaceId ) >= this->childFaceNodeIdsByParent.size() ||
+           static_cast< std::size_t >( parentFaceId ) >= this->childFaceNodeFlagsByParent.size() ) )
+    {
+        throw std::logic_error(
+            "InterfaceFaceSplitTable::ClearParentMapping: parent-specific tables are misaligned" );
+    }
+
     this->childFaceIdsOfParent[ parentFaceId ].clear();
-    if ( static_cast< std::size_t >( parentFaceId ) < this->childFaceNodeIdsByParent.size() )
+    if ( hasParentSpecificTables )
     {
         this->childFaceNodeIdsByParent[ parentFaceId ].clear();
         this->childFaceNodeFlagsByParent[ parentFaceId ].clear();
@@ -103,6 +114,13 @@ void InterfaceFaceSplitTable::SetChildMapping(
     {
         throw std::logic_error(
             "InterfaceFaceSplitTable::SetChildMapping: node IDs and flags have different sizes" );
+    }
+
+    if ( static_cast< std::size_t >( parentFaceId ) >= this->childFaceNodeIdsByParent.size() ||
+         static_cast< std::size_t >( parentFaceId ) >= this->childFaceNodeFlagsByParent.size() )
+    {
+        throw std::logic_error(
+            "InterfaceFaceSplitTable::SetChildMapping: parent-specific tables are misaligned" );
     }
 
     const IntField & parentChildren = this->childFaceIdsOfParent[ parentFaceId ];
