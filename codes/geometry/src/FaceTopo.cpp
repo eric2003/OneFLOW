@@ -1048,15 +1048,22 @@ void CollectBoundaryInterfaceChildNodeMappings(
             continue;
         }
 
+        bool hasParentSpecificRows = false;
         if ( globalParentId >= 0 &&
              static_cast< std::size_t >( globalParentId ) < splitTable.childFaceNodeIdsByParent.size() &&
              static_cast< std::size_t >( globalParentId ) < splitTable.childFaceNodeFlagsByParent.size() )
         {
             const LinkField & nodeIds = splitTable.childFaceNodeIdsByParent[ globalParentId ];
             const LinkField & nodeFlags = splitTable.childFaceNodeFlagsByParent[ globalParentId ];
-            if ( nodeIds.size() == childIds.size() &&
-                 nodeFlags.size() == childIds.size() )
+            hasParentSpecificRows = ! nodeIds.empty() || ! nodeFlags.empty();
+            if ( hasParentSpecificRows )
             {
+                if ( nodeIds.size() != childIds.size() ||
+                     nodeFlags.size() != childIds.size() )
+                {
+                    throw std::logic_error(
+                        "CollectBoundaryInterfaceChildNodeMappings: parent-specific rows do not match child count" );
+                }
                 outNodeIdsPerInterfaceLocal.push_back( nodeIds );
                 outNodeFlagsPerInterfaceLocal.push_back( nodeFlags );
                 ++ interfaceLocal;
@@ -1064,9 +1071,9 @@ void CollectBoundaryInterfaceChildNodeMappings(
             }
         }
 
-        // Older callers and serialized test fixtures only populate the
-        // child-global mapping tables. Preserve that contract as a fallback;
-        // production splits prefer the parent-specific rows above.
+        // Older callers and serialized test fixtures may leave both
+        // parent-specific rows empty and populate only child-global rows.
+        // Fall back only when the new representation is absent, not malformed.
         LinkField nodeIdsByChild;
         LinkField nodeFlagsByChild;
         for ( const int childFaceId : childIds )
