@@ -73,11 +73,12 @@ struct InterfaceFaceSplitTable
         childFaceNodeFlags.clear();
     }
 
-    void ResetForParentFaceCount( std::size_t nParentFaces )
+    // All three tables are indexed by global face ID, not by a compact parent-only index.
+    void ResetForFaceCount( std::size_t faceCount )
     {
-        childFaceIdsOfParent.assign( nParentFaces, IntField{} );
-        childFaceNodeIds.assign( nParentFaces, IntField{} );
-        childFaceNodeFlags.assign( nParentFaces, IntField{} );
+        childFaceIdsOfParent.assign( faceCount, IntField{} );
+        childFaceNodeIds.assign( faceCount, IntField{} );
+        childFaceNodeFlags.assign( faceCount, IntField{} );
     }
 
     void ClearParentMapping( int parentFaceId );
