@@ -120,6 +120,28 @@ TEST( FaceSearchBasicTest, QuadSplitUsesOnlyRegisteredTrianglesForOneDiagonal )
                ( IntField{ 1, 2 } ) );
 }
 
+TEST( FaceSearchBasicTest, QuadSplitMatchesRegisteredTrianglesRegardlessOfNodeOrder )
+{
+    FaceSearch search;
+    ASSERT_EQ( search.AddFace( IntField{ 10, 20, 30, 40 } ), 0 );
+
+    // Face identity is node-set based, but the first registered ring is preserved.
+    const IntField firstTriangleRing{ 30, 20, 10 };
+    const IntField secondTriangleRing{ 10, 40, 30 };
+    EXPECT_EQ( search.AddFace( firstTriangleRing ), 1 );
+    EXPECT_EQ( search.AddFace( secondTriangleRing ), 2 );
+
+    search.interfaceSplit.ResetForFaceCount( search.Size() );
+    search.SplitQuad2Tri( 0 );
+
+    ASSERT_EQ( search.interfaceSplit.childFaceIdsOfParent[ 0 ].size(),
+               static_cast< std::size_t >( 2 ) );
+    EXPECT_EQ( search.interfaceSplit.childFaceIdsOfParent[ 0 ],
+               ( IntField{ 1, 2 } ) );
+    EXPECT_EQ( search.GetFaceNodeRing( 1 ), firstTriangleRing );
+    EXPECT_EQ( search.GetFaceNodeRing( 2 ), secondTriangleRing );
+}
+
 TEST( FaceSearchBasicTest, LineSplitMappingPreservesEdgeDirectionAndEndpointFlags )
 {
     // Intent: splitting A->B produces A->M and M->B in both local and global IDs.
