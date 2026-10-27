@@ -24,6 +24,7 @@ License
 #include "HXDefine.h"
 #include "HXLookup.h"
 #include <set>
+#include <vector>
 
 
 BeginNameSpace( ONEFLOW )
