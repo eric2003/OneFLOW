@@ -5,6 +5,7 @@
 #include <stdexcept>
 
 #include "FaceTopo.h"
+#include "FaceSearch.h"
 #include "Boundary.h"
 #include "HXDefine.h"
 
@@ -106,3 +107,65 @@ TEST( RebuildFaceNodeListsTest, RejectsInterfaceChildListShortfall )
             false, 0, out ),
         std::out_of_range );
 }
+
+TEST( RebuildFaceNodeListsTest, SplitProducerCollectorAndRebuildPreserveSharedChildMapping )
+{
+    // Two parent rings share one global child, but need different local corner rows.
+    FaceSearch search;
+    const int firstParent = search.AddFace( IntField{ 100, 101, 102, 103 } );
+    const int secondParent = search.AddFace( IntField{ 101, 102, 103, 100 } );
+    const int sharedChild = search.AddFace( IntField{ 100, 101, 102 } );
+    search.interfaceSplit.ResetForFaceCount( search.Size() );
+
+    search.SplitQuad2Tri( firstParent );
+    search.SplitQuad2Tri( secondParent );
+
+    ASSERT_EQ(
+        search.interfaceSplit.childFaceIdsOfParent[ firstParent ],
+        ( IntField{ sharedChild } ) );
+    ASSERT_EQ(
+        search.interfaceSplit.childFaceIdsOfParent[ secondParent ],
+        ( IntField{ sharedChild } ) );
+    ASSERT_EQ(
+        search.interfaceSplit.childFaceNodeIdsByParent[ firstParent ][ 0 ],
+        ( IntField{ 0, 1, 2 } ) );
+    ASSERT_EQ(
+        search.interfaceSplit.childFaceNodeIdsByParent[ secondParent ][ 0 ],
+        ( IntField{ 3, 0, 1 } ) );
+
+    LinkField zoneToLocalToGlobal{
+        IntField{ firstParent },
+        IntField{ secondParent }
+    };
+    const IntField interfaceBc{ BC::INTERFACE };
+
+    LinkField firstChildIds;
+    CollectBoundaryInterfaceChildFaceIds(
+        interfaceBc, 1, zoneToLocalToGlobal, search.interfaceSplit, 0, firstChildIds );
+    std::vector< LinkField > firstNodeIds, firstNodeFlags;
+    CollectBoundaryInterfaceChildNodeMappings(
+        interfaceBc, 1, zoneToLocalToGlobal, search.interfaceSplit, 0,
+        firstNodeIds, firstNodeFlags );
+
+    LinkField secondChildIds;
+    CollectBoundaryInterfaceChildFaceIds(
+        interfaceBc, 1, zoneToLocalToGlobal, search.interfaceSplit, 1, secondChildIds );
+    std::vector< LinkField > secondNodeIds, secondNodeFlags;
+    CollectBoundaryInterfaceChildNodeMappings(
+        interfaceBc, 1, zoneToLocalToGlobal, search.interfaceSplit, 1,
+        secondNodeIds, secondNodeFlags );
+
+    LinkField firstOut, secondOut;
+    RebuildFaceNodeListsAfterInterfaceSplit(
+        LinkField{ IntField{ 100, 101, 102, 103 } }, interfaceBc, 1, 1,
+        firstChildIds, firstNodeIds, firstNodeFlags, false, 0, firstOut );
+    RebuildFaceNodeListsAfterInterfaceSplit(
+        LinkField{ IntField{ 101, 102, 103, 100 } }, interfaceBc, 1, 1,
+        secondChildIds, secondNodeIds, secondNodeFlags, false, 0, secondOut );
+
+    ASSERT_EQ( firstOut.size(), static_cast< std::size_t >( 1 ) );
+    ASSERT_EQ( secondOut.size(), static_cast< std::size_t >( 1 ) );
+    EXPECT_EQ( firstOut[ 0 ], ( IntField{ 100, 101, 102 } ) );
+    EXPECT_EQ( secondOut[ 0 ], ( IntField{ 100, 101, 102 } ) );
+}
+
