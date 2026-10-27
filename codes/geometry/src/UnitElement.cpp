@@ -1314,7 +1314,7 @@ bool UnitElement::IsFaceElementTypeAtLeast( int elementType ) const
     return results;
 }
 
-bool UnitElement::IsBasicVolumeElementType( int elementType ) const
+bool UnitElement::IsBasicCellElementType( int elementType ) const
 {
     if ( ONEFLOW::IsOneD() )
     {

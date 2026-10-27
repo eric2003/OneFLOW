@@ -2,10 +2,13 @@
 
 Last updated: 2026-10-26
 Working branch: `hexin`
-Latest inspected `hexin` HEAD: [`de266a3b`](https://github.com/eric2003/OneFLOW/commit/de266a3b), also shown as `origin/hexin`. It includes the case-parameter design page and the strict-build Sphinx heading fixes. The current local working slice adds isolated `ConfigLoader` contract tests in `tests/io/ConfigLoader_test.cpp` and a dedicated CMake test target. The generated executable ran 5/5 tests successfully, and `ctest --test-dir build -C Debug -R ConfigLoader --output-on-failure` passed all five after invoking the generated GTest discovery script. CMake/MSBuild did not return success: compilation reported MSVC `C1902` PDB-manager mismatch errors, so a clean target build remains unverified. The user-reported 723/723 result was on its earlier `d5b96e99` base and has not been revalidated at `c1c66b41`. The current local slice connects `ApplicationSettings.run_mode` to Saved Workflows initial draft selection, adds three Qt-independent mapping tests, and includes the application-settings suite in the GUI test runner. `.ofw` now converts into an unsaved Saved Workflows draft and uses the existing execution/history services; dependency mode now carries artifact inputs/outputs through the shared workflow-plan contract. The `.ofw` schema is version 2 and migrates version-1 files without bindings. Relative case paths resolve against the .ofw file and round-trip portably. The full suite has not been rerun.
+Latest inspected local HEAD: `299beb6f` (`origin/hexin` at inspection time).
 
-This is the fast handoff page for an AI assistant or developer continuing work on OneFLOW. It is a curated status snapshot, not a replacement for source code, tests, design pages, or CI. Recheck the branch HEAD before editing: this page can lag behind the current repository revision.
+The user reported 803/803 tests passing before commit `299beb6f`, which added a minimum-three-node check to polygon-face staging. This follow-up examines the topological meaning of that rule. OneFLOW's standard 2D fixed-node cell path derives two-node edges; the minimum-three rule is therefore specific to 3D polyhedral face loops. The CGNS adapter currently conflates NGON-only sections with polyhedral volume input, and does not import a 2D polygonal NGON section as cells. This is a documented adapter gap; do not generalize or remove the 3D face invariant to hide it.
 
+This working slice narrows the staging API names to polyhedral faces, renames the dimension-aware ``IsBasicVolumeElementType`` predicate to ``IsBasicCellElementType``, adds a regression test for 2D triangle-to-edge cardinality, and documents cell/face dimension plus CGNS section roles. The full C++ target remains unverified: earlier MSVC attempts reported C1902 PDB-manager errors after cleaning only `OneFLOW_GeometryCore`, and the generated VS project rejected a Clang override because of `/scanDependencies`. The user's 803-test baseline is not verification of this slice. Strict Sphinx passed for all 109 source documents after these edits.
+
+This is a curated handoff snapshot, not a replacement for source code, tests, design pages, or CI. Recheck the branch HEAD and working tree before continuing.
 ## 1. Read this first
 
 For a quick restart, follow this order:
@@ -36,61 +39,32 @@ Do not start by reading the whole repository. Use the architecture map to identi
 
 The published [architecture review](source/architecture_review.rst) is now the common checklist for substantial AI-assisted changes. It deliberately separates general CFD/CAE concerns from verified OneFLOW behavior. Keep these cross-system risks visible while working locally: implicit global runtime state, configuration parsing versus validation/application, mutable mesh data and derived connectivity, workflow artifact provenance and execution locations, repeated/failed-run cleanup, and the gap between documented plans and actual test/CI evidence. At each meaningful milestone, state which system-level concern improved, what remains untouched, and whether the priority order should change.
 
-## 4. Current focus: parameter semantics, runtime lifecycle, and Workbench integration
+## 4. Current focus: dimension-aware mesh topology
 
-The multi-case path initializes process runtime once, runs every case-list entry in command-line order (including repeated identical paths), tears down each case, then finalizes process runtime. `SimuContext::SetupEnvironment()` now rolls back process/case resources if case setup fails; `TeardownEnvironment()` attempts process finalization even if case teardown throws. `SimuImp::RunCase()` retains its narrower, repeatable case boundary and does not initialize or finalize MPI. MPI process runtime is one-shot; case execution can be repeated within that runtime. Thirteen lifecycle tests were previously verified; the current CLI tests pass 11/11 in the parser-only target and 41/41 in the compatibility/path target on direct MSVC builds; the full suite and executable link remain unverified. The command-line source and header are discovered by the source-tree glob; the explicit test targets also list their sources in CMake, so this split causes a CMake regeneration/reload in Visual Studio. R1 case configuration and I/O root resolution remains partial. The Workbench user guide now distinguishes implemented behavior from saved settings and workspace modes that are not yet wired into execution.
+Current implementation and design files:
 
-### Source-backed execution path
+- `codes/geometry/src/FaceSolver.cpp`
+- `codes/geometry/src/GridElem.cpp`
+- `codes/cgns/src/CgnsZsection.cpp`
+- `codes/cgns/src/CgnsSection.cpp`
+- `tests/geometry/FaceSolverStageTest.cpp`
+- `doc/source/grid_topology.rst`
+- `doc/source/face_stage_pipeline.rst`
 
-`OneFlow.cpp -> Simulation::Run() -> SimuImp::InitSimu() -> SimuContext::SetupCaseEnvironment()`
+Topology contract: a D-dimensional cell has codimension-one faces of dimension D-1. In 2D a linear edge face has two endpoint nodes; in 3D a polyhedral face is an ordered loop with at least three nodes. This is based on cell dimension, even for a surface mesh embedded in 3D coordinates.
 
-Relevant implementation: `codes/main/src/SimuContextEnv.cpp`.
+Implemented slice: the generic-sounding polygon staging API is renamed to make its 3D polyhedral-face role explicit. Existing two-phase validation and minimum-three guard apply only to that role. A test records that TRI_3 creates three two-node faces. Current limitation: `HasPolygonSection` treats either `NGON_n` or `NFACE_n` as polyhedral routing evidence, while `SetElementTypeAndNode` accepts supported fixed-node cell types and does not convert 2D polygonal NGON cells into cells and edges. The classifier also reads global ``Dim::dimension`` rather than receiving cell dimension explicitly. Dimension-aware CGNS classification and 2D NGON import require a separate adapter design and acceptance tests.
 
-The setup path binds the active case, reads control parameters, applies project and generic I/O roots, applies mesh/flow-specific roots, handles the legacy `sourceGridCaseDir` mesh-input fallback, and writes path diagnostics.
+System-level concern improved: cell dimension, face dimension, and connectivity role are now explicit in APIs/tests/docs. Unchanged: CGNS dispatch behavior, 2D NGON cell import, MPI lifecycle, CLI parsing, and solver numerical kernels.
 
-### Established behavior from source inspection
-
-- `Prj::SetPrjBaseDir()` resets project and domain-specific roots to prevent settings leaking between cases.
-- Generic roots are applied before mesh/flow-specific roots.
-- Empty or `default` domain roots inherit generic roots.
-- Empty, `default`, or `case` generic roots resolve to the active case.
-- The special `project` root requires a configured project root.
-- Other relative roots resolve relative to the active case; absolute roots are used directly.
-- `sourceGridCaseDir` is only a fallback when `meshInputRoot` is empty or `default`; an explicit mesh input root takes precedence.
-- Missing `GetDataValue(name)` parameters throw. The underlying typed `DataObject` lookup uses a static cast, so it is not a safe runtime type check.
-- Existing tests in `tests/main/prj_cmdline_test.cpp` cover many path/root rules. `tests/main/simu_context_test.cpp` primarily covers context state and task plumbing; the inspected tests did not directly exercise full `SetupCaseEnvironment()` precedence and legacy fallback.
-
-See the runtime architecture guide and roadmap for the detailed evidence and limitations.
-
-### Implementation and test seam
-
-The current R1 implementation is split across these `hexin` commits:
-
-- [`fd3889362408586e379d45d08a170abf2077efb9`](https://github.com/eric2003/OneFLOW/commit/fd3889362408586e379d45d08a170abf2077efb9) adds `SimuContextParameter.h`, a narrow lookup helper taking `const DataPara&`.
-- [`6d72e31f93f55b00b622e122fa75eb689832694f`](https://github.com/eric2003/OneFLOW/commit/6d72e31f93f55b00b622e122fa75eb689832694f) routes production `SimuContextEnv.cpp` reads through that helper.
-- [`1e438f84f600c689666f831ff0837ce3d5936e13`](https://github.com/eric2003/OneFLOW/commit/1e438f84f600c689666f831ff0837ce3d5936e13) adds focused tests for missing, valid string, and invalid-type parameters.
-- [`a13a890bb31e2d84434fbe4297cf76aebc24c865`](https://github.com/eric2003/OneFLOW/commit/a13a890bb31e2d84434fbe4297cf76aebc24c865) registers the test target in CMake.
-
-The helper preserves the optional-parameter contract:
-
-- Missing entries still return an empty string, preserving the existing fallback path.
-- Present entries whose declared database type is not `HX_STRING` now raise `std::invalid_argument` rather than being read through an unchecked cast.
-- The local helper is limited to environment setup; no public database API or generic path-resolver abstraction was added.
-- The same rule is applied to `projectRoot`, `inputRoot`, `outputRoot`, `meshInputRoot`, `flowInputRoot`, `meshOutputRoot`, `flowOutputRoot`, `sourceGridCaseDir`, and `ioPathInfoFileName`.
-- The follow-up documentation record is in [`3c987064e4d547de4e10a07f261a3cebf2837407`](https://github.com/eric2003/OneFLOW/commit/3c987064e4d547de4e10a07f261a3cebf2837407).
-
-**Status: Partial.** The user reported all 697 local tests passed on the code baseline before the latest fallback-policy change. The focused helper test covers missing, valid string, and invalid-type values; it now also tests whether empty/default mesh roots permit reading the legacy fallback and whether an explicit mesh root suppresses that fallback lookup. These latest additions still need the user's next local test run. The helper tests use a `DataPara` instance rather than the full `SetupCaseEnvironment()` lifecycle, so global-database binding and control-file loading remain integration-level acceptance criteria. The fallback predicate has negative tests for `case` and an ordinary relative root; `ApplyLegacySourceGridCaseDir()` now has value-contract tests for valid, empty, and `default` legacy values as well as explicit-root precedence. No GitHub CI pass has been confirmed for the latest revision.
-
+Validation for this working slice: the user-reported baseline is 803/803 and was not rerun; `git diff --check` and strict Sphinx passed; C++ build/test is unverified due the known MSVC C1902 failure. C++ ASCII-only remains required.
 ## 5. Next actions, in priority order
 
-1. Extend R2 from parser syntax into the `ConfigDatabaseAdapter` and task-selection boundary, with focused tests for type conversion and representative control parameters.
-2. Add an acceptance test that executes a converted `.ofw` producer/consumer graph and verifies staged output paths, parameter overrides, and the persisted run record.
-2. Run the full repository suite and check current `hexin` CI; update this handoff with exact results.
-3. Continue from [the integration-test investigation](plans/setup-case-environment-integration-test.md): inspect global database initialization and test link dependencies, then try a temporary-case fixture for `SetupCaseEnvironment()` without duplicating the full solver bootstrap.
-4. Verify path reset between sequential cases and confirm output-path diagnostics remain compatible.
-5. Inspect the invocation mode contract for `d`/`r` before considering any CLI syntax change.
+1. Verify the renamed API and new 2D edge test with a working focused geometry build, then run the full test suite.
+2. Design CGNS dispatch using base cell dimension and element-section roles; test NGON-only 2D polygon cells, 3D NGON plus NFACE polyhedra, and regular fixed-node meshes before changing routing.
+3. At the next stable milestone, review the whole-system architecture risks and update this handoff with exact HEAD and validation evidence.
 
-Do not mark an item complete because a code change was committed. Completion requires acceptance evidence.
+Suggested commit message: `refactor(geometry): clarify dimension-specific face staging`.
 ## 6. Status vocabulary
 
 Use these labels consistently in this page and related records:

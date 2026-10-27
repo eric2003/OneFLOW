@@ -164,12 +164,12 @@ this->ScanBcFace();
 
 void GridElem::PrepareUnsCalcGridPolyhedron()
 {
-this->ScanPolygonFace();
+this->ScanPolyhedralFaces();
     this->ScanBcFace();
     this->GenerateCalcElement();
 }
 
-void GridElem::ScanPolygonFace()
+void GridElem::ScanPolyhedralFaces()
 {
     int nZone = this->GetNZones();
     for ( int iZone = 0; iZone < nZone; ++ iZone )
@@ -184,7 +184,7 @@ void GridElem::ScanPolygonFace()
         {
             CgnsSection & cgnsSection = cgnsZone.RequireCgnsZsection().GetCgnsSection( iSection );
             if ( cgnsSection.eType != NGON_n ) continue;
-            this->faceSolver.ScanPolygonFace( cgnsSection );
+            this->faceSolver.ScanPolyhedralFace( cgnsSection );
         }
         //Scan NFACE_n PolyhedronElement
         for ( int iSection = 0; iSection < nSections; ++ iSection )

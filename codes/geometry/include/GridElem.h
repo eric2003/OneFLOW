@@ -70,7 +70,7 @@ public:
     void ReorderLink( UnsGrid & grid );
 public:
     void PrepareUnsCalcGridPolyhedron();
-    void ScanPolygonFace();
+    void ScanPolyhedralFaces();
     void SetPolyhedronElementType( CgnsSection & cgnsSection );
 private:
     CgnsZone & GetCgnsZone( int iZone );

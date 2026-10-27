@@ -53,6 +53,38 @@ TEST( RebuildZoneL2gNewTest, MixedSplitAndUnsplit )
     EXPECT_EQ( nChild, ( IntField{ 0, 2, 0, 0, 0 } ) );
 }
 
+TEST( RebuildZoneL2gNewTest, RejectsNegativeParentIdWithoutChangingOutputs )
+{
+    const IntField parents{ 1, -2 };
+    LinkField children( 2 );
+    IntField l2gNew{ 90, 91 };
+    IntField nChild{ 7, 8 };
+
+    EXPECT_THROW(
+        RebuildZoneL2gNewAfterInterfaceSplit( parents, children, l2gNew, nChild ),
+        std::out_of_range );
+
+    EXPECT_EQ( l2gNew, ( IntField{ 90, 91 } ) );
+    EXPECT_EQ( nChild, ( IntField{ 7, 8 } ) );
+}
+
+TEST( RebuildZoneL2gNewTest, RejectsNegativeChildIdWithoutChangingOutputs )
+{
+    const IntField parents{ 1, 2 };
+    LinkField children( 2 );
+    children[ 0 ] = IntField{ 10, 11 };
+    children[ 1 ] = IntField{ 20, -21 };
+    IntField l2gNew{ 90, 91 };
+    IntField nChild{ 7, 8 };
+
+    EXPECT_THROW(
+        RebuildZoneL2gNewAfterInterfaceSplit( parents, children, l2gNew, nChild ),
+        std::out_of_range );
+
+    EXPECT_EQ( l2gNew, ( IntField{ 90, 91 } ) );
+    EXPECT_EQ( nChild, ( IntField{ 7, 8 } ) );
+}
+
 TEST( RebuildZoneL2gNewTest, RejectsSizeMismatch )
 {
     const IntField parents{ 1, 2 };

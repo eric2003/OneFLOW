@@ -33,6 +33,7 @@ License
 #include <algorithm>
 #include <stdexcept>
 #include <string>
+#include <unordered_set>
 
 
 BeginNameSpace( ONEFLOW )
@@ -771,21 +772,46 @@ void BuildInverseInterfaceMapForZone(
     LinkField & gI2ZidNew,
     LinkField & g2lNew )
 {
+    if ( zoneId < 0 )
+    {
+        throw std::out_of_range(
+            "BuildInverseInterfaceMapForZone: zone ID is negative" );
+    }
     if ( gI2ZidNew.size() != g2lNew.size() )
     {
         throw std::logic_error(
             "BuildInverseInterfaceMapForZone: gI2ZidNew and g2lNew size mismatch" );
     }
 
-    for ( int localIFid = 0; localIFid < static_cast< int >( l2gNewForZone.size() ); ++ localIFid )
+    // Validate all input IDs and existing rows before changing either table.
+    // One zone must not register the same global face more than once: otherwise
+    // the duplicate could be mistaken for a remote participant during lookup.
+    std::unordered_set< int > seenGlobalFaceIds;
+    seenGlobalFaceIds.reserve( l2gNewForZone.size() );
+    for ( const int gIFid : l2gNewForZone )
     {
-        const int gIFid = l2gNewForZone[ localIFid ];
         if ( gIFid < 0 )
         {
             throw std::out_of_range(
                 "BuildInverseInterfaceMapForZone: global face id is negative" );
         }
+        if ( ! seenGlobalFaceIds.insert( gIFid ).second )
+        {
+            throw std::logic_error(
+                "BuildInverseInterfaceMapForZone: duplicate global face ID in zone mapping" );
+        }
 
+        if ( static_cast< std::size_t >( gIFid ) < gI2ZidNew.size() &&
+             gI2ZidNew[ gIFid ].size() != g2lNew[ gIFid ].size() )
+        {
+            throw std::logic_error(
+                "BuildInverseInterfaceMapForZone: per-face zone/local lists differ in size" );
+        }
+    }
+
+    for ( int localIFid = 0; localIFid < static_cast< int >( l2gNewForZone.size() ); ++ localIFid )
+    {
+        const int gIFid = l2gNewForZone[ localIFid ];
         const std::size_t need = static_cast< std::size_t >( gIFid ) + 1;
         if ( gI2ZidNew.size() < need )
         {
@@ -793,17 +819,28 @@ void BuildInverseInterfaceMapForZone(
             g2lNew.resize( need );
         }
 
-        if ( gI2ZidNew[ gIFid ].size() != g2lNew[ gIFid ].size() )
+        // Rebuild buffers start with the live inverse maps. Refresh this
+        // zone's slot when the global face already exists; otherwise a stale
+        // local index or duplicate self-participant would survive the rebuild.
+        IntField & zoneIds = gI2ZidNew[ gIFid ];
+        IntField & localFaceIds = g2lNew[ gIFid ];
+        bool foundZone = false;
+        for ( std::size_t slot = 0; slot < zoneIds.size(); ++ slot )
         {
-            throw std::logic_error(
-                "BuildInverseInterfaceMapForZone: per-face zone/local lists differ in size" );
+            if ( zoneIds[ slot ] == zoneId )
+            {
+                localFaceIds[ slot ] = localIFid;
+                foundZone = true;
+                break;
+            }
         }
 
-        // Keep at most two zone references (one interface pair).
-        if ( gI2ZidNew[ gIFid ].size() < 2 )
+        // Keep the legacy two-participant capacity. A third distinct zone is
+        // ignored, but a zone already in the row must be refreshed above.
+        if ( ! foundZone && zoneIds.size() < 2 )
         {
-            gI2ZidNew[ gIFid ].push_back( zoneId );
-            g2lNew[ gIFid ].push_back( localIFid );
+            zoneIds.push_back( zoneId );
+            localFaceIds.push_back( localIFid );
         }
     }
 }
@@ -819,6 +856,26 @@ void RebuildZoneL2gNewAfterInterfaceSplit(
     {
         throw std::logic_error(
             "RebuildZoneL2gNewAfterInterfaceSplit: parent and child tables differ in size" );
+    }
+
+    // Validate the complete replacement map before changing either output.
+    // Negative global IDs cannot identify a valid face and must not leak into
+    // the candidate mapping for later inverse-map construction.
+    for ( std::size_t iFid = 0; iFid < parentGlobalFaceIds.size(); ++ iFid )
+    {
+        if ( parentGlobalFaceIds[ iFid ] < 0 )
+        {
+            throw std::out_of_range(
+                "RebuildZoneL2gNewAfterInterfaceSplit: parent global face ID is negative" );
+        }
+        for ( const int childGlobalFaceId : childGlobalIdsPerParent[ iFid ] )
+        {
+            if ( childGlobalFaceId < 0 )
+            {
+                throw std::out_of_range(
+                    "RebuildZoneL2gNewAfterInterfaceSplit: child global face ID is negative" );
+            }
+        }
     }
 
     l2gNewForZone.clear();

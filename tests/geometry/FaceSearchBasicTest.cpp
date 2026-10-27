@@ -70,6 +70,18 @@ TEST( FaceSearchBasicTest, ClearResetsDerivedSplitMappings )
     EXPECT_EQ( search.AddFace( IntField{ 1, 2 } ), 0 );
 }
 
+TEST( FaceSearchBasicTest, NonQuadSplitClearsStaleParentMapping )
+{
+    FaceSearch search;
+    ASSERT_EQ( search.AddFace( IntField{ 1, 2, 3 } ), 0 );
+    search.interfaceSplit.ResetForFaceCount( search.Size() );
+    search.interfaceSplit.childFaceIdsOfParent[ 0 ] = IntField{ 7, 8 };
+
+    search.SplitQuad2Tri( 0 );
+
+    EXPECT_TRUE( search.interfaceSplit.childFaceIdsOfParent[ 0 ].empty() );
+}
+
 TEST( FaceSearchBasicTest, RepeatedQuadSplitReplacesParentChildMapping )
 {
     // Intent: rebuilding one parent's split mapping must not append duplicate child IDs.
@@ -79,7 +91,7 @@ TEST( FaceSearchBasicTest, RepeatedQuadSplitReplacesParentChildMapping )
     EXPECT_EQ( search.AddFace( IntField{ 30, 40, 10 } ), 2 );
     EXPECT_EQ( search.AddFace( IntField{ 40, 10, 20 } ), 3 );
     EXPECT_EQ( search.AddFace( IntField{ 20, 30, 40 } ), 4 );
-    search.interfaceSplit.ResetForParentFaceCount( search.Size() );
+    search.interfaceSplit.ResetForFaceCount( search.Size() );
 
     search.SplitQuad2Tri( 0 );
     search.SplitQuad2Tri( 0 );
@@ -88,6 +100,63 @@ TEST( FaceSearchBasicTest, RepeatedQuadSplitReplacesParentChildMapping )
                static_cast< std::size_t >( 4 ) );
     EXPECT_EQ( search.interfaceSplit.childFaceIdsOfParent[ 0 ],
                ( IntField{ 1, 2, 3, 4 } ) );
+}
+
+TEST( FaceSearchBasicTest, QuadSplitUsesOnlyRegisteredTrianglesForOneDiagonal )
+{
+    FaceSearch search;
+    ASSERT_EQ( search.AddFace( IntField{ 10, 20, 30, 40 } ), 0 );
+
+    // Register only the two triangles using diagonal 10-30.
+    EXPECT_EQ( search.AddFace( IntField{ 10, 20, 30 } ), 1 );
+    EXPECT_EQ( search.AddFace( IntField{ 30, 40, 10 } ), 2 );
+
+    search.interfaceSplit.ResetForFaceCount( search.Size() );
+    search.SplitQuad2Tri( 0 );
+
+    ASSERT_EQ( search.interfaceSplit.childFaceIdsOfParent[ 0 ].size(),
+               static_cast< std::size_t >( 2 ) );
+    EXPECT_EQ( search.interfaceSplit.childFaceIdsOfParent[ 0 ],
+               ( IntField{ 1, 2 } ) );
+}
+
+TEST( FaceSearchBasicTest, QuadSplitMatchesRegisteredTrianglesRegardlessOfNodeOrder )
+{
+    FaceSearch search;
+    ASSERT_EQ( search.AddFace( IntField{ 10, 20, 30, 40 } ), 0 );
+
+    // Face identity is node-set based, but the first registered ring is preserved.
+    const IntField firstTriangleRing{ 30, 20, 10 };
+    const IntField secondTriangleRing{ 10, 40, 30 };
+    EXPECT_EQ( search.AddFace( firstTriangleRing ), 1 );
+    EXPECT_EQ( search.AddFace( secondTriangleRing ), 2 );
+
+    search.interfaceSplit.ResetForFaceCount( search.Size() );
+    search.SplitQuad2Tri( 0 );
+
+    ASSERT_EQ( search.interfaceSplit.childFaceIdsOfParent[ 0 ].size(),
+               static_cast< std::size_t >( 2 ) );
+    EXPECT_EQ( search.interfaceSplit.childFaceIdsOfParent[ 0 ],
+               ( IntField{ 1, 2 } ) );
+    EXPECT_EQ( search.GetFaceNodeRing( 1 ), firstTriangleRing );
+    EXPECT_EQ( search.GetFaceNodeRing( 2 ), secondTriangleRing );
+}
+
+TEST( FaceSearchBasicTest, InvalidQuadCandidateLeavesMappedOutputUnchanged )
+{
+    // Intent: validate every candidate before publishing any mapped triangles.
+    const IntField quadNodes{ 10, 20, 30, 40 };
+    const LinkField localTriangles{
+        IntField{ 0, 1, 2 },
+        IntField{ 2, 3, 4 }
+    };
+    LinkField mappedTriangles{ IntField{ 90, 91, 92 } };
+
+    EXPECT_THROW(
+        MapLocalTrisToGlobalNodes( quadNodes, localTriangles, mappedTriangles ),
+        std::out_of_range );
+
+    EXPECT_EQ( mappedTriangles, ( LinkField{ IntField{ 90, 91, 92 } } ) );
 }
 
 TEST( FaceSearchBasicTest, LineSplitMappingPreservesEdgeDirectionAndEndpointFlags )
@@ -102,6 +171,20 @@ TEST( FaceSearchBasicTest, LineSplitMappingPreservesEdgeDirectionAndEndpointFlag
     EXPECT_EQ( localLineId, ( LinkField{ IntField{ 0, 7 }, IntField{ 7, 1 } } ) );
     EXPECT_EQ( localLineFlag, ( LinkField{ IntField{ 1, -1 }, IntField{ -1, 1 } } ) );
     EXPECT_EQ( lineId, ( LinkField{ IntField{ 12, 25 }, IntField{ 25, 18 } } ) );
+}
+
+TEST( FaceSearchBasicTest, LineSplitMappingPreservesReversedEdgeDirection )
+{
+    // Intent: a reversed parent ring reverses the global child edge direction.
+    LinkField localLineId;
+    LinkField localLineFlag;
+    LinkField lineId;
+
+    BuildLineSplitMapping( 18, 12, 7, 25, localLineId, localLineFlag, lineId );
+
+    EXPECT_EQ( localLineId, ( LinkField{ IntField{ 0, 7 }, IntField{ 7, 1 } } ) );
+    EXPECT_EQ( localLineFlag, ( LinkField{ IntField{ 1, -1 }, IntField{ -1, 1 } } ) );
+    EXPECT_EQ( lineId, ( LinkField{ IntField{ 18, 25 }, IntField{ 25, 12 } } ) );
 }
 
 TEST( FaceSearchBasicTest, LineSplitMappingReplacesPreviousOutput )
@@ -129,10 +212,43 @@ TEST( FaceSearchBasicTest, GetFaceNodeRingRejectsOutOfRange )
     EXPECT_THROW( search.GetFaceNodeRing( 1 ), std::out_of_range );
 }
 
+TEST( FaceSearchBasicTest, SharedChildRejectsConflictingMappingRows )
+{
+    // Intent: do not silently replace one parent's mapping with another row.
+    InterfaceFaceSplitTable split;
+    split.ResetForFaceCount( 3 );
+
+    split.SetChildMapping( 0, 2, IntField{ 0, 1, 2 }, IntField{ 1, 1, 1 } );
+    EXPECT_THROW(
+        split.SetChildMapping(
+            1, 2, IntField{ 2, 0, 1 }, IntField{ 1, 1, 1 } ),
+        std::logic_error );
+    EXPECT_EQ( split.childFaceNodeIds[ 2 ], ( IntField{ 0, 1, 2 } ) );
+}
+
+TEST( FaceSearchBasicTest, ResetForFaceCountClearsAllSplitTables )
+{
+    // Intent: every table uses the global face ID domain and reset removes stale rows.
+    InterfaceFaceSplitTable split;
+    split.ResetForFaceCount( 3 );
+    split.childFaceIdsOfParent[ 0 ] = IntField{ 1, 2 };
+    split.childFaceNodeIds[ 1 ] = IntField{ 0, 1 };
+    split.childFaceNodeFlags[ 1 ] = IntField{ 1, -1 };
+
+    split.ResetForFaceCount( 2 );
+
+    ASSERT_EQ( split.childFaceIdsOfParent.size(), static_cast< std::size_t >( 2 ) );
+    ASSERT_EQ( split.childFaceNodeIds.size(), static_cast< std::size_t >( 2 ) );
+    ASSERT_EQ( split.childFaceNodeFlags.size(), static_cast< std::size_t >( 2 ) );
+    EXPECT_TRUE( split.childFaceIdsOfParent[ 0 ].empty() );
+    EXPECT_TRUE( split.childFaceNodeIds[ 1 ].empty() );
+    EXPECT_TRUE( split.childFaceNodeFlags[ 1 ].empty() );
+}
+
 TEST( FaceSearchBasicTest, ClearParentMappingOnlyClearsRequestedParent )
 {
     InterfaceFaceSplitTable split;
-    split.ResetForParentFaceCount( 2 );
+    split.ResetForFaceCount( 2 );
     split.childFaceIdsOfParent[ 0 ] = IntField{ 4, 5 };
     split.childFaceIdsOfParent[ 1 ] = IntField{ 7, 8 };
 
@@ -145,7 +261,7 @@ TEST( FaceSearchBasicTest, ClearParentMappingOnlyClearsRequestedParent )
 TEST( FaceSearchBasicTest, ClearParentMappingRejectsInvalidParentId )
 {
     InterfaceFaceSplitTable split;
-    split.ResetForParentFaceCount( 1 );
+    split.ResetForFaceCount( 1 );
 
     EXPECT_THROW( split.ClearParentMapping( -1 ), std::out_of_range );
     EXPECT_THROW( split.ClearParentMapping( 1 ), std::out_of_range );

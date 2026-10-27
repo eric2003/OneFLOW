@@ -42,6 +42,49 @@ For a general polyhedral finite-volume mesh, each face is an ordered loop of nod
 
 Across all dimensions, keep geometric dimension, element type, physical boundary, ghost entity, and partition interface as separate concepts. A single ambiguous integer convention must not represent all of them.
 
+Cell dimension, face dimension, and element roles
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use topological cell dimension to determine what a face means. Do not infer a
+universal node-count rule from the name ``face``:
+
+* In a 1D mesh, a cell is a segment and a face is a 0D point, represented by one
+  node.
+* In a 2D mesh, a cell may be a triangle, quadrilateral, or polygon with at
+  least three vertices. Its codimension-one faces are 1D edges, represented by
+  two endpoint nodes for a linear mesh.
+* In a 3D mesh, a cell may be a tetrahedron, hexahedron, or general polyhedron.
+  Its codimension-one faces are 2D surfaces represented by ordered node loops,
+  with at least three nodes.
+
+This is based on **cell dimension**, not coordinate storage dimension. A 2D
+surface mesh embedded in three physical coordinates still has 2D cells and 1D
+edge faces. CGNS distinguishes ``CellDimension`` from ``PhysicalDimension``.
+
+CGNS element type must be interpreted together with the base cell dimension and
+the other sections in the zone. For a 3D polyhedral volume mesh, ``NGON_n``
+records the polygonal faces and ``NFACE_n`` records each cell as signed face
+references. An ``NGON_n`` section by itself is not sufficient evidence that the
+zone uses 3D polyhedral cells: it may represent 2D polygonal elements. In that
+2D case its polygons are cells; their edges must be derived as the OneFLOW
+faces. See the `CGNS SIDS grid and element definitions
+<https://cgns.org/standard/SIDS/grid.html>`_.
+
+**Current implementation boundary:** ``IsBasicCellElementType`` is the
+dimension-aware gate for OneFLOW cell elements; it currently reads the global
+``Dim::dimension``. Its former ``Volume`` name was
+misleading because it also accepts 1D line cells and 2D area cells.
+``FaceSolver::ScanElementFace`` derives
+2-node edge faces from supported 2D fixed-node cells such as ``TRI_3``. The
+polyhedral staging function handles face node loops and requires at least three
+references, which is a 3D polyhedral-face contract. However,
+``CgnsZsection::HasPolygonSection`` currently selects the polyhedron path for
+both ``NGON_n`` and ``NFACE_n``. ``CgnsSection::SetElementTypeAndNode`` only
+stages supported fixed-node cell element types, so a 2D polygonal ``NGON_n`` cell
+is not currently imported as a cell. Treat this as an explicit format-adapter
+gap; do not relax the 3D polyhedral-face invariant to mask it. Future routing
+must classify by cell dimension and section roles, and add tests for 2D NGON
+cell-to-edge conversion before claiming that input form is supported.
 Canonical and derived topology
 ------------------------------
 

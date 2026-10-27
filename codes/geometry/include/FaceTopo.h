@@ -146,9 +146,9 @@ void ExpandBcRecordForSplitInterfaces(
     IntField & outBcType,
     IntField & outBcNameId );
 
-// For each local interface face in l2gNewForZone, ensure gI2ZidNew/g2lNew are
-// large enough and record (zoneId, localIndex) on that global face if it still
-// has fewer than two zone references (interface pairing capacity).
+// Rebuild one zone's inverse references from l2gNewForZone. Existing slots
+// for zoneId are refreshed with the new local index; absent zones are appended
+// only while the legacy two-participant capacity has room.
 void BuildInverseInterfaceMapForZone(
     int zoneId,
     const IntField & l2gNewForZone,

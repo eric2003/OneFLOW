@@ -187,7 +187,7 @@ void CgnsSection::SetElementTypeAndNode( ElemFeature & elem_feature )
     {
         const int e_type = this->eTypeList[ iElem ];
 
-        if ( ! ONEFLOW::IsBasicVolumeElementType( e_type ) ) continue;
+        if ( ! ONEFLOW::IsBasicCellElementType( e_type ) ) continue;
 
         CgIntField eNodeId;
         this->GetElementNodeId( iElem, eNodeId );

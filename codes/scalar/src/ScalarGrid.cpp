@@ -901,7 +901,7 @@ void ScalarGrid::ReadFromCgnsZone( CgnsZone & cgnsZone )
 		CgnsSection & cgnsSection = cgnsZsection.GetCgnsSection( iSection );
 
 		const bool isHomogeneousVolumeSection =
-			ONEFLOW::IsBasicVolumeElementType( cgnsSection.eType );
+			ONEFLOW::IsBasicCellElementType( cgnsSection.eType );
 		const bool isMixedSection = cgnsSection.eType == MIXED;
 		if ( ! isHomogeneousVolumeSection && ! isMixedSection ) continue;
 
@@ -916,7 +916,7 @@ void ScalarGrid::ReadFromCgnsZone( CgnsZone & cgnsZone )
 		for ( int iElem = 0; iElem < cgnsSection.nElement; ++ iElem )
 		{
 			const int eType = cgnsSection.eTypeList[ iElem ];
-			if ( ! ONEFLOW::IsBasicVolumeElementType( eType ) ) continue;
+			if ( ! ONEFLOW::IsBasicCellElementType( eType ) ) continue;
 
 			const int nodeCount = ONEFLOW::GetElementNodeNumbers( eType );
 			const long long connectionBegin = static_cast< long long >( cgnsSection.ePosList[ iElem ] ) +
@@ -968,7 +968,7 @@ void ScalarGrid::ReadFromCgnsZone( CgnsZone & cgnsZone )
 void ScalarGrid::PushElement( CgIntField & eNodeId, int eType )
 {
 	if ( eType < 0 || eType >= ElementHome::GetUnitElementSlotCount() ||
-		 ! ONEFLOW::IsBasicVolumeElementType( eType ) )
+		 ! ONEFLOW::IsBasicCellElementType( eType ) )
 	{
 		throw std::invalid_argument( "ScalarGrid::PushElement: invalid volume element type" );
 	}

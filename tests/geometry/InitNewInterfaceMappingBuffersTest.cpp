@@ -85,3 +85,27 @@ TEST( CommitInterfaceMappingBuffersTest, RejectsInconsistentNewInverseMaps )
             gI2Zid, g2l, l2g, gI2ZidNew, g2lNew, l2gNew, "test" ),
         std::logic_error );
 }
+
+TEST( CommitInterfaceMappingBuffersTest, FailedValidationLeavesLiveTablesUnchanged )
+{
+    LinkField gI2Zid{ IntField{ 4 } };
+    LinkField g2l{ IntField{ 7 } };
+    LinkField l2g{ IntField{ 2, 3 } };
+
+    LinkField gI2ZidNew{ IntField{ 0, 1 } };
+    LinkField g2lNew{ IntField{ 9 } };
+    LinkField l2gNew{ IntField{ 5 } };
+
+    EXPECT_THROW(
+        CommitInterfaceMappingBuffers(
+            gI2Zid, g2l, l2g, gI2ZidNew, g2lNew, l2gNew, "test" ),
+        std::logic_error );
+
+    EXPECT_EQ( gI2Zid, ( LinkField{ IntField{ 4 } } ) );
+    EXPECT_EQ( g2l, ( LinkField{ IntField{ 7 } } ) );
+    EXPECT_EQ( l2g, ( LinkField{ IntField{ 2, 3 } } ) );
+
+    EXPECT_EQ( gI2ZidNew, ( LinkField{ IntField{ 0, 1 } } ) );
+    EXPECT_EQ( g2lNew, ( LinkField{ IntField{ 9 } } ) );
+    EXPECT_EQ( l2gNew, ( LinkField{ IntField{ 5 } } ) );
+}

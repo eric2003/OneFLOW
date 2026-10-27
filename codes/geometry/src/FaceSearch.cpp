@@ -79,6 +79,40 @@ void InterfaceFaceSplitTable::ClearParentMapping( int parentFaceId )
     this->childFaceIdsOfParent[ parentFaceId ].clear();
 }
 
+void InterfaceFaceSplitTable::SetChildMapping(
+    int parentFaceId,
+    int childFaceId,
+    const IntField & localNodeIds,
+    const IntField & localNodeFlags )
+{
+    if ( parentFaceId < 0 ||
+         static_cast< std::size_t >( parentFaceId ) >= this->childFaceIdsOfParent.size() ||
+         childFaceId < 0 ||
+         static_cast< std::size_t >( childFaceId ) >= this->childFaceNodeIds.size() ||
+         static_cast< std::size_t >( childFaceId ) >= this->childFaceNodeFlags.size() )
+    {
+        throw std::out_of_range(
+            "InterfaceFaceSplitTable::SetChildMapping: face ID is out of range" );
+    }
+    if ( localNodeIds.size() != localNodeFlags.size() )
+    {
+        throw std::logic_error(
+            "InterfaceFaceSplitTable::SetChildMapping: node IDs and flags have different sizes" );
+    }
+
+    const IntField & existingIds = this->childFaceNodeIds[ childFaceId ];
+    const IntField & existingFlags = this->childFaceNodeFlags[ childFaceId ];
+    if ( ( ! existingIds.empty() || ! existingFlags.empty() ) &&
+         ( existingIds != localNodeIds || existingFlags != localNodeFlags ) )
+    {
+        throw std::logic_error(
+            "InterfaceFaceSplitTable::SetChildMapping: shared child has conflicting parent-local mappings" );
+    }
+
+    this->childFaceNodeIds[ childFaceId ] = localNodeIds;
+    this->childFaceNodeFlags[ childFaceId ] = localNodeFlags;
+}
+
 void FaceSearch::Clear()
 {
     FaceSearchBasic::Clear();
@@ -88,7 +122,7 @@ void FaceSearch::Clear()
 void FaceSearch::CalcNewFaceId( IFaceLink & iFaceLink )
 {
     const int nFaces = static_cast< int >( this->Size() );
-    this->interfaceSplit.ResetForParentFaceCount( static_cast< std::size_t >( nFaces ) );
+    this->interfaceSplit.ResetForFaceCount( static_cast< std::size_t >( nFaces ) );
 
     if ( Dim::dimension == ONEFLOW::THREE_D )
     {
@@ -109,17 +143,17 @@ void FaceSearch::CalcNewFaceId( IFaceLink & iFaceLink )
 void FaceSearch::SplitQuad2Tri( int faceId )
 {
     const IntField & nodeId = this->GetFaceNodeRing( faceId );
-    int nNodes = nodeId.size();
-    if ( nNodes != 4 ) return;
 
-    // Rebuild one parent's mapping; do not retain entries from a previous call.
+    // A direct call also invalidates stale results when this face is not a quad.
     this->interfaceSplit.ClearParentMapping( faceId );
 
+    if ( nodeId.size() != 4 ) return;
+
     LinkField localTriId, localTriFlag;
-    this->GetLocalTri( localTriId, localTriFlag );
+    BuildQuadDiagonalLocalTris( localTriId, localTriFlag );
 
     LinkField triId;
-    this->GetTriId( nodeId, localTriId, triId );
+    MapLocalTrisToGlobalNodes( nodeId, localTriId, triId );
 
     for ( int iTri = 0; iTri < triId.size(); ++ iTri )
     {
@@ -128,8 +162,8 @@ void FaceSearch::SplitQuad2Tri( int faceId )
         if ( fId != ONEFLOW::INVALID_INDEX )
         {
             this->interfaceSplit.childFaceIdsOfParent[ faceId ].push_back( fId );
-            this->interfaceSplit.childFaceNodeIds  [ fId ] = localTriId  [ iTri ];
-            this->interfaceSplit.childFaceNodeFlags[ fId ] = localTriFlag[ iTri ];
+            this->interfaceSplit.SetChildMapping(
+                faceId, fId, localTriId[ iTri ], localTriFlag[ iTri ] );
         }
     }
 }
@@ -158,8 +192,8 @@ void FaceSearch::SplitLine( IFaceLink & iFaceLink, int globalFaceId )
         if ( fId != ONEFLOW::INVALID_INDEX )
         {
             this->interfaceSplit.childFaceIdsOfParent[ globalFaceId ].push_back( fId );
-            this->interfaceSplit.childFaceNodeIds  [ fId ] = localLineId  [ iLi ];
-            this->interfaceSplit.childFaceNodeFlags[ fId ] = localLineFlag[ iLi ];
+            this->interfaceSplit.SetChildMapping(
+                globalFaceId, fId, localLineId[ iLi ], localLineFlag[ iLi ] );
         }
     }
 }
@@ -210,32 +244,36 @@ void MapLocalTrisToGlobalNodes(
     const LinkField & localTriId,
     LinkField & triId )
 {
-    triId.clear();
-    triId.resize( localTriId.size() );
+    // Validate the complete candidate topology before replacing the output.
     for ( std::size_t iTri = 0; iTri < localTriId.size(); ++ iTri )
     {
-        for ( int iNode = 0; iNode < 3; ++ iNode )
+        if ( localTriId[ iTri ].size() != 3 )
         {
-            const int localCorner = localTriId[ iTri ][ iNode ];
+            throw std::logic_error(
+                "MapLocalTrisToGlobalNodes: each local triangle must have three corners" );
+        }
+
+        for ( int localCorner : localTriId[ iTri ] )
+        {
             if ( localCorner < 0 ||
                  static_cast< std::size_t >( localCorner ) >= nodeId.size() )
             {
                 throw std::out_of_range(
                     "MapLocalTrisToGlobalNodes: local corner index is out of range" );
             }
-            triId[ iTri ].push_back( nodeId[ localCorner ] );
         }
     }
-}
 
-void FaceSearch::GetLocalTri( LinkField & localTriId, LinkField & localTriFlag )
-{
-    BuildQuadDiagonalLocalTris( localTriId, localTriFlag );
-}
+    LinkField mappedTriIds( localTriId.size() );
+    for ( std::size_t iTri = 0; iTri < localTriId.size(); ++ iTri )
+    {
+        for ( int localCorner : localTriId[ iTri ] )
+        {
+            mappedTriIds[ iTri ].push_back( nodeId[ localCorner ] );
+        }
+    }
 
-void FaceSearch::GetTriId( const IntField & nodeId, LinkField & localTriId, LinkField & triId )
-{
-    MapLocalTrisToGlobalNodes( nodeId, localTriId, triId );
+    triId.swap( mappedTriIds );
 }
 
 bool FaceSearch::TrySplitLineAtMidpoint(

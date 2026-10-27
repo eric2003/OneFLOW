@@ -57,6 +57,51 @@ TEST( RegisterLocalInterfaceFaceTest, ExistingGlobalFacePushesSecondSide )
     EXPECT_EQ( g2l[ 0 ][ 1 ], 2 );
 }
 
+
+TEST( RegisterLocalInterfaceFaceTest, RejectsThirdZoneParticipantWithoutChangingMaps )
+{
+    LinkField l2g;
+    SeedTwoZonesThreeLocalSlots( l2g );
+    l2g.push_back( IntField{ -1, -1, -1 } ); // zone 2
+    LinkField gI2Zid;
+    LinkField g2l;
+
+    RegisterLocalInterfaceFace( 0, true, 0, 0, l2g, gI2Zid, g2l );
+    RegisterLocalInterfaceFace( 0, false, 1, 0, l2g, gI2Zid, g2l );
+    const LinkField originalL2g = l2g;
+    const LinkField originalZoneIds = gI2Zid;
+    const LinkField originalLocalIds = g2l;
+
+    EXPECT_THROW(
+        RegisterLocalInterfaceFace( 0, false, 2, 0, l2g, gI2Zid, g2l ),
+        std::logic_error );
+
+    EXPECT_EQ( l2g, originalL2g );
+    EXPECT_EQ( gI2Zid, originalZoneIds );
+    EXPECT_EQ( g2l, originalLocalIds );
+}
+
+TEST( RegisterLocalInterfaceFaceTest, RejectsDuplicateLocalParticipantWithoutChangingMaps )
+{
+    LinkField l2g;
+    SeedTwoZonesThreeLocalSlots( l2g );
+    LinkField gI2Zid;
+    LinkField g2l;
+
+    RegisterLocalInterfaceFace( 0, true, 0, 1, l2g, gI2Zid, g2l );
+    const LinkField originalL2g = l2g;
+    const LinkField originalZoneIds = gI2Zid;
+    const LinkField originalLocalIds = g2l;
+
+    EXPECT_THROW(
+        RegisterLocalInterfaceFace( 0, false, 0, 1, l2g, gI2Zid, g2l ),
+        std::logic_error );
+
+    EXPECT_EQ( l2g, originalL2g );
+    EXPECT_EQ( gI2Zid, originalZoneIds );
+    EXPECT_EQ( g2l, originalLocalIds );
+}
+
 TEST( RegisterLocalInterfaceFaceTest, RejectsBadNewGlobalId )
 {
     LinkField l2g;

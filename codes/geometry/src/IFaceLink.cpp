@@ -113,6 +113,21 @@ void RegisterLocalInterfaceFace(
             throw std::logic_error( "RegisterLocalInterfaceFace: global face references are inconsistent" );
         }
 
+        for ( std::size_t slot = 0; slot < gI2Zid[ gIid ].size(); ++ slot )
+        {
+            if ( gI2Zid[ gIid ][ slot ] == zid &&
+                 g2l[ gIid ][ slot ] == localFaceId )
+            {
+                throw std::logic_error(
+                    "RegisterLocalInterfaceFace: local interface face is already registered" );
+            }
+        }
+        if ( gI2Zid[ gIid ].size() >= 2 )
+        {
+            throw std::logic_error(
+                "RegisterLocalInterfaceFace: global face already has two zone participants" );
+        }
+
         l2g[ zid ][ localFaceId ] = gIid;
         gI2Zid[ gIid ].push_back( zid );
         g2l[ gIid ].push_back( localFaceId );
@@ -196,6 +211,36 @@ int CountInterfaceFacesMissingPartner(
     return missing;
 }
 
+bool FindPeriodicInterfacePartner(
+    int selfZoneId,
+    int selfLocalFaceId,
+    const IntField & zoneIds,
+    const IntField & localFaceIds,
+    int & outRemoteZoneId,
+    int & outRemoteLocalFaceId )
+{
+    if ( zoneIds.size() != localFaceIds.size() )
+    {
+        throw std::logic_error(
+            "FindPeriodicInterfacePartner: zone and local-face rows are inconsistent" );
+    }
+
+    // Periodic matching searches the geometrically transformed face, whose
+    // participant row may not contain the current face. Skip self when present,
+    // but do not require self membership as FindRemoteInterfacePartner does.
+    for ( std::size_t i = 0; i < zoneIds.size(); ++ i )
+    {
+        if ( zoneIds[ i ] == selfZoneId && localFaceIds[ i ] == selfLocalFaceId )
+        {
+            continue;
+        }
+        outRemoteZoneId = zoneIds[ i ];
+        outRemoteLocalFaceId = localFaceIds[ i ];
+        return true;
+    }
+    return false;
+}
+
 bool FindRemoteInterfacePartner(
     int globalFaceId,
     int selfZoneId,
@@ -213,14 +258,29 @@ bool FindRemoteInterfacePartner(
 
     const IntField & zoneIds = zoneIdsPerGlobalFace[ globalFaceId ];
     const IntField & localIds = localFaceIdsPerGlobalFace[ globalFaceId ];
+
+    // A remote participant is meaningful only if the caller is registered
+    // on this global face. Otherwise the tables do not describe this lookup.
+    bool foundSelf = false;
     for ( std::size_t i = 0; i < zoneIds.size(); ++ i )
     {
-        const int zid = zoneIds[ i ];
-        const int lid = localIds[ i ];
-        if ( zid != selfZoneId || lid != selfLocalFaceId )
+        if ( zoneIds[ i ] == selfZoneId && localIds[ i ] == selfLocalFaceId )
         {
-            outRemoteZoneId = zid;
-            outRemoteLocalFaceId = lid;
+            foundSelf = true;
+            break;
+        }
+    }
+    if ( ! foundSelf )
+    {
+        return false;
+    }
+
+    for ( std::size_t i = 0; i < zoneIds.size(); ++ i )
+    {
+        if ( zoneIds[ i ] != selfZoneId || localIds[ i ] != selfLocalFaceId )
+        {
+            outRemoteZoneId = zoneIds[ i ];
+            outRemoteLocalFaceId = localIds[ i ];
             return true;
         }
     }
@@ -333,13 +393,18 @@ void IFaceLink::MatchInterfaceTopology( Grid & grid )
     if ( ! interFace ) return;
 
     const IntField & localToGlobal = this->l2g[ grid.id ];
-    const int missingPeriodicPartnerCount = CountInterfaceFacesMissingPartner(
+    const int missingPartnerCount = CountInterfaceFacesMissingPartner(
         localToGlobal, this->gI2Zid, this->g2l );
 
     const int nIFaces = static_cast< int >( localToGlobal.size() );
     for ( int iIFace = 0; iIFace < nIFaces; ++ iIFace )
     {
         const int gIFace = localToGlobal[ iIFace ];
+        // Recompute both fields on every pass. A face that was previously
+        // paired may become unpaired after interface-map rebuilding.
+        interFace->zoneId[ iIFace ] = -1;
+        interFace->localInterfaceId[ iIFace ] = -1;
+
         int remoteZone = -1;
         int remoteLocal = -1;
         if ( FindRemoteInterfacePartner(
@@ -355,8 +420,8 @@ void IFaceLink::MatchInterfaceTopology( Grid & grid )
             interFace->localInterfaceId[ iIFace ] = remoteLocal;
         }
     }
-    std::cout << " Periodic boundary faces missing a partner = "
-              << missingPeriodicPartnerCount << "\n";
+    std::cout << " Interface faces missing a partner = "
+              << missingPartnerCount << "\n";
 }
 
 
@@ -377,7 +442,12 @@ void IFaceLink::MatchPeriodicInterface( Grid & grid )
             gIFace, this->gI2Zid, this->g2l, "IFaceLink::MatchPeriodicInterface" );
         int nIZone = static_cast< int >( this->gI2Zid[ gIFace ].size() );
 
+        // A two-zone face already has a topological partner. Other faces
+        // must be rematched geometrically, so clear any result from an
+        // earlier pass before any lookup that may fail.
         if ( nIZone == 2 ) continue;
+        interFace->zoneId[ iIFace ] = -1;
+        interFace->localInterfaceId[ iIFace ] = -1;
 
         // GetFaceNodeRing bounds-checks against stored face count.
         const IntField & nodeId = this->face_search->GetFaceNodeRing( gIFace );
@@ -425,8 +495,14 @@ void IFaceLink::MatchPeriodicInterface( Grid & grid )
         }
         if ( periodicZones.empty() ) continue;
 
-        int nZid_period = periodicZones[ 0 ];
-        int lId_period  = periodicLocalIds[ 0 ];
+        int nZid_period = -1;
+        int lId_period = -1;
+        if ( ! FindPeriodicInterfacePartner(
+                 grid.id, iIFace, periodicZones, periodicLocalIds,
+                 nZid_period, lId_period ) )
+        {
+            continue;
+        }
 
         interFace->zoneId[ iIFace ] = nZid_period;
         interFace->localInterfaceId[ iIFace ] = lId_period;

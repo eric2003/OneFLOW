@@ -34,6 +34,12 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+namespace
+{
+constexpr CgInt kMinimumPolyhedralFaceNodeCount = 3;
+}
+
+
 FaceSolver::FaceSolver()
 {
     // [Refactored] faceBcNameIds, faceBcTypes, childFid are now value types, 
@@ -59,12 +65,13 @@ std::unique_ptr< FaceTopo > FaceSolver::ReleaseFaceTopo() noexcept
     return std::move( this->faceTopo );
 }
 
-bool FaceSolver::CheckBcFace( const IntSet & bcVertex, const IntField & nodeId ) const
+bool FaceNodesContainedInVertexSet(
+    const IntSet & bcVertex,
+    const IntField & faceNodes )
 {
-    const int size = static_cast< int >( nodeId.size() );
-    for ( int iNode = 0; iNode < size; ++ iNode )
+    for ( std::size_t iNode = 0; iNode < faceNodes.size(); ++ iNode )
     {
-        if ( bcVertex.find( nodeId[ iNode ] ) == bcVertex.end() )
+        if ( bcVertex.find( faceNodes[ iNode ] ) == bcVertex.end() )
         {
             return false;
         }
@@ -72,7 +79,12 @@ bool FaceSolver::CheckBcFace( const IntSet & bcVertex, const IntField & nodeId )
     return true;
 }
 
-void FaceSolver::StagePolygonFacesFromConnectivity(
+bool FaceSolver::CheckBcFace( const IntSet & bcVertex, const IntField & nodeId ) const
+{
+    return FaceNodesContainedInVertexSet( bcVertex, nodeId );
+}
+
+void FaceSolver::StagePolyhedralFacesFromConnectivity(
     int nElement,
     const CgIntField & offsets,
     const CgIntField & connectivity,
@@ -82,7 +94,7 @@ void FaceSolver::StagePolygonFacesFromConnectivity(
          static_cast< std::size_t >( nElement ) + 1 > offsets.size() )
     {
         throw std::runtime_error(
-            "FaceSolver::StagePolygonFacesFromConnectivity: polygon offsets are incomplete" );
+            "FaceSolver::StagePolyhedralFacesFromConnectivity: polyhedral face offsets are incomplete" );
     }
 
     // Validate every span before mutating the face lookup or topology.
@@ -94,11 +106,17 @@ void FaceSolver::StagePolygonFacesFromConnectivity(
              static_cast< std::size_t >( end ) > connectivity.size() )
         {
             throw std::runtime_error(
-                "FaceSolver::StagePolygonFacesFromConnectivity: polygon connectivity span is invalid" );
+                "FaceSolver::StagePolyhedralFacesFromConnectivity: polyhedral face connectivity span is invalid" );
+        }
+        // Three-dimensional polyhedral faces require at least three node references.
+        if ( end - start < kMinimumPolyhedralFaceNodeCount )
+        {
+            throw std::runtime_error(
+                "FaceSolver::StagePolyhedralFacesFromConnectivity: polyhedral face has fewer than three nodes" );
         }
     }
 
-    // Polygon faces are staged without an owning cell yet. Ownership is
+    // Polyhedral faces are staged without an owning cell yet. Ownership is
     // assigned later via ClaimStagedFaceAsLeft. StageNewFace keeps topology
     // and BC slots aligned so StagedBcMatchesFaceCount() holds after scan.
     IntField faceNodes;
@@ -120,9 +138,9 @@ void FaceSolver::StagePolygonFacesFromConnectivity(
     }
 }
 
-void FaceSolver::ScanPolygonFace( CgnsSection & cgnsSection )
+void FaceSolver::ScanPolyhedralFace( CgnsSection & cgnsSection )
 {
-    this->StagePolygonFacesFromConnectivity(
+    this->StagePolyhedralFacesFromConnectivity(
         cgnsSection.nElement,
         cgnsSection.ePosList,
         cgnsSection.connList,
@@ -366,16 +384,7 @@ void FaceSolver::BindCellToExistingFace( int faceId, int cellId )
     auto & rightCells = this->faceTopo->GetRightCells();
     const std::size_t id = static_cast< std::size_t >( faceId );
 
-    if ( leftCells[ id ] == ONEFLOW::INVALID_INDEX )
-    {
-        // Face was staged without an owner (or left cleared during split).
-        leftCells[ id ] = cellId;
-        return;
-    }
-    if ( rightCells[ id ] == ONEFLOW::INVALID_INDEX && leftCells[ id ] != cellId )
-    {
-        rightCells[ id ] = cellId;
-    }
+    BindCellToFaceSides( cellId, leftCells[ id ], rightCells[ id ] );
 }
 
 bool FaceSolver::StagedBcMatchesFaceCount() const
@@ -436,14 +445,13 @@ int FaceSolver::AssignBcToMatchingFaces(
     const int nFaces = static_cast< int >( this->faceTopo->GetLeftCells().size() );
     int nAssigned = 0;
 
+    const auto & rightCells = this->faceTopo->GetRightCells();
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
-        if ( this->faceBcTypes[ iFace ] != ONEFLOW::INVALID_INDEX )
-        {
-            continue;
-        }
-        if ( boundaryFacesOnly &&
-             this->faceTopo->GetRightCells()[ iFace ] != ONEFLOW::INVALID_INDEX )
+        if ( ! IsEligibleForStagedBcAssignment(
+                   this->faceBcTypes[ iFace ],
+                   rightCells[ iFace ],
+                   boundaryFacesOnly ) )
         {
             continue;
         }
@@ -470,16 +478,13 @@ void FaceSolver::ScanBcFaceDetail( IntSet & bcVertex, int bcType, int bcNameId )
 
 void FaceSolver::ScanInterfaceBc()
 {
-    const int nFaces = static_cast< int >( this->faceTopo->GetLeftCells().size() );
-    const int bcNameId = -1;
-
-    for ( int iFace = 0; iFace < nFaces; ++ iFace )
-    {
-        if ( this->faceBcTypes[ iFace ] == ONEFLOW::INVALID_INDEX )
-        {
-            this->SetStagedFaceBc( iFace, BCTypeNull, bcNameId );
-        }
-    }
+    // Residual faces still at INVALID_INDEX after BOCO scans become interface
+    // (BCTypeNull) with name id -1. Length is governed by staged BC arrays.
+    FillUnsetStagedBcSlots(
+        this->faceBcTypes,
+        this->faceBcNameIds,
+        BCTypeNull,
+        /*fillNameId=*/-1 );
 }
 
 
@@ -491,20 +496,12 @@ int FaceSolver::AppendBoundaryBcToRecord( BcRecord & bcRecord ) const
             "FaceSolver::AppendBoundaryBcToRecord: staged face arrays are not aligned" );
     }
 
-    const auto & rightCells = this->faceTopo->GetRightCells();
-    const int nFaces = static_cast< int >( rightCells.size() );
-    int nBFaces = 0;
-
-    for ( int iFace = 0; iFace < nFaces; ++ iFace )
-    {
-        if ( rightCells[ iFace ] == ONEFLOW::INVALID_INDEX )
-        {
-            bcRecord.bcType.push_back( this->faceBcTypes[ iFace ] );
-            bcRecord.bcNameId.push_back( this->faceBcNameIds[ iFace ] );
-            ++ nBFaces;
-        }
-    }
-    return nBFaces;
+    return CollectBoundaryBcEntries(
+        this->faceTopo->GetRightCells(),
+        this->faceBcTypes,
+        this->faceBcNameIds,
+        bcRecord.bcType,
+        bcRecord.bcNameId );
 }
 
 int FaceSolver::CountFacesWithoutChildren() const
@@ -516,16 +513,108 @@ int FaceSolver::CountFacesWithoutChildren() const
             "FaceSolver::CountFacesWithoutChildren: childFid is not aligned with faces" );
     }
 
-    int nSimpleFace = 0;
-    for ( std::size_t iFace = 0; iFace < nFaces; ++ iFace )
-    {
-        if ( this->childFid[ iFace ].empty() )
-        {
-            ++ nSimpleFace;
-        }
-    }
-    return nSimpleFace;
+    return CountEmptyChildFaceLists( this->childFid );
 }
 
+
+
+int CollectBoundaryBcEntries(
+    const IntField & rightCells,
+    const IntField & faceBcTypes,
+    const IntField & faceBcNameIds,
+    IntField & outBcType,
+    IntField & outBcNameId )
+{
+    if ( rightCells.size() != faceBcTypes.size() ||
+         rightCells.size() != faceBcNameIds.size() )
+    {
+        throw std::logic_error(
+            "CollectBoundaryBcEntries: rightCells and staged BC arrays differ in size" );
+    }
+
+    int nBFaces = 0;
+    for ( std::size_t iFace = 0; iFace < rightCells.size(); ++ iFace )
+    {
+        if ( rightCells[ iFace ] == ONEFLOW::INVALID_INDEX )
+        {
+            outBcType.push_back( faceBcTypes[ iFace ] );
+            outBcNameId.push_back( faceBcNameIds[ iFace ] );
+            ++ nBFaces;
+        }
+    }
+    return nBFaces;
+}
+
+
+int BindCellToFaceSides( int cellId, int & leftCell, int & rightCell )
+{
+    if ( leftCell == ONEFLOW::INVALID_INDEX )
+    {
+        leftCell = cellId;
+        return 0;
+    }
+    if ( rightCell == ONEFLOW::INVALID_INDEX && leftCell != cellId )
+    {
+        rightCell = cellId;
+        return 1;
+    }
+    return -1;
+}
+
+
+int FillUnsetStagedBcSlots(
+    IntField & faceBcTypes,
+    IntField & faceBcNameIds,
+    int fillBcType,
+    int fillNameId )
+{
+    if ( faceBcTypes.size() != faceBcNameIds.size() )
+    {
+        throw std::logic_error(
+            "FillUnsetStagedBcSlots: faceBcTypes and faceBcNameIds differ in size" );
+    }
+
+    int nFilled = 0;
+    for ( std::size_t iFace = 0; iFace < faceBcTypes.size(); ++ iFace )
+    {
+        if ( faceBcTypes[ iFace ] == ONEFLOW::INVALID_INDEX )
+        {
+            faceBcTypes[ iFace ] = fillBcType;
+            faceBcNameIds[ iFace ] = fillNameId;
+            ++ nFilled;
+        }
+    }
+    return nFilled;
+}
+
+int CountEmptyChildFaceLists( const LinkField & childFid )
+{
+    int nEmpty = 0;
+    for ( std::size_t iFace = 0; iFace < childFid.size(); ++ iFace )
+    {
+        if ( childFid[ iFace ].empty() )
+        {
+            ++ nEmpty;
+        }
+    }
+    return nEmpty;
+}
+
+
+bool IsEligibleForStagedBcAssignment(
+    int currentBcType,
+    int rightCell,
+    bool boundaryFacesOnly )
+{
+    if ( currentBcType != ONEFLOW::INVALID_INDEX )
+    {
+        return false;
+    }
+    if ( boundaryFacesOnly && rightCell != ONEFLOW::INVALID_INDEX )
+    {
+        return false;
+    }
+    return true;
+}
 
 EndNameSpace

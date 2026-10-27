@@ -41,14 +41,25 @@ public:
     ~IFaceLink();
 public:
     HXLookup<int> faceLookup;
+
+    // Interface-face relation, stored in two directions:
+    // l2g[zone][localFace] -> global interface-face ID.
+    // gI2Zid means global Interface-face to zone IDs:
+    // gI2Zid[globalFace][slot] -> participating zone ID.
+    // g2l[globalFace][slot] -> that zone's local interface-face ID.
+    // The slot index is shared by gI2Zid and g2l; their row lengths must match.
     LinkField gI2Zid;
     LinkField g2l;
     LinkField l2g;
 
+    // Candidate tables used while interface faces are split and remapped.
+    // They replace the live tables only after CommitInterfaceMappingBuffers
+    // validates the paired inverse-map rows.
     LinkField gI2ZidNew;
     LinkField g2lNew;
     LinkField l2gNew;
 
+    // Legacy per-zone child-count bookkeeping for interface-face rebuilding.
     LinkField nChild;
 
     std::unique_ptr< FaceSearch > face_search;
@@ -98,9 +109,10 @@ void ValidateGlobalFaceMappings(
     const char * operation );
 
 // Register local interface face (zid, localFaceId) on global face gIid.
-// isNew: append a new parallel row to gI2Zid/g2l; otherwise push onto the
-// existing row. Always writes l2g[zid][localFaceId] = gIid.
-// Throws on inconsistent table sizes or out-of-range indices.
+// isNew: append a new parallel row to gI2Zid/g2l; otherwise append to the
+// existing row, which supports at most two zone participants. The existing-row
+// path rejects duplicate participants and a third zone before mutating any map.
+// Always writes l2g[zid][localFaceId] = gIid on success.
 void RegisterLocalInterfaceFace(
     int gIid,
     bool isNew,
@@ -110,8 +122,20 @@ void RegisterLocalInterfaceFace(
     LinkField & gI2Zid,
     LinkField & g2l );
 
-// Among zone/local pairs on globalFaceId, find the first entry that is not
-// (selfZoneId, selfLocalFaceId). Returns false if none.
+// Select the first participant on a periodic partner face that is not the
+// current local face. A periodic lookup can return a face whose mapping row
+// contains the current face; never create a self-link in that case.
+bool FindPeriodicInterfacePartner(
+    int selfZoneId,
+    int selfLocalFaceId,
+    const IntField & zoneIds,
+    const IntField & localFaceIds,
+    int & outRemoteZoneId,
+    int & outRemoteLocalFaceId );
+
+// Find the first non-self participant on globalFaceId, but only when the
+// exact (selfZoneId, selfLocalFaceId) pair is registered. Returns false when
+// self is absent or no other participant exists; output arguments stay unchanged.
 bool FindRemoteInterfacePartner(
     int globalFaceId,
     int selfZoneId,

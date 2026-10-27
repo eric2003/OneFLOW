@@ -73,14 +73,21 @@ struct InterfaceFaceSplitTable
         childFaceNodeFlags.clear();
     }
 
-    void ResetForParentFaceCount( std::size_t nParentFaces )
+    // All three tables are indexed by global face ID, not by a compact parent-only index.
+    void ResetForFaceCount( std::size_t faceCount )
     {
-        childFaceIdsOfParent.assign( nParentFaces, IntField{} );
-        childFaceNodeIds.assign( nParentFaces, IntField{} );
-        childFaceNodeFlags.assign( nParentFaces, IntField{} );
+        childFaceIdsOfParent.assign( faceCount, IntField{} );
+        childFaceNodeIds.assign( faceCount, IntField{} );
+        childFaceNodeFlags.assign( faceCount, IntField{} );
     }
 
     void ClearParentMapping( int parentFaceId );
+    // Reject conflicting metadata for a shared child instead of silently overwriting it.
+    void SetChildMapping(
+        int parentFaceId,
+        int childFaceId,
+        const IntField & localNodeIds,
+        const IntField & localNodeFlags );
 };
 
 class FaceSearch : public FaceSearchBasic
@@ -97,8 +104,6 @@ public:
     void SplitQuad2Tri( int faceId );
     // Split a 2-node edge face using mid-point insertion (needs IFaceLink geometry).
     void SplitLine( IFaceLink & iFaceLink, int globalFaceId );
-    void GetLocalTri( LinkField & localTriId, LinkField & localTriFlag );
-    void GetTriId( const IntField & nodeId, LinkField & localTriId, LinkField & triId );
 
 private:
     // Try to split edge (nodeId size 2) at midpoint if the midpoint already
