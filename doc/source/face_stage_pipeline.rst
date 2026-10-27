@@ -636,13 +636,11 @@ Open design pressures
   list despite different parent-local indices. The older global-indexed rows
   remain temporarily for compatibility with existing helper callers.
 
-  This is a representation mismatch, not evidence that every current input
-  reaches it. Before changing storage, make the fixture pass through the real
-  split-table and rebuild helpers. If shared-child parent-local mappings are
-  supported, store node IDs and flags on the parent-child relation while
-  retaining the global child ID for deduplication. If the topology contract
-  forbids this case, reject it explicitly instead of relying on traversal
-  order.
+  The mapping-table and rebuild-helper unit tests now cover the two halves
+  of this contract independently. The remaining integration test should drive
+  the real ``SplitQuad2Tri`` producer through mapping collection and the
+  parent-aware rebuild consumer. This is needed to verify child ordering and
+  interface-local alignment across the full pipeline.
 
 
 These remain harder to unit-test and mark follow-up work:
