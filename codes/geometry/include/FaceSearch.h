@@ -98,8 +98,6 @@ public:
     void SplitQuad2Tri( int faceId );
     // Split a 2-node edge face using mid-point insertion (needs IFaceLink geometry).
     void SplitLine( IFaceLink & iFaceLink, int globalFaceId );
-    void GetLocalTri( LinkField & localTriId, LinkField & localTriFlag );
-    void GetTriId( const IntField & nodeId, LinkField & localTriId, LinkField & triId );
 
 private:
     // Try to split edge (nodeId size 2) at midpoint if the midpoint already
