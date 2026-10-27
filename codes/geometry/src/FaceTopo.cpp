@@ -1049,10 +1049,19 @@ void CollectBoundaryInterfaceChildNodeMappings(
         }
 
         bool hasParentSpecificRows = false;
-        if ( globalParentId >= 0 &&
-             static_cast< std::size_t >( globalParentId ) < splitTable.childFaceNodeIdsByParent.size() &&
-             static_cast< std::size_t >( globalParentId ) < splitTable.childFaceNodeFlagsByParent.size() )
+        const bool hasParentSpecificTables =
+            ! splitTable.childFaceNodeIdsByParent.empty() ||
+            ! splitTable.childFaceNodeFlagsByParent.empty();
+        if ( hasParentSpecificTables )
         {
+            if ( globalParentId < 0 ||
+                 static_cast< std::size_t >( globalParentId ) >= splitTable.childFaceNodeIdsByParent.size() ||
+                 static_cast< std::size_t >( globalParentId ) >= splitTable.childFaceNodeFlagsByParent.size() )
+            {
+                throw std::logic_error(
+                    "CollectBoundaryInterfaceChildNodeMappings: parent-specific tables do not contain the parent" );
+            }
+
             const LinkField & nodeIds = splitTable.childFaceNodeIdsByParent[ globalParentId ];
             const LinkField & nodeFlags = splitTable.childFaceNodeFlagsByParent[ globalParentId ];
             hasParentSpecificRows = ! nodeIds.empty() || ! nodeFlags.empty();
