@@ -264,8 +264,9 @@ separate compact parent index.
   and ``QuadDiagonalSplitTest.MapsLocalCornersThroughQuadNodes``.
   ``MapLocalTrisToGlobalNodes`` validates every candidate row has exactly three
   corners and every corner index is in range before replacing the output, so
-  malformed later rows cannot leave a partial mapping (**test:**
-  ``QuadDiagonalSplitTest``).
+  malformed later rows cannot leave a partial mapping (**tests:**
+  ``QuadDiagonalSplitTest.MapsLocalCornersThroughQuadNodes`` and
+  ``FaceSearchBasicTest.InvalidQuadCandidateLeavesMappedOutputUnchanged``).
 * ``SplitQuad2Tri`` clears the selected parent's previous child list before
   checking its shape; a direct call on a non-quad face therefore cannot preserve
   a stale split result (**test:** ``FaceSearchBasicTest.NonQuadSplitClearsStaleParentMapping``).
@@ -593,6 +594,17 @@ matches ``BcRecord`` (``ValidateBoundaryBcLayout``).
 
 Open design pressures
 ---------------------
+
+* Quad/child-node metadata is indexed by global child face ID, but a flag of
+  ``1`` means the stored node index is relative to a parent face ring. This
+  representation can encode only one parent-relative mapping per global child.
+  The current split path overwrites that slot when a child ID is encountered
+  again. Before changing the representation, establish whether valid mesh
+  inputs can make one global child face belong to distinct parent faces with
+  different local rings. If that topology is valid, move node mapping metadata
+  onto the parent-child relation; if it is invalid, validate and report the
+  violated topology contract rather than silently relying on traversal order.
+
 
 These remain harder to unit-test and mark follow-up work:
 
