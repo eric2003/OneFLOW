@@ -238,6 +238,11 @@ separate compact parent index.
   the global face registry. Thus the runtime result depends on the registry:
   when only one diagonal is registered, exactly its two triangle faces should
   be recorded (test: ``FaceSearchBasicTest.QuadSplitUsesOnlyRegisteredTrianglesForOneDiagonal``).
+  ``FindFace`` identifies a face by its node set, independent of node order,
+  while ``GetFaceNodeRing`` preserves the first registered ordering. The runtime
+  split must therefore find an existing child even when its stored ring differs
+  from the candidate order (test:
+  ``FaceSearchBasicTest.QuadSplitMatchesRegisteredTrianglesRegardlessOfNodeOrder``).
   Zero or one points to missing/inconsistent face registration, while more than
   two means both candidate diagonals may be represented and needs topology-level
   investigation. The candidate builder itself does not choose a diagonal or
