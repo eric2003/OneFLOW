@@ -256,12 +256,10 @@ separate compact parent index.
   **Tests:** ``QuadDiagonalSplitTest.BuildsFourCandidateTrisForBothDiagonals``,
   ``QuadDiagonalSplitTest.EachDiagonalCandidatePairPreservesBoundaryAndSharesOneDiagonal``,
   and ``QuadDiagonalSplitTest.MapsLocalCornersThroughQuadNodes``.
-  ``BuildQuadDiagonalLocalTris`` creates the four local triangle candidates
-  for both diagonals; ``MapLocalTrisToGlobalNodes`` maps their three local
-  corners through the parent face's node ring. The mapping helper validates
-  every candidate row has exactly three corners and every corner index is in
-  range before replacing the output, so malformed later rows cannot leave a
-  partial mapping (**test:** ``QuadDiagonalSplitTest``).
+  ``MapLocalTrisToGlobalNodes`` validates every candidate row has exactly three
+  corners and every corner index is in range before replacing the output, so
+  malformed later rows cannot leave a partial mapping (**test:**
+  ``QuadDiagonalSplitTest``).
 * ``SplitQuad2Tri`` clears the selected parent's previous child list before
   checking its shape; a direct call on a non-quad face therefore cannot preserve
   a stale split result (**test:** ``FaceSearchBasicTest.NonQuadSplitClearsStaleParentMapping``).
