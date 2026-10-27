@@ -67,6 +67,8 @@ TEST( FaceSearchBasicTest, ClearResetsDerivedSplitMappings )
     EXPECT_TRUE( search.interfaceSplit.childFaceIdsOfParent.empty() );
     EXPECT_TRUE( search.interfaceSplit.childFaceNodeIds.empty() );
     EXPECT_TRUE( search.interfaceSplit.childFaceNodeFlags.empty() );
+    EXPECT_TRUE( search.interfaceSplit.childFaceNodeIdsByParent.empty() );
+    EXPECT_TRUE( search.interfaceSplit.childFaceNodeFlagsByParent.empty() );
     EXPECT_EQ( search.AddFace( IntField{ 1, 2 } ), 0 );
 }
 
@@ -212,18 +214,22 @@ TEST( FaceSearchBasicTest, GetFaceNodeRingRejectsOutOfRange )
     EXPECT_THROW( search.GetFaceNodeRing( 1 ), std::out_of_range );
 }
 
-TEST( FaceSearchBasicTest, SharedChildRejectsConflictingMappingRows )
+TEST( FaceSearchBasicTest, SharedChildKeepsParentSpecificMappingRows )
 {
-    // Intent: do not silently replace one parent's mapping with another row.
+    // Intent: global child identity is shared, but local rows belong to each parent.
     InterfaceFaceSplitTable split;
     split.ResetForFaceCount( 3 );
+    split.childFaceIdsOfParent[ 0 ] = IntField{ 2 };
+    split.childFaceIdsOfParent[ 1 ] = IntField{ 2 };
 
     split.SetChildMapping( 0, 2, IntField{ 0, 1, 2 }, IntField{ 1, 1, 1 } );
-    EXPECT_THROW(
-        split.SetChildMapping(
-            1, 2, IntField{ 2, 0, 1 }, IntField{ 1, 1, 1 } ),
-        std::logic_error );
-    EXPECT_EQ( split.childFaceNodeIds[ 2 ], ( IntField{ 0, 1, 2 } ) );
+    split.SetChildMapping( 1, 2, IntField{ 2, 0, 1 }, IntField{ 1, 1, 1 } );
+
+    ASSERT_EQ( split.childFaceNodeIdsByParent.size(), static_cast< std::size_t >( 3 ) );
+    EXPECT_EQ( split.childFaceNodeIdsByParent[ 0 ][ 0 ], ( IntField{ 0, 1, 2 } ) );
+    EXPECT_EQ( split.childFaceNodeIdsByParent[ 1 ][ 0 ], ( IntField{ 2, 0, 1 } ) );
+    EXPECT_EQ( split.childFaceNodeFlagsByParent[ 0 ][ 0 ], ( IntField{ 1, 1, 1 } ) );
+    EXPECT_EQ( split.childFaceNodeFlagsByParent[ 1 ][ 0 ], ( IntField{ 1, 1, 1 } ) );
 }
 
 TEST( FaceSearchBasicTest, ResetForFaceCountClearsAllSplitTables )
