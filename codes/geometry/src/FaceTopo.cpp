@@ -358,14 +358,25 @@ void FaceTopo::SetNewFace2Node( IFaceLink & iFaceLink )
         ? this->GetGrid().nodeMesh->GetNumberOfNodes()
         : 0;
 
+    std::vector< LinkField > childNodeIdsPerInterfaceLocal;
+    std::vector< LinkField > childNodeFlagsPerInterfaceLocal;
+    CollectBoundaryInterfaceChildNodeMappings(
+        bcType,
+        nBFaces,
+        iFaceLink.l2g,
+        iFaceLink.face_search->interfaceSplit,
+        this->GetGrid().id,
+        childNodeIdsPerInterfaceLocal,
+        childNodeFlagsPerInterfaceLocal );
+
     RebuildFaceNodeListsAfterInterfaceSplit(
         this->faces,
         bcType,
         nBFaces,
         nFacesInt,
         childGlobalIdsPerInterfaceLocal,
-        iFaceLink.face_search->interfaceSplit.childFaceNodeIds,
-        iFaceLink.face_search->interfaceSplit.childFaceNodeFlags,
+        childNodeIdsPerInterfaceLocal,
+        childNodeFlagsPerInterfaceLocal,
         hasNodeMesh,
         nodeMeshCount,
         this->rebuildFaces );
@@ -997,6 +1008,59 @@ void CollectBoundaryInterfaceChildFaceIds(
     }
 }
 
+void CollectBoundaryInterfaceChildNodeMappings(
+    const IntField & bcType,
+    int nBFaces,
+    const LinkField & zoneToLocalToGlobal,
+    const InterfaceFaceSplitTable & splitTable,
+    int zoneId,
+    std::vector< LinkField > & outNodeIdsPerInterfaceLocal,
+    std::vector< LinkField > & outNodeFlagsPerInterfaceLocal )
+{
+    if ( nBFaces < 0 || static_cast< std::size_t >( nBFaces ) > bcType.size() )
+    {
+        throw std::logic_error(
+            "CollectBoundaryInterfaceChildNodeMappings: invalid boundary face count" );
+    }
+    if ( zoneId < 0 || static_cast< std::size_t >( zoneId ) >= zoneToLocalToGlobal.size() )
+    {
+        throw std::out_of_range(
+            "CollectBoundaryInterfaceChildNodeMappings: zone ID is out of range" );
+    }
+
+    outNodeIdsPerInterfaceLocal.clear();
+    outNodeFlagsPerInterfaceLocal.clear();
+    int interfaceLocal = 0;
+    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
+    {
+        if ( ! BC::IsInterfaceBc( bcType[ iFace ] ) ) continue;
+
+        const IntField & childIds = GetInterfaceChildFaceIds(
+            zoneToLocalToGlobal, splitTable, zoneId, interfaceLocal );
+        const int globalParentId = zoneToLocalToGlobal[ zoneId ][ interfaceLocal ];
+        if ( globalParentId < 0 ||
+             static_cast< std::size_t >( globalParentId ) >= splitTable.childFaceNodeIdsByParent.size() ||
+             static_cast< std::size_t >( globalParentId ) >= splitTable.childFaceNodeFlagsByParent.size() )
+        {
+            throw std::out_of_range(
+                "CollectBoundaryInterfaceChildNodeMappings: parent ID is out of range" );
+        }
+
+        const LinkField & nodeIds = splitTable.childFaceNodeIdsByParent[ globalParentId ];
+        const LinkField & nodeFlags = splitTable.childFaceNodeFlagsByParent[ globalParentId ];
+        if ( ! childIds.empty() &&
+             ( nodeIds.size() != childIds.size() || nodeFlags.size() != childIds.size() ) )
+        {
+            throw std::logic_error(
+                "CollectBoundaryInterfaceChildNodeMappings: parent mapping rows do not match child IDs" );
+        }
+        outNodeIdsPerInterfaceLocal.push_back( nodeIds );
+        outNodeFlagsPerInterfaceLocal.push_back( nodeFlags );
+        ++ interfaceLocal;
+    }
+}
+
+
 void CollectBoundaryInterfaceChildCounts(
     const IntField & bcType,
     int nBFaces,
@@ -1103,5 +1167,89 @@ void RebuildFaceNodeListsAfterInterfaceSplit(
         outFaces.push_back( faces[ iFace ] );
     }
 }
+
+void RebuildFaceNodeListsAfterInterfaceSplit(
+    const LinkField & faces,
+    const IntField & bcType,
+    int nBFaces,
+    int nFaces,
+    const LinkField & childGlobalIdsPerInterfaceLocal,
+    const std::vector< LinkField > & childNodeIdsPerInterfaceLocal,
+    const std::vector< LinkField > & childNodeFlagsPerInterfaceLocal,
+    bool hasNodeMesh,
+    HXSize_t nodeMeshCount,
+    LinkField & outFaces )
+{
+    if ( nBFaces < 0 || nFaces < 0 || nBFaces > nFaces )
+    {
+        throw std::logic_error(
+            "RebuildFaceNodeListsAfterInterfaceSplit: invalid face counts" );
+    }
+    if ( static_cast< std::size_t >( nFaces ) > faces.size() ||
+         static_cast< std::size_t >( nBFaces ) > bcType.size() )
+    {
+        throw std::logic_error(
+            "RebuildFaceNodeListsAfterInterfaceSplit: arrays shorter than face counts" );
+    }
+    if ( childNodeIdsPerInterfaceLocal.size() != childGlobalIdsPerInterfaceLocal.size() ||
+         childNodeFlagsPerInterfaceLocal.size() != childGlobalIdsPerInterfaceLocal.size() )
+    {
+        throw std::logic_error(
+            "RebuildFaceNodeListsAfterInterfaceSplit: parent mapping count differs from child list count" );
+    }
+
+    outFaces.clear();
+    int interfaceLocal = 0;
+    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
+    {
+        if ( ! BC::IsInterfaceBc( bcType[ iFace ] ) )
+        {
+            outFaces.push_back( faces[ iFace ] );
+            continue;
+        }
+        if ( static_cast< std::size_t >( interfaceLocal ) >= childGlobalIdsPerInterfaceLocal.size() )
+        {
+            throw std::out_of_range(
+                "RebuildFaceNodeListsAfterInterfaceSplit: interface child list index out of range" );
+        }
+
+        const IntField & childFaceIds = childGlobalIdsPerInterfaceLocal[ interfaceLocal ];
+        const LinkField & childNodeIds = childNodeIdsPerInterfaceLocal[ interfaceLocal ];
+        const LinkField & childNodeFlags = childNodeFlagsPerInterfaceLocal[ interfaceLocal ];
+        ++ interfaceLocal;
+
+        if ( childFaceIds.empty() )
+        {
+            outFaces.push_back( faces[ iFace ] );
+            continue;
+        }
+        if ( childNodeIds.size() != childFaceIds.size() ||
+             childNodeFlags.size() != childFaceIds.size() )
+        {
+            throw std::logic_error(
+                "RebuildFaceNodeListsAfterInterfaceSplit: parent mapping rows do not match child IDs" );
+        }
+        for ( std::size_t childIndex = 0; childIndex < childFaceIds.size(); ++ childIndex )
+        {
+            if ( childNodeIds[ childIndex ].size() != childNodeFlags[ childIndex ].size() )
+            {
+                throw std::logic_error(
+                    "RebuildFaceNodeListsAfterInterfaceSplit: child node IDs and flags have different sizes" );
+            }
+            outFaces.push_back(
+                ResolveChildFaceNodeIds(
+                    faces[ iFace ],
+                    childNodeIds[ childIndex ],
+                    childNodeFlags[ childIndex ],
+                    hasNodeMesh,
+                    nodeMeshCount ) );
+        }
+    }
+    for ( int iFace = nBFaces; iFace < nFaces; ++ iFace )
+    {
+        outFaces.push_back( faces[ iFace ] );
+    }
+}
+
 
 EndNameSpace
