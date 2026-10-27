@@ -155,27 +155,36 @@ Region names use injectable ``RegionNameRegistry``; ``RegionNameMap`` and
 Interface split helpers
 -----------------------
 
-The three split tables share one index domain: the global face registry.
-``childFaceIdsOfParent[globalFaceId]`` stores the children of that parent,
-while ``childFaceNodeIds[childFaceId]`` and
-``childFaceNodeFlags[childFaceId]`` store the child-node mapping metadata.
-The child metadata may contain parent-local node indices when the corresponding
-flag is ``1``; the array index itself is still a global child-face ID.
-Therefore, ``ResetForFaceCount`` sizes all three tables to the global face
-count. The name deliberately avoids implying that child metadata uses a
-separate compact parent index.
+The split table uses two index domains because face identity and
+parent-relative reconstruction are different concepts:
 
-This layout has an important invariant that is not enforced by the container:
-each child-face metadata row must be meaningful for the parent ring used by the
-consumer. ``SplitQuad2Tri`` and ``SplitLine`` currently write the mapping
-row by child ID while discovering children from a parent. If the same global
-child is associated with two parents whose local corner indices differ, the
-later write replaces the earlier mapping. Face identity can be shared globally;
-parent-relative mapping cannot safely be shared unless both mappings are
-equivalent. Keep global child IDs for deduplication, but store or pass
-parent-specific node mappings for reconstruction. A regression must exercise
-the split-table producer and the real rebuild consumer before this storage
-change is made.
+* ``childFaceIdsOfParent[globalParentFaceId]`` lists global child face IDs.
+* ``childFaceNodeIds[globalChildFaceId]`` and
+  ``childFaceNodeFlags[globalChildFaceId]`` are legacy child-indexed
+  mapping rows retained for compatibility.
+* ``childFaceNodeIdsByParent[globalParentFaceId]`` and
+  ``childFaceNodeFlagsByParent[globalParentFaceId]`` store the preferred
+  mappings aligned by child position within that parent's child list.
+
+``ResetForFaceCount`` sizes the global-ID-indexed tables to the global face
+count. Parent-specific rows are aligned to ``childFaceIdsOfParent[parent]``,
+not indexed by child ID. A flag of ``1`` means the corresponding node ID is
+a corner index in the parent face ring; other flag values retain the mapping
+semantics defined by the split builder.
+
+This distinction is required when a global child face is shared by multiple
+parents. The child ID can be shared because face identity is order-independent,
+but local corner indices belong to a particular parent ring. For example, the
+same triangle with global nodes `A, B, C` can be described by local corners
+`[0, 1, 2]` in one parent and `[2, 0, 1]` in another. Reusing one child's
+mapping row for both parents would reconstruct the wrong ordered node ring for
+at least one consumer.
+
+The production path therefore prefers parent-specific rows when collecting
+node mappings for interface rebuild. Legacy global-child rows are a fallback
+for older helper callers and fixtures that do not provide parent-specific
+rows. An empty child list is not an error: it means the parent was not split,
+so the rebuild preserves that face without requiring node mapping metadata.
 
 * ``GetInterfaceChildFaceIds(l2g, splitTable, zone, local)`` is the pure
   overload (**test:** ``InterfaceChildFaceIdsTest``).
