@@ -44,6 +44,11 @@ TEST( QuadDiagonalSplitTest, EachDiagonalCandidatePairPreservesBoundaryAndShares
     const auto expectPairTopology = [&]( std::size_t firstTri,
                                          const std::pair< int, int > & diagonal )
     {
+        const std::pair< int, int > edge01{ 0, 1 };
+        const std::pair< int, int > edge12{ 1, 2 };
+        const std::pair< int, int > edge23{ 2, 3 };
+        const std::pair< int, int > edge30{ 0, 3 };
+
         std::map< std::pair< int, int >, int > edgeCounts;
         for ( std::size_t iTri = firstTri; iTri < firstTri + 2; ++ iTri )
         {
@@ -53,21 +58,21 @@ TEST( QuadDiagonalSplitTest, EachDiagonalCandidatePairPreservesBoundaryAndShares
                 int a = tri[ iEdge ];
                 int b = tri[ ( iEdge + 1 ) % 3 ];
                 if ( a > b ) std::swap( a, b );
-                ++ edgeCounts[ { a, b } ];
+                ++ edgeCounts[ std::make_pair( a, b ) ];
             }
         }
 
         EXPECT_EQ( edgeCounts.size(), static_cast< std::size_t >( 5 ) );
-        EXPECT_EQ( edgeCounts[ { 0, 1 } ], 1 );
-        EXPECT_EQ( edgeCounts[ { 1, 2 } ], 1 );
-        EXPECT_EQ( edgeCounts[ { 2, 3 } ], 1 );
-        EXPECT_EQ( edgeCounts[ { 0, 3 } ], 1 );
+        EXPECT_EQ( edgeCounts[ edge01 ], 1 );
+        EXPECT_EQ( edgeCounts[ edge12 ], 1 );
+        EXPECT_EQ( edgeCounts[ edge23 ], 1 );
+        EXPECT_EQ( edgeCounts[ edge30 ], 1 );
         EXPECT_EQ( edgeCounts[ diagonal ], 2 );
     };
 
     // Two triangles must preserve all four boundary edges and share only the diagonal.
-    expectPairTopology( 0, { 0, 2 } );
-    expectPairTopology( 2, { 1, 3 } );
+    expectPairTopology( 0, std::make_pair( 0, 2 ) );
+    expectPairTopology( 2, std::make_pair( 1, 3 ) );
 }
 
 TEST( QuadDiagonalSplitTest, MapsLocalCornersThroughQuadNodes )
