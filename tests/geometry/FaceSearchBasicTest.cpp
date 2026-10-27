@@ -74,7 +74,7 @@ TEST( FaceSearchBasicTest, NonQuadSplitClearsStaleParentMapping )
 {
     FaceSearch search;
     ASSERT_EQ( search.AddFace( IntField{ 1, 2, 3 } ), 0 );
-    search.interfaceSplit.ResetForParentFaceCount( search.Size() );
+    search.interfaceSplit.ResetForFaceCount( search.Size() );
     search.interfaceSplit.childFaceIdsOfParent[ 0 ] = IntField{ 7, 8 };
 
     search.SplitQuad2Tri( 0 );
@@ -91,7 +91,7 @@ TEST( FaceSearchBasicTest, RepeatedQuadSplitReplacesParentChildMapping )
     EXPECT_EQ( search.AddFace( IntField{ 30, 40, 10 } ), 2 );
     EXPECT_EQ( search.AddFace( IntField{ 40, 10, 20 } ), 3 );
     EXPECT_EQ( search.AddFace( IntField{ 20, 30, 40 } ), 4 );
-    search.interfaceSplit.ResetForParentFaceCount( search.Size() );
+    search.interfaceSplit.ResetForFaceCount( search.Size() );
 
     search.SplitQuad2Tri( 0 );
     search.SplitQuad2Tri( 0 );
@@ -155,10 +155,29 @@ TEST( FaceSearchBasicTest, GetFaceNodeRingRejectsOutOfRange )
     EXPECT_THROW( search.GetFaceNodeRing( 1 ), std::out_of_range );
 }
 
+TEST( FaceSearchBasicTest, ResetForFaceCountClearsAllSplitTables )
+{
+    // Intent: every table uses the global face ID domain and reset removes stale rows.
+    InterfaceFaceSplitTable split;
+    split.ResetForFaceCount( 3 );
+    split.childFaceIdsOfParent[ 0 ] = IntField{ 1, 2 };
+    split.childFaceNodeIds[ 1 ] = IntField{ 0, 1 };
+    split.childFaceNodeFlags[ 1 ] = IntField{ 1, -1 };
+
+    split.ResetForFaceCount( 2 );
+
+    ASSERT_EQ( split.childFaceIdsOfParent.size(), static_cast< std::size_t >( 2 ) );
+    ASSERT_EQ( split.childFaceNodeIds.size(), static_cast< std::size_t >( 2 ) );
+    ASSERT_EQ( split.childFaceNodeFlags.size(), static_cast< std::size_t >( 2 ) );
+    EXPECT_TRUE( split.childFaceIdsOfParent[ 0 ].empty() );
+    EXPECT_TRUE( split.childFaceNodeIds[ 1 ].empty() );
+    EXPECT_TRUE( split.childFaceNodeFlags[ 1 ].empty() );
+}
+
 TEST( FaceSearchBasicTest, ClearParentMappingOnlyClearsRequestedParent )
 {
     InterfaceFaceSplitTable split;
-    split.ResetForParentFaceCount( 2 );
+    split.ResetForFaceCount( 2 );
     split.childFaceIdsOfParent[ 0 ] = IntField{ 4, 5 };
     split.childFaceIdsOfParent[ 1 ] = IntField{ 7, 8 };
 
@@ -171,7 +190,7 @@ TEST( FaceSearchBasicTest, ClearParentMappingOnlyClearsRequestedParent )
 TEST( FaceSearchBasicTest, ClearParentMappingRejectsInvalidParentId )
 {
     InterfaceFaceSplitTable split;
-    split.ResetForParentFaceCount( 1 );
+    split.ResetForFaceCount( 1 );
 
     EXPECT_THROW( split.ClearParentMapping( -1 ), std::out_of_range );
     EXPECT_THROW( split.ClearParentMapping( 1 ), std::out_of_range );
