@@ -2,7 +2,9 @@
 // Locks quad->triangle candidate topology used by FaceSearch::SplitQuad2Tri.
 
 #include <gtest/gtest.h>
+#include <map>
 #include <stdexcept>
+#include <utility>
 
 #include "FaceSearch.h"
 #include "HXDefine.h"
@@ -32,6 +34,40 @@ TEST( QuadDiagonalSplitTest, ClearsPreviousContents )
     BuildQuadDiagonalLocalTris( localTriId, localTriFlag );
     EXPECT_EQ( localTriId.size(), static_cast< std::size_t >( 4 ) );
     EXPECT_EQ( localTriId[ 0 ], ( IntField{ 0, 1, 2 } ) );
+}
+
+TEST( QuadDiagonalSplitTest, EachDiagonalCandidatePairPreservesBoundaryAndSharesOneDiagonal )
+{
+    LinkField localTriId, localTriFlag;
+    BuildQuadDiagonalLocalTris( localTriId, localTriFlag );
+
+    const auto expectPairTopology = [&]( std::size_t firstTri,
+                                         const std::pair< int, int > & diagonal )
+    {
+        std::map< std::pair< int, int >, int > edgeCounts;
+        for ( std::size_t iTri = firstTri; iTri < firstTri + 2; ++ iTri )
+        {
+            const IntField & tri = localTriId[ iTri ];
+            for ( std::size_t iEdge = 0; iEdge < 3; ++ iEdge )
+            {
+                int a = tri[ iEdge ];
+                int b = tri[ ( iEdge + 1 ) % 3 ];
+                if ( a > b ) std::swap( a, b );
+                ++ edgeCounts[ { a, b } ];
+            }
+        }
+
+        EXPECT_EQ( edgeCounts.size(), static_cast< std::size_t >( 5 ) );
+        EXPECT_EQ( edgeCounts[ { 0, 1 } ], 1 );
+        EXPECT_EQ( edgeCounts[ { 1, 2 } ], 1 );
+        EXPECT_EQ( edgeCounts[ { 2, 3 } ], 1 );
+        EXPECT_EQ( edgeCounts[ { 0, 3 } ], 1 );
+        EXPECT_EQ( edgeCounts[ diagonal ], 2 );
+    };
+
+    // Two triangles must preserve all four boundary edges and share only the diagonal.
+    expectPairTopology( 0, { 0, 2 } );
+    expectPairTopology( 2, { 1, 3 } );
 }
 
 TEST( QuadDiagonalSplitTest, MapsLocalCornersThroughQuadNodes )
