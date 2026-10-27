@@ -88,7 +88,7 @@ void FaceSearch::Clear()
 void FaceSearch::CalcNewFaceId( IFaceLink & iFaceLink )
 {
     const int nFaces = static_cast< int >( this->Size() );
-    this->interfaceSplit.ResetForParentFaceCount( static_cast< std::size_t >( nFaces ) );
+    this->interfaceSplit.ResetForFaceCount( static_cast< std::size_t >( nFaces ) );
 
     if ( Dim::dimension == ONEFLOW::THREE_D )
     {
