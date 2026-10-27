@@ -165,6 +165,18 @@ Therefore, ``ResetForFaceCount`` sizes all three tables to the global face
 count. The name deliberately avoids implying that child metadata uses a
 separate compact parent index.
 
+This layout has an important invariant that is not enforced by the container:
+each child-face metadata row must be meaningful for the parent ring used by the
+consumer. ``SplitQuad2Tri`` and ``SplitLine`` currently write the mapping
+row by child ID while discovering children from a parent. If the same global
+child is associated with two parents whose local corner indices differ, the
+later write replaces the earlier mapping. Face identity can be shared globally;
+parent-relative mapping cannot safely be shared unless both mappings are
+equivalent. Keep global child IDs for deduplication, but store or pass
+parent-specific node mappings for reconstruction. A regression must exercise
+the split-table producer and the real rebuild consumer before this storage
+change is made.
+
 * ``GetInterfaceChildFaceIds(l2g, splitTable, zone, local)`` is the pure
   overload (**test:** ``InterfaceChildFaceIdsTest``).
 * ``ValidateGlobalFaceMapping`` / ``ValidateGlobalFaceMappings`` check
