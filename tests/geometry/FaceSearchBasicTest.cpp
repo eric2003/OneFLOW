@@ -272,3 +272,27 @@ TEST( FaceSearchBasicTest, ClearParentMappingRejectsInvalidParentId )
     EXPECT_THROW( split.ClearParentMapping( -1 ), std::out_of_range );
     EXPECT_THROW( split.ClearParentMapping( 1 ), std::out_of_range );
 }
+
+TEST( FaceSearchBasicTest, ClearParentMappingRejectsMisalignedParentTables )
+{
+    InterfaceFaceSplitTable split;
+    split.ResetForFaceCount( 2 );
+    split.childFaceIdsOfParent[ 0 ] = IntField{ 1 };
+    split.childFaceNodeFlagsByParent.clear();
+
+    EXPECT_THROW( split.ClearParentMapping( 0 ), std::logic_error );
+    EXPECT_EQ( split.childFaceIdsOfParent[ 0 ], ( IntField{ 1 } ) );
+}
+
+TEST( FaceSearchBasicTest, SetChildMappingRejectsMissingParentSpecificRow )
+{
+    InterfaceFaceSplitTable split;
+    split.ResetForFaceCount( 2 );
+    split.childFaceIdsOfParent[ 0 ] = IntField{ 1 };
+    split.childFaceNodeFlagsByParent.clear();
+
+    EXPECT_THROW(
+        split.SetChildMapping( 0, 1, IntField{ 0, 1 }, IntField{ 1, 1 } ),
+        std::logic_error );
+}
+
