@@ -155,6 +155,16 @@ Region names use injectable ``RegionNameRegistry``; ``RegionNameMap`` and
 Interface split helpers
 -----------------------
 
+The three split tables share one index domain: the global face registry.
+``childFaceIdsOfParent[globalFaceId]`` stores the children of that parent,
+while ``childFaceNodeIds[childFaceId]`` and
+``childFaceNodeFlags[childFaceId]`` store the child-node mapping metadata.
+The child metadata may contain parent-local node indices when the corresponding
+flag is ``1``; the array index itself is still a global child-face ID.
+Therefore, ``ResetForFaceCount`` sizes all three tables to the global face
+count. The name deliberately avoids implying that child metadata uses a
+separate compact parent index.
+
 * ``GetInterfaceChildFaceIds(l2g, splitTable, zone, local)`` is the pure
   overload (**test:** ``InterfaceChildFaceIdsTest``).
 * ``ValidateGlobalFaceMapping`` / ``ValidateGlobalFaceMappings`` check
