@@ -82,6 +82,12 @@ struct InterfaceFaceSplitTable
     }
 
     void ClearParentMapping( int parentFaceId );
+    // Reject conflicting metadata for a shared child instead of silently overwriting it.
+    void SetChildMapping(
+        int parentFaceId,
+        int childFaceId,
+        const IntField & localNodeIds,
+        const IntField & localNodeFlags );
 };
 
 class FaceSearch : public FaceSearchBasic
