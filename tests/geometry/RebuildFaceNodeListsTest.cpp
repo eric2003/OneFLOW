@@ -66,6 +66,34 @@ TEST( RebuildFaceNodeListsTest, SplitInterfaceResolvesChildNodeLists )
     EXPECT_EQ( out[ 0 ], ( IntField{ 100, 101, 102 } ) );
 }
 
+TEST( RebuildFaceNodeListsTest, SharedChildUsesEachParentLocalMapping )
+{
+    // Both parents refer to global child 7, but use different local corner indices.
+    LinkField faces{
+        IntField{ 100, 101, 102, 103 },
+        IntField{ 101, 102, 100, 104 }
+    };
+    const IntField bcType{ BC::INTERFACE, BC::INTERFACE };
+    const LinkField childGlobals{ IntField{ 7 }, IntField{ 7 } };
+    const std::vector< LinkField > childNodeIds{
+        LinkField{ IntField{ 0, 1, 2 } },
+        LinkField{ IntField{ 2, 0, 1 } }
+    };
+    const std::vector< LinkField > childNodeFlags{
+        LinkField{ IntField{ 1, 1, 1 } },
+        LinkField{ IntField{ 1, 1, 1 } }
+    };
+
+    LinkField out;
+    RebuildFaceNodeListsAfterInterfaceSplit(
+        faces, bcType, 2, 2, childGlobals, childNodeIds, childNodeFlags,
+        false, 0, out );
+
+    ASSERT_EQ( out.size(), static_cast< std::size_t >( 2 ) );
+    EXPECT_EQ( out[ 0 ], ( IntField{ 100, 101, 102 } ) );
+    EXPECT_EQ( out[ 1 ], ( IntField{ 100, 101, 102 } ) );
+}
+
 TEST( RebuildFaceNodeListsTest, RejectsInterfaceChildListShortfall )
 {
     LinkField faces;
