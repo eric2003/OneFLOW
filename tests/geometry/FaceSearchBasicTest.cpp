@@ -142,6 +142,23 @@ TEST( FaceSearchBasicTest, QuadSplitMatchesRegisteredTrianglesRegardlessOfNodeOr
     EXPECT_EQ( search.GetFaceNodeRing( 2 ), secondTriangleRing );
 }
 
+TEST( FaceSearchBasicTest, InvalidQuadCandidateLeavesMappedOutputUnchanged )
+{
+    // Intent: validate every candidate before publishing any mapped triangles.
+    const IntField quadNodes{ 10, 20, 30, 40 };
+    const LinkField localTriangles{
+        IntField{ 0, 1, 2 },
+        IntField{ 2, 3, 4 }
+    };
+    LinkField mappedTriangles{ IntField{ 90, 91, 92 } };
+
+    EXPECT_THROW(
+        MapLocalTrisToGlobalNodes( quadNodes, localTriangles, mappedTriangles ),
+        std::out_of_range );
+
+    EXPECT_EQ( mappedTriangles, ( LinkField{ IntField{ 90, 91, 92 } } ) );
+}
+
 TEST( FaceSearchBasicTest, LineSplitMappingPreservesEdgeDirectionAndEndpointFlags )
 {
     // Intent: splitting A->B produces A->M and M->B in both local and global IDs.
