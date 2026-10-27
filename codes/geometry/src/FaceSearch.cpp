@@ -79,6 +79,40 @@ void InterfaceFaceSplitTable::ClearParentMapping( int parentFaceId )
     this->childFaceIdsOfParent[ parentFaceId ].clear();
 }
 
+void InterfaceFaceSplitTable::SetChildMapping(
+    int parentFaceId,
+    int childFaceId,
+    const IntField & localNodeIds,
+    const IntField & localNodeFlags )
+{
+    if ( parentFaceId < 0 ||
+         static_cast< std::size_t >( parentFaceId ) >= this->childFaceIdsOfParent.size() ||
+         childFaceId < 0 ||
+         static_cast< std::size_t >( childFaceId ) >= this->childFaceNodeIds.size() ||
+         static_cast< std::size_t >( childFaceId ) >= this->childFaceNodeFlags.size() )
+    {
+        throw std::out_of_range(
+            "InterfaceFaceSplitTable::SetChildMapping: face ID is out of range" );
+    }
+    if ( localNodeIds.size() != localNodeFlags.size() )
+    {
+        throw std::logic_error(
+            "InterfaceFaceSplitTable::SetChildMapping: node IDs and flags have different sizes" );
+    }
+
+    const IntField & existingIds = this->childFaceNodeIds[ childFaceId ];
+    const IntField & existingFlags = this->childFaceNodeFlags[ childFaceId ];
+    if ( ( ! existingIds.empty() || ! existingFlags.empty() ) &&
+         ( existingIds != localNodeIds || existingFlags != localNodeFlags ) )
+    {
+        throw std::logic_error(
+            "InterfaceFaceSplitTable::SetChildMapping: shared child has conflicting parent-local mappings" );
+    }
+
+    this->childFaceNodeIds[ childFaceId ] = localNodeIds;
+    this->childFaceNodeFlags[ childFaceId ] = localNodeFlags;
+}
+
 void FaceSearch::Clear()
 {
     FaceSearchBasic::Clear();
@@ -128,8 +162,8 @@ void FaceSearch::SplitQuad2Tri( int faceId )
         if ( fId != ONEFLOW::INVALID_INDEX )
         {
             this->interfaceSplit.childFaceIdsOfParent[ faceId ].push_back( fId );
-            this->interfaceSplit.childFaceNodeIds  [ fId ] = localTriId  [ iTri ];
-            this->interfaceSplit.childFaceNodeFlags[ fId ] = localTriFlag[ iTri ];
+            this->interfaceSplit.SetChildMapping(
+                faceId, fId, localTriId[ iTri ], localTriFlag[ iTri ] );
         }
     }
 }
@@ -158,8 +192,8 @@ void FaceSearch::SplitLine( IFaceLink & iFaceLink, int globalFaceId )
         if ( fId != ONEFLOW::INVALID_INDEX )
         {
             this->interfaceSplit.childFaceIdsOfParent[ globalFaceId ].push_back( fId );
-            this->interfaceSplit.childFaceNodeIds  [ fId ] = localLineId  [ iLi ];
-            this->interfaceSplit.childFaceNodeFlags[ fId ] = localLineFlag[ iLi ];
+            this->interfaceSplit.SetChildMapping(
+                globalFaceId, fId, localLineId[ iLi ], localLineFlag[ iLi ] );
         }
     }
 }
