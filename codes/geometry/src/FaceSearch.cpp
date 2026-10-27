@@ -77,6 +77,11 @@ void InterfaceFaceSplitTable::ClearParentMapping( int parentFaceId )
     }
 
     this->childFaceIdsOfParent[ parentFaceId ].clear();
+    if ( static_cast< std::size_t >( parentFaceId ) < this->childFaceNodeIdsByParent.size() )
+    {
+        this->childFaceNodeIdsByParent[ parentFaceId ].clear();
+        this->childFaceNodeFlagsByParent[ parentFaceId ].clear();
+    }
 }
 
 void InterfaceFaceSplitTable::SetChildMapping(
@@ -100,17 +105,31 @@ void InterfaceFaceSplitTable::SetChildMapping(
             "InterfaceFaceSplitTable::SetChildMapping: node IDs and flags have different sizes" );
     }
 
-    const IntField & existingIds = this->childFaceNodeIds[ childFaceId ];
-    const IntField & existingFlags = this->childFaceNodeFlags[ childFaceId ];
-    if ( ( ! existingIds.empty() || ! existingFlags.empty() ) &&
-         ( existingIds != localNodeIds || existingFlags != localNodeFlags ) )
+    const IntField & parentChildren = this->childFaceIdsOfParent[ parentFaceId ];
+    const auto childPosition = std::find(
+        parentChildren.begin(), parentChildren.end(), childFaceId );
+    if ( childPosition == parentChildren.end() )
     {
         throw std::logic_error(
-            "InterfaceFaceSplitTable::SetChildMapping: shared child has conflicting parent-local mappings" );
+            "InterfaceFaceSplitTable::SetChildMapping: child is not registered for parent" );
     }
 
-    this->childFaceNodeIds[ childFaceId ] = localNodeIds;
-    this->childFaceNodeFlags[ childFaceId ] = localNodeFlags;
+    const std::size_t parentIndex = static_cast< std::size_t >( parentFaceId );
+    const std::size_t childIndex = static_cast< std::size_t >(
+        childPosition - parentChildren.begin() );
+    LinkField & parentNodeIds = this->childFaceNodeIdsByParent[ parentIndex ];
+    LinkField & parentNodeFlags = this->childFaceNodeFlagsByParent[ parentIndex ];
+    parentNodeIds.resize( parentChildren.size() );
+    parentNodeFlags.resize( parentChildren.size() );
+    parentNodeIds[ childIndex ] = localNodeIds;
+    parentNodeFlags[ childIndex ] = localNodeFlags;
+
+    if ( this->childFaceNodeIds[ childFaceId ].empty() &&
+         this->childFaceNodeFlags[ childFaceId ].empty() )
+    {
+        this->childFaceNodeIds[ childFaceId ] = localNodeIds;
+        this->childFaceNodeFlags[ childFaceId ] = localNodeFlags;
+    }
 }
 
 void FaceSearch::Clear()
