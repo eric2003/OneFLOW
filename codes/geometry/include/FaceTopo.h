@@ -201,6 +201,15 @@ void CollectBoundaryInterfaceChildCounts(
     int zoneId,
     IntField & outChildCountPerInterfaceLocal );
 
+void CollectBoundaryInterfaceChildNodeMappings(
+    const IntField & bcType,
+    int nBFaces,
+    const LinkField & zoneToLocalToGlobal,
+    const InterfaceFaceSplitTable & splitTable,
+    int zoneId,
+    std::vector< LinkField > & outNodeIdsPerInterfaceLocal,
+    std::vector< LinkField > & outNodeFlagsPerInterfaceLocal );
+
 // Rebuild face-to-node lists after interface boundary faces may split.
 // childGlobalIdsPerInterfaceLocal is parallel to interface faces in boundary
 // order; empty means keep the parent node list, non-empty means emit one
@@ -214,6 +223,18 @@ void RebuildFaceNodeListsAfterInterfaceSplit(
     const LinkField & childGlobalIdsPerInterfaceLocal,
     const LinkField & childFaceNodeIds,
     const LinkField & childFaceNodeFlags,
+    bool hasNodeMesh,
+    HXSize_t nodeMeshCount,
+    LinkField & outFaces );
+
+void RebuildFaceNodeListsAfterInterfaceSplit(
+    const LinkField & faces,
+    const IntField & bcType,
+    int nBFaces,
+    int nFaces,
+    const LinkField & childGlobalIdsPerInterfaceLocal,
+    const std::vector< LinkField > & childNodeIdsPerInterfaceLocal,
+    const std::vector< LinkField > & childNodeFlagsPerInterfaceLocal,
     bool hasNodeMesh,
     HXSize_t nodeMeshCount,
     LinkField & outFaces );
