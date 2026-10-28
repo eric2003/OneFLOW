@@ -1,6 +1,9 @@
 // tests/PointLocatorLifecycleTest.cpp
 #include <gtest/gtest.h>
 #include "PointLocator.h"
+#include "Grid.h"
+#include "NodeMesh.h"
+#include <memory>
 #include "Constant.h"
 
 // Verify that PointLocator can be safely instantiated and destroyed on the stack.
@@ -55,4 +58,34 @@ TEST(PointLocatorLifecycleTest, ReInitializeDoesNotLeak)
         EXPECT_EQ(locator.AddPoint(2.0, 2.0, 2.0), 0);
         EXPECT_EQ(locator.GetNPoint(), 1);
     });
+}
+namespace
+{
+class PointLocatorTestGrid : public ONEFLOW::Grid
+{
+public:
+    std::unique_ptr< ONEFLOW::Grid > Clone() const override
+    {
+        return std::make_unique< PointLocatorTestGrid >();
+    }
+};
+} // namespace
+
+TEST(PointLocatorLifecycleTest, SpecialToleranceExpandsAdtBounds)
+{
+    PointLocatorTestGrid grid;
+    grid.Init();
+    grid.nodeMesh->SetCoordinates(
+        ONEFLOW::RealField{ 0.0, 1.0 },
+        ONEFLOW::RealField{ 0.0, 1.0 },
+        ONEFLOW::RealField{ 0.0, 1.0 } );
+
+    ONEFLOW::PointLocator locator;
+    const double explicitTolerance = 0.5;
+    locator.InitializeSpecial( &grid, explicitTolerance );
+
+    // This point is outside the grid's raw bounds but inside the explicit
+    // tolerance-expanded ADT bounds.
+    EXPECT_EQ( locator.AddPoint( 1.4, 0.5, 0.5 ), 0 );
+    EXPECT_EQ( locator.FindPoint( 1.45, 0.5, 0.5 ), 0 );
 }
