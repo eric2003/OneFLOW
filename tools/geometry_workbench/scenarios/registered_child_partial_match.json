@@ -24,15 +24,7 @@
         20,
         30
       ]
-    ],
-    "outputBuffersBeforeCall": {
-      "childFaceIds": [
-        99
-      ],
-      "candidateIndices": [
-        99
-      ]
-    }
+    ]
   },
   "expected": {
     "childFaceIds": [
@@ -44,7 +36,7 @@
   },
   "notes": [
     "The candidate index is the position in candidateFaces, not the compacted output position.",
-    "The GUI scenario currently uses the fixture backend; it does not execute the C++ GoogleTest or invoke ResolveRegisteredChildFaces.",
-    "The authoritative behavior is tested by FaceSearchBasicTest.RegisteredChildResolutionPreservesCandidateIndexForPartialMatch."
+    "The C++ resolver returns each global child face ID paired with its original candidate index.",
+    "The GUI scenario currently uses the fixture backend; it does not execute the C++ GoogleTest."
   ]
 }
