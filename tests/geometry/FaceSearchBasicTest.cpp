@@ -260,7 +260,8 @@ TEST( FaceSearchBasicTest, ResetForFaceCountClearsAllSplitTables )
 TEST( FaceSearchBasicTest, ClearParentMappingOnlyClearsRequestedParent )
 {
     InterfaceFaceSplitTable split;
-    split.ResetForFaceCount( 2 );
+    // Face IDs 0 and 1 are parents; face ID 2 is their shared child.
+    split.ResetForFaceCount( 3 );
     split.childFaceIdsOfParent[ 0 ] = IntField{ 2 };
     split.childFaceIdsOfParent[ 1 ] = IntField{ 2 };
     split.childFaceNodeIds[ 2 ] = IntField{ 0, 1, 2 };
