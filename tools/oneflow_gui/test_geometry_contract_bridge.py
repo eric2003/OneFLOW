@@ -23,6 +23,19 @@ class GeometryContractBridgeTest(unittest.TestCase):
         actual = run_pipeline(scenario, backend="stub")
         self.assertEqual(diff_tables(actual, scenario["expected"]), [])
 
+    def test_stub_output_is_fixture_backed_not_input_driven(self) -> None:
+        from copy import deepcopy
+
+        from geometry_workbench.scenarios import list_scenario_paths, load_scenario
+        from geometry_workbench.pipeline_stub import run_pipeline
+
+        scenario = load_scenario(list_scenario_paths(REPO)[0])
+        baseline = run_pipeline(scenario, backend="stub")
+        edited = deepcopy(scenario)
+        edited["input"]["l2g"][0][0] = 9876
+
+        self.assertEqual(run_pipeline(edited, backend="stub"), baseline)
+
     def test_edited_expected_contract_reports_mismatch(self) -> None:
         from copy import deepcopy
 
