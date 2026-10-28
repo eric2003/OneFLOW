@@ -54,7 +54,7 @@ PointLocator::PointLocator()
 PointLocator::~PointLocator() = default;
 
 
-void PointLocator::Initialize( RealField & pmin, RealField & pmax, Real toleranceIn )
+void PointLocator::Initialize( const RealField & pmin, const RealField & pmax, Real toleranceIn )
 {
     this->tolerance = toleranceIn;
     ONEFLOW::CreateStandardADT( pmin, pmax, this->coorTree, this->tolerance);
@@ -189,7 +189,7 @@ void PointLocator::GetFaceCoorList( const IntField & nodeId, RealField &xList, R
     }
 }
 
-void CreateStandardADT( RealField & ptmin, RealField & ptmax, std::unique_ptr<AdtTree>& adtTree, Real & tolerance )
+void CreateStandardADT( const RealField & ptmin, const RealField & ptmax, std::unique_ptr<AdtTree>& adtTree, Real & tolerance )
 {
     RealField pmin = ptmin;
     RealField pmax = ptmax;
