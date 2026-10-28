@@ -392,10 +392,12 @@ this path does not independently decide to split every edge.
 
 When a midpoint is available, the algorithm resolves it in two index spaces:
 
-#. The zone's ``nodeMesh`` is queried first. If the coordinate is absent there,
-   it is appended and the returned index becomes the **zone-local** midpoint ID.
-#. ``PointLocator::AddPoint`` supplies the **global search** midpoint ID used
-   when constructing child edge identities.
+#. ``PointLocator::FindPoint`` returns the existing **global search** midpoint ID.
+   If no midpoint is registered there, this edge is not split.
+#. The zone's ``nodeMesh`` is queried using the same coordinate. If the point is
+   absent there, it is appended and the returned index becomes the **zone-local**
+   midpoint ID. The already-discovered global ID is reused when constructing
+   child edge identities; the locator is not searched or modified a second time.
 
 ``BuildLineSplitMapping`` is the pure mapping step. For a parent edge directed
 from ``A`` to ``B`` and midpoint ``M``, it emits local edges ``(0, M_local)``
