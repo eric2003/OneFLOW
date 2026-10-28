@@ -88,6 +88,74 @@ L0 summary output is the first practical step. It is metadata only: it does not 
 
 JSON is suitable for manifests and small metadata. Large numeric arrays may need compact typed payloads. JSON-library types should remain inside serialization adapters rather than leaking into the canonical mesh model.
 
+Spatial search and point-location boundary
+--------------------------------------------
+
+Point location is a geometry service, not an ADT-specific service. The current
+`PointLocator` combines several responsibilities:
+
+* point-coordinate storage and stable point IDs;
+* duplicate detection and the tolerance policy;
+* broad-phase candidate retrieval through `HXAdtTree`;
+* narrow-phase Euclidean distance checks and nearest-match selection.
+
+These responsibilities are related but should not all depend on the same concrete
+implementation. The ADT is an implementation detail of candidate retrieval. A future
+spatial-index contract should expose only the operations needed by geometry code, such as
+rebuilding an index, inserting a point with a payload, and querying candidates in an
+axis-aligned region or within a radius. Tree nodes, ownership handles, and third-party
+types should not cross that boundary.
+
+The intended dependency direction is:
+
+.. code-block:: text
+
+   PointLocator
+       -> spatial-index contract
+            -> OneFLOW ADT adapter (existing baseline)
+            -> nanoflann adapter (optional candidate backend)
+
+The contract must specify more than matching function names. It must state:
+
+* whether the index owns point data or only references a coordinate dataset;
+* whether insertions after construction are supported, and how index rebuilds work;
+* the dimensionality and coordinate lifetime requirements;
+* whether a query returns all candidates in a region, nearest neighbours, or radius matches;
+* that candidate ordering is not semantically significant unless explicitly documented;
+* how IDs and payloads are preserved across rebuilds;
+* how tolerance-boundary cases are treated by the final geometry predicate.
+
+The current `PointLocator` performs a broad-phase axis-aligned box query and then a
+narrow-phase squared-distance check. For tolerance `t`, the candidate window is
+`[x-t, x+t] x [y-t, y+t] x [z-t, z+t]`; the final predicate accepts a candidate only
+when its squared distance is strictly less than `t*t`. The broad phase may return false
+positives, but it must not omit a point that satisfies the narrow-phase predicate. Keeping
+the final predicate in `PointLocator` prevents backend-specific boundary semantics from
+silently changing deduplication behavior.
+
+nanoflann is worth evaluating as an alternative backend, not assuming as a drop-in
+replacement. Its common use is nearest-neighbour and radius search over a dataset adaptor;
+OneFLOW currently inserts points incrementally into the ADT. The adapter design therefore
+needs to decide whether to use a supported dynamic index, rebuild a static index at defined
+points, or retain the ADT for incremental construction. Compare real OneFLOW workloads:
+incremental point insertion, duplicate-heavy interface matching, query throughput, build
+cost, memory use, and result equivalence. Do not select a backend from synthetic query
+speed alone.
+
+The migration should be staged:
+
+#. Extract and test the backend-independent match policy while retaining the current ADT.
+#. Introduce a narrow index contract and wrap the ADT without changing observable results.
+#. Run the same contract tests against the ADT adapter and any nanoflann adapter.
+#. Add representative benchmarks and compare full matching results, including tolerance
+   boundaries and duplicate insertion order.
+#. Keep nanoflann optional until dependency licensing, packaging, platform builds, and
+   performance evidence are reviewed.
+
+This boundary improves testability and future implementation choice without requiring
+solver, mesh-container, or point-ID changes. It is a proposed direction until the adapters
+and shared contract tests exist; the current implementation remains ADT-backed.
+
 Topology invariants and rebuild rules
 -------------------------------------
 
