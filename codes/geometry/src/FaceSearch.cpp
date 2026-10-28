@@ -301,27 +301,34 @@ void FaceSearch::SplitLine( IFaceLink & iFaceLink, int globalFaceId )
     }
 }
 
-void BuildLineSplitMapping(
+void BuildGlobalLineSplitCandidates(
     int firstNode,
     int secondNode,
-    int midpointLocalNode,
     int midpointGlobalNode,
-    LinkField & localLineId,
-    LinkField & localLineFlag,
-    LinkField & lineId )
+    LinkField & globalLineIds )
 {
-    localLineId.clear();
-    localLineFlag.clear();
-    lineId.clear();
+    LinkField candidates{
+        IntField{ firstNode, midpointGlobalNode },
+        IntField{ midpointGlobalNode, secondNode }
+    };
+    globalLineIds.swap( candidates );
+}
 
-    localLineId.push_back( IntField{ 0, midpointLocalNode } );
-    localLineId.push_back( IntField{ midpointLocalNode, 1 } );
-
-    localLineFlag.push_back( IntField{ 1, -1 } );
-    localLineFlag.push_back( IntField{ -1, 1 } );
-
-    lineId.push_back( IntField{ firstNode, midpointGlobalNode } );
-    lineId.push_back( IntField{ midpointGlobalNode, secondNode } );
+void BuildLocalLineSplitMapping(
+    int midpointLocalNode,
+    LinkField & localLineId,
+    LinkField & localLineFlag )
+{
+    LinkField childLocalIds{
+        IntField{ 0, midpointLocalNode },
+        IntField{ midpointLocalNode, 1 }
+    };
+    LinkField childLocalFlags{
+        IntField{ 1, -1 },
+        IntField{ -1, 1 }
+    };
+    localLineId.swap( childLocalIds );
+    localLineFlag.swap( childLocalFlags );
 }
 
 void BuildQuadDiagonalLocalTris( LinkField & localTriId, LinkField & localTriFlag )
@@ -408,10 +415,11 @@ bool FaceSearch::TrySplitLineAtMidpoint(
 
     // Resolve and validate registered child identities before mutating the
     // zone mesh. An edge with no registered child cannot publish a split map.
-    ResolveRegisteredChildFaces( *this, LinkField{
-        IntField{ p0, midpointGlobalNode },
-        IntField{ midpointGlobalNode, p1 } },
-        childFaceIds, childCandidateIndices );
+    LinkField globalLineCandidates;
+    BuildGlobalLineSplitCandidates(
+        p0, p1, midpointGlobalNode, globalLineCandidates );
+    ResolveRegisteredChildFaces(
+        *this, globalLineCandidates, childFaceIds, childCandidateIndices );
     if ( childFaceIds.empty() ) return false;
 
     Grid & grid = iFaceLink.GetGrid( soleZoneId );
@@ -423,9 +431,7 @@ bool FaceSearch::TrySplitLineAtMidpoint(
         grid.nodeMesh->AddPoint( coor2[ 0 ], coor2[ 1 ], coor2[ 2 ] );
     }
     // The midpoint was found above; reuse its global ID without another lookup.
-    LinkField lineId;
-    BuildLineSplitMapping(
-        p0, p1, pId, midpointGlobalNode, localLineId, localLineFlag, lineId );
+    BuildLocalLineSplitMapping( pId, localLineId, localLineFlag );
 
     return true;
 }
