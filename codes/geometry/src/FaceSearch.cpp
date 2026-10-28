@@ -423,6 +423,17 @@ bool FaceSearch::TrySplitLineAtMidpoint(
         point_search->FindPoint( coor2[ 0 ], coor2[ 1 ], coor2[ 2 ] );
     if ( midpointGlobalNode == ONEFLOW::INVALID_INDEX ) return false;
 
+    // Do not mutate a zone mesh when neither child edge exists in the
+    // global face registry. SplitLine can only publish mappings for registered
+    // child identities.
+    const int firstChildFace = this->FindFace( IntField{ p0, midpointGlobalNode } );
+    const int secondChildFace = this->FindFace( IntField{ midpointGlobalNode, p1 } );
+    if ( firstChildFace == ONEFLOW::INVALID_INDEX &&
+         secondChildFace == ONEFLOW::INVALID_INDEX )
+    {
+        return false;
+    }
+
     const int zoneIndex = zoneIds[ 0 ];
     Grid & grid = iFaceLink.GetGrid( zoneIndex );
     int pId = grid.nodeMesh->FindPoint(
