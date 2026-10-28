@@ -44,8 +44,8 @@ TEST( CollectBoundaryInterfaceChildNodeMappingsTest, RejectsMissingParentRowInst
     split.SetChildMapping(
         0, 2, IntField{ 0, 1, 2 }, IntField{ 1, 1, 1 } );
 
-    std::vector< LinkField > nodeIds{ IntField{ 90 } };
-    std::vector< LinkField > nodeFlags{ IntField{ -90 } };
+    std::vector< LinkField > nodeIds{ LinkField{ IntField{ 90 } } };
+    std::vector< LinkField > nodeFlags{ LinkField{ IntField{ -90 } } };
 
     EXPECT_THROW(
         CollectBoundaryInterfaceChildNodeMappings(
@@ -58,8 +58,8 @@ TEST( CollectBoundaryInterfaceChildNodeMappingsTest, RejectsMissingParentRowInst
             nodeFlags ),
         std::logic_error );
 
-    EXPECT_EQ( nodeIds, ( std::vector< LinkField >{ IntField{ 90 } } ) );
-    EXPECT_EQ( nodeFlags, ( std::vector< LinkField >{ IntField{ -90 } } ) );
+    EXPECT_EQ( nodeIds, ( std::vector< LinkField >{ LinkField{ IntField{ 90 } } } ) );
+    EXPECT_EQ( nodeFlags, ( std::vector< LinkField >{ LinkField{ IntField{ -90 } } } ) );
 }
 
 
