@@ -247,3 +247,31 @@ TEST( RebuildFaceNodeListsTest, ParentSpecificMappingTakesPrecedenceOverLegacyRo
     EXPECT_EQ( nodeIds[ 0 ], ( LinkField{ IntField{ 2, 0, 1 } } ) );
     EXPECT_EQ( nodeFlags[ 0 ], ( LinkField{ IntField{ 1, 1, 1 } } ) );
 }
+
+TEST( RebuildFaceNodeListsTest, FailedRebuildDoesNotPublishPartialFaceLists )
+{
+    LinkField faces{
+        IntField{ 10, 11, 12, 13 },
+        IntField{ 20, 21, 22, 23 }
+    };
+    const IntField bcType{ BC::INTERFACE, BC::INTERFACE };
+    const LinkField childGlobals{ IntField{ 7 }, IntField{ 8 } };
+    const std::vector< LinkField > childNodeIds{
+        LinkField{ IntField{ 0, 1, 2 } },
+        LinkField{ IntField{ 0, 1 } }
+    };
+    const std::vector< LinkField > childNodeFlags{
+        LinkField{ IntField{ 1, 1, 1 } },
+        LinkField{ IntField{ 1, 1 } }
+    };
+    LinkField out{ IntField{ 90, 91, 92 } };
+    const LinkField originalOut = out;
+
+    EXPECT_THROW(
+        RebuildFaceNodeListsAfterInterfaceSplit(
+            faces, bcType, 2, 2, childGlobals, childNodeIds, childNodeFlags,
+            false, 0, out ),
+        std::out_of_range );
+
+    EXPECT_EQ( out, originalOut );
+}
