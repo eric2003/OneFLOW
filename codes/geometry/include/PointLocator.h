@@ -35,7 +35,7 @@ using AdtTree = HXAdtTree<int, Real>;
 using AdtNode = HXAdtNode<int, Real>;
 
 /**
- * Locate and deduplicate points using an ADT spatial index.
+ * Locate and deduplicate points through a private spatial-index boundary.
  *
  * The locator owns its spatial index and coordinate store. FindPoint is a
  * query that updates the last-result ID; AddPoint may also extend the store.
@@ -62,7 +62,7 @@ protected:
     RealField xCoor, yCoor, zCoor;
 public:
     /**
-     * Initialize the search bounds and ADT using an explicit tolerance.
+     * Initialize the search bounds and spatial index using an explicit tolerance.
      * The input bounds are read-only; the expanded bounds are stored locally.
      */
     void Initialize( const RealField & pmin, const RealField & pmax, Real toleranceIn );
@@ -80,7 +80,7 @@ public:
     void Initialize( const GridViews & grids );
 public:
     // Virtual hooks used by mid-point / interface geometry paths. Production
-    // builds the ADT; unit tests may override without grids or coorTree.
+    // builds the index; unit tests may override without grids or an index.
     /// Return the number of points currently stored.
     virtual int GetNPoint() const { return static_cast<int> (xCoor.size()); }
 
@@ -92,7 +92,7 @@ public:
 
     /**
      * Return an existing point ID within tolerance or insert a new point.
-     * Insertion updates the coordinate store and ADT.
+     * Insertion updates the coordinate store and spatial index.
      */
     virtual int AddPoint( Real xm, Real ym, Real zm );
 
