@@ -189,8 +189,12 @@ throws instead of silently masking malformed new-format metadata. An empty
 child list is not an error: it means the parent was not split, so the rebuild
 preserves that face without requiring node mapping metadata.
 
-* ``GetInterfaceChildFaceIds(l2g, splitTable, zone, local)`` is the pure
-  overload (**test:** ``InterfaceChildFaceIdsTest``).
+* ``GetInterfaceChildFaceIds(l2g, splitTable, zone, local)`` resolves
+  parent-to-child identity and validates child global IDs only. It deliberately
+  does not inspect node mapping rows; ``CollectBoundaryInterfaceChildNodeMappings``
+  owns that validation because it selects parent-specific rows or the legacy
+  fallback (**tests:** ``InterfaceChildFaceIdsTest`` and
+  ``CollectBoundaryInterfaceChildCountsTest``).
 * ``ValidateGlobalFaceMapping`` / ``ValidateGlobalFaceMappings`` check
   ``gI2Zid`` / ``g2l`` alignment (**test:** ``GlobalFaceMappingTest``).
 * ``RegisterLocalInterfaceFace`` records ``l2g`` / ``gI2Zid`` / ``g2l`` when a
