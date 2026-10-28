@@ -42,7 +42,7 @@ class GeometryContractBridgeTest(unittest.TestCase):
         from geometry_workbench.scenarios import list_scenario_paths, load_scenario
         from geometry_workbench.pipeline_stub import diff_tables, run_pipeline
 
-        scenario = load_scenario(list_scenario_paths(REPO)[0])
+        scenario = load_scenario(next(path for path in list_scenario_paths(REPO) if path.stem == "two_zone_parent_split"))
         actual = run_pipeline(scenario, backend="stub")
         edited_expected = deepcopy(scenario["expected"])
         edited_expected["l2g"][0][0] = -999
