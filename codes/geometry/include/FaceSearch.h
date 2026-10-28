@@ -54,7 +54,7 @@ public:
 private:
     HXLookup<int> lookup_;   // responsible for uniqueness and ID assignment
     // Original node order of each face (index == faceId).
-    HXVector< IntField > faceArray;
+    HXVector< IntField > faceNodeRings;
 };
 
 class IFaceLink;
