@@ -1444,6 +1444,14 @@ bounds and copies them before expansion. Its inputs and the corresponding
 contract; ``ShiftMinMaxBox`` remains mutable because it expands the copied
 bounds in place.
 
+The point locator's observation-only methods also expose const-qualified
+contracts: ``GetNPoint``, ``GetTol``, ``GetPoint``, and ``GetFaceCoorList`` do
+not modify locator state. This lets consumers inspect a locator through a
+``const PointLocator &`` while leaving ``FindPoint`` and ``AddPoint`` mutable:
+search updates the last-result ID, and insertion changes the point store and
+spatial index. The distinction is behavioral, not cosmetic, and the injected
+locator test exercises the query methods through a const base reference.
+
 Const-correct access and pointer ownership
 ------------------------------------------
 
