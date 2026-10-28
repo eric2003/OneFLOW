@@ -136,7 +136,7 @@ int PointLocator::FindPoint( const RealField & coordinate )
     Real minSquaredDist = this->tolerance * this->tolerance;
     int bestId = INVALID_INDEX;
 
-    for ( auto* node : nodeList )
+    for ( const auto* node : nodeList )
     {
         Real nx = node->point[0];
         Real ny = node->point[1];
