@@ -32,6 +32,42 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+namespace
+{
+
+void ResolveRegisteredChildFaces(
+    const FaceSearchBasic & faceSearch,
+    const LinkField & candidateFaces,
+    IntField & childFaceIds,
+    std::vector< int > & candidateIndices )
+{
+    IntField resolvedChildFaceIds;
+    std::vector< int > resolvedCandidateIndices;
+    for ( int iCandidate = 0;
+         iCandidate < static_cast< int >( candidateFaces.size() );
+         ++ iCandidate )
+    {
+        const int childFaceId = faceSearch.FindFace( candidateFaces[ iCandidate ] );
+        if ( childFaceId == ONEFLOW::INVALID_INDEX ) continue;
+
+        if ( std::find(
+                 resolvedChildFaceIds.begin(), resolvedChildFaceIds.end(), childFaceId ) !=
+             resolvedChildFaceIds.end() )
+        {
+            throw std::logic_error(
+                "ResolveRegisteredChildFaces: duplicate child face for parent" );
+        }
+
+        resolvedChildFaceIds.push_back( childFaceId );
+        resolvedCandidateIndices.push_back( iCandidate );
+    }
+
+    childFaceIds.swap( resolvedChildFaceIds );
+    candidateIndices.swap( resolvedCandidateIndices );
+}
+
+}
+
 int FaceSearchBasic::AddFace( const IntField & faceNode )
 {
     // HXLookup automatically sorts the nodes for uniqueness
@@ -215,24 +251,10 @@ void FaceSearch::SplitQuad2Tri( int faceId )
     LinkField triId;
     MapLocalTrisToGlobalNodes( nodeId, localTriId, triId );
 
-    // Resolve and validate all registered children before publishing this parent mapping.
+    // Resolve child identities before publishing parent-relative mappings.
     IntField childFaceIds;
     std::vector< int > childCandidateIndices;
-    for ( int iTri = 0; iTri < static_cast< int >( triId.size() ); ++ iTri )
-    {
-        const int childFaceId = this->FindFace( triId[ iTri ] );
-        if ( childFaceId == ONEFLOW::INVALID_INDEX ) continue;
-
-        if ( std::find( childFaceIds.begin(), childFaceIds.end(), childFaceId ) !=
-             childFaceIds.end() )
-        {
-            throw std::logic_error(
-                "FaceSearch::SplitQuad2Tri: duplicate child face for parent" );
-        }
-
-        childFaceIds.push_back( childFaceId );
-        childCandidateIndices.push_back( iTri );
-    }
+    ResolveRegisteredChildFaces( *this, triId, childFaceIds, childCandidateIndices );
 
     IntField & registeredChildFaceIds = this->interfaceSplit.childFaceIdsOfParent[ faceId ];
     for ( std::size_t iChild = 0; iChild < childFaceIds.size(); ++ iChild )
@@ -262,24 +284,10 @@ void FaceSearch::SplitLine( IFaceLink & iFaceLink, int globalFaceId )
         return;
     }
 
-    // Validate candidate identity before changing the parent child list.
+    // Resolve child identities before publishing parent-relative mappings.
     IntField childFaceIds;
     std::vector< int > childCandidateIndices;
-    for ( int iLine = 0; iLine < static_cast< int >( lineId.size() ); ++ iLine )
-    {
-        const int childFaceId = this->FindFace( lineId[ iLine ] );
-        if ( childFaceId == ONEFLOW::INVALID_INDEX ) continue;
-
-        if ( std::find( childFaceIds.begin(), childFaceIds.end(), childFaceId ) !=
-             childFaceIds.end() )
-        {
-            throw std::logic_error(
-                "FaceSearch::SplitLine: duplicate child face for parent" );
-        }
-
-        childFaceIds.push_back( childFaceId );
-        childCandidateIndices.push_back( iLine );
-    }
+    ResolveRegisteredChildFaces( *this, lineId, childFaceIds, childCandidateIndices );
 
     IntField & registeredChildFaceIds =
         this->interfaceSplit.childFaceIdsOfParent[ globalFaceId ];
