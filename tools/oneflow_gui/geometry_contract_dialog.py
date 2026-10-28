@@ -17,6 +17,7 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QMessageBox,
+    QInputDialog,
     QPushButton,
     QPlainTextEdit,
     QListWidget,
@@ -58,6 +59,9 @@ class GeometryContractDialog(QDialog):
         root.addWidget(intro)
 
         command_row = QHBoxLayout()
+        self.import_button = QPushButton("Create from GoogleTest...")
+        self.import_button.clicked.connect(self._create_scenario_from_gtest)
+        command_row.addWidget(self.import_button)
         self.run_button = QPushButton("Run scenario (fixture)")
         self.run_button.clicked.connect(self._run_scenario)
         command_row.addWidget(self.run_button)
@@ -150,6 +154,58 @@ class GeometryContractDialog(QDialog):
                 f"No scenarios under "
                 f"{self._repository_root / 'tools' / 'geometry_workbench' / 'scenarios'}"
             )
+
+    def _create_scenario_from_gtest(self) -> None:
+        from geometry_workbench.scenario_import import write_scenario_skeleton
+        from oneflow_gui.test_inventory import discover_tests
+
+        records = [
+            record for record in discover_tests(self._repository_root)
+            if record.get("framework") == "GoogleTest"
+        ]
+        if not records:
+            QMessageBox.information(
+                self, "Geometry Contracts", "No GoogleTest declarations were discovered."
+            )
+            return
+
+        labels = [
+            f"{record['suite']}.{record['name']} — {record['source']}:{record['line']}"
+            for record in records
+        ]
+        selected, accepted = QInputDialog.getItem(
+            self,
+            "Create scenario from GoogleTest",
+            "Select a GoogleTest declaration. This creates a scenario skeleton; "
+            "input and expected data must be completed or extracted separately.",
+            labels,
+            0,
+            False,
+        )
+        if not accepted:
+            return
+        record = records[labels.index(selected)]
+        scenario_dir = (
+            self._repository_root / "tools" / "geometry_workbench" / "scenarios"
+        )
+        try:
+            path = write_scenario_skeleton(record, scenario_dir)
+        except (OSError, ValueError, FileExistsError) as exc:
+            QMessageBox.warning(self, "Geometry Contracts", str(exc))
+            return
+
+        self._reload_scenarios()
+        for index, scenario_path in enumerate(self._scenario_paths):
+            if scenario_path.resolve() == path.resolve():
+                self.scenario_list.setCurrentRow(index)
+                break
+        QMessageBox.information(
+            self,
+            "Geometry Contracts",
+            "Created a traceable scenario skeleton. The input and expected tables "
+            "are intentionally empty; this action does not execute C++ or infer "
+            f"assertions.\n\n{path}",
+        )
 
     def _current_scenario(self) -> dict[str, Any] | None:
         from geometry_workbench.scenarios import load_scenario
