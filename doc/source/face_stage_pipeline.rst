@@ -715,6 +715,17 @@ Open design pressures
   list despite different parent-local indices. The older global-indexed rows
   remain temporarily for compatibility with existing helper callers.
 
+  The split-table lifecycle follows the same ownership boundary. ``ResetForFaceCount``
+  sizes and clears both global child tables and parent-specific rows; a reset must
+  not leave mapping rows from a previous face registry. ``ClearParentMapping``
+  removes only the selected parent's child list and parent-relative rows. It must
+  preserve the global child metadata and any other parent's row, because the child
+  can be shared. ``FaceSearch::Clear`` is broader: it invalidates the face registry
+  and therefore clears every split table. The regression tests
+  ``FaceSearchBasicTest.ResetForFaceCountClearsAllSplitTables`` and
+  ``FaceSearchBasicTest.ClearParentMappingOnlyClearsRequestedParent`` encode these
+  distinct lifecycle scopes.
+
   The end-to-end regression
   ``RebuildFaceNodeListsTest.SplitProducerCollectorAndRebuildPreserveSharedChildMapping``
   drives the real ``SplitQuad2Tri`` producer through
