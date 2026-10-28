@@ -223,3 +223,95 @@ Relationship to the rest of the handbook
 * The documentation consolidation plan defines where engineering records and published
   guidance belong:
   https://github.com/eric2003/OneFLOW/blob/hexin/doc/plans/oneflow-documentation-consolidation-plan.md
+
+
+Code-level quality signals: const contracts and pointer ownership
+-----------------------------------------------------------------
+
+Terms
+-----
+
+* **Const-correctness** is the practice of expressing read-only access in C++ types.
+  A const-qualified member function promises not to modify the observable state of the
+  object through that member function; a const reference or pointer prevents mutation
+  through that particular access path. This is a compile-time contract, not a guarantee
+  that no state anywhere changes.
+* **Read-only interface** describes an API surface that permits observation but not
+  mutation through that surface. A const view can still refer to an object that another
+  alias mutates, so the lifetime and aliasing contract matters.
+* **Ownership semantics** describe which object is responsible for keeping a resource
+  alive and releasing it. ``std::unique_ptr`` expresses exclusive ownership; a reference
+  or raw pointer often expresses non-owning access, but does not encode that intent
+  reliably by itself.
+* **Borrowed/observer pointer** is a pointer used to access an object owned elsewhere.
+  It may be nullable, and its validity depends on the owner's lifetime. A raw pointer is
+  not automatically wrong: legacy APIs and graph relationships may need non-owning links.
+* **Nullability** asks whether absence is a valid state. If null is meaningful, document
+  or model it explicitly. If a value must exist, a reference or a stronger handle may
+  express the contract better.
+* **Lifetime safety** concerns whether an object remains alive for every use. Smart
+  pointers help express ownership, but do not by themselves solve dangling references,
+  cycles, concurrent access, or invalidation of views into containers.
+
+Why these are useful signals
+----------------------------
+
+Const-correctness can reveal accidental mutation and make dependencies easier to reason
+about. Explicit ownership can reveal unclear resource lifetimes, possible leaks, double
+deletion, and APIs that blur owning and non-owning roles. These properties are part of
+maintainability and testability, but neither can be reduced to a single percentage or
+treated as a complete measure of software quality.
+
+A practical inventory should distinguish at least these categories:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 24 38 38
+
+   * - Signal
+     - What to count or inspect
+     - Important limitation
+   * - Const-correctness
+     - Read-only member functions, const input references, const observer pointers/views,
+       and mutating APIs with explicit names/contracts.
+     - Counting const tokens is misleading; some data is intentionally mutable and
+       a const object can still expose mutable aliases.
+   * - Ownership clarity
+     - Owning unique_ptr/shared_ptr values, documented borrowed pointers, raw
+       owning pointers, and APIs that transfer ownership.
+     - Smart-pointer counts alone do not reveal cycles, shared-ownership misuse, or
+       unclear lifetime dependencies.
+   * - Nullability
+     - Raw pointers and nullable handles classified by whether null is valid and how
+       callers handle it.
+     - Replacing every pointer with a reference is wrong when absence is meaningful.
+   * - Lifetime and invalidation
+     - Views, iterators, references into containers, cached topology, and resources whose
+       validity ends after rebuild or teardown.
+     - Requires call-path analysis and targeted tests; text search cannot prove safety.
+   * - Evidence
+     - Focused contract tests, sanitizer/static-analysis findings, compiler diagnostics,
+       and exact-revision CI.
+     - Passing tests demonstrate covered behavior, not all possible lifetime correctness.
+
+Suggested reporting
+-------------------
+
+Track both a **coverage inventory** and a **risk inventory**. For example, report the
+number of audited APIs, how many have explicit ownership/nullability contracts, how many
+read-only operations are const-qualified where appropriate, and how many high-risk raw
+owning pointers remain. Include the audited directories, exclusions, and review date.
+Treat unknown cases as unknown rather than silently counting them as safe.
+
+A percentage is meaningful only when its denominator is defined. Prefer metrics such as
+"borrowed pointers reviewed in codes/geometry" or "public APIs with documented ownership
+and nullability" over "percentage of the whole codebase that is safe". Track high-risk
+unresolved cases separately, because one raw owning pointer on a critical failure path may
+matter more than many low-risk declarations.
+
+For OneFLOW, apply this incrementally to real call paths. Start with geometry code that
+constructs and consumes interface mappings, then expand to mesh topology and runtime
+lifecycle when the first inventory shows a useful pattern. Do not launch a repository-wide
+mechanical pointer conversion. Each change should preserve numerical behavior, state
+which alias is allowed to mutate the object, identify the owner, and add a test when the
+contract can be observed.
