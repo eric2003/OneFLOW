@@ -16,6 +16,10 @@ The `Marray` constructor previously accepted `HXSize_t` for the equation count b
 
 This is an interface-contract fix, not a claim that every index in the array subsystem has already been migrated. Index types and legacy loops can be reviewed separately when a concrete boundary or warning warrants it.
 
+## Regression test
+
+`tests/basic/MarrayTest.cpp` constructs an `Marray` using `HXSize_t` variables for both dimensions and checks the resulting equation count and per-equation value count. This makes the extent contract executable and puts the test in CTest through the `MarrayTest` target. It is intentionally a small contract test: it does not allocate extreme sizes or attempt to test allocator failure.
+
 ## Face-state buffer lifecycle
 
 `LimField::BindFieldsAndAllocFaces` binds the cell-centered solution and gradient fields, then determines the equation count from the solution field. It retains `qf1` and `qf2` while both equation and face extents still match. If either buffer is absent or its extent differs, both are recreated with the required shape.
@@ -46,6 +50,7 @@ The goal is not to redesign the limiter or migrate every legacy index in one pas
 ## Validation checklist
 
 - Build the affected solver targets with MSVC and confirm C4267 is gone from the `Marray` construction path.
+- Confirm the new `MarrayTest` is discovered by CTest and passes.
 - Run the full configured test suite.
 - Run the relevant CFD regression cases and compare numerical outputs if the build changes any template instantiations beyond the intended signature adjustment.
 - Confirm `qf1` and `qf2` are still reused when equation and face extents match and reallocated when either extent changes.
