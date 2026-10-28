@@ -1,6 +1,7 @@
 // tests/PointLocatorLifecycleTest.cpp
 #include <gtest/gtest.h>
 #include "PointLocator.h"
+#include "Constant.h"
 
 // Verify that PointLocator can be safely instantiated and destroyed on the stack.
 // The unique_ptr<AdtTree> member should be correctly initialized to nullptr.
@@ -49,6 +50,9 @@ TEST(PointLocatorLifecycleTest, ReInitializeDoesNotLeak)
         // deletes the old tree before taking ownership of the new one.
         // This was a memory leak in the legacy raw pointer version!
         locator.Initialize(pmin, pmax, 1.0e-6);
-        locator.AddPoint(2.0, 2.0, 2.0);
+        EXPECT_EQ(locator.GetNPoint(), 0);
+        EXPECT_EQ(locator.FindPoint(1.0, 1.0, 1.0), ONEFLOW::INVALID_INDEX);
+        EXPECT_EQ(locator.AddPoint(2.0, 2.0, 2.0), 0);
+        EXPECT_EQ(locator.GetNPoint(), 1);
     });
 }
