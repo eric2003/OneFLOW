@@ -674,6 +674,13 @@ Open design pressures
   deliberately gives the legacy and parent-specific rows conflicting values
   and verifies that the parent-specific mapping wins.
 
+  The rebuild consumer follows the same publication rule. Both overloads of
+  ``RebuildFaceNodeListsAfterInterfaceSplit`` assemble the replacement face
+  lists in a local buffer and swap it into the caller output only after every
+  child mapping resolves. If a later child has an invalid parent-local corner
+  or malformed row, the caller's previous output remains intact
+  (test: ``RebuildFaceNodeListsTest.FailedRebuildDoesNotPublishPartialFaceLists``).
+
   The split table now retains parent-specific child node IDs and flags in
   ``childFaceNodeIdsByParent`` and ``childFaceNodeFlagsByParent``. Global
   child IDs remain the identity and deduplication key; each parent owns an
