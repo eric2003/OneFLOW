@@ -1428,6 +1428,14 @@ its intent in the type system without introducing a second grid lookup path.
 The accessor is deliberately a reference: a zone index that passes the range
 check must identify an owned grid, not an optional result.
 
+The same distinction applies to collections of grid pointers. ``GridViews`` is
+a non-owning mutable view; making the vector itself const does not make its
+pointed-to grids const. ``ConstGridViews`` and ``AsConstGridViews`` provide a
+separate read-only view whose elements are ``const Grid *``. This keeps the
+legacy mutable path intact while allowing read-only algorithms to advertise
+their actual contract in their parameter types. Neither view owns the grids;
+the originating ``Grids`` collection must outlive every view.
+
 For the broader const/raw-pointer audit, use semantic ownership rather than
 a mechanical pointer-to-reference rewrite:
 
