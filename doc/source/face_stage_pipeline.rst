@@ -521,10 +521,19 @@ The algorithm then resolves the midpoint in two index spaces:
    midpoint ID. The already-discovered global ID is reused when constructing
    child edge identities; the locator is not searched or modified a second time.
 
-``BuildLineSplitMapping`` is the pure mapping step. For a parent edge directed
-from ``A`` to ``B`` and midpoint ``M``, it emits local edges ``(0, M_local)``
-and ``(M_local, 1)``, and global edges ``(A, M_global)`` and
-``(M_global, B)``. The local endpoint flags are ``(1, -1)`` and ``(-1, 1)``;
+The line split now has two deliberately separate representations:
+
+* ``BuildGlobalLineSplitCandidates`` creates directed global child-edge identities
+  ``(A, M_global)`` and ``(M_global, B)``. These candidates are resolved
+  against the global face registry before the zone mesh is mutated.
+* ``BuildLocalLineSplitMapping`` creates zone-local edge indices
+  ``(0, M_local)`` and ``(M_local, 1)``, plus endpoint flags
+  ``(1, -1)`` and ``(-1, 1)``.
+
+The global midpoint ID identifies topology; the local midpoint ID addresses one
+zone's node array. Keeping these outputs separate makes the preflight lookup
+independent of the zone-local index and prevents a temporary local-mapping
+builder from also producing a global representation that its caller discards.
 they encode which original endpoint each child retains. Reversing the parent
 ring must reverse the global child-edge direction while leaving the local
 index pattern and flags unchanged.
@@ -534,9 +543,9 @@ the stored face ring and local endpoint metadata are directional. The helper
 replaces its output buffers, so reusing a buffer cannot retain child edges from
 an earlier split.
 
-**Tests:** ``FaceSearchBasicTest.LineSplitMappingPreservesEdgeDirectionAndEndpointFlags``,
-``FaceSearchBasicTest.LineSplitMappingPreservesReversedEdgeDirection``, and
-``FaceSearchBasicTest.LineSplitMappingReplacesPreviousOutput``.
+**Tests:** ``FaceSearchBasicTest.GlobalLineCandidatesPreserveEdgeDirection``,
+``FaceSearchBasicTest.GlobalLineCandidatesPreserveReversedEdgeDirection``, and
+``FaceSearchBasicTest.GlobalLineCandidatesReplacePreviousOutput``.
 
 **Current boundary:** midpoint discovery still depends on the concrete
 ``PointLocator`` and ``IFaceLink``/``nodeMesh`` services. The mapping step is
