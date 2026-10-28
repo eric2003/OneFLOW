@@ -83,7 +83,7 @@ void PointLocator::Initialize( const GridViews & grids )
 }
 
 
-void PointLocator::GetPoint( int id, Real & xm, Real & ym, Real & zm )
+void PointLocator::GetPoint( int id, Real & xm, Real & ym, Real & zm ) const
 {
     xm = this->xCoor[ id ];
     ym = this->yCoor[ id ];
@@ -178,7 +178,7 @@ int PointLocator::AddPoint( RealField & coor )
     return this->id;
 }
 
-void PointLocator::GetFaceCoorList( const IntField & nodeId, RealField &xList, RealField &yList, RealField &zList )
+void PointLocator::GetFaceCoorList( const IntField & nodeId, RealField &xList, RealField &yList, RealField &zList ) const
 {
     for ( int i = 0; i < nodeId.size(); ++ i )
     {
