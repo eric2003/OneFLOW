@@ -1,6 +1,6 @@
 {
-  "id": "registered_child_resolution",
-  "title": "Registered child resolution",
+  "id": "registered_child_partial_match",
+  "title": "Registered child resolution (partial match)",
   "description": "Resolve registered child faces without compacting candidate indices when some candidates are absent.",
   "test": {
     "framework": "GoogleTest",
