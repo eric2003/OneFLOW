@@ -275,3 +275,31 @@ TEST( RebuildFaceNodeListsTest, FailedRebuildDoesNotPublishPartialFaceLists )
 
     EXPECT_EQ( out, originalOut );
 }
+
+TEST( RebuildFaceNodeListsTest, LegacyMappingAdapterUsesCanonicalRebuildAtomically )
+{
+    LinkField faces{
+        IntField{ 10, 11, 12, 13 },
+        IntField{ 20, 21, 22, 23 }
+    };
+    const IntField bcType{ BC::INTERFACE, BC::INTERFACE };
+    const LinkField childGlobals{ IntField{ 0 }, IntField{ 1 } };
+    const LinkField globalNodeIds{
+        IntField{ 0, 1, 2 },
+        IntField{ 0, 1, 4 }
+    };
+    const LinkField globalNodeFlags{
+        IntField{ 1, 1, 1 },
+        IntField{ 1, 1, 1 }
+    };
+    LinkField out{ IntField{ 90, 91, 92 } };
+    const LinkField originalOut = out;
+
+    EXPECT_THROW(
+        RebuildFaceNodeListsAfterInterfaceSplit(
+            faces, bcType, 2, 2, childGlobals, globalNodeIds, globalNodeFlags,
+            false, 0, out ),
+        std::out_of_range );
+
+    EXPECT_EQ( out, originalOut );
+}
