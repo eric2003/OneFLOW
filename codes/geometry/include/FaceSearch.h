@@ -122,7 +122,6 @@ private:
         const IntField & nodeId,
         LinkField & localLineId,
         LinkField & localLineFlag,
-        LinkField & lineId,
         IntField & childFaceIds,
         std::vector< int > & childCandidateIndices );
 };
