@@ -4,6 +4,7 @@
 
 #include <gtest/gtest.h>
 #include <stdexcept>
+#include <vector>
 
 #include "FaceTopo.h"
 #include "FaceSearch.h"
