@@ -288,6 +288,15 @@ struct InterfaceSplitMappingPipelineResult
     IntField outBcNameId;
 };
 
+// Global face row indices in [0, globalFaceRowCount) that are never referenced
+// by any local-to-global entry. After a split rebuild that keeps InitNew's inverse
+// copy, retired parent globals often appear here (orphan inverse rows).
+// On validation failure, outUnreferencedSorted is left unchanged.
+void CollectUnreferencedGlobalInterfaceFaces(
+    const LinkField & localToGlobal,
+    std::size_t globalFaceRowCount,
+    IntField & outUnreferencedSorted );
+
 void RunSymmetricInterfaceSplitMappingPipeline(
     const LinkField & l2gIn,
     const LinkField & gI2ZidIn,

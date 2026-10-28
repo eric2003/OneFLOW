@@ -34,6 +34,7 @@ License
 #include <stdexcept>
 #include <string>
 #include <unordered_set>
+#include <vector>
 
 
 BeginNameSpace( ONEFLOW )
@@ -1325,6 +1326,54 @@ void RunSymmetricInterfaceSplitMappingPipeline(
         out.gI2Zid, out.g2l, out.l2g,
         gI2ZidNew, g2lNew, l2gNew,
         "RunSymmetricInterfaceSplitMappingPipeline" );
+}
+
+
+void CollectUnreferencedGlobalInterfaceFaces(
+    const LinkField & localToGlobal,
+    std::size_t globalFaceRowCount,
+    IntField & outUnreferencedSorted )
+{
+    // Validate fully before mutating the output (strong exception guarantee).
+    for ( const IntField & row : localToGlobal )
+    {
+        for ( const int gid : row )
+        {
+            if ( gid < 0 )
+            {
+                throw std::out_of_range(
+                    "CollectUnreferencedGlobalInterfaceFaces: negative global face id" );
+            }
+            if ( static_cast< std::size_t >( gid ) >= globalFaceRowCount )
+            {
+                throw std::out_of_range(
+                    "CollectUnreferencedGlobalInterfaceFaces: global face id exceeds row count" );
+            }
+        }
+    }
+
+    outUnreferencedSorted.clear();
+    if ( globalFaceRowCount == 0 )
+    {
+        return;
+    }
+
+    std::vector< char > referenced( globalFaceRowCount, 0 );
+    for ( const IntField & row : localToGlobal )
+    {
+        for ( const int gid : row )
+        {
+            referenced[ static_cast< std::size_t >( gid ) ] = 1;
+        }
+    }
+
+    for ( std::size_t gid = 0; gid < globalFaceRowCount; ++ gid )
+    {
+        if ( ! referenced[ gid ] )
+        {
+            outUnreferencedSorted.push_back( static_cast< int >( gid ) );
+        }
+    }
 }
 
 EndNameSpace

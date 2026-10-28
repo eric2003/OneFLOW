@@ -70,4 +70,9 @@ TEST( MultiZoneInterfaceSplitE2ETest, SplitOneSharedParentViaTablePipeline )
     // Legacy InitNew copy: retired parent global 0 remains as an inverse row.
     ASSERT_GE( out.gI2Zid.size(), static_cast< std::size_t >( 1 ) );
     EXPECT_EQ( out.gI2Zid[ 0 ], ( IntField{ 0, 1 } ) );
+
+    IntField unreferenced;
+    CollectUnreferencedGlobalInterfaceFaces(
+        out.l2g, out.gI2Zid.size(), unreferenced );
+    EXPECT_EQ( unreferenced, ( IntField{ 0 } ) );
 }

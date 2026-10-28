@@ -1,6 +1,7 @@
 """Geometry contract explorer — table scenarios, not unit-test runner.
 
 Uses tools/geometry_workbench (stub pipeline today; native C++ later).
+Graphics export is optional and non-interactive (static PNG).
 """
 
 from __future__ import annotations
@@ -10,10 +11,10 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QComboBox,
     QDialog,
+    QFileDialog,
     QHBoxLayout,
     QLabel,
     QMessageBox,
@@ -37,15 +38,18 @@ class GeometryContractDialog(QDialog):
         super().__init__(parent)
         self._repository_root = repository_root.resolve()
         _ensure_tools_on_path(self._repository_root)
+        self._scenario_paths: list[Path] = []
+        self._last_actual: dict[str, Any] | None = None
+        self._last_orphans: list[int] = []
 
         self.setWindowTitle("Geometry Contracts")
         self.resize(900, 640)
 
         root = QVBoxLayout(self)
         intro = QLabel(
-            "Explore interface dual-map / split contracts as editable table scenarios. "
-            "This is not the Unit Tests runner: it drives the same table pipeline the "
-            "geometry refactor is carving out (stub now, native C++ later)."
+            "Explore interface dual-map / split contracts as table scenarios. "
+            "This is not the Unit Tests runner. Text PASS/FAIL is the default; "
+            "PNG export is optional and does not open an interactive plot window."
         )
         intro.setWordWrap(True)
         root.addWidget(intro)
@@ -57,22 +61,29 @@ class GeometryContractDialog(QDialog):
         self.run_button = QPushButton("Run (stub)")
         self.run_button.clicked.connect(self._run_scenario)
         row.addWidget(self.run_button)
+        self.export_button = QPushButton("Export PNG...")
+        self.export_button.setToolTip(
+            "Optional static figure (matplotlib Agg); no interactive window"
+        )
+        self.export_button.clicked.connect(self._export_png)
+        self.export_button.setEnabled(False)
+        row.addWidget(self.export_button)
         root.addLayout(row)
 
         self.description = QLabel("")
         self.description.setWordWrap(True)
         root.addWidget(self.description)
 
+        root.addWidget(QLabel("Input"))
         self.input_view = QPlainTextEdit()
         self.input_view.setReadOnly(True)
         self.input_view.setPlaceholderText("Scenario input tables (JSON)")
-        root.addWidget(QLabel("Input"))
         root.addWidget(self.input_view, stretch=1)
 
+        root.addWidget(QLabel("Result"))
         self.result_view = QPlainTextEdit()
         self.result_view.setReadOnly(True)
         self.result_view.setPlaceholderText("Run result and topology sketch")
-        root.addWidget(QLabel("Result"))
         root.addWidget(self.result_view, stretch=1)
 
         close_row = QHBoxLayout()
@@ -82,7 +93,6 @@ class GeometryContractDialog(QDialog):
         close_row.addWidget(close_btn)
         root.addLayout(close_row)
 
-        self._scenario_paths: list[Path] = []
         self._reload_scenarios()
         self.scenario_combo.currentIndexChanged.connect(self._on_scenario_changed)
         if self.scenario_combo.count():
@@ -99,7 +109,8 @@ class GeometryContractDialog(QDialog):
         self.scenario_combo.blockSignals(False)
         if not self._scenario_paths:
             self.description.setText(
-                f"No scenarios under {self._repository_root / 'tools' / 'geometry_workbench' / 'scenarios'}"
+                f"No scenarios under "
+                f"{self._repository_root / 'tools' / 'geometry_workbench' / 'scenarios'}"
             )
 
     def _current_scenario(self) -> dict[str, Any] | None:
@@ -117,6 +128,9 @@ class GeometryContractDialog(QDialog):
         self.description.setText(str(scenario.get("description") or scenario.get("id") or ""))
         self.input_view.setPlainText(json.dumps(scenario.get("input") or {}, indent=2))
         self.result_view.clear()
+        self._last_actual = None
+        self._last_orphans = []
+        self.export_button.setEnabled(False)
 
     def _run_scenario(self) -> None:
         from geometry_workbench.pipeline_stub import diff_tables, run_pipeline
@@ -135,6 +149,10 @@ class GeometryContractDialog(QDialog):
         expected = scenario.get("expected") or {}
         mismatches = diff_tables(actual, expected)
         orphans = expected.get("orphanParentGlobalIds") or []
+        self._last_actual = actual
+        self._last_orphans = list(orphans)
+        self.export_button.setEnabled(True)
+
         lines = [
             f"scenario: {scenario.get('id', '')}",
             "backend: stub",
@@ -151,3 +169,30 @@ class GeometryContractDialog(QDialog):
             for note in notes:
                 lines.append(f"  - {note}")
         self.result_view.setPlainText("\n".join(lines))
+
+    def _export_png(self) -> None:
+        if not self._last_actual:
+            QMessageBox.information(self, "Geometry Contracts", "Run a scenario first.")
+            return
+        path, _ = QFileDialog.getSaveFileName(
+            self, "Export topology PNG", "geometry_contract.png", "PNG (*.png)"
+        )
+        if not path:
+            return
+        try:
+            from geometry_workbench.visualize import save_topology_png
+
+            out = save_topology_png(
+                self._last_actual, Path(path), orphan_ids=self._last_orphans
+            )
+        except ImportError:
+            QMessageBox.warning(
+                self,
+                "Geometry Contracts",
+                "matplotlib is not installed. Text result is enough; PNG export is optional.",
+            )
+            return
+        except Exception as exc:  # noqa: BLE001
+            QMessageBox.critical(self, "Geometry Contracts", str(exc))
+            return
+        QMessageBox.information(self, "Geometry Contracts", f"Wrote static figure:\n{out}")

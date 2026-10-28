@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any, Dict, List, Sequence, Tuple
 
 
@@ -29,3 +30,44 @@ def render_ascii(result: Dict[str, Any], orphan_ids: Sequence[int] = ()) -> str:
     for zid, row in enumerate(l2g):
         lines.append(f"  Z{zid}: {row}")
     return "\n".join(lines)
+
+
+def save_topology_png(
+    result: Dict[str, Any],
+    path: Path,
+    orphan_ids: Sequence[int] = (),
+) -> Path:
+    """Write a static PNG using matplotlib Agg (no GUI window)."""
+    from pathlib import Path as PathType
+
+    path = PathType(path)
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    edges = _edges_from_result(result)
+    zone_y: Dict[str, float] = {}
+    glob_y: Dict[str, float] = {}
+    for zone, gface, _ in edges:
+        zone_y.setdefault(zone, float(len(zone_y)))
+        glob_y.setdefault(gface, float(len(glob_y)))
+
+    fig, ax = plt.subplots(figsize=(6.0, 3.5))
+    for zone, gface, local in edges:
+        ax.plot([0, 1], [zone_y[zone], glob_y[gface]], color="#888", lw=1)
+        ax.text(0.5, 0.5 * (zone_y[zone] + glob_y[gface]), local, fontsize=8, ha="center")
+    for name, y in zone_y.items():
+        ax.scatter([0], [y], s=200, c="#4C78A8", zorder=3)
+        ax.text(-0.05, y, name, ha="right", va="center")
+    for name, y in glob_y.items():
+        label = f"{name}*" if name[1:].isdigit() and int(name[1:]) in orphan_ids else name
+        ax.scatter([1], [y], s=200, c="#F58518", zorder=3)
+        ax.text(1.05, y, label, ha="left", va="center")
+    ax.set_axis_off()
+    ax.set_title("Interface dual-map (static export)")
+    path = path.resolve()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(path, dpi=120, bbox_inches="tight")
+    plt.close(fig)
+    return path

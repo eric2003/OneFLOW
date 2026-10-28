@@ -49,8 +49,8 @@ wishlist for the whole solver.
        dual-map fields private;
        multi-zone split e2e composition
        (``MultiZoneInterfaceSplitE2ETest``)
-     - Orphan parent global rows after split
-       (legacy InitNew copy semantics)
+     - Whether to strip orphan inverse rows
+       (detection: ``CollectUnreferencedGlobalInterfaceFaces``)
    * - IFaceLink services
      - ``faceLookup``, ``point_search``,
        ``face_search`` private + accessors;
@@ -933,6 +933,10 @@ This is intentionally separate from **Tests...** (GoogleTest / regression).
 
 When ``RunSymmetricInterfaceSplitMappingPipeline`` is bound, only the workbench
 backend should change; the GUI dialog keeps the same table workflow.
+
+Graphics are **optional**: CLI ``--plot-file`` and GUI **Export PNG...** write a
+static figure (matplotlib Agg). Default path is text-only; no interactive plot
+window is required.
 
 
 Open design pressures
