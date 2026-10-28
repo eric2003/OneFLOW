@@ -277,11 +277,10 @@ void FaceSearch::SplitLine( IFaceLink & iFaceLink, int globalFaceId )
     if ( nodeId.size() != 2 ) return;
 
     LinkField localLineId, localLineFlag;
-    LinkField lineId;
     IntField childFaceIds;
     std::vector< int > childCandidateIndices;
     if ( ! this->TrySplitLineAtMidpoint(
-             iFaceLink, globalFaceId, nodeId, localLineId, localLineFlag, lineId,
+             iFaceLink, globalFaceId, nodeId, localLineId, localLineFlag,
              childFaceIds, childCandidateIndices ) )
     {
         return;
@@ -386,7 +385,6 @@ bool FaceSearch::TrySplitLineAtMidpoint(
     const IntField & nodeId,
     LinkField & localLineId,
     LinkField & localLineFlag,
-    LinkField & lineId,
     IntField & childFaceIds,
     std::vector< int > & childCandidateIndices )
 {
@@ -443,6 +441,7 @@ bool FaceSearch::TrySplitLineAtMidpoint(
         grid.nodeMesh->AddPoint( coor2[ 0 ], coor2[ 1 ], coor2[ 2 ] );
     }
     // The midpoint was found above; reuse its global ID without another lookup.
+    LinkField lineId;
     BuildLineSplitMapping(
         p0, p1, pId, midpointGlobalNode, localLineId, localLineFlag, lineId );
 
