@@ -122,7 +122,9 @@ private:
         const IntField & nodeId,
         LinkField & localLineId,
         LinkField & localLineFlag,
-        LinkField & lineId );
+        LinkField & lineId,
+        IntField & childFaceIds,
+        std::vector< int > & childCandidateIndices );
 };
 
 // Build the two directed child edges and their local endpoint flags after a midpoint is found.
