@@ -122,6 +122,25 @@ TEST( FaceSearchBasicTest, QuadSplitUsesOnlyRegisteredTrianglesForOneDiagonal )
                ( IntField{ 1, 2 } ) );
 }
 
+TEST( FaceSearchBasicTest, QuadSplitUsesOriginalCandidateIndexForPartialMatch )
+{
+    // Only candidate 1 is registered; its local mapping must not shift to candidate 0.
+    FaceSearch search;
+    ASSERT_EQ( search.AddFace( IntField{ 10, 20, 30, 40 } ), 0 );
+    ASSERT_EQ( search.AddFace( IntField{ 30, 40, 10 } ), 1 );
+
+    search.interfaceSplit.ResetForFaceCount( search.Size() );
+    search.SplitQuad2Tri( 0 );
+
+    ASSERT_EQ( search.interfaceSplit.childFaceIdsOfParent[ 0 ], ( IntField{ 1 } ) );
+    ASSERT_EQ( search.interfaceSplit.childFaceNodeIdsByParent[ 0 ].size(),
+               static_cast< std::size_t >( 1 ) );
+    EXPECT_EQ( search.interfaceSplit.childFaceNodeIdsByParent[ 0 ][ 0 ],
+               ( IntField{ 2, 3, 0 } ) );
+    EXPECT_EQ( search.interfaceSplit.childFaceNodeFlagsByParent[ 0 ][ 0 ],
+               ( IntField{ 1, 1, 1 } ) );
+}
+
 TEST( FaceSearchBasicTest, QuadSplitMatchesRegisteredTrianglesRegardlessOfNodeOrder )
 {
     FaceSearch search;
