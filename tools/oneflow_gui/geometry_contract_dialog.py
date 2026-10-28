@@ -161,11 +161,11 @@ class GeometryContractDialog(QDialog):
 
         records = [
             record for record in discover_tests(self._repository_root)
-            if record.get("framework") == "GoogleTest"
+            if record.get("framework") == "GoogleTest" and not record.get("scenarioId")
         ]
         if not records:
             QMessageBox.information(
-                self, "Geometry Contracts", "No GoogleTest declarations were discovered."
+                self, "Geometry Contracts", "No unlinked GoogleTest declarations were discovered."
             )
             return
 
