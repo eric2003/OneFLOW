@@ -69,6 +69,13 @@ It refuses to overwrite an existing scenario unless the caller explicitly
 opts in. This is a provenance-preserving scaffold, not a claim that arbitrary
 C++ setup and assertions have been translated into data.
 
+The dialog also exposes **Save scenario**. It persists the edited input and
+expected JSON tables back to the selected scenario while retaining test identity
+and provenance. Saving a contract does not write a run result: ``result`` remains
+the existing value, and only an execution backend may record new execution
+evidence. This separates authoring a hypothesis (expected data) from observing
+the implementation (actual result).
+
 The Geometry Contracts dialog now exposes **Create from GoogleTest...**.
 It lists discovered GoogleTest declarations and writes a non-overwriting scenario
 skeleton into the scenario directory. This is intentionally a user-triggered
