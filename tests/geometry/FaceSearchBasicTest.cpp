@@ -496,6 +496,8 @@ TEST( FaceSearchBasicTest, SetChildMappingRejectsMisalignedGlobalRowsWithoutMuta
 }
 
 
+TEST( FaceSearchBasicTest, SetChildMappingRejectsMissingParentSpecificRow )
+{
     InterfaceFaceSplitTable split;
     split.ResetForFaceCount( 2 );
     split.childFaceIdsOfParent[ 0 ] = IntField{ 1 };
