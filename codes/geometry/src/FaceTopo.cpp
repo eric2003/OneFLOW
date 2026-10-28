@@ -1011,8 +1011,10 @@ void CollectBoundaryInterfaceChildNodeMappings(
             "CollectBoundaryInterfaceChildNodeMappings: zone ID is out of range" );
     }
 
-    outNodeIdsPerInterfaceLocal.clear();
-    outNodeFlagsPerInterfaceLocal.clear();
+    // Build both outputs off to the side. A malformed later parent must not
+    // leave callers with a partial set of node mappings.
+    std::vector< LinkField > nodeIdsByInterfaceLocal;
+    std::vector< LinkField > nodeFlagsByInterfaceLocal;
     int interfaceLocal = 0;
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
@@ -1025,8 +1027,8 @@ void CollectBoundaryInterfaceChildNodeMappings(
         {
             // An unsplit interface face needs no node mapping. Keep the empty
             // row so the rebuild stage can preserve its parent face unchanged.
-            outNodeIdsPerInterfaceLocal.emplace_back();
-            outNodeFlagsPerInterfaceLocal.emplace_back();
+            nodeIdsByInterfaceLocal.emplace_back();
+            nodeFlagsByInterfaceLocal.emplace_back();
             ++ interfaceLocal;
             continue;
         }
@@ -1056,8 +1058,8 @@ void CollectBoundaryInterfaceChildNodeMappings(
                     throw std::logic_error(
                         "CollectBoundaryInterfaceChildNodeMappings: parent-specific rows do not match child count" );
                 }
-                outNodeIdsPerInterfaceLocal.push_back( nodeIds );
-                outNodeFlagsPerInterfaceLocal.push_back( nodeFlags );
+                nodeIdsByInterfaceLocal.push_back( nodeIds );
+                nodeFlagsByInterfaceLocal.push_back( nodeFlags );
                 ++ interfaceLocal;
                 continue;
             }
@@ -1087,12 +1089,14 @@ void CollectBoundaryInterfaceChildNodeMappings(
             nodeIdsByChild.push_back( nodeIds );
             nodeFlagsByChild.push_back( nodeFlags );
         }
-        outNodeIdsPerInterfaceLocal.push_back( nodeIdsByChild );
-        outNodeFlagsPerInterfaceLocal.push_back( nodeFlagsByChild );
+        nodeIdsByInterfaceLocal.push_back( nodeIdsByChild );
+        nodeFlagsByInterfaceLocal.push_back( nodeFlagsByChild );
         ++ interfaceLocal;
     }
-}
 
+    outNodeIdsPerInterfaceLocal.swap( nodeIdsByInterfaceLocal );
+    outNodeFlagsPerInterfaceLocal.swap( nodeFlagsByInterfaceLocal );
+}
 
 void CollectBoundaryInterfaceChildCounts(
     const IntField & bcType,
