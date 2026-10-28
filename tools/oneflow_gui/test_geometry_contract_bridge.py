@@ -19,7 +19,7 @@ class GeometryContractBridgeTest(unittest.TestCase):
 
         paths = list_scenario_paths(REPO)
         self.assertTrue(paths, "expected at least one scenario JSON")
-        scenario = load_scenario(paths[0])
+        scenario = load_scenario(next(path for path in paths if path.stem == "two_zone_parent_split"))
         actual = run_pipeline(scenario, backend="stub")
         self.assertEqual(diff_tables(actual, scenario["expected"]), [])
 
@@ -29,7 +29,7 @@ class GeometryContractBridgeTest(unittest.TestCase):
         from geometry_workbench.scenarios import list_scenario_paths, load_scenario
         from geometry_workbench.pipeline_stub import run_pipeline
 
-        scenario = load_scenario(list_scenario_paths(REPO)[0])
+        scenario = load_scenario(next(path for path in list_scenario_paths(REPO) if path.stem == "two_zone_parent_split"))
         baseline = run_pipeline(scenario, backend="stub")
         edited = deepcopy(scenario)
         edited["input"]["l2g"][0][0] = 9876
