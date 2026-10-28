@@ -77,36 +77,38 @@ def _cpp_tests(repository_root: Path, links: dict) -> list[dict[str, Any]]:
 
 def _python_tests(repository_root: Path) -> list[dict[str, Any]]:
     records: list[dict[str, Any]] = []
-    for root_name in ("tools/oneflow_gui", "tools/geometry_workbench"):
-        root = repository_root / root_name
-        if not root.is_dir():
+    tools_root = repository_root / "tools"
+    if not tools_root.is_dir():
+        return records
+    for path in sorted(tools_root.rglob("test_*.py")):
+        if "__pycache__" in path.parts or ".venv" in path.parts:
             continue
-        for path in sorted(root.glob("test_*.py")):
-            try:
-                tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
-            except (OSError, UnicodeDecodeError, SyntaxError):
+        try:
+            tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        except (OSError, UnicodeDecodeError, SyntaxError):
+            continue
+        module_name = ".".join(path.relative_to(repository_root).with_suffix("").parts)
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.ClassDef):
                 continue
-            for node in ast.walk(tree):
-                if not isinstance(node, ast.ClassDef):
-                    continue
-                for method in node.body:
-                    if isinstance(method, (ast.FunctionDef, ast.AsyncFunctionDef)) and method.name.startswith("test_"):
-                        records.append({
-                            "id": f"unittest:{path.stem}.{node.name}.{method.name}",
-                            "framework": "unittest",
-                            "suite": node.name,
-                            "name": method.name,
-                            "kind": "test method",
-                            "source": path.relative_to(repository_root).as_posix(),
-                            "line": method.lineno,
-                            "discovery": "source",
-                            "scenarioId": None,
-                            "scenarioRole": None,
-                            "input": None,
-                            "expected": None,
-                            "result": None,
-                            "execution": f"python -m unittest {root_name.replace('/', '.')}.{path.stem}.{node.name}.{method.name}",
-                        })
+            for method in node.body:
+                if isinstance(method, (ast.FunctionDef, ast.AsyncFunctionDef)) and method.name.startswith("test_"):
+                    records.append({
+                        "id": f"unittest:{module_name}.{node.name}.{method.name}",
+                        "framework": "unittest",
+                        "suite": node.name,
+                        "name": method.name,
+                        "kind": "test method",
+                        "source": path.relative_to(repository_root).as_posix(),
+                        "line": method.lineno,
+                        "discovery": "source",
+                        "scenarioId": None,
+                        "scenarioRole": None,
+                        "input": None,
+                        "expected": None,
+                        "result": None,
+                        "execution": f"python -m unittest {module_name}.{node.name}.{method.name}",
+                    })
     return records
 
 
