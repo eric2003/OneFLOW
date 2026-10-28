@@ -1381,3 +1381,36 @@ is resolved by the registry, and parent-relative mapping rows are published
 by ``SetChildMapping``. Keeping those decisions distinct lets tests pinpoint
 whether a failure comes from candidate construction, face lookup, or mapping
 publication without building a complete CGNS case.
+Const-correct access and pointer ownership
+------------------------------------------
+
+The interface-link layer now provides both mutable and read-only grid access.
+``IFaceLink::GetGrid`` returns ``Grid &`` on a mutable object and
+``const Grid &`` on a const object. This makes observation-only code express
+its intent in the type system without introducing a second grid lookup path.
+The accessor is deliberately a reference: a zone index that passes the range
+check must identify an owned grid, not an optional result.
+
+For the broader const/raw-pointer audit, use semantic ownership rather than
+a mechanical pointer-to-reference rewrite:
+
+* Use ``const T &`` for required read-only inputs and ``T &`` for required
+  mutable inputs.
+* Add paired const/non-const accessors when callers may observe an owned object
+  through either a mutable or const owner.
+* Use ``std::unique_ptr<T>`` for exclusive ownership and transfer ownership
+  explicitly; use ``std::shared_ptr<T>`` only when shared lifetime is real.
+* Keep a raw ``T *`` when null is a meaningful state or when the pointer is a
+  non-owning view whose lifetime is controlled elsewhere. Document that
+  contract and check null before dereferencing.
+* Do not remove a pointer merely because it is syntactically raw. In particular,
+  legacy grid lookup APIs can encode missing or non-local zones with null, while
+  ``IFaceLink::GetGrid`` is a required indexed access and is better expressed
+  as a reference.
+
+The purpose of this audit is to make lifetime, nullability, and mutation visible
+at API boundaries. It is not a project-wide pointer count reduction exercise.
+Prefer small, compile-checked changes that improve a real call path, with a
+focused test for the type-level contract. The next audit targets are public
+geometry accessors and grid/mesh lookup APIs; each candidate must be classified
+as required, optional, owning, or non-owning before changing its type.
