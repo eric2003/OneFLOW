@@ -68,9 +68,6 @@ class GeometryContractDialog(QDialog):
         self.export_button.clicked.connect(self._export_png)
         self.export_button.setEnabled(False)
         command_row.addWidget(self.export_button)
-        inventory_button = QPushButton("Repository Test Inventory...")
-        inventory_button.clicked.connect(self._open_test_inventory)
-        command_row.addWidget(inventory_button)
         command_row.addStretch(1)
         close_btn = QPushButton("Close")
         close_btn.clicked.connect(self.accept)
@@ -136,10 +133,6 @@ class GeometryContractDialog(QDialog):
         self._reload_scenarios()
         if self.scenario_list.count():
             self.scenario_list.setCurrentRow(0)
-
-    def _open_test_inventory(self) -> None:
-        from .repository_test_inventory_dialog import RepositoryTestInventoryDialog
-        RepositoryTestInventoryDialog(self._repository_root, self).exec()
 
     def _reload_scenarios(self) -> None:
         from geometry_workbench.scenarios import list_scenario_paths
