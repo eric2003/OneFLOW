@@ -92,7 +92,7 @@ TEST( IFaceLinkPointLocatorInjectionTest, InjectedDoubleIsReadyWithoutGrids )
     EXPECT_DOUBLE_EQ( readOnlyLocator.GetTol(), 1.0e-6 );
 
     Real x = 0, y = 0, z = 0;
-    link.GetPointLocator().GetPoint( 0, x, y, z );
+    readOnlyLocator.GetPoint( 0, x, y, z );
     EXPECT_EQ( x, 1.0 );
     EXPECT_EQ( y, 2.0 );
     EXPECT_EQ( z, 3.0 );
