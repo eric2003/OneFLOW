@@ -1,9 +1,44 @@
-"""Table-level interface-split pipeline: stub now, C++ binding later."""
+"""Table-level scenario runners; native C++ binding remains separate."""
 
 from __future__ import annotations
 
 from copy import deepcopy
 from typing import Any, Dict, List, Optional
+
+
+def _run_registered_child_resolution(scenario: Dict[str, Any]) -> Dict[str, Any]:
+    """Run the small lookup contract from input, independently of expected data."""
+    input_data = scenario.get("input") or {}
+    registered_faces = input_data.get("registeredFaces") or []
+    candidates = input_data.get("candidateFaces") or []
+    face_ids_by_nodes: dict[tuple[int, ...], int] = {}
+    for face in registered_faces:
+        node_key = tuple(sorted(face["nodes"]))
+        if node_key in face_ids_by_nodes:
+            raise ValueError("duplicate registered face identity")
+        face_ids_by_nodes[node_key] = int(face["globalFaceId"])
+
+    children: list[dict[str, int]] = []
+    seen_global_ids: set[int] = set()
+    unregistered: list[int] = []
+    for candidate_index, nodes in enumerate(candidates):
+        global_face_id = face_ids_by_nodes.get(tuple(sorted(nodes)))
+        if global_face_id is None:
+            unregistered.append(candidate_index)
+            continue
+        if global_face_id in seen_global_ids:
+            raise ValueError("duplicate child face for parent")
+        seen_global_ids.add(global_face_id)
+        children.append({
+            "globalFaceId": global_face_id,
+            "candidateIndex": candidate_index,
+        })
+
+    return {
+        "registeredChildren": children,
+        "unregisteredCandidateIndices": unregistered,
+        "registeredFaceCountAfterResolution": len(registered_faces),
+    }
 
 
 def run_pipeline(scenario: Dict[str, Any], backend: str = "stub") -> Dict[str, Any]:
@@ -13,9 +48,12 @@ def run_pipeline(scenario: Dict[str, Any], backend: str = "stub") -> Dict[str, A
         )
     if backend != "stub":
         raise ValueError(f"unknown backend: {backend}")
+    if scenario.get("id") == "registered_child_resolution":
+        return _run_registered_child_resolution(scenario)
     expected = scenario.get("expected")
     if not expected:
         raise ValueError("scenario has no expected tables for stub backend")
+    # The legacy multi-zone fixture is a display fixture, not an algorithm runner.
     return deepcopy(expected)
 
 
