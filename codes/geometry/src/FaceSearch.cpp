@@ -32,14 +32,11 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-void ResolveRegisteredChildFaces(
+std::vector< RegisteredChildFace > ResolveRegisteredChildFaces(
     const FaceSearchBasic & faceSearch,
-    const LinkField & candidateFaces,
-    IntField & childFaceIds,
-    std::vector< int > & candidateIndices )
+    const LinkField & candidateFaces )
 {
-    IntField resolvedChildFaceIds;
-    std::vector< int > resolvedCandidateIndices;
+    std::vector< RegisteredChildFace > registeredChildren;
     for ( int iCandidate = 0;
          iCandidate < static_cast< int >( candidateFaces.size() );
          ++ iCandidate )
@@ -47,20 +44,22 @@ void ResolveRegisteredChildFaces(
         const int childFaceId = faceSearch.FindFace( candidateFaces[ iCandidate ] );
         if ( childFaceId == ONEFLOW::INVALID_INDEX ) continue;
 
-        if ( std::find(
-                 resolvedChildFaceIds.begin(), resolvedChildFaceIds.end(), childFaceId ) !=
-             resolvedChildFaceIds.end() )
+        const auto duplicate = std::find_if(
+            registeredChildren.begin(), registeredChildren.end(),
+            [ childFaceId ]( const RegisteredChildFace & child )
+            {
+                return child.globalFaceId == childFaceId;
+            } );
+        if ( duplicate != registeredChildren.end() )
         {
             throw std::logic_error(
                 "ResolveRegisteredChildFaces: duplicate child face for parent" );
         }
 
-        resolvedChildFaceIds.push_back( childFaceId );
-        resolvedCandidateIndices.push_back( iCandidate );
+        registeredChildren.push_back( { childFaceId, iCandidate } );
     }
 
-    childFaceIds.swap( resolvedChildFaceIds );
-    candidateIndices.swap( resolvedCandidateIndices );
+    return registeredChildren;
 }
 
 int FaceSearchBasic::AddFace( const IntField & faceNode )
@@ -247,18 +246,16 @@ void FaceSearch::SplitQuad2Tri( int faceId )
     MapLocalTrisToGlobalNodes( nodeId, localTriId, triId );
 
     // Resolve child identities before publishing parent-relative mappings.
-    IntField childFaceIds;
-    std::vector< int > childCandidateIndices;
-    ResolveRegisteredChildFaces( *this, triId, childFaceIds, childCandidateIndices );
+    const std::vector< RegisteredChildFace > registeredChildren =
+        ResolveRegisteredChildFaces( *this, triId );
 
     IntField & registeredChildFaceIds = this->interfaceSplit.childFaceIdsOfParent[ faceId ];
-    for ( std::size_t iChild = 0; iChild < childFaceIds.size(); ++ iChild )
+    for ( const RegisteredChildFace & child : registeredChildren )
     {
-        const int childFaceId = childFaceIds[ iChild ];
-        const int candidateIndex = childCandidateIndices[ iChild ];
-        registeredChildFaceIds.push_back( childFaceId );
+        registeredChildFaceIds.push_back( child.globalFaceId );
         this->interfaceSplit.SetChildMapping(
-            faceId, childFaceId, localTriId[ candidateIndex ], localTriFlag[ candidateIndex ] );
+            faceId, child.globalFaceId,
+            localTriId[ child.candidateIndex ], localTriFlag[ child.candidateIndex ] );
     }
 }
 
@@ -272,11 +269,10 @@ void FaceSearch::SplitLine( IFaceLink & iFaceLink, int globalFaceId )
     if ( nodeId.size() != 2 ) return;
 
     LinkField localLineId, localLineFlag;
-    IntField childFaceIds;
-    std::vector< int > childCandidateIndices;
+    std::vector< RegisteredChildFace > registeredChildren;
     if ( ! this->TrySplitLineAtMidpoint(
              iFaceLink, globalFaceId, nodeId, localLineId, localLineFlag,
-             childFaceIds, childCandidateIndices ) )
+             registeredChildren ) )
     {
         return;
     }
@@ -285,14 +281,12 @@ void FaceSearch::SplitLine( IFaceLink & iFaceLink, int globalFaceId )
 
     IntField & registeredChildFaceIds =
         this->interfaceSplit.childFaceIdsOfParent[ globalFaceId ];
-    for ( std::size_t iChild = 0; iChild < childFaceIds.size(); ++ iChild )
+    for ( const RegisteredChildFace & child : registeredChildren )
     {
-        const int childFaceId = childFaceIds[ iChild ];
-        const int candidateIndex = childCandidateIndices[ iChild ];
-        registeredChildFaceIds.push_back( childFaceId );
+        registeredChildFaceIds.push_back( child.globalFaceId );
         this->interfaceSplit.SetChildMapping(
-            globalFaceId, childFaceId,
-            localLineId[ candidateIndex ], localLineFlag[ candidateIndex ] );
+            globalFaceId, child.globalFaceId,
+            localLineId[ child.candidateIndex ], localLineFlag[ child.candidateIndex ] );
     }
 }
 
@@ -387,8 +381,7 @@ bool FaceSearch::TrySplitLineAtMidpoint(
     const IntField & nodeId,
     LinkField & localLineId,
     LinkField & localLineFlag,
-    IntField & childFaceIds,
-    std::vector< int > & childCandidateIndices )
+    std::vector< RegisteredChildFace > & registeredChildren )
 {
     PointLocator & pointLocator = iFaceLink.GetPointLocator();
 
@@ -413,9 +406,8 @@ bool FaceSearch::TrySplitLineAtMidpoint(
     LinkField globalLineCandidates;
     BuildGlobalLineSplitCandidates(
         p0, p1, midpointGlobalNode, globalLineCandidates );
-    ResolveRegisteredChildFaces(
-        *this, globalLineCandidates, childFaceIds, childCandidateIndices );
-    if ( childFaceIds.empty() ) return false;
+    registeredChildren = ResolveRegisteredChildFaces( *this, globalLineCandidates );
+    if ( registeredChildren.empty() ) return false;
 
     Grid & grid = iFaceLink.GetGrid( soleZoneId );
     int pId = grid.nodeMesh->FindPoint(
