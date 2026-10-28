@@ -39,6 +39,8 @@ using AdtNode = HXAdtNode<int, Real>;
  * The locator owns its spatial index and coordinate store. FindPoint is a
  * query that updates the last-result ID; AddPoint may also extend the store.
  * Matching tolerance is established by Initialize or InitializeSpecial.
+ * Every successful initialization rebuilds the index and clears points added
+ * through this locator, so the index and coordinate store share one lifecycle.
  */
 class PointLocator
 {
