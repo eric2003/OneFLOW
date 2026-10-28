@@ -315,6 +315,24 @@ TEST( FaceSearchBasicTest, SetChildMappingRejectsDuplicateChildRegistration )
     EXPECT_TRUE( split.childFaceNodeFlagsByParent[ 0 ].empty() );
 }
 
+TEST( FaceSearchBasicTest, SetChildMappingRejectsConflictingMappingForSameParent )
+{
+    // Intent: one parent-child relation cannot change its local corner mapping silently.
+    InterfaceFaceSplitTable split;
+    split.ResetForFaceCount( 3 );
+    split.childFaceIdsOfParent[ 0 ] = IntField{ 2 };
+
+    split.SetChildMapping( 0, 2, IntField{ 0, 1, 2 }, IntField{ 1, 1, 1 } );
+
+    EXPECT_THROW(
+        split.SetChildMapping( 0, 2, IntField{ 2, 1, 0 }, IntField{ 1, 1, 1 } ),
+        std::logic_error );
+
+    ASSERT_EQ( split.childFaceNodeIdsByParent[ 0 ].size(), static_cast< std::size_t >( 1 ) );
+    EXPECT_EQ( split.childFaceNodeIdsByParent[ 0 ][ 0 ], ( IntField{ 0, 1, 2 } ) );
+    EXPECT_EQ( split.childFaceNodeFlagsByParent[ 0 ][ 0 ], ( IntField{ 1, 1, 1 } ) );
+}
+
 TEST( FaceSearchBasicTest, SetChildMappingRejectsMissingParentSpecificRow )
 {
     InterfaceFaceSplitTable split;
