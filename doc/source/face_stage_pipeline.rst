@@ -1452,6 +1452,12 @@ search updates the last-result ID, and insertion changes the point store and
 spatial index. The distinction is behavioral, not cosmetic, and the injected
 locator test exercises the query methods through a const base reference.
 
+The coordinate-vector overloads of ``FindPoint`` and ``AddPoint`` now accept
+``const RealField &`` as well. Both operations read the supplied coordinates;
+their state changes belong to the locator (the result ID, point arrays, and ADT),
+not to the caller's coordinate buffer. This avoids requiring a mutable vector
+for an input-only role and makes the ownership boundary clearer.
+
 Const-correct access and pointer ownership
 ------------------------------------------
 
