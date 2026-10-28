@@ -68,6 +68,9 @@ class GeometryContractDialog(QDialog):
         self.export_button.clicked.connect(self._export_png)
         self.export_button.setEnabled(False)
         command_row.addWidget(self.export_button)
+        inventory_button = QPushButton("Repository Test Inventory...")
+        inventory_button.clicked.connect(self._open_test_inventory)
+        command_row.addWidget(inventory_button)
         command_row.addStretch(1)
         close_btn = QPushButton("Close")
         close_btn.clicked.connect(self.accept)
@@ -124,70 +127,19 @@ class GeometryContractDialog(QDialog):
         result_layout.addWidget(self.result_view)
         self.tabs.addTab(result_tab, "Result")
 
-        inventory_tab = QWidget()
-        inventory_layout = QVBoxLayout(inventory_tab)
-        inventory_layout.addWidget(QLabel(
-            "Discovered tests from C++ GoogleTest macros and Python unittest methods. "
-            "Input/expected are populated only when a scenario explicitly links a test; "
-            "result remains empty until an execution backend records it."
-        ))
-        inventory_splitter = QSplitter()
-        self.inventory_list = QListWidget()
-        self.inventory_list.setMinimumWidth(300)
-        self.inventory_list.currentRowChanged.connect(self._on_inventory_test_changed)
-        inventory_splitter.addWidget(self.inventory_list)
-        self.inventory_detail = QPlainTextEdit()
-        self.inventory_detail.setReadOnly(True)
-        self.inventory_detail.setPlaceholderText("Select a discovered test to inspect its contract metadata")
-        inventory_splitter.addWidget(self.inventory_detail)
-        inventory_splitter.setStretchFactor(0, 2)
-        inventory_splitter.setStretchFactor(1, 3)
-        inventory_layout.addWidget(inventory_splitter)
-        self._test_records: list[dict[str, Any]] = []
-        self.tabs.addTab(inventory_tab, "Repository Test Inventory")
-
         editor_layout.addWidget(self.tabs)
         splitter.addWidget(editor_panel)
         splitter.setStretchFactor(0, 1)
         splitter.setStretchFactor(1, 4)
         root.addWidget(splitter, stretch=1)
 
-        self._reload_test_inventory()
         self._reload_scenarios()
         if self.scenario_list.count():
             self.scenario_list.setCurrentRow(0)
 
-    def _reload_test_inventory(self) -> None:
-        from .test_inventory import discover_tests
-
-        self._test_records = discover_tests(self._repository_root)
-        self.inventory_list.blockSignals(True)
-        self.inventory_list.clear()
-        self.inventory_list.addItem(
-            f"Discovered {len(self._test_records)} tests (source scan; not executed)"
-        )
-        for record in self._test_records:
-            label = (
-                f"[{record['framework']}] {record['suite']}.{record['name']} "
-                f"  —  {record['source']}:{record['line']}"
-            )
-            self.inventory_list.addItem(label)
-        self.inventory_list.blockSignals(False)
-        self.inventory_list.setCurrentRow(1 if self._test_records else 0)
-
-    def _on_inventory_test_changed(self, row: int) -> None:
-        index = row - 1
-        if index < 0 or index >= len(self._test_records):
-            self.inventory_detail.setPlainText(
-                "Source-discovered inventory. Selecting a test shows its metadata. "
-                "Discovery does not execute tests or fabricate missing input/expected values."
-            )
-            return
-        record = self._test_records[index]
-        self.inventory_detail.setPlainText(json.dumps({
-            "schemaVersion": 1,
-            **record,
-        }, indent=2))
+    def _open_test_inventory(self) -> None:
+        from .repository_test_inventory_dialog import RepositoryTestInventoryDialog
+        RepositoryTestInventoryDialog(self._repository_root, self).exec()
 
     def _reload_scenarios(self) -> None:
         from geometry_workbench.scenarios import list_scenario_paths
