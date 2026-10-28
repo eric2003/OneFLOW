@@ -125,6 +125,15 @@ class TestInventoryDiscoveryTest(unittest.TestCase):
         self.assertEqual(split["expected"]["l2g"], [[2, 3, 1], [2, 3, 1]])
         self.assertIsNone(split["result"])
 
+        mapping = by_name[
+            "RejectsMissingParentRowInsteadOfUsingSharedChildGlobalRow"
+        ]
+        self.assertEqual(mapping["framework"], "GoogleTest")
+        self.assertEqual(mapping["input"]["childFaceIdsOfParent"], [[2], [2], []])
+        self.assertEqual(mapping["expected"]["exception"], "std::logic_error")
+        self.assertEqual(mapping["expected"]["outputNodeIdsUnchanged"], [[[90]]])
+        self.assertIsNone(mapping["result"])
+
 
 if __name__ == "__main__":
     unittest.main()
