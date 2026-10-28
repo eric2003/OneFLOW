@@ -296,3 +296,20 @@ TEST( FaceSearchBasicTest, SetChildMappingRejectsMissingParentSpecificRow )
         std::logic_error );
 }
 
+TEST( FaceSearchBasicTest, SetChildMappingRejectsMisalignedParentRowsWithoutMutation )
+{
+    InterfaceFaceSplitTable split;
+    split.ResetForFaceCount( 3 );
+    split.childFaceIdsOfParent[ 0 ] = IntField{ 1, 2 };
+    split.childFaceNodeIdsByParent[ 0 ] = LinkField{ IntField{ 0, 1 } };
+
+    EXPECT_THROW(
+        split.SetChildMapping( 0, 2, IntField{ 1, 2 }, IntField{ 1, 1 } ),
+        std::logic_error );
+
+    EXPECT_EQ(
+        split.childFaceNodeIdsByParent[ 0 ],
+        ( LinkField{ IntField{ 0, 1 } } ) );
+    EXPECT_TRUE( split.childFaceNodeFlagsByParent[ 0 ].empty() );
+}
+
