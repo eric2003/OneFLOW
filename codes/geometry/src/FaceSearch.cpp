@@ -144,6 +144,14 @@ void InterfaceFaceSplitTable::SetChildMapping(
             "InterfaceFaceSplitTable::SetChildMapping: node IDs and flags have different sizes" );
     }
 
+    const IntField & globalNodeIds = this->childFaceNodeIds[ childFaceId ];
+    const IntField & globalNodeFlags = this->childFaceNodeFlags[ childFaceId ];
+    if ( globalNodeIds.size() != globalNodeFlags.size() )
+    {
+        throw std::logic_error(
+            "InterfaceFaceSplitTable::SetChildMapping: global node IDs and flags are misaligned" );
+    }
+
     if ( static_cast< std::size_t >( parentFaceId ) >= this->childFaceNodeIdsByParent.size() ||
          static_cast< std::size_t >( parentFaceId ) >= this->childFaceNodeFlagsByParent.size() )
     {
