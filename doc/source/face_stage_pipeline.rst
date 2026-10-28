@@ -952,6 +952,15 @@ production order?". That is the cheapest e2e that still avoids CGNS.
 Workbench host and OneFLOW GUI
 --------------------------------
 
+The Geometry Contracts dialog is a contract-exploration surface, not a test
+launcher. Its current backend is fixture-backed: it displays a known mock table
+result, while the expected tables can be edited as JSON and compared against
+that result. The topology sketch and optional PNG export are derived from the
+mock output. This allows the interaction loop (edit expectation, run comparison,
+inspect mismatch, visualize, export) to be developed before binding the native
+geometry pipeline. A PASS here validates the edited contract against the
+fixture only; it does not validate production C++ geometry behavior.
+
 ``tools/geometry_workbench`` holds stdlib scenario JSON and a stub pipeline.
 The OneFLOW Workbench home screen exposes **Geometry Contracts...**
 (``GeometryContractDialog``), which loads those scenarios and runs the stub.
