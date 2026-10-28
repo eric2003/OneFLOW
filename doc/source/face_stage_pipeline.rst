@@ -175,8 +175,9 @@ semantics defined by the split builder.
 This distinction is required when a global child face is shared by multiple
 parents. The child ID can be shared because face identity is order-independent,
 but local corner indices belong to a particular parent ring. For example, the
-same triangle with global nodes `A, B, C` can be described by local corners
-`[0, 1, 2]` in one parent and `[2, 0, 1]` in another. Reusing one child's
+same triangle with global nodes `B, C, D` can be described by local corners
+`[1, 2, 3]` in a parent ring `[A, B, C, D]` and `[0, 1, 2]` in a
+different parent ring `[B, C, D, E]`. Reusing one child's
 mapping row for both parents would reconstruct the wrong ordered node ring for
 at least one consumer.
 
@@ -633,13 +634,14 @@ Open design pressures
   that shares that child can overwrite the row with different parent-local
   indices.
 
-  A minimal regression fixture can use parent rings ``[A, B, C, D]`` and
-  ``[B, C, A, E]`` with one globally registered child face whose node set is
-  ``{A, B, C}``. The same child has local-corner mapping ``[0, 1, 2]`` in
-  the first parent and ``[2, 0, 1]`` in the second. The expected rebuilt
-  global node set is the same for both parents, but the local mapping rows are
-  not interchangeable. The test must assert each ordered child node list, not
-  only the global child ID or unordered face identity.
+  A valid regression fixture must use two distinct parent node sets, for
+  example rings ``[A, B, C, D]`` and ``[B, C, D, E]``, with one globally
+  registered child face ``[B, C, D]``. The child maps to local corners
+  ``[1, 2, 3]`` in the first parent and ``[0, 1, 2]`` in the second. Merely
+  rotating one parent's ring does not create a second global face: the
+  order-independent registry correctly deduplicates both rings to the same
+  parent ID. The test must therefore use distinct parent node sets and assert
+  each ordered child node list, not only the global child ID.
 
   The split table now retains parent-specific child node IDs and flags in
   ``childFaceNodeIdsByParent`` and ``childFaceNodeFlagsByParent``. Global
@@ -654,16 +656,17 @@ Open design pressures
 
   The end-to-end regression
   ``RebuildFaceNodeListsTest.SplitProducerCollectorAndRebuildPreserveSharedChildMapping``
-  now drives the real ``SplitQuad2Tri`` producer through
+  drives the real ``SplitQuad2Tri`` producer through
   ``CollectBoundaryInterfaceChildFaceIds``,
   ``CollectBoundaryInterfaceChildNodeMappings``, and the parent-aware rebuild
-  consumer. Two quad parents share one registered triangle. The first parent
-  ring is ``[100, 101, 102, 103]``; the second is
-  ``[101, 102, 103, 100]``. The same child ``[100, 101, 102]`` therefore uses
-  parent-local rows ``[0, 1, 2]`` and ``[3, 0, 1]``. Both reconstructed outputs
-  must preserve the registered child ring ``[100, 101, 102]``. This locks child
-  identity, parent-local mapping, interface-local collection order, and final
-  node reconstruction together rather than testing only isolated helpers.
+  consumer. Two distinct quad parents share one registered triangle. The first
+  parent ring is ``[100, 101, 102, 103]``; the second is
+  ``[101, 102, 103, 104]``. Their shared child is ``[101, 102, 103]``, with
+  parent-local rows ``[1, 2, 3]`` and ``[0, 1, 2]``. Both reconstructed
+  outputs must preserve the registered child ring ``[101, 102, 103]``. This
+  locks child identity, parent-local mapping, interface-local collection order,
+  and final node reconstruction together rather than testing only isolated
+  helpers.
 
 
 These remain harder to unit-test and mark follow-up work:
