@@ -258,11 +258,11 @@ TEST( RebuildFaceNodeListsTest, FailedRebuildDoesNotPublishPartialFaceLists )
     const LinkField childGlobals{ IntField{ 7 }, IntField{ 8 } };
     const std::vector< LinkField > childNodeIds{
         LinkField{ IntField{ 0, 1, 2 } },
-        LinkField{ IntField{ 0, 1 } }
+        LinkField{ IntField{ 0, 1, 4 } }
     };
     const std::vector< LinkField > childNodeFlags{
         LinkField{ IntField{ 1, 1, 1 } },
-        LinkField{ IntField{ 1, 1 } }
+        LinkField{ IntField{ 1, 1, 1 } }
     };
     LinkField out{ IntField{ 90, 91, 92 } };
     const LinkField originalOut = out;
