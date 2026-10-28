@@ -511,6 +511,14 @@ resolved child IDs and candidate positions are retained and reused when parent
 mappings are published, so the registry lookup is performed once per candidate
 rather than once for the preflight and again for publication. Duplicate child
 identities are rejected by the shared resolver before any zone-local mutation.
+ResolveRegisteredChildFaces is now an explicit topology-resolution step
+that can be tested without IFaceLink or a real grid. It skips candidate
+edges absent from the registry, returns each registered child with its original
+candidate position, and replaces both output buffers only after successful
+resolution. The current policy intentionally permits a partial match: one
+registered child is enough to proceed, while no registered children means no
+local midpoint insertion. Tests make this policy explicit so a later change to
+require both children would be a deliberate behavior change.
 
 The algorithm then resolves the midpoint in two index spaces:
 
@@ -532,11 +540,11 @@ The line split now has two deliberately separate representations:
 
 The global midpoint ID identifies topology; the local midpoint ID addresses one
 zone's node array. Keeping these outputs separate makes the preflight lookup
-independent of the zone-local index and prevents a temporary local-mapping
-builder from also producing a global representation that its caller discards.
-they encode which original endpoint each child retains. Reversing the parent
-ring must reverse the global child-edge direction while leaving the local
-index pattern and flags unchanged.
+independent of the zone-local index and prevents a temporary local-mapping builder from also producing a global
+representation that its caller discards. The endpoint flags encode which
+original endpoint each child retains. Reversing the parent ring must reverse
+the global child-edge direction while leaving the local index pattern and
+flags unchanged.
 
 The distinction matters because global face identity is order-independent, but
 the stored face ring and local endpoint metadata are directional. The helper
