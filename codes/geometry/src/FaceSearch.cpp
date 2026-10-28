@@ -278,16 +278,16 @@ void FaceSearch::SplitLine( IFaceLink & iFaceLink, int globalFaceId )
 
     LinkField localLineId, localLineFlag;
     LinkField lineId;
+    IntField childFaceIds;
+    std::vector< int > childCandidateIndices;
     if ( ! this->TrySplitLineAtMidpoint(
-             iFaceLink, globalFaceId, nodeId, localLineId, localLineFlag, lineId ) )
+             iFaceLink, globalFaceId, nodeId, localLineId, localLineFlag, lineId,
+             childFaceIds, childCandidateIndices ) )
     {
         return;
     }
 
-    // Resolve child identities before publishing parent-relative mappings.
-    IntField childFaceIds;
-    std::vector< int > childCandidateIndices;
-    ResolveRegisteredChildFaces( *this, lineId, childFaceIds, childCandidateIndices );
+    // Child identities were resolved before zone-local geometry was mutated.
 
     IntField & registeredChildFaceIds =
         this->interfaceSplit.childFaceIdsOfParent[ globalFaceId ];
@@ -386,7 +386,9 @@ bool FaceSearch::TrySplitLineAtMidpoint(
     const IntField & nodeId,
     LinkField & localLineId,
     LinkField & localLineFlag,
-    LinkField & lineId )
+    LinkField & lineId,
+    IntField & childFaceIds,
+    std::vector< int > & childCandidateIndices )
 {
     if ( ! iFaceLink.point_search )
     {
@@ -433,6 +435,13 @@ bool FaceSearch::TrySplitLineAtMidpoint(
     {
         return false;
     }
+
+    // Resolve and validate the complete registered-child set before mutation.
+    // Reuse this result during publication instead of repeating FindFace calls.
+    ResolveRegisteredChildFaces( *this, LinkField{
+        IntField{ p0, midpointGlobalNode },
+        IntField{ midpointGlobalNode, p1 } },
+        childFaceIds, childCandidateIndices );
 
     const int zoneIndex = zoneIds[ 0 ];
     Grid & grid = iFaceLink.GetGrid( zoneIndex );
