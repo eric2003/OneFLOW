@@ -6,6 +6,12 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+import sys
+
+REPO = Path(__file__).resolve().parents[2]
+TOOLS = REPO / "tools"
+if str(TOOLS) not in sys.path:
+    sys.path.insert(0, str(TOOLS))
 
 from geometry_workbench.scenario_import import (
     scenario_id_for_test,
