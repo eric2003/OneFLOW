@@ -1381,6 +1381,43 @@ is resolved by the registry, and parent-relative mapping rows are published
 by ``SetChildMapping``. Keeping those decisions distinct lets tests pinpoint
 whether a failure comes from candidate construction, face lookup, or mapping
 publication without building a complete CGNS case.
+Interface split pipeline and publication boundary
+--------------------------------------------------
+
+``RunSymmetricInterfaceSplitMappingPipeline`` is a table-level composition
+of the production mapping steps. It is deliberately independent of ``IFaceLink``,
+CGNS objects, and mesh geometry, so its mapping contract can be tested with
+small tables:
+
+#. Copy the live maps into candidate buffers (``InitNewInterfaceMappingBuffers``).
+#. Rebuild each zone's local-to-global row by replacing split parents with their
+   ordered child global IDs.
+#. Rebuild the inverse global-to-zone and global-to-local tables from those rows.
+#. Expand boundary-condition records using the child counts.
+#. Commit the candidate maps and publish the result.
+
+The key invariant is that these tables form one logical result even though they
+are stored separately. Publishing ``nChild`` or expanded BC arrays before a later
+stage succeeds can expose a mixed state: new counts alongside old maps. The
+pipeline now builds an ``InterfaceSplitMappingPipelineResult`` candidate and
+moves it to the caller's output only after every stage succeeds. A regression
+test deliberately supplies too few child counts and verifies that all preexisting
+output fields remain unchanged.
+
+This is a strong exception guarantee for the **table-level result**; it does
+not make the live production ``IFaceLink`` rebuild transactional by itself.
+The production path still owns its staging/commit lifecycle, and that lifecycle
+must be reviewed separately when it changes.
+
+The multi-zone end-to-end table test also exposes an important distinction:
+after replacing a parent face with children, the copied inverse tables may retain
+an unreferenced row for the retired parent global ID. Detection is implemented by
+``CollectUnreferencedGlobalInterfaceFaces``. Detection is not deletion: global
+IDs are indices into several related tables, so removing or compacting a row
+would require consistently rewriting every local-to-global map and any
+parent/child references. Until that full ID-remapping contract is defined, keep
+the diagnostic and do not silently compact the maps.
+
 Const-correct access and pointer ownership
 ------------------------------------------
 
