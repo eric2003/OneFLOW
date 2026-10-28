@@ -1023,9 +1023,14 @@ void CollectBoundaryInterfaceChildNodeMappings(
             ! splitTable.childFaceNodeFlagsByParent.empty();
         if ( hasParentSpecificTables )
         {
+            if ( splitTable.childFaceNodeIdsByParent.size() !=
+                     splitTable.childFaceNodeFlagsByParent.size() )
+            {
+                throw std::logic_error(
+                    "CollectBoundaryInterfaceChildNodeMappings: parent-specific tables are misaligned" );
+            }
             if ( globalParentId < 0 ||
-                 static_cast< std::size_t >( globalParentId ) >= splitTable.childFaceNodeIdsByParent.size() ||
-                 static_cast< std::size_t >( globalParentId ) >= splitTable.childFaceNodeFlagsByParent.size() )
+                 static_cast< std::size_t >( globalParentId ) >= splitTable.childFaceNodeIdsByParent.size() )
             {
                 throw std::logic_error(
                     "CollectBoundaryInterfaceChildNodeMappings: parent-specific tables do not contain the parent" );
@@ -1047,11 +1052,34 @@ void CollectBoundaryInterfaceChildNodeMappings(
                 ++ interfaceLocal;
                 continue;
             }
+
+            // Once any parent-specific mapping has been published, an empty
+            // row for a split parent is missing data, not a legacy fallback.
+            // Otherwise a shared child could inherit another parent's local
+            // node numbering from the child-global compatibility table.
+            bool anyParentSpecificMapping = false;
+            for ( std::size_t parentIndex = 0;
+                  parentIndex < splitTable.childFaceNodeIdsByParent.size();
+                  ++ parentIndex )
+            {
+                if ( ! splitTable.childFaceNodeIdsByParent[ parentIndex ].empty() ||
+                     ! splitTable.childFaceNodeFlagsByParent[ parentIndex ].empty() )
+                {
+                    anyParentSpecificMapping = true;
+                    break;
+                }
+            }
+            if ( anyParentSpecificMapping )
+            {
+                throw std::logic_error(
+                    "CollectBoundaryInterfaceChildNodeMappings: missing parent-specific mapping for split parent" );
+            }
         }
 
-        // Older callers and serialized test fixtures may leave both
+        // Older callers and serialized test fixtures may leave all
         // parent-specific rows empty and populate only child-global rows.
-        // Fall back only when the new representation is absent, not malformed.
+        // Use the compatibility representation only when no parent-specific
+        // mapping has been published anywhere.
         LinkField nodeIdsByChild;
         LinkField nodeFlagsByChild;
         for ( const int childFaceId : childIds )
