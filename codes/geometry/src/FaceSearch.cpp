@@ -32,9 +32,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-namespace
-{
-
 void ResolveRegisteredChildFaces(
     const FaceSearchBasic & faceSearch,
     const LinkField & candidateFaces,
@@ -64,8 +61,6 @@ void ResolveRegisteredChildFaces(
 
     childFaceIds.swap( resolvedChildFaceIds );
     candidateIndices.swap( resolvedCandidateIndices );
-}
-
 }
 
 int FaceSearchBasic::AddFace( const IntField & faceNode )
