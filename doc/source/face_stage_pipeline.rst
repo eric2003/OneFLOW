@@ -1330,3 +1330,42 @@ Source anchors
 * ``codes/geometry/include/FaceSearch.h``
 * ``codes/geometry/include/IFaceLink.h``
 * ``codes/geometry/src/GridElem.cpp``
+
+Registered child-face resolution
+--------------------------------
+
+``ResolveRegisteredChildFaces`` is a lookup stage, not a mesh-generation
+stage. Its caller supplies candidate node rings; the resolver asks
+``FaceSearchBasic::FindFace`` which candidates already have global face IDs.
+It returns pairs of ``(globalFaceId, candidateIndex)`` for matches only.
+
+The algorithm has four important properties:
+
+#. **Identity is order-independent.** The face lookup keys a face by its node
+   set, while ``faceNodeRings`` preserves the first registered node order.
+   Reversing a candidate ring therefore does not create a new global face.
+#. **Missing candidates are skipped.** Resolution does not register new faces
+   and does not invent IDs for candidates absent from the registry.
+#. **Candidate positions are preserved.** The returned candidate index points
+   back to the original candidate list. Parent-local node IDs and flags must
+   use this index; compacting candidates before applying local mappings would
+   silently attach the wrong mapping after a partial match.
+#. **Duplicate resolved IDs are rejected.** If two candidates resolve to the
+   same global face ID, the resolver throws instead of publishing an ambiguous
+   parent-to-child relation.
+
+The registered-child contract is covered by
+``FaceSearchBasicTest.RegisteredChildResolutionReturnsOnlyKnownChildren``,
+with companion tests for partial matches, no matches, duplicate identity, and
+the original candidate index. The scenario
+``tools/geometry_workbench/scenarios/registered_child_resolution.json`` makes
+one of these cases inspectable as input and expected tables. Its ``result``
+must remain unrecorded until a native test runner captures execution; a stub
+that copies expected values is not evidence that the C++ algorithm passed.
+
+This seam is architecturally useful because it separates three decisions:
+candidate topology is constructed by the split algorithm, global face identity
+is resolved by the registry, and parent-relative mapping rows are published
+by ``SetChildMapping``. Keeping those decisions distinct lets tests pinpoint
+whether a failure comes from candidate construction, face lookup, or mapping
+publication without building a complete CGNS case.
