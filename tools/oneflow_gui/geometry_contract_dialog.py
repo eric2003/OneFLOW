@@ -163,12 +163,17 @@ class GeometryContractDialog(QDialog):
         if scenario is None:
             return
         description = str(scenario.get("description") or scenario.get("id") or "")
-        test = scenario.get("test") or {}
-        if test:
-            description += (
-                f"\\nC++ regression: {test.get('suite', '')}."
-                f"{test.get('name', '')} ({test.get('source', '')})"
-            )
+        linked_tests = [
+            scenario.get("test") or {},
+            scenario.get("integrationTest") or {},
+        ]
+        for test in linked_tests:
+            if test:
+                description += (
+                    f"\nC++ regression (linked, not run here): "
+                    f"{test.get('suite', '')}.{test.get('name', '')} "
+                    f"({test.get('source', '')})"
+                )
         self.description.setText(description)
         self.input_view.setPlainText(json.dumps(scenario.get("input") or {}, indent=2))
         self.expected_view.setPlainText(
@@ -235,13 +240,19 @@ class GeometryContractDialog(QDialog):
 
         lines = [
             f"scenario: {scenario.get('id', '')}",
-            f"C++ test: {(scenario.get('test') or {}).get('suite', '')}."
-            f"{(scenario.get('test') or {}).get('name', 'not linked')}",
+            "linked C++ regressions (not executed by this fixture run):",
+        ]
+        for test in (scenario.get("test") or {}, scenario.get("integrationTest") or {}):
+            if test:
+                lines.append(
+                    f"  - {test.get('suite', '')}.{test.get('name', '')}"
+                )
+        lines.extend([
             "backend: fixture (does not execute the production C++ test)",
             "RESULT: PASS" if not mismatches else "RESULT: FAIL",
             "Compared mock output against the editable expected tables.",
             "Input JSON was parsed; this fixture backend does not recompute output from input.",
-        ]
+        ])
         for line in mismatches:
             lines.append(f"  - {line}")
         lines.append("")
