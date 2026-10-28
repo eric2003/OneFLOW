@@ -644,13 +644,15 @@ Open design pressures
   each ordered child node list, not only the global child ID.
 
   Each parent child list must contain a global child face ID at most once.
-The mapping rows are indexed by child position, so duplicate IDs would make a
-single ``SetChildMapping(parent, child, ...)`` call ambiguous: the same child ID
-would name multiple positions. ``SetChildMapping`` rejects duplicate
-registrations before resizing or writing either parent-specific row
-(**test:** ``FaceSearchBasicTest.SetChildMappingRejectsDuplicateChildRegistration``).
+  The mapping rows are indexed by child position, so duplicate IDs would make a
+  single ``SetChildMapping(parent, child, ...)`` call ambiguous: the same child ID
+  would name multiple positions. ``SetChildMapping`` rejects duplicate
+  registrations before resizing or writing either parent-specific row. The
+  ``SplitQuad2Tri`` and ``SplitLine`` producers also check before appending,
+  so malformed geometry cannot leave a partially appended duplicate child
+  (**test:** ``FaceSearchBasicTest.SetChildMappingRejectsDuplicateChildRegistration``).
 
-The split table now retains parent-specific child node IDs and flags in
+  The split table now retains parent-specific child node IDs and flags in
   ``childFaceNodeIdsByParent`` and ``childFaceNodeFlagsByParent``. Global
   child IDs remain the identity and deduplication key; each parent owns an
   aligned row for each child. ``SetChildMapping`` permits a row to lag the child
