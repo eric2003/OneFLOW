@@ -315,3 +315,107 @@ lifecycle when the first inventory shows a useful pattern. Do not launch a repos
 mechanical pointer conversion. Each change should preserve numerical behavior, state
 which alias is allowed to mutate the object, identify the owner, and add a test when the
 contract can be observed.
+
+
+A broader quality model for refactoring
+----------------------------------------
+
+Const-correctness and ownership clarity are useful code-level signals, but they cover
+only a small part of software quality. ISO/IEC 25010:2023 defines a broader product
+quality model; its characteristics are a useful vocabulary, not a demand that every
+project metric be collected. For OneFLOW, the model should be adapted to scientific
+computing and to the current subsystem being changed.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 20 43 37
+
+   * - Quality dimension
+     - Practical evidence or metric
+     - How to avoid misleading results
+   * - Functional correctness
+     - Contract tests, known-answer tests, integration tests, defect recurrence tests.
+     - A test count or pass rate says nothing about untested behavior.
+   * - Numerical validity
+     - Reference-case errors, conservation residuals, convergence behavior, mesh/topology
+       invariants, and changes against an accepted baseline.
+     - Record mesh, parameters, compiler/backend, tolerances, and comparison method.
+   * - Reliability and lifecycle
+     - Repeated-run tests, setup/teardown tests, failure-path tests, resource diagnostics,
+       and recovery behavior.
+     - Include normal reuse and realistic failures; do not optimize for fantastical cases.
+   * - Modularity and coupling
+     - Dependency direction, cross-layer includes/calls, global-state reachability, and
+       whether a component can be tested without starting the whole solver.
+     - Fewer dependencies are not automatically better if the design becomes indirect.
+   * - Cohesion and responsibility
+     - Whether a module has one understandable reason to change, and whether algorithms,
+       data ownership, I/O, and orchestration are mixed together.
+     - Avoid treating class size or file length as a verdict by itself.
+   * - API and state contracts
+     - Const-correctness, ownership, nullability, invalidation rules, units, valid states,
+       error reporting, and preconditions/postconditions.
+     - Review contracts at call sites; declarations alone may not reveal aliasing or
+       lifecycle assumptions.
+   * - Testability and verification
+     - Important contracts with focused tests, registered test discovery, integration
+       coverage, numerical regression coverage, and actionable failure messages.
+     - Coverage percentage is a map of exercised code, not proof of correctness.
+   * - Complexity and change risk
+     - Cyclomatic/cognitive complexity for critical routines, duplicated policy, branching,
+       and the number of unrelated components touched by a change.
+     - Use trends and review hotspots; avoid arbitrary repository-wide thresholds.
+   * - Performance and resource use
+     - Profiled runtime, memory high-water mark, allocation count, scaling, and hotspot
+       benchmarks on representative cases.
+     - Compare equivalent workloads and configurations; benchmark only where performance
+       matters to users.
+   * - Portability and buildability
+     - Supported compiler/platform builds, clean configure/build, registered tests, and
+       dependency configuration.
+     - A successful build on one machine does not establish cross-platform compatibility.
+   * - Reproducibility and provenance
+     - Recorded inputs, executable/build identity, case location, output artifacts, and
+       stable regression comparisons.
+     - Distinguish deterministic requirements from expected floating-point variation.
+   * - Usability and diagnosability
+     - Clear configuration errors, useful logs, discoverable workflows, actionable failure
+       messages, and the time needed to reproduce a reported issue.
+     - Evaluate actual user tasks, not the number of UI controls or documentation pages.
+   * - Documentation quality
+     - Documented public contracts, algorithm rationale, examples that are tested where
+       practical, and links from the developer entry point to authoritative subsystem docs.
+     - Documentation volume is not a quality metric; correctness and discoverability matter.
+
+Metric selection and use
+------------------------
+
+Do not turn this table into a large scorecard that every change must fill out. For each
+refactoring slice, select a small set of signals based on its risk:
+
+* **Every slice:** behavior preserved or intentionally changed; focused tests; relevant
+  integration or regression evidence; exact revision and test registration.
+* **A boundary or ownership change:** dependency direction, owner/borrower relationship,
+  lifetime and invalidation contract, and whether the component can be exercised in
+  isolation.
+* **A numerical algorithm change:** reference outputs, tolerances, convergence or
+  conservation evidence, and a representative performance check if the algorithm is
+  performance-sensitive.
+* **A workflow or runtime change:** repeatability, failure cleanup, artifact provenance,
+  logs, and a realistic end-to-end path.
+* **A performance change:** benchmark method, workload, environment, and before/after
+  result; do not infer speed from cleaner-looking code.
+
+For each chosen metric, define its denominator and collection method before comparing
+numbers. Keep **leading indicators** (for example, unclear ownership contracts or
+unregistered tests) separate from **outcomes** (for example, numerical regressions,
+crashes, or measured runtime). A rise in test count, const usage, or documentation count
+is not itself proof of better software.
+
+For the current geometry work, the useful combination is not a single quality score. It
+is: preserve the point-matching algorithm's observable behavior; state its tolerance and
+candidate-search contracts; ensure tests are discoverable; understand how its borrowed
+grid views and owned ADT interact; and only then decide whether a larger dependency or
+lifecycle boundary needs redesign. This connects a small local change to testability,
+numerical correctness, and maintainability without expanding it into a repository-wide
+cleanup.
