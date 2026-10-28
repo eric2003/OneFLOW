@@ -178,7 +178,7 @@ class GeometryContractDialog(QDialog):
             )
             return
         mismatches = diff_tables(actual, expected)
-        orphans = expected.get("orphanParentGlobalIds") or []
+        orphans = actual.get("orphanParentGlobalIds") or []
         self._last_actual = actual
         self._last_orphans = list(orphans)
         self.export_button.setEnabled(True)
