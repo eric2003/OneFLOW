@@ -646,7 +646,12 @@ Open design pressures
   The split table now retains parent-specific child node IDs and flags in
   ``childFaceNodeIdsByParent`` and ``childFaceNodeFlagsByParent``. Global
   child IDs remain the identity and deduplication key; each parent owns an
-  aligned row for each child. ``FaceTopo::SetNewFace2Node`` collects these
+  aligned row for each child. ``SetChildMapping`` permits a row to lag the child
+  list while children are registered incrementally, but the ID and flag rows
+  must always have equal lengths and must not exceed the parent's child count.
+  It rejects a mismatched pair before resizing either row, so malformed metadata
+  is not silently normalized. This invariant is covered by
+  ``FaceSearchBasicTest.SetChildMappingRejectsMisalignedParentRowsWithoutMutation``. ``FaceTopo::SetNewFace2Node`` collects these
   rows and passes them to the parent-aware overload of
   ``RebuildFaceNodeListsAfterInterfaceSplit``. The regression
   ``RebuildFaceNodeListsTest.SharedChildUsesEachParentLocalMapping`` checks
