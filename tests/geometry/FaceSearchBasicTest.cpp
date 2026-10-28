@@ -182,6 +182,26 @@ TEST( FaceSearchBasicTest, RegisteredChildResolutionReturnsOnlyKnownChildren )
     EXPECT_EQ( candidateIndices, ( std::vector< int >{ 0, 1 } ) );
 }
 
+TEST( FaceSearchBasicTest, RegisteredChildResolutionPreservesCandidateIndexForPartialMatch )
+{
+    // Intent: a missing first candidate must not shift the local mapping for a registered second child.
+    FaceSearchBasic search;
+    EXPECT_EQ( search.AddFace( IntField{ 20, 30 } ), 0 );
+
+    IntField childFaceIds;
+    std::vector< int > candidateIndices;
+    const LinkField candidates{
+        IntField{ 10, 20 },
+        IntField{ 20, 30 }
+    };
+
+    ResolveRegisteredChildFaces(
+        search, candidates, childFaceIds, candidateIndices );
+
+    EXPECT_EQ( childFaceIds, ( IntField{ 0 } ) );
+    EXPECT_EQ( candidateIndices, ( std::vector< int >{ 1 } ) );
+}
+
 TEST( FaceSearchBasicTest, RegisteredChildResolutionReplacesOutputsWhenNoChildExists )
 {
     FaceSearchBasic search;
