@@ -69,6 +69,14 @@ It refuses to overwrite an existing scenario unless the caller explicitly
 opts in. This is a provenance-preserving scaffold, not a claim that arbitrary
 C++ setup and assertions have been translated into data.
 
+The Geometry Contracts dialog now exposes **Create from GoogleTest...**.
+It lists discovered GoogleTest declarations and writes a non-overwriting scenario
+skeleton into the scenario directory. This is intentionally a user-triggered
+import rather than an automatic bulk conversion: a generated skeleton is a
+starting point for a reviewed contract, not an executable model of the C++
+test. The source file and line are retained so a developer can inspect the
+original setup and assertions while filling the data tables.
+
 The distinction matters for cases such as
 ``CollectBoundaryInterfaceChildNodeMappingsTest.RejectsMissingParentRowInsteadOfUsingSharedChildGlobalRow``.
 Its C++ test constructs ``LinkField``, ``InterfaceFaceSplitTable``, calls
