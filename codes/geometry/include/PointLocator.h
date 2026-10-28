@@ -102,6 +102,7 @@ public:
     /// Return the active point-matching tolerance.
     virtual Real GetTol() const { return tolerance; }
 protected:
+    void ResetPointStore();
     int AddPoint( const RealField & coordinate );
     int FindPoint( const RealField & coordinate );
 public:
