@@ -131,6 +131,12 @@ void InterfaceFaceSplitTable::SetChildMapping(
         throw std::logic_error(
             "InterfaceFaceSplitTable::SetChildMapping: child is not registered for parent" );
     }
+    if ( std::find( childPosition + 1, parentChildren.end(), childFaceId ) !=
+         parentChildren.end() )
+    {
+        throw std::logic_error(
+            "InterfaceFaceSplitTable::SetChildMapping: child is registered more than once for parent" );
+    }
 
     const std::size_t parentIndex = static_cast< std::size_t >( parentFaceId );
     const std::size_t childIndex = static_cast< std::size_t >(
