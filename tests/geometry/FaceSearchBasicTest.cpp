@@ -161,6 +161,67 @@ TEST( FaceSearchBasicTest, InvalidQuadCandidateLeavesMappedOutputUnchanged )
     EXPECT_EQ( mappedTriangles, ( LinkField{ IntField{ 90, 91, 92 } } ) );
 }
 
+TEST( FaceSearchBasicTest, RegisteredChildResolutionReturnsOnlyKnownChildren )
+{
+    FaceSearchBasic search;
+    EXPECT_EQ( search.AddFace( IntField{ 10, 20 } ), 0 );
+    EXPECT_EQ( search.AddFace( IntField{ 20, 30 } ), 1 );
+
+    IntField childFaceIds{ 99 };
+    std::vector< int > candidateIndices{ 99 };
+    const LinkField candidates{
+        IntField{ 10, 20 },
+        IntField{ 20, 30 },
+        IntField{ 30, 40 }
+    };
+
+    ResolveRegisteredChildFaces(
+        search, candidates, childFaceIds, candidateIndices );
+
+    EXPECT_EQ( childFaceIds, ( IntField{ 0, 1 } ) );
+    EXPECT_EQ( candidateIndices, ( std::vector< int >{ 0, 1 } ) );
+}
+
+TEST( FaceSearchBasicTest, RegisteredChildResolutionReplacesOutputsWhenNoChildExists )
+{
+    FaceSearchBasic search;
+    search.AddFace( IntField{ 10, 20 } );
+
+    IntField childFaceIds{ 77 };
+    std::vector< int > candidateIndices{ 88 };
+    const LinkField candidates{
+        IntField{ 20, 30 },
+        IntField{ 30, 40 }
+    };
+
+    ResolveRegisteredChildFaces(
+        search, candidates, childFaceIds, candidateIndices );
+
+    EXPECT_TRUE( childFaceIds.empty() );
+    EXPECT_TRUE( candidateIndices.empty() );
+}
+
+TEST( FaceSearchBasicTest, RegisteredChildResolutionRejectsDuplicateIdentityAtomically )
+{
+    FaceSearchBasic search;
+    search.AddFace( IntField{ 10, 20 } );
+
+    IntField childFaceIds{ 77 };
+    std::vector< int > candidateIndices{ 88 };
+    const LinkField candidates{
+        IntField{ 10, 20 },
+        IntField{ 20, 10 }
+    };
+
+    EXPECT_THROW(
+        ResolveRegisteredChildFaces(
+            search, candidates, childFaceIds, candidateIndices ),
+        std::logic_error );
+
+    EXPECT_EQ( childFaceIds, ( IntField{ 77 } ) );
+    EXPECT_EQ( candidateIndices, ( std::vector< int >{ 88 } ) );
+}
+
 TEST( FaceSearchBasicTest, GlobalLineCandidatesPreserveEdgeDirection )
 {
     // Global child identity follows the directed parent ring A -> B.
