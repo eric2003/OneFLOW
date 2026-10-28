@@ -141,6 +141,25 @@ TEST( FaceSearchBasicTest, QuadSplitUsesOriginalCandidateIndexForPartialMatch )
                ( IntField{ 1, 1, 1 } ) );
 }
 
+TEST( FaceSearchBasicTest, QuadSplitPreservesLastCandidateIndexForPartialMatch )
+{
+    // Three missing candidates must not compact the final candidate's local map.
+    FaceSearch search;
+    ASSERT_EQ( search.AddFace( IntField{ 10, 20, 30, 40 } ), 0 );
+    ASSERT_EQ( search.AddFace( IntField{ 20, 30, 40 } ), 1 );
+
+    search.interfaceSplit.ResetForFaceCount( search.Size() );
+    search.SplitQuad2Tri( 0 );
+
+    ASSERT_EQ( search.interfaceSplit.childFaceIdsOfParent[ 0 ], ( IntField{ 1 } ) );
+    ASSERT_EQ( search.interfaceSplit.childFaceNodeIdsByParent[ 0 ].size(),
+               static_cast< std::size_t >( 1 ) );
+    EXPECT_EQ( search.interfaceSplit.childFaceNodeIdsByParent[ 0 ][ 0 ],
+               ( IntField{ 1, 2, 3 } ) );
+    EXPECT_EQ( search.interfaceSplit.childFaceNodeFlagsByParent[ 0 ][ 0 ],
+               ( IntField{ 1, 1, 1 } ) );
+}
+
 TEST( FaceSearchBasicTest, QuadSplitMatchesRegisteredTrianglesRegardlessOfNodeOrder )
 {
     FaceSearch search;
