@@ -96,6 +96,7 @@ PointLocator::~PointLocator() = default;
 
 void PointLocator::Initialize( const RealField & pmin, const RealField & pmax, Real toleranceIn )
 {
+    this->tolerance = toleranceIn;
     std::unique_ptr< AdtTree > tree;
     ONEFLOW::CreateStandardADT( pmin, pmax, tree, this->tolerance );
     this->spatialIndex = std::make_unique< AdtPointSpatialIndex >( std::move( tree ) );
