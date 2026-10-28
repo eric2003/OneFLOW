@@ -403,7 +403,9 @@ bool FaceSearch::TrySplitLineAtMidpoint(
     {
         coor2[ m ] = half * ( coor0[ m ] + coor1[ m ] );
     }
-    if ( point_search->FindPoint( coor2[ 0 ], coor2[ 1 ], coor2[ 2 ] ) == -1 ) return false;
+    const int midpointGlobalNode =
+        point_search->FindPoint( coor2[ 0 ], coor2[ 1 ], coor2[ 2 ] );
+    if ( midpointGlobalNode == ONEFLOW::INVALID_INDEX ) return false;
 
     const LinkField & globalFaceZones = iFaceLink.gI2Zid;
     if ( globalFaceId < 0 ||
@@ -429,10 +431,9 @@ bool FaceSearch::TrySplitLineAtMidpoint(
         pId = static_cast< int >( grid.nodeMesh->GetNumberOfNodes() );
         grid.nodeMesh->AddPoint( coor2[ 0 ], coor2[ 1 ], coor2[ 2 ] );
     }
-    const int p2 = point_search->AddPoint( coor2[ 0 ], coor2[ 1 ], coor2[ 2 ] );
-
+    // The midpoint was found above; reuse its global ID without another lookup.
     BuildLineSplitMapping(
-        p0, p1, pId, p2, localLineId, localLineFlag, lineId );
+        p0, p1, pId, midpointGlobalNode, localLineId, localLineFlag, lineId );
 
     return true;
 }
