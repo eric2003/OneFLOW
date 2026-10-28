@@ -110,7 +110,7 @@ public:
 
 /**
  * Build an ADT from bounds without modifying the caller's bounds.
- * The tolerance argument is both the input padding policy and the output value.
+ * The supplied tolerance controls how far the copied bounds are expanded.
  */
 void CreateStandardADT( const RealField & ptmin, const RealField & ptmax, std::unique_ptr<AdtTree>& adtTree, Real & tolerance );
 void CreateStandardADT( Grid * grid, std::unique_ptr<AdtTree>& adtTree, Real & tolerance );
