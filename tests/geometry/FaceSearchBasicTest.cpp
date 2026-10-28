@@ -202,7 +202,7 @@ TEST( FaceSearchBasicTest, RegisteredChildResolutionPreservesCandidateIndexForPa
     EXPECT_EQ( children[ 0 ].candidateIndex, 1 );
 }
 
-TEST( FaceSearchBasicTest, RegisteredChildResolutionReplacesOutputsWhenNoChildExists )
+TEST( FaceSearchBasicTest, RegisteredChildResolutionReturnsEmptyWhenNoChildExists )
 {
     FaceSearchBasic search;
     search.AddFace( IntField{ 10, 20 } );
