@@ -158,7 +158,7 @@ class GeometryContractDialog(QDialog):
             self.scenario_list.setCurrentRow(0)
 
     def _reload_test_inventory(self) -> None:
-        from tools.oneflow_gui.test_inventory import discover_tests
+        from .test_inventory import discover_tests
 
         self._test_records = discover_tests(self._repository_root)
         self.inventory_list.blockSignals(True)
