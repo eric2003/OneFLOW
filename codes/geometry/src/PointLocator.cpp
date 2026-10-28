@@ -58,11 +58,13 @@ void PointLocator::Initialize( const RealField & pmin, const RealField & pmax, R
 {
     this->tolerance = toleranceIn;
     ONEFLOW::CreateStandardADT( pmin, pmax, this->coorTree, this->tolerance);
+    this->ResetPointStore();
 }
 
 void PointLocator::Initialize( Grid * grid )
 {
     ONEFLOW::CreateStandardADT( grid, this->coorTree, this->tolerance );
+    this->ResetPointStore();
 }
 
 void PointLocator::InitializeSpecial( Grid * grid, Real toleranceIn )
@@ -80,8 +82,17 @@ void PointLocator::Initialize( Grids & grids )
 void PointLocator::Initialize( const GridViews & grids )
 {
     ONEFLOW::CreateStandardADT( grids, this->coorTree, tolerance );
+    this->ResetPointStore();
 }
 
+
+void PointLocator::ResetPointStore()
+{
+    this->id = INVALID_INDEX;
+    this->xCoor.clear();
+    this->yCoor.clear();
+    this->zCoor.clear();
+}
 
 void PointLocator::GetPoint( int id, Real & xm, Real & ym, Real & zm ) const
 {
