@@ -46,9 +46,9 @@ wishlist for the whole solver.
    * - Interface dual maps
      - Register / Init / Commit pure helpers;
        zone bookkeeping accessors;
-       ``EnsureInterfaceZoneCount``;
        dual-map fields private;
        multi-zone split e2e composition
+       (``MultiZoneInterfaceSplitE2ETest``)
      - Orphan parent global rows after split
        (legacy InitNew copy semantics)
    * - IFaceLink services
@@ -61,10 +61,9 @@ wishlist for the whole solver.
    * - Child mapping after split
      - Parent-specific ``ByParent`` tables;
        two-parent shared-child test;
-       multi-zone split e2e (pure helpers,
-       no CGNS): ``MultiZoneInterfaceSplitE2ETest``
-     - Production path still ties split tables
-       to FaceSearch + nodeMesh mid-points
+       multi-zone split e2e without CGNS
+     - Split table still tied to FaceSearch
+       + mid-point ADT in production
 
 **Rule of thumb:** if a change only renames a pure predicate already covered
 by tests, skip it. Prefer closing an open row in this table.
@@ -854,12 +853,29 @@ tables. ``RebuildFaceNodeListsAfterInterfaceSplit`` applies
 **Tests:** ``TwoParentSharedChildMappingTest``,
 ``FaceSearchBasicTest`` (duplicate / conflict guards).
 
-Multi-zone interface split (composed scenario)
----------------------------------------------
+Local refactor scorecard
+------------------------
 
-Isolated helpers already lock one zone or one table. The composed scenario
-``MultiZoneInterfaceSplitE2ETest`` states the dual-map contract when **both**
-zones rebuild after one shared parent face splits:
+Closed enough to stop polishing the same layer:
+
+* Face stage write path and BC export / boundary-first reorder.
+* Dual-map mutation boundary (private fields, Register / Init / Commit).
+* PointLocator as a replaceable port for tests.
+* Multi-zone split **composition** without CGNS.
+
+Still product work, not rename work:
+
+* Production mid-point split still needs real ``nodeMesh`` + ADT unless injected.
+* Orphan parent global rows after InitNew copy (document, do not silent-fix).
+* Full CGNS zone fixtures remain heavy; prefer more pure compositions first.
+
+
+Multi-zone interface split (composed scenario)
+----------------------------------------------
+
+Isolated helpers lock one zone or one table. ``MultiZoneInterfaceSplitE2ETest``
+states the dual-map contract when **both** zones rebuild after one shared
+parent face splits:
 
 #. Seed two zones / two shared global faces via ``RegisterLocalInterfaceFace``.
 #. ``InitNewLgMapping`` copies inverse maps and clears per-zone ``l2gNew`` rows.
@@ -873,42 +889,12 @@ zones rebuild after one shared parent face splits:
 **Algorithm note (orphan parents):** ``InitNewInterfaceMappingBuffers`` copies
 the live inverse maps. Rebuild only touches globals present in ``l2gNew``.
 A fully replaced parent global id therefore remains as a row that no ``l2g``
-entry references. That is legacy behavior; do not "fix" it inside an
-unrelated PR without a dedicated migration and tests.
+entry references. That is legacy behavior; changing it needs a dedicated
+migration and tests, not a drive-by cleanup.
 
-**Why compose tests at all?** Pure unit tests answer "does this function
-obey its contract?". A thin multi-zone composition answers "do the contracts
-still line up when the production order is followed?". That is the cheapest
-e2e that still avoids CGNS and full meshes.
-
-
-Tests as an exploration surface (design note)
----------------------------------------------
-
-GoogleTest already *runs* assertions. A different question is whether the same
-pure helpers can become an **interactive** surface during development:
-
-* Pick a helper (for example ``RebuildZoneL2gNewAfterInterfaceSplit``).
-* Edit inputs (parent ids, child lists) in a small GUI or notebook.
-* Call the **same** C++ function the unit test calls.
-* Show outputs next to the expected pattern from a golden case.
-
-That is not a replacement for CI tests. It is a **workbench** that reuses the
-testable boundary we already carved out. The local refactor matters here:
-public data bags cannot be driven safely from a UI; named pure functions and
-injectable ports can. Face/interface geometry is a good first target because
-inputs are discrete tables, not full solver state.
-
-A practical path, when someone builds it:
-
-#. Keep algorithms in ``codes/geometry`` with pure helpers (done direction).
-#. Keep deterministic scenarios in ``tests/geometry`` as executable specs.
-#. Optionally add a thin host (Qt panel, Python bindings, or a small CLI)
-   that links the same objects and prints table diffs — never a second
-   implementation of the algorithm.
-
-Until that host exists, the composition tests *are* the readable scenarios.
-Prefer adding one composed test over inventing a parallel playground API.
+**Why compose tests?** Unit tests answer "does this function obey its contract?".
+A thin multi-zone composition answers "do the contracts still line up in
+production order?". That is the cheapest e2e that still avoids CGNS.
 
 
 Open design pressures
