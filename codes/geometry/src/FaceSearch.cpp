@@ -28,6 +28,7 @@ License
 #include "Fatal.h"
 #include <algorithm>
 #include <stdexcept>
+#include <unordered_set>
 
 
 BeginNameSpace( ONEFLOW )
@@ -37,26 +38,23 @@ std::vector< RegisteredChildFace > ResolveRegisteredChildFaces(
     const LinkField & candidateFaces )
 {
     std::vector< RegisteredChildFace > registeredChildren;
-    for ( int iCandidate = 0;
-         iCandidate < static_cast< int >( candidateFaces.size() );
-         ++ iCandidate )
+    registeredChildren.reserve( candidateFaces.size() );
+    std::unordered_set< int > resolvedFaceIds;
+    resolvedFaceIds.reserve( candidateFaces.size() );
+
+    for ( std::size_t iCandidate = 0; iCandidate < candidateFaces.size(); ++ iCandidate )
     {
         const int childFaceId = faceSearch.FindFace( candidateFaces[ iCandidate ] );
         if ( childFaceId == ONEFLOW::INVALID_INDEX ) continue;
 
-        const auto duplicate = std::find_if(
-            registeredChildren.begin(), registeredChildren.end(),
-            [ childFaceId ]( const RegisteredChildFace & child )
-            {
-                return child.globalFaceId == childFaceId;
-            } );
-        if ( duplicate != registeredChildren.end() )
+        if ( ! resolvedFaceIds.insert( childFaceId ).second )
         {
             throw std::logic_error(
                 "ResolveRegisteredChildFaces: duplicate child face for parent" );
         }
 
-        registeredChildren.push_back( { childFaceId, iCandidate } );
+        registeredChildren.push_back(
+            { childFaceId, static_cast< int >( iCandidate ) } );
     }
 
     return registeredChildren;
