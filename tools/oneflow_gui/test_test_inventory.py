@@ -103,5 +103,28 @@ class TestInventoryDiscoveryTest(unittest.TestCase):
             self.assertEqual(len(first), 2)
 
 
+    def test_geometry_contracts_expose_input_expected_and_unexecuted_result(self) -> None:
+        repository_root = Path(__file__).resolve().parents[2]
+        records = discover_tests(repository_root)
+        by_name = {record["name"]: record for record in records}
+
+        registered = by_name[
+            "RegisteredChildResolutionPreservesCandidateIndexForPartialMatch"
+        ]
+        self.assertEqual(registered["framework"], "GoogleTest")
+        self.assertEqual(
+            registered["input"]["candidateFaces"],
+            [[10, 20], [20, 30]],
+        )
+        self.assertEqual(registered["expected"]["candidateIndices"], [1])
+        self.assertIsNone(registered["result"])
+
+        split = by_name["SplitOneSharedParentViaTablePipeline"]
+        self.assertEqual(split["framework"], "GoogleTest")
+        self.assertEqual(split["input"]["parents"], [0, 1])
+        self.assertEqual(split["expected"]["l2g"], [[2, 3, 1], [2, 3, 1]])
+        self.assertIsNone(split["result"])
+
+
 if __name__ == "__main__":
     unittest.main()
