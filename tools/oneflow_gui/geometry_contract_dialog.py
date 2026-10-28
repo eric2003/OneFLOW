@@ -131,10 +131,19 @@ class GeometryContractDialog(QDialog):
             "Input/expected are populated only when a scenario explicitly links a test; "
             "result remains empty until an execution backend records it."
         ))
-        self.inventory_view = QPlainTextEdit()
-        self.inventory_view.setReadOnly(True)
-        self.inventory_view.setPlaceholderText("Repository test inventory")
-        inventory_layout.addWidget(self.inventory_view)
+        inventory_splitter = QSplitter()
+        self.inventory_list = QListWidget()
+        self.inventory_list.setMinimumWidth(300)
+        self.inventory_list.currentRowChanged.connect(self._on_inventory_test_changed)
+        inventory_splitter.addWidget(self.inventory_list)
+        self.inventory_detail = QPlainTextEdit()
+        self.inventory_detail.setReadOnly(True)
+        self.inventory_detail.setPlaceholderText("Select a discovered test to inspect its contract metadata")
+        inventory_splitter.addWidget(self.inventory_detail)
+        inventory_splitter.setStretchFactor(0, 2)
+        inventory_splitter.setStretchFactor(1, 3)
+        inventory_layout.addWidget(inventory_splitter)
+        self._test_records: list[dict[str, Any]] = []
         self.tabs.addTab(inventory_tab, "Repository Test Inventory")
 
         editor_layout.addWidget(self.tabs)
@@ -151,14 +160,34 @@ class GeometryContractDialog(QDialog):
     def _reload_test_inventory(self) -> None:
         from tools.oneflow_gui.test_inventory import discover_tests
 
-        records = discover_tests(self._repository_root)
-        summary = {
+        self._test_records = discover_tests(self._repository_root)
+        self.inventory_list.blockSignals(True)
+        self.inventory_list.clear()
+        self.inventory_list.addItem(
+            f"Discovered {len(self._test_records)} tests (source scan; not executed)"
+        )
+        for record in self._test_records:
+            label = (
+                f"[{record['framework']}] {record['suite']}.{record['name']} "
+                f"  —  {record['source']}:{record['line']}"
+            )
+            self.inventory_list.addItem(label)
+        self.inventory_list.blockSignals(False)
+        self.inventory_list.setCurrentRow(1 if self._test_records else 0)
+
+    def _on_inventory_test_changed(self, row: int) -> None:
+        index = row - 1
+        if index < 0 or index >= len(self._test_records):
+            self.inventory_detail.setPlainText(
+                "Source-discovered inventory. Selecting a test shows its metadata. "
+                "Discovery does not execute tests or fabricate missing input/expected values."
+            )
+            return
+        record = self._test_records[index]
+        self.inventory_detail.setPlainText(json.dumps({
             "schemaVersion": 1,
-            "discovery": "repository source scan; no tests executed",
-            "count": len(records),
-            "tests": records,
-        }
-        self.inventory_view.setPlainText(json.dumps(summary, indent=2))
+            **record,
+        }, indent=2))
 
     def _reload_scenarios(self) -> None:
         from geometry_workbench.scenarios import list_scenario_paths
