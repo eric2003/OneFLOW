@@ -91,8 +91,9 @@ JSON is suitable for manifests and small metadata. Large numeric arrays may need
 Spatial search and point-location boundary
 --------------------------------------------
 
-Point location is a geometry service, not an ADT-specific service. The current
-`PointLocator` combines several responsibilities:
+Point location is a geometry service, not an ADT-specific service. `PointLocator`
+combines several responsibilities, while its candidate-search implementation is now
+hidden behind a private interface in `PointLocator.cpp`:
 
 * point-coordinate storage and stable point IDs;
 * duplicate detection and the tolerance policy;
@@ -106,7 +107,7 @@ rebuilding an index, inserting a point with a payload, and querying candidates i
 axis-aligned region or within a radius. Tree nodes, ownership handles, and third-party
 types should not cross that boundary.
 
-The intended dependency direction is:
+The implemented dependency direction is:
 
 .. code-block:: text
 
@@ -142,19 +143,23 @@ incremental point insertion, duplicate-heavy interface matching, query throughpu
 cost, memory use, and result equivalence. Do not select a backend from synthetic query
 speed alone.
 
-The migration should be staged:
+The first migration step is implemented: `PointLocator` talks to a private index contract,
+and an ADT adapter translates region queries into point IDs. The narrow-phase distance
+predicate now reads canonical coordinates from the locator's coordinate store instead of
+reading coordinates from ADT nodes. This keeps match policy independent of tree-node layout.
 
-#. Extract and test the backend-independent match policy while retaining the current ADT.
-#. Introduce a narrow index contract and wrap the ADT without changing observable results.
-#. Run the same contract tests against the ADT adapter and any nanoflann adapter.
+The remaining migration steps are:
+
+#. Add contract tests that can be run against each backend adapter.
+#. Implement a nanoflann adapter only after choosing and testing an incremental-update policy.
 #. Add representative benchmarks and compare full matching results, including tolerance
    boundaries and duplicate insertion order.
 #. Keep nanoflann optional until dependency licensing, packaging, platform builds, and
    performance evidence are reviewed.
 
-This boundary improves testability and future implementation choice without requiring
-solver, mesh-container, or point-ID changes. It is a proposed direction until the adapters
-and shared contract tests exist; the current implementation remains ADT-backed.
+The current production backend remains ADT-backed. The new boundary is an internal seam,
+not yet a public plugin API; it allows the implementation to evolve without requiring
+solver, mesh-container, or point-ID changes.
 
 Topology invariants and rebuild rules
 -------------------------------------
