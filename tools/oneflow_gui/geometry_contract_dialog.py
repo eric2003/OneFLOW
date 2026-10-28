@@ -62,6 +62,9 @@ class GeometryContractDialog(QDialog):
         self.import_button = QPushButton("Create from GoogleTest...")
         self.import_button.clicked.connect(self._create_scenario_from_gtest)
         command_row.addWidget(self.import_button)
+        self.save_button = QPushButton("Save scenario")
+        self.save_button.clicked.connect(self._save_scenario)
+        command_row.addWidget(self.save_button)
         self.run_button = QPushButton("Run scenario (fixture)")
         self.run_button.clicked.connect(self._run_scenario)
         command_row.addWidget(self.run_button)
@@ -253,6 +256,31 @@ class GeometryContractDialog(QDialog):
             return
         self.expected_view.setPlainText(
             json.dumps(scenario.get("expected") or {}, indent=2)
+        )
+
+    def _save_scenario(self) -> None:
+        from geometry_workbench.scenarios import save_scenario_contract
+
+        scenario = self._current_scenario()
+        index = self.scenario_list.currentRow()
+        if scenario is None or index < 0:
+            QMessageBox.warning(self, "Geometry Contracts", "No scenario selected.")
+            return
+        try:
+            input_tables = json.loads(self.input_view.toPlainText())
+            expected_tables = json.loads(self.expected_view.toPlainText())
+            save_scenario_contract(
+                self._scenario_paths[index], scenario, input_tables, expected_tables
+            )
+        except (json.JSONDecodeError, OSError, ValueError) as exc:
+            QMessageBox.warning(
+                self, "Geometry Contracts", f"Could not save scenario contract: {exc}"
+            )
+            return
+        QMessageBox.information(
+            self,
+            "Geometry Contracts",
+            "Saved input and expected tables. Execution result was not changed.",
         )
 
     def _run_scenario(self) -> None:
