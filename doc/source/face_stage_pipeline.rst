@@ -392,7 +392,12 @@ the geometric midpoint is already present in ``PointLocator``; this path does
 not independently decide to split every edge. Invalid face-to-zone associations
 therefore fail before midpoint lookup or zone-local node mutation.
 
-When a midpoint is available, the algorithm resolves it in two index spaces:
+When a midpoint is available, the algorithm first checks whether at least one
+of the two resulting child edges is registered in ``FaceSearch``. If neither
+child exists, it returns without appending a zone-local node. This avoids
+changing geometry state when no child identity can be mapped.
+
+The algorithm then resolves the midpoint in two index spaces:
 
 #. ``PointLocator::FindPoint`` returns the existing **global search** midpoint ID.
    If no midpoint is registered there, this edge is not split.
