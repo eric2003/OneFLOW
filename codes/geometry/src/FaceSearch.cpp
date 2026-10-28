@@ -393,19 +393,6 @@ bool FaceSearch::TrySplitLineAtMidpoint(
         throw std::logic_error(
             "FaceSearch::TrySplitLineAtMidpoint: point locator is not initialized" );
     }
-    PointLocator * point_search = iFaceLink.point_search.get();
-    const int p0 = nodeId[ 0 ];
-    const int p1 = nodeId[ 1 ];
-    RealField coor0( 3 ), coor1( 3 ), coor2( 3 );
-    point_search->GetPoint( p0, coor0[ 0 ], coor0[ 1 ], coor0[ 2 ] );
-    point_search->GetPoint( p1, coor1[ 0 ], coor1[ 1 ], coor1[ 2 ] );
-    for ( int m = 0; m < 3; ++ m )
-    {
-        coor2[ m ] = half * ( coor0[ m ] + coor1[ m ] );
-    }
-    const int midpointGlobalNode =
-        point_search->FindPoint( coor2[ 0 ], coor2[ 1 ], coor2[ 2 ] );
-    if ( midpointGlobalNode == ONEFLOW::INVALID_INDEX ) return false;
 
     const LinkField & globalFaceZones = iFaceLink.gI2Zid;
     if ( globalFaceId < 0 ||
@@ -421,6 +408,20 @@ bool FaceSearch::TrySplitLineAtMidpoint(
         throw std::logic_error(
             "FaceSearch::TrySplitLineAtMidpoint: a split line must reference exactly one zone" );
     }
+
+    PointLocator * point_search = iFaceLink.point_search.get();
+    const int p0 = nodeId[ 0 ];
+    const int p1 = nodeId[ 1 ];
+    RealField coor0( 3 ), coor1( 3 ), coor2( 3 );
+    point_search->GetPoint( p0, coor0[ 0 ], coor0[ 1 ], coor0[ 2 ] );
+    point_search->GetPoint( p1, coor1[ 0 ], coor1[ 1 ], coor1[ 2 ] );
+    for ( int m = 0; m < 3; ++ m )
+    {
+        coor2[ m ] = half * ( coor0[ m ] + coor1[ m ] );
+    }
+    const int midpointGlobalNode =
+        point_search->FindPoint( coor2[ 0 ], coor2[ 1 ], coor2[ 2 ] );
+    if ( midpointGlobalNode == ONEFLOW::INVALID_INDEX ) return false;
 
     const int zoneIndex = zoneIds[ 0 ];
     Grid & grid = iFaceLink.GetGrid( zoneIndex );
