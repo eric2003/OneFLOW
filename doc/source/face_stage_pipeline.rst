@@ -386,9 +386,11 @@ Line midpoint split algorithm
 
 The 2D interface split path separates geometry discovery from mapping assembly.
 ``FaceSearch::SplitLine`` first clears the selected parent's old child list and
-ignores faces that are not two-node edges. ``TrySplitLineAtMidpoint`` then
-checks whether the geometric midpoint is already present in ``PointLocator``;
-this path does not independently decide to split every edge.
+ignores faces that are not two-node edges. ``TrySplitLineAtMidpoint`` validates
+the parent face's zone association before querying geometry, then checks whether
+the geometric midpoint is already present in ``PointLocator``; this path does
+not independently decide to split every edge. Invalid face-to-zone associations
+therefore fail before midpoint lookup or zone-local node mutation.
 
 When a midpoint is available, the algorithm resolves it in two index spaces:
 
