@@ -108,6 +108,49 @@ TEST( RebuildFaceNodeListsTest, RejectsInterfaceChildListShortfall )
         std::out_of_range );
 }
 
+TEST( RebuildFaceNodeListsTest, MappingCollectorDoesNotPublishPartialOutputs )
+{
+    // The second parent has malformed parent-specific rows. Collection must
+    // fail without exposing mappings collected from the first parent.
+    LinkField zoneToLocalToGlobal{ IntField{ 0, 1 } };
+    InterfaceFaceSplitTable split;
+    split.childFaceIdsOfParent = LinkField{
+        IntField{ 0 },
+        IntField{ 1 }
+    };
+    split.childFaceNodeIdsByParent.resize( 2 );
+    split.childFaceNodeFlagsByParent.resize( 2 );
+    split.childFaceNodeIdsByParent[ 0 ] = LinkField{ IntField{ 0, 1 } };
+    split.childFaceNodeFlagsByParent[ 0 ] = LinkField{ IntField{ 1, 1 } };
+    split.childFaceNodeIdsByParent[ 1 ] = LinkField{
+        IntField{ 0, 1 },
+        IntField{ 1, 2 }
+    };
+    split.childFaceNodeFlagsByParent[ 1 ] = LinkField{
+        IntField{ 1, 1 },
+        IntField{ 1, 1 }
+    };
+
+    std::vector< LinkField > nodeIds{ LinkField{ IntField{ 90 } } };
+    std::vector< LinkField > nodeFlags{ LinkField{ IntField{ 91 } } };
+    const auto originalNodeIds = nodeIds;
+    const auto originalNodeFlags = nodeFlags;
+
+    EXPECT_THROW(
+        CollectBoundaryInterfaceChildNodeMappings(
+            IntField{ BC::INTERFACE, BC::INTERFACE },
+            2,
+            zoneToLocalToGlobal,
+            split,
+            0,
+            nodeIds,
+            nodeFlags ),
+        std::logic_error );
+
+    EXPECT_EQ( nodeIds, originalNodeIds );
+    EXPECT_EQ( nodeFlags, originalNodeFlags );
+}
+
 TEST( RebuildFaceNodeListsTest, SplitProducerCollectorAndRebuildPreserveSharedChildMapping )
 {
     // Two parent rings share one global child, but need different local corner rows.
