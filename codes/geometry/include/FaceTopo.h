@@ -272,4 +272,32 @@ IntField ResolveChildFaceNodeIds(
     bool hasNodeMesh,
     HXSize_t nodeMeshCount );
 
+// ---------------------------------------------------------------------------
+// Table-level interface split mapping pipeline (workbench / tests / future GUI).
+// No IFaceLink, no CGNS, no mesh. Same steps as production dual-map rebuild:
+// InitNew buffers -> per-zone RebuildZoneL2gNew -> BuildInverse -> ExpandBc -> Commit.
+// childGlobalIdsPerParent is applied identically to every zone (symmetric case).
+// ---------------------------------------------------------------------------
+struct InterfaceSplitMappingPipelineResult
+{
+    LinkField l2g;
+    LinkField gI2Zid;
+    LinkField g2l;
+    LinkField nChild;
+    IntField outBcType;
+    IntField outBcNameId;
+};
+
+void RunSymmetricInterfaceSplitMappingPipeline(
+    const LinkField & l2gIn,
+    const LinkField & gI2ZidIn,
+    const LinkField & g2lIn,
+    const IntField & parentGlobalFaceIds,
+    const LinkField & childGlobalIdsPerParent,
+    const IntField & bcType,
+    const IntField & bcNameId,
+    const IntField & childCountPerInterfaceLocal,
+    InterfaceSplitMappingPipelineResult & out );
+
+
 EndNameSpace

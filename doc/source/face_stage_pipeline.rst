@@ -853,6 +853,32 @@ tables. ``RebuildFaceNodeListsAfterInterfaceSplit`` applies
 **Tests:** ``TwoParentSharedChildMappingTest``,
 ``FaceSearchBasicTest`` (duplicate / conflict guards).
 
+
+Geometry workbench (parallel to refactor)
+-----------------------------------------
+
+Unit tests lock contracts in CI. A **workbench** is a different surface:
+
+* Operator edits discrete tables (``l2g``, parents, child lists, BC rows).
+* Host calls the **same** C++ pipeline the tests call (today:
+  ``RunSymmetricInterfaceSplitMappingPipeline``).
+* Results are shown as tables (and later drawings); human or golden compare
+  judges pass/fail.
+
+This can advance **in parallel** with the geometry refactor:
+
+#. **Fake-first UI:** panels bind to in-memory tables and a stub that returns
+   hand-written outputs, so interaction and visualization ship before every
+   production edge is free of CGNS.
+#. **Contract-ready core:** pure helpers and table pipelines land in
+   ``codes/geometry`` (no second algorithm in the UI process).
+#. **Swap:** replace the stub with the real pipeline when the scenario matches;
+   do not re-implement split logic in Qt/Python.
+
+What the workbench is *not*: a button that only launches GoogleTest. What it
+*is*: an editable, visual driver of table-level geometry contracts — the same
+contracts the local refactor is carving out.
+
 Local refactor scorecard
 ------------------------
 
@@ -873,18 +899,18 @@ Still product work, not rename work:
 Multi-zone interface split (composed scenario)
 ----------------------------------------------
 
-Isolated helpers lock one zone or one table. ``MultiZoneInterfaceSplitE2ETest``
-states the dual-map contract when **both** zones rebuild after one shared
-parent face splits:
+Isolated helpers lock one zone or one table. The composed entry point is
+``RunSymmetricInterfaceSplitMappingPipeline`` (table in, table out; no
+``IFaceLink``, no CGNS). ``MultiZoneInterfaceSplitE2ETest`` seeds maps with
+``RegisterLocalInterfaceFaceOnMaps`` and calls that pipeline when **both**
+zones rebuild after one shared parent face splits:
 
-#. Seed two zones / two shared global faces via ``RegisterLocalInterfaceFace``.
-#. ``InitNewLgMapping`` copies inverse maps and clears per-zone ``l2gNew`` rows.
-#. ``RebuildZoneL2gNewAfterInterfaceSplit`` expands each zone's local list
-   (parent 0 -> children 2,3; parent 1 kept).
-#. ``BuildInverseInterfaceMapForZone`` for zone 0 then 1 refreshes or appends
-   participant slots (legacy capacity: at most two zones per global face).
-#. ``ExpandBcRecordForSplitInterfaces`` duplicates BC slots by child counts.
-#. ``UpdateLgMapping`` commits ``*New`` tables after validation.
+#. Seed two zones / two shared global faces (``RegisterLocalInterfaceFaceOnMaps``).
+#. Pipeline: ``InitNewInterfaceMappingBuffers`` copies inverse maps, clears ``l2gNew``.
+#. ``RebuildZoneL2gNewAfterInterfaceSplit`` per zone (parent 0 -> 2,3; parent 1 kept).
+#. ``BuildInverseInterfaceMapForZone`` for each zone (max two participants).
+#. ``ExpandBcRecordForSplitInterfaces`` expands BC slots by child counts.
+#. ``CommitInterfaceMappingBuffers`` swaps validated ``*New`` tables into the result.
 
 **Algorithm note (orphan parents):** ``InitNewInterfaceMappingBuffers`` copies
 the live inverse maps. Rebuild only touches globals present in ``l2gNew``.

@@ -1266,4 +1266,65 @@ void RebuildFaceNodeListsAfterInterfaceSplit(
 }
 
 
+
+void RunSymmetricInterfaceSplitMappingPipeline(
+    const LinkField & l2gIn,
+    const LinkField & gI2ZidIn,
+    const LinkField & g2lIn,
+    const IntField & parentGlobalFaceIds,
+    const LinkField & childGlobalIdsPerParent,
+    const IntField & bcType,
+    const IntField & bcNameId,
+    const IntField & childCountPerInterfaceLocal,
+    InterfaceSplitMappingPipelineResult & out )
+{
+    if ( l2gIn.empty() )
+    {
+        throw std::invalid_argument(
+            "RunSymmetricInterfaceSplitMappingPipeline: l2gIn must not be empty" );
+    }
+    if ( childGlobalIdsPerParent.size() != parentGlobalFaceIds.size() )
+    {
+        throw std::invalid_argument(
+            "RunSymmetricInterfaceSplitMappingPipeline: parent/child table size mismatch" );
+    }
+
+    LinkField gI2ZidNew, g2lNew, l2gNew;
+    InitNewInterfaceMappingBuffers(
+        gI2ZidIn, g2lIn, l2gIn, gI2ZidNew, g2lNew, l2gNew );
+
+    out.nChild.clear();
+    out.nChild.resize( l2gIn.size() );
+
+    for ( std::size_t zid = 0; zid < l2gIn.size(); ++ zid )
+    {
+        RebuildZoneL2gNewAfterInterfaceSplit(
+            parentGlobalFaceIds,
+            childGlobalIdsPerParent,
+            l2gNew[ zid ],
+            out.nChild[ zid ] );
+    }
+
+    for ( std::size_t zid = 0; zid < l2gIn.size(); ++ zid )
+    {
+        BuildInverseInterfaceMapForZone(
+            static_cast< int >( zid ),
+            l2gNew[ zid ],
+            gI2ZidNew,
+            g2lNew );
+    }
+
+    ExpandBcRecordForSplitInterfaces(
+        bcType, bcNameId, childCountPerInterfaceLocal,
+        out.outBcType, out.outBcNameId );
+
+    out.l2g = l2gIn;
+    out.gI2Zid = gI2ZidIn;
+    out.g2l = g2lIn;
+    CommitInterfaceMappingBuffers(
+        out.gI2Zid, out.g2l, out.l2g,
+        gI2ZidNew, g2lNew, l2gNew,
+        "RunSymmetricInterfaceSplitMappingPipeline" );
+}
+
 EndNameSpace
