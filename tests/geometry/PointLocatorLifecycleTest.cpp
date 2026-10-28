@@ -68,6 +68,13 @@ public:
     {
         return std::make_unique< PointLocatorTestGrid >();
     }
+
+    void GetMinMaxDistance( ONEFLOW::Real & minDistance,
+                            ONEFLOW::Real & maxDistance ) const override
+    {
+        minDistance = 0.1;
+        maxDistance = 1.0;
+    }
 };
 } // namespace
 
