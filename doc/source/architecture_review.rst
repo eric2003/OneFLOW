@@ -419,3 +419,42 @@ grid views and owned ADT interact; and only then decide whether a larger depende
 lifecycle boundary needs redesign. This connects a small local change to testability,
 numerical correctness, and maintainability without expanding it into a repository-wide
 cleanup.
+
+
+Point locator: index and coordinate-store lifecycle
+--------------------------------------------------
+
+The point locator maintains two representations of inserted points: the ADT spatial
+index stores point nodes and IDs, while ``xCoor``, ``yCoor``, and ``zCoor`` store the
+coordinates used by point accessors. These structures are one logical data set even
+though they are represented separately.
+
+The query algorithm has two stages:
+
+#. The ADT broad phase retrieves candidates inside an axis-aligned box centered on the
+   query point and expanded by the active tolerance.
+#. The narrow phase computes squared Euclidean distance and accepts only candidates with
+   ``distance_squared < tolerance * tolerance``. It returns the closest accepted point;
+   equal-distance ties depend on candidate traversal order.
+
+The squared-distance comparison avoids a square root for every candidate. The strict
+inequality is observable behavior at the tolerance boundary and should not be changed
+without an explicit compatibility decision.
+
+A lifecycle invariant follows from the two representations: whenever initialization
+replaces the ADT, the coordinate arrays for points inserted through this locator must
+also be cleared. Otherwise the new index can be empty while the old coordinate arrays
+remain populated; the next insertion can receive an ID based on stale coordinates, and
+the index and coordinate store no longer describe the same set of points.
+
+The reinitialization test therefore checks more than safe destruction: after rebuilding,
+the point count is zero, a previously inserted point is no longer found, and the next
+insertion starts again at ID zero. This is a targeted example of a useful quality
+measure: **cross-representation invariant coverage**. It is more meaningful here than
+counting lifecycle tests or smart pointers.
+
+This change intentionally does not alter tolerance policy, tie-breaking behavior,
+grid bounding-box calculation, or the ADT search algorithm. Those are separate
+contracts and should be evaluated independently. The locator's inserted-point store is
+also distinct from the source grid nodes used to establish initial search bounds; clearing
+the former does not clear or modify the source grid.
