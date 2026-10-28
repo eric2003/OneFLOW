@@ -188,8 +188,9 @@ TEST( FaceSearchBasicTest, RegisteredChildResolutionPreservesCandidateIndexForPa
     FaceSearchBasic search;
     EXPECT_EQ( search.AddFace( IntField{ 20, 30 } ), 0 );
 
-    IntField childFaceIds;
-    std::vector< int > candidateIndices;
+    // Pre-populated outputs must be replaced, not appended to.
+    IntField childFaceIds{ 99 };
+    std::vector< int > candidateIndices{ 99 };
     const LinkField candidates{
         IntField{ 10, 20 },
         IntField{ 20, 30 }
