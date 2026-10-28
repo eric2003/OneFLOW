@@ -69,8 +69,13 @@ void PointLocator::Initialize( Grid * grid )
 
 void PointLocator::InitializeSpecial( Grid * grid, Real toleranceIn )
 {
-    this->Initialize( grid );
-    this->tolerance = toleranceIn;
+    // The ADT bounds must use the same tolerance as the narrow-phase query.
+    // Reusing Initialize(grid) would build bounds with mindis / 4, then only
+    // replace the query tolerance, which can exclude valid inserted points.
+    grid->nodeMesh->CalcMinMaxBox();
+    const RealField pmin = grid->nodeMesh->pmin;
+    const RealField pmax = grid->nodeMesh->pmax;
+    this->Initialize( pmin, pmax, toleranceIn );
 }
 
 void PointLocator::Initialize( Grids & grids )
