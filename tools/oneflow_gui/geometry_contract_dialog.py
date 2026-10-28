@@ -12,7 +12,6 @@ from pathlib import Path
 from typing import Any
 
 from PySide6.QtWidgets import (
-    QComboBox,
     QDialog,
     QFileDialog,
     QHBoxLayout,
@@ -20,6 +19,10 @@ from PySide6.QtWidgets import (
     QMessageBox,
     QPushButton,
     QPlainTextEdit,
+    QListWidget,
+    QSplitter,
+    QTabWidget,
+    QWidget,
     QVBoxLayout,
 )
 
@@ -43,87 +46,102 @@ class GeometryContractDialog(QDialog):
         self._last_orphans: list[int] = []
 
         self.setWindowTitle("Geometry Contracts")
-        self.resize(900, 640)
+        self.resize(1120, 720)
 
         root = QVBoxLayout(self)
         intro = QLabel(
-            "Explore interface dual-map / split contracts as table scenarios. "
-            "This is not the Unit Tests runner. Text PASS/FAIL is the default; "
-            "PNG export is optional and does not open an interactive plot window."
+            "Select a named contract scenario on the left. Edit input and expected "
+            "tables in separate tabs; the result tab shows comparison output. "
+            "Fixture mode does not execute production C++."
         )
         intro.setWordWrap(True)
         root.addWidget(intro)
 
-        row = QHBoxLayout()
-        row.addWidget(QLabel("Scenario"))
-        self.scenario_combo = QComboBox()
-        row.addWidget(self.scenario_combo, stretch=1)
-        self.run_button = QPushButton("Run (stub)")
+        command_row = QHBoxLayout()
+        self.run_button = QPushButton("Run scenario (fixture)")
         self.run_button.clicked.connect(self._run_scenario)
-        row.addWidget(self.run_button)
+        command_row.addWidget(self.run_button)
         self.export_button = QPushButton("Export PNG...")
         self.export_button.setToolTip(
             "Optional static figure (matplotlib Agg); no interactive window"
         )
         self.export_button.clicked.connect(self._export_png)
         self.export_button.setEnabled(False)
-        row.addWidget(self.export_button)
-        root.addLayout(row)
-
-        self.description = QLabel("")
-        self.description.setWordWrap(True)
-        root.addWidget(self.description)
-
-        root.addWidget(QLabel("Input"))
-        input_row = QHBoxLayout()
-        input_row.addWidget(QLabel("Input tables (editable JSON)"))
-        input_row.addStretch(1)
-        self.reset_input_button = QPushButton("Restore scenario input")
-        self.reset_input_button.clicked.connect(self._restore_input)
-        input_row.addWidget(self.reset_input_button)
-        root.addLayout(input_row)
-        self.input_view = QPlainTextEdit()
-        self.input_view.setPlaceholderText("Edit scenario input tables (JSON)")
-        root.addWidget(self.input_view, stretch=1)
-
-        expected_row = QHBoxLayout()
-        expected_row.addWidget(QLabel("Expected tables (editable JSON)"))
-        expected_row.addStretch(1)
-        self.reset_expected_button = QPushButton("Restore scenario expected")
-        self.reset_expected_button.clicked.connect(self._restore_expected)
-        expected_row.addWidget(self.reset_expected_button)
-        root.addLayout(expected_row)
-        self.expected_view = QPlainTextEdit()
-        self.expected_view.setPlaceholderText("Edit expected tables to probe the contract")
-        root.addWidget(self.expected_view, stretch=1)
-
-        root.addWidget(QLabel("Result"))
-        self.result_view = QPlainTextEdit()
-        self.result_view.setReadOnly(True)
-        self.result_view.setPlaceholderText("Mock pipeline result, comparison, and topology sketch")
-        root.addWidget(self.result_view, stretch=1)
-
-        close_row = QHBoxLayout()
-        close_row.addStretch(1)
+        command_row.addWidget(self.export_button)
+        command_row.addStretch(1)
         close_btn = QPushButton("Close")
         close_btn.clicked.connect(self.accept)
-        close_row.addWidget(close_btn)
-        root.addLayout(close_row)
+        command_row.addWidget(close_btn)
+        root.addLayout(command_row)
+
+        splitter = QSplitter()
+        self.scenario_list = QListWidget()
+        self.scenario_list.setMinimumWidth(220)
+        self.scenario_list.currentRowChanged.connect(self._on_scenario_changed)
+        splitter.addWidget(self.scenario_list)
+
+        editor_panel = QWidget()
+        editor_layout = QVBoxLayout(editor_panel)
+        editor_layout.setContentsMargins(0, 0, 0, 0)
+        self.description = QLabel("")
+        self.description.setWordWrap(True)
+        editor_layout.addWidget(self.description)
+        self.tabs = QTabWidget()
+
+        input_tab = QWidget()
+        input_layout = QVBoxLayout(input_tab)
+        input_header = QHBoxLayout()
+        input_header.addWidget(QLabel("Input tables (editable JSON)"))
+        input_header.addStretch(1)
+        self.reset_input_button = QPushButton("Restore input")
+        self.reset_input_button.clicked.connect(self._restore_input)
+        input_header.addWidget(self.reset_input_button)
+        input_layout.addLayout(input_header)
+        self.input_view = QPlainTextEdit()
+        self.input_view.setPlaceholderText("Edit scenario input tables (JSON)")
+        input_layout.addWidget(self.input_view)
+        self.tabs.addTab(input_tab, "Input")
+
+        expected_tab = QWidget()
+        expected_layout = QVBoxLayout(expected_tab)
+        expected_header = QHBoxLayout()
+        expected_header.addWidget(QLabel("Expected result (editable JSON)"))
+        expected_header.addStretch(1)
+        self.reset_expected_button = QPushButton("Restore expected")
+        self.reset_expected_button.clicked.connect(self._restore_expected)
+        expected_header.addWidget(self.reset_expected_button)
+        expected_layout.addLayout(expected_header)
+        self.expected_view = QPlainTextEdit()
+        self.expected_view.setPlaceholderText("Edit expected result tables (JSON)")
+        expected_layout.addWidget(self.expected_view)
+        self.tabs.addTab(expected_tab, "Expected")
+
+        result_tab = QWidget()
+        result_layout = QVBoxLayout(result_tab)
+        self.result_view = QPlainTextEdit()
+        self.result_view.setReadOnly(True)
+        self.result_view.setPlaceholderText("Actual result, comparison, and notes")
+        result_layout.addWidget(self.result_view)
+        self.tabs.addTab(result_tab, "Result")
+        editor_layout.addWidget(self.tabs)
+        splitter.addWidget(editor_panel)
+        splitter.setStretchFactor(0, 1)
+        splitter.setStretchFactor(1, 4)
+        root.addWidget(splitter, stretch=1)
 
         self._reload_scenarios()
-        self.scenario_combo.currentIndexChanged.connect(self._on_scenario_changed)
-        if self.scenario_combo.count():
-            self._on_scenario_changed(0)
+        if self.scenario_list.count():
+            self.scenario_list.setCurrentRow(0)
 
     def _reload_scenarios(self) -> None:
         from geometry_workbench.scenarios import list_scenario_paths
 
-        self.scenario_combo.blockSignals(True)
-        self.scenario_combo.clear()
+        self.scenario_list.blockSignals(True)
+        self.scenario_list.clear()
         self._scenario_paths = list_scenario_paths(self._repository_root)
         for path in self._scenario_paths:
-            self.scenario_combo.addItem(path.stem, str(path))
-        self.scenario_combo.blockSignals(False)
+            self.scenario_list.addItem(path.stem)
+        self.scenario_list.blockSignals(False)
         if not self._scenario_paths:
             self.description.setText(
                 f"No scenarios under "
@@ -133,7 +151,7 @@ class GeometryContractDialog(QDialog):
     def _current_scenario(self) -> dict[str, Any] | None:
         from geometry_workbench.scenarios import load_scenario
 
-        index = self.scenario_combo.currentIndex()
+        index = self.scenario_list.currentRow()
         if index < 0 or index >= len(self._scenario_paths):
             return None
         return load_scenario(self._scenario_paths[index])
