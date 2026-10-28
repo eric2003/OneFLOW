@@ -35,6 +35,7 @@ License
 #include <string>
 #include <unordered_set>
 #include <vector>
+#include <utility>
 
 
 BeginNameSpace( ONEFLOW )
@@ -1318,12 +1319,14 @@ void RunSymmetricInterfaceSplitMappingPipeline(
             "RunSymmetricInterfaceSplitMappingPipeline: parent/child table size mismatch" );
     }
 
+    // Build a complete candidate result. A failed stage must not publish a
+    // mixture of new child counts / BC records and old interface maps.
+    InterfaceSplitMappingPipelineResult next;
     LinkField gI2ZidNew, g2lNew, l2gNew;
     InitNewInterfaceMappingBuffers(
         gI2ZidIn, g2lIn, l2gIn, gI2ZidNew, g2lNew, l2gNew );
 
-    out.nChild.clear();
-    out.nChild.resize( l2gIn.size() );
+    next.nChild.resize( l2gIn.size() );
 
     for ( std::size_t zid = 0; zid < l2gIn.size(); ++ zid )
     {
@@ -1331,7 +1334,7 @@ void RunSymmetricInterfaceSplitMappingPipeline(
             parentGlobalFaceIds,
             childGlobalIdsPerParent,
             l2gNew[ zid ],
-            out.nChild[ zid ] );
+            next.nChild[ zid ] );
     }
 
     for ( std::size_t zid = 0; zid < l2gIn.size(); ++ zid )
@@ -1345,15 +1348,17 @@ void RunSymmetricInterfaceSplitMappingPipeline(
 
     ExpandBcRecordForSplitInterfaces(
         bcType, bcNameId, childCountPerInterfaceLocal,
-        out.outBcType, out.outBcNameId );
+        next.outBcType, next.outBcNameId );
 
-    out.l2g = l2gIn;
-    out.gI2Zid = gI2ZidIn;
-    out.g2l = g2lIn;
+    next.l2g = l2gIn;
+    next.gI2Zid = gI2ZidIn;
+    next.g2l = g2lIn;
     CommitInterfaceMappingBuffers(
-        out.gI2Zid, out.g2l, out.l2g,
+        next.gI2Zid, next.g2l, next.l2g,
         gI2ZidNew, g2lNew, l2gNew,
         "RunSymmetricInterfaceSplitMappingPipeline" );
+
+    out = std::move( next );
 }
 
 
