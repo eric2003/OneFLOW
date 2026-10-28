@@ -237,7 +237,7 @@ TEST( FaceSearchBasicTest, RegisteredChildResolutionReturnsEmptyWhenNoChildExist
     EXPECT_TRUE( children.empty() );
 }
 
-TEST( FaceSearchBasicTest, RegisteredChildResolutionRejectsDuplicateIdentityAtomically )
+TEST( FaceSearchBasicTest, RegisteredChildResolutionRejectsDuplicateIdentity )
 {
     FaceSearchBasic search;
     search.AddFace( IntField{ 10, 20 } );
