@@ -80,10 +80,21 @@ class GeometryContractDialog(QDialog):
         self.input_view.setPlaceholderText("Scenario input tables (JSON)")
         root.addWidget(self.input_view, stretch=1)
 
+        expected_row = QHBoxLayout()
+        expected_row.addWidget(QLabel("Expected tables (editable JSON)"))
+        expected_row.addStretch(1)
+        self.reset_expected_button = QPushButton("Restore scenario expected")
+        self.reset_expected_button.clicked.connect(self._restore_expected)
+        expected_row.addWidget(self.reset_expected_button)
+        root.addLayout(expected_row)
+        self.expected_view = QPlainTextEdit()
+        self.expected_view.setPlaceholderText("Edit expected tables to probe the contract")
+        root.addWidget(self.expected_view, stretch=1)
+
         root.addWidget(QLabel("Result"))
         self.result_view = QPlainTextEdit()
         self.result_view.setReadOnly(True)
-        self.result_view.setPlaceholderText("Run result and topology sketch")
+        self.result_view.setPlaceholderText("Mock pipeline result, comparison, and topology sketch")
         root.addWidget(self.result_view, stretch=1)
 
         close_row = QHBoxLayout()
@@ -127,10 +138,21 @@ class GeometryContractDialog(QDialog):
             return
         self.description.setText(str(scenario.get("description") or scenario.get("id") or ""))
         self.input_view.setPlainText(json.dumps(scenario.get("input") or {}, indent=2))
+        self.expected_view.setPlainText(
+            json.dumps(scenario.get("expected") or {}, indent=2)
+        )
         self.result_view.clear()
         self._last_actual = None
         self._last_orphans = []
         self.export_button.setEnabled(False)
+
+    def _restore_expected(self) -> None:
+        scenario = self._current_scenario()
+        if scenario is None:
+            return
+        self.expected_view.setPlainText(
+            json.dumps(scenario.get("expected") or {}, indent=2)
+        )
 
     def _run_scenario(self) -> None:
         from geometry_workbench.pipeline_stub import diff_tables, run_pipeline
@@ -146,7 +168,15 @@ class GeometryContractDialog(QDialog):
             QMessageBox.critical(self, "Geometry Contracts", str(exc))
             return
 
-        expected = scenario.get("expected") or {}
+        try:
+            expected = json.loads(self.expected_view.toPlainText())
+            if not isinstance(expected, dict):
+                raise ValueError("expected tables must be a JSON object")
+        except (json.JSONDecodeError, ValueError) as exc:
+            QMessageBox.warning(
+                self, "Geometry Contracts", f"Invalid expected JSON: {exc}"
+            )
+            return
         mismatches = diff_tables(actual, expected)
         orphans = expected.get("orphanParentGlobalIds") or []
         self._last_actual = actual
@@ -155,8 +185,9 @@ class GeometryContractDialog(QDialog):
 
         lines = [
             f"scenario: {scenario.get('id', '')}",
-            "backend: stub",
+            "backend: stub (fixture-backed, not the production geometry algorithm)",
             "RESULT: PASS" if not mismatches else "RESULT: FAIL",
+            "Compared mock output against the editable expected tables.",
         ]
         for line in mismatches:
             lines.append(f"  - {line}")
