@@ -1,4 +1,4 @@
-"""Geometry contract explorer — table scenarios, not unit-test runner.
+"""Geometry contract explorer - table scenarios, not unit-test runner.
 
 Uses tools/geometry_workbench (stub pipeline today; native C++ later).
 Graphics export is optional and non-interactive (static PNG).
@@ -164,7 +164,7 @@ class GeometryContractDialog(QDialog):
             return
         try:
             actual = run_pipeline(scenario, backend="stub")
-        except Exception as exc:  # noqa: BLE001 — surface to operator
+        except Exception as exc:  # noqa: BLE001 - surface to operator
             QMessageBox.critical(self, "Geometry Contracts", str(exc))
             return
 
