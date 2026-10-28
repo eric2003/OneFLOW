@@ -527,11 +527,16 @@ The ``registered_child_partial_match`` workbench scenario mirrors
 ``FaceSearchBasicTest.RegisteredChildResolutionPreservesCandidateIndexForPartialMatch``.
 Its input makes the distinction visible: candidate 0 is missing, candidate 1
 resolves to global child face 0, and the returned candidate index must remain 1.
-The current GUI scenario backend is still fixture-backed; only the C++ GoogleTest
-executes the production resolver. This separation is intentional: a UI PASS
-must not be mistaken for algorithm validation. The next integration boundary
-is a native test adapter that accepts scenario inputs and reports the actual
-C++ result.
+The scenario links both the helper-level test and
+``FaceSearchBasicTest.QuadSplitUsesOriginalCandidateIndexForPartialMatch``.
+The latter runs the real quad-split publication path with only candidate 1
+registered and verifies that its parent-local node mapping is ``[2, 3, 0]``.
+This catches the original class of bug at the consumer boundary: even if the
+resolver reports the right candidate index, the caller must use that index when
+publishing parent-relative metadata. The current GUI scenario backend is still
+fixture-backed; neither linked C++ test is executed by the GUI. A native test
+adapter that passes scenario parameters to C++ remains the next integration
+boundary.
 
 The algorithm then resolves the midpoint in two index spaces:
 
