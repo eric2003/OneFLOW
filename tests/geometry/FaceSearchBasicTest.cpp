@@ -1,6 +1,6 @@
 // tests/geometry/FaceSearchBasicTest.cpp
 // FaceSearchBasic pairs undirected identity (HXLookup) with directed storage
-// (faceArray keeps the node order of the first AddFace).
+// (faceNodeRings keeps the node order of the first AddFace).
 
 #include <gtest/gtest.h>
 #include <stdexcept>
