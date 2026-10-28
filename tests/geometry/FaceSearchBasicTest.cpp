@@ -284,6 +284,23 @@ TEST( FaceSearchBasicTest, ClearParentMappingRejectsMisalignedParentTables )
     EXPECT_EQ( split.childFaceIdsOfParent[ 0 ], ( IntField{ 1 } ) );
 }
 
+TEST( FaceSearchBasicTest, QuadSplitRejectsDuplicateChildBeforeAppendingIt )
+{
+    // Intent: a degenerate quad must not register the same global child twice.
+    FaceSearch search;
+    ASSERT_EQ( search.AddFace( IntField{ 10, 20, 30, 30 } ), 0 );
+    ASSERT_EQ( search.AddFace( IntField{ 10, 20, 30 } ), 1 );
+    search.interfaceSplit.ResetForFaceCount( search.Size() );
+
+    EXPECT_THROW( search.SplitQuad2Tri( 0 ), std::logic_error );
+
+    EXPECT_EQ( search.interfaceSplit.childFaceIdsOfParent[ 0 ], ( IntField{ 1 } ) );
+    ASSERT_EQ( search.interfaceSplit.childFaceNodeIdsByParent[ 0 ].size(),
+               static_cast< std::size_t >( 1 ) );
+    EXPECT_EQ( search.interfaceSplit.childFaceNodeIdsByParent[ 0 ][ 0 ],
+               ( IntField{ 0, 1, 2 } ) );
+}
+
 TEST( FaceSearchBasicTest, SetChildMappingRejectsDuplicateChildRegistration )
 {
     // Intent: each parent child position must identify exactly one global child face.
