@@ -139,8 +139,10 @@ class GeometryContractDialog(QDialog):
         self.scenario_list.blockSignals(True)
         self.scenario_list.clear()
         self._scenario_paths = list_scenario_paths(self._repository_root)
+        from geometry_workbench.scenarios import load_scenario
         for path in self._scenario_paths:
-            self.scenario_list.addItem(path.stem)
+            scenario = load_scenario(path)
+            self.scenario_list.addItem(str(scenario.get("title") or path.stem))
         self.scenario_list.blockSignals(False)
         if not self._scenario_paths:
             self.description.setText(
@@ -160,7 +162,14 @@ class GeometryContractDialog(QDialog):
         scenario = self._current_scenario()
         if scenario is None:
             return
-        self.description.setText(str(scenario.get("description") or scenario.get("id") or ""))
+        description = str(scenario.get("description") or scenario.get("id") or "")
+        test = scenario.get("test") or {}
+        if test:
+            description += (
+                f"\\nC++ regression: {test.get('suite', '')}."
+                f"{test.get('name', '')} ({test.get('source', '')})"
+            )
+        self.description.setText(description)
         self.input_view.setPlainText(json.dumps(scenario.get("input") or {}, indent=2))
         self.expected_view.setPlainText(
             json.dumps(scenario.get("expected") or {}, indent=2)
@@ -226,7 +235,9 @@ class GeometryContractDialog(QDialog):
 
         lines = [
             f"scenario: {scenario.get('id', '')}",
-            "backend: stub (fixture-backed, not the production geometry algorithm)",
+            f"C++ test: {(scenario.get('test') or {}).get('suite', '')}."
+            f"{(scenario.get('test') or {}).get('name', 'not linked')}",
+            "backend: fixture (does not execute the production C++ test)",
             "RESULT: PASS" if not mismatches else "RESULT: FAIL",
             "Compared mock output against the editable expected tables.",
             "Input JSON was parsed; this fixture backend does not recompute output from input.",
