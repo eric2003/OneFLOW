@@ -5,8 +5,14 @@ Table-level scenarios for interface dual-map / split contracts. Shared by:
 * CLI: `python tools/geometry_workbench/__main__.py`
 * OneFLOW Workbench GUI: home → **Geometry Contracts...**
 
-Not a GoogleTest launcher. Stub backend returns expected tables; native backend
-is reserved for `RunSymmetricInterfaceSplitMappingPipeline`.
+Not a GoogleTest launcher. The current stub is fixture-backed: it presents a
+known table result without calling the production geometry algorithm. In the
+GUI, the expected tables are editable JSON; running compares the fixed mock
+result against the edited contract and renders the mismatch and topology view.
+This makes the comparison and visualization workflow testable before a native
+backend exists. Editing expected values tests the contract checker, not the
+CFD algorithm. Native backend integration is reserved for
+`RunSymmetricInterfaceSplitMappingPipeline`.
 
 ## Optional static graphics
 
