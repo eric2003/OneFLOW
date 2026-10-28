@@ -1149,61 +1149,53 @@ void RebuildFaceNodeListsAfterInterfaceSplit(
             "RebuildFaceNodeListsAfterInterfaceSplit: arrays shorter than face counts" );
     }
 
-    LinkField rebuiltFaces;
-
+    // Adapt the legacy child-global tables to the parent-local row layout.
+    // The second overload owns the single face-list reconstruction algorithm.
+    std::vector< LinkField > childNodeIdsPerInterfaceLocal;
+    std::vector< LinkField > childNodeFlagsPerInterfaceLocal;
     int interfaceLocal = 0;
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        if ( BC::IsInterfaceBc( bcType[ iFace ] ) )
+        if ( ! BC::IsInterfaceBc( bcType[ iFace ] ) ) continue;
+        if ( static_cast< std::size_t >( interfaceLocal ) >=
+             childGlobalIdsPerInterfaceLocal.size() )
         {
-            if ( interfaceLocal < 0 ||
-                 static_cast< std::size_t >( interfaceLocal ) >=
-                     childGlobalIdsPerInterfaceLocal.size() )
+            throw std::out_of_range(
+                "RebuildFaceNodeListsAfterInterfaceSplit: interface child list index out of range" );
+        }
+
+        const IntField & childFaceIds =
+            childGlobalIdsPerInterfaceLocal[ interfaceLocal ];
+        ++ interfaceLocal;
+        LinkField nodeIdsByChild;
+        LinkField nodeFlagsByChild;
+        for ( const int childFaceId : childFaceIds )
+        {
+            if ( childFaceId < 0 ||
+                 static_cast< std::size_t >( childFaceId ) >= childFaceNodeIds.size() ||
+                 static_cast< std::size_t >( childFaceId ) >= childFaceNodeFlags.size() )
             {
                 throw std::out_of_range(
-                    "RebuildFaceNodeListsAfterInterfaceSplit: interface child list index out of range" );
+                    "RebuildFaceNodeListsAfterInterfaceSplit: child face id out of range" );
             }
-            const IntField & childFaceIds =
-                childGlobalIdsPerInterfaceLocal[ interfaceLocal ];
-            ++ interfaceLocal;
-
-            if ( ! childFaceIds.empty() )
-            {
-                for ( int iCFace = 0; iCFace < static_cast< int >( childFaceIds.size() ); ++ iCFace )
-                {
-                    const int cFid = childFaceIds[ iCFace ];
-                    if ( cFid < 0 ||
-                         static_cast< std::size_t >( cFid ) >= childFaceNodeIds.size() ||
-                         static_cast< std::size_t >( cFid ) >= childFaceNodeFlags.size() )
-                    {
-                        throw std::out_of_range(
-                            "RebuildFaceNodeListsAfterInterfaceSplit: child face id out of range" );
-                    }
-                    rebuiltFaces.push_back(
-                        ResolveChildFaceNodeIds(
-                            faces[ iFace ],
-                            childFaceNodeIds[ cFid ],
-                            childFaceNodeFlags[ cFid ],
-                            hasNodeMesh,
-                            nodeMeshCount ) );
-                }
-            }
-            else
-            {
-                rebuiltFaces.push_back( faces[ iFace ] );
-            }
+            nodeIdsByChild.push_back( childFaceNodeIds[ childFaceId ] );
+            nodeFlagsByChild.push_back( childFaceNodeFlags[ childFaceId ] );
         }
-        else
-        {
-            rebuiltFaces.push_back( faces[ iFace ] );
-        }
+        childNodeIdsPerInterfaceLocal.push_back( nodeIdsByChild );
+        childNodeFlagsPerInterfaceLocal.push_back( nodeFlagsByChild );
     }
 
-    for ( int iFace = nBFaces; iFace < nFaces; ++ iFace )
-    {
-        rebuiltFaces.push_back( faces[ iFace ] );
-    }
-    outFaces.swap( rebuiltFaces );
+    RebuildFaceNodeListsAfterInterfaceSplit(
+        faces,
+        bcType,
+        nBFaces,
+        nFaces,
+        childGlobalIdsPerInterfaceLocal,
+        childNodeIdsPerInterfaceLocal,
+        childNodeFlagsPerInterfaceLocal,
+        hasNodeMesh,
+        nodeMeshCount,
+        outFaces );
 }
 
 void RebuildFaceNodeListsAfterInterfaceSplit(
