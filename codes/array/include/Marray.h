@@ -33,7 +33,7 @@ public:
     {
     }
 
-    Marray( HXSize_t nEqu, int numberOfCells )
+    Marray( HXSize_t nEqu, HXSize_t numberOfCells )
     {
         data.resize( nEqu );
         for ( HXSize_t iEqu = 0; iEqu < nEqu; ++ iEqu )
