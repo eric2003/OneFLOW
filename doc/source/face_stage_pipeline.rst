@@ -193,10 +193,13 @@ preserves that face without requiring node mapping metadata.
   parent-to-child identity and validates the local and parent lookup indices.
   It cannot validate child IDs against the global face count because the split
   table does not own that count. It deliberately does not inspect node mapping
-  rows; ``CollectBoundaryInterfaceChildNodeMappings`` owns that validation
-  because it selects parent-specific rows or the legacy fallback (**tests:**
-  ``InterfaceChildFaceIdsTest`` and
-  ``CollectBoundaryChildFaceCountsTest``).
+  rows; ``CollectBoundaryInterfaceChildNodeMappings`` selects parent-specific
+  rows or the legacy fallback and validates the selected representation. It
+  stages both output tables locally and publishes them only after every
+  interface entry is valid, so a later malformed parent cannot expose a
+  partial result (**tests:** ``InterfaceChildFaceIdsTest``,
+  ``CollectBoundaryInterfaceChildCountsTest``, and
+  ``RebuildFaceNodeListsTest.MappingCollectorDoesNotPublishPartialOutputs``).
 * ``ValidateGlobalFaceMapping`` / ``ValidateGlobalFaceMappings`` check
   ``gI2Zid`` / ``g2l`` alignment (**test:** ``GlobalFaceMappingTest``).
 * ``RegisterLocalInterfaceFace`` records ``l2g`` / ``gI2Zid`` / ``g2l`` when a
