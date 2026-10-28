@@ -274,6 +274,30 @@ parent-relative reconstruction are different concepts:
 * ``childFaceNodeIds[globalChildFaceId]`` and
   ``childFaceNodeFlags[globalChildFaceId]`` are legacy child-indexed
   mapping rows retained for compatibility.
+
+Candidate resolution and local mapping
+--------------------------------------
+
+For a quad, ``BuildQuadDiagonalLocalTris`` emits four candidate triangles in
+two possible diagonal decompositions. These candidates are ordered by the
+algorithm, not by which faces happen to have been registered globally.
+``ResolveRegisteredChildFaces`` therefore returns a pair for each match:
+``globalFaceId`` identifies the registered face, while ``candidateIndex``
+points back to the original candidate triangle.
+
+The distinction matters for partial matches. If only candidate 3 is registered,
+it is still candidate 3 for local-node and flag lookup; it must not become
+candidate 0 merely because it is the first item in the filtered result. The
+C++ integration tests ``QuadSplitUsesOriginalCandidateIndexForPartialMatch``
+and ``QuadSplitPreservesLastCandidateIndexForPartialMatch`` check this through
+``FaceSearch::SplitQuad2Tri`` and its published parent-relative mapping, rather
+than testing the resolver in isolation.
+
+This is a small but useful architectural boundary: identity resolution decides
+which global children exist; the original candidate index preserves the
+relationship between that identity and the geometric decomposition. Keeping
+both values together prevents a filtered list from silently changing the
+meaning of a local mapping row.
 * ``childFaceNodeIdsByParent[globalParentFaceId]`` and
   ``childFaceNodeFlagsByParent[globalParentFaceId]`` store the preferred
   mappings aligned by child position within that parent's child list.
