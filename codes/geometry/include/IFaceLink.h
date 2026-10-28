@@ -84,6 +84,11 @@ public:
     // Non-null locator object (may not be Initialize'd yet). Throws if missing.
     [[nodiscard]] PointLocator & GetPointLocator();
     [[nodiscard]] const PointLocator & GetPointLocator() const;
+    // Take ownership of a locator (production ADT or test double).
+    // markReady=true skips EnsurePointLocatorReady's grid-bound ADT build so
+    // topology-only / synthetic-point tests need no nodeMesh boxes.
+    // Null locator is rejected.
+    void ReplacePointLocator( std::unique_ptr< PointLocator > locator, bool markReady );
     [[nodiscard]] FaceSearch & GetFaceSearch();
     [[nodiscard]] const FaceSearch & GetFaceSearch() const;
     [[nodiscard]] InterfaceFaceSplitTable & MutableInterfaceSplit();

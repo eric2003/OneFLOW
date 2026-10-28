@@ -46,13 +46,16 @@ wishlist for the whole solver.
    * - Interface dual maps
      - Register / Init / Commit pure helpers;
        zone bookkeeping accessors;
-       ``EnsureInterfaceZoneCount``
-     - Make ``l2g`` / ``gI2Zid`` fields private
-       (tests still write fields)
+       ``EnsureInterfaceZoneCount``;
+       dual-map fields private
+     - Multi-zone split e2e fixture density
    * - IFaceLink services
      - ``faceLookup``, ``point_search``,
-       ``face_search`` private + accessors
-     - Injectable ``PointLocator`` test double
+       ``face_search`` private + accessors;
+       injectable ``PointLocator``
+       (``ReplacePointLocator``)
+     - Production ADT still needs nodeMesh
+       for non-injected paths
    * - Child mapping after split
      - Parent-specific ``ByParent`` tables;
        two-parent shared-child test
@@ -60,6 +63,25 @@ wishlist for the whole solver.
 
 **Rule of thumb:** if a change only renames a pure predicate already covered
 by tests, skip it. Prefer closing an open row in this table.
+
+What this local refactor is for
+-------------------------------
+
+The geometry stack once mixed **discovery**, **ownership**, and **physics labels**
+in the same loops, with multi-zone interface tables as public data bags. The
+local refactor is not a rewrite of the CFD solver; it is a **boundary-drawing**
+exercise on the face/interface path so that:
+
+#. Each job has a named write path (stage/claim/bind, dual-map Register/Init/Commit,
+   BC export + boundary-first reorder as one transaction).
+#. Invariants are checkable in ``tests/geometry`` without a full CGNS case.
+#. Hard edges (ADT point search, multi-zone split rebuild) become ports with
+   accessors or injection, not more public fields.
+
+If a change does not make a contract easier to state or test, it is probably
+detail noise. Prefer closing a row in the architecture map over renaming a
+stable pure predicate.
+
 
 
 The face / interface / BC path used to interleave **three different jobs** in
@@ -765,6 +787,8 @@ boundary around *how* they change:
 ``faceLookup``, ``point_search``, and ``face_search`` are private. Use
 ``CreateLink``, ``GetPointLocator`` / ``EnsurePointLocatorReady``,
 ``GetFaceSearch``, and ``MutableInterfaceSplit`` / ``GetInterfaceSplit``.
+Unit tests may call ``ReplacePointLocator`` with a ``PointLocator`` subclass
+and ``markReady=true`` to avoid building the production ADT from grids.
 
 Split rebuild zone rows go through ``EnsureSplitBookkeepingMatchesZones``,
 ``GetL2gForZone``, ``MutableL2gNewForZone``, and ``MutableNChildForZone``.
@@ -950,13 +974,14 @@ These remain harder to unit-test and mark follow-up work:
    ``EnsureInterfaceZoneCount`` / ``EnsureLocalInterfaceFaceCount`` /
    ``RegisterLocalInterfaceFace`` and the Get*/Mutable* accessors. Geometry
    call sites no longer touch ``l2g`` / ``gI2Zid`` / ``g2l`` fields.
-#. Line mid-point split needs a ready ``PointLocator`` and ``nodeMesh``.
+#. Line mid-point split still needs a ready locator for production grids.
    ``point_search`` is private (``GetPointLocator`` /
-   ``EnsurePointLocatorReady``). Zone policy is
+   ``EnsurePointLocatorReady``). Tests inject a double via
+   ``ReplacePointLocator(locator, markReady=true)`` so mid-point / id
+   resolution can run without nodeMesh boxes (**test:**
+   ``IFaceLinkPointLocatorInjectionTest``). Zone policy remains
    ``RequireSoleZoneIdForGlobalFace`` (**test:**
-   ``RequireSoleZoneIdForGlobalFaceTest``). Full locator injection (fake ADT
-   without grids) remains open. Legacy detail:
-   services are not yet injectable).
+   ``RequireSoleZoneIdForGlobalFaceTest``).
 #. End-to-end CGNS zone scan still requires heavyweight zone setup.
 
 When those paths are split into pure helpers or ports, update this page in the

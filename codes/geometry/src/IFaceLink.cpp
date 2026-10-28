@@ -321,6 +321,17 @@ const PointLocator & IFaceLink::GetPointLocator() const
     return *this->point_search;
 }
 
+void IFaceLink::ReplacePointLocator( std::unique_ptr< PointLocator > locator, bool markReady )
+{
+    if ( ! locator )
+    {
+        throw std::invalid_argument(
+            "IFaceLink::ReplacePointLocator: locator must not be null" );
+    }
+    this->point_search = std::move( locator );
+    this->pointLocatorReady = markReady;
+}
+
 FaceSearch & IFaceLink::GetFaceSearch()
 {
     if ( ! this->face_search )
