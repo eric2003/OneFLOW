@@ -61,13 +61,14 @@ public:
     LinkField nChild;
 
     std::unique_ptr< FaceSearch > face_search;
-    std::unique_ptr< PointLocator > point_search;
 
 private:
     Grids & grids;
     // Geometry identity for interface faces (CreateLink only). Not part of the
     // dual-map tables; kept private so registration cannot bypass CreateLink.
     HXLookup<int> faceLookup;
+    // Built lazily via EnsurePointLocatorReady (needs nodeMesh bounds).
+    std::unique_ptr< PointLocator > point_search;
     // PointLocator ADT build needs valid nodeMesh bounding boxes. Defer until a
     // code path actually searches/adds points so topology-only clients (and
     // unit tests) can construct IFaceLink without a full mesh.
@@ -78,6 +79,9 @@ public:
     // Builds the PointLocator ADT on first use (requires valid nodeMesh boxes).
     void EnsurePointLocatorReady();
     [[nodiscard]] bool IsPointLocatorReady() const { return pointLocatorReady; }
+    // Non-null locator object (may not be Initialize'd yet). Throws if missing.
+    [[nodiscard]] PointLocator & GetPointLocator();
+    [[nodiscard]] const PointLocator & GetPointLocator() const;
     [[nodiscard]] Grid & GetGrid( int zoneIndex );
     void Init( Grid & grid );
 public:

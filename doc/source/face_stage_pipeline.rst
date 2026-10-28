@@ -726,8 +726,9 @@ boundary around *how* they change:
    * - Geometry identity for interface nodes
      - private ``faceLookup`` inside ``CreateLink`` only
 
-``faceLookup`` is private: interface geometry identity must not be updated
-without also updating the dual maps.
+``faceLookup`` and ``point_search`` are private: geometry identity and point
+location cannot be bypassed. Use ``CreateLink``, ``GetPointLocator``, and
+``EnsurePointLocatorReady``.
 
 Split rebuild zone rows go through ``EnsureSplitBookkeepingMatchesZones``,
 ``GetL2gForZone``, ``MutableL2gNewForZone``, and ``MutableNChildForZone`` so
@@ -912,7 +913,12 @@ These remain harder to unit-test and mark follow-up work:
    ``EnsureSplitBookkeepingMatchesZones`` / ``Mutable*ForZone``. Next: migrate
    ``FaceSearch`` and remaining raw ``l2gNew`` writes, then narrow field
    visibility.
-#. Line mid-point split still needs ``PointLocator`` and ``nodeMesh`` (geometry
+#. Line mid-point split needs a ready ``PointLocator`` and ``nodeMesh``.
+   ``point_search`` is private (``GetPointLocator`` /
+   ``EnsurePointLocatorReady``). Zone policy is
+   ``RequireSoleZoneIdForGlobalFace`` (**test:**
+   ``RequireSoleZoneIdForGlobalFaceTest``). Full locator injection (fake ADT
+   without grids) remains open. Legacy detail:
    services are not yet injectable).
 #. End-to-end CGNS zone scan still requires heavyweight zone setup.
 

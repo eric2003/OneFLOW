@@ -301,6 +301,27 @@ void IFaceLink::EnsurePointLocatorReady()
     this->pointLocatorReady = true;
 }
 
+PointLocator & IFaceLink::GetPointLocator()
+{
+    if ( ! this->point_search )
+    {
+        throw std::logic_error(
+            "IFaceLink::GetPointLocator: point locator is not initialized" );
+    }
+    return *this->point_search;
+}
+
+const PointLocator & IFaceLink::GetPointLocator() const
+{
+    if ( ! this->point_search )
+    {
+        throw std::logic_error(
+            "IFaceLink::GetPointLocator: point locator is not initialized" );
+    }
+    return *this->point_search;
+}
+
+
 IFaceLink::~IFaceLink() = default;
 
 Grid & IFaceLink::GetGrid( int zoneIndex )
@@ -453,7 +474,7 @@ void IFaceLink::MatchPeriodicInterface( Grid & grid )
         const IntField & nodeId = this->face_search->GetFaceNodeRing( gIFace );
 
         RealField xList, yList, zList;
-        this->point_search->GetFaceCoorList( nodeId, xList, yList, zList );
+        this->GetPointLocator().GetFaceCoorList( nodeId, xList, yList, zList );
 
         RealField xxList, yyList, zzList;
         f2fmap.FindFace( xList, yList, zList, xxList, yyList, zzList );
@@ -466,7 +487,7 @@ void IFaceLink::MatchPeriodicInterface( Grid & grid )
             Real xm = xxList[ i ];
             Real ym = yyList[ i ];
             Real zm = zzList[ i ];
-            int id = this->point_search->FindPoint( xm, ym, zm );
+            int id = this->GetPointLocator().FindPoint( xm, ym, zm );
             if ( id == INVALID_INDEX )
             {
                 faceNode_period.clear();
@@ -550,10 +571,6 @@ void GetCoorIdList( IFaceLink & iFaceLink, RealField & xList, RealField & yList,
     {
         throw std::invalid_argument( "GetCoorIdList: input or output buffers are too small" );
     }
-    if ( ! iFaceLink.point_search )
-    {
-        throw std::logic_error( "GetCoorIdList: point locator is not initialized" );
-    }
     iFaceLink.EnsurePointLocatorReady();
 
     for ( size_t iNode = 0; iNode < count; ++ iNode )
@@ -562,7 +579,7 @@ void GetCoorIdList( IFaceLink & iFaceLink, RealField & xList, RealField & yList,
         const Real ym = yList[ iNode ];
         const Real zm = zList[ iNode ];
 
-        pointId[ iNode ] = iFaceLink.point_search->AddPoint( xm, ym, zm );
+        pointId[ iNode ] = iFaceLink.GetPointLocator().AddPoint( xm, ym, zm );
     }
 }
 

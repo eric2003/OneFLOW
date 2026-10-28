@@ -287,7 +287,8 @@ TEST(FaceTopoLifecycleTest, IFaceLinkConstructsWithoutNodeMesh)
 
     ONEFLOW::IFaceLink iFaceLink(fixture.grids);
     EXPECT_NE(iFaceLink.face_search, nullptr);
-    EXPECT_NE(iFaceLink.point_search, nullptr);
+    // point_search is private; object must exist (GetPointLocator) but ADT not built.
+    EXPECT_NO_THROW((void)iFaceLink.GetPointLocator());
     EXPECT_FALSE(iFaceLink.IsPointLocatorReady());
     EXPECT_EQ(static_cast<int>(iFaceLink.l2g.size()), 1);
 }

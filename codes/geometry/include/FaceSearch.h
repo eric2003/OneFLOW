@@ -128,6 +128,12 @@ private:
 
 // Build the two directed child edges and their local endpoint flags after a midpoint is found.
 // Outputs are replaced, and child order follows the original edge direction.
+// Line-split policy: global interface face must list exactly one zone.
+// Returns that zone id or throws.
+int RequireSoleZoneIdForGlobalFace(
+    const LinkField & zoneIdsPerGlobalFace,
+    int globalFaceId );
+
 void BuildLineSplitMapping(
     int firstNode,
     int secondNode,

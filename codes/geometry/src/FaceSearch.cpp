@@ -388,39 +388,22 @@ bool FaceSearch::TrySplitLineAtMidpoint(
     IntField & childFaceIds,
     std::vector< int > & childCandidateIndices )
 {
-    if ( ! iFaceLink.point_search )
-    {
-        throw std::logic_error(
-            "FaceSearch::TrySplitLineAtMidpoint: point locator is not initialized" );
-    }
+    PointLocator & pointLocator = iFaceLink.GetPointLocator();
 
-    const LinkField & globalFaceZones = iFaceLink.gI2Zid;
-    if ( globalFaceId < 0 ||
-         static_cast< size_t >( globalFaceId ) >= globalFaceZones.size() )
-    {
-        throw std::out_of_range(
-            "FaceSearch::TrySplitLineAtMidpoint: global face ID is out of range" );
-    }
+    const int soleZoneId = RequireSoleZoneIdForGlobalFace(
+        iFaceLink.GetGlobalToZoneIds(), globalFaceId );
 
-    const IntField & zoneIds = globalFaceZones[ globalFaceId ];
-    if ( zoneIds.size() != 1 )
-    {
-        throw std::logic_error(
-            "FaceSearch::TrySplitLineAtMidpoint: a split line must reference exactly one zone" );
-    }
-
-    PointLocator * point_search = iFaceLink.point_search.get();
     const int p0 = nodeId[ 0 ];
     const int p1 = nodeId[ 1 ];
     RealField coor0( 3 ), coor1( 3 ), coor2( 3 );
-    point_search->GetPoint( p0, coor0[ 0 ], coor0[ 1 ], coor0[ 2 ] );
-    point_search->GetPoint( p1, coor1[ 0 ], coor1[ 1 ], coor1[ 2 ] );
+    pointLocator.GetPoint( p0, coor0[ 0 ], coor0[ 1 ], coor0[ 2 ] );
+    pointLocator.GetPoint( p1, coor1[ 0 ], coor1[ 1 ], coor1[ 2 ] );
     for ( int m = 0; m < 3; ++ m )
     {
         coor2[ m ] = half * ( coor0[ m ] + coor1[ m ] );
     }
     const int midpointGlobalNode =
-        point_search->FindPoint( coor2[ 0 ], coor2[ 1 ], coor2[ 2 ] );
+        pointLocator.FindPoint( coor2[ 0 ], coor2[ 1 ], coor2[ 2 ] );
     if ( midpointGlobalNode == ONEFLOW::INVALID_INDEX ) return false;
 
     // Resolve and validate registered child identities before mutating the
@@ -431,10 +414,9 @@ bool FaceSearch::TrySplitLineAtMidpoint(
         childFaceIds, childCandidateIndices );
     if ( childFaceIds.empty() ) return false;
 
-    const int zoneIndex = zoneIds[ 0 ];
-    Grid & grid = iFaceLink.GetGrid( zoneIndex );
+    Grid & grid = iFaceLink.GetGrid( soleZoneId );
     int pId = grid.nodeMesh->FindPoint(
-        coor2[ 0 ], coor2[ 1 ], coor2[ 2 ], point_search->GetTol() );
+        coor2[ 0 ], coor2[ 1 ], coor2[ 2 ], pointLocator.GetTol() );
     if ( pId == ONEFLOW::INVALID_INDEX )
     {
         pId = static_cast< int >( grid.nodeMesh->GetNumberOfNodes() );
@@ -446,6 +428,26 @@ bool FaceSearch::TrySplitLineAtMidpoint(
         p0, p1, pId, midpointGlobalNode, localLineId, localLineFlag, lineId );
 
     return true;
+}
+
+
+int RequireSoleZoneIdForGlobalFace(
+    const LinkField & zoneIdsPerGlobalFace,
+    int globalFaceId )
+{
+    if ( globalFaceId < 0 ||
+         static_cast< size_t >( globalFaceId ) >= zoneIdsPerGlobalFace.size() )
+    {
+        throw std::out_of_range(
+            "RequireSoleZoneIdForGlobalFace: global face ID is out of range" );
+    }
+    const IntField & zoneIds = zoneIdsPerGlobalFace[ globalFaceId ];
+    if ( zoneIds.size() != 1 )
+    {
+        throw std::logic_error(
+            "RequireSoleZoneIdForGlobalFace: face must reference exactly one zone" );
+    }
+    return zoneIds[ 0 ];
 }
 
 EndNameSpace
