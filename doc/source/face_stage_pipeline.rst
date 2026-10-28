@@ -552,15 +552,24 @@ replaces its output buffers, so reusing a buffer cannot retain child edges from
 an earlier split.
 
 **Tests:** ``FaceSearchBasicTest.GlobalLineCandidatesPreserveEdgeDirection``,
-``FaceSearchBasicTest.GlobalLineCandidatesPreserveReversedEdgeDirection``, and
-``FaceSearchBasicTest.GlobalLineCandidatesReplacePreviousOutput``.
+``FaceSearchBasicTest.GlobalLineCandidatesPreserveReversedEdgeDirection``,
+``FaceSearchBasicTest.GlobalLineCandidatesReplacePreviousOutput``, and
+``IFaceLinkPointLocatorInjectionTest.SplitLineWithoutRegisteredChildrenDoesNotPublishMapping``.
 
-**Current boundary:** midpoint discovery still depends on the concrete
-``PointLocator`` and ``IFaceLink``/``nodeMesh`` services. The mapping step is
-already pure and can be tested without constructing a multi-zone grid. A
-future extraction should introduce a geometry-query seam only if it enables a
-real integration regression or simplifies ownership; this change does not
-add an abstraction solely to mock existing calls.
+The injected-locator integration test exercises the real ``SplitLine`` entry
+point for the negative topology case: a midpoint exists in global search, but
+neither child edge is registered. It verifies the algorithm exits before asking
+for a zone grid and leaves the parent child list and parent-relative mapping
+rows empty. This is more valuable than another helper-only test because it
+locks the order of operations across locator injection, global topology lookup,
+and mapping publication.
+
+**Current boundary:** this regression covers the no-child short-circuit, not a
+successful zone-local insertion. The positive path still depends on
+``IFaceLink``/``nodeMesh`` services and should be tested only when a small
+grid fixture can assert the local node insertion and published mappings
+together. Do not add another abstraction just to mock calls that already have
+an injection seam.
 
 Interface mapping algorithm
 ---------------------------
