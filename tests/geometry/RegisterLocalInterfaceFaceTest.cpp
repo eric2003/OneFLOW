@@ -27,7 +27,7 @@ TEST( RegisterLocalInterfaceFaceTest, NewGlobalFaceAppendsParallelRows )
     LinkField gI2Zid;
     LinkField g2l;
 
-    RegisterLocalInterfaceFace(
+    RegisterLocalInterfaceFaceOnMaps(
         /*gIid=*/0, /*isNew=*/true, /*zid=*/0, /*localFaceId=*/1,
         l2g, gI2Zid, g2l );
 
@@ -45,8 +45,8 @@ TEST( RegisterLocalInterfaceFaceTest, ExistingGlobalFacePushesSecondSide )
     LinkField gI2Zid;
     LinkField g2l;
 
-    RegisterLocalInterfaceFace( 0, true, 0, 0, l2g, gI2Zid, g2l );
-    RegisterLocalInterfaceFace( 0, false, 1, 2, l2g, gI2Zid, g2l );
+    RegisterLocalInterfaceFaceOnMaps( 0, true, 0, 0, l2g, gI2Zid, g2l );
+    RegisterLocalInterfaceFaceOnMaps( 0, false, 1, 2, l2g, gI2Zid, g2l );
 
     EXPECT_EQ( l2g[ 0 ][ 0 ], 0 );
     EXPECT_EQ( l2g[ 1 ][ 2 ], 0 );
@@ -66,14 +66,14 @@ TEST( RegisterLocalInterfaceFaceTest, RejectsThirdZoneParticipantWithoutChanging
     LinkField gI2Zid;
     LinkField g2l;
 
-    RegisterLocalInterfaceFace( 0, true, 0, 0, l2g, gI2Zid, g2l );
-    RegisterLocalInterfaceFace( 0, false, 1, 0, l2g, gI2Zid, g2l );
+    RegisterLocalInterfaceFaceOnMaps( 0, true, 0, 0, l2g, gI2Zid, g2l );
+    RegisterLocalInterfaceFaceOnMaps( 0, false, 1, 0, l2g, gI2Zid, g2l );
     const LinkField originalL2g = l2g;
     const LinkField originalZoneIds = gI2Zid;
     const LinkField originalLocalIds = g2l;
 
     EXPECT_THROW(
-        RegisterLocalInterfaceFace( 0, false, 2, 0, l2g, gI2Zid, g2l ),
+        RegisterLocalInterfaceFaceOnMaps( 0, false, 2, 0, l2g, gI2Zid, g2l ),
         std::logic_error );
 
     EXPECT_EQ( l2g, originalL2g );
@@ -88,13 +88,13 @@ TEST( RegisterLocalInterfaceFaceTest, RejectsDuplicateLocalParticipantWithoutCha
     LinkField gI2Zid;
     LinkField g2l;
 
-    RegisterLocalInterfaceFace( 0, true, 0, 1, l2g, gI2Zid, g2l );
+    RegisterLocalInterfaceFaceOnMaps( 0, true, 0, 1, l2g, gI2Zid, g2l );
     const LinkField originalL2g = l2g;
     const LinkField originalZoneIds = gI2Zid;
     const LinkField originalLocalIds = g2l;
 
     EXPECT_THROW(
-        RegisterLocalInterfaceFace( 0, false, 0, 1, l2g, gI2Zid, g2l ),
+        RegisterLocalInterfaceFaceOnMaps( 0, false, 0, 1, l2g, gI2Zid, g2l ),
         std::logic_error );
 
     EXPECT_EQ( l2g, originalL2g );
@@ -110,7 +110,7 @@ TEST( RegisterLocalInterfaceFaceTest, RejectsBadNewGlobalId )
     LinkField g2l;
 
     EXPECT_THROW(
-        RegisterLocalInterfaceFace( 1, true, 0, 0, l2g, gI2Zid, g2l ),
+        RegisterLocalInterfaceFaceOnMaps( 1, true, 0, 0, l2g, gI2Zid, g2l ),
         std::logic_error );
 }
 
@@ -122,6 +122,6 @@ TEST( RegisterLocalInterfaceFaceTest, RejectsOutOfRangeLocalSlot )
     LinkField g2l;
 
     EXPECT_THROW(
-        RegisterLocalInterfaceFace( 0, true, 0, 9, l2g, gI2Zid, g2l ),
+        RegisterLocalInterfaceFaceOnMaps( 0, true, 0, 9, l2g, gI2Zid, g2l ),
         std::out_of_range );
 }

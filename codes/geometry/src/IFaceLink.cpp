@@ -69,7 +69,7 @@ void ValidateGlobalFaceMappings(
 }
 
 
-void RegisterLocalInterfaceFace(
+void RegisterLocalInterfaceFaceOnMaps(
     int gIid,
     bool isNew,
     int zid,
@@ -406,7 +406,7 @@ void IFaceLink::CreateLink( IntField & faceNode, int zid, int lCount )
     this->AddFace( faceNode );
 
     auto [gIid, isNew] = this->faceLookup.FindOrAdd( faceNode );
-    RegisterLocalInterfaceFace(
+    RegisterLocalInterfaceFaceOnMaps(
         gIid, isNew, zid, lCount, this->l2g, this->gI2Zid, this->g2l );
 }
 
@@ -626,6 +626,25 @@ void IFaceLink::EnsureInterfaceZoneCount( std::size_t nZones )
     {
         this->l2gNew.resize( nZones );
     }
+}
+
+void IFaceLink::EnsureLocalInterfaceFaceCount( int zoneId, std::size_t localFaceCount )
+{
+    if ( zoneId < 0 || static_cast< size_t >( zoneId ) >= this->l2g.size() )
+    {
+        throw std::out_of_range(
+            "IFaceLink::EnsureLocalInterfaceFaceCount: zone id is out of range" );
+    }
+    if ( this->l2g[ zoneId ].size() < localFaceCount )
+    {
+        this->l2g[ zoneId ].resize( localFaceCount, -1 );
+    }
+}
+
+void IFaceLink::RegisterLocalInterfaceFace( int gIid, bool isNew, int zid, int localFaceId )
+{
+    RegisterLocalInterfaceFaceOnMaps(
+        gIid, isNew, zid, localFaceId, this->l2g, this->gI2Zid, this->g2l );
 }
 
 void IFaceLink::EnsureSplitBookkeepingMatchesZones()

@@ -40,13 +40,14 @@ class IFaceLink
 public:
     explicit IFaceLink( Grids & gridsIn );
     ~IFaceLink();
-public:
+private:
     // Interface-face relation, stored in two directions:
     // l2g[zone][localFace] -> global interface-face ID.
     // gI2Zid means global Interface-face to zone IDs:
     // gI2Zid[globalFace][slot] -> participating zone ID.
     // g2l[globalFace][slot] -> that zone's local interface-face ID.
     // The slot index is shared by gI2Zid and g2l; their row lengths must match.
+    // Access only through Ensure*/Register*/Get*/Mutable* APIs.
     LinkField gI2Zid;
     LinkField g2l;
     LinkField l2g;
@@ -61,7 +62,6 @@ public:
     // Legacy per-zone child-count bookkeeping for interface-face rebuilding.
     LinkField nChild;
 
-private:
     Grids & grids;
     // Interface face geometry search + split tables. Prefer GetFaceSearch /
     // MutableInterfaceSplit over direct field access.
@@ -111,6 +111,15 @@ public:
     // Does not touch global-face tables (gI2Zid / g2l).
     void EnsureInterfaceZoneCount( std::size_t nZones );
 
+    // Ensure l2g[zoneId] can hold localFaceCount slots (resize up only).
+    // Zone row must already exist (EnsureInterfaceZoneCount). Does not register
+    // global faces; pair with RegisterLocalInterfaceFace for seeding tests.
+    void EnsureLocalInterfaceFaceCount( int zoneId, std::size_t localFaceCount );
+
+    // Register (zid, localFaceId) on global face gIid using the live dual maps.
+    // Thin wrapper around the free-function helper; keeps fields private.
+    void RegisterLocalInterfaceFace( int gIid, bool isNew, int zid, int localFaceId );
+
     // Split-rebuild bookkeeping: nChild must have one row per live zone (l2g).
     // Call after InitNewLgMapping so l2gNew already has empty per-zone rows.
     void EnsureSplitBookkeepingMatchesZones();
@@ -120,6 +129,9 @@ public:
     [[nodiscard]] IntField & MutableL2gNewForZone( int zoneId );
     [[nodiscard]] IntField & MutableNChildForZone( int zoneId );
     [[nodiscard]] const IntField & GetL2gForZone( int zoneId ) const;
+
+    // Zone count for split bookkeeping table (may lag l2g until Ensure*).
+    [[nodiscard]] std::size_t GetSplitBookkeepingZoneCount() const { return nChild.size(); }
 
     // Staging inverse maps (*New). Prefer these over raw gI2ZidNew / g2lNew.
     [[nodiscard]] LinkField & MutableGlobalToZoneIdsNew() { return gI2ZidNew; }
@@ -150,7 +162,8 @@ void ValidateGlobalFaceMappings(
 // existing row, which supports at most two zone participants. The existing-row
 // path rejects duplicate participants and a third zone before mutating any map.
 // Always writes l2g[zid][localFaceId] = gIid on success.
-void RegisterLocalInterfaceFace(
+// Named *OnMaps to avoid colliding with IFaceLink::RegisterLocalInterfaceFace.
+void RegisterLocalInterfaceFaceOnMaps(
     int gIid,
     bool isNew,
     int zid,

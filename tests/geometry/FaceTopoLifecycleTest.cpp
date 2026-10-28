@@ -242,8 +242,9 @@ TEST(FaceTopoLifecycleTest, InterfaceFaceWithEmptyChildrenStillRebuildsOneToOne)
     MinimalZoneFixture fixture;
     ONEFLOW::IFaceLink iFaceLink(fixture.grids);
 
-    ASSERT_EQ(static_cast<int>(iFaceLink.l2g.size()), 1);
-    iFaceLink.l2g[0].push_back(0);
+    ASSERT_EQ(static_cast<int>(iFaceLink.GetLocalToGlobalMap().size()), 1);
+    iFaceLink.EnsureLocalInterfaceFaceCount(0, 1);
+    iFaceLink.RegisterLocalInterfaceFace(/*gIid=*/0, /*isNew=*/true, /*zid=*/0, /*localFaceId=*/0);
     iFaceLink.MutableInterfaceSplit().childFaceIdsOfParent.resize(1);
 
     ONEFLOW::FaceTopo faceTopo;
@@ -290,7 +291,7 @@ TEST(FaceTopoLifecycleTest, IFaceLinkConstructsWithoutNodeMesh)
     // point_search is private; object must exist (GetPointLocator) but ADT not built.
     EXPECT_NO_THROW((void)iFaceLink.GetPointLocator());
     EXPECT_FALSE(iFaceLink.IsPointLocatorReady());
-    EXPECT_EQ(static_cast<int>(iFaceLink.l2g.size()), 1);
+    EXPECT_EQ(static_cast<int>(iFaceLink.GetLocalToGlobalMap().size()), 1);
 }
 
 TEST(FaceTopoLifecycleTest, ResolveChildFaceNodeIds_RelativeFlagsMapThroughParent)
@@ -381,7 +382,8 @@ TEST(FaceTopoLifecycleTest, InterfaceParentFaceSplitsIntoTwoRelativeChildren)
     ONEFLOW::IFaceLink iFaceLink(fixture.grids);
 
     // local interface face 0 -> global face 0; two children 0 and 1.
-    iFaceLink.l2g[0].push_back(0);
+    iFaceLink.EnsureLocalInterfaceFaceCount(0, 1);
+    iFaceLink.RegisterLocalInterfaceFace(/*gIid=*/0, /*isNew=*/true, /*zid=*/0, /*localFaceId=*/0);
     iFaceLink.MutableInterfaceSplit().childFaceIdsOfParent.resize(1);
     iFaceLink.MutableInterfaceSplit().childFaceIdsOfParent[0] = ONEFLOW::IntField{0, 1};
     iFaceLink.MutableInterfaceSplit().childFaceNodeIds.resize(2);
@@ -435,7 +437,8 @@ TEST(FaceTopoLifecycleTest, GetInterfaceChildFaceIds_ReturnsEmptyChildren)
     // Intent: valid l2g + empty childFaceIdsOfParent slot returns an empty child list.
     MinimalZoneFixture fixture;
     ONEFLOW::IFaceLink iFaceLink(fixture.grids);
-    iFaceLink.l2g[0].push_back(0);
+    iFaceLink.EnsureLocalInterfaceFaceCount(0, 1);
+    iFaceLink.RegisterLocalInterfaceFace(/*gIid=*/0, /*isNew=*/true, /*zid=*/0, /*localFaceId=*/0);
     iFaceLink.MutableInterfaceSplit().childFaceIdsOfParent.resize(1);
 
     const ONEFLOW::IntField & children =
@@ -459,7 +462,8 @@ TEST(FaceTopoLifecycleTest, GetInterfaceChildFaceIdsDoesNotValidateLegacyNodeMap
     // collector validates those rows when it selects and consumes them.
     MinimalZoneFixture fixture;
     ONEFLOW::IFaceLink iFaceLink(fixture.grids);
-    iFaceLink.l2g[0].push_back(0);
+    iFaceLink.EnsureLocalInterfaceFaceCount(0, 1);
+    iFaceLink.RegisterLocalInterfaceFace(/*gIid=*/0, /*isNew=*/true, /*zid=*/0, /*localFaceId=*/0);
     iFaceLink.MutableInterfaceSplit().childFaceIdsOfParent.resize(1);
     iFaceLink.MutableInterfaceSplit().childFaceIdsOfParent[0] = ONEFLOW::IntField{0};
     iFaceLink.MutableInterfaceSplit().childFaceNodeIds.resize(1);
@@ -485,7 +489,8 @@ TEST(FaceTopoLifecycleTest, InterfaceChildWithAbsoluteNodeIdsNeedsNodeMesh)
     fixture.grid().nodeMesh->CalcMinMaxBox();
 
     ONEFLOW::IFaceLink iFaceLink(fixture.grids);
-    iFaceLink.l2g[0].push_back(0);
+    iFaceLink.EnsureLocalInterfaceFaceCount(0, 1);
+    iFaceLink.RegisterLocalInterfaceFace(/*gIid=*/0, /*isNew=*/true, /*zid=*/0, /*localFaceId=*/0);
     iFaceLink.MutableInterfaceSplit().childFaceIdsOfParent.resize(1);
     iFaceLink.MutableInterfaceSplit().childFaceIdsOfParent[0] = ONEFLOW::IntField{0};
     iFaceLink.MutableInterfaceSplit().childFaceNodeIds.resize(1);
@@ -519,7 +524,8 @@ TEST(FaceTopoLifecycleTest, InterfaceChildAbsoluteIdsRejectMissingNodeMesh)
     ASSERT_EQ(fixture.grid().nodeMesh, nullptr);
 
     ONEFLOW::IFaceLink iFaceLink(fixture.grids);
-    iFaceLink.l2g[0].push_back(0);
+    iFaceLink.EnsureLocalInterfaceFaceCount(0, 1);
+    iFaceLink.RegisterLocalInterfaceFace(/*gIid=*/0, /*isNew=*/true, /*zid=*/0, /*localFaceId=*/0);
     iFaceLink.MutableInterfaceSplit().childFaceIdsOfParent.resize(1);
     iFaceLink.MutableInterfaceSplit().childFaceIdsOfParent[0] = ONEFLOW::IntField{0};
     iFaceLink.MutableInterfaceSplit().childFaceNodeIds.resize(1);

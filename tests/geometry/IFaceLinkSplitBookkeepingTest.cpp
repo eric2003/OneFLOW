@@ -14,42 +14,46 @@ TEST( IFaceLinkSplitBookkeepingTest, EnsureSplitBookkeepingGrowsNChild )
 {
     Grids grids;
     IFaceLink link( grids );
-    link.l2g.resize( 2 );
-    link.l2gNew.resize( 2 );
-    EXPECT_TRUE( link.nChild.empty() );
+    link.EnsureInterfaceZoneCount( 2 );
+    EXPECT_EQ( link.GetSplitBookkeepingZoneCount(), static_cast< std::size_t >( 0 ) );
 
     link.EnsureSplitBookkeepingMatchesZones();
-    ASSERT_EQ( link.nChild.size(), static_cast< std::size_t >( 2 ) );
+    ASSERT_EQ( link.GetSplitBookkeepingZoneCount(), static_cast< std::size_t >( 2 ) );
 }
 
 TEST( IFaceLinkSplitBookkeepingTest, MutableL2gNewBoundsCheck )
 {
     Grids grids;
     IFaceLink link( grids );
-    link.l2gNew.resize( 1 );
-    EXPECT_NO_THROW( link.MutableL2gNewForZone( 0 ) );
-    EXPECT_THROW( link.MutableL2gNewForZone( 1 ), std::out_of_range );
-    EXPECT_THROW( link.MutableL2gNewForZone( -1 ), std::out_of_range );
+    link.EnsureInterfaceZoneCount( 1 );
+    // [[nodiscard]] refs: discard intentionally when only testing throw/no-throw.
+    EXPECT_NO_THROW( static_cast< void >( link.MutableL2gNewForZone( 0 ) ) );
+    EXPECT_THROW( static_cast< void >( link.MutableL2gNewForZone( 1 ) ), std::out_of_range );
+    EXPECT_THROW( static_cast< void >( link.MutableL2gNewForZone( -1 ) ), std::out_of_range );
 }
 
 TEST( IFaceLinkSplitBookkeepingTest, GetL2gForZoneBoundsCheck )
 {
     Grids grids;
     IFaceLink link( grids );
-    link.l2g.push_back( IntField{ 3, 4 } );
-    EXPECT_EQ( link.GetL2gForZone( 0 ), ( IntField{ 3, 4 } ) );
-    EXPECT_THROW( link.GetL2gForZone( 1 ), std::out_of_range );
+    link.EnsureInterfaceZoneCount( 1 );
+    link.EnsureLocalInterfaceFaceCount( 0, 2 );
+    // Slots exist but are unset (-1); register two local faces on new globals.
+    link.RegisterLocalInterfaceFace( 0, true, 0, 0 );
+    link.RegisterLocalInterfaceFace( 1, true, 0, 1 );
+    EXPECT_EQ( link.GetL2gForZone( 0 ), ( IntField{ 0, 1 } ) );
+    EXPECT_THROW( static_cast< void >( link.GetL2gForZone( 1 ) ), std::out_of_range );
 }
 
 TEST( IFaceLinkSplitBookkeepingTest, MutableNChildRequiresPriorEnsure )
 {
     Grids grids;
     IFaceLink link( grids );
-    link.l2g.resize( 1 );
+    link.EnsureInterfaceZoneCount( 1 );
     // nChild still empty -> out of range until Ensure
-    EXPECT_THROW( link.MutableNChildForZone( 0 ), std::out_of_range );
+    EXPECT_THROW( static_cast< void >( link.MutableNChildForZone( 0 ) ), std::out_of_range );
     link.EnsureSplitBookkeepingMatchesZones();
-    EXPECT_NO_THROW( link.MutableNChildForZone( 0 ) );
+    EXPECT_NO_THROW( static_cast< void >( link.MutableNChildForZone( 0 ) ) );
 }
 
 
@@ -57,11 +61,10 @@ TEST( IFaceLinkSplitBookkeepingTest, EnsureInterfaceZoneCountSizesZoneTables )
 {
     Grids grids;
     IFaceLink link( grids );
-    EXPECT_TRUE( link.l2g.empty() );
+    EXPECT_TRUE( link.GetLocalToGlobalMap().empty() );
     link.EnsureInterfaceZoneCount( 3 );
-    EXPECT_EQ( link.l2g.size(), static_cast< std::size_t >( 3 ) );
-    EXPECT_EQ( link.l2gNew.size(), static_cast< std::size_t >( 3 ) );
+    EXPECT_EQ( link.GetLocalToGlobalMap().size(), static_cast< std::size_t >( 3 ) );
     // Global-face tables unchanged
-    EXPECT_TRUE( link.gI2Zid.empty() );
-    EXPECT_TRUE( link.g2l.empty() );
+    EXPECT_TRUE( link.GetGlobalToZoneIds().empty() );
+    EXPECT_TRUE( link.GetGlobalToLocalIds().empty() );
 }

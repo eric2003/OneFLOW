@@ -115,7 +115,7 @@ public:
 
 private:
     // Try to split edge (nodeId size 2) at midpoint if the midpoint already
-    // exists in the point locator. globalFaceId indexes iFaceLink.gI2Zid.
+    // exists in the point locator. globalFaceId indexes the dual-map global face tables (GetGlobalToZoneIds).
     bool TrySplitLineAtMidpoint(
         IFaceLink & iFaceLink,
         int globalFaceId,

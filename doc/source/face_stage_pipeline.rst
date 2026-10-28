@@ -751,7 +751,7 @@ boundary around *how* they change:
    * - Operation
      - Allowed path
    * - Register a local face on a global id
-     - ``CreateLink`` -> ``RegisterLocalInterfaceFace``
+     - ``CreateLink`` -> ``RegisterLocalInterfaceFaceOnMaps``
    * - Stage / commit after interface split
      - ``InitNewInterfaceMappingBuffers`` /
        zone rebuild helpers /
@@ -770,12 +770,13 @@ Split rebuild zone rows go through ``EnsureSplitBookkeepingMatchesZones``,
 ``GetL2gForZone``, ``MutableL2gNewForZone``, and ``MutableNChildForZone``.
 Staging inverse maps use ``MutableGlobalToZoneIdsNew`` /
 ``MutableGlobalToLocalIdsNew``. ``FaceTopo`` and ``UnsGrid`` read live
-``l2g`` through ``GetLocalToGlobalMap`` / ``GetL2gForZone`` rather than
-fields. Fields remain public until the last bulk writer migrates; the
-direction is clear: accessors first, then visibility.
+``l2g`` through ``GetLocalToGlobalMap`` / ``GetL2gForZone``. Dual-map
+fields (``l2g``, ``gI2Zid``, ``g2l``, ``*New``, ``nChild``) are private.
 
-Read-only observers should prefer ``GetLocalToGlobalMap``,
-``GetGlobalToZoneIds``, and ``GetGlobalToLocalIds``.
+Tests and topology-only clients seed maps with
+``EnsureInterfaceZoneCount``, ``EnsureLocalInterfaceFaceCount``, and
+``RegisterLocalInterfaceFace`` (member wrapper). Read-only observers use
+``GetLocalToGlobalMap``, ``GetGlobalToZoneIds``, and ``GetGlobalToLocalIds``.
 
 **Tests:** ``IFaceLinkMapAccessorsTest``, ``IFaceLinkSplitBookkeepingTest``.
 
@@ -945,10 +946,10 @@ Open design pressures
 
 These remain harder to unit-test and mark follow-up work:
 
-#. ``IFaceLink`` dual-map *fields* remain public; ``face_search`` is private
-   with ``GetFaceSearch`` / ``MutableInterfaceSplit``. Geometry call sites use
-   dual-map accessors. Next: migrate remaining dual-map field writers, then
-   private fields.
+#. ``IFaceLink`` dual-map fields are private. Seed and observe through
+   ``EnsureInterfaceZoneCount`` / ``EnsureLocalInterfaceFaceCount`` /
+   ``RegisterLocalInterfaceFace`` and the Get*/Mutable* accessors. Geometry
+   call sites no longer touch ``l2g`` / ``gI2Zid`` / ``g2l`` fields.
 #. Line mid-point split needs a ready ``PointLocator`` and ``nodeMesh``.
    ``point_search`` is private (``GetPointLocator`` /
    ``EnsurePointLocatorReady``). Zone policy is
@@ -1054,7 +1055,7 @@ Change type matrix
    * - ``ValidateGlobalFaceMapping(s)``
      - ``GlobalFaceMappingTest``
      - `Interface split helpers`
-   * - ``RegisterLocalInterfaceFace`` / CreateLink mapping
+   * - ``RegisterLocalInterfaceFaceOnMaps`` / CreateLink mapping
      - ``RegisterLocalInterfaceFaceTest``
      - `Interface split helpers`
    * - ``FindRemoteInterfacePartner`` / MatchInterfaceTopology

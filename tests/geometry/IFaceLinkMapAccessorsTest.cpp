@@ -1,5 +1,6 @@
 // tests/geometry/IFaceLinkMapAccessorsTest.cpp
-// Locks read-only dual-map accessors on IFaceLink without full mesh scan.
+// Locks dual-map accessors on IFaceLink without full mesh scan.
+// Fields are private; seed through Ensure*/Register*.
 
 #include <gtest/gtest.h>
 
@@ -9,23 +10,23 @@
 
 using namespace ONEFLOW;
 
-TEST( IFaceLinkMapAccessorsTest, ConstAccessorsReferToLiveTables )
+TEST( IFaceLinkMapAccessorsTest, ConstAccessorsReflectEmptyTables )
 {
     Grids grids;
     IFaceLink link( grids );
 
-    EXPECT_EQ( &link.GetLocalToGlobalMap(), &link.l2g );
-    EXPECT_EQ( &link.GetGlobalToZoneIds(), &link.gI2Zid );
-    EXPECT_EQ( &link.GetGlobalToLocalIds(), &link.g2l );
+    EXPECT_TRUE( link.GetLocalToGlobalMap().empty() );
+    EXPECT_TRUE( link.GetGlobalToZoneIds().empty() );
+    EXPECT_TRUE( link.GetGlobalToLocalIds().empty() );
 }
 
-TEST( IFaceLinkMapAccessorsTest, AccessorsSeeManualTableEdits )
+TEST( IFaceLinkMapAccessorsTest, AccessorsSeeRegisteredTables )
 {
     Grids grids;
     IFaceLink link( grids );
-    link.l2g.push_back( IntField{ 0 } );
-    link.gI2Zid.push_back( IntField{ 0 } );
-    link.g2l.push_back( IntField{ 0 } );
+    link.EnsureInterfaceZoneCount( 1 );
+    link.EnsureLocalInterfaceFaceCount( 0, 1 );
+    link.RegisterLocalInterfaceFace( /*gIid=*/0, /*isNew=*/true, /*zid=*/0, /*localFaceId=*/0 );
 
     ASSERT_EQ( link.GetLocalToGlobalMap().size(), static_cast< std::size_t >( 1 ) );
     EXPECT_EQ( link.GetLocalToGlobalMap()[ 0 ], ( IntField{ 0 } ) );
@@ -34,15 +35,14 @@ TEST( IFaceLinkMapAccessorsTest, AccessorsSeeManualTableEdits )
 }
 
 
-TEST( IFaceLinkMapAccessorsTest, NewInverseMapAccessorsAliasFields )
+TEST( IFaceLinkMapAccessorsTest, NewInverseMapAccessorsAliasStagingTables )
 {
     Grids grids;
     IFaceLink link( grids );
-    link.gI2ZidNew.push_back( IntField{ 1 } );
-    link.g2lNew.push_back( IntField{ 2 } );
+    link.MutableGlobalToZoneIdsNew().push_back( IntField{ 1 } );
+    link.MutableGlobalToLocalIdsNew().push_back( IntField{ 2 } );
 
-    EXPECT_EQ( &link.MutableGlobalToZoneIdsNew(), &link.gI2ZidNew );
-    EXPECT_EQ( &link.MutableGlobalToLocalIdsNew(), &link.g2lNew );
     EXPECT_EQ( link.GetGlobalToZoneIdsNew()[ 0 ], ( IntField{ 1 } ) );
     EXPECT_EQ( link.GetGlobalToLocalIdsNew()[ 0 ], ( IntField{ 2 } ) );
+    EXPECT_EQ( &link.MutableGlobalToZoneIdsNew(), &link.GetGlobalToZoneIdsNew() );
 }
