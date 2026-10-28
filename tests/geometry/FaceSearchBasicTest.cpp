@@ -323,6 +323,8 @@ TEST( FaceSearchBasicTest, SetChildMappingRejectsConflictingMappingForSameParent
     split.childFaceIdsOfParent[ 0 ] = IntField{ 2 };
 
     split.SetChildMapping( 0, 2, IntField{ 0, 1, 2 }, IntField{ 1, 1, 1 } );
+    EXPECT_NO_THROW(
+        split.SetChildMapping( 0, 2, IntField{ 0, 1, 2 }, IntField{ 1, 1, 1 } ) );
 
     EXPECT_THROW(
         split.SetChildMapping( 0, 2, IntField{ 2, 1, 0 }, IntField{ 1, 1, 1 } ),
