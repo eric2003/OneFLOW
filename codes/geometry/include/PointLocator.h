@@ -29,6 +29,7 @@ License
 BeginNameSpace( ONEFLOW )
 
 class Grid;
+class PointSpatialIndex;
 
 using AdtTree = HXAdtTree<int, Real>;
 using AdtNode = HXAdtNode<int, Real>;
@@ -49,16 +50,13 @@ public:
     // Virtual so IFaceLink tests can inject a lightweight double without an ADT.
     virtual ~PointLocator();
 
-    // [Refactored] Disable copying to prevent double-free of unique_ptr.
-    // unique_ptr is move-only, so we explicitly delete copy operations.
-    PointLocator(const PointLocator&) = delete;
-    PointLocator& operator=(const PointLocator&) = delete;
+    PointLocator( const PointLocator& ) = delete;
+    PointLocator& operator=( const PointLocator& ) = delete;
 protected:
     int id;
 
-    // [Refactored] Changed from raw pointer to std::unique_ptr.
-    // Automatic cleanup, exception safety, no double-free possible.
-    std::unique_ptr<AdtTree> coorTree;
+    // Concrete spatial-index implementation is private to PointLocator.cpp.
+    std::unique_ptr<PointSpatialIndex> spatialIndex;
 
     Real tolerance;
     RealField xCoor, yCoor, zCoor;
