@@ -75,9 +75,15 @@ class GeometryContractDialog(QDialog):
         root.addWidget(self.description)
 
         root.addWidget(QLabel("Input"))
+        input_row = QHBoxLayout()
+        input_row.addWidget(QLabel("Input tables (editable JSON)"))
+        input_row.addStretch(1)
+        self.reset_input_button = QPushButton("Restore scenario input")
+        self.reset_input_button.clicked.connect(self._restore_input)
+        input_row.addWidget(self.reset_input_button)
+        root.addLayout(input_row)
         self.input_view = QPlainTextEdit()
-        self.input_view.setReadOnly(True)
-        self.input_view.setPlaceholderText("Scenario input tables (JSON)")
+        self.input_view.setPlaceholderText("Edit scenario input tables (JSON)")
         root.addWidget(self.input_view, stretch=1)
 
         expected_row = QHBoxLayout()
@@ -146,6 +152,12 @@ class GeometryContractDialog(QDialog):
         self._last_orphans = []
         self.export_button.setEnabled(False)
 
+    def _restore_input(self) -> None:
+        scenario = self._current_scenario()
+        if scenario is None:
+            return
+        self.input_view.setPlainText(json.dumps(scenario.get("input") or {}, indent=2))
+
     def _restore_expected(self) -> None:
         scenario = self._current_scenario()
         if scenario is None:
@@ -162,6 +174,17 @@ class GeometryContractDialog(QDialog):
         if scenario is None:
             QMessageBox.warning(self, "Geometry Contracts", "No scenario selected.")
             return
+        try:
+            edited_input = json.loads(self.input_view.toPlainText())
+            if not isinstance(edited_input, dict):
+                raise ValueError("input tables must be a JSON object")
+            scenario["input"] = edited_input
+        except (json.JSONDecodeError, ValueError) as exc:
+            QMessageBox.warning(
+                self, "Geometry Contracts", f"Invalid input JSON: {exc}"
+            )
+            return
+
         try:
             actual = run_pipeline(scenario, backend="stub")
         except Exception as exc:  # noqa: BLE001 - surface to operator
@@ -188,6 +211,7 @@ class GeometryContractDialog(QDialog):
             "backend: stub (fixture-backed, not the production geometry algorithm)",
             "RESULT: PASS" if not mismatches else "RESULT: FAIL",
             "Compared mock output against the editable expected tables.",
+            "Input JSON was parsed; this fixture backend does not recompute output from input.",
         ]
         for line in mismatches:
             lines.append(f"  - {line}")
