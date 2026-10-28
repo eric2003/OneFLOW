@@ -78,6 +78,18 @@ public:
 };
 } // namespace
 
+TEST( PointLocatorLifecycleTest, ExplicitToleranceControlsFinalMatchPredicate )
+{
+    ONEFLOW::PointLocator locator;
+    const ONEFLOW::RealField pmin{ 0.0, 0.0, 0.0 };
+    const ONEFLOW::RealField pmax{ 10.0, 10.0, 10.0 };
+    locator.Initialize( pmin, pmax, 0.5 );
+
+    EXPECT_EQ( locator.AddPoint( 1.0, 1.0, 1.0 ), 0 );
+    EXPECT_EQ( locator.FindPoint( 1.49, 1.0, 1.0 ), 0 );
+    EXPECT_EQ( locator.FindPoint( 1.5, 1.0, 1.0 ), ONEFLOW::INVALID_INDEX );
+}
+
 TEST(PointLocatorLifecycleTest, SpecialToleranceExpandsAdtBounds)
 {
     PointLocatorTestGrid grid;
