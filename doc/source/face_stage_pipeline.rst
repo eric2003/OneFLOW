@@ -741,6 +741,51 @@ Read-only observers should prefer ``GetLocalToGlobalMap``,
 
 **Tests:** ``IFaceLinkMapAccessorsTest``, ``IFaceLinkSplitBookkeepingTest``.
 
+
+Parent-relative child mapping algorithm
+---------------------------------------
+
+Interface split may turn one parent face into several child faces. Child
+geometry is stored in two layers:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 35 65
+
+   * - Table
+     - Role
+   * - ``childFaceIdsOfParent[parent]``
+     - Ordered global child ids for that parent
+   * - ``childFaceNodeIdsByParent[parent][i]`` /
+       ``childFaceNodeFlagsByParent[parent][i]``
+     - Parent-local node encoding for child ``i`` (flag ``1`` = index into
+       **this** parent's node ring)
+   * - ``childFaceNodeIds[child]`` /
+       ``childFaceNodeFlags[child]``
+     - Optional global seed (first writer); **not** authoritative when
+       parent-specific rows exist
+
+**Why parent-specific rows.** The same undirected child ring can appear under
+two parents with different node sets, for example parent
+``[A,B,C,D]`` and parent ``[B,C,D,E]`` sharing child ``[B,C,D]``. Local corner
+indices differ (``[1,2,3]`` vs ``[0,1,2]``). A single global row keyed only by
+child id cannot hold both encodings. Rebuild must read the
+**current parent's** mapping row, then ``ResolveChildFaceNodeIds`` against that
+parent's ring.
+
+**Publish path.** ``ResolveRegisteredChildFaces`` decides which candidates are
+already registered global faces and rejects duplicate child ids for one
+parent. ``SetChildMapping`` then writes the parent-specific row (and seeds the
+global row only if still empty).
+
+**Consume path.** ``CollectBoundaryInterfaceChildNodeMappings`` prefers
+``ByParent`` rows when present; otherwise falls back to the global child
+tables. ``RebuildFaceNodeListsAfterInterfaceSplit`` applies
+``ResolveChildFaceNodeIds`` per child.
+
+**Tests:** ``TwoParentSharedChildMappingTest``,
+``FaceSearchBasicTest`` (duplicate / conflict guards).
+
 Open design pressures
 ---------------------
 
@@ -754,14 +799,11 @@ Open design pressures
   that shares that child can overwrite the row with different parent-local
   indices.
 
-  A valid regression fixture must use two distinct parent node sets, for
-  example rings ``[A, B, C, D]`` and ``[B, C, D, E]``, with one globally
-  registered child face ``[B, C, D]``. The child maps to local corners
-  ``[1, 2, 3]`` in the first parent and ``[0, 1, 2]`` in the second. Merely
-  rotating one parent's ring does not create a second global face: the
-  order-independent registry correctly deduplicates both rings to the same
-  parent ID. The test must therefore use distinct parent node sets and assert
-  each ordered child node list, not only the global child ID.
+  Parent-specific tables address this; the fixture is
+  ``TwoParentSharedChildMappingTest`` (rings ``[10,20,30,40]`` and
+  ``[20,30,40,50]``, shared child resolved to ``[20,30,40]`` under both
+  parents). Merely rotating one parent's ring does not create a second global
+  parent face in the registry.
 
   Each parent child list must contain a global child face ID at most once.
   The mapping rows are indexed by child position, so duplicate IDs would make a
