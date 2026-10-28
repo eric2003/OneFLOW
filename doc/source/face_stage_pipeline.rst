@@ -22,6 +22,56 @@ Goals
 #. Face *identity* (deduplication) stays separate from face *orientation*
    (node ring and left/right ownership).
 
+
+Why this local refactor exists
+------------------------------
+
+The face / interface / BC path used to interleave **three different jobs** in
+the same loops:
+
+#. **Discover** unique faces while scanning elements (geometry identity).
+#. **Own** each face from the left and right cells (topology).
+#. **Label** boundary faces from CGNS BOCO vertex sets (physics BC).
+
+Those jobs share parallel arrays (``faces``, left/right cells, BC slots,
+``l2g`` / ``gI2Zid``). Before the staged APIs, alignment was accidental: each
+scan path did its own ``push_back``. Unit tests had to stand up a full CGNS
+zone to assert a single rule.
+
+The local refactor's meaning is therefore not "more free functions". It is:
+
+* **One growth contract** -- ``StageNewFace`` and
+  ``StagedBcMatchesFaceCount`` so parallel arrays stay aligned by construction.
+* **Named write paths** -- Claim / Attach / Bind / ``SetStagedFaceBc`` so
+  ownership and BC are not ad-hoc index writes.
+* **Pure rules extracted from adapters** -- eligibility, vertex-set match,
+  boundary-first permutation, interface dual maps -- so intent is unit-tested
+  without CGNS.
+* **Documented algorithms** on this page so the next change can see the
+  *pipeline*, not only the last helper.
+
+What remains hard (see `Open design pressures`_) is still the right backlog:
+``IFaceLink`` public tables, ``PointLocator`` injection, parent-relative child
+mappings after interface split, and true end-to-end CGNS fixtures. Prefer
+closing those seams over extracting another one-line predicate.
+
+GridElem orchestration
+----------------------
+
+``GridElem`` is the **conductor** for one zone's calculation grid. It does not
+implement face identity or BC matching; it sequences already-tested steps:
+
+#. Scan elements into ``FaceSolver`` (stage / claim / bind).
+#. Scan BOCO into staged BC (``AssignBcToMatchingFaces`` / residual fill).
+#. ``AppendBoundaryBcToRecord`` -- export boundary BC in discovery order.
+#. Move ``FaceTopo`` onto ``UnsGrid``, map CGNS BC ids
+   (``BcTypeMap::MapFromCgnsInPlace``).
+#. ``ReorderBoundaryFirstAndValidate`` -- boundary-first face order and
+   ``BcRecord`` layout check as **one** post-stage transaction.
+
+If a rule can be stated without ``GridElem`` or ``CgnsSection``, it belongs in a
+pure helper and a geometry unit test. ``GridElem`` should stay thin.
+
 Pipeline overview
 -----------------
 
@@ -640,7 +690,12 @@ filled in discovery order of boundary faces, and the partition preserves the
 relative order of those boundary faces, so the prefix of reordered faces still
 matches ``BcRecord`` (``ValidateBoundaryBcLayout``).
 
-**Tests:** ``FaceTopoReorderLinkTest``.
+``ReorderBoundaryFirstAndValidate`` is the single post-stage entry used by
+``GridElem``: reorder then validate. Callers should not reorder without the
+layout check.
+
+**Tests:** ``FaceTopoReorderLinkTest``,
+``ReorderBoundaryFirstAndValidateTest``.
 
 Open design pressures
 ---------------------
@@ -844,9 +899,11 @@ Change type matrix
      - `Boundary BC export and reorder`
    * - ``BuildBoundaryFirstPermutation`` /
        ``ReorderLink`` /
-       ``ValidateBoundaryBcLayout``
-     - ``FaceTopoReorderLinkTest``
-     - `Boundary BC export and reorder`
+       ``ValidateBoundaryBcLayout`` /
+       ``ReorderBoundaryFirstAndValidate``
+     - ``FaceTopoReorderLinkTest``,
+       ``ReorderBoundaryFirstAndValidateTest``
+     - `Boundary-first reorder algorithm`
    * - ``HXKey`` / ``HXLookup`` /
        ``FaceSearchBasic`` identity rules
      - ``HXLookupTest``,

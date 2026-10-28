@@ -660,6 +660,12 @@ void ValidateBoundaryBcLayout( const FaceTopo & faceTopo )
     }
 }
 
+void ReorderBoundaryFirstAndValidate( FaceTopo & faceTopo )
+{
+    faceTopo.ReorderLink();
+    ValidateBoundaryBcLayout( faceTopo );
+}
+
 void FaceTopo::ReorderLink()
 {
     const HXSize_t nFaces = this->GetFaceCount();

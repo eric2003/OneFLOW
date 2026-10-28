@@ -299,10 +299,8 @@ void GridElem::ReorderLink( UnsGrid & grid )
     int nFaces = faceTopo.GetFaceTypes().size();
     grid.nFaces = nFaces;
 
-    faceTopo.ReorderLink();
-    // BcRecord was filled in original face order of boundary faces; ReorderLink
-    // preserves that relative order in the boundary prefix. Verify the contract.
-    ValidateBoundaryBcLayout( faceTopo );
+    // Boundary-first reorder and BcRecord layout check are one transaction.
+    ReorderBoundaryFirstAndValidate( faceTopo );
 }
 
 GridElemGroup::GridElemGroup( CgnsZbase & cgnsZbase )

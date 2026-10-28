@@ -135,6 +135,12 @@ HXSize_t CountBoundaryFaces( const IntField & rightCells );
 // Throws std::logic_error when the layout is inconsistent.
 void ValidateBoundaryBcLayout( const FaceTopo & faceTopo );
 
+// One post-stage transaction: boundary-first ReorderLink then
+// ValidateBoundaryBcLayout. Call after BcRecord has been filled from staged
+// faces in discovery order of boundary faces.
+void ReorderBoundaryFirstAndValidate( FaceTopo & faceTopo );
+
+
 // Expand boundary BC arrays when interface faces may split into children.
 // childCountPerInterfaceLocal is parallel to interface faces in boundary-face
 // order (same order as walking bcType with IsInterfaceBc). For each interface
