@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "IFaceLink.h"
+#include "FaceSearch.h"
 #include "PointLocator.h"
 #include "GridHandles.h"
 #include "HXDefine.h"
@@ -106,3 +107,32 @@ TEST( IFaceLinkPointLocatorInjectionTest, MarkReadyFalseKeepsLocatorUnready )
     // Object is still reachable; readiness is independent of injection.
     EXPECT_EQ( &link.GetPointLocator(), static_cast< PointLocator * >( raw ) );
 }
+
+TEST( IFaceLinkPointLocatorInjectionTest, SplitLineWithoutRegisteredChildrenDoesNotPublishMapping )
+{
+    Grids grids;
+    IFaceLink link( grids );
+
+    auto fake = std::make_unique< RecordingPointLocator >();
+    fake->AddPoint( 0.0, 0.0, 0.0 );
+    fake->AddPoint( 2.0, 0.0, 0.0 );
+    fake->AddPoint( 1.0, 0.0, 0.0 );
+    link.ReplacePointLocator( std::move( fake ), /*markReady=*/true );
+
+    link.EnsureInterfaceZoneCount( 1 );
+    link.EnsureLocalInterfaceFaceCount( 0, 1 );
+    link.RegisterLocalInterfaceFace( 0, /*isNew=*/true, 0, 0 );
+
+    FaceSearch faceSearch;
+    EXPECT_EQ( faceSearch.AddFace( IntField{ 0, 1 } ), 0 );
+    faceSearch.interfaceSplit.ResetForFaceCount( faceSearch.Size() );
+
+    // The midpoint exists geometrically, but neither child edge is registered.
+    // SplitLine must return before looking up or mutating the zone grid.
+    EXPECT_NO_THROW( faceSearch.SplitLine( link, 0 ) );
+
+    EXPECT_TRUE( faceSearch.interfaceSplit.childFaceIdsOfParent[ 0 ].empty() );
+    EXPECT_TRUE( faceSearch.interfaceSplit.childFaceNodeIdsByParent[ 0 ].empty() );
+    EXPECT_TRUE( faceSearch.interfaceSplit.childFaceNodeFlagsByParent[ 0 ].empty() );
+}
+
