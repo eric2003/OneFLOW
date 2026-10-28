@@ -713,7 +713,10 @@ Open design pressures
   ``RebuildFaceNodeListsTest.SharedChildUsesEachParentLocalMapping`` checks
   that two parents sharing child ID 7 rebuild to the same ordered global node
   list despite different parent-local indices. The older global-indexed rows
-  remain temporarily for compatibility with existing helper callers.
+  remain temporarily for compatibility with existing helper callers. They retain
+  the first populated mapping for a shared child and are not overwritten by a
+  different parent's local-corner row; new parent-aware consumers must use the
+  parent-specific tables.
 
   The split-table lifecycle follows the same ownership boundary. ``ResetForFaceCount``
   sizes and clears both global child tables and parent-specific rows; a reset must
