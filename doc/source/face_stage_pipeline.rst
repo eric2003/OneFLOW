@@ -648,9 +648,13 @@ Open design pressures
   single ``SetChildMapping(parent, child, ...)`` call ambiguous: the same child ID
   would name multiple positions. ``SetChildMapping`` rejects duplicate
   registrations before resizing or writing either parent-specific row. The
-  ``SplitQuad2Tri`` and ``SplitLine`` producers also check before appending,
-  so malformed geometry cannot leave a partially appended duplicate child
-  (**test:** ``FaceSearchBasicTest.SetChildMappingRejectsDuplicateChildRegistration``).
+  ``SplitQuad2Tri`` and ``SplitLine`` first resolve all registered child
+  candidates and reject repeated child IDs before publishing any child list or
+  mapping row. A malformed parent therefore has an empty rebuilt mapping after
+  a duplicate-candidate failure, rather than a prefix that looks complete
+  (**test:** ``FaceSearchBasicTest.QuadSplitRejectsDuplicateChildBeforeAppendingIt``).
+  ``SetChildMapping`` remains a second, API-level guard for callers that register
+  mappings directly (**test:** ``FaceSearchBasicTest.SetChildMappingRejectsDuplicateChildRegistration``).
 
   The split table now retains parent-specific child node IDs and flags in
   ``childFaceNodeIdsByParent`` and ``childFaceNodeFlagsByParent``. Global
