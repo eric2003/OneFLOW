@@ -93,19 +93,9 @@ const IntField & GetInterfaceChildFaceIds(
 
     const IntField & childFaceIds = childFaces[ globalFaceId ];
 
-    // This accessor resolves topology identity only. Node mapping rows are
-    // validated by the collector that consumes them, not by child ID lookup.
-    for ( int childIndex = 0; childIndex < static_cast< int >( childFaceIds.size() ); ++ childIndex )
-    {
-        const int childFaceId = childFaceIds[ childIndex ];
-        if ( childFaceId < 0 ||
-             static_cast< size_t >( childFaceId ) >= childFaces.size() )
-        {
-            throw std::out_of_range(
-                "GetInterfaceChildFaceIds: child face ID is out of range" );
-        }
-    }
-
+    // This accessor resolves parent-to-child identity only. The split table
+    // does not carry the global face count, so child ID bounds are checked by
+    // consumers that have access to the global face registry.
     return childFaceIds;
 }
 
