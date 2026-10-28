@@ -392,10 +392,13 @@ the geometric midpoint is already present in ``PointLocator``; this path does
 not independently decide to split every edge. Invalid face-to-zone associations
 therefore fail before midpoint lookup or zone-local node mutation.
 
-When a midpoint is available, the algorithm first checks whether at least one
-of the two resulting child edges is registered in ``FaceSearch``. If neither
-child exists, it returns without appending a zone-local node. This avoids
-changing geometry state when no child identity can be mapped.
+When a midpoint is available, the algorithm resolves both candidate child
+edges against the global ``FaceSearch`` registry before touching the zone mesh.
+If neither child exists, it returns without appending a zone-local node. The
+resolved child IDs and candidate positions are retained and reused when parent
+mappings are published, so the registry lookup is performed once per candidate
+rather than once for the preflight and again for publication. Duplicate child
+identities are rejected by the shared resolver before any zone-local mutation.
 
 The algorithm then resolves the midpoint in two index spaces:
 
