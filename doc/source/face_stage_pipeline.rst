@@ -665,6 +665,15 @@ Open design pressures
   ``SetChildMapping`` remains a second, API-level guard for callers that register
   mappings directly (**test:** ``FaceSearchBasicTest.SetChildMappingRejectsDuplicateChildRegistration``).
 
+  Mapping collection prefers the parent-specific row whenever it contains
+  data. The legacy child-global row is only a compatibility fallback when both
+  parent-specific rows for that parent are empty. This distinction matters:
+  a malformed or incomplete parent-specific row is an error, not a reason to
+  fall back to metadata that may have been written for another parent. The
+  regression ``RebuildFaceNodeListsTest.ParentSpecificMappingTakesPrecedenceOverLegacyRows``
+  deliberately gives the legacy and parent-specific rows conflicting values
+  and verifies that the parent-specific mapping wins.
+
   The split table now retains parent-specific child node IDs and flags in
   ``childFaceNodeIdsByParent`` and ``childFaceNodeFlagsByParent``. Global
   child IDs remain the identity and deduplication key; each parent owns an
