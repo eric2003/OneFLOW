@@ -21,11 +21,19 @@ The first step is read-only discovery in tools/oneflow_gui/test_inventory.py:
   An integration test can link to the scenario without incorrectly inheriting
   the helper's input and expected data.
 
-The inventory is a source index, not an execution engine. It is opened as a
-separate repository-level view, not as a sibling tab of a scenario's Result.
+The inventory is a source index, not an execution engine. In the Workbench it
+belongs in the repository/developer testing area, separate from a scenario's
+execution details; it must not appear as a peer of the per-run Result view.
+Frameworks are separate groups: GoogleTest (C++), Python unittest, and any
+future framework each have their own section/filter. Do not merge GoogleTest
+cases and Python test methods into one undifferentiated list.
+
 Listing a test does not mean it has run. The result field stays empty until an
-execution backend records an actual run. The geometry scenario fixture backend
-may compare fixed fixture output, but it must not populate a C++ test's result.
+execution backend records an actual run. A scenario fixture backend may compare
+fixed fixture output, but it must not populate a C++ test's result. A suite-level
+summary such as "878/878 passed" is useful run evidence, but it is not a
+per-test result record unless the runner can associate that result with the
+specific test identity.
 
 Contract model
 --------------
