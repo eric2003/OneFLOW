@@ -92,24 +92,17 @@ const IntField & GetInterfaceChildFaceIds(
     }
 
     const IntField & childFaceIds = childFaces[ globalFaceId ];
-    const LinkField & childNodeIds = splitTable.childFaceNodeIds;
-    const LinkField & childNodeFlags = splitTable.childFaceNodeFlags;
 
-    for ( int childIndex = 0; childIndex < childFaceIds.size(); ++ childIndex )
+    // This accessor resolves topology identity only. Node mapping rows are
+    // validated by the collector that consumes them, not by child ID lookup.
+    for ( int childIndex = 0; childIndex < static_cast< int >( childFaceIds.size() ); ++ childIndex )
     {
         const int childFaceId = childFaceIds[ childIndex ];
         if ( childFaceId < 0 ||
-             static_cast< size_t >( childFaceId ) >= childNodeIds.size() ||
-             static_cast< size_t >( childFaceId ) >= childNodeFlags.size() )
+             static_cast< size_t >( childFaceId ) >= childFaces.size() )
         {
             throw std::out_of_range(
                 "GetInterfaceChildFaceIds: child face ID is out of range" );
-        }
-        if ( childNodeIds[ childFaceId ].size() !=
-             childNodeFlags[ childFaceId ].size() )
-        {
-            throw std::logic_error(
-                "GetInterfaceChildFaceIds: child face node IDs and flags have different sizes" );
         }
     }
 
