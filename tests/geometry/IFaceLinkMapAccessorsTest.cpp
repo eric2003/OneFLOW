@@ -46,3 +46,13 @@ TEST( IFaceLinkMapAccessorsTest, NewInverseMapAccessorsAliasStagingTables )
     EXPECT_EQ( link.GetGlobalToLocalIdsNew()[ 0 ], ( IntField{ 2 } ) );
     EXPECT_EQ( &link.MutableGlobalToZoneIdsNew(), &link.GetGlobalToZoneIdsNew() );
 }
+
+TEST( IFaceLinkMapAccessorsTest, ConstGetGridReturnsReadOnlyZoneView )
+{
+    Grids grids;
+    grids.push_back( std::make_unique< Grid >() );
+    IFaceLink link( grids );
+    const IFaceLink & constLink = link;
+
+    EXPECT_EQ( &constLink.GetGrid( 0 ), grids[ 0 ].get() );
+}
