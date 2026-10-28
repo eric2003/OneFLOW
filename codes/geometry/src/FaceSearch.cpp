@@ -40,7 +40,7 @@ int FaceSearchBasic::AddFace( const IntField & faceNode )
     if ( isNew )
     {
         // New face: store the original node order
-        faceArray.push_back( faceNode );
+        faceNodeRings.push_back( faceNode );
     }
 
     return faceId;   // always return a valid ID
@@ -53,17 +53,17 @@ int FaceSearchBasic::FindFace( const IntField & faceNode ) const
 
 void FaceSearchBasic::Clear()
 {
-    faceArray.clear();
+    faceNodeRings.clear();
     lookup_.Clear();
 }
 
 const IntField & FaceSearchBasic::GetFaceNodeRing( int faceId ) const
 {
-    if ( faceId < 0 || static_cast< size_t >( faceId ) >= this->faceArray.size() )
+    if ( faceId < 0 || static_cast< size_t >( faceId ) >= this->faceNodeRings.size() )
     {
         throw std::out_of_range( "FaceSearchBasic::GetFaceNodeRing: face ID is out of range" );
     }
-    return this->faceArray[ static_cast< size_t >( faceId ) ];
+    return this->faceNodeRings[ static_cast< size_t >( faceId ) ];
 }
 
 
