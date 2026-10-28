@@ -923,22 +923,16 @@ A thin multi-zone composition answers "do the contracts still line up in
 production order?". That is the cheapest e2e that still avoids CGNS.
 
 
-Workbench host and plots
-------------------------
+Workbench host and OneFLOW GUI
+--------------------------------
 
-``tools/geometry_workbench`` is a stdlib-first host for the same table scenarios:
+``tools/geometry_workbench`` holds stdlib scenario JSON and a stub pipeline.
+The OneFLOW Workbench home screen exposes **Geometry Contracts...**
+(``GeometryContractDialog``), which loads those scenarios and runs the stub.
+This is intentionally separate from **Tests...** (GoogleTest / regression).
 
-* JSON input/expected (aligned with ``MultiZoneInterfaceSplitE2ETest``).
-* ``backend=stub`` returns expected tables so the host can ship before a native
-  bind to ``RunSymmetricInterfaceSplitMappingPipeline``.
-* Visualization is optional and secondary to editable tables:
-
-  * ASCII always (CI-friendly).
-  * plotly: browser zoom/hover — preferred when exploring graphs.
-  * matplotlib: toolbar zoom/pan only; **not** a place to edit inputs.
-
-Do not treat matplotlib as the workbench product. Change numbers in JSON (or a
-future form); use plots only to see zone–global connectivity.
+When ``RunSymmetricInterfaceSplitMappingPipeline`` is bound, only the workbench
+backend should change; the GUI dialog keeps the same table workflow.
 
 
 Open design pressures
