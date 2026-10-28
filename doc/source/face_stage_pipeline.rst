@@ -1418,6 +1418,32 @@ would require consistently rewriting every local-to-global map and any
 parent/child references. Until that full ID-remapping contract is defined, keep
 the diagnostic and do not silently compact the maps.
 
+Point-location tolerance and search stages
+-------------------------------------------
+
+The point locator uses the ADT as a broad-phase spatial index, then applies an
+exact squared-distance test as the narrow phase. The query first searches an
+axis-aligned box expanded by ``tolerance`` in each coordinate. Every candidate
+is then tested against ``dx*dx + dy*dy + dz*dz < tolerance*tolerance``; the
+first-stage box is therefore only a candidate filter, not the final matching
+criterion. A point outside the exact radius is not a match even if it lies in
+the search box.
+
+For a single grid, the standard ADT setup derives tolerance as one quarter of
+the minimum grid spacing. For multiple grids, it derives tolerance as one tenth
+of the minimum spacing and applies the existing small-value fallback when that
+result is below ``1.0e-10``. ``CreateStandardADTByTolerance`` instead uses the
+caller-provided tolerance. These are distinct policies and should not be
+unified without checking interface-node matching and midpoint-splitting call
+sites: changing tolerance changes which geometric points are considered the
+same point.
+
+The bounding-box overload of ``PointLocator::Initialize`` only reads its input
+bounds and copies them before expansion. Its inputs and the corresponding
+``CreateStandardADT`` overload now use ``const RealField &`` to express that
+contract; ``ShiftMinMaxBox`` remains mutable because it expands the copied
+bounds in place.
+
 Const-correct access and pointer ownership
 ------------------------------------------
 
