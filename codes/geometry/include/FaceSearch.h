@@ -59,6 +59,15 @@ private:
 
 class IFaceLink;
 
+// Resolve candidate node rings to already registered global face IDs.
+// Missing candidates are skipped; outputs are replaced only after resolution
+// completes, and candidateIndices preserves each match's original position.
+void ResolveRegisteredChildFaces(
+    const FaceSearchBasic & faceSearch,
+    const LinkField & candidateFaces,
+    IntField & childFaceIds,
+    std::vector< int > & candidateIndices );
+
 // Tables produced when interface faces are split (e.g. quad->tri).
 // Separate from FaceSearchBasic (unique face registry).
 struct InterfaceFaceSplitTable
