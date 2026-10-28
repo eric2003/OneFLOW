@@ -480,6 +480,6 @@ single-grid and multi-grid tolerance policies remain unchanged.
 This is an algorithm-contract fix, not a general redesign of the locator. It illustrates
 why a spatial index has two correctness conditions: its candidate structure must not omit
 any point that can pass the exact predicate, and the exact predicate must preserve the
-intended tolerance semantics. The remaining verification gap is a focused grid-backed
-test of ``InitializeSpecial`` with a tolerance larger than the derived default; the current
-explicit-bounds tests do not exercise that overload directly.
+intended tolerance semantics. The registered ``SpecialToleranceExpandsAdtBounds`` lifecycle test exercises this
+contract with a synthetic grid: it inserts a point outside the raw grid bounds but inside
+the explicitly expanded ADT bounds, then verifies that a nearby query finds it.
