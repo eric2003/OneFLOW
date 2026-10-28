@@ -123,15 +123,42 @@ class GeometryContractDialog(QDialog):
         self.result_view.setPlaceholderText("Actual result, comparison, and notes")
         result_layout.addWidget(self.result_view)
         self.tabs.addTab(result_tab, "Result")
+
+        inventory_tab = QWidget()
+        inventory_layout = QVBoxLayout(inventory_tab)
+        inventory_layout.addWidget(QLabel(
+            "Discovered tests from C++ GoogleTest macros and Python unittest methods. "
+            "Input/expected are populated only when a scenario explicitly links a test; "
+            "result remains empty until an execution backend records it."
+        ))
+        self.inventory_view = QPlainTextEdit()
+        self.inventory_view.setReadOnly(True)
+        self.inventory_view.setPlaceholderText("Repository test inventory")
+        inventory_layout.addWidget(self.inventory_view)
+        self.tabs.addTab(inventory_tab, "Repository Test Inventory")
+
         editor_layout.addWidget(self.tabs)
         splitter.addWidget(editor_panel)
         splitter.setStretchFactor(0, 1)
         splitter.setStretchFactor(1, 4)
         root.addWidget(splitter, stretch=1)
 
+        self._reload_test_inventory()
         self._reload_scenarios()
         if self.scenario_list.count():
             self.scenario_list.setCurrentRow(0)
+
+    def _reload_test_inventory(self) -> None:
+        from tools.oneflow_gui.test_inventory import discover_tests
+
+        records = discover_tests(self._repository_root)
+        summary = {
+            "schemaVersion": 1,
+            "discovery": "repository source scan; no tests executed",
+            "count": len(records),
+            "tests": records,
+        }
+        self.inventory_view.setPlainText(json.dumps(summary, indent=2))
 
     def _reload_scenarios(self) -> None:
         from geometry_workbench.scenarios import list_scenario_paths
