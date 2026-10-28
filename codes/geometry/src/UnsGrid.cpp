@@ -635,13 +635,13 @@ void UnsGrid::UpdateOtherTopologyTerm( IFaceLink & iFaceLink )
 {
     if ( ! IsValid( this->interFace.get() ) ) return;
 
-    if ( this->id < 0 || static_cast< HXSize_t >( this->id ) >= iFaceLink.l2g.size() )
+    if ( this->id < 0 || static_cast< HXSize_t >( this->id ) >= iFaceLink.GetLocalToGlobalMap().size() )
     {
         throw std::out_of_range(
             "UnsGrid::UpdateOtherTopologyTerm: zone ID is out of range for interface mapping" );
     }
 
-    const HXSize_t mappedInterfaceCount = iFaceLink.l2g[ this->id ].size();
+    const HXSize_t mappedInterfaceCount = iFaceLink.GetL2gForZone( this->id ).size();
     if ( mappedInterfaceCount > static_cast< HXSize_t >( std::numeric_limits< int >::max() ) )
     {
         throw std::length_error(

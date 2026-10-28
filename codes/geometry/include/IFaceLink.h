@@ -110,6 +110,12 @@ public:
     [[nodiscard]] IntField & MutableL2gNewForZone( int zoneId );
     [[nodiscard]] IntField & MutableNChildForZone( int zoneId );
     [[nodiscard]] const IntField & GetL2gForZone( int zoneId ) const;
+
+    // Staging inverse maps (*New). Prefer these over raw gI2ZidNew / g2lNew.
+    [[nodiscard]] LinkField & MutableGlobalToZoneIdsNew() { return gI2ZidNew; }
+    [[nodiscard]] LinkField & MutableGlobalToLocalIdsNew() { return g2lNew; }
+    [[nodiscard]] const LinkField & GetGlobalToZoneIdsNew() const { return gI2ZidNew; }
+    [[nodiscard]] const LinkField & GetGlobalToLocalIdsNew() const { return g2lNew; }
 };
 
 void GetFaceCoorList( const IntField & faceNode, RealField & xList, RealField & yList, RealField & zList, const NodeMesh & nodeMesh );

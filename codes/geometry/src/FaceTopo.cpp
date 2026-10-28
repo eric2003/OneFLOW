@@ -331,7 +331,7 @@ void FaceTopo::SetNewFace2Node( IFaceLink & iFaceLink )
     CollectBoundaryInterfaceChildFaceIds(
         bcType,
         nBFaces,
-        iFaceLink.l2g,
+        iFaceLink.GetLocalToGlobalMap(),
         iFaceLink.face_search->interfaceSplit,
         this->GetGrid().id,
         childGlobalIdsPerInterfaceLocal );
@@ -346,7 +346,7 @@ void FaceTopo::SetNewFace2Node( IFaceLink & iFaceLink )
     CollectBoundaryInterfaceChildNodeMappings(
         bcType,
         nBFaces,
-        iFaceLink.l2g,
+        iFaceLink.GetLocalToGlobalMap(),
         iFaceLink.face_search->interfaceSplit,
         this->GetGrid().id,
         childNodeIdsPerInterfaceLocal,
@@ -375,7 +375,7 @@ void FaceTopo::SetNewFace2Cell( IFaceLink & iFaceLink )
     CollectBoundaryInterfaceChildCounts(
         bcType,
         nBFaces,
-        iFaceLink.l2g,
+        iFaceLink.GetLocalToGlobalMap(),
         iFaceLink.face_search->interfaceSplit,
         this->GetGrid().id,
         childCountPerInterfaceLocal );
@@ -407,7 +407,7 @@ void FaceTopo::ModifyBoundaryInformation( IFaceLink & iFaceLink )
     for ( int iFid = 0; iFid < nIFaces; ++ iFid )
     {
         childGlobalIdsPerParent[ iFid ] = GetInterfaceChildFaceIds(
-            iFaceLink.l2g,
+            iFaceLink.GetLocalToGlobalMap(),
             iFaceLink.face_search->interfaceSplit,
             zoneId,
             iFid );
@@ -435,7 +435,7 @@ void FaceTopo::ResetNumberOfBoundaryCondition( IFaceLink & iFaceLink )
     CollectBoundaryInterfaceChildCounts(
         bcType,
         nBFaces,
-        iFaceLink.l2g,
+        iFaceLink.GetLocalToGlobalMap(),
         iFaceLink.face_search->interfaceSplit,
         this->GetGrid().id,
         childCountPerInterfaceLocal );
@@ -457,8 +457,8 @@ void FaceTopo::ConstructNewInterfaceMap( IFaceLink & iFaceLink )
     BuildInverseInterfaceMapForZone(
         zoneId,
         iFaceLink.MutableL2gNewForZone( zoneId ),
-        iFaceLink.gI2ZidNew,
-        iFaceLink.g2lNew );
+        iFaceLink.MutableGlobalToZoneIdsNew(),
+        iFaceLink.MutableGlobalToLocalIdsNew() );
 }
 
 void FaceTopo::UpdateOtherTopologyTerm()

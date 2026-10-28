@@ -32,3 +32,17 @@ TEST( IFaceLinkMapAccessorsTest, AccessorsSeeManualTableEdits )
     EXPECT_EQ( link.GetGlobalToZoneIds()[ 0 ], ( IntField{ 0 } ) );
     EXPECT_EQ( link.GetGlobalToLocalIds()[ 0 ], ( IntField{ 0 } ) );
 }
+
+
+TEST( IFaceLinkMapAccessorsTest, NewInverseMapAccessorsAliasFields )
+{
+    Grids grids;
+    IFaceLink link( grids );
+    link.gI2ZidNew.push_back( IntField{ 1 } );
+    link.g2lNew.push_back( IntField{ 2 } );
+
+    EXPECT_EQ( &link.MutableGlobalToZoneIdsNew(), &link.gI2ZidNew );
+    EXPECT_EQ( &link.MutableGlobalToLocalIdsNew(), &link.g2lNew );
+    EXPECT_EQ( link.GetGlobalToZoneIdsNew()[ 0 ], ( IntField{ 1 } ) );
+    EXPECT_EQ( link.GetGlobalToLocalIdsNew()[ 0 ], ( IntField{ 2 } ) );
+}

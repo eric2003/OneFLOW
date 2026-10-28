@@ -731,11 +731,12 @@ location cannot be bypassed. Use ``CreateLink``, ``GetPointLocator``, and
 ``EnsurePointLocatorReady``.
 
 Split rebuild zone rows go through ``EnsureSplitBookkeepingMatchesZones``,
-``GetL2gForZone``, ``MutableL2gNewForZone``, and ``MutableNChildForZone`` so
-``FaceTopo::ModifyBoundaryInformation`` does not hand-resize ``nChild`` or
-index ``l2gNew`` without bounds checks. The dual-map *fields* remain public
-for remaining ``FaceSearch`` / bulk table writers; the goal is to migrate
-call sites onto these entry points, then narrow visibility.
+``GetL2gForZone``, ``MutableL2gNewForZone``, and ``MutableNChildForZone``.
+Staging inverse maps use ``MutableGlobalToZoneIdsNew`` /
+``MutableGlobalToLocalIdsNew``. ``FaceTopo`` and ``UnsGrid`` read live
+``l2g`` through ``GetLocalToGlobalMap`` / ``GetL2gForZone`` rather than
+fields. Fields remain public until the last bulk writer migrates; the
+direction is clear: accessors first, then visibility.
 
 Read-only observers should prefer ``GetLocalToGlobalMap``,
 ``GetGlobalToZoneIds``, and ``GetGlobalToLocalIds``.
@@ -908,11 +909,10 @@ Open design pressures
 
 These remain harder to unit-test and mark follow-up work:
 
-#. ``IFaceLink`` dual maps remain public for some bulk writers; split
-   bookkeeping for the active zone now goes through
-   ``EnsureSplitBookkeepingMatchesZones`` / ``Mutable*ForZone``. Next: migrate
-   ``FaceSearch`` and remaining raw ``l2gNew`` writes, then narrow field
-   visibility.
+#. ``IFaceLink`` dual-map *fields* remain public, but geometry call sites
+   (``FaceTopo``, ``UnsGrid``) use accessors for live ``l2g`` and ``*New``
+   inverse maps. Next: migrate any remaining writers, then make fields
+   private.
 #. Line mid-point split needs a ready ``PointLocator`` and ``nodeMesh``.
    ``point_search`` is private (``GetPointLocator`` /
    ``EnsurePointLocatorReady``). Zone policy is
