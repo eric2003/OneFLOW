@@ -54,7 +54,7 @@ protected:
     Real tolerance;
     RealField xCoor, yCoor, zCoor;
 public:
-    void Initialize( RealField & pmin, RealField & pmax, Real toleranceIn );
+    void Initialize( const RealField & pmin, const RealField & pmax, Real toleranceIn );
     void Initialize( Grid * grid );
     void InitializeSpecial( Grid * grid, Real toleranceIn );
     void Initialize( Grids & grids );
@@ -74,7 +74,7 @@ public:
     void GetFaceCoorList( const IntField & nodeId, RealField &xList, RealField &yList, RealField &zList );
 };
 
-void CreateStandardADT( RealField & ptmin, RealField & ptmax, std::unique_ptr<AdtTree>& adtTree, Real & tolerance );
+void CreateStandardADT( const RealField & ptmin, const RealField & ptmax, std::unique_ptr<AdtTree>& adtTree, Real & tolerance );
 void CreateStandardADT( Grid * grid, std::unique_ptr<AdtTree>& adtTree, Real & tolerance );
 void CreateStandardADT( Grids & grids, std::unique_ptr<AdtTree>& adtTree, Real & tolerance );
 void CreateStandardADT( const GridViews & grids, std::unique_ptr<AdtTree>& adtTree, Real & tolerance );
