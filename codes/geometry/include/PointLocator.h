@@ -72,7 +72,7 @@ public:
     /// Initialize from one grid; tolerance is derived from its minimum spacing.
     void Initialize( Grid * grid );
 
-    /// Initialize from one grid, then override the derived tolerance.
+    /// Initialize from one grid using toleranceIn for both search and ADT bounds.
     void InitializeSpecial( Grid * grid, Real toleranceIn );
 
     /// Initialize from owned grid handles using the standard multi-grid policy.
