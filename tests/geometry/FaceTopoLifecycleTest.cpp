@@ -452,8 +452,10 @@ TEST(FaceTopoLifecycleTest, GetInterfaceChildFaceIds_RejectsMissingLocalMapping)
         std::out_of_range);
 }
 
-TEST(FaceTopoLifecycleTest, GetInterfaceChildFaceIds_RejectsMismatchedChildNodeTables)
+TEST(FaceTopoLifecycleTest, GetInterfaceChildFaceIdsDoesNotValidateLegacyNodeMappings)
 {
+    // Intent: identity lookup must not validate node mapping rows. The mapping
+    // collector validates those rows when it selects and consumes them.
     MinimalZoneFixture fixture;
     ONEFLOW::IFaceLink iFaceLink(fixture.grids);
     iFaceLink.l2g[0].push_back(0);
@@ -462,11 +464,11 @@ TEST(FaceTopoLifecycleTest, GetInterfaceChildFaceIds_RejectsMismatchedChildNodeT
     iFaceLink.face_search->interfaceSplit.childFaceNodeIds.resize(1);
     iFaceLink.face_search->interfaceSplit.childFaceNodeFlags.resize(1);
     iFaceLink.face_search->interfaceSplit.childFaceNodeIds[0] = ONEFLOW::IntField{0, 1};
-    iFaceLink.face_search->interfaceSplit.childFaceNodeFlags[0] = ONEFLOW::IntField{1}; // size mismatch
+    iFaceLink.face_search->interfaceSplit.childFaceNodeFlags[0] = ONEFLOW::IntField{1};
 
-    EXPECT_THROW(
-        ONEFLOW::GetInterfaceChildFaceIds(iFaceLink, 0, 0),
-        std::logic_error);
+    const ONEFLOW::IntField & children =
+        ONEFLOW::GetInterfaceChildFaceIds(iFaceLink, 0, 0);
+    EXPECT_EQ(children, (ONEFLOW::IntField{0}));
 }
 
 TEST(FaceTopoLifecycleTest, InterfaceChildWithAbsoluteNodeIdsNeedsNodeMesh)
