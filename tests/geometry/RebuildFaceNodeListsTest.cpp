@@ -113,8 +113,8 @@ TEST( RebuildFaceNodeListsTest, SplitProducerCollectorAndRebuildPreserveSharedCh
     // Two parent rings share one global child, but need different local corner rows.
     FaceSearch search;
     const int firstParent = search.AddFace( IntField{ 100, 101, 102, 103 } );
-    const int secondParent = search.AddFace( IntField{ 101, 102, 103, 100 } );
-    const int sharedChild = search.AddFace( IntField{ 100, 101, 102 } );
+    const int secondParent = search.AddFace( IntField{ 101, 102, 103, 104 } );
+    const int sharedChild = search.AddFace( IntField{ 101, 102, 103 } );
     search.interfaceSplit.ResetForFaceCount( search.Size() );
 
     search.SplitQuad2Tri( firstParent );
@@ -128,10 +128,10 @@ TEST( RebuildFaceNodeListsTest, SplitProducerCollectorAndRebuildPreserveSharedCh
         ( IntField{ sharedChild } ) );
     ASSERT_EQ(
         search.interfaceSplit.childFaceNodeIdsByParent[ firstParent ][ 0 ],
-        ( IntField{ 0, 1, 2 } ) );
+        ( IntField{ 1, 2, 3 } ) );
     ASSERT_EQ(
         search.interfaceSplit.childFaceNodeIdsByParent[ secondParent ][ 0 ],
-        ( IntField{ 3, 0, 1 } ) );
+        ( IntField{ 0, 1, 2 } ) );
 
     LinkField zoneToLocalToGlobal{
         IntField{ firstParent },
@@ -160,12 +160,12 @@ TEST( RebuildFaceNodeListsTest, SplitProducerCollectorAndRebuildPreserveSharedCh
         LinkField{ IntField{ 100, 101, 102, 103 } }, interfaceBc, 1, 1,
         firstChildIds, firstNodeIds, firstNodeFlags, false, 0, firstOut );
     RebuildFaceNodeListsAfterInterfaceSplit(
-        LinkField{ IntField{ 101, 102, 103, 100 } }, interfaceBc, 1, 1,
+        LinkField{ IntField{ 101, 102, 103, 104 } }, interfaceBc, 1, 1,
         secondChildIds, secondNodeIds, secondNodeFlags, false, 0, secondOut );
 
     ASSERT_EQ( firstOut.size(), static_cast< std::size_t >( 1 ) );
     ASSERT_EQ( secondOut.size(), static_cast< std::size_t >( 1 ) );
-    EXPECT_EQ( firstOut[ 0 ], ( IntField{ 100, 101, 102 } ) );
-    EXPECT_EQ( secondOut[ 0 ], ( IntField{ 100, 101, 102 } ) );
+    EXPECT_EQ( firstOut[ 0 ], ( IntField{ 101, 102, 103 } ) );
+    EXPECT_EQ( secondOut[ 0 ], ( IntField{ 101, 102, 103 } ) );
 }
 
