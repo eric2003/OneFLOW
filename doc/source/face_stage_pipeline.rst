@@ -520,6 +520,17 @@ registered child is enough to proceed, while no registered children means no
 local midpoint insertion. Tests make this policy explicit so a later change to
 require both children would be a deliberate behavior change.
 
+The ``registered_child_partial_match`` workbench scenario mirrors
+``FaceSearchBasicTest.RegisteredChildResolutionPreservesCandidateIndexForPartialMatch``.
+Its input makes the distinction visible: candidate 0 is missing, candidate 1
+resolves to global child face 0, and the returned candidate index must remain 1.
+The test also starts with pre-populated output buffers to prove that successful
+resolution replaces prior results. The current GUI scenario backend is still
+fixture-backed; only the C++ GoogleTest executes the production resolver. This
+separation is intentional: a UI PASS must not be mistaken for algorithm
+validation. The next integration boundary is a native test adapter that accepts
+scenario inputs and reports the actual C++ result.
+
 The algorithm then resolves the midpoint in two index spaces:
 
 #. ``PointLocator::FindPoint`` returns the existing **global search** midpoint ID.
