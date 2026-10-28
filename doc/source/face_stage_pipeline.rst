@@ -513,9 +513,12 @@ rather than once for the preflight and again for publication. Duplicate child
 identities are rejected by the shared resolver before any zone-local mutation.
 ``ResolveRegisteredChildFaces`` is now an explicit topology-resolution step
 that can be tested without ``IFaceLink`` or a real grid. It skips candidate
-edges absent from the registry, returns each registered child with its original
-candidate position, and replaces both output buffers only after successful
-resolution. The current policy intentionally permits a partial match: one
+edges absent from the registry and returns records that keep each global child
+face ID paired with its original candidate position. A single record prevents
+the caller from accidentally combining one child's ID with another candidate's
+local mapping by indexing two independent output arrays. Returning the records
+by value also makes the result all-or-nothing if duplicate identities are
+detected. The current policy intentionally permits a partial match: one
 registered child is enough to proceed, while no registered children means no
 local midpoint insertion. Tests make this policy explicit so a later change to
 require both children would be a deliberate behavior change.
@@ -524,12 +527,11 @@ The ``registered_child_partial_match`` workbench scenario mirrors
 ``FaceSearchBasicTest.RegisteredChildResolutionPreservesCandidateIndexForPartialMatch``.
 Its input makes the distinction visible: candidate 0 is missing, candidate 1
 resolves to global child face 0, and the returned candidate index must remain 1.
-The test also starts with pre-populated output buffers to prove that successful
-resolution replaces prior results. The current GUI scenario backend is still
-fixture-backed; only the C++ GoogleTest executes the production resolver. This
-separation is intentional: a UI PASS must not be mistaken for algorithm
-validation. The next integration boundary is a native test adapter that accepts
-scenario inputs and reports the actual C++ result.
+The current GUI scenario backend is still fixture-backed; only the C++ GoogleTest
+executes the production resolver. This separation is intentional: a UI PASS
+must not be mistaken for algorithm validation. The next integration boundary
+is a native test adapter that accepts scenario inputs and reports the actual
+C++ result.
 
 The algorithm then resolves the midpoint in two index spaces:
 
@@ -558,9 +560,9 @@ the global child-edge direction while leaving the local index pattern and
 flags unchanged.
 
 The distinction matters because global face identity is order-independent, but
-the stored face ring and local endpoint metadata are directional. The helper
-replaces its output buffers, so reusing a buffer cannot retain child edges from
-an earlier split.
+the stored face ring and local endpoint metadata are directional.
+``BuildGlobalLineSplitCandidates`` replaces its output candidate list on each
+call, so a reused list cannot retain child edges from an earlier split.
 
 **Tests:** ``FaceSearchBasicTest.GlobalLineCandidatesPreserveEdgeDirection``,
 ``FaceSearchBasicTest.GlobalLineCandidatesPreserveReversedEdgeDirection``,
