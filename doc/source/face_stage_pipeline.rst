@@ -47,8 +47,10 @@ wishlist for the whole solver.
      - Register / Init / Commit pure helpers;
        zone bookkeeping accessors;
        ``EnsureInterfaceZoneCount``;
-       dual-map fields private
-     - Multi-zone split e2e fixture density
+       dual-map fields private;
+       multi-zone split e2e composition
+     - Orphan parent global rows after split
+       (legacy InitNew copy semantics)
    * - IFaceLink services
      - ``faceLookup``, ``point_search``,
        ``face_search`` private + accessors;
@@ -58,8 +60,11 @@ wishlist for the whole solver.
        for non-injected paths
    * - Child mapping after split
      - Parent-specific ``ByParent`` tables;
-       two-parent shared-child test
-     - Full multi-zone split e2e without grids
+       two-parent shared-child test;
+       multi-zone split e2e (pure helpers,
+       no CGNS): ``MultiZoneInterfaceSplitE2ETest``
+     - Production path still ties split tables
+       to FaceSearch + nodeMesh mid-points
 
 **Rule of thumb:** if a change only renames a pure predicate already covered
 by tests, skip it. Prefer closing an open row in this table.
@@ -848,6 +853,63 @@ tables. ``RebuildFaceNodeListsAfterInterfaceSplit`` applies
 
 **Tests:** ``TwoParentSharedChildMappingTest``,
 ``FaceSearchBasicTest`` (duplicate / conflict guards).
+
+Multi-zone interface split (composed scenario)
+---------------------------------------------
+
+Isolated helpers already lock one zone or one table. The composed scenario
+``MultiZoneInterfaceSplitE2ETest`` states the dual-map contract when **both**
+zones rebuild after one shared parent face splits:
+
+#. Seed two zones / two shared global faces via ``RegisterLocalInterfaceFace``.
+#. ``InitNewLgMapping`` copies inverse maps and clears per-zone ``l2gNew`` rows.
+#. ``RebuildZoneL2gNewAfterInterfaceSplit`` expands each zone's local list
+   (parent 0 -> children 2,3; parent 1 kept).
+#. ``BuildInverseInterfaceMapForZone`` for zone 0 then 1 refreshes or appends
+   participant slots (legacy capacity: at most two zones per global face).
+#. ``ExpandBcRecordForSplitInterfaces`` duplicates BC slots by child counts.
+#. ``UpdateLgMapping`` commits ``*New`` tables after validation.
+
+**Algorithm note (orphan parents):** ``InitNewInterfaceMappingBuffers`` copies
+the live inverse maps. Rebuild only touches globals present in ``l2gNew``.
+A fully replaced parent global id therefore remains as a row that no ``l2g``
+entry references. That is legacy behavior; do not "fix" it inside an
+unrelated PR without a dedicated migration and tests.
+
+**Why compose tests at all?** Pure unit tests answer "does this function
+obey its contract?". A thin multi-zone composition answers "do the contracts
+still line up when the production order is followed?". That is the cheapest
+e2e that still avoids CGNS and full meshes.
+
+
+Tests as an exploration surface (design note)
+---------------------------------------------
+
+GoogleTest already *runs* assertions. A different question is whether the same
+pure helpers can become an **interactive** surface during development:
+
+* Pick a helper (for example ``RebuildZoneL2gNewAfterInterfaceSplit``).
+* Edit inputs (parent ids, child lists) in a small GUI or notebook.
+* Call the **same** C++ function the unit test calls.
+* Show outputs next to the expected pattern from a golden case.
+
+That is not a replacement for CI tests. It is a **workbench** that reuses the
+testable boundary we already carved out. The local refactor matters here:
+public data bags cannot be driven safely from a UI; named pure functions and
+injectable ports can. Face/interface geometry is a good first target because
+inputs are discrete tables, not full solver state.
+
+A practical path, when someone builds it:
+
+#. Keep algorithms in ``codes/geometry`` with pure helpers (done direction).
+#. Keep deterministic scenarios in ``tests/geometry`` as executable specs.
+#. Optionally add a thin host (Qt panel, Python bindings, or a small CLI)
+   that links the same objects and prints table diffs — never a second
+   implementation of the algorithm.
+
+Until that host exists, the composition tests *are* the readable scenarios.
+Prefer adding one composed test over inventing a parallel playground API.
+
 
 Open design pressures
 ---------------------
