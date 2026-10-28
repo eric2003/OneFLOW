@@ -10,8 +10,9 @@ The first step is read-only discovery in tools/oneflow_gui/test_inventory.py:
 
 * C++ tests are discovered from GoogleTest TEST, TEST_F and TEST_P declarations
   under tests.
-* Python unittest methods are discovered from test_*.py files in the
-  Workbench and GUI packages.
+* Python unittest methods are discovered from test_*.py files under tools.
+* The Workbench inventory filters frameworks independently; GoogleTest and
+  unittest are not presented as one undifferentiated test type.
 * Each record includes a stable ID, framework, suite, name, source location,
   discovery method, execution hint, and separate input, expected and result
   fields.
@@ -20,9 +21,11 @@ The first step is read-only discovery in tools/oneflow_gui/test_inventory.py:
   An integration test can link to the scenario without incorrectly inheriting
   the helper's input and expected data.
 
-The inventory is a source index, not an execution engine. Listing a test does
-not mean it has run. The result field stays empty until an execution backend
-records an actual run.
+The inventory is a source index, not an execution engine. It is opened as a
+separate repository-level view, not as a sibling tab of a scenario's Result.
+Listing a test does not mean it has run. The result field stays empty until an
+execution backend records an actual run. The geometry scenario fixture backend
+may compare fixed fixture output, but it must not populate a C++ test's result.
 
 Contract model
 --------------
