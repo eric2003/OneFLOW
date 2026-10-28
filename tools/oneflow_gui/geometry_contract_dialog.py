@@ -237,7 +237,8 @@ class GeometryContractDialog(QDialog):
         orphans = actual.get("orphanParentGlobalIds") or []
         self._last_actual = actual
         self._last_orphans = list(orphans)
-        self.export_button.setEnabled(True)
+        has_topology_map = any(key in actual for key in ("l2g", "gI2Zid", "g2l"))
+        self.export_button.setEnabled(has_topology_map)
 
         lines = [
             f"scenario: {scenario.get('id', '')}",
@@ -251,13 +252,25 @@ class GeometryContractDialog(QDialog):
         lines.extend([
             "backend: fixture (does not execute the production C++ test)",
             "RESULT: PASS" if not mismatches else "RESULT: FAIL",
-            "Compared mock output against the editable expected tables.",
-            "Input JSON was parsed; this fixture backend does not recompute output from input.",
+            (
+                "Compared computed scenario output against the editable expected tables."
+                if scenario.get("id") == "registered_child_resolution"
+                else "Compared fixture output against the editable expected tables."
+            ),
+            (
+                "The Python contract runner computed output from input; it does not execute production C++."
+                if scenario.get("id") == "registered_child_resolution"
+                else "Input JSON was parsed; this fixture backend does not recompute output from input."
+            ),
         ])
         for line in mismatches:
             lines.append(f"  - {line}")
         lines.append("")
-        lines.append(render_ascii(actual, orphan_ids=orphans))
+        if "l2g" in actual or "gI2Zid" in actual or "g2l" in actual:
+            lines.append(render_ascii(actual, orphan_ids=orphans))
+        else:
+            lines.append("Computed result tables:")
+            lines.append(json.dumps(actual, indent=2, ensure_ascii=True))
         notes = scenario.get("notes") or []
         if notes:
             lines.append("")
