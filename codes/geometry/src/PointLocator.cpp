@@ -108,7 +108,7 @@ int PointLocator::FindPoint( Real xm, Real ym, Real zm )
     return this->FindPoint( coor );
 }
 
-int PointLocator::FindPoint( RealField & coordinate )
+int PointLocator::FindPoint( const RealField & coordinate )
 {
     AdtTree::AdtNodeList nodeList;
 
@@ -155,7 +155,7 @@ int PointLocator::FindPoint( RealField & coordinate )
     return this->id; // Returns INVALID_INDEX if no point is within exact tolerance
 }
 
-int PointLocator::AddPoint( RealField & coor )
+int PointLocator::AddPoint( const RealField & coor )
 {
     // Reuse FindPoint logic to check for existing points within tolerance
     int existingId = this->FindPoint( coor );
