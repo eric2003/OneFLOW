@@ -204,23 +204,33 @@ void FaceSearch::SplitQuad2Tri( int faceId )
     LinkField triId;
     MapLocalTrisToGlobalNodes( nodeId, localTriId, triId );
 
-    for ( int iTri = 0; iTri < triId.size(); ++ iTri )
+    // Resolve and validate all registered children before publishing this parent mapping.
+    IntField childFaceIds;
+    std::vector< int > childCandidateIndices;
+    for ( int iTri = 0; iTri < static_cast< int >( triId.size() ); ++ iTri )
     {
-        IntField & tri = triId[ iTri ];
-        int fId = this->FindFace( tri );
-        if ( fId != ONEFLOW::INVALID_INDEX )
+        const int childFaceId = this->FindFace( triId[ iTri ] );
+        if ( childFaceId == ONEFLOW::INVALID_INDEX ) continue;
+
+        if ( std::find( childFaceIds.begin(), childFaceIds.end(), childFaceId ) !=
+             childFaceIds.end() )
         {
-            IntField & childFaceIds = this->interfaceSplit.childFaceIdsOfParent[ faceId ];
-            if ( std::find( childFaceIds.begin(), childFaceIds.end(), fId ) !=
-                 childFaceIds.end() )
-            {
-                throw std::logic_error(
-                    "FaceSearch::SplitQuad2Tri: duplicate child face for parent" );
-            }
-            childFaceIds.push_back( fId );
-            this->interfaceSplit.SetChildMapping(
-                faceId, fId, localTriId[ iTri ], localTriFlag[ iTri ] );
+            throw std::logic_error(
+                "FaceSearch::SplitQuad2Tri: duplicate child face for parent" );
         }
+
+        childFaceIds.push_back( childFaceId );
+        childCandidateIndices.push_back( iTri );
+    }
+
+    IntField & registeredChildFaceIds = this->interfaceSplit.childFaceIdsOfParent[ faceId ];
+    for ( std::size_t iChild = 0; iChild < childFaceIds.size(); ++ iChild )
+    {
+        const int childFaceId = childFaceIds[ iChild ];
+        const int candidateIndex = childCandidateIndices[ iChild ];
+        registeredChildFaceIds.push_back( childFaceId );
+        this->interfaceSplit.SetChildMapping(
+            faceId, childFaceId, localTriId[ candidateIndex ], localTriFlag[ candidateIndex ] );
     }
 }
 
@@ -241,24 +251,35 @@ void FaceSearch::SplitLine( IFaceLink & iFaceLink, int globalFaceId )
         return;
     }
 
-    for ( int iLi = 0; iLi < static_cast< int >( lineId.size() ); ++ iLi )
+    // Validate candidate identity before changing the parent child list.
+    IntField childFaceIds;
+    std::vector< int > childCandidateIndices;
+    for ( int iLine = 0; iLine < static_cast< int >( lineId.size() ); ++ iLine )
     {
-        IntField & lId = lineId[ iLi ];
-        int fId = this->FindFace( lId );
-        if ( fId != ONEFLOW::INVALID_INDEX )
+        const int childFaceId = this->FindFace( lineId[ iLine ] );
+        if ( childFaceId == ONEFLOW::INVALID_INDEX ) continue;
+
+        if ( std::find( childFaceIds.begin(), childFaceIds.end(), childFaceId ) !=
+             childFaceIds.end() )
         {
-            IntField & childFaceIds =
-                this->interfaceSplit.childFaceIdsOfParent[ globalFaceId ];
-            if ( std::find( childFaceIds.begin(), childFaceIds.end(), fId ) !=
-                 childFaceIds.end() )
-            {
-                throw std::logic_error(
-                    "FaceSearch::SplitLine: duplicate child face for parent" );
-            }
-            childFaceIds.push_back( fId );
-            this->interfaceSplit.SetChildMapping(
-                globalFaceId, fId, localLineId[ iLi ], localLineFlag[ iLi ] );
+            throw std::logic_error(
+                "FaceSearch::SplitLine: duplicate child face for parent" );
         }
+
+        childFaceIds.push_back( childFaceId );
+        childCandidateIndices.push_back( iLine );
+    }
+
+    IntField & registeredChildFaceIds =
+        this->interfaceSplit.childFaceIdsOfParent[ globalFaceId ];
+    for ( std::size_t iChild = 0; iChild < childFaceIds.size(); ++ iChild )
+    {
+        const int childFaceId = childFaceIds[ iChild ];
+        const int candidateIndex = childCandidateIndices[ iChild ];
+        registeredChildFaceIds.push_back( childFaceId );
+        this->interfaceSplit.SetChildMapping(
+            globalFaceId, childFaceId,
+            localLineId[ candidateIndex ], localLineFlag[ candidateIndex ] );
     }
 }
 
