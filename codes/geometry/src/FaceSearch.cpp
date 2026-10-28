@@ -210,7 +210,14 @@ void FaceSearch::SplitQuad2Tri( int faceId )
         int fId = this->FindFace( tri );
         if ( fId != ONEFLOW::INVALID_INDEX )
         {
-            this->interfaceSplit.childFaceIdsOfParent[ faceId ].push_back( fId );
+            IntField & childFaceIds = this->interfaceSplit.childFaceIdsOfParent[ faceId ];
+            if ( std::find( childFaceIds.begin(), childFaceIds.end(), fId ) !=
+                 childFaceIds.end() )
+            {
+                throw std::logic_error(
+                    "FaceSearch::SplitQuad2Tri: duplicate child face for parent" );
+            }
+            childFaceIds.push_back( fId );
             this->interfaceSplit.SetChildMapping(
                 faceId, fId, localTriId[ iTri ], localTriFlag[ iTri ] );
         }
@@ -240,7 +247,15 @@ void FaceSearch::SplitLine( IFaceLink & iFaceLink, int globalFaceId )
         int fId = this->FindFace( lId );
         if ( fId != ONEFLOW::INVALID_INDEX )
         {
-            this->interfaceSplit.childFaceIdsOfParent[ globalFaceId ].push_back( fId );
+            IntField & childFaceIds =
+                this->interfaceSplit.childFaceIdsOfParent[ globalFaceId ];
+            if ( std::find( childFaceIds.begin(), childFaceIds.end(), fId ) !=
+                 childFaceIds.end() )
+            {
+                throw std::logic_error(
+                    "FaceSearch::SplitLine: duplicate child face for parent" );
+            }
+            childFaceIds.push_back( fId );
             this->interfaceSplit.SetChildMapping(
                 globalFaceId, fId, localLineId[ iLi ], localLineFlag[ iLi ] );
         }
