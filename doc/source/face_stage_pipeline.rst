@@ -697,6 +697,44 @@ layout check.
 **Tests:** ``FaceTopoReorderLinkTest``,
 ``ReorderBoundaryFirstAndValidateTest``.
 
+
+IFaceLink dual-map boundary
+---------------------------
+
+``IFaceLink`` holds the multi-zone interface relation in two directions
+(``l2g`` and ``gI2Zid`` / ``g2l``). That is intentional: registration,
+partner match, and split rebuild all need both views.
+
+The local refactor does **not** pretend these tables are gone. It draws a
+boundary around *how* they change:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 40 60
+
+   * - Operation
+     - Allowed path
+   * - Register a local face on a global id
+     - ``CreateLink`` -> ``RegisterLocalInterfaceFace``
+   * - Stage / commit after interface split
+     - ``InitNewInterfaceMappingBuffers`` /
+       zone rebuild helpers /
+       ``CommitInterfaceMappingBuffers``
+   * - Find remote partner / count missing
+     - ``FindRemoteInterfacePartner`` /
+       ``CountInterfaceFacesMissingPartner``
+   * - Geometry identity for interface nodes
+     - private ``faceLookup`` inside ``CreateLink`` only
+
+``faceLookup`` is private: interface geometry identity must not be updated
+without also updating the dual maps. The dual-map fields remain public while
+``FaceTopo`` / ``FaceSearch`` still write ``l2gNew`` and ``nChild`` during
+split rebuild; closing that is the next encapsulation step, not more pure
+predicates on already-extracted rules.
+
+Read-only observers should prefer ``GetLocalToGlobalMap``,
+``GetGlobalToZoneIds``, and ``GetGlobalToLocalIds``.
+
 Open design pressures
 ---------------------
 
@@ -821,9 +859,9 @@ Open design pressures
 
 These remain harder to unit-test and mark follow-up work:
 
-#. ``IFaceLink`` still exposes large public tables (``l2g``, ``gI2Zid``, ...);
-   registration is covered by ``RegisterLocalInterfaceFace``, but mutation
-   still happens through public fields.
+#. ``IFaceLink`` dual maps remain public for split rebuild writers
+   (``FaceTopo`` / ``FaceSearch``); ``faceLookup`` is private. Next step is
+   controlled mutation of ``l2gNew`` / ``nChild`` rather than more observers.
 #. Line mid-point split still needs ``PointLocator`` and ``nodeMesh`` (geometry
    services are not yet injectable).
 #. End-to-end CGNS zone scan still requires heavyweight zone setup.

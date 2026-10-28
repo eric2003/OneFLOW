@@ -40,8 +40,6 @@ public:
     explicit IFaceLink( Grids & gridsIn );
     ~IFaceLink();
 public:
-    HXLookup<int> faceLookup;
-
     // Interface-face relation, stored in two directions:
     // l2g[zone][localFace] -> global interface-face ID.
     // gI2Zid means global Interface-face to zone IDs:
@@ -67,6 +65,9 @@ public:
 
 private:
     Grids & grids;
+    // Geometry identity for interface faces (CreateLink only). Not part of the
+    // dual-map tables; kept private so registration cannot bypass CreateLink.
+    HXLookup<int> faceLookup;
     // PointLocator ADT build needs valid nodeMesh bounding boxes. Defer until a
     // code path actually searches/adds points so topology-only clients (and
     // unit tests) can construct IFaceLink without a full mesh.
@@ -89,6 +90,12 @@ protected:
 public:
     void UpdateLgMapping();
     void InitNewLgMapping();
+
+    // Read-only views of the live dual maps. Prefer these over touching fields
+    // when only observing topology (tests and match helpers).
+    [[nodiscard]] const LinkField & GetLocalToGlobalMap() const { return l2g; }
+    [[nodiscard]] const LinkField & GetGlobalToZoneIds() const { return gI2Zid; }
+    [[nodiscard]] const LinkField & GetGlobalToLocalIds() const { return g2l; }
 };
 
 void GetFaceCoorList( const IntField & faceNode, RealField & xList, RealField & yList, RealField & zList, const NodeMesh & nodeMesh );
