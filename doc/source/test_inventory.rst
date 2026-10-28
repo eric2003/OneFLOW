@@ -58,6 +58,28 @@ guesses. Many existing unit tests express behavior through C++ setup and
 assertions rather than serializable tables. For those tests, source location
 and the assertion remain authoritative until a meaningful data adapter exists.
 
+Scenario bootstrap from GoogleTest
+-----------------------------------
+
+``tools/geometry_workbench/scenario_import.py`` provides the first write
+path from the discovered GoogleTest inventory into a scenario JSON file.
+It preserves the suite, test name, source path, and source line, and creates
+editable ``input`` and ``expected`` objects with ``result: null``.
+It refuses to overwrite an existing scenario unless the caller explicitly
+opts in. This is a provenance-preserving scaffold, not a claim that arbitrary
+C++ setup and assertions have been translated into data.
+
+The distinction matters for cases such as
+``CollectBoundaryInterfaceChildNodeMappingsTest.RejectsMissingParentRowInsteadOfUsingSharedChildGlobalRow``.
+Its C++ test constructs ``LinkField``, ``InterfaceFaceSplitTable``, calls
+the production function, and checks both an exception and unchanged output.
+The current ``parent_local_mapping_required.json`` is a manually authored
+contract derived from that test; source discovery does not generate its
+specific input arrays or expected exception. The next increment should extract
+contracts from an explicit source annotation or a small set of supported
+assertion/setup patterns, rather than guessing that all C++ expressions are
+serializable.
+
 Incremental path
 ----------------
 
