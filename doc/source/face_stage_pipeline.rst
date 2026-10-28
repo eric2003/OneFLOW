@@ -22,6 +22,118 @@ Goals
 #. Face *identity* (deduplication) stays separate from face *orientation*
    (node ring and left/right ownership).
 
+
+Why this local refactor exists
+------------------------------
+
+Architecture map (local refactor status)
+----------------------------------------
+
+This is the intentional end state of the **current** local refactor, not a
+wishlist for the whole solver.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 35 35
+
+   * - Area
+     - Closed
+     - Still open
+   * - Face discovery / stage
+     - ``StageNewFace``, Claim/Attach/Bind,
+       BC assign/export, boundary-first reorder
+     - End-to-end CGNS zone fixtures
+   * - Interface dual maps
+     - Register / Init / Commit pure helpers;
+       zone bookkeeping accessors;
+       dual-map fields private;
+       multi-zone split e2e composition
+       (``MultiZoneInterfaceSplitE2ETest``)
+     - Whether to strip orphan inverse rows
+       (detection: ``CollectUnreferencedGlobalInterfaceFaces``)
+   * - IFaceLink services
+     - ``faceLookup``, ``point_search``,
+       ``face_search`` private + accessors;
+       injectable ``PointLocator``
+       (``ReplacePointLocator``)
+     - Production ADT still needs nodeMesh
+       for non-injected paths
+   * - Child mapping after split
+     - Parent-specific ``ByParent`` tables;
+       two-parent shared-child test;
+       multi-zone split e2e without CGNS
+     - Split table still tied to FaceSearch
+       + mid-point ADT in production
+
+**Rule of thumb:** if a change only renames a pure predicate already covered
+by tests, skip it. Prefer closing an open row in this table.
+
+What this local refactor is for
+-------------------------------
+
+The geometry stack once mixed **discovery**, **ownership**, and **physics labels**
+in the same loops, with multi-zone interface tables as public data bags. The
+local refactor is not a rewrite of the CFD solver; it is a **boundary-drawing**
+exercise on the face/interface path so that:
+
+#. Each job has a named write path (stage/claim/bind, dual-map Register/Init/Commit,
+   BC export + boundary-first reorder as one transaction).
+#. Invariants are checkable in ``tests/geometry`` without a full CGNS case.
+#. Hard edges (ADT point search, multi-zone split rebuild) become ports with
+   accessors or injection, not more public fields.
+
+If a change does not make a contract easier to state or test, it is probably
+detail noise. Prefer closing a row in the architecture map over renaming a
+stable pure predicate.
+
+
+
+The face / interface / BC path used to interleave **three different jobs** in
+the same loops:
+
+#. **Discover** unique faces while scanning elements (geometry identity).
+#. **Own** each face from the left and right cells (topology).
+#. **Label** boundary faces from CGNS BOCO vertex sets (physics BC).
+
+Those jobs share parallel arrays (``faces``, left/right cells, BC slots,
+``l2g`` / ``gI2Zid``). Before the staged APIs, alignment was accidental: each
+scan path did its own ``push_back``. Unit tests had to stand up a full CGNS
+zone to assert a single rule.
+
+The local refactor's meaning is therefore not "more free functions". It is:
+
+* **One growth contract** -- ``StageNewFace`` and
+  ``StagedBcMatchesFaceCount`` so parallel arrays stay aligned by construction.
+* **Named write paths** -- Claim / Attach / Bind / ``SetStagedFaceBc`` so
+  ownership and BC are not ad-hoc index writes.
+* **Pure rules extracted from adapters** -- eligibility, vertex-set match,
+  boundary-first permutation, interface dual maps -- so intent is unit-tested
+  without CGNS.
+* **Documented algorithms** on this page so the next change can see the
+  *pipeline*, not only the last helper.
+
+What remains hard (see `Open design pressures`_) is still the right backlog:
+``IFaceLink`` public tables, ``PointLocator`` injection, parent-relative child
+mappings after interface split, and true end-to-end CGNS fixtures. Prefer
+closing those seams over extracting another one-line predicate.
+
+GridElem orchestration
+----------------------
+
+``GridElem`` is the **conductor** for one zone's calculation grid. It does not
+implement face identity or BC matching; it sequences already-tested steps:
+
+#. Scan elements into ``FaceSolver`` (stage / claim / bind).
+#. Scan BOCO into staged BC (``AssignBcToMatchingFaces`` / residual fill).
+#. ``AppendBoundaryBcToRecord`` -- export boundary BC in discovery order.
+#. Move ``FaceTopo`` onto ``UnsGrid``, map CGNS BC ids
+   (``BcTypeMap::MapFromCgnsInPlace``).
+#. ``ReorderBoundaryFirstAndValidate`` -- boundary-first face order and
+   ``BcRecord`` layout check as **one** post-stage transaction.
+
+If a rule can be stated without ``GridElem`` or ``CgnsSection``, it belongs in a
+pure helper and a geometry unit test. ``GridElem`` should stay thin.
+
 Pipeline overview
 -----------------
 
@@ -155,30 +267,51 @@ Region names use injectable ``RegionNameRegistry``; ``RegionNameMap`` and
 Interface split helpers
 -----------------------
 
-The three split tables share one index domain: the global face registry.
-``childFaceIdsOfParent[globalFaceId]`` stores the children of that parent,
-while ``childFaceNodeIds[childFaceId]`` and
-``childFaceNodeFlags[childFaceId]`` store the child-node mapping metadata.
-The child metadata may contain parent-local node indices when the corresponding
-flag is ``1``; the array index itself is still a global child-face ID.
-Therefore, ``ResetForFaceCount`` sizes all three tables to the global face
-count. The name deliberately avoids implying that child metadata uses a
-separate compact parent index.
+The split table uses two index domains because face identity and
+parent-relative reconstruction are different concepts:
 
-This layout has an important invariant that is not enforced by the container:
-each child-face metadata row must be meaningful for the parent ring used by the
-consumer. ``SplitQuad2Tri`` and ``SplitLine`` currently write the mapping
-row by child ID while discovering children from a parent. If the same global
-child is associated with two parents whose local corner indices differ, the
-later write replaces the earlier mapping. Face identity can be shared globally;
-parent-relative mapping cannot safely be shared unless both mappings are
-equivalent. Keep global child IDs for deduplication, but store or pass
-parent-specific node mappings for reconstruction. A regression must exercise
-the split-table producer and the real rebuild consumer before this storage
-change is made.
+* ``childFaceIdsOfParent[globalParentFaceId]`` lists global child face IDs.
+* ``childFaceNodeIds[globalChildFaceId]`` and
+  ``childFaceNodeFlags[globalChildFaceId]`` are legacy child-indexed
+  mapping rows retained for compatibility.
+* ``childFaceNodeIdsByParent[globalParentFaceId]`` and
+  ``childFaceNodeFlagsByParent[globalParentFaceId]`` store the preferred
+  mappings aligned by child position within that parent's child list.
 
-* ``GetInterfaceChildFaceIds(l2g, splitTable, zone, local)`` is the pure
-  overload (**test:** ``InterfaceChildFaceIdsTest``).
+``ResetForFaceCount`` sizes the global-ID-indexed tables to the global face
+count. Parent-specific rows are aligned to ``childFaceIdsOfParent[parent]``,
+not indexed by child ID. A flag of ``1`` means the corresponding node ID is
+a corner index in the parent face ring; other flag values retain the mapping
+semantics defined by the split builder.
+
+This distinction is required when a global child face is shared by multiple
+parents. The child ID can be shared because face identity is order-independent,
+but local corner indices belong to a particular parent ring. For example, the
+same triangle with global nodes `B, C, D` can be described by local corners
+`[1, 2, 3]` in a parent ring `[A, B, C, D]` and `[0, 1, 2]` in a
+different parent ring `[B, C, D, E]`. Reusing one child's
+mapping row for both parents would reconstruct the wrong ordered node ring for
+at least one consumer.
+
+The production path therefore prefers parent-specific rows when collecting
+node mappings for interface rebuild. Legacy global-child rows are a fallback
+only when both parent-specific rows are absent or empty. If either new row is
+present but the pair does not align with the parent's child count, collection
+throws instead of silently masking malformed new-format metadata. An empty
+child list is not an error: it means the parent was not split, so the rebuild
+preserves that face without requiring node mapping metadata.
+
+* ``GetInterfaceChildFaceIds(l2g, splitTable, zone, local)`` resolves
+  parent-to-child identity and validates the local and parent lookup indices.
+  It cannot validate child IDs against the global face count because the split
+  table does not own that count. It deliberately does not inspect node mapping
+  rows; ``CollectBoundaryInterfaceChildNodeMappings`` selects parent-specific
+  rows or the legacy fallback and validates the selected representation. It
+  stages both output tables locally and publishes them only after every
+  interface entry is valid, so a later malformed parent cannot expose a
+  partial result (**tests:** ``InterfaceChildFaceIdsTest``,
+  ``CollectBoundaryInterfaceChildCountsTest``, and
+  ``RebuildFaceNodeListsTest.MappingCollectorDoesNotPublishPartialOutputs``).
 * ``ValidateGlobalFaceMapping`` / ``ValidateGlobalFaceMappings`` check
   ``gI2Zid`` / ``g2l`` alignment (**test:** ``GlobalFaceMappingTest``).
 * ``RegisterLocalInterfaceFace`` records ``l2g`` / ``gI2Zid`` / ``g2l`` when a
@@ -282,6 +415,11 @@ change is made.
 * ``SplitQuad2Tri`` clears the selected parent's previous child list before
   checking its shape; a direct call on a non-quad face therefore cannot preserve
   a stale split result (**test:** ``FaceSearchBasicTest.NonQuadSplitClearsStaleParentMapping``).
+* ``InterfaceFaceSplitTable::ClearParentMapping`` and
+  ``SetChildMapping`` reject misaligned parent-specific ID/flag table
+  capacities before mutating the parent's child list (**tests:**
+  ``FaceSearchBasicTest.ClearParentMappingRejectsMisalignedParentTables``
+  and ``FaceSearchBasicTest.SetChildMappingRejectsMissingParentSpecificRow``).
 
 
 Interface mapping names and design rules
@@ -360,21 +498,42 @@ Line midpoint split algorithm
 
 The 2D interface split path separates geometry discovery from mapping assembly.
 ``FaceSearch::SplitLine`` first clears the selected parent's old child list and
-ignores faces that are not two-node edges. ``TrySplitLineAtMidpoint`` then
-checks whether the geometric midpoint is already present in ``PointLocator``;
-this path does not independently decide to split every edge.
+ignores faces that are not two-node edges. ``TrySplitLineAtMidpoint`` validates
+the parent face's zone association before querying geometry, then checks whether
+the geometric midpoint is already present in ``PointLocator``; this path does
+not independently decide to split every edge. Invalid face-to-zone associations
+therefore fail before midpoint lookup or zone-local node mutation.
 
-When a midpoint is available, the algorithm resolves it in two index spaces:
+When a midpoint is available, the algorithm resolves both candidate child
+edges against the global ``FaceSearch`` registry before touching the zone mesh.
+If neither child exists, it returns without appending a zone-local node. The
+resolved child IDs and candidate positions are retained and reused when parent
+mappings are published, so the registry lookup is performed once per candidate
+rather than once for the preflight and again for publication. Duplicate child
+identities are rejected by the shared resolver before any zone-local mutation.
 
-#. The zone's ``nodeMesh`` is queried first. If the coordinate is absent there,
-   it is appended and the returned index becomes the **zone-local** midpoint ID.
-#. ``PointLocator::AddPoint`` supplies the **global search** midpoint ID used
-   when constructing child edge identities.
+The algorithm then resolves the midpoint in two index spaces:
 
-``BuildLineSplitMapping`` is the pure mapping step. For a parent edge directed
-from ``A`` to ``B`` and midpoint ``M``, it emits local edges ``(0, M_local)``
-and ``(M_local, 1)``, and global edges ``(A, M_global)`` and
-``(M_global, B)``. The local endpoint flags are ``(1, -1)`` and ``(-1, 1)``;
+#. ``PointLocator::FindPoint`` returns the existing **global search** midpoint ID.
+   If no midpoint is registered there, this edge is not split.
+#. The zone's ``nodeMesh`` is queried using the same coordinate. If the point is
+   absent there, it is appended and the returned index becomes the **zone-local**
+   midpoint ID. The already-discovered global ID is reused when constructing
+   child edge identities; the locator is not searched or modified a second time.
+
+The line split now has two deliberately separate representations:
+
+* ``BuildGlobalLineSplitCandidates`` creates directed global child-edge identities
+  ``(A, M_global)`` and ``(M_global, B)``. These candidates are resolved
+  against the global face registry before the zone mesh is mutated.
+* ``BuildLocalLineSplitMapping`` creates zone-local edge indices
+  ``(0, M_local)`` and ``(M_local, 1)``, plus endpoint flags
+  ``(1, -1)`` and ``(-1, 1)``.
+
+The global midpoint ID identifies topology; the local midpoint ID addresses one
+zone's node array. Keeping these outputs separate makes the preflight lookup
+independent of the zone-local index and prevents a temporary local-mapping
+builder from also producing a global representation that its caller discards.
 they encode which original endpoint each child retains. Reversing the parent
 ring must reverse the global child-edge direction while leaving the local
 index pattern and flags unchanged.
@@ -384,9 +543,9 @@ the stored face ring and local endpoint metadata are directional. The helper
 replaces its output buffers, so reusing a buffer cannot retain child edges from
 an earlier split.
 
-**Tests:** ``FaceSearchBasicTest.LineSplitMappingPreservesEdgeDirectionAndEndpointFlags``,
-``FaceSearchBasicTest.LineSplitMappingPreservesReversedEdgeDirection``, and
-``FaceSearchBasicTest.LineSplitMappingReplacesPreviousOutput``.
+**Tests:** ``FaceSearchBasicTest.GlobalLineCandidatesPreserveEdgeDirection``,
+``FaceSearchBasicTest.GlobalLineCandidatesPreserveReversedEdgeDirection``, and
+``FaceSearchBasicTest.GlobalLineCandidatesReplacePreviousOutput``.
 
 **Current boundary:** midpoint discovery still depends on the concrete
 ``PointLocator`` and ``IFaceLink``/``nodeMesh`` services. The mapping step is
@@ -602,7 +761,192 @@ filled in discovery order of boundary faces, and the partition preserves the
 relative order of those boundary faces, so the prefix of reordered faces still
 matches ``BcRecord`` (``ValidateBoundaryBcLayout``).
 
-**Tests:** ``FaceTopoReorderLinkTest``.
+``ReorderBoundaryFirstAndValidate`` is the single post-stage entry used by
+``GridElem``: reorder then validate. Callers should not reorder without the
+layout check.
+
+**Tests:** ``FaceTopoReorderLinkTest``,
+``ReorderBoundaryFirstAndValidateTest``.
+
+
+IFaceLink dual-map boundary
+---------------------------
+
+``IFaceLink`` holds the multi-zone interface relation in two directions
+(``l2g`` and ``gI2Zid`` / ``g2l``). That is intentional: registration,
+partner match, and split rebuild all need both views.
+
+The local refactor does **not** pretend these tables are gone. It draws a
+boundary around *how* they change:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 40 60
+
+   * - Operation
+     - Allowed path
+   * - Register a local face on a global id
+     - ``CreateLink`` -> ``RegisterLocalInterfaceFaceOnMaps``
+   * - Stage / commit after interface split
+     - ``InitNewInterfaceMappingBuffers`` /
+       zone rebuild helpers /
+       ``CommitInterfaceMappingBuffers``
+   * - Find remote partner / count missing
+     - ``FindRemoteInterfacePartner`` /
+       ``CountInterfaceFacesMissingPartner``
+   * - Geometry identity for interface nodes
+     - private ``faceLookup`` inside ``CreateLink`` only
+
+``faceLookup``, ``point_search``, and ``face_search`` are private. Use
+``CreateLink``, ``GetPointLocator`` / ``EnsurePointLocatorReady``,
+``GetFaceSearch``, and ``MutableInterfaceSplit`` / ``GetInterfaceSplit``.
+Unit tests may call ``ReplacePointLocator`` with a ``PointLocator`` subclass
+and ``markReady=true`` to avoid building the production ADT from grids.
+
+Split rebuild zone rows go through ``EnsureSplitBookkeepingMatchesZones``,
+``GetL2gForZone``, ``MutableL2gNewForZone``, and ``MutableNChildForZone``.
+Staging inverse maps use ``MutableGlobalToZoneIdsNew`` /
+``MutableGlobalToLocalIdsNew``. ``FaceTopo`` and ``UnsGrid`` read live
+``l2g`` through ``GetLocalToGlobalMap`` / ``GetL2gForZone``. Dual-map
+fields (``l2g``, ``gI2Zid``, ``g2l``, ``*New``, ``nChild``) are private.
+
+Tests and topology-only clients seed maps with
+``EnsureInterfaceZoneCount``, ``EnsureLocalInterfaceFaceCount``, and
+``RegisterLocalInterfaceFace`` (member wrapper). Read-only observers use
+``GetLocalToGlobalMap``, ``GetGlobalToZoneIds``, and ``GetGlobalToLocalIds``.
+
+**Tests:** ``IFaceLinkMapAccessorsTest``, ``IFaceLinkSplitBookkeepingTest``.
+
+
+Parent-relative child mapping algorithm
+---------------------------------------
+
+Interface split may turn one parent face into several child faces. Child
+geometry is stored in two layers:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 35 65
+
+   * - Table
+     - Role
+   * - ``childFaceIdsOfParent[parent]``
+     - Ordered global child ids for that parent
+   * - ``childFaceNodeIdsByParent[parent][i]`` /
+       ``childFaceNodeFlagsByParent[parent][i]``
+     - Parent-local node encoding for child ``i`` (flag ``1`` = index into
+       **this** parent's node ring)
+   * - ``childFaceNodeIds[child]`` /
+       ``childFaceNodeFlags[child]``
+     - Optional global seed (first writer); **not** authoritative when
+       parent-specific rows exist
+
+**Why parent-specific rows.** The same undirected child ring can appear under
+two parents with different node sets, for example parent
+``[A,B,C,D]`` and parent ``[B,C,D,E]`` sharing child ``[B,C,D]``. Local corner
+indices differ (``[1,2,3]`` vs ``[0,1,2]``). A single global row keyed only by
+child id cannot hold both encodings. Rebuild must read the
+**current parent's** mapping row, then ``ResolveChildFaceNodeIds`` against that
+parent's ring.
+
+**Publish path.** ``ResolveRegisteredChildFaces`` decides which candidates are
+already registered global faces and rejects duplicate child ids for one
+parent. ``SetChildMapping`` then writes the parent-specific row (and seeds the
+global row only if still empty).
+
+**Consume path.** ``CollectBoundaryInterfaceChildNodeMappings`` prefers
+``ByParent`` rows when present; otherwise falls back to the global child
+tables. ``RebuildFaceNodeListsAfterInterfaceSplit`` applies
+``ResolveChildFaceNodeIds`` per child.
+
+**Tests:** ``TwoParentSharedChildMappingTest``,
+``FaceSearchBasicTest`` (duplicate / conflict guards).
+
+
+Geometry workbench (parallel to refactor)
+-----------------------------------------
+
+Unit tests lock contracts in CI. A **workbench** is a different surface:
+
+* Operator edits discrete tables (``l2g``, parents, child lists, BC rows).
+* Host calls the **same** C++ pipeline the tests call (today:
+  ``RunSymmetricInterfaceSplitMappingPipeline``).
+* Results are shown as tables (and later drawings); human or golden compare
+  judges pass/fail.
+
+This can advance **in parallel** with the geometry refactor:
+
+#. **Fake-first UI:** panels bind to in-memory tables and a stub that returns
+   hand-written outputs, so interaction and visualization ship before every
+   production edge is free of CGNS.
+#. **Contract-ready core:** pure helpers and table pipelines land in
+   ``codes/geometry`` (no second algorithm in the UI process).
+#. **Swap:** replace the stub with the real pipeline when the scenario matches;
+   do not re-implement split logic in Qt/Python.
+
+What the workbench is *not*: a button that only launches GoogleTest. What it
+*is*: an editable, visual driver of table-level geometry contracts — the same
+contracts the local refactor is carving out.
+
+Local refactor scorecard
+------------------------
+
+Closed enough to stop polishing the same layer:
+
+* Face stage write path and BC export / boundary-first reorder.
+* Dual-map mutation boundary (private fields, Register / Init / Commit).
+* PointLocator as a replaceable port for tests.
+* Multi-zone split **composition** without CGNS.
+
+Still product work, not rename work:
+
+* Production mid-point split still needs real ``nodeMesh`` + ADT unless injected.
+* Orphan parent global rows after InitNew copy (document, do not silent-fix).
+* Full CGNS zone fixtures remain heavy; prefer more pure compositions first.
+
+
+Multi-zone interface split (composed scenario)
+----------------------------------------------
+
+Isolated helpers lock one zone or one table. The composed entry point is
+``RunSymmetricInterfaceSplitMappingPipeline`` (table in, table out; no
+``IFaceLink``, no CGNS). ``MultiZoneInterfaceSplitE2ETest`` seeds maps with
+``RegisterLocalInterfaceFaceOnMaps`` and calls that pipeline when **both**
+zones rebuild after one shared parent face splits:
+
+#. Seed two zones / two shared global faces (``RegisterLocalInterfaceFaceOnMaps``).
+#. Pipeline: ``InitNewInterfaceMappingBuffers`` copies inverse maps, clears ``l2gNew``.
+#. ``RebuildZoneL2gNewAfterInterfaceSplit`` per zone (parent 0 -> 2,3; parent 1 kept).
+#. ``BuildInverseInterfaceMapForZone`` for each zone (max two participants).
+#. ``ExpandBcRecordForSplitInterfaces`` expands BC slots by child counts.
+#. ``CommitInterfaceMappingBuffers`` swaps validated ``*New`` tables into the result.
+
+**Algorithm note (orphan parents):** ``InitNewInterfaceMappingBuffers`` copies
+the live inverse maps. Rebuild only touches globals present in ``l2gNew``.
+A fully replaced parent global id therefore remains as a row that no ``l2g``
+entry references. That is legacy behavior; changing it needs a dedicated
+migration and tests, not a drive-by cleanup.
+
+**Why compose tests?** Unit tests answer "does this function obey its contract?".
+A thin multi-zone composition answers "do the contracts still line up in
+production order?". That is the cheapest e2e that still avoids CGNS.
+
+
+Workbench host and OneFLOW GUI
+--------------------------------
+
+``tools/geometry_workbench`` holds stdlib scenario JSON and a stub pipeline.
+The OneFLOW Workbench home screen exposes **Geometry Contracts...**
+(``GeometryContractDialog``), which loads those scenarios and runs the stub.
+This is intentionally separate from **Tests...** (GoogleTest / regression).
+
+When ``RunSymmetricInterfaceSplitMappingPipeline`` is bound, only the workbench
+backend should change; the GUI dialog keeps the same table workflow.
+
+Graphics are **optional**: CLI ``--plot-file`` and GUI **Export PNG...** write a
+static figure (matplotlib Agg). Default path is text-only; no interactive plot
+window is required.
+
 
 Open design pressures
 ---------------------
@@ -617,39 +961,126 @@ Open design pressures
   that shares that child can overwrite the row with different parent-local
   indices.
 
-  A minimal regression fixture can use parent rings ``[A, B, C, D]`` and
-  ``[B, C, A, E]`` with one globally registered child face whose node set is
-  ``{A, B, C}``. The same child has local-corner mapping ``[0, 1, 2]`` in
-  the first parent and ``[2, 0, 1]`` in the second. The expected rebuilt
-  global node set is the same for both parents, but the local mapping rows are
-  not interchangeable. The test must assert each ordered child node list, not
-  only the global child ID or unordered face identity.
+  Parent-specific tables address this; the fixture is
+  ``TwoParentSharedChildMappingTest`` (rings ``[10,20,30,40]`` and
+  ``[20,30,40,50]``, shared child resolved to ``[20,30,40]`` under both
+  parents). Merely rotating one parent's ring does not create a second global
+  parent face in the registry.
 
-  The split-table writer now routes writes through
-  ``InterfaceFaceSplitTable::SetChildMapping``. It rejects a conflicting
-  second row instead of silently overwriting the first; the focused contract
-  is covered by ``FaceSearchBasicTest.SharedChildRejectsConflictingMappingRows``.
-  This is an interim fail-fast guard, not the final representation fix: equal
-  integer rows can still mean different global nodes when interpreted against
-  different parent rings. The durable solution remains parent-child-specific
-  mapping storage, followed by a rebuild test through the production consumer.
+  Each parent child list must contain a global child face ID at most once.
+  The mapping rows are indexed by child position, so duplicate IDs would make a
+  single ``SetChildMapping(parent, child, ...)`` call ambiguous: the same child ID
+  would name multiple positions. ``SetChildMapping`` rejects duplicate
+  registrations before resizing or writing either parent-specific row. The
+  ``SplitQuad2Tri`` and ``SplitLine`` share the pure resolution step
+  ``ResolveRegisteredChildFaces``: it maps candidate node rings to registered
+  global face IDs, skips candidates absent from the registry, and rejects a
+  repeated child ID before returning either output. The caller then publishes
+  the resolved child IDs and their parent-relative mapping rows. This keeps
+  candidate resolution separate from parent mapping publication and prevents
+  the quad and line paths from drifting in duplicate handling. A malformed
+  parent therefore has an empty rebuilt mapping after a duplicate-candidate
+  failure, rather than a prefix that looks complete
+  (**test:** ``FaceSearchBasicTest.QuadSplitRejectsDuplicateChildBeforeAppendingIt``).
+  ``SetChildMapping`` remains a second, API-level guard for callers that register
+  mappings directly (**test:** ``FaceSearchBasicTest.SetChildMappingRejectsDuplicateChildRegistration``).
 
-  This is a representation mismatch, not evidence that every current input
-  reaches it. Before changing storage, make the fixture pass through the real
-  split-table and rebuild helpers. If shared-child parent-local mappings are
-  supported, store node IDs and flags on the parent-child relation while
-  retaining the global child ID for deduplication. If the topology contract
-  forbids this case, reject it explicitly instead of relying on traversal
-  order.
+  Re-registering the same parent-child mapping is idempotent, but writing a
+  different local-corner row for that same relation is rejected before either
+  stored row changes (**test:**
+  ``FaceSearchBasicTest.SetChildMappingRejectsConflictingMappingForSameParent``).
+  This is distinct from two different parents sharing one global child: those
+  rows are expected to differ because each row is interpreted against its own
+  parent ring. The invariant is therefore per parent-child relation, not per
+  global child ID.
+
+  Mapping collection prefers the parent-specific row whenever it contains
+  data. The legacy child-global row is only a compatibility fallback when both
+  parent-specific rows for that parent are empty. This distinction matters:
+  a malformed or incomplete parent-specific row is an error, not a reason to
+  fall back to metadata that may have been written for another parent. The
+  regression ``RebuildFaceNodeListsTest.ParentSpecificMappingTakesPrecedenceOverLegacyRows``
+  deliberately gives the legacy and parent-specific rows conflicting values
+  and verifies that the parent-specific mapping wins.
+
+  The rebuild consumer follows the same publication rule. Both overloads of
+  ``RebuildFaceNodeListsAfterInterfaceSplit`` assemble the replacement face
+  lists in a local buffer and swap it into the caller output only after every
+  child mapping resolves. If a later child has an invalid parent-local corner
+  or malformed row, the caller's previous output remains intact
+  (test: ``RebuildFaceNodeListsTest.FailedRebuildDoesNotPublishPartialFaceLists``).
+
+  The overload that accepts child-global node tables is now an adapter: it
+  translates each interface's child IDs into the parent-local row layout and
+  delegates reconstruction to the same core overload. This keeps compatibility
+  at the input boundary instead of maintaining two copies of face-list
+  rebuilding logic. The regression
+  ``RebuildFaceNodeListsTest.LegacyMappingAdapterUsesCanonicalRebuildAtomically``
+  verifies that a failure in a later legacy-mapped child does not publish a
+  partial face list.
+
+  The split table now retains parent-specific child node IDs and flags in
+  ``childFaceNodeIdsByParent`` and ``childFaceNodeFlagsByParent``. Global
+  child IDs remain the identity and deduplication key; each parent owns an
+  aligned row for each child. ``SetChildMapping`` permits a row to lag the child
+  list while children are registered incrementally, but the ID and flag rows
+  must always have equal lengths and must not exceed the parent's child count.
+  It rejects a mismatched pair before resizing either row, so malformed metadata
+  is not silently normalized. This invariant is covered by
+  ``FaceSearchBasicTest.SetChildMappingRejectsMisalignedParentRowsWithoutMutation``. ``FaceTopo::SetNewFace2Node`` collects these
+  rows and passes them to the parent-aware overload of
+  ``RebuildFaceNodeListsAfterInterfaceSplit``. The regression
+  ``RebuildFaceNodeListsTest.SharedChildUsesEachParentLocalMapping`` checks
+  that two parents sharing child ID 7 rebuild to the same ordered global node
+  list despite different parent-local indices. The older global-indexed rows
+  remain temporarily for compatibility with existing helper callers. Both the
+  legacy node-ID row and its flag row retain the first populated mapping for a
+  shared child; later parents may have different local-corner IDs and flags but
+  must not overwrite those compatibility values. New parent-aware consumers
+  must use the parent-specific tables. The regression
+  ``FaceSearchBasicTest.SharedChildKeepsParentSpecificMappingRows`` checks
+  both the differing parent rows and the unchanged legacy rows.
+
+  The split-table lifecycle follows the same ownership boundary. ``ResetForFaceCount``
+  sizes and clears both global child tables and parent-specific rows; a reset must
+  not leave mapping rows from a previous face registry. ``ClearParentMapping``
+  removes only the selected parent's child list and parent-relative rows. It must
+  preserve the global child metadata and any other parent's row, because the child
+  can be shared. ``FaceSearch::Clear`` is broader: it invalidates the face registry
+  and therefore clears every split table. The regression tests
+  ``FaceSearchBasicTest.ResetForFaceCountClearsAllSplitTables`` and
+  ``FaceSearchBasicTest.ClearParentMappingOnlyClearsRequestedParent`` encode these
+  distinct lifecycle scopes.
+
+  The end-to-end regression
+  ``RebuildFaceNodeListsTest.SplitProducerCollectorAndRebuildPreserveSharedChildMapping``
+  drives the real ``SplitQuad2Tri`` producer through
+  ``CollectBoundaryInterfaceChildFaceIds``,
+  ``CollectBoundaryInterfaceChildNodeMappings``, and the parent-aware rebuild
+  consumer. Two distinct quad parents share one registered triangle. The first
+  parent ring is ``[100, 101, 102, 103]``; the second is
+  ``[101, 102, 103, 104]``. Their shared child is ``[101, 102, 103]``, with
+  parent-local rows ``[1, 2, 3]`` and ``[0, 1, 2]``. Both reconstructed
+  outputs must preserve the registered child ring ``[101, 102, 103]``. This
+  locks child identity, parent-local mapping, interface-local collection order,
+  and final node reconstruction together rather than testing only isolated
+  helpers.
 
 
 These remain harder to unit-test and mark follow-up work:
 
-#. ``IFaceLink`` still exposes large public tables (``l2g``, ``gI2Zid``, ...);
-   registration is covered by ``RegisterLocalInterfaceFace``, but mutation
-   still happens through public fields.
-#. Line mid-point split still needs ``PointLocator`` and ``nodeMesh`` (geometry
-   services are not yet injectable).
+#. ``IFaceLink`` dual-map fields are private. Seed and observe through
+   ``EnsureInterfaceZoneCount`` / ``EnsureLocalInterfaceFaceCount`` /
+   ``RegisterLocalInterfaceFace`` and the Get*/Mutable* accessors. Geometry
+   call sites no longer touch ``l2g`` / ``gI2Zid`` / ``g2l`` fields.
+#. Line mid-point split still needs a ready locator for production grids.
+   ``point_search`` is private (``GetPointLocator`` /
+   ``EnsurePointLocatorReady``). Tests inject a double via
+   ``ReplacePointLocator(locator, markReady=true)`` so mid-point / id
+   resolution can run without nodeMesh boxes (**test:**
+   ``IFaceLinkPointLocatorInjectionTest``). Zone policy remains
+   ``RequireSoleZoneIdForGlobalFace`` (**test:**
+   ``RequireSoleZoneIdForGlobalFaceTest``).
 #. End-to-end CGNS zone scan still requires heavyweight zone setup.
 
 When those paths are split into pure helpers or ports, update this page in the
@@ -723,9 +1154,11 @@ Change type matrix
      - `Boundary BC export and reorder`
    * - ``BuildBoundaryFirstPermutation`` /
        ``ReorderLink`` /
-       ``ValidateBoundaryBcLayout``
-     - ``FaceTopoReorderLinkTest``
-     - `Boundary BC export and reorder`
+       ``ValidateBoundaryBcLayout`` /
+       ``ReorderBoundaryFirstAndValidate``
+     - ``FaceTopoReorderLinkTest``,
+       ``ReorderBoundaryFirstAndValidateTest``
+     - `Boundary-first reorder algorithm`
    * - ``HXKey`` / ``HXLookup`` /
        ``FaceSearchBasic`` identity rules
      - ``HXLookupTest``,
@@ -746,7 +1179,7 @@ Change type matrix
    * - ``ValidateGlobalFaceMapping(s)``
      - ``GlobalFaceMappingTest``
      - `Interface split helpers`
-   * - ``RegisterLocalInterfaceFace`` / CreateLink mapping
+   * - ``RegisterLocalInterfaceFaceOnMaps`` / CreateLink mapping
      - ``RegisterLocalInterfaceFaceTest``
      - `Interface split helpers`
    * - ``FindRemoteInterfacePartner`` / MatchInterfaceTopology

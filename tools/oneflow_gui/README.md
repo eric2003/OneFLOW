@@ -55,6 +55,8 @@ selectors show concise names by default; hover for details or enable
 labels every edge with its edge name, boundary condition, and point count.
 **Reset flat-plate boundaries** restores the standard two-block defaults.
 
+The home screen also offers **Geometry Contracts...** for table-level interface dual-map / split scenarios (`tools/geometry_workbench`, stub backend today). This is separate from running GoogleTest.
+
 The Workbench presents **Tests** as the entry point for unit tests, CFD/grid regression, and Development Tests. Development Tests are opt-in, and the case selector defaults to all catalog cases. `task_types.py` identifies which tasks use a user workspace; Unit Tests run from the source build tree. Test commands carry a task type, and workers publish Qt-independent `TaskRunResult` values with status, exit code when available, execution directory, and a concise message. Results are retained in run history alongside detailed case outcomes. The **Run mode** preference selects the initial draft when **Saved Workflows...** opens: multi-case creates a multi-directory draft, and dependency workflow creates a case-graph draft. It does not run the workflow automatically. Launch single projects through **Open Project...**. The multi-case workspace editor loads, edits, validates, and saves `.ofw` definitions; it does not launch runs. Use the workflow editor to create, edit, save, delete, and launch named workflow definitions.
 
 **Multi-directory** mode preserves the existing behavior: each directory is

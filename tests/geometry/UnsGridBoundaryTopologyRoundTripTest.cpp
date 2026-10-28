@@ -160,23 +160,29 @@ TEST( UnsGridBoundaryTopologyRoundTripTest, InterfaceSplitKeepsLocalGlobalAndBou
     ONEFLOW::UnsGrid & grid = static_cast< ONEFLOW::UnsGrid & >( * grids[ 0 ] );
 
     ONEFLOW::IFaceLink link( grids );
-    link.l2g[ 0 ] = { 0, 1 };
-    link.gI2Zid = { { 0, 1 }, { 0, 1 } };
-    link.g2l = { { 0, 0 }, { 1, 1 } };
+    // Two-zone dual map even though only zone 0 is present in grids: remote
+    // participant is zone 1 (unpaired remote bookkeeping for split rebuild).
+    link.EnsureInterfaceZoneCount( 2 );
+    link.EnsureLocalInterfaceFaceCount( 0, 2 );
+    link.EnsureLocalInterfaceFaceCount( 1, 2 );
+    link.RegisterLocalInterfaceFace( /*gIid=*/0, /*isNew=*/true,  /*zid=*/0, /*localFaceId=*/0 );
+    link.RegisterLocalInterfaceFace( /*gIid=*/0, /*isNew=*/false, /*zid=*/1, /*localFaceId=*/0 );
+    link.RegisterLocalInterfaceFace( /*gIid=*/1, /*isNew=*/true,  /*zid=*/0, /*localFaceId=*/1 );
+    link.RegisterLocalInterfaceFace( /*gIid=*/1, /*isNew=*/false, /*zid=*/1, /*localFaceId=*/1 );
     link.InitNewLgMapping();
 
-    link.face_search->interfaceSplit.childFaceIdsOfParent.resize( 4 );
-    link.face_search->interfaceSplit.childFaceIdsOfParent[ 0 ] = { 2, 3 };
-    link.face_search->interfaceSplit.childFaceNodeIds.resize( 4 );
-    link.face_search->interfaceSplit.childFaceNodeFlags.resize( 4 );
-    link.face_search->interfaceSplit.childFaceNodeIds[ 2 ] = { 0 };
-    link.face_search->interfaceSplit.childFaceNodeFlags[ 2 ] = { 1 };
-    link.face_search->interfaceSplit.childFaceNodeIds[ 3 ] = { 0 };
-    link.face_search->interfaceSplit.childFaceNodeFlags[ 3 ] = { 1 };
+    link.MutableInterfaceSplit().childFaceIdsOfParent.resize( 4 );
+    link.MutableInterfaceSplit().childFaceIdsOfParent[ 0 ] = { 2, 3 };
+    link.MutableInterfaceSplit().childFaceNodeIds.resize( 4 );
+    link.MutableInterfaceSplit().childFaceNodeFlags.resize( 4 );
+    link.MutableInterfaceSplit().childFaceNodeIds[ 2 ] = { 0 };
+    link.MutableInterfaceSplit().childFaceNodeFlags[ 2 ] = { 1 };
+    link.MutableInterfaceSplit().childFaceNodeIds[ 3 ] = { 0 };
+    link.MutableInterfaceSplit().childFaceNodeFlags[ 3 ] = { 1 };
 
     grid.GetFaceTopo().ModifyBoundaryInformation( link );
 
-    ASSERT_EQ( link.l2gNew[ 0 ], ( ONEFLOW::IntField{ 2, 3, 1 } ) );
+    ASSERT_EQ( link.MutableL2gNewForZone( 0 ), ( ONEFLOW::IntField{ 2, 3, 1 } ) );
     link.UpdateLgMapping();
     grid.UpdateOtherTopologyTerm( link );
 
@@ -191,7 +197,7 @@ TEST( UnsGridBoundaryTopologyRoundTripTest, InterfaceSplitKeepsLocalGlobalAndBou
     EXPECT_EQ( bcRecord.bcNameId, ( ONEFLOW::IntField{ 10, 10, 20, 30 } ) );
     EXPECT_EQ( grid.nIFaces, 3 );
     EXPECT_EQ( grid.interFace->i2b, ( ONEFLOW::IntField{ 0, 1, 3 } ) );
-    EXPECT_EQ( link.l2g[ 0 ], ( ONEFLOW::IntField{ 2, 3, 1 } ) );
+    EXPECT_EQ( link.GetL2gForZone( 0 ), ( ONEFLOW::IntField{ 2, 3, 1 } ) );
 
     for ( int interfaceId = 0; interfaceId < grid.nIFaces; ++ interfaceId )
     {

@@ -37,7 +37,8 @@ class PointLocator
 {
 public:
     PointLocator();
-    ~PointLocator(); // Will be defined as = default in .cpp
+    // Virtual so IFaceLink tests can inject a lightweight double without an ADT.
+    virtual ~PointLocator();
 
     // [Refactored] Disable copying to prevent double-free of unique_ptr.
     // unique_ptr is move-only, so we explicitly delete copy operations.
@@ -59,11 +60,13 @@ public:
     void Initialize( Grids & grids );
     void Initialize( const GridViews & grids );
 public:
-    int GetNPoint() { return static_cast<int> (xCoor.size()); }
-    int FindPoint( Real xm, Real ym, Real zm );
-    int AddPoint( Real xm, Real ym, Real zm );
-    void GetPoint( int id, Real & xm, Real & ym, Real & zm );
-    Real GetTol() { return tolerance; }
+    // Virtual hooks used by mid-point / interface geometry paths. Production
+    // builds the ADT; unit tests may override without grids or coorTree.
+    virtual int GetNPoint() { return static_cast<int> (xCoor.size()); }
+    virtual int FindPoint( Real xm, Real ym, Real zm );
+    virtual int AddPoint( Real xm, Real ym, Real zm );
+    virtual void GetPoint( int id, Real & xm, Real & ym, Real & zm );
+    virtual Real GetTol() { return tolerance; }
 protected:
     int AddPoint( RealField & coordinate );
     int FindPoint( RealField & coordinate );

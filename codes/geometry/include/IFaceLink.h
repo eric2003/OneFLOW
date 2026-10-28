@@ -33,21 +33,21 @@ class Grid;
 class FaceSearch;
 class PointLocator;
 class NodeMesh;
+struct InterfaceFaceSplitTable;
 
 class IFaceLink
 {
 public:
     explicit IFaceLink( Grids & gridsIn );
     ~IFaceLink();
-public:
-    HXLookup<int> faceLookup;
-
+private:
     // Interface-face relation, stored in two directions:
     // l2g[zone][localFace] -> global interface-face ID.
     // gI2Zid means global Interface-face to zone IDs:
     // gI2Zid[globalFace][slot] -> participating zone ID.
     // g2l[globalFace][slot] -> that zone's local interface-face ID.
     // The slot index is shared by gI2Zid and g2l; their row lengths must match.
+    // Access only through Ensure*/Register*/Get*/Mutable* APIs.
     LinkField gI2Zid;
     LinkField g2l;
     LinkField l2g;
@@ -62,11 +62,15 @@ public:
     // Legacy per-zone child-count bookkeeping for interface-face rebuilding.
     LinkField nChild;
 
-    std::unique_ptr< FaceSearch > face_search;
-    std::unique_ptr< PointLocator > point_search;
-
-private:
     Grids & grids;
+    // Interface face geometry search + split tables. Prefer GetFaceSearch /
+    // MutableInterfaceSplit over direct field access.
+    std::unique_ptr< FaceSearch > face_search;
+    // Geometry identity for interface faces (CreateLink only). Not part of the
+    // dual-map tables; kept private so registration cannot bypass CreateLink.
+    HXLookup<int> faceLookup;
+    // Built lazily via EnsurePointLocatorReady (needs nodeMesh bounds).
+    std::unique_ptr< PointLocator > point_search;
     // PointLocator ADT build needs valid nodeMesh bounding boxes. Defer until a
     // code path actually searches/adds points so topology-only clients (and
     // unit tests) can construct IFaceLink without a full mesh.
@@ -77,6 +81,18 @@ public:
     // Builds the PointLocator ADT on first use (requires valid nodeMesh boxes).
     void EnsurePointLocatorReady();
     [[nodiscard]] bool IsPointLocatorReady() const { return pointLocatorReady; }
+    // Non-null locator object (may not be Initialize'd yet). Throws if missing.
+    [[nodiscard]] PointLocator & GetPointLocator();
+    [[nodiscard]] const PointLocator & GetPointLocator() const;
+    // Take ownership of a locator (production ADT or test double).
+    // markReady=true skips EnsurePointLocatorReady's grid-bound ADT build so
+    // topology-only / synthetic-point tests need no nodeMesh boxes.
+    // Null locator is rejected.
+    void ReplacePointLocator( std::unique_ptr< PointLocator > locator, bool markReady );
+    [[nodiscard]] FaceSearch & GetFaceSearch();
+    [[nodiscard]] const FaceSearch & GetFaceSearch() const;
+    [[nodiscard]] InterfaceFaceSplitTable & MutableInterfaceSplit();
+    [[nodiscard]] const InterfaceFaceSplitTable & GetInterfaceSplit() const;
     [[nodiscard]] Grid & GetGrid( int zoneIndex );
     void Init( Grid & grid );
 public:
@@ -89,6 +105,44 @@ protected:
 public:
     void UpdateLgMapping();
     void InitNewLgMapping();
+
+    // Read-only views of the live dual maps. Prefer these over touching fields
+    // when only observing topology (tests and match helpers).
+    [[nodiscard]] const LinkField & GetLocalToGlobalMap() const { return l2g; }
+    [[nodiscard]] const LinkField & GetGlobalToZoneIds() const { return gI2Zid; }
+    [[nodiscard]] const LinkField & GetGlobalToLocalIds() const { return g2l; }
+
+    // Ensure l2g / l2gNew have at least nZones rows (zone-parallel tables).
+    // Does not touch global-face tables (gI2Zid / g2l).
+    void EnsureInterfaceZoneCount( std::size_t nZones );
+
+    // Ensure l2g[zoneId] can hold localFaceCount slots (resize up only).
+    // Zone row must already exist (EnsureInterfaceZoneCount). Does not register
+    // global faces; pair with RegisterLocalInterfaceFace for seeding tests.
+    void EnsureLocalInterfaceFaceCount( int zoneId, std::size_t localFaceCount );
+
+    // Register (zid, localFaceId) on global face gIid using the live dual maps.
+    // Thin wrapper around the free-function helper; keeps fields private.
+    void RegisterLocalInterfaceFace( int gIid, bool isNew, int zid, int localFaceId );
+
+    // Split-rebuild bookkeeping: nChild must have one row per live zone (l2g).
+    // Call after InitNewLgMapping so l2gNew already has empty per-zone rows.
+    void EnsureSplitBookkeepingMatchesZones();
+
+    // Bounds-checked mutable access for the active zone during split rebuild.
+    // Prefer these over raw l2gNew[zoneId] / nChild[zoneId] at call sites.
+    [[nodiscard]] IntField & MutableL2gNewForZone( int zoneId );
+    [[nodiscard]] IntField & MutableNChildForZone( int zoneId );
+    [[nodiscard]] const IntField & GetL2gForZone( int zoneId ) const;
+
+    // Zone count for split bookkeeping table (may lag l2g until Ensure*).
+    [[nodiscard]] std::size_t GetSplitBookkeepingZoneCount() const { return nChild.size(); }
+
+    // Staging inverse maps (*New). Prefer these over raw gI2ZidNew / g2lNew.
+    [[nodiscard]] LinkField & MutableGlobalToZoneIdsNew() { return gI2ZidNew; }
+    [[nodiscard]] LinkField & MutableGlobalToLocalIdsNew() { return g2lNew; }
+    [[nodiscard]] const LinkField & GetGlobalToZoneIdsNew() const { return gI2ZidNew; }
+    [[nodiscard]] const LinkField & GetGlobalToLocalIdsNew() const { return g2lNew; }
 };
 
 void GetFaceCoorList( const IntField & faceNode, RealField & xList, RealField & yList, RealField & zList, const NodeMesh & nodeMesh );
@@ -113,7 +167,8 @@ void ValidateGlobalFaceMappings(
 // existing row, which supports at most two zone participants. The existing-row
 // path rejects duplicate participants and a third zone before mutating any map.
 // Always writes l2g[zid][localFaceId] = gIid on success.
-void RegisterLocalInterfaceFace(
+// Named *OnMaps to avoid colliding with IFaceLink::RegisterLocalInterfaceFace.
+void RegisterLocalInterfaceFaceOnMaps(
     int gIid,
     bool isNew,
     int zid,

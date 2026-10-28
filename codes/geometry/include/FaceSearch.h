@@ -24,6 +24,7 @@ License
 #include "HXDefine.h"
 #include "HXLookup.h"
 #include <set>
+#include <vector>
 
 
 BeginNameSpace( ONEFLOW )
@@ -53,7 +54,7 @@ public:
 private:
     HXLookup<int> lookup_;   // responsible for uniqueness and ID assignment
     // Original node order of each face (index == faceId).
-    HXVector< IntField > faceArray;
+    HXVector< IntField > faceNodeRings;
 };
 
 class IFaceLink;
@@ -65,20 +66,27 @@ struct InterfaceFaceSplitTable
     LinkField childFaceIdsOfParent;
     LinkField childFaceNodeIds;
     LinkField childFaceNodeFlags;
+    std::vector< LinkField > childFaceNodeIdsByParent;
+    std::vector< LinkField > childFaceNodeFlagsByParent;
 
     void Clear()
     {
         childFaceIdsOfParent.clear();
         childFaceNodeIds.clear();
         childFaceNodeFlags.clear();
+        childFaceNodeIdsByParent.clear();
+        childFaceNodeFlagsByParent.clear();
     }
 
-    // All three tables are indexed by global face ID, not by a compact parent-only index.
+    // The first three tables use global face IDs; parent-specific rows use the
+    // global parent face ID and align by child position within that parent's list.
     void ResetForFaceCount( std::size_t faceCount )
     {
         childFaceIdsOfParent.assign( faceCount, IntField{} );
         childFaceNodeIds.assign( faceCount, IntField{} );
         childFaceNodeFlags.assign( faceCount, IntField{} );
+        childFaceNodeIdsByParent.assign( faceCount, LinkField{} );
+        childFaceNodeFlagsByParent.assign( faceCount, LinkField{} );
     }
 
     void ClearParentMapping( int parentFaceId );
@@ -107,26 +115,38 @@ public:
 
 private:
     // Try to split edge (nodeId size 2) at midpoint if the midpoint already
-    // exists in the point locator. globalFaceId indexes iFaceLink.gI2Zid.
+    // exists in the point locator. globalFaceId indexes the dual-map global face tables (GetGlobalToZoneIds).
     bool TrySplitLineAtMidpoint(
         IFaceLink & iFaceLink,
         int globalFaceId,
         const IntField & nodeId,
         LinkField & localLineId,
         LinkField & localLineFlag,
-        LinkField & lineId );
+        IntField & childFaceIds,
+        std::vector< int > & childCandidateIndices );
 };
 
-// Build the two directed child edges and their local endpoint flags after a midpoint is found.
-// Outputs are replaced, and child order follows the original edge direction.
-void BuildLineSplitMapping(
+// Build directed global child-edge candidates. Outputs are replaced and order
+// follows the parent edge direction.
+void BuildGlobalLineSplitCandidates(
     int firstNode,
     int secondNode,
-    int midpointLocalNode,
     int midpointGlobalNode,
+    LinkField & globalLineIds );
+
+// Line-split policy: the global interface face must reference exactly one
+// zone. Returns that zone ID or throws.
+int RequireSoleZoneIdForGlobalFace(
+    const LinkField & zoneIdsPerGlobalFace,
+    int globalFaceId );
+
+// Build local child-edge indices and endpoint flags after a midpoint is found.
+// The local midpoint index is zone-specific; global node identity is handled
+// separately by BuildGlobalLineSplitCandidates.
+void BuildLocalLineSplitMapping(
+    int midpointLocalNode,
     LinkField & localLineId,
-    LinkField & localLineFlag,
-    LinkField & lineId );
+    LinkField & localLineFlag );
 
 // Pure helpers for quad diagonal split (testable without IFaceLink).
 // BuildQuadDiagonalLocalTris clears outputs then fills four candidate tris:

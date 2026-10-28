@@ -1,6 +1,6 @@
 // tests/geometry/FaceSearchBasicTest.cpp
 // FaceSearchBasic pairs undirected identity (HXLookup) with directed storage
-// (faceArray keeps the node order of the first AddFace).
+// (faceNodeRings keeps the node order of the first AddFace).
 
 #include <gtest/gtest.h>
 #include <stdexcept>
@@ -67,6 +67,8 @@ TEST( FaceSearchBasicTest, ClearResetsDerivedSplitMappings )
     EXPECT_TRUE( search.interfaceSplit.childFaceIdsOfParent.empty() );
     EXPECT_TRUE( search.interfaceSplit.childFaceNodeIds.empty() );
     EXPECT_TRUE( search.interfaceSplit.childFaceNodeFlags.empty() );
+    EXPECT_TRUE( search.interfaceSplit.childFaceNodeIdsByParent.empty() );
+    EXPECT_TRUE( search.interfaceSplit.childFaceNodeFlagsByParent.empty() );
     EXPECT_EQ( search.AddFace( IntField{ 1, 2 } ), 0 );
 }
 
@@ -159,48 +161,54 @@ TEST( FaceSearchBasicTest, InvalidQuadCandidateLeavesMappedOutputUnchanged )
     EXPECT_EQ( mappedTriangles, ( LinkField{ IntField{ 90, 91, 92 } } ) );
 }
 
-TEST( FaceSearchBasicTest, LineSplitMappingPreservesEdgeDirectionAndEndpointFlags )
+TEST( FaceSearchBasicTest, GlobalLineCandidatesPreserveEdgeDirection )
 {
-    // Intent: splitting A->B produces A->M and M->B in both local and global IDs.
+    // Global child identity follows the directed parent ring A -> B.
+    LinkField candidates{ IntField{ 99, 98 } };
+
+    BuildGlobalLineSplitCandidates( 12, 18, 25, candidates );
+
+    EXPECT_EQ( candidates, ( LinkField{ IntField{ 12, 25 }, IntField{ 25, 18 } } ) );
+}
+
+TEST( FaceSearchBasicTest, GlobalLineCandidatesPreserveReversedEdgeDirection )
+{
+    LinkField candidates;
+
+    BuildGlobalLineSplitCandidates( 18, 12, 25, candidates );
+
+    EXPECT_EQ( candidates, ( LinkField{ IntField{ 18, 25 }, IntField{ 25, 12 } } ) );
+}
+
+TEST( FaceSearchBasicTest, GlobalLineCandidatesReplacePreviousOutput )
+{
+    LinkField candidates{ IntField{ 95, 94 } };
+
+    BuildGlobalLineSplitCandidates( 3, 4, 8, candidates );
+
+    EXPECT_EQ( candidates, ( LinkField{ IntField{ 3, 8 }, IntField{ 8, 4 } } ) );
+}
+
+TEST( FaceSearchBasicTest, LocalLineSplitMappingPreservesEndpointFlags )
+{
     LinkField localLineId{ IntField{ 9, 9 } };
     LinkField localLineFlag{ IntField{ 9, 9 } };
-    LinkField lineId{ IntField{ 9, 9 } };
 
-    BuildLineSplitMapping( 12, 18, 7, 25, localLineId, localLineFlag, lineId );
-
-    EXPECT_EQ( localLineId, ( LinkField{ IntField{ 0, 7 }, IntField{ 7, 1 } } ) );
-    EXPECT_EQ( localLineFlag, ( LinkField{ IntField{ 1, -1 }, IntField{ -1, 1 } } ) );
-    EXPECT_EQ( lineId, ( LinkField{ IntField{ 12, 25 }, IntField{ 25, 18 } } ) );
-}
-
-TEST( FaceSearchBasicTest, LineSplitMappingPreservesReversedEdgeDirection )
-{
-    // Intent: a reversed parent ring reverses the global child edge direction.
-    LinkField localLineId;
-    LinkField localLineFlag;
-    LinkField lineId;
-
-    BuildLineSplitMapping( 18, 12, 7, 25, localLineId, localLineFlag, lineId );
+    BuildLocalLineSplitMapping( 7, localLineId, localLineFlag );
 
     EXPECT_EQ( localLineId, ( LinkField{ IntField{ 0, 7 }, IntField{ 7, 1 } } ) );
     EXPECT_EQ( localLineFlag, ( LinkField{ IntField{ 1, -1 }, IntField{ -1, 1 } } ) );
-    EXPECT_EQ( lineId, ( LinkField{ IntField{ 18, 25 }, IntField{ 25, 12 } } ) );
 }
 
-TEST( FaceSearchBasicTest, LineSplitMappingReplacesPreviousOutput )
+TEST( FaceSearchBasicTest, LocalLineSplitMappingReplacesPreviousOutput )
 {
-    // Intent: callers may reuse output buffers; stale edges must not survive.
     LinkField localLineId{ IntField{ 99, 98 } };
     LinkField localLineFlag{ IntField{ 97, 96 } };
-    LinkField lineId{ IntField{ 95, 94 } };
 
-    BuildLineSplitMapping( 3, 4, 2, 8, localLineId, localLineFlag, lineId );
+    BuildLocalLineSplitMapping( 2, localLineId, localLineFlag );
 
-    ASSERT_EQ( localLineId.size(), static_cast< std::size_t >( 2 ) );
-    ASSERT_EQ( localLineFlag.size(), static_cast< std::size_t >( 2 ) );
-    ASSERT_EQ( lineId.size(), static_cast< std::size_t >( 2 ) );
-    EXPECT_EQ( lineId[ 0 ], ( IntField{ 3, 8 } ) );
-    EXPECT_EQ( lineId[ 1 ], ( IntField{ 8, 4 } ) );
+    EXPECT_EQ( localLineId, ( LinkField{ IntField{ 0, 2 }, IntField{ 2, 1 } } ) );
+    EXPECT_EQ( localLineFlag, ( LinkField{ IntField{ 1, -1 }, IntField{ -1, 1 } } ) );
 }
 
 TEST( FaceSearchBasicTest, GetFaceNodeRingRejectsOutOfRange )
@@ -212,18 +220,27 @@ TEST( FaceSearchBasicTest, GetFaceNodeRingRejectsOutOfRange )
     EXPECT_THROW( search.GetFaceNodeRing( 1 ), std::out_of_range );
 }
 
-TEST( FaceSearchBasicTest, SharedChildRejectsConflictingMappingRows )
+TEST( FaceSearchBasicTest, SharedChildKeepsParentSpecificMappingRows )
 {
-    // Intent: do not silently replace one parent's mapping with another row.
+    // Intent: global child identity is shared, but local rows belong to each parent.
     InterfaceFaceSplitTable split;
     split.ResetForFaceCount( 3 );
+    split.childFaceIdsOfParent[ 0 ] = IntField{ 2 };
+    split.childFaceIdsOfParent[ 1 ] = IntField{ 2 };
 
     split.SetChildMapping( 0, 2, IntField{ 0, 1, 2 }, IntField{ 1, 1, 1 } );
-    EXPECT_THROW(
-        split.SetChildMapping(
-            1, 2, IntField{ 2, 0, 1 }, IntField{ 1, 1, 1 } ),
-        std::logic_error );
+    split.SetChildMapping( 1, 2, IntField{ 2, 0, 1 }, IntField{ -1, 1, 1 } );
+
+    ASSERT_EQ( split.childFaceNodeIdsByParent.size(), static_cast< std::size_t >( 3 ) );
+    EXPECT_EQ( split.childFaceNodeIdsByParent[ 0 ][ 0 ], ( IntField{ 0, 1, 2 } ) );
+    EXPECT_EQ( split.childFaceNodeIdsByParent[ 1 ][ 0 ], ( IntField{ 2, 0, 1 } ) );
+    EXPECT_EQ( split.childFaceNodeFlagsByParent[ 0 ][ 0 ], ( IntField{ 1, 1, 1 } ) );
+    EXPECT_EQ( split.childFaceNodeFlagsByParent[ 1 ][ 0 ], ( IntField{ -1, 1, 1 } ) );
+
+    // Legacy child-global metadata is compatibility-only and must not be
+    // overwritten by a later parent's different local-corner mapping or flags.
     EXPECT_EQ( split.childFaceNodeIds[ 2 ], ( IntField{ 0, 1, 2 } ) );
+    EXPECT_EQ( split.childFaceNodeFlags[ 2 ], ( IntField{ 1, 1, 1 } ) );
 }
 
 TEST( FaceSearchBasicTest, ResetForFaceCountClearsAllSplitTables )
@@ -234,6 +251,8 @@ TEST( FaceSearchBasicTest, ResetForFaceCountClearsAllSplitTables )
     split.childFaceIdsOfParent[ 0 ] = IntField{ 1, 2 };
     split.childFaceNodeIds[ 1 ] = IntField{ 0, 1 };
     split.childFaceNodeFlags[ 1 ] = IntField{ 1, -1 };
+    split.childFaceNodeIdsByParent[ 0 ] = LinkField{ IntField{ 0, 1 } };
+    split.childFaceNodeFlagsByParent[ 0 ] = LinkField{ IntField{ 1, -1 } };
 
     split.ResetForFaceCount( 2 );
 
@@ -243,19 +262,38 @@ TEST( FaceSearchBasicTest, ResetForFaceCountClearsAllSplitTables )
     EXPECT_TRUE( split.childFaceIdsOfParent[ 0 ].empty() );
     EXPECT_TRUE( split.childFaceNodeIds[ 1 ].empty() );
     EXPECT_TRUE( split.childFaceNodeFlags[ 1 ].empty() );
+    ASSERT_EQ( split.childFaceNodeIdsByParent.size(), static_cast< std::size_t >( 2 ) );
+    ASSERT_EQ( split.childFaceNodeFlagsByParent.size(), static_cast< std::size_t >( 2 ) );
+    EXPECT_TRUE( split.childFaceNodeIdsByParent[ 0 ].empty() );
+    EXPECT_TRUE( split.childFaceNodeFlagsByParent[ 0 ].empty() );
 }
 
 TEST( FaceSearchBasicTest, ClearParentMappingOnlyClearsRequestedParent )
 {
     InterfaceFaceSplitTable split;
-    split.ResetForFaceCount( 2 );
-    split.childFaceIdsOfParent[ 0 ] = IntField{ 4, 5 };
-    split.childFaceIdsOfParent[ 1 ] = IntField{ 7, 8 };
+    // Face IDs 0 and 1 are parents; face ID 2 is their shared child.
+    split.ResetForFaceCount( 3 );
+    split.childFaceIdsOfParent[ 0 ] = IntField{ 2 };
+    split.childFaceIdsOfParent[ 1 ] = IntField{ 2 };
+    split.childFaceNodeIds[ 2 ] = IntField{ 0, 1, 2 };
+    split.childFaceNodeFlags[ 2 ] = IntField{ 1, 1, 1 };
+    split.childFaceNodeIdsByParent[ 0 ] = LinkField{ IntField{ 1, 2, 3 } };
+    split.childFaceNodeFlagsByParent[ 0 ] = LinkField{ IntField{ 1, 1, 1 } };
+    split.childFaceNodeIdsByParent[ 1 ] = LinkField{ IntField{ 0, 1, 2 } };
+    split.childFaceNodeFlagsByParent[ 1 ] = LinkField{ IntField{ 1, 1, 1 } };
 
     split.ClearParentMapping( 0 );
 
     EXPECT_TRUE( split.childFaceIdsOfParent[ 0 ].empty() );
-    EXPECT_EQ( split.childFaceIdsOfParent[ 1 ], ( IntField{ 7, 8 } ) );
+    EXPECT_EQ( split.childFaceIdsOfParent[ 1 ], ( IntField{ 2 } ) );
+    EXPECT_TRUE( split.childFaceNodeIdsByParent[ 0 ].empty() );
+    EXPECT_TRUE( split.childFaceNodeFlagsByParent[ 0 ].empty() );
+    EXPECT_EQ( split.childFaceNodeIdsByParent[ 1 ], ( LinkField{ IntField{ 0, 1, 2 } } ) );
+    EXPECT_EQ( split.childFaceNodeFlagsByParent[ 1 ], ( LinkField{ IntField{ 1, 1, 1 } } ) );
+
+    // The global child metadata is shared and must survive clearing one parent.
+    EXPECT_EQ( split.childFaceNodeIds[ 2 ], ( IntField{ 0, 1, 2 } ) );
+    EXPECT_EQ( split.childFaceNodeFlags[ 2 ], ( IntField{ 1, 1, 1 } ) );
 }
 
 TEST( FaceSearchBasicTest, ClearParentMappingRejectsInvalidParentId )
@@ -266,3 +304,95 @@ TEST( FaceSearchBasicTest, ClearParentMappingRejectsInvalidParentId )
     EXPECT_THROW( split.ClearParentMapping( -1 ), std::out_of_range );
     EXPECT_THROW( split.ClearParentMapping( 1 ), std::out_of_range );
 }
+
+TEST( FaceSearchBasicTest, ClearParentMappingRejectsMisalignedParentTables )
+{
+    InterfaceFaceSplitTable split;
+    split.ResetForFaceCount( 2 );
+    split.childFaceIdsOfParent[ 0 ] = IntField{ 1 };
+    split.childFaceNodeFlagsByParent.clear();
+
+    EXPECT_THROW( split.ClearParentMapping( 0 ), std::logic_error );
+    EXPECT_EQ( split.childFaceIdsOfParent[ 0 ], ( IntField{ 1 } ) );
+}
+
+TEST( FaceSearchBasicTest, QuadSplitRejectsDuplicateChildBeforeAppendingIt )
+{
+    // Intent: a degenerate quad must not register the same global child twice.
+    FaceSearch search;
+    ASSERT_EQ( search.AddFace( IntField{ 10, 20, 30, 30 } ), 0 );
+    ASSERT_EQ( search.AddFace( IntField{ 10, 20, 30 } ), 1 );
+    search.interfaceSplit.ResetForFaceCount( search.Size() );
+
+    EXPECT_THROW( search.SplitQuad2Tri( 0 ), std::logic_error );
+
+    // Duplicate candidates are rejected before any child mapping is published.
+    EXPECT_TRUE( search.interfaceSplit.childFaceIdsOfParent[ 0 ].empty() );
+    EXPECT_TRUE( search.interfaceSplit.childFaceNodeIdsByParent[ 0 ].empty() );
+    EXPECT_TRUE( search.interfaceSplit.childFaceNodeFlagsByParent[ 0 ].empty() );
+}
+
+TEST( FaceSearchBasicTest, SetChildMappingRejectsDuplicateChildRegistration )
+{
+    // Intent: each parent child position must identify exactly one global child face.
+    InterfaceFaceSplitTable split;
+    split.ResetForFaceCount( 3 );
+    split.childFaceIdsOfParent[ 0 ] = IntField{ 2, 2 };
+
+    EXPECT_THROW(
+        split.SetChildMapping( 0, 2, IntField{ 0, 1, 2 }, IntField{ 1, 1, 1 } ),
+        std::logic_error );
+
+    EXPECT_TRUE( split.childFaceNodeIdsByParent[ 0 ].empty() );
+    EXPECT_TRUE( split.childFaceNodeFlagsByParent[ 0 ].empty() );
+}
+
+TEST( FaceSearchBasicTest, SetChildMappingRejectsConflictingMappingForSameParent )
+{
+    // Intent: one parent-child relation cannot change its local corner mapping silently.
+    InterfaceFaceSplitTable split;
+    split.ResetForFaceCount( 3 );
+    split.childFaceIdsOfParent[ 0 ] = IntField{ 2 };
+
+    split.SetChildMapping( 0, 2, IntField{ 0, 1, 2 }, IntField{ 1, 1, 1 } );
+    EXPECT_NO_THROW(
+        split.SetChildMapping( 0, 2, IntField{ 0, 1, 2 }, IntField{ 1, 1, 1 } ) );
+
+    EXPECT_THROW(
+        split.SetChildMapping( 0, 2, IntField{ 2, 1, 0 }, IntField{ 1, 1, 1 } ),
+        std::logic_error );
+
+    ASSERT_EQ( split.childFaceNodeIdsByParent[ 0 ].size(), static_cast< std::size_t >( 1 ) );
+    EXPECT_EQ( split.childFaceNodeIdsByParent[ 0 ][ 0 ], ( IntField{ 0, 1, 2 } ) );
+    EXPECT_EQ( split.childFaceNodeFlagsByParent[ 0 ][ 0 ], ( IntField{ 1, 1, 1 } ) );
+}
+
+TEST( FaceSearchBasicTest, SetChildMappingRejectsMissingParentSpecificRow )
+{
+    InterfaceFaceSplitTable split;
+    split.ResetForFaceCount( 2 );
+    split.childFaceIdsOfParent[ 0 ] = IntField{ 1 };
+    split.childFaceNodeFlagsByParent.clear();
+
+    EXPECT_THROW(
+        split.SetChildMapping( 0, 1, IntField{ 0, 1 }, IntField{ 1, 1 } ),
+        std::logic_error );
+}
+
+TEST( FaceSearchBasicTest, SetChildMappingRejectsMisalignedParentRowsWithoutMutation )
+{
+    InterfaceFaceSplitTable split;
+    split.ResetForFaceCount( 3 );
+    split.childFaceIdsOfParent[ 0 ] = IntField{ 1, 2 };
+    split.childFaceNodeIdsByParent[ 0 ] = LinkField{ IntField{ 0, 1 } };
+
+    EXPECT_THROW(
+        split.SetChildMapping( 0, 2, IntField{ 1, 2 }, IntField{ 1, 1 } ),
+        std::logic_error );
+
+    EXPECT_EQ(
+        split.childFaceNodeIdsByParent[ 0 ],
+        ( LinkField{ IntField{ 0, 1 } } ) );
+    EXPECT_TRUE( split.childFaceNodeFlagsByParent[ 0 ].empty() );
+}
+

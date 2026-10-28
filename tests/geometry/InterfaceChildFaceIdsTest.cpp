@@ -73,15 +73,15 @@ TEST( InterfaceChildFaceIdsTest, RejectsOutOfRangeLocalFace )
         std::out_of_range );
 }
 
-TEST( InterfaceChildFaceIdsTest, RejectsMismatchedChildNodeTables )
+TEST( InterfaceChildFaceIdsTest, ChildIdentityLookupDoesNotValidateLegacyNodeMappings )
 {
     LinkField l2g;
     InterfaceFaceSplitTable split;
     SeedSplitTable( l2g, split );
-    // Break length contract on child 0
+    // Node mapping validity belongs to the mapping collector, not ID lookup.
     split.childFaceNodeFlags[ 0 ] = IntField{ 0 };
 
-    EXPECT_THROW(
-        GetInterfaceChildFaceIds( l2g, split, 0, 0 ),
-        std::logic_error );
+    const IntField & children = GetInterfaceChildFaceIds( l2g, split, 0, 0 );
+
+    EXPECT_EQ( children, ( IntField{ 0, 1 } ) );
 }
