@@ -43,14 +43,14 @@ public:
         return id;
     }
 
-    void GetPoint( int id, Real & xm, Real & ym, Real & zm ) override
+    void GetPoint( int id, Real & xm, Real & ym, Real & zm ) const override
     {
         xm = xs.at( static_cast< std::size_t >( id ) );
         ym = ys.at( static_cast< std::size_t >( id ) );
         zm = zs.at( static_cast< std::size_t >( id ) );
     }
 
-    int GetNPoint() override { return static_cast< int >( xs.size() ); }
+    int GetNPoint() const override { return static_cast< int >( xs.size() ); }
 
     int findCalls = 0;
     int addCalls = 0;
@@ -87,7 +87,9 @@ TEST( IFaceLinkPointLocatorInjectionTest, InjectedDoubleIsReadyWithoutGrids )
     EXPECT_EQ( raw->addCalls, 1 );
     EXPECT_EQ( link.GetPointLocator().FindPoint( 1.0, 2.0, 3.0 ), 0 );
     EXPECT_EQ( raw->findCalls, 1 );
-    EXPECT_EQ( link.GetPointLocator().GetNPoint(), 1 );
+    const PointLocator & readOnlyLocator = link.GetPointLocator();
+    EXPECT_EQ( readOnlyLocator.GetNPoint(), 1 );
+    EXPECT_DOUBLE_EQ( readOnlyLocator.GetTol(), 1.0e-6 );
 
     Real x = 0, y = 0, z = 0;
     link.GetPointLocator().GetPoint( 0, x, y, z );
