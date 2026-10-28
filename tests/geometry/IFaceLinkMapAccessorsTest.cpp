@@ -6,6 +6,7 @@
 
 #include "IFaceLink.h"
 #include "GridHandles.h"
+#include "StrGrid.h"
 #include "HXDefine.h"
 
 using namespace ONEFLOW;
@@ -50,7 +51,7 @@ TEST( IFaceLinkMapAccessorsTest, NewInverseMapAccessorsAliasStagingTables )
 TEST( IFaceLinkMapAccessorsTest, ConstGetGridReturnsReadOnlyZoneView )
 {
     Grids grids;
-    grids.push_back( std::make_unique< Grid >() );
+    grids.push_back( std::make_unique< StrGrid >() );
     IFaceLink link( grids );
     const IFaceLink & constLink = link;
 
