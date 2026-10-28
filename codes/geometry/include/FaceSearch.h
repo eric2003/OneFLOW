@@ -134,13 +134,15 @@ void BuildGlobalLineSplitCandidates(
     int midpointGlobalNode,
     LinkField & globalLineIds );
 
-// Build local child-edge indices and endpoint flags after a midpoint is found.
-// The local midpoint index is zone-specific; global node identity is handled
-// separately by BuildGlobalLineSplitCandidates.
+// Line-split policy: the global interface face must reference exactly one
+// zone. Returns that zone ID or throws.
 int RequireSoleZoneIdForGlobalFace(
     const LinkField & zoneIdsPerGlobalFace,
     int globalFaceId );
 
+// Build local child-edge indices and endpoint flags after a midpoint is found.
+// The local midpoint index is zone-specific; global node identity is handled
+// separately by BuildGlobalLineSplitCandidates.
 void BuildLocalLineSplitMapping(
     int midpointLocalNode,
     LinkField & localLineId,
