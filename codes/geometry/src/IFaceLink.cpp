@@ -615,9 +615,23 @@ void GetCoorIdList( IFaceLink & iFaceLink, RealField & xList, RealField & yList,
 }
 
 
+
+void IFaceLink::EnsureInterfaceZoneCount( std::size_t nZones )
+{
+    if ( this->l2g.size() < nZones )
+    {
+        this->l2g.resize( nZones );
+    }
+    if ( this->l2gNew.size() < nZones )
+    {
+        this->l2gNew.resize( nZones );
+    }
+}
+
 void IFaceLink::EnsureSplitBookkeepingMatchesZones()
 {
     // nChild is parallel to zones in l2g (not to global faces).
+    this->EnsureInterfaceZoneCount( this->l2g.size() );
     if ( this->nChild.size() < this->l2g.size() )
     {
         this->nChild.resize( this->l2g.size() );

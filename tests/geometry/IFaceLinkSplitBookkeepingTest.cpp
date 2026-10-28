@@ -51,3 +51,17 @@ TEST( IFaceLinkSplitBookkeepingTest, MutableNChildRequiresPriorEnsure )
     link.EnsureSplitBookkeepingMatchesZones();
     EXPECT_NO_THROW( link.MutableNChildForZone( 0 ) );
 }
+
+
+TEST( IFaceLinkSplitBookkeepingTest, EnsureInterfaceZoneCountSizesZoneTables )
+{
+    Grids grids;
+    IFaceLink link( grids );
+    EXPECT_TRUE( link.l2g.empty() );
+    link.EnsureInterfaceZoneCount( 3 );
+    EXPECT_EQ( link.l2g.size(), static_cast< std::size_t >( 3 ) );
+    EXPECT_EQ( link.l2gNew.size(), static_cast< std::size_t >( 3 ) );
+    // Global-face tables unchanged
+    EXPECT_TRUE( link.gI2Zid.empty() );
+    EXPECT_TRUE( link.g2l.empty() );
+}

@@ -107,6 +107,10 @@ public:
     [[nodiscard]] const LinkField & GetGlobalToZoneIds() const { return gI2Zid; }
     [[nodiscard]] const LinkField & GetGlobalToLocalIds() const { return g2l; }
 
+    // Ensure l2g / l2gNew have at least nZones rows (zone-parallel tables).
+    // Does not touch global-face tables (gI2Zid / g2l).
+    void EnsureInterfaceZoneCount( std::size_t nZones );
+
     // Split-rebuild bookkeeping: nChild must have one row per live zone (l2g).
     // Call after InitNewLgMapping so l2gNew already has empty per-zone rows.
     void EnsureSplitBookkeepingMatchesZones();

@@ -26,6 +26,42 @@ Goals
 Why this local refactor exists
 ------------------------------
 
+Architecture map (local refactor status)
+----------------------------------------
+
+This is the intentional end state of the **current** local refactor, not a
+wishlist for the whole solver.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 35 35
+
+   * - Area
+     - Closed
+     - Still open
+   * - Face discovery / stage
+     - ``StageNewFace``, Claim/Attach/Bind,
+       BC assign/export, boundary-first reorder
+     - End-to-end CGNS zone fixtures
+   * - Interface dual maps
+     - Register / Init / Commit pure helpers;
+       zone bookkeeping accessors;
+       ``EnsureInterfaceZoneCount``
+     - Make ``l2g`` / ``gI2Zid`` fields private
+       (tests still write fields)
+   * - IFaceLink services
+     - ``faceLookup``, ``point_search``,
+       ``face_search`` private + accessors
+     - Injectable ``PointLocator`` test double
+   * - Child mapping after split
+     - Parent-specific ``ByParent`` tables;
+       two-parent shared-child test
+     - Full multi-zone split e2e without grids
+
+**Rule of thumb:** if a change only renames a pure predicate already covered
+by tests, skip it. Prefer closing an open row in this table.
+
+
 The face / interface / BC path used to interleave **three different jobs** in
 the same loops:
 
