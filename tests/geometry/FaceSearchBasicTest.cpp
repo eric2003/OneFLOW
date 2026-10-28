@@ -223,16 +223,16 @@ TEST( FaceSearchBasicTest, SharedChildKeepsParentSpecificMappingRows )
     split.childFaceIdsOfParent[ 1 ] = IntField{ 2 };
 
     split.SetChildMapping( 0, 2, IntField{ 0, 1, 2 }, IntField{ 1, 1, 1 } );
-    split.SetChildMapping( 1, 2, IntField{ 2, 0, 1 }, IntField{ 1, 1, 1 } );
+    split.SetChildMapping( 1, 2, IntField{ 2, 0, 1 }, IntField{ -1, 1, 1 } );
 
     ASSERT_EQ( split.childFaceNodeIdsByParent.size(), static_cast< std::size_t >( 3 ) );
     EXPECT_EQ( split.childFaceNodeIdsByParent[ 0 ][ 0 ], ( IntField{ 0, 1, 2 } ) );
     EXPECT_EQ( split.childFaceNodeIdsByParent[ 1 ][ 0 ], ( IntField{ 2, 0, 1 } ) );
     EXPECT_EQ( split.childFaceNodeFlagsByParent[ 0 ][ 0 ], ( IntField{ 1, 1, 1 } ) );
-    EXPECT_EQ( split.childFaceNodeFlagsByParent[ 1 ][ 0 ], ( IntField{ 1, 1, 1 } ) );
+    EXPECT_EQ( split.childFaceNodeFlagsByParent[ 1 ][ 0 ], ( IntField{ -1, 1, 1 } ) );
 
     // Legacy child-global metadata is compatibility-only and must not be
-    // overwritten by a later parent's different local-corner mapping.
+    // overwritten by a later parent's different local-corner mapping or flags.
     EXPECT_EQ( split.childFaceNodeIds[ 2 ], ( IntField{ 0, 1, 2 } ) );
     EXPECT_EQ( split.childFaceNodeFlags[ 2 ], ( IntField{ 1, 1, 1 } ) );
 }
