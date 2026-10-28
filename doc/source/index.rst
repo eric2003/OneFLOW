@@ -36,7 +36,6 @@ Mesh and engineering workflows
 * :doc:`mesh_architecture` — mesh information levels, snapshots, and format adapters.
 * :doc:`grid_topology` — topology contracts, boundary normalization, and derived connectivity.
 * :doc:`face_stage_pipeline` — staged face write path, BC export, reorder contract, identity vs orientation.
-* :doc:`test_inventory` — source-discovered test catalog and the input/expected/result contract.
 * `Grid case guide <https://github.com/eric2003/OneFLOW/blob/hexin/grid/README.md>`_ — mesh cases and conversion workflows.
 * :doc:`workbench_user_guide_zh` — Chinese user guide for the optional Workbench GUI.
 * :doc:`case_parameter_design` — case parameter files and GUI editing design.
@@ -45,6 +44,7 @@ Mesh and engineering workflows
 Developer resources
 -------------------
 
+* :doc:`test_inventory` — source-discovered test catalog, separated by framework, with input/expected/result contracts.
 * :doc:`runtime_architecture` — runtime entry points, configuration boundaries, execution flow, and refactoring rules.
 * :doc:`architecture_review` — whole-system CFD/CAE architecture checklist, major cross-cutting risks, and AI-assisted development review prompts.
 * `AI project context and refactoring handoff <https://github.com/eric2003/OneFLOW/blob/hexin/doc/AI_CONTEXT.md>`_ — current focus, verified findings, open gaps, and next actions for continuing work.
