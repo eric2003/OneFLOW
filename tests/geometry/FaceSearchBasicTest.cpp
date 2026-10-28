@@ -284,6 +284,21 @@ TEST( FaceSearchBasicTest, ClearParentMappingRejectsMisalignedParentTables )
     EXPECT_EQ( split.childFaceIdsOfParent[ 0 ], ( IntField{ 1 } ) );
 }
 
+TEST( FaceSearchBasicTest, SetChildMappingRejectsDuplicateChildRegistration )
+{
+    // Intent: each parent child position must identify exactly one global child face.
+    InterfaceFaceSplitTable split;
+    split.ResetForFaceCount( 3 );
+    split.childFaceIdsOfParent[ 0 ] = IntField{ 2, 2 };
+
+    EXPECT_THROW(
+        split.SetChildMapping( 0, 2, IntField{ 0, 1, 2 }, IntField{ 1, 1, 1 } ),
+        std::logic_error );
+
+    EXPECT_TRUE( split.childFaceNodeIdsByParent[ 0 ].empty() );
+    EXPECT_TRUE( split.childFaceNodeFlagsByParent[ 0 ].empty() );
+}
+
 TEST( FaceSearchBasicTest, SetChildMappingRejectsMissingParentSpecificRow )
 {
     InterfaceFaceSplitTable split;
