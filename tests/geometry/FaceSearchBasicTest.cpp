@@ -294,11 +294,10 @@ TEST( FaceSearchBasicTest, QuadSplitRejectsDuplicateChildBeforeAppendingIt )
 
     EXPECT_THROW( search.SplitQuad2Tri( 0 ), std::logic_error );
 
-    EXPECT_EQ( search.interfaceSplit.childFaceIdsOfParent[ 0 ], ( IntField{ 1 } ) );
-    ASSERT_EQ( search.interfaceSplit.childFaceNodeIdsByParent[ 0 ].size(),
-               static_cast< std::size_t >( 1 ) );
-    EXPECT_EQ( search.interfaceSplit.childFaceNodeIdsByParent[ 0 ][ 0 ],
-               ( IntField{ 0, 1, 2 } ) );
+    // Duplicate candidates are rejected before any child mapping is published.
+    EXPECT_TRUE( search.interfaceSplit.childFaceIdsOfParent[ 0 ].empty() );
+    EXPECT_TRUE( search.interfaceSplit.childFaceNodeIdsByParent[ 0 ].empty() );
+    EXPECT_TRUE( search.interfaceSplit.childFaceNodeFlagsByParent[ 0 ].empty() );
 }
 
 TEST( FaceSearchBasicTest, SetChildMappingRejectsDuplicateChildRegistration )
