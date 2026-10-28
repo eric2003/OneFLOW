@@ -1112,6 +1112,10 @@ Open design pressures
   aligned row for each child. ``SetChildMapping`` permits a row to lag the child
   list while children are registered incrementally, but the ID and flag rows
   must always have equal lengths and must not exceed the parent's child count.
+  The legacy global child-ID and flag rows must also be length-aligned before
+  a parent-specific row can be written; malformed compatibility data is
+  rejected without changing either mapping domain. This prevents a successful
+  parent-specific write from masking a broken global fallback row.
   It rejects a mismatched pair before resizing either row, so malformed metadata
   is not silently normalized. This invariant is covered by
   ``FaceSearchBasicTest.SetChildMappingRejectsMisalignedParentRowsWithoutMutation``. ``FaceTopo::SetNewFace2Node`` collects these
