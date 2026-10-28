@@ -62,16 +62,16 @@ public:
 public:
     // Virtual hooks used by mid-point / interface geometry paths. Production
     // builds the ADT; unit tests may override without grids or coorTree.
-    virtual int GetNPoint() { return static_cast<int> (xCoor.size()); }
+    virtual int GetNPoint() const { return static_cast<int> (xCoor.size()); }
     virtual int FindPoint( Real xm, Real ym, Real zm );
     virtual int AddPoint( Real xm, Real ym, Real zm );
-    virtual void GetPoint( int id, Real & xm, Real & ym, Real & zm );
-    virtual Real GetTol() { return tolerance; }
+    virtual void GetPoint( int id, Real & xm, Real & ym, Real & zm ) const;
+    virtual Real GetTol() const { return tolerance; }
 protected:
     int AddPoint( RealField & coordinate );
     int FindPoint( RealField & coordinate );
 public:
-    void GetFaceCoorList( const IntField & nodeId, RealField &xList, RealField &yList, RealField &zList );
+    void GetFaceCoorList( const IntField & nodeId, RealField &xList, RealField &yList, RealField &zList ) const;
 };
 
 void CreateStandardADT( const RealField & ptmin, const RealField & ptmax, std::unique_ptr<AdtTree>& adtTree, Real & tolerance );
