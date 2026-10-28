@@ -999,6 +999,31 @@ void CollectBoundaryInterfaceChildNodeMappings(
     // leave callers with a partial set of node mappings.
     std::vector< LinkField > nodeIdsByInterfaceLocal;
     std::vector< LinkField > nodeFlagsByInterfaceLocal;
+    const bool hasParentSpecificTables =
+        ! splitTable.childFaceNodeIdsByParent.empty() ||
+        ! splitTable.childFaceNodeFlagsByParent.empty();
+    bool anyParentSpecificMapping = false;
+    if ( hasParentSpecificTables )
+    {
+        if ( splitTable.childFaceNodeIdsByParent.size() !=
+             splitTable.childFaceNodeFlagsByParent.size() )
+        {
+            throw std::logic_error(
+                "CollectBoundaryInterfaceChildNodeMappings: parent-specific tables are misaligned" );
+        }
+        for ( std::size_t parentIndex = 0;
+              parentIndex < splitTable.childFaceNodeIdsByParent.size();
+              ++ parentIndex )
+        {
+            if ( ! splitTable.childFaceNodeIdsByParent[ parentIndex ].empty() ||
+                 ! splitTable.childFaceNodeFlagsByParent[ parentIndex ].empty() )
+            {
+                anyParentSpecificMapping = true;
+                break;
+            }
+        }
+    }
+
     int interfaceLocal = 0;
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
@@ -1017,18 +1042,8 @@ void CollectBoundaryInterfaceChildNodeMappings(
             continue;
         }
 
-        bool hasParentSpecificRows = false;
-        const bool hasParentSpecificTables =
-            ! splitTable.childFaceNodeIdsByParent.empty() ||
-            ! splitTable.childFaceNodeFlagsByParent.empty();
         if ( hasParentSpecificTables )
         {
-            if ( splitTable.childFaceNodeIdsByParent.size() !=
-                     splitTable.childFaceNodeFlagsByParent.size() )
-            {
-                throw std::logic_error(
-                    "CollectBoundaryInterfaceChildNodeMappings: parent-specific tables are misaligned" );
-            }
             if ( globalParentId < 0 ||
                  static_cast< std::size_t >( globalParentId ) >= splitTable.childFaceNodeIdsByParent.size() )
             {
@@ -1038,8 +1053,7 @@ void CollectBoundaryInterfaceChildNodeMappings(
 
             const LinkField & nodeIds = splitTable.childFaceNodeIdsByParent[ globalParentId ];
             const LinkField & nodeFlags = splitTable.childFaceNodeFlagsByParent[ globalParentId ];
-            hasParentSpecificRows = ! nodeIds.empty() || ! nodeFlags.empty();
-            if ( hasParentSpecificRows )
+            if ( ! nodeIds.empty() || ! nodeFlags.empty() )
             {
                 if ( nodeIds.size() != childIds.size() ||
                      nodeFlags.size() != childIds.size() )
@@ -1055,20 +1069,6 @@ void CollectBoundaryInterfaceChildNodeMappings(
 
             // Once any parent-specific mapping has been published, an empty
             // row for a split parent is missing data, not a legacy fallback.
-            // Otherwise a shared child could inherit another parent's local
-            // node numbering from the child-global compatibility table.
-            bool anyParentSpecificMapping = false;
-            for ( std::size_t parentIndex = 0;
-                  parentIndex < splitTable.childFaceNodeIdsByParent.size();
-                  ++ parentIndex )
-            {
-                if ( ! splitTable.childFaceNodeIdsByParent[ parentIndex ].empty() ||
-                     ! splitTable.childFaceNodeFlagsByParent[ parentIndex ].empty() )
-                {
-                    anyParentSpecificMapping = true;
-                    break;
-                }
-            }
             if ( anyParentSpecificMapping )
             {
                 throw std::logic_error(
