@@ -8,11 +8,11 @@ This note records the size-type contract behind the `MRField` face-state buffers
 
 `HXSize_t` is the unsigned size/count type used by OneFLOW and aliases `std::size_t`. `MRField` is an alias for `Marray<Real>`, whose storage is a vector of equation fields:
 
-- The outer extent is the number of equations.
-- Each inner extent is the number of values stored for one equation.
+- The outer extent is the number of equations (`nEqu`).
+- Each inner extent is the number of values stored for one equation (`nValues`); the values may represent cells, faces, or another domain-specific collection. The generic container should not assume that every inner extent is a cell count.
 - For face-state buffers, the inner extent is the number of faces.
 
-The `Marray` constructor previously accepted `HXSize_t` for the equation count but `int` for the inner extent. Passing a face count from `HXSize_t` therefore narrowed a size value to `int`, producing MSVC warning C4267 at the `std::make_unique<MRField>` call in `ULimiter.cpp`. The constructor now uses `HXSize_t` for both extents, matching the vector size API and avoiding a call-site cast that would merely conceal the mismatch.
+The `Marray` constructor previously accepted `HXSize_t` for the equation count but `int` for the inner extent. Passing a face count from `HXSize_t` therefore narrowed a size value to `int`, producing MSVC warning C4267 at the `std::make_unique<MRField>` call in `ULimiter.cpp`. The constructor now uses `HXSize_t` for both extents, matching the vector size API and avoiding a call-site cast that would merely conceal the mismatch. Its second parameter is named `nValues` rather than `numberOfCells`, because `Marray` is a generic equation-by-value container and also stores face data. This is a naming clarification, not a storage-layout change.
 
 This is an interface-contract fix, not a claim that every index in the array subsystem has already been migrated. Index types and legacy loops can be reviewed separately when a concrete boundary or warning warrants it.
 
