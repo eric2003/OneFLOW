@@ -665,6 +665,15 @@ Open design pressures
   ``SetChildMapping`` remains a second, API-level guard for callers that register
   mappings directly (**test:** ``FaceSearchBasicTest.SetChildMappingRejectsDuplicateChildRegistration``).
 
+  Re-registering the same parent-child mapping is idempotent, but writing a
+  different local-corner row for that same relation is rejected before either
+  stored row changes (**test:**
+  ``FaceSearchBasicTest.SetChildMappingRejectsConflictingMappingForSameParent``).
+  This is distinct from two different parents sharing one global child: those
+  rows are expected to differ because each row is interpreted against its own
+  parent ring. The invariant is therefore per parent-child relation, not per
+  global child ID.
+
   Mapping collection prefers the parent-specific row whenever it contains
   data. The legacy child-global row is only a compatibility fallback when both
   parent-specific rows for that parent are empty. This distinction matters:
