@@ -564,6 +564,13 @@ rows empty. This is more valuable than another helper-only test because it
 locks the order of operations across locator injection, global topology lookup,
 and mapping publication.
 
+``FaceSearchBasicTest.RegisteredChildResolutionPreservesCandidateIndexForPartialMatch``
+locks the complementary table-level rule: when only candidate 1 is registered,
+the resolver returns candidate index 1 rather than compacted index 0. That index
+selects the correct parent-local node/flag row during publication. The test does
+not claim to exercise zone-local midpoint insertion; that remains covered only
+by the full ``SplitLine`` path when a suitable grid fixture is available.
+
 **Current boundary:** this regression covers the no-child short-circuit, not a
 successful zone-local insertion. The positive path still depends on
 ``IFaceLink``/``nodeMesh`` services and should be tested only when a small
