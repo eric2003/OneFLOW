@@ -511,8 +511,8 @@ resolved child IDs and candidate positions are retained and reused when parent
 mappings are published, so the registry lookup is performed once per candidate
 rather than once for the preflight and again for publication. Duplicate child
 identities are rejected by the shared resolver before any zone-local mutation.
-ResolveRegisteredChildFaces is now an explicit topology-resolution step
-that can be tested without IFaceLink or a real grid. It skips candidate
+``ResolveRegisteredChildFaces`` is now an explicit topology-resolution step
+that can be tested without ``IFaceLink`` or a real grid. It skips candidate
 edges absent from the registry, returns each registered child with its original
 candidate position, and replaces both output buffers only after successful
 resolution. The current policy intentionally permits a partial match: one
