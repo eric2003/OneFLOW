@@ -137,6 +137,12 @@ void InterfaceFaceSplitTable::SetChildMapping(
         childPosition - parentChildren.begin() );
     LinkField & parentNodeIds = this->childFaceNodeIdsByParent[ parentIndex ];
     LinkField & parentNodeFlags = this->childFaceNodeFlagsByParent[ parentIndex ];
+    if ( parentNodeIds.size() != parentNodeFlags.size() ||
+         parentNodeIds.size() > parentChildren.size() )
+    {
+        throw std::logic_error(
+            "InterfaceFaceSplitTable::SetChildMapping: parent mapping rows are misaligned" );
+    }
     parentNodeIds.resize( parentChildren.size() );
     parentNodeFlags.resize( parentChildren.size() );
     parentNodeIds[ childIndex ] = localNodeIds;
