@@ -643,7 +643,14 @@ Open design pressures
   parent ID. The test must therefore use distinct parent node sets and assert
   each ordered child node list, not only the global child ID.
 
-  The split table now retains parent-specific child node IDs and flags in
+  Each parent child list must contain a global child face ID at most once.
+The mapping rows are indexed by child position, so duplicate IDs would make a
+single ``SetChildMapping(parent, child, ...)`` call ambiguous: the same child ID
+would name multiple positions. ``SetChildMapping`` rejects duplicate
+registrations before resizing or writing either parent-specific row
+(**test:** ``FaceSearchBasicTest.SetChildMappingRejectsDuplicateChildRegistration``).
+
+The split table now retains parent-specific child node IDs and flags in
   ``childFaceNodeIdsByParent`` and ``childFaceNodeFlagsByParent``. Global
   child IDs remain the identity and deduplication key; each parent owns an
   aligned row for each child. ``SetChildMapping`` permits a row to lag the child
