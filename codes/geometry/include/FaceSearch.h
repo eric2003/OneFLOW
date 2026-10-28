@@ -126,22 +126,25 @@ private:
         std::vector< int > & childCandidateIndices );
 };
 
-// Build the two directed child edges and their local endpoint flags after a midpoint is found.
-// Outputs are replaced, and child order follows the original edge direction.
-// Line-split policy: global interface face must list exactly one zone.
-// Returns that zone id or throws.
+// Build directed global child-edge candidates. Outputs are replaced and order
+// follows the parent edge direction.
+void BuildGlobalLineSplitCandidates(
+    int firstNode,
+    int secondNode,
+    int midpointGlobalNode,
+    LinkField & globalLineIds );
+
+// Build local child-edge indices and endpoint flags after a midpoint is found.
+// The local midpoint index is zone-specific; global node identity is handled
+// separately by BuildGlobalLineSplitCandidates.
 int RequireSoleZoneIdForGlobalFace(
     const LinkField & zoneIdsPerGlobalFace,
     int globalFaceId );
 
-void BuildLineSplitMapping(
-    int firstNode,
-    int secondNode,
+void BuildLocalLineSplitMapping(
     int midpointLocalNode,
-    int midpointGlobalNode,
     LinkField & localLineId,
-    LinkField & localLineFlag,
-    LinkField & lineId );
+    LinkField & localLineFlag );
 
 // Pure helpers for quad diagonal split (testable without IFaceLink).
 // BuildQuadDiagonalLocalTris clears outputs then fills four candidate tris:
