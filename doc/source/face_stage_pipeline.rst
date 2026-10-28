@@ -1354,6 +1354,14 @@ The algorithm has four important properties:
    same global face ID, the resolver throws instead of publishing an ambiguous
    parent-to-child relation.
 
+The resolver checks duplicate resolved IDs with a hash set while keeping the
+result vector in candidate order. For `k` candidate faces, this changes the
+duplicate-check portion from a repeated linear scan (worst-case quadratic in
+the number of resolved children) to expected linear time, without changing
+the registry lookup or output ordering. The vector remains the authoritative
+ordered result; the set is only an identity guard. This is an implementation
+detail, not a new topology rule.
+
 The registered-child contract is covered by
 ``FaceSearchBasicTest.RegisteredChildResolutionReturnsOnlyKnownChildren``,
 with companion tests for partial matches, no matches, duplicate identity, and
