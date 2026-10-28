@@ -161,48 +161,54 @@ TEST( FaceSearchBasicTest, InvalidQuadCandidateLeavesMappedOutputUnchanged )
     EXPECT_EQ( mappedTriangles, ( LinkField{ IntField{ 90, 91, 92 } } ) );
 }
 
-TEST( FaceSearchBasicTest, LineSplitMappingPreservesEdgeDirectionAndEndpointFlags )
+TEST( FaceSearchBasicTest, GlobalLineCandidatesPreserveEdgeDirection )
 {
-    // Intent: splitting A->B produces A->M and M->B in both local and global IDs.
+    // Global child identity follows the directed parent ring A -> B.
+    LinkField candidates{ IntField{ 99, 98 } };
+
+    BuildGlobalLineSplitCandidates( 12, 18, 25, candidates );
+
+    EXPECT_EQ( candidates, ( LinkField{ IntField{ 12, 25 }, IntField{ 25, 18 } } ) );
+}
+
+TEST( FaceSearchBasicTest, GlobalLineCandidatesPreserveReversedEdgeDirection )
+{
+    LinkField candidates;
+
+    BuildGlobalLineSplitCandidates( 18, 12, 25, candidates );
+
+    EXPECT_EQ( candidates, ( LinkField{ IntField{ 18, 25 }, IntField{ 25, 12 } } ) );
+}
+
+TEST( FaceSearchBasicTest, GlobalLineCandidatesReplacePreviousOutput )
+{
+    LinkField candidates{ IntField{ 95, 94 } };
+
+    BuildGlobalLineSplitCandidates( 3, 4, 8, candidates );
+
+    EXPECT_EQ( candidates, ( LinkField{ IntField{ 3, 8 }, IntField{ 8, 4 } } ) );
+}
+
+TEST( FaceSearchBasicTest, LocalLineSplitMappingPreservesEndpointFlags )
+{
     LinkField localLineId{ IntField{ 9, 9 } };
     LinkField localLineFlag{ IntField{ 9, 9 } };
-    LinkField lineId{ IntField{ 9, 9 } };
 
-    BuildLineSplitMapping( 12, 18, 7, 25, localLineId, localLineFlag, lineId );
-
-    EXPECT_EQ( localLineId, ( LinkField{ IntField{ 0, 7 }, IntField{ 7, 1 } } ) );
-    EXPECT_EQ( localLineFlag, ( LinkField{ IntField{ 1, -1 }, IntField{ -1, 1 } } ) );
-    EXPECT_EQ( lineId, ( LinkField{ IntField{ 12, 25 }, IntField{ 25, 18 } } ) );
-}
-
-TEST( FaceSearchBasicTest, LineSplitMappingPreservesReversedEdgeDirection )
-{
-    // Intent: a reversed parent ring reverses the global child edge direction.
-    LinkField localLineId;
-    LinkField localLineFlag;
-    LinkField lineId;
-
-    BuildLineSplitMapping( 18, 12, 7, 25, localLineId, localLineFlag, lineId );
+    BuildLocalLineSplitMapping( 7, localLineId, localLineFlag );
 
     EXPECT_EQ( localLineId, ( LinkField{ IntField{ 0, 7 }, IntField{ 7, 1 } } ) );
     EXPECT_EQ( localLineFlag, ( LinkField{ IntField{ 1, -1 }, IntField{ -1, 1 } } ) );
-    EXPECT_EQ( lineId, ( LinkField{ IntField{ 18, 25 }, IntField{ 25, 12 } } ) );
 }
 
-TEST( FaceSearchBasicTest, LineSplitMappingReplacesPreviousOutput )
+TEST( FaceSearchBasicTest, LocalLineSplitMappingReplacesPreviousOutput )
 {
-    // Intent: callers may reuse output buffers; stale edges must not survive.
     LinkField localLineId{ IntField{ 99, 98 } };
     LinkField localLineFlag{ IntField{ 97, 96 } };
-    LinkField lineId{ IntField{ 95, 94 } };
 
-    BuildLineSplitMapping( 3, 4, 2, 8, localLineId, localLineFlag, lineId );
+    BuildLocalLineSplitMapping( 2, localLineId, localLineFlag );
 
-    ASSERT_EQ( localLineId.size(), static_cast< std::size_t >( 2 ) );
-    ASSERT_EQ( localLineFlag.size(), static_cast< std::size_t >( 2 ) );
-    ASSERT_EQ( lineId.size(), static_cast< std::size_t >( 2 ) );
-    EXPECT_EQ( lineId[ 0 ], ( IntField{ 3, 8 } ) );
-    EXPECT_EQ( lineId[ 1 ], ( IntField{ 8, 4 } ) );
+    EXPECT_EQ( localLineId, ( LinkField{ IntField{ 0, 2 }, IntField{ 2, 1 } } ) );
+    EXPECT_EQ( localLineFlag, ( LinkField{ IntField{ 1, -1 }, IntField{ -1, 1 } } ) );
 }
 
 TEST( FaceSearchBasicTest, GetFaceNodeRingRejectsOutOfRange )
