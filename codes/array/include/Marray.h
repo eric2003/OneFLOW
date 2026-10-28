@@ -33,12 +33,12 @@ public:
     {
     }
 
-    Marray( HXSize_t nEqu, HXSize_t numberOfCells )
+    Marray( HXSize_t nEqu, HXSize_t nValues )
     {
         data.resize( nEqu );
         for ( HXSize_t iEqu = 0; iEqu < nEqu; ++ iEqu )
         {
-            data[ iEqu ].resize( numberOfCells );
+            data[ iEqu ].resize( nValues );
         }
     }
     ~Marray()
