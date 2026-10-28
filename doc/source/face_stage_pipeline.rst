@@ -920,10 +920,18 @@ already registered global faces and rejects duplicate child ids for one
 parent. ``SetChildMapping`` then writes the parent-specific row (and seeds the
 global row only if still empty).
 
-**Consume path.** ``CollectBoundaryInterfaceChildNodeMappings`` prefers
-``ByParent`` rows when present; otherwise falls back to the global child
-tables. ``RebuildFaceNodeListsAfterInterfaceSplit`` applies
-``ResolveChildFaceNodeIds`` per child.
+**Consume path.** ``CollectBoundaryInterfaceChildNodeMappings`` uses
+parent-specific rows once any such mapping has been published. A split parent
+with a missing parent-specific row is an error; falling back to a global child
+row could silently reuse another parent's local node numbering for a shared
+child. The global child tables remain a compatibility path only when all
+parent-specific rows are empty. ``RebuildFaceNodeListsAfterInterfaceSplit``
+applies ``ResolveChildFaceNodeIds`` per child.
+
+**Regression:** ``CollectBoundaryInterfaceChildNodeMappingsTest.RejectsMissingParentRowInsteadOfUsingSharedChildGlobalRow``
+proves the collector rejects an incomplete modern mapping and leaves output
+buffers unchanged. Legacy fixtures that only populate global child rows remain
+supported.
 
 **Tests:** ``TwoParentSharedChildMappingTest``,
 ``FaceSearchBasicTest`` (duplicate / conflict guards).
