@@ -540,8 +540,8 @@ The line split now has two deliberately separate representations:
 
 The global midpoint ID identifies topology; the local midpoint ID addresses one
 zone's node array. Keeping these outputs separate makes the preflight lookup
-independent of the zone-local index and prevents a temporary local-mapping builder from also producing a global
-representation that its caller discards. The endpoint flags encode which
+independent of the zone-local index and prevents a temporary local-mapping
+builder from also producing a global representation that its caller discards. The endpoint flags encode which
 original endpoint each child retains. Reversing the parent ring must reverse
 the global child-edge direction while leaving the local index pattern and
 flags unchanged.
@@ -893,7 +893,7 @@ This can advance **in parallel** with the geometry refactor:
    do not re-implement split logic in Qt/Python.
 
 What the workbench is *not*: a button that only launches GoogleTest. What it
-*is*: an editable, visual driver of table-level geometry contracts — the same
+*is*: an editable, visual driver of table-level geometry contracts -- the same
 contracts the local refactor is carving out.
 
 Local refactor scorecard
