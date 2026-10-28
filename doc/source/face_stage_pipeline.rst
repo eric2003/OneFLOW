@@ -681,6 +681,15 @@ Open design pressures
   or malformed row, the caller's previous output remains intact
   (test: ``RebuildFaceNodeListsTest.FailedRebuildDoesNotPublishPartialFaceLists``).
 
+  The overload that accepts child-global node tables is now an adapter: it
+  translates each interface's child IDs into the parent-local row layout and
+  delegates reconstruction to the same core overload. This keeps compatibility
+  at the input boundary instead of maintaining two copies of face-list
+  rebuilding logic. The regression
+  ``RebuildFaceNodeListsTest.LegacyMappingAdapterUsesCanonicalRebuildAtomically``
+  verifies that a failure in a later legacy-mapped child does not publish a
+  partial face list.
+
   The split table now retains parent-specific child node IDs and flags in
   ``childFaceNodeIdsByParent`` and ``childFaceNodeFlagsByParent``. Global
   child IDs remain the identity and deduplication key; each parent owns an
