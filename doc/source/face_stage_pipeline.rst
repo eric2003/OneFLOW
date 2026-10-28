@@ -953,13 +953,17 @@ Workbench host and OneFLOW GUI
 --------------------------------
 
 The Geometry Contracts dialog is a contract-exploration surface, not a test
-launcher. Its current backend is fixture-backed: it displays a known mock table
-result, while the expected tables can be edited as JSON and compared against
-that result. The topology sketch and optional PNG export are derived from the
-mock output. This allows the interaction loop (edit expectation, run comparison,
-inspect mismatch, visualize, export) to be developed before binding the native
-geometry pipeline. A PASS here validates the edited contract against the
-fixture only; it does not validate production C++ geometry behavior.
+launcher. Both input and expected tables can be edited as JSON and restored to
+the scenario defaults. The current backend is fixture-backed: it parses the
+edited input but returns a known mock table result rather than recomputing the
+geometry algorithm from that input. The expected tables are compared against
+that fixture, and the topology sketch and optional PNG export are derived from
+the mock output. This lets the scenario-editing and comparison loop develop
+before binding the native geometry pipeline. A PASS here validates the edited
+expected contract against the fixture only; it does not validate production C++
+geometry behavior. A regression test explicitly locks the fixture-backed
+boundary so the UI cannot accidentally imply that input edits trigger a real
+geometry calculation.
 
 ``tools/geometry_workbench`` holds stdlib scenario JSON and a stub pipeline.
 The OneFLOW Workbench home screen exposes **Geometry Contracts...**
