@@ -33,6 +33,13 @@ class Grid;
 using AdtTree = HXAdtTree<int, Real>;
 using AdtNode = HXAdtNode<int, Real>;
 
+/**
+ * Locate and deduplicate points using an ADT spatial index.
+ *
+ * The locator owns its spatial index and coordinate store. FindPoint is a
+ * query that updates the last-result ID; AddPoint may also extend the store.
+ * Matching tolerance is established by Initialize or InitializeSpecial.
+ */
 class PointLocator
 {
 public:
@@ -54,18 +61,45 @@ protected:
     Real tolerance;
     RealField xCoor, yCoor, zCoor;
 public:
+    /**
+     * Initialize the search bounds and ADT using an explicit tolerance.
+     * The input bounds are read-only; the expanded bounds are stored locally.
+     */
     void Initialize( const RealField & pmin, const RealField & pmax, Real toleranceIn );
+
+    /// Initialize from one grid; tolerance is derived from its minimum spacing.
     void Initialize( Grid * grid );
+
+    /// Initialize from one grid, then override the derived tolerance.
     void InitializeSpecial( Grid * grid, Real toleranceIn );
+
+    /// Initialize from owned grid handles using the standard multi-grid policy.
     void Initialize( Grids & grids );
+
+    /// Initialize from non-owning grid views using the standard multi-grid policy.
     void Initialize( const GridViews & grids );
 public:
     // Virtual hooks used by mid-point / interface geometry paths. Production
     // builds the ADT; unit tests may override without grids or coorTree.
+    /// Return the number of points currently stored.
     virtual int GetNPoint() const { return static_cast<int> (xCoor.size()); }
+
+    /**
+     * Find the closest stored point strictly inside the tolerance radius.
+     * Returns INVALID_INDEX when no point matches.
+     */
     virtual int FindPoint( Real xm, Real ym, Real zm );
+
+    /**
+     * Return an existing point ID within tolerance or insert a new point.
+     * Insertion updates the coordinate store and ADT.
+     */
     virtual int AddPoint( Real xm, Real ym, Real zm );
+
+    /// Copy the coordinates of a stored point to the output arguments.
     virtual void GetPoint( int id, Real & xm, Real & ym, Real & zm ) const;
+
+    /// Return the active point-matching tolerance.
     virtual Real GetTol() const { return tolerance; }
 protected:
     int AddPoint( const RealField & coordinate );
@@ -74,6 +108,10 @@ public:
     void GetFaceCoorList( const IntField & nodeId, RealField &xList, RealField &yList, RealField &zList ) const;
 };
 
+/**
+ * Build an ADT from bounds without modifying the caller's bounds.
+ * The tolerance argument is both the input padding policy and the output value.
+ */
 void CreateStandardADT( const RealField & ptmin, const RealField & ptmax, std::unique_ptr<AdtTree>& adtTree, Real & tolerance );
 void CreateStandardADT( Grid * grid, std::unique_ptr<AdtTree>& adtTree, Real & tolerance );
 void CreateStandardADT( Grids & grids, std::unique_ptr<AdtTree>& adtTree, Real & tolerance );
