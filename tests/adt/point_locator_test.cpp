@@ -46,9 +46,9 @@ TEST_F(PointLocatorTest, MultipleNodesInToleranceBox) {
 
     // 3. The refactored code should NOT crash. 
     // It should calculate exact distances and return the ID of the closest point.
-    // Distance to ID 0: sqrt(0.5^2 + 0.5^2) = sqrt(0.5) ¡Ö 0.707 < 1.0 (Valid)
-    // Distance to ID 1: sqrt(0.5^2 + 0.5^2) = sqrt(0.5) ¡Ö 0.707 < 1.0 (Valid)
-    // Distance to ID 2: sqrt(0.5^2 + 0.5^2) = sqrt(0.5) ¡Ö 0.707 < 1.0 (Valid)
+    // Distance to ID 0: sqrt(0.5^2 + 0.5^2) = sqrt(0.5) ~ 0.707 < 1.0 (Valid)
+    // Distance to ID 1: sqrt(0.5^2 + 0.5^2) = sqrt(0.5) Â¡Ã– 0.707 < 1.0 (Valid)
+    // Distance to ID 2: sqrt(0.5^2 + 0.5^2) = sqrt(0.5) Â¡Ã– 0.707 < 1.0 (Valid)
 
     // Since distances are equal, it will return the first one it evaluates as the minimum (likely ID 0).
     // The critical success criterion is that it returns a VALID index (0, 1, or 2) instead of crashing.
@@ -80,4 +80,19 @@ TEST_F(PointLocatorTest, FindNonExistentPoint) {
     int foundId = locator.FindPoint(9.0, 9.0, 9.0);
 
     EXPECT_EQ(foundId, ONEFLOW::INVALID_INDEX);
+}
+
+ 
+// The broad-phase ADT query can return multiple candidates. The narrow phase
+// must select the closest point, not whichever candidate happens to be visited first.
+TEST_F(PointLocatorTest, ChoosesClosestPointAmongCandidates) {
+    ONEFLOW::PointLocator locator;
+    const double test_tol = 0.8;
+    locator.Initialize(pmin_, pmax_, test_tol);
+
+    EXPECT_EQ(locator.AddPoint(0.0, 0.0, 0.0), 0);
+    EXPECT_EQ(locator.AddPoint(0.8, 0.0, 0.0), 1);
+
+    // Both stored points are within the query tolerance; point 1 is closer.
+    EXPECT_EQ(locator.FindPoint(0.65, 0.0, 0.0), 1);
 }
