@@ -52,6 +52,24 @@ class GeometryContractBridgeTest(unittest.TestCase):
         self.assertTrue(mismatches)
         self.assertIn("l2g: actual=", mismatches[0])
 
+    def test_partial_child_match_scenario_points_to_cpp_regression(self) -> None:
+        from geometry_workbench.scenarios import list_scenario_paths, load_scenario
+
+        scenarios = [
+            load_scenario(path)
+            for path in list_scenario_paths(REPO)
+            if path.stem == "registered_child_partial_match"
+        ]
+        self.assertEqual(len(scenarios), 1)
+        scenario = scenarios[0]
+        self.assertEqual(
+            scenario["test"]["name"],
+            "RegisteredChildResolutionPreservesCandidateIndexForPartialMatch",
+        )
+        self.assertEqual(scenario["expected"]["childFaceIds"], [0])
+        self.assertEqual(scenario["expected"]["candidateIndices"], [1])
+        self.assertIn("fixture backend", " ".join(scenario["notes"]))
+
 
 if __name__ == "__main__":
     unittest.main()
