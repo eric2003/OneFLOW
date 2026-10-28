@@ -458,3 +458,28 @@ grid bounding-box calculation, or the ADT search algorithm. Those are separate
 contracts and should be evaluated independently. The locator's inserted-point store is
 also distinct from the source grid nodes used to establish initial search bounds; clearing
 the former does not clear or modify the source grid.
+
+
+Special tolerance and broad-phase bounds
+----------------------------------------
+
+``InitializeSpecial(grid, toleranceIn)`` must keep the broad and narrow phases in
+agreement. The narrow phase accepts a point only when its squared distance is strictly
+less than ``toleranceIn * toleranceIn``. The broad phase first asks the ADT for points in
+a box expanded by that same tolerance. If the ADT root bounds are expanded only by the
+grid-derived default tolerance (``minimum_spacing / 4``) while the query uses a larger
+explicit tolerance, a point can satisfy the exact distance test but never reach the
+narrow phase because it was excluded by the index bounds.
+
+The implementation now calculates the source grid bounding box and rebuilds the ADT
+through the explicit-bounds initialization path with ``toleranceIn``. This keeps the
+index bounds, query window, and exact distance threshold aligned, and also reuses the
+existing initialization path that resets the inserted-point coordinate store. The normal
+single-grid and multi-grid tolerance policies remain unchanged.
+
+This is an algorithm-contract fix, not a general redesign of the locator. It illustrates
+why a spatial index has two correctness conditions: its candidate structure must not omit
+any point that can pass the exact predicate, and the exact predicate must preserve the
+intended tolerance semantics. The remaining verification gap is a focused grid-backed
+test of ``InitializeSpecial`` with a tolerance larger than the derived default; the current
+explicit-bounds tests do not exercise that overload directly.
