@@ -321,6 +321,37 @@ const PointLocator & IFaceLink::GetPointLocator() const
     return *this->point_search;
 }
 
+FaceSearch & IFaceLink::GetFaceSearch()
+{
+    if ( ! this->face_search )
+    {
+        throw std::logic_error(
+            "IFaceLink::GetFaceSearch: face search is not initialized" );
+    }
+    return *this->face_search;
+}
+
+const FaceSearch & IFaceLink::GetFaceSearch() const
+{
+    if ( ! this->face_search )
+    {
+        throw std::logic_error(
+            "IFaceLink::GetFaceSearch: face search is not initialized" );
+    }
+    return *this->face_search;
+}
+
+InterfaceFaceSplitTable & IFaceLink::MutableInterfaceSplit()
+{
+    return this->GetFaceSearch().interfaceSplit;
+}
+
+const InterfaceFaceSplitTable & IFaceLink::GetInterfaceSplit() const
+{
+    return this->GetFaceSearch().interfaceSplit;
+}
+
+
 
 IFaceLink::~IFaceLink() = default;
 

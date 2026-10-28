@@ -102,14 +102,9 @@ const IntField & GetInterfaceChildFaceIds(
 const IntField & GetInterfaceChildFaceIds(
     const IFaceLink & interfaceLink, int zoneId, int localInterfaceFaceId )
 {
-    if ( ! interfaceLink.face_search )
-    {
-        throw std::logic_error(
-            "GetInterfaceChildFaceIds: face search is not initialized" );
-    }
     return GetInterfaceChildFaceIds(
-        interfaceLink.l2g,
-        interfaceLink.face_search->interfaceSplit,
+        interfaceLink.GetLocalToGlobalMap(),
+        interfaceLink.GetInterfaceSplit(),
         zoneId,
         localInterfaceFaceId );
 }
@@ -332,7 +327,7 @@ void FaceTopo::SetNewFace2Node( IFaceLink & iFaceLink )
         bcType,
         nBFaces,
         iFaceLink.GetLocalToGlobalMap(),
-        iFaceLink.face_search->interfaceSplit,
+        iFaceLink.MutableInterfaceSplit(),
         this->GetGrid().id,
         childGlobalIdsPerInterfaceLocal );
 
@@ -347,7 +342,7 @@ void FaceTopo::SetNewFace2Node( IFaceLink & iFaceLink )
         bcType,
         nBFaces,
         iFaceLink.GetLocalToGlobalMap(),
-        iFaceLink.face_search->interfaceSplit,
+        iFaceLink.MutableInterfaceSplit(),
         this->GetGrid().id,
         childNodeIdsPerInterfaceLocal,
         childNodeFlagsPerInterfaceLocal );
@@ -376,7 +371,7 @@ void FaceTopo::SetNewFace2Cell( IFaceLink & iFaceLink )
         bcType,
         nBFaces,
         iFaceLink.GetLocalToGlobalMap(),
-        iFaceLink.face_search->interfaceSplit,
+        iFaceLink.MutableInterfaceSplit(),
         this->GetGrid().id,
         childCountPerInterfaceLocal );
 
@@ -408,7 +403,7 @@ void FaceTopo::ModifyBoundaryInformation( IFaceLink & iFaceLink )
     {
         childGlobalIdsPerParent[ iFid ] = GetInterfaceChildFaceIds(
             iFaceLink.GetLocalToGlobalMap(),
-            iFaceLink.face_search->interfaceSplit,
+            iFaceLink.MutableInterfaceSplit(),
             zoneId,
             iFid );
     }
@@ -436,7 +431,7 @@ void FaceTopo::ResetNumberOfBoundaryCondition( IFaceLink & iFaceLink )
         bcType,
         nBFaces,
         iFaceLink.GetLocalToGlobalMap(),
-        iFaceLink.face_search->interfaceSplit,
+        iFaceLink.MutableInterfaceSplit(),
         this->GetGrid().id,
         childCountPerInterfaceLocal );
 

@@ -726,9 +726,9 @@ boundary around *how* they change:
    * - Geometry identity for interface nodes
      - private ``faceLookup`` inside ``CreateLink`` only
 
-``faceLookup`` and ``point_search`` are private: geometry identity and point
-location cannot be bypassed. Use ``CreateLink``, ``GetPointLocator``, and
-``EnsurePointLocatorReady``.
+``faceLookup``, ``point_search``, and ``face_search`` are private. Use
+``CreateLink``, ``GetPointLocator`` / ``EnsurePointLocatorReady``,
+``GetFaceSearch``, and ``MutableInterfaceSplit`` / ``GetInterfaceSplit``.
 
 Split rebuild zone rows go through ``EnsureSplitBookkeepingMatchesZones``,
 ``GetL2gForZone``, ``MutableL2gNewForZone``, and ``MutableNChildForZone``.
@@ -909,10 +909,10 @@ Open design pressures
 
 These remain harder to unit-test and mark follow-up work:
 
-#. ``IFaceLink`` dual-map *fields* remain public, but geometry call sites
-   (``FaceTopo``, ``UnsGrid``) use accessors for live ``l2g`` and ``*New``
-   inverse maps. Next: migrate any remaining writers, then make fields
-   private.
+#. ``IFaceLink`` dual-map *fields* remain public; ``face_search`` is private
+   with ``GetFaceSearch`` / ``MutableInterfaceSplit``. Geometry call sites use
+   dual-map accessors. Next: migrate remaining dual-map field writers, then
+   private fields.
 #. Line mid-point split needs a ready ``PointLocator`` and ``nodeMesh``.
    ``point_search`` is private (``GetPointLocator`` /
    ``EnsurePointLocatorReady``). Zone policy is

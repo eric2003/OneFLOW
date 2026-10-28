@@ -33,6 +33,7 @@ class Grid;
 class FaceSearch;
 class PointLocator;
 class NodeMesh;
+struct InterfaceFaceSplitTable;
 
 class IFaceLink
 {
@@ -60,10 +61,11 @@ public:
     // Legacy per-zone child-count bookkeeping for interface-face rebuilding.
     LinkField nChild;
 
-    std::unique_ptr< FaceSearch > face_search;
-
 private:
     Grids & grids;
+    // Interface face geometry search + split tables. Prefer GetFaceSearch /
+    // MutableInterfaceSplit over direct field access.
+    std::unique_ptr< FaceSearch > face_search;
     // Geometry identity for interface faces (CreateLink only). Not part of the
     // dual-map tables; kept private so registration cannot bypass CreateLink.
     HXLookup<int> faceLookup;
@@ -82,6 +84,10 @@ public:
     // Non-null locator object (may not be Initialize'd yet). Throws if missing.
     [[nodiscard]] PointLocator & GetPointLocator();
     [[nodiscard]] const PointLocator & GetPointLocator() const;
+    [[nodiscard]] FaceSearch & GetFaceSearch();
+    [[nodiscard]] const FaceSearch & GetFaceSearch() const;
+    [[nodiscard]] InterfaceFaceSplitTable & MutableInterfaceSplit();
+    [[nodiscard]] const InterfaceFaceSplitTable & GetInterfaceSplit() const;
     [[nodiscard]] Grid & GetGrid( int zoneIndex );
     void Init( Grid & grid );
 public:
