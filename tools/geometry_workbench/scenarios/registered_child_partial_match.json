@@ -1,0 +1,50 @@
+{
+  "id": "registered_child_partial_match",
+  "title": "Registered child resolution: partial match",
+  "description": "Candidate 0 is absent from the registry; candidate 1 is registered and must retain its original index.",
+  "test": {
+    "framework": "GoogleTest",
+    "suite": "FaceSearchBasicTest",
+    "name": "RegisteredChildResolutionPreservesCandidateIndexForPartialMatch",
+    "source": "tests/geometry/FaceSearchBasicTest.cpp"
+  },
+  "input": {
+    "registeredFaces": [
+      [
+        20,
+        30
+      ]
+    ],
+    "candidateFaces": [
+      [
+        10,
+        20
+      ],
+      [
+        20,
+        30
+      ]
+    ],
+    "outputBuffersBeforeCall": {
+      "childFaceIds": [
+        99
+      ],
+      "candidateIndices": [
+        99
+      ]
+    }
+  },
+  "expected": {
+    "childFaceIds": [
+      0
+    ],
+    "candidateIndices": [
+      1
+    ]
+  },
+  "notes": [
+    "The candidate index is the position in candidateFaces, not the compacted output position.",
+    "The GUI scenario currently uses the fixture backend; it does not execute the C++ GoogleTest or invoke ResolveRegisteredChildFaces.",
+    "The authoritative behavior is tested by FaceSearchBasicTest.RegisteredChildResolutionPreservesCandidateIndexForPartialMatch."
+  ]
+}
