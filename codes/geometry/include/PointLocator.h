@@ -68,8 +68,8 @@ public:
     virtual void GetPoint( int id, Real & xm, Real & ym, Real & zm ) const;
     virtual Real GetTol() const { return tolerance; }
 protected:
-    int AddPoint( RealField & coordinate );
-    int FindPoint( RealField & coordinate );
+    int AddPoint( const RealField & coordinate );
+    int FindPoint( const RealField & coordinate );
 public:
     void GetFaceCoorList( const IntField & nodeId, RealField &xList, RealField &yList, RealField &zList ) const;
 };
