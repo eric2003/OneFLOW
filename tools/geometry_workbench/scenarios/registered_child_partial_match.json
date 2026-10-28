@@ -1,7 +1,7 @@
 {
-  "id": "registered_child_partial_match",
-  "title": "Registered child resolution: partial match",
-  "description": "Candidate 0 is absent from the registry; candidate 1 is registered and must retain its original index.",
+  "id": "registered_child_resolution",
+  "title": "Registered child resolution",
+  "description": "Resolve registered child faces without compacting candidate indices when some candidates are absent.",
   "test": {
     "framework": "GoogleTest",
     "suite": "FaceSearchBasicTest",
@@ -35,14 +35,15 @@
     ]
   },
   "notes": [
-    "The candidate index is the position in candidateFaces, not the compacted output position.",
-    "The C++ resolver returns each global child face ID paired with its original candidate index.",
-    "The GUI scenario currently uses the fixture backend; it does not execute the C++ GoogleTest."
+    "The input matches FaceSearchBasicTest.RegisteredChildResolutionPreservesCandidateIndexForPartialMatch.",
+    "The expected output pairs global face ID 0 with original candidate index 1.",
+    "The result remains null until a real test runner records execution; the geometry fixture UI is not a C++ execution backend."
   ],
   "integrationTest": {
     "framework": "GoogleTest",
     "suite": "FaceSearchBasicTest",
     "name": "QuadSplitUsesOriginalCandidateIndexForPartialMatch",
     "source": "tests/geometry/FaceSearchBasicTest.cpp"
-  }
+  },
+  "result": null
 }
