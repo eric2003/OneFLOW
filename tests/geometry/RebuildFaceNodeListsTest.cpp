@@ -212,3 +212,38 @@ TEST( RebuildFaceNodeListsTest, SplitProducerCollectorAndRebuildPreserveSharedCh
     EXPECT_EQ( secondOut[ 0 ], ( IntField{ 101, 102, 103 } ) );
 }
 
+
+TEST( RebuildFaceNodeListsTest, ParentSpecificMappingTakesPrecedenceOverLegacyRows )
+{
+    // The legacy row is child-global; it cannot represent both parents safely.
+    // Collection must use the row owned by this parent when it is available.
+    LinkField zoneToLocalToGlobal{ IntField{ 0 } };
+    InterfaceFaceSplitTable split;
+    split.childFaceIdsOfParent = LinkField{ IntField{ 1 } };
+    split.childFaceNodeIds = LinkField{ IntField{ 99, 98, 97 } };
+    split.childFaceNodeFlags = LinkField{ IntField{ 0, 0, 0 } };
+    split.childFaceNodeIdsByParent = std::vector< LinkField >{
+        LinkField{ IntField{ 2, 0, 1 } },
+        LinkField{}
+    };
+    split.childFaceNodeFlagsByParent = std::vector< LinkField >{
+        LinkField{ IntField{ 1, 1, 1 } },
+        LinkField{}
+    };
+
+    std::vector< LinkField > nodeIds;
+    std::vector< LinkField > nodeFlags;
+    CollectBoundaryInterfaceChildNodeMappings(
+        IntField{ BC::INTERFACE },
+        1,
+        zoneToLocalToGlobal,
+        split,
+        0,
+        nodeIds,
+        nodeFlags );
+
+    ASSERT_EQ( nodeIds.size(), static_cast< std::size_t >( 1 ) );
+    ASSERT_EQ( nodeFlags.size(), static_cast< std::size_t >( 1 ) );
+    EXPECT_EQ( nodeIds[ 0 ], ( LinkField{ IntField{ 2, 0, 1 } } ) );
+    EXPECT_EQ( nodeFlags[ 0 ], ( LinkField{ IntField{ 1, 1, 1 } } ) );
+}
