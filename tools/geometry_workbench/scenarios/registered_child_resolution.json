@@ -1,0 +1,37 @@
+{
+  "id": "registered_child_resolution",
+  "title": "Registered child resolution",
+  "description": "Resolve candidate child faces to existing global face IDs without creating new faces.",
+  "input": {
+    "registeredFaces": [
+      { "globalFaceId": 0, "nodes": [10, 20] },
+      { "globalFaceId": 1, "nodes": [20, 30] }
+    ],
+    "candidateFaces": [
+      [10, 20],
+      [20, 30],
+      [30, 40]
+    ]
+  },
+  "expected": {
+    "registeredChildren": [
+      { "globalFaceId": 0, "candidateIndex": 0 },
+      { "globalFaceId": 1, "candidateIndex": 1 }
+    ],
+    "unregisteredCandidateIndices": [2],
+    "registeredFaceCountAfterResolution": 2
+  },
+  "notes": [
+    "Face identity is node-set based, so candidate node order does not change the global face ID.",
+    "Resolution preserves each original candidate index; it must not compact or shift parent-local mappings when an earlier candidate is absent.",
+    "Resolution is lookup, not child-face generation. Candidate topology is supplied by the caller and only already-registered faces are returned.",
+    "The expected values mirror FaceSearchBasicTest.RegisteredChildResolutionReturnsOnlyKnownChildren. The current geometry workbench stub does not execute the C++ implementation, so native result remains unrecorded."
+  ],
+  "test": {
+    "framework": "GoogleTest",
+    "suite": "FaceSearchBasicTest",
+    "name": "RegisteredChildResolutionReturnsOnlyKnownChildren",
+    "source": "tests/geometry/FaceSearchBasicTest.cpp"
+  },
+  "result": null
+}
