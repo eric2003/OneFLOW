@@ -923,6 +923,24 @@ A thin multi-zone composition answers "do the contracts still line up in
 production order?". That is the cheapest e2e that still avoids CGNS.
 
 
+Workbench host and plots
+------------------------
+
+``tools/geometry_workbench`` is a stdlib-first host for the same table scenarios:
+
+* JSON input/expected (aligned with ``MultiZoneInterfaceSplitE2ETest``).
+* ``backend=stub`` returns expected tables so the host can ship before a native
+  bind to ``RunSymmetricInterfaceSplitMappingPipeline``.
+* Visualization is optional and secondary to editable tables:
+
+  * ASCII always (CI-friendly).
+  * plotly: browser zoom/hover — preferred when exploring graphs.
+  * matplotlib: toolbar zoom/pan only; **not** a place to edit inputs.
+
+Do not treat matplotlib as the workbench product. Change numbers in JSON (or a
+future form); use plots only to see zone–global connectivity.
+
+
 Open design pressures
 ---------------------
 
