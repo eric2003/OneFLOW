@@ -149,6 +149,17 @@ void InterfaceFaceSplitTable::SetChildMapping(
         throw std::logic_error(
             "InterfaceFaceSplitTable::SetChildMapping: parent mapping rows are misaligned" );
     }
+
+    if ( childIndex < parentNodeIds.size() &&
+         ( ! parentNodeIds[ childIndex ].empty() ||
+           ! parentNodeFlags[ childIndex ].empty() ) &&
+         ( parentNodeIds[ childIndex ] != localNodeIds ||
+           parentNodeFlags[ childIndex ] != localNodeFlags ) )
+    {
+        throw std::logic_error(
+            "InterfaceFaceSplitTable::SetChildMapping: conflicting mapping for parent child" );
+    }
+
     parentNodeIds.resize( parentChildren.size() );
     parentNodeFlags.resize( parentChildren.size() );
     parentNodeIds[ childIndex ] = localNodeIds;
