@@ -14,8 +14,12 @@ the mismatch and topology view. The current stub does not calculate output from
 edited input; a regression test makes this boundary explicit. This makes the
 scenario-editing, comparison, and visualization workflow testable before a
 native backend exists. Editing values tests the workbench workflow and contract
-checker, not the CFD algorithm. Native backend integration is reserved for
-`RunSymmetricInterfaceSplitMappingPipeline`.
+checker, not the CFD algorithm. The `registered_child_partial_match` scenario
+links to the authoritative C++ regression
+`FaceSearchBasicTest.RegisteredChildResolutionPreservesCandidateIndexForPartialMatch`,
+but the GUI does not yet execute that test or pass edited parameters to C++.
+Native execution must be added as a separate adapter rather than duplicating the
+resolver algorithm in Python.
 
 ## Optional static graphics
 
