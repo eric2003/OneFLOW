@@ -727,13 +727,19 @@ boundary around *how* they change:
      - private ``faceLookup`` inside ``CreateLink`` only
 
 ``faceLookup`` is private: interface geometry identity must not be updated
-without also updating the dual maps. The dual-map fields remain public while
-``FaceTopo`` / ``FaceSearch`` still write ``l2gNew`` and ``nChild`` during
-split rebuild; closing that is the next encapsulation step, not more pure
-predicates on already-extracted rules.
+without also updating the dual maps.
+
+Split rebuild zone rows go through ``EnsureSplitBookkeepingMatchesZones``,
+``GetL2gForZone``, ``MutableL2gNewForZone``, and ``MutableNChildForZone`` so
+``FaceTopo::ModifyBoundaryInformation`` does not hand-resize ``nChild`` or
+index ``l2gNew`` without bounds checks. The dual-map *fields* remain public
+for remaining ``FaceSearch`` / bulk table writers; the goal is to migrate
+call sites onto these entry points, then narrow visibility.
 
 Read-only observers should prefer ``GetLocalToGlobalMap``,
 ``GetGlobalToZoneIds``, and ``GetGlobalToLocalIds``.
+
+**Tests:** ``IFaceLinkMapAccessorsTest``, ``IFaceLinkSplitBookkeepingTest``.
 
 Open design pressures
 ---------------------
@@ -859,9 +865,11 @@ Open design pressures
 
 These remain harder to unit-test and mark follow-up work:
 
-#. ``IFaceLink`` dual maps remain public for split rebuild writers
-   (``FaceTopo`` / ``FaceSearch``); ``faceLookup`` is private. Next step is
-   controlled mutation of ``l2gNew`` / ``nChild`` rather than more observers.
+#. ``IFaceLink`` dual maps remain public for some bulk writers; split
+   bookkeeping for the active zone now goes through
+   ``EnsureSplitBookkeepingMatchesZones`` / ``Mutable*ForZone``. Next: migrate
+   ``FaceSearch`` and remaining raw ``l2gNew`` writes, then narrow field
+   visibility.
 #. Line mid-point split still needs ``PointLocator`` and ``nodeMesh`` (geometry
    services are not yet injectable).
 #. End-to-end CGNS zone scan still requires heavyweight zone setup.

@@ -566,4 +566,44 @@ void GetCoorIdList( IFaceLink & iFaceLink, RealField & xList, RealField & yList,
     }
 }
 
+
+void IFaceLink::EnsureSplitBookkeepingMatchesZones()
+{
+    // nChild is parallel to zones in l2g (not to global faces).
+    if ( this->nChild.size() < this->l2g.size() )
+    {
+        this->nChild.resize( this->l2g.size() );
+    }
+}
+
+IntField & IFaceLink::MutableL2gNewForZone( int zoneId )
+{
+    if ( zoneId < 0 || static_cast< size_t >( zoneId ) >= this->l2gNew.size() )
+    {
+        throw std::out_of_range(
+            "IFaceLink::MutableL2gNewForZone: zone id is out of range for l2gNew" );
+    }
+    return this->l2gNew[ zoneId ];
+}
+
+IntField & IFaceLink::MutableNChildForZone( int zoneId )
+{
+    if ( zoneId < 0 || static_cast< size_t >( zoneId ) >= this->nChild.size() )
+    {
+        throw std::out_of_range(
+            "IFaceLink::MutableNChildForZone: zone id is out of range for nChild" );
+    }
+    return this->nChild[ zoneId ];
+}
+
+const IntField & IFaceLink::GetL2gForZone( int zoneId ) const
+{
+    if ( zoneId < 0 || static_cast< size_t >( zoneId ) >= this->l2g.size() )
+    {
+        throw std::out_of_range(
+            "IFaceLink::GetL2gForZone: zone id is out of range for l2g" );
+    }
+    return this->l2g[ zoneId ];
+}
+
 EndNameSpace

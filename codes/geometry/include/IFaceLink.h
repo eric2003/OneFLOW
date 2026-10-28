@@ -96,6 +96,16 @@ public:
     [[nodiscard]] const LinkField & GetLocalToGlobalMap() const { return l2g; }
     [[nodiscard]] const LinkField & GetGlobalToZoneIds() const { return gI2Zid; }
     [[nodiscard]] const LinkField & GetGlobalToLocalIds() const { return g2l; }
+
+    // Split-rebuild bookkeeping: nChild must have one row per live zone (l2g).
+    // Call after InitNewLgMapping so l2gNew already has empty per-zone rows.
+    void EnsureSplitBookkeepingMatchesZones();
+
+    // Bounds-checked mutable access for the active zone during split rebuild.
+    // Prefer these over raw l2gNew[zoneId] / nChild[zoneId] at call sites.
+    [[nodiscard]] IntField & MutableL2gNewForZone( int zoneId );
+    [[nodiscard]] IntField & MutableNChildForZone( int zoneId );
+    [[nodiscard]] const IntField & GetL2gForZone( int zoneId ) const;
 };
 
 void GetFaceCoorList( const IntField & faceNode, RealField & xList, RealField & yList, RealField & zList, const NodeMesh & nodeMesh );

@@ -396,19 +396,10 @@ void FaceTopo::SetNewFace2Cell( IFaceLink & iFaceLink )
 void FaceTopo::ModifyBoundaryInformation( IFaceLink & iFaceLink )
 {
     const int zoneId = this->GetGrid().id;
-    if ( zoneId < 0 ||
-         static_cast< size_t >( zoneId ) >= iFaceLink.l2g.size() )
-    {
-        throw std::out_of_range(
-            "FaceTopo::ModifyBoundaryInformation: zone id is out of range for l2g" );
-    }
-    if ( static_cast< size_t >( zoneId ) >= iFaceLink.l2gNew.size() )
-    {
-        throw std::out_of_range(
-            "FaceTopo::ModifyBoundaryInformation: zone id is out of range for l2gNew" );
-    }
 
-    const IntField & parentGlobalFaceIds = iFaceLink.l2g[ zoneId ];
+    // Live parent globals and split bookkeeping go through IFaceLink so zone
+    // bounds and nChild sizing stay next to the dual-map tables.
+    const IntField & parentGlobalFaceIds = iFaceLink.GetL2gForZone( zoneId );
     const int nIFaces = static_cast< int >( parentGlobalFaceIds.size() );
 
     LinkField childGlobalIdsPerParent;
@@ -422,16 +413,13 @@ void FaceTopo::ModifyBoundaryInformation( IFaceLink & iFaceLink )
             iFid );
     }
 
-    if ( iFaceLink.nChild.size() < iFaceLink.l2g.size() )
-    {
-        iFaceLink.nChild.resize( iFaceLink.l2g.size() );
-    }
+    iFaceLink.EnsureSplitBookkeepingMatchesZones();
 
     RebuildZoneL2gNewAfterInterfaceSplit(
         parentGlobalFaceIds,
         childGlobalIdsPerParent,
-        iFaceLink.l2gNew[ zoneId ],
-        iFaceLink.nChild[ zoneId ] );
+        iFaceLink.MutableL2gNewForZone( zoneId ),
+        iFaceLink.MutableNChildForZone( zoneId ) );
 
     this->ResetNumberOfBoundaryCondition( iFaceLink );
 }
@@ -465,16 +453,10 @@ void FaceTopo::ResetNumberOfBoundaryCondition( IFaceLink & iFaceLink )
 void FaceTopo::ConstructNewInterfaceMap( IFaceLink & iFaceLink )
 {
     const int zoneId = this->GetGrid().id;
-    if ( zoneId < 0 ||
-         static_cast< size_t >( zoneId ) >= iFaceLink.l2gNew.size() )
-    {
-        throw std::out_of_range(
-            "FaceTopo::ConstructNewInterfaceMap: zone id is out of range for l2gNew" );
-    }
 
     BuildInverseInterfaceMapForZone(
         zoneId,
-        iFaceLink.l2gNew[ zoneId ],
+        iFaceLink.MutableL2gNewForZone( zoneId ),
         iFaceLink.gI2ZidNew,
         iFaceLink.g2lNew );
 }
