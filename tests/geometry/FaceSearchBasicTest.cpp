@@ -240,6 +240,8 @@ TEST( FaceSearchBasicTest, ResetForFaceCountClearsAllSplitTables )
     split.childFaceIdsOfParent[ 0 ] = IntField{ 1, 2 };
     split.childFaceNodeIds[ 1 ] = IntField{ 0, 1 };
     split.childFaceNodeFlags[ 1 ] = IntField{ 1, -1 };
+    split.childFaceNodeIdsByParent[ 0 ] = LinkField{ IntField{ 0, 1 } };
+    split.childFaceNodeFlagsByParent[ 0 ] = LinkField{ IntField{ 1, -1 } };
 
     split.ResetForFaceCount( 2 );
 
@@ -249,19 +251,37 @@ TEST( FaceSearchBasicTest, ResetForFaceCountClearsAllSplitTables )
     EXPECT_TRUE( split.childFaceIdsOfParent[ 0 ].empty() );
     EXPECT_TRUE( split.childFaceNodeIds[ 1 ].empty() );
     EXPECT_TRUE( split.childFaceNodeFlags[ 1 ].empty() );
+    ASSERT_EQ( split.childFaceNodeIdsByParent.size(), static_cast< std::size_t >( 2 ) );
+    ASSERT_EQ( split.childFaceNodeFlagsByParent.size(), static_cast< std::size_t >( 2 ) );
+    EXPECT_TRUE( split.childFaceNodeIdsByParent[ 0 ].empty() );
+    EXPECT_TRUE( split.childFaceNodeFlagsByParent[ 0 ].empty() );
 }
 
 TEST( FaceSearchBasicTest, ClearParentMappingOnlyClearsRequestedParent )
 {
     InterfaceFaceSplitTable split;
     split.ResetForFaceCount( 2 );
-    split.childFaceIdsOfParent[ 0 ] = IntField{ 4, 5 };
-    split.childFaceIdsOfParent[ 1 ] = IntField{ 7, 8 };
+    split.childFaceIdsOfParent[ 0 ] = IntField{ 2 };
+    split.childFaceIdsOfParent[ 1 ] = IntField{ 2 };
+    split.childFaceNodeIds[ 2 ] = IntField{ 0, 1, 2 };
+    split.childFaceNodeFlags[ 2 ] = IntField{ 1, 1, 1 };
+    split.childFaceNodeIdsByParent[ 0 ] = LinkField{ IntField{ 1, 2, 3 } };
+    split.childFaceNodeFlagsByParent[ 0 ] = LinkField{ IntField{ 1, 1, 1 } };
+    split.childFaceNodeIdsByParent[ 1 ] = LinkField{ IntField{ 0, 1, 2 } };
+    split.childFaceNodeFlagsByParent[ 1 ] = LinkField{ IntField{ 1, 1, 1 } };
 
     split.ClearParentMapping( 0 );
 
     EXPECT_TRUE( split.childFaceIdsOfParent[ 0 ].empty() );
-    EXPECT_EQ( split.childFaceIdsOfParent[ 1 ], ( IntField{ 7, 8 } ) );
+    EXPECT_EQ( split.childFaceIdsOfParent[ 1 ], ( IntField{ 2 } ) );
+    EXPECT_TRUE( split.childFaceNodeIdsByParent[ 0 ].empty() );
+    EXPECT_TRUE( split.childFaceNodeFlagsByParent[ 0 ].empty() );
+    EXPECT_EQ( split.childFaceNodeIdsByParent[ 1 ], ( LinkField{ IntField{ 0, 1, 2 } } ) );
+    EXPECT_EQ( split.childFaceNodeFlagsByParent[ 1 ], ( LinkField{ IntField{ 1, 1, 1 } } ) );
+
+    // The global child metadata is shared and must survive clearing one parent.
+    EXPECT_EQ( split.childFaceNodeIds[ 2 ], ( IntField{ 0, 1, 2 } ) );
+    EXPECT_EQ( split.childFaceNodeFlags[ 2 ], ( IntField{ 1, 1, 1 } ) );
 }
 
 TEST( FaceSearchBasicTest, ClearParentMappingRejectsInvalidParentId )
