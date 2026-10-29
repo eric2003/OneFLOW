@@ -7,7 +7,6 @@ BeginNameSpace( ONEFLOW )
 // @doc-algorithm stokes-stress
 // @doc-stage tensor
 // @doc-pure
-// @doc-formula tau_ij = mu (dui/dxj + duj/dxi) - (2/3) mu (div v) delta_ij
 void StokesStressTensor(
     Real viscosity,
     Real dudx, Real dudy, Real dudz,
@@ -19,7 +18,6 @@ void StokesStressTensor(
 // @doc-algorithm stokes-stress
 // @doc-stage momentum-flux
 // @doc-pure
-// @doc-formula F_mom = tau · n
 void ProjectStressMomentumFlux(
     Real xfn, Real yfn, Real zfn,
     Real txx, Real tyy, Real tzz,
@@ -29,10 +27,32 @@ void ProjectStressMomentumFlux(
 // @doc-algorithm stokes-stress
 // @doc-stage energy-flux
 // @doc-pure
-// @doc-formula F_E = v · F_mom + q_n
 Real ViscousEnergyFlux(
     Real u, Real v, Real w,
     Real fluxMx, Real fluxMy, Real fluxMz,
     Real heatFluxNormal );
+
+// @doc-algorithm heat-flux
+// @doc-stage conductivity
+// @doc-pure
+// @doc-formula k/cp = mu_l/Pr_l + mu_t/Pr_t  (returns k when multiplied by cp)
+Real EffectiveThermalConductivity(
+    Real laminarViscosity, Real turbulentViscosity,
+    Real invPrandtlLaminar, Real invPrandtlTurbulent,
+    Real specificHeat );
+
+// @doc-algorithm heat-flux
+// @doc-stage normal-conductive
+// @doc-pure
+// @doc-formula q_n = k * dT/dn
+Real ConductiveHeatFluxNormal(
+    Real thermalConductivity, Real temperatureNormalGrad );
+
+// @doc-algorithm heat-flux
+// @doc-stage face-normal-dot
+// @doc-pure
+Real FaceNormalDot(
+    Real xfn, Real yfn, Real zfn,
+    Real fx, Real fy, Real fz );
 
 EndNameSpace

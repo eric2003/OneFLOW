@@ -39,4 +39,26 @@ Real ViscousEnergyFlux(
     return u * fluxMx + v * fluxMy + w * fluxMz + heatFluxNormal;
 }
 
+Real EffectiveThermalConductivity(
+    Real laminarViscosity, Real turbulentViscosity,
+    Real invPrandtlLaminar, Real invPrandtlTurbulent,
+    Real specificHeat )
+{
+    return ( laminarViscosity * invPrandtlLaminar
+           + turbulentViscosity * invPrandtlTurbulent ) * specificHeat;
+}
+
+Real ConductiveHeatFluxNormal(
+    Real thermalConductivity, Real temperatureNormalGrad )
+{
+    return thermalConductivity * temperatureNormalGrad;
+}
+
+Real FaceNormalDot(
+    Real xfn, Real yfn, Real zfn,
+    Real fx, Real fy, Real fz )
+{
+    return xfn * fx + yfn * fy + zfn * fz;
+}
+
 EndNameSpace

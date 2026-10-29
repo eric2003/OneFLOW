@@ -235,9 +235,10 @@ void UNsVisFlux::AddHeatFlux()
     vis.qy      = 0.0;
     vis.qz      = 0.0;
 
-    nscom.kcp = ( nscom.visl * nscom.oprl + nscom.vist * nscom.oprt ) * nscom.const_cp;
-    vis.qNormal += gcom.xfn * vis.qx + gcom.yfn * vis.qy + gcom.zfn * vis.qz;
-    vis.qNormal += nscom.kcp * vis.dtdn;
+    nscom.kcp = EffectiveThermalConductivity(
+        nscom.visl, nscom.vist, nscom.oprl, nscom.oprt, nscom.const_cp );
+    vis.qNormal += FaceNormalDot( gcom.xfn, gcom.yfn, gcom.zfn, vis.qx, vis.qy, vis.qz );
+    vis.qNormal += ConductiveHeatFluxNormal( nscom.kcp, vis.dtdn );
 }
 
 void UNsVisFlux::AddVisFlux()
