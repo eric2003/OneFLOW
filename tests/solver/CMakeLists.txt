@@ -1,6 +1,6 @@
 set(CMAKE_FOLDER ${CMAKE_FOLDER}/solver)
 
-# Pure policy only — no SolverMap, no IO, no parallel.
+# Pure policy only - no SolverMap, no IO, no parallel.
 add_executable(solver_name_policy_test
   solver_name_policy_test.cpp
 )
@@ -42,7 +42,7 @@ target_compile_features(solver_name_list_test PRIVATE cxx_std_20)
 gtest_discover_tests(solver_name_list_test DISCOVERY_MODE PRE_TEST)
 
 
-# Index maps + SelectSolverNames — no SafeClone / SolverState / Lusgs.
+# Index maps + SelectSolverNames - no SafeClone / SolverState / Lusgs.
 add_executable(solver_map_index_test
   solver_map_index_test.cpp
   ${CMAKE_SOURCE_DIR}/codes/solver/src/SolverMapIndex.cpp
