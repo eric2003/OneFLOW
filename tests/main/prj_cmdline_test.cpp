@@ -991,7 +991,7 @@ TEST( PrjIOPaths, RelativeProjectRootResolvesFromCurrentDirectory )
         const std::string rootName = rootPath.string();
         while ( value.size() > rootName.size()
             && ! value.empty()
-            && ( value.back() == '/' || value.back() == '\\\\' ) )
+            && ( value.back() == '/' || value.back() == '\\' ) )
         {
             value.pop_back();
         }
