@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "ULimiter.h"
+#include "ULimiterPolicy.h"
 #include "HipProductionPolicy.h"
 #include "UnsGrid.h"
 #include "DataBase.h"
@@ -71,70 +72,6 @@ void LimField::BindFieldsAndAllocFaces(
     }
 }
 
-
-Real BarthFunction( Real dq, Real minv, Real maxv, Real dot )
-{
-    if ( dot < 0.0 ) 
-    {
-        return 0.0;
-    }
-    else if ( dq > maxv )
-    {
-        return maxv / dq;
-    }
-    else if ( dq < minv )
-    {
-        return minv / dq;
-    }
-
-    return 1.0;
-}
-
-Real Vencat( Real x, Real y, Real eps )
-{
-    Real x2 = x * x;
-    Real xy = x * y;
-    Real y2 = y * y;
-    Real cc = 2.0;
-    //Real cc = 0.1;
-    return ( ( x2 + eps + cc * xy ) / ( x2 + cc * y2 + xy + eps ) );
-}
-
-Real VencatEric( Real x, Real y, Real eps )
-{
-    Real x2 = x * x;
-    Real xy = x * y;
-    Real y2 = y * y;
-    return ( ( x2 + eps + 1.0 * xy ) / ( x2 + 2.0 * y2 + xy + eps ) );
-}
-
-Real VencatFunction( Real dq, Real minv, Real maxv, Real eps )
-{
-    if ( dq > SMALL )
-    {
-        return Vencat( maxv, dq, eps );
-    }
-    else if ( dq < - SMALL )
-    {
-        return Vencat( minv, dq, eps );
-    }
-
-    return 1.0;
-}
-
-Real VencatFunctionEric( Real dq, Real minv, Real maxv, Real eps )
-{
-    if ( dq > SMALL )
-    {
-        return VencatEric( maxv, dq, eps );
-    }
-    else if ( dq < - SMALL )
-    {
-        return VencatEric( minv, dq, eps );
-    }
-
-    return 1.0;
-}
 
 Real LimField::ModifyLimiter( Real phil, Real phir )
 {
