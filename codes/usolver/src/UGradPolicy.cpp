@@ -63,4 +63,23 @@ void AccumulateFaceGradient(
     dqdz += snz * w;
 }
 
+
+Real FaceSkewAngleDegrees(
+    Real dx, Real dy, Real dz, Real projectedLength )
+{
+    Real result = projectedLength / ( DIST( dx, dy, dz ) + SMALL );
+    if ( result > 1.0 ) result = 1.0;
+    if ( result < -1.0 ) result = -1.0;
+    return asin( result ) * 180.0 / PI;
+}
+
+void UnitizeDisplacement(
+    Real & dx, Real & dy, Real & dz, Real & invLength )
+{
+    invLength = 1.0 / DIST( dx, dy, dz );
+    dx *= invLength;
+    dy *= invLength;
+    dz *= invLength;
+}
+
 EndNameSpace

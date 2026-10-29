@@ -59,4 +59,19 @@ void AccumulateFaceGradient(
     Real snx, Real sny, Real snz, Real faceValue, Real sign,
     Real & dqdx, Real & dqdy, Real & dqdz );
 
+
+// @doc-algorithm vis-face-geometry
+// @doc-stage skew-angle
+// @doc-pure
+// @doc-formula angle_deg = asin(clamp(proj / |d|, -1, 1)) * 180 / pi
+Real FaceSkewAngleDegrees(
+    Real dx, Real dy, Real dz, Real projectedLength );
+
+// @doc-algorithm vis-face-geometry
+// @doc-stage unitize
+// @doc-pure
+// @doc-formula u = d / |d|, invLength = 1 / |d|
+void UnitizeDisplacement(
+    Real & dx, Real & dy, Real & dz, Real & invLength );
+
 EndNameSpace

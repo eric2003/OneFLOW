@@ -68,3 +68,28 @@ TEST( GradPolicy, AccumulateFaceGradientAppliesSign )
     AccumulateFaceGradient( 2.0, 0.0, 0.0, 3.0, -1.0, gx, gy, gz );
     EXPECT_DOUBLE_EQ( gx, 0.0 );
 }
+
+TEST( GradPolicy, FaceSkewAngleDegreesIsZeroForParallel )
+{
+    // projectedLength equal to |d| -> asin(1) = 90 degrees
+    EXPECT_NEAR( FaceSkewAngleDegrees( 1.0, 0.0, 0.0, 1.0 ), 90.0, 1.0e-10 );
+    // zero projection -> 0 degrees
+    EXPECT_NEAR( FaceSkewAngleDegrees( 1.0, 0.0, 0.0, 0.0 ), 0.0, 1.0e-10 );
+}
+
+TEST( GradPolicy, FaceSkewAngleDegreesClampsArgument )
+{
+    // |proj| > |d| would exceed asin domain without clamp
+    EXPECT_NEAR( FaceSkewAngleDegrees( 1.0, 0.0, 0.0, 2.0 ), 90.0, 1.0e-10 );
+    EXPECT_NEAR( FaceSkewAngleDegrees( 1.0, 0.0, 0.0, -2.0 ), -90.0, 1.0e-10 );
+}
+
+TEST( GradPolicy, UnitizeDisplacementMakesUnitVector )
+{
+    Real dx = 3.0, dy = 0.0, dz = 4.0, inv = 0.0;
+    UnitizeDisplacement( dx, dy, dz, inv );
+    EXPECT_NEAR( inv, 0.2, 1.0e-12 );
+    EXPECT_NEAR( dx, 0.6, 1.0e-12 );
+    EXPECT_NEAR( dy, 0.0, 1.0e-12 );
+    EXPECT_NEAR( dz, 0.8, 1.0e-12 );
+}
