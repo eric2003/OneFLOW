@@ -33,6 +33,8 @@ A real integration test still needs to exercise the production `ReadControlInfo(
 
 The existing investigation record is `doc/plans/setup-case-environment-integration-test.md`. It identifies the key constraints: the global database is statically initialized, but `ReadControlInfo` uses parallel coordination and database broadcast; `SimuContext::TeardownCase()` resets much more than path state; the production executable currently compiles a broad source list rather than exposing a reusable runtime library.
 
+Cleanup ownership has now been distinguished explicitly in that investigation: `SimuImp::RunCase()` cleans up one case and leaves process runtime ownership to `SimuImp::Run()`, while the compatibility `SimuContext::SetupEnvironment()` rollback tears down both case and process runtime. Preserve these scopes; do not collapse them into a shared generic lifecycle. The next extraction should isolate only the post-`ReadControlInfo` case-I/O snapshot/application/diagnostic stage.
+
 Next single action: obtain a working checkout in the sandbox or continue with a narrowly scoped source change after mapping its link dependencies. The first integration target should use a temporary multi-file case and the real reader; the next setup-only smoke test should use `test/grid/rae2822convert` after all referenced files and relative assets are checked. Do not copy the executable's full source list into the unit-test target. Keep `tests/` for test code and `test/` for CFD cases. Do not mark R1 complete until effective path application, sequential-case isolation, and cleanup have test evidence.
 
 ## 1. Read this first
