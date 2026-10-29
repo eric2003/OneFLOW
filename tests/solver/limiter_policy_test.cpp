@@ -69,3 +69,26 @@ TEST( LimiterPolicy, VenkatRegularizationScalesWithGlobalOffsetRange )
     const Real eps = VencatRegularizationEpsilon( 0.1, -2.0, 3.0 );
     EXPECT_DOUBLE_EQ( eps, 0.25 + SMALL );
 }
+
+TEST( LimiterPolicy, ReconstructFaceIncrementIsGradientDotDisplacement )
+{
+    EXPECT_DOUBLE_EQ(
+        ReconstructFaceIncrement( 1.0, 2.0, 3.0, 0.5, 0.0, 0.0 ), 0.5 );
+    EXPECT_DOUBLE_EQ(
+        ReconstructFaceIncrement( 1.0, 2.0, 3.0, 0.0, 1.0, 0.0 ), 2.0 );
+}
+
+TEST( LimiterPolicy, FaceSideDirectionDotUsesOrientationSign )
+{
+    // Unit normal +x, displacement +x of length 2 -> +1 with orientation +1.
+    EXPECT_NEAR(
+        FaceSideDirectionDot( 1.0, 0.0, 0.0, 2.0, 0.0, 0.0, 1.0 ), 1.0, 1.0e-12 );
+    EXPECT_NEAR(
+        FaceSideDirectionDot( 1.0, 0.0, 0.0, 2.0, 0.0, 0.0, -1.0 ), -1.0, 1.0e-12 );
+}
+
+TEST( LimiterPolicy, TightenLimiterKeepsStricterBound )
+{
+    EXPECT_DOUBLE_EQ( TightenLimiter( 1.0, 0.3 ), 0.3 );
+    EXPECT_DOUBLE_EQ( TightenLimiter( 0.2, 0.5 ), 0.2 );
+}

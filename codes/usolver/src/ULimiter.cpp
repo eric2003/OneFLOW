@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "ULimiter.h"
+#include "ULimiterPolicy.h"
 #include "ULimiterRange.h"
 #include "HipProductionPolicy.h"
 #include "UnsGrid.h"
@@ -480,49 +481,50 @@ void Limiter::PrepareData()
 
 void Limiter::CalcLocalBarthLimiter()
 {
-    Real dx1 = gcom.xfc - gcom.xcc1;
-    Real dy1 = gcom.yfc - gcom.ycc1;
-    Real dz1 = gcom.zfc - gcom.zcc1;
+    const Real dx1 = gcom.xfc - gcom.xcc1;
+    const Real dy1 = gcom.yfc - gcom.ycc1;
+    const Real dz1 = gcom.zfc - gcom.zcc1;
 
-    Real dqFace1  = lim->dqdx1 * dx1 + lim->dqdy1 * dy1 + lim->dqdz1 * dz1;
+    const Real dqFace1 = ReconstructFaceIncrement(
+        lim->dqdx1, lim->dqdy1, lim->dqdz1, dx1, dy1, dz1 );
+    const Real dot1 = FaceSideDirectionDot(
+        gcom.xfn, gcom.yfn, gcom.zfn, dx1, dy1, dz1, 1.0 );
+    lim->lim1 = TightenLimiter(
+        lim->lim1, BarthFunction( dqFace1, lim->minv1, lim->maxv1, dot1 ) );
 
-    Real ds1  = DIST( dx1, dy1, dz1 );
-    Real dot1 = ( gcom.xfn * dx1 + gcom.yfn * dy1 + gcom.zfn * dz1 ) / ( ds1 + SMALL );
+    const Real dx2 = gcom.xfc - gcom.xcc2;
+    const Real dy2 = gcom.yfc - gcom.ycc2;
+    const Real dz2 = gcom.zfc - gcom.zcc2;
 
-    Real limv1 = BarthFunction( dqFace1, lim->minv1, lim->maxv1, dot1 );
-    lim->lim1 = MIN( lim->lim1, limv1 );
-
-    Real dx2 = gcom.xfc - gcom.xcc2;
-    Real dy2 = gcom.yfc - gcom.ycc2;
-    Real dz2 = gcom.zfc - gcom.zcc2;
-
-    Real dqFace2  = lim->dqdx2 * dx2 + lim->dqdy2 * dy2 + lim->dqdz2 * dz2;
-
-    Real ds2  = DIST( dx2, dy2, dz2 );
-    Real dot2 = - ( gcom.xfn * dx2 + gcom.yfn * dy2 + gcom.zfn * dz2 ) / ( ds2 + SMALL );
-
-    Real limv2 = BarthFunction( dqFace2, lim->minv2, lim->maxv2, dot2 );
-    lim->lim2 = MIN( lim->lim2, limv2 );
+    const Real dqFace2 = ReconstructFaceIncrement(
+        lim->dqdx2, lim->dqdy2, lim->dqdz2, dx2, dy2, dz2 );
+    const Real dot2 = FaceSideDirectionDot(
+        gcom.xfn, gcom.yfn, gcom.zfn, dx2, dy2, dz2, -1.0 );
+    lim->lim2 = TightenLimiter(
+        lim->lim2, BarthFunction( dqFace2, lim->minv2, lim->maxv2, dot2 ) );
 }
 
 void Limiter::CalcLocalVencatLimiter( Real regularizationEpsilon )
 {
-    Real dx1 = gcom.xfc - gcom.xcc1;
-    Real dy1 = gcom.yfc - gcom.ycc1;
-    Real dz1 = gcom.zfc - gcom.zcc1;
+    const Real dx1 = gcom.xfc - gcom.xcc1;
+    const Real dy1 = gcom.yfc - gcom.ycc1;
+    const Real dz1 = gcom.zfc - gcom.zcc1;
 
-    Real dqFace1  = lim->dqdx1 * dx1 + lim->dqdy1 * dy1 + lim->dqdz1 * dz1;
+    const Real dqFace1 = ReconstructFaceIncrement(
+        lim->dqdx1, lim->dqdy1, lim->dqdz1, dx1, dy1, dz1 );
+    lim->lim1 = TightenLimiter(
+        lim->lim1,
+        VencatFunction( dqFace1, lim->minv1, lim->maxv1, regularizationEpsilon ) );
 
-    Real limv1 = VencatFunction( dqFace1, lim->minv1, lim->maxv1, regularizationEpsilon );
-    lim->lim1 = MIN( lim->lim1, limv1 );
+    const Real dx2 = gcom.xfc - gcom.xcc2;
+    const Real dy2 = gcom.yfc - gcom.ycc2;
+    const Real dz2 = gcom.zfc - gcom.zcc2;
 
-    Real dx2 = gcom.xfc - gcom.xcc2;
-    Real dy2 = gcom.yfc - gcom.ycc2;
-    Real dz2 = gcom.zfc - gcom.zcc2;
-
-    Real dqFace2  = lim->dqdx2 * dx2 + lim->dqdy2 * dy2 + lim->dqdz2 * dz2;
-    Real limv2 = VencatFunction( dqFace2, lim->minv2, lim->maxv2, regularizationEpsilon );
-    lim->lim2 = MIN( lim->lim2, limv2 );
+    const Real dqFace2 = ReconstructFaceIncrement(
+        lim->dqdx2, lim->dqdy2, lim->dqdz2, dx2, dy2, dz2 );
+    lim->lim2 = TightenLimiter(
+        lim->lim2,
+        VencatFunction( dqFace2, lim->minv2, lim->maxv2, regularizationEpsilon ) );
 }
 
 void Limiter::BuildNeighborRangeOffsets()

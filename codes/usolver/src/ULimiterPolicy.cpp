@@ -94,4 +94,21 @@ Real VencatFunctionEric( Real dq, Real minv, Real maxv, Real eps )
     return 1.0;
 }
 
+
+Real ReconstructFaceIncrement(
+    Real dqdx, Real dqdy, Real dqdz,
+    Real dx, Real dy, Real dz )
+{
+    return dqdx * dx + dqdy * dy + dqdz * dz;
+}
+
+Real FaceSideDirectionDot(
+    Real xfn, Real yfn, Real zfn,
+    Real dx, Real dy, Real dz,
+    Real orientationSign )
+{
+    const Real ds = DIST( dx, dy, dz );
+    return orientationSign * ( xfn * dx + yfn * dy + zfn * dz ) / ( ds + SMALL );
+}
+
 EndNameSpace

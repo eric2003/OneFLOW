@@ -13,7 +13,4 @@ Numerical analysis is a branch of mathematics that solves continuous problems us
    /numerical/ctdma
    /numerical/fourier_transform
    /numerical/fftw
-   
-   
-   
-
+   limiter

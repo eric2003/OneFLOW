@@ -1,6 +1,7 @@
 #pragma once
 
 #include "HXDefine.h"
+#include "HXMath.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -18,5 +19,34 @@ Real VencatRegularizationEpsilon( Real coefficient, Real minOffsetRange, Real ma
 // Direct rational forms retained as separate numerical variants.
 Real Vencat( Real x, Real y, Real eps );
 Real VencatEric( Real x, Real y, Real eps );
+
+
+// @doc-algorithm slope-limiter-face
+// @doc-stage reconstruct
+// @doc-pure
+// @doc-formula dq_f = g · (x_f - x_c)
+// Unlimited linear reconstruction from cell gradient to face center.
+Real ReconstructFaceIncrement(
+    Real dqdx, Real dqdy, Real dqdz,
+    Real dx, Real dy, Real dz );
+
+// @doc-algorithm slope-limiter-face
+// @doc-stage barth-direction
+// @doc-pure
+// @doc-formula s = orientation * (n · d) / (|d| + SMALL)
+// orientation is +1 on the left side, -1 on the right side.
+Real FaceSideDirectionDot(
+    Real xfn, Real yfn, Real zfn,
+    Real dx, Real dy, Real dz,
+    Real orientationSign );
+
+// @doc-algorithm slope-limiter-face
+// @doc-stage tighten
+// @doc-pure
+// Keep the stricter (smaller) positive limiter bound.
+inline Real TightenLimiter( Real current, Real faceValue )
+{
+    return MIN( current, faceValue );
+}
 
 EndNameSpace
