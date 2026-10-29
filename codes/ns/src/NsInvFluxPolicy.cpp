@@ -103,4 +103,21 @@ void ApplyHartenEntropyFix(
     fixedVnMinusC = MAX( m2, absVnMinusC );
 }
 
+
+Real IdealGasStaticEnthalpy( Real density, Real pressure, Real gama )
+{
+    return ( gama / ( gama - one ) ) * ( pressure / density );
+}
+
+Real IdealGasSpecificInternalEnergy(
+    Real density, Real pressure, Real gama, Real speedSquared )
+{
+    return ( pressure / density ) / ( gama - one ) + half * speedSquared;
+}
+
+Real IdealGasSoundSpeedFromPressure( Real density, Real pressure, Real gama )
+{
+    return sqrt( ABS( gama * pressure / density ) );
+}
+
 EndNameSpace

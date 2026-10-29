@@ -158,3 +158,24 @@ TEST( InvFluxPolicy, FPSplit5SubsonicMatchesPolynomialForm )
         FMSplit2( mach, ipn ) * ( ( two * ipn - mach ) - ipn * sixteen * alpha * mach * FMSplit2( mach, - ipn ) );
     EXPECT_DOUBLE_EQ( FPSplit5( mach, alpha, ipn ), expected );
 }
+
+TEST( InvFluxPolicy, IdealGasStaticEnthalpyMatchesGammaLaw )
+{
+    // gamma=1.4, p=1, rho=1 -> h = 3.5
+    EXPECT_DOUBLE_EQ( IdealGasStaticEnthalpy( 1.0, 1.0, 1.4 ), 3.5 );
+}
+
+TEST( InvFluxPolicy, IdealGasSpecificInternalEnergyAddsKinetic )
+{
+    // e_int = 1/(0.4) = 2.5, + 0.5*4 = 2 -> 4.5
+    EXPECT_DOUBLE_EQ(
+        IdealGasSpecificInternalEnergy( 1.0, 1.0, 1.4, 4.0 ), 4.5 );
+}
+
+TEST( InvFluxPolicy, IdealGasSoundSpeedFromPressure )
+{
+    EXPECT_NEAR(
+        IdealGasSoundSpeedFromPressure( 1.0, 1.0, 1.4 ),
+        std::sqrt( 1.4 ),
+        1.0e-12 );
+}

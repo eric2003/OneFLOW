@@ -1253,7 +1253,7 @@ void CalcEnthalpy( RealField & prim, Real gama, Real & enthalpy )
 
     if ( nscom.chemModel == 0 )
     {
-        enthalpy = ( gama / ( gama - one ) ) * ( pressure / density );
+        enthalpy = IdealGasStaticEnthalpy( density, pressure, gama );
     }
     else
     {
@@ -1335,7 +1335,7 @@ void CalcInternalEnergy( RealField & prim, Real gama, Real & em )
     Real & pm = prim[ IDX::IP ];
     Real v2 = ONEFLOW::SQR( um, vm, wm );
 
-    em = ( pm / rm ) / ( gama - one ) + half * v2;
+    em = IdealGasSpecificInternalEnergy( rm, pm, gama, v2 );
 }
 
 

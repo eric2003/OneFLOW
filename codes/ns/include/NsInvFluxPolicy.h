@@ -80,4 +80,24 @@ inline Real FPSplit5( const Real & mach, const Real & alpha, const Real & ipn )
     return FMSplit2( mach, ipn ) * ( ( two * ipn - mach ) - ipn * sixteen * alpha * mach * FMSplit2( mach, - ipn ) );
 }
 
+
+// @doc-algorithm ideal-gas-thermo
+// @doc-stage static-enthalpy
+// @doc-pure
+// @doc-formula h = (gamma/(gamma-1)) * (p/rho)
+Real IdealGasStaticEnthalpy( Real density, Real pressure, Real gama );
+
+// @doc-algorithm ideal-gas-thermo
+// @doc-stage specific-internal-energy
+// @doc-pure
+// @doc-formula e = p/(rho*(gamma-1)) + |v|^2/2
+Real IdealGasSpecificInternalEnergy(
+    Real density, Real pressure, Real gama, Real speedSquared );
+
+// @doc-algorithm ideal-gas-thermo
+// @doc-stage sound-speed-from-pressure
+// @doc-pure
+// @doc-formula c = sqrt(gamma * p / rho)
+Real IdealGasSoundSpeedFromPressure( Real density, Real pressure, Real gama );
+
 EndNameSpace
