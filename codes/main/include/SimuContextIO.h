@@ -33,7 +33,8 @@ namespace SimuContextDetail
 {
 
 // Apply a validated case-I/O snapshot to the legacy project-path state and
-// write the diagnostic files. Call only after ReadControlInfo(caseDir).
+// write the diagnostic files. The caller must bind the case root first; the
+// production setup calls this after ReadControlInfo(caseDir).
 inline void ApplyCaseIOSettings( const CaseIOSettings & settings )
 {
     if ( ! settings.projectRoot.empty() )
