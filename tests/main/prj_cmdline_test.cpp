@@ -90,10 +90,13 @@ TEST( PrjPathComparison, ComparesDirectoryIdentity )
 
     const std::filesystem::path directory =
         std::filesystem::temp_directory_path() / "OneFLOW_PathIdentity";
+    std::string directoryWithSeparator = directory.string();
+    directoryWithSeparator += std::filesystem::path::preferred_separator;
     EXPECT_TRUE( Prj::AreSameDirectoryPath(
-        directory.string(), ( directory / "" ).string() ) );
+        directory.string(), directoryWithSeparator ) );
     EXPECT_FALSE( Prj::AreSameDirectoryPath(
         directory.string(), ( directory / "child" ).string() ) );
+    EXPECT_FALSE( Prj::AreSameDirectoryPath( "", "" ) );
 }
 
 TEST( PrjParseCmdLineArgs, MissingPositionalsIncludeUsage )
