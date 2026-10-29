@@ -78,6 +78,42 @@ TEST( SimuContextParameterTest, RejectsNonStringAndNamesParameter )
     }
 }
 
+TEST( SimuContextParameterTest, RejectsNonStringForEveryCaseIORootSetting )
+{
+    const std::vector< std::string > parameterNames = {
+        "projectRoot",
+        "inputRoot",
+        "outputRoot",
+        "meshInputRoot",
+        "flowInputRoot",
+        "meshOutputRoot",
+        "flowOutputRoot",
+        "sourceGridCaseDir"
+    };
+
+    for ( const std::string & name : parameterNames )
+    {
+        SCOPED_TRACE( name );
+        DataPara parameters;
+        AddIntegerParameter( parameters, name, 7 );
+
+        try
+        {
+            SimuContextDetail::ReadCaseIORootSettings( parameters );
+            FAIL() << "Expected a type validation exception";
+        }
+        catch ( const std::invalid_argument & error )
+        {
+            EXPECT_NE(
+                std::string( error.what() ).find( name ),
+                std::string::npos );
+            EXPECT_NE(
+                std::string( error.what() ).find( "must be a string" ),
+                std::string::npos );
+        }
+    }
+}
+
 TEST( SimuContextParameterTest, EmptyMeshInputAllowsLegacyFallback )
 {
     EXPECT_TRUE(

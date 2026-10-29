@@ -1,40 +1,38 @@
 # AI and Developer Project Context
 
-Last updated: 2026-10-28
+Last updated: 2026-10-30
 Working branch: `hexin`
-Latest inspected base before this slice: `9e318a4021126610fbeca101ac8f7cee61a63e49`.
-Latest implementation commit in this slice: `b6e6f3793205f3440303b2172fa42881e8e28b55` (atomic interface split pipeline output).
-Focused regression test commit: `7a43a880c26954570b5a5a0e7bd0e9b4aa1c8a42`.
-Documentation commit: `34dd81f4df94b9ae47e393524ef7e81525c75e07`.
-The resulting `hexin` HEAD should be checked again before the next change because this status page itself is being updated.
+Inspected starting HEAD for the current slice: `5ae294d5956e8811762d96b402e93f3a77fece5b`.
+User-reported pre-change baseline: 966/966 tests passed. This is not evidence for the changes below.
 
-The user reports a local baseline of 880/880 tests passing before this slice. That report is a baseline only; the new C++ change and focused test have **not** been built or run in this environment. Do not describe them as verified until the user or exact-commit CI provides evidence.
+## Current focus: R1 case I/O root configuration contract
 
-## Current focus: interface-face split mapping
+The active mainline is to make case setup configuration predictable and testable without coupling every contract test to the complete solver bootstrap.
 
-The current slice concerns the table-level pipeline in `codes/geometry/src/FaceTopo.cpp`:
-`RunSymmetricInterfaceSplitMappingPipeline` composes local-to-global rebuilding,
-inverse-map rebuilding, and boundary-condition expansion. These arrays describe one
-logical result. Previously, `out.nChild` and BC outputs were mutated before all stages
-had succeeded, so an exception could leave callers with a mixed old/new result.
+Production path: `SimuImp::InitSimu() -> SimuContext::SetupCaseEnvironment() -> ReadControlInfo(caseDir) -> RequireGlobalDataBase().RequireDataPara() -> ReadCaseIORootSettings() -> Prj root setters -> io_paths.txt`.
 
-Implemented in this slice:
-- Build the complete candidate `InterfaceSplitMappingPipelineResult` locally.
-- Publish it to `out` only after map rebuilding, BC expansion, and map commit all succeed.
-- Add `MultiZoneInterfaceSplitE2ETest.FailedPipelineDoesNotPublishPartialResult`, which seeds every output field, deliberately provides too few interface child counts, expects failure, and verifies that all output fields remain unchanged.
-- Document the algorithm and the scope of this exception guarantee in `doc/source/face_stage_pipeline.rst`.
+Current implementation:
+- `codes/main/include/SimuContextParameter.h` defines `CaseIORootSettings` and validates optional string entries before path application.
+- `codes/main/src/SimuContextEnv.cpp` uses that snapshot and applies the resulting roots through the existing `Prj` compatibility APIs.
+- An explicit `meshInputRoot` takes precedence over legacy `sourceGridCaseDir`; the legacy value is read only when mesh input is empty or `default`.
+- `tests/main/simu_context_parameter_test.cpp` covers missing/valid/invalid optional strings, the complete root snapshot, and legacy fallback behavior. The current slice extends invalid-type coverage to every root key.
 
-Important boundary: this guarantees atomic publication for the table-level result object. It does **not** automatically make the production `IFaceLink` lifecycle transactional; production staging and commit still need separate call-path review.
-
-The multi-zone test also demonstrates that a split can leave an unreferenced inverse row for a retired parent global face ID. `CollectUnreferencedGlobalInterfaceFaces` detects these rows, but deletion/compaction is intentionally not implemented: global IDs index related local-to-global and parent/child tables, and compaction requires a coherent rewrite of all references. Do not remove orphan rows as a local cleanup without defining that remapping contract.
+System-level reason: configuration lookup and type validation are now separated from mutation of global project paths. This reduces ambiguity in the runtime boundary, but does not prove the full setup lifecycle or per-case isolation.
 
 ## Validation status
 
-- User-reported baseline before this slice: 880/880 tests passed.
-- New source and regression test: implemented, **not yet built or executed here**.
-- Sphinx build for the new documentation: **not run here**.
+- User-reported pre-change baseline: 966/966 tests passed.
+- The added type-contract test and documentation update have not been built or run in this environment.
+- No exact-commit CI result has been checked for this slice; do not claim the new test passes.
 - Keep C++ source ASCII-only.
-- Next step: run the focused geometry target and the full test suite on this exact `hexin` HEAD; fix any compile/test failures before expanding the mapping contract.
+
+## Remaining R1 gap
+
+A real integration test still needs to exercise the production `ReadControlInfo(caseDir)` path, effective `Prj` root application, `io_paths.txt`/database diagnostics, sequential-case reset, and cleanup after setup failure. The existing test targets intentionally avoid linking the full solver runtime; do not duplicate the parser or copy the executable's complete source list into a test target.
+
+The existing investigation record is `doc/plans/setup-case-environment-integration-test.md`. It identifies the key constraints: the global database is statically initialized, but `ReadControlInfo` uses parallel coordination and database broadcast; `SimuContext::TeardownCase()` resets much more than path state; the production executable currently compiles a broad source list rather than exposing a reusable runtime library.
+
+Next single action: determine whether a narrow production-owned case-setup orchestration boundary can preserve the real `ReadControlInfo(caseDir)` implementation while enabling setup success/failure and sequential-case tests. Do not mark R1 complete until effective path application and cleanup have test evidence.
 
 ## 1. Read this first
 
@@ -66,32 +64,29 @@ Do not start by reading the whole repository. Use the architecture map to identi
 
 The published [architecture review](source/architecture_review.rst) is now the common checklist for substantial AI-assisted changes. It deliberately separates general CFD/CAE concerns from verified OneFLOW behavior. Keep these cross-system risks visible while working locally: implicit global runtime state, configuration parsing versus validation/application, mutable mesh data and derived connectivity, workflow artifact provenance and execution locations, repeated/failed-run cleanup, and the gap between documented plans and actual test/CI evidence. At each meaningful milestone, state which system-level concern improved, what remains untouched, and whether the priority order should change.
 
-## 4. Current focus: dimension-aware mesh topology
+## 4. Current focus: R1 case I/O root configuration
 
-Current implementation and design files:
+Source and tests:
+- `codes/main/include/SimuContextParameter.h`
+- `codes/main/src/SimuContextEnv.cpp`
+- `codes/io/src/ParaFile.cpp`
+- `tests/main/simu_context_parameter_test.cpp`
+- `tests/main/prj_cmdline_test.cpp`
+- `doc/plans/setup-case-environment-integration-test.md`
 
-- `codes/geometry/src/FaceSolver.cpp`
-- `codes/geometry/src/GridElem.cpp`
-- `codes/cgns/src/CgnsZsection.cpp`
-- `codes/cgns/src/CgnsSection.cpp`
-- `tests/geometry/FaceSolverStageTest.cpp`
-- `doc/source/grid_topology.rst`
-- `doc/source/face_stage_pipeline.rst`
+Verified behavior: missing optional root settings resolve to empty strings; present entries declared with a non-string type are rejected; generic and domain-specific roots are selected in a snapshot before being applied; explicit `meshInputRoot` wins over `sourceGridCaseDir`, and the legacy key is read only when mesh input is empty or `default`. Existing `Prj` tests cover path-root inheritance and reset rules.
 
-Topology contract: a D-dimensional cell has codimension-one faces of dimension D-1. In 2D a linear edge face has two endpoint nodes; in 3D a polyhedral face is an ordered loop with at least three nodes. This is based on cell dimension, even for a surface mesh embedded in 3D coordinates.
+Implemented, not yet verified for this slice: a test iterates over all eight root-setting keys and confirms that integer-valued entries produce a parameter-named type error. This strengthens the configuration schema contract, but is not a substitute for setup integration.
 
-Implemented slice: the generic-sounding polygon staging API is renamed to make its 3D polyhedral-face role explicit. Existing two-phase validation and minimum-three guard apply only to that role. A test records that TRI_3 creates three two-node faces. Current limitation: `HasPolygonSection` treats either `NGON_n` or `NFACE_n` as polyhedral routing evidence, while `SetElementTypeAndNode` accepts supported fixed-node cell types and does not convert 2D polygonal NGON cells into cells and edges. The classifier also reads global ``Dim::dimension`` rather than receiving cell dimension explicitly. Dimension-aware CGNS classification and 2D NGON import require a separate adapter design and acceptance tests.
+System-level concern improved: parameter interpretation is kept separate from mutation of process-global path state. Unchanged: real control-file loading through `ReadControlInfo(caseDir)`, effective `Prj` application, diagnostic file output, sequential-case isolation, and cleanup after setup failure.
 
-System-level concern improved: cell dimension, face dimension, and connectivity role are now explicit in APIs/tests/docs. Unchanged: CGNS dispatch behavior, 2D NGON cell import, MPI lifecycle, CLI parsing, and solver numerical kernels.
-
-Validation for this working slice: the user-reported baseline is 803/803 and was not rerun; `git diff --check` and strict Sphinx passed; C++ build/test is unverified due the known MSVC C1902 failure. C++ ASCII-only remains required.
 ## 5. Next actions, in priority order
 
-1. Verify the renamed API and new 2D edge test with a working focused geometry build, then run the full test suite.
-2. Design CGNS dispatch using base cell dimension and element-section roles; test NGON-only 2D polygon cells, 3D NGON plus NFACE polyhedra, and regular fixed-node meshes before changing routing.
-3. At the next stable milestone, review the whole-system architecture risks and update this handoff with exact HEAD and validation evidence.
+1. Build/run `simu_context_parameter_test` and then the full suite on the current `hexin` revision; the reported 966/966 result is only the pre-change baseline.
+2. Close the R1 integration gap with a narrow production-owned setup orchestration boundary. Preserve the real control reader; do not reimplement parsing or link a copied full executable source list into the unit test.
+3. At the next milestone, refresh this handoff from the exact branch HEAD and inspect exact-revision CI evidence.
 
-Suggested commit message: `refactor(geometry): clarify dimension-specific face staging`.
+Suggested next mainline: a testable setup orchestration boundary, not another path resolver or a broad runtime rewrite.
 ## 6. Status vocabulary
 
 Use these labels consistently in this page and related records:

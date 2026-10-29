@@ -147,6 +147,14 @@ engineering note.
 
 Append a short entry when a slice materially advances. Keep it factual and link the exact commit.
 
+### 2026-10-30 - Extend the R1 root-setting type contract
+
+- Based on inspected `hexin` HEAD `5ae294d5956e8811762d96b402e93f3a77fece5b`; the user reports 966/966 tests passed on the pre-change baseline.
+- Extended `simu_context_parameter_test.cpp` so every root-setting key, including the conditional legacy `sourceGridCaseDir`, is checked for rejection when its declared type is not a string.
+- This is a narrow schema-contract test. It does not claim to exercise `ReadControlInfo(caseDir)`, effective `Prj` root application, path diagnostics, sequential-case reset, or failure cleanup.
+- Validation: test source and current call path inspected; no C++ build or test run in this environment. Exact-revision CI has not been checked.
+- System-level assessment: this improves the boundary between configuration interpretation and global path mutation, but does not change R1's Partial status. Next action remains a narrow production-owned setup orchestration seam that preserves the real control reader.
+
 ### 2026-10-26 - Initial roadmap
 
 - Added a staged runtime refactoring sequence and acceptance criteria.
