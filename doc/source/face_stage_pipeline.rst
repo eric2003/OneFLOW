@@ -64,7 +64,8 @@ wishlist for the whole solver.
        multi-zone split e2e without CGNS;
        pure line midpoint + candidate maps
      - Production still needs locator +
-       zone ``nodeMesh`` for mid-point insert
+       zone ``nodeMesh`` (pure prefix locked by
+       ``LineSplitPureStagesTest``)
 
 **Rule of thumb:** if a change only renames a pure predicate already covered
 by tests, skip it. Prefer closing an open row in this table.
@@ -978,6 +979,38 @@ Still product work, not rename work:
 * Production mid-point split still needs real ``nodeMesh`` + ADT unless injected.
 * Orphan parent global rows after InitNew copy (document, do not silent-fix).
 * Full CGNS zone fixtures remain heavy; prefer more pure compositions first.
+
+
+
+Investment priority (do not spread effort evenly)
+-------------------------------------------------
+
+Highest return first. Skip lower rows until a higher row is blocked.
+
+#. **Numerical / solver contracts already in motion** (limiter ranges, Venkat
+   policy, Marray index/fill). These sit on the hot path of every residual;
+   geometry pure-helpers no longer move residual quality.
+#. **Geometry hard edges only** — not more one-line predicates:
+
+   * Line/quad split still needs live ``PointLocator`` + zone ``nodeMesh``.
+   * Prefer one fixture that exercises that seam (injected locator + minimal
+     mesh) over extracting another arithmetic helper.
+   * Orphan inverse rows: detect (done); strip only with an explicit product
+     decision and migration test.
+#. **Workbench → native table pipeline** when development velocity needs it
+   (stub is enough until someone edits scenarios daily).
+#. **Full CGNS zone e2e** last among geometry items: high confidence, high cost;
+   pure compositions and ``LineSplitPureStagesTest`` already cover most
+   dual-map and split-table contracts.
+
+**Geometry plateau rule:** if a change only renames or re-wraps a helper already
+locked in ``tests/geometry``, stop. The face/interface **boundary-drawing**
+goal is largely met; further investment belongs on hard edges or on solver
+contracts (priority 1).
+
+``LineSplitPureStagesTest`` locks the pure prefix of line split (sole-zone →
+midpoint → candidates → resolve → local mapping) without ADT or CGNS, so the
+remaining open map row stays honest: production still needs locator + nodeMesh.
 
 
 Multi-zone interface split (composed scenario)
