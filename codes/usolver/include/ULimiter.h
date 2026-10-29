@@ -24,6 +24,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "HXArray.h"
+#include "ULimiterPolicy.h"
 #include <memory>
 
 BeginNameSpace( ONEFLOW )
@@ -33,11 +34,6 @@ const int ILMT_NO     = 0;
 const int ILMT_BARTH  = 1;
 const int ILMT_VENCAT = 2;
 
-Real BarthFunction( Real dq, Real minv, Real maxv, Real dot );
-Real VencatFunction( Real dq, Real minv, Real maxv, Real eps );
-Real VencatFunctionEric( Real dq, Real minv, Real maxv, Real eps );
-Real Vencat( Real x, Real y, Real eps );
-Real VencatEric( Real x, Real y, Real eps );
 
 class Lim
 {
