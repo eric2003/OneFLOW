@@ -173,6 +173,7 @@ set(SIMU_CONTEXT_PARAMETER_ZONE_DIR ${CMAKE_SOURCE_DIR}/codes/zone)
 
 add_executable(simu_context_parameter_test
   simu_context_parameter_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/main/src/SimuContextIO.cpp
   ${SIMU_CONTEXT_PARAMETER_DB_DIR}/src/DataBase.cpp
   ${SIMU_CONTEXT_PARAMETER_DB_DIR}/src/DataPara.cpp
   ${SIMU_CONTEXT_PARAMETER_DB_DIR}/src/DataBook.cpp
