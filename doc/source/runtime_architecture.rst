@@ -285,9 +285,10 @@ The intended ordering is:
              v
    Resolve and write io_paths.txt
 
-The operation ``SimuContextDetail::ApplyCaseIOSettings()`` is defined in
-``codes/main/include/SimuContextIO.h``. It applies the validated snapshot through
-the existing ``Prj`` API and writes diagnostics to the mesh output root and,
+The declaration for ``SimuContextDetail::ApplyCaseIOSettings()`` is in
+``codes/main/include/SimuContextIO.h``; its implementation is compiled from
+``codes/main/src/SimuContextIO.cpp``. The implementation applies the validated
+snapshot through the existing ``Prj`` API and writes diagnostics to the mesh output root and,
 when distinct, the flow output root. The focused test target links the real
 ``Prj`` path implementation and checks file placement and the effective roots
 serialized in each diagnostic file.
@@ -346,9 +347,12 @@ Case runtime configuration
    into a value object before the runtime applies them through `Prj`. This separates typed
    parameter lookup and legacy fallback selection from mutation of the process-global path
    fields. The parameter adapter does not normalize paths or apply roots. The separate
-   `SimuContextDetail::ApplyCaseIOSettings()` operation in
-   `codes/main/include/SimuContextIO.h` applies the snapshot and writes path diagnostics;
-   it does not replace the production `ReadControlInfo(caseDir)` call.
+   `SimuContextDetail::ApplyCaseIOSettings()` is declared in
+   `codes/main/include/SimuContextIO.h` and implemented in
+   `codes/main/src/SimuContextIO.cpp`. Keeping path mutation in a source file prevents
+   every includer from inheriting the implementation's `Prj` and filesystem dependencies.
+   It applies the snapshot and writes path diagnostics; it does not replace the production
+   `ReadControlInfo(caseDir)` call.
 
    The legacy mesh input fallback is split into two explicit decisions.
    `ShouldUseLegacySourceGridCaseDir()` decides whether the configured
