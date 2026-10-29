@@ -116,4 +116,13 @@ The current execution sandbox provides Linux, CMake, GCC, Clang, Python, and Git
 - Prefer a source change whose dependency boundary is clear from inspection, then validate it in the repository's normal Windows/CI environment. If a checkout/archive is made available in the sandbox, use it to build and run the narrow target before broadening the test.
 
 The next implementation slice remains the narrow production-owned setup boundary described above. It should preserve the real `ReadControlInfo(caseDir)` implementation and the existing exception/cleanup semantics. Extracting a reusable production runtime library is a possible later architecture improvement, but should not be smuggled into this first integration-test change.
+## Follow-up: exact checked-in case paths
 
+Source inspection confirms two suitable existing cases under `test/`:
+
+- `test/grid/rae2822convert/script/control.txt` lists `simu.txt`, `dimension.txt`, `tolerence.txt`, `grid.txt`, and `part.txt`. This is the smaller candidate for a real-reader/configuration smoke test, subject to checking every referenced file and any required relative assets.
+- `test/cfd/rae2822_roe_sa/script/control.txt` lists `simu.txt`, `dimension.txt`, `tolerence.txt`, `cfd.txt`, `vismodel.txt`, `multigrid.txt`, `inflow.txt`, `turb.txt`, and `walldist.txt`. It is a more representative CFD control case but has a broader parameter set and likely more external assets.
+
+The CFD case's `simu.txt` explicitly sets `string simutask = "Solve";`. That value should be asserted as a parsed database value, not executed by the setup-only smoke test. The grid conversion case is the better first candidate if the test needs to minimize dependencies; the CFD case should follow when the first reader integration is stable.
+
+These paths are verified from the current `hexin` file contents. The sandbox still has no checkout, so the referenced directory trees have not been copied, built, or executed here.
