@@ -2,7 +2,7 @@
 
 Last updated: 2026-10-30
 Working branch: `hexin`
-Latest documentation commits: `35be2ec81df56300d4390c6ea5a689978c4f86a0` maps case setup success/failure and cleanup paths in the runtime architecture guide; `b6dd4a840972004fe226abc26f253074136dec5a` records concrete real-case fixture paths. These changes are documentation only; no production code or test target changed.
+Latest documentation commits: `35be2ec81df56300d4390c6ea5a689978c4f86a0` maps case setup success/failure and cleanup paths; `b6dd4a840972004fe226abc26f253074136dec5a` records concrete case fixtures. Current slice adds a path-resolution contract test and clarifies relative `projectRoot` semantics. No production runtime behavior changed.
 User-reported pre-change baseline: 967/967 tests passed. This is not evidence for the changes below.
 
 ## Current focus: R1 case I/O root configuration contract
@@ -80,6 +80,8 @@ Verified behavior: missing optional root settings resolve to empty strings; pres
 Implemented, not yet verified for this slice: a test iterates over all eight root-setting keys and confirms that integer-valued entries produce a parameter-named type error. This strengthens the configuration schema contract, but is not a substitute for setup integration.
 
 System-level concern improved: parameter interpretation is kept separate from mutation of process-global path state. Unchanged: real control-file loading through `ReadControlInfo(caseDir)`, effective `Prj` application, diagnostic file output, sequential-case isolation, and cleanup after setup failure.
+
+A new unverified test in `tests/main/prj_cmdline_test.cpp` pins the existing distinction that relative `projectRoot` resolves from `Prj::current_dir`, while ordinary relative I/O roots resolve from the case root. The runtime architecture guide records this compatibility behavior. This is source-backed but not yet built or run in this environment.
 
 ## 5. Next actions, in priority order
 
