@@ -55,7 +55,7 @@ The change clarifies a responsibility boundary:
 3. The limiter owns its extrema workspace and controls when its capacity can be reused; contents are reset at every calculation.
 4. Numerical reconstruction and limiter policy remain independent of the storage-type correction.
 
-The goal is not to redesign the limiter or migrate every legacy index in one pass. It is to remove a real type mismatch at the reusable container boundary while preserving the algorithm and allocation behavior.
+The goal is not to redesign the limiter or migrate every legacy index in one pass. It is to remove a real type mismatch at the reusable container boundary and reduce repeated workspace allocation while preserving the numerical formulas and per-call initialization semantics.
 
 ## Validation checklist
 
