@@ -213,3 +213,19 @@ target_include_directories(inv_flux_policy_test
 target_link_libraries(inv_flux_policy_test PRIVATE GTest::gtest_main)
 target_compile_features(inv_flux_policy_test PRIVATE cxx_std_20)
 gtest_discover_tests(inv_flux_policy_test DISCOVERY_MODE PRE_TEST)
+
+# Pure Stokes stress / viscous flux projection; no mesh bootstrap.
+add_executable(vis_flux_policy_test
+  vis_flux_policy_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/ns/src/NsVisFluxPolicy.cpp
+)
+
+target_include_directories(vis_flux_policy_test
+  PRIVATE
+    ${CMAKE_SOURCE_DIR}/codes/ns/include
+    ${CMAKE_SOURCE_DIR}/codes/basic/include
+)
+
+target_link_libraries(vis_flux_policy_test PRIVATE GTest::gtest_main)
+target_compile_features(vis_flux_policy_test PRIVATE cxx_std_20)
+gtest_discover_tests(vis_flux_policy_test DISCOVERY_MODE PRE_TEST)
