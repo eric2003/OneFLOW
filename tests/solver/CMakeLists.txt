@@ -198,17 +198,18 @@ target_link_libraries(grad_policy_test PRIVATE GTest::gtest_main)
 target_compile_features(grad_policy_test PRIVATE cxx_std_20)
 gtest_discover_tests(grad_policy_test DISCOVERY_MODE PRE_TEST)
 
-# Pure residual face-deposit sign contract; no mesh or solver startup.
-add_executable(residual_deposit_test
-  residual_deposit_test.cpp
+# Pure Euler convective flux helpers; no mesh or solver bootstrap.
+add_executable(inv_flux_policy_test
+  inv_flux_policy_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/ns/src/NsInvFluxPolicy.cpp
 )
 
-target_include_directories(residual_deposit_test
+target_include_directories(inv_flux_policy_test
   PRIVATE
-    ${CMAKE_SOURCE_DIR}/codes/usolver/include
+    ${CMAKE_SOURCE_DIR}/codes/ns/include
     ${CMAKE_SOURCE_DIR}/codes/basic/include
 )
 
-target_link_libraries(residual_deposit_test PRIVATE GTest::gtest_main)
-target_compile_features(residual_deposit_test PRIVATE cxx_std_20)
-gtest_discover_tests(residual_deposit_test DISCOVERY_MODE PRE_TEST)
+target_link_libraries(inv_flux_policy_test PRIVATE GTest::gtest_main)
+target_compile_features(inv_flux_policy_test PRIVATE cxx_std_20)
+gtest_discover_tests(inv_flux_policy_test DISCOVERY_MODE PRE_TEST)

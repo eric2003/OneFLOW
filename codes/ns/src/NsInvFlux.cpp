@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "NsInvFlux.h"
+#include "NsInvFluxPolicy.h"
 #include "Zone.h"
 #include "DataBase.h"
 #include "UCom.h"
@@ -179,11 +180,11 @@ void NsInvFlux::Roe()
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
 
-    Real vnl  = gcom.xfn * inv.ul + gcom.yfn * inv.vl + gcom.zfn * inv.wl - gcom.vfn;
-    Real vnr  = gcom.xfn * inv.ur + gcom.yfn * inv.vr + gcom.zfn * inv.wr - gcom.vfn;
+    Real vnl = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ul, inv.vl, inv.wl );
+    Real vnr = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ur, inv.vr, inv.wr );
 
-    Real rvnl = inv.rl * vnl;
-    Real rvnr = inv.rr * vnr;
 
     Real ratio = sqrt( inv.rr / inv.rl );
     Real coef  = 1.0 / ( 1.0 + ratio );
@@ -211,17 +212,17 @@ void NsInvFlux::Roe()
     inv.aeig2 = ABS( inv.vnrel + inv.cm );
     inv.aeig3 = ABS( inv.vnrel - inv.cm );
 
-    inv.flux1[ IDX::IR  ] = rvnl                            ;
-    inv.flux1[ IDX::IRU ] = rvnl * inv.ul + gcom.xfn * inv.pl;
-    inv.flux1[ IDX::IRV ] = rvnl * inv.vl + gcom.yfn * inv.pl;
-    inv.flux1[ IDX::IRW ] = rvnl * inv.wl + gcom.zfn * inv.pl;
-    inv.flux1[ IDX::IRE ] = rvnl * inv.hl + gcom.vfn * inv.pl;
+    EulerConvectiveFlux(
+        inv.rl, inv.ul, inv.vl, inv.wl, inv.pl, inv.hl, vnl,
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn,
+        inv.flux1[ IDX::IR ], inv.flux1[ IDX::IRU ], inv.flux1[ IDX::IRV ],
+        inv.flux1[ IDX::IRW ], inv.flux1[ IDX::IRE ] );
 
-    inv.flux2[ IDX::IR  ] = rvnr                            ;
-    inv.flux2[ IDX::IRU ] = rvnr * inv.ur + gcom.xfn * inv.pr;
-    inv.flux2[ IDX::IRV ] = rvnr * inv.vr + gcom.yfn * inv.pr;
-    inv.flux2[ IDX::IRW ] = rvnr * inv.wr + gcom.zfn * inv.pr;
-    inv.flux2[ IDX::IRE ] = rvnr * inv.hr + gcom.vfn * inv.pr;
+    EulerConvectiveFlux(
+        inv.rr, inv.ur, inv.vr, inv.wr, inv.pr, inv.hr, vnr,
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn,
+        inv.flux2[ IDX::IR ], inv.flux2[ IDX::IRU ], inv.flux2[ IDX::IRV ],
+        inv.flux2[ IDX::IRW ], inv.flux2[ IDX::IRE ] );
 
     for ( int iEqu = nscom.nBEqu; iEqu < nscom.nEqu; ++ iEqu )
     {
@@ -303,11 +304,11 @@ void NsInvFlux::Vanleer()
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
 
-    Real vnl  = gcom.xfn * inv.ul + gcom.yfn * inv.vl + gcom.zfn * inv.wl - gcom.vfn;
-    Real vnr  = gcom.xfn * inv.ur + gcom.yfn * inv.vr + gcom.zfn * inv.wr - gcom.vfn;
+    Real vnl = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ul, inv.vl, inv.wl );
+    Real vnr = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ur, inv.vr, inv.wr );
 
-    Real rvnl = inv.rl * vnl;
-    Real rvnr = inv.rr * vnr;
 
     Real c2l   = inv.gama1 * inv.pl / inv.rl;
     Real cl    = sqrt( ABS( c2l ) );
@@ -319,11 +320,11 @@ void NsInvFlux::Vanleer()
 
     if ( machl > one )
     {
-        inv.flux1[ IDX::IR  ] = rvnl;
-        inv.flux1[ IDX::IRU ] = rvnl * inv.ul + gcom.xfn * inv.pl;
-        inv.flux1[ IDX::IRV ] = rvnl * inv.vl + gcom.yfn * inv.pl;
-        inv.flux1[ IDX::IRW ] = rvnl * inv.wl + gcom.zfn * inv.pl;
-        inv.flux1[ IDX::IRE ] = rvnl * inv.hl + gcom.vfn * inv.pl;
+        EulerConvectiveFlux(
+            inv.rl, inv.ul, inv.vl, inv.wl, inv.pl, inv.hl, vnl,
+            gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn,
+            inv.flux1[ IDX::IR ], inv.flux1[ IDX::IRU ], inv.flux1[ IDX::IRV ],
+            inv.flux1[ IDX::IRW ], inv.flux1[ IDX::IRE ] );
     }
     else if ( machl < - one )
     {
@@ -352,11 +353,11 @@ void NsInvFlux::Vanleer()
     //Right contribution
     if ( machr < - one )
     {
-        inv.flux2[ IDX::IR  ] = rvnr;
-        inv.flux2[ IDX::IRU ] = rvnr * inv.ur + gcom.xfn * inv.pr;
-        inv.flux2[ IDX::IRV ] = rvnr * inv.vr + gcom.yfn * inv.pr;
-        inv.flux2[ IDX::IRW ] = rvnr * inv.wr + gcom.zfn * inv.pr;
-        inv.flux2[ IDX::IRE ] = rvnr * inv.hr + gcom.vfn * inv.pr;
+        EulerConvectiveFlux(
+            inv.rr, inv.ur, inv.vr, inv.wr, inv.pr, inv.hr, vnr,
+            gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn,
+            inv.flux2[ IDX::IR ], inv.flux2[ IDX::IRU ], inv.flux2[ IDX::IRV ],
+            inv.flux2[ IDX::IRW ], inv.flux2[ IDX::IRE ] );
     }
     else if ( machr > one )
     {
@@ -400,11 +401,11 @@ void NsInvFlux::Steger()
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
 
-    Real vnl  = gcom.xfn * inv.ul + gcom.yfn * inv.vl + gcom.zfn * inv.wl - gcom.vfn;
-    Real vnr  = gcom.xfn * inv.ur + gcom.yfn * inv.vr + gcom.zfn * inv.wr - gcom.vfn;
+    Real vnl = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ul, inv.vl, inv.wl );
+    Real vnr = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ur, inv.vr, inv.wr );
 
-    Real rvnl = inv.rl * vnl;
-    Real rvnr = inv.rr * vnr;
 
     inv.el  = inv.hl - inv.pl / ( inv.rl + SMALL );
     inv.er  = inv.hr - inv.pr / ( inv.rr + SMALL );
@@ -525,11 +526,11 @@ void NsInvFlux::Hlle()
                
     Real gamm1 = inv.gama - one;
 
-    Real vnl  = gcom.xfn * inv.ul + gcom.yfn * inv.vl + gcom.zfn * inv.wl - gcom.vfn;
-    Real vnr  = gcom.xfn * inv.ur + gcom.yfn * inv.vr + gcom.zfn * inv.wr - gcom.vfn;
+    Real vnl = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ul, inv.vl, inv.wl );
+    Real vnr = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ur, inv.vr, inv.wr );
 
-    Real rvnl = inv.rl * vnl;
-    Real rvnr = inv.rr * vnr;
 
     inv.vnflow = gcom.xfn * inv.um + gcom.yfn * inv.vm + gcom.zfn * inv.wm;
     inv.vnrel = inv.vnflow - gcom.vfn;
@@ -538,17 +539,17 @@ void NsInvFlux::Hlle()
     inv.cr  = sqrt( inv.gama2 * inv.pr / ( inv.rr + SMALL ) );
     inv.cm  = sqrt( inv.gama * inv.pm / ( inv.rm + SMALL ) );
 
-    inv.flux1[ IDX::IR  ] = rvnl                             ;
-    inv.flux1[ IDX::IRU ] = rvnl * inv.ul + gcom.xfn * inv.pl;
-    inv.flux1[ IDX::IRV ] = rvnl * inv.vl + gcom.yfn * inv.pl;
-    inv.flux1[ IDX::IRW ] = rvnl * inv.wl + gcom.zfn * inv.pl;
-    inv.flux1[ IDX::IRE ] = rvnl * inv.hl + gcom.vfn * inv.pl;
+    EulerConvectiveFlux(
+        inv.rl, inv.ul, inv.vl, inv.wl, inv.pl, inv.hl, vnl,
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn,
+        inv.flux1[ IDX::IR ], inv.flux1[ IDX::IRU ], inv.flux1[ IDX::IRV ],
+        inv.flux1[ IDX::IRW ], inv.flux1[ IDX::IRE ] );
 
-    inv.flux2[ IDX::IR  ] = rvnr                             ;
-    inv.flux2[ IDX::IRU ] = rvnr * inv.ur + gcom.xfn * inv.pr;
-    inv.flux2[ IDX::IRV ] = rvnr * inv.vr + gcom.yfn * inv.pr;
-    inv.flux2[ IDX::IRW ] = rvnr * inv.wr + gcom.zfn * inv.pr;
-    inv.flux2[ IDX::IRE ] = rvnr * inv.hr + gcom.vfn * inv.pr;
+    EulerConvectiveFlux(
+        inv.rr, inv.ur, inv.vr, inv.wr, inv.pr, inv.hr, vnr,
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn,
+        inv.flux2[ IDX::IR ], inv.flux2[ IDX::IRU ], inv.flux2[ IDX::IRV ],
+        inv.flux2[ IDX::IRW ], inv.flux2[ IDX::IRE ] );
 
     PrimToQ( inv.prim1, inv.gama1, inv.q1 );
     PrimToQ( inv.prim2, inv.gama2, inv.q2 );
@@ -601,27 +602,27 @@ void NsInvFlux::LaxFriedrichs()
 
     Real gamm1 = inv.gama - one;
 
-    Real vnl  = gcom.xfn * inv.ul + gcom.yfn * inv.vl + gcom.zfn * inv.wl - gcom.vfn;
-    Real vnr  = gcom.xfn * inv.ur + gcom.yfn * inv.vr + gcom.zfn * inv.wr - gcom.vfn;
+    Real vnl = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ul, inv.vl, inv.wl );
+    Real vnr = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ur, inv.vr, inv.wr );
 
-    Real rvnl = inv.rl * vnl;
-    Real rvnr = inv.rr * vnr;
 
     inv.vnflow = gcom.xfn * inv.um + gcom.yfn * inv.vm + gcom.zfn * inv.wm;
     inv.vnrel = inv.vnflow - gcom.vfn;
     inv.cm  = sqrt( inv.gama * inv.pm / ( inv.rm + SMALL ) );
 
-    inv.flux1[ IDX::IR  ] = rvnl                             ;
-    inv.flux1[ IDX::IRU ] = rvnl * inv.ul + gcom.xfn * inv.pl;
-    inv.flux1[ IDX::IRV ] = rvnl * inv.vl + gcom.yfn * inv.pl;
-    inv.flux1[ IDX::IRW ] = rvnl * inv.wl + gcom.zfn * inv.pl;
-    inv.flux1[ IDX::IRE ] = rvnl * inv.hl + gcom.vfn * inv.pl;
+    EulerConvectiveFlux(
+        inv.rl, inv.ul, inv.vl, inv.wl, inv.pl, inv.hl, vnl,
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn,
+        inv.flux1[ IDX::IR ], inv.flux1[ IDX::IRU ], inv.flux1[ IDX::IRV ],
+        inv.flux1[ IDX::IRW ], inv.flux1[ IDX::IRE ] );
 
-    inv.flux2[ IDX::IR  ] = rvnr                             ;
-    inv.flux2[ IDX::IRU ] = rvnr * inv.ur + gcom.xfn * inv.pr;
-    inv.flux2[ IDX::IRV ] = rvnr * inv.vr + gcom.yfn * inv.pr;
-    inv.flux2[ IDX::IRW ] = rvnr * inv.wr + gcom.zfn * inv.pr;
-    inv.flux2[ IDX::IRE ] = rvnr * inv.hr + gcom.vfn * inv.pr;
+    EulerConvectiveFlux(
+        inv.rr, inv.ur, inv.vr, inv.wr, inv.pr, inv.hr, vnr,
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn,
+        inv.flux2[ IDX::IR ], inv.flux2[ IDX::IRU ], inv.flux2[ IDX::IRV ],
+        inv.flux2[ IDX::IRW ], inv.flux2[ IDX::IRE ] );
 
     for ( int iEqu = nscom.nBEqu; iEqu < nscom.nEqu; ++ iEqu )
     {
@@ -658,8 +659,10 @@ void NsInvFlux::Ausmp()
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
 
-    Real vnl  = gcom.xfn * inv.ul + gcom.yfn * inv.vl + gcom.zfn * inv.wl - gcom.vfn;
-    Real vnr  = gcom.xfn * inv.ur + gcom.yfn * inv.vr + gcom.zfn * inv.wr - gcom.vfn;
+    Real vnl = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ul, inv.vl, inv.wl );
+    Real vnr = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ur, inv.vr, inv.wr );
 
     Real orl = 1.0 / ( inv.rl + SMALL );
     Real orr = 1.0 / ( inv.rr + SMALL );
@@ -726,8 +729,10 @@ void NsInvFlux::AusmpUp()
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
 
-    Real vnl  = gcom.xfn * inv.ul + gcom.yfn * inv.vl + gcom.zfn * inv.wl - gcom.vfn;
-    Real vnr  = gcom.xfn * inv.ur + gcom.yfn * inv.vr + gcom.zfn * inv.wr - gcom.vfn;
+    Real vnl = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ul, inv.vl, inv.wl );
+    Real vnr = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ur, inv.vr, inv.wr );
 
     inv.gama = half * ( inv.gama1 + inv.gama2 );
 
@@ -836,8 +841,10 @@ void NsInvFlux::Ausmdv()
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
 
-    Real vnl  = gcom.xfn * inv.ul + gcom.yfn * inv.vl + gcom.zfn * inv.wl - gcom.vfn;
-    Real vnr  = gcom.xfn * inv.ur + gcom.yfn * inv.vr + gcom.zfn * inv.wr - gcom.vfn;
+    Real vnl = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ul, inv.vl, inv.wl );
+    Real vnr = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ur, inv.vr, inv.wr );
 
     inv.gama = half * ( inv.gama1 + inv.gama2 );
 
@@ -1044,8 +1051,10 @@ void NsInvFlux::Ausmw()
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
 
-    Real vnl  = gcom.xfn * inv.ul + gcom.yfn * inv.vl + gcom.zfn * inv.wl - gcom.vfn;
-    Real vnr  = gcom.xfn * inv.ur + gcom.yfn * inv.vr + gcom.zfn * inv.wr - gcom.vfn;
+    Real vnl = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ul, inv.vl, inv.wl );
+    Real vnr = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ur, inv.vr, inv.wr );
 
     inv.gama = half * ( inv.gama1 + inv.gama2 );
 
@@ -1150,8 +1159,10 @@ void NsInvFlux::Ausmpw()
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
 
-    Real vnl  = gcom.xfn * inv.ul + gcom.yfn * inv.vl + gcom.zfn * inv.wl - gcom.vfn;
-    Real vnr  = gcom.xfn * inv.ur + gcom.yfn * inv.vr + gcom.zfn * inv.wr - gcom.vfn;
+    Real vnl = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ul, inv.vl, inv.wl );
+    Real vnr = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ur, inv.vr, inv.wr );
 
     Real orl = 1.0 / ( inv.rl + SMALL );
     Real orr = 1.0 / ( inv.rr + SMALL );
@@ -1239,8 +1250,10 @@ void NsInvFlux::Slau2()
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
 
-    Real vnl  = gcom.xfn * inv.ul + gcom.yfn * inv.vl + gcom.zfn * inv.wl - gcom.vfn;
-    Real vnr  = gcom.xfn * inv.ur + gcom.yfn * inv.vr + gcom.zfn * inv.wr - gcom.vfn;
+    Real vnl = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ul, inv.vl, inv.wl );
+    Real vnr = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ur, inv.vr, inv.wr );
 
     Real orl = 1.0 / ( inv.rl + SMALL );
     Real orr = 1.0 / ( inv.rr + SMALL );
