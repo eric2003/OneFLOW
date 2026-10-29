@@ -4,7 +4,11 @@
 #include "DataObject.h"
 #include "DataPara.h"
 #include "SimuContextParameter.h"
+#include "SimuContextIO.h"
+#include "Prj.h"
 
+#include <filesystem>
+#include <fstream>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -237,4 +241,48 @@ TEST( SimuContextParameterTest, CaseMeshRootWinsOverLegacySourceGrid )
         SimuContextDetail::ApplyLegacySourceGridCaseDir(
             "case", "../grid-case" ),
         "case" );
+}
+
+
+TEST( SimuContextIOTest, DefaultRootsWriteDiagnosticUnderResults )
+{
+    const std::filesystem::path caseDir =
+        std::filesystem::temp_directory_path() / "OneFLOW_CaseIOSettings_Default";
+    std::filesystem::remove_all( caseDir );
+    std::filesystem::create_directories( caseDir );
+
+    Prj::SetPrjBaseDir( caseDir.string() );
+    SimuContextDetail::CaseIOSettings settings;
+    SimuContextDetail::ApplyCaseIOSettings( settings );
+
+    EXPECT_TRUE( std::filesystem::exists( caseDir / "results" / "io_paths.txt" ) );
+
+    Prj::ClearPrjBaseDir();
+    std::filesystem::remove_all( caseDir );
+}
+
+TEST( SimuContextIOTest, ExplicitDiagnosticNameUsesMeshAndFlowOutputRoots )
+{
+    const std::filesystem::path caseDir =
+        std::filesystem::temp_directory_path() / "OneFLOW_CaseIOSettings_DomainRoots";
+    std::filesystem::remove_all( caseDir );
+    std::filesystem::create_directories( caseDir / "mesh-output" / "diagnostics" );
+    std::filesystem::create_directories( caseDir / "flow-output" / "diagnostics" );
+
+    Prj::SetPrjBaseDir( caseDir.string() );
+    SimuContextDetail::CaseIOSettings settings;
+    settings.meshOutputRoot = "mesh-output";
+    settings.flowOutputRoot = "flow-output";
+    settings.ioPathInfoFileName = "diagnostics/paths.txt";
+    SimuContextDetail::ApplyCaseIOSettings( settings );
+
+    EXPECT_TRUE(
+        std::filesystem::exists(
+            caseDir / "mesh-output" / "diagnostics" / "paths.txt" ) );
+    EXPECT_TRUE(
+        std::filesystem::exists(
+            caseDir / "flow-output" / "diagnostics" / "paths.txt" ) );
+
+    Prj::ClearPrjBaseDir();
+    std::filesystem::remove_all( caseDir );
 }
