@@ -1075,25 +1075,76 @@ Line interface split (algorithm stages)
 
 ``FaceSearch::SplitLine`` / ``TrySplitLineAtMidpoint`` is the production path
 that still touches geometry services. The **table** and **arithmetic** steps are
-already pure and testable without CGNS:
+already pure and testable without CGNS (``LineSplitPureStagesTest``).
 
-#. ``RequireSoleZoneIdForGlobalFace`` — line split is sole-zone policy (exactly
-   one participant on the global face).
-#. ``ComputeSegmentMidpoint`` — arithmetic midpoint of the parent edge endpoints
-   in R^3 (no tolerance, no mesh).
-#. ``PointLocator::FindPoint`` — global mid-node must **already** exist; otherwise
-   the split aborts (no inventing a new global point here).
-#. ``BuildGlobalLineSplitCandidates`` — two directed child edges
-   ``(p0, mid)`` and ``(mid, p1)``.
-#. ``ResolveRegisteredChildFaces`` — candidates must already be registered in the
-   face search table; empty resolution aborts before zone mesh mutation.
-#. Zone ``nodeMesh`` find-or-add of the same midpoint coordinates (local index).
-#. ``BuildLocalLineSplitMapping`` — parent-local child rings and endpoint flags.
+**Flow (pure = open box, hard edge = filled box):**
 
-The remaining hard edge is intentional: steps 3 and 6 need a live locator and a
-zone mesh. Injection of ``PointLocator`` covers step 3 in tests; step 6 still
-implies a real or fake ``nodeMesh``. Do not fold mesh mutation into the pure
-candidate builders.
+.. code-block:: text
+
+   [1 sole-zone] --> [2 midpoint] --> [3 locator FindPoint]
+                                           | miss -> abort
+                                           v
+                              [4 child edge candidates]
+                                           |
+                                           v
+                              [5 resolve registered faces]
+                                           | empty -> abort
+                                           v
+                              [6 zone nodeMesh find/add]
+                                           |
+                                           v
+                              [7 local line mapping]
+
+**Midpoint formula** (``ComputeSegmentMidpoint``; component-wise):
+
+.. math::
+
+   \mathbf{m} = \frac{1}{2}(\mathbf{a} + \mathbf{b})
+
+No tolerance is applied at this stage. Matching the global mid-node is a
+separate locator query (stage 3), not part of the arithmetic.
+
+**Stage list:**
+
+#. ``RequireSoleZoneIdForGlobalFace`` — exactly one zone on the global face.
+#. ``ComputeSegmentMidpoint`` — formula above; no mesh.
+#. ``PointLocator::FindPoint`` — global mid-node must **already** exist; else abort.
+#. ``BuildGlobalLineSplitCandidates`` — directed edges :math:`(p_0,m)` and :math:`(m,p_1)`.
+#. ``ResolveRegisteredChildFaces`` — empty resolution aborts before mesh mutation.
+#. Zone ``nodeMesh`` find-or-add (local mid index).
+#. ``BuildLocalLineSplitMapping`` — parent-local rings and endpoint flags.
+
+Header comments on the pure stages use ``@doc-algorithm line-interface-split``
+and ``@doc-stage N`` so a future extractor can rebuild this section from
+``FaceSearch.h`` without inventing a second algorithm description.
+
+The remaining hard edge is intentional: stages 3 and 6 need a live locator and a
+zone mesh. Do not fold mesh mutation into the pure candidate builders.
+
+
+
+Documentation from code comments
+--------------------------------
+
+Prefer **one source of truth** for algorithm stages:
+
+* C++ public headers carry short, structured tags (ASCII only), for example::
+
+    // @doc-algorithm line-interface-split
+    // @doc-stage 2
+    // @doc-pure
+    // @doc-formula m = (1/2) * (a + b) component-wise in R^3
+
+* ``doc/source/*.rst`` holds the narrative: motivation, flow diagrams, math,
+  open pressures, and ROI priority. Diagrams and equations belong here (or in
+  generated pages), not in long ``//`` essays inside ``.cpp`` files.
+
+* Tests name the contract (``LineSplitPureStagesTest``). Do not duplicate the
+  full stage list in three places; link the test from the rst page.
+
+A full auto-generator is optional. Until it exists, keep tags stable so a script
+or an AI pass can collect ``@doc-algorithm`` groups into a page. Do not enable a
+tool that rewrites production code comments from prose automatically.
 
 
 Open design pressures
