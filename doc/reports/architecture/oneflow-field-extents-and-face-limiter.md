@@ -231,3 +231,10 @@ That remains the caller's responsibility, keeping allocation and scratch-state
 lifetime outside the numerical range algorithm. This also preserves the current
 zeroed ghost-slot behavior instead of silently changing boundary semantics during
 the extraction.
+
+
+## Marray index type contract
+
+The two extents and the equation-indexing interface now use `HXSize_t`. This keeps the generic container's size and index vocabulary aligned with the underlying `HXVector` storage and avoids narrowing an equation index to `int` at the wrapper boundary. Existing callers with `int` indices remain source-compatible through the ordinary integral conversion, but callers that already use `HXSize_t` no longer need to pass through an unnecessarily narrower parameter type.
+
+This is a local interface correction, not a repository-wide index migration. It does not change storage layout, bounds-checking behavior, or the numerical algorithms that use `Marray`. The constructor extent regression test remains the first executable contract; the full Windows build and CTest suite should be run after this interface adjustment to catch any overload or warning interactions.
