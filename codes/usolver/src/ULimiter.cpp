@@ -526,7 +526,13 @@ void Limiter::CalcLocalVencatLimiter()
 
 void Limiter::CalcMinMaxDiff()
 {
-    // Find the maximum and minimum in the neighbor of each cell
+    // Build offset bounds in four phases:
+    // 1. Seed physical cells with their own values.
+    // 2. Add interface neighbors to the physical boundary cell only.
+    // 3. Add ordinary interior neighbors to both adjacent cells.
+    // 4. Convert absolute extrema to offsets from each cell's own value.
+    // Ghost slots remain zero until used as neighbor values; do not seed or
+    // subtract them here. qmin/qmax below are reductions over physical cells.
     for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         ( * lim->minvf )[ cId ] = ( * lim->q )[ cId ];
