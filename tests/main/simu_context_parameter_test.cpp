@@ -123,6 +123,51 @@ TEST( SimuContextParameterTest, LegacySourceGridReplacesDefaultMeshRoot )
         "../grid-case" );
 }
 
+TEST( SimuContextParameterTest, ReadsGenericAndDomainRootSettings )
+{
+    DataPara parameters;
+    AddStringParameter( parameters, "projectRoot", "../project" );
+    AddStringParameter( parameters, "inputRoot", "shared-input" );
+    AddStringParameter( parameters, "outputRoot", "shared-output" );
+    AddStringParameter( parameters, "meshInputRoot", "../mesh-source" );
+    AddStringParameter( parameters, "flowInputRoot", "../flow-source" );
+    AddStringParameter( parameters, "meshOutputRoot", "mesh-results" );
+    AddStringParameter( parameters, "flowOutputRoot", "flow-results" );
+    AddStringParameter( parameters, "sourceGridCaseDir", "../legacy-grid" );
+
+    const auto settings = SimuContextDetail::ReadCaseIORootSettings( parameters );
+
+    EXPECT_EQ( settings.projectRoot, "../project" );
+    EXPECT_EQ( settings.inputRoot, "shared-input" );
+    EXPECT_EQ( settings.outputRoot, "shared-output" );
+    EXPECT_EQ( settings.meshInputRoot, "../mesh-source" );
+    EXPECT_EQ( settings.flowInputRoot, "../flow-source" );
+    EXPECT_EQ( settings.meshOutputRoot, "mesh-results" );
+    EXPECT_EQ( settings.flowOutputRoot, "flow-results" );
+}
+
+TEST( SimuContextParameterTest, ReadsLegacyGridRootOnlyWhenMeshRootAllowsFallback )
+{
+    DataPara parameters;
+    AddStringParameter( parameters, "meshInputRoot", "default" );
+    AddStringParameter( parameters, "sourceGridCaseDir", "../producer" );
+
+    const auto settings = SimuContextDetail::ReadCaseIORootSettings( parameters );
+
+    EXPECT_EQ( settings.meshInputRoot, "../producer" );
+}
+
+TEST( SimuContextParameterTest, ExplicitMeshRootDoesNotReadLegacyGridParameter )
+{
+    DataPara parameters;
+    AddStringParameter( parameters, "meshInputRoot", "../explicit-grid" );
+    AddIntegerParameter( parameters, "sourceGridCaseDir", 42 );
+
+    const auto settings = SimuContextDetail::ReadCaseIORootSettings( parameters );
+
+    EXPECT_EQ( settings.meshInputRoot, "../explicit-grid" );
+}
+
 TEST( SimuContextParameterTest, EmptyLegacySourceGridPreservesMeshRoot )
 {
     EXPECT_EQ(
