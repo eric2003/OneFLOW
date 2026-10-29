@@ -330,6 +330,77 @@ The code, tests, and documentation should be reviewed together. A document may d
 intended boundary before it is fully implemented only if it labels that boundary as
 proposed and names the gap.
 
+Numerical theory, references, and verification evidence
+-------------------------------------------------------
+
+Numerical documentation should connect the mathematical model to the implementation
+and to observable verification evidence. Equations and citations are not decoration:
+they make assumptions reviewable, help distinguish a published model from a code-specific
+variant, and give future maintainers a route to investigate or improve the implementation.
+
+For each substantial numerical algorithm or physical model, document the following where
+applicable:
+
+#. **Problem and assumptions:** governing equation or discrete problem, dimensionality,
+   coordinate conventions, units, boundary/initial conditions, and validity limits.
+#. **Mathematical definition:** define symbols and sign conventions; state the equation
+   actually implemented, including limiting cases and relevant stability or convergence
+   conditions. Do not copy an equation without checking it against the implementation.
+#. **Source and provenance:** cite the original paper or book for the method, a current
+   authoritative specification or maintainer resource when available, and the exact
+   version or section used. Prefer DOI, publisher pages, official project manuals, or
+   stable maintained URLs over search-result snippets.
+#. **Implementation mapping:** identify the OneFLOW entry point and key functions, explain
+   any differences from the cited formulation, and state whether a choice is a deliberate
+   variant, a compatibility constraint, or an unresolved question.
+#. **Verification:** link tests and representative cases to the properties they establish:
+   analytic or manufactured solutions, conservation, limiting behavior, grid/time
+   convergence, benchmark comparisons, or regression tolerances. A citation does not
+   prove the code is correct, and a passing unit test does not establish model validity.
+#. **Known limits:** record unsupported regimes, approximations, expected floating-point
+   variation, and evidence that has not yet been collected.
+
+Use references proportionally. A small utility function usually needs a contract and tests,
+not a literature review. A flux scheme, turbulence closure, reconstruction method, limiter,
+mesh-matching tolerance, or convergence algorithm may need a derivation or a clear citation
+because its mathematical choices affect results. When a formula is standard but a particular
+implementation choice is consequential, cite the standard formulation and explain the
+choice locally.
+
+Public open-source code and its theory/developer manuals can be valuable comparative
+evidence, but they are not automatically authoritative. Record the project version or commit,
+the relevant file or section, its license, and the exact behavior being compared. Treat
+closed-source manuals as secondary references when they are lawfully accessible; cite their
+title, publisher, edition/version, and relevant section without reproducing restricted text
+or assuming undocumented implementation details. Do not copy code or substantial prose
+from either open or closed sources without checking license and permission. Prefer an
+independent derivation and OneFLOW-specific explanation over a line-by-line imitation of
+another solver.
+
+For CFD verification and validation, useful starting points include the
+`NASA Turbulence Modeling Resource <https://tmbwg.github.io/turbmodels/>`_, which provides
+model definitions and verification cases, and the
+`NASA CFD Verification and Validation tutorial <https://www.grc.nasa.gov/www/wind/valid/tutorial/tutorial.html>`_.
+Use a source appropriate to the actual model or algorithm; these resources are starting
+points, not universal citations for every numerical method.
+
+The intended maintenance loop is:
+
+```text
+theory/reference -> OneFLOW formulation -> implementation -> focused tests
+        ^                                      |                |
+        |                                      v                v
+updated explanation <- discrepancy analysis <- case/regression evidence
+```
+
+When new evidence changes the understanding of an algorithm, update the algorithm page,
+its tests or reference cases where warranted, and the source links together. Keep claims
+labelled as verified, implemented-but-unverified, partial, or planned. This creates a
+traceable improvement loop; it does not mean that an automated agent may silently change
+scientific assumptions or accept its own output as proof. Changes to equations, model
+variants, tolerances, or reference baselines require explicit review and reproducible
+evidence.
+
 Related design pages
 --------------------
 
