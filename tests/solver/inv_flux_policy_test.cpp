@@ -96,7 +96,6 @@ TEST( InvFluxPolicy, HartenEntropyFixRaisesFloorWhenEnabled )
     ApplyHartenEntropyFix(
         absVn, absVnPlusC, absVnMinusC, centropy1, centropy2, true, f1, f2, f3 );
 
-    // Same formula as ApplyHartenEntropyFix (must include HXMath for MAX).
     const Real maxEigenvalue = MAX( absVnPlusC, absVnMinusC );
     const Real m1 = maxEigenvalue * centropy1;
     const Real m2 = maxEigenvalue * centropy2;
@@ -112,4 +111,50 @@ TEST( InvFluxPolicy, HartenEntropyFixIsNoOpWhenDisabled )
     EXPECT_DOUBLE_EQ( f1, 0.1 );
     EXPECT_DOUBLE_EQ( f2, 2.0 );
     EXPECT_DOUBLE_EQ( f3, 1.5 );
+}
+
+TEST( InvFluxPolicy, FMSplit1IsUpwindMach )
+{
+    EXPECT_DOUBLE_EQ( FMSplit1( 2.0, 1.0 ), 2.0 );
+    EXPECT_DOUBLE_EQ( FMSplit1( -2.0, 1.0 ), 0.0 );
+    EXPECT_DOUBLE_EQ( FMSplit1( -2.0, -1.0 ), -2.0 );
+    EXPECT_DOUBLE_EQ( FMSplit1( 2.0, -1.0 ), 0.0 );
+}
+
+TEST( InvFluxPolicy, FMSplit2IsQuadraticNearZero )
+{
+    EXPECT_DOUBLE_EQ( FMSplit2( 0.0, 1.0 ), 0.25 );
+    EXPECT_DOUBLE_EQ( FMSplit2( 0.0, -1.0 ), -0.25 );
+}
+
+TEST( InvFluxPolicy, FMSplit4FallsBackOutsideSonic )
+{
+    EXPECT_DOUBLE_EQ( FMSplit4( 1.5, 0.125, 1.0 ), FMSplit1( 1.5, 1.0 ) );
+    EXPECT_DOUBLE_EQ( FMSplit4( -1.5, 0.125, -1.0 ), FMSplit1( -1.5, -1.0 ) );
+}
+
+TEST( InvFluxPolicy, FMSplit4SubsonicMatchesPolynomialForm )
+{
+    const Real mach = 0.5;
+    const Real beta = 0.125;
+    const Real ipn = 1.0;
+    const Real expected =
+        FMSplit2( mach, ipn ) * ( one - ipn * sixteen * beta * FMSplit2( mach, - ipn ) );
+    EXPECT_DOUBLE_EQ( FMSplit4( mach, beta, ipn ), expected );
+}
+
+TEST( InvFluxPolicy, FPSplit5SupersonicIsStep )
+{
+    EXPECT_DOUBLE_EQ( FPSplit5( 1.5, 0.1875, 1.0 ), 1.0 );
+    EXPECT_DOUBLE_EQ( FPSplit5( -1.5, 0.1875, 1.0 ), 0.0 );
+}
+
+TEST( InvFluxPolicy, FPSplit5SubsonicMatchesPolynomialForm )
+{
+    const Real mach = 0.5;
+    const Real alpha = 0.1875;
+    const Real ipn = 1.0;
+    const Real expected =
+        FMSplit2( mach, ipn ) * ( ( two * ipn - mach ) - ipn * sixteen * alpha * mach * FMSplit2( mach, - ipn ) );
+    EXPECT_DOUBLE_EQ( FPSplit5( mach, alpha, ipn ), expected );
 }

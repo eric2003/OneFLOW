@@ -35,36 +35,6 @@ BeginNameSpace( ONEFLOW )
 
 NsInv inv;
 
-Real FMSplit1( const Real & mach, const Real & ipn )
-{
-    return half * ( mach + ipn * ABS( mach ) );
-}
-
-Real FMSplit2( const Real & mach, const Real & ipn )
-{
-    return ipn * fourth * SQR( mach + ipn );
-}
-
-Real FMSplit4( const Real & mach, const Real & beta, const Real & ipn )
-{
-    if ( ABS( mach ) >= one )
-    {
-        return FMSplit1( mach, ipn );
-    }
-    return FMSplit2( mach, ipn ) * ( one - ipn * sixteen * beta * FMSplit2( mach, - ipn ) );
-}
-
-Real FPSplit5( const Real & mach, const Real & alpha, const Real & ipn )
-{
-    Real macha = ABS( mach );
-    if ( macha >= one )
-    {
-        return half * ( one + ipn * mach / ( macha + SMALL ) );
-    }
-
-    return FMSplit2( mach, ipn ) * ( ( two * ipn - mach ) - ipn * sixteen * alpha * mach * FMSplit2( mach,-ipn ) );
-}
-
 void NsInv::Init()
 {
     int nEqu = nscom.nEqu;

@@ -1,21 +1,15 @@
 #pragma once
 
 #include "HXDefine.h"
+#include "HXMath.h"
 
 BeginNameSpace( ONEFLOW )
 
 // @doc-algorithm euler-convective-flux
-// @doc-stage relative-normal-velocity
-// @doc-pure
-// @doc-formula vn_rel = n·v - v_fn
 Real RelativeFaceNormalVelocity(
     Real xfn, Real yfn, Real zfn, Real vfn,
     Real u, Real v, Real w );
 
-// @doc-algorithm euler-convective-flux
-// @doc-stage physical-flux
-// @doc-pure
-// @doc-formula F = m*[1,u,v,w,h]^T + p*[0,nx,ny,nz,v_fn]^T, m = rho * vn_rel
 void EulerConvectiveFlux(
     Real rho, Real u, Real v, Real w, Real p, Real h,
     Real vnRel,
@@ -26,26 +20,13 @@ void EulerConvectiveFlux(
     Real & fluxMz,
     Real & fluxE );
 
-
-// @doc-algorithm roe-average
-// @doc-stage weights
-// @doc-pure
-// @doc-formula r = sqrt(rho_R/rho_L), c = 1/(1+r)
 void RoeAverageWeights(
     Real densityLeft, Real densityRight,
     Real & ratio, Real & coef );
 
-// @doc-algorithm roe-average
-// @doc-stage component
-// @doc-pure
-// @doc-formula mid = (left + right * r) * c
 Real RoeAverageComponent(
     Real left, Real right, Real ratio, Real coef );
 
-// @doc-algorithm roe-average
-// @doc-stage state
-// @doc-pure
-// Density uses geometric mean; other scalars use RoeAverageComponent.
 void RoeAverageState(
     Real densityLeft, Real uLeft, Real vLeft, Real wLeft,
     Real pLeft, Real hLeft, Real gamaLeft,
@@ -54,35 +35,49 @@ void RoeAverageState(
     Real & densityMid, Real & uMid, Real & vMid, Real & wMid,
     Real & pMid, Real & hMid, Real & gamaMid );
 
-
-// @doc-algorithm roe-wave-speeds
-// @doc-stage total-enthalpy
-// @doc-pure
-// @doc-formula H = h_int + (1/2)|v|^2
 Real TotalEnthalpy( Real internalEnthalpy, Real speedSquared );
 
-// @doc-algorithm roe-wave-speeds
-// @doc-stage sound-speed
-// @doc-pure
-// @doc-formula c = sqrt(|(gamma-1)(H - |v|^2/2)|)
 Real IdealGasSoundSpeed(
     Real gama, Real totalEnthalpy, Real speedSquared );
 
-// @doc-algorithm roe-wave-speeds
-// @doc-stage absolute-eigenvalues
-// @doc-pure
-// @doc-formula a = {|vn|, |vn+c|, |vn-c|}
 void RoeAbsoluteEigenvalues(
     Real vnRel, Real soundSpeed,
     Real & absVn, Real & absVnPlusC, Real & absVnMinusC );
 
-// @doc-algorithm roe-wave-speeds
-// @doc-stage entropy-fix
-// @doc-pure
-// Harten-style floor on absolute eigenvalues when enabled.
 void ApplyHartenEntropyFix(
     Real absVn, Real absVnPlusC, Real absVnMinusC,
     Real centropy1, Real centropy2, bool enabled,
     Real & fixedVn, Real & fixedVnPlusC, Real & fixedVnMinusC );
+
+// AUSM splits: inline so there is exactly one definition (no LNK2005).
+// @doc-algorithm ausm-split
+inline Real FMSplit1( const Real & mach, const Real & ipn )
+{
+    return half * ( mach + ipn * ABS( mach ) );
+}
+
+inline Real FMSplit2( const Real & mach, const Real & ipn )
+{
+    return ipn * fourth * SQR( mach + ipn );
+}
+
+inline Real FMSplit4( const Real & mach, const Real & beta, const Real & ipn )
+{
+    if ( ABS( mach ) >= one )
+    {
+        return FMSplit1( mach, ipn );
+    }
+    return FMSplit2( mach, ipn ) * ( one - ipn * sixteen * beta * FMSplit2( mach, - ipn ) );
+}
+
+inline Real FPSplit5( const Real & mach, const Real & alpha, const Real & ipn )
+{
+    const Real macha = ABS( mach );
+    if ( macha >= one )
+    {
+        return half * ( one + ipn * mach / ( macha + SMALL ) );
+    }
+    return FMSplit2( mach, ipn ) * ( ( two * ipn - mach ) - ipn * sixteen * alpha * mach * FMSplit2( mach, - ipn ) );
+}
 
 EndNameSpace

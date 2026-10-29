@@ -28,7 +28,6 @@ void EulerConvectiveFlux(
     fluxE   = massFlux * h + vfn * p;
 }
 
-
 void RoeAverageWeights(
     Real densityLeft, Real densityRight,
     Real & ratio, Real & coef )
@@ -62,7 +61,6 @@ void RoeAverageState(
     hMid = RoeAverageComponent( hLeft, hRight, ratio, coef );
     gamaMid = RoeAverageComponent( gamaLeft, gamaRight, ratio, coef );
 }
-
 
 Real TotalEnthalpy( Real internalEnthalpy, Real speedSquared )
 {
