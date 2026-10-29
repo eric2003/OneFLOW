@@ -46,6 +46,21 @@ where `phi` is the cell limiter coefficient (or the minimum of the two side coef
 
 The limiter coefficient is computed from local neighbor extrema. The Barth limiter constrains extrapolation so the face prediction does not exceed the local allowable difference; the Venkatakrishnan variant applies a smooth limiter function with an epsilon related to the local solution range. Interface boundary faces are handled explicitly when building neighbor extrema, while ordinary interior faces update extrema for both adjacent cells.
 
+## Limiter mode dispatch and neighbor-range algorithm
+
+The no-limiter policy is handled at the top of `Limiter::CalcLimiter`: it fills the complete limiter field with one and may skip later fills only when the interface-exchange policy says that the field is not overwritten there. `CalcLimiterScalar` also returns immediately for this mode. Therefore, a second face-traversal implementation that writes one to both cells of every face is unreachable and redundant; it has been removed so the dispatch reflects the actual execution path.
+
+For Barth and Venkatakrishnan modes, `CalcMinMaxDiff` follows a two-stage range construction:
+
+1. Initialize each physical cell's lower and upper value to its own solution value.
+2. For interface boundary faces, include the opposite-side value in the local physical cell's range. For interior faces, update both adjacent cells with the other cell's value.
+3. Convert the extrema to offsets from the cell value by subtracting the cell-centered solution. The resulting bounds are the allowed negative and positive reconstruction increments, not absolute solution values.
+4. Reduce these offsets over physical cells to obtain `qmin` and `qmax`; the Venkatakrishnan epsilon is scaled from this range and the configured coefficient.
+
+For a face and cell side, the gradient predicts an increment `dqFace = grad(q) dot (xFace - xCell)`. Barth compares this increment with the local offset bounds and returns a coefficient in the range required to prevent the extrapolation from exceeding those bounds; its face-normal direction check can force the coefficient to zero. Venkatakrishnan instead evaluates a smooth rational limiter function using the predicted increment, the appropriate local bound, and epsilon. Both methods accumulate the most restrictive face-side coefficient into the cell's limiter field.
+
+This separation helps explain why the storage refactor is deliberately conservative: the extrema vectors are temporary storage for a well-defined algorithmic pipeline. Reusing their capacity is safe only while the per-call range initialization and the distinction between physical cells, interface ghosts, and ordinary boundary faces remain unchanged.
+
 ## Architectural significance
 
 The change clarifies a responsibility boundary:
@@ -53,7 +68,8 @@ The change clarifies a responsibility boundary:
 1. Grid and field owners express counts using the shared size type.
 2. The generic array container accepts those extents without narrowing.
 3. The limiter owns its extrema workspace and controls when its capacity can be reused; contents are reset at every calculation.
-4. Numerical reconstruction and limiter policy remain independent of the storage-type correction.
+4. No-limiter dispatch is an explicit fast path; Barth and Venkatakrishnan share neighbor-range construction but retain distinct coefficient formulas.
+5. Numerical reconstruction and limiter policy remain independent of the storage-type correction.
 
 The goal is not to redesign the limiter or migrate every legacy index in one pass. It is to remove a real type mismatch at the reusable container boundary and reduce repeated workspace allocation while preserving the numerical formulas and per-call initialization semantics.
 
