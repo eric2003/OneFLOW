@@ -154,3 +154,22 @@ This is intentionally smaller than extracting a reusable runtime library. It imp
 - User-reported baseline before this slice: 969/969 tests passed.
 - Current inspected branch HEAD: `4b41404e8325a667c4a4b39398b54a74071417b`.
 - This follow-up is a source-backed design refinement; it does not claim a new build, test, or CI result.
+
+
+## Follow-up: extract the post-reader I/O application operation
+
+The case-I/O application step is now a named production operation in
+`codes/main/include/SimuContextIO.h`:
+
+`SimuContextDetail::ApplyCaseIOSettings(const CaseIOSettings&)`
+
+`SimuContext::SetupCaseEnvironment()` still owns the ordering contract:
+
+1. Bind the selected case root and log directory.
+2. Call the real `ReadControlInfo(caseDir)` implementation.
+3. Read and validate the complete `CaseIOSettings` snapshot.
+4. Call `ApplyCaseIOSettings()` to mutate the legacy `Prj` roots and write diagnostics.
+
+The extracted operation deliberately retains the existing `Prj` compatibility APIs. It does not parse control files, initialize the parallel runtime, or own case/process cleanup. The focused parameter test target now links the same path implementation sources used by `prj_cmdline_test` and adds filesystem-backed checks for the default diagnostic location and explicit diagnostic names under distinct mesh/flow output roots.
+
+This is a first production-boundary slice, not proof of the full reader integration. The new target and tests still require a real Windows/MSVC build and CTest run. Next, inspect that result before extracting anything else; then proceed to a minimal temporary multi-file fixture that calls the actual `ReadControlInfo(caseDir)` only after the serial parallel state is explicitly initialized.
