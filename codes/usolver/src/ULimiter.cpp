@@ -434,10 +434,6 @@ void Limiter::CalcLimiterScalar()
     {
         this->CalcZeroLimiter();
     }
-    else if ( limflag == ILMT_NO )
-    {
-        this->CalcNoLimiter();
-    }
     else if ( limflag == ILMT_BARTH )
     {
         this->CalcBarthLimiter();
@@ -458,22 +454,6 @@ void Limiter::CalcZeroLimiter()
 
         lim->lim1 = 0.0;
         lim->lim2 = 0.0;
-
-        ( * lim->limiter )[ ug.lc ] = lim->lim1;
-        ( * lim->limiter )[ ug.rc ] = lim->lim2;
-    }
-}
-
-void Limiter::CalcNoLimiter()
-{
-    for ( int fId = 0; fId < ug.nFaces; ++ fId )
-    {
-        ug.fId = fId;
-        ug.lc = ( * ug.lcf )[ ug.fId ];
-        ug.rc = ( * ug.rcf )[ ug.fId ];
-
-        lim->lim1 = 1.0;
-        lim->lim2 = 1.0;
 
         ( * lim->limiter )[ ug.lc ] = lim->lim1;
         ( * lim->limiter )[ ug.rc ] = lim->lim2;
