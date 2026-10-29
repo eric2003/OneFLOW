@@ -2,8 +2,8 @@
 
 Last updated: 2026-10-30
 Working branch: `hexin`
-Latest documentation commits: `35be2ec81df56300d4390c6ea5a689978c4f86a0` maps case setup success/failure and cleanup paths; `b6dd4a840972004fe226abc26f253074136dec5a` records concrete case fixtures. Current slice adds a path-resolution contract test and clarifies relative `projectRoot` semantics. No production runtime behavior changed.
-User-reported pre-change baseline: 967/967 tests passed. This is not evidence for the changes below.
+Latest documentation commits: `35be2ec81df56300d4390c6ea5a689978c4f86a0` maps case setup success/failure and cleanup paths; `b6dd4a840972004fe226abc26f253074136dec5a` records concrete case fixtures. Current slice adds a path-resolution contract test and clarifies relative `projectRoot` semantics. A follow-up test helper now preserves filesystem roots while removing trailing separators; the runtime architecture guide records the compatibility policy. No production runtime behavior changed.
+User-reported pre-change baseline: 968/968 tests passed. This is not evidence for the changes below.
 
 ## Current focus: R1 case I/O root configuration contract
 
@@ -22,7 +22,7 @@ System-level reason: configuration lookup and type validation are now separated 
 ## Validation status
 
 - User-reported pre-change baseline: 967/967 tests passed.
-- The updated type-contract test and documentation have not been built or run in this environment.
+- The updated type-contract test, root-preserving path-comparison helper, and documentation have not been built or run in this environment.
 - No exact-commit CI result has been checked for this slice; do not claim the new test passes.
 - The current Linux sandbox has CMake, GCC, Clang, Python, and Git, but no OneFLOW checkout is mounted and shell network/DNS access is unavailable. GitHub source edits are possible, but a complete local CMake/CTest run is not possible until a checkout/archive is available.
 - Keep C++ source ASCII-only.
