@@ -48,7 +48,7 @@ using Grids = std::vector< std::unique_ptr< Grid > >;
     return static_cast< int >( grids.size() );
 }
 
-// Non-owning view of Grid pointers (caller keeps ownership).
+// Non-owning mutable view of Grid objects. The caller keeps ownership.
 using GridViews = std::vector< Grid * >;
 
 [[nodiscard]] inline Grid * GridAt( GridViews & grids, std::size_t i )
@@ -66,12 +66,38 @@ using GridViews = std::vector< Grid * >;
     return static_cast< int >( grids.size() );
 }
 
-// Build a non-owning view from an owning collection (for read-only algorithms).
+// Non-owning read-only view. Constness applies to the Grid objects, not only
+// to the vector of pointers.
+using ConstGridViews = std::vector< const Grid * >;
+
+[[nodiscard]] inline const Grid * GridAt( const ConstGridViews & grids, std::size_t i )
+{
+    return grids[ i ];
+}
+
+[[nodiscard]] inline int GridsSize( const ConstGridViews & grids ) noexcept
+{
+    return static_cast< int >( grids.size() );
+}
+
+// Build a mutable non-owning view from an owning collection.
 [[nodiscard]] inline GridViews AsGridViews( Grids & grids )
 {
     GridViews views;
     views.reserve( grids.size() );
     for ( auto & g : grids )
+    {
+        views.push_back( g.get() );
+    }
+    return views;
+}
+
+// Build a read-only non-owning view without transferring ownership.
+[[nodiscard]] inline ConstGridViews AsConstGridViews( const Grids & grids )
+{
+    ConstGridViews views;
+    views.reserve( grids.size() );
+    for ( const auto & g : grids )
     {
         views.push_back( g.get() );
     }

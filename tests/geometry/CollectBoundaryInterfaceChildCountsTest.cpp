@@ -4,6 +4,7 @@
 
 #include <gtest/gtest.h>
 #include <stdexcept>
+#include <vector>
 
 #include "FaceTopo.h"
 #include "FaceSearch.h"
@@ -33,6 +34,35 @@ void Seed( LinkField & l2g, InterfaceFaceSplitTable & split )
 }
 
 } // namespace
+
+TEST( CollectBoundaryInterfaceChildNodeMappingsTest, RejectsMissingParentRowInsteadOfUsingSharedChildGlobalRow )
+{
+    LinkField l2g{ IntField{ 0, 1 } };
+    InterfaceFaceSplitTable split;
+    split.ResetForFaceCount( 3 );
+    split.childFaceIdsOfParent[ 0 ] = IntField{ 2 };
+    split.childFaceIdsOfParent[ 1 ] = IntField{ 2 };
+    split.SetChildMapping(
+        0, 2, IntField{ 0, 1, 2 }, IntField{ 1, 1, 1 } );
+
+    std::vector< LinkField > nodeIds{ LinkField{ IntField{ 90 } } };
+    std::vector< LinkField > nodeFlags{ LinkField{ IntField{ -90 } } };
+
+    EXPECT_THROW(
+        CollectBoundaryInterfaceChildNodeMappings(
+            IntField{ BC::INTERFACE, BC::INTERFACE },
+            2,
+            l2g,
+            split,
+            0,
+            nodeIds,
+            nodeFlags ),
+        std::logic_error );
+
+    EXPECT_EQ( nodeIds, ( std::vector< LinkField >{ LinkField{ IntField{ 90 } } } ) );
+    EXPECT_EQ( nodeFlags, ( std::vector< LinkField >{ LinkField{ IntField{ -90 } } } ) );
+}
+
 
 TEST( CollectBoundaryInterfaceChildCountsTest, SkipsNonInterfaceBoundaryFaces )
 {

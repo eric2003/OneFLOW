@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "IFaceLink.h"
+#include "FaceSearch.h"
 #include "PointLocator.h"
 #include "GridHandles.h"
 #include "HXDefine.h"
@@ -42,14 +43,14 @@ public:
         return id;
     }
 
-    void GetPoint( int id, Real & xm, Real & ym, Real & zm ) override
+    void GetPoint( int id, Real & xm, Real & ym, Real & zm ) const override
     {
         xm = xs.at( static_cast< std::size_t >( id ) );
         ym = ys.at( static_cast< std::size_t >( id ) );
         zm = zs.at( static_cast< std::size_t >( id ) );
     }
 
-    int GetNPoint() override { return static_cast< int >( xs.size() ); }
+    int GetNPoint() const override { return static_cast< int >( xs.size() ); }
 
     int findCalls = 0;
     int addCalls = 0;
@@ -86,10 +87,12 @@ TEST( IFaceLinkPointLocatorInjectionTest, InjectedDoubleIsReadyWithoutGrids )
     EXPECT_EQ( raw->addCalls, 1 );
     EXPECT_EQ( link.GetPointLocator().FindPoint( 1.0, 2.0, 3.0 ), 0 );
     EXPECT_EQ( raw->findCalls, 1 );
-    EXPECT_EQ( link.GetPointLocator().GetNPoint(), 1 );
+    const PointLocator & readOnlyLocator = link.GetPointLocator();
+    EXPECT_EQ( readOnlyLocator.GetNPoint(), 1 );
+    EXPECT_DOUBLE_EQ( readOnlyLocator.GetTol(), 1.0e-6 );
 
     Real x = 0, y = 0, z = 0;
-    link.GetPointLocator().GetPoint( 0, x, y, z );
+    readOnlyLocator.GetPoint( 0, x, y, z );
     EXPECT_EQ( x, 1.0 );
     EXPECT_EQ( y, 2.0 );
     EXPECT_EQ( z, 3.0 );
@@ -106,3 +109,32 @@ TEST( IFaceLinkPointLocatorInjectionTest, MarkReadyFalseKeepsLocatorUnready )
     // Object is still reachable; readiness is independent of injection.
     EXPECT_EQ( &link.GetPointLocator(), static_cast< PointLocator * >( raw ) );
 }
+
+TEST( IFaceLinkPointLocatorInjectionTest, SplitLineWithoutRegisteredChildrenDoesNotPublishMapping )
+{
+    Grids grids;
+    IFaceLink link( grids );
+
+    auto fake = std::make_unique< RecordingPointLocator >();
+    fake->AddPoint( 0.0, 0.0, 0.0 );
+    fake->AddPoint( 2.0, 0.0, 0.0 );
+    fake->AddPoint( 1.0, 0.0, 0.0 );
+    link.ReplacePointLocator( std::move( fake ), /*markReady=*/true );
+
+    link.EnsureInterfaceZoneCount( 1 );
+    link.EnsureLocalInterfaceFaceCount( 0, 1 );
+    link.RegisterLocalInterfaceFace( 0, /*isNew=*/true, 0, 0 );
+
+    FaceSearch faceSearch;
+    EXPECT_EQ( faceSearch.AddFace( IntField{ 0, 1 } ), 0 );
+    faceSearch.interfaceSplit.ResetForFaceCount( faceSearch.Size() );
+
+    // The midpoint exists geometrically, but neither child edge is registered.
+    // SplitLine must return before looking up or mutating the zone grid.
+    EXPECT_NO_THROW( faceSearch.SplitLine( link, 0 ) );
+
+    EXPECT_TRUE( faceSearch.interfaceSplit.childFaceIdsOfParent[ 0 ].empty() );
+    EXPECT_TRUE( faceSearch.interfaceSplit.childFaceNodeIdsByParent[ 0 ].empty() );
+    EXPECT_TRUE( faceSearch.interfaceSplit.childFaceNodeFlagsByParent[ 0 ].empty() );
+}
+

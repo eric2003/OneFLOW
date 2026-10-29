@@ -1,14 +1,41 @@
 # AI and Developer Project Context
 
-Last updated: 2026-10-26
+Last updated: 2026-10-28
 Working branch: `hexin`
-Latest inspected local HEAD: `299beb6f` (`origin/hexin` at inspection time).
+Latest inspected base before this slice: `9e318a4021126610fbeca101ac8f7cee61a63e49`.
+Latest implementation commit in this slice: `b6e6f3793205f3440303b2172fa42881e8e28b55` (atomic interface split pipeline output).
+Focused regression test commit: `7a43a880c26954570b5a5a0e7bd0e9b4aa1c8a42`.
+Documentation commit: `34dd81f4df94b9ae47e393524ef7e81525c75e07`.
+The resulting `hexin` HEAD should be checked again before the next change because this status page itself is being updated.
 
-The user reported 803/803 tests passing before commit `299beb6f`, which added a minimum-three-node check to polygon-face staging. This follow-up examines the topological meaning of that rule. OneFLOW's standard 2D fixed-node cell path derives two-node edges; the minimum-three rule is therefore specific to 3D polyhedral face loops. The CGNS adapter currently conflates NGON-only sections with polyhedral volume input, and does not import a 2D polygonal NGON section as cells. This is a documented adapter gap; do not generalize or remove the 3D face invariant to hide it.
+The user reports a local baseline of 880/880 tests passing before this slice. That report is a baseline only; the new C++ change and focused test have **not** been built or run in this environment. Do not describe them as verified until the user or exact-commit CI provides evidence.
 
-This working slice narrows the staging API names to polyhedral faces, renames the dimension-aware ``IsBasicVolumeElementType`` predicate to ``IsBasicCellElementType``, adds a regression test for 2D triangle-to-edge cardinality, and documents cell/face dimension plus CGNS section roles. The full C++ target remains unverified: earlier MSVC attempts reported C1902 PDB-manager errors after cleaning only `OneFLOW_GeometryCore`, and the generated VS project rejected a Clang override because of `/scanDependencies`. The user's 803-test baseline is not verification of this slice. Strict Sphinx passed for all 109 source documents after these edits.
+## Current focus: interface-face split mapping
 
-This is a curated handoff snapshot, not a replacement for source code, tests, design pages, or CI. Recheck the branch HEAD and working tree before continuing.
+The current slice concerns the table-level pipeline in `codes/geometry/src/FaceTopo.cpp`:
+`RunSymmetricInterfaceSplitMappingPipeline` composes local-to-global rebuilding,
+inverse-map rebuilding, and boundary-condition expansion. These arrays describe one
+logical result. Previously, `out.nChild` and BC outputs were mutated before all stages
+had succeeded, so an exception could leave callers with a mixed old/new result.
+
+Implemented in this slice:
+- Build the complete candidate `InterfaceSplitMappingPipelineResult` locally.
+- Publish it to `out` only after map rebuilding, BC expansion, and map commit all succeed.
+- Add `MultiZoneInterfaceSplitE2ETest.FailedPipelineDoesNotPublishPartialResult`, which seeds every output field, deliberately provides too few interface child counts, expects failure, and verifies that all output fields remain unchanged.
+- Document the algorithm and the scope of this exception guarantee in `doc/source/face_stage_pipeline.rst`.
+
+Important boundary: this guarantees atomic publication for the table-level result object. It does **not** automatically make the production `IFaceLink` lifecycle transactional; production staging and commit still need separate call-path review.
+
+The multi-zone test also demonstrates that a split can leave an unreferenced inverse row for a retired parent global face ID. `CollectUnreferencedGlobalInterfaceFaces` detects these rows, but deletion/compaction is intentionally not implemented: global IDs index related local-to-global and parent/child tables, and compaction requires a coherent rewrite of all references. Do not remove orphan rows as a local cleanup without defining that remapping contract.
+
+## Validation status
+
+- User-reported baseline before this slice: 880/880 tests passed.
+- New source and regression test: implemented, **not yet built or executed here**.
+- Sphinx build for the new documentation: **not run here**.
+- Keep C++ source ASCII-only.
+- Next step: run the focused geometry target and the full test suite on this exact `hexin` HEAD; fix any compile/test failures before expanding the mapping contract.
+
 ## 1. Read this first
 
 For a quick restart, follow this order:

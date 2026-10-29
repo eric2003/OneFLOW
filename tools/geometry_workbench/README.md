@@ -3,10 +3,23 @@
 Table-level scenarios for interface dual-map / split contracts. Shared by:
 
 * CLI: `python tools/geometry_workbench/__main__.py`
-* OneFLOW Workbench GUI: home → **Geometry Contracts...**
+* OneFLOW Workbench GUI: home -> **Geometry Contracts...**
 
-Not a GoogleTest launcher. Stub backend returns expected tables; native backend
-is reserved for `RunSymmetricInterfaceSplitMappingPipeline`.
+Not a GoogleTest launcher. The current stub is fixture-backed: it presents a
+known table result without calling the production geometry algorithm. In the
+GUI, both input tables and expected tables are editable JSON, with separate
+restore buttons for the scenario defaults. Running validates the input JSON,
+compares the fixed mock result against the edited expected contract, and renders
+the mismatch and topology view. The current stub does not calculate output from
+edited input; a regression test makes this boundary explicit. This makes the
+scenario-editing, comparison, and visualization workflow testable before a
+native backend exists. Editing values tests the workbench workflow and contract
+checker, not the CFD algorithm. The `registered_child_partial_match` scenario
+links to the authoritative C++ regression
+`FaceSearchBasicTest.RegisteredChildResolutionPreservesCandidateIndexForPartialMatch`,
+but the GUI does not yet execute that test or pass edited parameters to C++.
+Native execution must be added as a separate adapter rather than duplicating the
+resolver algorithm in Python.
 
 ## Optional static graphics
 

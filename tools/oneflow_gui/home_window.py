@@ -24,6 +24,7 @@ from .application_settings import (
 from .configuration_dialog import ConfigurationDialog
 from .mesh_layout_dialog import MeshLayoutDialog
 from .geometry_contract_dialog import GeometryContractDialog
+from .repository_test_inventory_dialog import RepositoryTestInventoryDialog
 from .project_repository import open_project
 from .project_window import ProjectWindow
 from .new_project_dialog import NewProjectDialog
@@ -86,6 +87,7 @@ class WorkbenchHomeWindow(QMainWindow):
 
         for label, callback in (
             ("Tests...", self._open_tests),
+            ("Repository Test Inventory...", self._open_test_inventory),
             ("Geometry Contracts...", self._open_geometry_contracts),
             ("Mesh Layout Editor...", self._open_mesh_layout),
             ("Background Tasks...", self._open_background_tasks),
@@ -279,6 +281,9 @@ class WorkbenchHomeWindow(QMainWindow):
 
     def _open_background_tasks(self) -> None:
         BackgroundTaskDialog(UserDataPaths.discover().root, self).exec()
+
+    def _open_test_inventory(self) -> None:
+        RepositoryTestInventoryDialog(self._repository_root, self).exec()
 
     def _open_geometry_contracts(self) -> None:
         GeometryContractDialog(self._repository_root, self).exec()

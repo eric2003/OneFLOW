@@ -94,6 +94,7 @@ public:
     [[nodiscard]] InterfaceFaceSplitTable & MutableInterfaceSplit();
     [[nodiscard]] const InterfaceFaceSplitTable & GetInterfaceSplit() const;
     [[nodiscard]] Grid & GetGrid( int zoneIndex );
+    [[nodiscard]] const Grid & GetGrid( int zoneIndex ) const;
     void Init( Grid & grid );
 public:
     void CreateLink( IntField & faceNode, int zid, int lCount );

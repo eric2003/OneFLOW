@@ -76,3 +76,42 @@ TEST( MultiZoneInterfaceSplitE2ETest, SplitOneSharedParentViaTablePipeline )
         out.l2g, out.gI2Zid.size(), unreferenced );
     EXPECT_EQ( unreferenced, ( IntField{ 0 } ) );
 }
+
+TEST( MultiZoneInterfaceSplitE2ETest, FailedPipelineDoesNotPublishPartialResult )
+{
+    LinkField l2g, gI2Zid, g2l;
+    SeedTwoZoneTwoFaceMaps( l2g, gI2Zid, g2l );
+
+    const IntField parents{ 0, 1 };
+    LinkField children( 2 );
+    children[ 0 ] = IntField{ 2, 3 };
+    children[ 1 ] = IntField{};
+    const IntField bcType{ BC::INTERFACE, BC::INTERFACE };
+    const IntField bcNameId{ 100, 200 };
+    // Only one count is supplied for two interface BC entries.
+    const IntField childCounts{ 2 };
+
+    InterfaceSplitMappingPipelineResult out;
+    out.l2g = LinkField{ IntField{ 70 } };
+    out.gI2Zid = LinkField{ IntField{ 80 } };
+    out.g2l = LinkField{ IntField{ 90 } };
+    out.nChild = LinkField{ IntField{ 100 } };
+    out.outBcType = IntField{ 110 };
+    out.outBcNameId = IntField{ 120 };
+
+    EXPECT_THROW(
+        RunSymmetricInterfaceSplitMappingPipeline(
+            l2g, gI2Zid, g2l,
+            parents, children,
+            bcType, bcNameId, childCounts,
+            out ),
+        std::out_of_range );
+
+    EXPECT_EQ( out.l2g, ( LinkField{ IntField{ 70 } } ) );
+    EXPECT_EQ( out.gI2Zid, ( LinkField{ IntField{ 80 } } ) );
+    EXPECT_EQ( out.g2l, ( LinkField{ IntField{ 90 } } ) );
+    EXPECT_EQ( out.nChild, ( LinkField{ IntField{ 100 } } ) );
+    EXPECT_EQ( out.outBcType, ( IntField{ 110 } ) );
+    EXPECT_EQ( out.outBcNameId, ( IntField{ 120 } ) );
+}
+

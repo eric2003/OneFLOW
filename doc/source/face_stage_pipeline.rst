@@ -274,6 +274,30 @@ parent-relative reconstruction are different concepts:
 * ``childFaceNodeIds[globalChildFaceId]`` and
   ``childFaceNodeFlags[globalChildFaceId]`` are legacy child-indexed
   mapping rows retained for compatibility.
+
+Candidate resolution and local mapping
+--------------------------------------
+
+For a quad, ``BuildQuadDiagonalLocalTris`` emits four candidate triangles in
+two possible diagonal decompositions. These candidates are ordered by the
+algorithm, not by which faces happen to have been registered globally.
+``ResolveRegisteredChildFaces`` therefore returns a pair for each match:
+``globalFaceId`` identifies the registered face, while ``candidateIndex``
+points back to the original candidate triangle.
+
+The distinction matters for partial matches. If only candidate 3 is registered,
+it is still candidate 3 for local-node and flag lookup; it must not become
+candidate 0 merely because it is the first item in the filtered result. The
+C++ integration tests ``QuadSplitUsesOriginalCandidateIndexForPartialMatch``
+and ``QuadSplitPreservesLastCandidateIndexForPartialMatch`` check this through
+``FaceSearch::SplitQuad2Tri`` and its published parent-relative mapping, rather
+than testing the resolver in isolation.
+
+This is a small but useful architectural boundary: identity resolution decides
+which global children exist; the original candidate index preserves the
+relationship between that identity and the geometric decomposition. Keeping
+both values together prevents a filtered list from silently changing the
+meaning of a local mapping row.
 * ``childFaceNodeIdsByParent[globalParentFaceId]`` and
   ``childFaceNodeFlagsByParent[globalParentFaceId]`` store the preferred
   mappings aligned by child position within that parent's child list.
@@ -511,6 +535,32 @@ resolved child IDs and candidate positions are retained and reused when parent
 mappings are published, so the registry lookup is performed once per candidate
 rather than once for the preflight and again for publication. Duplicate child
 identities are rejected by the shared resolver before any zone-local mutation.
+``ResolveRegisteredChildFaces`` is now an explicit topology-resolution step
+that can be tested without ``IFaceLink`` or a real grid. It skips candidate
+edges absent from the registry and returns records that keep each global child
+face ID paired with its original candidate position. A single record prevents
+the caller from accidentally combining one child's ID with another candidate's
+local mapping by indexing two independent output arrays. Returning the records
+by value also makes the result all-or-nothing if duplicate identities are
+detected. The current policy intentionally permits a partial match: one
+registered child is enough to proceed, while no registered children means no
+local midpoint insertion. Tests make this policy explicit so a later change to
+require both children would be a deliberate behavior change.
+
+The ``registered_child_partial_match`` workbench scenario mirrors
+``FaceSearchBasicTest.RegisteredChildResolutionPreservesCandidateIndexForPartialMatch``.
+Its input makes the distinction visible: candidate 0 is missing, candidate 1
+resolves to global child face 0, and the returned candidate index must remain 1.
+The scenario links both the helper-level test and
+``FaceSearchBasicTest.QuadSplitUsesOriginalCandidateIndexForPartialMatch``.
+The latter runs the real quad-split publication path with only candidate 1
+registered and verifies that its parent-local node mapping is ``[2, 3, 0]``.
+This catches the original class of bug at the consumer boundary: even if the
+resolver reports the right candidate index, the caller must use that index when
+publishing parent-relative metadata. The current GUI scenario backend is still
+fixture-backed; neither linked C++ test is executed by the GUI. A native test
+adapter that passes scenario parameters to C++ remains the next integration
+boundary.
 
 The algorithm then resolves the midpoint in two index spaces:
 
@@ -533,26 +583,42 @@ The line split now has two deliberately separate representations:
 The global midpoint ID identifies topology; the local midpoint ID addresses one
 zone's node array. Keeping these outputs separate makes the preflight lookup
 independent of the zone-local index and prevents a temporary local-mapping
-builder from also producing a global representation that its caller discards.
-they encode which original endpoint each child retains. Reversing the parent
-ring must reverse the global child-edge direction while leaving the local
-index pattern and flags unchanged.
+builder from also producing a global representation that its caller discards. The endpoint flags encode which
+original endpoint each child retains. Reversing the parent ring must reverse
+the global child-edge direction while leaving the local index pattern and
+flags unchanged.
 
 The distinction matters because global face identity is order-independent, but
-the stored face ring and local endpoint metadata are directional. The helper
-replaces its output buffers, so reusing a buffer cannot retain child edges from
-an earlier split.
+the stored face ring and local endpoint metadata are directional.
+``BuildGlobalLineSplitCandidates`` replaces its output candidate list on each
+call, so a reused list cannot retain child edges from an earlier split.
 
 **Tests:** ``FaceSearchBasicTest.GlobalLineCandidatesPreserveEdgeDirection``,
-``FaceSearchBasicTest.GlobalLineCandidatesPreserveReversedEdgeDirection``, and
-``FaceSearchBasicTest.GlobalLineCandidatesReplacePreviousOutput``.
+``FaceSearchBasicTest.GlobalLineCandidatesPreserveReversedEdgeDirection``,
+``FaceSearchBasicTest.GlobalLineCandidatesReplacePreviousOutput``, and
+``IFaceLinkPointLocatorInjectionTest.SplitLineWithoutRegisteredChildrenDoesNotPublishMapping``.
 
-**Current boundary:** midpoint discovery still depends on the concrete
-``PointLocator`` and ``IFaceLink``/``nodeMesh`` services. The mapping step is
-already pure and can be tested without constructing a multi-zone grid. A
-future extraction should introduce a geometry-query seam only if it enables a
-real integration regression or simplifies ownership; this change does not
-add an abstraction solely to mock existing calls.
+The injected-locator integration test exercises the real ``SplitLine`` entry
+point for the negative topology case: a midpoint exists in global search, but
+neither child edge is registered. It verifies the algorithm exits before asking
+for a zone grid and leaves the parent child list and parent-relative mapping
+rows empty. This is more valuable than another helper-only test because it
+locks the order of operations across locator injection, global topology lookup,
+and mapping publication.
+
+``FaceSearchBasicTest.RegisteredChildResolutionPreservesCandidateIndexForPartialMatch``
+locks the complementary table-level rule: when only candidate 1 is registered,
+the resolver returns candidate index 1 rather than compacted index 0. That index
+selects the correct parent-local node/flag row during publication. The test does
+not claim to exercise zone-local midpoint insertion; that remains covered only
+by the full ``SplitLine`` path when a suitable grid fixture is available.
+
+**Current boundary:** this regression covers the no-child short-circuit, not a
+successful zone-local insertion. The positive path still depends on
+``IFaceLink``/``nodeMesh`` services and should be tested only when a small
+grid fixture can assert the local node insertion and published mappings
+together. Do not add another abstraction just to mock calls that already have
+an injection seam.
 
 Interface mapping algorithm
 ---------------------------
@@ -854,10 +920,18 @@ already registered global faces and rejects duplicate child ids for one
 parent. ``SetChildMapping`` then writes the parent-specific row (and seeds the
 global row only if still empty).
 
-**Consume path.** ``CollectBoundaryInterfaceChildNodeMappings`` prefers
-``ByParent`` rows when present; otherwise falls back to the global child
-tables. ``RebuildFaceNodeListsAfterInterfaceSplit`` applies
-``ResolveChildFaceNodeIds`` per child.
+**Consume path.** ``CollectBoundaryInterfaceChildNodeMappings`` uses
+parent-specific rows once any such mapping has been published. A split parent
+with a missing parent-specific row is an error; falling back to a global child
+row could silently reuse another parent's local node numbering for a shared
+child. The global child tables remain a compatibility path only when all
+parent-specific rows are empty. ``RebuildFaceNodeListsAfterInterfaceSplit``
+applies ``ResolveChildFaceNodeIds`` per child.
+
+**Regression:** ``CollectBoundaryInterfaceChildNodeMappingsTest.RejectsMissingParentRowInsteadOfUsingSharedChildGlobalRow``
+proves the collector rejects an incomplete modern mapping and leaves output
+buffers unchanged. Legacy fixtures that only populate global child rows remain
+supported.
 
 **Tests:** ``TwoParentSharedChildMappingTest``,
 ``FaceSearchBasicTest`` (duplicate / conflict guards).
@@ -885,7 +959,7 @@ This can advance **in parallel** with the geometry refactor:
    do not re-implement split logic in Qt/Python.
 
 What the workbench is *not*: a button that only launches GoogleTest. What it
-*is*: an editable, visual driver of table-level geometry contracts — the same
+*is*: an editable, visual driver of table-level geometry contracts -- the same
 contracts the local refactor is carving out.
 
 Local refactor scorecard
@@ -934,6 +1008,19 @@ production order?". That is the cheapest e2e that still avoids CGNS.
 
 Workbench host and OneFLOW GUI
 --------------------------------
+
+The Geometry Contracts dialog is a contract-exploration surface, not a test
+launcher. Both input and expected tables can be edited as JSON and restored to
+the scenario defaults. The current backend is fixture-backed: it parses the
+edited input but returns a known mock table result rather than recomputing the
+geometry algorithm from that input. The expected tables are compared against
+that fixture, and the topology sketch and optional PNG export are derived from
+the mock output. This lets the scenario-editing and comparison loop develop
+before binding the native geometry pipeline. A PASS here validates the edited
+expected contract against the fixture only; it does not validate production C++
+geometry behavior. A regression test explicitly locks the fixture-backed
+boundary so the UI cannot accidentally imply that input edits trigger a real
+geometry calculation.
 
 ``tools/geometry_workbench`` holds stdlib scenario JSON and a stub pipeline.
 The OneFLOW Workbench home screen exposes **Geometry Contracts...**
@@ -1025,6 +1112,10 @@ Open design pressures
   aligned row for each child. ``SetChildMapping`` permits a row to lag the child
   list while children are registered incrementally, but the ID and flag rows
   must always have equal lengths and must not exceed the parent's child count.
+  The legacy global child-ID and flag rows must also be length-aligned before
+  a parent-specific row can be written; malformed compatibility data is
+  rejected without changing either mapping domain. This prevents a successful
+  parent-specific write from masking a broken global fallback row.
   It rejects a mismatched pair before resizing either row, so malformed metadata
   is not silently normalized. This invariant is covered by
   ``FaceSearchBasicTest.SetChildMappingRejectsMisalignedParentRowsWithoutMutation``. ``FaceTopo::SetNewFace2Node`` collects these
@@ -1243,3 +1334,168 @@ Source anchors
 * ``codes/geometry/include/FaceSearch.h``
 * ``codes/geometry/include/IFaceLink.h``
 * ``codes/geometry/src/GridElem.cpp``
+
+Registered child-face resolution
+--------------------------------
+
+``ResolveRegisteredChildFaces`` is a lookup stage, not a mesh-generation
+stage. Its caller supplies candidate node rings; the resolver asks
+``FaceSearchBasic::FindFace`` which candidates already have global face IDs.
+It returns pairs of ``(globalFaceId, candidateIndex)`` for matches only.
+
+The algorithm has four important properties:
+
+#. **Identity is order-independent.** The face lookup keys a face by its node
+   set, while ``faceNodeRings`` preserves the first registered node order.
+   Reversing a candidate ring therefore does not create a new global face.
+#. **Missing candidates are skipped.** Resolution does not register new faces
+   and does not invent IDs for candidates absent from the registry.
+#. **Candidate positions are preserved.** The returned candidate index points
+   back to the original candidate list. Parent-local node IDs and flags must
+   use this index; compacting candidates before applying local mappings would
+   silently attach the wrong mapping after a partial match.
+#. **Duplicate resolved IDs are rejected.** If two candidates resolve to the
+   same global face ID, the resolver throws instead of publishing an ambiguous
+   parent-to-child relation.
+
+The resolver checks duplicate resolved IDs with a hash set while keeping the
+result vector in candidate order. For `k` candidate faces, this changes the
+duplicate-check portion from a repeated linear scan (worst-case quadratic in
+the number of resolved children) to expected linear time, without changing
+the registry lookup or output ordering. The vector remains the authoritative
+ordered result; the set is only an identity guard. This is an implementation
+detail, not a new topology rule.
+
+The registered-child contract is covered by
+``FaceSearchBasicTest.RegisteredChildResolutionReturnsOnlyKnownChildren``,
+with companion tests for partial matches, no matches, duplicate identity, and
+the original candidate index. The scenario
+``tools/geometry_workbench/scenarios/registered_child_resolution.json`` makes
+one of these cases inspectable as input and expected tables. Its ``result``
+must remain unrecorded until a native test runner captures execution; a stub
+that copies expected values is not evidence that the C++ algorithm passed.
+
+This seam is architecturally useful because it separates three decisions:
+candidate topology is constructed by the split algorithm, global face identity
+is resolved by the registry, and parent-relative mapping rows are published
+by ``SetChildMapping``. Keeping those decisions distinct lets tests pinpoint
+whether a failure comes from candidate construction, face lookup, or mapping
+publication without building a complete CGNS case.
+Interface split pipeline and publication boundary
+--------------------------------------------------
+
+``RunSymmetricInterfaceSplitMappingPipeline`` is a table-level composition
+of the production mapping steps. It is deliberately independent of ``IFaceLink``,
+CGNS objects, and mesh geometry, so its mapping contract can be tested with
+small tables:
+
+#. Copy the live maps into candidate buffers (``InitNewInterfaceMappingBuffers``).
+#. Rebuild each zone's local-to-global row by replacing split parents with their
+   ordered child global IDs.
+#. Rebuild the inverse global-to-zone and global-to-local tables from those rows.
+#. Expand boundary-condition records using the child counts.
+#. Commit the candidate maps and publish the result.
+
+The key invariant is that these tables form one logical result even though they
+are stored separately. Publishing ``nChild`` or expanded BC arrays before a later
+stage succeeds can expose a mixed state: new counts alongside old maps. The
+pipeline now builds an ``InterfaceSplitMappingPipelineResult`` candidate and
+moves it to the caller's output only after every stage succeeds. A regression
+test deliberately supplies too few child counts and verifies that all preexisting
+output fields remain unchanged.
+
+This is a strong exception guarantee for the **table-level result**; it does
+not make the live production ``IFaceLink`` rebuild transactional by itself.
+The production path still owns its staging/commit lifecycle, and that lifecycle
+must be reviewed separately when it changes.
+
+The multi-zone end-to-end table test also exposes an important distinction:
+after replacing a parent face with children, the copied inverse tables may retain
+an unreferenced row for the retired parent global ID. Detection is implemented by
+``CollectUnreferencedGlobalInterfaceFaces``. Detection is not deletion: global
+IDs are indices into several related tables, so removing or compacting a row
+would require consistently rewriting every local-to-global map and any
+parent/child references. Until that full ID-remapping contract is defined, keep
+the diagnostic and do not silently compact the maps.
+
+Point-location tolerance and search stages
+-------------------------------------------
+
+The point locator uses the ADT as a broad-phase spatial index, then applies an
+exact squared-distance test as the narrow phase. The query first searches an
+axis-aligned box expanded by ``tolerance`` in each coordinate. Every candidate
+is then tested against ``dx*dx + dy*dy + dz*dz < tolerance*tolerance``; the
+first-stage box is therefore only a candidate filter, not the final matching
+criterion. A point outside the exact radius is not a match even if it lies in
+the search box.
+
+For a single grid, the standard ADT setup derives tolerance as one quarter of
+the minimum grid spacing. For multiple grids, it derives tolerance as one tenth
+of the minimum spacing and applies the existing small-value fallback when that
+result is below ``1.0e-10``. ``CreateStandardADTByTolerance`` instead uses the
+caller-provided tolerance. These are distinct policies and should not be
+unified without checking interface-node matching and midpoint-splitting call
+sites: changing tolerance changes which geometric points are considered the
+same point.
+
+The bounding-box overload of ``PointLocator::Initialize`` only reads its input
+bounds and copies them before expansion. Its inputs and the corresponding
+``CreateStandardADT`` overload now use ``const RealField &`` to express that
+contract; ``ShiftMinMaxBox`` remains mutable because it expands the copied
+bounds in place.
+
+The point locator's observation-only methods also expose const-qualified
+contracts: ``GetNPoint``, ``GetTol``, ``GetPoint``, and ``GetFaceCoorList`` do
+not modify locator state. This lets consumers inspect a locator through a
+``const PointLocator &`` while leaving ``FindPoint`` and ``AddPoint`` mutable:
+search updates the last-result ID, and insertion changes the point store and
+spatial index. The distinction is behavioral, not cosmetic, and the injected
+locator test exercises the query methods through a const base reference.
+
+The coordinate-vector overloads of ``FindPoint`` and ``AddPoint`` now accept
+``const RealField &`` as well. Both operations read the supplied coordinates;
+their state changes belong to the locator (the result ID, point arrays, and ADT),
+not to the caller's coordinate buffer. This avoids requiring a mutable vector
+for an input-only role and makes the ownership boundary clearer.
+
+Const-correct access and pointer ownership
+------------------------------------------
+
+The interface-link layer now provides both mutable and read-only grid access.
+``IFaceLink::GetGrid`` returns ``Grid &`` on a mutable object and
+``const Grid &`` on a const object. This makes observation-only code express
+its intent in the type system without introducing a second grid lookup path.
+The accessor is deliberately a reference: a zone index that passes the range
+check must identify an owned grid, not an optional result.
+
+The same distinction applies to collections of grid pointers. ``GridViews`` is
+a non-owning mutable view; making the vector itself const does not make its
+pointed-to grids const. ``ConstGridViews`` and ``AsConstGridViews`` provide a
+separate read-only view whose elements are ``const Grid *``. This keeps the
+legacy mutable path intact while allowing read-only algorithms to advertise
+their actual contract in their parameter types. Neither view owns the grids;
+the originating ``Grids`` collection must outlive every view.
+
+For the broader const/raw-pointer audit, use semantic ownership rather than
+a mechanical pointer-to-reference rewrite:
+
+* Use ``const T &`` for required read-only inputs and ``T &`` for required
+  mutable inputs.
+* Add paired const/non-const accessors when callers may observe an owned object
+  through either a mutable or const owner.
+* Use ``std::unique_ptr<T>`` for exclusive ownership and transfer ownership
+  explicitly; use ``std::shared_ptr<T>`` only when shared lifetime is real.
+* Keep a raw ``T *`` when null is a meaningful state or when the pointer is a
+  non-owning view whose lifetime is controlled elsewhere. Document that
+  contract and check null before dereferencing.
+* Do not remove a pointer merely because it is syntactically raw. In particular,
+  legacy grid lookup APIs can encode missing or non-local zones with null, while
+  ``IFaceLink::GetGrid`` is a required indexed access and is better expressed
+  as a reference.
+
+The purpose of this audit is to make lifetime, nullability, and mutation visible
+at API boundaries. It is not a project-wide pointer count reduction exercise.
+Prefer small, compile-checked changes that improve a real call path, with a
+focused test for the type-level contract. The next audit targets are public
+geometry accessors and grid/mesh lookup APIs; each candidate must be classified
+as required, optional, owning, or non-owning before changing its type.

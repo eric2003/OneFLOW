@@ -1,4 +1,4 @@
-"""Geometry contract explorer — table scenarios, not unit-test runner.
+"""Geometry contract explorer - table scenarios, not unit-test runner.
 
 Uses tools/geometry_workbench (stub pipeline today; native C++ later).
 Graphics export is optional and non-interactive (static PNG).
@@ -12,14 +12,18 @@ from pathlib import Path
 from typing import Any
 
 from PySide6.QtWidgets import (
-    QComboBox,
     QDialog,
     QFileDialog,
     QHBoxLayout,
     QLabel,
     QMessageBox,
+    QInputDialog,
     QPushButton,
     QPlainTextEdit,
+    QListWidget,
+    QSplitter,
+    QTabWidget,
+    QWidget,
     QVBoxLayout,
 )
 
@@ -43,80 +47,173 @@ class GeometryContractDialog(QDialog):
         self._last_orphans: list[int] = []
 
         self.setWindowTitle("Geometry Contracts")
-        self.resize(900, 640)
+        self.resize(1120, 720)
 
         root = QVBoxLayout(self)
         intro = QLabel(
-            "Explore interface dual-map / split contracts as table scenarios. "
-            "This is not the Unit Tests runner. Text PASS/FAIL is the default; "
-            "PNG export is optional and does not open an interactive plot window."
+            "Select a named contract scenario on the left. Edit input and expected "
+            "tables in separate tabs; the result tab shows comparison output. "
+            "Fixture mode does not execute production C++."
         )
         intro.setWordWrap(True)
         root.addWidget(intro)
 
-        row = QHBoxLayout()
-        row.addWidget(QLabel("Scenario"))
-        self.scenario_combo = QComboBox()
-        row.addWidget(self.scenario_combo, stretch=1)
-        self.run_button = QPushButton("Run (stub)")
+        command_row = QHBoxLayout()
+        self.import_button = QPushButton("Create from GoogleTest...")
+        self.import_button.clicked.connect(self._create_scenario_from_gtest)
+        command_row.addWidget(self.import_button)
+        self.save_button = QPushButton("Save scenario")
+        self.save_button.clicked.connect(self._save_scenario)
+        command_row.addWidget(self.save_button)
+        self.run_button = QPushButton("Run scenario (fixture)")
         self.run_button.clicked.connect(self._run_scenario)
-        row.addWidget(self.run_button)
+        command_row.addWidget(self.run_button)
         self.export_button = QPushButton("Export PNG...")
         self.export_button.setToolTip(
             "Optional static figure (matplotlib Agg); no interactive window"
         )
         self.export_button.clicked.connect(self._export_png)
         self.export_button.setEnabled(False)
-        row.addWidget(self.export_button)
-        root.addLayout(row)
-
-        self.description = QLabel("")
-        self.description.setWordWrap(True)
-        root.addWidget(self.description)
-
-        root.addWidget(QLabel("Input"))
-        self.input_view = QPlainTextEdit()
-        self.input_view.setReadOnly(True)
-        self.input_view.setPlaceholderText("Scenario input tables (JSON)")
-        root.addWidget(self.input_view, stretch=1)
-
-        root.addWidget(QLabel("Result"))
-        self.result_view = QPlainTextEdit()
-        self.result_view.setReadOnly(True)
-        self.result_view.setPlaceholderText("Run result and topology sketch")
-        root.addWidget(self.result_view, stretch=1)
-
-        close_row = QHBoxLayout()
-        close_row.addStretch(1)
+        command_row.addWidget(self.export_button)
+        command_row.addStretch(1)
         close_btn = QPushButton("Close")
         close_btn.clicked.connect(self.accept)
-        close_row.addWidget(close_btn)
-        root.addLayout(close_row)
+        command_row.addWidget(close_btn)
+        root.addLayout(command_row)
+
+        splitter = QSplitter()
+        self.scenario_list = QListWidget()
+        self.scenario_list.setMinimumWidth(220)
+        self.scenario_list.currentRowChanged.connect(self._on_scenario_changed)
+        splitter.addWidget(self.scenario_list)
+
+        editor_panel = QWidget()
+        editor_layout = QVBoxLayout(editor_panel)
+        editor_layout.setContentsMargins(0, 0, 0, 0)
+        self.description = QLabel("")
+        self.description.setWordWrap(True)
+        editor_layout.addWidget(self.description)
+        self.tabs = QTabWidget()
+
+        input_tab = QWidget()
+        input_layout = QVBoxLayout(input_tab)
+        input_header = QHBoxLayout()
+        input_header.addWidget(QLabel("Input tables (editable JSON)"))
+        input_header.addStretch(1)
+        self.reset_input_button = QPushButton("Restore input")
+        self.reset_input_button.clicked.connect(self._restore_input)
+        input_header.addWidget(self.reset_input_button)
+        input_layout.addLayout(input_header)
+        self.input_view = QPlainTextEdit()
+        self.input_view.setPlaceholderText("Edit scenario input tables (JSON)")
+        input_layout.addWidget(self.input_view)
+        self.tabs.addTab(input_tab, "Input")
+
+        expected_tab = QWidget()
+        expected_layout = QVBoxLayout(expected_tab)
+        expected_header = QHBoxLayout()
+        expected_header.addWidget(QLabel("Expected result (editable JSON)"))
+        expected_header.addStretch(1)
+        self.reset_expected_button = QPushButton("Restore expected")
+        self.reset_expected_button.clicked.connect(self._restore_expected)
+        expected_header.addWidget(self.reset_expected_button)
+        expected_layout.addLayout(expected_header)
+        self.expected_view = QPlainTextEdit()
+        self.expected_view.setPlaceholderText("Edit expected result tables (JSON)")
+        expected_layout.addWidget(self.expected_view)
+        self.tabs.addTab(expected_tab, "Expected")
+
+        result_tab = QWidget()
+        result_layout = QVBoxLayout(result_tab)
+        self.result_view = QPlainTextEdit()
+        self.result_view.setReadOnly(True)
+        self.result_view.setPlaceholderText("Actual result, comparison, and notes")
+        result_layout.addWidget(self.result_view)
+        self.tabs.addTab(result_tab, "Result")
+
+        editor_layout.addWidget(self.tabs)
+        splitter.addWidget(editor_panel)
+        splitter.setStretchFactor(0, 1)
+        splitter.setStretchFactor(1, 4)
+        root.addWidget(splitter, stretch=1)
 
         self._reload_scenarios()
-        self.scenario_combo.currentIndexChanged.connect(self._on_scenario_changed)
-        if self.scenario_combo.count():
-            self._on_scenario_changed(0)
+        if self.scenario_list.count():
+            self.scenario_list.setCurrentRow(0)
 
     def _reload_scenarios(self) -> None:
         from geometry_workbench.scenarios import list_scenario_paths
 
-        self.scenario_combo.blockSignals(True)
-        self.scenario_combo.clear()
+        self.scenario_list.blockSignals(True)
+        self.scenario_list.clear()
         self._scenario_paths = list_scenario_paths(self._repository_root)
+        from geometry_workbench.scenarios import load_scenario
         for path in self._scenario_paths:
-            self.scenario_combo.addItem(path.stem, str(path))
-        self.scenario_combo.blockSignals(False)
+            scenario = load_scenario(path)
+            self.scenario_list.addItem(str(scenario.get("title") or path.stem))
+        self.scenario_list.blockSignals(False)
         if not self._scenario_paths:
             self.description.setText(
                 f"No scenarios under "
                 f"{self._repository_root / 'tools' / 'geometry_workbench' / 'scenarios'}"
             )
 
+    def _create_scenario_from_gtest(self) -> None:
+        from geometry_workbench.scenario_import import write_scenario_skeleton
+        from oneflow_gui.test_inventory import discover_tests
+
+        records = [
+            record for record in discover_tests(self._repository_root)
+            if record.get("framework") == "GoogleTest" and not record.get("scenarioId")
+        ]
+        if not records:
+            QMessageBox.information(
+                self, "Geometry Contracts", "No unlinked GoogleTest declarations were discovered."
+            )
+            return
+
+        labels = [
+            f"{record['suite']}.{record['name']} — {record['source']}:{record['line']}"
+            for record in records
+        ]
+        selected, accepted = QInputDialog.getItem(
+            self,
+            "Create scenario from GoogleTest",
+            "Select a GoogleTest declaration. This creates a scenario skeleton; "
+            "input and expected data must be completed or extracted separately.",
+            labels,
+            0,
+            False,
+        )
+        if not accepted:
+            return
+        record = records[labels.index(selected)]
+        scenario_dir = (
+            self._repository_root / "tools" / "geometry_workbench" / "scenarios"
+        )
+        try:
+            path = write_scenario_skeleton(record, scenario_dir)
+        except (OSError, ValueError, FileExistsError) as exc:
+            QMessageBox.warning(self, "Geometry Contracts", str(exc))
+            return
+
+        self._reload_scenarios()
+        for index, scenario_path in enumerate(self._scenario_paths):
+            if scenario_path.resolve() == path.resolve():
+                self.scenario_list.setCurrentRow(index)
+                break
+        QMessageBox.information(
+            self,
+            "Geometry Contracts",
+            "Created a traceable scenario skeleton. The input and expected tables "
+            "are intentionally empty; this action does not execute C++ or infer "
+            f"assertions.\n\n{path}",
+        )
+
     def _current_scenario(self) -> dict[str, Any] | None:
         from geometry_workbench.scenarios import load_scenario
 
-        index = self.scenario_combo.currentIndex()
+        index = self.scenario_list.currentRow()
         if index < 0 or index >= len(self._scenario_paths):
             return None
         return load_scenario(self._scenario_paths[index])
@@ -125,12 +222,66 @@ class GeometryContractDialog(QDialog):
         scenario = self._current_scenario()
         if scenario is None:
             return
-        self.description.setText(str(scenario.get("description") or scenario.get("id") or ""))
+        description = str(scenario.get("description") or scenario.get("id") or "")
+        linked_tests = [
+            scenario.get("test") or {},
+            scenario.get("integrationTest") or {},
+        ]
+        for test in linked_tests:
+            if test:
+                description += (
+                    f"\nC++ regression (linked, not run here): "
+                    f"{test.get('suite', '')}.{test.get('name', '')} "
+                    f"({test.get('source', '')})"
+                )
+        self.description.setText(description)
         self.input_view.setPlainText(json.dumps(scenario.get("input") or {}, indent=2))
+        self.expected_view.setPlainText(
+            json.dumps(scenario.get("expected") or {}, indent=2)
+        )
         self.result_view.clear()
         self._last_actual = None
         self._last_orphans = []
         self.export_button.setEnabled(False)
+
+    def _restore_input(self) -> None:
+        scenario = self._current_scenario()
+        if scenario is None:
+            return
+        self.input_view.setPlainText(json.dumps(scenario.get("input") or {}, indent=2))
+
+    def _restore_expected(self) -> None:
+        scenario = self._current_scenario()
+        if scenario is None:
+            return
+        self.expected_view.setPlainText(
+            json.dumps(scenario.get("expected") or {}, indent=2)
+        )
+
+    def _save_scenario(self) -> None:
+        from geometry_workbench.scenarios import save_scenario_contract
+
+        scenario = self._current_scenario()
+        index = self.scenario_list.currentRow()
+        if scenario is None or index < 0:
+            QMessageBox.warning(self, "Geometry Contracts", "No scenario selected.")
+            return
+        try:
+            input_tables = json.loads(self.input_view.toPlainText())
+            expected_tables = json.loads(self.expected_view.toPlainText())
+            save_scenario_contract(
+                self._scenario_paths[index], scenario, input_tables, expected_tables
+            )
+        except (json.JSONDecodeError, OSError, ValueError) as exc:
+            QMessageBox.warning(
+                self, "Geometry Contracts", f"Could not save scenario contract: {exc}"
+            )
+            return
+        QMessageBox.information(
+            self,
+            "Geometry Contracts",
+            "Saved input and expected tables. Execution result was not changed.",
+        )
 
     def _run_scenario(self) -> None:
         from geometry_workbench.pipeline_stub import diff_tables, run_pipeline
@@ -141,27 +292,69 @@ class GeometryContractDialog(QDialog):
             QMessageBox.warning(self, "Geometry Contracts", "No scenario selected.")
             return
         try:
+            edited_input = json.loads(self.input_view.toPlainText())
+            if not isinstance(edited_input, dict):
+                raise ValueError("input tables must be a JSON object")
+            scenario["input"] = edited_input
+        except (json.JSONDecodeError, ValueError) as exc:
+            QMessageBox.warning(
+                self, "Geometry Contracts", f"Invalid input JSON: {exc}"
+            )
+            return
+
+        try:
             actual = run_pipeline(scenario, backend="stub")
-        except Exception as exc:  # noqa: BLE001 — surface to operator
+        except Exception as exc:  # noqa: BLE001 - surface to operator
             QMessageBox.critical(self, "Geometry Contracts", str(exc))
             return
 
-        expected = scenario.get("expected") or {}
+        try:
+            expected = json.loads(self.expected_view.toPlainText())
+            if not isinstance(expected, dict):
+                raise ValueError("expected tables must be a JSON object")
+        except (json.JSONDecodeError, ValueError) as exc:
+            QMessageBox.warning(
+                self, "Geometry Contracts", f"Invalid expected JSON: {exc}"
+            )
+            return
         mismatches = diff_tables(actual, expected)
-        orphans = expected.get("orphanParentGlobalIds") or []
+        orphans = actual.get("orphanParentGlobalIds") or []
         self._last_actual = actual
         self._last_orphans = list(orphans)
-        self.export_button.setEnabled(True)
+        has_topology_map = any(key in actual for key in ("l2g", "gI2Zid", "g2l"))
+        self.export_button.setEnabled(has_topology_map)
 
         lines = [
             f"scenario: {scenario.get('id', '')}",
-            "backend: stub",
-            "RESULT: PASS" if not mismatches else "RESULT: FAIL",
+            "linked C++ regressions (not executed by this fixture run):",
         ]
+        for test in (scenario.get("test") or {}, scenario.get("integrationTest") or {}):
+            if test:
+                lines.append(
+                    f"  - {test.get('suite', '')}.{test.get('name', '')}"
+                )
+        lines.extend([
+            "backend: fixture (does not execute the production C++ test)",
+            "RESULT: PASS" if not mismatches else "RESULT: FAIL",
+            (
+                "Compared computed scenario output against the editable expected tables."
+                if scenario.get("id") == "registered_child_resolution"
+                else "Compared fixture output against the editable expected tables."
+            ),
+            (
+                "The Python contract runner computed output from input; it does not execute production C++."
+                if scenario.get("id") == "registered_child_resolution"
+                else "Input JSON was parsed; this fixture backend does not recompute output from input."
+            ),
+        ])
         for line in mismatches:
             lines.append(f"  - {line}")
         lines.append("")
-        lines.append(render_ascii(actual, orphan_ids=orphans))
+        if "l2g" in actual or "gI2Zid" in actual or "g2l" in actual:
+            lines.append(render_ascii(actual, orphan_ids=orphans))
+        else:
+            lines.append("Computed result tables:")
+            lines.append(json.dumps(actual, indent=2, ensure_ascii=True))
         notes = scenario.get("notes") or []
         if notes:
             lines.append("")

@@ -35,6 +35,7 @@ License
 #include <string>
 #include <unordered_set>
 #include <vector>
+#include <utility>
 
 
 BeginNameSpace( ONEFLOW )
@@ -999,6 +1000,31 @@ void CollectBoundaryInterfaceChildNodeMappings(
     // leave callers with a partial set of node mappings.
     std::vector< LinkField > nodeIdsByInterfaceLocal;
     std::vector< LinkField > nodeFlagsByInterfaceLocal;
+    const bool hasParentSpecificTables =
+        ! splitTable.childFaceNodeIdsByParent.empty() ||
+        ! splitTable.childFaceNodeFlagsByParent.empty();
+    bool anyParentSpecificMapping = false;
+    if ( hasParentSpecificTables )
+    {
+        if ( splitTable.childFaceNodeIdsByParent.size() !=
+             splitTable.childFaceNodeFlagsByParent.size() )
+        {
+            throw std::logic_error(
+                "CollectBoundaryInterfaceChildNodeMappings: parent-specific tables are misaligned" );
+        }
+        for ( std::size_t parentIndex = 0;
+              parentIndex < splitTable.childFaceNodeIdsByParent.size();
+              ++ parentIndex )
+        {
+            if ( ! splitTable.childFaceNodeIdsByParent[ parentIndex ].empty() ||
+                 ! splitTable.childFaceNodeFlagsByParent[ parentIndex ].empty() )
+            {
+                anyParentSpecificMapping = true;
+                break;
+            }
+        }
+    }
+
     int interfaceLocal = 0;
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
@@ -1017,15 +1043,10 @@ void CollectBoundaryInterfaceChildNodeMappings(
             continue;
         }
 
-        bool hasParentSpecificRows = false;
-        const bool hasParentSpecificTables =
-            ! splitTable.childFaceNodeIdsByParent.empty() ||
-            ! splitTable.childFaceNodeFlagsByParent.empty();
         if ( hasParentSpecificTables )
         {
             if ( globalParentId < 0 ||
-                 static_cast< std::size_t >( globalParentId ) >= splitTable.childFaceNodeIdsByParent.size() ||
-                 static_cast< std::size_t >( globalParentId ) >= splitTable.childFaceNodeFlagsByParent.size() )
+                 static_cast< std::size_t >( globalParentId ) >= splitTable.childFaceNodeIdsByParent.size() )
             {
                 throw std::logic_error(
                     "CollectBoundaryInterfaceChildNodeMappings: parent-specific tables do not contain the parent" );
@@ -1033,8 +1054,7 @@ void CollectBoundaryInterfaceChildNodeMappings(
 
             const LinkField & nodeIds = splitTable.childFaceNodeIdsByParent[ globalParentId ];
             const LinkField & nodeFlags = splitTable.childFaceNodeFlagsByParent[ globalParentId ];
-            hasParentSpecificRows = ! nodeIds.empty() || ! nodeFlags.empty();
-            if ( hasParentSpecificRows )
+            if ( ! nodeIds.empty() || ! nodeFlags.empty() )
             {
                 if ( nodeIds.size() != childIds.size() ||
                      nodeFlags.size() != childIds.size() )
@@ -1047,11 +1067,20 @@ void CollectBoundaryInterfaceChildNodeMappings(
                 ++ interfaceLocal;
                 continue;
             }
+
+            // Once any parent-specific mapping has been published, an empty
+            // row for a split parent is missing data, not a legacy fallback.
+            if ( anyParentSpecificMapping )
+            {
+                throw std::logic_error(
+                    "CollectBoundaryInterfaceChildNodeMappings: missing parent-specific mapping for split parent" );
+            }
         }
 
-        // Older callers and serialized test fixtures may leave both
+        // Older callers and serialized test fixtures may leave all
         // parent-specific rows empty and populate only child-global rows.
-        // Fall back only when the new representation is absent, not malformed.
+        // Use the compatibility representation only when no parent-specific
+        // mapping has been published anywhere.
         LinkField nodeIdsByChild;
         LinkField nodeFlagsByChild;
         for ( const int childFaceId : childIds )
@@ -1290,12 +1319,14 @@ void RunSymmetricInterfaceSplitMappingPipeline(
             "RunSymmetricInterfaceSplitMappingPipeline: parent/child table size mismatch" );
     }
 
+    // Build a complete candidate result. A failed stage must not publish a
+    // mixture of new child counts / BC records and old interface maps.
+    InterfaceSplitMappingPipelineResult next;
     LinkField gI2ZidNew, g2lNew, l2gNew;
     InitNewInterfaceMappingBuffers(
         gI2ZidIn, g2lIn, l2gIn, gI2ZidNew, g2lNew, l2gNew );
 
-    out.nChild.clear();
-    out.nChild.resize( l2gIn.size() );
+    next.nChild.resize( l2gIn.size() );
 
     for ( std::size_t zid = 0; zid < l2gIn.size(); ++ zid )
     {
@@ -1303,7 +1334,7 @@ void RunSymmetricInterfaceSplitMappingPipeline(
             parentGlobalFaceIds,
             childGlobalIdsPerParent,
             l2gNew[ zid ],
-            out.nChild[ zid ] );
+            next.nChild[ zid ] );
     }
 
     for ( std::size_t zid = 0; zid < l2gIn.size(); ++ zid )
@@ -1317,15 +1348,17 @@ void RunSymmetricInterfaceSplitMappingPipeline(
 
     ExpandBcRecordForSplitInterfaces(
         bcType, bcNameId, childCountPerInterfaceLocal,
-        out.outBcType, out.outBcNameId );
+        next.outBcType, next.outBcNameId );
 
-    out.l2g = l2gIn;
-    out.gI2Zid = gI2ZidIn;
-    out.g2l = g2lIn;
+    next.l2g = l2gIn;
+    next.gI2Zid = gI2ZidIn;
+    next.g2l = g2lIn;
     CommitInterfaceMappingBuffers(
-        out.gI2Zid, out.g2l, out.l2g,
+        next.gI2Zid, next.g2l, next.l2g,
         gI2ZidNew, g2lNew, l2gNew,
         "RunSymmetricInterfaceSplitMappingPipeline" );
+
+    out = std::move( next );
 }
 
 

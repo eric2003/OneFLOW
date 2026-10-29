@@ -122,6 +122,44 @@ TEST( FaceSearchBasicTest, QuadSplitUsesOnlyRegisteredTrianglesForOneDiagonal )
                ( IntField{ 1, 2 } ) );
 }
 
+TEST( FaceSearchBasicTest, QuadSplitUsesOriginalCandidateIndexForPartialMatch )
+{
+    // Only candidate 1 is registered; its local mapping must not shift to candidate 0.
+    FaceSearch search;
+    ASSERT_EQ( search.AddFace( IntField{ 10, 20, 30, 40 } ), 0 );
+    ASSERT_EQ( search.AddFace( IntField{ 30, 40, 10 } ), 1 );
+
+    search.interfaceSplit.ResetForFaceCount( search.Size() );
+    search.SplitQuad2Tri( 0 );
+
+    ASSERT_EQ( search.interfaceSplit.childFaceIdsOfParent[ 0 ], ( IntField{ 1 } ) );
+    ASSERT_EQ( search.interfaceSplit.childFaceNodeIdsByParent[ 0 ].size(),
+               static_cast< std::size_t >( 1 ) );
+    EXPECT_EQ( search.interfaceSplit.childFaceNodeIdsByParent[ 0 ][ 0 ],
+               ( IntField{ 2, 3, 0 } ) );
+    EXPECT_EQ( search.interfaceSplit.childFaceNodeFlagsByParent[ 0 ][ 0 ],
+               ( IntField{ 1, 1, 1 } ) );
+}
+
+TEST( FaceSearchBasicTest, QuadSplitPreservesLastCandidateIndexForPartialMatch )
+{
+    // Three missing candidates must not compact the final candidate's local map.
+    FaceSearch search;
+    ASSERT_EQ( search.AddFace( IntField{ 10, 20, 30, 40 } ), 0 );
+    ASSERT_EQ( search.AddFace( IntField{ 20, 30, 40 } ), 1 );
+
+    search.interfaceSplit.ResetForFaceCount( search.Size() );
+    search.SplitQuad2Tri( 0 );
+
+    ASSERT_EQ( search.interfaceSplit.childFaceIdsOfParent[ 0 ], ( IntField{ 1 } ) );
+    ASSERT_EQ( search.interfaceSplit.childFaceNodeIdsByParent[ 0 ].size(),
+               static_cast< std::size_t >( 1 ) );
+    EXPECT_EQ( search.interfaceSplit.childFaceNodeIdsByParent[ 0 ][ 0 ],
+               ( IntField{ 1, 2, 3 } ) );
+    EXPECT_EQ( search.interfaceSplit.childFaceNodeFlagsByParent[ 0 ][ 0 ],
+               ( IntField{ 1, 1, 1 } ) );
+}
+
 TEST( FaceSearchBasicTest, QuadSplitMatchesRegisteredTrianglesRegardlessOfNodeOrder )
 {
     FaceSearch search;
@@ -159,6 +197,78 @@ TEST( FaceSearchBasicTest, InvalidQuadCandidateLeavesMappedOutputUnchanged )
         std::out_of_range );
 
     EXPECT_EQ( mappedTriangles, ( LinkField{ IntField{ 90, 91, 92 } } ) );
+}
+
+TEST( FaceSearchBasicTest, RegisteredChildResolutionReturnsOnlyKnownChildren )
+{
+    FaceSearchBasic search;
+    EXPECT_EQ( search.AddFace( IntField{ 10, 20 } ), 0 );
+    EXPECT_EQ( search.AddFace( IntField{ 20, 30 } ), 1 );
+
+    const LinkField candidates{
+        IntField{ 10, 20 },
+        IntField{ 20, 30 },
+        IntField{ 30, 40 }
+    };
+
+    const std::vector< RegisteredChildFace > children =
+        ResolveRegisteredChildFaces( search, candidates );
+
+    ASSERT_EQ( children.size(), static_cast< std::size_t >( 2 ) );
+    EXPECT_EQ( children[ 0 ].globalFaceId, 0 );
+    EXPECT_EQ( children[ 0 ].candidateIndex, 0 );
+    EXPECT_EQ( children[ 1 ].globalFaceId, 1 );
+    EXPECT_EQ( children[ 1 ].candidateIndex, 1 );
+}
+
+TEST( FaceSearchBasicTest, RegisteredChildResolutionPreservesCandidateIndexForPartialMatch )
+{
+    // Intent: a missing first candidate must not shift the local mapping for a registered second child.
+    FaceSearchBasic search;
+    EXPECT_EQ( search.AddFace( IntField{ 20, 30 } ), 0 );
+
+    const LinkField candidates{
+        IntField{ 10, 20 },
+        IntField{ 20, 30 }
+    };
+
+    const std::vector< RegisteredChildFace > children =
+        ResolveRegisteredChildFaces( search, candidates );
+
+    ASSERT_EQ( children.size(), static_cast< std::size_t >( 1 ) );
+    EXPECT_EQ( children[ 0 ].globalFaceId, 0 );
+    EXPECT_EQ( children[ 0 ].candidateIndex, 1 );
+}
+
+TEST( FaceSearchBasicTest, RegisteredChildResolutionReturnsEmptyWhenNoChildExists )
+{
+    FaceSearchBasic search;
+    search.AddFace( IntField{ 10, 20 } );
+
+    const LinkField candidates{
+        IntField{ 20, 30 },
+        IntField{ 30, 40 }
+    };
+
+    const std::vector< RegisteredChildFace > children =
+        ResolveRegisteredChildFaces( search, candidates );
+
+    EXPECT_TRUE( children.empty() );
+}
+
+TEST( FaceSearchBasicTest, RegisteredChildResolutionRejectsDuplicateIdentity )
+{
+    FaceSearchBasic search;
+    search.AddFace( IntField{ 10, 20 } );
+
+    const LinkField candidates{
+        IntField{ 10, 20 },
+        IntField{ 20, 10 }
+    };
+
+    EXPECT_THROW(
+        ResolveRegisteredChildFaces( search, candidates ),
+        std::logic_error );
 }
 
 TEST( FaceSearchBasicTest, GlobalLineCandidatesPreserveEdgeDirection )
@@ -366,6 +476,25 @@ TEST( FaceSearchBasicTest, SetChildMappingRejectsConflictingMappingForSameParent
     EXPECT_EQ( split.childFaceNodeIdsByParent[ 0 ][ 0 ], ( IntField{ 0, 1, 2 } ) );
     EXPECT_EQ( split.childFaceNodeFlagsByParent[ 0 ][ 0 ], ( IntField{ 1, 1, 1 } ) );
 }
+
+TEST( FaceSearchBasicTest, SetChildMappingRejectsMisalignedGlobalRowsWithoutMutation )
+{
+    InterfaceFaceSplitTable split;
+    split.ResetForFaceCount( 3 );
+    split.childFaceIdsOfParent[ 0 ] = IntField{ 2 };
+    split.childFaceNodeIds[ 2 ] = IntField{ 9, 8 };
+    split.childFaceNodeFlags[ 2 ] = IntField{ 1 };
+
+    EXPECT_THROW(
+        split.SetChildMapping( 0, 2, IntField{ 0, 1 }, IntField{ 1, 1 } ),
+        std::logic_error );
+
+    EXPECT_TRUE( split.childFaceNodeIdsByParent[ 0 ].empty() );
+    EXPECT_TRUE( split.childFaceNodeFlagsByParent[ 0 ].empty() );
+    EXPECT_EQ( split.childFaceNodeIds[ 2 ], ( IntField{ 9, 8 } ) );
+    EXPECT_EQ( split.childFaceNodeFlags[ 2 ], ( IntField{ 1 } ) );
+}
+
 
 TEST( FaceSearchBasicTest, SetChildMappingRejectsMissingParentSpecificRow )
 {

@@ -33,6 +33,48 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+class PointSpatialIndex
+{
+public:
+    virtual ~PointSpatialIndex() = default;
+    virtual void Insert( const RealField & coordinate, int pointId ) = 0;
+    virtual void QueryRegion( const Real * pmin, const Real * pmax,
+                              std::vector< int > & pointIds ) const = 0;
+};
+
+namespace
+{
+class AdtPointSpatialIndex final : public PointSpatialIndex
+{
+public:
+    explicit AdtPointSpatialIndex( std::unique_ptr< AdtTree > tree )
+        : tree( std::move( tree ) )
+    {
+    }
+
+    void Insert( const RealField & coordinate, int pointId ) override
+    {
+        this->tree->AddNode(
+            std::make_unique< AdtNode >( 3, coordinate.data(), pointId ) );
+    }
+
+    void QueryRegion( const Real * pmin, const Real * pmax,
+                      std::vector< int > & pointIds ) const override
+    {
+        AdtTree::AdtNodeList nodes;
+        this->tree->FindNodesInRegion( pmin, pmax, nodes );
+        pointIds.reserve( pointIds.size() + nodes.size() );
+        for ( const auto * node : nodes )
+        {
+            pointIds.push_back( node->GetData() );
+        }
+    }
+
+private:
+    std::unique_ptr< AdtTree > tree;
+};
+} // namespace
+
 // Helper function to calculate squared distance (avoids expensive sqrt operation)
 static inline Real CalcSquaredDistance(Real x1, Real y1, Real z1, Real x2, Real y2, Real z2) {
     Real dx = x1 - x2;
@@ -46,29 +88,38 @@ PointLocator::PointLocator()
 {
     this->id = 0;
     this->tolerance = 1.0e-6;
-    // [Refactored] coorTree is automatically nullptr via std::unique_ptr default constructor.
-    // No explicit initialization needed.
 }
 
 // [Refactored] unique_ptr automatically deletes the owned AdtTree.
 PointLocator::~PointLocator() = default;
 
 
-void PointLocator::Initialize( RealField & pmin, RealField & pmax, Real toleranceIn )
+void PointLocator::Initialize( const RealField & pmin, const RealField & pmax, Real toleranceIn )
 {
     this->tolerance = toleranceIn;
-    ONEFLOW::CreateStandardADT( pmin, pmax, this->coorTree, this->tolerance);
+    std::unique_ptr< AdtTree > tree;
+    ONEFLOW::CreateStandardADT( pmin, pmax, tree, this->tolerance );
+    this->spatialIndex = std::make_unique< AdtPointSpatialIndex >( std::move( tree ) );
+    this->ResetPointStore();
 }
 
 void PointLocator::Initialize( Grid * grid )
 {
-    ONEFLOW::CreateStandardADT( grid, this->coorTree, this->tolerance );
+    std::unique_ptr< AdtTree > tree;
+    ONEFLOW::CreateStandardADT( grid, tree, this->tolerance );
+    this->spatialIndex = std::make_unique< AdtPointSpatialIndex >( std::move( tree ) );
+    this->ResetPointStore();
 }
 
 void PointLocator::InitializeSpecial( Grid * grid, Real toleranceIn )
 {
-    this->Initialize( grid );
-    this->tolerance = toleranceIn;
+    // The ADT bounds must use the same tolerance as the narrow-phase query.
+    // Reusing Initialize(grid) would build bounds with mindis / 4, then only
+    // replace the query tolerance, which can exclude valid inserted points.
+    grid->nodeMesh->CalcMinMaxBox();
+    const RealField pmin = grid->nodeMesh->pmin;
+    const RealField pmax = grid->nodeMesh->pmax;
+    this->Initialize( pmin, pmax, toleranceIn );
 }
 
 void PointLocator::Initialize( Grids & grids )
@@ -79,11 +130,22 @@ void PointLocator::Initialize( Grids & grids )
 
 void PointLocator::Initialize( const GridViews & grids )
 {
-    ONEFLOW::CreateStandardADT( grids, this->coorTree, tolerance );
+    std::unique_ptr< AdtTree > tree;
+    ONEFLOW::CreateStandardADT( grids, tree, tolerance );
+    this->spatialIndex = std::make_unique< AdtPointSpatialIndex >( std::move( tree ) );
+    this->ResetPointStore();
 }
 
 
-void PointLocator::GetPoint( int id, Real & xm, Real & ym, Real & zm )
+void PointLocator::ResetPointStore()
+{
+    this->id = INVALID_INDEX;
+    this->xCoor.clear();
+    this->yCoor.clear();
+    this->zCoor.clear();
+}
+
+void PointLocator::GetPoint( int id, Real & xm, Real & ym, Real & zm ) const
 {
     xm = this->xCoor[ id ];
     ym = this->yCoor[ id ];
@@ -108,9 +170,9 @@ int PointLocator::FindPoint( Real xm, Real ym, Real zm )
     return this->FindPoint( coor );
 }
 
-int PointLocator::FindPoint( RealField & coordinate )
+int PointLocator::FindPoint( const RealField & coordinate )
 {
-    AdtTree::AdtNodeList nodeList;
+    std::vector< int > candidateIds;
 
     // 1. Broad Phase: Define the tolerance bounding box
     Real minWindow[3] = {
@@ -125,9 +187,9 @@ int PointLocator::FindPoint( RealField & coordinate )
     };
 
     // Find all candidate nodes within the bounding box
-    this->coorTree->FindNodesInRegion( minWindow, maxWindow, nodeList );
+    this->spatialIndex->QueryRegion( minWindow, maxWindow, candidateIds );
 
-    if ( nodeList.empty() )
+    if ( candidateIds.empty() )
     {
         return INVALID_INDEX;
     }
@@ -136,18 +198,20 @@ int PointLocator::FindPoint( RealField & coordinate )
     Real minSquaredDist = this->tolerance * this->tolerance;
     int bestId = INVALID_INDEX;
 
-    for ( auto* node : nodeList )
+    for ( int candidateId : candidateIds )
     {
-        Real nx = node->point[0];
-        Real ny = node->point[1];
-        Real nz = node->point[2];
+        const Real nx = this->xCoor[ candidateId ];
+        const Real ny = this->yCoor[ candidateId ];
+        const Real nz = this->zCoor[ candidateId ];
 
-        Real distSq = CalcSquaredDistance(coordinate[0], coordinate[1], coordinate[2], nx, ny, nz);
+        const Real distSq = CalcSquaredDistance(
+            coordinate[ 0 ], coordinate[ 1 ], coordinate[ 2 ],
+            nx, ny, nz );
 
         if ( distSq < minSquaredDist )
         {
             minSquaredDist = distSq;
-            bestId = node->GetData();
+            bestId = candidateId;
         }
     }
 
@@ -155,7 +219,7 @@ int PointLocator::FindPoint( RealField & coordinate )
     return this->id; // Returns INVALID_INDEX if no point is within exact tolerance
 }
 
-int PointLocator::AddPoint( RealField & coor )
+int PointLocator::AddPoint( const RealField & coor )
 {
     // Reuse FindPoint logic to check for existing points within tolerance
     int existingId = this->FindPoint( coor );
@@ -167,8 +231,7 @@ int PointLocator::AddPoint( RealField & coor )
     // Narrow Phase failed, add as a new unique point
     int newId = static_cast<int>( this->xCoor.size() );
 
-    // The tree now safely manages the memory of this node (as verified in Step 1)
-    this->coorTree->AddNode( std::make_unique<AdtNode>( 3, &coor[0], newId ) );
+    this->spatialIndex->Insert( coor, newId );
 
     this->xCoor.push_back( coor[0] );
     this->yCoor.push_back( coor[1] );
@@ -178,7 +241,7 @@ int PointLocator::AddPoint( RealField & coor )
     return this->id;
 }
 
-void PointLocator::GetFaceCoorList( const IntField & nodeId, RealField &xList, RealField &yList, RealField &zList )
+void PointLocator::GetFaceCoorList( const IntField & nodeId, RealField &xList, RealField &yList, RealField &zList ) const
 {
     for ( int i = 0; i < nodeId.size(); ++ i )
     {
@@ -189,7 +252,7 @@ void PointLocator::GetFaceCoorList( const IntField & nodeId, RealField &xList, R
     }
 }
 
-void CreateStandardADT( RealField & ptmin, RealField & ptmax, std::unique_ptr<AdtTree>& adtTree, Real & tolerance )
+void CreateStandardADT( const RealField & ptmin, const RealField & ptmax, std::unique_ptr<AdtTree>& adtTree, Real & tolerance )
 {
     RealField pmin = ptmin;
     RealField pmax = ptmax;

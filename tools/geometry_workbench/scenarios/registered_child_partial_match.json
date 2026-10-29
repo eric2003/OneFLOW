@@ -1,0 +1,49 @@
+{
+  "id": "registered_child_partial_match",
+  "title": "Registered child resolution (partial match)",
+  "description": "Resolve registered child faces without compacting candidate indices when some candidates are absent.",
+  "test": {
+    "framework": "GoogleTest",
+    "suite": "FaceSearchBasicTest",
+    "name": "RegisteredChildResolutionPreservesCandidateIndexForPartialMatch",
+    "source": "tests/geometry/FaceSearchBasicTest.cpp"
+  },
+  "input": {
+    "registeredFaces": [
+      [
+        20,
+        30
+      ]
+    ],
+    "candidateFaces": [
+      [
+        10,
+        20
+      ],
+      [
+        20,
+        30
+      ]
+    ]
+  },
+  "expected": {
+    "childFaceIds": [
+      0
+    ],
+    "candidateIndices": [
+      1
+    ]
+  },
+  "notes": [
+    "The input matches FaceSearchBasicTest.RegisteredChildResolutionPreservesCandidateIndexForPartialMatch.",
+    "The expected output pairs global face ID 0 with original candidate index 1.",
+    "The result remains null until a real test runner records execution; the geometry fixture UI is not a C++ execution backend."
+  ],
+  "integrationTest": {
+    "framework": "GoogleTest",
+    "suite": "FaceSearchBasicTest",
+    "name": "QuadSplitUsesOriginalCandidateIndexForPartialMatch",
+    "source": "tests/geometry/FaceSearchBasicTest.cpp"
+  },
+  "result": null
+}

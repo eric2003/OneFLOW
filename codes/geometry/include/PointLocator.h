@@ -29,10 +29,20 @@ License
 BeginNameSpace( ONEFLOW )
 
 class Grid;
+class PointSpatialIndex;
 
 using AdtTree = HXAdtTree<int, Real>;
 using AdtNode = HXAdtNode<int, Real>;
 
+/**
+ * Locate and deduplicate points through a private spatial-index boundary.
+ *
+ * The locator owns its spatial index and coordinate store. FindPoint is a
+ * query that updates the last-result ID; AddPoint may also extend the store.
+ * Matching tolerance is established by Initialize or InitializeSpecial.
+ * Every successful initialization rebuilds the index and clears points added
+ * through this locator, so the index and coordinate store share one lifecycle.
+ */
 class PointLocator
 {
 public:
@@ -40,41 +50,70 @@ public:
     // Virtual so IFaceLink tests can inject a lightweight double without an ADT.
     virtual ~PointLocator();
 
-    // [Refactored] Disable copying to prevent double-free of unique_ptr.
-    // unique_ptr is move-only, so we explicitly delete copy operations.
-    PointLocator(const PointLocator&) = delete;
-    PointLocator& operator=(const PointLocator&) = delete;
+    PointLocator( const PointLocator& ) = delete;
+    PointLocator& operator=( const PointLocator& ) = delete;
 protected:
     int id;
 
-    // [Refactored] Changed from raw pointer to std::unique_ptr.
-    // Automatic cleanup, exception safety, no double-free possible.
-    std::unique_ptr<AdtTree> coorTree;
+    // Concrete spatial-index implementation is private to PointLocator.cpp.
+    std::unique_ptr<PointSpatialIndex> spatialIndex;
 
     Real tolerance;
     RealField xCoor, yCoor, zCoor;
 public:
-    void Initialize( RealField & pmin, RealField & pmax, Real toleranceIn );
+    /**
+     * Initialize the search bounds and spatial index using an explicit tolerance.
+     * The input bounds are read-only; the expanded bounds are stored locally.
+     */
+    void Initialize( const RealField & pmin, const RealField & pmax, Real toleranceIn );
+
+    /// Initialize from one grid; tolerance is derived from its minimum spacing.
     void Initialize( Grid * grid );
+
+    /// Initialize from one grid using toleranceIn for both search and ADT bounds.
     void InitializeSpecial( Grid * grid, Real toleranceIn );
+
+    /// Initialize from owned grid handles using the standard multi-grid policy.
     void Initialize( Grids & grids );
+
+    /// Initialize from non-owning grid views using the standard multi-grid policy.
     void Initialize( const GridViews & grids );
 public:
     // Virtual hooks used by mid-point / interface geometry paths. Production
-    // builds the ADT; unit tests may override without grids or coorTree.
-    virtual int GetNPoint() { return static_cast<int> (xCoor.size()); }
+    // builds the index; unit tests may override without grids or an index.
+    /// Return the number of points currently stored.
+    virtual int GetNPoint() const { return static_cast<int> (xCoor.size()); }
+
+    /**
+     * Find the closest stored point strictly inside the tolerance radius.
+     * Returns INVALID_INDEX when no point matches.
+     */
     virtual int FindPoint( Real xm, Real ym, Real zm );
+
+    /**
+     * Return an existing point ID within tolerance or insert a new point.
+     * Insertion updates the coordinate store and spatial index.
+     */
     virtual int AddPoint( Real xm, Real ym, Real zm );
-    virtual void GetPoint( int id, Real & xm, Real & ym, Real & zm );
-    virtual Real GetTol() { return tolerance; }
+
+    /// Copy the coordinates of a stored point to the output arguments.
+    virtual void GetPoint( int id, Real & xm, Real & ym, Real & zm ) const;
+
+    /// Return the active point-matching tolerance.
+    virtual Real GetTol() const { return tolerance; }
 protected:
-    int AddPoint( RealField & coordinate );
-    int FindPoint( RealField & coordinate );
+    void ResetPointStore();
+    int AddPoint( const RealField & coordinate );
+    int FindPoint( const RealField & coordinate );
 public:
-    void GetFaceCoorList( const IntField & nodeId, RealField &xList, RealField &yList, RealField &zList );
+    void GetFaceCoorList( const IntField & nodeId, RealField &xList, RealField &yList, RealField &zList ) const;
 };
 
-void CreateStandardADT( RealField & ptmin, RealField & ptmax, std::unique_ptr<AdtTree>& adtTree, Real & tolerance );
+/**
+ * Build an ADT from bounds without modifying the caller's bounds.
+ * The supplied tolerance controls how far the copied bounds are expanded.
+ */
+void CreateStandardADT( const RealField & ptmin, const RealField & ptmax, std::unique_ptr<AdtTree>& adtTree, Real & tolerance );
 void CreateStandardADT( Grid * grid, std::unique_ptr<AdtTree>& adtTree, Real & tolerance );
 void CreateStandardADT( Grids & grids, std::unique_ptr<AdtTree>& adtTree, Real & tolerance );
 void CreateStandardADT( const GridViews & grids, std::unique_ptr<AdtTree>& adtTree, Real & tolerance );

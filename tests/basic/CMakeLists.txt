@@ -13,3 +13,18 @@ target_link_libraries(HXVectorTest
 )
 
 gtest_discover_tests(HXVectorTest DISCOVERY_MODE PRE_TEST)
+
+add_executable(MarrayTest MarrayTest.cpp)
+
+target_include_directories(MarrayTest
+    PRIVATE
+        ${CMAKE_SOURCE_DIR}/codes/array/include
+        ${CMAKE_SOURCE_DIR}/codes/basic/include
+)
+
+target_link_libraries(MarrayTest
+    PRIVATE
+        GTest::gtest_main
+)
+
+gtest_discover_tests(MarrayTest DISCOVERY_MODE PRE_TEST)

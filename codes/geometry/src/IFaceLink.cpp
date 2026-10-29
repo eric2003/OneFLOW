@@ -375,6 +375,15 @@ Grid & IFaceLink::GetGrid( int zoneIndex )
     return GridAt( this->grids, static_cast< size_t >( zoneIndex ) );
 }
 
+const Grid & IFaceLink::GetGrid( int zoneIndex ) const
+{
+    if ( zoneIndex < 0 || static_cast< size_t >( zoneIndex ) >= this->grids.size() )
+    {
+        throw std::out_of_range( "IFaceLink::GetGrid: zone index is out of range" );
+    }
+    return GridAt( this->grids, static_cast< size_t >( zoneIndex ) );
+}
+
 void IFaceLink::ValidateGridIndex( const Grid & grid, const char * operation ) const
 {
     const int zid = grid.id;
