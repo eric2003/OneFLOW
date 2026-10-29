@@ -86,7 +86,7 @@ for mesh input, and writes path information.
 - Resolution rules can be tested without initializing the full solver where practical.
 - Relevant integration tests and Windows/Linux CI are reported against the changed commit.
 
-**Status:** Selected for investigation; implementation and acceptance tests are not yet claimed complete.
+**Status:** Partial. Root-setting lookup and legacy fallback selection are isolated into a tested value-object adapter. The real `SetupCaseEnvironment()` / `ReadControlInfo(caseDir)` integration path, effective `Prj` application, diagnostic output, and sequential-case behavior remain unverified.
 
 ### R2. Trace task selection and parameter semantics
 
@@ -373,3 +373,13 @@ Commit: `d8568fe91722af5d78d8083d6bae23d9446d952d`
 - Validation: `ConfigLoader_test.exe` ran 5/5 tests, and `ctest --test-dir build -C Debug -R ConfigLoader --output-on-failure` passed all five after invoking the generated GTest discovery script. The CMake/MSBuild target returned failure with MSVC `C1902` PDB-manager mismatch errors; a clean target build is therefore unverified. A full Sphinx build of 109 sources passed using the installed Sphinx 9.2.0 with the built-in Alabaster theme override. The full C++ suite was not run.
 - Remaining: resolve/verify the compiler toolchain path and ensure post-build GTest discovery runs automatically, then test type conversion at `ConfigDatabaseAdapter` and representative task resolution.
 - Suggested commit: `test(config): specify legacy parameter parser contract`.
+
+
+### 2026-10-30 - Isolate case I/O root setting selection
+
+- Based on the latest inspected `hexin` revision before this slice, `eab1b83077e4ac5017e4c234f56250852971ecea`.
+- Added `CaseIORootSettings` and `ReadCaseIORootSettings(const DataPara&)` in `SimuContextParameter.h`. `SetupCaseEnvironment()` now obtains the generic and domain-specific root settings through this adapter, then continues to apply them through the existing `Prj` APIs.
+- Added focused tests for the complete root-setting snapshot, legacy `sourceGridCaseDir` fallback, and the requirement that an explicit `meshInputRoot` does not read an invalid legacy parameter.
+- Updated the runtime architecture guide to distinguish parameter selection from global path application and file output.
+- Validation: implementation and test changes are committed, but this environment did not build or run the target. The user's reported 963/963 result is the pre-change baseline and is not evidence for this slice.
+- Architecture assessment: configuration lookup and legacy fallback selection now have a value-object boundary that can be tested without constructing the full solver runtime. This does not close R1: a real `SetupCaseEnvironment()` integration test still needs to exercise `ReadControlInfo(caseDir)`, `Prj` root application, `io_paths.txt`, and sequential-case reset together.
