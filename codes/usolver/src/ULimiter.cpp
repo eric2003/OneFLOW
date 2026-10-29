@@ -394,9 +394,14 @@ void Limiter::CalcLimiter()
         return;
     }
 
-    // Allocate limiter state (owned).
-    lim->minvf = std::make_unique<RealField>( ug.nTCell );
-    lim->maxvf = std::make_unique<RealField>( ug.nTCell );
+    // Keep the extrema workspace across calls. assign() clears every entry,
+    // including ghost-cell slots, while reusing the vector capacity when the
+    // grid extent is unchanged. The zero initialization matches the previous
+    // freshly-constructed vectors and is required by the current boundary path.
+    if ( ! lim->minvf ) lim->minvf = std::make_unique<RealField>();
+    if ( ! lim->maxvf ) lim->maxvf = std::make_unique<RealField>();
+    lim->minvf->assign( ug.nTCell, 0.0 );
+    lim->maxvf->assign( ug.nTCell, 0.0 );
 
     for ( int iEqu = 0; iEqu < limf->nEqu; ++ iEqu )
     {
@@ -408,9 +413,7 @@ void Limiter::CalcLimiter()
         this->SetInitValue();
         this->CalcLimiterScalar();
     }
-    // Release limiter state.
-    lim->minvf.reset();
-    lim->maxvf.reset();
+    // The owned extrema workspace remains available for the next limiter call.
 }
 
 void Limiter::SetInitValue()
