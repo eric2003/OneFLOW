@@ -229,6 +229,12 @@ std::string Prj::ResolveCaseDir( const std::string & caseDir )
     return resolvedDir;
 }
 
+bool Prj::AreSameDirectoryPath(
+    const std::string & left, const std::string & right )
+{
+    return FormatDirectoryPath( left ) == FormatDirectoryPath( right );
+}
+
 void Prj::SetPrjBaseDir( const std::string & prjName )
 {
     Prj::prjBaseDir = Prj::ResolveCaseDir( prjName );
