@@ -122,7 +122,7 @@ public:
     void CalcBarthLimiter();
     void CalcVencatLimiter();
     void CalcLocalBarthLimiter();
-    void CalcLocalVencatLimiter();
+    void CalcLocalVencatLimiter( Real regularizationEpsilon );
     void PrepareData();
     void BuildNeighborRangeOffsets();
 public:

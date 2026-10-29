@@ -419,6 +419,10 @@ void Limiter::CalcVencatLimiter()
 {
     this->BuildNeighborRangeOffsets();
 
+    // The global offset range is fixed for this equation during the face loop.
+    const Real regularizationEpsilon = VencatRegularizationEpsilon(
+        ctrl.vencat_coef, lim->minOffsetRange, lim->maxOffsetRange );
+
     for ( int fId = 0; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;
@@ -427,7 +431,7 @@ void Limiter::CalcVencatLimiter()
 
         this->PrepareData();
 
-        this->CalcLocalVencatLimiter();
+        this->CalcLocalVencatLimiter( regularizationEpsilon );
 
         ( * lim->limiter )[ ug.lc ] = lim->lim1;
         ( * lim->limiter )[ ug.rc ] = lim->lim2;
@@ -500,18 +504,15 @@ void Limiter::CalcLocalBarthLimiter()
     lim->lim2 = MIN( lim->lim2, limv2 );
 }
 
-void Limiter::CalcLocalVencatLimiter()
+void Limiter::CalcLocalVencatLimiter( Real regularizationEpsilon )
 {
-    const Real eps = VencatRegularizationEpsilon(
-        ctrl.vencat_coef, lim->minOffsetRange, lim->maxOffsetRange );
-
     Real dx1 = gcom.xfc - gcom.xcc1;
     Real dy1 = gcom.yfc - gcom.ycc1;
     Real dz1 = gcom.zfc - gcom.zcc1;
 
     Real dqFace1  = lim->dqdx1 * dx1 + lim->dqdy1 * dy1 + lim->dqdz1 * dz1;
 
-    Real limv1 = VencatFunction( dqFace1, lim->minv1, lim->maxv1, eps );
+    Real limv1 = VencatFunction( dqFace1, lim->minv1, lim->maxv1, regularizationEpsilon );
     lim->lim1 = MIN( lim->lim1, limv1 );
 
     Real dx2 = gcom.xfc - gcom.xcc2;
@@ -519,7 +520,7 @@ void Limiter::CalcLocalVencatLimiter()
     Real dz2 = gcom.zfc - gcom.zcc2;
 
     Real dqFace2  = lim->dqdx2 * dx2 + lim->dqdy2 * dy2 + lim->dqdz2 * dz2;
-    Real limv2 = VencatFunction( dqFace2, lim->minv2, lim->maxv2, eps );
+    Real limv2 = VencatFunction( dqFace2, lim->minv2, lim->maxv2, regularizationEpsilon );
     lim->lim2 = MIN( lim->lim2, limv2 );
 }
 
