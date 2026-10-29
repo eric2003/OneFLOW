@@ -140,4 +140,37 @@ Real FaceMachNumber( Real vnRel, Real soundSpeed )
     return vnRel / soundSpeed;
 }
 
+
+void IdealGasConservativeToPrim(
+    Real qRho, Real qRhoU, Real qRhoV, Real qRhoW, Real qRhoE, Real gama,
+    Real & density, Real & u, Real & v, Real & w, Real & pressure )
+{
+    density = ABS( qRho );
+    const Real rd = 1.0 / density;
+    u = qRhoU * rd;
+    v = qRhoV * rd;
+    w = qRhoW * rd;
+    const Real speedSquared = u * u + v * v + w * w;
+    const Real reint = qRhoE - half * density * speedSquared;
+    pressure = ( gama - one ) * reint;
+}
+
+void RoeDissipationWaveCoefficients(
+    Real absVnFixed, Real absVnPlusCFixed, Real absVnMinusCFixed,
+    Real soundSpeedSquared, Real soundSpeed,
+    Real & xi1, Real & xi2 )
+{
+    xi1 = ( two * absVnFixed - absVnPlusCFixed - absVnMinusCFixed )
+        / ( two * soundSpeedSquared );
+    xi2 = ( absVnPlusCFixed - absVnMinusCFixed ) / ( two * soundSpeed );
+}
+
+Real RoeContinuityNormalJump(
+    Real vnFlow,
+    Real xfn, Real yfn, Real zfn,
+    Real dqRho, Real dqRhoU, Real dqRhoV, Real dqRhoW )
+{
+    return vnFlow * dqRho - xfn * dqRhoU - yfn * dqRhoV - zfn * dqRhoW;
+}
+
 EndNameSpace

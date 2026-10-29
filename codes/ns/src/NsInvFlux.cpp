@@ -196,8 +196,9 @@ void NsInvFlux::Roe()
 
     this->ModifyAbsoluteEigenvalue();
                
-    Real xi1 = ( two * inv.meig1 - inv.meig2 - inv.meig3 ) / ( two * c2 );
-    Real xi2 = ( inv.meig2 - inv.meig3 ) / ( two * inv.cm );
+    Real xi1, xi2;
+    RoeDissipationWaveCoefficients(
+        inv.meig1, inv.meig2, inv.meig3, c2, inv.cm, xi1, xi2 );
 
     inv.prim[ IDX::IR ] = inv.rm;
     inv.prim[ IDX::IU ] = inv.um;
@@ -210,10 +211,9 @@ void NsInvFlux::Roe()
         inv.prim[ iEqu ] = half * ( inv.prim1[ iEqu ] + inv.prim2[ iEqu ] );
     }
 
-    Real dc   = inv.vnflow * inv.dq[ IDX::IR  ] - 
-                gcom.xfn   * inv.dq[ IDX::IRU ] - 
-                gcom.yfn   * inv.dq[ IDX::IRV ] - 
-                gcom.zfn   * inv.dq[ IDX::IRW ];
+    Real dc = RoeContinuityNormalJump(
+        inv.vnflow, gcom.xfn, gcom.yfn, gcom.zfn,
+        inv.dq[ IDX::IR ], inv.dq[ IDX::IRU ], inv.dq[ IDX::IRV ], inv.dq[ IDX::IRW ] );
     Real c2dc = c2 * dc;
 
     Real dh;
@@ -1299,25 +1299,9 @@ void PrimToQ( RealField & prim, Real gama, RealField & q )
 
 void QToPrim( RealField & q, Real gama, RealField & prim, RealField & temp )
 {
-    Real density = ABS( q[ IDX::IR ] );
-    prim[ IDX::IR ] = density;
-
-    Real rd = 1.0 / density;
-    Real um  = q[ IDX::IU ] * rd;
-    Real vm  = q[ IDX::IV ] * rd;
-    Real wm  = q[ IDX::IW ] * rd;
-    Real rem = q[ IDX::IP ];
-    Real v2  = ONEFLOW::SQR( um, vm, wm );
-
-    Real reint = rem - half * density * v2;
-
-    prim[ IDX::IR ] = density;
-    prim[ IDX::IU ] = um;
-    prim[ IDX::IV ] = vm;
-    prim[ IDX::IW ] = wm;
-
-    Real pressure = ( gama - one ) * reint;
-    prim[ IDX::IP ] = pressure;
+    IdealGasConservativeToPrim(
+        q[ IDX::IR ], q[ IDX::IU ], q[ IDX::IV ], q[ IDX::IW ], q[ IDX::IP ], gama,
+        prim[ IDX::IR ], prim[ IDX::IU ], prim[ IDX::IV ], prim[ IDX::IW ], prim[ IDX::IP ] );
 }
 
 

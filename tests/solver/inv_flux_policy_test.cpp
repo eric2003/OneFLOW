@@ -196,3 +196,30 @@ TEST( InvFluxPolicy, FaceMachNumberIsVnOverC )
 {
     EXPECT_DOUBLE_EQ( FaceMachNumber( 3.0, 1.5 ), 2.0 );
 }
+
+TEST( InvFluxPolicy, IdealGasConservativeToPrimInvertsPrimToConservative )
+{
+    Real qr, qu, qv, qw, qe;
+    IdealGasPrimToConservative( 2.0, 1.0, 0.0, 0.0, 4.0, 1.4, qr, qu, qv, qw, qe );
+    Real rho, u, v, w, p;
+    IdealGasConservativeToPrim( qr, qu, qv, qw, qe, 1.4, rho, u, v, w, p );
+    EXPECT_NEAR( rho, 2.0, 1.0e-12 );
+    EXPECT_NEAR( u, 1.0, 1.0e-12 );
+    EXPECT_NEAR( p, 4.0, 1.0e-12 );
+}
+
+TEST( InvFluxPolicy, RoeDissipationWaveCoefficientsMatchFormula )
+{
+    Real xi1, xi2;
+    RoeDissipationWaveCoefficients( 1.0, 3.0, 0.5, 4.0, 2.0, xi1, xi2 );
+    // xi1 = (2*1 - 3 - 0.5) / 8 = (-1.5)/8
+    EXPECT_DOUBLE_EQ( xi1, ( 2.0 * 1.0 - 3.0 - 0.5 ) / ( 2.0 * 4.0 ) );
+    EXPECT_DOUBLE_EQ( xi2, ( 3.0 - 0.5 ) / ( 2.0 * 2.0 ) );
+}
+
+TEST( InvFluxPolicy, RoeContinuityNormalJumpMatchesDotProduct )
+{
+    EXPECT_DOUBLE_EQ(
+        RoeContinuityNormalJump( 2.0, 1.0, 0.0, 0.0, 3.0, 4.0, 0.0, 0.0 ),
+        2.0 * 3.0 - 4.0 );
+}
