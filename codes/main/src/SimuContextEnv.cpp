@@ -26,6 +26,7 @@ License
 #include "SimulationCommandLine.h"
 #include "SimuCaseLifecycle.h"
 #include "SimuContextParameter.h"
+#include "SimuContextIO.h"
 #include "SimuTask.h"
 #include "Prj.h"
 #include "ParaFile.h"
@@ -108,51 +109,11 @@ void SimuContext::SetupCaseEnvironment()
     logFile.SetCaseDir( caseDir_ );
     ONEFLOW::ReadControlInfo( caseDir_ );
 
-    // File roots are shared by mesh generation, conversion, and CFD. Missing
-    // settings preserve the historical current-case behavior. Domain roots
-    // inherit their generic input/output root unless explicitly configured.
-    // "case" selects the active case, "project" requires projectRoot, absolute
-    // roots are used directly, and other relative roots resolve from the case.
+    // Snapshot and validate all optional roots before applying global path state.
     const SimuContextDetail::CaseIOSettings ioSettings =
         SimuContextDetail::ReadCaseIOSettings(
             RequireGlobalDataBase().RequireDataPara() );
-
-    if ( ! ioSettings.projectRoot.empty() )
-    {
-        Prj::SetProjectBaseDir( ioSettings.projectRoot );
-    }
-
-    Prj::SetIOBaseDirs( ioSettings.inputRoot, ioSettings.outputRoot );
-    Prj::SetDomainIOBaseDirs(
-        ioSettings.meshInputRoot,
-        ioSettings.flowInputRoot,
-        ioSettings.meshOutputRoot,
-        ioSettings.flowOutputRoot );
-
-    const bool outputsUseCaseRoot =
-        Prj::AreSameDirectoryPath(
-            Prj::GetMeshOutputBaseDir(), Prj::prjBaseDir )
-        && Prj::AreSameDirectoryPath(
-            Prj::GetFlowOutputBaseDir(), Prj::prjBaseDir );
-    std::string ioPathInfoFile = outputsUseCaseRoot
-        ? "results/io_paths.txt"
-        : "io_paths.txt";
-    if ( ! ioSettings.ioPathInfoFileName.empty() )
-    {
-        ioPathInfoFile = ioSettings.ioPathInfoFileName;
-    }
-
-    const std::string meshInfoPath =
-        Prj::GetMeshOutputFileName( ioPathInfoFile );
-    Prj::WriteIOPathInfo( meshInfoPath );
-
-    const std::string flowInfoPath =
-        Prj::GetFlowOutputFileName( ioPathInfoFile );
-    if ( std::filesystem::path( flowInfoPath ).lexically_normal()
-        != std::filesystem::path( meshInfoPath ).lexically_normal() )
-    {
-        Prj::WriteIOPathInfo( flowInfoPath );
-    }
+    SimuContextDetail::ApplyCaseIOSettings( ioSettings );
 }
 
 void SimuContext::SetupEnvironment()
