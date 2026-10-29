@@ -131,15 +131,11 @@ TEST( PrjSetPrjBaseDir, RelativePath )
 
     Prj::SetPrjBaseDir( "plate" );
 
-    const std::filesystem::path actual =
-        RemoveTrailingSeparator( Prj::prjBaseDir );
-
     const std::filesystem::path expected =
         std::filesystem::current_path() / "plate";
 
-    EXPECT_EQ(
-        actual.lexically_normal(),
-        expected.lexically_normal() );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        Prj::prjBaseDir, expected.string() ) );
 
     EXPECT_TRUE(
         !Prj::prjBaseDir.empty() &&
@@ -154,15 +150,11 @@ TEST( PrjSetPrjBaseDir, NestedRelativePath )
 
     Prj::SetPrjBaseDir( "cases/plate" );
 
-    const std::filesystem::path actual =
-        RemoveTrailingSeparator( Prj::prjBaseDir );
-
     const std::filesystem::path expected =
         std::filesystem::current_path() / "cases" / "plate";
 
-    EXPECT_EQ(
-        actual.lexically_normal(),
-        expected.lexically_normal() );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        Prj::prjBaseDir, expected.string() ) );
 
     EXPECT_TRUE(
         !Prj::prjBaseDir.empty() &&
@@ -183,12 +175,8 @@ TEST( PrjSetPrjBaseDir, AbsolutePath )
 
     Prj::SetPrjBaseDir( absoluteCase.string() );
 
-    const std::filesystem::path actual =
-        RemoveTrailingSeparator( Prj::prjBaseDir );
-
-    EXPECT_EQ(
-        actual.lexically_normal(),
-        absoluteCase.lexically_normal() );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        Prj::prjBaseDir, absoluteCase.string() ) );
 
     EXPECT_TRUE(
         !Prj::prjBaseDir.empty() &&
@@ -209,12 +197,8 @@ TEST( PrjSetPrjBaseDir, AbsolutePathIsNotPrefixedByCurrentDirectory )
 
     Prj::SetPrjBaseDir( absoluteCase.string() );
 
-    const std::filesystem::path actual =
-        RemoveTrailingSeparator( Prj::prjBaseDir );
-
-    EXPECT_EQ(
-        actual.lexically_normal(),
-        absoluteCase.lexically_normal() );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        Prj::prjBaseDir, absoluteCase.string() ) );
 }
 
 
