@@ -147,3 +147,20 @@ target_include_directories(zone_shared_fields_test
 target_link_libraries(zone_shared_fields_test PRIVATE GTest::gtest_main)
 target_compile_features(zone_shared_fields_test PRIVATE cxx_std_17)
 gtest_discover_tests(zone_shared_fields_test DISCOVERY_MODE PRE_TEST)
+
+
+# Pure scalar limiter policies; no mesh, solver state, or runtime bootstrap.
+add_executable(limiter_policy_test
+  limiter_policy_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/usolver/src/ULimiterPolicy.cpp
+)
+
+target_include_directories(limiter_policy_test
+  PRIVATE
+    ${CMAKE_SOURCE_DIR}/codes/usolver/include
+    ${CMAKE_SOURCE_DIR}/codes/basic/include
+)
+
+target_link_libraries(limiter_policy_test PRIVATE GTest::gtest_main)
+target_compile_features(limiter_policy_test PRIVATE cxx_std_20)
+gtest_discover_tests(limiter_policy_test DISCOVERY_MODE PRE_TEST)
