@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "ULimiterPolicy.h"
+#include "HXMath.h"
 
 using namespace ONEFLOW;
 
@@ -55,4 +56,16 @@ TEST( LimiterPolicy, EricVariantSelectsLowerBoundForNegativeIncrement )
     const Real eps = 0.1;
     const Real expected = ( 9.0 + eps + 6.0 ) / ( 9.0 + 8.0 + 6.0 + eps );
     EXPECT_NEAR( VencatFunctionEric( -2.0, -3.0, 1.0, eps ), expected, 1.0e-12 );
+}
+
+TEST( LimiterPolicy, VenkatRegularizationUsesUnitFloorForNarrowGlobalRange )
+{
+    const Real eps = VencatRegularizationEpsilon( 0.1, -0.2, 0.2 );
+    EXPECT_DOUBLE_EQ( eps, 0.01 + SMALL );
+}
+
+TEST( LimiterPolicy, VenkatRegularizationScalesWithGlobalOffsetRange )
+{
+    const Real eps = VencatRegularizationEpsilon( 0.1, -2.0, 3.0 );
+    EXPECT_DOUBLE_EQ( eps, 0.25 + SMALL );
 }

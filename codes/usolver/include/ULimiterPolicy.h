@@ -12,6 +12,9 @@ Real BarthFunction( Real dq, Real minv, Real maxv, Real dot );
 Real VencatFunction( Real dq, Real minv, Real maxv, Real eps );
 Real VencatFunctionEric( Real dq, Real minv, Real maxv, Real eps );
 
+// Build the squared global-range regularization term used by VencatFunction.
+Real VencatRegularizationEpsilon( Real coefficient, Real minOffsetRange, Real maxOffsetRange );
+
 // Direct rational forms retained as separate numerical variants.
 Real Vencat( Real x, Real y, Real eps );
 Real VencatEric( Real x, Real y, Real eps );

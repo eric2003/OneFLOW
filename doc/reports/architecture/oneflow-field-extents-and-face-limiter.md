@@ -154,13 +154,13 @@ V(x,y,\epsilon)=
 {x^2+2y^2+xy+\epsilon}.
 \]
 
-The regularization scale is formed in code as
+The regularization scale is computed by the pure `VencatRegularizationEpsilon` policy, separate from face traversal:
 
 \[
-\epsilon = \left(c\,\max(q_{\max}-q_{\min},1)\right)^2+\texttt{SMALL},
+\epsilon = \left(c\,\max(M_{\mathrm{global}}-m_{\mathrm{global}},1)\right)^2+\texttt{SMALL},
 \]
 
-where $c$ is the configured vencat_coef; the implementation passes this squared scale to the rational function. When the predicted increment is sufficiently close to zero (abs(dq) <= SMALL), the function returns one instead of evaluating a sign-dependent bound.
+where $c$ is the configured `vencat_coef`, and $m_{\mathrm{global}}$ / $M_{\mathrm{global}}$ are the global extrema of the per-cell offset bounds. The helper accepts only those scalar inputs and returns the squared regularization term consumed by `VencatFunction`. Focused tests pin both the unit-floor case and a range larger than one; the mesh-dependent construction of those global bounds remains in `BuildNeighborRangeOffsets`. When the predicted increment is sufficiently close to zero (abs(dq) <= SMALL), the function returns one instead of evaluating a sign-dependent bound.
 
 These equations are a reading aid for the current implementation, not a claim that every published variant uses identical constants or regularization. In particular, Vencat currently sets the cross-term coefficient to 2.0; VencatEric is a separate variant and is not the function selected by CalcVencatLimiter.
 

@@ -60,6 +60,12 @@ Real VencatEric( Real x, Real y, Real eps )
     return ( ( x2 + eps + 1.0 * xy ) / ( x2 + 2.0 * y2 + xy + eps ) );
 }
 
+Real VencatRegularizationEpsilon( Real coefficient, Real minOffsetRange, Real maxOffsetRange )
+{
+    Real scaledRange = coefficient * MAX( maxOffsetRange - minOffsetRange, 1.0 );
+    return SQR( scaledRange ) + SMALL;
+}
+
 Real VencatFunction( Real dq, Real minv, Real maxv, Real eps )
 {
     if ( dq > SMALL )
