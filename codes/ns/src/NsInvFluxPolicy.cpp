@@ -120,4 +120,24 @@ Real IdealGasSoundSpeedFromPressure( Real density, Real pressure, Real gama )
     return sqrt( ABS( gama * pressure / density ) );
 }
 
+
+void IdealGasPrimToConservative(
+    Real density, Real u, Real v, Real w, Real pressure, Real gama,
+    Real & qRho, Real & qRhoU, Real & qRhoV, Real & qRhoW, Real & qRhoE )
+{
+    const Real speedSquared = u * u + v * v + w * w;
+    const Real em = IdealGasSpecificInternalEnergy(
+        density, pressure, gama, speedSquared );
+    qRho = density;
+    qRhoU = density * u;
+    qRhoV = density * v;
+    qRhoW = density * w;
+    qRhoE = density * em;
+}
+
+Real FaceMachNumber( Real vnRel, Real soundSpeed )
+{
+    return vnRel / soundSpeed;
+}
+
 EndNameSpace

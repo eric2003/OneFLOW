@@ -100,4 +100,19 @@ Real IdealGasSpecificInternalEnergy(
 // @doc-formula c = sqrt(gamma * p / rho)
 Real IdealGasSoundSpeedFromPressure( Real density, Real pressure, Real gama );
 
+
+// @doc-algorithm ideal-gas-thermo
+// @doc-stage prim-to-conservative
+// @doc-pure
+// Five-equation ideal-gas map (species handled by caller).
+void IdealGasPrimToConservative(
+    Real density, Real u, Real v, Real w, Real pressure, Real gama,
+    Real & qRho, Real & qRhoU, Real & qRhoV, Real & qRhoW, Real & qRhoE );
+
+// @doc-algorithm ideal-gas-thermo
+// @doc-stage face-mach
+// @doc-pure
+// @doc-formula M = vn_rel / c
+Real FaceMachNumber( Real vnRel, Real soundSpeed );
+
 EndNameSpace

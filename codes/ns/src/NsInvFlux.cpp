@@ -262,12 +262,12 @@ void NsInvFlux::Vanleer()
 
 
     Real c2l   = inv.gama1 * inv.pl / inv.rl;
-    Real cl    = sqrt( ABS( c2l ) );
-    Real machl = vnl / cl;
+    Real cl    = IdealGasSoundSpeedFromPressure( inv.rl, inv.pl, inv.gama1 );
+    Real machl = FaceMachNumber( vnl, cl );
 
     Real c2r   = inv.gama2 * inv.pr / inv.rr;
-    Real cr    = sqrt( ABS( c2r ) );
-    Real machr = vnr / cr;
+    Real cr    = IdealGasSoundSpeedFromPressure( inv.rr, inv.pr, inv.gama2 );
+    Real machr = FaceMachNumber( vnr, cr );
 
     if ( machl > one )
     {
@@ -364,8 +364,8 @@ void NsInvFlux::Steger()
     Real c2l = inv.gama1 * inv.pl / inv.rl;
     Real c2r = inv.gama2 * inv.pr / inv.rr;
 
-    Real cl  = sqrt( ABS( c2l ) );
-    Real cr  = sqrt( ABS( c2r ) );
+    Real cl  = IdealGasSoundSpeedFromPressure( inv.rl, inv.pl, inv.gama1 );
+    Real cr  = IdealGasSoundSpeedFromPressure( inv.rr, inv.pr, inv.gama2 );
 
     inv.eig11 = vnl;
     inv.eig12 = vnl + cl;
@@ -1281,20 +1281,15 @@ void CalcTotalEnthalpyChange( RealField & prim, Real & gama, RealField & dq, Rea
 
 void PrimToQ( RealField & prim, Real gama, RealField & q )
 {
-    Real em;
     Real & density  = prim[ IDX::IR ];
     Real &      um  = prim[ IDX::IU ];
     Real &      vm  = prim[ IDX::IV ];
     Real &      wm  = prim[ IDX::IW ];
     Real & pressure = prim[ IDX::IP ];
-    
-    ONEFLOW::CalcInternalEnergy( prim, gama, em );
 
-    q[ IDX::IR  ] = density;
-    q[ IDX::IRU ] = density * um;
-    q[ IDX::IRV ] = density * vm;
-    q[ IDX::IRW ] = density * wm;
-    q[ IDX::IRE ] = density * em;
+    IdealGasPrimToConservative(
+        density, um, vm, wm, pressure, gama,
+        q[ IDX::IR ], q[ IDX::IRU ], q[ IDX::IRV ], q[ IDX::IRW ], q[ IDX::IRE ] );
 
     for ( int iEqu = nscom.nBEqu; iEqu < nscom.nEqu; ++ iEqu )
     {

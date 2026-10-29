@@ -46,3 +46,21 @@ Pipeline role
         +--> IdealGasSoundSpeedFromPressure -> c  (Mach, AUSM, Van Leer)
 
 Pure APIs in ``NsInvFluxPolicy.h``. Tests: ``inv_flux_policy_test``.
+
+Conservative variables (5-eq)
+-----------------------------
+
+.. math::
+
+   \mathbf{q} = \big(\rho,\;\rho u,\;\rho v,\;\rho w,\;\rho e\big),
+   \quad
+   e = \frac{p}{\rho(\gamma-1)} + \tfrac{1}{2}|\mathbf{v}|^2
+
+Face Mach number:
+
+.. math::
+
+   M = v_n^{\mathrm{rel}} / c
+
+``PrimToQ`` uses ``IdealGasPrimToConservative`` for the five core equations;
+extra species equations remain ``rho * prim[i]`` in the caller.

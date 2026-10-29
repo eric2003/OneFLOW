@@ -179,3 +179,20 @@ TEST( InvFluxPolicy, IdealGasSoundSpeedFromPressure )
         std::sqrt( 1.4 ),
         1.0e-12 );
 }
+
+TEST( InvFluxPolicy, IdealGasPrimToConservativeMatchesManual )
+{
+    Real qr, qu, qv, qw, qe;
+    IdealGasPrimToConservative( 1.0, 2.0, 0.0, 0.0, 1.0, 1.4, qr, qu, qv, qw, qe );
+    EXPECT_DOUBLE_EQ( qr, 1.0 );
+    EXPECT_DOUBLE_EQ( qu, 2.0 );
+    EXPECT_DOUBLE_EQ( qv, 0.0 );
+    EXPECT_DOUBLE_EQ( qw, 0.0 );
+    // e = 1/0.4 + 0.5*4 = 2.5+2 = 4.5, rho*e = 4.5
+    EXPECT_DOUBLE_EQ( qe, 4.5 );
+}
+
+TEST( InvFluxPolicy, FaceMachNumberIsVnOverC )
+{
+    EXPECT_DOUBLE_EQ( FaceMachNumber( 3.0, 1.5 ), 2.0 );
+}
