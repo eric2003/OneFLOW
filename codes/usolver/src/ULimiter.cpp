@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "ULimiter.h"
+#include "ULimiterRange.h"
 #include "HipProductionPolicy.h"
 #include "UnsGrid.h"
 #include "DataBase.h"
@@ -526,59 +527,19 @@ void Limiter::CalcLocalVencatLimiter( Real regularizationEpsilon )
 
 void Limiter::BuildNeighborRangeOffsets()
 {
-    // Build offset bounds in four phases:
-    // 1. Seed physical cells with their own values.
-    // 2. Add interface neighbors to the physical boundary cell only.
-    // 3. Add ordinary interior neighbors to both adjacent cells.
-    // 4. Convert absolute extrema to offsets from each cell's own value.
-    // Ghost slots remain zero until used as neighbor values; do not seed or
-    // subtract them here. minOffsetRange/maxOffsetRange below are reductions over physical cells.
-    for ( int cId = 0; cId < ug.nCells; ++ cId )
-    {
-        ( * lim->minvf )[ cId ] = ( * lim->q )[ cId ];
-        ( * lim->maxvf )[ cId ] = ( * lim->q )[ cId ];
-    }
-
-    for ( int fId = 0; fId < ug.nBFaces; ++ fId )
-    {
-        ug.fId = fId;
-        ug.lc = ( * ug.lcf )[ ug.fId ];
-        ug.rc = ( * ug.rcf )[ ug.fId ];
-
-        int bcType = ug.bcRecord->bcType[ fId ];
-        if ( ! BC::IsInterfaceBc( bcType ) ) continue;
-
-        ( * lim->minvf )[ ug.lc ] = MIN( ( * lim->minvf )[ ug.lc ], ( * lim->q )[ ug.rc ] );
-        ( * lim->maxvf )[ ug.lc ] = MAX( ( * lim->maxvf )[ ug.lc ], ( * lim->q )[ ug.rc ] );
-    }
-
-    for ( int fId = ug.nBFaces; fId < ug.nFaces; ++ fId )
-    {
-        ug.fId = fId;
-        ug.lc = ( * ug.lcf )[ ug.fId ];
-        ug.rc = ( * ug.rcf )[ ug.fId ];
-
-        ( * lim->minvf )[ ug.lc ] = MIN( ( * lim->minvf )[ ug.lc ], ( * lim->q )[ ug.rc ] );
-        ( * lim->maxvf )[ ug.lc ] = MAX( ( * lim->maxvf )[ ug.lc ], ( * lim->q )[ ug.rc ] );
-
-        ( * lim->minvf )[ ug.rc ] = MIN( ( * lim->minvf )[ ug.rc ], ( * lim->q )[ ug.lc ] );
-        ( * lim->maxvf )[ ug.rc ] = MAX( ( * lim->maxvf )[ ug.rc ], ( * lim->q )[ ug.lc ] );
-    }
-
-    // Get the maximum and the minimum difference
-    for ( int cId = 0; cId < ug.nCells; ++ cId )
-    {
-        ( * lim->minvf )[ cId ] -= ( * lim->q )[ cId ];
-        ( * lim->maxvf )[ cId ] -= ( * lim->q )[ cId ];
-    }
-
-    lim->minOffsetRange =   LARGE;
-    lim->maxOffsetRange = - LARGE;
-    for ( int cId = 0; cId < ug.nCells; ++ cId )
-    {
-        lim->minOffsetRange = MIN( lim->minOffsetRange, ( * lim->minvf )[ cId ] );
-        lim->maxOffsetRange = MAX( lim->maxOffsetRange, ( * lim->maxvf )[ cId ] );
-    }
+    BuildCellNeighborOffsetBounds(
+        * lim->q,
+        * ug.lcf,
+        * ug.rcf,
+        ug.bcRecord->bcType,
+        ug.nCells,
+        ug.nBFaces,
+        ug.nFaces,
+        []( int bcType ) { return BC::IsInterfaceBc( bcType ); },
+        * lim->minvf,
+        * lim->maxvf,
+        lim->minOffsetRange,
+        lim->maxOffsetRange );
 }
 
 MRField * Limiter::GetLeftField() const

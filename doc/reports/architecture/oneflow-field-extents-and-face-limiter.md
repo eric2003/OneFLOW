@@ -198,3 +198,36 @@ The goal is not to redesign the limiter or migrate every legacy index in one pas
 - Run the relevant CFD regression cases and compare numerical outputs if the build changes any template instantiations beyond the intended signature adjustment.
 - Confirm `qf1` and `qf2` are still reused when equation and face extents match and reallocated when either extent changes.
 - Confirm `minvf` and `maxvf` are reused across limiter calls, reset to zero over the full `nTCell` extent each time, and resize correctly when the grid extent changes.
+
+ 
+## Independently tested neighbor-range construction
+
+The face-connectivity portion now lives in `ULimiterRange.h` as
+`BuildCellNeighborOffsetBounds`. The solver adapter in `ULimiter.cpp` supplies
+the current equation field, left/right face-cell maps, boundary types, physical
+cell count, face partition, and the existing `BC::IsInterfaceBc` classifier.
+The helper does not depend on `UnsGrid`, solver globals, or limiter state, so a
+small synthetic topology can exercise the algorithm without initializing a CFD case.
+
+This boundary is intentionally narrower than a mesh abstraction: it extracts the
+range-building algorithm that Barth and Venkatakrishnan already share, while the
+solver remains responsible for the grid's interface-boundary classification and
+workspace lifetime. The predicate is a template parameter so the interface check
+can be inlined in production rather than adding an indirect callback to the face
+loop.
+
+The new `limiter_range_test` pins three topology semantics:
+
+- An interface boundary face contributes its remote value to the local physical
+  cell on the left.
+- An ordinary interior face contributes each adjacent cell's value to the other
+  cell's range.
+- Ghost slots are not converted to offsets or included in the global offset-range
+  reduction; the caller clears them before each calculation, matching the existing
+  workspace lifecycle.
+
+The extracted helper intentionally does not resize or clear its output arrays.
+That remains the caller's responsibility, keeping allocation and scratch-state
+lifetime outside the numerical range algorithm. This also preserves the current
+zeroed ghost-slot behavior instead of silently changing boundary semantics during
+the extraction.

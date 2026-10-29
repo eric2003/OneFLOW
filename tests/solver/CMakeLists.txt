@@ -164,3 +164,19 @@ target_include_directories(limiter_policy_test
 target_link_libraries(limiter_policy_test PRIVATE GTest::gtest_main)
 target_compile_features(limiter_policy_test PRIVATE cxx_std_20)
 gtest_discover_tests(limiter_policy_test DISCOVERY_MODE PRE_TEST)
+
+ 
+# Neighbor-range construction tests use synthetic face connectivity without solver startup.
+add_executable(limiter_range_test
+  limiter_range_test.cpp
+)
+
+target_include_directories(limiter_range_test
+  PRIVATE
+    ${CMAKE_SOURCE_DIR}/codes/usolver/include
+    ${CMAKE_SOURCE_DIR}/codes/basic/include
+)
+
+target_link_libraries(limiter_range_test PRIVATE GTest::gtest_main)
+target_compile_features(limiter_range_test PRIVATE cxx_std_20)
+gtest_discover_tests(limiter_range_test DISCOVERY_MODE PRE_TEST)
