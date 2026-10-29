@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
+#include <cmath>
 
 #include "NsInvFluxPolicy.h"
+#include "HXMath.h"
 
 using namespace ONEFLOW;
 
@@ -61,4 +63,53 @@ TEST( InvFluxPolicy, RoeAverageStateUsesGeometricDensity )
     EXPECT_DOUBLE_EQ( rm, 2.0 );
     EXPECT_DOUBLE_EQ( um, 2.0 );
     EXPECT_DOUBLE_EQ( gama, 1.4 );
+}
+
+TEST( InvFluxPolicy, TotalEnthalpyAddsKinetic )
+{
+    EXPECT_DOUBLE_EQ( TotalEnthalpy( 3.0, 8.0 ), 7.0 );
+}
+
+TEST( InvFluxPolicy, IdealGasSoundSpeedMatchesIsentropicRelation )
+{
+    EXPECT_NEAR( IdealGasSoundSpeed( 1.4, 3.5, 0.0 ), std::sqrt( 1.4 ), 1.0e-12 );
+}
+
+TEST( InvFluxPolicy, RoeAbsoluteEigenvaluesTakeAbsoluteValues )
+{
+    Real a1, a2, a3;
+    RoeAbsoluteEigenvalues( -2.0, 1.0, a1, a2, a3 );
+    EXPECT_DOUBLE_EQ( a1, 2.0 );
+    EXPECT_DOUBLE_EQ( a2, 1.0 );
+    EXPECT_DOUBLE_EQ( a3, 3.0 );
+}
+
+TEST( InvFluxPolicy, HartenEntropyFixRaisesFloorWhenEnabled )
+{
+    const Real absVn = 0.1;
+    const Real absVnPlusC = 2.0;
+    const Real absVnMinusC = 1.5;
+    const Real centropy1 = 0.5;
+    const Real centropy2 = 0.25;
+
+    Real f1, f2, f3;
+    ApplyHartenEntropyFix(
+        absVn, absVnPlusC, absVnMinusC, centropy1, centropy2, true, f1, f2, f3 );
+
+    // Same formula as ApplyHartenEntropyFix (must include HXMath for MAX).
+    const Real maxEigenvalue = MAX( absVnPlusC, absVnMinusC );
+    const Real m1 = maxEigenvalue * centropy1;
+    const Real m2 = maxEigenvalue * centropy2;
+    EXPECT_DOUBLE_EQ( f1, MAX( m1, absVn ) );
+    EXPECT_DOUBLE_EQ( f2, MAX( m2, absVnPlusC ) );
+    EXPECT_DOUBLE_EQ( f3, MAX( m2, absVnMinusC ) );
+}
+
+TEST( InvFluxPolicy, HartenEntropyFixIsNoOpWhenDisabled )
+{
+    Real f1, f2, f3;
+    ApplyHartenEntropyFix( 0.1, 2.0, 1.5, 0.5, 0.25, false, f1, f2, f3 );
+    EXPECT_DOUBLE_EQ( f1, 0.1 );
+    EXPECT_DOUBLE_EQ( f2, 2.0 );
+    EXPECT_DOUBLE_EQ( f3, 1.5 );
 }

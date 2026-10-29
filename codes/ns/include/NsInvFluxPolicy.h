@@ -54,4 +54,35 @@ void RoeAverageState(
     Real & densityMid, Real & uMid, Real & vMid, Real & wMid,
     Real & pMid, Real & hMid, Real & gamaMid );
 
+
+// @doc-algorithm roe-wave-speeds
+// @doc-stage total-enthalpy
+// @doc-pure
+// @doc-formula H = h_int + (1/2)|v|^2
+Real TotalEnthalpy( Real internalEnthalpy, Real speedSquared );
+
+// @doc-algorithm roe-wave-speeds
+// @doc-stage sound-speed
+// @doc-pure
+// @doc-formula c = sqrt(|(gamma-1)(H - |v|^2/2)|)
+Real IdealGasSoundSpeed(
+    Real gama, Real totalEnthalpy, Real speedSquared );
+
+// @doc-algorithm roe-wave-speeds
+// @doc-stage absolute-eigenvalues
+// @doc-pure
+// @doc-formula a = {|vn|, |vn+c|, |vn-c|}
+void RoeAbsoluteEigenvalues(
+    Real vnRel, Real soundSpeed,
+    Real & absVn, Real & absVnPlusC, Real & absVnMinusC );
+
+// @doc-algorithm roe-wave-speeds
+// @doc-stage entropy-fix
+// @doc-pure
+// Harten-style floor on absolute eigenvalues when enabled.
+void ApplyHartenEntropyFix(
+    Real absVn, Real absVnPlusC, Real absVnMinusC,
+    Real centropy1, Real centropy2, bool enabled,
+    Real & fixedVn, Real & fixedVnPlusC, Real & fixedVnMinusC );
+
 EndNameSpace

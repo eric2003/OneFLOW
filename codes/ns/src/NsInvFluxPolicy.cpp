@@ -63,4 +63,46 @@ void RoeAverageState(
     gamaMid = RoeAverageComponent( gamaLeft, gamaRight, ratio, coef );
 }
 
+
+Real TotalEnthalpy( Real internalEnthalpy, Real speedSquared )
+{
+    return internalEnthalpy + half * speedSquared;
+}
+
+Real IdealGasSoundSpeed(
+    Real gama, Real totalEnthalpy, Real speedSquared )
+{
+    const Real c2 = ( gama - one ) * ( totalEnthalpy - half * speedSquared );
+    return sqrt( ABS( c2 ) );
+}
+
+void RoeAbsoluteEigenvalues(
+    Real vnRel, Real soundSpeed,
+    Real & absVn, Real & absVnPlusC, Real & absVnMinusC )
+{
+    absVn = ABS( vnRel );
+    absVnPlusC = ABS( vnRel + soundSpeed );
+    absVnMinusC = ABS( vnRel - soundSpeed );
+}
+
+void ApplyHartenEntropyFix(
+    Real absVn, Real absVnPlusC, Real absVnMinusC,
+    Real centropy1, Real centropy2, bool enabled,
+    Real & fixedVn, Real & fixedVnPlusC, Real & fixedVnMinusC )
+{
+    fixedVn = absVn;
+    fixedVnPlusC = absVnPlusC;
+    fixedVnMinusC = absVnMinusC;
+    if ( ! enabled )
+    {
+        return;
+    }
+    const Real maxEigenvalue = MAX( absVnPlusC, absVnMinusC );
+    const Real m1 = maxEigenvalue * centropy1;
+    const Real m2 = maxEigenvalue * centropy2;
+    fixedVn = MAX( m1, absVn );
+    fixedVnPlusC = MAX( m2, absVnPlusC );
+    fixedVnMinusC = MAX( m2, absVnMinusC );
+}
+
 EndNameSpace

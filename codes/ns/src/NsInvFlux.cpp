@@ -147,21 +147,10 @@ void NsInvFlux::Solve()
 
 void NsInvFlux::ModifyAbsoluteEigenvalue()
 {
-    //Entropy fix
-    inv.meig1 = inv.aeig1;
-    inv.meig2 = inv.aeig2;
-    inv.meig3 = inv.aeig3;
-
-    if ( ctrl.ieigenfix == 1 )
-    {
-        Real maxEigenvalue = MAX( inv.aeig2, inv.aeig3 );
-        Real m1 = maxEigenvalue * ctrl.centropy1;
-        Real m2 = maxEigenvalue * ctrl.centropy2;
-
-        inv.meig1 = MAX( m1, inv.aeig1 );
-        inv.meig2 = MAX( m2, inv.aeig2 );
-        inv.meig3 = MAX( m2, inv.aeig3 );
-    }
+    ApplyHartenEntropyFix(
+        inv.aeig1, inv.aeig2, inv.aeig3,
+        ctrl.centropy1, ctrl.centropy2, ctrl.ieigenfix == 1,
+        inv.meig1, inv.meig2, inv.meig3 );
 }
 
 void NsInvFlux::Roe()
@@ -177,8 +166,8 @@ void NsInvFlux::Roe()
     CalcEnthalpy( inv.prim1, inv.gama1, hint_l );
     CalcEnthalpy( inv.prim2, inv.gama2, hint_r );
 
-    inv.hl  = hint_l + half * v2l;
-    inv.hr  = hint_r + half * v2r;
+    inv.hl  = TotalEnthalpy( hint_l, v2l );
+    inv.hr  = TotalEnthalpy( hint_r, v2r );
 
     Real vnl = RelativeFaceNormalVelocity(
         gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ul, inv.vl, inv.wl );
@@ -201,10 +190,8 @@ void NsInvFlux::Roe()
 
     Real c2 = gamm1 * ( inv.hm - half * v2 );
     inv.cm = sqrt( ABS( c2 ) );
-
-    inv.aeig1 = ABS( inv.vnrel          );
-    inv.aeig2 = ABS( inv.vnrel + inv.cm );
-    inv.aeig3 = ABS( inv.vnrel - inv.cm );
+    RoeAbsoluteEigenvalues(
+        inv.vnrel, inv.cm, inv.aeig1, inv.aeig2, inv.aeig3 );
 
     EulerConvectiveFlux(
         inv.rl, inv.ul, inv.vl, inv.wl, inv.pl, inv.hl, vnl,
@@ -295,8 +282,8 @@ void NsInvFlux::Vanleer()
     CalcEnthalpy( inv.prim1, inv.gama1, hint_l );
     CalcEnthalpy( inv.prim2, inv.gama2, hint_r );
 
-    inv.hl  = hint_l + half * v2l;
-    inv.hr  = hint_r + half * v2r;
+    inv.hl  = TotalEnthalpy( hint_l, v2l );
+    inv.hr  = TotalEnthalpy( hint_r, v2r );
 
     Real vnl = RelativeFaceNormalVelocity(
         gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ul, inv.vl, inv.wl );
@@ -392,8 +379,8 @@ void NsInvFlux::Steger()
     CalcEnthalpy( inv.prim1, inv.gama1, hint_l );
     CalcEnthalpy( inv.prim2, inv.gama2, hint_r );
 
-    inv.hl  = hint_l + half * v2l;
-    inv.hr  = hint_r + half * v2r;
+    inv.hl  = TotalEnthalpy( hint_l, v2l );
+    inv.hr  = TotalEnthalpy( hint_r, v2r );
 
     Real vnl = RelativeFaceNormalVelocity(
         gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ul, inv.vl, inv.wl );
@@ -504,8 +491,8 @@ void NsInvFlux::Hlle()
     CalcEnthalpy( inv.prim1, inv.gama1, hint_l );
     CalcEnthalpy( inv.prim2, inv.gama2, hint_r );
 
-    inv.hl  = hint_l + half * v2l;
-    inv.hr  = hint_r + half * v2r;
+    inv.hl  = TotalEnthalpy( hint_l, v2l );
+    inv.hr  = TotalEnthalpy( hint_r, v2r );
 
     RoeAverageState(
         inv.rl, inv.ul, inv.vl, inv.wl, inv.pl, inv.hl, inv.gama1,
@@ -575,8 +562,8 @@ void NsInvFlux::LaxFriedrichs()
     CalcEnthalpy( inv.prim1, inv.gama1, hint_l );
     CalcEnthalpy( inv.prim2, inv.gama2, hint_r );
 
-    inv.hl  = hint_l + half * v2l;
-    inv.hr  = hint_r + half * v2r;
+    inv.hl  = TotalEnthalpy( hint_l, v2l );
+    inv.hr  = TotalEnthalpy( hint_r, v2r );
 
     RoeAverageState(
         inv.rl, inv.ul, inv.vl, inv.wl, inv.pl, inv.hl, inv.gama1,
@@ -639,8 +626,8 @@ void NsInvFlux::Ausmp()
     CalcEnthalpy( inv.prim1, inv.gama1, hint_l );
     CalcEnthalpy( inv.prim2, inv.gama2, hint_r );
 
-    inv.hl  = hint_l + half * v2l;
-    inv.hr  = hint_r + half * v2r;
+    inv.hl  = TotalEnthalpy( hint_l, v2l );
+    inv.hr  = TotalEnthalpy( hint_r, v2r );
 
     Real vnl = RelativeFaceNormalVelocity(
         gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ul, inv.vl, inv.wl );
@@ -709,8 +696,8 @@ void NsInvFlux::AusmpUp()
     CalcEnthalpy( inv.prim1, inv.gama1, hint_l );
     CalcEnthalpy( inv.prim2, inv.gama2, hint_r );
 
-    inv.hl  = hint_l + half * v2l;
-    inv.hr  = hint_r + half * v2r;
+    inv.hl  = TotalEnthalpy( hint_l, v2l );
+    inv.hr  = TotalEnthalpy( hint_r, v2r );
 
     Real vnl = RelativeFaceNormalVelocity(
         gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ul, inv.vl, inv.wl );
@@ -821,8 +808,8 @@ void NsInvFlux::Ausmdv()
     CalcEnthalpy( inv.prim1, inv.gama1, hint_l );
     CalcEnthalpy( inv.prim2, inv.gama2, hint_r );
 
-    inv.hl  = hint_l + half * v2l;
-    inv.hr  = hint_r + half * v2r;
+    inv.hl  = TotalEnthalpy( hint_l, v2l );
+    inv.hr  = TotalEnthalpy( hint_r, v2r );
 
     Real vnl = RelativeFaceNormalVelocity(
         gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ul, inv.vl, inv.wl );
@@ -1031,8 +1018,8 @@ void NsInvFlux::Ausmw()
     CalcEnthalpy( inv.prim1, inv.gama1, hint_l );
     CalcEnthalpy( inv.prim2, inv.gama2, hint_r );
 
-    inv.hl  = hint_l + half * v2l;
-    inv.hr  = hint_r + half * v2r;
+    inv.hl  = TotalEnthalpy( hint_l, v2l );
+    inv.hr  = TotalEnthalpy( hint_r, v2r );
 
     Real vnl = RelativeFaceNormalVelocity(
         gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ul, inv.vl, inv.wl );
@@ -1139,8 +1126,8 @@ void NsInvFlux::Ausmpw()
     CalcEnthalpy( inv.prim1, inv.gama1, hint_l );
     CalcEnthalpy( inv.prim2, inv.gama2, hint_r );
 
-    inv.hl  = hint_l + half * v2l;
-    inv.hr  = hint_r + half * v2r;
+    inv.hl  = TotalEnthalpy( hint_l, v2l );
+    inv.hr  = TotalEnthalpy( hint_r, v2r );
 
     Real vnl = RelativeFaceNormalVelocity(
         gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ul, inv.vl, inv.wl );
@@ -1230,8 +1217,8 @@ void NsInvFlux::Slau2()
     CalcEnthalpy( inv.prim1, inv.gama1, hint_l );
     CalcEnthalpy( inv.prim2, inv.gama2, hint_r );
 
-    inv.hl  = hint_l + half * v2l;
-    inv.hr  = hint_r + half * v2r;
+    inv.hl  = TotalEnthalpy( hint_l, v2l );
+    inv.hr  = TotalEnthalpy( hint_r, v2r );
 
     Real vnl = RelativeFaceNormalVelocity(
         gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ul, inv.vl, inv.wl );
