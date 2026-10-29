@@ -79,39 +79,21 @@ TEST( PrjParseCmdLineArgs, AdditionalCaseDirectoriesArePreserved )
 
 }
 
-namespace
-{
-
-    std::filesystem::path RemoveTrailingSeparator(
-        std::filesystem::path path )
-    {
-        path = path.lexically_normal();
-        path.make_preferred();
-
-        std::string value = path.string();
-        std::filesystem::path rootPath = path.root_path();
-        rootPath.make_preferred();
-        const std::string root = rootPath.string();
-
-        while ( value.size() > root.size()
-            && ! value.empty()
-            && ( value.back() == '/' || value.back() == '\\' ) )
-        {
-            value.pop_back();
-        }
-
-        return std::filesystem::path( value );
-    }
-
-}
-
-TEST( PrjPathComparison, RemovingTrailingSeparatorsPreservesFilesystemRoot )
+TEST( PrjPathComparison, ComparesDirectoryIdentity )
 {
     const std::filesystem::path root =
         std::filesystem::current_path().root_path();
-
     ASSERT_FALSE( root.empty() );
-    EXPECT_EQ( RemoveTrailingSeparator( root ), root );
+
+    EXPECT_TRUE( Prj::AreSameDirectoryPath( root.string(), root.string() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath( root.string(), ( root / "." ).string() ) );
+
+    const std::filesystem::path directory =
+        std::filesystem::temp_directory_path() / "OneFLOW_PathIdentity";
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        directory.string(), ( directory / "" ).string() ) );
+    EXPECT_FALSE( Prj::AreSameDirectoryPath(
+        directory.string(), ( directory / "child" ).string() ) );
 }
 
 TEST( PrjParseCmdLineArgs, MissingPositionalsIncludeUsage )
@@ -998,23 +980,6 @@ TEST( PrjIOPaths, RelativeProjectRootResolvesFromCurrentDirectory )
     EXPECT_EQ(
         std::filesystem::path( Prj::GetInputBaseDir() ).lexically_normal(),
         expectedProjectDir.lexically_normal() );
-    const auto normalizeDirectory = []( std::filesystem::path path )
-    {
-        path = path.lexically_normal();
-        path.make_preferred();
-        std::string value = path.string();
-        const std::filesystem::path rootPath = path.root_path();
-        const std::string rootName = rootPath.string();
-        while ( value.size() > rootName.size()
-            && ! value.empty()
-            && ( value.back() == '/' || value.back() == '\\' ) )
-        {
-            value.pop_back();
-        }
-        return std::filesystem::path( value );
-    };
-
-    EXPECT_EQ(
-        normalizeDirectory( Prj::GetOutputBaseDir() ),
-        normalizeDirectory( caseDir ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        Prj::GetOutputBaseDir(), caseDir.string() ) );
 }
