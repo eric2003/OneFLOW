@@ -76,6 +76,9 @@ public:
         const std::string & meshOutputRoot,
         const std::string & flowOutputRoot );
     static std::string ResolveCaseDir( const std::string & caseDir );
+    // Compare lexical directory identity independent of trailing separators.
+    static bool AreSameDirectoryPath(
+        const std::string & left, const std::string & right );
     static CmdLineOptions ParseCmdLineArgs( const std::vector<std::string> & args );
     static void ProcessCmdLineArgs( std::vector<std::string> &args );
 
