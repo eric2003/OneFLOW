@@ -23,3 +23,4 @@ Numerical analysis is a branch of mathematics that solves continuous problems us
    ideal_gas_thermo
    roe_dissipation
    viscous_heat_flux
+   sutherland_viscosity

@@ -225,3 +225,19 @@ target_include_directories(vis_flux_policy_test PRIVATE
 target_link_libraries(vis_flux_policy_test PRIVATE GTest::gtest_main)
 target_compile_features(vis_flux_policy_test PRIVATE cxx_std_20)
 gtest_discover_tests(vis_flux_policy_test DISCOVERY_MODE PRE_TEST)
+
+# Pure Sutherland viscosity formulas; no mesh bootstrap.
+add_executable(sutherland_policy_test
+  sutherland_policy_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/model/src/Sutherland.cpp
+)
+
+target_include_directories(sutherland_policy_test
+  PRIVATE
+    ${CMAKE_SOURCE_DIR}/codes/model/include
+    ${CMAKE_SOURCE_DIR}/codes/basic/include
+)
+
+target_link_libraries(sutherland_policy_test PRIVATE GTest::gtest_main)
+target_compile_features(sutherland_policy_test PRIVATE cxx_std_20)
+gtest_discover_tests(sutherland_policy_test DISCOVERY_MODE PRE_TEST)

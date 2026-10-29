@@ -42,4 +42,19 @@ public:
     void SetInvalidValue();
 };
 
+
+// @doc-algorithm sutherland-viscosity
+// @doc-stage nondim
+// @doc-pure
+// @doc-formula mu/mu_ref = T^{3/2} (1+ts)/(T+ts)
+Real SutherlandViscosityNondim( Real temperatureNondim, Real sutherlandTsNondim );
+
+// @doc-algorithm sutherland-viscosity
+// @doc-stage dimensional
+// @doc-pure
+// @doc-formula mu = mu0 * ((T0+Ts)/(T+Ts)) * (T/T0)^{3/2}
+Real SutherlandViscosityDim(
+    Real temperatureDim,
+    Real t0Dim, Real tsDim, Real mu0Dim );
+
 EndNameSpace
