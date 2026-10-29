@@ -581,6 +581,26 @@ for removing redundant trailing separators. This distinction matters on Windows,
 drive-relative path (``C:folder``) and a drive-rooted path (``C:\folder``) do not mean
 the same thing.
 
+The runtime uses ``Prj::AreSameDirectoryPath()`` for the decision that selects the
+default ``results/io_paths.txt`` location. This matters because ``ResolveCaseDir()``
+retains a trailing separator while resolved output roots may not. Comparing their
+``lexically_normal()`` paths directly can still treat these representations as unequal
+and choose the wrong diagnostic location. The shared comparison helper applies the same
+directory formatting policy used by ``WriteIOPathInfo()`` and rejects empty paths rather
+than treating two missing values as a directory.
+
+The decision can be summarized as:
+
+.. code-block:: text
+
+   configured mesh output root ----+
+                                    +--> both roots equal case root? -- yes --> results/io_paths.txt
+   configured flow output root -----+                            \-- no ---> io_paths.txt
+
+Both mesh and flow output roots must identify the active case directory for the default
+diagnostic to be written under ``results/``. An explicit ``ioPathInfoFileName`` still
+overrides this default.
+
 This is a staged compatibility policy, not a recommendation to keep trailing separators
 forever. The long-term direction is to carry ``std::filesystem::path`` values internally
 and convert to strings only at APIs that require them. Each migration should be justified
