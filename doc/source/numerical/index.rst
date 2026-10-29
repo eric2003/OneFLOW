@@ -17,3 +17,4 @@ Numerical analysis is a branch of mathematics that solves continuous problems us
    gradient
    vis_face_geometry
    limited_face_reconstruction
+   residual_assembly

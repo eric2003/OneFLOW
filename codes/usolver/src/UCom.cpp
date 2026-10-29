@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "UCom.h"
+#include "UResidualPolicy.h"
 #include <memory>
 #include "FaceTopo.h"
 #include "BcRecord.h"
@@ -153,7 +154,7 @@ void UGeom::DumpCellFace( int cId )
 
 void AddF2CField( MRField * cellField, MRField * faceField )
 {
-    int nEqu = cellField->GetNEqu();
+    const int nEqu = cellField->GetNEqu();
     for ( int fId = 0; fId < ug.nBFaces; ++ fId )
     {
         ug.fId = fId;
@@ -162,7 +163,11 @@ void AddF2CField( MRField * cellField, MRField * faceField )
 
         for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
         {
-            ( * cellField )[ iEqu ][ ug.lc ] -= ( * faceField )[ iEqu ][ ug.fId ];
+            DepositOrientedFaceFlux(
+                ( * faceField )[ iEqu ][ ug.fId ],
+                /*isBoundaryFace=*/true,
+                ( * cellField )[ iEqu ][ ug.lc ],
+                ( * cellField )[ iEqu ][ ug.rc ] );
         }
     }
 
@@ -174,8 +179,11 @@ void AddF2CField( MRField * cellField, MRField * faceField )
 
         for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
         {
-            ( * cellField )[ iEqu ][ ug.lc ] -= ( * faceField )[ iEqu ][ ug.fId ];
-            ( * cellField )[ iEqu ][ ug.rc ] += ( * faceField )[ iEqu ][ ug.fId ];
+            DepositOrientedFaceFlux(
+                ( * faceField )[ iEqu ][ ug.fId ],
+                /*isBoundaryFace=*/false,
+                ( * cellField )[ iEqu ][ ug.lc ],
+                ( * cellField )[ iEqu ][ ug.rc ] );
         }
     }
 }
@@ -198,7 +206,11 @@ void AddF2CFieldDebug( MRField * cellField, MRField * faceField )
 
         for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
         {
-            ( * cellField )[ iEqu ][ ug.lc ] -= ( * faceField )[ iEqu ][ ug.fId ];
+            DepositOrientedFaceFlux(
+                ( * faceField )[ iEqu ][ ug.fId ],
+                /*isBoundaryFace=*/true,
+                ( * cellField )[ iEqu ][ ug.lc ],
+                ( * cellField )[ iEqu ][ ug.rc ] );
         }
         if ( ug.lc == 9 || ug.rc == 9 )
         {
@@ -224,8 +236,11 @@ void AddF2CFieldDebug( MRField * cellField, MRField * faceField )
 
         for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
         {
-            ( * cellField )[ iEqu ][ ug.lc ] -= ( * faceField )[ iEqu ][ ug.fId ];
-            ( * cellField )[ iEqu ][ ug.rc ] += ( * faceField )[ iEqu ][ ug.fId ];
+            DepositOrientedFaceFlux(
+                ( * faceField )[ iEqu ][ ug.fId ],
+                /*isBoundaryFace=*/false,
+                ( * cellField )[ iEqu ][ ug.lc ],
+                ( * cellField )[ iEqu ][ ug.rc ] );
         }
         if ( ug.lc == 9 || ug.rc == 9 )
         {

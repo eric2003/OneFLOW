@@ -197,3 +197,18 @@ target_include_directories(grad_policy_test
 target_link_libraries(grad_policy_test PRIVATE GTest::gtest_main)
 target_compile_features(grad_policy_test PRIVATE cxx_std_20)
 gtest_discover_tests(grad_policy_test DISCOVERY_MODE PRE_TEST)
+
+# Pure residual face-deposit sign contract; no mesh or solver startup.
+add_executable(residual_deposit_test
+  residual_deposit_test.cpp
+)
+
+target_include_directories(residual_deposit_test
+  PRIVATE
+    ${CMAKE_SOURCE_DIR}/codes/usolver/include
+    ${CMAKE_SOURCE_DIR}/codes/basic/include
+)
+
+target_link_libraries(residual_deposit_test PRIVATE GTest::gtest_main)
+target_compile_features(residual_deposit_test PRIVATE cxx_std_20)
+gtest_discover_tests(residual_deposit_test DISCOVERY_MODE PRE_TEST)
