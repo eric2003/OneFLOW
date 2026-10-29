@@ -79,7 +79,7 @@ TEST( SimuContextParameterTest, RejectsNonStringAndNamesParameter )
     }
 }
 
-TEST( SimuContextParameterTest, RejectsNonStringForEveryCaseIORootSetting )
+TEST( SimuContextParameterTest, RejectsNonStringForEveryCaseIOSetting )
 {
     const std::vector< std::string > parameterNames = {
         "projectRoot",

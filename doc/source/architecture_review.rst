@@ -20,9 +20,6 @@ It separates three kinds of knowledge:
 
 This is a living review framework, not a claim that the architecture is complete.
 
-Review principles
------------------
-
 Highest-value improvement sequence
 ---------------------------------
 
@@ -59,6 +56,9 @@ representative runs provide stronger evidence.
 This sequence prioritizes state validity and numerical trust over cosmetic renaming
 or broad comment expansion. Improve names and comments as part of the relevant
 boundary work, not as a competing project.
+
+Review principles
+-----------------
 
 
 1. **Keep the whole-system model visible.** Before a local refactor, identify the
