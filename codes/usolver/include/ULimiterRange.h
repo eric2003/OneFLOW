@@ -3,8 +3,6 @@
 #include "HXDefine.h"
 #include "HXMath.h"
 
-#include <algorithm>
-
 BeginNameSpace( ONEFLOW )
 
 // Build per-physical-cell neighbor bounds as offsets from each cell value.
@@ -38,8 +36,8 @@ void BuildCellNeighborOffsetBounds(
 
         const int lc = leftCells[ fId ];
         const int rc = rightCells[ fId ];
-        minOffsets[ lc ] = std::min( minOffsets[ lc ], q[ rc ] );
-        maxOffsets[ lc ] = std::max( maxOffsets[ lc ], q[ rc ] );
+        minOffsets[ lc ] = MIN( minOffsets[ lc ], q[ rc ] );
+        maxOffsets[ lc ] = MAX( maxOffsets[ lc ], q[ rc ] );
     }
 
     // Ordinary interior faces contribute to both adjacent physical cells.
@@ -49,8 +47,8 @@ void BuildCellNeighborOffsetBounds(
         const int rc = rightCells[ fId ];
         minOffsets[ lc ] = std::min( minOffsets[ lc ], q[ rc ] );
         maxOffsets[ lc ] = std::max( maxOffsets[ lc ], q[ rc ] );
-        minOffsets[ rc ] = std::min( minOffsets[ rc ], q[ lc ] );
-        maxOffsets[ rc ] = std::max( maxOffsets[ rc ], q[ lc ] );
+        minOffsets[ rc ] = MIN( minOffsets[ rc ], q[ lc ] );
+        maxOffsets[ rc ] = MAX( maxOffsets[ rc ], q[ lc ] );
     }
 
     // Only physical-cell entries are converted and included in the reduction.
@@ -64,8 +62,8 @@ void BuildCellNeighborOffsetBounds(
     maxOffsetRange = - LARGE;
     for ( int cId = 0; cId < nCells; ++ cId )
     {
-        minOffsetRange = std::min( minOffsetRange, minOffsets[ cId ] );
-        maxOffsetRange = std::max( maxOffsetRange, maxOffsets[ cId ] );
+        minOffsetRange = MIN( minOffsetRange, minOffsets[ cId ] );
+        maxOffsetRange = MAX( maxOffsetRange, maxOffsets[ cId ] );
     }
 }
 
