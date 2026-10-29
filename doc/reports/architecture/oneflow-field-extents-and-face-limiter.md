@@ -79,6 +79,19 @@ where `phi` is the cell limiter coefficient (or the minimum of the two side coef
 
 The limiter coefficient is computed from local neighbor extrema. The Barth limiter constrains extrapolation so the face prediction does not exceed the local allowable difference; the Venkatakrishnan variant applies a smooth limiter function with an epsilon related to the local solution range. Interface boundary faces are handled explicitly when building neighbor extrema, while ordinary interior faces update extrema for both adjacent cells.
 
+## Neighbor-range construction contract
+
+`Limiter::CalcMinMaxDiff()` relies on the grid's face ordering and cell indexing; these are algorithm inputs, not incidental loop details.
+
+1. The first `nCells` entries are physical cells. Their extrema are seeded from their own `q` values.
+2. Boundary faces occupy `[0, nBFaces)`. Only interface boundary faces contribute a remote value to the local cell's extrema. The loop updates `lc`, not both `lc` and `rc`; the boundary-face connectivity must therefore keep the local physical cell on the left side for this operation.
+3. Ordinary interior faces occupy `[nBFaces, nFaces)`. Each such face contributes the opposite cell value to both adjacent cells.
+4. Only the physical-cell extrema are converted to offsets by subtracting the cell's own value. The reduction into `qmin` and `qmax` also visits physical cells only.
+
+The workspace has `nTCell` entries, but the range algorithm does not initialize ghost extrema from ghost-cell values. Their zero state is preserved through the offset conversion and they may still be read as the opposite-side value on an interface face. This behavior is part of the current algorithm's boundary contract; it should not be changed as a side effect of workspace reuse or loop consolidation.
+
+The main invariant is that `minvf[c]` and `maxvf[c]` are offset bounds for each physical cell after the final conversion, while `qmin/qmax` summarize those offsets across physical cells. They are not absolute solution minima and maxima. A future standalone range-builder should accept face connectivity and interface classification explicitly, and tests should cover interface orientation and the physical/ghost distinction before moving these loops out of `Limiter`.
+
 ## Limiter mode dispatch and neighbor-range algorithm
 
 ### Execution map
