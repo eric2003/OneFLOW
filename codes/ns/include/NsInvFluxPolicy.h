@@ -26,4 +26,32 @@ void EulerConvectiveFlux(
     Real & fluxMz,
     Real & fluxE );
 
+
+// @doc-algorithm roe-average
+// @doc-stage weights
+// @doc-pure
+// @doc-formula r = sqrt(rho_R/rho_L), c = 1/(1+r)
+void RoeAverageWeights(
+    Real densityLeft, Real densityRight,
+    Real & ratio, Real & coef );
+
+// @doc-algorithm roe-average
+// @doc-stage component
+// @doc-pure
+// @doc-formula mid = (left + right * r) * c
+Real RoeAverageComponent(
+    Real left, Real right, Real ratio, Real coef );
+
+// @doc-algorithm roe-average
+// @doc-stage state
+// @doc-pure
+// Density uses geometric mean; other scalars use RoeAverageComponent.
+void RoeAverageState(
+    Real densityLeft, Real uLeft, Real vLeft, Real wLeft,
+    Real pLeft, Real hLeft, Real gamaLeft,
+    Real densityRight, Real uRight, Real vRight, Real wRight,
+    Real pRight, Real hRight, Real gamaRight,
+    Real & densityMid, Real & uMid, Real & vMid, Real & wMid,
+    Real & pMid, Real & hMid, Real & gamaMid );
+
 EndNameSpace

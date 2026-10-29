@@ -18,3 +18,4 @@ Numerical analysis is a branch of mathematics that solves continuous problems us
    vis_face_geometry
    limited_face_reconstruction
    euler_convective_flux
+   roe_average

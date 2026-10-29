@@ -37,3 +37,28 @@ TEST( InvFluxPolicy, EulerConvectiveFluxZeroNormalVelocityIsPressureOnly )
     EXPECT_DOUBLE_EQ( fz, 0.0 );
     EXPECT_DOUBLE_EQ( fe, 0.0 );
 }
+
+TEST( InvFluxPolicy, RoeAverageWeightsMatchDensityRatio )
+{
+    Real ratio = 0.0, coef = 0.0;
+    RoeAverageWeights( 1.0, 4.0, ratio, coef );
+    EXPECT_DOUBLE_EQ( ratio, 2.0 );
+    EXPECT_DOUBLE_EQ( coef, 1.0 / 3.0 );
+}
+
+TEST( InvFluxPolicy, RoeAverageComponentIsWeightedMean )
+{
+    EXPECT_DOUBLE_EQ( RoeAverageComponent( 1.0, 4.0, 2.0, 1.0 / 3.0 ), 3.0 );
+}
+
+TEST( InvFluxPolicy, RoeAverageStateUsesGeometricDensity )
+{
+    Real rm, um, vm, wm, pm, hm, gama;
+    RoeAverageState(
+        1.0, 0.0, 0.0, 0.0, 1.0, 3.5, 1.4,
+        4.0, 3.0, 0.0, 0.0, 4.0, 7.0, 1.4,
+        rm, um, vm, wm, pm, hm, gama );
+    EXPECT_DOUBLE_EQ( rm, 2.0 );
+    EXPECT_DOUBLE_EQ( um, 2.0 );
+    EXPECT_DOUBLE_EQ( gama, 1.4 );
+}

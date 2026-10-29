@@ -186,16 +186,10 @@ void NsInvFlux::Roe()
         gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ur, inv.vr, inv.wr );
 
 
-    Real ratio = sqrt( inv.rr / inv.rl );
-    Real coef  = 1.0 / ( 1.0 + ratio );
-
-    inv.rm = sqrt( inv.rl * inv.rr );
-    inv.um = ( inv.ul + inv.ur * ratio ) * coef;
-    inv.vm = ( inv.vl + inv.vr * ratio ) * coef;
-    inv.wm = ( inv.wl + inv.wr * ratio ) * coef;
-    inv.hm = ( inv.hl + inv.hr * ratio ) * coef;
-    inv.pm = ( inv.pl + inv.pr * ratio ) * coef;
-    inv.gama = ( inv.gama1 + inv.gama2 * ratio ) * coef;
+    RoeAverageState(
+        inv.rl, inv.ul, inv.vl, inv.wl, inv.pl, inv.hl, inv.gama1,
+        inv.rr, inv.ur, inv.vr, inv.wr, inv.pr, inv.hr, inv.gama2,
+        inv.rm, inv.um, inv.vm, inv.wm, inv.pm, inv.hm, inv.gama );
 
     Real v2 = ONEFLOW::SQR( inv.um, inv.vm, inv.wm );
 
@@ -513,16 +507,10 @@ void NsInvFlux::Hlle()
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
 
-    Real ratio = sqrt( inv.rr / inv.rl );
-    Real coef  = 1.0 / ( 1.0 + ratio );
-
-    inv.rm = sqrt( inv.rl * inv.rr );
-    inv.um = ( inv.ul + inv.ur * ratio ) * coef;
-    inv.vm = ( inv.vl + inv.vr * ratio ) * coef;
-    inv.wm = ( inv.wl + inv.wr * ratio ) * coef;
-    inv.hm = ( inv.hl + inv.hr * ratio ) * coef;
-    inv.pm = ( inv.pl + inv.pr * ratio ) * coef;
-    inv.gama = ( inv.gama1 + inv.gama2 * ratio ) * coef;
+    RoeAverageState(
+        inv.rl, inv.ul, inv.vl, inv.wl, inv.pl, inv.hl, inv.gama1,
+        inv.rr, inv.ur, inv.vr, inv.wr, inv.pr, inv.hr, inv.gama2,
+        inv.rm, inv.um, inv.vm, inv.wm, inv.pm, inv.hm, inv.gama );
                
     Real gamm1 = inv.gama - one;
 
@@ -590,15 +578,10 @@ void NsInvFlux::LaxFriedrichs()
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
 
-    Real ratio = sqrt( inv.rr / inv.rl );
-    Real coef  = 1.0 / ( 1.0 + ratio );
-
-    inv.rm = sqrt( inv.rl * inv.rr );
-    inv.um = ( inv.ul + inv.ur * ratio ) * coef;
-    inv.vm = ( inv.vl + inv.vr * ratio ) * coef;
-    inv.wm = ( inv.wl + inv.wr * ratio ) * coef;
-    inv.pm = ( inv.pl + inv.pr * ratio ) * coef;
-    inv.gama = ( inv.gama1 + inv.gama2 * ratio ) * coef;
+    RoeAverageState(
+        inv.rl, inv.ul, inv.vl, inv.wl, inv.pl, inv.hl, inv.gama1,
+        inv.rr, inv.ur, inv.vr, inv.wr, inv.pr, inv.hr, inv.gama2,
+        inv.rm, inv.um, inv.vm, inv.wm, inv.pm, inv.hm, inv.gama );
 
     Real gamm1 = inv.gama - one;
 
