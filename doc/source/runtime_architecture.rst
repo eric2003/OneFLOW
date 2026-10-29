@@ -191,6 +191,67 @@ directory. `SimuImp::RunCase()` owns case teardown, including exceptional exits.
 to these lifetimes should be protected by tests that cover both successful execution and
 failure during setup or task execution.
 
+Case lifecycle: success and failure paths
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The current implementation has two nested cleanup responsibilities. The process owner
+initializes and finalizes shared runtime resources; the case owner tears down case-scoped
+solver, field, parameter, log, and project-path state. The lifecycle helpers in
+``codes/main/include/SimuCaseLifecycle.h`` preserve the original execution exception
+when cleanup also fails.
+
+.. code-block:: text
+
+   Simulation / SimuImp::Run
+       |
+       +-- SetupProcessEnvironment
+       |      parallel setup -> accelerator runtime setup
+       |
+       +-- RunCase
+       |      |
+       |      +-- PreProcess -> InitSimu -> SetupCaseEnvironment
+       |      |      case path/log binding
+       |      |      -> ReadControlInfo(caseDir)
+       |      |      -> read and validate CaseIOSettings
+       |      |      -> apply Prj roots -> write io_paths.txt
+       |      |
+       |      +-- MainProcess -> resolve task -> execute task
+       |      |
+       |      +-- PostProcess -> TeardownCase
+       |
+       +-- FinalizeEnvironment
+              accelerator finalization -> parallel finalization
+
+If setup or task execution throws inside ``RunCase()``, its cleanup callback attempts
+``PostProcess()`` before the original exception is rethrown. The outer process lifecycle
+then attempts process finalization. Cleanup failures do not replace an already active
+execution failure. If execution succeeds, a cleanup failure is allowed to propagate.
+These are observable contracts and should remain explicit when the orchestration boundary
+is extracted.
+
+This diagram describes the existing path; it does not imply that case setup is
+transactional. In particular, project and log bindings are established before the real
+control reader runs. A failed read can therefore leave partial state until the owning
+cleanup boundary runs. Direct callers of ``SetupCaseEnvironment()`` do not get the
+same automatic rollback that callers of ``SetupEnvironment()`` or ``SimuImp::RunCase()``
+receive. Integration tests must invoke the owning production boundary for cleanup claims.
+
+The next R1 acceptance evidence should cover distinct layers:
+
+* A minimal temporary multi-file case exercises the real ``ReadControlInfo(caseDir)``
+  and verifies typed database values plus ``log/database.log``.
+* A setup-only smoke test uses a verified case under ``test/`` and checks the resulting
+  effective roots and path diagnostics without running the solver task.
+* Two cases run sequentially in one process to show that the second case does not inherit
+  roots from the first.
+* A missing or malformed control input verifies cleanup and preservation of the original
+  exception.
+
+The existing lifecycle unit tests cover the generic callback ordering and exception
+policy, but they do not prove these production integration properties. R1 remains partial
+until the production reader, effective path binding, sequential isolation, and failure
+cleanup have direct evidence.
+
 Configuration boundaries
 -------------------------
 
