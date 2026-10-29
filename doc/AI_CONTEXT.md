@@ -2,7 +2,7 @@
 
 Last updated: 2026-10-30
 Working branch: `hexin`
-Latest handoff update: `9355ed27dd31ce3c624e6860426d5abf14935e4d` (`docs(runtime): define real-case integration evidence tiers`). The latest slice changes the integration-test plan only; it does not change production code.
+Latest documentation commits: `35be2ec81df56300d4390c6ea5a689978c4f86a0` maps case setup success/failure and cleanup paths in the runtime architecture guide; `b6dd4a840972004fe226abc26f253074136dec5a` records concrete real-case fixture paths. These changes are documentation only; no production code or test target changed.
 User-reported pre-change baseline: 967/967 tests passed. This is not evidence for the changes below.
 
 ## Current focus: R1 case I/O root configuration contract
@@ -29,11 +29,11 @@ System-level reason: configuration lookup and type validation are now separated 
 
 ## Remaining R1 gap
 
-A real integration test still needs to exercise the production `ReadControlInfo(caseDir)` path, effective `Prj` root application, `io_paths.txt`/database diagnostics, sequential-case reset, and cleanup after setup failure. The existing test targets intentionally avoid linking the full solver runtime; do not duplicate the parser or copy the executable's complete source list into a test target.
+A real integration test still needs to exercise the production `ReadControlInfo(caseDir)` path, effective `Prj` root application, `io_paths.txt`/database diagnostics, sequential-case reset, and cleanup after setup failure. Candidate fixtures confirmed in the current `hexin` tree are `test/grid/rae2822convert` (smaller multi-file control manifest) and `test/cfd/rae2822_roe_sa` (fuller CFD manifest; `simu.txt` declares `Solve`, which must not be executed by a setup-only test). The existing test targets intentionally avoid linking the full solver runtime; do not duplicate the parser or copy the executable's complete source list into a test target.
 
 The existing investigation record is `doc/plans/setup-case-environment-integration-test.md`. It identifies the key constraints: the global database is statically initialized, but `ReadControlInfo` uses parallel coordination and database broadcast; `SimuContext::TeardownCase()` resets much more than path state; the production executable currently compiles a broad source list rather than exposing a reusable runtime library.
 
-Next single action: extract a narrow production-owned case-setup orchestration boundary that preserves the real `ReadControlInfo(caseDir)` implementation. Then add a real-reader integration target with a temporary multi-file case, and follow it with a setup-only smoke test using an existing case under `test/` after its exact path and prerequisites are inspected. Keep `tests/` for test code and `test/` for CFD cases. Do not mark R1 complete until effective path application, sequential-case isolation, and cleanup have test evidence.
+Next single action: obtain a working checkout in the sandbox or continue with a narrowly scoped source change after mapping its link dependencies. The first integration target should use a temporary multi-file case and the real reader; the next setup-only smoke test should use `test/grid/rae2822convert` after all referenced files and relative assets are checked. Do not copy the executable's full source list into the unit-test target. Keep `tests/` for test code and `test/` for CFD cases. Do not mark R1 complete until effective path application, sequential-case isolation, and cleanup have test evidence.
 
 ## 1. Read this first
 
