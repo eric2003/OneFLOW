@@ -42,3 +42,17 @@ TEST( LimiterPolicy, VenkatUsesLowerBoundForNegativeIncrement )
     const Real expected = ( 9.0 + eps + 12.0 ) / ( 9.0 + 8.0 + 6.0 + eps );
     EXPECT_NEAR( VencatFunction( -2.0, -3.0, 1.0, eps ), expected, 1.0e-12 );
 }
+
+TEST( LimiterPolicy, EricVariantUsesItsOwnCrossTermCoefficient )
+{
+    const Real eps = 0.1;
+    const Real expected = ( 1.0 + eps + 2.0 ) / ( 1.0 + 8.0 + 2.0 + eps );
+    EXPECT_NEAR( VencatEric( 1.0, 2.0, eps ), expected, 1.0e-12 );
+}
+
+TEST( LimiterPolicy, EricVariantSelectsLowerBoundForNegativeIncrement )
+{
+    const Real eps = 0.1;
+    const Real expected = ( 9.0 + eps + 6.0 ) / ( 9.0 + 8.0 + 6.0 + eps );
+    EXPECT_NEAR( VencatFunctionEric( -2.0, -3.0, 1.0, eps ), expected, 1.0e-12 );
+}
