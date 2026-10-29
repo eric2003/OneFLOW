@@ -83,12 +83,19 @@ namespace
 {
 
     std::filesystem::path RemoveTrailingSeparator(
-        const std::filesystem::path & path )
+        std::filesystem::path path )
     {
-        std::string value = path.string();
+        path = path.lexically_normal();
+        path.make_preferred();
 
-        while ( value.size() > 1 &&
-            ( value.back() == '/' || value.back() == '\\' ) )
+        std::string value = path.string();
+        std::filesystem::path rootPath = path.root_path();
+        rootPath.make_preferred();
+        const std::string root = rootPath.string();
+
+        while ( value.size() > root.size()
+            && ! value.empty()
+            && ( value.back() == '/' || value.back() == '\\' ) )
         {
             value.pop_back();
         }
@@ -96,6 +103,15 @@ namespace
         return std::filesystem::path( value );
     }
 
+}
+
+TEST( PrjPathComparison, RemovingTrailingSeparatorsPreservesFilesystemRoot )
+{
+    const std::filesystem::path root =
+        std::filesystem::current_path().root_path();
+
+    ASSERT_FALSE( root.empty() );
+    EXPECT_EQ( RemoveTrailingSeparator( root ), root );
 }
 
 TEST( PrjParseCmdLineArgs, MissingPositionalsIncludeUsage )
