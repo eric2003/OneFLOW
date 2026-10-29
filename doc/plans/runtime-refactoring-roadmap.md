@@ -402,3 +402,12 @@ Commit: `d8568fe91722af5d78d8083d6bae23d9446d952d`
 - Updated the runtime architecture guide to distinguish parameter selection from global path application and file output.
 - Validation: implementation and test changes are committed, but this environment did not build or run the target. The user's reported 963/963 result is the pre-change baseline and is not evidence for this slice.
 - Architecture assessment: configuration lookup and legacy fallback selection now have a value-object boundary that can be tested without constructing the full solver runtime. This does not close R1: a real `SetupCaseEnvironment()` integration test still needs to exercise `ReadControlInfo(caseDir)`, `Prj` root application, `io_paths.txt`, and sequential-case reset together.
+
+
+### 2026-10-30 - Pin project-root path resolution semantics
+
+- Based on current `hexin` HEAD `4b063d1334298fc7802f71a5fcc12e989c173c22`; inspected `Prj::SetProjectBaseDir()`, `ResolveBaseDirectory()`, and existing `PrjIOPaths` tests.
+- Added a focused contract test that makes the difference explicit: a relative `projectRoot` resolves against `Prj::current_dir`, while a generic output root set to `case` resolves against the active case directory.
+- Documented the compatibility distinction in `doc/source/runtime_architecture.rst`. This is a behavior clarification, not a path-semantics change.
+- Validation: source and test were edited through GitHub; no local build or CTest execution was available. The user-reported 967/967 pass remains the pre-change baseline and does not validate this test.
+- System-level value: reduces ambiguity in the case configuration contract before extracting the production setup path. R1 remains partial until the real control reader, effective roots, diagnostics, sequential isolation, and failure cleanup are tested together.
