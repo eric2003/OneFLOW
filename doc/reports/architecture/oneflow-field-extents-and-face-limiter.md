@@ -238,3 +238,12 @@ the extraction.
 The two extents and the equation-indexing interface now use `HXSize_t`. This keeps the generic container's size and index vocabulary aligned with the underlying `HXVector` storage and avoids narrowing an equation index to `int` at the wrapper boundary. Existing callers with `int` indices remain source-compatible through the ordinary integral conversion, but callers that already use `HXSize_t` no longer need to pass through an unnecessarily narrower parameter type.
 
 This is a local interface correction, not a repository-wide index migration. It does not change storage layout, bounds-checking behavior, or the numerical algorithms that use `Marray`. The constructor extent regression test remains the first executable contract; the full Windows build and CTest suite should be run after this interface adjustment to catch any overload or warning interactions.
+
+
+## Validation boundary for Marray indexing
+
+The index contract test uses `decltype` with `std::declval` to check the expression result types directly: mutable access must return `HXVector<T>&`, while const access must return `const HXVector<T>&`. A runtime test also writes through mutable access and reads the same value through a const reference. These checks protect both the parameter-type contract and the existing const-correct reference semantics.
+
+This does not add bounds checking: `Marray::operator[]` continues to follow the unchecked indexing behavior of its underlying vector. Changing that behavior would be a separate API and performance decision, not an incidental consequence of aligning size types.
+
+Other legacy allocation helpers, including the `int` dimensions in `HXVector.h`'s `AllocateVector`, are intentionally not changed by this patch. Before widening those interfaces, inventory their call sites and determine whether the arguments represent general container extents or domain-specific bounded indices. The shared spelling of an integer type is not, by itself, sufficient evidence that two interfaces have the same contract.
