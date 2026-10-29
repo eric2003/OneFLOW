@@ -90,7 +90,7 @@ inline std::string ReadOptionalStringParameter(
 
 // Missing optional keys resolve to empty strings. Present keys must have
 // string type. Read all setup-time settings here so invalid configuration is
-// rejected before SetupCaseEnvironment mutates project path state.
+// rejected before SetupCaseEnvironment applies configured roots.
 inline CaseIOSettings ReadCaseIOSettings( const DataPara & parameters )
 {
     CaseIOSettings settings;
