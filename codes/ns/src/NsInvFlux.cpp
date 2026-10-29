@@ -214,19 +214,21 @@ void NsInvFlux::Roe()
     Real dc = RoeContinuityNormalJump(
         inv.vnflow, gcom.xfn, gcom.yfn, gcom.zfn,
         inv.dq[ IDX::IR ], inv.dq[ IDX::IRU ], inv.dq[ IDX::IRV ], inv.dq[ IDX::IRW ] );
-    Real c2dc = c2 * dc;
 
     Real dh;
     CalcTotalEnthalpyChange( inv.prim, inv.gama, inv.dq, dh );
 
-    Real term1 = dh   * xi1 + dc * xi2;
-    Real term2 = c2dc * xi1 + dh * xi2;
+    Real term1, term2;
+    RoeDissipationCouplingTerms( dh, dc, c2, xi1, xi2, term1, term2 );
 
-    inv.flux[ IDX::IR  ] -= ( inv.meig1 * inv.dq[ IDX::IR  ] -          term1                      );
-    inv.flux[ IDX::IRU ] -= ( inv.meig1 * inv.dq[ IDX::IRU ] - inv.um * term1 + gcom.xfn   * term2 );
-    inv.flux[ IDX::IRV ] -= ( inv.meig1 * inv.dq[ IDX::IRV ] - inv.vm * term1 + gcom.yfn   * term2 );
-    inv.flux[ IDX::IRW ] -= ( inv.meig1 * inv.dq[ IDX::IRW ] - inv.wm * term1 + gcom.zfn   * term2 );
-    inv.flux[ IDX::IRE ] -= ( inv.meig1 * inv.dq[ IDX::IRE ] - inv.hm * term1 + inv.vnflow * term2 );
+    ApplyRoeDissipationFiveEq(
+        inv.meig1, term1, term2,
+        inv.um, inv.vm, inv.wm, inv.hm, inv.vnflow,
+        gcom.xfn, gcom.yfn, gcom.zfn,
+        inv.dq[ IDX::IR ], inv.dq[ IDX::IRU ], inv.dq[ IDX::IRV ],
+        inv.dq[ IDX::IRW ], inv.dq[ IDX::IRE ],
+        inv.flux[ IDX::IR ], inv.flux[ IDX::IRU ], inv.flux[ IDX::IRV ],
+        inv.flux[ IDX::IRW ], inv.flux[ IDX::IRE ] );
 
     for ( int iEqu = nscom.nBEqu; iEqu < nscom.nEqu; ++ iEqu )
     {
@@ -1262,21 +1264,13 @@ void CalcEnthalpy( RealField & prim, Real gama, Real & enthalpy )
 
 void CalcTotalEnthalpyChange( RealField & prim, Real & gama, RealField & dq, Real & dh )
 {
-    Real v2, ae, af;
+    Real & um = prim[ IDX::IU ];
+    Real & vm = prim[ IDX::IV ];
+    Real & wm = prim[ IDX::IW ];
 
-    Real & density  = prim[ IDX::IR ];
-    Real & um       = prim[ IDX::IU ];
-    Real & vm       = prim[ IDX::IV ];
-    Real & wm       = prim[ IDX::IW ];
-    Real & pressure = prim[ IDX::IP ];
-
-    v2 = ONEFLOW::SQR( um, vm, wm );
-
-    ae = gama - one;
-    af = half * ae * v2;
-    dh = - ae * ( um * dq[ IDX::IRU ] + vm * dq[ IDX::IRV ] + wm * dq[ IDX::IRW ] - dq[ IDX::IRE ] );
- 
-    dh += af * dq[ IDX::IR  ];
+    dh = RoeTotalEnthalpyJump(
+        um, vm, wm, gama,
+        dq[ IDX::IR ], dq[ IDX::IRU ], dq[ IDX::IRV ], dq[ IDX::IRW ], dq[ IDX::IRE ] );
 }
 
 void PrimToQ( RealField & prim, Real gama, RealField & q )

@@ -33,3 +33,27 @@ Conservative to primitive (5-eq)
 Pure APIs: ``RoeDissipationWaveCoefficients``, ``RoeContinuityNormalJump``,
 ``IdealGasConservativeToPrim`` (``NsInvFluxPolicy.h``).
 Tests: ``inv_flux_policy_test``.
+
+Total-enthalpy jump
+-------------------
+
+.. math::
+
+   \Delta H = -(\gamma-1)\big(\mathbf{v}\cdot\Delta(\rho\mathbf{v}) - \Delta(\rho e)\big)
+   + \tfrac12(\gamma-1)|\mathbf{v}|^2\,\Delta\rho
+
+Coupling terms and five-equation write-back
+------------------------------------------
+
+.. math::
+
+   \mathrm{term}_1 = \Delta H\,\xi_1 + d_c\,\xi_2,\qquad
+   \mathrm{term}_2 = c^2 d_c\,\xi_1 + \Delta H\,\xi_2
+
+.. math::
+
+   \mathbf{F} \leftarrow \mathbf{F}
+   - \big(\tilde{a}_1\Delta\mathbf{q} - \mathbf{r}(\mathrm{term}_1,\mathrm{term}_2)\big)
+
+with the standard Roe right-eigenvector combination encoded in
+``ApplyRoeDissipationFiveEq``.

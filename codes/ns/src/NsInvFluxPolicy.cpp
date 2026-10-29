@@ -173,4 +173,39 @@ Real RoeContinuityNormalJump(
     return vnFlow * dqRho - xfn * dqRhoU - yfn * dqRhoV - zfn * dqRhoW;
 }
 
+
+Real RoeTotalEnthalpyJump(
+    Real u, Real v, Real w, Real gama,
+    Real dqRho, Real dqRhoU, Real dqRhoV, Real dqRhoW, Real dqRhoE )
+{
+    const Real ae = gama - one;
+    const Real speedSquared = u * u + v * v + w * w;
+    const Real af = half * ae * speedSquared;
+    Real dh = - ae * ( u * dqRhoU + v * dqRhoV + w * dqRhoW - dqRhoE );
+    dh += af * dqRho;
+    return dh;
+}
+
+void RoeDissipationCouplingTerms(
+    Real dh, Real dc, Real soundSpeedSquared, Real xi1, Real xi2,
+    Real & term1, Real & term2 )
+{
+    term1 = dh * xi1 + dc * xi2;
+    term2 = soundSpeedSquared * dc * xi1 + dh * xi2;
+}
+
+void ApplyRoeDissipationFiveEq(
+    Real meig1, Real term1, Real term2,
+    Real uMid, Real vMid, Real wMid, Real hMid, Real vnFlow,
+    Real xfn, Real yfn, Real zfn,
+    Real dqRho, Real dqRhoU, Real dqRhoV, Real dqRhoW, Real dqRhoE,
+    Real & fluxRho, Real & fluxMx, Real & fluxMy, Real & fluxMz, Real & fluxE )
+{
+    fluxRho -= ( meig1 * dqRho - term1 );
+    fluxMx  -= ( meig1 * dqRhoU - uMid * term1 + xfn * term2 );
+    fluxMy  -= ( meig1 * dqRhoV - vMid * term1 + yfn * term2 );
+    fluxMz  -= ( meig1 * dqRhoW - wMid * term1 + zfn * term2 );
+    fluxE   -= ( meig1 * dqRhoE - hMid * term1 + vnFlow * term2 );
+}
+
 EndNameSpace
