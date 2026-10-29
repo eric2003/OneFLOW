@@ -45,8 +45,8 @@ void BuildCellNeighborOffsetBounds(
     {
         const int lc = leftCells[ fId ];
         const int rc = rightCells[ fId ];
-        minOffsets[ lc ] = std::min( minOffsets[ lc ], q[ rc ] );
-        maxOffsets[ lc ] = std::max( maxOffsets[ lc ], q[ rc ] );
+        minOffsets[ lc ] = MIN( minOffsets[ lc ], q[ rc ] );
+        maxOffsets[ lc ] = MAX( maxOffsets[ lc ], q[ rc ] );
         minOffsets[ rc ] = MIN( minOffsets[ rc ], q[ lc ] );
         maxOffsets[ rc ] = MAX( maxOffsets[ rc ], q[ lc ] );
     }
