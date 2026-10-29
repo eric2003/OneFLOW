@@ -4,6 +4,28 @@
 
 This note records the size-type contract behind the `MRField` face-state buffers and the workspace lifecycle in the finite-volume reconstruction path. The changes are intentionally narrow: they align the `Marray` constructor extents with `HXSize_t` and reuse limiter extrema storage without changing the limiter formulas or their initialization semantics.
 
+## Numerical policy boundary
+
+The scalar Barth and Venkatakrishnan functions are numerical policies: they map a predicted
+face increment and local allowable range to a limiter coefficient. They do not need mesh
+connectivity, cell fields, solver state, or face traversal to define that mapping.
+
+These functions now live in `ULimiterPolicy.h/.cpp`, separate from `ULimiter.cpp`, which
+owns mesh traversal, per-cell extrema, and application of coefficients to the runtime fields.
+This is a deliberately small boundary, not a redesign of the full limiter pipeline.
+
+The focused `limiter_policy_test` pins representative policy behavior:
+
+- Barth returns zero for a face direction that conflicts with the expected direction.
+- Barth limits positive and negative increments that exceed their permitted bounds.
+- Barth leaves an increment unchanged when it is inside the permitted range.
+- Venkatakrishnan selects the upper or lower bound according to the increment sign and
+  returns one for a near-zero increment.
+
+These tests do not prove the full finite-volume reconstruction is correct. Mesh-neighbor
+range construction, interface ghost values, face geometry, equation-level positivity checks,
+and numerical convergence still require integration and CFD regression evidence.
+
 ## Storage contract
 
 `HXSize_t` is the unsigned size/count type used by OneFLOW and aliases `std::size_t`. `MRField` is an alias for `Marray<Real>`, whose storage is a vector of equation fields:
