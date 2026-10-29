@@ -33,6 +33,17 @@ BeginNameSpace( ONEFLOW )
 namespace SimuContextDetail
 {
 
+struct CaseIORootSettings
+{
+    std::string projectRoot;
+    std::string inputRoot;
+    std::string outputRoot;
+    std::string meshInputRoot;
+    std::string flowInputRoot;
+    std::string meshOutputRoot;
+    std::string flowOutputRoot;
+};
+
 inline bool ShouldUseLegacySourceGridCaseDir( const std::string & meshInputRoot )
 {
     return meshInputRoot.empty() || meshInputRoot == "default";
@@ -72,6 +83,28 @@ inline std::string ReadOptionalStringParameter(
     }
 
     return GetDataValue< std::string >( &entry->GetDataObject(), 0 );
+}
+
+inline CaseIORootSettings ReadCaseIORootSettings( const DataPara & parameters )
+{
+    CaseIORootSettings settings;
+    settings.projectRoot = ReadOptionalStringParameter( parameters, "projectRoot" );
+    settings.inputRoot = ReadOptionalStringParameter( parameters, "inputRoot" );
+    settings.outputRoot = ReadOptionalStringParameter( parameters, "outputRoot" );
+    settings.meshInputRoot = ReadOptionalStringParameter( parameters, "meshInputRoot" );
+    settings.flowInputRoot = ReadOptionalStringParameter( parameters, "flowInputRoot" );
+    settings.meshOutputRoot = ReadOptionalStringParameter( parameters, "meshOutputRoot" );
+    settings.flowOutputRoot = ReadOptionalStringParameter( parameters, "flowOutputRoot" );
+
+    if ( ShouldUseLegacySourceGridCaseDir( settings.meshInputRoot ) )
+    {
+        const std::string sourceGridCaseDir =
+            ReadOptionalStringParameter( parameters, "sourceGridCaseDir" );
+        settings.meshInputRoot = ApplyLegacySourceGridCaseDir(
+            settings.meshInputRoot, sourceGridCaseDir );
+    }
+
+    return settings;
 }
 
 }
