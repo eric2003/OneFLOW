@@ -64,3 +64,15 @@ Face Mach number:
 
 ``PrimToQ`` uses ``IdealGasPrimToConservative`` for the five core equations;
 extra species equations remain ``rho * prim[i]`` in the caller.
+
+
+Bilateral face sound speeds (AUSM-family)
+-----------------------------------------
+
+.. math::
+
+   c_L = \sqrt{\gamma_L p_L/\rho_L},\quad
+   c_R = \sqrt{\gamma_R p_R/\rho_R},\quad
+   c_{\mathrm{avg}} = \tfrac12(c_L+c_R)
+
+Some schemes replace :math:`c_{\mathrm{avg}}` with :math:`\max(c_L,c_R)`.

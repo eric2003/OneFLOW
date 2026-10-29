@@ -253,3 +253,12 @@ TEST( InvFluxPolicy, ApplyRoeDissipationFiveEqSubtractsContinuityTerm )
     // fr -= (1*3 - 2) = 1 -> 9
     EXPECT_DOUBLE_EQ( fr, 9.0 );
 }
+
+TEST( InvFluxPolicy, IdealGasBilateralSoundSpeedsAveragesSides )
+{
+    Real cl, cr, cm;
+    IdealGasBilateralSoundSpeeds( 1.0, 1.0, 1.4, 1.0, 1.0, 1.4, cl, cr, cm );
+    EXPECT_NEAR( cl, std::sqrt( 1.4 ), 1.0e-12 );
+    EXPECT_NEAR( cr, std::sqrt( 1.4 ), 1.0e-12 );
+    EXPECT_NEAR( cm, std::sqrt( 1.4 ), 1.0e-12 );
+}

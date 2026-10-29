@@ -611,12 +611,9 @@ void NsInvFlux::Ausmp()
 
     inv.gama = half * ( inv.gama1 + inv.gama2 );
 
-    Real c2l = inv.gama * inv.pl * orl;
-    Real c2r = inv.gama * inv.pr * orr;
-
-    inv.cl  = sqrt( c2l );
-    inv.cr  = sqrt( c2r );
-    inv.cm  = half * ( inv.cl + inv.cr );
+    IdealGasBilateralSoundSpeeds(
+        inv.rl, inv.pl, inv.gama, inv.rr, inv.pr, inv.gama,
+        inv.cl, inv.cr, inv.cm );
 
     Real ocm = one / ( inv.cm + SMALL );
 
@@ -681,13 +678,9 @@ void NsInvFlux::AusmpUp()
     Real orl = 1.0 / ( inv.rl + SMALL );
     Real orr = 1.0 / ( inv.rr + SMALL );
 
-    Real c2l = inv.gama * inv.pl * orl;
-    Real c2r = inv.gama * inv.pr * orr;
-
-    //fourth speed interface
-    inv.cl  = sqrt( c2l );
-    inv.cr  = sqrt( c2r );
-    inv.cm  = half * ( inv.cl + inv.cr );
+    IdealGasBilateralSoundSpeeds(
+        inv.rl, inv.pl, inv.gama, inv.rr, inv.pr, inv.gama,
+        inv.cl, inv.cr, inv.cm );
 
     Real cm2 = inv.cm * inv.cm;
     Real ocm = one / ( inv.cm + SMALL );
@@ -793,18 +786,12 @@ void NsInvFlux::Ausmdv()
     Real orl = 1.0 / ( inv.rl + SMALL );
     Real orr = 1.0 / ( inv.rr + SMALL );
 
-    Real c2l = inv.gama * inv.pl * orl;
-    Real c2r = inv.gama * inv.pr * orr;
-
-    //This formula should refer to the literature, it is likely that there is a problem under the moving grid!!!!!!! eric 20140126
-    //VN here_ L and VN_ R is the normal velocity in the inertial coordinate system
-    //VNL and VNR are the normal velocities relative to the moving interface
     Real vn_l  = vnl + gcom.vfn;
     Real vn_r  = vnr + gcom.vfn;
 
-    //fourth speed interface
-    inv.cl  = sqrt( c2l );
-    inv.cr  = sqrt( c2r );
+    IdealGasBilateralSoundSpeeds(
+        inv.rl, inv.pl, inv.gama, inv.rr, inv.pr, inv.gama,
+        inv.cl, inv.cr, inv.cm );
     inv.cm  = MAX( inv.cl, inv.cr );
     Real ocm = one / ( inv.cm + SMALL );
 
@@ -1000,18 +987,13 @@ void NsInvFlux::Ausmw()
 
     inv.gama = half * ( inv.gama1 + inv.gama2 );
 
-    Real orl = 1.0 / ( inv.rl + SMALL );
-    Real orr = 1.0 / ( inv.rr + SMALL );
-
     Real vnla  =  ABS( vnl );
-    Real alc   =  inv.gama * inv.pl * orl;
-
     Real vnra  =  ABS( vnr );
-    Real arc   =  inv.gama * inv.pr * orr;
 
-    Real al = sqrt( alc );
-    Real ar = sqrt( arc );
-    Real ai = half * ( al + ar );
+    Real al, ar, ai;
+    IdealGasBilateralSoundSpeeds(
+        inv.rl, inv.pl, inv.gama, inv.rr, inv.pr, inv.gama,
+        al, ar, ai );
 
     Real rai =  one / ( ai + SMALL );
 
@@ -1111,11 +1093,9 @@ void NsInvFlux::Ausmpw()
 
     inv.gama = half * ( inv.gama1 + inv.gama2 );
 
-    Real c2l = inv.gama1 * inv.pl * orl;
-    Real c2r = inv.gama2 * inv.pr * orr;
-    inv.cl  = sqrt( c2l );
-    inv.cr  = sqrt( c2r );
-    inv.cm  = half * ( inv.cl + inv.cr );
+    IdealGasBilateralSoundSpeeds(
+        inv.rl, inv.pl, inv.gama1, inv.rr, inv.pr, inv.gama2,
+        inv.cl, inv.cr, inv.cm );
 
     Real ocm = one / ( inv.cm + SMALL );
 
@@ -1200,13 +1180,9 @@ void NsInvFlux::Slau2()
     Real orl = 1.0 / ( inv.rl + SMALL );
     Real orr = 1.0 / ( inv.rr + SMALL );
 
-    Real c2l = inv.gama1 * inv.pl * orl;
-    Real c2r = inv.gama2 * inv.pr * orr;
-
-    inv.cl  = sqrt( c2l );
-    inv.cr  = sqrt( c2r );
-
-    inv.cm  = half * ( inv.cl + inv.cr ); //middle sound speed    
+    IdealGasBilateralSoundSpeeds(
+        inv.rl, inv.pl, inv.gama1, inv.rr, inv.pr, inv.gama2,
+        inv.cl, inv.cr, inv.cm );
 
     Real t = inv.rr / inv.rl;
     Real vna = ( ABS( vnl ) + t * ABS( vnr ) ) / ( 1 + t );

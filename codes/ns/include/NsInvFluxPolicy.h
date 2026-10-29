@@ -168,4 +168,10 @@ void ApplyRoeDissipationFiveEq(
     Real dqRho, Real dqRhoU, Real dqRhoV, Real dqRhoW, Real dqRhoE,
     Real & fluxRho, Real & fluxMx, Real & fluxMy, Real & fluxMz, Real & fluxE );
 
+
+void IdealGasBilateralSoundSpeeds(
+    Real densityLeft, Real pressureLeft, Real gamaLeft,
+    Real densityRight, Real pressureRight, Real gamaRight,
+    Real & soundLeft, Real & soundRight, Real & soundAverage );
+
 EndNameSpace

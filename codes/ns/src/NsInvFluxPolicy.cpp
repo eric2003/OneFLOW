@@ -208,4 +208,15 @@ void ApplyRoeDissipationFiveEq(
     fluxE   -= ( meig1 * dqRhoE - hMid * term1 + vnFlow * term2 );
 }
 
+
+void IdealGasBilateralSoundSpeeds(
+    Real densityLeft, Real pressureLeft, Real gamaLeft,
+    Real densityRight, Real pressureRight, Real gamaRight,
+    Real & soundLeft, Real & soundRight, Real & soundAverage )
+{
+    soundLeft = IdealGasSoundSpeedFromPressure( densityLeft, pressureLeft, gamaLeft );
+    soundRight = IdealGasSoundSpeedFromPressure( densityRight, pressureRight, gamaRight );
+    soundAverage = half * ( soundLeft + soundRight );
+}
+
 EndNameSpace
