@@ -13,7 +13,7 @@ Production path: `SimuImp::InitSimu() -> SimuContext::SetupCaseEnvironment() -> 
 
 Current implementation:
 - `codes/main/include/SimuContextParameter.h` defines `CaseIOSettings` and validates optional string entries before path application.
-- `codes/main/src/SimuContextEnv.cpp` uses that snapshot and delegates root application and path diagnostics to `SimuContextDetail::ApplyCaseIOSettings()` in `codes/main/include/SimuContextIO.h`. The operation uses the existing `Prj` compatibility APIs.
+- `codes/main/src/SimuContextEnv.cpp` uses that snapshot and delegates root application and path diagnostics to `SimuContextDetail::ApplyCaseIOSettings()`, declared in `codes/main/include/SimuContextIO.h` and implemented in `codes/main/src/SimuContextIO.cpp`. The operation uses the existing `Prj` compatibility APIs. The implementation was moved out of the header so `Prj` and filesystem dependencies do not leak through an inline implementation.
 - An explicit `meshInputRoot` takes precedence over legacy `sourceGridCaseDir`; the legacy value is read only when mesh input is empty or `default`.
 - `tests/main/simu_context_parameter_test.cpp` covers missing/valid/invalid optional strings, the complete root snapshot, and legacy fallback behavior. The current slice extends invalid-type coverage to every root key and `ioPathInfoFileName`; applicable settings are read before path-root mutation.
 
@@ -22,8 +22,8 @@ System-level reason: configuration lookup and type validation are now separated 
 ## Validation status
 
 - User-reported pre-change baseline for the current work slice: 971/971 tests passed.
-- The user-reported 971/971 baseline predates the latest diagnostic-content assertions. The new source/test/doc changes have not been independently built or run in this environment.
-- Documentation check succeeded for the earlier commit `3686c94`, but that does not validate the latest code/test/doc commits. Linux and Windows CI results for the latest commit still need checking; do not claim the latest tests pass without those results.
+- The user-reported 971/971 baseline predates the diagnostic-content assertions and the move to `SimuContextIO.cpp`. The latest source/test/doc changes have not been independently built or run in this environment.
+- Linux and Windows CI for commit `647c239` were still queued/in progress when last checked; they do not validate the later move to `SimuContextIO.cpp`. Check CI for the latest branch head before claiming any test result.
 - The current Linux sandbox has CMake, GCC, Clang, Python, and Git, but no OneFLOW checkout is mounted and shell network/DNS access is unavailable. GitHub source edits are possible, but a complete local CMake/CTest run is not possible until a checkout/archive is available.
 - Keep C++ source ASCII-only.
 
