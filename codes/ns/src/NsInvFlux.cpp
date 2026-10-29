@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "NsInvFlux.h"
+#include "NsInvFluxPolicy.h"
 #include "Zone.h"
 #include "DataBase.h"
 #include "UCom.h"
@@ -33,36 +34,6 @@ License
 BeginNameSpace( ONEFLOW )
 
 NsInv inv;
-
-Real FMSplit1( const Real & mach, const Real & ipn )
-{
-    return half * ( mach + ipn * ABS( mach ) );
-}
-
-Real FMSplit2( const Real & mach, const Real & ipn )
-{
-    return ipn * fourth * SQR( mach + ipn );
-}
-
-Real FMSplit4( const Real & mach, const Real & beta, const Real & ipn )
-{
-    if ( ABS( mach ) >= one )
-    {
-        return FMSplit1( mach, ipn );
-    }
-    return FMSplit2( mach, ipn ) * ( one - ipn * sixteen * beta * FMSplit2( mach, - ipn ) );
-}
-
-Real FPSplit5( const Real & mach, const Real & alpha, const Real & ipn )
-{
-    Real macha = ABS( mach );
-    if ( macha >= one )
-    {
-        return half * ( one + ipn * mach / ( macha + SMALL ) );
-    }
-
-    return FMSplit2( mach, ipn ) * ( ( two * ipn - mach ) - ipn * sixteen * alpha * mach * FMSplit2( mach,-ipn ) );
-}
 
 void NsInv::Init()
 {
@@ -146,21 +117,10 @@ void NsInvFlux::Solve()
 
 void NsInvFlux::ModifyAbsoluteEigenvalue()
 {
-    //Entropy fix
-    inv.meig1 = inv.aeig1;
-    inv.meig2 = inv.aeig2;
-    inv.meig3 = inv.aeig3;
-
-    if ( ctrl.ieigenfix == 1 )
-    {
-        Real maxEigenvalue = MAX( inv.aeig2, inv.aeig3 );
-        Real m1 = maxEigenvalue * ctrl.centropy1;
-        Real m2 = maxEigenvalue * ctrl.centropy2;
-
-        inv.meig1 = MAX( m1, inv.aeig1 );
-        inv.meig2 = MAX( m2, inv.aeig2 );
-        inv.meig3 = MAX( m2, inv.aeig3 );
-    }
+    ApplyHartenEntropyFix(
+        inv.aeig1, inv.aeig2, inv.aeig3,
+        ctrl.centropy1, ctrl.centropy2, ctrl.ieigenfix == 1,
+        inv.meig1, inv.meig2, inv.meig3 );
 }
 
 void NsInvFlux::Roe()
@@ -176,25 +136,19 @@ void NsInvFlux::Roe()
     CalcEnthalpy( inv.prim1, inv.gama1, hint_l );
     CalcEnthalpy( inv.prim2, inv.gama2, hint_r );
 
-    inv.hl  = hint_l + half * v2l;
-    inv.hr  = hint_r + half * v2r;
+    inv.hl  = TotalEnthalpy( hint_l, v2l );
+    inv.hr  = TotalEnthalpy( hint_r, v2r );
 
-    Real vnl  = gcom.xfn * inv.ul + gcom.yfn * inv.vl + gcom.zfn * inv.wl - gcom.vfn;
-    Real vnr  = gcom.xfn * inv.ur + gcom.yfn * inv.vr + gcom.zfn * inv.wr - gcom.vfn;
+    Real vnl = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ul, inv.vl, inv.wl );
+    Real vnr = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ur, inv.vr, inv.wr );
 
-    Real rvnl = inv.rl * vnl;
-    Real rvnr = inv.rr * vnr;
 
-    Real ratio = sqrt( inv.rr / inv.rl );
-    Real coef  = 1.0 / ( 1.0 + ratio );
-
-    inv.rm = sqrt( inv.rl * inv.rr );
-    inv.um = ( inv.ul + inv.ur * ratio ) * coef;
-    inv.vm = ( inv.vl + inv.vr * ratio ) * coef;
-    inv.wm = ( inv.wl + inv.wr * ratio ) * coef;
-    inv.hm = ( inv.hl + inv.hr * ratio ) * coef;
-    inv.pm = ( inv.pl + inv.pr * ratio ) * coef;
-    inv.gama = ( inv.gama1 + inv.gama2 * ratio ) * coef;
+    RoeAverageState(
+        inv.rl, inv.ul, inv.vl, inv.wl, inv.pl, inv.hl, inv.gama1,
+        inv.rr, inv.ur, inv.vr, inv.wr, inv.pr, inv.hr, inv.gama2,
+        inv.rm, inv.um, inv.vm, inv.wm, inv.pm, inv.hm, inv.gama );
 
     Real v2 = ONEFLOW::SQR( inv.um, inv.vm, inv.wm );
 
@@ -206,22 +160,20 @@ void NsInvFlux::Roe()
 
     Real c2 = gamm1 * ( inv.hm - half * v2 );
     inv.cm = sqrt( ABS( c2 ) );
+    RoeAbsoluteEigenvalues(
+        inv.vnrel, inv.cm, inv.aeig1, inv.aeig2, inv.aeig3 );
 
-    inv.aeig1 = ABS( inv.vnrel          );
-    inv.aeig2 = ABS( inv.vnrel + inv.cm );
-    inv.aeig3 = ABS( inv.vnrel - inv.cm );
+    EulerConvectiveFlux(
+        inv.rl, inv.ul, inv.vl, inv.wl, inv.pl, inv.hl, vnl,
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn,
+        inv.flux1[ IDX::IR ], inv.flux1[ IDX::IRU ], inv.flux1[ IDX::IRV ],
+        inv.flux1[ IDX::IRW ], inv.flux1[ IDX::IRE ] );
 
-    inv.flux1[ IDX::IR  ] = rvnl                            ;
-    inv.flux1[ IDX::IRU ] = rvnl * inv.ul + gcom.xfn * inv.pl;
-    inv.flux1[ IDX::IRV ] = rvnl * inv.vl + gcom.yfn * inv.pl;
-    inv.flux1[ IDX::IRW ] = rvnl * inv.wl + gcom.zfn * inv.pl;
-    inv.flux1[ IDX::IRE ] = rvnl * inv.hl + gcom.vfn * inv.pl;
-
-    inv.flux2[ IDX::IR  ] = rvnr                            ;
-    inv.flux2[ IDX::IRU ] = rvnr * inv.ur + gcom.xfn * inv.pr;
-    inv.flux2[ IDX::IRV ] = rvnr * inv.vr + gcom.yfn * inv.pr;
-    inv.flux2[ IDX::IRW ] = rvnr * inv.wr + gcom.zfn * inv.pr;
-    inv.flux2[ IDX::IRE ] = rvnr * inv.hr + gcom.vfn * inv.pr;
+    EulerConvectiveFlux(
+        inv.rr, inv.ur, inv.vr, inv.wr, inv.pr, inv.hr, vnr,
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn,
+        inv.flux2[ IDX::IR ], inv.flux2[ IDX::IRU ], inv.flux2[ IDX::IRV ],
+        inv.flux2[ IDX::IRW ], inv.flux2[ IDX::IRE ] );
 
     for ( int iEqu = nscom.nBEqu; iEqu < nscom.nEqu; ++ iEqu )
     {
@@ -300,30 +252,30 @@ void NsInvFlux::Vanleer()
     CalcEnthalpy( inv.prim1, inv.gama1, hint_l );
     CalcEnthalpy( inv.prim2, inv.gama2, hint_r );
 
-    inv.hl  = hint_l + half * v2l;
-    inv.hr  = hint_r + half * v2r;
+    inv.hl  = TotalEnthalpy( hint_l, v2l );
+    inv.hr  = TotalEnthalpy( hint_r, v2r );
 
-    Real vnl  = gcom.xfn * inv.ul + gcom.yfn * inv.vl + gcom.zfn * inv.wl - gcom.vfn;
-    Real vnr  = gcom.xfn * inv.ur + gcom.yfn * inv.vr + gcom.zfn * inv.wr - gcom.vfn;
+    Real vnl = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ul, inv.vl, inv.wl );
+    Real vnr = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ur, inv.vr, inv.wr );
 
-    Real rvnl = inv.rl * vnl;
-    Real rvnr = inv.rr * vnr;
 
     Real c2l   = inv.gama1 * inv.pl / inv.rl;
-    Real cl    = sqrt( ABS( c2l ) );
-    Real machl = vnl / cl;
+    Real cl    = IdealGasSoundSpeedFromPressure( inv.rl, inv.pl, inv.gama1 );
+    Real machl = FaceMachNumber( vnl, cl );
 
     Real c2r   = inv.gama2 * inv.pr / inv.rr;
-    Real cr    = sqrt( ABS( c2r ) );
-    Real machr = vnr / cr;
+    Real cr    = IdealGasSoundSpeedFromPressure( inv.rr, inv.pr, inv.gama2 );
+    Real machr = FaceMachNumber( vnr, cr );
 
     if ( machl > one )
     {
-        inv.flux1[ IDX::IR  ] = rvnl;
-        inv.flux1[ IDX::IRU ] = rvnl * inv.ul + gcom.xfn * inv.pl;
-        inv.flux1[ IDX::IRV ] = rvnl * inv.vl + gcom.yfn * inv.pl;
-        inv.flux1[ IDX::IRW ] = rvnl * inv.wl + gcom.zfn * inv.pl;
-        inv.flux1[ IDX::IRE ] = rvnl * inv.hl + gcom.vfn * inv.pl;
+        EulerConvectiveFlux(
+            inv.rl, inv.ul, inv.vl, inv.wl, inv.pl, inv.hl, vnl,
+            gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn,
+            inv.flux1[ IDX::IR ], inv.flux1[ IDX::IRU ], inv.flux1[ IDX::IRV ],
+            inv.flux1[ IDX::IRW ], inv.flux1[ IDX::IRE ] );
     }
     else if ( machl < - one )
     {
@@ -352,11 +304,11 @@ void NsInvFlux::Vanleer()
     //Right contribution
     if ( machr < - one )
     {
-        inv.flux2[ IDX::IR  ] = rvnr;
-        inv.flux2[ IDX::IRU ] = rvnr * inv.ur + gcom.xfn * inv.pr;
-        inv.flux2[ IDX::IRV ] = rvnr * inv.vr + gcom.yfn * inv.pr;
-        inv.flux2[ IDX::IRW ] = rvnr * inv.wr + gcom.zfn * inv.pr;
-        inv.flux2[ IDX::IRE ] = rvnr * inv.hr + gcom.vfn * inv.pr;
+        EulerConvectiveFlux(
+            inv.rr, inv.ur, inv.vr, inv.wr, inv.pr, inv.hr, vnr,
+            gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn,
+            inv.flux2[ IDX::IR ], inv.flux2[ IDX::IRU ], inv.flux2[ IDX::IRV ],
+            inv.flux2[ IDX::IRW ], inv.flux2[ IDX::IRE ] );
     }
     else if ( machr > one )
     {
@@ -397,14 +349,14 @@ void NsInvFlux::Steger()
     CalcEnthalpy( inv.prim1, inv.gama1, hint_l );
     CalcEnthalpy( inv.prim2, inv.gama2, hint_r );
 
-    inv.hl  = hint_l + half * v2l;
-    inv.hr  = hint_r + half * v2r;
+    inv.hl  = TotalEnthalpy( hint_l, v2l );
+    inv.hr  = TotalEnthalpy( hint_r, v2r );
 
-    Real vnl  = gcom.xfn * inv.ul + gcom.yfn * inv.vl + gcom.zfn * inv.wl - gcom.vfn;
-    Real vnr  = gcom.xfn * inv.ur + gcom.yfn * inv.vr + gcom.zfn * inv.wr - gcom.vfn;
+    Real vnl = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ul, inv.vl, inv.wl );
+    Real vnr = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ur, inv.vr, inv.wr );
 
-    Real rvnl = inv.rl * vnl;
-    Real rvnr = inv.rr * vnr;
 
     inv.el  = inv.hl - inv.pl / ( inv.rl + SMALL );
     inv.er  = inv.hr - inv.pr / ( inv.rr + SMALL );
@@ -412,8 +364,8 @@ void NsInvFlux::Steger()
     Real c2l = inv.gama1 * inv.pl / inv.rl;
     Real c2r = inv.gama2 * inv.pr / inv.rr;
 
-    Real cl  = sqrt( ABS( c2l ) );
-    Real cr  = sqrt( ABS( c2r ) );
+    Real cl  = IdealGasSoundSpeedFromPressure( inv.rl, inv.pl, inv.gama1 );
+    Real cr  = IdealGasSoundSpeedFromPressure( inv.rr, inv.pr, inv.gama2 );
 
     inv.eig11 = vnl;
     inv.eig12 = vnl + cl;
@@ -509,27 +461,21 @@ void NsInvFlux::Hlle()
     CalcEnthalpy( inv.prim1, inv.gama1, hint_l );
     CalcEnthalpy( inv.prim2, inv.gama2, hint_r );
 
-    inv.hl  = hint_l + half * v2l;
-    inv.hr  = hint_r + half * v2r;
+    inv.hl  = TotalEnthalpy( hint_l, v2l );
+    inv.hr  = TotalEnthalpy( hint_r, v2r );
 
-    Real ratio = sqrt( inv.rr / inv.rl );
-    Real coef  = 1.0 / ( 1.0 + ratio );
-
-    inv.rm = sqrt( inv.rl * inv.rr );
-    inv.um = ( inv.ul + inv.ur * ratio ) * coef;
-    inv.vm = ( inv.vl + inv.vr * ratio ) * coef;
-    inv.wm = ( inv.wl + inv.wr * ratio ) * coef;
-    inv.hm = ( inv.hl + inv.hr * ratio ) * coef;
-    inv.pm = ( inv.pl + inv.pr * ratio ) * coef;
-    inv.gama = ( inv.gama1 + inv.gama2 * ratio ) * coef;
+    RoeAverageState(
+        inv.rl, inv.ul, inv.vl, inv.wl, inv.pl, inv.hl, inv.gama1,
+        inv.rr, inv.ur, inv.vr, inv.wr, inv.pr, inv.hr, inv.gama2,
+        inv.rm, inv.um, inv.vm, inv.wm, inv.pm, inv.hm, inv.gama );
                
     Real gamm1 = inv.gama - one;
 
-    Real vnl  = gcom.xfn * inv.ul + gcom.yfn * inv.vl + gcom.zfn * inv.wl - gcom.vfn;
-    Real vnr  = gcom.xfn * inv.ur + gcom.yfn * inv.vr + gcom.zfn * inv.wr - gcom.vfn;
+    Real vnl = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ul, inv.vl, inv.wl );
+    Real vnr = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ur, inv.vr, inv.wr );
 
-    Real rvnl = inv.rl * vnl;
-    Real rvnr = inv.rr * vnr;
 
     inv.vnflow = gcom.xfn * inv.um + gcom.yfn * inv.vm + gcom.zfn * inv.wm;
     inv.vnrel = inv.vnflow - gcom.vfn;
@@ -538,17 +484,17 @@ void NsInvFlux::Hlle()
     inv.cr  = sqrt( inv.gama2 * inv.pr / ( inv.rr + SMALL ) );
     inv.cm  = sqrt( inv.gama * inv.pm / ( inv.rm + SMALL ) );
 
-    inv.flux1[ IDX::IR  ] = rvnl                             ;
-    inv.flux1[ IDX::IRU ] = rvnl * inv.ul + gcom.xfn * inv.pl;
-    inv.flux1[ IDX::IRV ] = rvnl * inv.vl + gcom.yfn * inv.pl;
-    inv.flux1[ IDX::IRW ] = rvnl * inv.wl + gcom.zfn * inv.pl;
-    inv.flux1[ IDX::IRE ] = rvnl * inv.hl + gcom.vfn * inv.pl;
+    EulerConvectiveFlux(
+        inv.rl, inv.ul, inv.vl, inv.wl, inv.pl, inv.hl, vnl,
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn,
+        inv.flux1[ IDX::IR ], inv.flux1[ IDX::IRU ], inv.flux1[ IDX::IRV ],
+        inv.flux1[ IDX::IRW ], inv.flux1[ IDX::IRE ] );
 
-    inv.flux2[ IDX::IR  ] = rvnr                             ;
-    inv.flux2[ IDX::IRU ] = rvnr * inv.ur + gcom.xfn * inv.pr;
-    inv.flux2[ IDX::IRV ] = rvnr * inv.vr + gcom.yfn * inv.pr;
-    inv.flux2[ IDX::IRW ] = rvnr * inv.wr + gcom.zfn * inv.pr;
-    inv.flux2[ IDX::IRE ] = rvnr * inv.hr + gcom.vfn * inv.pr;
+    EulerConvectiveFlux(
+        inv.rr, inv.ur, inv.vr, inv.wr, inv.pr, inv.hr, vnr,
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn,
+        inv.flux2[ IDX::IR ], inv.flux2[ IDX::IRU ], inv.flux2[ IDX::IRV ],
+        inv.flux2[ IDX::IRW ], inv.flux2[ IDX::IRE ] );
 
     PrimToQ( inv.prim1, inv.gama1, inv.q1 );
     PrimToQ( inv.prim2, inv.gama2, inv.q2 );
@@ -586,42 +532,37 @@ void NsInvFlux::LaxFriedrichs()
     CalcEnthalpy( inv.prim1, inv.gama1, hint_l );
     CalcEnthalpy( inv.prim2, inv.gama2, hint_r );
 
-    inv.hl  = hint_l + half * v2l;
-    inv.hr  = hint_r + half * v2r;
+    inv.hl  = TotalEnthalpy( hint_l, v2l );
+    inv.hr  = TotalEnthalpy( hint_r, v2r );
 
-    Real ratio = sqrt( inv.rr / inv.rl );
-    Real coef  = 1.0 / ( 1.0 + ratio );
-
-    inv.rm = sqrt( inv.rl * inv.rr );
-    inv.um = ( inv.ul + inv.ur * ratio ) * coef;
-    inv.vm = ( inv.vl + inv.vr * ratio ) * coef;
-    inv.wm = ( inv.wl + inv.wr * ratio ) * coef;
-    inv.pm = ( inv.pl + inv.pr * ratio ) * coef;
-    inv.gama = ( inv.gama1 + inv.gama2 * ratio ) * coef;
+    RoeAverageState(
+        inv.rl, inv.ul, inv.vl, inv.wl, inv.pl, inv.hl, inv.gama1,
+        inv.rr, inv.ur, inv.vr, inv.wr, inv.pr, inv.hr, inv.gama2,
+        inv.rm, inv.um, inv.vm, inv.wm, inv.pm, inv.hm, inv.gama );
 
     Real gamm1 = inv.gama - one;
 
-    Real vnl  = gcom.xfn * inv.ul + gcom.yfn * inv.vl + gcom.zfn * inv.wl - gcom.vfn;
-    Real vnr  = gcom.xfn * inv.ur + gcom.yfn * inv.vr + gcom.zfn * inv.wr - gcom.vfn;
+    Real vnl = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ul, inv.vl, inv.wl );
+    Real vnr = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ur, inv.vr, inv.wr );
 
-    Real rvnl = inv.rl * vnl;
-    Real rvnr = inv.rr * vnr;
 
     inv.vnflow = gcom.xfn * inv.um + gcom.yfn * inv.vm + gcom.zfn * inv.wm;
     inv.vnrel = inv.vnflow - gcom.vfn;
     inv.cm  = sqrt( inv.gama * inv.pm / ( inv.rm + SMALL ) );
 
-    inv.flux1[ IDX::IR  ] = rvnl                             ;
-    inv.flux1[ IDX::IRU ] = rvnl * inv.ul + gcom.xfn * inv.pl;
-    inv.flux1[ IDX::IRV ] = rvnl * inv.vl + gcom.yfn * inv.pl;
-    inv.flux1[ IDX::IRW ] = rvnl * inv.wl + gcom.zfn * inv.pl;
-    inv.flux1[ IDX::IRE ] = rvnl * inv.hl + gcom.vfn * inv.pl;
+    EulerConvectiveFlux(
+        inv.rl, inv.ul, inv.vl, inv.wl, inv.pl, inv.hl, vnl,
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn,
+        inv.flux1[ IDX::IR ], inv.flux1[ IDX::IRU ], inv.flux1[ IDX::IRV ],
+        inv.flux1[ IDX::IRW ], inv.flux1[ IDX::IRE ] );
 
-    inv.flux2[ IDX::IR  ] = rvnr                             ;
-    inv.flux2[ IDX::IRU ] = rvnr * inv.ur + gcom.xfn * inv.pr;
-    inv.flux2[ IDX::IRV ] = rvnr * inv.vr + gcom.yfn * inv.pr;
-    inv.flux2[ IDX::IRW ] = rvnr * inv.wr + gcom.zfn * inv.pr;
-    inv.flux2[ IDX::IRE ] = rvnr * inv.hr + gcom.vfn * inv.pr;
+    EulerConvectiveFlux(
+        inv.rr, inv.ur, inv.vr, inv.wr, inv.pr, inv.hr, vnr,
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn,
+        inv.flux2[ IDX::IR ], inv.flux2[ IDX::IRU ], inv.flux2[ IDX::IRV ],
+        inv.flux2[ IDX::IRW ], inv.flux2[ IDX::IRE ] );
 
     for ( int iEqu = nscom.nBEqu; iEqu < nscom.nEqu; ++ iEqu )
     {
@@ -655,11 +596,13 @@ void NsInvFlux::Ausmp()
     CalcEnthalpy( inv.prim1, inv.gama1, hint_l );
     CalcEnthalpy( inv.prim2, inv.gama2, hint_r );
 
-    inv.hl  = hint_l + half * v2l;
-    inv.hr  = hint_r + half * v2r;
+    inv.hl  = TotalEnthalpy( hint_l, v2l );
+    inv.hr  = TotalEnthalpy( hint_r, v2r );
 
-    Real vnl  = gcom.xfn * inv.ul + gcom.yfn * inv.vl + gcom.zfn * inv.wl - gcom.vfn;
-    Real vnr  = gcom.xfn * inv.ur + gcom.yfn * inv.vr + gcom.zfn * inv.wr - gcom.vfn;
+    Real vnl = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ul, inv.vl, inv.wl );
+    Real vnr = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ur, inv.vr, inv.wr );
 
     Real orl = 1.0 / ( inv.rl + SMALL );
     Real orr = 1.0 / ( inv.rr + SMALL );
@@ -723,11 +666,13 @@ void NsInvFlux::AusmpUp()
     CalcEnthalpy( inv.prim1, inv.gama1, hint_l );
     CalcEnthalpy( inv.prim2, inv.gama2, hint_r );
 
-    inv.hl  = hint_l + half * v2l;
-    inv.hr  = hint_r + half * v2r;
+    inv.hl  = TotalEnthalpy( hint_l, v2l );
+    inv.hr  = TotalEnthalpy( hint_r, v2r );
 
-    Real vnl  = gcom.xfn * inv.ul + gcom.yfn * inv.vl + gcom.zfn * inv.wl - gcom.vfn;
-    Real vnr  = gcom.xfn * inv.ur + gcom.yfn * inv.vr + gcom.zfn * inv.wr - gcom.vfn;
+    Real vnl = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ul, inv.vl, inv.wl );
+    Real vnr = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ur, inv.vr, inv.wr );
 
     inv.gama = half * ( inv.gama1 + inv.gama2 );
 
@@ -833,11 +778,13 @@ void NsInvFlux::Ausmdv()
     CalcEnthalpy( inv.prim1, inv.gama1, hint_l );
     CalcEnthalpy( inv.prim2, inv.gama2, hint_r );
 
-    inv.hl  = hint_l + half * v2l;
-    inv.hr  = hint_r + half * v2r;
+    inv.hl  = TotalEnthalpy( hint_l, v2l );
+    inv.hr  = TotalEnthalpy( hint_r, v2r );
 
-    Real vnl  = gcom.xfn * inv.ul + gcom.yfn * inv.vl + gcom.zfn * inv.wl - gcom.vfn;
-    Real vnr  = gcom.xfn * inv.ur + gcom.yfn * inv.vr + gcom.zfn * inv.wr - gcom.vfn;
+    Real vnl = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ul, inv.vl, inv.wl );
+    Real vnr = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ur, inv.vr, inv.wr );
 
     inv.gama = half * ( inv.gama1 + inv.gama2 );
 
@@ -1041,11 +988,13 @@ void NsInvFlux::Ausmw()
     CalcEnthalpy( inv.prim1, inv.gama1, hint_l );
     CalcEnthalpy( inv.prim2, inv.gama2, hint_r );
 
-    inv.hl  = hint_l + half * v2l;
-    inv.hr  = hint_r + half * v2r;
+    inv.hl  = TotalEnthalpy( hint_l, v2l );
+    inv.hr  = TotalEnthalpy( hint_r, v2r );
 
-    Real vnl  = gcom.xfn * inv.ul + gcom.yfn * inv.vl + gcom.zfn * inv.wl - gcom.vfn;
-    Real vnr  = gcom.xfn * inv.ur + gcom.yfn * inv.vr + gcom.zfn * inv.wr - gcom.vfn;
+    Real vnl = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ul, inv.vl, inv.wl );
+    Real vnr = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ur, inv.vr, inv.wr );
 
     inv.gama = half * ( inv.gama1 + inv.gama2 );
 
@@ -1147,11 +1096,13 @@ void NsInvFlux::Ausmpw()
     CalcEnthalpy( inv.prim1, inv.gama1, hint_l );
     CalcEnthalpy( inv.prim2, inv.gama2, hint_r );
 
-    inv.hl  = hint_l + half * v2l;
-    inv.hr  = hint_r + half * v2r;
+    inv.hl  = TotalEnthalpy( hint_l, v2l );
+    inv.hr  = TotalEnthalpy( hint_r, v2r );
 
-    Real vnl  = gcom.xfn * inv.ul + gcom.yfn * inv.vl + gcom.zfn * inv.wl - gcom.vfn;
-    Real vnr  = gcom.xfn * inv.ur + gcom.yfn * inv.vr + gcom.zfn * inv.wr - gcom.vfn;
+    Real vnl = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ul, inv.vl, inv.wl );
+    Real vnr = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ur, inv.vr, inv.wr );
 
     Real orl = 1.0 / ( inv.rl + SMALL );
     Real orr = 1.0 / ( inv.rr + SMALL );
@@ -1236,11 +1187,13 @@ void NsInvFlux::Slau2()
     CalcEnthalpy( inv.prim1, inv.gama1, hint_l );
     CalcEnthalpy( inv.prim2, inv.gama2, hint_r );
 
-    inv.hl  = hint_l + half * v2l;
-    inv.hr  = hint_r + half * v2r;
+    inv.hl  = TotalEnthalpy( hint_l, v2l );
+    inv.hr  = TotalEnthalpy( hint_r, v2r );
 
-    Real vnl  = gcom.xfn * inv.ul + gcom.yfn * inv.vl + gcom.zfn * inv.wl - gcom.vfn;
-    Real vnr  = gcom.xfn * inv.ur + gcom.yfn * inv.vr + gcom.zfn * inv.wr - gcom.vfn;
+    Real vnl = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ul, inv.vl, inv.wl );
+    Real vnr = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ur, inv.vr, inv.wr );
 
     Real orl = 1.0 / ( inv.rl + SMALL );
     Real orr = 1.0 / ( inv.rr + SMALL );
@@ -1300,7 +1253,7 @@ void CalcEnthalpy( RealField & prim, Real gama, Real & enthalpy )
 
     if ( nscom.chemModel == 0 )
     {
-        enthalpy = ( gama / ( gama - one ) ) * ( pressure / density );
+        enthalpy = IdealGasStaticEnthalpy( density, pressure, gama );
     }
     else
     {
@@ -1328,20 +1281,15 @@ void CalcTotalEnthalpyChange( RealField & prim, Real & gama, RealField & dq, Rea
 
 void PrimToQ( RealField & prim, Real gama, RealField & q )
 {
-    Real em;
     Real & density  = prim[ IDX::IR ];
     Real &      um  = prim[ IDX::IU ];
     Real &      vm  = prim[ IDX::IV ];
     Real &      wm  = prim[ IDX::IW ];
     Real & pressure = prim[ IDX::IP ];
-    
-    ONEFLOW::CalcInternalEnergy( prim, gama, em );
 
-    q[ IDX::IR  ] = density;
-    q[ IDX::IRU ] = density * um;
-    q[ IDX::IRV ] = density * vm;
-    q[ IDX::IRW ] = density * wm;
-    q[ IDX::IRE ] = density * em;
+    IdealGasPrimToConservative(
+        density, um, vm, wm, pressure, gama,
+        q[ IDX::IR ], q[ IDX::IRU ], q[ IDX::IRV ], q[ IDX::IRW ], q[ IDX::IRE ] );
 
     for ( int iEqu = nscom.nBEqu; iEqu < nscom.nEqu; ++ iEqu )
     {
@@ -1382,7 +1330,7 @@ void CalcInternalEnergy( RealField & prim, Real gama, Real & em )
     Real & pm = prim[ IDX::IP ];
     Real v2 = ONEFLOW::SQR( um, vm, wm );
 
-    em = ( pm / rm ) / ( gama - one ) + half * v2;
+    em = IdealGasSpecificInternalEnergy( rm, pm, gama, v2 );
 }
 
 

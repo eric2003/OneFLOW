@@ -17,8 +17,7 @@ License
 
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
-
-\*---------------------------------------------------------------------------*/
+-------------------------------------------------------------------------------*/
 #pragma once
 #include "HXType.h"
 #include "HXVector.h"
@@ -51,12 +50,12 @@ public:
 
     HXSize_t GetNEqu() const { return data.size(); }
 
-    HXVector< T > & operator[]( int iEqu )
+    HXVector< T > & operator[]( HXSize_t iEqu )
     {
         return data[ iEqu ];
     }
 
-    const HXVector< T > & operator[]( int iEqu ) const
+    const HXVector< T > & operator[]( HXSize_t iEqu ) const
     {
         return data[ iEqu ];
     }

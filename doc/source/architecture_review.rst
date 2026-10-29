@@ -45,6 +45,40 @@ Review principles
 8. **Return to the system map at milestones.** Ask whether the overall architecture has
    improved, whether the biggest risk has changed, and whether the next task should move.
 
+Design intent as an executable contract
+---------------------------------------
+
+AI can generate implementation quickly, but generation is only reliable when the intended
+behavior and boundaries are explicit. OneFLOW should treat design intent as the source of
+constraints, not as a substitute for code or tests.
+
+Use four linked levels:
+
+* **Intent:** explain why a capability exists, which responsibility it owns, and which
+  responsibilities remain outside its boundary.
+* **Contract:** define inputs, outputs, ownership, lifecycle, invariants, failure behavior,
+  and compatibility requirements precisely enough to review.
+* **Implementation:** write or generate code that realizes the contract. Generated code is
+  still ordinary code and must remain readable, reviewable, and maintainable.
+* **Evidence:** add focused tests for the contract, integration tests for composition, and
+  representative numerical regressions where engineering behavior is involved.
+
+Documentation-driven code generation is appropriate when the source description is
+structured and deterministic: field tables, enum mappings, command schemas, repetitive
+registrations, serialization layouts, or boilerplate derived from a stable interface.
+Keep the generator and its input schema versioned, make output reproducible, and verify
+that regenerating produces no unexplained diff.
+
+Do not generate an algorithm from a broad prose statement such as "make the limiter robust."
+For numerical methods, prose should first identify the governing equation, assumptions,
+boundary treatment, stability or monotonicity properties, and reference cases. Implementation
+and tests should then be derived from those constraints and reviewed against the mathematics.
+
+The practical rule is: **document intent broadly, specify contracts precisely, generate only
+where rules are mechanical, and test every generated or handwritten behavior at its boundary.**
+Do not require every note to become a generator input. Start with one small vertical slice and
+measure whether generation reduces drift without making the design harder to understand.
+
 A reusable prompt for AI-assisted engineering
 ---------------------------------------------
 

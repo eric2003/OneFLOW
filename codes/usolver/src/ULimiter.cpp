@@ -21,6 +21,9 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "ULimiter.h"
+#include "UGradPolicy.h"
+#include "ULimiterPolicy.h"
+#include "ULimiterRange.h"
 #include "HipProductionPolicy.h"
 #include "UnsGrid.h"
 #include "DataBase.h"
@@ -72,80 +75,9 @@ void LimField::BindFieldsAndAllocFaces(
 }
 
 
-Real BarthFunction( Real dq, Real minv, Real maxv, Real dot )
-{
-    if ( dot < 0.0 ) 
-    {
-        return 0.0;
-    }
-    else if ( dq > maxv )
-    {
-        return maxv / dq;
-    }
-    else if ( dq < minv )
-    {
-        return minv / dq;
-    }
-
-    return 1.0;
-}
-
-Real Vencat( Real x, Real y, Real eps )
-{
-    Real x2 = x * x;
-    Real xy = x * y;
-    Real y2 = y * y;
-    Real cc = 2.0;
-    //Real cc = 0.1;
-    return ( ( x2 + eps + cc * xy ) / ( x2 + cc * y2 + xy + eps ) );
-}
-
-Real VencatEric( Real x, Real y, Real eps )
-{
-    Real x2 = x * x;
-    Real xy = x * y;
-    Real y2 = y * y;
-    return ( ( x2 + eps + 1.0 * xy ) / ( x2 + 2.0 * y2 + xy + eps ) );
-}
-
-Real VencatFunction( Real dq, Real minv, Real maxv, Real eps )
-{
-    if ( dq > SMALL )
-    {
-        return Vencat( maxv, dq, eps );
-    }
-    else if ( dq < - SMALL )
-    {
-        return Vencat( minv, dq, eps );
-    }
-
-    return 1.0;
-}
-
-Real VencatFunctionEric( Real dq, Real minv, Real maxv, Real eps )
-{
-    if ( dq > SMALL )
-    {
-        return VencatEric( maxv, dq, eps );
-    }
-    else if ( dq < - SMALL )
-    {
-        return VencatEric( minv, dq, eps );
-    }
-
-    return 1.0;
-}
-
 Real LimField::ModifyLimiter( Real phil, Real phir )
 {
-    if ( ug.ireconface == 0 )
-    {
-        return phil;
-    }
-    else
-    {
-        return MIN( phil, phir );
-    }
+    return BlendFaceLimiter( phil, phir, ug.ireconface != 0 );
 }
 
 void LimField::GetQlQr()
@@ -178,7 +110,8 @@ void LimField::BcQlQrFix()
 
         for ( int iEqu = 0; iEqu < this->nEqu; ++ iEqu )
         {
-            Real tmp = half * ( ( * this->q )[ iEqu ][ ug.lc ] + ( * this->q )[ iEqu ][ ug.rc ] );
+            Real tmp = ArithmeticFaceAverage(
+                ( * this->q )[ iEqu ][ ug.lc ], ( * this->q )[ iEqu ][ ug.rc ] );
 
             ( * this->qf1 )[ iEqu ][ ug.fId ] = tmp;
             ( * this->qf2 )[ iEqu ][ ug.fId ] = tmp;
@@ -216,7 +149,8 @@ void LimField::CalcFaceValue()
             Real phir  = ( * this->limiter )[ iEqu ][ ug.rc ];
             Real phi = this->ModifyLimiter( phil, phir );
 
-            qTry[ iEqu ] += phi * ( dqdx * dx + dqdy * dy + dqdz * dz );
+            qTry[ iEqu ] = ApplyLimitedFaceReconstruction(
+                qTry[ iEqu ], phi, dqdx, dqdy, dqdz, dx, dy, dz );
         }
 
         if ( ( * this->ckfun )( qTry ) )
@@ -246,7 +180,8 @@ void LimField::CalcFaceValue()
             Real phir = ( * this->limiter )[ iEqu ][ ug.rc ];
             Real phi = this->ModifyLimiter( phir, phil );
 
-            qTry[ iEqu ] += phi * ( dqdx * dx + dqdy * dy + dqdz * dz );
+            qTry[ iEqu ] = ApplyLimitedFaceReconstruction(
+                qTry[ iEqu ], phi, dqdx, dqdy, dqdz, dx, dy, dz );
         }
 
         if ( ( * this->ckfun )( qTry ) )
@@ -277,12 +212,8 @@ void LimField::CalcFaceValueWeighted()
         Real dyr = ( * ug.yfc )[ ug.fId ] - ( * ug.ycc )[ ug.rc ];
         Real dzr = ( * ug.zfc )[ ug.fId ] - ( * ug.zcc )[ ug.rc ];
 
-        Real delt1  = DIST( dxl, dyl, dzl );
-        Real delt2  = DIST( dxr, dyr, dzr );
-        Real delta  = 1.0 / ( delt1 + delt2 + SMALL );
-
-        Real cl = delt2 * delta;
-        Real cr = delt1 * delta;
+        Real cl, cr;
+        InverseDistanceFaceWeights( dxl, dyl, dzl, dxr, dyr, dzr, cl, cr );
 
         Real dx = ( * ug.xfc )[ ug.fId ] - ( * ug.xcc )[ ug.lc ];
         Real dy = ( * ug.yfc )[ ug.fId ] - ( * ug.ycc )[ ug.lc ];
@@ -303,7 +234,8 @@ void LimField::CalcFaceValueWeighted()
             Real phir  = ( * this->limiter )[ iEqu ][ ug.rc ];
             Real phi = this->ModifyLimiter( phil, phir );
 
-            qTry[ iEqu ] += phi * ( dqdx * dx + dqdy * dy + dqdz * dz );
+            qTry[ iEqu ] = ApplyLimitedFaceReconstruction(
+                qTry[ iEqu ], phi, dqdx, dqdy, dqdz, dx, dy, dz );
         }
 
         if ( ( * this->ckfun )( qTry ) )
@@ -319,7 +251,7 @@ void LimField::CalcFaceValueWeighted()
             {
                 Real var1 = ( * this->qf1 )[ iEqu ][ ug.fId ];
                 Real var2 = ( * this->qf2 )[ iEqu ][ ug.fId ];
-                Real value = cl * var1 + cr * var2;
+                Real value = WeightedFaceAverage( var1, var2, cl, cr );
 
                 ( * this->qf1 )[ iEqu ][ ug.fId ] = value;
             }
@@ -344,7 +276,8 @@ void LimField::CalcFaceValueWeighted()
             Real phir = ( * this->limiter )[ iEqu ][ ug.rc ];
             Real phi = this->ModifyLimiter( phir, phil );
 
-            qTry[ iEqu ] += phi * ( dqdx * dx + dqdy * dy + dqdz * dz );
+            qTry[ iEqu ] = ApplyLimitedFaceReconstruction(
+                qTry[ iEqu ], phi, dqdx, dqdy, dqdz, dx, dy, dz );
         }
 
         if ( ( * this->ckfun )( qTry ) )
@@ -360,7 +293,7 @@ void LimField::CalcFaceValueWeighted()
             {
                 Real var1 = ( * this->qf1 )[ iEqu ][ ug.fId ];
                 Real var2 = ( * this->qf2 )[ iEqu ][ ug.fId ];
-                Real value = cl * var1 + cr * var2;
+                Real value = WeightedFaceAverage( var1, var2, cl, cr );
 
                 ( * this->qf2 )[ iEqu ][ ug.fId ] = value;
             }
@@ -394,9 +327,14 @@ void Limiter::CalcLimiter()
         return;
     }
 
-    // Allocate limiter state (owned).
-    lim->minvf = std::make_unique<RealField>( ug.nTCell );
-    lim->maxvf = std::make_unique<RealField>( ug.nTCell );
+    // Keep the extrema workspace across calls. assign() clears every entry,
+    // including ghost-cell slots, while reusing the vector capacity when the
+    // grid extent is unchanged. The zero initialization matches the previous
+    // freshly-constructed vectors and is required by the current boundary path.
+    if ( ! lim->minvf ) lim->minvf = std::make_unique<RealField>();
+    if ( ! lim->maxvf ) lim->maxvf = std::make_unique<RealField>();
+    lim->minvf->assign( ug.nTCell, 0.0 );
+    lim->maxvf->assign( ug.nTCell, 0.0 );
 
     for ( int iEqu = 0; iEqu < limf->nEqu; ++ iEqu )
     {
@@ -408,9 +346,7 @@ void Limiter::CalcLimiter()
         this->SetInitValue();
         this->CalcLimiterScalar();
     }
-    // Release limiter state.
-    lim->minvf.reset();
-    lim->maxvf.reset();
+    // The owned extrema workspace remains available for the next limiter call.
 }
 
 void Limiter::SetInitValue()
@@ -430,10 +366,6 @@ void Limiter::CalcLimiterScalar()
     if ( limflag == ILMT_ZERO )
     {
         this->CalcZeroLimiter();
-    }
-    else if ( limflag == ILMT_NO )
-    {
-        this->CalcNoLimiter();
     }
     else if ( limflag == ILMT_BARTH )
     {
@@ -461,25 +393,9 @@ void Limiter::CalcZeroLimiter()
     }
 }
 
-void Limiter::CalcNoLimiter()
-{
-    for ( int fId = 0; fId < ug.nFaces; ++ fId )
-    {
-        ug.fId = fId;
-        ug.lc = ( * ug.lcf )[ ug.fId ];
-        ug.rc = ( * ug.rcf )[ ug.fId ];
-
-        lim->lim1 = 1.0;
-        lim->lim2 = 1.0;
-
-        ( * lim->limiter )[ ug.lc ] = lim->lim1;
-        ( * lim->limiter )[ ug.rc ] = lim->lim2;
-    }
-}
-
 void Limiter::CalcBarthLimiter()
 {
-    this->CalcMinMaxDiff();
+    this->BuildNeighborRangeOffsets();
 
     for ( int fId = 0; fId < ug.nFaces; ++ fId )
     {
@@ -498,7 +414,11 @@ void Limiter::CalcBarthLimiter()
 
 void Limiter::CalcVencatLimiter()
 {
-    this->CalcMinMaxDiff();
+    this->BuildNeighborRangeOffsets();
+
+    // The global offset range is fixed for this equation during the face loop.
+    const Real regularizationEpsilon = VencatRegularizationEpsilon(
+        ctrl.vencat_coef, lim->minOffsetRange, lim->maxOffsetRange );
 
     for ( int fId = 0; fId < ug.nFaces; ++ fId )
     {
@@ -508,7 +428,7 @@ void Limiter::CalcVencatLimiter()
 
         this->PrepareData();
 
-        this->CalcLocalVencatLimiter();
+        this->CalcLocalVencatLimiter( regularizationEpsilon );
 
         ( * lim->limiter )[ ug.lc ] = lim->lim1;
         ( * lim->limiter )[ ug.rc ] = lim->lim2;
@@ -556,104 +476,67 @@ void Limiter::PrepareData()
 
 void Limiter::CalcLocalBarthLimiter()
 {
-    Real dx1 = gcom.xfc - gcom.xcc1;
-    Real dy1 = gcom.yfc - gcom.ycc1;
-    Real dz1 = gcom.zfc - gcom.zcc1;
+    const Real dx1 = gcom.xfc - gcom.xcc1;
+    const Real dy1 = gcom.yfc - gcom.ycc1;
+    const Real dz1 = gcom.zfc - gcom.zcc1;
 
-    Real dqFace1  = lim->dqdx1 * dx1 + lim->dqdy1 * dy1 + lim->dqdz1 * dz1;
+    const Real dqFace1 = ReconstructFaceIncrement(
+        lim->dqdx1, lim->dqdy1, lim->dqdz1, dx1, dy1, dz1 );
+    const Real dot1 = FaceSideDirectionDot(
+        gcom.xfn, gcom.yfn, gcom.zfn, dx1, dy1, dz1, 1.0 );
+    lim->lim1 = TightenLimiter(
+        lim->lim1, BarthFunction( dqFace1, lim->minv1, lim->maxv1, dot1 ) );
 
-    Real ds1  = DIST( dx1, dy1, dz1 );
-    Real dot1 = ( gcom.xfn * dx1 + gcom.yfn * dy1 + gcom.zfn * dz1 ) / ( ds1 + SMALL );
+    const Real dx2 = gcom.xfc - gcom.xcc2;
+    const Real dy2 = gcom.yfc - gcom.ycc2;
+    const Real dz2 = gcom.zfc - gcom.zcc2;
 
-    Real limv1 = BarthFunction( dqFace1, lim->minv1, lim->maxv1, dot1 );
-    lim->lim1 = MIN( lim->lim1, limv1 );
-
-    Real dx2 = gcom.xfc - gcom.xcc2;
-    Real dy2 = gcom.yfc - gcom.ycc2;
-    Real dz2 = gcom.zfc - gcom.zcc2;
-
-    Real dqFace2  = lim->dqdx2 * dx2 + lim->dqdy2 * dy2 + lim->dqdz2 * dz2;
-
-    Real ds2  = DIST( dx2, dy2, dz2 );
-    Real dot2 = - ( gcom.xfn * dx2 + gcom.yfn * dy2 + gcom.zfn * dz2 ) / ( ds2 + SMALL );
-
-    Real limv2 = BarthFunction( dqFace2, lim->minv2, lim->maxv2, dot2 );
-    lim->lim2 = MIN( lim->lim2, limv2 );
+    const Real dqFace2 = ReconstructFaceIncrement(
+        lim->dqdx2, lim->dqdy2, lim->dqdz2, dx2, dy2, dz2 );
+    const Real dot2 = FaceSideDirectionDot(
+        gcom.xfn, gcom.yfn, gcom.zfn, dx2, dy2, dz2, -1.0 );
+    lim->lim2 = TightenLimiter(
+        lim->lim2, BarthFunction( dqFace2, lim->minv2, lim->maxv2, dot2 ) );
 }
 
-void Limiter::CalcLocalVencatLimiter()
+void Limiter::CalcLocalVencatLimiter( Real regularizationEpsilon )
 {
-    Real eps = ctrl.vencat_coef * MAX( lim->qmax - lim->qmin, 1.0 );
-    Real eps1 = SQR( eps ) + SMALL;
-    Real eps2 = eps1;
+    const Real dx1 = gcom.xfc - gcom.xcc1;
+    const Real dy1 = gcom.yfc - gcom.ycc1;
+    const Real dz1 = gcom.zfc - gcom.zcc1;
 
-    Real dx1 = gcom.xfc - gcom.xcc1;
-    Real dy1 = gcom.yfc - gcom.ycc1;
-    Real dz1 = gcom.zfc - gcom.zcc1;
+    const Real dqFace1 = ReconstructFaceIncrement(
+        lim->dqdx1, lim->dqdy1, lim->dqdz1, dx1, dy1, dz1 );
+    lim->lim1 = TightenLimiter(
+        lim->lim1,
+        VencatFunction( dqFace1, lim->minv1, lim->maxv1, regularizationEpsilon ) );
 
-    Real dqFace1  = lim->dqdx1 * dx1 + lim->dqdy1 * dy1 + lim->dqdz1 * dz1;
+    const Real dx2 = gcom.xfc - gcom.xcc2;
+    const Real dy2 = gcom.yfc - gcom.ycc2;
+    const Real dz2 = gcom.zfc - gcom.zcc2;
 
-    Real limv1 = VencatFunction( dqFace1, lim->minv1, lim->maxv1, eps1 );
-    lim->lim1 = MIN( lim->lim1, limv1 );
-
-    Real dx2 = gcom.xfc - gcom.xcc2;
-    Real dy2 = gcom.yfc - gcom.ycc2;
-    Real dz2 = gcom.zfc - gcom.zcc2;
-
-    Real dqFace2  = lim->dqdx2 * dx2 + lim->dqdy2 * dy2 + lim->dqdz2 * dz2;
-    Real limv2 = VencatFunction( dqFace2, lim->minv2, lim->maxv2, eps2 );
-    lim->lim2 = MIN( lim->lim2, limv2 );
+    const Real dqFace2 = ReconstructFaceIncrement(
+        lim->dqdx2, lim->dqdy2, lim->dqdz2, dx2, dy2, dz2 );
+    lim->lim2 = TightenLimiter(
+        lim->lim2,
+        VencatFunction( dqFace2, lim->minv2, lim->maxv2, regularizationEpsilon ) );
 }
 
-void Limiter::CalcMinMaxDiff()
+void Limiter::BuildNeighborRangeOffsets()
 {
-    // Find the maximum and minimum in the neighbor of each cell
-    for ( int cId = 0; cId < ug.nCells; ++ cId )
-    {
-        ( * lim->minvf )[ cId ] = ( * lim->q )[ cId ];
-        ( * lim->maxvf )[ cId ] = ( * lim->q )[ cId ];
-    }
-
-    for ( int fId = 0; fId < ug.nBFaces; ++ fId )
-    {
-        ug.fId = fId;
-        ug.lc = ( * ug.lcf )[ ug.fId ];
-        ug.rc = ( * ug.rcf )[ ug.fId ];
-
-        int bcType = ug.bcRecord->bcType[ fId ];
-        if ( ! BC::IsInterfaceBc( bcType ) ) continue;
-
-        ( * lim->minvf )[ ug.lc ] = MIN( ( * lim->minvf )[ ug.lc ], ( * lim->q )[ ug.rc ] );
-        ( * lim->maxvf )[ ug.lc ] = MAX( ( * lim->maxvf )[ ug.lc ], ( * lim->q )[ ug.rc ] );
-    }
-
-    for ( int fId = ug.nBFaces; fId < ug.nFaces; ++ fId )
-    {
-        ug.fId = fId;
-        ug.lc = ( * ug.lcf )[ ug.fId ];
-        ug.rc = ( * ug.rcf )[ ug.fId ];
-
-        ( * lim->minvf )[ ug.lc ] = MIN( ( * lim->minvf )[ ug.lc ], ( * lim->q )[ ug.rc ] );
-        ( * lim->maxvf )[ ug.lc ] = MAX( ( * lim->maxvf )[ ug.lc ], ( * lim->q )[ ug.rc ] );
-
-        ( * lim->minvf )[ ug.rc ] = MIN( ( * lim->minvf )[ ug.rc ], ( * lim->q )[ ug.lc ] );
-        ( * lim->maxvf )[ ug.rc ] = MAX( ( * lim->maxvf )[ ug.rc ], ( * lim->q )[ ug.lc ] );
-    }
-
-    // Get the maximum and the minimum difference
-    for ( int cId = 0; cId < ug.nCells; ++ cId )
-    {
-        ( * lim->minvf )[ cId ] -= ( * lim->q )[ cId ];
-        ( * lim->maxvf )[ cId ] -= ( * lim->q )[ cId ];
-    }
-
-    lim->qmin =   LARGE;
-    lim->qmax = - LARGE;
-    for ( int cId = 0; cId < ug.nCells; ++ cId )
-    {
-        lim->qmin = MIN( lim->qmin, ( * lim->minvf )[ cId ] );
-        lim->qmax = MAX( lim->qmax, ( * lim->maxvf )[ cId ] );
-    }
+    BuildCellNeighborOffsetBounds(
+        * lim->q,
+        * ug.lcf,
+        * ug.rcf,
+        ug.bcRecord->bcType,
+        ug.nCells,
+        ug.nBFaces,
+        ug.nFaces,
+        []( int bcType ) { return BC::IsInterfaceBc( bcType ); },
+        * lim->minvf,
+        * lim->maxvf,
+        lim->minOffsetRange,
+        lim->maxOffsetRange );
 }
 
 MRField * Limiter::GetLeftField() const

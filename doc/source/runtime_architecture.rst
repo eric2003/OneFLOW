@@ -78,6 +78,34 @@ System map
 This is a conceptual flow, not a complete call graph. Specific task bodies may still call
 legacy free functions and access shared runtime state. See the code entry points below.
 
+System-level design principles
+-------------------------------
+
+The runtime should be understood through a small set of boundaries before examining a
+particular class or function:
+
+1. **Numerical ownership:** the C++ runtime owns numerical state and computation. The
+   CLI and Workbench select, stage, launch, and inspect runs; they do not reimplement
+   solver algorithms.
+2. **Lifecycle ownership:** process setup/finalization and per-case setup/teardown have
+   different lifetimes. A case may fail without silently skipping cleanup of the process
+   resources it owns.
+3. **Data ownership:** live mesh and solver objects are operational state. A snapshot is
+   a stable read model; JSON, VTU, or other output formats are adapters, not the core
+   data model.
+4. **Dependency direction:** domain modules should not need a GUI or a particular output
+   serialization library to perform numerical work. Presentation and orchestration depend
+   on domain contracts, not the reverse.
+5. **Evidence at boundaries:** unit tests pin small contracts; integration tests check
+   module interaction; grid and CFD regressions check behavior in representative cases.
+   A passing test count is useful evidence only when its coverage and assertion contract
+   are understood.
+
+These principles form the review checklist for local refactoring. A change should state
+which boundary it clarifies, which behavior must remain unchanged, and what evidence
+would detect a regression. Avoid creating a new abstraction when a simpler name, explicit
+lifecycle, or focused contract test already makes the responsibility clear.
+
 Code entry points and responsibilities
 --------------------------------------
 

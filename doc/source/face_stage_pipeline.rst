@@ -61,9 +61,11 @@ wishlist for the whole solver.
    * - Child mapping after split
      - Parent-specific ``ByParent`` tables;
        two-parent shared-child test;
-       multi-zone split e2e without CGNS
-     - Split table still tied to FaceSearch
-       + mid-point ADT in production
+       multi-zone split e2e without CGNS;
+       pure line midpoint + candidate maps
+     - Production still needs locator +
+       zone ``nodeMesh`` (pure prefix locked by
+       ``LineSplitPureStagesTest``)
 
 **Rule of thumb:** if a change only renames a pure predicate already covered
 by tests, skip it. Prefer closing an open row in this table.
@@ -979,6 +981,38 @@ Still product work, not rename work:
 * Full CGNS zone fixtures remain heavy; prefer more pure compositions first.
 
 
+
+Investment priority (do not spread effort evenly)
+-------------------------------------------------
+
+Highest return first. Skip lower rows until a higher row is blocked.
+
+#. **Numerical / solver contracts already in motion** (limiter ranges, Venkat
+   policy, Marray index/fill). These sit on the hot path of every residual;
+   geometry pure-helpers no longer move residual quality.
+#. **Geometry hard edges only** — not more one-line predicates:
+
+   * Line/quad split still needs live ``PointLocator`` + zone ``nodeMesh``.
+   * Prefer one fixture that exercises that seam (injected locator + minimal
+     mesh) over extracting another arithmetic helper.
+   * Orphan inverse rows: detect (done); strip only with an explicit product
+     decision and migration test.
+#. **Workbench → native table pipeline** when development velocity needs it
+   (stub is enough until someone edits scenarios daily).
+#. **Full CGNS zone e2e** last among geometry items: high confidence, high cost;
+   pure compositions and ``LineSplitPureStagesTest`` already cover most
+   dual-map and split-table contracts.
+
+**Geometry plateau rule:** if a change only renames or re-wraps a helper already
+locked in ``tests/geometry``, stop. The face/interface **boundary-drawing**
+goal is largely met; further investment belongs on hard edges or on solver
+contracts (priority 1).
+
+``LineSplitPureStagesTest`` locks the pure prefix of line split (sole-zone →
+midpoint → candidates → resolve → local mapping) without ADT or CGNS, so the
+remaining open map row stays honest: production still needs locator + nodeMesh.
+
+
 Multi-zone interface split (composed scenario)
 ----------------------------------------------
 
@@ -1033,6 +1067,84 @@ backend should change; the GUI dialog keeps the same table workflow.
 Graphics are **optional**: CLI ``--plot-file`` and GUI **Export PNG...** write a
 static figure (matplotlib Agg). Default path is text-only; no interactive plot
 window is required.
+
+
+
+Line interface split (algorithm stages)
+---------------------------------------
+
+``FaceSearch::SplitLine`` / ``TrySplitLineAtMidpoint`` is the production path
+that still touches geometry services. The **table** and **arithmetic** steps are
+already pure and testable without CGNS (``LineSplitPureStagesTest``).
+
+**Flow (pure = open box, hard edge = filled box):**
+
+.. code-block:: text
+
+   [1 sole-zone] --> [2 midpoint] --> [3 locator FindPoint]
+                                           | miss -> abort
+                                           v
+                              [4 child edge candidates]
+                                           |
+                                           v
+                              [5 resolve registered faces]
+                                           | empty -> abort
+                                           v
+                              [6 zone nodeMesh find/add]
+                                           |
+                                           v
+                              [7 local line mapping]
+
+**Midpoint formula** (``ComputeSegmentMidpoint``; component-wise):
+
+.. math::
+
+   \mathbf{m} = \frac{1}{2}(\mathbf{a} + \mathbf{b})
+
+No tolerance is applied at this stage. Matching the global mid-node is a
+separate locator query (stage 3), not part of the arithmetic.
+
+**Stage list:**
+
+#. ``RequireSoleZoneIdForGlobalFace`` — exactly one zone on the global face.
+#. ``ComputeSegmentMidpoint`` — formula above; no mesh.
+#. ``PointLocator::FindPoint`` — global mid-node must **already** exist; else abort.
+#. ``BuildGlobalLineSplitCandidates`` — directed edges :math:`(p_0,m)` and :math:`(m,p_1)`.
+#. ``ResolveRegisteredChildFaces`` — empty resolution aborts before mesh mutation.
+#. Zone ``nodeMesh`` find-or-add (local mid index).
+#. ``BuildLocalLineSplitMapping`` — parent-local rings and endpoint flags.
+
+Header comments on the pure stages use ``@doc-algorithm line-interface-split``
+and ``@doc-stage N`` so a future extractor can rebuild this section from
+``FaceSearch.h`` without inventing a second algorithm description.
+
+The remaining hard edge is intentional: stages 3 and 6 need a live locator and a
+zone mesh. Do not fold mesh mutation into the pure candidate builders.
+
+
+
+Documentation from code comments
+--------------------------------
+
+Prefer **one source of truth** for algorithm stages:
+
+* C++ public headers carry short, structured tags (ASCII only), for example::
+
+    // @doc-algorithm line-interface-split
+    // @doc-stage 2
+    // @doc-pure
+    // @doc-formula m = (1/2) * (a + b) component-wise in R^3
+
+* ``doc/source/*.rst`` holds the narrative: motivation, flow diagrams, math,
+  open pressures, and ROI priority. Diagrams and equations belong here (or in
+  generated pages), not in long ``//`` essays inside ``.cpp`` files.
+
+* Tests name the contract (``LineSplitPureStagesTest``). Do not duplicate the
+  full stage list in three places; link the test from the rst page.
+
+A full auto-generator is optional. Until it exists, keep tags stable so a script
+or an AI pass can collect ``@doc-algorithm`` groups into a page. Do not enable a
+tool that rewrites production code comments from prose automatically.
 
 
 Open design pressures

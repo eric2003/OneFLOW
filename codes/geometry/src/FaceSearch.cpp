@@ -296,6 +296,17 @@ void FaceSearch::SplitLine( IFaceLink & iFaceLink, int globalFaceId )
     }
 }
 
+
+void ComputeSegmentMidpoint(
+    Real x0, Real y0, Real z0,
+    Real x1, Real y1, Real z1,
+    Real & mx, Real & my, Real & mz )
+{
+    mx = half * ( x0 + x1 );
+    my = half * ( y0 + y1 );
+    mz = half * ( z0 + z1 );
+}
+
 void BuildGlobalLineSplitCandidates(
     int firstNode,
     int secondNode,
@@ -399,10 +410,10 @@ bool FaceSearch::TrySplitLineAtMidpoint(
     RealField coor0( 3 ), coor1( 3 ), coor2( 3 );
     pointLocator.GetPoint( p0, coor0[ 0 ], coor0[ 1 ], coor0[ 2 ] );
     pointLocator.GetPoint( p1, coor1[ 0 ], coor1[ 1 ], coor1[ 2 ] );
-    for ( int m = 0; m < 3; ++ m )
-    {
-        coor2[ m ] = half * ( coor0[ m ] + coor1[ m ] );
-    }
+    ComputeSegmentMidpoint(
+        coor0[ 0 ], coor0[ 1 ], coor0[ 2 ],
+        coor1[ 0 ], coor1[ 1 ], coor1[ 2 ],
+        coor2[ 0 ], coor2[ 1 ], coor2[ 2 ] );
     const int midpointGlobalNode =
         pointLocator.FindPoint( coor2[ 0 ], coor2[ 1 ], coor2[ 2 ] );
     if ( midpointGlobalNode == ONEFLOW::INVALID_INDEX ) return false;

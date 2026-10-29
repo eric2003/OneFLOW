@@ -1,6 +1,6 @@
 set(CMAKE_FOLDER ${CMAKE_FOLDER}/solver)
 
-# Pure policy only — no SolverMap, no IO, no parallel.
+# Pure policy only - no SolverMap, no IO, no parallel.
 add_executable(solver_name_policy_test
   solver_name_policy_test.cpp
 )
@@ -42,7 +42,7 @@ target_compile_features(solver_name_list_test PRIVATE cxx_std_20)
 gtest_discover_tests(solver_name_list_test DISCOVERY_MODE PRE_TEST)
 
 
-# Index maps + SelectSolverNames — no SafeClone / SolverState / Lusgs.
+# Index maps + SelectSolverNames - no SafeClone / SolverState / Lusgs.
 add_executable(solver_map_index_test
   solver_map_index_test.cpp
   ${CMAKE_SOURCE_DIR}/codes/solver/src/SolverMapIndex.cpp
@@ -147,3 +147,69 @@ target_include_directories(zone_shared_fields_test
 target_link_libraries(zone_shared_fields_test PRIVATE GTest::gtest_main)
 target_compile_features(zone_shared_fields_test PRIVATE cxx_std_17)
 gtest_discover_tests(zone_shared_fields_test DISCOVERY_MODE PRE_TEST)
+
+
+# Pure scalar limiter policies; no mesh, solver state, or runtime bootstrap.
+add_executable(limiter_policy_test
+  limiter_policy_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/usolver/src/ULimiterPolicy.cpp
+)
+
+target_include_directories(limiter_policy_test
+  PRIVATE
+    ${CMAKE_SOURCE_DIR}/codes/usolver/include
+    ${CMAKE_SOURCE_DIR}/codes/basic/include
+)
+
+target_link_libraries(limiter_policy_test PRIVATE GTest::gtest_main)
+target_compile_features(limiter_policy_test PRIVATE cxx_std_20)
+gtest_discover_tests(limiter_policy_test DISCOVERY_MODE PRE_TEST)
+
+ 
+# Neighbor-range construction tests use synthetic face connectivity without solver startup.
+add_executable(limiter_range_test
+  limiter_range_test.cpp
+)
+
+target_include_directories(limiter_range_test
+  PRIVATE
+    ${CMAKE_SOURCE_DIR}/codes/usolver/include
+    ${CMAKE_SOURCE_DIR}/codes/basic/include
+)
+
+target_link_libraries(limiter_range_test PRIVATE GTest::gtest_main)
+target_compile_features(limiter_range_test PRIVATE cxx_std_20)
+gtest_discover_tests(limiter_range_test DISCOVERY_MODE PRE_TEST)
+
+
+# Pure gradient face policies; no mesh or solver startup.
+add_executable(grad_policy_test
+  grad_policy_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/usolver/src/UGradPolicy.cpp
+)
+
+target_include_directories(grad_policy_test
+  PRIVATE
+    ${CMAKE_SOURCE_DIR}/codes/usolver/include
+    ${CMAKE_SOURCE_DIR}/codes/basic/include
+)
+
+target_link_libraries(grad_policy_test PRIVATE GTest::gtest_main)
+target_compile_features(grad_policy_test PRIVATE cxx_std_20)
+gtest_discover_tests(grad_policy_test DISCOVERY_MODE PRE_TEST)
+
+# Pure Euler convective flux helpers; no mesh or solver bootstrap.
+add_executable(inv_flux_policy_test
+  inv_flux_policy_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/ns/src/NsInvFluxPolicy.cpp
+)
+
+target_include_directories(inv_flux_policy_test
+  PRIVATE
+    ${CMAKE_SOURCE_DIR}/codes/ns/include
+    ${CMAKE_SOURCE_DIR}/codes/basic/include
+)
+
+target_link_libraries(inv_flux_policy_test PRIVATE GTest::gtest_main)
+target_compile_features(inv_flux_policy_test PRIVATE cxx_std_20)
+gtest_discover_tests(inv_flux_policy_test DISCOVERY_MODE PRE_TEST)

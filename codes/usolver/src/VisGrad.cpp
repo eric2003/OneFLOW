@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "VisGrad.h"
+#include "UGradPolicy.h"
 #include "Com.h"
 #include "HXMath.h"
 #include "Boundary.h"
@@ -41,20 +42,16 @@ void VisGradGeom::CalcFaceWeight()
     dyr = ( * ug.yfc )[ ug.fId ] - ( * ug.ycc )[ ug.rc ];
     dzr = ( * ug.zfc )[ ug.fId ] - ( * ug.zcc )[ ug.rc ];
 
+    // Same inverse-distance policy as Green-Gauss face weights (UGradPolicy).
     delt1 = DIST( dxl, dyl, dzl );
     delt2 = DIST( dxr, dyr, dzr );
     delta = 1.0 / ( delt1 + delt2 + SMALL );
-
-    fw1 = delt2 * delta;
-    fw2 = delt1 * delta;
+    InverseDistanceFaceWeights( dxl, dyl, dzl, dxr, dyr, dzr, fw1, fw2 );
 }
 
 void VisGradGeom::CalcAngle( Real dx, Real dy, Real dz, Real dist, Real & angle )
 {
-    Real result = dist / ( DIST( dx, dy, dz ) + SMALL );
-    if ( result >   1.0 ) result =   1.0;
-    if ( result < - 1.0 ) result = - 1.0;
-    angle = asin( result ) * 180.0 / PI;
+    angle = FaceSkewAngleDegrees( dx, dy, dz, dist );
 }
 
 void VisGradGeom::PrepareCellGeom()
@@ -92,11 +89,7 @@ void VisGradGeom::CalcGradCoef()
     this->dy  = ( * ug.ycc )[ ug.rc ] - ( * ug.ycc )[ ug.lc ];
     this->dz  = ( * ug.zcc )[ ug.rc ] - ( * ug.zcc )[ ug.lc ];
 
-    this->ods = 1.0 / DIST( this->dx, this->dy, this->dz );
-
-    this->dx *= this->ods;
-    this->dy *= this->ods;
-    this->dz *= this->ods;
+    UnitizeDisplacement( this->dx, this->dy, this->dz, this->ods );
 }
 
 
@@ -241,7 +234,7 @@ void VisGrad::AccurateFaceValue()
 {
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
-        q[ iEqu ] = half * ( q1[ iEqu ] + q2[ iEqu ] );
+        q[ iEqu ] = ArithmeticFaceAverage( q1[ iEqu ], q2[ iEqu ] );
     }
 }
 
@@ -334,14 +327,7 @@ void VisGrad::CalcNew2Method()
 
 void CorrectGrad( Real fl, Real fr, Real & dfdx, Real & dfdy, Real & dfdz, Real dx, Real dy, Real dz, Real ods )
 {
-    Real fOld, fnew, df;
-    fOld = dfdx * dx + dfdy * dy + dfdz * dz;
-    fnew = ( fr - fl ) * ods;
-    df   = fnew - fOld;
-
-    dfdx += df * dx;
-    dfdy += df * dy;
-    dfdz += df * dz;
+    CorrectFaceGradient( fl, fr, dfdx, dfdy, dfdz, dx, dy, dz, ods );
 }
 
 EndNameSpace

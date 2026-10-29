@@ -140,18 +140,34 @@ private:
 
 // Build directed global child-edge candidates. Outputs are replaced and order
 // follows the parent edge direction.
+// @doc-algorithm line-interface-split
+// @doc-stage 2
+// @doc-pure
+// @doc-formula m = (1/2) * (a + b) component-wise in R^3
+// Arithmetic midpoint of a segment. No mesh, locator, or tolerance.
+void ComputeSegmentMidpoint(
+    Real x0, Real y0, Real z0,
+    Real x1, Real y1, Real z1,
+    Real & mx, Real & my, Real & mz );
+
 void BuildGlobalLineSplitCandidates(
     int firstNode,
     int secondNode,
     int midpointGlobalNode,
     LinkField & globalLineIds );
 
+// @doc-algorithm line-interface-split
+// @doc-stage 1
+// @doc-pure
 // Line-split policy: the global interface face must reference exactly one
 // zone. Returns that zone ID or throws.
 int RequireSoleZoneIdForGlobalFace(
     const LinkField & zoneIdsPerGlobalFace,
     int globalFaceId );
 
+// @doc-algorithm line-interface-split
+// @doc-stage 7
+// @doc-pure
 // Build local child-edge indices and endpoint flags after a midpoint is found.
 // The local midpoint index is zone-specific; global node identity is handled
 // separately by BuildGlobalLineSplitCandidates.
