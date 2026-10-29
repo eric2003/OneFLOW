@@ -21,7 +21,6 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "ULimiter.h"
-#include "ULimiterPolicy.h"
 #include "HipProductionPolicy.h"
 #include "UnsGrid.h"
 #include "DataBase.h"
