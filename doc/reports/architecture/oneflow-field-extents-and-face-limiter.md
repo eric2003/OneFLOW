@@ -247,3 +247,12 @@ The index contract test uses `decltype` with `std::declval` to check the express
 This does not add bounds checking: `Marray::operator[]` continues to follow the unchecked indexing behavior of its underlying vector. Changing that behavior would be a separate API and performance decision, not an incidental consequence of aligning size types.
 
 Other legacy allocation helpers, including the `int` dimensions in `HXVector.h`'s `AllocateVector`, are intentionally not changed by this patch. Before widening those interfaces, inventory their call sites and determine whether the arguments represent general container extents or domain-specific bounded indices. The shared spelling of an integer type is not, by itself, sufficient evidence that two interfaces have the same contract.
+
+
+## Generic container behavior versus structured-grid allocation
+
+The Marray scalar assignment operator fills each equation's inner vector; it does not resize the outer or inner extents. Its contract is therefore "fill existing shape", not "allocate or resize". The regression test checks every element of a two-equation, three-value array so a future implementation change cannot accidentally fill only one equation or silently alter shape semantics.
+
+The similarly named AllocateVector helpers in HXVector.h are a different layer. Their current dimensions are signed int, and representative callers include structured-grid coordinate arrays (Block2D, Block3D, SDomain) as well as chemistry coefficient tables. This is not enough evidence to replace those parameters mechanically with HXSize_t: signed dimensions can represent invalid negative input, and converting such a value to an unsigned extent before validation can turn it into a very large allocation request. The helpers also have inconsistent handling of non-positive dimensions between the 2D and 3D overloads. A future cleanup should first define the intended behavior for invalid dimensions, then add tests for that behavior, and only then choose a shared extent type or validation adapter.
+
+The architectural distinction is the important result: Marray accepts already-defined container extents, while AllocateVector is a legacy allocation helper that also interprets caller-provided structured-grid dimensions. The two APIs should not be unified merely because both ultimately call vector::resize.
