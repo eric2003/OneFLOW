@@ -963,3 +963,26 @@ TEST( PrjIOPaths, ProjectRootMustBeDeclared )
         Prj::SetIOBaseDirs( "project", "case" ),
         std::logic_error );
 }
+
+TEST( PrjIOPaths, RelativeProjectRootResolvesFromCurrentDirectory )
+{
+    const std::filesystem::path currentDir =
+        std::filesystem::temp_directory_path()
+        / "OneFLOW_PrjIORelativeProjectRootTest";
+    const std::filesystem::path caseDir =
+        currentDir / "cases" / "consumer";
+    const std::filesystem::path expectedProjectDir =
+        currentDir / "shared-project";
+
+    Prj::current_dir = currentDir.string();
+    Prj::SetPrjBaseDir( caseDir.string() );
+    Prj::SetProjectBaseDir( "shared-project" );
+    Prj::SetIOBaseDirs( "project", "case" );
+
+    EXPECT_EQ(
+        std::filesystem::path( Prj::GetInputBaseDir() ).lexically_normal(),
+        expectedProjectDir.lexically_normal() );
+    EXPECT_EQ(
+        std::filesystem::path( Prj::GetOutputBaseDir() ).lexically_normal(),
+        caseDir.lexically_normal() );
+}
