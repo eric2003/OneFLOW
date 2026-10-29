@@ -53,6 +53,109 @@ Then follow the relevant architecture page, roadmap, tests, and evidence links.
 7. Keep README and user/developer guidance consistent with current behavior.
    Clearly distinguish implemented, partial, planned, and unverified work.
 
+## AI execution protocol for ongoing refactoring
+
+Use this protocol for every continuation request. It is intended to be executable by
+this assistant or another coding agent without relying on conversational memory.
+
+### A. Establish the actual starting point
+
+1. Inspect the current `hexin` HEAD, recent commits, working-tree/source state where
+   available, and relevant CI results. Never assume that a handoff note or an old commit
+   is still current.
+2. Read `doc/AI_CONTEXT.md`, the relevant architecture/design page, the roadmap or stage
+   record, and the directly related tests. Follow the real entry point and callers; do not
+   scan or rewrite the whole repository without a reason.
+3. Treat a user-reported test count as the pre-change baseline unless the user explicitly
+   says otherwise. It is not evidence that new changes pass.
+
+### B. Choose one high-value mainline
+
+Before editing, identify one concrete mainline and explain briefly:
+- the observed defect, risk, missing contract, or costly maintenance boundary;
+- why addressing it now has greater system-level value than nearby alternatives;
+- the exact behavior/acceptance criteria and the evidence that could prove or disprove it.
+
+Prefer the change that closes a meaningful end-to-end gap, removes a real dependency or
+ownership problem, or improves numerical confidence. Do not select work merely because it
+is easy to rename or document. Keep the system-level goal visible while limiting the patch
+to one coherent, independently reviewable slice. Do not start a second mainline in the same
+turn unless the user explicitly asks.
+
+### C. Make the smallest complete slice
+
+1. State the intended behavior contract before changing implementation.
+2. Inspect ownership, initialization, mutation, error propagation, and cleanup paths.
+3. Add the smallest discriminating test at the narrowest useful layer; add integration,
+   regression, or numerical checks when the contract crosses component boundaries.
+4. Make the implementation change and update only the documentation that the change makes
+   inaccurate or materially improves.
+5. Preserve compatibility unless a behavior change is intentional, documented, and tested.
+   Avoid broad rewrites and abstractions without a demonstrated need.
+
+### D. Treat numerical knowledge as traceable engineering evidence
+
+For a substantial numerical method or physical model, connect:
+- governing problem, assumptions, units, symbols, sign conventions, and validity range;
+- the formula actually implemented, including meaningful variants and limiting cases;
+- original papers/books and suitable authoritative specifications or maintained manuals;
+- OneFLOW source entry points and the difference, if any, between the reference and code;
+- tests and cases that check invariants, analytic/manufactured solutions, conservation,
+  convergence, benchmarks, or regression tolerances;
+- known limits and evidence not yet collected.
+
+Prefer primary papers, DOI/publisher pages, official project documentation, and stable
+versioned sources. Other open-source implementations and public manuals are comparative
+evidence, not automatic proof of correctness; record version/commit, relevant section or
+file, and license. Use closed-source manuals only when lawfully available, cite edition and
+section, and do not reproduce restricted code or prose. Do not add citations to trivial
+helpers merely for appearance. A reference does not prove OneFLOW's implementation correct,
+and a passing unit test does not prove the numerical model physically valid.
+
+Use the loop: theory/reference -> OneFLOW formulation -> implementation -> focused tests
+and representative cases -> discrepancy analysis -> updated explanation and evidence.
+AI may help formulate hypotheses and propose tests, but must not silently change scientific
+assumptions or treat its own generated output as independent validation. Changes to equations,
+model variants, tolerances, and reference baselines require explicit review and reproducible
+evidence.
+
+### E. Validate and report honestly
+
+- Run the most targeted feasible build/test first, then broader tests appropriate to the
+  changed contract. Run representative CFD/grid cases when numerical or end-to-end behavior
+  is affected.
+- State exact commands and observed outcomes. Separate user-reported baseline, tests run
+  locally, CI results for the exact commit, and checks that were not run or are blocked.
+- Never infer a pass from compilation alone, an unrelated green suite, a queued workflow,
+  or an old CI run.
+- Use the status labels in `doc/AI_CONTEXT.md`: Verified, Implemented, unverified, Partial,
+  Planned, Blocked, or Deferred, with evidence and remaining gaps.
+
+### F. Keep commit history coherent
+
+- Commit by logical work slice, not by file. Normally group implementation, its contract
+  tests, and directly related architecture/roadmap/handoff updates into one commit.
+- Use a second commit only when a change is independently useful, independently testable,
+  intentionally reversible, or needs a distinct review boundary (for example, a separate
+  fix discovered while validating the main slice).
+- Do not create a separate commit for every file or every command. Do not combine unrelated
+  changes just to reduce the commit count.
+- Use concise messages describing the behavior or architectural outcome. Do not rewrite
+  published history. Keep all work on `hexin` unless the user explicitly authorizes another
+  branch.
+
+### G. Leave a useful handoff
+
+At a meaningful milestone, update `doc/AI_CONTEXT.md` and the relevant architecture/roadmap
+record in the same logical change where practical. Record the inspected base/commit, chosen
+mainline and rationale, files/contracts changed, evidence, remaining gaps, and the next
+single recommended action. Keep the handoff concise; do not duplicate the full design guide
+or write a command-by-command diary.
+
+The goal is not to maximize code churn, test count, citations, or commit count. The goal is
+to make OneFLOW easier to understand, test, validate, and improve from one evidence-backed
+iteration to the next.
+
 ## Regression and publication rules
 
 1. **Regression before pull request.** Numerical-kernel or backend changes
