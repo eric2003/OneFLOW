@@ -276,20 +276,27 @@ The intended ordering is:
    [read + type-check all applicable settings]
              |
              v
-   Apply project and generic roots
+   ApplyCaseIOSettings(CaseIOSettings)
              |
-             v
-   Apply mesh/flow-specific roots
+             +--> Apply project and generic roots
+             |
+             +--> Apply mesh/flow-specific roots
              |
              v
    Resolve and write io_paths.txt
 
+The operation ``SimuContextDetail::ApplyCaseIOSettings()`` is defined in
+``codes/main/include/SimuContextIO.h``. It applies the validated snapshot through
+the existing ``Prj`` API and writes diagnostics to the mesh output root and,
+when distinct, the flow output root. The focused test target links the real
+``Prj`` path implementation and checks file placement and the effective roots
+serialized in each diagnostic file.
+
 This separates parameter interpretation from mutation of global path state. It
 does not make setup fully transactional: path application and filesystem output
 can still fail, so the surrounding case lifecycle must retain its cleanup path.
-The value-object tests verify setting selection and type contracts; they do not
-yet prove production control-reader integration, effective path binding, or
-sequential-case isolation.
+These tests pin the post-reader operation; they do not yet prove production
+control-reader integration, sequential-case isolation, or failure cleanup.
 
 Root resolution has one important compatibility distinction. ``projectRoot`` is
 configured through ``Prj::SetProjectBaseDir()``: an absolute value is normalized
@@ -338,9 +345,10 @@ Case runtime configuration
    `ReadCaseIOSettings()` snapshots the generic and mesh/flow-specific root settings
    into a value object before the runtime applies them through `Prj`. This separates typed
    parameter lookup and legacy fallback selection from mutation of the process-global path
-   fields. The helper remains a narrow parameter adapter: it does not normalize paths,
-   apply roots, write `io_paths.txt`, or replace the production `ReadControlInfo(caseDir)`
-   call.
+   fields. The parameter adapter does not normalize paths or apply roots. The separate
+   `SimuContextDetail::ApplyCaseIOSettings()` operation in
+   `codes/main/include/SimuContextIO.h` applies the snapshot and writes path diagnostics;
+   it does not replace the production `ReadControlInfo(caseDir)` call.
 
    The legacy mesh input fallback is split into two explicit decisions.
    `ShouldUseLegacySourceGridCaseDir()` decides whether the configured
@@ -355,10 +363,10 @@ Case runtime configuration
 
    Existing `Prj` tests cover generic/domain root resolution, inheritance, diagnostics,
    and resetting roots when binding another case. The helper-level
-   `simu_context_parameter_test` now covers selection of the complete settings object as
-   well as missing, valid-string, and invalid-type lookup. A direct
+   `simu_context_parameter_test` covers the complete settings object, missing/valid/invalid
+   parameter types, and application of mesh/flow roots to real diagnostic files. A direct
    `SetupCaseEnvironment()` integration test is still needed to verify the real control
-   reader, path application, diagnostic output, and sequential case setup together.
+   reader, sequential case setup, and failure cleanup together.
 Workbench project and workflow configuration
    Project definitions describe an engineering workspace; workflow definitions describe
    execution steps and their dependencies; run records describe individual attempts and
