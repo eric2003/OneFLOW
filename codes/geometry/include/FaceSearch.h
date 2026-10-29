@@ -140,6 +140,12 @@ private:
 
 // Build directed global child-edge candidates. Outputs are replaced and order
 // follows the parent edge direction.
+// Arithmetic midpoint of a segment in R^3. No mesh, locator, or tolerance.
+void ComputeSegmentMidpoint(
+    Real x0, Real y0, Real z0,
+    Real x1, Real y1, Real z1,
+    Real & mx, Real & my, Real & mz );
+
 void BuildGlobalLineSplitCandidates(
     int firstNode,
     int secondNode,

@@ -61,9 +61,10 @@ wishlist for the whole solver.
    * - Child mapping after split
      - Parent-specific ``ByParent`` tables;
        two-parent shared-child test;
-       multi-zone split e2e without CGNS
-     - Split table still tied to FaceSearch
-       + mid-point ADT in production
+       multi-zone split e2e without CGNS;
+       pure line midpoint + candidate maps
+     - Production still needs locator +
+       zone ``nodeMesh`` for mid-point insert
 
 **Rule of thumb:** if a change only renames a pure predicate already covered
 by tests, skip it. Prefer closing an open row in this table.
@@ -1033,6 +1034,33 @@ backend should change; the GUI dialog keeps the same table workflow.
 Graphics are **optional**: CLI ``--plot-file`` and GUI **Export PNG...** write a
 static figure (matplotlib Agg). Default path is text-only; no interactive plot
 window is required.
+
+
+
+Line interface split (algorithm stages)
+---------------------------------------
+
+``FaceSearch::SplitLine`` / ``TrySplitLineAtMidpoint`` is the production path
+that still touches geometry services. The **table** and **arithmetic** steps are
+already pure and testable without CGNS:
+
+#. ``RequireSoleZoneIdForGlobalFace`` — line split is sole-zone policy (exactly
+   one participant on the global face).
+#. ``ComputeSegmentMidpoint`` — arithmetic midpoint of the parent edge endpoints
+   in R^3 (no tolerance, no mesh).
+#. ``PointLocator::FindPoint`` — global mid-node must **already** exist; otherwise
+   the split aborts (no inventing a new global point here).
+#. ``BuildGlobalLineSplitCandidates`` — two directed child edges
+   ``(p0, mid)`` and ``(mid, p1)``.
+#. ``ResolveRegisteredChildFaces`` — candidates must already be registered in the
+   face search table; empty resolution aborts before zone mesh mutation.
+#. Zone ``nodeMesh`` find-or-add of the same midpoint coordinates (local index).
+#. ``BuildLocalLineSplitMapping`` — parent-local child rings and endpoint flags.
+
+The remaining hard edge is intentional: steps 3 and 6 need a live locator and a
+zone mesh. Injection of ``PointLocator`` covers step 3 in tests; step 6 still
+implies a real or fake ``nodeMesh``. Do not fold mesh mutation into the pure
+candidate builders.
 
 
 Open design pressures
