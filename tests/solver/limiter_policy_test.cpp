@@ -39,6 +39,6 @@ TEST( LimiterPolicy, VenkatUsesUpperBoundForPositiveIncrement )
 TEST( LimiterPolicy, VenkatUsesLowerBoundForNegativeIncrement )
 {
     const Real eps = 0.1;
-    const Real expected = ( 1.0 + eps - 4.0 ) / ( 1.0 + 8.0 - 2.0 + eps );
+    const Real expected = ( 1.0 + eps + 4.0 ) / ( 1.0 + 8.0 + 2.0 + eps );
     EXPECT_NEAR( VencatFunction( -2.0, -1.0, 1.0, eps ), expected, 1.0e-12 );
 }
