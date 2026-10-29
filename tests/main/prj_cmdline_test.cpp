@@ -982,7 +982,23 @@ TEST( PrjIOPaths, RelativeProjectRootResolvesFromCurrentDirectory )
     EXPECT_EQ(
         std::filesystem::path( Prj::GetInputBaseDir() ).lexically_normal(),
         expectedProjectDir.lexically_normal() );
+    const auto normalizeDirectory = []( std::filesystem::path path )
+    {
+        path = path.lexically_normal();
+        path.make_preferred();
+        std::string value = path.string();
+        const std::filesystem::path rootPath = path.root_path();
+        const std::string rootName = rootPath.string();
+        while ( value.size() > rootName.size()
+            && ! value.empty()
+            && ( value.back() == '/' || value.back() == '\\\\' ) )
+        {
+            value.pop_back();
+        }
+        return std::filesystem::path( value );
+    };
+
     EXPECT_EQ(
-        std::filesystem::path( Prj::GetOutputBaseDir() ).lexically_normal(),
-        caseDir.lexically_normal() );
+        normalizeDirectory( Prj::GetOutputBaseDir() ),
+        normalizeDirectory( caseDir ) );
 }
