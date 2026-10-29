@@ -21,6 +21,8 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "TimeStep.h"
+#include "TimeStepPolicy.h"
+#include "NsInvFluxPolicy.h"
 #include "Iteration.h"
 #include "NsCom.h"
 #include "HXMath.h"
@@ -55,71 +57,65 @@ void TimeStep::CalcFaceInvSpec()
     Real vl = nscom.q1[ IDX::IV ];
     Real wl = nscom.q1[ IDX::IW ];
     Real pl = nscom.q1[ IDX::IP ];
-    Real cl = sqrt( nscom.gama1 * pl / rl );
 
     Real rr = nscom.q2[ IDX::IR ];
     Real ur = nscom.q2[ IDX::IU ];
     Real vr = nscom.q2[ IDX::IV ];
     Real wr = nscom.q2[ IDX::IW ];
     Real pr = nscom.q2[ IDX::IP ];
-    Real cr = sqrt( nscom.gama2 * pr / rr );
-        
-    Real vnl  = gcom.xfn * ul + gcom.yfn * vl + gcom.zfn * wl - gcom.vfn;
-    Real vnr  = gcom.xfn * ur + gcom.yfn * vr + gcom.zfn * wr - gcom.vfn;
+
+    Real vnl = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, ul, vl, wl );
+    Real vnr = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, ur, vr, wr );
 
     nscom.gama = half * ( nscom.gama1 + nscom.gama2 );
 
     Real pm = half * ( pl + pr );
     Real rm = half * ( rl + rr );
-    Real cm = sqrt( nscom.gama * pm / rm );
+    Real cm = IdealGasSoundSpeedFromPressure( rm, pm, nscom.gama );
     Real vn = half * ( vnl + vnr );
 
-    nscom.invsr = half * gcom.farea * ( ABS( vn ) + cm );
+    nscom.invsr = InviscidFaceSpectralRadius( vn, cm, gcom.farea );
 }
 
 void TimeStep::CalcFaceVisSpec()
 {
+    const Real density = half * ( nscom.q1[ IDX::IR ] + nscom.q2[ IDX::IR ] );
     if ( nscom.visSRModel == 1 )
     {
-        Real density = half * ( nscom.q1[ IDX::IR ] + nscom.q2[ IDX::IR ] );
-
-        Real c1 = 4.0 / 3.0 * ( nscom.visl + nscom.vist );
-        Real c2 = nscom.gama * ( nscom.visl * nscom.oprl + nscom.vist * nscom.oprt );
-        Real c3 = two * MAX( c1, c2 ) / ( nscom.reynolds * density );
-        Real farea2 = SQR( gcom.farea );
-
-        nscom.vissr = farea2 * c3;
+        nscom.vissr = ViscousFaceSpectralRadiusModel1(
+            density, nscom.visl, nscom.vist, nscom.oprl, nscom.oprt,
+            nscom.gama, nscom.reynolds, gcom.farea );
     }
     else if ( nscom.visSRModel == 2 )
     {
-        Real dist = ABS(  gcom.xfn * ( gcom.xcc2 - gcom.xcc1 )
-                        + gcom.yfn * ( gcom.ycc2 - gcom.ycc1 )
-                        + gcom.zfn * ( gcom.zcc2 - gcom.zcc1 ) );
-
-        Real viscosity = nscom.visl + nscom.vist;
-        Real density   = half * ( nscom.q1[ IDX::IR ] + nscom.q2[ IDX::IR ] );
-
-        Real c1  = 2.0 * viscosity / ( density * dist * nscom.reynolds + SMALL );
-        nscom.vissr = half * c1 * gcom.farea;
+        const Real dist = ABS(
+            gcom.xfn * ( gcom.xcc2 - gcom.xcc1 )
+            + gcom.yfn * ( gcom.ycc2 - gcom.ycc1 )
+            + gcom.zfn * ( gcom.zcc2 - gcom.zcc1 ) );
+        const Real viscosity = nscom.visl + nscom.vist;
+        nscom.vissr = ViscousFaceSpectralRadiusModel2(
+            density, viscosity, dist, nscom.reynolds, gcom.farea );
     }
     else if ( nscom.visSRModel == 3 )
     {
-        Real density = half * ( nscom.q1[ IDX::IR ] + nscom.q2[ IDX::IR ] );
-        Real farea2 = SQR( gcom.farea );
-
-        nscom.vissr = farea2 / ( nscom.reynolds * density + SMALL );
+        nscom.vissr = ViscousFaceSpectralRadiusModel3(
+            density, nscom.reynolds, gcom.farea );
     }
 }
 
 void TimeStep::CalcCellInvTimeStep()
 {
-    nscom.timestep = Iteration::cfl * gcom.cvol / nscom.invsr;
+    nscom.timestep = CellTimeStepFromSpectrum(
+        Iteration::cfl, gcom.cvol, nscom.invsr );
 }
 
 void TimeStep::CalcCellVisTimeStep()
 {
-    Real visTimeStep = Iteration::cfl * gcom.cvol / nscom.vissr;
-    nscom.timestep *= visTimeStep / ( nscom.timestep + visTimeStep );
+    const Real visTimeStep = CellTimeStepFromSpectrum(
+        Iteration::cfl, gcom.cvol, nscom.vissr );
+    nscom.timestep = CombineInvAndVisTimeStep( nscom.timestep, visTimeStep );
 }
 
 EndNameSpace
