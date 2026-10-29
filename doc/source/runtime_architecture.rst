@@ -106,6 +106,31 @@ which boundary it clarifies, which behavior must remain unchanged, and what evid
 would detect a regression. Avoid creating a new abstraction when a simpler name, explicit
 lifecycle, or focused contract test already makes the responsibility clear.
 
+Source comments and generated documentation
+-----------------------------------------
+
+Use source comments for contracts needed at declarations and call sites: purpose,
+units, ownership, valid ranges, side effects, failure behavior, and links to the
+design page. Use Doxygen-compatible comments for stable public interfaces and
+algorithm entry points; avoid duplicating long tutorials in headers.
+
+Keep ``doc/source`` as the canonical home for system architecture, design rationale,
+equations and symbol definitions, assumptions, diagrams, references, and validation
+evidence. Generated API pages complement these pages; they do not replace them.
+
+A staged route is preferable to immediately wiring a large documentation toolchain:
+
+1. Standardize Doxygen-compatible comments on one stable module or interface.
+2. Generate API documentation into a build directory and check that generation is
+   deterministic and does not dirty the source tree.
+3. If API pages need to appear inside Sphinx, evaluate Doxygen XML plus Breathe only
+   after the initial output is useful and repeatable.
+4. Keep formulas in Sphinx math directives, and use small source-controlled flow
+   diagrams to show lifecycle, data flow, and ownership. Each diagram should distinguish
+   current behavior from proposed design and link to implementation entry points.
+5. Treat generated documentation in CI as a reproducible artifact; do not commit
+   generated output unless the project explicitly adopts that publication model.
+
 Code entry points and responsibilities
 --------------------------------------
 
@@ -169,6 +194,43 @@ failure during setup or task execution.
 Configuration boundaries
 -------------------------
 
+Case I/O configuration snapshot
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The case setup boundary reads optional path settings into one ``CaseIOSettings``
+value before applying configured roots to legacy ``Prj`` state. The snapshot
+includes ``ioPathInfoFileName``, which selects the path-diagnostic output name.
+A present setting must be a string; an absent setting uses the historical
+empty-value default. Legacy ``sourceGridCaseDir`` is consulted only when
+``meshInputRoot`` is empty or ``default``.
+
+The intended ordering is:
+
+.. code-block:: text
+
+   ReadControlInfo(caseDir)
+             |
+             v
+   ReadCaseIOSettings(DataPara)
+   [read + type-check all applicable settings]
+             |
+             v
+   Apply project and generic roots
+             |
+             v
+   Apply mesh/flow-specific roots
+             |
+             v
+   Resolve and write io_paths.txt
+
+This separates parameter interpretation from mutation of global path state. It
+does not make setup fully transactional: path application and filesystem output
+can still fail, so the surrounding case lifecycle must retain its cleanup path.
+The value-object tests verify setting selection and type contracts; they do not
+yet prove production control-reader integration, effective path binding, or
+sequential-case isolation.
+
+
 OneFLOW configuration is not a single undifferentiated settings file. Keep these layers
 separate when changing configuration behavior.
 
@@ -200,7 +262,7 @@ Case runtime configuration
    missing entry, verifies that a present entry is `HX_STRING`, and throws
    `std::invalid_argument` naming the parameter when its declared type is wrong.
 
-   `ReadCaseIORootSettings()` snapshots the generic and mesh/flow-specific root settings
+   `ReadCaseIOSettings()` snapshots the generic and mesh/flow-specific root settings
    into a value object before the runtime applies them through `Prj`. This separates typed
    parameter lookup and legacy fallback selection from mutation of the process-global path
    fields. The helper remains a narrow parameter adapter: it does not normalize paths,

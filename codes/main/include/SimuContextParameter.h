@@ -33,7 +33,9 @@ BeginNameSpace( ONEFLOW )
 namespace SimuContextDetail
 {
 
-struct CaseIORootSettings
+// Snapshot of case I/O settings. Read and validate the complete snapshot before
+// applying any of its values to process-global Prj state.
+struct CaseIOSettings
 {
     std::string projectRoot;
     std::string inputRoot;
@@ -42,6 +44,7 @@ struct CaseIORootSettings
     std::string flowInputRoot;
     std::string meshOutputRoot;
     std::string flowOutputRoot;
+    std::string ioPathInfoFileName;
 };
 
 inline bool ShouldUseLegacySourceGridCaseDir( const std::string & meshInputRoot )
@@ -85,9 +88,12 @@ inline std::string ReadOptionalStringParameter(
     return GetDataValue< std::string >( &entry->GetDataObject(), 0 );
 }
 
-inline CaseIORootSettings ReadCaseIORootSettings( const DataPara & parameters )
+// Missing optional keys resolve to empty strings. Present keys must have
+// string type. Read all setup-time settings here so invalid configuration is
+// rejected before SetupCaseEnvironment mutates project path state.
+inline CaseIOSettings ReadCaseIOSettings( const DataPara & parameters )
 {
-    CaseIORootSettings settings;
+    CaseIOSettings settings;
     settings.projectRoot = ReadOptionalStringParameter( parameters, "projectRoot" );
     settings.inputRoot = ReadOptionalStringParameter( parameters, "inputRoot" );
     settings.outputRoot = ReadOptionalStringParameter( parameters, "outputRoot" );
@@ -95,6 +101,8 @@ inline CaseIORootSettings ReadCaseIORootSettings( const DataPara & parameters )
     settings.flowInputRoot = ReadOptionalStringParameter( parameters, "flowInputRoot" );
     settings.meshOutputRoot = ReadOptionalStringParameter( parameters, "meshOutputRoot" );
     settings.flowOutputRoot = ReadOptionalStringParameter( parameters, "flowOutputRoot" );
+    settings.ioPathInfoFileName =
+        ReadOptionalStringParameter( parameters, "ioPathInfoFileName" );
 
     if ( ShouldUseLegacySourceGridCaseDir( settings.meshInputRoot ) )
     {

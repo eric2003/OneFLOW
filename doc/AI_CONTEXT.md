@@ -2,27 +2,27 @@
 
 Last updated: 2026-10-30
 Working branch: `hexin`
-Inspected starting HEAD for the current slice: `5ae294d5956e8811762d96b402e93f3a77fece5b`.
-User-reported pre-change baseline: 966/966 tests passed. This is not evidence for the changes below.
+Inspected starting HEAD for the current slice: `df567dba6f77abba725f05ce72cb32499046a653`.
+User-reported pre-change baseline: 967/967 tests passed. This is not evidence for the changes below.
 
 ## Current focus: R1 case I/O root configuration contract
 
 The active mainline is to make case setup configuration predictable and testable without coupling every contract test to the complete solver bootstrap.
 
-Production path: `SimuImp::InitSimu() -> SimuContext::SetupCaseEnvironment() -> ReadControlInfo(caseDir) -> RequireGlobalDataBase().RequireDataPara() -> ReadCaseIORootSettings() -> Prj root setters -> io_paths.txt`.
+Production path: `SimuImp::InitSimu() -> SimuContext::SetupCaseEnvironment() -> ReadControlInfo(caseDir) -> RequireGlobalDataBase().RequireDataPara() -> ReadCaseIOSettings() -> Prj root setters -> io_paths.txt`.
 
 Current implementation:
-- `codes/main/include/SimuContextParameter.h` defines `CaseIORootSettings` and validates optional string entries before path application.
+- `codes/main/include/SimuContextParameter.h` defines `CaseIOSettings` and validates optional string entries before path application.
 - `codes/main/src/SimuContextEnv.cpp` uses that snapshot and applies the resulting roots through the existing `Prj` compatibility APIs.
 - An explicit `meshInputRoot` takes precedence over legacy `sourceGridCaseDir`; the legacy value is read only when mesh input is empty or `default`.
-- `tests/main/simu_context_parameter_test.cpp` covers missing/valid/invalid optional strings, the complete root snapshot, and legacy fallback behavior. The current slice extends invalid-type coverage to every root key.
+- `tests/main/simu_context_parameter_test.cpp` covers missing/valid/invalid optional strings, the complete root snapshot, and legacy fallback behavior. The current slice extends invalid-type coverage to every root key and `ioPathInfoFileName`; applicable settings are read before path-root mutation.
 
 System-level reason: configuration lookup and type validation are now separated from mutation of global project paths. This reduces ambiguity in the runtime boundary, but does not prove the full setup lifecycle or per-case isolation.
 
 ## Validation status
 
-- User-reported pre-change baseline: 966/966 tests passed.
-- The added type-contract test and documentation update have not been built or run in this environment.
+- User-reported pre-change baseline: 967/967 tests passed.
+- The updated type-contract test and documentation have not been built or run in this environment.
 - No exact-commit CI result has been checked for this slice; do not claim the new test passes.
 - Keep C++ source ASCII-only.
 
@@ -82,7 +82,7 @@ System-level concern improved: parameter interpretation is kept separate from mu
 
 ## 5. Next actions, in priority order
 
-1. Build/run `simu_context_parameter_test` and then the full suite on the current `hexin` revision; the reported 966/966 result is only the pre-change baseline.
+1. Build/run `simu_context_parameter_test` and then the full suite on the current `hexin` revision; the reported 967/967 result is only the pre-change baseline.
 2. Close the R1 integration gap with a narrow production-owned setup orchestration boundary. Preserve the real control reader; do not reimplement parsing or link a copied full executable source list into the unit test.
 3. At the next milestone, refresh this handoff from the exact branch HEAD and inspect exact-revision CI evidence.
 

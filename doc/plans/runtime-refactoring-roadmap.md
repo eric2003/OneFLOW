@@ -2,7 +2,7 @@
 
 Status: In progress
 Branch baseline: `hexin`
-Last reviewed: 2026-10-26
+Last reviewed: 2026-10-30
 
 This is a living engineering roadmap, not a promise that every proposed boundary already
 exists. It records the direction and acceptance criteria for incremental runtime refactoring.
@@ -144,6 +144,17 @@ engineering note.
 **Status:** Ongoing alongside earlier stages.
 
 ## 4. Per-slice progress record
+
+### 2026-10-30 - Read all case I/O settings before path mutation
+
+- Based on inspected `hexin` HEAD `df567dba6f77abba725f05ce72cb32499046a653`; user reports 967/967 tests passed on the pre-change baseline.
+- Expanded the root-only `CaseIORootSettings` snapshot into `CaseIOSettings`, including `ioPathInfoFileName`. Production setup now reads and type-checks that setting before applying configured roots to global `Prj` state.
+- Added the diagnostic filename to the invalid-type contract test and full snapshot test. This verifies the configuration snapshot contract, not the complete production setup path.
+- Updated the runtime guide with a setup-order diagram and the limitation that the snapshot separates reads from mutations but does not make path application or filesystem output transactional.
+- Added a ranked whole-system improvement sequence and a staged source-comment-to-Sphinx documentation strategy to the architecture review and runtime guide.
+- Validation: source changes checked for expected symbols and ASCII-only C++ content. No C++ build, test run, documentation build, or exact-commit CI result is available in this environment.
+- System-level assessment: all applicable setup-time string settings are selected before root mutation, reducing partial configuration application on a type error. R1 remains Partial because real control-reader integration, effective path binding, diagnostics, sequential-case isolation, and failure cleanup are not covered end-to-end.
+
 
 Append a short entry when a slice materially advances. Keep it factual and link the exact commit.
 

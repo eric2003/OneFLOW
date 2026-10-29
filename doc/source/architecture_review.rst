@@ -23,6 +23,44 @@ This is a living review framework, not a claim that the architecture is complete
 Review principles
 -----------------
 
+Highest-value improvement sequence
+---------------------------------
+
+This ordering is a working risk assessment, not a claim that every item is equally
+urgent or already implemented. Reorder it only when source inspection, tests, or
+representative runs provide stronger evidence.
+
+1. **Runtime lifecycle and state isolation.** Close the real case setup/read/apply/
+   teardown loop, especially failure cleanup and repeated cases in one process. The
+   runtime bridges explicit contexts to legacy global database, path, solver, and
+   accelerator state. This boundary can invalidate otherwise correct individual
+   modules and is the current active R1 slice.
+2. **Mesh topology and derived-data validity.** Specify ownership and invalidation for
+   node/face/cell connectivity, boundary/interface maps, ghost data, and cached
+   cell-to-cell/cell-to-face relations. Stale derived data can affect many algorithms
+   while appearing locally plausible. Prefer invariants and mutation-lifecycle tests
+   before broad data-structure replacement.
+3. **Numerical verification as a traceable chain.** For high-impact solver algorithms,
+   connect governing equations and assumptions to source formulas, limiting cases,
+   manufactured/analytic tests, conservation, convergence, and established benchmark
+   cases. Neither unit tests nor citations alone constitute physical validation.
+4. **Configuration schema and artifact provenance.** Keep parsing, type/schema
+   validation, semantic resolution, and application distinct; make workflow inputs,
+   outputs, staging roots, and producer-consumer dependencies explicit. This reduces
+   failures caused by ambiguous paths and implicit file handoff.
+5. **Build/test evidence and reproducibility.** Make focused targets, CTest discovery,
+   platform differences, and exact-commit CI evidence easy to reproduce. A larger test
+   count has value only when assertions cover the intended contracts.
+6. **Documentation generation and interface drift.** Generate mechanical API details
+   from structured source comments where stable, but keep architecture, rationale,
+   equations, assumptions, diagrams, and evidence curated in ``doc/source``. Start
+   with one documented module and measure generated-output stability before expanding.
+
+This sequence prioritizes state validity and numerical trust over cosmetic renaming
+or broad comment expansion. Improve names and comments as part of the relevant
+boundary work, not as a competing project.
+
+
 1. **Keep the whole-system model visible.** Before a local refactor, identify the
    subsystem, upstream inputs, downstream consumers, state ownership, lifecycle, and
    relevant user workflow.

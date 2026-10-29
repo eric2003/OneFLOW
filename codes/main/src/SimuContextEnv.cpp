@@ -57,18 +57,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-namespace
-{
-
-std::string ReadOptionalStringParameter( const std::string & name )
-{
-    DataBase & dataBase = RequireGlobalDataBase();
-    return SimuContextDetail::ReadOptionalStringParameter(
-        dataBase.RequireDataPara(), name );
-}
-
-}
-
 SimuContext::SimuContext( const std::string& caseDir, bool debug )
     : caseDir_( Prj::ResolveCaseDir( caseDir ) )
 {
@@ -125,21 +113,21 @@ void SimuContext::SetupCaseEnvironment()
     // inherit their generic input/output root unless explicitly configured.
     // "case" selects the active case, "project" requires projectRoot, absolute
     // roots are used directly, and other relative roots resolve from the case.
-    const SimuContextDetail::CaseIORootSettings ioRoots =
-        SimuContextDetail::ReadCaseIORootSettings(
+    const SimuContextDetail::CaseIOSettings ioSettings =
+        SimuContextDetail::ReadCaseIOSettings(
             RequireGlobalDataBase().RequireDataPara() );
 
-    if ( ! ioRoots.projectRoot.empty() )
+    if ( ! ioSettings.projectRoot.empty() )
     {
-        Prj::SetProjectBaseDir( ioRoots.projectRoot );
+        Prj::SetProjectBaseDir( ioSettings.projectRoot );
     }
 
-    Prj::SetIOBaseDirs( ioRoots.inputRoot, ioRoots.outputRoot );
+    Prj::SetIOBaseDirs( ioSettings.inputRoot, ioSettings.outputRoot );
     Prj::SetDomainIOBaseDirs(
-        ioRoots.meshInputRoot,
-        ioRoots.flowInputRoot,
-        ioRoots.meshOutputRoot,
-        ioRoots.flowOutputRoot );
+        ioSettings.meshInputRoot,
+        ioSettings.flowInputRoot,
+        ioSettings.meshOutputRoot,
+        ioSettings.flowOutputRoot );
 
     const bool outputsUseCaseRoot =
         std::filesystem::path( Prj::GetMeshOutputBaseDir() ).lexically_normal()
@@ -149,11 +137,9 @@ void SimuContext::SetupCaseEnvironment()
     std::string ioPathInfoFile = outputsUseCaseRoot
         ? "results/io_paths.txt"
         : "io_paths.txt";
-    const std::string configuredInfoFile =
-        ReadOptionalStringParameter( "ioPathInfoFileName" );
-    if ( ! configuredInfoFile.empty() )
+    if ( ! ioSettings.ioPathInfoFileName.empty() )
     {
-        ioPathInfoFile = configuredInfoFile;
+        ioPathInfoFile = ioSettings.ioPathInfoFileName;
     }
 
     const std::string meshInfoPath =

@@ -89,6 +89,7 @@ TEST( SimuContextParameterTest, RejectsNonStringForEveryCaseIORootSetting )
         "flowInputRoot",
         "meshOutputRoot",
         "flowOutputRoot",
+        "ioPathInfoFileName",
         "sourceGridCaseDir"
     };
 
@@ -100,7 +101,7 @@ TEST( SimuContextParameterTest, RejectsNonStringForEveryCaseIORootSetting )
 
         try
         {
-            SimuContextDetail::ReadCaseIORootSettings( parameters );
+            SimuContextDetail::ReadCaseIOSettings( parameters );
             FAIL() << "Expected a type validation exception";
         }
         catch ( const std::invalid_argument & error )
@@ -170,9 +171,10 @@ TEST( SimuContextParameterTest, ReadsGenericAndDomainRootSettings )
     AddStringParameter( parameters, "flowInputRoot", "../flow-source" );
     AddStringParameter( parameters, "meshOutputRoot", "mesh-results" );
     AddStringParameter( parameters, "flowOutputRoot", "flow-results" );
+    AddStringParameter( parameters, "ioPathInfoFileName", "diagnostics/paths.txt" );
     AddStringParameter( parameters, "sourceGridCaseDir", "../legacy-grid" );
 
-    const auto settings = SimuContextDetail::ReadCaseIORootSettings( parameters );
+    const auto settings = SimuContextDetail::ReadCaseIOSettings( parameters );
 
     EXPECT_EQ( settings.projectRoot, "../project" );
     EXPECT_EQ( settings.inputRoot, "shared-input" );
@@ -181,6 +183,7 @@ TEST( SimuContextParameterTest, ReadsGenericAndDomainRootSettings )
     EXPECT_EQ( settings.flowInputRoot, "../flow-source" );
     EXPECT_EQ( settings.meshOutputRoot, "mesh-results" );
     EXPECT_EQ( settings.flowOutputRoot, "flow-results" );
+    EXPECT_EQ( settings.ioPathInfoFileName, "diagnostics/paths.txt" );
 }
 
 TEST( SimuContextParameterTest, ReadsLegacyGridRootOnlyWhenMeshRootAllowsFallback )
@@ -189,7 +192,7 @@ TEST( SimuContextParameterTest, ReadsLegacyGridRootOnlyWhenMeshRootAllowsFallbac
     AddStringParameter( parameters, "meshInputRoot", "default" );
     AddStringParameter( parameters, "sourceGridCaseDir", "../producer" );
 
-    const auto settings = SimuContextDetail::ReadCaseIORootSettings( parameters );
+    const auto settings = SimuContextDetail::ReadCaseIOSettings( parameters );
 
     EXPECT_EQ( settings.meshInputRoot, "../producer" );
 }
@@ -200,7 +203,7 @@ TEST( SimuContextParameterTest, ExplicitMeshRootDoesNotReadLegacyGridParameter )
     AddStringParameter( parameters, "meshInputRoot", "../explicit-grid" );
     AddIntegerParameter( parameters, "sourceGridCaseDir", 42 );
 
-    const auto settings = SimuContextDetail::ReadCaseIORootSettings( parameters );
+    const auto settings = SimuContextDetail::ReadCaseIOSettings( parameters );
 
     EXPECT_EQ( settings.meshInputRoot, "../explicit-grid" );
 }
