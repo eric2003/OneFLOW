@@ -198,10 +198,14 @@ Case runtime configuration
    `SimuContextDetail::ReadOptionalStringParameter()` in
    `codes/main/include/SimuContextParameter.h`. The helper returns an empty string for a
    missing entry, verifies that a present entry is `HX_STRING`, and throws
-   `std::invalid_argument` naming the parameter when its declared type is wrong. This
-   narrows the earlier unchecked typed-read behavior for these optional path settings;
-   it does not make every control parameter type-safe, nor does the helper test validate
-   global database binding or the complete case-setup lifecycle.
+   `std::invalid_argument` naming the parameter when its declared type is wrong.
+
+   `ReadCaseIORootSettings()` snapshots the generic and mesh/flow-specific root settings
+   into a value object before the runtime applies them through `Prj`. This separates typed
+   parameter lookup and legacy fallback selection from mutation of the process-global path
+   fields. The helper remains a narrow parameter adapter: it does not normalize paths,
+   apply roots, write `io_paths.txt`, or replace the production `ReadControlInfo(caseDir)`
+   call.
 
    The legacy mesh input fallback is split into two explicit decisions.
    `ShouldUseLegacySourceGridCaseDir()` decides whether the configured
@@ -211,16 +215,15 @@ Case runtime configuration
    non-`default` legacy value replaces the fallback token; otherwise the original
    mesh input value is preserved. Explicit roots, including `case` and ordinary
    relative paths, therefore do not consult or get overridden by the legacy setting.
-   Focused tests cover both the lookup decision and the effective-value contract.
+   Focused tests cover the full settings snapshot, legacy fallback selection, and the
+   fact that an explicit mesh root does not read an invalid legacy parameter.
 
    Existing `Prj` tests cover generic/domain root resolution, inheritance, diagnostics,
    and resetting roots when binding another case. The helper-level
-   `simu_context_parameter_test` covers missing, valid-string, and invalid-type lookup.
-   A direct `SetupCaseEnvironment()` integration test is still needed to prove the
-   precedence between explicit `meshInputRoot` and `sourceGridCaseDir`, as well as the
-   interaction with control-file loading and sequential case setup. Keep the documented
-   contract aligned with `SimuContextEnv.cpp` and the path-resolution tests.
-
+   `simu_context_parameter_test` now covers selection of the complete settings object as
+   well as missing, valid-string, and invalid-type lookup. A direct
+   `SetupCaseEnvironment()` integration test is still needed to verify the real control
+   reader, path application, diagnostic output, and sequential case setup together.
 Workbench project and workflow configuration
    Project definitions describe an engineering workspace; workflow definitions describe
    execution steps and their dependencies; run records describe individual attempts and
