@@ -291,6 +291,18 @@ The value-object tests verify setting selection and type contracts; they do not
 yet prove production control-reader integration, effective path binding, or
 sequential-case isolation.
 
+Root resolution has one important compatibility distinction. ``projectRoot`` is
+configured through ``Prj::SetProjectBaseDir()``: an absolute value is normalized
+directly, while a relative value is resolved against ``Prj::current_dir`` (the
+process working directory captured by project initialization). In contrast,
+ordinary relative ``inputRoot``, ``outputRoot``, and domain-specific roots resolve
+against the active case directory. The tokens ``case`` and ``default`` select
+the case root; ``project`` selects the configured project root and fails if no
+project root has been configured. This distinction is implemented in
+``codes/io/src/Prj.cpp`` and should not be changed implicitly as part of setup
+refactoring. A focused ``PrjIOPaths`` contract test pins the relative
+``projectRoot`` behavior separately from case-relative generic output.
+
 
 OneFLOW configuration is not a single undifferentiated settings file. Keep these layers
 separate when changing configuration behavior.
