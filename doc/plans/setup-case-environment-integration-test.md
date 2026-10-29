@@ -90,3 +90,30 @@ The real exception boundary is in `SimuImp::RunCase()`: it calls `PreProcess()` 
 Do not create a test executable by copying the complete solver source list into `tests/main/CMakeLists.txt`. First extract a narrow, production-owned case-setup operation with explicit dependencies for the control-load step and path binding; keep the default production implementation wired to `ReadControlInfo(caseDir)`. Then test the real control reader separately with a small multi-file fixture, and test the case orchestration's success/failure cleanup without initializing the entire solver stack. This is a deliberate boundary extraction, not a parser replacement or a generic dependency-injection framework.
 
 This follow-up is still investigation, not completion of R1. No source code was changed and no tests were run in this step.
+
+## Follow-up: use the repository's real CFD cases without turning them into unit fixtures
+
+The repository's `test/` directory and `tests/` directory serve different purposes and must remain distinct:
+
+- `tests/` contains automated unit and module tests. Keep small, deterministic contract tests here.
+- `test/` contains real CFD cases and their control inputs. Use these to validate production initialization and, at a later stage, numerical regression.
+- Do not copy or edit a real CFD case merely to make a test pass. If a case needs a small integration fixture, create a temporary case under the test build/runtime directory and leave the reference case unchanged.
+
+Use three levels of evidence, in this order:
+
+1. **Production control-reader integration:** a temporary minimal case with the same multi-file `script/control.txt` shape as real cases. Call the actual `ReadControlInfo(caseDir)`; assert typed database values and the generated `log/database.log`. This isolates file loading and database commit from the mesh and solver.
+2. **Case-environment initialization smoke test:** after the production-owned setup boundary exists, select one existing case from `test/` based on its actual required files and initialization cost. Exercise setup and teardown only; do not execute the CFD task. Record the exact case path and prerequisites rather than guessing the directory name.
+3. **Numerical regression:** run the established case workflow and compare its defined reference quantities. This is a separate and more expensive check; successful initialization alone is not evidence of numerical correctness.
+
+For sequential-case isolation, the strongest small fixture is two cases run in one process: case A sets explicit project and mesh/flow roots, while case B omits them. Assert that B resolves according to its own documented defaults and never inherits A's settings. Also test a missing or malformed control input and verify cleanup preserves the original exception.
+
+## Sandbox capability and validation boundary
+
+The current execution sandbox provides Linux, CMake, GCC, Clang, Python, and Git. It does not have the OneFLOW checkout mounted, and outbound DNS/network access from the shell is unavailable. Repository source can be inspected and changed through the GitHub integration, but that alone does not allow a truthful local build or CTest run against the complete source tree. Consequently:
+
+- Do not report the user-supplied 967/967 baseline as validation of new changes.
+- Do not claim the real-case integration test passed until it has run against an actual checkout.
+- Prefer a source change whose dependency boundary is clear from inspection, then validate it in the repository's normal Windows/CI environment. If a checkout/archive is made available in the sandbox, use it to build and run the narrow target before broadening the test.
+
+The next implementation slice remains the narrow production-owned setup boundary described above. It should preserve the real `ReadControlInfo(caseDir)` implementation and the existing exception/cleanup semantics. Extracting a reusable production runtime library is a possible later architecture improvement, but should not be smuggled into this first integration-test change.
+
