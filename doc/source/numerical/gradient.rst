@@ -1,26 +1,43 @@
-Green-Gauss gradient face contracts
-===================================
+Green-Gauss gradient contracts
+==============================
 
-Upstream of the slope limiter on the residual path. Cell gradients are built by
-accumulating face contributions; the **face value** and **area-weighted normal**
-are pure and testable without mesh globals.
+Upstream of the slope limiter on the residual path. Face values, normals,
+volume scaling, and boundary ghost copies are pure; only the face/cell
+iteration still touches mesh globals (``ug``).
 
 Pipeline
 --------
 
 .. code-block:: text
 
+   zero cell gradients
+        |
+        v
    for each face:
-     q_f  <- arithmetic average   OR   inverse-distance weights
-     S    <- n * A
-     left cell  += S * q_f
-     interior right cell -= S * q_f
+        q_f  <- ArithmeticFaceAverage  OR  InverseDistance + WeightedFaceAverage
+        S    <- AreaWeightedFaceNormal (n * A)
+        left  AccumulateFaceGradient(+S * q_f)
+        if interior:
+          right AccumulateFaceGradient(-S * q_f)
+        |
+        v
    for each physical cell:
-     grad *= 1 / volume
-   boundary ghosts copy owner gradient
+        ScaleGradientByVolume (grad /= V)
+        |
+        v
+   for each boundary face:
+        CopyGradient(owner -> ghost)
 
-Inverse-distance weights
-------------------------
+Formulas
+--------
+
+Arithmetic face value:
+
+.. math::
+
+   q_f = \frac{1}{2}(q_L + q_R)
+
+Inverse-distance weights:
 
 .. math::
 
@@ -33,14 +50,33 @@ Inverse-distance weights
    c_R = \frac{d_L}{d_L + d_R + \varepsilon},\quad
    q_f = c_L q_L + c_R q_R
 
-Closer cell gets larger weight. Equal distances recover the arithmetic average.
+Green-Gauss accumulation and volume scale:
+
+.. math::
+
+   \nabla q_c \leftarrow \nabla q_c + \sigma\,\mathbf{S}\,q_f,
+   \quad \sigma = +1\ \mathrm{(left)},\ -1\ \mathrm{(right)}
+
+.. math::
+
+   \nabla q_c \leftarrow \frac{1}{V_c}\nabla q_c
+
+Boundary ghosts copy the owner (left) gradient; they are not independent
+unknowns in this scheme.
 
 Pure entry points (``UGradPolicy.h``)
 ------------------------------------
 
 * ``ArithmeticFaceAverage``
-* ``InverseDistanceFaceWeights``
-* ``WeightedFaceAverage``
+* ``InverseDistanceFaceWeights`` / ``WeightedFaceAverage``
 * ``AreaWeightedFaceNormal``
+* ``AccumulateFaceGradient``
+* ``ScaleGradientByVolume``
+* ``CopyGradient``
 
-Tagged ``@doc-algorithm green-gauss-gradient``. Tests: ``grad_policy_test``.
+Tags: ``@doc-algorithm green-gauss-gradient`` with ``@doc-stage`` /
+``@doc-formula`` on each pure API so an extractor can rebuild this page from
+headers without a second algorithm write-up. Narrative, diagrams, and math
+remain in ``doc/source`` (not only in ``//`` comments).
+
+Tests: ``grad_policy_test``.

@@ -34,4 +34,29 @@ void AreaWeightedFaceNormal(
     Real xfn, Real yfn, Real zfn, Real area,
     Real & snx, Real & sny, Real & snz );
 
+
+// @doc-algorithm green-gauss-gradient
+// @doc-stage scale-by-volume
+// @doc-pure
+// @doc-formula grad = grad / V
+void ScaleGradientByVolume(
+    Real volume,
+    Real & dqdx, Real & dqdy, Real & dqdz );
+
+// @doc-algorithm green-gauss-gradient
+// @doc-stage boundary-ghost-copy
+// @doc-pure
+// Boundary ghost cells inherit the owner (left) cell gradient.
+void CopyGradient(
+    Real srcDqdx, Real srcDqdy, Real srcDqdz,
+    Real & dstDqdx, Real & dstDqdy, Real & dstDqdz );
+
+// @doc-algorithm green-gauss-gradient
+// @doc-stage face-flux-accumulate
+// @doc-pure
+// @doc-formula grad += sign * S * q_f
+void AccumulateFaceGradient(
+    Real snx, Real sny, Real snz, Real faceValue, Real sign,
+    Real & dqdx, Real & dqdy, Real & dqdz );
+
 EndNameSpace

@@ -57,22 +57,20 @@ void CalcGrad( RealField & q, RealField & dqdx, RealField & dqdy, RealField & dq
             ( * ug.xfn )[ ug.fId ], ( * ug.yfn )[ ug.fId ], ( * ug.zfn )[ ug.fId ],
             ( * ug.farea )[ ug.fId ], fnxa, fnya, fnza );
 
-        dqdx[ ug.lc ] += fnxa * value;
-        dqdy[ ug.lc ] += fnya * value;
-        dqdz[ ug.lc ] += fnza * value;
+        AccumulateFaceGradient(
+            fnxa, fnya, fnza, value, 1.0,
+            dqdx[ ug.lc ], dqdy[ ug.lc ], dqdz[ ug.lc ] );
 
         if ( ug.fId < ug.nBFaces ) continue;
-        dqdx[ ug.rc ] -= fnxa * value;
-        dqdy[ ug.rc ] -= fnya * value;
-        dqdz[ ug.rc ] -= fnza * value;
+        AccumulateFaceGradient(
+            fnxa, fnya, fnza, value, -1.0,
+            dqdx[ ug.rc ], dqdy[ ug.rc ], dqdz[ ug.rc ] );
     }
 
     for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
-        Real ovol = one / ( * ug.cvol )[ cId ];
-        dqdx[ cId ] *= ovol;
-        dqdy[ cId ] *= ovol;
-        dqdz[ cId ] *= ovol;
+        ScaleGradientByVolume(
+            ( * ug.cvol )[ cId ], dqdx[ cId ], dqdy[ cId ], dqdz[ cId ] );
     }
 
     for ( int fId = 0; fId < ug.nBFaces; ++ fId )
@@ -81,9 +79,9 @@ void CalcGrad( RealField & q, RealField & dqdx, RealField & dqdy, RealField & dq
         ug.lc = ( * ug.lcf )[ ug.fId ];
         ug.rc = ( * ug.rcf )[ ug.fId ];
 
-        dqdx[ ug.rc ] = dqdx[ ug.lc ];
-        dqdy[ ug.rc ] = dqdy[ ug.lc ];
-        dqdz[ ug.rc ] = dqdz[ ug.lc ];
+        CopyGradient(
+            dqdx[ ug.lc ], dqdy[ ug.lc ], dqdz[ ug.lc ],
+            dqdx[ ug.rc ], dqdy[ ug.rc ], dqdz[ ug.rc ] );
     }
 }
 
@@ -116,22 +114,20 @@ void CalcGradGGCellWeight( RealField & q, RealField & dqdx, RealField & dqdy, Re
             ( * ug.xfn )[ ug.fId ], ( * ug.yfn )[ ug.fId ], ( * ug.zfn )[ ug.fId ],
             ( * ug.farea )[ ug.fId ], fnxa, fnya, fnza );
 
-        dqdx[ ug.lc ] += fnxa * value;
-        dqdy[ ug.lc ] += fnya * value;
-        dqdz[ ug.lc ] += fnza * value;
+        AccumulateFaceGradient(
+            fnxa, fnya, fnza, value, 1.0,
+            dqdx[ ug.lc ], dqdy[ ug.lc ], dqdz[ ug.lc ] );
 
         if ( ug.fId < ug.nBFaces ) continue;
-        dqdx[ ug.rc ] -= fnxa * value;
-        dqdy[ ug.rc ] -= fnya * value;
-        dqdz[ ug.rc ] -= fnza * value;
+        AccumulateFaceGradient(
+            fnxa, fnya, fnza, value, -1.0,
+            dqdx[ ug.rc ], dqdy[ ug.rc ], dqdz[ ug.rc ] );
     }
 
     for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
-        Real ovol = one / ( * ug.cvol )[ cId ];
-        dqdx[ cId ] *= ovol;
-        dqdy[ cId ] *= ovol;
-        dqdz[ cId ] *= ovol;
+        ScaleGradientByVolume(
+            ( * ug.cvol )[ cId ], dqdx[ cId ], dqdy[ cId ], dqdz[ cId ] );
     }
 
     for ( int fId = 0; fId < ug.nBFaces; ++ fId )
@@ -140,9 +136,9 @@ void CalcGradGGCellWeight( RealField & q, RealField & dqdx, RealField & dqdy, Re
         ug.lc = ( * ug.lcf )[ ug.fId ];
         ug.rc = ( * ug.rcf )[ ug.fId ];
 
-        dqdx[ ug.rc ] = dqdx[ ug.lc ];
-        dqdy[ ug.rc ] = dqdy[ ug.lc ];
-        dqdz[ ug.rc ] = dqdz[ ug.lc ];
+        CopyGradient(
+            dqdx[ ug.lc ], dqdy[ ug.lc ], dqdz[ ug.lc ],
+            dqdx[ ug.rc ], dqdy[ ug.rc ], dqdz[ ug.rc ] );
     }
 }
 
@@ -176,22 +172,20 @@ void CalcGradGGCellWeightDebug( RealField & q, RealField & dqdx, RealField & dqd
             ( * ug.xfn )[ ug.fId ], ( * ug.yfn )[ ug.fId ], ( * ug.zfn )[ ug.fId ],
             ( * ug.farea )[ ug.fId ], fnxa, fnya, fnza );
 
-        dqdx[ ug.lc ] += fnxa * value;
-        dqdy[ ug.lc ] += fnya * value;
-        dqdz[ ug.lc ] += fnza * value;
+        AccumulateFaceGradient(
+            fnxa, fnya, fnza, value, 1.0,
+            dqdx[ ug.lc ], dqdy[ ug.lc ], dqdz[ ug.lc ] );
 
         if ( ug.fId < ug.nBFaces ) continue;
-        dqdx[ ug.rc ] -= fnxa * value;
-        dqdy[ ug.rc ] -= fnya * value;
-        dqdz[ ug.rc ] -= fnza * value;
+        AccumulateFaceGradient(
+            fnxa, fnya, fnza, value, -1.0,
+            dqdx[ ug.rc ], dqdy[ ug.rc ], dqdz[ ug.rc ] );
     }
 
     for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
-        Real ovol = one / ( * ug.cvol )[ cId ];
-        dqdx[ cId ] *= ovol;
-        dqdy[ cId ] *= ovol;
-        dqdz[ cId ] *= ovol;
+        ScaleGradientByVolume(
+            ( * ug.cvol )[ cId ], dqdx[ cId ], dqdy[ cId ], dqdz[ cId ] );
     }
 
     for ( int fId = 0; fId < ug.nBFaces; ++ fId )
@@ -200,9 +194,9 @@ void CalcGradGGCellWeightDebug( RealField & q, RealField & dqdx, RealField & dqd
         ug.lc = ( * ug.lcf )[ ug.fId ];
         ug.rc = ( * ug.rcf )[ ug.fId ];
 
-        dqdx[ ug.rc ] = dqdx[ ug.lc ];
-        dqdy[ ug.rc ] = dqdy[ ug.lc ];
-        dqdz[ ug.rc ] = dqdz[ ug.lc ];
+        CopyGradient(
+            dqdx[ ug.lc ], dqdy[ ug.lc ], dqdz[ ug.lc ],
+            dqdx[ ug.rc ], dqdy[ ug.rc ], dqdz[ ug.rc ] );
     }
 
 }
@@ -226,9 +220,9 @@ void CalcGradDebug( RealField & q, RealField & dqdx, RealField & dqdy, RealField
             ( * ug.xfn )[ ug.fId ], ( * ug.yfn )[ ug.fId ], ( * ug.zfn )[ ug.fId ],
             ( * ug.farea )[ ug.fId ], fnxa, fnya, fnza );
 
-        dqdx[ ug.lc ] += fnxa * value;
-        dqdy[ ug.lc ] += fnya * value;
-        dqdz[ ug.lc ] += fnza * value;
+        AccumulateFaceGradient(
+            fnxa, fnya, fnza, value, 1.0,
+            dqdx[ ug.lc ], dqdy[ ug.lc ], dqdz[ ug.lc ] );
 
         if ( ug.lc == 0 || ug.rc == 0 )
         {
@@ -236,17 +230,15 @@ void CalcGradDebug( RealField & q, RealField & dqdx, RealField & dqdy, RealField
         }
 
         if ( ug.fId < ug.nBFaces ) continue;
-        dqdx[ ug.rc ] -= fnxa * value;
-        dqdy[ ug.rc ] -= fnya * value;
-        dqdz[ ug.rc ] -= fnza * value;
+        AccumulateFaceGradient(
+            fnxa, fnya, fnza, value, -1.0,
+            dqdx[ ug.rc ], dqdy[ ug.rc ], dqdz[ ug.rc ] );
     }
 
     for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
-        Real ovol = one / ( * ug.cvol )[ cId ];
-        dqdx[ cId ] *= ovol;
-        dqdy[ cId ] *= ovol;
-        dqdz[ cId ] *= ovol;
+        ScaleGradientByVolume(
+            ( * ug.cvol )[ cId ], dqdx[ cId ], dqdy[ cId ], dqdz[ cId ] );
     }
 
     for ( int fId = 0; fId < ug.nBFaces; ++ fId )
@@ -255,9 +247,9 @@ void CalcGradDebug( RealField & q, RealField & dqdx, RealField & dqdy, RealField
         ug.lc = ( * ug.lcf )[ ug.fId ];
         ug.rc = ( * ug.rcf )[ ug.fId ];
 
-        dqdx[ ug.rc ] = dqdx[ ug.lc ];
-        dqdy[ ug.rc ] = dqdy[ ug.lc ];
-        dqdz[ ug.rc ] = dqdz[ ug.lc ];
+        CopyGradient(
+            dqdx[ ug.lc ], dqdy[ ug.lc ], dqdz[ ug.lc ],
+            dqdx[ ug.rc ], dqdy[ ug.rc ], dqdz[ ug.rc ] );
     }
 }
 
