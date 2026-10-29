@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <type_traits>
+#include <utility>
 
 #include "Marray.h"
 
@@ -9,25 +10,32 @@ using ONEFLOW::HXSize_t;
 using ONEFLOW::HXVector;
 using ONEFLOW::Marray;
 
-using MutableEquationAccess = HXVector< int > & ( Marray< int >::* )( HXSize_t );
-using ConstEquationAccess = const HXVector< int > & ( Marray< int >::* )( HXSize_t ) const;
-
 static_assert( std::is_same_v<
-    decltype( static_cast< MutableEquationAccess >( &Marray< int >::operator[] ) ),
-    MutableEquationAccess > );
+    decltype( std::declval< Marray< int > & >()[ std::declval< HXSize_t >() ] ),
+    HXVector< int > & > );
 static_assert( std::is_same_v<
-    decltype( static_cast< ConstEquationAccess >( &Marray< int >::operator[] ) ),
-    ConstEquationAccess > );
+    decltype( std::declval< const Marray< int > & >()[ std::declval< HXSize_t >() ] ),
+    const HXVector< int > & > );
 
-TEST(MarrayTest, ConstructorPreservesBothSizeTypeExtents)
+TEST( MarrayTest, ConstructorPreservesBothSizeTypeExtents )
 {
     const HXSize_t equationCount = 2;
     const HXSize_t valueCount = 3;
 
     Marray< int > values( equationCount, valueCount );
 
-    EXPECT_EQ(values.GetNEqu(), equationCount);
-    ASSERT_EQ(values[ 0 ].size(), valueCount);
-    ASSERT_EQ(values[ 1 ].size(), valueCount);
+    EXPECT_EQ( values.GetNEqu(), equationCount );
+    ASSERT_EQ( values[ 0 ].size(), valueCount );
+    ASSERT_EQ( values[ 1 ].size(), valueCount );
+}
+
+TEST( MarrayTest, MutableAndConstEquationAccessPreserveReferenceSemantics )
+{
+    Marray< int > values( 2, 3 );
+    values[ 1 ][ 2 ] = 42;
+
+    const Marray< int > & readOnlyValues = values;
+
+    EXPECT_EQ( readOnlyValues[ 1 ][ 2 ], 42 );
 }
 }
