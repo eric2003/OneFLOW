@@ -2,7 +2,7 @@
 
 Last updated: 2026-10-30
 Working branch: `hexin`
-Inspected starting HEAD for the current slice: `df567dba6f77abba725f05ce72cb32499046a653`.
+Latest handoff update: `9355ed27dd31ce3c624e6860426d5abf14935e4d` (`docs(runtime): define real-case integration evidence tiers`). The latest slice changes the integration-test plan only; it does not change production code.
 User-reported pre-change baseline: 967/967 tests passed. This is not evidence for the changes below.
 
 ## Current focus: R1 case I/O root configuration contract
@@ -24,6 +24,7 @@ System-level reason: configuration lookup and type validation are now separated 
 - User-reported pre-change baseline: 967/967 tests passed.
 - The updated type-contract test and documentation have not been built or run in this environment.
 - No exact-commit CI result has been checked for this slice; do not claim the new test passes.
+- The current Linux sandbox has CMake, GCC, Clang, Python, and Git, but no OneFLOW checkout is mounted and shell network/DNS access is unavailable. GitHub source edits are possible, but a complete local CMake/CTest run is not possible until a checkout/archive is available.
 - Keep C++ source ASCII-only.
 
 ## Remaining R1 gap
@@ -32,7 +33,7 @@ A real integration test still needs to exercise the production `ReadControlInfo(
 
 The existing investigation record is `doc/plans/setup-case-environment-integration-test.md`. It identifies the key constraints: the global database is statically initialized, but `ReadControlInfo` uses parallel coordination and database broadcast; `SimuContext::TeardownCase()` resets much more than path state; the production executable currently compiles a broad source list rather than exposing a reusable runtime library.
 
-Next single action: determine whether a narrow production-owned case-setup orchestration boundary can preserve the real `ReadControlInfo(caseDir)` implementation while enabling setup success/failure and sequential-case tests. Do not mark R1 complete until effective path application and cleanup have test evidence.
+Next single action: extract a narrow production-owned case-setup orchestration boundary that preserves the real `ReadControlInfo(caseDir)` implementation. Then add a real-reader integration target with a temporary multi-file case, and follow it with a setup-only smoke test using an existing case under `test/` after its exact path and prerequisites are inspected. Keep `tests/` for test code and `test/` for CFD cases. Do not mark R1 complete until effective path application, sequential-case isolation, and cleanup have test evidence.
 
 ## 1. Read this first
 
