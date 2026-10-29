@@ -1,56 +1,59 @@
-# OneFLOW 文档
+# OneFLOW Documentation
 
-`doc/` 是 OneFLOW 的统一文档根目录。工程资料与正式发布的 Sphinx 手册都由这里管理，但二者的组织目的不同：
+[English](README.md) | [简体中文](README_zh_CN.md) | [Project README](../README.md) | [Online documentation](https://oneflow-cfd.readthedocs.io/en/latest/)
 
-- 工程资料按用途和生命周期分类，服务于开发、审计、交接与验证。
-- `source/` 是经过整理、面向读者导航的 Sphinx 文档站点源目录。
-- 并非每一份工程记录都需要发布到网站；正式手册可以提炼稳定结论并链接到详细工程记录，避免重复维护。
+The `doc/` directory is the repository's documentation root. It contains engineering records and the source files for the published Sphinx manual. These have different purposes:
 
-## 目录结构
+- **Engineering documentation** supports development, review, handoffs, reproducibility, and verification.
+- **`source/`** contains the curated Sphinx documentation site and its reader-oriented navigation.
+- **Not every engineering record belongs on the public documentation site.** The manual should summarize stable concepts and link to detailed records instead of duplicating them.
 
-- `architecture/`：架构说明、设计边界和审计结论。
-- `plans/`：持续维护的 TODO、路线图、优化计划和文档治理计划。
-- `handoff/`：项目交接、阶段进度和工作交接记录。
-- `runbooks/`：构建、测试、调试、集群及移植等可重复操作流程。
-- `evidence/`：构建、MPI、节点运行等可复核事实记录。
-- `reports/`：正式报告，按主题子目录组织。
-- `_drafts/`：临时草稿；应定期整理、提升为正式文档或清理，不作为发布内容。
-- `source/`：Sphinx 文档站点源文件。
-- `Makefile`、`make.bat`：Sphinx 构建入口。
-- `DevelopManual-chinese.doc`、`UserManual-chinese.doc`：历史 Word/WPS 手册，状态待内容审查。
+English is the primary language for public project documentation and contributions. Chinese documentation is provided as a reading aid for selected topics; it should preserve the same concepts, terminology, and navigation without requiring every technical note to be translated line by line.
 
-## 文档资产整理计划
+## Directory map
 
-当前仓库仍有少量技术文档位于根目录和顶层 `docs/`。在完成内容比较和链接检查之前，不要批量移动、删除或重命名这些文件。按主题确定唯一权威版本，再将稳定内容纳入 Sphinx 手册。
+- `architecture/`: architecture descriptions, design boundaries, and review findings.
+- `plans/`: maintained TODOs, roadmaps, improvement plans, and documentation-governance plans.
+- `handoff/`: project handoffs, milestone summaries, and continuation notes.
+- `runbooks/`: repeatable build, test, debug, cluster, and porting procedures.
+- `evidence/`: verifiable build, MPI, and runtime evidence.
+- `reports/`: formal reports organized by topic.
+- `_drafts/`: temporary drafts to review, promote, or remove; not publication entry points.
+- `source/`: Sphinx documentation source files.
+- `Makefile`, `make.bat`: Sphinx build entry points.
+- `DevelopManual-chinese.doc`, `UserManual-chinese.doc`: historical Word/WPS manuals awaiting content review.
 
-## 从整体到细节的阅读顺序
+## Documentation consolidation
 
-文档建设采用“顶层地图 -> 子系统架构 -> 算法/接口细节 -> 验证证据”的顺序，
-而不是先堆积局部实现笔记：
+A small number of technical documents still live in the repository root or the top-level `docs/` directory. Do not move, delete, or rename them in bulk before comparing content and checking links. First identify the authoritative version for each topic, then incorporate stable material into the Sphinx manual where appropriate.
 
-1. 项目入口与目标：仓库根目录的 README 和本页说明 OneFLOW 的定位、文档边界与阅读入口。
-2. 系统架构：先阅读 [运行时架构与开发指南](source/runtime_architecture.rst)，理解运行时、案例生命周期、网格数据、工作台和验证之间的边界。
-3. 子系统架构：根据任务进入网格、拓扑、工作台或数值模块的专题文档。
-4. 算法与接口：在专题中说明数学定义、关键公式、数据流、实际代码入口及当前实现的限制。
-5. 验证证据：链接契约测试、集成测试、网格检查和 CFD 回归；明确哪些已验证、哪些仍是待验证假设。
+## Read from the system down to implementation details
 
-顶层文档回答“系统由什么组成、为什么这样分层、主要数据和控制如何流动、目前的主要风险是什么”；
-专题文档再回答“该算法如何计算、接口如何约定、代码具体在哪里”。不要在顶层重复函数级细节，
-也不要让专题文档只列代码位置而缺少算法意图。流程图和公式应服务于解释，不以增加图表数量为目标。
+The documentation follows this progression:
 
-开发者需要从整体理解代码时，先阅读 [整体架构审视与开发原则](source/architecture_review.rst)，了解 CFD/CAE 软件的通用架构检查维度、OneFLOW 当前跨模块风险和阶段性回顾机制；随后阅读 [运行时架构与开发指南](source/runtime_architecture.rst)，再进入 [网格架构](source/mesh_architecture.rst)、[网格拓扑](source/grid_topology.rst) 或 [工作台架构](source/workbench_architecture.rst)。整体审视页是检查框架，不代表其中所有通用能力已在 OneFLOW 实现。
+1. **Project entry and goals.** Start with the repository [README](../README.md) and this page to understand OneFLOW's scope and documentation boundaries.
+2. **System architecture.** Read the [runtime architecture and development guide](source/runtime_architecture.rst) for runtime execution, case lifecycle, mesh data, the Workbench, and verification boundaries.
+3. **Subsystem architecture.** Follow the topic relevant to the task: mesh, topology, Workbench, or numerical components.
+4. **Algorithms and interfaces.** Explain mathematical definitions, important equations, data flow, actual code entry points, and current implementation limits.
+5. **Verification evidence.** Link contract tests, integration tests, mesh checks, and CFD regressions. Distinguish verified behavior from assumptions that still need validation.
 
-AI 助手或新加入的开发者需要快速恢复持续重构的上下文时，先读 [AI 项目状态与交接页](AI_CONTEXT.md)。它汇总当前工作分支约束、最近检查的实现基线、已确认的行为、尚未验证的缺口和下一步建议；随后再进入对应架构页、路线图、源码、测试和 CI。该状态页是快速入口，不替代源码和针对具体提交的验证。\n\n请先阅读 [文档资产盘点与整合计划](plans/oneflow-documentation-consolidation-plan.md)。该计划记录现有文档的初步归属、建议的目标结构和分阶段整理顺序。它是持续更新的计划，不表示其中提到的迁移已经完成。
+Top-level documents should answer what the system contains, why it is layered this way, how its main control and data flows work, and where the major risks remain. Topic documents should explain how an algorithm works, what an interface promises, and where the implementation lives. Avoid duplicating function-level details in the system overview, and avoid technical notes that list code locations without explaining intent.
 
-新增工程文档统一放在 `doc/` 下，不再扩展顶层 `docs/` 作为第二套体系。新建工程文档遵循[文档命名规范](DOCUMENT_NAMING.md)，该规范适用于 `architecture/`、`plans/`、`handoff/`、`runbooks/`、`evidence/`、`reports/` 与 `_drafts/`。现有文件不批量改名，以免破坏历史链接。
+For a broad architecture review, read [system architecture review](source/architecture_review.rst) first, then the [runtime architecture guide](source/runtime_architecture.rst). Continue with [mesh architecture](source/mesh_architecture.rst), [grid topology](source/grid_topology.rst), or [Workbench architecture](source/workbench_architecture.rst), depending on the task. The review page is a checklist; it does not claim that every general capability discussed there has already been implemented.
 
-## 构建 HTML 文档
+For a quick continuation of ongoing development, read [AI project context and handoff](AI_CONTEXT.md). It summarizes branch constraints, recently inspected implementation baselines, confirmed behavior, open verification gaps, and suggested next steps. It is a navigation aid, not a substitute for source inspection and verification against the target commit.
 
-在仓库根目录执行：
+For the initial inventory and planned consolidation of existing documents, see the [documentation consolidation plan](plans/oneflow-documentation-consolidation-plan.md). The plan records intended ownership and sequencing; it does not imply that every listed migration is complete.
+
+New engineering documents belong under `doc/`; do not grow the top-level `docs/` directory into a second documentation system. Follow the [document naming rules](DOCUMENT_NAMING.md) for new files in `architecture/`, `plans/`, `handoff/`, `runbooks/`, `evidence/`, `reports/`, and `_drafts/`. Existing files should not be renamed in bulk because historical links may depend on their paths.
+
+## Build the HTML documentation
+
+From the repository root:
 
 ```bash
 cd doc
 make html
 ```
 
-生成结果位于 `doc/build/html/`。CI 和 Read the Docs 使用 `doc/source/` 作为 Sphinx 源目录。修改发布手册时，应检查相关 `toctree`、交叉引用和构建结果；仅更新工程记录时，不必强制把该记录加入网站导航。
+The output is written to `doc/build/html/`. CI and Read the Docs use `doc/source/` as the Sphinx source directory. When changing the published manual, check the relevant `toctree` entries, cross-references, and build output. An engineering note does not need to be added to the website navigation unless it is intended for publication.
