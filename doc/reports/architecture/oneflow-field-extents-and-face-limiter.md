@@ -71,24 +71,24 @@ flowchart TD
 
 For a cell-centered scalar $q_i$, the linear reconstruction to face center $f$ is
 
-$
+\[
 q_{i,f}=q_i+\phi_i\,\nabla q_i\cdot(\mathbf{x}_f-\mathbf{x}_i),
 \qquad
 \Delta q_{i,f}=\nabla q_i\cdot(\mathbf{x}_f-\mathbf{x}_i).
-$
+\]
 
 The range-building pass starts with the cell's own value and includes neighboring values. It then stores differences relative to the cell value. In the notation below, $m_i$ and $M_i$ are therefore *offset bounds*, not absolute solution extrema:
 
-$
+\[
 m_i=\min_{j\in N(i)}(q_j-q_i),\qquad
 M_i=\max_{j\in N(i)}(q_j-q_i).
-$
+\]
 
 The implementation constructs these bounds through face connectivity, with a separate pass for interface boundary faces so the physical cell sees its exchanged neighbor. Ordinary boundary-face ghost values are not treated as ordinary interior neighbors by this range-building pass.
 
 For the Barth branch, the source implements the following piecewise rule for each face side. The directional check is represented by $d_i$; a negative value forces zero:
 
-$
+\[
 \phi_{i,f}=
 \begin{cases}
 0, & d_i<0,\\
@@ -96,23 +96,23 @@ M_i/\Delta q_{i,f}, & \Delta q_{i,f}>M_i,\\
 m_i/\Delta q_{i,f}, & \Delta q_{i,f}<m_i,\\
 1, & \text{otherwise}.
 \end{cases}
-$
+\]
 
 The cell coefficient is reduced over faces by taking the minimum of its current value and the new face-side coefficient. This is why the face loops can update both adjacent cells while the limiter remains cell-centered.
 
 For the Venkatakrishnan branch, the source chooses the upper offset when $\Delta q_{i,f}>0$ and the lower offset when $\Delta q_{i,f}<0$. With $x$ as that selected bound and $y=\Delta q_{i,f}$, the current implementation uses
 
-$
+\[
 V(x,y,\epsilon)=
 \frac{x^2+\epsilon+2xy}
 {x^2+2y^2+xy+\epsilon}.
-$
+\]
 
 The regularization scale is formed in code as
 
-$
+\[
 \epsilon = \left(c\,\max(q_{\max}-q_{\min},1)\right)^2+\texttt{SMALL},
-$
+\]
 
 where $c$ is the configured vencat_coef; the implementation passes this squared scale to the rational function. When the predicted increment is sufficiently close to zero (abs(dq) <= SMALL), the function returns one instead of evaluating a sign-dependent bound.
 
