@@ -551,3 +551,37 @@ Parameter schema and GUI editing
 
 See :doc:`case_parameter_design` for the sample-backed parameter classification and
 for why a runtime database dump is not sufficient as an authoring model.
+
+Directory separators and path semantics
+---------------------------------------
+
+Treat filesystem paths as paths, not as strings with a required final separator. Use
+``std::filesystem::path`` composition (``root / relativePath``) when constructing child
+paths, and use lexical normalization for comparisons that are intended to ignore redundant
+separators or ``.`` components. Do not compare a path's raw string representation when the
+contract is directory identity: a trailing separator may differ without changing the
+represented directory.
+
+OneFLOW currently has a compatibility wrinkle. ``Prj::ResolveCaseDir()`` deliberately
+returns a directory string with a trailing separator because legacy call sites may rely
+on that representation. Other path helpers already use ``std::filesystem::path`` and
+normalize directory strings at selected boundaries. Therefore, the current contract is
+not yet “all internal directory strings are separator-free.” Do not remove the trailing
+separator globally until direct concatenations and legacy consumers have been audited and
+migrated to path composition. The safe incremental rule is:
+
+* preserve the existing public/legacy representation where compatibility requires it;
+* compose paths with ``std::filesystem::path`` rather than string concatenation;
+* normalize paths before semantic comparisons, while preserving filesystem roots;
+* test both ordinary directories and root directories on supported platforms.
+
+A directory-normalization helper must not strip a root such as ``/`` or ``C:\\`` to an
+invalid or semantically different string such as ``C:``. The root length is the boundary
+for removing redundant trailing separators. This distinction matters on Windows, where a
+drive-relative path (``C:folder``) and a drive-rooted path (``C:\\folder``) do not mean
+the same thing.
+
+This is a staged compatibility policy, not a recommendation to keep trailing separators
+forever. The long-term direction is to carry ``std::filesystem::path`` values internally
+and convert to strings only at APIs that require them. Each migration should be justified
+by call-site evidence and tests, not by changing formatting alone.
