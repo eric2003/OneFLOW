@@ -575,10 +575,10 @@ migrated to path composition. The safe incremental rule is:
 * normalize paths before semantic comparisons, while preserving filesystem roots;
 * test both ordinary directories and root directories on supported platforms.
 
-A directory-normalization helper must not strip a root such as ``/`` or ``C:\\`` to an
+A directory-normalization helper must not strip a root such as ``/`` or ``C:\`` to an
 invalid or semantically different string such as ``C:``. The root length is the boundary
 for removing redundant trailing separators. This distinction matters on Windows, where a
-drive-relative path (``C:folder``) and a drive-rooted path (``C:\\folder``) do not mean
+drive-relative path (``C:folder``) and a drive-rooted path (``C:\folder``) do not mean
 the same thing.
 
 This is a staged compatibility policy, not a recommendation to keep trailing separators
