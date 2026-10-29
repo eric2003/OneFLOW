@@ -38,4 +38,20 @@ TEST( MarrayTest, MutableAndConstEquationAccessPreserveReferenceSemantics )
 
     EXPECT_EQ( readOnlyValues[ 1 ][ 2 ], 42 );
 }
+
+TEST( MarrayTest, ScalarAssignmentFillsEveryEquationValue )
+{
+    Marray< int > values( 2, 3 );
+
+    values = 7;
+
+    for ( HXSize_t equation = 0; equation < values.GetNEqu(); ++equation )
+    {
+        ASSERT_EQ( values[ equation ].size(), 3u );
+        for ( HXSize_t value = 0; value < values[ equation ].size(); ++value )
+        {
+            EXPECT_EQ( values[ equation ][ value ], 7 );
+        }
+    }
+}
 }
