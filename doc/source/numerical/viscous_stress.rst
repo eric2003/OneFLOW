@@ -38,3 +38,15 @@ Pipeline
 
 Pure APIs: ``StokesStressTensor``, ``ProjectStressMomentumFlux``,
 ``ViscousEnergyFlux`` (``NsVisFluxPolicy.h``). Tests: ``vis_flux_policy_test``.
+
+
+Nondimensional face scaling
+---------------------------
+
+.. math::
+
+   \mathrm{coeff} = -\frac{1}{Re}\,A
+
+so that stored face viscous fluxes match the residual convention
+``DepositOrientedFaceFlux``. Spectrum accumulation uses the same bilateral
+deposit helper ``DepositFaceScalarToCells``.

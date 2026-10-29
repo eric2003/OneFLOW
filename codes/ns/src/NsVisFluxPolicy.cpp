@@ -61,4 +61,17 @@ Real FaceNormalDot(
     return xfn * fx + yfn * fy + zfn * fz;
 }
 
+
+Real ViscousFaceFluxCoefficient( Real invReynolds, Real faceArea )
+{
+    return - invReynolds * faceArea;
+}
+
+void DepositFaceScalarToCells(
+    Real faceValue, Real & cellLeft, Real & cellRight )
+{
+    cellLeft += faceValue;
+    cellRight += faceValue;
+}
+
 EndNameSpace

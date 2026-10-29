@@ -55,4 +55,17 @@ Real FaceNormalDot(
     Real xfn, Real yfn, Real zfn,
     Real fx, Real fy, Real fz );
 
+
+// @doc-algorithm viscous-face-scale
+// @doc-stage nondim-coefficient
+// @doc-pure
+// @doc-formula coeff = - (1/Re) * A
+Real ViscousFaceFluxCoefficient( Real invReynolds, Real faceArea );
+
+// @doc-algorithm spectral-radius
+// @doc-stage bilateral-deposit
+// @doc-pure
+void DepositFaceScalarToCells(
+    Real faceValue, Real & cellLeft, Real & cellRight );
+
 EndNameSpace

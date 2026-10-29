@@ -438,7 +438,7 @@ void UNsVisFlux::PrepareCellGeom()
 
 void UNsVisFlux::UpdateFaceVisFlux()
 {
-    Real coeff = - nscom.oreynolds * gcom.farea;
+    const Real coeff = ViscousFaceFluxCoefficient( nscom.oreynolds, gcom.farea );
     for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
     {
         ( * visflux )[ iEqu ][ ug.fId ] = coeff * vis.fvis[ iEqu ];

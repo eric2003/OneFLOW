@@ -38,3 +38,16 @@ TEST( VisFluxPolicy, FaceNormalDotIsLinear )
 {
     EXPECT_DOUBLE_EQ( FaceNormalDot( 0.0, 1.0, 0.0, 1.0, 5.0, 1.0 ), 5.0 );
 }
+
+TEST( VisFluxPolicy, ViscousFaceFluxCoefficientIsMinusReInvTimesArea )
+{
+    EXPECT_DOUBLE_EQ( ViscousFaceFluxCoefficient( 0.5, 4.0 ), -2.0 );
+}
+
+TEST( VisFluxPolicy, DepositFaceScalarToCellsAddsBothSides )
+{
+    Real L = 1.0, R = 2.0;
+    DepositFaceScalarToCells( 3.0, L, R );
+    EXPECT_DOUBLE_EQ( L, 4.0 );
+    EXPECT_DOUBLE_EQ( R, 5.0 );
+}
