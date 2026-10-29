@@ -26,6 +26,17 @@ These tests do not prove the full finite-volume reconstruction is correct. Mesh-
 range construction, interface ghost values, face geometry, equation-level positivity checks,
 and numerical convergence still require integration and CFD regression evidence.
 
+## Formula variants and regression scope
+
+The policy API exposes two rational forms, and their names should not be read as interchangeable:
+
+- `Vencat` uses a cross-term coefficient of 2 in the numerator and 1 in the denominator.
+- `VencatEric` uses a cross-term coefficient of 1 in both places, while retaining the coefficient 2 on the squared increment in the denominator.
+
+The active `CalcVencatLimiter` path calls `VencatFunction`, which dispatches to `Vencat`. The alternate `VencatFunctionEric` remains a separate callable policy; this refactor does not switch the production algorithm to it. Focused tests pin both the active formula and the alternate formula so a future cleanup cannot silently conflate them.
+
+These tests verify formula selection and sign-dependent bound selection, not that either variant is universally preferable for every flow. Any change to the production variant or regularization scale should be reviewed as a numerical-method change and validated with representative CFD regressions, not only scalar unit tests.
+
 ## Storage contract
 
 `HXSize_t` is the unsigned size/count type used by OneFLOW and aliases `std::size_t`. `MRField` is an alias for `Marray<Real>`, whose storage is a vector of equation fields:
