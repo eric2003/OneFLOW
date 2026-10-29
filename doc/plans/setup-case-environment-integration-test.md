@@ -126,3 +126,31 @@ Source inspection confirms two suitable existing cases under `test/`:
 The CFD case's `simu.txt` explicitly sets `string simutask = "Solve";`. That value should be asserted as a parsed database value, not executed by the setup-only smoke test. The grid conversion case is the better first candidate if the test needs to minimize dependencies; the CFD case should follow when the first reader integration is stable.
 
 These paths are verified from the current `hexin` file contents. The sandbox still has no checkout, so the referenced directory trees have not been copied, built, or executed here.
+
+
+## Follow-up: distinguish setup orchestration from cleanup ownership
+
+Rechecked against the current production source on `hexin` (HEAD `4b41404e8325a667c4a4b39398b54a74071417b`).
+
+The cleanup contract has two different production callers:
+
+- `SimuImp::RunCase()` wraps `PreProcess()` and `MainProcess()` in `ExecuteWithCleanup`; its cleanup calls `PostProcess() -> SimuContext::TeardownCase()`. The outer `SimuImp::Run()` independently finalizes the process runtime.
+- The compatibility entry point `SimuContext::SetupEnvironment()` wraps `SetupCaseEnvironment()` in `ExecuteWithRollback`; on failure its rollback calls `TeardownEnvironment()`, which tears down the case and finalizes the process runtime.
+
+Do not combine these two policies into one new generic lifecycle abstraction. They have different ownership scopes: the normal multi-case runner must clean up one case while retaining process runtime for the next case; the compatibility single-case entry point rolls back both case and process setup.
+
+The first production-owned extraction should therefore be limited to the case configuration stage inside `SetupCaseEnvironment()`:
+
+1. Keep binding `caseDir_` and `logFile` before the real `ReadControlInfo(caseDir_)` call.
+2. Keep the production reader call explicit and unchanged.
+3. Extract only the post-read operation that snapshots `DataPara`, applies the configured roots, and writes the path diagnostics into a named operation with a narrow contract.
+4. Test that operation using the real `Prj` path API and a controlled database; separately test the real reader with a minimal multi-file case.
+5. Only after the boundary and link dependencies are understood, add the end-to-end setup/teardown test. Do not make a unit test impersonate the full solver runtime.
+
+This is intentionally smaller than extracting a reusable runtime library. It improves observability of the existing production sequence without changing which layer owns cleanup.
+
+## Current validation record
+
+- User-reported baseline before this slice: 969/969 tests passed.
+- Current inspected branch HEAD: `4b41404e8325a667c4a4b39398b54a74071417b`.
+- This follow-up is a source-backed design refinement; it does not claim a new build, test, or CI result.
