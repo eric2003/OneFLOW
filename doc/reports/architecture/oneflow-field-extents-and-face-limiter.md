@@ -65,7 +65,7 @@ That reuse is important because the limiter is initialized repeatedly during Run
 
 The implementation now keeps these two vectors in the existing RAII-owned `Lim` object. Before each calculation, `assign(ug.nTCell, 0.0)` resets every entry and adjusts the logical extent to the current grid. When the grid size is unchanged, the vector can retain its allocated capacity and avoid repeated heap allocation. If the extent changes, the vector interface still accommodates the new size.
 
-The full reset is deliberate. `CalcMinMaxDiff` seeds extrema from physical cells and then updates them through interface and interior faces. Other slots, including ghost-cell slots, were previously zero-initialized by constructing a fresh vector. Reusing old contents without clearing them would change those slots and could alter boundary-face limiter inputs. This change preserves the existing zero-initialization behavior rather than attempting to reinterpret or repair the ghost-cell algorithm.
+The full reset is deliberate. `BuildNeighborRangeOffsets` seeds extrema from physical cells and then updates them through interface and interior faces. Other slots, including ghost-cell slots, were previously zero-initialized by constructing a fresh vector. Reusing old contents without clearing them would change those slots and could alter boundary-face limiter inputs. This change preserves the existing zero-initialization behavior rather than attempting to reinterpret or repair the ghost-cell algorithm.
 
 This is a workspace-lifetime optimization, not a numerical-method change. It removes repeated allocation/deallocation while retaining the same initial values for the extrema arrays on every call. A future numerical change to ghost extrema should be handled separately, with boundary/interface tests and solver regression evidence.
 
@@ -81,7 +81,7 @@ The limiter coefficient is computed from local neighbor extrema. The Barth limit
 
 ## Neighbor-range construction contract
 
-`Limiter::CalcMinMaxDiff()` relies on the grid's face ordering and cell indexing; these are algorithm inputs, not incidental loop details.
+`Limiter::BuildNeighborRangeOffsets()` relies on the grid's face ordering and cell indexing; these are algorithm inputs, not incidental loop details.
 
 1. The first `nCells` entries are physical cells. Their extrema are seeded from their own `q` values.
 2. Boundary faces occupy `[0, nBFaces)`. Only interface boundary faces contribute a remote value to the local cell's extrema. The loop updates `lc`, not both `lc` and `rc`; the boundary-face connectivity must therefore keep the local physical cell on the left side for this operation.
@@ -90,7 +90,7 @@ The limiter coefficient is computed from local neighbor extrema. The Barth limit
 
 The workspace has `nTCell` entries, but the range algorithm does not initialize ghost extrema from ghost-cell values. Their zero state is preserved through the offset conversion and they may still be read as the opposite-side value on an interface face. This behavior is part of the current algorithm's boundary contract; it should not be changed as a side effect of workspace reuse or loop consolidation.
 
-The main invariant is that `minvf[c]` and `maxvf[c]` are offset bounds for each physical cell after the final conversion, while `qmin/qmax` summarize those offsets across physical cells. They are not absolute solution minima and maxima. A future standalone range-builder should accept face connectivity and interface classification explicitly, and tests should cover interface orientation and the physical/ghost distinction before moving these loops out of `Limiter`.
+The main invariant is that `minvf[c]` and `maxvf[c]` are offset bounds for each physical cell after the final conversion, while `qmin/qmax` summarize those offsets across physical cells. They are not absolute solution minima and maxima. The current method is intentionally kept beside limiter traversal until its mesh inputs are independently testable. If it is extracted later, the stable boundary should accept face connectivity and interface classification explicitly, with tests for interface orientation and the physical/ghost distinction. The name `BuildNeighborRangeOffsets` emphasizes that the output is per-cell offset bounds, not absolute minima and maxima.
 
 ## Limiter mode dispatch and neighbor-range algorithm
 
@@ -167,7 +167,7 @@ These equations are a reading aid for the current implementation, not a claim th
 
 The no-limiter policy is handled at the top of `Limiter::CalcLimiter`: it fills the complete limiter field with one and may skip later fills only when the interface-exchange policy says that the field is not overwritten there. `CalcLimiterScalar` also returns immediately for this mode. Therefore, a second face-traversal implementation that writes one to both cells of every face is unreachable and redundant; it has been removed so the dispatch reflects the actual execution path.
 
-For Barth and Venkatakrishnan modes, `CalcMinMaxDiff` follows a two-stage range construction:
+For Barth and Venkatakrishnan modes, `BuildNeighborRangeOffsets` follows a two-stage range construction:
 
 1. Initialize each physical cell's lower and upper value to its own solution value.
 2. For interface boundary faces, include the opposite-side value in the local physical cell's range. For interior faces, update both adjacent cells with the other cell's value.

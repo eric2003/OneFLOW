@@ -124,7 +124,7 @@ public:
     void CalcLocalBarthLimiter();
     void CalcLocalVencatLimiter();
     void PrepareData();
-    void CalcMinMaxDiff();
+    void BuildNeighborRangeOffsets();
 public:
     MRField * GetLeftField() const;
     MRField * GetRightField() const;

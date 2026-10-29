@@ -398,7 +398,7 @@ void Limiter::CalcZeroLimiter()
 
 void Limiter::CalcBarthLimiter()
 {
-    this->CalcMinMaxDiff();
+    this->BuildNeighborRangeOffsets();
 
     for ( int fId = 0; fId < ug.nFaces; ++ fId )
     {
@@ -417,7 +417,7 @@ void Limiter::CalcBarthLimiter()
 
 void Limiter::CalcVencatLimiter()
 {
-    this->CalcMinMaxDiff();
+    this->BuildNeighborRangeOffsets();
 
     for ( int fId = 0; fId < ug.nFaces; ++ fId )
     {
@@ -524,7 +524,7 @@ void Limiter::CalcLocalVencatLimiter()
     lim->lim2 = MIN( lim->lim2, limv2 );
 }
 
-void Limiter::CalcMinMaxDiff()
+void Limiter::BuildNeighborRangeOffsets()
 {
     // Build offset bounds in four phases:
     // 1. Seed physical cells with their own values.
