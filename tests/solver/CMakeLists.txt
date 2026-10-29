@@ -180,3 +180,20 @@ target_include_directories(limiter_range_test
 target_link_libraries(limiter_range_test PRIVATE GTest::gtest_main)
 target_compile_features(limiter_range_test PRIVATE cxx_std_20)
 gtest_discover_tests(limiter_range_test DISCOVERY_MODE PRE_TEST)
+
+
+# Pure gradient face policies; no mesh or solver startup.
+add_executable(grad_policy_test
+  grad_policy_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/usolver/src/UGradPolicy.cpp
+)
+
+target_include_directories(grad_policy_test
+  PRIVATE
+    ${CMAKE_SOURCE_DIR}/codes/usolver/include
+    ${CMAKE_SOURCE_DIR}/codes/basic/include
+)
+
+target_link_libraries(grad_policy_test PRIVATE GTest::gtest_main)
+target_compile_features(grad_policy_test PRIVATE cxx_std_20)
+gtest_discover_tests(grad_policy_test DISCOVERY_MODE PRE_TEST)

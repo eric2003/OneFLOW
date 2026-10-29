@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "UGrad.h"
+#include "UGradPolicy.h"
 #include "UCom.h"
 #include "FieldManager.h"
 #include "FaceTopo.h"
@@ -49,11 +50,12 @@ void CalcGrad( RealField & q, RealField & dqdx, RealField & dqdy, RealField & dq
         ug.lc = ( * ug.lcf )[ ug.fId ];
         ug.rc = ( * ug.rcf )[ ug.fId ];
 
-        Real value = half * ( q[ ug.lc ] + q[ ug.rc ] );
+        const Real value = ArithmeticFaceAverage( q[ ug.lc ], q[ ug.rc ] );
 
-        Real fnxa = ( * ug.xfn )[ ug.fId ] * ( * ug.farea )[ ug.fId ];
-        Real fnya = ( * ug.yfn )[ ug.fId ] * ( * ug.farea )[ ug.fId ];
-        Real fnza = ( * ug.zfn )[ ug.fId ] * ( * ug.farea )[ ug.fId ];
+        Real fnxa, fnya, fnza;
+        AreaWeightedFaceNormal(
+            ( * ug.xfn )[ ug.fId ], ( * ug.yfn )[ ug.fId ], ( * ug.zfn )[ ug.fId ],
+            ( * ug.farea )[ ug.fId ], fnxa, fnya, fnza );
 
         dqdx[ ug.lc ] += fnxa * value;
         dqdy[ ug.lc ] += fnya * value;
@@ -97,26 +99,22 @@ void CalcGradGGCellWeight( RealField & q, RealField & dqdx, RealField & dqdy, Re
         ug.lc = ( * ug.lcf )[ ug.fId ];
         ug.rc = ( * ug.rcf )[ ug.fId ];
 
-        Real dxl = ( * ug.xfc )[ ug.fId ] - ( * ug.xcc )[ ug.lc ];
-        Real dyl = ( * ug.yfc )[ ug.fId ] - ( * ug.ycc )[ ug.lc ];
-        Real dzl = ( * ug.zfc )[ ug.fId ] - ( * ug.zcc )[ ug.lc ];
+        const Real dxl = ( * ug.xfc )[ ug.fId ] - ( * ug.xcc )[ ug.lc ];
+        const Real dyl = ( * ug.yfc )[ ug.fId ] - ( * ug.ycc )[ ug.lc ];
+        const Real dzl = ( * ug.zfc )[ ug.fId ] - ( * ug.zcc )[ ug.lc ];
 
-        Real dxr = ( * ug.xfc )[ ug.fId ] - ( * ug.xcc )[ ug.rc ];
-        Real dyr = ( * ug.yfc )[ ug.fId ] - ( * ug.ycc )[ ug.rc ];
-        Real dzr = ( * ug.zfc )[ ug.fId ] - ( * ug.zcc )[ ug.rc ];
+        const Real dxr = ( * ug.xfc )[ ug.fId ] - ( * ug.xcc )[ ug.rc ];
+        const Real dyr = ( * ug.yfc )[ ug.fId ] - ( * ug.ycc )[ ug.rc ];
+        const Real dzr = ( * ug.zfc )[ ug.fId ] - ( * ug.zcc )[ ug.rc ];
 
-        Real delt1  = DIST( dxl, dyl, dzl );
-        Real delt2  = DIST( dxr, dyr, dzr );
-        Real delta  = 1.0 / ( delt1 + delt2 + SMALL );
+        Real cl, cr;
+        InverseDistanceFaceWeights( dxl, dyl, dzl, dxr, dyr, dzr, cl, cr );
+        const Real value = WeightedFaceAverage( q[ ug.lc ], q[ ug.rc ], cl, cr );
 
-        Real cl = delt2 * delta;
-        Real cr = delt1 * delta;
-
-        Real value = cl * q[ ug.lc ] + cr * q[ ug.rc ];
-
-        Real fnxa = ( * ug.xfn )[ ug.fId ] * ( * ug.farea )[ ug.fId ];
-        Real fnya = ( * ug.yfn )[ ug.fId ] * ( * ug.farea )[ ug.fId ];
-        Real fnza = ( * ug.zfn )[ ug.fId ] * ( * ug.farea )[ ug.fId ];
+        Real fnxa, fnya, fnza;
+        AreaWeightedFaceNormal(
+            ( * ug.xfn )[ ug.fId ], ( * ug.yfn )[ ug.fId ], ( * ug.zfn )[ ug.fId ],
+            ( * ug.farea )[ ug.fId ], fnxa, fnya, fnza );
 
         dqdx[ ug.lc ] += fnxa * value;
         dqdy[ ug.lc ] += fnya * value;
@@ -161,26 +159,22 @@ void CalcGradGGCellWeightDebug( RealField & q, RealField & dqdx, RealField & dqd
         ug.lc = ( * ug.lcf )[ ug.fId ];
         ug.rc = ( * ug.rcf )[ ug.fId ];
 
-        Real dxl = ( * ug.xfc )[ ug.fId ] - ( * ug.xcc )[ ug.lc ];
-        Real dyl = ( * ug.yfc )[ ug.fId ] - ( * ug.ycc )[ ug.lc ];
-        Real dzl = ( * ug.zfc )[ ug.fId ] - ( * ug.zcc )[ ug.lc ];
+        const Real dxl = ( * ug.xfc )[ ug.fId ] - ( * ug.xcc )[ ug.lc ];
+        const Real dyl = ( * ug.yfc )[ ug.fId ] - ( * ug.ycc )[ ug.lc ];
+        const Real dzl = ( * ug.zfc )[ ug.fId ] - ( * ug.zcc )[ ug.lc ];
 
-        Real dxr = ( * ug.xfc )[ ug.fId ] - ( * ug.xcc )[ ug.rc ];
-        Real dyr = ( * ug.yfc )[ ug.fId ] - ( * ug.ycc )[ ug.rc ];
-        Real dzr = ( * ug.zfc )[ ug.fId ] - ( * ug.zcc )[ ug.rc ];
+        const Real dxr = ( * ug.xfc )[ ug.fId ] - ( * ug.xcc )[ ug.rc ];
+        const Real dyr = ( * ug.yfc )[ ug.fId ] - ( * ug.ycc )[ ug.rc ];
+        const Real dzr = ( * ug.zfc )[ ug.fId ] - ( * ug.zcc )[ ug.rc ];
 
-        Real delt1  = DIST( dxl, dyl, dzl );
-        Real delt2  = DIST( dxr, dyr, dzr );
-        Real delta  = 1.0 / ( delt1 + delt2 + SMALL );
+        Real cl, cr;
+        InverseDistanceFaceWeights( dxl, dyl, dzl, dxr, dyr, dzr, cl, cr );
+        const Real value = WeightedFaceAverage( q[ ug.lc ], q[ ug.rc ], cl, cr );
 
-        Real cl = delt2 * delta;
-        Real cr = delt1 * delta;
-
-        Real value = cl * q[ ug.lc ] + cr * q[ ug.rc ];
-
-        Real fnxa = ( * ug.xfn )[ ug.fId ] * ( * ug.farea )[ ug.fId ];
-        Real fnya = ( * ug.yfn )[ ug.fId ] * ( * ug.farea )[ ug.fId ];
-        Real fnza = ( * ug.zfn )[ ug.fId ] * ( * ug.farea )[ ug.fId ];
+        Real fnxa, fnya, fnza;
+        AreaWeightedFaceNormal(
+            ( * ug.xfn )[ ug.fId ], ( * ug.yfn )[ ug.fId ], ( * ug.zfn )[ ug.fId ],
+            ( * ug.farea )[ ug.fId ], fnxa, fnya, fnza );
 
         dqdx[ ug.lc ] += fnxa * value;
         dqdy[ ug.lc ] += fnya * value;
@@ -225,11 +219,12 @@ void CalcGradDebug( RealField & q, RealField & dqdx, RealField & dqdy, RealField
         ug.lc = ( * ug.lcf )[ ug.fId ];
         ug.rc = ( * ug.rcf )[ ug.fId ];
 
-        Real value = half * ( q[ ug.lc ] + q[ ug.rc ] );
+        const Real value = ArithmeticFaceAverage( q[ ug.lc ], q[ ug.rc ] );
 
-        Real fnxa = ( * ug.xfn )[ ug.fId ] * ( * ug.farea )[ ug.fId ];
-        Real fnya = ( * ug.yfn )[ ug.fId ] * ( * ug.farea )[ ug.fId ];
-        Real fnza = ( * ug.zfn )[ ug.fId ] * ( * ug.farea )[ ug.fId ];
+        Real fnxa, fnya, fnza;
+        AreaWeightedFaceNormal(
+            ( * ug.xfn )[ ug.fId ], ( * ug.yfn )[ ug.fId ], ( * ug.zfn )[ ug.fId ],
+            ( * ug.farea )[ ug.fId ], fnxa, fnya, fnza );
 
         dqdx[ ug.lc ] += fnxa * value;
         dqdy[ ug.lc ] += fnya * value;
