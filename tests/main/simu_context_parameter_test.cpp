@@ -38,6 +38,14 @@ void AddIntegerParameter(
         name, HX_INT, 1, std::move( dataObject ) ) );
 }
 
+std::string ReadTextFile( const std::filesystem::path & path )
+{
+    std::ifstream file( path );
+    return std::string(
+        std::istreambuf_iterator<char>( file ),
+        std::istreambuf_iterator<char>() );
+}
+
 }
 
 TEST( SimuContextParameterTest, MissingOptionalStringReturnsEmpty )
@@ -282,6 +290,19 @@ TEST( SimuContextIOTest, ExplicitDiagnosticNameUsesMeshAndFlowOutputRoots )
     EXPECT_TRUE(
         std::filesystem::exists(
             caseDir / "flow-output" / "diagnostics" / "paths.txt" ) );
+
+    const std::string meshDiagnostics = ReadTextFile(
+        caseDir / "mesh-output" / "diagnostics" / "paths.txt" );
+    const std::string flowDiagnostics = ReadTextFile(
+        caseDir / "flow-output" / "diagnostics" / "paths.txt" );
+    EXPECT_NE(
+        meshDiagnostics.find(
+            "mesh_output_root=" + Prj::GetMeshOutputBaseDir() ),
+        std::string::npos );
+    EXPECT_NE(
+        flowDiagnostics.find(
+            "flow_output_root=" + Prj::GetFlowOutputBaseDir() ),
+        std::string::npos );
 
     Prj::ClearPrjBaseDir();
     std::filesystem::remove_all( caseDir );
