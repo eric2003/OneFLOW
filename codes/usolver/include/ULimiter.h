@@ -123,7 +123,6 @@ public:
     void CalcLimiterScalar();
 
     void CalcZeroLimiter();
-    void CalcNoLimiter();
     void CalcBarthLimiter();
     void CalcVencatLimiter();
     void CalcLocalBarthLimiter();
