@@ -130,10 +130,10 @@ void SimuContext::SetupCaseEnvironment()
         ioSettings.flowOutputRoot );
 
     const bool outputsUseCaseRoot =
-        std::filesystem::path( Prj::GetMeshOutputBaseDir() ).lexically_normal()
-            == std::filesystem::path( Prj::prjBaseDir ).lexically_normal()
-        && std::filesystem::path( Prj::GetFlowOutputBaseDir() ).lexically_normal()
-            == std::filesystem::path( Prj::prjBaseDir ).lexically_normal();
+        Prj::AreSameDirectoryPath(
+            Prj::GetMeshOutputBaseDir(), Prj::prjBaseDir )
+        && Prj::AreSameDirectoryPath(
+            Prj::GetFlowOutputBaseDir(), Prj::prjBaseDir );
     std::string ioPathInfoFile = outputsUseCaseRoot
         ? "results/io_paths.txt"
         : "io_paths.txt";
