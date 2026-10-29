@@ -74,4 +74,14 @@ Real FaceSkewAngleDegrees(
 void UnitizeDisplacement(
     Real & dx, Real & dy, Real & dz, Real & invLength );
 
+
+// @doc-algorithm vis-face-geometry
+// @doc-stage correct-grad
+// @doc-pure
+// @doc-formula g <- g + ((fr-fl)/|LR| - g·u) * u
+void CorrectFaceGradient(
+    Real qLeft, Real qRight,
+    Real & dqdx, Real & dqdy, Real & dqdz,
+    Real unitDx, Real unitDy, Real unitDz, Real invLength );
+
 EndNameSpace

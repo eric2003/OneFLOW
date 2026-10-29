@@ -49,4 +49,21 @@ inline Real TightenLimiter( Real current, Real faceValue )
     return MIN( current, faceValue );
 }
 
+
+// @doc-algorithm limited-face-reconstruction
+// @doc-stage apply
+// @doc-pure
+// @doc-formula q_f = q0 + phi * (g · d)
+Real ApplyLimitedFaceReconstruction(
+    Real q0,
+    Real phi,
+    Real dqdx, Real dqdy, Real dqdz,
+    Real dx, Real dy, Real dz );
+
+// @doc-algorithm limited-face-reconstruction
+// @doc-stage blend-phi
+// @doc-pure
+// Face reconstruction uses the cell limiter, or min(left,right) when both-sides mode is on.
+Real BlendFaceLimiter( Real phiPrimary, Real phiNeighbor, bool useMinOfBothSides );
+
 EndNameSpace

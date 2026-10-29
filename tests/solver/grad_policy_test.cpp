@@ -93,3 +93,12 @@ TEST( GradPolicy, UnitizeDisplacementMakesUnitVector )
     EXPECT_NEAR( dy, 0.0, 1.0e-12 );
     EXPECT_NEAR( dz, 0.8, 1.0e-12 );
 }
+
+TEST( GradPolicy, CorrectFaceGradientMatchesEndpointDifference )
+{
+    // Unit direction +x, invLength=1; qLeft=0, qRight=2 -> target=2
+    Real gx = 0.0, gy = 0.0, gz = 0.0;
+    CorrectFaceGradient( 0.0, 2.0, gx, gy, gz, 1.0, 0.0, 0.0, 1.0 );
+    EXPECT_NEAR( gx, 2.0, 1.0e-12 );
+    EXPECT_NEAR( gy, 0.0, 1.0e-12 );
+}

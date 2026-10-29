@@ -82,4 +82,18 @@ void UnitizeDisplacement(
     dz *= invLength;
 }
 
+
+void CorrectFaceGradient(
+    Real qLeft, Real qRight,
+    Real & dqdx, Real & dqdy, Real & dqdz,
+    Real unitDx, Real unitDy, Real unitDz, Real invLength )
+{
+    const Real projected = dqdx * unitDx + dqdy * unitDy + dqdz * unitDz;
+    const Real target = ( qRight - qLeft ) * invLength;
+    const Real df = target - projected;
+    dqdx += df * unitDx;
+    dqdy += df * unitDy;
+    dqdz += df * unitDz;
+}
+
 EndNameSpace

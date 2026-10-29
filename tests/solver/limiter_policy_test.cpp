@@ -92,3 +92,16 @@ TEST( LimiterPolicy, TightenLimiterKeepsStricterBound )
     EXPECT_DOUBLE_EQ( TightenLimiter( 1.0, 0.3 ), 0.3 );
     EXPECT_DOUBLE_EQ( TightenLimiter( 0.2, 0.5 ), 0.2 );
 }
+
+TEST( LimiterPolicy, ApplyLimitedFaceReconstructionAddsScaledIncrement )
+{
+    EXPECT_DOUBLE_EQ(
+        ApplyLimitedFaceReconstruction( 10.0, 0.5, 2.0, 0.0, 0.0, 1.0, 0.0, 0.0 ),
+        11.0 );
+}
+
+TEST( LimiterPolicy, BlendFaceLimiterRespectsBothSidesMode )
+{
+    EXPECT_DOUBLE_EQ( BlendFaceLimiter( 0.8, 0.3, false ), 0.8 );
+    EXPECT_DOUBLE_EQ( BlendFaceLimiter( 0.8, 0.3, true ), 0.3 );
+}

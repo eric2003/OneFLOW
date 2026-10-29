@@ -327,14 +327,7 @@ void VisGrad::CalcNew2Method()
 
 void CorrectGrad( Real fl, Real fr, Real & dfdx, Real & dfdy, Real & dfdz, Real dx, Real dy, Real dz, Real ods )
 {
-    Real fOld, fnew, df;
-    fOld = dfdx * dx + dfdy * dy + dfdz * dz;
-    fnew = ( fr - fl ) * ods;
-    df   = fnew - fOld;
-
-    dfdx += df * dx;
-    dfdy += df * dy;
-    dfdz += df * dz;
+    CorrectFaceGradient( fl, fr, dfdx, dfdy, dfdz, dx, dy, dz, ods );
 }
 
 EndNameSpace

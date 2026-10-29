@@ -111,4 +111,23 @@ Real FaceSideDirectionDot(
     return orientationSign * ( xfn * dx + yfn * dy + zfn * dz ) / ( ds + SMALL );
 }
 
+
+Real ApplyLimitedFaceReconstruction(
+    Real q0,
+    Real phi,
+    Real dqdx, Real dqdy, Real dqdz,
+    Real dx, Real dy, Real dz )
+{
+    return q0 + phi * ReconstructFaceIncrement( dqdx, dqdy, dqdz, dx, dy, dz );
+}
+
+Real BlendFaceLimiter( Real phiPrimary, Real phiNeighbor, bool useMinOfBothSides )
+{
+    if ( useMinOfBothSides )
+    {
+        return MIN( phiPrimary, phiNeighbor );
+    }
+    return phiPrimary;
+}
+
 EndNameSpace

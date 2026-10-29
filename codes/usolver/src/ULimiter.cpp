@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "ULimiter.h"
+#include "UGradPolicy.h"
 #include "ULimiterPolicy.h"
 #include "ULimiterRange.h"
 #include "HipProductionPolicy.h"
@@ -76,14 +77,7 @@ void LimField::BindFieldsAndAllocFaces(
 
 Real LimField::ModifyLimiter( Real phil, Real phir )
 {
-    if ( ug.ireconface == 0 )
-    {
-        return phil;
-    }
-    else
-    {
-        return MIN( phil, phir );
-    }
+    return BlendFaceLimiter( phil, phir, ug.ireconface != 0 );
 }
 
 void LimField::GetQlQr()
@@ -116,7 +110,8 @@ void LimField::BcQlQrFix()
 
         for ( int iEqu = 0; iEqu < this->nEqu; ++ iEqu )
         {
-            Real tmp = half * ( ( * this->q )[ iEqu ][ ug.lc ] + ( * this->q )[ iEqu ][ ug.rc ] );
+            Real tmp = ArithmeticFaceAverage(
+                ( * this->q )[ iEqu ][ ug.lc ], ( * this->q )[ iEqu ][ ug.rc ] );
 
             ( * this->qf1 )[ iEqu ][ ug.fId ] = tmp;
             ( * this->qf2 )[ iEqu ][ ug.fId ] = tmp;
@@ -154,7 +149,8 @@ void LimField::CalcFaceValue()
             Real phir  = ( * this->limiter )[ iEqu ][ ug.rc ];
             Real phi = this->ModifyLimiter( phil, phir );
 
-            qTry[ iEqu ] += phi * ( dqdx * dx + dqdy * dy + dqdz * dz );
+            qTry[ iEqu ] = ApplyLimitedFaceReconstruction(
+                qTry[ iEqu ], phi, dqdx, dqdy, dqdz, dx, dy, dz );
         }
 
         if ( ( * this->ckfun )( qTry ) )
@@ -184,7 +180,8 @@ void LimField::CalcFaceValue()
             Real phir = ( * this->limiter )[ iEqu ][ ug.rc ];
             Real phi = this->ModifyLimiter( phir, phil );
 
-            qTry[ iEqu ] += phi * ( dqdx * dx + dqdy * dy + dqdz * dz );
+            qTry[ iEqu ] = ApplyLimitedFaceReconstruction(
+                qTry[ iEqu ], phi, dqdx, dqdy, dqdz, dx, dy, dz );
         }
 
         if ( ( * this->ckfun )( qTry ) )
@@ -215,12 +212,8 @@ void LimField::CalcFaceValueWeighted()
         Real dyr = ( * ug.yfc )[ ug.fId ] - ( * ug.ycc )[ ug.rc ];
         Real dzr = ( * ug.zfc )[ ug.fId ] - ( * ug.zcc )[ ug.rc ];
 
-        Real delt1  = DIST( dxl, dyl, dzl );
-        Real delt2  = DIST( dxr, dyr, dzr );
-        Real delta  = 1.0 / ( delt1 + delt2 + SMALL );
-
-        Real cl = delt2 * delta;
-        Real cr = delt1 * delta;
+        Real cl, cr;
+        InverseDistanceFaceWeights( dxl, dyl, dzl, dxr, dyr, dzr, cl, cr );
 
         Real dx = ( * ug.xfc )[ ug.fId ] - ( * ug.xcc )[ ug.lc ];
         Real dy = ( * ug.yfc )[ ug.fId ] - ( * ug.ycc )[ ug.lc ];
@@ -241,7 +234,8 @@ void LimField::CalcFaceValueWeighted()
             Real phir  = ( * this->limiter )[ iEqu ][ ug.rc ];
             Real phi = this->ModifyLimiter( phil, phir );
 
-            qTry[ iEqu ] += phi * ( dqdx * dx + dqdy * dy + dqdz * dz );
+            qTry[ iEqu ] = ApplyLimitedFaceReconstruction(
+                qTry[ iEqu ], phi, dqdx, dqdy, dqdz, dx, dy, dz );
         }
 
         if ( ( * this->ckfun )( qTry ) )
@@ -257,7 +251,7 @@ void LimField::CalcFaceValueWeighted()
             {
                 Real var1 = ( * this->qf1 )[ iEqu ][ ug.fId ];
                 Real var2 = ( * this->qf2 )[ iEqu ][ ug.fId ];
-                Real value = cl * var1 + cr * var2;
+                Real value = WeightedFaceAverage( var1, var2, cl, cr );
 
                 ( * this->qf1 )[ iEqu ][ ug.fId ] = value;
             }
@@ -282,7 +276,8 @@ void LimField::CalcFaceValueWeighted()
             Real phir = ( * this->limiter )[ iEqu ][ ug.rc ];
             Real phi = this->ModifyLimiter( phir, phil );
 
-            qTry[ iEqu ] += phi * ( dqdx * dx + dqdy * dy + dqdz * dz );
+            qTry[ iEqu ] = ApplyLimitedFaceReconstruction(
+                qTry[ iEqu ], phi, dqdx, dqdy, dqdz, dx, dy, dz );
         }
 
         if ( ( * this->ckfun )( qTry ) )
@@ -298,7 +293,7 @@ void LimField::CalcFaceValueWeighted()
             {
                 Real var1 = ( * this->qf1 )[ iEqu ][ ug.fId ];
                 Real var2 = ( * this->qf2 )[ iEqu ][ ug.fId ];
-                Real value = cl * var1 + cr * var2;
+                Real value = WeightedFaceAverage( var1, var2, cl, cr );
 
                 ( * this->qf2 )[ iEqu ][ ug.fId ] = value;
             }
