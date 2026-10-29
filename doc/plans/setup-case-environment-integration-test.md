@@ -173,3 +173,20 @@ The case-I/O application step is now a named production operation in
 The extracted operation deliberately retains the existing `Prj` compatibility APIs. It does not parse control files, initialize the parallel runtime, or own case/process cleanup. The focused parameter test target now links the same path implementation sources used by `prj_cmdline_test` and adds filesystem-backed checks for the default diagnostic location and explicit diagnostic names under distinct mesh/flow output roots.
 
 This is a first production-boundary slice, not proof of the full reader integration. The new target and tests still require a real Windows/MSVC build and CTest run. Next, inspect that result before extracting anything else; then proceed to a minimal temporary multi-file fixture that calls the actual `ReadControlInfo(caseDir)` only after the serial parallel state is explicitly initialized.
+
+
+## Follow-up: keep the production operation out of the header
+
+The case-I/O application operation is now declared in
+`codes/main/include/SimuContextIO.h` and implemented in
+`codes/main/src/SimuContextIO.cpp`. The focused test target compiles that same
+production source file. This preserves a narrow testable operation without putting
+`Prj` and filesystem implementation dependencies into every translation unit that
+includes the declaration. The production source collection is recursive, so the new
+main-source file is included by the existing `codes` build configuration.
+
+This is an architectural cleanup, not a new integration-evidence tier. The current
+focused tests still do not call the real `ReadControlInfo(caseDir)`; R1 remains
+partial. Before attempting to link the entire reader into a narrow test target, inspect
+the serial parallel setup and its transitive dependencies. Avoid manually reproducing
+the solver's full source list just to get a test binary.
