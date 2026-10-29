@@ -86,11 +86,11 @@ The limiter coefficient is computed from local neighbor extrema. The Barth limit
 1. The first `nCells` entries are physical cells. Their extrema are seeded from their own `q` values.
 2. Boundary faces occupy `[0, nBFaces)`. Only interface boundary faces contribute a remote value to the local cell's extrema. The loop updates `lc`, not both `lc` and `rc`; the boundary-face connectivity must therefore keep the local physical cell on the left side for this operation.
 3. Ordinary interior faces occupy `[nBFaces, nFaces)`. Each such face contributes the opposite cell value to both adjacent cells.
-4. Only the physical-cell extrema are converted to offsets by subtracting the cell's own value. The reduction into `qmin` and `qmax` also visits physical cells only.
+4. Only the physical-cell extrema are converted to offsets by subtracting the cell's own value. The reduction into `minOffsetRange` and `maxOffsetRange` also visits physical cells only.
 
 The workspace has `nTCell` entries, but the range algorithm does not initialize ghost extrema from ghost-cell values. Their zero state is preserved through the offset conversion and they may still be read as the opposite-side value on an interface face. This behavior is part of the current algorithm's boundary contract; it should not be changed as a side effect of workspace reuse or loop consolidation.
 
-The main invariant is that `minvf[c]` and `maxvf[c]` are offset bounds for each physical cell after the final conversion, while `qmin/qmax` summarize those offsets across physical cells. They are not absolute solution minima and maxima. The current method is intentionally kept beside limiter traversal until its mesh inputs are independently testable. If it is extracted later, the stable boundary should accept face connectivity and interface classification explicitly, with tests for interface orientation and the physical/ghost distinction. The name `BuildNeighborRangeOffsets` emphasizes that the output is per-cell offset bounds, not absolute minima and maxima.
+The main invariant is that `minvf[c]` and `maxvf[c]` are offset bounds for each physical cell after the final conversion, while `minOffsetRange/maxOffsetRange` summarize those offsets across physical cells. They are not absolute solution minima and maxima. The current method is intentionally kept beside limiter traversal until its mesh inputs are independently testable. If it is extracted later, the stable boundary should accept face connectivity and interface classification explicitly, with tests for interface orientation and the physical/ghost distinction. The name `BuildNeighborRangeOffsets` emphasizes that the output is per-cell offset bounds, not absolute minima and maxima.
 
 ## Limiter mode dispatch and neighbor-range algorithm
 
@@ -172,7 +172,7 @@ For Barth and Venkatakrishnan modes, `BuildNeighborRangeOffsets` follows a two-s
 1. Initialize each physical cell's lower and upper value to its own solution value.
 2. For interface boundary faces, include the opposite-side value in the local physical cell's range. For interior faces, update both adjacent cells with the other cell's value.
 3. Convert the extrema to offsets from the cell value by subtracting the cell-centered solution. The resulting bounds are the allowed negative and positive reconstruction increments, not absolute solution values.
-4. Reduce these offsets over physical cells to obtain `qmin` and `qmax`; the Venkatakrishnan epsilon is scaled from this range and the configured coefficient.
+4. Reduce these offsets over physical cells to obtain `minOffsetRange` and `maxOffsetRange`; the Venkatakrishnan epsilon is scaled from this range and the configured coefficient.
 
 For a face and cell side, the gradient predicts an increment `dqFace = grad(q) dot (xFace - xCell)`. Barth compares this increment with the local offset bounds and returns a coefficient in the range required to prevent the extrapolation from exceeding those bounds; its face-normal direction check can force the coefficient to zero. Venkatakrishnan instead evaluates a smooth rational limiter function using the predicted increment, the appropriate local bound, and epsilon. Both methods accumulate the most restrictive face-side coefficient into the cell's limiter field.
 

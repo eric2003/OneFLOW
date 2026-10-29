@@ -502,7 +502,7 @@ void Limiter::CalcLocalBarthLimiter()
 
 void Limiter::CalcLocalVencatLimiter()
 {
-    Real eps = ctrl.vencat_coef * MAX( lim->qmax - lim->qmin, 1.0 );
+    Real eps = ctrl.vencat_coef * MAX( lim->maxOffsetRange - lim->minOffsetRange, 1.0 );
     Real eps1 = SQR( eps ) + SMALL;
     Real eps2 = eps1;
 
@@ -532,7 +532,7 @@ void Limiter::BuildNeighborRangeOffsets()
     // 3. Add ordinary interior neighbors to both adjacent cells.
     // 4. Convert absolute extrema to offsets from each cell's own value.
     // Ghost slots remain zero until used as neighbor values; do not seed or
-    // subtract them here. qmin/qmax below are reductions over physical cells.
+    // subtract them here. minOffsetRange/maxOffsetRange below are reductions over physical cells.
     for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         ( * lim->minvf )[ cId ] = ( * lim->q )[ cId ];
@@ -572,12 +572,12 @@ void Limiter::BuildNeighborRangeOffsets()
         ( * lim->maxvf )[ cId ] -= ( * lim->q )[ cId ];
     }
 
-    lim->qmin =   LARGE;
-    lim->qmax = - LARGE;
+    lim->minOffsetRange =   LARGE;
+    lim->maxOffsetRange = - LARGE;
     for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
-        lim->qmin = MIN( lim->qmin, ( * lim->minvf )[ cId ] );
-        lim->qmax = MAX( lim->qmax, ( * lim->maxvf )[ cId ] );
+        lim->minOffsetRange = MIN( lim->minOffsetRange, ( * lim->minvf )[ cId ] );
+        lim->maxOffsetRange = MAX( lim->maxOffsetRange, ( * lim->maxvf )[ cId ] );
     }
 }
 

@@ -50,7 +50,7 @@ public:
     Real dqdx1, dqdy1, dqdz1;
     Real dqdx2, dqdy2, dqdz2;
     Real lim1, lim2;
-    Real qmin, qmax;
+    Real minOffsetRange, maxOffsetRange;
 };
 
 using CheckFun = bool ( * )( RealField & );
