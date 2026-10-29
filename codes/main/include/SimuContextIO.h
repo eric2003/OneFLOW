@@ -21,11 +21,7 @@ License
 
 #pragma once
 
-#include "Prj.h"
 #include "SimuContextParameter.h"
-
-#include <filesystem>
-#include <string>
 
 BeginNameSpace( ONEFLOW )
 
@@ -35,45 +31,7 @@ namespace SimuContextDetail
 // Apply a validated case-I/O snapshot to the legacy project-path state and
 // write the diagnostic files. The caller must bind the case root first; the
 // production setup calls this after ReadControlInfo(caseDir).
-inline void ApplyCaseIOSettings( const CaseIOSettings & settings )
-{
-    if ( ! settings.projectRoot.empty() )
-    {
-        Prj::SetProjectBaseDir( settings.projectRoot );
-    }
-
-    Prj::SetIOBaseDirs( settings.inputRoot, settings.outputRoot );
-    Prj::SetDomainIOBaseDirs(
-        settings.meshInputRoot,
-        settings.flowInputRoot,
-        settings.meshOutputRoot,
-        settings.flowOutputRoot );
-
-    const bool outputsUseCaseRoot =
-        Prj::AreSameDirectoryPath(
-            Prj::GetMeshOutputBaseDir(), Prj::prjBaseDir )
-        && Prj::AreSameDirectoryPath(
-            Prj::GetFlowOutputBaseDir(), Prj::prjBaseDir );
-    std::string ioPathInfoFile = outputsUseCaseRoot
-        ? "results/io_paths.txt"
-        : "io_paths.txt";
-    if ( ! settings.ioPathInfoFileName.empty() )
-    {
-        ioPathInfoFile = settings.ioPathInfoFileName;
-    }
-
-    const std::string meshInfoPath =
-        Prj::GetMeshOutputFileName( ioPathInfoFile );
-    Prj::WriteIOPathInfo( meshInfoPath );
-
-    const std::string flowInfoPath =
-        Prj::GetFlowOutputFileName( ioPathInfoFile );
-    if ( std::filesystem::path( flowInfoPath ).lexically_normal()
-        != std::filesystem::path( meshInfoPath ).lexically_normal() )
-    {
-        Prj::WriteIOPathInfo( flowInfoPath );
-    }
-}
+void ApplyCaseIOSettings( const CaseIOSettings & settings );
 
 }
 
