@@ -798,3 +798,10 @@ passed. Recheck CI after the new test commit. R1 remains Partial: these tests
 do not yet exercise `ReadControlInfo(caseDir)`, parallel coordination,
 broadcast, diagnostic database output, Case path application, sequential-case
 isolation, or setup-failure cleanup.
+
+
+### Follow-up: adapter commit failure within one document
+
+A third failure-path test was added after reviewing the adapter's documented non-atomic behavior. The fixture first commits an integer key, then parses a second file containing a new integer entry followed by a declaration that reuses the existing key with a different type. The second file parses completely, but its adapter commit throws on the type mismatch. The test asserts that the original key remains unchanged and that the earlier new entry from the second document remains committed. This distinguishes three boundaries: file-open failure, parse failure before commit, and adapter failure partway through commit. It confirms that neither the whole manifest nor an individual document commit is currently transactional. The test source newline literals were corrected in commit `971f14e40ad4933fba429350d71b485d8b4be3a8`.
+
+The new test is source-level only until exact-HEAD CI and the user's local test run complete. Do not change the current behavior to rollback without an explicit compatibility decision; transactional commit would require staging/validation of all entries before mutating the global DataBase.
