@@ -35,7 +35,7 @@ void ReadScriptFileNameList( std::vector< std::string > & scriptFileNameList )
         Prj::GetPrjFileName( "script/control.txt" ),
         std::ios_base::in );
 
-    const std::string keyWordSeparator = " ()\r\n\t#$,;\\\"";
+    const std::string keyWordSeparator = " ()\r\n\t#$,;\"";
     textFileParser.SetDefaultSeparator( keyWordSeparator );
 
     while ( ! textFileParser.ReachTheEndOfFile() )
@@ -60,7 +60,7 @@ void ReadScriptFileNameList(
         "script/control.txt",
         std::ios_base::in );
 
-    const std::string keyWordSeparator = " ()\r\n\t#$,;\\\"";
+    const std::string keyWordSeparator = " ()\r\n\t#$,;\"";
     textFileParser.SetDefaultSeparator( keyWordSeparator );
 
     while ( ! textFileParser.ReachTheEndOfFile() )
