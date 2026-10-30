@@ -185,6 +185,20 @@ The current `Simulation::RunImpl()` has three argument-count paths:
 For example, `OneFLOW.exe r <caseDir>` has three process arguments and follows the full
 simulation path. Case directories passed to one process are executed in command-line order; every argument entry is executed, so repeating the same path runs that case again. Each entry gets a separate ``SimuImp`` / ``SimuContext`` and case teardown, while process runtime (including MPI initialization) is initialized once and finalized after the sequence. ``SimuImp::RunCase()`` can be called repeatedly inside that process lifetime; it owns case teardown, not MPI lifecycle. ``SimuImp::Run()`` is the single-case compatibility entry point that owns one process lifecycle. If process initialization or case setup/run throws, the owning boundary attempts rollback/finalization before propagating the original failure. The compatibility ``SimuContext::SetupEnvironment()`` path rolls back a failed case setup, and ``TeardownEnvironment()`` finalizes process runtime even if case teardown throws. A failed case stops the sequence; later entries are not run. This is not parallel multi-case execution and does not itself express artifact dependencies. Thirteen focused lifecycle tests cover ordering, repeated paths, rollback only on setup failure, exception preservation, and stop-on-failure behavior. ``SimuContextEnv.cpp`` compiled separately with MSVC. The full suite and executable link remain unverified. Use the Workbench architecture page for the distinction between sequential multi-case runs and dependency workflows.
 
+Context ownership transfer
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``SimuContext`` is movable but not move-assignable: moving transfers the case
+arguments, task metadata, accelerator-state registry, readiness state, and process
+lifecycle marker to the destination. The source is reset to an uninitialized state.
+This operation is declared ``noexcept`` because the process lifecycle marker is an
+ownership token; once it moves, a later throwing member move could otherwise leave the
+source unable to finalize the process runtime while destination construction fails.
+The compile-time move-trait assertion in ``tests/main/simu_context_test.cpp`` makes
+that requirement executable. If a future context member cannot be moved without
+throwing, its ownership design must be reconsidered rather than silently weakening
+this guarantee.
+
 The process environment and each case environment have different lifetimes. The
 `Simulation` path initializes process-level state once, then constructs a case runner per
 directory. `SimuImp::RunCase()` owns case teardown, including exceptional exits. Changes

@@ -36,7 +36,7 @@ SimuContext::SimuContext( std::vector<std::string> args )
 }
 
 
-SimuContext::SimuContext( SimuContext&& other )
+SimuContext::SimuContext( SimuContext&& other ) noexcept
     : args_( std::move( other.args_ ) )
     , caseDir_( std::move( other.caseDir_ ) )
     , rank_( other.rank_ )

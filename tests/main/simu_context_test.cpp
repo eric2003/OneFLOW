@@ -4,10 +4,15 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <type_traits>
 #include <vector>
 #include <utility>
 
 using namespace ONEFLOW;
+
+static_assert(
+    std::is_nothrow_move_constructible<SimuContext>::value,
+    "SimuContext move construction must not throw after ownership transfer");
 
 namespace {
 

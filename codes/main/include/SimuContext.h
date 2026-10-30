@@ -49,7 +49,7 @@ public:
     // Moving transfers all context-owned state. The moved-from context is
     // reset to an uninitialized state; move assignment remains disabled to
     // avoid overwriting an existing runtime owner.
-    SimuContext( SimuContext&& other );
+    SimuContext( SimuContext&& other ) noexcept;
     SimuContext& operator=( SimuContext&& ) = delete;
 
     // ---- read-only accessors; tasks receive the mutable owner explicitly ----
