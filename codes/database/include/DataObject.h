@@ -48,7 +48,7 @@ public:
 template < typename T >
 T GetDataValue( DataObject * dataObject, int iElement = 0 );
 template < typename T >
-T GetDataValue( const DataObject * dataObject, int iElement );
+T GetDataValue( const DataObject * dataObject, int iElement = 0 );
 
 template < typename T >
 T GetDataValue( DataObject * dataObject, int iElement )
