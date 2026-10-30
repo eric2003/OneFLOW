@@ -21,9 +21,10 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "PIO.h"
-#include "Parallel.h"
+#include "FileInfo.h"
 #include "ActionState.h"
-#include <iostream>
+#include "Task.h"
+#include "TaskState.h"
 
 BeginNameSpace( ONEFLOW )
 
