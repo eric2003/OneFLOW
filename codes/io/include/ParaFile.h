@@ -55,7 +55,13 @@ void ReadPrjScript( const std::string & caseDir );
  */
 void ReadScriptFileNameList( std::vector< std::string > & scriptFileNameList );
 void ReadScriptFileNameList( const std::string & caseDir, std::vector< std::string > & scriptFileNameList );
-void ReadMultiScriptFiles( std::vector< std::string > & scriptFileNameList );
+/**
+ * @brief Reads script files in manifest order and commits each document.
+ *
+ * Each file is parsed and committed before the next file is read. The
+ * operation is ordered but not transactional across the complete file list.
+ */
+void ReadMultiScriptFiles( const std::vector< std::string > & scriptFileNameList );
 void BroadcastControlParameterToAllProcessors();
 void DumpDataBase();
 void DumpDataBase( const std::string & caseDir );
