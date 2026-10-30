@@ -26,7 +26,14 @@ License
 
 namespace ONEFLOW {
 
-// Applies a parsed configuration document to the legacy runtime DataBase.
+/**
+ * @brief Applies an ordered parsed configuration document to the runtime DataBase.
+ *
+ * Entries are committed in document order. If a name occurs more than once,
+ * the DataBase replacement policy determines the final value. This adapter
+ * mutates process-global runtime state and does not provide an atomic rollback
+ * if a later entry fails validation or conversion.
+ */
 class ConfigDatabaseAdapter {
 public:
     static void Commit( const ConfigDocument& document );
