@@ -56,8 +56,8 @@ set(CONTROL_RESOLVER_BASIC_DIR ${CMAKE_SOURCE_DIR}/codes/basic)
 set(CONTROL_RESOLVER_PARALLEL_DIR ${CMAKE_SOURCE_DIR}/codes/parallel)
 set(CONTROL_RESOLVER_ZONE_DIR ${CMAKE_SOURCE_DIR}/codes/zone)
 
-add_executable(control_parameter_resolver_test
-  control_parameter_resolver_test.cpp
+add_executable(control_configuration_test
+  control_configuration_test.cpp
   control_configuration_ingestion_test.cpp
   ${CMAKE_SOURCE_DIR}/codes/io/src/ControlManifestReader.cpp
   ${CMAKE_SOURCE_DIR}/codes/io/src/ControlScriptParser.cpp
@@ -85,7 +85,7 @@ add_executable(control_parameter_resolver_test
   ${CONTROL_RESOLVER_ZONE_DIR}/src/ZoneState.cpp
 )
 
-target_include_directories(control_parameter_resolver_test
+target_include_directories(control_configuration_test
   PRIVATE
     ${CMAKE_SOURCE_DIR}/codes/io/include
     ${CONTROL_RESOLVER_DB_DIR}/include
@@ -96,13 +96,13 @@ target_include_directories(control_parameter_resolver_test
     ${CMAKE_SOURCE_DIR}/codes/global/include
 )
 
-target_link_libraries(control_parameter_resolver_test
+target_link_libraries(control_configuration_test
   PRIVATE
     GTest::gtest_main
 )
 
-target_compile_features(control_parameter_resolver_test PRIVATE cxx_std_20)
+target_compile_features(control_configuration_test PRIVATE cxx_std_20)
 
-gtest_discover_tests(control_parameter_resolver_test
+gtest_discover_tests(control_configuration_test
   DISCOVERY_MODE PRE_TEST
 )
