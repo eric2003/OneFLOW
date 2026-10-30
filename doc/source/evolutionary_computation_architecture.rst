@@ -173,18 +173,23 @@ Current specimen: control-file ingestion
      -> DataPara: runtime parameter storage
      -> ControlDatabaseIO: broadcast and diagnostic dump
 
-The first source split moved reader orchestration into
-``codes/io/src/ControlFileReader.cpp`` and database broadcast/dump operations
-into ``codes/io/src/ControlDatabaseIO.cpp``. Public declarations in
-``ParaFile.h`` remain stable. Legacy parameter syntax helpers remain in
-``ParaFile.cpp``.
+The source responsibilities are now separated across five production units:
 
-This is a source-level boundary, not yet proof that the real reader is
-independently linkable in a focused integration target. ReadMultiScriptFiles
-still calls ReadOneFLOWScriptFile, whose implementation remains in
-ParaFile.cpp. The next dependency review must decide whether the parser
-adapter should move to a separate translation unit or whether a narrower
-parser target already exists.
+* ``ControlFileReader.cpp`` coordinates manifest reading and ordered loading.
+* ``ControlScriptParser.cpp`` adapts file/parser input to ConfigLoader and
+  commits the resulting ConfigDocument.
+* ``ControlParameterResolver.cpp`` resolves literal or database-backed array
+  lengths required by legacy syntax.
+* ``ControlDatabaseIO.cpp`` owns database broadcast, compression, and dumps.
+* ``ParaFile.cpp`` retains older parameter inspection helpers.
+
+The public declarations in ``ParaFile.h`` remain stable. The parser adapter
+still intentionally uses the existing runtime resolver, but the resolver now
+has a narrow translation unit rather than being entangled with all legacy
+inspection helpers. This is a source-level dependency improvement, not yet
+proof of an independently linkable integration target. A future test can
+compose the parser with a controlled resolver, while a production integration
+test must use the real DataBase-backed resolver and ConfigDatabaseAdapter.
 
 Expected problems and response strategy
 ----------------------------------------
