@@ -121,6 +121,16 @@ void ClearRuntimeParameters()
     RequireGlobalDataBase().RequireDataPara().Clear();
 }
 
+void EnsureParallelEnvironment()
+{
+    static const bool initialized = []()
+    {
+        SetUpParallelEnvironment();
+        return true;
+    }();
+    (void)initialized;
+}
+
 
 TEST( ControlConfigurationIngestion, MissingScriptPreservesEarlierFileCommits )
 {
@@ -273,7 +283,7 @@ TEST( ControlReaderIntegration, CaseBootstrapAppliesSettingsAndRebindsNextCase )
 
     ClearRuntimeParameters();
     Prj::current_dir = std::filesystem::current_path().string();
-    SetUpParallelEnvironment();
+    EnsureParallelEnvironment();
 
     SimuContextDetail::InitializeCaseConfiguration( firstCase.CaseDirectory() );
 
@@ -326,7 +336,7 @@ TEST( ControlReaderIntegration, ReadsCaseScriptsAndWritesDatabaseDump )
         "string ingestion_reader_marker = \"reader-entry-loaded\";\n" );
 
     ClearRuntimeParameters();
-    SetUpParallelEnvironment();
+    EnsureParallelEnvironment();
 
     {
         ScopedCaseLogBinding logBinding( testCase.CaseDirectory() );
