@@ -27,18 +27,19 @@ TEST( ControlManifestReader, PreservesListedScriptOrderAndCaseRoot )
             << "\"grid.txt\";\n";
     }
 
-    std::vector< std::string > scriptFiles;
+    std::vector< std::string > scriptFiles = { "existing-entry.txt" };
     ReadScriptFileNameList( caseDir.string(), scriptFiles );
 
-    ASSERT_EQ( scriptFiles.size(), static_cast< std::size_t >( 3 ) );
-    EXPECT_EQ(
-        std::filesystem::path( scriptFiles[ 0 ] ),
-        ( scriptDir / "simu.txt" ).lexically_normal() );
+    ASSERT_EQ( scriptFiles.size(), static_cast< std::size_t >( 4 ) );
+    EXPECT_EQ( scriptFiles[ 0 ], "existing-entry.txt" );
     EXPECT_EQ(
         std::filesystem::path( scriptFiles[ 1 ] ),
-        ( scriptDir / "dimension.txt" ).lexically_normal() );
+        ( scriptDir / "simu.txt" ).lexically_normal() );
     EXPECT_EQ(
         std::filesystem::path( scriptFiles[ 2 ] ),
+        ( scriptDir / "dimension.txt" ).lexically_normal() );
+    EXPECT_EQ(
+        std::filesystem::path( scriptFiles[ 3 ] ),
         ( scriptDir / "grid.txt" ).lexically_normal() );
 
     std::filesystem::remove_all( caseDir );
