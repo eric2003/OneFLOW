@@ -27,8 +27,26 @@ License
 #include "SimuTask.h"
 #include "EulerDomainStateLifecycle.h"
 #include <stdexcept>
+#include <type_traits>
 
 BeginNameSpace( ONEFLOW )
+
+static_assert(
+    std::is_nothrow_move_constructible<std::vector<std::string>>::value,
+    "SimuContext args must remain nothrow movable");
+static_assert(
+    std::is_nothrow_move_constructible<std::string>::value,
+    "SimuContext strings must remain nothrow movable");
+static_assert(
+    std::is_nothrow_move_constructible<
+        SimuProcessLifecycleDetail::ProcessRuntimeState>::value,
+    "Process lifecycle ownership must remain nothrow movable");
+static_assert(
+    std::is_nothrow_move_constructible<EulerDomainStateRegistry>::value,
+    "Accelerator state registry must remain nothrow movable");
+static_assert(
+    std::is_nothrow_move_constructible<StringField>::value,
+    "Expanded solver names must remain nothrow movable");
 
 SimuContext::SimuContext( std::vector<std::string> args )
     : args_( std::move( args ) )
