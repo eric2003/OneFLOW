@@ -51,6 +51,7 @@ public:
 
     ~TemporaryControlCase()
     {
+        RequireGlobalDataBase().RequireDataPara().Clear();
         std::error_code error;
         std::filesystem::remove_all( path_, error );
     }
@@ -112,11 +113,11 @@ TEST( ControlConfigurationIngestion, ReadsManifestScriptsAndCommitsTypedValuesIn
         "base.txt",
         "int ingestion_dimension = 2;\n"
         "Real ingestion_time_step = 0.001;\n"
-        "string ingestion_task = \\"Grid\\";\n" );
+        "string ingestion_task = \"Grid\";\n" );
     testCase.WriteScript(
         "override.txt",
         "int ingestion_dimension = 3;\n"
-        "string ingestion_marker = \\"second-file-loaded\\";\n" );
+        "string ingestion_marker = \"second-file-loaded\";\n" );
 
     ClearRuntimeParameters();
 
