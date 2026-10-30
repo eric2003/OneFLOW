@@ -1034,8 +1034,8 @@ pre-change baseline only. Starting revision:
 
 The production sequence previously embedded in
 ``SimuContext::SetupCaseEnvironment()`` has been extracted into
-``SimuContextDetail::InitializeCaseConfiguration(caseDir)`` in the existing
-``SimuContextIO.cpp`` translation unit. It performs the same operations in
+``SimuContextDetail::InitializeCaseConfiguration(caseDir)`` in the new
+``SimuContextBootstrap.cpp`` translation unit. It performs the same operations in
 the same order: bind the case project root, bind the case log, call the real
 ``ReadControlInfo(caseDir)``, read and validate the complete ``CaseIOSettings``
 snapshot, and apply effective generic and mesh/flow roots. The context method
@@ -1061,3 +1061,17 @@ covered.
 
 No local build or CTest has been run here. The 984/984 report predates this
 change. Exact-HEAD Windows/Linux CI and a new local MSVC/CTest run are needed.
+
+### Build-boundary correction
+
+A follow-up target-dependency review found that ``SimuContextIO.cpp`` is also
+compiled by the focused ``simu_context_parameter_test`` target, which does not
+link the control-reader and log-file runtime dependencies. The bootstrap
+orchestration has therefore been moved into its own
+``SimuContextBootstrap.cpp`` translation unit and declaration header. The
+parameter/path component remains independently linkable; only the
+``control_configuration_test`` target links the bootstrap component together
+with the real reader/log dependencies. The main executable's recursive source
+collection includes the new production source. This keeps the test seam
+aligned with the production composition without widening the parameter-only
+test's dependency closure.

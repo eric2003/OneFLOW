@@ -60,6 +60,7 @@ add_executable(control_configuration_test
   control_parameter_resolver_test.cpp
   control_configuration_ingestion_test.cpp
   ${CMAKE_SOURCE_DIR}/codes/main/src/SimuContextIO.cpp
+  ${CMAKE_SOURCE_DIR}/codes/main/src/SimuContextBootstrap.cpp
   ${CMAKE_SOURCE_DIR}/codes/io/src/ControlManifestReader.cpp
   ${CMAKE_SOURCE_DIR}/codes/io/src/ControlScriptReader.cpp
   ${CMAKE_SOURCE_DIR}/codes/io/src/ControlFileReader.cpp
