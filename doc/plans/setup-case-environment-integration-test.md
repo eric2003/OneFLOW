@@ -608,3 +608,43 @@ behavior, mathematical/algorithmic explanations, and stable design contracts.
 When a plan item is completed, promote its durable conclusions into the
 relevant `doc/source` page and retain only useful decision history and
 remaining actions in the plan. Link the two; do not duplicate them wholesale.
+
+## 2026-10-30 follow-up: production dependency boundary inspection
+
+Inspection of the current `hexin` source confirms that `ReadControlInfo(caseDir)`
+executes the following sequence:
+
+1. On the server process, read the ordered `script/control.txt` manifest and
+   invoke `ReadOneFLOWScriptFile` for each listed file.
+2. Run `Parallel::TestSayHelloFromEveryProcess()`, which calls
+   `HXGetProcessorName()` and `CollectString()` even in a one-process run.
+3. Call `BroadcastControlParameterToAllProcessors()`; its callback-based
+   `HXBcast` returns early for one process, but only after parallel state has
+   been initialized.
+4. Dump the resulting runtime database to `log/database.log` under the case.
+
+The serial setup contract is `SetUpParallelEnvironment()` ->
+`Parallel::SetDefaultParallelParameter()` -> `HXInit()` / `HXRank()` /
+`HXSize()`. The integration test must use this production entry point rather
+than depending on static-zero values of `Parallel::pid` and `Parallel::nProc`.
+
+The CMake structure also matters: `codes/CMakeLists.txt` recursively collects
+production sources into the `OneFLOW` executable and applies project-wide
+compile definitions, include paths, and external libraries there. The IO tests
+are separately assembled from selected translation units. There is currently
+no reusable configuration-runtime library target. This is a real architectural
+boundary, not merely a test inconvenience: a shared target would need a coherent
+public dependency surface and matching compile definitions, not a copied list
+of arbitrary sources.
+
+The smallest manifest fixture already present in the repository is
+`test/grid/rae2822convert`; its control manifest lists five files, with
+`simu.txt` declaring the Grid task and `dimension.txt` declaring dimension 2.
+A setup-only integration test can use a temporary copy of this fixture and
+must not run the grid conversion task itself.
+
+Decision for the next implementation slice: first build a dependency map from
+`ControlFileReader.cpp` through parser, database, project-file, logging, and
+parallel support. Extract a shared production target only if that map shows a
+stable cohesive subsystem. Otherwise prefer a narrow production operation with
+explicit dependencies. Do not create a test-only imitation of the reader.
