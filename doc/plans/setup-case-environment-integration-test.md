@@ -805,3 +805,42 @@ isolation, or setup-failure cleanup.
 A third failure-path test was added after reviewing the adapter's documented non-atomic behavior. The fixture first commits an integer key, then parses a second file containing a new integer entry followed by a declaration that reuses the existing key with a different type. The second file parses completely, but its adapter commit throws on the type mismatch. The test asserts that the original key remains unchanged and that the earlier new entry from the second document remains committed. This distinguishes three boundaries: file-open failure, parse failure before commit, and adapter failure partway through commit. It confirms that neither the whole manifest nor an individual document commit is currently transactional. The test source newline literals were corrected in commit `971f14e40ad4933fba429350d71b485d8b4be3a8`.
 
 The new test is source-level only until exact-HEAD CI and the user's local test run complete. Do not change the current behavior to rollback without an explicit compatibility decision; transactional commit would require staging/validation of all entries before mutating the global DataBase.
+
+
+## 2026-10-30 continuation: separate script ingestion from runtime orchestration
+
+The production source previously placed two different responsibilities in
+`ControlFileReader.cpp`:
+
+- `ReadPrjScript` composes ordered manifest discovery with parsing and
+  database commit.
+- `ReadControlInfo` adds process coordination, broadcast, and database
+  diagnostics around that script reader.
+
+This made the useful case-level reader composition unavailable to the focused
+configuration test without also linking the runtime orchestration and its
+parallel/PIO/logging dependencies.
+
+The responsibilities are now separated:
+
+- `codes/io/src/ControlScriptReader.cpp` owns the two `ReadPrjScript`
+  overloads. Its dependency is the public control-reader interface and the
+  manifest/multi-file reader functions.
+- `codes/io/src/ControlFileReader.cpp` retains `ReadControlInfo` and its
+  parallel/broadcast/diagnostic orchestration.
+- The main executable's recursive source collection includes the new
+  translation unit. The focused `control_configuration_test` explicitly
+  compiles `ControlScriptReader.cpp`, and its end-to-end ingestion test now
+  calls `ReadPrjScript(caseDir)` rather than manually composing
+  `ReadScriptFileNameList` and `ReadMultiScriptFiles`.
+
+This is a dependency-boundary improvement, not merely a test convenience:
+manifest ingestion can now be linked and exercised independently of
+process-level orchestration. It preserves the existing public function
+signatures and ordered, non-transactional commit behavior.
+
+Acceptance boundary: the test still does not call `ReadControlInfo(caseDir)`.
+That next step must model initialized serial/MPI state and real database
+diagnostics; do not replace it with mocks or copy the full executable source
+list. The source split and new integration call are implemented but await
+exact-HEAD CI and the user's local CTest result.
