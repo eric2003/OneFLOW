@@ -623,7 +623,7 @@ Control-file ingestion and its remaining module boundary
 ---------------------------------------------------------
 
 The production case-specific entry point is
-``ReadControlInfo(caseDir)`` in ``codes/io/src/ParaFile.cpp``. Its
+``ReadControlInfo(caseDir)`` in ``codes/io/src/ControlFileReader.cpp``. Its
 responsibility is orchestration rather than numerical interpretation:
 
 #. Read the case's ``script/control.txt`` manifest.
@@ -638,28 +638,33 @@ The configuration pipeline already contains a useful internal separation:
 The database then owns the typed values. A test of the real control reader must
 exercise these production stages rather than instantiate a test-only parser.
 
-There is a remaining source-level coupling: the control-reader orchestration,
-database serialization/broadcast, legacy parameter parsing, and unrelated
-parameter helper functions are currently defined in the same
-``ParaFile.cpp`` translation unit. Because linking a C++ translation unit
-requires resolving references from its other compiled functions as well, adding
-that file to a focused test target can pull a broad set of otherwise unrelated
-dependencies. This is an architectural boundary issue, not a reason to copy
-the complete executable source list into the test.
+The source-level split is now implemented. Reader orchestration is in
+``ControlFileReader.cpp``; database broadcast, compression/decompression,
+and diagnostic dumping are in ``ControlDatabaseIO.cpp``; legacy syntax and
+parameter helpers remain in ``ParaFile.cpp``. Public declarations in
+``ParaFile.h`` are unchanged. The repository's ``ConstructSolutionDirTree()``
+source collector recursively discovers C++ sources, so these files are expected
+to enter the production source list without a per-file CMake registration.
+This expectation still requires an exact-revision build.
 
-The planned incremental correction is to move control-reader orchestration and
-its database transport/dump operations into dedicated production translation
-units while preserving the existing public reader declarations and parameter
-semantics. This will make the real reader linkable from a component integration
-test without linking solver initialization and teardown. It is **planned**, not
-yet implemented. The test should explicitly initialize the serial parallel
-backend through ``SetUpParallelEnvironment()``, use a temporary multi-file
-control manifest, verify typed database values and the case-local database dump,
-and clear global database state afterwards.
+The split reduces responsibility overlap, but it does not yet make the real
+reader independently linkable: ``ReadMultiScriptFiles()`` calls
+``ReadOneFLOWScriptFile()`, which remains in ``ParaFile.cpp``. The next
+dependency review must determine whether to extract this parser adapter and its
+minimal dependencies into a third production unit or expose an existing narrow
+target. Do not duplicate parsing in a test.
 
-The system-level benefit is a reusable configuration-ingestion boundary. It
-clarifies the chain from legacy text syntax to typed runtime parameters and
-separates it from solver lifecycle management. It does not alter any numerical
-algorithm or physical model. R1 remains partial until the real reader, effective
-case path application, sequential-case isolation, and setup-failure cleanup have
-reproducible test evidence.
+The component integration test must initialize the real serial parallel backend
+through ``SetUpParallelEnvironment()``, use a temporary multi-file control
+manifest, verify typed database values and the case-local database dump, and
+clear global database state afterwards. Sequential-case isolation and setup
+failure cleanup remain separate lifecycle acceptance criteria.
+
+The system-level benefit is a clearer ingestion pipeline and a first seam for
+replacing legacy syntax adapters without changing consumers. It does not alter
+any numerical algorithm or physical model. R1 remains partial until production
+reader integration, effective case path application, sequential-case isolation,
+and setup-failure cleanup have reproducible test evidence.
+
+For the broader target and staged evolution model, see
+:doc:`evolutionary_computation_architecture`.
