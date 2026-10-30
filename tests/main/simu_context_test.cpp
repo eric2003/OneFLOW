@@ -263,6 +263,6 @@ TEST( SimuContextTest, MoveConstructionTransfersStateAndResetsSource )
     EXPECT_FALSE( source.IsTaskResolved() );
     EXPECT_EQ( source.Rank(), 0 );
     EXPECT_EQ( source.Size(), 1 );
-    EXPECT_EQ( source.TaskName(), "Solve" );
+    EXPECT_TRUE( source.TaskName().empty() );
     EXPECT_FALSE( source.HasExpandedSolverNames() );
 }

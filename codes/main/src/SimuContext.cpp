@@ -55,7 +55,7 @@ SimuContext::SimuContext( SimuContext&& other )
     other.rank_ = 0;
     other.size_ = 1;
     other.task_ = TaskEnum::SOLVE_FIELD;
-    other.taskName_ = "Solve";
+    other.taskName_.clear();
     other.envReady_ = false;
     other.taskResolved_ = false;
     other.expandedSolverNames_.clear();

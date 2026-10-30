@@ -1150,7 +1150,8 @@ SimuContext now has an explicit move constructor. It transfers the owned
 arguments, case path, task metadata, readiness state, process lifecycle,
 accelerator-state registry, and expanded solver names. It then resets the
 source context to a valid uninitialized observable state (serial rank/size,
-default task, not ready, task unresolved, empty arguments/path/names).
+default task value, empty task name, not ready, task unresolved, empty
+arguments/path/names). The moved-from reset avoids allocating new strings.
 Move assignment remains deleted.
 
 A context-level test verifies both destination state preservation and
