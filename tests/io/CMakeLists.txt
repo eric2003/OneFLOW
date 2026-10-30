@@ -4,7 +4,6 @@ add_executable(TextFileParser_test
   TextFileParser_test.cpp
   control_manifest_reader_test.cpp
   ${CMAKE_SOURCE_DIR}/codes/io/src/ControlManifestReader.cpp
-  ${CMAKE_SOURCE_DIR}/codes/io/src/ControlScriptReader.cpp
   ${CMAKE_SOURCE_DIR}/codes/basic/src/Word.cpp
   ${CMAKE_SOURCE_DIR}/codes/io/src/CommentLine.cpp
   ${CMAKE_SOURCE_DIR}/codes/io/src/TextFileParser.cpp
@@ -61,6 +60,7 @@ add_executable(control_configuration_test
   control_parameter_resolver_test.cpp
   control_configuration_ingestion_test.cpp
   ${CMAKE_SOURCE_DIR}/codes/io/src/ControlManifestReader.cpp
+  ${CMAKE_SOURCE_DIR}/codes/io/src/ControlScriptReader.cpp
   ${CMAKE_SOURCE_DIR}/codes/io/src/ControlScriptParser.cpp
   ${CMAKE_SOURCE_DIR}/codes/io/src/ConfigLoader.cpp
   ${CMAKE_SOURCE_DIR}/codes/io/src/LegacyParameterSyntax.cpp
