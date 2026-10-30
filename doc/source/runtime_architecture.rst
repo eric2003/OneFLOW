@@ -639,10 +639,12 @@ The database then owns the typed values. A test of the real control reader must
 exercise these production stages rather than instantiate a test-only parser.
 
 The source-level split is now implemented. Reader orchestration is in
-``ControlFileReader.cpp``; database broadcast, compression/decompression,
-and diagnostic dumping are in ``ControlDatabaseIO.cpp``; legacy syntax and
-parameter helpers remain in ``ParaFile.cpp``. Public declarations in
-``ParaFile.h`` are unchanged. The repository's ``ConstructSolutionDirTree()``
+``ControlFileReader.cpp``; script parsing and ConfigDocument commit are in
+``ControlScriptParser.cpp``; runtime array-size lookup is in
+``ControlParameterResolver.cpp``; database broadcast, compression/
+decompression, and diagnostic dumping are in ``ControlDatabaseIO.cpp``;
+legacy parameter inspection helpers remain in ``ParaFile.cpp``. Public
+declarations in ``ParaFile.h`` are unchanged. The repository's ``ConstructSolutionDirTree()``
 source collector recursively discovers C++ sources, so these files are expected
 to enter the production source list without a per-file CMake registration.
 This expectation still requires an exact-revision build.
@@ -668,3 +670,12 @@ and setup-failure cleanup have reproducible test evidence.
 
 For the broader target and staged evolution model, see
 :doc:`evolutionary_computation_architecture`.
+
+
+The resolver boundary has a focused test target,
+``control_parameter_resolver_test``, which exercises literal lengths,
+named lengths through the real DataBase, and missing-name failure. The
+``ConfigLoader_test`` suite separately exercises parser behavior with an
+injected resolver. These two test levels deliberately distinguish parsing
+semantics from runtime lookup. Neither replaces the pending production
+multi-file reader integration test.
