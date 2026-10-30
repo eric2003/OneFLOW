@@ -68,12 +68,5 @@ void ReadPrjScript( const std::string & caseDir )
     ONEFLOW::ReadMultiScriptFiles( scriptFileNameList );
 }
 
-void ReadMultiScriptFiles( std::vector< std::string > & scriptFileNameList )
-{
-    for ( const std::string & scriptFileName : scriptFileNameList )
-    {
-        ONEFLOW::ReadOneFLOWScriptFile( scriptFileName );
-    }
-}
 
 EndNameSpace
