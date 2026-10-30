@@ -24,7 +24,7 @@ License
 #include <string>
 #include <vector>
 
-BeginNameSpace( ONEFLOW )
+namespace ONEFLOW {
 
 /**
  * @brief Reads the script files listed by the active project's control manifest.
@@ -53,4 +53,4 @@ void ReadPrjScript( const std::string & caseDir )
     ONEFLOW::ReadMultiScriptFiles( scriptFileNameList );
 }
 
-EndNameSpace
+} // namespace ONEFLOW
