@@ -21,12 +21,9 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "ParaFile.h"
-#include "TextFileParser.h"
 #include "Parallel.h"
-#include "Prj.h"
 #include <ios>
 #include <string>
-#include <vector>
 
 BeginNameSpace( ONEFLOW )
 
@@ -52,20 +49,6 @@ void ReadControlInfo( const std::string & caseDir )
     Parallel::TestSayHelloFromEveryProcess();
     ONEFLOW::BroadcastControlParameterToAllProcessors();
     ONEFLOW::DumpDataBase( caseDir );
-}
-
-void ReadPrjScript()
-{
-    std::vector< std::string > scriptFileNameList;
-    ONEFLOW::ReadScriptFileNameList( scriptFileNameList );
-    ONEFLOW::ReadMultiScriptFiles( scriptFileNameList );
-}
-
-void ReadPrjScript( const std::string & caseDir )
-{
-    std::vector< std::string > scriptFileNameList;
-    ONEFLOW::ReadScriptFileNameList( caseDir, scriptFileNameList );
-    ONEFLOW::ReadMultiScriptFiles( scriptFileNameList );
 }
 
 
