@@ -46,6 +46,13 @@ void ReadControlInfo();
 void ReadControlInfo( const std::string & caseDir );
 void ReadPrjScript();
 void ReadPrjScript( const std::string & caseDir );
+
+/**
+ * @brief Appends script paths from the ordered control manifest.
+ *
+ * The case overload resolves entries under the supplied case directory.
+ * Existing vector entries are preserved; manifest order is preserved.
+ */
 void ReadScriptFileNameList( std::vector< std::string > & scriptFileNameList );
 void ReadScriptFileNameList( const std::string & caseDir, std::vector< std::string > & scriptFileNameList );
 void ReadMultiScriptFiles( std::vector< std::string > & scriptFileNameList );
