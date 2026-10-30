@@ -117,39 +117,26 @@ where rules are mechanical, and test every generated or handwritten behavior at 
 Do not require every note to become a generator input. Start with one small vertical slice and
 measure whether generation reduces drift without making the design harder to understand.
 
-A reusable prompt for AI-assisted engineering
----------------------------------------------
+Standardized task specification
+--------------------------------
 
-Use this prompt at the start of a substantial task and again before declaring it done:
+Use the repository's maintained
+:doc:`AI-assisted engineering task specification <../AI_TASK_TEMPLATE>`
+for substantial implementation and refactoring work. A
+:doc:`Chinese version <../AI_TASK_TEMPLATE_zh_CN>` is available for Chinese-language
+task preparation.
 
-.. code-block:: text
+The specification defines the required project context, observable objective,
+whole-system priority assessment, pre-change investigation, implementation
+constraints, verification levels, documentation and scientific provenance,
+scope control, acceptance criteria, and delivery evidence.
 
-   Work from the latest hexin HEAD unless the task explicitly names another branch.
-   First read AGENTS.md, doc/AI_CONTEXT.md, this architecture review, and the relevant
-   subsystem guide. Confirm the current branch and revision.
-
-   Before editing:
-   - State the user-visible or maintenance problem in concrete terms.
-   - Map the actual entry point, direct callers, state/data ownership, lifecycle, failure
-     cleanup, tests, and downstream consumers.
-   - Locate the issue in the whole-system architecture map below.
-   - Separate verified behavior, suspected gaps, and proposed future design.
-   - Identify the smallest testable change and the evidence needed to accept it.
-   - Check whether the issue is local or a symptom of a larger unresolved boundary.
-
-   While working:
-   - Preserve compatibility unless a behavior change is explicit and tested.
-   - Do not introduce abstractions without a concrete consumer and benefit.
-   - Keep C++ source ASCII-only.
-   - Do not claim builds, tests, or CI results that were not observed for the exact revision.
-
-   Before finishing:
-   - Report what changed and what deliberately did not change.
-   - Report test commands, results, failures, and exact-revision CI evidence.
-   - Revisit the subsystem and whole-system maps: what architectural risk was reduced,
-     what remains open, and should priorities change?
-   - Update the relevant architecture page and roadmap, and update doc/AI_CONTEXT.md
-     only when the overall status or next action materially changes.
+This architecture review remains the system-level decision framework. The task
+specification defines how an individual work item is expressed and executed.
+Before implementation, read `AGENTS.md`, `doc/AI_CONTEXT.md`, this review,
+and the relevant subsystem guide; verify the current `hexin` HEAD. Before
+completion, report exact-revision evidence and reassess whether the work changes
+the system-wide priority order.
 
 Whole-system architecture map
 -----------------------------
