@@ -152,11 +152,11 @@ TEST( ControlConfigurationIngestion, CommitFailureCanLeaveEarlierEntriesFromCurr
     TemporaryControlCase testCase;
     testCase.WriteScript(
         "base.txt",
-        "int ingestion_conflict_value = 31;\\n" );
+        "int ingestion_conflict_value = 31;\n" );
     testCase.WriteScript(
         "conflict.txt",
-        "int ingestion_committed_before_conflict = 37;\\n"
-        "Real ingestion_conflict_value = 0.5;\\n" );
+        "int ingestion_committed_before_conflict = 37;\n"
+        "Real ingestion_conflict_value = 0.5;\n" );
 
     const std::vector< std::string > scriptFiles{
         testCase.ScriptPath( "base.txt" ).string(),
