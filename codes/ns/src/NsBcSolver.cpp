@@ -22,6 +22,7 @@ License
 
 #include "NsBcSolver.h"
 #include "NsBcPolicy.h"
+#include "NsInvFluxPolicy.h"
 #include "BcData.h"
 #include "FlowModel.h"
 #include "NsCom.h"
@@ -187,8 +188,10 @@ void NsBcSolver::FarFieldBc()
     Real wref = nscom.inflow[ IDX::IW ];
     Real pref = nscom.inflow[ IDX::IP ];
 
-    Real vnref = gcom.xfn * uref + gcom.yfn * vref + gcom.zfn * wref - gcom.vfn;
-    Real vnin  = gcom.xfn * uin  + gcom.yfn * vin  + gcom.zfn * win  - gcom.vfn;
+    Real vnref = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, uref, vref, wref );
+    Real vnin  = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, uin, vin, win );
 
     if ( ! farfieldCacheValid || farfieldCachedGamma != nscom.gama )
     {
@@ -200,7 +203,7 @@ void NsBcSolver::FarFieldBc()
     }
 
     Real cref = farfieldCachedSoundSpeed;
-    Real cin  = sqrt( ABS( nscom.gama     * pin  / rin  ) );
+    Real cin  = IdealGasSoundSpeedFromPressure( rin, pin, nscom.gama );
 
     Real gamm1 = nscom.gama - one;
 
@@ -241,36 +244,35 @@ void NsBcSolver::FarFieldBc()
     else
     {
         //subsonic
-        Real riemp = vnin + 2.0 * cin / gamm1;
-        Real riemm = vnref - 2.0 * cref / gamm1;
-        Real vnb = half * ( riemp + riemm );
-        Real cb = fourth * ( riemp - riemm ) * gamm1;
+        Real vnb, cb;
+        SubsonicAcousticRiemannCombine(
+            vnin, cin, vnref, cref, gamm1, vnb, cb );
 
         Real vtx, vty, vtz, entr;
         if ( vnb >= 0.0 )
         {
             // exit
             entr = pin / pow( rin, nscom.gama );
-
-            vtx = uin - gcom.xfn * vnin;
-            vty = vin - gcom.yfn * vnin;
-            vtz = win - gcom.zfn * vnin;
+            TangentialVelocityFromNormalProjection(
+                uin, vin, win, gcom.xfn, gcom.yfn, gcom.zfn, vnin,
+                vtx, vty, vtz );
         }
         else
         {
             //inlet
             entr = farfieldCachedEntropy;
-            vtx = uref - gcom.xfn * vnref;
-            vty = vref - gcom.yfn * vnref;
-            vtz = wref - gcom.zfn * vnref;
+            TangentialVelocityFromNormalProjection(
+                uref, vref, wref, gcom.xfn, gcom.yfn, gcom.zfn, vnref,
+                vtx, vty, vtz );
         }
 
-        Real rb = FarFieldPower(
-            cb * cb / ( entr * nscom.gama ), one / gamm1 );
-        Real ub = vtx + gcom.xfn * vnb;
-        Real vb = vty + gcom.yfn * vnb;
-        Real wb = vtz + gcom.zfn * vnb;
-        Real pb = cb * cb * rb / nscom.gama;
+        const Real rb = DensityFromIsentropicSoundSpeed(
+            cb, entr, nscom.gama, gamm1 );
+        Real ub, vb, wb;
+        ReconstructVelocityFromTangentialAndNormal(
+            vtx, vty, vtz, gcom.xfn, gcom.yfn, gcom.zfn, vnb,
+            ub, vb, wb );
+        const Real pb = PressureFromSoundSpeedDensity( cb, rb, nscom.gama );
 
         nscom.primt1[ IDX::IR ] = rb;
         nscom.primt1[ IDX::IU ] = ub;
