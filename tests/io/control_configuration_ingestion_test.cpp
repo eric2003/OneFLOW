@@ -124,6 +124,8 @@ void ClearRuntimeParameters()
 
 class ScopedCaseRuntimeReset {
 public:
+    ScopedCaseRuntimeReset() = default;
+
     ~ScopedCaseRuntimeReset() noexcept
     {
         try
