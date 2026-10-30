@@ -100,6 +100,53 @@ void ClearRuntimeParameters()
     RequireGlobalDataBase().RequireDataPara().Clear();
 }
 
+
+TEST( ControlConfigurationIngestion, MissingScriptPreservesEarlierFileCommits )
+{
+    TemporaryControlCase testCase;
+    testCase.WriteScript( "available.txt", "int ingestion_before_missing = 17;\\n" );
+
+    const std::vector< std::string > scriptFiles{
+        testCase.ScriptPath( "available.txt" ).string(),
+        testCase.ScriptPath( "missing.txt" ).string()
+    };
+
+    ClearRuntimeParameters();
+
+    EXPECT_THROW( ReadMultiScriptFiles( scriptFiles ), std::runtime_error );
+
+    const DataBase & database = RequireGlobalDataBase();
+    EXPECT_EQ(
+        GetDataValue<int>( "ingestion_before_missing", &database ), 17 );
+}
+
+TEST( ControlConfigurationIngestion, ParseFailureDoesNotCommitPartialCurrentFile )
+{
+    TemporaryControlCase testCase;
+    testCase.WriteScript( "available.txt", "int ingestion_before_parse_error = 23;\\n" );
+    testCase.WriteScript(
+        "invalid.txt",
+        "int ingestion_uncommitted_prefix = 29;\\n"
+        "int ingestion_invalid_array[missing_array_size] = 1;\\n" );
+
+    const std::vector< std::string > scriptFiles{
+        testCase.ScriptPath( "available.txt" ).string(),
+        testCase.ScriptPath( "invalid.txt" ).string()
+    };
+
+    ClearRuntimeParameters();
+
+    EXPECT_THROW( ReadMultiScriptFiles( scriptFiles ), std::runtime_error );
+
+    const DataBase & database = RequireGlobalDataBase();
+    EXPECT_EQ(
+        GetDataValue<int>( "ingestion_before_parse_error", &database ), 23 );
+    EXPECT_THROW(
+        GetDataValue<int>( "ingestion_uncommitted_prefix", &database ),
+        std::runtime_error );
+}
+
+
 } // namespace
 
 TEST( ControlConfigurationIngestion, ReadsManifestScriptsAndCommitsTypedValuesInOrder )
