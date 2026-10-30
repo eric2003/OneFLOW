@@ -1075,3 +1075,34 @@ with the real reader/log dependencies. The main executable's recursive source
 collection includes the new production source. This keeps the test seam
 aligned with the production composition without widening the parameter-only
 test's dependency closure.
+
+## 2026-10-30 continuation: make bootstrap-test cleanup exception-safe
+
+Starting revision: `3a3e936388c6d40af98d942ad73b70145d2850d4` on `hexin`. The user reports 985/985
+local tests passed before this continuation; that count is a pre-change
+baseline.
+
+A review of the production-bootstrap integration test found that its global
+case state was reset only at the normal end of the test. A fatal GoogleTest
+assertion or an exception during the first bootstrap could return from the
+test before clearing the log binding, project roots, and parameter database.
+Because these are process-global objects, that could contaminate later tests
+and make failures order-dependent.
+
+The test now installs a scoped cleanup guard after constructing its temporary
+case directories. The guard attempts to clear the case log binding, project
+path state, and parameter database independently, and is destroyed before
+the temporary directories. The explicit reset between the first and second
+case remains, because that transition is part of the sequential-root-rebinding
+assertion. The guard is a test-fixture safety net; it deliberately does not
+pretend to exercise production `TeardownCase()`.
+
+The runtime architecture page was corrected to identify the actual
+`SimuContextBootstrap.cpp` implementation location and to distinguish the
+new production-bootstrap integration evidence from the still-missing
+`SetupCaseEnvironment()` readiness and `SimuImp::RunCase()` teardown
+integration.
+
+No local build or CTest was run in this environment. The 985/985 report
+predates this change. Exact-HEAD Windows/Linux CI and a fresh local MSVC/CTest
+run are required.

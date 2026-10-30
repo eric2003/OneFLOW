@@ -122,6 +122,39 @@ void ClearRuntimeParameters()
     RequireGlobalDataBase().RequireDataPara().Clear();
 }
 
+class ScopedCaseRuntimeReset {
+public:
+    ~ScopedCaseRuntimeReset() noexcept
+    {
+        try
+        {
+            logFile.ClearCaseDir();
+        }
+        catch ( ... )
+        {
+        }
+
+        try
+        {
+            Prj::ClearPrjBaseDir();
+        }
+        catch ( ... )
+        {
+        }
+
+        try
+        {
+            ClearRuntimeParameters();
+        }
+        catch ( ... )
+        {
+        }
+    }
+
+    ScopedCaseRuntimeReset( const ScopedCaseRuntimeReset & ) = delete;
+    ScopedCaseRuntimeReset & operator=( const ScopedCaseRuntimeReset & ) = delete;
+};
+
 void EnsureParallelEnvironment()
 {
     static const bool initialized = []()
@@ -258,6 +291,9 @@ TEST( ControlReaderIntegration, CaseBootstrapAppliesSettingsAndRebindsNextCase )
 {
     TemporaryControlCase firstCase;
     TemporaryControlCase secondCase;
+    // This guard is destroyed before the temporary case directories. It also
+    // runs when a fatal GoogleTest assertion exits the test early.
+    ScopedCaseRuntimeReset runtimeReset;
 
     const std::filesystem::path root =
         std::filesystem::path( firstCase.CaseDirectory() ).parent_path();
