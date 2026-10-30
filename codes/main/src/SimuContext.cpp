@@ -36,6 +36,32 @@ SimuContext::SimuContext( std::vector<std::string> args )
 }
 
 
+SimuContext::SimuContext( SimuContext&& other )
+    : args_( std::move( other.args_ ) )
+    , caseDir_( std::move( other.caseDir_ ) )
+    , rank_( other.rank_ )
+    , size_( other.size_ )
+    , task_( other.task_ )
+    , taskName_( std::move( other.taskName_ ) )
+    , envReady_( other.envReady_ )
+    , processLifecycle_( std::move( other.processLifecycle_ ) )
+    , taskResolved_( other.taskResolved_ )
+    , accelStates_( std::move( other.accelStates_ ) )
+    , expandedSolverNames_( std::move( other.expandedSolverNames_ ) )
+{
+    // A moved-from context must not advertise resources it no longer owns.
+    other.args_.clear();
+    other.caseDir_.clear();
+    other.rank_ = 0;
+    other.size_ = 1;
+    other.task_ = TaskEnum::SOLVE_FIELD;
+    other.taskName_ = "Solve";
+    other.envReady_ = false;
+    other.taskResolved_ = false;
+    other.expandedSolverNames_.clear();
+}
+
+
 void SimuContext::SetParallelInfo( int rank, int size )
 {
     if ( size <= 0 )

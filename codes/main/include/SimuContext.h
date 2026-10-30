@@ -46,9 +46,10 @@ public:
 
     SimuContext( const SimuContext& ) = delete;
     SimuContext& operator=( const SimuContext& ) = delete;
-    // Moving transfers process-runtime ownership; move assignment is
-    // disabled because it could overwrite an already active runtime owner.
-    SimuContext( SimuContext&& ) = default;
+    // Moving transfers all context-owned state. The moved-from context is
+    // reset to an uninitialized state; move assignment remains disabled to
+    // avoid overwriting an existing runtime owner.
+    SimuContext( SimuContext&& other );
     SimuContext& operator=( SimuContext&& ) = delete;
 
     // ---- read-only accessors; tasks receive the mutable owner explicitly ----

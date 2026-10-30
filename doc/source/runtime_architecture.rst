@@ -760,3 +760,17 @@ assignment is disabled for both the marker and SimuContext because
 overwriting a destination could abandon an already active process-runtime
 owner. This is an ownership rule, not a resource-finalization operation; the
 destination remains responsible for the eventual explicit process teardown.
+
+
+Moved-from SimuContext contract
+-------------------------------
+
+The explicit SimuContext move constructor transfers its arguments, case
+identity, task selection, readiness marker, process lifecycle marker,
+accelerator-state registry, and expanded solver names. It then resets the
+source context's observable scalar state and clears its remaining metadata.
+In particular, a moved-from context must not continue to report that its case
+environment is ready or its task is resolved. Move assignment remains
+disabled because replacing an existing context could abandon owned runtime
+state. This move operation transfers ownership; it does not perform resource
+teardown or process finalization.

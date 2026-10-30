@@ -1133,3 +1133,28 @@ The destination remains responsible for the existing explicit teardown path.
 No local build or CTest was run in this environment; 985/985 is the
 pre-change baseline. Windows/Linux CI and a fresh local MSVC/CTest run are
 required.
+
+
+## 2026-10-31 continuation: reset observable state after Context move
+
+Starting revision: e87a0b1b3c4c757b2594e802004751c99644666c.
+The user reports 987/987 local tests passed before this continuation.
+
+A follow-up review of the previous process-state move fix found that default
+memberwise move construction still copied scalar state such as envReady_ and
+taskResolved_. The moved-from context could therefore continue to report that
+its case environment was ready even though the process marker and owned
+registries had moved.
+
+SimuContext now has an explicit move constructor. It transfers the owned
+arguments, case path, task metadata, readiness state, process lifecycle,
+accelerator-state registry, and expanded solver names. It then resets the
+source context to a valid uninitialized observable state (serial rank/size,
+default task, not ready, task unresolved, empty arguments/path/names).
+Move assignment remains deleted.
+
+A context-level test verifies both destination state preservation and
+moved-from state reset, including accelerator registry ownership. This does
+not exercise the production setup/teardown path or release resources during
+the move. No local build or CTest was run in this environment; 987/987 is the
+pre-change baseline.
