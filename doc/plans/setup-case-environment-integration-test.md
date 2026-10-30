@@ -669,3 +669,45 @@ the real multi-file integration test: it does not invoke `ReadMultiScriptFiles`,
 `ReadControlInfo(caseDir)`, parallel setup, DataBase commit, or database dump.
 The next step is to map the dependencies of those orchestration operations and
 then select a production-shared target or a narrower seam based on that graph.
+
+
+## 2026-10-30 follow-up: source-level dependency graph checkpoint
+
+The current source split makes the configuration-ingestion path more explicit.
+The following production edges were verified directly at `4b2e5d496ed359c1e3c3645413c4541dc81122f7`:
+
+| Responsibility | Production entry / implementation | Direct dependency evidence |
+|---|---|---|
+| Manifest discovery | `ControlManifestReader.cpp` | `TextFileParser`, `Prj`, filesystem-backed case-file resolution |
+| Ordered multi-file orchestration | `ControlFileReader.cpp` | `ReadScriptFileNameList`, `ReadMultiScriptFiles`, `Parallel` |
+| Script parsing | `ControlScriptParser.cpp` | `ConfigLoader`, `GetParameterArraySize`, `ConfigDatabaseAdapter` |
+| Array-size resolution | `ControlParameterResolver.cpp` | real global `DataBase` lookup for named array dimensions |
+| Typed document commit | `ConfigDatabaseAdapter.cpp` | `DataBaseType` and `ProcessData` |
+| Runtime coordination | `ControlFileReader.cpp` | `Parallel::TestSayHelloFromEveryProcess`, callback-based `HXBcast` |
+| Database diagnostic output | `ControlDatabaseIO.cpp` | `DataBase`, `DataBook`, `Prj`, `PIO`, and global `logFile` |
+
+This graph exposes two distinct testable boundaries:
+
+1. **Configuration ingestion**: manifest discovery -> ordered script parsing -> typed database commit. This can validate the actual production parser and database adapter without linking the parallel broadcast and diagnostic-output path.
+2. **Reader orchestration**: `ReadControlInfo(caseDir)` additionally requires initialized parallel state, broadcast support, logging, and database-file output. This is a broader integration contract and should remain a separate test layer.
+
+The existing `control_parameter_resolver_test` already links the production resolver and adapter with the real database sources, but it does not load a manifest or parse multiple physical files. The existing `TextFileParser_test` links manifest discovery, but does not parse and commit the listed files. The gap is therefore specifically the composition between these existing component boundaries; it is not a lack of another isolated parser test.
+
+CMake evidence: `tests/io/CMakeLists.txt` assembles the two current targets independently, while `codes/CMakeLists.txt` gathers production sources into the executable. No reusable configuration library target currently owns the complete ingestion dependency set. This argues for a first focused integration executable that composes the real ingestion translation units and the already-used database support sources. It does **not** yet justify extracting a public library or moving the executable's whole source graph.
+
+A separate caution applies to the serial runtime fixture: `SetUpParallelEnvironment()` calls `HXInit()`. Whether this invokes MPI initialization depends on the compile-time parallel configuration. The integration target must inherit the same relevant compile definitions and link requirements as the intended production mode; it must not accidentally call MPI initialization in a process whose test harness or another fixture already owns MPI lifecycle. The serial and MPI-enabled contracts should not be conflated.
+
+### Revised next implementation slice
+
+Add one test target for the **configuration-ingestion** boundary first:
+
+- create a temporary case directory with `script/control.txt` and at least two real script files;
+- call production `ReadScriptFileNameList(caseDir, files)` and `ReadMultiScriptFiles(files)`;
+- initialize/clear the real global database using its supported lifecycle, not a substitute store;
+- assert typed scalar values and an ordered duplicate-key replacement across files;
+- verify a missing listed script fails through the production parser path and leaves the database state behavior explicitly characterized;
+- clean the temporary directory with RAII so failed assertions do not leak fixtures.
+
+Do not call `ReadControlInfo(caseDir)` from this first target until the test target's parallel, logging, `PIO`, and `DataBook` dependency closure is explicit. Once ingestion is verified, add the orchestration test as a separate layer for serial runtime initialization, broadcast no-op semantics at one process, and `log/database.log` creation. Only then decide whether those dependencies form a reusable production library.
+
+This narrows the next action from "link the whole reader" to a testable composition boundary while preserving the real production path. R1 remains **Partial**: no such multi-file ingestion integration target or post-change test evidence exists yet.
