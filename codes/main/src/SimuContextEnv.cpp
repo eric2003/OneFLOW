@@ -99,9 +99,9 @@ void SimuContext::SetupProcessEnvironment()
 
 void SimuContext::SetupCaseEnvironment()
 {
-    // Mark case setup as active so exception cleanup can release partial
-    // case state if control-file initialization fails halfway through.
-    envReady_ = true;
+    // Readiness means the complete case configuration has been applied.
+    // A failed setup is still cleaned up by the owning RunCase/rollback path.
+    envReady_ = false;
 
     // Bind legacy case-relative IO to the explicit case before reading it.
     Prj::SetPrjBaseDir( caseDir_ );
@@ -114,6 +114,9 @@ void SimuContext::SetupCaseEnvironment()
         SimuContextDetail::ReadCaseIOSettings(
             RequireGlobalDataBase().RequireDataPara() );
     SimuContextDetail::ApplyCaseIOSettings( ioSettings );
+
+    // Publish readiness only after the full bootstrap sequence succeeds.
+    envReady_ = true;
 }
 
 void SimuContext::SetupEnvironment()

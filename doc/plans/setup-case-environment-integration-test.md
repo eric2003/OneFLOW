@@ -998,3 +998,29 @@ SimuImp::RunCase() cleanup. R1 therefore remains Partial.
 No local build or CTest was run in this environment. The 982/982 report is
 pre-change. Exact-HEAD Windows/Linux CI and a fresh local run are required
 before treating this change as verified.
+
+
+## 2026-10-30 continuation: make Case readiness reflect completed bootstrap
+
+The user reports 984/984 local tests passed before this continuation. This is
+the pre-change baseline only.
+
+A state-contract review found that ``SetupCaseEnvironment()`` set
+``envReady_`` before binding the case root, reading control files, validating
+IO settings, or applying effective paths. Since ``IsEnvironmentReady()`` is
+public, callers could observe a partially initialized case as ready. The flag
+is now cleared when setup begins and published only after the complete
+bootstrap sequence succeeds. Existing ``RunCase()`` and compatibility
+rollback paths continue to own cleanup after setup failure; no cleanup
+behavior or process-runtime ownership was changed.
+
+The duplicate ``EulerDomainStateRegistry.h`` include in ``SimuContext.h`` was
+also removed. The runtime architecture page now records the readiness
+contract and explicitly distinguishes it from full bootstrap integration
+coverage.
+
+This is a state-observability correction, not completion of R1. The test suite
+still needs to invoke the production ``SetupCaseEnvironment()`` composition
+and verify successful readiness, failure readiness, cleanup, and sequential
+case isolation. The reported 984/984 count predates this change; exact-HEAD
+Windows/Linux CI and a new local run are required.

@@ -25,7 +25,6 @@ License
 #include "SimuProcessLifecycle.h"
 #include "EulerDomainStateRegistry.h"
 #include "HXDefine.h"
-#include "EulerDomainStateRegistry.h"
 #include <string>
 #include <vector>
 

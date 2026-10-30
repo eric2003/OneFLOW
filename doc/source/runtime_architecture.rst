@@ -705,3 +705,17 @@ case whose teardown fails still reports the first teardown exception. Focused
 unit tests pin ordering, continued cleanup after multiple failures, and
 first-failure preservation. These tests do not replace an integration test of
 real solver/device resource release.
+
+
+Case environment readiness
+--------------------------
+
+``SimuContext::IsEnvironmentReady()`` reports successful completion of the
+entire case bootstrap, not merely that setup has started. The flag is cleared
+at the beginning of ``SetupCaseEnvironment()`` and set only after the case
+root/log binding, production control ingestion, IO-setting validation, and
+IO-path application have all completed. If any step throws, the owning
+``SimuImp::RunCase()`` or compatibility rollback path still attempts case
+teardown, while the context remains not-ready. This distinction prevents
+callers from observing a partially initialized case as ready. It does not
+replace the outstanding integration test of the full production bootstrap.
