@@ -25,7 +25,6 @@ License
 #include "DataBook.h"
 #include "Parallel.h"
 #include "LogFile.h"
-#include "Prj.h"
 #include "PIO.h"
 #include <fstream>
 #include <stdexcept>
@@ -48,7 +47,7 @@ void DumpDataBase( const std::string & caseDir )
 {
     DataBase & dataBase = ONEFLOW::RequireGlobalDataBase();
     std::fstream file;
-    Prj::OpenCaseFile( file, caseDir, "log/database.log", std::ios_base::out );
+    PIO::OpenCaseFile( file, caseDir, "log/database.log", std::ios_base::out );
     dataBase.RequireDataPara().DumpData( file );
     PIO::CloseFile( file );
 }
