@@ -749,3 +749,8 @@ It does not call `ReadControlInfo(caseDir)`, initialize MPI/serial process state
 5. Continue from reader integration to effective case path application, sequential-case isolation, and cleanup at the actual `RunCase` exception boundary.
 
 R1 remains **Partial**. This is the first test that composes the real manifest reader, production parser, typed adapter, and global database; it is not yet a full runtime integration test.
+
+
+## 2026-10-30 follow-up: database API contract documentation
+
+The database API now has source-level documentation for type-erased storage, typed access preconditions, const/mutable read symmetry, ownership, and borrowed lookup lifetime. A Sphinx page `doc/source/database_architecture.rst` describes the `DataBase -> DataPara -> DataEntry -> DataObject -> TDataObject<T>` ownership chain, same-key update behavior, field pointer registry distinction, serialization boundary, and the tested configuration-ingestion path. The ingestion test now exercises both mutable and const scalar reads. User-reported 978/978 is the pre-change baseline for this documentation/API slice; revalidate the new exact HEAD before treating it as passing. Full `ReadControlInfo` and Case lifecycle coverage remains open.
