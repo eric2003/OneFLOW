@@ -184,12 +184,11 @@ The source responsibilities are now separated across five production units:
 * ``ParaFile.cpp`` retains older parameter inspection helpers.
 
 The public declarations in ``ParaFile.h`` remain stable. The parser adapter
-still intentionally uses the existing runtime resolver, but the resolver now
-has a narrow translation unit rather than being entangled with all legacy
-inspection helpers. This is a source-level dependency improvement, not yet
-proof of an independently linkable integration target. A future test can
-compose the parser with a controlled resolver, while a production integration
-test must use the real DataBase-backed resolver and ConfigDatabaseAdapter.
+uses the existing runtime resolver through a narrow translation unit rather
+than through the broad legacy inspection module. The existing ConfigLoader
+unit tests exercise injected resolver callbacks; a new resolver test target
+exercises literal lengths and named lookup through the real DataBase. This is
+still not proof of a complete multi-file reader integration path.
 
 Expected problems and response strategy
 ----------------------------------------
@@ -271,3 +270,6 @@ Review questions for each future refactor
 
 If these questions have no concrete answers, keep the implementation simple
 and defer the abstraction.
+
+
+The resolver's focused tests are registered in `tests/io/CMakeLists.txt` as `control_parameter_resolver_test`. They intentionally link the real DataBase implementation instead of mocking named-parameter lookup. This pins the adapter contract without claiming that the full control manifest, broadcast, and diagnostic pipeline has been integrated.
