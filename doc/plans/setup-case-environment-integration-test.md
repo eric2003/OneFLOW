@@ -241,3 +241,83 @@ The user-reported local baseline remains 971/971 before these changes. The exact
 CI results above are separate evidence and must not be restated as a local test run.
 R1 remains **Partial**: real reader invocation, sequential-case isolation through
 the production case lifecycle, and setup-failure cleanup are still open.
+
+
+## Follow-up: translation-unit boundary discovered on 2026-10-30
+
+Inspected the exact current `hexin` source at
+`69a03cc27dd7ed7ab78c7516d4265138d00b20e8`.
+
+The serial initialization contract is confirmed in `codes/parallel/src/Parallel.cpp`:
+`SetUpParallelEnvironment()` calls `Parallel::SetDefaultParallelParameter()`,
+which calls `HXInit()` and initializes server rank, process rank, and process
+count from the selected backend. In a serial build, `HXRank()` is 0 and
+`HXSize()` is 1. This remains the correct setup for a real reader test; static
+zero-initialized members are not a substitute for an explicit runtime contract.
+
+A representative minimal real case exists at `grid/minimal_rectangle`.
+Its `script/control.txt` lists five files (`simu.txt`, `dimension.txt`,
+`tolerence.txt`, `grid.txt`, `part.txt`); the first files establish
+`simutask = "Grid"` and `dimension = 2`. For an isolated test, create a
+smaller temporary fixture with the same manifest structure rather than copying
+the complete grid case and its geometry assets.
+
+A key new dependency finding changes the implementation approach:
+`ReadControlInfo(caseDir)`, `ReadPrjScript(caseDir)`,
+`ReadScriptFileNameList(caseDir)`, `ReadMultiScriptFiles()`,
+database compression/decompression, and database dumping currently live in
+`codes/io/src/ParaFile.cpp` together with legacy parameter parsing and several
+unrelated helper functions. Linking that translation unit pulls unresolved
+references from its other functions too. The test cannot be made narrow merely
+by adding `ParaFile.cpp` to `tests/main/CMakeLists.txt`; that would either
+require an unnecessarily broad set of production sources or duplicate the
+executable's dependency surface.
+
+### Revised next implementation slice
+
+Split by responsibility, not by test convenience:
+
+1. Move the control-reader orchestration functions
+   (`ReadControlInfo`, `ReadPrjScript`, `ReadScriptFileNameList`,
+   `ReadMultiScriptFiles`) into a dedicated production source file.
+2. Move the database transport/dump functions used by the reader
+   (`BroadcastControlParameterToAllProcessors`, `CompressData`,
+   `DecompressData`, and case-local database dump) into a narrowly named
+   database/control-I/O source file if their ownership and includes support it.
+   Keep the public declarations stable in `ParaFile.h` initially.
+3. Leave legacy tokenization and parameter convenience helpers in
+   `ParaFile.cpp`; avoid changing parser behavior in this slice.
+4. Add the reader integration target using the exact extracted production source,
+   the real `ConfigLoader`/adapter, database, parallel, and file/log dependencies.
+   Do not mock parsing, database commit, or serial initialization.
+5. Use a temporary multi-file manifest; assert representative typed values and
+   `log/database.log`. Then clear the database and temporary directory.
+6. Only after reader integration passes, add the two-case sequence through the
+   case-owned setup/teardown boundary. Keep process runtime initialization and
+   finalization outside each per-case iteration.
+
+The architectural benefit is a reusable control-file ingestion boundary and an
+explicit dependency graph. It does not change the numerical model or the meaning
+of any control parameter. The current parameter pipeline is:
+
+```text
+legacy text files
+    -> ConfigLoader
+    -> ConfigDocument
+    -> ConfigDatabaseAdapter
+    -> global DataPara
+    -> parallel broadcast
+    -> case database diagnostic
+```
+
+The parser already has a useful separation (`ConfigLoader` creates a
+`ConfigDocument`, and `ConfigDatabaseAdapter` commits typed entries). The
+remaining coupling is the orchestration/transport code co-located with legacy
+helpers. The refactor should preserve this pipeline and make its stages independently
+linkable and testable.
+
+Validation status at this point:
+- User-reported local baseline: 971/971 before these changes.
+- Documentation check for `69a03cc`: successful.
+- Windows and Linux CI for `69a03cc`: in progress at last inspection.
+- No source-code or CMake changes were made in this follow-up; R1 remains Partial.
