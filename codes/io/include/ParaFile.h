@@ -42,8 +42,22 @@ void AnalysisArrayParameter( TextFileParser & textFileParser, int keyWordIndex )
 int AnalysisScalarParameter( TextFileParser & textFileParser, int keyWordIndex );
 int GetParameterArraySize( const std::string & word );
 
+/**
+ * @brief Loads project control scripts and completes process-level setup.
+ *
+ * ReadControlInfo owns the parallel greeting, control-parameter broadcast,
+ * and database diagnostic output in addition to server-side script loading.
+ * Parallel state must be initialized before this function is called.
+ */
 void ReadControlInfo();
 void ReadControlInfo( const std::string & caseDir );
+
+/**
+ * @brief Discovers and commits project control scripts in manifest order.
+ *
+ * These functions perform script ingestion only. They do not initialize
+ * parallel state, broadcast parameters, or write the runtime database dump.
+ */
 void ReadPrjScript();
 void ReadPrjScript( const std::string & caseDir );
 
