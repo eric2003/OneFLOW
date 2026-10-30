@@ -20,9 +20,10 @@ Configuration path
 inflow, wall-distance, and multigrid settings into files such as ``cfd.txt``,
 ``vismodel.txt``, ``inflow.txt``, ``walldist.txt``, ``turb.txt``, and ``multigrid.txt``.
 
-``ConfigLoader`` parses each legacy file into a ``ConfigDocument``. In
-``ControlScriptParser.cpp``, ``ConfigDatabaseAdapter::Commit()`` applies those entries through
-``ProcessData`` to the legacy runtime database. The adapter preserves document order;
+``ConfigLoader`` parses each legacy file into a ``ConfigDocument``.
+``ControlScriptParser.cpp`` invokes ``ConfigDatabaseAdapter::Commit()``, whose
+implementation is in ``ConfigDatabaseAdapter.cpp``. The adapter applies those
+entries through ``ProcessData`` to the legacy runtime database. The adapter preserves document order;
 repeated names follow the runtime ``DataPara`` replacement policy. The current commit
 operation is incremental, not transactional: an error in a later entry does not roll
 back earlier entries. This is a useful migration boundary:
