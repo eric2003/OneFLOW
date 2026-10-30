@@ -28,3 +28,4 @@ Numerical analysis is a branch of mathematics that solves continuous problems us
    references
    boundary_velocity
    isothermal_wall
+   turb_scalar_upwind

@@ -21,6 +21,8 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "TurbInvFlux.h"
+#include "TurbInvFluxPolicy.h"
+#include "NsInvFluxPolicy.h"
 #include "Zone.h"
 #include "DataBase.h"
 #include "UCom.h"
@@ -79,21 +81,25 @@ void TurbInvFlux::RoeFlux()
 {
     TurbInv & inv = turbInv;
     int nEqu = inv.prim1.size();
-    Real vnl  = gcom.xfn * inv.ul + gcom.yfn * inv.vl + gcom.zfn * inv.wl - gcom.vfn;
-    Real vnr  = gcom.xfn * inv.ur + gcom.yfn * inv.vr + gcom.zfn * inv.wr - gcom.vfn;
+    const Real vnl = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ul, inv.vl, inv.wl );
+    const Real vnr = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, inv.ur, inv.vr, inv.wr );
 
-    Real vnl_p = half * ( vnl + ABS( vnl ) );
-    Real vnr_n = half * ( vnr - ABS( vnr ) );
+    Real vnl_p, vnl_n, vnr_p, vnr_n;
+    SplitRelativeNormalVelocity( vnl, vnl_p, vnl_n );
+    SplitRelativeNormalVelocity( vnr, vnr_p, vnr_n );
+    (void) vnl_n;
+    (void) vnr_p;
 
-    Real rho_coef_l = inv.rho_coef * one + ( one - inv.rho_coef ) * inv.rl;
-    Real rho_coef_r = inv.rho_coef * one + ( one - inv.rho_coef ) * inv.rr;
-
-    Real coef_l = vnl_p * rho_coef_l;
-    Real coef_r = vnr_n * rho_coef_r;
+    const Real rho_coef_l = TurbConvectiveDensityWeight( inv.rho_coef, inv.rl );
+    const Real rho_coef_r = TurbConvectiveDensityWeight( inv.rho_coef, inv.rr );
 
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
-        inv.flux[ iEqu ] = coef_l * inv.prim1[ iEqu ] + coef_r * inv.prim2[ iEqu ];
+        inv.flux[ iEqu ] = UpwindScalarConvectiveFlux(
+            vnl_p, rho_coef_l, inv.prim1[ iEqu ],
+            vnr_n, rho_coef_r, inv.prim2[ iEqu ] );
     }
 }
 
