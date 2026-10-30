@@ -14,6 +14,8 @@ License
 #include "EulerDomainStateRegistry.h"
 
 #include <stdexcept>
+#include <type_traits>
+#include <utility>
 
 BeginNameSpace( ONEFLOW )
 
@@ -118,5 +120,19 @@ std::size_t EulerDomainStateRegistry::Size() const
 {
     return states.size();
 }
+
+EulerDomainStateRegistry::EulerDomainStateRegistry(
+    EulerDomainStateRegistry && other ) noexcept
+{
+    static_assert(
+        std::is_nothrow_default_constructible<StateMap>::value,
+        "Accelerator state map must be nothrow default constructible");
+    static_assert(
+        noexcept( std::declval<StateMap&>().swap(
+            std::declval<StateMap&>() ) ),
+        "Accelerator state map swap must be nothrow");
+    states.swap( other.states );
+}
+
 
 EndNameSpace

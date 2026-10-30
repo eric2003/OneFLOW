@@ -38,7 +38,7 @@ public:
     ~EulerDomainStateRegistry() = default;
 
     EulerDomainStateRegistry( const EulerDomainStateRegistry & ) = delete;
-    EulerDomainStateRegistry( EulerDomainStateRegistry && ) = default;
+    EulerDomainStateRegistry( EulerDomainStateRegistry && other ) noexcept;
     EulerDomainStateRegistry & operator=( EulerDomainStateRegistry && ) = default;
     EulerDomainStateRegistry & operator=( const EulerDomainStateRegistry & ) = delete;
 
