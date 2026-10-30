@@ -560,3 +560,36 @@ No local build or CTest was run here. Reconfigure/rebuild the Windows Debug
 geometry test target and run the full suite; this commit is not yet validated
 by the user's local test result. Also inspect exact-HEAD CI before treating
 the branch as green.
+
+
+## 2026-10-30 continuation: Case lifecycle integration boundary
+
+The user reports 982/982 local tests passed before this continuation. A fresh
+source review mapped the real production path across
+`Simulation::RunImpl`, `SimuImp::RunCase`, `SimuContext::SetupCaseEnvironment`,
+`TeardownCase`, and process finalization.
+
+Important ownership result: one process context owns parallel/accelerator
+initialization and finalization; each case gets a distinct `SimuImp` /
+`SimuContext`; case setup and teardown run inside the case cleanup boundary.
+A failure in `SetupCaseEnvironment` still reaches `PostProcess` /
+`TeardownCase`, after which the outer process lifecycle finalizes the shared
+runtime.
+
+The IO path reset contract already has a component test:
+`PrjIOPaths.DomainRootsResetWhenBindingNextCase`. It configures project and
+domain-specific roots on one case, rebinds a second case, and verifies all
+mesh/flow roots resolve under the second case. This proves the `Prj` path
+component reset, not the complete `SetupCaseEnvironment` composition.
+
+The remaining R1 gap is therefore not missing isolated tests for each
+operation: the real `ReadControlInfo`, IO settings application, and
+`Prj` root reset are individually exercised. What remains untested is their
+production composition inside `SimuContext::SetupCaseEnvironment`, plus
+cleanup after failure at that boundary. The investigation and next extraction
+proposal are recorded in
+`doc/plans/setup-case-environment-integration-test.md`.
+
+No source code or post-982 test result is claimed in this slice. The latest
+hexin revision for this note is recorded by its commit history; check exact
+HEAD CI before declaring the preceding PIO source-list fix green.
