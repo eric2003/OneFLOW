@@ -2,12 +2,12 @@
 
 Last updated: 2026-10-30
 Working branch: `hexin`
-Latest inspected `hexin` base: `a40941b661f53f54add332627cbfc939db057a34`. The current source split places manifest orchestration in `ControlFileReader.cpp`, parsing and `ConfigDocument` commit in `ControlScriptParser.cpp`, database-backed array-size lookup in `ControlParameterResolver.cpp`, and broadcast/compression/decompression/diagnostic dumping in `ControlDatabaseIO.cpp`. `ParaFile.cpp` retains legacy parameter-inspection helpers; public declarations remain in `codes/io/include/ParaFile.h`. Recursive source discovery is expected to include the new translation units, but exact-revision build/CI evidence is still required. `ReadMultiScriptFiles()` calls the public `ReadOneFLOWScriptFile()` declaration, whose implementation is now in `ControlScriptParser.cpp`.
+Latest verified starting HEAD for this work slice: `4585de4e729e007e17e8bfbf6e2586ee7dc3c345`. Subsequent changes add production `ConfigDatabaseAdapter.cpp` coverage in `control_parameter_resolver_test`, and document its incremental ordered-commit semantics. The current source split places manifest orchestration in `ControlFileReader.cpp`, parsing and `ConfigDocument` commit in `ControlScriptParser.cpp`, database-backed array-size lookup in `ControlParameterResolver.cpp`, and broadcast/compression/decompression/diagnostic dumping in `ControlDatabaseIO.cpp`. `ParaFile.cpp` retains legacy parameter-inspection helpers; public declarations remain in `codes/io/include/ParaFile.h`. Recursive source discovery is expected to include the new translation units, but exact-revision build/CI evidence is still required.
 User-reported pre-change local baseline for this work slice: 974/974 tests passed. This is not evidence for any later change.
 
 ## Current focus: R1 case I/O root configuration contract
 
-The active mainline is to make case setup configuration predictable and testable without coupling every contract test to the complete solver bootstrap.
+The active mainline is to make case setup configuration predictable and testable without coupling every contract test to the complete solver bootstrap. The current intermediate test now pins the production ConfigDocument-to-DataBase conversion boundary, while the physical multi-file reader remains the next integration target.
 
 Production path: `SimuImp::InitSimu() -> SimuContext::SetupCaseEnvironment() -> ReadControlInfo(caseDir) -> RequireGlobalDataBase().RequireDataPara() -> ReadCaseIOSettings() -> Prj root setters -> io_paths.txt`.
 
@@ -33,11 +33,11 @@ System-level reason: configuration lookup and type validation are now separated 
 
 A real integration test still needs to exercise the production `ReadControlInfo(caseDir)` path, effective `Prj` root application, `io_paths.txt`/database diagnostics, sequential-case reset, and cleanup after setup failure. Candidate fixtures confirmed in the current `hexin` tree are `test/grid/rae2822convert` (smaller multi-file control manifest) and `test/cfd/rae2822_roe_sa` (fuller CFD manifest; `simu.txt` declares `Solve`, which must not be executed by a setup-only test). The existing test targets intentionally avoid linking the full solver runtime; do not duplicate the parser or copy the executable's complete source list into a test target.
 
-The existing investigation record is `doc/plans/setup-case-environment-integration-test.md`. It identifies the key constraints: the global database is statically initialized, but `ReadControlInfo` uses parallel coordination and database broadcast; `SimuContext::TeardownCase()` resets much more than path state; the production executable currently compiles a broad source list rather than exposing a reusable runtime library.
+The existing investigation record is `doc/plans/setup-case-environment-integration-test.md`. It identifies the key constraints: the global database is statically initialized, but `ReadControlInfo` uses parallel coordination and database broadcast; `SimuContext::TeardownCase()` resets much more than path state; the production executable currently compiles a broad source list rather than exposing a reusable runtime library. The IO test target now covers the real document-to-DataBase adapter for typed scalar values and ordered duplicate replacement, but it still does not exercise the complete physical-manifest reader.
 
 Cleanup ownership has now been distinguished explicitly in that investigation: `SimuImp::RunCase()` cleans up one case and leaves process runtime ownership to `SimuImp::Run()`, while the compatibility `SimuContext::SetupEnvironment()` rollback tears down both case and process runtime. Preserve these scopes; do not collapse them into a shared generic lifecycle. The post-`ReadControlInfo` application stage is now extracted as `SimuContextDetail::ApplyCaseIOSettings()` in `codes/main/include/SimuContextIO.h`. `SetupCaseEnvironment()` still calls the real reader first, validates a full snapshot, then invokes the extracted operation. The focused parameter test target now links the production `Prj` path sources and includes filesystem-backed diagnostic-path tests. This is source-level progress only; build and CTest evidence is still required.
 
-Next single action: extract the `ReadControlInfo(caseDir)` orchestration and its narrowly required database broadcast/dump operations from `codes/io/src/ParaFile.cpp` into a production translation unit with an explicit dependency set. Keep legacy parameter syntax helpers and unrelated conversion utilities in their existing module. Add a temporary multi-file integration fixture only after the extraction makes the real reader linkable without the solver executable's full source list. Initialize serial parallel state through `SetUpParallelEnvironment()`; do not substitute a test parser or mock the database commit. Keep `tests/` for test code and `test/` for CFD cases. Do not mark R1 complete until effective path application, sequential-case isolation, and failure cleanup have test evidence.
+Next single action: map the exact link dependency closure for `ReadControlInfo(caseDir)` and determine whether a small production configuration-runtime library can be shared by the executable and tests without duplicating CMake compile definitions or source lists. Then add a temporary multi-file integration fixture using the real reader, `SetUpParallelEnvironment()`, typed DataBase assertions, and `log/database.log` verification. Do not substitute a test parser or mock the database commit. Keep `tests/` for test code and `test/` for CFD cases. Do not mark R1 complete until effective path application, sequential-case isolation, and failure cleanup have test evidence.
 
 ## 1. Read this first
 
@@ -167,3 +167,27 @@ the ranking, configuration transformation path, mesh representation layers,
 and numerical verification chain explicit. Continue using equations, figures,
 and diagrams where they explain actual algorithms or boundaries, and label
 planned designs as proposals rather than implemented behavior.
+
+
+## Documentation structure and source-comment policy
+
+Keep `doc/plans/` separate from `doc/source/`. Plans record intended changes,
+sequencing, acceptance criteria, risks, hypotheses, and unresolved questions.
+The Sphinx source manual records current architecture, verified contracts,
+algorithm derivations, scientific assumptions, figures, and stable design
+knowledge. Promote completed plan conclusions into the relevant source page;
+retain only useful decision history and remaining work in the plan. The policy
+and directory map are described in `doc/README.md`.
+
+Use Doxygen-compatible source comments for stable API contracts: purpose,
+units, ownership/lifetime, invariants, preconditions, postconditions, side
+effects, and failure semantics. Generate API reference pages from those
+comments where practical. Keep cross-file architecture, derivations, formulas,
+numerical verification, and conceptual diagrams in curated `doc/source`
+pages. Source-generated API documentation complements, but does not replace,
+the system and algorithm guides.
+
+The 2026-10-30 IO adapter test adds two contracts: typed values reach the real
+DataBase, and repeated declarations are committed in document order with the
+later value replacing the earlier value. The adapter is incremental, not
+transactional; changing that behavior requires separate compatibility analysis.
