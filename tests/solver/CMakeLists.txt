@@ -242,18 +242,6 @@ target_link_libraries(sutherland_policy_test PRIVATE GTest::gtest_main)
 target_compile_features(sutherland_policy_test PRIVATE cxx_std_20)
 gtest_discover_tests(sutherland_policy_test DISCOVERY_MODE PRE_TEST)
 
-add_executable(lusgs_policy_test
-  lusgs_policy_test.cpp
-  ${CMAKE_SOURCE_DIR}/codes/ns/src/NsLusgsPolicy.cpp
-)
-target_include_directories(lusgs_policy_test PRIVATE
-  ${CMAKE_SOURCE_DIR}/codes/ns/include
-  ${CMAKE_SOURCE_DIR}/codes/basic/include
-)
-target_link_libraries(lusgs_policy_test PRIVATE GTest::gtest_main)
-target_compile_features(lusgs_policy_test PRIVATE cxx_std_20)
-gtest_discover_tests(lusgs_policy_test DISCOVERY_MODE PRE_TEST)
-
 add_executable(bc_policy_test
   bc_policy_test.cpp
   ${CMAKE_SOURCE_DIR}/codes/ns/src/NsBcPolicy.cpp

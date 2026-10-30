@@ -77,4 +77,24 @@ Real PressureFromSoundSpeedDensity( Real soundBoundary, Real density, Real gama 
     return soundBoundary * soundBoundary * density / gama;
 }
 
+Real IdealGasDensityFromPressureTemperature(
+    Real pressure, Real temperature, Real gasCoef, Real reciMolecularWeight )
+{
+    return pressure / ( gasCoef * temperature * reciMolecularWeight );
+}
+
+Real MirrorScalarWithFloor(
+    Real wallValue, Real interiorValue, Real floorValue )
+{
+    const Real mirrored = two * wallValue - interiorValue;
+    return ( mirrored < floorValue ) ? floorValue : mirrored;
+}
+
+Real MirrorDensityAboutWall(
+    Real densityWall, Real densityInner )
+{
+    const Real mirrored = two * densityWall - densityInner;
+    return MAX( half * densityWall, mirrored );
+}
+
 EndNameSpace

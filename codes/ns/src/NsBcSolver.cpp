@@ -22,7 +22,6 @@ License
 
 #include "NsBcSolver.h"
 #include "NsBcPolicy.h"
-#include "NsInvFluxPolicy.h"
 #include "BcData.h"
 #include "FlowModel.h"
 #include "NsCom.h"
@@ -188,10 +187,8 @@ void NsBcSolver::FarFieldBc()
     Real wref = nscom.inflow[ IDX::IW ];
     Real pref = nscom.inflow[ IDX::IP ];
 
-    Real vnref = RelativeFaceNormalVelocity(
-        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, uref, vref, wref );
-    Real vnin  = RelativeFaceNormalVelocity(
-        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, uin, vin, win );
+    Real vnref = gcom.xfn * uref + gcom.yfn * vref + gcom.zfn * wref - gcom.vfn;
+    Real vnin  = gcom.xfn * uin  + gcom.yfn * vin  + gcom.zfn * win  - gcom.vfn;
 
     if ( ! farfieldCacheValid || farfieldCachedGamma != nscom.gama )
     {
@@ -203,7 +200,7 @@ void NsBcSolver::FarFieldBc()
     }
 
     Real cref = farfieldCachedSoundSpeed;
-    Real cin  = IdealGasSoundSpeedFromPressure( rin, pin, nscom.gama );
+    Real cin  = sqrt( ABS( nscom.gama     * pin  / rin  ) );
 
     Real gamm1 = nscom.gama - one;
 
@@ -244,35 +241,36 @@ void NsBcSolver::FarFieldBc()
     else
     {
         //subsonic
-        Real vnb, cb;
-        SubsonicAcousticRiemannCombine(
-            vnin, cin, vnref, cref, gamm1, vnb, cb );
+        Real riemp = vnin + 2.0 * cin / gamm1;
+        Real riemm = vnref - 2.0 * cref / gamm1;
+        Real vnb = half * ( riemp + riemm );
+        Real cb = fourth * ( riemp - riemm ) * gamm1;
 
         Real vtx, vty, vtz, entr;
         if ( vnb >= 0.0 )
         {
             // exit
             entr = pin / pow( rin, nscom.gama );
-            TangentialVelocityFromNormalProjection(
-                uin, vin, win, gcom.xfn, gcom.yfn, gcom.zfn, vnin,
-                vtx, vty, vtz );
+
+            vtx = uin - gcom.xfn * vnin;
+            vty = vin - gcom.yfn * vnin;
+            vtz = win - gcom.zfn * vnin;
         }
         else
         {
             //inlet
             entr = farfieldCachedEntropy;
-            TangentialVelocityFromNormalProjection(
-                uref, vref, wref, gcom.xfn, gcom.yfn, gcom.zfn, vnref,
-                vtx, vty, vtz );
+            vtx = uref - gcom.xfn * vnref;
+            vty = vref - gcom.yfn * vnref;
+            vtz = wref - gcom.zfn * vnref;
         }
 
-        const Real rb = DensityFromIsentropicSoundSpeed(
-            cb, entr, nscom.gama, gamm1 );
-        Real ub, vb, wb;
-        ReconstructVelocityFromTangentialAndNormal(
-            vtx, vty, vtz, gcom.xfn, gcom.yfn, gcom.zfn, vnb,
-            ub, vb, wb );
-        const Real pb = PressureFromSoundSpeedDensity( cb, rb, nscom.gama );
+        Real rb = FarFieldPower(
+            cb * cb / ( entr * nscom.gama ), one / gamm1 );
+        Real ub = vtx + gcom.xfn * vnb;
+        Real vb = vty + gcom.yfn * vnb;
+        Real wb = vtz + gcom.zfn * vnb;
+        Real pb = cb * cb * rb / nscom.gama;
 
         nscom.primt1[ IDX::IR ] = rb;
         nscom.primt1[ IDX::IU ] = ub;
@@ -313,18 +311,12 @@ void NsBcSolver::IsothermalVisWallBc()
     nscom.prim[ IDX::IP ] = pm;
 
     Real pg1 = pm;
-    Real tg1 = 2.0 * nscom.twall - temperature;
-
-    if ( tg1 < tlim )
-    {
-        tg1 = tlim;
-    }
+    Real tg1 = MirrorScalarWithFloor( nscom.twall, temperature, tlim );
 
     Real rg1;
     Real rw = this->CalcDensity( nscom.prims1, pg1, nscom.twall );
 
-    rg1 = 2.0 * rw - rm;
-    rg1 = MAX( 0.5 * rw, rg1 );
+    rg1 = MirrorDensityAboutWall( rw, rm );
 
     nscom.primt1[ IDX::IR ] = rg1;
     nscom.primt1[ IDX::IP ] = pg1;
@@ -336,13 +328,9 @@ void NsBcSolver::IsothermalVisWallBc()
     temperature = nscom.ts2[ IDX::ITT ];
 
     Real pg2 = pm;
-    Real tg2 = 2.0 * nscom.twall - temperature;
+    Real tg2 = MirrorScalarWithFloor( nscom.twall, temperature, tlim );
 
-    Real rg2;
-
-    if ( tg2 < tlim ) tg2 = tlim;
-
-    rg2 = this->CalcDensity( nscom.prims2, pg2, tg2 );
+    Real rg2 = this->CalcDensity( nscom.prims2, pg2, tg2 );
 
     nscom.primt2[ IDX::IR ] = rg2;
 }
@@ -437,9 +425,9 @@ Real NsBcSolver::CalcReciMolecularWeight( RealField & prim )
 
 Real NsBcSolver::CalcDensity( RealField & prim, Real pres, Real temperature )
 {
-    Real rmw = this->CalcReciMolecularWeight( prim );
-    Real density = pres / ( nscom.statecoef * temperature * rmw );
-    return density;
+    const Real rmw = this->CalcReciMolecularWeight( prim );
+    return IdealGasDensityFromPressureTemperature(
+        pres, temperature, nscom.statecoef, rmw );
 }
 
 EndNameSpace

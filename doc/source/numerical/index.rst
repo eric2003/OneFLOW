@@ -26,5 +26,5 @@ Numerical analysis is a branch of mathematics that solves continuous problems us
    sutherland_viscosity
    spectral_radius
    references
-   lusgs_flux_increment
-   farfield_riemann
+   boundary_velocity
+   isothermal_wall

@@ -28,7 +28,6 @@ Real ArithmeticAverage( Real a, Real b );
 // @doc-algorithm farfield-riemann
 // @doc-stage acoustic-combine
 // @doc-pure
-// @doc-formula R+/- = vn +/- 2 c/(gamma-1); vn_b = (R++R-)/2; c_b = (R+-R-)*(gamma-1)/4
 void SubsonicAcousticRiemannCombine(
     Real vnInner, Real soundInner,
     Real vnRef, Real soundRef,
@@ -38,7 +37,6 @@ void SubsonicAcousticRiemannCombine(
 // @doc-algorithm farfield-riemann
 // @doc-stage tangential
 // @doc-pure
-// @doc-formula v_t = v - n * vn
 void TangentialVelocityFromNormalProjection(
     Real u, Real v, Real w,
     Real xfn, Real yfn, Real zfn, Real vn,
@@ -47,7 +45,6 @@ void TangentialVelocityFromNormalProjection(
 // @doc-algorithm farfield-riemann
 // @doc-stage reconstruct-velocity
 // @doc-pure
-// @doc-formula v = v_t + n * vn_b
 void ReconstructVelocityFromTangentialAndNormal(
     Real uTangential, Real vTangential, Real wTangential,
     Real xfn, Real yfn, Real zfn, Real vnBoundary,
@@ -56,14 +53,33 @@ void ReconstructVelocityFromTangentialAndNormal(
 // @doc-algorithm farfield-riemann
 // @doc-stage isentropic-density
 // @doc-pure
-// @doc-formula rho = (c^2 / (s * gamma))^{1/(gamma-1)}
 Real DensityFromIsentropicSoundSpeed(
     Real soundBoundary, Real entropy, Real gama, Real gamaMinusOne );
 
 // @doc-algorithm farfield-riemann
 // @doc-stage isentropic-pressure
 // @doc-pure
-// @doc-formula p = c^2 * rho / gamma
 Real PressureFromSoundSpeedDensity( Real soundBoundary, Real density, Real gama );
+
+// @doc-algorithm isothermal-wall
+// @doc-stage ideal-gas-density
+// @doc-pure
+// @doc-formula rho = p / (R * T * rmw)
+Real IdealGasDensityFromPressureTemperature(
+    Real pressure, Real temperature, Real gasCoef, Real reciMolecularWeight );
+
+// @doc-algorithm isothermal-wall
+// @doc-stage temperature-image
+// @doc-pure
+// @doc-formula T' = 2 T_wall - T_inner, clamped to T_min
+Real MirrorScalarWithFloor(
+    Real wallValue, Real interiorValue, Real floorValue );
+
+// @doc-algorithm isothermal-wall
+// @doc-stage ghost-density
+// @doc-pure
+// @doc-formula rho' = max(0.5 rho_w, 2 rho_w - rho_inner)
+Real MirrorDensityAboutWall(
+    Real densityWall, Real densityInner );
 
 EndNameSpace
