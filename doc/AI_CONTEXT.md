@@ -373,3 +373,21 @@ Implemented on `hexin`:
 - Detailed implementation scope and limitations are recorded in `doc/plans/setup-case-environment-integration-test.md` (commit `8ef8c740fbb27e85d1ea5eb9f83950da8a2097b6`).
 
 Validation status: **Implemented, unverified**. No local compiler/CTest run was available here. The 977/977 result is the pre-change baseline. This test does not cover `ReadControlInfo(caseDir)`, parallel initialization, broadcast, database diagnostic output, `SetupCaseEnvironment`, sequential-case isolation, or failure cleanup. R1 remains **Partial**. Next: inspect exact-HEAD Windows/Linux CI, resolve any CMake/link errors, request and record the user's post-change local test result, then add a separate faithful orchestration test only after its runtime dependency closure is explicit.
+
+
+## 2026-10-30 continuation: CI regression diagnosis and CMake correction
+
+Starting revision: `326a576e9271ed00efaca30a769d70b87f18ebe5`. User-reported local result remains 977/977 from before the changes; it is not post-change evidence.
+
+Exact-HEAD CI for `326a576e...` exposed the same configuration failure on both platforms, before compilation or tests:
+- Windows configure failed at `tests/io/CMakeLists.txt:59`: CMake could not find `control_configuration_test.cpp`, then reported no sources for `control_configuration_test`.
+- Linux configure failed for the identical reason.
+- Sphinx build passed.
+
+The source inventory confirms the existing resolver/adapter test file is still named `tests/io/control_parameter_resolver_test.cpp`; the target had been renamed but its source path had not. Corrected the CMake source entry to the existing filename in commit `d9180818eed6946130cfdd29a96477ff8c932e7d`. No production C++ behavior was changed by this correction.
+
+At the time this handoff was written, Windows and Linux CI for `d9180818...` were both in progress:
+- [Windows job](https://github.com/eric2003/OneFLOW/actions/runs/41063294279/job/124088158630)
+- [Linux job](https://github.com/eric2003/OneFLOW/actions/runs/41063294280/job/124088158905)
+
+The new integration test currently verifies the successful two-file manifest -> production parser -> typed global DataBase path. It does not yet verify missing-file failure semantics, `ReadControlInfo(caseDir)`, MPI/serial orchestration, diagnostic output, case path application, sequential-case isolation, or cleanup at the real case runtime boundary. R1 remains **Partial**. Next action: wait for exact-HEAD CI, inspect any subsequent compile/link/test failures, and only then extend the integration behavior. Avoid treating a successful CMake configure as proof that the expanded source target compiles or runs.
