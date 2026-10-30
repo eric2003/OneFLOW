@@ -496,3 +496,42 @@ and tests. Preserve real serial/MPI initialization, DataBook broadcast,
 logging, PIO, and database dump semantics. R1 remains Partial until
 `ReadControlInfo`, effective Case path application, sequential-case
 isolation, and failure cleanup are verified.
+
+
+## 2026-10-30 continuation: production reader orchestration slice
+
+The user reports 981/981 tests passed before this slice. This is a pre-change
+baseline only. Starting `hexin` revision:
+`144cde3f472fc73d2a8633f84b5eaea874308de8`.
+
+Implemented source changes:
+- Corrected the case database dump to use `PIO::OpenCaseFile` rather than
+  calling `Prj::OpenCaseFile` directly. The latter performs path resolution
+  and file creation but no parallel-rank filtering; the old case dump could
+  therefore open/truncate the same output on every MPI rank while its close
+  operation was owner-filtered.
+- Split explicit path-based PIO operations into
+  `codes/io/src/PIOFileAccess.cpp`. The remaining `PIO.cpp` operations are
+  task-state-bound convenience entry points. This is a real dependency
+  boundary, not a duplicate test implementation.
+- Extended `control_configuration_test` to compile the production
+  `ControlFileReader.cpp`, `ControlDatabaseIO.cpp`, `PIOFileAccess.cpp`,
+  and `LogFile.cpp`.
+- Added a serial integration test that initializes the production serial
+  parallel state, invokes `ReadControlInfo(caseDir)`, and checks manifest
+  ordering/override, typed global DataBase values, `log/database.log`
+  contents, and the case-bound diagnostic log.
+
+The new test covers the real serial reader orchestration and the serial
+broadcast short circuit. It does not establish MPI collective correctness or
+multi-rank file ownership at runtime. Full `SetupCaseEnvironment()`,
+effective path application through that entry point, sequential-case
+isolation, and exception cleanup remain unverified. R1 remains Partial.
+
+The source-backed dependency and ownership analysis is recorded in
+`doc/plans/setup-case-environment-integration-test.md`.
+
+Validation: no local compiler or CTest run was performed here. The user's
+981/981 result predates this slice. Inspect exact-HEAD Windows/Linux CI and
+request a fresh local test result before claiming the new integration test
+passes.
