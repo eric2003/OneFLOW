@@ -31,6 +31,13 @@ BeginNameSpace( ONEFLOW )
 
 class DataObject;
 
+/**
+ * @brief Owns the metadata and typed value for one named parameter.
+ *
+ * The value is held through unique_ptr<DataObject>; DataEntry is therefore
+ * the lifetime boundary for the type-erased payload. Name, type, and size
+ * describe the entry and remain immutable after construction.
+ */
 class DataEntry
 {
 public:
@@ -52,6 +59,13 @@ public:
     void Dump( std::fstream & file ) const;
 };
 
+/**
+ * @brief Owns the named parameter entries for a database.
+ *
+ * Entries are uniquely owned by this container and indexed by name.
+ * Replacing an existing name updates its value only when type and size match;
+ * Clear() releases all entries while leaving the DataPara object alive.
+ */
 class DataPara
 {
 public:
@@ -65,7 +79,10 @@ protected:
 public:
     // Takes ownership of data.
     void SetDataEntry( std::unique_ptr<DataEntry> data );
+    // Returned pointers are borrowed and are invalidated when the entry is
+    // removed, cleared, or replaced by an operation that destroys the entry.
     DataEntry * FindDataEntry( const std::string & name );
+    // Const lookup preserves read-only access to the entry and its payload.
     const DataEntry * FindDataEntry( const std::string & name ) const;
     void RemoveDataEntry( const std::string & name );
 
