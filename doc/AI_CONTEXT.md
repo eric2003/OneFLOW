@@ -2,7 +2,7 @@
 
 Last updated: 2026-10-30
 Working branch: `hexin`
-Latest slice: inspected the real `ReadControlInfo(caseDir)` path and confirmed that its implementation is embedded in the broad legacy `ParaFile.cpp` translation unit. The reader invokes multi-file parsing, parallel coordination, database broadcast, and case-local database dumping. A direct test cannot be isolated by simply adding `ParaFile.cpp` to a small target because all other definitions in that translation unit also contribute link dependencies. The next architectural slice is to separate control-reader orchestration and database transport from legacy parser helpers, then link a test against those same production components. R1 remains partial.
+Latest slice: extracted control-reader orchestration into `codes/io/src/ControlFileReader.cpp` and database broadcast/compression/dump into `codes/io/src/ControlDatabaseIO.cpp`; `ParaFile.cpp` retains legacy parser and parameter helpers. Public declarations remain in `ParaFile.h`. The extraction is source-level and unverified. `ReadMultiScriptFiles()` still calls `ReadOneFLOWScriptFile()` in `ParaFile.cpp`, so a focused real-reader target may still pull legacy dependencies. Next inspect this adapter boundary, verify recursive CMake source discovery, then build and add a real multi-file reader integration test. R1 remains partial.
 User-reported pre-change baseline for the current work slice: 971/971 tests passed. This is not evidence for later changes.
 
 ## Current focus: R1 case I/O root configuration contract
@@ -74,6 +74,8 @@ The published [architecture review](source/architecture_review.rst) is now the c
 Source and tests:
 - `codes/main/include/SimuContextParameter.h`
 - `codes/main/src/SimuContextEnv.cpp`
+- `codes/io/src/ControlFileReader.cpp`
+- `codes/io/src/ControlDatabaseIO.cpp`
 - `codes/io/src/ParaFile.cpp`
 - `tests/main/simu_context_parameter_test.cpp`
 - `tests/main/prj_cmdline_test.cpp`
@@ -89,9 +91,11 @@ A new unverified test in `tests/main/prj_cmdline_test.cpp` pins the existing dis
 
 ## 5. Next actions, in priority order
 
-1. Build/run `simu_context_parameter_test` and then the full suite on the current `hexin` revision; the reported 967/967 result is only the pre-change baseline.
-2. Close the R1 integration gap with a narrow production-owned setup orchestration boundary. Preserve the real control reader; do not reimplement parsing or link a copied full executable source list into the unit test.
-3. At the next milestone, refresh this handoff from the exact branch HEAD and inspect exact-revision CI evidence.
+1. Verify the extracted C++ files enter the recursive CMake source list and compile on Windows and Linux.
+2. Inspect `ReadOneFLOWScriptFile()` and its dependencies; extract only the parser adapter boundary if needed to link the real reader without copying the executable source list.
+3. Add a temporary multi-file integration fixture using `SetUpParallelEnvironment()`, the real `ReadControlInfo(caseDir)`, typed database assertions, and `log/database.log` verification.
+4. Add two-case isolation and failure-cleanup evidence at the correct case/process lifecycle boundaries.
+5. Refresh this handoff from exact `hexin` HEAD and record exact-commit CI status.
 
 Suggested next mainline: a testable setup orchestration boundary, not another path resolver or a broad runtime rewrite.
 ## 6. Status vocabulary
@@ -128,3 +132,8 @@ For each meaningful update, record:
 Keep detailed reasoning and acceptance criteria in the relevant architecture page or roadmap. Keep reusable build/test commands in runbooks. Keep CI or runtime evidence in evidence records when a durable standalone record is useful. Avoid duplicating entire documents here; this page should point to them.
 
 When starting a new AI session, first compare the current `hexin` HEAD with the implementation commit recorded above, inspect any changes since that commit, and then update this status snapshot only after verifying the new state.
+
+
+## Evolutionary architecture
+
+The new design page `doc/source/evolutionary_computation_architecture.rst` defines the long-term target: small computation units with explicit typed ports, preconditions/postconditions, side effects, lifecycle, failure policy, provenance, and verification evidence. The JSON Schema starter is `doc/specs/computation-unit.schema.json`. Both are proposals; no general plugin ABI or automatic pipeline runtime is claimed. The intended sequence is configuration ingestion first, then mesh/topology/boundary/result intermediate representations, and only later composable solver pipelines if real use cases justify them.
