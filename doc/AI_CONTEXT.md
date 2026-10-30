@@ -2,8 +2,8 @@
 
 Last updated: 2026-10-30
 Working branch: `hexin`
-Latest verified starting HEAD for this work slice: `4585de4e729e007e17e8bfbf6e2586ee7dc3c345`. Subsequent changes add production `ConfigDatabaseAdapter.cpp` coverage in `control_parameter_resolver_test`, and document its incremental ordered-commit semantics. The current source split places manifest orchestration in `ControlFileReader.cpp`, parsing and `ConfigDocument` commit in `ControlScriptParser.cpp`, database-backed array-size lookup in `ControlParameterResolver.cpp`, and broadcast/compression/decompression/diagnostic dumping in `ControlDatabaseIO.cpp`. `ParaFile.cpp` retains legacy parameter-inspection helpers; public declarations remain in `codes/io/include/ParaFile.h`. Recursive source discovery is expected to include the new translation units, but exact-revision build/CI evidence is still required.
-User-reported pre-change local baseline for this work slice: 974/974 tests passed. This is not evidence for any later change.
+Latest inspected starting HEAD for the 2026-10-30 continuation: `d00d86c64cf940f57106a68f62f406c8b6b36fc5`. Subsequent changes add production `ConfigDatabaseAdapter.cpp` coverage in `control_parameter_resolver_test`, and document its incremental ordered-commit semantics. The current source split places manifest orchestration in `ControlFileReader.cpp`, parsing and `ConfigDocument` commit in `ControlScriptParser.cpp`, database-backed array-size lookup in `ControlParameterResolver.cpp`, and broadcast/compression/decompression/diagnostic dumping in `ControlDatabaseIO.cpp`. `ParaFile.cpp` retains legacy parameter-inspection helpers; public declarations remain in `codes/io/include/ParaFile.h`. Recursive source discovery is expected to include the new translation units, but exact-revision build/CI evidence is still required.
+User-reported pre-change local baseline for the 2026-10-30 continuation: 976/976 tests passed. This is not evidence for any later change.
 
 ## Current focus: R1 case I/O root configuration contract
 
@@ -191,3 +191,41 @@ The 2026-10-30 IO adapter test adds two contracts: typed values reach the real
 DataBase, and repeated declarations are committed in document order with the
 later value replacing the earlier value. The adapter is incremental, not
 transactional; changing that behavior requires separate compatibility analysis.
+
+## 2026-10-30 continuation after the 976/976 baseline
+
+The latest inspected `hexin` starting HEAD was
+`d00d86c64cf940f57106a68f62f406c8b6b36fc5`. The user reports 976/976 local
+tests passed before this continuation; no new local test run is available here.
+Windows and Linux CI for that exact HEAD were still in progress at inspection:
+[Windows](https://github.com/eric2003/OneFLOW/actions/runs/41055632631),
+[Linux](https://github.com/eric2003/OneFLOW/actions/runs/41055632649). Do not
+report them as passing until their exact-run conclusions are checked.
+
+The source review reconfirmed the production reader sequence:
+manifest/script parsing -> process greeting/collection -> database broadcast
+(one-process broadcast is a no-op after valid parallel setup) ->
+`log/database.log` dump. A real serial integration test must call
+`SetUpParallelEnvironment()`; static-zero parallel fields are not a valid
+fixture. The smallest checked-in manifest fixture is
+`test/grid/rae2822convert` and it selects the Grid task, which must not be
+executed by a setup-only test.
+
+CMake review found that `codes/CMakeLists.txt` recursively collects the
+production code into the `OneFLOW` executable with global compile definitions
+and dependencies, while IO tests select individual source files. No shared
+configuration-runtime library currently exists. Do not copy the whole
+executable source list into a test. Map the true dependency closure first and
+create a shared production target only if a cohesive reusable boundary emerges.
+
+Two documentation commits on `hexin` record this continuation:
+- `cd806307af0566a889ba89c5da2baa3f1ae7d495` corrects the adapter source
+  boundary: `ControlScriptParser.cpp` invokes the adapter implemented in
+  `ConfigDatabaseAdapter.cpp`.
+- `baea9f4e5342c84bde7e276b21a7f9ecefaeed45` records the reader execution
+  sequence, serial initialization contract, CMake target boundary, and fixture.
+
+Next action remains a real multi-file `ReadControlInfo(caseDir)` integration
+test, following dependency closure mapping. R1 remains Partial; no evidence yet
+for full reader integration, effective path application, sequential-case
+isolation, or setup-failure cleanup.
