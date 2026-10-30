@@ -466,3 +466,33 @@ parallel state, broadcast path, and `log/database.log`; after that, verify
 `SetupCaseEnvironment` path application, sequential-case isolation, and
 failure cleanup. Do not expand the test target by copying the full executable
 source list.
+
+
+## 2026-10-30 latest continuation: script reader boundary
+
+User-reported local baseline before this slice: 981/981 passed. The starting
+`hexin` HEAD was `0e0054d658db092e1cfbc54195ac87d6ef3caf84`; do not treat
+that baseline as validation of this slice.
+
+The case-level ingestion test now calls the production
+`ReadPrjScript(caseDir)` composition rather than manually invoking manifest
+discovery and multi-file parsing. To keep this production entry point
+independently linkable, `ReadPrjScript` overloads were moved from
+`ControlFileReader.cpp` into the new
+`codes/io/src/ControlScriptReader.cpp`. `ControlFileReader.cpp` now retains
+the `ReadControlInfo` orchestration boundary (parallel greeting, broadcast,
+and database dump). The new source is included by recursive production source
+collection and explicitly by `control_configuration_test`.
+
+This separation is an intentional dependency boundary: script ingestion is
+distinct from process orchestration. It does not claim full
+`ReadControlInfo(caseDir)` coverage. Exact-HEAD Windows/Linux CI and local
+CTest are required; no local build was run here. The 981/981 report predates
+these edits.
+
+Next: inspect the exact link dependency closure of `ReadControlInfo` and
+consider a cohesive production target only if it is useful to both executable
+and tests. Preserve real serial/MPI initialization, DataBook broadcast,
+logging, PIO, and database dump semantics. R1 remains Partial until
+`ReadControlInfo`, effective Case path application, sequential-case
+isolation, and failure cleanup are verified.
