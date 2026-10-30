@@ -190,3 +190,54 @@ focused tests still do not call the real `ReadControlInfo(caseDir)`; R1 remains
 partial. Before attempting to link the entire reader into a narrow test target, inspect
 the serial parallel setup and its transitive dependencies. Avoid manually reproducing
 the solver's full source list just to get a test binary.
+
+
+## Follow-up: exact-HEAD CI and reader execution contract
+
+Inspected branch HEAD: `d080aaa1b6a567ae3d0f2f5034f9332600c3e7ec`.
+
+The Windows, Linux, and documentation workflows for this exact commit all completed
+successfully:
+
+- [Windows CI](https://github.com/eric2003/OneFLOW/actions/runs/40954345525)
+- [Linux CI](https://github.com/eric2003/OneFLOW/actions/runs/40954345454)
+- [Documentation check](https://github.com/eric2003/OneFLOW/actions/runs/40954345433)
+
+This validates the current extracted `ApplyCaseIOSettings()` implementation and
+its focused tests at that revision. It does not validate the full real-reader
+integration described above.
+
+A fresh source inspection confirms the precise serial contract. The production
+`ReadControlInfo(caseDir)` performs the following sequence:
+
+1. Calls `Parallel::IsServer()` and, on the server, reads
+   `script/control.txt` followed by each listed script through
+   `ReadMultiScriptFiles()`.
+2. Calls `Parallel::TestSayHelloFromEveryProcess()` even in a one-process run.
+   This path calls `HXGetProcessorName()` and then `CollectString()`; it is
+   therefore not safe to assume that zero-initialized static parallel fields
+   constitute a valid serial runtime.
+3. Calls `BroadcastControlParameterToAllProcessors()`. Its callback-based
+   `HXBcast()` returns without a collective when `Parallel::GetNProc() <= 1`.
+4. Writes the merged parameter database to `log/database.log` under the supplied
+   case directory.
+
+Consequently, a reader-only integration test must explicitly call the existing
+`SetUpParallelEnvironment()` before invoking the real reader. That operation calls
+`HXInit()` and initializes the stored rank, process count, and server rank from
+the selected parallel backend. The test must not replace the reader, broadcast,
+configuration loader, or database commit with a test-only implementation.
+
+The next experiment should be a dedicated reader integration target using the
+production `ParaFile.cpp` and its actual parser/configuration/database/parallel
+dependencies, plus a temporary multi-file case. It should verify typed database
+values and `log/database.log`, then clear the database and temporary files. Keep
+this separate from `SimuContextEnv.cpp`: that translation unit references solver,
+field-manager, accelerator, and registry teardown APIs. The full case lifecycle
+test should be a later step once its production dependency boundary is made
+coherent. Do not copy the executable's complete source list into either test.
+
+The user-reported local baseline remains 971/971 before these changes. The exact-HEAD
+CI results above are separate evidence and must not be restated as a local test run.
+R1 remains **Partial**: real reader invocation, sequential-case isolation through
+the production case lifecycle, and setup-failure cleanup are still open.
