@@ -648,3 +648,24 @@ Decision for the next implementation slice: first build a dependency map from
 parallel support. Extract a shared production target only if that map shows a
 stable cohesive subsystem. Otherwise prefer a narrow production operation with
 explicit dependencies. Do not create a test-only imitation of the reader.
+
+## 2026-10-30 follow-up: isolate and test manifest discovery
+
+The two `ReadScriptFileNameList` overloads have been moved from
+`ControlFileReader.cpp` to `ControlManifestReader.cpp`. This is a deliberately
+narrow extraction: it separates filesystem-backed manifest discovery from the
+process coordination and database broadcast performed by
+`ReadControlInfo(caseDir)`. The public declarations remain in `ParaFile.h`.
+
+A new test in `tests/io/control_manifest_reader_test.cpp`, registered with the
+existing `TextFileParser_test` target, creates a temporary case manifest and
+asserts that blank lines are ignored, file paths are resolved under the given
+case root, and the listed order is preserved. The header now documents the
+append-to-existing-vector and ordering contract. The extraction does not alter
+manifest syntax or the subsequent script parsing semantics.
+
+This is useful component evidence and a clean dependency seam, but it is not
+the real multi-file integration test: it does not invoke `ReadMultiScriptFiles`,
+`ReadControlInfo(caseDir)`, parallel setup, DataBase commit, or database dump.
+The next step is to map the dependencies of those orchestration operations and
+then select a production-shared target or a narrower seam based on that graph.
