@@ -359,3 +359,17 @@ Exact-HEAD CI observed for starting revision `4b2e5d496ed359c1e3c3645413c4541dc8
 - Windows OneFLOW Actions: **in progress** at the time of inspection — [job](https://github.com/eric2003/OneFLOW/actions/runs/41059549210/job/124075554479).
 
 No source code or tests were changed in this continuation; no local build or CTest was run. The documentation-only dependency-map update is now at `10a21b46b3f071f233dcae854d24dad09c1c91c2`. R1 remains **Partial**. Next: implement the real multi-file configuration-ingestion integration target with RAII-managed temporary fixtures, actual DataBase commits, typed assertions, and explicit failure semantics. Then add the broader `ReadControlInfo(caseDir)` orchestration test with a correctly initialized serial/MPI runtime and diagnostic output. Recheck CI on the new exact HEAD before claiming validation.
+
+
+## 2026-10-30 continuation: production configuration-ingestion composition
+
+Starting `hexin` revision: `4b359903f4ffbf3bf6c595f066d920bf6b26e5b3`. User-reported local baseline: 977/977 tests passed before this change; do not present it as post-change validation.
+
+Implemented on `hexin`:
+- Moved `ReadMultiScriptFiles` from `ControlFileReader.cpp` into `ControlScriptParser.cpp`, separating ordered parsing/commit from runtime parallel orchestration and database dumping.
+- Changed its input to `const std::vector<std::string>&` and documented ordering plus per-file incremental commit semantics in `ParaFile.h`.
+- Added `tests/io/control_configuration_ingestion_test.cpp`: a unique temporary case with a real manifest and two scripts is read through the production manifest reader and multi-file parser, then typed values and later-file replacement are asserted against the actual global DataBase.
+- Expanded and renamed the combined CMake target to `control_configuration_test`; existing resolver/adapter tests remain included. The target links the production parser, manifest, resolver, adapter, database and low-level support files, but deliberately excludes `ControlFileReader.cpp` and its process/broadcast/dump dependencies.
+- Detailed implementation scope and limitations are recorded in `doc/plans/setup-case-environment-integration-test.md` (commit `8ef8c740fbb27e85d1ea5eb9f83950da8a2097b6`).
+
+Validation status: **Implemented, unverified**. No local compiler/CTest run was available here. The 977/977 result is the pre-change baseline. This test does not cover `ReadControlInfo(caseDir)`, parallel initialization, broadcast, database diagnostic output, `SetupCaseEnvironment`, sequential-case isolation, or failure cleanup. R1 remains **Partial**. Next: inspect exact-HEAD Windows/Linux CI, resolve any CMake/link errors, request and record the user's post-change local test result, then add a separate faithful orchestration test only after its runtime dependency closure is explicit.
