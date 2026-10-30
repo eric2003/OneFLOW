@@ -2,7 +2,7 @@
 
 Last updated: 2026-10-30
 Working branch: `hexin`
-Latest inspected starting HEAD for the 2026-10-30 continuation: `d00d86c64cf940f57106a68f62f406c8b6b36fc5`. Subsequent changes add production `ConfigDatabaseAdapter.cpp` coverage in `control_parameter_resolver_test`, and document its incremental ordered-commit semantics. The current source split places manifest orchestration in `ControlFileReader.cpp`, parsing and `ConfigDocument` commit in `ControlScriptParser.cpp`, database-backed array-size lookup in `ControlParameterResolver.cpp`, and broadcast/compression/decompression/diagnostic dumping in `ControlDatabaseIO.cpp`. `ParaFile.cpp` retains legacy parameter-inspection helpers; public declarations remain in `codes/io/include/ParaFile.h`. Recursive source discovery is expected to include the new translation units, but exact-revision build/CI evidence is still required.
+Latest inspected starting HEAD for the 2026-10-30 continuation: `d00d86c64cf940f57106a68f62f406c8b6b36fc5`; latest source/documentation slice HEAD: `edacedd47f38c10b114f72c330af9243e16b5b8b`. Subsequent changes add production `ConfigDatabaseAdapter.cpp` coverage in `control_parameter_resolver_test`, and document its incremental ordered-commit semantics. The current source split places manifest orchestration in `ControlFileReader.cpp`, parsing and `ConfigDocument` commit in `ControlScriptParser.cpp`, database-backed array-size lookup in `ControlParameterResolver.cpp`, and broadcast/compression/decompression/diagnostic dumping in `ControlDatabaseIO.cpp`. `ParaFile.cpp` retains legacy parameter-inspection helpers; public declarations remain in `codes/io/include/ParaFile.h`. Recursive source discovery is expected to include the new translation units, but exact-revision build/CI evidence is still required.
 User-reported pre-change local baseline for the 2026-10-30 continuation: 976/976 tests passed. This is not evidence for any later change.
 
 ## Current focus: R1 case I/O root configuration contract
@@ -229,3 +229,33 @@ Next action remains a real multi-file `ReadControlInfo(caseDir)` integration
 test, following dependency closure mapping. R1 remains Partial; no evidence yet
 for full reader integration, effective path application, sequential-case
 isolation, or setup-failure cleanup.
+## 2026-10-30 continuation: manifest discovery seam
+
+Starting from the user-reported 976/976 local baseline, the latest `hexin`
+source slice is `edacedd47f38c10b114f72c330af9243e16b5b8b`. No local build or
+CTest run was performed in this environment. Exact-HEAD CI is queued:
+[documentation](https://github.com/eric2003/OneFLOW/actions/runs/41057437914),
+[Linux](https://github.com/eric2003/OneFLOW/actions/runs/41057437918),
+[Windows](https://github.com/eric2003/OneFLOW/actions/runs/41057437955).
+
+A narrow production extraction moved both `ReadScriptFileNameList` overloads
+from `ControlFileReader.cpp` into `ControlManifestReader.cpp`. The public
+contract in `ParaFile.h` now states that manifest paths are appended and their
+order is preserved. `tests/io/control_manifest_reader_test.cpp` exercises the
+case-directory overload using a temporary manifest and verifies blank-line
+handling, case-root resolution, and order; it is registered with
+`TextFileParser_test`. The new translation unit is also discovered by the
+recursive production source collector.
+
+This is component-level coverage for manifest discovery only. It does not
+invoke script parsing/commit, `ReadMultiScriptFiles`, parallel coordination,
+`ReadControlInfo(caseDir)`, or database dumping. R1 remains Partial. The
+architecture rationale and exact boundary are in
+`doc/plans/setup-case-environment-integration-test.md` and
+`doc/source/case_parameter_design.rst`.
+
+Next: inspect exact-HEAD Windows/Linux CI. If the new test target builds, map
+the dependency closure from `ReadMultiScriptFiles` and
+`ReadControlInfo(caseDir)`; then decide whether a production-shared
+configuration-runtime target is justified. Do not broaden the test target by
+copying the entire executable source list.
