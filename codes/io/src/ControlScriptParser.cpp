@@ -43,7 +43,7 @@ void ReadOneFLOWScriptFile( const std::string & fileName )
     ConfigDatabaseAdapter::Commit( loader.Document() );
 }
 
-void ReadMultiScriptFiles( std::vector< std::string > & scriptFileNameList )
+void ReadMultiScriptFiles( const std::vector< std::string > & scriptFileNameList )
 {
     for ( const std::string & scriptFileName : scriptFileNameList )
     {
