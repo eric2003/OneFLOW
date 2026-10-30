@@ -280,9 +280,9 @@ TEST( ControlReaderIntegration, ReadsCaseScriptsAndWritesDatabaseDump )
 
     std::ifstream input( databaseDump );
     ASSERT_TRUE( input.good() );
-    const std::string dumpContents(
+    const std::string dumpContents{
         std::istreambuf_iterator<char>( input ),
-        std::istreambuf_iterator<char>() );
+        std::istreambuf_iterator<char>() };
     EXPECT_NE(
         dumpContents.find( "ingestion_reader_dimension" ),
         std::string::npos );
