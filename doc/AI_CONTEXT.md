@@ -92,10 +92,11 @@ A new unverified test in `tests/main/prj_cmdline_test.cpp` pins the existing dis
 ## 5. Next actions, in priority order
 
 1. Verify the extracted C++ files enter the recursive CMake source list and compile on Windows and Linux.
-2. Inspect `ReadOneFLOWScriptFile()` and its dependencies; extract only the parser adapter boundary if needed to link the real reader without copying the executable source list.
-3. Add a temporary multi-file integration fixture using `SetUpParallelEnvironment()`, the real `ReadControlInfo(caseDir)`, typed database assertions, and `log/database.log` verification.
-4. Add two-case isolation and failure-cleanup evidence at the correct case/process lifecycle boundaries.
-5. Refresh this handoff from exact `hexin` HEAD and record exact-commit CI status.
+2. `ReadOneFLOWScriptFile()` now lives in `ControlScriptParser.cpp`; `GetParameterArraySize()` now lives in `ControlParameterResolver.cpp`. Inspect exact source dependencies and compile these units.
+3. Preserve ConfigLoader tests for injected resolver semantics; add focused resolver tests for literal and database-backed lengths.
+4. Add a temporary multi-file integration fixture using `SetUpParallelEnvironment()`, the real `ReadControlInfo(caseDir)`, typed database assertions, and `log/database.log` verification.
+5. Add two-case isolation and failure-cleanup evidence at the correct case/process lifecycle boundaries.
+6. Refresh this handoff from exact `hexin` HEAD and record exact-commit CI status.
 
 Suggested next mainline: a testable setup orchestration boundary, not another path resolver or a broad runtime rewrite.
 ## 6. Status vocabulary
@@ -137,3 +138,6 @@ When starting a new AI session, first compare the current `hexin` HEAD with the 
 ## Evolutionary architecture
 
 The new design page `doc/source/evolutionary_computation_architecture.rst` defines the long-term target: small computation units with explicit typed ports, preconditions/postconditions, side effects, lifecycle, failure policy, provenance, and verification evidence. The JSON Schema starter is `doc/specs/computation-unit.schema.json`. Both are proposals; no general plugin ABI or automatic pipeline runtime is claimed. The intended sequence is configuration ingestion first, then mesh/topology/boundary/result intermediate representations, and only later composable solver pipelines if real use cases justify them.
+
+
+Latest source slice (implemented, unverified): `ReadOneFLOWScriptFile` overloads moved from `ParaFile.cpp` to `ControlScriptParser.cpp`; `GetParameterArraySize` moved to `ControlParameterResolver.cpp`. This makes the injected resolver seam in `ConfigLoader` explicit: parser tests can supply deterministic array-size resolution, while production uses the real database-backed resolver. The legacy `ParaFile.cpp` now retains inspection helpers. See `doc/plans/setup-case-environment-integration-test.md` for expected failure modes, partial-commit/transaction design question, and validation boundaries.
