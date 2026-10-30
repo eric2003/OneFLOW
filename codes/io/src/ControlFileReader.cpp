@@ -22,7 +22,6 @@ License
 
 #include "ParaFile.h"
 #include "Parallel.h"
-#include <ios>
 #include <string>
 
 BeginNameSpace( ONEFLOW )
