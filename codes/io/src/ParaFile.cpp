@@ -22,7 +22,8 @@ License
 
 #include "ParaFile.h"
 #include "TextFileParser.h"
-#include "DataBook.h"
+#include "FileUtils.h"
+#include "Word.h"
 #include "LegacyParameterSyntax.h"
 #include "DataBase.h"
 #include "Fatal.h"
