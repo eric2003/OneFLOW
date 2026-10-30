@@ -754,3 +754,47 @@ R1 remains **Partial**. This is the first test that composes the real manifest r
 ## 2026-10-30 follow-up: database API contract documentation
 
 The database API now has source-level documentation for type-erased storage, typed access preconditions, const/mutable read symmetry, ownership, and borrowed lookup lifetime. A Sphinx page `doc/source/database_architecture.rst` describes the `DataBase -> DataPara -> DataEntry -> DataObject -> TDataObject<T>` ownership chain, same-key update behavior, field pointer registry distinction, serialization boundary, and the tested configuration-ingestion path. The ingestion test now exercises both mutable and const scalar reads. User-reported 978/978 is the pre-change baseline for this documentation/API slice; revalidate the new exact HEAD before treating it as passing. Full `ReadControlInfo` and Case lifecycle coverage remains open.
+
+
+## 2026-10-30 continuation: configuration-ingestion failure contracts
+
+Starting revision: `3fadcbacafee01081b65bc889218045566dc6a46`. The user reports
+978/978 local tests passed before this continuation; that is a pre-change
+baseline, not validation of the new tests.
+
+Source inspection established the failure boundaries:
+
+- `ReadMultiScriptFiles` processes the ordered path list sequentially.
+- Each `ReadOneFLOWScriptFile(file)` constructs a fresh `ConfigLoader`,
+  parses the complete file into a `ConfigDocument`, and only then invokes
+  `ConfigDatabaseAdapter::Commit`.
+- A missing file fails in `Prj::OpenFile` via the existing
+  `Fatal(...)` / `std::runtime_error` path.
+- A parse-time failure (for example, a named array length that cannot be
+  resolved) occurs before the current file's document is committed.
+- Earlier files have already been committed and are not rolled back. The
+  adapter itself also documents that a commit is not atomic if a later entry
+  fails validation or conversion.
+
+Added two production-composition tests to
+`control_configuration_ingestion_test.cpp`:
+
+1. A valid first file followed by a missing file must throw while retaining
+   the first file's committed value.
+2. A valid first file followed by a file whose later named-array length cannot
+   be resolved must throw; the earlier file remains committed, while even a
+   valid declaration parsed before the failing declaration in the current
+   file is not committed.
+
+These tests define the current incremental contract rather than imposing
+whole-manifest rollback. They also distinguish parse-before-commit at the
+file boundary from the adapter's non-transactional per-entry commit behavior.
+The latter still merits a separate contract test if realistic conversion or
+type/size mismatch failure can be induced without corrupting global test state.
+
+No local build or CTest was run here. The 978/978 report predates these edits.
+Exact starting-HEAD CI was still running on Windows and Linux; Sphinx had
+passed. Recheck CI after the new test commit. R1 remains Partial: these tests
+do not yet exercise `ReadControlInfo(caseDir)`, parallel coordination,
+broadcast, diagnostic database output, Case path application, sequential-case
+isolation, or setup-failure cleanup.
