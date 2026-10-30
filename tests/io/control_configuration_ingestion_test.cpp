@@ -127,7 +127,11 @@ TEST( ControlConfigurationIngestion, ReadsManifestScriptsAndCommitsTypedValuesIn
 
     ReadMultiScriptFiles( scriptFiles );
 
-    const DataBase & database = RequireGlobalDataBase();
+    DataBase & mutableDatabase = RequireGlobalDataBase();
+    EXPECT_EQ(
+        GetDataValue<int>( "ingestion_dimension", &mutableDatabase ), 3 );
+
+    const DataBase & database = mutableDatabase;
     EXPECT_EQ( GetDataValue<int>( "ingestion_dimension", &database ), 3 );
     EXPECT_DOUBLE_EQ(
         GetDataValue<Real>( "ingestion_time_step", &database ), 0.001 );
