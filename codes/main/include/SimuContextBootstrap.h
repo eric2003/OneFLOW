@@ -13,6 +13,7 @@ License
 
 #pragma once
 
+#include "NamespaceMacros.h"
 #include <string>
 
 BeginNameSpace( ONEFLOW )
