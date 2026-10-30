@@ -41,7 +41,7 @@
 
 如果需要从整体审视架构，先读[系统架构审视](source/architecture_review.rst)，再读[运行时架构指南](source/runtime_architecture.rst)。之后可根据任务阅读[网格架构](source/mesh_architecture.rst)、[网格拓扑](source/grid_topology.rst)或[工作台架构](source/workbench_architecture.rst)。架构审视页提供的是检查框架，并不表示其中讨论的所有通用能力都已在 OneFLOW 中实现。
 
-如果需要快速恢复持续开发的上下文，请阅读 [AI 项目状态与交接页](AI_CONTEXT.md)。该页面汇总分支约束、近期检查过的实现基线、已确认的行为、尚待验证的缺口和下一步建议。它是导航入口，不能替代源码检查以及针对目标提交的验证。
+如果需要规范化表达较大规模的开发任务，请使用[AI 辅助工程任务规范](AI_TASK_TEMPLATE_zh_CN.md)；英文版本见 [AI task specification](AI_TASK_TEMPLATE.md)。该规范统一任务目标、全局收益评估、调查要求、实现约束、验证证据和交付条件。\n\n如果需要快速恢复持续开发的上下文，请阅读 [AI 项目状态与交接页](AI_CONTEXT.md)。该页面汇总分支约束、近期检查过的实现基线、已确认的行为、尚待验证的缺口和下一步建议。它是导航入口，不能替代源码检查以及针对目标提交的验证。
 
 关于现有文档的初步盘点和整合顺序，请阅读[文档整合计划](plans/oneflow-documentation-consolidation-plan.md)。该计划记录文档归属和预期步骤，不代表其中列出的迁移都已完成。
 
