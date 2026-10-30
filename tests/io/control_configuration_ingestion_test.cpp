@@ -24,6 +24,7 @@ License
 #include "DataBase.h"
 #include "LogFile.h"
 #include "Prj.h"
+#include "SimuContextBootstrap.h"
 #include "SimuContextIO.h"
 #include "Parallel.h"
 #include <gtest/gtest.h>
