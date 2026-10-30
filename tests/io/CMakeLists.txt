@@ -61,6 +61,10 @@ add_executable(control_configuration_test
   control_configuration_ingestion_test.cpp
   ${CMAKE_SOURCE_DIR}/codes/io/src/ControlManifestReader.cpp
   ${CMAKE_SOURCE_DIR}/codes/io/src/ControlScriptReader.cpp
+  ${CMAKE_SOURCE_DIR}/codes/io/src/ControlFileReader.cpp
+  ${CMAKE_SOURCE_DIR}/codes/io/src/ControlDatabaseIO.cpp
+  ${CMAKE_SOURCE_DIR}/codes/io/src/PIOFileAccess.cpp
+  ${CMAKE_SOURCE_DIR}/codes/io/src/LogFile.cpp
   ${CMAKE_SOURCE_DIR}/codes/io/src/ControlScriptParser.cpp
   ${CMAKE_SOURCE_DIR}/codes/io/src/ConfigLoader.cpp
   ${CMAKE_SOURCE_DIR}/codes/io/src/LegacyParameterSyntax.cpp
