@@ -29,3 +29,4 @@ Numerical analysis is a branch of mathematics that solves continuous problems us
    boundary_velocity
    isothermal_wall
    turb_scalar_upwind
+   turb_spectrum
