@@ -25,6 +25,7 @@ License
 #include "ConfigDatabaseAdapter.h"
 #include "TextFileParser.h"
 #include <string>
+#include <vector>
 
 BeginNameSpace( ONEFLOW )
 
@@ -40,6 +41,14 @@ void ReadOneFLOWScriptFile( const std::string & fileName )
     ConfigLoader loader( GetParameterArraySize );
     loader.ParseFile( fileName );
     ConfigDatabaseAdapter::Commit( loader.Document() );
+}
+
+void ReadMultiScriptFiles( std::vector< std::string > & scriptFileNameList )
+{
+    for ( const std::string & scriptFileName : scriptFileNameList )
+    {
+        ONEFLOW::ReadOneFLOWScriptFile( scriptFileName );
+    }
 }
 
 EndNameSpace
