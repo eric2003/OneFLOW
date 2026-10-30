@@ -2,7 +2,7 @@
 
 Last updated: 2026-10-30
 Working branch: `hexin`
-Latest slice: `Prj::AreSameDirectoryPath()` centralizes lexical directory identity and is now used by `SimuContext::SetupCaseEnvironment()` when selecting the default `io_paths.txt` location. This fixes a production decision that compared `lexically_normal()` paths while one root retained a trailing separator. Tests now target the shared production contract instead of duplicating normalization logic. The runtime architecture guide records the compatibility rule and decision flow.
+Latest slice: case-I/O application has been extracted from the header into `SimuContextIO.cpp`, keeping `Prj` and filesystem implementation dependencies out of includers while preserving the production sequence in `SetupCaseEnvironment()`. The focused test compiles the same production source and checks generated diagnostics under distinct mesh/flow output roots. The exact `hexin` HEAD `d080aaa1b6a567ae3d0f2f5034f9332600c3e7ec` passed Windows CI, Linux CI, and documentation CI. R1 remains partial because no test yet exercises the real `ReadControlInfo(caseDir)` path and sequential case lifecycle.
 User-reported pre-change baseline for the current work slice: 971/971 tests passed. This is not evidence for later changes.
 
 ## Current focus: R1 case I/O root configuration contract
@@ -22,8 +22,9 @@ System-level reason: configuration lookup and type validation are now separated 
 ## Validation status
 
 - User-reported pre-change baseline for the current work slice: 971/971 tests passed.
-- The user-reported 971/971 baseline predates the diagnostic-content assertions and the move to `SimuContextIO.cpp`. The latest source/test/doc changes have not been independently built or run in this environment.
-- Linux and Windows CI for commit `647c239` were still queued/in progress when last checked; they do not validate the later move to `SimuContextIO.cpp`. Check CI for the latest branch head before claiming any test result.
+- The user-reported 971/971 result is the pre-change local baseline, not a result for the latest revision.
+- Exact-HEAD CI for `d080aaa1b6a567ae3d0f2f5034f9332600c3e7ec`: [Windows](https://github.com/eric2003/OneFLOW/actions/runs/40954345525), [Linux](https://github.com/eric2003/OneFLOW/actions/runs/40954345454), and [documentation](https://github.com/eric2003/OneFLOW/actions/runs/40954345433) all completed successfully.
+- These CI results validate the extracted case-I/O source and focused tests at that commit; they do not close the real-reader integration or sequential-case lifecycle gap. Check CI for the latest branch head before claiming any test result.
 - The current Linux sandbox has CMake, GCC, Clang, Python, and Git, but no OneFLOW checkout is mounted and shell network/DNS access is unavailable. GitHub source edits are possible, but a complete local CMake/CTest run is not possible until a checkout/archive is available.
 - Keep C++ source ASCII-only.
 
@@ -35,7 +36,7 @@ The existing investigation record is `doc/plans/setup-case-environment-integrati
 
 Cleanup ownership has now been distinguished explicitly in that investigation: `SimuImp::RunCase()` cleans up one case and leaves process runtime ownership to `SimuImp::Run()`, while the compatibility `SimuContext::SetupEnvironment()` rollback tears down both case and process runtime. Preserve these scopes; do not collapse them into a shared generic lifecycle. The post-`ReadControlInfo` application stage is now extracted as `SimuContextDetail::ApplyCaseIOSettings()` in `codes/main/include/SimuContextIO.h`. `SetupCaseEnvironment()` still calls the real reader first, validates a full snapshot, then invokes the extracted operation. The focused parameter test target now links the production `Prj` path sources and includes filesystem-backed diagnostic-path tests. This is source-level progress only; build and CTest evidence is still required.
 
-Next single action: run the new `simu_context_parameter_test` target and the full Windows/MSVC CTest suite. Fix any compile/link/runtime failures before proceeding. If it passes, continue with a temporary multi-file case invoking the actual `ReadControlInfo(caseDir)` after explicitly establishing serial parallel state; do not mark R1 complete yet. Do not copy the executable's full source list into the unit-test target. Keep `tests/` for test code and `test/` for CFD cases. Do not mark R1 complete until effective path application, sequential-case isolation, and cleanup have test evidence.
+Next single action: build a focused test around the real `ReadControlInfo(caseDir)` using a temporary multi-file fixture and explicit `SetUpParallelEnvironment()` serial initialization. Keep the full `SimuContextEnv.cpp` solver-reset surface out of that reader-only test; test case orchestration and cleanup separately at the narrowest production-owned boundary. Record the exact dependency set before changing CMake. Do not copy the executable's full source list into the unit-test target. Keep `tests/` for test code and `test/` for CFD cases. Do not mark R1 complete until effective path application, sequential-case isolation, and cleanup have test evidence.
 
 ## 1. Read this first
 
