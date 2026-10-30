@@ -57,6 +57,7 @@ set(CONTROL_RESOLVER_ZONE_DIR ${CMAKE_SOURCE_DIR}/codes/zone)
 add_executable(control_parameter_resolver_test
   control_parameter_resolver_test.cpp
   ${CMAKE_SOURCE_DIR}/codes/io/src/ControlParameterResolver.cpp
+  ${CMAKE_SOURCE_DIR}/codes/io/src/ConfigDatabaseAdapter.cpp
   ${CONTROL_RESOLVER_DB_DIR}/src/DataBase.cpp
   ${CONTROL_RESOLVER_DB_DIR}/src/DataPara.cpp
   ${CONTROL_RESOLVER_DB_DIR}/src/DataBook.cpp
