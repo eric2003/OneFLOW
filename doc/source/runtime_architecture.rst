@@ -617,3 +617,49 @@ This is a staged compatibility policy, not a recommendation to keep trailing sep
 forever. The long-term direction is to carry ``std::filesystem::path`` values internally
 and convert to strings only at APIs that require them. Each migration should be justified
 by call-site evidence and tests, not by changing formatting alone.
+
+
+Control-file ingestion and its remaining module boundary
+---------------------------------------------------------
+
+The production case-specific entry point is
+``ReadControlInfo(caseDir)`` in ``codes/io/src/ParaFile.cpp``. Its
+responsibility is orchestration rather than numerical interpretation:
+
+#. Read the case's ``script/control.txt`` manifest.
+#. Resolve each listed script under the case directory and parse the files in order.
+#. Commit the resulting typed entries into the global ``DataPara`` store.
+#. Coordinate process status and broadcast the committed parameter database.
+#. Write the merged database snapshot to ``log/database.log``.
+
+The configuration pipeline already contains a useful internal separation:
+``ConfigLoader`` parses legacy text into a ``ConfigDocument``, while
+``ConfigDatabaseAdapter`` commits entries using their declared type names.
+The database then owns the typed values. A test of the real control reader must
+exercise these production stages rather than instantiate a test-only parser.
+
+There is a remaining source-level coupling: the control-reader orchestration,
+database serialization/broadcast, legacy parameter parsing, and unrelated
+parameter helper functions are currently defined in the same
+``ParaFile.cpp`` translation unit. Because linking a C++ translation unit
+requires resolving references from its other compiled functions as well, adding
+that file to a focused test target can pull a broad set of otherwise unrelated
+dependencies. This is an architectural boundary issue, not a reason to copy
+the complete executable source list into the test.
+
+The planned incremental correction is to move control-reader orchestration and
+its database transport/dump operations into dedicated production translation
+units while preserving the existing public reader declarations and parameter
+semantics. This will make the real reader linkable from a component integration
+test without linking solver initialization and teardown. It is **planned**, not
+yet implemented. The test should explicitly initialize the serial parallel
+backend through ``SetUpParallelEnvironment()``, use a temporary multi-file
+control manifest, verify typed database values and the case-local database dump,
+and clear global database state afterwards.
+
+The system-level benefit is a reusable configuration-ingestion boundary. It
+clarifies the chain from legacy text syntax to typed runtime parameters and
+separates it from solver lifecycle management. It does not alter any numerical
+algorithm or physical model. R1 remains partial until the real reader, effective
+case path application, sequential-case isolation, and setup-failure cleanup have
+reproducible test evidence.
