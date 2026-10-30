@@ -527,3 +527,84 @@ and how configuration reload works.
 - New source files rely on recursive CMake discovery with `CONFIGURE_DEPENDS`;
   exact-revision build evidence is still required.
 - The 971/971 user baseline predates this work.
+
+
+## 2026-10-30 update: typed adapter coverage added
+
+The production configuration path is now split across these current source units:
+
+- `ControlFileReader.cpp`: case manifest reading, ordered script-file orchestration, serial/process coordination, and reader entry points.
+- `ControlScriptParser.cpp`: legacy script parsing into `ConfigDocument` followed by the production `ConfigDatabaseAdapter::Commit()`.
+- `ControlParameterResolver.cpp`: literal or runtime-DataBase-backed array-size resolution.
+- `ControlDatabaseIO.cpp`: database broadcast serialization and diagnostic dump.
+- `ParaFile.cpp`: remaining legacy parameter-inspection and compatibility helpers.
+
+The `control_parameter_resolver_test` target now compiles the production
+`ConfigDatabaseAdapter.cpp` alongside the real database implementation. Its
+new tests assert that integer, Real, and string entries are committed with
+their runtime types and that repeated declarations are applied in document
+order, with the later value replacing the earlier one.
+
+This establishes a useful intermediate contract:
+
+```text
+ConfigDocument (ordered, format-neutral entries)
+          |
+          v
+ConfigDatabaseAdapter
+          |
+          v
+DataBaseType lookup + ProcessData conversion
+          |
+          v
+DataPara replacement / ownership
+          |
+          v
+runtime parameter lookup
+```
+
+The adapter is incremental rather than transactional. If a later entry fails,
+earlier entries may already have changed the runtime database. This behavior
+is now documented explicitly; whether configuration commits should become
+transactional is an architectural decision that needs compatibility analysis
+and a dedicated failure test before changing semantics.
+
+**Evidence boundary:** these tests cover the production document-to-database
+adapter and the existing array-size resolver. They do not prove physical
+manifest order across multiple files, `ReadControlInfo(caseDir)` orchestration,
+parallel broadcast, `log/database.log`, effective path application, or
+sequential-case isolation. R1 remains Partial.
+
+## Next integration step
+
+Do not broaden the test target by copying the full executable source list.
+First map the exact unresolved symbols pulled in by `ControlFileReader.cpp`,
+`ControlDatabaseIO.cpp`, `ControlScriptParser.cpp`, `TextFileParser.cpp`,
+and the project/logging helpers. Then decide whether the smallest sound
+production boundary is:
+
+1. a small configuration-runtime library target shared by the executable and
+   tests; or
+2. a narrower extracted production operation with explicit filesystem,
+   database, and parallel dependencies.
+
+Prefer the first only if the source graph is coherent and reusable by the
+production executable. Avoid a test-only parser or duplicate implementation.
+The integration fixture must initialize serial parallel state through
+`SetUpParallelEnvironment()`, use at least two real script files, assert
+typed runtime values, and verify the database diagnostic output.
+
+After that, extend to `SetupCaseEnvironment()`, path diagnostics, two
+sequential cases, and cleanup after a missing/invalid control file. Preserve
+the separation between case teardown and process finalization.
+
+## Documentation ownership decision
+
+Keep implementation plans in `doc/plans/`, separate from the published
+Sphinx knowledge base in `doc/source/`. A plan is allowed to contain
+hypotheses, sequencing, risks, acceptance criteria, and unresolved questions.
+The source manual should describe the current architecture and verified
+behavior, mathematical/algorithmic explanations, and stable design contracts.
+When a plan item is completed, promote its durable conclusions into the
+relevant `doc/source` page and retain only useful decision history and
+remaining actions in the plan. Link the two; do not duplicate them wholesale.
