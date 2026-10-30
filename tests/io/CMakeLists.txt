@@ -58,6 +58,17 @@ set(CONTROL_RESOLVER_ZONE_DIR ${CMAKE_SOURCE_DIR}/codes/zone)
 
 add_executable(control_parameter_resolver_test
   control_parameter_resolver_test.cpp
+  control_configuration_ingestion_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/io/src/ControlManifestReader.cpp
+  ${CMAKE_SOURCE_DIR}/codes/io/src/ControlScriptParser.cpp
+  ${CMAKE_SOURCE_DIR}/codes/io/src/ConfigLoader.cpp
+  ${CMAKE_SOURCE_DIR}/codes/io/src/LegacyParameterSyntax.cpp
+  ${CMAKE_SOURCE_DIR}/codes/io/src/TextFileParser.cpp
+  ${CMAKE_SOURCE_DIR}/codes/io/src/CommentLine.cpp
+  ${CMAKE_SOURCE_DIR}/codes/io/src/Prj.cpp
+  ${CMAKE_SOURCE_DIR}/codes/io/src/SimulationCommandLine.cpp
+  ${CMAKE_SOURCE_DIR}/codes/io/src/PrjCmdLineArgs.cpp
+  ${CMAKE_SOURCE_DIR}/codes/io/src/FileUtils.cpp
   ${CMAKE_SOURCE_DIR}/codes/io/src/ControlParameterResolver.cpp
   ${CMAKE_SOURCE_DIR}/codes/io/src/ConfigDatabaseAdapter.cpp
   ${CONTROL_RESOLVER_DB_DIR}/src/DataBase.cpp
