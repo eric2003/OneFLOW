@@ -391,3 +391,19 @@ At the time this handoff was written, Windows and Linux CI for `d9180818...` wer
 - [Linux job](https://github.com/eric2003/OneFLOW/actions/runs/41063294280/job/124088158905)
 
 The new integration test currently verifies the successful two-file manifest -> production parser -> typed global DataBase path. It does not yet verify missing-file failure semantics, `ReadControlInfo(caseDir)`, MPI/serial orchestration, diagnostic output, case path application, sequential-case isolation, or cleanup at the real case runtime boundary. R1 remains **Partial**. Next action: wait for exact-HEAD CI, inspect any subsequent compile/link/test failures, and only then extend the integration behavior. Avoid treating a successful CMake configure as proof that the expanded source target compiles or runs.
+
+
+## 2026-10-30 continuation: const DataObject lookup compile fix
+
+User-reported MSVC diagnostic while compiling `control_configuration_ingestion_test.cpp`: `DataBase.h:152` could not resolve `GetDataValue<T>(&data)` when `data` was `const DataObject&`.
+
+Root cause verified in the declarations:
+- `DataObject*` overload declared `int iElement = 0`.
+- `const DataObject*` overload declared `int iElement` with no default, although its definition takes the same two parameters.
+- The const-DataBase `GetDataValue` implementation passes only the `const DataObject*`, so overload resolution fails.
+
+Corrected `codes/database/include/DataObject.h` by giving the const overload the same default element index (`= 0`). This preserves const correctness and aligns the two scalar lookup APIs; it does not cast away constness or change runtime behavior. Commit: `e8fa80ec66ed78790e7e9b13b62e22503823cf94`.
+
+The ingestion integration test's `const DataBase&` lookup now exercises this const overload directly. This is useful API-contract coverage: const database access must support scalar element-zero reads just as mutable database access does.
+
+Validation: source-level fix only at this point. No local MSVC build or CTest has been run by the assistant. The 977/977 result remains the pre-change baseline. Next: verify exact-HEAD Windows/Linux CI; inspect any compile/link/runtime failures before expanding R1. R1 remains **Partial**.
