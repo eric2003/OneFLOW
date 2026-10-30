@@ -46,6 +46,7 @@ Developer resources
 
 * :doc:`test_inventory` — source-discovered test catalog, separated by framework, with input/expected/result contracts.
 * :doc:`runtime_architecture` — runtime entry points, configuration boundaries, execution flow, and refactoring rules.
+* :doc:`evolutionary_computation_architecture` — computation-unit contracts, intermediate representations, and the long-term algorithm/dataflow evolution model.
 * :doc:`architecture_review` — whole-system CFD/CAE architecture checklist, major cross-cutting risks, and AI-assisted development review prompts.
 * `AI project context and refactoring handoff <https://github.com/eric2003/OneFLOW/blob/hexin/doc/AI_CONTEXT.md>`_ — current focus, verified findings, open gaps, and next actions for continuing work.
 * :doc:`workbench_architecture` — Workbench concepts, service boundaries, and run lifecycle.
@@ -130,6 +131,7 @@ The existing reference library covers programming languages, build systems, para
 
    architecture_review
    runtime_architecture
+   evolutionary_computation_architecture
    mesh_architecture
    grid_topology
    face_stage_pipeline
