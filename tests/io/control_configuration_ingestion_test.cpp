@@ -202,7 +202,9 @@ TEST( ControlConfigurationIngestion, ReadsManifestScriptsAndCommitsTypedValuesIn
     ReadScriptFileNameList( testCase.CaseDirectory(), scriptFiles );
     ASSERT_EQ( scriptFiles.size(), 2u );
 
-    ReadMultiScriptFiles( scriptFiles );
+    // Exercise the production case-level reader composition:
+    // manifest discovery followed by ordered multi-file parsing and commit.
+    ReadPrjScript( testCase.CaseDirectory() );
 
     DataBase & mutableDatabase = RequireGlobalDataBase();
     EXPECT_EQ(
