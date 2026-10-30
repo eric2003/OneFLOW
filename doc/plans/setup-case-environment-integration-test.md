@@ -418,3 +418,107 @@ its cost.
 - No local build or CTest run was performed in this environment.
 - User-reported 971/971 is the pre-change baseline only.
 - R1 remains **Partial**. Do not infer successful integration from source separation.
+
+
+## Second extraction: parser adapter and array-size resolver
+
+The next source-level step is implemented on `hexin`:
+
+- `ControlScriptParser.cpp` now owns both `ReadOneFLOWScriptFile` overloads.
+  It connects `TextFileParser` / file input to `ConfigLoader`, then commits
+  the resulting `ConfigDocument` through `ConfigDatabaseAdapter`.
+- `ControlParameterResolver.cpp` owns `GetParameterArraySize()`. Literal
+  lengths are parsed locally; named lengths are looked up in the runtime
+  `DataBase`.
+- `ParaFile.cpp` now retains legacy parameter inspection and extraction
+  helpers. Direct dependencies on `Word.h` and `FileUtils.h` are explicit.
+
+This distinction is important: `ConfigLoader` already accepts an injected
+array-size resolver. It does not intrinsically require the global database.
+The production adapter supplies the legacy database-backed resolver, while
+unit tests can supply a deterministic callback. That is a genuine seam for
+testing parser behavior without pretending the runtime database is absent in
+production.
+
+The current dependency graph is:
+
+```text
+ControlFileReader
+  -> ControlScriptParser
+       -> ConfigLoader
+            -> ConfigDocument
+       -> ConfigDatabaseAdapter
+            -> DataPara
+       -> ControlParameterResolver
+            -> DataBase (named array lengths)
+
+ControlDatabaseIO
+  -> DataBase + Parallel + diagnostic file output
+
+ParaFile
+  -> legacy inspection helpers
+```
+
+### What this enables and what it does not prove
+
+- The source-level parser adapter is no longer defined in the broad legacy
+  `ParaFile.cpp` translation unit.
+- The resolver has an explicit runtime-state dependency.
+- Existing `ConfigLoader_test` cases already pin scalar parsing, literal
+  arrays, injected named-array lengths, missing-resolver rejection, and
+  document replacement.
+- These tests verify parser semantics, not the production commit to DataPara,
+  the multi-file manifest, parallel broadcast, or database dump.
+- A real reader integration target is still required to prove those runtime
+  behaviors together.
+
+The next test design should avoid two extremes: do not link the complete
+solver executable just to parse a text fixture, but do not mock away the
+database commit and then call that a production ingestion test. Keep a
+parser-level test with an injected resolver, then a component/integration test
+that links the real adapter, real DataBase implementation, and real serial
+parallel setup only where the contract requires them.
+
+### Expected failure modes
+
+1. **Resolver semantics drift:** literal and named lengths could be interpreted
+   differently after extraction. Keep explicit tests for both.
+2. **Missing named length:** the runtime lookup should retain the existing
+   database exception and identify the missing variable; do not silently
+   substitute zero.
+3. **Cross-file ordering:** a later script may use a length declared by an
+   earlier script. The reader must preserve manifest order; do not parallelize
+   script parsing unless dependencies are explicitly modeled.
+4. **Partial commit:** if a later entry fails, earlier entries may already have
+   been committed. This is an important transaction question, not something
+   this extraction solves. Define and test transaction semantics before
+   promising all-or-nothing control-file loading.
+5. **Repeated declarations:** DataPara currently updates existing entries
+   under its own type/size compatibility rules. The adapter must not introduce
+   a second, conflicting policy.
+6. **Diagnostic failure:** database dump failure occurs after the parameter
+   commit and broadcast. Decide whether diagnostics are mandatory for a
+   successful case setup, and keep that policy explicit.
+
+### Architectural question opened by this stage: should configuration commit be transactional?
+
+The current pipeline has a meaningful distinction between a parsed
+`ConfigDocument` and runtime `DataPara`. This makes a future transactional
+commit possible: validate all names, types, lengths, and duplicate declarations
+against a snapshot before mutating live state, then apply as one controlled
+operation or restore the previous snapshot on failure.
+
+Do not implement that transaction speculatively in this extraction. First
+characterize the current behavior with tests, especially malformed late entries
+and duplicate declarations. Then decide whether atomic commit is a required
+scientific reproducibility guarantee or whether documented incremental commit
+is sufficient. This decision affects memory cost, error reporting, compatibility,
+and how configuration reload works.
+
+### Validation state
+
+- Parser adapter and resolver extraction: **implemented, unverified**.
+- Existing ConfigLoader unit tests: source-inspected; no new test run claimed.
+- New source files rely on recursive CMake discovery with `CONFIGURE_DEPENDS`;
+  exact-revision build evidence is still required.
+- The 971/971 user baseline predates this work.
