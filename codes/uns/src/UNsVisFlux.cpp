@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "UNsVisFlux.h"
+#include "NsVisFluxPolicy.h"
 #include "Sutherland.h"
 #include "HeatFlux.h"
 #include "Zone.h"
@@ -175,14 +176,13 @@ void UNsVisFlux::SaveHeatFlux()
 
 void UNsVisFlux::CalcStress()
 {
-    Real divv2p3 = two3rd * ( vis.dudx + vis.dvdy + vis.dwdz );
-
-    vis.txx = nscom.vis * ( two * vis.dudx - divv2p3 );
-    vis.tyy = nscom.vis * ( two * vis.dvdy - divv2p3 );
-    vis.tzz = nscom.vis * ( two * vis.dwdz - divv2p3 );
-    vis.txy = nscom.vis * ( vis.dudy + vis.dvdx );
-    vis.txz = nscom.vis * ( vis.dudz + vis.dwdx );
-    vis.tyz = nscom.vis * ( vis.dvdz + vis.dwdy );
+    StokesStressTensor(
+        nscom.vis,
+        vis.dudx, vis.dudy, vis.dudz,
+        vis.dvdx, vis.dvdy, vis.dvdz,
+        vis.dwdx, vis.dwdy, vis.dwdz,
+        vis.txx, vis.tyy, vis.tzz,
+        vis.txy, vis.txz, vis.tyz );
 
     this->CalcAniStress();
 }
@@ -202,13 +202,15 @@ void UNsVisFlux::CalcAniStress()
 void UNsVisFlux::CalcNsVisFlux()
 {
     vis.fvis[ IDX::IR  ] = 0.0;
-    vis.fvis[ IDX::IRU ] = gcom.xfn * vis.txx + gcom.yfn * vis.txy + gcom.zfn * vis.txz;
-    vis.fvis[ IDX::IRV ] = gcom.xfn * vis.txy + gcom.yfn * vis.tyy + gcom.zfn * vis.tyz;
-    vis.fvis[ IDX::IRW ] = gcom.xfn * vis.txz + gcom.yfn * vis.tyz + gcom.zfn * vis.tzz;
-    vis.fvis[ IDX::IRE ] = vis.um * vis.fvis[ IDX::IRU ] + 
-                           vis.vm * vis.fvis[ IDX::IRV ] + 
-                           vis.wm * vis.fvis[ IDX::IRW ] + vis.qNormal;
-
+    ProjectStressMomentumFlux(
+        gcom.xfn, gcom.yfn, gcom.zfn,
+        vis.txx, vis.tyy, vis.tzz,
+        vis.txy, vis.txz, vis.tyz,
+        vis.fvis[ IDX::IRU ], vis.fvis[ IDX::IRV ], vis.fvis[ IDX::IRW ] );
+    vis.fvis[ IDX::IRE ] = ViscousEnergyFlux(
+        vis.um, vis.vm, vis.wm,
+        vis.fvis[ IDX::IRU ], vis.fvis[ IDX::IRV ], vis.fvis[ IDX::IRW ],
+        vis.qNormal );
 }
 
 void UNsVisFlux::ZeroHeatFlux()
@@ -233,9 +235,10 @@ void UNsVisFlux::AddHeatFlux()
     vis.qy      = 0.0;
     vis.qz      = 0.0;
 
-    nscom.kcp = ( nscom.visl * nscom.oprl + nscom.vist * nscom.oprt ) * nscom.const_cp;
-    vis.qNormal += gcom.xfn * vis.qx + gcom.yfn * vis.qy + gcom.zfn * vis.qz;
-    vis.qNormal += nscom.kcp * vis.dtdn;
+    nscom.kcp = EffectiveThermalConductivity(
+        nscom.visl, nscom.vist, nscom.oprl, nscom.oprt, nscom.const_cp );
+    vis.qNormal += FaceNormalDot( gcom.xfn, gcom.yfn, gcom.zfn, vis.qx, vis.qy, vis.qz );
+    vis.qNormal += ConductiveHeatFluxNormal( nscom.kcp, vis.dtdn );
 }
 
 void UNsVisFlux::AddVisFlux()
@@ -435,7 +438,7 @@ void UNsVisFlux::PrepareCellGeom()
 
 void UNsVisFlux::UpdateFaceVisFlux()
 {
-    Real coeff = - nscom.oreynolds * gcom.farea;
+    const Real coeff = ViscousFaceFluxCoefficient( nscom.oreynolds, gcom.farea );
     for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
     {
         ( * visflux )[ iEqu ][ ug.fId ] = coeff * vis.fvis[ iEqu ];

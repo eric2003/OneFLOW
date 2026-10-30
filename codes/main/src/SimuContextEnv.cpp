@@ -26,6 +26,7 @@ License
 #include "SimulationCommandLine.h"
 #include "SimuCaseLifecycle.h"
 #include "SimuContextParameter.h"
+#include "SimuContextIO.h"
 #include "SimuTask.h"
 #include "Prj.h"
 #include "ParaFile.h"
@@ -56,18 +57,6 @@ License
 #include <stdexcept>
 
 BeginNameSpace( ONEFLOW )
-
-namespace
-{
-
-std::string ReadOptionalStringParameter( const std::string & name )
-{
-    DataBase & dataBase = RequireGlobalDataBase();
-    return SimuContextDetail::ReadOptionalStringParameter(
-        dataBase.RequireDataPara(), name );
-}
-
-}
 
 SimuContext::SimuContext( const std::string& caseDir, bool debug )
     : caseDir_( Prj::ResolveCaseDir( caseDir ) )
@@ -120,82 +109,11 @@ void SimuContext::SetupCaseEnvironment()
     logFile.SetCaseDir( caseDir_ );
     ONEFLOW::ReadControlInfo( caseDir_ );
 
-    // File roots are shared by mesh generation, conversion, and CFD. Missing
-    // settings preserve the historical current-case behavior. Domain roots
-    // inherit their generic input/output root unless explicitly configured.
-    // "case" selects the active case, "project" requires projectRoot, absolute
-    // roots are used directly, and other relative roots resolve from the case.
-    std::string projectRoot;
-    std::string inputRoot;
-    std::string outputRoot;
-
-    projectRoot = ReadOptionalStringParameter( "projectRoot" );
-
-    if ( ! projectRoot.empty() )
-    {
-        Prj::SetProjectBaseDir( projectRoot );
-    }
-
-    inputRoot = ReadOptionalStringParameter( "inputRoot" );
-
-    outputRoot = ReadOptionalStringParameter( "outputRoot" );
-
-    Prj::SetIOBaseDirs( inputRoot, outputRoot );
-
-    std::string meshInputRoot;
-    std::string flowInputRoot;
-    std::string meshOutputRoot;
-    std::string flowOutputRoot;
-
-    meshInputRoot = ReadOptionalStringParameter( "meshInputRoot" );
-
-    flowInputRoot = ReadOptionalStringParameter( "flowInputRoot" );
-
-    meshOutputRoot = ReadOptionalStringParameter( "meshOutputRoot" );
-
-    flowOutputRoot = ReadOptionalStringParameter( "flowOutputRoot" );
-
-    // Preserve the legacy sourceGridCaseDir setting as the default mesh
-    // input root. This keeps linked cases such as rae2822_roe_sa reading grid
-    // artifacts (including wall-distance data) from rae2822grid, while an
-    // explicit meshInputRoot can override that behavior.
-    if ( SimuContextDetail::ShouldUseLegacySourceGridCaseDir( meshInputRoot ) )
-    {
-        const std::string sourceGridCaseDir =
-            ReadOptionalStringParameter( "sourceGridCaseDir" );
-        meshInputRoot = SimuContextDetail::ApplyLegacySourceGridCaseDir(
-            meshInputRoot, sourceGridCaseDir );
-    }
-
-    Prj::SetDomainIOBaseDirs(
-        meshInputRoot, flowInputRoot, meshOutputRoot, flowOutputRoot );
-
-    const bool outputsUseCaseRoot =
-        std::filesystem::path( Prj::GetMeshOutputBaseDir() ).lexically_normal()
-            == std::filesystem::path( Prj::prjBaseDir ).lexically_normal()
-        && std::filesystem::path( Prj::GetFlowOutputBaseDir() ).lexically_normal()
-            == std::filesystem::path( Prj::prjBaseDir ).lexically_normal();
-    std::string ioPathInfoFile = outputsUseCaseRoot
-        ? "results/io_paths.txt"
-        : "io_paths.txt";
-    const std::string configuredInfoFile =
-        ReadOptionalStringParameter( "ioPathInfoFileName" );
-    if ( ! configuredInfoFile.empty() )
-    {
-        ioPathInfoFile = configuredInfoFile;
-    }
-
-    const std::string meshInfoPath =
-        Prj::GetMeshOutputFileName( ioPathInfoFile );
-    Prj::WriteIOPathInfo( meshInfoPath );
-
-    const std::string flowInfoPath =
-        Prj::GetFlowOutputFileName( ioPathInfoFile );
-    if ( std::filesystem::path( flowInfoPath ).lexically_normal()
-        != std::filesystem::path( meshInfoPath ).lexically_normal() )
-    {
-        Prj::WriteIOPathInfo( flowInfoPath );
-    }
+    // Snapshot and validate all optional roots before applying global path state.
+    const SimuContextDetail::CaseIOSettings ioSettings =
+        SimuContextDetail::ReadCaseIOSettings(
+            RequireGlobalDataBase().RequireDataPara() );
+    SimuContextDetail::ApplyCaseIOSettings( ioSettings );
 }
 
 void SimuContext::SetupEnvironment()

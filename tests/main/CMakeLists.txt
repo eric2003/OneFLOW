@@ -173,6 +173,7 @@ set(SIMU_CONTEXT_PARAMETER_ZONE_DIR ${CMAKE_SOURCE_DIR}/codes/zone)
 
 add_executable(simu_context_parameter_test
   simu_context_parameter_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/main/src/SimuContextIO.cpp
   ${SIMU_CONTEXT_PARAMETER_DB_DIR}/src/DataBase.cpp
   ${SIMU_CONTEXT_PARAMETER_DB_DIR}/src/DataPara.cpp
   ${SIMU_CONTEXT_PARAMETER_DB_DIR}/src/DataBook.cpp
@@ -184,10 +185,15 @@ add_executable(simu_context_parameter_test
   ${SIMU_CONTEXT_PARAMETER_PARALLEL_DIR}/src/BasicParallel.cpp
   ${SIMU_CONTEXT_PARAMETER_PARALLEL_DIR}/src/Parallel.cpp
   ${SIMU_CONTEXT_PARAMETER_ZONE_DIR}/src/ZoneState.cpp
+  ${CMAKE_SOURCE_DIR}/codes/io/src/SimulationCommandLine.cpp
+  ${CMAKE_SOURCE_DIR}/codes/io/src/PrjCmdLineArgs.cpp
+  ${CMAKE_SOURCE_DIR}/codes/io/src/Prj.cpp
+  ${CMAKE_SOURCE_DIR}/codes/io/src/FileUtils.cpp
 )
 
 target_include_directories(simu_context_parameter_test
   PRIVATE
+    ${CMAKE_SOURCE_DIR}/codes/io/include
     ${CMAKE_SOURCE_DIR}/codes/main/include
     ${SIMU_CONTEXT_PARAMETER_DB_DIR}/include
     ${SIMU_CONTEXT_PARAMETER_BASIC_DIR}/include

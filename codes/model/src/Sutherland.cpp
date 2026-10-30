@@ -54,17 +54,28 @@ void Sutherland::Init( Real tref_dim )
     this->ts = this->ts_dim / tref_dim;
 }
 
+Real SutherlandViscosityDim(
+    Real temperatureDim,
+    Real t0Dim, Real tsDim, Real mu0Dim )
+{
+    const Real coef = ( t0Dim + tsDim ) / ( temperatureDim + tsDim );
+    return coef * pow( temperatureDim / t0Dim, 1.5 ) * mu0Dim;
+}
+
+Real SutherlandViscosityNondim( Real temperatureNondim, Real sutherlandTsNondim )
+{
+    const Real t3 = temperatureNondim * temperatureNondim * temperatureNondim;
+    return sqrt( t3 ) * ( 1.0 + sutherlandTsNondim ) / ( temperatureNondim + sutherlandTsNondim );
+}
+
 Real Sutherland::CalcViscosityDim( Real t_dim )
 {
-    Real coef = ( t0_dim + ts_dim ) / ( t_dim + ts_dim );
-    Real vis_dim = coef * pow( t_dim / t0_dim, 1.5 ) * this->mu0_dim;
-    return vis_dim;
+    return SutherlandViscosityDim( t_dim, t0_dim, ts_dim, mu0_dim );
 }
 
 Real Sutherland::CalcViscosity( Real t )
 {
-    Real t3 = t * t * t;
-    return sqrt( t3 ) * ( 1 + this->ts ) / ( t + this->ts );
+    return SutherlandViscosityNondim( t, this->ts );
 }
 
 EndNameSpace

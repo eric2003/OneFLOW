@@ -196,3 +196,69 @@ TEST( InvFluxPolicy, FaceMachNumberIsVnOverC )
 {
     EXPECT_DOUBLE_EQ( FaceMachNumber( 3.0, 1.5 ), 2.0 );
 }
+
+TEST( InvFluxPolicy, IdealGasConservativeToPrimInvertsPrimToConservative )
+{
+    Real qr, qu, qv, qw, qe;
+    IdealGasPrimToConservative( 2.0, 1.0, 0.0, 0.0, 4.0, 1.4, qr, qu, qv, qw, qe );
+    Real rho, u, v, w, p;
+    IdealGasConservativeToPrim( qr, qu, qv, qw, qe, 1.4, rho, u, v, w, p );
+    EXPECT_NEAR( rho, 2.0, 1.0e-12 );
+    EXPECT_NEAR( u, 1.0, 1.0e-12 );
+    EXPECT_NEAR( p, 4.0, 1.0e-12 );
+}
+
+TEST( InvFluxPolicy, RoeDissipationWaveCoefficientsMatchFormula )
+{
+    Real xi1, xi2;
+    RoeDissipationWaveCoefficients( 1.0, 3.0, 0.5, 4.0, 2.0, xi1, xi2 );
+    // xi1 = (2*1 - 3 - 0.5) / 8 = (-1.5)/8
+    EXPECT_DOUBLE_EQ( xi1, ( 2.0 * 1.0 - 3.0 - 0.5 ) / ( 2.0 * 4.0 ) );
+    EXPECT_DOUBLE_EQ( xi2, ( 3.0 - 0.5 ) / ( 2.0 * 2.0 ) );
+}
+
+TEST( InvFluxPolicy, RoeContinuityNormalJumpMatchesDotProduct )
+{
+    EXPECT_DOUBLE_EQ(
+        RoeContinuityNormalJump( 2.0, 1.0, 0.0, 0.0, 3.0, 4.0, 0.0, 0.0 ),
+        2.0 * 3.0 - 4.0 );
+}
+
+TEST( InvFluxPolicy, RoeTotalEnthalpyJumpMatchesFormula )
+{
+    // u=1,v=0,w=0,gama=1.4; dq only energy +1 -> dh = -ae * (0 - 1) = ae = 0.4
+    EXPECT_NEAR(
+        RoeTotalEnthalpyJump( 1.0, 0.0, 0.0, 1.4, 0.0, 0.0, 0.0, 0.0, 1.0 ),
+        0.4,
+        1.0e-12 );
+}
+
+TEST( InvFluxPolicy, RoeDissipationCouplingTermsMatchFormula )
+{
+    Real t1, t2;
+    RoeDissipationCouplingTerms( 1.0, 2.0, 4.0, 0.5, 0.25, t1, t2 );
+    EXPECT_DOUBLE_EQ( t1, 1.0 * 0.5 + 2.0 * 0.25 );
+    EXPECT_DOUBLE_EQ( t2, 4.0 * 2.0 * 0.5 + 1.0 * 0.25 );
+}
+
+TEST( InvFluxPolicy, ApplyRoeDissipationFiveEqSubtractsContinuityTerm )
+{
+    Real fr = 10.0, fx = 0.0, fy = 0.0, fz = 0.0, fe = 0.0;
+    ApplyRoeDissipationFiveEq(
+        1.0, 2.0, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.0,
+        1.0, 0.0, 0.0,
+        3.0, 0.0, 0.0, 0.0, 0.0,
+        fr, fx, fy, fz, fe );
+    // fr -= (1*3 - 2) = 1 -> 9
+    EXPECT_DOUBLE_EQ( fr, 9.0 );
+}
+
+TEST( InvFluxPolicy, IdealGasBilateralSoundSpeedsAveragesSides )
+{
+    Real cl, cr, cm;
+    IdealGasBilateralSoundSpeeds( 1.0, 1.0, 1.4, 1.0, 1.0, 1.4, cl, cr, cm );
+    EXPECT_NEAR( cl, std::sqrt( 1.4 ), 1.0e-12 );
+    EXPECT_NEAR( cr, std::sqrt( 1.4 ), 1.0e-12 );
+    EXPECT_NEAR( cm, std::sqrt( 1.4 ), 1.0e-12 );
+}

@@ -33,6 +33,20 @@ BeginNameSpace( ONEFLOW )
 namespace SimuContextDetail
 {
 
+// Snapshot of case I/O settings. Read and validate the complete snapshot before
+// applying any of its values to process-global Prj state.
+struct CaseIOSettings
+{
+    std::string projectRoot;
+    std::string inputRoot;
+    std::string outputRoot;
+    std::string meshInputRoot;
+    std::string flowInputRoot;
+    std::string meshOutputRoot;
+    std::string flowOutputRoot;
+    std::string ioPathInfoFileName;
+};
+
 inline bool ShouldUseLegacySourceGridCaseDir( const std::string & meshInputRoot )
 {
     return meshInputRoot.empty() || meshInputRoot == "default";
@@ -72,6 +86,33 @@ inline std::string ReadOptionalStringParameter(
     }
 
     return GetDataValue< std::string >( &entry->GetDataObject(), 0 );
+}
+
+// Missing optional keys resolve to empty strings. Present keys must have
+// string type. Read all setup-time settings here so invalid configuration is
+// rejected before SetupCaseEnvironment applies configured roots.
+inline CaseIOSettings ReadCaseIOSettings( const DataPara & parameters )
+{
+    CaseIOSettings settings;
+    settings.projectRoot = ReadOptionalStringParameter( parameters, "projectRoot" );
+    settings.inputRoot = ReadOptionalStringParameter( parameters, "inputRoot" );
+    settings.outputRoot = ReadOptionalStringParameter( parameters, "outputRoot" );
+    settings.meshInputRoot = ReadOptionalStringParameter( parameters, "meshInputRoot" );
+    settings.flowInputRoot = ReadOptionalStringParameter( parameters, "flowInputRoot" );
+    settings.meshOutputRoot = ReadOptionalStringParameter( parameters, "meshOutputRoot" );
+    settings.flowOutputRoot = ReadOptionalStringParameter( parameters, "flowOutputRoot" );
+    settings.ioPathInfoFileName =
+        ReadOptionalStringParameter( parameters, "ioPathInfoFileName" );
+
+    if ( ShouldUseLegacySourceGridCaseDir( settings.meshInputRoot ) )
+    {
+        const std::string sourceGridCaseDir =
+            ReadOptionalStringParameter( parameters, "sourceGridCaseDir" );
+        settings.meshInputRoot = ApplyLegacySourceGridCaseDir(
+            settings.meshInputRoot, sourceGridCaseDir );
+    }
+
+    return settings;
 }
 
 }

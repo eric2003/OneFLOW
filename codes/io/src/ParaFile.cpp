@@ -21,24 +21,14 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "ParaFile.h"
-#include <memory>
 #include "TextFileParser.h"
-#include "DataBase.h"
-#include "DataBook.h"
-#include "ConfigLoader.h"
-#include "ConfigDatabaseAdapter.h"
+#include "FileUtils.h"
+#include "Word.h"
 #include "LegacyParameterSyntax.h"
 #include "DataBase.h"
-#include "Parallel.h"
-#include "LogFile.h"
 #include "Fatal.h"
-#include "Prj.h"
-#include "FileUtils.h"
-#include "PIO.h"
-#include <iostream>
 #include <string>
 #include <vector>
-#include <map>
 
 
 BeginNameSpace( ONEFLOW )
@@ -46,29 +36,6 @@ BeginNameSpace( ONEFLOW )
 bool IsArrayParameter( const std::string & lineOfName )
 {
     return ONEFLOW::IsLegacyArrayParameter( lineOfName );
-}
-
-int GetParameterArraySize( const std::string & word )
-{
-    if ( Word::IsDigit( word ) )
-    {
-        return StringToDigit< int >( word );
-    }
-    return GetDataValue< int >( word );
-}
-
-void ReadOneFLOWScriptFile( TextFileParser & textFileParser )
-{
-    ConfigLoader loader( GetParameterArraySize );
-    loader.ParseFromParser( textFileParser );
-    ConfigDatabaseAdapter::Commit( loader.Document() );
-}
-
-void ReadOneFLOWScriptFile( const std::string & fileName )
-{
-    ConfigLoader loader( GetParameterArraySize );
-    loader.ParseFile( fileName );
-    ConfigDatabaseAdapter::Commit( loader.Document() );
 }
 
 void AnalysisArrayParameter( TextFileParser & textFileParser, int keyWordIndex )
@@ -189,197 +156,6 @@ void GetParaInfoArray( TextFileParser & textFileParser, std::string & varName, s
                 Fatal( errorMessage );
             }
         }
-    }
-}
-
-void ReadControlInfo()
-{
-    if ( Parallel::IsServer() )
-    {
-        ONEFLOW::ReadPrjScript();
-    }
-
-    Parallel::TestSayHelloFromEveryProcess();
-    ONEFLOW::BroadcastControlParameterToAllProcessors();
-    ONEFLOW::DumpDataBase();
-}
-
-void ReadControlInfo( const std::string & caseDir )
-{
-    if ( Parallel::IsServer() )
-    {
-        ONEFLOW::ReadPrjScript( caseDir );
-    }
-
-    Parallel::TestSayHelloFromEveryProcess();
-    ONEFLOW::BroadcastControlParameterToAllProcessors();
-    ONEFLOW::DumpDataBase( caseDir );
-}
-
-void DumpDataBase()
-{
-    DataBase & dataBase = ONEFLOW::RequireGlobalDataBase();
-    std::fstream file;
-    std::string fileName = "/log/database.log";
-    PIO::OpenPrjFile( file, fileName, std::ios_base::out );
-    dataBase.RequireDataPara().DumpData( file );
-    PIO::CloseFile( file );
-}
-
-void DumpDataBase( const std::string & caseDir )
-{
-    DataBase & dataBase = ONEFLOW::RequireGlobalDataBase();
-    std::fstream file;
-    Prj::OpenCaseFile( file, caseDir, "log/database.log", std::ios_base::out );
-    dataBase.RequireDataPara().DumpData( file );
-    PIO::CloseFile( file );
-}
-
-void ReadPrjScript()
-{
-    std::vector< std::string > scriptFileNameList;
-    ONEFLOW::ReadScriptFileNameList( scriptFileNameList );
-    ONEFLOW::ReadMultiScriptFiles( scriptFileNameList );
-}
-
-void ReadPrjScript( const std::string & caseDir )
-{
-    std::vector< std::string > scriptFileNameList;
-    ONEFLOW::ReadScriptFileNameList( caseDir, scriptFileNameList );
-    ONEFLOW::ReadMultiScriptFiles( scriptFileNameList );
-}
-
-void ReadScriptFileNameList( std::vector< std::string > & scriptFileNameList )
-{
-    TextFileParser textFileParser;
-
-    textFileParser.OpenFile(
-        Prj::GetPrjFileName( "script/control.txt" ),
-        std::ios_base::in );
-
-    // Tab is a separator.
-    std::string keyWordSeparator = " ()\r\n\t#$,;\"";
-    textFileParser.SetDefaultSeparator( keyWordSeparator );
-
-    while ( ! textFileParser.ReachTheEndOfFile() )
-    {
-        bool flag = textFileParser.ReadNextNonEmptyLine();
-        if ( ! flag ) break;
-
-        std::string scriptFileName =
-            textFileParser.ReadNextWord();
-
-        std::string fullScriptFileName =
-            Prj::GetPrjFileName(
-                "script/" + scriptFileName );
-
-        scriptFileNameList.push_back( fullScriptFileName );
-    }
-
-    textFileParser.CloseFile();
-}
-
-void ReadScriptFileNameList(
-    const std::string & caseDir,
-    std::vector< std::string > & scriptFileNameList )
-{
-    TextFileParser textFileParser;
-    textFileParser.OpenCaseFile(
-        caseDir,
-        "script/control.txt",
-        std::ios_base::in );
-
-    // Tab is a separator.
-    std::string keyWordSeparator = " ()\r\n\t#$,;\"";
-    textFileParser.SetDefaultSeparator( keyWordSeparator );
-
-    while ( ! textFileParser.ReachTheEndOfFile() )
-    {
-        bool flag = textFileParser.ReadNextNonEmptyLine();
-        if ( ! flag ) break;
-
-        std::string scriptFileName =
-            textFileParser.ReadNextWord();
-
-        std::string fullScriptFileName =
-            Prj::GetCaseFileName(
-                caseDir,
-                "script/" + scriptFileName );
-
-        scriptFileNameList.push_back( fullScriptFileName );
-    }
-
-    textFileParser.CloseFile();
-}
-
-void ReadMultiScriptFiles( std::vector< std::string > & scriptFileNameList )
-{
-    int numberOfParameterFiles = scriptFileNameList.size();
-
-    for ( int iFile = 0; iFile < numberOfParameterFiles; ++ iFile )
-    {
-        std::string & scriptFileName = scriptFileNameList[ iFile ];
-
-        ONEFLOW::ReadOneFLOWScriptFile( scriptFileName );
-    }
-}
-
-void BroadcastControlParameterToAllProcessors()
-{
-    ONEFLOW::logFile << "Broadcast Control Parameter To All Processors\n";
-
-    ONEFLOW::HXBcast( ONEFLOW::CompressData, ONEFLOW::DecompressData, Parallel::GetServerid() );
-}
-
-void CompressData( DataBook * dataBook )
-{
-    DataBase & globalDataBase = ONEFLOW::RequireGlobalDataBase();
-
-    ONEFLOW::CompressData( &globalDataBase, dataBook );
-}
-
-void DecompressData( DataBook * dataBook )
-{
-    DataBase & globalDataBase = ONEFLOW::RequireGlobalDataBase();
-    ONEFLOW::DecompressData( &globalDataBase, dataBook );
-}
-
-void CompressData( DataBase * dataBase, DataBook * dataBook )
-{
-    if ( dataBase == nullptr )
-    {
-        throw std::runtime_error( "DataBase: database is not initialized" );
-    }
-
-    const DataPara::DataMap & dataMap = dataBase->RequireDataPara().GetDataMap();
-
-    int ndata = static_cast<int>( dataMap.size() );
-    ONEFLOW::HXWrite( dataBook, ndata );
-
-    for ( const auto & pair : dataMap )
-    {
-        const DataEntry * dataEntry = pair.second.get();
-        ONEFLOW::HXWriteDataEntry( dataBook, dataEntry );
-    }
-}
-
-void DecompressData( DataBase * dataBase, DataBook * dataBook )
-{
-    if ( dataBase == nullptr )
-    {
-        throw std::runtime_error( "DataBase: database is not initialized" );
-    }
-
-    DataPara & dataPara = dataBase->RequireDataPara();
-    dataBook->MoveToBegin();
-
-    int ndata = 0;
-    ONEFLOW::HXRead( dataBook, ndata );
-
-    for ( int i = 0; i < ndata; ++ i )
-    {
-        auto dataEntry = ONEFLOW::HXReadDataEntry( dataBook );
-        dataPara.SetDataEntry( std::move( dataEntry ) );
     }
 }
 

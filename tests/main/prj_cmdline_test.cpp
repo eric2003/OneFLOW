@@ -79,23 +79,24 @@ TEST( PrjParseCmdLineArgs, AdditionalCaseDirectoriesArePreserved )
 
 }
 
-namespace
+TEST( PrjPathComparison, ComparesDirectoryIdentity )
 {
+    const std::filesystem::path root =
+        std::filesystem::current_path().root_path();
+    ASSERT_FALSE( root.empty() );
 
-    std::filesystem::path RemoveTrailingSeparator(
-        const std::filesystem::path & path )
-    {
-        std::string value = path.string();
+    EXPECT_TRUE( Prj::AreSameDirectoryPath( root.string(), root.string() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath( root.string(), ( root / "." ).string() ) );
 
-        while ( value.size() > 1 &&
-            ( value.back() == '/' || value.back() == '\\' ) )
-        {
-            value.pop_back();
-        }
-
-        return std::filesystem::path( value );
-    }
-
+    const std::filesystem::path directory =
+        std::filesystem::temp_directory_path() / "OneFLOW_PathIdentity";
+    std::string directoryWithSeparator = directory.string();
+    directoryWithSeparator += std::filesystem::path::preferred_separator;
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        directory.string(), directoryWithSeparator ) );
+    EXPECT_FALSE( Prj::AreSameDirectoryPath(
+        directory.string(), ( directory / "child" ).string() ) );
+    EXPECT_FALSE( Prj::AreSameDirectoryPath( "", "" ) );
 }
 
 TEST( PrjParseCmdLineArgs, MissingPositionalsIncludeUsage )
@@ -130,15 +131,11 @@ TEST( PrjSetPrjBaseDir, RelativePath )
 
     Prj::SetPrjBaseDir( "plate" );
 
-    const std::filesystem::path actual =
-        RemoveTrailingSeparator( Prj::prjBaseDir );
-
     const std::filesystem::path expected =
         std::filesystem::current_path() / "plate";
 
-    EXPECT_EQ(
-        actual.lexically_normal(),
-        expected.lexically_normal() );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        Prj::prjBaseDir, expected.string() ) );
 
     EXPECT_TRUE(
         !Prj::prjBaseDir.empty() &&
@@ -153,15 +150,11 @@ TEST( PrjSetPrjBaseDir, NestedRelativePath )
 
     Prj::SetPrjBaseDir( "cases/plate" );
 
-    const std::filesystem::path actual =
-        RemoveTrailingSeparator( Prj::prjBaseDir );
-
     const std::filesystem::path expected =
         std::filesystem::current_path() / "cases" / "plate";
 
-    EXPECT_EQ(
-        actual.lexically_normal(),
-        expected.lexically_normal() );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        Prj::prjBaseDir, expected.string() ) );
 
     EXPECT_TRUE(
         !Prj::prjBaseDir.empty() &&
@@ -182,12 +175,8 @@ TEST( PrjSetPrjBaseDir, AbsolutePath )
 
     Prj::SetPrjBaseDir( absoluteCase.string() );
 
-    const std::filesystem::path actual =
-        RemoveTrailingSeparator( Prj::prjBaseDir );
-
-    EXPECT_EQ(
-        actual.lexically_normal(),
-        absoluteCase.lexically_normal() );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        Prj::prjBaseDir, absoluteCase.string() ) );
 
     EXPECT_TRUE(
         !Prj::prjBaseDir.empty() &&
@@ -208,12 +197,8 @@ TEST( PrjSetPrjBaseDir, AbsolutePathIsNotPrefixedByCurrentDirectory )
 
     Prj::SetPrjBaseDir( absoluteCase.string() );
 
-    const std::filesystem::path actual =
-        RemoveTrailingSeparator( Prj::prjBaseDir );
-
-    EXPECT_EQ(
-        actual.lexically_normal(),
-        absoluteCase.lexically_normal() );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        Prj::prjBaseDir, absoluteCase.string() ) );
 }
 
 
@@ -962,4 +947,26 @@ TEST( PrjIOPaths, ProjectRootMustBeDeclared )
     EXPECT_THROW(
         Prj::SetIOBaseDirs( "project", "case" ),
         std::logic_error );
+}
+
+TEST( PrjIOPaths, RelativeProjectRootResolvesFromCurrentDirectory )
+{
+    const std::filesystem::path currentDir =
+        std::filesystem::temp_directory_path()
+        / "OneFLOW_PrjIORelativeProjectRootTest";
+    const std::filesystem::path caseDir =
+        currentDir / "cases" / "consumer";
+    const std::filesystem::path expectedProjectDir =
+        currentDir / "shared-project";
+
+    Prj::current_dir = currentDir.string();
+    Prj::SetPrjBaseDir( caseDir.string() );
+    Prj::SetProjectBaseDir( "shared-project" );
+    Prj::SetIOBaseDirs( "project", "case" );
+
+    EXPECT_EQ(
+        std::filesystem::path( Prj::GetInputBaseDir() ).lexically_normal(),
+        expectedProjectDir.lexically_normal() );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        Prj::GetOutputBaseDir(), caseDir.string() ) );
 }

@@ -20,9 +20,16 @@ Configuration path
 inflow, wall-distance, and multigrid settings into files such as ``cfd.txt``,
 ``vismodel.txt``, ``inflow.txt``, ``walldist.txt``, ``turb.txt``, and ``multigrid.txt``.
 
-``ConfigLoader`` parses each legacy file into a ``ConfigDocument``. In
-``ParaFile.cpp``, ``ConfigDatabaseAdapter::Commit()`` applies those entries through
-``ProcessData`` to the legacy runtime database. This is a useful migration boundary:
+``ControlManifestReader.cpp`` reads the ordered manifest and resolves each
+listed script path under the selected case directory. ``ControlFileReader.cpp``
+then orchestrates the listed files in that order. ``ConfigLoader`` parses each
+legacy file into a ``ConfigDocument``. ``ControlScriptParser.cpp`` invokes
+``ConfigDatabaseAdapter::Commit()``, whose implementation is in
+``ConfigDatabaseAdapter.cpp``. The adapter applies those entries through
+``ProcessData`` to the legacy runtime database. The adapter preserves document order;
+repeated names follow the runtime ``DataPara`` replacement policy. The current commit
+operation is incremental, not transactional: an error in a later entry does not roll
+back earlier entries. This is a useful migration boundary:
 the parser handles text syntax, while task and physics code remain responsible for
 runtime meaning.
 
@@ -95,6 +102,22 @@ from values inserted by defaults or derived during setup. Conditional visibility
 follow declared applicability rules rather than guesses from parameter names. A schema
 entry with unknown units, range, or consumer should say so instead of inventing a
 constraint.
+
+Configuration adapter tests
+----------------------------
+
+``TextFileParser_test`` now also exercises the production
+``ReadScriptFileNameList(caseDir, ...)`` operation with a temporary manifest.
+It checks that blank lines are skipped, listed paths are rooted under the case,
+and declaration order is preserved. This pins manifest discovery, not parsing
+or committing the listed scripts.
+
+``control_parameter_resolver_test`` also exercises the production
+``ConfigDatabaseAdapter`` against the real global ``DataBase``. It checks typed
+integer, real, and string entries and confirms that a later declaration of the same
+name replaces the earlier value. These are adapter/database contract tests; they do
+not exercise manifest ordering across multiple physical files, parallel distribution,
+or the complete ``ReadControlInfo(caseDir)`` operation.
 
 Current parser tests
 --------------------

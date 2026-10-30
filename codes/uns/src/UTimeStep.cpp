@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "UTimeStep.h"
+#include "NsVisFluxPolicy.h"
 #include "NsCom.h"
 #include "UNsCom.h"
 #include "UCom.h"
@@ -414,14 +415,18 @@ void UTimeStep::PrepareVisData()
 
 void UTimeStep::UpdateInvSpectrumField()
 {
-    ( * unsf.invsr )[ 0 ][ ug.lc ] += nscom.invsr;
-    ( * unsf.invsr )[ 0 ][ ug.rc ] += nscom.invsr;
+    DepositFaceScalarToCells(
+        nscom.invsr,
+        ( * unsf.invsr )[ 0 ][ ug.lc ],
+        ( * unsf.invsr )[ 0 ][ ug.rc ] );
 }
 
 void UTimeStep::UpdateVisSpectrumField()
 {
-    ( * unsf.vissr )[ 0 ][ ug.lc ] += nscom.vissr;
-    ( * unsf.vissr )[ 0 ][ ug.rc ] += nscom.vissr;
+    DepositFaceScalarToCells(
+        nscom.vissr,
+        ( * unsf.vissr )[ 0 ][ ug.lc ],
+        ( * unsf.vissr )[ 0 ][ ug.rc ] );
 }
 
 void UTimeStep::ModifyTimeStep()

@@ -106,6 +106,31 @@ which boundary it clarifies, which behavior must remain unchanged, and what evid
 would detect a regression. Avoid creating a new abstraction when a simpler name, explicit
 lifecycle, or focused contract test already makes the responsibility clear.
 
+Source comments and generated documentation
+-----------------------------------------
+
+Use source comments for contracts needed at declarations and call sites: purpose,
+units, ownership, valid ranges, side effects, failure behavior, and links to the
+design page. Use Doxygen-compatible comments for stable public interfaces and
+algorithm entry points; avoid duplicating long tutorials in headers.
+
+Keep ``doc/source`` as the canonical home for system architecture, design rationale,
+equations and symbol definitions, assumptions, diagrams, references, and validation
+evidence. Generated API pages complement these pages; they do not replace them.
+
+A staged route is preferable to immediately wiring a large documentation toolchain:
+
+1. Standardize Doxygen-compatible comments on one stable module or interface.
+2. Generate API documentation into a build directory and check that generation is
+   deterministic and does not dirty the source tree.
+3. If API pages need to appear inside Sphinx, evaluate Doxygen XML plus Breathe only
+   after the initial output is useful and repeatable.
+4. Keep formulas in Sphinx math directives, and use small source-controlled flow
+   diagrams to show lifecycle, data flow, and ownership. Each diagram should distinguish
+   current behavior from proposed design and link to implementation entry points.
+5. Treat generated documentation in CI as a reproducible artifact; do not commit
+   generated output unless the project explicitly adopts that publication model.
+
 Code entry points and responsibilities
 --------------------------------------
 
@@ -166,8 +191,126 @@ directory. `SimuImp::RunCase()` owns case teardown, including exceptional exits.
 to these lifetimes should be protected by tests that cover both successful execution and
 failure during setup or task execution.
 
+Case lifecycle: success and failure paths
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The current implementation has two nested cleanup responsibilities. The process owner
+initializes and finalizes shared runtime resources; the case owner tears down case-scoped
+solver, field, parameter, log, and project-path state. The lifecycle helpers in
+``codes/main/include/SimuCaseLifecycle.h`` preserve the original execution exception
+when cleanup also fails.
+
+.. code-block:: text
+
+   Simulation / SimuImp::Run
+       |
+       +-- SetupProcessEnvironment
+       |      parallel setup -> accelerator runtime setup
+       |
+       +-- RunCase
+       |      |
+       |      +-- PreProcess -> InitSimu -> SetupCaseEnvironment
+       |      |      case path/log binding
+       |      |      -> ReadControlInfo(caseDir)
+       |      |      -> read and validate CaseIOSettings
+       |      |      -> apply Prj roots -> write io_paths.txt
+       |      |
+       |      +-- MainProcess -> resolve task -> execute task
+       |      |
+       |      +-- PostProcess -> TeardownCase
+       |
+       +-- FinalizeEnvironment
+              accelerator finalization -> parallel finalization
+
+If setup or task execution throws inside ``RunCase()``, its cleanup callback attempts
+``PostProcess()`` before the original exception is rethrown. The outer process lifecycle
+then attempts process finalization. Cleanup failures do not replace an already active
+execution failure. If execution succeeds, a cleanup failure is allowed to propagate.
+These are observable contracts and should remain explicit when the orchestration boundary
+is extracted.
+
+This diagram describes the existing path; it does not imply that case setup is
+transactional. In particular, project and log bindings are established before the real
+control reader runs. A failed read can therefore leave partial state until the owning
+cleanup boundary runs. Direct callers of ``SetupCaseEnvironment()`` do not get the
+same automatic rollback that callers of ``SetupEnvironment()`` or ``SimuImp::RunCase()``
+receive. Integration tests must invoke the owning production boundary for cleanup claims.
+
+The next R1 acceptance evidence should cover distinct layers:
+
+* A minimal temporary multi-file case exercises the real ``ReadControlInfo(caseDir)``
+  and verifies typed database values plus ``log/database.log``.
+* A setup-only smoke test uses a verified case under ``test/`` and checks the resulting
+  effective roots and path diagnostics without running the solver task.
+* Two cases run sequentially in one process to show that the second case does not inherit
+  roots from the first.
+* A missing or malformed control input verifies cleanup and preservation of the original
+  exception.
+
+The existing lifecycle unit tests cover the generic callback ordering and exception
+policy, but they do not prove these production integration properties. R1 remains partial
+until the production reader, effective path binding, sequential isolation, and failure
+cleanup have direct evidence.
+
 Configuration boundaries
 -------------------------
+
+Case I/O configuration snapshot
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The case setup boundary reads optional path settings into one ``CaseIOSettings``
+value before applying configured roots to legacy ``Prj`` state. The snapshot
+includes ``ioPathInfoFileName``, which selects the path-diagnostic output name.
+A present setting must be a string; an absent setting uses the historical
+empty-value default. Legacy ``sourceGridCaseDir`` is consulted only when
+``meshInputRoot`` is empty or ``default``.
+
+The intended ordering is:
+
+.. code-block:: text
+
+   ReadControlInfo(caseDir)
+             |
+             v
+   ReadCaseIOSettings(DataPara)
+   [read + type-check all applicable settings]
+             |
+             v
+   ApplyCaseIOSettings(CaseIOSettings)
+             |
+             +--> Apply project and generic roots
+             |
+             +--> Apply mesh/flow-specific roots
+             |
+             v
+   Resolve and write io_paths.txt
+
+The declaration for ``SimuContextDetail::ApplyCaseIOSettings()`` is in
+``codes/main/include/SimuContextIO.h``; its implementation is compiled from
+``codes/main/src/SimuContextIO.cpp``. The implementation applies the validated
+snapshot through the existing ``Prj`` API and writes diagnostics to the mesh output root and,
+when distinct, the flow output root. The focused test target links the real
+``Prj`` path implementation and checks file placement and the effective roots
+serialized in each diagnostic file.
+
+This separates parameter interpretation from mutation of global path state. It
+does not make setup fully transactional: path application and filesystem output
+can still fail, so the surrounding case lifecycle must retain its cleanup path.
+These tests pin the post-reader operation; they do not yet prove production
+control-reader integration, sequential-case isolation, or failure cleanup.
+
+Root resolution has one important compatibility distinction. ``projectRoot`` is
+configured through ``Prj::SetProjectBaseDir()``: an absolute value is normalized
+directly, while a relative value is resolved against ``Prj::current_dir`` (the
+process working directory captured by project initialization). In contrast,
+ordinary relative ``inputRoot``, ``outputRoot``, and domain-specific roots resolve
+against the active case directory. The tokens ``case`` and ``default`` select
+the case root; ``project`` selects the configured project root and fails if no
+project root has been configured. This distinction is implemented in
+``codes/io/src/Prj.cpp`` and should not be changed implicitly as part of setup
+refactoring. A focused ``PrjIOPaths`` contract test pins the relative
+``projectRoot`` behavior separately from case-relative generic output.
+
 
 OneFLOW configuration is not a single undifferentiated settings file. Keep these layers
 separate when changing configuration behavior.
@@ -198,10 +341,18 @@ Case runtime configuration
    `SimuContextDetail::ReadOptionalStringParameter()` in
    `codes/main/include/SimuContextParameter.h`. The helper returns an empty string for a
    missing entry, verifies that a present entry is `HX_STRING`, and throws
-   `std::invalid_argument` naming the parameter when its declared type is wrong. This
-   narrows the earlier unchecked typed-read behavior for these optional path settings;
-   it does not make every control parameter type-safe, nor does the helper test validate
-   global database binding or the complete case-setup lifecycle.
+   `std::invalid_argument` naming the parameter when its declared type is wrong.
+
+   `ReadCaseIOSettings()` snapshots the generic and mesh/flow-specific root settings
+   into a value object before the runtime applies them through `Prj`. This separates typed
+   parameter lookup and legacy fallback selection from mutation of the process-global path
+   fields. The parameter adapter does not normalize paths or apply roots. The separate
+   `SimuContextDetail::ApplyCaseIOSettings()` is declared in
+   `codes/main/include/SimuContextIO.h` and implemented in
+   `codes/main/src/SimuContextIO.cpp`. Keeping path mutation in a source file prevents
+   every includer from inheriting the implementation's `Prj` and filesystem dependencies.
+   It applies the snapshot and writes path diagnostics; it does not replace the production
+   `ReadControlInfo(caseDir)` call.
 
    The legacy mesh input fallback is split into two explicit decisions.
    `ShouldUseLegacySourceGridCaseDir()` decides whether the configured
@@ -211,16 +362,15 @@ Case runtime configuration
    non-`default` legacy value replaces the fallback token; otherwise the original
    mesh input value is preserved. Explicit roots, including `case` and ordinary
    relative paths, therefore do not consult or get overridden by the legacy setting.
-   Focused tests cover both the lookup decision and the effective-value contract.
+   Focused tests cover the full settings snapshot, legacy fallback selection, and the
+   fact that an explicit mesh root does not read an invalid legacy parameter.
 
    Existing `Prj` tests cover generic/domain root resolution, inheritance, diagnostics,
    and resetting roots when binding another case. The helper-level
-   `simu_context_parameter_test` covers missing, valid-string, and invalid-type lookup.
-   A direct `SetupCaseEnvironment()` integration test is still needed to prove the
-   precedence between explicit `meshInputRoot` and `sourceGridCaseDir`, as well as the
-   interaction with control-file loading and sequential case setup. Keep the documented
-   contract aligned with `SimuContextEnv.cpp` and the path-resolution tests.
-
+   `simu_context_parameter_test` covers the complete settings object, missing/valid/invalid
+   parameter types, and application of mesh/flow roots to real diagnostic files. A direct
+   `SetupCaseEnvironment()` integration test is still needed to verify the real control
+   reader, sequential case setup, and failure cleanup together.
 Workbench project and workflow configuration
    Project definitions describe an engineering workspace; workflow definitions describe
    execution steps and their dependencies; run records describe individual attempts and
@@ -327,6 +477,77 @@ The code, tests, and documentation should be reviewed together. A document may d
 intended boundary before it is fully implemented only if it labels that boundary as
 proposed and names the gap.
 
+Numerical theory, references, and verification evidence
+-------------------------------------------------------
+
+Numerical documentation should connect the mathematical model to the implementation
+and to observable verification evidence. Equations and citations are not decoration:
+they make assumptions reviewable, help distinguish a published model from a code-specific
+variant, and give future maintainers a route to investigate or improve the implementation.
+
+For each substantial numerical algorithm or physical model, document the following where
+applicable:
+
+#. **Problem and assumptions:** governing equation or discrete problem, dimensionality,
+   coordinate conventions, units, boundary/initial conditions, and validity limits.
+#. **Mathematical definition:** define symbols and sign conventions; state the equation
+   actually implemented, including limiting cases and relevant stability or convergence
+   conditions. Do not copy an equation without checking it against the implementation.
+#. **Source and provenance:** cite the original paper or book for the method, a current
+   authoritative specification or maintainer resource when available, and the exact
+   version or section used. Prefer DOI, publisher pages, official project manuals, or
+   stable maintained URLs over search-result snippets.
+#. **Implementation mapping:** identify the OneFLOW entry point and key functions, explain
+   any differences from the cited formulation, and state whether a choice is a deliberate
+   variant, a compatibility constraint, or an unresolved question.
+#. **Verification:** link tests and representative cases to the properties they establish:
+   analytic or manufactured solutions, conservation, limiting behavior, grid/time
+   convergence, benchmark comparisons, or regression tolerances. A citation does not
+   prove the code is correct, and a passing unit test does not establish model validity.
+#. **Known limits:** record unsupported regimes, approximations, expected floating-point
+   variation, and evidence that has not yet been collected.
+
+Use references proportionally. A small utility function usually needs a contract and tests,
+not a literature review. A flux scheme, turbulence closure, reconstruction method, limiter,
+mesh-matching tolerance, or convergence algorithm may need a derivation or a clear citation
+because its mathematical choices affect results. When a formula is standard but a particular
+implementation choice is consequential, cite the standard formulation and explain the
+choice locally.
+
+Public open-source code and its theory/developer manuals can be valuable comparative
+evidence, but they are not automatically authoritative. Record the project version or commit,
+the relevant file or section, its license, and the exact behavior being compared. Treat
+closed-source manuals as secondary references when they are lawfully accessible; cite their
+title, publisher, edition/version, and relevant section without reproducing restricted text
+or assuming undocumented implementation details. Do not copy code or substantial prose
+from either open or closed sources without checking license and permission. Prefer an
+independent derivation and OneFLOW-specific explanation over a line-by-line imitation of
+another solver.
+
+For CFD verification and validation, useful starting points include the
+`NASA Turbulence Modeling Resource <https://tmbwg.github.io/turbmodels/>`_, which provides
+model definitions and verification cases, and the
+`NASA CFD Verification and Validation tutorial <https://www.grc.nasa.gov/www/wind/valid/tutorial/tutorial.html>`_.
+Use a source appropriate to the actual model or algorithm; these resources are starting
+points, not universal citations for every numerical method.
+
+The intended maintenance loop is:
+
+```text
+theory/reference -> OneFLOW formulation -> implementation -> focused tests
+        ^                                      |                |
+        |                                      v                v
+updated explanation <- discrepancy analysis <- case/regression evidence
+```
+
+When new evidence changes the understanding of an algorithm, update the algorithm page,
+its tests or reference cases where warranted, and the source links together. Keep claims
+labelled as verified, implemented-but-unverified, partial, or planned. This creates a
+traceable improvement loop; it does not mean that an automated agent may silently change
+scientific assumptions or accept its own output as proof. Changes to equations, model
+variants, tolerances, or reference baselines require explicit review and reproducible
+evidence.
+
 Related design pages
 --------------------
 
@@ -342,3 +563,119 @@ Parameter schema and GUI editing
 
 See :doc:`case_parameter_design` for the sample-backed parameter classification and
 for why a runtime database dump is not sufficient as an authoring model.
+
+Directory separators and path semantics
+---------------------------------------
+
+Treat filesystem paths as paths, not as strings with a required final separator. Use
+``std::filesystem::path`` composition (``root / relativePath``) when constructing child
+paths, and use lexical normalization for comparisons that are intended to ignore redundant
+separators or ``.`` components. Do not compare a path's raw string representation when the
+contract is directory identity: a trailing separator may differ without changing the
+represented directory.
+
+OneFLOW currently has a compatibility wrinkle. ``Prj::ResolveCaseDir()`` deliberately
+returns a directory string with a trailing separator because legacy call sites may rely
+on that representation. Other path helpers already use ``std::filesystem::path`` and
+normalize directory strings at selected boundaries. Therefore, the current contract is
+not yet “all internal directory strings are separator-free.” Do not remove the trailing
+separator globally until direct concatenations and legacy consumers have been audited and
+migrated to path composition. The safe incremental rule is:
+
+* preserve the existing public/legacy representation where compatibility requires it;
+* compose paths with ``std::filesystem::path`` rather than string concatenation;
+* normalize paths before semantic comparisons, while preserving filesystem roots;
+* test both ordinary directories and root directories on supported platforms.
+
+A directory-normalization helper must not strip a root such as ``/`` or ``C:\`` to an
+invalid or semantically different string such as ``C:``. The root length is the boundary
+for removing redundant trailing separators. This distinction matters on Windows, where a
+drive-relative path (``C:folder``) and a drive-rooted path (``C:\folder``) do not mean
+the same thing.
+
+The runtime uses ``Prj::AreSameDirectoryPath()`` for the decision that selects the
+default ``results/io_paths.txt`` location. This matters because ``ResolveCaseDir()``
+retains a trailing separator while resolved output roots may not. Comparing their
+``lexically_normal()`` paths directly can still treat these representations as unequal
+and choose the wrong diagnostic location. The shared comparison helper applies the same
+directory formatting policy used by ``WriteIOPathInfo()`` and rejects empty paths rather
+than treating two missing values as a directory.
+
+The decision can be summarized as:
+
+.. code-block:: text
+
+   configured mesh output root ----+
+                                    +--> both roots equal case root? -- yes --> results/io_paths.txt
+   configured flow output root -----+                            \-- no ---> io_paths.txt
+
+Both mesh and flow output roots must identify the active case directory for the default
+diagnostic to be written under ``results/``. An explicit ``ioPathInfoFileName`` still
+overrides this default.
+
+This is a staged compatibility policy, not a recommendation to keep trailing separators
+forever. The long-term direction is to carry ``std::filesystem::path`` values internally
+and convert to strings only at APIs that require them. Each migration should be justified
+by call-site evidence and tests, not by changing formatting alone.
+
+
+Control-file ingestion and its remaining module boundary
+---------------------------------------------------------
+
+The production case-specific entry point is
+``ReadControlInfo(caseDir)`` in ``codes/io/src/ControlFileReader.cpp``. Its
+responsibility is orchestration rather than numerical interpretation:
+
+#. Read the case's ``script/control.txt`` manifest.
+#. Resolve each listed script under the case directory and parse the files in order.
+#. Commit the resulting typed entries into the global ``DataPara`` store.
+#. Coordinate process status and broadcast the committed parameter database.
+#. Write the merged database snapshot to ``log/database.log``.
+
+The configuration pipeline already contains a useful internal separation:
+``ConfigLoader`` parses legacy text into a ``ConfigDocument``, while
+``ConfigDatabaseAdapter`` commits entries using their declared type names.
+The database then owns the typed values. A test of the real control reader must
+exercise these production stages rather than instantiate a test-only parser.
+
+The source-level split is now implemented. Reader orchestration is in
+``ControlFileReader.cpp``; script parsing and ConfigDocument commit are in
+``ControlScriptParser.cpp``; runtime array-size lookup is in
+``ControlParameterResolver.cpp``; database broadcast, compression/
+decompression, and diagnostic dumping are in ``ControlDatabaseIO.cpp``;
+legacy parameter inspection helpers remain in ``ParaFile.cpp``. Public
+declarations in ``ParaFile.h`` are unchanged. The repository's ``ConstructSolutionDirTree()``
+source collector recursively discovers C++ sources, so these files are expected
+to enter the production source list without a per-file CMake registration.
+This expectation still requires an exact-revision build.
+
+The split reduces responsibility overlap, but it does not yet make the real
+reader independently linkable: ``ReadMultiScriptFiles()`` calls
+``ReadOneFLOWScriptFile()`, which remains in ``ParaFile.cpp``. The next
+dependency review must determine whether to extract this parser adapter and its
+minimal dependencies into a third production unit or expose an existing narrow
+target. Do not duplicate parsing in a test.
+
+The component integration test must initialize the real serial parallel backend
+through ``SetUpParallelEnvironment()``, use a temporary multi-file control
+manifest, verify typed database values and the case-local database dump, and
+clear global database state afterwards. Sequential-case isolation and setup
+failure cleanup remain separate lifecycle acceptance criteria.
+
+The system-level benefit is a clearer ingestion pipeline and a first seam for
+replacing legacy syntax adapters without changing consumers. It does not alter
+any numerical algorithm or physical model. R1 remains partial until production
+reader integration, effective case path application, sequential-case isolation,
+and setup-failure cleanup have reproducible test evidence.
+
+For the broader target and staged evolution model, see
+:doc:`evolutionary_computation_architecture`.
+
+
+The resolver boundary has a focused test target,
+``control_parameter_resolver_test``, which exercises literal lengths,
+named lengths through the real DataBase, and missing-name failure. The
+``ConfigLoader_test`` suite separately exercises parser behavior with an
+injected resolver. These two test levels deliberately distinguish parsing
+semantics from runtime lookup. Neither replaces the pending production
+multi-file reader integration test.

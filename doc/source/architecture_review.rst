@@ -20,8 +20,46 @@ It separates three kinds of knowledge:
 
 This is a living review framework, not a claim that the architecture is complete.
 
+Highest-value improvement sequence
+---------------------------------
+
+This ordering is a working risk assessment, not a claim that every item is equally
+urgent or already implemented. Reorder it only when source inspection, tests, or
+representative runs provide stronger evidence.
+
+1. **Runtime lifecycle and state isolation.** Close the real case setup/read/apply/
+   teardown loop, especially failure cleanup and repeated cases in one process. The
+   runtime bridges explicit contexts to legacy global database, path, solver, and
+   accelerator state. This boundary can invalidate otherwise correct individual
+   modules and is the current active R1 slice.
+2. **Mesh topology and derived-data validity.** Specify ownership and invalidation for
+   node/face/cell connectivity, boundary/interface maps, ghost data, and cached
+   cell-to-cell/cell-to-face relations. Stale derived data can affect many algorithms
+   while appearing locally plausible. Prefer invariants and mutation-lifecycle tests
+   before broad data-structure replacement.
+3. **Numerical verification as a traceable chain.** For high-impact solver algorithms,
+   connect governing equations and assumptions to source formulas, limiting cases,
+   manufactured/analytic tests, conservation, convergence, and established benchmark
+   cases. Neither unit tests nor citations alone constitute physical validation.
+4. **Configuration schema and artifact provenance.** Keep parsing, type/schema
+   validation, semantic resolution, and application distinct; make workflow inputs,
+   outputs, staging roots, and producer-consumer dependencies explicit. This reduces
+   failures caused by ambiguous paths and implicit file handoff.
+5. **Build/test evidence and reproducibility.** Make focused targets, CTest discovery,
+   platform differences, and exact-commit CI evidence easy to reproduce. A larger test
+   count has value only when assertions cover the intended contracts.
+6. **Documentation generation and interface drift.** Generate mechanical API details
+   from structured source comments where stable, but keep architecture, rationale,
+   equations, assumptions, diagrams, and evidence curated in ``doc/source``. Start
+   with one documented module and measure generated-output stability before expanding.
+
+This sequence prioritizes state validity and numerical trust over cosmetic renaming
+or broad comment expansion. Improve names and comments as part of the relevant
+boundary work, not as a competing project.
+
 Review principles
 -----------------
+
 
 1. **Keep the whole-system model visible.** Before a local refactor, identify the
    subsystem, upstream inputs, downstream consumers, state ownership, lifecycle, and
@@ -79,39 +117,26 @@ where rules are mechanical, and test every generated or handwritten behavior at 
 Do not require every note to become a generator input. Start with one small vertical slice and
 measure whether generation reduces drift without making the design harder to understand.
 
-A reusable prompt for AI-assisted engineering
----------------------------------------------
+Standardized task specification
+--------------------------------
 
-Use this prompt at the start of a substantial task and again before declaring it done:
+Use the repository's maintained
+`AI-assisted engineering task specification <https://github.com/eric2003/OneFLOW/blob/hexin/doc/AI_TASK_TEMPLATE.md>`_
+for substantial implementation and refactoring work. A
+`Chinese version <https://github.com/eric2003/OneFLOW/blob/hexin/doc/AI_TASK_TEMPLATE_zh_CN.md>`_
+is available for Chinese-language task preparation.
 
-.. code-block:: text
+The specification defines the required project context, observable objective,
+whole-system priority assessment, pre-change investigation, implementation
+constraints, verification levels, documentation and scientific provenance,
+scope control, acceptance criteria, and delivery evidence.
 
-   Work from the latest hexin HEAD unless the task explicitly names another branch.
-   First read AGENTS.md, doc/AI_CONTEXT.md, this architecture review, and the relevant
-   subsystem guide. Confirm the current branch and revision.
-
-   Before editing:
-   - State the user-visible or maintenance problem in concrete terms.
-   - Map the actual entry point, direct callers, state/data ownership, lifecycle, failure
-     cleanup, tests, and downstream consumers.
-   - Locate the issue in the whole-system architecture map below.
-   - Separate verified behavior, suspected gaps, and proposed future design.
-   - Identify the smallest testable change and the evidence needed to accept it.
-   - Check whether the issue is local or a symptom of a larger unresolved boundary.
-
-   While working:
-   - Preserve compatibility unless a behavior change is explicit and tested.
-   - Do not introduce abstractions without a concrete consumer and benefit.
-   - Keep C++ source ASCII-only.
-   - Do not claim builds, tests, or CI results that were not observed for the exact revision.
-
-   Before finishing:
-   - Report what changed and what deliberately did not change.
-   - Report test commands, results, failures, and exact-revision CI evidence.
-   - Revisit the subsystem and whole-system maps: what architectural risk was reduced,
-     what remains open, and should priorities change?
-   - Update the relevant architecture page and roadmap, and update doc/AI_CONTEXT.md
-     only when the overall status or next action materially changes.
+This architecture review remains the system-level decision framework. The task
+specification defines how an individual work item is expressed and executed.
+Before implementation, read `AGENTS.md`, `doc/AI_CONTEXT.md`, this review,
+and the relevant subsystem guide; verify the current `hexin` HEAD. Before
+completion, report exact-revision evidence and reassess whether the work changes
+the system-wide priority order.
 
 Whole-system architecture map
 -----------------------------

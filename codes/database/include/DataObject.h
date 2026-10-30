@@ -31,6 +31,16 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+/**
+ * @brief Type-erased interface for one stored database value or array.
+ *
+ * Concrete TDataObject<T> instances own the typed storage. This base class
+ * exposes that storage to serialization, copying, diagnostics, and legacy
+ * pointer-based access without exposing T at the ownership boundary.
+ *
+ * GetVoidPointer() returns a borrowed pointer. It remains valid only while
+ * the owning DataObject and its underlying container storage remain unchanged.
+ */
 class DataObject
 {
 public:
@@ -45,10 +55,33 @@ public:
     virtual void Dump( std::fstream & file ) const {};
 };
 
+/**
+ * @brief Read one element from a mutable type-erased data object.
+ * @tparam T The exact element type used by the stored TDataObject<T>.
+ * @param dataObject Non-owning pointer to the object containing the value.
+ * @param iElement Zero-based element index; defaults to the first element.
+ * @return A copy of the selected value.
+ *
+ * The caller must provide a non-null object, the matching stored type, and
+ * an index within the object's element range. This low-level accessor does
+ * not perform runtime type or bounds checking.
+ */
 template < typename T >
 T GetDataValue( DataObject * dataObject, int iElement = 0 );
+
+/**
+ * @brief Read one element through a const type-erased data object.
+ * @tparam T The exact element type used by the stored TDataObject<T>.
+ * @param dataObject Non-owning pointer to the object containing the value.
+ * @param iElement Zero-based element index; defaults to the first element.
+ * @return A copy of the selected value.
+ *
+ * This overload provides read-only access and has the same type and index
+ * preconditions as the mutable overload. The returned value is a copy, not
+ * a reference into the database-owned storage.
+ */
 template < typename T >
-T GetDataValue( const DataObject * dataObject, int iElement );
+T GetDataValue( const DataObject * dataObject, int iElement = 0 );
 
 template < typename T >
 T GetDataValue( DataObject * dataObject, int iElement )
@@ -101,6 +134,8 @@ public:
 
 public:
     // Return raw pointer to underlying storage; return nullptr if container is empty
+    // The returned address is borrowed; callers must not retain it across
+    // operations that can resize or replace this vector.
     void* GetVoidPointer() override
     {
         if (data.empty())
@@ -108,6 +143,7 @@ public:
         return &data[0];
     };
 
+    // Const access exposes the same storage without permitting mutation.
     const void* GetVoidPointer() const override
     {
         if (data.empty())

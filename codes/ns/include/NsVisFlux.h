@@ -23,6 +23,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include "NsVisFluxPolicy.h"
 #include "VisGrad.h"
 BeginNameSpace( ONEFLOW )
 

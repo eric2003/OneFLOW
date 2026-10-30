@@ -21,40 +21,13 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "PIO.h"
-#include "Parallel.h"
-#include "OStream.h"
-
 #include "FileInfo.h"
-#include "Fatal.h"
-#include "Prj.h"
 #include "ActionState.h"
 #include "Task.h"
 #include "TaskState.h"
-#include <iostream>
 
 BeginNameSpace( ONEFLOW )
 
-
-void PIO::ParallelOpen( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode )
-{
-    if ( Parallel::pid != Parallel::GetFid() ) return;
-
-    Prj::OpenFile( file, fileName, openMode );
-}
-
-void PIO::OpenPrjFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode )
-{
-    if ( Parallel::pid != Parallel::GetFid() ) return;
-
-    Prj::OpenPrjFile( file, fileName, openMode );
-}
-
-void PIO::OpenCaseFile( std::fstream & file, const std::string & caseDir, const std::string & fileName, const std::ios_base::openmode & openMode )
-{
-    if ( Parallel::pid != Parallel::GetFid() ) return;
-
-    Prj::OpenCaseFile( file, caseDir, fileName, openMode );
-}
 
 void PIO::OpenPrjFile()
 {
@@ -64,13 +37,6 @@ void PIO::OpenPrjFile()
 void PIO::CloseFile()
 {
     PIO::CloseFile( * ActionState::file );
-}
-
-void PIO::CloseFile( std::fstream & file )
-{
-    if ( Parallel::pid != Parallel::GetFid() ) return;
-
-    Prj::CloseFile( file );
 }
 
 

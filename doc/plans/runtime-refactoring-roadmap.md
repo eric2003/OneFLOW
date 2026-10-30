@@ -2,7 +2,7 @@
 
 Status: In progress
 Branch baseline: `hexin`
-Last reviewed: 2026-10-26
+Last reviewed: 2026-10-30
 
 This is a living engineering roadmap, not a promise that every proposed boundary already
 exists. It records the direction and acceptance criteria for incremental runtime refactoring.
@@ -86,7 +86,7 @@ for mesh input, and writes path information.
 - Resolution rules can be tested without initializing the full solver where practical.
 - Relevant integration tests and Windows/Linux CI are reported against the changed commit.
 
-**Status:** Selected for investigation; implementation and acceptance tests are not yet claimed complete.
+**Status:** Partial. Root-setting lookup and legacy fallback selection are isolated into a tested value-object adapter. The real `SetupCaseEnvironment()` / `ReadControlInfo(caseDir)` integration path, effective `Prj` application, diagnostic output, and sequential-case behavior remain unverified.
 
 ### R2. Trace task selection and parameter semantics
 
@@ -145,7 +145,26 @@ engineering note.
 
 ## 4. Per-slice progress record
 
+### 2026-10-30 - Read all case I/O settings before path mutation
+
+- Based on inspected `hexin` HEAD `df567dba6f77abba725f05ce72cb32499046a653`; user reports 967/967 tests passed on the pre-change baseline.
+- Expanded the root-only `CaseIORootSettings` snapshot into `CaseIOSettings`, including `ioPathInfoFileName`. Production setup now reads and type-checks that setting before applying configured roots to global `Prj` state.
+- Added the diagnostic filename to the invalid-type contract test and full snapshot test. This verifies the configuration snapshot contract, not the complete production setup path.
+- Updated the runtime guide with a setup-order diagram and the limitation that the snapshot separates reads from mutations but does not make path application or filesystem output transactional.
+- Added a ranked whole-system improvement sequence and a staged source-comment-to-Sphinx documentation strategy to the architecture review and runtime guide.
+- Validation: source changes checked for expected symbols and ASCII-only C++ content. No C++ build, test run, documentation build, or exact-commit CI result is available in this environment.
+- System-level assessment: all applicable setup-time string settings are selected before root mutation, reducing partial configuration application on a type error. R1 remains Partial because real control-reader integration, effective path binding, diagnostics, sequential-case isolation, and failure cleanup are not covered end-to-end.
+
+
 Append a short entry when a slice materially advances. Keep it factual and link the exact commit.
+
+### 2026-10-30 - Extend the R1 root-setting type contract
+
+- Based on inspected `hexin` HEAD `5ae294d5956e8811762d96b402e93f3a77fece5b`; the user reports 966/966 tests passed on the pre-change baseline.
+- Extended `simu_context_parameter_test.cpp` so every root-setting key, including the conditional legacy `sourceGridCaseDir`, is checked for rejection when its declared type is not a string.
+- This is a narrow schema-contract test. It does not claim to exercise `ReadControlInfo(caseDir)`, effective `Prj` root application, path diagnostics, sequential-case reset, or failure cleanup.
+- Validation: test source and current call path inspected; no C++ build or test run in this environment. Exact-revision CI has not been checked.
+- System-level assessment: this improves the boundary between configuration interpretation and global path mutation, but does not change R1's Partial status. Next action remains a narrow production-owned setup orchestration seam that preserves the real control reader.
 
 ### 2026-10-26 - Initial roadmap
 
@@ -373,3 +392,22 @@ Commit: `d8568fe91722af5d78d8083d6bae23d9446d952d`
 - Validation: `ConfigLoader_test.exe` ran 5/5 tests, and `ctest --test-dir build -C Debug -R ConfigLoader --output-on-failure` passed all five after invoking the generated GTest discovery script. The CMake/MSBuild target returned failure with MSVC `C1902` PDB-manager mismatch errors; a clean target build is therefore unverified. A full Sphinx build of 109 sources passed using the installed Sphinx 9.2.0 with the built-in Alabaster theme override. The full C++ suite was not run.
 - Remaining: resolve/verify the compiler toolchain path and ensure post-build GTest discovery runs automatically, then test type conversion at `ConfigDatabaseAdapter` and representative task resolution.
 - Suggested commit: `test(config): specify legacy parameter parser contract`.
+
+
+### 2026-10-30 - Isolate case I/O root setting selection
+
+- Based on the latest inspected `hexin` revision before this slice, `eab1b83077e4ac5017e4c234f56250852971ecea`.
+- Added `CaseIORootSettings` and `ReadCaseIORootSettings(const DataPara&)` in `SimuContextParameter.h`. `SetupCaseEnvironment()` now obtains the generic and domain-specific root settings through this adapter, then continues to apply them through the existing `Prj` APIs.
+- Added focused tests for the complete root-setting snapshot, legacy `sourceGridCaseDir` fallback, and the requirement that an explicit `meshInputRoot` does not read an invalid legacy parameter.
+- Updated the runtime architecture guide to distinguish parameter selection from global path application and file output.
+- Validation: implementation and test changes are committed, but this environment did not build or run the target. The user's reported 963/963 result is the pre-change baseline and is not evidence for this slice.
+- Architecture assessment: configuration lookup and legacy fallback selection now have a value-object boundary that can be tested without constructing the full solver runtime. This does not close R1: a real `SetupCaseEnvironment()` integration test still needs to exercise `ReadControlInfo(caseDir)`, `Prj` root application, `io_paths.txt`, and sequential-case reset together.
+
+
+### 2026-10-30 - Pin project-root path resolution semantics
+
+- Based on current `hexin` HEAD `4b063d1334298fc7802f71a5fcc12e989c173c22`; inspected `Prj::SetProjectBaseDir()`, `ResolveBaseDirectory()`, and existing `PrjIOPaths` tests.
+- Added a focused contract test that makes the difference explicit: a relative `projectRoot` resolves against `Prj::current_dir`, while a generic output root set to `case` resolves against the active case directory.
+- Documented the compatibility distinction in `doc/source/runtime_architecture.rst`. This is a behavior clarification, not a path-semantics change.
+- Validation: source and test were edited through GitHub; no local build or CTest execution was available. The user-reported 967/967 pass remains the pre-change baseline and does not validate this test.
+- System-level value: reduces ambiguity in the case configuration contract before extracting the production setup path. R1 remains partial until the real control reader, effective roots, diagnostics, sequential isolation, and failure cleanup are tested together.

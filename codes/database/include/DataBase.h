@@ -43,6 +43,14 @@ class DataObject;
 class DataEntry;
 class DataField;
 
+/**
+ * @brief Owns the parameter store and field-pointer registry for a runtime.
+ *
+ * DataPara stores named, typed configuration/runtime parameters. DataField
+ * stores associations to externally managed field memory; it does not own
+ * the solver field arrays themselves. The unique_ptr members make DataBase
+ * the lifetime owner of these two registries.
+ */
 class DataBase
 {
 public:
@@ -108,12 +116,35 @@ class DataBase;
 template < typename T >
 void SetData( const std::string & name, T * value, int type, int size );
 
+/**
+ * @brief Read element zero of a named parameter from a mutable database.
+ * @tparam T Expected stored element type.
+ * @param varName Parameter key.
+ * @param database Database to query; defaults to the global runtime database.
+ * @return A copy of the stored value.
+ * @throws std::runtime_error If the database is null or the key is absent.
+ *
+ * The stored type must match T. Use the const overload for read-only database
+ * access. Array-valued parameters are read at element zero by this overload.
+ */
 template < typename T >
 T GetDataValue( const std::string & varName, DataBase * database = ONEFLOW::GetGlobalDataBase() );
+
+/**
+ * @brief Read element zero of a named parameter through a const database.
+ * @tparam T Expected stored element type.
+ * @param varName Parameter key.
+ * @param database Database to query; must not be null.
+ * @return A copy of the stored value.
+ * @throws std::runtime_error If the database is null or the key is absent.
+ *
+ * This overload does not permit mutation through the database lookup path.
+ * The stored type must match T.
+ */
 template < typename T >
 T GetDataValue( const std::string & varName, const DataBase * database );
 
-//Read the value of the variable with parameter type T and name Varname from the database
+// Resolve the named entry, then delegate typed extraction to DataObject.
 template < typename T >
 T GetDataValue( const std::string & varName, DataBase * database )
 {

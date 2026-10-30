@@ -196,8 +196,9 @@ void NsInvFlux::Roe()
 
     this->ModifyAbsoluteEigenvalue();
                
-    Real xi1 = ( two * inv.meig1 - inv.meig2 - inv.meig3 ) / ( two * c2 );
-    Real xi2 = ( inv.meig2 - inv.meig3 ) / ( two * inv.cm );
+    Real xi1, xi2;
+    RoeDissipationWaveCoefficients(
+        inv.meig1, inv.meig2, inv.meig3, c2, inv.cm, xi1, xi2 );
 
     inv.prim[ IDX::IR ] = inv.rm;
     inv.prim[ IDX::IU ] = inv.um;
@@ -210,23 +211,24 @@ void NsInvFlux::Roe()
         inv.prim[ iEqu ] = half * ( inv.prim1[ iEqu ] + inv.prim2[ iEqu ] );
     }
 
-    Real dc   = inv.vnflow * inv.dq[ IDX::IR  ] - 
-                gcom.xfn   * inv.dq[ IDX::IRU ] - 
-                gcom.yfn   * inv.dq[ IDX::IRV ] - 
-                gcom.zfn   * inv.dq[ IDX::IRW ];
-    Real c2dc = c2 * dc;
+    Real dc = RoeContinuityNormalJump(
+        inv.vnflow, gcom.xfn, gcom.yfn, gcom.zfn,
+        inv.dq[ IDX::IR ], inv.dq[ IDX::IRU ], inv.dq[ IDX::IRV ], inv.dq[ IDX::IRW ] );
 
     Real dh;
     CalcTotalEnthalpyChange( inv.prim, inv.gama, inv.dq, dh );
 
-    Real term1 = dh   * xi1 + dc * xi2;
-    Real term2 = c2dc * xi1 + dh * xi2;
+    Real term1, term2;
+    RoeDissipationCouplingTerms( dh, dc, c2, xi1, xi2, term1, term2 );
 
-    inv.flux[ IDX::IR  ] -= ( inv.meig1 * inv.dq[ IDX::IR  ] -          term1                      );
-    inv.flux[ IDX::IRU ] -= ( inv.meig1 * inv.dq[ IDX::IRU ] - inv.um * term1 + gcom.xfn   * term2 );
-    inv.flux[ IDX::IRV ] -= ( inv.meig1 * inv.dq[ IDX::IRV ] - inv.vm * term1 + gcom.yfn   * term2 );
-    inv.flux[ IDX::IRW ] -= ( inv.meig1 * inv.dq[ IDX::IRW ] - inv.wm * term1 + gcom.zfn   * term2 );
-    inv.flux[ IDX::IRE ] -= ( inv.meig1 * inv.dq[ IDX::IRE ] - inv.hm * term1 + inv.vnflow * term2 );
+    ApplyRoeDissipationFiveEq(
+        inv.meig1, term1, term2,
+        inv.um, inv.vm, inv.wm, inv.hm, inv.vnflow,
+        gcom.xfn, gcom.yfn, gcom.zfn,
+        inv.dq[ IDX::IR ], inv.dq[ IDX::IRU ], inv.dq[ IDX::IRV ],
+        inv.dq[ IDX::IRW ], inv.dq[ IDX::IRE ],
+        inv.flux[ IDX::IR ], inv.flux[ IDX::IRU ], inv.flux[ IDX::IRV ],
+        inv.flux[ IDX::IRW ], inv.flux[ IDX::IRE ] );
 
     for ( int iEqu = nscom.nBEqu; iEqu < nscom.nEqu; ++ iEqu )
     {
@@ -609,12 +611,9 @@ void NsInvFlux::Ausmp()
 
     inv.gama = half * ( inv.gama1 + inv.gama2 );
 
-    Real c2l = inv.gama * inv.pl * orl;
-    Real c2r = inv.gama * inv.pr * orr;
-
-    inv.cl  = sqrt( c2l );
-    inv.cr  = sqrt( c2r );
-    inv.cm  = half * ( inv.cl + inv.cr );
+    IdealGasBilateralSoundSpeeds(
+        inv.rl, inv.pl, inv.gama, inv.rr, inv.pr, inv.gama,
+        inv.cl, inv.cr, inv.cm );
 
     Real ocm = one / ( inv.cm + SMALL );
 
@@ -679,13 +678,9 @@ void NsInvFlux::AusmpUp()
     Real orl = 1.0 / ( inv.rl + SMALL );
     Real orr = 1.0 / ( inv.rr + SMALL );
 
-    Real c2l = inv.gama * inv.pl * orl;
-    Real c2r = inv.gama * inv.pr * orr;
-
-    //fourth speed interface
-    inv.cl  = sqrt( c2l );
-    inv.cr  = sqrt( c2r );
-    inv.cm  = half * ( inv.cl + inv.cr );
+    IdealGasBilateralSoundSpeeds(
+        inv.rl, inv.pl, inv.gama, inv.rr, inv.pr, inv.gama,
+        inv.cl, inv.cr, inv.cm );
 
     Real cm2 = inv.cm * inv.cm;
     Real ocm = one / ( inv.cm + SMALL );
@@ -791,18 +786,12 @@ void NsInvFlux::Ausmdv()
     Real orl = 1.0 / ( inv.rl + SMALL );
     Real orr = 1.0 / ( inv.rr + SMALL );
 
-    Real c2l = inv.gama * inv.pl * orl;
-    Real c2r = inv.gama * inv.pr * orr;
-
-    //This formula should refer to the literature, it is likely that there is a problem under the moving grid!!!!!!! eric 20140126
-    //VN here_ L and VN_ R is the normal velocity in the inertial coordinate system
-    //VNL and VNR are the normal velocities relative to the moving interface
     Real vn_l  = vnl + gcom.vfn;
     Real vn_r  = vnr + gcom.vfn;
 
-    //fourth speed interface
-    inv.cl  = sqrt( c2l );
-    inv.cr  = sqrt( c2r );
+    IdealGasBilateralSoundSpeeds(
+        inv.rl, inv.pl, inv.gama, inv.rr, inv.pr, inv.gama,
+        inv.cl, inv.cr, inv.cm );
     inv.cm  = MAX( inv.cl, inv.cr );
     Real ocm = one / ( inv.cm + SMALL );
 
@@ -998,18 +987,13 @@ void NsInvFlux::Ausmw()
 
     inv.gama = half * ( inv.gama1 + inv.gama2 );
 
-    Real orl = 1.0 / ( inv.rl + SMALL );
-    Real orr = 1.0 / ( inv.rr + SMALL );
-
     Real vnla  =  ABS( vnl );
-    Real alc   =  inv.gama * inv.pl * orl;
-
     Real vnra  =  ABS( vnr );
-    Real arc   =  inv.gama * inv.pr * orr;
 
-    Real al = sqrt( alc );
-    Real ar = sqrt( arc );
-    Real ai = half * ( al + ar );
+    Real al, ar, ai;
+    IdealGasBilateralSoundSpeeds(
+        inv.rl, inv.pl, inv.gama, inv.rr, inv.pr, inv.gama,
+        al, ar, ai );
 
     Real rai =  one / ( ai + SMALL );
 
@@ -1109,11 +1093,9 @@ void NsInvFlux::Ausmpw()
 
     inv.gama = half * ( inv.gama1 + inv.gama2 );
 
-    Real c2l = inv.gama1 * inv.pl * orl;
-    Real c2r = inv.gama2 * inv.pr * orr;
-    inv.cl  = sqrt( c2l );
-    inv.cr  = sqrt( c2r );
-    inv.cm  = half * ( inv.cl + inv.cr );
+    IdealGasBilateralSoundSpeeds(
+        inv.rl, inv.pl, inv.gama1, inv.rr, inv.pr, inv.gama2,
+        inv.cl, inv.cr, inv.cm );
 
     Real ocm = one / ( inv.cm + SMALL );
 
@@ -1198,13 +1180,9 @@ void NsInvFlux::Slau2()
     Real orl = 1.0 / ( inv.rl + SMALL );
     Real orr = 1.0 / ( inv.rr + SMALL );
 
-    Real c2l = inv.gama1 * inv.pl * orl;
-    Real c2r = inv.gama2 * inv.pr * orr;
-
-    inv.cl  = sqrt( c2l );
-    inv.cr  = sqrt( c2r );
-
-    inv.cm  = half * ( inv.cl + inv.cr ); //middle sound speed    
+    IdealGasBilateralSoundSpeeds(
+        inv.rl, inv.pl, inv.gama1, inv.rr, inv.pr, inv.gama2,
+        inv.cl, inv.cr, inv.cm );
 
     Real t = inv.rr / inv.rl;
     Real vna = ( ABS( vnl ) + t * ABS( vnr ) ) / ( 1 + t );
@@ -1262,21 +1240,13 @@ void CalcEnthalpy( RealField & prim, Real gama, Real & enthalpy )
 
 void CalcTotalEnthalpyChange( RealField & prim, Real & gama, RealField & dq, Real & dh )
 {
-    Real v2, ae, af;
+    Real & um = prim[ IDX::IU ];
+    Real & vm = prim[ IDX::IV ];
+    Real & wm = prim[ IDX::IW ];
 
-    Real & density  = prim[ IDX::IR ];
-    Real & um       = prim[ IDX::IU ];
-    Real & vm       = prim[ IDX::IV ];
-    Real & wm       = prim[ IDX::IW ];
-    Real & pressure = prim[ IDX::IP ];
-
-    v2 = ONEFLOW::SQR( um, vm, wm );
-
-    ae = gama - one;
-    af = half * ae * v2;
-    dh = - ae * ( um * dq[ IDX::IRU ] + vm * dq[ IDX::IRV ] + wm * dq[ IDX::IRW ] - dq[ IDX::IRE ] );
- 
-    dh += af * dq[ IDX::IR  ];
+    dh = RoeTotalEnthalpyJump(
+        um, vm, wm, gama,
+        dq[ IDX::IR ], dq[ IDX::IRU ], dq[ IDX::IRV ], dq[ IDX::IRW ], dq[ IDX::IRE ] );
 }
 
 void PrimToQ( RealField & prim, Real gama, RealField & q )
@@ -1299,25 +1269,9 @@ void PrimToQ( RealField & prim, Real gama, RealField & q )
 
 void QToPrim( RealField & q, Real gama, RealField & prim, RealField & temp )
 {
-    Real density = ABS( q[ IDX::IR ] );
-    prim[ IDX::IR ] = density;
-
-    Real rd = 1.0 / density;
-    Real um  = q[ IDX::IU ] * rd;
-    Real vm  = q[ IDX::IV ] * rd;
-    Real wm  = q[ IDX::IW ] * rd;
-    Real rem = q[ IDX::IP ];
-    Real v2  = ONEFLOW::SQR( um, vm, wm );
-
-    Real reint = rem - half * density * v2;
-
-    prim[ IDX::IR ] = density;
-    prim[ IDX::IU ] = um;
-    prim[ IDX::IV ] = vm;
-    prim[ IDX::IW ] = wm;
-
-    Real pressure = ( gama - one ) * reint;
-    prim[ IDX::IP ] = pressure;
+    IdealGasConservativeToPrim(
+        q[ IDX::IR ], q[ IDX::IU ], q[ IDX::IV ], q[ IDX::IW ], q[ IDX::IP ], gama,
+        prim[ IDX::IR ], prim[ IDX::IU ], prim[ IDX::IV ], prim[ IDX::IW ], prim[ IDX::IP ] );
 }
 
 

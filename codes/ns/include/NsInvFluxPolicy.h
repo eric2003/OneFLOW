@@ -115,4 +115,63 @@ void IdealGasPrimToConservative(
 // @doc-formula M = vn_rel / c
 Real FaceMachNumber( Real vnRel, Real soundSpeed );
 
+
+// @doc-algorithm ideal-gas-thermo
+// @doc-stage conservative-to-prim
+// @doc-pure
+void IdealGasConservativeToPrim(
+    Real qRho, Real qRhoU, Real qRhoV, Real qRhoW, Real qRhoE, Real gama,
+    Real & density, Real & u, Real & v, Real & w, Real & pressure );
+
+// @doc-algorithm roe-dissipation
+// @doc-stage wave-coefficients
+// @doc-pure
+// @doc-formula xi1 = (2*a1-a2-a3)/(2*c^2), xi2 = (a2-a3)/(2*c)
+void RoeDissipationWaveCoefficients(
+    Real absVnFixed, Real absVnPlusCFixed, Real absVnMinusCFixed,
+    Real soundSpeedSquared, Real soundSpeed,
+    Real & xi1, Real & xi2 );
+
+// @doc-algorithm roe-dissipation
+// @doc-stage continuity-normal-jump
+// @doc-pure
+// @doc-formula dc = vn * dq_rho - n · dq_{rho v}
+Real RoeContinuityNormalJump(
+    Real vnFlow,
+    Real xfn, Real yfn, Real zfn,
+    Real dqRho, Real dqRhoU, Real dqRhoV, Real dqRhoW );
+
+
+// @doc-algorithm roe-dissipation
+// @doc-stage total-enthalpy-jump
+// @doc-pure
+Real RoeTotalEnthalpyJump(
+    Real u, Real v, Real w, Real gama,
+    Real dqRho, Real dqRhoU, Real dqRhoV, Real dqRhoW, Real dqRhoE );
+
+// @doc-algorithm roe-dissipation
+// @doc-stage coupling-terms
+// @doc-pure
+// @doc-formula term1 = dh*xi1 + dc*xi2, term2 = c2*dc*xi1 + dh*xi2
+void RoeDissipationCouplingTerms(
+    Real dh, Real dc, Real soundSpeedSquared, Real xi1, Real xi2,
+    Real & term1, Real & term2 );
+
+// @doc-algorithm roe-dissipation
+// @doc-stage apply-five-eq
+// @doc-pure
+// Subtracts Roe dissipation from physical flux (in place).
+void ApplyRoeDissipationFiveEq(
+    Real meig1, Real term1, Real term2,
+    Real uMid, Real vMid, Real wMid, Real hMid, Real vnFlow,
+    Real xfn, Real yfn, Real zfn,
+    Real dqRho, Real dqRhoU, Real dqRhoV, Real dqRhoW, Real dqRhoE,
+    Real & fluxRho, Real & fluxMx, Real & fluxMy, Real & fluxMz, Real & fluxE );
+
+
+void IdealGasBilateralSoundSpeeds(
+    Real densityLeft, Real pressureLeft, Real gamaLeft,
+    Real densityRight, Real pressureRight, Real gamaRight,
+    Real & soundLeft, Real & soundRight, Real & soundAverage );
+
 EndNameSpace
