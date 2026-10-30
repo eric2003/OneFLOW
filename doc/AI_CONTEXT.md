@@ -535,3 +535,28 @@ Validation: no local compiler or CTest run was performed here. The user's
 981/981 result predates this slice. Inspect exact-HEAD Windows/Linux CI and
 request a fresh local test result before claiming the new integration test
 passes.
+
+
+## 2026-10-30 continuation: geometry-core PIO link dependency
+
+The user reported MSVC linker errors from `GridSummaryAdapterTest.exe`:
+`OneFLOW_GeometryCore.lib(Zone.obj)` and `GridGroup.obj` referenced
+explicit-path PIO methods that were no longer defined in `PIO.cpp`.
+
+Root cause: `tests/geometry/CMakeLists.txt` builds the shared
+`OneFLOW_GeometryCore` static library from an explicit source list. After
+explicit-path PIO methods were moved to `codes/io/src/PIOFileAccess.cpp`,
+this target still listed only `PIO.cpp`. The production executable's
+recursive source collection was not affected, and the IO ingestion test
+already listed the new source; the geometry test core was the missing
+consumer.
+
+Added `PIOFileAccess.cpp` beside `PIO.cpp` in the geometry-core source list.
+This fixes the shared library dependency for all geometry tests linking
+`OneFLOW_GeometryCore`, rather than patching only `GridSummaryAdapterTest`.
+
+Commit: `eab78cbcc4a0b9ee1fb59a439844a67c6bf7a687`.
+No local build or CTest was run here. Reconfigure/rebuild the Windows Debug
+geometry test target and run the full suite; this commit is not yet validated
+by the user's local test result. Also inspect exact-HEAD CI before treating
+the branch as green.
