@@ -21,24 +21,13 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "ParaFile.h"
-#include <memory>
 #include "TextFileParser.h"
-#include "DataBase.h"
 #include "DataBook.h"
-#include "ConfigLoader.h"
-#include "ConfigDatabaseAdapter.h"
 #include "LegacyParameterSyntax.h"
 #include "DataBase.h"
-#include "Parallel.h"
-#include "LogFile.h"
 #include "Fatal.h"
-#include "Prj.h"
-#include "FileUtils.h"
-#include "PIO.h"
-#include <iostream>
 #include <string>
 #include <vector>
-#include <map>
 
 
 BeginNameSpace( ONEFLOW )
@@ -46,29 +35,6 @@ BeginNameSpace( ONEFLOW )
 bool IsArrayParameter( const std::string & lineOfName )
 {
     return ONEFLOW::IsLegacyArrayParameter( lineOfName );
-}
-
-int GetParameterArraySize( const std::string & word )
-{
-    if ( Word::IsDigit( word ) )
-    {
-        return StringToDigit< int >( word );
-    }
-    return GetDataValue< int >( word );
-}
-
-void ReadOneFLOWScriptFile( TextFileParser & textFileParser )
-{
-    ConfigLoader loader( GetParameterArraySize );
-    loader.ParseFromParser( textFileParser );
-    ConfigDatabaseAdapter::Commit( loader.Document() );
-}
-
-void ReadOneFLOWScriptFile( const std::string & fileName )
-{
-    ConfigLoader loader( GetParameterArraySize );
-    loader.ParseFile( fileName );
-    ConfigDatabaseAdapter::Commit( loader.Document() );
 }
 
 void AnalysisArrayParameter( TextFileParser & textFileParser, int keyWordIndex )
