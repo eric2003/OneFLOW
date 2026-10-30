@@ -22,6 +22,8 @@ License
 
 #include "ParaFile.h"
 #include "DataBase.h"
+#include "LogFile.h"
+#include "Parallel.h"
 #include <gtest/gtest.h>
 #include <atomic>
 #include <chrono>
@@ -34,6 +36,22 @@ License
 using namespace ONEFLOW;
 
 namespace {
+
+class ScopedCaseLogBinding {
+public:
+    explicit ScopedCaseLogBinding( const std::string & caseDir )
+    {
+        logFile.SetCaseDir( caseDir );
+    }
+
+    ~ScopedCaseLogBinding()
+    {
+        logFile.ClearCaseDir();
+    }
+
+    ScopedCaseLogBinding( const ScopedCaseLogBinding & ) = delete;
+    ScopedCaseLogBinding & operator=( const ScopedCaseLogBinding & ) = delete;
+};
 
 class TemporaryControlCase {
 public:
@@ -219,4 +237,61 @@ TEST( ControlConfigurationIngestion, ReadsManifestScriptsAndCommitsTypedValuesIn
     EXPECT_EQ(
         GetDataValue<std::string>( "ingestion_marker", &database ),
         "second-file-loaded" );
+}
+
+
+TEST( ControlReaderIntegration, ReadsCaseScriptsAndWritesDatabaseDump )
+{
+    TemporaryControlCase testCase;
+    testCase.WriteManifest(
+        "\"reader_base.txt\";\n"
+        "\"reader_override.txt\";\n" );
+    testCase.WriteScript(
+        "reader_base.txt",
+        "int ingestion_reader_dimension = 2;\n"
+        "Real ingestion_reader_time_step = 0.002;\n" );
+    testCase.WriteScript(
+        "reader_override.txt",
+        "int ingestion_reader_dimension = 3;\n"
+        "string ingestion_reader_marker = \"reader-entry-loaded\";\n" );
+
+    ClearRuntimeParameters();
+    SetUpParallelEnvironment();
+
+    {
+        ScopedCaseLogBinding logBinding( testCase.CaseDirectory() );
+        ReadControlInfo( testCase.CaseDirectory() );
+    }
+
+    const DataBase & database = RequireGlobalDataBase();
+    EXPECT_EQ(
+        GetDataValue<int>( "ingestion_reader_dimension", &database ), 3 );
+    EXPECT_DOUBLE_EQ(
+        GetDataValue<Real>( "ingestion_reader_time_step", &database ), 0.002 );
+    EXPECT_EQ(
+        GetDataValue<std::string>(
+            "ingestion_reader_marker", &database ),
+        "reader-entry-loaded" );
+
+    const std::filesystem::path databaseDump =
+        std::filesystem::path( testCase.CaseDirectory() )
+        / "log" / "database.log";
+    ASSERT_TRUE( std::filesystem::exists( databaseDump ) );
+
+    std::ifstream input( databaseDump );
+    ASSERT_TRUE( input.good() );
+    const std::string dumpContents(
+        std::istreambuf_iterator<char>( input ),
+        std::istreambuf_iterator<char>() );
+    EXPECT_NE(
+        dumpContents.find( "ingestion_reader_dimension" ),
+        std::string::npos );
+    EXPECT_NE(
+        dumpContents.find( "ingestion_reader_marker" ),
+        std::string::npos );
+
+    EXPECT_TRUE(
+        std::filesystem::exists(
+            std::filesystem::path( testCase.CaseDirectory() )
+            / "log" / "log0.log" ) );
 }
