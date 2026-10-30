@@ -147,6 +147,36 @@ TEST( ControlConfigurationIngestion, ParseFailureDoesNotCommitPartialCurrentFile
 }
 
 
+TEST( ControlConfigurationIngestion, CommitFailureCanLeaveEarlierEntriesFromCurrentFile )
+{
+    TemporaryControlCase testCase;
+    testCase.WriteScript(
+        "base.txt",
+        "int ingestion_conflict_value = 31;\\n" );
+    testCase.WriteScript(
+        "conflict.txt",
+        "int ingestion_committed_before_conflict = 37;\\n"
+        "Real ingestion_conflict_value = 0.5;\\n" );
+
+    const std::vector< std::string > scriptFiles{
+        testCase.ScriptPath( "base.txt" ).string(),
+        testCase.ScriptPath( "conflict.txt" ).string()
+    };
+
+    ClearRuntimeParameters();
+
+    EXPECT_THROW( ReadMultiScriptFiles( scriptFiles ), std::runtime_error );
+
+    const DataBase & database = RequireGlobalDataBase();
+    EXPECT_EQ(
+        GetDataValue<int>( "ingestion_conflict_value", &database ), 31 );
+    EXPECT_EQ(
+        GetDataValue<int>(
+            "ingestion_committed_before_conflict", &database ), 37 );
+}
+
+
+
 } // namespace
 
 TEST( ControlConfigurationIngestion, ReadsManifestScriptsAndCommitsTypedValuesInOrder )
