@@ -423,3 +423,46 @@ Changes made:
 Commits in this documentation/API slice: `e1e3a231226635709156b939f686f47661268ffb`, `8504f6a5c2e85efe146823216f6b19d4ed7fef03`, `afe134cc5a5451a94341fb7b05f458aebbcb3999`, `c4b816cbd865223360f685a23ccd96dd4344d993`, `a6abebde9dc3120240ef2edf713b14a2c8ea8bc5`, `eb8590aef26e2ac0a47c9cb4ed85aa5ef5ca48ed`.
 
 Validation status: these changes have not yet been validated by a new local run or exact-HEAD CI. The 978/978 result is the pre-change baseline for this slice. R1 remains Partial. Next inspect exact-HEAD CI, then continue with explicit missing-file/parse-failure semantics and the separate runtime orchestration layer. Avoid implying the database guide proves unsupported behavior; it records current source-backed contracts and clearly separates remaining gaps.
+
+
+## 2026-10-30 continuation: configuration-ingestion failure semantics
+
+The user reports a pre-change local baseline of 978/978 tests passed. Do not
+treat this as validation of the following commits.
+
+Starting `hexin` HEAD was
+`3fadcbacafee01081b65bc889218045566dc6a46`. Sphinx passed on that exact
+revision; Windows and Linux build/test jobs were still in progress when
+inspected.
+
+Source review of `ConfigLoader`, `ControlScriptParser`,
+`ConfigDatabaseAdapter`, and `Prj::OpenFile` established the following
+current behavior:
+
+- The multi-file reader is sequential and incremental across files.
+- Each file is fully parsed into a fresh `ConfigDocument` before its adapter
+  commit begins.
+- Missing-file failure occurs during file open and leaves prior file commits
+  intact.
+- A parse-time failure prevents the current file's document from reaching the
+  adapter, so declarations parsed earlier in that same file are not committed.
+- The adapter's commit is itself not atomic across entries; a later entry
+  failure can leave earlier entries from the same document committed.
+
+Added tests for the first two failure boundaries in
+`tests/io/control_configuration_ingestion_test.cpp`, committed as
+`7c3d488665a35cd5aa293822c64ce9f8b5b91cd3`. The investigation plan was
+updated in `doc/plans/setup-case-environment-integration-test.md`, committed
+as `df4391a13de37950b24e3889df36eeb7dec5b65b`.
+
+The tests intentionally specify current behavior; they do not introduce
+whole-manifest rollback. No local build or CTest was run in this environment.
+The user's 978/978 result is the pre-change baseline only. Recheck exact-HEAD
+Windows, Linux, and Sphinx CI after the latest documentation commit.
+
+R1 remains Partial. The next larger boundary is still the real
+`ReadControlInfo(caseDir)` orchestration, including initialized serial
+parallel state, broadcast path, and `log/database.log`; after that, verify
+`SetupCaseEnvironment` path application, sequential-case isolation, and
+failure cleanup. Do not expand the test target by copying the full executable
+source list.
