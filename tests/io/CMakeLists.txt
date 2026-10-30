@@ -45,3 +45,50 @@ target_link_libraries(ConfigLoader_test PRIVATE GTest::gtest_main)
 target_compile_features(ConfigLoader_test PRIVATE cxx_std_20)
 
 gtest_discover_tests(ConfigLoader_test DISCOVERY_MODE PRE_TEST)
+
+# ---------------------------------------------------------------------------
+# Legacy control-parameter array-size resolver (real DataBase lookup)
+# ---------------------------------------------------------------------------
+set(CONTROL_RESOLVER_DB_DIR ${CMAKE_SOURCE_DIR}/codes/database)
+set(CONTROL_RESOLVER_BASIC_DIR ${CMAKE_SOURCE_DIR}/codes/basic)
+set(CONTROL_RESOLVER_PARALLEL_DIR ${CMAKE_SOURCE_DIR}/codes/parallel)
+set(CONTROL_RESOLVER_ZONE_DIR ${CMAKE_SOURCE_DIR}/codes/zone)
+
+add_executable(control_parameter_resolver_test
+  control_parameter_resolver_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/io/src/ControlParameterResolver.cpp
+  ${CONTROL_RESOLVER_DB_DIR}/src/DataBase.cpp
+  ${CONTROL_RESOLVER_DB_DIR}/src/DataPara.cpp
+  ${CONTROL_RESOLVER_DB_DIR}/src/DataBook.cpp
+  ${CONTROL_RESOLVER_DB_DIR}/src/DataField.cpp
+  ${CONTROL_RESOLVER_DB_DIR}/src/DataBaseType.cpp
+  ${CONTROL_RESOLVER_DB_DIR}/src/DataPage.cpp
+  ${CONTROL_RESOLVER_DB_DIR}/src/DataBaseIO.cpp
+  ${CONTROL_RESOLVER_BASIC_DIR}/src/Fatal.cpp
+  ${CONTROL_RESOLVER_BASIC_DIR}/src/Word.cpp
+  ${CONTROL_RESOLVER_PARALLEL_DIR}/src/BasicParallel.cpp
+  ${CONTROL_RESOLVER_PARALLEL_DIR}/src/Parallel.cpp
+  ${CONTROL_RESOLVER_ZONE_DIR}/src/ZoneState.cpp
+)
+
+target_include_directories(control_parameter_resolver_test
+  PRIVATE
+    ${CMAKE_SOURCE_DIR}/codes/io/include
+    ${CONTROL_RESOLVER_DB_DIR}/include
+    ${CONTROL_RESOLVER_BASIC_DIR}/include
+    ${CMAKE_SOURCE_DIR}/codes/array/include
+    ${CONTROL_RESOLVER_PARALLEL_DIR}/include
+    ${CONTROL_RESOLVER_ZONE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/codes/global/include
+)
+
+target_link_libraries(control_parameter_resolver_test
+  PRIVATE
+    GTest::gtest_main
+)
+
+target_compile_features(control_parameter_resolver_test PRIVATE cxx_std_20)
+
+gtest_discover_tests(control_parameter_resolver_test
+  DISCOVERY_MODE PRE_TEST
+)
