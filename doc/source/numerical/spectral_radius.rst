@@ -52,3 +52,11 @@ References
   implementation choices, not copy code).
 
 Pure APIs: ``TimeStepPolicy.h``. Tests: ``timestep_policy_test``.
+
+LUSGS reuse
+-----------
+
+``UNsLusgs::CalcViscousTerm`` routes through the same viscous spectral
+models as local time stepping. Face Roe averages for the implicit sweep
+use ``IdealGasStaticEnthalpy``, ``TotalEnthalpy``, and ``RoeAverageState``
+so LUSGS and inviscid flux share one average-state contract.

@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "NsLusgs.h"
+#include "NsInvFluxPolicy.h"
 #include "NsCom.h"
 #include "NsIdx.h"
 #include "HXMath.h"
@@ -102,24 +103,18 @@ void NsLusgs::GetFluxIncrement( int signOfMatrix )
 
 void NsLusgs::CalcFaceEigenValue( RealField & prim )
 {
-    //The value entered here should be the value on the action unit interface
+    // Face state on the LUSGS interface unit.
     Real & rm  = prim[ IDX::IR ];
     Real & um  = prim[ IDX::IU ];
     Real & vm  = prim[ IDX::IV ];
     Real & wm  = prim[ IDX::IW ];
     Real & pm  = prim[ IDX::IP ];
 
-    Real c2 = ABS( nslu.gama * pm / rm );
-    Real cm = sqrt( c2 );
+    const Real cm = IdealGasSoundSpeedFromPressure( rm, pm, nslu.gama );
+    const Real vn_rel = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, um, vm, wm );
 
-    Real vn_fluid = gcom.xfn * um + gcom.yfn * vm + gcom.zfn * wm;
-    Real vn_rel   = vn_fluid - gcom.vfn;
-
-    //Real lmd1 = vn_rel;
-    //Real lmd2 = vn_rel + cm;
-    //Real lmd3 = vn_rel - cm;
-
-    Real max_eigen = ABS( vn_rel ) + cm;
+    const Real max_eigen = ABS( vn_rel ) + cm;
 
     nslu.lmdOnFace1 = max_eigen;
     nslu.lmdOnFace2 = max_eigen;
