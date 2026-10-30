@@ -896,3 +896,64 @@ serial and does not claim MPI coverage.
 No local build or CTest was run in this environment. The user's 981/981
 report predates these edits. Exact-HEAD Windows/Linux CI and a new local test
 run are required before treating this slice as verified.
+
+
+## 2026-10-30 continuation: map the real Case lifecycle boundary
+
+The user reports 982/982 tests passed locally before this continuation. Treat
+that as the baseline for the current work, not as evidence for any later
+changes.
+
+A fresh inspection of `Simulation.cpp`, `SimuImp.cpp`,
+`SimuContextEnv.cpp`, `SimuContextIO.cpp`, and `Prj.cpp` confirms the
+production multi-case lifecycle:
+
+1. `Simulation::RunImpl` parses all case directories and initializes
+   process-level project state once.
+2. A dedicated process `SimuContext` owns
+   `SetupProcessEnvironment` / `FinalizeEnvironment`.
+3. Each directory creates a separate `SimuImp` and therefore a separate
+   case `SimuContext`.
+4. `SimuImp::RunCase` wraps `PreProcess` + `MainProcess` in
+   `ExecuteWithCleanup`; its cleanup invokes `PostProcess`, which calls
+   `TeardownCase`.
+5. `PreProcess` calls `SetupCaseEnvironment`; a setup exception therefore
+   still enters the same case cleanup path before the outer process lifecycle
+   finalizes the shared runtime.
+6. `SetupCaseEnvironment` binds `Prj::prjBaseDir`, binds the case log,
+   calls real `ReadControlInfo(caseDir)`, reads the typed IO settings from
+   the global DataBase, and applies them to the legacy `Prj` path state.
+7. `TeardownCase` releases solver/zone/field/database state, clears the
+   case log binding, and clears every case-specific `Prj` root. It does not
+   finalize the process runtime; that remains owned by the process context.
+
+The path lifecycle already has a focused contract test:
+`PrjIOPaths.DomainRootsResetWhenBindingNextCase` configures project and
+domain-specific roots for one case, binds a second case, and verifies that
+mesh/flow input/output paths resolve under the second case. The production
+`Prj::SetPrjBaseDir` resets project and domain roots, while
+`Prj::ClearPrjBaseDir` clears all of them. This is useful component-level
+evidence, but it is not a test of `SetupCaseEnvironment` or
+`TeardownCase` as composed by `SimuImp`.
+
+The key remaining integration gap is now narrower and explicit: the test
+suite separately exercises real `ReadControlInfo(caseDir)`, IO parameter
+snapshot/application, and `Prj` case-root reset, but does not invoke the
+production composition in `SimuContext::SetupCaseEnvironment` or its
+cleanup from `SimuImp::RunCase`.
+
+Do not label the existing `PrjIOPaths` test as sequential-case runtime
+isolation. Next, consider extracting the case bootstrap sequence into a small
+production translation unit with a narrow dependency surface, then link that
+same unit into a serial integration test. The extracted function must remain
+the one called by `SimuContext::SetupCaseEnvironment`; do not write a parallel
+test-only orchestration. The integration test should verify the actual
+case-root/log binding, reader/database ingestion, effective generic and
+domain IO paths, and diagnostic files. A separate higher-level test should
+exercise cleanup after a failure during bootstrap. Keep process-level MPI and
+accelerator initialization outside the serial case-bootstrap test, and retain
+a separate MPI lifecycle validation plan.
+
+No source change or post-baseline test result is claimed by this investigation
+entry. Exact-HEAD Windows/Linux CI for the preceding PIO link fix is still
+running at the time of this note.
