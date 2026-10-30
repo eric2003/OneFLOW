@@ -321,3 +321,100 @@ Validation status at this point:
 - Documentation check for `69a03cc`: successful.
 - Windows and Linux CI for `69a03cc`: in progress at last inspection.
 - No source-code or CMake changes were made in this follow-up; R1 remains Partial.
+
+
+## Implementation update: source responsibilities separated
+
+Base inspected: `hexin` HEAD `f20725d1d6b5721393273ffc4ccaff9d78b30bed`.
+
+The first production source split is now present:
+
+- `codes/io/src/ControlFileReader.cpp` owns both `ReadControlInfo`
+  overloads, `ReadPrjScript`, manifest enumeration, and ordered multi-script
+  orchestration.
+- `codes/io/src/ControlDatabaseIO.cpp` owns database broadcast, compression,
+  decompression, and database dump operations.
+- `codes/io/src/ParaFile.cpp` retains legacy syntax and parameter helpers.
+- `codes/io/include/ParaFile.h` keeps the existing public declarations.
+
+The extraction preserves function bodies and call order; it is intended to be
+behavior-preserving. No parser semantics, parameter types, broadcast policy,
+or lifecycle ownership were intentionally changed.
+
+### Why this is more than moving functions
+
+The original translation unit mixed three responsibilities: legacy syntax
+processing, orchestration of a multi-file case manifest, and transport/diagnostic
+operations on the runtime database. That made the dependency graph wider than
+the conceptual job being tested. The new files establish two named boundaries:
+the reader coordinates the ingestion stages; the database I/O module owns
+cross-process transfer and diagnostic persistence. The existing
+`ConfigLoader -> ConfigDocument -> ConfigDatabaseAdapter -> DataPara` chain
+remains the semantic path.
+
+The source collector `ConstructSolutionDirTree()` uses recursive source
+discovery, so the new C++ files are expected to be included automatically.
+This is a source-inspection finding, not a substitute for a clean build.
+
+### Expected issues and test purpose
+
+1. **Compile/source-discovery issue:** a new file might not enter the build,
+   or may expose missing direct includes. A clean Windows and Linux build must
+   establish the actual compilation boundary.
+2. **Remaining parser linkage:** `ReadMultiScriptFiles()` still calls
+   `ReadOneFLOWScriptFile()` in `ParaFile.cpp`. The reader is therefore not
+   yet proven independently linkable. The next step is to inspect the parser
+   adapter's dependencies and extract only that adapter if it yields a useful
+   production boundary.
+3. **Serial runtime issue:** `ReadControlInfo()` calls parallel coordination
+   even for one process. A real test must initialize `SetUpParallelEnvironment()`;
+   zero-initialized static fields are not a valid substitute.
+4. **Behavior regression:** the ordered manifest must still load every file,
+   commit declared types, broadcast the database, and write
+   `log/database.log`. A temporary fixture should assert representative typed
+   values and the diagnostic output.
+5. **Cross-case contamination:** case A's database and roots must not leak into
+   case B. A two-case test in one process is required.
+6. **Failure cleanup:** a missing or malformed control input must preserve the
+   original exception while leaving the next case able to initialize cleanly.
+
+The tests therefore serve distinct purposes: source/build checks catch module
+integration errors; the reader integration test pins the real ingestion
+contract; the two-case test pins state isolation; and the lifecycle failure test
+pins cleanup ownership. None of these tests establishes CFD numerical validity.
+
+### Architectural evolution model
+
+The target is a pipeline of small, explicit transformations rather than a
+single monolithic reader:
+
+```text
+legacy files
+  -> syntax adapter
+  -> ConfigDocument
+  -> typed parameter adapter
+  -> DataPara snapshot
+  -> distribution adapter
+  -> diagnostic serializer
+```
+
+Each stage should declare its input/output representation, invariants, units
+where applicable, ownership, side effects, lifecycle scope, and failure policy.
+The proposed machine-readable starting point is
+`doc/specs/computation-unit.schema.json`; the design discussion is in
+`doc/source/evolutionary_computation_architecture.rst`. These are architectural
+proposals, not a claim that a plugin runtime already exists.
+
+Short term, stabilize the real control reader and its test seam. Medium term,
+apply versioned intermediate representations and directional adapters to mesh,
+topology, boundary, and result data. Long term, compose alternative solver
+algorithms and dataflow stages against shared mathematical and data contracts.
+Dynamic plugin loading is deferred until an actual extension requirement justifies
+its cost.
+
+### Validation status
+
+- The source extraction is **implemented, unverified**.
+- No local build or CTest run was performed in this environment.
+- User-reported 971/971 is the pre-change baseline only.
+- R1 remains **Partial**. Do not infer successful integration from source separation.
