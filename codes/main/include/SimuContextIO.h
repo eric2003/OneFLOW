@@ -28,6 +28,10 @@ BeginNameSpace( ONEFLOW )
 namespace SimuContextDetail
 {
 
+// Execute the production case configuration bootstrap: bind case paths/log,
+// ingest the control database, validate IO settings, then apply effective roots.
+void InitializeCaseConfiguration( const std::string & caseDir );
+
 // Apply a validated case-I/O snapshot to the legacy project-path state and
 // write the diagnostic files. The caller must bind the case root first; the
 // production setup calls this after ReadControlInfo(caseDir).

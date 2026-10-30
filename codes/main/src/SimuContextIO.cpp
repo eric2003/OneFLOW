@@ -22,6 +22,9 @@ License
 #include "SimuContextIO.h"
 
 #include "Prj.h"
+#include "ParaFile.h"
+#include "LogFile.h"
+#include "DataBase.h"
 
 #include <filesystem>
 #include <string>
@@ -30,6 +33,19 @@ BeginNameSpace( ONEFLOW )
 
 namespace SimuContextDetail
 {
+
+void InitializeCaseConfiguration( const std::string & caseDir )
+{
+    // Bind all legacy case-relative state before reading case-owned inputs.
+    Prj::SetPrjBaseDir( caseDir );
+    logFile.SetCaseDir( caseDir );
+    ONEFLOW::ReadControlInfo( caseDir );
+
+    // Validate the complete settings snapshot before changing effective roots.
+    const CaseIOSettings settings = ReadCaseIOSettings(
+        RequireGlobalDataBase().RequireDataPara() );
+    ApplyCaseIOSettings( settings );
+}
 
 void ApplyCaseIOSettings( const CaseIOSettings & settings )
 {

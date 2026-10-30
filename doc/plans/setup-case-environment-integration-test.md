@@ -1024,3 +1024,40 @@ still needs to invoke the production ``SetupCaseEnvironment()`` composition
 and verify successful readiness, failure readiness, cleanup, and sequential
 case isolation. The reported 984/984 count predates this change; exact-HEAD
 Windows/Linux CI and a new local run are required.
+
+
+## 2026-10-30 continuation: extract and exercise the production Case bootstrap
+
+The user reports 984/984 local tests passed before this change. This is the
+pre-change baseline only. Starting revision:
+``485f9b96313a5e053bb170b4aef796c7672f770b`` on ``hexin``.
+
+The production sequence previously embedded in
+``SimuContext::SetupCaseEnvironment()`` has been extracted into
+``SimuContextDetail::InitializeCaseConfiguration(caseDir)`` in the existing
+``SimuContextIO.cpp`` translation unit. It performs the same operations in
+the same order: bind the case project root, bind the case log, call the real
+``ReadControlInfo(caseDir)``, read and validate the complete ``CaseIOSettings``
+snapshot, and apply effective generic and mesh/flow roots. The context method
+now owns only the lifecycle state transition around that production helper:
+clear readiness, invoke bootstrap, publish readiness on success.
+
+The serial ``control_configuration_test`` target links the same production
+translation unit. A new integration test configures all generic and domain
+roots for one case, verifies effective paths and diagnostic files, clears
+case-owned state while retaining process setup, then bootstraps a second case
+with default roots and verifies no prior configured root survives. The test
+uses real control manifests, real script parsing/database commits, real
+``ReadControlInfo``, and real path application; it does not duplicate the
+production orchestration.
+
+The test explicitly resets log, project path, and parameter state between
+the two helper calls. It therefore verifies bootstrap composition and
+case-root rebinding, not the production ``TeardownCase()`` wiring. Full
+``SimuImp::RunCase()`` failure cleanup, exact readiness flag integration,
+MPI multi-rank behavior, and accelerator resource teardown remain open. R1
+is improved but remains Partial until those higher-level boundaries are
+covered.
+
+No local build or CTest has been run here. The 984/984 report predates this
+change. Exact-HEAD Windows/Linux CI and a new local MSVC/CTest run are needed.

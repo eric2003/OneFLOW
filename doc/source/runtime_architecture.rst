@@ -719,3 +719,19 @@ IO-path application have all completed. If any step throws, the owning
 teardown, while the context remains not-ready. This distinction prevents
 callers from observing a partially initialized case as ready. It does not
 replace the outstanding integration test of the full production bootstrap.
+
+Production case-bootstrap composition
+-------------------------------------
+
+The ordered case bootstrap is factored into
+``SimuContextDetail::InitializeCaseConfiguration(caseDir)`` in
+``SimuContextIO.cpp``. This is the production function called by
+``SimuContext::SetupCaseEnvironment()``; it binds the case project root and
+log, invokes the real ``ReadControlInfo(caseDir)``, validates the typed IO
+settings snapshot, and applies the effective generic and mesh/flow roots.
+The serial integration target links this same production translation unit
+and exercises two successive case configurations, including configured
+roots on the first case and default-root rebinding on the second. The test
+explicitly resets case-owned state between calls; it does not claim to invoke
+the full ``SimuImp::RunCase()``, production ``TeardownCase()``, MPI
+collectives, or accelerator resource release.

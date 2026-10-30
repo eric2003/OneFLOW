@@ -59,6 +59,7 @@ set(CONTROL_RESOLVER_ZONE_DIR ${CMAKE_SOURCE_DIR}/codes/zone)
 add_executable(control_configuration_test
   control_parameter_resolver_test.cpp
   control_configuration_ingestion_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/main/src/SimuContextIO.cpp
   ${CMAKE_SOURCE_DIR}/codes/io/src/ControlManifestReader.cpp
   ${CMAKE_SOURCE_DIR}/codes/io/src/ControlScriptReader.cpp
   ${CMAKE_SOURCE_DIR}/codes/io/src/ControlFileReader.cpp
@@ -93,6 +94,7 @@ add_executable(control_configuration_test
 target_include_directories(control_configuration_test
   PRIVATE
     ${CMAKE_SOURCE_DIR}/codes/io/include
+    ${CMAKE_SOURCE_DIR}/codes/main/include
     ${CONTROL_RESOLVER_DB_DIR}/include
     ${CONTROL_RESOLVER_BASIC_DIR}/include
     ${CMAKE_SOURCE_DIR}/codes/array/include

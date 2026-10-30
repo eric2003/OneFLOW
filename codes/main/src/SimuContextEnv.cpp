@@ -103,17 +103,7 @@ void SimuContext::SetupCaseEnvironment()
     // A failed setup is still cleaned up by the owning RunCase/rollback path.
     envReady_ = false;
 
-    // Bind legacy case-relative IO to the explicit case before reading it.
-    Prj::SetPrjBaseDir( caseDir_ );
-
-    logFile.SetCaseDir( caseDir_ );
-    ONEFLOW::ReadControlInfo( caseDir_ );
-
-    // Snapshot and validate all optional roots before applying global path state.
-    const SimuContextDetail::CaseIOSettings ioSettings =
-        SimuContextDetail::ReadCaseIOSettings(
-            RequireGlobalDataBase().RequireDataPara() );
-    SimuContextDetail::ApplyCaseIOSettings( ioSettings );
+    SimuContextDetail::InitializeCaseConfiguration( caseDir_ );
 
     // Publish readiness only after the full bootstrap sequence succeeds.
     envReady_ = true;
