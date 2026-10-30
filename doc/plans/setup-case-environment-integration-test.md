@@ -844,3 +844,55 @@ That next step must model initialized serial/MPI state and real database
 diagnostics; do not replace it with mocks or copy the full executable source
 list. The source split and new integration call are implemented but await
 exact-HEAD CI and the user's local CTest result.
+
+
+## 2026-10-30 continuation: reader orchestration and parallel file ownership
+
+The user reports 981/981 tests passed before this continuation. That result is
+the starting baseline, not evidence for the changes below. Starting revision:
+`144cde3f472fc73d2a8633f84b5eaea874308de8` on `hexin`.
+
+A source-level dependency review found that the case-specific database dump
+did not use the parallel file-ownership boundary consistently:
+
+- `DumpDataBase()` opens its output through `PIO::OpenPrjFile`, which returns
+  immediately on non-owner ranks.
+- `DumpDataBase(caseDir)` previously called `Prj::OpenCaseFile` directly,
+  opening the same case-relative output on every rank, but closed it through
+  `PIO::CloseFile`, which is owner-filtered.
+- `Prj::OpenCaseFile` only resolves the case path, creates the parent
+  directory, and opens the stream; it does not perform rank ownership checks.
+
+The case overload now uses `PIO::OpenCaseFile` as well. This restores the
+same ownership rule for both database dump entry points and avoids concurrent
+multi-rank opens/truncation of `log/database.log`.
+
+To make the explicit path operations independently linkable without dragging
+the task-state-only PIO entry points into a focused runtime integration test,
+the explicit file operations (`ParallelOpen`, explicit `OpenPrjFile`,
+`OpenCaseFile`, and `CloseFile(fstream&)`) were moved into
+`codes/io/src/PIOFileAccess.cpp`. `PIO.cpp` now retains the implicit
+task-bound `OpenPrjFile()` and `CloseFile()` operations. The public PIO API
+is unchanged; production recursive source collection discovers the new
+translation unit.
+
+The `control_configuration_test` target now links the production
+`ControlFileReader.cpp`, `ControlDatabaseIO.cpp`, `PIOFileAccess.cpp`,
+and `LogFile.cpp`. A new serial-runtime integration test calls
+`SetUpParallelEnvironment()` and then the real
+`ReadControlInfo(caseDir)` entry point. It verifies:
+- two-file manifest ingestion and later-file override;
+- typed values in the actual global DataBase;
+- the case-relative `log/database.log` dump and its contents;
+- the case-bound broadcast diagnostic log.
+
+This test exercises the real serial process-coordination path and the
+single-process broadcast short circuit. It does **not** validate MPI
+collectives, multiple-rank file ownership at runtime, full
+`SetupCaseEnvironment()`, sequential-case isolation, or exception cleanup.
+Those remain separate R1 acceptance items. The test target is intentionally
+serial and does not claim MPI coverage.
+
+No local build or CTest was run in this environment. The user's 981/981
+report predates these edits. Exact-HEAD Windows/Linux CI and a new local test
+run are required before treating this slice as verified.
