@@ -1179,5 +1179,5 @@ reader:
 - A manifest that references a missing script throws and leaves readiness false.
 
 This advances R1 beyond testing only the bootstrap helper. It does not yet exercise
-production ``TeardownCase()`, the full ``SimuImp::RunCase()` exception boundary,
+production ``TeardownCase()``, the full ``SimuImp::RunCase()`` exception boundary,
 or process-runtime preservation. Those remain separate integration milestones.

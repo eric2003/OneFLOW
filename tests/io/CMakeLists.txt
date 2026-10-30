@@ -97,6 +97,7 @@ target_include_directories(control_configuration_test
   PRIVATE
     ${CMAKE_SOURCE_DIR}/codes/io/include
     ${CMAKE_SOURCE_DIR}/codes/main/include
+    ${CMAKE_SOURCE_DIR}/codes/accel/include
     ${CONTROL_RESOLVER_DB_DIR}/include
     ${CONTROL_RESOLVER_BASIC_DIR}/include
     ${CMAKE_SOURCE_DIR}/codes/array/include
