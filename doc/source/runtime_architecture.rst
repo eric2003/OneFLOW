@@ -788,3 +788,23 @@ environment is ready or its task is resolved. Move assignment remains
 disabled because replacing an existing context could abandon owned runtime
 state. This move operation transfers ownership; it does not perform resource
 teardown or process finalization.
+
+
+Accelerator backend-state ownership
+------------------------------------
+
+``EulerDomainStateRegistry`` owns backend state objects through unique ownership.
+Its container is held behind a ``std::unique_ptr<StateMap>``, allocated lazily on
+the first insertion. This is intentional: the registry's move operation transfers
+one pointer and therefore does not depend on the standard library's implementation-
+specific ``noexcept`` traits for moving or default-constructing
+``std::unordered_map``. The backend state objects themselves are not moved.
+After a move, the source registry is empty and remains valid; a later insertion
+allocates a fresh map.
+
+This is a small indirection with a clear lifecycle benefit. The registry is a member
+of the simulation context, whose move contract must not throw after process-lifecycle
+ownership has begun transferring. The invariant is tested at compile time and by
+a runtime ownership-transfer test. The trade-off is one allocation on first use and
+one pointer indirection for registry operations; an empty registry performs no
+allocation.
