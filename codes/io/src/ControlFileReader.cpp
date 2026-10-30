@@ -68,69 +68,6 @@ void ReadPrjScript( const std::string & caseDir )
     ONEFLOW::ReadMultiScriptFiles( scriptFileNameList );
 }
 
-void ReadScriptFileNameList( std::vector< std::string > & scriptFileNameList )
-{
-    TextFileParser textFileParser;
-
-    textFileParser.OpenFile(
-        Prj::GetPrjFileName( "script/control.txt" ),
-        std::ios_base::in );
-
-    // Tab is a separator.
-    std::string keyWordSeparator = " ()\r\n\t#$,;\"";
-    textFileParser.SetDefaultSeparator( keyWordSeparator );
-
-    while ( ! textFileParser.ReachTheEndOfFile() )
-    {
-        bool flag = textFileParser.ReadNextNonEmptyLine();
-        if ( ! flag ) break;
-
-        std::string scriptFileName =
-            textFileParser.ReadNextWord();
-
-        std::string fullScriptFileName =
-            Prj::GetPrjFileName(
-                "script/" + scriptFileName );
-
-        scriptFileNameList.push_back( fullScriptFileName );
-    }
-
-    textFileParser.CloseFile();
-}
-
-void ReadScriptFileNameList(
-    const std::string & caseDir,
-    std::vector< std::string > & scriptFileNameList )
-{
-    TextFileParser textFileParser;
-    textFileParser.OpenCaseFile(
-        caseDir,
-        "script/control.txt",
-        std::ios_base::in );
-
-    // Tab is a separator.
-    std::string keyWordSeparator = " ()\r\n\t#$,;\"";
-    textFileParser.SetDefaultSeparator( keyWordSeparator );
-
-    while ( ! textFileParser.ReachTheEndOfFile() )
-    {
-        bool flag = textFileParser.ReadNextNonEmptyLine();
-        if ( ! flag ) break;
-
-        std::string scriptFileName =
-            textFileParser.ReadNextWord();
-
-        std::string fullScriptFileName =
-            Prj::GetCaseFileName(
-                caseDir,
-                "script/" + scriptFileName );
-
-        scriptFileNameList.push_back( fullScriptFileName );
-    }
-
-    textFileParser.CloseFile();
-}
-
 void ReadMultiScriptFiles( std::vector< std::string > & scriptFileNameList )
 {
     for ( const std::string & scriptFileName : scriptFileNameList )
