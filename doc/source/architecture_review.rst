@@ -121,10 +121,10 @@ Standardized task specification
 --------------------------------
 
 Use the repository's maintained
-:doc:`AI-assisted engineering task specification <../AI_TASK_TEMPLATE>`
+`AI-assisted engineering task specification <https://github.com/eric2003/OneFLOW/blob/hexin/doc/AI_TASK_TEMPLATE.md>`_
 for substantial implementation and refactoring work. A
-:doc:`Chinese version <../AI_TASK_TEMPLATE_zh_CN>` is available for Chinese-language
-task preparation.
+`Chinese version <https://github.com/eric2003/OneFLOW/blob/hexin/doc/AI_TASK_TEMPLATE_zh_CN.md>`_
+is available for Chinese-language task preparation.
 
 The specification defines the required project context, observable objective,
 whole-system priority assessment, pre-change investigation, implementation
