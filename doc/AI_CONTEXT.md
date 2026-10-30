@@ -407,3 +407,19 @@ Corrected `codes/database/include/DataObject.h` by giving the const overload the
 The ingestion integration test's `const DataBase&` lookup now exercises this const overload directly. This is useful API-contract coverage: const database access must support scalar element-zero reads just as mutable database access does.
 
 Validation: source-level fix only at this point. No local MSVC build or CTest has been run by the assistant. The 977/977 result remains the pre-change baseline. Next: verify exact-HEAD Windows/Linux CI; inspect any compile/link/runtime failures before expanding R1. R1 remains **Partial**.
+
+
+## 2026-10-30 continuation: database contracts and documentation
+
+User-reported local validation before this continuation: 978/978 passed. The previous exact HEAD `cc73e947ceb0c9b9b88477f81aa0578012ba827b` had successful Windows, Linux, and Sphinx checks.
+
+Changes made:
+- Added API-level documentation to `DataObject.h` for the type-erased value boundary, borrowed raw storage access, and the preconditions of mutable/const `GetDataValue<T>` (non-null object, exact stored type, valid index). The two overloads have matching default index zero.
+- Documented `DataEntry`/`DataPara` ownership, borrowed lookup lifetimes, and same-key update behavior in `DataPara.h`.
+- Documented `DataBase` ownership of parameter and field registries, and mutable/const named lookup contracts in `DataBase.h`.
+- Extended the real configuration-ingestion test to exercise both mutable and const `DataBase` scalar reads.
+- Added `doc/source/database_architecture.rst` and linked it from the Sphinx index. It explains ownership, type erasure, parameter replacement, constness, field pointer registration, serialization, and the boundary between ingestion integration and full runtime integration.
+
+Commits in this documentation/API slice: `e1e3a231226635709156b939f686f47661268ffb`, `8504f6a5c2e85efe146823216f6b19d4ed7fef03`, `afe134cc5a5451a94341fb7b05f458aebbcb3999`, `c4b816cbd865223360f685a23ccd96dd4344d993`, `a6abebde9dc3120240ef2edf713b14a2c8ea8bc5`, `eb8590aef26e2ac0a47c9cb4ed85aa5ef5ca48ed`.
+
+Validation status: these changes have not yet been validated by a new local run or exact-HEAD CI. The 978/978 result is the pre-change baseline for this slice. R1 remains Partial. Next inspect exact-HEAD CI, then continue with explicit missing-file/parse-failure semantics and the separate runtime orchestration layer. Avoid implying the database guide proves unsupported behavior; it records current source-backed contracts and clearly separates remaining gaps.
