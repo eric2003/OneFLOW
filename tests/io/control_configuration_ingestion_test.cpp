@@ -104,7 +104,7 @@ void ClearRuntimeParameters()
 TEST( ControlConfigurationIngestion, MissingScriptPreservesEarlierFileCommits )
 {
     TemporaryControlCase testCase;
-    testCase.WriteScript( "available.txt", "int ingestion_before_missing = 17;\\n" );
+    testCase.WriteScript( "available.txt", "int ingestion_before_missing = 17;\n" );
 
     const std::vector< std::string > scriptFiles{
         testCase.ScriptPath( "available.txt" ).string(),
@@ -123,11 +123,11 @@ TEST( ControlConfigurationIngestion, MissingScriptPreservesEarlierFileCommits )
 TEST( ControlConfigurationIngestion, ParseFailureDoesNotCommitPartialCurrentFile )
 {
     TemporaryControlCase testCase;
-    testCase.WriteScript( "available.txt", "int ingestion_before_parse_error = 23;\\n" );
+    testCase.WriteScript( "available.txt", "int ingestion_before_parse_error = 23;\n" );
     testCase.WriteScript(
         "invalid.txt",
-        "int ingestion_uncommitted_prefix = 29;\\n"
-        "int ingestion_invalid_array[missing_array_size] = 1;\\n" );
+        "int ingestion_uncommitted_prefix = 29;\n"
+        "int ingestion_invalid_array[missing_array_size] = 1;\n" );
 
     const std::vector< std::string > scriptFiles{
         testCase.ScriptPath( "available.txt" ).string(),
