@@ -46,8 +46,10 @@ public:
 
     SimuContext( const SimuContext& ) = delete;
     SimuContext& operator=( const SimuContext& ) = delete;
+    // Moving transfers process-runtime ownership; move assignment is
+    // disabled because it could overwrite an already active runtime owner.
     SimuContext( SimuContext&& ) = default;
-    SimuContext& operator=( SimuContext&& ) = default;
+    SimuContext& operator=( SimuContext&& ) = delete;
 
     // ---- read-only accessors; tasks receive the mutable owner explicitly ----
     const std::vector<std::string>& Args() const { return args_; }

@@ -746,3 +746,17 @@ remains partial because the public readiness transition in
 ``SetupCaseEnvironment()`` and cleanup wiring through production
 ``RunCase() -> PostProcess() -> TeardownCase()`` are not yet exercised
 end-to-end.
+
+Process runtime ownership and Context moves
+-------------------------------------------
+
+SimuContext is move-constructible because a context may be transferred to
+another owner. Its process-runtime marker must move with it: copying the
+Active phase would leave both the source and destination claiming to own
+the same process lifecycle. ProcessRuntimeState is therefore non-copyable
+and has a transfer move constructor. The moved-from marker enters a terminal
+MovedFrom phase, so it cannot be started again accidentally. Move
+assignment is disabled for both the marker and SimuContext because
+overwriting a destination could abandon an already active process-runtime
+owner. This is an ownership rule, not a resource-finalization operation; the
+destination remains responsible for the eventual explicit process teardown.

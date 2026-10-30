@@ -1106,3 +1106,30 @@ integration.
 No local build or CTest was run in this environment. The 985/985 report
 predates this change. Exact-HEAD Windows/Linux CI and a fresh local MSVC/CTest
 run are required.
+
+
+## 2026-10-31 continuation: transfer process lifecycle ownership on Context move
+
+Starting revision: `53f16d4cf6bcff0761f0c04e3619cc1c9cdc2c3d`.
+The user reports 985/985 local tests passed before this continuation; that
+count is a pre-change baseline.
+
+A lifecycle ownership review found that `SimuContext` was move-constructible
+and move-assignable while its `ProcessRuntimeState` was an ordinary enum
+wrapper. Default move operations therefore copied the `Active` phase,
+allowing both the moved-from and destination contexts to report that they
+owned the same process runtime. Move assignment could also overwrite an
+already-active destination marker without finalizing its runtime.
+
+The process state is now non-copyable and move-constructible with explicit
+transfer semantics. The source enters a terminal `MovedFrom` phase, which
+is neither active nor restartable. `SimuContext` retains move construction
+but disables move assignment to avoid replacing an existing lifecycle owner.
+Focused tests cover active-state transfer and the non-copyable/non-assignable
+contract. Runtime architecture documentation records the ownership rule.
+
+This does not finalize or release MPI/accelerator resources during a move.
+The destination remains responsible for the existing explicit teardown path.
+No local build or CTest was run in this environment; 985/985 is the
+pre-change baseline. Windows/Linux CI and a fresh local MSVC/CTest run are
+required.
