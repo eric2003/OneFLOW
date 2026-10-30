@@ -2,8 +2,8 @@
 
 Last updated: 2026-10-30
 Working branch: `hexin`
-Latest slice: extracted control-reader orchestration into `codes/io/src/ControlFileReader.cpp` and database broadcast/compression/dump into `codes/io/src/ControlDatabaseIO.cpp`; `ParaFile.cpp` retains legacy parser and parameter helpers. Public declarations remain in `ParaFile.h`. The extraction is source-level and unverified. `ReadMultiScriptFiles()` still calls `ReadOneFLOWScriptFile()` in `ParaFile.cpp`, so a focused real-reader target may still pull legacy dependencies. Next inspect this adapter boundary, verify recursive CMake source discovery, then build and add a real multi-file reader integration test. R1 remains partial.
-User-reported pre-change baseline for the current work slice: 971/971 tests passed. This is not evidence for later changes.
+Latest inspected `hexin` base: `a40941b661f53f54add332627cbfc939db057a34`. The current source split places manifest orchestration in `ControlFileReader.cpp`, parsing and `ConfigDocument` commit in `ControlScriptParser.cpp`, database-backed array-size lookup in `ControlParameterResolver.cpp`, and broadcast/compression/decompression/diagnostic dumping in `ControlDatabaseIO.cpp`. `ParaFile.cpp` retains legacy parameter-inspection helpers; public declarations remain in `codes/io/include/ParaFile.h`. Recursive source discovery is expected to include the new translation units, but exact-revision build/CI evidence is still required. `ReadMultiScriptFiles()` calls the public `ReadOneFLOWScriptFile()` declaration, whose implementation is now in `ControlScriptParser.cpp`.
+User-reported pre-change local baseline for this work slice: 974/974 tests passed. This is not evidence for any later change.
 
 ## Current focus: R1 case I/O root configuration contract
 
@@ -21,8 +21,8 @@ System-level reason: configuration lookup and type validation are now separated 
 
 ## Validation status
 
-- User-reported pre-change baseline for the current work slice: 971/971 tests passed.
-- The user-reported 971/971 result is the pre-change local baseline, not a result for the latest revision.
+- User-reported pre-change baseline for the current work slice: 974/974 tests passed.
+- The user-reported 974/974 result is the pre-change local baseline, not a result for the latest revision.
 - Exact-HEAD CI for `d080aaa1b6a567ae3d0f2f5034f9332600c3e7ec`: [Windows](https://github.com/eric2003/OneFLOW/actions/runs/40954345525), [Linux](https://github.com/eric2003/OneFLOW/actions/runs/40954345454), and [documentation](https://github.com/eric2003/OneFLOW/actions/runs/40954345433) completed successfully. These results validate that revision only.
 - The documentation workflow for `69a03cc27dd7ed7ab78c7516d4265138d00b20e8` completed successfully: [documentation check](https://github.com/eric2003/OneFLOW/actions/runs/41046094881). Windows and Linux workflows for that revision were still in progress at the latest check: [Windows](https://github.com/eric2003/OneFLOW/actions/runs/41046094753), [Linux](https://github.com/eric2003/OneFLOW/actions/runs/41046094882).
 - No local test run is available in this environment. The user-reported 971/971 remains the pre-change baseline.
@@ -91,14 +91,14 @@ A new unverified test in `tests/main/prj_cmdline_test.cpp` pins the existing dis
 
 ## 5. Next actions, in priority order
 
-1. Verify the extracted C++ files enter the recursive CMake source list and compile on Windows and Linux.
-2. `ReadOneFLOWScriptFile()` now lives in `ControlScriptParser.cpp`; `GetParameterArraySize()` now lives in `ControlParameterResolver.cpp`. Inspect exact source dependencies and compile these units.
-3. Preserve ConfigLoader tests for injected resolver semantics; add focused resolver tests for literal and database-backed lengths.
-4. Add a temporary multi-file integration fixture using `SetUpParallelEnvironment()`, the real `ReadControlInfo(caseDir)`, typed database assertions, and `log/database.log` verification.
-5. Add two-case isolation and failure-cleanup evidence at the correct case/process lifecycle boundaries.
-6. Refresh this handoff from exact `hexin` HEAD and record exact-commit CI status.
+1. Check Windows and Linux CI for the exact source revision `a40941b661f53f54add332627cbfc939db057a34`; do not infer a pass from queued or in-progress runs.
+2. Verify the recursive CMake source collector includes the parser and resolver translation units and inspect any CI link/build failures.
+3. Preserve ConfigLoader's injected-resolver tests and the database-backed resolver tests as separate contracts.
+4. Build a minimal target for the real `ReadControlInfo(caseDir)` path, initialized through `SetUpParallelEnvironment()`, with typed database assertions and `log/database.log` verification. Avoid copying the entire executable source list into a test target.
+5. Extend from reader integration to effective `SetupCaseEnvironment()` path application, two-case isolation, and failure cleanup at the correct case/process lifecycle boundaries.
+6. Reassess whether a reusable runtime library boundary is justified by this test and production dependency graph; do not introduce a generic lifecycle framework merely to make the test link.
 
-Suggested next mainline: a testable setup orchestration boundary, not another path resolver or a broad runtime rewrite.
+Suggested next mainline: the real multi-file control-reader integration path, not another source split or path helper. The whole-project investment ranking is documented in `doc/source/architecture_priority_roadmap.rst`.
 ## 6. Status vocabulary
 
 Use these labels consistently in this page and related records:
@@ -143,3 +143,27 @@ The new design page `doc/source/evolutionary_computation_architecture.rst` defin
 Latest source slice (implemented, unverified): `ReadOneFLOWScriptFile` overloads moved from `ParaFile.cpp` to `ControlScriptParser.cpp`; `GetParameterArraySize` moved to `ControlParameterResolver.cpp`. This makes the injected resolver seam in `ConfigLoader` explicit: parser tests can supply deterministic array-size resolution, while production uses the real database-backed resolver. The legacy `ParaFile.cpp` now retains inspection helpers. See `doc/plans/setup-case-environment-integration-test.md` for expected failure modes, partial-commit/transaction design question, and validation boundaries.
 
 A focused `tests/io/control_parameter_resolver_test.cpp` and CMake target now cover literal array lengths, named lengths through the real DataBase, and missing-name failure. This is component evidence for the resolver only; full `ReadControlInfo(caseDir)` ingestion and parallel/database-dump integration remain open.
+
+
+## Architecture investment and documentation policy
+
+The ranked system-wide investment sequence is recorded in
+`doc/source/architecture_priority_roadmap.rst`: (1) runtime lifecycle and
+case isolation, (2) mesh core/topology/boundary lifecycle, (3) numerical
+algorithm verification, (4) computation-unit contracts and dataflow
+composition, (5) workflow/GUI, and (6) documentation automation. This is a
+priority order, not a claim that lower-ranked work is unimportant.
+
+Use source comments for stable API contracts and generate API reference pages
+from Doxygen-compatible comments where practical. Comments should describe
+intent, units, ownership/lifetime, invariants, preconditions, postconditions,
+side effects, and failure semantics. Keep cross-file architecture, mathematical
+derivations, numerical assumptions, experimental results, diagrams, and
+reference comparisons in curated `doc/source` pages. Generated API docs
+complement these guides; they do not replace them.
+
+The architecture priority roadmap uses Sphinx math and text diagrams to make
+the ranking, configuration transformation path, mesh representation layers,
+and numerical verification chain explicit. Continue using equations, figures,
+and diagrams where they explain actual algorithms or boundaries, and label
+planned designs as proposals rather than implemented behavior.
