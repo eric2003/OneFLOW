@@ -25,6 +25,7 @@ License
 #include "LogFile.h"
 #include "Prj.h"
 #include "SimuContextBootstrap.h"
+#include "SimuContext.h"
 #include "SimuContextIO.h"
 #include "Parallel.h"
 #include <gtest/gtest.h>
@@ -357,6 +358,49 @@ TEST( ControlReaderIntegration, CaseBootstrapAppliesSettingsAndRebindsNextCase )
     logFile.ClearCaseDir();
     Prj::ClearPrjBaseDir();
     ClearRuntimeParameters();
+}
+
+TEST( ControlReaderIntegration, ContextSetupPublishesReadinessAfterBootstrap )
+{
+    TemporaryControlCase testCase;
+    ScopedCaseRuntimeReset runtimeReset;
+
+    testCase.WriteManifest( "\"bootstrap.txt\";\n" );
+    testCase.WriteScript(
+        "bootstrap.txt",
+        "int context_bootstrap_dimension = 2;\n" );
+
+    ClearRuntimeParameters();
+    EnsureParallelEnvironment();
+
+    SimuContext context( testCase.CaseDirectory(), false );
+    EXPECT_FALSE( context.IsEnvironmentReady() );
+
+    EXPECT_NO_THROW( context.SetupCaseEnvironment() );
+
+    EXPECT_TRUE( context.IsEnvironmentReady() );
+    EXPECT_EQ(
+        GetDataValue<int>(
+            "context_bootstrap_dimension", &RequireGlobalDataBase() ),
+        2 );
+}
+
+TEST( ControlReaderIntegration, FailedContextSetupDoesNotPublishReadiness )
+{
+    TemporaryControlCase testCase;
+    ScopedCaseRuntimeReset runtimeReset;
+
+    testCase.WriteManifest( "\"missing_bootstrap.txt\";\n" );
+
+    ClearRuntimeParameters();
+    EnsureParallelEnvironment();
+
+    SimuContext context( testCase.CaseDirectory(), false );
+    EXPECT_FALSE( context.IsEnvironmentReady() );
+
+    EXPECT_THROW( context.SetupCaseEnvironment(), std::runtime_error );
+
+    EXPECT_FALSE( context.IsEnvironmentReady() );
 }
 
 TEST( ControlReaderIntegration, ReadsCaseScriptsAndWritesDatabaseDump )

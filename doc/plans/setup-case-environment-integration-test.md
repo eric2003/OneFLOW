@@ -1159,3 +1159,25 @@ moved-from state reset, including accelerator registry ownership. This does
 not exercise the production setup/teardown path or release resources during
 the move. No local build or CTest was run in this environment; 987/987 is the
 pre-change baseline.
+
+
+## Implementation update: exercise the production context setup method
+
+The case setup operation has been moved from the broad
+``SimuContextEnv.cpp`` translation unit into
+``SimuContextCaseEnvironment.cpp``. The production implementation still calls
+``SimuContextDetail::InitializeCaseConfiguration(caseDir_)`; this is a translation-
+unit boundary change, not a second bootstrap implementation.
+
+The existing ``control_configuration_test`` target now compiles that production
+translation unit and invokes ``SimuContext::SetupCaseEnvironment()` directly.
+Two integration contracts are covered with temporary cases and the real control
+reader:
+
+- A valid control manifest loads a typed parameter and only then publishes
+  ``IsEnvironmentReady() == true`.
+- A manifest that references a missing script throws and leaves readiness false.
+
+This advances R1 beyond testing only the bootstrap helper. It does not yet exercise
+production ``TeardownCase()`, the full ``SimuImp::RunCase()` exception boundary,
+or process-runtime preservation. Those remain separate integration milestones.

@@ -26,7 +26,6 @@ License
 #include "SimulationCommandLine.h"
 #include "SimuCaseLifecycle.h"
 #include "SimuContextParameter.h"
-#include "SimuContextBootstrap.h"
 #include "SimuTask.h"
 #include "Prj.h"
 #include "ParaFile.h"
@@ -58,13 +57,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-SimuContext::SimuContext( const std::string& caseDir, bool debug )
-    : caseDir_( Prj::ResolveCaseDir( caseDir ) )
-{
-    Prj::hx_debug = debug;
-    Prj::run_from_ide = debug;
-}
-
 void SimuContext::ProcessCommandLine()
 {
     // Keep the selected case directory as explicit case input.
@@ -95,18 +87,6 @@ void SimuContext::SetupProcessEnvironment()
             ONEFLOW::InitializeAccelRuntime( rank_, size_ );
         },
         [&]() { FinalizeEnvironment(); } );
-}
-
-void SimuContext::SetupCaseEnvironment()
-{
-    // Readiness means the complete case configuration has been applied.
-    // A failed setup is still cleaned up by the owning RunCase/rollback path.
-    envReady_ = false;
-
-    SimuContextDetail::InitializeCaseConfiguration( caseDir_ );
-
-    // Publish readiness only after the full bootstrap sequence succeeds.
-    envReady_ = true;
 }
 
 void SimuContext::SetupEnvironment()
