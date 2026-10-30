@@ -345,3 +345,17 @@ set and runtime initialization represent a real reusable boundary. Keep the
 whole-system priority review active: runtime lifecycle first, mesh topology
 and derived-data validity next, then numerical verification and documentation
 automation as enabling work.
+
+
+## 2026-10-30 continuation: ingestion dependency boundary and CI checkpoint
+
+Starting revision: `4b2e5d496ed359c1e3c3645413c4541dc81122f7` on `hexin`. The user reports 977/977 local tests passed before this continuation; this is a pre-change baseline only.
+
+The source-level dependency map and revised test layering are recorded in [the R1 integration investigation](plans/setup-case-environment-integration-test.md#2026-10-30-follow-up-source-level-dependency-graph-checkpoint), committed as `10a21b46b3f071f233dcae854d24dad09c1c91c2`. The key decision is to test the real configuration-ingestion composition first (manifest -> multiple production script parsers -> typed DataBase commit), separately from the broader `ReadControlInfo(caseDir)` orchestration (parallel coordination, broadcast, logging, PIO and database dump). This avoids turning the first test into an improvised miniature of the full executable.
+
+Exact-HEAD CI observed for starting revision `4b2e5d496ed359c1e3c3645413c4541dc81122f7`:
+- Sphinx build: **success** — [job](https://github.com/eric2003/OneFLOW/actions/runs/41059549136/job/124075558246).
+- Linux OneFLOW Actions: **success** — [job](https://github.com/eric2003/OneFLOW/actions/runs/41059549091/job/124075553594).
+- Windows OneFLOW Actions: **in progress** at the time of inspection — [job](https://github.com/eric2003/OneFLOW/actions/runs/41059549210/job/124075554479).
+
+No source code or tests were changed in this continuation; no local build or CTest was run. The documentation-only dependency-map update is now at `10a21b46b3f071f233dcae854d24dad09c1c91c2`. R1 remains **Partial**. Next: implement the real multi-file configuration-ingestion integration target with RAII-managed temporary fixtures, actual DataBase commits, typed assertions, and explicit failure semantics. Then add the broader `ReadControlInfo(caseDir)` orchestration test with a correctly initialized serial/MPI runtime and diagnostic output. Recheck CI on the new exact HEAD before claiming validation.
