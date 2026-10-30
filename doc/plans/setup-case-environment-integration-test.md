@@ -711,3 +711,41 @@ Add one test target for the **configuration-ingestion** boundary first:
 Do not call `ReadControlInfo(caseDir)` from this first target until the test target's parallel, logging, `PIO`, and `DataBook` dependency closure is explicit. Once ingestion is verified, add the orchestration test as a separate layer for serial runtime initialization, broadcast no-op semantics at one process, and `log/database.log` creation. Only then decide whether those dependencies form a reusable production library.
 
 This narrows the next action from "link the whole reader" to a testable composition boundary while preserving the real production path. R1 remains **Partial**: no such multi-file ingestion integration target or post-change test evidence exists yet.
+
+
+## 2026-10-30 implementation: production multi-file ingestion composition
+
+Starting revision: `4b359903f4ffbf3bf6c595f066d920bf6b26e5b3`. The user reports 977/977 local tests passed before this work; that is a pre-change baseline only.
+
+### Production boundary change
+
+`ReadMultiScriptFiles` has moved from `ControlFileReader.cpp` into `ControlScriptParser.cpp`. The former now owns only runtime orchestration: server-side case script selection, process greeting/collection, database broadcast, and diagnostic dump. The parser translation unit owns the ordered sequence of file parsing and per-file database commit. The declaration now accepts a const vector reference and documents two important semantics:
+
+- listed files are processed in their supplied order;
+- each file is committed before the next file is read, so the whole list is not a transaction.
+
+This is a narrow production extraction. It does not alter the `ReadControlInfo` orchestration sequence or create a parallel/runtime substitute.
+
+### Integration test added
+
+`tests/io/control_configuration_ingestion_test.cpp` creates a unique temporary case with a real `script/control.txt` manifest and two real script files. It invokes production `ReadScriptFileNameList(caseDir, files)` and `ReadMultiScriptFiles(files)`, then reads the actual global `DataBase` and asserts:
+
+- integer, Real, and string values are committed with their intended types;
+- a parameter declared in both files takes the value from the later manifest entry;
+- values declared only in the first file remain present after the second file is processed.
+
+The temporary case and global parameter store are cleaned up by scope-bound fixture cleanup. The test is included in the existing configuration/resolver executable, renamed from `control_parameter_resolver_test` to `control_configuration_test`; the existing resolver and adapter tests remain in that executable. CMake composes the real parser, manifest, adapter, resolver, database, and required low-level support translation units. It does not compile `ControlFileReader.cpp`, because that file intentionally remains coupled to parallel orchestration and database dumping.
+
+### What this test does not establish
+
+It does not call `ReadControlInfo(caseDir)`, initialize MPI/serial process state, exercise broadcast, write `log/database.log`, test `SetupCaseEnvironment()`, or prove sequential-case isolation and failure cleanup. It also has not yet been built or run in this environment. Treat the source change and test as **Implemented, unverified** until exact-HEAD Windows/Linux CI and the user's local MSVC/CTest run confirm it.
+
+### Next validation and design step
+
+1. Check exact-HEAD Windows and Linux CI for compile/link issues in the expanded test target.
+2. Run the complete local Debug/Release CTest suite and report the post-change count separately from the 977/977 baseline.
+3. Add explicit failure behavior coverage only after confirming how the production file-open/parser path reports a missing manifest entry; do not silently assume whole-list rollback. The current adapter and multi-file sequence are incremental.
+4. Add a separate `ReadControlInfo(caseDir)` integration target only when its serial/MPI initialization, process coordination, broadcast, logging, PIO, and diagnostic dump dependencies are all represented faithfully.
+5. Continue from reader integration to effective case path application, sequential-case isolation, and cleanup at the actual `RunCase` exception boundary.
+
+R1 remains **Partial**. This is the first test that composes the real manifest reader, production parser, typed adapter, and global database; it is not yet a full runtime integration test.
