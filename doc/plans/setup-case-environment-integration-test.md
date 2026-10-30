@@ -464,9 +464,10 @@ ParaFile
 - The source-level parser adapter is no longer defined in the broad legacy
   `ParaFile.cpp` translation unit.
 - The resolver has an explicit runtime-state dependency.
-- Existing `ConfigLoader_test` cases already pin scalar parsing, literal
-  arrays, injected named-array lengths, missing-resolver rejection, and
-  document replacement.
+- Existing `ConfigLoader_test` cases pin scalar parsing, literal arrays,
+  injected named-array lengths, missing-resolver rejection, and document
+  replacement. A new `control_parameter_resolver_test` target pins literal
+  lengths, real named-length lookup through DataBase, and missing-name failure.
 - These tests verify parser semantics, not the production commit to DataPara,
   the multi-file manifest, parallel broadcast, or database dump.
 - A real reader integration target is still required to prove those runtime
@@ -518,7 +519,11 @@ and how configuration reload works.
 ### Validation state
 
 - Parser adapter and resolver extraction: **implemented, unverified**.
-- Existing ConfigLoader unit tests: source-inspected; no new test run claimed.
+- Resolver tests added: literal lengths, database-backed named lengths, and
+  missing-name exception. The target links the real database sources; execution
+  awaits exact-revision CI.
+- ConfigLoader unit tests remain the separate proof of injected-resolver parser
+  semantics; no new test run is claimed.
 - New source files rely on recursive CMake discovery with `CONFIGURE_DEPENDS`;
   exact-revision build evidence is still required.
 - The 971/971 user baseline predates this work.
