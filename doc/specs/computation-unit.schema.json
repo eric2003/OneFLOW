@@ -1,0 +1,199 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oneflow-cfd.github.io/schemas/computation-unit.schema.json",
+  "title": "OneFLOW Computation Unit Contract",
+  "description": "Proposed machine-readable contract for small, composable transformations of scientific data and algorithms. This schema describes an architectural target; it is not yet a runtime plugin ABI.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "version",
+    "role",
+    "inputs",
+    "outputs",
+    "preconditions",
+    "postconditions",
+    "side_effects",
+    "failure_policy",
+    "verification"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_.-]*$"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "parse",
+        "normalize",
+        "validate",
+        "transform",
+        "adapt",
+        "assemble",
+        "execute",
+        "observe",
+        "serialize",
+        "verify"
+      ]
+    },
+    "description": {
+      "type": "string"
+    },
+    "inputs": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/dataPort" }
+    },
+    "outputs": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/dataPort" }
+    },
+    "preconditions": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "postconditions": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "side_effects": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "none",
+          "filesystem",
+          "global_state",
+          "parallel_collective",
+          "device_state",
+          "logging"
+        ]
+      },
+      "uniqueItems": true
+    },
+    "failure_policy": {
+      "type": "string",
+      "enum": [
+        "throw_and_preserve_state",
+        "rollback_own_changes",
+        "leave_diagnostics",
+        "fatal_process"
+      ]
+    },
+    "determinism": {
+      "type": "string",
+      "enum": [
+        "deterministic",
+        "order_dependent",
+        "parallel_nondeterministic",
+        "unspecified"
+      ],
+      "default": "unspecified"
+    },
+    "lifecycle": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "scope": {
+          "type": "string",
+          "enum": ["call", "case", "process", "device", "persistent"]
+        },
+        "initialize": { "type": "string" },
+        "finalize": { "type": "string" },
+        "reentrant": { "type": "boolean" }
+      }
+    },
+    "compatibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "input_versions": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "output_versions": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "legacy_adapters": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tests"],
+      "properties": {
+        "tests": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "purpose"],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "unit",
+                  "component",
+                  "integration",
+                  "regression",
+                  "manufactured_solution",
+                  "conservation",
+                  "convergence",
+                  "benchmark"
+                ]
+              },
+              "purpose": { "type": "string" },
+              "reference": { "type": "string" }
+            }
+          }
+        },
+        "known_limits": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "provenance": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "citation"],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["paper", "book", "standard", "manual", "source_code", "design_decision"]
+          },
+          "citation": { "type": "string" },
+          "version_or_section": { "type": "string" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "dataPort": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "type"],
+      "properties": {
+        "name": { "type": "string" },
+        "type": { "type": "string" },
+        "schema": { "type": "string" },
+        "units": { "type": "string" },
+        "ownership": {
+          "type": "string",
+          "enum": ["borrowed_read_only", "owned_value", "shared_immutable", "mutable_shared"]
+        },
+        "optional": { "type": "boolean", "default": false }
+      }
+    }
+  }
+}
