@@ -957,3 +957,44 @@ a separate MPI lifecycle validation plan.
 No source change or post-baseline test result is claimed by this investigation
 entry. Exact-HEAD Windows/Linux CI for the preceding PIO link fix is still
 running at the time of this note.
+
+
+## 2026-10-30 continuation: make Case teardown best-effort across independent resources
+
+Starting revision: f03e40b97fdeaace5aa6acfc14c53ee6b6a22420 on hexin.
+The user reports 982/982 local tests passed before this change; that is a
+pre-change baseline only.
+
+A production-source review found that SimuContext::TeardownCase() invoked
+all release/reset operations sequentially without per-operation exception
+isolation. The surrounding ExecuteWithCleanup() correctly preserves an
+active setup/task exception, but it sees teardown as one callback. If an early
+release operation throws, the remainder of TeardownCase() is skipped. This
+can leave unrelated case-scoped state bound while the process runtime is then
+finalized or the next case is considered.
+
+The lifecycle helper now provides
+SimuCaseLifecycleDetail::ExecuteAllCleanupSteps(). It executes every
+independent cleanup action in declaration order, remembers the first cleanup
+exception, and rethrows it after all actions have been attempted. Production
+TeardownCase() uses this helper for accelerator/backend state, solver and
+physics state, zone/field/database state, log and project-path bindings, and
+context-owned task metadata. The ordering remains deliberate: device-backed
+resources are attempted before process-level accelerator finalization.
+
+Two focused tests specify the helper contract: all steps run in order when
+there are no failures; when multiple steps fail, later steps still run and
+the first failure is propagated. The existing outer cleanup wrapper continues
+to preserve the original execution exception when teardown also fails.
+
+This change improves cleanup completeness but does not prove that every
+underlying release operation succeeds, nor does it constitute a full
+solver/device teardown integration test. The existing real-reader integration
+test in tests/io/control_configuration_ingestion_test.cpp exercises
+SetUpParallelEnvironment() and the production ReadControlInfo(caseDir)
+path, but not the full SetupCaseEnvironment() composition or production
+SimuImp::RunCase() cleanup. R1 therefore remains Partial.
+
+No local build or CTest was run in this environment. The 982/982 report is
+pre-change. Exact-HEAD Windows/Linux CI and a fresh local run are required
+before treating this change as verified.

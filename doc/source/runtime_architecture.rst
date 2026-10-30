@@ -679,3 +679,29 @@ named lengths through the real DataBase, and missing-name failure. The
 injected resolver. These two test levels deliberately distinguish parsing
 semantics from runtime lookup. Neither replaces the pending production
 multi-file reader integration test.
+
+
+Case teardown and cleanup failure semantics
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+SimuContext::TeardownCase releases case-owned resources in dependency order:
+accelerator-backed state and shared backend buffers first, solver and physics
+state next, then zone/field/database state, and finally case log and
+project-path bindings. The process-level accelerator and parallel runtimes
+remain alive until the process owner calls FinalizeEnvironment().
+
+Each release/reset is an independent cleanup step. The production teardown
+uses SimuCaseLifecycleDetail::ExecuteAllCleanupSteps() so an exception in
+one step does not prevent later steps from being attempted. The helper records
+the first cleanup exception, executes all remaining steps in order, and then
+rethrows that first exception. Context-owned task metadata is reset as the
+final step even if an earlier release failed.
+
+When teardown runs from SimuImp::RunCase() while a task/setup exception is
+already active, ExecuteWithCleanup() preserves the original execution
+exception; teardown failures do not replace it. This policy guarantees that
+all cleanup attempts are made, not that every release succeeds. A successful
+case whose teardown fails still reports the first teardown exception. Focused
+unit tests pin ordering, continued cleanup after multiple failures, and
+first-failure preservation. These tests do not replace an integration test of
+real solver/device resource release.
