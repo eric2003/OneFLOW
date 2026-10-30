@@ -259,3 +259,39 @@ the dependency closure from `ReadMultiScriptFiles` and
 `ReadControlInfo(caseDir)`; then decide whether a production-shared
 configuration-runtime target is justified. Do not broaden the test target by
 copying the entire executable source list.
+
+
+## 2026-10-30 continuation: manifest append contract
+
+The user reports a new local baseline of 977/977 tests passed. This is the
+pre-change baseline for the current continuation; it is not evidence for the
+following GitHub edits.
+
+Starting from `hexin` HEAD
+`4cb14c0b28af7dd319cdc62e23075c8df1f066d9`, the manifest reader test was
+strengthened to initialize its destination vector with an existing entry,
+then assert that the entry remains at index zero while the three manifest
+entries are appended in source order. This pins both parts of the public
+contract: append semantics and stable manifest ordering. The production
+reader is unchanged. Commit:
+`13ce812c50b813b94afded7dbb1257a370876eaa`.
+
+No local compiler or CTest run was available in this environment. The test
+change must be validated on the user's Windows build and exact-HEAD CI before
+being treated as verified.
+
+System-level interpretation: manifest discovery is now a better specified
+boundary, but it remains only the first stage of the R1 configuration path.
+Do not expand this seam into a generic configuration framework. The next
+high-value step remains mapping the real dependency closure for
+`ReadMultiScriptFiles` and `ReadControlInfo(caseDir)`, then exercising
+production parsing, typed database commit, serial coordination, diagnostic
+output, sequential-case isolation, and failure cleanup.
+
+Documentation direction: keep source comments focused on API contracts,
+units, ownership, preconditions, postconditions, side effects, and stable
+algorithm identifiers. Keep derivations, equations, assumptions, diagrams,
+comparisons, and curated references in `doc/source`. Doxygen API output
+should complement Sphinx rather than replace curated theory and architecture
+pages. Prefer a small pilot on one stable module before adding Breathe or a
+larger documentation toolchain.
