@@ -27,7 +27,9 @@ License
 #include "LogFile.h"
 #include "Prj.h"
 #include "PIO.h"
+#include <fstream>
 #include <stdexcept>
+#include <string>
 #include <utility>
 
 BeginNameSpace( ONEFLOW )
