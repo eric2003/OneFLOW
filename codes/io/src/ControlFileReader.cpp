@@ -24,6 +24,7 @@ License
 #include "TextFileParser.h"
 #include "Parallel.h"
 #include "Prj.h"
+#include <ios>
 #include <string>
 #include <vector>
 
@@ -132,12 +133,8 @@ void ReadScriptFileNameList(
 
 void ReadMultiScriptFiles( std::vector< std::string > & scriptFileNameList )
 {
-    int numberOfParameterFiles = scriptFileNameList.size();
-
-    for ( int iFile = 0; iFile < numberOfParameterFiles; ++ iFile )
+    for ( const std::string & scriptFileName : scriptFileNameList )
     {
-        std::string & scriptFileName = scriptFileNameList[ iFile ];
-
         ONEFLOW::ReadOneFLOWScriptFile( scriptFileName );
     }
 }
