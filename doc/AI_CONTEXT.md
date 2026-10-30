@@ -295,3 +295,53 @@ comparisons, and curated references in `doc/source`. Doxygen API output
 should complement Sphinx rather than replace curated theory and architecture
 pages. Prefer a small pilot on one stable module before adding Breathe or a
 larger documentation toolchain.
+
+
+## 2026-10-30 continuation: standardized engineering task specification
+
+The user reports a pre-change local baseline of 977/977 tests passed. This is
+user-reported evidence for the baseline, not a post-change result.
+
+The task-expression requirements have been consolidated into maintained
+specifications:
+- `doc/AI_TASK_TEMPLATE.md`: canonical English engineering task specification.
+- `doc/AI_TASK_TEMPLATE_zh_CN.md`: Chinese version for direct task preparation.
+- `doc/README.md` and `doc/README_zh_CN.md`: documentation entry points.
+- `doc/source/architecture_review.rst`: points to the task specification rather
+  than maintaining a second, partially duplicated prompt.
+
+The specification defines project context and exact base revision, observable
+objectives, system-wide ROI prioritization, source-backed pre-change
+investigation, implementation constraints, verification evidence levels,
+documentation and scientific provenance, traceability, scope control,
+acceptance criteria, and delivery records. The architecture review remains the
+system-level priority framework; the task template governs individual task
+execution; this file remains the current-state handoff.
+
+R1 investigation reconfirmed that `ReadControlInfo(caseDir)` is a production
+pipeline with ordered manifest discovery, multi-file parsing, typed database
+commit, process coordination, database broadcast, and diagnostic output. A
+valid serial fixture must initialize the existing parallel state explicitly;
+static-zero fields are not a valid runtime contract. The existing focused
+targets compile selected source files and do not yet provide a cohesive target
+for the complete reader path. Do not copy the entire executable source list
+into a test target. Continue mapping the dependency closure and identify the
+smallest production-cohesive integration target.
+
+Current implementation status remains:
+- Manifest discovery has component-level coverage, including append and order
+  semantics.
+- R1 remains Partial: production multi-file reader integration, effective
+  `SetupCaseEnvironment()` path application, sequential-case isolation, and
+  failure cleanup remain unverified.
+- No local build or CTest run was performed in this environment for the latest
+  documentation and test changes. The 977/977 result is the user's pre-change
+  baseline only.
+
+Next action: inspect exact-HEAD CI for the test-contract change; then map the
+production source/dependency closure for `ReadMultiScriptFiles` and
+`ReadControlInfo(caseDir)`. Add an integration target only when its source
+set and runtime initialization represent a real reusable boundary. Keep the
+whole-system priority review active: runtime lifecycle first, mesh topology
+and derived-data validity next, then numerical verification and documentation
+automation as enabling work.
