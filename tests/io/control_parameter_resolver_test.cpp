@@ -21,6 +21,8 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "ParaFile.h"
+#include "ConfigDatabaseAdapter.h"
+#include "ConfigDocument.h"
 #include "DataBase.h"
 #include <gtest/gtest.h>
 #include <stdexcept>
@@ -46,4 +48,29 @@ TEST( ControlParameterResolverTest, MissingNamedLengthPreservesDatabaseError )
     EXPECT_THROW(
         GetParameterArraySize( "missingArrayLength" ),
         std::runtime_error );
+}
+
+TEST( ConfigDatabaseAdapterTest, CommitsTypedEntriesIntoRuntimeDatabase )
+{
+    ConfigDocument document;
+    document.Add( ParameterEntry{ "dimension", "int", { "2" } } );
+    document.Add( ParameterEntry{ "global_dt", "Real", { "0.001" } } );
+    document.Add( ParameterEntry{ "simutask", "string", { "Grid" } } );
+
+    ConfigDatabaseAdapter::Commit( document );
+
+    EXPECT_EQ( GetDataValue<int>( "dimension" ), 2 );
+    EXPECT_DOUBLE_EQ( GetDataValue<Real>( "global_dt" ), 0.001 );
+    EXPECT_EQ( GetDataValue<std::string>( "simutask" ), "Grid" );
+}
+
+TEST( ConfigDatabaseAdapterTest, LaterDocumentEntryReplacesEarlierValue )
+{
+    ConfigDocument document;
+    document.Add( ParameterEntry{ "dimension", "int", { "2" } } );
+    document.Add( ParameterEntry{ "dimension", "int", { "3" } } );
+
+    ConfigDatabaseAdapter::Commit( document );
+
+    EXPECT_EQ( GetDataValue<int>( "dimension" ), 3 );
 }
