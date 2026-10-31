@@ -591,15 +591,15 @@ void TurbCom::ModifyPd()
 
 void TurbCom::CalcSrc()
 {
-    srck  = prodk - dissk;
-    srcw  = prodw - dissw + cdkww;
+    srck = SstSourceK( prodk, dissk );
+    srcw = SstSourceW( prodw, dissw, cdkww );
 
     // The linearization proposed by Menter is used.
-    diak = - two * fbetas * betas * kw;
-    diaw = - two * fbeta  * beta  * kw - ABS( cdkww ) / ( rho * kw + SMALL );
+    diak = SstDiagonalK( fbetas, betas, kw );
+    diaw = SstDiagonalW( fbeta, beta, kw, ABS( cdkww ), rho );
 
-    fskn = half * ( srck - ABS( srck ) );
-    fswn = half * ( srcw - ABS( srcw ) );
+    fskn = SstNegativeSourcePart( srck );
+    fswn = SstNegativeSourcePart( srcw );
 
     oork = 1.0 / ( rho * ke + SMALL );
     oorw = 1.0 / ( rho * kw + SMALL );

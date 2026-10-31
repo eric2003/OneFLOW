@@ -143,4 +143,33 @@ Real WilcoxVortexStretchingInvariant(
     return ABS( xw );
 }
 
+
+Real SstSourceK( Real prodk, Real dissk )
+{
+    return prodk - dissk;
+}
+
+Real SstSourceW( Real prodw, Real dissw, Real crossDiffKw )
+{
+    return prodw - dissw + crossDiffKw;
+}
+
+Real SstDiagonalK( Real fBetas, Real betas, Real omega )
+{
+    return - two * fBetas * betas * omega;
+}
+
+Real SstDiagonalW(
+    Real fBeta, Real beta, Real omega,
+    Real absCrossDiffKw, Real density )
+{
+    return - two * fBeta * beta * omega
+         - absCrossDiffKw / ( density * omega + SMALL );
+}
+
+Real SstNegativeSourcePart( Real source )
+{
+    return half * ( source - ABS( source ) );
+}
+
 EndNameSpace

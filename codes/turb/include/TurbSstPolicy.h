@@ -100,4 +100,38 @@ Real WilcoxVortexStretchingInvariant(
     Real w12, Real w13, Real w23,
     Real s11, Real s22, Real s33, Real s12, Real s13, Real s23 );
 
+
+// --- residual assembly (Menter linearization) ---
+// @doc-algorithm sst-residual
+// @doc-stage source-k
+// @doc-pure
+// @doc-formula S_k = P_k - eps
+Real SstSourceK( Real prodk, Real dissk );
+
+// @doc-algorithm sst-residual
+// @doc-stage source-w
+// @doc-pure
+// @doc-formula S_w = P_w - D_w + CD
+Real SstSourceW( Real prodw, Real dissw, Real crossDiffKw );
+
+// @doc-algorithm sst-residual
+// @doc-stage diagonal-k
+// @doc-pure
+// @doc-formula d_k = -2 f_beta* beta* omega
+Real SstDiagonalK( Real fBetas, Real betas, Real omega );
+
+// @doc-algorithm sst-residual
+// @doc-stage diagonal-w
+// @doc-pure
+// @doc-formula d_w = -2 f_beta beta omega - |CD|/(rho omega)
+Real SstDiagonalW(
+    Real fBeta, Real beta, Real omega,
+    Real absCrossDiffKw, Real density );
+
+// @doc-algorithm sst-residual
+// @doc-stage negative-part
+// @doc-pure
+// @doc-formula 1/2 (S - |S|)
+Real SstNegativeSourcePart( Real source );
+
 EndNameSpace
