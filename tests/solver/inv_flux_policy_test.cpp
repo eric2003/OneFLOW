@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <cmath>
+#include <stdexcept>
 
 #include "NsInvFluxPolicy.h"
 #include "HXMath.h"
@@ -78,6 +79,28 @@ TEST( InvFluxPolicy, RoePressureUsesTotalEnthalpyClosure )
         RoePressureFromTotalEnthalpy( 2.0, 6.5, 4.0, 1.4 ),
         18.0 / 7.0,
         1.0e-14 );
+}
+
+TEST( InvFluxPolicy, LusgsFacePressureModeSelectsLegacyEnthalpyClosure )
+{
+    EXPECT_NEAR(
+        LusgsFacePressureFromMode( 0, 3.0, 2.0, 6.5, 4.0, 1.4 ),
+        18.0 / 7.0,
+        1.0e-14 );
+}
+
+TEST( InvFluxPolicy, LusgsFacePressureModeSelectsRoeWeightedPressure )
+{
+    EXPECT_DOUBLE_EQ(
+        LusgsFacePressureFromMode( 1, 3.0, 2.0, 6.5, 4.0, 1.4 ),
+        3.0 );
+}
+
+TEST( InvFluxPolicy, LusgsFacePressureModeRejectsUnknownMode )
+{
+    EXPECT_THROW(
+        LusgsFacePressureFromMode( 2, 3.0, 2.0, 6.5, 4.0, 1.4 ),
+        std::invalid_argument );
 }
 
 TEST( InvFluxPolicy, IdealGasSoundSpeedMatchesIsentropicRelation )
