@@ -57,6 +57,8 @@ public:
     Real vencat_coef;
     int nrokplus;
     int ivischeme;
+    // 0: Roe total-enthalpy closure (legacy); 1: Roe-weighted static pressure.
+    int lusgsFacePressureMode = 0;
 public:
     void Init();
 };
