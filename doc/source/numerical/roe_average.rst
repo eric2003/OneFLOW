@@ -89,6 +89,19 @@ fixed, then compare:
 * conservative variables and derived quantities such as lift and drag;
 * conservation balance and sensitivity to CFL, initialization, and mesh.
 
+The compressible unstructured LUSGS closure can be selected with the optional
+integer parameter ``lusgsFacePressureMode`` in ``cfd.txt``:
+
+* ``0`` (default): reconstruct pressure from Roe-averaged total enthalpy, preserving
+  the established behavior. Older case files that omit the key also use this mode.
+* ``1``: use the Roe density-weighted average of the left and right static pressures.
+
+Only the mean-flow ``UNsLusgs`` face-state preparation reads this switch. The
+separate turbulence-equation LUSGS implementation and the incompressible solver are
+not changed by this option. An invalid value or a non-scalar/non-integer entry is
+reported as a configuration error. The database storage and case-file grammar are
+unchanged; the key is optional at runtime.
+
 Regression result files serve a different purpose: they pin the established
 numerical behavior for compatibility. The unit test for
 ``RoePressureFromTotalEnthalpy`` verifies the selected algebraic closure;
