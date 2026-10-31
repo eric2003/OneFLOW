@@ -10,28 +10,28 @@ Model terms
 
 .. math::
 
-   P = c_{b1}(1-f_{t2})\\tilde\\nu_{S}\\tilde{S}
+   P = c_{b1}(1-f_{t2})\tilde{S}\,\tilde{\nu}
 
 .. math::
 
-   D = (c_{w1} f_w - c_{b1} f_{t2})\\tilde{\\nu} r_s
+   D = (c_{w1} f_w - c_{b1} f_{t2})\tilde{\nu} r_s
 
 .. math::
 
-   D_{\\mathrm{diff}}
-   = \\min\\left(r_p P,\\,
-   \\frac{c_{b2}}{\\sigma}
-   |\\nabla\\tilde{\\nu}|^2/Re\\right)
+   D_{\mathrm{diff}}
+   = \min\left(r_p P,\,
+   \frac{c_{b2}}{\sigma}
+   |\nabla\tilde{\nu}|^2/Re\right)
 
 .. math::
 
-   S_{\\tilde{\\nu}} = P - D + D_{\\mathrm{diff}}
+   S_{\tilde{\nu}} = P - D + D_{\mathrm{diff}}
 
 The spectral contribution uses the negative part of a scalar rate:
 
 .. math::
 
-   x^- = -\\frac{1}{2}(x-|x|)
+   x^- = -\frac{1}{2}(x-|x|)
 
 The implementation uses precombined inputs at this policy boundary:
 cw1k represents the coefficient multiplying fw in the destruction term;
