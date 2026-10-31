@@ -20,6 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "TurbSrcFlux.h"
+#include "TurbSaPolicy.h"
 #include "NsCtrl.h"
 #include "DataBase.h"
 #include "HXMath.h"
@@ -279,14 +280,13 @@ void TurbSrcFlux::CalcSrc()
 void TurbSrcFlux::CalcCellVist1Equ()
 {
     Real olam = turbcom.rho / ( turbcom.visl + SMALL );
-    turbcom.xsi  = turbcom.nuet * olam;
+    turbcom.xsi  = SaChi( turbcom.nuet, olam );
     turbcom.xsi3 = POWER3( turbcom.xsi );
+    turbcom.fv1  = SaFv1( turbcom.xsi, turbcom.cv13 );
 
-    turbcom.fv1  = turbcom.xsi3 / ( turbcom.xsi3 + turbcom.cv13 );
-
-    turbcom.vist = turbcom.fv1 * turbcom.rho * turbcom.nuet;
-
-    turbcom.vist = MIN( turbcom.visl * turbcom.max_vis_ratio, turbcom.vist );
+    turbcom.vist = SaEddyViscosity( turbcom.rho, turbcom.nuet, turbcom.fv1 );
+    turbcom.vist = SaCappedEddyViscosity(
+        turbcom.vist, turbcom.visl, turbcom.max_vis_ratio );
 }
 
 void TurbSrcFlux::CalcCellVist2Equ()

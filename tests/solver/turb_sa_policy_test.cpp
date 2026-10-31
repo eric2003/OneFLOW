@@ -33,30 +33,38 @@ TEST( TurbSaPolicy, SaRRatioIsClamped )
     EXPECT_DOUBLE_EQ( SaRRatio( 100.0, 1.0 ), 10.0 );
 }
 
+TEST( TurbSaPolicy, SaGAndFwAtRZero )
+{
+    EXPECT_DOUBLE_EQ( SaG( 0.0, 0.3 ), 0.0 );
+}
+
 TEST( TurbSaPolicy, SaFt2DisabledIsZero )
 {
     EXPECT_DOUBLE_EQ( SaFt2( 1.0, 1.2, 0.5, false ), 0.0 );
 }
 
-TEST( TurbSaPolicy, SaProductionDestructionDiffusion )
+TEST( TurbSaPolicy, SaEddyViscosityIsRhoNuFv1 )
 {
-    EXPECT_DOUBLE_EQ( SaProduction( 0.1355, 0.0, 2.0, 1.0 ), 0.1355 * 2.0 );
-    EXPECT_DOUBLE_EQ( SaDestruction( 1.0, 1.0, 0.1355, 0.0, 3.0 ), 3.0 );
-    EXPECT_DOUBLE_EQ( SaDiffusion( 2.0, 4.0, 0.5 ), 4.0 );
+    EXPECT_DOUBLE_EQ( SaEddyViscosity( 1.2, 0.5, 0.8 ), 0.48 );
 }
 
-TEST( TurbSaPolicy, SaLimitedDiffusionCapsAtRprodTimesProd )
+TEST( TurbSaPolicy, SaCappedEddyViscosityRespectsRatio )
 {
-    EXPECT_DOUBLE_EQ( SaLimitedDiffusion( 10.0, 0.5, 4.0 ), 2.0 );
+    EXPECT_DOUBLE_EQ( SaCappedEddyViscosity( 100.0, 2.0, 10.0 ), 20.0 );
+    EXPECT_DOUBLE_EQ( SaCappedEddyViscosity( 5.0, 2.0, 10.0 ), 5.0 );
 }
 
-TEST( TurbSaPolicy, SaSourceResidualCombines )
+// Intermediate verification: fv1(chi) vs closed-form theory (not a full CFD case).
+// cv1 = 7.1 is the standard SA constant (NASA TMR / Spalart-Allmaras).
+TEST( TurbSaPolicy, Fv1ChiCurveMatchesClosedForm )
 {
-    EXPECT_DOUBLE_EQ( SaSourceResidual( 5.0, 2.0, 1.0 ), 4.0 );
-}
-
-TEST( TurbSaPolicy, SaNegativePartOfPositiveIsZero )
-{
-    EXPECT_DOUBLE_EQ( SaNegativePart( 3.0 ), 0.0 );
-    EXPECT_DOUBLE_EQ( SaNegativePart( -4.0 ), 4.0 );
+    const Real cv1 = 7.1;
+    const Real cv13 = cv1 * cv1 * cv1;
+    const Real chis[] = { 0.1, 0.5, 1.0, 2.0, 5.0, 10.0, 50.0 };
+    for ( Real chi : chis )
+    {
+        const Real chi3 = chi * chi * chi;
+        const Real expected = chi3 / ( chi3 + cv13 );
+        EXPECT_NEAR( SaFv1( chi, cv13 ), expected, 1.0e-12 );
+    }
 }

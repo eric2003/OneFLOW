@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "TurbUpdate.h"
+#include "TurbSaPolicy.h"
 #include <memory>
 #include "UTurbUpdate.h"
 #include "NsInvFlux.h"
@@ -83,9 +84,9 @@ void TurbUpdate::ModifyValue1Equ()
         }
     }
 
-    turbcom.xsi   = ABS( turbcom.q[ ISA ] ) / ( turbcom.visl / turbcom.rho + SMALL );
+    turbcom.xsi   = SaChi( ABS( turbcom.q[ ISA ] ), turbcom.rho / ( turbcom.visl + SMALL ) );
     turbcom.xsi3  = POWER3( turbcom.xsi );
-    turbcom.fv1  = turbcom.xsi3 / ( turbcom.xsi3 + turbcom.cv13 );
+    turbcom.fv1  = SaFv1( turbcom.xsi, turbcom.cv13 );
 
     Real nuMax =  turbcom.maxvistratio * turbcom.visl / ( turbcom.rho * turbcom.fv1 );
 

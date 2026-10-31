@@ -93,4 +93,15 @@ Real SaNegativePart( Real x )
     return - half * ( x - ABS( x ) );
 }
 
+Real SaEddyViscosity( Real density, Real nuTilde, Real fv1 )
+{
+    return density * nuTilde * fv1;
+}
+
+Real SaCappedEddyViscosity(
+    Real eddyViscosity, Real laminarViscosity, Real maxViscosityRatio )
+{
+    return MIN( laminarViscosity * maxViscosityRatio, eddyViscosity );
+}
+
 EndNameSpace
