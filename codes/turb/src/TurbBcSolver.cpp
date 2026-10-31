@@ -169,25 +169,11 @@ void TurbBcSolver::FarFieldBc()
 
     Real velin = DIST( uin, vin, win );
 
+    Real decisionVn = vnin;
     //Supersonic
     if ( velin > cin )
     {
-        if ( vnin >= 0.0 )
-        {
-            for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-            {
-                turbcom.primt1[ iEqu ] = turbcom.prims1[ iEqu ];
-                turbcom.primt2[ iEqu ] = turbcom.prims1[ iEqu ];
-            }
-        }
-        else
-        {
-            for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-            {
-                turbcom.primt1[ iEqu ] = turbcom.inflow[ iEqu ];
-                turbcom.primt2[ iEqu ] = turbcom.inflow[ iEqu ];
-            }
-        }
+        decisionVn = vnin;
     }
     else
     {
@@ -196,23 +182,23 @@ void TurbBcSolver::FarFieldBc()
         Real riemp = vnin  + 2.0 * cin  / gamm1;
         Real riemm = vnref - 2.0 * cref / gamm1;
         Real vnb   = half   * ( riemp + riemm );
-        Real cb    = fourth * ( riemp - riemm ) * gamm1;
+        decisionVn = vnb;
+    }
 
-        if ( vnb >= 0.0 )
+    if ( TurbFarfieldUsesInterior( decisionVn ) )
+    {
+        for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
         {
-            for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-            {
-                turbcom.primt1[ iEqu ] = turbcom.prims1[ iEqu ];
-                turbcom.primt2[ iEqu ] = turbcom.prims1[ iEqu ];
-            }
+            turbcom.primt1[ iEqu ] = turbcom.prims1[ iEqu ];
+            turbcom.primt2[ iEqu ] = turbcom.prims1[ iEqu ];
         }
-        else
+    }
+    else
+    {
+        for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
         {
-            for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-            {
-                turbcom.primt1[ iEqu ] = turbcom.inflow[ iEqu ];
-                turbcom.primt2[ iEqu ] = turbcom.inflow[ iEqu ];
-            }
+            turbcom.primt1[ iEqu ] = turbcom.inflow[ iEqu ];
+            turbcom.primt2[ iEqu ] = turbcom.inflow[ iEqu ];
         }
     }
 }

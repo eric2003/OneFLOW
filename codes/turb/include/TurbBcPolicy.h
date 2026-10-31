@@ -24,4 +24,12 @@ Real TurbWallOmegaMenter(
 // @doc-formula k_ghost = - k_interior
 Real TurbWallKineticEnergyImage( Real interiorKineticEnergy );
 
+
+// @doc-algorithm turb-bc
+// @doc-stage farfield-direction
+// @doc-pure
+// Outward normal velocity relative to the face: use interior state when
+// fluid leaves the domain (vn >= 0); otherwise use freestream turbulence.
+bool TurbFarfieldUsesInterior( Real outwardNormalVelocity );
+
 EndNameSpace

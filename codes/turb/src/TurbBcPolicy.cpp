@@ -21,4 +21,10 @@ Real TurbWallKineticEnergyImage( Real interiorKineticEnergy )
     return - interiorKineticEnergy;
 }
 
+
+bool TurbFarfieldUsesInterior( Real outwardNormalVelocity )
+{
+    return outwardNormalVelocity >= 0.0;
+}
+
 EndNameSpace

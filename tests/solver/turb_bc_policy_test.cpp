@@ -21,3 +21,10 @@ TEST( TurbBcPolicy, KineticEnergyImage )
 {
     EXPECT_DOUBLE_EQ( TurbWallKineticEnergyImage( 1.5 ), -1.5 );
 }
+
+TEST( TurbBcPolicy, FarfieldUsesInteriorWhenOutflow )
+{
+    EXPECT_TRUE( TurbFarfieldUsesInterior( 1.0 ) );
+    EXPECT_TRUE( TurbFarfieldUsesInterior( 0.0 ) );
+    EXPECT_FALSE( TurbFarfieldUsesInterior( -0.1 ) );
+}
