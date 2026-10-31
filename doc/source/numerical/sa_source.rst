@@ -45,11 +45,11 @@ In the current implementation, the scaling is assembled as follows:
 
 .. math::
 
-   r_s = \\frac{\\tilde{\\nu}}{\\kappa^2 d^2 Re},
-   \\qquad \\mathrm{nuTildeRs} = \\tilde{\\nu} r_s
+   r_s = \frac{\tilde{\nu}}{\kappa^2 d^2 Re},
+   \qquad \mathrm{nuTildeRs} = \tilde{\nu} r_s
 
-   \\mathrm{cw1k} = c_{w1}\\kappa^2,
-   \\qquad \\mathrm{cb2OverSigma} = c_{b2}/\\sigma
+   \mathrm{cw1k} = c_{w1}\kappa^2,
+   \qquad \mathrm{cb2OverSigma} = c_{b2}/\sigma
 
 Source-level mapping
 --------------------
