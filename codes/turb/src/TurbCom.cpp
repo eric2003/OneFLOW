@@ -20,6 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "TurbCom.h"
+#include "TurbSstPolicy.h"
 #include "TurbSaPolicy.h"
 #include "NsCom.h"
 #include "NsIdx.h"
@@ -493,34 +494,34 @@ void TurbCom::CalcProdk()
     if ( iprod_sst == 0 )
     {
         // Boussinesq approximation, full production
-        prodk = vist * ( sij2 - two3rd * SQR( divv ) ) * oreynolds - two3rd * rho * ke * divv;
+        prodk = SstProdkBoussinesq( vist, sij2, divv, oreynolds, rho, ke );
     }
     else if ( iprod_sst == 1 ) //SST-2003
     {
-        prodk = vist * sij2 * oreynolds;
+        prodk = SstProdkStrainOnly( vist, sij2, oreynolds );
     }
-    else //Vorticity Source Term (SST-V) 
+    else //Vorticity Source Term (SST-V)
     {
-        Real vort2 = four * SQR( w12, w13, w23 );
-        prodk = vist * ( vort2 ) * oreynolds - two3rd * rho * ke * divv;
+        const Real vort2 = four * SQR( w12, w13, w23 );
+        prodk = SstProdkVorticity( vist, vort2, oreynolds, rho, ke, divv );
     }
 }
 
 void TurbCom::CalcDissk()
 {
-    if ( des_model ) 
+    if ( des_model )
     {
-        dissk = fbetas * rho * ke * sqrt( ke ) / len_scale;
+        dissk = SstDisskDes( fbetas, rho, ke, len_scale );
     }
     else
     {
-        dissk = fbetas * betas * rho * ke * kw;
-    } 
+        dissk = SstDisskStandard( fbetas, betas, rho, ke, kw );
+    }
 }
 
 void TurbCom::LimitProdk()
 {
-    prodk = MIN( prodk, pklim * dissk );
+    prodk = SstLimitProdk( prodk, pklim, dissk );
 }
 
 void TurbCom::CalcProdwKwMenter()
