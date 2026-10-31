@@ -267,6 +267,10 @@ void UNsLusgs::PrepareDataFacePrim()
         rr, ur, vr, wr, pr, hr, gr,
         rm, um, vm, wm, pm, hm, gm );
 
+    // Preserve the legacy LUSGS closure: pressure follows the averaged total
+    // enthalpy and the left-cell gamma, not the weighted static pressures.
+    pm = RoePressureFromTotalEnthalpy( rm, hm, SQR( um, vm, wm ), gl );
+
     if ( pm <= 0.0 ) std::cout << "pm = " << pm << std::endl;
 
     nslu.primF[ IDX::IR ] = rm;
