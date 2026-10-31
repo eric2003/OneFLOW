@@ -42,7 +42,13 @@ solver-specific use. In ``NsLusgs::GetStandardFluxIncrement()``, the
 prepared face state is consumed by ``CalcFaceEigenValue()`` to estimate the
 face spectral radius. It is not used there to recompute the steady physical
 flux residual. The resulting eigenvalue participates in the implicit LUSGS
-correction.
+correction. The current ``PrepareData()`` path subsequently assigns
+``nslu.gama`` from the right cell, and ``CalcFaceEigenValue()`` uses that
+value for the face sound speed. Thus the pressure closure uses left-cell
+``gamma`` while this eigenvalue calculation uses right-cell ``gamma``. This
+is existing behavior worth preserving in compatibility tests and auditing
+separately for variable-gamma flows; it should not be silently normalized as
+part of an unrelated refactor.
 
 The current compressible unstructured LUSGS implementation first computes the
 Roe-weighted total enthalpy and velocity, then closes pressure using the
@@ -61,8 +67,8 @@ A weighted static-pressure alternative is:
    p_m^{p} = \frac{p_L + r p_R}{1+r}
 
 These expressions are not algebraically equivalent in general. For example,
-with left state `(`rho=1, p=1, u=0`)`, right state
-`(`rho=4, p=4, u=3`)`, and `gamma=1.4`, the current enthalpy closure
+with left state ``(rho=1, p=1, u=0)``, right state
+``(rho=4, p=4, u=3)``, and ``gamma=1.4``, the current enthalpy closure
 gives `18/7`, while the weighted static pressure gives `3`.
 
 The difference changes the face sound speed and therefore the implicit
