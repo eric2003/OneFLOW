@@ -32,4 +32,6 @@ Numerical analysis is a branch of mathematics that solves continuous problems us
    turb_spectrum
    sa_closure
    sa_eddy_viscosity
-   sst_omega_source
+   sst_k_source
+   sst_f1_blending
+   verification_layers

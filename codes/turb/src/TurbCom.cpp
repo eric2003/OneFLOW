@@ -493,6 +493,7 @@ void TurbCom::CalcProdk()
 {
     if ( iprod_sst == 0 )
     {
+        // Boussinesq approximation, full production
         prodk = SstProdkBoussinesq( vist, sij2, divv, oreynolds, rho, ke );
     }
     else if ( iprod_sst == 1 ) //SST-2003
@@ -525,19 +526,19 @@ void TurbCom::LimitProdk()
 
 void TurbCom::CalcProdwKwMenter()
 {
-    beta   = SstBlend( bld, beta1, beta2 );
-    alphaw = SstBlend( bld, alphaw1, alphaw2 );
+    beta   = bld * beta1  + ( 1.0 - bld ) * beta2;
+    alphaw = bld * alphaw1 + ( 1.0 - bld ) * alphaw2;
 
-    prodw = SstProdwMenter( alphaw, rho, vist, prodk, reynolds );
-    dissw = SstDissw( fbeta, beta, rho, kw );
-    cdkww = SstCrossDiffMenter( bld, rho, sigw2, cross_term, kw );
+    prodw = alphaw * rho / ( vist + SMALL ) * prodk * reynolds;
+    dissw = fbeta * beta * rho * SQR( kw );
+    cdkww = two * ( one - bld ) * rho * sigw2 * cross_term / ( kw + SMALL );
 }
 
 void TurbCom::CalcProdwKwWilcox1998()
 {
-    prodw = SstProdwWilcox( alphaw, kw, ke, prodk );
-    dissw = SstDissw( fbeta, beta, rho, kw );
-    cdkww = SstCrossDiffWilcox( sigd, rho, cross_term, kw );
+    prodw = alphaw * kw / ( ke + SMALL ) * prodk;
+    dissw = fbeta * beta * rho * SQR( kw );
+    cdkww = sigd * rho * MAX( cross_term, zero ) / ( kw + SMALL );
 }
 
 void TurbCom::CalcProdwKwWilcox2006()
@@ -549,34 +550,34 @@ void TurbCom::CalcProdwKwWilcox2006()
         sigd = 0.125;
     }
 
-    prodw = SstProdwWilcox( alphaw, kw, ke, prodk );
-    dissw = SstDissw( fbeta, beta, rho, kw );
-    cdkww = SstCrossDiffWilcox( sigd, rho, cross_term, kw );
+    prodw = alphaw * kw / ( ke + SMALL ) * prodk;
+    dissw = fbeta * beta * rho * SQR( kw );
+    cdkww = sigd * rho * MAX( cross_term, zero ) / ( kw + SMALL );
 }
 
 void TurbCom::CalcProdwKwDefault()
 {
-    prodw = SstProdwWilcox( alphaw, kw, ke, prodk );
-    dissw = SstDissw( fbeta, beta, rho, kw );
-    cdkww = SstCrossDiffWilcox( sigd, rho, cross_term, kw );
+    prodw = alphaw * kw / ( ke + SMALL ) * prodk;
+    dissw = fbeta * beta * rho * SQR( kw );
+    cdkww = sigd * rho * MAX( cross_term, zero ) / ( kw + SMALL );
 }
 
 void TurbCom::CalcProdwEasmKw2003()
 {
-    prodw = SstProdwWilcox( alphaw, kw, ke, prodk );
-    dissw = SstDissw( fbeta, beta, rho, kw );
-    cdkww = SstCrossDiffWilcox( sigd, rho, cross_term, kw );
+    prodw = alphaw * kw / ( ke + SMALL ) * prodk;
+    dissw = fbeta * beta * rho * SQR( kw );
+    cdkww = sigd * rho * MAX( cross_term, zero ) / ( kw + SMALL );
 }
 
 void TurbCom::CalcProdwEasmKw2005()
 {
-    beta   = SstBlend( bld, beta1, beta2 );
-    alphaw = SstBlend( bld, alphaw1, alphaw2 );
-    sigd   = SstBlend( bld, sigd1, sigd2 );
+    beta   = bld * beta1   + ( 1.0 - bld ) * beta2;
+    alphaw = bld * alphaw1 + ( 1.0 - bld ) * alphaw2;
+    sigd   = bld * sigd1   + ( 1.0 - bld ) * sigd2;
 
-    prodw = SstProdwWilcox( alphaw, kw, ke, prodk );
-    dissw = SstDissw( fbeta, beta, rho, kw );
-    cdkww = SstCrossDiffWilcox( sigd, rho, cross_term, kw );
+    prodw = alphaw * kw / ( ke + SMALL ) * prodk;
+    dissw = fbeta * beta * rho * SQR( kw );
+    cdkww = sigd * rho * MAX( cross_term, zero ) / ( kw + SMALL );
 }
 
 void TurbCom::ModifyPd()
@@ -621,34 +622,23 @@ void TurbCom::CalcCdkwmin()
 
 void TurbCom::CalcCellBlendingTerm()
 {
-    //calculate cd_kw
-    crossdiff = 2.0 * rho * sigw2 * cross_term / ( kw + SMALL );
-    Real cdkw;
+    crossdiff = SstCrossDiffScalar( rho, sigw2, cross_term, kw );
+    const Real cdFloor = ( iprod_sst == 1 ) ? 1.0e-10 : 1.0e-20;
+    const Real cdkw = SstCdkwWithFloor( crossdiff, cdFloor );
 
-    if ( iprod_sst == 1 )
-    {
-        cdkw = MAX( crossdiff, 1.0e-10 );
-    }
-    else //Original Menter CD_kw calculation
-    {
-        cdkw = MAX( crossdiff, 1.0e-20 );
-    }
+    const Real dist2 = SQR( dist );
+    const Real term1 = sqrt( ABS( ke ) ) / ( betas * dist * kw + SMALL );
+    const Real term2 = 500.0 * visl / ( rho * kw * dist2 * reynolds + SMALL );
+    const Real term4 = 4.0 * rho * sigw2 * ke / ( cdkw * dist2 + SMALL );
+    const Real arg1 = SstBlendingArg1( term1, term2, term4 );
 
-    Real dist2  = SQR( dist );
-
-    //calculate arg1
-    Real term1 = sqrt( ABS( ke ) )/( betas * dist * kw + SMALL );
-    Real term2 = 500.0 * visl / ( rho * kw * dist2 * reynolds + SMALL );
-    Real term3 = MAX( term1, term2 );
-    Real term4 = 4.0 * rho * sigw2 * ke / ( cdkw * dist2 + SMALL );
-    Real arg1  = MIN( term3, term4 );
-
-    bld = tanh( POWER4( arg1 ) );
+    bld = SstF1FromArg1( arg1 );
 }
 
 void TurbCom::CalcCrossing()
 {
-    cross_term = dkedx * dkwdx + dkedy * dkwdy + dkedz * dkwdz;
+    cross_term = SstGradientDotProduct(
+        dkedx, dkedy, dkedz, dkwdx, dkwdy, dkwdz );
 }
 
 void TurbCom::CalcFbetaOfKwWilcox1998()

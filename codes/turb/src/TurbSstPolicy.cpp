@@ -79,4 +79,33 @@ Real SstCrossDiffWilcox(
     return sigd * density * MAX( crossTerm, zero ) / ( omega + SMALL );
 }
 
+Real SstCrossDiffScalar(
+    Real density, Real sigw2, Real crossTerm, Real omega )
+{
+    return two * density * sigw2 * crossTerm / ( omega + SMALL );
+}
+
+Real SstCdkwWithFloor( Real crossDiff, Real floorValue )
+{
+    return MAX( crossDiff, floorValue );
+}
+
+Real SstBlendingArg1(
+    Real termSqrtKe, Real termViscous, Real termCrossDiff )
+{
+    return MIN( MAX( termSqrtKe, termViscous ), termCrossDiff );
+}
+
+Real SstF1FromArg1( Real arg1 )
+{
+    return std::tanh( POWER4( arg1 ) );
+}
+
+Real SstGradientDotProduct(
+    Real dkdx, Real dkdy, Real dkdz,
+    Real dwdx, Real dwdy, Real dwdz )
+{
+    return dkdx * dwdx + dkdy * dwdy + dkdz * dwdz;
+}
+
 EndNameSpace
