@@ -21,6 +21,8 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "TurbUpdate.h"
+#include "TurbSaPolicy.h"
+#include "TurbSstPolicy.h"
 #include <memory>
 #include "UTurbUpdate.h"
 #include "NsInvFlux.h"
@@ -43,16 +45,19 @@ void TurbUpdate::CalcFlowField2Equ()
 {
     for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
     {
-        turbcom.q[ iEqu ] = turbcom.q0[ iEqu ] + turbcom.dq[ iEqu ] / turbcom.rho;
+        turbcom.q[ iEqu ] = SstDensityScaledUpdate(
+            turbcom.q0[ iEqu ], turbcom.dq[ iEqu ], turbcom.rho );
     }
 
-    turbcom.q[ IKE ] = MAX( turbcom.q [ IKE ], turbcom.kelim );
-    turbcom.q[ IKW ] = MAX( turbcom.q [ IKW ], turbcom.kwlim );
+    turbcom.q[ IKE ] = SstFloorKineticEnergy( turbcom.q[ IKE ], turbcom.kelim );
+    turbcom.q[ IKW ] = SstFloorOmega( turbcom.q[ IKW ], turbcom.kwlim );
 
-    if ( turbcom.transition_model == ITReGama ) 
+    if ( turbcom.transition_model == ITReGama )
     {
-        turbcom.q[ ITGama ] = MIN( turbcom.q [ ITGama ], turbcom.kGamaLim );
-        turbcom.q[ ITRect ] = MAX( turbcom.q [ ITRect ], turbcom.kRectLim );
+        turbcom.q[ ITGama ] = SstCapIntermittency(
+            turbcom.q[ ITGama ], turbcom.kGamaLim );
+        turbcom.q[ ITRect ] = SstFloorReTheta(
+            turbcom.q[ ITRect ], turbcom.kRectLim );
     }
 }
 
@@ -60,12 +65,8 @@ void TurbUpdate::CalcFlowField1Equ()
 {
     for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
     {
-        Real qOld  = turbcom.q0[ iEqu ];
-        Real dqNew = turbcom.dq[ iEqu ];
-        Real qNew  = qOld + dqNew;
-        qNew = ( one - turbcom.crelax ) * qOld + turbcom.crelax * qNew;
-
-        turbcom.q[ iEqu ] = qNew;
+        turbcom.q[ iEqu ] = SaUnderRelaxedUpdate(
+            turbcom.q0[ iEqu ], turbcom.dq[ iEqu ], turbcom.crelax );
     }
 }
 
@@ -77,17 +78,16 @@ void TurbUpdate::ModifyValue1Equ()
 
         this->SmoothTurbulencePoint();
 
-        if ( turbcom.q[ ISA ] < 0.0 )
-        {
-            turbcom.q[ ISA ] = turbcom.inflow[ ISA ];
-        }
+        turbcom.q[ ISA ] = SaNonNegativeWorkingVariable(
+            turbcom.q[ ISA ], turbcom.inflow[ ISA ] );
     }
 
-    turbcom.xsi   = ABS( turbcom.q[ ISA ] ) / ( turbcom.visl / turbcom.rho + SMALL );
+    turbcom.xsi   = SaChi( ABS( turbcom.q[ ISA ] ), turbcom.rho / ( turbcom.visl + SMALL ) );
     turbcom.xsi3  = POWER3( turbcom.xsi );
-    turbcom.fv1  = turbcom.xsi3 / ( turbcom.xsi3 + turbcom.cv13 );
+    turbcom.fv1  = SaFv1( turbcom.xsi, turbcom.cv13 );
 
-    Real nuMax =  turbcom.maxvistratio * turbcom.visl / ( turbcom.rho * turbcom.fv1 );
+    const Real nuMax = SaWorkingVariableUpperBound(
+        turbcom.maxvistratio, turbcom.visl, turbcom.rho, turbcom.fv1 );
 
     if ( turbcom.q[ ISA ] > nuMax )
     {

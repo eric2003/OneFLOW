@@ -52,3 +52,13 @@ References
   implementation choices, not copy code).
 
 Pure APIs: ``TimeStepPolicy.h``. Tests: ``timestep_policy_test``.
+
+LUSGS reuse
+-----------
+
+``UNsLusgs::CalcViscousTerm`` routes through the same viscous spectral
+models as local time stepping. The implicit face state uses Roe-weighted
+density, velocity, and total enthalpy. Its pressure is then reconstructed
+from that total enthalpy using the left-cell heat-capacity ratio, preserving
+the established LUSGS linearization. A weighted average of static pressure
+is not equivalent and must not replace this closure.

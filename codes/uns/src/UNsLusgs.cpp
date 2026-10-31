@@ -21,6 +21,8 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "UNsLusgs.h"
+#include "NsInvFluxPolicy.h"
+#include "TimeStepPolicy.h"
 #include "UNsSpectrum.h"
 #include "UCom.h"
 #include "UNsCom.h"
@@ -254,18 +256,20 @@ void UNsLusgs::PrepareDataFacePrim()
     Real gl = ( * unsf.gama )[ 0 ][ ug.lc ];
     Real gr = ( * unsf.gama )[ 0 ][ ug.rc ];
 
-    Real hl = gl / ( gl - 1.0 ) * pl / rl + half * SQR( ul, vl, wl );
-    Real hr = gr / ( gr - 1.0 ) * pr / rr + half * SQR( ur, vr, wr );
+    const Real hint_l = IdealGasStaticEnthalpy( rl, pl, gl );
+    const Real hint_r = IdealGasStaticEnthalpy( rr, pr, gr );
+    const Real hl = TotalEnthalpy( hint_l, SQR( ul, vl, wl ) );
+    const Real hr = TotalEnthalpy( hint_r, SQR( ur, vr, wr ) );
 
-    Real tmp0 = sqrt( rr / rl );
-    Real tmp1 = 1.0 / ( 1.0 + tmp0 );
+    Real rm, um, vm, wm, pm, hm, gm;
+    RoeAverageState(
+        rl, ul, vl, wl, pl, hl, gl,
+        rr, ur, vr, wr, pr, hr, gr,
+        rm, um, vm, wm, pm, hm, gm );
 
-    Real rm = sqrt( rr * rl );
-    Real um = ( ul + ur * tmp0 ) * tmp1;
-    Real vm = ( vl + vr * tmp0 ) * tmp1;
-    Real wm = ( wl + wr * tmp0 ) * tmp1;
-    Real hm = ( hl + hr * tmp0 ) * tmp1;
-    Real pm = rm * ( hm - half * SQR( um, vm, wm ) ) * ( gl - 1.0 ) / gl;
+    // Preserve the legacy LUSGS closure: pressure follows the averaged total
+    // enthalpy and the left-cell gamma, not the weighted static pressures.
+    pm = RoePressureFromTotalEnthalpy( rm, hm, SQR( um, vm, wm ), gl );
 
     if ( pm <= 0.0 ) std::cout << "pm = " << pm << std::endl;
 
@@ -275,9 +279,9 @@ void UNsLusgs::PrepareDataFacePrim()
     nslu.primF[ IDX::IW ] = wm;
     nslu.primF[ IDX::IP ] = pm;
 
-    for ( int iEqu = nslu.nBEqu; iEqu < nslu.nEqu; ++ iEqu ) 
+    for ( int iEqu = nslu.nBEqu; iEqu < nslu.nEqu; ++ iEqu )
     {
-        nslu.primF[ iEqu ] = half * ( ( * unsf.q )[ iEqu ][ ug.lc ] + ( * unsf.q )[ iEqu ][ ug.rc ] ); 
+        nslu.primF[ iEqu ] = half * ( ( * unsf.q )[ iEqu ][ ug.lc ] + ( * unsf.q )[ iEqu ][ ug.rc ] );
     }
 }
 
@@ -285,30 +289,24 @@ void UNsLusgs::CalcViscousTerm()
 {
     if ( vis_model.vismodel == 0 ) return;
 
+    const Real density = half * ( nscom.q1[ IDX::IR ] + nscom.q2[ IDX::IR ] );
+
     if ( nscom.visSRModel == 1 )
     {
-        Real density = half * ( nscom.q1[ IDX::IR ] + nscom.q2[ IDX::IR ] );
-
-        Real c1 = 4.0 / 3.0 * ( nscom.visl + nscom.vist );
-        Real c2 = nscom.gama * ( nscom.visl * nscom.oprl + nscom.vist * nscom.oprt );
-        Real c3 = two * MAX( c1, c2 ) / ( nscom.reynolds * density );
-        Real farea2 = SQR( gcom.farea );
-
-        nscom.vissr = farea2 * c3;
-
+        nscom.vissr = ViscousFaceSpectralRadiusModel1(
+            density, nscom.visl, nscom.vist, nscom.oprl, nscom.oprt,
+            nscom.gama, nscom.reynolds, gcom.farea );
         nslu.visrad = nscom.vissr / ( * ug.cvol )[ ug.rc ];
     }
     else
     {
-        Real dist = ABS(  gcom.xfn * ( gcom.xcc2 - gcom.xcc1 )
-                        + gcom.yfn * ( gcom.ycc2 - gcom.ycc1 )
-                        + gcom.zfn * ( gcom.zcc2 - gcom.zcc1 ) );
-
-        Real viscosity = nscom.visl + nscom.vist;
-        Real density   = half * ( nscom.q1[ IDX::IR ] + nscom.q2[ IDX::IR ] );
-
-        Real c1  = 2.0 * viscosity / ( density * dist * nscom.reynolds + SMALL );
-        nscom.vissr = half * c1 * gcom.farea;
+        const Real dist = ABS(
+            gcom.xfn * ( gcom.xcc2 - gcom.xcc1 )
+            + gcom.yfn * ( gcom.ycc2 - gcom.ycc1 )
+            + gcom.zfn * ( gcom.zcc2 - gcom.zcc1 ) );
+        const Real viscosity = nscom.visl + nscom.vist;
+        nscom.vissr = ViscousFaceSpectralRadiusModel2(
+            density, viscosity, dist, nscom.reynolds, gcom.farea );
         nslu.visrad = nscom.vissr;
     }
 

@@ -26,7 +26,6 @@ License
 #include "SimulationCommandLine.h"
 #include "SimuCaseLifecycle.h"
 #include "SimuContextParameter.h"
-#include "SimuContextIO.h"
 #include "SimuTask.h"
 #include "Prj.h"
 #include "ParaFile.h"
@@ -57,13 +56,6 @@ License
 #include <stdexcept>
 
 BeginNameSpace( ONEFLOW )
-
-SimuContext::SimuContext( const std::string& caseDir, bool debug )
-    : caseDir_( Prj::ResolveCaseDir( caseDir ) )
-{
-    Prj::hx_debug = debug;
-    Prj::run_from_ide = debug;
-}
 
 void SimuContext::ProcessCommandLine()
 {
@@ -97,25 +89,6 @@ void SimuContext::SetupProcessEnvironment()
         [&]() { FinalizeEnvironment(); } );
 }
 
-void SimuContext::SetupCaseEnvironment()
-{
-    // Mark case setup as active so exception cleanup can release partial
-    // case state if control-file initialization fails halfway through.
-    envReady_ = true;
-
-    // Bind legacy case-relative IO to the explicit case before reading it.
-    Prj::SetPrjBaseDir( caseDir_ );
-
-    logFile.SetCaseDir( caseDir_ );
-    ONEFLOW::ReadControlInfo( caseDir_ );
-
-    // Snapshot and validate all optional roots before applying global path state.
-    const SimuContextDetail::CaseIOSettings ioSettings =
-        SimuContextDetail::ReadCaseIOSettings(
-            RequireGlobalDataBase().RequireDataPara() );
-    SimuContextDetail::ApplyCaseIOSettings( ioSettings );
-}
-
 void SimuContext::SetupEnvironment()
 {
     SetupProcessEnvironment();
@@ -126,38 +99,40 @@ void SimuContext::SetupEnvironment()
 
 void SimuContext::TeardownCase()
 {
-    // Device-backed states and shared HIP solver buffers must release
-    // allocations while the selected accelerator runtime is still alive.
-    ClearAccelStates();
+    // Attempt every independent release/reset in dependency order. A failure
+    // in one cleanup operation must not skip the remaining case resources.
+    // Device-backed state is released before the process accelerator runtime.
+    SimuCaseLifecycleDetail::ExecuteAllCleanupSteps(
+        [&]() { ClearAccelStates(); },
 #ifdef ONEFLOW_ENABLE_HIP
-    HipFluxBackend::ReleaseShared();
+        [&]() { HipFluxBackend::ReleaseShared(); },
 #endif
-    SolverMap::FreeSolverMap();
-    SolverNameClass::Reset();
-    heat_flux.DeAllocate();
-    nscom.Reset();
-    NsSolver::Reset();
-    INsSolver::Reset();
-    TurbSolver::Reset();
-    turbcom.Reset();
-    Tolerance::Reset();
-    Zone::Reset();
-    ActionState::Reset();
-    Iteration::Reset();
-    FieldManagerRegistry::FreeFieldManager();
-    DataBase & dataBase = RequireGlobalDataBase();
-    dataBase.RequireDataField().Clear();
-    dataBase.RequireDataPara().Clear();
-    logFile.ClearCaseDir();
-    Prj::ClearPrjBaseDir();
-
-    // Clear context-owned case state so the same process can bind a new case
-    // without carrying task or solver-name state from the previous case.
-    task_ = TaskEnum::SOLVE_FIELD;
-    taskName_ = "Solve";
-    taskResolved_ = false;
-    expandedSolverNames_.clear();
-    envReady_ = false;
+        [&]() { SolverMap::FreeSolverMap(); },
+        [&]() { SolverNameClass::Reset(); },
+        [&]() { heat_flux.DeAllocate(); },
+        [&]() { nscom.Reset(); },
+        [&]() { NsSolver::Reset(); },
+        [&]() { INsSolver::Reset(); },
+        [&]() { TurbSolver::Reset(); },
+        [&]() { turbcom.Reset(); },
+        [&]() { Tolerance::Reset(); },
+        [&]() { Zone::Reset(); },
+        [&]() { ActionState::Reset(); },
+        [&]() { Iteration::Reset(); },
+        [&]() { FieldManagerRegistry::FreeFieldManager(); },
+        [&]() { RequireGlobalDataBase().RequireDataField().Clear(); },
+        [&]() { RequireGlobalDataBase().RequireDataPara().Clear(); },
+        [&]() { logFile.ClearCaseDir(); },
+        [&]() { Prj::ClearPrjBaseDir(); },
+        [&]()
+        {
+            // Reset context-owned state even when an earlier release failed.
+            task_ = TaskEnum::SOLVE_FIELD;
+            taskName_ = "Solve";
+            taskResolved_ = false;
+            expandedSolverNames_.clear();
+            envReady_ = false;
+        } );
 }
 
 void SimuContext::FinalizeEnvironment()

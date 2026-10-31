@@ -21,6 +21,8 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "TurbSpectrum.h"
+#include "TurbSpectrumPolicy.h"
+#include "NsInvFluxPolicy.h"
 #include "Iteration.h"
 #include "NsCom.h"
 #include "TurbCom.h"
@@ -93,44 +95,39 @@ void TurbSpectrum::CalcFaceSpectrum1Equ()
     Real vr = turbsp.q2_ns[ IDX::IV ];
     Real wr = turbsp.q2_ns[ IDX::IW ];
 
-    //calculate velocity at the cell interface
-    Real vnl  = gcom.xfn * ul + gcom.yfn * vl + gcom.zfn * wl - gcom.vfn;
-    Real vnr  = gcom.xfn * ur + gcom.yfn * vr + gcom.zfn * wr - gcom.vfn;
+    const Real vnl = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, ul, vl, wl );
+    const Real vnr = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, ur, vr, wr );
 
-    Real absVnl = ABS( vnl );
-    Real absVnr = ABS( vnr );
+    const Real vnRelative = half * ( vnl + vnr );
+    const Real absVn = ABS( vnRelative );
 
-    Real vnRelative = half * ( vnl + vnr );
-    Real absVn = ABS( vnRelative ); 
+    const Real invRadius = TurbInviscidFaceSpectralRadius( gcom.farea, absVn );
+    turbsp.radius1[ ISA ] += invRadius;
+    turbsp.radius2[ ISA ] += invRadius;
 
-    turbsp.radius1[ ISA ] += gcom.farea * half * absVn;
-    turbsp.radius2[ ISA ] += gcom.farea * half * absVn;
+    Real matL, matR;
+    TurbInviscidFaceMatrixContrib( gcom.farea, vnl, vnr, absVn, matL, matR );
+    turbsp.matrix1[ ISA ] += matL;
+    turbsp.matrix2[ ISA ] += matR;
 
-    turbsp.matrix1[ ISA ] += gcom.farea * half * ( - vnl - absVn ); //The normal direction of the grid is opposite to the normal direction of the surface
-    turbsp.matrix2[ ISA ] += gcom.farea * half * (   vnr - absVn );
-
-    //calculate jacobians of the diffusion operator at the cell face i + 1/2
-    Real orl     = 1.0 / ( rl + SMALL );
-    Real orr     = 1.0 / ( rr + SMALL );
-    Real nuLeft  = turbsp.q1[ ISA ];
-    Real nuRight = turbsp.q2[ ISA ];
-
-    Real nuet1 = turbcom.visl1 * orl + nuLeft;
-    Real nuet2 = turbcom.visl2 * orr + nuRight;
-
-    Real nueff = half * ( nuet1 + nuet2 );
-    nueff = ABS( nueff );
+    const Real nuLeft  = turbsp.q1[ ISA ];
+    const Real nuRight = turbsp.q2[ ISA ];
+    const Real nuet1 = SaEffectiveKinematicViscosity( turbcom.visl1, rl, nuLeft );
+    const Real nuet2 = SaEffectiveKinematicViscosity( turbcom.visl2, rr, nuRight );
+    Real nueff = ABS( half * ( nuet1 + nuet2 ) );
 
     gcom.cvol  = half * ( gcom.cvol1 + gcom.cvol2 );
-    Real ovol = one / gcom.cvol;
+    const Real ovol = one / gcom.cvol;
+    const Real areaS2 = SQR( gcom.farea );
+    const Real diffRadius = TurbDiffusiveFaceSpectralRadius(
+        turbcom.oreynolds, turbcom.osigma, nueff, areaS2, ovol );
 
-    Real areaS2 = SQR( gcom.farea );
-
-    turbsp.radius1[ ISA ] +=   turbcom.oreynolds * ovol * ( turbcom.osigma * nueff * areaS2 );
-    turbsp.radius2[ ISA ] +=   turbcom.oreynolds * ovol * ( turbcom.osigma * nueff * areaS2 );
-            
-    turbsp.matrix1[ ISA ] += - turbcom.oreynolds * ovol * ( turbcom.osigma * nueff * areaS2 );
-    turbsp.matrix2[ ISA ] += - turbcom.oreynolds * ovol * ( turbcom.osigma * nueff * areaS2 );
+    turbsp.radius1[ ISA ] += diffRadius;
+    turbsp.radius2[ ISA ] += diffRadius;
+    turbsp.matrix1[ ISA ] += - diffRadius;
+    turbsp.matrix2[ ISA ] += - diffRadius;
 }
 
 void TurbSpectrum::CalcFaceSpectrum2Equ()
@@ -154,24 +151,23 @@ void TurbSpectrum::CalcFaceSpectrum2Equ()
     Real vr = turbsp.q2_ns[ IDX::IV ];
     Real wr = turbsp.q2_ns[ IDX::IW ];
 
-    //calculate velocity at the cell interface
-    Real vnl  = gcom.xfn * ul + gcom.yfn * vl + gcom.zfn * wl - gcom.vfn;
-    Real vnr  = gcom.xfn * ur + gcom.yfn * vr + gcom.zfn * wr - gcom.vfn;
+    const Real vnl = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, ul, vl, wl );
+    const Real vnr = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, ur, vr, wr );
 
-    Real absVnl = ABS( vnl );
-    Real absVnr = ABS( vnr );
-
-    Real vnRelative = half * ( vnl + vnr );
-    Real absVn = ABS( vnRelative ); 
+    const Real vnRelative = half * ( vnl + vnr );
+    const Real absVn = ABS( vnRelative );
+    const Real invRadius = TurbInviscidFaceSpectralRadius( gcom.farea, absVn );
+    Real matL, matR;
+    TurbInviscidFaceMatrixContrib( gcom.farea, vnl, vnr, absVn, matL, matR );
 
     for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
     {
-        turbsp.radius1[ iEqu ] += gcom.farea * half * absVn;
-        turbsp.radius2[ iEqu ] += gcom.farea * half * absVn;
-
-        //Even choices like ABS VN or: ABS (VNL) can make a difference, although the final impact on the results is unpredictable
-        turbsp.matrix1[ iEqu ] += gcom.farea * half * ( - vnl - absVn ); //The normal direction of the grid is opposite to the normal direction of the surface
-        turbsp.matrix2[ iEqu ] += gcom.farea * half * (   vnr - absVn );
+        turbsp.radius1[ iEqu ] += invRadius;
+        turbsp.radius2[ iEqu ] += invRadius;
+        turbsp.matrix1[ iEqu ] += matL;
+        turbsp.matrix2[ iEqu ] += matR;
     }
 
     turbcom.rho  = half * ( rl + rr );
@@ -185,22 +181,23 @@ void TurbSpectrum::CalcFaceSpectrum2Equ()
 
     Real s2 = SQR( gcom.farea );
 
+    // work holds nu_eff * A^2 / V before 1/Re scaling
     turbsp.work[ IKE ] = ( turbcom.visl + turbcom.vist * turbcom.sigk ) / turbcom.rho * s2 * ovol;
     turbsp.work[ IKW ] = ( turbcom.visl + turbcom.vist * turbcom.sigw ) / turbcom.rho * s2 * ovol;
 
-    if ( turbcom.transition_model == ITReGama ) 
+    if ( turbcom.transition_model == ITReGama )
     {
         turbsp.work[ ITGama ] = ( turbcom.visl + turbcom.vist / turbcom.trans_df  ) / turbcom.rho * s2 * ovol;
         turbsp.work[ ITRect ] = ( turbcom.visl + turbcom.vist ) * turbcom.trans_dct / turbcom.rho * s2 * ovol;
     }
-    /////////////////////////////////////////////////////////////////////////////////////////
 
     for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
     {
-        Real term = turbcom.oreynolds * turbsp.work[ iEqu ];
+        const Real term = TurbDiffusiveFaceSpectralRadius(
+            turbcom.oreynolds, one, turbsp.work[ iEqu ], one, one );
+        // work already includes A^2/V and nu_eff/rho; pass as nu_eff with unit area/vol
         turbsp.radius1[ iEqu ] += term;
         turbsp.radius2[ iEqu ] += term;
-
         turbsp.matrix1[ iEqu ] += - term;
         turbsp.matrix2[ iEqu ] += - term;
     }

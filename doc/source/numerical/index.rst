@@ -26,3 +26,21 @@ Numerical analysis is a branch of mathematics that solves continuous problems us
    sutherland_viscosity
    spectral_radius
    references
+   boundary_velocity
+   isothermal_wall
+   turb_scalar_upwind
+   turb_spectrum
+   sa_closure
+   sa_eddy_viscosity
+   sst_k_source
+   sst_f1_blending
+   verification_layers
+   wilcox_fbeta
+   sst_residual_assembly
+   turb_lusgs
+   sst_eddy_viscosity
+   turb_wall_bc
+   sa_update_bounds
+   sst_update_floors
+   turb_farfield_bc
+   sa_under_relax

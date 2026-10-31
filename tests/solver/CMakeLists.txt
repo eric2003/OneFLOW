@@ -241,3 +241,160 @@ target_include_directories(sutherland_policy_test
 target_link_libraries(sutherland_policy_test PRIVATE GTest::gtest_main)
 target_compile_features(sutherland_policy_test PRIVATE cxx_std_20)
 gtest_discover_tests(sutherland_policy_test DISCOVERY_MODE PRE_TEST)
+
+add_executable(bc_policy_test
+  bc_policy_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/ns/src/NsBcPolicy.cpp
+  ${CMAKE_SOURCE_DIR}/codes/ns/src/NsInvFluxPolicy.cpp
+)
+target_include_directories(bc_policy_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/codes/ns/include
+  ${CMAKE_SOURCE_DIR}/codes/basic/include
+)
+target_link_libraries(bc_policy_test PRIVATE GTest::gtest_main)
+target_compile_features(bc_policy_test PRIVATE cxx_std_20)
+gtest_discover_tests(bc_policy_test DISCOVERY_MODE PRE_TEST)
+
+add_executable(turb_inv_flux_policy_test
+  turb_inv_flux_policy_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/turb/src/TurbInvFluxPolicy.cpp
+)
+target_include_directories(turb_inv_flux_policy_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/codes/turb/include
+  ${CMAKE_SOURCE_DIR}/codes/basic/include
+)
+target_link_libraries(turb_inv_flux_policy_test PRIVATE GTest::gtest_main)
+target_compile_features(turb_inv_flux_policy_test PRIVATE cxx_std_20)
+gtest_discover_tests(turb_inv_flux_policy_test DISCOVERY_MODE PRE_TEST)
+
+add_executable(turb_spectrum_policy_test
+  turb_spectrum_policy_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/turb/src/TurbSpectrumPolicy.cpp
+)
+target_include_directories(turb_spectrum_policy_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/codes/turb/include
+  ${CMAKE_SOURCE_DIR}/codes/basic/include
+)
+target_link_libraries(turb_spectrum_policy_test PRIVATE GTest::gtest_main)
+target_compile_features(turb_spectrum_policy_test PRIVATE cxx_std_20)
+gtest_discover_tests(turb_spectrum_policy_test DISCOVERY_MODE PRE_TEST)
+
+add_executable(turb_sa_policy_test
+  turb_sa_policy_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/turb/src/TurbSaPolicy.cpp
+)
+target_include_directories(turb_sa_policy_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/codes/turb/include
+  ${CMAKE_SOURCE_DIR}/codes/basic/include
+)
+target_link_libraries(turb_sa_policy_test PRIVATE GTest::gtest_main)
+target_compile_features(turb_sa_policy_test PRIVATE cxx_std_20)
+gtest_discover_tests(turb_sa_policy_test DISCOVERY_MODE PRE_TEST)
+
+add_executable(turb_sst_policy_test
+  turb_sst_policy_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/turb/src/TurbSstPolicy.cpp
+)
+target_include_directories(turb_sst_policy_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/codes/turb/include
+  ${CMAKE_SOURCE_DIR}/codes/basic/include
+)
+target_link_libraries(turb_sst_policy_test PRIVATE GTest::gtest_main)
+target_compile_features(turb_sst_policy_test PRIVATE cxx_std_20)
+gtest_discover_tests(turb_sst_policy_test DISCOVERY_MODE PRE_TEST)
+
+add_executable(turb_wilcox_fbeta_test
+  turb_wilcox_fbeta_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/turb/src/TurbSstPolicy.cpp
+)
+target_include_directories(turb_wilcox_fbeta_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/codes/turb/include
+  ${CMAKE_SOURCE_DIR}/codes/basic/include
+)
+target_link_libraries(turb_wilcox_fbeta_test PRIVATE GTest::gtest_main)
+target_compile_features(turb_wilcox_fbeta_test PRIVATE cxx_std_20)
+gtest_discover_tests(turb_wilcox_fbeta_test DISCOVERY_MODE PRE_TEST)
+
+add_executable(turb_sst_residual_test
+  turb_sst_residual_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/turb/src/TurbSstPolicy.cpp
+)
+target_include_directories(turb_sst_residual_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/codes/turb/include
+  ${CMAKE_SOURCE_DIR}/codes/basic/include
+)
+target_link_libraries(turb_sst_residual_test PRIVATE GTest::gtest_main)
+target_compile_features(turb_sst_residual_test PRIVATE cxx_std_20)
+gtest_discover_tests(turb_sst_residual_test DISCOVERY_MODE PRE_TEST)
+
+add_executable(turb_lusgs_policy_test
+  turb_lusgs_policy_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/turb/src/TurbLusgsPolicy.cpp
+)
+target_include_directories(turb_lusgs_policy_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/codes/turb/include
+  ${CMAKE_SOURCE_DIR}/codes/basic/include
+)
+target_link_libraries(turb_lusgs_policy_test PRIVATE GTest::gtest_main)
+target_compile_features(turb_lusgs_policy_test PRIVATE cxx_std_20)
+gtest_discover_tests(turb_lusgs_policy_test DISCOVERY_MODE PRE_TEST)
+
+add_executable(turb_sst_eddy_viscosity_test
+  turb_sst_eddy_viscosity_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/turb/src/TurbSstPolicy.cpp
+)
+target_include_directories(turb_sst_eddy_viscosity_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/codes/turb/include
+  ${CMAKE_SOURCE_DIR}/codes/basic/include
+)
+target_link_libraries(turb_sst_eddy_viscosity_test PRIVATE GTest::gtest_main)
+target_compile_features(turb_sst_eddy_viscosity_test PRIVATE cxx_std_20)
+gtest_discover_tests(turb_sst_eddy_viscosity_test DISCOVERY_MODE PRE_TEST)
+
+add_executable(turb_bc_policy_test
+  turb_bc_policy_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/turb/src/TurbBcPolicy.cpp
+)
+target_include_directories(turb_bc_policy_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/codes/turb/include
+  ${CMAKE_SOURCE_DIR}/codes/basic/include
+)
+target_link_libraries(turb_bc_policy_test PRIVATE GTest::gtest_main)
+target_compile_features(turb_bc_policy_test PRIVATE cxx_std_20)
+gtest_discover_tests(turb_bc_policy_test DISCOVERY_MODE PRE_TEST)
+
+add_executable(turb_sa_update_bound_test
+  turb_sa_update_bound_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/turb/src/TurbSaPolicy.cpp
+)
+target_include_directories(turb_sa_update_bound_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/codes/turb/include
+  ${CMAKE_SOURCE_DIR}/codes/basic/include
+)
+target_link_libraries(turb_sa_update_bound_test PRIVATE GTest::gtest_main)
+target_compile_features(turb_sa_update_bound_test PRIVATE cxx_std_20)
+gtest_discover_tests(turb_sa_update_bound_test DISCOVERY_MODE PRE_TEST)
+
+add_executable(turb_sst_update_floor_test
+  turb_sst_update_floor_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/turb/src/TurbSstPolicy.cpp
+)
+target_include_directories(turb_sst_update_floor_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/codes/turb/include
+  ${CMAKE_SOURCE_DIR}/codes/basic/include
+)
+target_link_libraries(turb_sst_update_floor_test PRIVATE GTest::gtest_main)
+target_compile_features(turb_sst_update_floor_test PRIVATE cxx_std_20)
+gtest_discover_tests(turb_sst_update_floor_test DISCOVERY_MODE PRE_TEST)
+
+add_executable(turb_sa_under_relax_test
+  turb_sa_under_relax_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/turb/src/TurbSaPolicy.cpp
+)
+target_include_directories(turb_sa_under_relax_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/codes/turb/include
+  ${CMAKE_SOURCE_DIR}/codes/basic/include
+)
+target_link_libraries(turb_sa_under_relax_test PRIVATE GTest::gtest_main)
+target_compile_features(turb_sa_under_relax_test PRIVATE cxx_std_20)
+gtest_discover_tests(turb_sa_under_relax_test DISCOVERY_MODE PRE_TEST)

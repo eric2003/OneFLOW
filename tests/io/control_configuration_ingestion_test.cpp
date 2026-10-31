@@ -23,6 +23,10 @@ License
 #include "ParaFile.h"
 #include "DataBase.h"
 #include "LogFile.h"
+#include "Prj.h"
+#include "SimuContextBootstrap.h"
+#include "SimuContext.h"
+#include "SimuContextIO.h"
 #include "Parallel.h"
 #include <gtest/gtest.h>
 #include <atomic>
@@ -117,6 +121,51 @@ private:
 void ClearRuntimeParameters()
 {
     RequireGlobalDataBase().RequireDataPara().Clear();
+}
+
+class ScopedCaseRuntimeReset {
+public:
+    ScopedCaseRuntimeReset() = default;
+
+    ~ScopedCaseRuntimeReset() noexcept
+    {
+        try
+        {
+            logFile.ClearCaseDir();
+        }
+        catch ( ... )
+        {
+        }
+
+        try
+        {
+            Prj::ClearPrjBaseDir();
+        }
+        catch ( ... )
+        {
+        }
+
+        try
+        {
+            ClearRuntimeParameters();
+        }
+        catch ( ... )
+        {
+        }
+    }
+
+    ScopedCaseRuntimeReset( const ScopedCaseRuntimeReset & ) = delete;
+    ScopedCaseRuntimeReset & operator=( const ScopedCaseRuntimeReset & ) = delete;
+};
+
+void EnsureParallelEnvironment()
+{
+    static const bool initialized = []()
+    {
+        SetUpParallelEnvironment();
+        return true;
+    }();
+    (void)initialized;
 }
 
 
@@ -241,6 +290,119 @@ TEST( ControlConfigurationIngestion, ReadsManifestScriptsAndCommitsTypedValuesIn
 }
 
 
+TEST( ControlReaderIntegration, CaseBootstrapAppliesSettingsAndRebindsNextCase )
+{
+    TemporaryControlCase firstCase;
+    TemporaryControlCase secondCase;
+    // This guard is destroyed before the temporary case directories. It also
+    // runs when a fatal GoogleTest assertion exits the test early.
+    ScopedCaseRuntimeReset runtimeReset;
+
+    const std::filesystem::path root =
+        std::filesystem::path( firstCase.CaseDirectory() ).parent_path();
+    const std::filesystem::path projectRoot = root / "project";
+    const std::filesystem::path inputRoot = root / "input";
+    const std::filesystem::path outputRoot = root / "output";
+    const std::filesystem::path meshInputRoot = root / "mesh-input";
+    const std::filesystem::path flowInputRoot = root / "flow-input";
+    const std::filesystem::path meshOutputRoot = root / "mesh-output";
+    const std::filesystem::path flowOutputRoot = root / "flow-output";
+
+    firstCase.WriteManifest( "\"bootstrap.txt\";\n" );
+    firstCase.WriteScript(
+        "bootstrap.txt",
+        "string projectRoot = \"" + projectRoot.generic_string() + "\";\n"
+        "string inputRoot = \"" + inputRoot.generic_string() + "\";\n"
+        "string outputRoot = \"" + outputRoot.generic_string() + "\";\n"
+        "string meshInputRoot = \"" + meshInputRoot.generic_string() + "\";\n"
+        "string flowInputRoot = \"" + flowInputRoot.generic_string() + "\";\n"
+        "string meshOutputRoot = \"" + meshOutputRoot.generic_string() + "\";\n"
+        "string flowOutputRoot = \"" + flowOutputRoot.generic_string() + "\";\n"
+        "string ioPathInfoFileName = \"bootstrap_io_paths.txt\";\n" );
+    secondCase.WriteManifest( "" );
+
+    ClearRuntimeParameters();
+    Prj::current_dir = std::filesystem::current_path().string();
+    EnsureParallelEnvironment();
+
+    SimuContextDetail::InitializeCaseConfiguration( firstCase.CaseDirectory() );
+
+    EXPECT_TRUE( Prj::AreSameDirectoryPath( Prj::projectBaseDir, projectRoot.string() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath( Prj::GetInputBaseDir(), inputRoot.string() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath( Prj::GetOutputBaseDir(), outputRoot.string() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath( Prj::GetMeshInputBaseDir(), meshInputRoot.string() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath( Prj::GetFlowInputBaseDir(), flowInputRoot.string() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath( Prj::GetMeshOutputBaseDir(), meshOutputRoot.string() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath( Prj::GetFlowOutputBaseDir(), flowOutputRoot.string() ) );
+    EXPECT_TRUE( std::filesystem::exists( meshOutputRoot / "bootstrap_io_paths.txt" ) );
+    EXPECT_TRUE( std::filesystem::exists( flowOutputRoot / "bootstrap_io_paths.txt" ) );
+
+    // Mirror the case-owned state reset between entries. Process runtime stays
+    // active; the next bootstrap must not inherit the previous case's roots.
+    logFile.ClearCaseDir();
+    Prj::ClearPrjBaseDir();
+    ClearRuntimeParameters();
+
+    SimuContextDetail::InitializeCaseConfiguration( secondCase.CaseDirectory() );
+
+    EXPECT_TRUE( Prj::AreSameDirectoryPath( Prj::prjBaseDir, secondCase.CaseDirectory() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath( Prj::GetInputBaseDir(), secondCase.CaseDirectory() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath( Prj::GetOutputBaseDir(), secondCase.CaseDirectory() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath( Prj::GetMeshInputBaseDir(), secondCase.CaseDirectory() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath( Prj::GetFlowInputBaseDir(), secondCase.CaseDirectory() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath( Prj::GetMeshOutputBaseDir(), secondCase.CaseDirectory() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath( Prj::GetFlowOutputBaseDir(), secondCase.CaseDirectory() ) );
+    EXPECT_TRUE( std::filesystem::exists(
+        std::filesystem::path( secondCase.CaseDirectory() ) / "results" / "io_paths.txt" ) );
+
+    logFile.ClearCaseDir();
+    Prj::ClearPrjBaseDir();
+    ClearRuntimeParameters();
+}
+
+TEST( ControlReaderIntegration, ContextSetupPublishesReadinessAfterBootstrap )
+{
+    TemporaryControlCase testCase;
+    ScopedCaseRuntimeReset runtimeReset;
+
+    testCase.WriteManifest( "\"bootstrap.txt\";\n" );
+    testCase.WriteScript(
+        "bootstrap.txt",
+        "int context_bootstrap_dimension = 2;\n" );
+
+    ClearRuntimeParameters();
+    EnsureParallelEnvironment();
+
+    SimuContext context( testCase.CaseDirectory(), false );
+    EXPECT_FALSE( context.IsEnvironmentReady() );
+
+    EXPECT_NO_THROW( context.SetupCaseEnvironment() );
+
+    EXPECT_TRUE( context.IsEnvironmentReady() );
+    EXPECT_EQ(
+        GetDataValue<int>(
+            "context_bootstrap_dimension", &RequireGlobalDataBase() ),
+        2 );
+}
+
+TEST( ControlReaderIntegration, FailedContextSetupDoesNotPublishReadiness )
+{
+    TemporaryControlCase testCase;
+    ScopedCaseRuntimeReset runtimeReset;
+
+    testCase.WriteManifest( "\"missing_bootstrap.txt\";\n" );
+
+    ClearRuntimeParameters();
+    EnsureParallelEnvironment();
+
+    SimuContext context( testCase.CaseDirectory(), false );
+    EXPECT_FALSE( context.IsEnvironmentReady() );
+
+    EXPECT_THROW( context.SetupCaseEnvironment(), std::runtime_error );
+
+    EXPECT_FALSE( context.IsEnvironmentReady() );
+}
+
 TEST( ControlReaderIntegration, ReadsCaseScriptsAndWritesDatabaseDump )
 {
     TemporaryControlCase testCase;
@@ -257,7 +419,7 @@ TEST( ControlReaderIntegration, ReadsCaseScriptsAndWritesDatabaseDump )
         "string ingestion_reader_marker = \"reader-entry-loaded\";\n" );
 
     ClearRuntimeParameters();
-    SetUpParallelEnvironment();
+    EnsureParallelEnvironment();
 
     {
         ScopedCaseLogBinding logBinding( testCase.CaseDirectory() );

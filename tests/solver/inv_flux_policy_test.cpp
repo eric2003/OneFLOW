@@ -70,6 +70,16 @@ TEST( InvFluxPolicy, TotalEnthalpyAddsKinetic )
     EXPECT_DOUBLE_EQ( TotalEnthalpy( 3.0, 8.0 ), 7.0 );
 }
 
+TEST( InvFluxPolicy, RoePressureUsesTotalEnthalpyClosure )
+{
+    // Legacy UNsLusgs face state: rho=2, H=6.5, |u|^2=4, gamma=1.4.
+    // This gives 18/7; the weighted static pressure for the same pair is 3.
+    EXPECT_NEAR(
+        RoePressureFromTotalEnthalpy( 2.0, 6.5, 4.0, 1.4 ),
+        18.0 / 7.0,
+        1.0e-14 );
+}
+
 TEST( InvFluxPolicy, IdealGasSoundSpeedMatchesIsentropicRelation )
 {
     EXPECT_NEAR( IdealGasSoundSpeed( 1.4, 3.5, 0.0 ), std::sqrt( 1.4 ), 1.0e-12 );

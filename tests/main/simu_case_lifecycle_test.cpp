@@ -5,6 +5,8 @@
 
 #include <stdexcept>
 #include <string>
+#include <type_traits>
+#include <utility>
 #include <vector>
 
 using namespace ONEFLOW;
@@ -71,6 +73,50 @@ TEST( SimuCaseLifecycleTest, SuccessfulExecutionPropagatesCleanupFailure )
             []() { throw std::logic_error( "cleanup failure" ); } ),
         std::logic_error );
 }
+TEST( SimuCaseLifecycleTest, RunsEveryCleanupStepAndPreservesFirstFailure )
+{
+    std::vector< std::string > events;
+
+    try
+    {
+        SimuCaseLifecycleDetail::ExecuteAllCleanupSteps(
+            [&]()
+            {
+                events.emplace_back( "first" );
+                throw std::runtime_error( "first cleanup failure" );
+            },
+            [&]()
+            {
+                events.emplace_back( "second" );
+                throw std::logic_error( "second cleanup failure" );
+            },
+            [&]() { events.emplace_back( "third" ); } );
+        FAIL() << "Expected the first cleanup exception";
+    }
+    catch ( const std::runtime_error & error )
+    {
+        EXPECT_EQ( std::string( error.what() ), "first cleanup failure" );
+    }
+
+    const std::vector< std::string > expected = {
+        "first", "second", "third"
+    };
+    EXPECT_EQ( events, expected );
+}
+
+TEST( SimuCaseLifecycleTest, ExecutesAllCleanupStepsWhenNoStepFails )
+{
+    std::vector< int > events;
+
+    SimuCaseLifecycleDetail::ExecuteAllCleanupSteps(
+        [&]() { events.push_back( 1 ); },
+        [&]() { events.push_back( 2 ); },
+        [&]() { events.push_back( 3 ); } );
+
+    const std::vector< int > expected = { 1, 2, 3 };
+    EXPECT_EQ( events, expected );
+}
+
 TEST( SimuCaseLifecycleTest, SetupRollbackDoesNotRunAfterSuccess )
 {
     std::vector< std::string > events;
@@ -254,4 +300,32 @@ TEST( SimuProcessLifecycleTest, FinalizationIsIdempotent )
     EXPECT_FALSE( state.IsActive() );
     EXPECT_TRUE( state.IsFinalized() );
     EXPECT_THROW( state.Start(), std::logic_error );
+}
+
+
+TEST( SimuProcessLifecycleTest, MoveConstructionTransfersActiveRuntimeState )
+{
+    SimuProcessLifecycleDetail::ProcessRuntimeState source;
+    source.Start();
+
+    SimuProcessLifecycleDetail::ProcessRuntimeState destination(
+        std::move( source ) );
+
+    EXPECT_TRUE( destination.IsActive() );
+    EXPECT_FALSE( source.IsActive() );
+    EXPECT_FALSE( source.IsFinalized() );
+    EXPECT_THROW( source.Start(), std::logic_error );
+
+    destination.MarkFinalized();
+    EXPECT_TRUE( destination.IsFinalized() );
+}
+
+TEST( SimuProcessLifecycleTest, RuntimeStateCannotBeCopiedOrMoveAssigned )
+{
+    EXPECT_FALSE( std::is_copy_constructible<
+        SimuProcessLifecycleDetail::ProcessRuntimeState >::value );
+    EXPECT_FALSE( std::is_copy_assignable<
+        SimuProcessLifecycleDetail::ProcessRuntimeState >::value );
+    EXPECT_FALSE( std::is_move_assignable<
+        SimuProcessLifecycleDetail::ProcessRuntimeState >::value );
 }

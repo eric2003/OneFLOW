@@ -36,3 +36,21 @@ Living list (seed)
 * SU2 documentation (open).
 
 This page is a seed; extend it when a pure-API doc needs a durable citation.
+
+Self-evolving documentation loop
+--------------------------------
+
+The numerical subsystem is meant to evolve as a closed loop:
+
+1. **Pure contract** in ``*Policy.h`` (``@doc-*`` tags, formulas).
+2. **gtest** locks the same expressions (no shadow arithmetic).
+3. **Sphinx page** states the algorithm, pipeline role, and short refs.
+4. **Wiring** replaces hand-rolled copies in solvers (flux, LUSGS, CFL).
+
+External manuals (open or internal) enter at step 3 as *anchors*, not as
+paste. When a new pure API is extracted, prefer adding one citation if the
+formula is named in the literature; otherwise link the sibling policy page.
+
+* Spalart, P. R. and Allmaras, S. R. A one-equation turbulence model for
+  aerodynamic flows.
+* NASA Turbulence Modeling Resource (https://turbmodels.larc.nasa.gov/).

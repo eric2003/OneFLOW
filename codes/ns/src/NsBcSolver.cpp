@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "NsBcSolver.h"
+#include "NsBcPolicy.h"
 #include "BcData.h"
 #include "FlowModel.h"
 #include "NsCom.h"
@@ -310,18 +311,12 @@ void NsBcSolver::IsothermalVisWallBc()
     nscom.prim[ IDX::IP ] = pm;
 
     Real pg1 = pm;
-    Real tg1 = 2.0 * nscom.twall - temperature;
-
-    if ( tg1 < tlim )
-    {
-        tg1 = tlim;
-    }
+    Real tg1 = MirrorScalarWithFloor( nscom.twall, temperature, tlim );
 
     Real rg1;
     Real rw = this->CalcDensity( nscom.prims1, pg1, nscom.twall );
 
-    rg1 = 2.0 * rw - rm;
-    rg1 = MAX( 0.5 * rw, rg1 );
+    rg1 = MirrorDensityAboutWall( rw, rm );
 
     nscom.primt1[ IDX::IR ] = rg1;
     nscom.primt1[ IDX::IP ] = pg1;
@@ -333,39 +328,33 @@ void NsBcSolver::IsothermalVisWallBc()
     temperature = nscom.ts2[ IDX::ITT ];
 
     Real pg2 = pm;
-    Real tg2 = 2.0 * nscom.twall - temperature;
+    Real tg2 = MirrorScalarWithFloor( nscom.twall, temperature, tlim );
 
-    Real rg2;
-
-    if ( tg2 < tlim ) tg2 = tlim;
-
-    rg2 = this->CalcDensity( nscom.prims2, pg2, tg2 );
+    Real rg2 = this->CalcDensity( nscom.prims2, pg2, tg2 );
 
     nscom.primt2[ IDX::IR ] = rg2;
 }
 
 void NsBcSolver::VelocityBc()
 {
-    if ( nscom.bcdtkey == 0 )
+    Real uWall = gcom.vfx;
+    Real vWall = gcom.vfy;
+    Real wWall = gcom.vfz;
+    if ( nscom.bcdtkey != 0 )
     {
-        nscom.primt1[ IDX::IU ] = - nscom.primt1[ IDX::IU ] + two * gcom.vfx;
-        nscom.primt1[ IDX::IV ] = - nscom.primt1[ IDX::IV ] + two * gcom.vfy;
-        nscom.primt1[ IDX::IW ] = - nscom.primt1[ IDX::IW ] + two * gcom.vfz;
-
-        nscom.primt2[ IDX::IU ] = - nscom.primt2[ IDX::IU ] + two * gcom.vfx;
-        nscom.primt2[ IDX::IV ] = - nscom.primt2[ IDX::IV ] + two * gcom.vfy;
-        nscom.primt2[ IDX::IW ] = - nscom.primt2[ IDX::IW ] + two * gcom.vfz;
+        uWall = ( * nscom.bcflow )[ IDX::IU ];
+        vWall = ( * nscom.bcflow )[ IDX::IV ];
+        wWall = ( * nscom.bcflow )[ IDX::IW ];
     }
-    else
-    {
-        nscom.primt1[ IDX::IU ] = - nscom.primt1[ IDX::IU ] + two * ( * nscom.bcflow )[ IDX::IU ];
-        nscom.primt1[ IDX::IV ] = - nscom.primt1[ IDX::IV ] + two * ( * nscom.bcflow )[ IDX::IV ];
-        nscom.primt1[ IDX::IW ] = - nscom.primt1[ IDX::IW ] + two * ( * nscom.bcflow )[ IDX::IW ];
 
-        nscom.primt2[ IDX::IU ] = - nscom.primt2[ IDX::IU ] + two * ( * nscom.bcflow )[ IDX::IU ];
-        nscom.primt2[ IDX::IV ] = - nscom.primt2[ IDX::IV ] + two * ( * nscom.bcflow )[ IDX::IV ];
-        nscom.primt2[ IDX::IW ] = - nscom.primt2[ IDX::IW ] + two * ( * nscom.bcflow )[ IDX::IW ];
-    }
+    ImageVelocityAboutWall(
+        nscom.primt1[ IDX::IU ], nscom.primt1[ IDX::IV ], nscom.primt1[ IDX::IW ],
+        uWall, vWall, wWall,
+        nscom.primt1[ IDX::IU ], nscom.primt1[ IDX::IV ], nscom.primt1[ IDX::IW ] );
+    ImageVelocityAboutWall(
+        nscom.primt2[ IDX::IU ], nscom.primt2[ IDX::IV ], nscom.primt2[ IDX::IW ],
+        uWall, vWall, wWall,
+        nscom.primt2[ IDX::IU ], nscom.primt2[ IDX::IV ], nscom.primt2[ IDX::IW ] );
 }
 
 void NsBcSolver::AdiabaticVisWallBc()
@@ -386,34 +375,24 @@ void NsBcSolver::AdiabaticVisWallBc()
 
 void NsBcSolver::SymmetryBc()
 {
-    Real vx1 = nscom.prims1[ IDX::IU ];
-    Real vy1 = nscom.prims1[ IDX::IV ];
-    Real vz1 = nscom.prims1[ IDX::IW ];
-
-    Real vx2 = nscom.prims2[ IDX::IU ];
-    Real vy2 = nscom.prims2[ IDX::IV ];
-    Real vz2 = nscom.prims2[ IDX::IW ];
-
-    Real vnRelative1 = gcom.xfn * vx1 + gcom.yfn * vy1 + gcom.zfn * vz1 - gcom.vfn;
-    Real vnRelative2 = gcom.xfn * vx2 + gcom.yfn * vy2 + gcom.zfn * vz2 - gcom.vfn;
-
     for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
     {
         nscom.primt1[ iEqu ] = nscom.prims1[ iEqu ];
         nscom.primt2[ iEqu ] = nscom.prims2[ iEqu ];
     }
 
-    nscom.primt1[ IDX::IU ] = nscom.prims1[ IDX::IU ] - two * gcom.xfn * vnRelative1;
-    nscom.primt1[ IDX::IV ] = nscom.prims1[ IDX::IV ] - two * gcom.yfn * vnRelative1;
-    nscom.primt1[ IDX::IW ] = nscom.prims1[ IDX::IW ] - two * gcom.zfn * vnRelative1;
-
-    nscom.primt2[ IDX::IU ] = nscom.prims2[ IDX::IU ] - two * gcom.xfn * vnRelative2;
-    nscom.primt2[ IDX::IV ] = nscom.prims2[ IDX::IV ] - two * gcom.yfn * vnRelative2;
-    nscom.primt2[ IDX::IW ] = nscom.prims2[ IDX::IW ] - two * gcom.zfn * vnRelative2;
+    ReflectVelocityRelativeToMovingFace(
+        nscom.prims1[ IDX::IU ], nscom.prims1[ IDX::IV ], nscom.prims1[ IDX::IW ],
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn,
+        nscom.primt1[ IDX::IU ], nscom.primt1[ IDX::IV ], nscom.primt1[ IDX::IW ] );
+    ReflectVelocityRelativeToMovingFace(
+        nscom.prims2[ IDX::IU ], nscom.prims2[ IDX::IV ], nscom.prims2[ IDX::IW ],
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn,
+        nscom.primt2[ IDX::IU ], nscom.primt2[ IDX::IV ], nscom.primt2[ IDX::IW ] );
 
     for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
     {
-        nscom.prim[ iEqu ] = half * ( nscom.prims1[ iEqu ] + nscom.primt1[ iEqu ] );
+        nscom.prim[ iEqu ] = ArithmeticAverage( nscom.prims1[ iEqu ], nscom.primt1[ iEqu ] );
     }
 }
 
@@ -446,9 +425,9 @@ Real NsBcSolver::CalcReciMolecularWeight( RealField & prim )
 
 Real NsBcSolver::CalcDensity( RealField & prim, Real pres, Real temperature )
 {
-    Real rmw = this->CalcReciMolecularWeight( prim );
-    Real density = pres / ( nscom.statecoef * temperature * rmw );
-    return density;
+    const Real rmw = this->CalcReciMolecularWeight( prim );
+    return IdealGasDensityFromPressureTemperature(
+        pres, temperature, nscom.statecoef, rmw );
 }
 
 EndNameSpace

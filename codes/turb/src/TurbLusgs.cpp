@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "TurbLusgs.h"
+#include "TurbLusgsPolicy.h"
 #include "NsCom.h"
 #include "TurbCom.h"
 #include "NsIdx.h"
@@ -124,7 +125,8 @@ void TurbLusgs::GetStandardFluxIncrement( int signOfMatrix )
 {
     for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
     {
-        turblu.dfj[ iEqu ] = turblu.matrix[ iEqu ] * turblu.dqj[ iEqu ];
+        turblu.dfj[ iEqu ] = TurbLusgsMatrixTimesDq(
+            turblu.matrix[ iEqu ], turblu.dqj[ iEqu ] );
     }
 }
 
@@ -159,12 +161,14 @@ void TurbLusgs::CalcLowerChange()
     {
         for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
         {
-            turblu.tmp[ iEqu ] = turblu.dqi[ iEqu ] - turblu.rhs0[ iEqu ];
+            turblu.tmp[ iEqu ] = TurbLusgsDifference(
+                turblu.dqi[ iEqu ], turblu.rhs0[ iEqu ] );
         }
 
         for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
         {
-            turblu.tmp[ iEqu ] /=  turblu.radius[ iEqu ];
+            turblu.tmp[ iEqu ] = TurbLusgsSolveByRadius(
+                turblu.tmp[ iEqu ], turblu.radius[ iEqu ] );
         }
 
         for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
@@ -179,21 +183,22 @@ void TurbLusgs::CalcLowerChange()
 
         for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
         {
-            turblu.dqSweep =  turblu.dqi[ iEqu ] - turblu.dqi0[ iEqu ];
-            turblu.norm   += SQR( turblu.dqSweep );
+            turblu.norm += TurbLusgsSweepNormContribution(
+                turblu.dqi[ iEqu ], turblu.dqi0[ iEqu ] );
         }
     }
     else
     {
-
         for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
         {
-            turblu.tmp[ iEqu ] = turblu.rhs[ iEqu ] - turblu.rhs0[ iEqu ];
+            turblu.tmp[ iEqu ] = TurbLusgsDifference(
+                turblu.rhs[ iEqu ], turblu.rhs0[ iEqu ] );
         }
 
         for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
         {
-            turblu.tmp[ iEqu ] /=  turblu.radius[ iEqu ];
+            turblu.tmp[ iEqu ] = TurbLusgsSolveByRadius(
+                turblu.tmp[ iEqu ], turblu.radius[ iEqu ] );
         }
 
         for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
@@ -209,12 +214,14 @@ void TurbLusgs::CalcUpperChange()
     {
         for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
         {
-            turblu.tmp[ iEqu ] = turblu.dqi[ iEqu ] - turblu.rhs0[ iEqu ];
+            turblu.tmp[ iEqu ] = TurbLusgsDifference(
+                turblu.dqi[ iEqu ], turblu.rhs0[ iEqu ] );
         }
 
         for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
         {
-            turblu.tmp[ iEqu ] /=  turblu.radius[ iEqu ];
+            turblu.tmp[ iEqu ] = TurbLusgsSolveByRadius(
+                turblu.tmp[ iEqu ], turblu.radius[ iEqu ] );
         }
 
         for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
@@ -223,26 +230,22 @@ void TurbLusgs::CalcUpperChange()
         }
 
         for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-        {            
+        {
             turblu.drhs[ iEqu ] += turblu.rhs0[ iEqu ];
         }
 
         for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
         {
-            turblu.dqSweep     = turblu.dqi[ iEqu ] - turblu.dqi0[ iEqu ];
-            turblu.norm       += SQR( turblu.dqSweep );
+            turblu.norm += TurbLusgsSweepNormContribution(
+                turblu.dqi[ iEqu ], turblu.dqi0[ iEqu ] );
         }
     }
     else
     {
         for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
         {
-            turblu.tmp[ iEqu ] = - turblu.rhs0[ iEqu ];
-        }
-
-        for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-        {
-            turblu.tmp[ iEqu ] /=  turblu.radius[ iEqu ];
+            turblu.tmp[ iEqu ] = TurbLusgsSolveByRadius(
+                - turblu.rhs0[ iEqu ], turblu.radius[ iEqu ] );
         }
 
         for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )

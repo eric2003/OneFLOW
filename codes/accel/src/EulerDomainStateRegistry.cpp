@@ -14,6 +14,7 @@ License
 #include "EulerDomainStateRegistry.h"
 
 #include <stdexcept>
+#include <utility>
 
 BeginNameSpace( ONEFLOW )
 
@@ -42,16 +43,19 @@ std::size_t EulerDomainStateKeyHash::operator()(
 
 bool EulerDomainStateRegistry::Contains( const EulerDomainStateKey & key ) const
 {
-    return states.find( key ) != states.end();
+    return states != nullptr && states->find( key ) != states->end();
 }
 
 EulerDomainState & EulerDomainStateRegistry::GetOrCreate(
     const EulerDomainStateKey & key, const StateFactory & factory )
 {
-    const auto iter = states.find( key );
-    if ( iter != states.end() )
+    if ( states != nullptr )
     {
-        return *iter->second;
+        const auto iter = states->find( key );
+        if ( iter != states->end() )
+        {
+            return *iter->second;
+        }
     }
     if ( ! factory )
     {
@@ -64,7 +68,7 @@ EulerDomainState & EulerDomainStateRegistry::GetOrCreate(
 
 bool EulerDomainStateRegistry::Invalidate( const EulerDomainStateKey & key )
 {
-    return states.erase( key ) != 0;
+    return states != nullptr && states->erase( key ) != 0;
 }
 
 void EulerDomainStateRegistry::Insert(
@@ -75,7 +79,11 @@ void EulerDomainStateRegistry::Insert(
     {
         throw std::invalid_argument( "cannot register a null Euler domain state" );
     }
-    const auto result = states.emplace( key, std::move( state ) );
+    if ( states == nullptr )
+    {
+        states = std::make_unique< StateMap >();
+    }
+    const auto result = states->emplace( key, std::move( state ) );
     if ( ! result.second )
     {
         throw std::logic_error( "Euler domain state key is already registered" );
@@ -85,8 +93,12 @@ void EulerDomainStateRegistry::Insert(
 EulerDomainState & EulerDomainStateRegistry::Get(
     const EulerDomainStateKey & key )
 {
-    const auto iter = states.find( key );
-    if ( iter == states.end() )
+    if ( states == nullptr )
+    {
+        throw std::out_of_range( "Euler domain state key is not registered" );
+    }
+    const auto iter = states->find( key );
+    if ( iter == states->end() )
     {
         throw std::out_of_range( "Euler domain state key is not registered" );
     }
@@ -96,8 +108,12 @@ EulerDomainState & EulerDomainStateRegistry::Get(
 const EulerDomainState & EulerDomainStateRegistry::Get(
     const EulerDomainStateKey & key ) const
 {
-    const auto iter = states.find( key );
-    if ( iter == states.end() )
+    if ( states == nullptr )
+    {
+        throw std::out_of_range( "Euler domain state key is not registered" );
+    }
+    const auto iter = states->find( key );
+    if ( iter == states->end() )
     {
         throw std::out_of_range( "Euler domain state key is not registered" );
     }
@@ -106,17 +122,17 @@ const EulerDomainState & EulerDomainStateRegistry::Get(
 
 void EulerDomainStateRegistry::Erase( const EulerDomainStateKey & key )
 {
-    states.erase( key );
+    if ( states != nullptr ) states->erase( key );
 }
 
 void EulerDomainStateRegistry::Clear()
 {
-    states.clear();
+    if ( states != nullptr ) states->clear();
 }
 
 std::size_t EulerDomainStateRegistry::Size() const
 {
-    return states.size();
+    return states == nullptr ? 0 : states->size();
 }
 
 EndNameSpace

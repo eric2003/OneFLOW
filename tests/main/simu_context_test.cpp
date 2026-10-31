@@ -4,9 +4,15 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <type_traits>
 #include <vector>
+#include <utility>
 
 using namespace ONEFLOW;
+
+static_assert(
+    std::is_nothrow_move_constructible<SimuContext>::value,
+    "SimuContext move construction must not throw after ownership transfer");
 
 namespace {
 
@@ -226,4 +232,42 @@ TEST( SimuContextSolverNames, EnsureFillsOnlyWhenEmpty )
 
     ASSERT_EQ( ctx.ExpandedSolverNames().size(), 1u );
     EXPECT_EQ( ctx.ExpandedSolverNames()[ 0 ], "UNsSolver" );
+}
+
+
+TEST( SimuContextTest, MoveConstructionTransfersStateAndResetsSource )
+{
+    class TestState final : public EulerDomainState
+    {
+    };
+
+    SimuContext source( std::vector<std::string>{ "OneFLOW", "case-a" } );
+    source.SetParallelInfo( 2, 4 );
+    source.SetTaskByName( "ToyModel" );
+    source.MarkEnvironmentReady();
+    source.SetExpandedSolverNames( StringField{ "UNsSolver" } );
+
+    const EulerDomainStateKey key{ 2, 4, 0, AccelBackendKind::CPU };
+    source.AccelStates().Insert( key, std::make_unique<TestState>() );
+
+    SimuContext destination( std::move( source ) );
+
+    ASSERT_EQ( destination.Args().size(), 2u );
+    EXPECT_EQ( destination.Args()[ 1 ], "case-a" );
+    EXPECT_EQ( destination.Rank(), 2 );
+    EXPECT_EQ( destination.Size(), 4 );
+    EXPECT_TRUE( destination.IsEnvironmentReady() );
+    EXPECT_TRUE( destination.IsTaskResolved() );
+    EXPECT_EQ( destination.TaskName(), "ToyModel" );
+    ASSERT_EQ( destination.ExpandedSolverNames().size(), 1u );
+    EXPECT_EQ( destination.ExpandedSolverNames()[ 0 ], "UNsSolver" );
+    EXPECT_TRUE( destination.AccelStates().Contains( key ) );
+
+    EXPECT_TRUE( source.Args().empty() );
+    EXPECT_FALSE( source.IsEnvironmentReady() );
+    EXPECT_FALSE( source.IsTaskResolved() );
+    EXPECT_EQ( source.Rank(), 0 );
+    EXPECT_EQ( source.Size(), 1 );
+    EXPECT_TRUE( source.TaskName().empty() );
+    EXPECT_FALSE( source.HasExpandedSolverNames() );
 }

@@ -37,6 +37,14 @@ void RoeAverageState(
 
 Real TotalEnthalpy( Real internalEnthalpy, Real speedSquared );
 
+// @doc-algorithm roe-average
+// @doc-stage implicit-face-pressure
+// @doc-pure
+// @doc-formula p = rho * (H - |u|^2/2) * (gamma - 1) / gamma
+// Reconstruct the LUSGS face pressure from the Roe-averaged total enthalpy.
+Real RoePressureFromTotalEnthalpy(
+    Real density, Real totalEnthalpy, Real speedSquared, Real gama );
+
 Real IdealGasSoundSpeed(
     Real gama, Real totalEnthalpy, Real speedSquared );
 
@@ -135,7 +143,7 @@ void RoeDissipationWaveCoefficients(
 // @doc-algorithm roe-dissipation
 // @doc-stage continuity-normal-jump
 // @doc-pure
-// @doc-formula dc = vn * dq_rho - n · dq_{rho v}
+// @doc-formula dc = vn * dq_rho - n * dq_{rho v}
 Real RoeContinuityNormalJump(
     Real vnFlow,
     Real xfn, Real yfn, Real zfn,

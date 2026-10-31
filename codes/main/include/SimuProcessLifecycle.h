@@ -32,12 +32,27 @@ enum class ProcessRuntimePhase
 {
     NotStarted,
     Active,
-    Finalized
+    Finalized,
+    MovedFrom
 };
 
 class ProcessRuntimeState
 {
 public:
+    ProcessRuntimeState() = default;
+    ProcessRuntimeState( const ProcessRuntimeState & ) = delete;
+    ProcessRuntimeState & operator=( const ProcessRuntimeState & ) = delete;
+
+    // Transfer the process-runtime lifecycle marker with its owning context.
+    ProcessRuntimeState( ProcessRuntimeState && other ) noexcept
+        : phase_( other.phase_ )
+    {
+        other.phase_ = ProcessRuntimePhase::MovedFrom;
+    }
+
+    // Replacing an existing state could silently abandon an active runtime.
+    ProcessRuntimeState & operator=( ProcessRuntimeState && ) = delete;
+
     void Start()
     {
         if ( phase_ != ProcessRuntimePhase::NotStarted )

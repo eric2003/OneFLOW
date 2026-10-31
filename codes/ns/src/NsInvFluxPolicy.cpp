@@ -67,6 +67,13 @@ Real TotalEnthalpy( Real internalEnthalpy, Real speedSquared )
     return internalEnthalpy + half * speedSquared;
 }
 
+Real RoePressureFromTotalEnthalpy(
+    Real density, Real totalEnthalpy, Real speedSquared, Real gama )
+{
+    return density * ( totalEnthalpy - half * speedSquared )
+        * ( gama - one ) / gama;
+}
+
 Real IdealGasSoundSpeed(
     Real gama, Real totalEnthalpy, Real speedSquared )
 {

@@ -21,6 +21,7 @@ License
 
 #pragma once
 
+#include <exception>
 #include <utility>
 
 namespace ONEFLOW
@@ -49,6 +50,35 @@ void ExecuteWithCleanup( Execute && execute, Cleanup && cleanup )
     }
 
     std::forward< Cleanup >( cleanup )();
+}
+
+// Run every independent teardown step, then propagate the first failure.
+// This prevents one failed release from skipping later resource cleanup.
+template< typename... Cleanup >
+void ExecuteAllCleanupSteps( Cleanup &&... cleanup )
+{
+    std::exception_ptr firstFailure;
+    auto runCleanup = [&firstFailure]( auto && step )
+    {
+        try
+        {
+            std::forward< decltype( step ) >( step )();
+        }
+        catch ( ... )
+        {
+            if ( ! firstFailure )
+            {
+                firstFailure = std::current_exception();
+            }
+        }
+    };
+
+    ( runCleanup( std::forward< Cleanup >( cleanup ) ), ... );
+
+    if ( firstFailure )
+    {
+        std::rethrow_exception( firstFailure );
+    }
 }
 
 template< typename Setup, typename Rollback >

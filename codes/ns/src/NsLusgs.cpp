@@ -21,6 +21,8 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "NsLusgs.h"
+#include "NsLusgsPolicy.h"
+#include "NsInvFluxPolicy.h"
 #include "NsCom.h"
 #include "NsIdx.h"
 #include "HXMath.h"
@@ -102,24 +104,18 @@ void NsLusgs::GetFluxIncrement( int signOfMatrix )
 
 void NsLusgs::CalcFaceEigenValue( RealField & prim )
 {
-    //The value entered here should be the value on the action unit interface
+    // Face state on the LUSGS interface unit.
     Real & rm  = prim[ IDX::IR ];
     Real & um  = prim[ IDX::IU ];
     Real & vm  = prim[ IDX::IV ];
     Real & wm  = prim[ IDX::IW ];
     Real & pm  = prim[ IDX::IP ];
 
-    Real c2 = ABS( nslu.gama * pm / rm );
-    Real cm = sqrt( c2 );
+    const Real cm = IdealGasSoundSpeedFromPressure( rm, pm, nslu.gama );
+    const Real vn_rel = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, um, vm, wm );
 
-    Real vn_fluid = gcom.xfn * um + gcom.yfn * vm + gcom.zfn * wm;
-    Real vn_rel   = vn_fluid - gcom.vfn;
-
-    //Real lmd1 = vn_rel;
-    //Real lmd2 = vn_rel + cm;
-    //Real lmd3 = vn_rel - cm;
-
-    Real max_eigen = ABS( vn_rel ) + cm;
+    const Real max_eigen = ABS( vn_rel ) + cm;
 
     nslu.lmdOnFace1 = max_eigen;
     nslu.lmdOnFace2 = max_eigen;
@@ -136,50 +132,45 @@ void NsLusgs::GetStandardFluxIncrement( int signOfMatrix )
     Real & wm  = nslu.primj[ IDX::IW ];
     Real & pm  = nslu.primj[ IDX::IP ];
 
-    Real c2 = ABS( nslu.gama * pm / rm );
-    Real cm = sqrt( c2 );
+    const Real cm = IdealGasSoundSpeedFromPressure( rm, pm, nslu.gama );
+    const Real c2 = cm * cm;
+    const Real vn_fluid = gcom.xfn * um + gcom.yfn * vm + gcom.zfn * wm;
+    const Real vn_rel = RelativeFaceNormalVelocity(
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.vfn, um, vm, wm );
 
-    Real vn_fluid = gcom.xfn * um + gcom.yfn * vm + gcom.zfn * wm;
-    Real vn_rel   = vn_fluid - gcom.vfn;
+    Real lmd1, lmd2, lmd3;
+    LusgsSplitFaceEigenvalues(
+        vn_rel, cm, static_cast< Real >( signOfMatrix ),
+        nslu.lmdOnFace1, nslu.lmdOnFace2, nslu.lmdOnFace3,
+        lmd1, lmd2, lmd3 );
 
-    Real lmd1 = vn_rel;
-    Real lmd2 = vn_rel + cm;
-    Real lmd3 = vn_rel - cm;
+    Real x1, x2;
+    LusgsLinearizationWeights( lmd1, lmd2, lmd3, c2, cm, x1, x2 );
 
-    lmd1 = half * ( lmd1 + signOfMatrix * nslu.lmdOnFace1 );
-    lmd2 = half * ( lmd2 + signOfMatrix * nslu.lmdOnFace2 );
-    lmd3 = half * ( lmd3 + signOfMatrix * nslu.lmdOnFace3 );
-
-    Real x1 = ( lmd1 + lmd1 - lmd2 - lmd3 ) / ( c2 + c2 );
-    Real x2 = ( lmd2 - lmd3 ) / ( cm + cm );
-
-    Real dc =   vn_fluid * nslu.dqj[ IDX::IR  ]
-              - gcom.xfn * nslu.dqj[ IDX::IRU ]
-              - gcom.yfn * nslu.dqj[ IDX::IRV ]
-              - gcom.zfn * nslu.dqj[ IDX::IRW ];
-    Real c2dc = c2 * dc;
+    const Real dc = RoeContinuityNormalJump(
+        vn_fluid, gcom.xfn, gcom.yfn, gcom.zfn,
+        nslu.dqj[ IDX::IR ], nslu.dqj[ IDX::IRU ],
+        nslu.dqj[ IDX::IRV ], nslu.dqj[ IDX::IRW ] );
 
     Real dh, hm;
-
     ONEFLOW::CalcDH( nslu.primj, nslu.gama, nslu.dqj, dh, hm );
 
-    Real term1 =  dh   * x1 + dc * x2;
-    Real term2 =  c2dc * x1 + dh * x2;
+    Real term1, term2;
+    RoeDissipationCouplingTerms( dh, dc, c2, x1, x2, term1, term2 );
 
-    nslu.dfj[ IDX::IR  ] = lmd1 * nslu.dqj[ IDX::IR  ] -      term1                    ;
-    nslu.dfj[ IDX::IRU ] = lmd1 * nslu.dqj[ IDX::IRU ] - um * term1 + gcom.xfn * term2;
-    nslu.dfj[ IDX::IRV ] = lmd1 * nslu.dqj[ IDX::IRV ] - vm * term1 + gcom.yfn * term2;
-    nslu.dfj[ IDX::IRW ] = lmd1 * nslu.dqj[ IDX::IRW ] - wm * term1 + gcom.zfn * term2;
-    nslu.dfj[ IDX::IRE ] = lmd1 * nslu.dqj[ IDX::IRE ] - hm * term1 + vn_fluid * term2;
+    LusgsFluxIncrementFiveEq(
+        lmd1, term1, term2,
+        um, vm, wm, hm, vn_fluid,
+        gcom.xfn, gcom.yfn, gcom.zfn, gcom.farea,
+        nslu.dqj[ IDX::IR ], nslu.dqj[ IDX::IRU ], nslu.dqj[ IDX::IRV ],
+        nslu.dqj[ IDX::IRW ], nslu.dqj[ IDX::IRE ],
+        nslu.dfj[ IDX::IR ], nslu.dfj[ IDX::IRU ], nslu.dfj[ IDX::IRV ],
+        nslu.dfj[ IDX::IRW ], nslu.dfj[ IDX::IRE ] );
 
     for ( int iEqu = nslu.nBEqu; iEqu < nslu.nEqu; ++ iEqu )
     {
-        nslu.dfj[ iEqu ] = lmd1 * nslu.dqj[ iEqu ] - nslu.primj[ iEqu ] * term1;
-    }
-
-    for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
-    {
-        nslu.dfj[ iEqu ] *= gcom.farea;
+        nslu.dfj[ iEqu ] = ( lmd1 * nslu.dqj[ iEqu ] - nslu.primj[ iEqu ] * term1 )
+            * gcom.farea;
     }
 }
 
@@ -328,25 +319,18 @@ void NsLusgs::ZeroOversetCell()
 
 void CalcDH( RealField & prim, Real & gama, RealField & dq, Real & dh, Real & totalEnthalpy )
 {
-    Real v2, ae, af;
-    Real enthalpy;
-
     Real & density  = prim[ IDX::IR ];
     Real & um       = prim[ IDX::IU ];
     Real & vm       = prim[ IDX::IV ];
     Real & wm       = prim[ IDX::IW ];
     Real & pressure = prim[ IDX::IP ];
 
-    v2 = ONEFLOW::SQR( um, vm, wm );
-
-    ae = gama - one;
-    af = half * ae * v2;
-    dh = - ae * ( um * dq[ IDX::IRU ] + vm * dq[ IDX::IRV ] + wm * dq[ IDX::IRW ] - dq[ IDX::IRE ] );
-
-    enthalpy = ( gama / ( gama - one ) ) * ( pressure / density );
-
-    dh += af * dq[ IDX::IR  ];
-    totalEnthalpy = enthalpy + half * v2;
+    const Real v2 = ONEFLOW::SQR( um, vm, wm );
+    dh = RoeTotalEnthalpyJump(
+        um, vm, wm, gama,
+        dq[ IDX::IR ], dq[ IDX::IRU ], dq[ IDX::IRV ], dq[ IDX::IRW ], dq[ IDX::IRE ] );
+    totalEnthalpy = TotalEnthalpy(
+        IdealGasStaticEnthalpy( density, pressure, gama ), v2 );
 }
 
 

@@ -185,6 +185,20 @@ The current `Simulation::RunImpl()` has three argument-count paths:
 For example, `OneFLOW.exe r <caseDir>` has three process arguments and follows the full
 simulation path. Case directories passed to one process are executed in command-line order; every argument entry is executed, so repeating the same path runs that case again. Each entry gets a separate ``SimuImp`` / ``SimuContext`` and case teardown, while process runtime (including MPI initialization) is initialized once and finalized after the sequence. ``SimuImp::RunCase()`` can be called repeatedly inside that process lifetime; it owns case teardown, not MPI lifecycle. ``SimuImp::Run()`` is the single-case compatibility entry point that owns one process lifecycle. If process initialization or case setup/run throws, the owning boundary attempts rollback/finalization before propagating the original failure. The compatibility ``SimuContext::SetupEnvironment()`` path rolls back a failed case setup, and ``TeardownEnvironment()`` finalizes process runtime even if case teardown throws. A failed case stops the sequence; later entries are not run. This is not parallel multi-case execution and does not itself express artifact dependencies. Thirteen focused lifecycle tests cover ordering, repeated paths, rollback only on setup failure, exception preservation, and stop-on-failure behavior. ``SimuContextEnv.cpp`` compiled separately with MSVC. The full suite and executable link remain unverified. Use the Workbench architecture page for the distinction between sequential multi-case runs and dependency workflows.
 
+Context ownership transfer
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``SimuContext`` is movable but not move-assignable: moving transfers the case
+arguments, task metadata, accelerator-state registry, readiness state, and process
+lifecycle marker to the destination. The source is reset to an uninitialized state.
+This operation is declared ``noexcept`` because the process lifecycle marker is an
+ownership token; once it moves, a later throwing member move could otherwise leave the
+source unable to finalize the process runtime while destination construction fails.
+The compile-time move-trait assertion in ``tests/main/simu_context_test.cpp`` makes
+that requirement executable. If a future context member cannot be moved without
+throwing, its ownership design must be reconsidered rather than silently weakening
+this guarantee.
+
 The process environment and each case environment have different lifetimes. The
 `Simulation` path initializes process-level state once, then constructs a case runner per
 directory. `SimuImp::RunCase()` owns case teardown, including exceptional exits. Changes
@@ -679,3 +693,118 @@ named lengths through the real DataBase, and missing-name failure. The
 injected resolver. These two test levels deliberately distinguish parsing
 semantics from runtime lookup. Neither replaces the pending production
 multi-file reader integration test.
+
+
+Case teardown and cleanup failure semantics
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+SimuContext::TeardownCase releases case-owned resources in dependency order:
+accelerator-backed state and shared backend buffers first, solver and physics
+state next, then zone/field/database state, and finally case log and
+project-path bindings. The process-level accelerator and parallel runtimes
+remain alive until the process owner calls FinalizeEnvironment().
+
+Each release/reset is an independent cleanup step. The production teardown
+uses SimuCaseLifecycleDetail::ExecuteAllCleanupSteps() so an exception in
+one step does not prevent later steps from being attempted. The helper records
+the first cleanup exception, executes all remaining steps in order, and then
+rethrows that first exception. Context-owned task metadata is reset as the
+final step even if an earlier release failed.
+
+When teardown runs from SimuImp::RunCase() while a task/setup exception is
+already active, ExecuteWithCleanup() preserves the original execution
+exception; teardown failures do not replace it. This policy guarantees that
+all cleanup attempts are made, not that every release succeeds. A successful
+case whose teardown fails still reports the first teardown exception. Focused
+unit tests pin ordering, continued cleanup after multiple failures, and
+first-failure preservation. These tests do not replace an integration test of
+real solver/device resource release.
+
+
+Case environment readiness
+--------------------------
+
+``SimuContext::IsEnvironmentReady()`` reports successful completion of the
+entire case bootstrap, not merely that setup has started. The flag is cleared
+at the beginning of ``SetupCaseEnvironment()`` and set only after the case
+root/log binding, production control ingestion, IO-setting validation, and
+IO-path application have all completed. If any step throws, the owning
+``SimuImp::RunCase()`` or compatibility rollback path still attempts case
+teardown, while the context remains not-ready. This distinction prevents
+callers from observing a partially initialized case as ready. It does not
+replace the outstanding integration test of the full production bootstrap.
+
+Production case-bootstrap composition
+-------------------------------------
+
+The ordered case bootstrap is factored into
+``SimuContextDetail::InitializeCaseConfiguration(caseDir)`` in
+``codes/main/src/SimuContextBootstrap.cpp``, declared by
+``SimuContextBootstrap.h``. This is the production function called by
+``SimuContext::SetupCaseEnvironment()``; it binds the case project root and
+log, invokes the real ``ReadControlInfo(caseDir)``, validates the typed IO
+settings snapshot, and applies the effective generic and mesh/flow roots.
+The serial integration target links this same production translation unit
+and exercises two successive case configurations, including configured
+roots on the first case and default-root rebinding on the second. A scoped
+test guard clears case-owned log, project-path, and parameter state even when
+a fatal assertion exits the test early. The test still resets state directly
+between the two bootstrap calls; it does not invoke production
+``TeardownCase()``, the full ``SimuImp::RunCase()``, MPI collectives, or
+accelerator resource release.
+
+This is meaningful component-integration evidence: the production bootstrap
+composition, real control reader, typed database commit, IO-setting
+application, and sequential root rebinding are exercised together. R1
+remains partial because the public readiness transition in
+``SetupCaseEnvironment()`` and cleanup wiring through production
+``RunCase() -> PostProcess() -> TeardownCase()`` are not yet exercised
+end-to-end.
+
+Process runtime ownership and Context moves
+-------------------------------------------
+
+SimuContext is move-constructible because a context may be transferred to
+another owner. Its process-runtime marker must move with it: copying the
+Active phase would leave both the source and destination claiming to own
+the same process lifecycle. ProcessRuntimeState is therefore non-copyable
+and has a transfer move constructor. The moved-from marker enters a terminal
+MovedFrom phase, so it cannot be started again accidentally. Move
+assignment is disabled for both the marker and SimuContext because
+overwriting a destination could abandon an already active process-runtime
+owner. This is an ownership rule, not a resource-finalization operation; the
+destination remains responsible for the eventual explicit process teardown.
+
+
+Moved-from SimuContext contract
+-------------------------------
+
+The explicit SimuContext move constructor transfers its arguments, case
+identity, task selection, readiness marker, process lifecycle marker,
+accelerator-state registry, and expanded solver names. It then resets the
+source context's observable scalar state and clears its remaining metadata.
+In particular, a moved-from context must not continue to report that its case
+environment is ready or its task is resolved. Move assignment remains
+disabled because replacing an existing context could abandon owned runtime
+state. This move operation transfers ownership; it does not perform resource
+teardown or process finalization.
+
+
+Accelerator backend-state ownership
+------------------------------------
+
+``EulerDomainStateRegistry`` owns backend state objects through unique ownership.
+Its container is held behind a ``std::unique_ptr<StateMap>``, allocated lazily on
+the first insertion. This is intentional: the registry's move operation transfers
+one pointer and therefore does not depend on the standard library's implementation-
+specific ``noexcept`` traits for moving or default-constructing
+``std::unordered_map``. The backend state objects themselves are not moved.
+After a move, the source registry is empty and remains valid; a later insertion
+allocates a fresh map.
+
+This is a small indirection with a clear lifecycle benefit. The registry is a member
+of the simulation context, whose move contract must not throw after process-lifecycle
+ownership has begun transferring. The invariant is tested at compile time and by
+a runtime ownership-transfer test. The trade-off is one allocation on first use and
+one pointer indirection for registry operations; an empty registry performs no
+allocation.

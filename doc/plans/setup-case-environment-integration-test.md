@@ -957,3 +957,227 @@ a separate MPI lifecycle validation plan.
 No source change or post-baseline test result is claimed by this investigation
 entry. Exact-HEAD Windows/Linux CI for the preceding PIO link fix is still
 running at the time of this note.
+
+
+## 2026-10-30 continuation: make Case teardown best-effort across independent resources
+
+Starting revision: f03e40b97fdeaace5aa6acfc14c53ee6b6a22420 on hexin.
+The user reports 982/982 local tests passed before this change; that is a
+pre-change baseline only.
+
+A production-source review found that SimuContext::TeardownCase() invoked
+all release/reset operations sequentially without per-operation exception
+isolation. The surrounding ExecuteWithCleanup() correctly preserves an
+active setup/task exception, but it sees teardown as one callback. If an early
+release operation throws, the remainder of TeardownCase() is skipped. This
+can leave unrelated case-scoped state bound while the process runtime is then
+finalized or the next case is considered.
+
+The lifecycle helper now provides
+SimuCaseLifecycleDetail::ExecuteAllCleanupSteps(). It executes every
+independent cleanup action in declaration order, remembers the first cleanup
+exception, and rethrows it after all actions have been attempted. Production
+TeardownCase() uses this helper for accelerator/backend state, solver and
+physics state, zone/field/database state, log and project-path bindings, and
+context-owned task metadata. The ordering remains deliberate: device-backed
+resources are attempted before process-level accelerator finalization.
+
+Two focused tests specify the helper contract: all steps run in order when
+there are no failures; when multiple steps fail, later steps still run and
+the first failure is propagated. The existing outer cleanup wrapper continues
+to preserve the original execution exception when teardown also fails.
+
+This change improves cleanup completeness but does not prove that every
+underlying release operation succeeds, nor does it constitute a full
+solver/device teardown integration test. The existing real-reader integration
+test in tests/io/control_configuration_ingestion_test.cpp exercises
+SetUpParallelEnvironment() and the production ReadControlInfo(caseDir)
+path, but not the full SetupCaseEnvironment() composition or production
+SimuImp::RunCase() cleanup. R1 therefore remains Partial.
+
+No local build or CTest was run in this environment. The 982/982 report is
+pre-change. Exact-HEAD Windows/Linux CI and a fresh local run are required
+before treating this change as verified.
+
+
+## 2026-10-30 continuation: make Case readiness reflect completed bootstrap
+
+The user reports 984/984 local tests passed before this continuation. This is
+the pre-change baseline only.
+
+A state-contract review found that ``SetupCaseEnvironment()`` set
+``envReady_`` before binding the case root, reading control files, validating
+IO settings, or applying effective paths. Since ``IsEnvironmentReady()`` is
+public, callers could observe a partially initialized case as ready. The flag
+is now cleared when setup begins and published only after the complete
+bootstrap sequence succeeds. Existing ``RunCase()`` and compatibility
+rollback paths continue to own cleanup after setup failure; no cleanup
+behavior or process-runtime ownership was changed.
+
+The duplicate ``EulerDomainStateRegistry.h`` include in ``SimuContext.h`` was
+also removed. The runtime architecture page now records the readiness
+contract and explicitly distinguishes it from full bootstrap integration
+coverage.
+
+This is a state-observability correction, not completion of R1. The test suite
+still needs to invoke the production ``SetupCaseEnvironment()`` composition
+and verify successful readiness, failure readiness, cleanup, and sequential
+case isolation. The reported 984/984 count predates this change; exact-HEAD
+Windows/Linux CI and a new local run are required.
+
+
+## 2026-10-30 continuation: extract and exercise the production Case bootstrap
+
+The user reports 984/984 local tests passed before this change. This is the
+pre-change baseline only. Starting revision:
+``485f9b96313a5e053bb170b4aef796c7672f770b`` on ``hexin``.
+
+The production sequence previously embedded in
+``SimuContext::SetupCaseEnvironment()`` has been extracted into
+``SimuContextDetail::InitializeCaseConfiguration(caseDir)`` in the new
+``SimuContextBootstrap.cpp`` translation unit. It performs the same operations in
+the same order: bind the case project root, bind the case log, call the real
+``ReadControlInfo(caseDir)``, read and validate the complete ``CaseIOSettings``
+snapshot, and apply effective generic and mesh/flow roots. The context method
+now owns only the lifecycle state transition around that production helper:
+clear readiness, invoke bootstrap, publish readiness on success.
+
+The serial ``control_configuration_test`` target links the same production
+translation unit. A new integration test configures all generic and domain
+roots for one case, verifies effective paths and diagnostic files, clears
+case-owned state while retaining process setup, then bootstraps a second case
+with default roots and verifies no prior configured root survives. The test
+uses real control manifests, real script parsing/database commits, real
+``ReadControlInfo``, and real path application; it does not duplicate the
+production orchestration.
+
+The test explicitly resets log, project path, and parameter state between
+the two helper calls. It therefore verifies bootstrap composition and
+case-root rebinding, not the production ``TeardownCase()`` wiring. Full
+``SimuImp::RunCase()`` failure cleanup, exact readiness flag integration,
+MPI multi-rank behavior, and accelerator resource teardown remain open. R1
+is improved but remains Partial until those higher-level boundaries are
+covered.
+
+No local build or CTest has been run here. The 984/984 report predates this
+change. Exact-HEAD Windows/Linux CI and a new local MSVC/CTest run are needed.
+
+### Build-boundary correction
+
+A follow-up target-dependency review found that ``SimuContextIO.cpp`` is also
+compiled by the focused ``simu_context_parameter_test`` target, which does not
+link the control-reader and log-file runtime dependencies. The bootstrap
+orchestration has therefore been moved into its own
+``SimuContextBootstrap.cpp`` translation unit and declaration header. The
+parameter/path component remains independently linkable; only the
+``control_configuration_test`` target links the bootstrap component together
+with the real reader/log dependencies. The main executable's recursive source
+collection includes the new production source. This keeps the test seam
+aligned with the production composition without widening the parameter-only
+test's dependency closure.
+
+## 2026-10-30 continuation: make bootstrap-test cleanup exception-safe
+
+Starting revision: `3a3e936388c6d40af98d942ad73b70145d2850d4` on `hexin`. The user reports 985/985
+local tests passed before this continuation; that count is a pre-change
+baseline.
+
+A review of the production-bootstrap integration test found that its global
+case state was reset only at the normal end of the test. A fatal GoogleTest
+assertion or an exception during the first bootstrap could return from the
+test before clearing the log binding, project roots, and parameter database.
+Because these are process-global objects, that could contaminate later tests
+and make failures order-dependent.
+
+The test now installs a scoped cleanup guard after constructing its temporary
+case directories. The guard attempts to clear the case log binding, project
+path state, and parameter database independently, and is destroyed before
+the temporary directories. The explicit reset between the first and second
+case remains, because that transition is part of the sequential-root-rebinding
+assertion. The guard is a test-fixture safety net; it deliberately does not
+pretend to exercise production `TeardownCase()`.
+
+The runtime architecture page was corrected to identify the actual
+`SimuContextBootstrap.cpp` implementation location and to distinguish the
+new production-bootstrap integration evidence from the still-missing
+`SetupCaseEnvironment()` readiness and `SimuImp::RunCase()` teardown
+integration.
+
+No local build or CTest was run in this environment. The 985/985 report
+predates this change. Exact-HEAD Windows/Linux CI and a fresh local MSVC/CTest
+run are required.
+
+
+## 2026-10-31 continuation: transfer process lifecycle ownership on Context move
+
+Starting revision: `53f16d4cf6bcff0761f0c04e3619cc1c9cdc2c3d`.
+The user reports 985/985 local tests passed before this continuation; that
+count is a pre-change baseline.
+
+A lifecycle ownership review found that `SimuContext` was move-constructible
+and move-assignable while its `ProcessRuntimeState` was an ordinary enum
+wrapper. Default move operations therefore copied the `Active` phase,
+allowing both the moved-from and destination contexts to report that they
+owned the same process runtime. Move assignment could also overwrite an
+already-active destination marker without finalizing its runtime.
+
+The process state is now non-copyable and move-constructible with explicit
+transfer semantics. The source enters a terminal `MovedFrom` phase, which
+is neither active nor restartable. `SimuContext` retains move construction
+but disables move assignment to avoid replacing an existing lifecycle owner.
+Focused tests cover active-state transfer and the non-copyable/non-assignable
+contract. Runtime architecture documentation records the ownership rule.
+
+This does not finalize or release MPI/accelerator resources during a move.
+The destination remains responsible for the existing explicit teardown path.
+No local build or CTest was run in this environment; 985/985 is the
+pre-change baseline. Windows/Linux CI and a fresh local MSVC/CTest run are
+required.
+
+
+## 2026-10-31 continuation: reset observable state after Context move
+
+Starting revision: e87a0b1b3c4c757b2594e802004751c99644666c.
+The user reports 987/987 local tests passed before this continuation.
+
+A follow-up review of the previous process-state move fix found that default
+memberwise move construction still copied scalar state such as envReady_ and
+taskResolved_. The moved-from context could therefore continue to report that
+its case environment was ready even though the process marker and owned
+registries had moved.
+
+SimuContext now has an explicit move constructor. It transfers the owned
+arguments, case path, task metadata, readiness state, process lifecycle,
+accelerator-state registry, and expanded solver names. It then resets the
+source context to a valid uninitialized observable state (serial rank/size,
+default task value, empty task name, not ready, task unresolved, empty
+arguments/path/names). The moved-from reset avoids allocating new strings.
+Move assignment remains deleted.
+
+A context-level test verifies both destination state preservation and
+moved-from state reset, including accelerator registry ownership. This does
+not exercise the production setup/teardown path or release resources during
+the move. No local build or CTest was run in this environment; 987/987 is the
+pre-change baseline.
+
+
+## Implementation update: exercise the production context setup method
+
+The case setup operation has been moved from the broad
+``SimuContextEnv.cpp`` translation unit into
+``SimuContextCaseEnvironment.cpp``. The production implementation still calls
+``SimuContextDetail::InitializeCaseConfiguration(caseDir_)`; this is a translation-
+unit boundary change, not a second bootstrap implementation.
+
+The existing ``control_configuration_test`` target now compiles that production
+translation unit and invokes ``SimuContext::SetupCaseEnvironment()` directly.
+Two integration contracts are covered with temporary cases and the real control
+reader:
+
+- A valid control manifest loads a typed parameter and only then publishes
+  ``IsEnvironmentReady() == true`.
+- A manifest that references a missing script throws and leaves readiness false.
+
+This advances R1 beyond testing only the bootstrap helper. It does not yet exercise
+production ``TeardownCase()``, the full ``SimuImp::RunCase()`` exception boundary,
+or process-runtime preservation. Those remain separate integration milestones.

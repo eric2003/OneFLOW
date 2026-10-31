@@ -38,8 +38,8 @@ public:
     ~EulerDomainStateRegistry() = default;
 
     EulerDomainStateRegistry( const EulerDomainStateRegistry & ) = delete;
-    EulerDomainStateRegistry( EulerDomainStateRegistry && ) = default;
-    EulerDomainStateRegistry & operator=( EulerDomainStateRegistry && ) = default;
+    EulerDomainStateRegistry( EulerDomainStateRegistry && other ) noexcept = default;
+    EulerDomainStateRegistry & operator=( EulerDomainStateRegistry && ) noexcept = default;
     EulerDomainStateRegistry & operator=( const EulerDomainStateRegistry & ) = delete;
 
     using StateFactory = std::function< std::unique_ptr< EulerDomainState >() >;
@@ -61,7 +61,7 @@ private:
     using StateMap = std::unordered_map<
         EulerDomainStateKey, std::unique_ptr< EulerDomainState >,
         EulerDomainStateKeyHash >;
-    StateMap states;
+    std::unique_ptr< StateMap > states;
 };
 
 EndNameSpace

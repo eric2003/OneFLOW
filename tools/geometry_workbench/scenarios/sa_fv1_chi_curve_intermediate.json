@@ -1,0 +1,40 @@
+{
+  "id": "sa_fv1_chi_curve_intermediate",
+  "title": "SA fv1(chi) intermediate curve",
+  "domain": "turbulence",
+  "description": "Intermediate verification of Spalart-Allmaras fv1 against the closed-form formula. Not a mesh solve.",
+  "runner": "analytic_sa_fv1",
+  "input": {
+    "cv1": 7.1,
+    "chi": [
+      0.1,
+      0.5,
+      1.0,
+      2.0,
+      5.0,
+      10.0,
+      50.0
+    ]
+  },
+  "expected": {
+    "fv1": [
+      2.793982878472922e-06,
+      0.0003491269034398776,
+      0.0027862060510823023,
+      0.02186323996818899,
+      0.2588468682635103,
+      0.7364252885498387,
+      0.9971448870107608
+    ]
+  },
+  "result": null,
+  "notes": [
+    "expected.fv1 is filled by analytic_sa_fv1 using fv1=chi^3/(chi^3+cv1^3).",
+    "Corresponds to TurbSaPolicy.Fv1ChiCurveMatchesClosedForm style checks.",
+    "Native C++ gtest remains authoritative for production symbols."
+  ],
+  "references": [
+    "Spalart-Allmaras one-equation model",
+    "NASA TMR SA"
+  ]
+}

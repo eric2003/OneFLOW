@@ -3,6 +3,12 @@
 from __future__ import annotations
 
 from copy import deepcopy
+
+try:
+    from geometry_workbench.analytic_contracts import run_analytic
+except ImportError:  # pragma: no cover
+    from analytic_contracts import run_analytic  # type: ignore
+
 from typing import Any, Dict, List, Optional
 
 
@@ -48,6 +54,9 @@ def run_pipeline(scenario: Dict[str, Any], backend: str = "stub") -> Dict[str, A
         )
     if backend != "stub":
         raise ValueError(f"unknown backend: {backend}")
+    analytic = run_analytic(scenario)
+    if analytic is not None:
+        return analytic
     if scenario.get("id") == "registered_child_resolution":
         return _run_registered_child_resolution(scenario)
     expected = scenario.get("expected")

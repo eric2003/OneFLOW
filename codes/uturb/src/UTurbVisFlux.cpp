@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "UTurbVisFlux.h"
+#include "TurbVisFluxPolicy.h"
 #include "UTurbGrad.h"
 #include "TurbCom.h"
 #include "UTurbCom.h"
@@ -336,18 +337,20 @@ void UTurbVisFlux::PrepareFaceValue()
 
 void UTurbVisFlux::CalcFaceVisFlux1Equ()
 {
-    Real orl = 1.0 / ( turbcom.rho1 + SMALL );
-    Real orr = 1.0 / ( turbcom.rho2 + SMALL );
+    const Real orl = 1.0 / ( turbcom.rho1 + SMALL );
+    const Real orr = 1.0 / ( turbcom.rho2 + SMALL );
 
-    Real visl_nv = half * ( turbcom.visl1 * orl  + turbcom.visl2 * orr  );
-    Real vist_nv = half * ( visTurb.q1[ IKE ] + visTurb.q2[ IKE ] );
+    const Real visl_nv = ArithmeticMean( turbcom.visl1 * orl, turbcom.visl2 * orr );
+    const Real vist_nv = ArithmeticMean( visTurb.q1[ IKE ], visTurb.q2[ IKE ] );
 
-    // flux
-    turbcom.comVis[ IKE ] = ( visl_nv  + vist_nv ) * turbcom.osigma;
+    turbcom.comVis[ IKE ] = SaFaceEffectiveDiffusivity(
+        visl_nv, vist_nv, turbcom.osigma );
 
     for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
     {
-        turbcom.flux[ iEqu ] = - turbcom.oreynolds * turbcom.comVis[ iEqu ] * visTurb.dqdn[ iEqu ] * gcom.farea;
+        turbcom.flux[ iEqu ] = TurbScalarDiffusiveFlux(
+            turbcom.oreynolds, turbcom.comVis[ iEqu ],
+            visTurb.dqdn[ iEqu ], gcom.farea );
     }
 }
 
@@ -355,22 +358,25 @@ void UTurbVisFlux::CalcFaceVisFlux2Equ()
 {
     turbcom.CalcSigkw();
 
-    Real visl = half * ( turbcom.visl1 + turbcom.visl2 );
-    Real vist = half * ( turbcom.vist1 + turbcom.vist2 );
+    const Real visl = ArithmeticMean( turbcom.visl1, turbcom.visl2 );
+    const Real vist = ArithmeticMean( turbcom.vist1, turbcom.vist2 );
 
-    turbcom.comVis[ IKE ] = visl + vist * turbcom.sigk;
-    turbcom.comVis[ IKW ] = visl + vist * turbcom.sigw;
+    turbcom.comVis[ IKE ] = SstFaceEffectiveDiffusivity( visl, vist, turbcom.sigk );
+    turbcom.comVis[ IKW ] = SstFaceEffectiveDiffusivity( visl, vist, turbcom.sigw );
 
     //Re-gama transition model
     if ( turbcom.transition_model == ITReGama )
     {
-        turbcom.comVis[ ITGama ] = visl + vist / turbcom.trans_df;
+        turbcom.comVis[ ITGama ] = SstFaceEffectiveDiffusivity(
+            visl, vist, one / turbcom.trans_df );
         turbcom.comVis[ ITRect ] = ( visl + vist ) * turbcom.trans_dct;
     }
 
     for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
     {
-        turbcom.flux[ iEqu ] = - turbcom.oreynolds * turbcom.comVis[ iEqu ] * visTurb.dqdn[ iEqu ] * gcom.farea;
+        turbcom.flux[ iEqu ] = TurbScalarDiffusiveFlux(
+            turbcom.oreynolds, turbcom.comVis[ iEqu ],
+            visTurb.dqdn[ iEqu ], gcom.farea );
     }
 }
 

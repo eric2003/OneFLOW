@@ -1,4 +1,5 @@
-"""Bootstrap editable geometry scenarios from discovered GoogleTest records.
+"""Bootstrap editable contract scenarios from discovered GoogleTest records
+(geometry, solver, turbulence, ...). Domain is metadata only until a runner exists.
 
 This creates traceable scenario skeletons; it deliberately does not pretend to
 infer arbitrary C++ setup or assertions as executable JSON.
@@ -30,6 +31,7 @@ def scenario_skeleton(record: dict[str, Any]) -> dict[str, Any]:
         "id": scenario_id,
         "title": f"{record['suite']}: {record['name']}",
         "description": "Generated from the repository GoogleTest inventory; complete the data contract from the test setup and assertions.",
+        "domain": record.get("domain") or "unspecified",
         "test": {
             "framework": "GoogleTest",
             "suite": record["suite"],

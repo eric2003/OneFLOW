@@ -3,6 +3,8 @@
 #include <gtest/gtest.h>
 
 #include <stdexcept>
+#include <type_traits>
+#include <utility>
 
 namespace
 {
@@ -52,6 +54,31 @@ EulerDomainStateKey Key(
     int deviceId = -1 )
 {
     return { solverIndex, zone, level, backend, deviceId };
+}
+
+static_assert(
+    std::is_nothrow_move_constructible<EulerDomainStateRegistry>::value,
+    "Accelerator state registry move construction must not throw");
+
+TEST( EulerDomainStateRegistry, MoveTransfersOwnershipAndMovedFromCanBeReused )
+{
+    EulerDomainStateRegistry source;
+    const EulerDomainStateKey key = Key( 5, 2, 0, AccelBackendKind::CPU );
+    source.Insert( key, std::make_unique< TestState >() );
+
+    EulerDomainStateRegistry destination( std::move( source ) );
+
+    EXPECT_TRUE( destination.Contains( key ) );
+    EXPECT_EQ( destination.Size(), 1u );
+    EXPECT_EQ( source.Size(), 0u );
+    EXPECT_FALSE( source.Contains( key ) );
+
+    const EulerDomainStateKey replacement =
+        Key( 6, 3, 0, AccelBackendKind::CPU );
+    EXPECT_NO_THROW(
+        source.Insert( replacement, std::make_unique< TestState >() ) );
+    EXPECT_TRUE( source.Contains( replacement ) );
+    EXPECT_TRUE( destination.Contains( key ) );
 }
 
 TEST( EulerDomainStateRegistry, SeparatesSolverZoneGridBackendAndDevice )

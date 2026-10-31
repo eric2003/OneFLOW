@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "TurbBcSolver.h"
+#include "TurbBcPolicy.h"
 #include "BcData.h"
 #include "UCom.h"
 #include "NsCom.h"
@@ -168,25 +169,11 @@ void TurbBcSolver::FarFieldBc()
 
     Real velin = DIST( uin, vin, win );
 
+    Real decisionVn = vnin;
     //Supersonic
     if ( velin > cin )
     {
-        if ( vnin >= 0.0 )
-        {
-            for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-            {
-                turbcom.primt1[ iEqu ] = turbcom.prims1[ iEqu ];
-                turbcom.primt2[ iEqu ] = turbcom.prims1[ iEqu ];
-            }
-        }
-        else
-        {
-            for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-            {
-                turbcom.primt1[ iEqu ] = turbcom.inflow[ iEqu ];
-                turbcom.primt2[ iEqu ] = turbcom.inflow[ iEqu ];
-            }
-        }
+        decisionVn = vnin;
     }
     else
     {
@@ -195,23 +182,23 @@ void TurbBcSolver::FarFieldBc()
         Real riemp = vnin  + 2.0 * cin  / gamm1;
         Real riemm = vnref - 2.0 * cref / gamm1;
         Real vnb   = half   * ( riemp + riemm );
-        Real cb    = fourth * ( riemp - riemm ) * gamm1;
+        decisionVn = vnb;
+    }
 
-        if ( vnb >= 0.0 )
+    if ( TurbFarfieldUsesInterior( decisionVn ) )
+    {
+        for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
         {
-            for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-            {
-                turbcom.primt1[ iEqu ] = turbcom.prims1[ iEqu ];
-                turbcom.primt2[ iEqu ] = turbcom.prims1[ iEqu ];
-            }
+            turbcom.primt1[ iEqu ] = turbcom.prims1[ iEqu ];
+            turbcom.primt2[ iEqu ] = turbcom.prims1[ iEqu ];
         }
-        else
+    }
+    else
+    {
+        for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
         {
-            for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-            {
-                turbcom.primt1[ iEqu ] = turbcom.inflow[ iEqu ];
-                turbcom.primt2[ iEqu ] = turbcom.inflow[ iEqu ];
-            }
+            turbcom.primt1[ iEqu ] = turbcom.inflow[ iEqu ];
+            turbcom.primt2[ iEqu ] = turbcom.inflow[ iEqu ];
         }
     }
 }
@@ -228,21 +215,19 @@ void TurbBcSolver::VisWallBc()
     {
         for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
         {
-            turbcom.primt1[ iEqu ] = - turbcom.prims1[ iEqu ];
-            turbcom.primt2[ iEqu ] = - turbcom.prims2[ iEqu ];
+            turbcom.primt1[ iEqu ] = TurbWallSaImage( turbcom.prims1[ iEqu ] );
+            turbcom.primt2[ iEqu ] = TurbWallSaImage( turbcom.prims2[ iEqu ] );
         }
     }
     else if ( turbcom.nEqu >= 2 )  // After considering the transition equation, there are two more equations
     {
-        Real dist2 = SQR( turbcom.dist );
+        const Real dist2 = SQR( turbcom.dist );
+        const Real kwWall = TurbWallOmegaMenter(
+            turbcom.visl, turbcom.rho, turbcom.beta1,
+            dist2, turbcom.reynolds );
 
-        Real kwWall = 60.0 * turbcom.visl / ( turbcom.rho * turbcom.beta1 * dist2 * turbcom.reynolds );
-
-        turbcom.primt1[ IKE ] = - turbcom.prims1[ IKE ];
-        turbcom.primt2[ IKE ] = - turbcom.prims2[ IKE ];
-
-        //turbcom.primt1[ IKW ] = MAX( two * kwWall - turbcom.prims1[ IKW ], SMALL );
-        //turbcom.primt2[ IKW ] = MAX( two * kwWall - turbcom.prims2[ IKW ], SMALL );
+        turbcom.primt1[ IKE ] = TurbWallKineticEnergyImage( turbcom.prims1[ IKE ] );
+        turbcom.primt2[ IKE ] = TurbWallKineticEnergyImage( turbcom.prims2[ IKE ] );
 
         turbcom.primt1[ IKW ] = kwWall;
         turbcom.primt2[ IKW ] = kwWall;

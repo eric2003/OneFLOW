@@ -29,3 +29,14 @@ python __main__.py --plot-file /tmp/dual_map.png
 
 Requires matplotlib. Uses the Agg backend (no GUI window). Skip this flag for
 text-only runs in CI.
+
+## Domains beyond geometry
+
+Scenario JSON may set `"domain": "geometry" | "turbulence" | "solver" | ...`.
+The workbench UI is shared; only the runner differs:
+
+* geometry fixtures (current stub / future native C++)
+* `analytic_*` intermediate formula tables (see `analytic_contracts.py`)
+* future: launch matching GoogleTest with parameters
+
+Example intermediate scenario: `scenarios/sa_fv1_chi_curve_intermediate.json`.
