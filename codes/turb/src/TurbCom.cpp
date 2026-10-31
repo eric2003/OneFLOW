@@ -20,6 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "TurbCom.h"
+#include "TurbSaPolicy.h"
 #include "NsCom.h"
 #include "NsIdx.h"
 #include "NsCtrl.h"
@@ -788,52 +789,37 @@ void TurbCom::CalcSrcSa()
     //this->compress = this->nuet * this->work1;
     this->compress = 0.0;
 
-    xsi  = nuet * olam + SMALL;
+    xsi  = SaChi( nuet, olam );
     xsi3 = POWER3( xsi );
-    fv1  = xsi3 / ( xsi3 + cv13 );
-    fv2  = one - xsi / ( one + xsi * fv1 );
+    fv1  = SaFv1( xsi, cv13 );
+    fv2  = SaFv2( xsi, fv1 );
 
     //here we absorb oreynolds into rs
     Real rs = nuet * okarm2 * od2 * oreynolds;
     Real nuetRs = nuet * rs;
 
-    Real sBar    = rs * fv2;
-    Real omega   = str;
+    Real sBar = SaSBar( rs, fv2 );
+    Real omega = str;
+    Real std = SaModifiedStrainRate( omega, sBar, sac2, sac3 );
 
-    Real std;
-
-    if ( sBar >= - sac2 * omega )
-    {
-        std = omega + sBar;
-    }
-    else
-    {
-        Real term1 = ( sac2 * sac2 * omega + sac3 * sBar );
-        Real term2 = ( sac3 - 2 * sac2 ) * omega - sBar;
-        std = omega + omega * term1 / term2;
-    }
-
-    Real ostd   = one / ( std + SMALL );
-    Real r      = rs * ostd;
-
-    r    = MIN( r, ten );
-    Real r5   = pow( r, 5 );
-    Real g    = r + cw2 * ( r5 * r - r );
-    Real g6   = pow( g, 6 );
-    Real or6  = one / six;
-    fw   = g * pow( ( one + cw36 ) / ( g6 + cw36 ), or6 );
+    // Keep ostd/r5/g6 for Jacobian terms below.
+    Real ostd = one / ( std + SMALL );
+    Real r = SaRRatio( rs, std );
+    Real r5 = pow( r, 5 );
+    Real g = SaG( r, cw2 );
+    Real g6 = pow( g, 6 );
+    fw = SaFw( g, cw36 );
 
     //calculate "negative" production term in order to assure a zero
     //solution in the laminar region
-    ftrans  = zero;
+    ftrans = zero;
     xsi2 = SQR( xsi );
-    ft2  = 0.0;
-
+    ft2 = SaFt2( xsi, ct3, ct4, ft2_flag != 0 );
     if ( ft2_flag )
     {
         ftrans = one;
-        ft2 = ct3 * exp( - ct4 * xsi2 ) * ftrans;
     }
+
 
     Real grd2 = SQR( dqdxSa, dqdySa, dqdzSa );
 

@@ -1,0 +1,66 @@
+#include "TurbSaPolicy.h"
+#include "HXMath.h"
+#include <cmath>
+
+BeginNameSpace( ONEFLOW )
+
+Real SaChi( Real nuTilde, Real invLaminarKinematicViscosity )
+{
+    return nuTilde * invLaminarKinematicViscosity + SMALL;
+}
+
+Real SaFv1( Real chi, Real cv1Cubed )
+{
+    const Real chi3 = POWER3( chi );
+    return chi3 / ( chi3 + cv1Cubed );
+}
+
+Real SaFv2( Real chi, Real fv1 )
+{
+    return one - chi / ( one + chi * fv1 );
+}
+
+Real SaSBar( Real rs, Real fv2 )
+{
+    return rs * fv2;
+}
+
+Real SaModifiedStrainRate( Real omega, Real sBar, Real c2, Real c3 )
+{
+    if ( sBar >= - c2 * omega )
+    {
+        return omega + sBar;
+    }
+    const Real term1 = ( c2 * c2 * omega + c3 * sBar );
+    const Real term2 = ( c3 - two * c2 ) * omega - sBar;
+    return omega + omega * term1 / term2;
+}
+
+Real SaRRatio( Real rs, Real modifiedStrain )
+{
+    return MIN( rs / ( modifiedStrain + SMALL ), ten );
+}
+
+Real SaG( Real r, Real cw2 )
+{
+    const Real r5 = std::pow( r, 5 );
+    return r + cw2 * ( r5 * r - r );
+}
+
+Real SaFw( Real g, Real cw3ToSix )
+{
+    const Real g6 = std::pow( g, 6 );
+    const Real or6 = one / six;
+    return g * std::pow( ( one + cw3ToSix ) / ( g6 + cw3ToSix ), or6 );
+}
+
+Real SaFt2( Real chi, Real ct3, Real ct4, bool enabled )
+{
+    if ( ! enabled )
+    {
+        return 0.0;
+    }
+    return ct3 * std::exp( - ct4 * SQR( chi ) );
+}
+
+EndNameSpace

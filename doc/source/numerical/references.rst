@@ -50,3 +50,7 @@ The numerical subsystem is meant to evolve as a closed loop:
 External manuals (open or internal) enter at step 3 as *anchors*, not as
 paste. When a new pure API is extracted, prefer adding one citation if the
 formula is named in the literature; otherwise link the sibling policy page.
+
+* Spalart, P. R. and Allmaras, S. R. A one-equation turbulence model for
+  aerodynamic flows.
+* NASA Turbulence Modeling Resource (https://turbmodels.larc.nasa.gov/).
