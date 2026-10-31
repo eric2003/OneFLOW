@@ -42,6 +42,7 @@ int chemModel = 0;
 
 int idualtime           =  0;
 int time_integral      =  2;      //1--RK; 2--LU-SGS;
+int lusgsFacePressureMode = 0; //0 Roe total-enthalpy closure; 1 Roe-weighted static pressure
 int rk_stage             =  1;
 int linearTwoStepMethods  =  1;      //1--BDF1; 2--C-N; 1--BDF2;
 
