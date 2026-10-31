@@ -37,4 +37,4 @@ Numerical analysis is a branch of mathematics that solves continuous problems us
    verification_layers
    wilcox_fbeta
    sst_residual_assembly
-   turb_vis_flux
+   turb_lusgs
