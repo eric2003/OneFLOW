@@ -452,24 +452,23 @@ void TurbCom::CalcSaProd()
     if ( iprod_sa == 1 )
     {
         //classical production ( instead of rotational )
-        //stp = ( 2 * ( ui,i^2 ) + ( ui,j + uj,i )^2 - 2/3 * ( ui,i )^2 )
-        stp   = two * work2 + work3 - two3rd * work1 * work1;
-        work4 = sqrt( ABS( stp ) );
+        stp = two * work2 + work3 - two3rd * work1 * work1;
+        work4 = SaStrainProductionClassical( work1, work2, work3 );
     }
     else if ( iprod_sa == 4 )
     {
         //correction on the rotational production term for laminar vortex
-        stp   = two * work2 + work3 - two3rd * work1 * work1;
-        str   = work4;
-        work4 = str - two * MAX( zero, str - sqrt( ABS( stp ) ) );
+        stp = two * work2 + work3 - two3rd * work1 * work1;
+        str = work4;
+        work4 = SaStrainProductionRotationalV4( str, stp );
     }
     else if ( iprod_sa == 5 )
     {
         //higher correction on the rotational production term for laminar vortex
-        stp   = two * work2 + work3 - two3rd * work1 * work1;
-        str   = work4;
-        stp   = ABS( stp );
-        work4 = str * ( one - MAX( zero , ( str * str - stp ) / ( str * str + stp + SMALL ) ) );
+        stp = two * work2 + work3 - two3rd * work1 * work1;
+        str = work4;
+        stp = ABS( stp );
+        work4 = SaStrainProductionRotationalV5( str, stp );
     }
 }
 

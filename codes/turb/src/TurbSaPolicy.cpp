@@ -104,4 +104,24 @@ Real SaCappedEddyViscosity(
     return MIN( laminarViscosity * maxViscosityRatio, eddyViscosity );
 }
 
+
+Real SaStrainProductionClassical( Real work1, Real work2, Real work3 )
+{
+    const Real stp = two * work2 + work3 - two3rd * work1 * work1;
+    return std::sqrt( ABS( stp ) );
+}
+
+Real SaStrainProductionRotationalV4( Real omega, Real strainProductionTensor )
+{
+    const Real root = std::sqrt( ABS( strainProductionTensor ) );
+    return omega - two * MAX( zero, omega - root );
+}
+
+Real SaStrainProductionRotationalV5( Real omega, Real absStrainProductionTensor )
+{
+    const Real stp = absStrainProductionTensor;
+    return omega * ( one - MAX( zero,
+        ( omega * omega - stp ) / ( omega * omega + stp + SMALL ) ) );
+}
+
 EndNameSpace

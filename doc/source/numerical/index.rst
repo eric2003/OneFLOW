@@ -39,3 +39,4 @@ Numerical analysis is a branch of mathematics that solves continuous problems us
    sst_residual_assembly
    turb_lusgs
    sst_eddy_viscosity
+   sa_prod_strain

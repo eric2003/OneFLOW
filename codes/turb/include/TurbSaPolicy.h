@@ -28,4 +28,23 @@ Real SaEddyViscosity( Real density, Real nuTilde, Real fv1 );
 Real SaCappedEddyViscosity(
     Real eddyViscosity, Real laminarViscosity, Real maxViscosityRatio );
 
+
+// --- SA production strain measure ---
+// @doc-algorithm sa-prod-strain
+// @doc-stage classical
+// @doc-pure
+// @doc-formula S = sqrt(|2 work2 + work3 - 2/3 work1^2|)
+Real SaStrainProductionClassical( Real work1, Real work2, Real work3 );
+
+// @doc-algorithm sa-prod-strain
+// @doc-stage rotational-v4
+// @doc-pure
+// @doc-formula S = Omega - 2 max(0, Omega - sqrt(|stp|))
+Real SaStrainProductionRotationalV4( Real omega, Real strainProductionTensor );
+
+// @doc-algorithm sa-prod-strain
+// @doc-stage rotational-v5
+// @doc-pure
+Real SaStrainProductionRotationalV5( Real omega, Real absStrainProductionTensor );
+
 EndNameSpace
