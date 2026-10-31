@@ -1,14 +1,14 @@
 int    startStrategy  = 0;
 int    iexitflag  = 0; //0 maxstep 1 maxtime;
-int    maxSteps   =  50; //×ÜÄ£Äâ²½Êı
-Real   maxTime    =  0.2;    //×ÜÄ£ÄâÊ±¼ä
+int    maxSteps   =  50; //æ€»æ¨¡æ‹Ÿæ­¥æ•°
+Real   maxTime    =  0.2;    //æ€»æ¨¡æ‹Ÿæ—¶é—´
 
-//Êä³öÏà¹Ø										      
-int    nFieldSave       =  50;   //Á÷³¡±£´æ
+//è¾“å‡ºç›¸å…³										      
+int    nFieldSave       =  50;   //æµåœºä¿å­˜
 int    nForceSave      =  1;
-int    nResSave          =  1;    //²Ğ²î¼°Æø¶¯Á¦Êä³ö
-int    nVisualSave      =  50;    //Á÷³¡ÏÔÊ¾
-int    addVisualizationSteps               =  0;     //1: ÎÄ¼şÃû+Íâµü´ú²½£¬0²»¼Ó
+int    nResSave          =  1;    //æ®‹å·®åŠæ°”åŠ¨åŠ›è¾“å‡º
+int    nVisualSave      =  50;    //æµåœºæ˜¾ç¤º
+int    addVisualizationSteps               =  0;     //1: æ–‡ä»¶å+å¤–è¿­ä»£æ­¥ï¼Œ0ä¸åŠ 
 
 string gridFileName = "grid/turbplate20182d.ofl";
 string aeroFile   =  "results/aero.dat";
@@ -38,6 +38,7 @@ int nTModel = 1;
 
 int idualtime           =  0;
 int time_integral      =  2;      //1--RK; 2--LU-SGS;
+int lusgsFacePressureMode = 0; //0 Roe total-enthalpy closure; 1 Roe-weighted static pressure
 int rk_stage             =  1;
 int linearTwoStepMethods  =  1;      //1--BDF1; 2--C-N; 1--BDF2;
 
