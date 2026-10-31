@@ -47,4 +47,20 @@ Real SaStrainProductionRotationalV4( Real omega, Real strainProductionTensor );
 // @doc-pure
 Real SaStrainProductionRotationalV5( Real omega, Real absStrainProductionTensor );
 
+
+// @doc-algorithm sa-update
+// @doc-stage nu-max
+// @doc-pure
+// @doc-formula nu_max = r_max * mu_l / (rho * fv1)
+Real SaWorkingVariableUpperBound(
+    Real maxViscosityRatio, Real laminarViscosity,
+    Real density, Real fv1 );
+
+// @doc-algorithm sa-update
+// @doc-stage non-negative
+// @doc-pure
+// Replace negative working variable with a safe value (typically inflow).
+Real SaNonNegativeWorkingVariable(
+    Real workingVariable, Real fallbackValue );
+
 EndNameSpace

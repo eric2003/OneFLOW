@@ -78,17 +78,16 @@ void TurbUpdate::ModifyValue1Equ()
 
         this->SmoothTurbulencePoint();
 
-        if ( turbcom.q[ ISA ] < 0.0 )
-        {
-            turbcom.q[ ISA ] = turbcom.inflow[ ISA ];
-        }
+        turbcom.q[ ISA ] = SaNonNegativeWorkingVariable(
+            turbcom.q[ ISA ], turbcom.inflow[ ISA ] );
     }
 
     turbcom.xsi   = SaChi( ABS( turbcom.q[ ISA ] ), turbcom.rho / ( turbcom.visl + SMALL ) );
     turbcom.xsi3  = POWER3( turbcom.xsi );
     turbcom.fv1  = SaFv1( turbcom.xsi, turbcom.cv13 );
 
-    Real nuMax =  turbcom.maxvistratio * turbcom.visl / ( turbcom.rho * turbcom.fv1 );
+    const Real nuMax = SaWorkingVariableUpperBound(
+        turbcom.maxvistratio, turbcom.visl, turbcom.rho, turbcom.fv1 );
 
     if ( turbcom.q[ ISA ] > nuMax )
     {

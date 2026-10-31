@@ -124,4 +124,22 @@ Real SaStrainProductionRotationalV5( Real omega, Real absStrainProductionTensor 
         ( omega * omega - stp ) / ( omega * omega + stp + SMALL ) ) );
 }
 
+
+Real SaWorkingVariableUpperBound(
+    Real maxViscosityRatio, Real laminarViscosity,
+    Real density, Real fv1 )
+{
+    return maxViscosityRatio * laminarViscosity / ( density * fv1 );
+}
+
+Real SaNonNegativeWorkingVariable(
+    Real workingVariable, Real fallbackValue )
+{
+    if ( workingVariable < 0.0 )
+    {
+        return fallbackValue;
+    }
+    return workingVariable;
+}
+
 EndNameSpace
