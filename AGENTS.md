@@ -177,3 +177,9 @@ iteration to the next.
    in `ports/kunshan/oneflow_1d_hip` and is built standalone with the DTK
    toolchain; the root build is CPU-only today. Do not claim a DCU capability
    from a root-build result.
+7. **One fixed cluster workspace.** Kunshan work lives in a single
+   `<workspace>/` root: `src/OneFLOW` is overwritten each round, `build/app` is
+   the only incremental build, gate evidence goes to `evidence/<gate>/<jobid>/`,
+   job logs go to `logs/`, and deprecated material goes to `_attic/<date>/`. Do
+   not create per-job build/run directories or write logs to `$HOME`; see
+   [`doc/runbooks/oneflow-kunshan-workspace-runbook.md`](doc/runbooks/oneflow-kunshan-workspace-runbook.md).

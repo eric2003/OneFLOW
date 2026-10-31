@@ -229,16 +229,26 @@ source, builds and run artifacts never mix. Concrete absolute paths stay in
 the cluster-side `README.md`; the structure is:
 
 ```text
-<workspace root>/
-├── src/OneFLOW/              source archive for the revision under test
-├── deps/metis-install/       self-built METIS 5.0.1
-├── builds/<variant>/         solver-cpu | port-cpu | port-dcu | port-cpu-mpi | port-dcu-mpi
-├── runs/<YYYYMMDD>/<suite>/  append-only run artifacts
-├── work/                     run working directories
-├── tmp/<jobid>/              job TMPDIR
-├── probes/                   device/environment probes
-└── archive/                  historical workspaces and failed builds
+<workspace root>/                 fixed, canonical; never create a second one
+├── src/OneFLOW/                  current source snapshot (overwritten each round)
+│   └── REVISION                  repository/commit marker for the snapshot
+├── deps/metis-install/           self-built METIS 5.0.1
+├── build/app/                    production root build (HIP+MPI+METIS), incremental
+├── build/port/                   reserved: standalone 1D port contract build
+├── build/platform/               reserved: CPU-only root build
+├── fixtures/m6-8zone-cpu8/       the only legal partitioned fixture, read-only
+├── evidence/<gate>/<jobid>/      append-only gate evidence
+├── snapshots/*.tgz               source snapshots, keep the newest five
+├── scripts/                      env.sh, gate/paired-ab/cpu-regression jobs, cleanup
+├── logs/                         job stdout/stderr, pruned after 14 days
+└── _attic/<YYYYMMDD>/            deprecated material, cleared after one round
 ```
+
+The layout and the submission rules are documented in
+[`doc/runbooks/oneflow-kunshan-workspace-runbook.md`](../../doc/runbooks/oneflow-kunshan-workspace-runbook.md).
+Builds are incremental and fixed per target: do not create `build/<jobid>`,
+and do not re-run CMake configure on a compute node (the DTK HIP package check
+fails there); use `scripts/build-app.sh` (`make ... OneFLOW/fast`).
 
 ### Standard suites
 
@@ -315,14 +325,17 @@ set to `DeviceDirect` after a GPU-aware MPI probe has passed.
 
 ### Run artifacts
 
-Every run writes `environment.txt`, per-stage logs and `result.txt` under
-`runs/<YYYYMMDD>/<suite>/`. Historical runs are never overwritten. Slurm
-scripts and scheduler logs stay separate from the workspace root, under the
-submitter's `scripts/` and `scripts/logs/` directories.
+Every gate run writes its evidence under `evidence/<gate>/<jobid>/`
+(`gate`, `paired-ab`, `cpu-regression`), including `result.txt`, per-rank
+breakdown files and the job output. Evidence directories are append-only and
+are never overwritten; large binary traces (`*.stage`) may be pruned once the
+extracted metrics are recorded. Job stdout/stderr goes to `logs/`, which
+`scripts/cleanup.sh` prunes after 14 days.
 
 ### Reusable job scripts
 
-The four job scripts used for the 2026-09-13 runs are kept cluster-side. They
-assume a single `ROOT` variable; when the workspace is reorganized, update
-`ROOT` and the `builds/` and `runs/` sub-paths only — the module setup and
-benchmark invocations stay unchanged.
+The job scripts live in the canonical workspace under `scripts/` and read all
+paths from `scripts/env.sh` (`ONEFLOW_ROOT`, `ONEFLOW_BIN`, `ONEFLOW_CASE`,
+`ONEFLOW_SRC`). Moving the workspace therefore means editing `env.sh` only.
+Ad-hoc scripts are not kept: promote the useful ones into `scripts/` and put
+the rest in `_attic/`.
