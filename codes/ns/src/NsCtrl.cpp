@@ -21,6 +21,8 @@ License
 \*---------------------------------------------------------------------------*/
 #include "NsCtrl.h"
 #include "DataBase.h"
+#include "DataBaseType.h"
+#include <stdexcept>
 
 BeginNameSpace( ONEFLOW )
 
@@ -28,6 +30,27 @@ NsCtrl ns_ctrl;
 
 void NsCtrl::Init()
 {
+    // Optional compatibility setting: old case files keep the legacy mode.
+    this->lusgsFacePressureMode = 0;
+    DataBase & database = RequireGlobalDataBase();
+    DataEntry * pressureModeEntry =
+        database.RequireDataPara().FindDataEntry( "lusgsFacePressureMode" );
+    if ( pressureModeEntry != nullptr )
+    {
+        if ( pressureModeEntry->GetType() != HX_INT || pressureModeEntry->GetSize() != 1 )
+        {
+            throw std::runtime_error(
+                "NsCtrl: lusgsFacePressureMode must be a scalar integer" );
+        }
+        this->lusgsFacePressureMode =
+            GetDataValue< int >( &pressureModeEntry->GetDataObject() );
+    }
+    if ( this->lusgsFacePressureMode != 0 && this->lusgsFacePressureMode != 1 )
+    {
+        throw std::runtime_error(
+            "NsCtrl: lusgsFacePressureMode must be 0 or 1" );
+    }
+
     this->time_integral = GetDataValue< int >( "time_integral" );
     this->linearTwoStepMethods = GetDataValue< int >( "linearTwoStepMethods" );
 
