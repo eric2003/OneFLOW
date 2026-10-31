@@ -351,14 +351,14 @@ target_link_libraries(turb_sst_eddy_viscosity_test PRIVATE GTest::gtest_main)
 target_compile_features(turb_sst_eddy_viscosity_test PRIVATE cxx_std_20)
 gtest_discover_tests(turb_sst_eddy_viscosity_test DISCOVERY_MODE PRE_TEST)
 
-add_executable(turb_sa_prod_strain_test
-  turb_sa_prod_strain_test.cpp
-  ${CMAKE_SOURCE_DIR}/codes/turb/src/TurbSaPolicy.cpp
+add_executable(turb_bc_policy_test
+  turb_bc_policy_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/turb/src/TurbBcPolicy.cpp
 )
-target_include_directories(turb_sa_prod_strain_test PRIVATE
+target_include_directories(turb_bc_policy_test PRIVATE
   ${CMAKE_SOURCE_DIR}/codes/turb/include
   ${CMAKE_SOURCE_DIR}/codes/basic/include
 )
-target_link_libraries(turb_sa_prod_strain_test PRIVATE GTest::gtest_main)
-target_compile_features(turb_sa_prod_strain_test PRIVATE cxx_std_20)
-gtest_discover_tests(turb_sa_prod_strain_test DISCOVERY_MODE PRE_TEST)
+target_link_libraries(turb_bc_policy_test PRIVATE GTest::gtest_main)
+target_compile_features(turb_bc_policy_test PRIVATE cxx_std_20)
+gtest_discover_tests(turb_bc_policy_test DISCOVERY_MODE PRE_TEST)
