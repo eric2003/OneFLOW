@@ -103,3 +103,22 @@ TEST( TurbSaPolicy, Fv1ChiCurveMatchesClosedForm )
         EXPECT_NEAR( SaFv1( chi, cv13 ), expected, 1.0e-12 );
     }
 }
+
+// Intermediate verification: fw(r) vs published closed form (cw2=0.3, cw3=2).
+// Proves pure SaG/SaFw match the SA wall-destruction function algebra.
+// Does not prove full transport residual or wall-resolved CFD accuracy.
+TEST( TurbSaPolicy, FwRCurveMatchesClosedForm )
+{
+    const Real cw2 = 0.3;
+    const Real cw3 = 2.0;
+    const Real cw36 = std::pow( cw3, 6 );
+    const Real rs[] = { 0.0, 0.25, 0.5, 1.0, 2.0, 10.0 };
+    for ( Real r : rs )
+    {
+        const Real g = r + cw2 * ( std::pow( r, 6 ) - r );
+        const Real expectedFw =
+            g * std::pow( ( one + cw36 ) / ( std::pow( g, 6 ) + cw36 ), one / six );
+        EXPECT_NEAR( SaG( r, cw2 ), g, 1.0e-12 );
+        EXPECT_NEAR( SaFw( g, cw36 ), expectedFw, 1.0e-12 );
+    }
+}
