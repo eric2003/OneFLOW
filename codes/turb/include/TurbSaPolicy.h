@@ -63,4 +63,11 @@ Real SaWorkingVariableUpperBound(
 Real SaNonNegativeWorkingVariable(
     Real workingVariable, Real fallbackValue );
 
+
+// @doc-algorithm sa-update
+// @doc-stage under-relax
+// @doc-pure
+// @doc-formula q = (1-c) q0 + c (q0 + dq)
+Real SaUnderRelaxedUpdate( Real qOld, Real deltaQ, Real relaxCoeff );
+
 EndNameSpace

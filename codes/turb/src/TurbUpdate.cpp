@@ -65,12 +65,8 @@ void TurbUpdate::CalcFlowField1Equ()
 {
     for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
     {
-        Real qOld  = turbcom.q0[ iEqu ];
-        Real dqNew = turbcom.dq[ iEqu ];
-        Real qNew  = qOld + dqNew;
-        qNew = ( one - turbcom.crelax ) * qOld + turbcom.crelax * qNew;
-
-        turbcom.q[ iEqu ] = qNew;
+        turbcom.q[ iEqu ] = SaUnderRelaxedUpdate(
+            turbcom.q0[ iEqu ], turbcom.dq[ iEqu ], turbcom.crelax );
     }
 }
 

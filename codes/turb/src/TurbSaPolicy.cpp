@@ -142,4 +142,11 @@ Real SaNonNegativeWorkingVariable(
     return workingVariable;
 }
 
+
+Real SaUnderRelaxedUpdate( Real qOld, Real deltaQ, Real relaxCoeff )
+{
+    const Real qCandidate = qOld + deltaQ;
+    return ( one - relaxCoeff ) * qOld + relaxCoeff * qCandidate;
+}
+
 EndNameSpace
