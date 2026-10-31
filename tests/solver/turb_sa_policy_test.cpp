@@ -54,6 +54,41 @@ TEST( TurbSaPolicy, SaCappedEddyViscosityRespectsRatio )
     EXPECT_DOUBLE_EQ( SaCappedEddyViscosity( 5.0, 2.0, 10.0 ), 5.0 );
 }
 
+// Source-term components are checked against independently evaluated
+// closed-form reference values from the equations documented in sa_source.rst.
+TEST( TurbSaPolicy, SaProductionMatchesClosedForm )
+{
+    EXPECT_NEAR( SaProduction( 0.1355, 0.2, 3.0, 0.4 ), 0.13008, 1.0e-14 );
+}
+
+TEST( TurbSaPolicy, SaDestructionMatchesClosedForm )
+{
+    EXPECT_NEAR( SaDestruction( 3.0, 0.5, 0.1355, 0.2, 0.4 ), 0.58916, 1.0e-14 );
+}
+
+TEST( TurbSaPolicy, SaDiffusionMatchesClosedForm )
+{
+    EXPECT_NEAR( SaDiffusion( 1.3, 0.25, 0.5 ), 0.1625, 1.0e-14 );
+}
+
+TEST( TurbSaPolicy, SaLimitedDiffusionSelectsTheSmallerContribution )
+{
+    EXPECT_DOUBLE_EQ( SaLimitedDiffusion( 0.4, 0.5, 0.3 ), 0.15 );
+    EXPECT_DOUBLE_EQ( SaLimitedDiffusion( 0.1, 0.5, 0.3 ), 0.1 );
+}
+
+TEST( TurbSaPolicy, SaSourceResidualCombinesProductionDestructionAndDiffusion )
+{
+    EXPECT_NEAR( SaSourceResidual( 0.13008, 0.58916, 0.1625 ), -0.29658, 1.0e-14 );
+}
+
+TEST( TurbSaPolicy, SaNegativePartMatchesPiecewiseDefinition )
+{
+    EXPECT_DOUBLE_EQ( SaNegativePart( 2.0 ), 0.0 );
+    EXPECT_DOUBLE_EQ( SaNegativePart( 0.0 ), 0.0 );
+    EXPECT_DOUBLE_EQ( SaNegativePart( -2.0 ), 2.0 );
+}
+
 // Intermediate verification: fv1(chi) vs closed-form theory (not a full CFD case).
 // cv1 = 7.1 is the standard SA constant (NASA TMR / Spalart-Allmaras).
 TEST( TurbSaPolicy, Fv1ChiCurveMatchesClosedForm )
