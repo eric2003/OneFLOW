@@ -493,7 +493,6 @@ void TurbCom::CalcProdk()
 {
     if ( iprod_sst == 0 )
     {
-        // Boussinesq approximation, full production
         prodk = SstProdkBoussinesq( vist, sij2, divv, oreynolds, rho, ke );
     }
     else if ( iprod_sst == 1 ) //SST-2003
@@ -526,19 +525,19 @@ void TurbCom::LimitProdk()
 
 void TurbCom::CalcProdwKwMenter()
 {
-    beta   = bld * beta1  + ( 1.0 - bld ) * beta2;
-    alphaw = bld * alphaw1 + ( 1.0 - bld ) * alphaw2;
+    beta   = SstBlend( bld, beta1, beta2 );
+    alphaw = SstBlend( bld, alphaw1, alphaw2 );
 
-    prodw = alphaw * rho / ( vist + SMALL ) * prodk * reynolds;
-    dissw = fbeta * beta * rho * SQR( kw );
-    cdkww = two * ( one - bld ) * rho * sigw2 * cross_term / ( kw + SMALL );
+    prodw = SstProdwMenter( alphaw, rho, vist, prodk, reynolds );
+    dissw = SstDissw( fbeta, beta, rho, kw );
+    cdkww = SstCrossDiffMenter( bld, rho, sigw2, cross_term, kw );
 }
 
 void TurbCom::CalcProdwKwWilcox1998()
 {
-    prodw = alphaw * kw / ( ke + SMALL ) * prodk;
-    dissw = fbeta * beta * rho * SQR( kw );
-    cdkww = sigd * rho * MAX( cross_term, zero ) / ( kw + SMALL );
+    prodw = SstProdwWilcox( alphaw, kw, ke, prodk );
+    dissw = SstDissw( fbeta, beta, rho, kw );
+    cdkww = SstCrossDiffWilcox( sigd, rho, cross_term, kw );
 }
 
 void TurbCom::CalcProdwKwWilcox2006()
@@ -550,34 +549,34 @@ void TurbCom::CalcProdwKwWilcox2006()
         sigd = 0.125;
     }
 
-    prodw = alphaw * kw / ( ke + SMALL ) * prodk;
-    dissw = fbeta * beta * rho * SQR( kw );
-    cdkww = sigd * rho * MAX( cross_term, zero ) / ( kw + SMALL );
+    prodw = SstProdwWilcox( alphaw, kw, ke, prodk );
+    dissw = SstDissw( fbeta, beta, rho, kw );
+    cdkww = SstCrossDiffWilcox( sigd, rho, cross_term, kw );
 }
 
 void TurbCom::CalcProdwKwDefault()
 {
-    prodw = alphaw * kw / ( ke + SMALL ) * prodk;
-    dissw = fbeta * beta * rho * SQR( kw );
-    cdkww = sigd * rho * MAX( cross_term, zero ) / ( kw + SMALL );
+    prodw = SstProdwWilcox( alphaw, kw, ke, prodk );
+    dissw = SstDissw( fbeta, beta, rho, kw );
+    cdkww = SstCrossDiffWilcox( sigd, rho, cross_term, kw );
 }
 
 void TurbCom::CalcProdwEasmKw2003()
 {
-    prodw = alphaw * kw / ( ke + SMALL ) * prodk;
-    dissw = fbeta * beta * rho * SQR( kw );
-    cdkww = sigd * rho * MAX( cross_term, zero ) / ( kw + SMALL );
+    prodw = SstProdwWilcox( alphaw, kw, ke, prodk );
+    dissw = SstDissw( fbeta, beta, rho, kw );
+    cdkww = SstCrossDiffWilcox( sigd, rho, cross_term, kw );
 }
 
 void TurbCom::CalcProdwEasmKw2005()
 {
-    beta   = bld * beta1   + ( 1.0 - bld ) * beta2;
-    alphaw = bld * alphaw1 + ( 1.0 - bld ) * alphaw2;
-    sigd   = bld * sigd1   + ( 1.0 - bld ) * sigd2;
+    beta   = SstBlend( bld, beta1, beta2 );
+    alphaw = SstBlend( bld, alphaw1, alphaw2 );
+    sigd   = SstBlend( bld, sigd1, sigd2 );
 
-    prodw = alphaw * kw / ( ke + SMALL ) * prodk;
-    dissw = fbeta * beta * rho * SQR( kw );
-    cdkww = sigd * rho * MAX( cross_term, zero ) / ( kw + SMALL );
+    prodw = SstProdwWilcox( alphaw, kw, ke, prodk );
+    dissw = SstDissw( fbeta, beta, rho, kw );
+    cdkww = SstCrossDiffWilcox( sigd, rho, cross_term, kw );
 }
 
 void TurbCom::ModifyPd()
