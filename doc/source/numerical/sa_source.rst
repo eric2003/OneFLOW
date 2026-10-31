@@ -14,7 +14,7 @@ Model terms
 
 .. math::
 
-   D = (c_{w1} f_w - c_{b1} f_{t2})\tilde{\nu} r_s
+   D = (c_{w1k} f_w - c_{b1} f_{t2})\tilde{\nu} r_s
 
 .. math::
 
@@ -34,7 +34,7 @@ The spectral contribution uses the negative part of a scalar rate:
    x^- = -\frac{1}{2}(x-|x|)
 
 The implementation uses precombined inputs at this policy boundary:
-cw1k represents the coefficient multiplying fw in the destruction term;
+cw1k represents the effective coefficient multiplying fw in the destruction
 nuTildeRs represents the product of the working variable and rs; and
 cb2OverSigma represents cb2 divided by sigma. The caller computes these
 values from the active model constants and local flow state.
