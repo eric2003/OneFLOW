@@ -327,8 +327,8 @@ TEST( ControlReaderIntegration, CaseBootstrapAppliesSettingsAndRebindsNextCase )
     SimuContextDetail::ClearCaseConfigurationState();
 
     EXPECT_THROW(
-        GetDataValue<int>(
-            "context_bootstrap_dimension", &RequireGlobalDataBase() ),
+        GetDataValue<std::string>(
+            "projectRoot", &RequireGlobalDataBase() ),
         std::runtime_error );
     EXPECT_TRUE( Prj::prjBaseDir.empty() );
 
