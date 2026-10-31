@@ -1,0 +1,941 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OneFLOW Runtime Architecture and Development Guide &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Database Architecture and Data Access Contracts" href="database_architecture.html" />
+    <link rel="prev" title="OneFLOW Architecture Review and Development Principles" href="architecture_review.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">OneFLOW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/index.html">Install</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user.html">THEORY</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_user_guide_zh.html">OneFLOW Workbench 用户手册</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bash.html">Bash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cfd/index.html">CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml.html">yaml</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OneFLOW Design and Development</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="architecture_review.html">OneFLOW Architecture Review and Development Principles</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">OneFLOW Runtime Architecture and Development Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#purpose-and-status">Purpose and status</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#design-intent">Design intent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#system-map">System map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#system-level-design-principles">System-level design principles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#source-comments-and-generated-documentation">Source comments and generated documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#code-entry-points-and-responsibilities">Code entry points and responsibilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#command-line-execution-modes">Command-line execution modes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#context-ownership-transfer">Context ownership transfer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#case-lifecycle-success-and-failure-paths">Case lifecycle: success and failure paths</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#configuration-boundaries">Configuration boundaries</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#case-i-o-configuration-snapshot">Case I/O configuration snapshot</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#patterns-already-present">Patterns already present</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#architecture-rules-for-ongoing-refactoring">Architecture rules for ongoing refactoring</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#test-design-as-an-architecture-probe">Test design as an architecture probe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#documentation-change-loop">Documentation change loop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#numerical-theory-references-and-verification-evidence">Numerical theory, references, and verification evidence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#related-design-pages">Related design pages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#parameter-schema-and-gui-editing">Parameter schema and GUI editing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#directory-separators-and-path-semantics">Directory separators and path semantics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#control-file-ingestion-and-its-remaining-module-boundary">Control-file ingestion and its remaining module boundary</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#case-teardown-and-cleanup-failure-semantics">Case teardown and cleanup failure semantics</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#case-environment-readiness">Case environment readiness</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#production-case-bootstrap-composition">Production case-bootstrap composition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#process-runtime-ownership-and-context-moves">Process runtime ownership and Context moves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#moved-from-simucontext-contract">Moved-from SimuContext contract</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#accelerator-backend-state-ownership">Accelerator backend-state ownership</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="database_architecture.html">Database Architecture and Data Access Contracts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evolutionary_computation_architecture.html">Evolutionary Scientific-Computing Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mesh_architecture.html">OneFLOW Mesh Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grid_topology.html">Grid Topology and Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="face_stage_pipeline.html">Face Stage Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_architecture.html">OneFLOW Workbench Architecture</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="case_parameter_design.html">Case Parameter Design and GUI Editing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">OneFLOW Runtime Architecture and Development Guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/runtime_architecture.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="oneflow-runtime-architecture-and-development-guide">
+<h1>OneFLOW Runtime Architecture and Development Guide<a class="headerlink" href="#oneflow-runtime-architecture-and-development-guide" title="Link to this heading"></a></h1>
+<section id="purpose-and-status">
+<h2>Purpose and status<a class="headerlink" href="#purpose-and-status" title="Link to this heading"></a></h2>
+<p>This page is the system-level map for developers who need to understand the intent,
+architecture, configuration boundaries, program entry points, and execution flow before
+changing individual classes. It is based on the <cite>hexin</cite> source tree and the curated mesh
+and Workbench design pages.</p>
+<p>This is an initial architecture map, not a claim that every intended boundary is fully
+enforced. Where current code still relies on global state, mutable arrays, or legacy
+configuration syntax, that limitation is called out explicitly. Recheck the named code
+paths when implementation changes.</p>
+</section>
+<section id="design-intent">
+<h2>Design intent<a class="headerlink" href="#design-intent" title="Link to this heading"></a></h2>
+<p>OneFLOW combines a C++ simulation runtime with mesh generation and conversion, case-based
+configuration, numerical execution, regression tooling, and an optional Python/PySide6
+Workbench. The intended boundary is:</p>
+<ul class="simple">
+<li><p>The C++ runtime owns simulation and numerical execution.</p></li>
+<li><p>A case directory supplies the control inputs and other files required by that run.</p></li>
+<li><p>Mesh and solver modules implement domain behavior; command-line and Workbench tools
+select cases, prepare execution locations, and inspect artifacts.</p></li>
+<li><p>Tests state behavior contracts at the smallest useful boundary, while end-to-end
+regressions check that the assembled application still behaves correctly.</p></li>
+<li><p>Documentation records design intent and current contracts separately from proposed
+future capabilities.</p></li>
+</ul>
+<p>The Workbench is an orchestration and inspection layer, not a second solver. Mesh summary
+and serialization code should describe runtime data without making the core mesh model
+depend on JSON or GUI libraries.</p>
+</section>
+<section id="system-map">
+<h2>System map<a class="headerlink" href="#system-map" title="Link to this heading"></a></h2>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>User / CLI / Workbench
+         |
+         v
+Case selection and run preparation
+         |
+         v
+OneFLOW executable: main()
+         |
+         v
+Simulation::Run()
+    |                         |
+    | no case-directory args  | case-directory args
+    v                         v
+lightweight test selector   parse command-line options
+                              |
+                              v
+                        process environment
+                              |
+                              v
+                      one SimuImp per case
+                              |
+                              v
+                      SimuContext / case setup
+                              |
+                              v
+                      control task resolution
+                              |
+                              v
+                      TaskRegistry -&gt; ISimuTask
+                              |
+                              v
+                      mesh / solver / post task
+                              |
+                              v
+                      case teardown and process finalization
+</pre></div>
+</div>
+<p>This is a conceptual flow, not a complete call graph. Specific task bodies may still call
+legacy free functions and access shared runtime state. See the code entry points below.</p>
+</section>
+<section id="system-level-design-principles">
+<h2>System-level design principles<a class="headerlink" href="#system-level-design-principles" title="Link to this heading"></a></h2>
+<p>The runtime should be understood through a small set of boundaries before examining a
+particular class or function:</p>
+<ol class="arabic simple">
+<li><p><strong>Numerical ownership:</strong> the C++ runtime owns numerical state and computation. The
+CLI and Workbench select, stage, launch, and inspect runs; they do not reimplement
+solver algorithms.</p></li>
+<li><p><strong>Lifecycle ownership:</strong> process setup/finalization and per-case setup/teardown have
+different lifetimes. A case may fail without silently skipping cleanup of the process
+resources it owns.</p></li>
+<li><p><strong>Data ownership:</strong> live mesh and solver objects are operational state. A snapshot is
+a stable read model; JSON, VTU, or other output formats are adapters, not the core
+data model.</p></li>
+<li><p><strong>Dependency direction:</strong> domain modules should not need a GUI or a particular output
+serialization library to perform numerical work. Presentation and orchestration depend
+on domain contracts, not the reverse.</p></li>
+<li><p><strong>Evidence at boundaries:</strong> unit tests pin small contracts; integration tests check
+module interaction; grid and CFD regressions check behavior in representative cases.
+A passing test count is useful evidence only when its coverage and assertion contract
+are understood.</p></li>
+</ol>
+<p>These principles form the review checklist for local refactoring. A change should state
+which boundary it clarifies, which behavior must remain unchanged, and what evidence
+would detect a regression. Avoid creating a new abstraction when a simpler name, explicit
+lifecycle, or focused contract test already makes the responsibility clear.</p>
+</section>
+<section id="source-comments-and-generated-documentation">
+<h2>Source comments and generated documentation<a class="headerlink" href="#source-comments-and-generated-documentation" title="Link to this heading"></a></h2>
+<p>Use source comments for contracts needed at declarations and call sites: purpose,
+units, ownership, valid ranges, side effects, failure behavior, and links to the
+design page. Use Doxygen-compatible comments for stable public interfaces and
+algorithm entry points; avoid duplicating long tutorials in headers.</p>
+<p>Keep <code class="docutils literal notranslate"><span class="pre">doc/source</span></code> as the canonical home for system architecture, design rationale,
+equations and symbol definitions, assumptions, diagrams, references, and validation
+evidence. Generated API pages complement these pages; they do not replace them.</p>
+<p>A staged route is preferable to immediately wiring a large documentation toolchain:</p>
+<ol class="arabic simple">
+<li><p>Standardize Doxygen-compatible comments on one stable module or interface.</p></li>
+<li><p>Generate API documentation into a build directory and check that generation is
+deterministic and does not dirty the source tree.</p></li>
+<li><p>If API pages need to appear inside Sphinx, evaluate Doxygen XML plus Breathe only
+after the initial output is useful and repeatable.</p></li>
+<li><p>Keep formulas in Sphinx math directives, and use small source-controlled flow
+diagrams to show lifecycle, data flow, and ownership. Each diagram should distinguish
+current behavior from proposed design and link to implementation entry points.</p></li>
+<li><p>Treat generated documentation in CI as a reproducible artifact; do not commit
+generated output unless the project explicitly adopts that publication model.</p></li>
+</ol>
+</section>
+<section id="code-entry-points-and-responsibilities">
+<h2>Code entry points and responsibilities<a class="headerlink" href="#code-entry-points-and-responsibilities" title="Link to this heading"></a></h2>
+<p>Application entry:</p>
+<ul class="simple">
+<li><p><cite>codes/main/src/OneFlow.cpp</cite> contains the small <cite>main(argc, argv)</cite> entry point. It
+constructs <cite>Simulation</cite> and returns <cite>Simulation::Run()</cite>.</p></li>
+<li><p><cite>codes/main/src/Simulation.cpp</cite> processes command-line arguments and chooses between
+the lightweight test-selector path and full case execution.</p></li>
+<li><p><cite>codes/main/src/SimuImp.cpp</cite> owns a case lifecycle: setup, task resolution, execution,
+and teardown. Its exception path attempts teardown before rethrowing the original error.</p></li>
+<li><p><cite>codes/main/src/SimuContext.cpp</cite> contains testable context state and selected state
+operations. Environment setup is separated into <cite>SimuContextEnv.cpp</cite>.</p></li>
+<li><p><cite>codes/main/src/SimuTaskReg.cpp</cite> registers task implementations. Concrete task classes
+adapt existing operations to the <cite>ISimuTask</cite> interface.</p></li>
+<li><p><cite>codes/io/src/ConfigLoader.cpp</cite> parses the legacy parameter syntax into a
+<cite>ConfigDocument</cite>. Variable-sized arrays require an injected size resolver when their
+size is not a numeric literal.</p></li>
+</ul>
+<p>The build is configured from the root <cite>CMakeLists.txt</cite>, which selects the third-party,
+runtime, test, and GUI subdirectories. <cite>codes/CMakeLists.txt</cite> collects runtime sources
+and defines build options for optional acceleration and parallel facilities. Build-time
+options do not prove that a backend is available or validated at runtime; use the build
+summary and relevant tests as evidence.</p>
+</section>
+<section id="command-line-execution-modes">
+<h2>Command-line execution modes<a class="headerlink" href="#command-line-execution-modes" title="Link to this heading"></a></h2>
+<p>The simulation-specific schema and invocation policy are implemented in <code class="docutils literal notranslate"><span class="pre">codes/io/src/SimulationCommandLine.cpp</span></code> and declared in <code class="docutils literal notranslate"><span class="pre">codes/io/include/SimulationCommandLine.h</span></code>. The generic parser has no dependency on <code class="docutils literal notranslate"><span class="pre">Prj</span></code> or solver runtime types. <code class="docutils literal notranslate"><span class="pre">PrjCmdLineArgs.cpp</span></code> is limited to converting canonical options to the legacy <code class="docutils literal notranslate"><span class="pre">CmdLineOptions</span></code> shape. The parser core is <code class="docutils literal notranslate"><span class="pre">ONEFLOW::CliParser</span></code> in <code class="docutils literal notranslate"><span class="pre">codes/basic/include/CliParser.h</span></code>. It uses a declared positional schema with minimum/maximum counts, returns named parsed values, preserves repeated values, and generates usage text for validation errors. <code class="docutils literal notranslate"><span class="pre">ParseSimulationCommandLineOptions()</span></code> converts the parsed values into a <code class="docutils literal notranslate"><span class="pre">SimulationCommandLineOptions</span></code> value object with a single canonical case-directory list. <code class="docutils literal notranslate"><span class="pre">Simulation</span></code> and <code class="docutils literal notranslate"><span class="pre">SimuContext</span></code> now use this API. <code class="docutils literal notranslate"><span class="pre">Prj::ParseCmdLineArgs()</span></code> remains a compatibility adapter that fills the older <code class="docutils literal notranslate"><span class="pre">CmdLineOptions</span></code> shape. Named switches, subcommands, and type conversion remain out of scope until an actual command needs them.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">CliParser</span><span class="w"> </span><span class="n">parser</span><span class="p">(</span><span class="w"> </span><span class="s">"OneFLOW"</span><span class="w"> </span><span class="p">);</span>
+<span class="n">parser</span><span class="p">.</span><span class="n">AddPositional</span><span class="p">(</span><span class="w"> </span><span class="s">"mode"</span><span class="p">,</span><span class="w"> </span><span class="s">"Run mode"</span><span class="w"> </span><span class="p">);</span>
+<span class="n">parser</span><span class="p">.</span><span class="n">AddPositional</span><span class="p">(</span>
+<span class="w">    </span><span class="s">"caseDir"</span><span class="p">,</span><span class="w"> </span><span class="s">"Case directory"</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">CliParser</span><span class="o">::</span><span class="n">Unlimited</span><span class="w"> </span><span class="p">);</span>
+<span class="k">const</span><span class="w"> </span><span class="n">ParsedCommandLine</span><span class="w"> </span><span class="n">parsed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">parser</span><span class="p">.</span><span class="n">Parse</span><span class="p">(</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">"r"</span><span class="p">,</span><span class="w"> </span><span class="s">"caseA"</span><span class="p">,</span><span class="w"> </span><span class="s">"caseB"</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">);</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Parse()</span></code> receives arguments after the executable name. The parser preserves the existing mode rule (<code class="docutils literal notranslate"><span class="pre">d</span></code> enables debug; other values retain run mode). The compatibility adapter still fills the old <code class="docutils literal notranslate"><span class="pre">Prj::ParseCmdLineArgs()</span></code> result shape. The small parser intentionally does not yet provide named options or subcommands.</p>
+<p><cite>Simulation::RunImpl()</cite> selects its top-level path through the pure <cite>ClassifySimulationInvocation()</cite> function. One argv entry selects the lightweight test path, two entries preserve the existing argument-count error, and three or more select full simulation. The classifier does not inspect argument text; parsing and validation of the full-simulation arguments remain in <cite>ParseSimulationCommandLineOptions()</cite>. Tests in <cite>tests/main/prj_cmdline_test.cpp</cite> pin these three behaviors so future CLI syntax work can change them deliberately.</p>
+<p>The current <cite>Simulation::RunImpl()</cite> has three argument-count paths:</p>
+<ul class="simple">
+<li><p>With only the executable argument, it enters the lightweight test selector and chooses
+a registered test, with <cite>ONEFLOW_DEFAULT_TEST</cite> as an optional environment override.</p></li>
+<li><p>With exactly one additional argument, it reports an argument-count error.</p></li>
+<li><p>With two or more additional arguments, it parses the case-directory arguments, performs
+process-level initialization, and runs each resolved case directory through its own
+<cite>SimuImp</cite> instance.</p></li>
+</ul>
+<p>For example, <cite>OneFLOW.exe r &lt;caseDir&gt;</cite> has three process arguments and follows the full
+simulation path. Case directories passed to one process are executed in command-line order; every argument entry is executed, so repeating the same path runs that case again. Each entry gets a separate <code class="docutils literal notranslate"><span class="pre">SimuImp</span></code> / <code class="docutils literal notranslate"><span class="pre">SimuContext</span></code> and case teardown, while process runtime (including MPI initialization) is initialized once and finalized after the sequence. <code class="docutils literal notranslate"><span class="pre">SimuImp::RunCase()</span></code> can be called repeatedly inside that process lifetime; it owns case teardown, not MPI lifecycle. <code class="docutils literal notranslate"><span class="pre">SimuImp::Run()</span></code> is the single-case compatibility entry point that owns one process lifecycle. If process initialization or case setup/run throws, the owning boundary attempts rollback/finalization before propagating the original failure. The compatibility <code class="docutils literal notranslate"><span class="pre">SimuContext::SetupEnvironment()</span></code> path rolls back a failed case setup, and <code class="docutils literal notranslate"><span class="pre">TeardownEnvironment()</span></code> finalizes process runtime even if case teardown throws. A failed case stops the sequence; later entries are not run. This is not parallel multi-case execution and does not itself express artifact dependencies. Thirteen focused lifecycle tests cover ordering, repeated paths, rollback only on setup failure, exception preservation, and stop-on-failure behavior. <code class="docutils literal notranslate"><span class="pre">SimuContextEnv.cpp</span></code> compiled separately with MSVC. The full suite and executable link remain unverified. Use the Workbench architecture page for the distinction between sequential multi-case runs and dependency workflows.</p>
+<section id="context-ownership-transfer">
+<h3>Context ownership transfer<a class="headerlink" href="#context-ownership-transfer" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">SimuContext</span></code> is movable but not move-assignable: moving transfers the case
+arguments, task metadata, accelerator-state registry, readiness state, and process
+lifecycle marker to the destination. The source is reset to an uninitialized state.
+This operation is declared <code class="docutils literal notranslate"><span class="pre">noexcept</span></code> because the process lifecycle marker is an
+ownership token; once it moves, a later throwing member move could otherwise leave the
+source unable to finalize the process runtime while destination construction fails.
+The compile-time move-trait assertion in <code class="docutils literal notranslate"><span class="pre">tests/main/simu_context_test.cpp</span></code> makes
+that requirement executable. If a future context member cannot be moved without
+throwing, its ownership design must be reconsidered rather than silently weakening
+this guarantee.</p>
+<p>The process environment and each case environment have different lifetimes. The
+<cite>Simulation</cite> path initializes process-level state once, then constructs a case runner per
+directory. <cite>SimuImp::RunCase()</cite> owns case teardown, including exceptional exits. Changes
+to these lifetimes should be protected by tests that cover both successful execution and
+failure during setup or task execution.</p>
+</section>
+<section id="case-lifecycle-success-and-failure-paths">
+<h3>Case lifecycle: success and failure paths<a class="headerlink" href="#case-lifecycle-success-and-failure-paths" title="Link to this heading"></a></h3>
+<p>The current implementation has two nested cleanup responsibilities. The process owner
+initializes and finalizes shared runtime resources; the case owner tears down case-scoped
+solver, field, parameter, log, and project-path state. The lifecycle helpers in
+<code class="docutils literal notranslate"><span class="pre">codes/main/include/SimuCaseLifecycle.h</span></code> preserve the original execution exception
+when cleanup also fails.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Simulation / SimuImp::Run
+    |
+    +-- SetupProcessEnvironment
+    |      parallel setup -&gt; accelerator runtime setup
+    |
+    +-- RunCase
+    |      |
+    |      +-- PreProcess -&gt; InitSimu -&gt; SetupCaseEnvironment
+    |      |      case path/log binding
+    |      |      -&gt; ReadControlInfo(caseDir)
+    |      |      -&gt; read and validate CaseIOSettings
+    |      |      -&gt; apply Prj roots -&gt; write io_paths.txt
+    |      |
+    |      +-- MainProcess -&gt; resolve task -&gt; execute task
+    |      |
+    |      +-- PostProcess -&gt; TeardownCase
+    |
+    +-- FinalizeEnvironment
+           accelerator finalization -&gt; parallel finalization
+</pre></div>
+</div>
+<p>If setup or task execution throws inside <code class="docutils literal notranslate"><span class="pre">RunCase()</span></code>, its cleanup callback attempts
+<code class="docutils literal notranslate"><span class="pre">PostProcess()</span></code> before the original exception is rethrown. The outer process lifecycle
+then attempts process finalization. Cleanup failures do not replace an already active
+execution failure. If execution succeeds, a cleanup failure is allowed to propagate.
+These are observable contracts and should remain explicit when the orchestration boundary
+is extracted.</p>
+<p>This diagram describes the existing path; it does not imply that case setup is
+transactional. In particular, project and log bindings are established before the real
+control reader runs. A failed read can therefore leave partial state until the owning
+cleanup boundary runs. Direct callers of <code class="docutils literal notranslate"><span class="pre">SetupCaseEnvironment()</span></code> do not get the
+same automatic rollback that callers of <code class="docutils literal notranslate"><span class="pre">SetupEnvironment()</span></code> or <code class="docutils literal notranslate"><span class="pre">SimuImp::RunCase()</span></code>
+receive. Integration tests must invoke the owning production boundary for cleanup claims.</p>
+<p>The next R1 acceptance evidence should cover distinct layers:</p>
+<ul class="simple">
+<li><p>A minimal temporary multi-file case exercises the real <code class="docutils literal notranslate"><span class="pre">ReadControlInfo(caseDir)</span></code>
+and verifies typed database values plus <code class="docutils literal notranslate"><span class="pre">log/database.log</span></code>.</p></li>
+<li><p>A setup-only smoke test uses a verified case under <code class="docutils literal notranslate"><span class="pre">test/</span></code> and checks the resulting
+effective roots and path diagnostics without running the solver task.</p></li>
+<li><p>Two cases run sequentially in one process to show that the second case does not inherit
+roots from the first.</p></li>
+<li><p>A missing or malformed control input verifies cleanup and preservation of the original
+exception.</p></li>
+</ul>
+<p>The existing lifecycle unit tests cover the generic callback ordering and exception
+policy, but they do not prove these production integration properties. R1 remains partial
+until the production reader, effective path binding, sequential isolation, and failure
+cleanup have direct evidence.</p>
+</section>
+</section>
+<section id="configuration-boundaries">
+<h2>Configuration boundaries<a class="headerlink" href="#configuration-boundaries" title="Link to this heading"></a></h2>
+<section id="case-i-o-configuration-snapshot">
+<h3>Case I/O configuration snapshot<a class="headerlink" href="#case-i-o-configuration-snapshot" title="Link to this heading"></a></h3>
+<p>The case setup boundary reads optional path settings into one <code class="docutils literal notranslate"><span class="pre">CaseIOSettings</span></code>
+value before applying configured roots to legacy <code class="docutils literal notranslate"><span class="pre">Prj</span></code> state. The snapshot
+includes <code class="docutils literal notranslate"><span class="pre">ioPathInfoFileName</span></code>, which selects the path-diagnostic output name.
+A present setting must be a string; an absent setting uses the historical
+empty-value default. Legacy <code class="docutils literal notranslate"><span class="pre">sourceGridCaseDir</span></code> is consulted only when
+<code class="docutils literal notranslate"><span class="pre">meshInputRoot</span></code> is empty or <code class="docutils literal notranslate"><span class="pre">default</span></code>.</p>
+<p>The intended ordering is:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>ReadControlInfo(caseDir)
+          |
+          v
+ReadCaseIOSettings(DataPara)
+[read + type-check all applicable settings]
+          |
+          v
+ApplyCaseIOSettings(CaseIOSettings)
+          |
+          +--&gt; Apply project and generic roots
+          |
+          +--&gt; Apply mesh/flow-specific roots
+          |
+          v
+Resolve and write io_paths.txt
+</pre></div>
+</div>
+<p>The declaration for <code class="docutils literal notranslate"><span class="pre">SimuContextDetail::ApplyCaseIOSettings()</span></code> is in
+<code class="docutils literal notranslate"><span class="pre">codes/main/include/SimuContextIO.h</span></code>; its implementation is compiled from
+<code class="docutils literal notranslate"><span class="pre">codes/main/src/SimuContextIO.cpp</span></code>. The implementation applies the validated
+snapshot through the existing <code class="docutils literal notranslate"><span class="pre">Prj</span></code> API and writes diagnostics to the mesh output root and,
+when distinct, the flow output root. The focused test target links the real
+<code class="docutils literal notranslate"><span class="pre">Prj</span></code> path implementation and checks file placement and the effective roots
+serialized in each diagnostic file.</p>
+<p>This separates parameter interpretation from mutation of global path state. It
+does not make setup fully transactional: path application and filesystem output
+can still fail, so the surrounding case lifecycle must retain its cleanup path.
+These tests pin the post-reader operation; they do not yet prove production
+control-reader integration, sequential-case isolation, or failure cleanup.</p>
+<p>Root resolution has one important compatibility distinction. <code class="docutils literal notranslate"><span class="pre">projectRoot</span></code> is
+configured through <code class="docutils literal notranslate"><span class="pre">Prj::SetProjectBaseDir()</span></code>: an absolute value is normalized
+directly, while a relative value is resolved against <code class="docutils literal notranslate"><span class="pre">Prj::current_dir</span></code> (the
+process working directory captured by project initialization). In contrast,
+ordinary relative <code class="docutils literal notranslate"><span class="pre">inputRoot</span></code>, <code class="docutils literal notranslate"><span class="pre">outputRoot</span></code>, and domain-specific roots resolve
+against the active case directory. The tokens <code class="docutils literal notranslate"><span class="pre">case</span></code> and <code class="docutils literal notranslate"><span class="pre">default</span></code> select
+the case root; <code class="docutils literal notranslate"><span class="pre">project</span></code> selects the configured project root and fails if no
+project root has been configured. This distinction is implemented in
+<code class="docutils literal notranslate"><span class="pre">codes/io/src/Prj.cpp</span></code> and should not be changed implicitly as part of setup
+refactoring. A focused <code class="docutils literal notranslate"><span class="pre">PrjIOPaths</span></code> contract test pins the relative
+<code class="docutils literal notranslate"><span class="pre">projectRoot</span></code> behavior separately from case-relative generic output.</p>
+<p>OneFLOW configuration is not a single undifferentiated settings file. Keep these layers
+separate when changing configuration behavior.</p>
+<dl>
+<dt>Build configuration</dt><dd><p>CMake cache options, compiler selection, dependency locations, and optional backend
+switches determine what is compiled and linked. These settings belong to configure and
+build operations, not to a particular case’s physical model.</p>
+</dd>
+<dt>Case runtime configuration</dt><dd><p>Case control files and legacy parameter files select runtime tasks and numerical,
+geometry, or mesh-generation parameters. The task name is resolved from the control
+database by <cite>SimuContext::ResolveTaskFromControl()</cite>; current task names include
+<cite>Solve</cite>, <cite>Grid</cite>, <cite>WallDist</cite>, <cite>Partition</cite>, <cite>FunctionTest</cite>, <cite>Theory</cite>,
+<cite>ToyModel</cite>, and <cite>PostTask</cite>. <cite>ConfigLoader</cite> parses legacy text syntax into a
+<cite>ConfigDocument</cite>; it is not itself the owner of all runtime meaning. The code that
+resolves a parameter must define its type, default, valid range, and effect.</p>
+<p>Case I/O roots are applied during <cite>SimuContext::SetupCaseEnvironment()</cite>. The current
+configuration keys include <cite>projectRoot</cite>, <cite>inputRoot</cite>, <cite>outputRoot</cite>,
+<cite>meshInputRoot</cite>, <cite>flowInputRoot</cite>, <cite>meshOutputRoot</cite>, <cite>flowOutputRoot</cite>, and
+<cite>ioPathInfoFileName</cite>. If <cite>meshInputRoot</cite> is empty or <cite>default</cite>, a non-empty
+<cite>sourceGridCaseDir</cite> is used as the legacy mesh-input fallback. Generic input/output
+roots are applied before the mesh/flow-specific roots. Missing optional root settings
+retain the existing case-relative defaults.</p>
+<p>Optional path strings are read through
+<cite>SimuContextDetail::ReadOptionalStringParameter()</cite> in
+<cite>codes/main/include/SimuContextParameter.h</cite>. The helper returns an empty string for a
+missing entry, verifies that a present entry is <cite>HX_STRING</cite>, and throws
+<cite>std::invalid_argument</cite> naming the parameter when its declared type is wrong.</p>
+<p><cite>ReadCaseIOSettings()</cite> snapshots the generic and mesh/flow-specific root settings
+into a value object before the runtime applies them through <cite>Prj</cite>. This separates typed
+parameter lookup and legacy fallback selection from mutation of the process-global path
+fields. The parameter adapter does not normalize paths or apply roots. The separate
+<cite>SimuContextDetail::ApplyCaseIOSettings()</cite> is declared in
+<cite>codes/main/include/SimuContextIO.h</cite> and implemented in
+<cite>codes/main/src/SimuContextIO.cpp</cite>. Keeping path mutation in a source file prevents
+every includer from inheriting the implementation’s <cite>Prj</cite> and filesystem dependencies.
+It applies the snapshot and writes path diagnostics; it does not replace the production
+<cite>ReadControlInfo(caseDir)</cite> call.</p>
+<p>The legacy mesh input fallback is split into two explicit decisions.
+<cite>ShouldUseLegacySourceGridCaseDir()</cite> decides whether the configured
+<cite>meshInputRoot</cite> permits fallback lookup (only empty or <cite>default</cite>). The
+<cite>sourceGridCaseDir</cite> parameter is read lazily only in that case, then
+<cite>ApplyLegacySourceGridCaseDir()</cite> chooses the effective value: a non-empty,
+non-<cite>default</cite> legacy value replaces the fallback token; otherwise the original
+mesh input value is preserved. Explicit roots, including <cite>case</cite> and ordinary
+relative paths, therefore do not consult or get overridden by the legacy setting.
+Focused tests cover the full settings snapshot, legacy fallback selection, and the
+fact that an explicit mesh root does not read an invalid legacy parameter.</p>
+<p>Existing <cite>Prj</cite> tests cover generic/domain root resolution, inheritance, diagnostics,
+and resetting roots when binding another case. The helper-level
+<cite>simu_context_parameter_test</cite> covers the complete settings object, missing/valid/invalid
+parameter types, and application of mesh/flow roots to real diagnostic files. A direct
+<cite>SetupCaseEnvironment()</cite> integration test is still needed to verify the real control
+reader, sequential case setup, and failure cleanup together.</p>
+</dd>
+<dt>Workbench project and workflow configuration</dt><dd><p>Project definitions describe an engineering workspace; workflow definitions describe
+execution steps and their dependencies; run records describe individual attempts and
+their results. Definitions and run history must remain separate. A case catalog helps
+discover cases but must not silently determine the actual run directory.</p>
+</dd>
+<dt>Path and artifact semantics</dt><dd><p>Source case inputs, staged run inputs, generated mesh files, solver results, and logs
+have different roles. Any operation that can modify files should make its execution
+location explicit and should isolate source inputs when that operation’s contract
+requires a staged copy. Producer/consumer workflows should resolve declared artifacts,
+not depend on an accidental current working directory.</p>
+</dd>
+</dl>
+</section>
+</section>
+<section id="patterns-already-present">
+<h2>Patterns already present<a class="headerlink" href="#patterns-already-present" title="Link to this heading"></a></h2>
+<p>Use pattern names only where they describe real code, not as a goal to apply everywhere.</p>
+<dl class="simple">
+<dt>Command / Strategy boundary</dt><dd><p><cite>ISimuTask</cite> represents an executable task, and concrete tasks adapt existing operations
+to that interface. This gives task selection a stable seam, but some implementations
+still delegate to legacy free functions and global state.</p>
+</dd>
+<dt>Registry / Factory</dt><dd><p><cite>TaskRegistry</cite> maps control-file task names to creators. The registry provides a
+centralized construction point. Registration behavior, duplicate-name policy, and
+initialization order should remain explicit and testable.</p>
+</dd>
+<dt>Context object</dt><dd><p><cite>SimuContext</cite> groups selected run state and provides an injectable seam for context
+data. Its value depends on progressively moving relevant state out of implicit globals;
+adding a context parameter without using it does not by itself decouple a task.</p>
+</dd>
+<dt>Adapter</dt><dd><p><cite>ConfigLoader</cite> translates legacy text syntax into <cite>ConfigDocument</cite>. Similar adapter
+boundaries are appropriate for runtime mesh snapshots and serialization formats.
+Parsing syntax and interpreting domain semantics should remain separate responsibilities.</p>
+</dd>
+<dt>Explicit lifecycle / RAII</dt><dd><p><cite>Simulation</cite> and <cite>SimuImp</cite> use <cite>std::unique_ptr</cite> for owned objects, and case teardown
+is expressed as a lifecycle operation. Continue to make ownership and cleanup visible;
+avoid adding wrapper classes that do not clarify a real lifetime or responsibility.</p>
+</dd>
+</dl>
+<p>These are existing patterns with uneven adoption, not a claim that the whole codebase is
+already dependency-inverted or free of global state.</p>
+</section>
+<section id="architecture-rules-for-ongoing-refactoring">
+<h2>Architecture rules for ongoing refactoring<a class="headerlink" href="#architecture-rules-for-ongoing-refactoring" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p>Follow the real call path before changing an interface. Inspect direct callers, ownership,
+initialization order, and teardown behavior.</p></li>
+<li><p>Establish the behavior contract before extracting a new class or renaming a module.
+Tests should distinguish intended behavior from plausible but incorrect behavior.</p></li>
+<li><p>Prefer value snapshots or narrow read-only interfaces for data that crosses a module
+boundary. Do not expose mutable implementation containers merely to simplify a test.</p></li>
+<li><p>Keep canonical state distinct from derived data. Any derived adjacency, cache, or mapping
+needs an explicit rebuild or invalidation contract.</p></li>
+<li><p>Keep numerical algorithms in the runtime; orchestration code should select and launch
+work rather than reimplement solver logic.</p></li>
+<li><p>Separate parsing from validation and semantic interpretation. Report invalid or unsupported
+input explicitly instead of silently assigning an unrelated default.</p></li>
+<li><p>Refactor one independently verifiable boundary at a time. Avoid broad rewrites without a
+concrete behavior or maintainability problem.</p></li>
+<li><p>Keep source code ASCII-only, preserve compatibility where required, and validate the
+relevant Windows and Linux paths when the change affects them.</p></li>
+</ol>
+</section>
+<section id="test-design-as-an-architecture-probe">
+<h2>Test design as an architecture probe<a class="headerlink" href="#test-design-as-an-architecture-probe" title="Link to this heading"></a></h2>
+<p>A test that requires the whole solver to validate a small rule may indicate an overly broad
+dependency boundary, hidden global state, or setup responsibilities that are hard to isolate.
+It is a signal to investigate, not automatic proof that a new abstraction is needed.</p>
+<p>Use a layered test ladder:</p>
+<ul class="simple">
+<li><p>Unit tests for deterministic parsing, mapping, lifecycle, and invariant rules.</p></li>
+<li><p>Component tests for collaboration between context, task registry, mesh services, and
+configuration adapters.</p></li>
+<li><p>Integration tests for real case setup, generated artifacts, and runtime paths.</p></li>
+<li><p>CFD/grid regression tests for end-to-end behavior and numerical results.</p></li>
+</ul>
+<p>Tests should assert externally meaningful contracts rather than mirror private data
+structures. If a test is difficult to write, first identify the source of the difficulty:
+algorithmic complexity, hidden dependencies, broad setup, or a genuinely necessary system
+integration.</p>
+</section>
+<section id="documentation-change-loop">
+<h2>Documentation change loop<a class="headerlink" href="#documentation-change-loop" title="Link to this heading"></a></h2>
+<p>For each meaningful refactor:</p>
+<ol class="arabic simple">
+<li><p>State the observed problem and the intended behavior.</p></li>
+<li><p>Add or update the smallest test that distinguishes correct behavior from the defect.</p></li>
+<li><p>Inspect callers and ownership, then make the smallest coherent code change.</p></li>
+<li><p>Update the relevant architecture page when responsibilities, lifecycle, data contracts,
+configuration, entry points, or user-visible behavior change.</p></li>
+<li><p>Record an Architecture Decision Record only when the choice has durable consequences or
+meaningful alternatives. Do not create an ADR for every local fix.</p></li>
+<li><p>Run the relevant tests and record exactly what was executed. Distinguish local results,
+Linux CI, Windows CI, and numerical regression evidence.</p></li>
+<li><p>Update user instructions only when supported behavior or operating procedures change.</p></li>
+</ol>
+<p>The code, tests, and documentation should be reviewed together. A document may describe an
+intended boundary before it is fully implemented only if it labels that boundary as
+proposed and names the gap.</p>
+</section>
+<section id="numerical-theory-references-and-verification-evidence">
+<h2>Numerical theory, references, and verification evidence<a class="headerlink" href="#numerical-theory-references-and-verification-evidence" title="Link to this heading"></a></h2>
+<p>Numerical documentation should connect the mathematical model to the implementation
+and to observable verification evidence. Equations and citations are not decoration:
+they make assumptions reviewable, help distinguish a published model from a code-specific
+variant, and give future maintainers a route to investigate or improve the implementation.</p>
+<p>For each substantial numerical algorithm or physical model, document the following where
+applicable:</p>
+<ol class="arabic simple">
+<li><p><strong>Problem and assumptions:</strong> governing equation or discrete problem, dimensionality,
+coordinate conventions, units, boundary/initial conditions, and validity limits.</p></li>
+<li><p><strong>Mathematical definition:</strong> define symbols and sign conventions; state the equation
+actually implemented, including limiting cases and relevant stability or convergence
+conditions. Do not copy an equation without checking it against the implementation.</p></li>
+<li><p><strong>Source and provenance:</strong> cite the original paper or book for the method, a current
+authoritative specification or maintainer resource when available, and the exact
+version or section used. Prefer DOI, publisher pages, official project manuals, or
+stable maintained URLs over search-result snippets.</p></li>
+<li><p><strong>Implementation mapping:</strong> identify the OneFLOW entry point and key functions, explain
+any differences from the cited formulation, and state whether a choice is a deliberate
+variant, a compatibility constraint, or an unresolved question.</p></li>
+<li><p><strong>Verification:</strong> link tests and representative cases to the properties they establish:
+analytic or manufactured solutions, conservation, limiting behavior, grid/time
+convergence, benchmark comparisons, or regression tolerances. A citation does not
+prove the code is correct, and a passing unit test does not establish model validity.</p></li>
+<li><p><strong>Known limits:</strong> record unsupported regimes, approximations, expected floating-point
+variation, and evidence that has not yet been collected.</p></li>
+</ol>
+<p>Use references proportionally. A small utility function usually needs a contract and tests,
+not a literature review. A flux scheme, turbulence closure, reconstruction method, limiter,
+mesh-matching tolerance, or convergence algorithm may need a derivation or a clear citation
+because its mathematical choices affect results. When a formula is standard but a particular
+implementation choice is consequential, cite the standard formulation and explain the
+choice locally.</p>
+<p>Public open-source code and its theory/developer manuals can be valuable comparative
+evidence, but they are not automatically authoritative. Record the project version or commit,
+the relevant file or section, its license, and the exact behavior being compared. Treat
+closed-source manuals as secondary references when they are lawfully accessible; cite their
+title, publisher, edition/version, and relevant section without reproducing restricted text
+or assuming undocumented implementation details. Do not copy code or substantial prose
+from either open or closed sources without checking license and permission. Prefer an
+independent derivation and OneFLOW-specific explanation over a line-by-line imitation of
+another solver.</p>
+<p>For CFD verification and validation, useful starting points include the
+<a class="reference external" href="https://tmbwg.github.io/turbmodels/">NASA Turbulence Modeling Resource</a>, which provides
+model definitions and verification cases, and the
+<a class="reference external" href="https://www.grc.nasa.gov/www/wind/valid/tutorial/tutorial.html">NASA CFD Verification and Validation tutorial</a>.
+Use a source appropriate to the actual model or algorithm; these resources are starting
+points, not universal citations for every numerical method.</p>
+<p>The intended maintenance loop is:</p>
+<p><a href="#id1"><span class="problematic" id="id2">``</span></a><a href="#id3"><span class="problematic" id="id4">`</span></a>text
+theory/reference -&gt; OneFLOW formulation -&gt; implementation -&gt; focused tests</p>
+<blockquote>
+<div><p>^                                      |                |
+|                                      v                v</p>
+</div></blockquote>
+<p>updated explanation &lt;- discrepancy analysis &lt;- case/regression evidence
+<a href="#id5"><span class="problematic" id="id6">``</span></a><a href="#id7"><span class="problematic" id="id8">`</span></a></p>
+<p>When new evidence changes the understanding of an algorithm, update the algorithm page,
+its tests or reference cases where warranted, and the source links together. Keep claims
+labelled as verified, implemented-but-unverified, partial, or planned. This creates a
+traceable improvement loop; it does not mean that an automated agent may silently change
+scientific assumptions or accept its own output as proof. Changes to equations, model
+variants, tolerances, or reference baselines require explicit review and reproducible
+evidence.</p>
+</section>
+<section id="related-design-pages">
+<h2>Related design pages<a class="headerlink" href="#related-design-pages" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="mesh_architecture.html"><span class="doc">OneFLOW Mesh Architecture</span></a> — mesh snapshots, canonical data, and serialization boundaries.</p></li>
+<li><p><a class="reference internal" href="grid_topology.html"><span class="doc">Grid Topology and Validation</span></a> — topology invariants, boundary normalization, and derived connectivity.</p></li>
+<li><p><a class="reference internal" href="workbench_architecture.html"><span class="doc">OneFLOW Workbench Architecture</span></a> — projects, workflows, run locations, artifacts, and process lifecycle.</p></li>
+<li><p><a class="reference internal" href="info.html"><span class="doc">OneFLOW</span></a> — project scope and documentation entry points.</p></li>
+<li><p><a class="reference external" href="https://github.com/eric2003/OneFLOW/blob/hexin/doc/plans/oneflow-documentation-consolidation-plan.md">Documentation consolidation plan</a> — document ownership and migration status.</p></li>
+<li><p><a class="reference external" href="https://github.com/eric2003/OneFLOW/blob/hexin/doc/plans/runtime-refactoring-roadmap.md">Runtime refactoring roadmap</a> — staged refactoring goals and acceptance criteria.</p></li>
+</ul>
+</section>
+<section id="parameter-schema-and-gui-editing">
+<h2>Parameter schema and GUI editing<a class="headerlink" href="#parameter-schema-and-gui-editing" title="Link to this heading"></a></h2>
+<p>See <a class="reference internal" href="case_parameter_design.html"><span class="doc">Case Parameter Design and GUI Editing</span></a> for the sample-backed parameter classification and
+for why a runtime database dump is not sufficient as an authoring model.</p>
+</section>
+<section id="directory-separators-and-path-semantics">
+<h2>Directory separators and path semantics<a class="headerlink" href="#directory-separators-and-path-semantics" title="Link to this heading"></a></h2>
+<p>Treat filesystem paths as paths, not as strings with a required final separator. Use
+<code class="docutils literal notranslate"><span class="pre">std::filesystem::path</span></code> composition (<code class="docutils literal notranslate"><span class="pre">root</span> <span class="pre">/</span> <span class="pre">relativePath</span></code>) when constructing child
+paths, and use lexical normalization for comparisons that are intended to ignore redundant
+separators or <code class="docutils literal notranslate"><span class="pre">.</span></code> components. Do not compare a path’s raw string representation when the
+contract is directory identity: a trailing separator may differ without changing the
+represented directory.</p>
+<p>OneFLOW currently has a compatibility wrinkle. <code class="docutils literal notranslate"><span class="pre">Prj::ResolveCaseDir()</span></code> deliberately
+returns a directory string with a trailing separator because legacy call sites may rely
+on that representation. Other path helpers already use <code class="docutils literal notranslate"><span class="pre">std::filesystem::path</span></code> and
+normalize directory strings at selected boundaries. Therefore, the current contract is
+not yet “all internal directory strings are separator-free.” Do not remove the trailing
+separator globally until direct concatenations and legacy consumers have been audited and
+migrated to path composition. The safe incremental rule is:</p>
+<ul class="simple">
+<li><p>preserve the existing public/legacy representation where compatibility requires it;</p></li>
+<li><p>compose paths with <code class="docutils literal notranslate"><span class="pre">std::filesystem::path</span></code> rather than string concatenation;</p></li>
+<li><p>normalize paths before semantic comparisons, while preserving filesystem roots;</p></li>
+<li><p>test both ordinary directories and root directories on supported platforms.</p></li>
+</ul>
+<p>A directory-normalization helper must not strip a root such as <code class="docutils literal notranslate"><span class="pre">/</span></code> or <code class="docutils literal notranslate"><span class="pre">C:\</span></code> to an
+invalid or semantically different string such as <code class="docutils literal notranslate"><span class="pre">C:</span></code>. The root length is the boundary
+for removing redundant trailing separators. This distinction matters on Windows, where a
+drive-relative path (<code class="docutils literal notranslate"><span class="pre">C:folder</span></code>) and a drive-rooted path (<code class="docutils literal notranslate"><span class="pre">C:\folder</span></code>) do not mean
+the same thing.</p>
+<p>The runtime uses <code class="docutils literal notranslate"><span class="pre">Prj::AreSameDirectoryPath()</span></code> for the decision that selects the
+default <code class="docutils literal notranslate"><span class="pre">results/io_paths.txt</span></code> location. This matters because <code class="docutils literal notranslate"><span class="pre">ResolveCaseDir()</span></code>
+retains a trailing separator while resolved output roots may not. Comparing their
+<code class="docutils literal notranslate"><span class="pre">lexically_normal()</span></code> paths directly can still treat these representations as unequal
+and choose the wrong diagnostic location. The shared comparison helper applies the same
+directory formatting policy used by <code class="docutils literal notranslate"><span class="pre">WriteIOPathInfo()</span></code> and rejects empty paths rather
+than treating two missing values as a directory.</p>
+<p>The decision can be summarized as:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>configured mesh output root ----+
+                                 +--&gt; both roots equal case root? -- yes --&gt; results/io_paths.txt
+configured flow output root -----+                            \-- no ---&gt; io_paths.txt
+</pre></div>
+</div>
+<p>Both mesh and flow output roots must identify the active case directory for the default
+diagnostic to be written under <code class="docutils literal notranslate"><span class="pre">results/</span></code>. An explicit <code class="docutils literal notranslate"><span class="pre">ioPathInfoFileName</span></code> still
+overrides this default.</p>
+<p>This is a staged compatibility policy, not a recommendation to keep trailing separators
+forever. The long-term direction is to carry <code class="docutils literal notranslate"><span class="pre">std::filesystem::path</span></code> values internally
+and convert to strings only at APIs that require them. Each migration should be justified
+by call-site evidence and tests, not by changing formatting alone.</p>
+</section>
+<section id="control-file-ingestion-and-its-remaining-module-boundary">
+<h2>Control-file ingestion and its remaining module boundary<a class="headerlink" href="#control-file-ingestion-and-its-remaining-module-boundary" title="Link to this heading"></a></h2>
+<p>The production case-specific entry point is
+<code class="docutils literal notranslate"><span class="pre">ReadControlInfo(caseDir)</span></code> in <code class="docutils literal notranslate"><span class="pre">codes/io/src/ControlFileReader.cpp</span></code>. Its
+responsibility is orchestration rather than numerical interpretation:</p>
+<ol class="arabic simple">
+<li><p>Read the case’s <code class="docutils literal notranslate"><span class="pre">script/control.txt</span></code> manifest.</p></li>
+<li><p>Resolve each listed script under the case directory and parse the files in order.</p></li>
+<li><p>Commit the resulting typed entries into the global <code class="docutils literal notranslate"><span class="pre">DataPara</span></code> store.</p></li>
+<li><p>Coordinate process status and broadcast the committed parameter database.</p></li>
+<li><p>Write the merged database snapshot to <code class="docutils literal notranslate"><span class="pre">log/database.log</span></code>.</p></li>
+</ol>
+<p>The configuration pipeline already contains a useful internal separation:
+<code class="docutils literal notranslate"><span class="pre">ConfigLoader</span></code> parses legacy text into a <code class="docutils literal notranslate"><span class="pre">ConfigDocument</span></code>, while
+<code class="docutils literal notranslate"><span class="pre">ConfigDatabaseAdapter</span></code> commits entries using their declared type names.
+The database then owns the typed values. A test of the real control reader must
+exercise these production stages rather than instantiate a test-only parser.</p>
+<p>The source-level split is now implemented. Reader orchestration is in
+<code class="docutils literal notranslate"><span class="pre">ControlFileReader.cpp</span></code>; script parsing and ConfigDocument commit are in
+<code class="docutils literal notranslate"><span class="pre">ControlScriptParser.cpp</span></code>; runtime array-size lookup is in
+<code class="docutils literal notranslate"><span class="pre">ControlParameterResolver.cpp</span></code>; database broadcast, compression/
+decompression, and diagnostic dumping are in <code class="docutils literal notranslate"><span class="pre">ControlDatabaseIO.cpp</span></code>;
+legacy parameter inspection helpers remain in <code class="docutils literal notranslate"><span class="pre">ParaFile.cpp</span></code>. Public
+declarations in <code class="docutils literal notranslate"><span class="pre">ParaFile.h</span></code> are unchanged. The repository’s <code class="docutils literal notranslate"><span class="pre">ConstructSolutionDirTree()</span></code>
+source collector recursively discovers C++ sources, so these files are expected
+to enter the production source list without a per-file CMake registration.
+This expectation still requires an exact-revision build.</p>
+<p>The split reduces responsibility overlap, but it does not yet make the real
+reader independently linkable: <code class="docutils literal notranslate"><span class="pre">ReadMultiScriptFiles()</span></code> calls
+<code class="docutils literal notranslate"><span class="pre">ReadOneFLOWScriptFile()`,</span> <span class="pre">which</span> <span class="pre">remains</span> <span class="pre">in</span> <span class="pre">``ParaFile.cpp</span></code>. The next
+dependency review must determine whether to extract this parser adapter and its
+minimal dependencies into a third production unit or expose an existing narrow
+target. Do not duplicate parsing in a test.</p>
+<p>The component integration test must initialize the real serial parallel backend
+through <code class="docutils literal notranslate"><span class="pre">SetUpParallelEnvironment()</span></code>, use a temporary multi-file control
+manifest, verify typed database values and the case-local database dump, and
+clear global database state afterwards. Sequential-case isolation and setup
+failure cleanup remain separate lifecycle acceptance criteria.</p>
+<p>The system-level benefit is a clearer ingestion pipeline and a first seam for
+replacing legacy syntax adapters without changing consumers. It does not alter
+any numerical algorithm or physical model. R1 remains partial until production
+reader integration, effective case path application, sequential-case isolation,
+and setup-failure cleanup have reproducible test evidence.</p>
+<p>For the broader target and staged evolution model, see
+<a class="reference internal" href="evolutionary_computation_architecture.html"><span class="doc">Evolutionary Scientific-Computing Architecture</span></a>.</p>
+<p>The resolver boundary has a focused test target,
+<code class="docutils literal notranslate"><span class="pre">control_parameter_resolver_test</span></code>, which exercises literal lengths,
+named lengths through the real DataBase, and missing-name failure. The
+<code class="docutils literal notranslate"><span class="pre">ConfigLoader_test</span></code> suite separately exercises parser behavior with an
+injected resolver. These two test levels deliberately distinguish parsing
+semantics from runtime lookup. Neither replaces the pending production
+multi-file reader integration test.</p>
+<section id="case-teardown-and-cleanup-failure-semantics">
+<h3>Case teardown and cleanup failure semantics<a class="headerlink" href="#case-teardown-and-cleanup-failure-semantics" title="Link to this heading"></a></h3>
+<p>SimuContext::TeardownCase releases case-owned resources in dependency order:
+accelerator-backed state and shared backend buffers first, solver and physics
+state next, then zone/field/database state, and finally case log and
+project-path bindings. The process-level accelerator and parallel runtimes
+remain alive until the process owner calls FinalizeEnvironment().</p>
+<p>Each release/reset is an independent cleanup step. The production teardown
+uses SimuCaseLifecycleDetail::ExecuteAllCleanupSteps() so an exception in
+one step does not prevent later steps from being attempted. The helper records
+the first cleanup exception, executes all remaining steps in order, and then
+rethrows that first exception. Context-owned task metadata is reset as the
+final step even if an earlier release failed.</p>
+<p>When teardown runs from SimuImp::RunCase() while a task/setup exception is
+already active, ExecuteWithCleanup() preserves the original execution
+exception; teardown failures do not replace it. This policy guarantees that
+all cleanup attempts are made, not that every release succeeds. A successful
+case whose teardown fails still reports the first teardown exception. Focused
+unit tests pin ordering, continued cleanup after multiple failures, and
+first-failure preservation. These tests do not replace an integration test of
+real solver/device resource release.</p>
+</section>
+</section>
+<section id="case-environment-readiness">
+<h2>Case environment readiness<a class="headerlink" href="#case-environment-readiness" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">SimuContext::IsEnvironmentReady()</span></code> reports successful completion of the
+entire case bootstrap, not merely that setup has started. The flag is cleared
+at the beginning of <code class="docutils literal notranslate"><span class="pre">SetupCaseEnvironment()</span></code> and set only after the case
+root/log binding, production control ingestion, IO-setting validation, and
+IO-path application have all completed. If any step throws, the owning
+<code class="docutils literal notranslate"><span class="pre">SimuImp::RunCase()</span></code> or compatibility rollback path still attempts case
+teardown, while the context remains not-ready. This distinction prevents
+callers from observing a partially initialized case as ready. It does not
+replace the outstanding integration test of the full production bootstrap.</p>
+</section>
+<section id="production-case-bootstrap-composition">
+<h2>Production case-bootstrap composition<a class="headerlink" href="#production-case-bootstrap-composition" title="Link to this heading"></a></h2>
+<p>The ordered case bootstrap is factored into
+<code class="docutils literal notranslate"><span class="pre">SimuContextDetail::InitializeCaseConfiguration(caseDir)</span></code> in
+<code class="docutils literal notranslate"><span class="pre">codes/main/src/SimuContextBootstrap.cpp</span></code>, declared by
+<code class="docutils literal notranslate"><span class="pre">SimuContextBootstrap.h</span></code>. This is the production function called by
+<code class="docutils literal notranslate"><span class="pre">SimuContext::SetupCaseEnvironment()</span></code>; it binds the case project root and
+log, invokes the real <code class="docutils literal notranslate"><span class="pre">ReadControlInfo(caseDir)</span></code>, validates the typed IO
+settings snapshot, and applies the effective generic and mesh/flow roots.
+The serial integration target links this same production translation unit
+and exercises two successive case configurations, including configured
+roots on the first case and default-root rebinding on the second. A scoped
+test guard clears case-owned log, project-path, and parameter state even when
+a fatal assertion exits the test early. The test still resets state directly
+between the two bootstrap calls; it does not invoke production
+<code class="docutils literal notranslate"><span class="pre">TeardownCase()</span></code>, the full <code class="docutils literal notranslate"><span class="pre">SimuImp::RunCase()</span></code>, MPI collectives, or
+accelerator resource release.</p>
+<p>This is meaningful component-integration evidence: the production bootstrap
+composition, real control reader, typed database commit, IO-setting
+application, and sequential root rebinding are exercised together. R1
+remains partial because the public readiness transition in
+<code class="docutils literal notranslate"><span class="pre">SetupCaseEnvironment()</span></code> and cleanup wiring through production
+<code class="docutils literal notranslate"><span class="pre">RunCase()</span> <span class="pre">-&gt;</span> <span class="pre">PostProcess()</span> <span class="pre">-&gt;</span> <span class="pre">TeardownCase()</span></code> are not yet exercised
+end-to-end.</p>
+</section>
+<section id="process-runtime-ownership-and-context-moves">
+<h2>Process runtime ownership and Context moves<a class="headerlink" href="#process-runtime-ownership-and-context-moves" title="Link to this heading"></a></h2>
+<p>SimuContext is move-constructible because a context may be transferred to
+another owner. Its process-runtime marker must move with it: copying the
+Active phase would leave both the source and destination claiming to own
+the same process lifecycle. ProcessRuntimeState is therefore non-copyable
+and has a transfer move constructor. The moved-from marker enters a terminal
+MovedFrom phase, so it cannot be started again accidentally. Move
+assignment is disabled for both the marker and SimuContext because
+overwriting a destination could abandon an already active process-runtime
+owner. This is an ownership rule, not a resource-finalization operation; the
+destination remains responsible for the eventual explicit process teardown.</p>
+</section>
+<section id="moved-from-simucontext-contract">
+<h2>Moved-from SimuContext contract<a class="headerlink" href="#moved-from-simucontext-contract" title="Link to this heading"></a></h2>
+<p>The explicit SimuContext move constructor transfers its arguments, case
+identity, task selection, readiness marker, process lifecycle marker,
+accelerator-state registry, and expanded solver names. It then resets the
+source context’s observable scalar state and clears its remaining metadata.
+In particular, a moved-from context must not continue to report that its case
+environment is ready or its task is resolved. Move assignment remains
+disabled because replacing an existing context could abandon owned runtime
+state. This move operation transfers ownership; it does not perform resource
+teardown or process finalization.</p>
+</section>
+<section id="accelerator-backend-state-ownership">
+<h2>Accelerator backend-state ownership<a class="headerlink" href="#accelerator-backend-state-ownership" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">EulerDomainStateRegistry</span></code> owns backend state objects through unique ownership.
+Its container is held behind a <code class="docutils literal notranslate"><span class="pre">std::unique_ptr&lt;StateMap&gt;</span></code>, allocated lazily on
+the first insertion. This is intentional: the registry’s move operation transfers
+one pointer and therefore does not depend on the standard library’s implementation-
+specific <code class="docutils literal notranslate"><span class="pre">noexcept</span></code> traits for moving or default-constructing
+<code class="docutils literal notranslate"><span class="pre">std::unordered_map</span></code>. The backend state objects themselves are not moved.
+After a move, the source registry is empty and remains valid; a later insertion
+allocates a fresh map.</p>
+<p>This is a small indirection with a clear lifecycle benefit. The registry is a member
+of the simulation context, whose move contract must not throw after process-lifecycle
+ownership has begun transferring. The invariant is tested at compile time and by
+a runtime ownership-transfer test. The trade-off is one allocation on first use and
+one pointer indirection for registry operations; an empty registry performs no
+allocation.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="architecture_review.html" class="btn btn-neutral float-left" title="OneFLOW Architecture Review and Development Principles" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="database_architecture.html" class="btn btn-neutral float-right" title="Database Architecture and Data Access Contracts" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017-2026, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

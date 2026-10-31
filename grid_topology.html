@@ -1,0 +1,321 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Grid Topology and Validation &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Face Stage Pipeline" href="face_stage_pipeline.html" />
+    <link rel="prev" title="OneFLOW Mesh Architecture" href="mesh_architecture.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">OneFLOW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/index.html">Install</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user.html">THEORY</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_user_guide_zh.html">OneFLOW Workbench 用户手册</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bash.html">Bash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cfd/index.html">CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml.html">yaml</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OneFLOW Design and Development</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="architecture_review.html">OneFLOW Architecture Review and Development Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_architecture.html">OneFLOW Runtime Architecture and Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="database_architecture.html">Database Architecture and Data Access Contracts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evolutionary_computation_architecture.html">Evolutionary Scientific-Computing Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mesh_architecture.html">OneFLOW Mesh Architecture</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Grid Topology and Validation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#purpose-and-implementation-status">Purpose and implementation status</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#topological-meaning-by-dimension">Topological meaning by dimension</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#one-dimension">One dimension</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#two-dimensions">Two dimensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#three-dimensions">Three dimensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cell-dimension-face-dimension-and-element-roles">Cell dimension, face dimension, and element roles</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#boundary-normalization-contract">Boundary normalization contract</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#derived-adjacency-and-cache-refresh">Derived adjacency and cache refresh</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#validation-invariants">Validation invariants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#known-limitation-and-next-audit">Known limitation and next audit</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="face_stage_pipeline.html">Face Stage Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_architecture.html">OneFLOW Workbench Architecture</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="case_parameter_design.html">Case Parameter Design and GUI Editing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Grid Topology and Validation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/grid_topology.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="grid-topology-and-validation">
+<h1>Grid Topology and Validation<a class="headerlink" href="#grid-topology-and-validation" title="Link to this heading"></a></h1>
+<section id="purpose-and-implementation-status">
+<h2>Purpose and implementation status<a class="headerlink" href="#purpose-and-implementation-status" title="Link to this heading"></a></h2>
+<p>This page describes the topology contracts that should remain explicit as OneFLOW’s mesh implementation evolves. It combines the topology-specific material from the repository’s engineering note with the broader <a class="reference internal" href="mesh_architecture.html"><span class="doc">OneFLOW Mesh Architecture</span></a> overview.</p>
+<p>The details below distinguish observed implementation behavior from architectural limitations. In particular, rebuilding derived connectivity is currently an explicit call-path responsibility; it must not be mistaken for automatic cache invalidation.</p>
+</section>
+<section id="topological-meaning-by-dimension">
+<h2>Topological meaning by dimension<a class="headerlink" href="#topological-meaning-by-dimension" title="Link to this heading"></a></h2>
+<section id="one-dimension">
+<h3>One dimension<a class="headerlink" href="#one-dimension" title="Link to this heading"></a></h3>
+<p>For a simple chain of two interval cells, there are three nodes, three point-faces, and two cells:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>node:       0           1           2
+            o-----------o-----------o
+face:       f0          f1          f2
+cell:           c0          c1
+
+face       owner cell       neighbour / boundary
+f0         c0               boundary / ghost
+f1         c0               c1
+f2         c1               boundary / ghost
+</pre></div>
+</div>
+<p>A 1D face is a point, not a line segment. A cell is the interval between nodes. A specialized compact representation is acceptable if it can be converted losslessly to a common face/owner/neighbour interface.</p>
+</section>
+<section id="two-dimensions">
+<h3>Two dimensions<a class="headerlink" href="#two-dimensions" title="Link to this heading"></a></h3>
+<p>A 2D mesh requires node, edge/face, and cell connectivity. Shared edges must identify their adjacent cells consistently; boundary edges need a valid boundary classification. Edge-node ordering and owner/neighbour ordering must agree with the normal convention used by numerical fluxes.</p>
+</section>
+<section id="three-dimensions">
+<h3>Three dimensions<a class="headerlink" href="#three-dimensions" title="Link to this heading"></a></h3>
+<p>For a general polyhedral finite-volume mesh, each face is an ordered loop of nodes, and cells are bounded by faces. A cell’s vertex list can support cell-oriented algorithms, but it does not replace oriented face connectivity when surface normals and flux traversal matter. Explicit edge storage is only required when algorithms consume it directly.</p>
+<p>Across all dimensions, keep geometric dimension, element type, physical boundary, ghost entity, and partition interface as separate concepts. A single ambiguous integer convention must not represent all of them.</p>
+</section>
+<section id="cell-dimension-face-dimension-and-element-roles">
+<h3>Cell dimension, face dimension, and element roles<a class="headerlink" href="#cell-dimension-face-dimension-and-element-roles" title="Link to this heading"></a></h3>
+<p>Use topological cell dimension to determine what a face means. Do not infer a
+universal node-count rule from the name <code class="docutils literal notranslate"><span class="pre">face</span></code>:</p>
+<ul class="simple">
+<li><p>In a 1D mesh, a cell is a segment and a face is a 0D point, represented by one
+node.</p></li>
+<li><p>In a 2D mesh, a cell may be a triangle, quadrilateral, or polygon with at
+least three vertices. Its codimension-one faces are 1D edges, represented by
+two endpoint nodes for a linear mesh.</p></li>
+<li><p>In a 3D mesh, a cell may be a tetrahedron, hexahedron, or general polyhedron.
+Its codimension-one faces are 2D surfaces represented by ordered node loops,
+with at least three nodes.</p></li>
+</ul>
+<p>This is based on <strong>cell dimension</strong>, not coordinate storage dimension. A 2D
+surface mesh embedded in three physical coordinates still has 2D cells and 1D
+edge faces. CGNS distinguishes <code class="docutils literal notranslate"><span class="pre">CellDimension</span></code> from <code class="docutils literal notranslate"><span class="pre">PhysicalDimension</span></code>.</p>
+<p>CGNS element type must be interpreted together with the base cell dimension and
+the other sections in the zone. For a 3D polyhedral volume mesh, <code class="docutils literal notranslate"><span class="pre">NGON_n</span></code>
+records the polygonal faces and <code class="docutils literal notranslate"><span class="pre">NFACE_n</span></code> records each cell as signed face
+references. An <code class="docutils literal notranslate"><span class="pre">NGON_n</span></code> section by itself is not sufficient evidence that the
+zone uses 3D polyhedral cells: it may represent 2D polygonal elements. In that
+2D case its polygons are cells; their edges must be derived as the OneFLOW
+faces. See the <a class="reference external" href="https://cgns.org/standard/SIDS/grid.html">CGNS SIDS grid and element definitions</a>.</p>
+<p><strong>Current implementation boundary:</strong> <code class="docutils literal notranslate"><span class="pre">IsBasicCellElementType</span></code> is the
+dimension-aware gate for OneFLOW cell elements; it currently reads the global
+<code class="docutils literal notranslate"><span class="pre">Dim::dimension</span></code>. Its former <code class="docutils literal notranslate"><span class="pre">Volume</span></code> name was
+misleading because it also accepts 1D line cells and 2D area cells.
+<code class="docutils literal notranslate"><span class="pre">FaceSolver::ScanElementFace</span></code> derives
+2-node edge faces from supported 2D fixed-node cells such as <code class="docutils literal notranslate"><span class="pre">TRI_3</span></code>. The
+polyhedral staging function handles face node loops and requires at least three
+references, which is a 3D polyhedral-face contract. However,
+<code class="docutils literal notranslate"><span class="pre">CgnsZsection::HasPolygonSection</span></code> currently selects the polyhedron path for
+both <code class="docutils literal notranslate"><span class="pre">NGON_n</span></code> and <code class="docutils literal notranslate"><span class="pre">NFACE_n</span></code>. <code class="docutils literal notranslate"><span class="pre">CgnsSection::SetElementTypeAndNode</span></code> only
+stages supported fixed-node cell element types, so a 2D polygonal <code class="docutils literal notranslate"><span class="pre">NGON_n</span></code> cell
+is not currently imported as a cell. Treat this as an explicit format-adapter
+gap; do not relax the 3D polyhedral-face invariant to mask it. Future routing
+must classify by cell dimension and section roles, and add tests for 2D NGON
+cell-to-edge conversion before claiming that input form is supported.
+Canonical and derived topology
+——————————</p>
+<p>The intended roles are:</p>
+<ul class="simple">
+<li><p>Node coordinates describe canonical geometry.</p></li>
+<li><p>Cell type and cell-to-node connectivity are canonical for cell-centric algorithms and interchange formats.</p></li>
+<li><p>Ordered face-to-node connectivity, owner/left cell, neighbour/right cell, and boundary classification are canonical for the current face-based finite-volume model.</p></li>
+<li><p>Boundary labels and face-to-region mappings preserve physical meaning; they are not visualization colors.</p></li>
+<li><p>Cell-to-face and cell-to-cell adjacency are derived structures when they can be regenerated from canonical connectivity.</p></li>
+<li><p>Ghost cells and partition/interface mappings belong to execution and distribution semantics, not to the physical input mesh.</p></li>
+</ul>
+<p>See <a class="reference internal" href="mesh_architecture.html"><span class="doc">OneFLOW Mesh Architecture</span></a> for the mesh information levels, snapshot boundary, and format-adapter design.</p>
+</section>
+</section>
+<section id="boundary-normalization-contract">
+<h2>Boundary normalization contract<a class="headerlink" href="#boundary-normalization-contract" title="Link to this heading"></a></h2>
+<p><cite>UnsGrid::NormalizeBc()</cite> converts imported boundary-face neighbour placeholders into local ghost-cell IDs. For a boundary face with index <cite>iFace</cite>, the normalized right-cell ID is:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>ghostCellId = nCells + iFace
+</pre></div>
+</div>
+<p>The implementation validates real-cell references before changing boundary neighbour IDs. Tests should preserve this failure atomicity: invalid input must not leave only part of the boundary topology normalized.</p>
+<p>The formula is an implementation convention, not a portable interchange-format convention. Exported data must document identifier base and scope explicitly.</p>
+</section>
+<section id="derived-adjacency-and-cache-refresh">
+<h2>Derived adjacency and cache refresh<a class="headerlink" href="#derived-adjacency-and-cache-refresh" title="Link to this heading"></a></h2>
+<p>The current model has distinct source and derived data:</p>
+<ul class="simple">
+<li><p><cite>FaceTopo</cite> owns face-to-node and face-to-cell source connectivity plus boundary classification.</p></li>
+<li><p><cite>CellTopo</cite> stores cell-oriented source data and derived <cite>c2f</cite> and <cite>c2c</cite> adjacency arrays.</p></li>
+<li><p><cite>CellTopo::CalcC2f()</cite> and <cite>FaceTopo::CalcC2C()</cite> rebuild derived connectivity from the current source arrays.</p></li>
+<li><p>Relevant call paths explicitly rebuild adjacency before reading it, including solver initialization and the METIS partition graph path.</p></li>
+</ul>
+<p>These are explicit rebuild operations, not automatic invalidation. Source containers remain publicly mutable, so editing connectivity and then reading old adjacency without rebuilding it can produce stale results. A revision counter alone would not solve this while callers can mutate arrays through exposed references.</p>
+<p>The current targeted rebuild behavior includes:</p>
+<ul class="simple">
+<li><p><cite>CellMesh::CalcCellSpan()</cite> rebuilds <cite>c2f</cite> and recalculates spans instead of returning early merely because a span array is non-empty.</p></li>
+<li><p><cite>ScalarGrid::CalcC2C(EList&amp;)</cite> reconstructs adjacency from current face connectivity rather than trusting a non-empty caller-provided list.</p></li>
+<li><p><cite>FaceTopo::ReorderLink()</cite> applies one permutation to populated face-indexed arrays, including face types, face-position arrays, and flags, and clears <cite>c2f</cite> because it stores face IDs. Boundary-condition records remain in their original boundary-face order because the permutation preserves the relative order of boundary faces.</p></li>
+</ul>
+<p>These targeted fixes do not establish repository-wide automatic cache coherence. Callers must still rebuild derived data after changing source connectivity. Broader invalidation should follow an audit of actual direct reads and a clear boundary around topology mutation, rather than adding a revision counter that cannot observe direct edits.</p>
+</section>
+<section id="validation-invariants">
+<h2>Validation invariants<a class="headerlink" href="#validation-invariants" title="Link to this heading"></a></h2>
+<p>Use small hand-constructed meshes with known expected connectivity. At minimum, verify:</p>
+<ol class="arabic simple">
+<li><p>Counts agree with the arrays they describe; all node and cell references are in range.</p></li>
+<li><p>An internal face connects two distinct real cells.</p></li>
+<li><p>Before ghost normalization, a boundary face references exactly one real cell and has a valid boundary classification.</p></li>
+<li><p>Face-node ordering and owner/neighbour ordering obey the solver’s orientation convention.</p></li>
+<li><p>Face-indexed metadata stays aligned after reordering.</p></li>
+<li><p>Interface maps refer to valid faces and zones and use documented ID scopes.</p></li>
+<li><p>A read-normalize-write-read round trip preserves counts, coordinates, face connectivity, internal owner/neighbour pairs, boundary labels, and interface mappings when the format claims to preserve them.</p></li>
+<li><p>Tiny 1D and higher-dimensional fixtures verify adjacency, orientation, positive cell measures where defined, and shared-face traversal suitable for conservation checks.</p></li>
+</ol>
+<p>A useful test ladder is local connectivity tests, boundary-normalization tests, derived-data rebuild tests, reorder consistency tests, round-trip conversion tests, and finally full CFD regressions. Solver output comparisons complement these tests; they do not replace geometry and topology validation.</p>
+</section>
+<section id="known-limitation-and-next-audit">
+<h2>Known limitation and next audit<a class="headerlink" href="#known-limitation-and-next-audit" title="Link to this heading"></a></h2>
+<p>The topology containers still expose mutable source arrays. The implementation therefore relies on explicit rebuild sequencing. Before introducing a general invalidation API, audit direct reads of <cite>c2f</cite>, <cite>c2c</cite>, and related derived values outside the known solver-initialization and partition paths. Any change should be driven by a demonstrated call path and covered by a focused regression test.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="mesh_architecture.html" class="btn btn-neutral float-left" title="OneFLOW Mesh Architecture" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="face_stage_pipeline.html" class="btn btn-neutral float-right" title="Face Stage Pipeline" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017-2026, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

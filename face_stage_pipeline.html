@@ -1,0 +1,1810 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Face Stage Pipeline &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="OneFLOW Workbench Architecture" href="workbench_architecture.html" />
+    <link rel="prev" title="Grid Topology and Validation" href="grid_topology.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">OneFLOW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/index.html">Install</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user.html">THEORY</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_user_guide_zh.html">OneFLOW Workbench 用户手册</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bash.html">Bash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cfd/index.html">CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml.html">yaml</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OneFLOW Design and Development</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="architecture_review.html">OneFLOW Architecture Review and Development Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_architecture.html">OneFLOW Runtime Architecture and Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="database_architecture.html">Database Architecture and Data Access Contracts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evolutionary_computation_architecture.html">Evolutionary Scientific-Computing Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mesh_architecture.html">OneFLOW Mesh Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grid_topology.html">Grid Topology and Validation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Face Stage Pipeline</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#purpose-and-status">Purpose and status</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#goals">Goals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#why-this-local-refactor-exists">Why this local refactor exists</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#architecture-map-local-refactor-status">Architecture map (local refactor status)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#what-this-local-refactor-is-for">What this local refactor is for</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#gridelem-orchestration">GridElem orchestration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pipeline-overview">Pipeline overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#polyhedral-face-staging-and-deduplication">Polyhedral-face staging and deduplication</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#boundary-bc-export-and-reorder">Boundary BC export and reorder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#face-identity-versus-orientation">Face identity versus orientation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bc-classification-and-cgns-mapping">BC classification and CGNS mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#interface-split-helpers">Interface split helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#candidate-resolution-and-local-mapping">Candidate resolution and local mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#interface-mapping-names-and-design-rules">Interface mapping names and design rules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#line-midpoint-split-algorithm">Line midpoint split algorithm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#interface-mapping-algorithm">Interface mapping algorithm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#boundary-condition-assignment-algorithm">Boundary-condition assignment algorithm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#face-ownership-algorithm">Face ownership algorithm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#staged-parallel-array-growth">Staged parallel-array growth</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#boundary-first-reorder-algorithm">Boundary-first reorder algorithm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ifacelink-dual-map-boundary">IFaceLink dual-map boundary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#parent-relative-child-mapping-algorithm">Parent-relative child mapping algorithm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#geometry-workbench-parallel-to-refactor">Geometry workbench (parallel to refactor)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#local-refactor-scorecard">Local refactor scorecard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#investment-priority-do-not-spread-effort-evenly">Investment priority (do not spread effort evenly)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#multi-zone-interface-split-composed-scenario">Multi-zone interface split (composed scenario)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#workbench-host-and-oneflow-gui">Workbench host and OneFLOW GUI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#line-interface-split-algorithm-stages">Line interface split (algorithm stages)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#documentation-from-code-comments">Documentation from code comments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#open-design-pressures">Open design pressures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pr-checklist-executable-norm">PR checklist (executable norm)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#always">Always</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#change-type-matrix">Change type matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#suggested-pr-description-lines">Suggested PR description lines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#related-pages">Related pages</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#source-anchors">Source anchors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#registered-child-face-resolution">Registered child-face resolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#point-location-tolerance-and-search-stages">Point-location tolerance and search stages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#const-correct-access-and-pointer-ownership">Const-correct access and pointer ownership</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_architecture.html">OneFLOW Workbench Architecture</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="case_parameter_design.html">Case Parameter Design and GUI Editing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Face Stage Pipeline</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/face_stage_pipeline.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="face-stage-pipeline">
+<h1>Face Stage Pipeline<a class="headerlink" href="#face-stage-pipeline" title="Link to this heading"></a></h1>
+<section id="purpose-and-status">
+<h2>Purpose and status<a class="headerlink" href="#purpose-and-status" title="Link to this heading"></a></h2>
+<p>This page records the <strong>staged face</strong> construction path used when building
+unstructured calculation grids from scanned elements and CGNS boundary data.
+It complements <a class="reference internal" href="grid_topology.html"><span class="doc">Grid Topology and Validation</span></a> (runtime topology contracts) and
+<a class="reference internal" href="mesh_architecture.html"><span class="doc">OneFLOW Mesh Architecture</span></a> (information levels). Implementation and tests take
+precedence if this page lags the code.</p>
+<p>The page is maintained next to the code changes it describes so the design
+handbook grows with the product rather than as a separate late write-up.</p>
+</section>
+<section id="goals">
+<h2>Goals<a class="headerlink" href="#goals" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p>One controlled write path for new faces and boundary-condition slots.</p></li>
+<li><p>Parallel face arrays stay length-aligned (topology, flags, BC, child lists).</p></li>
+<li><p>Boundary BC export and face reordering keep a checkable contract.</p></li>
+<li><p>Face <em>identity</em> (deduplication) stays separate from face <em>orientation</em>
+(node ring and left/right ownership).</p></li>
+</ol>
+</section>
+<section id="why-this-local-refactor-exists">
+<h2>Why this local refactor exists<a class="headerlink" href="#why-this-local-refactor-exists" title="Link to this heading"></a></h2>
+</section>
+<section id="architecture-map-local-refactor-status">
+<h2>Architecture map (local refactor status)<a class="headerlink" href="#architecture-map-local-refactor-status" title="Link to this heading"></a></h2>
+<p>This is the intentional end state of the <strong>current</strong> local refactor, not a
+wishlist for the whole solver.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 35.0%" />
+<col style="width: 35.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Area</p></th>
+<th class="head"><p>Closed</p></th>
+<th class="head"><p>Still open</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Face discovery / stage</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">StageNewFace</span></code>, Claim/Attach/Bind,
+BC assign/export, boundary-first reorder</p></td>
+<td><p>End-to-end CGNS zone fixtures</p></td>
+</tr>
+<tr class="row-odd"><td><p>Interface dual maps</p></td>
+<td><p>Register / Init / Commit pure helpers;
+zone bookkeeping accessors;
+dual-map fields private;
+multi-zone split e2e composition
+(<code class="docutils literal notranslate"><span class="pre">MultiZoneInterfaceSplitE2ETest</span></code>)</p></td>
+<td><p>Whether to strip orphan inverse rows
+(detection: <code class="docutils literal notranslate"><span class="pre">CollectUnreferencedGlobalInterfaceFaces</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>IFaceLink services</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">faceLookup</span></code>, <code class="docutils literal notranslate"><span class="pre">point_search</span></code>,
+<code class="docutils literal notranslate"><span class="pre">face_search</span></code> private + accessors;
+injectable <code class="docutils literal notranslate"><span class="pre">PointLocator</span></code>
+(<code class="docutils literal notranslate"><span class="pre">ReplacePointLocator</span></code>)</p></td>
+<td><p>Production ADT still needs nodeMesh
+for non-injected paths</p></td>
+</tr>
+<tr class="row-odd"><td><p>Child mapping after split</p></td>
+<td><p>Parent-specific <code class="docutils literal notranslate"><span class="pre">ByParent</span></code> tables;
+two-parent shared-child test;
+multi-zone split e2e without CGNS;
+pure line midpoint + candidate maps</p></td>
+<td><p>Production still needs locator +
+zone <code class="docutils literal notranslate"><span class="pre">nodeMesh</span></code> (pure prefix locked by
+<code class="docutils literal notranslate"><span class="pre">LineSplitPureStagesTest</span></code>)</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Rule of thumb:</strong> if a change only renames a pure predicate already covered
+by tests, skip it. Prefer closing an open row in this table.</p>
+</section>
+<section id="what-this-local-refactor-is-for">
+<h2>What this local refactor is for<a class="headerlink" href="#what-this-local-refactor-is-for" title="Link to this heading"></a></h2>
+<p>The geometry stack once mixed <strong>discovery</strong>, <strong>ownership</strong>, and <strong>physics labels</strong>
+in the same loops, with multi-zone interface tables as public data bags. The
+local refactor is not a rewrite of the CFD solver; it is a <strong>boundary-drawing</strong>
+exercise on the face/interface path so that:</p>
+<ol class="arabic simple">
+<li><p>Each job has a named write path (stage/claim/bind, dual-map Register/Init/Commit,
+BC export + boundary-first reorder as one transaction).</p></li>
+<li><p>Invariants are checkable in <code class="docutils literal notranslate"><span class="pre">tests/geometry</span></code> without a full CGNS case.</p></li>
+<li><p>Hard edges (ADT point search, multi-zone split rebuild) become ports with
+accessors or injection, not more public fields.</p></li>
+</ol>
+<p>If a change does not make a contract easier to state or test, it is probably
+detail noise. Prefer closing a row in the architecture map over renaming a
+stable pure predicate.</p>
+<p>The face / interface / BC path used to interleave <strong>three different jobs</strong> in
+the same loops:</p>
+<ol class="arabic simple">
+<li><p><strong>Discover</strong> unique faces while scanning elements (geometry identity).</p></li>
+<li><p><strong>Own</strong> each face from the left and right cells (topology).</p></li>
+<li><p><strong>Label</strong> boundary faces from CGNS BOCO vertex sets (physics BC).</p></li>
+</ol>
+<p>Those jobs share parallel arrays (<code class="docutils literal notranslate"><span class="pre">faces</span></code>, left/right cells, BC slots,
+<code class="docutils literal notranslate"><span class="pre">l2g</span></code> / <code class="docutils literal notranslate"><span class="pre">gI2Zid</span></code>). Before the staged APIs, alignment was accidental: each
+scan path did its own <code class="docutils literal notranslate"><span class="pre">push_back</span></code>. Unit tests had to stand up a full CGNS
+zone to assert a single rule.</p>
+<p>The local refactor’s meaning is therefore not “more free functions”. It is:</p>
+<ul class="simple">
+<li><p><strong>One growth contract</strong> – <code class="docutils literal notranslate"><span class="pre">StageNewFace</span></code> and
+<code class="docutils literal notranslate"><span class="pre">StagedBcMatchesFaceCount</span></code> so parallel arrays stay aligned by construction.</p></li>
+<li><p><strong>Named write paths</strong> – Claim / Attach / Bind / <code class="docutils literal notranslate"><span class="pre">SetStagedFaceBc</span></code> so
+ownership and BC are not ad-hoc index writes.</p></li>
+<li><p><strong>Pure rules extracted from adapters</strong> – eligibility, vertex-set match,
+boundary-first permutation, interface dual maps – so intent is unit-tested
+without CGNS.</p></li>
+<li><p><strong>Documented algorithms</strong> on this page so the next change can see the
+<em>pipeline</em>, not only the last helper.</p></li>
+</ul>
+<p>What remains hard (see <a class="reference internal" href="#open-design-pressures">Open design pressures</a>) is still the right backlog:
+<code class="docutils literal notranslate"><span class="pre">IFaceLink</span></code> public tables, <code class="docutils literal notranslate"><span class="pre">PointLocator</span></code> injection, parent-relative child
+mappings after interface split, and true end-to-end CGNS fixtures. Prefer
+closing those seams over extracting another one-line predicate.</p>
+</section>
+<section id="gridelem-orchestration">
+<h2>GridElem orchestration<a class="headerlink" href="#gridelem-orchestration" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">GridElem</span></code> is the <strong>conductor</strong> for one zone’s calculation grid. It does not
+implement face identity or BC matching; it sequences already-tested steps:</p>
+<ol class="arabic simple">
+<li><p>Scan elements into <code class="docutils literal notranslate"><span class="pre">FaceSolver</span></code> (stage / claim / bind).</p></li>
+<li><p>Scan BOCO into staged BC (<code class="docutils literal notranslate"><span class="pre">AssignBcToMatchingFaces</span></code> / residual fill).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">AppendBoundaryBcToRecord</span></code> – export boundary BC in discovery order.</p></li>
+<li><p>Move <code class="docutils literal notranslate"><span class="pre">FaceTopo</span></code> onto <code class="docutils literal notranslate"><span class="pre">UnsGrid</span></code>, map CGNS BC ids
+(<code class="docutils literal notranslate"><span class="pre">BcTypeMap::MapFromCgnsInPlace</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ReorderBoundaryFirstAndValidate</span></code> – boundary-first face order and
+<code class="docutils literal notranslate"><span class="pre">BcRecord</span></code> layout check as <strong>one</strong> post-stage transaction.</p></li>
+</ol>
+<p>If a rule can be stated without <code class="docutils literal notranslate"><span class="pre">GridElem</span></code> or <code class="docutils literal notranslate"><span class="pre">CgnsSection</span></code>, it belongs in a
+pure helper and a geometry unit test. <code class="docutils literal notranslate"><span class="pre">GridElem</span></code> should stay thin.</p>
+</section>
+<section id="pipeline-overview">
+<h2>Pipeline overview<a class="headerlink" href="#pipeline-overview" title="Link to this heading"></a></h2>
+<p>Orchestration is in <code class="docutils literal notranslate"><span class="pre">GridElem</span></code>; mutation rules live in <code class="docutils literal notranslate"><span class="pre">FaceSolver</span></code> and
+<code class="docutils literal notranslate"><span class="pre">FaceTopo</span></code>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Scan</span> <span class="n">volume</span> <span class="o">/</span> <span class="n">polygon</span> <span class="o">/</span> <span class="n">polyhedron</span> <span class="n">elements</span>
+    <span class="o">-&gt;</span> <span class="n">FaceSolver</span><span class="p">::</span><span class="n">StageNewFace</span> <span class="o">/</span> <span class="n">Claim</span> <span class="o">|</span> <span class="n">Attach</span> <span class="o">|</span> <span class="n">Bind</span>
+<span class="n">Scan</span> <span class="n">BC</span> <span class="p">(</span><span class="n">CGNS</span> <span class="n">BOCO</span><span class="p">)</span>
+    <span class="o">-&gt;</span> <span class="n">AssignBcToMatchingFaces</span> <span class="o">/</span> <span class="n">SetStagedFaceBc</span>
+<span class="n">GenerateCalcElement</span>
+    <span class="o">-&gt;</span> <span class="n">AppendBoundaryBcToRecord</span>
+<span class="n">GenerateCalcGrid</span>
+    <span class="o">-&gt;</span> <span class="n">ReleaseFaceTopo</span>
+    <span class="o">-&gt;</span> <span class="n">BcTypeMap</span><span class="p">::</span><span class="n">MapFromCgnsInPlace</span>
+    <span class="o">-&gt;</span> <span class="n">FaceTopo</span><span class="p">::</span><span class="n">ReorderLink</span>
+    <span class="o">-&gt;</span> <span class="n">ValidateBoundaryBcLayout</span>
+</pre></div>
+</div>
+</section>
+<section id="polyhedral-face-staging-and-deduplication">
+<h2>Polyhedral-face staging and deduplication<a class="headerlink" href="#polyhedral-face-staging-and-deduplication" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">GridElem::ScanPolyhedralFaces</span></code> forwards only <code class="docutils literal notranslate"><span class="pre">NGON_n</span></code> sections to
+<code class="docutils literal notranslate"><span class="pre">FaceSolver::StagePolyhedralFacesFromConnectivity</span></code>. The staging algorithm has a
+validation phase followed by a mutation phase:</p>
+<ol class="arabic simple">
+<li><p>Validate the offset table has one boundary offset per polyhedral face plus one.</p></li>
+<li><p>Validate every face span is ordered and lies within the connectivity array.</p></li>
+<li><p>Reject any 3D polyhedral face with fewer than three node references.</p></li>
+<li><p>Only after all spans pass, build each node ring and query <code class="docutils literal notranslate"><span class="pre">faceLookup</span></code>.</p></li>
+<li><p>Call <code class="docutils literal notranslate"><span class="pre">StageNewFace</span></code> only for a new undirected identity; duplicate rings
+reuse the existing staged face.</p></li>
+</ol>
+<p>Validating the full section before lookup or topology mutation gives malformed
+later faces a strong no-partial-staging guarantee. Deduplication identifies a
+face by its node set; the stored ring remains the first-seen ordering used by
+later orientation/ownership logic. The current staging contract checks the
+number of node references for a 3D polyhedral face but does not reject repeated
+node IDs within a ring. This minimum does not apply to 2D edge faces.</p>
+<p>This routine is valid only for 3D polyhedral face connectivity. The current
+<code class="docutils literal notranslate"><span class="pre">GridElem::HasPolygonSection</span></code> dispatch still treats either <code class="docutils literal notranslate"><span class="pre">NGON_n</span></code> or
+<code class="docutils literal notranslate"><span class="pre">NFACE_n</span></code> as a signal to enter this path; dimension-aware classification of
+NGON-only sections is a documented adapter gap in <a class="reference internal" href="grid_topology.html"><span class="doc">Grid Topology and Validation</span></a>.</p>
+<p><strong>Tests:</strong> <code class="docutils literal notranslate"><span class="pre">FaceSolverStageTest.StagePolyhedralFacesRejectsFewerThanThreeNodes</span></code>
+and <code class="docutils literal notranslate"><span class="pre">FaceSolverStageTest.StagePolyhedralFacesValidatesAllSpansBeforeStaging</span></code>.
+<code class="docutils literal notranslate"><span class="pre">FaceSolverStageTest.TwoDimensionalTriangleCreatesTwoNodeEdgeFaces</span></code> locks the
+separate 2D cell-to-edge path.
+Staged face invariant
+———————</p>
+<p><code class="docutils literal notranslate"><span class="pre">StageNewFace</span></code> grows the following together:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">FaceTopo</span></code> faces, types, flags, left/right cells, and face-local positions</p></li>
+<li><p>staged BC slots (private; read through <code class="docutils literal notranslate"><span class="pre">GetStagedBcType</span></code> /
+<code class="docutils literal notranslate"><span class="pre">GetStagedBcNameId</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">childFid</span></code> slots (private; read through <code class="docutils literal notranslate"><span class="pre">GetChildFaceIds</span></code>)</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">StagedBcMatchesFaceCount</span></code> is the named alignment check.</p>
+<p>Post-stage writes:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 35.0%" />
+<col style="width: 65.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>API</p></th>
+<th class="head"><p>Role</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">SetStagedFaceBc</span></code></p></td>
+<td><p>Sole BC write path after stage</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ClaimStagedFaceAsLeft</span></code> / <code class="docutils literal notranslate"><span class="pre">AttachStagedFaceAsRight</span></code></p></td>
+<td><p>Polygon ownership</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">BindCellToExistingFace</span></code></p></td>
+<td><p>Traditional element faces</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Tests:</strong> <code class="docutils literal notranslate"><span class="pre">FaceSolverStageTest</span></code>, <code class="docutils literal notranslate"><span class="pre">FaceSolverLifecycleTest</span></code>.</p>
+</section>
+<section id="boundary-bc-export-and-reorder">
+<h2>Boundary BC export and reorder<a class="headerlink" href="#boundary-bc-export-and-reorder" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">AppendBoundaryBcToRecord</span></code> walks faces in current order and, for each face
+with <code class="docutils literal notranslate"><span class="pre">right</span> <span class="pre">==</span> <span class="pre">INVALID_INDEX</span></code>, appends staged BC into <code class="docutils literal notranslate"><span class="pre">BcRecord</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ReorderLink</span></code> applies <code class="docutils literal notranslate"><span class="pre">BuildBoundaryFirstPermutation(rightCells)</span></code> so
+boundary faces form a prefix while preserving relative order within the
+boundary group and within the interior group.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ValidateBoundaryBcLayout</span></code> requires:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">BcRecord</span></code> size equals the boundary face count</p></li>
+<li><p>faces <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">nB)</span></code> are boundary and <code class="docutils literal notranslate"><span class="pre">[nB,</span> <span class="pre">n)</span></code> are interior</p></li>
+</ul>
+</li>
+</ol>
+<p>Because the permutation preserves boundary relative order, <code class="docutils literal notranslate"><span class="pre">BcRecord</span></code> need
+not be permuted separately after a correct <code class="docutils literal notranslate"><span class="pre">ReorderLink</span></code>.</p>
+<p><strong>Tests:</strong> <code class="docutils literal notranslate"><span class="pre">FaceTopoReorderLinkTest</span></code> (permutation, layout validation).</p>
+</section>
+<section id="face-identity-versus-orientation">
+<h2>Face identity versus orientation<a class="headerlink" href="#face-identity-versus-orientation" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 40.0%" />
+<col style="width: 60.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Mechanism</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">HXKey</span></code> / <code class="docutils literal notranslate"><span class="pre">HXLookup</span></code> / <code class="docutils literal notranslate"><span class="pre">FaceSearchBasic</span></code></p></td>
+<td><p>Undirected identity: node ids are sorted for deduplication</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">GetFaceNodeRing</span></code> / left-right cells</p></td>
+<td><p>Orientation: first-seen node ring and cell ownership</p></td>
+</tr>
+</tbody>
+</table>
+<p>The same node set in any order must not create a second internal face record.
+Flux orientation uses ring order and left/right (or signed references), not a
+second identity entry.</p>
+<p><strong>Tests:</strong> <code class="docutils literal notranslate"><span class="pre">HXLookupTest</span></code>, <code class="docutils literal notranslate"><span class="pre">FaceSearchBasicTest</span></code>.</p>
+</section>
+<section id="bc-classification-and-cgns-mapping">
+<h2>BC classification and CGNS mapping<a class="headerlink" href="#bc-classification-and-cgns-mapping" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>After export, CGNS type ids are converted with
+<code class="docutils literal notranslate"><span class="pre">BcTypeMap::MapFromCgnsInPlace</span></code> (<strong>test:</strong> <code class="docutils literal notranslate"><span class="pre">BcTypeMapTest</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BC::IsInterfaceBc</span></code> treats <code class="docutils literal notranslate"><span class="pre">BC::INTERFACE</span></code> and any negative code as
+interface (historical convention; <strong>test:</strong> <code class="docutils literal notranslate"><span class="pre">BcClassificationTest</span></code>).</p></li>
+</ul>
+<p>Region names use injectable <code class="docutils literal notranslate"><span class="pre">RegionNameRegistry</span></code>; <code class="docutils literal notranslate"><span class="pre">RegionNameMap</span></code> and
+<code class="docutils literal notranslate"><span class="pre">VolumeNameMap</span></code> provide separate process-wide defaults.
+<code class="docutils literal notranslate"><span class="pre">RegisterRegionNames</span></code> encodes ordered name-id assignment for BOCO-like loops
+(<strong>test:</strong> <code class="docutils literal notranslate"><span class="pre">RegionNameRegistryTest</span></code>).</p>
+</section>
+<section id="interface-split-helpers">
+<h2>Interface split helpers<a class="headerlink" href="#interface-split-helpers" title="Link to this heading"></a></h2>
+<p>The split table uses two index domains because face identity and
+parent-relative reconstruction are different concepts:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">childFaceIdsOfParent[globalParentFaceId]</span></code> lists global child face IDs.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">childFaceNodeIds[globalChildFaceId]</span></code> and
+<code class="docutils literal notranslate"><span class="pre">childFaceNodeFlags[globalChildFaceId]</span></code> are legacy child-indexed
+mapping rows retained for compatibility.</p></li>
+</ul>
+</section>
+<section id="candidate-resolution-and-local-mapping">
+<h2>Candidate resolution and local mapping<a class="headerlink" href="#candidate-resolution-and-local-mapping" title="Link to this heading"></a></h2>
+<p>For a quad, <code class="docutils literal notranslate"><span class="pre">BuildQuadDiagonalLocalTris</span></code> emits four candidate triangles in
+two possible diagonal decompositions. These candidates are ordered by the
+algorithm, not by which faces happen to have been registered globally.
+<code class="docutils literal notranslate"><span class="pre">ResolveRegisteredChildFaces</span></code> therefore returns a pair for each match:
+<code class="docutils literal notranslate"><span class="pre">globalFaceId</span></code> identifies the registered face, while <code class="docutils literal notranslate"><span class="pre">candidateIndex</span></code>
+points back to the original candidate triangle.</p>
+<p>The distinction matters for partial matches. If only candidate 3 is registered,
+it is still candidate 3 for local-node and flag lookup; it must not become
+candidate 0 merely because it is the first item in the filtered result. The
+C++ integration tests <code class="docutils literal notranslate"><span class="pre">QuadSplitUsesOriginalCandidateIndexForPartialMatch</span></code>
+and <code class="docutils literal notranslate"><span class="pre">QuadSplitPreservesLastCandidateIndexForPartialMatch</span></code> check this through
+<code class="docutils literal notranslate"><span class="pre">FaceSearch::SplitQuad2Tri</span></code> and its published parent-relative mapping, rather
+than testing the resolver in isolation.</p>
+<p>This is a small but useful architectural boundary: identity resolution decides
+which global children exist; the original candidate index preserves the
+relationship between that identity and the geometric decomposition. Keeping
+both values together prevents a filtered list from silently changing the
+meaning of a local mapping row.
+* <code class="docutils literal notranslate"><span class="pre">childFaceNodeIdsByParent[globalParentFaceId]</span></code> and</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">childFaceNodeFlagsByParent[globalParentFaceId]</span></code> store the preferred
+mappings aligned by child position within that parent’s child list.</p>
+</div></blockquote>
+<p><code class="docutils literal notranslate"><span class="pre">ResetForFaceCount</span></code> sizes the global-ID-indexed tables to the global face
+count. Parent-specific rows are aligned to <code class="docutils literal notranslate"><span class="pre">childFaceIdsOfParent[parent]</span></code>,
+not indexed by child ID. A flag of <code class="docutils literal notranslate"><span class="pre">1</span></code> means the corresponding node ID is
+a corner index in the parent face ring; other flag values retain the mapping
+semantics defined by the split builder.</p>
+<p>This distinction is required when a global child face is shared by multiple
+parents. The child ID can be shared because face identity is order-independent,
+but local corner indices belong to a particular parent ring. For example, the
+same triangle with global nodes <cite>B, C, D</cite> can be described by local corners
+<cite>[1, 2, 3]</cite> in a parent ring <cite>[A, B, C, D]</cite> and <cite>[0, 1, 2]</cite> in a
+different parent ring <cite>[B, C, D, E]</cite>. Reusing one child’s
+mapping row for both parents would reconstruct the wrong ordered node ring for
+at least one consumer.</p>
+<p>The production path therefore prefers parent-specific rows when collecting
+node mappings for interface rebuild. Legacy global-child rows are a fallback
+only when both parent-specific rows are absent or empty. If either new row is
+present but the pair does not align with the parent’s child count, collection
+throws instead of silently masking malformed new-format metadata. An empty
+child list is not an error: it means the parent was not split, so the rebuild
+preserves that face without requiring node mapping metadata.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">GetInterfaceChildFaceIds(l2g,</span> <span class="pre">splitTable,</span> <span class="pre">zone,</span> <span class="pre">local)</span></code> resolves
+parent-to-child identity and validates the local and parent lookup indices.
+It cannot validate child IDs against the global face count because the split
+table does not own that count. It deliberately does not inspect node mapping
+rows; <code class="docutils literal notranslate"><span class="pre">CollectBoundaryInterfaceChildNodeMappings</span></code> selects parent-specific
+rows or the legacy fallback and validates the selected representation. It
+stages both output tables locally and publishes them only after every
+interface entry is valid, so a later malformed parent cannot expose a
+partial result (<strong>tests:</strong> <code class="docutils literal notranslate"><span class="pre">InterfaceChildFaceIdsTest</span></code>,
+<code class="docutils literal notranslate"><span class="pre">CollectBoundaryInterfaceChildCountsTest</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">RebuildFaceNodeListsTest.MappingCollectorDoesNotPublishPartialOutputs</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ValidateGlobalFaceMapping</span></code> / <code class="docutils literal notranslate"><span class="pre">ValidateGlobalFaceMappings</span></code> check
+<code class="docutils literal notranslate"><span class="pre">gI2Zid</span></code> / <code class="docutils literal notranslate"><span class="pre">g2l</span></code> alignment (<strong>test:</strong> <code class="docutils literal notranslate"><span class="pre">GlobalFaceMappingTest</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RegisterLocalInterfaceFace</span></code> records <code class="docutils literal notranslate"><span class="pre">l2g</span></code> / <code class="docutils literal notranslate"><span class="pre">gI2Zid</span></code> / <code class="docutils literal notranslate"><span class="pre">g2l</span></code> when a
+local interface face joins a global id, and rejects duplicate registration
+of the same zone/local-face pair (<strong>test:</strong>
+<code class="docutils literal notranslate"><span class="pre">RegisterLocalInterfaceFaceTest</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">FindRemoteInterfacePartner</span></code> selects a non-self zone/local pair only
+when the exact caller (zone and local face) is registered on that global
+face. If the caller is absent, it returns <code class="docutils literal notranslate"><span class="pre">false</span></code> without changing output
+arguments, rather than returning an unrelated participant (<strong>test:</strong>
+<code class="docutils literal notranslate"><span class="pre">FindRemoteInterfacePartnerTest</span></code>). <code class="docutils literal notranslate"><span class="pre">MatchInterfaceTopology</span></code> resets
+the stored remote zone and local-face slots to <code class="docutils literal notranslate"><span class="pre">-1</span></code> before each lookup, so
+a rematch cannot retain a partner from an earlier mapping state.
+<code class="docutils literal notranslate"><span class="pre">MatchPeriodicInterface</span></code> preserves the existing topological partner for
+faces with exactly two zone participants. For other faces, it clears both
+partner fields before geometric matching; a failed point/face lookup therefore
+leaves the face explicitly unmatched instead of retaining a stale partner.
+The periodic partner row is scanned for the first participant other than the
+current zone/local-face pair. A self-only row leaves the face unmatched, and
+mismatched zone/local row lengths are rejected (<strong>tests:</strong>
+<code class="docutils literal notranslate"><span class="pre">FindPeriodicInterfacePartnerTest</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CountInterfaceFacesMissingPartner</span></code> counts local interface faces whose
+global face has fewer than two zone slots (<strong>test:</strong>
+<code class="docutils literal notranslate"><span class="pre">CountInterfaceFacesMissingPartnerTest</span></code>). The runtime diagnostic is
+therefore labeled “Interface faces missing a partner”, not “Periodic boundary
+faces”: this counter examines the interface mapping tables and does not
+independently classify periodic boundaries. Faces with more than two zone
+slots remain excluded for legacy compatibility; that policy is not changed
+by the diagnostic wording correction.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ExpandBcRecordForSplitInterfaces</span></code> repeats BC slots when an interface face
+splits into children (<strong>test:</strong> <code class="docutils literal notranslate"><span class="pre">ExpandBcRecordSplitTest</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RegisterLocalInterfaceFace</span></code> constructs the initial global-face participant
+rows. A global face supports at most two zone participants; attempting to
+register a third participant now throws before changing <code class="docutils literal notranslate"><span class="pre">l2g</span></code>, <code class="docutils literal notranslate"><span class="pre">gI2Zid</span></code>,
+or <code class="docutils literal notranslate"><span class="pre">g2l</span></code> (<strong>test:</strong> <code class="docutils literal notranslate"><span class="pre">RegisterLocalInterfaceFaceTest</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BuildInverseInterfaceMapForZone</span></code> refreshes the inverse references for
+one zone from its rebuilt <code class="docutils literal notranslate"><span class="pre">l2gNew</span></code> row. Since <code class="docutils literal notranslate"><span class="pre">InitNewInterfaceMappingBuffers</span></code>
+starts from copies of the live inverse maps, a rebuild must update the
+existing zone slot’s local-face index rather than append that zone a second
+time. If the zone is absent, it is appended only when the global face has
+fewer than two participants. The legacy policy still silently ignores a
+third distinct participant rather than expanding the data model. This differs
+from initial registration, which rejects unsupported topology early. The
+routine validates all global-face IDs, per-zone uniqueness, and existing
+referenced rows before mutation (<strong>tests:</strong>
+<code class="docutils literal notranslate"><span class="pre">BuildInverseInterfaceMapTest.RefreshesExistingZoneSlotDuringRebuild</span></code>,
+<code class="docutils literal notranslate"><span class="pre">BuildInverseInterfaceMapTest.DoesNotDuplicateExistingZoneParticipant</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RebuildZoneL2gNewAfterInterfaceSplit</span></code> rebuilds one zone’s <code class="docutils literal notranslate"><span class="pre">l2gNew</span></code> /
+<code class="docutils literal notranslate"><span class="pre">nChild</span></code> when parents split. It validates all parent and child global IDs
+before clearing either output, so a negative ID cannot leave a partial
+candidate map (<strong>tests:</strong> <code class="docutils literal notranslate"><span class="pre">RebuildZoneL2gNewTest</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RebuildFaceCellSidesAfterInterfaceSplit</span></code> expands left cells and assigns
+ghost right cells after interface splits (<strong>test:</strong>
+<code class="docutils literal notranslate"><span class="pre">RebuildFaceCellSidesTest</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CollectBoundaryInterfaceChildFaceIds</span></code> walks boundary BC types and records
+per-interface child global-id lists; <code class="docutils literal notranslate"><span class="pre">CollectBoundaryInterfaceChildCounts</span></code>
+is the size-only view (<strong>test:</strong>
+<code class="docutils literal notranslate"><span class="pre">CollectBoundaryInterfaceChildCountsTest</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RebuildFaceNodeListsAfterInterfaceSplit</span></code> rebuilds face-to-node lists after
+interface splits (<strong>test:</strong> <code class="docutils literal notranslate"><span class="pre">RebuildFaceNodeListsTest</span></code>).</p></li>
+<li><p>Quad diagonal candidates:
+<code class="docutils literal notranslate"><span class="pre">BuildQuadDiagonalLocalTris</span></code> enumerates four candidates, not one selected
+triangulation: rows 0-1 use diagonal 0-2 and rows 2-3 use diagonal 1-3.
+For local corners <code class="docutils literal notranslate"><span class="pre">0,</span> <span class="pre">1,</span> <span class="pre">2,</span> <span class="pre">3</span></code>, the expected pairs are
+<code class="docutils literal notranslate"><span class="pre">(0,1,2)</span> <span class="pre">+</span> <span class="pre">(2,3,0)</span></code> and <code class="docutils literal notranslate"><span class="pre">(3,0,1)</span> <span class="pre">+</span> <span class="pre">(1,2,3)</span></code>. Each pair must
+preserve the four boundary edges and share its diagonal exactly once per
+triangle. <code class="docutils literal notranslate"><span class="pre">FaceSearch::SplitQuad2Tri</span></code> then maps all four candidates to
+global node IDs and keeps only triangles already found by <code class="docutils literal notranslate"><span class="pre">FindFace</span></code> in
+the global face registry. Thus the runtime result depends on the registry:
+when only one diagonal is registered, exactly its two triangle faces should
+be recorded (test: <code class="docutils literal notranslate"><span class="pre">FaceSearchBasicTest.QuadSplitUsesOnlyRegisteredTrianglesForOneDiagonal</span></code>).
+<code class="docutils literal notranslate"><span class="pre">FindFace</span></code> identifies a face by its node set, independent of node order,
+while <code class="docutils literal notranslate"><span class="pre">GetFaceNodeRing</span></code> preserves the first registered ordering. The runtime
+split must therefore find an existing child even when its stored ring differs
+from the candidate order (test:
+<code class="docutils literal notranslate"><span class="pre">FaceSearchBasicTest.QuadSplitMatchesRegisteredTrianglesRegardlessOfNodeOrder</span></code>).
+Zero or one points to missing/inconsistent face registration, while more than
+two means both candidate diagonals may be represented and needs topology-level
+investigation. The candidate builder itself does not choose a diagonal or
+compare triangle quality.</p>
+<p>Diagnostic order for a failed quad split:</p>
+<ol class="arabic simple">
+<li><p>Check the parent ring has exactly four nodes and inspect its stored order.</p></li>
+<li><p>Check the four local candidate rows and confirm each pair shares one
+diagonal while retaining the boundary edges.</p></li>
+<li><p>Check local-to-global mapping against the parent ring.</p></li>
+<li><p>Query the face registry for each mapped candidate; distinguish a missing
+triangle from a mapping mismatch.</p></li>
+<li><p>Only after these checks pass, inspect child registration and the later
+interface-map / boundary / cell-side rebuilds.</p></li>
+</ol>
+<p><strong>Tests:</strong> <code class="docutils literal notranslate"><span class="pre">QuadDiagonalSplitTest.BuildsFourCandidateTrisForBothDiagonals</span></code>,
+<code class="docutils literal notranslate"><span class="pre">QuadDiagonalSplitTest.EachDiagonalCandidatePairPreservesBoundaryAndSharesOneDiagonal</span></code>,
+and <code class="docutils literal notranslate"><span class="pre">QuadDiagonalSplitTest.MapsLocalCornersThroughQuadNodes</span></code>.
+<code class="docutils literal notranslate"><span class="pre">MapLocalTrisToGlobalNodes</span></code> validates every candidate row has exactly three
+corners and every corner index is in range before replacing the output, so
+malformed later rows cannot leave a partial mapping (<strong>tests:</strong>
+<code class="docutils literal notranslate"><span class="pre">QuadDiagonalSplitTest.MapsLocalCornersThroughQuadNodes</span></code> and
+<code class="docutils literal notranslate"><span class="pre">FaceSearchBasicTest.InvalidQuadCandidateLeavesMappedOutputUnchanged</span></code>).</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SplitQuad2Tri</span></code> clears the selected parent’s previous child list before
+checking its shape; a direct call on a non-quad face therefore cannot preserve
+a stale split result (<strong>test:</strong> <code class="docutils literal notranslate"><span class="pre">FaceSearchBasicTest.NonQuadSplitClearsStaleParentMapping</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">InterfaceFaceSplitTable::ClearParentMapping</span></code> and
+<code class="docutils literal notranslate"><span class="pre">SetChildMapping</span></code> reject misaligned parent-specific ID/flag table
+capacities before mutating the parent’s child list (<strong>tests:</strong>
+<code class="docutils literal notranslate"><span class="pre">FaceSearchBasicTest.ClearParentMappingRejectsMisalignedParentTables</span></code>
+and <code class="docutils literal notranslate"><span class="pre">FaceSearchBasicTest.SetChildMappingRejectsMissingParentSpecificRow</span></code>).</p></li>
+</ul>
+</section>
+<section id="interface-mapping-names-and-design-rules">
+<h2>Interface mapping names and design rules<a class="headerlink" href="#interface-mapping-names-and-design-rules" title="Link to this heading"></a></h2>
+<p>The current names are historical abbreviations, not self-explanatory concepts.
+Use the following interpretation when reading or changing this code:</p>
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">Interface mapping vocabulary</span><a class="headerlink" href="#id1" title="Link to this table"></a></caption>
+<colgroup>
+<col style="width: 24.0%" />
+<col style="width: 36.0%" />
+<col style="width: 40.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Existing name</p></th>
+<th class="head"><p>Concept</p></th>
+<th class="head"><p>Index meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">l2g</span></code></p></td>
+<td><p>local-to-global map</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">l2g[zone][localFace]</span></code> is a global interface-face ID</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">gI2Zid</span></code></p></td>
+<td><p>global Interface-face to zone IDs (the <code class="docutils literal notranslate"><span class="pre">I</span></code> means Interface)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">gI2Zid[globalFace][slot]</span></code> is a zone ID</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">g2l</span></code></p></td>
+<td><p>global-to-local map</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">g2l[globalFace][slot]</span></code> is a local interface-face ID</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">*New</span></code></p></td>
+<td><p>candidate rebuild state</p></td>
+<td><p>buffers not yet committed to the live mapping</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nChild</span></code></p></td>
+<td><p>legacy split bookkeeping</p></td>
+<td><p>per-zone counts/slots used by interface-face split rebuilding</p></td>
+</tr>
+</tbody>
+</table>
+<p>The important invariant is more precise than the abbreviations suggest:
+<code class="docutils literal notranslate"><span class="pre">gI2Zid[globalFace][slot]</span></code> and <code class="docutils literal notranslate"><span class="pre">g2l[globalFace][slot]</span></code> form one
+paired reference, so their row lengths and slot order must agree. A local
+entry in <code class="docutils literal notranslate"><span class="pre">l2g</span></code> points back to the global face, but the current validator
+checks the paired inverse tables’ shape; it does not prove every semantic
+round-trip across all three tables.</p>
+<p>Naming is a design tool, not a contest to make every identifier longer.
+Prefer names that communicate the <em>role at the current abstraction level</em>:
+<cite>globalFaceId</cite>, <cite>zoneId</cite>, and <cite>localFaceId</cite> are useful scalar names, while
+the table names should describe their mapping direction or relation. Avoid
+mechanical expansions that repeat context already clear from the type or
+function name.</p>
+<p>Do not rename these public <code class="docutils literal notranslate"><span class="pre">IFaceLink</span></code> fields in one broad sweep. They are
+used across topology construction and rebuild paths, and a mass rename would
+create churn without simplifying the algorithm. The incremental migration
+policy is:</p>
+<ol class="arabic simple">
+<li><p>Use descriptive local names in new code and pure helpers.</p></li>
+<li><p>Keep the mapping contract documented beside the declarations and tests.</p></li>
+<li><p>When a stable owner for the mapping state is introduced, add semantic
+accessors or a small mapping type and migrate call sites in focused steps.</p></li>
+<li><p>Remove legacy field names only after all production and test call sites have
+moved and the public compatibility impact is understood.</p></li>
+</ol>
+<p>This policy is part of the mesh development handbook: a rename is justified
+when it reduces the mental model or prevents a real class of mistakes, not
+merely because an abbreviation looks old.</p>
+<p><strong>Current capacity caveat:</strong> <code class="docutils literal notranslate"><span class="pre">BuildInverseInterfaceMapForZone</span></code> stores at most
+two zone/local references for a global interface face. The current implementation
+silently ignores a third reference, and
+<code class="docutils literal notranslate"><span class="pre">BuildInverseInterfaceMapTest.DoesNotExceedTwoZoneSlots</span></code> records that
+behavior. This is not equivalent to validating that the input topology is valid.
+The two-slot rule appears to model one interface pair; before changing the
+behavior to reject a third participant, confirm whether multi-zone junctions
+are excluded by the mesh model and by real input cases. If they are excluded,
+a clear error may be safer than silent truncation. Until that contract is
+confirmed, preserve the current behavior and treat it as an explicit design
+question rather than assuming the test proves the policy is correct.</p>
+</section>
+<section id="line-midpoint-split-algorithm">
+<h2>Line midpoint split algorithm<a class="headerlink" href="#line-midpoint-split-algorithm" title="Link to this heading"></a></h2>
+<p>The 2D interface split path separates geometry discovery from mapping assembly.
+<code class="docutils literal notranslate"><span class="pre">FaceSearch::SplitLine</span></code> first clears the selected parent’s old child list and
+ignores faces that are not two-node edges. <code class="docutils literal notranslate"><span class="pre">TrySplitLineAtMidpoint</span></code> validates
+the parent face’s zone association before querying geometry, then checks whether
+the geometric midpoint is already present in <code class="docutils literal notranslate"><span class="pre">PointLocator</span></code>; this path does
+not independently decide to split every edge. Invalid face-to-zone associations
+therefore fail before midpoint lookup or zone-local node mutation.</p>
+<p>When a midpoint is available, the algorithm resolves both candidate child
+edges against the global <code class="docutils literal notranslate"><span class="pre">FaceSearch</span></code> registry before touching the zone mesh.
+If neither child exists, it returns without appending a zone-local node. The
+resolved child IDs and candidate positions are retained and reused when parent
+mappings are published, so the registry lookup is performed once per candidate
+rather than once for the preflight and again for publication. Duplicate child
+identities are rejected by the shared resolver before any zone-local mutation.
+<code class="docutils literal notranslate"><span class="pre">ResolveRegisteredChildFaces</span></code> is now an explicit topology-resolution step
+that can be tested without <code class="docutils literal notranslate"><span class="pre">IFaceLink</span></code> or a real grid. It skips candidate
+edges absent from the registry and returns records that keep each global child
+face ID paired with its original candidate position. A single record prevents
+the caller from accidentally combining one child’s ID with another candidate’s
+local mapping by indexing two independent output arrays. Returning the records
+by value also makes the result all-or-nothing if duplicate identities are
+detected. The current policy intentionally permits a partial match: one
+registered child is enough to proceed, while no registered children means no
+local midpoint insertion. Tests make this policy explicit so a later change to
+require both children would be a deliberate behavior change.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">registered_child_partial_match</span></code> workbench scenario mirrors
+<code class="docutils literal notranslate"><span class="pre">FaceSearchBasicTest.RegisteredChildResolutionPreservesCandidateIndexForPartialMatch</span></code>.
+Its input makes the distinction visible: candidate 0 is missing, candidate 1
+resolves to global child face 0, and the returned candidate index must remain 1.
+The scenario links both the helper-level test and
+<code class="docutils literal notranslate"><span class="pre">FaceSearchBasicTest.QuadSplitUsesOriginalCandidateIndexForPartialMatch</span></code>.
+The latter runs the real quad-split publication path with only candidate 1
+registered and verifies that its parent-local node mapping is <code class="docutils literal notranslate"><span class="pre">[2,</span> <span class="pre">3,</span> <span class="pre">0]</span></code>.
+This catches the original class of bug at the consumer boundary: even if the
+resolver reports the right candidate index, the caller must use that index when
+publishing parent-relative metadata. The current GUI scenario backend is still
+fixture-backed; neither linked C++ test is executed by the GUI. A native test
+adapter that passes scenario parameters to C++ remains the next integration
+boundary.</p>
+<p>The algorithm then resolves the midpoint in two index spaces:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">PointLocator::FindPoint</span></code> returns the existing <strong>global search</strong> midpoint ID.
+If no midpoint is registered there, this edge is not split.</p></li>
+<li><p>The zone’s <code class="docutils literal notranslate"><span class="pre">nodeMesh</span></code> is queried using the same coordinate. If the point is
+absent there, it is appended and the returned index becomes the <strong>zone-local</strong>
+midpoint ID. The already-discovered global ID is reused when constructing
+child edge identities; the locator is not searched or modified a second time.</p></li>
+</ol>
+<p>The line split now has two deliberately separate representations:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">BuildGlobalLineSplitCandidates</span></code> creates directed global child-edge identities
+<code class="docutils literal notranslate"><span class="pre">(A,</span> <span class="pre">M_global)</span></code> and <code class="docutils literal notranslate"><span class="pre">(M_global,</span> <span class="pre">B)</span></code>. These candidates are resolved
+against the global face registry before the zone mesh is mutated.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BuildLocalLineSplitMapping</span></code> creates zone-local edge indices
+<code class="docutils literal notranslate"><span class="pre">(0,</span> <span class="pre">M_local)</span></code> and <code class="docutils literal notranslate"><span class="pre">(M_local,</span> <span class="pre">1)</span></code>, plus endpoint flags
+<code class="docutils literal notranslate"><span class="pre">(1,</span> <span class="pre">-1)</span></code> and <code class="docutils literal notranslate"><span class="pre">(-1,</span> <span class="pre">1)</span></code>.</p></li>
+</ul>
+<p>The global midpoint ID identifies topology; the local midpoint ID addresses one
+zone’s node array. Keeping these outputs separate makes the preflight lookup
+independent of the zone-local index and prevents a temporary local-mapping
+builder from also producing a global representation that its caller discards. The endpoint flags encode which
+original endpoint each child retains. Reversing the parent ring must reverse
+the global child-edge direction while leaving the local index pattern and
+flags unchanged.</p>
+<p>The distinction matters because global face identity is order-independent, but
+the stored face ring and local endpoint metadata are directional.
+<code class="docutils literal notranslate"><span class="pre">BuildGlobalLineSplitCandidates</span></code> replaces its output candidate list on each
+call, so a reused list cannot retain child edges from an earlier split.</p>
+<p><strong>Tests:</strong> <code class="docutils literal notranslate"><span class="pre">FaceSearchBasicTest.GlobalLineCandidatesPreserveEdgeDirection</span></code>,
+<code class="docutils literal notranslate"><span class="pre">FaceSearchBasicTest.GlobalLineCandidatesPreserveReversedEdgeDirection</span></code>,
+<code class="docutils literal notranslate"><span class="pre">FaceSearchBasicTest.GlobalLineCandidatesReplacePreviousOutput</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">IFaceLinkPointLocatorInjectionTest.SplitLineWithoutRegisteredChildrenDoesNotPublishMapping</span></code>.</p>
+<p>The injected-locator integration test exercises the real <code class="docutils literal notranslate"><span class="pre">SplitLine</span></code> entry
+point for the negative topology case: a midpoint exists in global search, but
+neither child edge is registered. It verifies the algorithm exits before asking
+for a zone grid and leaves the parent child list and parent-relative mapping
+rows empty. This is more valuable than another helper-only test because it
+locks the order of operations across locator injection, global topology lookup,
+and mapping publication.</p>
+<p><code class="docutils literal notranslate"><span class="pre">FaceSearchBasicTest.RegisteredChildResolutionPreservesCandidateIndexForPartialMatch</span></code>
+locks the complementary table-level rule: when only candidate 1 is registered,
+the resolver returns candidate index 1 rather than compacted index 0. That index
+selects the correct parent-local node/flag row during publication. The test does
+not claim to exercise zone-local midpoint insertion; that remains covered only
+by the full <code class="docutils literal notranslate"><span class="pre">SplitLine</span></code> path when a suitable grid fixture is available.</p>
+<p><strong>Current boundary:</strong> this regression covers the no-child short-circuit, not a
+successful zone-local insertion. The positive path still depends on
+<code class="docutils literal notranslate"><span class="pre">IFaceLink</span></code>/<code class="docutils literal notranslate"><span class="pre">nodeMesh</span></code> services and should be tested only when a small
+grid fixture can assert the local node insertion and published mappings
+together. Do not add another abstraction just to mock calls that already have
+an injection seam.</p>
+</section>
+<section id="interface-mapping-algorithm">
+<h2>Interface mapping algorithm<a class="headerlink" href="#interface-mapping-algorithm" title="Link to this heading"></a></h2>
+<p>Multi-zone meshes share interface faces. OneFLOW keeps <strong>two dual views</strong> of
+the same relation:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 28.0%" />
+<col style="width: 72.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Table</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">l2g[zone][localIface]</span></code></p></td>
+<td><p>Local interface face index to global interface face id</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">gI2Zid[global]</span></code> / <code class="docutils literal notranslate"><span class="pre">g2l[global]</span></code></p></td>
+<td><p>Global face to the list of (zone, local) participants (usually two)</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Registration (scan time).</strong> Each zone registers its interface faces with
+<code class="docutils literal notranslate"><span class="pre">RegisterLocalInterfaceFace</span></code> after a geometry identity lookup
+(<code class="docutils literal notranslate"><span class="pre">faceLookup</span></code> / <code class="docutils literal notranslate"><span class="pre">FaceSearchBasic</span></code>). A new global id appends parallel rows
+to <code class="docutils literal notranslate"><span class="pre">gI2Zid</span></code> and <code class="docutils literal notranslate"><span class="pre">g2l</span></code>; a shared face pushes a second (zone, local) pair.</p>
+<p><strong>Partner selection.</strong> After all zones register, <code class="docutils literal notranslate"><span class="pre">FindRemoteInterfacePartner</span></code>
+first verifies that the caller’s exact (zone, local-face) pair is present in
+the global-face row, then selects the first other participant. If the caller
+is absent, it returns false without modifying the output values; this prevents
+an unrelated participant from being reported as a topological neighbour.</p>
+<p>Periodic matching has a different lookup contract. It geometrically transforms
+the current face and searches for the corresponding face in the transformed
+location. That partner face’s row normally belongs to another zone, so the
+current (zone, local-face) pair may be absent. <code class="docutils literal notranslate"><span class="pre">FindPeriodicInterfacePartner</span></code>
+therefore selects the first participant unless it is the exact current pair;
+a self-only row returns false. Both helpers require aligned zone/local rows and
+preserve output values when no partner is found (tests:
+<code class="docutils literal notranslate"><span class="pre">FindRemoteInterfacePartnerTest</span></code>, <code class="docutils literal notranslate"><span class="pre">FindPeriodicInterfacePartnerTest</span></code>).</p>
+<p>Faces with fewer than two zone slots are counted by
+<code class="docutils literal notranslate"><span class="pre">CountInterfaceFacesMissingPartner</span></code> (legacy: more than two slots are not
+counted as “missing”).</p>
+<p><strong>Inverse-map construction.</strong> <code class="docutils literal notranslate"><span class="pre">BuildInverseInterfaceMapForZone</span></code> derives
+the per-global-face participant rows from one zone’s <code class="docutils literal notranslate"><span class="pre">l2gNew</span></code> list. A
+zone-local list must contain each global face ID at most once: otherwise the
+same zone could be inserted twice into one participant row and later be
+mistaken for its own remote neighbour. The helper checks all IDs, duplicate
+global IDs, and existing row alignment before mutating either inverse table,
+so a rejected zone leaves both tables unchanged
+(<strong>test:</strong> <code class="docutils literal notranslate"><span class="pre">BuildInverseInterfaceMapTest.RejectsDuplicateGlobalFaceWithinZoneWithoutMutation</span></code>).</p>
+<p><strong>Split rebuild.</strong> Interface parents may split (for example quad to triangles).
+Rebuild runs on <code class="docutils literal notranslate"><span class="pre">New</span></code> buffers:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">InitNewInterfaceMappingBuffers</span></code> – copy inverse maps, empty <code class="docutils literal notranslate"><span class="pre">l2gNew</span></code></p></li>
+<li><p>Per zone: <code class="docutils literal notranslate"><span class="pre">RebuildZoneL2gNewAfterInterfaceSplit</span></code> – parents become children
+in <code class="docutils literal notranslate"><span class="pre">l2gNew</span></code> / <code class="docutils literal notranslate"><span class="pre">nChild</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ExpandBcRecordForSplitInterfaces</span></code> / face-node and cell-side rebuilds</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BuildInverseInterfaceMapForZone</span></code> – validate the complete zone row and
+existing inverse rows, then fill <code class="docutils literal notranslate"><span class="pre">gI2ZidNew</span></code> / <code class="docutils literal notranslate"><span class="pre">g2lNew</span></code> (at most two zone
+slots per global face)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CommitInterfaceMappingBuffers</span></code> – validate then swap <code class="docutils literal notranslate"><span class="pre">New</span></code> into live tables</p></li>
+</ol>
+<p>The dual-table invariant after commit is the same as after registration:
+<code class="docutils literal notranslate"><span class="pre">ValidateGlobalFaceMappings</span></code> requires equal top-level sizes and equal per-face
+list lengths for <code class="docutils literal notranslate"><span class="pre">gI2Zid</span></code> and <code class="docutils literal notranslate"><span class="pre">g2l</span></code>.</p>
+<p>Commit is transactional with respect to the live tables: validation runs
+against the <code class="docutils literal notranslate"><span class="pre">New</span></code> inverse maps before any swap. If validation throws, the
+current <code class="docutils literal notranslate"><span class="pre">gI2Zid</span></code>, <code class="docutils literal notranslate"><span class="pre">g2l</span></code>, and <code class="docutils literal notranslate"><span class="pre">l2g</span></code> remain unchanged and the candidate
+buffers remain available for diagnosis or correction. The regression test
+<code class="docutils literal notranslate"><span class="pre">CommitInterfaceMappingBuffersTest.FailedValidationLeavesLiveTablesUnchanged</span></code>
+locks this failure behavior.</p>
+</section>
+<section id="boundary-condition-assignment-algorithm">
+<h2>Boundary-condition assignment algorithm<a class="headerlink" href="#boundary-condition-assignment-algorithm" title="Link to this heading"></a></h2>
+<p>Staged faces start with BC slots set to <code class="docutils literal notranslate"><span class="pre">INVALID_INDEX</span></code>. CGNS BOCO regions
+supply a <strong>vertex set</strong> (nodes on the boundary patch). Assignment walks staged
+faces and writes BC only through <code class="docutils literal notranslate"><span class="pre">SetStagedFaceBc</span></code>.</p>
+<p><strong>Match predicate.</strong> <code class="docutils literal notranslate"><span class="pre">FaceNodesContainedInVertexSet</span></code> (used by
+<code class="docutils literal notranslate"><span class="pre">CheckBcFace</span></code>) is true when every node of a face appears in the BOCO vertex
+set. The BOCO set may contain extra nodes; face node order does not matter.</p>
+<p><strong>Eligibility filter.</strong> Before the vertex-set match,
+<code class="docutils literal notranslate"><span class="pre">IsEligibleForStagedBcAssignment</span></code> decides whether a face may be written:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">currentBcType</span></code> must still be <code class="docutils literal notranslate"><span class="pre">INVALID_INDEX</span></code> (first writer wins; later
+BOCO regions do not overwrite).</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">boundaryFacesOnly</span></code> is true, <code class="docutils literal notranslate"><span class="pre">rightCell</span></code> must be <code class="docutils literal notranslate"><span class="pre">INVALID_INDEX</span></code>
+(open boundary). Detail mode drops this restriction.</p></li>
+</ol>
+<p><strong>Two scan modes.</strong></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>API</p></th>
+<th class="head"><p>Filter</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ScanBcFace</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">boundaryFacesOnly=true</span></code>: open right cell and no BC yet</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ScanBcFaceDetail</span></code></p></td>
+<td><p>no BC yet only; may label interior faces if nodes lie in the set</p></td>
+</tr>
+</tbody>
+</table>
+<p>Both call <code class="docutils literal notranslate"><span class="pre">AssignBcToMatchingFaces</span></code> then <code class="docutils literal notranslate"><span class="pre">FaceNodesContainedInVertexSet</span></code>.</p>
+<p><strong>Interface fill.</strong> <code class="docutils literal notranslate"><span class="pre">ScanInterfaceBc</span></code> assigns <code class="docutils literal notranslate"><span class="pre">BCTypeNull</span></code> (and name id
+<code class="docutils literal notranslate"><span class="pre">-1</span></code>) to any remaining face still at <code class="docutils literal notranslate"><span class="pre">INVALID_INDEX</span></code>. That closes the
+staged BC vector before export.</p>
+<p><strong>Export.</strong> <code class="docutils literal notranslate"><span class="pre">CollectBoundaryBcEntries</span></code> (used by
+<code class="docutils literal notranslate"><span class="pre">AppendBoundaryBcToRecord</span></code>) walks faces in <strong>current order</strong> and appends
+staged BC type/name for every face with <code class="docutils literal notranslate"><span class="pre">right</span> <span class="pre">==</span> <span class="pre">INVALID_INDEX</span></code>. Interior
+faces are skipped. The helper <strong>appends</strong> (does not clear) the output arrays,
+matching historical <code class="docutils literal notranslate"><span class="pre">BcRecord</span></code> accumulation.</p>
+<p>After <code class="docutils literal notranslate"><span class="pre">ReorderLink</span></code>, boundary faces form a prefix and relative boundary
+order is preserved, so <code class="docutils literal notranslate"><span class="pre">BcRecord</span></code> stays aligned without a second
+permutation (<code class="docutils literal notranslate"><span class="pre">ValidateBoundaryBcLayout</span></code>).</p>
+<p><strong>Tests:</strong> <code class="docutils literal notranslate"><span class="pre">FaceNodesContainedInVertexSetTest</span></code>,
+<code class="docutils literal notranslate"><span class="pre">CollectBoundaryBcEntriesTest</span></code>, <code class="docutils literal notranslate"><span class="pre">FaceSolverStageTest</span></code>,
+<code class="docutils literal notranslate"><span class="pre">FaceTopoReorderLinkTest</span></code>.</p>
+</section>
+<section id="face-ownership-algorithm">
+<h2>Face ownership algorithm<a class="headerlink" href="#face-ownership-algorithm" title="Link to this heading"></a></h2>
+<p>Each staged face has left/right cell slots and a claim flag used by the polygon
+path.</p>
+<p><strong>First touch (new face).</strong> <code class="docutils literal notranslate"><span class="pre">StageNewFace</span></code> records the creating cell as left
+owner when provided; the face flag starts as <code class="docutils literal notranslate"><span class="pre">kFaceUnclaimed</span></code> for polygon
+staging, or is claimed when volume elements stage with a known left cell.</p>
+<p><strong>Polygon claim path.</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ClaimStagedFaceAsLeft</span></code> – requires <code class="docutils literal notranslate"><span class="pre">kFaceUnclaimed</span></code>; sets flag to
+<code class="docutils literal notranslate"><span class="pre">kFaceClaimed</span></code>, left = cell, right = <code class="docutils literal notranslate"><span class="pre">INVALID_INDEX</span></code>, clears staged BC.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">AttachStagedFaceAsRight</span></code> – requires already claimed; sets right = cell.</p></li>
+</ul>
+<p><strong>Volume element path.</strong> <code class="docutils literal notranslate"><span class="pre">ScanElementFace</span></code> uses geometry identity
+(<code class="docutils literal notranslate"><span class="pre">faceLookup</span></code>). New faces go through <code class="docutils literal notranslate"><span class="pre">StageNewFace</span></code>. Existing faces call
+<code class="docutils literal notranslate"><span class="pre">BindCellToExistingFace</span></code>, which applies <code class="docutils literal notranslate"><span class="pre">BindCellToFaceSides</span></code>:</p>
+<ol class="arabic simple">
+<li><p>If left is open (<code class="docutils literal notranslate"><span class="pre">INVALID_INDEX</span></code>), assign left = cell.</p></li>
+<li><p>Else if right is open and left is a different cell, assign right = cell.</p></li>
+<li><p>Else no change (already bound, or the same cell is already on left).</p></li>
+</ol>
+<p>This implements the usual unstructured-mesh rule: the first incident cell owns
+the left side; a second distinct cell becomes the right (interior) neighbour.
+A second visit by the same cell does not fill the right slot (avoids marking a
+boundary face as interior by mistake when orientation/duplication appears).</p>
+<p><strong>Tests:</strong> <code class="docutils literal notranslate"><span class="pre">BindCellToFaceSidesTest</span></code>, <code class="docutils literal notranslate"><span class="pre">FaceSolverStageTest</span></code>.</p>
+</section>
+<section id="staged-parallel-array-growth">
+<h2>Staged parallel-array growth<a class="headerlink" href="#staged-parallel-array-growth" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">StageNewFace</span></code> is the only growth path for a newly discovered unique face.
+One call appends <strong>one</strong> entry to each of:</p>
+<ul class="simple">
+<li><p>topology: <code class="docutils literal notranslate"><span class="pre">faces</span></code>, <code class="docutils literal notranslate"><span class="pre">faceTypes</span></code>, <code class="docutils literal notranslate"><span class="pre">faceFlags</span></code></p></li>
+<li><p>ownership: <code class="docutils literal notranslate"><span class="pre">leftCells</span></code>, <code class="docutils literal notranslate"><span class="pre">rightCells</span></code> (right starts as <code class="docutils literal notranslate"><span class="pre">INVALID_INDEX</span></code>)</p></li>
+<li><p>local indices: <code class="docutils literal notranslate"><span class="pre">lPosition</span></code>, <code class="docutils literal notranslate"><span class="pre">rPosition</span></code> (seeded to 0)</p></li>
+<li><p>BC: <code class="docutils literal notranslate"><span class="pre">faceBcTypes</span></code>, <code class="docutils literal notranslate"><span class="pre">faceBcNameIds</span></code> (both <code class="docutils literal notranslate"><span class="pre">INVALID_INDEX</span></code>)</p></li>
+<li><p>split: <code class="docutils literal notranslate"><span class="pre">childFid</span></code> (empty list)</p></li>
+</ul>
+<p>After growth, <code class="docutils literal notranslate"><span class="pre">StagedBcMatchesFaceCount</span></code> requires all of these lengths to be
+equal. That invariant is what makes later pure helpers safe: BC export,
+ownership bind, and child counting never re-size topology.</p>
+<p><strong>Residual interface BC.</strong> After BOCO vertex matching, any face still at
+<code class="docutils literal notranslate"><span class="pre">INVALID_INDEX</span></code> is treated as an interface (or unset) face.
+<code class="docutils literal notranslate"><span class="pre">FillUnsetStagedBcSlots</span></code> (used by <code class="docutils literal notranslate"><span class="pre">ScanInterfaceBc</span></code>) writes
+<code class="docutils literal notranslate"><span class="pre">BCTypeNull</span></code> and name id <code class="docutils literal notranslate"><span class="pre">-1</span></code> into those slots only. Already assigned BC
+types are left unchanged.</p>
+<p><strong>Simple faces.</strong> <code class="docutils literal notranslate"><span class="pre">CountEmptyChildFaceLists</span></code> counts <code class="docutils literal notranslate"><span class="pre">childFid</span></code> rows with
+no children; <code class="docutils literal notranslate"><span class="pre">CountFacesWithoutChildren</span></code> checks alignment with <code class="docutils literal notranslate"><span class="pre">faces</span></code>
+then delegates.</p>
+<p><strong>Tests:</strong> <code class="docutils literal notranslate"><span class="pre">FillUnsetStagedBcSlotsTest</span></code>, <code class="docutils literal notranslate"><span class="pre">FaceSolverStageTest</span></code>.</p>
+</section>
+<section id="boundary-first-reorder-algorithm">
+<h2>Boundary-first reorder algorithm<a class="headerlink" href="#boundary-first-reorder-algorithm" title="Link to this heading"></a></h2>
+<p>After staging and BC export, faces may still be in discovery order (volume
+sweep). Solvers expect <strong>all boundary faces in a contiguous prefix</strong>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">BuildBoundaryFirstPermutation(rightCells)</span></code> builds <code class="docutils literal notranslate"><span class="pre">newToOld</span></code>:</p>
+<ol class="arabic simple">
+<li><p>First pass: append indices with <code class="docutils literal notranslate"><span class="pre">right</span> <span class="pre">==</span> <span class="pre">INVALID_INDEX</span></code> (boundary).</p></li>
+<li><p>Second pass: append the remaining indices (interior), preserving relative
+order within each class (stable partition).</p></li>
+</ol>
+<p><code class="docutils literal notranslate"><span class="pre">ReorderLink</span></code> applies that permutation to every face-indexed array
+(faces, types, flags, left/right cells, positions, and related metadata) and
+clears derived <code class="docutils literal notranslate"><span class="pre">c2f</span></code>. <code class="docutils literal notranslate"><span class="pre">BcRecord</span></code> is <strong>not</strong> reordered separately: it was
+filled in discovery order of boundary faces, and the partition preserves the
+relative order of those boundary faces, so the prefix of reordered faces still
+matches <code class="docutils literal notranslate"><span class="pre">BcRecord</span></code> (<code class="docutils literal notranslate"><span class="pre">ValidateBoundaryBcLayout</span></code>).</p>
+<p><code class="docutils literal notranslate"><span class="pre">ReorderBoundaryFirstAndValidate</span></code> is the single post-stage entry used by
+<code class="docutils literal notranslate"><span class="pre">GridElem</span></code>: reorder then validate. Callers should not reorder without the
+layout check.</p>
+<p><strong>Tests:</strong> <code class="docutils literal notranslate"><span class="pre">FaceTopoReorderLinkTest</span></code>,
+<code class="docutils literal notranslate"><span class="pre">ReorderBoundaryFirstAndValidateTest</span></code>.</p>
+</section>
+<section id="ifacelink-dual-map-boundary">
+<h2>IFaceLink dual-map boundary<a class="headerlink" href="#ifacelink-dual-map-boundary" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">IFaceLink</span></code> holds the multi-zone interface relation in two directions
+(<code class="docutils literal notranslate"><span class="pre">l2g</span></code> and <code class="docutils literal notranslate"><span class="pre">gI2Zid</span></code> / <code class="docutils literal notranslate"><span class="pre">g2l</span></code>). That is intentional: registration,
+partner match, and split rebuild all need both views.</p>
+<p>The local refactor does <strong>not</strong> pretend these tables are gone. It draws a
+boundary around <em>how</em> they change:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 40.0%" />
+<col style="width: 60.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Operation</p></th>
+<th class="head"><p>Allowed path</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Register a local face on a global id</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">CreateLink</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">RegisterLocalInterfaceFaceOnMaps</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Stage / commit after interface split</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">InitNewInterfaceMappingBuffers</span></code> /
+zone rebuild helpers /
+<code class="docutils literal notranslate"><span class="pre">CommitInterfaceMappingBuffers</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Find remote partner / count missing</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">FindRemoteInterfacePartner</span></code> /
+<code class="docutils literal notranslate"><span class="pre">CountInterfaceFacesMissingPartner</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Geometry identity for interface nodes</p></td>
+<td><p>private <code class="docutils literal notranslate"><span class="pre">faceLookup</span></code> inside <code class="docutils literal notranslate"><span class="pre">CreateLink</span></code> only</p></td>
+</tr>
+</tbody>
+</table>
+<p><code class="docutils literal notranslate"><span class="pre">faceLookup</span></code>, <code class="docutils literal notranslate"><span class="pre">point_search</span></code>, and <code class="docutils literal notranslate"><span class="pre">face_search</span></code> are private. Use
+<code class="docutils literal notranslate"><span class="pre">CreateLink</span></code>, <code class="docutils literal notranslate"><span class="pre">GetPointLocator</span></code> / <code class="docutils literal notranslate"><span class="pre">EnsurePointLocatorReady</span></code>,
+<code class="docutils literal notranslate"><span class="pre">GetFaceSearch</span></code>, and <code class="docutils literal notranslate"><span class="pre">MutableInterfaceSplit</span></code> / <code class="docutils literal notranslate"><span class="pre">GetInterfaceSplit</span></code>.
+Unit tests may call <code class="docutils literal notranslate"><span class="pre">ReplacePointLocator</span></code> with a <code class="docutils literal notranslate"><span class="pre">PointLocator</span></code> subclass
+and <code class="docutils literal notranslate"><span class="pre">markReady=true</span></code> to avoid building the production ADT from grids.</p>
+<p>Split rebuild zone rows go through <code class="docutils literal notranslate"><span class="pre">EnsureSplitBookkeepingMatchesZones</span></code>,
+<code class="docutils literal notranslate"><span class="pre">GetL2gForZone</span></code>, <code class="docutils literal notranslate"><span class="pre">MutableL2gNewForZone</span></code>, and <code class="docutils literal notranslate"><span class="pre">MutableNChildForZone</span></code>.
+Staging inverse maps use <code class="docutils literal notranslate"><span class="pre">MutableGlobalToZoneIdsNew</span></code> /
+<code class="docutils literal notranslate"><span class="pre">MutableGlobalToLocalIdsNew</span></code>. <code class="docutils literal notranslate"><span class="pre">FaceTopo</span></code> and <code class="docutils literal notranslate"><span class="pre">UnsGrid</span></code> read live
+<code class="docutils literal notranslate"><span class="pre">l2g</span></code> through <code class="docutils literal notranslate"><span class="pre">GetLocalToGlobalMap</span></code> / <code class="docutils literal notranslate"><span class="pre">GetL2gForZone</span></code>. Dual-map
+fields (<code class="docutils literal notranslate"><span class="pre">l2g</span></code>, <code class="docutils literal notranslate"><span class="pre">gI2Zid</span></code>, <code class="docutils literal notranslate"><span class="pre">g2l</span></code>, <code class="docutils literal notranslate"><span class="pre">*New</span></code>, <code class="docutils literal notranslate"><span class="pre">nChild</span></code>) are private.</p>
+<p>Tests and topology-only clients seed maps with
+<code class="docutils literal notranslate"><span class="pre">EnsureInterfaceZoneCount</span></code>, <code class="docutils literal notranslate"><span class="pre">EnsureLocalInterfaceFaceCount</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">RegisterLocalInterfaceFace</span></code> (member wrapper). Read-only observers use
+<code class="docutils literal notranslate"><span class="pre">GetLocalToGlobalMap</span></code>, <code class="docutils literal notranslate"><span class="pre">GetGlobalToZoneIds</span></code>, and <code class="docutils literal notranslate"><span class="pre">GetGlobalToLocalIds</span></code>.</p>
+<p><strong>Tests:</strong> <code class="docutils literal notranslate"><span class="pre">IFaceLinkMapAccessorsTest</span></code>, <code class="docutils literal notranslate"><span class="pre">IFaceLinkSplitBookkeepingTest</span></code>.</p>
+</section>
+<section id="parent-relative-child-mapping-algorithm">
+<h2>Parent-relative child mapping algorithm<a class="headerlink" href="#parent-relative-child-mapping-algorithm" title="Link to this heading"></a></h2>
+<p>Interface split may turn one parent face into several child faces. Child
+geometry is stored in two layers:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 35.0%" />
+<col style="width: 65.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Table</p></th>
+<th class="head"><p>Role</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">childFaceIdsOfParent[parent]</span></code></p></td>
+<td><p>Ordered global child ids for that parent</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">childFaceNodeIdsByParent[parent][i]</span></code> /
+<code class="docutils literal notranslate"><span class="pre">childFaceNodeFlagsByParent[parent][i]</span></code></p></td>
+<td><p>Parent-local node encoding for child <code class="docutils literal notranslate"><span class="pre">i</span></code> (flag <code class="docutils literal notranslate"><span class="pre">1</span></code> = index into
+<strong>this</strong> parent’s node ring)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">childFaceNodeIds[child]</span></code> /
+<code class="docutils literal notranslate"><span class="pre">childFaceNodeFlags[child]</span></code></p></td>
+<td><p>Optional global seed (first writer); <strong>not</strong> authoritative when
+parent-specific rows exist</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Why parent-specific rows.</strong> The same undirected child ring can appear under
+two parents with different node sets, for example parent
+<code class="docutils literal notranslate"><span class="pre">[A,B,C,D]</span></code> and parent <code class="docutils literal notranslate"><span class="pre">[B,C,D,E]</span></code> sharing child <code class="docutils literal notranslate"><span class="pre">[B,C,D]</span></code>. Local corner
+indices differ (<code class="docutils literal notranslate"><span class="pre">[1,2,3]</span></code> vs <code class="docutils literal notranslate"><span class="pre">[0,1,2]</span></code>). A single global row keyed only by
+child id cannot hold both encodings. Rebuild must read the
+<strong>current parent’s</strong> mapping row, then <code class="docutils literal notranslate"><span class="pre">ResolveChildFaceNodeIds</span></code> against that
+parent’s ring.</p>
+<p><strong>Publish path.</strong> <code class="docutils literal notranslate"><span class="pre">ResolveRegisteredChildFaces</span></code> decides which candidates are
+already registered global faces and rejects duplicate child ids for one
+parent. <code class="docutils literal notranslate"><span class="pre">SetChildMapping</span></code> then writes the parent-specific row (and seeds the
+global row only if still empty).</p>
+<p><strong>Consume path.</strong> <code class="docutils literal notranslate"><span class="pre">CollectBoundaryInterfaceChildNodeMappings</span></code> uses
+parent-specific rows once any such mapping has been published. A split parent
+with a missing parent-specific row is an error; falling back to a global child
+row could silently reuse another parent’s local node numbering for a shared
+child. The global child tables remain a compatibility path only when all
+parent-specific rows are empty. <code class="docutils literal notranslate"><span class="pre">RebuildFaceNodeListsAfterInterfaceSplit</span></code>
+applies <code class="docutils literal notranslate"><span class="pre">ResolveChildFaceNodeIds</span></code> per child.</p>
+<p><strong>Regression:</strong> <code class="docutils literal notranslate"><span class="pre">CollectBoundaryInterfaceChildNodeMappingsTest.RejectsMissingParentRowInsteadOfUsingSharedChildGlobalRow</span></code>
+proves the collector rejects an incomplete modern mapping and leaves output
+buffers unchanged. Legacy fixtures that only populate global child rows remain
+supported.</p>
+<p><strong>Tests:</strong> <code class="docutils literal notranslate"><span class="pre">TwoParentSharedChildMappingTest</span></code>,
+<code class="docutils literal notranslate"><span class="pre">FaceSearchBasicTest</span></code> (duplicate / conflict guards).</p>
+</section>
+<section id="geometry-workbench-parallel-to-refactor">
+<h2>Geometry workbench (parallel to refactor)<a class="headerlink" href="#geometry-workbench-parallel-to-refactor" title="Link to this heading"></a></h2>
+<p>Unit tests lock contracts in CI. A <strong>workbench</strong> is a different surface:</p>
+<ul class="simple">
+<li><p>Operator edits discrete tables (<code class="docutils literal notranslate"><span class="pre">l2g</span></code>, parents, child lists, BC rows).</p></li>
+<li><p>Host calls the <strong>same</strong> C++ pipeline the tests call (today:
+<code class="docutils literal notranslate"><span class="pre">RunSymmetricInterfaceSplitMappingPipeline</span></code>).</p></li>
+<li><p>Results are shown as tables (and later drawings); human or golden compare
+judges pass/fail.</p></li>
+</ul>
+<p>This can advance <strong>in parallel</strong> with the geometry refactor:</p>
+<ol class="arabic simple">
+<li><p><strong>Fake-first UI:</strong> panels bind to in-memory tables and a stub that returns
+hand-written outputs, so interaction and visualization ship before every
+production edge is free of CGNS.</p></li>
+<li><p><strong>Contract-ready core:</strong> pure helpers and table pipelines land in
+<code class="docutils literal notranslate"><span class="pre">codes/geometry</span></code> (no second algorithm in the UI process).</p></li>
+<li><p><strong>Swap:</strong> replace the stub with the real pipeline when the scenario matches;
+do not re-implement split logic in Qt/Python.</p></li>
+</ol>
+<p>What the workbench is <em>not</em>: a button that only launches GoogleTest. What it
+<em>is</em>: an editable, visual driver of table-level geometry contracts – the same
+contracts the local refactor is carving out.</p>
+</section>
+<section id="local-refactor-scorecard">
+<h2>Local refactor scorecard<a class="headerlink" href="#local-refactor-scorecard" title="Link to this heading"></a></h2>
+<p>Closed enough to stop polishing the same layer:</p>
+<ul class="simple">
+<li><p>Face stage write path and BC export / boundary-first reorder.</p></li>
+<li><p>Dual-map mutation boundary (private fields, Register / Init / Commit).</p></li>
+<li><p>PointLocator as a replaceable port for tests.</p></li>
+<li><p>Multi-zone split <strong>composition</strong> without CGNS.</p></li>
+</ul>
+<p>Still product work, not rename work:</p>
+<ul class="simple">
+<li><p>Production mid-point split still needs real <code class="docutils literal notranslate"><span class="pre">nodeMesh</span></code> + ADT unless injected.</p></li>
+<li><p>Orphan parent global rows after InitNew copy (document, do not silent-fix).</p></li>
+<li><p>Full CGNS zone fixtures remain heavy; prefer more pure compositions first.</p></li>
+</ul>
+</section>
+<section id="investment-priority-do-not-spread-effort-evenly">
+<h2>Investment priority (do not spread effort evenly)<a class="headerlink" href="#investment-priority-do-not-spread-effort-evenly" title="Link to this heading"></a></h2>
+<p>Highest return first. Skip lower rows until a higher row is blocked.</p>
+<ol class="arabic simple">
+<li><p><strong>Numerical / solver contracts already in motion</strong> (limiter ranges, Venkat
+policy, Marray index/fill). These sit on the hot path of every residual;
+geometry pure-helpers no longer move residual quality.</p></li>
+<li><p><strong>Geometry hard edges only</strong> — not more one-line predicates:</p>
+<ul class="simple">
+<li><p>Line/quad split still needs live <code class="docutils literal notranslate"><span class="pre">PointLocator</span></code> + zone <code class="docutils literal notranslate"><span class="pre">nodeMesh</span></code>.</p></li>
+<li><p>Prefer one fixture that exercises that seam (injected locator + minimal
+mesh) over extracting another arithmetic helper.</p></li>
+<li><p>Orphan inverse rows: detect (done); strip only with an explicit product
+decision and migration test.</p></li>
+</ul>
+</li>
+<li><p><strong>Workbench → native table pipeline</strong> when development velocity needs it
+(stub is enough until someone edits scenarios daily).</p></li>
+<li><p><strong>Full CGNS zone e2e</strong> last among geometry items: high confidence, high cost;
+pure compositions and <code class="docutils literal notranslate"><span class="pre">LineSplitPureStagesTest</span></code> already cover most
+dual-map and split-table contracts.</p></li>
+</ol>
+<p><strong>Geometry plateau rule:</strong> if a change only renames or re-wraps a helper already
+locked in <code class="docutils literal notranslate"><span class="pre">tests/geometry</span></code>, stop. The face/interface <strong>boundary-drawing</strong>
+goal is largely met; further investment belongs on hard edges or on solver
+contracts (priority 1).</p>
+<p><code class="docutils literal notranslate"><span class="pre">LineSplitPureStagesTest</span></code> locks the pure prefix of line split (sole-zone →
+midpoint → candidates → resolve → local mapping) without ADT or CGNS, so the
+remaining open map row stays honest: production still needs locator + nodeMesh.</p>
+</section>
+<section id="multi-zone-interface-split-composed-scenario">
+<h2>Multi-zone interface split (composed scenario)<a class="headerlink" href="#multi-zone-interface-split-composed-scenario" title="Link to this heading"></a></h2>
+<p>Isolated helpers lock one zone or one table. The composed entry point is
+<code class="docutils literal notranslate"><span class="pre">RunSymmetricInterfaceSplitMappingPipeline</span></code> (table in, table out; no
+<code class="docutils literal notranslate"><span class="pre">IFaceLink</span></code>, no CGNS). <code class="docutils literal notranslate"><span class="pre">MultiZoneInterfaceSplitE2ETest</span></code> seeds maps with
+<code class="docutils literal notranslate"><span class="pre">RegisterLocalInterfaceFaceOnMaps</span></code> and calls that pipeline when <strong>both</strong>
+zones rebuild after one shared parent face splits:</p>
+<ol class="arabic simple">
+<li><p>Seed two zones / two shared global faces (<code class="docutils literal notranslate"><span class="pre">RegisterLocalInterfaceFaceOnMaps</span></code>).</p></li>
+<li><p>Pipeline: <code class="docutils literal notranslate"><span class="pre">InitNewInterfaceMappingBuffers</span></code> copies inverse maps, clears <code class="docutils literal notranslate"><span class="pre">l2gNew</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RebuildZoneL2gNewAfterInterfaceSplit</span></code> per zone (parent 0 -&gt; 2,3; parent 1 kept).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BuildInverseInterfaceMapForZone</span></code> for each zone (max two participants).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ExpandBcRecordForSplitInterfaces</span></code> expands BC slots by child counts.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CommitInterfaceMappingBuffers</span></code> swaps validated <code class="docutils literal notranslate"><span class="pre">*New</span></code> tables into the result.</p></li>
+</ol>
+<p><strong>Algorithm note (orphan parents):</strong> <code class="docutils literal notranslate"><span class="pre">InitNewInterfaceMappingBuffers</span></code> copies
+the live inverse maps. Rebuild only touches globals present in <code class="docutils literal notranslate"><span class="pre">l2gNew</span></code>.
+A fully replaced parent global id therefore remains as a row that no <code class="docutils literal notranslate"><span class="pre">l2g</span></code>
+entry references. That is legacy behavior; changing it needs a dedicated
+migration and tests, not a drive-by cleanup.</p>
+<p><strong>Why compose tests?</strong> Unit tests answer “does this function obey its contract?”.
+A thin multi-zone composition answers “do the contracts still line up in
+production order?”. That is the cheapest e2e that still avoids CGNS.</p>
+</section>
+<section id="workbench-host-and-oneflow-gui">
+<h2>Workbench host and OneFLOW GUI<a class="headerlink" href="#workbench-host-and-oneflow-gui" title="Link to this heading"></a></h2>
+<p>The Geometry Contracts dialog is a contract-exploration surface, not a test
+launcher. Both input and expected tables can be edited as JSON and restored to
+the scenario defaults. The current backend is fixture-backed: it parses the
+edited input but returns a known mock table result rather than recomputing the
+geometry algorithm from that input. The expected tables are compared against
+that fixture, and the topology sketch and optional PNG export are derived from
+the mock output. This lets the scenario-editing and comparison loop develop
+before binding the native geometry pipeline. A PASS here validates the edited
+expected contract against the fixture only; it does not validate production C++
+geometry behavior. A regression test explicitly locks the fixture-backed
+boundary so the UI cannot accidentally imply that input edits trigger a real
+geometry calculation.</p>
+<p><code class="docutils literal notranslate"><span class="pre">tools/geometry_workbench</span></code> holds stdlib scenario JSON and a stub pipeline.
+The OneFLOW Workbench home screen exposes <strong>Geometry Contracts…</strong>
+(<code class="docutils literal notranslate"><span class="pre">GeometryContractDialog</span></code>), which loads those scenarios and runs the stub.
+This is intentionally separate from <strong>Tests…</strong> (GoogleTest / regression).</p>
+<p>When <code class="docutils literal notranslate"><span class="pre">RunSymmetricInterfaceSplitMappingPipeline</span></code> is bound, only the workbench
+backend should change; the GUI dialog keeps the same table workflow.</p>
+<p>Graphics are <strong>optional</strong>: CLI <code class="docutils literal notranslate"><span class="pre">--plot-file</span></code> and GUI <strong>Export PNG…</strong> write a
+static figure (matplotlib Agg). Default path is text-only; no interactive plot
+window is required.</p>
+</section>
+<section id="line-interface-split-algorithm-stages">
+<h2>Line interface split (algorithm stages)<a class="headerlink" href="#line-interface-split-algorithm-stages" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">FaceSearch::SplitLine</span></code> / <code class="docutils literal notranslate"><span class="pre">TrySplitLineAtMidpoint</span></code> is the production path
+that still touches geometry services. The <strong>table</strong> and <strong>arithmetic</strong> steps are
+already pure and testable without CGNS (<code class="docutils literal notranslate"><span class="pre">LineSplitPureStagesTest</span></code>).</p>
+<p><strong>Flow (pure = open box, hard edge = filled box):</strong></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>[1 sole-zone] --&gt; [2 midpoint] --&gt; [3 locator FindPoint]
+                                        | miss -&gt; abort
+                                        v
+                           [4 child edge candidates]
+                                        |
+                                        v
+                           [5 resolve registered faces]
+                                        | empty -&gt; abort
+                                        v
+                           [6 zone nodeMesh find/add]
+                                        |
+                                        v
+                           [7 local line mapping]
+</pre></div>
+</div>
+<p><strong>Midpoint formula</strong> (<code class="docutils literal notranslate"><span class="pre">ComputeSegmentMidpoint</span></code>; component-wise):</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{m} = \frac{1}{2}(\mathbf{a} + \mathbf{b})\]</div>
+<p>No tolerance is applied at this stage. Matching the global mid-node is a
+separate locator query (stage 3), not part of the arithmetic.</p>
+<p><strong>Stage list:</strong></p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">RequireSoleZoneIdForGlobalFace</span></code> — exactly one zone on the global face.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ComputeSegmentMidpoint</span></code> — formula above; no mesh.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PointLocator::FindPoint</span></code> — global mid-node must <strong>already</strong> exist; else abort.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BuildGlobalLineSplitCandidates</span></code> — directed edges <span class="math notranslate nohighlight">\((p_0,m)\)</span> and <span class="math notranslate nohighlight">\((m,p_1)\)</span>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ResolveRegisteredChildFaces</span></code> — empty resolution aborts before mesh mutation.</p></li>
+<li><p>Zone <code class="docutils literal notranslate"><span class="pre">nodeMesh</span></code> find-or-add (local mid index).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BuildLocalLineSplitMapping</span></code> — parent-local rings and endpoint flags.</p></li>
+</ol>
+<p>Header comments on the pure stages use <code class="docutils literal notranslate"><span class="pre">&#64;doc-algorithm</span> <span class="pre">line-interface-split</span></code>
+and <code class="docutils literal notranslate"><span class="pre">&#64;doc-stage</span> <span class="pre">N</span></code> so a future extractor can rebuild this section from
+<code class="docutils literal notranslate"><span class="pre">FaceSearch.h</span></code> without inventing a second algorithm description.</p>
+<p>The remaining hard edge is intentional: stages 3 and 6 need a live locator and a
+zone mesh. Do not fold mesh mutation into the pure candidate builders.</p>
+</section>
+<section id="documentation-from-code-comments">
+<h2>Documentation from code comments<a class="headerlink" href="#documentation-from-code-comments" title="Link to this heading"></a></h2>
+<p>Prefer <strong>one source of truth</strong> for algorithm stages:</p>
+<ul>
+<li><p>C++ public headers carry short, structured tags (ASCII only), for example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">//</span> <span class="nd">@doc</span><span class="o">-</span><span class="n">algorithm</span> <span class="n">line</span><span class="o">-</span><span class="n">interface</span><span class="o">-</span><span class="n">split</span>
+<span class="o">//</span> <span class="nd">@doc</span><span class="o">-</span><span class="n">stage</span> <span class="mi">2</span>
+<span class="o">//</span> <span class="nd">@doc</span><span class="o">-</span><span class="n">pure</span>
+<span class="o">//</span> <span class="nd">@doc</span><span class="o">-</span><span class="n">formula</span> <span class="n">m</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">)</span> <span class="n">component</span><span class="o">-</span><span class="n">wise</span> <span class="ow">in</span> <span class="n">R</span><span class="o">^</span><span class="mi">3</span>
+</pre></div>
+</div>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">doc/source/*.rst</span></code> holds the narrative: motivation, flow diagrams, math,
+open pressures, and ROI priority. Diagrams and equations belong here (or in
+generated pages), not in long <code class="docutils literal notranslate"><span class="pre">//</span></code> essays inside <code class="docutils literal notranslate"><span class="pre">.cpp</span></code> files.</p></li>
+<li><p>Tests name the contract (<code class="docutils literal notranslate"><span class="pre">LineSplitPureStagesTest</span></code>). Do not duplicate the
+full stage list in three places; link the test from the rst page.</p></li>
+</ul>
+<p>A full auto-generator is optional. Until it exists, keep tags stable so a script
+or an AI pass can collect <code class="docutils literal notranslate"><span class="pre">&#64;doc-algorithm</span></code> groups into a page. Do not enable a
+tool that rewrites production code comments from prose automatically.</p>
+</section>
+<section id="open-design-pressures">
+<h2>Open design pressures<a class="headerlink" href="#open-design-pressures" title="Link to this heading"></a></h2>
+<ul>
+<li><p>Quad/child-node metadata is indexed by global child face ID, but a flag of
+<code class="docutils literal notranslate"><span class="pre">1</span></code> means the stored node index is relative to a parent face ring. The
+consumer path is <code class="docutils literal notranslate"><span class="pre">FaceSearch::SplitQuad2Tri</span></code> -&gt;
+<code class="docutils literal notranslate"><span class="pre">FaceTopo::SetNewFace2Node</span></code> -&gt;
+<code class="docutils literal notranslate"><span class="pre">RebuildFaceNodeListsAfterInterfaceSplit</span></code> -&gt;
+<code class="docutils literal notranslate"><span class="pre">ResolveChildFaceNodeIds</span></code>. The final resolver receives the current parent
+ring, while its mapping row is selected by global child ID. A second parent
+that shares that child can overwrite the row with different parent-local
+indices.</p>
+<p>Parent-specific tables address this; the fixture is
+<code class="docutils literal notranslate"><span class="pre">TwoParentSharedChildMappingTest</span></code> (rings <code class="docutils literal notranslate"><span class="pre">[10,20,30,40]</span></code> and
+<code class="docutils literal notranslate"><span class="pre">[20,30,40,50]</span></code>, shared child resolved to <code class="docutils literal notranslate"><span class="pre">[20,30,40]</span></code> under both
+parents). Merely rotating one parent’s ring does not create a second global
+parent face in the registry.</p>
+<p>Each parent child list must contain a global child face ID at most once.
+The mapping rows are indexed by child position, so duplicate IDs would make a
+single <code class="docutils literal notranslate"><span class="pre">SetChildMapping(parent,</span> <span class="pre">child,</span> <span class="pre">...)</span></code> call ambiguous: the same child ID
+would name multiple positions. <code class="docutils literal notranslate"><span class="pre">SetChildMapping</span></code> rejects duplicate
+registrations before resizing or writing either parent-specific row. The
+<code class="docutils literal notranslate"><span class="pre">SplitQuad2Tri</span></code> and <code class="docutils literal notranslate"><span class="pre">SplitLine</span></code> share the pure resolution step
+<code class="docutils literal notranslate"><span class="pre">ResolveRegisteredChildFaces</span></code>: it maps candidate node rings to registered
+global face IDs, skips candidates absent from the registry, and rejects a
+repeated child ID before returning either output. The caller then publishes
+the resolved child IDs and their parent-relative mapping rows. This keeps
+candidate resolution separate from parent mapping publication and prevents
+the quad and line paths from drifting in duplicate handling. A malformed
+parent therefore has an empty rebuilt mapping after a duplicate-candidate
+failure, rather than a prefix that looks complete
+(<strong>test:</strong> <code class="docutils literal notranslate"><span class="pre">FaceSearchBasicTest.QuadSplitRejectsDuplicateChildBeforeAppendingIt</span></code>).
+<code class="docutils literal notranslate"><span class="pre">SetChildMapping</span></code> remains a second, API-level guard for callers that register
+mappings directly (<strong>test:</strong> <code class="docutils literal notranslate"><span class="pre">FaceSearchBasicTest.SetChildMappingRejectsDuplicateChildRegistration</span></code>).</p>
+<p>Re-registering the same parent-child mapping is idempotent, but writing a
+different local-corner row for that same relation is rejected before either
+stored row changes (<strong>test:</strong>
+<code class="docutils literal notranslate"><span class="pre">FaceSearchBasicTest.SetChildMappingRejectsConflictingMappingForSameParent</span></code>).
+This is distinct from two different parents sharing one global child: those
+rows are expected to differ because each row is interpreted against its own
+parent ring. The invariant is therefore per parent-child relation, not per
+global child ID.</p>
+<p>Mapping collection prefers the parent-specific row whenever it contains
+data. The legacy child-global row is only a compatibility fallback when both
+parent-specific rows for that parent are empty. This distinction matters:
+a malformed or incomplete parent-specific row is an error, not a reason to
+fall back to metadata that may have been written for another parent. The
+regression <code class="docutils literal notranslate"><span class="pre">RebuildFaceNodeListsTest.ParentSpecificMappingTakesPrecedenceOverLegacyRows</span></code>
+deliberately gives the legacy and parent-specific rows conflicting values
+and verifies that the parent-specific mapping wins.</p>
+<p>The rebuild consumer follows the same publication rule. Both overloads of
+<code class="docutils literal notranslate"><span class="pre">RebuildFaceNodeListsAfterInterfaceSplit</span></code> assemble the replacement face
+lists in a local buffer and swap it into the caller output only after every
+child mapping resolves. If a later child has an invalid parent-local corner
+or malformed row, the caller’s previous output remains intact
+(test: <code class="docutils literal notranslate"><span class="pre">RebuildFaceNodeListsTest.FailedRebuildDoesNotPublishPartialFaceLists</span></code>).</p>
+<p>The overload that accepts child-global node tables is now an adapter: it
+translates each interface’s child IDs into the parent-local row layout and
+delegates reconstruction to the same core overload. This keeps compatibility
+at the input boundary instead of maintaining two copies of face-list
+rebuilding logic. The regression
+<code class="docutils literal notranslate"><span class="pre">RebuildFaceNodeListsTest.LegacyMappingAdapterUsesCanonicalRebuildAtomically</span></code>
+verifies that a failure in a later legacy-mapped child does not publish a
+partial face list.</p>
+<p>The split table now retains parent-specific child node IDs and flags in
+<code class="docutils literal notranslate"><span class="pre">childFaceNodeIdsByParent</span></code> and <code class="docutils literal notranslate"><span class="pre">childFaceNodeFlagsByParent</span></code>. Global
+child IDs remain the identity and deduplication key; each parent owns an
+aligned row for each child. <code class="docutils literal notranslate"><span class="pre">SetChildMapping</span></code> permits a row to lag the child
+list while children are registered incrementally, but the ID and flag rows
+must always have equal lengths and must not exceed the parent’s child count.
+The legacy global child-ID and flag rows must also be length-aligned before
+a parent-specific row can be written; malformed compatibility data is
+rejected without changing either mapping domain. This prevents a successful
+parent-specific write from masking a broken global fallback row.
+It rejects a mismatched pair before resizing either row, so malformed metadata
+is not silently normalized. This invariant is covered by
+<code class="docutils literal notranslate"><span class="pre">FaceSearchBasicTest.SetChildMappingRejectsMisalignedParentRowsWithoutMutation</span></code>. <code class="docutils literal notranslate"><span class="pre">FaceTopo::SetNewFace2Node</span></code> collects these
+rows and passes them to the parent-aware overload of
+<code class="docutils literal notranslate"><span class="pre">RebuildFaceNodeListsAfterInterfaceSplit</span></code>. The regression
+<code class="docutils literal notranslate"><span class="pre">RebuildFaceNodeListsTest.SharedChildUsesEachParentLocalMapping</span></code> checks
+that two parents sharing child ID 7 rebuild to the same ordered global node
+list despite different parent-local indices. The older global-indexed rows
+remain temporarily for compatibility with existing helper callers. Both the
+legacy node-ID row and its flag row retain the first populated mapping for a
+shared child; later parents may have different local-corner IDs and flags but
+must not overwrite those compatibility values. New parent-aware consumers
+must use the parent-specific tables. The regression
+<code class="docutils literal notranslate"><span class="pre">FaceSearchBasicTest.SharedChildKeepsParentSpecificMappingRows</span></code> checks
+both the differing parent rows and the unchanged legacy rows.</p>
+<p>The split-table lifecycle follows the same ownership boundary. <code class="docutils literal notranslate"><span class="pre">ResetForFaceCount</span></code>
+sizes and clears both global child tables and parent-specific rows; a reset must
+not leave mapping rows from a previous face registry. <code class="docutils literal notranslate"><span class="pre">ClearParentMapping</span></code>
+removes only the selected parent’s child list and parent-relative rows. It must
+preserve the global child metadata and any other parent’s row, because the child
+can be shared. <code class="docutils literal notranslate"><span class="pre">FaceSearch::Clear</span></code> is broader: it invalidates the face registry
+and therefore clears every split table. The regression tests
+<code class="docutils literal notranslate"><span class="pre">FaceSearchBasicTest.ResetForFaceCountClearsAllSplitTables</span></code> and
+<code class="docutils literal notranslate"><span class="pre">FaceSearchBasicTest.ClearParentMappingOnlyClearsRequestedParent</span></code> encode these
+distinct lifecycle scopes.</p>
+<p>The end-to-end regression
+<code class="docutils literal notranslate"><span class="pre">RebuildFaceNodeListsTest.SplitProducerCollectorAndRebuildPreserveSharedChildMapping</span></code>
+drives the real <code class="docutils literal notranslate"><span class="pre">SplitQuad2Tri</span></code> producer through
+<code class="docutils literal notranslate"><span class="pre">CollectBoundaryInterfaceChildFaceIds</span></code>,
+<code class="docutils literal notranslate"><span class="pre">CollectBoundaryInterfaceChildNodeMappings</span></code>, and the parent-aware rebuild
+consumer. Two distinct quad parents share one registered triangle. The first
+parent ring is <code class="docutils literal notranslate"><span class="pre">[100,</span> <span class="pre">101,</span> <span class="pre">102,</span> <span class="pre">103]</span></code>; the second is
+<code class="docutils literal notranslate"><span class="pre">[101,</span> <span class="pre">102,</span> <span class="pre">103,</span> <span class="pre">104]</span></code>. Their shared child is <code class="docutils literal notranslate"><span class="pre">[101,</span> <span class="pre">102,</span> <span class="pre">103]</span></code>, with
+parent-local rows <code class="docutils literal notranslate"><span class="pre">[1,</span> <span class="pre">2,</span> <span class="pre">3]</span></code> and <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1,</span> <span class="pre">2]</span></code>. Both reconstructed
+outputs must preserve the registered child ring <code class="docutils literal notranslate"><span class="pre">[101,</span> <span class="pre">102,</span> <span class="pre">103]</span></code>. This
+locks child identity, parent-local mapping, interface-local collection order,
+and final node reconstruction together rather than testing only isolated
+helpers.</p>
+</li>
+</ul>
+<p>These remain harder to unit-test and mark follow-up work:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">IFaceLink</span></code> dual-map fields are private. Seed and observe through
+<code class="docutils literal notranslate"><span class="pre">EnsureInterfaceZoneCount</span></code> / <code class="docutils literal notranslate"><span class="pre">EnsureLocalInterfaceFaceCount</span></code> /
+<code class="docutils literal notranslate"><span class="pre">RegisterLocalInterfaceFace</span></code> and the Get*/Mutable* accessors. Geometry
+call sites no longer touch <code class="docutils literal notranslate"><span class="pre">l2g</span></code> / <code class="docutils literal notranslate"><span class="pre">gI2Zid</span></code> / <code class="docutils literal notranslate"><span class="pre">g2l</span></code> fields.</p></li>
+<li><p>Line mid-point split still needs a ready locator for production grids.
+<code class="docutils literal notranslate"><span class="pre">point_search</span></code> is private (<code class="docutils literal notranslate"><span class="pre">GetPointLocator</span></code> /
+<code class="docutils literal notranslate"><span class="pre">EnsurePointLocatorReady</span></code>). Tests inject a double via
+<code class="docutils literal notranslate"><span class="pre">ReplacePointLocator(locator,</span> <span class="pre">markReady=true)</span></code> so mid-point / id
+resolution can run without nodeMesh boxes (<strong>test:</strong>
+<code class="docutils literal notranslate"><span class="pre">IFaceLinkPointLocatorInjectionTest</span></code>). Zone policy remains
+<code class="docutils literal notranslate"><span class="pre">RequireSoleZoneIdForGlobalFace</span></code> (<strong>test:</strong>
+<code class="docutils literal notranslate"><span class="pre">RequireSoleZoneIdForGlobalFaceTest</span></code>).</p></li>
+<li><p>End-to-end CGNS zone scan still requires heavyweight zone setup.</p></li>
+</ol>
+<p>When those paths are split into pure helpers or ports, update this page in the
+same change and add tests.</p>
+</section>
+<section id="pr-checklist-executable-norm">
+<h2>PR checklist (executable norm)<a class="headerlink" href="#pr-checklist-executable-norm" title="Link to this heading"></a></h2>
+<p>Use this list when a change touches staged faces, BC export, or boundary-first
+reorder. The goal is one pull request that keeps <strong>code</strong>, <strong>tests</strong>, and
+<strong>this page</strong> aligned.</p>
+<section id="always">
+<h3>Always<a class="headerlink" href="#always" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Prefer pure helpers or named APIs over new ad-hoc writes to parallel arrays.</p></li>
+<li><p>Do not introduce non-ASCII characters in source or in this page.</p></li>
+<li><p>If behavior is intentional, name the unit test that locks it; if no test
+exists yet, add one in the same change when the logic can be isolated.</p></li>
+<li><p>If a path stays hard to test, add or extend an item under <cite>Open design
+pressures</cite> instead of only describing it in the PR text.</p></li>
+</ul>
+</section>
+<section id="change-type-matrix">
+<h3>Change type matrix<a class="headerlink" href="#change-type-matrix" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 28.0%" />
+<col style="width: 36.0%" />
+<col style="width: 36.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>If you change…</p></th>
+<th class="head"><p>Update tests (minimum)</p></th>
+<th class="head"><p>Update docs (minimum)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">StageNewFace</span></code> / parallel growth /
+<code class="docutils literal notranslate"><span class="pre">StagedBcMatchesFaceCount</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">FaceSolverStageTest</span></code>,
+<code class="docutils literal notranslate"><span class="pre">FaceSolverLifecycleTest</span></code></p></td>
+<td><p><cite>Staged face invariant</cite> on this page</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">StagePolyhedralFacesFromConnectivity</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">FaceSolverStageTest.StagePolyhedralFacesRejectsFewerThanThreeNodes</span></code>,
+<code class="docutils literal notranslate"><span class="pre">FaceSolverStageTest.StagePolyhedralFacesValidatesAllSpansBeforeStaging</span></code></p></td>
+<td><p><cite>Polyhedral-face staging and deduplication</cite></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">FillUnsetStagedBcSlots</span></code> / ScanInterfaceBc /
+<code class="docutils literal notranslate"><span class="pre">CountEmptyChildFaceLists</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">FillUnsetStagedBcSlotsTest</span></code></p></td>
+<td><p><cite>Staged parallel-array growth</cite></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">SetStagedFaceBc</span></code> /
+<code class="docutils literal notranslate"><span class="pre">AssignBcToMatchingFaces</span></code> /
+BC slot privacy or accessors</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">FaceSolverStageTest</span></code> (BC write/read)</p></td>
+<td><p>write-path table on this page</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">FaceNodesContainedInVertexSet</span></code> / CheckBcFace</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">FaceNodesContainedInVertexSetTest</span></code></p></td>
+<td><p><cite>Boundary-condition assignment algorithm</cite></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">IsEligibleForStagedBcAssignment</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">IsEligibleForStagedBcAssignmentTest</span></code></p></td>
+<td><p><cite>Boundary-condition assignment algorithm</cite></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">CollectBoundaryBcEntries</span></code> / AppendBoundaryBcToRecord</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">CollectBoundaryBcEntriesTest</span></code></p></td>
+<td><p><cite>Boundary-condition assignment algorithm</cite></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ClaimStagedFaceAsLeft</span></code> /
+<code class="docutils literal notranslate"><span class="pre">AttachStagedFaceAsRight</span></code> /
+<code class="docutils literal notranslate"><span class="pre">BindCellToExistingFace</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">FaceSolverStageTest</span></code> (ownership)</p></td>
+<td><p>post-stage writes table on this page</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">BindCellToFaceSides</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BindCellToFaceSidesTest</span></code></p></td>
+<td><p><cite>Face ownership algorithm</cite></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">AppendBoundaryBcToRecord</span></code></p></td>
+<td><p>stage/export tests that cover boundary
+faces and alignment failures</p></td>
+<td><p><cite>Boundary BC export and reorder</cite></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">BuildBoundaryFirstPermutation</span></code> /
+<code class="docutils literal notranslate"><span class="pre">ReorderLink</span></code> /
+<code class="docutils literal notranslate"><span class="pre">ValidateBoundaryBcLayout</span></code> /
+<code class="docutils literal notranslate"><span class="pre">ReorderBoundaryFirstAndValidate</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">FaceTopoReorderLinkTest</span></code>,
+<code class="docutils literal notranslate"><span class="pre">ReorderBoundaryFirstAndValidateTest</span></code></p></td>
+<td><p><cite>Boundary-first reorder algorithm</cite></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">HXKey</span></code> / <code class="docutils literal notranslate"><span class="pre">HXLookup</span></code> /
+<code class="docutils literal notranslate"><span class="pre">FaceSearchBasic</span></code> identity rules</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">HXLookupTest</span></code>,
+<code class="docutils literal notranslate"><span class="pre">FaceSearchBasicTest</span></code></p></td>
+<td><p><cite>Face identity versus orientation</cite></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">BcTypeMap</span></code> or <code class="docutils literal notranslate"><span class="pre">BC::Is*</span></code> predicates</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BcTypeMapTest</span></code>,
+<code class="docutils literal notranslate"><span class="pre">BcClassificationTest</span></code></p></td>
+<td><p><cite>BC classification and CGNS mapping</cite></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">RegionNameRegistry</span></code> /
+<code class="docutils literal notranslate"><span class="pre">RegisterRegionNames</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">RegionNameRegistryTest</span></code></p></td>
+<td><p>region-name paragraph on this page</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">GetInterfaceChildFaceIds</span></code> (table
+overload) or split tables</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">InterfaceChildFaceIdsTest</span></code></p></td>
+<td><p><cite>Interface split helpers</cite></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ValidateGlobalFaceMapping(s)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">GlobalFaceMappingTest</span></code></p></td>
+<td><p><cite>Interface split helpers</cite></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">RegisterLocalInterfaceFaceOnMaps</span></code> / CreateLink mapping</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">RegisterLocalInterfaceFaceTest</span></code></p></td>
+<td><p><cite>Interface split helpers</cite></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">FindRemoteInterfacePartner</span></code> / MatchInterfaceTopology</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">FindRemoteInterfacePartnerTest</span></code></p></td>
+<td><p><cite>Interface split helpers</cite></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">CountInterfaceFacesMissingPartner</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">CountInterfaceFacesMissingPartnerTest</span></code></p></td>
+<td><p><cite>Interface split helpers</cite></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">InitNewInterfaceMappingBuffers</span></code> / Commit / InitNewLgMapping</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">InitNewInterfaceMappingBuffersTest</span></code></p></td>
+<td><p><cite>Interface mapping algorithm</cite></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ExpandBcRecordForSplitInterfaces</span></code> / BC reset on split</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ExpandBcRecordSplitTest</span></code></p></td>
+<td><p><cite>Interface split helpers</cite></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">BuildInverseInterfaceMapForZone</span></code> / ConstructNewInterfaceMap</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BuildInverseInterfaceMapTest</span></code></p></td>
+<td><p><cite>Interface split helpers</cite></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">RebuildZoneL2gNewAfterInterfaceSplit</span></code> / ModifyBoundaryInformation</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">RebuildZoneL2gNewTest</span></code></p></td>
+<td><p><cite>Interface split helpers</cite></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">RebuildFaceCellSidesAfterInterfaceSplit</span></code> / SetNewFace2Cell</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">RebuildFaceCellSidesTest</span></code></p></td>
+<td><p><cite>Interface split helpers</cite></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">CollectBoundaryInterfaceChildFaceIds</span></code> / Counts</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">CollectBoundaryInterfaceChildCountsTest</span></code></p></td>
+<td><p><cite>Interface split helpers</cite></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">RebuildFaceNodeListsAfterInterfaceSplit</span></code> / SetNewFace2Node</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">RebuildFaceNodeListsTest</span></code></p></td>
+<td><p><cite>Interface split helpers</cite></p></td>
+</tr>
+<tr class="row-even"><td><p>quad diagonal local tris / node map</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">QuadDiagonalSplitTest</span></code></p></td>
+<td><p><cite>Interface split helpers</cite></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">GridElem</span></code> scan/export/reorder
+orchestration only</p></td>
+<td><p>tests for any moved pure step; full
+CGNS path only if behavior changes</p></td>
+<td><p><cite>Pipeline overview</cite> if steps change</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="suggested-pr-description-lines">
+<h3>Suggested PR description lines<a class="headerlink" href="#suggested-pr-description-lines" title="Link to this heading"></a></h3>
+<p>Copy and tick what applies:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span> <span class="p">]</span> <span class="n">Staged</span><span class="o">-</span><span class="n">face</span> <span class="ow">or</span> <span class="n">BC</span> <span class="n">write</span> <span class="n">path</span> <span class="n">covered</span> <span class="n">by</span> <span class="n">FaceSolver</span><span class="o">*</span> <span class="n">tests</span>
+<span class="p">[</span> <span class="p">]</span> <span class="n">Reorder</span> <span class="o">/</span> <span class="n">boundary</span> <span class="n">layout</span> <span class="n">covered</span> <span class="n">by</span> <span class="n">FaceTopoReorderLinkTest</span>
+<span class="p">[</span> <span class="p">]</span> <span class="n">Identity</span><span class="o">/</span><span class="n">orientation</span> <span class="ow">or</span> <span class="n">interface</span> <span class="n">helpers</span> <span class="n">covered</span> <span class="n">by</span> <span class="n">named</span> <span class="n">tests</span>
+<span class="p">[</span> <span class="p">]</span> <span class="n">doc</span><span class="o">/</span><span class="n">source</span><span class="o">/</span><span class="n">face_stage_pipeline</span><span class="o">.</span><span class="n">rst</span> <span class="n">updated</span> <span class="p">(</span><span class="ow">or</span> <span class="n">explicitly</span> <span class="n">N</span><span class="o">/</span><span class="n">A</span><span class="p">)</span>
+<span class="p">[</span> <span class="p">]</span> <span class="n">Open</span> <span class="n">design</span> <span class="n">pressures</span> <span class="n">updated</span> <span class="k">if</span> <span class="n">testability</span> <span class="n">did</span> <span class="ow">not</span> <span class="n">improve</span>
+</pre></div>
+</div>
+</section>
+<section id="related-pages">
+<h3>Related pages<a class="headerlink" href="#related-pages" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><a class="reference internal" href="grid_topology.html"><span class="doc">Grid Topology and Validation</span></a> – runtime topology contracts and derived connectivity</p></li>
+<li><p><a class="reference internal" href="mesh_architecture.html"><span class="doc">OneFLOW Mesh Architecture</span></a> – mesh information levels and adapters</p></li>
+</ul>
+</section>
+</section>
+<section id="source-anchors">
+<h2>Source anchors<a class="headerlink" href="#source-anchors" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">codes/geometry/include/FaceSolver.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">codes/geometry/include/FaceTopo.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">codes/geometry/include/FaceSearch.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">codes/geometry/include/IFaceLink.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">codes/geometry/src/GridElem.cpp</span></code></p></li>
+</ul>
+</section>
+<section id="registered-child-face-resolution">
+<h2>Registered child-face resolution<a class="headerlink" href="#registered-child-face-resolution" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">ResolveRegisteredChildFaces</span></code> is a lookup stage, not a mesh-generation
+stage. Its caller supplies candidate node rings; the resolver asks
+<code class="docutils literal notranslate"><span class="pre">FaceSearchBasic::FindFace</span></code> which candidates already have global face IDs.
+It returns pairs of <code class="docutils literal notranslate"><span class="pre">(globalFaceId,</span> <span class="pre">candidateIndex)</span></code> for matches only.</p>
+<p>The algorithm has four important properties:</p>
+<ol class="arabic simple">
+<li><p><strong>Identity is order-independent.</strong> The face lookup keys a face by its node
+set, while <code class="docutils literal notranslate"><span class="pre">faceNodeRings</span></code> preserves the first registered node order.
+Reversing a candidate ring therefore does not create a new global face.</p></li>
+<li><p><strong>Missing candidates are skipped.</strong> Resolution does not register new faces
+and does not invent IDs for candidates absent from the registry.</p></li>
+<li><p><strong>Candidate positions are preserved.</strong> The returned candidate index points
+back to the original candidate list. Parent-local node IDs and flags must
+use this index; compacting candidates before applying local mappings would
+silently attach the wrong mapping after a partial match.</p></li>
+<li><p><strong>Duplicate resolved IDs are rejected.</strong> If two candidates resolve to the
+same global face ID, the resolver throws instead of publishing an ambiguous
+parent-to-child relation.</p></li>
+</ol>
+<p>The resolver checks duplicate resolved IDs with a hash set while keeping the
+result vector in candidate order. For <cite>k</cite> candidate faces, this changes the
+duplicate-check portion from a repeated linear scan (worst-case quadratic in
+the number of resolved children) to expected linear time, without changing
+the registry lookup or output ordering. The vector remains the authoritative
+ordered result; the set is only an identity guard. This is an implementation
+detail, not a new topology rule.</p>
+<p>The registered-child contract is covered by
+<code class="docutils literal notranslate"><span class="pre">FaceSearchBasicTest.RegisteredChildResolutionReturnsOnlyKnownChildren</span></code>,
+with companion tests for partial matches, no matches, duplicate identity, and
+the original candidate index. The scenario
+<code class="docutils literal notranslate"><span class="pre">tools/geometry_workbench/scenarios/registered_child_resolution.json</span></code> makes
+one of these cases inspectable as input and expected tables. Its <code class="docutils literal notranslate"><span class="pre">result</span></code>
+must remain unrecorded until a native test runner captures execution; a stub
+that copies expected values is not evidence that the C++ algorithm passed.</p>
+<p>This seam is architecturally useful because it separates three decisions:
+candidate topology is constructed by the split algorithm, global face identity
+is resolved by the registry, and parent-relative mapping rows are published
+by <code class="docutils literal notranslate"><span class="pre">SetChildMapping</span></code>. Keeping those decisions distinct lets tests pinpoint
+whether a failure comes from candidate construction, face lookup, or mapping
+publication without building a complete CGNS case.
+Interface split pipeline and publication boundary
+————————————————–</p>
+<p><code class="docutils literal notranslate"><span class="pre">RunSymmetricInterfaceSplitMappingPipeline</span></code> is a table-level composition
+of the production mapping steps. It is deliberately independent of <code class="docutils literal notranslate"><span class="pre">IFaceLink</span></code>,
+CGNS objects, and mesh geometry, so its mapping contract can be tested with
+small tables:</p>
+<ol class="arabic simple">
+<li><p>Copy the live maps into candidate buffers (<code class="docutils literal notranslate"><span class="pre">InitNewInterfaceMappingBuffers</span></code>).</p></li>
+<li><p>Rebuild each zone’s local-to-global row by replacing split parents with their
+ordered child global IDs.</p></li>
+<li><p>Rebuild the inverse global-to-zone and global-to-local tables from those rows.</p></li>
+<li><p>Expand boundary-condition records using the child counts.</p></li>
+<li><p>Commit the candidate maps and publish the result.</p></li>
+</ol>
+<p>The key invariant is that these tables form one logical result even though they
+are stored separately. Publishing <code class="docutils literal notranslate"><span class="pre">nChild</span></code> or expanded BC arrays before a later
+stage succeeds can expose a mixed state: new counts alongside old maps. The
+pipeline now builds an <code class="docutils literal notranslate"><span class="pre">InterfaceSplitMappingPipelineResult</span></code> candidate and
+moves it to the caller’s output only after every stage succeeds. A regression
+test deliberately supplies too few child counts and verifies that all preexisting
+output fields remain unchanged.</p>
+<p>This is a strong exception guarantee for the <strong>table-level result</strong>; it does
+not make the live production <code class="docutils literal notranslate"><span class="pre">IFaceLink</span></code> rebuild transactional by itself.
+The production path still owns its staging/commit lifecycle, and that lifecycle
+must be reviewed separately when it changes.</p>
+<p>The multi-zone end-to-end table test also exposes an important distinction:
+after replacing a parent face with children, the copied inverse tables may retain
+an unreferenced row for the retired parent global ID. Detection is implemented by
+<code class="docutils literal notranslate"><span class="pre">CollectUnreferencedGlobalInterfaceFaces</span></code>. Detection is not deletion: global
+IDs are indices into several related tables, so removing or compacting a row
+would require consistently rewriting every local-to-global map and any
+parent/child references. Until that full ID-remapping contract is defined, keep
+the diagnostic and do not silently compact the maps.</p>
+</section>
+<section id="point-location-tolerance-and-search-stages">
+<h2>Point-location tolerance and search stages<a class="headerlink" href="#point-location-tolerance-and-search-stages" title="Link to this heading"></a></h2>
+<p>The point locator uses the ADT as a broad-phase spatial index, then applies an
+exact squared-distance test as the narrow phase. The query first searches an
+axis-aligned box expanded by <code class="docutils literal notranslate"><span class="pre">tolerance</span></code> in each coordinate. Every candidate
+is then tested against <code class="docutils literal notranslate"><span class="pre">dx*dx</span> <span class="pre">+</span> <span class="pre">dy*dy</span> <span class="pre">+</span> <span class="pre">dz*dz</span> <span class="pre">&lt;</span> <span class="pre">tolerance*tolerance</span></code>; the
+first-stage box is therefore only a candidate filter, not the final matching
+criterion. A point outside the exact radius is not a match even if it lies in
+the search box.</p>
+<p>For a single grid, the standard ADT setup derives tolerance as one quarter of
+the minimum grid spacing. For multiple grids, it derives tolerance as one tenth
+of the minimum spacing and applies the existing small-value fallback when that
+result is below <code class="docutils literal notranslate"><span class="pre">1.0e-10</span></code>. <code class="docutils literal notranslate"><span class="pre">CreateStandardADTByTolerance</span></code> instead uses the
+caller-provided tolerance. These are distinct policies and should not be
+unified without checking interface-node matching and midpoint-splitting call
+sites: changing tolerance changes which geometric points are considered the
+same point.</p>
+<p>The bounding-box overload of <code class="docutils literal notranslate"><span class="pre">PointLocator::Initialize</span></code> only reads its input
+bounds and copies them before expansion. Its inputs and the corresponding
+<code class="docutils literal notranslate"><span class="pre">CreateStandardADT</span></code> overload now use <code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">RealField</span> <span class="pre">&amp;</span></code> to express that
+contract; <code class="docutils literal notranslate"><span class="pre">ShiftMinMaxBox</span></code> remains mutable because it expands the copied
+bounds in place.</p>
+<p>The point locator’s observation-only methods also expose const-qualified
+contracts: <code class="docutils literal notranslate"><span class="pre">GetNPoint</span></code>, <code class="docutils literal notranslate"><span class="pre">GetTol</span></code>, <code class="docutils literal notranslate"><span class="pre">GetPoint</span></code>, and <code class="docutils literal notranslate"><span class="pre">GetFaceCoorList</span></code> do
+not modify locator state. This lets consumers inspect a locator through a
+<code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">PointLocator</span> <span class="pre">&amp;</span></code> while leaving <code class="docutils literal notranslate"><span class="pre">FindPoint</span></code> and <code class="docutils literal notranslate"><span class="pre">AddPoint</span></code> mutable:
+search updates the last-result ID, and insertion changes the point store and
+spatial index. The distinction is behavioral, not cosmetic, and the injected
+locator test exercises the query methods through a const base reference.</p>
+<p>The coordinate-vector overloads of <code class="docutils literal notranslate"><span class="pre">FindPoint</span></code> and <code class="docutils literal notranslate"><span class="pre">AddPoint</span></code> now accept
+<code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">RealField</span> <span class="pre">&amp;</span></code> as well. Both operations read the supplied coordinates;
+their state changes belong to the locator (the result ID, point arrays, and ADT),
+not to the caller’s coordinate buffer. This avoids requiring a mutable vector
+for an input-only role and makes the ownership boundary clearer.</p>
+</section>
+<section id="const-correct-access-and-pointer-ownership">
+<h2>Const-correct access and pointer ownership<a class="headerlink" href="#const-correct-access-and-pointer-ownership" title="Link to this heading"></a></h2>
+<p>The interface-link layer now provides both mutable and read-only grid access.
+<code class="docutils literal notranslate"><span class="pre">IFaceLink::GetGrid</span></code> returns <code class="docutils literal notranslate"><span class="pre">Grid</span> <span class="pre">&amp;</span></code> on a mutable object and
+<code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">Grid</span> <span class="pre">&amp;</span></code> on a const object. This makes observation-only code express
+its intent in the type system without introducing a second grid lookup path.
+The accessor is deliberately a reference: a zone index that passes the range
+check must identify an owned grid, not an optional result.</p>
+<p>The same distinction applies to collections of grid pointers. <code class="docutils literal notranslate"><span class="pre">GridViews</span></code> is
+a non-owning mutable view; making the vector itself const does not make its
+pointed-to grids const. <code class="docutils literal notranslate"><span class="pre">ConstGridViews</span></code> and <code class="docutils literal notranslate"><span class="pre">AsConstGridViews</span></code> provide a
+separate read-only view whose elements are <code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">Grid</span> <span class="pre">*</span></code>. This keeps the
+legacy mutable path intact while allowing read-only algorithms to advertise
+their actual contract in their parameter types. Neither view owns the grids;
+the originating <code class="docutils literal notranslate"><span class="pre">Grids</span></code> collection must outlive every view.</p>
+<p>For the broader const/raw-pointer audit, use semantic ownership rather than
+a mechanical pointer-to-reference rewrite:</p>
+<ul class="simple">
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">T</span> <span class="pre">&amp;</span></code> for required read-only inputs and <code class="docutils literal notranslate"><span class="pre">T</span> <span class="pre">&amp;</span></code> for required
+mutable inputs.</p></li>
+<li><p>Add paired const/non-const accessors when callers may observe an owned object
+through either a mutable or const owner.</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">std::unique_ptr&lt;T&gt;</span></code> for exclusive ownership and transfer ownership
+explicitly; use <code class="docutils literal notranslate"><span class="pre">std::shared_ptr&lt;T&gt;</span></code> only when shared lifetime is real.</p></li>
+<li><p>Keep a raw <code class="docutils literal notranslate"><span class="pre">T</span> <span class="pre">*</span></code> when null is a meaningful state or when the pointer is a
+non-owning view whose lifetime is controlled elsewhere. Document that
+contract and check null before dereferencing.</p></li>
+<li><p>Do not remove a pointer merely because it is syntactically raw. In particular,
+legacy grid lookup APIs can encode missing or non-local zones with null, while
+<code class="docutils literal notranslate"><span class="pre">IFaceLink::GetGrid</span></code> is a required indexed access and is better expressed
+as a reference.</p></li>
+</ul>
+<p>The purpose of this audit is to make lifetime, nullability, and mutation visible
+at API boundaries. It is not a project-wide pointer count reduction exercise.
+Prefer small, compile-checked changes that improve a real call path, with a
+focused test for the type-level contract. The next audit targets are public
+geometry accessors and grid/mesh lookup APIs; each candidate must be classified
+as required, optional, owning, or non-owning before changing its type.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="grid_topology.html" class="btn btn-neutral float-left" title="Grid Topology and Validation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="workbench_architecture.html" class="btn btn-neutral float-right" title="OneFLOW Workbench Architecture" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017-2026, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

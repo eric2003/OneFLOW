@@ -1,0 +1,299 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Roe average state &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="AUSM Mach and pressure splits" href="ausm_splits.html" />
+    <link rel="prev" title="Euler convective face flux" href="euler_convective_flux.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../info.html">OneFLOW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install/index.html">Install</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user.html">THEORY</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workbench_user_guide_zh.html">OneFLOW Workbench 用户手册</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../bash.html">Bash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cfd/index.html">CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mpi.html">MPI</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Numerical analysis</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tdma.html">Tridiagonal matrix algorithm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ctdma.html">Cyclic Tridiagonal Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fourier_transform.html">FOURIER TRANSFORMS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fftw.html">FFTW</a></li>
+<li class="toctree-l2"><a class="reference internal" href="limiter.html">Limiter face contracts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gradient.html">Green-Gauss gradient contracts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vis_face_geometry.html">Viscous face geometry contracts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="limited_face_reconstruction.html">Limited face reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="euler_convective_flux.html">Euler convective face flux</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Roe average state</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#formulas">Formulas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pipeline-role">Pipeline role</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lusgs-face-state-closure">LUSGS face-state closure</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ausm_splits.html">AUSM Mach and pressure splits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ideal_gas_thermo.html">Ideal-gas thermodynamic contracts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="roe_dissipation.html">Roe dissipation coefficients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="viscous_heat_flux.html">Viscous conductive heat flux</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sutherland_viscosity.html">Sutherland viscosity law</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spectral_radius.html">Face spectral radius and local time step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="references.html">References and external manuals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="boundary_velocity.html">Boundary velocity images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="isothermal_wall.html">Isothermal wall density and temperature images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="turb_scalar_upwind.html">Turbulence scalar convective upwind flux</a></li>
+<li class="toctree-l2"><a class="reference internal" href="turb_spectrum.html">Turbulence face spectral radius</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sa_closure.html">Spalart-Allmaras closure functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sa_eddy_viscosity.html">SA eddy viscosity and intermediate verification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sst_k_source.html">SST k-equation production and dissipation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sst_f1_blending.html">SST blending function F1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="verification_layers.html">Verification layers (copyable policy)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wilcox_fbeta.html">Wilcox f_k and f_w modifiers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sst_residual_assembly.html">SST residual assembly (Menter linearization)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="turb_lusgs.html">Turbulence LUSGS scalar sweep kernels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sst_eddy_viscosity.html">SST eddy viscosity and F2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="turb_wall_bc.html">Turbulence viscous-wall boundary values</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sa_update_bounds.html">SA working-variable bounds after update</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sst_update_floors.html">SST and transition update floors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="turb_farfield_bc.html">Turbulence far-field state selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sa_under_relax.html">SA under-relaxed working-variable update</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../yaml.html">yaml</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OneFLOW Design and Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../architecture_review.html">OneFLOW Architecture Review and Development Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../runtime_architecture.html">OneFLOW Runtime Architecture and Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../database_architecture.html">Database Architecture and Data Access Contracts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../evolutionary_computation_architecture.html">Evolutionary Scientific-Computing Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mesh_architecture.html">OneFLOW Mesh Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grid_topology.html">Grid Topology and Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../face_stage_pipeline.html">Face Stage Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workbench_architecture.html">OneFLOW Workbench Architecture</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../case_parameter_design.html">Case Parameter Design and GUI Editing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Numerical analysis</a></li>
+      <li class="breadcrumb-item active">Roe average state</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/numerical/roe_average.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="roe-average-state">
+<h1>Roe average state<a class="headerlink" href="#roe-average-state" title="Link to this heading"></a></h1>
+<p>Roe-type inviscid fluxes evaluate dissipation at an intermediate state.
+The density is a geometric mean; other scalars use the Roe density-weighted
+average.</p>
+<section id="formulas">
+<h2>Formulas<a class="headerlink" href="#formulas" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[r = \sqrt{\frac{\rho_R}{\rho_L}},\qquad
+c = \frac{1}{1+r}\]</div>
+<div class="math notranslate nohighlight">
+\[\rho_m = \sqrt{\rho_L\rho_R},\qquad
+\phi_m = (\phi_L + \phi_R\, r)\, c
+\quad (\phi \in \{u,v,w,p,h,\gamma\})\]</div>
+</section>
+<section id="pipeline-role">
+<h2>Pipeline role<a class="headerlink" href="#pipeline-role" title="Link to this heading"></a></h2>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>left/right primitives + total enthalpies
+     |
+     +--&gt; RoeAverageState -&gt; (rho,u,v,w,p,h,gamma)_m
+     +--&gt; sound speed / eigenvalues at mid state
+     +--&gt; physical flux + Roe dissipation
+     +--&gt; residual deposit
+</pre></div>
+</div>
+<p>Pure APIs: <code class="docutils literal notranslate"><span class="pre">RoeAverageWeights</span></code>, <code class="docutils literal notranslate"><span class="pre">RoeAverageComponent</span></code>, <code class="docutils literal notranslate"><span class="pre">RoeAverageState</span></code>
+(<code class="docutils literal notranslate"><span class="pre">NsInvFluxPolicy.h</span></code>). Tests: <code class="docutils literal notranslate"><span class="pre">inv_flux_policy_test</span></code>.</p>
+</section>
+<section id="lusgs-face-state-closure">
+<h2>LUSGS face-state closure<a class="headerlink" href="#lusgs-face-state-closure" title="Link to this heading"></a></h2>
+<p>The face state prepared by <code class="docutils literal notranslate"><span class="pre">UNsLusgs::PrepareDataFacePrim()</span></code> has a
+solver-specific use. In <code class="docutils literal notranslate"><span class="pre">NsLusgs::GetStandardFluxIncrement()</span></code>, the
+prepared face state is consumed by <code class="docutils literal notranslate"><span class="pre">CalcFaceEigenValue()</span></code> to estimate the
+face spectral radius. It is not used there to recompute the steady physical
+flux residual. The resulting eigenvalue participates in the implicit LUSGS
+correction. The current <code class="docutils literal notranslate"><span class="pre">PrepareData()</span></code> path subsequently assigns
+<code class="docutils literal notranslate"><span class="pre">nslu.gama</span></code> from the right cell, and <code class="docutils literal notranslate"><span class="pre">CalcFaceEigenValue()</span></code> uses that
+value for the face sound speed. Thus the pressure closure uses left-cell
+<code class="docutils literal notranslate"><span class="pre">gamma</span></code> while this eigenvalue calculation uses right-cell <code class="docutils literal notranslate"><span class="pre">gamma</span></code>. This
+is existing behavior worth preserving in compatibility tests and auditing
+separately for variable-gamma flows; it should not be silently normalized as
+part of an unrelated refactor.</p>
+<p>The current compressible unstructured LUSGS implementation first computes the
+Roe-weighted total enthalpy and velocity, then closes pressure using the
+left-cell heat-capacity ratio:</p>
+<div class="math notranslate nohighlight">
+\[p_m^{H} = \rho_m
+    \left(H_m - \frac{1}{2}|\mathbf{u}_m|^2\right)
+    \frac{\gamma_L-1}{\gamma_L}\]</div>
+<p>A weighted static-pressure alternative is:</p>
+<div class="math notranslate nohighlight">
+\[p_m^{p} = \frac{p_L + r p_R}{1+r}\]</div>
+<p>These expressions are not algebraically equivalent in general. For example,
+with left state <code class="docutils literal notranslate"><span class="pre">(rho=1,</span> <span class="pre">p=1,</span> <span class="pre">u=0)</span></code>, right state
+<code class="docutils literal notranslate"><span class="pre">(rho=4,</span> <span class="pre">p=4,</span> <span class="pre">u=3)</span></code>, and <code class="docutils literal notranslate"><span class="pre">gamma=1.4</span></code>, the current enthalpy closure
+gives <cite>18/7</cite>, while the weighted static pressure gives <cite>3</cite>.</p>
+<p>The difference changes the face sound speed and therefore the implicit
+spectral-radius estimate. Since this face state is used in the LUSGS
+linearization/preconditioning path, a different intermediate residual history
+does not by itself prove that the underlying steady discretization has
+changed or that one closure is mathematically wrong. If both iterations
+converge to the same root of the same residual equations, their final
+solutions may agree even when their iteration paths differ.</p>
+<p>This is a hypothesis to verify, not an assertion that both choices are
+equally robust. A meaningful A/B study should keep the mesh, physical
+residual, boundary conditions, initialization, and convergence criteria
+fixed, then compare:</p>
+<ul class="simple">
+<li><p>residual histories and convergence rates, not just one intermediate file;</p></li>
+<li><p>whether both runs reach the same converged residual level;</p></li>
+<li><p>conservative variables and derived quantities such as lift and drag;</p></li>
+<li><p>conservation balance and sensitivity to CFL, initialization, and mesh.</p></li>
+</ul>
+<p>Regression result files serve a different purpose: they pin the established
+numerical behavior for compatibility. The unit test for
+<code class="docutils literal notranslate"><span class="pre">RoePressureFromTotalEnthalpy</span></code> verifies the selected algebraic closure;
+it does not establish that a weighted-static-pressure closure is universally
+invalid. Any intentional change of closure should therefore be evaluated as
+a numerical-method change, with convergence and solution comparisons, rather
+than silently redefining the compatibility baseline.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="euler_convective_flux.html" class="btn btn-neutral float-left" title="Euler convective face flux" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="ausm_splits.html" class="btn btn-neutral float-right" title="AUSM Mach and pressure splits" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017-2026, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

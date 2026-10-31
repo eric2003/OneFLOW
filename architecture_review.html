@@ -1,0 +1,758 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OneFLOW Architecture Review and Development Principles &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="OneFLOW Runtime Architecture and Development Guide" href="runtime_architecture.html" />
+    <link rel="prev" title="yaml" href="yaml.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">OneFLOW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/index.html">Install</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user.html">THEORY</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_user_guide_zh.html">OneFLOW Workbench 用户手册</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bash.html">Bash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cfd/index.html">CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml.html">yaml</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OneFLOW Design and Development</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">OneFLOW Architecture Review and Development Principles</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#purpose-and-status">Purpose and status</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#highest-value-improvement-sequence">Highest-value improvement sequence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#review-principles">Review principles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#design-intent-as-an-executable-contract">Design intent as an executable contract</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#standardized-task-specification">Standardized task specification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#whole-system-architecture-map">Whole-system architecture map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#current-cross-system-risks-to-keep-visible">Current cross-system risks to keep visible</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#milestone-review-mechanism">Milestone review mechanism</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#relationship-to-the-rest-of-the-handbook">Relationship to the rest of the handbook</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#code-level-quality-signals-const-contracts-and-pointer-ownership">Code-level quality signals: const contracts and pointer ownership</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#terms">Terms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#why-these-are-useful-signals">Why these are useful signals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#suggested-reporting">Suggested reporting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#a-broader-quality-model-for-refactoring">A broader quality model for refactoring</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#metric-selection-and-use">Metric selection and use</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#point-locator-index-and-coordinate-store-lifecycle">Point locator: index and coordinate-store lifecycle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#special-tolerance-and-broad-phase-bounds">Special tolerance and broad-phase bounds</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_architecture.html">OneFLOW Runtime Architecture and Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="database_architecture.html">Database Architecture and Data Access Contracts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evolutionary_computation_architecture.html">Evolutionary Scientific-Computing Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mesh_architecture.html">OneFLOW Mesh Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grid_topology.html">Grid Topology and Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="face_stage_pipeline.html">Face Stage Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_architecture.html">OneFLOW Workbench Architecture</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="case_parameter_design.html">Case Parameter Design and GUI Editing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">OneFLOW Architecture Review and Development Principles</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/architecture_review.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="oneflow-architecture-review-and-development-principles">
+<h1>OneFLOW Architecture Review and Development Principles<a class="headerlink" href="#oneflow-architecture-review-and-development-principles" title="Link to this heading"></a></h1>
+<section id="purpose-and-status">
+<h2>Purpose and status<a class="headerlink" href="#purpose-and-status" title="Link to this heading"></a></h2>
+<p>This chapter is the project-wide architecture checkpoint for developers and AI
+assistants. It complements the runtime, mesh, and Workbench design pages. Those pages
+explain a subsystem in detail; this page asks whether the overall system is progressing
+toward a coherent engineering application, what major gaps remain, and whether the next
+local change addresses a meaningful part of that picture.</p>
+<p>It separates three kinds of knowledge:</p>
+<ul class="simple">
+<li><p><strong>General CFD/CAE concerns</strong> are a checklist of areas that mature engineering software
+commonly needs to address. Listing an area does not mean OneFLOW implements it.</p></li>
+<li><p><strong>OneFLOW observations</strong> are source-backed findings or explicitly recorded gaps.
+Recheck code and tests when the branch changes.</p></li>
+<li><p><strong>Proposed direction</strong> describes possible architecture, not existing capability.</p></li>
+</ul>
+<p>This is a living review framework, not a claim that the architecture is complete.</p>
+</section>
+<section id="highest-value-improvement-sequence">
+<h2>Highest-value improvement sequence<a class="headerlink" href="#highest-value-improvement-sequence" title="Link to this heading"></a></h2>
+<p>This ordering is a working risk assessment, not a claim that every item is equally
+urgent or already implemented. Reorder it only when source inspection, tests, or
+representative runs provide stronger evidence.</p>
+<ol class="arabic simple">
+<li><p><strong>Runtime lifecycle and state isolation.</strong> Close the real case setup/read/apply/
+teardown loop, especially failure cleanup and repeated cases in one process. The
+runtime bridges explicit contexts to legacy global database, path, solver, and
+accelerator state. This boundary can invalidate otherwise correct individual
+modules and is the current active R1 slice.</p></li>
+<li><p><strong>Mesh topology and derived-data validity.</strong> Specify ownership and invalidation for
+node/face/cell connectivity, boundary/interface maps, ghost data, and cached
+cell-to-cell/cell-to-face relations. Stale derived data can affect many algorithms
+while appearing locally plausible. Prefer invariants and mutation-lifecycle tests
+before broad data-structure replacement.</p></li>
+<li><p><strong>Numerical verification as a traceable chain.</strong> For high-impact solver algorithms,
+connect governing equations and assumptions to source formulas, limiting cases,
+manufactured/analytic tests, conservation, convergence, and established benchmark
+cases. Neither unit tests nor citations alone constitute physical validation.</p></li>
+<li><p><strong>Configuration schema and artifact provenance.</strong> Keep parsing, type/schema
+validation, semantic resolution, and application distinct; make workflow inputs,
+outputs, staging roots, and producer-consumer dependencies explicit. This reduces
+failures caused by ambiguous paths and implicit file handoff.</p></li>
+<li><p><strong>Build/test evidence and reproducibility.</strong> Make focused targets, CTest discovery,
+platform differences, and exact-commit CI evidence easy to reproduce. A larger test
+count has value only when assertions cover the intended contracts.</p></li>
+<li><p><strong>Documentation generation and interface drift.</strong> Generate mechanical API details
+from structured source comments where stable, but keep architecture, rationale,
+equations, assumptions, diagrams, and evidence curated in <code class="docutils literal notranslate"><span class="pre">doc/source</span></code>. Start
+with one documented module and measure generated-output stability before expanding.</p></li>
+</ol>
+<p>This sequence prioritizes state validity and numerical trust over cosmetic renaming
+or broad comment expansion. Improve names and comments as part of the relevant
+boundary work, not as a competing project.</p>
+</section>
+<section id="review-principles">
+<h2>Review principles<a class="headerlink" href="#review-principles" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Keep the whole-system model visible.</strong> Before a local refactor, identify the
+subsystem, upstream inputs, downstream consumers, state ownership, lifecycle, and
+relevant user workflow.</p></li>
+<li><p><strong>Solve a real problem, not a pattern-shaped problem.</strong> Introduce a class, interface,
+registry, adapter, or abstraction only when it improves a concrete contract, test seam,
+dependency boundary, or maintenance cost.</p></li>
+<li><p><strong>Move between zoom levels.</strong> Work at the smallest useful code boundary, then return
+to the subsystem and whole-system views. A locally clean implementation can still
+preserve an undesirable system dependency.</p></li>
+<li><p><strong>Treat tests as architecture evidence.</strong> Focused tests state local contracts;
+integration tests show composition; numerical regressions protect engineering results.
+None substitutes for the others.</p></li>
+<li><p><strong>Make ownership and failure paths explicit.</strong> Track who creates, owns, mutates,
+persists, and releases important objects and artifacts, including partial setup and
+failed runs.</p></li>
+<li><p><strong>Separate facts from plans.</strong> Current source and tests establish behavior. Design
+pages explain intended boundaries. Roadmaps do not prove implementation.</p></li>
+<li><p><strong>Prefer incremental compatibility.</strong> Record behavior that must remain stable before
+moving boundaries. Avoid broad rewrites when a smaller change can test the same idea.</p></li>
+<li><p><strong>Return to the system map at milestones.</strong> Ask whether the overall architecture has
+improved, whether the biggest risk has changed, and whether the next task should move.</p></li>
+</ol>
+</section>
+<section id="design-intent-as-an-executable-contract">
+<h2>Design intent as an executable contract<a class="headerlink" href="#design-intent-as-an-executable-contract" title="Link to this heading"></a></h2>
+<p>AI can generate implementation quickly, but generation is only reliable when the intended
+behavior and boundaries are explicit. OneFLOW should treat design intent as the source of
+constraints, not as a substitute for code or tests.</p>
+<p>Use four linked levels:</p>
+<ul class="simple">
+<li><p><strong>Intent:</strong> explain why a capability exists, which responsibility it owns, and which
+responsibilities remain outside its boundary.</p></li>
+<li><p><strong>Contract:</strong> define inputs, outputs, ownership, lifecycle, invariants, failure behavior,
+and compatibility requirements precisely enough to review.</p></li>
+<li><p><strong>Implementation:</strong> write or generate code that realizes the contract. Generated code is
+still ordinary code and must remain readable, reviewable, and maintainable.</p></li>
+<li><p><strong>Evidence:</strong> add focused tests for the contract, integration tests for composition, and
+representative numerical regressions where engineering behavior is involved.</p></li>
+</ul>
+<p>Documentation-driven code generation is appropriate when the source description is
+structured and deterministic: field tables, enum mappings, command schemas, repetitive
+registrations, serialization layouts, or boilerplate derived from a stable interface.
+Keep the generator and its input schema versioned, make output reproducible, and verify
+that regenerating produces no unexplained diff.</p>
+<p>Do not generate an algorithm from a broad prose statement such as “make the limiter robust.”
+For numerical methods, prose should first identify the governing equation, assumptions,
+boundary treatment, stability or monotonicity properties, and reference cases. Implementation
+and tests should then be derived from those constraints and reviewed against the mathematics.</p>
+<p>The practical rule is: <strong>document intent broadly, specify contracts precisely, generate only
+where rules are mechanical, and test every generated or handwritten behavior at its boundary.</strong>
+Do not require every note to become a generator input. Start with one small vertical slice and
+measure whether generation reduces drift without making the design harder to understand.</p>
+</section>
+<section id="standardized-task-specification">
+<h2>Standardized task specification<a class="headerlink" href="#standardized-task-specification" title="Link to this heading"></a></h2>
+<p>Use the repository’s maintained
+<a class="reference external" href="https://github.com/eric2003/OneFLOW/blob/hexin/doc/AI_TASK_TEMPLATE.md">AI-assisted engineering task specification</a>
+for substantial implementation and refactoring work. A
+<a class="reference external" href="https://github.com/eric2003/OneFLOW/blob/hexin/doc/AI_TASK_TEMPLATE_zh_CN.md">Chinese version</a>
+is available for Chinese-language task preparation.</p>
+<p>The specification defines the required project context, observable objective,
+whole-system priority assessment, pre-change investigation, implementation
+constraints, verification levels, documentation and scientific provenance,
+scope control, acceptance criteria, and delivery evidence.</p>
+<p>This architecture review remains the system-level decision framework. The task
+specification defines how an individual work item is expressed and executed.
+Before implementation, read <cite>AGENTS.md</cite>, <cite>doc/AI_CONTEXT.md</cite>, this review,
+and the relevant subsystem guide; verify the current <cite>hexin</cite> HEAD. Before
+completion, report exact-revision evidence and reassess whether the work changes
+the system-wide priority order.</p>
+</section>
+<section id="whole-system-architecture-map">
+<h2>Whole-system architecture map<a class="headerlink" href="#whole-system-architecture-map" title="Link to this heading"></a></h2>
+<p>The following map is a review checklist for CFD/CAE software. It is intentionally broader
+than the currently verified OneFLOW feature set.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 22.0%" />
+<col style="width: 43.0%" />
+<col style="width: 35.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Concern</p></th>
+<th class="head"><p>Questions to answer</p></th>
+<th class="head"><p>OneFLOW review entry</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Project, case, and configuration</p></td>
+<td><p>What is a project versus a case and a run? Where do parameters come from? How are
+defaults, types, validation, paths, and overrides defined?</p></td>
+<td><p>Runtime guide; R1 case configuration and I/O roots.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Geometry and mesh generation</p></td>
+<td><p>How are geometry entities represented? How are mesh layouts, distributions,
+boundaries, and mesh-generation tasks specified?</p></td>
+<td><p>Mesh architecture and grid-topology guides; mesh layout/workflow code.</p></td>
+</tr>
+<tr class="row-even"><td><p>Mesh data and topology</p></td>
+<td><p>What is canonical data versus derived connectivity? How are dimensions, cell/face
+relationships, boundary IDs, ghost entities, and cache invalidation defined?</p></td>
+<td><p>Mesh architecture and grid-topology guides; mutable source arrays remain a review
+concern.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Physical models and numerical methods</p></td>
+<td><p>Where are governing equations, constitutive/closure models, boundary conditions,
+discretization, fluxes, limiters, and time integration selected and validated?</p></td>
+<td><p>Trace representative Grid and Solve task paths before proposing broader boundaries.</p></td>
+</tr>
+<tr class="row-even"><td><p>Linear algebra and solver infrastructure</p></td>
+<td><p>How are matrices/operators, preconditioners, convergence criteria, tolerances, and
+solver configuration owned and tested?</p></td>
+<td><p>Review through concrete solver call paths; do not infer coverage from build flags.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Runtime lifecycle and state</p></td>
+<td><p>Which state is process-scoped, case-scoped, task-scoped, or cached? What happens on
+repeated cases, partial failure, restart, and teardown?</p></td>
+<td><p>SimuContext, SimuImp, global registries, accelerator state, and R1/R3.</p></td>
+</tr>
+<tr class="row-even"><td><p>Parallel and accelerator execution</p></td>
+<td><p>What is the ownership and synchronization contract across ranks, devices, streams,
+and backend-specific resources? Which test suites actually exercise each backend?</p></td>
+<td><p>Runtime lifecycle plus backend-specific contract and regression evidence.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Input, output, and artifact provenance</p></td>
+<td><p>Where are inputs read and outputs written? Can a consumer identify the exact
+producer artifact? Are source inputs protected from run-time mutation?</p></td>
+<td><p>Runtime I/O roots and Workbench run-location/artifact contracts.</p></td>
+</tr>
+<tr class="row-even"><td><p>Workflow and orchestration</p></td>
+<td><p>How are independent tasks distinguished from dependent tasks? How are dependencies,
+failure propagation, cancellation, retries, and persisted run results represented?</p></td>
+<td><p>Workbench architecture and R4; planned features must not be described as implemented.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Visualization and data exchange</p></td>
+<td><p>Can runtime data be summarized independently from serialization? Are schemas
+versioned, and can tools inspect data without coupling to the solver?</p></td>
+<td><p>Mesh snapshot, summary, serialization, and visualization adapter work.</p></td>
+</tr>
+<tr class="row-even"><td><p>Verification and reproducibility</p></td>
+<td><p>Are unit, integration, numerical regression, platform/backend, and performance
+checks distinct? Are baselines, tolerances, and measurement conditions explicit?</p></td>
+<td><p>tests/, test/, CI workflows, baseline documentation, and evidence records.</p></td>
+</tr>
+<tr class="row-odd"><td><p>User and developer experience</p></td>
+<td><p>Can users create/open projects, understand run state, diagnose failures, and inspect
+outputs? Can contributors find build, test, architecture, and recovery guidance?</p></td>
+<td><p>Workbench architecture, published manual, runbooks, and documentation consolidation.</p></td>
+</tr>
+<tr class="row-even"><td><p>Build, packaging, and extension boundaries</p></td>
+<td><p>Are optional dependencies and backends accurately represented? Can components be
+built and tested independently where useful?</p></td>
+<td><p>Root and component CMake files, ports, and platform-specific CI evidence.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="current-cross-system-risks-to-keep-visible">
+<h2>Current cross-system risks to keep visible<a class="headerlink" href="#current-cross-system-risks-to-keep-visible" title="Link to this heading"></a></h2>
+<p>These are review priorities, not a declaration that every listed area is broken. Recheck
+the implementation and exact branch revision before changing status.</p>
+<ol class="arabic simple">
+<li><p><strong>Implicit global state across runtime boundaries.</strong> SimuContext provides an explicit
+per-run context, but some task implementations still reach legacy free functions and
+globals. The architectural question is which state should be context-owned and which
+truly belongs to the process; passing a context without using it does not decouple code.</p></li>
+<li><p><strong>Configuration parsing, validation, and application.</strong> The legacy parameter database
+is shared by multiple subsystems. Parameter syntax, stored type, domain validation, path
+resolution, and mutation of global runtime state are distinct responsibilities. R1 is
+the active investigation; do not generalize a resolver before the current contract is
+covered by tests.</p></li>
+<li><p><strong>Mesh canonical data and derived topology.</strong> Publicly mutable arrays can make derived
+connectivity and caches stale unless rebuild/invalidation rules are followed. Preserve
+documented topology and boundary invariants while identifying concrete mutation paths
+and their tests.</p></li>
+<li><p><strong>Workflow artifacts and execution locations.</strong> Source cases, staged run inputs,
+generated meshes, solver results, logs, and workflow-produced artifacts must not be
+conflated. A workflow dependency should consume an identified artifact from its producer,
+not rely on an accidental working directory.</p></li>
+<li><p><strong>Lifecycle across repeated and failed runs.</strong> Process-level and case-level resources
+have different lifetimes. Changes to setup, accelerator allocation, exception cleanup,
+and multi-case execution need failure-path and repeated-case evidence.</p></li>
+<li><p><strong>Architecture status versus evidence.</strong> AI handoff pages, roadmaps, and design notes
+reduce rediscovery cost but cannot substitute for focused tests, numerical regression,
+or CI on the exact commit.</p></li>
+<li><p><strong>Documentation discoverability and authority.</strong> The published manual should teach
+stable concepts and user procedures; engineering notes should retain detailed decisions
+and evidence; AI instructions should point to both without becoming a competing
+architecture source.</p></li>
+</ol>
+</section>
+<section id="milestone-review-mechanism">
+<h2>Milestone review mechanism<a class="headerlink" href="#milestone-review-mechanism" title="Link to this heading"></a></h2>
+<p>At each meaningful milestone (for example, a completed refactoring slice, a changed
+module boundary, a new workflow capability, or a regression investigation), add a short
+review to the relevant roadmap or stage record. Do not create a report for every command.</p>
+<p>Answer these questions:</p>
+<ol class="arabic simple">
+<li><p>What changed in behavior, dependency direction, ownership, or testability?</p></li>
+<li><p>Which concern in the whole-system map did it improve?</p></li>
+<li><p>Which concern did it not address, even if adjacent?</p></li>
+<li><p>Did the work reveal a larger issue or change the priority order?</p></li>
+<li><p>What evidence supports the status? Name exact tests and commit-specific CI.</p></li>
+<li><p>What is the next highest-value action, and what would make it complete?</p></li>
+</ol>
+<p>Use consistent status labels:</p>
+<ul class="simple">
+<li><p><strong>Verified</strong>: supported by source, a named test, or exact-commit CI; cite the evidence.</p></li>
+<li><p><strong>Implemented, unverified</strong>: code exists but required validation is missing.</p></li>
+<li><p><strong>Partial</strong>: some acceptance criteria pass; at least one remains open.</p></li>
+<li><p><strong>Planned</strong>: not implemented.</p></li>
+<li><p><strong>Blocked</strong>: depends on a named missing seam or external condition.</p></li>
+<li><p><strong>Deferred</strong>: intentionally postponed, with the reason.</p></li>
+</ul>
+<p>Architecture progress should be judged by reduced coupling, clearer contracts, reliable
+lifecycle behavior, useful tests, reproducible engineering results, and understandable
+user workflows—not by the number of classes, interfaces, or documents created.</p>
+</section>
+<section id="relationship-to-the-rest-of-the-handbook">
+<h2>Relationship to the rest of the handbook<a class="headerlink" href="#relationship-to-the-rest-of-the-handbook" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="runtime_architecture.html"><span class="doc">OneFLOW Runtime Architecture and Development Guide</span></a> maps the current execution lifecycle and configuration
+boundaries.</p></li>
+<li><p><a class="reference internal" href="mesh_architecture.html"><span class="doc">OneFLOW Mesh Architecture</span></a> and <a class="reference internal" href="grid_topology.html"><span class="doc">Grid Topology and Validation</span></a> describe mesh information and topology
+contracts.</p></li>
+<li><p><a class="reference internal" href="workbench_architecture.html"><span class="doc">OneFLOW Workbench Architecture</span></a> describes project, workflow, run, and artifact concepts.</p></li>
+<li><p>The AI project context is the concise current-state handoff: <a class="reference external" href="https://github.com/eric2003/OneFLOW/blob/hexin/doc/AI_CONTEXT.md">https://github.com/eric2003/OneFLOW/blob/hexin/doc/AI_CONTEXT.md</a></p></li>
+<li><p>The runtime refactoring roadmap records staged implementation and acceptance evidence:
+<a class="reference external" href="https://github.com/eric2003/OneFLOW/blob/hexin/doc/plans/runtime-refactoring-roadmap.md">https://github.com/eric2003/OneFLOW/blob/hexin/doc/plans/runtime-refactoring-roadmap.md</a></p></li>
+<li><p>The documentation consolidation plan defines where engineering records and published
+guidance belong:
+<a class="reference external" href="https://github.com/eric2003/OneFLOW/blob/hexin/doc/plans/oneflow-documentation-consolidation-plan.md">https://github.com/eric2003/OneFLOW/blob/hexin/doc/plans/oneflow-documentation-consolidation-plan.md</a></p></li>
+</ul>
+</section>
+<section id="code-level-quality-signals-const-contracts-and-pointer-ownership">
+<h2>Code-level quality signals: const contracts and pointer ownership<a class="headerlink" href="#code-level-quality-signals-const-contracts-and-pointer-ownership" title="Link to this heading"></a></h2>
+</section>
+<section id="terms">
+<h2>Terms<a class="headerlink" href="#terms" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Const-correctness</strong> is the practice of expressing read-only access in C++ types.
+A const-qualified member function promises not to modify the observable state of the
+object through that member function; a const reference or pointer prevents mutation
+through that particular access path. This is a compile-time contract, not a guarantee
+that no state anywhere changes.</p></li>
+<li><p><strong>Read-only interface</strong> describes an API surface that permits observation but not
+mutation through that surface. A const view can still refer to an object that another
+alias mutates, so the lifetime and aliasing contract matters.</p></li>
+<li><p><strong>Ownership semantics</strong> describe which object is responsible for keeping a resource
+alive and releasing it. <code class="docutils literal notranslate"><span class="pre">std::unique_ptr</span></code> expresses exclusive ownership; a reference
+or raw pointer often expresses non-owning access, but does not encode that intent
+reliably by itself.</p></li>
+<li><p><strong>Borrowed/observer pointer</strong> is a pointer used to access an object owned elsewhere.
+It may be nullable, and its validity depends on the owner’s lifetime. A raw pointer is
+not automatically wrong: legacy APIs and graph relationships may need non-owning links.</p></li>
+<li><p><strong>Nullability</strong> asks whether absence is a valid state. If null is meaningful, document
+or model it explicitly. If a value must exist, a reference or a stronger handle may
+express the contract better.</p></li>
+<li><p><strong>Lifetime safety</strong> concerns whether an object remains alive for every use. Smart
+pointers help express ownership, but do not by themselves solve dangling references,
+cycles, concurrent access, or invalidation of views into containers.</p></li>
+</ul>
+</section>
+<section id="why-these-are-useful-signals">
+<h2>Why these are useful signals<a class="headerlink" href="#why-these-are-useful-signals" title="Link to this heading"></a></h2>
+<p>Const-correctness can reveal accidental mutation and make dependencies easier to reason
+about. Explicit ownership can reveal unclear resource lifetimes, possible leaks, double
+deletion, and APIs that blur owning and non-owning roles. These properties are part of
+maintainability and testability, but neither can be reduced to a single percentage or
+treated as a complete measure of software quality.</p>
+<p>A practical inventory should distinguish at least these categories:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 24.0%" />
+<col style="width: 38.0%" />
+<col style="width: 38.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Signal</p></th>
+<th class="head"><p>What to count or inspect</p></th>
+<th class="head"><p>Important limitation</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Const-correctness</p></td>
+<td><p>Read-only member functions, const input references, const observer pointers/views,
+and mutating APIs with explicit names/contracts.</p></td>
+<td><p>Counting const tokens is misleading; some data is intentionally mutable and
+a const object can still expose mutable aliases.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Ownership clarity</p></td>
+<td><p>Owning unique_ptr/shared_ptr values, documented borrowed pointers, raw
+owning pointers, and APIs that transfer ownership.</p></td>
+<td><p>Smart-pointer counts alone do not reveal cycles, shared-ownership misuse, or
+unclear lifetime dependencies.</p></td>
+</tr>
+<tr class="row-even"><td><p>Nullability</p></td>
+<td><p>Raw pointers and nullable handles classified by whether null is valid and how
+callers handle it.</p></td>
+<td><p>Replacing every pointer with a reference is wrong when absence is meaningful.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Lifetime and invalidation</p></td>
+<td><p>Views, iterators, references into containers, cached topology, and resources whose
+validity ends after rebuild or teardown.</p></td>
+<td><p>Requires call-path analysis and targeted tests; text search cannot prove safety.</p></td>
+</tr>
+<tr class="row-even"><td><p>Evidence</p></td>
+<td><p>Focused contract tests, sanitizer/static-analysis findings, compiler diagnostics,
+and exact-revision CI.</p></td>
+<td><p>Passing tests demonstrate covered behavior, not all possible lifetime correctness.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="suggested-reporting">
+<h2>Suggested reporting<a class="headerlink" href="#suggested-reporting" title="Link to this heading"></a></h2>
+<p>Track both a <strong>coverage inventory</strong> and a <strong>risk inventory</strong>. For example, report the
+number of audited APIs, how many have explicit ownership/nullability contracts, how many
+read-only operations are const-qualified where appropriate, and how many high-risk raw
+owning pointers remain. Include the audited directories, exclusions, and review date.
+Treat unknown cases as unknown rather than silently counting them as safe.</p>
+<p>A percentage is meaningful only when its denominator is defined. Prefer metrics such as
+“borrowed pointers reviewed in codes/geometry” or “public APIs with documented ownership
+and nullability” over “percentage of the whole codebase that is safe”. Track high-risk
+unresolved cases separately, because one raw owning pointer on a critical failure path may
+matter more than many low-risk declarations.</p>
+<p>For OneFLOW, apply this incrementally to real call paths. Start with geometry code that
+constructs and consumes interface mappings, then expand to mesh topology and runtime
+lifecycle when the first inventory shows a useful pattern. Do not launch a repository-wide
+mechanical pointer conversion. Each change should preserve numerical behavior, state
+which alias is allowed to mutate the object, identify the owner, and add a test when the
+contract can be observed.</p>
+</section>
+<section id="a-broader-quality-model-for-refactoring">
+<h2>A broader quality model for refactoring<a class="headerlink" href="#a-broader-quality-model-for-refactoring" title="Link to this heading"></a></h2>
+<p>Const-correctness and ownership clarity are useful code-level signals, but they cover
+only a small part of software quality. ISO/IEC 25010:2023 defines a broader product
+quality model; its characteristics are a useful vocabulary, not a demand that every
+project metric be collected. For OneFLOW, the model should be adapted to scientific
+computing and to the current subsystem being changed.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 43.0%" />
+<col style="width: 37.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Quality dimension</p></th>
+<th class="head"><p>Practical evidence or metric</p></th>
+<th class="head"><p>How to avoid misleading results</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Functional correctness</p></td>
+<td><p>Contract tests, known-answer tests, integration tests, defect recurrence tests.</p></td>
+<td><p>A test count or pass rate says nothing about untested behavior.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Numerical validity</p></td>
+<td><p>Reference-case errors, conservation residuals, convergence behavior, mesh/topology
+invariants, and changes against an accepted baseline.</p></td>
+<td><p>Record mesh, parameters, compiler/backend, tolerances, and comparison method.</p></td>
+</tr>
+<tr class="row-even"><td><p>Reliability and lifecycle</p></td>
+<td><p>Repeated-run tests, setup/teardown tests, failure-path tests, resource diagnostics,
+and recovery behavior.</p></td>
+<td><p>Include normal reuse and realistic failures; do not optimize for fantastical cases.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Modularity and coupling</p></td>
+<td><p>Dependency direction, cross-layer includes/calls, global-state reachability, and
+whether a component can be tested without starting the whole solver.</p></td>
+<td><p>Fewer dependencies are not automatically better if the design becomes indirect.</p></td>
+</tr>
+<tr class="row-even"><td><p>Cohesion and responsibility</p></td>
+<td><p>Whether a module has one understandable reason to change, and whether algorithms,
+data ownership, I/O, and orchestration are mixed together.</p></td>
+<td><p>Avoid treating class size or file length as a verdict by itself.</p></td>
+</tr>
+<tr class="row-odd"><td><p>API and state contracts</p></td>
+<td><p>Const-correctness, ownership, nullability, invalidation rules, units, valid states,
+error reporting, and preconditions/postconditions.</p></td>
+<td><p>Review contracts at call sites; declarations alone may not reveal aliasing or
+lifecycle assumptions.</p></td>
+</tr>
+<tr class="row-even"><td><p>Testability and verification</p></td>
+<td><p>Important contracts with focused tests, registered test discovery, integration
+coverage, numerical regression coverage, and actionable failure messages.</p></td>
+<td><p>Coverage percentage is a map of exercised code, not proof of correctness.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Complexity and change risk</p></td>
+<td><p>Cyclomatic/cognitive complexity for critical routines, duplicated policy, branching,
+and the number of unrelated components touched by a change.</p></td>
+<td><p>Use trends and review hotspots; avoid arbitrary repository-wide thresholds.</p></td>
+</tr>
+<tr class="row-even"><td><p>Performance and resource use</p></td>
+<td><p>Profiled runtime, memory high-water mark, allocation count, scaling, and hotspot
+benchmarks on representative cases.</p></td>
+<td><p>Compare equivalent workloads and configurations; benchmark only where performance
+matters to users.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Portability and buildability</p></td>
+<td><p>Supported compiler/platform builds, clean configure/build, registered tests, and
+dependency configuration.</p></td>
+<td><p>A successful build on one machine does not establish cross-platform compatibility.</p></td>
+</tr>
+<tr class="row-even"><td><p>Reproducibility and provenance</p></td>
+<td><p>Recorded inputs, executable/build identity, case location, output artifacts, and
+stable regression comparisons.</p></td>
+<td><p>Distinguish deterministic requirements from expected floating-point variation.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Usability and diagnosability</p></td>
+<td><p>Clear configuration errors, useful logs, discoverable workflows, actionable failure
+messages, and the time needed to reproduce a reported issue.</p></td>
+<td><p>Evaluate actual user tasks, not the number of UI controls or documentation pages.</p></td>
+</tr>
+<tr class="row-even"><td><p>Documentation quality</p></td>
+<td><p>Documented public contracts, algorithm rationale, examples that are tested where
+practical, and links from the developer entry point to authoritative subsystem docs.</p></td>
+<td><p>Documentation volume is not a quality metric; correctness and discoverability matter.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="metric-selection-and-use">
+<h2>Metric selection and use<a class="headerlink" href="#metric-selection-and-use" title="Link to this heading"></a></h2>
+<p>Do not turn this table into a large scorecard that every change must fill out. For each
+refactoring slice, select a small set of signals based on its risk:</p>
+<ul class="simple">
+<li><p><strong>Every slice:</strong> behavior preserved or intentionally changed; focused tests; relevant
+integration or regression evidence; exact revision and test registration.</p></li>
+<li><p><strong>A boundary or ownership change:</strong> dependency direction, owner/borrower relationship,
+lifetime and invalidation contract, and whether the component can be exercised in
+isolation.</p></li>
+<li><p><strong>A numerical algorithm change:</strong> reference outputs, tolerances, convergence or
+conservation evidence, and a representative performance check if the algorithm is
+performance-sensitive.</p></li>
+<li><p><strong>A workflow or runtime change:</strong> repeatability, failure cleanup, artifact provenance,
+logs, and a realistic end-to-end path.</p></li>
+<li><p><strong>A performance change:</strong> benchmark method, workload, environment, and before/after
+result; do not infer speed from cleaner-looking code.</p></li>
+</ul>
+<p>For each chosen metric, define its denominator and collection method before comparing
+numbers. Keep <strong>leading indicators</strong> (for example, unclear ownership contracts or
+unregistered tests) separate from <strong>outcomes</strong> (for example, numerical regressions,
+crashes, or measured runtime). A rise in test count, const usage, or documentation count
+is not itself proof of better software.</p>
+<p>For the current geometry work, the useful combination is not a single quality score. It
+is: preserve the point-matching algorithm’s observable behavior; state its tolerance and
+candidate-search contracts; ensure tests are discoverable; understand how its borrowed
+grid views and owned ADT interact; and only then decide whether a larger dependency or
+lifecycle boundary needs redesign. This connects a small local change to testability,
+numerical correctness, and maintainability without expanding it into a repository-wide
+cleanup.</p>
+</section>
+<section id="point-locator-index-and-coordinate-store-lifecycle">
+<h2>Point locator: index and coordinate-store lifecycle<a class="headerlink" href="#point-locator-index-and-coordinate-store-lifecycle" title="Link to this heading"></a></h2>
+<p>The point locator maintains two representations of inserted points: the ADT spatial
+index stores point nodes and IDs, while <code class="docutils literal notranslate"><span class="pre">xCoor</span></code>, <code class="docutils literal notranslate"><span class="pre">yCoor</span></code>, and <code class="docutils literal notranslate"><span class="pre">zCoor</span></code> store the
+coordinates used by point accessors. These structures are one logical data set even
+though they are represented separately.</p>
+<p>The query algorithm has two stages:</p>
+<ol class="arabic simple">
+<li><p>The ADT broad phase retrieves candidates inside an axis-aligned box centered on the
+query point and expanded by the active tolerance.</p></li>
+<li><p>The narrow phase computes squared Euclidean distance and accepts only candidates with
+<code class="docutils literal notranslate"><span class="pre">distance_squared</span> <span class="pre">&lt;</span> <span class="pre">tolerance</span> <span class="pre">*</span> <span class="pre">tolerance</span></code>. It returns the closest accepted point;
+equal-distance ties depend on candidate traversal order.</p></li>
+</ol>
+<p>The squared-distance comparison avoids a square root for every candidate. The strict
+inequality is observable behavior at the tolerance boundary and should not be changed
+without an explicit compatibility decision.</p>
+<p>A lifecycle invariant follows from the two representations: whenever initialization
+replaces the ADT, the coordinate arrays for points inserted through this locator must
+also be cleared. Otherwise the new index can be empty while the old coordinate arrays
+remain populated; the next insertion can receive an ID based on stale coordinates, and
+the index and coordinate store no longer describe the same set of points.</p>
+<p>The reinitialization test therefore checks more than safe destruction: after rebuilding,
+the point count is zero, a previously inserted point is no longer found, and the next
+insertion starts again at ID zero. This is a targeted example of a useful quality
+measure: <strong>cross-representation invariant coverage</strong>. It is more meaningful here than
+counting lifecycle tests or smart pointers.</p>
+<p>This change intentionally does not alter tolerance policy, tie-breaking behavior,
+grid bounding-box calculation, or the ADT search algorithm. Those are separate
+contracts and should be evaluated independently. The locator’s inserted-point store is
+also distinct from the source grid nodes used to establish initial search bounds; clearing
+the former does not clear or modify the source grid.</p>
+</section>
+<section id="special-tolerance-and-broad-phase-bounds">
+<h2>Special tolerance and broad-phase bounds<a class="headerlink" href="#special-tolerance-and-broad-phase-bounds" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">InitializeSpecial(grid,</span> <span class="pre">toleranceIn)</span></code> must keep the broad and narrow phases in
+agreement. The narrow phase accepts a point only when its squared distance is strictly
+less than <code class="docutils literal notranslate"><span class="pre">toleranceIn</span> <span class="pre">*</span> <span class="pre">toleranceIn</span></code>. The broad phase first asks the ADT for points in
+a box expanded by that same tolerance. If the ADT root bounds are expanded only by the
+grid-derived default tolerance (<code class="docutils literal notranslate"><span class="pre">minimum_spacing</span> <span class="pre">/</span> <span class="pre">4</span></code>) while the query uses a larger
+explicit tolerance, a point can satisfy the exact distance test but never reach the
+narrow phase because it was excluded by the index bounds.</p>
+<p>The implementation now calculates the source grid bounding box and rebuilds the ADT
+through the explicit-bounds initialization path with <code class="docutils literal notranslate"><span class="pre">toleranceIn</span></code>. This keeps the
+index bounds, query window, and exact distance threshold aligned, and also reuses the
+existing initialization path that resets the inserted-point coordinate store. The normal
+single-grid and multi-grid tolerance policies remain unchanged.</p>
+<p>This is an algorithm-contract fix, not a general redesign of the locator. It illustrates
+why a spatial index has two correctness conditions: its candidate structure must not omit
+any point that can pass the exact predicate, and the exact predicate must preserve the
+intended tolerance semantics. The registered <code class="docutils literal notranslate"><span class="pre">SpecialToleranceExpandsAdtBounds</span></code> lifecycle test exercises this
+contract with a synthetic grid: it inserts a point outside the raw grid bounds but inside
+the explicitly expanded ADT bounds, then verifies that a nearby query finds it.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="yaml.html" class="btn btn-neutral float-left" title="yaml" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="runtime_architecture.html" class="btn btn-neutral float-right" title="OneFLOW Runtime Architecture and Development Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017-2026, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

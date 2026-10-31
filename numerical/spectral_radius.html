@@ -1,0 +1,273 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Face spectral radius and local time step &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="References and external manuals" href="references.html" />
+    <link rel="prev" title="Sutherland viscosity law" href="sutherland_viscosity.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../info.html">OneFLOW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install/index.html">Install</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user.html">THEORY</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workbench_user_guide_zh.html">OneFLOW Workbench 用户手册</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../bash.html">Bash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cfd/index.html">CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mpi.html">MPI</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Numerical analysis</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tdma.html">Tridiagonal matrix algorithm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ctdma.html">Cyclic Tridiagonal Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fourier_transform.html">FOURIER TRANSFORMS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fftw.html">FFTW</a></li>
+<li class="toctree-l2"><a class="reference internal" href="limiter.html">Limiter face contracts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gradient.html">Green-Gauss gradient contracts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vis_face_geometry.html">Viscous face geometry contracts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="limited_face_reconstruction.html">Limited face reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="euler_convective_flux.html">Euler convective face flux</a></li>
+<li class="toctree-l2"><a class="reference internal" href="roe_average.html">Roe average state</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ausm_splits.html">AUSM Mach and pressure splits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ideal_gas_thermo.html">Ideal-gas thermodynamic contracts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="roe_dissipation.html">Roe dissipation coefficients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="viscous_heat_flux.html">Viscous conductive heat flux</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sutherland_viscosity.html">Sutherland viscosity law</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Face spectral radius and local time step</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#inviscid-face-spectral-radius">Inviscid face spectral radius</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#viscous-estimates">Viscous estimates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cell-time-step">Cell time step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#references">References</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lusgs-reuse">LUSGS reuse</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="references.html">References and external manuals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="boundary_velocity.html">Boundary velocity images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="isothermal_wall.html">Isothermal wall density and temperature images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="turb_scalar_upwind.html">Turbulence scalar convective upwind flux</a></li>
+<li class="toctree-l2"><a class="reference internal" href="turb_spectrum.html">Turbulence face spectral radius</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sa_closure.html">Spalart-Allmaras closure functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sa_eddy_viscosity.html">SA eddy viscosity and intermediate verification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sst_k_source.html">SST k-equation production and dissipation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sst_f1_blending.html">SST blending function F1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="verification_layers.html">Verification layers (copyable policy)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wilcox_fbeta.html">Wilcox f_k and f_w modifiers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sst_residual_assembly.html">SST residual assembly (Menter linearization)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="turb_lusgs.html">Turbulence LUSGS scalar sweep kernels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sst_eddy_viscosity.html">SST eddy viscosity and F2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="turb_wall_bc.html">Turbulence viscous-wall boundary values</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sa_update_bounds.html">SA working-variable bounds after update</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sst_update_floors.html">SST and transition update floors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="turb_farfield_bc.html">Turbulence far-field state selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sa_under_relax.html">SA under-relaxed working-variable update</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../yaml.html">yaml</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OneFLOW Design and Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../architecture_review.html">OneFLOW Architecture Review and Development Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../runtime_architecture.html">OneFLOW Runtime Architecture and Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../database_architecture.html">Database Architecture and Data Access Contracts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../evolutionary_computation_architecture.html">Evolutionary Scientific-Computing Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mesh_architecture.html">OneFLOW Mesh Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grid_topology.html">Grid Topology and Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../face_stage_pipeline.html">Face Stage Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workbench_architecture.html">OneFLOW Workbench Architecture</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../case_parameter_design.html">Case Parameter Design and GUI Editing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Numerical analysis</a></li>
+      <li class="breadcrumb-item active">Face spectral radius and local time step</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/numerical/spectral_radius.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="face-spectral-radius-and-local-time-step">
+<h1>Face spectral radius and local time step<a class="headerlink" href="#face-spectral-radius-and-local-time-step" title="Link to this heading"></a></h1>
+<p>Local time stepping uses face inviscid and viscous spectral radii accumulated
+to cells. The pure formulas below are independent of mesh traversal.</p>
+<section id="inviscid-face-spectral-radius">
+<h2>Inviscid face spectral radius<a class="headerlink" href="#inviscid-face-spectral-radius" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[\lambda_{\mathrm{inv}}
+= \tfrac12 A \big(|v_n| + c\big)\]</div>
+<p>with face-midpoint relative normal velocity and ideal-gas sound speed.</p>
+</section>
+<section id="viscous-estimates">
+<h2>Viscous estimates<a class="headerlink" href="#viscous-estimates" title="Link to this heading"></a></h2>
+<p>Model 1 (momentum/energy diffusivity max):</p>
+<div class="math notranslate nohighlight">
+\[\lambda_{\mathrm{vis}}
+= A^2 \cdot
+\frac{2\,\max\big(\tfrac43(\mu_l+\mu_t),\,
+\gamma(\mu_l/Pr_l+\mu_t/Pr_t)\big)}
+{Re\,\rho}\]</div>
+<p>Model 2 uses face-to-cell distance; model 3 is a simplified
+<span class="math notranslate nohighlight">\(A^2/(Re\rho)\)</span> form.</p>
+</section>
+<section id="cell-time-step">
+<h2>Cell time step<a class="headerlink" href="#cell-time-step" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[\Delta t_{\mathrm{inv}} = \mathrm{CFL}\,\frac{V}{\lambda_{\mathrm{inv}}},
+\qquad
+\Delta t \leftarrow
+\frac{\Delta t_{\mathrm{inv}}\,\Delta t_{\mathrm{vis}}}
+{\Delta t_{\mathrm{inv}}+\Delta t_{\mathrm{vis}}}\]</div>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Blazek, J. <em>Computational Fluid Dynamics: Principles and Applications</em>
+(spectral-radius estimates for viscous CFL).</p></li>
+<li><p>Toro, E. F. <em>Riemann Solvers and Numerical Methods for Fluid Dynamics</em>
+(wave speeds entering inviscid spectral radius).</p></li>
+<li><p>OpenFOAM Programmer’s / User Guide (local time-stepping practice; compare
+implementation choices, not copy code).</p></li>
+</ul>
+<p>Pure APIs: <code class="docutils literal notranslate"><span class="pre">TimeStepPolicy.h</span></code>. Tests: <code class="docutils literal notranslate"><span class="pre">timestep_policy_test</span></code>.</p>
+</section>
+<section id="lusgs-reuse">
+<h2>LUSGS reuse<a class="headerlink" href="#lusgs-reuse" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">UNsLusgs::CalcViscousTerm</span></code> routes through the same viscous spectral
+models as local time stepping. The implicit face state uses Roe-weighted
+density, velocity, and total enthalpy. Its pressure is then reconstructed
+from that total enthalpy using the left-cell heat-capacity ratio, preserving
+the established LUSGS linearization. A weighted average of static pressure
+is not equivalent and must not replace this closure.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="sutherland_viscosity.html" class="btn btn-neutral float-left" title="Sutherland viscosity law" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="references.html" class="btn btn-neutral float-right" title="References and external manuals" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017-2026, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

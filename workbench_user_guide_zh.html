@@ -1,0 +1,249 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OneFLOW Workbench 用户手册 &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Bash" href="bash.html" />
+    <link rel="prev" title="Test" href="test.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">OneFLOW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/index.html">Install</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="user.html">THEORY</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Test</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">OneFLOW Workbench 用户手册</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">启动</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">项目和单算例</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">多算例和依赖工作流</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">测试</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">网格布局编辑器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">运行记录与用户数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id7">架构和当前边界</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bash.html">Bash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cfd/index.html">CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml.html">yaml</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OneFLOW Design and Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="architecture_review.html">OneFLOW Architecture Review and Development Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_architecture.html">OneFLOW Runtime Architecture and Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="database_architecture.html">Database Architecture and Data Access Contracts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evolutionary_computation_architecture.html">Evolutionary Scientific-Computing Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mesh_architecture.html">OneFLOW Mesh Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grid_topology.html">Grid Topology and Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="face_stage_pipeline.html">Face Stage Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_architecture.html">OneFLOW Workbench Architecture</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="case_parameter_design.html">Case Parameter Design and GUI Editing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">OneFLOW Workbench 用户手册</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/workbench_user_guide_zh.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="oneflow-workbench">
+<h1>OneFLOW Workbench 用户手册<a class="headerlink" href="#oneflow-workbench" title="Link to this heading"></a></h1>
+<p>本手册介绍 tools/oneflow_gui 中的可选桌面工作台。Workbench 负责项目浏览、运行编排、测试入口、网格布局编辑和运行记录；OneFLOW 求解器仍作为独立进程运行，GUI 不是求解器的替代品。</p>
+<p>本页按 hexin 当前实现编写。按钮细节、模板列表和完整服务测试命令见模块 README：
+<a class="reference external" href="https://github.com/eric2003/OneFLOW/blob/hexin/tools/oneflow_gui/README.md">https://github.com/eric2003/OneFLOW/blob/hexin/tools/oneflow_gui/README.md</a>
+设计边界见 doc/source/workbench_architecture.rst。工作台能力随代码演进，未实现的集成点会在本页明确标出。</p>
+<section id="id1">
+<h2>启动<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<p>在仓库根目录使用 Python 3.10 或更高版本：</p>
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">-m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">-r</span> <span class="n">tools</span><span class="p">/</span><span class="n">requirements-gui</span><span class="p">.</span><span class="n">txt</span>
+<span class="n">python</span> <span class="n">-m</span> <span class="n">tools</span><span class="p">.</span><span class="n">oneflow_gui</span>
+</pre></div>
+</div>
+<p>首次使用时打开 <strong>Configuration…</strong>，设置 OneFLOW 仓库根目录、可执行文件和 Debug/Release 配置。程序会按约定位置搜索可执行文件；也可以直接输入路径或使用 <strong>Browse…</strong>。完整搜索顺序见 GUI README。</p>
+<p><strong>Run mode</strong> 设置保存在用户设置文件中。选择 <strong>Multi-case run</strong> 或 <strong>Dependency workflow</strong> 后打开 <strong>Saved Workflows…</strong>，会自动创建对应模式的新工作流草稿；<strong>Run single case</strong> 不会创建工作流草稿，单算例从 <strong>Project &gt; Open Project…</strong> 进入。</p>
+</section>
+<section id="id2">
+<h2>项目和单算例<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<p><strong>Project &gt; Open Project…</strong> 可以打开任意已有目录，不要求它在内置算例目录中登记。<strong>New Project…</strong> 从模板创建工作副本。项目页可选择可执行文件和执行位置：</p>
+<ul class="simple">
+<li><p><strong>Run in original project directory</strong> 会直接在项目中运行；OneFLOW 可能创建或覆盖文件。OneFLOW 源码仓库内的项目不能用此方式运行。</p></li>
+<li><p><strong>Copy to OneFLOW default workspace</strong> 将项目复制到当前用户的数据目录后运行。</p></li>
+<li><p><strong>Copy to specified directory</strong> 将项目复制到指定目录后运行。目标目录必须位于源码仓库之外。</p></li>
+</ul>
+<p>普通单算例运行使用 OneFLOW.exe r &lt;case-directory&gt;。若项目含 workflow.json，项目运行器会按其依赖图执行；每个 case 使用隔离运行目录，依赖和输出文件由工作流执行服务检查。</p>
+</section>
+<section id="id3">
+<h2>多算例和依赖工作流<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
+<p>从 <strong>Project &gt; Saved Workflows…</strong> 创建、编辑或运行已保存的工作流：</p>
+<ul class="simple">
+<li><p><strong>Multi-directory</strong> 把目录按界面顺序传给同一个 OneFLOW 进程，例如 OneFLOW.exe r &lt;dir-1&gt; &lt;dir-2&gt;。进程内逐个运行 case；重复目录也会再次执行。</p></li>
+<li><p><strong>Dependency graph</strong> 根据 case 依赖顺序运行，先将 case 准备到本次运行目录，再把声明的输出作为后续 case 的输入。前置 case 失败或缺少所需产物时，依赖 case 不会继续；无依赖的 case 可按图执行策略独立完成。</p></li>
+</ul>
+<p><strong>Open/Create Multi-Case Workspace…</strong> 编辑版本 2 的 .ofw 定义。旧版不含 artifact 绑定的工作区会在保存时迁移；点击 <strong>Save and Run…</strong> 会保存定义并打开对应的 Saved Workflows 草稿；确认可执行文件和路径后，点击 <strong>Run workflow</strong> 启动。单算例、顺序和独立模式使用一个 OneFLOW 进程并保留目录顺序。依赖模式会暂存各 case，并按依赖顺序执行；前置步骤失败会阻止依赖 case。依赖模式的每个 case 可用 JSON <cite>outputs</cite> 声明产物，用 <cite>inputs</cite> 将产物绑定到直接依赖 case 的参数文件和设置。产物和参数文件路径均相对其所属 case，例如：</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span><span class="nt">"case_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"grid"</span><span class="p">,</span><span class="w"> </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"grid"</span><span class="p">,</span><span class="w"> </span><span class="nt">"outputs"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"mesh"</span><span class="p">,</span><span class="w"> </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"results/mesh.ofl"</span><span class="p">,</span><span class="w"> </span><span class="nt">"parameter_file"</span><span class="p">:</span><span class="w"> </span><span class="s2">"script/grid.txt"</span><span class="p">,</span><span class="w"> </span><span class="nt">"setting"</span><span class="p">:</span><span class="w"> </span><span class="s2">"targetGridFileName"</span><span class="p">}]},</span>
+<span class="w">  </span><span class="p">{</span><span class="nt">"case_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"solver"</span><span class="p">,</span><span class="w"> </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"solver"</span><span class="p">,</span><span class="w"> </span><span class="nt">"depends_on"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"grid"</span><span class="p">],</span><span class="w"> </span><span class="nt">"inputs"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"artifact"</span><span class="p">:</span><span class="w"> </span><span class="s2">"mesh"</span><span class="p">,</span><span class="w"> </span><span class="nt">"setting"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gridFileName"</span><span class="p">,</span><span class="w"> </span><span class="nt">"parameter_file"</span><span class="p">:</span><span class="w"> </span><span class="s2">"script/cfd.txt"</span><span class="p">}]}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>运行定义和历史记录由现有工作流仓库保存。</p>
+</section>
+<section id="id4">
+<h2>测试<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
+<p>首页 <strong>Tests…</strong> 提供三类入口：</p>
+<ul class="simple">
+<li><p><strong>Unit Tests</strong> 在源码构建目录运行 CTest 和 Python 单元测试。</p></li>
+<li><p><strong>CFD/Grid Regression</strong> 使用仓库已有的回归清单和脚本，并在用户工作目录准备输入。</p></li>
+<li><p><strong>Development Tests</strong> 是可选项，默认不运行；选择后默认勾选目录清单中的所有 case，也可以打开 <strong>Select cases…</strong> 调整。</p></li>
+</ul>
+<p>Development Tests 使用固定的用户数据测试工作目录，并在每批开始时重新准备该目录中的测试 case；源仓库内的内置 case 保持不动。测试进程的退出状态会记录为运行结果；这不等同于所有网格几何或数值结果都已由 GUI 独立验证。</p>
+</section>
+<section id="id5">
+<h2>网格布局编辑器<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
+<p>首页 <strong>Mesh Layout Editor…</strong> 可编辑内置单矩形、垂直中点矩形和双块平板模板。通过 <strong>Save specification</strong> 保存布局定义，<strong>Update preview</strong> 查看 SVG 预览，<strong>Compile layout</strong> 生成布局文件。首次打开模板时会复制到用户数据目录中的网格布局工作区；再次打开复用这份用户副本。<strong>Load JSON…</strong> 可以打开其他目录中的用户布局。源码树中的文件不能通过该编辑器写入。</p>
+</section>
+<section id="id6">
+<h2>运行记录与用户数据<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
+<p><strong>Project &gt; Run History…</strong> 查看运行状态、日志和记录；删除运行记录或清理历史不会删除运行产物。<strong>Background Tasks…</strong> 查看、停止或打开后台任务结果。退出时如果仍有活动任务，Workbench 会询问如何处理。</p>
+<p>默认用户数据目录是 %USERPROFILE%.oneflow。设置 ONEFLOW_HOME 可将其移动到其他位置。设置、工作区定义、工作流定义、运行历史、日志、后台任务状态、网格编辑器项目和隔离运行目录都保存在用户数据树中；它与源码仓库分开。</p>
+</section>
+<section id="id7">
+<h2>架构和当前边界<a class="headerlink" href="#id7" title="Link to this heading"></a></h2>
+<p>Workbench 是 OneFLOW 的可选 Python/Qt 客户端，通过参数数组启动求解器进程。case、工作流、运行记录和任务结果等服务尽量保持 Qt 无关并有独立测试。项目发现、case catalog、工作流定义、运行副本和运行历史各自有不同职责。</p>
+<p>后续可完善项是：让工作流定义与 .ofw 定义共享一个持久化模型，减少两种格式之间的重复。详细架构约束见 doc/source/workbench_architecture.rst；GUI 模块、服务和测试索引见 tools/oneflow_gui/README.md。</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="test.html" class="btn btn-neutral float-left" title="Test" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="bash.html" class="btn btn-neutral float-right" title="Bash" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017-2026, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,456 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OneFLOW Architecture Priority Roadmap &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">OneFLOW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/index.html">Install</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user.html">THEORY</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_user_guide_zh.html">OneFLOW Workbench 用户手册</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bash.html">Bash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cfd/index.html">CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml.html">yaml</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OneFLOW Design and Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="architecture_review.html">OneFLOW Architecture Review and Development Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_architecture.html">OneFLOW Runtime Architecture and Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="database_architecture.html">Database Architecture and Data Access Contracts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evolutionary_computation_architecture.html">Evolutionary Scientific-Computing Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mesh_architecture.html">OneFLOW Mesh Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grid_topology.html">Grid Topology and Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="face_stage_pipeline.html">Face Stage Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_architecture.html">OneFLOW Workbench Architecture</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="case_parameter_design.html">Case Parameter Design and GUI Editing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">OneFLOW Architecture Priority Roadmap</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/architecture_priority_roadmap.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="oneflow-architecture-priority-roadmap">
+<h1>OneFLOW Architecture Priority Roadmap<a class="headerlink" href="#oneflow-architecture-priority-roadmap" title="Link to this heading"></a></h1>
+<section id="purpose">
+<h2>Purpose<a class="headerlink" href="#purpose" title="Link to this heading"></a></h2>
+<p>This roadmap ranks work by system-wide return, not by the number of files
+changed or by the apparent size of a subsystem. It is intended to prevent
+local refactoring from becoming an end in itself.</p>
+<p>The ranking is a working order, not a claim that lower-ranked areas are
+unimportant. Reassess it when production evidence changes the risk profile.</p>
+</section>
+<section id="how-to-rank-work">
+<h2>How to rank work<a class="headerlink" href="#how-to-rank-work" title="Link to this heading"></a></h2>
+<p>Use this qualitative model when comparing candidate changes:</p>
+<div class="math notranslate nohighlight">
+\[P = \frac{I \cdot F \cdot B \cdot U}{C + V}\]</div>
+<p>where:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(I\)</span> is the impact if the capability is correct;</p></li>
+<li><p><span class="math notranslate nohighlight">\(F\)</span> is how frequently the capability is exercised;</p></li>
+<li><p><span class="math notranslate nohighlight">\(B\)</span> is the blast radius when it fails;</p></li>
+<li><p><span class="math notranslate nohighlight">\(U\)</span> is uncertainty or the lack of trustworthy evidence;</p></li>
+<li><p><span class="math notranslate nohighlight">\(C\)</span> is implementation cost;</p></li>
+<li><p><span class="math notranslate nohighlight">\(V\)</span> is the cost of building convincing verification evidence.</p></li>
+</ul>
+<p>This is a prioritization aid, not a measured metric. Do not assign false
+precision to the factors. In particular, high uncertainty increases the
+value of an investigation or a focused integration test; it does not
+automatically justify a large rewrite.</p>
+</section>
+<section id="ranked-investment-sequence">
+<h2>Ranked investment sequence<a class="headerlink" href="#ranked-investment-sequence" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 7.0%" />
+<col style="width: 27.0%" />
+<col style="width: 23.0%" />
+<col style="width: 28.0%" />
+<col style="width: 15.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Rank</p></th>
+<th class="head"><p>Investment</p></th>
+<th class="head"><p>System-wide leverage</p></th>
+<th class="head"><p>Required evidence</p></th>
+<th class="head"><p>Current posture</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>Runtime lifecycle, configuration ingestion, and case isolation</p></td>
+<td><p>Every solver run depends on correct setup, state ownership, cleanup,
+and reproducible case paths.</p></td>
+<td><p>Real entry-point tests; multi-file configuration; sequential cases;
+setup and execution failure cleanup; Windows/Linux CI.</p></td>
+<td><p>Active: R1 partial.</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>Mesh core, topology, boundary, and derived-data lifecycle</p></td>
+<td><p>Geometry, conversion, partitioning, solver connectivity, visualization,
+and mesh workflows share these semantics.</p></td>
+<td><p>Invariant tests; identity/orientation tests; cache invalidation;
+representative 1D/2D/3D fixtures; independent snapshots.</p></td>
+<td><p>Next major engineering mainline.</p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p>Numerical algorithms and scientific verification</p></td>
+<td><p>Numerical correctness determines whether successful execution
+produces scientifically meaningful results.</p></td>
+<td><p>Derivation and assumptions; manufactured solutions; conservation;
+convergence/order studies; reference comparisons; real-case regression.</p></td>
+<td><p>Build a traceable algorithm inventory and deepen one method at a time.</p></td>
+</tr>
+<tr class="row-odd"><td><p>4</p></td>
+<td><p>Computation-unit contracts and dataflow composition</p></td>
+<td><p>Enables algorithms and data representations to be replaced or composed
+without coupling every producer to every consumer.</p></td>
+<td><p>Typed ports, units, ownership, pre/postconditions, side effects,
+failure policy, provenance, compatibility tests.</p></td>
+<td><p>Establish contracts and adapters before runtime machinery.</p></td>
+</tr>
+<tr class="row-even"><td><p>5</p></td>
+<td><p>Workflow and GUI developer experience</p></td>
+<td><p>Improves usability, repeatability, artifact dependencies, and diagnosis.</p></td>
+<td><p>End-to-end workflow tests; artifact provenance; restart/stop semantics;
+no source-tree pollution.</p></td>
+<td><p>Advance in step with stable runtime and mesh contracts.</p></td>
+</tr>
+<tr class="row-odd"><td><p>6</p></td>
+<td><p>Documentation and developer-tool automation</p></td>
+<td><p>Reduces maintenance cost and makes architecture discoverable across
+all other investment areas.</p></td>
+<td><p>Documentation build; API extraction; link and formula checks;
+diagrams kept consistent with implementation.</p></td>
+<td><p>Continuous cross-cutting work, not a substitute for implementation.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="why-this-order">
+<h2>Why this order<a class="headerlink" href="#why-this-order" title="Link to this heading"></a></h2>
+<p>Runtime correctness is the first gate: an algorithm cannot be trusted if
+the case parameters, global state, paths, or device/parallel resources are
+not initialized and released consistently.</p>
+<p>Mesh is the next broad leverage point. A mesh is not merely an input file or
+a collection of coordinates. It carries geometry, entity identity, oriented
+connectivity, boundary semantics, and derived caches. A stable mesh core
+therefore improves many independent workflows at once.</p>
+<p>Numerical methods follow as a distinct scientific-quality investment. The
+implementation must be connected to its mathematical model and verification
+evidence. A passing software test suite does not by itself establish
+consistency, stability, conservation, or convergence of a numerical method.</p>
+<p>Computation-unit contracts are an enabling architecture. They should emerge
+from stable boundaries found in runtime, mesh, and numerical work. Do not
+build a generic plugin host before real algorithms need independently
+replaceable implementations.</p>
+<p>Workflows and GUI then consume those stable capabilities. Documentation
+automation supports every stage, but the authoritative design narrative,
+scientific derivations, and system diagrams remain curated documentation.</p>
+</section>
+<section id="current-mainline-r1-runtime-integration">
+<h2>Current mainline: R1 runtime integration<a class="headerlink" href="#current-mainline-r1-runtime-integration" title="Link to this heading"></a></h2>
+<p>The current configuration path can be described as a sequence of semantic
+transformations and effects:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>case directory
+     |
+     v
+script/control.txt
+     |
+     v
+ordered script files
+     |
+     v
+legacy syntax parser
+     |
+     v
+ConfigDocument (parsed representation)
+     |
+     v
+typed DataBase commit
+     |
+     v
+parallel distribution / diagnostic snapshot
+     |
+     v
+CaseIOSettings validation
+     |
+     v
+project and domain I/O roots
+     |
+     v
+io_paths.txt and case execution
+</pre></div>
+</div>
+<p>The arrows are not interchangeable. Parsing determines what the text says;
+typed commit determines how values enter the runtime database; validation
+determines whether case-specific settings are acceptable; application mutates
+project path state; parallel distribution and diagnostics have process and
+filesystem effects.</p>
+<p>The next R1 acceptance sequence is:</p>
+<ol class="arabic simple">
+<li><p>Exercise the production <cite>ReadControlInfo(caseDir)</cite> with a temporary
+multi-file manifest and a correctly initialized serial parallel runtime.</p></li>
+<li><p>Assert typed values in the real database and verify the database diagnostic
+output.</p></li>
+<li><p>Exercise <cite>SetupCaseEnvironment()</cite> far enough to verify effective project,
+mesh, and flow roots and the generated path diagnostics.</p></li>
+<li><p>Run two distinct cases sequentially and prove that the second case cannot
+observe the first case’s case-scoped settings.</p></li>
+<li><p>Inject a setup failure and verify case cleanup while preserving the
+original execution exception.</p></li>
+<li><p>Keep process-scoped finalization owned by the process lifecycle; do not
+finalize shared parallel/device resources from case teardown.</p></li>
+</ol>
+<p>A focused parser test, resolver test, or path helper test proves only its
+declared contract. It must not be reported as proof of this whole sequence.
+See <a class="reference internal" href="runtime_architecture.html"><span class="doc">OneFLOW Runtime Architecture and Development Guide</span></a> and
+<cite>doc/plans/setup-case-environment-integration-test.md</cite> for source-level
+details and open questions.</p>
+</section>
+<section id="mesh-mainline-after-r1">
+<h2>Mesh mainline after R1<a class="headerlink" href="#mesh-mainline-after-r1" title="Link to this heading"></a></h2>
+<p>The mesh investment should preserve a strict distinction between source data,
+canonical semantic snapshots, and derived views:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>mesh reader / generator
+        |
+        v
+canonical mesh snapshot
+   /      |       \
+  v       v        v
+geometry topology boundary
+           |        |
+           v        v
+       derived connectivity
+              |
+              v
+       solver / partition /
+       visualization adapters
+</pre></div>
+</div>
+<p>The canonical snapshot should not depend on solver globals or GUI state.
+Topology and boundary views must document orientation, identity, ghost-entity
+rules, and cache invalidation. Serialization (JSON, VTU, or another format)
+should consume snapshots; it should not reach back into live solver state to
+reconstruct meaning.</p>
+</section>
+<section id="numerical-algorithm-work">
+<h2>Numerical algorithm work<a class="headerlink" href="#numerical-algorithm-work" title="Link to this heading"></a></h2>
+<p>For each algorithm selected for deeper work, maintain a traceable chain:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>physical model and assumptions
+           |
+           v
+mathematical formulation
+           |
+           v
+discrete equations and boundary treatment
+           |
+           v
+implementation and data contract
+           |
+           v
+focused unit / component tests
+           |
+           v
+manufactured-solution and conservation checks
+           |
+           v
+grid convergence and reference-case comparison
+</pre></div>
+</div>
+<p>For a grid-refinement study with characteristic spacing <span class="math notranslate nohighlight">\(h\)</span>, an
+observed order can be estimated from errors <span class="math notranslate nohighlight">\(E_h\)</span> and
+<span class="math notranslate nohighlight">\(E_{h/r}\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[p_{obs} = \frac{\ln(E_h/E_{h/r})}{\ln(r)}.\]</div>
+<p>This estimate is meaningful only when the solutions are in the asymptotic
+convergence range, the error norm and refinement ratio are defined, and the
+compared runs use consistent physical and numerical settings. The document
+for a specific method must state these assumptions rather than presenting
+the formula as a universal pass/fail test.</p>
+</section>
+<section id="documentation-and-source-comments">
+<h2>Documentation and source comments<a class="headerlink" href="#documentation-and-source-comments" title="Link to this heading"></a></h2>
+<p>Use two complementary documentation layers.</p>
+<p><strong>Source-level API documentation</strong> should be generated from useful, stable
+comments (for example, Doxygen-compatible comments) on public classes,
+functions, data structures, and non-obvious invariants. Comments should state
+intent, units, ownership/lifetime, preconditions, postconditions, side effects,
+and failure behavior where these are part of the contract. Avoid narrating
+obvious statements or copying entire design documents into headers.</p>
+<p><strong>Curated documentation under `doc/source`</strong> remains necessary for material
+that spans files or requires explanation: architecture decisions, subsystem
+maps, mathematical derivations, discretization choices, algorithm limits,
+workflow diagrams, numerical experiments, reference comparisons, and
+migration plans. Generated API pages should be linked from these guides; they
+should not replace them.</p>
+<p>Use reStructuredText/Sphinx capabilities consistently:</p>
+<ul class="simple">
+<li><p><cite>.. math::</cite> for equations and derivations;</p></li>
+<li><p><cite>.. figure::</cite> for explanatory diagrams and annotated plots;</p></li>
+<li><p><cite>.. graphviz::</cite> or a maintained text diagram when the build configuration
+supports it;</p></li>
+<li><p><cite>.. list-table::</cite> for contracts, test matrices, and comparison summaries;</p></li>
+<li><p>citations and a reference list for external scientific claims.</p></li>
+</ul>
+<p>A diagram must explain a real boundary, data transformation, lifecycle, or
+algorithm. Keep it adjacent to the prose that interprets it. Every diagram
+should have a caption and should not imply that a planned component already
+exists. If an automatically generated diagram is sourced from code, identify
+the generator and keep a reviewed conceptual diagram for the system-level
+story.</p>
+</section>
+<section id="review-checkpoint">
+<h2>Review checkpoint<a class="headerlink" href="#review-checkpoint" title="Link to this heading"></a></h2>
+<p>At each substantial milestone, answer:</p>
+<ul class="simple">
+<li><p>Which high-leverage system risk has been reduced?</p></li>
+<li><p>Which users, algorithms, or subsystems benefit from the change?</p></li>
+<li><p>What behavior is now verified, and by which exact test or CI revision?</p></li>
+<li><p>Which important behavior remains unverified?</p></li>
+<li><p>Did the evidence change the priority ranking?</p></li>
+<li><p>Did the change introduce an abstraction that has no second real use case?</p></li>
+</ul>
+<p>The goal is not maximum abstraction or maximum test count. The goal is a
+scientific-computing system whose state, algorithms, data transformations,
+and numerical claims can be understood, composed, replaced, and verified.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017-2026, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

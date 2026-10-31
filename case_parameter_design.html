@@ -1,0 +1,328 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Case Parameter Design and GUI Editing &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="OneFLOW Workbench Architecture" href="workbench_architecture.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">OneFLOW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/index.html">Install</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user.html">THEORY</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_user_guide_zh.html">OneFLOW Workbench 用户手册</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bash.html">Bash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cfd/index.html">CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml.html">yaml</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OneFLOW Design and Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="architecture_review.html">OneFLOW Architecture Review and Development Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_architecture.html">OneFLOW Runtime Architecture and Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="database_architecture.html">Database Architecture and Data Access Contracts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evolutionary_computation_architecture.html">Evolutionary Scientific-Computing Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mesh_architecture.html">OneFLOW Mesh Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grid_topology.html">Grid Topology and Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="face_stage_pipeline.html">Face Stage Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_architecture.html">OneFLOW Workbench Architecture</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Case Parameter Design and GUI Editing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#status-and-scope">Status and scope</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configuration-path">Configuration path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sample-parameter-domains">Sample parameter domains</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#gui-parameter-editor-direction">GUI parameter editor direction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configuration-adapter-tests">Configuration adapter tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#current-parser-tests">Current parser tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#related-documentation">Related documentation</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Case Parameter Design and GUI Editing</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/case_parameter_design.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="case-parameter-design-and-gui-editing">
+<h1>Case Parameter Design and GUI Editing<a class="headerlink" href="#case-parameter-design-and-gui-editing" title="Link to this heading"></a></h1>
+<section id="status-and-scope">
+<h2>Status and scope<a class="headerlink" href="#status-and-scope" title="Link to this heading"></a></h2>
+<p>This page records the current boundary between legacy case files, the C++ runtime
+parameter database, and the optional Workbench GUI. The checked-in RAE2822 cases are
+examples for understanding the format; their values are not recommendations for an
+optimal mesh or CFD solution. A value appearing in a database dump proves that it was
+parsed and committed, but does not prove that it affects the selected task.</p>
+</section>
+<section id="configuration-path">
+<h2>Configuration path<a class="headerlink" href="#configuration-path" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">script/control.txt</span></code> is an ordered manifest of parameter files. For example,
+<code class="docutils literal notranslate"><span class="pre">test/grid/rae2822convert/script/control.txt</span></code> lists <code class="docutils literal notranslate"><span class="pre">simu.txt</span></code>, <code class="docutils literal notranslate"><span class="pre">dimension.txt</span></code>,
+<code class="docutils literal notranslate"><span class="pre">tolerence.txt</span></code>, <code class="docutils literal notranslate"><span class="pre">grid.txt</span></code>, and <code class="docutils literal notranslate"><span class="pre">part.txt</span></code>. The CFD case
+<code class="docutils literal notranslate"><span class="pre">test/cfd/rae2822_roe_sa/script/control.txt</span></code> additionally separates solver, model,
+inflow, wall-distance, and multigrid settings into files such as <code class="docutils literal notranslate"><span class="pre">cfd.txt</span></code>,
+<code class="docutils literal notranslate"><span class="pre">vismodel.txt</span></code>, <code class="docutils literal notranslate"><span class="pre">inflow.txt</span></code>, <code class="docutils literal notranslate"><span class="pre">walldist.txt</span></code>, <code class="docutils literal notranslate"><span class="pre">turb.txt</span></code>, and <code class="docutils literal notranslate"><span class="pre">multigrid.txt</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">ControlManifestReader.cpp</span></code> reads the ordered manifest and resolves each
+listed script path under the selected case directory. <code class="docutils literal notranslate"><span class="pre">ControlFileReader.cpp</span></code>
+then orchestrates the listed files in that order. <code class="docutils literal notranslate"><span class="pre">ConfigLoader</span></code> parses each
+legacy file into a <code class="docutils literal notranslate"><span class="pre">ConfigDocument</span></code>. <code class="docutils literal notranslate"><span class="pre">ControlScriptParser.cpp</span></code> invokes
+<code class="docutils literal notranslate"><span class="pre">ConfigDatabaseAdapter::Commit()</span></code>, whose implementation is in
+<code class="docutils literal notranslate"><span class="pre">ConfigDatabaseAdapter.cpp</span></code>. The adapter applies those entries through
+<code class="docutils literal notranslate"><span class="pre">ProcessData</span></code> to the legacy runtime database. The adapter preserves document order;
+repeated names follow the runtime <code class="docutils literal notranslate"><span class="pre">DataPara</span></code> replacement policy. The current commit
+operation is incremental, not transactional: an error in a later entry does not roll
+back earlier entries. This is a useful migration boundary:
+the parser handles text syntax, while task and physics code remain responsible for
+runtime meaning.</p>
+<p>The runtime database is not an authoring model. <code class="docutils literal notranslate"><span class="pre">DataEntry</span></code> stores a parameter name,
+runtime type, array size, and value. <code class="docutils literal notranslate"><span class="pre">DataPara</span></code> indexes entries with an
+<code class="docutils literal notranslate"><span class="pre">unordered_map</span></code>. Consequently, a database dump does not preserve the originating
+file, declaration order, comments, whether a value was explicit or defaulted, units,
+help text, constraints, or the conditions under which a parameter applies. A GUI must
+not use the dump as a complete parameter editor schema or treat its order as stable.</p>
+</section>
+<section id="sample-parameter-domains">
+<h2>Sample parameter domains<a class="headerlink" href="#sample-parameter-domains" title="Link to this heading"></a></h2>
+<p>The following groups describe where the example values are declared. They are a useful
+starting point for navigation, not an exhaustive list of runtime consumers.</p>
+<dl class="simple">
+<dt>Grid conversion case</dt><dd><p><code class="docutils literal notranslate"><span class="pre">test/grid/rae2822convert/script/simu.txt</span></code> selects the Grid task and conversion
+mode. <code class="docutils literal notranslate"><span class="pre">grid.txt</span></code> declares source and target formats and paths, scale and
+translation, boundary-name maps, and format-specific switches. <code class="docutils literal notranslate"><span class="pre">part.txt</span></code> holds
+partition-related settings. <code class="docutils literal notranslate"><span class="pre">dimension.txt</span></code> and <code class="docutils literal notranslate"><span class="pre">tolerence.txt</span></code> provide shared
+dimensional and tolerance settings. Code in <code class="docutils literal notranslate"><span class="pre">GridTypes.cpp</span></code>, <code class="docutils literal notranslate"><span class="pre">Plot3D.cpp</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">DomainInp.cpp</span></code> reads representative grid type, transform, format, source, and
+boundary parameters; <code class="docutils literal notranslate"><span class="pre">SimuDef.cpp</span></code> resolves the task and <code class="docutils literal notranslate"><span class="pre">Tolerance.cpp</span></code> reads
+<code class="docutils literal notranslate"><span class="pre">ptTol</span></code>. Representative declared keys include <code class="docutils literal notranslate"><span class="pre">gridObj</span></code>, <code class="docutils literal notranslate"><span class="pre">sourceGridType</span></code>,
+<code class="docutils literal notranslate"><span class="pre">targetGridType</span></code>, <code class="docutils literal notranslate"><span class="pre">gridScale</span></code>, <code class="docutils literal notranslate"><span class="pre">gridTrans</span></code>, <code class="docutils literal notranslate"><span class="pre">sourceGridFileName</span></code>,
+<code class="docutils literal notranslate"><span class="pre">targetGridFileName</span></code>, and <code class="docutils literal notranslate"><span class="pre">parallelStrategy</span></code>.</p>
+</dd>
+<dt>RAE2822 Roe-SA CFD case</dt><dd><p><code class="docutils literal notranslate"><span class="pre">simu.txt</span></code> holds run control, files, and output cadence. <code class="docutils literal notranslate"><span class="pre">cfd.txt</span></code> selects
+equation/solver controls; <code class="docutils literal notranslate"><span class="pre">vismodel.txt</span></code> selects the viscosity model;
+<code class="docutils literal notranslate"><span class="pre">inflow.txt</span></code> contains inlet and reference-state settings; <code class="docutils literal notranslate"><span class="pre">turb.txt</span></code> contains
+turbulence controls; <code class="docutils literal notranslate"><span class="pre">multigrid.txt</span></code> configures the multigrid cycle; and
+<code class="docutils literal notranslate"><span class="pre">walldist.txt</span></code> configures wall-distance input. Representative consumers include
+<code class="docutils literal notranslate"><span class="pre">NsCom.cpp</span></code> and <code class="docutils literal notranslate"><span class="pre">NsCtrl.cpp</span></code> for flow controls, <code class="docutils literal notranslate"><span class="pre">TurbCom.cpp</span></code> and
+<code class="docutils literal notranslate"><span class="pre">TurbCtrl.cpp</span></code> for turbulence, <code class="docutils literal notranslate"><span class="pre">Multigrid.cpp</span></code> for multigrid controls, and
+<code class="docutils literal notranslate"><span class="pre">MultiBlock.cpp</span></code> for grid and wall-distance paths. Representative declared keys
+include <code class="docutils literal notranslate"><span class="pre">time_integral</span></code>, <code class="docutils literal notranslate"><span class="pre">rk_stage</span></code>, <code class="docutils literal notranslate"><span class="pre">reynolds</span></code>, <code class="docutils literal notranslate"><span class="pre">mach_ref</span></code>, <code class="docutils literal notranslate"><span class="pre">vismodel</span></code>,
+<code class="docutils literal notranslate"><span class="pre">inflow_intensity</span></code>, <code class="docutils literal notranslate"><span class="pre">ref_sa</span></code>, <code class="docutils literal notranslate"><span class="pre">turb_cfl_ratio</span></code>, <code class="docutils literal notranslate"><span class="pre">nmg</span></code>, and <code class="docutils literal notranslate"><span class="pre">mgCycleType</span></code>.</p>
+</dd>
+</dl>
+<p>These source references confirm that representative parameters reach implementation
+code. They do not classify every key in the two database dumps. Some settings are
+conditional on task, model, or file format; some may be defaults, compatibility fields,
+derived values, or historical leftovers. Establishing whether a parameter is unused
+requires tracing its read path and conditions, not searching for one exact spelling
+alone.</p>
+</section>
+<section id="gui-parameter-editor-direction">
+<h2>GUI parameter editor direction<a class="headerlink" href="#gui-parameter-editor-direction" title="Link to this heading"></a></h2>
+<p>The Workbench currently manages projects, case files, workspaces, runs, workflows, and
+artifacts. Its workflow artifact bindings can update declared settings in staged
+parameter files, but this is a narrow execution adapter, not a general-purpose editor
+for every C++ runtime parameter.</p>
+<p>A future parameter editor should be driven by a versioned, declarative schema that
+records, per parameter:</p>
+<ul class="simple">
+<li><p>stable key and legacy spelling;</p></li>
+<li><p>value type and scalar/array shape;</p></li>
+<li><p>owning parameter file and display group;</p></li>
+<li><p>description, units, allowed choices, and validation rules when known;</p></li>
+<li><p>applicable task, solver, physics model, and format conditions;</p></li>
+<li><p>whether the field is required, optional, advanced, deprecated, or derived;</p></li>
+<li><p>evidence/source for its default and runtime consumer.</p></li>
+</ul>
+<p>The editor should preserve unknown keys and avoid deleting comments or user ordering
+when writing legacy files. It should distinguish values explicitly present in a file
+from values inserted by defaults or derived during setup. Conditional visibility must
+follow declared applicability rules rather than guesses from parameter names. A schema
+entry with unknown units, range, or consumer should say so instead of inventing a
+constraint.</p>
+</section>
+<section id="configuration-adapter-tests">
+<h2>Configuration adapter tests<a class="headerlink" href="#configuration-adapter-tests" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">TextFileParser_test</span></code> now also exercises the production
+<code class="docutils literal notranslate"><span class="pre">ReadScriptFileNameList(caseDir,</span> <span class="pre">...)</span></code> operation with a temporary manifest.
+It checks that blank lines are skipped, listed paths are rooted under the case,
+and declaration order is preserved. This pins manifest discovery, not parsing
+or committing the listed scripts.</p>
+<p><code class="docutils literal notranslate"><span class="pre">control_parameter_resolver_test</span></code> also exercises the production
+<code class="docutils literal notranslate"><span class="pre">ConfigDatabaseAdapter</span></code> against the real global <code class="docutils literal notranslate"><span class="pre">DataBase</span></code>. It checks typed
+integer, real, and string entries and confirms that a later declaration of the same
+name replaces the earlier value. These are adapter/database contract tests; they do
+not exercise manifest ordering across multiple physical files, parallel distribution,
+or the complete <code class="docutils literal notranslate"><span class="pre">ReadControlInfo(caseDir)</span></code> operation.</p>
+</section>
+<section id="current-parser-tests">
+<h2>Current parser tests<a class="headerlink" href="#current-parser-tests" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">tests/io/ConfigLoader_test.cpp</span></code> specifies scalar type/name/value parsing, declaration
+order, quoted scalar values, literal arrays spanning lines, callback-based named array
+lengths, rejection when a named length has no resolver, and replacement of the document
+when the loader parses another file. These tests exercise syntax translation only. They
+do not assert runtime parameter validity, units, defaults, solver behavior, or editor
+serialization.
+Recommended migration sequence
+——————————</p>
+<ol class="arabic simple">
+<li><p>Keep the existing parser and runtime database adapter stable while collecting
+source-backed parameter metadata for one task at a time.</p></li>
+<li><p>Keep parser-contract tests for scalar metadata, declaration order, multiline arrays,
+named-length resolution, and repeated-parse replacement. Add schema-specific validation
+after a schema exists. Test serialization round trips at the file-writing boundary; do
+not encode numerical recommendations as parser rules.</p></li>
+<li><p>Build a read-only categorized view in Workbench before enabling edits. Compare it
+with the originating files and report unsupported or unclassified entries.</p></li>
+<li><p>Enable writing only for fields with a known source file, type, serialization rule,
+and validation contract. Keep the original file content recoverable.</p></li>
+<li><p>Audit parameter consumers incrementally and mark evidence as confirmed, conditional,
+or unresolved. Do not infer that a field is unused from a successful run.</p></li>
+</ol>
+<p>This sequence makes the catalog useful even before a full editor exists and lets the
+cost of isolated schema and serialization tests expose coupling in the current runtime
+configuration boundary.</p>
+</section>
+<section id="related-documentation">
+<h2>Related documentation<a class="headerlink" href="#related-documentation" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="runtime_architecture.html"><span class="doc">OneFLOW Runtime Architecture and Development Guide</span></a> describes runtime configuration and task setup.</p></li>
+<li><p><a class="reference internal" href="workbench_architecture.html"><span class="doc">OneFLOW Workbench Architecture</span></a> describes Workbench domain and service boundaries.</p></li>
+<li><p><a class="reference internal" href="workbench_user_guide_zh.html"><span class="doc">OneFLOW Workbench 用户手册</span></a> and <code class="docutils literal notranslate"><span class="pre">tools/oneflow_gui/README.md</span></code> describe current
+user-visible GUI behavior.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="workbench_architecture.html" class="btn btn-neutral float-left" title="OneFLOW Workbench Architecture" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017-2026, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,387 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OneFLOW Mesh Architecture &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Grid Topology and Validation" href="grid_topology.html" />
+    <link rel="prev" title="Evolutionary Scientific-Computing Architecture" href="evolutionary_computation_architecture.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">OneFLOW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/index.html">Install</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user.html">THEORY</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_user_guide_zh.html">OneFLOW Workbench 用户手册</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bash.html">Bash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cfd/index.html">CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml.html">yaml</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OneFLOW Design and Development</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="architecture_review.html">OneFLOW Architecture Review and Development Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_architecture.html">OneFLOW Runtime Architecture and Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="database_architecture.html">Database Architecture and Data Access Contracts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evolutionary_computation_architecture.html">Evolutionary Scientific-Computing Architecture</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">OneFLOW Mesh Architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#purpose-and-status">Purpose and status</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#design-goals">Design goals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#information-model">Information model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#canonical-data-and-derived-data">Canonical data and derived data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#snapshot-and-adapter-boundary">Snapshot and adapter boundary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#spatial-search-and-point-location-boundary">Spatial search and point-location boundary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#topology-invariants-and-rebuild-rules">Topology invariants and rebuild rules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#validation-strategy">Validation strategy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#implementation-boundary">Implementation boundary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#related-engineering-records">Related engineering records</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="grid_topology.html">Grid Topology and Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="face_stage_pipeline.html">Face Stage Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_architecture.html">OneFLOW Workbench Architecture</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="case_parameter_design.html">Case Parameter Design and GUI Editing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">OneFLOW Mesh Architecture</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/mesh_architecture.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="oneflow-mesh-architecture">
+<h1>OneFLOW Mesh Architecture<a class="headerlink" href="#oneflow-mesh-architecture" title="Link to this heading"></a></h1>
+<section id="purpose-and-status">
+<h2>Purpose and status<a class="headerlink" href="#purpose-and-status" title="Link to this heading"></a></h2>
+<p>This page is the curated overview of OneFLOW’s mesh-data architecture. It brings together the repository’s overlapping mesh design notes while keeping implementation facts separate from proposed interfaces.</p>
+<p>The architecture is being developed incrementally. A proposed export level or adapter is not evidence that the corresponding implementation is complete. Current code contracts and tests take precedence over target designs.</p>
+</section>
+<section id="design-goals">
+<h2>Design goals<a class="headerlink" href="#design-goals" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Inspect a mesh without starting the full solver or a graphical workbench.</p></li>
+<li><p>Extract a small, independently testable summary from a live runtime mesh.</p></li>
+<li><p>Separate mesh semantics from JSON, VTK, CGNS, Tecplot, or GUI-specific representations.</p></li>
+<li><p>Preserve geometry, topology, boundary meaning, and interface relationships when a format claims to support them.</p></li>
+<li><p>Test conversion through semantic round trips, not merely successful file creation.</p></li>
+<li><p>Keep derived connectivity and geometric caches distinct from authoritative source data, with explicit rebuild rules.</p></li>
+</ul>
+</section>
+<section id="information-model">
+<h2>Information model<a class="headerlink" href="#information-model" title="Link to this heading"></a></h2>
+<p>The following levels provide one consistent vocabulary for the design. They describe information content, not a promise that every level is already exported.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 12.0%" />
+<col style="width: 28.0%" />
+<col style="width: 38.0%" />
+<col style="width: 22.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Level</p></th>
+<th class="head"><p>Content</p></th>
+<th class="head"><p>Typical use</p></th>
+<th class="head"><p>Guarantee</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>L0 Summary</p></td>
+<td><p>Dimension, counts, element-type counts, coordinate bounds, schema/version metadata</p></td>
+<td><p>Quick inspection, diagnostics, inventory, UI previews</p></td>
+<td><p>Inspection only; cannot reconstruct a mesh</p></td>
+</tr>
+<tr class="row-odd"><td><p>L1 Geometry and cell topology</p></td>
+<td><p>Node coordinates, cell types, ordered cell-to-node connectivity where applicable, identifier conventions</p></td>
+<td><p>Basic geometric reconstruction and cell-oriented algorithms</p></td>
+<td><p>Reconstructs only the declared geometry and cell topology</p></td>
+</tr>
+<tr class="row-even"><td><p>L2 Face topology and boundary semantics</p></td>
+<td><p>Ordered face-to-node connectivity, owner/neighbour cells, boundary patches and physical labels, orientation conventions</p></td>
+<td><p>Face-based finite-volume traversal, boundary checks, flux-compatible reconstruction</p></td>
+<td><p>Preserves these semantics only when all required fields are present</p></td>
+</tr>
+<tr class="row-odd"><td><p>L3 Partition and interfaces</p></td>
+<td><p>Partition/zone identity, local-to-global maps, interface-face correspondence, ghost/remote-neighbour metadata</p></td>
+<td><p>Distributed mesh reconstruction and interface validation</p></td>
+<td><p>Requires complete, consistently scoped maps</p></td>
+</tr>
+<tr class="row-even"><td><p>L4 Derived data and fields</p></td>
+<td><p>Centers, normals, measures, adjacency caches, search structures, solution fields and residuals</p></td>
+<td><p>Visualization, diagnostics, or restoring selected solver output</p></td>
+<td><p>Each item must state whether it is canonical input, reproducible derived data, or optional output</p></td>
+</tr>
+</tbody>
+</table>
+<p>Provenance such as generator parameters, source fingerprints, conversion options, and software versions is cross-cutting metadata. It should be recorded when needed for reproducibility rather than confused with mesh topology.</p>
+</section>
+<section id="canonical-data-and-derived-data">
+<h2>Canonical data and derived data<a class="headerlink" href="#canonical-data-and-derived-data" title="Link to this heading"></a></h2>
+<p>Prefer one authoritative representation for each fact.</p>
+<ul class="simple">
+<li><p>Node coordinates and source connectivity are canonical mesh data.</p></li>
+<li><p>In a face-based finite-volume model, ordered face-node connectivity and owner/neighbour relationships carry orientation and traversal meaning.</p></li>
+<li><p>Boundary regions and physical labels are semantic data, not display colors.</p></li>
+<li><p>Cell-to-face and cell-to-cell adjacency, centers, normals, areas, volumes, and search structures are derived or cached unless a specific format contract says otherwise.</p></li>
+<li><p>Ghost entities and partition interfaces belong to execution/distribution semantics; they must not be confused with physical cells in the source mesh.</p></li>
+<li><p>Generator settings describe provenance, not the generated mesh itself.</p></li>
+</ul>
+<p>The runtime model may expose both cell-oriented and face-oriented data for algorithmic reasons. Export code should adapt from a stable read-only view or value snapshot instead of making JSON or visualization libraries part of core mesh classes.</p>
+</section>
+<section id="snapshot-and-adapter-boundary">
+<h2>Snapshot and adapter boundary<a class="headerlink" href="#snapshot-and-adapter-boundary" title="Link to this heading"></a></h2>
+<p>The intended flow is:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Runtime Grid / UnsGrid
+    -&gt; read-only mesh view
+    -&gt; validated value snapshot
+    -&gt; format adapters
+         -&gt; versioned diagnostic package
+         -&gt; VTK XML / visualization output
+         -&gt; CGNS or other interchange formats
+         -&gt; Python inspection and visualization
+</pre></div>
+</div>
+<p>L0 summary output is the first practical step. It is metadata only: it does not contain the coordinates and connectivity required to reconstruct a mesh. A richer package should declare its schema version, available levels, ID base, ID scope, units when known, and unsupported or lossy fields.</p>
+<p>JSON is suitable for manifests and small metadata. Large numeric arrays may need compact typed payloads. JSON-library types should remain inside serialization adapters rather than leaking into the canonical mesh model.</p>
+</section>
+<section id="spatial-search-and-point-location-boundary">
+<h2>Spatial search and point-location boundary<a class="headerlink" href="#spatial-search-and-point-location-boundary" title="Link to this heading"></a></h2>
+<p>Point location is a geometry service, not an ADT-specific service. <cite>PointLocator</cite>
+combines several responsibilities, while its candidate-search implementation is now
+hidden behind a private interface in <cite>PointLocator.cpp</cite>:</p>
+<ul class="simple">
+<li><p>point-coordinate storage and stable point IDs;</p></li>
+<li><p>duplicate detection and the tolerance policy;</p></li>
+<li><p>broad-phase candidate retrieval through <cite>HXAdtTree</cite>;</p></li>
+<li><p>narrow-phase Euclidean distance checks and nearest-match selection.</p></li>
+</ul>
+<p>These responsibilities are related but should not all depend on the same concrete
+implementation. The ADT is an implementation detail of candidate retrieval. A future
+spatial-index contract should expose only the operations needed by geometry code, such as
+rebuilding an index, inserting a point with a payload, and querying candidates in an
+axis-aligned region or within a radius. Tree nodes, ownership handles, and third-party
+types should not cross that boundary.</p>
+<p>The implemented dependency direction is:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>PointLocator
+    -&gt; spatial-index contract
+         -&gt; OneFLOW ADT adapter (existing baseline)
+         -&gt; nanoflann adapter (optional candidate backend)
+</pre></div>
+</div>
+<p>The contract must specify more than matching function names. It must state:</p>
+<ul class="simple">
+<li><p>whether the index owns point data or only references a coordinate dataset;</p></li>
+<li><p>whether insertions after construction are supported, and how index rebuilds work;</p></li>
+<li><p>the dimensionality and coordinate lifetime requirements;</p></li>
+<li><p>whether a query returns all candidates in a region, nearest neighbours, or radius matches;</p></li>
+<li><p>that candidate ordering is not semantically significant unless explicitly documented;</p></li>
+<li><p>how IDs and payloads are preserved across rebuilds;</p></li>
+<li><p>how tolerance-boundary cases are treated by the final geometry predicate.</p></li>
+</ul>
+<p>The current <cite>PointLocator</cite> performs a broad-phase axis-aligned box query and then a
+narrow-phase squared-distance check. For tolerance <cite>t</cite>, the candidate window is
+<cite>[x-t, x+t] x [y-t, y+t] x [z-t, z+t]</cite>; the final predicate accepts a candidate only
+when its squared distance is strictly less than <cite>t*t</cite>. The broad phase may return false
+positives, but it must not omit a point that satisfies the narrow-phase predicate. Keeping
+the final predicate in <cite>PointLocator</cite> prevents backend-specific boundary semantics from
+silently changing deduplication behavior.</p>
+<p>nanoflann is worth evaluating as an alternative backend, not assuming as a drop-in
+replacement. Its common use is nearest-neighbour and radius search over a dataset adaptor;
+OneFLOW currently inserts points incrementally into the ADT. The adapter design therefore
+needs to decide whether to use a supported dynamic index, rebuild a static index at defined
+points, or retain the ADT for incremental construction. Compare real OneFLOW workloads:
+incremental point insertion, duplicate-heavy interface matching, query throughput, build
+cost, memory use, and result equivalence. Do not select a backend from synthetic query
+speed alone.</p>
+<p>The first migration step is implemented: <cite>PointLocator</cite> talks to a private index contract,
+and an ADT adapter translates region queries into point IDs. The narrow-phase distance
+predicate now reads canonical coordinates from the locator’s coordinate store instead of
+reading coordinates from ADT nodes. This keeps match policy independent of tree-node layout.</p>
+<p>The remaining migration steps are:</p>
+<ol class="arabic simple">
+<li><p>Add contract tests that can be run against each backend adapter.</p></li>
+<li><p>Implement a nanoflann adapter only after choosing and testing an incremental-update policy.</p></li>
+<li><p>Add representative benchmarks and compare full matching results, including tolerance
+boundaries and duplicate insertion order.</p></li>
+<li><p>Keep nanoflann optional until dependency licensing, packaging, platform builds, and
+performance evidence are reviewed.</p></li>
+</ol>
+<p>The current production backend remains ADT-backed. The new boundary is an internal seam,
+not yet a public plugin API; it allows the implementation to evolve without requiring
+solver, mesh-container, or point-ID changes.</p>
+</section>
+<section id="topology-invariants-and-rebuild-rules">
+<h2>Topology invariants and rebuild rules<a class="headerlink" href="#topology-invariants-and-rebuild-rules" title="Link to this heading"></a></h2>
+<p>Mesh topology checks should cover at least:</p>
+<ul class="simple">
+<li><p>Every node, cell, face, and region reference is in range.</p></li>
+<li><p>Internal faces reference the expected adjacent real cells.</p></li>
+<li><p>Boundary faces have explicit boundary classification and a well-defined transition to ghost-cell representation.</p></li>
+<li><p>Face-node ordering and owner/neighbour ordering obey the solver’s orientation convention.</p></li>
+<li><p>Face-indexed metadata remains aligned when faces are reordered.</p></li>
+<li><p>Interface and partition mappings use documented identifier scopes.</p></li>
+<li><p>Round-trip conversion preserves coordinates, cell types, ordered connectivity, face adjacency, boundary assignments, and interface maps whenever the format claims to preserve them.</p></li>
+</ul>
+<p>Derived adjacency is not automatically coherent if callers can mutate source arrays directly. Until topology mutations are centralized or versioned comprehensively, callers must explicitly rebuild dependent data after changing source connectivity. Documentation must not imply automatic cache invalidation where the API does not enforce it.</p>
+</section>
+<section id="validation-strategy">
+<h2>Validation strategy<a class="headerlink" href="#validation-strategy" title="Link to this heading"></a></h2>
+<p>Use small hand-constructed meshes with known answers before relying on full CFD cases.</p>
+<ol class="arabic simple">
+<li><p>Unit tests for summary extraction and schema/version handling.</p></li>
+<li><p>Geometry tests independent of solver startup and global configuration.</p></li>
+<li><p>Topology tests for connectivity ranges, face ownership, orientation, and boundary/interior distinctions.</p></li>
+<li><p>Export tests for deterministic ordering, ID-base conversion, and actionable errors.</p></li>
+<li><p>Round-trip tests that compare semantic invariants rather than byte-for-byte file equality.</p></li>
+<li><p>Integration checks with an independent consumer when practical.</p></li>
+<li><p>CFD regressions for end-to-end numerical behavior; these complement rather than replace local mesh tests.</p></li>
+</ol>
+</section>
+<section id="implementation-boundary">
+<h2>Implementation boundary<a class="headerlink" href="#implementation-boundary" title="Link to this heading"></a></h2>
+<p>The repository currently distinguishes a lightweight <cite>GridSummary</cite> contract and its JSON writer from runtime mesh-info output. Both describe metadata rather than a complete, reconstructable mesh. The next steps are to keep the summary contract independent, clarify the runtime-to-snapshot boundary, then add geometry, topology, boundary, and interface views with focused tests.</p>
+<p>Do not replace existing mesh containers or all exporters in one pass. Evolve one tested boundary at a time.</p>
+</section>
+<section id="related-engineering-records">
+<h2>Related engineering records<a class="headerlink" href="#related-engineering-records" title="Link to this heading"></a></h2>
+<p>Detailed design and audit notes remain under the documentation engineering area and should be reviewed alongside code changes:</p>
+<ul class="simple">
+<li><p><cite>doc/architecture/</cite>: dated architecture audits and stable design notes.</p></li>
+<li><p><cite>doc/plans/oneflow-documentation-consolidation-plan.md</cite>: consolidation inventory and next steps.</p></li>
+<li><p>Root-level <cite>GRID_TOPOLOGY.md</cite>, <cite>MESH_DATA_AND_VISUALIZATION.md</cite>, and the older top-level <cite>docs/</cite> mesh notes remain source material for the content review; they are not separate destinations for new documentation.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="evolutionary_computation_architecture.html" class="btn btn-neutral float-left" title="Evolutionary Scientific-Computing Architecture" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="grid_topology.html" class="btn btn-neutral float-right" title="Grid Topology and Validation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017-2026, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,387 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Database Architecture and Data Access Contracts &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Evolutionary Scientific-Computing Architecture" href="evolutionary_computation_architecture.html" />
+    <link rel="prev" title="OneFLOW Runtime Architecture and Development Guide" href="runtime_architecture.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">OneFLOW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/index.html">Install</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user.html">THEORY</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_user_guide_zh.html">OneFLOW Workbench 用户手册</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bash.html">Bash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cfd/index.html">CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml.html">yaml</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OneFLOW Design and Development</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="architecture_review.html">OneFLOW Architecture Review and Development Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_architecture.html">OneFLOW Runtime Architecture and Development Guide</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Database Architecture and Data Access Contracts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#purpose">Purpose</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ownership-model">Ownership model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#parameter-insertion-and-replacement">Parameter insertion and replacement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#type-erasure-and-typed-reads">Type erasure and typed reads</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#const-access-contract">Const access contract</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#field-pointer-registry">Field pointer registry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#serialization-boundary">Serialization boundary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#relationship-to-configuration-ingestion">Relationship to configuration ingestion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#maintenance-rules">Maintenance rules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#source-entry-points">Source entry points</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="evolutionary_computation_architecture.html">Evolutionary Scientific-Computing Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mesh_architecture.html">OneFLOW Mesh Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grid_topology.html">Grid Topology and Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="face_stage_pipeline.html">Face Stage Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_architecture.html">OneFLOW Workbench Architecture</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="case_parameter_design.html">Case Parameter Design and GUI Editing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Database Architecture and Data Access Contracts</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/database_architecture.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="database-architecture-and-data-access-contracts">
+<h1>Database Architecture and Data Access Contracts<a class="headerlink" href="#database-architecture-and-data-access-contracts" title="Link to this heading"></a></h1>
+<section id="purpose">
+<h2>Purpose<a class="headerlink" href="#purpose" title="Link to this heading"></a></h2>
+<p>The database subsystem provides two related but different runtime stores:</p>
+<ul class="simple">
+<li><p><strong>Named parameters</strong> hold configuration and other scalar or array values under
+string keys. They are represented by <code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">DataBase</span></code>,
+<code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">DataPara</span></code>, <code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">DataEntry</span></code>, and
+<code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">DataObject</span></code>.</p></li>
+<li><p><strong>Field registrations</strong> associate names with pointer wrappers for solver or
+mesh field memory. The registry is owned by <code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">DataBase</span></code>, but the
+field arrays referenced by it are managed by their respective owners.</p></li>
+</ul>
+<p>This distinction matters: owning a pointer wrapper is not the same as owning
+the numerical field storage to which that wrapper refers.</p>
+</section>
+<section id="ownership-model">
+<h2>Ownership model<a class="headerlink" href="#ownership-model" title="Link to this heading"></a></h2>
+<p>The current ownership chain for named parameters is:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>DataBase
+  +-- unique_ptr&lt;DataPara&gt;
+        +-- unordered_map&lt;string, unique_ptr&lt;DataEntry&gt;&gt;
+              +-- unique_ptr&lt;DataObject&gt;
+                    +-- TDataObject&lt;T&gt;
+                          +-- vector&lt;T&gt;
+</pre></div>
+</div>
+<p>Each level has one clear owner:</p>
+<ul class="simple">
+<li><p><cite>DataBase</cite> owns the parameter container and field registry.</p></li>
+<li><p><cite>DataPara</cite> owns each named <cite>DataEntry</cite>.</p></li>
+<li><p><cite>DataEntry</cite> owns its type-erased <cite>DataObject</cite>.</p></li>
+<li><p><cite>TDataObject&lt;T&gt;</cite> owns the actual <cite>std::vector&lt;T&gt;</cite> values.</p></li>
+</ul>
+<p>The <cite>unique_ptr</cite> chain makes destruction deterministic. Removing an entry or
+clearing <cite>DataPara</cite> destroys the corresponding entry and its stored values.
+Pointers and references returned by lookup functions are borrowed; they must
+not outlive the entry and must not be retained across removal or clearing.</p>
+<p>The global database is itself held by a <cite>std::unique_ptr&lt;DataBase&gt;</cite>. The
+global accessor pair has intentionally different contracts:</p>
+<ul class="simple">
+<li><p><cite>GetGlobalDataBase()</cite> is nullable and is retained for compatibility with
+APIs that need to check initialization.</p></li>
+<li><p><cite>RequireGlobalDataBase()</cite> expresses a required dependency and throws
+<cite>std::logic_error</cite> when the global instance is unavailable.</p></li>
+</ul>
+</section>
+<section id="parameter-insertion-and-replacement">
+<h2>Parameter insertion and replacement<a class="headerlink" href="#parameter-insertion-and-replacement" title="Link to this heading"></a></h2>
+<p><cite>ProcessData</cite> converts parsed text into a concrete <cite>TDataObject&lt;T&gt;</cite>, wraps it
+in a <cite>DataEntry</cite>, and transfers ownership to <cite>DataPara::SetDataEntry</cite>.</p>
+<p>For a new key, <cite>SetDataEntry</cite> stores the incoming entry. For an existing key,
+it calls <cite>DataEntry::Copy</cite>:</p>
+<ul class="simple">
+<li><p>The existing entry’s name, type, and size remain unchanged.</p></li>
+<li><p>The incoming value is copied into the existing payload.</p></li>
+<li><p>A type or size mismatch throws <cite>std::runtime_error</cite>.</p></li>
+<li><p>The temporary incoming entry is destroyed automatically after the call.</p></li>
+</ul>
+<p>This is an update-in-place value contract, not replacement of the entry object.
+Code holding a borrowed pointer to an existing entry therefore does not see
+that pointer invalidated by a successful same-key value update. Removal and
+<cite>Clear()</cite>, however, do invalidate borrowed entry pointers.</p>
+<p>The current text ingestion path in <cite>ProcessData</cite> explicitly constructs
+<cite>TDataObject&lt;std::string&gt;</cite>, <cite>TDataObject&lt;int&gt;</cite>, and <cite>TDataObject&lt;Real&gt;</cite>.
+The type constants declared elsewhere should not be interpreted as proof that
+every possible type is supported by this ingestion path.</p>
+</section>
+<section id="type-erasure-and-typed-reads">
+<h2>Type erasure and typed reads<a class="headerlink" href="#type-erasure-and-typed-reads" title="Link to this heading"></a></h2>
+<p><cite>DataObject</cite> is the polymorphic boundary between ownership/serialization code
+and concrete value types. <cite>TDataObject&lt;T&gt;</cite> owns the vector and implements
+copying, serialization, deserialization, and diagnostic dumping.</p>
+<p>The low-level accessors are:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="w"> </span><span class="o">&gt;</span>
+<span class="n">T</span><span class="w"> </span><span class="n">GetDataValue</span><span class="p">(</span><span class="w"> </span><span class="n">DataObject</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">dataObject</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">iElement</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">);</span>
+
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="w"> </span><span class="o">&gt;</span>
+<span class="n">T</span><span class="w"> </span><span class="n">GetDataValue</span><span class="p">(</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">DataObject</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">dataObject</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">iElement</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Both return a <strong>value copy</strong>. The const overload preserves read-only access
+through the type-erased interface; it is not a cast-away-const convenience.
+The default index selects the first element. The two overloads deliberately
+have matching default arguments so mutable and const access have the same
+call shape.</p>
+<p>These are low-level accessors, not checked dynamic type queries. Their caller
+must ensure all of the following:</p>
+<ul class="simple">
+<li><p><cite>dataObject</cite> is non-null;</p></li>
+<li><p><cite>T</cite> exactly matches the concrete <cite>TDataObject&lt;T&gt;</cite> used for storage;</p></li>
+<li><p><cite>iElement</cite> is a valid zero-based index;</p></li>
+<li><p>the stored object contains at least one element when the default index is
+used.</p></li>
+</ul>
+<p>The accessors use the type-erased <cite>GetVoidPointer()</cite> and a static cast. They
+do not carry enough runtime type or length information to validate a caller’s
+template argument or index. Violating these preconditions can cause undefined
+behavior. Prefer the higher-level <cite>GetDataValue&lt;T&gt;(name, database)</cite> overloads
+when a named lookup is needed; those additionally check a null database and a
+missing key, but still rely on the caller to request the correct stored type.</p>
+</section>
+<section id="const-access-contract">
+<h2>Const access contract<a class="headerlink" href="#const-access-contract" title="Link to this heading"></a></h2>
+<p>The API provides const and mutable lookup at both levels:</p>
+<ul class="simple">
+<li><p><cite>DataBase*</cite> lookup obtains a mutable <cite>DataEntry</cite> and <cite>DataObject</cite>.</p></li>
+<li><p><cite>const DataBase*</cite> lookup obtains const entry/object references and calls
+the const <cite>DataObject*</cite> overload.</p></li>
+<li><p><cite>DataPara</cite> provides matching const and mutable <cite>FindDataEntry</cite> overloads.</p></li>
+</ul>
+<p>Constness prevents mutation through that access path. It does not make the
+underlying global database immutable if other code retains a mutable handle.
+The database is not documented here as thread-safe; concurrent mutation and
+lookup require external synchronization unless a stronger contract is
+established by the relevant runtime.</p>
+</section>
+<section id="field-pointer-registry">
+<h2>Field pointer registry<a class="headerlink" href="#field-pointer-registry" title="Link to this heading"></a></h2>
+<p><cite>DataField</cite> stores named <cite>PointerWrap</cite> objects. A wrapper provides access to
+field memory managed elsewhere, such as a solver-owned vector or mesh array.
+The database owns the registry entries and wrappers, but callers must preserve
+the lifetime and address stability of the referenced field memory for as long
+as the wrapper is used.</p>
+<p>Use the typed field pointer/reference helpers instead of repeating raw
+<cite>PointerWrap</cite> lookup logic. Mutable access should be used only where mutation
+is intended; const storage should resolve to const pointers/references.</p>
+</section>
+<section id="serialization-boundary">
+<h2>Serialization boundary<a class="headerlink" href="#serialization-boundary" title="Link to this heading"></a></h2>
+<p>Named entries serialize their name, type identifier, element count, and
+payload through <cite>DataBook</cite>. The concrete <cite>TDataObject&lt;T&gt;</cite> handles element
+serialization using the matching <cite>HXWrite</cite>/<cite>HXRead</cite> operations. This keeps
+the database container independent of the concrete serialization of each
+stored type.</p>
+<p>Serialization support and text-ingestion support are separate concerns:
+adding a type identifier alone does not establish that parsing, creation,
+copying, and serialization are all implemented for that type.</p>
+</section>
+<section id="relationship-to-configuration-ingestion">
+<h2>Relationship to configuration ingestion<a class="headerlink" href="#relationship-to-configuration-ingestion" title="Link to this heading"></a></h2>
+<p>The configuration ingestion path composes the database as follows:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>control.txt manifest
+       |
+       v
+ordered script paths
+       |
+       v
+production script parser
+       |
+       v
+ProcessData(name, text values, type, size)
+       |
+       v
+typed TDataObject&lt;T&gt; + DataEntry
+       |
+       v
+DataPara::SetDataEntry
+       |
+       v
+named runtime parameter lookup
+</pre></div>
+</div>
+<p>The ingestion integration test verifies a real two-file manifest and parser
+path, typed values, and later-file update of a repeated key. It exercises both
+mutable and const scalar lookup. It does not prove the broader
+<cite>ReadControlInfo(caseDir)</cite> orchestration, parallel broadcast, diagnostic
+database dump, case setup/teardown, or sequential-case isolation. Those remain
+separate runtime integration obligations tracked in
+<cite>doc/plans/setup-case-environment-integration-test.md</cite>.</p>
+</section>
+<section id="maintenance-rules">
+<h2>Maintenance rules<a class="headerlink" href="#maintenance-rules" title="Link to this heading"></a></h2>
+<p>When changing this subsystem:</p>
+<ol class="arabic simple">
+<li><p>Preserve the single-owner <cite>unique_ptr</cite> chain unless a measured use case
+requires shared ownership.</p></li>
+<li><p>Document whether returned pointers/references are owning or borrowed and
+which operations invalidate them.</p></li>
+<li><p>Keep mutable and const overloads behaviorally symmetric.</p></li>
+<li><p>Treat type and element-count validation as explicit API responsibilities;
+do not assume a C++ cast validates the stored runtime type.</p></li>
+<li><p>Keep parameter values separate from externally owned solver field arrays.</p></li>
+<li><p>Add tests for observable contracts: missing keys, type/size mismatch,
+same-key updates, clear/removal invalidation boundaries, const reads, and
+serialization round trips.</p></li>
+<li><p>Keep the configuration-ingestion tests distinct from full runtime lifecycle
+tests so failures identify the responsible boundary.</p></li>
+</ol>
+</section>
+<section id="source-entry-points">
+<h2>Source entry points<a class="headerlink" href="#source-entry-points" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><cite>codes/database/include/DataBase.h</cite></p></li>
+<li><p><cite>codes/database/include/DataPara.h</cite></p></li>
+<li><p><cite>codes/database/include/DataObject.h</cite></p></li>
+<li><p><cite>codes/database/src/DataBase.cpp</cite></p></li>
+<li><p><cite>codes/database/src/DataPara.cpp</cite></p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="runtime_architecture.html" class="btn btn-neutral float-left" title="OneFLOW Runtime Architecture and Development Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="evolutionary_computation_architecture.html" class="btn btn-neutral float-right" title="Evolutionary Scientific-Computing Architecture" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017-2026, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

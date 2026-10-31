@@ -1,0 +1,135 @@
+Cyclic Tridiagonal Systems
+==================================
+
+#. `Tridiagonal matrix algorithm <https://en.wikipedia.org/wiki/Tridiagonal_matrix_algorithm/>`_
+
+Sherman-Morrison Formula
+---------------------------------
+Suppose that you have already obtained, by herculean effort, the inverse matrix
+:math:`\mathbf{A}^{−1}` of a square matrix :math:`\mathbf{A}`. Now you want to make a “small” change in :math:`\mathbf{A}`, for
+example change one element :math:`a_{ij}`, or a few elements, or one row, or one column.
+Is there any way of calculating the corresponding change in :math:`\mathbf{A}^{−1}` without repeating
+your difficult labors? Yes, if your change is of the form
+
+.. math::
+  \mathbf{A}\to (\mathbf{A}+\mathbf{u}\otimes\mathbf{v})
+
+for some vectors :math:`\mathbf{u}` and :math:`\mathbf{v}`. If :math:`\mathbf{u}` is a unit vector :math:`\mathbf{e}_{i}`, then (2.7.1) adds the components
+of :math:`\mathbf{v}` to the :math:`i\text{th}` row. (Recall that :math:`\mathbf{u}\otimes\mathbf{v}` is a matrix whose :math:`i`, :math:`j\text{th}` element is the product
+of the :math:`i\text{th}` component of :math:`\mathbf{u}` and the :math:`j\text{th}` component of :math:`\mathbf{v}`.) If v is a unit vector e j, then
+(2.7.1) adds the components of :math:`\mathbf{u}` to the :math:`j\text{th}` column. If both :math:`\mathbf{u}` and :math:`\mathbf{v}` are proportional
+to unit vectors :math:`\mathbf{e}_{i}` and :math:`\mathbf{e}_{j}` respectively, then a term is added only to the element :math:`a_{ij}`.
+
+The Sherman-Morrison formula gives the inverse :math:`(\mathbf{A}+\mathbf{u}\otimes\mathbf{v})^{-1}`, and is derived
+briefly as follows:
+
+.. math::
+  \begin{aligned}
+  (\mathbf{A}+\mathbf{u} \otimes \mathbf{v})^{-1} & =\left(\mathbf{1}+\mathbf{A}^{-1} \cdot \mathbf{u} \otimes \mathbf{v}\right)^{-1} \cdot \mathbf{A}^{-1} \\
+  & =\left(\mathbf{1}-\mathbf{A}^{-1} \cdot \mathbf{u} \otimes \mathbf{v}+\mathbf{A}^{-1} \cdot \mathbf{u} \otimes \mathbf{v} \cdot \mathbf{A}^{-1} \cdot \mathbf{u} \otimes \mathbf{v}-\ldots\right) \cdot \mathbf{A}^{-1} \\
+  & =\mathbf{A}^{-1}-\mathbf{A}^{-1} \cdot \mathbf{u} \otimes \mathbf{v} \cdot \mathbf{A}^{-1}\left(1-\lambda+\lambda^{2}-\ldots\right) \\
+  & =\mathbf{A}^{-1}-\frac{\left(\mathbf{A}^{-1} \cdot \mathbf{u}\right) \otimes\left(\mathbf{v} \cdot \mathbf{A}^{-1}\right)}{1+\lambda}
+  \end{aligned}
+  
+where
+
+.. math::
+  \lambda\equiv \mathbf{v}\cdot\mathbf{A}^{-1} \cdot \mathbf{u}  
+  
+The second line of (2.7.2) is a formal power series expansion. In the third line, the
+associativity of outer and inner products is used to factor out the scalars :math:`\lambda`.  
+
+The use of (2.7.2) is this: Given :math:`\mathbf{A}^{-1}` and the vectors :math:`\mathbf{u}` and :math:`\mathbf{v}`, we need only
+perform two matrix multiplications and a vector dot product,
+
+.. math::
+  \mathbf{z}\equiv\mathbf{A}^{-1} \cdot \mathbf{u}\quad \mathbf{w}\equiv(\mathbf{A}^{-1})^{T} \cdot \mathbf{v}\quad\lambda =\mathbf{v}\cdot\mathbf{z}
+
+to get the desired change in the inverse
+  
+.. math::  
+  \mathbf{A}^{-1}\to \mathbf{A}^{-1}-\cfrac{\mathbf{z}\otimes\mathbf{w}}{1+\lambda}  
+  
+For some other sparse problems, the Sherman-Morrison formula cannot be
+directly applied for the simple reason that storage of the whole inverse matrix :math:`\mathbf{A}^{-1}`
+is not feasible. If you want to add only a single correction of the form :math:`\mathbf{u}\otimes\mathbf{v}`,
+and solve the linear system
+
+.. math::    
+  (\mathbf{A}+\mathbf{u}\otimes\mathbf{v})\cdot\mathbf{x}=\mathbf{b}
+  
+then you proceed as follows. Using the fast method that is presumed available for
+the matrix :math:`\mathbf{A}`, solve the two auxiliary problems 
+
+.. math:: 
+  \mathbf{A}\cdot\mathbf{y}=\mathbf{b}\quad \mathbf{A}\cdot\mathbf{z}=\mathbf{u} 
+  
+for the vectors :math:`\mathbf{y}` and :math:`\mathbf{z}`. In terms of these,  
+
+.. math:: 
+  \mathbf{x}=\mathbf{y}-\left[\cfrac{\mathbf{v}\cdot\mathbf{y}}{1+(\mathbf{v}\cdot\mathbf{z})}\right]\mathbf{z}
+  
+as we see by multiplying (2.7.2) on the right by :math:`\mathbf{b}`.  
+  
+Cyclic Tridiagonal Systems
+-----------------------------------
+So-called cyclic tridiagonal systems occur quite frequently, and are a good
+example of how to use the Sherman-Morrison formula in the manner just described.
+The equations have the form
+
+.. math::
+  \left[\begin{array}{ccccccc}
+  b_{1} & c_{1} & 0 & \cdots & & & \beta \\
+  a_{2} & b_{2} & c_{2} & \cdots & & & \\
+  & & & \cdots & & & \\
+  & & & \cdots & a_{N-1} & b_{N-1} & c_{N-1} \\
+  \alpha & & & \cdots & 0 & a_{N} & b_{N}
+  \end{array}\right] \cdot\left[\begin{array}{c}
+  x_{1} \\
+  x_{2} \\
+  \cdots \\
+  x_{N-1} \\
+  x_{N}
+  \end{array}\right]=\left[\begin{array}{c}
+  r_{1} \\
+  r_{2} \\
+  \cdots \\
+  r_{N-1} \\
+  r_{N}
+  \end{array}\right]
+  
+This is a tridiagonal system, except for the matrix elements :math:`\alpha` and :math:`\beta` in the corners.
+Forms like this are typically generated by finite-differencing differential equations
+with periodic boundary conditions   
+
+We use the Sherman-Morrison formula, treating the system as tridiagonal plus
+a correction. In the notation of equation, define vectors :math:`\mathbf{u}` and :math:`\mathbf{v}` to be
+
+.. math::
+  \mathbf{u}=\left[\begin{array}{c} 
+  \gamma\\0\\ \vdots\\0\\ \alpha
+  \end{array}\right] \quad
+  \mathbf{v}=\left[\begin{array}{c} 
+  1\\0\\ \vdots\\0\\ \beta/\gamma
+  \end{array}\right]\\
+  
+Here :math:`\gamma` is arbitrary for the moment. Then the matrix :math:`\mathbf{A}` is the tridiagonal part of the
+matrix in (2.7.9), with two terms modified:  
+
+.. math::
+  b'_{1}=b_{1}-\gamma, \quad b'_{N}=b_{N}-\alpha\beta/\gamma
+  
+We now solve equations (2.7.7) with the standard tridiagonal algorithm, and then
+get the solution from equation (2.7.8)  
+
+.. math::
+  \mathbf{A}=\left[\begin{array}{ccccccc}
+  b'_{1} & c_{1} & 0 & \cdots & & &  \\
+  a_{2} & b_{2} & c_{2} & \cdots & & & \\
+  & & & \cdots & & & \\
+  & & & \cdots & a_{N-1} & b_{N-1} & c_{N-1} \\
+   & & & \cdots & 0 & a_{N} & b'_{N}
+  \end{array}\right]
+  
+The routine cyclic below implements this algorithm. We choose the arbitrary
+parameter :math:`\gamma=-b_{1}` to avoid loss of precision by subtraction in the first of equations.  
