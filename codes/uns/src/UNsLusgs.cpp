@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "UNsLusgs.h"
+#include "NsLusgsPolicy.h"
 #include "NsInvFluxPolicy.h"
 #include "TimeStepPolicy.h"
 #include "UNsSpectrum.h"
@@ -291,14 +292,16 @@ void UNsLusgs::CalcViscousTerm()
 {
     if ( vis_model.vismodel == 0 ) return;
 
-    const Real density = half * ( nscom.q1[ IDX::IR ] + nscom.q2[ IDX::IR ] );
+    const Real density = LusgsFaceArithmeticMean(
+        nscom.q1[ IDX::IR ], nscom.q2[ IDX::IR ] );
 
     if ( nscom.visSRModel == 1 )
     {
         nscom.vissr = ViscousFaceSpectralRadiusModel1(
             density, nscom.visl, nscom.vist, nscom.oprl, nscom.oprt,
             nscom.gama, nscom.reynolds, gcom.farea );
-        nslu.visrad = nscom.vissr / ( * ug.cvol )[ ug.rc ];
+        nslu.visrad = LusgsViscousRadiusPerVolume(
+            nscom.vissr, ( * ug.cvol )[ ug.rc ] );
     }
     else
     {
@@ -314,7 +317,8 @@ void UNsLusgs::CalcViscousTerm()
 
     for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
     {
-        nslu.rhs0[ iEqu ] -= nslu.visrad * nslu.dqj[ iEqu ];
+        nslu.rhs0[ iEqu ] += LusgsViscousSpectrumContribution(
+            nslu.visrad, nslu.dqj[ iEqu ] );
     }
 }
 

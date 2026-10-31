@@ -398,3 +398,15 @@ target_include_directories(turb_sa_under_relax_test PRIVATE
 target_link_libraries(turb_sa_under_relax_test PRIVATE GTest::gtest_main)
 target_compile_features(turb_sa_under_relax_test PRIVATE cxx_std_20)
 gtest_discover_tests(turb_sa_under_relax_test DISCOVERY_MODE PRE_TEST)
+
+add_executable(lusgs_viscous_spectrum_test
+  lusgs_viscous_spectrum_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/ns/src/NsLusgsPolicy.cpp
+)
+target_include_directories(lusgs_viscous_spectrum_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/codes/ns/include
+  ${CMAKE_SOURCE_DIR}/codes/basic/include
+)
+target_link_libraries(lusgs_viscous_spectrum_test PRIVATE GTest::gtest_main)
+target_compile_features(lusgs_viscous_spectrum_test PRIVATE cxx_std_20)
+gtest_discover_tests(lusgs_viscous_spectrum_test DISCOVERY_MODE PRE_TEST)

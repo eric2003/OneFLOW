@@ -36,4 +36,20 @@ void LusgsFluxIncrementFiveEq(
     dfE   = ( lmd1 * dqRhoE - totalEnthalpy * term1 + vnFluid * term2 ) * faceArea;
 }
 
+
+Real LusgsViscousSpectrumContribution( Real viscousRadius, Real deltaQ )
+{
+    return - viscousRadius * deltaQ;
+}
+
+Real LusgsFaceArithmeticMean( Real left, Real right )
+{
+    return half * ( left + right );
+}
+
+Real LusgsViscousRadiusPerVolume( Real faceViscousSpectralRadius, Real cellVolume )
+{
+    return faceViscousSpectralRadius / cellVolume;
+}
+
 EndNameSpace

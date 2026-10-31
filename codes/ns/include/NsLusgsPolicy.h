@@ -33,4 +33,22 @@ void LusgsFluxIncrementFiveEq(
     Real dqRho, Real dqRhoU, Real dqRhoV, Real dqRhoW, Real dqRhoE,
     Real & dfRho, Real & dfMx, Real & dfMy, Real & dfMz, Real & dfE );
 
+
+// @doc-algorithm lusgs-sweep
+// @doc-stage viscous-spectrum-contrib
+// @doc-pure
+// @doc-formula d(rhs) = - visrad * dq
+Real LusgsViscousSpectrumContribution( Real viscousRadius, Real deltaQ );
+
+// @doc-algorithm lusgs-sweep
+// @doc-stage face-density
+// @doc-pure
+Real LusgsFaceArithmeticMean( Real left, Real right );
+
+// @doc-algorithm lusgs-sweep
+// @doc-stage model1-cell-radius
+// @doc-pure
+// @doc-formula visrad = vissr / V_cell
+Real LusgsViscousRadiusPerVolume( Real faceViscousSpectralRadius, Real cellVolume );
+
 EndNameSpace
