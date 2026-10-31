@@ -25,6 +25,7 @@ License
 #include "LogFile.h"
 #include "Prj.h"
 #include "SimuContextBootstrap.h"
+#include "SimuContextCaseState.h"
 #include "SimuContext.h"
 #include "SimuContextIO.h"
 #include "Parallel.h"
@@ -131,23 +132,7 @@ public:
     {
         try
         {
-            logFile.ClearCaseDir();
-        }
-        catch ( ... )
-        {
-        }
-
-        try
-        {
-            Prj::ClearPrjBaseDir();
-        }
-        catch ( ... )
-        {
-        }
-
-        try
-        {
-            ClearRuntimeParameters();
+            SimuContextDetail::ClearCaseConfigurationState();
         }
         catch ( ... )
         {
@@ -337,11 +322,15 @@ TEST( ControlReaderIntegration, CaseBootstrapAppliesSettingsAndRebindsNextCase )
     EXPECT_TRUE( std::filesystem::exists( meshOutputRoot / "bootstrap_io_paths.txt" ) );
     EXPECT_TRUE( std::filesystem::exists( flowOutputRoot / "bootstrap_io_paths.txt" ) );
 
-    // Mirror the case-owned state reset between entries. Process runtime stays
-    // active; the next bootstrap must not inherit the previous case's roots.
-    logFile.ClearCaseDir();
-    Prj::ClearPrjBaseDir();
-    ClearRuntimeParameters();
+    // Use the same production cleanup operation as SimuContext::TeardownCase.
+    // The process runtime remains active while case-owned state is released.
+    SimuContextDetail::ClearCaseConfigurationState();
+
+    EXPECT_THROW(
+        GetDataValue<int>(
+            "context_bootstrap_dimension", &RequireGlobalDataBase() ),
+        std::runtime_error );
+    EXPECT_TRUE( Prj::prjBaseDir.empty() );
 
     SimuContextDetail::InitializeCaseConfiguration( secondCase.CaseDirectory() );
 
@@ -355,9 +344,7 @@ TEST( ControlReaderIntegration, CaseBootstrapAppliesSettingsAndRebindsNextCase )
     EXPECT_TRUE( std::filesystem::exists(
         std::filesystem::path( secondCase.CaseDirectory() ) / "results" / "io_paths.txt" ) );
 
-    logFile.ClearCaseDir();
-    Prj::ClearPrjBaseDir();
-    ClearRuntimeParameters();
+    SimuContextDetail::ClearCaseConfigurationState();
 }
 
 TEST( ControlReaderIntegration, ContextSetupPublishesReadinessAfterBootstrap )
