@@ -374,3 +374,15 @@ target_include_directories(turb_sa_update_bound_test PRIVATE
 target_link_libraries(turb_sa_update_bound_test PRIVATE GTest::gtest_main)
 target_compile_features(turb_sa_update_bound_test PRIVATE cxx_std_20)
 gtest_discover_tests(turb_sa_update_bound_test DISCOVERY_MODE PRE_TEST)
+
+add_executable(turb_sst_update_floor_test
+  turb_sst_update_floor_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/turb/src/TurbSstPolicy.cpp
+)
+target_include_directories(turb_sst_update_floor_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/codes/turb/include
+  ${CMAKE_SOURCE_DIR}/codes/basic/include
+)
+target_link_libraries(turb_sst_update_floor_test PRIVATE GTest::gtest_main)
+target_compile_features(turb_sst_update_floor_test PRIVATE cxx_std_20)
+gtest_discover_tests(turb_sst_update_floor_test DISCOVERY_MODE PRE_TEST)

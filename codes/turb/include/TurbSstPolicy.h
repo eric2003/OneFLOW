@@ -155,4 +155,28 @@ Real SstEddyViscosity(
     Real density, Real kineticEnergy, Real omega,
     Real vorticityMagnitude, Real f2, Real a1, Real reynolds );
 
+
+// --- update floors / caps ---
+// @doc-algorithm sst-update
+// @doc-stage floor-k
+// @doc-pure
+Real SstFloorKineticEnergy( Real kineticEnergy, Real floorValue );
+
+// @doc-algorithm sst-update
+// @doc-stage floor-omega
+// @doc-pure
+Real SstFloorOmega( Real omega, Real floorValue );
+
+// @doc-algorithm sst-update
+// @doc-stage density-scaled-update
+// @doc-pure
+// @doc-formula q = q0 + dq / rho
+Real SstDensityScaledUpdate( Real q0, Real deltaQ, Real density );
+
+// @doc-algorithm sst-update
+// @doc-stage transition-caps
+// @doc-pure
+Real SstCapIntermittency( Real gamma, Real upperBound );
+Real SstFloorReTheta( Real reTheta, Real floorValue );
+
 EndNameSpace

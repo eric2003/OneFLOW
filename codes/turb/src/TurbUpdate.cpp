@@ -22,6 +22,7 @@ License
 
 #include "TurbUpdate.h"
 #include "TurbSaPolicy.h"
+#include "TurbSstPolicy.h"
 #include <memory>
 #include "UTurbUpdate.h"
 #include "NsInvFlux.h"
@@ -44,16 +45,19 @@ void TurbUpdate::CalcFlowField2Equ()
 {
     for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
     {
-        turbcom.q[ iEqu ] = turbcom.q0[ iEqu ] + turbcom.dq[ iEqu ] / turbcom.rho;
+        turbcom.q[ iEqu ] = SstDensityScaledUpdate(
+            turbcom.q0[ iEqu ], turbcom.dq[ iEqu ], turbcom.rho );
     }
 
-    turbcom.q[ IKE ] = MAX( turbcom.q [ IKE ], turbcom.kelim );
-    turbcom.q[ IKW ] = MAX( turbcom.q [ IKW ], turbcom.kwlim );
+    turbcom.q[ IKE ] = SstFloorKineticEnergy( turbcom.q[ IKE ], turbcom.kelim );
+    turbcom.q[ IKW ] = SstFloorOmega( turbcom.q[ IKW ], turbcom.kwlim );
 
-    if ( turbcom.transition_model == ITReGama ) 
+    if ( turbcom.transition_model == ITReGama )
     {
-        turbcom.q[ ITGama ] = MIN( turbcom.q [ ITGama ], turbcom.kGamaLim );
-        turbcom.q[ ITRect ] = MAX( turbcom.q [ ITRect ], turbcom.kRectLim );
+        turbcom.q[ ITGama ] = SstCapIntermittency(
+            turbcom.q[ ITGama ], turbcom.kGamaLim );
+        turbcom.q[ ITRect ] = SstFloorReTheta(
+            turbcom.q[ ITRect ], turbcom.kRectLim );
     }
 }
 

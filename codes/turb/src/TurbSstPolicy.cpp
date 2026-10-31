@@ -192,4 +192,30 @@ Real SstEddyViscosity(
          * reynolds;
 }
 
+
+Real SstFloorKineticEnergy( Real kineticEnergy, Real floorValue )
+{
+    return MAX( kineticEnergy, floorValue );
+}
+
+Real SstFloorOmega( Real omega, Real floorValue )
+{
+    return MAX( omega, floorValue );
+}
+
+Real SstDensityScaledUpdate( Real q0, Real deltaQ, Real density )
+{
+    return q0 + deltaQ / density;
+}
+
+Real SstCapIntermittency( Real gamma, Real upperBound )
+{
+    return MIN( gamma, upperBound );
+}
+
+Real SstFloorReTheta( Real reTheta, Real floorValue )
+{
+    return MAX( reTheta, floorValue );
+}
+
 EndNameSpace
