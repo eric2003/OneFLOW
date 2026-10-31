@@ -35,9 +35,21 @@ The spectral contribution uses the negative part of a scalar rate:
 
 The implementation uses precombined inputs at this policy boundary:
 cw1k represents the effective coefficient multiplying fw in the destruction
-nuTildeRs represents the product of the working variable and rs; and
-cb2OverSigma represents cb2 divided by sigma. The caller computes these
-values from the active model constants and local flow state.
+term; in the current caller it is cw1 times kappa squared because rs
+contains the inverse kappa-squared factor. nuTildeRs represents the product
+of the working variable and rs, and cb2OverSigma represents cb2 divided by
+sigma. The caller computes these values from the active model constants
+and local flow state.
+
+In the current implementation, the scaling is assembled as follows:
+
+.. math::
+
+   r_s = \\frac{\\tilde{\\nu}}{\\kappa^2 d^2 Re},
+   \\qquad \\mathrm{nuTildeRs} = \\tilde{\\nu} r_s
+
+   \\mathrm{cw1k} = c_{w1}\\kappa^2,
+   \\qquad \\mathrm{cb2OverSigma} = c_{b2}/\\sigma
 
 Source-level mapping
 --------------------
