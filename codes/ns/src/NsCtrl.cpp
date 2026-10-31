@@ -28,9 +28,9 @@ BeginNameSpace( ONEFLOW )
 
 NsCtrl ns_ctrl;
 
-void NsCtrl::Init()
+void NsCtrl::InitLusgsFacePressureMode()
 {
-    // Optional compatibility setting: old case files keep the legacy mode.
+    // Old case files omit this optional key and retain the legacy behavior.
     this->lusgsFacePressureMode = 0;
     DataBase & database = RequireGlobalDataBase();
     DataEntry * pressureModeEntry =
@@ -50,6 +50,11 @@ void NsCtrl::Init()
         throw std::runtime_error(
             "NsCtrl: lusgsFacePressureMode must be 0 or 1" );
     }
+}
+
+void NsCtrl::Init()
+{
+    this->InitLusgsFacePressureMode();
 
     this->time_integral = GetDataValue< int >( "time_integral" );
     this->linearTwoStepMethods = GetDataValue< int >( "linearTwoStepMethods" );
