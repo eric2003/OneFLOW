@@ -820,19 +820,15 @@ void TurbCom::CalcSrcSa()
         ftrans = one;
     }
 
-
     Real grd2 = SQR( dqdxSa, dqdySa, dqdzSa );
 
-    Real prod = cb1 * ( one - ft2 ) * std * nuet;    //cb1  * omega * muet + cb1 * muetRs * fv2;
-    Real diff = cb2s * grd2 * oreynolds;             //cb2s * density * gradnue2;
-    Real dest = ( cw1k * fw - cb1 * ft2 ) * nuetRs;     //cw1k * muetRs * fw
+    Real prod = SaProduction( cb1, ft2, std, nuet );
+    Real diff = SaDiffusion( cb2s, grd2, oreynolds );
+    Real dest = SaDestruction( cw1k, fw, cb1, ft2, nuetRs );
 
-    diff = MIN( rprod * prod, diff );
+    diff = SaLimitedDiffusion( diff, rprod, prod );
+    Real srcTerm = SaSourceResidual( prod, dest, diff );
 
-    Real srcTerm  = prod - dest;
-
-    srcTerm += diff; 
-        
     Real dfv2dk = ( three * cv13 * pow( fv1 / ( xsi + SMALL ), 2 ) - one ) / pow( one + xsi * fv1, 2 );
     Real dsdnu  = oreynolds * okarm2 * od2 * ( fv2 + xsi * dfv2dk );
 
@@ -857,8 +853,8 @@ void TurbCom::CalcSrcSa()
     Real prde0 = prod0 - dest0;
     Real prdep = prodp - destp;
 
-    Real part1 = - half * ( prde0 - ABS( prde0 ) );
-    Real part2 = - half * ( prdep - ABS( prdep ) ) * nuet;
+    Real part1 = SaNegativePart( prde0 );
+    Real part2 = SaNegativePart( prdep ) * nuet;
 
     spec_sa = part1 + part2;
     res_sa  = srcTerm;

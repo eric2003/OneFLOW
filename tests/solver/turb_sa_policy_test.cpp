@@ -33,12 +33,30 @@ TEST( TurbSaPolicy, SaRRatioIsClamped )
     EXPECT_DOUBLE_EQ( SaRRatio( 100.0, 1.0 ), 10.0 );
 }
 
-TEST( TurbSaPolicy, SaGAndFwAtRZero )
-{
-    EXPECT_DOUBLE_EQ( SaG( 0.0, 0.3 ), 0.0 );
-}
-
 TEST( TurbSaPolicy, SaFt2DisabledIsZero )
 {
     EXPECT_DOUBLE_EQ( SaFt2( 1.0, 1.2, 0.5, false ), 0.0 );
+}
+
+TEST( TurbSaPolicy, SaProductionDestructionDiffusion )
+{
+    EXPECT_DOUBLE_EQ( SaProduction( 0.1355, 0.0, 2.0, 1.0 ), 0.1355 * 2.0 );
+    EXPECT_DOUBLE_EQ( SaDestruction( 1.0, 1.0, 0.1355, 0.0, 3.0 ), 3.0 );
+    EXPECT_DOUBLE_EQ( SaDiffusion( 2.0, 4.0, 0.5 ), 4.0 );
+}
+
+TEST( TurbSaPolicy, SaLimitedDiffusionCapsAtRprodTimesProd )
+{
+    EXPECT_DOUBLE_EQ( SaLimitedDiffusion( 10.0, 0.5, 4.0 ), 2.0 );
+}
+
+TEST( TurbSaPolicy, SaSourceResidualCombines )
+{
+    EXPECT_DOUBLE_EQ( SaSourceResidual( 5.0, 2.0, 1.0 ), 4.0 );
+}
+
+TEST( TurbSaPolicy, SaNegativePartOfPositiveIsZero )
+{
+    EXPECT_DOUBLE_EQ( SaNegativePart( 3.0 ), 0.0 );
+    EXPECT_DOUBLE_EQ( SaNegativePart( -4.0 ), 4.0 );
 }

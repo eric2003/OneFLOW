@@ -63,4 +63,34 @@ Real SaFt2( Real chi, Real ct3, Real ct4, bool enabled )
     return ct3 * std::exp( - ct4 * SQR( chi ) );
 }
 
+Real SaProduction( Real cb1, Real ft2, Real modifiedStrain, Real nuTilde )
+{
+    return cb1 * ( one - ft2 ) * modifiedStrain * nuTilde;
+}
+
+Real SaDestruction( Real cw1k, Real fw, Real cb1, Real ft2, Real nuTildeRs )
+{
+    return ( cw1k * fw - cb1 * ft2 ) * nuTildeRs;
+}
+
+Real SaDiffusion( Real cb2OverSigma, Real gradNuSquared, Real invReynolds )
+{
+    return cb2OverSigma * gradNuSquared * invReynolds;
+}
+
+Real SaLimitedDiffusion( Real diffusion, Real rprod, Real production )
+{
+    return MIN( rprod * production, diffusion );
+}
+
+Real SaSourceResidual( Real production, Real destruction, Real diffusion )
+{
+    return production - destruction + diffusion;
+}
+
+Real SaNegativePart( Real x )
+{
+    return - half * ( x - ABS( x ) );
+}
+
 EndNameSpace
