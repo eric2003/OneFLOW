@@ -134,4 +134,25 @@ Real SstDiagonalW(
 // @doc-formula 1/2 (S - |S|)
 Real SstNegativeSourcePart( Real source );
 
+
+// --- SST eddy viscosity / F2 ---
+// @doc-algorithm sst-eddy-viscosity
+// @doc-stage f2-arg
+// @doc-pure
+Real SstF2Arg( Real termLength, Real termViscous );
+
+// @doc-algorithm sst-eddy-viscosity
+// @doc-stage f2
+// @doc-pure
+// @doc-formula F2 = tanh(arg2^2)
+Real SstF2FromArg( Real arg2 );
+
+// @doc-algorithm sst-eddy-viscosity
+// @doc-stage mu-t
+// @doc-pure
+// @doc-formula mu_t = rho k / max(omega, Omega F2 / a1) * Re
+Real SstEddyViscosity(
+    Real density, Real kineticEnergy, Real omega,
+    Real vorticityMagnitude, Real f2, Real a1, Real reynolds );
+
 EndNameSpace

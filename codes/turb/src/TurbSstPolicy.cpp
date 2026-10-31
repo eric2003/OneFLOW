@@ -172,4 +172,24 @@ Real SstNegativeSourcePart( Real source )
     return half * ( source - ABS( source ) );
 }
 
+
+Real SstF2Arg( Real termLength, Real termViscous )
+{
+    return MAX( termLength, termViscous );
+}
+
+Real SstF2FromArg( Real arg2 )
+{
+    return std::tanh( arg2 * arg2 );
+}
+
+Real SstEddyViscosity(
+    Real density, Real kineticEnergy, Real omega,
+    Real vorticityMagnitude, Real f2, Real a1, Real reynolds )
+{
+    return density * kineticEnergy
+         / MAX( omega, vorticityMagnitude * f2 / a1 )
+         * reynolds;
+}
+
 EndNameSpace
