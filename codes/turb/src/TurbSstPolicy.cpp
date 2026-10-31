@@ -108,4 +108,39 @@ Real SstGradientDotProduct(
     return dkdx * dwdx + dkdy * dwdy + dkdz * dwdz;
 }
 
+
+Real WilcoxXkFromCrossTerm( Real crossTerm, Real omega )
+{
+    return crossTerm / ( std::pow( omega, 3 ) + SMALL );
+}
+
+Real WilcoxFkFromXk( Real xk )
+{
+    if ( xk <= 0.0 )
+    {
+        return 1.0;
+    }
+    const Real xk2 = SQR( xk );
+    return ( one + 680.0 * xk2 ) / ( one + 400.0 * xk2 );
+}
+
+Real WilcoxFw1998( Real xw )
+{
+    return ( one + 70.0 * xw ) / ( one + 80.0 * xw );
+}
+
+Real WilcoxFw2006( Real xw )
+{
+    return ( one + 85.0 * xw ) / ( one + 100.0 * xw );
+}
+
+Real WilcoxVortexStretchingInvariant(
+    Real w12, Real w13, Real w23,
+    Real s11, Real s22, Real s33, Real s12, Real s13, Real s23 )
+{
+    Real xw = - ( w12 * w12 * ( s11 + s22 ) + w13 * w13 * ( s11 + s33 ) + w23 * w23 * ( s22 + s33 ) )
+         + two * ( - w13 * w23 * s12 + w12 * w23 * s13 - w12 * w13 * s23 );
+    return ABS( xw );
+}
+
 EndNameSpace

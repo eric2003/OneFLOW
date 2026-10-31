@@ -643,61 +643,40 @@ void TurbCom::CalcCrossing()
 
 void TurbCom::CalcFbetaOfKwWilcox1998()
 {
-    xk = cross_term / ( pow( kw, 3 ) + SMALL );
-    if ( xk <= 0.0 )
-    {
-        fk = 1.0;
-    }
-    else
-    {
-        xk2 = SQR( xk );
-        // Bounded crossing_term diffusion function( 1<fk<1.7 )
-        fk  = ( one + 680.0 * xk2 ) / ( one + 400.0 * xk2 );
-    }
-                
-    xw = - ( w12 * w12 * ( s11 + s22 ) + w13 * w13 * ( s11 + s33 ) + w23 * w23 * ( s22 + s33 ) )
-         + two * ( - w13 * w23 * s12 + w12 * w23 * s13 - w12 * w13 * s23 );
-    xw = ABS( xw /( pow( betas * kw, 3 ) + SMALL ) );
-    // Bounded vortex stretching function( 7/8<fw<1 )
-    fw = ( one + 70.0 * xw ) / ( one + 80.0 * xw );
-                
+    xk = WilcoxXkFromCrossTerm( cross_term, kw );
+    fk = WilcoxFkFromXk( xk );
+
+    const Real stretch = WilcoxVortexStretchingInvariant(
+        w12, w13, w23, s11, s22, s33, s12, s13, s23 );
+    xw = stretch / ( pow( betas * kw, 3 ) + SMALL );
+    fw = WilcoxFw1998( xw );
+
     fbetas = fk;
     fbeta  = fw;
 }
 
 void TurbCom::CalcFbetaOfKwWilcox2006()
 {
-    Real sh11 = s11 - half * divv;
-    Real sh22 = s22 - half * divv;
-    Real sh33 = s33 - half * divv;
-    Real sh12 = s12;
-    Real sh13 = s13;
-    Real sh23 = s23;
-                
+    const Real sh11 = s11 - half * divv;
+    const Real sh22 = s22 - half * divv;
+    const Real sh33 = s33 - half * divv;
+
     fk = 1.0;
-    xw = - ( w12 * w12 * ( sh11 + sh22 ) + w13 * w13 * ( sh11 + sh33 ) + w23 * w23 * ( sh22 + sh33 ) )
-         + two * ( - w13 * w23 * sh12 + w12 * w23 * sh13 - w12 * w13 * sh23 );
-    xw = ABS( xw /( pow( betas * kw, 3 ) + SMALL ) );
-    // Bounded vortex stretching function( 7/8<fw<1 )
-    fw = ( one + 85 * xw ) / ( one + 100.0 * xw );
-                
+    const Real stretch = WilcoxVortexStretchingInvariant(
+        w12, w13, w23, sh11, sh22, sh33, s12, s13, s23 );
+    xw = stretch / ( pow( betas * kw, 3 ) + SMALL );
+    fw = WilcoxFw2006( xw );
+
     fbetas = fk;
     fbeta  = fw;
 }
 
 void TurbCom::CalcFbetaOfEasmKw2003()
 {
-    xk = cmu * cmu * cross_term / ( pow( kw, 3 ) + SMALL );
-    fk = 1.0;
-    if ( xk > 0.0 )
-    {
-        xk2 = xk * xk;
-        // Bounded crossingTermField diffusion function( 1<fk<1.7 )
-        fk  = ( one + 680.0 * xk2 )/( one + 400.0 * xk2 );
-    }
-
+    xk = cmu * cmu * WilcoxXkFromCrossTerm( cross_term, kw );
+    fk = WilcoxFkFromXk( xk );
     fw = 1.0;
-                        
+
     fbetas = fk;
     fbeta  = fw;
 }

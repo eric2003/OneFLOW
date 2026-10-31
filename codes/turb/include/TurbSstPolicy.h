@@ -66,4 +66,38 @@ Real SstGradientDotProduct(
     Real dkdx, Real dkdy, Real dkdz,
     Real dwdx, Real dwdy, Real dwdz );
 
+
+// --- Wilcox / EASM beta* and beta modifiers ---
+// @doc-algorithm wilcox-fbeta
+// @doc-stage xk
+// @doc-pure
+// @doc-formula x_k = (grad k · grad omega) / omega^3
+Real WilcoxXkFromCrossTerm( Real crossTerm, Real omega );
+
+// @doc-algorithm wilcox-fbeta
+// @doc-stage fk
+// @doc-pure
+// @doc-formula f_k = 1 (xk<=0); (1+680 xk^2)/(1+400 xk^2) (xk>0)
+Real WilcoxFkFromXk( Real xk );
+
+// @doc-algorithm wilcox-fbeta
+// @doc-stage fw-1998
+// @doc-pure
+// @doc-formula f_w = (1+70 x_w)/(1+80 x_w)
+Real WilcoxFw1998( Real xw );
+
+// @doc-algorithm wilcox-fbeta
+// @doc-stage fw-2006
+// @doc-pure
+// @doc-formula f_w = (1+85 x_w)/(1+100 x_w)
+Real WilcoxFw2006( Real xw );
+
+// @doc-algorithm wilcox-fbeta
+// @doc-stage vortex-stretch
+// @doc-pure
+// Magnitude used in x_w before dividing by (beta* omega)^3
+Real WilcoxVortexStretchingInvariant(
+    Real w12, Real w13, Real w23,
+    Real s11, Real s22, Real s33, Real s12, Real s13, Real s23 );
+
 EndNameSpace

@@ -1,27 +1,28 @@
-Verification layers for numerical contracts
-===========================================
+Verification layers (copyable policy)
+=====================================
 
-Purpose: keep models (especially turbulence) **self-evolving** without
-relying only on full-case CFD-versus-experiment.
+Goal
+----
+Evolve numerical models with contracts that remain testable without
+depending only on full-case CFD-versus-experiment.
 
-Layers (all required for a claim to "count")
---------------------------------------------
+Layers
+------
+1. Pure contract — formula in ``*Policy`` (``@doc-*`` tags).
+2. Unit test — gtest locks the same expression.
+3. Intermediate check — closed-form curve/table, published constants,
+   or independent reference code (examples: SA \(f_{v1}(\chi)\),
+   SST \(F_1(\mathrm{arg}_1)\), Wilcox \(f_w(x_w)\)).
+4. Documentation — math, pipeline role, short bibliography.
+5. Full case (optional) — mesh solution versus experiment/benchmark.
 
-1. **Pure contract** — formula isolated in ``*Policy`` with ``@doc-*``.
-2. **Unit test** — same expression locked by gtest (no shadow arithmetic).
-3. **Intermediate check** — closed-form curve/table, published constant
-   set, or independent reference implementation (e.g. SA
-   :math:`f_{v1}(\\chi)`, SST :math:`F_1(\\mathrm{arg}_1)`).
-4. **Documentation** — Sphinx page states the math, role in the pipeline,
-   and short references (paper, NASA TMR, open manuals).
-5. **Full case** (optional later) — mesh solve vs experiment/benchmark.
+Acceptance rule
+---------------
+A claim is valid only when **formula + reference data/source +
+(optional) plot** agree. Proprietary manuals may be named; proprietary
+text is not copied.
 
-A comparison is valid only when **formula + data/reference + (optional)
-plot** agree. Closed commercial manuals may be named; proprietary text
-is not copied.
-
-References policy
------------------
-
-See ``references.rst``. Prefer public anchors (NASA TMR, open guides,
-classic papers). Extend the living list when a new pure API is extracted.
+References
+----------
+Prefer public anchors (papers, NASA TMR, open guides). See
+``references.rst``. Extend the list when a new pure API is extracted.

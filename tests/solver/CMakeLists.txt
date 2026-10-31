@@ -302,3 +302,15 @@ target_include_directories(turb_sst_policy_test PRIVATE
 target_link_libraries(turb_sst_policy_test PRIVATE GTest::gtest_main)
 target_compile_features(turb_sst_policy_test PRIVATE cxx_std_20)
 gtest_discover_tests(turb_sst_policy_test DISCOVERY_MODE PRE_TEST)
+
+add_executable(turb_wilcox_fbeta_test
+  turb_wilcox_fbeta_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/turb/src/TurbSstPolicy.cpp
+)
+target_include_directories(turb_wilcox_fbeta_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/codes/turb/include
+  ${CMAKE_SOURCE_DIR}/codes/basic/include
+)
+target_link_libraries(turb_wilcox_fbeta_test PRIVATE GTest::gtest_main)
+target_compile_features(turb_wilcox_fbeta_test PRIVATE cxx_std_20)
+gtest_discover_tests(turb_wilcox_fbeta_test DISCOVERY_MODE PRE_TEST)
