@@ -326,3 +326,15 @@ target_include_directories(turb_sst_residual_test PRIVATE
 target_link_libraries(turb_sst_residual_test PRIVATE GTest::gtest_main)
 target_compile_features(turb_sst_residual_test PRIVATE cxx_std_20)
 gtest_discover_tests(turb_sst_residual_test DISCOVERY_MODE PRE_TEST)
+
+add_executable(turb_vis_flux_policy_test
+  turb_vis_flux_policy_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/turb/src/TurbVisFluxPolicy.cpp
+)
+target_include_directories(turb_vis_flux_policy_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/codes/turb/include
+  ${CMAKE_SOURCE_DIR}/codes/basic/include
+)
+target_link_libraries(turb_vis_flux_policy_test PRIVATE GTest::gtest_main)
+target_compile_features(turb_vis_flux_policy_test PRIVATE cxx_std_20)
+gtest_discover_tests(turb_vis_flux_policy_test DISCOVERY_MODE PRE_TEST)
