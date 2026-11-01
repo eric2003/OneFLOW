@@ -36,7 +36,7 @@ Real SstCrossDiffWilcox(
 // @doc-algorithm sst-f1
 // @doc-stage cross-diff-scalar
 // @doc-pure
-// @doc-formula CD_raw = 2 rho sigw2 (grad k · grad omega) / omega
+// @doc-formula CD_raw = 2 rho sigw2 (grad k dot grad omega) / omega
 Real SstCrossDiffScalar(
     Real density, Real sigw2, Real crossTerm, Real omega );
 
