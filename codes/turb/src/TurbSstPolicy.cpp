@@ -1,4 +1,5 @@
 #include "TurbSstPolicy.h"
+#include "TurbViscosityPolicy.h"
 #include "HXMath.h"
 #include <cmath>
 
@@ -248,6 +249,32 @@ Real SstEddyViscosity(
     return density * kineticEnergy
          / MAX( omega, limitingRateMagnitude * f2 / a1 )
          * reynolds;
+}
+
+SstEddyViscosityResult SstComputeEddyViscosity(
+    const SstEddyViscosityInput& input )
+{
+    SstEddyViscosityResult result;
+
+    result.f2Argument = SstF2Argument(
+        input.kineticEnergy, input.omega, input.wallDistance, input.betaStar,
+        input.laminarViscosity, input.density, input.reynolds );
+    result.f2 = SstF2FromArg( result.f2Argument );
+
+    result.limitingRateMagnitude = SstLimitingRateMagnitude(
+        input.productionOption,
+        input.dudx, input.dudy, input.dudz,
+        input.dvdx, input.dvdy, input.dvdz,
+        input.dwdx, input.dwdy, input.dwdz );
+
+    result.uncappedEddyViscosity = SstEddyViscosity(
+        input.density, input.kineticEnergy, input.omega,
+        result.limitingRateMagnitude, result.f2, input.a1, input.reynolds );
+    result.eddyViscosity = TurbCappedEddyViscosity(
+        result.uncappedEddyViscosity,
+        input.laminarViscosity, input.maxViscosityRatio );
+
+    return result;
 }
 
 
