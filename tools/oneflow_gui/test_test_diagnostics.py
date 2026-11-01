@@ -74,6 +74,8 @@ class TestDiagnosticParserTest(unittest.TestCase):
         self.assertEqual(records[0].test_name, "FaceTopologyTest.RejectsInvalidFace")
         self.assertEqual(records[0].source_file, "D:/repo/tests/geometry/FaceTopologyTest.cpp")
         self.assertEqual(records[0].source_line, 87)
+        self.assertEqual(records[0].exception_type, "GoogleTestFailure")
+        self.assertIn("Expected: face.IsValid()", records[0].message)
         self.assertEqual(records[0].configuration, "Release")
 
     def test_passed_output_does_not_create_failure_diagnostic(self) -> None:
