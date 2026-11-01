@@ -72,7 +72,9 @@ class GeometryContractBridgeTest(unittest.TestCase):
         )
         self.assertEqual(scenario["expected"]["childFaceIds"], [0])
         self.assertEqual(scenario["expected"]["candidateIndices"], [1])
-        self.assertIn("fixture backend", " ".join(scenario["notes"]))
+        notes = " ".join(scenario["notes"])
+        self.assertIn("not a C++ execution backend", notes)
+        self.assertIsNone(scenario["result"])
 
 
 if __name__ == "__main__":
