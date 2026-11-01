@@ -11,6 +11,7 @@ License
     (at your option) any later version.
 ----------------------------------------------------------------------------*/
 
+#include "AccelBackend.h"
 #include "DataBase.h"
 #include "Prj.h"
 #include "SimuImp.h"
@@ -115,6 +116,13 @@ public:
 private:
     SimuImp & simulation_;
 };
+
+TEST( SimuImpCaseLifecycleIntegration,
+      ProductionRuntimeContainsCpuBackendRegistration )
+{
+    EXPECT_TRUE(
+        AccelBackendRegistry::Instance().Contains( AccelBackendKind::CPU ) );
+}
 
 TEST( SimuImpCaseLifecycleIntegration,
       FailedProductionSetupRunsRealCaseTeardownAndKeepsProcessRuntimeActive )

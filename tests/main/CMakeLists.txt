@@ -247,7 +247,7 @@ add_executable(simu_imp_case_lifecycle_integration_test
 
 target_link_libraries(simu_imp_case_lifecycle_integration_test
   PRIVATE
-    OneFLOW_Runtime
+    OneFLOW_RuntimeObjects
     GTest::gtest_main
 )
 

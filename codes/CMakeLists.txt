@@ -380,37 +380,37 @@ elseif ( MPI_ENABLE )
     list ( APPEND PRJ_COMPILE_DEF HX_CGNS )
 endif ()
 
-# The runtime is a reusable production library. The executable entry point
-# stays in the executable so integration tests can link the exact same runtime
-# implementation without compiling a second copy of the application sources.
+# OneFLOW remains a single executable at this stage. Keep its runtime sources
+# as an object collection so the application and production integration tests
+# consume the same compiled translation units without creating a library boundary.
 list ( FILTER PRJ_SRC_LIST EXCLUDE REGEX "/codes/main/src/OneFlow\\.cpp$" )
 
-add_library ( OneFLOW_Runtime STATIC
+add_library ( OneFLOW_RuntimeObjects OBJECT
     ${PRJ_SRC_LIST}
     ${PRJ_HEADER_LIST}
 )
 
-target_include_directories ( OneFLOW_Runtime
+target_include_directories ( OneFLOW_RuntimeObjects
     PUBLIC
         ${PRJ_INCLUDE_DIRS}
 )
 
-target_link_directories ( OneFLOW_Runtime
+target_link_directories ( OneFLOW_RuntimeObjects
     PUBLIC
         ${PRJ_LINK_DIRS}
 )
 
-target_link_libraries ( OneFLOW_Runtime
+target_link_libraries ( OneFLOW_RuntimeObjects
     PUBLIC
         ${PRJ_LIBRARIES}
 )
 
-target_compile_features ( OneFLOW_Runtime
+target_compile_features ( OneFLOW_RuntimeObjects
     PUBLIC
         ${PRJ_COMPILE_FEATURES}
 )
 
-target_compile_definitions ( OneFLOW_Runtime
+target_compile_definitions ( OneFLOW_RuntimeObjects
     PUBLIC
         ${PRJ_COMPILE_DEF}
 )
@@ -421,13 +421,13 @@ add_executable ( ${PROJECT_NAME}
 
 target_link_libraries ( ${PROJECT_NAME}
     PRIVATE
-        OneFLOW_Runtime
+        OneFLOW_RuntimeObjects
 )
 
 set ( PRJ_SYSTEM_DIR ${PRJ_ROOT_DIR}/system/ )
 set ( PRJ_DOCUMENT_DIR ${PRJ_ROOT_DIR}/doc/ )
 
-install ( TARGETS ${PROJECT_NAME} OneFLOW_Runtime ${USER_LIBS} ${THIRD_LIBRARIES}
+install ( TARGETS ${PROJECT_NAME} ${USER_LIBS} ${THIRD_LIBRARIES}
     RUNTIME DESTINATION bin 
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
