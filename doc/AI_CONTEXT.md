@@ -793,3 +793,26 @@ Important design decisions proposed (not yet implemented):
 Industry practices to borrow selectively: requirements traceability, V&V separation, reproducible run manifests, layered testing with production-path integration, ADRs, schema evolution, and explicit claim limits.
 
 Status: **Proposal committed; no runtime or Workbench implementation changes in this slice.** User-reported 1125/1125 is the baseline, not validation of new executable code. Next step is to discuss the five open design questions in the proposal, then inventory current numerical and geometry metadata before Stage 1. Do not start a broad rewrite.
+
+
+## 2026-11-01 decision: incremental Contract Workbench evolution
+
+The user agrees with a gradual migration: **keep the existing workbenches running first, then abstract and refactor incrementally**. Do not pause working functionality for a broad rewrite.
+
+Working rules:
+- Preserve the current Numerical Contract Workbench and Geometry Contract Workbench entry points and behavior while adding shared capabilities.
+- Start with read-only compatibility/adaptation; do not migrate their source data formats prematurely.
+- Extract shared abstractions only after at least two real consumers demonstrate the same stable need.
+- Keep execution in authoritative existing systems (GoogleTest/CTest, geometry native tests, CFD regressions, workflow runners). The Workbench organizes and presents evidence; it must not duplicate solver algorithms or become a competing test engine.
+- Keep the shared catalog/validation core Qt-independent and test it headlessly.
+- For each migration step, maintain old-path/new-path equivalence tests and a runnable fallback until the new path is established.
+- No large-bang GUI, catalog, or runner rewrite.
+
+User-reported validation baseline for this continuation: **1125/1125 local tests passed**. This validates the preceding user-tested revision, not any future implementation work.
+
+Recommended first implementation slice after the design review:
+1. Inventory current Numerical entries and Geometry scenario metadata.
+2. Define the smallest read-only common view/protocol needed to list a contract's stable ID, title, domain/kind, overview/principle, references, implementation/documentation links, and evidence links.
+3. Adapt one existing numerical entry and one geometry scenario without changing either source format or current UI.
+4. Add headless tests for adaptation, missing references, and explicit fixture-vs-production evidence labeling.
+5. Only then add a shared read-only browser surface or common navigation shell.
