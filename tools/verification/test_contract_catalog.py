@@ -125,6 +125,26 @@ class ContractCatalogTest(unittest.TestCase):
         issues = validate_contract_summaries(self.repository_root, [summary])
         self.assertEqual(issues, [], "\\n".join(issues))
 
+    def test_detects_case_residual_tolerance_drift(self) -> None:
+        definition_path = (
+            self.repository_root
+            / "tools"
+            / "verification"
+            / "contracts"
+            / "case"
+            / "laminar_flat_plate_slau2.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        definition["case"]["residual_absolute_tolerance"] = 1e-8
+        summary = adapt_declared_contract(definition)
+
+        issues = validate_contract_summaries(self.repository_root, [summary])
+
+        self.assertTrue(
+            any("residual tolerance does not match" in issue for issue in issues),
+            "\\n".join(issues),
+        )
+
     def test_requires_typed_payload_for_case_contract(self) -> None:
         definition_path = (
             self.repository_root
