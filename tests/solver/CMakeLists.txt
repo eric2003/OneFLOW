@@ -384,6 +384,7 @@ gtest_discover_tests(turb_bc_policy_test DISCOVERY_MODE PRE_TEST)
 add_executable(turb_sa_update_bound_test
   turb_sa_update_bound_test.cpp
   ${CMAKE_SOURCE_DIR}/codes/turb/src/TurbSaPolicy.cpp
+  ${CMAKE_SOURCE_DIR}/codes/turb/src/TurbViscosityPolicy.cpp
 )
 target_include_directories(turb_sa_update_bound_test PRIVATE
   ${CMAKE_SOURCE_DIR}/codes/turb/include
@@ -409,6 +410,7 @@ gtest_discover_tests(turb_sst_update_floor_test DISCOVERY_MODE PRE_TEST)
 add_executable(turb_sa_under_relax_test
   turb_sa_under_relax_test.cpp
   ${CMAKE_SOURCE_DIR}/codes/turb/src/TurbSaPolicy.cpp
+  ${CMAKE_SOURCE_DIR}/codes/turb/src/TurbViscosityPolicy.cpp
 )
 target_include_directories(turb_sa_under_relax_test PRIVATE
   ${CMAKE_SOURCE_DIR}/codes/turb/include
