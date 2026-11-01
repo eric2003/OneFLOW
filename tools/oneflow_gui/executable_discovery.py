@@ -53,8 +53,13 @@ def executable_candidates(
             Path("/usr/bin/OneFLOW"),
         ]
     executable_name = "OneFLOW.exe" if is_windows else "OneFLOW"
-    find_on_path = path_lookup or shutil.which
-    path_executable = find_on_path(executable_name, environment.get("PATH"))
+    if path_lookup is None:
+        path_executable = shutil.which(
+            executable_name,
+            path=environment.get("PATH"),
+        )
+    else:
+        path_executable = path_lookup(executable_name, environment.get("PATH"))
     if path_executable:
         fallback_candidates.append(Path(path_executable))
 
