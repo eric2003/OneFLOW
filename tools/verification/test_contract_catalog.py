@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import subprocess
+import sys
 import unittest
 from pathlib import Path
 
@@ -90,6 +92,20 @@ class ContractCatalogTest(unittest.TestCase):
             self.repository_root, [numerical, geometry]
         )
         self.assertEqual(issues, [], "\n".join(issues))
+
+    def test_importing_scenarios_does_not_load_pipeline_runner(self) -> None:
+        script = (
+            "import sys; "
+            "import tools.geometry_workbench.scenarios; "
+            "assert 'tools.geometry_workbench.pipeline_stub' not in sys.modules"
+        )
+        subprocess.run(
+            [sys.executable, "-c", script],
+            cwd=self.repository_root,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
 
     def test_loads_complete_combined_catalog_without_reference_errors(self) -> None:
         summaries, issues = load_contract_catalog(self.repository_root)
