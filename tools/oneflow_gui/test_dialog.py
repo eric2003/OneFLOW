@@ -39,6 +39,7 @@ from .test_runner import (
     build_python_test_commands,
     build_regression_command,
     format_command_arguments,
+    oneflow_executable_path,
     stage_regression_tests,
     summarize_test_output,
 )
@@ -374,12 +375,9 @@ class TestRunnerDialog(QDialog):
                     UserDataPaths.discover().cfd_regression_workspace,
                 )
                 executable_path = Path(executable).expanduser().resolve()
-                expected_build_executable = (
-                    self._repository_root
-                    / "build"
-                    / "bin"
-                    / self._build_config
-                    / "OneFLOW.exe"
+                expected_build_executable = oneflow_executable_path(
+                    self._repository_root,
+                    self._build_config,
                 ).resolve()
                 executable_will_be_built = (
                     executable_path == expected_build_executable
