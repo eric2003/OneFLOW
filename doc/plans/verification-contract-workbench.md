@@ -450,6 +450,17 @@ implemented on `hexin`, but must remain unverified until the focused and full
 test suites pass locally.
 
 ## 16. First visible Workbench integration (2026-11-01)
+The Case view now provides explicit artifact navigation:
+- open the declared case directory;
+- open the suite manifest;
+- open the residual baseline;
+- open the retained analytical reference files.
+
+These are read-only navigation actions. They resolve declared repository paths,
+check containment under the repository root, and do not launch a regression or
+modify accepted reference data. UI tests mock the desktop-open boundary and
+assert the exact target paths, so the test does not depend on a desktop shell.
+
 
 The user requested a visible cross-domain Contract Workbench rather than
 leaving the catalog as JSON and documentation only. The integration is placed
