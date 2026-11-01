@@ -199,6 +199,8 @@ class ContractCatalogTest(unittest.TestCase):
             kind="test",
             overview="",
             principle="",
+            architecture="",
+            status="implemented",
             references=(),
             implementation_paths=(
                 "missing/file.cpp",
@@ -226,6 +228,8 @@ class ContractCatalogTest(unittest.TestCase):
             kind="test",
             overview="",
             principle="",
+            architecture="",
+            status="implemented",
             references=(),
             implementation_paths=(),
             documentation_paths=(),
