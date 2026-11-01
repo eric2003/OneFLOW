@@ -340,9 +340,6 @@ set ( JsonHeaderDir ${JsonPrjDir} )
 
 ConstructSolutionDirTree( ${CMAKE_CURRENT_SOURCE_DIR} PRJ_HEADER_LIST PRJ_SRC_LIST PRJ_LOCAL_INCLUDE_DIRS )
 
-# Keep the shared turbulence policy implementation explicit in the runtime target.
-list ( APPEND PRJ_SRC_LIST ${CMAKE_CURRENT_SOURCE_DIR}/turb/src/TurbViscosityPolicy.cpp )
-list ( REMOVE_DUPLICATES PRJ_SRC_LIST )
 list ( FILTER PRJ_SRC_LIST EXCLUDE REGEX "/codes/accel/src/HipSmoke\\.cpp$" )
 if ( ONEFLOW_BUILD_HIP )
     list ( APPEND PRJ_HEADER_LIST ${HIP_HEADER_LIST} )
