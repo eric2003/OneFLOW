@@ -59,6 +59,9 @@ EulerDomainStateKey Key(
 static_assert(
     std::is_nothrow_move_constructible<EulerDomainStateRegistry>::value,
     "Accelerator state registry move construction must not throw");
+static_assert(
+    !std::is_move_assignable<EulerDomainStateRegistry>::value,
+    "Accelerator state registry move assignment must not replace live ownership");
 
 TEST( EulerDomainStateRegistry, MoveTransfersOwnershipAndMovedFromCanBeReused )
 {
