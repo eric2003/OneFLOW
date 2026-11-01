@@ -224,3 +224,42 @@ Focused validation:
 python -m unittest tools.verification.test_cmake_test_catalog
 python -m unittest tools.oneflow_gui.test_contract_workbench_dialog
 ```
+
+
+## Structured test failure diagnostics
+
+The Workbench test runner now parses failed Python unittest and GoogleTest
+output into immutable `TestDiagnostic` records. Each record keeps the task
+label, framework, test identity, source file and line when present, exception
+type/message when present, build configuration, resolved working directory,
+UTC start/finish timestamps, process exit code, explicit contract IDs, and a
+verification-impact classification.
+
+The parser is deliberately conservative:
+
+- absent source locations, exception details, and configurations remain
+  unknown rather than being guessed;
+- only failed tests produce records; a successful command does not manufacture
+  per-test evidence;
+- contract IDs are accepted only when a caller supplies an explicit mapping;
+  the current runner therefore reports contract links as unresolved rather
+  than associating tests by similar names;
+- a linked failure is marked `requires_review`; it does not silently rewrite
+  a contract's declared status or assert that every claim in the contract is
+  disproved.
+
+The Tests dialog renders these fields in a structured failure section while
+retaining the original process output and command summary.
+
+Focused validation:
+
+```powershell
+python -m unittest tools.oneflow_gui.test_test_diagnostics
+python -m unittest tools.oneflow_gui.test_test_runner
+python -m unittest tools.oneflow_gui.test_test_inventory
+```
+
+This is the diagnostic parsing and presentation foundation. Persisted
+execution records, explicit test-to-contract mapping, and Verification Results
+aggregation remain subsequent integration steps; until then, the UI does not
+claim a durable cross-session evidence link.
