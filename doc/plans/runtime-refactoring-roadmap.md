@@ -474,3 +474,12 @@ Commit: `d8568fe91722af5d78d8083d6bae23d9446d952d`
 - Moved the two velocity-gradient invariants used by the SST eddy-viscosity limiter into pure model policy functions: `SstStrainRateMagnitude()` computes the symmetric strain-tensor norm, while `SstVorticityMagnitude()` computes the curl magnitude. `TurbSrcFlux::CalcCellVist2Equ()` retains the `iprod_sst` selection and passes the selected value to the existing Bradshaw limiter.
 - Added closed-form tests for the diagonal strain tensor and a simple shear field where the strain and vorticity magnitudes differ (4 versus 2). This closes the specific gap recorded in the preceding SST stage: the limiter formula had both denominator branches tested, but the tensor construction and model-option selection were not isolated.
 - No model option, formula, or call ordering changes are intended. Exact-commit build, focused CTest, full CTest, and flat-plate/RAE2822 regression remain unverified until run locally.
+
+
+### 2026-11-01 - Specify SST production-option rate selection
+
+- Based on current `hexin` HEAD `26aab5886c4da5dd06e2f93820856f19ab620f8c`; the user reports 1112/1112 tests passed on the pre-change baseline.
+- Confirmed `TurbCom::iprod_sst` is an integer option. Extracted its exact selection contract into `SstLimitingRateMagnitude()`: only value 1 selects the strain-rate magnitude; every other value selects vorticity, preserving the previous production conditional.
+- `TurbSrcFlux::CalcCellVist2Equ()` now delegates selection to the pure policy. Added tests for option 1 and for 0, 2, and -1, using a velocity gradient where the two candidate magnitudes differ (4 versus 2).
+- This closes the unit-test seam between the two independently verified invariants and the SST option dispatch. It does not prove configuration parsing, option propagation from case input, or full CFD accuracy; those require runtime/regression coverage.
+- Exact-commit configure/build, focused CTest, full CTest, and flat-plate/RAE2822 regression remain unverified until run locally.
