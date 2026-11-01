@@ -18,6 +18,7 @@ from tools.oneflow_gui.test_runner import (
     build_regression_command,
     build_unit_test_commands,
     stage_regression_tests,
+    summarize_test_output,
 )
 
 
@@ -294,6 +295,39 @@ class TestRunnerCommandTest(unittest.TestCase):
                 validate_executable=False,
             )
             self.assertEqual(deferred.arguments[1], "test.py")
+
+
+    def test_unittest_output_reports_case_counts_and_failure_traceback(self) -> None:
+        report = summarize_test_output([
+            "F..",
+            "FAIL: test_case_domain_displays_typed_case_setup_tab (sample.TestCase)",
+            "Traceback (most recent call last):",
+            '  File "test_sample.py", line 10, in test_case',
+            "AssertionError: expected label was missing",
+            "Ran 3 tests in 0.153s",
+            "FAILED (failures=1)",
+        ])
+        self.assertIn("Python unittest cases: 3 run.", report)
+        self.assertIn("Python unittest failures: failures=1.", report)
+        self.assertIn("Failure details:", report)
+        self.assertIn("AssertionError: expected label was missing", report)
+
+    def test_ctest_output_reports_passed_and_failed_test_counts(self) -> None:
+        report = summarize_test_output([
+            "67% tests passed, 1 tests failed out of 3",
+            "The following tests FAILED:",
+            "  2 - FaceTopologyTest (Failed)",
+        ])
+        self.assertIn("CTest cases: 3 run, 2 passed, 1 failed.", report)
+        self.assertIn("Failure details:", report)
+        self.assertIn("2 - FaceTopologyTest (Failed)", report)
+
+    def test_successful_unittest_output_reports_case_count_without_failure(self) -> None:
+        report = summarize_test_output([
+            "Ran 12 tests in 0.8s",
+            "OK",
+        ])
+        self.assertEqual(report, ("Python unittest cases: 12 run.",))
 
 
 if __name__ == "__main__":
