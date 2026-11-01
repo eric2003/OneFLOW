@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path, PureWindowsPath
+import re
 from typing import Any, Iterable
 
 
@@ -198,6 +199,40 @@ def validate_contract_summaries(
                 continue
             if not path.is_file():
                 issues.append(f"{summary.id}: missing repository file: {relpath}")
+
+        for item in summary.evidence:
+            if item.kind != "linked_test" or not item.scope.endswith(
+                (".cpp", ".cc", ".cxx")
+            ):
+                continue
+            try:
+                source_path = _relative_path(repository_root, item.scope)
+            except ValueError:
+                continue
+            if not source_path.is_file():
+                continue
+            suite, separator, test_name = item.reference.partition(".")
+            if not separator or not suite or not test_name:
+                issues.append(
+                    f"{summary.id}: invalid linked test identity: {item.reference}"
+                )
+                continue
+            try:
+                source = source_path.read_text(encoding="utf-8")
+            except (OSError, UnicodeDecodeError) as exc:
+                issues.append(
+                    f"{summary.id}: cannot read linked test source {item.scope}: {exc}"
+                )
+                continue
+            declaration = re.compile(
+                rf"\\bTEST(?:_F|_P)?\\s*\\(\\s*{re.escape(suite)}\\s*,"
+                rf"\\s*{re.escape(test_name)}\\s*\\)"
+            )
+            if not declaration.search(source):
+                issues.append(
+                    f"{summary.id}: linked GoogleTest declaration not found: "
+                    f"{item.reference} in {item.scope}"
+                )
     return issues
 
 def load_contract_catalog(
