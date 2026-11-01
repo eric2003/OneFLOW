@@ -449,4 +449,36 @@ The user's previous 1126/1126 result predates this Case-domain slice. It is
 implemented on `hexin`, but must remain unverified until the focused and full
 test suites pass locally.
 
+## 16. First visible Workbench integration (2026-11-01)
+
+The user requested a visible cross-domain Contract Workbench rather than
+leaving the catalog as JSON and documentation only. The integration is placed
+in `tools/oneflow_gui`; the repository-root `gui/` remains out of scope.
+
+The home screen now exposes one **Contract Workbench...** entry. Its domain
+hub routes to four current views:
+
+- Formula & Knowledge reuses the Verification Curves browser.
+- Geometry reuses the Geometry Contract Explorer.
+- Case uses a read-only domain browser over the shared Catalog and renders
+  the typed `CaseContractData` in a dedicated Case Setup tab.
+- Runtime uses the same common navigation without showing Case-only fields.
+
+The shared browser presents Overview, Principle, Architecture,
+Implementation/Code, Documentation/References, and Verification. This
+provides consistent navigation without forcing identical payloads across
+domains. Existing specialized Formula and Geometry views are preserved.
+
+The UI is deliberately not an execution surface: it does not run CFD or
+GoogleTest and does not infer PASS from a linked declaration. Catalog
+diagnostics and evidence scope remain visible. Workflow and Performance
+buttons are deferred until real typed definitions and evidence exist; do not
+show nonfunctional placeholder buttons.
+
+The first UI tests exercise the domain hub, Case Setup view, and Runtime
+navigation. They are registered in the Python command inventory. The GUI
+integration remains a thin presentation layer over the Qt-independent
+Catalog, consistent with the separation between definition, validation,
+execution, and presentation.
+
 
