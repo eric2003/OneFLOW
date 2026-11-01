@@ -170,10 +170,10 @@ class TestInventoryDiscoveryTest(unittest.TestCase):
             test_file = root / "tools" / "test_unregistered.py"
             test_file.parent.mkdir(parents=True)
             test_file.write_text(
-                "import unittest\\n"
-                "class UnregisteredTest(unittest.TestCase):\\n"
-                "    def test_missing_registration(self):\\n"
-                "        self.assertTrue(True)\\n",
+                "import unittest\n"
+                "class UnregisteredTest(unittest.TestCase):\n"
+                "    def test_missing_registration(self):\n"
+                "        self.assertTrue(True)\n",
                 encoding="utf-8",
             )
 
