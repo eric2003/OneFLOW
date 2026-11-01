@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import os
 import unittest
-from unittest.mock import patch
 from pathlib import Path
+from unittest.mock import Mock, patch
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
@@ -48,27 +48,29 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             self.assertIn("Blasius", dialog.case_view.toPlainText())
             self.assertIsNotNone(dialog.open_case_directory_button)
             self.assertIsNotNone(dialog.open_case_references_button)
+            desktop_services = Mock()
             with patch(
-                "tools.oneflow_gui.contract_workbench_dialog.QDesktopServices.openUrl",
-                return_value=True,
-            ) as open_url:
+                "tools.oneflow_gui.contract_workbench_dialog.QDesktopServices",
+                desktop_services,
+            ):
                 dialog._open_case_directory()
             expected_directory = (
                 self.repository_root / "test/cfd/plateuns2dslau2"
             ).resolve()
-            open_url.assert_called_once()
+            desktop_services.openUrl.assert_called_once()
             self.assertEqual(
-                open_url.call_args.args[0].toLocalFile(),
+                desktop_services.openUrl.call_args.args[0].toLocalFile(),
                 str(expected_directory),
             )
+            desktop_services.reset_mock()
             with patch(
-                "tools.oneflow_gui.contract_workbench_dialog.QDesktopServices.openUrl",
-                return_value=True,
-            ) as open_references:
+                "tools.oneflow_gui.contract_workbench_dialog.QDesktopServices",
+                desktop_services,
+            ):
                 dialog._open_case_references()
             opened_paths = [
                 call.args[0].toLocalFile()
-                for call in open_references.call_args_list
+                for call in desktop_services.openUrl.call_args_list
             ]
             self.assertEqual(
                 opened_paths,
