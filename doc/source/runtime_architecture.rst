@@ -834,17 +834,17 @@ CTest run are required before treating the refactor as validated.
 Simulation arguments and runtime ownership
 ------------------------------------------
 
-The command-line argument vector has one authoritative owner after the application
-entry point hands it to the full simulation path. ``Simulation`` parses and retains
-the invocation data; ``SimuImp`` accepts that vector by const reference and constructs
-its ``SimuContext``. The context takes its own value snapshot in ``args_``.
-``SimuImp`` does not keep a second mutable ``args`` member.
+The application entry point's parsed argument vector remains owned by ``Simulation``.
+When the full simulation path is created, ``SimuImp`` accepts that vector by const
+reference and constructs its ``SimuContext``. The context takes a value snapshot in
+``args_``; this is the single authoritative argument view for runtime consumers.
+``SimuImp`` does not keep a second mutable ``args`` mirror.
 
 This distinction is intentional:
 
 * the caller retains its original vector and cannot be modified by ``SimuImp``;
 * ``SimuContext::Args()`` is the read-only view used by runtime code;
-* there is no second copy that can drift out of sync after construction;
+* there is no additional ``SimuImp`` copy that can drift out of sync after construction;
 * the context lifetime is explicit and bounded by the ``SimuImp`` owner.
 
 The old public ``SimuImp::args`` compatibility member had no repository call sites
@@ -881,7 +881,8 @@ The data path is:
 The copy at the context boundary is deliberate: ``SimuContext`` is a self-contained
 runtime context and must not depend on the caller's argument vector remaining alive.
 The removed copy was the additional ``SimuImp::args`` mirror, not the context's
-ownership snapshot.
+ownership snapshot. ``Simulation`` still owns its parsed argv storage for the
+application-level invocation lifetime.
 
 Simulation and case lifecycle
 -----------------------------
