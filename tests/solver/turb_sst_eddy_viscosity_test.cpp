@@ -32,6 +32,32 @@ TEST( TurbSstEddyViscosity, RateMagnitudesDistinguishShearFromRotation )
     EXPECT_DOUBLE_EQ( vorticity, 2.0 );
 }
 
+TEST( TurbSstEddyViscosity, ProductionOptionSelectsStrainRate )
+{
+    EXPECT_DOUBLE_EQ(
+        SstLimitingRateMagnitude(
+            1,
+            0.0, 3.0, 0.0,
+            1.0, 0.0, 0.0,
+            0.0, 0.0, 0.0 ),
+        4.0 );
+}
+
+TEST( TurbSstEddyViscosity, OtherProductionOptionsSelectVorticity )
+{
+    const Real expectedVorticity = 2.0;
+    for ( int productionOption : { 0, 2, -1 } )
+    {
+        EXPECT_DOUBLE_EQ(
+            SstLimitingRateMagnitude(
+                productionOption,
+                0.0, 3.0, 0.0,
+                1.0, 0.0, 0.0,
+                0.0, 0.0, 0.0 ),
+            expectedVorticity );
+    }
+}
+
 TEST( TurbSstEddyViscosity, F2ArgTakesMax )
 {
     EXPECT_DOUBLE_EQ( SstF2Arg( 1.0, 3.0 ), 3.0 );
