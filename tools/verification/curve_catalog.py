@@ -625,6 +625,56 @@ def list_theory_entries() -> list[TheoryEntry]:
         ),
 
 
+
+        TheoryEntry(
+            id="turb_inviscid_spectrum",
+            family="turbulence",
+            genus="Turb-spectrum",
+            section="implicit / face spectral radius",
+            title="Inviscid face spectral radius",
+            role_tags=("implicit", "spectrum", "turbulence"),
+            formula_plain=(
+                "lambda_inv = (1/2) * A * |vn_mid|\n"
+                "matrix L/R += (A/2) * (-/+ vn - |vn|) contributions"
+            ),
+            formula_latex=(
+                r"\lambda_{\mathrm{inv}}=\frac{A}{2}|v_n|"
+            ),
+            principle=(
+                "Turbulence LUSGS uses a scalar face spectral radius from "
+                "mid-face normal speed, analogous to mean-flow inviscid radius."
+            ),
+            background=(
+                "Pure APIs TurbInviscidFaceSpectralRadius and "
+                "TurbInviscidFaceMatrixContrib; SA also uses "
+                "SaEffectiveKinematicViscosity and TurbDiffusiveFaceSpectralRadius."
+            ),
+            references=(
+                "OneFLOW TurbSpectrumPolicy; LUSGS spectral-radius practice.",
+            ),
+            csv_relpath="tools/verification/data/turb_inviscid_spectrum_theory.csv",
+            plot_module="plot_turb_inviscid_spectrum",
+            pure_apis=(
+                "TurbInviscidFaceSpectralRadius",
+                "TurbInviscidFaceMatrixContrib",
+                "SaEffectiveKinematicViscosity",
+                "TurbDiffusiveFaceSpectralRadius",
+            ),
+            source_relpaths=(
+                "codes/turb/include/TurbSpectrumPolicy.h",
+                "codes/turb/src/TurbSpectrumPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/turb_spectrum.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "Real TurbInviscidFaceSpectralRadius(Real A, Real absVn) {\n"
+                "  return 0.5 * A * absVn;\n"
+                "}\n"
+            ),
+            proves="lambda_inv algebra vs pure API on |vn| grid.",
+            does_not_prove="Full turb LUSGS convergence.",
+        ),
+
         # ========== NS / LUSGS ==========
         TheoryEntry(
             id="ns_lusgs_viscous_spectrum",
