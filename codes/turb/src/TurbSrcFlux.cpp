@@ -301,7 +301,7 @@ void TurbSrcFlux::CalcCellVist2Equ()
     const Real arg2 = SstF2Arg( part1, part2 );
     const Real f2 = SstF2FromArg( arg2 );
 
-    Real vort = 0.0;
+    Real limitingRateMagnitude = 0.0;
 
     if ( turbcom.iprod_sst == 1 )
     {
@@ -312,18 +312,18 @@ void TurbSrcFlux::CalcCellVist2Equ()
         const Real s13 = half * ( turbcom.dudz + turbcom.dwdx );
         const Real s23 = half * ( turbcom.dvdz + turbcom.dwdy );
         const Real sij2 = two * ( SQR( s11, s22, s33 ) + two * SQR( s12, s13, s23 ) );
-        vort = sqrt( sij2 );
+        limitingRateMagnitude = sqrt( sij2 );
     }
     else
     {
-        vort = DIST( turbcom.dwdy - turbcom.dvdz,
+        limitingRateMagnitude = DIST( turbcom.dwdy - turbcom.dvdz,
                      turbcom.dudz - turbcom.dwdx,
                      turbcom.dvdx - turbcom.dudy );
     }
 
     turbcom.vist = SstEddyViscosity(
         turbcom.rho, turbcom.ke, turbcom.kw,
-        vort, f2, turbcom.a1, turbcom.reynolds );
+        limitingRateMagnitude, f2, turbcom.a1, turbcom.reynolds );
     turbcom.vist = SaCappedEddyViscosity(
         turbcom.vist, turbcom.visl, turbcom.max_vis_ratio );
 }
