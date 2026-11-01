@@ -25,3 +25,15 @@ TEST( TurbSstResidual, NegativeSourcePart )
     EXPECT_DOUBLE_EQ( SstNegativeSourcePart( 3.0 ), 0.0 );
     EXPECT_DOUBLE_EQ( SstNegativeSourcePart( -4.0 ), -4.0 );
 }
+
+TEST( TurbSstResidual, DiagonalWWithoutCrossDiff )
+{
+    // -2 * fBeta * beta * omega - 0/(rho*omega)
+    EXPECT_DOUBLE_EQ( SstDiagonalW( 1.0, 0.075, 2.0, 0.0, 1.0 ), -0.3 );
+}
+
+TEST( TurbSstResidual, DiagonalWWithCrossDiff )
+{
+    // -2*1*0.075*2 - 0.4/(1*2) = -0.3 - 0.2 = -0.5
+    EXPECT_DOUBLE_EQ( SstDiagonalW( 1.0, 0.075, 2.0, 0.4, 1.0 ), -0.5 );
+}

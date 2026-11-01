@@ -34,3 +34,21 @@ References
   intermediate-verification policy.
 
 Pure APIs: ``TurbSstPolicy.h``. Tests: ``turb_sst_policy_test``.
+
+Residual assembly and diagonals
+-------------------------------
+
+Related pure pieces (also used for the omega equation):
+
+.. math::
+
+   S_k = P_k - \varepsilon,\qquad
+   S_\omega = P_\omega - D_\omega + CD
+
+.. math::
+
+   d_k = -2 f_{\beta^*}\beta^*\omega,\qquad
+   d_\omega = -2 f_\beta\beta\omega - \frac{|CD|}{\rho\omega}
+
+Locks: ``turb_sst_residual_test`` (including ``SstDiagonalW``).
+Contract Workbench entry: ``sst_residual_diagonal``.

@@ -393,6 +393,67 @@ def list_theory_entries() -> list[TheoryEntry]:
             does_not_prove="Full SST residual on a case.",
         ),
 
+
+        TheoryEntry(
+            id="sst_residual_diagonal",
+            family="turbulence",
+            genus="SST",
+            section="source / residual linearization",
+            title="SST source residual and diagonal pieces",
+            role_tags=("source", "linearization", "SST"),
+            formula_plain=(
+                "S_k = P_k - eps\n"
+                "S_w = P_w - D_w + CD\n"
+                "d_k = -2 * f_beta* * beta* * omega\n"
+                "d_w = -2 * f_beta * beta * omega - |CD|/(rho*omega)\n"
+                "neg = 0.5 * (S - |S|)"
+            ),
+            formula_latex=(
+                r"S_k=P_k-\varepsilon"
+                "\n"
+                r"S_\omega=P_\omega-D_\omega+CD"
+                "\n"
+                r"d_k=-2 f_{\beta^*}\beta^*\omega"
+                "\n"
+                r"d_\omega=-2 f_\beta\beta\omega-|CD|/(\rho\omega)"
+            ),
+            principle=(
+                "Menter linearization splits explicit source and diagonal "
+                "contributions for implicit turbulence updates."
+            ),
+            background=(
+                "Pure APIs SstSourceK/W, SstDiagonalK/W, SstNegativeSourcePart "
+                "are locked in turb_sst_residual_test."
+            ),
+            references=(
+                "Menter SST linearization practice.",
+                "OneFLOW TurbSstPolicy residual section.",
+            ),
+            csv_relpath=None,
+            plot_module=None,
+            pure_apis=(
+                "SstSourceK",
+                "SstSourceW",
+                "SstDiagonalK",
+                "SstDiagonalW",
+                "SstNegativeSourcePart",
+            ),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_k_source.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "Real SstDiagonalW(Real fBeta, Real beta, Real omega,\n"
+                "                  Real absCD, Real rho) {\n"
+                "  return -2*fBeta*beta*omega - absCD/(rho*omega);\n"
+                "}\n"
+            ),
+            proves="Residual piece algebra vs pure APIs.",
+            does_not_prove="Full SST field residual or case Cf.",
+        ),
+
         # ========== Wilcox ==========
         TheoryEntry(
             id="wilcox_fk_xk",
@@ -514,44 +575,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             proves="fw2006 closed form vs WilcoxFw2006 sample grid.",
             does_not_prove="Full Wilcox residual or SST path.",
         ),
-        TheoryEntry(
-            id="wilcox_vortex_stretching",
-            family="turbulence",
-            genus="Wilcox",
-            section="closure / vortex stretching",
-            title="xw vortex-stretching invariant",
-            role_tags=("closure", "Wilcox", "vortex-stretching"),
-            formula_plain=(
-                "xw_raw = - (w12^2 (s11+s22) + w13^2 (s11+s33) + w23^2 (s22+s33))\n"
-                "         + 2 (-w13 w23 s12 + w12 w23 s13 - w12 w13 s23)\n"
-                "xw = |xw_raw|"
-            ),
-            formula_latex=(
-                r"x_w=\left|-(\omega_{12}^{2}(s_{11}+s_{22})+\cdots)+2(\cdots)\right|"
-            ),
-            principle=(
-                "Vortex-stretching invariant drives Wilcox fw beta modifiers."
-            ),
-            background=(
-                "Pure API WilcoxVortexStretchingInvariant isolates tensor algebra."
-            ),
-            references=(
-                "Wilcox vortex-stretching notes; wilcox_fbeta.rst",
-            ),
-            csv_relpath=None,
-            plot_module=None,
-            pure_apis=("WilcoxVortexStretchingInvariant", "WilcoxFw1998", "WilcoxFw2006"),
-            source_relpaths=(
-                "codes/turb/include/TurbSstPolicy.h",
-                "codes/turb/src/TurbSstPolicy.cpp",
-            ),
-            doc_relpath="doc/source/numerical/wilcox_fbeta.rst",
-            code_sketch=(
-                "// GATED SKETCH — see TurbSstPolicy.cpp\n"
-            ),
-            proves="Tensor algebra samples vs WilcoxVortexStretchingInvariant.",
-            does_not_prove="Full Wilcox residual on a mesh.",
-        ),
+
 
         # ========== NS / LUSGS ==========
         TheoryEntry(
