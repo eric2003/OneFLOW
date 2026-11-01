@@ -865,3 +865,38 @@ consumers. Next likely increment: make the adapter inventory all current
 numerical entries and geometry scenarios, report invalid/stale links, and
 only then expose a read-only combined browser view. Do not change the two
 existing GUI flows yet.
+
+## 2026-11-01 implementation: combined contract inventory
+
+The next incremental slice extends the read-only compatibility model:
+
+- `load_contract_catalog(repository_root)` enumerates all current Numerical
+  `TheoryEntry` records and all Geometry scenario JSON files through their
+  existing source loaders.
+- Canonical IDs are namespaced as `numerical/<source-id>` and
+  `geometry/<source-id>`; `source_id` retains the original identifier.
+- Geometry fixture evidence records the repository-relative JSON path.
+- Validation checks duplicate IDs, repository-relative path containment,
+  source/document/data file existence, and whether each linked GoogleTest
+  declaration is actually present in its declared C++ source.
+- `tools/oneflow_gui/test_test_inventory.py` explicitly verifies that the
+  new `tools/verification/test_contract_catalog.py` methods are discovered
+  by the existing Workbench test inventory.
+
+This remains read-only discovery. It does not invoke GoogleTest, CTest,
+geometry production algorithms, or persist execution results. The test
+inventory's discovery of a Python test is not evidence that the test passed.
+
+Focused commands:
+
+```powershell
+python -m unittest tools.verification.test_contract_catalog
+python -m unittest tools.oneflow_gui.test_test_inventory
+python -m unittest tools.verification.test_curve_catalog
+```
+
+The assistant has not run these commands in the user's Windows/MSVC
+environment. The last user-reported 1125/1125 remains a pre-change baseline.
+Do not add GUI integration until these checks pass. The next design step after
+validation is to inspect the generated catalog and decide which traceability
+fields are genuinely missing before introducing Runtime/Workflow contracts.
