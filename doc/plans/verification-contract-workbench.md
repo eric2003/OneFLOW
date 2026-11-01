@@ -755,3 +755,28 @@ This is a bounded compatibility improvement, not a claim of full Linux
 validation. Platform branches are unit-testable through an explicit platform
 parameter, while CI or a developer Linux machine must still perform a real
 configure, build, CTest, and regression run to establish runtime compatibility.
+
+## 27. Cross-platform process-tree cancellation
+
+The GUI test worker now starts each command in an isolated process group via
+the Qt-independent `tools.oneflow_gui.process_control` module. Stop terminates
+the whole process tree rather than only the direct child:
+
+- POSIX: `start_new_session=True` and process-group termination with
+  `os.killpg`;
+- Windows: `CREATE_NEW_PROCESS_GROUP` and
+  `taskkill /PID <pid> /T /F`, invoked without a shell.
+
+This closes an execution-lifecycle gap in CFD regression. The regression
+Python script may start a shell command, which may start MPI and solver
+processes. Parent-only termination is not a sufficient cancellation contract.
+
+The module has focused tests for host-specific process creation options,
+Windows tree termination and fallback, completed-process handling, and a real
+POSIX parent/descendant process tree. The new test is part of the Python test
+inventory and the Ubuntu/Windows Python tooling CI matrix.
+
+The implementation deliberately keeps platform-specific process mechanics at
+the execution boundary. Solver algorithms, regression command definitions,
+and task result semantics remain independent of the host OS. MPI launcher
+behavior still requires an end-to-end stop test on each supported host.
