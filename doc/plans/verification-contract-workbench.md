@@ -553,3 +553,32 @@ python -m unittest tools.verification.test_contract_catalog
 
 A negative test changes a valid Runtime evidence kind to an unknown value and
 requires adaptation to reject it with an actionable error.
+
+
+## 19. Cross-domain artifact evidence path validation (2026-11-02)
+
+Artifact references now receive the same repository-root containment and
+file-existence checks across domains. The shared path-evidence vocabulary
+includes theory data, case-suite manifests, output manifests, residual
+baselines, and analytical references. Geometry fixture references are checked
+when they are path-shaped; an opaque scenario ID remains an identifier rather
+than being mistaken for a filename.
+
+The path list is deduplicated before validation so a Case payload and its
+typed evidence can refer to the same baseline or analytical file without
+duplicating diagnostics. Case-specific semantic checks remain in place:
+existence is not enough to establish suite membership, output agreement,
+residual schema, row count, or tolerance consistency.
+
+Negative tests attach missing analytical-reference and residual-baseline
+artifacts to a Runtime contract and require actionable diagnostics. A separate
+test protects opaque geometry fixture IDs from accidental path interpretation.
+
+Focused validation:
+
+```powershell
+python -m unittest tools.verification.test_contract_catalog
+```
+
+The validator remains read-only and Qt-independent. It reports broken
+declarations; it does not execute evidence or promote a contract to verified.
