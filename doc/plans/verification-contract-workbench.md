@@ -582,3 +582,27 @@ python -m unittest tools.verification.test_contract_catalog
 
 The validator remains read-only and Qt-independent. It reports broken
 declarations; it does not execute evidence or promote a contract to verified.
+
+
+## 20. Typed GoogleTest declaration matching (2026-11-02)
+
+The linked GoogleTest source resolver now recognizes both ordinary and typed
+test declaration macros: `TEST`, `TEST_F`, `TEST_P`, `TYPED_TEST`, and
+`TYPED_TEST_P`. Previously the matcher accepted only the ordinary TEST
+family, so a valid typed-test link could be reported as stale.
+
+A focused test writes both typed declaration forms into a temporary C++
+source file and resolves contract evidence against that file. This avoids
+adding artificial production test declarations to the repository.
+
+The boundary remains intentionally narrow: matching a source macro establishes
+that the named declaration is present in the declared source file. It does not
+establish test-binary registration, successful compilation, test discovery at
+runtime, or execution. Those require build/test inventory and execution
+records, which remain separate evidence layers.
+
+Focused validation:
+
+```powershell
+python -m unittest tools.verification.test_contract_catalog
+```
