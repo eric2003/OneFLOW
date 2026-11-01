@@ -830,3 +830,118 @@ integration path. They do not yet validate cleanup failure injection for each
 individual solver/device release step, multi-rank MPI behavior, or numerical
 regression behavior. Exact-configuration Windows/Linux CI and a fresh local
 CTest run are required before treating the refactor as validated.
+
+Simulation arguments and runtime ownership
+------------------------------------------
+
+The command-line argument vector has one authoritative owner after the application
+entry point hands it to the full simulation path. ``Simulation`` parses and retains
+the invocation data; ``SimuImp`` accepts that vector by const reference and constructs
+its ``SimuContext``. The context takes its own value snapshot in ``args_``.
+``SimuImp`` does not keep a second mutable ``args`` member.
+
+This distinction is intentional:
+
+* the caller retains its original vector and cannot be modified by ``SimuImp``;
+* ``SimuContext::Args()`` is the read-only view used by runtime code;
+* there is no second copy that can drift out of sync after construction;
+* the context lifetime is explicit and bounded by the ``SimuImp`` owner.
+
+The old public ``SimuImp::args`` compatibility member had no repository call sites
+outside its own declaration and constructor initializer. Keeping it would preserve
+an ambiguous API: a write to that vector would not update ``SimuContext::args_``.
+The member has therefore been removed rather than synchronized. Code that needs
+arguments should use ``Context().Args()``. The constructor now accepts a const
+reference to make its non-mutating input contract explicit.
+
+The data path is:
+
+.. code-block:: text
+
+   argc / argv
+       |
+       v
+   Simulation::ProcessCmdLineArgs()
+       |
+       v
+   Simulation::args
+       |
+       | const reference
+       v
+   SimuImp
+       |
+       | value construction
+       v
+   SimuContext::args_
+       |
+       | const Args() accessor
+       v
+   task / runtime consumers
+
+The copy at the context boundary is deliberate: ``SimuContext`` is a self-contained
+runtime context and must not depend on the caller's argument vector remaining alive.
+The removed copy was the additional ``SimuImp::args`` mirror, not the context's
+ownership snapshot.
+
+Simulation and case lifecycle
+-----------------------------
+
+The full run has two nested lifetimes. The process runtime is initialized once and
+may serve several case directories. Each case gets its own ``SimuImp`` and
+NaN; a case failure must not skip case cleanup, and case cleanup must
+not prematurely finalize resources still needed by later cases.
+
+.. code-block:: text
+
+   Simulation / process owner
+       |
+       +-- SetupProcessEnvironment()
+       |
+       +-- Case A: SimuImp::RunCase()
+       |      PreProcess()  -> SetupCaseEnvironment()
+       |      MainProcess() -> resolve task -> TaskRegistry -> Execute(ctx)
+       |      PostProcess() -> TeardownCase()
+       |
+       +-- Case B: SimuImp::RunCase()
+       |      PreProcess()  -> SetupCaseEnvironment()
+       |      MainProcess() -> resolve task -> TaskRegistry -> Execute(ctx)
+       |      PostProcess() -> TeardownCase()
+       |
+       +-- FinalizeEnvironment()
+
+The ownership relationship can be summarized as:
+
+.. math::
+
+   T_{case} \\subset T_{process}
+
+where ``T_case`` is the interval during which one case's configuration, fields,
+solver state, and case-local resources are valid; ``T_process`` is the larger
+interval during which shared parallel and accelerator runtimes are initialized.
+The subset relation is a lifetime constraint, not a statement that every resource
+is physically owned by the same C++ object.
+
+NaN composes process setup, one case execution, and process
+finalization through ``ExecuteWithProcessLifecycle()``. ``RunCase()`` composes
+pre-processing and main execution with unconditional case cleanup through
+NaN. The multi-case integration path uses the same separation:
+the process owner remains active across cases while each case context is torn down.
+
+The key invariant is:
+
+* case-owned state is released before the next case begins;
+* process-owned runtime remains active between cases;
+* process finalization is attempted after case execution, including exceptional exits;
+* the original execution exception is preserved if cleanup also fails.
+
+The existing ``simu_imp_case_lifecycle_integration_test`` exercises the real
+NaN path for setup failure and successful sequential cases.
+It checks case-state clearing and verifies that the process runtime remains active
+between cases. This is stronger than testing the cleanup helper alone, although it
+does not establish multi-rank MPI correctness or every accelerator backend's
+device-resource release behavior.
+
+The distinction also guides future architecture work: process runtime services
+should be injected or observed through a process-level owner, while case data and
+solver state should remain scoped to a case context. Do not move a resource between
+these scopes until its actual use interval and teardown dependency have been traced.
