@@ -1,5 +1,54 @@
 # AI and Developer Project Context
 
+## 2026-11-01 continuation: Contract Workbench becomes cross-domain data
+
+The user reports 1126/1126 tests passing before this slice. That result is the
+baseline only; it does not validate the changes below.
+
+The Contract Workbench direction is an active architecture workstream, not a
+GUI-only feature. The repository root `gui/` remains out of active scope, and
+do not spend effort expanding `tools/oneflow_gui` while the C++ and contract
+foundations need attention.
+
+Implemented the first declared Runtime contract:
+- `tools/verification/contracts/runtime/process_lifecycle.json`
+- `tools/verification/contract_catalog.py`: `ContractSummary` now exposes
+  common architecture/status fields; `adapt_declared_contract` loads schema
+  version 1; `load_contract_catalog` discovers declared contracts alongside
+  Numerical and Geometry compatibility adapters.
+- `tools/verification/test_contract_catalog.py`: tests the declared runtime
+  contract, schema-version rejection, evidence status, and reference validity.
+- `tools/verification/README.md` and
+  `doc/plans/verification-contract-workbench.md` describe the vertical slice.
+
+The runtime contract links exact production implementation paths and three
+GoogleTest declarations. They remain `linked_not_executed`; catalog loading
+checks source declarations but never infers a pass. Contract status
+`implemented` is not a verification result. Its claims explicitly exclude
+physical CUDA/HIP driver behavior, multi-rank MPI teardown, all solver resource
+release paths, and CFD numerical correctness.
+
+Commits:
+- catalog model: `ffe646c4bfb82d33f3b5121d8eeb0d3c2d9d4aa7`
+- runtime contract definition: `76934c00585ed7245035ffe674505afcf39f4546`
+- tests: `170293fbd9f90269df2cf3882efb435a09be119d`
+- verification README: `3ed2596e16d409a7db7dc23458d1770fd79c70eb`
+- architecture proposal: `7fec4524fd6df556de8f445543becebbc94970be`
+
+Focused local validation required:
+`python -m unittest tools.verification.test_contract_catalog`.
+No assistant-side Windows build or test result is claimed.
+
+Next architectural decision: use a second genuinely different domain
+(prefer a Case/CFD regression contract, with workflow as another candidate) to
+test whether the shared envelope is sufficient. Do not introduce a generic
+runner, plugin framework, or wholesale JSON migration yet. Case definitions
+should normally remain evidence fixtures linked to multiple contracts, not
+become one contract per case. Keep claims, evidence scope, exact command,
+revision, backend/platform, outcome, and artifacts distinct. Once two real
+domains exercise the same extension point, consider a typed evidence payload
+or adapter interface.
+
 ## 2026-11-01 continuation: production process-level accelerator retry
 
 The user reports all 41 registered Python command groups passed. The root
