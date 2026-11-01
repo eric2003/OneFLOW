@@ -1032,12 +1032,13 @@ these scopes until its actual use interval and teardown dependency have been tra
 Accelerator memory ownership
 ----------------------------
 
-The accelerator memory wrapper is DeviceBuffer<T>, declared in
-codes/accel/include/DeviceBuffer.h. It is a move-only owner of a backend allocation.
-Its grow-only Resize() allocates a replacement, copies the current contents, commits
+The accelerator memory wrapper is ``DeviceBuffer<T>``, declared in
+``codes/accel/include/DeviceBuffer.h``. It is a move-only owner of a backend allocation.
+Its grow-only ``Resize()`` allocates a replacement, copies the current contents, commits
 ownership of the replacement, and then releases the previous allocation. A scope guard
-releases a candidate if allocation/copy does not complete. Destruction and noexcept
-move assignment perform best-effort non-throwing cleanup; explicit Reset() can report a
-backend release error. Buffers must be destroyed or reset before the accelerator runtime is
-finalized. See doc/plans/device-buffer-resource-lifecycle.md for the exception guarantees,
-focused tests, and remaining validation requirements.
+releases a candidate if allocation/copy does not complete. Byte-count overflow and
+out-of-capacity host copies are rejected before reaching the backend. Destruction and
+``noexcept`` move assignment perform best-effort non-throwing cleanup; explicit ``Reset()``
+can report a backend release error. Buffers must be destroyed or reset before the accelerator
+runtime is finalized. See ``doc/plans/device-buffer-resource-lifecycle.md`` for the exception
+guarantees, focused tests, and remaining validation requirements.
