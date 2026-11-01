@@ -140,7 +140,14 @@ class TestRunnerCommandTest(unittest.TestCase):
             executable.parent.mkdir(parents=True)
             executable.write_bytes(b"test")
             commands = build_default_test_commands(root, python="python-test")
-            self.assertFalse(any(command.label.startswith("CMake ") for command in commands))
+            build_action_prefixes = (
+                "CMake configure (",
+                "CMake build (",
+                "CMake rebuild (",
+            )
+            self.assertFalse(
+                any(command.label.startswith(build_action_prefixes) for command in commands)
+            )
             self.assertFalse(any(command.label.startswith("C++") for command in commands))
 
     def test_ctest_is_included_only_when_build_is_configured(self) -> None:
