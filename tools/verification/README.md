@@ -66,3 +66,28 @@ python -m unittest tools.verification.test_contract_catalog
 ```
 
 See [the staged architecture proposal](../../doc/plans/verification-contract-workbench.md).
+
+## Combined read-only catalog
+
+`contract_catalog.py` now exposes `load_contract_catalog(repository_root)`,
+which adapts all existing Numerical entries and Geometry scenario JSON files
+into namespaced immutable summaries:
+
+- `numerical/<source-id>`
+- `geometry/<source-id>`
+
+The original ID is retained as `source_id`. The loader uses the existing
+catalog/scenario readers, preserves the source formats, and returns diagnostics
+for duplicate IDs, missing or escaping paths, and stale linked GoogleTest
+declarations. It does not execute tests or record results.
+
+The Python test inventory discovers the new tests under
+`tools/verification/test_contract_catalog.py`; this is covered by
+`tools/oneflow_gui/test_test_inventory.py`.
+
+Run focused checks:
+
+```powershell
+python -m unittest tools.verification.test_contract_catalog
+python -m unittest tools.oneflow_gui.test_test_inventory
+```
