@@ -430,7 +430,7 @@ class TestRunnerDialog(QDialog):
         if not executable or not Path(executable).expanduser().is_file():
             QMessageBox.warning(
                 self, "Executable required",
-                "Select a valid OneFLOW.exe before running Development Tests.",
+                "Select a valid OneFLOW executable before running Development Tests.",
             )
             return
         from .main_window import RunQueueWorker
