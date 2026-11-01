@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
@@ -45,6 +46,21 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             self.assertEqual(dialog.tabs.tabText(dialog.tabs.count() - 1), "Case Setup")
             self.assertIn("SLAU2", dialog.case_view.toPlainText())
             self.assertIn("Blasius", dialog.case_view.toPlainText())
+            self.assertIsNotNone(dialog.open_case_directory_button)
+            self.assertIsNotNone(dialog.open_case_references_button)
+            with patch(
+                "tools.oneflow_gui.contract_workbench_dialog.QDesktopServices.openUrl",
+                return_value=True,
+            ) as open_url:
+                dialog._open_case_directory()
+            expected_directory = (
+                self.repository_root / "test/cfd/plateuns2dslau2"
+            ).resolve()
+            open_url.assert_called_once()
+            self.assertEqual(
+                open_url.call_args.args[0].toLocalFile(),
+                str(expected_directory),
+            )
         finally:
             dialog.close()
 
@@ -62,6 +78,8 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             self.assertIn("Implementation / Code", tab_names)
             self.assertIn("Verification", tab_names)
             self.assertNotIn("Case Setup", tab_names)
+            self.assertIsNone(dialog.open_case_directory_button)
+            self.assertIsNone(dialog.open_case_references_button)
         finally:
             dialog.close()
 
