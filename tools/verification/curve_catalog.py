@@ -1015,13 +1015,13 @@ def validate_catalog_api_references(repository_root: Path) -> list[str]:
     """Return pure API symbols not referenced by an entry's source files."""
     issues: list[str] = []
     for entry in list_theory_entries():
-        source_text = "\\n".join(
+        source_text = "\n".join(
             path.read_text(encoding="utf-8", errors="replace")
             for path in source_paths(repository_root, entry)
             if path.is_file()
         )
         for api in entry.pure_apis:
-            if re.search(rf"\\b{re.escape(api)}\\s*\\(", source_text) is None:
+            if re.search(rf"\b{re.escape(api)}\s*\(", source_text) is None:
                 issues.append(
                     f"{entry.id}: API reference not found in source files: {api}"
                 )
