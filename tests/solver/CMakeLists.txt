@@ -282,6 +282,7 @@ gtest_discover_tests(turb_spectrum_policy_test DISCOVERY_MODE PRE_TEST)
 add_executable(turb_sa_policy_test
   turb_sa_policy_test.cpp
   ${CMAKE_SOURCE_DIR}/codes/turb/src/TurbSaPolicy.cpp
+  ${CMAKE_SOURCE_DIR}/codes/turb/src/TurbViscosityPolicy.cpp
 )
 target_include_directories(turb_sa_policy_test PRIVATE
   ${CMAKE_SOURCE_DIR}/codes/turb/include
