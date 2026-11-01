@@ -127,10 +127,14 @@ execution and cancellation semantics.
 ## Test inventory and execution
 
 The **Repository Test Inventory** is a read-only source browser. It scans C++
-GoogleTest declarations under `tests/` and Python unittest methods under
-`tools/`, then displays their source locations and any explicitly linked
-Geometry scenario input/expected metadata. Discovery does not execute tests
-and does not populate a pass/fail result.
+GoogleTest declarations under `tests/` and Python unittest declarations under
+`tools/`, `tests/`, and the standalone `gui/python/tkinter/` test area. It
+displays source locations and explicitly linked Geometry scenario
+input/expected metadata. A registry audit compares discovered Python test
+modules with the explicit execution commands. Qt widget tests and optional
+Matplotlib rendering tests remain explicitly excluded until a dedicated
+headless/visualization test environment is configured. Discovery does not
+execute tests and does not populate a pass/fail result.
 
 The **Tests** dialog exposes two independent unit-test selections:
 **C++ Unit Tests (CTest)** and **Python Unit Tests (unittest)**. CTest runs
