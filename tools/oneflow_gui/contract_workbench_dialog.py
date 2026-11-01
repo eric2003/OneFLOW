@@ -204,7 +204,7 @@ class ContractDomainDialog(QDialog):
                 + case.residual_baseline
                 + "\n\nAnalytical references (declared; not automatically compared)\n"
                 "------------------------------------------------------------\n"
-                + "\\n".join(
+                + "\n".join(
                     self._format_analytical_reference(path)
                     for path in case.analytical_references
                 )
