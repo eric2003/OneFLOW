@@ -14,7 +14,9 @@ License
 #include "SimuContext.h"
 
 #include "Prj.h"
+#include "SimuCaseLifecycle.h"
 #include "SimuContextBootstrap.h"
+#include "SimuContextCaseState.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -28,10 +30,11 @@ SimuContext::SimuContext( const std::string & caseDir, bool debug )
 void SimuContext::SetupCaseEnvironment()
 {
     // Readiness means the complete case configuration has been applied.
-    // A failed setup is still cleaned up by the owning RunCase/rollback path.
     envReady_ = false;
 
-    SimuContextDetail::InitializeCaseConfiguration( caseDir_ );
+    SimuCaseLifecycleDetail::ExecuteWithRollback(
+        [&]() { SimuContextDetail::InitializeCaseConfiguration( caseDir_ ); },
+        []() { SimuContextDetail::ClearCaseConfigurationState(); } );
 
     // Publish readiness only after the full bootstrap sequence succeeds.
     envReady_ = true;
