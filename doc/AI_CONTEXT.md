@@ -1137,3 +1137,26 @@ Validation required on Windows:
 
     python -m unittest tools.oneflow_gui.test_background_task_host
     python -m unittest tools.oneflow_gui.test_background_task_manager
+
+
+Follow-up hardening on the same slice:
+- Contract JSON sections are shape-checked before adaptation.
+- Declared IDs must use their domain as the namespace.
+- Declared evidence statuses are validated against explicit semantics
+  (`linked_not_executed`, `fixture_available`, `passed`, `failed`,
+  `blocked`, `stale`, etc.); arbitrary labels such as `green` are rejected.
+- Test fixtures were updated for the common `architecture` and `status`
+  fields.
+- Latest focused-test source commits:
+  `69e362b50a28efa1c95a783f0ba300c6006082b8`,
+  `b19040a57bb6338a6f95ef12bf7379ddb48353ce`.
+- Latest catalog validation commits:
+  `e0dc99728de0cad69244005c01a80b11de7a3033`,
+  `2bb1d6af8ec65156245c346b211726c8cf661bf8`,
+  `70230b22886f4ce9fbf69af4d29bea9a9f33e48c`,
+  `7f23f44ab972506bb1e3c8da6b64a8611edb19de`.
+
+The user's 1126/1126 result was reported before these Contract Workbench
+changes. Re-run the focused catalog tests and full suite; do not mark this
+slice verified until then.
+
