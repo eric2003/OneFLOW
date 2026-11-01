@@ -65,10 +65,7 @@ def adapt_theory_entry(entry: Any) -> ContractSummary:
         )
         for api in _non_empty_strings(entry.pure_apis)
     )
-    optional_paths = (entry.csv_relpath, entry.doc_relpath)
-    documentation_paths = tuple(
-        path for path in optional_paths[1:] if path
-    )
+    documentation_paths = (entry.doc_relpath,) if entry.doc_relpath else ()
     if entry.csv_relpath:
         evidence += (
             ContractEvidence(
@@ -163,10 +160,12 @@ def validate_contract_summaries(
         elif summary.id in seen_ids:
             issues.append(f"duplicate contract id: {summary.id}")
         seen_ids.add(summary.id)
-        for relpath in (
+        declared_paths = [
             *summary.implementation_paths,
             *summary.documentation_paths,
-        ):
+            *(item.reference for item in summary.evidence if item.kind == "theory_data"),
+        ]
+        for relpath in declared_paths:
             try:
                 path = _relative_path(repository_root, relpath)
             except ValueError as exc:
