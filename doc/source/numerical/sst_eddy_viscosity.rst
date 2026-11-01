@@ -28,3 +28,14 @@ References
 * See ``sa_eddy_viscosity.rst`` and ``verification_layers.rst``.
 
 Pure APIs: ``SstF2Arg``, ``SstF2FromArg``, ``SstEddyViscosity``.
+
+Intermediate verification
+-------------------------
+
+Closed-form checks of :math:`F_2(\mathrm{arg}_2)=\tanh(\mathrm{arg}_2^2)`
+live in ``turb_sst_eddy_viscosity_test`` and theory table
+``tools/verification/data/sst_f2_arg2_theory.csv`` (Contract Workbench Plot).
+
+.. image:: figures/sst_f2_arg2_theory.png
+   :alt: SST F2(arg2) theory curve
+   :width: 480

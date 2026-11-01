@@ -1,5 +1,6 @@
 #include "NsInvFluxPolicy.h"
 #include "HXMath.h"
+#include <stdexcept>
 
 BeginNameSpace( ONEFLOW )
 
@@ -72,6 +73,23 @@ Real RoePressureFromTotalEnthalpy(
 {
     return density * ( totalEnthalpy - half * speedSquared )
         * ( gama - one ) / gama;
+}
+
+Real LusgsFacePressureFromMode(
+    int mode, Real roeWeightedPressure,
+    Real density, Real totalEnthalpy, Real speedSquared, Real gama )
+{
+    if ( mode == 0 )
+    {
+        return RoePressureFromTotalEnthalpy(
+            density, totalEnthalpy, speedSquared, gama );
+    }
+    if ( mode == 1 )
+    {
+        return roeWeightedPressure;
+    }
+    throw std::invalid_argument(
+        "LusgsFacePressureFromMode: mode must be 0 or 1" );
 }
 
 Real IdealGasSoundSpeed(

@@ -54,6 +54,41 @@ TEST( TurbSaPolicy, SaCappedEddyViscosityRespectsRatio )
     EXPECT_DOUBLE_EQ( SaCappedEddyViscosity( 5.0, 2.0, 10.0 ), 5.0 );
 }
 
+// Source-term components are checked against independently evaluated
+// closed-form reference values from the equations documented in sa_source.rst.
+TEST( TurbSaPolicy, SaProductionMatchesClosedForm )
+{
+    EXPECT_NEAR( SaProduction( 0.1355, 0.2, 3.0, 0.4 ), 0.13008, 1.0e-14 );
+}
+
+TEST( TurbSaPolicy, SaDestructionMatchesClosedForm )
+{
+    EXPECT_NEAR( SaDestruction( 3.0, 0.5, 0.1355, 0.2, 0.4 ), 0.58916, 1.0e-14 );
+}
+
+TEST( TurbSaPolicy, SaDiffusionMatchesClosedForm )
+{
+    EXPECT_NEAR( SaDiffusion( 1.3, 0.25, 0.5 ), 0.1625, 1.0e-14 );
+}
+
+TEST( TurbSaPolicy, SaLimitedDiffusionSelectsTheSmallerContribution )
+{
+    EXPECT_DOUBLE_EQ( SaLimitedDiffusion( 0.4, 0.5, 0.3 ), 0.15 );
+    EXPECT_DOUBLE_EQ( SaLimitedDiffusion( 0.1, 0.5, 0.3 ), 0.1 );
+}
+
+TEST( TurbSaPolicy, SaSourceResidualCombinesProductionDestructionAndDiffusion )
+{
+    EXPECT_NEAR( SaSourceResidual( 0.13008, 0.58916, 0.1625 ), -0.29658, 1.0e-14 );
+}
+
+TEST( TurbSaPolicy, SaNegativePartMatchesPiecewiseDefinition )
+{
+    EXPECT_DOUBLE_EQ( SaNegativePart( 2.0 ), 0.0 );
+    EXPECT_DOUBLE_EQ( SaNegativePart( 0.0 ), 0.0 );
+    EXPECT_DOUBLE_EQ( SaNegativePart( -2.0 ), 2.0 );
+}
+
 // Intermediate verification: fv1(chi) vs closed-form theory (not a full CFD case).
 // cv1 = 7.1 is the standard SA constant (NASA TMR / Spalart-Allmaras).
 TEST( TurbSaPolicy, Fv1ChiCurveMatchesClosedForm )
@@ -67,4 +102,58 @@ TEST( TurbSaPolicy, Fv1ChiCurveMatchesClosedForm )
         const Real expected = chi3 / ( chi3 + cv13 );
         EXPECT_NEAR( SaFv1( chi, cv13 ), expected, 1.0e-12 );
     }
+}
+
+// Intermediate verification: fw(r) vs published closed form (cw2=0.3, cw3=2).
+// Proves pure SaG/SaFw match the SA wall-destruction function algebra.
+// Does not prove full transport residual or wall-resolved CFD accuracy.
+TEST( TurbSaPolicy, FwRCurveMatchesClosedForm )
+{
+    const Real cw2 = 0.3;
+    const Real cw3 = 2.0;
+    const Real cw36 = std::pow( cw3, 6 );
+    const Real rs[] = { 0.0, 0.25, 0.5, 1.0, 2.0, 10.0 };
+    for ( Real r : rs )
+    {
+        const Real g = r + cw2 * ( std::pow( r, 6 ) - r );
+        const Real expectedFw =
+            g * std::pow( ( one + cw36 ) / ( std::pow( g, 6 ) + cw36 ), one / six );
+        EXPECT_NEAR( SaG( r, cw2 ), g, 1.0e-12 );
+        EXPECT_NEAR( SaFw( g, cw36 ), expectedFw, 1.0e-12 );
+    }
+}
+
+// Intermediate: fv2(chi) with standard cv1=7.1 via fv1(chi).
+// Proves SaFv2 algebra; does not prove full modified-strain residual.
+TEST( TurbSaPolicy, Fv2ChiCurveMatchesClosedForm )
+{
+    const Real cv1 = 7.1;
+    const Real cv13 = cv1 * cv1 * cv1;
+    const Real chis[] = { 0.0, 0.5, 1.0, 2.0, 5.0, 10.0, 50.0 };
+    for ( Real chi : chis )
+    {
+        const Real fv1 = SaFv1( chi, cv13 );
+        const Real expected = one - chi / ( one + chi * fv1 );
+        EXPECT_NEAR( SaFv2( chi, fv1 ), expected, 1.0e-12 );
+    }
+}
+
+// Modified strain: regular branch and limited branch (c2=0.7, c3=0.9).
+TEST( TurbSaPolicy, ModifiedStrainRegularBranch )
+{
+    const Real omega = 2.0;
+    const Real sBar = -0.5; // > -c2*omega = -1.4
+    EXPECT_DOUBLE_EQ( SaModifiedStrainRate( omega, sBar, 0.7, 0.9 ), 1.5 );
+}
+
+TEST( TurbSaPolicy, ModifiedStrainLimitedBranch )
+{
+    const Real omega = 1.0;
+    const Real sBar = -1.0; // < -c2*omega = -0.7
+    const Real c2 = 0.7;
+    const Real c3 = 0.9;
+    const Real term1 = c2 * c2 * omega + c3 * sBar;
+    const Real term2 = ( c3 - two * c2 ) * omega - sBar;
+    const Real expected = omega + omega * term1 / term2;
+    EXPECT_NEAR( SaModifiedStrainRate( omega, sBar, c2, c3 ), expected, 1.0e-12 );
 }

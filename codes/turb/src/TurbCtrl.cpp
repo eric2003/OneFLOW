@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 #include "TurbCtrl.h"
 #include "DataBase.h"
+#include "NsCtrl.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -38,6 +39,9 @@ TurbCtrl::~TurbCtrl()
 
 void TurbCtrl::Init()
 {
+    // Turbulence reuses the compressible NS mean-flow LUSGS path.
+    ns_ctrl.InitLusgsFacePressureMode();
+
     this->time_integral = GetDataValue< int >( "time_integral" );
     this->linearTwoStepMethods = GetDataValue< int >( "linearTwoStepMethods" );
 

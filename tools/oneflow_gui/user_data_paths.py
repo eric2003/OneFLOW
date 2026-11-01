@@ -93,5 +93,15 @@ class UserDataPaths:
         return self.root / "cfd-regression"
 
     @property
+    def contract_workbench(self) -> Path:
+        """Contract Workbench cache outside the source repository."""
+        return self.root / "contract-workbench"
+
+    @property
+    def contract_workbench_preview(self) -> Path:
+        """Rendered formula/curve PNG previews (writable user cache)."""
+        return self.contract_workbench / "preview"
+
+    @property
     def logs(self) -> Path:
         return self.root / "logs"

@@ -45,6 +45,13 @@ Real TotalEnthalpy( Real internalEnthalpy, Real speedSquared );
 Real RoePressureFromTotalEnthalpy(
     Real density, Real totalEnthalpy, Real speedSquared, Real gama );
 
+// Select the face-pressure closure used by compressible unstructured LUSGS.
+// Mode 0 preserves the legacy total-enthalpy closure; mode 1 keeps the
+// Roe-weighted static pressure returned by RoeAverageState.
+Real LusgsFacePressureFromMode(
+    int mode, Real roeWeightedPressure,
+    Real density, Real totalEnthalpy, Real speedSquared, Real gama );
+
 Real IdealGasSoundSpeed(
     Real gama, Real totalEnthalpy, Real speedSquared );
 

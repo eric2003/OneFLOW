@@ -31,6 +31,14 @@ class UserDataPathsTest(unittest.TestCase):
             self.assertEqual(paths.workspaces, paths.root / "workspaces")
             self.assertEqual(paths.logs, paths.root / "logs")
             self.assertEqual(
+                paths.contract_workbench,
+                paths.root / "contract-workbench",
+            )
+            self.assertEqual(
+                paths.contract_workbench_preview,
+                paths.contract_workbench / "preview",
+            )
+            self.assertEqual(
                 paths.mesh_layout_workspace,
                 paths.root / "mesh-layout-workspace",
             )

@@ -26,6 +26,7 @@ License
 #include "SimulationCommandLine.h"
 #include "SimuCaseLifecycle.h"
 #include "SimuContextParameter.h"
+#include "SimuContextCaseState.h"
 #include "SimuTask.h"
 #include "Prj.h"
 #include "ParaFile.h"
@@ -38,8 +39,6 @@ License
 #include "SolverNameList.h"
 #include "Zone.h"
 #include "FieldManager.h"
-#include "DataBase.h"
-#include "DataBaseType.h"
 #include "HeatFlux.h"
 #include "NsCom.h"
 #include "NsSolver.h"
@@ -47,7 +46,6 @@ License
 #include "TurbSolver.h"
 #include "TurbCom.h"
 #include "Tolerance.h"
-#include "LogFile.h"
 #include "ActionState.h"
 #include "Iteration.h"
 #include <iostream>
@@ -120,10 +118,7 @@ void SimuContext::TeardownCase()
         [&]() { ActionState::Reset(); },
         [&]() { Iteration::Reset(); },
         [&]() { FieldManagerRegistry::FreeFieldManager(); },
-        [&]() { RequireGlobalDataBase().RequireDataField().Clear(); },
-        [&]() { RequireGlobalDataBase().RequireDataPara().Clear(); },
-        [&]() { logFile.ClearCaseDir(); },
-        [&]() { Prj::ClearPrjBaseDir(); },
+        [&]() { SimuContextDetail::ClearCaseConfigurationState(); },
         [&]()
         {
             // Reset context-owned state even when an earlier release failed.

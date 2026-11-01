@@ -1,9 +1,11 @@
-# AI-Assisted Engineering Task Specification
+# OneFLOW Continuous Evolution and Scientific Verification Development Specification
 
-This document defines the standard task contract for substantial AI-assisted or human-led
-engineering work in OneFLOW. It is intended to make requests actionable, reviewable, and
-reproducible. Use it together with `doc/source/architecture_review.rst` and the maintained
-subsystem roadmap.
+This document defines the working standard for continuous engineering evolution and scientific
+verification in OneFLOW. It applies to AI-assisted and human-led work, and makes each development
+slice actionable, reviewable, evidence-based, and reproducible. Use it together with
+`doc/source/architecture_review.rst`, `doc/source/architecture_priority_roadmap.rst`, and the
+maintained subsystem roadmaps. The reusable task request at the end turns this policy into a
+copyable instruction for an individual development iteration.
 
 ## 1. Project and execution context
 
@@ -157,6 +159,61 @@ comparison, and publicly documented methods. Distinguish published theory, vendo
 independent analysis, and OneFLOW's verified implementation. Do not imply access to or
 knowledge of proprietary internal algorithms.
 
+### Numerical model verification and validation
+
+Numerical verification must not be reduced to a final CFD case or a comparison of one integrated
+quantity. Important intermediate mathematical functions and physical terms are independently
+testable and, where useful, should be compared as curves or tables.
+
+Choose evidence appropriate to the claim:
+
+| Evidence | Typical target | Suitable comparison |
+|---|---|---|
+| Formula and limiting-case check | Closure functions, coefficients, source terms, wall functions | Independently evaluated equations, published constants, asymptotic and limiting values |
+| Intermediate quantity | SA fv1(chi), fv2(chi), fw(r), modified strain, production/destruction/diffusion, eddy viscosity; SST blending functions and source terms | Published model equations, tabulated values, independently generated curves |
+| Component/operator verification | Complete transport equation, flux, gradient, boundary treatment | Manufactured solutions, analytic solutions, conservation and consistency checks |
+| Discretization verification | Spatial and temporal schemes | Grid/time refinement, observed order, error norms, residual and conservation behavior |
+| Benchmark verification | Canonical flow cases | Published reference solutions, trusted independent solvers, benchmark datasets |
+| Physical validation | Observable flow quantities | Experimental measurements, DNS/LES datasets, or established physical correlations |
+
+Keep verification and validation distinct. Verification asks whether the equations and
+numerical procedures have been implemented and solved consistently. Validation asks whether
+the chosen physical model represents observed reality within the stated conditions and
+uncertainty. A source term or closure function is generally not a directly measured experimental
+observable; compare it with the model definition, an independent analytic evaluation, or a
+manufactured solution. Compare measurable quantities such as skin-friction coefficient,
+velocity profiles, pressure coefficients, lift/drag, and separation locations with suitable
+experimental or high-fidelity reference data.
+
+A plot is evidence only when its provenance is reproducible. Record:
+
+- the exact equation, model variant, constants, assumptions, and source-code entry point;
+- variable definitions, units, sign conventions, nondimensionalization, and axis labels;
+- reference publication or dataset, version, case conditions, sampling locations, and license;
+- the raw numerical/reference data, generation script or command, and error calculation;
+- the OneFLOW commit and configuration used to produce the plotted values.
+
+The reference calculation must be independent of the production implementation. Rewriting the
+same production expression in a test or plotting script does not provide independent evidence.
+Where appropriate, retain CSV data and plotting scripts alongside the verification record, or
+provide an exact reproducible command and stable data link.
+
+### Bibliography and external software documentation
+
+For every nontrivial model or numerical method, cite the original publication or authoritative
+source that defines the equations and constants. Prefer primary papers, established textbooks,
+standards, and maintained public verification resources such as NASA Turbulence Modeling Resource.
+Record authors, title, publication/year, DOI or stable URL, relevant section/page, software version
+when applicable, and the model variant to which the reference applies.
+
+Open-source CFD/CAE theory guides, user manuals, developer manuals, source code, and test suites
+may be used for implementation comparison and terminology. Public commercial-software theory,
+user, and developer manuals may also be cited as vendor-published descriptions. Label these
+sources accurately: a vendor manual is not independent proof of OneFLOW correctness, and public
+documentation does not reveal proprietary internal implementation details. Respect licenses and
+copyright; cite and summarize rather than copying substantial protected text. Record the exact
+version and section because model options and defaults can change between releases.
+
 ## 8. Documentation-to-code traceability
 
 For important algorithms and architectural contracts, maintain a navigable chain:
@@ -169,7 +226,7 @@ system before a few end-to-end examples demonstrate the need. At milestones, che
 orphaned documentation links, undocumented public contracts, and tests whose names or
 assertions no longer match implementation behavior.
 
-## 9. Scope control and decision records
+## 10. Scope control and decision records
 
 For each change, explicitly state:
 
@@ -182,7 +239,7 @@ For each change, explicitly state:
 Create an Architecture Decision Record only for decisions with meaningful alternatives,
 long-term consequences, or cross-subsystem impact. Do not create an ADR for every local edit.
 
-## 10. Completion criteria and delivery record
+## 11. Completion criteria and delivery record
 
 A task is complete only when the applicable criteria below are satisfied:
 
@@ -209,7 +266,7 @@ Do not report a task as complete when a required integration path or platform ch
 unverified. Use **Complete**, **Partial**, **Blocked**, or **Deferred** with a short evidence-based
 explanation.
 
-## 11. Reusable task request
+## 12. Reusable task request
 
 Copy and complete this block when starting a substantial task:
 
@@ -256,4 +313,4 @@ DELIVERY:
 
 For current project priorities and subsystem status, consult
 `doc/source/architecture_review.rst`, the relevant roadmap, and `doc/AI_CONTEXT.md`.
-This template defines how to express and execute a task; it does not replace source inspection.
+This specification defines how to select, express, execute, and verify a development slice; it does not replace source inspection.

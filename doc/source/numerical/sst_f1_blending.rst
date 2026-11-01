@@ -46,3 +46,15 @@ References
 
 Pure APIs: ``SstCrossDiffScalar``, ``SstCdkwWithFloor``,
 ``SstBlendingArg1``, ``SstF1FromArg1``, ``SstGradientDotProduct``.
+
+Intermediate verification
+-------------------------
+
+Closed-form checks of :math:`F_1(\mathrm{arg}_1)=\tanh(\mathrm{arg}_1^4)`
+and the convex blend :math:`\phi=F_1\phi_1+(1-F_1)\phi_2` live in
+``turb_sst_policy_test`` and theory table
+``tools/verification/data/sst_f1_arg1_theory.csv`` (Contract Workbench Plot tab).
+
+.. image:: figures/sst_f1_arg1_theory.png
+   :alt: SST F1(arg1) theory curve
+   :width: 480
