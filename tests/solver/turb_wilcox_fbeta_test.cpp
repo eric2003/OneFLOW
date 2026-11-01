@@ -51,3 +51,25 @@ TEST( WilcoxFbeta, FkXkCurveMatchesClosedForm )
         EXPECT_NEAR( WilcoxFkFromXk( xk ), expected, 1.0e-12 );
     }
 }
+
+// Intermediate: fw1998(xw)=(1+70 xw)/(1+80 xw)
+TEST( WilcoxFbeta, Fw1998CurveMatchesClosedForm )
+{
+    const Real samples[] = { 0.0, 0.1, 0.5, 1.0, 2.0, 10.0 };
+    for ( Real xw : samples )
+    {
+        const Real expected = ( 1.0 + 70.0 * xw ) / ( 1.0 + 80.0 * xw );
+        EXPECT_NEAR( WilcoxFw1998( xw ), expected, 1.0e-12 );
+    }
+}
+
+// Intermediate: fw2006(xw)=(1+85 xw)/(1+100 xw)
+TEST( WilcoxFbeta, Fw2006CurveMatchesClosedForm )
+{
+    const Real samples[] = { 0.0, 0.1, 0.5, 1.0, 2.0, 10.0 };
+    for ( Real xw : samples )
+    {
+        const Real expected = ( 1.0 + 85.0 * xw ) / ( 1.0 + 100.0 * xw );
+        EXPECT_NEAR( WilcoxFw2006( xw ), expected, 1.0e-12 );
+    }
+}

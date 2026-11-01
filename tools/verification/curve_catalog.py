@@ -443,6 +443,79 @@ def list_theory_entries() -> list[TheoryEntry]:
             does_not_prove="Full k-omega residual or SST F1 path.",
         ),
 
+        TheoryEntry(
+            id="wilcox_fw1998",
+            family="turbulence",
+            genus="Wilcox",
+            section="closure / beta modifier",
+            title="fw1998(xw) Wilcox beta modifier",
+            role_tags=("closure", "Wilcox", "beta"),
+            formula_plain="fw1998 = (1 + 70*xw) / (1 + 80*xw)",
+            formula_latex=r"f_w^{1998}=(1+70 x_w)/(1+80 x_w)",
+            principle=(
+                "1998 Wilcox fw softens beta based on vortex-stretching parameter xw."
+            ),
+            background=(
+                "As xw->inf, fw->7/8. Used with Wilcox beta/beta* paths in TurbCom."
+            ),
+            references=(
+                "Wilcox (1998) turbulence model notes.",
+                "OneFLOW: doc/source/numerical/wilcox_fbeta.rst",
+            ),
+            csv_relpath="tools/verification/data/wilcox_fw1998_theory.csv",
+            plot_module="plot_wilcox_fw",
+            pure_apis=("WilcoxFw1998",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/wilcox_fbeta.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "Real WilcoxFw1998(Real xw) {\n"
+                "  return (1 + 70*xw) / (1 + 80*xw);\n"
+                "}\n"
+            ),
+            proves="fw1998 closed form vs WilcoxFw1998 sample grid.",
+            does_not_prove="Full Wilcox residual or SST path.",
+        ),
+        TheoryEntry(
+            id="wilcox_fw2006",
+            family="turbulence",
+            genus="Wilcox",
+            section="closure / beta modifier",
+            title="fw2006(xw) Wilcox beta modifier",
+            role_tags=("closure", "Wilcox", "beta"),
+            formula_plain="fw2006 = (1 + 85*xw) / (1 + 100*xw)",
+            formula_latex=r"f_w^{2006}=(1+85 x_w)/(1+100 x_w)",
+            principle=(
+                "2006 Wilcox fw variant; limit as xw->inf is 85/100=0.85."
+            ),
+            background=(
+                "Companion to fw1998; selection depends on model variant flags."
+            ),
+            references=(
+                "Wilcox (2006) notes; OneFLOW wilcox_fbeta.rst",
+            ),
+            csv_relpath="tools/verification/data/wilcox_fw2006_theory.csv",
+            plot_module="plot_wilcox_fw",
+            pure_apis=("WilcoxFw2006",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/wilcox_fbeta.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "Real WilcoxFw2006(Real xw) {\n"
+                "  return (1 + 85*xw) / (1 + 100*xw);\n"
+                "}\n"
+            ),
+            proves="fw2006 closed form vs WilcoxFw2006 sample grid.",
+            does_not_prove="Full Wilcox residual or SST path.",
+        ),
+
+
         # ========== NS / LUSGS ==========
         TheoryEntry(
             id="ns_lusgs_viscous_spectrum",
