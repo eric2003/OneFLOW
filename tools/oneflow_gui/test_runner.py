@@ -13,7 +13,9 @@ from pathlib import Path
 from .task_types import ExecutionLocation, TaskType, task_definition
 
 
-def summarize_test_output(output_lines: list[str]) -> tuple[str, ...]:
+def summarize_test_output(
+    output_lines: list[str], *, include_failed_cases: bool = True
+) -> tuple[str, ...]:
     """Extract framework test counts and actionable failure details from output."""
     import re
 
@@ -78,7 +80,7 @@ def summarize_test_output(output_lines: list[str]) -> tuple[str, ...]:
             case_name = match.group(2)
             if case_name not in failed_unittest_cases:
                 failed_unittest_cases.append(case_name)
-    if failed_unittest_cases:
+    if failed_unittest_cases and include_failed_cases:
         summary.append("Failed unittest cases:")
         summary.extend(f"  - {case_name}" for case_name in failed_unittest_cases)
 
