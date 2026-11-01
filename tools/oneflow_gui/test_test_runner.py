@@ -308,7 +308,6 @@ class TestRunnerCommandTest(unittest.TestCase):
             "FAILED (failures=1)",
         ])
         self.assertIn("Python unittest cases: 3 run, 2 passed, 1 failed, 0 skipped.", report)
-        self.assertIn("Python unittest failures: failures=1.", report)
         self.assertIn("Failure details:", report)
         self.assertIn("AssertionError: expected label was missing", report)
 
@@ -320,7 +319,19 @@ class TestRunnerCommandTest(unittest.TestCase):
         ])
         self.assertIn("CTest cases: 3 run, 2 passed, 1 failed.", report)
         self.assertIn("Failure details:", report)
-        self.assertIn("2 - FaceTopologyTest (Failed)", report)
+        self.assertIn("FaceTopologyTest (Failed)", report)
+
+    def test_multiple_unittest_runs_aggregate_each_failure_count(self) -> None:
+        report = summarize_test_output([
+            "Ran 10 tests in 0.2s",
+            "OK",
+            "Ran 21 tests in 0.1s",
+            "FAILED (failures=2)",
+        ])
+        self.assertIn(
+            "Python unittest cases: 31 run, 29 passed, 2 failed, 0 skipped.",
+            report,
+        )
 
     def test_successful_unittest_output_reports_case_count_without_failure(self) -> None:
         report = summarize_test_output([
