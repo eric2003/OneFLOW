@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import replace
 import json
 import subprocess
+import tempfile
 import sys
 import unittest
 from pathlib import Path
@@ -360,6 +361,50 @@ class ContractCatalogTest(unittest.TestCase):
         self.assertIsNotNone(case_contracts[0].case_data)
         self.assertEqual(len({item.id for item in summaries}), len(summaries))
         self.assertEqual(issues, (), "\n".join(issues))
+
+    def test_resolves_typed_google_test_declarations(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            source = root / "TypedContractTest.cpp"
+            source.write_text(
+                "TYPED_TEST(TypedSuite, TypedBehavior) {}\\n"
+                "TYPED_TEST_P(RegisteredTypedSuite, RegisteredBehavior) {}\\n",
+                encoding="utf-8",
+            )
+            summary = ContractSummary(
+                id="runtime/typed-tests",
+                source_id="typed-tests",
+                title="Typed tests",
+                domain="runtime",
+                kind="test_contract",
+                overview="",
+                principle="",
+                architecture="",
+                status="implemented",
+                references=(),
+                implementation_paths=(),
+                documentation_paths=(),
+                evidence=(
+                    ContractEvidence(
+                        kind="google_test",
+                        reference="TypedSuite.TypedBehavior",
+                        status="linked_not_executed",
+                        scope="TypedContractTest.cpp",
+                    ),
+                    ContractEvidence(
+                        kind="google_test",
+                        reference="RegisteredTypedSuite.RegisteredBehavior",
+                        status="linked_not_executed",
+                        scope="TypedContractTest.cpp",
+                    ),
+                ),
+                claims=(),
+                limitations=(),
+            )
+
+            issues = validate_contract_summaries(root, [summary])
+
+        self.assertEqual(issues, [], "; ".join(issues))
 
     def test_reports_stale_linked_test_declaration(self) -> None:
         scenario_path = (
