@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from importlib import import_module
 from typing import Any
 
 __all__ = ["diff_tables", "run_pipeline"]
@@ -14,8 +15,7 @@ def __getattr__(name: str) -> Any:
     or its optional analytic dependencies.
     """
     if name in __all__:
-        from . import pipeline_stub
-
+        pipeline_stub = import_module(".pipeline_stub", __name__)
         return getattr(pipeline_stub, name)
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
