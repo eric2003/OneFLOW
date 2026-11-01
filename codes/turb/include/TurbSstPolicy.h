@@ -154,6 +154,16 @@ Real SstVorticityMagnitude(
     Real dvdx, Real dvdy, Real dvdz,
     Real dwdx, Real dwdy, Real dwdz );
 
+// @doc-algorithm sst-eddy-viscosity
+// @doc-stage limiting-rate-selection
+// @doc-pure
+// iprod_sst == 1 selects strain rate; all other values select vorticity.
+Real SstLimitingRateMagnitude(
+    int productionOption,
+    Real dudx, Real dudy, Real dudz,
+    Real dvdx, Real dvdy, Real dvdz,
+    Real dwdx, Real dwdy, Real dwdz );
+
 // --- SST eddy viscosity / F2 ---
 // @doc-algorithm sst-eddy-viscosity
 // @doc-stage f2-arg
