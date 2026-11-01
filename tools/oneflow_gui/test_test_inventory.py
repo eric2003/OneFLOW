@@ -7,7 +7,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from tools.oneflow_gui.test_inventory import discover_tests
+from tools.oneflow_gui.test_inventory import audit_python_test_registry, discover_tests
 
 
 class TestInventoryDiscoveryTest(unittest.TestCase):
@@ -151,6 +151,38 @@ class TestInventoryDiscoveryTest(unittest.TestCase):
         self.assertEqual(mapping["expected"]["exception"], "std::logic_error")
         self.assertEqual(mapping["expected"]["outputNodeIdsUnchanged"], [[[90]]])
         self.assertIsNone(mapping["result"])
+
+
+    def test_python_test_registry_covers_discovered_test_modules(self) -> None:
+        repository_root = Path(__file__).resolve().parents[2]
+
+        audit = audit_python_test_registry(repository_root)
+
+        self.assertTrue(audit["discovered"])
+        self.assertTrue(audit["registered"])
+        self.assertTrue(audit["excluded"])
+        self.assertEqual(audit["unregistered"], ())
+        self.assertEqual(audit["stale_exclusions"], ())
+
+    def test_python_test_registry_reports_unregistered_test_modules(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            test_file = root / "tools" / "test_unregistered.py"
+            test_file.parent.mkdir(parents=True)
+            test_file.write_text(
+                "import unittest\\n"
+                "class UnregisteredTest(unittest.TestCase):\\n"
+                "    def test_missing_registration(self):\\n"
+                "        self.assertTrue(True)\\n",
+                encoding="utf-8",
+            )
+
+            audit = audit_python_test_registry(root, commands=(), exclusions={})
+
+            self.assertEqual(
+                audit["unregistered"],
+                ("tools/test_unregistered.py",),
+            )
 
 
 if __name__ == "__main__":
