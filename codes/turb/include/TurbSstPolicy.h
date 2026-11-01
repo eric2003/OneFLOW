@@ -193,6 +193,38 @@ Real SstEddyViscosity(
     Real density, Real kineticEnergy, Real omega,
     Real limitingRateMagnitude, Real f2, Real a1, Real reynolds );
 
+struct SstEddyViscosityInput
+{
+    Real kineticEnergy{};
+    Real omega{};
+    Real wallDistance{};
+    Real betaStar{};
+    Real laminarViscosity{};
+    Real density{};
+    Real reynolds{};
+    Real a1{};
+    Real maxViscosityRatio{};
+    int productionOption{};
+    Real dudx{}, dudy{}, dudz{};
+    Real dvdx{}, dvdy{}, dvdz{};
+    Real dwdx{}, dwdy{}, dwdz{};
+};
+
+struct SstEddyViscosityResult
+{
+    Real f2Argument{};
+    Real f2{};
+    Real limitingRateMagnitude{};
+    Real uncappedEddyViscosity{};
+    Real eddyViscosity{};
+};
+
+// @doc-algorithm sst-eddy-viscosity
+// @doc-stage complete-cell-closure
+// @doc-pure
+SstEddyViscosityResult SstComputeEddyViscosity(
+    const SstEddyViscosityInput& input );
+
 
 // --- update floors / caps ---
 // @doc-algorithm sst-update
