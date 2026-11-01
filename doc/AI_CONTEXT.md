@@ -1001,3 +1001,39 @@ python -m unittest tools.verification.test_curve_catalog
 python -m unittest tools.verification.test_contract_catalog
 ```
 Then open the GUI Tests dialog and run CTest and Python Unit Tests separately.
+
+## Python test inventory and execution-registry audit (2026-11-01)
+
+The Workbench Python test command registry was expanded from 24 to 41
+commands. Newly registered coverage includes the mesh-layout editor document
+and rectangle compiler, Geometry Workbench analytic/scenario tests, background
+task services, project/template inventory, SA closure curves, and the standalone
+Tkinter runner test.
+
+tools/oneflow_gui/test_inventory.py now discovers Python unittest methods
+under tools/, tests/, and gui/python/tkinter/. Its
+audit_python_test_registry() compares discovered test source files with
+explicit module, discovery, and script commands in
+tools/oneflow_gui/test_runner.py. The audit reports discovered, registered,
+excluded, unregistered, and stale-exclusion paths. Every discovered module
+must be registered or have a documented exclusion.
+
+Current intentional exclusions:
+- Qt widget/queue and dialog tests pending a dedicated headless GUI test policy.
+- LaTeX preview tests pending the optional Matplotlib rendering environment.
+
+The audit is exercised by
+tools.oneflow_gui.test_test_inventory, including a negative test proving
+that an unregistered unittest module is detected. Example-local/tutorial
+verification scripts are outside the generic unit-test roots; they retain
+their own case-specific execution contracts.
+
+Validation still required on the user's Windows checkout:
+
+    python -m unittest tools.oneflow_gui.test_test_runner
+    python -m unittest tools.oneflow_gui.test_test_inventory
+    python -m unittest tools.oneflow_gui.test_test_runner tools.oneflow_gui.test_test_inventory
+
+Run the full Python Unit Tests group in the GUI after pulling the changes.
+The assistant did not execute the updated suite in the user's Windows
+environment.
