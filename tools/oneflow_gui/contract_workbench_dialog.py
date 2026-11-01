@@ -204,8 +204,25 @@ class ContractDomainDialog(QDialog):
                 + case.residual_baseline
                 + "\n\nAnalytical references (declared; not automatically compared)\n"
                 "------------------------------------------------------------\n"
-                + "\n".join(case.analytical_references)
+                + "\\n".join(
+                    self._format_analytical_reference(path)
+                    for path in case.analytical_references
+                )
             )
+
+    @staticmethod
+    def _format_analytical_reference(relative_path: str) -> str:
+        """Explain the physical meaning of a declared analytical reference."""
+        name = Path(relative_path).name.lower()
+        descriptions = {
+            "cf.blasius": "Blasius analytical reference - skin-friction coefficient (cf)",
+            "u.blasius": "Blasius analytical reference - streamwise velocity profile (u)",
+            "v.blasius": "Blasius analytical reference - wall-normal velocity profile (v)",
+        }
+        description = descriptions.get(name)
+        if description is None:
+            description = f"Analytical reference: {Path(relative_path).name}"
+        return f"{description}: {relative_path}"
 
     def _open_paths(self, paths: tuple[str, ...], label: str) -> None:
         opened = 0
