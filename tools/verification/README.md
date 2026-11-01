@@ -41,3 +41,28 @@ Contract Workbench. A broader cross-domain model is under discussion in
 [Verification Contract Workbench proposal](../../doc/plans/verification-contract-workbench.md).
 Do not migrate the numerical catalog or add a generic runner until the shared
 contract envelope, evidence semantics, and migration path have been reviewed.
+
+
+## Read-only shared contract model (incremental migration)
+
+`contract_catalog.py` is the first Qt-independent compatibility layer:
+
+- `adapt_theory_entry(entry)` adapts the existing numerical `TheoryEntry`.
+- `adapt_geometry_scenario(scenario)` adapts an already loaded Geometry
+  scenario dictionary.
+- `validate_contract_summaries(root, summaries)` checks stable IDs and
+  repository-relative implementation, documentation, theory-data, and
+  linked-test source paths.
+
+The adapters do not modify either source catalog, execute tests, or persist
+results. Evidence statuses such as `declared_not_executed` and
+`linked_not_executed` are intentional: a reference to an API or GoogleTest
+declaration is not proof that the test ran.
+
+Run the headless compatibility tests from the repository root:
+
+```powershell
+python -m unittest tools.verification.test_contract_catalog
+```
+
+See [the staged architecture proposal](../../doc/plans/verification-contract-workbench.md).
