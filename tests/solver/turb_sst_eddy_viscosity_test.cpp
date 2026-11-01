@@ -59,9 +59,26 @@ TEST( TurbSstEddyViscosity, OtherProductionOptionsSelectVorticity )
     }
 }
 
-TEST( TurbSstEddyViscosity, F2ArgTakesMax )
+TEST( TurbSstEddyViscosity, F2ArgFromTermsTakesMax )
 {
-    EXPECT_DOUBLE_EQ( SstF2Arg( 1.0, 3.0 ), 3.0 );
+    EXPECT_DOUBLE_EQ( SstF2ArgFromTerms( 1.0, 3.0 ), 3.0 );
+}
+
+TEST( TurbSstEddyViscosity, F2ArgumentUsesLengthScaleTermWhenLarger )
+{
+    // 2*sqrt(k)/(betaStar*omega*d) = 200/9; viscous term = 0.0025.
+    EXPECT_NEAR(
+        SstF2Argument( 4.0, 2.0, 1.0, 0.09, 0.001, 1.0, 100.0 ),
+        200.0 / 9.0,
+        1.0e-12 );
+}
+
+TEST( TurbSstEddyViscosity, F2ArgumentUsesViscousTermWhenLarger )
+{
+    // Length-scale term = 1/45; viscous term = 500.
+    EXPECT_DOUBLE_EQ(
+        SstF2Argument( 1.0e-8, 1.0, 0.1, 0.09, 0.01, 1.0, 1.0 ),
+        500.0 );
 }
 
 TEST( TurbSstEddyViscosity, F2FromArgAtZeroIsZero )
