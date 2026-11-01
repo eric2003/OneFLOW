@@ -18,16 +18,24 @@ class ExecutableDiscoveryTest(unittest.TestCase):
             executable.write_text("", encoding="utf-8")
             executable.chmod(0o755)
 
+            lookup_calls: list[tuple[str, str | None]] = []
+
+            def find_on_path(name: str, search_path: str | None) -> str:
+                lookup_calls.append((name, search_path))
+                return str(executable)
+
             candidates = executable_candidates(
                 root,
                 {"PATH": str(executable.parent)},
                 platform_name="posix",
+                path_lookup=find_on_path,
             )
 
             self.assertEqual(candidates[0], (root / "build" / "bin" / "OneFLOW").resolve())
             self.assertEqual(candidates[1], (root / "build" / "bin" / "Debug" / "OneFLOW").resolve())
             self.assertEqual(candidates[2], (root / "build" / "bin" / "Release" / "OneFLOW").resolve())
             self.assertIn(executable.resolve(), candidates)
+            self.assertEqual(lookup_calls, [("OneFLOW", str(executable.parent))])
             self.assertFalse(any(path.name.endswith(".exe") for path in candidates))
 
     def test_windows_candidates_use_configuration_specific_executable(self) -> None:
