@@ -130,3 +130,22 @@ def parse_test_diagnostics(
             ))
 
     return tuple(records)
+
+
+def format_failure_summary(diagnostics: Iterable[TestDiagnostic]) -> tuple[str, ...]:
+    """Format a concise failed-case list for the final test command report."""
+    records = tuple(diagnostics)
+    if not records:
+        return ()
+    lines = ["Failed test cases:"]
+    for item in records:
+        location = item.source_file or "unknown"
+        if item.source_line is not None:
+            location += f":{item.source_line}"
+        cause = item.exception_type or "unknown"
+        if item.message:
+            cause += f": {item.message}"
+        lines.append(f"  - {item.test_id or 'unknown'} [{item.task_label}]")
+        lines.append(f"      Location: {location}")
+        lines.append(f"      Cause: {cause}")
+    return tuple(lines)
