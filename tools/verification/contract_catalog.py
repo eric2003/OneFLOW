@@ -504,7 +504,7 @@ def resolve_contract_evidence(
                 )
                 continue
             declaration = re.compile(
-                rf"\b(?:TEST(?:_F|_P)?|TYPED_TEST(?:_P)?)\\s*"
+                rf"\b(?:TEST(?:_F|_P)?|TYPED_TEST(?:_P)?)\s*"
                 rf"\(\s*{re.escape(suite)}\s*,\s*{re.escape(test_name)}\s*\)"
             )
             if not declaration.search(source):
