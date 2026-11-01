@@ -108,6 +108,64 @@ TEST( TurbSstEddyViscosity, EddyViscosityLimitedByStrainOrVorticity )
         3.75 );
 }
 
+TEST( TurbSstEddyViscosity, CompleteCellClosureReportsEveryStage )
+{
+    SstEddyViscosityInput input;
+    input.kineticEnergy = 3.0;
+    input.omega = 4.0;
+    input.wallDistance = 1.0;
+    input.betaStar = 0.09;
+    input.laminarViscosity = 0.001;
+    input.density = 1.0;
+    input.reynolds = 10.0;
+    input.a1 = 0.31;
+    input.maxViscosityRatio = 10000.0;
+    input.productionOption = 1;
+    input.dudy = 3.0;
+    input.dvdx = 1.0;
+
+    const SstEddyViscosityResult result = SstComputeEddyViscosity( input );
+    const Real expectedArg2 = 2.0 * std::sqrt( 3.0 ) / ( 0.09 * 4.0 );
+    const Real expectedF2 = std::tanh( expectedArg2 * expectedArg2 );
+    const Real expectedStrainRate = 4.0;
+    const Real expectedRawViscosity =
+        3.0 * 10.0 / std::max( 4.0, expectedStrainRate * expectedF2 / 0.31 );
+
+    EXPECT_NEAR( result.f2Argument, expectedArg2, 1.0e-12 );
+    EXPECT_NEAR( result.f2, expectedF2, 1.0e-12 );
+    EXPECT_DOUBLE_EQ( result.limitingRateMagnitude, expectedStrainRate );
+    EXPECT_NEAR( result.uncappedEddyViscosity, expectedRawViscosity, 1.0e-12 );
+    EXPECT_NEAR( result.eddyViscosity, expectedRawViscosity, 1.0e-12 );
+}
+
+TEST( TurbSstEddyViscosity, CompleteCellClosureUsesVorticityAndSharedCap )
+{
+    SstEddyViscosityInput input;
+    input.kineticEnergy = 3.0;
+    input.omega = 4.0;
+    input.wallDistance = 1.0;
+    input.betaStar = 0.09;
+    input.laminarViscosity = 0.001;
+    input.density = 1.0;
+    input.reynolds = 10.0;
+    input.a1 = 0.31;
+    input.maxViscosityRatio = 1.0;
+    input.productionOption = 0;
+    input.dudy = 3.0;
+    input.dvdx = 1.0;
+
+    const SstEddyViscosityResult result = SstComputeEddyViscosity( input );
+    const Real expectedVorticity = 2.0;
+    const Real expectedArg2 = 2.0 * std::sqrt( 3.0 ) / ( 0.09 * 4.0 );
+    const Real expectedF2 = std::tanh( expectedArg2 * expectedArg2 );
+    const Real expectedRawViscosity =
+        3.0 * 10.0 / std::max( 4.0, expectedVorticity * expectedF2 / 0.31 );
+
+    EXPECT_DOUBLE_EQ( result.limitingRateMagnitude, expectedVorticity );
+    EXPECT_NEAR( result.uncappedEddyViscosity, expectedRawViscosity, 1.0e-12 );
+    EXPECT_DOUBLE_EQ( result.eddyViscosity, 0.001 );
+}
+
 // Intermediate verification: F2(arg2) vs closed form tanh(arg2^2).
 // Proves pure SstF2FromArg; does not prove full SST eddy viscosity on a mesh.
 TEST( TurbSstEddyViscosity, F2Arg2CurveMatchesClosedForm )
