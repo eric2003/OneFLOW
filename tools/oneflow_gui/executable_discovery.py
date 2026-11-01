@@ -52,12 +52,13 @@ def executable_candidates(
             Path("/usr/local/bin/OneFLOW"),
             Path("/usr/bin/OneFLOW"),
         ]
-        find_on_path = path_lookup or shutil.which
-        path_executable = find_on_path("OneFLOW", environment.get("PATH"))
-        if path_executable:
-            fallback_candidates.append(Path(path_executable))
+    executable_name = "OneFLOW.exe" if is_windows else "OneFLOW"
+    find_on_path = path_lookup or shutil.which
+    path_executable = find_on_path(executable_name, environment.get("PATH"))
+    if path_executable:
+        fallback_candidates.append(Path(path_executable))
 
-    unique_candidates: list[Path] = []
+    unique_candidates: list[Path] =
     seen: set[str] = set()
     for candidate in build_candidates:
         normalized = os.path.normcase(str(candidate))
