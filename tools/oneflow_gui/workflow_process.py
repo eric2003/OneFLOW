@@ -53,6 +53,7 @@ def run_process(
             for line in process.stdout:
                 output_queue.put(line.rstrip("\r\n"))
         finally:
+            process.stdout.close()
             output_queue.put(None)
 
     reader = threading.Thread(target=read_output, daemon=True)
