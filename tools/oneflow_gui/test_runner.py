@@ -13,6 +13,56 @@ from pathlib import Path
 from .task_types import ExecutionLocation, TaskType, task_definition
 
 
+def summarize_test_output(output_lines: list[str]) -> tuple[str, ...]:
+    """Extract framework test counts and actionable failure details from output."""
+    import re
+
+    output = "\\n".join(output_lines)
+    summary: list[str] = []
+    unittest_runs = [
+        int(value)
+        for value in re.findall(r"Ran (\\d+) tests?", output)
+    ]
+    ctest_matches = re.findall(
+        r"(\\d+)% tests passed, (\\d+) tests failed out of (\\d+)",
+        output,
+    )
+    if unittest_runs:
+        summary.append(f"Python unittest cases: {sum(unittest_runs)} run.")
+        failure_match = re.search(r"FAILED \\(([^)]+)\\)", output)
+        if failure_match:
+            summary.append(f"Python unittest failures: {failure_match.group(1)}.")
+    if ctest_matches:
+        total = sum(int(item[2]) for item in ctest_matches)
+        failed = sum(int(item[1]) for item in ctest_matches)
+        summary.append(
+            f"CTest cases: {total} run, {total - failed} passed, {failed} failed."
+        )
+
+    failure_markers = (
+        "FAIL:",
+        "ERROR:",
+        "FAILED:",
+        "Traceback (most recent call last):",
+        "AssertionError:",
+    )
+    failure_start = next(
+        (
+            index
+            for index, line in enumerate(output_lines)
+            if line.lstrip().startswith(failure_markers)
+        ),
+        None,
+    )
+    if failure_start is not None:
+        details = output_lines[failure_start:]
+        summary.append("Failure details:")
+        summary.extend(details[:120])
+        if len(details) > 120:
+            summary.append(f"... {len(details) - 120} additional lines omitted.")
+    return tuple(summary)
+
+
 @dataclass(frozen=True, slots=True)
 class TestCommand:
     """One existing test command and the directory in which it must run."""
