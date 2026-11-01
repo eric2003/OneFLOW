@@ -61,6 +61,28 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
                 open_url.call_args.args[0].toLocalFile(),
                 str(expected_directory),
             )
+            with patch(
+                "tools.oneflow_gui.contract_workbench_dialog.QDesktopServices.openUrl",
+                return_value=True,
+            ) as open_references:
+                dialog._open_case_references()
+            opened_paths = [
+                call.args[0].toLocalFile()
+                for call in open_references.call_args_list
+            ]
+            self.assertEqual(
+                opened_paths,
+                [
+                    str((self.repository_root / path).resolve())
+                    for path in (
+                        "test/suites/cpu-serial.txt",
+                        "test/baselines/residual-baseline.json",
+                        "test/cfd/plateuns2dslau2/results/cf.blasius",
+                        "test/cfd/plateuns2dslau2/results/u.blasius",
+                        "test/cfd/plateuns2dslau2/results/v.blasius",
+                    )
+                ],
+            )
         finally:
             dialog.close()
 
