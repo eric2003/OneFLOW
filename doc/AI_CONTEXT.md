@@ -1,5 +1,74 @@
 # AI and Developer Project Context
 
+## 2026-11-01 continuation: first typed CFD Case contract
+
+The user reported 1126/1126 tests passing before this slice. That is the
+baseline only; no local test result is claimed for the changes below.
+
+The active architecture workstream remains the cross-domain Contract Workbench.
+The repository-root `gui/` directory remains temporarily out of scope. The
+latest hexin HEAD before handoff is
+`e0d315a46f63c49a7af0487a753b95a63739219b`.
+
+Added `tools/verification/contracts/case/laminar_flat_plate_slau2.json`,
+a real Case-domain definition for `test/cfd/plateuns2dslau2`. It is already
+selected by `test/suites/cpu-serial.txt`. The definition records:
+- 2-D laminar compressible Navier-Stokes, `NsSolver`, SLAU2, 50 steps;
+- control scripts and grid inputs;
+- the exact five paths from `autotest/compare.txt`;
+- `results/res.dat` as the residual output;
+- `test/baselines/residual-baseline.json` with absolute tolerance 1e-15;
+- retained Blasius Cf/u/v references, explicitly marked as not automatically
+  compared by the current runner.
+
+`contract_catalog.py` now has immutable `CaseContractData` as a typed
+domain-specific payload attached optionally to `ContractSummary`. It checks
+that case paths and input/reference files exist, the case is selected by the
+declared suite, the output list exactly matches `autotest/compare.txt`, and
+the residual database:
+- has the expected schema;
+- contains the named case;
+- contains every declared residual output;
+- contains iteration columns `iter` and `sub-iter`;
+- has the configured number of residual rows;
+- uses the declared absolute tolerance.
+
+Tests cover Case payload adaptation, missing payload, combined catalog
+discovery, tolerance drift, and residual-history length drift. The catalog
+does not launch CFD and does not mark the case as executed. A baseline match
+is regression reproducibility, not independent physical validation. Blasius
+reference files remain declared-only evidence until an explicit comparison
+is implemented and scientifically reviewed.
+
+Documentation updated:
+- `tools/verification/README.md`
+- `test/README.md`
+- `doc/plans/verification-contract-workbench.md`
+
+Important commits in this slice:
+- typed payload: `253c51948cf94e88f96ca71deb68795a1574e043`
+- Case definition: `c6410ec05bb4558b7db637faa43d7e27a22f4450`
+- catalog checks: `80f4c46aa62237c5b45628ed384095b074e22a5d`,
+  `3c8882f4e3afd2f685f2ef06dab539bd98504098`,
+  `811b36cbb6451bcaed0c71debc1152d2aeb64320`
+- test coverage: `5b6d854085e0efbefbe71f8527518300a0b830ad`,
+  `6607bb791706765cf81b6da39ff3ef76aab2efc4`,
+  `177e7e2b9688f29427ee4a808bbefc6736b2ebe7`,
+  `be6ea51bb09e0fc4cd91e1401e07d0394de88ae1`
+- documentation: `bb4300822edae9f3286aae5b906f176347947327`,
+  `2c3125f4c943de8c44af672d242cc59b3a4cd4e8`,
+  `a7c5451343d924c93605efe848443b2925004f47`,
+  `003947f073853491983752c8f4bd69de2f1d9fc4`,
+  `e0d315a46f63c49a7af0487a753b95a63739219b`.
+
+Focused validation required:
+`python -m unittest tools.verification.test_contract_catalog`.
+The previous 1126/1126 result predates this slice. Next, run focused tests
+and full Python tests. Once validated, add a second Case/CFD contract only if
+it exercises a genuinely different payload (e.g. turbulence or grid-only
+conversion), then use a Workflow contract to test the same shared evidence
+model. Do not add a generic runner or GUI.
+
 ## 2026-11-01 continuation: Contract Workbench becomes cross-domain data
 
 The user reports 1126/1126 tests passing before this slice. That result is the
