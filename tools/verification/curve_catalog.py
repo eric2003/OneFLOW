@@ -302,6 +302,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             pure_apis=(
                 "SstF2Argument", "SstF2ArgFromTerms",
                 "SstF2FromArg", "SstEddyViscosity",
+                "SstComputeEddyViscosity",
             ),
             source_relpaths=(
                 "codes/turb/include/TurbSstPolicy.h",
@@ -316,7 +317,8 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             proves=(
                 "Physical-input arg2 construction selects the larger length-scale or viscous term; "
-                "F2(arg2)=tanh(arg2^2) curve and eddy-viscosity algebra samples."
+                "F2(arg2)=tanh(arg2^2) curve, complete per-cell closure composition, "
+                "production-option rate selection, and shared laminar-ratio cap."
             ),
             does_not_prove="Wall-resolved SST validation or full mu_t field.",
         ),
