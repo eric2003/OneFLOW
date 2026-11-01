@@ -110,7 +110,7 @@ class ContractDomainDialog(QDialog):
         if domain == "case":
             self.open_case_directory_button = QPushButton("Open case directory...")
             self.open_case_directory_button.clicked.connect(self._open_case_directory)
-            self.open_case_references_button = QPushButton("Open analytical references...")
+            self.open_case_references_button = QPushButton("Open suite and references...")
             self.open_case_references_button.clicked.connect(self._open_case_references)
             open_layout.addWidget(self.open_case_directory_button)
             open_layout.addWidget(self.open_case_references_button)
@@ -262,7 +262,7 @@ class ContractDomainDialog(QDialog):
         if summary is None or summary.case_data is None:
             return
         self._open_paths(
-            (summary.case_data.residual_baseline,)
+            (summary.case_data.suite, summary.case_data.residual_baseline)
             + summary.case_data.analytical_references,
             "Case references",
         )
