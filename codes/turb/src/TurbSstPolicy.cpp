@@ -173,6 +173,33 @@ Real SstNegativeSourcePart( Real source )
 }
 
 
+Real SstStrainRateMagnitude(
+    Real dudx, Real dudy, Real dudz,
+    Real dvdx, Real dvdy, Real dvdz,
+    Real dwdx, Real dwdy, Real dwdz )
+{
+    const Real s11 = dudx;
+    const Real s22 = dvdy;
+    const Real s33 = dwdz;
+    const Real s12 = half * ( dudy + dvdx );
+    const Real s13 = half * ( dudz + dwdx );
+    const Real s23 = half * ( dvdz + dwdy );
+    const Real diagonal = SQR( s11 ) + SQR( s22 ) + SQR( s33 );
+    const Real offDiagonal = SQR( s12 ) + SQR( s13 ) + SQR( s23 );
+    return std::sqrt( two * ( diagonal + two * offDiagonal ) );
+}
+
+Real SstVorticityMagnitude(
+    Real dudx, Real dudy, Real dudz,
+    Real dvdx, Real dvdy, Real dvdz,
+    Real dwdx, Real dwdy, Real dwdz )
+{
+    const Real omegaX = dwdy - dvdz;
+    const Real omegaY = dudz - dwdx;
+    const Real omegaZ = dvdx - dudy;
+    return std::sqrt( SQR( omegaX ) + SQR( omegaY ) + SQR( omegaZ ) );
+}
+
 Real SstF2Arg( Real termLength, Real termViscous )
 {
     return MAX( termLength, termViscous );
