@@ -63,7 +63,7 @@ def executable_candidates(
     if path_executable:
         fallback_candidates.append(Path(path_executable))
 
-    unique_candidates: list[Path] =
+    unique_candidates: list[Path] = []
     seen: set[str] = set()
     for candidate in build_candidates:
         normalized = os.path.normcase(str(candidate))
