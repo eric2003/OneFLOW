@@ -6,9 +6,9 @@
 
 #include <cstdlib>
 #include <cstring>
-#include <new>
-#include <memory>
 #include <limits>
+#include <memory>
+#include <new>
 #include <stdexcept>
 #include <string>
 
@@ -371,5 +371,41 @@ TEST( DeviceBufferTest, ReleaseFailureKeepsCommittedBufferStateConsistent )
 
     EXPECT_EQ( buffer.Data(), nullptr );
     EXPECT_EQ( buffer.Size(), 0u );
+    EXPECT_EQ( trackedDeallocations, 2 );
+}
+
+TEST( DeviceBufferTest, MoveAssignmentDoesNotPropagateBackendReleaseFailure )
+{
+    EnvironmentVariableGuard backendSetting( "ONEFLOW_ACCEL_BACKEND" );
+    SetEnvironmentVariable( "ONEFLOW_ACCEL_BACKEND", "CPU" );
+
+    trackedAllocations = 0;
+    trackedDeallocations = 0;
+    failDeviceCopy = false;
+    throwAfterDeviceDeallocation = false;
+
+    AccelBackendRegistry::Instance().Register(
+        AccelBackendKind::CPU,
+        []() { return std::make_unique< TrackingCpuBackend >(); } );
+
+    AccelRuntimeGuard runtimeGuard;
+    AccelRuntime & runtime = AccelRuntime::Instance();
+    ASSERT_FALSE( runtime.IsInitialized() );
+    ASSERT_NO_THROW( runtime.Initialize( 0, 1 ) );
+
+    DeviceBuffer< int > destination( 1 );
+    DeviceBuffer< int > source( 2 );
+
+    throwAfterDeviceDeallocation = true;
+    EXPECT_NO_THROW( destination = std::move( source ) );
+    throwAfterDeviceDeallocation = false;
+
+    EXPECT_EQ( destination.Size(), 2u );
+    EXPECT_NE( destination.Data(), nullptr );
+    EXPECT_EQ( source.Size(), 0u );
+    EXPECT_EQ( source.Data(), nullptr );
+    EXPECT_EQ( trackedDeallocations, 1 );
+
+    EXPECT_NO_THROW( destination.Reset() );
     EXPECT_EQ( trackedDeallocations, 2 );
 }
