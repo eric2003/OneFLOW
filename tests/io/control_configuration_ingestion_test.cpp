@@ -279,7 +279,12 @@ TEST( ControlReaderIntegration, CaseEnvironmentSetupFailureCanBeRolledBack )
 {
     TemporaryControlCase testCase;
     ScopedCaseRuntimeReset runtimeReset;
-    testCase.WriteManifest( "\"missing.txt\";\n" );
+    testCase.WriteManifest(
+        "\"available.txt\";\n"
+        "\"missing.txt\";\n" );
+    testCase.WriteScript(
+        "available.txt",
+        "string partial_case_bootstrap_value = \"must_be_rolled_back\";\n" );
 
     ClearRuntimeParameters();
     Prj::current_dir = std::filesystem::current_path().string();
@@ -290,17 +295,12 @@ TEST( ControlReaderIntegration, CaseEnvironmentSetupFailureCanBeRolledBack )
     EXPECT_THROW( context.SetupCaseEnvironment(), std::runtime_error );
     EXPECT_FALSE( context.IsEnvironmentReady() );
 
-    // Setup binds the case before parsing its manifest scripts. A failure in
-    // that phase leaves partial legacy state for the production case cleanup.
-    EXPECT_TRUE( Prj::AreSameDirectoryPath(
-        Prj::prjBaseDir, testCase.CaseDirectory() ) );
-
-    SimuContextDetail::ClearCaseConfigurationState();
-
+    // Bootstrap commits scripts in manifest order. Failure on the second
+    // script must roll back the first script and the case-relative bindings.
     EXPECT_TRUE( Prj::prjBaseDir.empty() );
     EXPECT_THROW(
         GetDataValue<std::string>(
-            "projectRoot", &RequireGlobalDataBase() ),
+            "partial_case_bootstrap_value", &RequireGlobalDataBase() ),
         std::runtime_error );
 }
 
