@@ -24,6 +24,7 @@ License
 
 #include <atomic>
 #include <chrono>
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <stdexcept>
@@ -125,6 +126,89 @@ private:
     bool & destroyedWhileRuntimeActive_;
 };
 
+bool failProcessBackendFinalize = false;
+int processBackendFinalizeCalls = 0;
+
+class RetryableProcessHipBackend final : public AccelBackend
+{
+public:
+    AccelBackendKind Kind() const override { return AccelBackendKind::HIP; }
+    const char * Name() const override { return "RETRYABLE_PROCESS_HIP"; }
+    bool IsAccelerator() const override { return true; }
+    bool SupportsMultiDevice() const override { return true; }
+
+    void Initialize( AccelContext & context ) override
+    {
+        context.deviceCount = 1;
+        context.selectedDevice = 0;
+    }
+
+    void Finalize() override
+    {
+        ++processBackendFinalizeCalls;
+        if ( failProcessBackendFinalize )
+        {
+            throw std::runtime_error(
+                "simulated process backend finalization failure" );
+        }
+    }
+
+    void Synchronize() override {}
+    void * Allocate( std::size_t ) override { return nullptr; }
+    void Deallocate( void * ) override {}
+    void Copy( void *, const void *, std::size_t, AccelCopyKind ) override {}
+};
+
+void SetBackendEnvironment( const char * name, const char * value )
+{
+#ifdef _WIN32
+    _putenv_s( name, value );
+#else
+    setenv( name, value, 1 );
+#endif
+}
+
+class BackendEnvironmentGuard
+{
+public:
+    explicit BackendEnvironmentGuard( const char * name ) : name_( name )
+    {
+        const char * value = std::getenv( name );
+        hadValue_ = value != nullptr;
+        if ( hadValue_ ) oldValue_ = value;
+    }
+
+    ~BackendEnvironmentGuard()
+    {
+        if ( hadValue_ )
+        {
+            SetBackendEnvironment( name_.c_str(), oldValue_.c_str() );
+        }
+        else
+        {
+#ifdef _WIN32
+            _putenv_s( name_.c_str(), "" );
+#else
+            unsetenv( name_.c_str() );
+#endif
+        }
+    }
+
+private:
+    std::string name_;
+    std::string oldValue_;
+    bool hadValue_ = false;
+};
+
+class ProcessBackendFailureGuard
+{
+public:
+    ~ProcessBackendFailureGuard()
+    {
+        failProcessBackendFinalize = false;
+    }
+};
+
 class ProcessRuntimeGuard
 {
 public:
@@ -188,6 +272,49 @@ TEST( SimuImpCaseLifecycleIntegration,
     EXPECT_EQ( context.AccelStates().Size(), 0u );
     EXPECT_FALSE( AccelRuntime::Instance().IsInitialized() );
     EXPECT_FALSE( context.IsProcessEnvironmentActive() );
+}
+
+TEST( SimuImpCaseLifecycleIntegration,
+      FailedAcceleratorFinalizationKeepsProcessRuntimeActiveForRetry )
+{
+    BackendEnvironmentGuard backendSetting( "ONEFLOW_ACCEL_BACKEND" );
+    ProcessBackendFailureGuard failureGuard;
+    SetBackendEnvironment( "ONEFLOW_ACCEL_BACKEND", "HIP" );
+    AccelBackendRegistry::Instance().Register(
+        AccelBackendKind::HIP,
+        []() { return std::make_unique<RetryableProcessHipBackend>(); } );
+
+    processBackendFinalizeCalls = 0;
+    failProcessBackendFinalize = false;
+
+    Prj::Init();
+    TemporaryCase testCase;
+    SimuImp simulation( testCase.Directory(), false );
+    SimuContext & context = simulation.Context();
+    context.SetupProcessEnvironment();
+    ProcessRuntimeGuard runtimeGuard( simulation );
+
+    ASSERT_TRUE( context.IsProcessEnvironmentActive() );
+    ASSERT_TRUE( AccelRuntime::Instance().IsInitialized() );
+    ASSERT_STREQ(
+        AccelRuntime::Instance().Backend().Name(),
+        "RETRYABLE_PROCESS_HIP" );
+
+    failProcessBackendFinalize = true;
+    EXPECT_THROW(
+        simulation.FinalizeEnvironment(),
+        std::runtime_error );
+
+    EXPECT_TRUE( context.IsProcessEnvironmentActive() );
+    EXPECT_TRUE( AccelRuntime::Instance().IsInitialized() );
+    EXPECT_EQ( processBackendFinalizeCalls, 1 );
+
+    failProcessBackendFinalize = false;
+    EXPECT_NO_THROW( simulation.FinalizeEnvironment() );
+
+    EXPECT_FALSE( context.IsProcessEnvironmentActive() );
+    EXPECT_FALSE( AccelRuntime::Instance().IsInitialized() );
+    EXPECT_EQ( processBackendFinalizeCalls, 2 );
 }
 
 TEST( SimuImpCaseLifecycleIntegration,
