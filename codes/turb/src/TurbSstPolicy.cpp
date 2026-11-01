@@ -185,10 +185,10 @@ Real SstF2FromArg( Real arg2 )
 
 Real SstEddyViscosity(
     Real density, Real kineticEnergy, Real omega,
-    Real vorticityMagnitude, Real f2, Real a1, Real reynolds )
+    Real limitingRateMagnitude, Real f2, Real a1, Real reynolds )
 {
     return density * kineticEnergy
-         / MAX( omega, vorticityMagnitude * f2 / a1 )
+         / MAX( omega, limitingRateMagnitude * f2 / a1 )
          * reynolds;
 }
 
