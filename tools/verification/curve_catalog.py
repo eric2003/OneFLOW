@@ -387,7 +387,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             doc_relpath="doc/source/numerical/sst_omega_source.rst",
             code_sketch=(
-                "// GATED SKETCH — see TurbSstPolicy for exact signatures.\n"
+                "// GATED SKETCH - see TurbSstPolicy for exact signatures.\n"
             ),
             proves="Omega source piece APIs where extracted.",
             does_not_prove="Full SST residual on a case.",
@@ -860,7 +860,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             doc_relpath="doc/source/numerical/index.rst",
             code_sketch=(
-                "// GATED SKETCH — see NsLusgsPolicy.h signatures.\n"
+                "// GATED SKETCH - see NsLusgsPolicy.h signatures.\n"
             ),
             proves="Five-eq increment unit tests where present.",
             does_not_prove="Sweep stability on arbitrary meshes.",
@@ -945,7 +945,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             doc_relpath="doc/source/numerical/index.rst",
             code_sketch=(
-                "// GATED SKETCH — mirror production MAX in tests.\n"
+                "// GATED SKETCH - mirror production MAX in tests.\n"
             ),
             proves="Entropy-fix pure policy tests.",
             does_not_prove="Full Roe flux shock-capturing quality.",
