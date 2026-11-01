@@ -17,6 +17,8 @@ from tools.oneflow_gui.test_runner import (
     cmake_build_tree_is_configured,
     build_regression_command,
     build_unit_test_commands,
+    format_command_arguments,
+    oneflow_executable_path,
     stage_regression_tests,
     summarize_test_output,
 )
@@ -80,11 +82,36 @@ class TestRunnerCommandTest(unittest.TestCase):
             self.assertEqual(
                 command.arguments,
                 (
-                    "cmake", "..", "-D", "CMAKE_INSTALL_PREFIX=C:/dev/OneFLOW",
-                    "-D", "CMAKE_BUILD_TYPE=Debug",
+                    "cmake", "..", "-D", "CMAKE_BUILD_TYPE=Debug",
                 ),
             )
             self.assertEqual(command.label, "CMake configure (Debug)")
+
+    def test_linux_executable_path_uses_single_configuration_output(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            self.assertEqual(
+                oneflow_executable_path(root, "Debug", platform_name="posix"),
+                root / "build" / "bin" / "OneFLOW",
+            )
+            executable = oneflow_executable_path(root, "Release", platform_name="posix")
+            executable.parent.mkdir(parents=True)
+            executable.write_bytes(b"test")
+            commands = build_default_test_commands(
+                root, python="python-test", build_config="Release", platform_name="posix"
+            )
+            self.assertFalse(any(command.label.startswith("CMake build") for command in commands))
+
+    def test_command_log_uses_platform_appropriate_quoting(self) -> None:
+        arguments = ("python", "path with spaces/test.py", "a'b")
+        self.assertEqual(
+            format_command_arguments(arguments, platform_name="posix"),
+            "python 'path with spaces/test.py' 'a'\\''b'",
+        )
+        self.assertEqual(
+            format_command_arguments(("tool.exe", "path with spaces"), platform_name="nt"),
+            'tool.exe "path with spaces"',
+        )
 
     def test_release_configuration_is_used_for_cmake_configure(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -137,7 +164,7 @@ class TestRunnerCommandTest(unittest.TestCase):
     def test_default_tests_do_not_rebuild_when_selected_executable_exists(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory).resolve()
-            executable = root / "build" / "bin" / "Debug" / "OneFLOW.exe"
+            executable = oneflow_executable_path(root, "Debug", platform_name="nt")
             executable.parent.mkdir(parents=True)
             executable.write_bytes(b"test")
             commands = build_default_test_commands(root, python="python-test")
