@@ -906,3 +906,62 @@ reference validator. It checks that declared API references resolve to
 repository symbols, in addition to validating source/data/document paths and
 linked Geometry GoogleTest declarations. This reuses established validation
 logic rather than creating a second parser for the Numerical catalog.
+
+
+## 2026-11-01 implementation: Contract Workbench tests in GUI Unit Tests
+
+The user reported 1125/1125 local CTest tests passed before this slice and
+confirmed these focused Python modules pass locally:
+- `tools.verification.test_curve_catalog`: 5 tests.
+- `tools.verification.test_contract_catalog`: 9 tests.
+- `tools.oneflow_gui.test_test_inventory`: 6 tests.
+
+Reviewed the current `hexin` GUI test architecture:
+- `test_inventory.py` performs read-only source discovery of GoogleTest
+  declarations under `tests/` and Python unittest methods under `tools/`.
+  It can attach Geometry scenario input/expected metadata only when the
+  scenario explicitly links a test. Its result field remains unset.
+- `repository_test_inventory_dialog.py` presents that catalog; it does not
+  execute tests.
+- `test_runner.py` owns an explicit Python command registry plus the CTest
+  command. `test_dialog.py` executes these commands sequentially.
+- The GUI's Unit Tests action therefore differs from the Repository Test
+  Inventory: one executes registered commands; the other reports declarations.
+
+Changes on `hexin`:
+- Added the three passing modules to `_PYTHON_UNIT_TESTS` in
+  `tools/oneflow_gui/test_runner.py`.
+- Extended `tools/oneflow_gui/test_test_runner.py` to assert that all three
+  module paths remain registered in the GUI unit-test command list.
+- Added `doc/plans/testing-architecture.md` and linked it from the Workbench
+  README. The document describes test-layer ownership, each module's purpose,
+  discovery-versus-execution semantics, evidence limitations, and industry
+  practices.
+
+Design decision:
+- Unify the GUI entry point and command/result presentation, not the underlying
+  test frameworks. CTest remains authoritative for CMake-registered native
+  tests; Python unittest remains authoritative for Python tests; the CFD
+  regression harness and Development Test case runner retain their own
+  execution semantics.
+- Keep the source inventory broader than the execution allow-list. Do not
+  automatically execute every AST-discovered `test_*.py`: commands may need
+  specific arguments, dependencies, or working directories.
+- Contract fixture metadata and linked-test declarations remain unexecuted
+  until an actual runner reports a result.
+
+Commits:
+- `22201a1a23cf7eac91689fe87bd3e2f549b3b894`: register the three modules.
+- `c3d5c50709770bde07ea6aefcf2bd4fd07a0a0f0`: test the command registry.
+- `1ff595bf6d338231511bccd68a133bfc966b930d`: add testing architecture doc.
+
+No tests were executed by the assistant in the user's Windows environment.
+The user's 1125/1125 result and 5/9/6 focused Python results are pre-change
+validation for the code/documentation slice. Next validation:
+```powershell
+python -m unittest tools.oneflow_gui.test_test_runner
+python -m unittest tools.verification.test_curve_catalog
+python -m unittest tools.verification.test_contract_catalog
+python -m unittest tools.oneflow_gui.test_test_inventory
+ctest --test-dir build -C Debug --output-on-failure
+```
