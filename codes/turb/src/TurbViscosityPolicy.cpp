@@ -9,4 +9,9 @@ Real TurbCappedEddyViscosity(
     return MIN( laminarViscosity * maxViscosityRatio, eddyViscosity );
 }
 
+bool TurbDensityIsInvalid( Real density )
+{
+    return density < 0.0 || NotANumber( density );
+}
+
 EndNameSpace
