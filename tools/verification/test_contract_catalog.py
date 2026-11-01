@@ -238,6 +238,37 @@ class ContractCatalogTest(unittest.TestCase):
         )
         self.assertEqual(issues, [], "\n".join(issues))
 
+    def test_reports_missing_declared_output_manifest(self) -> None:
+        definition_path = (
+            self.repository_root
+            / "tools"
+            / "verification"
+            / "contracts"
+            / "case"
+            / "laminar_flat_plate_slau2.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        manifest_reference = (
+            "test/cfd/plateuns2dslau2/autotest/missing-compare.txt"
+        )
+        output_manifest = next(
+            item
+            for item in definition["verification"]
+            if item["kind"] == "output_manifest"
+        )
+        output_manifest["reference"] = manifest_reference
+        summary = adapt_declared_contract(definition)
+
+        issues = validate_contract_summaries(self.repository_root, [summary])
+
+        self.assertTrue(
+            any(
+                f"missing repository file: {manifest_reference}" in issue
+                for issue in issues
+            ),
+            "\\n".join(issues),
+        )
+
     def test_importing_scenarios_does_not_load_pipeline_runner(self) -> None:
         script = (
             "import sys; "
