@@ -900,3 +900,9 @@ environment. The last user-reported 1125/1125 remains a pre-change baseline.
 Do not add GUI integration until these checks pass. The next design step after
 validation is to inspect the generated catalog and decide which traceability
 fields are genuinely missing before introducing Runtime/Workflow contracts.
+
+The combined loader also reuses the existing Numerical catalog's pure-API
+reference validator. It checks that declared API references resolve to
+repository symbols, in addition to validating source/data/document paths and
+linked Geometry GoogleTest declarations. This reuses established validation
+logic rather than creating a second parser for the Numerical catalog.
