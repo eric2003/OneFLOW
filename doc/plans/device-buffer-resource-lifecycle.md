@@ -24,6 +24,8 @@ that allocation ownership remains explicit even when backend operations fail.
 
 - A buffer is non-copyable and move-only. Exactly one buffer object owns its allocation.
 - Resize(n) is grow-only; requests not exceeding the current capacity are no-ops.
+- Resize rejects byte-count overflow before allocating.
+- CopyToHost rejects requests larger than the allocated capacity before calling the backend.
 - A size whose byte count would overflow size_t is rejected before allocation.
 - If replacement allocation or device-to-device copy fails, the existing pointer and
   capacity remain unchanged. The temporary allocation is released on a best-effort basis.
@@ -80,7 +82,8 @@ Focused tests:
 - tests/accel/accel_runtime_test.cpp
   - DeviceBufferTest.FailedGrowthReleasesCandidateAndPreservesCurrentBuffer
     injects a device-copy failure and checks candidate cleanup plus preservation of the
-    original pointer and capacity.
+    original pointer and capacity. The same test also verifies byte-count overflow rejection
+    and that CopyToHost cannot read beyond the allocated capacity.
   - DeviceBufferTest.DestructorDoesNotPropagateBackendReleaseFailure
     injects a release diagnostic after the fake backend frees the allocation and verifies
     that destruction does not propagate the exception.
