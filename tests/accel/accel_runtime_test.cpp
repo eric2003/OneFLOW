@@ -247,6 +247,15 @@ public:
     }
 };
 
+class BackendFinalizeFailureGuard
+{
+public:
+    ~BackendFinalizeFailureGuard()
+    {
+        failBackendFinalize = false;
+    }
+};
+
 }
 
 TEST( AccelRuntimeTest, FailedInitializationDoesNotPublishPartialState )
@@ -301,6 +310,8 @@ TEST( AccelRuntimeTest, FailedFinalizationPreservesBackendForRetry )
         AccelBackendKind::CPU,
         []() { return std::make_unique< RetryableFinalizeBackend >(); } );
 
+    AccelRuntimeGuard runtimeGuard;
+    BackendFinalizeFailureGuard failureGuard;
     AccelRuntime & runtime = AccelRuntime::Instance();
     ASSERT_FALSE( runtime.IsInitialized() );
 
