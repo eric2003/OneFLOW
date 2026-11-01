@@ -1,7 +1,7 @@
 # Accelerator Runtime Shutdown Order
 
-Status: Implemented; local validation reported by the user is pending for this change set
-Baseline: hexin HEAD 6e550260578a7ad3490793791f9a26feb1e670ae
+Status: Initial ordering fix validated by user at 1124/1124; retryable-finalization change implemented, pending validation
+Baseline for current slice: hexin HEAD ba067226fcfefad896648d24bd7daa75b49b3a20
 Scope:
 - codes/main/src/SimuContextEnv.cpp
 - tests/main/simu_imp_case_lifecycle_integration_test.cpp
@@ -43,9 +43,10 @@ This is an ownership-ordering gap, not a numerical solver defect.
 - FinalizeEnvironment() is also defensive: before finalizing AccelRuntime, it
   clears any remaining context-owned backend states and releases the shared HIP
   flux backend when HIP is enabled.
-- Cleanup steps are ordered, independent, and all attempted through
-  ExecuteAllCleanupSteps(). The lifecycle phase is marked Finalized only after
-  the cleanup sequence completes without a reported failure.
+- Context-state and shared-backend releases are independent prerequisites and
+  are all attempted through ExecuteAllCleanupSteps(). Accelerator runtime
+  finalization is a dependent boundary: if it fails, HXFinalize() must not run.
+  The lifecycle phase is marked Finalized only after both runtime layers finish.
 - This is not a replacement for TeardownCase(). Process finalization does not
   promise to reset every solver/global case object; normal case execution must
   still run the full case teardown path.
@@ -60,16 +61,23 @@ The intended partial order is:
     SimuContext::FinalizeEnvironment
         -> ClearAccelStates (defensive; idempotent)
         -> HipFluxBackend::ReleaseShared (HIP; idempotent)
-        -> FinalizeAccelRuntime
+        -> FinalizeAccelRuntime (must succeed)
         -> HXFinalize
+
+    If either pre-runtime release fails, all pre-runtime releases are attempted,
+    but accelerator finalization is not entered. If accelerator finalization
+    fails, HXFinalize is not entered. Both cases leave the process lifecycle
+    marker Active so the owner can diagnose and retry.
 
 ## 3. Implementation
 
-SimuContextEnv.cpp adds ClearAccelStates() to the process-finalization cleanup
-sequence before FinalizeAccelRuntime(). Under ONEFLOW_ENABLE_HIP it also calls
-HipFluxBackend::ReleaseShared() before runtime finalization. ReleaseShared()
-resets the shared unique_ptr and is safe to call after the normal case teardown
-has already released it.
+SimuContextEnv.cpp now separates independent cleanup from dependent runtime
+shutdown. It attempts ClearAccelStates() and, in HIP builds,
+HipFluxBackend::ReleaseShared() as one pre-runtime cleanup group. If that group
+reports a failure, FinalizeAccelRuntime() is not called. After successful
+pre-runtime cleanup, FinalizeAccelRuntime() runs alone; HXFinalize() follows
+only if accelerator finalization succeeds. The lifecycle marker is committed
+only after both calls succeed.
 
 This deliberately keeps ownership in SimuContext and the existing shared
 backend owner. It does not add another global manager or make AccelRuntime
@@ -79,7 +87,24 @@ depend on solver-specific types. The dependency direction remains:
 
 The accelerator runtime remains unaware of EulerDomainStateRegistry.
 
-## 4. Test evidence
+## 4. Runtime finalization failure semantics
+
+AccelRuntime::Finalize() calls the backend before resetting its owning
+unique_ptr or clearing the initialized flag. Therefore a thrown backend
+Finalize() leaves the backend object and runtime state published. This is the
+basis for retry: the backend interface now explicitly requires a failed
+Finalize() to leave the backend valid and safe to retry. CPU Finalize() is a
+no-op; HIP Finalize() synchronizes the device and does not discard backend
+state, so a synchronization error does not trigger premature host-side
+runtime destruction.
+
+A focused AccelRuntime test injects a backend whose first Finalize() throws
+before changing state. It verifies that IsInitialized() remains true, Backend()
+remains accessible, and a second Finalize() succeeds after the injected fault
+is disabled. This pins the runtime-level retry contract; it does not simulate
+an actual HIP driver/device failure.
+
+## 5. Test evidence
 
 The production-linked test
 SimuImpCaseLifecycleIntegration.ProcessFinalizationReleasesContextBackendStatesBeforeRuntime
@@ -105,7 +130,7 @@ TemporaryCase fixture and the production Prj initialization path.
 The HIP-specific shared backend release branch is compile-time guarded and
 must also be covered by the HIP build/CI configuration when available.
 
-## 5. Industry practice and rationale
+## 6. Industry practice and rationale
 
 This follows the C++ Core Guidelines:
 - R.1: manage resources automatically with resource handles and RAII;
@@ -121,18 +146,16 @@ That cross-object dependency must be expressed by owner ordering and verified
 at the process/case boundary. This change makes that ordering explicit without
 introducing shared ownership or a global shutdown coordinator.
 
-## 6. Validation status and limits
+## 7. Validation status and limits
 
-- User-reported pre-change baseline: 1123/1123 tests passed.
-- The user's first post-change run reported 1123/1124 passing; the new
-  ProcessFinalizationReleasesContextBackendStatesBeforeRuntime test failed
-  during SimuImp construction because it supplied a relative placeholder case
-  path before Prj::Init(). This was a test-fixture defect, not evidence about
-  the shutdown-order behavior. The fixture has been corrected to initialize
-  Prj and use an absolute TemporaryCase directory; rerun is required.
-- This change set still requires local VS2022 Debug build, focused integration
-  test, and full CTest on the exact updated hexin HEAD.
-- CI must be checked for the exact final commit, including Windows and Linux.
+- User-reported validation of the preceding fixture-correction revision:
+  **1124/1124 tests passed**. This is the baseline before the current
+  retryable-finalization changes.
+- Current changes require a fresh VS2022 Debug build, focused
+  AccelRuntimeTest, lifecycle integration test, and full Debug CTest on the
+  exact updated hexin HEAD.
+- Exact-HEAD Windows/Linux CI and documentation CI must be checked after the
+  final documentation commit.
 - HIP-enabled compilation and hardware execution are separate evidence. The
   CPU integration test proves the context registry ordering but cannot prove
   device-specific deallocation behavior.
