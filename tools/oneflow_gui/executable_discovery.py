@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 import shutil
 from pathlib import Path
-from typing import Mapping
+from typing import Callable, Mapping
 
 
 def executable_candidates(
@@ -13,6 +13,7 @@ def executable_candidates(
     environ: Mapping[str, str] | None = None,
     *,
     platform_name: str | None = None,
+    path_lookup: Callable[[str, str | None], str | None] | None = None,
 ) -> list[Path]:
     """Return existing executable candidates in a predictable preference order.
 
@@ -51,7 +52,8 @@ def executable_candidates(
             Path("/usr/local/bin/OneFLOW"),
             Path("/usr/bin/OneFLOW"),
         ]
-        path_executable = shutil.which("OneFLOW", path=environment.get("PATH"))
+        find_on_path = path_lookup or shutil.which
+        path_executable = find_on_path("OneFLOW", environment.get("PATH"))
         if path_executable:
             fallback_candidates.append(Path(path_executable))
 
