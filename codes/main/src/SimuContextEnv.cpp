@@ -139,7 +139,11 @@ void SimuContext::FinalizeEnvironment()
     // Commit the lifecycle transition only after every release operation
     // has completed. If a release fails, the state remains Active so callers
     // do not observe a false successful-finalization state.
+    // Context-owned backend states may contain device allocations. Release
+    // them while the backend is still initialized, even when callers finalize
+    // the process directly without first running TeardownCase().
     SimuCaseLifecycleDetail::ExecuteAllCleanupSteps(
+        [&]() { ClearAccelStates(); },
         []() { ONEFLOW::FinalizeAccelRuntime(); },
         []() { HXFinalize(); } );
 
