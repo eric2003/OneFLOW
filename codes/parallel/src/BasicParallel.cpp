@@ -22,7 +22,8 @@ License
 
 #include "BasicParallel.h"
 #include <vector>
-#include <iostream>\n#include <stdexcept>
+#include <iostream>
+#include <stdexcept>
 
 
 BeginNameSpace( ONEFLOW )
