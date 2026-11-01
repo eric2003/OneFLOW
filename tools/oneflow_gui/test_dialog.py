@@ -52,9 +52,10 @@ class TestCommandWorker(QThread):
     command_completed = Signal(object)
     diagnostics = Signal(object)
 
-    def __init__(self, commands: list[TestCommand]) -> None:
+    def __init__(self, commands: list[TestCommand], *, build_config: str | None = None) -> None:
         super().__init__()
         self._commands = commands
+        self._build_config = build_config
         self._cancel = threading.Event()
         self._process: subprocess.Popen[str] | None = None
         self._process_lock = threading.Lock()
@@ -142,7 +143,7 @@ class TestCommandWorker(QThread):
                 return
             if return_code != 0:
                 finished_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
-                configuration = None
+                configuration = self._build_config
                 for index, argument in enumerate(command.arguments[:-1]):
                     if argument == "-C":
                         configuration = command.arguments[index + 1]
@@ -471,7 +472,7 @@ class TestRunnerDialog(QDialog):
         self.build_button.setEnabled(False)
         self.rebuild_button.setEnabled(False)
         self.stop_button.setEnabled(True)
-        self._worker = TestCommandWorker(commands)
+        self._worker = TestCommandWorker(commands, build_config=self._build_config)
         self._worker.output_line.connect(self.log_view.appendPlainText)
         self._worker.completed.connect(self._completed)
         self._worker.command_completed.connect(self._command_completed)
