@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "id": "case/laminar-flat-plate-slaU2",
+  "id": "case/laminar-flat-plate-slau2",
   "title": "2-D laminar flat plate with SLAU2",
   "domain": "case",
   "kind": "cfd_regression_case",
