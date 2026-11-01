@@ -44,6 +44,7 @@ class ContractDomainDialog(QDialog):
             resolve_contract_evidence,
         )
 
+        self._resolve_contract_evidence = resolve_contract_evidence
         summaries, diagnostics = load_contract_catalog(self._repository_root)
         self._summaries = tuple(
             item for item in summaries if item.domain == domain
@@ -177,7 +178,9 @@ class ContractDomainDialog(QDialog):
             + "\n\nDocumentation\n-------------\n"
             + "\n".join(summary.documentation_paths)
         )
-        resolutions = resolve_contract_evidence(self._repository_root, summary)
+        resolutions = self._resolve_contract_evidence(
+            self._repository_root, summary
+        )
         evidence_lines = []
         for resolution in resolutions:
             item = resolution.evidence
