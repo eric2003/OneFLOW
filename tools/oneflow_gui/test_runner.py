@@ -32,9 +32,20 @@ def oneflow_executable_path(
         raise ValueError(f"Unsupported CMake build configuration: {build_config!r}")
     root = Path(repository_root).resolve()
     platform_value = (platform_name or os.name).lower()
+    build_directory = root / "build"
     if platform_value in {"nt", "windows"}:
-        return root / "build" / "bin" / build_config / "OneFLOW.exe"
-    return root / "build" / "bin" / "OneFLOW"
+        return build_directory / "bin" / build_config / "OneFLOW.exe"
+
+    single_config_executable = build_directory / "bin" / "OneFLOW"
+    if single_config_executable.is_file():
+        return single_config_executable
+
+    multi_config_cache = build_directory / "CMakeCache.txt"
+    if multi_config_cache.is_file():
+        cache_text = multi_config_cache.read_text(encoding="utf-8", errors="replace")
+        if "CMAKE_CONFIGURATION_TYPES:" in cache_text:
+            return build_directory / "bin" / build_config / "OneFLOW"
+    return single_config_executable
 
 
 def summarize_test_output(
