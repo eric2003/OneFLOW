@@ -15,11 +15,19 @@ SST eddy viscosity and F2
 
    \mu_t
    = \frac{\rho k}
-   {\max(\omega,\,\Omega F_2/a_1)}\,Re
+   {\max(\omega,\,R F_2/a_1)}\,Re
 
-with an optional laminar-ratio cap.
+Here :math:`R` is the rate magnitude selected by the SST production option:
+the strain-rate magnitude when ``iprod_sst == 1``, otherwise the
+vorticity magnitude. The same selected quantity must be used in the
+Bradshaw limiter; calling it only a vorticity magnitude would be misleading
+for the strain-based branch. The solver applies an optional laminar-viscosity
+ratio cap after this expression.
 
-Intermediate checks: \(F_2(0)=0\), \(F_2\to 1\) for large arg.
+Intermediate checks cover both denominator branches: the :math:`\omega`
+limit when :math:`R F_2/a_1 \leq \omega`, and the strain/vorticity
+limit when :math:`R F_2/a_1 > \omega`. The curve test also checks
+:math:`F_2(0)=0` and :math:`F_2\to 1` for large arg.
 
 References
 ----------
