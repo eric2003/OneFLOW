@@ -159,4 +159,19 @@ into a contract: one case may provide evidence for several numerical,
 geometry, boundary-condition, and runtime contracts. Nor does the catalog
 launch `test.py`; execution remains with the established regression runner.
 
+## Evidence kind schema
+
+Versioned contract definitions validate both evidence status and evidence kind.
+The current schema-v1 kind vocabulary is:
+
+- `pure_api`, `theory_data`: numerical API and reference data declarations;
+- `fixture`, `linked_test`: geometry fixture and linked test declarations;
+- `google_test`: explicit GoogleTest declaration;
+- `case_suite`, `output_manifest`, `residual_baseline`,
+  `analytical_reference`: typed CFD case artifacts.
+
+Unknown kinds are rejected during adaptation instead of being silently accepted
+and skipped by path or test validation. Adding a new evidence kind therefore
+requires an intentional schema/catalog change and corresponding tests. A known
+kind still does not imply execution: status remains a separate, explicit field.
 
