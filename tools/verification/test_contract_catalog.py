@@ -84,7 +84,7 @@ class ContractCatalogTest(unittest.TestCase):
         issues = validate_contract_summaries(
             self.repository_root, [numerical, geometry]
         )
-        self.assertEqual(issues, [], "\\n".join(issues))
+        self.assertEqual(issues, [], "\n".join(issues))
 
     def test_reports_missing_and_escaping_paths(self) -> None:
         summary = ContractSummary(
@@ -110,7 +110,7 @@ class ContractCatalogTest(unittest.TestCase):
 
         self.assertEqual(len(issues), 3)
         self.assertTrue(any("missing repository file" in issue for issue in issues))
-        self.assertTrue(any("escapes root" in issue for issue in issues))
+        self.assertTrue(any("must stay relative to root" in issue for issue in issues))
 
     def test_reports_duplicate_contract_ids(self) -> None:
         summary = ContractSummary(
