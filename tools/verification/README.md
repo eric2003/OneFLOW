@@ -32,3 +32,12 @@ Theory curve PNG generators under ``tools/verification/plot_*.py`` must:
 
 Do not commit bare-line plots without axes text. Runtime GUI previews still write under
 user data paths (``~/.oneflow/contract-workbench/preview``), not the source tree.
+
+
+## Generalized contract direction
+
+This directory currently implements the numerical/formula specialization of the
+Contract Workbench. A broader cross-domain model is under discussion in
+[Verification Contract Workbench proposal](../../doc/plans/verification-contract-workbench.md).
+Do not migrate the numerical catalog or add a generic runner until the shared
+contract envelope, evidence semantics, and migration path have been reviewed.
