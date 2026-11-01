@@ -1160,3 +1160,10 @@ The user's 1126/1126 result was reported before these Contract Workbench
 changes. Re-run the focused catalog tests and full suite; do not mark this
 slice verified until then.
 
+
+Final evidence-link correction: declared `google_test` records are now
+validated by the same source-declaration checker as Geometry
+`linked_test` records. This ensures the Runtime contract's three test links
+are not merely path-checked; each named GoogleTest suite/case must be present
+in its declared C++ source. Commit:
+`1f28288bfa88cf87d1d86bbb9eb76d346bcfab8a`.
