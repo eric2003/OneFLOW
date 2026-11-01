@@ -81,14 +81,20 @@ class ProcessControlTest(unittest.TestCase):
     @unittest.skipUnless(os.name == "posix", "Requires POSIX process groups")
     def test_posix_termination_stops_descendant_processes(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
+            started_marker = Path(directory) / "child-started.txt"
             marker = Path(directory) / "child-survived.txt"
             child_code = (
                 "import pathlib, time; "
-                f"time.sleep(1); pathlib.Path({str(marker)!r}).write_text('alive')"
+                f"pathlib.Path({str(started_marker)!r}).write_text('ready'); "
+                "time.sleep(1); "
+                f"pathlib.Path({str(marker)!r}).write_text('alive')"
             )
             parent_code = (
-                "import subprocess, sys, time; "
+                "import pathlib, subprocess, sys, time; "
                 f"subprocess.Popen([sys.executable, '-c', {child_code!r}]); "
+                f"started = pathlib.Path({str(started_marker)!r}); "
+                "deadline = time.monotonic() + 5; "
+                "while not started.exists() and time.monotonic() < deadline: time.sleep(0.01); "
                 "print('child-started', flush=True); time.sleep(30)"
             )
             process = subprocess.Popen(
@@ -100,6 +106,7 @@ class ProcessControlTest(unittest.TestCase):
             )
             try:
                 self.assertEqual(process.stdout.readline().strip(), "child-started")
+                self.assertTrue(started_marker.is_file())
                 self.assertTrue(
                     terminate_process_tree(process, platform_name="posix")
                 )
