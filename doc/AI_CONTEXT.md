@@ -765,3 +765,31 @@ Latest validation poll for `db7439f55c9b230004e09640f12f31fa860bcfad`:
 - Linux CI queued: https://github.com/eric2003/OneFLOW/actions/runs/41281608515
 - Earlier CI runs for the preceding C++ commits were still in progress; none had completed at this poll.
 - No local CMake configure, build, or CTest was run in this environment. The user's 1096/1096 report remains the pre-change baseline.
+
+
+## 2026-11-01 continuation: Verification Contract Workbench proposal
+
+The user reports **1125/1125 local tests passed** on the preceding revision. The latest inspected hexin baseline before this documentation slice was the merge commit `74baec02d1e170340224c6e320b02412f184947d`.
+
+The current branch already contains two useful foundations:
+- Numerical Contract Workbench: `tools/verification/curve_catalog.py` and `tools/oneflow_gui/verification_curve_dialog.py`, with formula/principle/reference/source/API/documentation/code-sketch/curve data and explicit proves/does-not-prove statements.
+- Geometry Contract Workbench: `tools/geometry_workbench` and `tools/oneflow_gui/geometry_contract_dialog.py`, with editable fixture-backed scenarios. Its current stub does not execute the production geometry algorithm; keep that limitation visible.
+
+Added a discussion proposal:
+- `doc/plans/verification-contract-workbench.md`
+- Indexed from `doc/source/index.rst`.
+
+The proposal recommends a shared contract envelope with domain-specific typed payloads and evidence adapters. Candidate domains include numerical formulas/methods, geometry/mesh, runtime lifecycle, workflows, case regressions, I/O/configuration, and performance. Common navigation is Overview, Principle, References, Architecture, Implementation, Code, Documentation, and Verification, with optional type-specific visualizers such as Formula/Curve, Scenario, Case, Workflow Graph, Mesh View, Benchmark, and Run Artifacts.
+
+Important design decisions proposed (not yet implemented):
+- A Case is normally an evidence fixture linked to multiple contracts, not itself the contract.
+- Definitions remain versioned and reviewable in the repository; generated run evidence/artifacts live under user data paths.
+- Begin read-only and preserve existing source catalogs; do not immediately migrate everything to JSON/YAML.
+- Keep catalog/schema/evidence resolution Qt-independent.
+- Do not add generic dynamic plugin execution. Use typed, allow-listed adapters that invoke existing test and case systems.
+- Preserve the explicit evidence scope: a passing unit test does not establish full physical validation.
+- Keep geometry fixture-backed results distinct from production algorithm results.
+
+Industry practices to borrow selectively: requirements traceability, V&V separation, reproducible run manifests, layered testing with production-path integration, ADRs, schema evolution, and explicit claim limits.
+
+Status: **Proposal committed; no runtime or Workbench implementation changes in this slice.** User-reported 1125/1125 is the baseline, not validation of new executable code. Next step is to discuss the five open design questions in the proposal, then inventory current numerical and geometry metadata before Stage 1. Do not start a broad rewrite.
