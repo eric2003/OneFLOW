@@ -138,6 +138,11 @@ Application entry:
 
 * `codes/main/src/OneFlow.cpp` contains the small `main(argc, argv)` entry point. It
   constructs `Simulation` and returns `Simulation::Run()`.
+  `Simulation` is an automatic object in `main`; its lifetime is the application
+  entry-point scope. It is not a polymorphic base, so it has no virtual destructor
+  or manually managed heap lifetime. Runtime-selected lightweight test instances
+  are different: `MakeDefaultSimulation()` returns `std::unique_ptr<SimuBase>`
+  because the registry creates implementations through a polymorphic interface.
 * `codes/main/src/Simulation.cpp` processes command-line arguments and chooses between
   the lightweight test-selector path and full case execution.
 * `codes/main/src/SimuImp.cpp` owns a case lifecycle: setup, task resolution, execution,
