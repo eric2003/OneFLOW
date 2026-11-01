@@ -144,12 +144,14 @@ void SimuContext::FinalizeEnvironment()
     // the process directly without first running TeardownCase().
     // These releases are independent, but both depend on the accelerator
     // runtime remaining alive. Attempt both before crossing the runtime boundary.
+#ifdef ONEFLOW_ENABLE_HIP
     SimuCaseLifecycleDetail::ExecuteAllCleanupSteps(
         [&]() { ClearAccelStates(); },
-#ifdef ONEFLOW_ENABLE_HIP
-        []() { HipFluxBackend::ReleaseShared(); }
+        []() { HipFluxBackend::ReleaseShared(); } );
+#else
+    SimuCaseLifecycleDetail::ExecuteAllCleanupSteps(
+        [&]() { ClearAccelStates(); } );
 #endif
-    );
 
     // Runtime finalization is a dependency boundary, not an independent
     // cleanup step. If it fails, keep the parallel environment alive so the
