@@ -51,3 +51,22 @@ TEST( TurbSpectrumPolicy, SaEffectiveNuMatchesClosedForm )
     EXPECT_DOUBLE_EQ( SaEffectiveKinematicViscosity( 1.0, 2.0, 0.25 ), 0.75 );
     EXPECT_DOUBLE_EQ( SaEffectiveKinematicViscosity( 0.0, 1.0, 3.0 ), 3.0 );
 }
+
+// Intermediate: lambda_diff = (1/Re)*(1/sigma)*nu_eff*A^2/V on a nu_eff grid.
+// Ref: invRe=1, invSigma=1, A2=4, invV=0.5 => lambda = 2 * nu_eff.
+TEST( TurbSpectrumPolicy, DiffusiveSpectrumCurveMatchesClosedForm )
+{
+    const Real invRe = 1.0;
+    const Real invSigma = 1.0;
+    const Real a2 = 4.0;
+    const Real invV = 0.5;
+    const Real nus[] = { 0.0, 0.25, 0.5, 1.0, 2.0, 5.0 };
+    for ( Real nu : nus )
+    {
+        const Real expected = invRe * invV * ( invSigma * nu * a2 );
+        EXPECT_NEAR(
+            TurbDiffusiveFaceSpectralRadius( invRe, invSigma, nu, a2, invV ),
+            expected,
+            1.0e-12 );
+    }
+}

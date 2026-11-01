@@ -675,6 +675,58 @@ def list_theory_entries() -> list[TheoryEntry]:
             does_not_prove="Full turb LUSGS convergence.",
         ),
 
+        TheoryEntry(
+            id="turb_diffusive_spectrum",
+            family="turbulence",
+            genus="Turb-spectrum",
+            section="implicit / face spectral radius",
+            title="Diffusive face spectral radius (SA)",
+            role_tags=("implicit", "spectrum", "diffusive", "SA"),
+            formula_plain=(
+                "nu_et = mu_l/rho + nu_tilde\n"
+                "lambda_diff = (1/Re)*(1/sigma)*nu_et*A^2/V"
+            ),
+            formula_latex=(
+                r"\nu_{\mathrm{et}}=\mu_l/\rho+\tilde\nu"
+                "\n"
+                r"\lambda_{\mathrm{diff}}=\frac{1}{Re}\frac{1}{\sigma}"
+                r"\nu_{\mathrm{et}}\frac{A^{2}}{V}"
+            ),
+            principle=(
+                "SA turbulence LUSGS adds a diffusive spectral radius from "
+                "effective kinematic viscosity and face geometry."
+            ),
+            background=(
+                "Companion to turb_inviscid_spectrum. Pure APIs "
+                "SaEffectiveKinematicViscosity and TurbDiffusiveFaceSpectralRadius."
+            ),
+            references=(
+                "OneFLOW TurbSpectrumPolicy; turb_spectrum.rst",
+            ),
+            csv_relpath="tools/verification/data/turb_diffusive_spectrum_theory.csv",
+            plot_module="plot_turb_diffusive_spectrum",
+            pure_apis=(
+                "SaEffectiveKinematicViscosity",
+                "TurbDiffusiveFaceSpectralRadius",
+            ),
+            source_relpaths=(
+                "codes/turb/include/TurbSpectrumPolicy.h",
+                "codes/turb/src/TurbSpectrumPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/turb_spectrum.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "Real TurbDiffusiveFaceSpectralRadius(\n"
+                "    Real invRe, Real invSigma, Real nuEff,\n"
+                "    Real A2, Real invV) {\n"
+                "  return invRe * invV * (invSigma * nuEff * A2);\n"
+                "}\n"
+            ),
+            proves="lambda_diff algebra vs pure API on nu_eff grid.",
+            does_not_prove="Full turb LUSGS case convergence.",
+        ),
+
+
         # ========== NS / LUSGS ==========
         TheoryEntry(
             id="ns_lusgs_viscous_spectrum",

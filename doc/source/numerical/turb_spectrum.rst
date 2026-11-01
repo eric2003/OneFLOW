@@ -30,3 +30,16 @@ Locks: ``turb_spectrum_policy_test``. Contract Workbench entry
 
 **Proves:** pure spectral-radius algebra. **Does not prove:** turb LUSGS case
 convergence.
+
+Diffusive intermediate curve
+----------------------------
+
+Reference geometry in the theory table uses fixed
+:math:`1/Re=1`, :math:`1/\sigma=1`, :math:`A^2=4`, :math:`1/V=0.5`, so
+:math:`\lambda_{\mathrm{diff}}=2\nu_{\mathrm{eff}}`.
+
+CSV: ``tools/verification/data/turb_diffusive_spectrum_theory.csv``.
+
+.. image:: figures/turb_diffusive_spectrum_theory.png
+   :alt: Turb diffusive spectrum vs nu_eff
+   :width: 480
