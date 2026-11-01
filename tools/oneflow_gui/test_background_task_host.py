@@ -61,7 +61,8 @@ class BackgroundTaskHostTest(unittest.TestCase):
                     time.sleep(0.01)
                     continue
                 if task.process_pid is not None:
-                    stop_file.write_text("stop\\n", encoding="utf-8")
+                    stop_file.write_text("stop\n", encoding="utf-8")
+                    stop_requested.set()
                     return
                 time.sleep(0.01)
 
