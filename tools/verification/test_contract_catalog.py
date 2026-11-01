@@ -119,6 +119,7 @@ class ContractCatalogTest(unittest.TestCase):
         self.assertEqual(case_data.flux_scheme, "SLAU2")
         self.assertEqual(case_data.max_steps, 50)
         self.assertEqual(len(case_data.comparison_outputs), 5)
+        self.assertEqual(case_data.residual_outputs, ("results/res.dat",))
         self.assertEqual(len(case_data.analytical_references), 3)
         self.assertEqual(case_data.residual_absolute_tolerance, 1e-15)
 
@@ -142,6 +143,26 @@ class ContractCatalogTest(unittest.TestCase):
 
         self.assertTrue(
             any("residual tolerance does not match" in issue for issue in issues),
+            "\\n".join(issues),
+        )
+
+    def test_detects_residual_history_length_drift(self) -> None:
+        definition_path = (
+            self.repository_root
+            / "tools"
+            / "verification"
+            / "contracts"
+            / "case"
+            / "laminar_flat_plate_slau2.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        definition["case"]["max_steps"] = 49
+        summary = adapt_declared_contract(definition)
+
+        issues = validate_contract_summaries(self.repository_root, [summary])
+
+        self.assertTrue(
+            any("residual row count does not match" in issue for issue in issues),
             "\\n".join(issues),
         )
 
