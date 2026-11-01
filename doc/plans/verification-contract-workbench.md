@@ -242,3 +242,41 @@ These are starting points; each contract should cite the source relevant to its 
 5. Should runners launch existing CTest/GoogleTest/CFD tools directly, or initially link to commands and display externally collected results? Start with link-only/read-only evidence; add execution adapters one at a time.
 
 This proposal should be reviewed against the current implementation before Stage 1 begins. It does not authorize a broad rewrite.
+
+
+## 13. Stage 1 implementation status (2026-11-01)
+
+A first compatibility slice is now present on `hexin`:
+
+- `tools/verification/contract_catalog.py` defines immutable `ContractSummary`
+  and `ContractEvidence` records.
+- `adapt_theory_entry` reads the existing numerical `TheoryEntry` and
+  exposes its principle, references, implementation/documentation paths,
+  claims, limitations, pure API names, and theory CSV as declared evidence.
+- `adapt_geometry_scenario` reads an existing geometry scenario dictionary
+  without changing its JSON schema or running the geometry stub / production C++.
+  It explicitly labels fixture availability and linked GoogleTest references
+  as not executed.
+- `validate_contract_summaries` checks stable-ID uniqueness, repository path
+  containment, and existence of declared implementation, documentation,
+  theory-data, and linked-test source paths.
+- `tools/verification/test_contract_catalog.py` adds headless tests for both
+  adapters, execution-status honesty, invalid IDs, duplicate IDs, missing
+  paths, path traversal, and existing repository references.
+
+This is deliberately only a read-only compatibility model. The existing
+Numerical and Geometry GUI entry points and source formats are unchanged.
+The adapter does not execute tests, record results, or claim that a linked
+GoogleTest has passed.
+
+Suggested local validation from the repository root:
+
+```powershell
+python -m unittest tools.verification.test_contract_catalog
+python -m unittest tools.verification.test_curve_catalog
+```
+
+The implementation has not been locally built or tested by the assistant.
+The user's previously reported 1125/1125 result predates these additions and
+must not be attributed to this slice. Run the two focused commands first,
+then the complete project test suite.
