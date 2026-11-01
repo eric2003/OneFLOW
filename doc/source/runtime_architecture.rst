@@ -1027,3 +1027,17 @@ The distinction also guides future architecture work: process runtime services
 should be injected or observed through a process-level owner, while case data and
 solver state should remain scoped to a case context. Do not move a resource between
 these scopes until its actual use interval and teardown dependency have been traced.
+
+
+Accelerator memory ownership
+----------------------------
+
+The accelerator memory wrapper is DeviceBuffer<T>, declared in
+codes/accel/include/DeviceBuffer.h. It is a move-only owner of a backend allocation.
+Its grow-only Resize() allocates a replacement, copies the current contents, commits
+ownership of the replacement, and then releases the previous allocation. A scope guard
+releases a candidate if allocation/copy does not complete. Destruction and noexcept
+move assignment perform best-effort non-throwing cleanup; explicit Reset() can report a
+backend release error. Buffers must be destroyed or reset before the accelerator runtime is
+finalized. See doc/plans/device-buffer-resource-lifecycle.md for the exception guarantees,
+focused tests, and remaining validation requirements.
