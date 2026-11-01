@@ -1,5 +1,35 @@
 # AI and Developer Project Context
 
+## 2026-11-01 continuation: production process-level accelerator retry
+
+The user reports all 41 registered Python command groups passed. The root
+`gui/` directory is temporarily out of active development scope; do not spend
+the next slices expanding its legacy test inventory. Keep the existing
+`tools/oneflow_gui` infrastructure stable, but prioritize C++ core,
+numerical algorithms, runtime architecture, documentation, and CFD regression.
+
+Added a production-linked lifecycle test:
+`SimuImpCaseLifecycleIntegration.FailedAcceleratorFinalizationKeepsProcessRuntimeActiveForRetry`.
+It injects a retryable backend under the HIP backend kind, forces the first
+`AccelRuntime::Finalize()` call to throw through the real
+`SimuImp::FinalizeEnvironment()` entry point, and verifies the process
+lifecycle remains Active and the backend remains initialized. A second
+finalization succeeds and commits the lifecycle transition.
+
+Design record: `doc/plans/accelerator-runtime-shutdown-order.md`, section 8.
+Implementation commit: `5e38b60444c6090e372a77326e987bfdad4da99d`.
+Documentation commit: `f111469cac3458701f9a1a2a2e9ef4902db6d75e`.
+
+Status: implemented, not yet validated on the user's Windows build. The fake
+HIP-kind backend verifies process-level retry ordering without requiring HIP
+hardware; it does not replace HIP driver or multi-rank MPI validation.
+
+Next validation: build and run the focused
+`SimuImpCaseLifecycleIntegration.FailedAcceleratorFinalizationKeepsProcessRuntimeActiveForRetry`,
+then `AccelRuntimeTest.FailedFinalizationPreservesBackendForRetry`, followed
+by full Debug CTest. If they pass, proceed to the remaining case-teardown
+failure boundaries and representative CFD regressions.
+
 Last updated: 2026-11-01
 Working branch: `hexin` only. Latest inspected baseline for the shutdown-order slice: `6e550260578a7ad3490793791f9a26feb1e670ae`. Current hexin HEAD after fixture correction and handoff updates: see the latest commits in this section.
 User-reported local validation on the pre-change baseline: **1123/1123 tests passed**. This does not validate the shutdown-order change added afterward.
