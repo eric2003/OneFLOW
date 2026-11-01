@@ -20,3 +20,14 @@ Rendered formula/curve previews are written under the user data root, never unde
 * override root: environment variable ``ONEFLOW_HOME``
 
 See ``tools/oneflow_gui/user_data_paths.py``.
+
+## Plot style (axis labels)
+
+Theory curve PNG generators under ``tools/verification/plot_*.py`` must:
+
+* set **xlabel** / **ylabel** with plain ASCII names (readable without math fonts);
+* put the **formula** in the title subtitle;
+* call ``plot_style.apply_theory_style`` / ``save_figure``.
+
+Do not commit bare-line plots without axes text. Runtime GUI previews still write under
+user data paths (``~/.oneflow/contract-workbench/preview``), not the source tree.
