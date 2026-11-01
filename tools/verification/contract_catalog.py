@@ -325,7 +325,7 @@ def validate_contract_summaries(
             *(
                 item.scope
                 for item in summary.evidence
-                if item.kind == "linked_test"
+                if item.kind in ("linked_test", "google_test")
                 and item.scope.endswith((".cpp", ".cc", ".cxx"))
             ),
         ]
@@ -339,7 +339,7 @@ def validate_contract_summaries(
                 issues.append(f"{summary.id}: missing repository file: {relpath}")
 
         for item in summary.evidence:
-            if item.kind != "linked_test" or not item.scope.endswith(
+            if item.kind not in ("linked_test", "google_test") or not item.scope.endswith(
                 (".cpp", ".cc", ".cxx")
             ):
                 continue
