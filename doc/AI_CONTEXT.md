@@ -37,6 +37,21 @@ R1 remains **Partial**. The production integration target exercises the real `Si
 The earlier investigation record remains `doc/plans/setup-case-environment-integration-test.md`. Its original findings are historical; this handoff and `doc/source/runtime_architecture.rst` record the newer rollback behavior.
 
 Next single action: build and run the focused production lifecycle integration target on the exact latest commit, then run the full Debug CTest suite and representative grid/CFD regressions. If those pass, update the R1 evidence; keep teardown fault injection and multi-rank MPI as explicit remaining gaps. Detailed findings are in `doc/plans/setup-case-environment-integration-test.md`.
+## Current follow-on: accelerator buffer ownership
+
+The latest branch focus has moved to accelerator resource reliability after the recent
+transactional backend initialization work. Inspected starting HEAD: d9e25a7b671e6104c0d116ae5c561e5d12ba09d0 (Register accelerator runtime tests). The user reports 1119/1119 local tests passed on that pre-change baseline.
+
+- DeviceBuffer<T>::Resize() previously leaked its replacement allocation if device-to-device copy failed.
+- Its destructor and noexcept move assignment called a backend deallocator that may throw.
+- The implementation now guards candidate allocations, preserves the old buffer on allocation/copy failure, commits replacement ownership before releasing the old allocation, and uses non-throwing cleanup from destruction/move assignment.
+- Explicit Reset() reports release errors but clears object ownership first. Buffers must still be released before accelerator runtime finalization; a destructor cannot free through a backend that has already been finalized.
+- Focused fake-backend tests cover failed growth cleanup/original-buffer preservation and non-throwing destruction.
+- Design record: [DeviceBuffer resource lifecycle](plans/device-buffer-resource-lifecycle.md).
+
+Implementation commits: [9728e46](https://github.com/eric2003/OneFLOW/commit/9728e46f97204a04a0bc188e770fde2e3d453e23), [01b63aa](https://github.com/eric2003/OneFLOW/commit/01b63aa1b1380e295eba9c2dfd4912a09612f56a).
+Status: **Implemented, unverified**. No local compiler/CTest execution is available in this environment. Next action is to build and run accel_runtime_test, then the full Debug CTest suite and CPU regression cases on the exact updated HEAD.
+
 ## 1. Read this first
 
 For a quick restart, follow this order:
