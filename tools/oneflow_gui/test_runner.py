@@ -43,7 +43,10 @@ def summarize_test_output(output_lines: list[str]) -> tuple[str, ...]:
         "FAIL:",
         "ERROR:",
         "FAILED:",
+        "The following tests FAILED:",
         "Traceback (most recent call last):",
+        "fatal error",
+        "error ",
         "AssertionError:",
     )
     failure_start = next(
