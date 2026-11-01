@@ -49,7 +49,6 @@ License
 #include "ActionState.h"
 #include "Iteration.h"
 #include <iostream>
-#include <exception>
 #include <filesystem>
 #include <stdexcept>
 
@@ -137,33 +136,10 @@ void SimuContext::FinalizeEnvironment()
         return;
     }
 
-    std::exception_ptr finalizeFailure;
-    try
-    {
-        ONEFLOW::FinalizeAccelRuntime();
-    }
-    catch ( ... )
-    {
-        finalizeFailure = std::current_exception();
-    }
-
-    try
-    {
-        HXFinalize();
-    }
-    catch ( ... )
-    {
-        if ( ! finalizeFailure )
-        {
-            finalizeFailure = std::current_exception();
-        }
-    }
-
-    processLifecycle_.MarkFinalized();
-    if ( finalizeFailure )
-    {
-        std::rethrow_exception( finalizeFailure );
-    }
+    SimuCaseLifecycleDetail::ExecuteAllCleanupSteps(
+        []() { ONEFLOW::FinalizeAccelRuntime(); },
+        []() { HXFinalize(); },
+        [&]() { processLifecycle_.MarkFinalized(); } );
 }
 
 void SimuContext::TeardownEnvironment()
