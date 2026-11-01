@@ -293,12 +293,9 @@ void TurbSrcFlux::CalcCellVist1Equ()
 
 void TurbSrcFlux::CalcCellVist2Equ()
 {
-    const Real dist2 = SQR( turbcom.dist );
-    const Real part1 = 2.0 * sqrt( turbcom.ke )
-        / ( turbcom.betas * turbcom.kw * turbcom.dist );
-    const Real part2 = 500.0 * turbcom.visl
-        / ( turbcom.rho * turbcom.kw * dist2 * turbcom.reynolds );
-    const Real arg2 = SstF2Arg( part1, part2 );
+    const Real arg2 = SstF2Argument(
+        turbcom.ke, turbcom.kw, turbcom.dist, turbcom.betas,
+        turbcom.visl, turbcom.rho, turbcom.reynolds );
     const Real f2 = SstF2FromArg( arg2 );
 
     const Real limitingRateMagnitude = SstLimitingRateMagnitude(
