@@ -98,12 +98,6 @@ Real SaEddyViscosity( Real density, Real nuTilde, Real fv1 )
     return density * nuTilde * fv1;
 }
 
-Real SaCappedEddyViscosity(
-    Real eddyViscosity, Real laminarViscosity, Real maxViscosityRatio )
-{
-    return MIN( laminarViscosity * maxViscosityRatio, eddyViscosity );
-}
-
 
 Real SaStrainProductionClassical( Real work1, Real work2, Real work3 )
 {
