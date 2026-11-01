@@ -38,8 +38,10 @@ public:
     ~EulerDomainStateRegistry() = default;
 
     EulerDomainStateRegistry( const EulerDomainStateRegistry & ) = delete;
+    // Moving transfers backend-state ownership. Move assignment is disabled
+    // because replacing a live registry would silently release its states.
     EulerDomainStateRegistry( EulerDomainStateRegistry && other ) noexcept = default;
-    EulerDomainStateRegistry & operator=( EulerDomainStateRegistry && ) noexcept = default;
+    EulerDomainStateRegistry & operator=( EulerDomainStateRegistry && ) = delete;
     EulerDomainStateRegistry & operator=( const EulerDomainStateRegistry & ) = delete;
 
     using StateFactory = std::function< std::unique_ptr< EulerDomainState >() >;
