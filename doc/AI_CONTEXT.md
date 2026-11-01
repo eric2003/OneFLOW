@@ -1309,4 +1309,4 @@ Windows test result is claimed for these commits.
 
 The new UI test is registered as the 42nd Python test command. The latest
 `hexin` HEAD for this handoff is
-`e57de202a13da7db0fcc4fba84899ddc7b995b69`.
+`246b1f72ff91af7c7352ec73e5b63309ba4ee876`.
