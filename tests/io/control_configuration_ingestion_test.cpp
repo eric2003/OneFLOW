@@ -302,6 +302,17 @@ TEST( ControlReaderIntegration, CaseEnvironmentSetupFailureCanBeRolledBack )
         GetDataValue<std::string>(
             "partial_case_bootstrap_value", &RequireGlobalDataBase() ),
         std::runtime_error );
+
+    // The same context can retry after the failed bootstrap has been rolled back.
+    testCase.WriteScript(
+        "missing.txt",
+        "string recovered_case_bootstrap_value = \"recovered\";\n" );
+    EXPECT_NO_THROW( context.SetupCaseEnvironment() );
+    EXPECT_TRUE( context.IsEnvironmentReady() );
+    EXPECT_EQ(
+        GetDataValue<std::string>(
+            "recovered_case_bootstrap_value", &RequireGlobalDataBase() ),
+        "recovered" );
 }
 
 TEST( ControlReaderIntegration, CaseBootstrapAppliesSettingsAndRebindsNextCase )
