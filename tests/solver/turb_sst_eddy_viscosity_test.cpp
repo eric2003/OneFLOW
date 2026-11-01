@@ -102,3 +102,78 @@ TEST( TurbSstEddyViscosity, F2Arg2CurveMatchesClosedForm )
         EXPECT_NEAR( SstF2FromArg( a ), expected, 1.0e-12 );
     }
 }
+ 
+TEST( TurbSstEddyViscosity, StrainAndVorticityMagnitudesAreRotationInvariant )
+{
+    const Real gradient[3][3] = {
+        { 1.0, 2.0, -0.5 },
+        { -3.0, 0.25, 1.5 },
+        { 0.75, -1.25, -0.5 }
+    };
+    const Real rotation[3][3] = {
+        { 0.0, -1.0, 0.0 },
+        { 1.0, 0.0, 0.0 },
+        { 0.0, 0.0, 1.0 }
+    };
+    Real rotated[3][3] = {};
+    Real intermediate[3][3] = {};
+
+    // Change basis with G' = Q^T G Q; both tensor norms must be invariant.
+    for ( int i = 0; i < 3; ++i )
+    {
+        for ( int j = 0; j < 3; ++j )
+        {
+            for ( int k = 0; k < 3; ++k )
+            {
+                intermediate[i][j] += gradient[i][k] * rotation[k][j];
+            }
+        }
+    }
+    for ( int i = 0; i < 3; ++i )
+    {
+        for ( int j = 0; j < 3; ++j )
+        {
+            for ( int k = 0; k < 3; ++k )
+            {
+                rotated[i][j] += rotation[k][i] * intermediate[k][j];
+            }
+        }
+    }
+
+    const Real strain = SstStrainRateMagnitude(
+        gradient[0][0], gradient[0][1], gradient[0][2],
+        gradient[1][0], gradient[1][1], gradient[1][2],
+        gradient[2][0], gradient[2][1], gradient[2][2] );
+    const Real rotatedStrain = SstStrainRateMagnitude(
+        rotated[0][0], rotated[0][1], rotated[0][2],
+        rotated[1][0], rotated[1][1], rotated[1][2],
+        rotated[2][0], rotated[2][1], rotated[2][2] );
+    const Real vorticity = SstVorticityMagnitude(
+        gradient[0][0], gradient[0][1], gradient[0][2],
+        gradient[1][0], gradient[1][1], gradient[1][2],
+        gradient[2][0], gradient[2][1], gradient[2][2] );
+    const Real rotatedVorticity = SstVorticityMagnitude(
+        rotated[0][0], rotated[0][1], rotated[0][2],
+        rotated[1][0], rotated[1][1], rotated[1][2],
+        rotated[2][0], rotated[2][1], rotated[2][2] );
+
+    EXPECT_NEAR( rotatedStrain, strain, 1.0e-12 );
+    EXPECT_NEAR( rotatedVorticity, vorticity, 1.0e-12 );
+}
+
+TEST( TurbSstEddyViscosity, SolidBodyRotationHasNoStrain )
+{
+    // A rigid rotation has an antisymmetric velocity gradient.
+    const Real strain = SstStrainRateMagnitude(
+        0.0, -2.0, 0.0,
+        2.0, 0.0, 0.0,
+        0.0, 0.0, 0.0 );
+    const Real vorticity = SstVorticityMagnitude(
+        0.0, -2.0, 0.0,
+        2.0, 0.0, 0.0,
+        0.0, 0.0, 0.0 );
+
+    EXPECT_DOUBLE_EQ( strain, 0.0 );
+    EXPECT_DOUBLE_EQ( vorticity, 4.0 );
+}
+
