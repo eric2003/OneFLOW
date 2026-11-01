@@ -401,7 +401,6 @@ def validate_contract_summaries(
             declared_paths.extend(
                 (
                     case_data.suite,
-                    case_data.case_path,
                     *case_data.input_paths,
                     *case_data.analytical_references,
                     case_data.residual_baseline,
@@ -437,6 +436,10 @@ def validate_contract_summaries(
                     issues.append(
                         f"{summary.id}: cannot read suite {case_data.suite}: {exc}"
                     )
+            if case_path is not None and not case_path.is_dir():
+                issues.append(
+                    f"{summary.id}: missing case directory: {case_data.case_path}"
+                )
             if case_path is not None and case_path.is_dir():
                 compare_path = case_path / "autotest" / "compare.txt"
                 if not compare_path.is_file():
