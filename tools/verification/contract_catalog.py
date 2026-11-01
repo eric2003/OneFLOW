@@ -189,6 +189,19 @@ def adapt_geometry_scenario(
     )
 
 
+_EVIDENCE_KINDS = {
+    "pure_api",
+    "theory_data",
+    "fixture",
+    "linked_test",
+    "google_test",
+    "case_suite",
+    "output_manifest",
+    "residual_baseline",
+    "analytical_reference",
+}
+
+
 _EVIDENCE_STATUSES = {
     "declared_not_executed",
     "linked_not_executed",
@@ -274,6 +287,11 @@ def adapt_declared_contract(definition: dict[str, Any]) -> ContractSummary:
                 raise ValueError(
                     f"verification[{index}] requires non-empty {field}"
                 )
+        evidence_kind = item["kind"].strip()
+        if evidence_kind not in _EVIDENCE_KINDS:
+            raise ValueError(
+                f"verification[{index}] has unsupported kind: {evidence_kind}"
+            )
         evidence_status = item["status"].strip()
         if evidence_status not in _EVIDENCE_STATUSES:
             raise ValueError(
