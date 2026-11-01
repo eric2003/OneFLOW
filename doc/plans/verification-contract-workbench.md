@@ -636,3 +636,38 @@ Focused validation:
 python -m unittest tools.verification.test_contract_catalog
 python -m unittest tools.oneflow_gui.test_contract_workbench_dialog
 ```
+
+## 23. Static CMake target linkage for GoogleTest evidence (2026-11-02)
+
+Added a Qt-independent CMake test catalog that maps a resolved GoogleTest
+source path to direct `add_executable` source declarations in
+`tests/**/CMakeLists.txt`. It separately records whether the matched target
+has a `gtest_discover_tests` declaration and, when present, its
+`DISCOVERY_MODE`. The Runtime Verification view now displays the target,
+owning CMake file, target-resolution state, and discovery declaration.
+
+The state boundary is explicit:
+
+- source declaration resolved: the named GoogleTest macro was found in source;
+- target resolved: a direct CMake executable declaration lists that source;
+- CTest discovery declared: the target has a `gtest_discover_tests` declaration;
+- built, discovered at configure/test time, and executed: **not established by
+  this static resolver** and must come from actual build/CTest records.
+
+The parser deliberately does not infer target membership from variable-based
+source lists, `target_sources()`, helper functions, or generated CMake. Such
+cases remain unresolved until a configured build-system export or CMake File
+API integration can provide authoritative target metadata. This conservative
+boundary is preferable to a plausible but false green state.
+
+Tests cover positive target/discovery mapping, a target without discovery
+registration, variable-indirect source lists, unrelated files, and paths
+outside the repository. The GUI integration test checks the actual Runtime
+contract target and its PRE_TEST discovery declaration.
+
+Focused validation:
+
+```powershell
+python -m unittest tools.verification.test_cmake_test_catalog
+python -m unittest tools.oneflow_gui.test_contract_workbench_dialog
+```
