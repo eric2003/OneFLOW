@@ -86,7 +86,7 @@ for mesh input, and writes path information.
 - Resolution rules can be tested without initializing the full solver where practical.
 - Relevant integration tests and Windows/Linux CI are reported against the changed commit.
 
-**Status:** Partial. Root-setting lookup and legacy fallback selection are isolated into a tested value-object adapter. The real `SetupCaseEnvironment()` / `ReadControlInfo(caseDir)` integration path, effective `Prj` application, diagnostic output, and sequential-case behavior have focused component-integration coverage. `SetupCaseEnvironment()` now rolls back partially committed configuration, log binding, and project-root state when bootstrap fails; a test verifies rollback after the first script commits, confirms readiness remains false, and retries successfully on the same context. The remaining lifecycle gap is the full `SimuImp::RunCase() -> PostProcess() -> TeardownCase()` path, including solver/device resources.
+**Status:** Partial. Root-setting lookup and legacy fallback selection are isolated into a tested value-object adapter. The real `SetupCaseEnvironment()` / `ReadControlInfo(caseDir)` integration path, effective `Prj` application, diagnostic output, and sequential-case behavior have focused component-integration coverage. `SetupCaseEnvironment()` now rolls back partially committed configuration, log binding, and project-root state when bootstrap fails; a test verifies rollback after the first script commits, confirms readiness remains false, and retries successfully on the same context. The production `SimuImp::RunCase() -> PostProcess() -> TeardownCase()` path now has failure-path integration coverage. A successful two-case sequence using separate production `SimuImp` instances has been added to the production-linked integration target; it is implemented but awaits local validation. Remaining gaps include injected failures at concrete solver/device release points and multi-rank MPI.
 
 ### R2. Trace task selection and parameter semantics
 
@@ -430,3 +430,12 @@ Commit: `d8568fe91722af5d78d8083d6bae23d9446d952d`
 - Architecture value: R1 now has a production `SimuImp::RunCase()` integration test path, rather than only testing a generic lifecycle helper or Context setup. The build also has its first reusable production runtime target.
 - Remaining: cleanup failure injection at individual solver/device release points; successful repeated full SimuImp cases; multi-rank MPI validation; numerical regression suite; exact Windows/Linux CI and fresh local CTest. Do not claim the 1096/1096 pre-change baseline validates this slice.
 - Detailed contract and test scope: `doc/plans/setup-case-environment-integration-test.md`; implementation map: `doc/source/runtime_architecture.rst`.
+
+### 2026-11-01 - Add successful sequential production-case isolation coverage
+
+- Based on inspected `hexin` base `4ad8f02c7405be4205750e9473b9f87f16acb985`; the user reports 1110/1110 local tests passed on this pre-change revision.
+- Added `SuccessfulCasesRemainIsolatedWithinOneProcess` to `tests/main/simu_imp_case_lifecycle_integration_test.cpp`. It uses the same `RunCasesWithProcessLifecycle()` orchestration as `Simulation::RunImpl()`, creates a separate production `SimuImp` for each temporary case, and injects a marker-only `ToyModel` task so the test exercises real configuration ingestion and teardown without invoking a numerical solver.
+- The contract checks that both case markers are observed in command-line order, case-owned configuration and context state are cleared after each run, and process runtime remains active between cases but is finalized after the sequence.
+- This is production-path lifecycle integration evidence, not numerical verification of a full CFD Solve task. The test is **implemented, unverified** until the user builds and runs the exact commit.
+- Implementation commits: [17ab1eb](https://github.com/eric2003/OneFLOW/commit/17ab1eb524467fe58caded1f4a2b8d30a5792170), [0d3597e](https://github.com/eric2003/OneFLOW/commit/0d3597ee004ff4830b4d16433df7e315d1b6323a).
+- Next: run the focused integration target, full Debug CTest, and representative grid/CFD regressions; then reassess R1 and continue with concrete teardown failure injection and MPI behavior.
