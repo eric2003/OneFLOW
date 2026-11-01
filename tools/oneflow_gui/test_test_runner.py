@@ -11,6 +11,8 @@ from tools.oneflow_gui.test_runner import (
     available_suites,
     build_cmake_command,
     build_cmake_configure_command,
+    build_ctest_test_commands,
+    build_python_test_commands,
     build_default_test_commands,
     cmake_build_tree_is_configured,
     build_regression_command,
@@ -40,6 +42,31 @@ class TestRunnerCommandTest(unittest.TestCase):
         }.issubset(python_modules))
         self.assertTrue(all(command.task_type is TaskType.UNIT_TESTS for command in commands))
         self.assertFalse(any("OneFLOW.exe" in " ".join(command.arguments) for command in commands))
+
+    def test_ctest_and_python_commands_can_be_built_independently(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            build = root / "build"
+            build.mkdir()
+            (build / "CTestTestfile.cmake").write_text("", encoding="utf-8")
+
+            ctest_commands = build_ctest_test_commands(root, build_config="Release")
+            python_commands = build_python_test_commands(root, python="python-test")
+
+            self.assertEqual(len(ctest_commands), 1)
+            self.assertEqual(ctest_commands[0].arguments, (
+                "ctest", "--output-on-failure", "-C", "Release"
+            ))
+            self.assertEqual(ctest_commands[0].working_directory, build)
+            self.assertTrue(python_commands)
+            self.assertTrue(all(command.arguments[0] == "python-test" for command in python_commands))
+            self.assertFalse(any(command.arguments[0] == "ctest" for command in python_commands))
+
+    def test_ctest_builder_reports_unconfigured_build_tree(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            self.assertEqual(build_ctest_test_commands(root), [])
+            self.assertTrue(build_python_test_commands(root))
 
     def test_configure_command_uses_build_directory_and_repository_root(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
