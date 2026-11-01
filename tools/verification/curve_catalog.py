@@ -514,7 +514,44 @@ def list_theory_entries() -> list[TheoryEntry]:
             proves="fw2006 closed form vs WilcoxFw2006 sample grid.",
             does_not_prove="Full Wilcox residual or SST path.",
         ),
-
+        TheoryEntry(
+            id="wilcox_vortex_stretching",
+            family="turbulence",
+            genus="Wilcox",
+            section="closure / vortex stretching",
+            title="xw vortex-stretching invariant",
+            role_tags=("closure", "Wilcox", "vortex-stretching"),
+            formula_plain=(
+                "xw_raw = - (w12^2 (s11+s22) + w13^2 (s11+s33) + w23^2 (s22+s33))\n"
+                "         + 2 (-w13 w23 s12 + w12 w23 s13 - w12 w13 s23)\n"
+                "xw = |xw_raw|"
+            ),
+            formula_latex=(
+                r"x_w=\left|-(\omega_{12}^{2}(s_{11}+s_{22})+\cdots)+2(\cdots)\right|"
+            ),
+            principle=(
+                "Vortex-stretching invariant drives Wilcox fw beta modifiers."
+            ),
+            background=(
+                "Pure API WilcoxVortexStretchingInvariant isolates tensor algebra."
+            ),
+            references=(
+                "Wilcox vortex-stretching notes; wilcox_fbeta.rst",
+            ),
+            csv_relpath=None,
+            plot_module=None,
+            pure_apis=("WilcoxVortexStretchingInvariant", "WilcoxFw1998", "WilcoxFw2006"),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/wilcox_fbeta.rst",
+            code_sketch=(
+                "// GATED SKETCH — see TurbSstPolicy.cpp\n"
+            ),
+            proves="Tensor algebra samples vs WilcoxVortexStretchingInvariant.",
+            does_not_prove="Full Wilcox residual on a mesh.",
+        ),
 
         # ========== NS / LUSGS ==========
         TheoryEntry(

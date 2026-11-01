@@ -73,3 +73,37 @@ TEST( WilcoxFbeta, Fw2006CurveMatchesClosedForm )
         EXPECT_NEAR( WilcoxFw2006( xw ), expected, 1.0e-12 );
     }
 }
+
+// Intermediate: vortex-stretching invariant |xw| from strain/vorticity tensors.
+// Closed-form matches WilcoxVortexStretchingInvariant; not a full residual.
+TEST( WilcoxFbeta, VortexStretchingZeroWhenQuiet )
+{
+    EXPECT_DOUBLE_EQ(
+        WilcoxVortexStretchingInvariant(
+            0.0, 0.0, 0.0,
+            0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
+        0.0 );
+}
+
+TEST( WilcoxFbeta, VortexStretchingMatchesClosedFormSample )
+{
+    // w12=1, others 0; s11=2, s22=3, rest 0
+    // xw = - w12^2 (s11+s22) = -1*(2+3) = -5, abs = 5
+    EXPECT_DOUBLE_EQ(
+        WilcoxVortexStretchingInvariant(
+            1.0, 0.0, 0.0,
+            2.0, 3.0, 0.0, 0.0, 0.0, 0.0 ),
+        5.0 );
+}
+
+TEST( WilcoxFbeta, VortexStretchingCrossTerms )
+{
+    // w12=0,w13=1,w23=1; s12=2, rest strain 0 except s13=0,s23=0
+    // xw = - (w13^2 (s11+s33) + w23^2 (s22+s33)) + 2*(-w13*w23*s12 + ...)
+    //    = - (0 + 0) + 2*(-1*1*2) = -4, abs = 4
+    EXPECT_DOUBLE_EQ(
+        WilcoxVortexStretchingInvariant(
+            0.0, 1.0, 1.0,
+            0.0, 0.0, 0.0, 2.0, 0.0, 0.0 ),
+        4.0 );
+}
