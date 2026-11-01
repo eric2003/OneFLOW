@@ -56,10 +56,10 @@ Complete per-cell closure
 ``SaComputeEddyViscosity(input)`` now composes the complete SA eddy-viscosity
 calculation from primitive cell state: density, working variable, laminar
 viscosity, :math:`c_{v1}^3`, and the configured viscosity-ratio limit. Its
-result exposes :math:`\\chi`, :math:`f_{v1}`, the uncapped eddy viscosity,
+result exposes :math:`\chi`, :math:`f_{v1}`, the uncapped eddy viscosity,
 and the final capped value. The production adapter
 ``TurbSrcFlux::CalcCellVist1Equ`` maps the solver state into this input and
-retains the intermediate :math:`\\chi`, :math:`\\chi^3`, and
+retains the intermediate :math:`\chi`, :math:`\chi^3`, and
 :math:`f_{v1}` values used by the surrounding solver state.
 
 The focused tests verify both the full intermediate chain and the shared
