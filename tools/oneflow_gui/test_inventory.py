@@ -78,7 +78,7 @@ def _cpp_tests(repository_root: Path, links: dict) -> list[dict[str, Any]]:
 def _python_test_roots(repository_root: Path) -> tuple[Path, ...]:
     return tuple(
         repository_root / relative
-        for relative in ("tools", "tests", "gui" / Path("python/tkinter"))
+        for relative in ("tools", "tests", Path("gui/python/tkinter"))
         if (repository_root / relative).is_dir()
     )
 
@@ -111,7 +111,7 @@ def _python_tests(repository_root: Path) -> list[dict[str, Any]]:
                 continue
             module_name = ".".join(path.relative_to(repository_root).with_suffix("").parts)
             relative_source = path.relative_to(repository_root).as_posix()
-            for node in ast.walk(tree):
+            for node in tree.body:
                 if isinstance(node, ast.ClassDef):
                     for method in node.body:
                         if isinstance(method, (ast.FunctionDef, ast.AsyncFunctionDef)) and method.name.startswith("test_"):
