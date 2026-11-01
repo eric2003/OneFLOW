@@ -71,6 +71,7 @@ class TestCommandWorker(QThread):
         failed_labels: list[str] = []
         passed_labels: list[str] = []
         run_output: list[str] = []
+        failed_diagnostics = []
         for command in self._commands:
             command_output: list[str] = []
             if self._cancel.is_set():
@@ -165,6 +166,7 @@ class TestCommandWorker(QThread):
                         exit_code=return_code,
                     )
                     if records:
+                        failed_diagnostics.extend(records)
                         self.diagnostics.emit(records)
                 self.command_completed.emit(
                     TaskRunResult(
@@ -199,6 +201,18 @@ class TestCommandWorker(QThread):
             f"  Not run: {not_run}",
         ]
         report.extend(summarize_test_output(run_output))
+        if failed_diagnostics:
+            report.append("Failed test cases:")
+            for item in failed_diagnostics:
+                location = item.source_file or "unknown"
+                if item.source_line is not None:
+                    location += f":{item.source_line}"
+                cause = item.exception_type or "unknown"
+                if item.message:
+                    cause += f": {item.message}"
+                report.append(f"  - {item.test_id or 'unknown'} [{item.task_label}]")
+                report.append(f"      Location: {location}")
+                report.append(f"      Cause: {cause}")
         if failed_labels:
             report.insert(1, "  Failed commands: " + ", ".join(failed_labels))
             self.completed.emit(False, "\n".join(report))
