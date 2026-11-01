@@ -56,6 +56,9 @@
       "results/flatplateflow.dat",
       "results/wallaero.dat"
     ],
+    "residual_outputs": [
+      "results/res.dat"
+    ],
     "residual_baseline": "test/baselines/residual-baseline.json",
     "analytical_references": [
       "test/cfd/plateuns2dslau2/results/cf.blasius",
