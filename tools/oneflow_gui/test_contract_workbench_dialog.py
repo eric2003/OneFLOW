@@ -103,6 +103,16 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
         finally:
             dialog.close()
 
+    def test_runtime_verification_shows_resolution_separately_from_declaration(self) -> None:
+        dialog = ContractDomainDialog(self.repository_root, "runtime")
+        try:
+            evidence_text = dialog.evidence_view.toPlainText()
+            self.assertIn("[RESOLVED] google_test:", evidence_text)
+            self.assertIn("Declaration: linked_not_executed", evidence_text)
+            self.assertIn("Resolved file:", evidence_text)
+        finally:
+            dialog.close()
+
     def test_runtime_domain_uses_shared_contract_navigation(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "runtime")
         try:
