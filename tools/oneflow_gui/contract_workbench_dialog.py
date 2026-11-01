@@ -39,12 +39,14 @@ class ContractDomainDialog(QDialog):
         self._domain = domain
         _ensure_tools_on_path(self._repository_root)
 
+        from verification.cmake_test_catalog import discover_cmake_test_targets
         from verification.contract_catalog import (
             load_contract_catalog,
             resolve_contract_evidence,
         )
 
         self._resolve_contract_evidence = resolve_contract_evidence
+        self._discover_cmake_test_targets = discover_cmake_test_targets
         summaries, diagnostics = load_contract_catalog(self._repository_root)
         self._summaries = tuple(
             item for item in summaries if item.domain == domain
@@ -193,6 +195,31 @@ class ContractDomainDialog(QDialog):
                 evidence_lines.append(f"  Resolved file: {resolution.resolved_path}")
             if resolution.diagnostic:
                 evidence_lines.append(f"  Diagnostic: {resolution.diagnostic}")
+            if item.kind in ("linked_test", "google_test") and resolution.resolved_path:
+                try:
+                    source_relative = Path(resolution.resolved_path).resolve().relative_to(
+                        self._repository_root
+                    ).as_posix()
+                except ValueError:
+                    source_relative = ""
+                if source_relative:
+                    targets = self._discover_cmake_test_targets(
+                        self._repository_root, source_relative
+                    )
+                    if not targets:
+                        evidence_lines.append("  Build declaration: target_not_found")
+                    for target in targets:
+                        evidence_lines.append(
+                            f"  Build target: {target.target}"
+                            f"\n  CMake: {target.cmake_file}"
+                            f"\n  Build declaration: target_resolved"
+                            f"\n  CTest discovery declaration: "
+                            f"{'registered' if target.discovery_registered else 'not_registered'}"
+                        )
+                        if target.discovery_mode:
+                            evidence_lines.append(
+                                f"  CTest discovery mode: {target.discovery_mode}"
+                            )
         if self._diagnostics:
             evidence_lines.extend(
                 ("", "Catalog diagnostics", "-------------------", *self._diagnostics)
