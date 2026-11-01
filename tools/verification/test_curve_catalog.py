@@ -30,12 +30,12 @@ class CatalogTest(unittest.TestCase):
     def test_all_catalog_api_references_exist(self) -> None:
         repository_root = Path(__file__).resolve().parents[2]
         issues = validate_catalog_api_references(repository_root)
-        self.assertEqual(issues, [], "\\n".join(issues))
+        self.assertEqual(issues, [], "\n".join(issues))
 
     def test_all_catalog_references_exist(self) -> None:
         repository_root = Path(__file__).resolve().parents[2]
         issues = validate_catalog_paths(repository_root)
-        self.assertEqual(issues, [], "\\n".join(issues))
+        self.assertEqual(issues, [], "\n".join(issues))
 
 
 if __name__ == "__main__":
