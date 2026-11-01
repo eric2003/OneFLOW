@@ -62,6 +62,20 @@ https://github.com/eric2003/OneFLOW/blob/hexin/tools/oneflow_gui/README.md
 
 Development Tests 使用固定的用户数据测试工作目录，并在每批开始时重新准备该目录中的测试 case；源仓库内的内置 case 保持不动。测试进程的退出状态会记录为运行结果；这不等同于所有网格几何或数值结果都已由 GUI 独立验证。
 
+Contract Workbench
+------------------
+
+首页 **Contract Workbench...** 是 OneFLOW 数值知识和工程契约的统一入口。当前提供四个领域入口：
+
+* **Formula & Knowledge**：打开现有 Verification Curves 浏览器，查看公式、原理、参考文献、文档摘录、代码草图和理论曲线。
+* **Geometry**：打开 Geometry Contract Explorer，查看拓扑场景、输入/期望表和 fixture 结果。Fixture 运行不等同于执行生产 C++。
+* **Case**：浏览类型化 CFD Case 契约，查看算例所属 Suite、求解器、物理模型、数值格式、输入网格、输出比较清单、残差基线和分析参考数据。
+* **Runtime**：浏览进程生命周期、资源所有权、状态转换、实现代码和测试证据。
+
+Formula、Geometry 继续使用已有领域工具；Case 和 Runtime 使用统一 Contract Catalog 的只读视图。各领域共享 Overview、Principle、Architecture、Implementation / Code、Documentation / References、Verification 等导航，但领域数据保持类型化，不要求所有领域都具有公式或曲线。
+
+Contract Workbench 展示证据声明和验证范围，不负责执行求解器或测试，也不会因为关联了一个测试名称就显示 PASS。Case 中保留的 Blasius 参考数据如果尚未被回归程序自动比较，会明确标记为“已声明、未自动比较”。Workflow 和 Performance 入口将在对应契约和证据模型有实际内容后再加入。
+
 网格布局编辑器
 --------------
 
