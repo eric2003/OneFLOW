@@ -34,7 +34,8 @@ from .test_runner import (
     TestCommand,
     available_suites,
     build_cmake_command,
-    build_default_test_commands,
+    build_ctest_test_commands,
+    build_python_test_commands,
     build_regression_command,
     stage_regression_tests,
 )
@@ -188,11 +189,18 @@ class TestRunnerDialog(QDialog):
 
         unit_test_task = task_definition(TaskType.UNIT_TESTS)
         regression_task = task_definition(TaskType.CFD_GRID_REGRESSION)
-        self.unit_tests_check = QCheckBox(
-            f"{unit_test_task.title} (CTest and Python tests)"
+        self.ctest_check = QCheckBox("C++ Unit Tests (CTest)")
+        self.ctest_check.setToolTip(
+            "Run C++ GoogleTest targets registered in the configured CMake build tree."
         )
-        self.unit_tests_check.setChecked(True)
-        layout.addWidget(self.unit_tests_check)
+        self.ctest_check.setChecked(True)
+        layout.addWidget(self.ctest_check)
+        self.python_tests_check = QCheckBox("Python Unit Tests (unittest)")
+        self.python_tests_check.setToolTip(
+            "Run the explicitly registered Python unittest modules with the selected Python interpreter."
+        )
+        self.python_tests_check.setChecked(True)
+        layout.addWidget(self.python_tests_check)
 
         self.regression_check = QCheckBox(
             f"Optional {regression_task.title}"
@@ -283,13 +291,21 @@ class TestRunnerDialog(QDialog):
         if self._case_worker is not None and self._case_worker.isRunning():
             return
         commands: list[TestCommand] = []
-        if self.unit_tests_check.isChecked():
-            commands.extend(
-                build_default_test_commands(
-                    self._repository_root,
-                    build_config=self._build_config,
-                )
+        if self.ctest_check.isChecked():
+            ctest_commands = build_ctest_test_commands(
+                self._repository_root,
+                build_config=self._build_config,
             )
+            if not ctest_commands:
+                QMessageBox.warning(
+                    self,
+                    "CTest is not configured",
+                    "No build/CTestTestfile.cmake was found. Configure the CMake build tree first.",
+                )
+                return
+            commands.extend(ctest_commands)
+        if self.python_tests_check.isChecked():
+            commands.extend(build_python_test_commands(self._repository_root))
         if self.regression_check.isChecked():
             executable = self.executable_combo.currentText().strip()
             suite_name = self.suite_combo.currentText().strip()
@@ -334,7 +350,7 @@ class TestRunnerDialog(QDialog):
         if not commands and not run_database:
             QMessageBox.information(
                 self, "No tests selected",
-                "Select unit tests, CFD regression, or Development Tests.",
+                "Select CTest, Python Unit Tests, CFD regression, or Development Tests.",
             )
             return
 
