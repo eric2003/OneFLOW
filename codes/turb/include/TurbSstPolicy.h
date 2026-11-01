@@ -150,10 +150,11 @@ Real SstF2FromArg( Real arg2 );
 // @doc-algorithm sst-eddy-viscosity
 // @doc-stage mu-t
 // @doc-pure
-// @doc-formula mu_t = rho k / max(omega, Omega F2 / a1) * Re
+// @doc-formula mu_t = rho k / max(omega, R F2 / a1) * Re
+// R is the selected strain-rate or vorticity magnitude.
 Real SstEddyViscosity(
     Real density, Real kineticEnergy, Real omega,
-    Real vorticityMagnitude, Real f2, Real a1, Real reynolds );
+    Real limitingRateMagnitude, Real f2, Real a1, Real reynolds );
 
 
 // --- update floors / caps ---
