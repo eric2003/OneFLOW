@@ -420,3 +420,13 @@ Commit: `d8568fe91722af5d78d8083d6bae23d9446d952d`
 - Documented the compatibility distinction in `doc/source/runtime_architecture.rst`. This is a behavior clarification, not a path-semantics change.
 - Validation: source and test were edited through GitHub; no local build or CTest execution was available. The user-reported 967/967 pass remains the pre-change baseline and does not validate this test.
 - System-level value: reduces ambiguity in the case configuration contract before extracting the production setup path. R1 remains partial until the real control reader, effective roots, diagnostics, sequential isolation, and failure cleanup are tested together.
+
+### 2026-11-01 - Share the production runtime with case-lifecycle integration tests
+
+- Starting `hexin` HEAD: `0da2d68deeb7216c174e82630d75dab792103722`. The user reports 1096/1096 local tests passed before this slice; that is a pre-change baseline.
+- Extracted the recursively collected production C++ source set into the static `OneFLOW_Runtime` target. The `OneFLOW` executable now contains only `codes/main/src/OneFlow.cpp` and links the runtime target. Include paths, compile definitions/features, link directories, and external libraries are propagated from the runtime target. The executable and test therefore share the same compiled production implementation.
+- Added `simu_imp_case_lifecycle_integration_test`, which starts the real process runtime, triggers a real `SetupCaseEnvironment()` failure through `SimuImp::RunCase()`, and checks full Context teardown using seeded task/solver metadata, database/project binding rollback, and process-runtime lifetime.
+- Added the read-only `SimuContext::IsProcessEnvironmentActive()` accessor to make the process-versus-case ownership contract observable without changing lifecycle ownership.
+- Architecture value: R1 now has a production `SimuImp::RunCase()` integration test path, rather than only testing a generic lifecycle helper or Context setup. The build also has its first reusable production runtime target.
+- Remaining: cleanup failure injection at individual solver/device release points; successful repeated full SimuImp cases; multi-rank MPI validation; numerical regression suite; exact Windows/Linux CI and fresh local CTest. Do not claim the 1096/1096 pre-change baseline validates this slice.
+- Detailed contract and test scope: `doc/plans/setup-case-environment-integration-test.md`; implementation map: `doc/source/runtime_architecture.rst`.
