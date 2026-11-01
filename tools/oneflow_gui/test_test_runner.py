@@ -109,7 +109,7 @@ class TestRunnerCommandTest(unittest.TestCase):
             build = root / "build"
             build.mkdir()
             (build / "CMakeCache.txt").write_text(
-                "CMAKE_CONFIGURATION_TYPES:STRING=Debug;Release\\n",
+                "CMAKE_CONFIGURATION_TYPES:STRING=Debug;Release\n",
                 encoding="utf-8",
             )
             expected = build / "bin" / "Release" / "OneFLOW"
@@ -284,7 +284,7 @@ class TestRunnerCommandTest(unittest.TestCase):
             staged_test_directory.mkdir(parents=True)
             (staged_test_directory / "suites").mkdir()
             (staged_test_directory / "suites" / "ci-serial.txt").write_text(
-                "cfd/example\\n", encoding="utf-8"
+                "cfd/example\n", encoding="utf-8"
             )
             staged_command = build_regression_command(
                 root,
@@ -302,7 +302,7 @@ class TestRunnerCommandTest(unittest.TestCase):
             root = Path(directory)
             test_dir = root / "test"
             (test_dir / "suites").mkdir(parents=True)
-            (test_dir / "suites" / "linux.txt").write_text("cfd/example\\n", encoding="utf-8")
+            (test_dir / "suites" / "linux.txt").write_text("cfd/example\n", encoding="utf-8")
             executable = root / "solver with spaces" / "OneFLOW"
             executable.parent.mkdir(parents=True)
             executable.write_bytes(b"test")
@@ -324,7 +324,7 @@ class TestRunnerCommandTest(unittest.TestCase):
             root = Path(directory) / "repo"
             (root / "test" / "suites").mkdir(parents=True)
             (root / "test" / "suites" / "cpu-serial.txt").write_text(
-                "cfd/example\\n", encoding="utf-8"
+                "cfd/example\n", encoding="utf-8"
             )
             (root / "test" / "cfd" / "example").mkdir(parents=True)
             (root / "test" / "cfd" / "example" / "config.json").write_text(
