@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -37,6 +38,24 @@ class ExecutableDiscoveryTest(unittest.TestCase):
             self.assertIn(executable.resolve(), candidates)
             self.assertEqual(lookup_calls, [("OneFLOW", str(executable.parent))])
             self.assertFalse(any(path.name.endswith(".exe") for path in candidates))
+
+    def test_native_path_lookup_finds_host_executable(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "repo"
+            binary_directory = Path(directory) / "bin"
+            binary_directory.mkdir()
+            executable_name = "OneFLOW.exe" if os.name == "nt" else "OneFLOW"
+            executable = binary_directory / executable_name
+            executable.write_text("", encoding="utf-8")
+            if os.name != "nt":
+                executable.chmod(0o755)
+
+            candidates = executable_candidates(
+                root,
+                {"PATH": str(binary_directory)},
+            )
+
+            self.assertIn(executable.resolve(), candidates)
 
     def test_windows_candidates_use_configuration_specific_executable(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
