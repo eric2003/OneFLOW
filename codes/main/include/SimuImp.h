@@ -34,7 +34,9 @@ BeginNameSpace( ONEFLOW )
 class SimuImp : public SimuBase
 {
 public:
-    // The context takes its own argument snapshot; SimuImp does not mirror it.
+    /// @brief Creates a case simulation from caller-owned command-line arguments.
+    /// @param args Read-only input copied into the owned SimuContext.
+    /// @note SimuImp does not retain a second mutable argument vector.
     explicit SimuImp( const std::vector<std::string>& args );
     SimuImp( const std::string& caseDir, bool debug );
     ~SimuImp() override = default;
