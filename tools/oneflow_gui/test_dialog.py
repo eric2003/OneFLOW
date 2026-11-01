@@ -66,7 +66,7 @@ class TestCommandWorker(QThread):
     def run(self) -> None:
         failed_labels: list[str] = []
         passed_labels: list[str] = []
-        failure_output: list[str] = []
+        run_output: list[str] = []
         for command in self._commands:
             command_output: list[str] = []
             if self._cancel.is_set():
@@ -110,7 +110,7 @@ class TestCommandWorker(QThread):
                         self._process = None
             except OSError as error:
                 self.output_line.emit(f"ERROR: {error}")
-                failure_output.append(f"ERROR: {error}")
+                run_output.append(f"ERROR: {error}")
                 self.command_completed.emit(
                     TaskRunResult(
                         task_type=command.task_type,
@@ -121,8 +121,9 @@ class TestCommandWorker(QThread):
                     )
                 )
                 failed_labels.append(command.label)
-                failure_output.extend(command_output)
+                run_output.extend(command_output)
                 break
+            run_output.extend(command_output)
             if self._cancel.is_set():
                 self.command_completed.emit(
                     TaskRunResult(
@@ -146,7 +147,6 @@ class TestCommandWorker(QThread):
                     )
                 )
                 failed_labels.append(command.label)
-                failure_output.extend(command_output)
                 self.output_line.emit(f"FAILED: exit code {return_code}")
                 break
             passed_labels.append(command.label)
@@ -169,7 +169,7 @@ class TestCommandWorker(QThread):
             f"  Failed: {len(failed_labels)}",
             f"  Not run: {not_run}",
         ]
-        report.extend(summarize_test_output(failure_output))
+        report.extend(summarize_test_output(run_output))
         if failed_labels:
             report.insert(1, "  Failed commands: " + ", ".join(failed_labels))
             self.completed.emit(False, "\n".join(report))
