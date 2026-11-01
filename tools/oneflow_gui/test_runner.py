@@ -73,7 +73,7 @@ def summarize_test_output(output_lines: list[str]) -> tuple[str, ...]:
     )
     failed_unittest_cases = []
     for line in output_lines:
-        match = re.match(r"^\\s*(FAIL|ERROR):\\s+(.+?)\\s*$", line)
+        match = re.match(r"^\s*(FAIL|ERROR):\s+(.+?)\s*$", line)
         if match:
             case_name = match.group(2)
             if case_name not in failed_unittest_cases:
