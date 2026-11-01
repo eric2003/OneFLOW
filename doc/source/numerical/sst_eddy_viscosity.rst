@@ -19,9 +19,13 @@ SST eddy viscosity and F2
 
 Here :math:`R` is the rate magnitude selected by the SST production option:
 the strain-rate magnitude when ``iprod_sst == 1``, otherwise the
-vorticity magnitude. The same selected quantity must be used in the
-Bradshaw limiter; calling it only a vorticity magnitude would be misleading
-for the strain-based branch. The solver applies an optional laminar-viscosity
+vorticity magnitude. For velocity gradient :math:`\nabla\mathbf{u}`, the
+strain invariant is :math:`|S|=\sqrt{2 S_{ij}S_{ij}}`, with
+:math:`S_{ij}=\tfrac12(\partial_j u_i+\partial_i u_j)`. The alternative
+vorticity magnitude is :math:`|\Omega|=|\nabla\times\mathbf{u}|`. Both are
+now computed by separately tested pure policy functions, and the selected
+quantity is passed unchanged to the Bradshaw limiter. The solver applies an
+optional laminar-viscosity
 ratio cap after this expression, implemented by the shared
 ``TurbCappedEddyViscosity()`` policy used by both SA and SST.
 
@@ -36,7 +40,8 @@ References
 * Menter SST; NASA TMR SST.
 * See ``sa_eddy_viscosity.rst`` and ``verification_layers.rst``.
 
-Pure APIs: ``SstF2Arg``, ``SstF2FromArg``, ``SstEddyViscosity``.
+Pure APIs: ``SstStrainRateMagnitude``, ``SstVorticityMagnitude``,
+``SstF2Arg``, ``SstF2FromArg``, ``SstEddyViscosity``.
 
 Intermediate verification
 -------------------------
