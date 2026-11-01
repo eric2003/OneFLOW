@@ -196,6 +196,21 @@ class ContractCatalogTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "unsupported status"):
             adapt_declared_contract(definition)
 
+    def test_rejects_unknown_declared_evidence_kind(self) -> None:
+        definition_path = (
+            self.repository_root
+            / "tools"
+            / "verification"
+            / "contracts"
+            / "runtime"
+            / "process_lifecycle.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        definition["verification"][0]["kind"] = "imaginary_result"
+
+        with self.assertRaisesRegex(ValueError, "unsupported kind"):
+            adapt_declared_contract(definition)
+
     def test_requires_contract_id_namespace_to_match_domain(self) -> None:
         definition_path = (
             self.repository_root
