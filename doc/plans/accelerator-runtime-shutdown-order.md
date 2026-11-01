@@ -4,6 +4,9 @@ Status: Initial ordering fix validated by user at 1124/1124; retryable-finalizat
 Baseline for current slice: hexin HEAD ba067226fcfefad896648d24bd7daa75b49b3a20
 Scope:
 - codes/main/src/SimuContextEnv.cpp
+- codes/accel/include/AccelBackend.h
+- codes/accel/include/AccelRuntime.h
+- tests/accel/accel_runtime_test.cpp
 - tests/main/simu_imp_case_lifecycle_integration_test.cpp
 
 ## 1. System-level question
