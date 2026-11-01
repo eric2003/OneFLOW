@@ -739,3 +739,18 @@ python -m unittest tools.oneflow_gui.test_test_diagnostics
 python -m unittest tools.oneflow_gui.test_test_runner
 python -m unittest tools.oneflow_gui.test_test_inventory
 ```
+
+
+## 26. Cross-platform execution assumptions in the test workbench
+
+The test command layer keeps argument vectors as the source of truth and uses
+host-appropriate quoting only for human-readable logs. Windows-specific
+executable suffixes and multi-configuration output paths are selected only on
+Windows; POSIX builds use the conventional unsuffixed executable under
+`build/bin`. The configure command no longer injects a local Windows install
+prefix, leaving CMake's platform default intact.
+
+This is a bounded compatibility improvement, not a claim of full Linux
+validation. Platform branches are unit-testable through an explicit platform
+parameter, while CI or a developer Linux machine must still perform a real
+configure, build, CTest, and regression run to establish runtime compatibility.
