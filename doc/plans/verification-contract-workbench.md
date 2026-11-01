@@ -492,4 +492,34 @@ integration remains a thin presentation layer over the Qt-independent
 Catalog, consistent with the separation between definition, validation,
 execution, and presentation.
 
+## 17. Evidence reference path validation (2026-11-02)
 
+The shared catalog validator now checks repository-file evidence declared as
+`output_manifest`, in addition to the existing theory-data and geometry-fixture
+references. This closes a traceability gap: a case contract could previously
+point its output-manifest evidence at a missing or misspelled file while the
+case-specific validator independently checked the conventional
+`autotest/compare.txt` path.
+
+The contract's declared evidence reference is now validated for repository-root
+containment and file existence. The existing case-specific comparison still
+checks that the manifest's output set agrees with the typed case payload. These
+are complementary checks:
+
+- evidence-path validation asks whether the exact artifact named by the
+  contract exists and stays inside the repository;
+- case-manifest validation asks whether the artifact's declared outputs agree
+  with the case contract.
+
+A focused negative test mutates the manifest reference to a missing file and
+requires an actionable catalog diagnostic. Catalog loading remains read-only;
+no solver, test runner, or GUI dependency is introduced.
+
+Focused validation:
+
+```powershell
+python -m unittest tools.verification.test_contract_catalog
+```
+
+The user reported 274/274 Python unittest cases passing before this change.
+That result is the prior green baseline, not validation of this new test.
