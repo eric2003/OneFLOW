@@ -360,3 +360,89 @@ model against a second genuinely different domain (workflow or case
 regression) and only then decide whether any further common fields or typed
 payload interfaces are justified.
 
+## 15. First typed Case-domain contract (2026-11-01)
+
+The next vertical slice uses a real production regression case rather than a
+synthetic example:
+
+`tools/verification/contracts/case/laminar_flat_plate_slau2.json`
+
+It describes `test/cfd/plateuns2dslau2`, already included by
+`test/suites/cpu-serial.txt`. The payload records:
+
+- solver: `NsSolver`;
+- dimension: 2;
+- physical model: laminar compressible Navier-Stokes;
+- convective flux: SLAU2;
+- configured run length: 50 steps;
+- control scripts and grid inputs;
+- five output paths from `autotest/compare.txt`;
+- the canonical residual database and its (10^{-15}) absolute tolerance;
+- retained Blasius skin-friction and velocity reference profiles.
+
+### 15.1 Typed payload, not a larger universal envelope
+
+`contract_catalog.py` now defines immutable `CaseContractData` and attaches
+it optionally to `ContractSummary`. The shared fields still serve navigation
+and traceability. Case-specific configuration is kept in this typed payload,
+rather than adding solver, mesh, and tolerance fields to every numerical,
+geometry, or runtime contract.
+
+The adapter validates required case fields and the catalog checks that suite,
+case directory, input files, analytical references, and residual database
+exist. It also checks suite membership, output-manifest consistency, residual
+database schema, case membership, and agreement of the absolute tolerance.
+
+### 15.2 What the case evidence means
+
+This case has three distinct scientific/engineering layers:
+
+1. **Execution and output regression.** The established `test.py` runner
+   launches the solver and compares the five declared result files against
+   accepted references. The ordinary text comparison tolerance is (10^{-8}).
+2. **Residual history regression.** The canonical residual database checks
+   all residual channels over 50 iterations with exact iteration columns,
+   zero relative tolerance, absolute tolerance (10^{-15}), and rejection of
+   NaN/Inf.
+3. **Analytical reference material.** Blasius skin-friction and velocity
+   profiles are retained under the case's `results/` directory. The current
+   runner does not automatically compare these files; the Contract records
+   them as declared, not executed, references.
+
+A passing regression therefore supports reproducibility against the accepted
+baseline for this configured case. It does not by itself establish independent
+physical validation, grid convergence, temporal convergence, or general
+accuracy across other meshes and operating conditions.
+
+### 15.3 Why this matters for Case versus Contract
+
+A Case is a configured experiment and an evidence fixture. It may exercise
+several independent contracts: flux consistency, wall boundary conditions,
+viscous transport, residual behavior, output serialization, and runtime
+lifecycle. Those contracts should link to the same case evidence rather than
+copying the case definition into multiple records.
+
+The first payload is deliberately narrow. It does not add a generic case
+runner, mutate suite manifests, regenerate baselines, or execute CFD during
+catalog loading. Existing `test.py`, suite files, and residual database
+remain authoritative.
+
+Industry practices applied here:
+- requirements traceability through stable IDs and source/test references;
+- verification/validation separation (regression reproducibility is not
+  independent physical validation);
+- configuration management through versioned input and baseline references;
+- reproducibility metadata and explicit numerical tolerance policy;
+- evidence scope and limitations rather than a single verified flag.
+
+Focused validation:
+
+```powershell
+python -m unittest tools.verification.test_contract_catalog
+```
+
+The user's previous 1126/1126 result predates this Case-domain slice. It is
+implemented on `hexin`, but must remain unverified until the focused and full
+test suites pass locally.
+
+
