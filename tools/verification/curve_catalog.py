@@ -277,7 +277,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             family="turbulence",
             genus="SST",
             section="closure / eddy viscosity",
-            title="F2 and SST eddy viscosity",
+            title="F2(arg2) limiter + eddy viscosity",
             role_tags=("closure", "eddy-viscosity"),
             formula_plain=(
                 "arg2 = max(2*sqrt(k)/(beta_star*w*d), 500*nu/(w*d^2*Re))\n"
@@ -310,8 +310,8 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "  return std::tanh(arg2 * arg2);\n"
                 "}\n"
             ),
-            proves="F2 / mu_t algebra vs pure APIs.",
-            does_not_prove="Wall-resolved SST validation.",
+            proves="F2(arg2)=tanh(arg2^2) curve vs SstF2FromArg; eddy-viscosity algebra samples.",
+            does_not_prove="Wall-resolved SST validation or full mu_t field.",
         ),
         TheoryEntry(
             id="sst_k_source",

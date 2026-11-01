@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Plot SST F2(arg2)=tanh(arg2^2) theory curve."""
+"""Plot SST F2(arg2)=tanh(arg2^2) theory curve (read-only CSV under repo)."""
 from __future__ import annotations
 import argparse, csv
 from pathlib import Path
@@ -22,7 +22,7 @@ def main() -> None:
     ax.axhline(1.0, color="0.5", ls="--", lw=1)
     ax.set_xlabel(r"$\mathrm{arg}_2$")
     ax.set_ylabel(r"$F_2$")
-    ax.set_title("Menter SST $F_2$")
+    ax.set_title(r"SST $F_2(\mathrm{arg}_2)$ intermediate theory curve")
     ax.set_xlim(0, 4)
     ax.set_ylim(0, 1.05)
     ax.grid(True, alpha=0.3)
