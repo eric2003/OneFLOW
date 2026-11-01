@@ -559,7 +559,7 @@ def validate_contract_summaries(
                 )
             ),
             *(
-                item.scope
+                _linked_test_source_path(item.scope)
                 for item in summary.evidence
                 if item.kind in ("linked_test", "google_test")
                 and _linked_test_source_path(item.scope) is not None
