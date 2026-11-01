@@ -280,3 +280,22 @@ Diagnostic working-directory strings use forward slashes for stable display
 and serialization across Windows and POSIX hosts. They still identify the
 resolved execution directory; this is a representation normalization, not a
 change to the process working directory.
+
+
+## Cross-platform test workbench commands
+
+The test workbench keeps argument vectors as the source of truth and passes
+them directly to subprocess execution. Command text shown in the log uses the
+host's quoting convention: Windows command-line quoting on Windows and POSIX
+shell quoting on Linux/macOS.
+
+CMake configuration no longer forces a developer-specific Windows install
+prefix. CMake selects its platform default unless the user configures another
+prefix. The default test runner distinguishes Windows multi-configuration
+outputs (`build/bin/Debug/OneFLOW.exe` or `Release`) from the conventional
+single-configuration POSIX output (`build/bin/OneFLOW`). Executable discovery
+also checks conventional POSIX install locations and the current `PATH`.
+
+Platform branches are covered by unit tests that can run on either host. These
+tests validate path and command construction; they do not replace a real Linux
+CMake configure/build/CTest/regression run.
