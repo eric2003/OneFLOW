@@ -73,7 +73,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             doc_relpath="doc/source/numerical/sa_eddy_viscosity.rst",
             code_sketch=(
-                "// GATED SKETCH — review before use.\n"
+                "// GATED SKETCH - review before use.\n"
                 "Real SaFv1(Real chi, Real cv1Cubed) {\n"
                 "  Real chi3 = chi*chi*chi;\n"
                 "  return chi3 / (chi3 + cv1Cubed);\n"
@@ -360,7 +360,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             formula_plain=(
                 "P_w ~ alpha * rho * S^2 (or related forms)\n"
                 "D_w = beta * rho * omega^2\n"
-                "CD ~ 2*(1-F1)*rho*sigw2*(gradk·gradw)/omega"
+                "CD ~ 2*(1-F1)*rho*sigw2*(gradk.gradw)/omega"
             ),
             formula_latex=(
                 r"D_\omega=\beta\rho\omega^{2}"
@@ -511,7 +511,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             title="fk(xk) Wilcox beta* modifier",
             role_tags=("closure", "Wilcox", "beta-star"),
             formula_plain=(
-                "xk = (grad k · grad omega) / omega^3\n"
+                "xk = (grad k * grad omega) / omega^3\n"
                 "fk = 1  if xk <= 0\n"
                 "fk = (1+680 xk^2)/(1+400 xk^2)  if xk > 0"
             ),
