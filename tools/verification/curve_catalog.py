@@ -775,6 +775,55 @@ def list_theory_entries() -> list[TheoryEntry]:
             proves="Contribution algebra vs pure API.",
             does_not_prove="Full LUSGS case convergence.",
         ),
+
+        TheoryEntry(
+            id="lusgs_split_eigenvalues",
+            family="mean-flow",
+            genus="NS-LUSGS",
+            section="implicit / inviscid Jacobian",
+            title="Face eigenvalue split (matrix sign)",
+            role_tags=("implicit", "LUSGS", "eigenvalue"),
+            formula_plain=(
+                "lmd1 = 1/2 * (vn + s * faceAbs1)\n"
+                "lmd2 = 1/2 * (vn + c + s * faceAbs2)\n"
+                "lmd3 = 1/2 * (vn - c + s * faceAbs3)"
+            ),
+            formula_latex=(
+                r"\lambda_i=\frac12(\lambda_i^{\mathrm{phys}}+s|\lambda|_{f,i})"
+            ),
+            principle=(
+                "Sweep direction enters through matrix sign s, blending physical "
+                "eigenvalues with face absolute spectral radii."
+            ),
+            background=(
+                "Pure API LusgsSplitFaceEigenvalues; weights follow "
+                "LusgsLinearizationWeights; flux via LusgsFluxIncrementFiveEq."
+            ),
+            references=(
+                "Yoon-Jameson LUSGS; OneFLOW NsLusgsPolicy",
+            ),
+            csv_relpath="tools/verification/data/lusgs_split_eigenvalues_theory.csv",
+            plot_module="plot_lusgs_split_eigenvalues",
+            pure_apis=(
+                "LusgsSplitFaceEigenvalues",
+                "LusgsLinearizationWeights",
+                "LusgsFluxIncrementFiveEq",
+            ),
+            source_relpaths=(
+                "codes/ns/include/NsLusgsPolicy.h",
+                "codes/ns/src/NsLusgsPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/lusgs_split_eigenvalues.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "lmd1 = 0.5 * (vn + s * faceAbs1);\n"
+                "lmd2 = 0.5 * (vn + c + s * faceAbs2);\n"
+                "lmd3 = 0.5 * (vn - c + s * faceAbs3);\n"
+            ),
+            proves="Split eigenvalues vs closed form for s in {-1,0,+1}.",
+            does_not_prove="Full LUSGS sweep stability on a case.",
+        ),
+
         TheoryEntry(
             id="ns_lusgs_flux_increment",
             family="mean-flow",
