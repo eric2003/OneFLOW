@@ -102,6 +102,21 @@ class TestRunnerCommandTest(unittest.TestCase):
             )
             self.assertFalse(any(command.label.startswith("CMake build") for command in commands))
 
+    def test_posix_multi_configuration_generator_uses_config_subdirectory(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            build = root / "build"
+            build.mkdir()
+            (build / "CMakeCache.txt").write_text(
+                "CMAKE_CONFIGURATION_TYPES:STRING=Debug;Release\\n",
+                encoding="utf-8",
+            )
+            expected = build / "bin" / "Release" / "OneFLOW"
+            self.assertEqual(
+                oneflow_executable_path(root, "Release", platform_name="posix"),
+                expected,
+            )
+
     def test_command_log_uses_platform_appropriate_quoting(self) -> None:
         arguments = ("python", "path with spaces/test.py", "a'b")
         self.assertEqual(
