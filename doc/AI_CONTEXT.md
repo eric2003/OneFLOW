@@ -1,7 +1,7 @@
 # AI and Developer Project Context
 
 Last updated: 2026-11-01
-Working branch: `hexin` only. Latest inspected HEAD before this slice: `1efc6c3253e3abd6df9f32e07afc38669df24437`.
+Working branch: `hexin` only. Starting HEAD for the current runtime-target slice: `0da2d68deeb7216c174e82630d75dab792103722`.
 User-reported local baseline before this slice: **1096/1096 tests passed**. This is not validation of the subsequent commits.
 
 ## Current focus: R1 case configuration rollback and lifecycle
@@ -32,7 +32,7 @@ System-level reason: case configuration now has a strong failure boundary indepe
 
 ## Remaining R1 gap
 
-R1 remains **Partial**. The public `SetupCaseEnvironment()` readiness transition and configuration rollback now have production integration coverage. Still missing is a test that exercises the actual `SimuImp::RunCase() -> PostProcess() -> TeardownCase()` wiring after a real setup failure, including the broader solver and accelerator resource cleanup. Avoid linking the full executable source list into a test target merely to reach `SimuImp`; a source review confirmed that `SimuImp` owns a concrete `SimuContext`, while real `TeardownCase()` is coupled to many solver/global reset symbols in `SimuContextEnv.cpp`. The executable currently has no reusable main-runtime library target. Do not substitute fake teardown and call it end-to-end.
+R1 remains **Partial**. The public `SetupCaseEnvironment()` readiness transition and configuration rollback now have production integration coverage. A new production integration target now exercises the actual `SimuImp::RunCase() -> PostProcess() -> TeardownCase()` wiring after a real setup failure. The remaining gaps are cleanup failure injection at individual solver/device release points, successful repeated full SimuImp cases, and multi-rank MPI behavior. Avoid linking the full executable source list into a test target merely to reach `SimuImp`; a source review confirmed that `SimuImp` owns a concrete `SimuContext`, while real `TeardownCase()` is coupled to many solver/global reset symbols in `SimuContextEnv.cpp`. The executable currently has no reusable main-runtime library target. Do not substitute fake teardown and call it end-to-end.
 
 The earlier investigation record remains `doc/plans/setup-case-environment-integration-test.md`. Its original findings are historical; this handoff and `doc/source/runtime_architecture.rst` record the newer rollback behavior.
 
@@ -76,6 +76,7 @@ Source and tests:
 - `codes/main/include/SimuCaseLifecycle.h`
 - `tests/io/control_configuration_ingestion_test.cpp`
 - `tests/main/simu_case_lifecycle_test.cpp`
+- `tests/main/simu_imp_case_lifecycle_integration_test.cpp`
 - `doc/source/runtime_architecture.rst`
 - `doc/plans/runtime-refactoring-roadmap.md`
 
@@ -85,7 +86,7 @@ Verified contracts:
 - The same Context can retry after the failed manifest is repaired.
 - `SimuImp::RunCase()` remains responsible for full case teardown; process finalization remains a separate owner.
 
-Still not verified end-to-end: the concrete `SimuImp::RunCase()` callback wiring into `PostProcess() -> TeardownCase()` on real setup/task failure, including solver and accelerator resource cleanup.
+Verified by a new production-linked integration target: a real setup failure through `SimuImp::RunCase()` resets context-owned case state and leaves process runtime active until explicit finalization. Still not verified: injected teardown failure behavior in the full concrete release chain, successful repeated full cases, multi-rank MPI, and numerical regressions.
 ## 5. Next actions, in priority order
 
 1. Check exact-HEAD Windows/Linux CI for the current `hexin` revision; distinguish queued, in-progress, and completed jobs.
@@ -589,3 +590,41 @@ proposal are recorded in
 No source code or post-982 test result is claimed in this slice. The latest
 hexin revision for this note is recorded by its commit history; check exact
 HEAD CI before declaring the preceding PIO source-list fix green.
+
+
+## 2026-11-01 continuation: shared production runtime and SimuImp integration
+
+The user reports 1096/1096 local tests passed before this slice. This is a
+pre-change baseline only.
+
+Starting `hexin` HEAD: `0da2d68deeb7216c174e82630d75dab792103722`.
+
+Implemented on `hexin`:
+- `codes/CMakeLists.txt` now builds the recursively collected production
+  source set as static `OneFLOW_Runtime`; `OneFlow.cpp` remains the sole
+  executable entry point. The runtime target publishes the prior executable
+  compile and link requirements so production consumers share one source graph.
+- `SimuContext::IsProcessEnvironmentActive()` exposes a read-only process
+  lifecycle observation.
+- `simu_imp_case_lifecycle_integration_test` links the production runtime and
+  invokes real `SimuImp::RunCase()` with a temporary case whose second control
+  script is missing. It checks the full Context teardown through seeded task
+  and solver-name state, configuration rollback, and process-runtime lifetime.
+- Runtime architecture, lifecycle investigation, roadmap, and this handoff
+  document the target boundary and acceptance gaps.
+
+Important test contract: after the failed case, task resolution and expanded
+solver names must be reset, partial configuration and project-root binding
+must be absent, and process runtime must remain active until explicit
+`FinalizeEnvironment()`.
+
+No local build or CTest was run here. The 1096/1096 report is pre-change
+baseline only. Exact-HEAD Windows/Linux CI and a fresh local build/test are
+required because the executable was moved behind a new static-library target.
+
+R1 is improved with real production `RunCase() -> PostProcess() ->
+TeardownCase()` integration coverage, but remains Partial. Remaining:
+individual teardown-step failure injection in the concrete chain, successful
+repeated full SimuImp cases, multi-rank MPI, and CFD numerical regression.
+Next action: inspect exact-HEAD CI and fix any build/link regressions before
+expanding the integration suite.
