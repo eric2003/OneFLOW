@@ -167,6 +167,7 @@ _PYTHON_UNIT_TESTS = (
     ("Contract Workbench dialog tests", ("-m", "unittest", "tools.oneflow_gui.test_contract_workbench_dialog")),
     ("Repository test inventory discovery tests", ("-m", "unittest", "tools.oneflow_gui.test_test_inventory")),
     ("Executable discovery tests", ("-m", "unittest", "tools.oneflow_gui.test_executable_discovery")),
+    ("Process control tests", ("-m", "unittest", "tools.oneflow_gui.test_process_control")),
     ("Mesh layout editor document tests", ("-m", "unittest", "tests.tools.test_editor_document")),
     ("Rectangle layout compiler tests", ("-m", "unittest", "tests.tools.test_compile_rectangle")),
     ("Geometry analytic contract tests", ("-m", "unittest", "discover", "-s", "tools", "-p", "test_analytic_contracts.py")),
