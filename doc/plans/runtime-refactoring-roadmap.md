@@ -493,3 +493,12 @@ Commit: `d8568fe91722af5d78d8083d6bae23d9446d952d`
 - Validation: source and documentation edits are committed to hexin; no MSVC build, focused CTest, full CTest, or CFD regression was run in this environment. The user's 1117/1117 result is the pre-change baseline only.
 - Scope deliberately unchanged: no turbulence model option semantics, solver call path, mesh behavior, or regression reference values were modified. The next numerical step remains a production-path check of the F1/F2 and eddy-viscosity intermediates on a real flat-plate case.
 
+### 2026-11-01 - Verify SST F2 argument from primitive flow state
+
+- Based on current `hexin` HEAD `e81a15508c4088ea07a9d83fff2710666c149344`; the user reports 1119/1119 local tests passed before this slice.
+- Source inspection found that `SstF2Arg()` only selected the maximum of two already-computed terms, while the production `CalcCellVist2Equ()` still contained the actual length-scale and viscous-term equations inline. The existing F2 theory curve therefore did not verify the primitive-input-to-arg2 calculation.
+- Added `SstF2Argument(k, omega, d, betaStar, mu, rho, Re)` as the complete pure policy for the two physical terms and their maximum. Renamed the narrower helper to `SstF2ArgFromTerms()` to make its input contract explicit. The production SST eddy-viscosity path now calls the complete policy; equations and call ordering are unchanged.
+- Added tests that independently activate the length-scale term and the viscous term, and updated the SST numerical guide plus Contract Workbench metadata to show the new production-linked API.
+- Validation: changes are committed to `hexin`; no MSVC build, focused CTest, full CTest, Python verification test, or CFD regression was run here. The reported 1119/1119 result is the pre-change baseline.
+- Scope: this closes the primitive-state-to-arg2 policy gap but still does not prove the full field on a mesh, the post-policy laminar-viscosity cap, or complete flat-plate SST accuracy. Next step is a production-path intermediate capture or real-case comparison for arg2, F2, selected rate, and final eddy viscosity.
+
