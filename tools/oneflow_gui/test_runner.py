@@ -48,7 +48,31 @@ _PYTHON_UNIT_TESTS = (
     ("Numerical verification catalog tests", ("-m", "unittest", "tools.verification.test_curve_catalog")),
     ("Combined contract catalog tests", ("-m", "unittest", "tools.verification.test_contract_catalog")),
     ("Repository test inventory discovery tests", ("-m", "unittest", "tools.oneflow_gui.test_test_inventory")),
+    ("Mesh layout editor document tests", ("-m", "unittest", "tests.tools.test_editor_document")),
+    ("Rectangle layout compiler tests", ("-m", "unittest", "tests.tools.test_compile_rectangle")),
+    ("Geometry analytic contract tests", ("-m", "unittest", "discover", "-s", "tools", "-p", "test_analytic_contracts.py")),
+    ("Geometry scenario persistence tests", ("-m", "unittest", "discover", "-s", "tools", "-p", "test_scenario_contract_persistence.py")),
+    ("Geometry scenario import tests", ("-m", "unittest", "discover", "-s", "tools", "-p", "test_scenario_import.py")),
+    ("Geometry workbench fixture tests", ("-m", "unittest", "discover", "-s", "tools/geometry_workbench", "-p", "test_workbench_stub.py")),
+    ("Background project runner tests", ("-m", "unittest", "tools.oneflow_gui.test_background_project_runner")),
+    ("Background task host tests", ("-m", "unittest", "tools.oneflow_gui.test_background_task_host")),
+    ("Background task manager tests", ("-m", "unittest", "tools.oneflow_gui.test_background_task_manager")),
+    ("Background task registry tests", ("-m", "unittest", "tools.oneflow_gui.test_background_task_registry")),
+    ("Geometry contract bridge tests", ("-m", "unittest", "tools.oneflow_gui.test_geometry_contract_bridge")),
+    ("Mesh layout project tests", ("-m", "unittest", "tools.oneflow_gui.test_mesh_layout_projects")),
+    ("Project inventory tests", ("-m", "unittest", "tools.oneflow_gui.test_project_inventory")),
+    ("Project template tests", ("-m", "unittest", "tools.oneflow_gui.test_project_templates")),
+    ("RAE2822 project template tests", ("-m", "unittest", "tools.oneflow_gui.test_rae2822_project_template")),
+    ("SA closure curve tests", ("-m", "unittest", "discover", "-s", "tools/verification", "-p", "test_sa_closure_curves.py")),
+    ("Tkinter runner tests", ("gui/python/tkinter/test_oneflow_runner.py",)),
 )
+
+_PYTHON_TEST_EXCLUSIONS = {
+    "tools/oneflow_gui/test_main_window.py": "Qt widget/queue tests; keep in a dedicated headless GUI test group.",
+    "tools/oneflow_gui/test_new_project_dialog.py": "Qt dialog tests; keep in a dedicated headless GUI test group.",
+    "tools/oneflow_gui/test_workspace_dialog.py": "Qt dialog tests; keep in a dedicated headless GUI test group.",
+    "tools/verification/test_latex_preview.py": "Optional Matplotlib rendering dependency; run in the visualization-enabled test environment.",
+}
 
 
 def build_ctest_test_commands(
