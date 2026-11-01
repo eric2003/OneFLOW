@@ -61,7 +61,7 @@ Real SstF1FromArg1( Real arg1 );
 // @doc-algorithm sst-f1
 // @doc-stage cross-term
 // @doc-pure
-// @doc-formula cross = grad k · grad omega
+// @doc-formula cross = grad k dot grad omega
 Real SstGradientDotProduct(
     Real dkdx, Real dkdy, Real dkdz,
     Real dwdx, Real dwdy, Real dwdz );
@@ -71,7 +71,7 @@ Real SstGradientDotProduct(
 // @doc-algorithm wilcox-fbeta
 // @doc-stage xk
 // @doc-pure
-// @doc-formula x_k = (grad k · grad omega) / omega^3
+// @doc-formula x_k = (grad k dot grad omega) / omega^3
 Real WilcoxXkFromCrossTerm( Real crossTerm, Real omega );
 
 // @doc-algorithm wilcox-fbeta
