@@ -247,8 +247,8 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "Menter SST; NASA TMR SST: https://turbmodels.larc.nasa.gov/sst.html",
                 "OneFLOW: doc/source/numerical/sst_f1_blending.rst",
             ),
-            csv_relpath=None,
-            plot_module=None,
+            csv_relpath="tools/verification/data/sst_f1_arg1_theory.csv",
+            plot_module="plot_sst_f1",
             pure_apis=(
                 "SstCrossDiffScalar",
                 "SstBlendingArg1",
