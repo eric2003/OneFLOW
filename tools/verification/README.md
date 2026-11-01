@@ -25,8 +25,9 @@ See ``tools/oneflow_gui/user_data_paths.py``.
 
 Theory curve PNG generators under ``tools/verification/plot_*.py`` must:
 
-* set **xlabel** / **ylabel** with plain ASCII names (readable without math fonts);
-* put the **formula** in the title subtitle;
+* use descriptive **xlabel** / **ylabel** expressions with Matplotlib mathtext;
+* put the governing **formula** in the title or subtitle;
+* keep expressions within Matplotlib mathtext support; the preview is not a full LaTeX engine;
 * call ``plot_style.apply_theory_style`` / ``save_figure``.
 
 Do not commit bare-line plots without axes text. Runtime GUI previews still write under
