@@ -7,8 +7,8 @@ geometry JSON scenarios into a small, Qt-independent summary model.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from pathlib import Path, PureWindowsPath
 import re
+from pathlib import Path, PureWindowsPath
 from typing import Any, Iterable
 
 
@@ -243,7 +243,10 @@ def load_contract_catalog(
     Invalid source records are reported individually so one malformed scenario
     does not hide the rest of the catalog.
     """
-    from .curve_catalog import list_theory_entries
+    from .curve_catalog import (
+        list_theory_entries,
+        validate_catalog_api_references,
+    )
     from tools.geometry_workbench.scenarios import (
         list_scenario_paths,
         load_scenario,
@@ -268,4 +271,5 @@ def load_contract_catalog(
             issues.append(f"{relative_path}: {exc}")
 
     issues.extend(validate_contract_summaries(root, summaries))
+    issues.extend(validate_catalog_api_references(root))
     return tuple(summaries), tuple(issues)
