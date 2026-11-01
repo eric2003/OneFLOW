@@ -20,7 +20,8 @@ navigator. Current domain entry points are:
   remains explicitly distinct from native C++ GoogleTest execution.
 - **Case** browses typed CFD Case contracts through the shared catalog, showing
   suite membership, solver and physical setup, input files, output manifests,
-  residual policy, analytical references, and evidence limitations.
+  residual policy, analytical references (including Blasius skin-friction and
+  velocity profiles), and evidence limitations.
 - **Runtime** browses lifecycle and resource-ownership contracts using the
   shared Overview, Principle, Architecture, Implementation/Code, Documentation,
   and Verification views.
@@ -173,6 +174,14 @@ group can be run without the other. Selecting CTest requires an existing
 configure the build tree rather than silently skipping CTest. The inventory is intentionally broader than this
 execution registry: a discovered Python test is not automatically safe to
 run without considering its arguments, working directory, and dependencies.
+
+After each command batch, the Tests dialog reports command totals (passed,
+failed, and not run). It also parses framework summaries to report individual
+Python unittest and CTest case counts, including passed, failed, and skipped
+Python tests where available. On failure, the final report includes the failed
+command and the captured traceback or CTest failed-test listing; the full
+streamed log remains available above it. Execution stops at the first failed
+command, and the not-run count makes that early stop explicit.
 
 The following Contract Workbench modules are included in the GUI Python unit
 suite:
