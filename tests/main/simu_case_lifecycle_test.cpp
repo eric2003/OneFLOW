@@ -286,6 +286,38 @@ TEST( SimuProcessLifecycleTest, RejectsRepeatedInitialization )
     EXPECT_THROW( state.Start(), std::logic_error );
 }
 
+TEST( SimuProcessLifecycleTest, FailedCleanupDoesNotCommitFinalizedState )
+{
+    SimuProcessLifecycleDetail::ProcessRuntimeState state;
+    state.Start();
+
+    int laterCleanupCount = 0;
+    EXPECT_THROW(
+        SimuCaseLifecycleDetail::ExecuteAllCleanupSteps(
+            []() { throw std::runtime_error( "accelerator release failed" ); },
+            [&]() { ++laterCleanupCount; } ),
+        std::runtime_error );
+
+    EXPECT_EQ( laterCleanupCount, 1 );
+    EXPECT_TRUE( state.IsActive() );
+    EXPECT_FALSE( state.IsFinalized() );
+}
+
+TEST( SimuProcessLifecycleTest, SuccessfulCleanupCanCommitFinalizedState )
+{
+    SimuProcessLifecycleDetail::ProcessRuntimeState state;
+    state.Start();
+
+    EXPECT_NO_THROW(
+        SimuCaseLifecycleDetail::ExecuteAllCleanupSteps(
+            []() {},
+            []() {} ) );
+    state.MarkFinalized();
+
+    EXPECT_FALSE( state.IsActive() );
+    EXPECT_TRUE( state.IsFinalized() );
+}
+
 TEST( SimuProcessLifecycleTest, FinalizationIsIdempotent )
 {
     SimuProcessLifecycleDetail::ProcessRuntimeState state;
