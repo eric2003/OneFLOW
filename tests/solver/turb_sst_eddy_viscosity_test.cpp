@@ -32,7 +32,7 @@ TEST( TurbSstEddyViscosity, EddyViscosityLimitedByStrainOrVorticity )
 {
     // The selected rate magnitude activates the Bradshaw limiter:
     // R*F2/a1 = 8*0.5/0.25 = 16, greater than omega = 4.
-    // mu_t = rho*k/Re-denominator = 2*3/16*10 = 3.75.
+    // mu_t = rho*k/denominator*Re = 2*3/16*10 = 3.75.
     EXPECT_DOUBLE_EQ(
         SstEddyViscosity( 2.0, 3.0, 4.0, 8.0, 0.5, 0.25, 10.0 ),
         3.75 );
