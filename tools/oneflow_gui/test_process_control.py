@@ -119,6 +119,10 @@ class ProcessControlTest(unittest.TestCase):
                 if process.poll() is None:
                     terminate_process_tree(process, platform_name="posix")
                     process.wait(timeout=5)
+                if process.stdout is not None:
+                    process.stdout.close()
+                if process.stderr is not None:
+                    process.stderr.close()
 
 
 if __name__ == "__main__":
