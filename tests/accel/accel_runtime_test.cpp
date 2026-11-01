@@ -102,6 +102,38 @@ public:
     void Copy( void *, const void *, std::size_t, AccelCopyKind ) override {}
 };
 
+bool failBackendFinalize = false;
+int backendFinalizeCalls = 0;
+
+class RetryableFinalizeBackend final : public AccelBackend
+{
+public:
+    AccelBackendKind Kind() const override { return AccelBackendKind::CPU; }
+    const char * Name() const override { return "RETRYABLE_FINALIZE_CPU"; }
+    bool IsAccelerator() const override { return false; }
+    bool SupportsMultiDevice() const override { return false; }
+
+    void Initialize( AccelContext & context ) override
+    {
+        context.deviceCount = 0;
+        context.selectedDevice = -1;
+    }
+
+    void Finalize() override
+    {
+        ++backendFinalizeCalls;
+        if ( failBackendFinalize )
+        {
+            throw std::runtime_error( "simulated backend finalization failure" );
+        }
+    }
+
+    void Synchronize() override {}
+    void * Allocate( std::size_t ) override { return nullptr; }
+    void Deallocate( void * ) override {}
+    void Copy( void *, const void *, std::size_t, AccelCopyKind ) override {}
+};
+
 void SetEnvironmentVariable( const char * name, const std::string & value )
 {
 #ifdef _WIN32
@@ -258,6 +290,33 @@ TEST( AccelRuntimeTest, FailedInitializationDoesNotPublishPartialState )
 
     EXPECT_NO_THROW( runtime.Finalize() );
     EXPECT_FALSE( runtime.IsInitialized() );
+}
+
+TEST( AccelRuntimeTest, FailedFinalizationPreservesBackendForRetry )
+{
+    EnvironmentVariableGuard backendSetting( "ONEFLOW_ACCEL_BACKEND" );
+    SetEnvironmentVariable( "ONEFLOW_ACCEL_BACKEND", "CPU" );
+
+    AccelBackendRegistry::Instance().Register(
+        AccelBackendKind::CPU,
+        []() { return std::make_unique< RetryableFinalizeBackend >(); } );
+
+    AccelRuntime & runtime = AccelRuntime::Instance();
+    ASSERT_FALSE( runtime.IsInitialized() );
+
+    failBackendFinalize = true;
+    backendFinalizeCalls = 0;
+    ASSERT_NO_THROW( runtime.Initialize( 0, 1 ) );
+
+    EXPECT_THROW( runtime.Finalize(), std::runtime_error );
+    EXPECT_TRUE( runtime.IsInitialized() );
+    EXPECT_STREQ( runtime.Backend().Name(), "RETRYABLE_FINALIZE_CPU" );
+    EXPECT_EQ( backendFinalizeCalls, 1 );
+
+    failBackendFinalize = false;
+    EXPECT_NO_THROW( runtime.Finalize() );
+    EXPECT_FALSE( runtime.IsInitialized() );
+    EXPECT_EQ( backendFinalizeCalls, 2 );
 }
 
 TEST( DeviceBufferTest, FailedGrowthReleasesCandidateAndPreservesCurrentBuffer )
