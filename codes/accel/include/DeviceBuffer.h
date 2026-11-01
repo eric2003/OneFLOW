@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*\
+/*---------------------------------------------------------------------------*\\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
@@ -9,15 +9,56 @@ License
     under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-\*---------------------------------------------------------------------------*/
+\\*---------------------------------------------------------------------------*/
 
 #pragma once
 
 #include "AccelRuntime.h"
 #include <cstddef>
+#include <limits>
+#include <stdexcept>
 #include <utility>
 
 BeginNameSpace( ONEFLOW )
+
+namespace DeviceBufferDetail
+{
+
+class AllocationGuard
+{
+public:
+    AllocationGuard( AccelBackend & backend, void * pointer ) noexcept
+        : backend_( backend ), pointer_( pointer )
+    {
+    }
+
+    ~AllocationGuard() noexcept
+    {
+        if ( pointer_ == nullptr ) return;
+        try
+        {
+            backend_.Deallocate( pointer_ );
+        }
+        catch ( ... )
+        {
+            // Destruction is best-effort. Explicit Reset() reports release errors.
+        }
+    }
+
+    AllocationGuard( const AllocationGuard & ) = delete;
+    AllocationGuard & operator=( const AllocationGuard & ) = delete;
+
+    void Release() noexcept
+    {
+        pointer_ = nullptr;
+    }
+
+private:
+    AccelBackend & backend_;
+    void * pointer_ = nullptr;
+};
+
+}
 
 template< typename T >
 class DeviceBuffer
@@ -30,9 +71,9 @@ public:
         Resize( count );
     }
 
-    ~DeviceBuffer()
+    ~DeviceBuffer() noexcept
     {
-        Reset();
+        ResetNoThrow();
     }
 
     DeviceBuffer( const DeviceBuffer & ) = delete;
@@ -47,53 +88,62 @@ public:
     {
         if ( this != & other )
         {
-            Reset();
+            ResetNoThrow();
             Swap( other );
         }
         return *this;
     }
 
-    // Grow-only.  Several call sites request slightly different "total cell"
-    // counts for the same resident buffer (the boundary model uses
-    // nCells + nGhostCells, the interface upload uses nCells + nBoundaryFaces).
-    // A shrink-and-reallocate made hipMalloc/hipFree run four times per step;
-    // that cost 11-14 ms/step on the 8-zone DCU case, independent of the grid
-    // size.  Keeping the larger allocation removes the churn and every caller
-    // already guards with "Size() < needed".
+    // Grow-only. Different solver stages can request different total-cell
+    // extents for the same resident buffer. Retaining the largest allocation
+    // avoids repeated device allocation/free operations in the time loop.
+    //
+    // Allocation and copy failures leave the current buffer unchanged. Once
+    // the replacement has been committed, failure to release the old
+    // allocation is reported while the buffer continues to own the new one.
     void Resize( std::size_t count )
     {
         if ( count <= count_ ) return;
+        if ( count > ( std::numeric_limits< std::size_t >::max )() / sizeof( T ) )
+        {
+            throw std::length_error( "DeviceBuffer size exceeds addressable memory." );
+        }
 
+        AccelRuntime & runtime = AccelRuntime::Instance();
+        AccelBackend & backend = runtime.Backend();
         T * grown = static_cast< T * >(
-            AccelRuntime::Instance().Backend().Allocate(
-                count * sizeof( T ) ) );
+            backend.Allocate( count * sizeof( T ) ) );
+        DeviceBufferDetail::AllocationGuard allocationGuard( backend, grown );
+
         if ( pointer_ != nullptr )
         {
-            AccelRuntime::Instance().Backend().Copy(
+            backend.Copy(
                 grown, pointer_, count_ * sizeof( T ),
                 AccelCopyKind::DeviceToDevice );
-            if ( AccelRuntime::Instance().IsInitialized() )
-            {
-                AccelRuntime::Instance().Backend().Deallocate( pointer_ );
-            }
         }
+
+        T * previous = pointer_;
         pointer_ = grown;
         count_ = count;
+        allocationGuard.Release();
+
+        if ( previous != nullptr ) backend.Deallocate( previous );
     }
 
     void Reset()
     {
-        if ( pointer_ != nullptr )
-        {
-            // A failure path may reach static destruction after the
-            // accelerator runtime has already been finalized.
-            if ( AccelRuntime::Instance().IsInitialized() )
-            {
-                AccelRuntime::Instance().Backend().Deallocate( pointer_ );
-            }
-        }
+        T * previous = pointer_;
         pointer_ = nullptr;
         count_ = 0;
+
+        if ( previous != nullptr )
+        {
+            AccelRuntime & runtime = AccelRuntime::Instance();
+            if ( runtime.IsInitialized() )
+            {
+                runtime.Backend().Deallocate( previous );
+            }
+        }
     }
 
     T * Data()
@@ -125,6 +175,20 @@ public:
     }
 
 private:
+    void ResetNoThrow() noexcept
+    {
+        try
+        {
+            Reset();
+        }
+        catch ( ... )
+        {
+            // A destructor or noexcept move assignment must not propagate
+            // backend release failures. Reset() remains available to callers
+            // that need to observe such failures.
+        }
+    }
+
     void Swap( DeviceBuffer & other ) noexcept
     {
         std::swap( pointer_, other.pointer_ );
