@@ -279,7 +279,7 @@ TEST( ControlReaderIntegration, CaseEnvironmentSetupFailureCanBeRolledBack )
 {
     TemporaryControlCase testCase;
     ScopedCaseRuntimeReset runtimeReset;
-    testCase.WriteManifest( "\"missing.txt\";\\n" );
+    testCase.WriteManifest( "\"missing.txt\";\n" );
 
     ClearRuntimeParameters();
     Prj::current_dir = std::filesystem::current_path().string();
