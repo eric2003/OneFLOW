@@ -225,8 +225,8 @@ def validate_contract_summaries(
                 )
                 continue
             declaration = re.compile(
-                rf"\\bTEST(?:_F|_P)?\\s*\\(\\s*{re.escape(suite)}\\s*,"
-                rf"\\s*{re.escape(test_name)}\\s*\\)"
+                rf"\bTEST(?:_F|_P)?\s*\(\s*{re.escape(suite)}\s*,"
+                rf"\s*{re.escape(test_name)}\s*\)"
             )
             if not declaration.search(source):
                 issues.append(
