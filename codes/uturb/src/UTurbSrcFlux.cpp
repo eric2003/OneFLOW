@@ -336,7 +336,7 @@ void UTurbSrcFlux::PrepareCellValue1Equ()
 
     if ( turbcom.des_model ) 
     {
-        turbcom.len_scale = ( * uturbf.len_scale )[ 0 ][ ug.cId ];
+        turbcom.len_scale = ( * uturbf.len_scale )[ 0 ][  ug.cId ];
     }
     else
     {
@@ -447,7 +447,7 @@ void UTurbSrcFlux::CalcLengthScaleOfSaDdes()
     {
         Real rho = ( * uturbf.meanFlow.q  )[ IDX::IR ][ cId ];
         Real visl = ( * uturbf.visl  )[ 0 ][ cId ];
-        Real vist = ( * uturbf.vist )[ 0 ][ cId ];
+        Real vist = ( * uturbf.vist  )[ 0 ][ cId ];
 
         Real dist  = ( * uturbf.dist )[ cId ];
         Real dist2 = SQR( dist );
@@ -493,7 +493,7 @@ void UTurbSrcFlux::CalcLengthScaleOfSstDdes()
     {
         Real rho = ( * uturbf.meanFlow.q  )[ IDX::IR ][ cId ];
         Real visl = ( * uturbf.visl  )[ 0 ][ cId ];
-        Real vist = ( * uturbf.vist )[ 0 ][ cId ];
+        Real vist = ( * uturbf.vist  )[ 0 ][ cId ];
 
         Real ke = ( * uturbf.q  )[ IKE ][ cId ];
         Real kw = ( * uturbf.q  )[ IKW ][ cId ];
@@ -527,6 +527,163 @@ void UTurbSrcFlux::CalcLengthScaleOfSstDdes()
         Real sij2  = two * ( SQR( s11, s22, s33 ) + two * SQR( s12, s13, s23 ) );
         Real vort2 = four * SQR( w12, w13, w23 );
         Real term  = MAX(  sqrt( half * ( sij2 + vort2 ) ),  1.0e-20  );
+        Real nueff = turbcom.oreynolds * ( visl + vist ) / rho;
+
+        Real rd = nueff / ( turbcom.karm2 * dist2 * term );
+        Real fd = 1.0 - tanh( POWER3( 20.0 * rd ) );
+
+        ( * len_scale )[ 0 ][ cId ] = len_Rans - fd * MAX( 0.0, len_Rans - len_Les );
+    }
+}
+
+void UTurbSrcFlux::CalcLengthScaleOfSaIddes()
+{
+    UnsGrid * grid = Zone::GetUnsGrid();
+    MRField * len_scale = GetFieldPointer< MRField > ( grid, "len_scale" );
+
+    int nCells = grid->nCells;
+
+    RealField & wall_dist = grid->GetCellMesh().dist;
+    RealField & span = grid->GetCellMesh().span;
+
+    RealField lesLength( nCells );
+
+    CalcLengthLesOfSa( lesLength );
+
+    RealField lowReynoldsCorr( nCells );
+    CalcLowReynoldsCorrection( lowReynoldsCorr );
+
+    Real ct   = 1.63;
+    Real cl   = 3.55;
+
+    for ( int cId = 0; cId < nCells; ++ cId ) 
+    {
+        Real rho = ( * uturbf.meanFlow.q  )[ IDX::IR ][ cId ];
+        Real visl = ( * uturbf.visl )[ 0 ][ cId ];
+        Real vist = ( * uturbf.vist )[ 0 ][ cId ];
+
+        Real dist  = wall_dist[ cId ];
+        Real dist2 = SQR( dist );
+        Real len_Rans = dist;
+        Real len_Les  = lesLength[ cId ];
+
+        Real cell_span = span[ cId ];
+
+        Real alf  = 0.25 - dist / cell_span;
+        Real fb   = MIN(  2.0 * exp( - 9.0 * alf * alf ),  1.0  );
+
+        turbcom.dudx = ( * uturbf.meanFlow.dqdx )[ IDX::IU ][ ug.cId ];
+        turbcom.dudy = ( * uturbf.meanFlow.dqdy )[ IDX::IU ][ ug.cId ];
+        turbcom.dudz = ( * uturbf.meanFlow.dqdz )[ IDX::IU ][ ug.cId ];
+        turbcom.dvdx = ( * uturbf.meanFlow.dqdx )[ IDX::IV ][ ug.cId ];
+        turbcom.dvdy = ( * uturbf.meanFlow.dqdy )[ IDX::IV ][ ug.cId ];
+        turbcom.dvdz = ( * uturbf.meanFlow.dqdz )[ IDX::IV ][ ug.cId ];
+        turbcom.dwdx = ( * uturbf.meanFlow.dqdx )[ IDX::IW ][ ug.cId ];
+        turbcom.dwdy = ( * uturbf.meanFlow.dqdy )[ IDX::IW ][ ug.cId ];
+        turbcom.dwdz = ( * uturbf.meanFlow.dqdz )[ IDX::IW ][ ug.cId ];
+
+        Real gradu2 = SQR( turbcom.dudx, turbcom.dudy, turbcom.dudz );
+        Real gradv2 = SQR( turbcom.dvdx, turbcom.dvdy, turbcom.dvdz );
+        Real gradw2 = SQR( turbcom.dwdx, turbcom.dwdy, turbcom.dwdz );
+        Real grad2  = gradu2 + gradv2 + gradw2;
+
+        Real coef  = 1.0 / ( turbcom.karm2 * dist2 * MAX( sqrt( grad2 ), 1.0e-10 ) );
+
+        Real nuet = turbcom.oreynolds * vist / rho;
+        Real rdt  = nuet * coef;
+
+        Real fdt  = 1.0 - tanh( POWER3( 8.0 * rdt ) );
+        Real fdb  = MAX( ( 1.0 - fdt ), fb );
+
+        Real nuel = turbcom.oreynolds * visl / rho;
+        Real rdl  = nuel * coef;
+
+        Real fl   = tanh(  pow( cl * cl * rdl, 10.0 )  );
+        Real ft   = tanh(  POWER3( ct * ct * rdt )  );
+
+        Real fe2  = 1.0 - MAX( ft, fl );
+
+        Real fe1 = 0.0;
+        if ( alf < 0.0 )
+        {
+            fe1 = 2.0 * exp( - 9.0 * alf * alf );
+        }
+        else
+        {
+            fe1 = 2.0 * exp( - 11.09 * alf * alf );
+        }
+
+        Real cfix = lowReynoldsCorr[ cId ];
+        Real fe = fe2 * MAX( ( fe1 - 1.0 ), 0.0 ) * cfix;
+
+        ( * len_scale )[ 0 ][ cId ]  =  fdb * ( 1.0 + fe ) * len_Rans  +  ( 1.0 - fdb ) * len_Les;
+    }
+}
+
+void UTurbSrcFlux::CalcLengthScaleOfSstIddes()
+{
+    UnsGrid * grid = Zone::GetUnsGrid();
+    MRField * len_scale = GetFieldPointer< MRField > ( grid, "len_scale" );
+
+    int nCells = grid->nCells;
+
+    RealField & wall_dist = grid->GetCellMesh().dist;
+    RealField & span = grid->GetCellMesh().span;
+
+    RealField lesLength( nCells );
+
+    CalcLengthLesOfSst( lesLength );
+    //sa model
+    //Real ct   = 1.63;
+    //Real cl   = 3.55;
+
+    //sst model
+    Real ct = 1.87;
+    Real cl = 5.0;
+
+    Real cdt1 = 20.0;
+    Real cdt2 = 3.0;
+
+    for ( int cId = 0; cId < nCells; ++ cId ) 
+    {
+        Real rho = ( * uturbf.meanFlow.q  )[ IDX::IR ][ cId ];
+        Real visl = ( * uturbf.visl )[ 0 ][ cId ];
+        Real vist = ( * uturbf.vist )[ 0 ][ cId ];
+
+        Real ke = ( * uturbf.q  )[ IKE ][ cId ];
+        Real kw = ( * uturbf.q  )[ IKW ][ cId ];
+
+        Real dist  = wall_dist[ cId ];
+        Real dist2 = SQR( dist );
+
+        Real cell_span = span[ cId ];
+
+        Real len_Rans = sqrt( ABS( ke ) ) / ( turbcom.betas * kw + SMALL );
+        Real len_Les  = lesLength[ cId ];
+
+        turbcom.dudx = ( * uturbf.meanFlow.dqdx )[ IDX::IU ][ ug.cId ];
+        turbcom.dudy = ( * uturbf.meanFlow.dqdy )[ IDX::IU ][ ug.cId ];
+        turbcom.dudz = ( * uturbf.meanFlow.dqdz )[ IDX::IU ][ ug.cId ];
+        turbcom.dvdx = ( * uturbf.meanFlow.dqdx )[ IDX::IV ][ ug.cId ];
+        turbcom.dvdy = ( * uturbf.meanFlow.dqdy )[ IDX::IV ][ ug.cId ];
+        turbcom.dvdz = ( * uturbf.meanFlow.dqdz )[ IDX::IV ][ ug.cId ];
+        turbcom.dwdx = ( * uturbf.meanFlow.dqdx )[ IDX::IW ][ ug.cId ];
+        turbcom.dwdy = ( * uturbf.meanFlow.dqdy )[ IDX::IW ][ ug.cId ];
+        turbcom.dwdz = ( * uturbf.meanFlow.dqdz )[ IDX::IW ][ ug.cId ];
+
+        Real s11 = turbcom.dudx;
+        Real s22 = turbcom.dvdy;
+        Real s33 = turbcom.dwdz;
+        Real s12 = half * ( turbcom.dudy + turbcom.dvdx );
+        Real s13 = half * ( turbcom.dudz + turbcom.dwdx );
+        Real s23 = half * ( turbcom.dvdz + turbcom.dwdy );
+        Real w12 = half * ( turbcom.dudy - turbcom.dvdx );
+        Real w13 = half * ( turbcom.dudz - turbcom.dwdx );
+        Real w23 = half * ( turbcom.dvdz - turbcom.dwdy );
+
+        Real sij2  = two * ( SQR( s11, s22, s33 ) + two * SQR( s12, s13, s23 ) );
+        Real vort2 = four * SQR( w12, w13, w23 );
+        Real term  = MAX( sqrt( half * ( sij2 + vort2 ) ),  1.0e-20  );
 
         Real coef = 1.0 / ( turbcom.karm2 * dist2 * term );
 
