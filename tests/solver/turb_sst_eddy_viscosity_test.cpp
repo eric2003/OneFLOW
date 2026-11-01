@@ -28,6 +28,16 @@ TEST( TurbSstEddyViscosity, EddyViscosityLimitedByOmega )
         SstEddyViscosity( 1.0, 2.0, 4.0, 0.0, 1.0, 0.31, 1.0 ), 0.5 );
 }
 
+TEST( TurbSstEddyViscosity, EddyViscosityLimitedByStrainOrVorticity )
+{
+    // The selected rate magnitude activates the Bradshaw limiter:
+    // R*F2/a1 = 8*0.5/0.25 = 16, greater than omega = 4.
+    // mu_t = rho*k/Re-denominator = 2*3/16*10 = 3.75.
+    EXPECT_DOUBLE_EQ(
+        SstEddyViscosity( 2.0, 3.0, 4.0, 8.0, 0.5, 0.25, 10.0 ),
+        3.75 );
+}
+
 // Intermediate verification: F2(arg2) vs closed form tanh(arg2^2).
 // Proves pure SstF2FromArg; does not prove full SST eddy viscosity on a mesh.
 TEST( TurbSstEddyViscosity, F2Arg2CurveMatchesClosedForm )
