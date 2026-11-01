@@ -1310,3 +1310,31 @@ Windows test result is claimed for these commits.
 The new UI test is registered as the 42nd Python test command. The latest
 `hexin` HEAD for this handoff is
 `246b1f72ff91af7c7352ec73e5b63309ba4ee876`.
+
+
+## 2026-11-01: Case Contract artifact navigation
+
+Extended the visible Case Contract view in
+`tools/oneflow_gui/contract_workbench_dialog.py`:
+- **Open case directory...** opens the declared repository case folder.
+- **Open suite and references...** opens the declared suite manifest, residual
+  baseline, and retained Blasius reference files.
+- Both actions resolve declared paths under the repository root. Directory
+  navigation rejects a path that escapes the repository; file navigation uses
+  the existing containment-checked `_open_paths` helper.
+- These are read-only navigation actions; they do not run CFD or mutate
+  reference data.
+
+Extended `test_contract_workbench_dialog.py` to mock the desktop URL-opening
+boundary and assert the exact case directory and all five suite/reference
+targets. The test remains in the explicit Python command registry (42 commands).
+Updated the English Workbench README, Chinese user guide, and Contract Workbench
+design plan.
+
+Focused validation:
+```powershell
+python -m unittest tools.oneflow_gui.test_contract_workbench_dialog
+python -m unittest tools.verification.test_contract_catalog
+```
+The latest user-reported 1126/1126 baseline predates these changes. No local
+Windows test execution is claimed.
