@@ -980,6 +980,36 @@ def source_paths(repository_root: Path, entry: TheoryEntry) -> list[Path]:
     ]
 
 
+def validate_catalog_paths(repository_root: Path) -> list[str]:
+    """Return missing repository files referenced by the theory catalog."""
+    issues: list[str] = []
+    for entry in list_theory_entries():
+        if bool(entry.csv_relpath) != bool(entry.plot_module):
+            issues.append(
+                f"{entry.id}: CSV and plot module must be configured together"
+            )
+        for relpath in entry.source_relpaths:
+            path = resolve_repo_path(repository_root, relpath)
+            if path is None or not path.is_file():
+                issues.append(f"{entry.id}: missing source file: {relpath}")
+        if entry.doc_relpath:
+            path = doc_path(repository_root, entry)
+            if path is None or not path.is_file():
+                issues.append(f"{entry.id}: missing documentation: {entry.doc_relpath}")
+        if entry.csv_relpath:
+            path = csv_path(repository_root, entry)
+            if path is None or not path.is_file():
+                issues.append(f"{entry.id}: missing theory data: {entry.csv_relpath}")
+        if entry.plot_module:
+            plot_path = verification_root(repository_root) / f"{entry.plot_module}.py"
+            if not plot_path.is_file():
+                issues.append(
+                    f"{entry.id}: missing plot module: "
+                    f"tools/verification/{entry.plot_module}.py"
+                )
+    return issues
+
+
 def read_doc_excerpt(repository_root: Path, entry: TheoryEntry, max_chars: int = 4000) -> str:
     path = doc_path(repository_root, entry)
     if path is None or not path.is_file():
