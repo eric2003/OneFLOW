@@ -263,3 +263,20 @@ This is the diagnostic parsing and presentation foundation. Persisted
 execution records, explicit test-to-contract mapping, and Verification Results
 aggregation remain subsequent integration steps; until then, the UI does not
 claim a durable cross-session evidence link.
+
+
+### Failed-case summary behavior
+
+The command worker also emits a final `Failed test cases` section from the
+structured records it parsed during the failed command. Each entry includes
+the failed unittest/GoogleTest identity, source location, and concise cause.
+This is separate from the streamed test output: the detailed traceback or
+framework assertion text remains in the earlier execution log, while the final
+summary provides a CTest-style index of the failures. The worker avoids
+printing a second, duplicate unittest case list when structured records are
+available.
+
+Diagnostic working-directory strings use forward slashes for stable display
+and serialization across Windows and POSIX hosts. They still identify the
+resolved execution directory; this is a representation normalization, not a
+change to the process working directory.
