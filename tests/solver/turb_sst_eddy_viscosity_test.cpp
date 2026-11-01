@@ -27,3 +27,15 @@ TEST( TurbSstEddyViscosity, EddyViscosityLimitedByOmega )
     EXPECT_DOUBLE_EQ(
         SstEddyViscosity( 1.0, 2.0, 4.0, 0.0, 1.0, 0.31, 1.0 ), 0.5 );
 }
+
+// Intermediate verification: F2(arg2) vs closed form tanh(arg2^2).
+// Proves pure SstF2FromArg; does not prove full SST eddy viscosity on a mesh.
+TEST( TurbSstEddyViscosity, F2Arg2CurveMatchesClosedForm )
+{
+    const Real args[] = { 0.0, 0.5, 0.8, 1.0, 1.2, 1.5, 2.0, 3.0 };
+    for ( Real a : args )
+    {
+        const Real expected = std::tanh( a * a );
+        EXPECT_NEAR( SstF2FromArg( a ), expected, 1.0e-12 );
+    }
+}

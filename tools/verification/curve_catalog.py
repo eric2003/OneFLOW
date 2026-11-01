@@ -296,8 +296,8 @@ def list_theory_entries() -> list[TheoryEntry]:
             references=(
                 "Menter SST; NASA TMR SST; sst_eddy_viscosity.rst",
             ),
-            csv_relpath=None,
-            plot_module=None,
+            csv_relpath="tools/verification/data/sst_f2_arg2_theory.csv",
+            plot_module="plot_sst_f2",
             pure_apis=("SstF2Arg", "SstF2FromArg", "SstEddyViscosity"),
             source_relpaths=(
                 "codes/turb/include/TurbSstPolicy.h",
