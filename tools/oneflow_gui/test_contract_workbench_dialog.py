@@ -72,8 +72,10 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             ).resolve()
             desktop_services.openUrl.assert_called_once()
             self.assertEqual(
-                desktop_services.openUrl.call_args.args[0].toLocalFile(),
-                str(expected_directory),
+                Path(
+                    desktop_services.openUrl.call_args.args[0].toLocalFile()
+                ).resolve(),
+                expected_directory,
             )
             desktop_services.reset_mock()
             with patch(
@@ -86,9 +88,9 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
                 for call in desktop_services.openUrl.call_args_list
             ]
             self.assertEqual(
-                opened_paths,
+                [Path(path).resolve() for path in opened_paths],
                 [
-                    str((self.repository_root / path).resolve())
+                    (self.repository_root / path).resolve()
                     for path in (
                         "test/suites/cpu-serial.txt",
                         "test/baselines/residual-baseline.json",
