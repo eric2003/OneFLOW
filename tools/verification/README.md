@@ -293,7 +293,9 @@ CMake configuration no longer forces a developer-specific Windows install
 prefix. CMake selects its platform default unless the user configures another
 prefix. The default test runner distinguishes Windows multi-configuration
 outputs (`build/bin/Debug/OneFLOW.exe` or `Release`) from the conventional
-single-configuration POSIX output (`build/bin/OneFLOW`). Executable discovery
+single-configuration POSIX output (`build/bin/OneFLOW`) and also handles
+POSIX multi-configuration generators that place the selected configuration
+under `build/bin/Debug` or `Release`. Executable discovery
 also checks conventional POSIX install locations and the current `PATH`.
 
 Platform branches are covered by unit tests that can run on either host. These
