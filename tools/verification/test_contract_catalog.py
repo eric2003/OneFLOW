@@ -217,6 +217,13 @@ class ContractCatalogTest(unittest.TestCase):
         self.assertTrue(any(item.domain == "numerical" for item in summaries))
         self.assertTrue(any(item.domain == "geometry" for item in summaries))
         self.assertTrue(any(item.domain == "runtime" for item in summaries))
+        case_contracts = [item for item in summaries if item.domain == "case"]
+        self.assertEqual(len(case_contracts), 1)
+        self.assertEqual(
+            case_contracts[0].id,
+            "case/laminar-flat-plate-slaU2",
+        )
+        self.assertIsNotNone(case_contracts[0].case_data)
         self.assertEqual(len({item.id for item in summaries}), len(summaries))
         self.assertEqual(issues, (), "\n".join(issues))
 
