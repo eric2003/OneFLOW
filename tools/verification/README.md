@@ -198,3 +198,8 @@ binary or that it has executed.
 ### C++ declaration scanning boundary
 
 Linked GoogleTest matching masks C++ line/block comments and ordinary, character, and raw string literals before searching for declaration macros. This prevents example text from satisfying a contract link. The scanner is intentionally a lightweight source check, not a full C++ parser: it does not prove macro expansion, template instantiation, test registration, compilation, runtime discovery, or execution. Those remain separate build and execution evidence.
+
+
+### Static evidence resolution
+
+`resolve_contract_evidence` returns one immutable resolution record per declared evidence item. Its status is independent of the declaration's existing status: `declared` means this resolver has no applicable artifact check, `resolved` means the supported path or source declaration was found, and `stale` means the supported reference is missing, invalid, unreadable, or no longer declared in source. A resolved GoogleTest source declaration remains `linked_not_executed`; this API does not inspect build registration, test discovery, or execution results.
