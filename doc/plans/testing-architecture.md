@@ -76,16 +76,17 @@ This is a test of test discovery. It is not itself a test runner.
 
 ## Inventory versus execution
 
-The GUI's Repository Test Inventory and Unit Tests serve different purposes:
+The GUI's Repository Test Inventory and test execution actions serve different purposes:
 
 - **Repository Test Inventory** scans source files and displays declarations,
   source locations, and explicit scenario links. It is read-only. Seeing a test
   in this list means it was discovered, not that it ran or passed.
-- **Unit Tests** invokes CTest and an explicit list of Python test commands
-  through the existing command worker. A test appears in the inventory if its
-  declaration can be found; it runs from the Unit Tests action only if its
-  executable target or Python command is registered with the corresponding
-  runner.
+- **C++ Unit Tests (CTest)** invokes the configured CTest suite.
+- **Python Unit Tests (unittest)** invokes the explicit list of Python test
+  commands through the existing command worker. These two selections are
+  independent and can be run separately or together. A test appears in the
+  inventory if its declaration can be found; it runs only if its executable
+  target or Python command is registered with the corresponding runner.
 - **CFD/Grid Regression** invokes the existing manifest-driven regression
   runner. It is not interchangeable with a unit test.
 - **Development Tests** execute selected catalog cases from an isolated
@@ -101,8 +102,9 @@ and cover the command registry with tests.
 ## Current GUI integration
 
 The three Contract Workbench modules are registered in the Workbench Python
-unit-test command list. Running **Tests > Unit Tests** now runs them after the
-existing CTest and Python commands. The command builder test asserts that all
+unit-test command list. Running **Tests > Python Unit Tests** runs them
+independently of CTest. The C++ Unit Tests selection runs only the configured
+CTest suite. The command builder test asserts that all
 three module paths remain registered.
 
 The separate Repository Test Inventory remains the read-only source browser.
