@@ -38,6 +38,7 @@ from .test_runner import (
     build_ctest_test_commands,
     build_python_test_commands,
     build_regression_command,
+    format_command_arguments,
     stage_regression_tests,
     summarize_test_output,
 )
@@ -87,7 +88,7 @@ class TestCommandWorker(QThread):
                 self.completed.emit(False, "Test run cancelled.")
                 return
             self.output_line.emit(f"\n=== {command.label} ===")
-            self.output_line.emit("$ " + subprocess.list2cmdline(list(command.arguments)))
+            self.output_line.emit("$ " + format_command_arguments(command.arguments))
             started_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
             try:
                 if command.label.startswith("CMake configure"):
