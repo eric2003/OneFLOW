@@ -16,6 +16,7 @@ class ExecutableDiscoveryTest(unittest.TestCase):
             executable = Path(directory) / "bin" / "OneFLOW"
             executable.parent.mkdir(parents=True)
             executable.write_text("", encoding="utf-8")
+            executable.chmod(0o755)
 
             candidates = executable_candidates(
                 root,
