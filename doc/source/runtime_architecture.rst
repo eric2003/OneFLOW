@@ -792,3 +792,36 @@ ownership has begun transferring. The invariant is tested at compile time and by
 a runtime ownership-transfer test. The trade-off is one allocation on first use and
 one pointer indirection for registry operations; an empty registry performs no
 allocation.
+
+Production runtime target and lifecycle integration
+---------------------------------------------------
+
+The production sources collected under ``codes`` are now compiled once into
+the static target ``OneFLOW_Runtime``. The executable entry point remains in
+``codes/main/src/OneFlow.cpp`` and links this target. The target publishes the
+same include directories, compile definitions, compile features, and external
+link dependencies that were previously attached directly to the executable.
+This makes the runtime implementation reusable by integration tests without
+copying the executable's recursively collected source list into each test.
+
+``simu_imp_case_lifecycle_integration_test`` links ``OneFLOW_Runtime`` and
+constructs the real ``SimuImp`` with a temporary case. It starts the process
+runtime, provides a manifest whose first script commits a value and whose
+second script is missing, then calls the production ``RunCase()`` entry point.
+The assertions inspect context-owned task metadata that only the full
+``TeardownCase()`` reset clears, the partial database and project-root state,
+and the process-runtime active flag before and after explicit finalization.
+This distinguishes full case teardown from the narrower rollback performed
+inside ``SetupCaseEnvironment()``.
+
+``SimuContext::IsProcessEnvironmentActive()`` is a read-only lifecycle
+observation; it does not grant callers ownership of process initialization or
+finalization. ``RunCase()`` remains a per-case operation and must leave the
+process runtime active. The process owner remains responsible for the explicit
+``FinalizeEnvironment()`` call.
+
+The new target and test establish a production link boundary and an executable
+integration path. They do not yet validate cleanup failure injection for each
+individual solver/device release step, multi-rank MPI behavior, or numerical
+regression behavior. Exact-configuration Windows/Linux CI and a fresh local
+CTest run are required before treating the refactor as validated.
