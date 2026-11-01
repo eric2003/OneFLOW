@@ -97,7 +97,7 @@ def parse_test_diagnostics(
             records.append(TestDiagnostic(
                 task_label, "unittest", name, name, source, line_number,
                 error_type, message, configuration,
-                str(Path(working_directory).resolve()) if working_directory else None,
+                Path(working_directory).resolve().as_posix() if working_directory else None,
                 started_at, finished_at, exit_code, contracts, impact,
             ))
 
@@ -125,7 +125,7 @@ def parse_test_diagnostics(
             records.append(TestDiagnostic(
                 task_label, "GoogleTest", name, name, source, line_number,
                 error_type, message, configuration,
-                str(Path(working_directory).resolve()) if working_directory else None,
+                Path(working_directory).resolve().as_posix() if working_directory else None,
                 started_at, finished_at, exit_code, contracts, impact,
             ))
 
