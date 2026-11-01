@@ -158,7 +158,12 @@ private:
 TEST( SimuImpCaseLifecycleIntegration,
       ProcessFinalizationReleasesContextBackendStatesBeforeRuntime )
 {
-    SimuImp simulation( "unused-case", false );
+    // SimuImp resolves its case path during construction. Initialize the
+    // production project environment and pass an absolute temporary path so
+    // this test does not depend on an implicit process working directory.
+    Prj::Init();
+    TemporaryCase testCase;
+    SimuImp simulation( testCase.Directory(), false );
     SimuContext & context = simulation.Context();
 
     context.SetupProcessEnvironment();
