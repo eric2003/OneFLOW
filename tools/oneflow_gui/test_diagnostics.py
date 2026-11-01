@@ -44,7 +44,7 @@ def _source_location(lines: list[str]) -> tuple[str | None, int | None]:
         match = re.search(r'File "([^"]+)", line (\d+)', line)
         if match:
             return match.group(1), int(match.group(2))
-        match = re.search(r"((?:[A-Za-z]:)?[^\\s:]+\\.(?:cpp|cc|cxx|h|hpp)):(\\d+)(?::\\d+)?", line)
+        match = re.search(r"((?:[A-Za-z]:)?[^\s:]+\.(?:cpp|cc|cxx|h|hpp)):(\d+)(?::\d+)?", line)
         if match:
             return match.group(1), int(match.group(2))
     return None, None
