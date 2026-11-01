@@ -798,6 +798,26 @@ a runtime ownership-transfer test. The trade-off is one allocation on first use 
 one pointer indirection for registry operations; an empty registry performs no
 allocation.
 
+Process shutdown and accelerator-state ordering
+------------------------------------------------
+
+SimuContext owns its EulerDomainStateRegistry. Registered backend states may
+in turn own device allocations, so they must be destroyed while AccelRuntime
+is still initialized. The normal per-case path already clears the registry in
+SimuContext::TeardownCase(). The process boundary is also defensive:
+SimuContext::FinalizeEnvironment() clears any remaining context-owned states
+and, in HIP builds, releases HipFluxBackend's shared instance before calling
+FinalizeAccelRuntime(). HXFinalize() follows accelerator finalization.
+
+This is an ordering guarantee for accelerator-owned state, not a substitute
+for full case teardown. Solver/global case objects must still be released by
+TeardownCase(). A production-linked test inserts a state whose destructor
+observes the runtime and calls process finalization without prior case teardown;
+it asserts that the state is destroyed while the runtime remains active. The
+HIP shared-instance release branch additionally requires HIP-enabled CI/build
+coverage. See doc/plans/accelerator-runtime-shutdown-order.md for the contract,
+ownership rationale, and validation limits.
+
 Production runtime target and lifecycle integration
 ---------------------------------------------------
 
