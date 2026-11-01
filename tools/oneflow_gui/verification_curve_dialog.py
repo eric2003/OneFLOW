@@ -59,7 +59,7 @@ class VerificationCurveDialog(QDialog):
         from verification.curve_catalog import list_theory_entries
         self._entries = list_theory_entries()
         self._map = {e.id: e for e in self._entries}
-        self.setWindowTitle("Contract Workbench - Formula knowledge")
+        self.setWindowTitle("Contract Workbench — Formula knowledge")
         self.resize(1180, 760)
         root = QVBoxLayout(self)
         intro = QLabel(
