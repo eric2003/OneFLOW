@@ -41,3 +41,10 @@ References
 
 Pure APIs: ``SaEddyViscosity`` and shared ``TurbCappedEddyViscosity`` (see ``turb_viscosity_policy_test``).
 Wiring: ``TurbSrcFlux::CalcCellVist1Equ``.
+
+
+Density validation in the SA field loop is performed on the current cell value
+read from the mean-flow density field. The validity predicate is covered
+independently by ``turb_viscosity_policy_test``. This ordering matters: checking
+the shared ``turbcom.rho`` before loading the cell value would inspect stale
+state (or an uninitialized value) rather than the cell currently being processed.
