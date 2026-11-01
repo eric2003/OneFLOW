@@ -1,0 +1,116 @@
+"""Tests for cross-platform process-group lifecycle helpers."""
+
+from __future__ import annotations
+
+import os
+import subprocess
+import sys
+import tempfile
+import time
+import unittest
+from pathlib import Path
+from unittest.mock import Mock
+
+from tools.oneflow_gui.process_control import (
+    process_group_options,
+    terminate_process_tree,
+)
+
+
+class ProcessControlTest(unittest.TestCase):
+    def test_posix_process_group_options_start_a_new_session(self) -> None:
+        self.assertEqual(
+            process_group_options(platform_name="posix"),
+            {"start_new_session": True},
+        )
+
+    def test_windows_process_group_options_create_a_new_process_group(self) -> None:
+        self.assertEqual(
+            process_group_options(platform_name="nt"),
+            {"creationflags": 0x00000200},
+        )
+
+    def test_windows_termination_uses_taskkill_tree_mode(self) -> None:
+        process = Mock()
+        process.pid = 1234
+        process.poll.return_value = None
+        runner = Mock(return_value=subprocess.CompletedProcess([], 0))
+
+        self.assertTrue(
+            terminate_process_tree(
+                process,
+                platform_name="nt",
+                command_runner=runner,
+            )
+        )
+        self.assertEqual(
+            runner.call_args.args[0],
+            ["taskkill", "/PID", "1234", "/T", "/F"],
+        )
+        process.terminate.assert_not_called()
+
+    def test_windows_termination_falls_back_to_parent_process(self) -> None:
+        process = Mock()
+        process.pid = 1234
+        process.poll.return_value = None
+        runner = Mock(return_value=subprocess.CompletedProcess([], 1))
+
+        self.assertTrue(
+            terminate_process_tree(
+                process,
+                platform_name="windows",
+                command_runner=runner,
+            )
+        )
+        process.terminate.assert_called_once_with()
+
+    def test_completed_process_is_not_terminated(self) -> None:
+        process = Mock()
+        process.poll.return_value = 0
+        runner = Mock()
+
+        self.assertFalse(
+            terminate_process_tree(
+                process,
+                platform_name="nt",
+                command_runner=runner,
+            )
+        )
+        runner.assert_not_called()
+
+    @unittest.skipUnless(os.name == "posix", "Requires POSIX process groups")
+    def test_posix_termination_stops_descendant_processes(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            marker = Path(directory) / "child-survived.txt"
+            child_code = (
+                "import pathlib, time; "
+                f"time.sleep(1); pathlib.Path({str(marker)!r}).write_text('alive')"
+            )
+            parent_code = (
+                "import subprocess, sys, time; "
+                f"subprocess.Popen([sys.executable, '-c', {child_code!r}]); "
+                "print('child-started', flush=True); time.sleep(30)"
+            )
+            process = subprocess.Popen(
+                [sys.executable, "-c", parent_code],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                start_new_session=True,
+            )
+            try:
+                self.assertEqual(process.stdout.readline().strip(), "child-started")
+                self.assertTrue(
+                    terminate_process_tree(process, platform_name="posix")
+                )
+                process.wait(timeout=5)
+                time.sleep(1.2)
+                self.assertFalse(marker.exists())
+            finally:
+                if process.poll() is None:
+                    terminate_process_tree(process, platform_name="posix")
+                    process.wait(timeout=5)
+
+
+if __name__ == "__main__":
+    unittest.main()
