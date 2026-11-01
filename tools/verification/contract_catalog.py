@@ -26,6 +26,7 @@ class ContractSummary:
     """Common read-only navigation data for a verification contract."""
 
     id: str
+    source_id: str
     title: str
     domain: str
     kind: str
@@ -85,7 +86,8 @@ def adapt_theory_entry(entry: Any) -> ContractSummary:
             ),
         )
     return ContractSummary(
-        id=str(entry.id),
+        id=f"numerical/{entry.id}",
+        source_id=str(entry.id),
         title=str(entry.title),
         domain="numerical",
         kind="numerical_formula",
@@ -100,7 +102,9 @@ def adapt_theory_entry(entry: Any) -> ContractSummary:
     )
 
 
-def adapt_geometry_scenario(scenario: dict[str, Any]) -> ContractSummary:
+def adapt_geometry_scenario(
+    scenario: dict[str, Any], source_path: str | None = None
+) -> ContractSummary:
     """Adapt a fixture-backed geometry scenario without running its pipeline."""
     scenario_id = str(scenario.get("id") or "").strip()
     if not scenario_id:
@@ -130,7 +134,7 @@ def adapt_geometry_scenario(scenario: dict[str, Any]) -> ContractSummary:
     evidence = (
         ContractEvidence(
             kind="fixture",
-            reference=scenario_id,
+            reference=source_path or scenario_id,
             status=fixture_status,
             scope="Fixture data only; this adapter does not execute production C++.",
         ),
@@ -138,7 +142,8 @@ def adapt_geometry_scenario(scenario: dict[str, Any]) -> ContractSummary:
     )
     notes = _non_empty_strings(scenario.get("notes") or ())
     return ContractSummary(
-        id=scenario_id,
+        id=f"geometry/{scenario_id}",
+        source_id=scenario_id,
         title=title,
         domain="geometry",
         kind="scenario",
@@ -172,7 +177,12 @@ def validate_contract_summaries(
         declared_paths = [
             *summary.implementation_paths,
             *summary.documentation_paths,
-            *(item.reference for item in summary.evidence if item.kind == "theory_data"),
+            *(
+                item.reference
+                for item in summary.evidence
+                if item.kind in ("theory_data", "fixture")
+                and "/" in item.reference
+            ),
             *(
                 item.scope
                 for item in summary.evidence
@@ -189,3 +199,38 @@ def validate_contract_summaries(
             if not path.is_file():
                 issues.append(f"{summary.id}: missing repository file: {relpath}")
     return issues
+
+def load_contract_catalog(
+    repository_root: Path,
+) -> tuple[tuple[ContractSummary, ...], tuple[str, ...]]:
+    """Load all current numerical and geometry entries through read-only adapters.
+
+    Invalid source records are reported individually so one malformed scenario
+    does not hide the rest of the catalog.
+    """
+    from .curve_catalog import list_theory_entries
+    from tools.geometry_workbench.scenarios import (
+        list_scenario_paths,
+        load_scenario,
+    )
+
+    root = repository_root.resolve()
+    summaries: list[ContractSummary] = []
+    issues: list[str] = []
+
+    for entry in list_theory_entries():
+        try:
+            summaries.append(adapt_theory_entry(entry))
+        except (AttributeError, TypeError, ValueError) as exc:
+            issues.append(f"numerical/{getattr(entry, 'id', '<unknown>')}: {exc}")
+
+    for path in list_scenario_paths(root):
+        relative_path = path.relative_to(root).as_posix()
+        try:
+            scenario = load_scenario(path)
+            summaries.append(adapt_geometry_scenario(scenario, relative_path))
+        except (OSError, ValueError, TypeError) as exc:
+            issues.append(f"{relative_path}: {exc}")
+
+    issues.extend(validate_contract_summaries(root, summaries))
+    return tuple(summaries), tuple(issues)
