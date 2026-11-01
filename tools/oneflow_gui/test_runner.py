@@ -47,6 +47,7 @@ _PYTHON_UNIT_TESTS = (
     ("GUI test command builder tests", ("-m", "unittest", "tools.oneflow_gui.test_test_runner")),
     ("Numerical verification catalog tests", ("-m", "unittest", "tools.verification.test_curve_catalog")),
     ("Combined contract catalog tests", ("-m", "unittest", "tools.verification.test_contract_catalog")),
+    ("Contract Workbench dialog tests", ("-m", "unittest", "tools.oneflow_gui.test_contract_workbench_dialog")),
     ("Repository test inventory discovery tests", ("-m", "unittest", "tools.oneflow_gui.test_test_inventory")),
     ("Mesh layout editor document tests", ("-m", "unittest", "tests.tools.test_editor_document")),
     ("Rectangle layout compiler tests", ("-m", "unittest", "tests.tools.test_compile_rectangle")),
