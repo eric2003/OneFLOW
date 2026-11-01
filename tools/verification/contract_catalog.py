@@ -7,6 +7,7 @@ geometry JSON scenarios into a small, Qt-independent summary model.
 from __future__ import annotations
 
 from dataclasses import dataclass
+import json
 import re
 from pathlib import Path, PureWindowsPath
 from typing import Any, Iterable
@@ -33,6 +34,8 @@ class ContractSummary:
     kind: str
     overview: str
     principle: str
+    architecture: str
+    status: str
     references: tuple[str, ...]
     implementation_paths: tuple[str, ...]
     documentation_paths: tuple[str, ...]
@@ -94,6 +97,8 @@ def adapt_theory_entry(entry: Any) -> ContractSummary:
         kind="numerical_formula",
         overview=str(entry.background),
         principle=str(entry.principle),
+        architecture="",
+        status="implemented",
         references=_non_empty_strings(entry.references),
         implementation_paths=_non_empty_strings(entry.source_relpaths),
         documentation_paths=documentation_paths,
@@ -150,6 +155,8 @@ def adapt_geometry_scenario(
         kind="scenario",
         overview=description,
         principle="See scenario notes and linked production test for the intended invariant.",
+        architecture="",
+        status="fixture_only",
         references=(),
         implementation_paths=(),
         documentation_paths=(),
@@ -158,6 +165,94 @@ def adapt_geometry_scenario(
         limitations=(
             "Fixture-backed scenario data is not evidence that production C++ executed.",
             "Linked GoogleTest declarations are references, not recorded test results.",
+        ),
+    )
+
+
+_CONTRACT_STATUSES = {
+    "proposed",
+    "implemented",
+    "partially_verified",
+    "verified",
+    "blocked",
+    "deprecated",
+    "fixture_only",
+}
+
+
+def adapt_declared_contract(definition: dict[str, Any]) -> ContractSummary:
+    """Adapt a versioned, domain-owned contract definition."""
+    if definition.get("schema_version") != 1:
+        raise ValueError("unsupported contract schema_version; expected 1")
+
+    required = (
+        "id",
+        "title",
+        "domain",
+        "kind",
+        "status",
+        "overview",
+        "principle",
+        "architecture",
+    )
+    missing = [
+        name for name in required
+        if not isinstance(definition.get(name), str)
+        or not definition[name].strip()
+    ]
+    if missing:
+        raise ValueError(
+            "contract definition is missing required fields: "
+            + ", ".join(missing)
+        )
+
+    status = definition["status"].strip()
+    if status not in _CONTRACT_STATUSES:
+        raise ValueError(f"unsupported contract status: {status}")
+
+    evidence_items = []
+    for index, item in enumerate(definition.get("verification", ())):
+        if not isinstance(item, dict):
+            raise ValueError(f"verification[{index}] must be an object")
+        for field in ("kind", "reference", "status", "scope"):
+            if not isinstance(item.get(field), str) or not item[field].strip():
+                raise ValueError(
+                    f"verification[{index}] requires non-empty {field}"
+                )
+        evidence_items.append(
+            ContractEvidence(
+                kind=item["kind"].strip(),
+                reference=item["reference"].strip(),
+                status=item["status"].strip(),
+                scope=item["scope"].strip(),
+            )
+        )
+
+    contract_id = definition["id"].strip()
+    if "/" not in contract_id:
+        raise ValueError("declared contract id must be namespaced")
+
+    return ContractSummary(
+        id=contract_id,
+        source_id=contract_id.split("/", 1)[1],
+        title=definition["title"].strip(),
+        domain=definition["domain"].strip(),
+        kind=definition["kind"].strip(),
+        overview=definition["overview"].strip(),
+        principle=definition["principle"].strip(),
+        architecture=definition["architecture"].strip(),
+        status=status,
+        references=_non_empty_strings(definition.get("references", ())),
+        implementation_paths=_non_empty_strings(
+            definition.get("implementation", {}).get("source_paths", ())
+        ),
+        documentation_paths=_non_empty_strings(
+            definition.get("documentation", {}).get("paths", ())
+        ),
+        evidence=tuple(evidence_items),
+        claims=_non_empty_strings(definition.get("claims", {}).get("proves", ())),
+        limitations=_non_empty_strings(
+            definition.get("claims", {}).get("does_not_prove", ())
         ),
     )
 
@@ -261,6 +356,19 @@ def load_contract_catalog(
             summaries.append(adapt_theory_entry(entry))
         except (AttributeError, TypeError, ValueError) as exc:
             issues.append(f"numerical/{getattr(entry, 'id', '<unknown>')}: {exc}")
+
+    declared_root = root / "tools" / "verification" / "contracts"
+    if declared_root.is_dir():
+        for definition_path in sorted(declared_root.rglob("*.json")):
+            relative_path = definition_path.relative_to(root).as_posix()
+            try:
+                definition = json.loads(
+                    definition_path.read_text(encoding="utf-8")
+                )
+                summary = adapt_declared_contract(definition)
+                summaries.append(summary)
+            except (OSError, ValueError, TypeError, json.JSONDecodeError) as exc:
+                issues.append(f"{relative_path}: {exc}")
 
     for path in list_scenario_paths(root):
         relative_path = path.relative_to(root).as_posix()
