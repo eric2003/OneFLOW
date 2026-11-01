@@ -288,17 +288,17 @@ class ContractCatalogTest(unittest.TestCase):
 
         self.assertTrue(
             any("missing/reference-profile.dat" in issue for issue in issues),
-            "\\n".join(issues),
+            "; ".join(issues),
         )
         self.assertTrue(
             any("missing/residual-baseline.json" in issue for issue in issues),
-            "\\n".join(issues),
+            "; ".join(issues),
         )
 
     def test_keeps_opaque_geometry_fixture_ids_out_of_path_validation(self) -> None:
         summary = adapt_geometry_scenario({"id": "scenario_without_path"})
         issues = validate_contract_summaries(self.repository_root, [summary])
-        self.assertEqual(issues, [], "\\n".join(issues))
+        self.assertEqual(issues, [], "; ".join(issues))
 
     def test_reports_missing_declared_output_manifest(self) -> None:
         definition_path = (
