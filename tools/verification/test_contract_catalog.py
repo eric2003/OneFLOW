@@ -424,6 +424,62 @@ class ContractCatalogTest(unittest.TestCase):
             "\n".join(issues),
         )
 
+    def test_resolves_evidence_without_promoting_execution_status(self) -> None:
+        from .contract_catalog import resolve_contract_evidence
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            source = root / "EvidenceTest.cpp"
+            source.write_text("TEST(EvidenceSuite, Present) {}\\n", encoding="utf-8")
+            summary = ContractSummary(
+                id="runtime/evidence-resolution",
+                source_id="evidence-resolution",
+                title="Evidence resolution",
+                domain="runtime",
+                kind="test_contract",
+                overview="",
+                principle="",
+                architecture="",
+                status="implemented",
+                references=(),
+                implementation_paths=(),
+                documentation_paths=(),
+                evidence=(
+                    ContractEvidence(
+                        kind="google_test",
+                        reference="EvidenceSuite.Present",
+                        status="linked_not_executed",
+                        scope="EvidenceTest.cpp",
+                    ),
+                    ContractEvidence(
+                        kind="analytical_reference",
+                        reference="missing.dat",
+                        status="declared_not_executed",
+                        scope="Reference profile.",
+                    ),
+                    ContractEvidence(
+                        kind="pure_api",
+                        reference="ComputeFlux",
+                        status="declared_not_executed",
+                        scope="API name only.",
+                    ),
+                ),
+                claims=(),
+                limitations=(),
+            )
+
+            resolutions = resolve_contract_evidence(root, summary)
+
+        self.assertEqual(
+            [item.status for item in resolutions], ["resolved", "stale", "declared"]
+        )
+        self.assertEqual(
+            [item.evidence.status for item in resolutions],
+            ["linked_not_executed", "declared_not_executed", "declared_not_executed"],
+        )
+        self.assertTrue(resolutions[0].resolved_path.endswith("EvidenceTest.cpp"))
+        self.assertIn("missing repository file", resolutions[1].diagnostic)
+
     def test_resolves_typed_google_test_declarations(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
