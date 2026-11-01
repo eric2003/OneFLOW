@@ -301,3 +301,23 @@ also checks conventional POSIX install locations and the current `PATH`.
 Platform branches are covered by unit tests that can run on either host. These
 tests validate path and command construction; they do not replace a real Linux
 CMake configure/build/CTest/regression run.
+
+## Process-tree cancellation in the test workbench
+
+The GUI test worker starts each command in an isolated process group. On POSIX
+systems it creates a new session and terminates the process group when Stop is
+requested. On Windows it creates a new process group and uses
+`taskkill /PID <pid> /T /F` to stop the process tree. The Windows command is
+invoked with an argument list, never through a shell.
+
+This boundary matters for CFD regression: the Python regression runner can
+launch a shell command that in turn starts MPI and OneFLOW. Stopping only the
+Python process can leave those descendants running. The process-control
+module centralizes the host-specific behavior while command construction and
+test execution remain platform-neutral.
+
+The focused tests include a real POSIX parent/child process tree and a
+platform-independent test of the Windows tree-termination command. The
+Windows and Ubuntu CI matrix runs the same test module. A real MPI regression
+stop should still be checked on each supported host because MPI launchers may
+have implementation-specific process management behavior.
