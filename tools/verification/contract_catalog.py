@@ -216,7 +216,7 @@ def adapt_declared_contract(definition: dict[str, Any]) -> ContractSummary:
             raise ValueError(f"{section_name} must be an object")
 
     sequence_fields = (
-        ("references", definition.get("references", ())),
+        ("references", definition.get("references", [])),
         ("implementation.source_paths",
          definition.get("implementation", {}).get("source_paths", [])),
         ("documentation.paths",
@@ -224,14 +224,14 @@ def adapt_declared_contract(definition: dict[str, Any]) -> ContractSummary:
         ("claims.proves", definition.get("claims", {}).get("proves", [])),
         ("claims.does_not_prove",
          definition.get("claims", {}).get("does_not_prove", [])),
-        ("verification", definition.get("verification", ())),
+        ("verification", definition.get("verification", [])),
     )
     for field_name, value in sequence_fields:
         if not isinstance(value, list):
             raise ValueError(f"{field_name} must be an array")
 
     evidence_items = []
-    for index, item in enumerate(definition.get("verification", ())):
+    for index, item in enumerate(definition.get("verification", [])):
         if not isinstance(item, dict):
             raise ValueError(f"verification[{index}] must be an object")
         for field in ("kind", "reference", "status", "scope"):
