@@ -392,6 +392,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             proves="Omega source piece APIs where extracted.",
             does_not_prove="Full SST residual on a case.",
         ),
+
         # ========== Wilcox ==========
         TheoryEntry(
             id="wilcox_fk_xk",
@@ -412,12 +413,11 @@ def list_theory_entries() -> list[TheoryEntry]:
                 r"(1+680 x_k^{2})/(1+400 x_k^{2})\ (x_k>0)"
             ),
             principle=(
-                "Wilcox-style beta-star is modulated by fk(xk) based on "
-                "the cross-diffusion sense of the k-omega gradients."
+                "Wilcox beta-star is modulated by fk(xk) from the k-omega "
+                "cross-diffusion sense."
             ),
             background=(
-                "Used on Wilcox / EASM paths in TurbCom when forming f_betas. "
-                "SST uses F1 blend; this curve is the Wilcox piece."
+                "Used on Wilcox/EASM paths in TurbCom. SST uses F1; this is the Wilcox piece."
             ),
             references=(
                 "Wilcox turbulence modeling notes.",
@@ -442,10 +442,10 @@ def list_theory_entries() -> list[TheoryEntry]:
             proves="fk(xk) closed form vs WilcoxFkFromXk sample grid.",
             does_not_prove="Full k-omega residual or SST F1 path.",
         ),
+
         # ========== NS / LUSGS ==========
         TheoryEntry(
             id="ns_lusgs_viscous_spectrum",
-
             family="mean-flow",
             genus="NS-LUSGS",
             section="implicit / viscous spectrum",

@@ -36,8 +36,7 @@ TEST( WilcoxFbeta, Fw1998ApproachesSevenEighths )
     EXPECT_NEAR( WilcoxFw1998( 1.0e6 ), 0.875, 1.0e-6 );
 }
 
-// Intermediate: fk(xk) on a sample grid vs closed form.
-// Proves WilcoxFkFromXk; does not prove full omega-equation residual.
+// Intermediate: fk(xk) vs closed form on a sample grid.
 TEST( WilcoxFbeta, FkXkCurveMatchesClosedForm )
 {
     const Real samples[] = { -0.5, -0.1, 0.0, 0.05, 0.1, 0.2, 0.5, 1.0 };
