@@ -42,11 +42,17 @@ References
 * See ``sa_eddy_viscosity.rst`` and ``verification_layers.rst``.
 
 Pure APIs: ``SstStrainRateMagnitude``, ``SstVorticityMagnitude``,
-``SstLimitingRateMagnitude``, ``SstF2Arg``, ``SstF2FromArg``,
-``SstEddyViscosity``.
+``SstLimitingRateMagnitude``, ``SstF2Argument``,
+``SstF2ArgFromTerms``, ``SstF2FromArg``, ``SstEddyViscosity``.
 
 Intermediate verification
 -------------------------
+
+The production path now obtains :math:`\mathrm{arg}_2` through
+``SstF2Argument(k, omega, d, betaStar, mu, rho, Re)``. This evaluates both
+the length-scale term and the viscous term before applying their maximum.
+Focused tests activate each term in turn, so the complete primitive-input
+formula is checked rather than only the final maximum of two supplied values.
 
 Closed-form checks of :math:`F_2(\mathrm{arg}_2)=\tanh(\mathrm{arg}_2^2)`
 live in ``turb_sst_eddy_viscosity_test`` and theory table
