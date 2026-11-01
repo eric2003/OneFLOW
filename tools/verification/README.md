@@ -78,8 +78,9 @@ into namespaced immutable summaries:
 
 The original ID is retained as `source_id`. The loader uses the existing
 catalog/scenario readers, preserves the source formats, and returns diagnostics
-for duplicate IDs, missing or escaping paths, and stale linked GoogleTest
-declarations. It does not execute tests or record results.
+for duplicate IDs, missing or escaping paths, stale linked GoogleTest
+declarations, and unresolved Numerical API references (using the existing
+Numerical validator). It does not execute tests or record results.
 
 The Python test inventory discovers the new tests under
 `tools/verification/test_contract_catalog.py`; this is covered by
