@@ -93,11 +93,20 @@ The GUI's Repository Test Inventory and test execution actions serve different p
   workspace. They are not source-discovered unit tests.
 
 The source inventory intentionally has broader discovery semantics than the
-execution allow-list. Some Python files need special arguments, dependencies,
-working directories, or environment setup. Automatically running every
-`test_*.py` found by an AST scan would be unsafe and could silently change the
-meaning of the repository's test command. Add executable commands explicitly
-and cover the command registry with tests.
+execution registry. It scans Python unittest declarations under `tools/`,
+`tests/`, and the standalone `gui/python/tkinter/` test area. The registry audit
+compares each discovered test module with the explicit command list and reports
+unregistered modules. A discovered test must either have a runnable command or
+an explicit exclusion with a reason. This prevents accidental omissions without
+blindly executing every file named `test_*.py`.
+
+The current exclusions are intentional: Qt widget/dialog tests require a
+dedicated headless GUI test policy, while the LaTeX preview test requires the
+optional Matplotlib rendering dependency. Exclusions are validated too; a stale
+exclusion is reported so it can be removed when the test is registered or
+retired. Example-local scripts and tutorial verification programs are outside
+this generic unit-test inventory because they have their own inputs and
+execution contracts.
 
 ## Current GUI integration
 
