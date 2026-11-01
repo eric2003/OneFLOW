@@ -103,6 +103,24 @@ class TestInventoryDiscoveryTest(unittest.TestCase):
             self.assertEqual(len(first), 2)
 
 
+
+    def test_discovers_contract_catalog_tests_for_workbench(self) -> None:
+        repository_root = Path(__file__).resolve().parents[2]
+
+        records = discover_tests(repository_root)
+
+        contract_tests = [
+            item for item in records
+            if item["source"] == "tools/verification/test_contract_catalog.py"
+        ]
+        self.assertTrue(contract_tests)
+        self.assertTrue(
+            any(
+                item["name"] == "test_loads_complete_combined_catalog_without_reference_errors"
+                for item in contract_tests
+            )
+        )
+
     def test_geometry_contracts_expose_input_expected_and_unexecuted_result(self) -> None:
         repository_root = Path(__file__).resolve().parents[2]
         records = discover_tests(repository_root)
