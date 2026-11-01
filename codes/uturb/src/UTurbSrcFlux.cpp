@@ -33,6 +33,7 @@ License
 #include "Zone.h"
 #include "ZoneState.h"
 #include "HXMath.h"
+#include "TurbViscosityPolicy.h"
 #include "CellMesh.h"
 #include "BcRecord.h"
 #include "Boundary.h"
