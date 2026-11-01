@@ -12,4 +12,7 @@ BeginNameSpace( ONEFLOW )
 Real TurbCappedEddyViscosity(
     Real eddyViscosity, Real laminarViscosity, Real maxViscosityRatio );
 
+// Reject negative or NaN density values before evaluating a turbulence closure.
+bool TurbDensityIsInvalid( Real density );
+
 EndNameSpace
