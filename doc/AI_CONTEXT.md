@@ -816,3 +816,52 @@ Recommended first implementation slice after the design review:
 3. Adapt one existing numerical entry and one geometry scenario without changing either source format or current UI.
 4. Add headless tests for adaptation, missing references, and explicit fixture-vs-production evidence labeling.
 5. Only then add a shared read-only browser surface or common navigation shell.
+
+
+## 2026-11-01 implementation: first read-only Contract adapters
+
+The user confirmed the migration strategy: keep existing workbenches working,
+then abstract and refactor incrementally. The first executable-code slice now
+exists on `hexin`:
+
+- `tools/verification/contract_catalog.py`
+  - Immutable, Qt-independent `ContractSummary` and `ContractEvidence`.
+  - `adapt_theory_entry` adapts the current numerical dataclass without
+    changing `curve_catalog.py`.
+  - `adapt_geometry_scenario` adapts an already loaded geometry scenario
+    without changing its JSON format or running either the fixture pipeline
+    or production C++.
+  - `validate_contract_summaries` checks duplicate IDs, path containment,
+    and existence of source, documentation, theory CSV, and linked-test
+    source files.
+- `tools/verification/test_contract_catalog.py`
+  - Covers both adapters, evidence-status semantics, invalid/duplicate IDs,
+    missing and escaping paths, and repository references.
+- `tools/verification/README.md` and
+  `doc/plans/verification-contract-workbench.md` describe the compatibility
+  layer and focused validation commands.
+
+Evidence semantics are deliberately conservative:
+- numerical API names and theory CSV are `declared_not_executed`;
+- a geometry fixture is `fixture_available`, not production verification;
+- linked GoogleTest declarations are `linked_not_executed`;
+- a non-null scenario result is `result_recorded_unverified` until a
+  trustworthy runner/provenance model exists.
+
+No existing GUI entry point or source data format has changed. This slice
+does not add a generic runner, JSON/YAML migration, or shared GUI shell.
+
+Assistant has not run the new Python tests or full CTest in the user's
+Windows/MSVC environment. The user's 1125/1125 result remains the
+pre-implementation baseline. First run:
+
+```powershell
+python -m unittest tools.verification.test_contract_catalog
+python -m unittest tools.verification.test_curve_catalog
+```
+
+Then run the full existing suite. Resolve any failures before adding more
+consumers. Next likely increment: make the adapter inventory all current
+numerical entries and geometry scenarios, report invalid/stale links, and
+only then expose a read-only combined browser view. Do not change the two
+existing GUI flows yet.
