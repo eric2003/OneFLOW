@@ -241,7 +241,7 @@ These are starting points; each contract should cite the source relevant to its 
 4. Should primary grouping be domain (Numerical / Geometry / Runtime / Workflow / Case) or lifecycle (Overview through Verification)? Recommended default: domain navigation plus shared tabs.
 5. Should runners launch existing CTest/GoogleTest/CFD tools directly, or initially link to commands and display externally collected results? Start with link-only/read-only evidence; add execution adapters one at a time.
 
-This proposal should be reviewed against the current implementation before Stage 1 begins. It does not authorize a broad rewrite.
+This proposal remains a staged architecture guide. Stage 1 has begun with the read-only adapters described below; it does not authorize a broad rewrite.
 
 
 ## 13. Stage 1 implementation status (2026-11-01)
@@ -280,3 +280,35 @@ The implementation has not been locally built or tested by the assistant.
 The user's previously reported 1125/1125 result predates these additions and
 must not be attributed to this slice. Run the two focused commands first,
 then the complete project test suite.
+
+### Stage 1 extension: combined catalog discovery
+
+The compatibility layer now provides `load_contract_catalog(repository_root)`.
+It loads every current Numerical `TheoryEntry` and every Geometry scenario
+through the existing source loaders, returning immutable summaries plus
+actionable diagnostics. It does not write to either source catalog.
+
+Canonical IDs are namespaced (`numerical/<source-id>` and
+`geometry/<source-id>`); `source_id` preserves the original catalog ID for
+round-tripping and navigation. Geometry fixture evidence carries the
+repository-relative JSON path when loaded from the catalog.
+
+Validation now checks:
+- duplicate canonical IDs;
+- repository-relative path containment and file existence;
+- linked GoogleTest declaration presence in its declared C++ source file.
+
+The new Python test module is also explicitly covered by
+`tools/oneflow_gui/test_test_inventory.py`, ensuring the existing
+source-based Workbench test inventory discovers it. This is discovery only;
+the inventory does not claim that the test has executed.
+
+Focused validation:
+
+```powershell
+python -m unittest tools.verification.test_contract_catalog
+python -m unittest tools.oneflow_gui.test_test_inventory
+python -m unittest tools.verification.test_curve_catalog
+```
+
+The assistant has not executed these tests in the user's Windows environment.
