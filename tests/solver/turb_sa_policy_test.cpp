@@ -151,3 +151,39 @@ TEST( TurbSaPolicy, ModifiedStrainLimitedBranch )
     const Real expected = omega + omega * term1 / term2;
     EXPECT_NEAR( SaModifiedStrainRate( omega, sBar, c2, c3 ), expected, 1.0e-12 );
 }
+
+TEST( TurbSaPolicy, CompleteCellClosureReportsIntermediateValues )
+{
+    SaEddyViscosityInput input;
+    input.density = 1.2;
+    input.workingVariable = 0.5;
+    input.laminarViscosity = 0.3;
+    input.cv1Cubed = 7.1 * 7.1 * 7.1;
+    input.maxViscosityRatio = 100.0;
+
+    const SaEddyViscosityResult result = SaComputeEddyViscosity( input );
+    const Real expectedChi = 0.5 * ( 1.2 / ( 0.3 + SMALL ) );
+    const Real expectedFv1 =
+        expectedChi * expectedChi * expectedChi /
+        ( expectedChi * expectedChi * expectedChi + input.cv1Cubed );
+    const Real expectedUncapped = 1.2 * 0.5 * expectedFv1;
+
+    EXPECT_NEAR( result.chi, expectedChi, 1.0e-14 );
+    EXPECT_NEAR( result.fv1, expectedFv1, 1.0e-14 );
+    EXPECT_NEAR( result.uncappedEddyViscosity, expectedUncapped, 1.0e-14 );
+    EXPECT_NEAR( result.eddyViscosity, expectedUncapped, 1.0e-14 );
+}
+
+TEST( TurbSaPolicy, CompleteCellClosureAppliesSharedViscosityCap )
+{
+    SaEddyViscosityInput input;
+    input.density = 1.0;
+    input.workingVariable = 100.0;
+    input.laminarViscosity = 0.5;
+    input.cv1Cubed = 7.1 * 7.1 * 7.1;
+    input.maxViscosityRatio = 2.0;
+
+    const SaEddyViscosityResult result = SaComputeEddyViscosity( input );
+    EXPECT_GT( result.uncappedEddyViscosity, 1.0 );
+    EXPECT_DOUBLE_EQ( result.eddyViscosity, 1.0 );
+}
