@@ -218,12 +218,12 @@ def adapt_declared_contract(definition: dict[str, Any]) -> ContractSummary:
     sequence_fields = (
         ("references", definition.get("references", ())),
         ("implementation.source_paths",
-         definition.get("implementation", {}).get("source_paths", ())),
+         definition.get("implementation", {}).get("source_paths", [])),
         ("documentation.paths",
-         definition.get("documentation", {}).get("paths", ())),
-        ("claims.proves", definition.get("claims", {}).get("proves", ())),
+         definition.get("documentation", {}).get("paths", [])),
+        ("claims.proves", definition.get("claims", {}).get("proves", [])),
         ("claims.does_not_prove",
-         definition.get("claims", {}).get("does_not_prove", ())),
+         definition.get("claims", {}).get("does_not_prove", [])),
         ("verification", definition.get("verification", ())),
     )
     for field_name, value in sequence_fields:
