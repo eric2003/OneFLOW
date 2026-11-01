@@ -10,3 +10,13 @@ Structured numerical knowledge for developers:
 - optional theory curve PNG from repo-relative CSV
 
 All paths resolve from Workbench `repository_root`.
+
+## Writable cache (do not use the source tree)
+
+Rendered formula/curve previews are written under the user data root, never under
+``tools/verification/data/``:
+
+* default: ``~/.oneflow/contract-workbench/preview/``
+* override root: environment variable ``ONEFLOW_HOME``
+
+See ``tools/oneflow_gui/user_data_paths.py``.

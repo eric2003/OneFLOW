@@ -5,6 +5,8 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+from .user_data_paths import UserDataPaths
+
 from PySide6.QtCore import Qt, QUrl
 from PySide6.QtGui import QDesktopServices, QPixmap
 from PySide6.QtWidgets import (
@@ -189,7 +191,9 @@ class VerificationCurveDialog(QDialog):
         if not e: return
         try:
             from verification.latex_preview import render_latex_preview_png
-            out = self._repository_root / "tools/verification/data/_preview" / f"{e.id}_latex.png"
+            preview_dir = UserDataPaths.discover().contract_workbench_preview
+            preview_dir.mkdir(parents=True, exist_ok=True)
+            out = preview_dir / f"{e.id}_latex.png"
             render_latex_preview_png(_latex(e), out)
             pix = QPixmap(str(out))
             self.latex_preview.setPixmap(pix.scaled(self.latex_preview.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
@@ -201,7 +205,9 @@ class VerificationCurveDialog(QDialog):
         if not e: return
         try:
             from verification.curve_catalog import render_png
-            out = self._repository_root / "tools/verification/data/_preview" / f"{e.id}_curve.png"
+            preview_dir = UserDataPaths.discover().contract_workbench_preview
+            preview_dir.mkdir(parents=True, exist_ok=True)
+            out = preview_dir / f"{e.id}_curve.png"
             render_png(self._repository_root, e, out)
             pix = QPixmap(str(out))
             self.plot_label.setPixmap(pix.scaled(self.plot_label.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
