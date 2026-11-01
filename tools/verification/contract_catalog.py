@@ -439,7 +439,11 @@ def validate_contract_summaries(
                     )
             if case_path is not None and case_path.is_dir():
                 compare_path = case_path / "autotest" / "compare.txt"
-                if compare_path.is_file():
+                if not compare_path.is_file():
+                    issues.append(
+                        f"{summary.id}: missing autotest/compare.txt"
+                    )
+                else:
                     try:
                         declared_outputs = {
                             line.strip()
@@ -456,6 +460,39 @@ def validate_contract_summaries(
                         issues.append(
                             f"{summary.id}: cannot read autotest/compare.txt: {exc}"
                         )
+
+            try:
+                residual_path = _relative_path(
+                    repository_root, case_data.residual_baseline
+                )
+            except ValueError:
+                residual_path = None
+            if residual_path is not None and residual_path.is_file():
+                try:
+                    residual_data = json.loads(
+                        residual_path.read_text(encoding="utf-8")
+                    )
+                    if residual_data.get("schema") != "oneflow.residual-baseline":
+                        issues.append(
+                            f"{summary.id}: unsupported residual baseline schema"
+                        )
+                    if case_data.case_path.removeprefix("test/").split("/")[-1] not in residual_data.get("cases", {}):
+                        issues.append(
+                            f"{summary.id}: case is missing from residual baseline "
+                            f"{case_data.residual_baseline}"
+                        )
+                    comparison = residual_data.get("comparison", {})
+                    baseline_tolerance = comparison.get("absolute_tolerance")
+                    if baseline_tolerance != case_data.residual_absolute_tolerance:
+                        issues.append(
+                            f"{summary.id}: residual tolerance does not match "
+                            f"{case_data.residual_baseline}"
+                        )
+                except (OSError, UnicodeDecodeError, ValueError, TypeError) as exc:
+                    issues.append(
+                        f"{summary.id}: cannot validate residual baseline "
+                        f"{case_data.residual_baseline}: {exc}"
+                    )
         for item in summary.evidence:
             if item.kind not in ("linked_test", "google_test") or not item.scope.endswith(
                 (".cpp", ".cc", ".cxx")
