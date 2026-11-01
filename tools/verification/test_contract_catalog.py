@@ -362,6 +362,68 @@ class ContractCatalogTest(unittest.TestCase):
         self.assertEqual(len({item.id for item in summaries}), len(summaries))
         self.assertEqual(issues, (), "\n".join(issues))
 
+    def test_ignores_google_test_macro_text_in_comments_and_literals(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            source = root / "CommentedContractTest.cpp"
+            source.write_text(
+                "// TEST(FakeSuite, CommentedBehavior) {}\n"
+                "/* TEST_F(FakeSuite, BlockCommentBehavior) {} */\n"
+                'const char* text = "TEST(FakeSuite, StringBehavior) {}";\n'
+                'const char* raw = R"tag(TEST(FakeSuite, RawStringBehavior) {})tag";\n',
+                encoding="utf-8",
+            )
+            summary = ContractSummary(
+                id="runtime/commented-tests",
+                source_id="commented-tests",
+                title="Commented tests",
+                domain="runtime",
+                kind="test_contract",
+                overview="",
+                principle="",
+                architecture="",
+                status="implemented",
+                references=(),
+                implementation_paths=(),
+                documentation_paths=(),
+                evidence=(
+                    ContractEvidence(
+                        kind="google_test",
+                        reference="FakeSuite.CommentedBehavior",
+                        status="linked_not_executed",
+                        scope="CommentedContractTest.cpp",
+                    ),
+                    ContractEvidence(
+                        kind="google_test",
+                        reference="FakeSuite.BlockCommentBehavior",
+                        status="linked_not_executed",
+                        scope="CommentedContractTest.cpp",
+                    ),
+                    ContractEvidence(
+                        kind="google_test",
+                        reference="FakeSuite.StringBehavior",
+                        status="linked_not_executed",
+                        scope="CommentedContractTest.cpp",
+                    ),
+                    ContractEvidence(
+                        kind="google_test",
+                        reference="FakeSuite.RawStringBehavior",
+                        status="linked_not_executed",
+                        scope="CommentedContractTest.cpp",
+                    ),
+                ),
+                claims=(),
+                limitations=(),
+            )
+
+            issues = validate_contract_summaries(root, [summary])
+
+        self.assertEqual(len(issues), 4, "\n".join(issues))
+        self.assertTrue(
+            all("linked GoogleTest declaration not found" in issue for issue in issues),
+            "\n".join(issues),
+        )
+
     def test_resolves_typed_google_test_declarations(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
