@@ -307,7 +307,7 @@ class TestRunnerCommandTest(unittest.TestCase):
             "Ran 3 tests in 0.153s",
             "FAILED (failures=1)",
         ])
-        self.assertIn("Python unittest cases: 3 run.", report)
+        self.assertIn("Python unittest cases: 3 run, 2 passed, 1 failed, 0 skipped.", report)
         self.assertIn("Python unittest failures: failures=1.", report)
         self.assertIn("Failure details:", report)
         self.assertIn("AssertionError: expected label was missing", report)
@@ -327,7 +327,7 @@ class TestRunnerCommandTest(unittest.TestCase):
             "Ran 12 tests in 0.8s",
             "OK",
         ])
-        self.assertEqual(report, ("Python unittest cases: 12 run.",))
+        self.assertEqual(report, ("Python unittest cases: 12 run, 12 passed, 0 failed, 0 skipped.",))
 
 
 if __name__ == "__main__":
