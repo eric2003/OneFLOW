@@ -134,7 +134,11 @@ It records the solver, dimension, laminar Navier-Stokes model, SLAU2 flux,
 and retained Blasius reference profiles.
 
 The shared envelope remains common, while the case-specific fields are parsed
-into the immutable `CaseContractData` payload. The catalog validates that:
+into the immutable `CaseContractData` payload. In addition to path and suite
+checks, the catalog requires exact equality between the contract's output list
+and `autotest/compare.txt`, checks that residual output channels exist in the
+baseline, verifies the iteration columns and configured row count, and checks
+the residual tolerance. The catalog validates that:
 
 - the suite and referenced input/reference files exist;
 - the case directory exists and is selected by the declared suite;
