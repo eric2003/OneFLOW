@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import replace
 import json
 import subprocess
 import sys
@@ -252,6 +253,52 @@ class ContractCatalogTest(unittest.TestCase):
             self.repository_root, [numerical, geometry]
         )
         self.assertEqual(issues, [], "\n".join(issues))
+
+    def test_validates_repository_paths_for_all_artifact_evidence_kinds(self) -> None:
+        definition_path = (
+            self.repository_root
+            / "tools"
+            / "verification"
+            / "contracts"
+            / "runtime"
+            / "process_lifecycle.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        summary = adapt_declared_contract(definition)
+        summary = replace(
+            summary,
+            evidence=summary.evidence
+            + (
+                ContractEvidence(
+                    kind="analytical_reference",
+                    reference="missing/reference-profile.dat",
+                    status="declared_not_executed",
+                    scope="Reference data is declared but not executed.",
+                ),
+                ContractEvidence(
+                    kind="residual_baseline",
+                    reference="missing/residual-baseline.json",
+                    status="declared_not_executed",
+                    scope="Residual baseline is declared but not executed.",
+                ),
+            ),
+        )
+
+        issues = validate_contract_summaries(self.repository_root, [summary])
+
+        self.assertTrue(
+            any("missing/reference-profile.dat" in issue for issue in issues),
+            "\\n".join(issues),
+        )
+        self.assertTrue(
+            any("missing/residual-baseline.json" in issue for issue in issues),
+            "\\n".join(issues),
+        )
+
+    def test_keeps_opaque_geometry_fixture_ids_out_of_path_validation(self) -> None:
+        summary = adapt_geometry_scenario({"id": "scenario_without_path"})
+        issues = validate_contract_summaries(self.repository_root, [summary])
+        self.assertEqual(issues, [], "\\n".join(issues))
 
     def test_reports_missing_declared_output_manifest(self) -> None:
         definition_path = (
