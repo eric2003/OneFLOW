@@ -143,7 +143,7 @@ Application entry:
 * `codes/main/src/SimuImp.cpp` owns a case lifecycle: setup, task resolution, execution,
   and teardown. Its exception path attempts teardown before rethrowing the original error.
 * `codes/main/src/SimuContext.cpp` contains testable context state and selected state
-  operations. Environment setup is separated into `SimuContextEnv.cpp`.
+  operations. Case-environment setup is implemented in `SimuContextCaseEnvironment.cpp`; the production configuration sequence is composed in `SimuContextBootstrap.cpp`.
 * `codes/main/src/SimuTaskReg.cpp` registers task implementations. Concrete task classes
   adapt existing operations to the `ISimuTask` interface.
 * `codes/io/src/ConfigLoader.cpp` parses the legacy parameter syntax into a
@@ -183,7 +183,7 @@ The current `Simulation::RunImpl()` has three argument-count paths:
   `SimuImp` instance.
 
 For example, `OneFLOW.exe r <caseDir>` has three process arguments and follows the full
-simulation path. Case directories passed to one process are executed in command-line order; every argument entry is executed, so repeating the same path runs that case again. Each entry gets a separate ``SimuImp`` / ``SimuContext`` and case teardown, while process runtime (including MPI initialization) is initialized once and finalized after the sequence. ``SimuImp::RunCase()`` can be called repeatedly inside that process lifetime; it owns case teardown, not MPI lifecycle. ``SimuImp::Run()`` is the single-case compatibility entry point that owns one process lifecycle. If process initialization or case setup/run throws, the owning boundary attempts rollback/finalization before propagating the original failure. The compatibility ``SimuContext::SetupEnvironment()`` path rolls back a failed case setup, and ``TeardownEnvironment()`` finalizes process runtime even if case teardown throws. A failed case stops the sequence; later entries are not run. This is not parallel multi-case execution and does not itself express artifact dependencies. Thirteen focused lifecycle tests cover ordering, repeated paths, rollback only on setup failure, exception preservation, and stop-on-failure behavior. ``SimuContextEnv.cpp`` compiled separately with MSVC. The full suite and executable link remain unverified. Use the Workbench architecture page for the distinction between sequential multi-case runs and dependency workflows.
+simulation path. Case directories passed to one process are executed in command-line order; every argument entry is executed, so repeating the same path runs that case again. Each entry gets a separate ``SimuImp`` / ``SimuContext`` and case teardown, while process runtime (including MPI initialization) is initialized once and finalized after the sequence. ``SimuImp::RunCase()`` can be called repeatedly inside that process lifetime; it owns case teardown, not MPI lifecycle. ``SimuImp::Run()`` is the single-case compatibility entry point that owns one process lifecycle. If process initialization or case setup/run throws, the owning boundary attempts rollback/finalization before propagating the original failure. Both ``SimuContext::SetupCaseEnvironment()`` and the compatibility ``SetupEnvironment()`` path roll back partial case-configuration state after a bootstrap failure. ``TeardownEnvironment()`` finalizes process runtime even if case teardown throws. A failed case stops the sequence; later entries are not run. This is not parallel multi-case execution and does not itself express artifact dependencies. Focused lifecycle tests cover ordering, repeated paths, rollback only on setup failure, exception preservation, and stop-on-failure behavior. The exact-commit Windows/Linux CI results remain the authority for build and test validation. Use the Workbench architecture page for the distinction between sequential multi-case runs and dependency workflows.
 
 Context ownership transfer
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -243,12 +243,7 @@ execution failure. If execution succeeds, a cleanup failure is allowed to propag
 These are observable contracts and should remain explicit when the orchestration boundary
 is extracted.
 
-This diagram describes the existing path; it does not imply that case setup is
-transactional. In particular, project and log bindings are established before the real
-control reader runs. A failed read can therefore leave partial state until the owning
-cleanup boundary runs. Direct callers of ``SetupCaseEnvironment()`` do not get the
-same automatic rollback that callers of ``SetupEnvironment()`` or ``SimuImp::RunCase()``
-receive. Integration tests must invoke the owning production boundary for cleanup claims.
+This diagram includes a narrow rollback boundary for case configuration. Project and log bindings and script parameters are established before the full bootstrap has completed. If the control reader or later IO-setting validation fails, ``SetupCaseEnvironment()`` clears the partially committed parameter/field data and case log/project bindings while preserving the original bootstrap exception. This rollback does not replace full ``TeardownCase()``: ``SimuImp::RunCase()`` still invokes ``PostProcess()`` on both setup and task failures to release the wider set of case-owned solver and runtime resources.
 
 The next R1 acceptance evidence should cover distinct layers:
 
@@ -728,11 +723,7 @@ Case environment readiness
 entire case bootstrap, not merely that setup has started. The flag is cleared
 at the beginning of ``SetupCaseEnvironment()`` and set only after the case
 root/log binding, production control ingestion, IO-setting validation, and
-IO-path application have all completed. If any step throws, the owning
-``SimuImp::RunCase()`` or compatibility rollback path still attempts case
-teardown, while the context remains not-ready. This distinction prevents
-callers from observing a partially initialized case as ready. It does not
-replace the outstanding integration test of the full production bootstrap.
+IO-path application have all completed. If any step throws, ``SetupCaseEnvironment()`` rolls back the partial configuration state and leaves the context not-ready. The original setup exception is preserved even if rollback itself fails. This distinction prevents callers from observing a partially initialized case as ready. ``SimuImp::RunCase()`` additionally attempts full case teardown through ``PostProcess()``.
 
 Production case-bootstrap composition
 -------------------------------------
@@ -748,18 +739,11 @@ The serial integration target links this same production translation unit
 and exercises two successive case configurations, including configured
 roots on the first case and default-root rebinding on the second. A scoped
 test guard clears case-owned log, project-path, and parameter state even when
-a fatal assertion exits the test early. The test still resets state directly
-between the two bootstrap calls; it does not invoke production
-``TeardownCase()``, the full ``SimuImp::RunCase()``, MPI collectives, or
-accelerator resource release.
+a fatal assertion exits the test early. The two-case test still resets state directly between its bootstrap calls; it does not invoke production ``TeardownCase()``, the full ``SimuImp::RunCase()``, MPI collectives, or accelerator resource release. A separate failure test now calls the public ``SetupCaseEnvironment()``: it commits one script, fails on the next, verifies automatic rollback of the first script and case path binding, then repairs the missing script and retries successfully on the same context.
 
 This is meaningful component-integration evidence: the production bootstrap
 composition, real control reader, typed database commit, IO-setting
-application, and sequential root rebinding are exercised together. R1
-remains partial because the public readiness transition in
-``SetupCaseEnvironment()`` and cleanup wiring through production
-``RunCase() -> PostProcess() -> TeardownCase()`` are not yet exercised
-end-to-end.
+application, and sequential root rebinding are exercised together. R1 remains partial because the public readiness transition and configuration rollback are now exercised, but the complete production cleanup wiring through ``RunCase() -> PostProcess() -> TeardownCase()`` is not yet exercised end-to-end.
 
 Process runtime ownership and Context moves
 -------------------------------------------
