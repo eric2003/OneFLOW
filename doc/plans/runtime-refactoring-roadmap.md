@@ -2,7 +2,7 @@
 
 Status: In progress
 Branch baseline: `hexin`
-Last reviewed: 2026-10-30
+Last reviewed: 2026-11-01
 
 This is a living engineering roadmap, not a promise that every proposed boundary already
 exists. It records the direction and acceptance criteria for incremental runtime refactoring.
