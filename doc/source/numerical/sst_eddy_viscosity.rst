@@ -54,6 +54,20 @@ the length-scale term and the viscous term before applying their maximum.
 Focused tests activate each term in turn, so the complete primitive-input
 formula is checked rather than only the final maximum of two supplied values.
 
+The per-cell closure is now composed by ``SstComputeEddyViscosity(input)``.
+Its input record names the physical state and all nine velocity-gradient
+components; its result record exposes :math:`\mathrm{arg}_2`, :math:`F_2`,
+the selected rate magnitude, the uncapped :math:`\mu_t`, and the final
+laminar-ratio-capped value. ``TurbSrcFlux::CalcCellVist2Equ`` only maps the
+solver cell state into this input and writes the returned viscosity. Thus
+unit tests exercise the same ordered closure used by the production path,
+including production-option selection and the shared SA/SST cap policy.
+
+This is a complete *cell closure* contract, not yet a mesh-level regression:
+the finite-volume loop, gradient reconstruction, wall-distance field,
+boundary ghost-cell copy, and converged flow solution remain covered by
+separate integration and CFD regression layers.
+
 Closed-form checks of :math:`F_2(\mathrm{arg}_2)=\tanh(\mathrm{arg}_2^2)`
 live in ``turb_sst_eddy_viscosity_test`` and theory table
 ``tools/verification/data/sst_f2_arg2_theory.csv`` (Contract Workbench Plot).
