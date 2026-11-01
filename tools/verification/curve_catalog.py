@@ -288,7 +288,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             formula_latex=(
                 r"F_2=\tanh(\mathrm{arg}_2^{2})"
                 "\n"
-                r"\mu_t=\frac{a_1\rho k}{\max(a_1\omega,\Omega F_2)}\,Re"
+                r"\mu_t=\frac{\rho k}{\max(\omega,R F_2/a_1)}\,Re"
             ),
             principle=(
                 "F2 limits eddy viscosity using the selected strain-rate or vorticity magnitude (Bradshaw limiter)."
