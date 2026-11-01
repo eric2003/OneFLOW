@@ -136,10 +136,14 @@ void SimuContext::FinalizeEnvironment()
         return;
     }
 
+    // Commit the lifecycle transition only after every release operation
+    // has completed. If a release fails, the state remains Active so callers
+    // do not observe a false successful-finalization state.
     SimuCaseLifecycleDetail::ExecuteAllCleanupSteps(
         []() { ONEFLOW::FinalizeAccelRuntime(); },
-        []() { HXFinalize(); },
-        [&]() { processLifecycle_.MarkFinalized(); } );
+        []() { HXFinalize(); } );
+
+    processLifecycle_.MarkFinalized();
 }
 
 void SimuContext::TeardownEnvironment()
