@@ -22,7 +22,7 @@ License
 #include "TurbSrcFlux.h"
 #include "TurbSstPolicy.h"
 #include "TurbSaPolicy.h"
-#include "TurbSaPolicy.h"
+#include "TurbViscosityPolicy.h"
 #include "NsCtrl.h"
 #include "DataBase.h"
 #include "HXMath.h"
@@ -287,7 +287,7 @@ void TurbSrcFlux::CalcCellVist1Equ()
     turbcom.fv1  = SaFv1( turbcom.xsi, turbcom.cv13 );
 
     turbcom.vist = SaEddyViscosity( turbcom.rho, turbcom.nuet, turbcom.fv1 );
-    turbcom.vist = SaCappedEddyViscosity(
+    turbcom.vist = TurbCappedEddyViscosity(
         turbcom.vist, turbcom.visl, turbcom.max_vis_ratio );
 }
 
@@ -324,7 +324,7 @@ void TurbSrcFlux::CalcCellVist2Equ()
     turbcom.vist = SstEddyViscosity(
         turbcom.rho, turbcom.ke, turbcom.kw,
         limitingRateMagnitude, f2, turbcom.a1, turbcom.reynolds );
-    turbcom.vist = SaCappedEddyViscosity(
+    turbcom.vist = TurbCappedEddyViscosity(
         turbcom.vist, turbcom.visl, turbcom.max_vis_ratio );
 }
 
