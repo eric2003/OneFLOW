@@ -41,7 +41,7 @@ from .test_runner import (
     stage_regression_tests,
     summarize_test_output,
 )
-from .test_diagnostics import parse_test_diagnostics
+from .test_diagnostics import format_failure_summary, parse_test_diagnostics
 
 
 class TestCommandWorker(QThread):
@@ -201,18 +201,7 @@ class TestCommandWorker(QThread):
             f"  Not run: {not_run}",
         ]
         report.extend(summarize_test_output(run_output))
-        if failed_diagnostics:
-            report.append("Failed test cases:")
-            for item in failed_diagnostics:
-                location = item.source_file or "unknown"
-                if item.source_line is not None:
-                    location += f":{item.source_line}"
-                cause = item.exception_type or "unknown"
-                if item.message:
-                    cause += f": {item.message}"
-                report.append(f"  - {item.test_id or 'unknown'} [{item.task_label}]")
-                report.append(f"      Location: {location}")
-                report.append(f"      Cause: {cause}")
+        report.extend(format_failure_summary(failed_diagnostics))
         if failed_labels:
             report.insert(1, "  Failed commands: " + ", ".join(failed_labels))
             self.completed.emit(False, "\n".join(report))
