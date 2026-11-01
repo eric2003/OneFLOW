@@ -142,14 +142,23 @@ void SimuContext::FinalizeEnvironment()
     // Context-owned backend states may contain device allocations. Release
     // them while the backend is still initialized, even when callers finalize
     // the process directly without first running TeardownCase().
+    // These releases are independent, but both depend on the accelerator
+    // runtime remaining alive. Attempt both before crossing the runtime boundary.
     SimuCaseLifecycleDetail::ExecuteAllCleanupSteps(
         [&]() { ClearAccelStates(); },
 #ifdef ONEFLOW_ENABLE_HIP
-        []() { HipFluxBackend::ReleaseShared(); },
+        []() { HipFluxBackend::ReleaseShared(); }
 #endif
-        []() { ONEFLOW::FinalizeAccelRuntime(); },
-        []() { HXFinalize(); } );
+    );
 
+    // Runtime finalization is a dependency boundary, not an independent
+    // cleanup step. If it fails, keep the parallel environment alive so the
+    // caller can diagnose the backend failure and retry finalization.
+    ONEFLOW::FinalizeAccelRuntime();
+
+    // The parallel runtime may be finalized only after accelerator shutdown
+    // has completed successfully.
+    HXFinalize();
     processLifecycle_.MarkFinalized();
 }
 
