@@ -108,6 +108,8 @@ class TestCommandWorker(QThread):
                 ) as process:
                     with self._process_lock:
                         self._process = process
+                    if self._cancel.is_set():
+                        terminate_process_tree(process)
                     try:
                         if process.stdout is not None:
                             for line in process.stdout:
