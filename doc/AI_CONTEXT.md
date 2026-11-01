@@ -1,7 +1,7 @@
 # AI and Developer Project Context
 
 Last updated: 2026-11-01
-Working branch: `hexin` only. Latest inspected accelerator-buffer baseline: `d9e25a7b671e6104c0d116ae5c561e5d12ba09d0`. Current implementation HEAD: `3bd2bf84ca4f7b2abd71be94e2e77faf513ffffa`.
+Working branch: `hexin` only. Latest inspected accelerator-buffer baseline: `d9e25a7b671e6104c0d116ae5c561e5d12ba09d0`. Current implementation HEAD: `41cf05fff89d51cdd8bfd2b7a6a55dfff88cd09e`.
 User-reported local validation on the pre-change baseline: **1119/1119 tests passed**. This does not validate the DeviceBuffer changes added afterward.
 
 ## Previous mainline: R1 case configuration rollback and lifecycle
@@ -49,8 +49,8 @@ transactional backend initialization work. Inspected starting HEAD: d9e25a7b671e
 - Focused fake-backend tests cover failed growth cleanup/original-buffer preservation and non-throwing destruction.
 - Design record: [DeviceBuffer resource lifecycle](plans/device-buffer-resource-lifecycle.md).
 
-Implementation commits: [9728e46](https://github.com/eric2003/OneFLOW/commit/9728e46f97204a04a0bc188e770fde2e3d453e23), [01b63aa](https://github.com/eric2003/OneFLOW/commit/01b63aa1b1380e295eba9c2dfd4912a09612f56a).
-Status: **Implemented, unverified**. Exact-HEAD Linux and Windows CI runs have been triggered and were in progress at the last check. No local compiler/CTest execution is available in this environment. Next action is to build and run accel_runtime_test, then the full Debug CTest suite and CPU regression cases on the exact updated HEAD.
+Implementation: [9728e46](https://github.com/eric2003/OneFLOW/commit/9728e46f97204a04a0bc188e770fde2e3d453e23). Focused test coverage and tracking backend: [df8dd00](https://github.com/eric2003/OneFLOW/commit/df8dd0008356e85ff0021cbb221535d9045069fd), [3bd2bf8](https://github.com/eric2003/OneFLOW/commit/3bd2bf84ca4f7b2abd71be94e2e77faf513ffffa), [e6d3e90](https://github.com/eric2003/OneFLOW/commit/e6d3e902e2f64dacb9ec1cb9a27cfbc3ca4cd2e5), [c19ef29](https://github.com/eric2003/OneFLOW/commit/c19ef29558f5a62ebe34e595d40976ad2af59aac).
+Status: **Implemented, unverified**. Exact-HEAD Linux and Windows CI runs have been triggered; their state must be checked again after the latest test/documentation commits. No local compiler/CTest execution is available in this environment. Next action is to build and run accel_runtime_test, then the full Debug CTest suite and CPU regression cases on the exact updated HEAD.
 
 ## 1. Read this first
 
