@@ -36,6 +36,7 @@ class CaseContractData:
     max_steps: int
     input_paths: tuple[str, ...]
     comparison_outputs: tuple[str, ...]
+    residual_outputs: tuple[str, ...]
     residual_baseline: str
     analytical_references: tuple[str, ...]
     residual_absolute_tolerance: float
@@ -317,15 +318,30 @@ def adapt_declared_contract(definition: dict[str, Any]) -> ContractSummary:
         if not isinstance(tolerance, (int, float)) or isinstance(tolerance, bool) or tolerance < 0:
             raise ValueError("case.residual_absolute_tolerance must be non-negative")
         case_arrays = {}
-        for field in ("input_paths", "comparison_outputs", "analytical_references"):
+        for field in (
+            "input_paths",
+            "comparison_outputs",
+            "residual_outputs",
+            "analytical_references",
+        ):
             values = raw_case.get(field, [])
             if not isinstance(values, list) or any(
                 not isinstance(value, str) or not value.strip() for value in values
             ):
                 raise ValueError(f"case.{field} must be an array of non-empty strings")
             case_arrays[field] = _non_empty_strings(values)
-        if not case_arrays["input_paths"] or not case_arrays["comparison_outputs"]:
-            raise ValueError("case requires input_paths and comparison_outputs")
+        if (
+            not case_arrays["input_paths"]
+            or not case_arrays["comparison_outputs"]
+            or not case_arrays["residual_outputs"]
+        ):
+            raise ValueError(
+                "case requires input_paths, comparison_outputs, and residual_outputs"
+            )
+        if not set(case_arrays["residual_outputs"]).issubset(
+            case_arrays["comparison_outputs"]
+        ):
+            raise ValueError("case.residual_outputs must be included in comparison_outputs")
         case_data = CaseContractData(
             suite=raw_case["suite"].strip(),
             case_path=raw_case["path"].strip(),
@@ -336,6 +352,7 @@ def adapt_declared_contract(definition: dict[str, Any]) -> ContractSummary:
             max_steps=raw_case["max_steps"],
             input_paths=case_arrays["input_paths"],
             comparison_outputs=case_arrays["comparison_outputs"],
+            residual_outputs=case_arrays["residual_outputs"],
             residual_baseline=raw_case["residual_baseline"].strip(),
             analytical_references=case_arrays["analytical_references"],
             residual_absolute_tolerance=float(tolerance),
@@ -482,16 +499,43 @@ def validate_contract_summaries(
                     residual_data = json.loads(
                         residual_path.read_text(encoding="utf-8")
                     )
+                    if not isinstance(residual_data, dict):
+                        raise ValueError("residual baseline root must be an object")
                     if residual_data.get("schema") != "oneflow.residual-baseline":
                         issues.append(
                             f"{summary.id}: unsupported residual baseline schema"
                         )
-                    if case_data.case_path.removeprefix("test/").split("/")[-1] not in residual_data.get("cases", {}):
+                    case_name = case_data.case_path.removeprefix("test/").split("/")[-1]
+                    baseline_case = residual_data.get("cases", {}).get(case_name)
+                    if not isinstance(baseline_case, dict):
                         issues.append(
                             f"{summary.id}: case is missing from residual baseline "
                             f"{case_data.residual_baseline}"
                         )
+                    else:
+                        baseline_files = baseline_case.get("files", {})
+                        for residual_output in case_data.residual_outputs:
+                            baseline_file = baseline_files.get(residual_output)
+                            if not isinstance(baseline_file, dict):
+                                issues.append(
+                                    f"{summary.id}: residual output is missing from "
+                                    f"baseline: {residual_output}"
+                                )
+                                continue
+                            variables = baseline_file.get("variables", [])
+                            if not {"iter", "sub-iter"}.issubset(variables):
+                                issues.append(
+                                    f"{summary.id}: residual baseline lacks iteration "
+                                    f"columns for {residual_output}"
+                                )
+                            if baseline_file.get("summary", {}).get("row_count") != case_data.max_steps:
+                                issues.append(
+                                    f"{summary.id}: residual row count does not match "
+                                    f"case max_steps for {residual_output}"
+                                )
                     comparison = residual_data.get("comparison", {})
+                    if not isinstance(comparison, dict):
+                        raise ValueError("residual baseline comparison must be an object")
                     baseline_tolerance = comparison.get("absolute_tolerance")
                     if baseline_tolerance != case_data.residual_absolute_tolerance:
                         issues.append(
@@ -541,7 +585,7 @@ def validate_contract_summaries(
 def load_contract_catalog(
     repository_root: Path,
 ) -> tuple[tuple[ContractSummary, ...], tuple[str, ...]]:
-    """Load all current numerical and geometry entries through read-only adapters.
+    """Load numerical, geometry, and declared cross-domain contracts.
 
     Invalid source records are reported individually so one malformed scenario
     does not hide the rest of the catalog.
