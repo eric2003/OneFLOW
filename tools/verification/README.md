@@ -203,3 +203,24 @@ Linked GoogleTest matching masks C++ line/block comments and ordinary, character
 ### Static evidence resolution
 
 `resolve_contract_evidence` returns one immutable resolution record per declared evidence item. Its status is independent of the declaration's existing status: `declared` means this resolver has no applicable artifact check, `resolved` means the supported path or source declaration was found, and `stale` means the supported reference is missing, invalid, unreadable, or no longer declared in source. A resolved GoogleTest source declaration remains `linked_not_executed`; this API does not inspect build registration, test discovery, or execution results.
+
+### Static CMake test-target linkage
+
+The Contract Workbench also maps a resolved GoogleTest source file to direct
+`add_executable` source declarations under `tests/**/CMakeLists.txt`. When a
+matching target also has a `gtest_discover_tests` declaration, the view reports
+that declaration and its configured discovery mode.
+
+These are static CMake declarations only. They do not prove that CMake was
+configured successfully, the target was built, CTest executed its discovery
+step, or the individual test ran. The current reader intentionally does not
+guess source membership supplied through variables, `target_sources()`,
+functions, or generated lists. Missing mappings therefore remain unresolved
+rather than being inferred from a nearby target name.
+
+Focused validation:
+
+```powershell
+python -m unittest tools.verification.test_cmake_test_catalog
+python -m unittest tools.oneflow_gui.test_contract_workbench_dialog
+```
