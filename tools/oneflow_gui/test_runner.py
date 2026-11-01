@@ -31,9 +31,13 @@ def summarize_test_output(output_lines: list[str]) -> tuple[str, ...]:
         total = sum(unittest_runs)
         status_match = re.search(r"(?:FAILED|OK) \(([^)]+)\)", output)
         status = status_match.group(1) if status_match else ""
-        failure_count = int(re.search(r"failures=(\d+)", status).group(1)) if re.search(r"failures=(\d+)", status) else 0
-        error_count = int(re.search(r"errors=(\d+)", status).group(1)) if re.search(r"errors=(\d+)", status) else 0
-        skipped_count = int(re.search(r"skipped=(\d+)", status).group(1)) if re.search(r"skipped=(\d+)", status) else 0
+        def status_count(name: str) -> int:
+            match = re.search(rf"{name}=(\d+)", status)
+            return int(match.group(1)) if match else 0
+
+        failure_count = status_count("failures")
+        error_count = status_count("errors")
+        skipped_count = status_count("skipped")
         failed = failure_count + error_count
         passed = max(total - failed - skipped_count, 0)
         summary.append(
