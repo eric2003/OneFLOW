@@ -95,8 +95,15 @@ Assertions require:
 - the process lifecycle is marked inactive.
 
 This is an integration-level ordering test, not merely a mock of the cleanup
-helper. The HIP-specific shared backend release branch is compile-time guarded
-and must also be covered by the HIP build/CI configuration when available.
+helper. The test fixture must initialize the production project environment with
+Prj::Init() and construct SimuImp from an absolute temporary case directory.
+A first run exposed that SimuImp resolves its case path in the constructor:
+the placeholder relative path failed before process setup because
+Prj::current_dir was not initialized. The test now uses the existing
+TemporaryCase fixture and the production Prj initialization path.
+
+The HIP-specific shared backend release branch is compile-time guarded and
+must also be covered by the HIP build/CI configuration when available.
 
 ## 5. Industry practice and rationale
 
@@ -117,6 +124,12 @@ introducing shared ownership or a global shutdown coordinator.
 ## 6. Validation status and limits
 
 - User-reported pre-change baseline: 1123/1123 tests passed.
+- The user's first post-change run reported 1123/1124 passing; the new
+  ProcessFinalizationReleasesContextBackendStatesBeforeRuntime test failed
+  during SimuImp construction because it supplied a relative placeholder case
+  path before Prj::Init(). This was a test-fixture defect, not evidence about
+  the shutdown-order behavior. The fixture has been corrected to initialize
+  Prj and use an absolute TemporaryCase directory; rerun is required.
 - This change set still requires local VS2022 Debug build, focused integration
   test, and full CTest on the exact updated hexin HEAD.
 - CI must be checked for the exact final commit, including Windows and Linux.
