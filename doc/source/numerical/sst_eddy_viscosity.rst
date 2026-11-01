@@ -23,7 +23,7 @@ vorticity magnitude. The same selected quantity must be used in the
 Bradshaw limiter; calling it only a vorticity magnitude would be misleading
 for the strain-based branch. The solver applies an optional laminar-viscosity
 ratio cap after this expression, implemented by the shared
-:cpp:func:`TurbCappedEddyViscosity` policy used by both SA and SST.
+``TurbCappedEddyViscosity()`` policy used by both SA and SST.
 
 Intermediate checks cover both denominator branches: the :math:`\omega`
 limit when :math:`R F_2/a_1 \leq \omega`, and the strain/vorticity
