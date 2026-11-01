@@ -307,6 +307,7 @@ gtest_discover_tests(turb_viscosity_policy_test DISCOVERY_MODE PRE_TEST)
 add_executable(turb_sst_policy_test
   turb_sst_policy_test.cpp
   ${CMAKE_SOURCE_DIR}/codes/turb/src/TurbSstPolicy.cpp
+  ${CMAKE_SOURCE_DIR}/codes/turb/src/TurbViscosityPolicy.cpp
 )
 target_include_directories(turb_sst_policy_test PRIVATE
   ${CMAKE_SOURCE_DIR}/codes/turb/include
@@ -319,6 +320,7 @@ gtest_discover_tests(turb_sst_policy_test DISCOVERY_MODE PRE_TEST)
 add_executable(turb_wilcox_fbeta_test
   turb_wilcox_fbeta_test.cpp
   ${CMAKE_SOURCE_DIR}/codes/turb/src/TurbSstPolicy.cpp
+  ${CMAKE_SOURCE_DIR}/codes/turb/src/TurbViscosityPolicy.cpp
 )
 target_include_directories(turb_wilcox_fbeta_test PRIVATE
   ${CMAKE_SOURCE_DIR}/codes/turb/include
@@ -331,6 +333,7 @@ gtest_discover_tests(turb_wilcox_fbeta_test DISCOVERY_MODE PRE_TEST)
 add_executable(turb_sst_residual_test
   turb_sst_residual_test.cpp
   ${CMAKE_SOURCE_DIR}/codes/turb/src/TurbSstPolicy.cpp
+  ${CMAKE_SOURCE_DIR}/codes/turb/src/TurbViscosityPolicy.cpp
 )
 target_include_directories(turb_sst_residual_test PRIVATE
   ${CMAKE_SOURCE_DIR}/codes/turb/include
@@ -392,6 +395,7 @@ gtest_discover_tests(turb_sa_update_bound_test DISCOVERY_MODE PRE_TEST)
 add_executable(turb_sst_update_floor_test
   turb_sst_update_floor_test.cpp
   ${CMAKE_SOURCE_DIR}/codes/turb/src/TurbSstPolicy.cpp
+  ${CMAKE_SOURCE_DIR}/codes/turb/src/TurbViscosityPolicy.cpp
 )
 target_include_directories(turb_sst_update_floor_test PRIVATE
   ${CMAKE_SOURCE_DIR}/codes/turb/include
