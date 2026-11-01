@@ -297,6 +297,8 @@ def adapt_declared_contract(definition: dict[str, Any]) -> ContractSummary:
 
     case_data = None
     if definition["domain"].strip() == "case":
+        if definition["kind"].strip() != "cfd_regression_case":
+            raise ValueError("case domain currently requires kind cfd_regression_case")
         raw_case = definition.get("case")
         if not isinstance(raw_case, dict):
             raise ValueError("case contract requires a case object")
@@ -341,7 +343,9 @@ def adapt_declared_contract(definition: dict[str, Any]) -> ContractSummary:
         if not set(case_arrays["residual_outputs"]).issubset(
             case_arrays["comparison_outputs"]
         ):
-            raise ValueError("case.residual_outputs must be included in comparison_outputs")
+            raise ValueError(
+                "case.residual_outputs must be included in comparison_outputs"
+            )
         case_data = CaseContractData(
             suite=raw_case["suite"].strip(),
             case_path=raw_case["path"].strip(),
@@ -505,8 +509,11 @@ def validate_contract_summaries(
                         issues.append(
                             f"{summary.id}: unsupported residual baseline schema"
                         )
+                    baseline_cases = residual_data.get("cases", {})
+                    if not isinstance(baseline_cases, dict):
+                        raise ValueError("residual baseline cases must be an object")
                     case_name = case_data.case_path.removeprefix("test/").split("/")[-1]
-                    baseline_case = residual_data.get("cases", {}).get(case_name)
+                    baseline_case = baseline_cases.get(case_name)
                     if not isinstance(baseline_case, dict):
                         issues.append(
                             f"{summary.id}: case is missing from residual baseline "
