@@ -38,6 +38,7 @@ from .test_runner import (
     build_python_test_commands,
     build_regression_command,
     stage_regression_tests,
+    summarize_test_output,
 )
 
 
@@ -64,7 +65,10 @@ class TestCommandWorker(QThread):
 
     def run(self) -> None:
         failed_labels: list[str] = []
+        passed_labels: list[str] = []
+        failure_output: list[str] = []
         for command in self._commands:
+            command_output: list[str] = []
             if self._cancel.is_set():
                 self.command_completed.emit(
                     TaskRunResult(
@@ -96,7 +100,9 @@ class TestCommandWorker(QThread):
                         self._process = process
                     if process.stdout is not None:
                         for line in process.stdout:
-                            self.output_line.emit(line.rstrip("\r\n"))
+                            output_line = line.rstrip("\r\n")
+                            command_output.append(output_line)
+                            self.output_line.emit(output_line)
                             if self._cancel.is_set() and process.poll() is None:
                                 process.terminate()
                     return_code = process.wait()
@@ -104,6 +110,7 @@ class TestCommandWorker(QThread):
                         self._process = None
             except OSError as error:
                 self.output_line.emit(f"ERROR: {error}")
+                failure_output.append(f"ERROR: {error}")
                 self.command_completed.emit(
                     TaskRunResult(
                         task_type=command.task_type,
@@ -114,6 +121,7 @@ class TestCommandWorker(QThread):
                     )
                 )
                 failed_labels.append(command.label)
+                failure_output.extend(command_output)
                 break
             if self._cancel.is_set():
                 self.command_completed.emit(
@@ -138,8 +146,10 @@ class TestCommandWorker(QThread):
                     )
                 )
                 failed_labels.append(command.label)
+                failure_output.extend(command_output)
                 self.output_line.emit(f"FAILED: exit code {return_code}")
                 break
+            passed_labels.append(command.label)
             self.command_completed.emit(
                 TaskRunResult(
                     task_type=command.task_type,
@@ -150,10 +160,21 @@ class TestCommandWorker(QThread):
                 )
             )
             self.output_line.emit("PASSED")
+
+        not_run = len(self._commands) - len(passed_labels) - len(failed_labels)
+        report = [
+            "Test command summary:",
+            f"  Total: {len(self._commands)}",
+            f"  Passed: {len(passed_labels)}",
+            f"  Failed: {len(failed_labels)}",
+            f"  Not run: {not_run}",
+        ]
+        report.extend(summarize_test_output(failure_output))
         if failed_labels:
-            self.completed.emit(False, "Failed: " + ", ".join(failed_labels))
+            report.insert(1, "  Failed commands: " + ", ".join(failed_labels))
+            self.completed.emit(False, "\\n".join(report))
         else:
-            self.completed.emit(True, f"Passed all {len(self._commands)} command(s).")
+            self.completed.emit(True, "\\n".join(report))
 
 
 class TestRunnerDialog(QDialog):
