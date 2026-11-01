@@ -64,6 +64,8 @@ public:
     // runtime publishes a backend only after this operation succeeds and does
     // not call Finalize on a backend whose initialization failed.
     virtual void Initialize( AccelContext & context ) = 0;
+    // If Finalize throws, the backend must remain valid and safe to retry.
+    // Runtime shutdown cannot proceed while this backend may still own resources.
     virtual void Finalize() = 0;
     virtual void Synchronize() = 0;
 
