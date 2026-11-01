@@ -45,6 +45,66 @@ Wall destruction function
 Optional trip function :math:`f_{t2}=c_{t3}\exp(-c_{t4}\chi^2)`.
 
 
+
+Role of :math:`f_{v2}` and the modified strain
+----------------------------------------------
+
+Production in SA uses a **modified strain rate** \(\tilde S\), not the raw
+vorticity \(\Omega\) alone. First form the near-wall correction
+
+.. math::
+
+   f_{v2}(\chi) = 1 - \frac{\chi}{1+\chi f_{v1}},
+   \qquad
+   \bar S = r_s f_{v2},
+   \qquad
+   r_s = \frac{\tilde\nu}{\kappa^2 d^2 Re}
+
+Then
+
+.. math::
+
+   \tilde S =
+   \begin{cases}
+   \Omega + \bar S & \bar S \ge -c_2\Omega \\
+   \Omega\big(1 + \frac{c_2^2\Omega + c_3\bar S}
+   {(c_3-2c_2)\Omega - \bar S}\big) & \text{otherwise}
+   \end{cases}
+
+with standard limits \(c_2=0.7\), \(c_3=0.9\).
+
+Physical role
+~~~~~~~~~~~~~
+
+* \(f_{v2}\) couples the working-variable ratio \(\chi\) back into the
+  strain used for **production**, so near-wall damping is consistent with
+  \(f_{v1}\) (eddy viscosity) rather than treating \(\Omega\) as independent
+  of \(\tilde\nu\).
+* \(\bar S = r_s f_{v2}\) vanishes at the wall with \(\tilde\nu\) and grows
+  with wall-distance scaling \(1/d^2\).
+* The limited branch prevents \(\tilde S\) from becoming non-physical when
+  \(\bar S\) is strongly negative relative to \(\Omega\) (implementation
+  safeguard used widely in SA codes; see NASA TMR notes).
+
+Theory curve for \(f_{v2}(\chi)\) (standard \(c_{v1}=7.1\)):
+
+* CSV: ``tools/verification/data/sa_fv2_chi_theory.csv``
+* Plot: ``tools/verification/plot_sa_fv2.py``
+
+.. code-block:: bash
+
+   python tools/verification/plot_sa_fv2.py
+
+.. image:: figures/sa_fv2_chi_theory.png
+   :alt: SA fv2(chi) theory curve
+   :width: 480
+
+**Proves:** pure ``SaFv2`` / ``SaModifiedStrainRate`` match closed form at
+sampled points.
+
+**Does not prove:** wall-distance field, full residual, or skin-friction match.
+
+
 Role of the wall destruction function
 -------------------------------------
 
