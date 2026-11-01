@@ -130,16 +130,16 @@ def run_host(
             final_status = "failed"
             final_message = f"Process exited with code {return_code}."
     except Exception as error:
+        _write_log(log_file, f"Background host error: {error}")
+        if process is not None and process.poll() is None:
+            process.kill()
+            process.wait()
         if stop_requested and process is not None and process.poll() is not None:
             final_status = "stopped"
             final_message = "Process stopped by request."
         else:
             final_status = "failed"
             final_message = f"Background host error: {error}"
-        _write_log(log_file, final_message)
-        if process is not None and process.poll() is None:
-            process.kill()
-            process.wait()
     finally:
         current = registry.load(task_id)
         registry.save(
