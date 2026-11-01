@@ -12,6 +12,8 @@ License
 ----------------------------------------------------------------------------*/
 
 #include "AccelBackend.h"
+#include "AccelRuntime.h"
+#include "EulerDomain.h"
 #include "SimuCaseLifecycle.h"
 #include "DataBase.h"
 #include "Prj.h"
@@ -104,6 +106,25 @@ public:
     }
 };
 
+
+class RuntimeBoundTestState final : public EulerDomainState
+{
+public:
+    explicit RuntimeBoundTestState( bool & destroyedWhileRuntimeActive )
+        : destroyedWhileRuntimeActive_( destroyedWhileRuntimeActive )
+    {
+    }
+
+    ~RuntimeBoundTestState() override
+    {
+        destroyedWhileRuntimeActive_ =
+            AccelRuntime::Instance().IsInitialized();
+    }
+
+private:
+    bool & destroyedWhileRuntimeActive_;
+};
+
 class ProcessRuntimeGuard
 {
 public:
@@ -132,6 +153,37 @@ public:
 private:
     SimuImp & simulation_;
 };
+
+
+TEST( SimuImpCaseLifecycleIntegration,
+      ProcessFinalizationReleasesContextBackendStatesBeforeRuntime )
+{
+    SimuImp simulation( "unused-case", false );
+    SimuContext & context = simulation.Context();
+
+    context.SetupProcessEnvironment();
+    ProcessRuntimeGuard runtimeGuard( simulation );
+
+    ASSERT_TRUE( context.IsProcessEnvironmentActive() );
+    ASSERT_TRUE( AccelRuntime::Instance().IsInitialized() );
+
+    bool destroyedWhileRuntimeActive = false;
+    const EulerDomainStateKey key{
+        0, 0, 0, AccelBackendKind::CPU, -1
+    };
+    context.AccelStates().Insert(
+        key,
+        std::make_unique< RuntimeBoundTestState >(
+            destroyedWhileRuntimeActive ) );
+    ASSERT_EQ( context.AccelStates().Size(), 1u );
+
+    EXPECT_NO_THROW( simulation.FinalizeEnvironment() );
+
+    EXPECT_TRUE( destroyedWhileRuntimeActive );
+    EXPECT_EQ( context.AccelStates().Size(), 0u );
+    EXPECT_FALSE( AccelRuntime::Instance().IsInitialized() );
+    EXPECT_FALSE( context.IsProcessEnvironmentActive() );
+}
 
 TEST( SimuImpCaseLifecycleIntegration,
       ProductionRuntimeContainsCpuBackendRegistration )
