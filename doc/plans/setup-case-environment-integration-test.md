@@ -1181,3 +1181,17 @@ reader:
 This advances R1 beyond testing only the bootstrap helper. It does not yet exercise
 production ``TeardownCase()``, the full ``SimuImp::RunCase()`` exception boundary,
 or process-runtime preservation. Those remain separate integration milestones.
+
+## 2026-11-01 continuation: make public case bootstrap rollback-safe
+
+Starting from `hexin` revision `c57d952708e55e91813155d2c16a1a01a80406c3`. The user reports 1096/1096 local tests passed before this slice; this is a pre-change baseline.
+
+`SimuContext::SetupCaseEnvironment()` now wraps the production `InitializeCaseConfiguration(caseDir_)` call in `SimuCaseLifecycleDetail::ExecuteWithRollback()`. If the real control reader or a later configuration step fails, `SimuContextDetail::ClearCaseConfigurationState()` clears the partially committed parameter/field database, case log binding, and project-root binding. The rollback helper deliberately preserves the original bootstrap exception if cleanup also fails. The readiness flag remains false.
+
+The integration test now creates a two-entry manifest: the first script commits a marker, and the second script is initially missing. It asserts that the first marker and project binding are absent after the failed setup. It then creates the missing script and retries setup on the same `SimuContext`, verifying that readiness becomes true and the recovered value is present. This tests the public production Context setup method, not a duplicate test-only parser.
+
+This rollback is intentionally narrower than `TeardownCase()`. It covers state created by the configuration bootstrap and makes direct `SetupCaseEnvironment()` callers safe from partial configuration leakage. `SimuImp::RunCase()` still owns full teardown through `PostProcess() -> TeardownCase()` for solver and accelerator resources.
+
+R1 remains Partial. The next target is to test the actual `SimuImp::RunCase()` callback wiring after setup/task failure without linking the complete executable source graph or duplicating the orchestration. The test must prove teardown is attempted, the original setup exception survives a teardown exception, and process runtime remains owned until explicit finalization.
+
+Code/test commits: `6a325f71ede48251df3d50e9e65d3a98f8b5dafe`, `4de3f869affe58a5ac495a4cb90f12024bb3a6f7`, and `729811b0996c929ec9b566bee643ab13b0897b75`. No local build or CTest was run for this slice; exact-HEAD Windows/Linux CI is required.
