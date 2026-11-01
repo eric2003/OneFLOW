@@ -25,8 +25,6 @@ Real SaNegativePart( Real x );
 
 // --- eddy viscosity ---
 Real SaEddyViscosity( Real density, Real nuTilde, Real fv1 );
-Real SaCappedEddyViscosity(
-    Real eddyViscosity, Real laminarViscosity, Real maxViscosityRatio );
 
 
 // --- SA production strain measure ---
