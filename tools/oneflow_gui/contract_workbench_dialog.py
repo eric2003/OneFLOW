@@ -183,8 +183,8 @@ class ContractDomainDialog(QDialog):
             item = resolution.evidence
             evidence_lines.append(
                 f"[{resolution.status.upper()}] {item.kind}: {item.reference}"
-                f"\\n  Declaration: {item.status}"
-                f"\\n  Scope: {item.scope}"
+                f"\n  Declaration: {item.status}"
+                f"\n  Scope: {item.scope}"
             )
             if resolution.resolved_path:
                 evidence_lines.append(f"  Resolved file: {resolution.resolved_path}")
