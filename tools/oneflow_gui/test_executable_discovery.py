@@ -57,6 +57,31 @@ class ExecutableDiscoveryTest(unittest.TestCase):
 
             self.assertIn(executable.resolve(), candidates)
 
+    def test_windows_path_fallback_uses_native_executable_name(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "repo"
+            executable = Path(directory) / "bin" / "OneFLOW.exe"
+            executable.parent.mkdir(parents=True)
+            executable.write_text("", encoding="utf-8")
+            lookup_calls: list[tuple[str, str | None]] = []
+
+            def find_on_path(name: str, search_path: str | None) -> str:
+                lookup_calls.append((name, search_path))
+                return str(executable)
+
+            candidates = executable_candidates(
+                root,
+                {"PATH": str(executable.parent)},
+                platform_name="nt",
+                path_lookup=find_on_path,
+            )
+
+            self.assertIn(executable.resolve(), candidates)
+            self.assertEqual(
+                lookup_calls,
+                [("OneFLOW.exe", str(executable.parent))],
+            )
+
     def test_windows_candidates_use_configuration_specific_executable(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
