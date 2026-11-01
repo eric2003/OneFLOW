@@ -1338,3 +1338,12 @@ python -m unittest tools.verification.test_contract_catalog
 ```
 The latest user-reported 1126/1126 baseline predates these changes. No local
 Windows test execution is claimed.
+
+
+The desktop-open tests replace the module-level `QDesktopServices` dependency
+with a mock object rather than patching a method on the PySide C++ extension
+type. This keeps the test independent of Qt's type mutability and the host
+desktop shell.
+
+Latest `hexin` HEAD after this slice:
+`925a8c779b6944eecbf4f880af46730bc5e2eafb`.
