@@ -1195,3 +1195,33 @@ This rollback is intentionally narrower than `TeardownCase()`. It covers state c
 R1 remains Partial. The next target is to test the actual `SimuImp::RunCase()` callback wiring after setup/task failure without linking the complete executable source graph or duplicating the orchestration. The test must prove teardown is attempted, the original setup exception survives a teardown exception, and process runtime remains owned until explicit finalization.
 
 Code/test commits: `6a325f71ede48251df3d50e9e65d3a98f8b5dafe`, `4de3f869affe58a5ac495a4cb90f12024bb3a6f7`, and `729811b0996c929ec9b566bee643ab13b0897b75`. No local build or CTest was run for this slice; exact-HEAD Windows/Linux CI is required.
+
+
+## 2026-11-01 continuation: production RunCase test-boundary review
+
+Starting revision: `1efc6c3253e3abd6df9f32e07afc38669df24437` on `hexin`. The user reports 1096/1096 local tests passed before this continuation; this is a pre-change baseline.
+
+The exact production call wiring was re-read:
+
+- `SimuImp::RunCase()` invokes the concrete `PreProcess()` and `MainProcess()` methods inside `ExecuteWithCleanup`; its cleanup callback invokes `PostProcess()`.
+- `PostProcess()` calls the real `SimuContext::TeardownCase()`.
+- `TeardownCase()` is currently implemented in `SimuContextEnv.cpp`, alongside process setup/finalization. It invokes the accelerator-state registry, optional HIP shared release, solver-map/name reset, numerous solver/global resets, field-manager release, configuration-state clearing, and Context-owned state reset.
+- `SimuImp` owns a concrete `std::unique_ptr<SimuContext>`; its current public API does not provide an alternate Context or lifecycle callback injection point.
+- The focused `control_configuration_test` target compiles selected production Context and IO translation units. It does not compile `SimuImp.cpp` or the complete teardown dependency closure.
+- The root build constructs the production executable from a recursively collected source set rather than exposing a reusable main-runtime library. Copying that entire source set into a test target would duplicate production build configuration and pull in solver/runtime dependencies solely to reach the lifecycle entry point.
+
+This establishes a concrete architectural blocker, not merely a missing assertion: the case orchestrator and the full teardown implementation do not currently sit behind a narrow reusable production target. A test that substitutes a fake Context or fake teardown would only prove a test double, not the requested real cleanup. Do not add such a test and describe it as end-to-end.
+
+The next engineering decision should be evaluated against two acceptable options:
+
+1. Extract a cohesive production runtime library/object target shared by the executable and integration tests, including its real compile definitions, include paths, and link dependencies. This is the strongest route if the existing source graph can be factored without broad build-system churn.
+2. Extract a narrowly scoped production case-lifecycle owner whose implementation still calls the real Context setup/teardown operations, and make both `SimuImp` and the integration test use that same owner. Do not create a second orchestration path or a generic callback framework.
+
+Before choosing, inspect `codes/CMakeLists.txt` and the source-collection helper to determine whether the production source graph can be factored incrementally. Keep process initialization/finalization separate from per-case teardown. The acceptance contract remains: real setup failure invokes real teardown; teardown failure does not replace the setup exception; process runtime remains active until explicit finalization; and a later case starts without stale case state.
+
+Exact-HEAD CI observed during this review:
+- Sphinx documentation check: success — [run](https://github.com/eric2003/OneFLOW/actions/runs/41280382266).
+- Windows CI: in progress — [run](https://github.com/eric2003/OneFLOW/actions/runs/41280382252).
+- Linux CI: in progress — [run](https://github.com/eric2003/OneFLOW/actions/runs/41280382250).
+
+No source or test code was changed in this review, and no local build/CTest was run here. R1 remains **Partial**. The 1096/1096 user report is the pre-change baseline only.
