@@ -712,3 +712,30 @@ python -m unittest tools.oneflow_gui.test_test_inventory
 ```
 
 The assistant has not run these commands in the user's Windows environment.
+
+
+## 25. Make failed-case summaries actionable (2026-11-02)
+
+The test worker now accumulates structured diagnostics from each failed test
+command and appends a final `Failed test cases` section after the aggregate
+command counts. Each listed case includes its task label, source location,
+and concise failure cause. The original streamed framework output remains
+above the final summary and retains the full traceback/assertion detail.
+When structured records exist, the worker suppresses the older generic
+unittest name list to avoid duplicate entries.
+
+Diagnostic working-directory values are serialized with forward slashes so
+the same resolved path has a stable display representation on Windows and
+POSIX. The process still executes with the original native `Path`.
+
+A regression test now verifies the final case list includes the test identity,
+file/line, and assertion message. Another assertion compares normalized path
+representation rather than requiring a platform-specific separator.
+
+Focused validation:
+
+```powershell
+python -m unittest tools.oneflow_gui.test_test_diagnostics
+python -m unittest tools.oneflow_gui.test_test_runner
+python -m unittest tools.oneflow_gui.test_test_inventory
+```
