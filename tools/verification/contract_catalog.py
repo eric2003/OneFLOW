@@ -416,6 +416,24 @@ def adapt_declared_contract(definition: dict[str, Any]) -> ContractSummary:
     )
 
 
+def _mask_cpp_non_code(source: str) -> str:
+    """Replace comments and literals with spaces while preserving line breaks."""
+    raw_string = re.compile(
+        r'R"(?P<delimiter>[^ ()\\\\\\t\\r\\n]{0,16})\\(.*?\\)(?P=delimiter)"',
+        re.DOTALL,
+    )
+    non_code = re.compile(
+        r'//[^\\n]*|/\\*.*?\\*/|"(?:\\\\.|[^"\\\\])*"|\\'(?:\\\\.|[^\\'\\\\])*\\'',
+        re.DOTALL,
+    )
+
+    def preserve_lines(match: re.Match[str]) -> str:
+        return "".join("\\n" if character == "\\n" else " " for character in match.group())
+
+    source = raw_string.sub(preserve_lines, source)
+    return non_code.sub(preserve_lines, source)
+
+
 def validate_contract_summaries(
     repository_root: Path,
     summaries: Iterable[ContractSummary],
@@ -611,6 +629,7 @@ def validate_contract_summaries(
                     f"{summary.id}: cannot read linked test source {item.scope}: {exc}"
                 )
                 continue
+            source = _mask_cpp_non_code(source)
             declaration = re.compile(
                 rf"\b(?:TEST(?:_F|_P)?|TYPED_TEST(?:_P)?)\s*"
                 rf"\(\s*{re.escape(suite)}\s*,\s*{re.escape(test_name)}\s*\)"
