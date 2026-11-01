@@ -28,6 +28,16 @@ class TestRunnerCommandTest(unittest.TestCase):
         self.assertIn("Mesh workflow tests", labels)
         self.assertIn("Workflow persistence tests", labels)
         self.assertIn("GUI test command builder tests", labels)
+        python_modules = {
+            command.arguments[-1]
+            for command in commands
+            if len(command.arguments) >= 4 and command.arguments[1:3] == ("-m", "unittest")
+        }
+        self.assertTrue({
+            "tools.verification.test_curve_catalog",
+            "tools.verification.test_contract_catalog",
+            "tools.oneflow_gui.test_test_inventory",
+        }.issubset(python_modules))
         self.assertTrue(all(command.task_type is TaskType.UNIT_TESTS for command in commands))
         self.assertFalse(any("OneFLOW.exe" in " ".join(command.arguments) for command in commands))
 
