@@ -51,6 +51,46 @@ _PYTHON_UNIT_TESTS = (
 )
 
 
+def build_ctest_test_commands(
+    repository_root: Path,
+    *,
+    build_config: str = "Debug",
+) -> list[TestCommand]:
+    """Return the CTest command when the source build tree has test metadata."""
+    if build_config not in {"Debug", "Release"}:
+        raise ValueError(f"Unsupported CMake build configuration: {build_config!r}")
+    task = task_definition(TaskType.UNIT_TESTS)
+    if task.execution_location is not ExecutionLocation.SOURCE_BUILD:
+        raise RuntimeError("Unit tests must execute from the source build tree.")
+    root = Path(repository_root).resolve()
+    build_directory = root / "build"
+    if not (build_directory / "CTestTestfile.cmake").is_file():
+        return []
+    return [
+        TestCommand(
+            "C++ unit tests (CTest)",
+            ("ctest", "--output-on-failure", "-C", build_config),
+            build_directory,
+        )
+    ]
+
+
+def build_python_test_commands(
+    repository_root: Path,
+    python: str | None = None,
+) -> list[TestCommand]:
+    """Return the explicit Python unittest command registry."""
+    task = task_definition(TaskType.UNIT_TESTS)
+    if task.execution_location is not ExecutionLocation.SOURCE_BUILD:
+        raise RuntimeError("Unit tests must execute from the source build tree.")
+    root = Path(repository_root).resolve()
+    python_executable = python or sys.executable
+    return [
+        TestCommand(label, (python_executable, *arguments), root)
+        for label, arguments in _PYTHON_UNIT_TESTS
+    ]
+
+
 def build_unit_test_commands(
     repository_root: Path,
     python: str | None = None,
@@ -58,28 +98,23 @@ def build_unit_test_commands(
     build_config: str = "Debug",
     include_ctest: bool | None = None,
 ) -> list[TestCommand]:
-    """Return the same CTest and Python test commands used by repository CI."""
+    """Return the combined CTest and Python test commands for legacy callers."""
     if build_config not in {"Debug", "Release"}:
         raise ValueError(f"Unsupported CMake build configuration: {build_config!r}")
-    task = task_definition(TaskType.UNIT_TESTS)
-    if task.execution_location is not ExecutionLocation.SOURCE_BUILD:
-        raise RuntimeError("Unit tests must execute from the source build tree.")
     root = Path(repository_root).resolve()
-    python_executable = python or sys.executable
-    commands: list[TestCommand] = []
-    build_directory = root / "build"
-    ctest_is_available = (build_directory / "CTestTestfile.cmake").is_file()
-    should_include_ctest = (
-        ctest_is_available if include_ctest is None else include_ctest
-    )
-    if should_include_ctest:
-        arguments = ["ctest", "--output-on-failure", "-C", build_config]
-        commands.append(TestCommand("C++ unit tests (CTest)", tuple(arguments), build_directory))
-
-    for label, arguments in _PYTHON_UNIT_TESTS:
-        commands.append(
-            TestCommand(label, (python_executable, *arguments), root)
-        )
+    commands = build_ctest_test_commands(root, build_config=build_config)
+    if include_ctest is False:
+        commands = []
+    elif include_ctest is True and not commands:
+        build_directory = root / "build"
+        commands = [
+            TestCommand(
+                "C++ unit tests (CTest)",
+                ("ctest", "--output-on-failure", "-C", build_config),
+                build_directory,
+            )
+        ]
+    commands.extend(build_python_test_commands(root, python))
     return commands
 
 
