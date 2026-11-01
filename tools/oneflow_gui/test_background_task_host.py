@@ -5,8 +5,6 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
-import threading
-import time
 import tempfile
 import unittest
 from pathlib import Path
@@ -50,33 +48,20 @@ class BackgroundTaskHostTest(unittest.TestCase):
 
     def test_host_stops_active_process_when_stop_file_appears(self) -> None:
         stop_file = self.registry.records_directory / "task-001.stop"
-        stop_requested = threading.Event()
 
-        def request_stop() -> None:
-            deadline = time.monotonic() + 5
-            while time.monotonic() < deadline:
-                try:
-                    task = self.registry.load("task-001")
-                except (OSError, ValueError):
-                    time.sleep(0.01)
-                    continue
-                if task.process_pid is not None:
-                    stop_file.write_text("stop\n", encoding="utf-8")
-                    stop_requested.set()
-                    return
-                time.sleep(0.01)
+        def popen_and_request_stop(*args, **kwargs):
+            process = subprocess.Popen(*args, **kwargs)
+            stop_file.write_text("stop\n", encoding="utf-8")
+            return process
 
-        stopper = threading.Thread(target=request_stop, daemon=True)
-        stopper.start()
         result = run_host(
             root=self.root,
             task_id="task-001",
             command=[sys.executable, "-c", "import time; time.sleep(30)"],
             cwd=self.root,
             poll_interval=0.01,
+            popen=popen_and_request_stop,
         )
-        stopper.join(timeout=1)
-        self.assertTrue(stop_requested.is_set(), "stop request was not delivered")
 
         task = self.registry.load("task-001")
         self.assertNotEqual(result, 0)
