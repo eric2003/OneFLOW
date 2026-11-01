@@ -466,3 +466,11 @@ Commit: `d8568fe91722af5d78d8083d6bae23d9446d952d`
 - Removed the SA-specific declaration, implementation, and test. Added a focused shared-policy test target covering both the active cap and the unchanged-below-cap branch.
 - This is a responsibility-boundary refactor only. The cap formula and its call order after each model's eddy-viscosity calculation are unchanged.
 - Validation status: code, CMake registration, tests, and model documentation committed; exact-commit configure/build, focused CTest, full CTest, and CFD regression remain unverified.
+
+
+### 2026-11-01 - Make SST limiter-rate construction independently testable
+
+- Starting from the exact current `hexin` HEAD `ad6abfb3c3b5f06d7793f6077bf385f1797b9669`; the user reports 1112/1112 tests passed on the pre-change baseline.
+- Moved the two velocity-gradient invariants used by the SST eddy-viscosity limiter into pure model policy functions: `SstStrainRateMagnitude()` computes the symmetric strain-tensor norm, while `SstVorticityMagnitude()` computes the curl magnitude. `TurbSrcFlux::CalcCellVist2Equ()` retains the `iprod_sst` selection and passes the selected value to the existing Bradshaw limiter.
+- Added closed-form tests for the diagonal strain tensor and a simple shear field where the strain and vorticity magnitudes differ (4 versus 2). This closes the specific gap recorded in the preceding SST stage: the limiter formula had both denominator branches tested, but the tensor construction and model-option selection were not isolated.
+- No model option, formula, or call ordering changes are intended. Exact-commit build, focused CTest, full CTest, and flat-plate/RAE2822 regression remain unverified until run locally.
