@@ -24,6 +24,24 @@ class ContractEvidence:
 
 
 @dataclass(frozen=True)
+class CaseContractData:
+    """Typed CFD case payload; a case is evidence for contracts, not a contract per se."""
+
+    suite: str
+    case_path: str
+    solver: str
+    dimension: int
+    flow_model: str
+    flux_scheme: str
+    max_steps: int
+    input_paths: tuple[str, ...]
+    comparison_outputs: tuple[str, ...]
+    residual_baseline: str
+    analytical_references: tuple[str, ...]
+    residual_absolute_tolerance: float
+
+
+@dataclass(frozen=True)
 class ContractSummary:
     """Common read-only navigation data for a verification contract."""
 
@@ -42,6 +60,7 @@ class ContractSummary:
     evidence: tuple[ContractEvidence, ...]
     claims: tuple[str, ...]
     limitations: tuple[str, ...]
+    case_data: CaseContractData | None = None
 
 
 def _non_empty_strings(values: Iterable[Any]) -> tuple[str, ...]:
@@ -275,6 +294,53 @@ def adapt_declared_contract(definition: dict[str, Any]) -> ContractSummary:
             "declared contract id must be namespaced by its domain"
         )
 
+    case_data = None
+    if definition["domain"].strip() == "case":
+        raw_case = definition.get("case")
+        if not isinstance(raw_case, dict):
+            raise ValueError("case contract requires a case object")
+        required_case_strings = (
+            "suite",
+            "path",
+            "solver",
+            "flow_model",
+            "flux_scheme",
+            "residual_baseline",
+        )
+        for field in required_case_strings:
+            if not isinstance(raw_case.get(field), str) or not raw_case[field].strip():
+                raise ValueError(f"case.{field} must be a non-empty string")
+        for field in ("dimension", "max_steps"):
+            if not isinstance(raw_case.get(field), int) or isinstance(raw_case[field], bool) or raw_case[field] <= 0:
+                raise ValueError(f"case.{field} must be a positive integer")
+        tolerance = raw_case.get("residual_absolute_tolerance")
+        if not isinstance(tolerance, (int, float)) or isinstance(tolerance, bool) or tolerance < 0:
+            raise ValueError("case.residual_absolute_tolerance must be non-negative")
+        case_arrays = {}
+        for field in ("input_paths", "comparison_outputs", "analytical_references"):
+            values = raw_case.get(field, [])
+            if not isinstance(values, list) or any(
+                not isinstance(value, str) or not value.strip() for value in values
+            ):
+                raise ValueError(f"case.{field} must be an array of non-empty strings")
+            case_arrays[field] = _non_empty_strings(values)
+        if not case_arrays["input_paths"] or not case_arrays["comparison_outputs"]:
+            raise ValueError("case requires input_paths and comparison_outputs")
+        case_data = CaseContractData(
+            suite=raw_case["suite"].strip(),
+            case_path=raw_case["path"].strip(),
+            solver=raw_case["solver"].strip(),
+            dimension=raw_case["dimension"],
+            flow_model=raw_case["flow_model"].strip(),
+            flux_scheme=raw_case["flux_scheme"].strip(),
+            max_steps=raw_case["max_steps"],
+            input_paths=case_arrays["input_paths"],
+            comparison_outputs=case_arrays["comparison_outputs"],
+            residual_baseline=raw_case["residual_baseline"].strip(),
+            analytical_references=case_arrays["analytical_references"],
+            residual_absolute_tolerance=float(tolerance),
+        )
+
     return ContractSummary(
         id=contract_id,
         source_id=source_id,
@@ -297,6 +363,7 @@ def adapt_declared_contract(definition: dict[str, Any]) -> ContractSummary:
         limitations=_non_empty_strings(
             definition.get("claims", {}).get("does_not_prove", ())
         ),
+        case_data=case_data,
     )
 
 
@@ -329,6 +396,17 @@ def validate_contract_summaries(
                 and item.scope.endswith((".cpp", ".cc", ".cxx"))
             ),
         ]
+        if summary.case_data is not None:
+            case_data = summary.case_data
+            declared_paths.extend(
+                (
+                    case_data.suite,
+                    case_data.case_path,
+                    *case_data.input_paths,
+                    *case_data.analytical_references,
+                    case_data.residual_baseline,
+                )
+            )
         for relpath in declared_paths:
             try:
                 path = _relative_path(repository_root, relpath)
@@ -338,6 +416,46 @@ def validate_contract_summaries(
             if not path.is_file():
                 issues.append(f"{summary.id}: missing repository file: {relpath}")
 
+        if summary.case_data is not None:
+            case_data = summary.case_data
+            try:
+                suite_path = _relative_path(repository_root, case_data.suite)
+                case_path = _relative_path(repository_root, case_data.case_path)
+            except ValueError:
+                suite_path = None
+                case_path = None
+            if suite_path is not None and suite_path.is_file():
+                try:
+                    suite_text = suite_path.read_text(encoding="utf-8-sig")
+                    expected_entry = case_data.case_path.removeprefix("test/")
+                    if expected_entry not in suite_text:
+                        issues.append(
+                            f"{summary.id}: case path is not declared by suite "
+                            f"{case_data.suite}: {expected_entry}"
+                        )
+                except (OSError, UnicodeDecodeError) as exc:
+                    issues.append(
+                        f"{summary.id}: cannot read suite {case_data.suite}: {exc}"
+                    )
+            if case_path is not None and case_path.is_dir():
+                compare_path = case_path / "autotest" / "compare.txt"
+                if compare_path.is_file():
+                    try:
+                        declared_outputs = {
+                            line.strip()
+                            for line in compare_path.read_text(encoding="utf-8-sig").splitlines()
+                            if line.strip() and not line.lstrip().startswith("#")
+                        }
+                        missing_outputs = set(case_data.comparison_outputs) - declared_outputs
+                        if missing_outputs:
+                            issues.append(
+                                f"{summary.id}: comparison outputs are not declared "
+                                f"by autotest/compare.txt: {', '.join(sorted(missing_outputs))}"
+                            )
+                    except (OSError, UnicodeDecodeError) as exc:
+                        issues.append(
+                            f"{summary.id}: cannot read autotest/compare.txt: {exc}"
+                        )
         for item in summary.evidence:
             if item.kind not in ("linked_test", "google_test") or not item.scope.endswith(
                 (".cpp", ".cc", ".cxx")
