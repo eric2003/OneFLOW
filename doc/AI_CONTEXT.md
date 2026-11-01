@@ -1,8 +1,38 @@
 # AI and Developer Project Context
 
 Last updated: 2026-11-01
-Working branch: `hexin` only. Latest inspected baseline for this slice: `6e550260578a7ad3490793791f9a26feb1e670ae`. Current implementation HEAD before this handoff update: `7eff3d06099700cdd7026dca35cb843112b07332`.
+Working branch: `hexin` only. Latest inspected baseline for the shutdown-order slice: `6e550260578a7ad3490793791f9a26feb1e670ae`. Current hexin HEAD after fixture correction and handoff updates: see the latest commits in this section.
 User-reported local validation on the pre-change baseline: **1123/1123 tests passed**. This does not validate the shutdown-order change added afterward.
+
+## 2026-11-01 continuation: lifecycle integration test fixture correction
+
+The user reported 1123/1124 tests passing after the accelerator shutdown-order
+change. The sole failure was
+`SimuImpCaseLifecycleIntegration.ProcessFinalizationReleasesContextBackendStatesBeforeRuntime`,
+which threw in `Prj::ResolveCaseDir()` during `SimuImp` construction. The
+test passed the relative placeholder `unused-case` before initializing
+`Prj::current_dir`; therefore it never reached process runtime setup or the
+shutdown-order assertions.
+
+Corrected the test fixture on `hexin`:
+- Call production `Prj::Init()` before constructing `SimuImp`.
+- Reuse the existing RAII `TemporaryCase` fixture and pass its absolute
+  directory to the constructor.
+- Document why the test requires an initialized project environment and an
+  absolute case path.
+
+Updated design record:
+[Accelerator runtime shutdown order](plans/accelerator-runtime-shutdown-order.md).
+
+Correction commits:
+- Test fixture: [aeae2fb](https://github.com/eric2003/OneFLOW/commit/aeae2fb51e719d0d6a1a8a9786f22f18dfb9230b).
+- Design/validation record: [298e022](https://github.com/eric2003/OneFLOW/commit/298e022c8feddf4fea1f46fec05ccca4031e74d5).
+
+Status: **Fixture corrected; rerun not yet verified**. The 1123/1124 result
+belongs to the pre-correction revision. First rebuild and run the focused
+integration test, then the full Debug CTest suite. If the focused test passes,
+inspect any remaining failures before proceeding to the next runtime
+finalization exception-safety slice.
 
 ## Current follow-on: accelerator runtime shutdown ordering
 
