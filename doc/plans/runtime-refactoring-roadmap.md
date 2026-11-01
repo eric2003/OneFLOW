@@ -453,7 +453,7 @@ Commit: `d8568fe91722af5d78d8083d6bae23d9446d952d`
 
 - Based on `hexin` HEAD `b76756a19544b81ee538584548b511665bcead71` and the user's reported 1111/1111 passing baseline.
 - Source inspection found that `CalcCellVist2Equ()` passes either the strain-rate magnitude (when `iprod_sst == 1`) or the vorticity magnitude to `SstEddyViscosity()`. The policy parameter was named `vorticityMagnitude`, which incorrectly described the strain-based path.
-- Renamed the policy input to `limitingRateMagnitude` without changing the formula or call-site behavior. Documented the selected rate as (R) and made the distinction visible in the Contract Workbench theory catalog.
+- Renamed the policy input and the `CalcCellVist2Equ()` local value to `limitingRateMagnitude` without changing the formula or branch behavior. Documented the selected rate as (R) and made the distinction visible in the Contract Workbench theory catalog.
 - Added a direct policy test that activates the Bradshaw limiter branch (R F_2/a_1 > omega), complementing the existing omega-limited branch test. The existing F2 theory-curve test remains the closed-form check (F_2=\tanh(\mathrm{arg}_2^2)).
 - The focused tests establish both denominator branches of the pure eddy-viscosity policy; they do not verify the strain/vorticity tensor construction, the post-policy laminar-ratio cap, or full-case SST accuracy.
 - Validation status: implementation and documentation committed; exact-commit build, focused CTest, full CTest, and CFD regression remain unverified. The user's 1111/1111 result is the pre-change baseline.
