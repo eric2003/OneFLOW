@@ -95,7 +95,11 @@ class ContractCatalogTest(unittest.TestCase):
             overview="",
             principle="",
             references=(),
-            implementation_paths=("missing/file.cpp", "../outside.cpp"),
+            implementation_paths=(
+                "missing/file.cpp",
+                "../outside.cpp",
+                "C:\\outside\\source.cpp",
+            ),
             documentation_paths=(),
             evidence=(),
             claims=(),
@@ -104,7 +108,7 @@ class ContractCatalogTest(unittest.TestCase):
 
         issues = validate_contract_summaries(self.repository_root, [summary])
 
-        self.assertEqual(len(issues), 2)
+        self.assertEqual(len(issues), 3)
         self.assertTrue(any("missing repository file" in issue for issue in issues))
         self.assertTrue(any("escapes root" in issue for issue in issues))
 
