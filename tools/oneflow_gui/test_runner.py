@@ -71,6 +71,17 @@ def summarize_test_output(output_lines: list[str]) -> tuple[str, ...]:
         ),
         None,
     )
+    failed_unittest_cases = []
+    for line in output_lines:
+        match = re.match(r"^\\s*(FAIL|ERROR):\\s+(.+?)\\s*$", line)
+        if match:
+            case_name = match.group(2)
+            if case_name not in failed_unittest_cases:
+                failed_unittest_cases.append(case_name)
+    if failed_unittest_cases:
+        summary.append("Failed unittest cases:")
+        summary.extend(f"  - {case_name}" for case_name in failed_unittest_cases)
+
     if failure_start is not None:
         details = output_lines[failure_start:]
         summary.append("Failure details:")
@@ -114,6 +125,7 @@ _PYTHON_UNIT_TESTS = (
     ("GUI test command builder tests", ("-m", "unittest", "tools.oneflow_gui.test_test_runner")),
     ("Numerical verification catalog tests", ("-m", "unittest", "tools.verification.test_curve_catalog")),
     ("Combined contract catalog tests", ("-m", "unittest", "tools.verification.test_contract_catalog")),
+    ("CMake test catalog tests", ("-m", "unittest", "tools.verification.test_cmake_test_catalog")),
     ("Contract Workbench dialog tests", ("-m", "unittest", "tools.oneflow_gui.test_contract_workbench_dialog")),
     ("Repository test inventory discovery tests", ("-m", "unittest", "tools.oneflow_gui.test_test_inventory")),
     ("Mesh layout editor document tests", ("-m", "unittest", "tests.tools.test_editor_document")),
