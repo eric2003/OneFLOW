@@ -167,13 +167,12 @@ void UTurbSrcFlux::CalcVist1Equ()
     {
         ug.cId = cId;
 
-        if ( turbcom.rho < 0 || NotANumber( turbcom.rho ) )
+        turbcom.rho  = ( * uturbf.meanFlow.q  )[ IDX::IR  ][ ug.cId ];
+        if ( TurbDensityIsInvalid( turbcom.rho ) )
         {
             std::cout << " zone = " << ZoneState::zid << " cId = " << cId << " rho = " << turbcom.rho << "\n";
-            Fatal( "NotANumber( turbcom.rho )" );
-            //cin.get();
+            Fatal( "Invalid density in SA eddy-viscosity evaluation" );
         }
-        turbcom.rho  = ( * uturbf.meanFlow.q  )[ IDX::IR  ][ ug.cId ];
         turbcom.nuet = ( * uturbf.q  )[ ISA ][ ug.cId ];
         turbcom.visl = ( * uturbf.visl )[ 0 ][ ug.cId ];
 
