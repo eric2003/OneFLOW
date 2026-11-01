@@ -109,7 +109,7 @@ class ContractCatalogTest(unittest.TestCase):
 
         summary = adapt_declared_contract(definition)
 
-        self.assertEqual(summary.id, "case/laminar-flat-plate-slaU2")
+        self.assertEqual(summary.id, "case/laminar-flat-plate-slau2")
         self.assertEqual(summary.domain, "case")
         self.assertEqual(summary.kind, "cfd_regression_case")
         self.assertIsNotNone(summary.case_data)
@@ -221,7 +221,7 @@ class ContractCatalogTest(unittest.TestCase):
         self.assertEqual(len(case_contracts), 1)
         self.assertEqual(
             case_contracts[0].id,
-            "case/laminar-flat-plate-slaU2",
+            "case/laminar-flat-plate-slau2",
         )
         self.assertIsNotNone(case_contracts[0].case_data)
         self.assertEqual(len({item.id for item in summaries}), len(summaries))
