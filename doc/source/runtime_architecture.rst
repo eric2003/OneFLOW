@@ -945,6 +945,54 @@ successfully finalized process runtime. This marker is an observation of the
 managed lifecycle, not a proof that an external runtime such as MPI can always
 be safely retried after a failed finalization call.
 
+Accelerator initialization follows a matching commit boundary. The runtime first
+constructs a candidate ``AccelContext`` and a candidate backend in local
+variables. Only after ``AccelBackend::Initialize()`` returns successfully are
+the backend, device-selection context, and ``initialized`` flag committed to
+the ``AccelRuntime`` object. If an explicitly requested backend fails, its
+candidate object is destroyed and the runtime remains uninitialized with its
+previously published context unchanged. In ``AUTO`` mode, each candidate gets
+a separate context snapshot; a failed candidate cannot leak its partial
+device-selection values into the next attempt or the CPU fallback.
+
+The backend interface has a corresponding exception-safety contract:
+``Initialize()`` must release resources it acquired before throwing. The
+runtime deliberately does not call ``Finalize()`` on a backend whose
+initialization failed, because finalization is not generally valid for a
+partially initialized implementation. Once initialization succeeds,
+``Finalize()`` remains retryable at the runtime boundary: if backend
+finalization throws, the backend and active state are retained rather than
+being reported as successfully finalized.
+
+The state transition is therefore:
+
+.. code-block:: text
+
+   Uninitialized
+        |
+        v
+   candidate context + candidate backend
+        |
+        +---- Initialize throws ----> destroy candidate; remain Uninitialized
+        |
+        v
+   Initialize succeeds
+        |
+        v
+   commit backend + context + initialized=true
+        |
+        v
+   Finalize succeeds
+        |
+        v
+   Uninitialized
+
+This is the same principle used by the process lifecycle marker: externally
+observable state is committed only after the operation that establishes that
+state has succeeded. It does not claim that every backend has identical
+hardware rollback semantics; those remain part of each backend's
+implementation contract.
+
 The MPI compatibility layer now tracks whether OneFLOW itself initialized MPI.
 ``HXInit()`` first queries ``MPI_Initialized()`` and ``MPI_Finalized()``. It
 initializes MPI only when no external owner has already initialized it, and
