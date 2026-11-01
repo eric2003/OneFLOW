@@ -164,3 +164,26 @@ introducing shared ownership or a global shutdown coordinator.
   device-specific deallocation behavior.
 - Multi-rank MPI and teardown failures injected into every concrete solver
   release remain separate validation gaps.
+
+## 8. Production process-level retry verification
+
+The follow-up integration test
+`SimuImpCaseLifecycleIntegration.FailedAcceleratorFinalizationKeepsProcessRuntimeActiveForRetry`
+now exercises the failure contract through the real `SimuImp::FinalizeEnvironment()`
+entry point. It registers an injectable HIP-kind backend (no physical HIP device
+is required), makes the first backend finalization throw, and verifies that:
+
+- the exception propagates to the caller;
+- `AccelRuntime` remains initialized and its backend remains accessible;
+- the `SimuContext` process lifecycle remains Active;
+- a second finalization succeeds and only then marks the process inactive.
+
+This complements `AccelRuntimeTest.FailedFinalizationPreservesBackendForRetry`:
+the latter proves runtime ownership retention, while the production-linked
+integration test proves that `SimuContext` does not cross the parallel-runtime
+shutdown boundary after accelerator finalization fails.
+
+The test is implemented on `hexin`; it has not yet been run on the user's
+Windows build. It uses a fake backend registered under the HIP kind, so it
+validates lifecycle ordering and retry semantics, not a real HIP driver failure.
+
