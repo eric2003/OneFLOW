@@ -1,7 +1,7 @@
 # AI and Developer Project Context
 
 Last updated: 2026-11-01
-Working branch: `hexin` only. Starting HEAD for the current runtime-target slice: `0da2d68deeb7216c174e82630d75dab792103722`.
+Working branch: `hexin` only. Starting HEAD for the current runtime-target slice: `0da2d68deeb7216c174e82630d75dab792103722`. Latest implementation HEAD: `db7439f55c9b230004e09640f12f31fa860bcfad`.
 User-reported local baseline before this slice: **1096/1096 tests passed**. This is not validation of the subsequent commits.
 
 ## Current focus: R1 case configuration rollback and lifecycle
@@ -628,3 +628,10 @@ individual teardown-step failure injection in the concrete chain, successful
 repeated full SimuImp cases, multi-rank MPI, and CFD numerical regression.
 Next action: inspect exact-HEAD CI and fix any build/link regressions before
 expanding the integration suite.
+
+
+Latest validation poll for `db7439f55c9b230004e09640f12f31fa860bcfad`:
+- Windows CI queued: https://github.com/eric2003/OneFLOW/actions/runs/41281608533
+- Linux CI queued: https://github.com/eric2003/OneFLOW/actions/runs/41281608515
+- Earlier CI runs for the preceding C++ commits were still in progress; none had completed at this poll.
+- No local CMake configure, build, or CTest was run in this environment. The user's 1096/1096 report remains the pre-change baseline.
