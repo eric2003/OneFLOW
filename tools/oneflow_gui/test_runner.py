@@ -123,6 +123,7 @@ _PYTHON_UNIT_TESTS = (
     ("Runtime override tests", ("-m", "unittest", "tools.oneflow_gui.test_workflow_runtime_overrides")),
     ("Workflow case staging tests", ("-m", "unittest", "tools.oneflow_gui.test_workflow_case_runtime")),
     ("GUI test command builder tests", ("-m", "unittest", "tools.oneflow_gui.test_test_runner")),
+    ("Structured test diagnostic tests", ("-m", "unittest", "tools.oneflow_gui.test_test_diagnostics")),
     ("Numerical verification catalog tests", ("-m", "unittest", "tools.verification.test_curve_catalog")),
     ("Combined contract catalog tests", ("-m", "unittest", "tools.verification.test_contract_catalog")),
     ("CMake test catalog tests", ("-m", "unittest", "tools.verification.test_cmake_test_catalog")),
