@@ -202,6 +202,16 @@ _EVIDENCE_KINDS = {
 }
 
 
+_EVIDENCE_PATH_KINDS = {
+    "theory_data",
+    "fixture",
+    "case_suite",
+    "output_manifest",
+    "residual_baseline",
+    "analytical_reference",
+}
+
+
 _EVIDENCE_STATUSES = {
     "declared_not_executed",
     "linked_not_executed",
@@ -419,14 +429,19 @@ def validate_contract_summaries(
         elif summary.id in seen_ids:
             issues.append(f"duplicate contract id: {summary.id}")
         seen_ids.add(summary.id)
-        declared_paths = [
+        declared_paths = list(dict.fromkeys((
             *summary.implementation_paths,
             *summary.documentation_paths,
             *(
                 item.reference
                 for item in summary.evidence
-                if item.kind in ("theory_data", "fixture", "output_manifest")
-                and "/" in item.reference
+                if item.kind in _EVIDENCE_PATH_KINDS
+                and (
+                    item.kind != "fixture"
+                    or "/" in item.reference
+                    or "\\" in item.reference
+                    or bool(PureWindowsPath(item.reference).suffix)
+                )
             ),
             *(
                 item.scope
@@ -434,7 +449,7 @@ def validate_contract_summaries(
                 if item.kind in ("linked_test", "google_test")
                 and item.scope.endswith((".cpp", ".cc", ".cxx"))
             ),
-        ]
+        )))
         if summary.case_data is not None:
             case_data = summary.case_data
             declared_paths.extend(
