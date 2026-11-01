@@ -1,6 +1,6 @@
 # Verification Contract Workbench: architecture proposal
 
-Status: **Architecture proposal; Stage 1 read-only adapters partially implemented (see Section 13).**
+Status: **Architecture proposal; Stage 1 compatibility adapters implemented, with the first declared Runtime contract added as a Stage 3 vertical slice (see Sections 13-14).**
 
 Target branch: **hexin**
 
@@ -312,3 +312,51 @@ python -m unittest tools.verification.test_curve_catalog
 ```
 
 The assistant has not executed these tests in the user's Windows environment.
+
+## 14. First declared Runtime contract (2026-11-01)
+
+The first cross-domain definition is now stored in
+`tools/verification/contracts/runtime/process_lifecycle.json`. It describes
+the process/case lifecycle and accelerator shutdown contract using the shared
+navigation envelope:
+
+- Overview and scope;
+- Principle: reverse dependency teardown and retryable resource finalization;
+- References to runtime architecture and shutdown-order design records;
+- Architecture: `SimuImp`, `SimuContext`, and `AccelRuntime` ownership;
+- Implementation source paths;
+- Documentation paths;
+- Typed GoogleTest evidence links;
+- Explicit `proves` and `does_not_prove` claims.
+
+`ContractSummary` now includes common `architecture` and `status` fields.
+`adapt_declared_contract` accepts schema version 1 and maps a declared
+cross-domain JSON definition into the same immutable read model used by the
+Numerical and Geometry adapters. `load_contract_catalog` discovers JSON
+definitions under `tools/verification/contracts/` without changing the
+existing Numerical Python catalog or Geometry scenario files.
+
+This is intentionally a vertical slice, not a generic schema framework:
+- the contract is data, not executable code;
+- GoogleTest links are checked against source declarations but remain
+  `linked_not_executed`;
+- `implemented` is not synonymous with `verified`;
+- no runner, GUI, or arbitrary plugin execution was introduced.
+
+The runtime definition currently claims only process-level ordering and retry
+semantics. It explicitly excludes physical CUDA/HIP driver validation,
+multi-rank MPI teardown, all solver-specific release paths, and CFD numerical
+correctness.
+
+Focused validation command:
+
+```powershell
+python -m unittest tools.verification.test_contract_catalog
+```
+
+The code and test definition are committed on `hexin`; the user's local test
+suite has not yet validated this slice. Next work should compare the shared
+model against a second genuinely different domain (workflow or case
+regression) and only then decide whether any further common fields or typed
+payload interfaces are justified.
+
