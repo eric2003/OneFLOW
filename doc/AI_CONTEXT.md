@@ -1,8 +1,8 @@
 # AI and Developer Project Context
 
 Last updated: 2026-11-01
-Working branch: `hexin` only. Starting HEAD for the current runtime-target slice: `0da2d68deeb7216c174e82630d75dab792103722`. Latest implementation HEAD: `db7439f55c9b230004e09640f12f31fa860bcfad`.
-User-reported local baseline before this slice: **1096/1096 tests passed**. This is not validation of the subsequent commits.
+Working branch: `hexin` only. Inspected `hexin` base before the sequential-case slice: `4ad8f02c7405be4205750e9473b9f87f16acb985`. Latest implementation commit: `0d3597ee004ff4830b4d16433df7e315d1b6323a`.
+User-reported local validation on the pre-change base: **1110/1110 tests passed**. This does not validate the sequential-case test added afterward.
 
 ## Current focus: R1 case configuration rollback and lifecycle
 
@@ -32,11 +32,11 @@ System-level reason: case configuration now has a strong failure boundary indepe
 
 ## Remaining R1 gap
 
-R1 remains **Partial**. The public `SetupCaseEnvironment()` readiness transition and configuration rollback now have production integration coverage. A new production integration target now exercises the actual `SimuImp::RunCase() -> PostProcess() -> TeardownCase()` wiring after a real setup failure. The remaining gaps are cleanup failure injection at individual solver/device release points, successful repeated full SimuImp cases, and multi-rank MPI behavior. Avoid linking the full executable source list into a test target merely to reach `SimuImp`; a source review confirmed that `SimuImp` owns a concrete `SimuContext`, while real `TeardownCase()` is coupled to many solver/global reset symbols in `SimuContextEnv.cpp`. The executable currently has no reusable main-runtime library target. Do not substitute fake teardown and call it end-to-end.
+R1 remains **Partial**. The production integration target exercises the real `SimuImp::RunCase() -> PostProcess() -> TeardownCase()` wiring after a setup failure. A new success-path integration test is now implemented but unverified: it runs two separate `SimuImp` cases through the production `RunCasesWithProcessLifecycle()` orchestration, overrides `ToyModel` with a marker task, and checks case-state cleanup plus process-runtime continuity between cases. Remaining gaps are injected failures at individual solver/device release points, multi-rank MPI behavior, and representative full CFD regressions. The shared `OneFLOW_RuntimeObjects` CMake object collection now lets the executable and integration target consume the same production translation units without creating a static-library boundary. Do not substitute fake teardown and call it end-to-end.
 
 The earlier investigation record remains `doc/plans/setup-case-environment-integration-test.md`. Its original findings are historical; this handoff and `doc/source/runtime_architecture.rst` record the newer rollback behavior.
 
-Next single action: inspect `codes/CMakeLists.txt` and its recursive source-collection helper to decide whether a shared production runtime target can be extracted incrementally. Preserve real `SimuImp::RunCase() -> PostProcess() -> TeardownCase()` wiring; then add the failure/cleanup/process-lifetime integration test. Detailed findings are in `doc/plans/setup-case-environment-integration-test.md` (2026-11-01 continuation).
+Next single action: build and run the focused production lifecycle integration target on the exact latest commit, then run the full Debug CTest suite and representative grid/CFD regressions. If those pass, update the R1 evidence; keep teardown fault injection and multi-rank MPI as explicit remaining gaps. Detailed findings are in `doc/plans/setup-case-environment-integration-test.md`.
 ## 1. Read this first
 
 For a quick restart, follow this order:
@@ -86,16 +86,16 @@ Verified contracts:
 - The same Context can retry after the failed manifest is repaired.
 - `SimuImp::RunCase()` remains responsible for full case teardown; process finalization remains a separate owner.
 
-Verified by a new production-linked integration target: a real setup failure through `SimuImp::RunCase()` resets context-owned case state and leaves process runtime active until explicit finalization. Still not verified: injected teardown failure behavior in the full concrete release chain, successful repeated full cases, multi-rank MPI, and numerical regressions.
+Verified by production-linked integration: a real setup failure through `SimuImp::RunCase()` resets context-owned case state and leaves process runtime active until explicit finalization. Implemented, unverified: a successful two-case sequence using separate production `SimuImp` instances, checking per-case reset and process runtime continuity. Still open: injected teardown failures in the concrete release chain, multi-rank MPI, and full numerical regressions.
 ## 5. Next actions, in priority order
 
 1. Check exact-HEAD Windows/Linux CI for the current `hexin` revision; distinguish queued, in-progress, and completed jobs.
-2. Inspect the actual `SimuImp::RunCase()` link dependency closure and identify a narrow production test boundary without copying the entire executable source list.
-3. Add a focused integration contract that proves real setup failure triggers `PostProcess() -> TeardownCase()`, preserves the original setup exception if cleanup also fails, and leaves process-level runtime alive until explicit finalization.
-4. Verify successful case teardown and subsequent case setup remain isolated, then run the established grid/CFD regression suite where practical.
-5. Reassess R1 acceptance criteria and update the runtime guide and roadmap with exact commit/test/CI evidence.
+2. Build and run the new successful sequential-case integration contract on the exact commit.
+3. Run the full Debug CTest suite and representative grid/CFD regression cases.
+4. If successful, update R1 evidence; then investigate teardown fault injection at concrete solver/device release points.
+5. Keep multi-rank MPI validation as a separate acceptance item and reassess R1 status only against the required evidence.
 
-Suggested next mainline: full production case teardown wiring, not another generic lifecycle helper or unrelated local refactor. The whole-project investment ranking is documented in `doc/source/architecture_priority_roadmap.rst`.
+Suggested next mainline: validate production sequential-case isolation, then close the remaining concrete cleanup-failure and MPI gaps—not another generic lifecycle helper or unrelated local refactor. The whole-project investment ranking is documented in `doc/source/architecture_priority_roadmap.rst`.
 ## 6. Status vocabulary
 
 Use these labels consistently in this page and related records:
