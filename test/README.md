@@ -103,3 +103,21 @@ The maintained delivery report is:
 ```text
 doc/reports/delivery/oneflow-gpu-backend-delivery.md
 ```
+
+## Contract traceability
+
+The Contract Workbench contains a typed Case-domain description for
+`cfd/plateuns2dslau2` at
+`tools/verification/contracts/case/laminar_flat_plate_slau2.json`.
+It links the existing suite, solver inputs, output comparison manifest,
+canonical residual database, and Blasius reference profiles without replacing
+the suite or runner.
+
+The catalog performs static consistency checks only. A catalog PASS means
+that declared references and metadata are structurally consistent; it does
+not mean the CFD case has just been executed. The regression runner remains
+the authority for execution and numerical comparison. The Blasius files are
+retained scientific references but are not currently compared automatically
+by `test.py`; the contract records this limitation explicitly.
+
+
