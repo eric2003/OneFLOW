@@ -620,3 +620,19 @@ Focused validation:
 python -m unittest tools.verification.test_contract_catalog
 ```
 
+
+
+## 22. Separate evidence reference resolution from execution status (2026-11-02)
+
+The Qt-independent catalog now exposes `EvidenceResolution` and `resolve_contract_evidence(repository_root, summary)`. Every declared evidence item receives a static resolution state: `declared` when no supported artifact resolver applies, `resolved` when its repository file or linked GoogleTest declaration is found, and `stale` when that supported reference is invalid, missing, unreadable, or absent from the declared source.
+
+The original `ContractEvidence.status` is retained unchanged. For example, a source declaration can be `resolved` while its declaration status remains `linked_not_executed`. This deliberately avoids manufacturing a PASS result from static source inspection. The Case-specific semantic checks remain in the catalog validator; this first resolution API does not claim to validate scientific contents of analytical data or output artifacts.
+
+The Runtime Verification view now displays resolution status, declaration status, scope, resolved file, and any diagnostic separately. Focused tests cover resolved, stale, and declaration-only evidence, verify declaration status is preserved, and assert the GUI presents both dimensions.
+
+Focused validation:
+
+```powershell
+python -m unittest tools.verification.test_contract_catalog
+python -m unittest tools.oneflow_gui.test_contract_workbench_dialog
+```
