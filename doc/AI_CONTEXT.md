@@ -1307,5 +1307,6 @@ Then run all registered Python commands and the full CTest suite. The previous
 1126/1126 and 41-command pass results predate this UI integration; no local
 Windows test result is claimed for these commits.
 
-Latest `hexin` HEAD for this handoff:
-`80cf903f178cf060f427ccc1d67062ae4ea0116a`.
+The new UI test is registered as the 42nd Python test command. The latest
+`hexin` HEAD for this handoff is
+`e57de202a13da7db0fcc4fba84899ddc7b995b69`.
