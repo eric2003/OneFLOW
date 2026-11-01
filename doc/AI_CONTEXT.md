@@ -1037,3 +1037,9 @@ Validation still required on the user's Windows checkout:
 Run the full Python Unit Tests group in the GUI after pulling the changes.
 The assistant did not execute the updated suite in the user's Windows
 environment.
+
+Follow-up cleanup from the user's GUI test output:
+- workflow_process.run_process() now closes the captured subprocess stdout
+  stream when the reader thread reaches EOF, preventing an unclosed-file
+  ResourceWarning. The Windows process test now uses io.StringIO so the
+  mocked stream follows the same closeable-file contract.
