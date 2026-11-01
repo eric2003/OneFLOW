@@ -187,7 +187,6 @@ class TestRunnerDialog(QDialog):
             )
         )
 
-        unit_test_task = task_definition(TaskType.UNIT_TESTS)
         regression_task = task_definition(TaskType.CFD_GRID_REGRESSION)
         self.ctest_check = QCheckBox("C++ Unit Tests (CTest)")
         self.ctest_check.setToolTip(
