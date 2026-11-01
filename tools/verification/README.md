@@ -1,21 +1,24 @@
-# Intermediate numerical verification
+# Intermediate numerical verification (Contract Workbench)
 
-## Product name: Contract Workbench
+## Role
 
-Shared operator surface inside `oneflow_gui` for:
+Developer-facing knowledge browser for numerical formulas used in OneFLOW:
 
-| Domain | Tooling today | GUI entry |
-|--------|---------------|-----------|
-| Geometry table contracts | `tools/geometry_workbench` | Geometry Contracts... |
-| Turbulence theory curves | `tools/verification` | Verification Curves... |
+- taxonomy: family / model (SA, SST, ...) / section (closure, source, ...)
+- formula, principle, background, references
+- optional theory CSV + static plot
+- links to pure APIs and Sphinx pages
 
-Do **not** rename packages in this step. Long-term folder name candidate:
-`tools/contract_workbench` (geometry + numerical domains).
+Paths are **repository-relative** (`tools/verification/data/...`), resolved from
+the Workbench `repository_root`. Do not hard-code machine-specific absolute paths.
 
-Theory curves are closed-form tables/plots. They are not production C++ and
-not a substitute for GoogleTest or case regression.
+## GUI
 
-# Intermediate verification
+`oneflow_gui` home: **Verification Curves...**
+(window title: Contract Workbench — Formula & Theory Curves)
 
-See sa_closure_curves.py and plot_sa_fw.py.
-| `plot_sa_fv2.py` | Optional PNG of fv2(chi) |
+## Long-term
+
+Folder name may become `tools/contract_workbench`. Catalog entries are a step
+toward formula-driven documentation and, later, assisted code generation from
+the same structured knowledge — still requiring human review and tests.
