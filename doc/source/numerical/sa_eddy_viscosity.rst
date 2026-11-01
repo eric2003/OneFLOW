@@ -39,5 +39,5 @@ References
   (https://turbmodels.larc.nasa.gov/spalart.html).
 * See ``sa_closure.rst``, ``sa_source.rst``, and ``references.rst``.
 
-Pure APIs: ``SaEddyViscosity``, ``SaCappedEddyViscosity``.
+Pure APIs: ``SaEddyViscosity`` and shared ``TurbCappedEddyViscosity`` (see ``turb_viscosity_policy_test``).
 Wiring: ``TurbSrcFlux::CalcCellVist1Equ``.
