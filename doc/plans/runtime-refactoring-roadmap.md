@@ -62,7 +62,7 @@ and distinguishes process and case lifetimes.
 ### R1. Make case configuration and I/O root resolution understandable
 
 **Observed area:** `SimuContext::SetupCaseEnvironment()` in
-`codes/main/src/SimuContextEnv.cpp` reads optional root settings, applies project and
+`codes/main/src/SimuContextCaseEnvironment.cpp` reads optional root settings, applies project and
 generic I/O roots, applies mesh/flow-specific roots, falls back to `sourceGridCaseDir`
 for mesh input, and writes path information.
 
@@ -86,7 +86,7 @@ for mesh input, and writes path information.
 - Resolution rules can be tested without initializing the full solver where practical.
 - Relevant integration tests and Windows/Linux CI are reported against the changed commit.
 
-**Status:** Partial. Root-setting lookup and legacy fallback selection are isolated into a tested value-object adapter. The real `SetupCaseEnvironment()` / `ReadControlInfo(caseDir)` integration path, effective `Prj` application, diagnostic output, and sequential-case behavior remain unverified.
+**Status:** Partial. Root-setting lookup and legacy fallback selection are isolated into a tested value-object adapter. The real `SetupCaseEnvironment()` / `ReadControlInfo(caseDir)` integration path, effective `Prj` application, diagnostic output, and sequential-case behavior have focused component-integration coverage. `SetupCaseEnvironment()` now rolls back partially committed configuration, log binding, and project-root state when bootstrap fails; a test verifies rollback after the first script commits, confirms readiness remains false, and retries successfully on the same context. The remaining lifecycle gap is the full `SimuImp::RunCase() -> PostProcess() -> TeardownCase()` path, including solver/device resources.
 
 ### R2. Trace task selection and parameter semantics
 
@@ -173,6 +173,15 @@ Append a short entry when a slice materially advances. Keep it factual and link 
 - No C++ behavior change is included in this roadmap entry.
 - Validation: documentation and runtime CI were still in progress at the recorded baseline; this entry itself does not claim a passing build or test suite.
 
+### 2026-11-01 - Make case configuration bootstrap rollback-safe
+
+- Based on the user's reported local baseline of 1096/1096 tests passing before this slice. That count is not evidence for the changes below.
+- `SimuContext::SetupCaseEnvironment()` now executes the production `InitializeCaseConfiguration(caseDir)` through `ExecuteWithRollback()`. If the control reader or later configuration stage throws, the rollback clears case-owned DataField/DataPara state, log binding, and project-root binding while preserving the original bootstrap exception.
+- Strengthened `CaseEnvironmentSetupFailureCanBeRolledBack` into a production Context integration contract: the first manifest script commits a value, the second script is missing, and the test verifies the first value and case binding are cleared. It then creates the missing script and retries on the same context, verifying readiness and the recovered value.
+- Updated `doc/source/runtime_architecture.rst` to distinguish narrow configuration rollback from full `TeardownCase()`. `SimuImp::RunCase()` still owns full case teardown on both setup and task failures.
+- Commits for this slice: runtime rollback `6a325f71ede48251df3d50e9e65d3a98f8b5dafe`; integration assertions `4de3f869affe58a5ac495a4cb90f12024bb3a6f7` and retry contract `729811b0996c929ec9b566bee643ab13b0897b75`; runtime guide `abf2bd241d2139177630a2a99e7bb21d531e591a`.
+- Validation: no local build or CTest run is available in this environment. At the last CI poll, Windows and Linux workflows for the runtime/test commit were still in progress; later documentation changes require their own exact-HEAD checks.
+- Architecture assessment: configuration bootstrap now has a stronger exception-safety contract independent of the caller. This prevents partial case configuration from leaking when the public Context setup API is used directly. R1 remains Partial until full `SimuImp::RunCase() -> PostProcess() -> TeardownCase()` integration is tested, including the wider solver/device cleanup boundary.
 ## 5. Review checklist
 
 Before calling a slice complete, ask:
@@ -225,7 +234,7 @@ Commit: `d8568fe91722af5d78d8083d6bae23d9446d952d`
 
 - Added `doc/plans/templates/refactoring-stage-record.md` so substantial refactoring stages use a consistent record for problem, call path, intended contract, minimal boundary, changes, evidence, open gaps, and next action.
 - Linked the template from this roadmap and `doc/AI_CONTEXT.md`; the handoff page remains a concise overall state index rather than a duplicate of every stage.
-- Added an explicit `<stdexcept>` include in `codes/main/src/SimuContextEnv.cpp` for the existing `std::invalid_argument` use (commit `ec9575216e9b6db14a400446c1373e22405c7169`).
+- Added an explicit `<stdexcept>` include in `codes/main/src/SimuContextCaseEnvironment.cpp` for the existing `std::invalid_argument` use (commit `ec9575216e9b6db14a400446c1373e22405c7169`).
 - Validation: this was a source/include correctness cleanup and documentation change. No local build or tests were run in this step; the invalid-type behavior still lacks a focused automated test. Continue R1 test-seam investigation and verify CI for the exact current branch revision.
 
 
@@ -241,7 +250,7 @@ Commit: `d8568fe91722af5d78d8083d6bae23d9446d952d`
 ### 2026-10-26 - Extract and test optional string parameter lookup
 
 - Added `codes/main/include/SimuContextParameter.h` with a small helper that accepts `const DataPara&`. This keeps the parameter type contract directly testable without initializing the full simulation runtime or adding a public database API.
-- Updated `codes/main/src/SimuContextEnv.cpp` to use the helper while retaining the existing global-database lookup and call-site behavior.
+- Updated `codes/main/src/SimuContextCaseEnvironment.cpp` to use the helper while retaining the existing global-database lookup and call-site behavior.
 - Added `tests/main/simu_context_parameter_test.cpp` and registered `simu_context_parameter_test` in `tests/main/CMakeLists.txt`. The tests cover a missing optional entry returning an empty string, reading a valid string, and rejecting a non-string entry with the parameter name and expected type in the message.
 - Implementation commits: [helper](https://github.com/eric2003/OneFLOW/commit/fd3889362408586e379d45d08a170abf2077efb9), [production integration](https://github.com/eric2003/OneFLOW/commit/6d72e31f93f55b00b622e122fa75eb689832694f), [tests](https://github.com/eric2003/OneFLOW/commit/1e438f84f600c689666f831ff0837ce3d5936e13), [CMake registration](https://github.com/eric2003/OneFLOW/commit/a13a890bb31e2d84434fbe4297cf76aebc24c865).
 - Validation: source and CMake files were inspected after the changes. The exact-revision GitHub combined status query returned no checks, and no local C++ build or test execution was available in this step. Do not interpret the new tests as passing until `simu_context_parameter_test` is built and run.
