@@ -38,7 +38,9 @@ Both the source repository and its built-in case data are protected from in-plac
 The application invokes the standard command shape:
 `OneFLOW.exe r <case-directory>`.
 
-Use the **Tests...** button below **Project** to run the existing CTest and Python unit-test commands by default, enable the optional CFD/grid regression suite, or run the selected Development Tests cases. The shared action bar uses **Build**, **Rebuild**, **Run**, **Stop**, and **Close**. The Debug/Release selection is made in Configuration and passed into the Tests dialog. Regression runs invoke `test/test.py` and an existing manifest from `test/suites/`; the GUI does not implement a second test engine. Use **Project > Run History...** to inspect Case Workbench and workflow run records and logs, edit notes, delete individual records, or clean matching history by workflow, status, and timestamp. These history operations never delete run artifacts.
+Use the **Tests...** button below **Project** to run C++ Unit Tests (CTest)
+and Python Unit Tests (unittest) independently, enable the optional CFD/grid
+regression suite, or run the selected Development Tests cases. The shared action bar uses **Build**, **Rebuild**, **Run**, **Stop**, and **Close**. The Debug/Release selection is made in Configuration and passed into the Tests dialog. Regression runs invoke `test/test.py` and an existing manifest from `test/suites/`; the GUI does not implement a second test engine. Use **Project > Run History...** to inspect Case Workbench and workflow run records and logs, edit notes, delete individual records, or clean matching history by workflow, status, and timestamp. These history operations never delete run artifacts.
 
 Use the **Mesh Layout Editor...** button below **Project** to open the mesh layout project editor. Choosing
 **Single rectangle**, **Single rectangle with vertical midpoints**, **Two-block turbulent flat plate**, **Two-block laminar flat plate**, or **Two-block laminar flat plate (10 edges)** copies the complete template
@@ -130,10 +132,13 @@ GoogleTest declarations under `tests/` and Python unittest methods under
 Geometry scenario input/expected metadata. Discovery does not execute tests
 and does not populate a pass/fail result.
 
-The **Tests > Unit Tests (CTest and Python tests)** action is the execution
-path. CTest runs the native tests registered by the configured CMake build
-tree; the Workbench then runs its explicit Python command registry using the
-selected Python interpreter. The inventory is intentionally broader than this
+The **Tests** dialog exposes two independent unit-test selections:
+**C++ Unit Tests (CTest)** and **Python Unit Tests (unittest)**. CTest runs
+native tests registered by the configured CMake build tree; Python tests run
+the explicit Python command registry using the selected interpreter. Either
+group can be run without the other. Selecting CTest requires an existing
+`build/CTestTestfile.cmake`; if it is missing, the GUI asks the user to
+configure the build tree rather than silently skipping CTest. The inventory is intentionally broader than this
 execution registry: a discovered Python test is not automatically safe to
 run without considering its arguments, working directory, and dependencies.
 
