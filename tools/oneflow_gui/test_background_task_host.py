@@ -50,6 +50,7 @@ class BackgroundTaskHostTest(unittest.TestCase):
 
     def test_host_stops_active_process_when_stop_file_appears(self) -> None:
         stop_file = self.registry.records_directory / "task-001.stop"
+        stop_requested = threading.Event()
 
         def request_stop() -> None:
             deadline = time.monotonic() + 5
@@ -74,6 +75,7 @@ class BackgroundTaskHostTest(unittest.TestCase):
             poll_interval=0.01,
         )
         stopper.join(timeout=1)
+        self.assertTrue(stop_requested.is_set(), "stop request was not delivered")
 
         task = self.registry.load("task-001")
         self.assertNotEqual(result, 0)
