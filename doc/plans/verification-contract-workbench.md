@@ -628,7 +628,7 @@ The Qt-independent catalog now exposes `EvidenceResolution` and `resolve_contrac
 
 The original `ContractEvidence.status` is retained unchanged. For example, a source declaration can be `resolved` while its declaration status remains `linked_not_executed`. This deliberately avoids manufacturing a PASS result from static source inspection. The Case-specific semantic checks remain in the catalog validator; this first resolution API does not claim to validate scientific contents of analytical data or output artifacts.
 
-The Runtime Verification view now displays resolution status, declaration status, scope, resolved file, and any diagnostic separately. Focused tests cover resolved, stale, and declaration-only evidence, verify declaration status is preserved, and assert the GUI presents both dimensions.
+The Runtime Verification view now displays resolution status, declaration status, scope, resolved file, and any diagnostic separately. Linked-test scopes may append explanatory text after a semicolon; the resolver extracts and validates the leading C++ source path instead of treating the full annotated scope as a filename. Focused tests cover resolved, stale, and declaration-only evidence, verify declaration status is preserved, and assert the GUI presents both dimensions.
 
 Focused validation:
 
