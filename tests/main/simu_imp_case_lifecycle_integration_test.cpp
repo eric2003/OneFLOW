@@ -191,17 +191,17 @@ TEST( SimuImpCaseLifecycleIntegration,
     TemporaryCase firstCase;
     TemporaryCase secondCase;
 
-    firstCase.WriteManifest( "\"case.txt\";\\n" );
+    firstCase.WriteManifest( "\"case.txt\";\n" );
     firstCase.WriteScript(
         "case.txt",
-        "string simutask = \"ToyModel\";\\n"
-        "string case_marker = \"first_case\";\\n" );
+        "string simutask = \"ToyModel\";\n"
+        "string case_marker = \"first_case\";\n" );
 
-    secondCase.WriteManifest( "\"case.txt\";\\n" );
+    secondCase.WriteManifest( "\"case.txt\";\n" );
     secondCase.WriteScript(
         "case.txt",
-        "string simutask = \"ToyModel\";\\n"
-        "string case_marker = \"second_case\";\\n" );
+        "string simutask = \"ToyModel\";\n"
+        "string case_marker = \"second_case\";\n" );
 
     successfulCaseMarkers.clear();
     TaskRegistry::Instance().Register(
