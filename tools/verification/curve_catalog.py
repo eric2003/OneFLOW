@@ -283,7 +283,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             formula_plain=(
                 "arg2 = max(2*sqrt(k)/(beta_star*w*d), 500*nu/(w*d^2*Re))\n"
                 "F2 = tanh(arg2^2)\n"
-                "mu_t = a1*rho*k / max(a1*w, Omega*F2) * Re"
+                "mu_t = rho*k / max(w, R*F2/a1) * Re (R = selected strain/vorticity magnitude)"
             ),
             formula_latex=(
                 r"F_2=\tanh(\mathrm{arg}_2^{2})"
@@ -291,7 +291,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 r"\mu_t=\frac{a_1\rho k}{\max(a_1\omega,\Omega F_2)}\,Re"
             ),
             principle=(
-                "F2 limits eddy viscosity in boundary layers (Bradshaw)."
+                "F2 limits eddy viscosity using the selected strain-rate or vorticity magnitude (Bradshaw limiter)."
             ),
             background=("Optional laminar-ratio cap may still apply in the solver."),
             references=(
