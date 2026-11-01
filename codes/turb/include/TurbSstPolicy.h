@@ -168,7 +168,15 @@ Real SstLimitingRateMagnitude(
 // @doc-algorithm sst-eddy-viscosity
 // @doc-stage f2-arg
 // @doc-pure
-Real SstF2Arg( Real termLength, Real termViscous );
+Real SstF2ArgFromTerms( Real termLength, Real termViscous );
+
+// @doc-algorithm sst-eddy-viscosity
+// @doc-stage f2-arg
+// @doc-pure
+// @doc-formula arg2 = max(2*sqrt(k)/(betaStar*omega*d), 500*mu/(rho*omega*d^2*Re))
+Real SstF2Argument(
+    Real kineticEnergy, Real omega, Real wallDistance, Real betaStar,
+    Real laminarViscosity, Real density, Real reynolds );
 
 // @doc-algorithm sst-eddy-viscosity
 // @doc-stage f2
