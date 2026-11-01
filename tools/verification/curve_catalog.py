@@ -454,6 +454,54 @@ def list_theory_entries() -> list[TheoryEntry]:
             does_not_prove="Full SST field residual or case Cf.",
         ),
 
+
+        TheoryEntry(
+            id="sst_wall_omega_menter",
+            family="turbulence",
+            genus="SST",
+            section="boundary / wall omega",
+            title="Wall omega_w (Menter)",
+            role_tags=("boundary", "wall", "omega"),
+            formula_plain=(
+                "omega_w = 60 * mu_l / (rho * beta1 * d^2 * Re)\n"
+                "with beta1 ~ 0.075 (inner SST constant)"
+            ),
+            formula_latex=(
+                r"\omega_w=\frac{60\mu_l}{\rho\beta_1 d^{2} Re}"
+            ),
+            principle=(
+                "Rough-wall / smooth-wall SST practice sets a large omega at "
+                "the wall scaling as 1/d^2 so the viscous sublayer is resolved "
+                "without integrating to omega->inf."
+            ),
+            background=(
+                "Pure API TurbWallOmegaMenter; image conditions for k and SA "
+                "nu_tilde use sign-flip ghosts (TurbWallKineticEnergyImage, "
+                "TurbWallSaImage)."
+            ),
+            references=(
+                "Menter SST wall boundary practice; NASA TMR SST.",
+                "OneFLOW TurbBcPolicy.",
+            ),
+            csv_relpath="tools/verification/data/sst_wall_omega_menter_theory.csv",
+            plot_module="plot_sst_wall_omega",
+            pure_apis=("TurbWallOmegaMenter", "TurbWallKineticEnergyImage"),
+            source_relpaths=(
+                "codes/turb/include/TurbBcPolicy.h",
+                "codes/turb/src/TurbBcPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/index.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "Real TurbWallOmegaMenter(Real mu, Real rho, Real beta1,\n"
+                "                         Real d2, Real Re) {\n"
+                "  return 60*mu / (rho*beta1*d2*Re);\n"
+                "}\n"
+            ),
+            proves="omega_w(d) closed form vs TurbWallOmegaMenter grid.",
+            does_not_prove="y+ resolution or full SST wall shear.",
+        ),
+
         # ========== Wilcox ==========
         TheoryEntry(
             id="wilcox_fk_xk",
