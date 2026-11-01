@@ -961,7 +961,7 @@ required rule is:
 
 .. math::
 
-   O_{OneFLOW}(MPI) \Rightarrow OneFLOW\ may\ finalize\ MPI
+   O_{OneFLOW}(MPI) \Rightarrow \text{OneFLOW may finalize MPI}
 
 where ``O_OneFLOW(MPI)`` means that this process successfully initialized MPI
 through the OneFLOW compatibility layer. An externally initialized MPI runtime
