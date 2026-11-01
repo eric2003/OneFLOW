@@ -135,6 +135,25 @@ Real SstDiagonalW(
 Real SstNegativeSourcePart( Real source );
 
 
+// --- SST rate invariants ---
+// @doc-algorithm sst-eddy-viscosity
+// @doc-stage strain-rate-magnitude
+// @doc-pure
+// @doc-formula |S| = sqrt(2 (S11^2 + S22^2 + S33^2 + 2(S12^2 + S13^2 + S23^2)))
+Real SstStrainRateMagnitude(
+    Real dudx, Real dudy, Real dudz,
+    Real dvdx, Real dvdy, Real dvdz,
+    Real dwdx, Real dwdy, Real dwdz );
+
+// @doc-algorithm sst-eddy-viscosity
+// @doc-stage vorticity-magnitude
+// @doc-pure
+// @doc-formula |Omega| = sqrt((dw/dy-dv/dz)^2 + (du/dz-dw/dx)^2 + (dv/dx-du/dy)^2)
+Real SstVorticityMagnitude(
+    Real dudx, Real dudy, Real dudz,
+    Real dvdx, Real dvdy, Real dvdz,
+    Real dwdx, Real dwdy, Real dwdz );
+
 // --- SST eddy viscosity / F2 ---
 // @doc-algorithm sst-eddy-viscosity
 // @doc-stage f2-arg
