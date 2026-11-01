@@ -94,7 +94,7 @@ class ContractCatalogTest(unittest.TestCase):
             all(item.status == "linked_not_executed" for item in summary.evidence)
         )
         issues = validate_contract_summaries(self.repository_root, [summary])
-        self.assertEqual(issues, [], "\\n".join(issues))
+        self.assertEqual(issues, [], "\n".join(issues))
 
     def test_adapts_laminar_flat_plate_case_contract(self) -> None:
         definition_path = (
@@ -124,7 +124,7 @@ class ContractCatalogTest(unittest.TestCase):
         self.assertEqual(case_data.residual_absolute_tolerance, 1e-15)
 
         issues = validate_contract_summaries(self.repository_root, [summary])
-        self.assertEqual(issues, [], "\\n".join(issues))
+        self.assertEqual(issues, [], "\n".join(issues))
 
     def test_detects_case_residual_tolerance_drift(self) -> None:
         definition_path = (
@@ -143,7 +143,7 @@ class ContractCatalogTest(unittest.TestCase):
 
         self.assertTrue(
             any("residual tolerance does not match" in issue for issue in issues),
-            "\\n".join(issues),
+            "\n".join(issues),
         )
 
     def test_detects_residual_history_length_drift(self) -> None:
@@ -163,7 +163,7 @@ class ContractCatalogTest(unittest.TestCase):
 
         self.assertTrue(
             any("residual row count does not match" in issue for issue in issues),
-            "\\n".join(issues),
+            "\n".join(issues),
         )
 
     def test_requires_typed_payload_for_case_contract(self) -> None:
