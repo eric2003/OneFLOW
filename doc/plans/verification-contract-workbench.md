@@ -523,3 +523,33 @@ python -m unittest tools.verification.test_contract_catalog
 
 The user reported 274/274 Python unittest cases passing before this change.
 That result is the prior green baseline, not validation of this new test.
+
+## 18. Typed evidence kind validation (2026-11-02)
+
+Versioned contract adaptation now validates the evidence `kind` against an
+explicit schema-v1 vocabulary, just as it already validates evidence status.
+Previously, any non-empty kind string could enter the immutable summary. An
+unknown kind would then be ignored by kind-specific validation branches, which
+could make a malformed declaration appear structurally acceptable.
+
+The current vocabulary covers numerical API/theory data, geometry
+fixture/linked-test evidence, GoogleTest links, and Case suite/output-manifest/
+residual-baseline/analytical-reference artifacts. New kinds must be introduced
+intentionally with parser and validation behavior, documentation, and tests.
+
+Kind and status are separate dimensions:
+- kind identifies what artifact or relationship is declared;
+- status describes whether it is merely declared, linked, recorded, passed,
+  failed, blocked, or stale.
+
+Recognizing a kind does not execute it or upgrade its status. This keeps the
+catalog a read-only definition and validation layer.
+
+Focused validation:
+
+```powershell
+python -m unittest tools.verification.test_contract_catalog
+```
+
+A negative test changes a valid Runtime evidence kind to an unknown value and
+requires adaptation to reject it with an actionable error.
