@@ -92,3 +92,35 @@ Run focused checks:
 python -m unittest tools.verification.test_contract_catalog
 python -m unittest tools.oneflow_gui.test_test_inventory
 ```
+
+## Versioned cross-domain contract definitions
+
+The first declared runtime contract is stored at
+`contracts/runtime/process_lifecycle.json`. It uses schema version 1 and
+demonstrates that the common navigation envelope is not limited to numerical
+formulas or geometry fixtures. Its payload describes a lifecycle state
+transition, ownership boundaries, implementation paths, architecture, claims,
+limitations, and typed GoogleTest evidence links.
+
+`adapt_declared_contract` loads these versioned definitions into the same
+immutable `ContractSummary` model. `load_contract_catalog` now combines:
+
+- existing Numerical `TheoryEntry` adapters;
+- existing Geometry scenario adapters;
+- explicitly declared cross-domain JSON contracts.
+
+A linked test remains `linked_not_executed`; catalog loading checks that its
+GoogleTest declaration exists in the declared source file but does not run it
+or infer a passing result. The runtime contract status `implemented` describes
+implementation maturity, not verification completion. Its claims and
+`does_not_prove` boundaries are part of the definition.
+
+Run the headless catalog tests:
+
+```powershell
+python -m unittest tools.verification.test_contract_catalog
+```
+
+This is an initial runtime example, not a general runner or an invitation to
+migrate all existing catalogs at once.
+
