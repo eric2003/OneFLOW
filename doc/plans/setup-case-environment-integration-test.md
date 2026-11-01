@@ -1225,3 +1225,19 @@ Exact-HEAD CI observed during this review:
 - Linux CI: in progress — [run](https://github.com/eric2003/OneFLOW/actions/runs/41280382250).
 
 No source or test code was changed in this review, and no local build/CTest was run here. R1 remains **Partial**. The 1096/1096 user report is the pre-change baseline only.
+
+## 2026-11-01 continuation: share production runtime with integration tests
+
+Starting from `hexin` HEAD `0da2d68deeb7216c174e82630d75dab792103722`. The user reports 1096/1096 local tests passed before this slice; this is a pre-change baseline.
+
+The build now exposes the recursively collected production sources as the static `OneFLOW_Runtime` target. `codes/main/src/OneFlow.cpp` remains the executable entry point and is compiled only into the `OneFLOW` executable. The runtime target publishes the existing include directories, compile definitions, C++ feature requirement, link directories, and external libraries. This is the same production source set, not a copied test-only source graph.
+
+A new `simu_imp_case_lifecycle_integration_test` links `OneFLOW_Runtime` and exercises the concrete `SimuImp::RunCase()` implementation. It initializes the real process runtime, creates a two-script manifest where the first script commits a database value and the second is missing, and expects the production setup failure to propagate.
+
+To distinguish full `TeardownCase()` from the narrower setup rollback, the test seeds context-owned task-resolution and expanded-solver-name state before invoking `RunCase()`. After failure it verifies those fields have been reset, the case root and partial database value are cleared, and `IsEnvironmentReady()` is false. It also verifies the process runtime remains active after `RunCase()` returns and becomes inactive only after explicit `FinalizeEnvironment()`.
+
+`SimuContext::IsProcessEnvironmentActive()` is a read-only state accessor used to assert the process/case ownership boundary. It does not change lifecycle ownership.
+
+R1 is advanced from the earlier source-only boundary review to a concrete production integration test and shared link target. The remaining acceptance gaps are cleanup failure injection at individual solver/device release points, multi-rank MPI execution, successful consecutive full `SimuImp` cases, and numerical regression validation. The new static target also changes the executable's compilation/link boundary and therefore needs Windows and Linux CI scrutiny.
+
+No local build or CTest was run here. The user's 1096/1096 report predates these changes and must not be represented as validation of this slice.
