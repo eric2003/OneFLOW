@@ -956,14 +956,15 @@ The key invariant is:
 * the original execution exception is preserved if cleanup also fails;
 * the process lifecycle is marked finalized only after all process-release steps succeed.
 
-Process finalization has two independent release operations in the current
-compatibility layer: ``FinalizeAccelRuntime()`` and ``HXFinalize()``. Both are
-attempted even if the first one fails, so one release failure cannot suppress
-the other. The lifecycle marker is committed only after the cleanup sequence
-returns successfully. If a release fails, the context must not report a
-successfully finalized process runtime. This marker is an observation of the
-managed lifecycle, not a proof that an external runtime such as MPI can always
-be safely retried after a failed finalization call.
+Process finalization has a strict dependency chain, not two independent
+cleanup operations. Context-owned accelerator states and shared backend objects
+are released first. Those independent pre-runtime releases are all attempted,
+but any reported failure prevents the accelerator runtime from being finalized.
+After they succeed, ``FinalizeAccelRuntime()`` must complete before
+``HXFinalize()`` is entered. If accelerator finalization throws, the parallel
+runtime remains active; finalizing MPI while a backend may still be active would
+violate the resource dependency. The process lifecycle marker is committed only
+after both runtime layers finish successfully.
 
 Accelerator initialization follows a matching commit boundary. The runtime first
 constructs a candidate ``AccelContext`` and a candidate backend in local
@@ -1062,3 +1063,40 @@ out-of-capacity host copies are rejected before reaching the backend. Destructio
 can report a backend release error. Buffers must be destroyed or reset before the accelerator
 runtime is finalized. See ``doc/plans/device-buffer-resource-lifecycle.md`` for the exception
 guarantees, focused tests, and remaining validation requirements.
+
+
+Accelerator shutdown failure semantics
+---------------------------------------
+
+``AccelRuntime::Finalize()`` invokes the backend before releasing its
+``unique_ptr`` or clearing the initialized flag. If backend finalization
+throws, the runtime retains the backend object and remains initialized. The
+backend interface therefore requires ``Finalize()`` to preserve a valid,
+retryable backend state on failure. The caller may diagnose the error and retry;
+it must not proceed to ``HXFinalize()`` while the accelerator runtime remains
+active.
+
+The production sequence in ``SimuContext::FinalizeEnvironment()`` reflects
+this dependency:
+
+.. code-block:: text
+
+   clear context-owned accelerator states
+   release shared HIP backend (when enabled)
+        |  independent prerequisites; attempt all
+        v
+   FinalizeAccelRuntime()
+        |  failure stops the dependent sequence
+        v
+   HXFinalize()
+        |
+        v
+   mark process lifecycle finalized
+
+The focused ``AccelRuntimeTest.FailedFinalizationPreservesBackendForRetry``
+injects a backend finalization failure, checks that the backend remains
+accessible and initialized, then disables the fault and verifies a successful
+retry. The test pins the runtime state transition; hardware/driver failure
+behavior still requires backend-specific validation. This follows the C++
+Core Guidelines' emphasis on invariants and meaningful exception propagation
+(E.4, E.17), while keeping destructors non-throwing (C.36/C.37).
