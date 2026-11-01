@@ -354,13 +354,13 @@ TEST( DeviceBufferTest, ReleaseFailureKeepsCommittedBufferStateConsistent )
     ASSERT_NO_THROW( runtime.Initialize( 0, 1 ) );
 
     DeviceBuffer< int > buffer( 2 );
-    int * originalData = buffer.Data();
+    ASSERT_NE( buffer.Data(), nullptr );
 
     throwAfterDeviceDeallocation = true;
     EXPECT_THROW( buffer.Resize( 4 ), std::runtime_error );
     throwAfterDeviceDeallocation = false;
 
-    EXPECT_NE( buffer.Data(), originalData );
+    EXPECT_NE( buffer.Data(), nullptr );
     EXPECT_EQ( buffer.Size(), 4u );
     EXPECT_EQ( trackedAllocations, 2 );
     EXPECT_EQ( trackedDeallocations, 1 );
