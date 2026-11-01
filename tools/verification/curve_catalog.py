@@ -865,6 +865,57 @@ def list_theory_entries() -> list[TheoryEntry]:
             proves="Five-eq increment unit tests where present.",
             does_not_prove="Sweep stability on arbitrary meshes.",
         ),
+
+        TheoryEntry(
+            id="ns_inviscid_spectrum",
+            family="mean-flow",
+            genus="NS-spectrum",
+            section="time-step / face spectral radius",
+            title="Inviscid face spectral radius and cell dt",
+            role_tags=("time-step", "spectrum", "mean-flow"),
+            formula_plain=(
+                "lambda_inv = (1/2) * A * (|vn| + c)\n"
+                "dt = CFL * Vol / lambda\n"
+                "dt <- dt_inv * dt_vis / (dt_inv + dt_vis)"
+            ),
+            formula_latex=(
+                r"\lambda_{\mathrm{inv}}=\frac{A}{2}(|v_n|+c)"
+                "\n"
+                r"\Delta t=\mathrm{CFL}\,V/\lambda"
+            ),
+            principle=(
+                "Local time step from inviscid (and viscous) face spectral "
+                "radii; inviscid and viscous dt combined harmonically."
+            ),
+            background=(
+                "Pure APIs in TimeStepPolicy; separate from turbulence "
+                "TurbSpectrumPolicy which uses |vn| only for scalar turb."
+            ),
+            references=(
+                "Blazek CFD; OneFLOW TimeStepPolicy",
+            ),
+            csv_relpath="tools/verification/data/ns_inviscid_spectrum_theory.csv",
+            plot_module="plot_ns_inviscid_spectrum",
+            pure_apis=(
+                "InviscidFaceSpectralRadius",
+                "CellTimeStepFromSpectrum",
+                "CombineInvAndVisTimeStep",
+            ),
+            source_relpaths=(
+                "codes/ns/include/TimeStepPolicy.h",
+                "codes/ns/src/TimeStepPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/ns_timestep_spectrum.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "Real InviscidFaceSpectralRadius(Real vn, Real c, Real A) {\n"
+                "  return 0.5 * A * (fabs(vn) + c);\n"
+                "}\n"
+            ),
+            proves="lambda_inv and dt algebra vs pure APIs.",
+            does_not_prove="Global CFL stability on a case.",
+        ),
+
         TheoryEntry(
             id="ns_roe_harten",
             family="mean-flow",
