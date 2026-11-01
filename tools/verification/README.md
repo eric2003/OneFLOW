@@ -75,6 +75,7 @@ into namespaced immutable summaries:
 
 - `numerical/<source-id>`
 - `geometry/<source-id>`
+- declared `runtime/<source-id>` and `case/<source-id>` contracts
 
 The original ID is retained as `source_id`. The loader uses the existing
 catalog/scenario readers, preserves the source formats, and returns diagnostics
@@ -95,7 +96,7 @@ python -m unittest tools.oneflow_gui.test_test_inventory
 
 ## Versioned cross-domain contract definitions
 
-The first declared runtime contract is stored at
+The first declared Runtime contract is stored at
 `contracts/runtime/process_lifecycle.json`. It uses schema version 1 and
 demonstrates that the common navigation envelope is not limited to numerical
 formulas or geometry fixtures. Its payload describes a lifecycle state
