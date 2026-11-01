@@ -301,25 +301,15 @@ void TurbSrcFlux::CalcCellVist2Equ()
     const Real arg2 = SstF2Arg( part1, part2 );
     const Real f2 = SstF2FromArg( arg2 );
 
-    Real limitingRateMagnitude = 0.0;
-
-    if ( turbcom.iprod_sst == 1 )
-    {
-        const Real s11 = turbcom.dudx;
-        const Real s22 = turbcom.dvdy;
-        const Real s33 = turbcom.dwdz;
-        const Real s12 = half * ( turbcom.dudy + turbcom.dvdx );
-        const Real s13 = half * ( turbcom.dudz + turbcom.dwdx );
-        const Real s23 = half * ( turbcom.dvdz + turbcom.dwdy );
-        const Real sij2 = two * ( SQR( s11, s22, s33 ) + two * SQR( s12, s13, s23 ) );
-        limitingRateMagnitude = sqrt( sij2 );
-    }
-    else
-    {
-        limitingRateMagnitude = DIST( turbcom.dwdy - turbcom.dvdz,
-                     turbcom.dudz - turbcom.dwdx,
-                     turbcom.dvdx - turbcom.dudy );
-    }
+    const Real limitingRateMagnitude = turbcom.iprod_sst == 1
+        ? SstStrainRateMagnitude(
+            turbcom.dudx, turbcom.dudy, turbcom.dudz,
+            turbcom.dvdx, turbcom.dvdy, turbcom.dvdz,
+            turbcom.dwdx, turbcom.dwdy, turbcom.dwdz )
+        : SstVorticityMagnitude(
+            turbcom.dudx, turbcom.dudy, turbcom.dudz,
+            turbcom.dvdx, turbcom.dvdy, turbcom.dvdz,
+            turbcom.dwdx, turbcom.dwdy, turbcom.dwdz );
 
     turbcom.vist = SstEddyViscosity(
         turbcom.rho, turbcom.ke, turbcom.kw,
