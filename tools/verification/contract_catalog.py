@@ -453,11 +453,18 @@ def validate_contract_summaries(
                             for line in compare_path.read_text(encoding="utf-8-sig").splitlines()
                             if line.strip() and not line.lstrip().startswith("#")
                         }
-                        missing_outputs = set(case_data.comparison_outputs) - declared_outputs
+                        contract_outputs = set(case_data.comparison_outputs)
+                        missing_outputs = contract_outputs - declared_outputs
+                        untracked_outputs = declared_outputs - contract_outputs
                         if missing_outputs:
                             issues.append(
                                 f"{summary.id}: comparison outputs are not declared "
                                 f"by autotest/compare.txt: {', '.join(sorted(missing_outputs))}"
+                            )
+                        if untracked_outputs:
+                            issues.append(
+                                f"{summary.id}: autotest/compare.txt contains outputs "
+                                f"missing from the contract: {', '.join(sorted(untracked_outputs))}"
                             )
                     except (OSError, UnicodeDecodeError) as exc:
                         issues.append(
