@@ -24,6 +24,16 @@ class ContractEvidence:
 
 
 @dataclass(frozen=True)
+class EvidenceResolution:
+    """Static reference resolution, kept separate from execution status."""
+
+    evidence: ContractEvidence
+    status: str
+    resolved_path: str = ""
+    diagnostic: str = ""
+
+
+@dataclass(frozen=True)
 class CaseContractData:
     """Typed CFD case payload; a case is evidence for contracts, not a contract per se."""
 
@@ -432,6 +442,83 @@ def _mask_cpp_non_code(source: str) -> str:
 
     source = raw_string.sub(preserve_lines, source)
     return non_code.sub(preserve_lines, source)
+
+
+def resolve_contract_evidence(
+    repository_root: Path,
+    summary: ContractSummary,
+) -> tuple[EvidenceResolution, ...]:
+    """Resolve declared artifact references without inferring execution results."""
+    results: list[EvidenceResolution] = []
+    for item in summary.evidence:
+        path_reference = item.kind in _EVIDENCE_PATH_KINDS
+        if item.kind == "fixture" and not (
+            "/" in item.reference
+            or "\\" in item.reference
+            or bool(PureWindowsPath(item.reference).suffix)
+        ):
+            path_reference = False
+        source_reference = (
+            item.kind in ("linked_test", "google_test")
+            and item.scope.endswith((".cpp", ".cc", ".cxx"))
+        )
+        if not path_reference and not source_reference:
+            results.append(EvidenceResolution(item, "declared"))
+            continue
+
+        relative = item.reference if path_reference else item.scope
+        try:
+            path = _relative_path(repository_root, relative)
+        except ValueError as exc:
+            results.append(EvidenceResolution(item, "stale", diagnostic=str(exc)))
+            continue
+        if not path.is_file():
+            results.append(
+                EvidenceResolution(
+                    item,
+                    "stale",
+                    diagnostic=f"missing repository file: {relative}",
+                )
+            )
+            continue
+
+        if source_reference:
+            suite, separator, test_name = item.reference.partition(".")
+            if not separator or not suite or not test_name:
+                results.append(
+                    EvidenceResolution(
+                        item,
+                        "stale",
+                        str(path),
+                        f"invalid linked test identity: {item.reference}",
+                    )
+                )
+                continue
+            try:
+                source = _mask_cpp_non_code(path.read_text(encoding="utf-8"))
+            except (OSError, UnicodeDecodeError) as exc:
+                results.append(
+                    EvidenceResolution(
+                        item, "stale", str(path), f"cannot read linked test source: {exc}"
+                    )
+                )
+                continue
+            declaration = re.compile(
+                rf"\\b(?:TEST(?:_F|_P)?|TYPED_TEST(?:_P)?)\\s*"
+                rf"\\(\\s*{re.escape(suite)}\\s*,\\s*{re.escape(test_name)}\\s*\\)"
+            )
+            if not declaration.search(source):
+                results.append(
+                    EvidenceResolution(
+                        item,
+                        "stale",
+                        str(path),
+                        f"linked GoogleTest declaration not found: {item.reference}",
+                    )
+                )
+                continue
+        results.append(EvidenceResolution(item, "resolved", str(path)))
+    return tuple(results)
 
 
 def validate_contract_summaries(
