@@ -34,6 +34,54 @@ integration test, then the full Debug CTest suite. If the focused test passes,
 inspect any remaining failures before proceeding to the next runtime
 finalization exception-safety slice.
 
+## 2026-11-01 continuation: retryable accelerator shutdown
+
+The user reports **1124/1124 tests passed** on the preceding hexin revision
+after the process-finalization test fixture was corrected. This is the
+pre-change baseline for the current slice.
+
+Starting revision: `ba067226fcfefad896648d24bd7daa75b49b3a20`.
+
+Source review found a dependency bug in the previous shutdown sequence:
+`ExecuteAllCleanupSteps(ClearAccelStates, ReleaseShared, FinalizeAccelRuntime,
+HXFinalize)` treats all four operations as independent. They are not.
+`HXFinalize()` must not run when accelerator finalization fails, because the
+backend may still require the process/parallel runtime. The previous helper
+would continue into HXFinalize after a failed FinalizeAccelRuntime.
+
+Implemented on `hexin`:
+- Split independent pre-runtime releases from dependent runtime finalization
+  in `SimuContext::FinalizeEnvironment()`.
+- Clear context-owned accelerator states and release the shared HIP backend
+  together; attempt both, then stop if either reports failure.
+- Call `FinalizeAccelRuntime()` separately. If it throws, skip
+  `HXFinalize()` and leave the process lifecycle phase Active.
+- Call `HXFinalize()` and mark the process finalized only after accelerator
+  shutdown succeeds.
+- Documented the backend contract: if `AccelBackend::Finalize()` throws,
+  the backend must remain valid and safe to retry. `AccelRuntime::Finalize()`
+  already retains its backend unique_ptr and initialized flag when the virtual
+  call throws.
+- Added `AccelRuntimeTest.FailedFinalizationPreservesBackendForRetry`, which
+  injects one backend finalization failure, verifies the backend remains
+  accessible/initialized, then verifies a successful retry.
+
+Design and architecture records:
+- [Accelerator runtime shutdown order](plans/accelerator-runtime-shutdown-order.md)
+- [Runtime architecture](source/runtime_architecture.rst)
+
+Industry basis: C++ Core Guidelines E.4/E.17 (invariants and exception
+propagation) and C.36/C.37 (non-throwing destructors). The important design
+distinction is between independent cleanup steps, which should all be
+attempted, and dependent lifecycle transitions, which must stop when a
+precondition has not been established.
+
+Status: **Implemented, unverified**. The user's 1124/1124 result predates
+these changes. Run the focused accelerator runtime test, the production
+SimuImp lifecycle integration test, and full Debug CTest on the exact updated
+hexin HEAD. Also check Windows/Linux and documentation CI. HIP hardware failure
+behavior and multi-rank MPI remain separate validation items.
+
 ## Current follow-on: accelerator runtime shutdown ordering
 
 The user reports **1123/1123 tests passed** on baseline hexin HEAD
