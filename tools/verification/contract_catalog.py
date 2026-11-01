@@ -7,7 +7,7 @@ geometry JSON scenarios into a small, Qt-independent summary model.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import Any, Iterable
 
 
@@ -46,7 +46,16 @@ def _non_empty_strings(values: Iterable[Any]) -> tuple[str, ...]:
 def _relative_path(repository_root: Path, relpath: str) -> Path:
     """Resolve a repository-relative path and reject paths escaping the root."""
     root = repository_root.resolve()
-    candidate = (root / relpath).resolve()
+    relative = Path(relpath)
+    windows_relative = PureWindowsPath(relpath)
+    if (
+        relative.is_absolute()
+        or windows_relative.is_absolute()
+        or ".." in relative.parts
+        or ".." in windows_relative.parts
+    ):
+        raise ValueError(f"repository path must stay relative to root: {relpath}")
+    candidate = (root / relative).resolve()
     try:
         candidate.relative_to(root)
     except ValueError as exc:
@@ -164,7 +173,12 @@ def validate_contract_summaries(
             *summary.implementation_paths,
             *summary.documentation_paths,
             *(item.reference for item in summary.evidence if item.kind == "theory_data"),
-            *(item.scope for item in summary.evidence if item.kind == "linked_test" and item.scope.endswith((".cpp", ".cc", ".cxx"))),
+            *(
+                item.scope
+                for item in summary.evidence
+                if item.kind == "linked_test"
+                and item.scope.endswith((".cpp", ".cc", ".cxx"))
+            ),
         ]
         for relpath in declared_paths:
             try:
