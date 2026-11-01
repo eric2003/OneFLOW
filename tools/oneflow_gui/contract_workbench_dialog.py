@@ -105,6 +105,15 @@ class ContractDomainDialog(QDialog):
         self.open_docs_button.clicked.connect(self._open_documentation)
         open_layout.addWidget(self.open_source_button)
         open_layout.addWidget(self.open_docs_button)
+        self.open_case_directory_button = None
+        self.open_case_references_button = None
+        if domain == "case":
+            self.open_case_directory_button = QPushButton("Open case directory...")
+            self.open_case_directory_button.clicked.connect(self._open_case_directory)
+            self.open_case_references_button = QPushButton("Open analytical references...")
+            self.open_case_references_button.clicked.connect(self._open_case_references)
+            open_layout.addWidget(self.open_case_directory_button)
+            open_layout.addWidget(self.open_case_references_button)
         open_layout.addStretch(1)
         close_button = QPushButton("Close")
         close_button.clicked.connect(self.accept)
@@ -224,6 +233,39 @@ class ContractDomainDialog(QDialog):
                 summary.documentation_paths + summary.references,
                 "Documentation",
             )
+
+    def _open_case_directory(self) -> None:
+        summary = self._current_summary()
+        if summary is None or summary.case_data is None:
+            return
+        candidate = (self._repository_root / summary.case_data.case_path).resolve()
+        try:
+            candidate.relative_to(self._repository_root)
+        except ValueError:
+            QMessageBox.warning(
+                self,
+                "Case directory",
+                "The declared case directory is outside the repository.",
+            )
+            return
+        if not candidate.is_dir():
+            QMessageBox.information(
+                self,
+                "Case directory",
+                f"Case directory does not exist: {summary.case_data.case_path}",
+            )
+            return
+        QDesktopServices.openUrl(QUrl.fromLocalFile(str(candidate)))
+
+    def _open_case_references(self) -> None:
+        summary = self._current_summary()
+        if summary is None or summary.case_data is None:
+            return
+        self._open_paths(
+            (summary.case_data.residual_baseline,)
+            + summary.case_data.analytical_references,
+            "Case references",
+        )
 
 
 class ContractWorkbenchDialog(QDialog):
