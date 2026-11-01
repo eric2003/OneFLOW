@@ -122,7 +122,7 @@ class TestRunnerCommandTest(unittest.TestCase):
         arguments = ("python", "path with spaces/test.py", "a'b")
         self.assertEqual(
             format_command_arguments(arguments, platform_name="posix"),
-            "python 'path with spaces/test.py' 'a'\\''b'",
+            "python 'path with spaces/test.py' 'a'\"'\"'b'",
         )
         self.assertEqual(
             format_command_arguments(("tool.exe", "path with spaces"), platform_name="nt"),
