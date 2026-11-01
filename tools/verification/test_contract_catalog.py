@@ -58,14 +58,15 @@ class ContractCatalogTest(unittest.TestCase):
         self.assertEqual(summary.kind, "scenario")
         self.assertEqual(summary.evidence[0].kind, "fixture")
         self.assertEqual(summary.evidence[0].status, "fixture_available")
+        self.assertIn(
+            "does not execute production C++",
+            summary.evidence[0].scope,
+        )
         linked_tests = [
             item for item in summary.evidence if item.kind == "linked_test"
         ]
         self.assertEqual(len(linked_tests), 1)
         self.assertEqual(linked_tests[0].status, "linked_not_executed")
-        self.assertTrue(
-            any("does not execute production C++" in x for x in summary.limitations)
-        )
 
     def test_rejects_geometry_scenario_without_stable_id(self) -> None:
         with self.assertRaisesRegex(ValueError, "non-empty id"):
@@ -90,15 +91,13 @@ class ContractCatalogTest(unittest.TestCase):
         )
         self.assertEqual(issues, [], "\n".join(issues))
 
-
     def test_loads_complete_combined_catalog_without_reference_errors(self) -> None:
         summaries, issues = load_contract_catalog(self.repository_root)
 
         self.assertTrue(any(item.domain == "numerical" for item in summaries))
         self.assertTrue(any(item.domain == "geometry" for item in summaries))
         self.assertEqual(len({item.id for item in summaries}), len(summaries))
-        self.assertEqual(issues, (), "\\n".join(issues))
-
+        self.assertEqual(issues, (), "\n".join(issues))
 
     def test_reports_stale_linked_test_declaration(self) -> None:
         scenario_path = (
@@ -139,7 +138,7 @@ class ContractCatalogTest(unittest.TestCase):
 
         self.assertTrue(
             any("linked GoogleTest declaration not found" in issue for issue in issues),
-            "\\n".join(issues),
+            "\n".join(issues),
         )
 
     def test_reports_missing_and_escaping_paths(self) -> None:
@@ -190,7 +189,7 @@ class ContractCatalogTest(unittest.TestCase):
             self.repository_root, [summary, summary]
         )
 
-        self.assertEqual(issues, ["duplicate contract id: duplicate"])
+        self.assertEqual(issues, ["duplicate contract id: test/duplicate"])
 
 
 if __name__ == "__main__":
