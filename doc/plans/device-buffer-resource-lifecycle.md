@@ -66,10 +66,12 @@ Explicit cleanup and destructor cleanup intentionally have different error polic
 callers may use Reset() when they need to observe a backend error; destruction and
 noexcept move assignment use a private non-throwing path.
 
-This follows the C++ Core Guidelines resource-management guidance: use RAII handles
-(R.1), and do not allow destructors to fail (C.36/C.37). These guidelines establish the
-ownership/error-handling practice; they do not prove the behavior of a particular HIP
-runtime or device.
+This follows the C++ Core Guidelines resource-management guidance: [R.1, manage resources
+with RAII](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#r1-manage-resources-automatically-using-resource-handles-and-raii-resource-acquisition-is-initialization),
+[C.36, destructors must not fail](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c36-a-destructor-must-not-fail),
+and [C.37, make destructors noexcept](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c37-make-destructors-noexcept).
+These guidelines establish the ownership/error-handling practice; they do not prove the
+behavior of a particular HIP runtime or device.
 
 ## 4. Code and test evidence
 
@@ -90,6 +92,9 @@ Focused tests:
   - DeviceBufferTest.ReleaseFailureKeepsCommittedBufferStateConsistent
     verifies that a failed old-allocation release leaves the replacement owned, and that
     explicit Reset() clears the object even when release reports an error.
+  - DeviceBufferTest.MoveAssignmentDoesNotPropagateBackendReleaseFailure
+    verifies that the noexcept move assignment remains non-throwing when releasing its
+    previous allocation reports an error.
 
 The tests use a tracking CPU backend so failure paths are deterministic and do not require
 a physical GPU. They verify host-side ownership and exception contracts; they do not prove
