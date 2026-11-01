@@ -1,6 +1,6 @@
 # Verification Contract Workbench: architecture proposal
 
-Status: **Proposed; discussion draft, not an implementation claim**
+Status: **Architecture proposal; Stage 1 read-only adapters partially implemented (see Section 13).**
 
 Target branch: **hexin**
 
