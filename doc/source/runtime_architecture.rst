@@ -933,7 +933,17 @@ The key invariant is:
 * case-owned state is released before the next case begins;
 * process-owned runtime remains active between cases;
 * process finalization is attempted after case execution, including exceptional exits;
-* the original execution exception is preserved if cleanup also fails.
+* the original execution exception is preserved if cleanup also fails;
+* the process lifecycle is marked finalized only after all process-release steps succeed.
+
+Process finalization has two independent release operations in the current
+compatibility layer: ``FinalizeAccelRuntime()`` and ``HXFinalize()``. Both are
+attempted even if the first one fails, so one release failure cannot suppress
+the other. The lifecycle marker is committed only after the cleanup sequence
+returns successfully. If a release fails, the context must not report a
+successfully finalized process runtime. This marker is an observation of the
+managed lifecycle, not a proof that an external runtime such as MPI can always
+be safely retried after a failed finalization call.
 
 The existing ``simu_imp_case_lifecycle_integration_test`` exercises the real
 ``SimuImp::RunCase()`` path for setup failure and successful sequential cases.
