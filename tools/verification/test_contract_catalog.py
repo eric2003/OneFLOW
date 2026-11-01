@@ -5,6 +5,7 @@ import unittest
 from pathlib import Path
 
 from .contract_catalog import (
+    ContractEvidence,
     ContractSummary,
     adapt_geometry_scenario,
     adapt_theory_entry,
@@ -97,6 +98,49 @@ class ContractCatalogTest(unittest.TestCase):
         self.assertTrue(any(item.domain == "geometry" for item in summaries))
         self.assertEqual(len({item.id for item in summaries}), len(summaries))
         self.assertEqual(issues, (), "\\n".join(issues))
+
+
+    def test_reports_stale_linked_test_declaration(self) -> None:
+        scenario_path = (
+            self.repository_root
+            / "tools"
+            / "geometry_workbench"
+            / "scenarios"
+            / "registered_child_resolution.json"
+        )
+        scenario = json.loads(scenario_path.read_text(encoding="utf-8"))
+        scenario["test"]["name"] = "MissingProductionTest"
+        summary = adapt_geometry_scenario(scenario)
+        summary = ContractSummary(
+            id=summary.id,
+            source_id=summary.source_id,
+            title=summary.title,
+            domain=summary.domain,
+            kind=summary.kind,
+            overview=summary.overview,
+            principle=summary.principle,
+            references=summary.references,
+            implementation_paths=summary.implementation_paths,
+            documentation_paths=summary.documentation_paths,
+            evidence=(
+                summary.evidence[0],
+                ContractEvidence(
+                    kind="linked_test",
+                    reference="FaceSearchBasicTest.MissingProductionTest",
+                    status="linked_not_executed",
+                    scope="tests/geometry/FaceSearchBasicTest.cpp",
+                ),
+            ),
+            claims=summary.claims,
+            limitations=summary.limitations,
+        )
+
+        issues = validate_contract_summaries(self.repository_root, [summary])
+
+        self.assertTrue(
+            any("linked GoogleTest declaration not found" in issue for issue in issues),
+            "\\n".join(issues),
+        )
 
     def test_reports_missing_and_escaping_paths(self) -> None:
         summary = ContractSummary(
