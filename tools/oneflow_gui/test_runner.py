@@ -13,6 +13,30 @@ from pathlib import Path
 from .task_types import ExecutionLocation, TaskType, task_definition
 
 
+def format_command_arguments(arguments: tuple[str, ...] | list[str], *, platform_name: str | None = None) -> str:
+    """Render an argument vector for logs using the host command-line syntax."""
+    platform_value = (platform_name or os.name).lower()
+    if platform_value in {"nt", "windows"}:
+        return subprocess.list2cmdline(list(arguments))
+    return shlex.join(str(argument) for argument in arguments)
+
+
+def oneflow_executable_path(
+    repository_root: Path,
+    build_config: str = "Debug",
+    *,
+    platform_name: str | None = None,
+) -> Path:
+    """Return the conventional build output for the current platform."""
+    if build_config not in {"Debug", "Release"}:
+        raise ValueError(f"Unsupported CMake build configuration: {build_config!r}")
+    root = Path(repository_root).resolve()
+    platform_value = (platform_name or os.name).lower()
+    if platform_value in {"nt", "windows"}:
+        return root / "build" / "bin" / build_config / "OneFLOW.exe"
+    return root / "build" / "bin" / "OneFLOW"
+
+
 def summarize_test_output(
     output_lines: list[str], *, include_failed_cases: bool = True
 ) -> tuple[str, ...]:
@@ -131,6 +155,7 @@ _PYTHON_UNIT_TESTS = (
     ("CMake test catalog tests", ("-m", "unittest", "tools.verification.test_cmake_test_catalog")),
     ("Contract Workbench dialog tests", ("-m", "unittest", "tools.oneflow_gui.test_contract_workbench_dialog")),
     ("Repository test inventory discovery tests", ("-m", "unittest", "tools.oneflow_gui.test_test_inventory")),
+    ("Executable discovery tests", ("-m", "unittest", "tools.oneflow_gui.test_executable_discovery")),
     ("Mesh layout editor document tests", ("-m", "unittest", "tests.tools.test_editor_document")),
     ("Rectangle layout compiler tests", ("-m", "unittest", "tests.tools.test_compile_rectangle")),
     ("Geometry analytic contract tests", ("-m", "unittest", "discover", "-s", "tools", "-p", "test_analytic_contracts.py")),
@@ -257,8 +282,6 @@ def build_cmake_configure_command(
         "cmake",
         "..",
         "-D",
-        "CMAKE_INSTALL_PREFIX=C:/dev/OneFLOW",
-        "-D",
         "CMAKE_BUILD_TYPE=" + build_config,
     )
     return TestCommand(f"CMake configure ({build_config})", arguments, build_directory)
@@ -279,12 +302,15 @@ def build_default_test_commands(
     python: str | None = None,
     *,
     build_config: str = "Debug",
+    platform_name: str | None = None,
 ) -> list[TestCommand]:
     """Build the selected executable when needed, then run CTest and Python tests."""
     if build_config not in {"Debug", "Release"}:
         raise ValueError(f"Unsupported CMake build configuration: {build_config!r}")
     root = Path(repository_root).resolve()
-    executable = root / "build" / "bin" / build_config / "OneFLOW.exe"
+    executable = oneflow_executable_path(
+        root, build_config, platform_name=platform_name
+    )
     commands: list[TestCommand] = []
     if not executable.is_file():
         if not cmake_build_tree_is_configured(root / "build"):
