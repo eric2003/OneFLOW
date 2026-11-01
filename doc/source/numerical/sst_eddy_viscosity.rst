@@ -55,3 +55,11 @@ live in ``turb_sst_eddy_viscosity_test`` and theory table
 .. image:: figures/sst_f2_arg2_theory.png
    :alt: SST F2(arg2) theory curve
    :width: 480
+
+The rate invariants also have a coordinate-frame contract: under an orthogonal
+basis change Q, the gradient transforms as G' = Q^T G Q; both |S| and |Omega|
+must remain unchanged. The focused tests check this invariance on a nontrivial
+gradient tensor and separately verify that rigid-body rotation has zero strain
+but nonzero vorticity. These checks protect the tensor interpretation, not only
+individual component arithmetic.
+
