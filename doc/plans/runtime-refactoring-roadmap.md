@@ -439,3 +439,11 @@ Commit: `d8568fe91722af5d78d8083d6bae23d9446d952d`
 - This is production-path lifecycle integration evidence, not numerical verification of a full CFD Solve task. The test is **implemented, unverified** until the user builds and runs the exact commit.
 - Implementation commits: [17ab1eb](https://github.com/eric2003/OneFLOW/commit/17ab1eb524467fe58caded1f4a2b8d30a5792170), [0d3597e](https://github.com/eric2003/OneFLOW/commit/0d3597ee004ff4830b4d16433df7e315d1b6323a).
 - Next: run the focused integration target, full Debug CTest, and representative grid/CFD regressions; then reassess R1 and continue with concrete teardown failure injection and MPI behavior.
+
+
+### 2026-11-01 - Unify process and case cleanup composition
+
+- `SimuContext::TeardownCase()` already used `SimuCaseLifecycleDetail::ExecuteAllCleanupSteps()` to attempt every independent case cleanup and rethrow the first failure.
+- `SimuContext::FinalizeEnvironment()` duplicated that exception-aggregation loop manually. It now uses the same helper for accelerator finalization, parallel finalization, and the process lifecycle marker transition.
+- The ordering and failure contract are unchanged: every step is attempted, the first failure is propagated afterward, and the lifecycle marker is transitioned even if a finalizer reports failure.
+- Existing `SimuCaseLifecycleTest.RunsEveryCleanupStepAndPreservesFirstFailure` and `ExecutesAllCleanupStepsWhenNoStepFails` cover the composition semantics. The source change itself remains **implemented, unverified** until exact-commit build and test execution.
