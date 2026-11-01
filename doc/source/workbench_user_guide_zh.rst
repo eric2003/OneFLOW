@@ -64,6 +64,10 @@ Development Tests 使用固定的用户数据测试工作目录，并在每批�
 
 Contract Workbench
 ------------------
+Case 领域还提供两个文件入口：**Open case directory...** 打开算例目录；
+**Open suite and references...** 打开 Suite 清单、残差基线和保留的解析参考数据。
+这些操作只定位已有文件，不会启动求解器，也不会修改基线。
+
 
 首页 **Contract Workbench...** 是 OneFLOW 数值知识和工程契约的统一入口。当前提供四个领域入口：
 
