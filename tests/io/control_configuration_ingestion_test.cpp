@@ -275,6 +275,35 @@ TEST( ControlConfigurationIngestion, ReadsManifestScriptsAndCommitsTypedValuesIn
 }
 
 
+TEST( ControlReaderIntegration, CaseEnvironmentSetupFailureCanBeRolledBack )
+{
+    TemporaryControlCase testCase;
+    ScopedCaseRuntimeReset runtimeReset;
+    testCase.WriteManifest( "\"missing.txt\";\\n" );
+
+    ClearRuntimeParameters();
+    Prj::current_dir = std::filesystem::current_path().string();
+    EnsureParallelEnvironment();
+
+    SimuContext context( testCase.CaseDirectory(), false );
+
+    EXPECT_THROW( context.SetupCaseEnvironment(), std::runtime_error );
+    EXPECT_FALSE( context.IsEnvironmentReady() );
+
+    // Setup binds the case before parsing its manifest scripts. A failure in
+    // that phase leaves partial legacy state for the production case cleanup.
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        Prj::prjBaseDir, testCase.CaseDirectory() ) );
+
+    SimuContextDetail::ClearCaseConfigurationState();
+
+    EXPECT_TRUE( Prj::prjBaseDir.empty() );
+    EXPECT_THROW(
+        GetDataValue<std::string>(
+            "projectRoot", &RequireGlobalDataBase() ),
+        std::runtime_error );
+}
+
 TEST( ControlReaderIntegration, CaseBootstrapAppliesSettingsAndRebindsNextCase )
 {
     TemporaryControlCase firstCase;
