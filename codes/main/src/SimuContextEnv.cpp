@@ -144,6 +144,9 @@ void SimuContext::FinalizeEnvironment()
     // the process directly without first running TeardownCase().
     SimuCaseLifecycleDetail::ExecuteAllCleanupSteps(
         [&]() { ClearAccelStates(); },
+#ifdef ONEFLOW_ENABLE_HIP
+        []() { HipFluxBackend::ReleaseShared(); },
+#endif
         []() { ONEFLOW::FinalizeAccelRuntime(); },
         []() { HXFinalize(); } );
 
