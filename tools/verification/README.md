@@ -124,3 +124,34 @@ python -m unittest tools.verification.test_contract_catalog
 This is an initial runtime example, not a general runner or an invitation to
 migrate all existing catalogs at once.
 
+## First typed CFD case contract
+
+The first Case-domain definition is
+`contracts/case/laminar_flat_plate_slau2.json`. It describes the existing
+`test/cfd/plateuns2dslau2` case selected by `test/suites/cpu-serial.txt`.
+It records the solver, dimension, laminar Navier-Stokes model, SLAU2 flux,
+50-step setup, input files, output comparison manifest, residual baseline,
+and retained Blasius reference profiles.
+
+The shared envelope remains common, while the case-specific fields are parsed
+into the immutable `CaseContractData` payload. The catalog validates that:
+
+- the suite and referenced input/reference files exist;
+- the case directory exists and is selected by the declared suite;
+- every declared comparison output appears in the case's
+  `autotest/compare.txt`;
+- the residual database uses the supported schema, contains this case, and
+  agrees with the declared absolute tolerance.
+
+The analytical Blasius files are explicitly marked as references that the
+current regression runner does not automatically compare. They must not be
+mistaken for executed validation evidence. Likewise, the checked-in regression
+baseline establishes reproducibility against an accepted result, not
+independent physical validation or grid-convergence evidence.
+
+This is the first domain-specific typed payload. It does not turn every case
+into a contract: one case may provide evidence for several numerical,
+geometry, boundary-condition, and runtime contracts. Nor does the catalog
+launch `test.py`; execution remains with the established regression runner.
+
+
