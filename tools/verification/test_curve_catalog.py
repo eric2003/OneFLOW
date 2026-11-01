@@ -3,12 +3,20 @@ from __future__ import annotations
 import unittest
 from pathlib import Path
 
-from curve_catalog import (
-    list_theory_entries,
-    resolve_repo_path,
-    validate_catalog_api_references,
-    validate_catalog_paths,
-)
+if __package__:
+    from .curve_catalog import (
+        list_theory_entries,
+        resolve_repo_path,
+        validate_catalog_api_references,
+        validate_catalog_paths,
+    )
+else:
+    from curve_catalog import (
+        list_theory_entries,
+        resolve_repo_path,
+        validate_catalog_api_references,
+        validate_catalog_paths,
+    )
 
 
 class CatalogTest(unittest.TestCase):
