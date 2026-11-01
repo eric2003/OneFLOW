@@ -965,3 +965,39 @@ python -m unittest tools.verification.test_contract_catalog
 python -m unittest tools.oneflow_gui.test_test_inventory
 ctest --test-dir build -C Debug --output-on-failure
 ```
+
+
+## 2026-11-01 follow-up: split CTest and Python Unit Tests in GUI
+
+User requested separate GUI selections for CTest and Python tests.
+
+Changes on `hexin`:
+- Added `build_ctest_test_commands()` and
+  `build_python_test_commands()` to `tools/oneflow_gui/test_runner.py`.
+  The legacy combined `build_unit_test_commands()` remains for callers that
+  need the combined sequence.
+- Replaced the single "Unit Tests (CTest and Python tests)" checkbox in
+  `test_dialog.py` with independent "C++ Unit Tests (CTest)" and
+  "Python Unit Tests (unittest)" checkboxes. Both default to checked, but
+  either can now run independently.
+- If CTest is selected but `build/CTestTestfile.cmake` is absent, the GUI
+  reports that the CMake build tree must be configured; it does not silently
+  skip the selected test group.
+- Added command-builder tests for independent command construction and
+  unconfigured CTest handling.
+- Updated GUI and testing architecture documentation.
+
+Commits:
+- `87c393d41c3b25f4bfd348f8d4640774b3204817`: add independent command builders.
+- `d15565aab3e5e47021bb10b33cd194f38a50bfeb`: split GUI test selections.
+- `7d178caa3f7c7906b11471d1e3a4ed41a3ad8348`: remove combined builder from GUI path.
+- `f6f280e7e1a74e0c9f3f6e28299a3d12e282aa44`: test independent command construction.
+
+Assistant has not run tests in the user's Windows environment. Next validation:
+```powershell
+python -m unittest tools.oneflow_gui.test_test_runner
+python -m unittest tools.oneflow_gui.test_test_inventory
+python -m unittest tools.verification.test_curve_catalog
+python -m unittest tools.verification.test_contract_catalog
+```
+Then open the GUI Tests dialog and run CTest and Python Unit Tests separately.
