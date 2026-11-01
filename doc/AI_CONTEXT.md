@@ -1,3 +1,9 @@
+# AI and Developer Project Context
+
+Last updated: 2026-11-01
+Working branch: `hexin` only. Latest inspected baseline for this slice: `6e550260578a7ad3490793791f9a26feb1e670ae`. Current implementation HEAD before this handoff update: `7eff3d06099700cdd7026dca35cb843112b07332`.
+User-reported local validation on the pre-change baseline: **1123/1123 tests passed**. This does not validate the shutdown-order change added afterward.
+
 ## Current follow-on: accelerator runtime shutdown ordering
 
 The user reports **1123/1123 tests passed** on baseline hexin HEAD
@@ -34,11 +40,6 @@ and representative CPU regressions on the exact latest hexin HEAD. Also check
 Windows/Linux CI. HIP-enabled compile/runtime coverage remains distinct from
 the CPU ownership-ordering test.
 
-# AI and Developer Project Context
-
-Last updated: 2026-11-01
-Working branch: `hexin` only. Latest inspected baseline for this slice: `6e550260578a7ad3490793791f9a26feb1e670ae`. Current implementation HEAD before this handoff update: `7eff3d06099700cdd7026dca35cb843112b07332`.
-User-reported local validation on the pre-change baseline: **1123/1123 tests passed**. This does not validate the shutdown-order change added afterward.
 
 ## Previous mainline: R1 case configuration rollback and lifecycle
 
@@ -73,7 +74,7 @@ R1 remains **Partial**. The production integration target exercises the real `Si
 The earlier investigation record remains `doc/plans/setup-case-environment-integration-test.md`. Its original findings are historical; this handoff and `doc/source/runtime_architecture.rst` record the newer rollback behavior.
 
 Next single action: build and run the focused production lifecycle integration target on the exact latest commit, then run the full Debug CTest suite and representative grid/CFD regressions. If those pass, update the R1 evidence; keep teardown fault injection and multi-rank MPI as explicit remaining gaps. Detailed findings are in `doc/plans/setup-case-environment-integration-test.md`.
-## Current follow-on: accelerator buffer ownership
+## Previous follow-on: accelerator buffer ownership
 
 The latest branch focus has moved to accelerator resource reliability after the recent
 transactional backend initialization work. Inspected starting HEAD: d9e25a7b671e6104c0d116ae5c561e5d12ba09d0 (Register accelerator runtime tests). The user reports 1119/1119 local tests passed on that pre-change baseline.
@@ -86,7 +87,7 @@ transactional backend initialization work. Inspected starting HEAD: d9e25a7b671e
 - Design record: [DeviceBuffer resource lifecycle](plans/device-buffer-resource-lifecycle.md).
 
 Implementation: [9728e46](https://github.com/eric2003/OneFLOW/commit/9728e46f97204a04a0bc188e770fde2e3d453e23). Focused test coverage and tracking backend: [df8dd00](https://github.com/eric2003/OneFLOW/commit/df8dd0008356e85ff0021cbb221535d9045069fd), [3bd2bf8](https://github.com/eric2003/OneFLOW/commit/3bd2bf84ca4f7b2abd71be94e2e77faf513ffffa), [e6d3e90](https://github.com/eric2003/OneFLOW/commit/e6d3e902e2f64dacb9ec1cb9a27cfbc3ca4cd2e5), [c19ef29](https://github.com/eric2003/OneFLOW/commit/c19ef29558f5a62ebe34e595d40976ad2af59aac), [a48c2b6](https://github.com/eric2003/OneFLOW/commit/a48c2b6f79651ec24e98d979a6a900d61a43dbf8), [74de922](https://github.com/eric2003/OneFLOW/commit/74de9222c90c7bce19602c209d4ddbdd1ab10b21).
-Status: **Implemented, unverified**. Exact-HEAD Linux and Windows CI runs have been triggered; their state must be checked again after the latest test/documentation commits. No local compiler/CTest execution is available in this environment. Next action is to build and run accel_runtime_test, then the full Debug CTest suite and CPU regression cases on the exact updated HEAD.
+Status at the time of that slice: implemented. The subsequent 1123/1123 local test report covers the DeviceBuffer changes, not the newer shutdown-order change. No local compiler/CTest execution is available in this environment. Next action is to build and run accel_runtime_test, then the full Debug CTest suite and CPU regression cases on the exact updated HEAD.
 
 ## 1. Read this first
 
