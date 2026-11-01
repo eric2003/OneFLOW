@@ -87,6 +87,9 @@ Focused tests:
   - DeviceBufferTest.DestructorDoesNotPropagateBackendReleaseFailure
     injects a release diagnostic after the fake backend frees the allocation and verifies
     that destruction does not propagate the exception.
+  - DeviceBufferTest.ReleaseFailureKeepsCommittedBufferStateConsistent
+    verifies that a failed old-allocation release leaves the replacement owned, and that
+    explicit Reset() clears the object even when release reports an error.
 
 The tests use a tracking CPU backend so failure paths are deterministic and do not require
 a physical GPU. They verify host-side ownership and exception contracts; they do not prove
