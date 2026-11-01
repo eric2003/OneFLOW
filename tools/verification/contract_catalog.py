@@ -79,7 +79,7 @@ def adapt_theory_entry(entry: Any) -> ContractSummary:
         id=str(entry.id),
         title=str(entry.title),
         domain="numerical",
-        kind="formula" if entry.csv_relpath else "numerical_method",
+        kind="numerical_formula",
         overview=str(entry.background),
         principle=str(entry.principle),
         references=_non_empty_strings(entry.references),
