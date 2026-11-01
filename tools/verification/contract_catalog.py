@@ -164,6 +164,7 @@ def validate_contract_summaries(
             *summary.implementation_paths,
             *summary.documentation_paths,
             *(item.reference for item in summary.evidence if item.kind == "theory_data"),
+            *(item.scope for item in summary.evidence if item.kind == "linked_test" and item.scope.endswith((".cpp", ".cc", ".cxx"))),
         ]
         for relpath in declared_paths:
             try:
