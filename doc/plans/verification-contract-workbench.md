@@ -606,3 +606,17 @@ Focused validation:
 ```powershell
 python -m unittest tools.verification.test_contract_catalog
 ```
+
+
+## 21. Ignore non-code text when resolving GoogleTest declarations (2026-11-02)
+
+The linked-test source check now masks C++ line comments, block comments, ordinary string/character literals, and raw string literals before matching GoogleTest declaration macros. A declaration-shaped example in documentation text or a literal can no longer make a stale contract link appear resolved. New negative tests cover all four source forms.
+
+This is a deliberately bounded lexical check rather than a C++ parser. It establishes only that a declaration-shaped macro invocation appears in code text in the declared source file. Macro expansion, parameterized/typed suite registration, binary discovery, compilation, and execution remain outside this resolver and must be represented by later build/execution evidence.
+
+Focused validation:
+
+```powershell
+python -m unittest tools.verification.test_contract_catalog
+```
+
