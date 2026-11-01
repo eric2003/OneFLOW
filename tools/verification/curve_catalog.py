@@ -73,7 +73,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             doc_relpath="doc/source/numerical/sa_eddy_viscosity.rst",
             code_sketch=(
-                "// GATED SKETCH - review before use.\n"
+                "// GATED SKETCH — review before use.\n"
                 "Real SaFv1(Real chi, Real cv1Cubed) {\n"
                 "  Real chi3 = chi*chi*chi;\n"
                 "  return chi3 / (chi3 + cv1Cubed);\n"
@@ -228,7 +228,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             title="F1 blending function",
             role_tags=("closure", "blending"),
             formula_plain=(
-                "CD_kw = max(2*rho*sigw2*(gradk.gradw)/w, small)\n"
+                "CD_kw = max(2*rho*sigw2*(gradk·gradw)/w, small)\n"
                 "arg1 = min( max(sqrt(k)/(beta_star*w*d), 500*nu/(w*d^2*Re)), "
                 "4*rho*sigw2*k/(CD_kw*d^2) )\n"
                 "F1 = tanh(arg1^4)\n"
@@ -511,7 +511,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             title="fk(xk) Wilcox beta* modifier",
             role_tags=("closure", "Wilcox", "beta-star"),
             formula_plain=(
-                "xk = (grad k * grad omega) / omega^3\n"
+                "xk = (grad k · grad omega) / omega^3\n"
                 "fk = 1  if xk <= 0\n"
                 "fk = (1+680 xk^2)/(1+400 xk^2)  if xk > 0"
             ),
