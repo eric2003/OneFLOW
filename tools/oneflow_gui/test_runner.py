@@ -19,30 +19,27 @@ def summarize_test_output(output_lines: list[str]) -> tuple[str, ...]:
 
     output = "\n".join(output_lines)
     summary: list[str] = []
-    unittest_runs = [
-        int(value)
-        for value in re.findall(r"Ran (\d+) tests?", output)
-    ]
-    ctest_matches = re.findall(
-        r"(\d+)% tests passed, (\d+) tests failed out of (\d+)",
+    unittest_results = re.findall(
+        r"Ran (\d+) tests?[^\n]*(?:\n[ \t]*)?(?:\n[ \t]*)?"
+        r"(FAILED \(([^)]*)\)|OK(?: \(([^)]*)\))?)",
         output,
     )
-    if unittest_runs:
-        total = sum(unittest_runs)
-        status_match = re.search(r"(?:FAILED|OK) \(([^)]+)\)", output)
-        status = status_match.group(1) if status_match else ""
-        def status_count(name: str) -> int:
-            match = re.search(rf"{name}=(\d+)", status)
-            return int(match.group(1)) if match else 0
+    if unittest_results:
+        total = sum(int(item[0]) for item in unittest_results)
+        failed = 0
+        skipped = 0
+        for _, _, failed_status, ok_status in unittest_results:
+            status = failed_status or ok_status or ""
+            def status_count(name: str) -> int:
+                match = re.search(rf"{name}=(\d+)", status)
+                return int(match.group(1)) if match else 0
 
-        failure_count = status_count("failures")
-        error_count = status_count("errors")
-        skipped_count = status_count("skipped")
-        failed = failure_count + error_count
-        passed = max(total - failed - skipped_count, 0)
+            failed += status_count("failures") + status_count("errors")
+            skipped += status_count("skipped")
+        passed = max(total - failed - skipped, 0)
         summary.append(
             f"Python unittest cases: {total} run, {passed} passed, "
-            f"{failed} failed, {skipped_count} skipped."
+            f"{failed} failed, {skipped} skipped."
         )
     if ctest_matches:
         total = sum(int(item[2]) for item in ctest_matches)
