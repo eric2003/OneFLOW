@@ -53,7 +53,7 @@ jobs:
       - name: Install GUI test dependency
         run: python -m pip install -r tools/requirements-gui.txt
       - name: Compile Python tooling
-        run: python -m compileall -q tools/mesh_cases.py tools/mesh_layout tools/oneflow_gui
+        run: python -m compileall -q tools/mesh_cases.py tools/mesh_layout tools/oneflow_gui tools/verification
       - name: Test case catalog
         run: python tools/test_mesh_cases.py
       - name: Test rectangle layout compiler
