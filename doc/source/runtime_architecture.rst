@@ -888,7 +888,7 @@ Simulation and case lifecycle
 
 The full run has two nested lifetimes. The process runtime is initialized once and
 may serve several case directories. Each case gets its own ``SimuImp`` and
-NaN; a case failure must not skip case cleanup, and case cleanup must
+``SimuContext``; a case failure must not skip case cleanup, and case cleanup must
 not prematurely finalize resources still needed by later cases.
 
 .. code-block:: text
@@ -913,7 +913,7 @@ The ownership relationship can be summarized as:
 
 .. math::
 
-   T_{case} \\subset T_{process}
+   T_{case} \subset T_{process}
 
 where ``T_case`` is the interval during which one case's configuration, fields,
 solver state, and case-local resources are valid; ``T_process`` is the larger
@@ -921,10 +921,10 @@ interval during which shared parallel and accelerator runtimes are initialized.
 The subset relation is a lifetime constraint, not a statement that every resource
 is physically owned by the same C++ object.
 
-NaN composes process setup, one case execution, and process
+``SimuImp::Run()`` composes process setup, one case execution, and process
 finalization through ``ExecuteWithProcessLifecycle()``. ``RunCase()`` composes
 pre-processing and main execution with unconditional case cleanup through
-NaN. The multi-case integration path uses the same separation:
+``ExecuteWithCleanup()``. The multi-case integration path uses the same separation:
 the process owner remains active across cases while each case context is torn down.
 
 The key invariant is:
@@ -935,7 +935,7 @@ The key invariant is:
 * the original execution exception is preserved if cleanup also fails.
 
 The existing ``simu_imp_case_lifecycle_integration_test`` exercises the real
-NaN path for setup failure and successful sequential cases.
+``SimuImp::RunCase()`` path for setup failure and successful sequential cases.
 It checks case-state clearing and verifies that the process runtime remains active
 between cases. This is stronger than testing the cleanup helper alone, although it
 does not establish multi-rank MPI correctness or every accelerator backend's
