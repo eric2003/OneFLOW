@@ -219,9 +219,21 @@ Real SstLimitingRateMagnitude(
         dwdx, dwdy, dwdz );
 }
 
-Real SstF2Arg( Real termLength, Real termViscous )
+Real SstF2ArgFromTerms( Real termLength, Real termViscous )
 {
     return MAX( termLength, termViscous );
+}
+
+Real SstF2Argument(
+    Real kineticEnergy, Real omega, Real wallDistance, Real betaStar,
+    Real laminarViscosity, Real density, Real reynolds )
+{
+    const Real distanceSquared = SQR( wallDistance );
+    const Real termLength = two * std::sqrt( kineticEnergy )
+        / ( betaStar * omega * wallDistance );
+    const Real termViscous = 500.0 * laminarViscosity
+        / ( density * omega * distanceSquared * reynolds );
+    return SstF2ArgFromTerms( termLength, termViscous );
 }
 
 Real SstF2FromArg( Real arg2 )
