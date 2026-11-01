@@ -444,6 +444,14 @@ def _mask_cpp_non_code(source: str) -> str:
     return non_code.sub(preserve_lines, source)
 
 
+def _linked_test_source_path(scope: str) -> str | None:
+    """Extract the leading source path from a scope with optional explanation."""
+    source_path = scope.split(";", 1)[0].strip()
+    if source_path.endswith((".cpp", ".cc", ".cxx")):
+        return source_path
+    return None
+
+
 def resolve_contract_evidence(
     repository_root: Path,
     summary: ContractSummary,
@@ -458,15 +466,17 @@ def resolve_contract_evidence(
             or bool(PureWindowsPath(item.reference).suffix)
         ):
             path_reference = False
-        source_reference = (
-            item.kind in ("linked_test", "google_test")
-            and item.scope.endswith((".cpp", ".cc", ".cxx"))
+        source_path = (
+            _linked_test_source_path(item.scope)
+            if item.kind in ("linked_test", "google_test")
+            else None
         )
+        source_reference = source_path is not None
         if not path_reference and not source_reference:
             results.append(EvidenceResolution(item, "declared"))
             continue
 
-        relative = item.reference if path_reference else item.scope
+        relative = item.reference if path_reference else source_path
         try:
             path = _relative_path(repository_root, relative)
         except ValueError as exc:
@@ -552,7 +562,7 @@ def validate_contract_summaries(
                 item.scope
                 for item in summary.evidence
                 if item.kind in ("linked_test", "google_test")
-                and item.scope.endswith((".cpp", ".cc", ".cxx"))
+                and _linked_test_source_path(item.scope) is not None
             ),
         )))
         if summary.case_data is not None:
@@ -693,12 +703,13 @@ def validate_contract_summaries(
                         f"{case_data.residual_baseline}: {exc}"
                     )
         for item in summary.evidence:
-            if item.kind not in ("linked_test", "google_test") or not item.scope.endswith(
-                (".cpp", ".cc", ".cxx")
-            ):
+            if item.kind not in ("linked_test", "google_test"):
+                continue
+            source_path_reference = _linked_test_source_path(item.scope)
+            if source_path_reference is None:
                 continue
             try:
-                source_path = _relative_path(repository_root, item.scope)
+                source_path = _relative_path(repository_root, source_path_reference)
             except ValueError:
                 continue
             if not source_path.is_file():
