@@ -78,6 +78,52 @@ class ProcessControlTest(unittest.TestCase):
         )
         runner.assert_not_called()
 
+    @unittest.skipUnless(os.name == "nt", "Requires Windows taskkill")
+    def test_windows_termination_stops_descendant_processes(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            started_marker = Path(directory) / "child-started.txt"
+            marker = Path(directory) / "child-survived.txt"
+            child_code = (
+                "import pathlib, time; "
+                f"pathlib.Path({str(started_marker)!r}).write_text('ready'); "
+                "time.sleep(1); "
+                f"pathlib.Path({str(marker)!r}).write_text('alive')"
+            )
+            parent_code = (
+                "import pathlib, subprocess, sys, time\\n"
+                f"subprocess.Popen([sys.executable, '-c', {child_code!r}])\\n"
+                f"started = pathlib.Path({str(started_marker)!r})\\n"
+                "deadline = time.monotonic() + 5\\n"
+                "while not started.exists() and time.monotonic() < deadline:\\n"
+                "    time.sleep(0.01)\\n"
+                "print('child-started', flush=True)\\n"
+                "time.sleep(30)\\n"
+            )
+            process = subprocess.Popen(
+                [sys.executable, "-c", parent_code],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                **process_group_options(platform_name="nt"),
+            )
+            try:
+                self.assertEqual(process.stdout.readline().strip(), "child-started")
+                self.assertTrue(started_marker.is_file())
+                self.assertTrue(
+                    terminate_process_tree(process, platform_name="nt")
+                )
+                process.wait(timeout=10)
+                time.sleep(1.2)
+                self.assertFalse(marker.exists())
+            finally:
+                if process.poll() is None:
+                    terminate_process_tree(process, platform_name="nt")
+                    process.wait(timeout=10)
+                if process.stdout is not None:
+                    process.stdout.close()
+                if process.stderr is not None:
+                    process.stderr.close()
+
     @unittest.skipUnless(os.name == "posix", "Requires POSIX process groups")
     def test_posix_termination_stops_descendant_processes(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
