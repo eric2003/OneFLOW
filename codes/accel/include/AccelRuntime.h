@@ -24,6 +24,7 @@ public:
     static AccelRuntime & Instance();
 
     void Initialize( int worldRank, int worldSize );
+    // A backend failure preserves the active backend so finalization can retry.
     void Finalize();
     void Synchronize();
 
