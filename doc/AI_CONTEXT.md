@@ -1236,3 +1236,26 @@ validated by the same source-declaration checker as Geometry
 are not merely path-checked; each named GoogleTest suite/case must be present
 in its declared C++ source. Commit:
 `1f28288bfa88cf87d1d86bbb9eb76d346bcfab8a`.
+
+
+Case-contract follow-up hardening after the initial handoff entry:
+- `CaseContractData` now explicitly declares residual output channels.
+- The catalog requires residual outputs to be a subset of the compared outputs.
+- It validates that the output manifest and contract output lists match exactly.
+- It checks that each residual output exists in the canonical residual database,
+  has `iter` and `sub-iter` columns, and has exactly `max_steps` rows.
+- It rejects unsupported Case kinds and malformed residual database roots.
+- Tests include tolerance drift and residual-history length drift.
+- Documentation records these additional invariants.
+
+Latest focused-slice commits include:
+`3c8882f4e3afd2f685f2ef06dab539bd98504098`,
+`fe471a278ec9d08e9812c5302719ff9b8053268a`,
+`be6ea51bb09e0fc4cd91e1401e07d0394de88ae1`,
+`8674ede4725e12e0cd769244fb455ab04295e9fa`,
+`f5657d890e718cc3ecc63f7a625f7fed3e239056`,
+`bd8bf7ef0cb1fb881307c10f7f00630906a05c3b`.
+
+The exact latest hexin HEAD at this handoff is
+`bd8bf7ef0cb1fb881307c10f7f00630906a05c3b`. No CI status was reported for
+this direct branch commit and no local Windows test run is claimed.
