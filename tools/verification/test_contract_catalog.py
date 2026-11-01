@@ -8,6 +8,7 @@ from .contract_catalog import (
     ContractSummary,
     adapt_geometry_scenario,
     adapt_theory_entry,
+    load_contract_catalog,
     validate_contract_summaries,
 )
 from .curve_catalog import list_theory_entries
@@ -25,7 +26,8 @@ class ContractCatalogTest(unittest.TestCase):
 
         summary = adapt_theory_entry(entry)
 
-        self.assertEqual(summary.id, "sst_f2_eddy")
+        self.assertEqual(summary.id, "numerical/sst_f2_eddy")
+        self.assertEqual(summary.source_id, "sst_f2_eddy")
         self.assertEqual(summary.domain, "numerical")
         self.assertEqual(summary.kind, "numerical_formula")
         self.assertTrue(summary.implementation_paths)
@@ -49,7 +51,8 @@ class ContractCatalogTest(unittest.TestCase):
 
         summary = adapt_geometry_scenario(scenario)
 
-        self.assertEqual(summary.id, "registered_child_resolution")
+        self.assertEqual(summary.id, "geometry/registered_child_resolution")
+        self.assertEqual(summary.source_id, "registered_child_resolution")
         self.assertEqual(summary.domain, "geometry")
         self.assertEqual(summary.kind, "scenario")
         self.assertEqual(summary.evidence[0].kind, "fixture")
@@ -86,9 +89,19 @@ class ContractCatalogTest(unittest.TestCase):
         )
         self.assertEqual(issues, [], "\n".join(issues))
 
+
+    def test_loads_complete_combined_catalog_without_reference_errors(self) -> None:
+        summaries, issues = load_contract_catalog(self.repository_root)
+
+        self.assertTrue(any(item.domain == "numerical" for item in summaries))
+        self.assertTrue(any(item.domain == "geometry" for item in summaries))
+        self.assertEqual(len({item.id for item in summaries}), len(summaries))
+        self.assertEqual(issues, (), "\\n".join(issues))
+
     def test_reports_missing_and_escaping_paths(self) -> None:
         summary = ContractSummary(
-            id="path_check",
+            id="test/path_check",
+            source_id="path_check",
             title="Path check",
             domain="test",
             kind="test",
@@ -114,7 +127,8 @@ class ContractCatalogTest(unittest.TestCase):
 
     def test_reports_duplicate_contract_ids(self) -> None:
         summary = ContractSummary(
-            id="duplicate",
+            id="test/duplicate",
+            source_id="duplicate",
             title="Duplicate",
             domain="test",
             kind="test",
