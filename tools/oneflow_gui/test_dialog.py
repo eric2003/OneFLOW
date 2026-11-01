@@ -172,9 +172,9 @@ class TestCommandWorker(QThread):
         report.extend(summarize_test_output(failure_output))
         if failed_labels:
             report.insert(1, "  Failed commands: " + ", ".join(failed_labels))
-            self.completed.emit(False, "\\n".join(report))
+            self.completed.emit(False, "\n".join(report))
         else:
-            self.completed.emit(True, "\\n".join(report))
+            self.completed.emit(True, "\n".join(report))
 
 
 class TestRunnerDialog(QDialog):
