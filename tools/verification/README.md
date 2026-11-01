@@ -193,3 +193,8 @@ Linked-test validation recognizes `TEST`, `TEST_F`, `TEST_P`,
 `TYPED_TEST`, and `TYPED_TEST_P` declarations. This is a source-declaration
 check only: it does not prove that the test is registered in a built test
 binary or that it has executed.
+
+
+### C++ declaration scanning boundary
+
+Linked GoogleTest matching masks C++ line/block comments and ordinary, character, and raw string literals before searching for declaration macros. This prevents example text from satisfying a contract link. The scanner is intentionally a lightweight source check, not a full C++ parser: it does not prove macro expansion, template instantiation, test registration, compilation, runtime discovery, or execution. Those remain separate build and execution evidence.
