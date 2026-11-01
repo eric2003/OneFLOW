@@ -671,3 +671,44 @@ Focused validation:
 python -m unittest tools.verification.test_cmake_test_catalog
 python -m unittest tools.oneflow_gui.test_contract_workbench_dialog
 ```
+
+
+## 24. Structured execution diagnostics (2026-11-02)
+
+The Tests command worker now turns failed Python unittest and GoogleTest
+output into immutable `TestDiagnostic` records. The first diagnostic slice
+captures:
+
+- failed task label and test framework/identity;
+- source file and line when emitted by the framework;
+- exception type and message when present;
+- selected CMake configuration, resolved working directory, UTC start and
+  finish timestamps, and process exit code;
+- explicit contract IDs and a conservative verification-impact field.
+
+The Tests dialog renders the record as structured fields while retaining the
+raw output and command summary. Missing information is represented as unknown.
+The parser does not infer contract identity from test names or source proximity.
+The current runner supplies no automatic contract mapping, so the default
+impact is `unlinked`. If a future resolver supplies explicit contract IDs,
+the diagnostic is marked `requires_review`; a failed test is not automatically
+equivalent to disproving every claim in a contract.
+
+This slice intentionally stops before persistent execution storage and
+Verification Results aggregation. The next integration should add a versioned
+execution-record repository under the user data root, preserve command and
+per-test records, and resolve test links through stable evidence IDs. The
+Contract Workbench should then display the latest matching execution evidence
+without mutating contract declarations. Verification conclusions must be
+computed from explicit contract scope, evidence kind, run status, and freshness;
+a missing run remains unknown, not failed or passed.
+
+Focused validation:
+
+```powershell
+python -m unittest tools.oneflow_gui.test_test_diagnostics
+python -m unittest tools.oneflow_gui.test_test_runner
+python -m unittest tools.oneflow_gui.test_test_inventory
+```
+
+The assistant has not run these commands in the user's Windows environment.
