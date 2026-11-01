@@ -1,24 +1,12 @@
-# Intermediate numerical verification (Contract Workbench)
+# Contract Workbench knowledge catalog
 
-## Role
+Structured numerical knowledge for developers:
 
-Developer-facing knowledge browser for numerical formulas used in OneFLOW:
+- taxonomy: family / genus (SA, SST, NS-...) / section
+- plain formula + LaTeX source + optional mathtext preview
+- principle, background, references
+- Sphinx excerpt + open `.rst` / source files
+- gated code sketch (checkbox required before copy)
+- optional theory curve PNG from repo-relative CSV
 
-- taxonomy: family / model (SA, SST, ...) / section (closure, source, ...)
-- formula, principle, background, references
-- optional theory CSV + static plot
-- links to pure APIs and Sphinx pages
-
-Paths are **repository-relative** (`tools/verification/data/...`), resolved from
-the Workbench `repository_root`. Do not hard-code machine-specific absolute paths.
-
-## GUI
-
-`oneflow_gui` home: **Verification Curves...**
-(window title: Contract Workbench — Formula & Theory Curves)
-
-## Long-term
-
-Folder name may become `tools/contract_workbench`. Catalog entries are a step
-toward formula-driven documentation and, later, assisted code generation from
-the same structured knowledge — still requiring human review and tests.
+All paths resolve from Workbench `repository_root`.
