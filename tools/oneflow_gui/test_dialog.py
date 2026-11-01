@@ -28,6 +28,7 @@ from PySide6.QtWidgets import (
 from .executable_discovery import executable_candidates
 from .case_repository import load_cases
 from .models import CaseDefinition
+from .process_control import process_group_options, terminate_process_tree
 from .runner import create_run_id
 from .user_data_paths import UserDataPaths
 from .task_types import TaskRunResult, TaskRunStatus, TaskType, task_definition
@@ -66,8 +67,8 @@ class TestCommandWorker(QThread):
         self._cancel.set()
         with self._process_lock:
             process = self._process
-        if process is not None and process.poll() is None:
-            process.terminate()
+        if process is not None:
+            terminate_process_tree(process)
 
     def run(self) -> None:
         failed_labels: list[str] = []
@@ -103,19 +104,23 @@ class TestCommandWorker(QThread):
                     encoding="utf-8",
                     errors="replace",
                     bufsize=1,
+                    **process_group_options(),
                 ) as process:
                     with self._process_lock:
                         self._process = process
-                    if process.stdout is not None:
-                        for line in process.stdout:
-                            output_line = line.rstrip("\r\n")
-                            command_output.append(output_line)
-                            self.output_line.emit(output_line)
-                            if self._cancel.is_set() and process.poll() is None:
-                                process.terminate()
-                    return_code = process.wait()
-                    with self._process_lock:
-                        self._process = None
+                    try:
+                        if process.stdout is not None:
+                            for line in process.stdout:
+                                output_line = line.rstrip("\r\n")
+                                command_output.append(output_line)
+                                self.output_line.emit(output_line)
+                                if self._cancel.is_set():
+                                    terminate_process_tree(process)
+                        return_code = process.wait()
+                    finally:
+                        with self._process_lock:
+                            if self._process is process:
+                                self._process = None
             except OSError as error:
                 self.output_line.emit(f"ERROR: {error}")
                 run_output.append(f"ERROR: {error}")
