@@ -945,6 +945,29 @@ successfully finalized process runtime. This marker is an observation of the
 managed lifecycle, not a proof that an external runtime such as MPI can always
 be safely retried after a failed finalization call.
 
+The MPI compatibility layer now tracks whether OneFLOW itself initialized MPI.
+``HXInit()`` first queries ``MPI_Initialized()`` and ``MPI_Finalized()``. It
+initializes MPI only when no external owner has already initialized it, and
+records ownership only after a successful ``MPI_Init()``. If MPI was already
+initialized by an embedding application, OneFLOW uses that runtime but does
+not claim ownership of its finalization. ``HXFinalize()`` is consequently a
+no-op unless OneFLOW owns the MPI runtime; when it does, it checks the finalized
+state and propagates query/finalization errors. The process bootstrap also
+checks the return code from ``HXInit()`` rather than continuing with rank and
+size queries after a failed initialization.
+
+This is an ownership boundary, not merely defensive error handling. The
+required rule is:
+
+.. math::
+
+   O_{OneFLOW}(MPI) \Rightarrow OneFLOW\ may\ finalize\ MPI
+
+where ``O_OneFLOW(MPI)`` means that this process successfully initialized MPI
+through the OneFLOW compatibility layer. An externally initialized MPI runtime
+belongs to its embedding application. The serial backend follows the same
+public API and remains a no-op for MPI-specific operations.
+
 The existing ``simu_imp_case_lifecycle_integration_test`` exercises the real
 ``SimuImp::RunCase()`` path for setup failure and successful sequential cases.
 It checks case-state clearing and verifies that the process runtime remains active
