@@ -392,9 +392,60 @@ def list_theory_entries() -> list[TheoryEntry]:
             proves="Omega source piece APIs where extracted.",
             does_not_prove="Full SST residual on a case.",
         ),
+        # ========== Wilcox ==========
+        TheoryEntry(
+            id="wilcox_fk_xk",
+            family="turbulence",
+            genus="Wilcox",
+            section="closure / beta-star modifier",
+            title="fk(xk) Wilcox beta* modifier",
+            role_tags=("closure", "Wilcox", "beta-star"),
+            formula_plain=(
+                "xk = (grad k · grad omega) / omega^3\n"
+                "fk = 1  if xk <= 0\n"
+                "fk = (1+680 xk^2)/(1+400 xk^2)  if xk > 0"
+            ),
+            formula_latex=(
+                r"x_k=(\nabla k\cdot\nabla\omega)/\omega^{3}"
+                "\n"
+                r"f_k=1\ (x_k\le 0);\quad "
+                r"(1+680 x_k^{2})/(1+400 x_k^{2})\ (x_k>0)"
+            ),
+            principle=(
+                "Wilcox-style beta-star is modulated by fk(xk) based on "
+                "the cross-diffusion sense of the k-omega gradients."
+            ),
+            background=(
+                "Used on Wilcox / EASM paths in TurbCom when forming f_betas. "
+                "SST uses F1 blend; this curve is the Wilcox piece."
+            ),
+            references=(
+                "Wilcox turbulence modeling notes.",
+                "OneFLOW: doc/source/numerical/wilcox_fbeta.rst",
+            ),
+            csv_relpath="tools/verification/data/wilcox_fk_xk_theory.csv",
+            plot_module="plot_wilcox_fk",
+            pure_apis=("WilcoxXkFromCrossTerm", "WilcoxFkFromXk"),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/wilcox_fbeta.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "Real WilcoxFkFromXk(Real xk) {\n"
+                "  if (xk <= 0) return 1;\n"
+                "  Real xk2 = xk*xk;\n"
+                "  return (1 + 680*xk2) / (1 + 400*xk2);\n"
+                "}\n"
+            ),
+            proves="fk(xk) closed form vs WilcoxFkFromXk sample grid.",
+            does_not_prove="Full k-omega residual or SST F1 path.",
+        ),
         # ========== NS / LUSGS ==========
         TheoryEntry(
             id="ns_lusgs_viscous_spectrum",
+
             family="mean-flow",
             genus="NS-LUSGS",
             section="implicit / viscous spectrum",

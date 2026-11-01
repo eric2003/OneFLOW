@@ -33,3 +33,13 @@ References
 
 Pure APIs: ``WilcoxXkFromCrossTerm``, ``WilcoxFkFromXk``,
 ``WilcoxFw1998``, ``WilcoxFw2006``, ``WilcoxVortexStretchingInvariant``.
+
+Intermediate verification
+-------------------------
+
+Closed-form checks of :math:`f_k(x_k)` live in ``turb_wilcox_fbeta_test``
+and ``tools/verification/data/wilcox_fk_xk_theory.csv`` (Contract Workbench).
+
+.. image:: figures/wilcox_fk_xk_theory.png
+   :alt: Wilcox fk(xk) theory curve
+   :width: 480
