@@ -39,18 +39,13 @@ class ContractDomainDialog(QDialog):
         self._domain = domain
         _ensure_tools_on_path(self._repository_root)
 
-        from verification.contract_catalog import (
-            load_contract_catalog,
-            validate_contract_summaries,
-        )
+        from verification.contract_catalog import load_contract_catalog
 
         summaries, diagnostics = load_contract_catalog(self._repository_root)
         self._summaries = tuple(
             item for item in summaries if item.domain == domain
         )
-        self._diagnostics = tuple(diagnostics) + tuple(
-            validate_contract_summaries(self._repository_root, self._summaries)
-        )
+        self._diagnostics = tuple(diagnostics)
 
         self.setWindowTitle(f"Contract Workbench — {domain.title()}")
         self.resize(1120, 740)
@@ -136,7 +131,7 @@ class ContractDomainDialog(QDialog):
             root.addWidget(self.status_label)
 
     def _set_diagnostics_only(self) -> None:
-        self.evidence_view.setPlainText("\\n".join(self._diagnostics))
+        self.evidence_view.setPlainText("\n".join(self._diagnostics))
 
     def _current_summary(self):
         row = self.contract_list.currentRow()
@@ -150,57 +145,57 @@ class ContractDomainDialog(QDialog):
         summary = self._summaries[row]
         self.heading.setText(f"{summary.title}  ·  {summary.id}")
         self.overview_view.setPlainText(
-            f"Domain: {summary.domain}\\n"
-            f"Kind: {summary.kind}\\n"
-            f"Status: {summary.status}\\n\\n"
-            f"{summary.overview}\\n\\n"
-            "Claims\\n------\\n"
-            + "\\n".join(f"- {claim}" for claim in summary.claims)
-            + "\\n\\nLimitations\\n-----------\\n"
-            + "\\n".join(f"- {item}" for item in summary.limitations)
+            f"Domain: {summary.domain}\n"
+            f"Kind: {summary.kind}\n"
+            f"Status: {summary.status}\n\n"
+            f"{summary.overview}\n\n"
+            "Claims\n------\n"
+            + "\n".join(f"- {claim}" for claim in summary.claims)
+            + "\n\nLimitations\n-----------\n"
+            + "\n".join(f"- {item}" for item in summary.limitations)
         )
         self.principle_view.setPlainText(summary.principle)
         self.architecture_view.setPlainText(summary.architecture)
         self.implementation_view.setPlainText(
-            "\\n".join(summary.implementation_paths) or "No implementation paths declared."
+            "\n".join(summary.implementation_paths) or "No implementation paths declared."
         )
         self.documentation_view.setPlainText(
-            "References\\n----------\\n"
-            + "\\n".join(summary.references)
-            + "\\n\\nDocumentation\\n-------------\\n"
-            + "\\n".join(summary.documentation_paths)
+            "References\n----------\n"
+            + "\n".join(summary.references)
+            + "\n\nDocumentation\n-------------\n"
+            + "\n".join(summary.documentation_paths)
         )
         evidence_lines = [
-            f"[{item.status}] {item.kind}: {item.reference}\\n  Scope: {item.scope}"
+            f"[{item.status}] {item.kind}: {item.reference}\n  Scope: {item.scope}"
             for item in summary.evidence
         ]
         if self._diagnostics:
             evidence_lines.extend(
                 ("", "Catalog diagnostics", "-------------------", *self._diagnostics)
             )
-        self.evidence_view.setPlainText("\\n".join(evidence_lines) or "No evidence declared.")
+        self.evidence_view.setPlainText("\n".join(evidence_lines) or "No evidence declared.")
         if summary.case_data is not None:
             case = summary.case_data
             self.case_view.setPlainText(
-                f"Suite: {case.suite}\\n"
-                f"Case path: {case.case_path}\\n"
-                f"Solver: {case.solver}\\n"
-                f"Dimension: {case.dimension}D\\n"
-                f"Flow model: {case.flow_model}\\n"
-                f"Flux scheme: {case.flux_scheme}\\n"
-                f"Maximum steps: {case.max_steps}\\n"
-                f"Residual absolute tolerance: {case.residual_absolute_tolerance:g}\\n\\n"
-                "Inputs\\n------\\n"
-                + "\\n".join(case.input_paths)
-                + "\\n\\nCompared outputs\\n-----------------\\n"
-                + "\\n".join(case.comparison_outputs)
-                + "\\n\\nResidual outputs\\n-----------------\\n"
-                + "\\n".join(case.residual_outputs)
-                + "\\n\\nResidual baseline\\n-----------------\\n"
+                f"Suite: {case.suite}\n"
+                f"Case path: {case.case_path}\n"
+                f"Solver: {case.solver}\n"
+                f"Dimension: {case.dimension}D\n"
+                f"Flow model: {case.flow_model}\n"
+                f"Flux scheme: {case.flux_scheme}\n"
+                f"Maximum steps: {case.max_steps}\n"
+                f"Residual absolute tolerance: {case.residual_absolute_tolerance:g}\n\n"
+                "Inputs\n------\n"
+                + "\n".join(case.input_paths)
+                + "\n\nCompared outputs\n-----------------\n"
+                + "\n".join(case.comparison_outputs)
+                + "\n\nResidual outputs\n-----------------\n"
+                + "\n".join(case.residual_outputs)
+                + "\n\nResidual baseline\n-----------------\n"
                 + case.residual_baseline
-                + "\\n\\nAnalytical references (declared; not automatically compared)\\n"
-                "------------------------------------------------------------\\n"
-                + "\\n".join(case.analytical_references)
+                + "\n\nAnalytical references (declared; not automatically compared)\n"
+                "------------------------------------------------------------\n"
+                + "\n".join(case.analytical_references)
             )
 
     def _open_paths(self, paths: tuple[str, ...], label: str) -> None:
