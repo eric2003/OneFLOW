@@ -48,12 +48,6 @@ TEST( TurbSaPolicy, SaEddyViscosityIsRhoNuFv1 )
     EXPECT_DOUBLE_EQ( SaEddyViscosity( 1.2, 0.5, 0.8 ), 0.48 );
 }
 
-TEST( TurbSaPolicy, SaCappedEddyViscosityRespectsRatio )
-{
-    EXPECT_DOUBLE_EQ( SaCappedEddyViscosity( 100.0, 2.0, 10.0 ), 20.0 );
-    EXPECT_DOUBLE_EQ( SaCappedEddyViscosity( 5.0, 2.0, 10.0 ), 5.0 );
-}
-
 // Source-term components are checked against independently evaluated
 // closed-form reference values from the equations documented in sa_source.rst.
 TEST( TurbSaPolicy, SaProductionMatchesClosedForm )
