@@ -57,6 +57,7 @@ public:
     int Rank() const { return rank_; }
     int Size() const { return size_; }
     bool IsEnvironmentReady() const { return envReady_; }
+    bool IsProcessEnvironmentActive() const { return processLifecycle_.IsActive(); }
     bool IsTaskResolved() const { return taskResolved_; }
     TaskEnum Task() const { return task_; }
     const std::string& TaskName() const { return taskName_; }
