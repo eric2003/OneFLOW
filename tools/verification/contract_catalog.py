@@ -407,7 +407,7 @@ def validate_contract_summaries(
             *(
                 item.reference
                 for item in summary.evidence
-                if item.kind in ("theory_data", "fixture")
+                if item.kind in ("theory_data", "fixture", "output_manifest")
                 and "/" in item.reference
             ),
             *(
