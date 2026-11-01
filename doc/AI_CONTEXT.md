@@ -1043,3 +1043,18 @@ Follow-up cleanup from the user's GUI test output:
   stream when the reader thread reaches EOF, preventing an unclosed-file
   ResourceWarning. The Windows process test now uses io.StringIO so the
   mocked stream follows the same closeable-file contract.
+
+## Background task stop-state correction (2026-11-01)
+
+The user's Windows run exposed a failure in
+test_background_task_host.test_host_stops_active_process_when_stop_file_appears:
+the task ended as failed instead of stopped. The host now latches the stop
+request as soon as the stop file is observed, performs process-tree termination
+and fallback cleanup, and finalizes as stopped when the requested process has
+been reaped. The test explicitly verifies that its stop-request thread delivered
+the request before asserting the persisted terminal state.
+
+Validation required on Windows:
+
+    python -m unittest tools.oneflow_gui.test_background_task_host
+    python -m unittest tools.oneflow_gui.test_background_task_manager
