@@ -8,6 +8,7 @@
 #include <cstring>
 #include <new>
 #include <memory>
+#include <limits>
 #include <stdexcept>
 #include <string>
 
@@ -290,6 +291,14 @@ TEST( DeviceBufferTest, FailedGrowthReleasesCandidateAndPreservesCurrentBuffer )
     EXPECT_EQ( buffer.Size(), 2u );
     EXPECT_EQ( trackedAllocations, 2 );
     EXPECT_EQ( trackedDeallocations, 1 );
+    EXPECT_THROW(
+        buffer.Resize( ( std::numeric_limits< std::size_t >::max )() ),
+        std::length_error );
+    int hostValues[ 3 ] = {};
+    EXPECT_THROW( buffer.CopyToHost( hostValues, 3 ), std::out_of_range );
+    EXPECT_EQ( buffer.Data(), originalData );
+    EXPECT_EQ( buffer.Size(), 2u );
+    EXPECT_EQ( trackedAllocations, 2 );
 
     EXPECT_NO_THROW( buffer.Reset() );
     EXPECT_EQ( trackedDeallocations, 2 );
