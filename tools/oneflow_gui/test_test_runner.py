@@ -167,7 +167,7 @@ class TestRunnerCommandTest(unittest.TestCase):
             executable = oneflow_executable_path(root, "Debug", platform_name="nt")
             executable.parent.mkdir(parents=True)
             executable.write_bytes(b"test")
-            commands = build_default_test_commands(root, python="python-test")
+            commands = build_default_test_commands(root, python="python-test", platform_name="nt")
             build_action_prefixes = (
                 "CMake configure (",
                 "CMake build (",
@@ -280,6 +280,28 @@ class TestRunnerCommandTest(unittest.TestCase):
             )
             self.assertEqual(staged_command.working_directory, staged_test_directory.resolve())
             self.assertEqual(staged_command.arguments[4], "suites/ci-serial.txt")
+
+    def test_regression_command_uses_posix_mpi_and_shell_quoting(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            test_dir = root / "test"
+            (test_dir / "suites").mkdir(parents=True)
+            (test_dir / "suites" / "linux.txt").write_text("cfd/example\\n", encoding="utf-8")
+            executable = root / "solver with spaces" / "OneFLOW"
+            executable.parent.mkdir(parents=True)
+            executable.write_bytes(b"test")
+
+            command = build_regression_command(
+                root,
+                executable,
+                "linux.txt",
+                python="python3",
+                platform_name="posix",
+            )
+
+            self.assertEqual(command.arguments[2], "mpirun -np 1")
+            self.assertEqual(command.arguments[3], "'" + str(executable.resolve()) + "'")
+            self.assertEqual(command.arguments[4], "suites/linux.txt")
 
     def test_regression_tests_are_copied_and_previous_workspace_is_replaced(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
