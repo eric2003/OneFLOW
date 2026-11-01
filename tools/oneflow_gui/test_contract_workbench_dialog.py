@@ -110,6 +110,13 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             self.assertIn("[RESOLVED] google_test:", evidence_text)
             self.assertIn("Declaration: linked_not_executed", evidence_text)
             self.assertIn("Resolved file:", evidence_text)
+            self.assertIn(
+                "Build target: simu_imp_case_lifecycle_integration_test",
+                evidence_text,
+            )
+            self.assertIn("Build declaration: target_resolved", evidence_text)
+            self.assertIn("CTest discovery declaration: registered", evidence_text)
+            self.assertIn("CTest discovery mode: PRE_TEST", evidence_text)
         finally:
             dialog.close()
 
