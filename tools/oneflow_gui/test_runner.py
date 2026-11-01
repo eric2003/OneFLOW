@@ -24,12 +24,17 @@ def summarize_test_output(output_lines: list[str]) -> tuple[str, ...]:
         r"(FAILED \(([^)]*)\)|OK(?: \(([^)]*)\))?)",
         output,
     )
+    ctest_matches = re.findall(
+        r"(\d+)% tests passed, (\d+) tests failed out of (\d+)",
+        output,
+    )
     if unittest_results:
         total = sum(int(item[0]) for item in unittest_results)
         failed = 0
         skipped = 0
         for _, _, failed_status, ok_status in unittest_results:
             status = failed_status or ok_status or ""
+
             def status_count(name: str) -> int:
                 match = re.search(rf"{name}=(\d+)", status)
                 return int(match.group(1)) if match else 0
