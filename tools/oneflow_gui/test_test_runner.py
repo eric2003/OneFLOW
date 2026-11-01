@@ -317,6 +317,17 @@ class TestRunnerCommandTest(unittest.TestCase):
         self.assertIn("Failure details:", report)
         self.assertIn("AssertionError: expected label was missing", report)
 
+    def test_unittest_output_lists_every_failed_case_name(self) -> None:
+        report = summarize_test_output([
+            "FAIL: test_first (sample.FirstTest)",
+            "ERROR: test_second (sample.SecondTest)",
+            "Ran 5 tests in 0.1s",
+            "FAILED (failures=1, errors=1)",
+        ])
+        self.assertIn("2 failed", report[0])
+        self.assertIn("  - test_first (sample.FirstTest)", report)
+        self.assertIn("  - test_second (sample.SecondTest)", report)
+
     def test_ctest_output_reports_passed_and_failed_test_counts(self) -> None:
         report = summarize_test_output([
             "67% tests passed, 1 tests failed out of 3",
