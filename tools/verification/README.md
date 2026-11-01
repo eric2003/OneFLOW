@@ -316,8 +316,9 @@ Python process can leave those descendants running. The process-control
 module centralizes the host-specific behavior while command construction and
 test execution remain platform-neutral.
 
-The focused tests include a real POSIX parent/child process tree and a
-platform-independent test of the Windows tree-termination command. The
-Windows and Ubuntu CI matrix runs the same test module. A real MPI regression
-stop should still be checked on each supported host because MPI launchers may
-have implementation-specific process management behavior.
+The focused tests exercise a real parent/child process tree on both native
+platforms: POSIX process groups on Linux/macOS and `taskkill /T` on Windows.
+The Windows-specific command fallback is also tested with a controlled fake
+process. The Ubuntu and Windows CI matrix runs the same test module. A real MPI
+regression stop should still be checked on each supported host because MPI
+launchers may have implementation-specific process management behavior.
