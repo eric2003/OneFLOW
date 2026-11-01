@@ -449,7 +449,7 @@ class ContractCatalogTest(unittest.TestCase):
                         kind="google_test",
                         reference="EvidenceSuite.Present",
                         status="linked_not_executed",
-                        scope="EvidenceTest.cpp",
+                        scope="EvidenceTest.cpp; synthetic test source.",
                     ),
                     ContractEvidence(
                         kind="analytical_reference",
