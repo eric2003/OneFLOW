@@ -266,7 +266,7 @@ class ContractCatalogTest(unittest.TestCase):
                 f"missing repository file: {manifest_reference}" in issue
                 for issue in issues
             ),
-            "\\n".join(issues),
+            "\n".join(issues),
         )
 
     def test_importing_scenarios_does_not_load_pipeline_runner(self) -> None:
