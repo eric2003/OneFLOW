@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Theory curve plot for Contract Workbench (readable ASCII axis labels)."""
 from __future__ import annotations
 import argparse, csv, sys
 from pathlib import Path
 
-def main() -> None:
+def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--csv", type=Path, required=True)
     ap.add_argument("--out", type=Path, required=True)
@@ -22,18 +21,15 @@ def main() -> None:
             xs.append(float(row["dq"]))
             ys.append(float(row["contrib"]))
     fig, ax = plt.subplots(figsize=(7.0, 4.2))
-    ax.plot(xs, ys, lw=2.0, color="C0", label="Delta r")
-    pass
+    ax.plot(xs, ys, lw=2.0, color="C6", label='$\\Delta r$')
     apply_theory_style(
         ax,
-        xlabel="dq (neighbor state increment)",
-        ylabel="Delta r (residual contribution)",
-        title="LUSGS viscous spectral residual contribution",
-        subtitle="Delta r = -visrad * dq  [ref visrad=2]",
-        legend=True,
+        xlabel='$\\Delta q$',
+        ylabel='$\\Delta r$',
+        title='LUSGS viscous spectral residual contribution',
+        subtitle='$\\Delta r=-\\lambda_{\\mathrm{vis}}\\Delta q$  [ref $\\lambda_{\\mathrm{vis}}=2$]',
     )
     save_figure(fig, args.out)
-    print(f"wrote {args.out}")
 
 if __name__ == "__main__":
     main()

@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Theory curve plot for Contract Workbench (readable ASCII axis labels)."""
 from __future__ import annotations
 import argparse, csv, sys
 from pathlib import Path
 
-def main() -> None:
+def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--csv", type=Path, required=True)
     ap.add_argument("--out", type=Path, required=True)
@@ -22,18 +21,15 @@ def main() -> None:
             xs.append(float(row["nu_eff"]))
             ys.append(float(row["lambda_diff"]))
     fig, ax = plt.subplots(figsize=(7.0, 4.2))
-    ax.plot(xs, ys, lw=2.0, color="C0", label="lambda_diff")
-    pass
+    ax.plot(xs, ys, lw=2.0, color="C5", label='$\\lambda_{\\mathrm{diff}}$')
     apply_theory_style(
         ax,
-        xlabel="nu_eff (effective kinematic viscosity)",
-        ylabel="lambda_diff",
-        title="Turbulence diffusive face spectral radius",
-        subtitle="lambda_diff=(1/Re)(1/sigma)*nu_eff*A^2/V  [ref => lambda=2*nu_eff]",
-        legend=True,
+        xlabel='$\\nu_{\\mathrm{eff}}$',
+        ylabel='$\\lambda_{\\mathrm{diff}}$',
+        title='Turbulence diffusive face spectral radius',
+        subtitle='$\\lambda_{\\mathrm{diff}}=\\frac{1}{Re}\\frac{1}{\\sigma}\\nu_{\\mathrm{eff}}\\frac{A^{2}}{V}$  [ref $\\Rightarrow 2\\nu_{\\mathrm{eff}}$]',
     )
     save_figure(fig, args.out)
-    print(f"wrote {args.out}")
 
 if __name__ == "__main__":
     main()

@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Theory curve plot for Contract Workbench (readable ASCII axis labels)."""
 from __future__ import annotations
 import argparse, csv, sys
 from pathlib import Path
 
-def main() -> None:
+def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--csv", type=Path, required=True)
     ap.add_argument("--out", type=Path, required=True)
@@ -22,18 +21,15 @@ def main() -> None:
             xs.append(float(row["abs_vn"]))
             ys.append(float(row["lambda_inv"]))
     fig, ax = plt.subplots(figsize=(7.0, 4.2))
-    ax.plot(xs, ys, lw=2.0, color="C0", label="lambda_inv")
-    pass
+    ax.plot(xs, ys, lw=2.0, color="C0", label='$\\lambda_{\\mathrm{inv}}$')
     apply_theory_style(
         ax,
-        xlabel="|vn| (mid-face normal speed)",
-        ylabel="lambda_inv",
-        title="Turbulence inviscid face spectral radius",
-        subtitle="lambda_inv = (A/2)*|vn|  [ref A=2 => lambda=|vn|]",
-        legend=True,
+        xlabel='$|v_n|$',
+        ylabel='$\\lambda_{\\mathrm{inv}}$',
+        title='Turbulence inviscid face spectral radius',
+        subtitle='$\\lambda_{\\mathrm{inv}}=\\frac{A}{2}|v_n|$  [ref $A=2$]',
     )
     save_figure(fig, args.out)
-    print(f"wrote {args.out}")
 
 if __name__ == "__main__":
     main()

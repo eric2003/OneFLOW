@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Theory curve plot for Contract Workbench (readable ASCII axis labels)."""
 from __future__ import annotations
 import argparse, csv, sys
 from pathlib import Path
 
-def main() -> None:
+def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--csv", type=Path, required=True)
     ap.add_argument("--out", type=Path, required=True)
@@ -22,18 +21,15 @@ def main() -> None:
             xs.append(float(row["chi"]))
             ys.append(float(row["fv1"]))
     fig, ax = plt.subplots(figsize=(7.0, 4.2))
-    ax.plot(xs, ys, lw=2.0, color="C0", label="fv1(chi)")
-    pass
+    ax.plot(xs, ys, lw=2.0, color="C0", label='$f_{v1}(\\chi)$')
     apply_theory_style(
         ax,
-        xlabel="chi = nu_tilde / nu",
-        ylabel="fv1",
-        title="SA eddy-viscosity damping fv1(chi)",
-        subtitle="fv1 = chi^3 / (chi^3 + cv1^3), cv1=7.1",
-        legend=True,
+        xlabel='$\\chi=\\tilde\\nu/\\nu$',
+        ylabel='$f_{v1}$',
+        title='SA eddy-viscosity damping $f_{v1}(\\chi)$',
+        subtitle='$f_{v1}=\\chi^{3}/(\\chi^{3}+c_{v1}^{3}),\\quad c_{v1}=7.1$',
     )
     save_figure(fig, args.out)
-    print(f"wrote {args.out}")
 
 if __name__ == "__main__":
     main()

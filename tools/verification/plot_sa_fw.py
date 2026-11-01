@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Theory curve plot for Contract Workbench (readable ASCII axis labels)."""
 from __future__ import annotations
 import argparse, csv, sys
 from pathlib import Path
 
-def main() -> None:
+def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--csv", type=Path, required=True)
     ap.add_argument("--out", type=Path, required=True)
@@ -22,18 +21,15 @@ def main() -> None:
             xs.append(float(row["r"]))
             ys.append(float(row["fw"]))
     fig, ax = plt.subplots(figsize=(7.0, 4.2))
-    ax.plot(xs, ys, lw=2.0, color="C0", label="fw(r)")
-    pass
+    ax.plot(xs, ys, lw=2.0, color="C0", label='$f_w(r)$')
     apply_theory_style(
         ax,
-        xlabel="r (destruction ratio, capped at 10)",
-        ylabel="fw",
-        title="SA wall destruction function fw(r)",
-        subtitle="fw = g * ((1+cw3^6)/(g^6+cw3^6))^(1/6)",
-        legend=True,
+        xlabel='$r=\\min(\\tilde\\nu/(\\tilde S \\kappa^{2} d^{2}), 10)$',
+        ylabel='$f_w$',
+        title='SA wall destruction $f_w(r)$',
+        subtitle='$g=r+c_{w2}(r^{6}-r),\\quad f_w=g[(1+c_{w3}^{6})/(g^{6}+c_{w3}^{6})]^{1/6}$',
     )
     save_figure(fig, args.out)
-    print(f"wrote {args.out}")
 
 if __name__ == "__main__":
     main()

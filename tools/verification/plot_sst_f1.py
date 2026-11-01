@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Theory curve plot for Contract Workbench (readable ASCII axis labels)."""
 from __future__ import annotations
 import argparse, csv, sys
 from pathlib import Path
 
-def main() -> None:
+def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--csv", type=Path, required=True)
     ap.add_argument("--out", type=Path, required=True)
@@ -22,18 +21,15 @@ def main() -> None:
             xs.append(float(row["arg1"]))
             ys.append(float(row["F1"]))
     fig, ax = plt.subplots(figsize=(7.0, 4.2))
-    ax.plot(xs, ys, lw=2.0, color="C0", label="F1")
-    pass
+    ax.plot(xs, ys, lw=2.0, color="C0", label='$F_1$')
     apply_theory_style(
         ax,
-        xlabel="arg1 (blending argument)",
-        ylabel="F1",
-        title="SST blending function F1(arg1)",
-        subtitle="F1 = tanh(arg1^4)",
-        legend=True,
+        xlabel='$\\mathrm{arg}_1$',
+        ylabel='$F_1$',
+        title='SST blending $F_1$',
+        subtitle='$F_1=\\tanh(\\mathrm{arg}_1^{4})$',
     )
     save_figure(fig, args.out)
-    print(f"wrote {args.out}")
 
 if __name__ == "__main__":
     main()

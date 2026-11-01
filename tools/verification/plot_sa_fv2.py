@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Theory curve plot for Contract Workbench (readable ASCII axis labels)."""
 from __future__ import annotations
 import argparse, csv, sys
 from pathlib import Path
 
-def main() -> None:
+def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--csv", type=Path, required=True)
     ap.add_argument("--out", type=Path, required=True)
@@ -22,18 +21,15 @@ def main() -> None:
             xs.append(float(row["chi"]))
             ys.append(float(row["fv2"]))
     fig, ax = plt.subplots(figsize=(7.0, 4.2))
-    ax.plot(xs, ys, lw=2.0, color="C0", label="fv2(chi)")
-    pass
+    ax.plot(xs, ys, lw=2.0, color="C0", label='$f_{v2}(\\chi)$')
     apply_theory_style(
         ax,
-        xlabel="chi = nu_tilde / nu",
-        ylabel="fv2",
-        title="SA strain correction fv2(chi)",
-        subtitle="fv2 = 1 - chi/(1 + chi*fv1)",
-        legend=True,
+        xlabel='$\\chi=\\tilde\\nu/\\nu$',
+        ylabel='$f_{v2}$',
+        title='SA strain correction $f_{v2}(\\chi)$',
+        subtitle='$f_{v2}=1-\\chi/(1+\\chi f_{v1})$',
     )
     save_figure(fig, args.out)
-    print(f"wrote {args.out}")
 
 if __name__ == "__main__":
     main()

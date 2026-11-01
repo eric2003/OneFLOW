@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Theory curve plot for Contract Workbench (readable ASCII axis labels)."""
 from __future__ import annotations
 import argparse, csv, sys
 from pathlib import Path
 
-def main() -> None:
+def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--csv", type=Path, required=True)
     ap.add_argument("--out", type=Path, required=True)
@@ -22,18 +21,15 @@ def main() -> None:
             xs.append(float(row["xk"]))
             ys.append(float(row["fk"]))
     fig, ax = plt.subplots(figsize=(7.0, 4.2))
-    ax.plot(xs, ys, lw=2.0, color="C0", label="fk(xk)")
-    pass
+    ax.plot(xs, ys, lw=2.0, color="C3", label=r"$f_k(x_k)$")
     apply_theory_style(
         ax,
-        xlabel="xk (cross-diffusion parameter)",
-        ylabel="fk",
-        title="Wilcox beta-star modifier fk(xk)",
-        subtitle="fk=1 (xk<=0); fk=(1+680 xk^2)/(1+400 xk^2) (xk>0)",
-        legend=True,
+        xlabel=r"$x_k$",
+        ylabel=r"$f_k$",
+        title=r"Wilcox $\beta^*$ modifier $f_k(x_k)$",
+        subtitle=r"$f_k=1$ ($x_k<=0$); $(1+680 x_k^{2})/(1+400 x_k^{2})$ ($x_k>0$)",
     )
     save_figure(fig, args.out)
-    print(f"wrote {args.out}")
 
 if __name__ == "__main__":
     main()

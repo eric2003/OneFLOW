@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Theory curve plot for Contract Workbench (readable ASCII axis labels)."""
 from __future__ import annotations
 import argparse, csv, sys
 from pathlib import Path
 
-def main() -> None:
+def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--csv", type=Path, required=True)
     ap.add_argument("--out", type=Path, required=True)
@@ -22,18 +21,15 @@ def main() -> None:
             xs.append(float(row["arg2"]))
             ys.append(float(row["F2"]))
     fig, ax = plt.subplots(figsize=(7.0, 4.2))
-    ax.plot(xs, ys, lw=2.0, color="C0", label="F2")
-    pass
+    ax.plot(xs, ys, lw=2.0, color="C1", label='$F_2$')
     apply_theory_style(
         ax,
-        xlabel="arg2 (eddy-viscosity limiter argument)",
-        ylabel="F2",
-        title="SST limiter function F2(arg2)",
-        subtitle="F2 = tanh(arg2^2)",
-        legend=True,
+        xlabel='$\\mathrm{arg}_2$',
+        ylabel='$F_2$',
+        title='SST limiter $F_2$',
+        subtitle='$F_2=\\tanh(\\mathrm{arg}_2^{2})$',
     )
     save_figure(fig, args.out)
-    print(f"wrote {args.out}")
 
 if __name__ == "__main__":
     main()
