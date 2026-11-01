@@ -17,19 +17,19 @@ def summarize_test_output(output_lines: list[str]) -> tuple[str, ...]:
     """Extract framework test counts and actionable failure details from output."""
     import re
 
-    output = "\\n".join(output_lines)
+    output = "\n".join(output_lines)
     summary: list[str] = []
     unittest_runs = [
         int(value)
-        for value in re.findall(r"Ran (\\d+) tests?", output)
+        for value in re.findall(r"Ran (\d+) tests?", output)
     ]
     ctest_matches = re.findall(
-        r"(\\d+)% tests passed, (\\d+) tests failed out of (\\d+)",
+        r"(\d+)% tests passed, (\d+) tests failed out of (\d+)",
         output,
     )
     if unittest_runs:
         summary.append(f"Python unittest cases: {sum(unittest_runs)} run.")
-        failure_match = re.search(r"FAILED \\(([^)]+)\\)", output)
+        failure_match = re.search(r"FAILED \(([^)]+)\)", output)
         if failure_match:
             summary.append(f"Python unittest failures: {failure_match.group(1)}.")
     if ctest_matches:
