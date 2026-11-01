@@ -4,7 +4,10 @@ from __future__ import annotations
 
 import unittest
 
-from tools.oneflow_gui.test_diagnostics import parse_test_diagnostics
+from tools.oneflow_gui.test_diagnostics import (
+    format_failure_summary,
+    parse_test_diagnostics,
+)
 
 
 class TestDiagnosticParserTest(unittest.TestCase):
@@ -37,11 +40,34 @@ class TestDiagnosticParserTest(unittest.TestCase):
         self.assertEqual(item.exception_type, "AssertionError")
         self.assertEqual(item.message, "expected true")
         self.assertEqual(item.configuration, "Debug")
-        self.assertEqual(item.working_directory, "D:/repo")
+        self.assertEqual(item.working_directory.replace("\\", "/"), "D:/repo")
         self.assertEqual(item.exit_code, 1)
         self.assertEqual(item.contract_ids, ("runtime/process-lifecycle",))
         self.assertEqual(item.verification_impact, "requires_review")
         self.assertEqual(item.to_dict()["contract_ids"], ["runtime/process-lifecycle"])
+
+    def test_final_failure_summary_lists_case_location_and_cause(self) -> None:
+        records = parse_test_diagnostics(
+            [
+                "FAIL: test_expected_value (sample.TestContract)",
+                "Traceback (most recent call last):",
+                '  File "tests/test_contract.py", line 42, in test_expected_value',
+                "AssertionError: expected value was 7",
+                "Ran 1 test in 0.01s",
+                "FAILED (failures=1)",
+            ],
+            task_label="Contract tests",
+            framework="unittest",
+            exit_code=1,
+        )
+        report = format_failure_summary(records)
+        self.assertEqual(report[0], "Failed test cases:")
+        self.assertIn(
+            "  - test_expected_value (sample.TestContract) [Contract tests]",
+            report,
+        )
+        self.assertIn("      Location: tests/test_contract.py:42", report)
+        self.assertIn("      Cause: AssertionError: expected value was 7", report)
 
     def test_unittest_error_without_source_location_keeps_unknown_fields_empty(self) -> None:
         records = parse_test_diagnostics(
