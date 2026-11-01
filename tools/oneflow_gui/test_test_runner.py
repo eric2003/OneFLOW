@@ -39,6 +39,7 @@ class TestRunnerCommandTest(unittest.TestCase):
         self.assertTrue({
             "tools.verification.test_curve_catalog",
             "tools.verification.test_contract_catalog",
+            "tools.verification.test_cmake_test_catalog",
             "tools.oneflow_gui.test_contract_workbench_dialog",
             "tools.oneflow_gui.test_test_inventory",
         }.issubset(python_modules))
@@ -308,6 +309,11 @@ class TestRunnerCommandTest(unittest.TestCase):
             "FAILED (failures=1)",
         ])
         self.assertIn("Python unittest cases: 3 run, 2 passed, 1 failed, 0 skipped.", report)
+        self.assertIn("Failed unittest cases:", report)
+        self.assertIn(
+            "  - test_case_domain_displays_typed_case_setup_tab (sample.TestCase)",
+            report,
+        )
         self.assertIn("Failure details:", report)
         self.assertIn("AssertionError: expected label was missing", report)
 
