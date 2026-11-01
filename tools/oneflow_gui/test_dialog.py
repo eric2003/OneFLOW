@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import subprocess
 import threading
+from datetime import datetime, timezone
 from pathlib import Path
 
 from PySide6.QtCore import QThread, Signal, Qt
@@ -40,6 +41,7 @@ from .test_runner import (
     stage_regression_tests,
     summarize_test_output,
 )
+from .test_diagnostics import parse_test_diagnostics
 
 
 class TestCommandWorker(QThread):
@@ -48,6 +50,7 @@ class TestCommandWorker(QThread):
     output_line = Signal(str)
     completed = Signal(bool, str)
     command_completed = Signal(object)
+    diagnostics = Signal(object)
 
     def __init__(self, commands: list[TestCommand]) -> None:
         super().__init__()
@@ -83,6 +86,7 @@ class TestCommandWorker(QThread):
                 return
             self.output_line.emit(f"\n=== {command.label} ===")
             self.output_line.emit("$ " + subprocess.list2cmdline(list(command.arguments)))
+            started_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
             try:
                 if command.label.startswith("CMake configure"):
                     command.working_directory.mkdir(parents=True, exist_ok=True)
@@ -137,6 +141,30 @@ class TestCommandWorker(QThread):
                 self.completed.emit(False, "Test run cancelled.")
                 return
             if return_code != 0:
+                finished_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
+                configuration = None
+                for index, argument in enumerate(command.arguments[:-1]):
+                    if argument == "-C":
+                        configuration = command.arguments[index + 1]
+                        break
+                    if argument.startswith("CMAKE_BUILD_TYPE="):
+                        configuration = argument.split("=", 1)[1]
+                framework = "GoogleTest" if "CTest" in command.label else (
+                    "unittest" if "unittest" in command.arguments else ""
+                )
+                if framework:
+                    records = parse_test_diagnostics(
+                        command_output,
+                        task_label=command.label,
+                        framework=framework,
+                        configuration=configuration,
+                        working_directory=command.working_directory,
+                        started_at=started_at,
+                        finished_at=finished_at,
+                        exit_code=return_code,
+                    )
+                    if records:
+                        self.diagnostics.emit(records)
                 self.command_completed.emit(
                     TaskRunResult(
                         task_type=command.task_type,
@@ -447,6 +475,7 @@ class TestRunnerDialog(QDialog):
         self._worker.output_line.connect(self.log_view.appendPlainText)
         self._worker.completed.connect(self._completed)
         self._worker.command_completed.connect(self._command_completed)
+        self._worker.diagnostics.connect(self._show_diagnostics)
         self._worker.finished.connect(self._worker_finished)
         self._worker.start()
 
@@ -466,6 +495,30 @@ class TestRunnerDialog(QDialog):
             f"RESULT: {result.task_type.value} / {result.status.value} "
             f"/ exit={result.return_code} / cwd={result.execution_directory}"
         )
+
+    def _show_diagnostics(self, diagnostics) -> None:
+        for item in diagnostics:
+            location = item.source_file or "unknown"
+            if item.source_line is not None:
+                location += f":{item.source_line}"
+            cause = item.exception_type or "unknown"
+            if item.message:
+                cause += f": {item.message}"
+            self.log_view.appendPlainText(
+                "\nSTRUCTURED FAILURE"
+                f"\n  Task: {item.task_label}"
+                f"\n  Framework: {item.framework}"
+                f"\n  Test: {item.test_id or 'unknown'}"
+                f"\n  Location: {location}"
+                f"\n  Cause: {cause}"
+                f"\n  Configuration: {item.configuration or 'unknown'}"
+                f"\n  Working directory: {item.working_directory or 'unknown'}"
+                f"\n  Started: {item.started_at or 'unknown'}"
+                f"\n  Finished: {item.finished_at or 'unknown'}"
+                f"\n  Exit code: {item.exit_code}"
+                f"\n  Contract links: {', '.join(item.contract_ids) or 'not resolved'}"
+                f"\n  Verification impact: {item.verification_impact}"
+            )
 
     def _completed(self, passed: bool, message: str) -> None:
         self.log_view.appendPlainText(f"\n{message}")
