@@ -1259,3 +1259,53 @@ Latest focused-slice commits include:
 The exact latest hexin HEAD at this handoff is
 `bd8bf7ef0cb1fb881307c10f7f00630906a05c3b`. No CI status was reported for
 this direct branch commit and no local Windows test run is claimed.
+
+
+## 2026-11-01: visible cross-domain Contract Workbench entry
+
+The user explicitly requested that the Contract Workbench be visible in the
+desktop interface, with distinct entry points for Formula/Knowledge, Geometry,
+Case, and Runtime. This request supersedes the earlier temporary instruction
+to avoid expanding `tools/oneflow_gui` for this specific feature. The repository
+root `gui/` remains out of scope.
+
+Implemented on `hexin`:
+- Added `tools/oneflow_gui/contract_workbench_dialog.py`.
+- Added a domain hub with Formula & Knowledge, Geometry, Case, and Runtime
+  buttons.
+- Formula & Knowledge routes to the existing
+  `VerificationCurveDialog` (the existing title already identifies it as
+  Contract Workbench — Formula knowledge).
+- Geometry routes to the existing `GeometryContractDialog`.
+- Case and Runtime open a shared read-only `ContractDomainDialog` driven by
+  `load_contract_catalog()`.
+- Case view adds a typed Case Setup tab for suite, solver, physics, mesh/input,
+  compared outputs, residual policy, and analytical reference paths.
+- Runtime uses the shared Overview, Principle, Architecture,
+  Implementation/Code, Documentation/References, and Verification tabs.
+- Replaced the two separate home-page Geometry Contracts and Verification
+  Curves buttons with one **Contract Workbench...** entry.
+- Added `test_contract_workbench_dialog.py` for domain buttons and Case/Runtime
+  navigation, and registered it as the 42nd Python command in
+  `test_runner.py`.
+- Updated `tools/oneflow_gui/README.md` and the Chinese
+  `doc/source/workbench_user_guide_zh.rst`.
+
+The new UI is a presentation layer only. It does not execute C++ tests, run CFD,
+or upgrade evidence statuses. Existing Formula and Geometry domain tools remain
+in place; this is an incremental integration rather than a rewrite. Workflow
+and Performance buttons are intentionally deferred until their typed contracts
+have grounded repository content.
+
+Focused validation to run locally:
+```powershell
+python -m unittest tools.oneflow_gui.test_contract_workbench_dialog
+python -m unittest tools.verification.test_contract_catalog
+python -m unittest tools.verification.test_curve_catalog
+```
+Then run all registered Python commands and the full CTest suite. The previous
+1126/1126 and 41-command pass results predate this UI integration; no local
+Windows test result is claimed for these commits.
+
+Latest `hexin` HEAD for this handoff:
+`80cf903f178cf060f427ccc1d67062ae4ea0116a`.
