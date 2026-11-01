@@ -42,6 +42,7 @@ class TestRunnerCommandTest(unittest.TestCase):
             "tools.verification.test_cmake_test_catalog",
             "tools.oneflow_gui.test_contract_workbench_dialog",
             "tools.oneflow_gui.test_test_inventory",
+            "tools.oneflow_gui.test_test_diagnostics",
         }.issubset(python_modules))
         self.assertTrue(all(command.task_type is TaskType.UNIT_TESTS for command in commands))
         self.assertFalse(any("OneFLOW.exe" in " ".join(command.arguments) for command in commands))
