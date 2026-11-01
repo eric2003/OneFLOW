@@ -1,10 +1,10 @@
 # AI and Developer Project Context
 
 Last updated: 2026-11-01
-Working branch: `hexin` only. Inspected `hexin` base before the sequential-case slice: `4ad8f02c7405be4205750e9473b9f87f16acb985`. Latest implementation commit: `0d3597ee004ff4830b4d16433df7e315d1b6323a`.
-User-reported local validation on the pre-change base: **1110/1110 tests passed**. This does not validate the sequential-case test added afterward.
+Working branch: `hexin` only. Latest inspected accelerator-buffer baseline: `d9e25a7b671e6104c0d116ae5c561e5d12ba09d0`. Current implementation HEAD: `3bd2bf84ca4f7b2abd71be94e2e77faf513ffffa`.
+User-reported local validation on the pre-change baseline: **1119/1119 tests passed**. This does not validate the DeviceBuffer changes added afterward.
 
-## Current focus: R1 case configuration rollback and lifecycle
+## Previous mainline: R1 case configuration rollback and lifecycle
 
 The mainline is to make the production case bootstrap exception-safe without confusing configuration rollback with full solver teardown.
 
@@ -44,13 +44,13 @@ transactional backend initialization work. Inspected starting HEAD: d9e25a7b671e
 
 - DeviceBuffer<T>::Resize() previously leaked its replacement allocation if device-to-device copy failed.
 - Its destructor and noexcept move assignment called a backend deallocator that may throw.
-- The implementation now guards candidate allocations, preserves the old buffer on allocation/copy failure, commits replacement ownership before releasing the old allocation, and uses non-throwing cleanup from destruction/move assignment.
+- The implementation now guards candidate allocations, preserves the old buffer on allocation/copy failure, rejects byte-count overflow and out-of-capacity host copies, commits replacement ownership before releasing the old allocation, and uses non-throwing cleanup from destruction/move assignment.
 - Explicit Reset() reports release errors but clears object ownership first. Buffers must still be released before accelerator runtime finalization; a destructor cannot free through a backend that has already been finalized.
 - Focused fake-backend tests cover failed growth cleanup/original-buffer preservation and non-throwing destruction.
 - Design record: [DeviceBuffer resource lifecycle](plans/device-buffer-resource-lifecycle.md).
 
 Implementation commits: [9728e46](https://github.com/eric2003/OneFLOW/commit/9728e46f97204a04a0bc188e770fde2e3d453e23), [01b63aa](https://github.com/eric2003/OneFLOW/commit/01b63aa1b1380e295eba9c2dfd4912a09612f56a).
-Status: **Implemented, unverified**. No local compiler/CTest execution is available in this environment. Next action is to build and run accel_runtime_test, then the full Debug CTest suite and CPU regression cases on the exact updated HEAD.
+Status: **Implemented, unverified**. Exact-HEAD Linux and Windows CI runs have been triggered and were in progress at the last check. No local compiler/CTest execution is available in this environment. Next action is to build and run accel_runtime_test, then the full Debug CTest suite and CPU regression cases on the exact updated HEAD.
 
 ## 1. Read this first
 
