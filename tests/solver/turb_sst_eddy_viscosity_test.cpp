@@ -46,7 +46,8 @@ TEST( TurbSstEddyViscosity, ProductionOptionSelectsStrainRate )
 TEST( TurbSstEddyViscosity, OtherProductionOptionsSelectVorticity )
 {
     const Real expectedVorticity = 2.0;
-    for ( int productionOption : { 0, 2, -1 } )
+    const int productionOptions[] = { 0, 2, -1 };
+    for ( int productionOption : productionOptions )
     {
         EXPECT_DOUBLE_EQ(
             SstLimitingRateMagnitude(
