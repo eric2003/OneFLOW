@@ -12,9 +12,11 @@ License
 ----------------------------------------------------------------------------*/
 
 #include "AccelBackend.h"
+#include "SimuCaseLifecycle.h"
 #include "DataBase.h"
 #include "Prj.h"
 #include "SimuImp.h"
+#include "SimuTask.h"
 
 #include <gtest/gtest.h>
 
@@ -24,6 +26,7 @@ License
 #include <fstream>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 using namespace ONEFLOW;
 
@@ -86,6 +89,19 @@ public:
 
 private:
     std::filesystem::path path_;
+};
+
+std::vector<std::string> successfulCaseMarkers;
+
+class CaseMarkerTask final : public ISimuTask
+{
+public:
+    void Execute( SimuContext & /*context*/ ) override
+    {
+        successfulCaseMarkers.push_back(
+            GetDataValue<std::string>(
+                "case_marker", &RequireGlobalDataBase() ) );
+    }
 };
 
 class ProcessRuntimeGuard
@@ -166,6 +182,82 @@ TEST( SimuImpCaseLifecycleIntegration,
     EXPECT_TRUE( context.IsProcessEnvironmentActive() );
     EXPECT_NO_THROW( simulation.FinalizeEnvironment() );
     EXPECT_FALSE( context.IsProcessEnvironmentActive() );
+}
+
+
+TEST( SimuImpCaseLifecycleIntegration,
+      SuccessfulCasesRemainIsolatedWithinOneProcess )
+{
+    TemporaryCase firstCase;
+    TemporaryCase secondCase;
+
+    firstCase.WriteManifest( "\"case.txt\";\\n" );
+    firstCase.WriteScript(
+        "case.txt",
+        "string simutask = \"ToyModel\";\\n"
+        "string case_marker = \"first_case\";\\n" );
+
+    secondCase.WriteManifest( "\"case.txt\";\\n" );
+    secondCase.WriteScript(
+        "case.txt",
+        "string simutask = \"ToyModel\";\\n"
+        "string case_marker = \"second_case\";\\n" );
+
+    successfulCaseMarkers.clear();
+    TaskRegistry::Instance().Register(
+        "ToyModel",
+        []() { return std::make_unique<CaseMarkerTask>(); } );
+
+    Prj::Init();
+    SimuContext processContext( std::vector<std::string>{} );
+    const std::vector<std::string> caseDirectories{
+        firstCase.Directory(), secondCase.Directory()
+    };
+    std::vector<bool> caseStateCleared;
+    std::vector<bool> processRuntimeStayedActive;
+
+    EXPECT_NO_THROW(
+        SimuCaseLifecycleDetail::RunCasesWithProcessLifecycle(
+            [&]() { processContext.SetupProcessEnvironment(); },
+            caseDirectories,
+            [&]( const std::string & caseDirectory )
+            {
+                SimuImp caseSimulation( caseDirectory, false );
+                caseSimulation.RunCase();
+
+                const SimuContext & caseContext = caseSimulation.Context();
+                bool markerWasCleared = false;
+                try
+                {
+                    (void)GetDataValue<std::string>(
+                        "case_marker", &RequireGlobalDataBase() );
+                }
+                catch ( const std::runtime_error & )
+                {
+                    markerWasCleared = true;
+                }
+
+                caseStateCleared.push_back(
+                    ! caseContext.IsEnvironmentReady()
+                    && ! caseContext.IsTaskResolved()
+                    && ! caseContext.HasExpandedSolverNames()
+                    && Prj::prjBaseDir.empty()
+                    && markerWasCleared );
+                processRuntimeStayedActive.push_back(
+                    processContext.IsProcessEnvironmentActive() );
+            },
+            [&]() { processContext.FinalizeEnvironment(); } ) );
+
+    EXPECT_EQ(
+        successfulCaseMarkers,
+        ( std::vector<std::string>{ "first_case", "second_case" } ) );
+    ASSERT_EQ( caseStateCleared.size(), 2u );
+    EXPECT_TRUE( caseStateCleared[ 0 ] );
+    EXPECT_TRUE( caseStateCleared[ 1 ] );
+    EXPECT_EQ(
+        processRuntimeStayedActive,
+        ( std::vector<bool>{ true, true } ) );
+    EXPECT_FALSE( processContext.IsProcessEnvironmentActive() );
 }
 
 } // namespace
