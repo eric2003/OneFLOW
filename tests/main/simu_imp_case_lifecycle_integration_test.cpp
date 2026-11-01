@@ -131,7 +131,7 @@ TEST( SimuImpCaseLifecycleIntegration,
     SimuContext & context = simulation.Context();
 
     // Seed context-owned state so the real TeardownCase reset is observable.
-    context.SetTaskByName( "Solve" );
+    context.SetTask( TaskEnum::SOLVE_FIELD );
     StringField expandedNames;
     expandedNames.push_back( "UNsSolver" );
     context.SetExpandedSolverNames( expandedNames );
