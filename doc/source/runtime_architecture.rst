@@ -702,7 +702,7 @@ SimuContext::TeardownCase releases case-owned resources in dependency order:
 accelerator-backed state and shared backend buffers first, solver and physics
 state next, then zone/field/database state, and finally case log and
 project-path bindings. The process-level accelerator and parallel runtimes
-remain alive until the process owner calls FinalizeEnvironment(). Process finalization uses the same cleanup composition: accelerator finalization, parallel finalization, and the lifecycle-state transition are all attempted in order, with the first failure rethrown after every step.
+remain alive until the process owner calls FinalizeEnvironment(). Process finalization attempts accelerator and parallel runtime release independently, then commits the lifecycle-state transition only when both release operations succeed. The first release failure is rethrown after both attempts.
 
 Each release/reset is an independent cleanup step. The production teardown
 uses SimuCaseLifecycleDetail::ExecuteAllCleanupSteps() so an exception in
