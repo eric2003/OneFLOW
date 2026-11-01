@@ -26,6 +26,12 @@ Real SaNegativePart( Real x );
 // --- eddy viscosity ---
 Real SaEddyViscosity( Real density, Real nuTilde, Real fv1 );
 
+// @doc-algorithm sa-eddy-viscosity
+// @doc-stage complete-cell-closure
+// @doc-pure
+// @doc-formula chi = rho * nuTilde / (mu_l + SMALL) + SMALL
+// @doc-formula fv1 = chi^3 / (chi^3 + cv1^3)
+// @doc-formula mu_t = min(rho * nuTilde * fv1, r_max * mu_l)
 // Complete per-cell SA eddy-viscosity closure and its intermediate values.
 struct SaEddyViscosityInput
 {
