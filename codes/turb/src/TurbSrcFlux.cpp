@@ -281,14 +281,18 @@ void TurbSrcFlux::CalcSrc()
 
 void TurbSrcFlux::CalcCellVist1Equ()
 {
-    Real olam = turbcom.rho / ( turbcom.visl + SMALL );
-    turbcom.xsi  = SaChi( turbcom.nuet, olam );
-    turbcom.xsi3 = POWER3( turbcom.xsi );
-    turbcom.fv1  = SaFv1( turbcom.xsi, turbcom.cv13 );
+    SaEddyViscosityInput input;
+    input.density = turbcom.rho;
+    input.workingVariable = turbcom.nuet;
+    input.laminarViscosity = turbcom.visl;
+    input.cv1Cubed = turbcom.cv13;
+    input.maxViscosityRatio = turbcom.max_vis_ratio;
 
-    turbcom.vist = SaEddyViscosity( turbcom.rho, turbcom.nuet, turbcom.fv1 );
-    turbcom.vist = TurbCappedEddyViscosity(
-        turbcom.vist, turbcom.visl, turbcom.max_vis_ratio );
+    const SaEddyViscosityResult result = SaComputeEddyViscosity( input );
+    turbcom.xsi = result.chi;
+    turbcom.xsi3 = POWER3( result.chi );
+    turbcom.fv1 = result.fv1;
+    turbcom.vist = result.eddyViscosity;
 }
 
 void TurbSrcFlux::CalcCellVist2Equ()
