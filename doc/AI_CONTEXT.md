@@ -1,7 +1,7 @@
 # AI and Developer Project Context
 
 Last updated: 2026-11-01
-Working branch: `hexin` only. Latest inspected HEAD before this slice: `c57d952708e55e91813155d2c16a1a01a80406c3`.
+Working branch: `hexin` only. Latest inspected HEAD before this slice: `1efc6c3253e3abd6df9f32e07afc38669df24437`.
 User-reported local baseline before this slice: **1096/1096 tests passed**. This is not validation of the subsequent commits.
 
 ## Current focus: R1 case configuration rollback and lifecycle
@@ -26,17 +26,17 @@ System-level reason: case configuration now has a strong failure boundary indepe
 - Runtime implementation commit: [6a325f7](https://github.com/eric2003/OneFLOW/commit/6a325f71ede48251df3d50e9e65d3a98f8b5dafe).
 - Integration assertions and retry test: [4de3f86](https://github.com/eric2003/OneFLOW/commit/4de3f869affe58a5ac495a4cb90f12024bb3a6f7), [729811b](https://github.com/eric2003/OneFLOW/commit/729811b0996c929ec9b566bee643ab13b0897b75).
 - Runtime architecture guide update: [abf2bd2](https://github.com/eric2003/OneFLOW/commit/abf2bd241d2139177630a2a99e7bb21d531e591a).
-- Windows and Linux CI for the runtime/test revision were still in progress at the last poll. Documentation and handoff updates after that revision require exact-HEAD CI checks; do not treat earlier workflows as proof for the final HEAD.
+- Exact-HEAD Sphinx check succeeded; Windows and Linux CI were in progress at the last poll: [Sphinx](https://github.com/eric2003/OneFLOW/actions/runs/41280382266), [Windows](https://github.com/eric2003/OneFLOW/actions/runs/41280382252), [Linux](https://github.com/eric2003/OneFLOW/actions/runs/41280382250).
 - This environment has no mounted OneFLOW Windows checkout, so no local VS2022/MSBuild/CTest result can be produced here.
 - C++ source files remain ASCII-only by default; Python and mathematical presentation may retain useful Unicode characters.
 
 ## Remaining R1 gap
 
-R1 remains **Partial**. The public `SetupCaseEnvironment()` readiness transition and configuration rollback now have production integration coverage. Still missing is a test that exercises the actual `SimuImp::RunCase() -> PostProcess() -> TeardownCase()` wiring after a real setup failure, including the broader solver and accelerator resource cleanup. Avoid linking the full executable source list into a test target merely to reach `SimuImp`; first inspect whether a narrow production-owned orchestration boundary can be exercised without duplicating runtime wiring.
+R1 remains **Partial**. The public `SetupCaseEnvironment()` readiness transition and configuration rollback now have production integration coverage. Still missing is a test that exercises the actual `SimuImp::RunCase() -> PostProcess() -> TeardownCase()` wiring after a real setup failure, including the broader solver and accelerator resource cleanup. Avoid linking the full executable source list into a test target merely to reach `SimuImp`; a source review confirmed that `SimuImp` owns a concrete `SimuContext`, while real `TeardownCase()` is coupled to many solver/global reset symbols in `SimuContextEnv.cpp`. The executable currently has no reusable main-runtime library target. Do not substitute fake teardown and call it end-to-end.
 
 The earlier investigation record remains `doc/plans/setup-case-environment-integration-test.md`. Its original findings are historical; this handoff and `doc/source/runtime_architecture.rst` record the newer rollback behavior.
 
-Next single action: determine the smallest real integration boundary for `SimuImp::RunCase()` cleanup, ideally using the existing production callbacks or a small extracted production method with no duplicate orchestration. Test that setup failure invokes teardown, preserves the original exception if teardown fails, and leaves the process runtime active until `FinalizeEnvironment()`.
+Next single action: inspect `codes/CMakeLists.txt` and its recursive source-collection helper to decide whether a shared production runtime target can be extracted incrementally. Preserve real `SimuImp::RunCase() -> PostProcess() -> TeardownCase()` wiring; then add the failure/cleanup/process-lifetime integration test. Detailed findings are in `doc/plans/setup-case-environment-integration-test.md` (2026-11-01 continuation).
 ## 1. Read this first
 
 For a quick restart, follow this order:
