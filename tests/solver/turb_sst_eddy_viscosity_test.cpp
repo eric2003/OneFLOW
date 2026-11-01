@@ -6,6 +6,32 @@
 
 using namespace ONEFLOW;
 
+TEST( TurbSstEddyViscosity, StrainRateMagnitudeMatchesSymmetricTensorNorm )
+{
+    // A diagonal strain with S11=1 and S22=-1 has |S|=sqrt(2*(1+1))=2.
+    EXPECT_DOUBLE_EQ(
+        SstStrainRateMagnitude(
+            1.0, 0.0, 0.0,
+            0.0, -1.0, 0.0,
+            0.0, 0.0, 0.0 ),
+        2.0 );
+}
+
+TEST( TurbSstEddyViscosity, RateMagnitudesDistinguishShearFromRotation )
+{
+    // du/dy=3 and dv/dx=1 give S12=2, |S|=4 and |Omega|=2.
+    const Real strainRate = SstStrainRateMagnitude(
+        0.0, 3.0, 0.0,
+        1.0, 0.0, 0.0,
+        0.0, 0.0, 0.0 );
+    const Real vorticity = SstVorticityMagnitude(
+        0.0, 3.0, 0.0,
+        1.0, 0.0, 0.0,
+        0.0, 0.0, 0.0 );
+    EXPECT_DOUBLE_EQ( strainRate, 4.0 );
+    EXPECT_DOUBLE_EQ( vorticity, 2.0 );
+}
+
 TEST( TurbSstEddyViscosity, F2ArgTakesMax )
 {
     EXPECT_DOUBLE_EQ( SstF2Arg( 1.0, 3.0 ), 3.0 );
