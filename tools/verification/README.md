@@ -185,3 +185,11 @@ root for `theory_data`, `case_suite`, `output_manifest`,
 references are validated when they are path-shaped; opaque scenario IDs remain
 valid identifiers. Paths must remain inside the repository and point to files.
 This checks declaration integrity only: it does not execute or pass the evidence.
+
+
+### GoogleTest declaration matching
+
+Linked-test validation recognizes `TEST`, `TEST_F`, `TEST_P`,
+`TYPED_TEST`, and `TYPED_TEST_P` declarations. This is a source-declaration
+check only: it does not prove that the test is registered in a built test
+binary or that it has executed.
