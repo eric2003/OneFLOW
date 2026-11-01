@@ -367,8 +367,8 @@ class ContractCatalogTest(unittest.TestCase):
             root = Path(temporary_directory)
             source = root / "TypedContractTest.cpp"
             source.write_text(
-                "TYPED_TEST(TypedSuite, TypedBehavior) {}\\n"
-                "TYPED_TEST_P(RegisteredTypedSuite, RegisteredBehavior) {}\\n",
+                "TYPED_TEST(TypedSuite, TypedBehavior) {}\n"
+                "TYPED_TEST_P(RegisteredTypedSuite, RegisteredBehavior) {}\n",
                 encoding="utf-8",
             )
             summary = ContractSummary(
