@@ -319,7 +319,7 @@ class TestRunnerCommandTest(unittest.TestCase):
         ])
         self.assertIn("CTest cases: 3 run, 2 passed, 1 failed.", report)
         self.assertIn("Failure details:", report)
-        self.assertIn("FaceTopologyTest (Failed)", report)
+        self.assertIn("  2 - FaceTopologyTest (Failed)", report)
 
     def test_multiple_unittest_runs_aggregate_each_failure_count(self) -> None:
         report = summarize_test_output([
