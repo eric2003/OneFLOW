@@ -299,7 +299,10 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             csv_relpath="tools/verification/data/sst_f2_arg2_theory.csv",
             plot_module="plot_sst_f2",
-            pure_apis=("SstF2Arg", "SstF2FromArg", "SstEddyViscosity"),
+            pure_apis=(
+                "SstF2Argument", "SstF2ArgFromTerms",
+                "SstF2FromArg", "SstEddyViscosity",
+            ),
             source_relpaths=(
                 "codes/turb/include/TurbSstPolicy.h",
                 "codes/turb/src/TurbSrcFlux.cpp",
@@ -311,7 +314,10 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "  return std::tanh(arg2 * arg2);\n"
                 "}\n"
             ),
-            proves="F2(arg2)=tanh(arg2^2) curve vs SstF2FromArg; eddy-viscosity algebra samples.",
+            proves=(
+                "Physical-input arg2 construction selects the larger length-scale or viscous term; "
+                "F2(arg2)=tanh(arg2^2) curve and eddy-viscosity algebra samples."
+            ),
             does_not_prove="Wall-resolved SST validation or full mu_t field.",
         ),
         TheoryEntry(
