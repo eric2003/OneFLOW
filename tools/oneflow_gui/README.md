@@ -122,6 +122,35 @@ The shared `TaskRunResult` model establishes a common outcome contract without
 merging the case queue and test-command workers; each runner retains its own
 execution and cancellation semantics.
 
+## Test inventory and execution
+
+The **Repository Test Inventory** is a read-only source browser. It scans C++
+GoogleTest declarations under `tests/` and Python unittest methods under
+`tools/`, then displays their source locations and any explicitly linked
+Geometry scenario input/expected metadata. Discovery does not execute tests
+and does not populate a pass/fail result.
+
+The **Tests > Unit Tests (CTest and Python tests)** action is the execution
+path. CTest runs the native tests registered by the configured CMake build
+tree; the Workbench then runs its explicit Python command registry using the
+selected Python interpreter. The inventory is intentionally broader than this
+execution registry: a discovered Python test is not automatically safe to
+run without considering its arguments, working directory, and dependencies.
+
+The following Contract Workbench modules are included in the GUI Python unit
+suite:
+
+- `tools.verification.test_curve_catalog`: numerical catalog formulas,
+  implementation API references, and source/document/data paths.
+- `tools.verification.test_contract_catalog`: shared Numerical/Geometry
+  adapters, stable IDs, evidence semantics, and repository-reference checks.
+- `tools.oneflow_gui.test_test_inventory`: C++/Python test discovery,
+  explicit scenario linkage, and the rule that discovery never fabricates
+  execution results.
+
+The architecture and rationale are documented in
+[OneFLOW Testing Architecture](../../doc/plans/testing-architecture.md).
+
 ## Service tests
 
 From the repository root:
