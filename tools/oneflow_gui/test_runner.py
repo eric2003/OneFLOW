@@ -28,10 +28,18 @@ def summarize_test_output(output_lines: list[str]) -> tuple[str, ...]:
         output,
     )
     if unittest_runs:
-        summary.append(f"Python unittest cases: {sum(unittest_runs)} run.")
-        failure_match = re.search(r"FAILED \(([^)]+)\)", output)
-        if failure_match:
-            summary.append(f"Python unittest failures: {failure_match.group(1)}.")
+        total = sum(unittest_runs)
+        status_match = re.search(r"(?:FAILED|OK) \(([^)]+)\)", output)
+        status = status_match.group(1) if status_match else ""
+        failure_count = int(re.search(r"failures=(\d+)", status).group(1)) if re.search(r"failures=(\d+)", status) else 0
+        error_count = int(re.search(r"errors=(\d+)", status).group(1)) if re.search(r"errors=(\d+)", status) else 0
+        skipped_count = int(re.search(r"skipped=(\d+)", status).group(1)) if re.search(r"skipped=(\d+)", status) else 0
+        failed = failure_count + error_count
+        passed = max(total - failed - skipped_count, 0)
+        summary.append(
+            f"Python unittest cases: {total} run, {passed} passed, "
+            f"{failed} failed, {skipped_count} skipped."
+        )
     if ctest_matches:
         total = sum(int(item[2]) for item in ctest_matches)
         failed = sum(int(item[1]) for item in ctest_matches)
