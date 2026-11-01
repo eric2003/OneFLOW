@@ -111,6 +111,17 @@ def parse_test_diagnostics(
             block = lines[block_start:index + 1]
             source, line_number = _source_location(block)
             error_type, message = _exception(block)
+            if error_type is None:
+                reason_lines = [
+                    item.strip() for item in block
+                    if item.strip()
+                    and not item.strip().startswith("[ RUN")
+                    and not item.strip().startswith("[ FAILED")
+                    and not re.search(r"((?:[A-Za-z]:)?[^\s:]+\.(?:cpp|cc|cxx|h|hpp)):(\d+)", item)
+                ]
+                if reason_lines:
+                    error_type = "GoogleTestFailure"
+                    message = " | ".join(reason_lines[-4:])
             records.append(TestDiagnostic(
                 task_label, "GoogleTest", name, name, source, line_number,
                 error_type, message, configuration,
