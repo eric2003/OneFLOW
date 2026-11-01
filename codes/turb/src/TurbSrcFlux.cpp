@@ -293,22 +293,29 @@ void TurbSrcFlux::CalcCellVist1Equ()
 
 void TurbSrcFlux::CalcCellVist2Equ()
 {
-    const Real arg2 = SstF2Argument(
-        turbcom.ke, turbcom.kw, turbcom.dist, turbcom.betas,
-        turbcom.visl, turbcom.rho, turbcom.reynolds );
-    const Real f2 = SstF2FromArg( arg2 );
+    SstEddyViscosityInput input;
+    input.kineticEnergy = turbcom.ke;
+    input.omega = turbcom.kw;
+    input.wallDistance = turbcom.dist;
+    input.betaStar = turbcom.betas;
+    input.laminarViscosity = turbcom.visl;
+    input.density = turbcom.rho;
+    input.reynolds = turbcom.reynolds;
+    input.a1 = turbcom.a1;
+    input.maxViscosityRatio = turbcom.max_vis_ratio;
+    input.productionOption = turbcom.iprod_sst;
+    input.dudx = turbcom.dudx;
+    input.dudy = turbcom.dudy;
+    input.dudz = turbcom.dudz;
+    input.dvdx = turbcom.dvdx;
+    input.dvdy = turbcom.dvdy;
+    input.dvdz = turbcom.dvdz;
+    input.dwdx = turbcom.dwdx;
+    input.dwdy = turbcom.dwdy;
+    input.dwdz = turbcom.dwdz;
 
-    const Real limitingRateMagnitude = SstLimitingRateMagnitude(
-        turbcom.iprod_sst,
-        turbcom.dudx, turbcom.dudy, turbcom.dudz,
-        turbcom.dvdx, turbcom.dvdy, turbcom.dvdz,
-        turbcom.dwdx, turbcom.dwdy, turbcom.dwdz );
-
-    turbcom.vist = SstEddyViscosity(
-        turbcom.rho, turbcom.ke, turbcom.kw,
-        limitingRateMagnitude, f2, turbcom.a1, turbcom.reynolds );
-    turbcom.vist = TurbCappedEddyViscosity(
-        turbcom.vist, turbcom.visl, turbcom.max_vis_ratio );
+    const SstEddyViscosityResult result = SstComputeEddyViscosity( input );
+    turbcom.vist = result.eddyViscosity;
 }
 
 
