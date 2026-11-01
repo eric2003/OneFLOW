@@ -60,6 +60,9 @@ public:
     virtual bool IsAccelerator() const = 0;
     virtual bool SupportsMultiDevice() const = 0;
 
+    // Initialize must release any resources it acquires if it throws. The
+    // runtime publishes a backend only after this operation succeeds and does
+    // not call Finalize on a backend whose initialization failed.
     virtual void Initialize( AccelContext & context ) = 0;
     virtual void Finalize() = 0;
     virtual void Synchronize() = 0;
