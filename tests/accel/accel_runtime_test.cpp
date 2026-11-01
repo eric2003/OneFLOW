@@ -2,8 +2,11 @@
 
 #include "AccelBackend.h"
 #include "AccelRuntime.h"
+#include "DeviceBuffer.h"
 
 #include <cstdlib>
+#include <cstring>
+#include <new>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -187,4 +190,71 @@ TEST( AccelRuntimeTest, FailedInitializationDoesNotPublishPartialState )
 
     EXPECT_NO_THROW( runtime.Finalize() );
     EXPECT_FALSE( runtime.IsInitialized() );
+}
+
+TEST( DeviceBufferTest, FailedGrowthReleasesCandidateAndPreservesCurrentBuffer )
+{
+    EnvironmentVariableGuard backendSetting( "ONEFLOW_ACCEL_BACKEND" );
+    SetEnvironmentVariable( "ONEFLOW_ACCEL_BACKEND", "CPU" );
+
+    trackedAllocations = 0;
+    trackedDeallocations = 0;
+    failDeviceCopy = false;
+    throwAfterDeviceDeallocation = false;
+
+    AccelBackendRegistry::Instance().Register(
+        AccelBackendKind::CPU,
+        []() { return std::make_unique< TrackingCpuBackend >(); } );
+
+    AccelRuntimeGuard runtimeGuard;
+    AccelRuntime & runtime = AccelRuntime::Instance();
+    ASSERT_FALSE( runtime.IsInitialized() );
+    ASSERT_NO_THROW( runtime.Initialize( 0, 1 ) );
+
+    DeviceBuffer< int > buffer( 2 );
+    int * originalData = buffer.Data();
+    ASSERT_NE( originalData, nullptr );
+    ASSERT_EQ( buffer.Size(), 2u );
+
+    failDeviceCopy = true;
+    EXPECT_THROW( buffer.Resize( 4 ), std::runtime_error );
+    failDeviceCopy = false;
+
+    EXPECT_EQ( buffer.Data(), originalData );
+    EXPECT_EQ( buffer.Size(), 2u );
+    EXPECT_EQ( trackedAllocations, 2 );
+    EXPECT_EQ( trackedDeallocations, 1 );
+
+    EXPECT_NO_THROW( buffer.Reset() );
+    EXPECT_EQ( trackedDeallocations, 2 );
+}
+
+TEST( DeviceBufferTest, DestructorDoesNotPropagateBackendReleaseFailure )
+{
+    EnvironmentVariableGuard backendSetting( "ONEFLOW_ACCEL_BACKEND" );
+    SetEnvironmentVariable( "ONEFLOW_ACCEL_BACKEND", "CPU" );
+
+    trackedAllocations = 0;
+    trackedDeallocations = 0;
+    failDeviceCopy = false;
+    throwAfterDeviceDeallocation = false;
+
+    AccelBackendRegistry::Instance().Register(
+        AccelBackendKind::CPU,
+        []() { return std::make_unique< TrackingCpuBackend >(); } );
+
+    AccelRuntimeGuard runtimeGuard;
+    AccelRuntime & runtime = AccelRuntime::Instance();
+    ASSERT_FALSE( runtime.IsInitialized() );
+    ASSERT_NO_THROW( runtime.Initialize( 0, 1 ) );
+
+    throwAfterDeviceDeallocation = true;
+    EXPECT_NO_THROW(
+        {
+            DeviceBuffer< int > buffer( 1 );
+        } );
+    throwAfterDeviceDeallocation = false;
+
+    EXPECT_EQ( trackedAllocations, 1 );
+    EXPECT_EQ( trackedDeallocations, 1 );
 }
