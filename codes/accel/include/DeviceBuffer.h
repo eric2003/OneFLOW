@@ -170,6 +170,10 @@ public:
 
     void CopyToHost( T * destination, std::size_t count ) const
     {
+        if ( count > count_ )
+        {
+            throw std::out_of_range( "DeviceBuffer copy exceeds allocated capacity." );
+        }
         AccelRuntime::Instance().Backend().Copy(
             destination, pointer_, count * sizeof( T ), AccelCopyKind::DeviceToHost );
     }
